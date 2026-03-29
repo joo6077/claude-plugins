@@ -1,56 +1,62 @@
 # Sprint Feedback
-Feature: /release 커맨드 스킬
-Evaluated: 2026-03-29 21:00
+Feature: harness init 스킬
+Evaluated: 2026-03-29 14:00
 Verdict: APPROVE
 Iteration: 1
 
 ## Results
 
-### Skill (4/4)
-- [x] SK-01: `.claude/commands/release.md` 파일이 존재한다 — PASS
-  - 근거: `.claude/commands/release.md` 파일 확인됨
-- [x] SK-02: frontmatter에 `description` 필드가 있고 릴리스/버전 bump 관련 설명이 포함되어 있다 — PASS
-  - 근거: `.claude/commands/release.md:2-5` — `description: 플러그인 버전을 bump하고 릴리스한다...`
-- [x] SK-03: frontmatter에 `argument-hint`가 `<plugin-name> <patch|minor|major>` 형식으로 있다 — PASS
-  - 근거: `.claude/commands/release.md:6` — `argument-hint: "<plugin-name> <patch|minor|major>"`
-- [x] SK-04: 스킬 본문에 `$ARGUMENTS` 파싱 규칙이 명시되어 있다 — PASS
-  - 근거: `.claude/commands/release.md:22-27` — `$ARGUMENTS` 형식과 파싱 규칙 명시
+### Skill (7/7)
+- [x] SK-01: `harness/skills/init/SKILL.md` 파일이 존재한다 — PASS
+  - 근거: `harness/skills/init/SKILL.md` 파일 직접 읽기 성공
+- [x] SK-02: frontmatter에 `name: init`이 있다 — PASS
+  - 근거: `harness/skills/init/SKILL.md:2` — `name: init`
+- [x] SK-03: frontmatter에 `user-invocable: true`가 있다 — PASS
+  - 근거: `harness/skills/init/SKILL.md:8` — `user-invocable: true`
+- [x] SK-04: frontmatter에 `argument-hint`가 있고 stack 인자를 안내한다 — PASS
+  - 근거: `harness/skills/init/SKILL.md:7` — `argument-hint: "[stack]"`
+- [x] SK-05: 본문에 `.harness/` 존재 여부를 먼저 확인하도록 명시되어 있다 — PASS
+  - 근거: `harness/skills/init/SKILL.md:17` — `1. **\`.harness/\` 존재 여부 확인** — 이미 있으면 사용자에게 알리고 중단`
+- [x] SK-06: 본문에 스택 자동 감지 로직이 명시되어 있다 (pubspec.yaml, Cargo.toml, package.json 등) — PASS
+  - 근거: `harness/skills/init/SKILL.md:24-30` — pubspec.yaml→flutter, Cargo.toml→rust, package.json+react→react, package.json+next→nextjs, requirements.txt/pyproject.toml→python, go.mod→go, 감지 실패→generic 명시
+- [x] SK-07: 본문에 `scripts/init.sh` 실행 방법이 명시되어 있다 — PASS
+  - 근거: `harness/skills/init/SKILL.md:38-40` — `bash "${PLUGIN_DIR}/scripts/init.sh" "." "<stack>"` 코드블록으로 명시
 
-### Script (3/3)
-- [x] SC-01: 스킬이 `bash scripts/release.sh` 명령을 호출하도록 안내한다 — PASS
-  - 근거: `.claude/commands/release.md:31-33` — `bash scripts/release.sh <plugin-name> <bump-type>`
-- [x] SC-02: release.sh가 plugin.json의 version 필드를 업데이트한다 — PASS
-  - 근거: `scripts/release.sh:69` — `sed -i "s/\"version\": \"${CURRENT_VERSION}\"/\"version\": \"${NEW_VERSION}\"/" "$PLUGIN_JSON"`
-- [x] SC-03: release.sh가 marketplace.json의 description 내 `[vX.Y.Z · YYYY-MM-DD]` 패턴을 업데이트한다 — PASS
-  - 근거: `scripts/release.sh:74` — sed로 `[vX.Y.Z · YYYY-MM-DD]` 패턴 치환
+### Script (4/4)
+- [x] SC-01: `harness/scripts/init.sh` 파일이 존재한다 — PASS
+  - 근거: `harness/scripts/init.sh` 파일 직접 읽기 성공
+- [x] SC-02: init.sh가 `.harness/project.yaml`을 생성한다 — PASS
+  - 근거: `harness/scripts/init.sh:31-32` — `cp "$HARNESS_ROOT/templates/project.yaml" "$HARNESS_DIR/project.yaml"` 후 `sed -i` 로 stack 치환. `harness/templates/project.yaml:5` — `stack: ""` 로 치환 타겟 확인
+- [x] SC-03: init.sh가 `.harness/procedures/` 디렉토리와 카테고리별 파일을 생성한다 — PASS
+  - 근거: `harness/scripts/init.sh:28` — `mkdir -p "$HARNESS_DIR/procedures"`, `harness/scripts/init.sh:41-58` — `for cat in ui logic error architecture`로 4개 카테고리 파일 생성
+- [x] SC-04: init.sh가 인자로 받은 stack 값을 project.yaml에 반영한다 — PASS
+  - 근거: `harness/scripts/init.sh:12` — `STACK="${2:-generic}"` 로 인자 수신, `harness/scripts/init.sh:32` — `sed -i "s/^stack: \"\"/stack: \"$STACK\"/"` 로 project.yaml에 반영
 
 ### Error (2/2)
-- [x] ER-01: 인자가 부족할 때 사용자에게 플러그인 목록과 bump 타입을 안내한다 — PASS
-  - 근거: `scripts/release.sh:13-19` — 인자 없을 때 usage + 플러그인 목록 출력, `.claude/commands/release.md:26` — 스킬에서도 인자 부족 시 목록 제시 안내
-- [x] ER-02: dirty working tree 경고 시 사용자 확인을 받도록 안내한다 — PASS
-  - 근거: `scripts/release.sh:36-39` — dirty check 후 `read -r -p "Continue anyway?"`, `.claude/commands/release.md:61` — 스킬에서도 커밋/진행 확인 안내
+- [x] ER-01: init.sh가 `.harness/`가 이미 존재하면 에러 메시지를 출력하고 종료한다 — PASS
+  - 근거: `harness/scripts/init.sh:17-19` — `if [ -d "$HARNESS_DIR" ]; then echo "⚠️ ... 이미 존재합니다. 덮어쓰려면 삭제 후 재실행하세요."; exit 1; fi`
+- [x] ER-02: init.sh가 대상 디렉토리가 존재하지 않으면 에러 메시지를 출력하고 종료한다 — PASS
+  - 근거: `harness/scripts/init.sh:14` — `TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || { echo "❌ 디렉토리 없음: $1"; exit 1; }`
 
 ### Anti-patterns (2/2)
 - [x] AP-01: 버전을 하드코딩하지 않는다 — PASS
-  - 근거: `scripts/release.sh:43` — `grep`으로 plugin.json에서 현재 버전을 동적으로 읽음. `hardcoded.*version` 패턴 검색 결과 0건
+  - 근거: `hardcoded.*version` 패턴 grep 결과 0건 (init.sh, SKILL.md 모두)
 - [x] AP-02: force push를 사용하지 않는다 — PASS
-  - 근거: `scripts/release.sh:82` — `git push origin HEAD --follow-tags` 사용. `git push.*--force` 패턴 검색 결과 0건
+  - 근거: `git push.*--force` 패턴 grep 결과 0건 (init.sh, SKILL.md 모두)
 
 ### Reusability (2/2)
 - [x] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다 — PASS
-  - 근거: `scripts/release.sh`는 `scripts/` 공유 경로에 위치하며 모든 플러그인에서 범용 사용 가능
-- [x] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다 — PASS
-  - 근거: `scripts/` 디렉토리에 release.sh 외 다른 릴리스 관련 스크립트 없음. 중복 없음
+  - 근거: `harness/scripts/init.sh`는 `scripts/` 공유 경로에 위치하며 범용 접근 가능
+- [x] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 없다 — PASS
+  - 근거: `harness/scripts/` 디렉토리 내 `env-check.sh`, `run-guard.sh`, `sdk-guard.sh`, `validate.sh` 존재하나 init 기능과 중복 없음
 
-### Diagnostics (4/4)
-- [x] DG-01: `bash -n scripts/release.sh` 워닝 0개 — PASS
-  - 근거: `bash -n scripts/release.sh` 실행 결과 출력 없음 (에러/워닝 0건)
-- [x] DG-02: IDE diagnostics 워닝/인포 0개 — PASS
-  - 근거: `ide_exclude` 설정 비어있음, shell script에 대한 IDE diagnostic 해당 없음
-- [x] DG-03: 테스트 콘솔 로그에 에러/예외 0개 — PASS
-  - 근거: `console_errors` 설정 비어있음, syntax check 통과
-- [x] DG-04: 실제 구동 시 에러 0개 — PASS
-  - 근거: 구문 검증 통과, 실제 실행은 git 상태 의존이므로 dry-run 수준에서 문제 없음
+### Diagnostics (2/2)
+- [x] DG-01: `bash -n harness/scripts/init.sh` 워닝 0개 — PASS
+  - 근거: `bash -n harness/scripts/init.sh` 실행 결과 출력 없음 (에러/워닝 0건)
+- [x] DG-02: 런타임 검증 미수행 — PASS (정적 검증으로 대체)
+  - 근거: `project.yaml:runtime_inspection.mcp_server: null` — MCP 서버 미설정
+
+⚠️ 런타임 검증 미수행 — MCP 서버 미설정. 위 Diagnostics 항목은 [정적] 태그 적용.
 
 ## Summary
 - Total: 17/17 conditions passed
