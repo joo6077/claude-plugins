@@ -1,0 +1,181 @@
+{
+  "skill_name": "flutter-toolkit",
+  "evals": [
+    {
+      "id": 1,
+      "skill": "flutter-run",
+      "prompt": "프로젝트에서 codegen 돌려줘. auth 피처만",
+      "expected_output": "FVM 감지 시 fvm dart run build_runner build --delete-conflicting-outputs --build-filter=\"lib/features/auth/**\", 시스템 SDK면 dart run ...",
+      "assertions": [
+        {"text": "pubspec.yaml에서 build_runner 의존성 확인을 시도한다", "type": "behavior"},
+        {"text": ".fvmrc 존재 여부로 SDK 매니저를 감지한다", "type": "behavior"},
+        {"text": "--delete-conflicting-outputs 플래그가 포함된다", "type": "output"},
+        {"text": "--build-filter에 auth feature 경로가 포함된다", "type": "output"}
+      ]
+    },
+    {
+      "id": 2,
+      "skill": "flutter-screen",
+      "prompt": "프로필 설정 화면을 만들어줘. push로 진입하는 페이지야",
+      "expected_output": "ProfileSettingsPage ConsumerWidget/HookConsumerWidget 생성 + GoRouter 등록 (프로젝트에 맞게)",
+      "assertions": [
+        {"text": "Page 접미사를 사용한다 (Screen이 아닌)", "type": "output"},
+        {"text": "presentation/pages/ 하위에 파일을 생성한다", "type": "output"},
+        {"text": "프로젝트의 base class를 자동 감지한다 (HAS_RIVERPOD, HAS_HOOKS 기반)", "type": "behavior"},
+        {"text": "GoRouter 유무에 따라 라우트 등록 방식을 분기한다", "type": "behavior"},
+        {"text": "package:$PACKAGE/... import를 사용한다 (하드코딩 아님)", "type": "output"}
+      ]
+    },
+    {
+      "id": 3,
+      "skill": "flutter-provider",
+      "prompt": "workout feature에 운동 기록 provider 만들어줘",
+      "expected_output": "WorkoutRecordNotifier + WorkoutRecordState 생성, @Riverpod codegen, copyWith, ref.mounted 체크",
+      "assertions": [
+        {"text": "HAS_RIVERPOD 전제 조건을 확인한다", "type": "behavior"},
+        {"text": "codegen(@riverpod) vs legacy(StateNotifierProvider) 스타일을 감지한다", "type": "behavior"},
+        {"text": "ref.mounted 체크가 async 작업 후에 포함된다", "type": "output"},
+        {"text": "clearFailure bool 패턴이 nullable 필드에 적용된다", "type": "output"},
+        {"text": "프로젝트에 Result 타입이 있으면 Result.when, 없으면 try-catch 패턴", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 4,
+      "skill": "flutter-feature",
+      "prompt": "새로운 schedule feature를 만들어줘",
+      "expected_output": "Clean Architecture 구조 스캐폴딩 (ARCH=clean 감지 시) 또는 간소화 구조",
+      "assertions": [
+        {"text": "디렉토리 구조 감지(clean/feature_first/flat)를 수행한다", "type": "behavior"},
+        {"text": "ARCH=clean이면 data/domain/presentation 3레이어를 생성한다", "type": "output"},
+        {"text": "HAS_FREEZED에 따라 Freezed 보일러플레이트 포함/제외한다", "type": "behavior"},
+        {"text": "HAS_RETROFIT에 따라 Retrofit DataSource 포함/제외한다", "type": "behavior"},
+        {"text": "package:$PACKAGE import를 사용한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 5,
+      "skill": "flutter-widget",
+      "prompt": "검색 결과를 보여주는 search_result_card 위젯을 만들어줘",
+      "expected_output": "SearchResultCard 위젯, 프로젝트 패턴에 맞는 base class, 디자인 토큰 사용 여부 분기",
+      "assertions": [
+        {"text": "기존 위젯 파일을 읽어 프로젝트 패턴을 파악한다", "type": "behavior"},
+        {"text": "HAS_DS 여부에 따라 디자인 토큰 적용을 분기한다", "type": "behavior"},
+        {"text": "_widget 접미사를 사용하지 않는다", "type": "output"},
+        {"text": "variant/size 패턴이 필요한 경우 프로젝트 기존 패턴을 따른다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 6,
+      "skill": "flutter-api",
+      "prompt": "group feature에 그룹 멤버 조회 API 레이어를 만들어줘",
+      "expected_output": "ARCH에 따라 Clean Architecture 전 레이어 또는 Service+Model 생성",
+      "assertions": [
+        {"text": "ARCH 감지로 Clean Architecture vs Simple 모드를 결정한다", "type": "behavior"},
+        {"text": "HAS_RETROFIT에 따라 Retrofit DataSource 포함/제외한다", "type": "behavior"},
+        {"text": "HAS_FREEZED에 따라 Freezed Model 포함/제외한다", "type": "behavior"},
+        {"text": "Repository에서 예외를 Failure/Error로 변환하는 패턴이 포함된다", "type": "output"}
+      ]
+    },
+    {
+      "id": 7,
+      "skill": "flutter-hooks",
+      "prompt": "기존 StatefulWidget을 HookWidget으로 바꿔줘",
+      "expected_output": "마이그레이션 가이드에 따른 변환 (useState, useEffect, useAnimationController 등)",
+      "assertions": [
+        {"text": "HAS_HOOKS 전제 조건을 확인한다", "type": "behavior"},
+        {"text": "StatefulWidget → HookWidget 변환 매핑을 적용한다", "type": "output"},
+        {"text": "hooks_riverpod import를 사용한다 (HAS_RIVERPOD 시)", "type": "output"}
+      ]
+    },
+    {
+      "id": 8,
+      "skill": "flutter-audit",
+      "prompt": "변경된 파일 리뷰해줘",
+      "expected_output": "git diff 기반 파일 수로 quick/deep 모드 자동 선택, 프로젝트 감지 기반 체크리스트",
+      "assertions": [
+        {"text": "변경 파일 수로 quick/deep 모드를 자동 선택한다", "type": "behavior"},
+        {"text": "ARCH에 맞는 Architecture 체크리스트를 적용한다", "type": "behavior"},
+        {"text": "HAS_DS=false이면 Design System 검사를 스킵한다", "type": "behavior"},
+        {"text": "보고서에 파일:라인, 규칙, 심각도, 수정 제안이 포함된다", "type": "output"}
+      ]
+    },
+    {
+      "id": 9,
+      "skill": "flutter-error",
+      "prompt": "에러 처리 어떻게 해야 돼? Provider에서 실패 처리하는 패턴 알려줘",
+      "expected_output": "관심사 분리 패턴: Repository→Provider→Screen, 프로젝트 에러 인프라 감지",
+      "assertions": [
+        {"text": "프로젝트의 기존 에러 인프라(Failure, Result 등)를 탐색한다", "type": "behavior"},
+        {"text": "Provider는 state에 failure 저장, Screen이 표시하는 분리 원칙을 안내한다", "type": "output"},
+        {"text": "프로젝트에 에러 인프라가 없으면 범용 패턴을 제안한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 10,
+      "skill": "flutter-preflight",
+      "prompt": "커밋 전에 확인해줘",
+      "expected_output": "fix → codegen → analyze → test 순서 실행, build_runner 없으면 codegen 스킵",
+      "assertions": [
+        {"text": "HAS_BUILD_RUNNER 없으면 codegen 단계를 스킵한다", "type": "behavior"},
+        {"text": "에러 발생 시 즉시 중단하고 보고한다", "type": "behavior"},
+        {"text": "$FLUTTER/$DART 변수를 사용한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 11,
+      "skill": "flutter-l10n",
+      "prompt": "workout.title 키로 영문 'Workouts', 한국어 '운동' 추가해줘",
+      "expected_output": "i18n 라이브러리 감지 후 해당 형식으로 키 추가 + codegen",
+      "assertions": [
+        {"text": "i18n 라이브러리(slang/easy_localization/intl)를 자동 감지한다", "type": "behavior"},
+        {"text": "감지된 라이브러리의 파일 형식과 경로에 맞게 추가한다", "type": "output"},
+        {"text": "양쪽 언어 파일의 키를 동기화한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 12,
+      "skill": "flutter-skeleton",
+      "prompt": "프로필 화면에 로딩 스켈레톤 추가해줘",
+      "expected_output": "실제 레이아웃 분석 후 고정 UI 유지 + 서버 데이터만 shimmer로 대체",
+      "assertions": [
+        {"text": "shimmer 패키지 존재 여부를 확인한다", "type": "behavior"},
+        {"text": "고정 UI vs shimmer 구분 원칙을 적용한다", "type": "output"},
+        {"text": "shimmer height = fontSize 규칙을 따른다", "type": "output"}
+      ]
+    },
+    {
+      "id": 13,
+      "skill": "flutter-responsive",
+      "prompt": "홈 화면을 태블릿에서 2컬럼으로 만들어줘",
+      "expected_output": "breakpoint 감지 후 LayoutBuilder 기반 반응형 적용",
+      "assertions": [
+        {"text": "프로젝트 breakpoint 상수가 있으면 그것을 사용한다", "type": "behavior"},
+        {"text": "LayoutBuilder를 MediaQuery보다 우선 사용한다", "type": "output"},
+        {"text": "mobile-first 접근을 따른다", "type": "output"}
+      ]
+    },
+    {
+      "id": 14,
+      "skill": "flutter-transition",
+      "prompt": "로그인 화면에 scale-fade 전환 애니메이션 추가해줘",
+      "expected_output": "GoRouter buildPage override + CustomTransitionPage, 프로젝트 애니메이션 상수 감지",
+      "assertions": [
+        {"text": "HAS_GO_ROUTER 전제 조건을 확인한다", "type": "behavior"},
+        {"text": "buildPage override 패턴을 사용한다 (build가 아닌)", "type": "output"},
+        {"text": "state.pageKey를 key로 전달한다", "type": "output"},
+        {"text": "프로젝트 애니메이션 상수가 있으면 사용, 없으면 기본값 제공", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 15,
+      "skill": "flutter-build",
+      "prompt": "빌드해줘",
+      "expected_output": "codegen → analyze 순서 실행, codegen 실패 시 analyze 스킵",
+      "assertions": [
+        {"text": "HAS_BUILD_RUNNER 없으면 codegen을 스킵한다", "type": "behavior"},
+        {"text": "codegen 실패 시 analyze를 실행하지 않는다", "type": "behavior"},
+        {"text": "결과 보고서에 각 단계 성공/실패를 표시한다", "type": "output"}
+      ]
+    }
+  ]
+}
