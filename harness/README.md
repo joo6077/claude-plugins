@@ -272,3 +272,82 @@ diagnostics:
 
 QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용한다.
 (PASS는 개별 조건 수준, APPROVE/REJECT는 전체 판정 수준)
+
+---
+
+## Harness Kaizen — 지속적 개선
+
+학술 논문·공식 문서·커뮤니티 리서치를 기반으로 하네스를 자동으로 개선하는 스킬.
+
+### 사용법
+
+```bash
+# 전체 영역 리서치 + 개선 PR 생성
+/harness-kaizen
+
+# 특정 영역만 집중
+/harness-kaizen config    # 설정 (project.yaml, procedures, anti-patterns)
+/harness-kaizen skills    # 스킬 프롬프트, 에이전트, eval
+/harness-kaizen guide     # docs/skill-design-guide.md
+```
+
+### 자동 실행
+
+| 트리거 | 조건 |
+|--------|------|
+| **주기적** | 매주 월요일 09:00 KST (cron, 클라우드 실행) |
+| **REJECT 연속** | QA Evaluator REJECT 2회 연속 시 |
+| **Anti-pattern 반복** | 같은 anti-pattern 3회 이상 감지 시 |
+| **신규 스킬** | 스킬 추가 후 7일 이내 |
+
+### 개선 대상
+
+| 영역 | 대상 |
+|------|------|
+| 하네스 설정 | `project.yaml`, `procedures/`, anti-patterns |
+| 스킬 프롬프트 | `skills/*/SKILL.md` |
+| 에이전트 로직 | `agents/qa-evaluator.md` |
+| Eval | `evals/` 테스트 픽스처·평가 기준 |
+| 아키텍처 | 폴더 구조, 훅, 스크립트 |
+| 설계 가이드 | `docs/skill-design-guide.md` |
+
+### 파이프라인
+
+```
+COLLECT → VERIFY → ANALYZE → PROPOSE + APPLY
+(수집)    (3중검증)  (갭분석)   (브랜치→변경→PR)
+```
+
+1. **COLLECT** — 학술 논문(arXiv, ACL, IEEE), 공식 docs(Anthropic, OpenAI, DeepMind), 커뮤니티(GitHub trending, 블로그, 컨퍼런스) 검색
+2. **VERIFY** — 3중 검증 게이트로 할루시네이션 차단 (출처 URL 필수 → WebFetch 접근 확인 → PR에 증거 첨부)
+3. **ANALYZE** — 현재 하네스 상태와 연구 결과를 비교하여 갭 분석
+4. **PROPOSE + APPLY** — 브랜치 생성, 변경 적용, 버전 bump, PR 생성
+
+### 버전 관리
+
+카이젠 PR은 영향도에 따라 semver bump:
+
+| 변경 영역 | bump |
+|-----------|------|
+| docs, config 튜닝, Gotchas 추가 | **patch** |
+| 스킬 프롬프트, eval 기준, procedure 추가 | **minor** |
+| 아키텍처, 에이전트 로직 대폭 수정 | **major** |
+
+### 추적 규칙
+
+- 커밋: `kaizen:` prefix — `kaizen: sprint-contract few-shot 판단 로직 추가`
+- 브랜치: `kaizen/{버전}-{날짜}` — `kaizen/0.4.0-2026-04-07`
+- PR 제목: `[bump유형]` prefix — `[minor] sprint-contract 복잡도 판단 개선`
+
+### 산출물
+
+```
+docs/kaizen/
+├── research-log.md    # 누적 연구 기록 (소스별 채택/폐기)
+└── changelog.md       # 카이젠 변경 이력 (버전, 근거, Before/After)
+```
+
+### 스케줄 관리
+
+클라우드에서 실행되므로 로컬 컴퓨터가 꺼져 있어도 동작한다.
+스케줄 확인·비활성화·삭제는 [claude.ai/code/scheduled](https://claude.ai/code/scheduled)에서 관리.
