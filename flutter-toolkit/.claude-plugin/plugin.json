@@ -3,8 +3,9 @@
   "description": "Flutter 개발 워크플로우 스킬 모음. 빌드, 감사, preflight, 코드 생성 등.",
   "version": "0.1.0",
   "author": {
-    "name": "Jackson Joo"
+    "name": "Jackson Kim"
   },
+  "repository": "https://github.com/joo6077/claude-plugins",
   "license": "MIT",
   "keywords": ["flutter", "dart", "fvm", "build", "audit", "preflight"],
   "skills": "./skills/",
