@@ -1,0 +1,69 @@
+# ── Harness Project Config Template ──
+# .harness/project.yaml에 복사하여 프로젝트에 맞게 수정한다.
+# 상세 스키마: README.md 참조
+
+stack: ""  # flutter, rust, react, python 등
+
+# ── 빌드/분석 명령 (필수) ──
+commands:
+  analyze: ""   # 예: "cargo clippy", "npx eslint"
+  test: ""      # 예: "cargo test", "npx jest"
+  lint: null    # 선택
+  format: null  # 선택
+  codegen: null # 선택
+
+# ── 계약 카테고리 (필수, 최소 1개) ──
+contract_categories:
+  - id: UI
+    prefix: "UI"
+    description: "화면/컴포넌트에 무엇이 표시되는지"
+  - id: Logic
+    prefix: "LG"
+    description: "데이터 흐름, 상태 변환, 비즈니스 규칙"
+  - id: Error
+    prefix: "ER"
+    description: "에러 상황에서 어떻게 동작하는지"
+  - id: Architecture
+    prefix: "AR"
+    description: "모듈 구조, 파일 위치, 의존 방향"
+
+# ── 안티패턴 (필수, 최소 2개 권장) ──
+anti_patterns: []
+  # - id: AP-01
+  #   pattern: "regex"
+  #   message: "설명"
+
+# ── 재사용성 ──
+reusability:
+  shared_path: ""
+  check_duplicate: true
+
+# ── Diagnostics ──
+diagnostics:
+  ide_exclude: []
+  console_errors: []
+  console_exclude: []
+
+# ── 환경 (선택) ──
+# env 섹션은 .harness/env.sh로 관리. 여기선 참조만.
+
+# ── 런타임 검증 (선택) ──
+runtime_inspection:
+  mcp_server: null
+  vm_port: null
+  launch_script: null
+
+# ── 트리거 조건 (선택 — 기본값 있음) ──
+trigger:
+  min_files: 2
+  always: []
+  never: []
+
+# ── 검증 절차 ──
+verification:
+  procedures_dir: ".harness/procedures/"
+
+# ── 프로젝트별 변명 차단 (선택) ──
+rationalization_overrides: []
+  # - excuse: "변명"
+  #   reality: "현실"

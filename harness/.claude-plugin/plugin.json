@@ -1,0 +1,14 @@
+{
+  "name": "harness",
+  "description": "Sprint Contract + QA Evaluator 기반 품질 보증 하네스. 프로젝트 스택에 관계없이 .harness/project.yaml 설정만으로 동작한다.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jackson Kim"
+  },
+  "repository": "https://github.com/khjoo/harness",
+  "license": "MIT",
+  "keywords": ["harness", "qa", "sprint-contract", "quality", "testing"],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "hooks": "./hooks/hooks.json"
+}
