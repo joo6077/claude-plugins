@@ -1,24 +1,26 @@
 ---
-feature: "스킬 개선 + QA Evaluator 기본 엄격도 강화"
-created: "2026-03-29 17:00"
-complexity: "중간"
-conditions: 14
+feature: "flutter-toolkit 모노레포 마이그레이션 + skill-design-guide 적용"
+created: "2026-03-29 18:00"
+complexity: "복잡"
+conditions: 15
 ---
 
 ## Skill
-- [ ] SK-01: init/SKILL.md에 Gotchas 섹션이 존재하고, Claude가 반복 실패할 수 있는 지점이 1개 이상 기록되어 있다
-- [ ] SK-02: sprint-contract/SKILL.md에 Gotchas 섹션이 존재하고, Claude가 반복 실패할 수 있는 지점이 1개 이상 기록되어 있다
-- [ ] SK-03: sprint-contract의 긴 본문(Red Flags, Rationalization Table)이 별도 references/ 파일로 분리되어 있다
-- [ ] SK-04: sprint-contract/SKILL.md 본문에 폴더 내 파일 목록이 명시되어 있어 Claude가 필요할 때 읽을 수 있다
-- [ ] SK-05: qa-evaluator.md의 Red Flags 섹션에서 "관대함은 버그다"가 기본 동작으로 강화되어 있다 — 기존 "넘기면 프로덕션에서 터진다"보다 구체적인 차단 규칙 추가
-
-## Architecture
-- [ ] AR-01: 분리된 파일의 경로가 스킬 폴더 기준 상대 경로로 참조된다
-- [ ] AR-02: SKILL.md의 기존 프로세스(6단계)와 핵심 규칙이 변경되지 않는다
-- [ ] AR-03: init 스킬은 단순 스킬(62줄)이므로 폴더 확장 없이 Gotchas만 추가한다
+- [ ] SK-01: 독립 위치의 15개 스킬 폴더가 모두 claude-plugins/flutter-toolkit/skills/에 존재한다
+- [ ] SK-02: evals/evals.json이 claude-plugins/flutter-toolkit/evals/에 존재한다
+- [ ] SK-03: references/project-detection.md가 claude-plugins/flutter-toolkit/references/에 존재한다
+- [ ] SK-04: flutter-toolkit/plugin.json의 author, repository, license가 모노레포 표준(harness/plugin.json)과 동일한 형식이다
+- [ ] SK-05: 15개 스킬의 description이 트리거 조건 형식이다 — "~할 때 사용" 또는 비트리거 조건을 포함한다
+- [ ] SK-06: fit-pal 실전 경험 기반 Gotchas가 관련 스킬에 추가되어 있다 (최소 10개 스킬에 1개 이상)
 
 ## Error
-- [ ] ER-01: 분리된 references 파일이 존재하지 않을 때 SKILL.md 본문만으로도 스킬이 동작 가능하다
+- [ ] ER-01: flutter-toolkit/README.md에서 "(마이그레이션 예정)" 문구가 제거되고 실제 스킬 15개 목록으로 업데이트되어 있다
+
+## Architecture
+- [ ] AR-01: 마이그레이션된 스킬의 핵심 로직이 원본과 동일하다 — description/Gotchas 외에 본문 변경 없음
+- [ ] AR-02: flutter-toolkit/ 폴더 구조가 모노레포 표준 패턴이다 (.claude-plugin/, skills/, evals/, references/)
+- [ ] AR-03: .claude-plugin/marketplace.json에 flutter-toolkit 항목이 등록되어 있다
+- [ ] AR-04: Gotchas 내용이 fit-pal의 실제 근거(CLAUDE.md, project.yaml anti_patterns, sprint-feedback)에 기반한다
 
 ## Anti-patterns
 - [ ] AP-01: 버전을 하드코딩하지 않는다

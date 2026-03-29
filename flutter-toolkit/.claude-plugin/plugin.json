@@ -7,7 +7,5 @@
   },
   "repository": "https://github.com/joo6077/claude-plugins",
   "license": "MIT",
-  "keywords": ["flutter", "dart", "fvm", "build", "audit", "preflight"],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "keywords": ["flutter", "dart", "fvm", "build", "audit", "preflight"]
 }
