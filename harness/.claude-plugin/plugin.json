@@ -9,6 +9,5 @@
   "license": "MIT",
   "keywords": ["harness", "qa", "sprint-contract", "quality", "testing"],
   "skills": "./skills/",
-  "agents": "./agents/",
   "hooks": "./hooks/hooks.json"
 }
