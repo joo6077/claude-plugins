@@ -280,3 +280,53 @@ docs/kaizen/
 | `/harness-kaizen config` | `.harness/` 설정 영역만 집중 |
 | `/harness-kaizen skills` | 스킬 프롬프트 영역만 집중 |
 | `/harness-kaizen guide` | `docs/skill-design-guide.md`만 집중 |
+
+---
+
+## 11. 버전 관리 전략
+
+### Semver 규칙 (영향도 기반)
+
+| 변경 영역 | bump | 예시 |
+|-----------|------|------|
+| docs, config 튜닝, anti-pattern 추가, Gotchas 추가 | **patch** `0.3.1 → 0.3.2` | project.yaml에 anti-pattern 1개 추가 |
+| 스킬 프롬프트 변경, eval 기준 변경, 새 procedure 추가 | **minor** `0.3.2 → 0.4.0` | sprint-contract 스킬의 프로세스 단계 수정 |
+| 아키텍처 변경, 에이전트 로직 대폭 수정, breaking change | **major** `0.4.0 → 1.0.0` | qa-evaluator 평가 방식 전면 교체 |
+
+### 업데이트 대상 파일
+
+PR마다 아래 파일을 자동으로 업데이트한다:
+
+1. `harness/.claude-plugin/plugin.json` → `version` 필드
+2. `.claude-plugin/marketplace.json` → description의 `[vX.Y.Z · 날짜]`
+3. `docs/kaizen/changelog.md` → 변경 엔트리 추가
+
+### changelog.md 엔트리 형식
+
+```markdown
+## [0.4.0] - 2026-04-07
+
+### 변경 유형: minor (스킬 프롬프트)
+
+### 연구 기반
+- [논문 제목](URL) — 핵심 인사이트 1줄
+
+### 변경 내역
+- **sprint-contract/SKILL.md**: complexity 판단 로직에 few-shot 예시 추가
+  - Before: 키워드 기반 단순 판단
+  - After: 논문 X의 rubric 기반 3단계 판단
+  - 근거: [출처](URL)
+
+### 버전 판단 근거
+> 스킬 프롬프트의 동작 방식이 변경되어 minor bump.
+> 기존 project.yaml 호환성 유지되므로 major 아님.
+```
+
+### 추적 규칙
+
+| 항목 | 규칙 | 예시 |
+|------|------|------|
+| 커밋 메시지 | `kaizen:` prefix | `kaizen: sprint-contract few-shot 판단 로직 추가` |
+| 브랜치명 | 버전 포함 | `kaizen/0.4.0-2026-04-07` |
+| PR 제목 | bump 유형 명시 | `[minor] sprint-contract 복잡도 판단 개선` |
+| git tag | 자동 생성 | `v0.4.0` |
