@@ -165,7 +165,11 @@ user-invocable: true
 4. **research-log.md 업데이트:**
    - `templates/research-log-entry.md` 형식으로 이번 연구 결과 기록
 
-5. **PR 생성:**
+5. **README 업데이트:**
+   - `harness/README.md`의 카이젠 섹션에 이번 개선 사항 반영
+   - 변경된 기능, 새로 추가된 원칙, 버전 정보를 최신 상태로 유지
+
+6. **PR 생성:**
    - `references/pr-template.md`를 읽고 해당 형식으로 PR 본문 작성
    - PR 제목: `[{bump유형}] {핵심 변경 요약}`
 
@@ -174,7 +178,7 @@ user-invocable: true
    gh pr create --title "[{bump}] {요약}" --body "{pr-template.md 형식에 맞춘 본문}"
    ```
 
-6. **git tag는 PR 머지 후** 사용자가 `/release`로 처리한다. 카이젠은 tag를 생성하지 않는다.
+7. **git tag는 PR 머지 후** 사용자가 `/release`로 처리한다. 카이젠은 tag를 생성하지 않는다.
 
 ## 버전 판단 가이드
 
