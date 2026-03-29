@@ -81,6 +81,36 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 
 ---
 
+## 3.5. 검증 가능한 성공 기준을 제공하라
+
+> **출처:** [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices) — "Give Claude a way to verify its work. This is the single highest-leverage thing you can do."
+
+스킬이 산출물을 생성할 때, Claude가 **스스로 결과를 검증할 수 있는 기준**을 포함해야 한다.
+
+### 왜 중요한가?
+
+검증 기준 없이 Claude는 "그럴듯해 보이지만 실제로는 동작하지 않는" 결과를 만든다. 사용자가 유일한 피드백 루프가 되면 모든 실수에 사용자의 주의가 필요하다.
+
+### 적용 방법
+
+| 스킬 유형 | 검증 기준 예시 |
+|-----------|---------------|
+| 코드 스캐폴딩 | 생성 후 `commands.analyze` 실행, 워닝 0개 확인 |
+| 코드 리뷰 | 지적 사항마다 `파일:라인` 근거 필수 |
+| 계약 생성 | 모든 조건이 PASS/FAIL 이진 판정 가능한지 자가 검증 |
+| 데이터 조회 | 쿼리 결과가 비어 있으면 쿼리 자체를 재검증 |
+
+### 이 프로젝트의 실제 예시
+
+`sprint-contract` 스킬은 계약 작성 후 `references/red-flags.md`로 자가 검증한다.
+`qa-evaluator` 에이전트는 L3 깊이까지 코드 경로를 추적해야 PASS를 줄 수 있다.
+
+```
+Claude가 산출물 생성 → 검증 기준으로 자가 확인 → 실패 시 수정 후 재검증
+```
+
+---
+
 ## 4. 디스크립션은 트리거 조건이다
 
 스킬의 `description` 필드는 사람을 위한 요약이 아니라 **Claude가 스킬을 선택하는 트리거 조건**이다.
