@@ -7,6 +7,5 @@
   },
   "repository": "https://github.com/joo6077/claude-plugins",
   "license": "MIT",
-  "keywords": ["harness", "qa", "sprint-contract", "quality", "testing"],
-  "skills": "./skills/"
+  "keywords": ["harness", "qa", "sprint-contract", "quality", "testing"]
 }
