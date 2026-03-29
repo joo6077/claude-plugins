@@ -1,0 +1,65 @@
+# ── Harness Project Config: claude-plugins monorepo ──
+
+stack: "shell-scripts"
+
+# ── 빌드/분석 명령 ──
+commands:
+  analyze: "bash -n scripts/release.sh"
+  test: "bash scripts/release.sh 2>&1 || true"
+  lint: null
+  format: null
+  codegen: null
+
+# ── 계약 카테고리 ──
+contract_categories:
+  - id: Skill
+    prefix: "SK"
+    description: "스킬 파일 구조, frontmatter, 트리거 조건, 인자 처리"
+  - id: Script
+    prefix: "SC"
+    description: "release.sh 연동, 버전 bump, marketplace.json 업데이트"
+  - id: Error
+    prefix: "ER"
+    description: "에러 처리, 사용자 안내, edge case 대응"
+  - id: Architecture
+    prefix: "AR"
+    description: "파일 위치, 네이밍, 모노레포 구조 규칙"
+
+# ── 안티패턴 ──
+anti_patterns:
+  - id: AP-01
+    pattern: "hardcoded.*version"
+    message: "버전을 하드코딩하지 않는다 — plugin.json에서 읽어야 한다"
+  - id: AP-02
+    pattern: "git push.*--force"
+    message: "force push 금지"
+
+# ── 재사용성 ──
+reusability:
+  shared_path: "scripts/"
+  check_duplicate: true
+
+# ── Diagnostics ──
+diagnostics:
+  ide_exclude: []
+  console_errors: []
+  console_exclude: []
+
+# ── 런타임 검증 ──
+runtime_inspection:
+  mcp_server: null
+  vm_port: null
+  launch_script: null
+
+# ── 트리거 조건 ──
+trigger:
+  min_files: 2
+  always: ["릴리스", "release", "버전"]
+  never: ["읽어줘", "설명해줘"]
+
+# ── 검증 절차 ──
+verification:
+  procedures_dir: ".harness/procedures/"
+
+# ── 변명 차단 ──
+rationalization_overrides: []

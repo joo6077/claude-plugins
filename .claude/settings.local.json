@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git config:*)",
+      "Bash(git:*)",
+      "Bash(rm -rf \"$HOME/.claude/plugins/marketplaces/claude-plugins-official.staging\")",
+      "Bash(rm -rf \"$HOME/.claude/plugins/marketplaces/claude-plugins-official/external_plugins\")",
+      "Bash(rm -rf \"$HOME/.claude/plugins/marketplaces/claude-plugins-official\")",
+      "Read(//c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins/$HOME/.claude/plugins/**)",
+      "Bash(claude:*)",
+      "Bash(cmd.exe /c \"rmdir /s /q C:\\\\Users\\\\khjoo\\\\.claude\\\\plugins\\\\marketplaces\\\\claude-plugins-official\" 2>&1)",
+      "Bash(bash /c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins/harness/scripts/init.sh /c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins generic 2>&1)"
+    ]
+  }
+}
