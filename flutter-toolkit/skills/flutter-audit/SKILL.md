@@ -13,7 +13,7 @@ user-invocable: true
 
 ## Gotchas
 
-- quick 모드와 deep 모드의 차이: quick은 단일 에이전트 로컬 검토, deep은 3에이전트 병렬 감사 — 변경 파일 3개 이하면 quick, 초과면 deep이 기본
+- quick 모드와 deep 모드의 차이: quick은 단일 에이전트 로컬 검토, deep은 최대 4에이전트 병렬 감사 — 변경 파일 5개 이하면 quick, 초과면 deep이 기본
 - Provider watch 대신 select 사용 여부를 체크한다 — 성능 이슈의 주요 원인
 - 커스텀 위젯에 const 생성자가 빠져 있으면 리빌드 최적화가 안 된다 — audit에서 지적 대상
 

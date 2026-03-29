@@ -236,9 +236,14 @@ Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지�
 - **MUST** Widgetbook/Storybook 등록은 프로젝트에 해당 도구가 있을 때만 수행한다
 - **MUST** variant/size 패턴은 프로젝트의 기존 패턴을 따른다. 기존 패턴이 없으면 위 기본 템플릿 사용
 
+## Post-Creation: Widget Inspector
+
+생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 추출 후보가 있으면 리포팅하고, 없으면 조용히 넘어간다.
+
 ## Related Skills
 
 - Feature 디렉토리가 없으면 → `flutter-feature`
 - Screen/Page 생성 → `flutter-screen`
 - Provider 생성 → `flutter-provider`
+- 위젯 추출 → `flutter-extract`
 - codegen 실행 → `flutter-run codegen`

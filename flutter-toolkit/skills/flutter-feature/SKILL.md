@@ -186,10 +186,15 @@ Object _mapFailure(Object error, [StackTrace? st]) {
 - **MUST** 의존성이 없는 기능(Freezed, Retrofit 등)은 해당 보일러플레이트를 스킵하고, 대체 패턴으로 생성한다
 - **MUST NOT** 프로젝트에 없는 패키지를 import하는 코드를 생성하지 않는다
 
+## Post-Creation: Widget Inspector
+
+생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 추출 후보가 있으면 리포팅하고, 없으면 조용히 넘어간다.
+
 ## Related Skills
 
 - 이 스킬은 디렉토리 구조 + 보일러플레이트만 생성. 이후 단계:
   - 화면 추가 → `flutter-screen`
   - Provider 생성 → `flutter-provider`
   - Widget 생성 → `flutter-widget`
+  - 위젯 추출 → `flutter-extract`
   - codegen 실행 → `flutter-run codegen`
