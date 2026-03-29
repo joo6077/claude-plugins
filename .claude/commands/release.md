@@ -55,6 +55,17 @@ bash scripts/release.sh <plugin-name> <bump-type>
 
 현재 버전은 해당 plugin.json에서 읽는다.
 
+## 릴리스 후 마켓플레이스 갱신
+
+스크립트가 성공하면 로컬 마켓플레이스 캐시를 갱신한다:
+
+```bash
+claude -p "/plugin marketplace update joo6077-plugins"
+```
+
+이 명령이 실패해도 릴리스 자체는 완료된 것이므로 에러로 취급하지 않고, 사용자에게 수동 실행을 안내한다:
+`/plugin marketplace update joo6077-plugins`
+
 ## 에러 처리
 
 - 스크립트가 실패하면 에러 메시지를 그대로 사용자에게 전달한다
