@@ -96,7 +96,9 @@
         {"text": "변경 파일 수로 quick/deep 모드를 자동 선택한다", "type": "behavior"},
         {"text": "ARCH에 맞는 Architecture 체크리스트를 적용한다", "type": "behavior"},
         {"text": "HAS_DS=false이면 Design System 검사를 스킵한다", "type": "behavior"},
-        {"text": "보고서에 파일:라인, 규칙, 심각도, 수정 제안이 포함된다", "type": "output"}
+        {"text": "보고서에 파일:라인, 규칙, 심각도, 수정 제안이 포함된다", "type": "output"},
+        {"text": "quick 모드에서 Reusability 체크리스트를 포함한다", "type": "behavior"},
+        {"text": "deep 모드에서 Widget Inspector 에이전트를 병렬 실행한다", "type": "behavior"}
       ]
     },
     {
@@ -168,6 +170,33 @@
     },
     {
       "id": 15,
+      "skill": "flutter-extract",
+      "prompt": "home_screen.dart에 있는 _InfoCard 위젯 공통으로 빼줘",
+      "expected_output": "private 위젯 분석 → 추출 계획 제시 → 사용자 확인 → public 위젯 생성 + 사용처 교체",
+      "assertions": [
+        {"text": "대상 파일을 읽어 _InfoCard의 구조를 분석한다", "type": "behavior"},
+        {"text": "추출 계획을 사용자에게 보여주고 확인받는다", "type": "behavior"},
+        {"text": "private → public 전환 시 하드코딩 값을 파라미터화한다", "type": "output"},
+        {"text": "shared 위젯 디렉토리를 프로젝트 구조에서 감지한다", "type": "behavior"},
+        {"text": "원본 파일의 사용처를 새 위젯으로 교체하고 import를 추가한다", "type": "output"},
+        {"text": "추출 후 analyze 실행으로 에러 없음을 확인한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 16,
+      "agent": "widget-inspector",
+      "prompt": "방금 만든 화면 주변에 재사용 가능한 위젯 있는지 봐줘",
+      "expected_output": "quick 모드로 변경 파일 주변 스캔 → 추출 후보 리포트 또는 Clean",
+      "assertions": [
+        {"text": "변경 파일의 feature 디렉토리 + shared 디렉토리를 범위로 스캔한다", "type": "behavior"},
+        {"text": "private 위젯 중 범용 UI 패턴을 감지한다", "type": "behavior"},
+        {"text": "build 메서드 크기와 분리 가능 서브트리를 측정한다", "type": "behavior"},
+        {"text": "발견된 후보마다 파일:라인 근거를 포함한다", "type": "output"},
+        {"text": "코드를 수정하지 않고 리포팅만 수행한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 17,
       "skill": "flutter-build",
       "prompt": "빌드해줘",
       "expected_output": "codegen → analyze 순서 실행, codegen 실패 시 analyze 스킵",
