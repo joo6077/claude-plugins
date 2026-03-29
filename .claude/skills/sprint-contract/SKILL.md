@@ -15,6 +15,20 @@ user-invocable: true
 구현 전에 "무엇이 완료인가"를 정의한다.
 QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 
+## 이 스킬 폴더의 파일
+
+필요할 때 읽어라:
+
+- `references/red-flags.md` — Red Flags + Rationalization Table (계약 품질 검증용)
+
+## Gotchas
+
+- 복잡도 판단에서 "단순"으로 과소평가하는 경향이 있다. 파일 수가 아니라 **영향 범위**(레이어 수, 공개 API 변경 여부)로 판단해라
+- `project.yaml`의 `contract_categories`를 무시하고 하드코딩된 카테고리(UI/Logic/Error)를 쓰면 안 된다. 반드시 config에서 읽어라
+- 조건을 "~가 잘 동작한다", "~를 적절히 처리한다"로 쓰면 QA Evaluator가 판정 불가능하다. 반드시 PASS/FAIL 이진 판정 가능한 문장으로 써라
+- 안티패턴을 0개로 두면 안 된다. `project.yaml`에 정의된 패턴 중 해당 기능에서 위반 가능성이 높은 것을 최소 2개 선별해라
+- 사용자가 "계약 필요없어"라고 해도 **생략할 수 없다**. 간소화된 계약(단순 복잡도, 최소 조건)을 제안해라
+
 ## 설정 로드
 
 `.harness/project.yaml`을 읽어 프로젝트 설정을 로드한다.
@@ -138,21 +152,6 @@ conditions: {N}
 
 기존 계약이 있으면 `.harness/history/{YYYYMMDD-HHmm}-sprint-contract.md`로 이동한다.
 
-## Red Flags — STOP
+## Red Flags + Rationalization Table
 
-- 조건이 "잘 동작해야 한다" 수준으로 모호하다
-- 모든 조건이 한 카테고리에 몰려 있다
-- 안티패턴이 0개다 (최소 2개는 있어야 한다)
-- 조건 수가 복잡도 대비 너무 적다
-
-## Rationalization Table
-
-| 변명 | 현실 |
-|------|------|
-| "간단한 기능이라 계약 불필요" | 간단한 기능도 done의 정의가 필요하다. 조건 수를 줄이면 된다 |
-| "이전에 비슷한 걸 만들어서 안다" | 아는 것과 합의한 것은 다르다. 계약은 QA의 기준이다 |
-| "급해서 바로 구현해야 한다" | 계약 없이 구현하면 QA에서 REJECT되어 더 오래 걸린다 |
-| "사용자가 귀찮아할 것이다" | 사용자 확인은 재작업을 방지한다. 5초면 충분하다 |
-| "사용자가 스킵하라고 했다" | 사용자 요청은 조건 수정/간소화 권한이지 계약 생략 권한이 아니다 |
-| "리팩터링이라 계약 불필요" | 2+ 파일 수정이면 리팩터링도 계약 대상이다 |
-| "Diagnostics 조건 빼줘" | Diagnostics/Reusability는 모든 계약에 자동 포함되는 품질 기준이다. 수정 불가 |
+`references/red-flags.md`를 읽어라. 계약 작성 후 반드시 해당 체크리스트로 자가 검증한다.

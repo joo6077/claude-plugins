@@ -1,29 +1,29 @@
 ---
-feature: "harness init 스킬"
-created: "2026-03-29 21:00"
-complexity: "단순"
+feature: "스킬 개선 + QA Evaluator 기본 엄격도 강화"
+created: "2026-03-29 17:00"
+complexity: "중간"
 conditions: 14
 ---
 
 ## Skill
-- [ ] SK-01: `harness/skills/init/SKILL.md` 파일이 존재한다
-- [ ] SK-02: frontmatter에 `name: init`이 있다
-- [ ] SK-03: frontmatter에 `user-invocable: true`가 있다
-- [ ] SK-04: frontmatter에 `argument-hint`가 있고 stack 인자를 안내한다
-- [ ] SK-05: 본문에 `.harness/` 존재 여부를 먼저 확인하도록 명시되어 있다
-- [ ] SK-06: 본문에 스택 자동 감지 로직이 명시되어 있다 (pubspec.yaml, Cargo.toml, package.json 등)
-- [ ] SK-07: 본문에 `scripts/init.sh` 실행 방법이 명시되어 있다
+- [ ] SK-01: init/SKILL.md에 Gotchas 섹션이 존재하고, Claude가 반복 실패할 수 있는 지점이 1개 이상 기록되어 있다
+- [ ] SK-02: sprint-contract/SKILL.md에 Gotchas 섹션이 존재하고, Claude가 반복 실패할 수 있는 지점이 1개 이상 기록되어 있다
+- [ ] SK-03: sprint-contract의 긴 본문(Red Flags, Rationalization Table)이 별도 references/ 파일로 분리되어 있다
+- [ ] SK-04: sprint-contract/SKILL.md 본문에 폴더 내 파일 목록이 명시되어 있어 Claude가 필요할 때 읽을 수 있다
+- [ ] SK-05: qa-evaluator.md의 Red Flags 섹션에서 "관대함은 버그다"가 기본 동작으로 강화되어 있다 — 기존 "넘기면 프로덕션에서 터진다"보다 구체적인 차단 규칙 추가
 
-## Script
-- [ ] SC-01: `harness/scripts/init.sh` 파일이 존재한다
-- [ ] SC-02: init.sh가 `.harness/project.yaml`을 생성한다
-- [ ] SC-03: init.sh가 `.harness/procedures/` 디렉토리와 카테고리별 파일을 생성한다
-- [ ] SC-04: init.sh가 인자로 받은 stack 값을 project.yaml에 반영한다
+## Architecture
+- [ ] AR-01: 분리된 파일의 경로가 스킬 폴더 기준 상대 경로로 참조된다
+- [ ] AR-02: SKILL.md의 기존 프로세스(6단계)와 핵심 규칙이 변경되지 않는다
+- [ ] AR-03: init 스킬은 단순 스킬(62줄)이므로 폴더 확장 없이 Gotchas만 추가한다
 
 ## Error
-- [ ] ER-01: init.sh가 `.harness/`가 이미 존재하면 에러 메시지를 출력하고 종료한다
-- [ ] ER-02: init.sh가 대상 디렉토리가 존재하지 않으면 에러 메시지를 출력하고 종료한다
+- [ ] ER-01: 분리된 references 파일이 존재하지 않을 때 SKILL.md 본문만으로도 스킬이 동작 가능하다
 
 ## Anti-patterns
 - [ ] AP-01: 버전을 하드코딩하지 않는다
 - [ ] AP-02: force push를 사용하지 않는다
+
+## Reusability
+- [ ] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다
+- [ ] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다
