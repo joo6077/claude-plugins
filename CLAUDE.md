@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 
 - **harness** — 스택 무관 범용 QA 프레임워크 (Sprint Contract + QA Evaluator)
-- **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 15종
+- **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 18종
 - **design-kit** — 스택 무관 UI/UX 디자인 플러그인 (디자인 시스템 세팅 + 실시간 가이드 + 감사)
 
 ## Commands
@@ -46,6 +46,7 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 ├── agents/                      # 독립 에이전트 (harness만 해당)
 ├── hooks/                       # SessionStart/PreToolUse 훅
 ├── evals/                       # 테스트 픽스처 및 assertions
+├── references/                  # 공유 참조 문서 (스키마, 소스 정책 등)
 ├── templates/                   # 초기화 템플릿
 ├── scripts/                     # 유틸리티 셸 스크립트
 └── README.md
@@ -69,7 +70,7 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 
 6 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다.
 
-가이드 문서 (`docs/guides/`): `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`, `qa-evaluation-guide.md`. 공유 참조 (`harness/references/`): `contract-schema.md` (계약 포맷), `feedback-schema.yaml` (피드백 스키마). 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`.
+가이드 문서 (`docs/guides/`): `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`, `qa-evaluation-guide.md`. 공유 참조 (`harness/references/`): `contract-schema.md` (계약 포맷), `feedback-schema.yaml` (피드백 스키마). 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`, `trigger-check-common.sh`.
 
 ### Skill Format
 
