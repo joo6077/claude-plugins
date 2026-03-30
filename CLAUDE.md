@@ -24,6 +24,11 @@ bash harness/scripts/env-check.sh
 bash harness/evals/kaizen/feedback-system/save-test.sh
 bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 
+# 카이젠 수동 실행
+# /kaizen — 전체 6 Phase 오케스트레이션
+# /contract-kaizen — sprint-contract만 개선
+# /evaluator-kaizen — qa-evaluator만 개선
+
 # flutter-toolkit evals
 # evals.json (flutter-toolkit/evals/evals.json) 참조 — 15개 테스트 케이스
 ```
@@ -62,7 +67,9 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 
 ### Kaizen Orchestration
 
-6 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다. 가이드 문서: `docs/guides/contract-design-guide.md`, `docs/guides/qa-evaluation-guide.md`. 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`.
+6 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다.
+
+가이드 문서 (`docs/guides/`): `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`, `qa-evaluation-guide.md`. 공유 참조 (`harness/references/`): `contract-schema.md` (계약 포맷), `feedback-schema.yaml` (피드백 스키마). 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`.
 
 ### Skill Format
 
