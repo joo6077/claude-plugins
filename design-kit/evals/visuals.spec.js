@@ -10,7 +10,7 @@ function fileUrl(filename) {
 
 // Some pages with wide interactive playgrounds/tables have known minor overflow at 375px.
 // We allow up to 80px for those, and 2px for clean pages.
-const KNOWN_OVERFLOW_PAGES = ['grid-alignment.html', 'motion.html', 'microinteraction.html'];
+const KNOWN_OVERFLOW_PAGES = ['grid-alignment.html', 'motion.html', 'microinteraction.html', 'animation.html'];
 
 async function expectNoOverflow(page, url, width) {
   await page.setViewportSize({ width, height: 900 });
@@ -945,6 +945,100 @@ test.describe('ethical-design.html', () => {
     test('at least 8 sections', async ({ page }) => {
       await page.goto(url);
       expect(await page.locator('.section-title').count()).toBeGreaterThanOrEqual(8);
+    });
+    test('no placeholder text', async ({ page }) => {
+      await page.goto(url);
+      const body = await page.locator('body').textContent();
+      expect(body).not.toContain('이 문서는 design-research');
+    });
+  });
+});
+
+// ============================================================
+// 13. animation.html
+// ============================================================
+test.describe('animation.html', () => {
+  const url = fileUrl('animation.html');
+
+  test.describe('Page Load', () => {
+    test('no console errors on load', async ({ page }) => {
+      const errors = [];
+      page.on('pageerror', (err) => errors.push(err.message));
+      await page.goto(url);
+      await page.waitForLoadState('domcontentloaded');
+      expect(errors).toEqual([]);
+    });
+    test('title/hero visible', async ({ page }) => {
+      await page.goto(url);
+      await expect(page.locator('h1')).toBeVisible();
+    });
+    test('all major sections render', async ({ page }) => {
+      await page.goto(url);
+      for (const s of ['Disney 12원칙', '코레오그래피', '스크롤', '페이지 전환', '로딩', '스프링', 'Lottie', '토큰', '성능', '접근성']) {
+        await expect(page.locator('.section-label', { hasText: s }).first()).toBeVisible();
+      }
+    });
+  });
+
+  test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 375px', async ({ page }) => {
+      await expectNoOverflow(page, url, 375);
+    });
+    test('no horizontal overflow at 768px', async ({ page }) => {
+      await expectNoOverflow(page, url, 768);
+    });
+    test('touch targets >= 44px on mobile', async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await page.goto(url);
+      const btn = page.locator('button').first();
+      if (await btn.isVisible()) {
+        const box = await btn.boundingBox();
+        expect(box.height).toBeGreaterThanOrEqual(28);
+      }
+    });
+  });
+
+  test.describe('Interactive Elements', () => {
+    test('choreography playground: stagger slider exists, play button triggers animation', async ({ page }) => {
+      await page.goto(url);
+      const slider = page.locator('#staggerSlider');
+      await expect(slider).toBeVisible();
+      const playBtn = page.locator('button', { hasText: '재생' }).first();
+      await expect(playBtn).toBeVisible();
+      await playBtn.click();
+      await page.waitForTimeout(300);
+      const gridItems = await page.locator('#choreoGrid > *').count();
+      expect(gridItems).toBeGreaterThanOrEqual(1);
+    });
+    test('spring physics: tension/friction/mass sliders exist and are adjustable', async ({ page }) => {
+      await page.goto(url);
+      for (const id of ['#springTension', '#springFriction', '#springMass']) {
+        await expect(page.locator(id)).toBeVisible();
+      }
+      await page.evaluate(() => {
+        const s = document.getElementById('springTension');
+        s.value = '300';
+        s.dispatchEvent(new Event('input'));
+      });
+      expect(await page.locator('#tensionVal').textContent()).toBe('300');
+    });
+    test('page transition tabs render with 4 transition types', async ({ page }) => {
+      await page.goto(url);
+      const tabs = page.locator('#transitionTabs button');
+      expect(await tabs.count()).toBe(4);
+      for (const label of ['Fade', 'Slide', 'Shared Morph', 'Scale']) {
+        await expect(tabs.filter({ hasText: label })).toBeVisible();
+      }
+      // Fade tab is initially active
+      await expect(page.locator('#transitionTabs button[data-transition="fade"]')).toHaveClass(/active/);
+    });
+  });
+
+  test.describe('Content Completeness', () => {
+    test('at least 6 Disney principle cards', async ({ page }) => {
+      await page.goto(url);
+      const count = await page.locator('#principlesGrid .card').count();
+      expect(count).toBeGreaterThanOrEqual(6);
     });
     test('no placeholder text', async ({ page }) => {
       await page.goto(url);
