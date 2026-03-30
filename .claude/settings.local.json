@@ -9,7 +9,12 @@
       "Read(//c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins/$HOME/.claude/plugins/**)",
       "Bash(claude:*)",
       "Bash(cmd.exe /c \"rmdir /s /q C:\\\\Users\\\\khjoo\\\\.claude\\\\plugins\\\\marketplaces\\\\claude-plugins-official\" 2>&1)",
-      "Bash(bash /c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins/harness/scripts/init.sh /c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins generic 2>&1)"
+      "Bash(bash /c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins/harness/scripts/init.sh /c/Users/khjoo/Desktop/Developments/01_Work/claude-plugins generic 2>&1)",
+      "WebFetch(domain:m3.material.io)",
+      "WebFetch(domain:www.w3.org)",
+      "WebSearch",
+      "WebFetch(domain:www.radix-ui.com)",
+      "WebFetch(domain:ui.shadcn.com)"
     ]
   }
 }
