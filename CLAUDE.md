@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-Claude Code 플러그인 모노레포. 두 개의 플러그인을 포함한다:
+Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 
 - **harness** — 스택 무관 범용 QA 프레임워크 (Sprint Contract + QA Evaluator)
 - **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 15종
+- **design-kit** — 스택 무관 UI/UX 디자인 플러그인 (디자인 시스템 세팅 + 실시간 가이드 + 감사)
 
 ## Commands
 
