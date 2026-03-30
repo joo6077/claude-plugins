@@ -4,8 +4,8 @@
 
 ```
 Phase 1: 설계 가이드
-  docs/skill-design-guide.md
-  docs/agent-design-guide.md
+  docs/guides/skill-design-guide.md
+  docs/guides/agent-design-guide.md
       ↓ 설계 원칙이 Phase 2~3의 판단 기준
 Phase 2: harness
   harness/skills/*/SKILL.md

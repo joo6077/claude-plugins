@@ -1,3 +1,9 @@
+---
+title: Kaizen Research Log
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Kaizen Research Log
 
 > 매주 연구한 소스와 채택/폐기 여부를 기록한다.

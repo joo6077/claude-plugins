@@ -1,3 +1,9 @@
+---
+title: Claude Code 스킬 설계 가이드
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Claude Code 스킬 설계 가이드
 
 > Anthropic이 내부 스킬을 분석하며 발견한 설계 원칙과 실전 팁 정리

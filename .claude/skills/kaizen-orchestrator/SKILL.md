@@ -35,7 +35,7 @@ user-invocable: true
 ## 의존성 체인
 
 ```
-Phase 1: 설계 가이드 (docs/skill-design-guide.md, docs/agent-design-guide.md)
+Phase 1: 설계 가이드 (docs/guides/skill-design-guide.md, docs/guides/agent-design-guide.md)
     ↓ 설계 원칙이 하위 모든 스킬/에이전트의 기준
 Phase 2: harness (project.yaml, procedures, skills, agents)
     ↓ QA 프레임워크가 flutter-toolkit eval/audit의 기반
@@ -80,7 +80,7 @@ Final: 전체 크로스 Phase 정합성 검증
 
 ### Step 1: Phase 1 — 설계 가이드
 
-**범위:** `docs/skill-design-guide.md`, `docs/agent-design-guide.md`
+**범위:** `docs/guides/skill-design-guide.md`, `docs/guides/agent-design-guide.md`
 
 1. **ANALYZE:**
    - Step 0 리서치 중 Phase 1 배정 인사이트와 현재 가이드를 비교

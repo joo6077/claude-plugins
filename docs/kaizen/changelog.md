@@ -1,3 +1,9 @@
+---
+title: Kaizen Changelog
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Kaizen Changelog
 
 > harness-kaizen 스킬이 적용한 모든 변경의 이력.
@@ -17,7 +23,7 @@
 - [agentic-code](https://github.com/shinpr/agentic-code) — "LLMs cannot reliably review their own outputs within the same context"
 
 ### 변경 내역
-- **docs/skill-design-guide.md**: Section 3.5 "검증 가능한 성공 기준을 제공하라" 추가
+- **docs/guides/skill-design-guide.md**: Section 3.5 "검증 가능한 성공 기준을 제공하라" 추가
   - Before: 검증 관련 원칙 없음
   - After: 스킬별 검증 기준 예시 테이블 + 자가 검증 흐름 추가
   - 근거: [Claude Code Best Practices](https://code.claude.com/docs/en/best-practices)

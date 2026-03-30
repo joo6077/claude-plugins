@@ -2,7 +2,7 @@
 name: create-skill
 description: >
   설계 가이드 기반으로 새 스킬을 생성한다.
-  docs/skill-design-guide.md의 9가지 아키타입, Gotchas 패턴, 폴더 구조,
+  docs/guides/skill-design-guide.md의 9가지 아키타입, Gotchas 패턴, 폴더 구조,
   description 작성법을 따라 SKILL.md + 폴더를 스캐폴딩한다.
   "스킬 만들어줘", "새 스킬", "create skill", "skill 생성",
   "스킬 추가" 같은 요청 시 트리거.
@@ -13,7 +13,7 @@ user-invocable: true
 
 # Create Skill
 
-`docs/skill-design-guide.md`를 기반으로 설계 원칙에 맞는 스킬을 생성한다.
+`docs/guides/skill-design-guide.md`를 기반으로 설계 원칙에 맞는 스킬을 생성한다.
 
 ## Gotchas
 
@@ -26,7 +26,7 @@ user-invocable: true
 
 ### 1. 설계 가이드 읽기
 
-`docs/skill-design-guide.md`를 읽어 최신 설계 원칙을 확인한다.
+`docs/guides/skill-design-guide.md`를 읽어 최신 설계 원칙을 확인한다.
 특히 아래 섹션을 참조:
 - 섹션 2: 9가지 스킬 유형 체크리스트
 - 섹션 3: Gotchas 작성법

@@ -77,7 +77,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 ## Key Conventions
 
 - 모든 문서와 커밋 메시지는 한국어 사용
-- 스킬 설계는 `docs/skill-design-guide.md`의 9가지 아키타입을 따른다
+- 스킬 설계는 `docs/guides/skill-design-guide.md`의 9가지 아키타입을 따른다
 - Gotchas 섹션이 스킬에서 가장 중요한 부분 — Claude가 반복하는 실수를 방지한다
 - harness evals는 `evals/test-fixtures/fixture-a~e` 디렉토리에 계약 시나리오별 테스트가 있다
 - flutter-toolkit evals는 `evals/evals.json`에 15개 스킬별 assertion이 정의되어 있다

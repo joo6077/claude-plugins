@@ -1,3 +1,9 @@
+---
+title: Harness Kaizen — 지속적 개선 스킬 설계 스펙
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Harness Kaizen — 지속적 개선 스킬 설계 스펙
 
 > 학술 논문, 공식 문서, 커뮤니티 리서치를 기반으로 하네스 엔지니어링을 주기적·자동으로 개선하는 스킬
@@ -29,7 +35,7 @@
 | 에이전트 로직 | `harness/agents/qa-evaluator.md` | 평가 로직 강화, 검증 패턴 추가 |
 | Eval | `harness/evals/` | 테스트 픽스처 추가, 평가 기준 보완 |
 | 아키텍처 | `harness/` 전체 구조 | 폴더 구조, 훅, 스크립트 |
-| 설계 가이드 | `docs/skill-design-guide.md` | 새 원칙/패턴 발견 시 반영 |
+| 설계 가이드 | `docs/guides/skill-design-guide.md` | 새 원칙/패턴 발견 시 반영 |
 
 ---
 
@@ -85,7 +91,7 @@
 
 [ANALYZE] 갭 분석
 ├─ 현재 하네스 상태 스캔
-│  (project.yaml, skills, agents, evals, docs/skill-design-guide.md)
+│  (project.yaml, skills, agents, evals, docs/guides/skill-design-guide.md)
 └─ 수집된 연구 vs 현재 상태 비교 → 개선 포인트 도출
 
     ↓
@@ -279,7 +285,7 @@ docs/kaizen/
 | `/harness-kaizen` | 전체 영역 리서치 + PR |
 | `/harness-kaizen config` | `.harness/` 설정 영역만 집중 |
 | `/harness-kaizen skills` | 스킬 프롬프트 영역만 집중 |
-| `/harness-kaizen guide` | `docs/skill-design-guide.md`만 집중 |
+| `/harness-kaizen guide` | `docs/guides/skill-design-guide.md`만 집중 |
 
 ---
 

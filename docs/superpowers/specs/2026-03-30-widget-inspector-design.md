@@ -1,3 +1,9 @@
+---
+title: Widget Inspector 에이전트 + Flutter Extract 스킬 설계
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Widget Inspector 에이전트 + Flutter Extract 스킬 설계
 
 > flutter-toolkit에 재사용 가능한 위젯 패턴 감지(에이전트) + 추출(스킬)을 추가한다.

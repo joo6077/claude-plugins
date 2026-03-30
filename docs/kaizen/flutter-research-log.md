@@ -1,3 +1,9 @@
+---
+title: Flutter Kaizen Research Log
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Flutter Kaizen Research Log
 
 > flutter-kaizen 스킬 실행 시 연구 결과를 누적 기록한다.

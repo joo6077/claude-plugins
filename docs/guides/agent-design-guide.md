@@ -1,3 +1,9 @@
+---
+title: Claude Code 에이전트 설계 가이드
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Claude Code 에이전트 설계 가이드
 
 > 공식 문서, Anthropic 연구, 학술 논문, 커뮤니티 실전 경험을 기반으로 정리한 에이전트(서브에이전트) 설계 원칙과 실전 팁

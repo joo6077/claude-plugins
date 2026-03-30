@@ -11,8 +11,8 @@ conditions: 18
 - [ ] SK-03: create-skill description에 트리거 키워드("스킬 만들어줘", "create skill")와 비트리거 조건(기존 스킬 수정 제외)이 포함된다
 - [ ] SK-04: create-agent description에 트리거 키워드("에이전트 만들어줘", "create agent")와 비트리거 조건(스킬로 충분한 경우 제외)이 포함된다
 - [ ] SK-05: 두 스킬 모두 Gotchas 섹션이 존재하고 최소 3개 항목이 있다
-- [ ] SK-06: create-skill의 Process가 설계 가이드(docs/skill-design-guide.md)를 읽는 단계로 시작한다
-- [ ] SK-07: create-agent의 Process가 설계 가이드(docs/agent-design-guide.md)를 읽는 단계로 시작한다
+- [ ] SK-06: create-skill의 Process가 설계 가이드(docs/guides/skill-design-guide.md)를 읽는 단계로 시작한다
+- [ ] SK-07: create-agent의 Process가 설계 가이드(docs/guides/agent-design-guide.md)를 읽는 단계로 시작한다
 - [ ] SK-08: create-agent에 "스킬로 충분한지 먼저 판단" 단계가 포함된다
 
 ## Architecture

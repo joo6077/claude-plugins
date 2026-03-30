@@ -1,3 +1,9 @@
+---
+title: Flutter Kaizen Changelog
+version: 1.0.0
+last_updated: 2026-03-30
+---
+
 # Flutter Kaizen Changelog
 
 > flutter-kaizen에 의한 flutter-toolkit 변경 이력을 기록한다.
