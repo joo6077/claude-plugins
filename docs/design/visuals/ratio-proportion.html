@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비율과 프로포션</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#242837;--border:#2e3348;--text:#e8eaed;--text2:#9aa0b4;--text3:#636980;--accent:#60a5fa;--accent2:#a78bfa;--gold:#fbbf24;--radius:12px}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:32px;max-width:1200px;margin:0 auto}
+  h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:8px}
+  .subtitle{color:var(--text2);font-size:15px;margin-bottom:40px}
+  .section{margin-bottom:56px}
+  .section-title{font-size:18px;font-weight:600;margin-bottom:24px;color:var(--text2);display:flex;align-items:center;gap:10px}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:768px){.two-col{grid-template-columns:1fr}}
+
+  /* Golden Ratio Grid */
+  .golden-demo{position:relative;width:100%;aspect-ratio:1.618/1;background:var(--surface2);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+  .golden-rect{position:absolute;border:2px solid var(--gold)}
+  .golden-spiral{position:absolute;top:0;left:0;width:100%;height:100%}
+  .golden-label{position:absolute;font-size:11px;color:var(--gold);font-weight:600;padding:4px 8px;background:rgba(0,0,0,0.5);border-radius:4px}
+  .golden-controls{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .golden-controls button{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer}
+  .golden-controls button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* Rule of Thirds */
+  .thirds-demo{position:relative;width:100%;aspect-ratio:16/9;background:var(--surface2);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+  .thirds-line{position:absolute;background:rgba(96,165,250,0.4)}
+  .thirds-point{position:absolute;width:12px;height:12px;background:var(--accent);border-radius:50%;transform:translate(-50%,-50%);z-index:2}
+  .thirds-label{position:absolute;font-size:10px;color:var(--accent);transform:translate(-50%,-50%);margin-top:16px;white-space:nowrap}
+
+  /* Modular Scale Calculator */
+  .calc-inputs{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+  .calc-group{display:flex;align-items:center;gap:8px}
+  .calc-group label{font-size:13px;color:var(--text2)}
+  .calc-group input,.calc-group select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 12px;font-size:13px;outline:none;width:100px}
+  .calc-group select{width:auto}
+  .calc-group input:focus,.calc-group select:focus{border-color:var(--accent)}
+  .scale-output{display:flex;flex-direction:column;gap:6px}
+  .scale-row{display:grid;grid-template-columns:60px 80px 1fr;align-items:center;gap:12px;padding:8px 12px;background:var(--surface2);border-radius:6px}
+  .scale-step{font-size:12px;color:var(--accent);font-family:monospace;font-weight:600}
+  .scale-value{font-size:13px;color:var(--text);font-family:monospace}
+  .scale-bar{height:20px;border-radius:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));opacity:0.6;transition:all 0.3s}
+  .scale-row:hover .scale-bar{opacity:1}
+  .scale-row.base{background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3)}
+
+  /* Aspect Ratios */
+  .ratio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+  .ratio-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.3s}
+  .ratio-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
+  .ratio-preview{background:var(--surface2);display:flex;align-items:center;justify-content:center;padding:16px}
+  .ratio-box{border:2px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:600;max-width:100%;max-height:120px}
+  .ratio-info{padding:14px}
+  .ratio-name{font-size:15px;font-weight:600;margin-bottom:2px}
+  .ratio-detail{font-size:12px;color:var(--text2)}
+  .ratio-use{font-size:11px;color:var(--text3);margin-top:4px}
+</style>
+</head>
+<body>
+<h1>비율과 프로포션 (Ratio & Proportion)</h1>
+<p class="subtitle">황금비, 3분할 법칙, 모듈러 스케일, 화면 비율 — 인터랙티브 시각화</p>
+
+<!-- Golden Ratio -->
+<div class="section">
+  <div class="section-title">황금비 그리드 (Golden Ratio Grid)</div>
+  <div class="card">
+    <div class="golden-demo" id="goldenDemo"></div>
+    <div class="golden-controls">
+      <button class="active" onclick="setGoldenMode('spiral')">황금 나선</button>
+      <button onclick="setGoldenMode('grid')">황금 분할 그리드</button>
+      <button onclick="setGoldenMode('layout')">2단 레이아웃</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rule of Thirds -->
+<div class="section">
+  <div class="section-title">3분할 법칙 (Rule of Thirds)</div>
+  <div class="card">
+    <div class="thirds-demo" id="thirdsDemo">
+      <!-- Vertical lines -->
+      <div class="thirds-line" style="left:33.33%;top:0;width:1px;height:100%"></div>
+      <div class="thirds-line" style="left:66.66%;top:0;width:1px;height:100%"></div>
+      <!-- Horizontal lines -->
+      <div class="thirds-line" style="top:33.33%;left:0;height:1px;width:100%"></div>
+      <div class="thirds-line" style="top:66.66%;left:0;height:1px;width:100%"></div>
+      <!-- Power points -->
+      <div class="thirds-point" style="left:33.33%;top:33.33%"></div>
+      <div class="thirds-label" style="left:33.33%;top:33.33%">Power Point 1</div>
+      <div class="thirds-point" style="left:66.66%;top:33.33%"></div>
+      <div class="thirds-label" style="left:66.66%;top:33.33%">Power Point 2</div>
+      <div class="thirds-point" style="left:33.33%;top:66.66%"></div>
+      <div class="thirds-label" style="left:33.33%;top:66.66%">Power Point 3</div>
+      <div class="thirds-point" style="left:66.66%;top:66.66%"></div>
+      <div class="thirds-label" style="left:66.66%;top:66.66%">Power Point 4</div>
+      <!-- Sample elements -->
+      <div style="position:absolute;left:5%;top:5%;width:28%;height:61%;background:rgba(96,165,250,0.15);border:1px dashed rgba(96,165,250,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)">사이드 내비</div>
+      <div style="position:absolute;left:35%;top:5%;width:60%;height:28%;background:rgba(167,139,250,0.15);border:1px dashed rgba(167,139,250,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent2)">Hero 영역</div>
+      <div style="position:absolute;left:35%;top:38%;width:60%;height:28%;background:rgba(74,222,128,0.1);border:1px dashed rgba(74,222,128,0.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#4ade80">메인 콘텐츠</div>
+      <div style="position:absolute;left:5%;top:70%;width:90%;height:25%;background:rgba(248,113,113,0.1);border:1px dashed rgba(248,113,113,0.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#f87171">CTA 영역</div>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-top:12px;text-align:center">UI 요소를 교차점(Power Point)에 배치하면 시각적 긴장감과 균형을 동시에 확보</div>
+  </div>
+</div>
+
+<!-- Modular Scale Calculator -->
+<div class="section">
+  <div class="section-title">모듈러 스케일 계산기</div>
+  <div class="card">
+    <div class="calc-inputs">
+      <div class="calc-group">
+        <label>기준값 (Base)</label>
+        <input type="number" id="calcBase" value="16" min="8" max="32" oninput="calcScale()">
+        <span style="font-size:12px;color:var(--text3)">px</span>
+      </div>
+      <div class="calc-group">
+        <label>비율 (Ratio)</label>
+        <select id="calcRatio" onchange="calcScale()">
+          <option value="1.067">Minor Second (1.067)</option>
+          <option value="1.125">Major Second (1.125)</option>
+          <option value="1.200">Minor Third (1.200)</option>
+          <option value="1.250">Major Third (1.250)</option>
+          <option value="1.333" selected>Perfect Fourth (1.333)</option>
+          <option value="1.414">Augmented Fourth (1.414)</option>
+          <option value="1.500">Perfect Fifth (1.500)</option>
+          <option value="1.618">Golden Ratio (1.618)</option>
+        </select>
+      </div>
+    </div>
+    <div class="scale-output" id="scaleOutput"></div>
+  </div>
+</div>
+
+<!-- Aspect Ratios -->
+<div class="section">
+  <div class="section-title">화면 비율 비교</div>
+  <div class="ratio-grid" id="ratioGrid"></div>
+</div>
+
+<script>
+/* Golden Ratio Demo */
+const PHI=1.618;
+let goldenMode='spiral';
+
+function setGoldenMode(mode){
+  goldenMode=mode;
+  document.querySelectorAll('.golden-controls button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderGolden();
+}
+
+function renderGolden(){
+  const demo=document.getElementById('goldenDemo');
+  const w=demo.offsetWidth,h=demo.offsetHeight;
+  let html='';
+
+  if(goldenMode==='spiral'){
+    // Draw golden rectangles recursively
+    const rects=[];
+    let x=0,y=0,rw=w,rh=h,dir=0;
+    for(let i=0;i<8;i++){
+      rects.push({x,y,w:rw,h:rh});
+      const sq=dir%2===0?rh:rw;
+      if(dir===0){x+=rh;rw-=rh;} // right
+      else if(dir===1){rh-=rw;} // bottom
+      else if(dir===2){rw-=rh;x-=0;} // left - simplified
+      else{y+=rw;rh-=rw;} // top
+      dir=(dir+1)%4;
+    }
+    // Simplified: draw proportion lines
+    const mainW=w/PHI;
+    const mainH=h/PHI;
+    html+=`<div style="position:absolute;left:0;top:0;width:${mainW}px;height:100%;border-right:2px solid var(--gold);opacity:0.6"></div>`;
+    html+=`<div class="golden-label" style="top:8px;left:${mainW+8}px">61.8%</div>`;
+    html+=`<div class="golden-label" style="top:8px;left:${mainW/2-20}px">38.2%... wait</div>`;
+    // Better: clear golden spiral visualization
+    html=`
+      <svg width="${w}" height="${h}" style="position:absolute;top:0;left:0">
+        <line x1="${w*0.618}" y1="0" x2="${w*0.618}" y2="${h}" stroke="rgba(251,191,36,0.5)" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <line x1="0" y1="${h*0.618}" x2="${w}" y2="${h*0.618}" stroke="rgba(251,191,36,0.5)" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <line x1="${w*0.382}" y1="0" x2="${w*0.382}" y2="${h}" stroke="rgba(251,191,36,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="0" y1="${h*0.382}" x2="${w}" y2="${h*0.382}" stroke="rgba(251,191,36,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
+        <rect x="0" y="0" width="${w*0.618}" height="${h*0.618}" fill="none" stroke="var(--gold)" stroke-width="2" rx="2"/>
+        <rect x="${w*0.618}" y="0" width="${w*0.382}" height="${h*0.382}" fill="none" stroke="var(--gold)" stroke-width="1.5" rx="2" opacity="0.7"/>
+        <rect x="${w*0.618}" y="${h*0.382}" width="${w*0.382*0.618}" height="${h*0.382*0.618}" fill="none" stroke="var(--gold)" stroke-width="1" rx="2" opacity="0.5"/>
+        <!-- Spiral approximation -->
+        <path d="M ${w*0.618} ${h*0.618}
+                 Q ${w*0.618} ${h*0.2} ${w*0.85} ${h*0.15}
+                 Q ${w*0.95} ${h*0.15} ${w*0.95} ${h*0.38}
+                 Q ${w*0.95} ${h*0.55} ${w*0.82} ${h*0.55}
+                 Q ${w*0.72} ${h*0.55} ${w*0.72} ${h*0.45}"
+              fill="none" stroke="var(--gold)" stroke-width="2.5" opacity="0.8"/>
+        <text x="${w*0.31}" y="${h*0.5}" fill="var(--gold)" font-size="13" font-weight="600" text-anchor="middle" opacity="0.8">61.8%</text>
+        <text x="${w*0.8}" y="${h*0.2}" fill="var(--gold)" font-size="11" font-weight="600" text-anchor="middle" opacity="0.6">38.2%</text>
+      </svg>`;
+  } else if(goldenMode==='grid'){
+    html=`<svg width="${w}" height="${h}" style="position:absolute;top:0;left:0">
+      <line x1="${w*0.382}" y1="0" x2="${w*0.382}" y2="${h}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
+      <line x1="${w*0.618}" y1="0" x2="${w*0.618}" y2="${h}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
+      <line x1="0" y1="${h*0.382}" x2="${w}" y2="${h*0.382}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
+      <line x1="0" y1="${h*0.618}" x2="${w}" y2="${h*0.618}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
+      <circle cx="${w*0.382}" cy="${h*0.382}" r="6" fill="var(--gold)" opacity="0.8"/>
+      <circle cx="${w*0.618}" cy="${h*0.382}" r="6" fill="var(--gold)" opacity="0.8"/>
+      <circle cx="${w*0.382}" cy="${h*0.618}" r="6" fill="var(--gold)" opacity="0.8"/>
+      <circle cx="${w*0.618}" cy="${h*0.618}" r="6" fill="var(--gold)" opacity="0.8"/>
+      <text x="${w*0.19}" y="${h-12}" fill="var(--gold)" font-size="12" text-anchor="middle" opacity="0.7">38.2%</text>
+      <text x="${w*0.5}" y="${h-12}" fill="var(--gold)" font-size="12" text-anchor="middle" opacity="0.7">23.6%</text>
+      <text x="${w*0.81}" y="${h-12}" fill="var(--gold)" font-size="12" text-anchor="middle" opacity="0.7">38.2%</text>
+    </svg>`;
+  } else {
+    const mainW=w*0.618;
+    html=`
+      <div style="position:absolute;left:0;top:0;width:${mainW}px;height:100%;background:rgba(96,165,250,0.08);border-right:2px solid var(--accent)">
+        <div style="padding:20px;font-size:13px;color:var(--accent);font-weight:600">메인 콘텐츠 (61.8%)</div>
+        <div style="padding:0 20px">
+          <div style="background:var(--surface);border-radius:6px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">헤드라인 영역</div>
+          <div style="background:var(--surface);border-radius:6px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">본문 콘텐츠</div>
+          <div style="background:var(--surface);border-radius:6px;padding:12px;font-size:12px;color:var(--text2)">추가 콘텐츠</div>
+        </div>
+      </div>
+      <div style="position:absolute;left:${mainW}px;top:0;width:${w-mainW}px;height:100%;background:rgba(167,139,250,0.08)">
+        <div style="padding:20px;font-size:13px;color:var(--accent2);font-weight:600">사이드바 (38.2%)</div>
+        <div style="padding:0 20px">
+          <div style="background:var(--surface);border-radius:6px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">위젯 A</div>
+          <div style="background:var(--surface);border-radius:6px;padding:12px;font-size:12px;color:var(--text2)">위젯 B</div>
+        </div>
+      </div>`;
+  }
+  demo.innerHTML=html;
+}
+
+/* Modular Scale Calculator */
+function calcScale(){
+  const base=parseFloat(document.getElementById('calcBase').value)||16;
+  const ratio=parseFloat(document.getElementById('calcRatio').value)||1.333;
+  const steps=[];
+  for(let i=-3;i<=8;i++){
+    const val=base*Math.pow(ratio,i);
+    steps.push({step:i,value:Math.round(val*10)/10});
+  }
+  const maxVal=steps[steps.length-1].value;
+  const container=document.getElementById('scaleOutput');
+  const roles=['','','Caption','Small','Body','H5/Sub','H4','H3','H2','H1','Display 1','Display 2'];
+  container.innerHTML=steps.map((s,idx)=>`
+    <div class="scale-row ${s.step===0?'base':''}">
+      <div class="scale-step">${s.step>=0?'+':''}${s.step}</div>
+      <div class="scale-value">${s.value}px</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="scale-bar" style="width:${(s.value/maxVal)*100}%;height:${Math.max(8,Math.min(32,s.value/2))}px"></div>
+        <span style="font-size:11px;color:var(--text3)">${roles[idx]||''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* Aspect Ratios */
+const ratios=[
+  {name:'16:9',w:16,h:9,desc:'와이드스크린',use:'데스크톱, YouTube, TV'},
+  {name:'4:3',w:4,h:3,desc:'클래식',use:'태블릿(iPad), 문서'},
+  {name:'1:1',w:1,h:1,desc:'정사각형',use:'프로필, 소셜 미디어'},
+  {name:'3:2',w:3,h:2,desc:'사진 표준',use:'Surface, DSLR'},
+  {name:'21:9',w:21,h:9,desc:'울트라와이드',use:'시네마, 울트라와이드 모니터'},
+  {name:'9:16',w:9,h:16,desc:'세로 영상',use:'모바일, Shorts, Reels'},
+  {name:'2:3',w:2,h:3,desc:'포트레이트',use:'Pinterest, 포스터'},
+  {name:'1.91:1',w:1.91,h:1,desc:'OG 이미지',use:'SNS 공유 미리보기'},
+];
+
+function renderRatios(){
+  const grid=document.getElementById('ratioGrid');
+  grid.innerHTML=ratios.map(r=>{
+    const scale=Math.min(160/r.w,120/r.h);
+    const bw=Math.round(r.w*scale);
+    const bh=Math.round(r.h*scale);
+    return `<div class="ratio-card">
+      <div class="ratio-preview">
+        <div class="ratio-box" style="width:${bw}px;height:${bh}px">${r.name}</div>
+      </div>
+      <div class="ratio-info">
+        <div class="ratio-name">${r.name} <span style="font-size:12px;color:var(--text3);font-weight:400">${r.desc}</span></div>
+        <div class="ratio-detail">${(r.w/r.h).toFixed(3)} : 1</div>
+        <div class="ratio-use">${r.use}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Init
+renderGolden();
+calcScale();
+renderRatios();
+
+// Re-render golden on resize
+window.addEventListener('resize',()=>{renderGolden()});
+</script>
+</body>
+</html>

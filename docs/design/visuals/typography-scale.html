@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>타이포그래피 스케일</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#242837;--border:#2e3348;--text:#e8eaed;--text2:#9aa0b4;--text3:#636980;--accent:#60a5fa;--radius:12px}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:32px;max-width:1200px;margin:0 auto}
+  h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:8px}
+  .subtitle{color:var(--text2);font-size:15px;margin-bottom:40px}
+  .section{margin-bottom:56px}
+  .section-title{font-size:18px;font-weight:600;margin-bottom:24px;color:var(--text2);display:flex;align-items:center;gap:10px}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+  .scale-table{width:100%;border-collapse:collapse}
+  .scale-row{display:grid;grid-template-columns:140px 80px 80px 1fr;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--border);gap:16px}
+  .scale-row:last-child{border-bottom:none}
+  .scale-label{font-size:13px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+  .scale-size{font-size:13px;color:var(--text2);font-family:monospace}
+  .scale-lh{font-size:13px;color:var(--text3);font-family:monospace}
+  .scale-preview{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lh-demo{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .lh-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;position:relative}
+  .lh-card-title{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:16px}
+  .lh-sample{position:relative}
+  .lh-sample p{margin:0}
+  .lh-lines{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+  .lh-line{border-bottom:1px dashed rgba(96,165,250,0.2);position:absolute;left:0;right:0}
+  .responsive-demo{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;overflow:hidden}
+  .responsive-demo-title{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:16px}
+  .responsive-preview{resize:horizontal;overflow:auto;border:2px dashed var(--border);border-radius:8px;padding:24px;min-width:280px;max-width:100%}
+  .responsive-preview h2{margin-bottom:8px;transition:font-size 0.2s}
+  .responsive-preview p{margin-bottom:12px;transition:font-size 0.2s;color:var(--text2)}
+  .resize-hint{font-size:12px;color:var(--text3);margin-top:12px;text-align:center}
+  .controls{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+  .control-group{display:flex;align-items:center;gap:8px}
+  .control-group label{font-size:13px;color:var(--text2)}
+  select,input[type="number"]{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 12px;font-size:13px;outline:none}
+  select:focus,input:focus{border-color:var(--accent)}
+  .ratio-badge{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--accent);margin-left:8px;font-family:monospace}
+</style>
+</head>
+<body>
+<h1>타이포그래피 스케일</h1>
+<p class="subtitle">Material Design 3 타입 스케일 기반 — 모듈러 비율로 생성되는 체계적 타이포그래피</p>
+
+<div class="section">
+  <div class="section-title">스케일 설정</div>
+  <div class="controls">
+    <div class="control-group">
+      <label>기준 크기 (Base)</label>
+      <input type="number" id="baseSize" value="16" min="10" max="24" onchange="renderScale()"> <span style="color:var(--text3);font-size:13px">px</span>
+    </div>
+    <div class="control-group">
+      <label>비율 (Ratio)</label>
+      <select id="scaleRatio" onchange="renderScale()">
+        <option value="1.067">Minor Second (1.067)</option>
+        <option value="1.125">Major Second (1.125)</option>
+        <option value="1.200">Minor Third (1.200)</option>
+        <option value="1.250">Major Third (1.250)</option>
+        <option value="1.333" selected>Perfect Fourth (1.333)</option>
+        <option value="1.414">Augmented Fourth (1.414)</option>
+        <option value="1.500">Perfect Fifth (1.500)</option>
+        <option value="1.618">Golden Ratio (1.618)</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">MD3 타입 스케일 <span class="ratio-badge" id="currentRatio">×1.333</span></div>
+  <div id="scaleRows"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">행간 (Line Height) 시각화</div>
+  <div class="lh-demo">
+    <div class="lh-card">
+      <div class="lh-card-title">line-height: 1.2 (좁은 행간)</div>
+      <div class="lh-sample" id="lhTight"></div>
+    </div>
+    <div class="lh-card">
+      <div class="lh-card-title">line-height: 1.5 (표준 행간)</div>
+      <div class="lh-sample" id="lhNormal"></div>
+    </div>
+    <div class="lh-card">
+      <div class="lh-card-title">line-height: 1.75 (넓은 행간)</div>
+      <div class="lh-sample" id="lhLoose"></div>
+    </div>
+    <div class="lh-card">
+      <div class="lh-card-title">line-height: 2.0 (매우 넓은 행간)</div>
+      <div class="lh-sample" id="lhExtraLoose"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">반응형 타이포그래피 데모</div>
+  <div class="responsive-demo">
+    <div class="responsive-demo-title">브라우저 너비를 조절하거나 아래 박스를 리사이즈하세요</div>
+    <div class="responsive-preview" id="responsivePreview">
+      <h2 style="font-size:clamp(1.25rem, 2vw + 0.5rem, 2.5rem);line-height:1.2;color:var(--text)">반응형 제목: 화면 크기에 따라 변합니다</h2>
+      <p style="font-size:clamp(0.875rem, 0.5vw + 0.75rem, 1.125rem);line-height:1.6">본문 텍스트는 clamp() 함수를 사용하여 최소-선호-최대 크기 범위 내에서 유동적으로 조절됩니다. 이를 통해 모바일에서 데스크톱까지 매끄러운 타이포그래피를 구현할 수 있습니다. 디자인 시스템에서 반응형 타이포그래피는 하드코딩된 브레이크포인트 대신 이러한 유동적 스케일을 권장합니다.</p>
+      <p style="font-size:clamp(0.75rem, 0.3vw + 0.65rem, 0.875rem);line-height:1.5;color:var(--text3)">캡션 텍스트 — font-size: clamp(0.75rem, 0.3vw + 0.65rem, 0.875rem)</p>
+    </div>
+    <div class="resize-hint">↔ 위 박스의 우측 하단을 드래그하여 리사이즈</div>
+  </div>
+</div>
+
+<script>
+const md3Roles=[
+  {role:'Display Large',weight:400,tracking:-0.25,step:5},
+  {role:'Display Medium',weight:400,tracking:0,step:4},
+  {role:'Display Small',weight:400,tracking:0,step:3},
+  {role:'Headline Large',weight:400,tracking:0,step:3},
+  {role:'Headline Medium',weight:400,tracking:0,step:2},
+  {role:'Headline Small',weight:400,tracking:0,step:1.5},
+  {role:'Title Large',weight:500,tracking:0,step:1},
+  {role:'Title Medium',weight:500,tracking:0.15,step:0.5},
+  {role:'Title Small',weight:500,tracking:0.1,step:0},
+  {role:'Body Large',weight:400,tracking:0.5,step:0},
+  {role:'Body Medium',weight:400,tracking:0.25,step:-0.5},
+  {role:'Body Small',weight:400,tracking:0.4,step:-1},
+  {role:'Label Large',weight:500,tracking:0.1,step:-0.5},
+  {role:'Label Medium',weight:500,tracking:0.5,step:-1},
+  {role:'Label Small',weight:500,tracking:0.5,step:-1.5},
+];
+
+const sampleText='디자인은 비율에서 시작된다 The quick brown fox';
+
+function renderScale(){
+  const base=parseFloat(document.getElementById('baseSize').value)||16;
+  const ratio=parseFloat(document.getElementById('scaleRatio').value)||1.333;
+  document.getElementById('currentRatio').textContent='×'+ratio;
+  const container=document.getElementById('scaleRows');
+  container.innerHTML=md3Roles.map(r=>{
+    const size=Math.round(base*Math.pow(ratio,r.step));
+    const lh=Math.round(size*(size>24?1.2:size>16?1.35:1.5));
+    return `<div class="scale-row">
+      <div class="scale-label">${r.role}</div>
+      <div class="scale-size">${size}px</div>
+      <div class="scale-lh">${lh}px lh</div>
+      <div class="scale-preview" style="font-size:${size}px;font-weight:${r.weight};line-height:${lh}px;letter-spacing:${r.tracking}px">${sampleText}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLineHeight(){
+  const configs=[
+    {id:'lhTight',lh:1.2},
+    {id:'lhNormal',lh:1.5},
+    {id:'lhLoose',lh:1.75},
+    {id:'lhExtraLoose',lh:2.0},
+  ];
+  const text='본문 텍스트의 행간(line-height)은 가독성에 직접적인 영향을 미칩니다. 한글은 영문보다 글자 높이가 균일하여 행간이 좁으면 답답해 보이기 쉽습니다. 일반적으로 본문에는 1.5~1.75, 제목에는 1.2~1.3이 권장됩니다.';
+  configs.forEach(c=>{
+    const el=document.getElementById(c.id);
+    el.innerHTML=`<p style="font-size:15px;line-height:${c.lh};color:var(--text);position:relative;z-index:1">${text}</p>`;
+  });
+}
+
+renderScale();
+renderLineHeight();
+</script>
+</body>
+</html>
