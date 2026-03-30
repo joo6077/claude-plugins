@@ -15,6 +15,7 @@ user-invocable: true
 - 네비게이션은 `go_router_builder` 생성 Route 클래스로만 — `context.go('/path')` 문자열 경로 직접 사용 금지
 - 페이지 전환 애니메이션 커스텀 적용 금지 — `buildPage` 대신 `build`로 위젯만 반환. 예외: 탭 전환 시 `buildNoTransition`만 허용
 - BottomSheet에 SafeArea 래핑 금지 — `MediaQuery.paddingOf(context).bottom`으로 내부에서 처리
+- Flutter 3.38+에서 `PredictiveBackPageTransitionBuilder`가 Android 기본 페이지 전환이 됨 — 커스텀 전환 적용 시 Android에서 시스템 백 제스처와 충돌할 수 있으므로 확인 필요
 
 Screen 또는 Page를 생성하고 라우터에 등록한다.
 
