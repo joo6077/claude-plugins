@@ -1,7 +1,20 @@
 # Harness Engineering
 
-Sprint Contract + QA Evaluator 기반 품질 보증 시스템.
+> **v0.3.5** — Sprint Contract + QA Evaluator 기반 품질 보증 시스템.
+
 프로젝트 스택에 관계없이 `project.yaml`과 `procedures/`만 설정하면 동작한다.
+
+## 스킬 목록
+
+| 스킬 | 설명 |
+|------|------|
+| `/init` | `.harness/` 초기화, `project.yaml` 생성 |
+| `/sprint-contract` | 구현 전 완료 조건 정의 + 사용자 합의 |
+| `/harness-kaizen` | 하네스 전체를 리서치 기반으로 개선 (오케스트레이터 Phase 1) |
+| `/contract-kaizen` | sprint-contract + contract-schema를 피드백 기반으로 개선 (Phase 2) |
+| `/evaluator-kaizen` | qa-evaluator + 평가 방법론 가이드를 피드백 기반으로 개선 (Phase 3) |
+| `/create-skill` | 설계 가이드 기반 새 스킬 스캐폴딩 |
+| `/create-agent` | 설계 가이드 기반 새 에이전트 스캐폴딩 |
 
 ## 셋업
 
@@ -17,6 +30,43 @@ Sprint Contract + QA Evaluator 기반 품질 보증 시스템.
 ├── sprint-feedback.md         ← QA 피드백 (자동 생성)
 └── history/                   ← 아카이브 (자동)
 ```
+
+## 글로벌 피드백 시스템
+
+스프린트 계약 완료·QA 평가 완료 시 피드백을 OS별 글로벌 경로(`~/.harness/feedback/`)에 자동 저장한다.
+카이젠 스킬이 이 피드백을 분석하여 반복 실수·개선 포인트를 추출한다.
+
+### 스크립트
+
+| 스크립트 | 역할 |
+|---------|------|
+| `harness/scripts/feedback-path.sh` | OS별 글로벌 피드백 경로 출력 |
+| `harness/scripts/save-feedback.sh <contract\|evaluator> <draft-yaml>` | 스키마 검증 후 글로벌 경로에 저장 |
+| `harness/scripts/verify-feedback.sh <saved-yaml>` | 저장된 피드백 유효성 검증 (PASS/FAIL) |
+| `harness/scripts/trigger-check-common.sh <skill-type> ...` | 카이젠 이벤트 트리거 감지 (공통 로직) |
+
+### 참조 파일
+
+| 파일 | 내용 |
+|------|------|
+| `harness/references/feedback-schema.yaml` | 피드백 YAML 스키마 v1 — `save-feedback.sh`가 이 스키마로 검증 |
+| `harness/references/contract-schema.md` | Sprint Contract 포맷 정의 — contract-kaizen + evaluator-kaizen 공유 |
+
+### 피드백 흐름
+
+```
+sprint-contract 완료
+  → save-feedback.sh contract → ~/.harness/feedback/{hash}-contract.yaml
+
+qa-evaluator 완료
+  → save-feedback.sh evaluator → ~/.harness/feedback/{hash}-evaluator.yaml
+
+카이젠 트리거 시
+  → trigger-check-common.sh → 임계치 초과 항목 감지
+  → contract-kaizen / evaluator-kaizen 호출
+```
+
+---
 
 ## project.yaml 스키마
 
@@ -277,7 +327,15 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 
 ## Harness Kaizen — 지속적 개선
 
-학술 논문·공식 문서·커뮤니티 리서치를 기반으로 하네스를 자동으로 개선하는 스킬.
+학술 논문·공식 문서·커뮤니티 리서치 + 글로벌 피드백을 기반으로 하네스를 자동으로 개선하는 스킬 체계.
+
+### 카이젠 스킬 구성
+
+| 스킬 | 역할 | 오케스트레이터 |
+|------|------|---------------|
+| `/harness-kaizen` | 하네스 전체 (설정·스킬·에이전트·eval·아키텍처) | Phase 1 |
+| `/contract-kaizen` | sprint-contract + contract-schema | Phase 2 |
+| `/evaluator-kaizen` | qa-evaluator + 평가 방법론 가이드 | Phase 3 |
 
 ### 사용법
 
@@ -289,16 +347,36 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 /harness-kaizen config    # 설정 (project.yaml, procedures, anti-patterns)
 /harness-kaizen skills    # 스킬 프롬프트, 에이전트, eval
 /harness-kaizen guide     # docs/guides/skill-design-guide.md
+
+# 계약 설계 개선
+/contract-kaizen
+
+# 평가자 개선
+/evaluator-kaizen
 ```
 
 ### 자동 실행
 
 | 트리거 | 조건 |
 |--------|------|
-| **주기적** | 매주 월요일 09:00 KST (cron, 클라우드 실행) |
+| **주기적** | `kaizen-orchestrator` 스킬이 매주 월요일 cron으로 Phase 순서대로 호출 |
 | **REJECT 연속** | QA Evaluator REJECT 2회 연속 시 |
-| **Anti-pattern 반복** | 같은 anti-pattern 3회 이상 감지 시 |
-| **신규 스킬** | 스킬 추가 후 7일 이내 |
+| **피드백 임계치** | 같은 진단 항목이 최근 피드백 10건 중 3회 이상 반복 시 |
+| **수동** | 사용자 직접 호출 |
+
+### 6단계 파이프라인
+
+```
+상태확인 → TRIAGE → COLLECT → VERIFY → ANALYZE → PROPOSE+APPLY
+(트리거)   (피드백)  (리서치)  (3중검증)  (갭분석)  (브랜치→변경→PR)
+```
+
+1. **상태 확인** — 트리거 사유 파악 (오케스트레이터 / 피드백 임계치 / 수동)
+2. **TRIAGE** — `feedback-path.sh`로 글로벌 피드백 로드 → 반복 패턴 분석. 피드백 0건이면 리서치 전용 모드(SKIP 불가)
+3. **COLLECT** — 학술 논문(arXiv, ACL, IEEE), 공식 docs(Anthropic, OpenAI, DeepMind), 커뮤니티(GitHub trending, 블로그, 컨퍼런스) 검색. 피드백 패턴 기반 3-5개 도메인 선정
+4. **VERIFY** — 3중 검증 게이트로 할루시네이션 차단 (출처 URL 필수 → WebFetch 접근 확인 → PR에 증거 첨부)
+5. **ANALYZE** — 현재 하네스 상태 + 리서치 결과 + 피드백 패턴 대조하여 갭 분석
+6. **PROPOSE + APPLY** — Draft 작성 → QA Evaluator 평가 → 브랜치 생성, 변경 적용, 버전 bump, PR 생성
 
 ### 개선 대상
 
@@ -307,21 +385,9 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 | 하네스 설정 | `project.yaml`, `procedures/`, anti-patterns |
 | 스킬 프롬프트 | `skills/*/SKILL.md` |
 | 에이전트 로직 | `agents/qa-evaluator.md` |
-| Eval | `evals/` 테스트 픽스처·평가 기준 |
+| Eval | `evals/` 테스트 픽스처·평가 기준 (`evals/kaizen/` 포함) |
 | 아키텍처 | 폴더 구조, 훅, 스크립트 |
 | 설계 가이드 | `docs/guides/skill-design-guide.md` |
-
-### 파이프라인
-
-```
-COLLECT → VERIFY → ANALYZE → PROPOSE + APPLY
-(수집)    (3중검증)  (갭분석)   (브랜치→변경→PR)
-```
-
-1. **COLLECT** — 학술 논문(arXiv, ACL, IEEE), 공식 docs(Anthropic, OpenAI, DeepMind), 커뮤니티(GitHub trending, 블로그, 컨퍼런스) 검색
-2. **VERIFY** — 3중 검증 게이트로 할루시네이션 차단 (출처 URL 필수 → WebFetch 접근 확인 → PR에 증거 첨부)
-3. **ANALYZE** — 현재 하네스 상태와 연구 결과를 비교하여 갭 분석
-4. **PROPOSE + APPLY** — 브랜치 생성, 변경 적용, 버전 bump, PR 생성
 
 ### 버전 관리
 
@@ -345,6 +411,17 @@ COLLECT → VERIFY → ANALYZE → PROPOSE + APPLY
 docs/kaizen/
 ├── research-log.md    # 누적 연구 기록 (소스별 채택/폐기)
 └── changelog.md       # 카이젠 변경 이력 (버전, 근거, Before/After)
+```
+
+### Eval — `evals/kaizen/`
+
+카이젠 스킬 자체를 평가하는 메타 eval 픽스처:
+
+```
+evals/kaizen/
+├── contract-kaizen/    # contract-kaizen eval 픽스처
+├── evaluator-kaizen/   # evaluator-kaizen eval 픽스처
+└── feedback-system/    # 피드백 저장·집계 시나리오 (save-test.sh, aggregation-test.sh)
 ```
 
 ### 스케줄 관리
