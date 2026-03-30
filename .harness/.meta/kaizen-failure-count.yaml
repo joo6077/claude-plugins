@@ -1,0 +1,12 @@
+# 카이젠 Phase별 연속 Regression 실패 카운터
+# 오케스트레이터가 Phase 완료 시 업데이트한다.
+# 성공 시 해당 Phase 카운터 0으로 리셋.
+# 연속 2회 실패 시 해당 Phase 일시 중단 + 사용자 알림.
+
+phase_1: 0
+phase_2: 0
+phase_3: 0
+phase_4: 0
+phase_5: 0
+phase_6: 0
+last_updated: null
