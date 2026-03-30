@@ -1,12 +1,12 @@
 ---
 title: 스페이싱 & 레이아웃
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # 스페이싱 & 레이아웃
 
-UI 요소 간 공간을 체계적으로 관리하여 시각적 리듬, 계층 구조, 가독성을 확보하는 원칙과 구체적 수치를 정리한다.
+간격 체계, 그리드 시스템, 네거티브 스페이스, 콘텐츠 밀도 전략, 터치 타겟 수치를 정리한다.
 
 ---
 
@@ -14,25 +14,36 @@ UI 요소 간 공간을 체계적으로 관리하여 시각적 리듬, 계층 �
 
 ### 1. 일관된 간격 체계 사용
 
-모든 간격 값은 **기본 단위의 배수**로 제한한다. 13px인지 15px인지 고민할 필요 없이, 8px 또는 16px 중 하나를 선택하면 된다. 이렇게 선택지를 제한하면 디자이너가 계층 구조와 인터랙션 같은 더 중요한 문제에 집중할 수 있다.
+모든 간격 값은 **기본 단위의 배수**로 제한한다. 13px vs 15px를 고민할 필요 없이, 8px 또는 16px 중 선택하면 된다. 선택지를 제한해야 디자이너가 계층 구조와 인터랙션에 집중할 수 있다.
 
 > **출처:** [The 8pt Grid System — Rejuvenate Digital](https://www.rejuvenate.digital/news/designing-rhythm-power-8pt-grid-ui-design)
 
-### 2. 여백은 낭비가 아니다
+### 2. 여백(Whitespace)은 디자인 도구다
 
-여백(whitespace)은 디자인에 숨 쉴 공간을 주고, 깔끔한 느낌을 전달하며, 사용자의 시선을 중요한 요소로 유도한다. 미학적으로 우수한 디자인은 일관된 타이포그래피, 명확한 계층 구조, 세련된 색상 팔레트를 사용하며 **그리드에 정렬**된다.
+여백은 "비어있는 공간"이 아니라 정보 계층을 구성하는 능동적 도구다. NNGroup 연구에서 미학적으로 우수한 디자인은 공통적으로 충분한 여백, 일관된 타이포그래피, 명확한 계층을 보유했다.
+
+**네거티브 스페이스(Negative Space)의 두 가지 유형:**
+
+| 유형 | 설명 | 예시 |
+|------|------|------|
+| **마이크로 여백** | 요소 내부/사이의 작은 공간 (아이콘-텍스트 간격, 줄 간격) | 버튼 패딩 12px, 리스트 아이템 간 8px |
+| **매크로 여백** | 콘텐츠 블록 간 큰 공간 (섹션 간격, 페이지 마진) | 섹션 간 64px, 히어로 상하 80px |
+
+마이크로 여백이 부족하면 "답답한" UI, 매크로 여백이 부족하면 "복잡한" UI가 된다. 둘 다 부족하면 사용자는 1.5배 더 많은 시간을 써서 정보를 찾는다(NNGroup 아이트래킹).
 
 > **출처:** [Why Does a Design Look Good? — Nielsen Norman Group](https://www.nngroup.com/articles/why-does-design-look-good/)
 
 ### 3. 내부 간격 ≤ 외부 간격 (근접성 원칙)
 
-관련 요소 사이의 내부 간격(padding)은 비관련 요소 사이의 외부 간격(margin)보다 작아야 한다. 게슈탈트 근접성 원칙에 따라, 가까이 있는 요소는 관련된 것으로 인식된다.
+관련 요소 간 내부 간격(padding)은 비관련 요소 간 외부 간격(margin)보다 작아야 한다. 게슈탈트 근접성 원칙: 가까이 있는 요소는 관련된 것으로 인식된다.
+
+**안티패턴:** 카드 내부 패딩 24px인데 카드 간 간격도 24px이면, 카드 경계가 모호해진다. 카드 간 간격을 32px 이상으로 벌려야 그룹이 구분된다.
 
 > **출처:** [Spacing Best Practices — Cieden](https://cieden.com/book/sub-atomic/spacing/spacing-best-practices)
 
 ### 4. 그리드 기반 정렬
 
-그리드는 디자이너에게 레이아웃 기반 구조를 제공할 뿐 아니라, 최종 사용자의 **가독성과 스캔 용이성**을 향상시킨다.
+그리드는 레이아웃 구조를 제공할 뿐 아니라 사용자의 **스캔 용이성**을 향상시킨다. 정렬이 무너진 UI는 사용자에게 "대충 만든" 인상을 준다 — 이는 브랜드 신뢰도에 직접 영향한다.
 
 > **출처:** [Using Grids in Interface Designs — Nielsen Norman Group](https://www.nngroup.com/articles/using-grids-in-interface-designs/)
 
@@ -154,3 +165,56 @@ MIT Touch Lab 연구에 따르면, 성인 손가락 끝의 평균 너비는 **16
 | WCAG 2.2 AA      | 24 x 24        | —              | CSS px     |
 | WCAG 2.2 AAA     | 44 x 44        | —              | CSS px     |
 | Web (일반)       | 24 x 24        | 44 x 44        | CSS px     |
+
+---
+
+## 콘텐츠 밀도 (Content Density)
+
+### 밀도 수준 정의
+
+콘텐츠 밀도는 단위 면적당 정보량이다. 동일한 데이터를 밀도에 따라 완전히 다르게 표시할 수 있다.
+
+| 밀도 | 행 높이 (리스트) | 패딩 | 적합한 맥락 | 사용자 행동 |
+|------|---------------|------|-----------|-----------|
+| **Compact** | 32~40dp | 4~8dp | 데이터 테이블, 개발 도구, 전문가용 대시보드 | 빠른 스캔, 대량 데이터 비교 |
+| **Default** | 48~56dp | 12~16dp | 일반 앱, 이커머스, 콘텐츠 피드 | 편안한 읽기, 탐색 |
+| **Comfortable** | 64~72dp | 16~24dp | 온보딩, 설정, 접근성 우선 | 여유로운 터치, 큰 텍스트 |
+
+Material Design 3는 `dense`, `default`, `comfortable` 세 밀도를 공식 지원한다. Gmail이 대표 사례로, 사용자가 밀도를 직접 선택할 수 있다.
+
+> **출처:** [Material Design 3 — Applying Layout](https://m3.material.io/foundations/layout/applying-layout)
+
+### 밀도 결정 기준
+
+```
+사용자가 한 화면에서 10개 이상의 항목을 비교해야 하는가?
+├─ Yes → Compact 기본, Default 옵션 제공
+└─ No
+    ├─ 터치 디바이스가 주 입력인가?
+    │   ├─ Yes → Default 기본 (터치 타겟 48dp 보장)
+    │   └─ No (마우스/키보드) → Compact도 허용
+    └─ 접근성이 최우선인가?
+        └─ Yes → Comfortable 기본
+```
+
+### 실전 레이아웃 감사 (Layout Audit) 방법
+
+기존 화면의 간격 문제를 진단하는 체계적 방법:
+
+**1단계: 스크린샷 캡처 + 그리드 오버레이**
+- Figma에서 8px 그리드를 오버레이하고, 그리드에 정렬되지 않는 요소를 표시한다
+
+**2단계: 간격 값 수집**
+- 화면 내 모든 간격 값을 추출한다. 5개 이상의 서로 다른 간격 값이 나오면 체계가 무너진 것이다
+- 안티패턴: 7px, 13px, 15px, 18px, 22px 같은 임의의 값 혼재
+
+**3단계: 근접성 검증**
+- 관련 요소 간 간격 < 비관련 요소 간 간격인지 확인
+- 위반 사례: 폼 라벨-필드 간격 16px, 필드-필드 간격 12px → 라벨이 아래 필드에 더 가까워 보임
+
+**4단계: 터치 타겟 검증**
+- 모든 인터랙티브 요소에 48dp(또는 44pt) 히트 영역이 있는지 확인
+- 인접 터치 타겟이 겹치지 않는지 확인
+
+> **출처:** [Nathan Curtis — Space in Design Systems](https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62)
+> **출처:** [Cieden — Spacing Best Practices](https://cieden.com/book/sub-atomic/spacing/spacing-best-practices)

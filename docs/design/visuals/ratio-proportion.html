@@ -2,142 +2,246 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>비율과 프로포션</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#242837;--border:#2e3348;--text:#e8eaed;--text2:#9aa0b4;--text3:#636980;--accent:#60a5fa;--accent2:#a78bfa;--gold:#fbbf24;--radius:12px}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:32px;max-width:1200px;margin:0 auto}
-  h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:8px}
-  .subtitle{color:var(--text2);font-size:15px;margin-bottom:40px}
-  .section{margin-bottom:56px}
-  .section-title{font-size:18px;font-weight:600;margin-bottom:24px;color:var(--text2);display:flex;align-items:center;gap:10px}
-  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-  @media(max-width:768px){.two-col{grid-template-columns:1fr}}
+  :root{
+    --bg:#0d0f14;--bg2:#111320;--surface:#181b26;--surface2:#1f2333;--border:#282d42;
+    --text:#e2e5ec;--text2:#8f96ae;--text3:#5b627a;
+    --accent:#5b8def;--accent2:#8b6cf5;--gold:#f0c040;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+  html{font-size:16px}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;
+    min-height:100vh;
+    background-image:radial-gradient(ellipse at 50% 0%,rgba(240,192,64,0.04) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(139,108,245,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,48px)}
+  h1{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;line-height:1.2}
+  .subtitle{color:var(--text2);font-size:clamp(13px,1.2vw,15px);margin-bottom:clamp(28px,4vw,48px);line-height:1.5}
+  .section{margin-bottom:clamp(36px,5vw,60px)}
+  .section-title{
+    font-size:clamp(14px,1.3vw,17px);font-weight:700;margin-bottom:clamp(16px,2.5vw,24px);
+    color:var(--text2);text-transform:uppercase;letter-spacing:1.2px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(18px,2.5vw,28px);margin-bottom:16px;
+  }
 
   /* Golden Ratio Grid */
-  .golden-demo{position:relative;width:100%;aspect-ratio:1.618/1;background:var(--surface2);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-  .golden-rect{position:absolute;border:2px solid var(--gold)}
-  .golden-spiral{position:absolute;top:0;left:0;width:100%;height:100%}
-  .golden-label{position:absolute;font-size:11px;color:var(--gold);font-weight:600;padding:4px 8px;background:rgba(0,0,0,0.5);border-radius:4px}
-  .golden-controls{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
-  .golden-controls button{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer}
-  .golden-controls button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .golden-demo{
+    position:relative;width:100%;aspect-ratio:1.618/1;
+    background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border);
+  }
+  .golden-controls{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .golden-controls button{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    padding:10px 18px;border-radius:10px;font-size:14px;cursor:pointer;
+    font-weight:600;min-height:44px;transition:all var(--transition);
+  }
+  .golden-controls button:hover{border-color:var(--text3)}
+  .golden-controls button:active{transform:scale(0.97)}
+  .golden-controls button.active{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}
 
   /* Rule of Thirds */
-  .thirds-demo{position:relative;width:100%;aspect-ratio:16/9;background:var(--surface2);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-  .thirds-line{position:absolute;background:rgba(96,165,250,0.4)}
-  .thirds-point{position:absolute;width:12px;height:12px;background:var(--accent);border-radius:50%;transform:translate(-50%,-50%);z-index:2}
-  .thirds-label{position:absolute;font-size:10px;color:var(--accent);transform:translate(-50%,-50%);margin-top:16px;white-space:nowrap}
+  .thirds-demo{
+    position:relative;width:100%;aspect-ratio:16/9;
+    background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border);
+  }
+  .thirds-line{position:absolute;background:rgba(91,141,239,0.35)}
+  .thirds-point{
+    position:absolute;width:14px;height:14px;background:var(--accent);border-radius:50%;
+    transform:translate(-50%,-50%);z-index:2;
+    box-shadow:0 0 0 3px rgba(91,141,239,0.25);
+  }
+  .thirds-label{
+    position:absolute;font-size:11px;color:var(--accent);font-weight:600;
+    transform:translate(-50%,-50%);margin-top:18px;white-space:nowrap;
+  }
+  .thirds-element{
+    position:absolute;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(10px,1.2vw,12px);font-weight:600;
+  }
+  .thirds-note{font-size:12px;color:var(--text3);margin-top:14px;text-align:center;letter-spacing:0.3px}
 
   /* Modular Scale Calculator */
-  .calc-inputs{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-  .calc-group{display:flex;align-items:center;gap:8px}
-  .calc-group label{font-size:13px;color:var(--text2)}
-  .calc-group input,.calc-group select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 12px;font-size:13px;outline:none;width:100px}
-  .calc-group select{width:auto}
-  .calc-group input:focus,.calc-group select:focus{border-color:var(--accent)}
+  .calc-inputs{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+  .calc-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .calc-group label{font-size:14px;color:var(--text2);font-weight:600;white-space:nowrap}
+  .calc-group input[type="number"]{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:10px 14px;font-size:15px;outline:none;width:90px;
+    min-height:48px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+    transition:border-color var(--transition);
+  }
+  .calc-group input:focus{border-color:var(--accent)}
+  .calc-group select{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:10px 14px;font-size:14px;outline:none;
+    min-height:48px;cursor:pointer;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238f96ae' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;
+    padding-right:36px;transition:border-color var(--transition);
+  }
+  .calc-group select:focus{border-color:var(--accent)}
+  .calc-unit{font-size:13px;color:var(--text3);font-weight:600}
   .scale-output{display:flex;flex-direction:column;gap:6px}
-  .scale-row{display:grid;grid-template-columns:60px 80px 1fr;align-items:center;gap:12px;padding:8px 12px;background:var(--surface2);border-radius:6px}
-  .scale-step{font-size:12px;color:var(--accent);font-family:monospace;font-weight:600}
-  .scale-value{font-size:13px;color:var(--text);font-family:monospace}
-  .scale-bar{height:20px;border-radius:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));opacity:0.6;transition:all 0.3s}
-  .scale-row:hover .scale-bar{opacity:1}
-  .scale-row.base{background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3)}
+  .scale-row{
+    display:grid;grid-template-columns:56px 72px 1fr;align-items:center;gap:12px;
+    padding:10px 14px;background:var(--surface2);border-radius:8px;
+    transition:all var(--transition);
+  }
+  .scale-row:hover{background:rgba(91,141,239,0.08)}
+  .scale-step{font-size:12px;color:var(--accent);font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-weight:700}
+  .scale-value{font-size:13px;color:var(--text);font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-weight:600}
+  .scale-bar-wrap{display:flex;align-items:center;gap:10px}
+  .scale-bar{
+    height:clamp(8px,1vw,20px);border-radius:6px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    opacity:0.45;transition:all var(--transition);
+  }
+  .scale-row:hover .scale-bar{opacity:0.8}
+  .scale-role{font-size:11px;color:var(--text3);white-space:nowrap}
+  .scale-row.base{
+    background:rgba(91,141,239,0.12);border:1px solid rgba(91,141,239,0.25);
+  }
 
   /* Aspect Ratios */
-  .ratio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-  .ratio-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.3s}
-  .ratio-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
-  .ratio-preview{background:var(--surface2);display:flex;align-items:center;justify-content:center;padding:16px}
-  .ratio-box{border:2px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:600;max-width:100%;max-height:120px}
-  .ratio-info{padding:14px}
-  .ratio-name{font-size:15px;font-weight:600;margin-bottom:2px}
-  .ratio-detail{font-size:12px;color:var(--text2)}
-  .ratio-use{font-size:11px;color:var(--text3);margin-top:4px}
+  .ratio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  .ratio-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;cursor:pointer;transition:all var(--transition);
+  }
+  .ratio-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.25);border-color:var(--text3)}
+  .ratio-card:active{transform:translateY(-1px)}
+  .ratio-preview{
+    background:var(--surface2);display:flex;align-items:center;justify-content:center;
+    padding:18px;min-height:100px;
+  }
+  .ratio-box{
+    border:2px solid var(--accent);border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:var(--accent);font-weight:700;
+    max-width:100%;max-height:110px;
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  .ratio-info{padding:14px 16px 16px}
+  .ratio-name{font-size:15px;font-weight:700;margin-bottom:2px;display:flex;align-items:baseline;gap:8px}
+  .ratio-name .ratio-desc-tag{font-size:12px;color:var(--text3);font-weight:400}
+  .ratio-detail{
+    font-size:12px;color:var(--text2);
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  .ratio-use{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.4}
+
+  @media(max-width:1024px){
+    .ratio-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+  }
+  @media(max-width:768px){
+    .ratio-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .calc-inputs{flex-direction:column;gap:12px}
+    .calc-group{width:100%}
+    .calc-group select,.calc-group input[type="number"]{width:100%;flex:1}
+    .scale-row{grid-template-columns:48px 60px 1fr;gap:8px;padding:8px 10px}
+    .golden-controls{gap:8px}
+    .golden-controls button{flex:1;min-width:0;padding:10px 12px;font-size:13px}
+    .thirds-label{font-size:9px}
+    .thirds-element{font-size:10px}
+  }
+  @media(max-width:420px){
+    .ratio-grid{grid-template-columns:1fr 1fr;gap:8px}
+    .ratio-preview{min-height:80px;padding:12px}
+    .ratio-info{padding:10px 12px 12px}
+    .ratio-name{font-size:14px}
+  }
 </style>
 </head>
 <body>
-<h1>비율과 프로포션 (Ratio & Proportion)</h1>
-<p class="subtitle">황금비, 3분할 법칙, 모듈러 스케일, 화면 비율 — 인터랙티브 시각화</p>
+<div class="page">
+  <h1>비율과 프로포션</h1>
+  <p class="subtitle">황금비, 3분할 법칙, 모듈러 스케일, 화면 비율 -- 인터랙티브 시각화</p>
 
-<!-- Golden Ratio -->
-<div class="section">
-  <div class="section-title">황금비 그리드 (Golden Ratio Grid)</div>
-  <div class="card">
-    <div class="golden-demo" id="goldenDemo"></div>
-    <div class="golden-controls">
-      <button class="active" onclick="setGoldenMode('spiral')">황금 나선</button>
-      <button onclick="setGoldenMode('grid')">황금 분할 그리드</button>
-      <button onclick="setGoldenMode('layout')">2단 레이아웃</button>
-    </div>
-  </div>
-</div>
-
-<!-- Rule of Thirds -->
-<div class="section">
-  <div class="section-title">3분할 법칙 (Rule of Thirds)</div>
-  <div class="card">
-    <div class="thirds-demo" id="thirdsDemo">
-      <!-- Vertical lines -->
-      <div class="thirds-line" style="left:33.33%;top:0;width:1px;height:100%"></div>
-      <div class="thirds-line" style="left:66.66%;top:0;width:1px;height:100%"></div>
-      <!-- Horizontal lines -->
-      <div class="thirds-line" style="top:33.33%;left:0;height:1px;width:100%"></div>
-      <div class="thirds-line" style="top:66.66%;left:0;height:1px;width:100%"></div>
-      <!-- Power points -->
-      <div class="thirds-point" style="left:33.33%;top:33.33%"></div>
-      <div class="thirds-label" style="left:33.33%;top:33.33%">Power Point 1</div>
-      <div class="thirds-point" style="left:66.66%;top:33.33%"></div>
-      <div class="thirds-label" style="left:66.66%;top:33.33%">Power Point 2</div>
-      <div class="thirds-point" style="left:33.33%;top:66.66%"></div>
-      <div class="thirds-label" style="left:33.33%;top:66.66%">Power Point 3</div>
-      <div class="thirds-point" style="left:66.66%;top:66.66%"></div>
-      <div class="thirds-label" style="left:66.66%;top:66.66%">Power Point 4</div>
-      <!-- Sample elements -->
-      <div style="position:absolute;left:5%;top:5%;width:28%;height:61%;background:rgba(96,165,250,0.15);border:1px dashed rgba(96,165,250,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)">사이드 내비</div>
-      <div style="position:absolute;left:35%;top:5%;width:60%;height:28%;background:rgba(167,139,250,0.15);border:1px dashed rgba(167,139,250,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent2)">Hero 영역</div>
-      <div style="position:absolute;left:35%;top:38%;width:60%;height:28%;background:rgba(74,222,128,0.1);border:1px dashed rgba(74,222,128,0.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#4ade80">메인 콘텐츠</div>
-      <div style="position:absolute;left:5%;top:70%;width:90%;height:25%;background:rgba(248,113,113,0.1);border:1px dashed rgba(248,113,113,0.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#f87171">CTA 영역</div>
-    </div>
-    <div style="font-size:12px;color:var(--text3);margin-top:12px;text-align:center">UI 요소를 교차점(Power Point)에 배치하면 시각적 긴장감과 균형을 동시에 확보</div>
-  </div>
-</div>
-
-<!-- Modular Scale Calculator -->
-<div class="section">
-  <div class="section-title">모듈러 스케일 계산기</div>
-  <div class="card">
-    <div class="calc-inputs">
-      <div class="calc-group">
-        <label>기준값 (Base)</label>
-        <input type="number" id="calcBase" value="16" min="8" max="32" oninput="calcScale()">
-        <span style="font-size:12px;color:var(--text3)">px</span>
-      </div>
-      <div class="calc-group">
-        <label>비율 (Ratio)</label>
-        <select id="calcRatio" onchange="calcScale()">
-          <option value="1.067">Minor Second (1.067)</option>
-          <option value="1.125">Major Second (1.125)</option>
-          <option value="1.200">Minor Third (1.200)</option>
-          <option value="1.250">Major Third (1.250)</option>
-          <option value="1.333" selected>Perfect Fourth (1.333)</option>
-          <option value="1.414">Augmented Fourth (1.414)</option>
-          <option value="1.500">Perfect Fifth (1.500)</option>
-          <option value="1.618">Golden Ratio (1.618)</option>
-        </select>
+  <!-- Golden Ratio -->
+  <div class="section">
+    <div class="section-title">황금비 그리드</div>
+    <div class="card">
+      <div class="golden-demo" id="goldenDemo"></div>
+      <div class="golden-controls">
+        <button class="active" onclick="setGoldenMode('spiral',this)">황금 나선</button>
+        <button onclick="setGoldenMode('grid',this)">황금 분할 그리드</button>
+        <button onclick="setGoldenMode('layout',this)">2단 레이아웃</button>
       </div>
     </div>
-    <div class="scale-output" id="scaleOutput"></div>
   </div>
-</div>
 
-<!-- Aspect Ratios -->
-<div class="section">
-  <div class="section-title">화면 비율 비교</div>
-  <div class="ratio-grid" id="ratioGrid"></div>
+  <!-- Rule of Thirds -->
+  <div class="section">
+    <div class="section-title">3분할 법칙</div>
+    <div class="card">
+      <div class="thirds-demo" id="thirdsDemo">
+        <div class="thirds-line" style="left:33.33%;top:0;width:1px;height:100%"></div>
+        <div class="thirds-line" style="left:66.66%;top:0;width:1px;height:100%"></div>
+        <div class="thirds-line" style="top:33.33%;left:0;height:1px;width:100%"></div>
+        <div class="thirds-line" style="top:66.66%;left:0;height:1px;width:100%"></div>
+        <div class="thirds-point" style="left:33.33%;top:33.33%"></div>
+        <div class="thirds-label" style="left:33.33%;top:33.33%">Power Point 1</div>
+        <div class="thirds-point" style="left:66.66%;top:33.33%"></div>
+        <div class="thirds-label" style="left:66.66%;top:33.33%">Power Point 2</div>
+        <div class="thirds-point" style="left:33.33%;top:66.66%"></div>
+        <div class="thirds-label" style="left:33.33%;top:66.66%">Power Point 3</div>
+        <div class="thirds-point" style="left:66.66%;top:66.66%"></div>
+        <div class="thirds-label" style="left:66.66%;top:66.66%">Power Point 4</div>
+        <div class="thirds-element" style="left:5%;top:5%;width:28%;height:61%;background:rgba(91,141,239,0.12);border:1px dashed rgba(91,141,239,0.35);color:var(--accent)">사이드 내비</div>
+        <div class="thirds-element" style="left:35%;top:5%;width:60%;height:28%;background:rgba(139,108,245,0.12);border:1px dashed rgba(139,108,245,0.35);color:var(--accent2)">Hero 영역</div>
+        <div class="thirds-element" style="left:35%;top:38%;width:60%;height:28%;background:rgba(74,222,128,0.08);border:1px dashed rgba(74,222,128,0.25);color:#4ade80">메인 콘텐츠</div>
+        <div class="thirds-element" style="left:5%;top:70%;width:90%;height:25%;background:rgba(248,113,113,0.08);border:1px dashed rgba(248,113,113,0.25);color:#f87171">CTA 영역</div>
+      </div>
+      <div class="thirds-note">UI 요소를 교차점(Power Point)에 배치하면 시각적 긴장감과 균형을 동시에 확보</div>
+    </div>
+  </div>
+
+  <!-- Modular Scale Calculator -->
+  <div class="section">
+    <div class="section-title">모듈러 스케일 계산기</div>
+    <div class="card">
+      <div class="calc-inputs">
+        <div class="calc-group">
+          <label>기준값</label>
+          <input type="number" id="calcBase" value="16" min="8" max="32" oninput="calcScale()">
+          <span class="calc-unit">px</span>
+        </div>
+        <div class="calc-group">
+          <label>비율</label>
+          <select id="calcRatio" onchange="calcScale()">
+            <option value="1.067">Minor Second (1.067)</option>
+            <option value="1.125">Major Second (1.125)</option>
+            <option value="1.200">Minor Third (1.200)</option>
+            <option value="1.250">Major Third (1.250)</option>
+            <option value="1.333" selected>Perfect Fourth (1.333)</option>
+            <option value="1.414">Augmented Fourth (1.414)</option>
+            <option value="1.500">Perfect Fifth (1.500)</option>
+            <option value="1.618">Golden Ratio (1.618)</option>
+          </select>
+        </div>
+      </div>
+      <div class="scale-output" id="scaleOutput"></div>
+    </div>
+  </div>
+
+  <!-- Aspect Ratios -->
+  <div class="section">
+    <div class="section-title">화면 비율 비교</div>
+    <div class="ratio-grid" id="ratioGrid"></div>
+  </div>
 </div>
 
 <script>
@@ -145,87 +249,68 @@
 const PHI=1.618;
 let goldenMode='spiral';
 
-function setGoldenMode(mode){
+function setGoldenMode(mode,btn){
   goldenMode=mode;
   document.querySelectorAll('.golden-controls button').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   renderGolden();
 }
 
 function renderGolden(){
   const demo=document.getElementById('goldenDemo');
   const w=demo.offsetWidth,h=demo.offsetHeight;
+  if(!w||!h) return;
   let html='';
 
   if(goldenMode==='spiral'){
-    // Draw golden rectangles recursively
-    const rects=[];
-    let x=0,y=0,rw=w,rh=h,dir=0;
-    for(let i=0;i<8;i++){
-      rects.push({x,y,w:rw,h:rh});
-      const sq=dir%2===0?rh:rw;
-      if(dir===0){x+=rh;rw-=rh;} // right
-      else if(dir===1){rh-=rw;} // bottom
-      else if(dir===2){rw-=rh;x-=0;} // left - simplified
-      else{y+=rw;rh-=rw;} // top
-      dir=(dir+1)%4;
-    }
-    // Simplified: draw proportion lines
-    const mainW=w/PHI;
-    const mainH=h/PHI;
-    html+=`<div style="position:absolute;left:0;top:0;width:${mainW}px;height:100%;border-right:2px solid var(--gold);opacity:0.6"></div>`;
-    html+=`<div class="golden-label" style="top:8px;left:${mainW+8}px">61.8%</div>`;
-    html+=`<div class="golden-label" style="top:8px;left:${mainW/2-20}px">38.2%... wait</div>`;
-    // Better: clear golden spiral visualization
     html=`
-      <svg width="${w}" height="${h}" style="position:absolute;top:0;left:0">
-        <line x1="${w*0.618}" y1="0" x2="${w*0.618}" y2="${h}" stroke="rgba(251,191,36,0.5)" stroke-width="1.5" stroke-dasharray="4,4"/>
-        <line x1="0" y1="${h*0.618}" x2="${w}" y2="${h*0.618}" stroke="rgba(251,191,36,0.5)" stroke-width="1.5" stroke-dasharray="4,4"/>
-        <line x1="${w*0.382}" y1="0" x2="${w*0.382}" y2="${h}" stroke="rgba(251,191,36,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
-        <line x1="0" y1="${h*0.382}" x2="${w}" y2="${h*0.382}" stroke="rgba(251,191,36,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
-        <rect x="0" y="0" width="${w*0.618}" height="${h*0.618}" fill="none" stroke="var(--gold)" stroke-width="2" rx="2"/>
-        <rect x="${w*0.618}" y="0" width="${w*0.382}" height="${h*0.382}" fill="none" stroke="var(--gold)" stroke-width="1.5" rx="2" opacity="0.7"/>
-        <rect x="${w*0.618}" y="${h*0.382}" width="${w*0.382*0.618}" height="${h*0.382*0.618}" fill="none" stroke="var(--gold)" stroke-width="1" rx="2" opacity="0.5"/>
-        <!-- Spiral approximation -->
+      <svg width="${w}" height="${h}" style="position:absolute;top:0;left:0" viewBox="0 0 ${w} ${h}">
+        <line x1="${w*0.618}" y1="0" x2="${w*0.618}" y2="${h}" stroke="rgba(240,192,64,0.45)" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <line x1="0" y1="${h*0.618}" x2="${w}" y2="${h*0.618}" stroke="rgba(240,192,64,0.45)" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <line x1="${w*0.382}" y1="0" x2="${w*0.382}" y2="${h}" stroke="rgba(240,192,64,0.2)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="0" y1="${h*0.382}" x2="${w}" y2="${h*0.382}" stroke="rgba(240,192,64,0.2)" stroke-width="1" stroke-dasharray="4,4"/>
+        <rect x="0" y="0" width="${w*0.618}" height="${h*0.618}" fill="none" stroke="var(--gold)" stroke-width="2" rx="3"/>
+        <rect x="${w*0.618}" y="0" width="${w*0.382}" height="${h*0.382}" fill="none" stroke="var(--gold)" stroke-width="1.5" rx="3" opacity="0.7"/>
+        <rect x="${w*0.618}" y="${h*0.382}" width="${w*0.382*0.618}" height="${h*0.382*0.618}" fill="none" stroke="var(--gold)" stroke-width="1" rx="3" opacity="0.5"/>
         <path d="M ${w*0.618} ${h*0.618}
                  Q ${w*0.618} ${h*0.2} ${w*0.85} ${h*0.15}
                  Q ${w*0.95} ${h*0.15} ${w*0.95} ${h*0.38}
                  Q ${w*0.95} ${h*0.55} ${w*0.82} ${h*0.55}
                  Q ${w*0.72} ${h*0.55} ${w*0.72} ${h*0.45}"
-              fill="none" stroke="var(--gold)" stroke-width="2.5" opacity="0.8"/>
-        <text x="${w*0.31}" y="${h*0.5}" fill="var(--gold)" font-size="13" font-weight="600" text-anchor="middle" opacity="0.8">61.8%</text>
-        <text x="${w*0.8}" y="${h*0.2}" fill="var(--gold)" font-size="11" font-weight="600" text-anchor="middle" opacity="0.6">38.2%</text>
+              fill="none" stroke="var(--gold)" stroke-width="2.5" opacity="0.75"/>
+        <text x="${w*0.31}" y="${h*0.5}" fill="var(--gold)" font-size="14" font-weight="700" text-anchor="middle" opacity="0.8">61.8%</text>
+        <text x="${w*0.8}" y="${h*0.2}" fill="var(--gold)" font-size="12" font-weight="700" text-anchor="middle" opacity="0.6">38.2%</text>
       </svg>`;
   } else if(goldenMode==='grid'){
-    html=`<svg width="${w}" height="${h}" style="position:absolute;top:0;left:0">
-      <line x1="${w*0.382}" y1="0" x2="${w*0.382}" y2="${h}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
-      <line x1="${w*0.618}" y1="0" x2="${w*0.618}" y2="${h}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
-      <line x1="0" y1="${h*0.382}" x2="${w}" y2="${h*0.382}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
-      <line x1="0" y1="${h*0.618}" x2="${w}" y2="${h*0.618}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.6"/>
-      <circle cx="${w*0.382}" cy="${h*0.382}" r="6" fill="var(--gold)" opacity="0.8"/>
-      <circle cx="${w*0.618}" cy="${h*0.382}" r="6" fill="var(--gold)" opacity="0.8"/>
-      <circle cx="${w*0.382}" cy="${h*0.618}" r="6" fill="var(--gold)" opacity="0.8"/>
-      <circle cx="${w*0.618}" cy="${h*0.618}" r="6" fill="var(--gold)" opacity="0.8"/>
-      <text x="${w*0.19}" y="${h-12}" fill="var(--gold)" font-size="12" text-anchor="middle" opacity="0.7">38.2%</text>
-      <text x="${w*0.5}" y="${h-12}" fill="var(--gold)" font-size="12" text-anchor="middle" opacity="0.7">23.6%</text>
-      <text x="${w*0.81}" y="${h-12}" fill="var(--gold)" font-size="12" text-anchor="middle" opacity="0.7">38.2%</text>
+    html=`<svg width="${w}" height="${h}" style="position:absolute;top:0;left:0" viewBox="0 0 ${w} ${h}">
+      <line x1="${w*0.382}" y1="0" x2="${w*0.382}" y2="${h}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.55"/>
+      <line x1="${w*0.618}" y1="0" x2="${w*0.618}" y2="${h}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.55"/>
+      <line x1="0" y1="${h*0.382}" x2="${w}" y2="${h*0.382}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.55"/>
+      <line x1="0" y1="${h*0.618}" x2="${w}" y2="${h*0.618}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.55"/>
+      <circle cx="${w*0.382}" cy="${h*0.382}" r="7" fill="var(--gold)" opacity="0.75"/>
+      <circle cx="${w*0.618}" cy="${h*0.382}" r="7" fill="var(--gold)" opacity="0.75"/>
+      <circle cx="${w*0.382}" cy="${h*0.618}" r="7" fill="var(--gold)" opacity="0.75"/>
+      <circle cx="${w*0.618}" cy="${h*0.618}" r="7" fill="var(--gold)" opacity="0.75"/>
+      <text x="${w*0.19}" y="${h-14}" fill="var(--gold)" font-size="13" font-weight="700" text-anchor="middle" opacity="0.65">38.2%</text>
+      <text x="${w*0.5}" y="${h-14}" fill="var(--gold)" font-size="13" font-weight="700" text-anchor="middle" opacity="0.65">23.6%</text>
+      <text x="${w*0.81}" y="${h-14}" fill="var(--gold)" font-size="13" font-weight="700" text-anchor="middle" opacity="0.65">38.2%</text>
     </svg>`;
   } else {
     const mainW=w*0.618;
     html=`
-      <div style="position:absolute;left:0;top:0;width:${mainW}px;height:100%;background:rgba(96,165,250,0.08);border-right:2px solid var(--accent)">
-        <div style="padding:20px;font-size:13px;color:var(--accent);font-weight:600">메인 콘텐츠 (61.8%)</div>
-        <div style="padding:0 20px">
-          <div style="background:var(--surface);border-radius:6px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">헤드라인 영역</div>
-          <div style="background:var(--surface);border-radius:6px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">본문 콘텐츠</div>
-          <div style="background:var(--surface);border-radius:6px;padding:12px;font-size:12px;color:var(--text2)">추가 콘텐츠</div>
+      <div style="position:absolute;left:0;top:0;width:${mainW}px;height:100%;background:rgba(91,141,239,0.06);border-right:2px solid var(--accent)">
+        <div style="padding:clamp(12px,2vw,20px);font-size:clamp(12px,1.2vw,14px);color:var(--accent);font-weight:700">메인 콘텐츠 (61.8%)</div>
+        <div style="padding:0 clamp(12px,2vw,20px)">
+          <div style="background:var(--surface);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">헤드라인 영역</div>
+          <div style="background:var(--surface);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">본문 콘텐츠</div>
+          <div style="background:var(--surface);border-radius:8px;padding:12px;font-size:12px;color:var(--text2)">추가 콘텐츠</div>
         </div>
       </div>
-      <div style="position:absolute;left:${mainW}px;top:0;width:${w-mainW}px;height:100%;background:rgba(167,139,250,0.08)">
-        <div style="padding:20px;font-size:13px;color:var(--accent2);font-weight:600">사이드바 (38.2%)</div>
-        <div style="padding:0 20px">
-          <div style="background:var(--surface);border-radius:6px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">위젯 A</div>
-          <div style="background:var(--surface);border-radius:6px;padding:12px;font-size:12px;color:var(--text2)">위젯 B</div>
+      <div style="position:absolute;left:${mainW}px;top:0;width:${w-mainW}px;height:100%;background:rgba(139,108,245,0.06)">
+        <div style="padding:clamp(12px,2vw,20px);font-size:clamp(12px,1.2vw,14px);color:var(--accent2);font-weight:700">사이드바 (38.2%)</div>
+        <div style="padding:0 clamp(12px,2vw,20px)">
+          <div style="background:var(--surface);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px;color:var(--text2)">위젯 A</div>
+          <div style="background:var(--surface);border-radius:8px;padding:12px;font-size:12px;color:var(--text2)">위젯 B</div>
         </div>
       </div>`;
   }
@@ -238,19 +323,17 @@ function calcScale(){
   const ratio=parseFloat(document.getElementById('calcRatio').value)||1.333;
   const steps=[];
   for(let i=-3;i<=8;i++){
-    const val=base*Math.pow(ratio,i);
-    steps.push({step:i,value:Math.round(val*10)/10});
+    steps.push({step:i,value:Math.round(base*Math.pow(ratio,i)*10)/10});
   }
   const maxVal=steps[steps.length-1].value;
-  const container=document.getElementById('scaleOutput');
   const roles=['','','Caption','Small','Body','H5/Sub','H4','H3','H2','H1','Display 1','Display 2'];
-  container.innerHTML=steps.map((s,idx)=>`
+  document.getElementById('scaleOutput').innerHTML=steps.map((s,idx)=>`
     <div class="scale-row ${s.step===0?'base':''}">
       <div class="scale-step">${s.step>=0?'+':''}${s.step}</div>
       <div class="scale-value">${s.value}px</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="scale-bar" style="width:${(s.value/maxVal)*100}%;height:${Math.max(8,Math.min(32,s.value/2))}px"></div>
-        <span style="font-size:11px;color:var(--text3)">${roles[idx]||''}</span>
+      <div class="scale-bar-wrap">
+        <div class="scale-bar" style="width:${(s.value/maxVal)*100}%;height:${Math.max(6,Math.min(28,s.value/2.5))}px"></div>
+        <span class="scale-role">${roles[idx]||''}</span>
       </div>
     </div>
   `).join('');
@@ -271,7 +354,7 @@ const ratios=[
 function renderRatios(){
   const grid=document.getElementById('ratioGrid');
   grid.innerHTML=ratios.map(r=>{
-    const scale=Math.min(160/r.w,120/r.h);
+    const scale=Math.min(140/r.w,100/r.h);
     const bw=Math.round(r.w*scale);
     const bh=Math.round(r.h*scale);
     return `<div class="ratio-card">
@@ -279,7 +362,7 @@ function renderRatios(){
         <div class="ratio-box" style="width:${bw}px;height:${bh}px">${r.name}</div>
       </div>
       <div class="ratio-info">
-        <div class="ratio-name">${r.name} <span style="font-size:12px;color:var(--text3);font-weight:400">${r.desc}</span></div>
+        <div class="ratio-name">${r.name} <span class="ratio-desc-tag">${r.desc}</span></div>
         <div class="ratio-detail">${(r.w/r.h).toFixed(3)} : 1</div>
         <div class="ratio-use">${r.use}</div>
       </div>
@@ -291,9 +374,7 @@ function renderRatios(){
 renderGolden();
 calcScale();
 renderRatios();
-
-// Re-render golden on resize
-window.addEventListener('resize',()=>{renderGolden()});
+window.addEventListener('resize',()=>renderGolden());
 </script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 ---
 title: 컬러
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # 컬러
 
-UI 컬러 이론, 시스템 구조, 시맨틱 토큰, 다크 모드, 접근성을 다루는 디자인 기초 문서이다.
+컬러 이론, 심리학, 조화 규칙, 브랜드 컬러 선정 방법론, 시맨틱 토큰 체계, 다크 모드, 접근성을 다룬다.
 
 ---
 
@@ -14,31 +14,31 @@ UI 컬러 이론, 시스템 구조, 시맨틱 토큰, 다크 모드, 접근성�
 
 ### 1. 60-30-10 법칙
 
-인테리어 디자인에서 차용한 비율로, UI에서도 동일하게 적용된다.
+인테리어 디자인에서 차용한 비율이다.
 
 - **60%**: Surface/Background (주요 배경색)
 - **30%**: Secondary/Container (카드, 영역 구분)
 - **10%**: Primary/Accent (CTA 버튼, 핵심 인터랙션)
 
-이 비율을 지키면 시각적 균형과 계층 구조가 자연스럽게 형성된다.
+이 비율을 지키면 시각적 균형과 계층이 자연스럽게 형성된다. 반대로 Accent를 30% 이상 쓰면 눈이 어디를 봐야 할지 모르는 "크리스마스 트리" 현상이 발생한다.
 
 > **출처:** [NNGroup — The Role of Color in UX](https://www.nngroup.com/articles/color-enhance-design/)
 
 ### 2. 색상만으로 정보를 전달하지 않는다
 
-WCAG 1.4.1 "Use of Color"는 색상이 정보 전달의 유일한 수단이 되어서는 안 된다고 명시한다. 에러 상태는 빨간색 + 아이콘 + 텍스트, 차트 데이터는 색상 + 패턴/라벨을 함께 사용해야 한다. 색각 이상(색맹) 사용자는 전체 남성의 약 8%, 전체 인구의 약 4.5%를 차지한다.
+WCAG 1.4.1 "Use of Color"는 색상이 정보 전달의 유일한 수단이 되면 안 된다고 명시한다. 에러: 빨간색 + 아이콘 + 텍스트. 차트: 색상 + 패턴/라벨. 색각 이상(color vision deficiency) 사용자는 전체 남성의 약 8%, 전체 인구의 약 4.5%. 가장 흔한 유형은 적록색각이상(deuteranopia/protanopia)으로 빨강-초록 구분이 안 된다. 따라서 성공=초록 / 에러=빨강 조합은 반드시 아이콘이나 텍스트를 병행해야 한다.
 
 > **출처:** [WCAG 1.4.1 — Use of Color](https://www.w3.org/WAI/WCAG21/Understanding/use-of-color.html)
 
 ### 3. 의미론적(Semantic) 색상을 사용한다
 
-하드코딩된 hex 값 대신 역할(role) 기반 토큰을 사용한다. `#FF0000` 대신 `color-error`, `#007AFF` 대신 `color-primary`를 참조하면 테마 전환, 다크 모드, 화이트 라벨링이 가능해진다.
+하드코딩된 hex 대신 역할(role) 기반 토큰을 쓴다. `#FF0000` 대신 `color-error`, `#007AFF` 대신 `color-primary`. 이렇게 해야 테마 전환, 다크 모드, 화이트 라벨링이 가능하다.
 
 > **출처:** [Material Design 3 — Color Roles](https://m3.material.io/styles/color/roles)
 
 ### 4. 대비(Contrast)를 우선한다
 
-아름다운 색상이라도 대비가 부족하면 접근성을 해친다. 텍스트는 최소 4.5:1(AA), UI 컴포넌트는 최소 3:1의 대비를 확보한다. WebAIM의 2024년 백만 사이트 분석에서 **83.6%의 웹사이트**가 색상 대비 문제를 보유하고 있었다.
+텍스트 최소 4.5:1(AA), UI 컴포넌트 최소 3:1. WebAIM 2024년 백만 사이트 분석에서 **83.6%**가 색상 대비 문제를 보유하고 있었다. 가장 빈번한 실패: 밝은 회색 placeholder 텍스트(대비비 약 2:1).
 
 > **출처:** [WebAIM — The WebAIM Million 2024](https://webaim.org/projects/million/)
 
@@ -313,3 +313,83 @@ WCAG 2.1의 비텍스트 대비(1.4.11) 기준을 인지하지 못하여, 입력
 > **출처:** [UX Collective — 3 Color Contrast Mistakes Designers Still Make](https://uxdesign.cc/3-color-contrast-mistakes-designers-still-make-68cc224735b3)
 > **출처:** [WebAIM — Contrast and Color Accessibility](https://webaim.org/articles/contrast/)
 > **출처:** [Accessible Web — Color Contrast Checker](https://accessibleweb.com/color-contrast-checker/)
+
+---
+
+## 색상 심리학 (Color Psychology)
+
+색상이 사용자 행동과 인식에 미치는 영향은 문화권에 따라 다르다. 아래는 서구권 + 동아시아권 공통 연구 결과를 기반으로 한 실무 참고 정보이며, 절대 법칙이 아니다.
+
+### 색상별 연상과 UI 활용
+
+| 색상 | 서구권 연상 | 동아시아 연상 | UI 활용 | 주의점 |
+|------|-----------|-------------|---------|--------|
+| **파란색** | 신뢰, 안정, 전문성 | 신뢰, 기술, 차가움 | 금융, 헬스케어, 기업 앱의 Primary | 과다 사용 시 차갑고 비인간적 인상 |
+| **빨간색** | 긴급, 에너지, 경고 | 행운, 축하(중국), 경고 | CTA 버튼 강조, 에러 상태, 세일 뱃지 | 에러와 혼동 가능 — CTA로 쓸 때 맥락 분리 필수 |
+| **초록색** | 자연, 성공, 성장 | 자연, 건강 | 성공 피드백, 헬스/환경 앱 | 적록색각이상자에게 빨강과 구분 어려움 |
+| **노란색** | 주의, 낙관, 경고 | 황실(전통), 주의 | 경고 배너, 하이라이트 | 밝은 배경에서 대비 확보 어려움 (텍스트 금지) |
+| **주황색** | 활력, 친근함 | 활력, 즐거움 | 보조 CTA, 알림 뱃지 | 빨강과 노랑 사이에서 의미 모호 |
+| **보라색** | 고급, 창의성 | 고급, 신비 | 프리미엄 서비스, 크리에이티브 도구 | 남성 사용자에게 선호도 낮다는 연구 존재 |
+| **검정색** | 세련, 권위 | 죽음(전통), 세련(현대) | 럭셔리 브랜드, 패션 | 다크 모드 배경에는 순수 검정(#000) 피하기 |
+
+**HubSpot A/B 테스트 사례:** 빨간색 CTA 버튼이 초록색 대비 클릭률 21% 높았다. 단, 이 결과는 주변 색상 대비에 의한 것이지 빨간색 자체의 효과가 아닐 수 있다. 색상 심리학 연구의 재현성(replicability)은 낮은 편이므로, 반드시 자체 A/B 테스트로 검증한다.
+
+> **출처:** [Smashing Magazine — Color Theory for Designers](https://www.smashingmagazine.com/2010/01/color-theory-for-designers-part-1-the-meaning-of-color/)
+> **출처:** [HubSpot — The Button Color A/B Test](https://blog.hubspot.com/blog/tabid/6307/bid/20566/the-button-color-a-b-test-red-beats-green.aspx)
+
+---
+
+## 색상 조화 규칙 (Color Harmony)
+
+색상환(color wheel) 위에서 색상 간 각도 관계로 조화를 정의한다. UI에서는 보통 1개의 Primary를 선정한 뒤, 아래 규칙으로 보조색을 도출한다.
+
+### 주요 조화 유형
+
+| 유형 | 색상환 관계 | 특성 | UI 적용 예 |
+|------|-----------|------|-----------|
+| **보색 (Complementary)** | 180° 반대편 | 강한 대비, 긴장감 | CTA 버튼 강조. 단, 동시 사용 면적을 10% 이하로 제한 |
+| **유사색 (Analogous)** | 인접 30~60° | 부드럽고 자연스러운 조화 | 그라데이션 배경, 차트의 동일 카테고리 색상 |
+| **삼각 (Triadic)** | 120° 등간격 | 풍부하고 활기찬 팔레트 | 3가지 정보 카테고리 구분(차트, 대시보드) |
+| **분할보색 (Split-Complementary)** | 보색의 양옆 30° | 보색보다 덜 긴장되면서도 대비 유지 | Primary + 두 가지 Accent 조합 |
+| **이중보색 (Tetradic)** | 90° 간격 4색 | 가장 풍부하지만 균형 잡기 어려움 | 4개 이상 카테고리 구분이 필요한 복잡한 대시보드 |
+| **단색 (Monochromatic)** | 동일 색조, 명도/채도만 변경 | 가장 안전하고 일관성 높음 | 미니멀 UI, 단일 브랜드 색상 기반 디자인 시스템 |
+
+### 실무 팔레트 구성 프로세스
+
+1. **Primary 선정**: 브랜드 핵심 색상 1개 결정
+2. **Neutral 도출**: Primary에서 채도를 2~5%로 낮춘 회색 계열 (순수 회색보다 따뜻하거나 차가운 뉘앙스)
+3. **Secondary**: 유사색 또는 분할보색 규칙에서 도출
+4. **Semantic 4색**: Success(초록), Warning(노랑/주황), Error(빨강), Info(파랑) — 브랜드와 독립적으로 고정
+5. **명도 스케일**: 각 색상에 대해 50~950 (또는 100~900) 단계로 10~13개 명도 변형 생성
+
+> **출처:** [Adobe Color — Color Wheel](https://color.adobe.com/create/color-wheel)
+> **출처:** [Interaction Design Foundation — Color Theory](https://www.interaction-design.org/literature/topics/color-theory)
+
+---
+
+## 브랜드 컬러 선정 방법론
+
+### 1단계: 경쟁사 컬러 감사
+
+동일 업종 상위 10개 앱/사이트의 Primary 색상을 수집한다. 대부분 파란색 계열에 몰려 있다면 차별화를 위해 다른 색조를 검토한다. 반대로 업종 관례(예: 금융=파랑, 음식=빨강/주황)를 무시하면 사용자 기대와 충돌한다.
+
+### 2단계: 60-30-10 시뮬레이션
+
+후보 색상으로 실제 UI 목업을 만들어 60-30-10 비율을 적용한다. Figma에서 3가지 후보 팔레트를 병렬로 놓고 비교한다.
+
+### 3단계: 접근성 사전 검증
+
+Primary 색상이 흰색/검정 배경 모두에서 AA 대비(4.5:1)를 충족하는지 확인한다. 충족하지 않으면 명도를 조정하거나 대비용 변형(darker/lighter variant)을 준비한다.
+
+### 4단계: 다크 모드 적합성
+
+라이트 모드 Primary를 다크 모드에서 그대로 쓰면 채도가 과해 눈부심이 발생한다. 다크 모드용 변형(명도 +20~30, 채도 -10~20)을 미리 준비한다.
+
+### 안티패턴
+
+- **순수 검정(#000000) 배경**: OLED smearing, 과도한 대비. 대신 #121212~#1C1C1E 사용
+- **Primary를 에러 색상으로 사용**: 브랜드 빨강이 Primary인 경우, Error와 Primary가 구분 불가. Error에는 별도 톤(더 어두운 빨강 또는 주황)을 지정
+- **너무 많은 색상**: 6색 이상의 Primary/Secondary/Tertiary 조합은 시스템 복잡도만 증가시킨다
+
+> **출처:** [Refactoring UI — Building Your Color Palette](https://www.refactoringui.com/)
+> **출처:** [Material Design 3 — How the Color System Works](https://m3.material.io/styles/color/system/how-the-system-works)

@@ -1,12 +1,12 @@
 ---
 title: 네비게이션 패턴
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # 네비게이션 패턴
 
-사용자가 앱 내에서 길을 잃지 않고 원하는 콘텐츠에 도달하도록 돕는 네비게이션 설계 원칙과 패턴을 정리한다.
+네비게이션 구조, 모바일 패턴(햄버거 논쟁, 바텀 네비), 브레드크럼 깊이 한계, 메가 메뉴 가이드를 다룬다.
 
 ---
 
@@ -181,3 +181,94 @@ NNGroup의 사용자 테스트에서 브레드크럼은 "많은 이점이 있으
 NNGroup은 관련 콘텐츠를 위한 로컬 네비게이션(가이드라인 #6)을 제공하여 사용자가 계층을 오르내리는 "포고스틱" 행동을 방지하라고 권장한다.
 
 > **출처:** [Menu-Design Checklist: 17 UX Guidelines — NNGroup](https://www.nngroup.com/articles/menu-design/)
+
+---
+
+## 모바일 네비게이션 심층
+
+### 햄버거 메뉴 논쟁 (Hamburger Debate)
+
+햄버거 메뉴(☰)는 모바일에서 가장 논쟁적인 네비게이션 패턴이다.
+
+**반대 연구:**
+- NNGroup: 숨겨진 네비게이션은 탭 기반 네비게이션에 비해 **발견율이 유의미하게 낮다**
+- Luke Wroblewski(2014): 보이는 탭 바로 전환 후 사용자 참여가 평균 **20~30%** 증가
+- Spotify는 2016년 햄버거를 버리고 바텀 탭으로 전환, 유사한 지표 개선을 보고
+
+**찬성 근거:**
+- 2025년 현재 햄버거 아이콘의 인식률은 95% 이상으로 수렴 — 2013년과 상황이 다르다
+- 목적지가 7개 이상인 콘텐츠 중심 앱(이커머스, 뉴스)에서는 바텀 탭 5개로 충분하지 않다
+- "더보기" 탭보다 드로어가 전체 카테고리를 한눈에 보여줄 수 있다
+
+**실무 결론:**
+- 최상위 목적지 ≤ 5개: **바텀 탭** (검증된 최선)
+- 최상위 목적지 > 5개: **바텀 탭 + 드로어 보완** (핵심 4~5개는 탭, 나머지는 드로어)
+- 콘텐츠 중심 앱(이커머스, 뉴스): 햄버거 드로어 허용, 단 핵심 CTA(검색, 장바구니)는 항상 노출
+
+> **출처:** [NNGroup — Basic Patterns for Mobile Navigation](https://www.nngroup.com/articles/mobile-navigation-patterns/)
+> **출처:** [Luke Wroblewski — Obvious Always Wins](https://www.lukew.com/ff/entry.asp?1945)
+
+### 바텀 네비게이션 연구
+
+바텀 네비게이션(Tab Bar / Navigation Bar)은 현재 모바일 네비게이션의 사실상 표준이다.
+
+**사용성 데이터:**
+- 엄지 도달 영역(thumb zone)이 화면 하단에 집중되므로 조작성이 탁월하다
+- Steven Hoober 연구(2013): 스마트폰 사용의 49%가 한 손 엄지 조작
+- 화면 하단 고정 영역은 인지적으로 "항상 접근 가능하다"는 안심감을 준다
+
+**실패 패턴:**
+- 탭 6개 이상: 터치 타겟이 44pt 미만으로 줄어들어 오탭 발생
+- 아이콘만 표시(라벨 생략): NNGroup 연구에서 아이콘 단독 인식률이 50~60% 수준
+- 탭에 액션 배치: 탭 바는 네비게이션 전용이다. "공유", "촬영" 같은 액션은 FAB이나 툴바에 배치한다
+- 스크롤 시 숨기기: 콘텐츠 영역을 넓히려 하단 바를 숨기면 네비게이션 접근성이 떨어진다. Apple HIG는 탭 바를 항상 표시하라고 명시한다
+
+> **출처:** [Steven Hoober — How Do Users Really Hold Mobile Devices?](https://www.uxmatters.com/mt/archives/2013/02/how-do-users-really-hold-mobile-devices.php)
+> **출처:** [Apple HIG — Tab Bars](https://developer.apple.com/design/human-interface-guidelines/tab-bars)
+
+---
+
+## 메가 메뉴 (Mega Menu)
+
+### 정의
+
+메가 메뉴는 모든 하위 카테고리를 한 번에 노출하는 대형 드롭다운 패널이다. 이커머스, 대형 뉴스 사이트, 기업 포탈에서 사용된다.
+
+### 핵심 가이드라인
+
+| 규칙 | 설명 |
+|------|------|
+| **단일 패널, 2단계까지** | 3단계 이상 중첩은 물리적으로 조작 어렵다 (마우스 경로 이탈) |
+| **카테고리 헤더 시각 구분** | 굵은 텍스트 또는 구분선으로 그룹 경계를 명확히 한다 |
+| **닫기 딜레이 300~500ms** | 마우스가 메뉴를 벗어나도 즉시 닫지 않는다. 실수 방지용 딜레이 |
+| **모바일 대응 필수** | 메가 메뉴는 본질적으로 데스크톱 패턴이다. 모바일에서는 전체화면 오버레이 또는 아코디언으로 변환한다 |
+| **키보드 접근성** | Tab으로 모든 링크에 접근 가능해야 하며, Escape로 메뉴를 닫을 수 있어야 한다 |
+
+### 캐스케이딩(계단식) 메뉴의 문제
+
+NNGroup 가이드라인 #14: 캐스케이딩 메뉴는 2단계 이상에서 "물리적으로 조작하기 어렵다." 마우스 경로가 대각선이 되면 하위 메뉴가 닫히는 문제가 발생한다. Amazon은 이를 해결하기 위해 마우스 이동 방향을 감지하는 삼각형 히트 영역(triangle heuristic)을 구현했다 — 하지만 대부분의 사이트는 이런 구현을 하지 않으므로, 메가 메뉴를 대안으로 쓰는 것이 안전하다.
+
+> **출처:** [NNGroup — Menu-Design Checklist: 17 UX Guidelines](https://www.nngroup.com/articles/menu-design/)
+> **출처:** [NNGroup — Mega Menus Work Well for Site Navigation](https://www.nngroup.com/articles/mega-menus-work-well/)
+
+---
+
+## 브레드크럼 깊이 한계
+
+### 데스크톱
+
+- **최대 4~5단계**: 그 이상은 한 줄에 담기 어렵고 사용자가 전체 경로를 파악하기 힘들다
+- 5단계를 초과하면 중간 단계를 `...`으로 축약하거나 드롭다운으로 표시한다
+
+### 모바일
+
+- **최대 1~2단계 표시**: NNGroup은 모바일에서 마지막 1~2단계만 표시하라고 권장한다
+- 전체 경로가 필요하면 탭 시 전체 경로를 드롭다운으로 펼친다
+- 터치 타겟: 각 브레드크럼 항목이 최소 1cm x 1cm (약 44 x 44pt)
+
+### SEO 고려
+
+브레드크럼에 `schema.org/BreadcrumbList` 구조화 데이터를 추가하면 Google 검색 결과에 경로가 표시된다. 구조화 데이터 없는 브레드크럼은 Google이 인식하지 못할 수 있다.
+
+> **출처:** [NNGroup — Breadcrumbs: 11 Design Guidelines](https://www.nngroup.com/articles/breadcrumbs/)
+> **출처:** [Google — Breadcrumb Structured Data](https://developers.google.com/search/docs/appearance/structured-data/breadcrumb)

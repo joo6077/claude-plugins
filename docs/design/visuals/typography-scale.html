@@ -2,109 +2,217 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>타이포그래피 스케일</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#242837;--border:#2e3348;--text:#e8eaed;--text2:#9aa0b4;--text3:#636980;--accent:#60a5fa;--radius:12px}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:32px;max-width:1200px;margin:0 auto}
-  h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:8px}
-  .subtitle{color:var(--text2);font-size:15px;margin-bottom:40px}
-  .section{margin-bottom:56px}
-  .section-title{font-size:18px;font-weight:600;margin-bottom:24px;color:var(--text2);display:flex;align-items:center;gap:10px}
-  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
-  .scale-table{width:100%;border-collapse:collapse}
-  .scale-row{display:grid;grid-template-columns:140px 80px 80px 1fr;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--border);gap:16px}
+  :root{
+    --bg:#0d0f14;--bg2:#111320;--surface:#181b26;--surface2:#1f2333;--border:#282d42;
+    --text:#e2e5ec;--text2:#8f96ae;--text3:#5b627a;
+    --accent:#5b8def;--accent2:#8b6cf5;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+  html{font-size:16px}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;
+    min-height:100vh;
+    background-image:radial-gradient(ellipse at 30% 0%,rgba(91,141,239,0.05) 0%,transparent 50%),
+                     radial-gradient(ellipse at 70% 100%,rgba(139,108,245,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,48px)}
+  h1{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;line-height:1.2}
+  .subtitle{color:var(--text2);font-size:clamp(13px,1.2vw,15px);margin-bottom:clamp(28px,4vw,48px);line-height:1.5}
+  .section{margin-bottom:clamp(36px,5vw,60px)}
+  .section-title{
+    font-size:clamp(14px,1.3vw,17px);font-weight:700;margin-bottom:clamp(16px,2.5vw,24px);
+    color:var(--text2);text-transform:uppercase;letter-spacing:1.2px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+  .controls{
+    display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;align-items:stretch;
+  }
+  .control-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .control-group label{font-size:14px;color:var(--text2);font-weight:600;white-space:nowrap}
+  .base-slider-wrap{
+    display:flex;align-items:center;gap:12px;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:8px 16px;min-height:48px;
+  }
+  .base-slider-wrap input[type="range"]{
+    -webkit-appearance:none;appearance:none;width:140px;height:6px;
+    background:var(--surface2);border-radius:3px;outline:none;cursor:pointer;
+  }
+  .base-slider-wrap input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--accent);cursor:pointer;border:3px solid var(--surface);
+    box-shadow:0 2px 8px rgba(91,141,239,0.3);
+  }
+  .base-slider-wrap input[type="range"]::-moz-range-thumb{
+    width:22px;height:22px;border-radius:50%;
+    background:var(--accent);cursor:pointer;border:3px solid var(--surface);
+    box-shadow:0 2px 8px rgba(91,141,239,0.3);
+  }
+  .base-value{
+    font-size:18px;font-weight:800;color:var(--accent);
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+    min-width:48px;text-align:center;
+  }
+  select{
+    background:var(--surface);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:10px 14px;font-size:14px;outline:none;
+    min-height:48px;cursor:pointer;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238f96ae' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;
+    padding-right:36px;
+  }
+  select:focus{border-color:var(--accent)}
+  .ratio-badge{
+    display:inline-flex;align-items:center;
+    background:rgba(91,141,239,0.12);border:1px solid rgba(91,141,239,0.2);
+    border-radius:8px;padding:3px 10px;font-size:12px;color:var(--accent);
+    margin-left:10px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-weight:700;
+  }
+
+  /* Scale rows */
+  .scale-container{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -8px;padding:0 8px}
+  .scale-row{
+    display:grid;grid-template-columns:140px 72px 72px 1fr;
+    align-items:baseline;padding:16px 0;border-bottom:1px solid var(--border);gap:16px;
+    min-width:480px;
+  }
   .scale-row:last-child{border-bottom:none}
-  .scale-label{font-size:13px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
-  .scale-size{font-size:13px;color:var(--text2);font-family:monospace}
-  .scale-lh{font-size:13px;color:var(--text3);font-family:monospace}
+  .scale-label{
+    font-size:13px;color:var(--accent);font-weight:700;
+    letter-spacing:0.3px;white-space:nowrap;
+  }
+  .scale-size{font-size:13px;color:var(--text2);font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+  .scale-lh{font-size:13px;color:var(--text3);font-family:'SF Mono','Cascadia Code','Consolas',monospace}
   .scale-preview{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lh-demo{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
-  .lh-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;position:relative}
-  .lh-card-title{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:16px}
-  .lh-sample{position:relative}
-  .lh-sample p{margin:0}
-  .lh-lines{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
-  .lh-line{border-bottom:1px dashed rgba(96,165,250,0.2);position:absolute;left:0;right:0}
-  .responsive-demo{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;overflow:hidden}
-  .responsive-demo-title{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:16px}
-  .responsive-preview{resize:horizontal;overflow:auto;border:2px dashed var(--border);border-radius:8px;padding:24px;min-width:280px;max-width:100%}
-  .responsive-preview h2{margin-bottom:8px;transition:font-size 0.2s}
-  .responsive-preview p{margin-bottom:12px;transition:font-size 0.2s;color:var(--text2)}
-  .resize-hint{font-size:12px;color:var(--text3);margin-top:12px;text-align:center}
-  .controls{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
-  .control-group{display:flex;align-items:center;gap:8px}
-  .control-group label{font-size:13px;color:var(--text2)}
-  select,input[type="number"]{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 12px;font-size:13px;outline:none}
-  select:focus,input:focus{border-color:var(--accent)}
-  .ratio-badge{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--accent);margin-left:8px;font-family:monospace}
+
+  /* Line height demo */
+  .lh-demo{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .lh-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2vw,24px);
+  }
+  .lh-card-title{
+    font-size:13px;color:var(--accent);font-weight:700;margin-bottom:14px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .lh-card-title .lh-val{
+    background:rgba(91,141,239,0.12);border-radius:6px;padding:2px 8px;
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+
+  /* Responsive demo */
+  .responsive-demo{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,28px);overflow:hidden;
+  }
+  .responsive-demo-title{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:16px}
+  .responsive-preview{
+    resize:horizontal;overflow:auto;
+    border:2px dashed var(--border);border-radius:10px;
+    padding:clamp(16px,2vw,28px);min-width:260px;max-width:100%;
+    transition:border-color var(--transition);
+  }
+  .responsive-preview:hover{border-color:var(--text3)}
+  .responsive-preview h2{margin-bottom:10px;transition:font-size 0.2s}
+  .responsive-preview p{margin-bottom:14px;transition:font-size 0.2s;color:var(--text2);line-height:1.7}
+  .resize-hint{font-size:12px;color:var(--text3);margin-top:14px;text-align:center;letter-spacing:0.3px}
+
+  @media(max-width:1024px){
+    .scale-row{grid-template-columns:120px 64px 64px 1fr}
+  }
+  @media(max-width:768px){
+    .lh-demo{grid-template-columns:1fr}
+    .scale-row{grid-template-columns:110px 60px 60px 1fr;gap:10px;padding:12px 0}
+    .scale-label{font-size:12px}
+    .controls{flex-direction:column;gap:12px}
+    .base-slider-wrap{width:100%;justify-content:space-between}
+    .base-slider-wrap input[type="range"]{flex:1;min-width:0}
+    select{width:100%}
+  }
+  @media(max-width:420px){
+    .scale-row{grid-template-columns:90px 50px 1fr;gap:8px}
+    .scale-lh{display:none}
+  }
 </style>
 </head>
 <body>
-<h1>타이포그래피 스케일</h1>
-<p class="subtitle">Material Design 3 타입 스케일 기반 — 모듈러 비율로 생성되는 체계적 타이포그래피</p>
+<div class="page">
+  <h1>타이포그래피 스케일</h1>
+  <p class="subtitle">Material Design 3 타입 스케일 기반 -- 모듈러 비율로 생성되는 체계적 타이포그래피</p>
 
-<div class="section">
-  <div class="section-title">스케일 설정</div>
-  <div class="controls">
-    <div class="control-group">
-      <label>기준 크기 (Base)</label>
-      <input type="number" id="baseSize" value="16" min="10" max="24" onchange="renderScale()"> <span style="color:var(--text3);font-size:13px">px</span>
-    </div>
-    <div class="control-group">
-      <label>비율 (Ratio)</label>
-      <select id="scaleRatio" onchange="renderScale()">
-        <option value="1.067">Minor Second (1.067)</option>
-        <option value="1.125">Major Second (1.125)</option>
-        <option value="1.200">Minor Third (1.200)</option>
-        <option value="1.250">Major Third (1.250)</option>
-        <option value="1.333" selected>Perfect Fourth (1.333)</option>
-        <option value="1.414">Augmented Fourth (1.414)</option>
-        <option value="1.500">Perfect Fifth (1.500)</option>
-        <option value="1.618">Golden Ratio (1.618)</option>
-      </select>
+  <div class="section">
+    <div class="section-title">스케일 설정</div>
+    <div class="controls">
+      <div class="control-group">
+        <label>기준 크기</label>
+        <div class="base-slider-wrap">
+          <input type="range" id="baseSize" value="16" min="10" max="24" step="1" oninput="renderScale()">
+          <span class="base-value" id="baseDisplay">16px</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>비율</label>
+        <select id="scaleRatio" onchange="renderScale()">
+          <option value="1.067">Minor Second (1.067)</option>
+          <option value="1.125">Major Second (1.125)</option>
+          <option value="1.200">Minor Third (1.200)</option>
+          <option value="1.250">Major Third (1.250)</option>
+          <option value="1.333" selected>Perfect Fourth (1.333)</option>
+          <option value="1.414">Augmented Fourth (1.414)</option>
+          <option value="1.500">Perfect Fifth (1.500)</option>
+          <option value="1.618">Golden Ratio (1.618)</option>
+        </select>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="section">
-  <div class="section-title">MD3 타입 스케일 <span class="ratio-badge" id="currentRatio">×1.333</span></div>
-  <div id="scaleRows"></div>
-</div>
-
-<div class="section">
-  <div class="section-title">행간 (Line Height) 시각화</div>
-  <div class="lh-demo">
-    <div class="lh-card">
-      <div class="lh-card-title">line-height: 1.2 (좁은 행간)</div>
-      <div class="lh-sample" id="lhTight"></div>
-    </div>
-    <div class="lh-card">
-      <div class="lh-card-title">line-height: 1.5 (표준 행간)</div>
-      <div class="lh-sample" id="lhNormal"></div>
-    </div>
-    <div class="lh-card">
-      <div class="lh-card-title">line-height: 1.75 (넓은 행간)</div>
-      <div class="lh-sample" id="lhLoose"></div>
-    </div>
-    <div class="lh-card">
-      <div class="lh-card-title">line-height: 2.0 (매우 넓은 행간)</div>
-      <div class="lh-sample" id="lhExtraLoose"></div>
+  <div class="section">
+    <div class="section-title">MD3 타입 스케일 <span class="ratio-badge" id="currentRatio">x1.333</span></div>
+    <div class="scale-container" id="scaleContainer">
+      <div id="scaleRows"></div>
     </div>
   </div>
-</div>
 
-<div class="section">
-  <div class="section-title">반응형 타이포그래피 데모</div>
-  <div class="responsive-demo">
-    <div class="responsive-demo-title">브라우저 너비를 조절하거나 아래 박스를 리사이즈하세요</div>
-    <div class="responsive-preview" id="responsivePreview">
-      <h2 style="font-size:clamp(1.25rem, 2vw + 0.5rem, 2.5rem);line-height:1.2;color:var(--text)">반응형 제목: 화면 크기에 따라 변합니다</h2>
-      <p style="font-size:clamp(0.875rem, 0.5vw + 0.75rem, 1.125rem);line-height:1.6">본문 텍스트는 clamp() 함수를 사용하여 최소-선호-최대 크기 범위 내에서 유동적으로 조절됩니다. 이를 통해 모바일에서 데스크톱까지 매끄러운 타이포그래피를 구현할 수 있습니다. 디자인 시스템에서 반응형 타이포그래피는 하드코딩된 브레이크포인트 대신 이러한 유동적 스케일을 권장합니다.</p>
-      <p style="font-size:clamp(0.75rem, 0.3vw + 0.65rem, 0.875rem);line-height:1.5;color:var(--text3)">캡션 텍스트 — font-size: clamp(0.75rem, 0.3vw + 0.65rem, 0.875rem)</p>
+  <div class="section">
+    <div class="section-title">행간 (Line Height) 시각화</div>
+    <div class="lh-demo">
+      <div class="lh-card">
+        <div class="lh-card-title"><span class="lh-val">1.2</span> 좁은 행간</div>
+        <div class="lh-sample" id="lhTight"></div>
+      </div>
+      <div class="lh-card">
+        <div class="lh-card-title"><span class="lh-val">1.5</span> 표준 행간</div>
+        <div class="lh-sample" id="lhNormal"></div>
+      </div>
+      <div class="lh-card">
+        <div class="lh-card-title"><span class="lh-val">1.75</span> 넓은 행간</div>
+        <div class="lh-sample" id="lhLoose"></div>
+      </div>
+      <div class="lh-card">
+        <div class="lh-card-title"><span class="lh-val">2.0</span> 매우 넓은 행간</div>
+        <div class="lh-sample" id="lhExtraLoose"></div>
+      </div>
     </div>
-    <div class="resize-hint">↔ 위 박스의 우측 하단을 드래그하여 리사이즈</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">반응형 타이포그래피 데모</div>
+    <div class="responsive-demo">
+      <div class="responsive-demo-title">브라우저 너비를 조절하거나 아래 박스를 리사이즈하세요</div>
+      <div class="responsive-preview" id="responsivePreview">
+        <h2 style="font-size:clamp(1.25rem,2vw + 0.5rem,2.5rem);line-height:1.2;color:var(--text)">반응형 제목: 화면 크기에 따라 변합니다</h2>
+        <p style="font-size:clamp(0.875rem,0.5vw + 0.75rem,1.125rem);line-height:1.7">본문 텍스트는 clamp() 함수를 사용하여 최소-선호-최대 크기 범위 내에서 유동적으로 조절됩니다. 이를 통해 모바일에서 데스크톱까지 매끄러운 타이포그래피를 구현할 수 있습니다.</p>
+        <p style="font-size:clamp(0.75rem,0.3vw + 0.65rem,0.875rem);line-height:1.5;color:var(--text3)">캡션 텍스트 -- font-size: clamp(0.75rem, 0.3vw + 0.65rem, 0.875rem)</p>
+      </div>
+      <div class="resize-hint">&#8596; 위 박스의 우측 하단을 드래그하여 리사이즈</div>
+    </div>
   </div>
 </div>
 
@@ -132,7 +240,8 @@ const sampleText='디자인은 비율에서 시작된다 The quick brown fox';
 function renderScale(){
   const base=parseFloat(document.getElementById('baseSize').value)||16;
   const ratio=parseFloat(document.getElementById('scaleRatio').value)||1.333;
-  document.getElementById('currentRatio').textContent='×'+ratio;
+  document.getElementById('baseDisplay').textContent=base+'px';
+  document.getElementById('currentRatio').textContent='x'+ratio;
   const container=document.getElementById('scaleRows');
   container.innerHTML=md3Roles.map(r=>{
     const size=Math.round(base*Math.pow(ratio,r.step));
@@ -140,7 +249,7 @@ function renderScale(){
     return `<div class="scale-row">
       <div class="scale-label">${r.role}</div>
       <div class="scale-size">${size}px</div>
-      <div class="scale-lh">${lh}px lh</div>
+      <div class="scale-lh">${lh}px</div>
       <div class="scale-preview" style="font-size:${size}px;font-weight:${r.weight};line-height:${lh}px;letter-spacing:${r.tracking}px">${sampleText}</div>
     </div>`;
   }).join('');
@@ -155,8 +264,7 @@ function renderLineHeight(){
   ];
   const text='본문 텍스트의 행간(line-height)은 가독성에 직접적인 영향을 미칩니다. 한글은 영문보다 글자 높이가 균일하여 행간이 좁으면 답답해 보이기 쉽습니다. 일반적으로 본문에는 1.5~1.75, 제목에는 1.2~1.3이 권장됩니다.';
   configs.forEach(c=>{
-    const el=document.getElementById(c.id);
-    el.innerHTML=`<p style="font-size:15px;line-height:${c.lh};color:var(--text);position:relative;z-index:1">${text}</p>`;
+    document.getElementById(c.id).innerHTML=`<p style="font-size:15px;line-height:${c.lh};color:var(--text)">${text}</p>`;
   });
 }
 

@@ -1,12 +1,12 @@
 ---
 title: Material Design 분석
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # Material Design 분석
 
-Material Design은 Google이 2014년에 발표한 디자인 언어로, 현재 Material Design 3 (Material You)까지 발전하였다. 본 문서는 M3의 핵심 원칙, 디자인 토큰 체계, 주요 컴포넌트 패턴을 정리한다.
+M3 핵심 원칙, M3 Expressive 업데이트, Material You 커스터마이징, 디자인 토큰, Jetpack Compose 통합, 주요 컴포넌트를 다룬다.
 
 ---
 
@@ -241,3 +241,121 @@ M3는 화면 크기에 따라 다른 네비게이션 컴포넌트를 사용하�
 - Input 칩은 삭제(x) 버튼 포함 가능
 
 > **출처:** [Material Design 3 — Chips](https://m3.material.io/components/chips/specs)
+
+---
+
+## M3 Expressive (2025)
+
+Android 16과 함께 발표된 M3 Expressive는 Material Design의 시각적 표현력을 확장한다. 기존 M3의 미니멀 톤에서 벗어나 더 과감한 색상, 형태, 모션을 도입했다.
+
+### 핵심 변경사항
+
+| 영역 | M3 기존 | M3 Expressive |
+|------|---------|--------------|
+| **색상** | 5가지 키 컬러 (P/S/T/N/NV) | **6번째 키 컬러** 추가 + 더 높은 채도 변형 |
+| **Shape** | 코너 반경 4단계 (None/Small/Medium/Large) | **Squircle(스퀴클)** 형태 도입 + 더 큰 코너 반경 |
+| **타이포그래피** | 5역할 × 3크기 = 15단계 | 가변 서체 축 활용 강화 + **Expressive 스케일** 추가 |
+| **모션** | 7 이징 + 16 듀레이션 | **스프링 기반 물리 애니메이션** 강화 |
+| **컴포넌트** | 표준 크기 | **XL 변형** 추가 (FAB XL, Button XL 등) |
+
+### Squircle (스퀴클)
+
+스퀴클은 원과 사각형의 중간 형태로, CSS `border-radius`와 달리 모서리에서 직선→곡선 전환이 부드럽다. iOS는 이미 오래전부터 앱 아이콘에 스퀴클을 사용했으며, M3 Expressive가 Android에도 도입했다.
+
+```
+일반 rounded rect:  직선 → 급격한 곡선 시작 → 곡선
+스퀴클:             직선 → 점진적 곡선 시작 → 곡선 (연속 곡률)
+```
+
+### 실무 영향
+
+- M3 Expressive는 Android 16+ 기본 UI에 적용되지만, 앱 개발자가 채택하는 것은 선택사항이다
+- 기존 M3와 하위 호환된다 — Expressive 컴포넌트를 점진적으로 도입 가능
+- Jetpack Compose Material 3 라이브러리에서 Expressive 변형이 추가될 예정
+
+> **출처:** [Material Design Blog — M3 Expressive](https://material.io/blog/material-3-expressive-update)
+> **출처:** [Android Developers Blog — Android 16 Design](https://android-developers.googleblog.com/)
+
+---
+
+## Material You 커스터마이징
+
+### 다이내믹 컬러 구현 체계
+
+Material You의 다이내믹 컬러는 단순히 "배경화면에서 색상 추출"이 아니라, 체계적인 알고리즘으로 접근성을 보장하는 팔레트를 생성한다.
+
+**HCT 색상 공간 (Hue-Chroma-Tone):**
+
+Google이 M3를 위해 개발한 색상 공간이다. 기존 HSL/HSV와 달리 **인지적 균일성(perceptual uniformity)**을 보장한다.
+
+| 축 | 설명 | 범위 |
+|-----|------|------|
+| **Hue** | 색조 (빨강, 파랑 등) | 0~360° |
+| **Chroma** | 채도 (색의 선명도) | 0~120+ |
+| **Tone** | 밝기 (WCAG 대비 계산에 직접 사용 가능) | 0(검정)~100(흰색) |
+
+Tone 값의 차이가 곧 대비비를 결정한다:
+- Tone 40(primary) vs Tone 100(on-primary) = 대비비 약 **7:1** (AAA 충족)
+- Tone 40 vs Tone 80 = 대비비 약 **3:1** (비텍스트 AA 충족)
+
+### 브랜드 색상과 다이내믹 컬러의 공존
+
+| 전략 | 설명 | 적합한 앱 |
+|------|------|----------|
+| **완전 다이내믹** | 모든 색상이 사용자 배경화면에서 추출 | 시스템 앱, 유틸리티 앱 |
+| **브랜드 Primary + 다이내믹 나머지** | Primary만 브랜드 고정, Secondary/Tertiary/Surface는 다이내믹 | 대부분의 브랜드 앱 |
+| **완전 브랜드** | 다이내믹 컬러 비활성, 모든 색상을 브랜드 팔레트에서 지정 | 강력한 브랜드 아이덴티티가 필요한 앱 |
+
+> **출처:** [Material Design 3 — Dynamic Color](https://m3.material.io/styles/color/dynamic/overview)
+> **출처:** [Material Color Utilities (GitHub)](https://github.com/material-foundation/material-color-utilities)
+
+---
+
+## Jetpack Compose 통합
+
+### MaterialTheme 구조
+
+```kotlin
+MaterialTheme(
+    colorScheme = dynamicColorScheme(context),  // 다이내믹 컬러
+    typography = Typography(
+        displayLarge = TextStyle(/* ... */),
+        // ... M3 타입 스케일 15단계
+    ),
+    shapes = Shapes(
+        small = RoundedCornerShape(4.dp),
+        medium = RoundedCornerShape(12.dp),
+        large = RoundedCornerShape(16.dp),
+    )
+) {
+    // MaterialTheme.colorScheme.primary 등으로 참조
+}
+```
+
+### 컴포넌트 매핑
+
+| M3 컴포넌트 | Compose API | 핵심 파라미터 |
+|------------|------------|-------------|
+| Filled Button | `Button()` | `colors`, `shape`, `contentPadding` |
+| Outlined Button | `OutlinedButton()` | `border`, `colors` |
+| FAB | `FloatingActionButton()` | `containerColor`, `contentColor` |
+| Card | `Card()`, `ElevatedCard()`, `OutlinedCard()` | `elevation`, `shape`, `colors` |
+| Navigation Bar | `NavigationBar()` | `containerColor`, `NavigationBarItem()` |
+| Top App Bar | `TopAppBar()`, `MediumTopAppBar()`, `LargeTopAppBar()` | `scrollBehavior`, `colors` |
+
+### Flutter MaterialApp 연동
+
+```dart
+MaterialApp(
+  theme: ThemeData(
+    useMaterial3: true,
+    colorSchemeSeed: Colors.blue,  // 시드 색상에서 전체 팔레트 자동 생성
+    // 또는 ColorScheme.fromSeed(seedColor: brandColor)
+  ),
+)
+```
+
+Flutter에서 `ColorScheme.fromSeed()`는 Material Color Utilities의 HCT 알고리즘을 내부적으로 사용하여, Android의 다이내믹 컬러와 동일한 팔레트 생성 로직을 적용한다.
+
+> **출처:** [Material Design 3 — Develop for Android](https://m3.material.io/develop/android/jetpack-compose)
+> **출처:** [Flutter — Material 3 Migration Guide](https://docs.flutter.dev/release/breaking-changes/material-3-migration)

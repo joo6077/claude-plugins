@@ -1,12 +1,12 @@
 ---
 title: 오픈소스 디자인 시스템 분석
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # 오픈소스 디자인 시스템 분석
 
-React 생태계에서 가장 널리 사용되는 오픈소스 디자인 시스템 3종 — Radix UI, Shadcn/ui, Tailwind CSS — 의 핵심 철학, 아키텍처, 실무 활용 패턴을 정리한다.
+Radix UI, Shadcn/ui, Tailwind CSS에 더해 Ant Design, Chakra UI, Mantine의 비교 분석을 포함한다.
 
 ---
 
@@ -280,3 +280,160 @@ module.exports = {
 Tailwind는 소스 파일을 스캔하여 **실제 사용된 클래스의 CSS만 생성**한다. 사용하지 않는 유틸리티는 번들에 포함되지 않아, 프로덕션 CSS 파일 크기를 최소화한다.
 
 > **출처:** [Tailwind CSS — Utility-First Fundamentals](https://tailwindcss.com/docs/utility-first)
+
+---
+
+## Ant Design
+
+Alibaba 그룹이 개발한 엔터프라이즈급 React UI 라이브러리다. 중국 시장에서 압도적 점유율을 가지며, 관리자 패널(admin panel)과 B2B 대시보드에 특화되어 있다.
+
+### 핵심 특성
+
+| 항목 | 내용 |
+|------|------|
+| **철학** | 자연스럽고(Natural), 확실하고(Certain), 의미있고(Meaningful), 성장하는(Growing) |
+| **컴포넌트 수** | **60개 이상** — 가장 풍부한 기본 컴포넌트 세트 |
+| **스타일링** | CSS-in-JS (v5에서 Less → CSS-in-JS 전환), 테마 토큰 기반 |
+| **TypeScript** | 완전한 TS 지원 (소스 코드가 TS로 작성됨) |
+| **npm 주간 다운로드** | 약 150만+ (2025 기준) |
+| **번들 크기** | 전체 import 시 1MB+ — **트리 셰이킹 필수** |
+
+### Ant Design 5.x 토큰 체계
+
+3계층 토큰: Seed Token → Map Token → Alias Token
+
+```tsx
+<ConfigProvider
+  theme={{
+    token: {
+      colorPrimary: '#1677ff',
+      borderRadius: 6,
+      fontSize: 14,
+    },
+    components: {
+      Button: { colorPrimary: '#00b96b' },  // 컴포넌트별 독립 오버라이드
+    },
+  }}
+>
+  <App />
+</ConfigProvider>
+```
+
+### 장단점
+
+| 장점 | 단점 |
+|------|------|
+| 관리자 패널에 필요한 거의 모든 컴포넌트 기본 제공 | 번들 크기가 크다 — 트리 셰이킹 필수 |
+| 풍부한 중국어/영어 이중 문서 | 디자인 톤이 획일적 — "Ant Design 냄새" |
+| 대규모 팀에서 검증된 안정성 | 소비자향 앱에는 시각적으로 무겁다 |
+| ProComponents로 복잡한 폼/테이블 로우코드 구현 | CSS-in-JS 런타임 오버헤드 (SSR 주의) |
+
+> **출처:** [Ant Design — Official Documentation](https://ant.design/)
+
+---
+
+## Chakra UI
+
+접근성 중심의 React 컴포넌트 라이브러리다. 직관적인 스타일 Props API가 최대 차별점이다.
+
+### 핵심 특성
+
+| 항목 | 내용 |
+|------|------|
+| **철학** | 접근성 우선, 개발자 친화적, 커스터마이즈 가능 |
+| **컴포넌트 수** | 약 **50개** |
+| **스타일링** | 스타일 Props (`bg="red.500"`, `p={4}`) |
+| **접근성** | WAI-ARIA 준수, 키보드 네비게이션 기본 내장 |
+| **npm 주간 다운로드** | 약 50만+ (2025 기준) |
+
+### 스타일 Props 비교
+
+```tsx
+// Tailwind
+<div className="bg-blue-500 p-4 rounded-lg text-white">Hello</div>
+
+// Chakra
+<Box bg="blue.500" p={4} borderRadius="lg" color="white">Hello</Box>
+
+// Chakra 반응형
+<Box fontSize={{ base: "sm", md: "md", lg: "lg" }}>반응형 텍스트</Box>
+```
+
+### Chakra UI v3
+
+- **Ark UI 기반 재구축**: Zag.js 상태 머신으로 헤드리스 로직 분리
+- **레시피 (Recipes)**: cva 패턴과 유사한 스타일 변형 조합 시스템
+
+| 장점 | 단점 |
+|------|------|
+| 스타일 Props가 직관적 | JSX가 길어진다 (Props 수 많음) |
+| 접근성 기본 내장 | 복잡한 데이터 컴포넌트 부족 |
+| 테마 커스터마이징 용이 | Tailwind와 역할 중복 |
+
+> **출처:** [Chakra UI — Official Documentation](https://chakra-ui.com/)
+
+---
+
+## Mantine
+
+풀스택 React 컴포넌트 라이브러리 + 훅 컬렉션이다. 컴포넌트, 폼, 날짜, 차트, 알림을 하나의 생태계에서 제공한다.
+
+### 핵심 특성
+
+| 항목 | 내용 |
+|------|------|
+| **철학** | 풀스택 UI 툴킷 |
+| **컴포넌트 수** | **100개 이상** (코어 + 확장 패키지) |
+| **스타일링** | CSS Modules + CSS 변수 (v7에서 Emotion → PostCSS 전환) |
+| **npm 주간 다운로드** | 약 40만+ (2025 기준) |
+
+### 패키지 생태계
+
+| 패키지 | 용도 |
+|--------|------|
+| `@mantine/core` | 핵심 UI 컴포넌트 |
+| `@mantine/hooks` | 200+ 커스텀 훅 |
+| `@mantine/form` | 폼 상태 관리 + 유효성 검증 |
+| `@mantine/dates` | 날짜/시간 피커, 캘린더 |
+| `@mantine/charts` | Recharts 래핑 차트 |
+| `@mantine/notifications` | 토스트/알림 시스템 |
+| `@mantine/spotlight` | Cmd+K 스타일 글로벌 검색 |
+
+### 장단점
+
+| 장점 | 단점 |
+|------|------|
+| 하나의 생태계에서 대부분의 UI 요구사항 해결 | 생태계 락인 위험 |
+| CSS Modules 기반 — 런타임 오버헤드 없음 | 커뮤니티 규모가 상대적으로 작다 |
+| 훅 라이브러리가 독립적으로 유용 | 한국어 문서 없음 |
+| SSR/RSC 친화적 | 학습 곡선 존재 |
+
+> **출처:** [Mantine — Official Documentation](https://mantine.dev/)
+
+---
+
+## 비교 매트릭스
+
+| 기준 | Radix UI | Shadcn/ui | Tailwind | Ant Design | Chakra UI | Mantine |
+|------|---------|-----------|---------|-----------|-----------|---------|
+| **유형** | 헤드리스 | 복사형 | CSS 프레임워크 | 풀 UI 라이브러리 | 스타일 Props | 풀스택 툴킷 |
+| **스타일링** | 없음 | Tailwind | Tailwind | CSS-in-JS | Emotion | CSS Modules |
+| **접근성** | WAI-ARIA 완전 | Radix 상속 | 없음 | 부분 | WAI-ARIA 내장 | 부분 |
+| **번들 크기** | 매우 작음 | 0 (소스 복사) | 작음 | 큼 | 중간 | 중간 |
+| **적합한 프로젝트** | 커스텀 DS | AI 친화적 | 모든 프로젝트 | 관리자 패널 | 중소규모 SaaS | 풀스택 앱 |
+
+### 선택 가이드
+
+```
+디자인 시스템을 처음부터 만드는가?
+├─ Yes → Radix UI + Tailwind, 또는 Shadcn/ui
+└─ No
+    ├─ 관리자 패널 / B2B 대시보드?
+    │   └─ Yes → Ant Design
+    ├─ 접근성 최우선?
+    │   └─ Yes → Chakra UI 또는 Radix UI
+    └─ 폼/날짜/차트까지 한 생태계?
+        └─ Yes → Mantine
+```
+
+> **출처:** [npm trends — UI Library Comparison](https://npmtrends.com/)

@@ -1,12 +1,12 @@
 ---
 title: 폼 패턴
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # 폼 패턴
 
-사용자가 데이터를 정확하고 효율적으로 입력할 수 있도록 돕는 폼 설계 원칙과 패턴을 정리한다.
+폼 설계 원칙, 멀티 스텝 폼, 자동완성/입력 마스킹, 폼 분석(analytics) 방법론을 다룬다.
 
 ---
 
@@ -153,3 +153,118 @@ NNGroup은 **단일 컬럼 레이아웃을 기본으로 권장**한다. 다중 �
 [x] Reset/Clear 버튼 없음
 [x] CTA 버튼에 구체적인 동작 라벨 ("가입하기", "결제하기")
 ```
+
+---
+
+## 멀티 스텝 폼 (Multi-Step Form)
+
+### 사용 시기
+
+- 필드가 **7개 이상**이면 멀티 스텝을 고려한다
+- 회원가입, 결제, 온보딩, 보험/의료 신청 등 논리적 단계가 있는 플로우에 적합하다
+- 단일 목적 폼(로그인, 검색, 댓글)에는 사용하지 않는다
+
+### 설계 규칙
+
+| 규칙 | 설명 |
+|------|------|
+| **진행 표시기(Stepper)** | 현재 단계, 전체 단계 수, 완료 단계를 시각적으로 표시한다 |
+| **단계 수 제한** | 3~5단계가 최적. 7단계 이상은 사용자 이탈률이 급증한다 |
+| **뒤로 가기 허용** | 이전 단계로 돌아가 수정할 수 있어야 한다. 입력 데이터를 보존한다 |
+| **단계 제목 명시** | "2단계" 대신 "배송 정보" 같은 의미 있는 제목을 쓴다 |
+| **단계 간 데이터 보존** | 브라우저 뒤로가기, 새로고침에도 입력 데이터가 유지되어야 한다 |
+| **요약 페이지** | 마지막 단계에서 모든 입력 내용을 요약 표시하고 수정 링크를 제공한다 |
+
+**안티패턴:**
+- 단계를 넘어갈 때마다 전체 페이지를 리로드하는 것. SPA 방식이나 인라인 전환이 체감 속도를 높인다
+- 최종 제출 전까지 필수 필드 검증을 미루는 것. 각 단계 이탈 시 해당 단계의 필수 필드를 즉시 검증한다
+- "다음" 버튼만 있고 "이전" 버튼이 없는 것
+
+> **출처:** [Baymard Institute — Checkout Usability: Best Practices for a Multi-Step Checkout Flow](https://baymard.com/blog/checkout-flow-average-form-fields)
+
+---
+
+## Autofill & Autocomplete
+
+### HTML autocomplete 속성
+
+브라우저 자동완성을 올바르게 활용하면 입력 시간이 **30% 이상** 단축된다 (Google Chrome 팀 측정).
+
+| 필드 | autocomplete 값 | 설명 |
+|------|----------------|------|
+| 이름 | `name` | 전체 이름 |
+| 이메일 | `email` | 이메일 주소 |
+| 전화번호 | `tel` | 전화번호 |
+| 주소 | `street-address` | 도로명 주소 |
+| 도시 | `address-level2` | 시/군/구 |
+| 우편번호 | `postal-code` | 우편번호 |
+| 카드번호 | `cc-number` | 신용카드 번호 |
+| 카드 만료 | `cc-exp` | 카드 만료일 |
+| 비밀번호 | `current-password` | 기존 비밀번호 |
+| 새 비밀번호 | `new-password` | 신규/변경 비밀번호 |
+| OTP | `one-time-code` | 일회용 인증 코드 |
+
+```html
+<!-- 올바른 autocomplete 적용 -->
+<input type="email" autocomplete="email" inputmode="email" name="email">
+<input type="tel" autocomplete="tel" inputmode="tel" name="phone">
+<input type="text" autocomplete="one-time-code" inputmode="numeric" name="otp">
+```
+
+**주의:** `autocomplete="off"`는 사용자 편의를 해치므로 보안상 불가피한 경우(OTP 필드 등)에만 사용한다. Chrome은 `autocomplete="off"`를 무시하는 경우도 있다.
+
+> **출처:** [web.dev — Payment and Address Form Best Practices](https://web.dev/articles/payment-and-address-form-best-practices)
+> **출처:** [MDN — HTML autocomplete attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete)
+
+---
+
+## 입력 마스킹 (Input Masking)
+
+### 정의
+
+입력 마스크는 사용자가 타이핑하는 동안 실시간으로 입력 형식을 자동 적용한다(전화번호 하이픈, 카드번호 공백 등).
+
+### 권장/비권장
+
+| 필드 | 마스크 적용 | 형식 | 이유 |
+|------|-----------|------|------|
+| 전화번호 | 권장 | `010-1234-5678` | 숫자 그룹핑으로 확인 용이 |
+| 카드번호 | 권장 | `1234 5678 9012 3456` | 실물 카드와 동일 형식 |
+| 날짜 | 주의 | `YYYY-MM-DD` | 캘린더 피커가 더 나은 경우 많음 |
+| 금액 | 권장 | `₩1,234,567` | 천 단위 구분으로 확인 용이 |
+| 이메일 | 비권장 | - | 형식이 자유로워 마스크가 방해됨 |
+| 이름 | 비권장 | - | 국제화 문제. 중간에 공백/하이픈이 있는 이름 존재 |
+
+**핵심 규칙:**
+- 마스크 문자(하이픈, 공백)를 자동 삽입하되, 사용자가 직접 입력해도 중복 삽입되지 않아야 한다
+- 붙여넣기(paste)를 지원해야 한다 — 마스크 없는 원시 텍스트를 붙여넣어도 올바르게 파싱
+- `inputmode="numeric"`으로 모바일 숫자 키보드를 트리거한다
+
+> **출처:** [Baymard Institute — Mobile Form Usability](https://baymard.com/blog/mobile-form-usability)
+
+---
+
+## 폼 분석 (Form Analytics)
+
+### 핵심 지표
+
+| 지표 | 계산 | 건강한 수준 | 개선 신호 |
+|------|------|-----------|----------|
+| **완료율 (Completion Rate)** | 제출 수 / 폼 시작 수 × 100 | 60~80% | < 50%이면 UX 문제 |
+| **필드 이탈률 (Field Drop-off)** | 특정 필드에서 이탈한 비율 | 5% 미만/필드 | 특정 필드에서 급증하면 해당 필드 검토 |
+| **필드 소요 시간** | 필드 포커스~블러 시간 | 필드별 상이 | 평균 대비 2배 이상이면 혼란 유발 |
+| **에러율** | 에러 발생 수 / 제출 시도 × 100 | 10% 미만 | 20% 이상이면 유효성 검사 재설계 |
+| **재시도율** | 동일 필드 수정 횟수 | 1.2회 이하 | 1.5회 이상이면 라벨/형식 개선 |
+
+### 필드 이탈 분석 방법
+
+1. Google Analytics 4의 이벤트 트래킹으로 각 필드의 focus/blur/submit 이벤트를 수집한다
+2. 퍼널 차트로 시각화하여 병목(bottleneck) 필드를 식별한다
+3. 병목 필드의 원인을 분류한다:
+   - **라벨 불명확**: 무엇을 입력해야 하는지 모름 → 라벨 개선
+   - **형식 모호**: "010-1234-5678" vs "01012345678" → 마스크 또는 예시 추가
+   - **프라이버시 우려**: 주민등록번호, 소득 등 민감 정보 → 수집 이유 설명 추가
+   - **불필요한 필드**: 사용자가 "왜 이걸 물어보지?"라고 느낌 → 필드 제거
+
+> **출처:** [Zuko — Form Analytics Guide](https://www.zuko.io/blog/form-analytics)
+> **출처:** [Baymard Institute — Checkout Usability](https://baymard.com/checkout-usability)

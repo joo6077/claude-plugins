@@ -1,12 +1,12 @@
 ---
 title: 피드백 패턴
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # 피드백 패턴
 
-시스템 상태를 사용자에게 전달하고 사용자 행동에 대한 적절한 응답을 제공하는 피드백 설계 원칙과 패턴을 정리한다.
+피드백 수단 선택, 알림 피로(notification fatigue), 권한 요청 패턴, 온보딩 플로우 설계를 다룬다.
 
 ---
 
@@ -197,3 +197,98 @@ NNGroup은 확인 다이얼로그의 가장 중요한 유저빌리티 고려사�
 
 > **출처:** [Error-Message Guidelines — NNGroup](https://www.nngroup.com/articles/error-message-guidelines/)
 > **출처:** [10 Design Guidelines for Reporting Errors in Forms — NNGroup](https://www.nngroup.com/articles/errors-forms-design-guidelines/)
+
+---
+
+## 알림 피로 (Notification Fatigue)
+
+### 현상
+
+알림을 과다하게 보내면 사용자가 모든 알림을 무시하게 되는 현상이다. "양치기 소년" 효과와 동일한 메커니즘.
+
+**데이터:**
+- Localytics 조사: 푸시 알림을 받은 사용자의 **52%**가 알림을 "성가시다"고 응답
+- Accengage: 앱 설치 후 알림 옵트인 비율은 iOS에서 약 **46%**, Android에서 약 **91%** (Android는 기본 허용)
+- 주 7회 이상 푸시를 보내는 앱의 사용자 유지율은 주 1~2회 앱 대비 **약 50% 낮다**
+
+### 알림 등급 체계
+
+| 등급 | 침투도 | 표시 수단 | 예시 |
+|------|--------|----------|------|
+| **Critical** | 최고 — 즉시 대응 필요 | 모달, 시스템 알럿, 푸시+소리 | 보안 침해, 결제 실패, 데이터 손실 위험 |
+| **High** | 높음 — 가능한 빨리 확인 | 인앱 배너, 푸시(무음 가능) | 새 메시지, 배송 상태 변경 |
+| **Medium** | 중간 — 편한 시점에 확인 | 뱃지, 인디케이터 | 새 기능 알림, 콘텐츠 추천 |
+| **Low** | 낮음 — 무시해도 무방 | 알림 센터에만 누적 | 앱 업데이트 안내, 프로모션 |
+
+**핵심 규칙:**
+- 사용자에게 알림 카테고리별 on/off 제어권을 제공한다
+- Critical이 아닌 알림에 소리/진동을 넣지 않는다
+- 동일 유형 알림이 3개 이상 쌓이면 그룹핑한다 ("김철수 외 2명이 메시지를 보냈습니다")
+- 마케팅 알림은 사용자 행동 기반 타이밍에만 발송한다 (예: 장바구니 이탈 24시간 후)
+
+> **출처:** [NNGroup — Push Notifications: A Complete Guide](https://www.nngroup.com/articles/push-notification/)
+> **출처:** [NNGroup — Indicators, Validations, and Notifications](https://www.nngroup.com/articles/indicators-validations-notifications/)
+
+---
+
+## 권한 요청 패턴 (Permission Requests)
+
+### 시스템 권한 요청의 문제
+
+iOS/Android 모두 카메라, 위치, 알림 등 시스템 권한은 OS 다이얼로그로 요청하며, 사용자가 거부하면 설정 앱에서만 복구 가능하다. 따라서 첫 요청의 수락률이 매우 중요하다.
+
+### 프라이밍 패턴 (Pre-Permission Priming)
+
+시스템 권한 요청 **전에** 앱 자체 UI로 이유를 설명하는 "프라이밍 스크린"을 삽입한다.
+
+```
+[앱 자체 화면]
+"정확한 배송 추적을 위해 위치 접근이 필요합니다"
+[허용할게요] [나중에]
+        ↓ "허용할게요" 탭 시
+[iOS 시스템 다이얼로그]
+"이 앱이 사용자의 위치에 접근하도록 허용하시겠습니까?"
+[앱 사용 중 허용] [한 번 허용] [허용 안 함]
+```
+
+**효과:**
+- Cluster 앱 사례: 프라이밍 적용 후 iOS 사진 접근 수락률 **+12%**
+- 이유를 설명하지 않고 바로 시스템 다이얼로그를 띄우면 수락률이 **40% 미만**으로 하락한다는 연구 결과
+
+### 권한 요청 타이밍
+
+| 타이밍 | 수락률 | 적합한 상황 |
+|--------|--------|-----------|
+| **즉시 (앱 첫 실행)** | 낮음 (30~50%) | 핵심 기능에 필수인 경우에만 (메신저의 알림) |
+| **맥락 기반 (필요 시점)** | 높음 (60~80%) | 사진 업로드 탭 시 카메라 권한, 지도 탭 시 위치 권한 |
+| **점진적 (사용 후)** | 가장 높음 (70~85%) | 앱을 2~3회 사용 후 알림 제안 |
+
+Apple HIG는 "사람들이 기능을 이해하기도 전에 권한을 요청하지 마라"고 명시한다.
+
+> **출처:** [Apple HIG — Requesting Permission](https://developer.apple.com/design/human-interface-guidelines/requesting-permission)
+> **출처:** [NNGroup — Permission Patterns](https://www.nngroup.com/articles/permission-requests/)
+
+---
+
+## 온보딩 플로우 설계
+
+### 온보딩 유형
+
+| 유형 | 설명 | 적합한 앱 | 주의점 |
+|------|------|----------|--------|
+| **프로그레시브 (Progressive)** | 사용하면서 자연스럽게 기능을 발견 | 직관적 UI의 소비자 앱 | 가장 권장. NNGroup "학습을 한 번에 몰아서 시키지 마라" |
+| **코치마크 (Coach Marks)** | 화면 위에 오버레이로 기능 설명 | 복잡한 전문 도구 | 3개 이하로 제한. 사용자의 85%가 스킵한다 (Appcues 데이터) |
+| **온보딩 슬라이드** | 앱 첫 실행 시 3~5장 스와이프 | 브랜드/가치 전달 필요 시 | 기능 설명보다 가치 제안에 집중. "건너뛰기" 반드시 제공 |
+| **빈 상태 (Empty State)** | 콘텐츠가 없을 때 가이드 표시 | CRUD 앱, 프로젝트 도구 | 첫 번째 행동(CTA)을 명확히 제시 |
+| **인터랙티브 튜토리얼** | 실제 앱 내에서 지시를 따라 수행 | 게임, 복잡한 작업 도구 | 반드시 스킵/나중에 가능해야 함 |
+
+### 핵심 규칙
+
+- **스킵 가능하게 만든다**: NNGroup은 "강제 튜토리얼은 사용자를 짜증나게 한다"고 강조한다
+- **한 번에 1가지만 가르친다**: 인지 부하 이론(Cognitive Load Theory) — 단기 기억의 용량은 4±1 청크
+- **맥락 안에서 가르친다**: 설정 화면의 기능을 홈 화면에서 설명하지 않는다. 해당 화면에서 해당 기능을 만났을 때 설명한다
+- **재접근 가능하게 한다**: 온보딩 팁을 한 번 닫으면 영원히 사라지는 것은 안티패턴. 도움말/설정에서 다시 볼 수 있게 한다
+- **성과 지표를 추적한다**: 온보딩 완료율, 핵심 액션 도달 시간, 7일 유지율을 측정한다
+
+> **출처:** [NNGroup — The Role of Empty States in UX](https://www.nngroup.com/articles/empty-state-interface-design/)
+> **출처:** [NNGroup — Mobile App Onboarding](https://www.nngroup.com/articles/mobile-app-onboarding/)

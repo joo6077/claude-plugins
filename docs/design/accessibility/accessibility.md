@@ -1,12 +1,12 @@
 ---
 title: 접근성
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # 접근성 (Accessibility)
 
-접근성은 장애 여부와 관계없이 모든 사용자가 디지털 콘텐츠와 상호작용할 수 있도록 보장하는 설계 원칙이다. 본 문서는 WCAG 2.2 표준과 주요 플랫폼 가이드라인을 기반으로 핵심 접근성 요구사항을 정리한다.
+WCAG 2.2 핵심 요구사항, 인지 접근성, 모션 감수성, 투명도 감소, 실제 보조 기술 테스트 방법을 다룬다.
 
 ---
 
@@ -263,3 +263,135 @@ ARIA 랜드마크는 페이지의 주요 영역을 식별하여 스크린 리더
 | 드롭다운 | `Arrow Up/Down` — 옵션 이동, `Enter` — 선택, `Escape` — 닫기 |
 
 > **출처:** [W3C WAI-ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/)
+
+---
+
+## 인지 접근성 (Cognitive Accessibility)
+
+WCAG는 시각/청각/운동 장애에 집중하는 경향이 있지만, 인지 장애(학습 장애, ADHD, 자폐 스펙트럼, 노인성 인지 저하)는 전체 장애의 약 **40%**를 차지한다. W3C의 Cognitive and Learning Disabilities Accessibility Task Force(COGA TF)가 별도 가이드를 발행했다.
+
+### 핵심 원칙
+
+| 원칙 | 설명 | 실무 적용 |
+|------|------|----------|
+| **단순한 언어** | 전문 용어, 약어, 이중 부정을 피한다 | 에러 메시지: "유효하지 않은 입력" → "이메일에 @ 기호가 필요합니다" |
+| **예측 가능한 UI** | 같은 기능은 항상 같은 위치, 같은 모양 | 뒤로가기는 항상 좌측 상단. 저장은 항상 우측 하단 |
+| **주의 분산 최소화** | 자동 재생 미디어, 깜빡이는 배너, 움직이는 광고 제거 | 자동 재생 비디오에 반드시 일시정지 제공 |
+| **충분한 시간** | 세션 타임아웃 전 경고 + 연장 옵션 | "세션이 5분 후 만료됩니다 [연장하기]" |
+| **명확한 피드백** | 액션 결과를 즉시, 명시적으로 전달 | "저장됨" 표시가 0.5초 만에 사라지면 인지 장애 사용자가 놓친다 — 최소 3초 유지 |
+| **기억 의존 최소화** | 이전 단계 정보를 다음 단계에서 참조할 필요를 없앤다 | 멀티 스텝 폼에서 이전 입력 요약을 표시한다 |
+
+### COGA 실패 사례
+
+- **CAPTCHA**: 시각적 퍼즐은 인지 장애 사용자에게 극도로 어렵다. reCAPTCHA v3(스코어 기반, 사용자 상호작용 불필요)를 권장
+- **복잡한 비밀번호 규칙**: "대문자+소문자+숫자+특수문자+8자 이상"은 인지 부하가 높다. 패스키(Passkey)나 생체 인증을 대안으로 제공
+- **컨텍스트 없는 아이콘**: 라벨 없는 아이콘은 학습 장애 사용자에게 특히 어렵다
+
+> **출처:** [W3C — Making Content Usable for People with Cognitive and Learning Disabilities](https://www.w3.org/TR/coga-usable/)
+> **출처:** [W3C COGA Task Force](https://www.w3.org/WAI/GL/task-forces/coga/)
+
+---
+
+## 모션 감수성 상세
+
+### prefers-reduced-motion
+
+전정 기관(vestibular system) 장애 사용자는 화면 내 대규모 움직임으로 어지러움, 구역질, 두통을 경험한다. iOS "동작 줄이기", macOS "동작 줄이기", Windows "애니메이션 효과 끄기"가 이 쿼리를 트리거한다.
+
+**위험 모션 유형 (높은 순):**
+
+| 위험도 | 모션 유형 | 대안 |
+|--------|----------|------|
+| 최고 | 시차 스크롤(parallax) | 정적 배경 |
+| 최고 | 전체 화면 줌/확대 | 크로스페이드 전환 |
+| 높음 | 회전/스핀 (큰 요소) | 정적 아이콘 또는 소형 인디케이터 |
+| 높음 | 스크롤 연동 애니메이션 | 정적 배치 |
+| 중간 | 자동 캐러셀/슬라이더 | 수동 전환 + 일시정지 |
+| 낮음 | 페이드 인/아웃 (150ms 이하) | 유지 가능 |
+| 낮음 | 체크마크 그리기 | 유지 가능 |
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+> **출처:** [MDN — prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion)
+> **출처:** [A11y Project — Understanding Vestibular Disorders](https://www.a11yproject.com/posts/understanding-vestibular-disorders/)
+
+---
+
+## 투명도 감소 (Reduced Transparency)
+
+### prefers-reduced-transparency
+
+시력이 약하거나 광과민성이 있는 사용자는 반투명 배경 위의 텍스트를 읽기 어렵다. iOS "투명도 줄이기", macOS "투명도 줄이기" 설정이 이 쿼리를 트리거한다.
+
+```css
+/* 기본: 반투명 배경 */
+.overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* 투명도 감소: 불투명 배경 */
+@media (prefers-reduced-transparency: reduce) {
+  .overlay {
+    background: rgb(30, 30, 30);  /* 불투명으로 전환 */
+  }
+}
+```
+
+Apple은 다크 모드에서 사이드바, 시트 배경에 반투명 효과를 기본 적용하지만, "투명도 줄이기" 활성 시 불투명 배경으로 자동 전환한다.
+
+> **출처:** [MDN — prefers-reduced-transparency](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-transparency)
+> **출처:** [Apple HIG — Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)
+
+---
+
+## 실제 보조 기술 테스트
+
+### 테스트 환경 구성
+
+디자인 단계의 접근성 검증(대비 체크, 구조 검토)만으로는 충분하지 않다. 실제 보조 기술로 테스트해야 발견되는 문제가 있다.
+
+### 스크린 리더 테스트 매트릭스
+
+| 플랫폼 | 스크린 리더 | 브라우저/앱 | 점유율 (WebAIM 2024) |
+|--------|-----------|-----------|---------------------|
+| iOS | **VoiceOver** | Safari | 약 34.2% |
+| Windows | **NVDA** | Chrome/Firefox | 약 30.7% |
+| Windows | **JAWS** | Chrome/Edge | 약 26.5% |
+| Android | **TalkBack** | Chrome | 약 5.1% |
+| macOS | **VoiceOver** | Safari | 약 2.5% |
+
+**최소 테스트 조합:** iOS VoiceOver + Safari, Windows NVDA + Chrome (전체의 약 65% 커버).
+
+### 스크린 리더 테스트 체크리스트
+
+- [ ] 페이지 제목(`<title>`)이 페이지 목적을 명확히 설명하는가?
+- [ ] 헤딩 구조(h1→h2→h3)가 논리적 순서를 따르는가? (h1 건너뛰고 h3 사용 금지)
+- [ ] 모든 이미지에 의미 있는 `alt` 텍스트가 있는가? (장식 이미지는 `alt=""`)
+- [ ] 폼 필드마다 연결된 `<label>`이 있는가?
+- [ ] 버튼/링크의 접근 가능한 이름이 기능을 설명하는가? ("여기를 클릭" 금지)
+- [ ] 동적 콘텐츠 변경이 `aria-live`로 스크린 리더에 통보되는가?
+- [ ] 모달 열림 시 포커스가 모달 내부로 이동하는가?
+- [ ] 모달 닫힘 시 포커스가 트리거 요소로 복귀하는가?
+- [ ] Tab 순서가 시각적 순서와 일치하는가?
+
+### 자동화 도구 한계
+
+axe, Lighthouse, WAVE 같은 자동화 도구는 전체 접근성 문제의 약 **30~40%**만 검출한다 (Deque 자체 연구). 나머지 60~70%는 수동 테스트로만 발견 가능하다. 대표적 수동 발견 항목:
+
+- 의미적으로 잘못된 alt 텍스트 (기술적으로는 존재하지만 내용이 부적절)
+- 논리적이지 않은 탭 순서
+- 시각적 포커스 표시가 있지만 대비가 부족한 경우
+- 모달 내 포커스 트랩이 불완전한 경우
+- 동적 콘텐츠의 aria-live 누락
+
+> **출처:** [WebAIM — Screen Reader User Survey #10](https://webaim.org/projects/screenreadersurvey10/)
+> **출처:** [Deque — Automated Accessibility Testing](https://www.deque.com/blog/automated-testing-study-identifies-57-percent-of-digital-accessibility-issues/)

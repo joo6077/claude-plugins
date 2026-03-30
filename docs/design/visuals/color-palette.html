@@ -2,111 +2,208 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>시맨틱 컬러 팔레트</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --bg:#0f1117;--surface:#1a1d27;--surface2:#242837;--border:#2e3348;
-    --text:#e8eaed;--text2:#9aa0b4;--text3:#636980;
-    --radius:12px;--transition:0.3s cubic-bezier(.4,0,.2,1);
+    --bg:#0d0f14;--bg2:#111320;--surface:#181b26;--surface2:#1f2333;--border:#282d42;
+    --text:#e2e5ec;--text2:#8f96ae;--text3:#5b627a;
+    --accent:#5b8def;--accent2:#8b6cf5;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   }
   [data-theme="light"]{
-    --bg:#f5f6fa;--surface:#ffffff;--surface2:#eef0f5;--border:#d8dce6;
-    --text:#1a1d27;--text2:#636980;--text3:#9aa0b4;
+    --bg:#f0f2f7;--bg2:#e8ebf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181b26;--text2:#5b627a;--text3:#8f96ae;
+    --accent:#3b6fdb;--accent2:#6d4ed4;
   }
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:32px;transition:background var(--transition),color var(--transition)}
-  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
-  h1{font-size:28px;font-weight:700;letter-spacing:-0.5px}
-  .theme-toggle{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:6px 16px;cursor:pointer;color:var(--text);font-size:14px;transition:all var(--transition)}
-  .theme-toggle:hover{border-color:var(--text3)}
-  .theme-toggle .icon{font-size:18px}
-  .section{margin-bottom:48px}
-  .section-title{font-size:18px;font-weight:600;margin-bottom:20px;color:var(--text2)}
-  .palette-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-  .color-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all var(--transition)}
-  .color-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
-  .color-swatch{height:100px;position:relative;display:flex;align-items:flex-end;padding:10px}
-  .color-hex{font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;backdrop-filter:blur(8px)}
-  .color-info{padding:14px}
-  .color-name{font-size:14px;font-weight:600;margin-bottom:4px}
-  .color-role{font-size:12px;color:var(--text2)}
-  .contrast-section{margin-top:32px}
-  .contrast-checker{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
-  .contrast-inputs{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-  .input-group{flex:1;min-width:180px}
-  .input-group label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px}
-  .color-input-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px}
-  .color-input-wrap input[type="color"]{width:32px;height:32px;border:none;border-radius:6px;cursor:pointer;background:none;padding:0}
-  .color-input-wrap input[type="text"]{background:none;border:none;color:var(--text);font-size:14px;font-family:monospace;width:80px;outline:none}
-  .contrast-result{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-  .ratio-display{font-size:36px;font-weight:700;font-family:monospace}
+  html{font-size:16px}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;
+    min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(91,141,239,0.06) 0%,transparent 60%),
+                     radial-gradient(ellipse at 80% 100%,rgba(139,108,245,0.04) 0%,transparent 60%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,48px)}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:clamp(28px,4vw,48px);gap:16px;flex-wrap:wrap}
+  .header-left h1{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.5px;line-height:1.2}
+  .header-left p{color:var(--text2);font-size:clamp(13px,1.2vw,15px);margin-top:6px}
+  .theme-toggle{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--border);border-radius:28px;
+    padding:8px 18px;cursor:pointer;color:var(--text);font-size:14px;
+    transition:all var(--transition);user-select:none;
+    min-height:44px;
+  }
+  .theme-toggle:hover{border-color:var(--accent);background:var(--surface2)}
+  .theme-toggle:active{transform:scale(0.97)}
+  .theme-toggle .icon{font-size:18px;line-height:1}
+  .section{margin-bottom:clamp(32px,5vw,56px)}
+  .section-title{
+    font-size:clamp(14px,1.3vw,17px);font-weight:700;margin-bottom:clamp(14px,2vw,22px);
+    color:var(--text2);text-transform:uppercase;letter-spacing:1.2px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+  .palette-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+  .color-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;transition:all var(--transition);position:relative;
+  }
+  .color-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.25);border-color:var(--text3)}
+  .color-card:active{transform:translateY(-1px)}
+  .color-swatch{height:88px;position:relative;display:flex;align-items:flex-end;padding:10px;cursor:pointer}
+  .color-hex{
+    font-size:12px;font-weight:700;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+    padding:4px 10px;border-radius:6px;backdrop-filter:blur(10px);
+    background:rgba(0,0,0,0.35);color:#fff;
+    transition:all var(--transition);
+  }
+  .color-swatch:hover .color-hex{background:rgba(0,0,0,0.6)}
+  .color-info{padding:14px 14px 16px}
+  .color-name{font-size:14px;font-weight:700;margin-bottom:3px}
+  .color-role{font-size:12px;color:var(--text2);line-height:1.4}
+  .copy-toast{
+    position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--accent);color:#fff;padding:10px 24px;border-radius:10px;
+    font-size:14px;font-weight:600;opacity:0;
+    transition:all 0.3s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:100;
+    box-shadow:0 8px 24px rgba(91,141,239,0.35);
+  }
+  .copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .contrast-section{margin-top:16px}
+  .contrast-checker{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(18px,3vw,28px);
+  }
+  .contrast-inputs{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+  .input-group{flex:1;min-width:min(100%,220px)}
+  .input-group label{display:block;font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:600}
+  .color-input-wrap{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:8px 14px;min-height:48px;transition:border-color var(--transition);
+  }
+  .color-input-wrap:focus-within{border-color:var(--accent)}
+  .color-input-wrap input[type="color"]{
+    width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;
+    background:none;padding:0;-webkit-appearance:none;
+  }
+  .color-input-wrap input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
+  .color-input-wrap input[type="color"]::-webkit-color-swatch{border:2px solid var(--border);border-radius:6px}
+  .color-input-wrap input[type="text"]{
+    background:none;border:none;color:var(--text);
+    font-size:15px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+    width:90px;outline:none;
+  }
+  .contrast-result{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .ratio-display{
+    font-size:clamp(28px,4vw,42px);font-weight:800;
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
   .badges{display:flex;gap:8px;flex-wrap:wrap}
-  .badge{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600}
-  .badge.pass{background:#1a3a2a;color:#4ade80}
-  .badge.fail{background:#3a1a1a;color:#f87171}
-  [data-theme="light"] .badge.pass{background:#dcfce7;color:#16a34a}
-  [data-theme="light"] .badge.fail{background:#fee2e2;color:#dc2626}
-  .preview-box{margin-top:16px;padding:20px;border-radius:8px;font-size:16px}
-  .preview-box .large{font-size:24px;font-weight:700}
-  .preview-box .small{font-size:14px;margin-top:4px}
+  .badge{
+    padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;
+    min-height:36px;display:flex;align-items:center;
+    transition:all var(--transition);
+  }
+  .badge.pass{background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.2)}
+  .badge.fail{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.2)}
+  [data-theme="light"] .badge.pass{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.2)}
+  [data-theme="light"] .badge.fail{background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.2)}
+  .preview-box{
+    margin-top:20px;padding:clamp(16px,3vw,24px);border-radius:10px;font-size:16px;
+    border:1px solid var(--border);
+  }
+  .preview-box .large{font-size:clamp(20px,2.5vw,26px);font-weight:700}
+  .preview-box .small{font-size:clamp(13px,1vw,15px);margin-top:6px;line-height:1.6}
+
+  @media(max-width:1024px){
+    .palette-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+  }
+  @media(max-width:768px){
+    .palette-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .color-swatch{height:72px}
+    .contrast-inputs{flex-direction:column}
+    .input-group{min-width:100%}
+    .contrast-result{flex-direction:column;align-items:flex-start}
+    .badges{width:100%}
+    .badge{flex:1;justify-content:center;font-size:12px;padding:8px 10px}
+  }
+  @media(max-width:420px){
+    .palette-grid{grid-template-columns:1fr;gap:10px}
+    .color-swatch{height:64px}
+    .header{flex-direction:column}
+    .theme-toggle{align-self:flex-start}
+  }
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>시맨틱 컬러 팔레트</h1>
-  <button class="theme-toggle" onclick="toggleTheme()">
-    <span class="icon" id="themeIcon">🌙</span>
-    <span id="themeLabel">다크 모드</span>
-  </button>
-</div>
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <h1>시맨틱 컬러 팔레트</h1>
+      <p>다크/라이트 테마 대응 시맨틱 토큰 시스템</p>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="테마 전환">
+      <span class="icon" id="themeIcon">&#9790;</span>
+      <span id="themeLabel">다크 모드</span>
+    </button>
+  </div>
 
-<div class="section">
-  <div class="section-title">Primary</div>
-  <div class="palette-grid" id="primaryColors"></div>
-</div>
-<div class="section">
-  <div class="section-title">Secondary</div>
-  <div class="palette-grid" id="secondaryColors"></div>
-</div>
-<div class="section">
-  <div class="section-title">Surface</div>
-  <div class="palette-grid" id="surfaceColors"></div>
-</div>
-<div class="section">
-  <div class="section-title">Semantic</div>
-  <div class="palette-grid" id="semanticColors"></div>
-</div>
+  <div class="section">
+    <div class="section-title">Primary</div>
+    <div class="palette-grid" id="primaryColors"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Secondary</div>
+    <div class="palette-grid" id="secondaryColors"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Surface</div>
+    <div class="palette-grid" id="surfaceColors"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Semantic</div>
+    <div class="palette-grid" id="semanticColors"></div>
+  </div>
 
-<div class="section contrast-section">
-  <div class="section-title">대비율 체커 (Contrast Ratio Checker)</div>
-  <div class="contrast-checker">
-    <div class="contrast-inputs">
-      <div class="input-group">
-        <label>전경색 (Foreground)</label>
-        <div class="color-input-wrap">
-          <input type="color" id="fgColor" value="#e8eaed" oninput="updateContrast()">
-          <input type="text" id="fgHex" value="#e8eaed" oninput="syncColor('fg')">
+  <div class="section contrast-section">
+    <div class="section-title">대비율 체커</div>
+    <div class="contrast-checker">
+      <div class="contrast-inputs">
+        <div class="input-group">
+          <label>전경색 (Foreground)</label>
+          <div class="color-input-wrap">
+            <input type="color" id="fgColor" value="#e8eaed" oninput="updateContrast()">
+            <input type="text" id="fgHex" value="#e8eaed" oninput="syncColor('fg')" spellcheck="false">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>배경색 (Background)</label>
+          <div class="color-input-wrap">
+            <input type="color" id="bgColor" value="#0f1117" oninput="updateContrast()">
+            <input type="text" id="bgHex" value="#0f1117" oninput="syncColor('bg')" spellcheck="false">
+          </div>
         </div>
       </div>
-      <div class="input-group">
-        <label>배경색 (Background)</label>
-        <div class="color-input-wrap">
-          <input type="color" id="bgColor" value="#0f1117" oninput="updateContrast()">
-          <input type="text" id="bgHex" value="#0f1117" oninput="syncColor('bg')">
-        </div>
+      <div class="contrast-result">
+        <div class="ratio-display" id="ratioValue">15.2:1</div>
+        <div class="badges" id="badges"></div>
       </div>
-    </div>
-    <div class="contrast-result">
-      <div class="ratio-display" id="ratioValue">15.2:1</div>
-      <div class="badges" id="badges"></div>
-    </div>
-    <div class="preview-box" id="previewBox">
-      <div class="large">큰 텍스트 미리보기 (24px Bold)</div>
-      <div class="small">작은 텍스트 미리보기 (14px Regular) — 가나다라마바사 ABCDEFG 0123456789</div>
+      <div class="preview-box" id="previewBox">
+        <div class="large">큰 텍스트 미리보기 (24px Bold)</div>
+        <div class="small">작은 텍스트 미리보기 (14px Regular) -- 가나다라마바사 ABCDEFG 0123456789</div>
+      </div>
     </div>
   </div>
 </div>
+
+<div class="copy-toast" id="copyToast">클립보드에 복사됨</div>
 
 <script>
 const palettes={
@@ -177,19 +274,24 @@ const palettes={
 };
 
 let currentTheme='dark';
+let toastTimeout;
 
-function getContrastTextColor(hex){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  const lum=(0.299*r+0.587*g+0.114*b)/255;
-  return lum>0.5?'rgba(0,0,0,0.87)':'rgba(255,255,255,0.95)';
+function copyToClipboard(hex){
+  navigator.clipboard.writeText(hex).then(()=>{
+    const toast=document.getElementById('copyToast');
+    toast.textContent=hex+' 복사됨';
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout=setTimeout(()=>toast.classList.remove('show'),1800);
+  });
 }
 
 function renderPalette(containerId,colors){
   const c=document.getElementById(containerId);
   c.innerHTML=colors.map(cl=>`
     <div class="color-card">
-      <div class="color-swatch" style="background:${cl.hex}">
-        <span class="color-hex" style="background:rgba(0,0,0,0.3);color:#fff">${cl.hex}</span>
+      <div class="color-swatch" style="background:${cl.hex}" onclick="copyToClipboard('${cl.hex}')" title="${cl.hex} 클릭하여 복사">
+        <span class="color-hex">${cl.hex}</span>
       </div>
       <div class="color-info">
         <div class="color-name">${cl.name}</div>
@@ -208,14 +310,35 @@ function renderAll(){
 }
 
 function toggleTheme(){
-  if(currentTheme==='dark'){currentTheme='light';document.body.setAttribute('data-theme','light');document.getElementById('themeIcon').textContent='☀️';document.getElementById('themeLabel').textContent='라이트 모드'}
-  else{currentTheme='dark';document.body.removeAttribute('data-theme');document.getElementById('themeIcon').textContent='🌙';document.getElementById('themeLabel').textContent='다크 모드'}
+  if(currentTheme==='dark'){
+    currentTheme='light';
+    document.body.setAttribute('data-theme','light');
+    document.getElementById('themeIcon').innerHTML='&#9788;';
+    document.getElementById('themeLabel').textContent='라이트 모드';
+  } else {
+    currentTheme='dark';
+    document.body.removeAttribute('data-theme');
+    document.getElementById('themeIcon').innerHTML='&#9790;';
+    document.getElementById('themeLabel').textContent='다크 모드';
+  }
   renderAll();
 }
 
-function hexToRgb(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];return{r:parseInt(hex.slice(0,2),16),g:parseInt(hex.slice(2,4),16),b:parseInt(hex.slice(4,6),16)}}
-function luminance(r,g,b){const a=[r,g,b].map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2]}
-function contrastRatio(hex1,hex2){const c1=hexToRgb(hex1),c2=hexToRgb(hex2);const l1=luminance(c1.r,c1.g,c1.b),l2=luminance(c2.r,c2.g,c2.b);const lighter=Math.max(l1,l2),darker=Math.min(l1,l2);return(lighter+0.05)/(darker+0.05)}
+function hexToRgb(hex){
+  hex=hex.replace('#','');
+  if(hex.length===3) hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  return{r:parseInt(hex.slice(0,2),16),g:parseInt(hex.slice(2,4),16),b:parseInt(hex.slice(4,6),16)};
+}
+function luminance(r,g,b){
+  const a=[r,g,b].map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});
+  return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
+}
+function contrastRatio(hex1,hex2){
+  const c1=hexToRgb(hex1),c2=hexToRgb(hex2);
+  const l1=luminance(c1.r,c1.g,c1.b),l2=luminance(c2.r,c2.g,c2.b);
+  const lighter=Math.max(l1,l2),darker=Math.min(l1,l2);
+  return(lighter+0.05)/(darker+0.05);
+}
 
 function updateContrast(){
   const fg=document.getElementById('fgColor').value;
@@ -227,10 +350,10 @@ function updateContrast(){
   const badges=document.getElementById('badges');
   const aaLarge=ratio>=3,aaNormal=ratio>=4.5,aaaLarge=ratio>=4.5,aaaNormal=ratio>=7;
   badges.innerHTML=`
-    <span class="badge ${aaNormal?'pass':'fail'}">AA 일반 텍스트 ${aaNormal?'통과':'실패'}</span>
-    <span class="badge ${aaLarge?'pass':'fail'}">AA 큰 텍스트 ${aaLarge?'통과':'실패'}</span>
-    <span class="badge ${aaaNormal?'pass':'fail'}">AAA 일반 텍스트 ${aaaNormal?'통과':'실패'}</span>
-    <span class="badge ${aaaLarge?'pass':'fail'}">AAA 큰 텍스트 ${aaaLarge?'통과':'실패'}</span>
+    <span class="badge ${aaNormal?'pass':'fail'}">AA 일반 ${aaNormal?'통과':'실패'}</span>
+    <span class="badge ${aaLarge?'pass':'fail'}">AA 큰글씨 ${aaLarge?'통과':'실패'}</span>
+    <span class="badge ${aaaNormal?'pass':'fail'}">AAA 일반 ${aaaNormal?'통과':'실패'}</span>
+    <span class="badge ${aaaLarge?'pass':'fail'}">AAA 큰글씨 ${aaaLarge?'통과':'실패'}</span>
   `;
   const box=document.getElementById('previewBox');
   box.style.background=bg;box.style.color=fg;
@@ -238,10 +361,14 @@ function updateContrast(){
 
 function syncColor(type){
   const hex=document.getElementById(type+'Hex').value;
-  if(/^#[0-9a-fA-F]{6}$/.test(hex)){document.getElementById(type+'Color').value=hex;updateContrast()}
+  if(/^#[0-9a-fA-F]{6}$/.test(hex)){
+    document.getElementById(type+'Color').value=hex;
+    updateContrast();
+  }
 }
 
-renderAll();updateContrast();
+renderAll();
+updateContrast();
 </script>
 </body>
 </html>

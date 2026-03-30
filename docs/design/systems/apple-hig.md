@@ -1,12 +1,12 @@
 ---
 title: Apple Human Interface Guidelines 분석
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-03-30
 ---
 
 # Apple Human Interface Guidelines 분석
 
-Apple의 Human Interface Guidelines(HIG)는 Apple 생태계 전반에 걸쳐 일관되고 직관적인 사용자 경험을 구축하기 위한 공식 디자인 프레임워크다. 본 문서는 핵심 원칙, 플랫폼별 차이, 주요 컴포넌트 패턴을 정리한다.
+Apple HIG의 핵심 원칙, iOS/macOS/visionOS/watchOS/CarPlay 플랫폼별 차이, SF Symbols 심층, 주요 컴포넌트 패턴을 다룬다.
 
 ---
 
@@ -195,3 +195,95 @@ Apple HIG는 각 플랫폼의 고유한 맥락과 입력 방식에 맞춘 차별
 
 > **출처:** [Apple — Alerts](https://developer.apple.com/design/human-interface-guidelines/alerts)
 > **출처:** [Apple — Action Sheets](https://developer.apple.com/design/human-interface-guidelines/action-sheets)
+
+---
+
+## watchOS
+
+Apple Watch는 가장 제한된 화면 크기와 짧은 인터랙션 시간을 가진 플랫폼이다.
+
+### 핵심 특성
+
+| 항목 | 사양 |
+|------|------|
+| 화면 크기 | 40mm: 162×197pt, 45mm: 176×215pt, Ultra: 185×223pt |
+| 인터랙션 시간 | 평균 **2~5초** — "glance and go" 패턴 |
+| 입력 방식 | 탭, 디지털 크라운 회전, 스와이프, Siri |
+| 최소 터치 타겟 | **38pt** (iOS의 44pt보다 작지만, 시계 맥락에서 허용) |
+
+### 설계 원칙
+
+- **핵심 정보만 표시한다**: 1~2개 핵심 지표, 1~2개 액션. 리스트는 10개 이하 항목
+- **네비게이션은 리스트 또는 페이지 기반**: 탭 바를 사용하지 않는다. 세로 스크롤 리스트 또는 수평 페이지 스와이프
+- **컴플리케이션(Complication)**: 시계 화면에 앱 데이터를 표시하는 소형 위젯. 최대 3~4줄 텍스트, 게이지, 이미지 지원
+- **알림 우선**: Watch 앱의 주 사용 패턴은 알림 확인 + 빠른 액션이다. 알림에 인라인 액션("승인", "거절")을 포함하면 앱을 열지 않아도 된다
+- **Digital Crown 활용**: 스크롤, 줌, 값 조절에 사용. 정밀 입력이 필요한 곳(시간 설정, 볼륨)에서 터치보다 우수
+
+> **출처:** [Apple — Designing for watchOS](https://developer.apple.com/design/human-interface-guidelines/designing-for-watchos)
+
+---
+
+## CarPlay
+
+차량 내 사용을 위한 플랫폼으로, 운전 중 안전이 최우선이다.
+
+### 핵심 특성
+
+| 항목 | 사양 |
+|------|------|
+| 입력 방식 | 터치스크린, 노브/버튼(비터치 차량), Siri |
+| 화면 비율 | 차량마다 다름 (가로형 다수) |
+| 인터랙션 시간 | **최대 2초** — 운전 중 화면 주시 시간 제한 |
+| 앱 유형 제한 | 오디오, 내비게이션, 메시지, 충전, 주차만 허용 |
+
+### 설계 원칙
+
+- **글랜스 가능한(glanceable) UI**: 큰 텍스트, 높은 대비, 단순한 레이아웃. 세부 정보는 Siri 또는 정차 시 표시
+- **제한된 목록 길이**: Apple은 CarPlay 목록을 **최대 24개 항목**으로 제한한다. 실무적으로 한 화면에 4~6개가 적절
+- **터치 타겟 확대**: 운전 중 정밀 터치가 어려우므로 터치 타겟을 iOS보다 크게 설정한다
+- **Siri 통합 필수**: 음성으로 대부분의 기능에 접근 가능해야 한다
+- **야간 모드**: 다크 배경 + 저밝기가 기본. 밝은 UI는 운전자 시야를 방해한다
+
+> **출처:** [Apple — Designing for CarPlay](https://developer.apple.com/design/human-interface-guidelines/designing-for-carplay)
+> **출처:** [Apple — CarPlay App Programming Guide](https://developer.apple.com/carplay/)
+
+---
+
+## SF Symbols 심층
+
+SF Symbols는 Apple이 제공하는 6,000개 이상의 일관된 벡터 심볼 라이브러리다. San Francisco 시스템 폰트와 수직/무게 정렬이 보장된다.
+
+### 렌더링 모드
+
+| 모드 | 설명 | 적합한 용도 |
+|------|------|-----------|
+| **Monochrome** | 단색 렌더링. tintColor를 따름 | 대부분의 UI 아이콘 (기본값) |
+| **Hierarchical** | 기본 색상에서 불투명도 레이어로 깊이 표현 | 복잡한 심볼에서 레이어 구분이 필요할 때 |
+| **Palette** | 각 레이어에 개별 색상 할당 | 브랜드 색상 적용, 다색 아이콘 |
+| **Multicolor** | Apple이 사전 정의한 고정 색상 | 날씨, 기기, 자연 관련 심볼 |
+
+### 변수 값 (Variable Value)
+
+SF Symbols 4+에서 도입된 기능으로, 0.0~1.0 범위의 값에 따라 심볼의 채움 수준이 변한다. 볼륨, 신호 강도, 배터리 잔량 같은 연속적 상태를 하나의 심볼로 표현한다.
+
+```swift
+// SwiftUI에서 변수 값 적용
+Image(systemName: "wifi", variableValue: 0.67)
+// 0.0: 빈 wifi, 0.33: 1칸, 0.67: 2칸, 1.0: 3칸 (풀)
+```
+
+### 자동 지역화
+
+SF Symbols는 RTL(아랍어, 히브리어) 환경에서 방향이 의미를 가지는 심볼을 자동 미러링한다. 예: "chevron.right"는 RTL에서 자동으로 왼쪽을 가리킨다. "checkmark" 같은 방향 무관 심볼은 미러링하지 않는다.
+
+### 커스텀 심볼 제작
+
+Apple은 SF Symbols 앱에서 커스텀 심볼 템플릿(SVG)을 내보내기할 수 있다.
+
+**규칙:**
+- 9개 무게(Ultralight~Black) × 3개 스케일(Small/Medium/Large) = **27개 변형**을 모두 제작하는 것이 이상적이지만, 최소 Regular-Medium 1개만 제작하면 나머지는 자동 보간된다
+- 레이어 구분을 올바르게 설정하면 Hierarchical/Palette/Multicolor 렌더링이 자동 적용된다
+- 기본 심볼과 시각적 무게를 맞추기 위해 템플릿의 캡 높이(cap height) 가이드를 준수한다
+
+> **출처:** [Apple — SF Symbols](https://developer.apple.com/design/human-interface-guidelines/sf-symbols)
+> **출처:** [Apple — Creating Custom Symbol Images](https://developer.apple.com/documentation/uikit/uiimage/creating_custom_symbol_images_for_your_app)

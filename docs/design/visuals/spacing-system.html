@@ -2,149 +2,289 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>간격 시스템</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#242837;--border:#2e3348;--text:#e8eaed;--text2:#9aa0b4;--text3:#636980;--accent:#60a5fa;--accent2:#a78bfa;--radius:12px}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:32px;max-width:1200px;margin:0 auto}
-  h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:8px}
-  .subtitle{color:var(--text2);font-size:15px;margin-bottom:40px}
-  .section{margin-bottom:56px}
-  .section-title{font-size:18px;font-weight:600;margin-bottom:24px;color:var(--text2);display:flex;align-items:center;gap:10px}
-  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+  :root{
+    --bg:#0d0f14;--bg2:#111320;--surface:#181b26;--surface2:#1f2333;--border:#282d42;
+    --text:#e2e5ec;--text2:#8f96ae;--text3:#5b627a;
+    --accent:#5b8def;--accent2:#8b6cf5;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+  html{font-size:16px}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;
+    min-height:100vh;
+    background-image:radial-gradient(ellipse at 10% 0%,rgba(91,141,239,0.05) 0%,transparent 50%),
+                     radial-gradient(ellipse at 90% 100%,rgba(139,108,245,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,48px)}
+  h1{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;line-height:1.2}
+  .subtitle{color:var(--text2);font-size:clamp(13px,1.2vw,15px);margin-bottom:clamp(28px,4vw,48px);line-height:1.5}
+  .section{margin-bottom:clamp(36px,5vw,60px)}
+  .section-title{
+    font-size:clamp(14px,1.3vw,17px);font-weight:700;margin-bottom:clamp(16px,2.5vw,24px);
+    color:var(--text2);text-transform:uppercase;letter-spacing:1.2px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
   /* 4px Grid */
-  .grid-demo{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;overflow:hidden}
-  .grid-canvas{position:relative;width:100%;height:200px;background:repeating-linear-gradient(to right,rgba(96,165,250,0.06) 0px,rgba(96,165,250,0.06) 1px,transparent 1px,transparent 4px),repeating-linear-gradient(to bottom,rgba(96,165,250,0.06) 0px,rgba(96,165,250,0.06) 1px,transparent 1px,transparent 4px);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-  .grid-label{position:absolute;top:8px;right:12px;font-size:11px;color:var(--text3);background:var(--surface);padding:2px 8px;border-radius:4px}
-  .grid-element{position:absolute;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:rgba(255,255,255,0.9)}
-  .grid-hint{font-size:12px;color:var(--text3);margin-top:12px;text-align:center}
+  .grid-demo{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,24px);overflow:hidden;
+  }
+  .grid-canvas{
+    position:relative;width:100%;height:clamp(160px,20vw,220px);
+    background:
+      repeating-linear-gradient(to right,rgba(91,141,239,0.06) 0px,rgba(91,141,239,0.06) 1px,transparent 1px,transparent 4px),
+      repeating-linear-gradient(to bottom,rgba(91,141,239,0.06) 0px,rgba(91,141,239,0.06) 1px,transparent 1px,transparent 4px);
+    border:1px solid var(--border);border-radius:10px;overflow:hidden;
+  }
+  .grid-label{
+    position:absolute;top:8px;right:12px;font-size:11px;color:var(--text3);
+    background:var(--surface);padding:3px 10px;border-radius:6px;font-weight:600;
+  }
+  .grid-element{
+    position:absolute;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);
+    transition:all var(--transition);
+  }
+  .grid-element:hover{opacity:0.8;transform:scale(1.02)}
+  .grid-hint{font-size:12px;color:var(--text3);margin-top:14px;text-align:center;letter-spacing:0.3px}
 
   /* Spacing Tokens */
-  .token-list{display:flex;flex-direction:column;gap:12px}
-  .token-row{display:grid;grid-template-columns:100px 80px 1fr 80px;align-items:center;gap:16px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
-  .token-name{font-size:14px;font-weight:600;color:var(--accent)}
-  .token-value{font-size:13px;font-family:monospace;color:var(--text2)}
+  .token-list{display:flex;flex-direction:column;gap:10px}
+  .token-row{
+    display:grid;grid-template-columns:80px 64px 1fr 72px;align-items:center;gap:16px;
+    padding:12px 16px;background:var(--surface);border:1px solid var(--border);
+    border-radius:10px;transition:all var(--transition);cursor:default;
+  }
+  .token-row:hover{border-color:var(--accent);background:var(--surface2)}
+  .token-name{
+    font-size:14px;font-weight:700;color:var(--accent);
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  .token-value{font-size:13px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;color:var(--text2)}
   .token-bar-wrap{height:24px;display:flex;align-items:center}
-  .token-bar{height:100%;border-radius:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));opacity:0.7;transition:opacity 0.2s}
-  .token-bar:hover{opacity:1}
-  .token-rem{font-size:12px;color:var(--text3);font-family:monospace;text-align:right}
+  .token-bar{
+    height:100%;border-radius:6px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    opacity:0.5;transition:all var(--transition);
+    min-width:2px;
+  }
+  .token-row:hover .token-bar{opacity:0.85}
+  .token-rem{
+    font-size:12px;color:var(--text3);
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;text-align:right;
+  }
+  .token-desc{display:none;font-size:12px;color:var(--text3);grid-column:1/-1;padding-top:4px}
+  .token-row:hover .token-desc{display:block}
 
   /* Touch Targets */
-  .touch-comparison{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
-  .touch-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center}
-  .touch-card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+  .touch-comparison{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .touch-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(18px,2.5vw,28px);text-align:center;cursor:pointer;
+    transition:all var(--transition);
+  }
+  .touch-card:hover,.touch-card.active{
+    border-color:var(--accent);
+    box-shadow:0 8px 32px rgba(91,141,239,0.12);
+    transform:translateY(-2px);
+  }
+  .touch-card.active{background:var(--surface2)}
+  .touch-card-title{font-size:15px;font-weight:700;margin-bottom:4px}
   .touch-card-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
-  .touch-target-demo{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;position:relative;margin:0 auto}
-  .touch-outer{border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center}
-  .touch-inner{background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600}
-  .touch-size{margin-top:12px;font-size:13px;color:var(--text2);font-family:monospace}
-  .touch-note{font-size:11px;color:var(--text3);margin-top:8px}
+  .touch-outer{
+    border:2px dashed var(--border);border-radius:14px;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:border-color var(--transition);
+  }
+  .touch-card.active .touch-outer{border-color:var(--accent)}
+  .touch-inner{
+    background:var(--accent);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:13px;font-weight:700;
+    transition:all var(--transition);
+  }
+  .touch-size{
+    margin-top:14px;font-size:14px;color:var(--text2);
+    font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-weight:600;
+  }
+  .touch-note{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.4}
 
   /* Scale Vis */
-  .scale-vis{display:flex;gap:8px;align-items:flex-end;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);flex-wrap:wrap}
-  .scale-block{display:flex;flex-direction:column;align-items:center;gap:6px}
-  .scale-box{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:4px;opacity:0.7}
-  .scale-box-label{font-size:10px;color:var(--text3);font-family:monospace}
+  .scale-vis{
+    display:flex;gap:clamp(6px,1vw,12px);align-items:flex-end;
+    padding:clamp(18px,2.5vw,28px);
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    flex-wrap:wrap;justify-content:center;
+  }
+  .scale-block{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:default;transition:all var(--transition)}
+  .scale-block:hover{transform:translateY(-2px)}
+  .scale-box{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    border-radius:6px;opacity:0.5;transition:opacity var(--transition);
+  }
+  .scale-block:hover .scale-box{opacity:0.85}
+  .scale-box-label{font-size:11px;color:var(--text3);font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-weight:600}
+
+  /* Practical patterns */
+  .patterns-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px}
+  .pattern-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(18px,2.5vw,24px);
+  }
+  .pattern-title{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px}
+  .pattern-note{font-size:12px;color:var(--text3);margin-top:14px;letter-spacing:0.2px}
+  .mock-image{
+    background:var(--surface2);height:100px;border-radius:6px;margin-bottom:12px;
+    display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;
+  }
+  .mock-title{font-size:16px;font-weight:700;margin-bottom:4px}
+  .mock-desc{font-size:13px;color:var(--text2);margin-bottom:12px}
+  .mock-actions{display:flex;gap:8px}
+  .mock-btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600}
+  .mock-btn-primary{background:var(--accent);color:#fff}
+  .mock-btn-secondary{background:var(--surface2);color:var(--text2)}
+  .mock-list-item{
+    display:flex;align-items:center;gap:12px;padding:12px 16px;
+    border-bottom:1px solid var(--border);
+  }
+  .mock-list-item:last-child{border-bottom:none}
+  .mock-avatar{width:40px;height:40px;background:var(--surface2);border-radius:50%;flex-shrink:0}
+  .mock-list-text{font-size:14px;font-weight:500}
+  .mock-list-sub{font-size:12px;color:var(--text3)}
+
+  @media(max-width:1024px){
+    .touch-comparison{grid-template-columns:repeat(3,1fr);gap:14px}
+  }
+  @media(max-width:768px){
+    .touch-comparison{grid-template-columns:1fr;gap:12px}
+    .touch-card{display:flex;align-items:center;gap:20px;text-align:left;padding:16px 20px}
+    .touch-card>div:first-child{flex:1}
+    .touch-outer{flex-shrink:0}
+    .touch-size,.touch-note{margin-top:4px}
+    .token-row{grid-template-columns:60px 52px 1fr 56px;gap:10px;padding:10px 12px}
+    .token-name{font-size:12px}
+    .token-value{font-size:12px}
+    .token-rem{font-size:11px}
+  }
+  @media(max-width:420px){
+    .token-row{grid-template-columns:52px 48px 1fr;gap:8px}
+    .token-rem{display:none}
+  }
 </style>
 </head>
 <body>
-<h1>간격 시스템 (Spacing System)</h1>
-<p class="subtitle">4px 베이스 그리드 기반 — 체계적이고 일관된 간격 토큰</p>
+<div class="page">
+  <h1>간격 시스템</h1>
+  <p class="subtitle">4px 베이스 그리드 기반 -- 체계적이고 일관된 간격 토큰</p>
 
-<div class="section">
-  <div class="section-title">4px 베이스 그리드</div>
-  <div class="grid-demo">
-    <div class="grid-canvas">
-      <div class="grid-label">4px 그리드</div>
-      <div class="grid-element" style="top:16px;left:16px;width:120px;height:48px;background:rgba(96,165,250,0.3);border:1px solid rgba(96,165,250,0.5)">48×120</div>
-      <div class="grid-element" style="top:16px;left:152px;width:80px;height:48px;background:rgba(167,139,250,0.3);border:1px solid rgba(167,139,250,0.5)">48×80</div>
-      <div class="grid-element" style="top:80px;left:16px;width:216px;height:36px;background:rgba(96,165,250,0.2);border:1px solid rgba(96,165,250,0.4)">36×216</div>
-      <div class="grid-element" style="top:80px;left:248px;width:100px;height:100px;background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.4)">100×100</div>
-      <div class="grid-element" style="top:132px;left:16px;width:60px;height:48px;background:rgba(74,222,128,0.2);border:1px solid rgba(74,222,128,0.4)">48×60</div>
-      <div class="grid-element" style="top:132px;left:92px;width:140px;height:48px;background:rgba(251,191,36,0.2);border:1px solid rgba(251,191,36,0.4)">48×140</div>
-    </div>
-    <div class="grid-hint">모든 요소의 크기와 위치가 4px 그리드에 정렬 (4의 배수)</div>
-  </div>
-</div>
-
-<div class="section">
-  <div class="section-title">간격 토큰 (Spacing Tokens)</div>
-  <div class="token-list" id="tokenList"></div>
-</div>
-
-<div class="section">
-  <div class="section-title">간격 스케일 시각화</div>
-  <div class="scale-vis" id="scaleVis"></div>
-</div>
-
-<div class="section">
-  <div class="section-title">터치 타겟 크기 비교</div>
-  <div class="touch-comparison">
-    <div class="touch-card">
-      <div class="touch-card-title">Apple iOS</div>
-      <div class="touch-card-sub">Human Interface Guidelines</div>
-      <div class="touch-outer" style="width:88px;height:88px">
-        <div class="touch-inner" style="width:44px;height:44px">44pt</div>
+  <div class="section">
+    <div class="section-title">4px 베이스 그리드</div>
+    <div class="grid-demo">
+      <div class="grid-canvas">
+        <div class="grid-label">4px 그리드</div>
+        <div class="grid-element" style="top:16px;left:16px;width:120px;height:48px;background:rgba(91,141,239,0.25);border:1px solid rgba(91,141,239,0.45)">48 x 120</div>
+        <div class="grid-element" style="top:16px;left:152px;width:80px;height:48px;background:rgba(139,108,245,0.25);border:1px solid rgba(139,108,245,0.45)">48 x 80</div>
+        <div class="grid-element" style="top:80px;left:16px;width:216px;height:36px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.35)">36 x 216</div>
+        <div class="grid-element" style="top:80px;left:248px;width:100px;height:100px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.35)">100 x 100</div>
+        <div class="grid-element" style="top:132px;left:16px;width:60px;height:48px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3)">48 x 60</div>
+        <div class="grid-element" style="top:132px;left:92px;width:140px;height:48px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3)">48 x 140</div>
       </div>
-      <div class="touch-size">최소 44 × 44 pt</div>
-      <div class="touch-note">터치 영역 포함 권장</div>
-    </div>
-    <div class="touch-card">
-      <div class="touch-card-title">Material Design (Android)</div>
-      <div class="touch-card-sub">Material Design 3 Guidelines</div>
-      <div class="touch-outer" style="width:96px;height:96px">
-        <div class="touch-inner" style="width:48px;height:48px">48dp</div>
-      </div>
-      <div class="touch-size">최소 48 × 48 dp</div>
-      <div class="touch-note">아이콘은 24dp, 터치 영역 48dp</div>
-    </div>
-    <div class="touch-card">
-      <div class="touch-card-title">WCAG 2.2</div>
-      <div class="touch-card-sub">Target Size (Minimum)</div>
-      <div class="touch-outer" style="width:88px;height:88px">
-        <div class="touch-inner" style="width:48px;height:48px;background:var(--accent2)">24px+</div>
-      </div>
-      <div class="touch-size">최소 24 × 24 px (AA)</div>
-      <div class="touch-note">권장 44 × 44 px (Enhanced)</div>
+      <div class="grid-hint">모든 요소의 크기와 위치가 4px 그리드에 정렬 (4의 배수)</div>
     </div>
   </div>
-</div>
 
-<div class="section">
-  <div class="section-title">실전 간격 패턴</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px">
-      <div style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:16px">카드 내부 간격</div>
-      <div style="border:1px dashed var(--border);border-radius:8px;padding:16px">
-        <div style="background:var(--surface2);height:120px;border-radius:4px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px">이미지 영역</div>
-        <div style="font-size:16px;font-weight:600;margin-bottom:4px">제목 텍스트</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:12px">설명 텍스트가 들어갑니다</div>
-        <div style="display:flex;gap:8px">
-          <span style="background:var(--accent);color:#fff;padding:6px 16px;border-radius:6px;font-size:13px">액션</span>
-          <span style="background:var(--surface2);color:var(--text2);padding:6px 16px;border-radius:6px;font-size:13px">보조</span>
+  <div class="section">
+    <div class="section-title">간격 토큰</div>
+    <div class="token-list" id="tokenList"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">간격 스케일 시각화</div>
+    <div class="scale-vis" id="scaleVis"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">터치 타겟 크기 비교</div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px;margin-top:-8px">카드를 탭하여 비교하세요</p>
+    <div class="touch-comparison" id="touchComparison">
+      <div class="touch-card" onclick="toggleTouchCard(this)" data-idx="0">
+        <div>
+          <div class="touch-card-title">Apple iOS</div>
+          <div class="touch-card-sub">Human Interface Guidelines</div>
+          <div class="touch-size">최소 44 x 44 pt</div>
+          <div class="touch-note">터치 영역 포함 권장</div>
+        </div>
+        <div class="touch-outer" style="width:88px;height:88px">
+          <div class="touch-inner" style="width:44px;height:44px">44pt</div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:12px">padding: 16px, gap: 12px (4px 그리드 기반)</div>
+      <div class="touch-card" onclick="toggleTouchCard(this)" data-idx="1">
+        <div>
+          <div class="touch-card-title">Material Design</div>
+          <div class="touch-card-sub">Material Design 3 Guidelines</div>
+          <div class="touch-size">최소 48 x 48 dp</div>
+          <div class="touch-note">아이콘 24dp, 터치 영역 48dp</div>
+        </div>
+        <div class="touch-outer" style="width:96px;height:96px">
+          <div class="touch-inner" style="width:48px;height:48px">48dp</div>
+        </div>
+      </div>
+      <div class="touch-card" onclick="toggleTouchCard(this)" data-idx="2">
+        <div>
+          <div class="touch-card-title">WCAG 2.2</div>
+          <div class="touch-card-sub">Target Size (Minimum)</div>
+          <div class="touch-size">최소 24 x 24 px (AA)</div>
+          <div class="touch-note">권장 44 x 44 px (Enhanced)</div>
+        </div>
+        <div class="touch-outer" style="width:88px;height:88px">
+          <div class="touch-inner" style="width:48px;height:48px;background:var(--accent2)">24px+</div>
+        </div>
+      </div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px">
-      <div style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:16px">리스트 아이템 간격</div>
-      <div style="display:flex;flex-direction:column;gap:0">
-        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">
-          <div style="width:40px;height:40px;background:var(--surface2);border-radius:20px;flex-shrink:0"></div>
-          <div><div style="font-size:14px;font-weight:500">아이템 1</div><div style="font-size:12px;color:var(--text3)">보조 텍스트</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">실전 간격 패턴</div>
+    <div class="patterns-grid">
+      <div class="pattern-card">
+        <div class="pattern-title">카드 내부 간격</div>
+        <div style="border:1px dashed var(--border);border-radius:10px;padding:16px">
+          <div class="mock-image">이미지 영역</div>
+          <div class="mock-title">제목 텍스트</div>
+          <div class="mock-desc">설명 텍스트가 들어갑니다</div>
+          <div class="mock-actions">
+            <span class="mock-btn mock-btn-primary">액션</span>
+            <span class="mock-btn mock-btn-secondary">보조</span>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">
-          <div style="width:40px;height:40px;background:var(--surface2);border-radius:20px;flex-shrink:0"></div>
-          <div><div style="font-size:14px;font-weight:500">아이템 2</div><div style="font-size:12px;color:var(--text3)">보조 텍스트</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px">
-          <div style="width:40px;height:40px;background:var(--surface2);border-radius:20px;flex-shrink:0"></div>
-          <div><div style="font-size:14px;font-weight:500">아이템 3</div><div style="font-size:12px;color:var(--text3)">보조 텍스트</div></div>
-        </div>
+        <div class="pattern-note">padding: 16px, gap: 12px (4px 그리드 기반)</div>
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:12px">padding: 12px 16px, avatar gap: 12px, avatar: 40px</div>
+      <div class="pattern-card">
+        <div class="pattern-title">리스트 아이템 간격</div>
+        <div>
+          <div class="mock-list-item">
+            <div class="mock-avatar"></div>
+            <div><div class="mock-list-text">아이템 1</div><div class="mock-list-sub">보조 텍스트</div></div>
+          </div>
+          <div class="mock-list-item">
+            <div class="mock-avatar"></div>
+            <div><div class="mock-list-text">아이템 2</div><div class="mock-list-sub">보조 텍스트</div></div>
+          </div>
+          <div class="mock-list-item">
+            <div class="mock-avatar"></div>
+            <div><div class="mock-list-text">아이템 3</div><div class="mock-list-sub">보조 텍스트</div></div>
+          </div>
+        </div>
+        <div class="pattern-note">padding: 12px 16px, avatar gap: 12px, avatar: 40px</div>
+      </div>
     </div>
   </div>
 </div>
@@ -171,15 +311,22 @@ document.getElementById('tokenList').innerHTML=tokens.map(t=>`
     <div class="token-value">${t.value}px</div>
     <div class="token-bar-wrap"><div class="token-bar" style="width:${(t.value/maxVal)*100}%"></div></div>
     <div class="token-rem">${(t.value/16).toFixed(t.value%16?3:0)}rem</div>
+    <div class="token-desc">${t.desc}</div>
   </div>
 `).join('');
 
 document.getElementById('scaleVis').innerHTML=tokens.map(t=>`
   <div class="scale-block">
-    <div class="scale-box" style="width:${t.value}px;height:${t.value}px;min-width:${Math.max(t.value,8)}px;min-height:${Math.max(t.value,8)}px"></div>
+    <div class="scale-box" style="width:${t.value}px;height:${t.value}px;min-width:${Math.max(t.value,6)}px;min-height:${Math.max(t.value,6)}px"></div>
     <div class="scale-box-label">${t.value}</div>
   </div>
 `).join('');
+
+function toggleTouchCard(el){
+  const wasActive=el.classList.contains('active');
+  document.querySelectorAll('.touch-card').forEach(c=>c.classList.remove('active'));
+  if(!wasActive) el.classList.add('active');
+}
 </script>
 </body>
 </html>
