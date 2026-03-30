@@ -16,6 +16,8 @@ user-invocable: true
 - `ref.watch(provider)`로 전체 객체를 감시하면 불필요한 리빌드 — `ref.watch(provider.select((s) => s.isLoading))`으로 필요한 필드만 선택
 - `Result<T>.when(success:, failure:)` 양쪽 분기를 반드시 처리 — 한쪽만 처리하면 unhandled state
 - `@Riverpod` codegen 사용 시 `build_runner`를 돌려야 `.g.dart` 생성됨 — 코드만 쓰고 codegen을 빠뜨리면 컴파일 에러
+- Riverpod 3.0에서 `.valueOrNull`이 `.value`로 변경됨 — 기존 코드에 `.valueOrNull`이 있으면 마이그레이션 필요. `dart fix --apply`로 자동 처리 가능
+- Riverpod 3.0의 offline persistence/mutations는 아직 experimental — 프로덕션에서는 수동 캐싱 패턴 유지 권장
 
 Riverpod Notifier + State 클래스를 프로젝트 codegen 패턴에 맞게 생성한다.
 
