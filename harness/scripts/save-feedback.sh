@@ -16,11 +16,6 @@ if [[ "$SKILL_TYPE" != "contract" && "$SKILL_TYPE" != "evaluator" ]]; then
   exit 2
 fi
 
-if [[ ! -f "$DRAFT_PATH" ]]; then
-  echo "ERROR: draft file not found: $DRAFT_PATH" >&2
-  exit 2
-fi
-
 # --- Python 명령 감지 (Windows Store 스텁 회피) ---
 PYTHON_CMD=""
 if command -v python3 &>/dev/null && python3 -c "pass" &>/dev/null; then

@@ -31,7 +31,7 @@ elif command -v python &>/dev/null && python -c "pass" &>/dev/null; then
 fi
 
 if command -v yq &>/dev/null; then
-  for field in schema_version skill skill_version project_hash project_name outcome diagnosis; do
+  for field in schema_version skill timestamp skill_version project_hash project_name outcome diagnosis; do
     VAL=$(yq ".$field" "$SAVED_PATH" 2>/dev/null)
     if [[ "$VAL" == "null" || -z "$VAL" ]]; then
       echo "FAIL: $field 누락"; exit 1
@@ -43,7 +43,7 @@ elif [[ -n "$PYTHON_CMD" ]]; then
 import yaml, sys
 with open(sys.argv[1], encoding='utf-8') as f:
     d = yaml.safe_load(f)
-for k in ['schema_version', 'skill', 'skill_version', 'project_hash', 'project_name', 'outcome', 'diagnosis']:
+for k in ['schema_version', 'skill', 'timestamp', 'skill_version', 'project_hash', 'project_name', 'outcome', 'diagnosis']:
     if k not in d or d[k] is None:
         print(f'FAIL: {k} 누락')
         sys.exit(1)
