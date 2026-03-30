@@ -63,6 +63,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 | 프로젝트 감지 | `flutter-toolkit/references/project-detection.md` | `skills` |
 | 아키텍처 | `flutter-toolkit/` 전체 구조, 훅, 스크립트 | `skills` |
 | 스킬 설계 가이드 | `docs/skill-design-guide.md` | `guide` |
+| 신규 스킬 제안 | 연구 기반 새 스킬 필요성 도출 → GitHub Issue 등록 | `skills` |
 
 `$ARGUMENTS`가 없으면 전체 영역을 스캔한다.
 
@@ -129,15 +130,26 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 
 검증된 소스에서 추출한 인사이트와 현재 flutter-toolkit 스킬을 비교한다.
 
-**갭 분석:**
+**기존 스킬 갭 분석:**
 - 현재 스킬에 없는 Flutter 기법/패턴이 있는가?
 - 현재 스킬의 접근법보다 나은 방법이 제시되었는가?
 - skills.sh의 다른 Flutter 스킬에서 가져올 수 있는 패턴이 있는가?
 - Flutter/Dart 생태계 변화(새 API, deprecated API)로 스킬 업데이트가 필요한가?
 - 설계 가이드에 추가할 새 원칙이 있는가?
 
+**신규 스킬 갭 분석:**
+- 연구에서 발견한 워크플로우 중 현재 flutter-toolkit에 대응하는 스킬이 없는 것이 있는가?
+- Flutter 생태계에서 반복되는 작업인데 아직 자동화되지 않은 것이 있는가?
+- skills.sh나 커뮤니티에서 인기 있는 Flutter 스킬 유형 중 우리에게 없는 것이 있는가?
+- `docs/skill-design-guide.md`의 9가지 아키타입 중 flutter-toolkit에 미충족된 유형이 있는가?
+
+**신규 스킬 제안 시 필수 조건:**
+- 기존 스킬의 범위를 확장하는 것으로 충분한지 먼저 검토 — 별도 스킬이 꼭 필요한 경우만 제안
+- 제안에는 스킬명, 아키타입, 트리거 키워드, 핵심 기능 1-2줄 요약을 포함
+- 구현은 이번 카이젠 PR에 포함하지 않고 **별도 이슈로 등록**하여 추적
+
 **개선 포인트 도출:**
-- 각 포인트에 영역(skill/eval/detection/architecture/guide) 태그
+- 각 포인트에 영역(skill/eval/detection/architecture/guide/new-skill) 태그
 - 영향도(높음/중간/낮음)와 리스크(높음/중간/낮음) 판단
 - 출처 URL과 구체적 근거 매핑
 
