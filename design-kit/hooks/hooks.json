@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh",
+            "timeout": 10,
+            "statusMessage": "디자인 환경 확인 중..."
+          }
+        ]
+      }
+    ]
+  }
+}
