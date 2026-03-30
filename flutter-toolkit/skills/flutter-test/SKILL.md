@@ -15,6 +15,9 @@ user-invocable: true
 - Mock보다 Fake/Stub을 선호해라 — Flutter 공식 AI rules 권장. `mockito`/`mocktail`은 인터페이스가 복잡할 때만 사용
 - 테스트 파일 위치는 소스 파일과 미러링해라 — `lib/features/auth/auth_service.dart` → `test/features/auth/auth_service_test.dart`
 - `HAS_RIVERPOD` 프로젝트에서 Provider 테스트 시 `ProviderContainer`를 사용해라 — `ProviderScope`는 widget test 전용
+- widget test에서 `pumpAndSettle()`은 타임아웃 될 수 있다 — 무한 애니메이션(CircularProgressIndicator 등)이 있으면 `pump(Duration)` 사용
+- `HAS_BLOC` 프로젝트에서 `blocTest`를 사용해라 — `build`, `act`, `expect` 패턴으로 Bloc 상태 변화를 테스트
+- 테스트에서 `containsSemantics`는 deprecated(Flutter 3.41) — `isSemantics`(부분 매칭) 또는 `matchesSemantics`(완전 매칭) 사용
 
 ## 0. 프로젝트 감지
 
