@@ -26,6 +26,14 @@ LLM이 판정자 역할을 할 때 발생하는 알려진 편향:
 | 위치 편향 (Position bias) | 먼저 본 항목에 호의적 | 조건 순서를 무작위로 평가 |
 | 장황함 편향 (Verbosity bias) | 긴 코드/설명에 호의적 | 조건 충족 여부만 판단, 코드 양 무시 |
 | 자기강화 편향 (Self-enhancement) | 자기가 생성한 것에 호의적 | generator와 evaluator 컨텍스트 분리 |
+| 구체성 편향 (Concreteness bias) | 구체적 코드에 추상적 코드보다 호의적 | 계약 조건 충족만 판단, 구현 스타일 무시 |
+| 구현 추종 편향 (Implementation-following bias) | 실제 구현을 "정답"으로 간주하는 경향 | 계약 조건(specification)을 먼저 읽고, 코드는 증거 수집용으로만 사용 |
+| 지시 해석 불일치 (Instruction-following misalignment) | 평가 기준을 일관되지 않게 해석 | 조건별 boolean 체크리스트 분해로 해석 여지 최소화 |
+
+> **구현 추종 편향 경고**: LLM은 코드를 읽을 때 구현된 로직을 "의도된 행동"으로 추종하는 경향이 있다
+> ([Understanding LLM-Driven Test Oracle Generation](https://arxiv.org/abs/2601.05542)).
+> qa-evaluator는 반드시 계약 조건을 먼저 읽고 "기대 행동"을 확립한 뒤 코드를 검증해야 한다.
+> 코드를 먼저 읽으면 구현이 곧 정답이라는 착각에 빠진다.
 
 ### IV&V 독립성 보장
 
@@ -52,16 +60,39 @@ Independent Verification & Validation (IV&V) 원칙:
 
 학술적 근거: 3계층 모델은 industry code review의 lint → semantic → AI 모델과 대응한다.
 
-### Rubric 기반 분해
+### Rubric 기반 분해 (CheckEval 프로토콜)
 
-각 계약 조건을 boolean 서브체크로 분해한다 (CheckEval 패턴):
+각 계약 조건을 boolean 서브체크로 분해한다 ([CheckEval](https://arxiv.org/abs/2403.18771) 패턴).
+CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도를 0.45 향상시켰다 (EMNLP 2025).
+
+**3단계 분해 프로토콜:**
+
+1. **Aspect Selection** — 조건에서 검증해야 할 핵심 측면(aspect)을 식별한다
+2. **Checklist Generation** — 각 측면을 Yes/No로 답할 수 있는 boolean 질문으로 변환한다. 질문당 하나의 검증 포인트만 다룬다
+3. **Boolean Evaluation** — 각 질문에 L1/L2/L3 레벨로 답한다. PASS 비율이 아닌 **전체 PASS**가 조건 충족 기준이다
+
+**예시:**
 
 조건: "로그인 실패 시 HTTP 401을 반환한다"
 ├── 서브체크 1: 로그인 실패 경로가 존재하는가? (L1)
 ├── 서브체크 2: 해당 경로에서 401을 반환하는 코드가 있는가? (L2)
 └── 서브체크 3: 잘못된 credential 입력 시 실제로 401 경로를 타는가? (L3)
 
+**복잡한 조건의 분해 예시:**
+
+조건: "대시보드에서 실시간 알림을 표시한다"
+├── Aspect A: 알림 데이터 수신
+│   ├── A-1: WebSocket/SSE 연결 코드가 존재하는가? (L1)
+│   ├── A-2: 서버에서 보낸 메시지를 파싱하는 로직이 있는가? (L2)
+│   └── A-3: 파싱된 데이터가 UI 상태로 전달되는 경로가 있는가? (L3)
+├── Aspect B: UI 표시
+│   ├── B-1: 알림을 렌더링하는 컴포넌트가 존재하는가? (L1)
+│   ├── B-2: 알림 데이터가 해당 컴포넌트에 바인딩되어 있는가? (L2)
+│   └── B-3: 새 알림 수신 시 UI가 자동 갱신되는가? (L3)
+
 서브체크 하나라도 FAIL이면 해당 조건은 FAIL.
+
+> **적용 기준**: 단순 조건(파일 존재, 설정값 확인)은 분해 없이 직접 L3 검증. 복합 조건(여러 시스템 간 상호작용, 다단계 흐름)은 반드시 Aspect 분해 후 서브체크 수행.
 
 ### 다관점 평가 (Perspective-Based Reading)
 
@@ -96,6 +127,36 @@ Independent Verification & Validation (IV&V) 원칙:
 - "A를 추가해도 B에 영향 없는가?" (독립성)
 
 계약 조건으로 직접 판정 가능한 경우 metamorphic testing은 불필요.
+
+---
+
+## 판정 신뢰도 평가
+
+> 근거: [A Statistical Approach to Model Evaluations](https://www.anthropic.com/research/statistical-approach-to-model-evals) (Anthropic)
+
+### 조건별 판정 확신도
+
+각 조건의 PASS/FAIL 판정에 확신도를 부여한다:
+
+| 확신도 | 기준 | 태그 |
+|--------|------|------|
+| 높음 | L3 검증 완료 + 명확한 증거(파일:라인) | — |
+| 중간 | L2까지 검증 + 정황 증거 | `[medium-confidence]` |
+| 낮음 | L1만 검증 또는 정적 분석 한계 | `[low-confidence]` |
+
+### 판정 확신도 규칙
+
+- 낮은 확신도 PASS는 `[미검증]`과 동일 취급한다
+- 낮은 확신도 조건이 3개 이상이면 Sprint Feedback에 `⚠️ 낮은 확신도 조건 다수` 경고를 명시한다
+- 확신도는 판정을 뒤집지 않는다 — FAIL은 확신도와 무관하게 FAIL이다
+
+### 검증 순서 원칙 (Specification-First)
+
+> 근거: [Understanding LLM-Driven Test Oracle Generation](https://arxiv.org/abs/2601.05542)
+
+1. **먼저** Sprint Contract를 읽고 각 조건의 "기대 행동"을 확립한다
+2. **그 다음** 코드를 검증한다 — 코드는 증거 수집 대상이지, 기대 행동의 출처가 아니다
+3. 코드를 먼저 읽으면 구현 추종 편향에 빠진다
 
 ---
 

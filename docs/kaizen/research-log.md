@@ -13,6 +13,48 @@ last_updated: 2026-03-30
 
 <!-- 엔트리는 최신순으로 추가 -->
 
+## 2026-03-30 (evaluator-kaizen)
+
+**트리거:** manual (첫 실행, 리서치 전용 모드)
+**피드백 분석:** 0건, 피드백 없음 — search-sources.md 우선순위 상위 3개 도메인 리서치
+
+### 조사한 소스
+
+| # | 제목 | URL | 유형 | 신뢰도 | 결과 |
+|---|------|-----|------|--------|------|
+| 1 | A Survey on LLM-as-a-Judge | https://arxiv.org/abs/2411.15594 | peer-reviewed survey `[preprint]` | 높음 | 채택 |
+| 2 | CheckEval: Robust Evaluation Framework using LLM via Checklist | https://arxiv.org/abs/2403.18771 | EMNLP 2025 | 높음 | 채택 |
+| 3 | Understanding LLM-Driven Test Oracle Generation | https://arxiv.org/abs/2601.05542 | AIware 2025 | 높음 | 채택 |
+| 4 | Rubric Is All You Need: LLM-based Code Evaluation with Question-Specific Rubrics | https://arxiv.org/abs/2503.23989 | ICER 2025 | 높음 | 채택 (참고) |
+| 5 | A Statistical Approach to Model Evaluations | https://www.anthropic.com/research/statistical-approach-to-model-evals | 공식 (Anthropic) | 높음 | 채택 |
+| 6 | Bloom: Automated Behavioral Evaluations | https://alignment.anthropic.com/2025/bloom-auto-evals/ | 공식 (Anthropic) | 높음 | 채택 (참고) |
+| 7 | Test Oracle Automation in the Era of LLMs (ACM TOSEM) | https://dl.acm.org/doi/10.1145/3715107 | peer-reviewed | 높음 | 폐기 |
+
+### 채택한 인사이트
+
+- **구현 추종 편향 (Implementation-following bias):** LLM은 코드를 읽을 때 구현된 로직을 "의도된 행동"으로 추종하는 경향이 있다. qa-evaluator는 계약을 먼저 읽고 기대 행동을 확립한 뒤 코드를 검증해야 한다 (Specification-First 원칙) — 적용 영역: guide, skills
+- **확장된 편향 분류:** 기존 3개(위치/장황함/자기강화)에서 6개로 확장. 구체성 편향, 구현 추종 편향, 지시 해석 불일치 추가. 각 편향별 완화 전략 명시 — 적용 영역: guide
+- **CheckEval 3단계 분해 프로토콜:** Aspect Selection → Checklist Generation → Boolean Evaluation. 평가자 간 일치도 0.45 향상. 복합 조건에 대한 체계적 분해 예시 추가 — 적용 영역: guide, skills
+- **판정 확신도 체계:** Anthropic 통계적 접근법 기반. 검증 레벨(L1/L2/L3)과 연동한 높음/중간/낮음 확신도 태그. 낮은 확신도 PASS는 미검증 취급 — 적용 영역: guide
+
+### 폐기 사유
+
+- **소스 7 (ACM TOSEM):** HTTP 403 접근 불가. GATE 2 실패로 폐기
+
+### 개선 적용
+
+- 대상: `docs/guides/qa-evaluation-guide.md`
+- 변경: 편향 테이블 6개로 확장, 구현 추종 편향 경고 blockquote 추가, CheckEval 3단계 분해 프로토콜 + 복합 조건 예시, 판정 신뢰도 평가 섹션 신설 (확신도 테이블 + Specification-First 원칙)
+- 대상: `harness/agents/qa-evaluator.md`
+- 변경: Specification-First 원칙 Step 2에 추가, 복합 조건 분해(CheckEval) 프로토콜 참조 추가, Red Flags에 구현 추종 편향 항목 추가, Rationalization Table에 구현 추종 변명 차단 추가
+- 버전: v0.3.4 → v0.3.5
+
+### PR
+
+- 커밋으로 직접 적용 (첫 실행, 리서치 전용 모드)
+
+---
+
 ## 2026-03-30 (contract-kaizen)
 
 **트리거:** manual (첫 실행, 리서치 전용 모드)

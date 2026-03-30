@@ -13,6 +13,49 @@ last_updated: 2026-03-30
 
 <!-- 엔트리는 최신순으로 추가 -->
 
+## [0.3.5] - 2026-03-30 (evaluator-kaizen)
+
+### 변경 유형: patch (guide, agent-prompt)
+
+### 연구 기반
+- [A Survey on LLM-as-a-Judge](https://arxiv.org/abs/2411.15594) — LLM 판정자 편향 분류 + 완화 전략 체계
+- [CheckEval: Robust Evaluation Framework](https://arxiv.org/abs/2403.18771) `EMNLP 2025` — Boolean 체크리스트 분해로 평가자 간 일치도 0.45 향상
+- [Understanding LLM-Driven Test Oracle Generation](https://arxiv.org/abs/2601.05542) `AIware 2025` — LLM이 구현을 정답으로 추종하는 편향 발견
+- [A Statistical Approach to Model Evaluations](https://www.anthropic.com/research/statistical-approach-to-model-evals) (Anthropic) — 평가 신뢰도 측정 통계적 프레임워크
+
+### 변경 내역
+- **docs/guides/qa-evaluation-guide.md**: 편향 테이블 3개 → 6개로 확장
+  - Before: 위치 편향, 장황함 편향, 자기강화 편향 (3개)
+  - After: + 구체성 편향, 구현 추종 편향, 지시 해석 불일치 (6개). 각 편향별 완화 전략 명시
+  - 근거: [LLM-as-a-Judge Survey](https://arxiv.org/abs/2411.15594), [Test Oracle Generation](https://arxiv.org/abs/2601.05542)
+- **docs/guides/qa-evaluation-guide.md**: 구현 추종 편향 경고 blockquote 추가
+  - Before: 구현 추종 편향에 대한 명시적 경고 없음
+  - After: LLM이 코드를 읽을 때 구현을 정답으로 추종하는 편향 경고 + 출처 URL 포함
+  - 근거: [Test Oracle Generation](https://arxiv.org/abs/2601.05542)
+- **docs/guides/qa-evaluation-guide.md**: CheckEval 3단계 분해 프로토콜 체계화
+  - Before: 단일 예시만 제공 ("로그인 실패 시 HTTP 401")
+  - After: 3단계 프로토콜 (Aspect Selection → Checklist Generation → Boolean Evaluation) + 복합 조건 분해 예시 + 적용 기준
+  - 근거: [CheckEval](https://arxiv.org/abs/2403.18771)
+- **docs/guides/qa-evaluation-guide.md**: "판정 신뢰도 평가" 섹션 신설
+  - Before: 판정 확신도에 대한 가이드라인 없음
+  - After: 확신도 3단계(높음/중간/낮음) 테이블 + 규칙 + Specification-First 검증 순서 원칙
+  - 근거: [Anthropic Statistical Approach](https://www.anthropic.com/research/statistical-approach-to-model-evals), [Test Oracle Generation](https://arxiv.org/abs/2601.05542)
+- **harness/agents/qa-evaluator.md**: Specification-First 원칙을 Step 2에 추가
+  - Before: 검증 순서에 대한 명시적 지침 없음
+  - After: "코드를 보기 전에 각 조건의 기대 행동을 먼저 확립한다" 원칙 명시
+  - 근거: [Test Oracle Generation](https://arxiv.org/abs/2601.05542)
+- **harness/agents/qa-evaluator.md**: 복합 조건 분해(CheckEval) 프로토콜 참조 추가
+  - Before: 복합 조건에 대한 체계적 분해 가이드 없음
+  - After: CheckEval 프로토콜 4단계 요약 + qa-evaluation-guide.md 상세 참조
+- **harness/agents/qa-evaluator.md**: Red Flags + Rationalization Table에 구현 추종 편향 항목 추가
+  - Before: 구현 추종 편향에 대한 변명 차단 없음
+  - After: "코드가 이렇게 동작하니까 맞다" 변명 차단 + Red Flag 항목 추가
+
+### 버전 판단 근거
+> 편향 테이블 확장, 분해 프로토콜 체계화, 확신도 체계 추가는 기존 판정 로직의 구조를 변경하지 않고 가이드라인을 보강한 것이므로 patch bump
+
+---
+
 ## [0.3.4] - 2026-03-30 (contract-kaizen)
 
 ### 변경 유형: patch (guide, skill-prompt)
