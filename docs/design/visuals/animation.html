@@ -1048,6 +1048,16 @@ style.textContent = `
 document.head.appendChild(style);
 animateA11yBoxes();
 
+// Expose functions to global scope for onclick handlers
+window.setPattern = setPattern;
+window.playChoreography = playChoreography;
+window.resetChoreography = resetChoreography;
+window.setTransition = setTransition;
+window.toggleTransitionPage = toggleTransitionPage;
+window.setSpringPreset = setSpringPreset;
+window.playSpring = playSpring;
+window.toggleReducedMotion = toggleReducedMotion;
+
 })();
 </script>
 </body>
