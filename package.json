@@ -1,0 +1,26 @@
+{
+  "name": "claude-plugins",
+  "version": "1.0.0",
+  "description": "Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플러그인만 골라 설치한다.",
+  "main": "playwright.config.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joo6077/claude-plugins.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joo6077/claude-plugins/issues"
+  },
+  "homepage": "https://github.com/joo6077/claude-plugins#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}
