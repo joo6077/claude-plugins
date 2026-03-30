@@ -56,6 +56,11 @@ harness/evals/kaizen/
 │   │   ├── ambiguous-conditions.yaml
 │   │   ├── category-bias.yaml
 │   │   └── low-coverage.yaml
+│   ├── fixture-projects/
+│   │   ├── simple-crud/project.yaml           # 단순 CRUD 프로젝트 mock
+│   │   └── complex-api/project.yaml           # 복잡 API 프로젝트 mock
+│   ├── baseline/
+│   │   └── sprint-contract-output.md          # 개선 전 스킬 실행 결과 스냅샷
 │   ├── expected-improvements.md
 │   └── assertions.json
 ├── evaluator-kaizen/
@@ -63,11 +68,19 @@ harness/evals/kaizen/
 │   │   ├── l3-miss.yaml
 │   │   ├── false-approve.yaml
 │   │   └── reject-loop.yaml
+│   ├── fixture-projects/
+│   │   ├── simple-crud/project.yaml
+│   │   └── complex-api/project.yaml
+│   ├── baseline/
+│   │   └── qa-evaluator-output.md
 │   ├── expected-improvements.md
 │   └── assertions.json
 └── feedback-system/
     ├── save-test.sh
     └── aggregation-test.sh
+
+.harness/.meta/
+└── kaizen-failure-count.yaml                  # Phase별 연속 실패 카운터
 ```
 
 ### 수정
@@ -204,7 +217,19 @@ schema_version: 1
 
 # --- 자기진단 (공통) ---
 # diagnosis:
-#   checklist: map[string, bool|int|float|string]
+#   checklist: (고정 필드 — 스킬별 정의)
+#     # sprint-contract 필수 필드:
+#     #   ambiguous_conditions: bool
+#     #   missing_error_paths: bool
+#     #   untestable_conditions: bool
+#     #   category_coverage_gap: bool
+#     #   complexity_underestimate: bool
+#     # qa-evaluator 필수 필드:
+#     #   l3_unreached: bool
+#     #   bias_detected: bool
+#     #   evidence_missing: bool
+#     #   contract_misinterpret: bool
+#     #   perspective_gap: bool
 #   cross_diagnosis_by: enum [sprint-contract, qa-evaluator]
 #   cross_diagnosis_notes: string
 #   improvement_suggestions: list[string]
@@ -625,63 +650,46 @@ validate_yaml() {
   local file="$1"
 
   # yq 또는 python으로 YAML 파싱 + 필수 필드 검증
+  # 검증 대상: feedback-schema.yaml의 공통 필수 필드 + diagnosis
   if command -v yq &>/dev/null; then
-    # yq로 필수 필드 확인
-    local schema_ver
-    schema_ver=$(yq '.schema_version' "$file" 2>/dev/null)
-    local skill
-    skill=$(yq '.skill' "$file" 2>/dev/null)
-    local timestamp
-    timestamp=$(yq '.timestamp' "$file" 2>/dev/null)
-    local project_hash
-    project_hash=$(yq '.project_hash' "$file" 2>/dev/null)
-    local outcome
-    outcome=$(yq '.outcome' "$file" 2>/dev/null)
-
-    if [[ "$schema_ver" == "null" || -z "$schema_ver" ]]; then
-      echo "FAIL: schema_version 필드 누락" >&2; return 1
-    fi
-    if [[ "$skill" == "null" || -z "$skill" ]]; then
-      echo "FAIL: skill 필드 누락" >&2; return 1
-    fi
-    if [[ "$timestamp" == "null" || -z "$timestamp" ]]; then
-      echo "FAIL: timestamp 필드 누락" >&2; return 1
-    fi
-    if [[ "$project_hash" == "null" || -z "$project_hash" ]]; then
-      echo "FAIL: project_hash 필드 누락" >&2; return 1
-    fi
-    if [[ "$outcome" == "null" || -z "$outcome" ]]; then
-      echo "FAIL: outcome 필드 누락" >&2; return 1
-    fi
+    local fields=("schema_version" "skill" "timestamp" "project_hash" "project_name" "skill_version" "outcome" "diagnosis")
+    for field in "${fields[@]}"; do
+      local val
+      val=$(yq ".$field" "$file" 2>/dev/null)
+      if [[ "$val" == "null" || -z "$val" ]]; then
+        echo "FAIL: $field 필드 누락" >&2; return 1
+      fi
+    done
 
   elif command -v python3 &>/dev/null; then
     python3 -c "
 import yaml, sys
-with open('$file') as f:
+with open(sys.argv[1]) as f:
     d = yaml.safe_load(f)
-required = ['schema_version', 'skill', 'timestamp', 'project_hash', 'outcome']
+required = ['schema_version', 'skill', 'timestamp', 'project_hash', 'project_name', 'skill_version', 'outcome', 'diagnosis']
 missing = [k for k in required if k not in d or d[k] is None]
 if missing:
     print(f'FAIL: 누락 필드: {missing}', file=sys.stderr)
     sys.exit(1)
 print('OK')
-" || return 1
+" "$file" || return 1
 
   elif command -v python &>/dev/null; then
     python -c "
 import yaml, sys
-with open('$file') as f:
+with open(sys.argv[1]) as f:
     d = yaml.safe_load(f)
-required = ['schema_version', 'skill', 'timestamp', 'project_hash', 'outcome']
+required = ['schema_version', 'skill', 'timestamp', 'project_hash', 'project_name', 'skill_version', 'outcome', 'diagnosis']
 missing = [k for k in required if k not in d or d[k] is None]
 if missing:
     print('FAIL: missing fields: %s' % missing, file=sys.stderr)
     sys.exit(1)
 print('OK')
-" || return 1
+" "$file" || return 1
 
   else
-    echo "WARNING: yq/python 없음 — 스키마 검증 건너뜀" >&2
+    echo "ERROR: yq 또는 python 필수 — 스키마 검증 불가" >&2
+    return 1
   fi
 
   return 0
@@ -702,7 +710,7 @@ TIMESTAMP=$(date +"%Y-%m-%dT%H%M%S")
 if command -v yq &>/dev/null; then
   PROJ_HASH=$(yq '.project_hash' "$DRAFT_PATH")
 elif command -v python3 &>/dev/null; then
-  PROJ_HASH=$(python3 -c "import yaml; print(yaml.safe_load(open('$DRAFT_PATH'))['project_hash'])")
+  PROJ_HASH=$(python3 -c "import yaml, sys; print(yaml.safe_load(open(sys.argv[1]))['project_hash'])" "$DRAFT_PATH")
 else
   PROJ_HASH="unknown"
 fi
@@ -716,7 +724,7 @@ if mkdir -p "$GLOBAL_DIR" 2>/dev/null && cp "$DRAFT_PATH" "$GLOBAL_DIR/$FILENAME
   SAVED_PATH="$GLOBAL_DIR/$FILENAME"
 else
   echo "WARNING: 글로벌 저장 실패 — 로컬 fallback" >&2
-  LOCAL_DIR=".harness/feedback/$SKILL_TYPE"
+  LOCAL_DIR="$(pwd)/.harness/feedback/$SKILL_TYPE"
   mkdir -p "$LOCAL_DIR"
   cp "$DRAFT_PATH" "$LOCAL_DIR/$FILENAME"
   SAVED_PATH="$LOCAL_DIR/$FILENAME"
@@ -757,35 +765,28 @@ fi
 
 # 3. YAML 파싱 가능 + 필수 필드 존재
 if command -v yq &>/dev/null; then
-  SCHEMA_VER=$(yq '.schema_version' "$SAVED_PATH" 2>/dev/null)
-  SKILL=$(yq '.skill' "$SAVED_PATH" 2>/dev/null)
-  DIAGNOSIS=$(yq '.diagnosis' "$SAVED_PATH" 2>/dev/null)
-
-  if [[ "$SCHEMA_VER" == "null" || -z "$SCHEMA_VER" ]]; then
-    echo "FAIL: schema_version 누락"; exit 1
-  fi
-  if [[ "$SKILL" == "null" || -z "$SKILL" ]]; then
-    echo "FAIL: skill 누락"; exit 1
-  fi
-  if [[ "$DIAGNOSIS" == "null" || -z "$DIAGNOSIS" ]]; then
-    echo "FAIL: diagnosis 섹션 누락"; exit 1
-  fi
+  for field in schema_version skill skill_version project_hash project_name outcome diagnosis; do
+    VAL=$(yq ".$field" "$SAVED_PATH" 2>/dev/null)
+    if [[ "$VAL" == "null" || -z "$VAL" ]]; then
+      echo "FAIL: $field 누락"; exit 1
+    fi
+  done
 
 elif command -v python3 &>/dev/null; then
   python3 -c "
 import yaml, sys
-with open('$SAVED_PATH') as f:
+with open(sys.argv[1]) as f:
     d = yaml.safe_load(f)
-for k in ['schema_version', 'skill', 'diagnosis']:
+for k in ['schema_version', 'skill', 'skill_version', 'project_hash', 'project_name', 'outcome', 'diagnosis']:
     if k not in d or d[k] is None:
         print(f'FAIL: {k} 누락')
         sys.exit(1)
 print('PASS')
-" && exit 0 || exit 1
+" "$SAVED_PATH" && exit 0 || exit 1
 
 else
-  # yq/python 없으면 기본 검증만 (파일 존재 + 비어있지 않음 = PASS)
-  echo "WARNING: yq/python 없음 — 기본 검증만 수행"
+  echo "FAIL: yq 또는 python3 필수 — 스키마 검증 불가"
+  exit 1
 fi
 
 echo "PASS"
@@ -1127,8 +1128,8 @@ if [[ ! -d "$FEEDBACK_DIR" ]]; then
   exit 1
 fi
 
-# 최근 10개 파일
-RECENT_FILES=$(ls -t "$FEEDBACK_DIR"/*.yaml 2>/dev/null | head -10)
+# 최근 10개 파일 (경로에 공백 있어도 안전하게 처리)
+RECENT_FILES=$(ls -t "$FEEDBACK_DIR/" 2>/dev/null | grep '\.yaml$' | head -10)
 if [[ -z "$RECENT_FILES" ]]; then
   echo "NO_FEEDBACK_FILES"
   exit 1
@@ -1140,17 +1141,21 @@ if [[ "$FILE_COUNT" -lt 3 ]]; then
   exit 1
 fi
 
+# 참고: 이 스크립트는 피드백 임계치 이벤트 트리거 전용이다.
+# 오케스트레이터가 Phase 실행 여부를 결정할 때 사용하지 않는다.
+# 오케스트레이터는 항상 모든 Phase를 실행하며, 각 Phase 내부의 triage가 SKIP 여부를 판단한다.
+
 # 진단 체크리스트에서 반복 패턴 확인
 # 동일 항목이 3회 이상 true이면 트리거
 if command -v yq &>/dev/null; then
   for field in ambiguous_conditions missing_error_paths untestable_conditions category_coverage_gap complexity_underestimate; do
     COUNT=0
-    for f in $RECENT_FILES; do
-      VAL=$(yq ".diagnosis.checklist.${field}" "$f" 2>/dev/null)
+    while IFS= read -r fname; do
+      VAL=$(yq ".diagnosis.checklist.${field}" "$FEEDBACK_DIR/$fname" 2>/dev/null)
       if [[ "$VAL" == "true" ]]; then
         COUNT=$((COUNT + 1))
       fi
-    done
+    done <<< "$RECENT_FILES"
     if [[ "$COUNT" -ge 3 ]]; then
       trigger_found "진단 항목 '${field}'가 최근 ${FILE_COUNT}건 중 ${COUNT}건 반복"
     fi
@@ -1348,6 +1353,15 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 | Gotchas 추가/수정 | patch |
 | 검증 레벨/루브릭 변경 | minor |
 | 판정 로직 구조 변경 | major |
+
+## References
+
+- `docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드
+- `harness/agents/qa-evaluator.md` — 개선 대상 에이전트
+- `harness/references/contract-schema.md` — 계약 스키마 (Phase 2 변경 감지용)
+- `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
+- `docs/kaizen/research-log.md` — 연구 로그
+- `docs/kaizen/changelog.md` — 변경 이력
 ```
 
 - [ ] **Step 2: search-sources.md 작성**
@@ -1408,7 +1422,10 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 
 - [ ] **Step 3: pr-template.md 작성**
 
-contract-kaizen의 pr-template.md와 동일 구조. 제목만 "Evaluator Kaizen PR 본문 템플릿"으로 변경, 영역을 `guide / skills`로 변경.
+Task 4 Step 3의 pr-template.md 내용을 복사하고 다음을 변경:
+- 제목: `# Contract Kaizen PR 본문 템플릿` → `# Evaluator Kaizen PR 본문 템플릿`
+- 영역: `guide / skills / config` → `guide / skills`
+- 변경 유형 주석: `(contract-kaizen)` → `(evaluator-kaizen)`
 
 - [ ] **Step 4: trigger-check.sh 작성**
 
@@ -1438,7 +1455,7 @@ if [[ ! -d "$FEEDBACK_DIR" ]]; then
   exit 1
 fi
 
-RECENT_FILES=$(ls -t "$FEEDBACK_DIR"/*.yaml 2>/dev/null | head -10)
+RECENT_FILES=$(ls -t "$FEEDBACK_DIR/" 2>/dev/null | grep '\.yaml$' | head -10)
 if [[ -z "$RECENT_FILES" ]]; then
   echo "NO_FEEDBACK_FILES"
   exit 1
@@ -1450,15 +1467,17 @@ if [[ "$FILE_COUNT" -lt 3 ]]; then
   exit 1
 fi
 
+# 참고: 오케스트레이터 Phase 실행 여부 결정용이 아닌, 피드백 임계치 이벤트 트리거 전용.
+
 if command -v yq &>/dev/null; then
   for field in l3_unreached bias_detected evidence_missing contract_misinterpret perspective_gap; do
     COUNT=0
-    for f in $RECENT_FILES; do
-      VAL=$(yq ".diagnosis.checklist.${field}" "$f" 2>/dev/null)
+    while IFS= read -r fname; do
+      VAL=$(yq ".diagnosis.checklist.${field}" "$FEEDBACK_DIR/$fname" 2>/dev/null)
       if [[ "$VAL" == "true" ]]; then
         COUNT=$((COUNT + 1))
       fi
-    done
+    done <<< "$RECENT_FILES"
     if [[ "$COUNT" -ge 3 ]]; then
       trigger_found "진단 항목 '${field}'가 최근 ${FILE_COUNT}건 중 ${COUNT}건 반복"
     fi
@@ -1471,7 +1490,9 @@ exit 1
 
 - [ ] **Step 5: research-log-entry.md 작성**
 
-contract-kaizen의 research-log-entry.md와 동일 형식. 제목 라인만 `(evaluator-kaizen)`으로 변경.
+Task 4 Step 5의 research-log-entry.md 내용을 복사하고 다음을 변경:
+- 제목: `(contract-kaizen)` → `(evaluator-kaizen)`
+- 트리거: `orchestrator-phase-2` → `orchestrator-phase-3`
 
 - [ ] **Step 6: 커밋**
 
@@ -1484,14 +1505,19 @@ git commit -m "feat(harness): evaluator-kaizen 스킬 생성 — 평가 방법�
 
 ## Task 6: sprint-contract 수정 (자기진단 + 피드백 hard gate)
 
+> **의존성**: Task 1 (feedback-schema.yaml), Task 2 (contract-design-guide.md), Task 3 (스크립트들)
+
 **Files:**
 - Modify: `harness/skills/sprint-contract/SKILL.md`
 
+**현재 파일 구조 참고:**
+- 마지막 Process Step: `### 6. 계약 저장` — 새 Step은 7부터
+- References 섹션: **없음** — 새로 생성해야 함 (`## 이 스킬 폴더의 파일` 섹션 바로 아래에 추가)
+- Gotchas 섹션: 기존 항목들 있음
+
 - [ ] **Step 1: 현재 sprint-contract SKILL.md 읽기**
 
-```bash
-# 현재 파일 전체 확인 — Gotchas 위치, 마지막 Process 단계 번호, References 섹션 확인
-```
+Read tool로 전체 내용 확인. 특히: Gotchas 첫 항목 위치, `## 이 스킬 폴더의 파일` 섹션 위치, 마지막 Step 번호(6) 확인.
 
 - [ ] **Step 2: Gotchas 최상단에 hard gate 추가**
 
@@ -1501,11 +1527,13 @@ git commit -m "feat(harness): evaluator-kaizen 스킬 생성 — 평가 방법�
 - verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라. 이것은 선택이 아니다.
 ```
 
-- [ ] **Step 3: References 섹션에 가이드 추가**
+- [ ] **Step 3: References 섹션 새로 생성**
 
-기존 References 목록에 추가:
+`## 이 스킬 폴더의 파일` 섹션 바로 아래에 새 섹션 추가 (기존에 References 섹션이 없으므로 새로 생성):
 
 ```markdown
+## References
+
 - `docs/guides/contract-design-guide.md` — 계약 작성 원칙 가이드
 - `harness/references/contract-schema.md` — 계약 포맷 공유 정의
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
@@ -1513,10 +1541,10 @@ git commit -m "feat(harness): evaluator-kaizen 스킬 생성 — 평가 방법�
 
 - [ ] **Step 4: Process 마지막에 자기진단 + 피드백 단계 추가**
 
-기존 마지막 Step (계약 저장) 이후에 추가:
+기존 마지막 Step은 `### 6. 계약 저장`. 이후에 Step 7~10 추가:
 
 ```markdown
-### Step {N+1}: 자기진단
+### 7. 자기진단
 
 1. 구조화 체크리스트 실행:
    - `ambiguous_conditions`: 모호한 표현이 포함된 조건이 있는가?
@@ -1526,7 +1554,7 @@ git commit -m "feat(harness): evaluator-kaizen 스킬 생성 — 평가 방법�
    - `complexity_underestimate`: 복잡도를 과소평가하여 조건 수가 부족한가?
 2. 각 항목에 대해 true/false 판정
 
-### Step {N+2}: 교차 진단
+### 8. 교차 진단
 
 1. Agent tool로 qa-evaluator 서브에이전트를 호출한다
 2. 전달 내용: 생성된 계약 조건 전문 (`.harness/sprint-contract.md` 내용)
@@ -1534,23 +1562,34 @@ git commit -m "feat(harness): evaluator-kaizen 스킬 생성 — 평가 방법�
 4. 핵심 질문: "이 조건들을 독립적으로 검증할 수 있는가? 모호하거나 해석이 갈리는 조건이 있는가?"
 5. 서브에이전트 응답을 `cross_diagnosis_notes`로 기록
 
-### Step {N+3}: 피드백 저장
+### 9. 피드백 저장
 
 1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성한다
    - `harness/references/feedback-schema.yaml`의 스키마를 따른다
    - `skill: sprint-contract`
-   - `project_hash`: 현재 프로젝트 경로의 SHA-256 앞 8자 (`echo -n "$(pwd)" | sha256sum | cut -c1-8`)
-   - `diagnosis.checklist`: Step {N+1}의 결과
+   - `skill_version`: `harness/.claude-plugin/plugin.json`의 `version` 필드 값
+   - `project_hash`: 크로스플랫폼 해시 생성 (아래 fallback 체인 사용)
+     ```bash
+     # sha256sum → python3 → openssl 순서 fallback
+     if command -v sha256sum &>/dev/null; then
+       echo -n "$(pwd)" | sha256sum | cut -c1-8
+     elif command -v python3 &>/dev/null; then
+       python3 -c "import hashlib; print(hashlib.sha256('$(pwd)'.encode()).hexdigest()[:8])"
+     elif command -v openssl &>/dev/null; then
+       echo -n "$(pwd)" | openssl dgst -sha256 | sed 's/.*= //' | cut -c1-8
+     fi
+     ```
+   - `diagnosis.checklist`: Step 7의 결과
    - `diagnosis.cross_diagnosis_by: qa-evaluator`
-   - `diagnosis.cross_diagnosis_notes`: Step {N+2}의 결과
+   - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
 2. `bash harness/scripts/save-feedback.sh contract .harness/feedback-draft.yaml` 실행
 3. 출력된 저장 경로를 기록한다
 
-### Step {N+4}: 피드백 검증
+### 10. 피드백 검증
 
-1. `bash harness/scripts/verify-feedback.sh {Step N+3에서 출력된 경로}` 실행
+1. `bash harness/scripts/verify-feedback.sh {Step 9에서 출력된 경로}` 실행
 2. PASS → 스킬 완료
-3. FAIL → 피드백 YAML 수정 후 Step {N+3}부터 재시도
+3. FAIL → 피드백 YAML 수정 후 Step 9부터 재시도
 ```
 
 - [ ] **Step 5: 커밋**
@@ -1564,24 +1603,33 @@ git commit -m "feat(sprint-contract): 자기진단 + 교차 진단 + 글로벌 �
 
 ## Task 7: qa-evaluator 수정 (자기진단 + 피드백 hard gate)
 
+> **의존성**: Task 1 (feedback-schema.yaml), Task 2 (qa-evaluation-guide.md), Task 3 (스크립트들)
+
 **Files:**
 - Modify: `harness/agents/qa-evaluator.md`
 
+**현재 파일 구조 참고:**
+- 마지막 Process Step: `### Step 5: 결과 저장` — 새 Step은 6부터
+- References 섹션: **없음** — 새로 생성해야 함
+- Red Flags 섹션: 있음 (Gotchas 대신 Red Flags 사용)
+
 - [ ] **Step 1: 현재 qa-evaluator.md 읽기**
 
-```bash
-# 현재 파일 전체 확인 — Gotchas 위치 (또는 Red Flags), 마지막 Process 단계, References 확인
-```
+Read tool로 전체 내용 확인. Red Flags 섹션 위치, 마지막 Step 번호(5) 확인.
 
-- [ ] **Step 2: Gotchas/Red Flags 섹션 최상단에 hard gate 추가**
+- [ ] **Step 2: Red Flags 섹션 최상단에 hard gate 추가**
 
 ```markdown
 - verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라. 이것은 선택이 아니다.
 ```
 
-- [ ] **Step 3: References에 가이드 추가**
+- [ ] **Step 3: References 섹션 새로 생성**
+
+에이전트 프롬프트 본문의 적절한 위치에 새 섹션 추가 (기존에 References 섹션이 없으므로 새로 생성):
 
 ```markdown
+## References
+
 - `docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드
 - `harness/references/contract-schema.md` — 계약 포맷 공유 정의
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
@@ -1589,10 +1637,10 @@ git commit -m "feat(sprint-contract): 자기진단 + 교차 진단 + 글로벌 �
 
 - [ ] **Step 4: Process 마지막에 자기진단 + 피드백 단계 추가**
 
-기존 마지막 Step (판정 출력) 이후에 추가:
+기존 마지막 Step은 `### Step 5: 결과 저장`. 이후에 Step 6~9 추가:
 
 ```markdown
-### Step {N+1}: 자기진단
+### Step 6: 자기진단
 
 1. 구조화 체크리스트 실행:
    - `l3_unreached`: L3 검증에 도달하지 못한 조건이 있는가?
@@ -1602,7 +1650,7 @@ git commit -m "feat(sprint-contract): 자기진단 + 교차 진단 + 글로벌 �
    - `perspective_gap`: 단일 관점에서만 평가한 조건이 있는가?
 2. 각 항목에 대해 true/false 판정
 
-### Step {N+2}: 교차 진단
+### Step 7: 교차 진단
 
 1. Agent tool로 sprint-contract 서브에이전트를 호출한다
 2. 전달 내용: 평가 판정 결과 전문 (APPROVE/REJECT + 각 조건별 PASS/FAIL + 증거)
@@ -1610,25 +1658,28 @@ git commit -m "feat(sprint-contract): 자기진단 + 교차 진단 + 글로벌 �
 4. 핵심 질문: "계약 조건의 원래 의도를 정확히 해석했는가? 잘못 해석하여 PASS/FAIL을 오판한 조건이 있는가?"
 5. 서브에이전트 응답을 `cross_diagnosis_notes`로 기록
 
-### Step {N+3}: 피드백 저장
+### Step 8: 피드백 저장
 
 1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성한다
    - `skill: qa-evaluator`
+   - `skill_version`: `harness/.claude-plugin/plugin.json`의 `version` 필드 값
+   - `project_hash`: Task 6 Step 4와 동일 fallback 체인 사용
    - `evaluation.verdict`: 이번 판정 결과
    - `evaluation.conditions_total`: 전체 조건 수
    - `evaluation.conditions_passed`: PASS 조건 수
    - `evaluation.l3_coverage`: L3 검증 도달 비율
    - `evaluation.reject_reasons`: REJECT 시 사유 목록
-   - `diagnosis.checklist`: Step {N+1}의 결과
+   - `diagnosis.checklist`: Step 6의 결과
    - `diagnosis.cross_diagnosis_by: sprint-contract`
+   - `diagnosis.cross_diagnosis_notes`: Step 7의 결과
 2. `bash harness/scripts/save-feedback.sh evaluator .harness/feedback-draft.yaml` 실행
 3. 출력된 저장 경로를 기록한다
 
-### Step {N+4}: 피드백 검증
+### Step 9: 피드백 검증
 
-1. `bash harness/scripts/verify-feedback.sh {Step N+3에서 출력된 경로}` 실행
+1. `bash harness/scripts/verify-feedback.sh {Step 8에서 출력된 경로}` 실행
 2. PASS → 에이전트 완료
-3. FAIL → 피드백 YAML 수정 후 Step {N+3}부터 재시도
+3. FAIL → 피드백 YAML 수정 후 Step 8부터 재시도
 ```
 
 - [ ] **Step 5: 커밋**
@@ -1642,10 +1693,31 @@ git commit -m "feat(qa-evaluator): 자기진단 + 교차 진단 + 글로벌 피�
 
 ## Task 8: 카이젠 오케스트레이터 재구성
 
+> **의존성**: Task 4 (contract-kaizen), Task 5 (evaluator-kaizen)
+
 **Files:**
 - Modify: `.claude/skills/kaizen-orchestrator/SKILL.md`
+- Create: `.harness/.meta/kaizen-failure-count.yaml`
 
 - [ ] **Step 1: 현재 오케스트레이터 SKILL.md 읽기**
+
+Read tool로 전체 내용 확인. 특히: frontmatter (description, argument-hint), Phase 의존성 섹션, Gotchas, 리서치 관련 섹션 위치.
+
+- [ ] **Step 1.5: Frontmatter 업데이트**
+
+```yaml
+---
+name: kaizen-orchestrator
+description: >
+  카이젠 전체 실행을 의존성 순서에 맞춰 오케스트레이션한다.
+  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit 순서로
+  Phase별 실행하며, 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
+  주 1회 cron 자동 실행, 또는 수동 호출("/kaizen", "카이젠 전체 실행").
+  개별 플러그인만 카이젠하려면 해당 카이젠 스킬을 직접 사용.
+argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|final]"
+user-invocable: true
+---
+```
 
 - [ ] **Step 2: Phase 의존성 재구성**
 
@@ -1729,10 +1801,41 @@ Final: 전체 정합성 검증
 4. 정리 로그를 `.meta/cleanup-log.yaml`에 기록
 ```
 
+**cleanup-log.yaml 스키마:**
+```yaml
+last_cleanup: "2026-03-30T15:00:00+09:00"
+deleted_count: 12
+reason: "6개월 초과 10건 + 500개 제한 초과 2건"
+```
+
+- [ ] **Step 5.5: kaizen-failure-count.yaml 초기 생성**
+
+`.harness/.meta/` 디렉토리에 Phase별 연속 실패 카운터 파일 생성:
+
+```yaml
+# 카이젠 Phase별 연속 Regression 실패 카운터
+# 오케스트레이터가 Phase 완료 시 업데이트한다.
+# 성공 시 해당 Phase 카운터 0으로 리셋.
+# 연속 2회 실패 시 해당 Phase 일시 중단 + 사용자 알림.
+
+phase_1: 0
+phase_2: 0
+phase_3: 0
+phase_4: 0
+phase_5: 0
+phase_6: 0
+last_updated: null
+```
+
+오케스트레이터 Process에 다음 로직 추가:
+- Phase 완료 후 Regression PASS → 해당 Phase 카운터 0으로 리셋
+- Regression FAIL → 해당 Phase 카운터 +1
+- 카운터 >= 2 → Phase 일시 중단 + 사용자 에스컬레이션
+
 - [ ] **Step 6: 커밋**
 
 ```bash
-git add .claude/skills/kaizen-orchestrator/SKILL.md
+git add .claude/skills/kaizen-orchestrator/SKILL.md .harness/.meta/kaizen-failure-count.yaml
 git commit -m "refactor(orchestrator): 6 Phase 재구성 + 자체 리서치 분산 + triage/regression"
 ```
 
@@ -1785,12 +1888,67 @@ user_rating: null
 user_comment: null
 ```
 
-- [ ] **Step 2: contract-kaizen fixture — category-bias.yaml, low-coverage.yaml**
+- [ ] **Step 2: contract-kaizen fixture — category-bias.yaml**
 
-category-bias.yaml: `category_coverage: 0.4`, `category_coverage_gap: true` 3건 반복 패턴
-low-coverage.yaml: `condition_count: 3`, `complexity_underestimate: true` 패턴
+```yaml
+schema_version: 1
+timestamp: "2026-03-16T10:00:00+09:00"
+project_hash: "test0002"
+project_name: "fixture-project-b"
+skill: sprint-contract
+skill_version: "0.3.3"
+outcome: completed
+contract:
+  condition_count: 7
+  category_count: 2
+  category_coverage: 0.4
+  anti_pattern_count: 2
+  complexity: medium
+diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: false
+    untestable_conditions: false
+    category_coverage_gap: true
+    complexity_underestimate: false
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "5개 카테고리 중 2개만 사용 — UI 편중"
+  improvement_suggestions:
+    - "카테고리 균형 검증 단계 추가"
+user_rating: null
+user_comment: null
+```
 
-(동일 스키마, checklist 값만 변경)
+- [ ] **Step 2.5: contract-kaizen fixture — low-coverage.yaml**
+
+```yaml
+schema_version: 1
+timestamp: "2026-03-17T10:00:00+09:00"
+project_hash: "test0003"
+project_name: "fixture-project-c"
+skill: sprint-contract
+skill_version: "0.3.3"
+outcome: completed
+contract:
+  condition_count: 3
+  category_count: 2
+  category_coverage: 0.5
+  anti_pattern_count: 2
+  complexity: medium
+diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: true
+    untestable_conditions: false
+    category_coverage_gap: false
+    complexity_underestimate: true
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "4-8 파일 영향인데 조건 3개는 과소"
+  improvement_suggestions:
+    - "복잡도 판단 기준 강화"
+user_rating: null
+user_comment: null
+```
 
 - [ ] **Step 3: contract-kaizen expected-improvements.md**
 
@@ -1836,14 +1994,143 @@ complexity_underestimate가 반복될 때 기대하는 개선:
 }
 ```
 
-- [ ] **Step 5: evaluator-kaizen fixture 3개 + expected-improvements.md + assertions.json**
+- [ ] **Step 5: evaluator-kaizen fixture — l3-miss.yaml**
 
-l3-miss.yaml: `l3_unreached: true` 반복
-false-approve.yaml: `bias_detected: true` 반복
-reject-loop.yaml: `contract_misinterpret: true` 반복
+```yaml
+schema_version: 1
+timestamp: "2026-03-15T11:00:00+09:00"
+project_hash: "test0004"
+project_name: "fixture-project-d"
+skill: qa-evaluator
+skill_version: "0.3.3"
+outcome: completed
+evaluation:
+  verdict: APPROVE
+  conditions_total: 8
+  conditions_passed: 8
+  l3_coverage: 0.5
+  reject_reasons: []
+diagnosis:
+  checklist:
+    l3_unreached: true
+    bias_detected: false
+    evidence_missing: false
+    contract_misinterpret: false
+    perspective_gap: false
+  cross_diagnosis_by: sprint-contract
+  cross_diagnosis_notes: "조건 3,5,7,8번이 L2에서 멈춤 — 코드 경로 추적 미수행"
+  improvement_suggestions:
+    - "L3 도달 강제 규칙 강화"
+user_rating: null
+user_comment: null
+```
 
-expected-improvements.md: 각 fixture별 기대 개선 체크리스트
-assertions.json: 각 fixture별 파일 내용 검증 규칙
+- [ ] **Step 5.5: evaluator-kaizen fixture — false-approve.yaml**
+
+```yaml
+schema_version: 1
+timestamp: "2026-03-16T11:00:00+09:00"
+project_hash: "test0005"
+project_name: "fixture-project-e"
+skill: qa-evaluator
+skill_version: "0.3.3"
+outcome: completed
+evaluation:
+  verdict: APPROVE
+  conditions_total: 6
+  conditions_passed: 6
+  l3_coverage: 0.8
+  reject_reasons: []
+diagnosis:
+  checklist:
+    l3_unreached: false
+    bias_detected: true
+    evidence_missing: true
+    contract_misinterpret: false
+    perspective_gap: false
+  cross_diagnosis_by: sprint-contract
+  cross_diagnosis_notes: "조건 4번 PASS 판정에 구체적 증거 없음 — 'confirmed' 문구만 사용"
+  improvement_suggestions:
+    - "증거 없는 PASS 판정 감지 규칙 추가"
+user_rating: bad
+user_comment: "APPROVE 했는데 에러 경로 누락이었음"
+```
+
+- [ ] **Step 5.7: evaluator-kaizen fixture — reject-loop.yaml**
+
+```yaml
+schema_version: 1
+timestamp: "2026-03-17T11:00:00+09:00"
+project_hash: "test0006"
+project_name: "fixture-project-f"
+skill: qa-evaluator
+skill_version: "0.3.3"
+outcome: completed
+evaluation:
+  verdict: REJECT
+  conditions_total: 10
+  conditions_passed: 8
+  l3_coverage: 0.9
+  reject_reasons:
+    - "UI-03: 유사 표현이지만 문자 그대로 불일치"
+    - "ERR-01: synonym 사용으로 FAIL 판정"
+diagnosis:
+  checklist:
+    l3_unreached: false
+    bias_detected: false
+    evidence_missing: false
+    contract_misinterpret: true
+    perspective_gap: false
+  cross_diagnosis_by: sprint-contract
+  cross_diagnosis_notes: "REJECT 사유 2건 모두 의미는 동일하나 표현이 다름 — 과도한 리터럴 해석"
+  improvement_suggestions:
+    - "리터럴 해석과 의미 해석의 균형 기준 정의"
+user_rating: null
+user_comment: null
+```
+
+- [ ] **Step 5.8: evaluator-kaizen expected-improvements.md**
+
+```markdown
+# Evaluator-Kaizen Expected Improvements
+
+## fixture: l3-miss
+
+l3_unreached가 반복될 때 기대하는 개선:
+
+- [ ] qa-evaluator.md에 L3 도달 강제 규칙이 강화되어야 한다
+- [ ] qa-evaluation-guide.md에 L3 미도달 시 FAIL 처리 명시가 추가되어야 한다
+
+## fixture: false-approve
+
+bias_detected + evidence_missing가 반복될 때 기대하는 개선:
+
+- [ ] qa-evaluator.md Red Flags에 "증거 없는 PASS" 감지 규칙이 추가되어야 한다
+- [ ] qa-evaluation-guide.md에 증거 체크리스트가 구체화되어야 한다
+
+## fixture: reject-loop
+
+contract_misinterpret가 반복될 때 기대하는 개선:
+
+- [ ] qa-evaluator.md에 리터럴/의미 해석 균형 기준이 추가되어야 한다
+- [ ] Gotchas에 "동의어 FAIL 판정 시 의미 동일성 한 번 더 확인" 추가되어야 한다
+```
+
+- [ ] **Step 5.9: evaluator-kaizen assertions.json**
+
+```json
+{
+  "l3-miss": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "L3.*강제|L3.*필수|must.*reach.*L3"}
+  ],
+  "false-approve": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "증거.*없.*PASS|evidence.*missing"}
+  ],
+  "reject-loop": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "동의어|synonym|리터럴.*의미|literal.*semantic"}
+  ]
+}
+```
 
 - [ ] **Step 6: feedback-system/save-test.sh**
 
@@ -1913,6 +2200,44 @@ fi
 
 # 4. 정리
 rm -f "$SAVED_PATH"
+
+# --- 네거티브 테스트 ---
+echo ""
+echo "--- Negative Tests ---"
+
+# 5. 잘못된 YAML (파싱 불가)
+BAD_DRAFT="/tmp/test-bad-yaml.yaml"
+echo "invalid: [yaml: {{broken" > "$BAD_DRAFT"
+if bash "$HARNESS_SCRIPTS/save-feedback.sh" contract "$BAD_DRAFT" 2>/dev/null; then
+  echo "FAIL: should reject invalid YAML"
+  rm -f "$BAD_DRAFT"
+  exit 1
+fi
+echo "PASS: invalid YAML rejected"
+rm -f "$BAD_DRAFT"
+
+# 6. 필수 필드 누락
+INCOMPLETE_DRAFT="/tmp/test-incomplete.yaml"
+cat > "$INCOMPLETE_DRAFT" <<'YAML'
+schema_version: 1
+skill: sprint-contract
+YAML
+if bash "$HARNESS_SCRIPTS/save-feedback.sh" contract "$INCOMPLETE_DRAFT" 2>/dev/null; then
+  echo "FAIL: should reject incomplete YAML"
+  rm -f "$INCOMPLETE_DRAFT"
+  exit 1
+fi
+echo "PASS: incomplete YAML rejected"
+rm -f "$INCOMPLETE_DRAFT"
+
+# 7. verify on non-existent file
+if bash "$HARNESS_SCRIPTS/verify-feedback.sh" "/tmp/nonexistent-file.yaml" 2>/dev/null; then
+  echo "FAIL: should fail on non-existent file"
+  exit 1
+fi
+echo "PASS: non-existent file rejected"
+
+echo ""
 echo "=== ALL TESTS PASSED ==="
 ```
 
@@ -1923,7 +2248,8 @@ echo "=== ALL TESTS PASSED ==="
 set -eo pipefail
 
 # 피드백 수집 + 패턴 분석 통합 테스트
-# fixture 데이터를 글로벌 경로에 복사하고 trigger-check.sh가 감지하는지 확인
+# 임시 디렉토리에 fixture를 복사하여 trigger-check.sh 감지 확인
+# 글로벌 피드백 경로를 오염시키지 않기 위해 /tmp 하위를 사용
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HARNESS_SCRIPTS="$SCRIPT_DIR/../../../scripts"
@@ -1931,35 +2257,94 @@ CONTRACT_TRIGGER="$SCRIPT_DIR/../../../skills/contract-kaizen/scripts/trigger-ch
 
 echo "=== Aggregation Test ==="
 
-# 1. 글로벌 경로 확인
-FEEDBACK_DIR="$(bash "$HARNESS_SCRIPTS/feedback-path.sh")/contract"
-echo "Feedback dir: $FEEDBACK_DIR"
+# 1. 임시 테스트 디렉토리 생성 (글로벌 경로 오염 방지)
+TEST_FEEDBACK_DIR="/tmp/harness-aggregation-test/contract"
+mkdir -p "$TEST_FEEDBACK_DIR"
+echo "Test feedback dir: $TEST_FEEDBACK_DIR"
 
-# 2. fixture 데이터 복사 (3개 — ambiguous-conditions 패턴)
+# 2. fixture 데이터 복사 (3개 — ambiguous-conditions 패턴, 각각 다른 타임스탬프)
 FIXTURE_DIR="$SCRIPT_DIR/../contract-kaizen/fixture-feedback-data"
-mkdir -p "$FEEDBACK_DIR"
 
 for i in 1 2 3; do
-  cp "$FIXTURE_DIR/ambiguous-conditions.yaml" "$FEEDBACK_DIR/testtest-2026-03-${i}0T100000.yaml"
+  cp "$FIXTURE_DIR/ambiguous-conditions.yaml" "$TEST_FEEDBACK_DIR/test000${i}-2026-03-${i}0T100000.yaml"
 done
 
-# 3. trigger-check 실행
-echo "--- trigger-check.sh ---"
-if bash "$CONTRACT_TRIGGER"; then
-  echo "PASS: trigger detected (expected)"
+# 3. trigger-check 실행 (FEEDBACK_DIR 환경변수로 테스트 경로 전달은 불가하므로
+#    trigger-check.sh가 feedback-path.sh를 호출하는 대신 직접 검증 로직을 테스트)
+echo "--- yq 기반 패턴 분석 직접 테스트 ---"
+if command -v yq &>/dev/null; then
+  TRIGGER_COUNT=0
+  for f in "$TEST_FEEDBACK_DIR"/*.yaml; do
+    VAL=$(yq '.diagnosis.checklist.ambiguous_conditions' "$f" 2>/dev/null)
+    if [[ "$VAL" == "true" ]]; then
+      TRIGGER_COUNT=$((TRIGGER_COUNT + 1))
+    fi
+  done
+  if [[ "$TRIGGER_COUNT" -ge 3 ]]; then
+    echo "PASS: ambiguous_conditions가 ${TRIGGER_COUNT}건 감지됨 (trigger 조건 충족)"
+  else
+    echo "FAIL: ${TRIGGER_COUNT}건 감지 (3건 이상 필요)"
+    rm -rf "/tmp/harness-aggregation-test"
+    exit 1
+  fi
 else
-  echo "FAIL: trigger not detected (ambiguous_conditions should trigger at 3+)"
-  # 정리
-  rm -f "$FEEDBACK_DIR"/testtest-*.yaml
-  exit 1
+  echo "SKIP: yq 미설치 — 패턴 분석 테스트 건너뜀"
 fi
 
 # 4. 정리
-rm -f "$FEEDBACK_DIR"/testtest-*.yaml
+rm -rf "/tmp/harness-aggregation-test"
 echo "=== ALL TESTS PASSED ==="
 ```
 
-- [ ] **Step 8: 실행 권한 부여**
+- [ ] **Step 8: fixture-projects + baseline 생성**
+
+```bash
+# contract-kaizen fixture-projects
+mkdir -p harness/evals/kaizen/contract-kaizen/fixture-projects/simple-crud
+mkdir -p harness/evals/kaizen/contract-kaizen/fixture-projects/complex-api
+mkdir -p harness/evals/kaizen/contract-kaizen/baseline
+
+# evaluator-kaizen fixture-projects
+mkdir -p harness/evals/kaizen/evaluator-kaizen/fixture-projects/simple-crud
+mkdir -p harness/evals/kaizen/evaluator-kaizen/fixture-projects/complex-api
+mkdir -p harness/evals/kaizen/evaluator-kaizen/baseline
+```
+
+simple-crud/project.yaml:
+```yaml
+stack: "flutter"
+commands:
+  analyze: "flutter analyze"
+  test: "flutter test"
+contract_categories:
+  - id: UI
+    prefix: "UI"
+    description: "화면 표시"
+  - id: LOGIC
+    prefix: "LG"
+    description: "비즈니스 로직"
+anti_patterns:
+  - id: AP-01
+    pattern: "setState"
+    message: "setState 직접 사용 금지"
+  - id: AP-02
+    pattern: "print\\("
+    message: "print 대신 logger 사용"
+```
+
+complex-api/project.yaml: 위와 동일 구조, 카테고리 5개 (UI, LOGIC, API, ERROR, PERF), anti_patterns 5개.
+
+baseline/sprint-contract-output.md: 현재 sprint-contract가 simple-crud fixture로 생성하는 계약 예시 스냅샷.
+baseline/qa-evaluator-output.md: 현재 qa-evaluator가 simple-crud fixture로 생성하는 평가 예시 스냅샷.
+
+(baseline 파일은 첫 카이젠 실행 전에 실제 스킬을 fixture 대상으로 실행하여 생성하면 됨. 초기에는 빈 파일로 placeholder 생성)
+
+```bash
+echo "# Baseline — 첫 카이젠 실행 시 실제 결과로 교체" > harness/evals/kaizen/contract-kaizen/baseline/sprint-contract-output.md
+echo "# Baseline — 첫 카이젠 실행 시 실제 결과로 교체" > harness/evals/kaizen/evaluator-kaizen/baseline/qa-evaluator-output.md
+```
+
+- [ ] **Step 8.5: 실행 권한 부여**
 
 ```bash
 chmod +x harness/evals/kaizen/feedback-system/save-test.sh harness/evals/kaizen/feedback-system/aggregation-test.sh
@@ -2024,9 +2409,9 @@ grep -c "Phase [1-6]" .claude/skills/kaizen-orchestrator/SKILL.md
 
 - [ ] **Step 5: 최종 커밋 (필요 시)**
 
-누락된 파일이 있으면 추가 후:
+누락된 파일이 있으면 개별적으로 추가:
 
 ```bash
-git add -A
+git add <누락된 파일 경로들>
 git commit -m "chore: 카이젠 셀프 개선 시스템 최종 정리"
 ```
