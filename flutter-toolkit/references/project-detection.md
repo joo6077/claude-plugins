@@ -60,6 +60,7 @@ pubspec.yaml에서 추출:
 | 패턴 | 감지 결과 |
 |------|----------|
 | `lib/features/*/data/`, `lib/features/*/domain/`, `lib/features/*/presentation/` | `ARCH = clean` (Clean Architecture) |
+| `lib/features/*/ui/`, `lib/features/*/view_models/` 또는 `lib/*/views/`, `lib/*/view_models/` | `ARCH = mvvm` (MVVM — Flutter 공식 권장) |
 | `lib/features/*/` (data/domain/presentation 없음) | `ARCH = feature_first` |
 | `lib/src/` 또는 flat 구조 | `ARCH = flat` |
 
@@ -67,6 +68,12 @@ Clean Architecture 감지 시 레이어별 규칙 적용:
 - `domain/` → `data/`, `presentation/` import 금지
 - `data/` → `presentation/` import 금지
 - Repository: interface(domain) + impl(data) 분리
+
+MVVM 감지 시 레이어별 규칙 적용 ([Flutter 공식 아키텍처 가이드](https://docs.flutter.dev/app-architecture/guide)):
+- **View** ↔ **ViewModel** 1:1 관계
+- ViewModel: Repository에서 데이터를 받아 UI 상태로 변환, Command 패턴으로 액션 노출
+- **Repository**: 도메인 모델 제공, 캐싱/에러처리/재시도 담당
+- **Service**: 최하위 레이어, 외부 데이터 소스 래핑 (API, 파일, 플랫폼 코드)
 
 ### Step 5. 코드 컨벤션 감지
 

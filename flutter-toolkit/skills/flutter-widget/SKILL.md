@@ -16,6 +16,8 @@ user-invocable: true
 - 색상은 `context.colors.xxx` (시맨틱 토큰) 사용 — `Palette.xxx` 직접 참조하면 다크 모드에서 깨짐
 - 위젯 variant는 private 기본 생성자 `const Widget._({...})` + named constructor 패턴 — 기본 생성자에 variant 로직 넣지 마라
 - 수치값은 `AppRadii.sm`, `AppPadding.h20` 등 디자인 토큰 사용 — `BorderRadius.circular(8)` 같은 하드코딩 금지
+- Flutter 3.38+에서 `MaterialState`가 `WidgetState`로 마이그레이션됨 — `MaterialStateProperty` 대신 `WidgetStateProperty` 사용. `dart fix --apply`로 자동 변환 가능
+- 헬퍼 메서드(`_buildHeader()`)가 아닌 private Widget 클래스로 추출해라 — Flutter 공식 AI rules 권장 패턴. 합성(composition)이 메서드 분리보다 성능·재사용성 모두 우수
 
 프로젝트의 스타일 가이드와 컨벤션에 맞는 새 위젯을 생성한다.
 

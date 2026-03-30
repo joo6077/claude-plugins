@@ -1,7 +1,7 @@
 {
   "name": "flutter-toolkit",
   "description": "Flutter 개발 워크플로우 스킬 모음. 빌드, 감사, preflight, 코드 생성 등.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "Jackson Kim"
   },
