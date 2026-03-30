@@ -205,6 +205,19 @@
         {"text": "codegen 실패 시 analyze를 실행하지 않는다", "type": "behavior"},
         {"text": "결과 보고서에 각 단계 성공/실패를 표시한다", "type": "output"}
       ]
+    },
+    {
+      "id": 18,
+      "skill": "flutter-test",
+      "prompt": "auth_service.dart에 대한 unit test 만들어줘",
+      "expected_output": "대상 파일 분석 → 기존 테스트 패턴 파악 → Arrange-Act-Assert 구조 테스트 생성 → 실행 검증",
+      "assertions": [
+        {"text": "대상 파일의 public 메서드를 분석한다", "type": "behavior"},
+        {"text": "test/ 디렉토리에서 기존 테스트 패턴을 확인한다", "type": "behavior"},
+        {"text": "Arrange-Act-Assert 구조를 따른다", "type": "output"},
+        {"text": "Mock보다 Fake/Stub을 우선 사용한다", "type": "output"},
+        {"text": "생성 후 $DART test로 검증한다", "type": "behavior"}
+      ]
     }
   ]
 }
