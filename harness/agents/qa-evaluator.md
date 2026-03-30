@@ -179,6 +179,47 @@ Iteration: {N}
 이전 피드백이 있으면 `Iteration`을 +1한다.
 Iteration > 3이면 사용자에게 에스컬레이션한다.
 
+### Step 6: 자기진단
+
+1. 구조화 체크리스트 실행:
+   - `l3_unreached`: L3 검증에 도달하지 못한 조건이 있는가?
+   - `bias_detected`: 편향 징후가 감지되었는가? (너무 관대, 증거 없이 PASS)
+   - `evidence_missing`: 증거 없이 판정한 조건이 있는가?
+   - `contract_misinterpret`: 계약 조건을 원래 의도와 다르게 해석했을 가능성이 있는가?
+   - `perspective_gap`: 단일 관점에서만 평가한 조건이 있는가?
+2. 각 항목에 대해 true/false 판정
+
+### Step 7: 교차 진단
+
+1. Agent tool로 sprint-contract 서브에이전트를 호출한다
+2. 전달 내용: 평가 판정 결과 전문 (APPROVE/REJECT + 각 조건별 PASS/FAIL + 증거)
+3. 미전달: 평가 과정의 추론, 중간 메모
+4. 핵심 질문: "계약 조건의 원래 의도를 정확히 해석했는가? 잘못 해석하여 PASS/FAIL을 오판한 조건이 있는가?"
+5. 서브에이전트 응답을 `cross_diagnosis_notes`로 기록
+
+### Step 8: 피드백 저장
+
+1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성한다
+   - `skill: qa-evaluator`
+   - `skill_version`: `harness/.claude-plugin/plugin.json`의 `version` 필드 값
+   - `project_hash`: Task 6 Step 4와 동일 fallback 체인 사용
+   - `evaluation.verdict`: 이번 판정 결과
+   - `evaluation.conditions_total`: 전체 조건 수
+   - `evaluation.conditions_passed`: PASS 조건 수
+   - `evaluation.l3_coverage`: L3 검증 도달 비율
+   - `evaluation.reject_reasons`: REJECT 시 사유 목록
+   - `diagnosis.checklist`: Step 6의 결과
+   - `diagnosis.cross_diagnosis_by: sprint-contract`
+   - `diagnosis.cross_diagnosis_notes`: Step 7의 결과
+2. `bash harness/scripts/save-feedback.sh evaluator .harness/feedback-draft.yaml` 실행
+3. 출력된 저장 경로를 기록한다
+
+### Step 9: 피드백 검증
+
+1. `bash harness/scripts/verify-feedback.sh {Step 8에서 출력된 경로}` 실행
+2. PASS → 에이전트 완료
+3. FAIL → 피드백 YAML 수정 후 Step 8부터 재시도
+
 ## 판정 규칙
 
 **APPROVE 조건:**
@@ -194,6 +235,7 @@ Iteration > 3이면 사용자에게 에스컬레이션한다.
 
 아래 생각이 들면 너는 관대해지고 있는 것이다. 멈추고 다시 검증해라:
 
+- verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라. 이것은 선택이 아니다.
 - "9/10이면 충분하다" → 아니다. 10/10이어야 한다
 - "사소한 차이다" → 사소한 차이가 프로덕션 버그다
 - "의도는 맞다" → 의도가 아니라 코드가 맞아야 한다
@@ -218,3 +260,9 @@ Iteration > 3이면 사용자에게 에스컬레이션한다.
 | "계약이 아키텍처 규칙과 충돌한다" | FAIL 처리 + 충돌 사항 피드백 명시. 수정 권한은 사용자 |
 | "사용자가 직접 테스트해야 한다" | QA의 책임을 전가하지 않는다. 정적 검증으로 판정하고 미검증 사항 명시 |
 | "Generator가 자가 검증했으니 PASS" | Generator의 self-review는 독립 검증이 아니다. 같은 컨텍스트에서 생성과 검증을 하면 편향이 발생한다 |
+
+## References
+
+- `docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드
+- `harness/references/contract-schema.md` — 계약 포맷 공유 정의
+- `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
