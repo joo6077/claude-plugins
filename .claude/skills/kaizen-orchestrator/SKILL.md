@@ -118,7 +118,7 @@ Final: 전체 크로스 Phase 정합성 검증
 
 4. **QA Evaluator 실행:**
    - **APPROVE** → Phase 3로
-   - **REJECT** → 수정 후 재QA (최대 3회)
+   - **REJECT** → 피드백 반영하여 수정 후 재QA (최대 3회, 초과 시 Phase 2 중단하고 사용자 알림)
 
 ### Step 3: Phase 3 — flutter-toolkit
 
@@ -149,7 +149,7 @@ Final: 전체 크로스 Phase 정합성 검증
 
 4. **QA Evaluator 실행:**
    - **APPROVE** → Final로
-   - **REJECT** → 수정 후 재QA (최대 3회)
+   - **REJECT** → 피드백 반영하여 수정 후 재QA (최대 3회, 초과 시 Phase 3 중단하고 사용자 알림)
 
 ### Step 4: Final — 전체 정합성 검증
 
