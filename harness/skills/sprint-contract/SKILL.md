@@ -21,8 +21,15 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 
 - `references/red-flags.md` — Red Flags + Rationalization Table (계약 품질 검증용)
 
+## References
+
+- `docs/guides/contract-design-guide.md` — 계약 작성 원칙 가이드
+- `harness/references/contract-schema.md` — 계약 포맷 공유 정의
+- `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
+
 ## Gotchas
 
+- verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라. 이것은 선택이 아니다.
 - 복잡도 판단에서 "단순"으로 과소평가하는 경향이 있다. 파일 수가 아니라 **영향 범위**(레이어 수, 공개 API 변경 여부)로 판단해라
 - `project.yaml`의 `contract_categories`를 무시하고 하드코딩된 카테고리(UI/Logic/Error)를 쓰면 안 된다. 반드시 config에서 읽어라
 - 조건을 "~가 잘 동작한다", "~를 적절히 처리한다"로 쓰면 QA Evaluator가 판정 불가능하다. 반드시 PASS/FAIL 이진 판정 가능한 문장으로 써라
@@ -152,6 +159,53 @@ conditions: {N}
 ```
 
 기존 계약이 있으면 `.harness/history/{YYYYMMDD-HHmm}-sprint-contract.md`로 이동한다.
+
+### 7. 자기진단
+
+1. 구조화 체크리스트 실행:
+   - `ambiguous_conditions`: 모호한 표현이 포함된 조건이 있는가?
+   - `missing_error_paths`: 에러/예외 경로에 대한 조건이 누락되었는가?
+   - `untestable_conditions`: 코드만으로 검증 불가능한 조건이 있는가?
+   - `category_coverage_gap`: project.yaml 카테고리 중 커버하지 못한 것이 있는가?
+   - `complexity_underestimate`: 복잡도를 과소평가하여 조건 수가 부족한가?
+2. 각 항목에 대해 true/false 판정
+
+### 8. 교차 진단
+
+1. Agent tool로 qa-evaluator 서브에이전트를 호출한다
+2. 전달 내용: 생성된 계약 조건 전문 (`.harness/sprint-contract.md` 내용)
+3. 미전달: 사용자 대화 내용, 의사결정 과정
+4. 핵심 질문: "이 조건들을 독립적으로 검증할 수 있는가? 모호하거나 해석이 갈리는 조건이 있는가?"
+5. 서브에이전트 응답을 `cross_diagnosis_notes`로 기록
+
+### 9. 피드백 저장
+
+1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성한다
+   - `harness/references/feedback-schema.yaml`의 스키마를 따른다
+   - `skill: sprint-contract`
+   - `skill_version`: `harness/.claude-plugin/plugin.json`의 `version` 필드 값
+   - `project_hash`: 크로스플랫폼 해시 생성 (아래 fallback 체인 사용)
+     ```bash
+     # sha256sum → python3 → openssl 순서 fallback
+     if command -v sha256sum &>/dev/null; then
+       echo -n "$(pwd)" | sha256sum | cut -c1-8
+     elif command -v python3 &>/dev/null; then
+       python3 -c "import hashlib; print(hashlib.sha256('$(pwd)'.encode()).hexdigest()[:8])"
+     elif command -v openssl &>/dev/null; then
+       echo -n "$(pwd)" | openssl dgst -sha256 | sed 's/.*= //' | cut -c1-8
+     fi
+     ```
+   - `diagnosis.checklist`: Step 7의 결과
+   - `diagnosis.cross_diagnosis_by: qa-evaluator`
+   - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
+2. `bash harness/scripts/save-feedback.sh contract .harness/feedback-draft.yaml` 실행
+3. 출력된 저장 경로를 기록한다
+
+### 10. 피드백 검증
+
+1. `bash harness/scripts/verify-feedback.sh {Step 9에서 출력된 경로}` 실행
+2. PASS → 스킬 완료
+3. FAIL → 피드백 YAML 수정 후 Step 9부터 재시도
 
 ## Red Flags + Rationalization Table
 
