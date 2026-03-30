@@ -70,8 +70,8 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 ## 트리거 조건
 
 ### 주기적 (cron)
-- 매주 월요일 09:00 KST
-- Claude Code schedule (remote trigger) 사용
+- **직접 cron 없음** — `kaizen-orchestrator`가 Phase 3에서 호출
+- 독립 실행은 수동 호출로만
 
 ### 이벤트 트리거
 `scripts/trigger-check.sh`를 실행하여 감지:
