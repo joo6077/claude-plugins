@@ -21,6 +21,7 @@ user-invocable: true
 필요할 때 읽어라:
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
+- `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
 
 ## Gotchas
 
@@ -62,16 +63,18 @@ Final: 전체 크로스 Phase 정합성 검증
 
 모든 Phase에서 사용할 리서치를 한 번에 수행한다.
 
-1. `harness/skills/harness-kaizen/references/search-sources.md` 읽기
-2. `flutter-toolkit/skills/flutter-kaizen/references/search-sources.md` 읽기
-3. 두 소스 목록을 합쳐 중복 제거 후 검색 실행:
-   - **WebSearch**: 학술 논문, 공식 문서, 커뮤니티 소스
-   - **WebFetch**: skills.sh, Flutter/Dart 공식 changelog
-4. 3중 검증 게이트 (GATE 1→2→3) 실행
-5. 검증된 소스를 Phase별로 분류:
-   - 설계 원칙/패턴 관련 → Phase 1
-   - QA/계약/평가 관련 → Phase 2
-   - Flutter/Dart 생태계 관련 → Phase 3
+1. **3개 소스 목록 읽기:**
+   - `references/search-sources.md` — Phase 1용 (스킬/에이전트 설계 패턴, Anthropic 공식, 경쟁 도구)
+   - `harness/skills/harness-kaizen/references/search-sources.md` — Phase 2용 (QA, 프롬프트 엔지니어링)
+   - `flutter-toolkit/skills/flutter-kaizen/references/search-sources.md` — Phase 3용 (Flutter/Dart 생태계)
+2. 3개 소스를 합쳐 중복 제거 후 검색 실행:
+   - **WebSearch**: 학술 논문, Anthropic 공식 문서, 커뮤니티 소스, 경쟁 도구 패턴
+   - **WebFetch**: skills.sh, Flutter/Dart 공식 changelog, Claude Code changelog
+3. 3중 검증 게이트 (GATE 1→2→3) 실행
+4. 검증된 소스를 Phase별로 분류:
+   - 스킬/에이전트 설계 원칙, 프롬프트 패턴 → **Phase 1** (설계 가이드)
+   - QA/계약/평가, harness 구조 → **Phase 2** (harness)
+   - Flutter/Dart 생태계, 위젯 패턴 → **Phase 3** (flutter-toolkit)
    - 복수 Phase 해당 → 가장 상위 Phase에 우선 배정
 
 ### Step 1: Phase 1 — 설계 가이드
