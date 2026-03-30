@@ -1,0 +1,18 @@
+stack: "flutter"
+commands:
+  analyze: "flutter analyze"
+  test: "flutter test"
+contract_categories:
+  - id: UI
+    prefix: "UI"
+    description: "화면 표시"
+  - id: LOGIC
+    prefix: "LG"
+    description: "비즈니스 로직"
+anti_patterns:
+  - id: AP-01
+    pattern: "setState"
+    message: "setState 직접 사용 금지"
+  - id: AP-02
+    pattern: "print\\("
+    message: "print 대신 logger 사용"

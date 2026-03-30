@@ -1,0 +1,28 @@
+schema_version: 1
+timestamp: "2026-03-17T11:00:00+09:00"
+project_hash: "test0006"
+project_name: "fixture-project-f"
+skill: qa-evaluator
+skill_version: "0.3.3"
+outcome: completed
+evaluation:
+  verdict: REJECT
+  conditions_total: 10
+  conditions_passed: 8
+  l3_coverage: 0.9
+  reject_reasons:
+    - "UI-03: 유사 표현이지만 문자 그대로 불일치"
+    - "ERR-01: synonym 사용으로 FAIL 판정"
+diagnosis:
+  checklist:
+    l3_unreached: false
+    bias_detected: false
+    evidence_missing: false
+    contract_misinterpret: true
+    perspective_gap: false
+  cross_diagnosis_by: sprint-contract
+  cross_diagnosis_notes: "REJECT 사유 2건 모두 의미는 동일하나 표현이 다름 — 과도한 리터럴 해석"
+  improvement_suggestions:
+    - "리터럴 해석과 의미 해석의 균형 기준 정의"
+user_rating: null
+user_comment: null

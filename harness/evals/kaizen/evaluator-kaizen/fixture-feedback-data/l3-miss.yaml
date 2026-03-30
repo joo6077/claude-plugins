@@ -1,0 +1,26 @@
+schema_version: 1
+timestamp: "2026-03-15T11:00:00+09:00"
+project_hash: "test0004"
+project_name: "fixture-project-d"
+skill: qa-evaluator
+skill_version: "0.3.3"
+outcome: completed
+evaluation:
+  verdict: APPROVE
+  conditions_total: 8
+  conditions_passed: 8
+  l3_coverage: 0.5
+  reject_reasons: []
+diagnosis:
+  checklist:
+    l3_unreached: true
+    bias_detected: false
+    evidence_missing: false
+    contract_misinterpret: false
+    perspective_gap: false
+  cross_diagnosis_by: sprint-contract
+  cross_diagnosis_notes: "조건 3,5,7,8번이 L2에서 멈춤 — 코드 경로 추적 미수행"
+  improvement_suggestions:
+    - "L3 도달 강제 규칙 강화"
+user_rating: null
+user_comment: null

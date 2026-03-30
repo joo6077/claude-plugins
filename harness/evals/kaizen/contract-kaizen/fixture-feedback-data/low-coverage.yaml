@@ -1,0 +1,26 @@
+schema_version: 1
+timestamp: "2026-03-17T10:00:00+09:00"
+project_hash: "test0003"
+project_name: "fixture-project-c"
+skill: sprint-contract
+skill_version: "0.3.3"
+outcome: completed
+contract:
+  condition_count: 3
+  category_count: 2
+  category_coverage: 0.5
+  anti_pattern_count: 2
+  complexity: medium
+diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: true
+    untestable_conditions: false
+    category_coverage_gap: false
+    complexity_underestimate: true
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "4-8 파일 영향인데 조건 3개는 과소"
+  improvement_suggestions:
+    - "복잡도 판단 기준 강화"
+user_rating: null
+user_comment: null

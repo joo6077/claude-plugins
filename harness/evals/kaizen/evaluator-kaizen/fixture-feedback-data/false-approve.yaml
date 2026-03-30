@@ -1,0 +1,26 @@
+schema_version: 1
+timestamp: "2026-03-16T11:00:00+09:00"
+project_hash: "test0005"
+project_name: "fixture-project-e"
+skill: qa-evaluator
+skill_version: "0.3.3"
+outcome: completed
+evaluation:
+  verdict: APPROVE
+  conditions_total: 6
+  conditions_passed: 6
+  l3_coverage: 0.8
+  reject_reasons: []
+diagnosis:
+  checklist:
+    l3_unreached: false
+    bias_detected: true
+    evidence_missing: true
+    contract_misinterpret: false
+    perspective_gap: false
+  cross_diagnosis_by: sprint-contract
+  cross_diagnosis_notes: "조건 4번 PASS 판정에 구체적 증거 없음 — 'confirmed' 문구만 사용"
+  improvement_suggestions:
+    - "증거 없는 PASS 판정 감지 규칙 추가"
+user_rating: bad
+user_comment: "APPROVE 했는데 에러 경로 누락이었음"

@@ -1,0 +1,36 @@
+stack: "flutter"
+commands:
+  analyze: "flutter analyze"
+  test: "flutter test"
+contract_categories:
+  - id: UI
+    prefix: "UI"
+    description: "화면 표시"
+  - id: LOGIC
+    prefix: "LG"
+    description: "비즈니스 로직"
+  - id: API
+    prefix: "API"
+    description: "API 통신"
+  - id: ERROR
+    prefix: "ERR"
+    description: "에러 처리"
+  - id: PERF
+    prefix: "PF"
+    description: "성능 최적화"
+anti_patterns:
+  - id: AP-01
+    pattern: "setState"
+    message: "setState 직접 사용 금지"
+  - id: AP-02
+    pattern: "print\\("
+    message: "print 대신 logger 사용"
+  - id: AP-03
+    pattern: "http\\.get|http\\.post"
+    message: "raw http 대신 Dio/Retrofit 사용"
+  - id: AP-04
+    pattern: "catch\\s*\\(e\\)\\s*\\{\\s*\\}"
+    message: "빈 catch 블록 금지"
+  - id: AP-05
+    pattern: "Future\\.delayed"
+    message: "Future.delayed 대신 Timer 또는 debounce 사용"

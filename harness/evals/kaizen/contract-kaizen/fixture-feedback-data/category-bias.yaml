@@ -1,0 +1,26 @@
+schema_version: 1
+timestamp: "2026-03-16T10:00:00+09:00"
+project_hash: "test0002"
+project_name: "fixture-project-b"
+skill: sprint-contract
+skill_version: "0.3.3"
+outcome: completed
+contract:
+  condition_count: 7
+  category_count: 2
+  category_coverage: 0.4
+  anti_pattern_count: 2
+  complexity: medium
+diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: false
+    untestable_conditions: false
+    category_coverage_gap: true
+    complexity_underestimate: false
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "5개 카테고리 중 2개만 사용 — UI 편중"
+  improvement_suggestions:
+    - "카테고리 균형 검증 단계 추가"
+user_rating: null
+user_comment: null

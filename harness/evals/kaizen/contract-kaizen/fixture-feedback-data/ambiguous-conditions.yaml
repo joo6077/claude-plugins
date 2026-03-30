@@ -1,0 +1,26 @@
+schema_version: 1
+timestamp: "2026-03-15T10:00:00+09:00"
+project_hash: "test0001"
+project_name: "fixture-project-a"
+skill: sprint-contract
+skill_version: "0.3.3"
+outcome: completed
+contract:
+  condition_count: 6
+  category_count: 3
+  category_coverage: 0.6
+  anti_pattern_count: 2
+  complexity: medium
+diagnosis:
+  checklist:
+    ambiguous_conditions: true
+    missing_error_paths: false
+    untestable_conditions: true
+    category_coverage_gap: false
+    complexity_underestimate: false
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "조건 2, 5번이 모호함 — '적절히 표시한다' 표현 사용"
+  improvement_suggestions:
+    - "모호 조건 탐지 규칙을 Gotchas에 추가"
+user_rating: null
+user_comment: null

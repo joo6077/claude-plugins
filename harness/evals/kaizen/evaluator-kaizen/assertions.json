@@ -1,0 +1,11 @@
+{
+  "l3-miss": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "L3.*강제|L3.*필수|must.*reach.*L3"}
+  ],
+  "false-approve": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "증거.*없.*PASS|evidence.*missing"}
+  ],
+  "reject-loop": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "동의어|synonym|리터럴.*의미|literal.*semantic"}
+  ]
+}
