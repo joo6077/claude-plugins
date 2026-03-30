@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>그리드 & 정렬 — Design Foundations</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--bg2:#0f1018;--surface:#13141f;--surface2:#191b28;--surface3:#1f2233;
+  --border:#262a3d;--border2:#323750;
+  --text:#e8eaf0;--text2:#9098b2;--text3:#5c6380;--text4:#3d4260;
+  --accent:#6b8aff;--accent2:#a78bfa;--gold:#f0c040;--green:#34d399;--red:#f87171;--cyan:#22d3ee;
+  --radius:16px;--radius-sm:10px;--radius-xs:6px;
+  --transition:0.3s cubic-bezier(.4,0,.2,1);
+  --font:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Fira Code','SF Mono',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;overflow-x:hidden}
+
+/* HERO */
+.hero{position:relative;padding:clamp(60px,10vw,120px) clamp(20px,5vw,48px) clamp(40px,6vw,80px);text-align:center;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(107,138,255,0.08) 0%,rgba(167,139,250,0.04) 40%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:8px 20px;font-size:13px;color:var(--text2);margin-bottom:24px;font-weight:600}
+.hero-badge span{color:var(--accent)}
+.hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-1.5px;line-height:1.15;background:linear-gradient(135deg,var(--text) 0%,var(--text2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.hero h1 em{font-style:normal;-webkit-text-fill-color:var(--accent)}
+.hero-sub{font-size:clamp(15px,1.5vw,19px);color:var(--text2);max-width:680px;margin:0 auto 32px;line-height:1.7}
+.hero-principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1000px;margin:0 auto;text-align:left}
+.hero-principles .p-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px}
+.hero-principles .p-card strong{display:block;font-size:14px;color:var(--accent);margin-bottom:6px}
+.hero-principles .p-card span{font-size:13px;color:var(--text2);line-height:1.5}
+
+.page{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,48px) clamp(40px,6vw,80px)}
+.section{margin-bottom:clamp(60px,8vw,100px)}
+.section-label{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.section-title{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.8px;margin-bottom:8px;line-height:1.2}
+.section-desc{font-size:clamp(14px,1.2vw,16px);color:var(--text2);margin-bottom:clamp(24px,3vw,40px);max-width:680px;line-height:1.7}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(20px,3vw,32px)}
+.card+.card{margin-top:16px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.card-subtitle{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+
+.tab-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:var(--font)}
+.tab-btn:hover{border-color:var(--text3);color:var(--text)}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:700;color:var(--text2);padding:12px 16px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:1px}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:hover td{background:rgba(107,138,255,0.03)}
+td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(--surface2);padding:2px 8px;border-radius:4px}
+
+.code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.8;overflow-x:auto;color:var(--text2);white-space:pre}
+.code-block .kw{color:var(--accent2)}.code-block .prop{color:var(--cyan)}.code-block .val{color:var(--gold)}.code-block .cmt{color:var(--text4)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.anti-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.anti-card{padding:clamp(16px,2vw,24px);border-radius:var(--radius-sm);border:1px solid}
+.anti-card.bad{background:rgba(248,113,113,0.04);border-color:rgba(248,113,113,0.2)}
+.anti-card.good{background:rgba(52,211,153,0.04);border-color:rgba(52,211,153,0.2)}
+.anti-card .anti-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.anti-card.bad .anti-label{color:var(--red)}.anti-card.good .anti-label{color:var(--green)}
+.anti-card h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.anti-card p{font-size:13px;color:var(--text2);line-height:1.6}
+@media(max-width:600px){.anti-grid{grid-template-columns:1fr}}
+
+/* === INTERACTIVE GRID === */
+.grid-playground{
+  position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  min-height:300px;overflow:hidden;padding:0;
+}
+.grid-playground-inner{display:flex;width:100%;min-height:300px;position:relative}
+.gp-margin{background:rgba(240,192,64,0.06);flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+.gp-margin span{writing-mode:vertical-rl;font-size:10px;color:var(--gold);font-weight:600;letter-spacing:1px;opacity:0.6}
+.gp-columns{flex:1;display:flex;gap:0;align-items:stretch}
+.gp-col{flex:1;background:rgba(107,138,255,0.08);border-left:1px solid rgba(107,138,255,0.15);border-right:1px solid rgba(107,138,255,0.15);position:relative;min-height:300px}
+.gp-col::after{content:attr(data-n);position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--accent);opacity:0.5;font-weight:600}
+.gp-gutter{flex-shrink:0;background:rgba(167,139,250,0.06);position:relative;display:flex;align-items:center;justify-content:center}
+.gp-gutter span{font-size:9px;color:var(--accent2);font-weight:600;writing-mode:vertical-rl;opacity:0.5}
+
+.gp-controls{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.gp-control{display:flex;flex-direction:column;gap:6px}
+.gp-control label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.gp-control input[type=range]{width:120px;accent-color:var(--accent)}
+.gp-control .val-display{font-family:var(--mono);font-size:13px;color:var(--accent);text-align:center}
+
+/* === BASELINE GRID === */
+.baseline-demo{
+  position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:32px;overflow:hidden;min-height:240px;
+}
+.baseline-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:0.3}
+.baseline-line{width:100%;border-bottom:1px solid var(--accent);position:absolute;left:0}
+.baseline-content{position:relative;z-index:1}
+.baseline-content p{margin:0;font-size:15px;line-height:24px;color:var(--text)}
+.baseline-content h3{margin:24px 0 0;font-size:24px;line-height:32px;font-weight:700}
+.baseline-content .caption{font-size:13px;line-height:20px;color:var(--text2);margin-top:8px}
+
+/* === ALIGNMENT DEMO === */
+.align-demo-box{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:24px;min-height:160px;
+}
+.align-demo-box h4{font-size:13px;color:var(--accent);margin-bottom:12px;font-weight:700}
+.align-demo-box p{font-size:14px;line-height:1.7;color:var(--text2)}
+.align-note{font-size:11px;color:var(--text3);margin-top:12px;padding-top:12px;border-top:1px solid var(--border);line-height:1.5;font-style:italic}
+
+/* === OPTICAL ALIGNMENT === */
+.optical-demo{display:flex;gap:32px;align-items:center;justify-content:center;flex-wrap:wrap;padding:32px}
+.optical-box{
+  width:120px;height:120px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.optical-box .icon-tri{
+  width:0;height:0;border-left:30px solid var(--accent);border-top:18px solid transparent;border-bottom:18px solid transparent;
+}
+.optical-box .center-lines{position:absolute;width:100%;height:100%;top:0;left:0}
+.optical-box .center-lines::before{content:'';position:absolute;left:50%;top:0;width:1px;height:100%;background:rgba(240,192,64,0.3)}
+.optical-box .center-lines::after{content:'';position:absolute;top:50%;left:0;width:100%;height:1px;background:rgba(240,192,64,0.3)}
+.optical-label{text-align:center;margin-top:10px;font-size:12px;color:var(--text2);font-weight:600}
+
+/* === RESPONSIVE DEMO === */
+.responsive-demo{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  overflow:hidden;position:relative;
+}
+.responsive-viewport{
+  margin:0 auto;transition:width 0.5s ease;overflow:hidden;border:2px solid var(--accent);
+  border-radius:var(--radius-xs);background:var(--bg2);min-height:200px;
+}
+.rv-inner{display:grid;gap:8px;padding:12px;transition:all 0.5s ease}
+.rv-block{background:rgba(107,138,255,0.1);border:1px solid rgba(107,138,255,0.2);border-radius:4px;padding:16px;text-align:center;font-size:11px;color:var(--accent);font-weight:600}
+
+/* === VISUAL WEIGHT === */
+.weight-demo{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:8px}
+.weight-side{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:24px;min-height:200px;display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.weight-side::before{content:'';position:absolute;left:50%;top:0;width:1px;height:100%;background:rgba(240,192,64,0.15)}
+.weight-label{position:absolute;top:8px;left:12px;font-size:11px;color:var(--text3);font-weight:700}
+
+/* === GRID ANATOMY === */
+.anatomy-diagram{
+  position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:40px 20px;min-height:200px;overflow:hidden;
+}
+.anatomy-inner{display:flex;width:100%;height:140px;position:relative}
+.anatomy-margin{background:rgba(240,192,64,0.08);flex:0 0 40px;display:flex;align-items:center;justify-content:center;position:relative;border:1px dashed rgba(240,192,64,0.3)}
+.anatomy-col{flex:1;background:rgba(107,138,255,0.1);border:1px solid rgba(107,138,255,0.2);margin:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--accent);font-weight:600}
+.anatomy-gutter{flex:0 0 16px;background:rgba(167,139,250,0.08);border:1px dashed rgba(167,139,250,0.2);display:flex;align-items:center;justify-content:center}
+.anatomy-pointer{position:absolute;font-size:11px;font-weight:700;white-space:nowrap}
+
+/* === FRAMEWORK TABLE === */
+.fw-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+.back-to-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;background:var(--surface);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);z-index:100;transition:all var(--transition);opacity:0;pointer-events:none}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+footer{padding:40px clamp(20px,4vw,48px);text-align:center;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent);text-decoration:none}
+
+@media(max-width:480px){.weight-demo,.optical-demo{grid-template-columns:1fr;flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span>&#x25A6;</span> Design Foundations v0.2.0</div>
+  <h1>그리드 & <em>정렬</em></h1>
+  <p class="hero-sub">
+    UI 레이아웃의 뼈대가 되는 그리드 시스템, 베이스라인 정렬, 반응형 전략, 시각적 균형.
+    정렬은 질서를 만들고, 질서는 인지 부하를 줄인다.
+  </p>
+  <div class="hero-principles">
+    <div class="p-card"><strong>질서 = 낮은 인지 부하</strong><span>그리드에 정렬된 레이아웃은 사용자가 "어디를 봐야 하는지" 예측 가능하게 만든다</span></div>
+    <div class="p-card"><strong>프레임워크, 제약 아님</strong><span>일관된 기준선을 제공하여 의사결정 비용을 줄인다. 의도적 이탈은 강조 효과</span></div>
+    <div class="p-card"><strong>거터 > 컬럼 수</strong><span>Material Design은 컬럼 너비보다 마진과 거터의 일관성에 초점을 맞춘다</span></div>
+    <div class="p-card"><strong>광학 우선</strong><span>시각적 무게 중심이 기하학적 중심과 다르다. 최종 판단은 눈으로 해야 한다</span></div>
+  </div>
+</section>
+
+<div class="page">
+
+<!-- ======== INTERACTIVE COLUMN GRID ======== -->
+<section class="section" id="column-grid">
+  <div class="section-label">01</div>
+  <h2 class="section-title">인터랙티브 컬럼 그리드</h2>
+  <p class="section-desc">컬럼 수, 거터, 마진을 실시간으로 조절하여 그리드 시스템의 구조를 탐색합니다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x25A6; 컬럼 그리드 시뮬레이터</div>
+    <div class="card-subtitle">컬럼 수를 전환하고 거터/마진 값을 슬라이더로 조절하세요</div>
+
+    <div class="tab-bar" id="colTabs">
+      <button class="tab-btn" data-cols="4">4 컬럼</button>
+      <button class="tab-btn" data-cols="8">8 컬럼</button>
+      <button class="tab-btn active" data-cols="12">12 컬럼</button>
+    </div>
+
+    <div class="grid-playground">
+      <div class="grid-playground-inner" id="gpInner"></div>
+    </div>
+
+    <div class="gp-controls">
+      <div class="gp-control">
+        <label>거터 (Gutter)</label>
+        <input type="range" id="gutterSlider" min="0" max="32" value="16" step="4">
+        <div class="val-display" id="gutterVal">16px</div>
+      </div>
+      <div class="gp-control">
+        <label>마진 (Margin)</label>
+        <input type="range" id="marginSlider" min="8" max="80" value="24" step="4">
+        <div class="val-display" id="marginVal">24px</div>
+      </div>
+    </div>
+
+    <!-- Layout presets -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">12컬럼 일반적 레이아웃 분할</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>레이아웃</th><th>컬럼 배분</th><th>용도</th></tr></thead>
+          <tbody>
+            <tr><td>1단 중앙</td><td><code>8/12</code> (좌우 2컬럼 여백)</td><td>블로그 본문, 기사</td></tr>
+            <tr><td>2단 균등</td><td><code>6/12 + 6/12</code></td><td>비교 레이아웃, 대시보드</td></tr>
+            <tr><td>2단 비대칭</td><td><code>8/12 + 4/12</code></td><td>메인 콘텐츠 + 사이드바</td></tr>
+            <tr><td>3단 균등</td><td><code>4/12 &#xD7; 3</code></td><td>카드 그리드, 기능 소개</td></tr>
+            <tr><td>4단 균등</td><td><code>3/12 &#xD7; 4</code></td><td>제품 목록, 갤러리</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== GRID ANATOMY ======== -->
+<section class="section" id="grid-anatomy">
+  <div class="section-label">02</div>
+  <h2 class="section-title">그리드 해부도 (Grid Anatomy)</h2>
+  <p class="section-desc">모든 컬럼 그리드는 Column, Gutter, Margin 세 가지 요소로 구성된다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x1F9EC; 그리드 구성 요소</div>
+    <div class="anatomy-diagram">
+      <div class="anatomy-inner" id="anatomyInner">
+        <!-- Built by JS -->
+      </div>
+      <!-- Annotations -->
+      <div style="display:flex;justify-content:center;gap:32px;margin-top:20px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:16px;height:16px;background:rgba(240,192,64,0.2);border:1px dashed rgba(240,192,64,0.4);border-radius:3px"></div>
+          <span style="font-size:12px;color:var(--gold);font-weight:600">Margin (마진)</span>
+          <span style="font-size:11px;color:var(--text3)">화면 가장자리 여백</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:16px;height:16px;background:rgba(107,138,255,0.2);border:1px solid rgba(107,138,255,0.3);border-radius:3px"></div>
+          <span style="font-size:12px;color:var(--accent);font-weight:600">Column (컬럼)</span>
+          <span style="font-size:11px;color:var(--text3)">콘텐츠 영역</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:16px;height:16px;background:rgba(167,139,250,0.2);border:1px dashed rgba(167,139,250,0.3);border-radius:3px"></div>
+          <span style="font-size:12px;color:var(--accent2);font-weight:600">Gutter (거터)</span>
+          <span style="font-size:11px;color:var(--text3)">컬럼 간 간격</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead><tr><th>브레이크포인트</th><th>컬럼 수</th><th>거터</th><th>마진</th></tr></thead>
+        <tbody>
+          <tr><td>0-599dp (모바일)</td><td><code>4</code></td><td><code>16dp</code></td><td><code>16dp</code></td></tr>
+          <tr><td>600-904dp (태블릿)</td><td><code>8</code></td><td><code>16dp</code></td><td><code>24dp</code></td></tr>
+          <tr><td>905-1239dp (소형 데스크톱)</td><td><code>12</code></td><td><code>24dp</code></td><td><code>24dp</code></td></tr>
+          <tr><td>1240-1439dp (중형 데스크톱)</td><td><code>12</code></td><td><code>24dp</code></td><td><code>200dp</code> (고정)</td></tr>
+          <tr><td>1440dp+ (대형 데스크톱)</td><td><code>12</code></td><td><code>24dp</code></td><td>auto (중앙 정렬)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ======== BASELINE GRID ======== -->
+<section class="section" id="baseline-grid">
+  <div class="section-label">03</div>
+  <h2 class="section-title">베이스라인 그리드</h2>
+  <p class="section-desc">
+    수평 방향의 정렬 기준선. 모든 요소의 높이, 패딩, 마진을 4px 또는 8px의 배수로 설정하면 수직 리듬이 일관된다.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x2500; 베이스라인 오버레이</div>
+    <div class="tab-bar" id="baselineTabs">
+      <button class="tab-btn active" data-grid="8">8px 그리드</button>
+      <button class="tab-btn" data-grid="4">4px 그리드</button>
+    </div>
+
+    <div class="baseline-demo" id="baselineDemo">
+      <div class="baseline-lines" id="baselineLines"></div>
+      <div class="baseline-content">
+        <h3>섹션 제목 (24px / line-height: 32px)</h3>
+        <p style="margin-top:8px">본문 텍스트는 15px 크기에 line-height 24px을 사용합니다. 8px 그리드의 배수인 24px 행간으로 수직 리듬이 유지됩니다. 모든 간격은 8의 배수입니다.</p>
+        <p class="caption">캡션 텍스트 (13px / line-height: 20px) — 4px 배수로 보조 그리드에 맞춤</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px">
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">GOOD</div>
+        <div class="code-block" style="font-size:12px;padding:12px"><span class="prop">font-size</span>: <span class="val">15px</span>, <span class="prop">line-height</span>: <span class="val">24px</span> <span class="cmt">(8의 배수)</span>
+<span class="prop">font-size</span>: <span class="val">14px</span>, <span class="prop">line-height</span>: <span class="val">20px</span> <span class="cmt">(4의 배수)</span></div>
+      </div>
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px">BAD</div>
+        <div class="code-block" style="font-size:12px;padding:12px"><span class="prop">font-size</span>: <span class="val">16px</span>, <span class="prop">line-height</span>: <span class="val">22px</span> <span class="cmt">(그리드에 안 맞음)</span>
+<span class="prop">font-size</span>: <span class="val">14px</span>, <span class="prop">line-height</span>: <span class="val">1.5</span> <span class="cmt">(21px &#x2192; 그리드 어긋남)</span></div>
+      </div>
+    </div>
+
+    <!-- Hard vs Soft grid -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">Hard Grid vs Soft Grid</div>
+      <div class="grid-2">
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">Hard Grid</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">모든 요소를 4px/8px 격자에 정확히 배치. 인쇄 디자인에 적합, 디지털에서는 비효율적.</div>
+        </div>
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid rgba(52,211,153,0.3)">
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">Soft Grid (표준)</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">요소 간 간격만 4px/8px 배수로 유지. 실용적, 현대 UI/UX의 표준 접근법.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spacing units -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">간격 단위 체계</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단위</th><th>용도</th><th>예시 값</th></tr></thead>
+          <tbody>
+            <tr><td><code>4px</code> (하프)</td><td>미세 조정</td><td>아이콘 내부 여백, 텍스트-아이콘 간격</td></tr>
+            <tr><td><code>8px</code> (풀)</td><td>기본 간격</td><td>패딩, 마진, 컴포넌트 높이</td></tr>
+            <tr><td><code>16px</code></td><td>중간 간격</td><td>카드 내부 패딩, 섹션 간격</td></tr>
+            <tr><td><code>24px</code></td><td>넓은 간격</td><td>그룹 간 간격, 거터</td></tr>
+            <tr><td><code>32px</code></td><td>섹션 간격</td><td>콘텐츠 블록 구분</td></tr>
+            <tr><td><code>48px</code></td><td>대형 간격</td><td>페이지 영역 구분</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== ALIGNMENT ======== -->
+<section class="section" id="alignment">
+  <div class="section-label">04</div>
+  <h2 class="section-title">정렬 규칙</h2>
+  <p class="section-desc">좌측, 중앙, 우측 정렬의 적합한 사용 상황과 가독성 차이를 비교합니다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x2194;&#xFE0F; 정렬 방식 비교</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px">
+
+      <div class="align-demo-box" style="text-align:left">
+        <h4>&#x2B9C; 좌측 정렬 (기본)</h4>
+        <p>왼쪽 가장자리가 일관된 시선 앵커 역할을 한다. 긴 텍스트, 폼 라벨, 리스트에 가장 적합하다. 서구권 및 한국어 UI에서 기본.</p>
+        <div class="align-note">적합: 본문(3줄+), 폼 라벨, 리스트, 테이블 텍스트</div>
+      </div>
+
+      <div class="align-demo-box" style="text-align:center">
+        <h4>&#x25C6; 중앙 정렬</h4>
+        <p>짧은 텍스트에만 사용. 줄 수가 늘어나면 왼쪽 가장자리가 들쭉날쭉해져 읽기 어렵다.</p>
+        <div class="align-note">적합: 히어로 타이틀(1-2줄), 다이얼로그, 탭 라벨</div>
+      </div>
+
+      <div class="align-demo-box" style="text-align:right">
+        <h4>우측 정렬 &#x2B9E;</h4>
+        <p>숫자를 다룰 때 사용. 소수점이나 자릿수 비교가 용이.</p>
+        <div class="align-note">적합: 금액, 수량, 비율, 타임스탬프</div>
+      </div>
+
+      <div class="align-demo-box" style="text-align:justify">
+        <h4>&#x2550; 양쪽 정렬 (Justified)</h4>
+        <p>블록 형태로 정돈된 느낌. 단어 간 불규칙한 간격(river)이 발생하여 가독성이 떨어질 수 있다.</p>
+        <div class="align-note">주의: 좁은 컬럼에서 "river" 현상 발생. 가급적 사용 자제</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== OPTICAL VS MATHEMATICAL ======== -->
+<section class="section" id="optical">
+  <div class="section-label">05</div>
+  <h2 class="section-title">광학 정렬 vs 수학적 정렬</h2>
+  <p class="section-desc">수학적 중앙이 시각적 중앙과 다른 경우가 빈번하다. 삼각형 재생 아이콘을 정확히 중앙에 배치하면 왼쪽으로 치우쳐 보인다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x1F441;&#xFE0F; 아이콘 정렬 비교</div>
+    <div class="optical-demo">
+      <div>
+        <div class="optical-box">
+          <div class="center-lines"></div>
+          <div class="icon-tri"></div>
+        </div>
+        <div class="optical-label">수학적 중앙<br><span style="color:var(--red);font-size:11px">치우쳐 보임</span></div>
+      </div>
+      <div style="font-size:24px;color:var(--text3)">&#x2192;</div>
+      <div>
+        <div class="optical-box">
+          <div class="center-lines"></div>
+          <div class="icon-tri" style="margin-left:4px"></div>
+        </div>
+        <div class="optical-label">광학 보정 (+2~3px)<br><span style="color:var(--green);font-size:11px">시각적으로 중앙</span></div>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead><tr><th>상황</th><th>수학적 정렬 문제</th><th>광학 보정</th></tr></thead>
+        <tbody>
+          <tr><td>삼각형 재생 아이콘</td><td>무게 중심이 왼쪽에 치우침</td><td>2-3px 오른쪽으로 이동</td></tr>
+          <tr><td>원형 아바타 + 텍스트</td><td>원이 사각형보다 작아 보임</td><td>아바타를 2px 위로</td></tr>
+          <tr><td>텍스트 버튼</td><td>디센더로 위로 치우쳐 보임</td><td>padding-bottom 1-2px 추가</td></tr>
+          <tr><td>아이콘 + 텍스트</td><td>아이콘이 높아 보임</td><td>아이콘을 1px 아래로</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ======== RESPONSIVE GRID ======== -->
+<section class="section" id="responsive">
+  <div class="section-label">06</div>
+  <h2 class="section-title">반응형 그리드 데모</h2>
+  <p class="section-desc">뷰포트 크기를 조절하여 컬럼이 축소되는 패턴을 확인합니다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x1F4F1; 뷰포트 리사이즈 시뮬레이션</div>
+    <div class="card-subtitle">슬라이더로 뷰포트 너비를 조절하세요. 브레이크포인트에서 그리드 구조가 변합니다.</div>
+
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+      <input type="range" id="vpSlider" min="320" max="1200" value="1200" step="10" style="flex:1;accent-color:var(--accent)">
+      <span id="vpVal" style="font-family:var(--mono);font-size:14px;color:var(--accent);min-width:60px">1200px</span>
+    </div>
+
+    <div class="responsive-demo">
+      <div class="responsive-viewport" id="rvViewport" style="width:100%">
+        <div class="rv-inner" id="rvInner">
+          <div class="rv-block">Col 1</div>
+          <div class="rv-block">Col 2</div>
+          <div class="rv-block">Col 3</div>
+          <div class="rv-block">Col 4</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center" id="bpIndicators">
+      <div class="bp-ind" data-bp="xs" style="padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--text3)">xs 0-599</div>
+      <div class="bp-ind" data-bp="sm" style="padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--text3)">sm 600-904</div>
+      <div class="bp-ind" data-bp="md" style="padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--text3)">md 905-1239</div>
+      <div class="bp-ind" data-bp="lg" style="padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--text3)">lg 1240+</div>
+    </div>
+
+    <!-- Collapse strategies -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">그리드 축소(Collapse) 전략</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>패턴</th><th>설명</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Stack</strong></td><td>수평 &#x2192; 수직 전환</td><td>3컬럼 카드 &#x2192; 1컬럼 스택</td></tr>
+            <tr><td><strong>Drop</strong></td><td>마지막 컬럼 탈락</td><td>사이드바 제거, 메인만 표시</td></tr>
+            <tr><td><strong>Reflow</strong></td><td>컬럼 수 변경</td><td>4컬럼 &#x2192; 2컬럼 &#x2192; 1컬럼</td></tr>
+            <tr><td><strong>Squeeze</strong></td><td>내부 콘텐츠 축소</td><td>여백 줄이기, 이미지 축소</td></tr>
+            <tr><td><strong>Off-canvas</strong></td><td>화면 밖으로 이동</td><td>사이드 내비게이션 드로어</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fluid vs Fixed -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">유동(Fluid) vs 고정(Fixed) vs 하이브리드</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>방식</th><th>동작</th><th>장점</th><th>단점</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Fluid</strong></td><td>컬럼이 화면에 따라 늘어남</td><td>모든 크기 최적화</td><td>극단적 해상도에서 변형</td></tr>
+            <tr><td><strong>Fixed</strong></td><td>컬럼 고정, 마진만 유동</td><td>레이아웃 예측 가능</td><td>중간 크기에서 빈 공간</td></tr>
+            <tr><td><strong>Hybrid</strong></td><td>특정 범위까지 Fluid, 이후 max-width</td><td>실무 최선호</td><td>구현 약간 복잡</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== VISUAL WEIGHT BALANCE ======== -->
+<section class="section" id="visual-weight">
+  <div class="section-label">07</div>
+  <h2 class="section-title">시각적 무게 균형</h2>
+  <p class="section-desc">시각적 무게에 영향을 주는 요소와 대칭/비대칭 균형의 차이를 시각화합니다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x2696;&#xFE0F; 대칭 균형 vs 비대칭 균형</div>
+
+    <div class="weight-demo">
+      <div class="weight-side">
+        <div class="weight-label">대칭 균형</div>
+        <div style="display:flex;gap:24px;align-items:center">
+          <div style="width:60px;height:80px;background:var(--accent);border-radius:8px;opacity:0.7"></div>
+          <div style="width:2px;height:100px;background:rgba(240,192,64,0.3)"></div>
+          <div style="width:60px;height:80px;background:var(--accent);border-radius:8px;opacity:0.7"></div>
+        </div>
+      </div>
+      <div class="weight-side">
+        <div class="weight-label">비대칭 균형</div>
+        <div style="display:flex;gap:16px;align-items:center">
+          <div style="width:80px;height:100px;background:var(--accent2);border-radius:8px;opacity:0.7"></div>
+          <div style="width:2px;height:100px;background:rgba(240,192,64,0.3)"></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+            <div style="width:50px;height:12px;background:var(--text3);border-radius:3px"></div>
+            <div style="width:40px;height:8px;background:var(--text4);border-radius:3px"></div>
+            <div style="width:45px;height:8px;background:var(--text4);border-radius:3px"></div>
+            <div style="height:30px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="card-subtitle" style="margin-bottom:12px">시각적 무게에 영향을 주는 요소</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>요소</th><th>무거운 쪽</th><th>가벼운 쪽</th></tr></thead>
+          <tbody>
+            <tr><td>크기</td><td>큰 요소</td><td>작은 요소</td></tr>
+            <tr><td>색상</td><td>어두운 색, 높은 채도</td><td>밝은 색, 낮은 채도</td></tr>
+            <tr><td>밀도</td><td>텍스트/요소가 빽빽함</td><td>여백이 넓음</td></tr>
+            <tr><td>위치</td><td>화면 상단</td><td>화면 하단</td></tr>
+            <tr><td>형태</td><td>불규칙한 모양</td><td>규칙적/기하학적 모양</td></tr>
+            <tr><td>텍스처</td><td>복잡한 이미지</td><td>단색</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Balance verification -->
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">균형 검증 방법</div>
+      <div class="grid-3">
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">중심선 테스트</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">화면 중앙에 세로선을 긋고 좌우의 시각적 무게를 비교</div>
+        </div>
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">회전 테스트</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">디자인을 180도 회전 — 균형이 무너지면 한쪽에 치우침</div>
+        </div>
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px">축소 테스트</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">10% 크기로 축소하여 전체 밀도 분포를 확인</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== GRID FRAMEWORKS ======== -->
+<section class="section" id="frameworks">
+  <div class="section-label">08</div>
+  <h2 class="section-title">그리드 프레임워크 비교</h2>
+  <p class="section-desc">주요 그리드 시스템의 특성과 적합한 사용 환경을 비교합니다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x1F4CA; 프레임워크 비교 테이블</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>프레임워크</th><th>기본 컬럼</th><th>거터</th><th>접근 방식</th><th>특징</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="fw-badge" style="background:rgba(107,138,255,0.15);color:var(--accent)">Bootstrap</span></td>
+            <td>12</td><td>30px (1.5rem)</td><td>Flexbox + Grid</td><td>가장 널리 사용, 풍부한 유틸리티</td>
+          </tr>
+          <tr>
+            <td><span class="fw-badge" style="background:rgba(167,139,250,0.15);color:var(--accent2)">Material Design</span></td>
+            <td>4/8/12</td><td>16-24dp</td><td>반응형 단계별</td><td>디바이스별 컬럼 수 변화</td>
+          </tr>
+          <tr>
+            <td><span class="fw-badge" style="background:rgba(240,192,64,0.15);color:var(--gold)">CSS Grid (native)</span></td>
+            <td>자유</td><td>gap 속성</td><td>네이티브 CSS</td><td>프레임워크 불필요, 유연성 최고</td>
+          </tr>
+          <tr>
+            <td><span class="fw-badge" style="background:rgba(52,211,153,0.15);color:var(--green)">Tailwind CSS</span></td>
+            <td>12</td><td>유틸리티</td><td>유틸리티 클래스</td><td>유틸리티 우선, 커스터마이징 용이</td>
+          </tr>
+          <tr>
+            <td><span class="fw-badge" style="background:rgba(34,211,238,0.15);color:var(--cyan)">Foundation</span></td>
+            <td>12</td><td>30px</td><td>Flexbox</td><td>엔터프라이즈 친화적</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ======== ANTI-PATTERNS ======== -->
+<section class="section" id="anti-patterns">
+  <div class="section-label">09</div>
+  <h2 class="section-title">안티패턴</h2>
+  <p class="section-desc">그리드와 정렬에서 흔히 발생하는 실수와 해결책.</p>
+
+  <div class="anti-grid">
+    <div class="anti-card bad">
+      <div class="anti-label">&#x2718; 매직 넘버 간격</div>
+      <h4>13px, 17px, 23px</h4>
+      <p>임의의 값은 시스템 일관성을 파괴한다.</p>
+    </div>
+    <div class="anti-card good">
+      <div class="anti-label">&#x2714; 4/8px 배수</div>
+      <h4>8, 16, 24, 32px</h4>
+      <p>체계적인 간격 시스템으로 통일.</p>
+    </div>
+    <div class="anti-card bad">
+      <div class="anti-label">&#x2718; 정렬 기준 불일치</div>
+      <h4>좌측+중앙 혼합</h4>
+      <p>하나의 폼에 좌측 정렬과 중앙 정렬이 섞임.</p>
+    </div>
+    <div class="anti-card good">
+      <div class="anti-label">&#x2714; 단일 정렬 기준</div>
+      <h4>일관된 기준 적용</h4>
+      <p>하나의 정렬 기준을 선택 후 일관 적용.</p>
+    </div>
+    <div class="anti-card bad">
+      <div class="anti-label">&#x2718; 거터 없는 컬럼</div>
+      <h4>콘텐츠가 붙어 있음</h4>
+      <p>컬럼 간 구분이 불가능.</p>
+    </div>
+    <div class="anti-card good">
+      <div class="anti-label">&#x2714; 최소 16dp 거터</div>
+      <h4>호흡 공간 확보</h4>
+      <p>콘텐츠 간 명확한 시각적 분리.</p>
+    </div>
+    <div class="anti-card bad">
+      <div class="anti-label">&#x2718; 마진 없는 전체폭</div>
+      <h4>가장자리에 붙음</h4>
+      <p>콘텐츠가 화면 가장자리에 밀착.</p>
+    </div>
+    <div class="anti-card good">
+      <div class="anti-label">&#x2714; 적절한 마진</div>
+      <h4>모바일 16dp+, 데스크톱 24dp+</h4>
+      <p>콘텐츠와 화면 가장자리 사이의 여유.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>Design Foundations &mdash; 그리드 & 정렬 &middot; v0.2.0 &middot; 2026-03-30</p>
+  <p style="margin-top:8px">
+    <a href="https://m2.material.io/design/layout/responsive-layout-grid.html" target="_blank">Material Design</a> &middot;
+    <a href="https://spec.fm/specifics/8-pt-grid" target="_blank">Spec.fm</a> &middot;
+    <a href="https://www.nngroup.com/articles/using-grids-in-interface-designs/" target="_blank">NN/g</a> &middot;
+    <a href="https://www.figma.com/resource-library/gestalt-principles/" target="_blank">Figma</a>
+  </p>
+</footer>
+
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+
+<script>
+// ===== INTERACTIVE COLUMN GRID =====
+let currentCols = 12;
+let currentGutter = 16;
+let currentMargin = 24;
+
+function renderGrid(){
+  const inner = document.getElementById('gpInner');
+  inner.innerHTML = '';
+  // Left margin
+  const ml = document.createElement('div');
+  ml.className = 'gp-margin';
+  ml.style.width = currentMargin + 'px';
+  ml.innerHTML = '<span>M</span>';
+  inner.appendChild(ml);
+
+  // Columns container
+  const colsWrap = document.createElement('div');
+  colsWrap.className = 'gp-columns';
+  colsWrap.style.gap = '0';
+
+  for(let i=0;i<currentCols;i++){
+    if(i>0){
+      const g = document.createElement('div');
+      g.className = 'gp-gutter';
+      g.style.width = currentGutter + 'px';
+      if(currentGutter >= 12) g.innerHTML = '<span>G</span>';
+      colsWrap.appendChild(g);
+    }
+    const c = document.createElement('div');
+    c.className = 'gp-col';
+    c.setAttribute('data-n', i+1);
+    colsWrap.appendChild(c);
+  }
+  inner.appendChild(colsWrap);
+
+  // Right margin
+  const mr = document.createElement('div');
+  mr.className = 'gp-margin';
+  mr.style.width = currentMargin + 'px';
+  mr.innerHTML = '<span>M</span>';
+  inner.appendChild(mr);
+}
+
+document.querySelectorAll('#colTabs .tab-btn').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#colTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+    t.classList.add('active');
+    currentCols = parseInt(t.dataset.cols);
+    renderGrid();
+  });
+});
+
+document.getElementById('gutterSlider').addEventListener('input',function(){
+  currentGutter = parseInt(this.value);
+  document.getElementById('gutterVal').textContent = currentGutter+'px';
+  renderGrid();
+});
+
+document.getElementById('marginSlider').addEventListener('input',function(){
+  currentMargin = parseInt(this.value);
+  document.getElementById('marginVal').textContent = currentMargin+'px';
+  renderGrid();
+});
+
+renderGrid();
+
+// ===== GRID ANATOMY =====
+(function(){
+  const inner = document.getElementById('anatomyInner');
+  inner.innerHTML = '';
+  // margin
+  const ml = document.createElement('div');
+  ml.className = 'anatomy-margin';
+  ml.innerHTML = '<span style="writing-mode:vertical-rl;font-size:10px;color:var(--gold);font-weight:600">Margin</span>';
+  inner.appendChild(ml);
+  // columns
+  for(let i=0;i<4;i++){
+    if(i>0){
+      const g = document.createElement('div');
+      g.className = 'anatomy-gutter';
+      g.innerHTML = '<span style="writing-mode:vertical-rl;font-size:9px;color:var(--accent2);font-weight:600">Gutter</span>';
+      inner.appendChild(g);
+    }
+    const c = document.createElement('div');
+    c.className = 'anatomy-col';
+    c.textContent = 'Column '+(i+1);
+    inner.appendChild(c);
+  }
+  // margin right
+  const mr = document.createElement('div');
+  mr.className = 'anatomy-margin';
+  mr.innerHTML = '<span style="writing-mode:vertical-rl;font-size:10px;color:var(--gold);font-weight:600">Margin</span>';
+  inner.appendChild(mr);
+})();
+
+// ===== BASELINE GRID =====
+function renderBaseline(size){
+  const demo = document.getElementById('baselineDemo');
+  const lines = document.getElementById('baselineLines');
+  lines.innerHTML = '';
+  const h = demo.scrollHeight;
+  const count = Math.ceil(h / size);
+  for(let i=0;i<count;i++){
+    const line = document.createElement('div');
+    line.className = 'baseline-line';
+    line.style.top = (i*size)+'px';
+    if(size===4) line.style.borderBottomColor = 'rgba(167,139,250,0.12)';
+    else line.style.borderBottomColor = 'rgba(107,138,255,0.15)';
+    lines.appendChild(line);
+  }
+}
+document.querySelectorAll('#baselineTabs .tab-btn').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#baselineTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+    t.classList.add('active');
+    renderBaseline(parseInt(t.dataset.grid));
+  });
+});
+renderBaseline(8);
+
+// ===== RESPONSIVE DEMO =====
+const vpSlider = document.getElementById('vpSlider');
+const vpVal = document.getElementById('vpVal');
+const rvViewport = document.getElementById('rvViewport');
+const rvInner = document.getElementById('rvInner');
+
+function updateResponsive(){
+  const w = parseInt(vpSlider.value);
+  vpVal.textContent = w+'px';
+  rvViewport.style.width = Math.min(w, rvViewport.parentElement.clientWidth)+'px';
+
+  // Update grid
+  if(w < 600){
+    rvInner.style.gridTemplateColumns = '1fr';
+    rvInner.childNodes.forEach((c,i)=>{if(c.style) c.style.display = i<2?'':'none'});
+  } else if(w < 905){
+    rvInner.style.gridTemplateColumns = '1fr 1fr';
+    rvInner.childNodes.forEach(c=>{if(c.style) c.style.display=''});
+  } else {
+    rvInner.style.gridTemplateColumns = 'repeat(4,1fr)';
+    rvInner.childNodes.forEach(c=>{if(c.style) c.style.display=''});
+  }
+
+  // Update indicators
+  let activeBp = 'lg';
+  if(w<600) activeBp='xs'; else if(w<905) activeBp='sm'; else if(w<1240) activeBp='md';
+  document.querySelectorAll('.bp-ind').forEach(el=>{
+    if(el.dataset.bp===activeBp){
+      el.style.background='var(--accent)';el.style.borderColor='var(--accent)';el.style.color='#fff';
+    } else {
+      el.style.background='transparent';el.style.borderColor='var(--border)';el.style.color='var(--text3)';
+    }
+  });
+}
+vpSlider.addEventListener('input', updateResponsive);
+updateResponsive();
+
+// ===== BACK TO TOP =====
+window.addEventListener('scroll',()=>{
+  document.getElementById('btt').classList.toggle('visible', window.scrollY>400);
+});
+</script>
+</body>
+</html>
