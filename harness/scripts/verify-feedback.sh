@@ -22,6 +22,14 @@ if [[ ! -s "$SAVED_PATH" ]]; then
 fi
 
 # 3. YAML 파싱 가능 + 필수 필드 존재
+# python3이 Windows Store 스텁일 수 있으므로 실제 동작 여부를 확인한다
+PYTHON_CMD=""
+if command -v python3 &>/dev/null && python3 -c "pass" &>/dev/null; then
+  PYTHON_CMD="python3"
+elif command -v python &>/dev/null && python -c "pass" &>/dev/null; then
+  PYTHON_CMD="python"
+fi
+
 if command -v yq &>/dev/null; then
   for field in schema_version skill skill_version project_hash project_name outcome diagnosis; do
     VAL=$(yq ".$field" "$SAVED_PATH" 2>/dev/null)
@@ -30,10 +38,10 @@ if command -v yq &>/dev/null; then
     fi
   done
 
-elif command -v python3 &>/dev/null; then
-  python3 -c "
+elif [[ -n "$PYTHON_CMD" ]]; then
+  $PYTHON_CMD -c "
 import yaml, sys
-with open(sys.argv[1]) as f:
+with open(sys.argv[1], encoding='utf-8') as f:
     d = yaml.safe_load(f)
 for k in ['schema_version', 'skill', 'skill_version', 'project_hash', 'project_name', 'outcome', 'diagnosis']:
     if k not in d or d[k] is None:
@@ -43,7 +51,7 @@ print('PASS')
 " "$SAVED_PATH" && exit 0 || exit 1
 
 else
-  echo "FAIL: yq 또는 python3 필수 — 스키마 검증 불가"
+  echo "FAIL: yq 또는 python 필수 — 스키마 검증 불가"
   exit 1
 fi
 

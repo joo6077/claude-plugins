@@ -21,6 +21,14 @@ if [[ ! -f "$DRAFT_PATH" ]]; then
   exit 2
 fi
 
+# --- Python 명령 감지 (Windows Store 스텁 회피) ---
+PYTHON_CMD=""
+if command -v python3 &>/dev/null && python3 -c "pass" &>/dev/null; then
+  PYTHON_CMD="python3"
+elif command -v python &>/dev/null && python -c "pass" &>/dev/null; then
+  PYTHON_CMD="python"
+fi
+
 # --- 스키마 검증 ---
 validate_yaml() {
   local file="$1"
@@ -37,30 +45,16 @@ validate_yaml() {
       fi
     done
 
-  elif command -v python3 &>/dev/null; then
-    python3 -c "
+  elif [[ -n "$PYTHON_CMD" ]]; then
+    $PYTHON_CMD -c "
 import yaml, sys
-with open(sys.argv[1]) as f:
+with open(sys.argv[1], encoding='utf-8') as f:
     d = yaml.safe_load(f)
 required = ['schema_version', 'skill', 'timestamp', 'project_hash', 'project_name', 'skill_version', 'outcome', 'diagnosis']
 missing = [k for k in required if k not in d or d[k] is None]
 if missing:
     print(f'FAIL: 누락 필드: {missing}', file=sys.stderr)
     sys.exit(1)
-print('OK')
-" "$file" || return 1
-
-  elif command -v python &>/dev/null; then
-    python -c "
-import yaml, sys
-with open(sys.argv[1]) as f:
-    d = yaml.safe_load(f)
-required = ['schema_version', 'skill', 'timestamp', 'project_hash', 'project_name', 'skill_version', 'outcome', 'diagnosis']
-missing = [k for k in required if k not in d or d[k] is None]
-if missing:
-    print('FAIL: missing fields: %s' % missing, file=sys.stderr)
-    sys.exit(1)
-print('OK')
 " "$file" || return 1
 
   else
@@ -85,8 +79,8 @@ TIMESTAMP=$(date +"%Y-%m-%dT%H%M%S")
 
 if command -v yq &>/dev/null; then
   PROJ_HASH=$(yq '.project_hash' "$DRAFT_PATH")
-elif command -v python3 &>/dev/null; then
-  PROJ_HASH=$(python3 -c "import yaml, sys; print(yaml.safe_load(open(sys.argv[1]))['project_hash'])" "$DRAFT_PATH")
+elif [[ -n "$PYTHON_CMD" ]]; then
+  PROJ_HASH=$($PYTHON_CMD -c "import yaml, sys; print(yaml.safe_load(open(sys.argv[1], encoding='utf-8'))['project_hash'])" "$DRAFT_PATH")
 else
   PROJ_HASH="unknown"
 fi
