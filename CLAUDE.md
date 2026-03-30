@@ -20,6 +20,10 @@ bash scripts/release.sh <plugin-name> <patch|minor|major>
 # harness 환경 검증
 bash harness/scripts/env-check.sh
 
+# 피드백 시스템 테스트
+bash harness/evals/kaizen/feedback-system/save-test.sh
+bash harness/evals/kaizen/feedback-system/aggregation-test.sh
+
 # flutter-toolkit evals
 # evals.json (flutter-toolkit/evals/evals.json) 참조 — 15개 테스트 케이스
 ```
@@ -52,8 +56,13 @@ bash harness/scripts/env-check.sh
 2. `/sprint-contract` → 구현 전 완료 조건 정의
 3. 개발 수행
 4. `qa-evaluator` 에이전트 → Contract 기준 APPROVE/REJECT 판정
+5. 자기진단 + 교차 진단 → 글로벌 피드백 저장 (`~/.harness/feedback/`)
 
 `project.yaml`이 핵심 설정 파일: stack, commands, contract_categories, anti_patterns를 정의한다.
+
+### Kaizen Orchestration
+
+6 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다. 가이드 문서: `docs/guides/contract-design-guide.md`, `docs/guides/qa-evaluation-guide.md`. 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`.
 
 ### Skill Format
 
@@ -82,3 +91,9 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 - Gotchas 섹션이 스킬에서 가장 중요한 부분 — Claude가 반복하는 실수를 방지한다
 - harness evals는 `evals/test-fixtures/fixture-a~e` 디렉토리에 계약 시나리오별 테스트가 있다
 - flutter-toolkit evals는 `evals/evals.json`에 15개 스킬별 assertion이 정의되어 있다
+
+## Platform Gotchas (Windows)
+
+- `python3`은 Windows Store 스텁일 수 있음 — `python3 -c "pass"`로 실제 동작 확인 후 사용. 안 되면 `python`으로 fallback
+- Python에서 한국어 포함 파일 읽을 때 `encoding='utf-8'` 필수 (기본 cp949 에러)
+- bash 스크립트에서 `sha256sum` 미설치 가능 — `python -c "import hashlib; ..."` 또는 `openssl dgst -sha256`으로 fallback
