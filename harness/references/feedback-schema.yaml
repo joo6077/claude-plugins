@@ -1,0 +1,81 @@
+# 피드백 스키마 v1
+# sprint-contract와 qa-evaluator 실행 후 글로벌 저장되는 피드백 파일 포맷
+# save-feedback.sh가 이 스키마로 검증한다
+
+schema_version: 1
+
+# --- 공통 필수 ---
+# timestamp: ISO-8601 (예: "2026-03-30T14:00:00+09:00")
+# project_hash: string(8) — 프로젝트 경로 SHA-256 앞 8자
+# project_name: string — 사람이 읽을 수 있는 프로젝트 식별자
+# skill: enum [sprint-contract, qa-evaluator]
+# skill_version: semver (예: "1.3.0")
+# outcome: enum [completed, failed, blocked]
+
+# --- contract 전용 (skill=sprint-contract일 때) ---
+# contract:
+#   condition_count: int
+#   category_count: int
+#   category_coverage: float (0.0-1.0)
+#   anti_pattern_count: int (>= 2)
+#   complexity: enum [simple, medium, complex]
+
+# --- evaluator 전용 (skill=qa-evaluator일 때) ---
+# evaluation:
+#   verdict: enum [APPROVE, REJECT, BLOCKED]
+#   conditions_total: int
+#   conditions_passed: int
+#   l3_coverage: float (0.0-1.0)
+#   reject_reasons: list[string]
+
+# --- 자기진단 (공통) ---
+# diagnosis:
+#   checklist: (고정 필드 — 스킬별 정의)
+#     # sprint-contract 필수 필드:
+#     #   ambiguous_conditions: bool
+#     #   missing_error_paths: bool
+#     #   untestable_conditions: bool
+#     #   category_coverage_gap: bool
+#     #   complexity_underestimate: bool
+#     # qa-evaluator 필수 필드:
+#     #   l3_unreached: bool
+#     #   bias_detected: bool
+#     #   evidence_missing: bool
+#     #   contract_misinterpret: bool
+#     #   perspective_gap: bool
+#   cross_diagnosis_by: enum [sprint-contract, qa-evaluator]
+#   cross_diagnosis_notes: string
+#   improvement_suggestions: list[string]
+
+# --- 사용자 시그널 (optional) ---
+# user_rating: enum [good, bad] | null
+# user_comment: string | null
+
+# 예시:
+example:
+  schema_version: 1
+  timestamp: "2026-03-30T14:00:00+09:00"
+  project_hash: "a1b2c3d4"
+  project_name: "my-flutter-app"
+  skill: sprint-contract
+  skill_version: "0.3.3"
+  outcome: completed
+  contract:
+    condition_count: 8
+    category_count: 4
+    category_coverage: 0.8
+    anti_pattern_count: 3
+    complexity: medium
+  diagnosis:
+    checklist:
+      ambiguous_conditions: false
+      missing_error_paths: true
+      untestable_conditions: false
+      category_coverage_gap: false
+      complexity_underestimate: false
+    cross_diagnosis_by: qa-evaluator
+    cross_diagnosis_notes: "조건 3번 경계값 누락 가능성"
+    improvement_suggestions:
+      - "에러 경로 조건을 별도 카테고리로 분리"
+  user_rating: null
+  user_comment: null
