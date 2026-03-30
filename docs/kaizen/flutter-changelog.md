@@ -4,6 +4,24 @@
 
 ---
 
+## [0.5.0] - 2026-03-30
+
+### 변경 유형: minor (skill-prompt, new-skill, eval)
+
+### 연구 기반
+- [Flutter 3.41 Breaking Changes](https://docs.flutter.dev/release/breaking-changes) — semantics 매처 변경, variable font weight
+- [AToMIC 논문](https://arxiv.org/abs/2510.18861) — LLM 기반 Flutter 테스트 자동 생성
+- [Flutter AI Rules](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md) — Arrange-Act-Assert, Fake/Stub 우선
+
+### 변경 내역
+- **flutter-audit Gotcha**: containsSemantics → isSemantics 테스트 매처 변경
+- **flutter-widget Gotcha**: FontWeight가 variable font weight axis 제어
+- **flutter-test 신규 생성**: unit/widget/integration 테스트 자동 생성 스킬 v0.1
+- **evals.json**: flutter-test eval 케이스 추가 (id: 18)
+
+### 버전 판단 근거
+> 신규 스킬 초안 생성 + 스킬 프롬프트 변경 = minor
+
 ## [0.4.0] - 2026-03-30
 
 ### 변경 유형: minor (skill-prompt, reference, detection)

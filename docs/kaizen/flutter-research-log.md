@@ -35,7 +35,7 @@
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | Issue |
 |-----------|---------|------|---------|-------|
-| `flutter-test` | 제품 검증 + 코드 스캐폴딩 | AToMIC 논문(BMW 실증), Flutter AI Rules(테스팅 패턴) | 높음 | #3 |
+| `flutter-test` | 제품 검증 + 코드 스캐폴딩 | AToMIC 논문(BMW 실증), Flutter AI Rules(테스팅 패턴) | 높음 | #3 → **v0.5.0에서 초안 생성됨** |
 | `flutter-migrate` | 런북 | Flutter 3.38/3.41 breaking changes, Riverpod 3.0 마이그레이션 | 중간 | #4 |
 
 미충족 아키타입: 데이터 조회(#3), CI/CD(#7), 인프라 운영(#9) — Flutter 개발 특성상 해당 없거나 우선순위 낮음.
