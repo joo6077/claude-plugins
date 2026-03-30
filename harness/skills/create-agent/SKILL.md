@@ -2,7 +2,7 @@
 name: create-agent
 description: >
   설계 가이드 기반으로 새 에이전트를 생성한다.
-  docs/agent-design-guide.md의 5가지 디자인 패턴, 도구 스코핑,
+  docs/agent-design-guide.md의 6가지 디자인 패턴, 도구 스코핑,
   모델 선택, description 작성법을 따라 에이전트 .md 파일을 스캐폴딩한다.
   "에이전트 만들어줘", "새 에이전트", "create agent", "agent 생성",
   "서브에이전트 추가" 같은 요청 시 트리거.
