@@ -64,7 +64,8 @@ Phase 6: Design-kit 카이젠 (design-kaizen)        ← NEW
 
 ```
 1. Triage: 피드백 읽기 → 개선 필요? → 불필요 시 SKIP + 로그
-2. 자체 리서치: 자기 search-sources.md 기반, 피드백에서 식별된 3-5개 도메인만
+   ⚠ 부트스트랩: 피드백이 0건이면 SKIP하지 않고 리서치 전용 모드로 진행 (패턴 분석 생략, 리서치→예방적 분석만 실행)
+2. 자체 리서치: 자기 search-sources.md 기반, 피드백에서 식별된 3-5개 도메인만 (0건 시 search-sources.md 전체에서 우선순위 상위 3개)
 3. GAP 분석: 리서치 + 피드백 + 현재 스킬/가이드 대조
 4. 예방적 분석: 리서치 anti-pattern을 현재 프롬프트에 대조
 5. Sprint Contract (DRAFT): 현재 버전 sprint-contract 사용
@@ -138,11 +139,12 @@ $HOME/.harness/feedback/
 ```
 
 - **project-hash**: 프로젝트 디렉토리 절대경로의 SHA-256 앞 8자
-- **경로 해결**: `scripts/feedback-path.sh`가 OS별 분기
+- **파일명**: `{project-hash}-{ISO8601-timestamp}.yaml` (예: `a1b2c3d4-2026-03-30T143022.yaml`) — 같은 날 다중 실행 시 충돌 방지
+- **경로 해결**: `scripts/feedback-path.sh`가 OS별 분기. **항상 Unix 스타일 forward-slash 경로 출력** (`$APPDATA` 백슬래시 자동 변환).
   - Windows: `$APPDATA/harness/feedback/`
   - Linux/Mac: `$HOME/.harness/feedback/`
 - **fallback**: 글로벌 쓰기 실패 시 `.harness/feedback/`에 로컬 저장 + 경고. 카이젠은 양쪽 다 읽음.
-- **정리 정책**: 6개월 초과 파일 자동 삭제, 최대 500개 제한. 카이젠 실행 시 정리.
+- **정리 정책**: 6개월 초과 파일 자동 삭제, 최대 500개 제한 (oldest-first 삭제). **정리는 모든 카이젠 Phase 완료 후 실행** — 분석 중 데이터 손실 방지.
 
 > **TODO**: 글로벌 경로 전략은 현재 안으로 우선 구현하되, 향후 Claude Code 플러그인 데이터 저장 공식 컨벤션이 정해지면 그에 맞춰 마이그레이션 필요. 마이그레이션 스크립트 포함할 것.
 
@@ -196,15 +198,21 @@ user_comment: null
 sprint-contract / qa-evaluator 실행 흐름 마지막:
 
 ```
-Step N-1: bash scripts/save-feedback.sh {contract|evaluator}
-  → 피드백 YAML 생성 + 스키마 검증 + 글로벌 경로 저장
-  → 실패 시 로컬 fallback
-  → 저장 경로 stdout 출력
+Step N-2: LLM이 자기진단 결과를 포함한 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성
+  → 피드백 스키마(harness/references/feedback-schema.yaml) 준수
 
-Step N: bash scripts/verify-feedback.sh
+Step N-1: bash scripts/save-feedback.sh {contract|evaluator} .harness/feedback-draft.yaml
+  → yq 또는 python -c 'import yaml'로 스키마 검증 (필수 필드 존재 + 타입 체크)
+  → 검증 통과 시 글로벌 경로에 복사 + draft 파일 삭제
+  → 실패 시 로컬 fallback (.harness/feedback/)
+  → 저장된 파일 절대경로 stdout 출력
+
+Step N: bash scripts/verify-feedback.sh {저장된 파일 절대경로}
   → 파일 존재 + 스키마 valid + 내용 비어있지 않음
   → PASS → 스킬 완료 가능
   → FAIL (exit 1) → 스킬 완료 불가
+
+의존성: yq 또는 Python 3 (yaml 모듈) — save-feedback.sh가 가용한 도구를 자동 감지하여 사용.
 
 Gotchas 최상단:
   "verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라.
@@ -306,9 +314,11 @@ harness/skills/evaluator-kaizen/
    - `harness/references/feedback-schema.yaml`
 
 2. **프로세스 추가 단계** (기존 마지막 단계 이후):
-   - Step N+1: 자기진단 — 구조화 체크리스트 실행 + evaluator 관점 교차 진단
-   - Step N+2: `bash scripts/save-feedback.sh contract`
-   - Step N+3: `bash scripts/verify-feedback.sh` → PASS 필수
+   - Step N+1: 자기진단 — 구조화 체크리스트 실행
+   - Step N+2: 교차 진단 — Agent tool로 qa-evaluator 서브에이전트를 호출하여 계약 품질 진단 (출력만 전달, 의사결정 과정 미전달)
+   - Step N+3: 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성 (자기진단 + 교차 진단 결과 포함)
+   - Step N+4: `bash scripts/save-feedback.sh contract .harness/feedback-draft.yaml`
+   - Step N+5: `bash scripts/verify-feedback.sh {save-feedback.sh가 출력한 경로}` → PASS 필수
 
 3. **Gotchas 최상단 추가**:
    - `verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라. 이것은 선택이 아니다.`
@@ -323,9 +333,11 @@ harness/skills/evaluator-kaizen/
    - `harness/references/feedback-schema.yaml`
 
 2. **프로세스 추가 단계** (판정 출력 이후):
-   - Step N+1: 자기진단 — 구조화 체크리스트 실행 + contract 관점 교차 진단
-   - Step N+2: `bash scripts/save-feedback.sh evaluator`
-   - Step N+3: `bash scripts/verify-feedback.sh` → PASS 필수
+   - Step N+1: 자기진단 — 구조화 체크리스트 실행
+   - Step N+2: 교차 진단 — Agent tool로 sprint-contract 서브에이전트를 호출하여 판정 품질 진단 (출력만 전달, 의사결정 과정 미전달)
+   - Step N+3: 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성 (자기진단 + 교차 진단 결과 포함)
+   - Step N+4: `bash scripts/save-feedback.sh evaluator .harness/feedback-draft.yaml`
+   - Step N+5: `bash scripts/verify-feedback.sh {save-feedback.sh가 출력한 경로}` → PASS 필수
 
 3. **Gotchas 최상단 추가**:
    - `verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라. 이것은 선택이 아니다.`
@@ -337,11 +349,14 @@ harness/skills/evaluator-kaizen/
 1. 공유 리서치 Step 0 **제거**
 2. Phase 2(contract-kaizen), Phase 3(evaluator-kaizen) **삽입**
 3. 기존 Phase 2 → Phase 4, Phase 3 → Phase 5
-4. Phase 6(design-kaizen) **추가**
-5. 각 Phase는 새 서브에이전트로 실행 (Draft → QA → Apply 패턴)
-6. Phase 시작 시 triage → SKIP 가능
-7. Phase 완료 시 Regression Smoke Test
-8. Regression 실패 → git revert + BLOCKED + 다음 Phase로 진행
+4. Phase 6(design-kaizen) **추가** — 기존 `design-kit/skills/design-kaizen/` 스킬을 오케스트레이터에 통합. 상세 스펙은 기존 스킬 정의를 따르며, 자체 리서치 분산 원칙만 적용.
+5. **Phase 4(harness-kaizen) 스코프 재정의**: sprint-contract와 qa-evaluator는 Phase 2, 3에서 처리하므로 harness-kaizen은 **이를 제외한** 나머지 harness 스킬/에이전트/설정을 대상으로 함 (sprint-feedback, init, project.yaml, procedures, 향후 추가 스킬 등)
+6. 각 Phase는 새 서브에이전트로 실행 (Draft → QA → Apply 패턴)
+7. Phase 시작 시 triage → SKIP 가능 (단, 피드백 0건 시 리서치 전용 모드로 진행)
+8. Phase 완료 시 Regression Smoke Test
+9. Regression 실패 → git revert + BLOCKED + 다음 Phase로 진행
+10. **Regression 실패 카운터**: `.harness/.meta/kaizen-failure-count.yaml`에 Phase별 연속 실패 횟수 영속화. 연속 2회 시 해당 Phase 일시 중단.
+11. **git tag**: DRAFT 적용 직전에 `kaizen-phase-N-pre` 태그 생성 → revert 시 이 태그로 복원
 
 ---
 
@@ -360,6 +375,8 @@ Phase N:
 
 QA는 항상 변경 전 버전으로 판단. 변경은 QA 통과 후에만 적용.
 
+**알려진 제한**: Phase 2(contract-kaizen)의 변경은 구버전 evaluator로 승인됨. Phase 3에서 evaluator가 강화되면 Phase 2 결과가 새 기준을 통과 못할 수 있음. 이 교차 검증은 **다음 카이젠 사이클**에서 수행됨 — 현재 사이클에서는 각 Phase가 자기 시점의 도구로 판단받는 것을 원칙으로 함.
+
 ### 8.2 Regression Smoke Test
 
 ```
@@ -367,9 +384,32 @@ QA는 항상 변경 전 버전으로 판단. 변경은 QA 통과 후에만 적�
 1. 개선된 스킬을 fixture 시나리오에 실행
 2. expected-improvements.md와 대조
 3. PASS → 다음 Phase
-4. FAIL → git revert (kaizen-phase-N 태그) + BLOCKED 로그
-5. 연속 2회 FAIL → 해당 Phase 일시 중단 + 사용자 알림
+4. FAIL → git revert (kaizen-phase-N-pre 태그) + BLOCKED 로그
+5. 연속 2회 FAIL (.harness/.meta/kaizen-failure-count.yaml 참조) → 해당 Phase 일시 중단 + 사용자 알림
 ```
+
+**Fixture 구조:**
+
+```
+harness/evals/kaizen/contract-kaizen/
+├── fixture-feedback-data/
+│   ├── ambiguous-conditions.yaml    # 모호 조건 반복 패턴 피드백
+│   ├── category-bias.yaml           # 카테고리 편중 패턴 피드백
+│   └── low-coverage.yaml            # 커버리지 낮은 패턴 피드백
+├── fixture-projects/
+│   ├── simple-crud/                 # 단순 CRUD 프로젝트 mock
+│   └── complex-api/                 # 복잡 API 프로젝트 mock
+├── expected-improvements.md         # 각 fixture-feedback 대비 기대 개선 체크리스트
+│   # 예: "ambiguous-conditions.yaml → Gotchas에 모호 조건 감지 규칙 추가"
+│   # 예: "category-bias.yaml → 카테고리 균형 검증 단계 추가"
+├── baseline/                        # 개선 전 스킬의 fixture 실행 결과 스냅샷
+│   └── sprint-contract-output.md
+└── assertions.json                  # 자동화 검증 규칙
+    # 예: {"type": "file_contains", "file": "SKILL.md", "pattern": "모호.*감지"}
+    # 예: {"type": "gotcha_count_gte", "min": N}
+```
+
+**PASS/FAIL 기준**: assertions.json의 모든 assertion 통과 = PASS. 하나라도 실패 = FAIL. assertion은 파일 존재, 내용 포함, Gotchas 개수, 특정 패턴 존재 등 구체적 규칙.
 
 ### 8.3 메타 Eval 구조
 
@@ -392,17 +432,17 @@ harness/evals/kaizen/
 
 | 시점 | 진단자 | 진단 대상 | 핵심 질문 |
 |------|--------|-----------|-----------|
-| sprint-contract 실행 후 | evaluator 관점 | 계약 조건 | "이 조건을 독립적으로 검증할 수 있는가?" |
-| qa-evaluator 실행 후 | contract 관점 | 평가 판정 | "계약 조건의 원래 의도를 정확히 해석했는가?" |
+| sprint-contract 실행 후 | qa-evaluator 서브에이전트 | 계약 조건 | "이 조건을 독립적으로 검증할 수 있는가?" |
+| qa-evaluator 실행 후 | sprint-contract 서브에이전트 | 평가 판정 | "계약 조건의 원래 의도를 정확히 해석했는가?" |
 
-결과는 피드백 YAML의 `cross_diagnosis` 필드에 기록.
+**구조적 분리**: 교차 진단은 같은 LLM이 관점만 바꾸는 것이 아닌, Agent tool로 상대 에이전트를 **별도 컨텍스트**에서 호출하여 수행. 호출 시 진단 대상 출력만 전달하고, 원래 세션의 의사결정 과정은 전달하지 않음. 결과는 피드백 YAML의 `cross_diagnosis` 필드에 기록.
 
 ### 8.5 자기진단 3중 구조
 
 | 계층 | 방법 | 신뢰도 |
 |------|------|--------|
 | 구조화 체크리스트 | 구체적 항목 체크 (동시성, 에러 경로, 경계값 등) | 중 |
-| 교차 진단 | 상대 스킬 관점에서 진단 (자기가 자기를 보지 않음) | 상 |
+| 교차 진단 (서브에이전트) | qa-evaluator 에이전트를 실제 서브에이전트로 호출하여 contract 품질 진단 (역방향도 동일). 같은 LLM의 관점 전환이 아닌 별도 에이전트 컨텍스트에서 실행하여 구조적 분리 확보. | 상 |
 | 사용자 시그널 | `user_rating` + `user_comment` (optional) | 최상 |
 
 ### 8.6 롤백 체인
