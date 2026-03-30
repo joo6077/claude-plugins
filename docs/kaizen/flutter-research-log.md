@@ -31,10 +31,19 @@
 - **Flutter 공식 AI Rules:** LLM 코드 생성용 공식 가이드라인 존재, 합성 패턴/const 생성자 강조 — 적용 영역: reference 신규
 - **AToMIC 논문:** LLM 기반 Flutter 수락 테스트 자동 생성, BMW 실증 — 적용 영역: 향후 flutter-test 스킬 참고
 
+### 신규 스킬 갭 분석
+
+| 제안 스킬 | 아키타입 | 근거 | 우선순위 | Issue |
+|-----------|---------|------|---------|-------|
+| `flutter-test` | 제품 검증 + 코드 스캐폴딩 | AToMIC 논문(BMW 실증), Flutter AI Rules(테스팅 패턴) | 높음 | #3 |
+| `flutter-migrate` | 런북 | Flutter 3.38/3.41 breaking changes, Riverpod 3.0 마이그레이션 | 중간 | #4 |
+
+미충족 아키타입: 데이터 조회(#3), CI/CD(#7), 인프라 운영(#9) — Flutter 개발 특성상 해당 없거나 우선순위 낮음.
+
 ### 폐기 사유 (해당 시)
 
 - **소스 8 (skills.sh):** Flutter 관련 스킬이 1개(flutter-animations)뿐이라 참고 가치 낮음
 
 ### PR
 
-- (이번 실행에서 PR 생성 예정)
+- https://github.com/joo6077/claude-plugins/pull/2
