@@ -12,7 +12,7 @@
 ```yaml
 feature: "{기능명}"
 created: "{YYYY-MM-DD HH:mm}"
-complexity: "{단순|중간|복잡}"
+complexity: "{simple|medium|complex}"
 conditions: {총 조건 수}
 ```
 
