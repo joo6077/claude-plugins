@@ -231,6 +231,18 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 | 대규모 팀 | 플러그인 마켓플레이스 방식 — 필요한 스킬만 설치 |
 | Anthropic 방식 | 샌드박스 폴더 → Slack 홍보 → 사용량 많으면 공식 마켓 등록 |
 
+### 크로스 플랫폼 호환
+
+> **출처:** [Codex CLI Agent Skills](https://developers.openai.com/codex/skills), [skills.sh](https://skills.sh)
+
+2026년 기준 `SKILL.md` 형식은 Claude Code, Codex CLI, Cursor, Gemini CLI, Antigravity 등에서 호환된다. 스킬을 작성할 때 특정 도구에 종속되지 않도록 하면 여러 플랫폼에서 사용할 수 있다.
+
+**호환성 유지 규칙:**
+- frontmatter는 `name`, `description` 필드를 공통으로 사용 (모든 플랫폼 지원)
+- `argument-hint`, `user-invocable` 등 Claude Code 전용 필드는 다른 플랫폼에서 무시됨 (호환에 영향 없음)
+- 본문의 Process/Gotchas 구조는 마크다운이므로 플랫폼 무관
+- 플랫폼 전용 기능(hooks, MCP 서버)은 별도 설정 파일로 분리
+
 ---
 
 ## 9. 실전 시작 가이드
