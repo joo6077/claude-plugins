@@ -63,15 +63,15 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 | 프로젝트 감지 | `flutter-toolkit/references/project-detection.md` | `skills` |
 | 아키텍처 | `flutter-toolkit/` 전체 구조, 훅, 스크립트 | `skills` |
 | 스킬 설계 가이드 | `docs/skill-design-guide.md` | `guide` |
-| 신규 스킬 제안 | 연구 기반 새 스킬 필요성 도출 → GitHub Issue 등록 | `skills` |
+| 신규 스킬 생성 | 연구 기반 새 스킬 필요성 도출 → 초안 직접 생성 | `skills` |
 
 `$ARGUMENTS`가 없으면 전체 영역을 스캔한다.
 
 ## 트리거 조건
 
 ### 주기적 (cron)
-- 매주 월요일 09:00 KST
-- Claude Code schedule (remote trigger) 사용
+- **직접 cron 없음** — `kaizen-orchestrator`가 Phase 3에서 호출
+- 독립 실행은 수동 호출로만
 
 ### 이벤트 트리거
 `scripts/trigger-check.sh`를 실행하여 감지:
@@ -143,10 +143,10 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 - skills.sh나 커뮤니티에서 인기 있는 Flutter 스킬 유형 중 우리에게 없는 것이 있는가?
 - `docs/skill-design-guide.md`의 9가지 아키타입 중 flutter-toolkit에 미충족된 유형이 있는가?
 
-**신규 스킬 제안 시 필수 조건:**
-- 기존 스킬의 범위를 확장하는 것으로 충분한지 먼저 검토 — 별도 스킬이 꼭 필요한 경우만 제안
-- 제안에는 스킬명, 아키타입, 트리거 키워드, 핵심 기능 1-2줄 요약을 포함
-- 구현은 이번 카이젠 PR에 포함하지 않고 **별도 이슈로 등록**하여 추적
+**신규 스킬 판단 기준:**
+- 기존 스킬의 범위를 확장하는 것으로 충분한지 먼저 검토 — 별도 스킬이 꼭 필요한 경우만 생성
+- skill-design-guide 원칙: "몇 줄의 지시문 + Gotchas 1개로 시작" — 완성도보다 초안 생성이 우선
+- 이후 카이젠 실행에서 Gotchas가 쌓이면서 점진적으로 성장시킨다
 
 **개선 포인트 도출:**
 - 각 포인트에 영역(skill/eval/detection/architecture/guide/new-skill) 태그
@@ -173,18 +173,33 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
    - 각 개선 포인트에 해당하는 파일을 수정
    - 변경마다 커밋: `flutter-kaizen: {변경 설명}`
 
-3. **버전 업데이트:**
+3. **신규 스킬 생성 (해당 시):**
+   - ANALYZE에서 신규 스킬이 도출되었으면 이 단계에서 직접 생성한다
+   - 초안 수준(v0.1)으로 생성 — skill-design-guide 원칙 "몇 줄의 지시문 + Gotchas 1개"
+   - 생성 구조:
+     ```
+     flutter-toolkit/skills/{신규스킬명}/
+     ├── SKILL.md          # frontmatter + Gotchas + 기본 Process
+     └── references/       # 필요 시에만
+     ```
+   - frontmatter의 description에 트리거 키워드와 비트리거 조건 명시
+   - 리서치에서 발견한 패턴/주의사항을 Gotchas에 반영
+   - Process는 핵심 단계만 — 상세화는 이후 카이젠에서 점진적으로
+   - evals.json에 해당 스킬의 eval 케이스 최소 1개 추가
+   - 커밋: `flutter-kaizen: {스킬명} 스킬 초안 생성`
+
+4. **버전 업데이트:**
    - `flutter-toolkit/.claude-plugin/plugin.json`의 version 필드 업데이트
    - `.claude-plugin/marketplace.json`의 description에서 `[vX.Y.Z · 날짜]` 업데이트
    - `docs/kaizen/flutter-changelog.md`에 엔트리 추가 (`references/pr-template.md`의 changelog 형식 따름)
 
-4. **flutter-research-log.md 업데이트:**
+5. **flutter-research-log.md 업데이트:**
    - `templates/research-log-entry.md` 형식으로 이번 연구 결과 기록
 
-5. **README 업데이트:**
+6. **README 업데이트:**
    - `flutter-toolkit/README.md`의 카이젠 섹션에 이번 개선 사항 반영
 
-6. **PR 생성:**
+7. **PR 생성:**
    - `references/pr-template.md`를 읽고 해당 형식으로 PR 본문 작성
    - PR 제목: `[{bump유형}] flutter-toolkit: {핵심 변경 요약}`
 
@@ -193,7 +208,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
    gh pr create --title "[{bump}] flutter-toolkit: {요약}" --body "{pr-template.md 형식에 맞춘 본문}"
    ```
 
-7. **git tag는 PR 머지 후** 사용자가 `/release`로 처리한다. 카이젠은 tag를 생성하지 않는다.
+8. **git tag는 PR 머지 후** 사용자가 `/release`로 처리한다. 카이젠은 tag를 생성하지 않는다.
 
 ## 버전 판단 가이드
 
@@ -201,6 +216,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 |-----------|------|------|
 | docs, Gotchas 추가, eval 미세 조정 | **patch** | flutter-widget 스킬에 Gotcha 1개 추가 |
 | 스킬 프롬프트 변경, eval 기준 변경, 새 reference | **minor** | flutter-api 스킬의 프로세스 단계 수정 |
+| 신규 스킬 초안 생성 | **minor** | flutter-test 스킬 v0.1 생성 |
 | 아키텍처 변경, 스킬 대폭 수정, breaking change | **major** | project-detection 로직 전면 교체 |
 
 **혼합 변경 시:** 가장 높은 bump 유형을 따른다 (Gotcha patch + skill minor = minor).

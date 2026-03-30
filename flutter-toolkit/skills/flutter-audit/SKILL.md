@@ -16,6 +16,7 @@ user-invocable: true
 - quick 모드와 deep 모드의 차이: quick은 단일 에이전트 로컬 검토, deep은 최대 4에이전트 병렬 감사 — 변경 파일 5개 이하면 quick, 초과면 deep이 기본
 - Provider watch 대신 select 사용 여부를 체크한다 — 성능 이슈의 주요 원인
 - 커스텀 위젯에 const 생성자가 빠져 있으면 리빌드 최적화가 안 된다 — audit에서 지적 대상
+- Flutter 3.41에서 테스트 매처 `containsSemantics`가 `isSemantics`로 변경됨 — 테스트 코드에 deprecated 매처가 남아 있으면 지적 대상. `matchesSemantics`(exact)와 구분 필요
 
 Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감지하여 적합한 규칙으로 검사한다.
 

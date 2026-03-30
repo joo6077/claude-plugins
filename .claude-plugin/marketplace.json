@@ -13,7 +13,7 @@
     {
       "name": "flutter-toolkit",
       "source": "./flutter-toolkit",
-      "description": "[v0.4.0 · 2026-03-30] Flutter 개발 워크플로우 스킬 모음 (빌드, 감사, preflight 등)"
+      "description": "[v0.5.0 · 2026-03-30] Flutter 개발 워크플로우 스킬 모음 (빌드, 감사, preflight, 테스트 등)"
     }
   ]
 }
