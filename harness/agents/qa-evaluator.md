@@ -4,6 +4,7 @@ description: >
   Sprint Contract 기반으로 구현 결과를 독립 평가하는 QA 에이전트.
   구현 완료 후 APPROVE/REJECT 판정을 내린다.
   /develop Step 완료 후, 또는 사용자가 "QA 돌려줘"라고 요청할 때 사용.
+  단순 텍스트 수정, 설정 변경, 1파일 버그 수정에는 사용하지 않는다.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---

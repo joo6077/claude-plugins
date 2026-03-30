@@ -33,6 +33,7 @@ user-invocable: true
 - 섹션 3.5: 검증 가능한 성공 기준
 - 섹션 4: description은 트리거 조건
 - 섹션 5: 점진적 공개 (폴더 구조)
+- 섹션 8: 크로스 플랫폼 호환 (SKILL.md 형식이 Codex CLI 등에서도 동작)
 
 ### 2. 요구사항 분석
 
