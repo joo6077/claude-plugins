@@ -30,6 +30,7 @@ user-invocable: true
 - 단일 브랜치에서 모든 Phase를 진행해라 — Phase별로 브랜치를 분리하면 의존성 반영이 깨진다
 - Final QA에서 REJECT되면 해당 Phase로 돌아가 수정해라 — Final에서 새 기능을 추가하지 마라
 - 리서치(COLLECT→VERIFY)는 Phase 1에서 한 번만 수행하고 결과를 전 Phase에서 공유한다 — Phase마다 반복 검색하면 토큰 낭비
+- Phase 1에서 가이드를 변경했으면 Phase 2/3에서 **모든** 기존 스킬/에이전트를 전수 체크해라 — 눈에 띄는 것만 수정하면 나머지가 누락된다. 테이블로 기록하여 누락을 방지
 
 ## 의존성 체인
 
@@ -105,21 +106,41 @@ Final: 전체 크로스 Phase 정합성 검증
 
 **범위:** `harness/skills/*/SKILL.md`, `harness/agents/qa-evaluator.md`, `.harness/project.yaml`, `harness/evals/`
 
-1. **ANALYZE:**
+1. **ANALYZE — 리서치 기반:**
    - Step 0 리서치 중 Phase 2 배정 인사이트와 현재 harness 상태를 비교
-   - Phase 1에서 업데이트된 설계 가이드를 기준으로 harness 스킬/에이전트 정합성 확인
+
+2. **ANALYZE — Phase 1 정합성 전수 체크 (필수):**
+   Phase 1에서 설계 가이드가 변경되었으면, harness의 **모든** 스킬과 에이전트를 전수 검사한다.
+
+   a. Phase 1 변경사항을 목록으로 정리 (예: "패턴 6 추가", "Model Routing 추가")
+   b. harness 전 스킬 목록 나열: `harness/skills/*/SKILL.md`
+   c. harness 전 에이전트 목록 나열: `harness/agents/*.md`
+   d. 각 스킬/에이전트에 대해:
+      - 해당 가이드 변경이 이 스킬/에이전트에 적용되는가?
+      - 적용 대상 → 개선 포인트로 등록
+      - 비적용 → "확인됨 — 변경 불필요" 기록 (근거 1줄)
+   e. **전수 체크 결과를 테이블로 기록:**
+
+   ```markdown
+   | 스킬/에이전트 | Phase 1 변경 | 적용 여부 | 근거 |
+   |--------------|-------------|----------|------|
+   | init | 패턴 6 | 불필요 | 초기화 스킬, 에이전트 패턴 무관 |
+   | create-agent | 패턴 6 | **적용** | description에 5가지→6가지 반영 필요 |
+   | ... | ... | ... | ... |
+   ```
+
    - 개선 포인트 없으면 "Phase 2: 변경 없음" 기록 후 Phase 3로
 
-2. **Sprint Contract 생성:**
+3. **Sprint Contract 생성:**
    - Phase 2 범위 계약 저장
    - 기존 Phase 1 계약은 `.harness/history/`로 이동
    - 카테고리: `project.yaml`의 `contract_categories` 사용
 
-3. **APPLY:**
+4. **APPLY:**
    - harness 파일 수정
    - 커밋: `kaizen-phase2: {변경 설명}`
 
-4. **QA Evaluator 실행:**
+5. **QA Evaluator 실행:**
    - **APPROVE** → Phase 3로
    - **REJECT** → 피드백 반영하여 수정 후 재QA (최대 3회, 초과 시 Phase 2 중단하고 사용자 알림)
 
@@ -134,23 +155,36 @@ Final: 전체 크로스 Phase 정합성 검증
 
 **실행:**
 
-1. **ANALYZE:**
+1. **ANALYZE — 리서치 기반:**
    - Step 0 리서치 중 Phase 3 배정 인사이트와 현재 flutter-toolkit 비교
-   - Phase 1 설계 가이드 기준으로 스킬 정합성 확인
-   - 신규 스킬 갭 분석 포함
+
+2. **ANALYZE — Phase 1 정합성 전수 체크 (필수):**
+   Phase 1에서 설계 가이드가 변경되었으면, flutter-toolkit의 **모든** 스킬과 에이전트를 전수 검사한다.
+
+   a. Phase 1 변경사항 목록 정리
+   b. flutter-toolkit 전 스킬 목록 나열: `flutter-toolkit/skills/*/SKILL.md`
+   c. flutter-toolkit 에이전트 목록 나열 (있으면)
+   d. 각 스킬/에이전트에 대해:
+      - 해당 가이드 변경이 적용되는가?
+      - 적용 대상 → 개선 포인트로 등록
+      - 비적용 → "확인됨 — 변경 불필요" 기록 (근거 1줄)
+   e. 전수 체크 결과를 테이블로 기록
+
+3. **ANALYZE — 신규 스킬 갭 분석:**
+   - 신규 스킬 갭 분석 포함 (flutter-kaizen SKILL.md 참조)
    - 개선 포인트 없으면 "Phase 3: 변경 없음" 기록 후 Final로
 
-2. **Sprint Contract 생성:**
+4. **Sprint Contract 생성:**
    - Phase 3 범위 계약 저장
    - 기존 Phase 2 계약은 `.harness/history/`로 이동
 
-3. **APPLY:**
+5. **APPLY:**
    - project-detection.md 수정 → 커밋
    - 개별 스킬 수정 → 각각 커밋
    - 신규 스킬 초안 생성 → 커밋
    - 커밋: `kaizen-phase3: {변경 설명}`
 
-4. **QA Evaluator 실행:**
+6. **QA Evaluator 실행:**
    - **APPROVE** → Final로
    - **REJECT** → 피드백 반영하여 수정 후 재QA (최대 3회, 초과 시 Phase 3 중단하고 사용자 알림)
 
