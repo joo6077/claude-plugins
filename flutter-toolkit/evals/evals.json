@@ -218,6 +218,19 @@
         {"text": "Mock보다 Fake/Stub을 우선 사용한다", "type": "output"},
         {"text": "생성 후 $DART test로 검증한다", "type": "behavior"}
       ]
+    },
+    {
+      "id": 19,
+      "skill": "flutter-kaizen",
+      "prompt": "flutter 스킬 개선해줘",
+      "expected_output": "리서치 기반 GAP 분석 → Sprint Contract → DRAFT → QA Evaluator → 커밋",
+      "assertions": [
+        {"text": "search-sources.md 기반으로 Flutter 생태계 리서치를 수행한다", "type": "behavior"},
+        {"text": "현재 스킬 상태와 리서치 결과를 비교하여 GAP 분석한다", "type": "behavior"},
+        {"text": "Sprint Contract를 생성하여 완료 조건을 정의한다", "type": "behavior"},
+        {"text": "변경 DRAFT를 먼저 작성하고, QA 통과 후 적용한다", "type": "behavior"},
+        {"text": "kaizen-failure-count.yaml에 실패 카운트를 기록한다", "type": "behavior"}
+      ]
     }
   ]
 }

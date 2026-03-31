@@ -21,8 +21,13 @@ import sys
 from pathlib import Path
 
 # Windows cp949 stdout 대응
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True,
+    )
+    sys.stderr = io.TextIOWrapper(
+        sys.stderr.buffer, encoding="utf-8", errors="replace", line_buffering=True,
+    )
 
 ROOT = Path(__file__).resolve().parent.parent
 PLUGINS = ["harness", "flutter-toolkit", "design-kit"]

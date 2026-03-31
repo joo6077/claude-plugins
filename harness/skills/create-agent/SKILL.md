@@ -2,7 +2,7 @@
 name: create-agent
 description: >
   설계 가이드 기반으로 새 에이전트를 생성한다.
-  docs/guides/agent-design-guide.md의 6가지 디자인 패턴, 도구 스코핑,
+  ../../docs/guides/agent-design-guide.md의 6가지 디자인 패턴, 도구 스코핑,
   모델 선택, description 작성법을 따라 에이전트 .md 파일을 스캐폴딩한다.
   "에이전트 만들어줘", "새 에이전트", "create agent", "agent 생성",
   "서브에이전트 추가" 같은 요청 시 트리거.
@@ -14,7 +14,7 @@ user-invocable: true
 
 # Create Agent
 
-`docs/guides/agent-design-guide.md`를 기반으로 설계 원칙에 맞는 에이전트를 생성한다.
+`../../docs/guides/agent-design-guide.md`를 기반으로 설계 원칙에 맞는 에이전트를 생성한다.
 
 ## Gotchas
 
@@ -27,7 +27,7 @@ user-invocable: true
 
 ### 1. 설계 가이드 읽기
 
-`docs/guides/agent-design-guide.md`를 읽어 최신 설계 원칙을 확인한다.
+`../../docs/guides/agent-design-guide.md`를 읽어 최신 설계 원칙을 확인한다.
 특히 아래 섹션을 참조:
 - 섹션 1: 에이전트 vs 스킬 판단 기준
 - 섹션 4: 도구 스코핑 (최소 권한)

@@ -1,7 +1,7 @@
 {
   "ambiguous-conditions": [
     {"type": "file_contains", "file": "harness/skills/sprint-contract/SKILL.md", "pattern": "모호.*감지|ambiguous.*detect"},
-    {"type": "file_contains", "file": "docs/guides/contract-design-guide.md", "pattern": "적절히|충분히|잘"}
+    {"type": "file_contains", "file": "harness/docs/guides/contract-design-guide.md", "pattern": "적절히|충분히|잘"}
   ],
   "category-bias": [
     {"type": "file_contains", "file": "harness/skills/sprint-contract/SKILL.md", "pattern": "카테고리.*균형|category.*balance"}

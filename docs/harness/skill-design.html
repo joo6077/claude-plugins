@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스킬 설계 가이드 — Harness</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+.hero{padding:60px 0 48px;text-align:center}
+.hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.subtitle{font-size:1.05rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:36px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;transition:var(--transition)}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-title{font-size:1rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-dim)}
+
+.num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+  background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;flex-shrink:0}
+
+.compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+.compare-label{font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+
+code,.code-block{font-family:var(--mono);font-size:13px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;overflow-x:auto;line-height:1.6;color:var(--text2);white-space:pre;display:block;margin-bottom:24px}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+.checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--accent)}
+
+.flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0;font-size:14px;color:var(--text2)}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-weight:500}
+.flow-arrow{color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <h1>스킬 설계 가이드</h1>
+  <p class="subtitle">9가지 아키타입, Gotchas 패턴, 폴더 구조, description 작성법</p>
+</div>
+
+<!-- 9 SKILL TYPES -->
+<div class="section">
+  <div class="section-label">Archetypes</div>
+  <div class="section-title">9가지 스킬 유형</div>
+  <p class="section-desc">Anthropic이 내부 스킬 수백 개를 분석하여 발견한 패턴. 좋은 스킬은 하나의 유형에 명확히 속하고, 나쁜 스킬은 여러 유형에 걸친다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>유형</th><th>설명</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td><span class="num">1</span></td><td>라이브러리 레퍼런스</td><td>내부 라이브러리 사용법 및 함정 정리</td><td>사내 SDK 가이드</td></tr>
+        <tr><td><span class="num">2</span></td><td>제품 검증</td><td>Playwright 등 도구로 코드 자동 확인</td><td>E2E 테스트 스킬</td></tr>
+        <tr><td><span class="num">3</span></td><td>데이터 조회</td><td>모니터링/분석 스택 연결</td><td>Grafana 대시보드 조회</td></tr>
+        <tr><td><span class="num">4</span></td><td>비즈니스 자동화</td><td>반복 업무 자동화</td><td>스탠드업 리포트</td></tr>
+        <tr><td><span class="num">5</span></td><td>코드 스캐폴딩</td><td>보일러플레이트 자동 생성</td><td>프로젝트 초기 설정</td></tr>
+        <tr><td><span class="num">6</span></td><td>코드 리뷰</td><td>스타일 강제 또는 자동 리뷰</td><td>PR 리뷰 스킬</td></tr>
+        <tr><td><span class="num">7</span></td><td>CI/CD</td><td>PR 모니터링 및 자동 롤백</td><td>배포 파이프라인 스킬</td></tr>
+        <tr><td><span class="num">8</span></td><td>런북(Runbook)</td><td>장애 시 자동 조사 및 보고서</td><td>인시던트 대응 스킬</td></tr>
+        <tr><td><span class="num">9</span></td><td>인프라 운영</td><td>리소스 정리 및 비용 분석</td><td>미사용 리소스 정리</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- GOTCHAS -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <div class="section-title">Gotchas - 스킬에서 가장 가치 있는 섹션</div>
+  <p class="section-desc">Claude가 이미 아는 뻔한 내용은 넣지 마라. 스킬에 담아야 할 것은 Claude가 추론만으로 절대 알 수 없는 정보다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>반복 실패 기록</div>
+      <p style="font-size:13px;color:var(--text2)">Claude가 반복적으로 실패하는 지점을 모아 놓은 목록이다. 신입 사원에게 매뉴얼보다 선배의 "이거 조심해" 조언이 더 유용한 것과 같다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>점진적 성장</div>
+      <p style="font-size:13px;color:var(--text2)">대부분의 스킬은 몇 줄의 지시문 + 하나의 Gotchas로 시작하여 점진적으로 성장한다. 처음부터 완벽하게 만들지 마라.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>검증 가능한 기준</div>
+      <p style="font-size:13px;color:var(--text2)">스킬이 산출물을 생성할 때, Claude가 스스로 결과를 검증할 수 있는 기준을 포함해야 한다. 검증 없으면 "그럴듯하지만 동작하지 않는" 결과가 나온다.</p>
+    </div>
+  </div>
+  <div class="flow" style="margin-top:24px">
+    <span class="flow-step">Claude가 실수</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">실수 패턴 식별</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">Gotchas에 한 줄 추가</span>
+    <span class="flow-arrow">&rarr;</span>
+    <span class="flow-step">다음부터 같은 실수 방지</span>
+  </div>
+</div>
+
+<!-- DESCRIPTION -->
+<div class="section">
+  <div class="section-label">Trigger</div>
+  <div class="section-title">Description은 트리거 조건이다</div>
+  <p class="section-desc">스킬의 description 필드는 사람을 위한 요약이 아니라 Claude가 스킬을 선택하는 트리거 조건이다. "언제 이 스킬을 켜라"를 명시해야 한다.</p>
+  <div class="grid-2">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <code class="code-block" style="border:none;margin:0;padding:12px 0">description: 배포 관련 스킬</code>
+      <p style="font-size:13px;color:var(--text3)">무엇을 하는지만 한 줄 — Claude가 언제 쓸지 판단 불가</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <code class="code-block" style="border:none;margin:0;padding:12px 0">description: >
+  사용자가 서비스를 프로덕션에 배포하려 하거나,
+  PR 머지 후 배포 상태를 확인하려 할 때 사용한다.</code>
+      <p style="font-size:13px;color:var(--text3)">트리거 키워드 + 비트리거 조건까지 명시</p>
+    </div>
+  </div>
+</div>
+
+<!-- FOLDER STRUCTURE -->
+<div class="section">
+  <div class="section-label">Architecture</div>
+  <div class="section-title">폴더로 설계하라</div>
+  <p class="section-desc">스킬은 마크다운 파일 하나가 아니라 폴더 단위로 설계한다. 점진적 공개(Progressive Disclosure) 원칙: 메인 파일에는 개요만, 상세는 별도 파일로 분리.</p>
+  <div class="grid-2">
+    <div>
+      <code class="code-block">my-skill/
+├── my-skill.md          # 메인 지시문
+├── references/          # API 문서, 코드 스니펫
+│   └── api.md
+├── scripts/             # 헬퍼 함수, 검증 스크립트
+│   └── validate.sh
+└── templates/           # 출력 템플릿
+    └── report.md</code>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title"><span class="dot"></span>밀키트 비유</div>
+        <p style="font-size:13px;color:var(--text2)">레시피(지시문)뿐 아니라 재료(레퍼런스)와 도구(스크립트)까지 제공한다. Claude는 필요한 것만 꺼내 쓴다.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>컨텍스트 효율</div>
+        <p style="font-size:13px;color:var(--text2)">메인 파일에 모든 정보를 넣으면 컨텍스트 과부하. 폴더 내 파일 목록을 명시하면 Claude가 필요한 파일만 선택적으로 읽는다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESSIVE GROWTH -->
+<div class="section">
+  <div class="section-label">Growth</div>
+  <div class="section-title">스킬 성장 사이클</div>
+  <p class="section-desc">처음부터 완벽하게 만들지 마라. 몇 줄로 시작해서 실패를 관찰하며 한 줄씩 추가한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>버전</th><th>상태</th><th>트리거</th></tr></thead>
+      <tbody>
+        <tr><td><span class="num" style="background:var(--accent);color:#fff">1</span></td><td>지시문 3줄 + Gotchas 1개</td><td>시작</td></tr>
+        <tr><td><span class="num" style="background:var(--accent);color:#fff">2</span></td><td>Gotchas에 호출 순서 규칙 추가</td><td>Claude가 API 호출 순서를 틀림</td></tr>
+        <tr><td><span class="num" style="background:var(--accent);color:#fff">3</span></td><td>references/api.md 분리</td><td>같은 API 문서를 매번 설명해야 함</td></tr>
+        <tr><td><span class="num" style="background:var(--accent);color:#fff">4</span></td><td>scripts/validate.sh 추가</td><td>반복되는 검증 로직 발생</td></tr>
+        <tr><td><span class="num" style="background:var(--accent);color:#fff">5</span></td><td>templates/report.md 추가</td><td>출력 형식이 매번 다름</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card" style="border-left:3px solid var(--accent)">
+    <p style="font-size:14px;color:var(--text2);font-style:italic">"스킬은 문서가 아니라, 에이전트의 실패를 관찰하며 경험치를 쌓는 살아 있는 시스템이다."</p>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="section">
+  <div class="section-label">Summary</div>
+  <div class="section-title">핵심 원칙 요약</div>
+  <ul class="checklist" style="max-width:680px">
+    <li><span class="check">&#10003;</span> 폴더로 설계 &mdash; 마크다운 하나가 아닌 폴더 하나를 설계한다</li>
+    <li><span class="check">&#10003;</span> 뻔한 말 금지 &mdash; Claude가 이미 아는 것은 넣지 않는다</li>
+    <li><span class="check">&#10003;</span> Gotchas 최우선 &mdash; 반복 실패 지점을 기록하는 것이 가장 높은 가치</li>
+    <li><span class="check">&#10003;</span> 점진적 공개 &mdash; 메인 파일에는 개요만, 상세는 별도 파일로 분리</li>
+    <li><span class="check">&#10003;</span> 트리거 조건 명시 &mdash; description은 "언제 켜라"를 구체적으로 쓴다</li>
+    <li><span class="check">&#10003;</span> 헬퍼 제공 &mdash; 스크립트로 보일러플레이트를 줄인다</li>
+    <li><span class="check">&#10003;</span> 검증 가능한 기준 &mdash; Claude가 스스로 결과를 확인할 수 있는 기준 포함</li>
+    <li><span class="check">&#10003;</span> 점진적 발전 &mdash; 몇 줄로 시작해서 실패를 관찰하며 한 줄씩 추가</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

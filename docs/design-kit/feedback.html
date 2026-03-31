@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>피드백 패턴</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--pink:#f472b6;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(240,176,136,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* Typography */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--orange);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--orange) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:rgba(232,150,90,0.12);color:var(--orange);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,150,90,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
+  .grid-5{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,150,90,0.03)}
+
+  /* Buttons */
+  button,.btn{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;
+    padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:inherit;
+  }
+  button:hover,.btn:hover{border-color:var(--orange);background:rgba(232,150,90,0.08)}
+  button.active,.btn.active{background:rgba(232,150,90,0.15);border-color:var(--orange);color:var(--orange)}
+  .btn-accent{background:var(--orange);color:#000;border-color:var(--orange);font-weight:700}
+  .btn-accent:hover{background:#f9a857;border-color:#f9a857}
+  .btn-danger{background:rgba(248,113,113,0.15);color:var(--red);border-color:rgba(248,113,113,0.3)}
+  .btn-danger:hover{background:rgba(248,113,113,0.25);border-color:var(--red)}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+
+  /* Card inner */
+  .card-title{font-size:15px;font-weight:700;margin-bottom:6px}
+  .card-desc{font-size:13px;color:var(--text2);line-height:1.6}
+  .card-icon{font-size:28px;margin-bottom:12px}
+
+  /* Comparison chart */
+  .compare-row{display:flex;align-items:stretch;gap:16px;flex-wrap:wrap}
+  .compare-col{flex:1;min-width:200px}
+  .compare-header{font-size:14px;font-weight:700;padding:12px 16px;border-radius:10px 10px 0 0;text-align:center}
+  .compare-body{padding:16px;background:var(--surface2);border-radius:0 0 10px 10px;font-size:13px;color:var(--text2);line-height:1.7;flex:1}
+
+  /* Urgency scale */
+  .scale-track{position:relative;height:56px;background:linear-gradient(90deg,rgba(74,222,128,0.15),rgba(232,150,90,0.15),rgba(248,113,113,0.15));
+    border-radius:10px;margin:24px 0 12px;display:flex;align-items:center;overflow:hidden}
+  .scale-marker{position:absolute;text-align:center;transform:translateX(-50%)}
+  .scale-dot{width:14px;height:14px;border-radius:50%;margin:0 auto 4px;border:2px solid var(--bg)}
+  .scale-text{font-size:10px;font-weight:700;white-space:nowrap}
+  .scale-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);padding:0 4px}
+
+  /* Toast/Snackbar demos */
+  .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+  .toast{
+    padding:14px 24px;border-radius:10px;font-size:14px;font-weight:600;
+    pointer-events:auto;display:flex;align-items:center;gap:12px;
+    animation:toastIn 0.3s cubic-bezier(0,0,0.2,1);box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    max-width:420px;
+  }
+  .toast-info{background:#1e293b;color:var(--text);border:1px solid var(--border)}
+  .toast-action{background:#1e293b;color:var(--text);border:1px solid var(--border)}
+  .toast-action .toast-btn{color:var(--orange);font-weight:700;cursor:pointer;border:none;background:none;font-size:14px;font-family:inherit;padding:0;margin-left:8px}
+  .toast-action .toast-btn:hover{text-decoration:underline}
+  @keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(16px)}}
+
+  /* Duration bars */
+  .dur-row{display:flex;align-items:center;gap:16px;padding:8px 0}
+  .dur-label{min-width:110px;font-size:13px;font-weight:600;color:var(--text2)}
+  .dur-track{flex:1;height:32px;background:var(--surface2);border-radius:6px;position:relative;overflow:hidden}
+  .dur-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;
+    font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);font-family:var(--mono);transition:width 0.6s ease}
+
+  /* Modal overlay */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:2000;
+    display:none;align-items:center;justify-content:center;animation:fadeIn 0.2s ease}
+  .modal-overlay.show{display:flex}
+  .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;
+    max-width:420px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.5);animation:modalIn 0.25s cubic-bezier(0,0,0.2,1)}
+  .modal-title{font-size:18px;font-weight:700;margin-bottom:8px}
+  .modal-desc{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes modalIn{from{opacity:0;transform:scale(0.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+  /* Boy who cried wolf */
+  .wolf-demo{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;padding:16px 0}
+  .wolf-modal{width:80px;height:56px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;text-align:center;line-height:1.2;border:2px solid;transition:all 0.2s ease;cursor:default}
+
+  /* Error demo */
+  .form-field{display:flex;flex-direction:column;gap:6px;max-width:400px}
+  .form-label{font-size:13px;font-weight:600;color:var(--text2)}
+  .form-input{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:12px 16px;
+    font-size:14px;color:var(--text);font-family:inherit;outline:none;transition:border-color 0.2s ease}
+  .form-input:focus{border-color:var(--orange)}
+  .form-input.error{border-color:var(--red)}
+  .form-input.valid{border-color:var(--green)}
+  .form-msg{font-size:12px;min-height:18px;display:flex;align-items:center;gap:6px}
+  .form-msg.error{color:var(--red)}
+  .form-msg.valid{color:var(--green)}
+  .form-msg.premature{color:var(--red);animation:shake 0.3s ease}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  /* Error principle cards */
+  .principle-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:18px;margin-bottom:12px}
+
+  /* Notification level */
+  .level-card{position:relative;overflow:hidden}
+  .level-bar{position:absolute;top:0;left:0;right:0;height:3px}
+  .level-icon{font-size:24px;margin-bottom:8px}
+  .level-name{font-size:15px;font-weight:700;margin-bottom:4px}
+  .level-intrusiveness{font-size:11px;font-weight:700;font-family:var(--mono);margin-bottom:8px}
+  .level-means{font-size:12px;color:var(--text2);margin-bottom:6px}
+  .level-example{font-size:12px;color:var(--text3);font-style:italic}
+
+  /* Permission flow */
+  .flow-container{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;padding:16px 0}
+  .flow-step{width:180px;padding:20px 16px;text-align:center;border-radius:14px;border:2px solid var(--border);
+    background:var(--surface);position:relative}
+  .flow-step-num{font-size:10px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .flow-step-title{font-size:14px;font-weight:700;margin-bottom:4px}
+  .flow-step-desc{font-size:11px;color:var(--text2);line-height:1.4}
+  .flow-arrow{font-size:24px;color:var(--text3);padding:0 8px;flex-shrink:0}
+
+  /* Timing bars */
+  .timing-row{display:flex;align-items:center;gap:16px;padding:10px 0}
+  .timing-label{min-width:100px;font-size:13px;font-weight:600;color:var(--text2)}
+  .timing-bar-track{flex:1;height:40px;background:var(--surface2);border-radius:8px;position:relative;overflow:hidden}
+  .timing-bar-fill{height:100%;border-radius:8px;display:flex;align-items:center;padding:0 14px;
+    font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);font-family:var(--mono)}
+
+  /* Onboarding cards */
+  .onboarding-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:22px;margin-bottom:14px}
+  .onboarding-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;
+    margin-bottom:8px}
+
+  /* Responsive */
+  @media(max-width:600px){
+    .grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}
+    .compare-row{flex-direction:column}
+    .flow-container{flex-direction:column;gap:8px}
+    .flow-arrow{transform:rotate(90deg);padding:0}
+    .wolf-demo{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ==================== HERO ==================== -->
+<div class="section">
+  <span class="tag">Interaction Pattern</span>
+  <h1>피드백 패턴</h1>
+  <p class="subtitle">토스트/스낵바, 모달 다이얼로그, 에러 상태, 알림 등급, 권한 요청, 온보딩 플로우 등 사용자에게 정보를 전달하고 반응을 유도하는 피드백 수단의 설계 원칙과 인터랙티브 데모를 다룬다.</p>
+</div>
+
+<!-- ==================== 1. 피드백 수단 선택 ==================== -->
+<div class="section">
+  <div class="section-label">피드백 수단 선택</div>
+  <h2>정보 유형에 맞는 피드백 수단</h2>
+  <p class="desc">NNGroup은 피드백 수단을 세 가지로 분류한다. 잘못된 수단을 선택하면 효과가 사라진다. 긴급도에 비례하여 침투도를 조절한다.</p>
+
+  <div class="compare-row" style="margin-bottom:32px">
+    <div class="compare-col card" style="padding:0;overflow:hidden">
+      <div class="compare-header" style="background:rgba(74,222,128,0.12);color:var(--green)">Indicator</div>
+      <div class="compare-body">
+        <div style="font-size:22px;text-align:center;margin-bottom:10px">&#x1F7E2;</div>
+        <div style="font-weight:700;margin-bottom:6px">수동적 표시</div>
+        UI 요소에 부착된 상태 표시. 사용자가 직접 찾아봐야 발견한다.<br>
+        <span class="mono" style="color:var(--green)">예: 뱃지, 도트, 진행 바</span>
+      </div>
+    </div>
+    <div class="compare-col card" style="padding:0;overflow:hidden">
+      <div class="compare-header" style="background:rgba(232,150,90,0.12);color:var(--orange)">Validation</div>
+      <div class="compare-body">
+        <div style="font-size:22px;text-align:center;margin-bottom:10px">&#x26A0;&#xFE0F;</div>
+        <div style="font-weight:700;margin-bottom:6px">입력 검증</div>
+        사용자 입력 오류에 대한 즉각 반응. 해당 필드 옆에 배치한다.<br>
+        <span class="mono" style="color:var(--orange)">예: 폼 에러, 비밀번호 강도</span>
+      </div>
+    </div>
+    <div class="compare-col card" style="padding:0;overflow:hidden">
+      <div class="compare-header" style="background:rgba(248,113,113,0.12);color:var(--red)">Notification</div>
+      <div class="compare-body">
+        <div style="font-size:22px;text-align:center;margin-bottom:10px">&#x1F514;</div>
+        <div style="font-weight:700;margin-bottom:6px">시스템 알림</div>
+        시스템 이벤트 공지. 토스트, 모달, 푸시 등 글로벌 위치에 표시한다.<br>
+        <span class="mono" style="color:var(--red)">예: 토스트, 스낵바, 모달</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Urgency-to-Intrusiveness scale -->
+  <h2 style="font-size:clamp(16px,1.8vw,20px)">긴급도 &rarr; 침투도 스케일</h2>
+  <p class="desc">중요하지 않은 정보에 모달을 쓰면 짜증, 중요한 에러에 토스트를 쓰면 놓친다.</p>
+  <div class="card">
+    <div class="scale-track">
+      <div class="scale-marker" style="left:10%"><div class="scale-dot" style="background:var(--green)"></div><div class="scale-text" style="color:var(--green)">뱃지</div></div>
+      <div class="scale-marker" style="left:28%"><div class="scale-dot" style="background:var(--green)"></div><div class="scale-text" style="color:var(--green)">인디케이터</div></div>
+      <div class="scale-marker" style="left:45%"><div class="scale-dot" style="background:var(--orange)"></div><div class="scale-text" style="color:var(--orange)">토스트</div></div>
+      <div class="scale-marker" style="left:60%"><div class="scale-dot" style="background:var(--orange)"></div><div class="scale-text" style="color:var(--orange)">스낵바</div></div>
+      <div class="scale-marker" style="left:75%"><div class="scale-dot" style="background:var(--red)"></div><div class="scale-text" style="color:var(--red)">배너</div></div>
+      <div class="scale-marker" style="left:90%"><div class="scale-dot" style="background:var(--red)"></div><div class="scale-text" style="color:var(--red)">모달</div></div>
+    </div>
+    <div class="scale-labels">
+      <span>낮은 긴급도 / 낮은 침투도</span>
+      <span>높은 긴급도 / 높은 침투도</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 2. 토스트/스낵바 ==================== -->
+<div class="section">
+  <div class="section-label">토스트 / 스낵바</div>
+  <h2>토스트 vs 스낵바 인터랙티브 데모</h2>
+  <p class="desc">토스트는 순수 정보 전달, 스낵바는 정보 + 선택적 액션. 버튼을 눌러 차이를 확인하라.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="btn-row">
+      <button onclick="showToast('info','메시지가 전송되었습니다.',null,2000)">토스트 (SHORT 2s)</button>
+      <button onclick="showToast('info','설정이 저장되었습니다.',null,3500)">토스트 (LONG 3.5s)</button>
+      <button onclick="showToast('action','항목이 삭제되었습니다.','실행취소',0)">스낵바 + 액션</button>
+      <button onclick="showToast('action','메일이 보관되었습니다.','보관 취소',3500)">스낵바 (LONG)</button>
+    </div>
+    <p class="caption">토스트: 액션 없음, 자동 사라짐 &nbsp;|&nbsp; 스낵바: 액션 버튼 포함, 사용자가 닫을 수 있음</p>
+  </div>
+
+  <!-- Duration comparison -->
+  <h2 style="font-size:clamp(16px,1.8vw,20px);margin-top:24px">표시 시간 (Duration)</h2>
+  <div class="card">
+    <div class="dur-row">
+      <div class="dur-label"><span class="mono" style="color:var(--green)">SHORT</span></div>
+      <div class="dur-track"><div class="dur-fill" id="durShort" style="width:28%;background:linear-gradient(90deg,var(--green),rgba(74,222,128,0.5))">2.0s</div></div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-label"><span class="mono" style="color:var(--orange)">LONG</span></div>
+      <div class="dur-track"><div class="dur-fill" id="durLong" style="width:50%;background:linear-gradient(90deg,var(--orange),rgba(232,150,90,0.5))">3.5s</div></div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-label"><span class="mono" style="color:var(--red)">INDEFINITE</span></div>
+      <div class="dur-track"><div class="dur-fill" id="durIndef" style="width:100%;background:linear-gradient(90deg,var(--red),rgba(248,113,113,0.5))">&#8734; &#8202;사용자 닫기</div></div>
+    </div>
+    <p class="caption">Material Design 3 스낵바 표시 시간 가이드라인</p>
+  </div>
+
+  <!-- Toast vs Snackbar table -->
+  <div class="card" style="margin-top:20px;overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th>구분</th><th>토스트 (Toast)</th><th>스낵바 (Snackbar)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:var(--text);font-weight:600">목적</td><td>순수 정보 전달</td><td>정보 전달 + 선택적 액션</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">사라짐</td><td>자동 사라짐</td><td>자동 또는 사용자가 닫음</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">액션</td><td>없음</td><td>"실행취소", "다시 시도" 등 1개</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">사용 예</td><td class="mono">"메시지가 전송되었습니다"</td><td class="mono">"항목이 삭제되었습니다 [실행취소]"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== 3. 다이얼로그/모달 ==================== -->
+<div class="section">
+  <div class="section-label">다이얼로그 / 모달</div>
+  <h2>모달 다이얼로그 데모</h2>
+  <p class="desc">모달은 치명적 에러 방지, 필수 정보 요청, 워크플로우 분리에만 사용한다. 남용하면 "양치기 소년" 효과가 발생한다.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <!-- Proper modal -->
+    <div class="card">
+      <div style="color:var(--green);font-size:12px;font-weight:700;margin-bottom:8px">&#x2705; 올바른 사용</div>
+      <div class="card-title">파괴적 액션 확인</div>
+      <div class="card-desc" style="margin-bottom:16px">되돌릴 수 없는 행동 전 사용자를 일시 정지시키고 구체적 라벨로 확인을 받는다.</div>
+      <button onclick="showModal('proper')">삭제 확인 모달 열기</button>
+    </div>
+    <!-- Improper modal -->
+    <div class="card">
+      <div style="color:var(--red);font-size:12px;font-weight:700;margin-bottom:8px">&#x274C; 잘못된 사용</div>
+      <div class="card-title">비필수 정보에 모달</div>
+      <div class="card-desc" style="margin-bottom:16px">뉴스레터 구독, 프로모션 같은 비필수 콘텐츠에 모달을 사용하면 사용자가 짜증낸다.</div>
+      <button onclick="showModal('improper')">나쁜 모달 예시 열기</button>
+    </div>
+  </div>
+
+  <!-- Boy who cried wolf -->
+  <h2 style="font-size:clamp(16px,1.8vw,20px)">"양치기 소년" 효과</h2>
+  <p class="desc">비필수 콘텐츠에 모달을 남용하면, 사용자가 모든 모달을 반사적으로 닫게 되어 정말 중요한 모달도 무시한다.</p>
+  <div class="card">
+    <div class="wolf-demo" id="wolfDemo">
+      <div class="wolf-modal" style="border-color:var(--text3);color:var(--text3);opacity:0.4">광고<br><span style="font-size:9px">무시</span></div>
+      <div class="wolf-modal" style="border-color:var(--text3);color:var(--text3);opacity:0.4">구독?<br><span style="font-size:9px">무시</span></div>
+      <div class="wolf-modal" style="border-color:var(--text3);color:var(--text3);opacity:0.4">이벤트<br><span style="font-size:9px">무시</span></div>
+      <div class="wolf-modal" style="border-color:var(--text3);color:var(--text3);opacity:0.4">할인!<br><span style="font-size:9px">무시</span></div>
+      <div class="wolf-modal" style="border-color:var(--red);color:var(--red);opacity:0.4;animation:pulse 1.5s ease infinite">데이터<br>손실!<br><span style="font-size:9px;opacity:0.6">또 무시...</span></div>
+    </div>
+    <p class="caption">반복된 불필요한 모달 &rarr; 중요한 경고도 습관적으로 닫게 된다</p>
+  </div>
+  <style>@keyframes pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.7;transform:scale(1.05)}}</style>
+
+  <!-- Confirmation dialog best practice -->
+  <h2 style="font-size:clamp(16px,1.8vw,20px);margin-top:24px">확인 다이얼로그 라벨링</h2>
+  <div class="grid-2">
+    <div class="card">
+      <div style="color:var(--red);font-size:12px;font-weight:700;margin-bottom:8px">&#x274C; 나쁜 예</div>
+      <div style="background:var(--surface2);border-radius:10px;padding:20px;text-align:center">
+        <div style="font-weight:700;margin-bottom:8px">정말 삭제하시겠습니까?</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button style="padding:8px 24px">취소</button>
+          <button style="padding:8px 24px;background:var(--surface2)">확인</button>
+        </div>
+      </div>
+      <p class="caption">"확인" &mdash; 사용자가 무엇에 동의하는지 불명확</p>
+    </div>
+    <div class="card">
+      <div style="color:var(--green);font-size:12px;font-weight:700;margin-bottom:8px">&#x2705; 좋은 예</div>
+      <div style="background:var(--surface2);border-radius:10px;padding:20px;text-align:center">
+        <div style="font-weight:700;margin-bottom:4px">프로젝트 "Summer Campaign"을 삭제합니다</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px">이 작업은 되돌릴 수 없으며 모든 데이터가 영구 삭제됩니다.</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button style="padding:8px 24px">취소</button>
+          <button class="btn-danger" style="padding:8px 24px">영구 삭제</button>
+        </div>
+      </div>
+      <p class="caption">"영구 삭제" &mdash; 구체적 동작 + 빨간색 경고</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 4. 에러 상태 ==================== -->
+<div class="section">
+  <div class="section-label">에러 상태</div>
+  <h2>에러 메시지 4대 원칙</h2>
+  <p class="desc">NNGroup의 에러 메시지 가이드라인 4가지 핵심 원칙을 인터랙티브하게 확인한다.</p>
+
+  <div class="grid-2" style="margin-bottom:32px">
+    <div class="card">
+      <div class="principle-icon" style="background:rgba(248,113,113,0.12);color:var(--red)">&#x1F441;</div>
+      <div class="card-title">1. 가시성 (Visibility)</div>
+      <div class="card-desc">에러가 발생한 UI 요소 바로 옆에 배치. 굵은 글씨 + 높은 대비 + 아이콘 조합. 색상만으로 표시하면 안 된다.</div>
+    </div>
+    <div class="card">
+      <div class="principle-icon" style="background:rgba(232,150,90,0.12);color:var(--orange)">&#x1F4AC;</div>
+      <div class="card-title">2. 커뮤니케이션 (Communication)</div>
+      <div class="card-desc">평이한 언어로 구체적으로 설명. "오류가 발생했습니다" 대신 "이메일 주소에 @ 기호가 필요합니다"로 교체한다.</div>
+    </div>
+    <div class="card">
+      <div class="principle-icon" style="background:rgba(74,222,128,0.12);color:var(--green)">&#x26A1;</div>
+      <div class="card-title">3. 효율성 (Efficiency)</div>
+      <div class="card-desc">사전 예방, 데이터 보존, 가이드된 복구. 사용자 입력을 유지하여 수정만 하면 되게 한다.</div>
+    </div>
+    <div class="card">
+      <div class="principle-icon" style="background:rgba(240,176,136,0.12);color:var(--accent2)">&#x23F0;</div>
+      <div class="card-title">4. 시기 (Timing)</div>
+      <div class="card-desc">조기 에러 표시 금지. 대부분의 필드는 onBlur 시점에 검증. 탐색 중 에러를 표시하지 않는다.</div>
+    </div>
+  </div>
+
+  <!-- Interactive validation timing demo -->
+  <h2 style="font-size:clamp(16px,1.8vw,20px)">인라인 검증 타이밍 데모</h2>
+  <p class="desc">이메일 필드에 입력하며 조기 검증(Premature)과 올바른 검증(onBlur)의 차이를 체험하라.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div style="color:var(--red);font-size:12px;font-weight:700;margin-bottom:12px">&#x274C; 조기 검증 (Premature)</div>
+      <div class="form-field">
+        <label class="form-label">이메일 주소</label>
+        <input type="text" class="form-input" id="emailPremature" placeholder="입력을 시작해보세요..." oninput="validatePremature(this)">
+        <div class="form-msg" id="msgPremature"></div>
+      </div>
+      <p class="caption" style="text-align:left">타이핑 중 즉시 에러 표시 &mdash; 사용자가 짜증남</p>
+    </div>
+    <div class="card">
+      <div style="color:var(--green);font-size:12px;font-weight:700;margin-bottom:12px">&#x2705; 올바른 검증 (onBlur)</div>
+      <div class="form-field">
+        <label class="form-label">이메일 주소</label>
+        <input type="text" class="form-input" id="emailCorrect" placeholder="입력 후 필드를 벗어나세요..." onblur="validateCorrect(this)" oninput="clearCorrect(this)">
+        <div class="form-msg" id="msgCorrect"></div>
+      </div>
+      <p class="caption" style="text-align:left">필드를 떠난 후 검증 &mdash; 탐색을 방해하지 않음</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 5. 알림 등급 ==================== -->
+<div class="section">
+  <div class="section-label">알림 등급</div>
+  <h2>알림 등급 체계</h2>
+  <p class="desc">알림 피로(notification fatigue)를 방지하려면 심각도에 따라 침투도를 차등 적용한다. Critical이 아닌 알림에 소리/진동을 넣지 않는다.</p>
+
+  <div class="grid-4" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))">
+    <!-- Critical -->
+    <div class="card level-card">
+      <div class="level-bar" style="background:linear-gradient(90deg,var(--red),rgba(248,113,113,0.3))"></div>
+      <div style="padding-top:8px">
+        <div class="level-icon">&#x1F6A8;</div>
+        <div class="level-name" style="color:var(--red)">Critical</div>
+        <div class="level-intrusiveness" style="color:var(--red)">침투도: &#9608;&#9608;&#9608;&#9608;&#9608; MAX</div>
+        <div class="level-means">모달, 시스템 알럿, 푸시+소리</div>
+        <div class="level-example">"보안 침해 감지", "결제 실패"</div>
+      </div>
+    </div>
+    <!-- High -->
+    <div class="card level-card">
+      <div class="level-bar" style="background:linear-gradient(90deg,var(--orange),rgba(232,150,90,0.3))"></div>
+      <div style="padding-top:8px">
+        <div class="level-icon">&#x1F514;</div>
+        <div class="level-name" style="color:var(--orange)">High</div>
+        <div class="level-intrusiveness" style="color:var(--orange)">침투도: &#9608;&#9608;&#9608;&#9608;&#9601; HIGH</div>
+        <div class="level-means">인앱 배너, 푸시(무음 가능)</div>
+        <div class="level-example">"새 메시지", "배송 상태 변경"</div>
+      </div>
+    </div>
+    <!-- Medium -->
+    <div class="card level-card">
+      <div class="level-bar" style="background:linear-gradient(90deg,var(--yellow),rgba(251,191,36,0.3))"></div>
+      <div style="padding-top:8px">
+        <div class="level-icon">&#x1F4E2;</div>
+        <div class="level-name" style="color:var(--yellow)">Medium</div>
+        <div class="level-intrusiveness" style="color:var(--yellow)">침투도: &#9608;&#9608;&#9608;&#9601;&#9601; MED</div>
+        <div class="level-means">뱃지, 인디케이터</div>
+        <div class="level-example">"새 기능 알림", "콘텐츠 추천"</div>
+      </div>
+    </div>
+    <!-- Low -->
+    <div class="card level-card">
+      <div class="level-bar" style="background:linear-gradient(90deg,var(--green),rgba(74,222,128,0.3))"></div>
+      <div style="padding-top:8px">
+        <div class="level-icon">&#x1F4CB;</div>
+        <div class="level-name" style="color:var(--green)">Low</div>
+        <div class="level-intrusiveness" style="color:var(--green)">침투도: &#9608;&#9601;&#9601;&#9601;&#9601; LOW</div>
+        <div class="level-means">알림 센터에만 누적</div>
+        <div class="level-example">"앱 업데이트 안내", "프로모션"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="card-title" style="margin-bottom:12px">핵심 규칙</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px;font-size:13px;color:var(--text2)">
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--orange);font-size:16px">&#x25B6;</span>사용자에게 알림 카테고리별 on/off 제어권을 제공한다</div>
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--orange);font-size:16px">&#x25B6;</span>Critical이 아닌 알림에 소리/진동을 넣지 않는다</div>
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--orange);font-size:16px">&#x25B6;</span>동일 유형 3개 이상이면 그룹핑한다</div>
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--orange);font-size:16px">&#x25B6;</span>마케팅 알림은 행동 기반 타이밍에만 발송한다</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 6. 권한 요청 ==================== -->
+<div class="section">
+  <div class="section-label">권한 요청</div>
+  <h2>프라이밍 스크린 &rarr; 시스템 다이얼로그</h2>
+  <p class="desc">시스템 권한 요청 전에 앱 자체 UI로 이유를 설명하는 "프라이밍 스크린"을 삽입한다. 첫 요청의 수락률이 매우 중요하다.</p>
+
+  <!-- Flow diagram -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="flow-step-num">Step 1</div>
+        <div class="flow-step-title">프라이밍 스크린</div>
+        <div class="flow-step-desc">앱 자체 UI로 이유를 설명<br>"배송 추적을 위해 위치 필요"</div>
+        <div style="margin-top:10px;display:flex;gap:6px;justify-content:center">
+          <button style="padding:4px 10px;font-size:11px;border-radius:6px" onclick="showToast('info','프라이밍: 사용자가 허용을 탭!',null,2000)">허용할게요</button>
+          <button style="padding:4px 10px;font-size:11px;border-radius:6px;opacity:0.5">나중에</button>
+        </div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step" style="border-color:var(--orange)">
+        <div class="flow-step-num">Step 2</div>
+        <div class="flow-step-title">시스템 다이얼로그</div>
+        <div class="flow-step-desc">OS가 표시하는 공식 권한 요청<br>"위치에 접근하도록 허용?"</div>
+        <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+          <button style="padding:4px 8px;font-size:10px;border-radius:6px" onclick="showToast('info','권한 허용됨!',null,2000)">사용 중 허용</button>
+          <button style="padding:4px 8px;font-size:10px;border-radius:6px;opacity:0.5">허용 안 함</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Cluster 앱: 프라이밍 적용 후 iOS 사진 접근 수락률 +12%</p>
+  </div>
+
+  <!-- Timing comparison -->
+  <h2 style="font-size:clamp(16px,1.8vw,20px)">권한 요청 타이밍별 수락률</h2>
+  <div class="card">
+    <div class="timing-row">
+      <div class="timing-label">즉시</div>
+      <div class="timing-bar-track">
+        <div class="timing-bar-fill" style="width:40%;background:linear-gradient(90deg,var(--red),rgba(248,113,113,0.4))">30~50%</div>
+      </div>
+    </div>
+    <div class="timing-row">
+      <div class="timing-label">맥락 기반</div>
+      <div class="timing-bar-track">
+        <div class="timing-bar-fill" style="width:70%;background:linear-gradient(90deg,var(--orange),rgba(232,150,90,0.4))">60~80%</div>
+      </div>
+    </div>
+    <div class="timing-row">
+      <div class="timing-label">점진적</div>
+      <div class="timing-bar-track">
+        <div class="timing-bar-fill" style="width:85%;background:linear-gradient(90deg,var(--green),rgba(74,222,128,0.4))">70~85%</div>
+      </div>
+    </div>
+    <p class="caption">Apple HIG: "사람들이 기능을 이해하기도 전에 권한을 요청하지 마라"</p>
+  </div>
+</div>
+
+<!-- ==================== 7. 온보딩 패턴 ==================== -->
+<div class="section">
+  <div class="section-label">온보딩 패턴</div>
+  <h2>온보딩 플로우 유형</h2>
+  <p class="desc">NNGroup: "학습을 한 번에 몰아서 시키지 마라." 스킵 가능하게, 한 번에 1가지만, 맥락 안에서, 재접근 가능하게 설계한다.</p>
+
+  <div class="grid-5" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))">
+    <!-- Progressive -->
+    <div class="card" style="cursor:pointer" onclick="this.querySelector('.ob-detail').style.display=this.querySelector('.ob-detail').style.display==='block'?'none':'block'">
+      <div class="onboarding-icon" style="background:rgba(74,222,128,0.12)">&#x1F331;</div>
+      <div class="onboarding-badge" style="background:rgba(74,222,128,0.15);color:var(--green)">가장 권장</div>
+      <div class="card-title">Progressive</div>
+      <div class="card-desc">사용하면서 자연스럽게 기능을 발견. 직관적 UI의 소비자 앱에 적합.</div>
+      <div class="ob-detail" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)">
+        인지 부하를 최소화하며 맥락 안에서 학습. 사용자가 실제 필요한 시점에 기능을 안내한다. 가장 높은 온보딩 완료율.
+      </div>
+    </div>
+    <!-- Coach Marks -->
+    <div class="card" style="cursor:pointer" onclick="this.querySelector('.ob-detail').style.display=this.querySelector('.ob-detail').style.display==='block'?'none':'block'">
+      <div class="onboarding-icon" style="background:rgba(232,150,90,0.12)">&#x1F4CD;</div>
+      <div class="onboarding-badge" style="background:rgba(232,150,90,0.15);color:var(--accent)">제한적 사용</div>
+      <div class="card-title">Coach Marks</div>
+      <div class="card-desc">화면 위 오버레이로 기능 설명. 복잡한 전문 도구에 적합.</div>
+      <div class="ob-detail" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)">
+        3개 이하로 제한. Appcues 데이터: 사용자의 85%가 스킵한다. 너무 많은 코치마크는 역효과.
+      </div>
+    </div>
+    <!-- Slides -->
+    <div class="card" style="cursor:pointer" onclick="this.querySelector('.ob-detail').style.display=this.querySelector('.ob-detail').style.display==='block'?'none':'block'">
+      <div class="onboarding-icon" style="background:rgba(232,150,90,0.12)">&#x1F4F1;</div>
+      <div class="onboarding-badge" style="background:rgba(232,150,90,0.15);color:var(--orange)">브랜드 전달</div>
+      <div class="card-title">Slides</div>
+      <div class="card-desc">앱 첫 실행 시 3~5장 스와이프. 브랜드/가치 전달 필요 시.</div>
+      <div class="ob-detail" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)">
+        기능 설명보다 가치 제안에 집중. "건너뛰기" 반드시 제공. 3장 이내가 최적.
+      </div>
+    </div>
+    <!-- Empty State -->
+    <div class="card" style="cursor:pointer" onclick="this.querySelector('.ob-detail').style.display=this.querySelector('.ob-detail').style.display==='block'?'none':'block'">
+      <div class="onboarding-icon" style="background:rgba(240,176,136,0.12)">&#x1F4E6;</div>
+      <div class="onboarding-badge" style="background:rgba(240,176,136,0.15);color:var(--accent2)">CRUD 앱</div>
+      <div class="card-title">Empty State</div>
+      <div class="card-desc">콘텐츠가 없을 때 가이드 표시. CRUD 앱, 프로젝트 도구에 적합.</div>
+      <div class="ob-detail" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)">
+        첫 번째 행동(CTA)을 명확히 제시. "아직 프로젝트가 없습니다. 첫 프로젝트를 만들어보세요!" 패턴.
+      </div>
+    </div>
+    <!-- Interactive Tutorial -->
+    <div class="card" style="cursor:pointer" onclick="this.querySelector('.ob-detail').style.display=this.querySelector('.ob-detail').style.display==='block'?'none':'block'">
+      <div class="onboarding-icon" style="background:rgba(244,114,182,0.12)">&#x1F3AE;</div>
+      <div class="onboarding-badge" style="background:rgba(244,114,182,0.15);color:var(--pink)">게임/도구</div>
+      <div class="card-title">Interactive Tutorial</div>
+      <div class="card-desc">실제 앱 내에서 지시를 따라 수행. 게임, 복잡한 작업 도구에 적합.</div>
+      <div class="ob-detail" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)">
+        반드시 스킵/나중에 가능해야 함. 실제 데이터로 연습하게 하면 학습 효과가 높다.
+      </div>
+    </div>
+  </div>
+
+  <p class="caption" style="margin-top:16px">카드를 클릭하면 상세 설명이 펼쳐진다</p>
+
+  <!-- Key rules -->
+  <div class="card" style="margin-top:24px">
+    <div class="card-title" style="margin-bottom:12px">온보딩 핵심 규칙</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px;font-size:13px;color:var(--text2)">
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--green);font-weight:700;font-size:14px">1</span>스킵 가능하게 만든다 &mdash; 강제 튜토리얼은 짜증</div>
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--orange);font-weight:700;font-size:14px">2</span>한 번에 1가지만 가르친다 &mdash; 단기 기억 4&plusmn;1 청크</div>
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--accent);font-weight:700;font-size:14px">3</span>맥락 안에서 가르친다 &mdash; 해당 화면에서 해당 기능을</div>
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--accent2);font-weight:700;font-size:14px">4</span>재접근 가능하게 한다 &mdash; 한번 닫으면 영원히 사라지는 것은 안티패턴</div>
+      <div style="display:flex;align-items:start;gap:8px"><span style="color:var(--pink);font-weight:700;font-size:14px">5</span>성과 지표를 추적한다 &mdash; 완료율, 도달 시간, 7일 유지율</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.page -->
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Modal overlays -->
+<div class="modal-overlay" id="modalProper" onclick="if(event.target===this)closeModal('proper')">
+  <div class="modal-box">
+    <div class="modal-title">프로젝트 "Summer Campaign"을 삭제합니다</div>
+    <div class="modal-desc">이 작업은 되돌릴 수 없습니다. 12개의 파일과 모든 공유 설정이 영구적으로 삭제됩니다.</div>
+    <div class="modal-actions">
+      <button onclick="closeModal('proper')">취소</button>
+      <button class="btn-danger" onclick="closeModal('proper');showToast('action','프로젝트가 삭제되었습니다.','실행취소',3500)">영구 삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalImproper" onclick="if(event.target===this)closeModal('improper')">
+  <div class="modal-box">
+    <div class="modal-title">&#x1F389; 뉴스레터를 구독하세요!</div>
+    <div class="modal-desc">매주 최신 디자인 트렌드와 팁을 받아보세요. 지금 구독하면 무료 이북을 드립니다!</div>
+    <div style="font-size:12px;color:var(--red);margin-bottom:16px;background:rgba(248,113,113,0.08);padding:10px 14px;border-radius:8px;border:1px solid rgba(248,113,113,0.2)">
+      &#x26A0; 이런 모달은 사용자를 짜증나게 합니다. 비필수 콘텐츠에 모달을 사용하면 "양치기 소년" 효과가 발생합니다.
+    </div>
+    <div class="modal-actions">
+      <button onclick="closeModal('improper')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── Toast System ─── */
+let toastQueue = [];
+function showToast(type, message, actionLabel, duration) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  let html = '<span>' + message + '</span>';
+  if (actionLabel) {
+    html += '<button class="toast-btn" onclick="this.parentElement.remove()">' + actionLabel + '</button>';
+  }
+  toast.innerHTML = html;
+  container.appendChild(toast);
+
+  if (duration > 0) {
+    setTimeout(function() {
+      toast.style.animation = 'toastOut 0.25s ease forwards';
+      setTimeout(function() { toast.remove(); }, 250);
+    }, duration);
+  } else if (duration === 0 && actionLabel) {
+    // Indefinite — stays until action
+  } else {
+    setTimeout(function() {
+      toast.style.animation = 'toastOut 0.25s ease forwards';
+      setTimeout(function() { toast.remove(); }, 250);
+    }, 3500);
+  }
+}
+
+/* ─── Modal System ─── */
+function showModal(type) {
+  if (type === 'proper') {
+    document.getElementById('modalProper').classList.add('show');
+  } else {
+    document.getElementById('modalImproper').classList.add('show');
+  }
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(type) {
+  if (type === 'proper') {
+    document.getElementById('modalProper').classList.remove('show');
+  } else {
+    document.getElementById('modalImproper').classList.remove('show');
+  }
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeModal('proper');
+    closeModal('improper');
+  }
+});
+
+/* ─── Email Validation — Premature ─── */
+function validatePremature(input) {
+  var msg = document.getElementById('msgPremature');
+  var val = input.value;
+  if (val.length === 0) {
+    msg.className = 'form-msg';
+    msg.innerHTML = '';
+    input.className = 'form-input';
+    return;
+  }
+  var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  if (!valid) {
+    input.className = 'form-input error';
+    msg.className = 'form-msg premature';
+    msg.innerHTML = '&#x274C; 이메일 형식이 올바르지 않습니다';
+  } else {
+    input.className = 'form-input valid';
+    msg.className = 'form-msg valid';
+    msg.innerHTML = '&#x2705; 올바른 이메일 형식입니다';
+  }
+}
+
+/* ─── Email Validation — Correct (onBlur) ─── */
+function validateCorrect(input) {
+  var msg = document.getElementById('msgCorrect');
+  var val = input.value;
+  if (val.length === 0) {
+    msg.className = 'form-msg';
+    msg.innerHTML = '';
+    input.className = 'form-input';
+    return;
+  }
+  var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  if (!valid) {
+    input.className = 'form-input error';
+    msg.className = 'form-msg error';
+    msg.innerHTML = '&#x274C; 이메일 주소에 @ 기호가 필요합니다';
+  } else {
+    input.className = 'form-input valid';
+    msg.className = 'form-msg valid';
+    msg.innerHTML = '&#x2705; 올바른 이메일 형식입니다';
+  }
+}
+function clearCorrect(input) {
+  var msg = document.getElementById('msgCorrect');
+  if (input.className.indexOf('error') > -1) {
+    // Keep error while still typing after blur validation
+  } else {
+    msg.className = 'form-msg';
+    msg.innerHTML = '';
+    input.className = 'form-input';
+  }
+}
+</script>
+</body>
+</html>

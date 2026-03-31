@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 디자인 안티패턴 & 진정성</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--pink:#f472b6;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(217,119,6,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* Typography */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:rgba(232,150,90,0.12);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,150,90,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-5{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  /* Anti-pattern vs Good */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative;overflow:hidden}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* Mock UI blocks */
+  .mock-ui{border-radius:10px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
+  .mock-bar{height:8px;border-radius:4px;background:var(--border)}
+  .mock-block{border-radius:8px;background:var(--surface2);border:1px solid var(--border)}
+  .mock-text{height:6px;border-radius:3px;background:var(--border);width:60%}
+  .mock-text.short{width:40%}
+  .mock-text.long{width:80%}
+
+  /* Spectrum bar */
+  .spectrum{display:flex;gap:2px;margin:16px 0}
+  .spectrum-item{flex:1;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:0.5px}
+
+  /* Checklist */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,150,90,0.03)}
+  td code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+
+  /* Number badge */
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:rgba(232,150,90,0.15);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>AI 디자인 안티패턴 & 진정성</h1>
+<p class="subtitle">AI가 생성하는 UI/UX의 공통적 약점을 식별하고, 브랜드·맥락·사용자에 맞는 진정성 있는(authentic) 디자인을 구현하기 위한 원칙.</p>
+
+<!-- ── Section 1: 분포 수렴 ── -->
+<div class="section">
+  <div class="section-label">분포 수렴 (Distributional Convergence)</div>
+  <p class="desc">AI 디자인 도구는 학습 데이터에서 가장 빈번한 패턴으로 수렴한다. 동일한 폰트, 동일한 컬러, 동일한 레이아웃 — 이것이 "AI Slop"이다.</p>
+
+  <div class="spectrum">
+    <div class="spectrum-item" style="background:rgba(248,113,113,0.2);color:var(--red)">AI 기본값</div>
+    <div class="spectrum-item" style="background:rgba(251,191,36,0.15);color:var(--yellow)">약간 수정</div>
+    <div class="spectrum-item" style="background:rgba(232,150,90,0.15);color:var(--accent)">맥락 적용</div>
+    <div class="spectrum-item" style="background:rgba(74,222,128,0.15);color:var(--green)">브랜드 고유</div>
+  </div>
+  <p class="caption">진정성 스펙트럼 — AI 기본값에서 브랜드 고유로 갈수록 차별화된다</p>
+</div>
+
+<!-- ── Section 2: 안티패턴 10가지 ── -->
+<div class="section">
+  <div class="section-label">AI 디자인 안티패턴 10가지</div>
+
+  <!-- 1. 유니폼 border-radius -->
+  <div style="margin-bottom:32px">
+    <h3 style="display:flex;align-items:center;gap:8px"><span class="num">1</span> 유니폼 border-radius</h3>
+    <p class="desc">모든 요소에 동일한 border-radius를 적용하면 위계와 구분이 사라진다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label">✕ 안티패턴</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px;font-size:12px;color:var(--text3)">버튼 — 16px</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px;font-size:12px;color:var(--text3)">카드 — 16px</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px;font-size:12px;color:var(--text3)">인풋 — 16px</div>
+        </div>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">✓ 개선</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;color:var(--text2)">버튼 — 8px</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;font-size:12px;color:var(--text2)">카드 — 14px</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;color:var(--text2)">인풋 — 6px</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 제네릭 컬러 -->
+  <div style="margin-bottom:32px">
+    <h3 style="display:flex;align-items:center;gap:8px"><span class="num">2</span> 제네릭 컬러 팔레트</h3>
+    <p class="desc">브랜드와 무관한 보라-파랑 그라데이션은 AI의 가장 흔한 기본값이다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label">✕ AI 기본값</div>
+        <div style="display:flex;gap:4px;height:48px">
+          <div style="flex:1;border-radius:8px;background:linear-gradient(135deg,#6C63FF,#4F46E5)"></div>
+          <div style="flex:1;border-radius:8px;background:#7C3AED"></div>
+          <div style="flex:1;border-radius:8px;background:#8B5CF6"></div>
+          <div style="flex:1;border-radius:8px;background:#A78BFA"></div>
+        </div>
+        <p style="font-size:11px;color:var(--text3);margin-top:6px">SaaS 70%가 이 팔레트</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">✓ 브랜드 도출</div>
+        <div style="display:flex;gap:4px;height:48px">
+          <div style="flex:1;border-radius:8px;background:#1B4332"></div>
+          <div style="flex:1;border-radius:8px;background:#2D6A4F"></div>
+          <div style="flex:1;border-radius:8px;background:#52B788"></div>
+          <div style="flex:1;border-radius:8px;background:#D8F3DC"></div>
+        </div>
+        <p style="font-size:11px;color:var(--text3);margin-top:6px">브랜드 아이덴티티 반영</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 균일 반복 -->
+  <div style="margin-bottom:32px">
+    <h3 style="display:flex;align-items:center;gap:8px"><span class="num">3</span> 과도한 대칭과 균일 반복</h3>
+    <p class="desc">모든 섹션이 동일한 3열 카드 구조로 반복되면 스크롤하면서 모든 섹션이 동일하게 느껴진다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label">✕ 균일 반복</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:4px">
+            <div class="mock-block" style="flex:1;height:50px"></div>
+            <div class="mock-block" style="flex:1;height:50px"></div>
+            <div class="mock-block" style="flex:1;height:50px"></div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <div class="mock-block" style="flex:1;height:50px"></div>
+            <div class="mock-block" style="flex:1;height:50px"></div>
+            <div class="mock-block" style="flex:1;height:50px"></div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <div class="mock-block" style="flex:1;height:50px"></div>
+            <div class="mock-block" style="flex:1;height:50px"></div>
+            <div class="mock-block" style="flex:1;height:50px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">✓ 의도적 변주</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="mock-block" style="height:60px"></div>
+          <div style="display:flex;gap:4px">
+            <div class="mock-block" style="flex:2;height:70px"></div>
+            <div class="mock-block" style="flex:1;height:70px"></div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <div class="mock-block" style="flex:1;height:40px"></div>
+            <div class="mock-block" style="flex:1;height:40px"></div>
+            <div class="mock-block" style="flex:1;height:40px"></div>
+            <div class="mock-block" style="flex:1;height:40px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4~10 요약 테이블 -->
+  <div class="card" style="margin-bottom:24px">
+    <h3 style="margin-bottom:16px">안티패턴 4~10 요약</h3>
+    <table>
+      <tr><th>#</th><th>안티패턴</th><th>핵심 문제</th><th>개선 방향</th></tr>
+      <tr><td><span class="num">4</span></td><td>추상적 AI 카피</td><td>"혁신적인 솔루션", "원활한 경험"</td><td>구체적 가치 명시: "결제가 3초 만에 끝남"</td></tr>
+      <tr><td><span class="num">5</span></td><td>과잉 장식</td><td>목적 없는 blur, gradient, shadow</td><td>기능적 목적이 있는 효과만 사용</td></tr>
+      <tr><td><span class="num">6</span></td><td>기본 폰트</td><td>Inter 한 가지로 전체 통일</td><td>브랜드 서체 선택 + weight 변주</td></tr>
+      <tr><td><span class="num">7</span></td><td>과잉 요소</td><td>대시보드에 12개 동일 카드</td><td>핵심 3~5개만, 나머지는 접기</td></tr>
+      <tr><td><span class="num">8</span></td><td>맥락 무시</td><td>영문 placeholder, 서양식 포맷</td><td>타겟 로케일에 맞는 포맷 적용</td></tr>
+      <tr><td><span class="num">9</span></td><td>스톡 느낌</td><td>과도하게 완벽한 AI 이미지</td><td>실제 제품/팀 사진 또는 맞춤 일러스트</td></tr>
+      <tr><td><span class="num">10</span></td><td>히어로 템플릿</td><td>좌측 텍스트 + 우측 목업 고정</td><td>제품 특성에 맞는 고유 레이아웃</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 3: 진정성 원칙 ── -->
+<div class="section">
+  <div class="section-label">진정성 있는 디자인 원칙 5가지</div>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <h3 style="display:flex;align-items:center;gap:8px"><span class="num">1</span> 의도적 불완전함</h3>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">2026년 핵심 트렌드: <strong style="color:var(--accent)">촉각적 반란(tactile rebellion)</strong>. AI의 매끈한 완벽함에서 벗어나 인간적 질감과 통제된 불규칙성을 의도적으로 사용한다.</p>
+    </div>
+    <div class="card">
+      <h3 style="display:flex;align-items:center;gap:8px"><span class="num">2</span> 콘텐츠 우선</h3>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">AI는 레이아웃 먼저 → 콘텐츠 채우기. 좋은 디자인은 <strong style="color:var(--accent)">콘텐츠가 구조를 결정</strong>한다. 텍스트 양, 이미지 비율, 데이터 특성에 맞는 구조.</p>
+    </div>
+    <div class="card">
+      <h3 style="display:flex;align-items:center;gap:8px"><span class="num">3</span> 맥락 적합성</h3>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">같은 컴포넌트라도 사용 맥락에 따라 다르게. 타겟 사용자, 사용 환경, 브랜드 톤, 문화권을 반영한다.</p>
+    </div>
+    <div class="card">
+      <h3 style="display:flex;align-items:center;gap:8px"><span class="num">4</span> 편집적 판단</h3>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">AI 출력 10개 중 1~2개만 선택하고, 선택한 것에 브랜드·맥락을 반영. <strong style="color:var(--accent)">"다른 제품에도 붙을 수 있으면 버려라."</strong></p>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h3 style="display:flex;align-items:center;gap:8px"><span class="num">5</span> 디자인 시스템 선행</h3>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">"모던한 UI 만들어줘"가 아니라, 컬러 토큰·타이포 스케일·스페이싱 체계를 먼저 확립. AI는 시스템 내 컴포넌트를 조합하는 역할로 제한. 시스템에 없는 값이 나타나면 즉시 교정.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 4: 감사 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">감사 체크리스트</div>
+  <p class="desc">디자인 감사 시 Authenticity 카테고리에서 검증하는 10개 항목.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">1</span> border-radius가 요소 역할별로 차등 적용되었는가?</li>
+      <li><span class="check">2</span> 컬러 팔레트가 브랜드 아이덴티티에서 도출되었는가?</li>
+      <li><span class="check">3</span> 연속된 섹션의 레이아웃에 의도적 변주가 있는가?</li>
+      <li><span class="check">4</span> 카피가 이 제품에만 해당하는 구체적 내용인가?</li>
+      <li><span class="check">5</span> 장식적 효과에 기능적 목적이 있는가?</li>
+      <li><span class="check">6</span> 타이포그래피가 브랜드에 맞게 선택되었는가?</li>
+      <li><span class="check">7</span> 화면의 요소 수가 사용자 태스크에 필요한 최소인가?</li>
+      <li><span class="check">8</span> 텍스트·날짜·통화가 타겟 로케일에 맞는가?</li>
+      <li><span class="check">9</span> 이미지/아이콘이 프로젝트 고유 스타일인가?</li>
+      <li><span class="check">10</span> 히어로/핵심 섹션이 다른 제품과 구별 가능한 고유 구조인가?</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Section 5: 출처 ── -->
+<div class="section">
+  <div class="section-label">참고 문헌</div>
+  <div class="card" style="font-size:13px;color:var(--text2);line-height:1.6">
+    • 925 Studios — AI Slop Web Design Guide (2026)<br>
+    • BSWEN — AI-Generated UI Anti-Patterns Guide<br>
+    • Crea8ive Solution — Anti-AI Design Trends 2026<br>
+    • Jarsking — Imperfection Design Trends 2026<br>
+    • NNGroup — State of UX 2026<br>
+    • NNGroup — AI Prototyping: Good from Afar<br>
+    • Vandelay Design — Why AI Designs Look the Same
+  </div>
+</div>
+
+</div>
+</body>
+</html>

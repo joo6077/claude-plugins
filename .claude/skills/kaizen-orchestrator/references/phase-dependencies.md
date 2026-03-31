@@ -3,21 +3,31 @@
 ## 업데이트 순서
 
 ```
-Phase 1: 설계 가이드
-  docs/guides/skill-design-guide.md
-  docs/guides/agent-design-guide.md
-      ↓ 설계 원칙이 Phase 2~3의 판단 기준
-Phase 2: harness
-  harness/skills/*/SKILL.md
+Phase 1: 설계 가이드 카이젠
+  harness/docs/guides/skill-design-guide.md
+  harness/docs/guides/agent-design-guide.md
+      ↓ 설계 원칙이 Phase 2~6의 판단 기준
+Phase 2: Contract 카이젠 (contract-kaizen)
+  harness/docs/guides/contract-design-guide.md
+  harness/skills/sprint-contract/SKILL.md
+      ↓ 계약 작성 원칙이 Phase 3 evaluator 기준
+Phase 3: Evaluator 카이젠 (evaluator-kaizen)
+  harness/docs/guides/qa-evaluation-guide.md
   harness/agents/qa-evaluator.md
+      ↓ QA 평가 기준이 Phase 4~6 검증 기반
+Phase 4: Harness 카이젠 (harness-kaizen)
+  harness/skills/*/SKILL.md (sprint-contract, evaluator-kaizen 제외)
+  harness/agents/ (qa-evaluator 제외)
   .harness/project.yaml
-  harness/evals/
-      ↓ QA 프레임워크가 Phase 3 eval/audit 기반
-Phase 3: flutter-toolkit (내부 순서 있음)
-  3-a. flutter-toolkit/references/project-detection.md
-  3-b. flutter-toolkit/skills/*/SKILL.md (기존)
-  3-c. flutter-toolkit/skills/*/SKILL.md (신규 생성)
-  3-d. flutter-toolkit/evals/evals.json
+      ↓ Harness 인프라가 Phase 5~6 실행 환경
+Phase 5: Flutter-toolkit 카이젠 (flutter-kaizen)
+  flutter-toolkit/references/project-detection.md
+  flutter-toolkit/skills/*/SKILL.md
+  flutter-toolkit/evals/evals.json
+      ↓ Flutter 스킬 완료 후 Design-kit으로
+Phase 6: Design-kit 카이젠 (design-kaizen)
+  design-kit/skills/*/SKILL.md
+  design-kit/references/
 ```
 
 ## Phase 간 의존성 상세
@@ -26,18 +36,23 @@ Phase 3: flutter-toolkit (내부 순서 있음)
 |------|------|------|
 | skill-design-guide.md | 모든 SKILL.md | Gotchas 패턴, 아키타입 분류, 트리거 조건 원칙 |
 | agent-design-guide.md | qa-evaluator.md | 도구 스코핑, 모델 선택, 영속 메모리 원칙 |
-| skill-design-guide.md | sprint-contract | 검증 가능한 성공 기준 원칙 (섹션 3.5) |
+| contract-design-guide.md | sprint-contract SKILL.md | 계약 작성 원칙, 카테고리 설계, 이진 판정 기준 |
+| qa-evaluation-guide.md | qa-evaluator.md | 편향 분류, CheckEval 프로토콜, 확신도 체계 |
+| contract-schema.md | sprint-contract, qa-evaluator | 계약 포맷 스키마 공유 |
 | project.yaml | sprint-contract | contract_categories, anti_patterns |
-| qa-evaluator.md | Phase 3 QA | flutter-toolkit 변경도 같은 QA로 검증 |
+| qa-evaluator.md | Phase 4~6 QA | 모든 Phase 변경이 같은 QA로 검증됨 |
 | project-detection.md | flutter-toolkit 전 스킬 | $FLUTTER, ARCH, HAS_* 변수 제공 |
 
 ## Phase 스킵 시 전파 규칙
 
-- Phase 1 스킵 → Phase 2~3는 기존 설계 가이드 기준으로 진행
-- Phase 2 스킵 → Phase 3는 기존 harness 설정 기준으로 진행
-- Phase 3 내부: project-detection 변경 없으면 3-a 스킵, 바로 3-b로
+- Phase 1 스킵 → Phase 2~6는 기존 설계 가이드 기준으로 진행
+- Phase 2 스킵 → Phase 3는 기존 contract-schema 기준으로 진행
+- Phase 3 스킵 → Phase 4~6는 기존 evaluator 기준으로 진행
+- Phase 4 스킵 → Phase 5~6는 기존 harness 설정 기준으로 진행
+- Phase 5 내부: project-detection 변경 없으면 바로 기존 스킬로
 
 ## QA 실패 시 롤백 범위
 
 - Phase N QA REJECT → Phase N 변경만 수정 (이전 Phase 건드리지 않음)
 - Final QA REJECT → 해당 Phase로 돌아가 수정 (다른 Phase 건드리지 않음)
+- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지

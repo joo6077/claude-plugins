@@ -29,11 +29,16 @@ user-invocable: true
 | spacing | 간격, 패딩, 마진, 정렬 |
 | interaction | 버튼, 탭, 스와이프, 제스처 |
 | accessibility | 접근성, a11y, 대비, 터치 타겟 |
-| motion | 애니메이션, 전환, transition |
+| motion | 애니메이션, 전환, transition, 마이크로인터랙션 |
+| visual hierarchy | 위계, 강조, 눈에 띄게, 중요도, 시선 |
+| layout & grid | 그리드, 열, 정렬, 레이아웃, 반응형, breakpoint |
+| image | 이미지, 일러스트, 사진, 아이콘 스타일 |
+| ethical design | 다크 패턴, 윤리, 동의, 탈퇴, 구독 해지 |
+| authenticity | AI스러운, 제네릭, 템플릿, 개성, 진정성, 브랜드 톤 |
 
 ## Step 2: 원칙 참조
 
-references/principle-index.md에서 해당 카테고리의 원칙 파일을 찾아 읽는다. 프로젝트에 `docs/design/` 디렉토리가 있으면 해당 리서치 문서를 우선 참조한다.
+references/principle-index.md에서 해당 카테고리의 원칙 문서 경로를 찾아 읽는다. 경로는 플러그인 내부 리서치 문서를 가리킨다.
 
 ## Step 3: 가이드 제시
 

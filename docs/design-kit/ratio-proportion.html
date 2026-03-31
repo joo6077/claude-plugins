@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>비율과 프로포션 — Design Foundations</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;--text4:#3d4260;
+  --accent:#E8965A;--accent2:#F0B088;--gold:#f0c040;--green:#34d399;--red:#f87171;--cyan:#22d3ee;
+  --radius:14px;--radius-sm:8px;--radius-xs:6px;
+  --transition:0.3s cubic-bezier(.4,0,.2,1);
+  --font:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Fira Code','SF Mono',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;overflow-x:hidden}
+
+/* === HERO === */
+.hero{
+  position:relative;padding:clamp(60px,10vw,120px) clamp(20px,5vw,48px) clamp(40px,6vw,80px);
+  text-align:center;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);
+  width:800px;height:800px;
+  background:radial-gradient(circle,rgba(232,150,90,0.08) 0%,rgba(240,176,136,0.04) 40%,transparent 70%);
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:100px;
+  padding:8px 20px;font-size:13px;color:var(--text2);margin-bottom:24px;font-weight:600;
+}
+.hero-badge span{color:var(--gold)}
+.hero h1{
+  font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-1.5px;line-height:1.15;
+  background:linear-gradient(135deg,var(--text) 0%,var(--text2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:16px;
+}
+.hero h1 em{font-style:normal;-webkit-text-fill-color:var(--gold)}
+.hero-sub{
+  font-size:clamp(15px,1.5vw,19px);color:var(--text2);max-width:680px;margin:0 auto 32px;line-height:1.7;
+}
+.hero-principles{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;
+  max-width:900px;margin:0 auto;text-align:left;
+}
+.hero-principles .p-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:20px;
+}
+.hero-principles .p-card strong{display:block;font-size:14px;color:var(--accent);margin-bottom:6px}
+.hero-principles .p-card span{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* === PAGE === */
+.page{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,48px) clamp(40px,6vw,80px)}
+
+/* === SECTIONS === */
+.section{margin-bottom:clamp(60px,8vw,100px)}
+.section-label{
+  font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;
+}
+.section-title{
+  font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.8px;margin-bottom:8px;line-height:1.2;
+}
+.section-desc{font-size:clamp(14px,1.2vw,16px);color:var(--text2);margin-bottom:clamp(24px,3vw,40px);max-width:680px;line-height:1.7}
+
+/* === CARDS === */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:clamp(20px,3vw,32px);
+}
+.card + .card{margin-top:16px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.card-title .icon{font-size:20px}
+.card-subtitle{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+
+/* === GRID HELPERS === */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:768px){
+  .grid-2,.grid-3{grid-template-columns:1fr}
+}
+
+/* === BUTTONS / TABS === */
+.tab-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text2);
+  padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;
+  transition:all var(--transition);font-family:var(--font);
+}
+.tab-btn:hover{border-color:var(--text3);color:var(--text)}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* === TABLES === */
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:700;color:var(--text2);padding:12px 16px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:1px}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:hover td{background:rgba(232,150,90,0.03)}
+td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(--surface2);padding:2px 8px;border-radius:4px}
+
+/* === CODE === */
+.code-block{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.7;
+  overflow-x:auto;color:var(--text2);white-space:pre;
+}
+.code-block .kw{color:var(--accent2)}
+.code-block .prop{color:var(--cyan)}
+.code-block .val{color:var(--gold)}
+.code-block .cmt{color:var(--text4)}
+
+/* === GOLDEN RATIO DEMO === */
+.golden-canvas{
+  position:relative;width:100%;aspect-ratio:1.618/1;
+  background:var(--surface2);border-radius:var(--radius-sm);overflow:hidden;
+  border:1px solid var(--border);
+}
+.golden-canvas .main-area{
+  position:absolute;top:0;left:0;width:61.8%;height:100%;
+  background:rgba(232,150,90,0.08);border-right:2px dashed var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.5s ease;
+}
+.golden-canvas .side-area{
+  position:absolute;top:0;right:0;width:38.2%;height:100%;
+  background:rgba(240,176,136,0.06);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.5s ease;
+}
+.golden-canvas .label{font-size:clamp(12px,1.5vw,16px);font-weight:700;color:var(--text2)}
+.golden-canvas .pct{font-size:clamp(20px,3vw,36px);font-weight:800;color:var(--accent);margin-bottom:4px}
+
+/* Spiral */
+.golden-spiral-wrap{position:relative;width:100%;aspect-ratio:1.618/1;background:var(--surface2);border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.golden-spiral-wrap canvas{width:100%;height:100%}
+
+/* === RULE OF THIRDS === */
+.thirds-demo{
+  position:relative;width:100%;aspect-ratio:16/9;
+  background:linear-gradient(135deg,var(--surface2) 0%,var(--surface3) 100%);
+  border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);
+}
+.thirds-line-h,.thirds-line-v{position:absolute;background:rgba(240,192,64,0.3)}
+.thirds-line-h{width:100%;height:1px}
+.thirds-line-v{height:100%;width:1px}
+.thirds-point{
+  position:absolute;width:16px;height:16px;border-radius:50%;
+  background:var(--gold);transform:translate(-50%,-50%);
+  box-shadow:0 0 20px rgba(240,192,64,0.4);
+  z-index:2;
+}
+.thirds-point::after{
+  content:attr(data-label);position:absolute;top:22px;left:50%;transform:translateX(-50%);
+  font-size:11px;color:var(--gold);white-space:nowrap;font-weight:600;
+}
+.thirds-ui-mock{position:absolute;z-index:1}
+
+/* === ASPECT RATIO CARDS === */
+.ratio-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  overflow:hidden;transition:all var(--transition);
+}
+.ratio-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.ratio-preview{
+  width:100%;background:linear-gradient(135deg,rgba(232,150,90,0.1),rgba(240,176,136,0.08));
+  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.ratio-preview::after{
+  content:attr(data-ratio);font-size:clamp(14px,2vw,24px);font-weight:800;color:var(--text3);
+}
+.ratio-info{padding:16px}
+.ratio-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.ratio-use{font-size:12px;color:var(--text2);line-height:1.5}
+.ratio-value{font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:6px}
+
+/* === MODULAR SCALE CALC === */
+.calc-row{display:flex;gap:16px;align-items:end;flex-wrap:wrap;margin-bottom:24px}
+.calc-field label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600}
+.calc-field input,.calc-field select{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  padding:10px 16px;border-radius:var(--radius-xs);font-size:15px;font-family:var(--mono);
+  width:120px;transition:border-color var(--transition);
+}
+.calc-field input:focus,.calc-field select:focus{outline:none;border-color:var(--accent)}
+.calc-field select{width:200px;cursor:pointer}
+.scale-output{display:flex;flex-direction:column;gap:8px}
+.scale-step{
+  display:flex;align-items:center;gap:16px;padding:12px 16px;
+  background:var(--surface2);border-radius:var(--radius-xs);border:1px solid var(--border);
+  transition:all var(--transition);
+}
+.scale-step:hover{border-color:var(--accent)}
+.scale-step.base{border-color:var(--gold);background:rgba(240,192,64,0.05)}
+.scale-step .step-n{font-family:var(--mono);font-size:12px;color:var(--text3);width:40px;text-align:center;flex-shrink:0}
+.scale-step .step-size{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text);width:70px;flex-shrink:0}
+.scale-step .step-bar{flex:1;height:8px;background:var(--surface);border-radius:4px;overflow:hidden}
+.scale-step .step-bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+.scale-step .step-use{font-size:12px;color:var(--text2);width:100px;text-align:right;flex-shrink:0}
+.scale-sample{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;max-width:200px}
+
+/* === SCALE COMPARISON TABLE === */
+.scale-compare-row{
+  display:grid;grid-template-columns:80px 130px 60px 1fr 150px;gap:12px;align-items:center;
+  padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;
+}
+.scale-compare-row.header{font-weight:700;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.scale-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* === COMPONENT PROPORTIONS === */
+.comp-demo{display:grid;gap:20px}
+.comp-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.comp-card-img{background:linear-gradient(135deg,rgba(232,150,90,0.12),rgba(240,176,136,0.08));position:relative}
+.comp-card-img::after{
+  content:'IMAGE';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:12px;font-weight:700;color:var(--text3);letter-spacing:2px;
+}
+.comp-card-body{padding:16px}
+.comp-card-body h4{font-size:14px;margin-bottom:6px}
+.comp-card-body p{font-size:12px;color:var(--text2)}
+
+/* === CSS DEMO === */
+.css-demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.css-demo-preview{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:24px;display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;min-height:300px;
+}
+.css-demo-box{
+  background:linear-gradient(135deg,rgba(232,150,90,0.15),rgba(240,176,136,0.1));
+  border:2px dashed var(--accent);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;color:var(--accent);
+  transition:all 0.5s ease;max-width:100%;
+}
+@media(max-width:768px){.css-demo-grid{grid-template-columns:1fr}}
+
+/* === ANTI-PATTERNS === */
+.anti-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.anti-card{padding:clamp(16px,2vw,24px);border-radius:var(--radius-sm);border:1px solid}
+.anti-card.bad{background:rgba(248,113,113,0.04);border-color:rgba(248,113,113,0.2)}
+.anti-card.good{background:rgba(52,211,153,0.04);border-color:rgba(52,211,153,0.2)}
+.anti-card .anti-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.anti-card.bad .anti-label{color:var(--red)}
+.anti-card.good .anti-label{color:var(--green)}
+.anti-card h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.anti-card p{font-size:13px;color:var(--text2);line-height:1.6}
+@media(max-width:600px){.anti-grid{grid-template-columns:1fr}}
+
+/* === GOLDEN LAYOUT TABLE === */
+.golden-table-visual{
+  display:grid;grid-template-columns:61.8% 38.2%;height:60px;gap:2px;
+  border-radius:var(--radius-xs);overflow:hidden;margin-bottom:12px;
+}
+.golden-table-visual .gt-main{background:rgba(232,150,90,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent)}
+.golden-table-visual .gt-side{background:rgba(240,176,136,0.12);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent2)}
+
+/* === TYPO SCALE DEMO === */
+.typo-demo{display:flex;flex-direction:column;gap:8px;padding:24px;background:var(--surface2);border-radius:var(--radius-sm)}
+.typo-demo .td-row{display:flex;align-items:baseline;gap:16px}
+.typo-demo .td-label{font-family:var(--mono);font-size:11px;color:var(--text3);width:80px;flex-shrink:0;text-align:right}
+.typo-demo .td-text{font-weight:700;color:var(--text);white-space:nowrap}
+
+/* === PADDING HACK TABLE === */
+.ph-visual{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:20px 0}
+.ph-box{
+  background:rgba(232,150,90,0.08);border:1px solid var(--border);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  transition:all var(--transition);cursor:default;min-width:60px;
+}
+.ph-box:hover{border-color:var(--accent)}
+.ph-box .ph-label{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:2px}
+.ph-box .ph-val{font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* === TOUCH TARGET === */
+.touch-demo{display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap;justify-content:center;padding:24px}
+.touch-box{
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  border:2px dashed var(--border);border-radius:var(--radius-xs);position:relative;
+}
+.touch-box .t-inner{
+  background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#fff;font-weight:700;
+}
+.touch-box .t-label{font-size:11px;color:var(--text2);margin-top:10px;text-align:center;font-weight:600}
+.touch-box .t-size{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px}
+
+/* === NAV === */
+.back-to-top{
+  position:fixed;bottom:24px;right:24px;width:44px;height:44px;
+  background:var(--surface);border:1px solid var(--border);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:18px;color:var(--text2);z-index:100;transition:all var(--transition);
+  opacity:0;pointer-events:none;
+}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* === FOOTER === */
+footer{padding:40px clamp(20px,4vw,48px);text-align:center;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent);text-decoration:none}
+
+/* === RESPONSIVE === */
+@media(max-width:480px){
+  .calc-row{flex-direction:column}
+  .calc-field input,.calc-field select{width:100%}
+  .scale-step{flex-wrap:wrap}
+  .scale-step .step-use{width:auto;text-align:left}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span>&#x2727;</span> Design Foundations v0.3.0</div>
+  <h1>비율과 <em>프로포션</em></h1>
+  <p class="hero-sub">
+    임의 수치 대신 체계적 비율을 적용하면 시각적 조화, 일관성, 확장성을 동시에 얻는다.
+    수학적 관계 기반 크기와 간격은 인간 시각 체계가 자연스럽게 인지한다.
+  </p>
+  <div class="hero-principles">
+    <div class="p-card"><strong>시각적 조화</strong><span>수학적 관계 기반 크기/간격은 인간 시각 체계가 자연스럽게 인지한다</span></div>
+    <div class="p-card"><strong>일관성</strong><span>하나의 비율 체계에서 파생된 값들이 디자인 시스템 전체에 통일감을 부여한다</span></div>
+    <div class="p-card"><strong>확장성</strong><span>비율 기반 레이아웃은 다양한 화면 크기에서 비례를 유지한다</span></div>
+    <div class="p-card"><strong>의사결정 효율</strong><span>"왜 이 크기인가?"에 대한 답이 명확해져 리뷰와 협업이 빨라진다</span></div>
+  </div>
+</section>
+
+<div class="page">
+
+<!-- ======== GOLDEN RATIO ======== -->
+<section class="section" id="golden-ratio">
+  <div class="section-label">01</div>
+  <h2 class="section-title">황금비 (Golden Ratio, 1:1.618)</h2>
+  <p class="section-desc">
+    황금비(&#x3C6;, phi)는 약 1:1.618의 비율로, 자연계와 예술에서 반복 등장하는 수학적 상수다.
+    UI 디자인에서는 레이아웃 분할, 타이포그래피 스케일, 간격 체계에 활용된다.
+  </p>
+
+  <!-- Interactive Golden Grid -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x2B50;</span> 인터랙티브 황금비 그리드</div>
+    <div class="card-subtitle">모드를 전환하여 황금비의 다양한 시각화를 확인합니다</div>
+
+    <div class="tab-bar" id="goldenTabs">
+      <button class="tab-btn active" data-mode="layout">레이아웃 분할</button>
+      <button class="tab-btn" data-mode="spiral">황금 나선</button>
+      <button class="tab-btn" data-mode="recursive">재귀 분할</button>
+    </div>
+
+    <!-- Layout Mode -->
+    <div id="goldenLayout" class="golden-canvas">
+      <div class="main-area">
+        <div style="text-align:center">
+          <div class="pct">61.8%</div>
+          <div class="label">메인 콘텐츠</div>
+        </div>
+      </div>
+      <div class="side-area">
+        <div style="text-align:center">
+          <div class="pct" style="color:var(--accent2)">38.2%</div>
+          <div class="label">사이드바</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spiral Mode -->
+    <div id="goldenSpiral" class="golden-spiral-wrap" style="display:none">
+      <canvas id="spiralCanvas"></canvas>
+    </div>
+
+    <!-- Recursive Mode -->
+    <div id="goldenRecursive" style="display:none">
+      <div style="position:relative;width:100%;aspect-ratio:1.618/1;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);overflow:hidden" id="recursiveContainer"></div>
+    </div>
+  </div>
+
+  <!-- Golden Layout Table -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F4D0; UI 레이아웃 적용 수치</div>
+    <div class="golden-table-visual">
+      <div class="gt-main">메인 콘텐츠 (61.8%)</div>
+      <div class="gt-side">사이드바 (38.2%)</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>전체 너비</th><th>메인 콘텐츠</th><th>사이드바</th></tr></thead>
+        <tbody>
+          <tr><td><code>960px</code></td><td>593px (61.8%)</td><td>367px (38.2%)</td></tr>
+          <tr><td><code>1200px</code></td><td>742px (61.8%)</td><td>458px (38.2%)</td></tr>
+          <tr><td><code>1440px</code></td><td>890px (61.8%)</td><td>550px (38.2%)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Typography with Golden Ratio -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F520; 타이포그래피 적용</div>
+    <div class="card-subtitle">본문 크기를 기준으로 1.618을 곱하여 제목 크기를 산출한다. 행간(line-height)도 황금비를 참조할 수 있다 (16px 기준 ≈ 26px).</div>
+
+    <div class="typo-demo" id="typoDemo">
+      <div class="td-row"><span class="td-label">h1 · 68px</span><span class="td-text" style="font-size:48px">타이틀</span></div>
+      <div class="td-row"><span class="td-label">h2 · 42px</span><span class="td-text" style="font-size:32px">섹션 제목</span></div>
+      <div class="td-row"><span class="td-label">h3 · 26px</span><span class="td-text" style="font-size:22px">소제목</span></div>
+      <div class="td-row"><span class="td-label">body · 16px</span><span class="td-text" style="font-size:16px">본문 텍스트 기준값</span></div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead><tr><th>기준 본문</th><th>&#xD7; 1.618 (h3)</th><th>&#xD7; 1.618&#xB2; (h2)</th><th>&#xD7; 1.618&#xB3; (h1)</th></tr></thead>
+        <tbody>
+          <tr><td><code>14px</code></td><td>23px</td><td>37px</td><td>59px</td></tr>
+          <tr><td><code>16px</code></td><td>26px</td><td>42px</td><td>68px</td></tr>
+          <tr><td><code>18px</code></td><td>29px</td><td>47px</td><td>76px</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Limitations -->
+  <div class="card" style="margin-top:16px;border-color:rgba(240,192,64,0.2)">
+    <div class="card-title" style="color:var(--gold)">&#x26A0;&#xFE0F; 한계와 주의사항</div>
+    <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2)"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> 반응형 웹에서 모든 뷰포트에 황금비를 완벽히 적용하기 어렵다</li>
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2)"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> 행간 계산 시 줄 길이에 따른 가독성 조정이 필요하다</li>
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2)"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> 수학은 디자이너의 경험적 판단을 대체하지 못한다 — 도구일 뿐 절대 법칙이 아니다</li>
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2)"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> NNGroup: 황금비가 "디자인 문제를 해결하는 데 거의 도움이 안 된다" — 콘텐츠 요구사항이 비율보다 우선</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======== RULE OF THIRDS ======== -->
+<section class="section" id="rule-of-thirds">
+  <div class="section-label">02</div>
+  <h2 class="section-title">3분할 법칙 (Rule of Thirds)</h2>
+  <p class="section-desc">
+    화면을 가로 3등분, 세로 3등분하여 9개 영역으로 나눈다. 교차점(power point) 4곳에 핵심 요소를 배치하면 시각적 긴장감과 균형을 동시에 얻는다.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x1F3AF; 3분할 그리드 오버레이</div>
+    <div class="card-subtitle">핵심 요소를 교차점(파워 포인트)에 배치하여 시각적 긴장감과 균형을 동시에 확보한다</div>
+
+    <div class="thirds-demo" id="thirdsDemo">
+      <!-- Grid lines -->
+      <div class="thirds-line-h" style="top:33.33%"></div>
+      <div class="thirds-line-h" style="top:66.66%"></div>
+      <div class="thirds-line-v" style="left:33.33%"></div>
+      <div class="thirds-line-v" style="left:66.66%"></div>
+      <!-- Power points -->
+      <div class="thirds-point" style="top:33.33%;left:33.33%" data-label="핵심 메시지"></div>
+      <div class="thirds-point" style="top:33.33%;left:66.66%" data-label="내비게이션"></div>
+      <div class="thirds-point" style="top:66.66%;left:33.33%" data-label="부가 정보"></div>
+      <div class="thirds-point" style="top:66.66%;left:66.66%" data-label="CTA 버튼"></div>
+      <!-- Mock UI elements -->
+      <div class="thirds-ui-mock" style="top:8%;left:5%;font-size:clamp(10px,1.5vw,14px);color:var(--text3);font-weight:700">LOGO</div>
+      <div class="thirds-ui-mock" style="top:28%;left:28%;font-size:clamp(14px,2.5vw,28px);font-weight:800;color:var(--text);max-width:45%">핵심 메시지를 상단 1/3 교차점에</div>
+      <div class="thirds-ui-mock" style="top:62%;left:60%;background:var(--accent);color:#fff;padding:8px 24px;border-radius:8px;font-size:clamp(11px,1.2vw,14px);font-weight:700">지금 시작하기</div>
+    </div>
+  </div>
+
+  <!-- Rule of thirds applications table -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F4CB; 3분할 적용 가이드</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>적용 영역</th><th>기법</th></tr></thead>
+        <tbody>
+          <tr><td>Hero 섹션</td><td>핵심 메시지를 상단 1/3 교차점에 배치</td></tr>
+          <tr><td>랜딩 페이지</td><td>CTA 버튼을 하단 1/3 교차점에 배치</td></tr>
+          <tr><td>카드 레이아웃</td><td>이미지 영역 2/3 + 텍스트 영역 1/3</td></tr>
+          <tr><td>대시보드</td><td>주요 KPI를 상단 1/3에 집중 배치</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="card-subtitle" style="margin-bottom:12px">CSS Grid 3분할 구현</div>
+      <div class="code-block"><span class="kw">.rule-of-thirds</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">1fr 1fr 1fr</span>;
+  <span class="prop">grid-template-rows</span>: <span class="val">1fr 1fr 1fr</span>;
+}</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== SCREEN ASPECT RATIOS ======== -->
+<section class="section" id="aspect-ratios">
+  <div class="section-label">03</div>
+  <h2 class="section-title">화면 비율 체계</h2>
+  <p class="section-desc">
+    디바이스별 화면 비율이 다르므로 고정 비율 레이아웃은 주의가 필요하다. 주요 비율과 용도를 시각적으로 비교한다.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x1F4F1; 주요 화면 비율 비교</div>
+    <div class="card-subtitle">각 비율의 실제 형태와 주요 사용처를 한눈에 비교합니다</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-top:8px" id="ratioGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Responsive considerations -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F4BB; 반응형 고려사항</div>
+    <div class="grid-3">
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">데스크톱 (16:9 ~ 16:10)</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">가로 중심 레이아웃, 사이드바 활용 가능</div>
+      </div>
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">태블릿 (4:3 ~ 3:2)</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">가로/세로 전환 대응 필수</div>
+      </div>
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px">모바일 (9:16 ~ 9:19.5)</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">세로 스크롤 중심, 컨텐츠 스택 레이아웃</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== MODULAR SCALE ======== -->
+<section class="section" id="modular-scale">
+  <div class="section-label">04</div>
+  <h2 class="section-title">모듈러 스케일 (Modular Scale)</h2>
+  <p class="section-desc">
+    기준값(base)에 일정한 비율(ratio)을 반복적으로 곱하여 생성하는 수열이다.
+    공식: <code style="font-family:var(--mono);color:var(--cyan);background:var(--surface2);padding:2px 8px;border-radius:4px">value = base &#xD7; ratio^n</code>
+    — Tim Brown이 A List Apart에서 소개한 개념.
+  </p>
+
+  <!-- Calculator -->
+  <div class="card">
+    <div class="card-title">&#x1F5A9; 모듈러 스케일 계산기</div>
+    <div class="card-subtitle">기준값과 비율을 입력하면 전체 스케일이 자동으로 생성됩니다</div>
+
+    <div class="calc-row">
+      <div class="calc-field">
+        <label>기준값 (Base)</label>
+        <input type="number" id="scaleBase" value="16" min="8" max="48" step="1">
+      </div>
+      <div class="calc-field">
+        <label>비율 (Ratio)</label>
+        <select id="scaleRatio">
+          <option value="1.067">Minor Second (1.067)</option>
+          <option value="1.125">Major Second (1.125)</option>
+          <option value="1.200">Minor Third (1.200)</option>
+          <option value="1.250">Major Third (1.250)</option>
+          <option value="1.333" selected>Perfect Fourth (1.333)</option>
+          <option value="1.414">Augmented Fourth (1.414)</option>
+          <option value="1.500">Perfect Fifth (1.500)</option>
+          <option value="1.618">Golden Ratio (1.618)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="scale-output" id="scaleOutput">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Scale Comparison Table -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F4CA; 스케일 비율 비교 테이블</div>
+    <div class="card-subtitle">Minor Second부터 Golden Ratio까지 — 각 비율의 특성과 적합한 용도</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>비율</th><th>이름</th><th>값</th><th>특성</th><th>적합한 용도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:#E8965A;display:inline-block"></div></td><td>Minor Second</td><td><code>1.067</code></td><td>매우 미세한 차이</td><td>밀집 데이터 UI</td></tr>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:#7b9aff;display:inline-block"></div></td><td>Major Second</td><td><code>1.125</code></td><td>미세한 차이</td><td>대시보드, 테이블</td></tr>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:#8baaff;display:inline-block"></div></td><td>Minor Third</td><td><code>1.200</code></td><td>부드러운 대비</td><td>모바일 UI</td></tr>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:#9bbaff;display:inline-block"></div></td><td>Major Third</td><td><code>1.250</code></td><td>적당한 대비</td><td>일반 웹 UI</td></tr>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block"></div></td><td>Perfect Fourth</td><td><code>1.333</code></td><td>명확한 계층</td><td>가장 보편적인 웹 UI</td></tr>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:#cba0ff;display:inline-block"></div></td><td>Augmented Fourth</td><td><code>1.414</code></td><td>극적인 대비</td><td>프로모션, A4 비율</td></tr>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:#db80ff;display:inline-block"></div></td><td>Perfect Fifth</td><td><code>1.500</code></td><td>강한 대비</td><td>에디토리얼</td></tr>
+          <tr><td><div style="width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block"></div></td><td>Golden Ratio</td><td><code>1.618</code></td><td>극적 대비</td><td>고급 브랜드, 에디토리얼</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Double-stranded scale -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F500; 이중 기준 스케일 (Double-Stranded Scale)</div>
+    <div class="card-subtitle">두 개의 기준값을 사용하여 더 촘촘한 스케일을 생성하는 기법 (Tim Brown)</div>
+    <div class="code-block"><span class="cmt">// 기준 A: 18px &#xD7; 1.618^n</span>
+A: <span class="val">18, 29, 47, 76, 123, 199...</span>
+
+<span class="cmt">// 기준 B: 190px &#xF7; 1.618^n</span>
+B: <span class="val">190, 117, 73, 45, 28, 17...</span>
+
+<span class="cmt">// 병합 스케일</span>
+&#x2192; <span class="val">17, 18, 28, 29, 45, 47, 73, 76, 117, 123, 190, 199...</span></div>
+  </div>
+
+  <!-- Spacing application -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x2194;&#xFE0F; 간격(Spacing)에의 적용</div>
+    <div class="card-subtitle">타이포그래피뿐 아니라 간격 시스템에도 동일한 비율을 적용한다</div>
+    <div class="code-block"><span class="kw">:root</span> {
+  <span class="prop">--space-base</span>: <span class="val">16px</span>;
+  <span class="prop">--space-ratio</span>: <span class="val">1.333</span>;
+
+  <span class="prop">--space-3xs</span>: <span class="val">7px</span>;   <span class="cmt">/* base &#xF7; ratio&#xB3; */</span>
+  <span class="prop">--space-2xs</span>: <span class="val">9px</span>;   <span class="cmt">/* base &#xF7; ratio&#xB2; */</span>
+  <span class="prop">--space-xs</span>:  <span class="val">12px</span>;  <span class="cmt">/* base &#xF7; ratio */</span>
+  <span class="prop">--space-sm</span>:  <span class="val">16px</span>;  <span class="cmt">/* base (기준) */</span>
+  <span class="prop">--space-md</span>:  <span class="val">21px</span>;  <span class="cmt">/* base &#xD7; ratio */</span>
+  <span class="prop">--space-lg</span>:  <span class="val">28px</span>;  <span class="cmt">/* base &#xD7; ratio&#xB2; */</span>
+  <span class="prop">--space-xl</span>:  <span class="val">38px</span>;  <span class="cmt">/* base &#xD7; ratio&#xB3; */</span>
+}</div>
+
+    <div class="ph-visual" id="spacingVisual">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ======== COMPONENT PROPORTIONS ======== -->
+<section class="section" id="component-proportions">
+  <div class="section-label">05</div>
+  <h2 class="section-title">컴포넌트 비율</h2>
+  <p class="section-desc">
+    카드, 히어로 섹션, 썸네일 등 주요 컴포넌트의 권장 비율과 이미지 크롭 가이드.
+  </p>
+
+  <!-- Card Ratios -->
+  <div class="card">
+    <div class="card-title">&#x1F0CF; 카드 유형별 비율</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:8px" id="cardTypeGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Image Crop -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F5BC;&#xFE0F; 이미지 크롭 가이드</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>용도</th><th>권장 비율</th><th>해상도 예시</th></tr></thead>
+        <tbody>
+          <tr><td>Hero 배너</td><td>21:9 또는 16:9</td><td><code>2560&#xD7;1097</code>, <code>1920&#xD7;1080</code></td></tr>
+          <tr><td>OG 이미지</td><td>1.91:1</td><td><code>1200&#xD7;630</code></td></tr>
+          <tr><td>썸네일 (YouTube)</td><td>16:9</td><td><code>1280&#xD7;720</code></td></tr>
+          <tr><td>프로필 이미지</td><td>1:1</td><td><code>400&#xD7;400</code></td></tr>
+          <tr><td>인스타그램 포스트</td><td>1:1 또는 4:5</td><td><code>1080&#xD7;1080</code>, <code>1080&#xD7;1350</code></td></tr>
+          <tr><td>Pinterest 핀</td><td>2:3</td><td><code>1000&#xD7;1500</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F3AC; Hero 섹션 높이</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:8px">
+      <div style="background:var(--surface2);border-radius:var(--radius-xs);overflow:hidden;border:1px solid var(--border)">
+        <div style="height:120px;background:linear-gradient(135deg,rgba(232,150,90,0.12),rgba(240,176,136,0.06));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--text3)">100vh</div>
+        <div style="padding:12px;font-size:12px;color:var(--text2)"><strong style="color:var(--text)">Full-screen Hero</strong><br>뷰포트 전체</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-xs);overflow:hidden;border:1px solid var(--border)">
+        <div style="height:90px;background:linear-gradient(135deg,rgba(232,150,90,0.1),rgba(240,176,136,0.05));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--text3)">75vh</div>
+        <div style="padding:12px;font-size:12px;color:var(--text2)"><strong style="color:var(--text)">3/4 Hero</strong><br>약 4:3 비율</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-xs);overflow:hidden;border:1px solid var(--border)">
+        <div style="height:60px;background:linear-gradient(135deg,rgba(232,150,90,0.08),rgba(240,176,136,0.04));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--text3)">50vh</div>
+        <div style="padding:12px;font-size:12px;color:var(--text2)"><strong style="color:var(--text)">Half Hero</strong><br>약 8:3 비율</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-xs);overflow:hidden;border:1px solid var(--border)">
+        <div style="height:40px;background:linear-gradient(135deg,rgba(232,150,90,0.06),rgba(240,176,136,0.03));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--text3)">33vh</div>
+        <div style="padding:12px;font-size:12px;color:var(--text2)"><strong style="color:var(--text)">Compact Hero</strong><br>약 16:3 비율</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Touch Targets & Icon Density -->
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card">
+      <div class="card-title">&#x1F446; 최소 터치 타겟</div>
+      <div class="touch-demo">
+        <div class="touch-box" style="width:44px;height:44px">
+          <div class="t-inner" style="width:44px;height:44px">44pt</div>
+          <div class="t-label">Apple iOS</div>
+          <div class="t-size">44&#xD7;44pt</div>
+        </div>
+        <div class="touch-box" style="width:48px;height:48px">
+          <div class="t-inner" style="width:48px;height:48px">48dp</div>
+          <div class="t-label">Material</div>
+          <div class="t-size">48&#xD7;48dp</div>
+        </div>
+        <div class="touch-box" style="width:44px;height:44px">
+          <div class="t-inner" style="width:24px;height:24px;font-size:8px">24</div>
+          <div class="t-label">WCAG 2.2</div>
+          <div class="t-size">min 24, rec 44</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">&#x1F4F2; 아이콘 밀도 배율</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>밀도</th><th>배율</th><th>24dp 기준</th></tr></thead>
+          <tbody>
+            <tr><td>mdpi</td><td>1.0x</td><td><code>24&#xD7;24px</code></td></tr>
+            <tr><td>hdpi</td><td>1.5x</td><td><code>36&#xD7;36px</code></td></tr>
+            <tr><td>xhdpi</td><td>2.0x</td><td><code>48&#xD7;48px</code></td></tr>
+            <tr><td>xxhdpi</td><td>3.0x</td><td><code>72&#xD7;72px</code></td></tr>
+            <tr><td>xxxhdpi</td><td>4.0x</td><td><code>96&#xD7;96px</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== CSS ASPECT-RATIO DEMO ======== -->
+<section class="section" id="css-demo">
+  <div class="section-label">06</div>
+  <h2 class="section-title">CSS aspect-ratio 데모</h2>
+  <p class="section-desc">
+    모던 CSS에서 비율 컨테이너를 직접 선언할 수 있다 (Chrome 88+, Firefox 89+, Safari 15.4+).
+    코드를 수정하면 실시간으로 프리뷰가 반영됩니다.
+  </p>
+
+  <div class="card">
+    <div class="css-demo-grid">
+      <div>
+        <div class="card-title">&#x1F4DD; 코드</div>
+        <div class="tab-bar" id="cssTabs">
+          <button class="tab-btn active" data-css="video">16:9 비디오</button>
+          <button class="tab-btn" data-css="square">1:1 정사각형</button>
+          <button class="tab-btn" data-css="card">4:3 카드</button>
+          <button class="tab-btn" data-css="golden">황금비</button>
+        </div>
+        <div class="code-block" id="cssCode" style="min-height:200px"><span class="cmt">/* 16:9 비디오 컨테이너 */</span>
+<span class="kw">.video-container</span> {
+  <span class="prop">aspect-ratio</span>: <span class="val">16 / 9</span>;
+  <span class="prop">width</span>: <span class="val">100%</span>;
+}</div>
+      </div>
+      <div>
+        <div class="card-title">&#x1F441;&#xFE0F; 프리뷰</div>
+        <div class="css-demo-preview">
+          <div class="css-demo-box" id="cssPreviewBox" style="width:100%;aspect-ratio:16/9">16 : 9</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy padding hack -->
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+      <div class="card-title">&#x1F4E6; 레거시 패딩 핵 (Padding Hack)</div>
+      <div class="card-subtitle">aspect-ratio 미지원 환경에서는 padding-top 퍼센트를 활용한다</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>비율</th><th>padding-top</th><th>계산식</th></tr></thead>
+          <tbody>
+            <tr><td>16:9</td><td><code>56.25%</code></td><td>9 &#xF7; 16 &#xD7; 100</td></tr>
+            <tr><td>4:3</td><td><code>75%</code></td><td>3 &#xF7; 4 &#xD7; 100</td></tr>
+            <tr><td>1:1</td><td><code>100%</code></td><td>1 &#xF7; 1 &#xD7; 100</td></tr>
+            <tr><td>3:2</td><td><code>66.67%</code></td><td>2 &#xF7; 3 &#xD7; 100</td></tr>
+            <tr><td>21:9</td><td><code>42.86%</code></td><td>9 &#xF7; 21 &#xD7; 100</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Percent-based grids -->
+    <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+      <div class="card-title">&#x1F4D0; 퍼센트 기반 그리드</div>
+      <div class="code-block"><span class="cmt">/* 황금비 2단 레이아웃 */</span>
+<span class="kw">.golden-grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">61.8% 38.2%</span>;
+  <span class="prop">gap</span>: <span class="val">24px</span>;
+}
+
+<span class="cmt">/* 3분할 레이아웃 */</span>
+<span class="kw">.thirds-grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">repeat(3, 1fr)</span>;
+  <span class="prop">gap</span>: <span class="val">16px</span>;
+}
+
+<span class="cmt">/* 2:1 비율 레이아웃 */</span>
+<span class="kw">.two-one-grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">2fr 1fr</span>;
+  <span class="prop">gap</span>: <span class="val">24px</span>;
+}</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== ANTI-PATTERNS ======== -->
+<section class="section" id="anti-patterns">
+  <div class="section-label">07</div>
+  <h2 class="section-title">안티패턴</h2>
+  <p class="section-desc">
+    비율 체계를 무시하거나 잘못 적용할 때 발생하는 일반적인 문제와 해결책.
+  </p>
+
+  <div class="anti-grid">
+    <div class="anti-card bad">
+      <div class="anti-label">&#x2718; 임의의 비율</div>
+      <h4>매직 넘버 크기</h4>
+      <p>13px, 17px, 23px 같은 임의의 수치를 사용하면 시스템 내 일관성이 무너지고, "왜 이 크기인가?"에 대답할 수 없다.</p>
+    </div>
+    <div class="anti-card good">
+      <div class="anti-label">&#x2714; 체계적 비율</div>
+      <h4>모듈러 스케일 적용</h4>
+      <p>base: 16px, ratio: 1.333에서 파생된 12px, 16px, 21px, 28px을 사용하면 모든 크기가 수학적으로 연결된다.</p>
+    </div>
+    <div class="anti-card bad">
+      <div class="anti-label">&#x2718; 일관성 없는 비율</div>
+      <h4>혼합 비율 시스템</h4>
+      <p>한 페이지에서 황금비와 Perfect Fifth를 동시에 사용하거나, 카드마다 다른 이미지 비율을 적용하면 시각적 통일감이 깨진다.</p>
+    </div>
+    <div class="anti-card good">
+      <div class="anti-label">&#x2714; 단일 비율 체계</div>
+      <h4>하나의 비율로 통일</h4>
+      <p>프로젝트 전체에 하나의 비율(예: Perfect Fourth 1.333)을 기본으로 채택하고, 필요시 의도적으로 벗어난다.</p>
+    </div>
+    <div class="anti-card bad">
+      <div class="anti-label">&#x2718; 맹목적 적용</div>
+      <h4>수학의 절대화</h4>
+      <p>황금비를 모든 뷰포트에 강제하거나, 8px 그리드와 충돌하는 스케일 값을 고집하면 오히려 비효율적이다.</p>
+    </div>
+    <div class="anti-card good">
+      <div class="anti-label">&#x2714; 실용적 판단</div>
+      <h4>도구로서의 비율</h4>
+      <p>스케일에서 벗어난 값이 시각적으로 더 적합하면 그 값을 쓴다. 8의 배수로 라운딩하는 것이 실용적이다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======== PRACTICAL GUIDELINES ======== -->
+<section class="section" id="guidelines">
+  <div class="section-label">08</div>
+  <h2 class="section-title">실전 가이드라인</h2>
+  <p class="section-desc">콘텐츠 밀도와 용도에 따른 비율 선택 체크리스트</p>
+
+  <div class="card">
+    <div class="card-title">&#x2705; 비율 선택 체크리스트</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:8px">
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--cyan)">
+        <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">콘텐츠 밀도 높은 UI</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">대시보드, 테이블<br>&#x2192; Minor Third (1.200) 또는 Major Third (1.250)</div>
+      </div>
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--accent)">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">일반 웹 UI</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">블로그, 서비스 페이지<br>&#x2192; Perfect Fourth (1.333)</div>
+      </div>
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
+        <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px">에디토리얼 / 마케팅</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">랜딩 페이지, 매거진<br>&#x2192; Golden Ratio (1.618)</div>
+      </div>
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--green)">
+        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">모바일 우선</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">화면이 좁아 큰 비율은 과도함<br>&#x2192; Minor Third (1.200)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Design Foundations &mdash; 비율과 프로포션 &middot; v0.3.0 &middot; 2026-03-30</p>
+  <p style="margin-top:8px">
+    <a href="https://www.nngroup.com/articles/golden-ratio-ui-design/" target="_blank">NN/g</a> &middot;
+    <a href="https://alistapart.com/article/more-meaningful-typography/" target="_blank">A List Apart</a> &middot;
+    <a href="https://web.dev/articles/aspect-ratio" target="_blank">web.dev</a> &middot;
+    <a href="https://www.remain.co.kr/page/designsystem/ratio-design.php" target="_blank">Remain</a>
+  </p>
+</footer>
+
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+
+<script>
+// ===== GOLDEN RATIO TABS =====
+(function(){
+  const tabs = document.querySelectorAll('#goldenTabs .tab-btn');
+  const views = {layout:'goldenLayout',spiral:'goldenSpiral',recursive:'goldenRecursive'};
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(b=>{b.classList.remove('active')});
+    t.classList.add('active');
+    Object.values(views).forEach(id=>{document.getElementById(id).style.display='none'});
+    const mode = t.dataset.mode;
+    document.getElementById(views[mode]).style.display='';
+    if(mode==='spiral') drawSpiral();
+    if(mode==='recursive') drawRecursive();
+  }));
+})();
+
+// ===== GOLDEN SPIRAL =====
+function drawSpiral(){
+  const canvas = document.getElementById('spiralCanvas');
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  canvas.width = w * 2; canvas.height = h * 2;
+  canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2,2);
+  ctx.clearRect(0,0,w,h);
+
+  const phi = 1.618;
+  let rects = [];
+  let x=0,y=0,sw=w,sh=h;
+
+  // Draw golden rectangles
+  for(let i=0;i<8;i++){
+    let nw,nh,nx,ny;
+    const dir = i%4;
+    if(dir===0){nw=sw/phi;nh=sh;nx=x;ny=y;x+=nw;sw-=nw;}
+    else if(dir===1){nh=sh/phi;nw=sw;nx=x;ny=y;y+=nh;sh-=nh;}
+    else if(dir===2){nw=sw/phi;nh=sh;sw-=nw;nx=x+sw;ny=y;}
+    else{nh=sh/phi;nw=sw;sh-=nh;nx=x;ny=y+sh;}
+    rects.push({x:nx,y:ny,w:nw,h:nh,dir});
+  }
+
+  const colors = ['rgba(232,150,90,0.08)','rgba(240,176,136,0.06)','rgba(240,192,64,0.06)','rgba(52,211,153,0.05)'];
+  rects.forEach((r,i)=>{
+    ctx.fillStyle = colors[i%4];
+    ctx.fillRect(r.x,r.y,r.w,r.h);
+    ctx.strokeStyle = 'rgba(232,150,90,0.2)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(r.x,r.y,r.w,r.h);
+  });
+
+  // Draw spiral
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(240,192,64,0.6)';
+  ctx.lineWidth = 2;
+  rects.forEach((r,i)=>{
+    const cx = r.dir===0? r.x+r.w : r.dir===2? r.x : r.dir===1? r.x+r.w : r.x;
+    const cy = r.dir===0? r.y : r.dir===1? r.y+r.h : r.dir===2? r.y+r.h : r.y;
+    const radius = Math.min(r.w,r.h);
+    const startAngle = (Math.PI/2)*(r.dir+2);
+    ctx.arc(cx,cy,radius,startAngle,startAngle+Math.PI/2);
+  });
+  ctx.stroke();
+
+  // Label
+  ctx.font = '600 12px sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillText('황금 나선 (Golden Spiral)', 16, h-16);
+}
+
+// ===== GOLDEN RECURSIVE =====
+function drawRecursive(){
+  const c = document.getElementById('recursiveContainer');
+  c.innerHTML = '';
+  function subdivide(el,depth,dir){
+    if(depth<=0) return;
+    const colors = ['rgba(232,150,90,0.12)','rgba(240,176,136,0.10)','rgba(240,192,64,0.08)','rgba(52,211,153,0.07)'];
+    const a = document.createElement('div');
+    const b = document.createElement('div');
+    a.style.cssText = 'position:absolute;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);';
+    b.style.cssText = a.style.cssText;
+    a.style.background = colors[depth%4];
+    b.style.background = colors[(depth+1)%4];
+    a.style.border = '1px solid rgba(232,150,90,0.15)';
+    b.style.border = a.style.border;
+
+    if(dir==='h'){
+      a.style.left='0';a.style.top='0';a.style.width='61.8%';a.style.height='100%';
+      b.style.right='0';b.style.top='0';b.style.width='38.2%';b.style.height='100%';
+    } else {
+      a.style.left='0';a.style.top='0';a.style.width='100%';a.style.height='61.8%';
+      b.style.left='0';b.style.bottom='0';b.style.width='100%';b.style.height='38.2%';
+    }
+    a.textContent = '61.8%';
+    b.textContent = '38.2%';
+    el.appendChild(a);
+    el.appendChild(b);
+    subdivide(a, depth-1, dir==='h'?'v':'h');
+  }
+  subdivide(c, 5, 'h');
+}
+
+// ===== ASPECT RATIO CARDS =====
+(function(){
+  const ratios = [
+    {name:'16:9', w:16, h:9, val:'1.778', use:'데스크톱 모니터, YouTube, TV', desc:'가장 보편적인 와이드스크린'},
+    {name:'4:3', w:4, h:3, val:'1.333', use:'태블릿(iPad), 레거시 모니터', desc:'문서/읽기에 적합'},
+    {name:'1:1', w:1, h:1, val:'1.000', use:'소셜 미디어 프로필, 썸네일', desc:'정사각형, 시선 집중'},
+    {name:'3:2', w:3, h:2, val:'1.500', use:'Surface, 사진(DSLR)', desc:'사진 표준 비율'},
+    {name:'9:16', w:9, h:16, val:'0.563', use:'모바일 세로, Shorts/Reels', desc:'세로 동영상 표준'},
+    {name:'2:3', w:2, h:3, val:'0.667', use:'Pinterest, 포스터', desc:'세로형 콘텐츠'},
+    {name:'21:9', w:21, h:9, val:'2.333', use:'울트라와이드 모니터', desc:'영화 비율, 멀티태스킹'},
+    {name:'1.91:1', w:1.91, h:1, val:'1.910', use:'OG 이미지, 소셜 카드', desc:'소셜 미디어 프리뷰'},
+  ];
+  const grid = document.getElementById('ratioGrid');
+  ratios.forEach(r=>{
+    const maxH = 120;
+    const maxW = 140;
+    let pw, ph;
+    if(r.w/r.h > maxW/maxH){ pw = maxW; ph = maxW * (r.h/r.w); }
+    else { ph = maxH; pw = maxH * (r.w/r.h); }
+    const card = document.createElement('div');
+    card.className = 'ratio-card';
+    card.innerHTML = `
+      <div class="ratio-preview" style="height:${maxH+24}px" data-ratio="${r.name}">
+        <div style="width:${pw}px;height:${ph}px;border:2px solid var(--accent);border-radius:4px;position:absolute;background:rgba(232,150,90,0.06)"></div>
+      </div>
+      <div class="ratio-info">
+        <div class="ratio-name">${r.name}</div>
+        <div class="ratio-use">${r.use}</div>
+        <div class="ratio-value">${r.val} &middot; ${r.desc}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+})();
+
+// ===== MODULAR SCALE CALCULATOR =====
+function updateScale(){
+  const base = parseFloat(document.getElementById('scaleBase').value) || 16;
+  const ratio = parseFloat(document.getElementById('scaleRatio').value) || 1.333;
+  const output = document.getElementById('scaleOutput');
+  const uses = ['Caption','Small/Label','Body (기준)','H4/Subtitle','H3','H2','H1','Display'];
+  const steps = [];
+  for(let n=-2;n<=5;n++){
+    const size = Math.round(base * Math.pow(ratio, n));
+    steps.push({n, size, use: uses[n+2] || ''});
+  }
+  const maxSize = steps[steps.length-1].size;
+  output.innerHTML = steps.map(s=>`
+    <div class="scale-step ${s.n===0?'base':''}">
+      <span class="step-n">${s.n>=0?'+':''}${s.n}</span>
+      <span class="step-size">${s.size}px</span>
+      <div class="step-bar"><div class="step-bar-fill" style="width:${(s.size/maxSize)*100}%;background:${s.n===0?'var(--gold)':'var(--accent)'}"></div></div>
+      <span class="scale-sample" style="font-size:${Math.min(s.size,40)}px">Aa</span>
+      <span class="step-use">${s.use}</span>
+    </div>
+  `).join('');
+}
+document.getElementById('scaleBase').addEventListener('input', updateScale);
+document.getElementById('scaleRatio').addEventListener('change', updateScale);
+updateScale();
+
+// ===== CARD TYPE GRID =====
+(function(){
+  const cards = [
+    {name:'상품 카드', ratio:'3:4', w:3,h:4, imgPct:'60~70%', use:'이커머스, 포트폴리오'},
+    {name:'뉴스 카드', ratio:'16:9', w:16,h:9, imgPct:'40~50%', use:'뉴스, 블로그'},
+    {name:'소셜 카드', ratio:'1:1', w:1,h:1, imgPct:'50%', use:'SNS 피드'},
+    {name:'가로형 카드', ratio:'2:1', w:2,h:1, imgPct:'좌측 40%', use:'리스트, 검색 결과'},
+    {name:'세로형 카드', ratio:'9:16', w:9,h:16, imgPct:'전체 배경', use:'스토리, 릴스 썸네일'},
+  ];
+  const grid = document.getElementById('cardTypeGrid');
+  cards.forEach(c=>{
+    const maxH = 100;
+    const scale = maxH / Math.max(c.w, c.h);
+    const pw = c.w * scale;
+    const ph = c.h * scale;
+    const el = document.createElement('div');
+    el.className = 'comp-card';
+    el.innerHTML = `
+      <div class="comp-card-img" style="height:120px;display:flex;align-items:center;justify-content:center">
+        <div style="width:${pw}px;height:${ph}px;background:rgba(232,150,90,0.1);border:2px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent)">${c.ratio}</div>
+      </div>
+      <div class="comp-card-body">
+        <h4>${c.name}</h4>
+        <p>이미지: ${c.imgPct} &middot; ${c.use}</p>
+      </div>`;
+    grid.appendChild(el);
+  });
+})();
+
+// ===== CSS DEMO TABS =====
+(function(){
+  const tabs = document.querySelectorAll('#cssTabs .tab-btn');
+  const codeEl = document.getElementById('cssCode');
+  const previewBox = document.getElementById('cssPreviewBox');
+  const presets = {
+    video: {
+      code: `<span class="cmt">/* 16:9 비디오 컨테이너 */</span>\n<span class="kw">.video-container</span> {\n  <span class="prop">aspect-ratio</span>: <span class="val">16 / 9</span>;\n  <span class="prop">width</span>: <span class="val">100%</span>;\n}`,
+      ratio: '16/9', label: '16 : 9'
+    },
+    square: {
+      code: `<span class="cmt">/* 1:1 정사각형 썸네일 */</span>\n<span class="kw">.thumbnail</span> {\n  <span class="prop">aspect-ratio</span>: <span class="val">1 / 1</span>;\n  <span class="prop">width</span>: <span class="val">200px</span>;\n}`,
+      ratio: '1/1', label: '1 : 1'
+    },
+    card: {
+      code: `<span class="cmt">/* 4:3 카드 이미지 */</span>\n<span class="kw">.card-image</span> {\n  <span class="prop">aspect-ratio</span>: <span class="val">4 / 3</span>;\n  <span class="prop">width</span>: <span class="val">100%</span>;\n  <span class="prop">object-fit</span>: <span class="val">cover</span>;\n}`,
+      ratio: '4/3', label: '4 : 3'
+    },
+    golden: {
+      code: `<span class="cmt">/* 황금비 컨테이너 */</span>\n<span class="kw">.golden-container</span> {\n  <span class="prop">aspect-ratio</span>: <span class="val">1.618 / 1</span>;\n  <span class="prop">width</span>: <span class="val">100%</span>;\n}`,
+      ratio: '1.618/1', label: '1.618 : 1'
+    }
+  };
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    t.classList.add('active');
+    const p = presets[t.dataset.css];
+    codeEl.innerHTML = p.code;
+    previewBox.style.aspectRatio = p.ratio;
+    previewBox.textContent = p.label;
+  }));
+})();
+
+// ===== SPACING VISUAL =====
+(function(){
+  const base = 16;
+  const ratio = 1.333;
+  const steps = [
+    {name:'3xs', val: Math.round(base/Math.pow(ratio,3))},
+    {name:'2xs', val: Math.round(base/Math.pow(ratio,2))},
+    {name:'xs', val: Math.round(base/ratio)},
+    {name:'sm', val: base},
+    {name:'md', val: Math.round(base*ratio)},
+    {name:'lg', val: Math.round(base*Math.pow(ratio,2))},
+    {name:'xl', val: Math.round(base*Math.pow(ratio,3))},
+  ];
+  const container = document.getElementById('spacingVisual');
+  steps.forEach(s=>{
+    const el = document.createElement('div');
+    el.className = 'ph-box';
+    el.style.width = Math.max(s.val*2.5, 40)+'px';
+    el.style.height = Math.max(s.val*2.5, 40)+'px';
+    el.innerHTML = `<div class="ph-label">${s.name}</div><div class="ph-val">${s.val}px</div>`;
+    container.appendChild(el);
+  });
+})();
+
+// ===== BACK TO TOP =====
+window.addEventListener('scroll',()=>{
+  document.getElementById('btt').classList.toggle('visible', window.scrollY > 400);
+});
+</script>
+</body>
+</html>

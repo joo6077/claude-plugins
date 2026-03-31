@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계약 설계 원칙 — Harness</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+.hero{padding:60px 0 48px;text-align:center}
+.hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.subtitle{font-size:1.05rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:36px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;transition:var(--transition)}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-title{font-size:1rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-dim)}
+
+.num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+  background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;flex-shrink:0}
+
+.compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+.compare-label{font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+
+code,.code-block{font-family:var(--mono);font-size:13px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;overflow-x:auto;line-height:1.6;color:var(--text2);white-space:pre;display:block;margin-bottom:24px}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+.checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--accent)}
+
+.gwt-block{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.gwt-row{display:flex;align-items:baseline;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.gwt-row:last-child{border-bottom:none}
+.gwt-keyword{font-weight:700;font-size:13px;min-width:60px;flex-shrink:0}
+.gwt-given .gwt-keyword{color:var(--yellow)}
+.gwt-when .gwt-keyword{color:var(--accent)}
+.gwt-then .gwt-keyword{color:var(--green)}
+.gwt-text{font-size:14px;color:var(--text2)}
+
+.flag-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;display:flex;gap:14px;align-items:flex-start;transition:var(--transition)}
+.flag-card:hover{border-color:var(--red)}
+.flag-icon{width:28px;height:28px;border-radius:6px;background:rgba(248,113,113,0.12);
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:var(--red)}
+.flag-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.flag-fix{font-size:12px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <h1>계약 설계 원칙</h1>
+  <p class="subtitle">Design by Contract, Given-When-Then, 검증 가능성, NASA 표준 기반 조건 작성법</p>
+</div>
+
+<!-- CORE PRINCIPLES -->
+<div class="section">
+  <div class="section-label">Core Principles</div>
+  <div class="section-title">핵심 원칙</div>
+  <p class="section-desc">모든 조건은 제3자가 코드만 보고 PASS/FAIL을 판정할 수 있어야 한다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="num">1</span> 검증 가능성</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">모든 조건은 제3자가 코드만 보고 PASS/FAIL을 판정할 수 있어야 한다.</p>
+      <div class="compare-good" style="padding:12px">
+        <p style="font-size:12px;color:var(--green)">"로그인 실패 시 HTTP 401을 반환한다"</p>
+      </div>
+      <div class="compare-bad" style="padding:12px;margin-top:8px">
+        <p style="font-size:12px;color:var(--red)">"로그인이 적절히 처리된다"</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="num">2</span> 단일 해석</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">조건은 단 하나의 해석만 가능해야 한다. IEEE 29148 기반 품질 기준.</p>
+      <ul style="font-size:12px;color:var(--text3);list-style:none;display:flex;flex-direction:column;gap:4px">
+        <li>&#8226; 능동태 사용 ("시스템이 반환한다")</li>
+        <li>&#8226; 단일 조건 (복합은 분리)</li>
+        <li>&#8226; 모호 형용사 금지 ("빠르게" &rarr; 수치)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="num">3</span> 측정 가능성</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">조건의 충족 여부를 파일, 코드, 실행 결과로 증명할 수 있어야 한다.</p>
+      <p style="font-size:12px;color:var(--text3)">자기 점검: "이 조건을 코드와 실행 결과만으로 PASS/FAIL 판정할 수 있는가?"</p>
+    </div>
+  </div>
+</div>
+
+<!-- GWT -->
+<div class="section">
+  <div class="section-label">Structure</div>
+  <div class="section-title">Given-When-Then 구조</div>
+  <p class="section-desc">BDD(Behavior-Driven Development) 패턴으로 조건을 구조화한다. 복잡도 "중간" 이상에서 모든 핵심 조건에 필수.</p>
+  <div class="grid-2">
+    <div class="gwt-block">
+      <div class="gwt-row gwt-given"><span class="gwt-keyword">Given</span><span class="gwt-text">등록된 사용자가 없을 때</span></div>
+      <div class="gwt-row gwt-when"><span class="gwt-keyword">When</span><span class="gwt-text">신규 사용자 등록 요청을 보낸다</span></div>
+      <div class="gwt-row gwt-then"><span class="gwt-keyword">Then</span><span class="gwt-text">성공 응답을 반환하고 사용자 목록에 1명이 존재한다</span></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title"><span class="dot"></span>Design by Contract</div>
+        <p style="font-size:13px;color:var(--text2)"><strong>Precondition</strong>: 구현 전 충족 조건 (환경, 의존성)<br>
+        <strong>Postcondition</strong>: 구현 후 반드시 참인 조건 (핵심 기능)<br>
+        <strong>Invariant</strong>: 전후로 불변인 조건 (기존 기능 보전)</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>NASA 표준</div>
+        <p style="font-size:13px;color:var(--text2)">각 조건은 하나의 "~한다"만 포함. 부정보다 긍정 선호. "and/or" 금지 &mdash; 각각 별도 조건으로.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BAD VS GOOD -->
+<div class="section">
+  <div class="section-label">External Observables</div>
+  <div class="section-title">외부 관찰 가능성</div>
+  <p class="section-desc">조건은 시스템이 무엇을 하는지(외부 행동)만 기술한다. 어떻게 하는지(내부 구현)는 기술하지 않는다.</p>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="compare-bad">
+      <div class="compare-label">Bad - 구현 누수</div>
+      <p style="font-size:13px;margin-bottom:8px">"UserService의 userRepository가 비어있을 때"</p>
+      <p style="font-size:13px">"POST /api/users 호출 시 201을 반환한다"</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good - 외부 관찰</div>
+      <p style="font-size:13px;margin-bottom:8px">"등록된 사용자가 없을 때"</p>
+      <p style="font-size:13px">"신규 사용자 등록 요청 시 성공 응답을 반환한다"</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>유형</th><th>설명</th><th>예시</th><th>수정</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--accent);font-weight:600">어휘적</td><td>단어 자체가 여러 의미</td><td>"처리한다", "관리한다"</td><td>구체 동사 ("반환한다")</td></tr>
+        <tr><td style="color:var(--accent);font-weight:600">구문적</td><td>문장 구조가 여러 해석 허용</td><td>"A와 B를 포함하는 C"</td><td>분리하여 각각 명시</td></tr>
+        <tr><td style="color:var(--accent);font-weight:600">의미적</td><td>도메인 맥락 없이 해석 불가</td><td>"적절한 응답"</td><td>상태 코드/값으로 명시</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- RED FLAGS -->
+<div class="section">
+  <div class="section-label">Red Flags</div>
+  <div class="section-title">안티패턴 체크리스트</div>
+  <p class="section-desc">계약 작성 시 반드시 피해야 하는 패턴. 자가 진단 체크리스트로 사용한다.</p>
+  <div class="grid-3">
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">모호한 조건</div><div class="flag-fix">"적절히 처리한다" &rarr; 구체적 행동과 결과로 재작성</div></div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">복합 조건</div><div class="flag-fix">"A이고 B이며 C이다" &rarr; 각각 독립 조건으로 분리</div></div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">카테고리 편중</div><div class="flag-fix">모든 조건이 UI에만 집중 &rarr; GQM으로 균형 확인</div></div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">테스트 불가 조건</div><div class="flag-fix">"사용자 경험이 좋다" &rarr; 측정 가능한 지표로 변환</div></div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">구현 누수</div><div class="flag-fix">조건에 클래스명/메서드명 포함 &rarr; 외부 행동으로 재작성</div></div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">NFR 누락</div><div class="flag-fix">기능 조건만 존재 &rarr; 성능/보안/접근성 항목 추가</div></div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">복잡도 과소평가</div><div class="flag-fix">파일 수로만 판단 &rarr; 영향 범위(레이어, API)로 판단</div></div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-icon">!</div>
+      <div><div class="flag-name">과소 안티패턴</div><div class="flag-fix">0-1개 안티패턴 &rarr; 최소 2개 필수</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SELF-CHECK -->
+<div class="section">
+  <div class="section-label">Self-Check</div>
+  <div class="section-title">구조화 진단 체크리스트</div>
+  <p class="section-desc">sprint-contract 실행 완료 후 자가 점검 항목. Consumer-Driven 원칙: 계약의 소비자는 qa-evaluator이다.</p>
+  <ul class="checklist" style="max-width:750px">
+    <li><span class="check">&#10003;</span> <strong>ambiguous_conditions</strong> &mdash; 모호한 표현이 포함된 조건이 있는가?</li>
+    <li><span class="check">&#10003;</span> <strong>missing_error_paths</strong> &mdash; 에러/예외 경로에 대한 조건이 누락되었는가?</li>
+    <li><span class="check">&#10003;</span> <strong>untestable_conditions</strong> &mdash; 코드만으로 검증 불가능한 조건이 있는가?</li>
+    <li><span class="check">&#10003;</span> <strong>category_coverage_gap</strong> &mdash; project.yaml 카테고리 중 미커버 항목이 있는가?</li>
+    <li><span class="check">&#10003;</span> <strong>complexity_underestimate</strong> &mdash; 복잡도를 과소평가하여 조건 수가 부족한가?</li>
+    <li><span class="check">&#10003;</span> <strong>implementation_leakage</strong> &mdash; 내부 구현 용어가 조건에 포함되었는가?</li>
+    <li><span class="check">&#10003;</span> <strong>nfr_coverage</strong> &mdash; 비기능 요구사항이 조건에 반영되었는가?</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

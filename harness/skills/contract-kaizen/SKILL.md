@@ -34,7 +34,7 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 
 | 영역 | 대상 파일 | 인자 필터 |
 |------|----------|----------|
-| 가이드 | `docs/guides/contract-design-guide.md` | `guide` |
+| 가이드 | `../../docs/guides/contract-design-guide.md` | `guide` |
 | 스킬 프롬프트 | `harness/skills/sprint-contract/SKILL.md` | `skills` |
 | 계약 스키마 | `harness/references/contract-schema.md` | `config` |
 

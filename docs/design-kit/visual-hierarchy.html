@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시각적 계층 — Design Foundations</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;--text4:#3d4260;
+  --accent:#E8965A;--accent2:#F0B088;--gold:#f0c040;--green:#34d399;--red:#f87171;--cyan:#22d3ee;
+  --orange:#fb923c;
+  --radius:14px;--radius-sm:8px;--radius-xs:6px;
+  --transition:0.3s cubic-bezier(.4,0,.2,1);
+  --font:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Fira Code','SF Mono',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;overflow-x:hidden}
+
+.hero{position:relative;padding:clamp(60px,10vw,120px) clamp(20px,5vw,48px) clamp(40px,6vw,80px);text-align:center;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(240,176,136,0.08) 0%,rgba(232,150,90,0.04) 40%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:8px 20px;font-size:13px;color:var(--text2);margin-bottom:24px;font-weight:600}
+.hero-badge span{color:var(--accent2)}
+.hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-1.5px;line-height:1.15;background:linear-gradient(135deg,var(--text) 0%,var(--text2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.hero h1 em{font-style:normal;-webkit-text-fill-color:var(--accent2)}
+.hero-sub{font-size:clamp(15px,1.5vw,19px);color:var(--text2);max-width:680px;margin:0 auto 32px;line-height:1.7}
+.hero-principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:960px;margin:0 auto;text-align:left}
+.hero-principles .p-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px}
+.hero-principles .p-card strong{display:block;font-size:14px;color:var(--accent2);margin-bottom:6px}
+.hero-principles .p-card span{font-size:13px;color:var(--text2);line-height:1.5}
+
+.page{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,48px) clamp(40px,6vw,80px)}
+.section{margin-bottom:clamp(60px,8vw,100px)}
+.section-label{font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.section-title{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.8px;margin-bottom:8px;line-height:1.2}
+.section-desc{font-size:clamp(14px,1.2vw,16px);color:var(--text2);margin-bottom:clamp(24px,3vw,40px);max-width:680px;line-height:1.7}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(20px,3vw,32px)}
+.card+.card{margin-top:16px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.card-subtitle{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+
+.tab-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:var(--font)}
+.tab-btn:hover{border-color:var(--text3);color:var(--text)}
+.tab-btn.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
+
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:700;color:var(--text2);padding:12px 16px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:1px}
+td{padding:12px 16px;border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(240,176,136,0.03)}
+td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(--surface2);padding:2px 8px;border-radius:4px}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* === HIERARCHY TOOLS DEMO === */
+.tools-demo{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:clamp(24px,3vw,40px);min-height:320px;position:relative;overflow:hidden;
+  transition:all 0.5s ease;
+}
+.tools-demo .td-hero{font-size:48px;font-weight:800;line-height:1.2;margin-bottom:16px;transition:all 0.5s ease}
+.tools-demo .td-sub{font-size:20px;font-weight:600;color:var(--text2);margin-bottom:12px;transition:all 0.5s ease}
+.tools-demo .td-body{font-size:15px;color:var(--text2);line-height:1.7;max-width:500px;margin-bottom:24px;transition:all 0.5s ease}
+.tools-demo .td-cta{display:inline-block;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;transition:all 0.5s ease;cursor:pointer}
+.tools-demo .td-meta{font-size:12px;color:var(--text3);margin-top:16px;transition:all 0.5s ease}
+
+.tool-toggle{
+  display:flex;align-items:center;gap:12px;padding:10px 16px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);
+  cursor:pointer;transition:all var(--transition);user-select:none;
+}
+.tool-toggle:hover{border-color:var(--text3)}
+.tool-toggle.active{border-color:var(--accent2);background:rgba(240,176,136,0.08)}
+.tool-toggle .tgl-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--text3);transition:all var(--transition)}
+.tool-toggle.active .tgl-dot{background:var(--accent2);border-color:var(--accent2)}
+.tool-toggle .tgl-label{font-size:13px;font-weight:600}
+.tool-toggle .tgl-desc{font-size:11px;color:var(--text3)}
+
+/* === EYE TRACKING PATTERNS === */
+.pattern-demo{
+  position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  overflow:hidden;min-height:300px;
+}
+.pattern-content{padding:24px;position:relative;z-index:1}
+.pattern-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.pattern-overlay svg{width:100%;height:100%}
+
+/* === SQUINT TEST === */
+.squint-demo{position:relative;transition:filter 0.5s ease}
+.squint-demo.blurred{filter:blur(6px)}
+.squint-slider-wrap{display:flex;align-items:center;gap:16px;margin-top:16px}
+.squint-slider-wrap input{flex:1;accent-color:var(--accent2)}
+.squint-label{font-family:var(--mono);font-size:13px;color:var(--accent2);min-width:50px;text-align:center}
+
+/* === DOM/SUB/SUBORD === */
+.dss-demo{display:flex;flex-direction:column;gap:16px;align-items:center;padding:32px}
+.dss-box{
+  display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);
+  font-weight:700;text-align:center;transition:all 0.5s ease;
+}
+
+/* === GESTALT PROXIMITY === */
+.prox-demo{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:32px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap;
+}
+.prox-group{display:flex;flex-direction:column;align-items:center}
+.prox-dots{display:flex;flex-wrap:wrap;justify-content:center}
+.prox-dot{width:16px;height:16px;border-radius:50%;background:var(--accent2);transition:all 0.5s ease}
+.prox-label{font-size:12px;color:var(--text2);margin-top:12px;text-align:center;font-weight:600}
+
+/* === UI EXAMPLE WITH ANNOTATIONS === */
+.ui-mock{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  overflow:hidden;position:relative;
+}
+.ui-mock-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border)}
+.ui-mock-nav .logo{font-size:16px;font-weight:800;color:var(--text)}
+.ui-mock-nav .nav-items{display:flex;gap:20px;font-size:13px;color:var(--text2)}
+.ui-mock-hero{padding:clamp(24px,4vw,48px) 20px;text-align:center}
+.ui-mock-hero h2{font-size:clamp(24px,3vw,36px);font-weight:800;margin-bottom:8px}
+.ui-mock-hero p{font-size:14px;color:var(--text2);margin-bottom:20px}
+.ui-mock-hero .mock-cta{display:inline-block;background:var(--accent2);color:#fff;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:700}
+.ui-mock-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px}
+.ui-mock-card{background:var(--surface);border-radius:8px;overflow:hidden}
+.ui-mock-card-img{height:80px;background:linear-gradient(135deg,rgba(232,150,90,0.1),rgba(240,176,136,0.08))}
+.ui-mock-card-body{padding:12px}
+.ui-mock-card-body h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.ui-mock-card-body p{font-size:11px;color:var(--text3)}
+
+.annotation{
+  position:absolute;background:rgba(240,192,64,0.9);color:#000;padding:4px 10px;
+  border-radius:100px;font-size:10px;font-weight:800;white-space:nowrap;z-index:10;
+  pointer-events:none;
+}
+.annotation::before{
+  content:'';position:absolute;width:8px;height:8px;background:rgba(240,192,64,0.9);
+  border-radius:50%;
+}
+
+/* === READING FLOW === */
+.flow-demo{
+  position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:32px;min-height:280px;
+}
+.flow-block{
+  position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:12px;font-size:12px;font-weight:600;color:var(--text2);
+}
+.flow-arrow{position:absolute;z-index:2}
+
+/* === HIERARCHY AUDIT === */
+.audit-list{display:flex;flex-direction:column;gap:8px}
+.audit-item{
+  display:flex;align-items:flex-start;gap:14px;padding:14px 18px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);
+  cursor:pointer;transition:all var(--transition);user-select:none;
+}
+.audit-item:hover{border-color:var(--text3)}
+.audit-item.checked{border-color:var(--green);background:rgba(52,211,153,0.04)}
+.audit-check{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--text4);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;transition:all var(--transition);margin-top:1px;
+}
+.audit-item.checked .audit-check{background:var(--green);border-color:var(--green);color:#fff}
+.audit-content{flex:1}
+.audit-content .a-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.audit-content .a-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.audit-progress{margin-top:16px;display:flex;align-items:center;gap:12px}
+.audit-bar{flex:1;height:6px;background:var(--surface);border-radius:3px;overflow:hidden}
+.audit-bar-fill{height:100%;background:var(--green);border-radius:3px;transition:width 0.5s ease}
+.audit-pct{font-family:var(--mono);font-size:14px;color:var(--green);font-weight:700;min-width:40px;text-align:right}
+
+.back-to-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;background:var(--surface);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);z-index:100;transition:all var(--transition);opacity:0;pointer-events:none}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+
+footer{padding:40px clamp(20px,4vw,48px);text-align:center;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent2);text-decoration:none}
+
+@media(max-width:600px){
+  .ui-mock-cards{grid-template-columns:1fr}
+  .prox-demo{gap:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span>&#x25B2;</span> Design Foundations v0.2.0</div>
+  <h1>시각적 <em>계층</em></h1>
+  <p class="hero-sub">
+    UI에서 정보의 중요도를 시각적 수단으로 전달하는 원칙, 도구, 실전 적용법.
+    사용자는 큰 요소를 먼저 인지하고, 대비가 높은 요소에 시선이 끌린다.
+  </p>
+  <div class="hero-principles">
+    <div class="p-card"><strong>크기가 가장 강력</strong><span>큰 텍스트와 이미지에 시선이 가장 먼저 고정된다 (NNGroup 아이트래킹)</span></div>
+    <div class="p-card"><strong>대비 = 시선 끌기</strong><span>명도 차이가 클수록 시각적 무게가 커진다. 낮은 대비는 "보조 정보"</span></div>
+    <div class="p-card"><strong>여백 = 중요도</strong><span>주변 여백이 넓을수록 더 중요하게 인식된다. Apple 히어로의 비밀</span></div>
+    <div class="p-card"><strong>위치 = 읽기 순서</strong><span>좌상단에서 우하단으로 — 중요한 정보는 좌상단에</span></div>
+  </div>
+</section>
+
+<div class="page">
+
+<!-- ======== HIERARCHY TOOLS DEMO ======== -->
+<section class="section" id="tools">
+  <div class="section-label">01</div>
+  <h2 class="section-title">계층 도구 데모</h2>
+  <p class="section-desc">
+    각 도구를 토글하여 시각적 계층에 미치는 영향을 직접 확인합니다.
+    크기, 색상, 대비, 위치, 여백 — 각각의 효과를 개별적으로 체험하세요.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x1F39B;&#xFE0F; 계층 도구 토글</div>
+    <div class="card-subtitle">도구를 켜고 끄면서 계층 변화를 관찰하세요</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:24px" id="toolToggles">
+      <div class="tool-toggle active" data-tool="size"><div class="tgl-dot"></div><div><div class="tgl-label">크기 (Size)</div><div class="tgl-desc">텍스트 크기 차이</div></div></div>
+      <div class="tool-toggle active" data-tool="color"><div class="tgl-dot"></div><div><div class="tgl-label">색상 (Color)</div><div class="tgl-desc">CTA 브랜드 컬러</div></div></div>
+      <div class="tool-toggle active" data-tool="contrast"><div class="tgl-dot"></div><div><div class="tgl-label">대비 (Contrast)</div><div class="tgl-desc">명도 차이</div></div></div>
+      <div class="tool-toggle active" data-tool="position"><div class="tgl-dot"></div><div><div class="tgl-label">위치 (Position)</div><div class="tgl-desc">좌상단 우선</div></div></div>
+      <div class="tool-toggle active" data-tool="whitespace"><div class="tgl-dot"></div><div><div class="tgl-label">여백 (Whitespace)</div><div class="tgl-desc">호흡 공간</div></div></div>
+    </div>
+
+    <div class="tools-demo" id="toolsDemo">
+      <div class="td-hero" id="tdHero">새로운 경험을 시작하세요</div>
+      <div class="td-sub" id="tdSub">최고의 디자인 시스템으로 더 빠르게 만들기</div>
+      <div class="td-body" id="tdBody">체계적인 비율, 정렬, 계층 도구를 활용하여 사용자 경험의 품질을 극대화합니다. 모든 디바이스에서 일관된 경험을 제공합니다.</div>
+      <div class="td-cta" id="tdCta">무료로 시작하기</div>
+      <div class="td-meta" id="tdMeta">이미 10,000+ 팀이 사용 중 &middot; 설치 불필요</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== EYE TRACKING PATTERNS ======== -->
+<section class="section" id="eye-tracking">
+  <div class="section-label">02</div>
+  <h2 class="section-title">시선 추적 패턴</h2>
+  <p class="section-desc">
+    NNGroup의 아이트래킹 연구에서 발견된 F-패턴과 Z-패턴.
+    F-패턴은 텍스트 중심 페이지에서, Z-패턴은 시각 요소가 많은 페이지에서 나타난다.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x1F440; F-패턴 & Z-패턴 시각화</div>
+    <div class="tab-bar" id="patternTabs">
+      <button class="tab-btn active" data-pattern="f">F-패턴</button>
+      <button class="tab-btn" data-pattern="z">Z-패턴</button>
+    </div>
+
+    <div class="grid-2">
+      <!-- Pattern visualization -->
+      <div class="pattern-demo" id="patternVis">
+        <div class="pattern-overlay" id="patternOverlay">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="none" id="patternSvg"></svg>
+        </div>
+        <div class="pattern-content" id="patternContent">
+          <!-- Built by JS -->
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div id="patternDesc" style="display:flex;flex-direction:column;gap:16px">
+        <!-- Built by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry points -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">&#x1F3AF; 시선 진입점 우선순위</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--radius-xs)">
+        <div style="width:40px;height:40px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0">1</div>
+        <div><div style="font-size:14px;font-weight:700">움직임 (애니메이션, 비디오)</div><div style="font-size:12px;color:var(--text2)">가장 강력하나 남용하면 산만</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--radius-xs)">
+        <div style="width:40px;height:40px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0">2</div>
+        <div><div style="font-size:14px;font-weight:700">큰 이미지</div><div style="font-size:12px;color:var(--text2)">특히 사람 얼굴에 시선이 집중</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--radius-xs)">
+        <div style="width:40px;height:40px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#000;flex-shrink:0">3</div>
+        <div><div style="font-size:14px;font-weight:700">큰 텍스트</div><div style="font-size:12px;color:var(--text2)">굵은 제목이 시선을 잡는다</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--radius-xs)">
+        <div style="width:40px;height:40px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0">4</div>
+        <div><div style="font-size:14px;font-weight:700">고대비 요소</div><div style="font-size:12px;color:var(--text2)">밝은 배경 위의 진한 색</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--surface2);border-radius:var(--radius-xs)">
+        <div style="width:40px;height:40px;background:var(--accent2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0">5</div>
+        <div><div style="font-size:14px;font-weight:700">색상 차이</div><div style="font-size:12px;color:var(--text2)">주변과 다른 색상의 요소</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== SQUINT TEST ======== -->
+<section class="section" id="squint-test">
+  <div class="section-label">03</div>
+  <h2 class="section-title">스퀸트 테스트 (흐림 테스트)</h2>
+  <p class="section-desc">
+    가우시안 블러를 적용하여 텍스트를 읽을 수 없는 상태에서도 계층이 보이는지 확인한다.
+    블러 강도를 조절하여 계층 설계의 강건함을 테스트하세요.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x1F576;&#xFE0F; 블러 강도 조절기</div>
+    <div class="card-subtitle">슬라이더를 움직여 블러를 적용합니다. 블러 상태에서도 주요 요소가 구분되면 계층 설계가 성공한 것입니다.</div>
+
+    <div class="squint-slider-wrap">
+      <span style="font-size:12px;color:var(--text3)">선명</span>
+      <input type="range" id="squintSlider" min="0" max="15" value="0" step="0.5">
+      <span style="font-size:12px;color:var(--text3)">흐림</span>
+      <span class="squint-label" id="squintVal">0px</span>
+    </div>
+
+    <div class="squint-demo" id="squintDemo" style="margin-top:20px">
+      <div class="ui-mock">
+        <div class="ui-mock-nav">
+          <div class="logo">BrandName</div>
+          <div class="nav-items"><span>제품</span><span>가격</span><span>문의</span></div>
+        </div>
+        <div class="ui-mock-hero">
+          <h2>더 나은 디자인을 위한 첫걸음</h2>
+          <p>체계적인 시각 계층으로 사용자 경험의 품질을 높이세요</p>
+          <div class="mock-cta">시작하기</div>
+        </div>
+        <div class="ui-mock-cards">
+          <div class="ui-mock-card"><div class="ui-mock-card-img"></div><div class="ui-mock-card-body"><h4>기능 A</h4><p>핵심 기능 설명 텍스트</p></div></div>
+          <div class="ui-mock-card"><div class="ui-mock-card-img"></div><div class="ui-mock-card-body"><h4>기능 B</h4><p>보조 기능 설명 텍스트</p></div></div>
+          <div class="ui-mock-card"><div class="ui-mock-card-img"></div><div class="ui-mock-card-body"><h4>기능 C</h4><p>추가 기능 설명 텍스트</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px">
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">5초 테스트</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">새 사용자에게 5초간 보여주고 "가장 먼저 눈에 들어온 것은?" — 의도한 주요 요소와 일치하면 합격</div>
+      </div>
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">흑백 변환 테스트</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">그레이스케일로 변환해도 계층이 유지되면 구조가 탄탄한 것. 색상에만 의존하면 접근성 문제</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== DOMINANT / SUBDOMINANT / SUBORDINATE ======== -->
+<section class="section" id="dss">
+  <div class="section-label">04</div>
+  <h2 class="section-title">지배 / 종속 / 보조 3단계</h2>
+  <p class="section-desc">
+    모든 화면에는 최소한 3단계의 시각적 계층이 존재해야 한다. 크기 차이가 너무 미미하면 "비슷해 보이면 같은 계층"으로 인식된다.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x25B2; 크기 비율 데모</div>
+    <div class="card-subtitle">슬라이더로 스케일 비율을 조절하여 계층 분리 정도를 확인하세요</div>
+
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+      <span style="font-size:12px;color:var(--text3)">미세 (1.067)</span>
+      <input type="range" id="dssSlider" min="1.067" max="1.618" value="1.333" step="0.001" style="flex:1;accent-color:var(--accent2)">
+      <span style="font-size:12px;color:var(--text3)">극적 (1.618)</span>
+      <span id="dssRatioVal" style="font-family:var(--mono);font-size:14px;color:var(--accent2);font-weight:700;min-width:50px;text-align:right">1.333</span>
+    </div>
+
+    <div class="dss-demo" id="dssDemo">
+      <!-- Built by JS -->
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead><tr><th>단계</th><th>역할</th><th>크기 비율</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td><strong style="color:var(--accent2)">Dominant</strong></td><td>가장 먼저 눈에 들어옴</td><td>1.0 (기준)</td><td>히어로 타이틀, CTA</td></tr>
+          <tr><td><strong style="color:var(--accent)">Subdominant</strong></td><td>2차 정보 보충</td><td>0.6-0.7</td><td>섹션 제목, 서브헤딩</td></tr>
+          <tr><td><strong style="color:var(--text3)">Subordinate</strong></td><td>세부 정보</td><td>0.4-0.5</td><td>본문, 캡션, 타임스탬프</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Scale ratio comparison -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">실전 크기 비율 수치</div>
+      <div class="grid-3">
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--accent2)">
+          <div style="font-size:12px;color:var(--accent2);font-weight:700;margin-bottom:6px">히어로 &#x2192; 섹션 제목</div>
+          <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px">&#xD7; 1.5+</div>
+          <div style="font-size:11px;color:var(--text3)">예: 48px &#x2192; 32px</div>
+        </div>
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--accent)">
+          <div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:6px">섹션 제목 &#x2192; 본문</div>
+          <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px">&#xD7; 1.25+</div>
+          <div style="font-size:11px;color:var(--text3)">예: 32px &#x2192; 16px (2배)</div>
+        </div>
+        <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid var(--text3)">
+          <div style="font-size:12px;color:var(--text3);font-weight:700;margin-bottom:6px">본문 &#x2192; 캡션</div>
+          <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px">2-4px 차이</div>
+          <div style="font-size:11px;color:var(--text3)">예: 16px &#x2192; 12px</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== GESTALT PROXIMITY ======== -->
+<section class="section" id="proximity">
+  <div class="section-label">05</div>
+  <h2 class="section-title">게슈탈트 근접성 그룹핑</h2>
+  <p class="section-desc">
+    가까이 있는 요소는 관련된 것으로 인식된다. NNGroup은 근접성이 색상이나 형태보다 더 강력한 그룹핑 신호라고 밝혔다.
+    내부 간격 &#x2264; 외부 간격 &#xD7; 0.5
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x2B1B; 근접성 인터랙티브 데모</div>
+    <div class="card-subtitle">내부 간격과 외부 간격을 조절하여 그룹핑 효과를 관찰하세요</div>
+
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:var(--text3);font-weight:600">내부 간격</label>
+        <input type="range" id="innerGap" min="2" max="24" value="4" style="width:150px;accent-color:var(--green)">
+        <span id="innerGapVal" style="font-family:var(--mono);font-size:12px;color:var(--green)">4px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;color:var(--text3);font-weight:600">외부 간격 (그룹 간)</label>
+        <input type="range" id="outerGap" min="8" max="80" value="32" style="width:150px;accent-color:var(--accent2)">
+        <span id="outerGapVal" style="font-family:var(--mono);font-size:12px;color:var(--accent2)">32px</span>
+      </div>
+    </div>
+
+    <div class="prox-demo" id="proxDemo">
+      <!-- Built by JS -->
+    </div>
+
+    <!-- Spacing formula -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">여백으로 계층 만들기</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>여백 크기</th><th>역할</th><th>수치 예시</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Micro</strong></td><td>같은 그룹 내 요소 간격</td><td><code>4-8px</code></td></tr>
+            <tr><td><strong>Small</strong></td><td>관련 그룹 내 하위 섹션</td><td><code>12-16px</code></td></tr>
+            <tr><td><strong>Medium</strong></td><td>독립된 컴포넌트 간격</td><td><code>24-32px</code></td></tr>
+            <tr><td><strong>Large</strong></td><td>섹션 구분</td><td><code>48-64px</code></td></tr>
+            <tr><td><strong>XLarge</strong></td><td>페이지 영역 구분</td><td><code>80-120px</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== COLOR & CONTRAST ======== -->
+<section class="section" id="color-contrast">
+  <div class="section-label">06</div>
+  <h2 class="section-title">색상과 대비</h2>
+  <p class="section-desc">높은 대비는 높은 우선순위를 의미한다. 색상만으로 계층을 전달할 수 있다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x1F3A8; 대비 = 우선순위</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>요소 유형</th><th>대비 수준</th><th>색상 처리</th></tr></thead>
+        <tbody>
+          <tr><td>주요 CTA</td><td><span style="display:inline-block;width:60px;height:8px;background:var(--accent2);border-radius:4px"></span> 최고</td><td>브랜드 컬러 filled + 흰색 텍스트</td></tr>
+          <tr><td>보조 버튼</td><td><span style="display:inline-block;width:40px;height:8px;background:var(--accent);border-radius:4px"></span> 중간</td><td>아웃라인 또는 tonal 처리</td></tr>
+          <tr><td>비활성/힌트</td><td><span style="display:inline-block;width:20px;height:8px;background:var(--text4);border-radius:4px"></span> 최저</td><td>gray-400~500, opacity 0.38</td></tr>
+          <tr><td>링크</td><td><span style="display:inline-block;width:50px;height:8px;background:var(--accent);border-radius:4px"></span> 중상</td><td>브랜드 컬러 텍스트</td></tr>
+          <tr><td>본문 텍스트</td><td><span style="display:inline-block;width:55px;height:8px;background:var(--text);border-radius:4px"></span> 높음</td><td>다크 모드: gray-100</td></tr>
+          <tr><td>보조 텍스트</td><td><span style="display:inline-block;width:35px;height:8px;background:var(--text2);border-radius:4px"></span> 중간</td><td>다크 모드: gray-400</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3-level color hierarchy -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">색상 계층의 3단계</div>
+      <div class="grid-3">
+        <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center">
+          <div style="width:48px;height:48px;background:var(--accent2);border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:20px">&#x2605;</div>
+          <div style="font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:4px">강조색 (Accent)</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">10% 이하 면적, 가장 높은 채도로 시선을 끈다</div>
+        </div>
+        <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center">
+          <div style="width:48px;height:48px;background:var(--text3);border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:20px">&#x25A0;</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">중립색 (Neutral)</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">70-80% 차지, 배경/텍스트 색상</div>
+        </div>
+        <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center">
+          <div style="width:48px;height:48px;background:var(--green);border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:20px">&#x2713;</div>
+          <div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:4px">의미색 (Semantic)</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">에러(red), 경고(amber), 성공(green), 정보(blue)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== REAL UI WITH ANNOTATIONS ======== -->
+<section class="section" id="ui-annotations">
+  <div class="section-label">07</div>
+  <h2 class="section-title">UI 계층 분석</h2>
+  <p class="section-desc">실제 UI 모형에 계층 어노테이션을 표시하여 읽기 흐름과 시각적 우선순위를 분석합니다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x1F50D; 계층 어노테이션이 달린 UI</div>
+    <div style="position:relative">
+      <div class="ui-mock" id="annotatedUI">
+        <div class="ui-mock-nav">
+          <div class="logo">ProductCo</div>
+          <div class="nav-items"><span>Features</span><span>Pricing</span><span style="background:var(--accent2);color:#fff;padding:6px 14px;border-radius:6px;font-weight:700">Sign Up</span></div>
+        </div>
+        <div class="ui-mock-hero">
+          <h2 style="font-size:clamp(24px,4vw,40px)">비즈니스를 성장시키는 방법</h2>
+          <p style="max-width:400px;margin:0 auto 20px">데이터 기반 인사이트로 더 빠르고 정확한 의사결정을 내리세요</p>
+          <div class="mock-cta">14일 무료 체험</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:12px">신용카드 불필요 &middot; 즉시 시작</div>
+        </div>
+        <div class="ui-mock-cards">
+          <div class="ui-mock-card"><div class="ui-mock-card-img"></div><div class="ui-mock-card-body"><h4>분석 대시보드</h4><p>실시간 데이터 모니터링</p></div></div>
+          <div class="ui-mock-card"><div class="ui-mock-card-img"></div><div class="ui-mock-card-body"><h4>팀 협업</h4><p>실시간 공동 작업 지원</p></div></div>
+          <div class="ui-mock-card"><div class="ui-mock-card-img"></div><div class="ui-mock-card-body"><h4>자동화</h4><p>반복 작업 자동 처리</p></div></div>
+        </div>
+
+        <!-- Annotations -->
+        <div class="annotation" style="top:10px;right:140px">Dominant: CTA 버튼</div>
+        <div class="annotation" style="top:72px;left:20px">1단계: 히어로 타이틀</div>
+        <div class="annotation" style="top:120px;right:20px">2단계: 서브텍스트</div>
+        <div class="annotation" style="top:180px;left:50%;transform:translateX(-50%)">3단계: Primary CTA</div>
+      </div>
+
+      <!-- Reading flow arrows -->
+      <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5" viewBox="0 0 800 450" preserveAspectRatio="none">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="rgba(240,192,64,0.6)"/></marker>
+        </defs>
+        <path d="M60,30 L350,30" stroke="rgba(240,192,64,0.3)" stroke-width="2" fill="none" stroke-dasharray="6,4" marker-end="url(#arrowhead)"/>
+        <path d="M350,30 L400,100" stroke="rgba(240,192,64,0.3)" stroke-width="2" fill="none" stroke-dasharray="6,4" marker-end="url(#arrowhead)"/>
+        <path d="M400,100 L400,200" stroke="rgba(240,192,64,0.3)" stroke-width="2" fill="none" stroke-dasharray="6,4" marker-end="url(#arrowhead)"/>
+        <path d="M400,200 L200,350" stroke="rgba(240,192,64,0.3)" stroke-width="2" fill="none" stroke-dasharray="6,4" marker-end="url(#arrowhead)"/>
+      </svg>
+    </div>
+
+    <!-- Visual flow rules -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">시각적 흐름 설계 규칙</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>규칙</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><strong>하나의 진입점</strong></td><td>시선이 처음 도달하는 곳은 하나여야 한다</td></tr>
+            <tr><td><strong>순차적 안내</strong></td><td>진입점 &#x2192; 핵심 메시지 &#x2192; CTA 순서로 유도</td></tr>
+            <tr><td><strong>막다른 길 방지</strong></td><td>시선이 멈추지 않고 다음 요소로 자연스럽게 이어져야</td></tr>
+            <tr><td><strong>좌측 정렬 우선</strong></td><td>좌측 가장자리를 일관된 시선 앵커로</td></tr>
+            <tr><td><strong>중앙 정렬은 제한적</strong></td><td>히어로, 다이얼로그 등 짧은 텍스트에만</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== COMBINATION & ANTI-PATTERNS ======== -->
+<section class="section" id="combinations">
+  <div class="section-label">08</div>
+  <h2 class="section-title">계층 도구의 조합 & 안티패턴</h2>
+  <p class="section-desc">단일 도구보다 여러 도구를 조합하면 더 명확한 계층을 만들 수 있다. 과잉 강조는 오히려 계층을 파괴한다.</p>
+
+  <div class="card">
+    <div class="card-title">&#x1F4A1; 효과적인 조합</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>조합</th><th>효과</th><th>사용 상황</th></tr></thead>
+        <tbody>
+          <tr><td><strong>크기 + 굵기</strong></td><td>가장 기본적인 텍스트 계층</td><td>제목 vs 본문</td></tr>
+          <tr><td><strong>크기 + 색상</strong></td><td>시각적 강조 극대화</td><td>히어로 + 브랜드 컬러</td></tr>
+          <tr><td><strong>여백 + 구분선</strong></td><td>섹션 분리</td><td>설정 화면, 폼 그룹</td></tr>
+          <tr><td><strong>색상 + 아이콘</strong></td><td>상태 표시</td><td>에러/성공/경고</td></tr>
+          <tr><td><strong>위치 + 크기 + 대비</strong></td><td>완전한 계층 스택</td><td>CTA 영역 설계</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-subtitle" style="margin-bottom:12px">과잉 강조 안티패턴</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="padding:16px;background:rgba(248,113,113,0.04);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm)">
+          <div style="font-size:11px;font-weight:800;color:var(--red);margin-bottom:10px">&#x2718; BAD</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6">
+            <div style="margin-bottom:6px">&#x2022; 모든 요소에 <strong>굵은 텍스트</strong> &#x2192; 아무것도 강조되지 않음</div>
+            <div style="margin-bottom:6px">&#x2022; 3개 이상 동일 크기 CTA &#x2192; 선택 마비</div>
+            <div>&#x2022; 빨간색 + 느낌표 + 밑줄 + 굵기 &#x2192; 시끄러움</div>
+          </div>
+        </div>
+        <div style="padding:16px;background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.2);border-radius:var(--radius-sm)">
+          <div style="font-size:11px;font-weight:800;color:var(--green);margin-bottom:10px">&#x2714; GOOD</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6">
+            <div style="margin-bottom:6px">&#x2022; CTA만 브랜드 컬러, 나머지는 중립색</div>
+            <div style="margin-bottom:6px">&#x2022; 1 Primary CTA + 1 Secondary CTA</div>
+            <div>&#x2022; 시선이 자연스럽게 CTA로 수렴</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== PLATFORM CONSIDERATIONS ======== -->
+<section class="section" id="platforms">
+  <div class="section-label">09</div>
+  <h2 class="section-title">플랫폼별 고려사항</h2>
+  <p class="section-desc">모바일, 태블릿, 데스크톱, 대시보드 각각에서 계층 설계가 달라야 한다.</p>
+
+  <div class="card">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F4F1;</div>
+        <div style="font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:8px">모바일</div>
+        <ul style="font-size:12px;color:var(--text2);line-height:1.7;padding-left:16px">
+          <li>수직 계층에 의존</li>
+          <li>크기 차이 1.2배 이상 유지</li>
+          <li>터치 타겟 최소 44pt</li>
+        </ul>
+      </div>
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F4BB;</div>
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px">태블릿</div>
+        <ul style="font-size:12px;color:var(--text2);line-height:1.7;padding-left:16px">
+          <li>2컬럼: 좌=Primary, 우=Secondary</li>
+          <li>Split View 독립 계층 필요</li>
+        </ul>
+      </div>
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F5A5;&#xFE0F;</div>
+        <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px">데스크톱</div>
+        <ul style="font-size:12px;color:var(--text2);line-height:1.7;padding-left:16px">
+          <li>Max-width 800-1200px 제한</li>
+          <li>3단 구조 각각 독립 계층</li>
+        </ul>
+      </div>
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">&#x1F4CA;</div>
+        <div style="font-size:14px;font-weight:700;color:var(--cyan);margin-bottom:8px">대시보드</div>
+        <ul style="font-size:12px;color:var(--text2);line-height:1.7;padding-left:16px">
+          <li>KPI 1-3개만 Dominant</li>
+          <li>색상은 이상치만 표시</li>
+          <li>정상 상태는 중립색</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== HIERARCHY AUDIT CHECKLIST ======== -->
+<section class="section" id="audit">
+  <div class="section-label">10</div>
+  <h2 class="section-title">계층 감사 체크리스트</h2>
+  <p class="section-desc">
+    아래 항목을 하나씩 클릭하여 체크합니다. 모든 항목을 통과하면 계층 설계가 성공한 것입니다.
+  </p>
+
+  <div class="card">
+    <div class="card-title">&#x2705; 인터랙티브 점검표</div>
+    <div class="audit-progress">
+      <div class="audit-bar"><div class="audit-bar-fill" id="auditBarFill" style="width:0"></div></div>
+      <div class="audit-pct" id="auditPct">0%</div>
+    </div>
+
+    <div class="audit-list" id="auditList" style="margin-top:16px">
+      <div class="audit-item" data-idx="0">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">시각적 진입점이 하나인가?</div>
+          <div class="a-desc">화면에서 가장 먼저 눈에 들어오는 요소가 명확히 하나</div>
+        </div>
+      </div>
+      <div class="audit-item" data-idx="1">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">3단계 이상의 크기 계층이 있는가?</div>
+          <div class="a-desc">Dominant &#x2192; Subdominant &#x2192; Subordinate 구분 가능</div>
+        </div>
+      </div>
+      <div class="audit-item" data-idx="2">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">내부 간격 < 외부 간격인가?</div>
+          <div class="a-desc">관련 요소가 비관련 요소보다 가까이 배치</div>
+        </div>
+      </div>
+      <div class="audit-item" data-idx="3">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">CTA가 시각적 최고점인가?</div>
+          <div class="a-desc">주요 행동 유도 버튼이 가장 높은 대비와 색상을 보유</div>
+        </div>
+      </div>
+      <div class="audit-item" data-idx="4">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">텍스트 크기 단계가 적절한가?</div>
+          <div class="a-desc">너무 많은 크기 변형(5종 초과)은 계층을 혼란스럽게 만듦</div>
+        </div>
+      </div>
+      <div class="audit-item" data-idx="5">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">색상 제거 후에도 계층이 유지되는가?</div>
+          <div class="a-desc">그레이스케일 테스트 통과</div>
+        </div>
+      </div>
+      <div class="audit-item" data-idx="6">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">모바일에서도 계층이 명확한가?</div>
+          <div class="a-desc">작은 화면에서 크기 비율이 유지되는지 확인</div>
+        </div>
+      </div>
+      <div class="audit-item" data-idx="7">
+        <div class="audit-check"></div>
+        <div class="audit-content">
+          <div class="a-title">스크롤 없이 핵심 메시지를 파악 가능한가?</div>
+          <div class="a-desc">Above the fold에 Dominant 요소 배치</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>Design Foundations &mdash; 시각적 계층 &middot; v0.2.0 &middot; 2026-03-30</p>
+  <p style="margin-top:8px">
+    <a href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/" target="_blank">NN/g F-Pattern</a> &middot;
+    <a href="https://www.nngroup.com/articles/text-scanning-patterns-eyetracking/" target="_blank">NN/g Scanning</a> &middot;
+    <a href="https://www.nngroup.com/articles/gestalt-proximity/" target="_blank">NN/g Proximity</a> &middot;
+    <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank">WCAG 1.4.3</a>
+  </p>
+</footer>
+
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+
+<script>
+// ===== HIERARCHY TOOLS TOGGLES =====
+(function(){
+  const toggles = document.querySelectorAll('.tool-toggle');
+  const demo = document.getElementById('toolsDemo');
+  const hero = document.getElementById('tdHero');
+  const sub = document.getElementById('tdSub');
+  const body = document.getElementById('tdBody');
+  const cta = document.getElementById('tdCta');
+  const meta = document.getElementById('tdMeta');
+
+  const state = {size:true, color:true, contrast:true, position:true, whitespace:true};
+
+  function update(){
+    // Size
+    hero.style.fontSize = state.size ? '48px' : '18px';
+    sub.style.fontSize = state.size ? '20px' : '17px';
+    body.style.fontSize = state.size ? '15px' : '16px';
+    cta.style.fontSize = state.size ? '15px' : '15px';
+    cta.style.padding = state.size ? '14px 32px' : '10px 20px';
+
+    // Color
+    cta.style.background = state.color ? 'var(--accent2)' : 'var(--surface)';
+    cta.style.color = state.color ? '#fff' : 'var(--text2)';
+    cta.style.border = state.color ? 'none' : '1px solid var(--border)';
+
+    // Contrast
+    hero.style.color = state.contrast ? 'var(--text)' : 'var(--text3)';
+    sub.style.color = state.contrast ? 'var(--text2)' : 'var(--text3)';
+    body.style.color = state.contrast ? 'var(--text2)' : 'var(--text3)';
+    meta.style.color = state.contrast ? 'var(--text3)' : 'var(--text3)';
+
+    // Position (reverse order)
+    demo.style.flexDirection = state.position ? '' : 'column-reverse';
+    demo.style.display = 'flex';
+    demo.style.flexWrap = 'wrap';
+
+    // Whitespace
+    demo.style.padding = state.whitespace ? 'clamp(24px,3vw,40px)' : '12px';
+    demo.style.gap = state.whitespace ? '' : '4px';
+    hero.style.marginBottom = state.whitespace ? '16px' : '4px';
+    sub.style.marginBottom = state.whitespace ? '12px' : '2px';
+    body.style.marginBottom = state.whitespace ? '24px' : '4px';
+    meta.style.marginTop = state.whitespace ? '16px' : '4px';
+  }
+
+  toggles.forEach(t=>{
+    t.addEventListener('click',()=>{
+      const tool = t.dataset.tool;
+      state[tool] = !state[tool];
+      t.classList.toggle('active', state[tool]);
+      update();
+    });
+  });
+  update();
+})();
+
+// ===== EYE TRACKING PATTERNS =====
+(function(){
+  const tabs = document.querySelectorAll('#patternTabs .tab-btn');
+  const svg = document.getElementById('patternSvg');
+  const content = document.getElementById('patternContent');
+  const desc = document.getElementById('patternDesc');
+
+  function showF(){
+    content.innerHTML = `
+      <div style="margin-bottom:12px"><div style="width:80%;height:12px;background:rgba(248,113,113,0.3);border-radius:3px;margin-bottom:6px"></div></div>
+      <div style="margin-bottom:12px"><div style="width:60%;height:8px;background:rgba(248,113,113,0.15);border-radius:3px;margin-bottom:6px"></div></div>
+      <div style="margin-bottom:8px"><div style="width:8%;height:80px;background:rgba(248,113,113,0.1);border-radius:3px"></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;padding-left:16px">
+        <div style="width:90%;height:6px;background:var(--border);border-radius:3px"></div>
+        <div style="width:85%;height:6px;background:var(--border);border-radius:3px"></div>
+        <div style="width:75%;height:6px;background:var(--border);border-radius:3px"></div>
+        <div style="width:88%;height:6px;background:var(--border);border-radius:3px"></div>
+        <div style="width:70%;height:6px;background:var(--border);border-radius:3px"></div>
+      </div>`;
+    svg.innerHTML = `
+      <defs><marker id="ah1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="rgba(248,113,113,0.7)"/></marker></defs>
+      <path d="M20,30 L350,30" stroke="rgba(248,113,113,0.5)" stroke-width="3" fill="none" marker-end="url(#ah1)"/>
+      <path d="M20,80 L250,80" stroke="rgba(248,113,113,0.4)" stroke-width="3" fill="none" marker-end="url(#ah1)"/>
+      <path d="M20,30 L20,280" stroke="rgba(248,113,113,0.3)" stroke-width="3" fill="none" marker-end="url(#ah1)"/>
+      <text x="360" y="35" fill="rgba(248,113,113,0.7)" font-size="11" font-weight="700">1st scan</text>
+      <text x="260" y="85" fill="rgba(248,113,113,0.5)" font-size="11" font-weight="700">2nd scan</text>
+      <text x="28" y="270" fill="rgba(248,113,113,0.4)" font-size="11" font-weight="700">줄기</text>`;
+    desc.innerHTML = `
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:8px">F-패턴 (텍스트 중심 페이지)</div>
+        <ol style="font-size:13px;color:var(--text2);line-height:1.7;padding-left:20px">
+          <li>상단을 수평으로 스캔 (첫 번째 수평선)</li>
+          <li>약간 아래로 이동, 더 짧은 수평 스캔 (두 번째)</li>
+          <li>왼쪽을 수직으로 훑음 (F의 줄기)</li>
+        </ol>
+      </div>
+      <div style="padding:16px;background:rgba(240,192,64,0.04);border-radius:var(--radius-sm);border:1px solid rgba(240,192,64,0.2)">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">핵심 인사이트</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">F-패턴은 구조가 부실한 콘텐츠에서 발생하는 "나쁜 읽기 패턴"이다. 명확한 제목, 짧은 단락, 시각적 구분이 있으면 layer-cake 패턴으로 전환한다.</div>
+      </div>`;
+  }
+
+  function showZ(){
+    content.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div style="font-size:16px;font-weight:800;color:var(--text)">Logo</div>
+        <div style="background:var(--accent2);color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700">CTA</div>
+      </div>
+      <div style="text-align:center;padding:32px 0;margin-bottom:24px">
+        <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px">Hero Message</div>
+        <div style="font-size:13px;color:var(--text2)">Supporting text goes here</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:12px;color:var(--text3)">Social Proof &#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</div>
+        <div style="background:var(--accent);color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700">Sign Up</div>
+      </div>`;
+    svg.innerHTML = `
+      <defs><marker id="ah2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="rgba(232,150,90,0.7)"/></marker></defs>
+      <path d="M30,30 L370,30" stroke="rgba(232,150,90,0.5)" stroke-width="3" fill="none" marker-end="url(#ah2)"/>
+      <path d="M370,30 L30,270" stroke="rgba(232,150,90,0.4)" stroke-width="3" fill="none" stroke-dasharray="6,4" marker-end="url(#ah2)"/>
+      <path d="M30,270 L370,270" stroke="rgba(232,150,90,0.5)" stroke-width="3" fill="none" marker-end="url(#ah2)"/>
+      <text x="180" y="20" fill="rgba(232,150,90,0.7)" font-size="11" font-weight="700" text-anchor="middle">1</text>
+      <text x="200" y="160" fill="rgba(232,150,90,0.5)" font-size="11" font-weight="700">2</text>
+      <text x="180" y="290" fill="rgba(232,150,90,0.7)" font-size="11" font-weight="700" text-anchor="middle">3</text>`;
+    desc.innerHTML = `
+      <div style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px">Z-패턴 (시각 요소 중심 페이지)</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">
+          <div style="margin-bottom:6px"><strong style="color:var(--text)">좌상단:</strong> 로고, 브랜드 인지</div>
+          <div style="margin-bottom:6px"><strong style="color:var(--text)">우상단:</strong> 내비게이션, 주요 CTA</div>
+          <div style="margin-bottom:6px"><strong style="color:var(--text)">중앙:</strong> 핵심 메시지, 히어로 이미지</div>
+          <div style="margin-bottom:6px"><strong style="color:var(--text)">좌하단:</strong> 부가 정보, 소셜 프루프</div>
+          <div><strong style="color:var(--text)">우하단:</strong> 최종 CTA, 가입 버튼</div>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(232,150,90,0.04);border-radius:var(--radius-sm);border:1px solid rgba(232,150,90,0.2)">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px">적합한 페이지</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">랜딩 페이지, 홈페이지, 광고 등 텍스트보다 시각적 요소가 많은 페이지</div>
+      </div>`;
+  }
+
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    t.classList.add('active');
+    if(t.dataset.pattern==='f') showF(); else showZ();
+  }));
+  showF();
+})();
+
+// ===== SQUINT TEST =====
+document.getElementById('squintSlider').addEventListener('input', function(){
+  const v = this.value;
+  document.getElementById('squintVal').textContent = v+'px';
+  document.getElementById('squintDemo').style.filter = v>0 ? 'blur('+v+'px)' : 'none';
+});
+
+// ===== DSS DEMO =====
+function updateDSS(){
+  const ratio = parseFloat(document.getElementById('dssSlider').value);
+  document.getElementById('dssRatioVal').textContent = ratio.toFixed(3);
+  const demo = document.getElementById('dssDemo');
+  const base = 16;
+  const sizes = [
+    {label:'Dominant (히어로 타이틀)', size: Math.round(base*Math.pow(ratio,4)), color:'var(--accent2)'},
+    {label:'Subdominant (섹션 제목)', size: Math.round(base*Math.pow(ratio,2)), color:'var(--accent)'},
+    {label:'Subordinate (본문)', size: base, color:'var(--text3)'},
+  ];
+  demo.innerHTML = sizes.map(s=>`
+    <div class="dss-box" style="width:${Math.min(100, s.size*2.5)}%;height:${Math.max(40,s.size*1.5)}px;background:${s.color};color:${s.size>30?'#fff':'var(--text)'};font-size:${Math.min(s.size,36)}px;padding:8px 24px">
+      <div>${s.label}</div>
+      <div style="font-family:var(--mono);font-size:12px;opacity:0.7;margin-top:4px">${s.size}px</div>
+    </div>
+  `).join('');
+}
+document.getElementById('dssSlider').addEventListener('input', updateDSS);
+updateDSS();
+
+// ===== GESTALT PROXIMITY =====
+function updateProximity(){
+  const inner = parseInt(document.getElementById('innerGap').value);
+  const outer = parseInt(document.getElementById('outerGap').value);
+  document.getElementById('innerGapVal').textContent = inner+'px';
+  document.getElementById('outerGapVal').textContent = outer+'px';
+
+  const demo = document.getElementById('proxDemo');
+  const colors = ['var(--accent2)','var(--accent)','var(--gold)'];
+  demo.innerHTML = '';
+
+  for(let g=0;g<3;g++){
+    const group = document.createElement('div');
+    group.className = 'prox-group';
+    group.style.marginRight = g<2 ? outer+'px' : '0';
+
+    const dots = document.createElement('div');
+    dots.className = 'prox-dots';
+    dots.style.gap = inner+'px';
+    dots.style.width = (16*3 + inner*2)+'px';
+    for(let i=0;i<9;i++){
+      const dot = document.createElement('div');
+      dot.className = 'prox-dot';
+      dot.style.background = colors[g];
+      dots.appendChild(dot);
+    }
+    group.appendChild(dots);
+
+    const label = document.createElement('div');
+    label.className = 'prox-label';
+    label.textContent = '그룹 '+(g+1);
+    group.appendChild(label);
+
+    demo.appendChild(group);
+  }
+}
+document.getElementById('innerGap').addEventListener('input', updateProximity);
+document.getElementById('outerGap').addEventListener('input', updateProximity);
+updateProximity();
+
+// ===== AUDIT CHECKLIST =====
+(function(){
+  const items = document.querySelectorAll('.audit-item');
+  const checked = new Set();
+
+  items.forEach(item=>{
+    item.addEventListener('click',()=>{
+      const idx = item.dataset.idx;
+      if(checked.has(idx)){
+        checked.delete(idx);
+        item.classList.remove('checked');
+        item.querySelector('.audit-check').textContent = '';
+      } else {
+        checked.add(idx);
+        item.classList.add('checked');
+        item.querySelector('.audit-check').textContent = '\u2713';
+      }
+      const pct = Math.round((checked.size / items.length)*100);
+      document.getElementById('auditBarFill').style.width = pct+'%';
+      document.getElementById('auditPct').textContent = pct+'%';
+    });
+  });
+})();
+
+// ===== BACK TO TOP =====
+window.addEventListener('scroll',()=>{
+  document.getElementById('btt').classList.toggle('visible', window.scrollY>400);
+});
+</script>
+</body>
+</html>

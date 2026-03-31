@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로젝트 감지 — Flutter Toolkit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(34,211,238,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(34,211,238,0.03) 0%,transparent 50%);
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+/* HERO */
+.hero{padding:60px 0 48px;text-align:center}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+h1{font-size:clamp(2.2rem,4vw+1rem,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.subtitle{font-size:1.1rem;color:var(--text2);max-width:600px;margin:0 auto;line-height:1.7}
+
+/* SECTION */
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.5rem,2.5vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:32px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;transition:var(--transition)}
+.card:hover{border-color:rgba(34,211,238,0.3)}
+.card-title{font-size:1.05rem;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(34,211,238,0.04)}
+
+/* NUM BADGE */
+.num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+  border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:700;flex-shrink:0}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 24px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);min-width:160px;text-align:center;transition:var(--transition)}
+.flow-step:hover{border-color:var(--accent);transform:translateY(-2px)}
+.flow-step .num{margin-bottom:4px}
+.flow-step strong{font-size:0.9rem}
+.flow-step span{font-size:0.78rem;color:var(--text3)}
+.flow-arrow{font-size:1.4rem;color:var(--accent);padding:0 8px;flex-shrink:0}
+@media(max-width:600px){.flow{flex-direction:column}.flow-arrow{transform:rotate(90deg)}}
+
+/* CODE */
+code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent2)}
+.var-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;font-family:var(--mono);font-size:14px;line-height:1.6}
+.var-block .label{color:var(--text3);font-size:12px;margin-bottom:8px;font-family:inherit;display:block}
+.var-block .val{color:var(--accent)}
+
+/* DECISION TREE */
+.decision{display:flex;flex-direction:column;gap:16px}
+.decision-row{display:flex;align-items:center;gap:16px;padding:16px 20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
+.decision-row:hover{border-color:rgba(34,211,238,0.3)}
+.decision-file{font-family:var(--mono);font-size:0.85rem;color:var(--accent2);min-width:220px}
+.decision-result{font-size:0.9rem;color:var(--text)}
+.decision-cmd{font-family:var(--mono);font-size:0.82rem;color:var(--green);margin-left:auto;white-space:nowrap}
+
+/* CHECKLIST */
+.checklist{margin-top:24px}
+.checklist-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.checklist-item:last-child{border-bottom:none}
+.checklist-box{width:20px;height:20px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition)}
+.checklist-box.checked{background:var(--green);border-color:var(--green)}
+.checklist-box.checked::after{content:'';width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+.checklist-text{font-size:0.88rem;color:var(--text);line-height:1.5;flex:1}
+
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600}
+.tag-cyan{background:rgba(34,211,238,0.12);color:var(--accent)}
+.tag-green{background:rgba(74,222,128,0.12);color:var(--green)}
+.tag-yellow{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.tag-red{background:rgba(248,113,113,0.12);color:var(--red)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Flutter Toolkit</div>
+    <h1>프로젝트 감지</h1>
+    <p class="subtitle">Flutter 환경 자동 감지 — FVM, 아키텍처, 의존성</p>
+  </div>
+
+  <!-- FLOW DIAGRAM -->
+  <div class="section">
+    <div class="section-label">Detection Pipeline</div>
+    <div class="section-title">감지 흐름</div>
+    <div class="section-desc">모든 flutter-toolkit 스킬은 코드 생성 전에 이 파이프라인을 실행하여 프로젝트 환경을 자동으로 파악한다.</div>
+
+    <div class="flow">
+      <div class="flow-step"><div class="num">1</div><strong>Flutter 확인</strong><span>pubspec.yaml</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="num">2</div><strong>SDK 매니저</strong><span>FVM / asdf / system</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="num">3</div><strong>의존성 감지</strong><span>dependencies 분석</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="num">4</div><strong>아키텍처</strong><span>lib/ 구조 분석</span></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="num">5</div><strong>컨벤션</strong><span>코드 패턴 감지</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="section">
+    <div class="section-label">Step 1</div>
+    <div class="section-title">Flutter 프로젝트 확인</div>
+    <div class="section-desc"><code>pubspec.yaml</code>을 찾아 패키지명과 SDK 버전을 추출한다. 없으면 에러를 출력하고 중단한다.</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>추출 항목</div>
+        <div class="checklist">
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text"><code>name</code> &rarr; 패키지명 (<code>package:{name}/...</code> import 경로)</div>
+          </div>
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text"><code>environment.sdk</code> &rarr; Dart SDK 버전 제약</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--red)"></span>미감지 시 에러</div>
+        <div style="padding:16px;background:rgba(248,113,113,0.06);border-radius:10px;border:1px solid rgba(248,113,113,0.15);font-size:0.88rem;color:var(--red);font-family:var(--mono)">
+          "Flutter 프로젝트가 아닙니다. pubspec.yaml이 있는 디렉토리에서 실행해주세요."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="section">
+    <div class="section-label">Step 2</div>
+    <div class="section-title">SDK 매니저 감지</div>
+    <div class="section-desc">프로젝트 루트의 설정 파일로 SDK 매니저를 판별하고 명령 prefix를 결정한다.</div>
+
+    <div class="decision">
+      <div class="decision-row">
+        <div class="decision-file"><code>.fvmrc</code> 또는 <code>.fvm/fvm_config.json</code></div>
+        <div class="decision-result"><span class="tag tag-cyan">FVM</span></div>
+        <div class="decision-cmd">fvm flutter / fvm dart</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-file"><code>.tool-versions</code> (asdf flutter 항목)</div>
+        <div class="decision-result"><span class="tag tag-yellow">asdf</span></div>
+        <div class="decision-cmd">flutter / dart</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-file">설정 파일 없음</div>
+        <div class="decision-result"><span class="tag tag-green">System</span></div>
+        <div class="decision-cmd">flutter / dart</div>
+      </div>
+    </div>
+
+    <div style="margin-top:28px">
+      <div class="var-block">
+        <span class="label">감지 결과 변수</span>
+        FVM &rarr; <span class="val">$FLUTTER = fvm flutter</span> &nbsp; <span class="val">$DART = fvm dart</span><br>
+        기타 &rarr; <span class="val">$FLUTTER = flutter</span> &nbsp;&nbsp;&nbsp; <span class="val">$DART = dart</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="section">
+    <div class="section-label">Step 3</div>
+    <div class="section-title">의존성 감지</div>
+    <div class="section-desc"><code>pubspec.yaml</code>의 <code>dependencies</code> + <code>dev_dependencies</code>에서 패키지를 감지하고 플래그를 설정한다.</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>패키지</th><th>감지 플래그</th><th>영향받는 스킬</th></tr></thead>
+        <tbody>
+          <tr><td><code>flutter_riverpod</code> / <code>hooks_riverpod</code></td><td><span class="tag tag-cyan">HAS_RIVERPOD</span></td><td>flutter-provider</td></tr>
+          <tr><td><code>go_router</code></td><td><span class="tag tag-cyan">HAS_GO_ROUTER</span></td><td>flutter-screen, flutter-transition</td></tr>
+          <tr><td><code>go_router_builder</code></td><td><span class="tag tag-cyan">HAS_GO_ROUTER_BUILDER</span></td><td>flutter-screen (TypedGoRoute)</td></tr>
+          <tr><td><code>freezed</code></td><td><span class="tag tag-cyan">HAS_FREEZED</span></td><td>flutter-api, flutter-feature</td></tr>
+          <tr><td><code>retrofit</code></td><td><span class="tag tag-cyan">HAS_RETROFIT</span></td><td>flutter-api</td></tr>
+          <tr><td><code>build_runner</code></td><td><span class="tag tag-yellow">HAS_BUILD_RUNNER</span></td><td>flutter-run (codegen)</td></tr>
+          <tr><td><code>slang</code> / <code>slang_flutter</code></td><td><span class="tag tag-green">HAS_SLANG</span></td><td>flutter-l10n</td></tr>
+          <tr><td><code>easy_localization</code></td><td><span class="tag tag-green">HAS_EASY_L10N</span></td><td>flutter-l10n</td></tr>
+          <tr><td><code>flutter_hooks</code> / <code>hooks_riverpod</code></td><td><span class="tag tag-cyan">HAS_HOOKS</span></td><td>flutter-hooks, flutter-widget</td></tr>
+          <tr><td><code>custom_lint</code></td><td><span class="tag tag-yellow">HAS_CUSTOM_LINT</span></td><td>flutter-audit</td></tr>
+          <tr><td><code>auto_route</code></td><td><span class="tag tag-cyan">HAS_AUTO_ROUTE</span></td><td>flutter-screen, flutter-transition</td></tr>
+          <tr><td><code>flutter_bloc</code> / <code>bloc</code></td><td><span class="tag tag-cyan">HAS_BLOC</span></td><td>flutter-provider, flutter-audit</td></tr>
+          <tr><td><code>dio</code></td><td><span class="tag tag-yellow">HAS_DIO</span></td><td>flutter-api</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="border-color:rgba(251,191,36,0.25)">
+      <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>미설치 패키지 안내</div>
+      <div style="font-size:0.88rem;color:var(--text2);font-family:var(--mono)">
+        "{패키지}가 pubspec.yaml에 없습니다. 이 기능을 사용하려면 먼저 설치해주세요:<br>
+        <span style="color:var(--accent)">$FLUTTER pub add {패키지}</span>"
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: ARCHITECTURE -->
+  <div class="section">
+    <div class="section-label">Step 4</div>
+    <div class="section-title">아키텍처 패턴 감지</div>
+    <div class="section-desc"><code>lib/</code> 디렉토리 구조를 분석하여 프로젝트 아키텍처를 판별한다.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="tag tag-cyan">ARCH = clean</span></div>
+        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
+          lib/features/*/data/<br>lib/features/*/domain/<br>lib/features/*/presentation/
+        </div>
+        <div style="margin-top:12px;font-size:0.82rem;color:var(--text3)">domain &rarr; data, presentation import 금지<br>Repository: interface(domain) + impl(data) 분리</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="tag tag-green">ARCH = mvvm</span></div>
+        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
+          lib/features/*/ui/<br>lib/features/*/view_models/<br>lib/*/views/, lib/*/view_models/
+        </div>
+        <div style="margin-top:12px;font-size:0.82rem;color:var(--text3)">View &harr; ViewModel 1:1 관계<br>Repository &rarr; Service 레이어 분리</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="tag tag-yellow">ARCH = feature_first</span></div>
+        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
+          lib/features/*/<br>(data/domain/presentation 없음)
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="tag tag-red">ARCH = flat</span></div>
+        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
+          lib/src/<br>또는 flat 구조
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT TEMPLATE -->
+  <div class="section">
+    <div class="section-label">Output</div>
+    <div class="section-title">감지 결과 요약</div>
+    <div class="section-desc">스킬이 내부적으로 참조하는 최종 감지 결과 형식.</div>
+    <div class="var-block" style="line-height:1.6">
+      <span class="label">Detection Summary Template</span>
+      Package: <span class="val">my_app</span><br>
+      SDK Manager: <span class="val">fvm</span><br>
+      Flutter: <span class="val">fvm flutter</span> &nbsp; Dart: <span class="val">fvm dart</span><br>
+      Architecture: <span class="val">clean</span><br>
+      Dependencies: <span class="val">riverpod, go_router, freezed, retrofit</span><br>
+      Design System: <span class="val">true</span><br>
+      Widget Base: <span class="val">HookWidget</span><br>
+      State Management: <span class="val">riverpod_codegen</span><br>
+      Router: <span class="val">go_router_builder</span><br>
+      i18n: <span class="val">slang</span>
+    </div>
+  </div>
+
+</div>
+<script>
+function toggle(item){item.querySelector('.checklist-box').classList.toggle('checked')}
+</script>
+</body>
+</html>

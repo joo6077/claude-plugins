@@ -1,7 +1,7 @@
 ---
 name: design-research
 description: >
-  디자인 레퍼런스 소스를 크롤링/분석하여 docs/design/ 문서를 갱신한다.
+  디자인 레퍼런스 소스를 크롤링/분석하여 design-kit/docs/design/ 문서를 갱신한다.
   이 레포 개발용 스킬이며, design-kit 플러그인에 포함되지 않는다.
   "디자인 리서치", "레퍼런스 크롤링", "design research",
   "디자인 문서 갱신" 같은 요청 시 트리거.
@@ -19,7 +19,7 @@ user-invocable: true
 
 ## Step 1: 대상 카테고리 결정
 
-사용자가 카테고리를 지정하면 해당 문서만, 미지정이면 전체 docs/design/ 순회.
+사용자가 카테고리를 지정하면 해당 문서만, 미지정이면 전체 design-kit/docs/design/ 순회.
 
 ## Step 2: 소스 크롤링
 
@@ -36,7 +36,7 @@ user-invocable: true
 
 ## Step 3: 분석 및 정리
 
-크롤링 결과를 해당 docs/design/ 문서에 반영:
+크롤링 결과를 해당 design-kit/docs/design/ 문서에 반영:
 - 각 원칙에 `> **출처:**` 인라인 태그
 - 섹션 구조는 기존 스켈레톤을 따름
 - 수치/기준값은 명확하게 (예: "4.5:1", "44pt", "200~500ms")
@@ -50,11 +50,11 @@ user-invocable: true
 ## Step 5: 커밋
 
 ```bash
-git add docs/design/
+git add design-kit/docs/design/
 git commit -m "docs(design): [카테고리] 리서치 갱신 — [소스 요약]"
 ```
 
 # References
 
 - 크롤링 대상 소스 목록은 Process Step 2 테이블 참조
-- 기존 docs/design/ 문서의 섹션 구조를 따를 것
+- 기존 design-kit/docs/design/ 문서의 섹션 구조를 따를 것

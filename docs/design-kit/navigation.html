@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>네비게이션 패턴</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--pink:#f472b6;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(240,176,136,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,150,90,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* Typography */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent2);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:rgba(240,176,136,0.12);color:var(--accent2);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(240,176,136,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(240,176,136,0.03)}
+
+  /* Buttons */
+  button,.btn{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;
+    padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:inherit;
+  }
+  button:hover,.btn:hover{border-color:var(--accent2);background:rgba(240,176,136,0.08)}
+  button.active,.btn.active{background:rgba(240,176,136,0.15);border-color:var(--accent2);color:var(--accent2)}
+
+  /* Hierarchy diagram */
+  .hier-container{display:flex;gap:24px;flex-wrap:wrap}
+  .hier-box{flex:1;min-width:280px;background:var(--surface2);border-radius:12px;padding:24px;position:relative}
+  .hier-title{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .hier-node{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;
+    font-weight:600;text-align:center;transition:all var(--transition);cursor:pointer;position:relative}
+  .hier-node:hover{border-color:var(--accent2);background:rgba(240,176,136,0.08)}
+  .hier-node.active{border-color:var(--accent2);background:rgba(240,176,136,0.15);color:var(--accent2)}
+  .hier-row{display:flex;gap:8px;justify-content:center;margin-top:12px}
+  .hier-connector{width:1px;height:12px;background:var(--border);margin:0 auto}
+  .hier-connector-h{display:flex;justify-content:center;position:relative}
+  .hier-connector-h::before{content:'';position:absolute;top:0;left:25%;right:25%;height:1px;background:var(--border)}
+
+  /* Device mockups */
+  .device-frame{border-radius:20px;border:2px solid var(--border);background:var(--bg2);overflow:hidden;position:relative}
+  .device-screen{position:relative;overflow:hidden}
+  .device-status-bar{height:24px;background:var(--bg);display:flex;align-items:center;justify-content:center;
+    font-size:10px;color:var(--text3);font-weight:600}
+  .device-content{padding:16px;min-height:200px;display:flex;flex-direction:column;gap:8px}
+  .device-content-item{background:var(--surface);border-radius:8px;height:40px;width:100%}
+
+  /* Tab bar mockup */
+  .mock-tab-bar{display:flex;background:var(--surface);border-top:1px solid var(--border);padding:6px 0 2px}
+  .mock-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer;
+    transition:color var(--transition);color:var(--text3);font-size:9px;font-weight:600}
+  .mock-tab.active{color:var(--accent2)}
+  .mock-tab-icon{width:20px;height:20px;border-radius:4px;transition:background var(--transition)}
+  .mock-tab.active .mock-tab-icon{background:var(--accent2)}
+  .mock-tab:not(.active) .mock-tab-icon{background:var(--text3);opacity:0.4}
+
+  /* Nav rail mockup */
+  .mock-rail{display:flex;flex-direction:column;gap:12px;background:var(--surface);padding:16px 8px;
+    border-right:1px solid var(--border);width:72px;align-items:center}
+  .mock-rail-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;
+    color:var(--text3);font-size:9px;font-weight:600;padding:4px;border-radius:8px;transition:all var(--transition)}
+  .mock-rail-item.active{color:var(--accent2)}
+  .mock-rail-icon{width:24px;height:24px;border-radius:6px;transition:background var(--transition)}
+  .mock-rail-item.active .mock-rail-icon{background:rgba(240,176,136,0.25)}
+  .mock-rail-item:not(.active) .mock-rail-icon{background:var(--text3);opacity:0.3}
+
+  /* Drawer mockup */
+  .mock-drawer{background:var(--surface);width:260px;padding:20px 12px;border-right:1px solid var(--border);
+    display:flex;flex-direction:column;gap:2px}
+  .mock-drawer-item{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;
+    color:var(--text2);transition:all var(--transition);display:flex;align-items:center;gap:10px}
+  .mock-drawer-item:hover{background:var(--surface2)}
+  .mock-drawer-item.active{background:rgba(240,176,136,0.12);color:var(--accent2)}
+  .mock-drawer-icon{width:18px;height:18px;border-radius:4px}
+  .mock-drawer-item.active .mock-drawer-icon{background:var(--accent2);opacity:0.6}
+  .mock-drawer-item:not(.active) .mock-drawer-icon{background:var(--text3);opacity:0.3}
+
+  /* Breadcrumb */
+  .breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;flex-wrap:wrap}
+  .breadcrumb-item{color:var(--accent2);cursor:pointer;padding:4px 8px;border-radius:6px;transition:background var(--transition);white-space:nowrap}
+  .breadcrumb-item:hover{background:rgba(240,176,136,0.1)}
+  .breadcrumb-item.current{color:var(--text);cursor:default;font-weight:600}
+  .breadcrumb-item.current:hover{background:transparent}
+  .breadcrumb-sep{color:var(--text3);font-size:11px}
+  .breadcrumb-ellipsis{color:var(--text3);cursor:pointer;padding:4px 6px;border-radius:6px}
+  .breadcrumb-ellipsis:hover{background:rgba(240,176,136,0.1);color:var(--text2)}
+
+  /* Depth indicator */
+  .depth-bar{display:flex;gap:4px;margin-bottom:16px}
+  .depth-segment{height:6px;flex:1;border-radius:3px;transition:background 0.3s ease}
+  .depth-ok{background:var(--green)}
+  .depth-warn{background:var(--yellow)}
+  .depth-bad{background:var(--red)}
+  .depth-empty{background:var(--surface2)}
+
+  /* Pros/cons */
+  .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .pros-list,.cons-list{display:flex;flex-direction:column;gap:8px}
+  .pros-item,.cons-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text2);line-height:1.5}
+  .pros-icon{color:var(--green);font-weight:700;flex-shrink:0;font-size:14px}
+  .cons-icon{color:var(--red);font-weight:700;flex-shrink:0;font-size:14px}
+
+  /* Thumb zone */
+  .thumb-zone-overlay{position:absolute;inset:0;pointer-events:none;opacity:0.5;transition:opacity 0.3s}
+  .thumb-easy{fill:rgba(74,222,128,0.3)}
+  .thumb-stretch{fill:rgba(251,191,36,0.3)}
+  .thumb-hard{fill:rgba(248,113,113,0.3)}
+
+  /* Failure pattern cards */
+  .fail-card{background:var(--surface);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius);
+    padding:clamp(14px,2vw,24px);position:relative;overflow:hidden}
+  .fail-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--red)}
+  .fail-label{font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+
+  /* Mega menu */
+  .mega-trigger-bar{display:flex;gap:0;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+  .mega-trigger{padding:12px 20px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;
+    transition:all var(--transition);position:relative;border-right:1px solid var(--border)}
+  .mega-trigger:last-child{border-right:none}
+  .mega-trigger:hover,.mega-trigger.active{color:var(--accent2);background:rgba(240,176,136,0.06)}
+  .mega-panel{position:absolute;left:0;right:0;top:100%;background:var(--surface);border:1px solid var(--border);
+    border-radius:0 0 14px 14px;padding:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+    opacity:0;pointer-events:none;transform:translateY(-4px);transition:all 0.2s ease;z-index:100}
+  .mega-panel.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+  .mega-cat-title{font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:1px;
+    margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  .mega-link{display:block;padding:6px 0;font-size:13px;color:var(--text2);cursor:pointer;transition:color var(--transition)}
+  .mega-link:hover{color:var(--text)}
+
+  /* Cascading menu comparison */
+  .cascade-menu{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;width:180px}
+  .cascade-item{padding:8px 12px;font-size:12px;color:var(--text2);border-radius:6px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;transition:background var(--transition)}
+  .cascade-item:hover{background:var(--surface2)}
+  .cascade-sub{position:absolute;left:100%;top:0;margin-left:4px}
+
+  /* Screen size toggle */
+  .screen-toggle{display:flex;gap:6px;margin-bottom:16px}
+  .screen-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text2);transition:all var(--transition)}
+  .screen-btn.active{background:rgba(240,176,136,0.15);border-color:var(--accent2);color:var(--accent2)}
+
+  /* Responsive */
+  @media(max-width:768px){
+    .grid-2{grid-template-columns:1fr}
+    .hier-container{flex-direction:column}
+    .pros-cons{grid-template-columns:1fr}
+    .mega-panel{grid-template-columns:1fr}
+  }
+  @media(max-width:480px){
+    .grid-3{grid-template-columns:1fr 1fr}
+    .grid-4{grid-template-columns:1fr 1fr}
+    .screen-toggle{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Header -->
+<header style="margin-bottom:12px">
+  <div class="tag" style="margin-bottom:16px">Interaction Pattern</div>
+  <h1>네비게이션 패턴</h1>
+  <p class="subtitle">네비게이션 구조 설계, 모바일 패턴(탭/사이드바/드로어), 브레드크럼 뎁스 관리, 햄버거 논쟁의 실무적 결론, 메가 메뉴 가이드를 시각적으로 다룬다.</p>
+</header>
+
+<!-- 1. Navigation Structure -->
+<section class="section">
+  <div class="section-label">네비게이션 구조</div>
+  <h2>Flat vs Deep Hierarchy</h2>
+  <p class="desc">Flat 구조는 3~5개 목적지를 동일 레벨에 배치한다. Deep 구조는 허브에서 하위로 드릴다운한다. 노드를 클릭하여 활성 상태를 확인하라.</p>
+
+  <div class="hier-container" style="margin-bottom:24px">
+    <!-- Flat hierarchy -->
+    <div class="hier-box">
+      <div class="hier-title"><span style="color:var(--green)">&#9679;</span> Flat Hierarchy</div>
+      <div style="text-align:center;margin-bottom:4px">
+        <div class="hier-node" style="display:inline-block;background:rgba(240,176,136,0.1);border-color:var(--accent2);color:var(--accent2)">App</div>
+      </div>
+      <div class="hier-row" id="flatNodes">
+        <div class="hier-node active" onclick="activateFlat(this)">홈</div>
+        <div class="hier-node" onclick="activateFlat(this)">검색</div>
+        <div class="hier-node" onclick="activateFlat(this)">피드</div>
+        <div class="hier-node" onclick="activateFlat(this)">알림</div>
+        <div class="hier-node" onclick="activateFlat(this)">프로필</div>
+      </div>
+      <p class="caption">3~5개 탭 &mdash; 섹션 간 빠른 전환</p>
+    </div>
+
+    <!-- Deep hierarchy -->
+    <div class="hier-box">
+      <div class="hier-title"><span style="color:var(--accent2)">&#9679;</span> Deep Hierarchy</div>
+      <div id="deepDiagram">
+        <div style="text-align:center;margin-bottom:4px">
+          <div class="hier-node" style="display:inline-block;cursor:pointer" onclick="deepNav('hub')" id="deepHub">허브</div>
+        </div>
+        <div class="hier-connector"></div>
+        <div class="hier-row" id="deepL1">
+          <div class="hier-node" onclick="deepNav('cat1')">카테고리 A</div>
+          <div class="hier-node" onclick="deepNav('cat2')">카테고리 B</div>
+          <div class="hier-node" onclick="deepNav('cat3')">카테고리 C</div>
+        </div>
+        <div class="hier-connector"></div>
+        <div class="hier-row" id="deepL2" style="opacity:0.4">
+          <div class="hier-node" onclick="deepNav('sub1')">상세 1</div>
+          <div class="hier-node" onclick="deepNav('sub2')">상세 2</div>
+        </div>
+      </div>
+      <p class="caption">허브 &rarr; 카테고리 &rarr; 상세 드릴다운</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead><tr><th>비교</th><th>Flat</th><th>Deep</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text)">목적지 수</td><td>3~5개</td><td>5개 이상</td></tr>
+        <tr><td style="color:var(--text)">전환 속도</td><td style="color:var(--green)">빠름 (1탭)</td><td>느림 (2~3탭)</td></tr>
+        <tr><td style="color:var(--text)">발견율</td><td style="color:var(--green)">높음</td><td>낮음 (숨겨진 항목)</td></tr>
+        <tr><td style="color:var(--text)">적합한 앱</td><td>SNS, 유틸리티</td><td>이커머스, 뉴스</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 2. Tab / Sidebar / Drawer -->
+<section class="section">
+  <div class="section-label">탭 / 사이드바 / 드로어</div>
+  <h2>화면 크기별 네비게이션 패턴</h2>
+  <p class="desc">화면 크기에 따라 최적의 네비게이션 컴포넌트가 달라진다. 토글 버튼으로 디바이스를 전환하라.</p>
+
+  <div class="screen-toggle" id="screenToggle">
+    <button class="screen-btn active" data-screen="mobile" onclick="switchScreen('mobile')">&#128241; Mobile</button>
+    <button class="screen-btn" data-screen="tablet" onclick="switchScreen('tablet')">&#128194; Tablet</button>
+    <button class="screen-btn" data-screen="desktop" onclick="switchScreen('desktop')">&#128187; Desktop</button>
+  </div>
+
+  <div style="display:flex;justify-content:center;margin-bottom:24px">
+    <!-- Mobile view -->
+    <div id="mockMobile" class="device-frame" style="width:280px">
+      <div class="device-screen">
+        <div class="device-status-bar">9:41 AM</div>
+        <div class="device-content" id="mobileContent">
+          <div style="font-size:16px;font-weight:700;margin-bottom:8px">홈</div>
+          <div class="device-content-item"></div>
+          <div class="device-content-item"></div>
+          <div class="device-content-item"></div>
+          <div class="device-content-item"></div>
+          <div class="device-content-item"></div>
+        </div>
+        <div class="mock-tab-bar" id="mobileTabBar">
+          <div class="mock-tab active" onclick="switchMobileTab(this,0)"><div class="mock-tab-icon"></div>홈</div>
+          <div class="mock-tab" onclick="switchMobileTab(this,1)"><div class="mock-tab-icon"></div>검색</div>
+          <div class="mock-tab" onclick="switchMobileTab(this,2)"><div class="mock-tab-icon"></div>피드</div>
+          <div class="mock-tab" onclick="switchMobileTab(this,3)"><div class="mock-tab-icon"></div>알림</div>
+          <div class="mock-tab" onclick="switchMobileTab(this,4)"><div class="mock-tab-icon"></div>프로필</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tablet view -->
+    <div id="mockTablet" class="device-frame" style="width:520px;display:none">
+      <div class="device-screen" style="display:flex">
+        <div class="mock-rail" id="tabletRail">
+          <div class="mock-rail-item active" onclick="switchRailTab(this,0)"><div class="mock-rail-icon"></div><span>홈</span></div>
+          <div class="mock-rail-item" onclick="switchRailTab(this,1)"><div class="mock-rail-icon"></div><span>검색</span></div>
+          <div class="mock-rail-item" onclick="switchRailTab(this,2)"><div class="mock-rail-icon"></div><span>피드</span></div>
+          <div class="mock-rail-item" onclick="switchRailTab(this,3)"><div class="mock-rail-icon"></div><span>알림</span></div>
+          <div class="mock-rail-item" onclick="switchRailTab(this,4)"><div class="mock-rail-icon"></div><span>프로필</span></div>
+        </div>
+        <div style="flex:1;padding:16px">
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">홈</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop view -->
+    <div id="mockDesktop" class="device-frame" style="width:700px;display:none">
+      <div class="device-screen" style="display:flex">
+        <div class="mock-drawer" id="desktopDrawer">
+          <div style="font-size:15px;font-weight:800;color:var(--text);padding:8px 16px 16px;letter-spacing:-0.3px">MyApp</div>
+          <div class="mock-drawer-item active" onclick="switchDrawerTab(this,0)"><div class="mock-drawer-icon"></div>홈</div>
+          <div class="mock-drawer-item" onclick="switchDrawerTab(this,1)"><div class="mock-drawer-icon"></div>검색</div>
+          <div class="mock-drawer-item" onclick="switchDrawerTab(this,2)"><div class="mock-drawer-icon"></div>피드</div>
+          <div class="mock-drawer-item" onclick="switchDrawerTab(this,3)"><div class="mock-drawer-icon"></div>알림</div>
+          <div class="mock-drawer-item" onclick="switchDrawerTab(this,4)"><div class="mock-drawer-icon"></div>프로필</div>
+          <div class="mock-drawer-item" onclick="switchDrawerTab(this,5)"><div class="mock-drawer-icon"></div>설정</div>
+          <div class="mock-drawer-item" onclick="switchDrawerTab(this,6)"><div class="mock-drawer-icon"></div>도움말</div>
+        </div>
+        <div style="flex:1;padding:20px">
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">홈</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+            <div class="device-content-item"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selection guide -->
+  <div class="card">
+    <h3 style="margin-bottom:12px">선택 가이드</h3>
+    <table>
+      <thead><tr><th>목적지 수</th><th>Mobile (compact)</th><th>Tablet (medium)</th><th>Desktop (expanded)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--text);font-weight:600">&le; 5</td>
+          <td><span style="color:var(--green)">Navigation Bar</span></td>
+          <td><span style="color:var(--accent2)">Navigation Rail</span></td>
+          <td><span style="color:var(--accent2)">Rail / Drawer</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text);font-weight:600">&gt; 5</td>
+          <td><span style="color:var(--yellow)">Drawer (overlay)</span></td>
+          <td><span style="color:var(--accent2)">Navigation Rail</span></td>
+          <td><span style="color:var(--accent2)">Drawer (permanent)</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text);font-weight:600">콘텐츠 내</td>
+          <td>Tabs</td><td>Tabs</td><td>Tabs</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 3. Depth Management -->
+<section class="section">
+  <div class="section-label">뎁스 관리</div>
+  <h2>브레드크럼과 깊이 제한</h2>
+  <p class="desc">네비게이션 깊이가 3단계를 초과하면 사용자가 위치를 잃기 쉽다. 슬라이더로 뎁스를 조절하고 브레드크럼 변화를 확인하라.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <!-- Depth level indicator -->
+    <div class="card">
+      <h3>뎁스 레벨 인디케이터</h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">슬라이더를 움직여 깊이별 사용자 경험을 확인하라.</p>
+      <div style="margin-bottom:12px">
+        <input type="range" id="depthSlider" min="1" max="5" value="2" style="width:100%;-webkit-appearance:none;appearance:none;
+          height:6px;background:var(--surface2);border-radius:3px;outline:none;cursor:pointer"
+          oninput="updateDepth(this.value)">
+      </div>
+      <div class="depth-bar" id="depthBar">
+        <div class="depth-segment depth-ok"></div>
+        <div class="depth-segment depth-ok"></div>
+        <div class="depth-segment depth-empty"></div>
+        <div class="depth-segment depth-empty"></div>
+        <div class="depth-segment depth-empty"></div>
+      </div>
+      <div id="depthLabel" style="font-size:14px;font-weight:700;margin-bottom:4px;color:var(--green)">2단계 &mdash; 쉽고 직관적</div>
+      <div id="depthDesc" style="font-size:12px;color:var(--text2)">대부분의 앱에 적합한 깊이. 브레드크럼이 필요 없는 수준.</div>
+    </div>
+
+    <!-- Breadcrumb demo -->
+    <div class="card">
+      <h3>브레드크럼 데모</h3>
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Desktop</div>
+        <div class="breadcrumb" id="breadcrumbDesktop">
+          <span class="breadcrumb-item" onclick="bcNav(0)">홈</span>
+          <span class="breadcrumb-sep">&#8250;</span>
+          <span class="breadcrumb-item" onclick="bcNav(1)">카테고리</span>
+          <span class="breadcrumb-sep">&#8250;</span>
+          <span class="breadcrumb-item current">현재 페이지</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Mobile (축약)</div>
+        <div class="breadcrumb" id="breadcrumbMobile">
+          <span class="breadcrumb-item" onclick="bcNav(1)">&larr; 카테고리</span>
+        </div>
+      </div>
+      <p class="caption">모바일에서는 직전 1단계만 표시 (NNGroup)</p>
+    </div>
+  </div>
+
+  <!-- Depth slider synced breadcrumb -->
+  <div class="card">
+    <h3>뎁스별 브레드크럼 변화</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">위 슬라이더와 연동됩니다. 4단계 이상에서 축약(...)이 적용되는 것을 확인하세요.</p>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Desktop 브레드크럼</div>
+      <div class="breadcrumb" id="syncedBreadcrumb"></div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Mobile 브레드크럼</div>
+      <div class="breadcrumb" id="syncedBreadcrumbMobile"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Hamburger Debate -->
+<section class="section">
+  <div class="section-label">햄버거 논쟁</div>
+  <h2>&#9776; 햄버거 메뉴: 찬반 데이터</h2>
+  <p class="desc">2013년과 달리 2025년 현재 인식률은 95%+로 수렴했지만, 발견율 문제는 여전하다. 핵심 목적지는 항상 노출하라.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <!-- Against -->
+    <div class="card" style="border-left:3px solid var(--red)">
+      <h3 style="color:var(--red);margin-bottom:12px">&#10007; 반대 근거</h3>
+      <div class="cons-list">
+        <div class="cons-item">
+          <span class="cons-icon">&#8226;</span>
+          <span>숨겨진 네비게이션은 탭 대비 <strong style="color:var(--text)">발견율 유의미하게 낮음</strong> (NNGroup)</span>
+        </div>
+        <div class="cons-item">
+          <span class="cons-icon">&#8226;</span>
+          <span>보이는 탭 전환 후 사용자 참여 <strong style="color:var(--text)">20~30% 증가</strong> (Wroblewski, 2014)</span>
+        </div>
+        <div class="cons-item">
+          <span class="cons-icon">&#8226;</span>
+          <span>Spotify, Facebook 등 주요 앱이 <strong style="color:var(--text)">탭 바로 회귀</strong></span>
+        </div>
+        <div class="cons-item">
+          <span class="cons-icon">&#8226;</span>
+          <span>"Out of sight, out of mind" &mdash; NNGroup 핵심 원칙</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- For -->
+    <div class="card" style="border-left:3px solid var(--green)">
+      <h3 style="color:var(--green);margin-bottom:12px">&#10003; 찬성 근거</h3>
+      <div class="pros-list">
+        <div class="pros-item">
+          <span class="pros-icon">&#8226;</span>
+          <span>2025년 <strong style="color:var(--text)">인식률 95%+</strong>로 수렴 (2013년과 상황 다름)</span>
+        </div>
+        <div class="pros-item">
+          <span class="pros-icon">&#8226;</span>
+          <span>7개+ 목적지에서는 <strong style="color:var(--text)">탭 5개로 부족</strong></span>
+        </div>
+        <div class="pros-item">
+          <span class="pros-icon">&#8226;</span>
+          <span>"더보기" 탭보다 드로어가 <strong style="color:var(--text)">전체 카테고리를 한눈에</strong></span>
+        </div>
+        <div class="pros-item">
+          <span class="pros-icon">&#8226;</span>
+          <span>이커머스/뉴스 등 <strong style="color:var(--text)">콘텐츠 중심 앱</strong>에 적합</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Practical conclusion -->
+  <div class="card" style="border:1px solid rgba(240,176,136,0.3);background:linear-gradient(135deg,var(--surface),rgba(240,176,136,0.04))">
+    <h3 style="color:var(--accent2);margin-bottom:16px">실무 결론</h3>
+    <div class="grid-3">
+      <div style="text-align:center;padding:16px">
+        <div style="font-size:32px;font-weight:800;color:var(--green);margin-bottom:4px">&le; 5</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">바텀 탭</div>
+        <div style="font-size:12px;color:var(--text2)">검증된 최선. 핵심 목적지를 항상 노출.</div>
+      </div>
+      <div style="text-align:center;padding:16px">
+        <div style="font-size:32px;font-weight:800;color:var(--accent2);margin-bottom:4px">&gt; 5</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">탭 + 드로어</div>
+        <div style="font-size:12px;color:var(--text2)">핵심 4~5개는 탭, 나머지는 드로어.</div>
+      </div>
+      <div style="text-align:center;padding:16px">
+        <div style="font-size:32px;font-weight:800;color:var(--yellow);margin-bottom:4px">&#9776;</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">콘텐츠 중심</div>
+        <div style="font-size:12px;color:var(--text2)">드로어 허용, 단 CTA(검색,장바구니)는 항상 노출.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Bottom Navigation -->
+<section class="section">
+  <div class="section-label">바텀 네비게이션</div>
+  <h2>엄지 영역과 실패 패턴</h2>
+  <p class="desc">바텀 네비게이션은 현재 모바일의 사실상 표준이다. 엄지 도달 영역(thumb zone)과 대표적인 실패 패턴을 확인하라.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <!-- Thumb zone demo -->
+    <div class="card" style="display:flex;flex-direction:column;align-items:center">
+      <h3 style="align-self:flex-start;margin-bottom:12px">Thumb Zone Overlay</h3>
+      <div style="position:relative;width:220px">
+        <div class="device-frame" style="width:220px">
+          <div class="device-screen">
+            <div class="device-status-bar">9:41 AM</div>
+            <div style="position:relative;height:340px;overflow:hidden">
+              <svg class="thumb-zone-overlay" id="thumbOverlay" viewBox="0 0 220 340" style="opacity:0.5">
+                <ellipse class="thumb-hard" cx="110" cy="40" rx="100" ry="60"/>
+                <ellipse class="thumb-stretch" cx="110" cy="140" rx="110" ry="80"/>
+                <ellipse class="thumb-easy" cx="140" cy="280" rx="100" ry="80"/>
+              </svg>
+              <div style="position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--red);z-index:2">HARD</div>
+              <div style="position:absolute;top:120px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--yellow);z-index:2">STRETCH</div>
+              <div style="position:absolute;bottom:40px;right:20px;font-size:10px;font-weight:700;color:var(--green);z-index:2">EASY</div>
+            </div>
+            <div class="mock-tab-bar">
+              <div class="mock-tab active"><div class="mock-tab-icon"></div>홈</div>
+              <div class="mock-tab"><div class="mock-tab-icon"></div>검색</div>
+              <div class="mock-tab"><div class="mock-tab-icon"></div>피드</div>
+              <div class="mock-tab"><div class="mock-tab-icon"></div>프로필</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+          <button onclick="toggleThumbZone()" style="font-size:11px;padding:6px 14px">Thumb Zone 토글</button>
+        </div>
+      </div>
+      <p class="caption">하단 영역이 엄지 조작에 가장 유리 (Hoober, 2013)</p>
+    </div>
+
+    <!-- Failure patterns -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="fail-card">
+        <div class="fail-label">Fail #1 &mdash; 탭 6개 이상</div>
+        <div class="mock-tab-bar" style="border-radius:8px;overflow:hidden">
+          <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>홈</div>
+          <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>검색</div>
+          <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>피드</div>
+          <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>알림</div>
+          <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>채팅</div>
+          <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>더보기</div>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-top:8px">터치 타겟 44pt 미만 &rarr; 오탭 발생</p>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-label">Fail #2 &mdash; 아이콘만 (라벨 없음)</div>
+        <div class="mock-tab-bar" style="border-radius:8px;overflow:hidden">
+          <div class="mock-tab" style="font-size:0"><div class="mock-tab-icon"></div></div>
+          <div class="mock-tab" style="font-size:0"><div class="mock-tab-icon"></div></div>
+          <div class="mock-tab" style="font-size:0"><div class="mock-tab-icon"></div></div>
+          <div class="mock-tab" style="font-size:0"><div class="mock-tab-icon"></div></div>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-top:8px">아이콘 단독 인식률 50~60% (NNGroup)</p>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-label">Fail #3 &mdash; 액션을 탭 바에 배치</div>
+        <div class="mock-tab-bar" style="border-radius:8px;overflow:hidden">
+          <div class="mock-tab active"><div class="mock-tab-icon"></div>홈</div>
+          <div class="mock-tab"><div class="mock-tab-icon"></div>검색</div>
+          <div class="mock-tab" style="color:var(--red)"><div class="mock-tab-icon" style="background:var(--red);border-radius:50%"></div>촬영</div>
+          <div class="mock-tab"><div class="mock-tab-icon"></div>알림</div>
+          <div class="mock-tab"><div class="mock-tab-icon"></div>프로필</div>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-top:8px">탭 바는 네비게이션 전용 &mdash; 액션은 FAB/툴바에 배치 (Apple HIG)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Mega Menu -->
+<section class="section">
+  <div class="section-label">메가 메뉴</div>
+  <h2>메가 메뉴 vs 캐스케이딩 메뉴</h2>
+  <p class="desc">메가 메뉴는 모든 하위 카테고리를 단일 패널로 노출한다. 캐스케이딩(계단식) 메뉴는 마우스 경로 이탈 문제가 있다. 메뉴 항목에 마우스를 올려 확인하라.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <!-- Mega menu demo -->
+    <div class="card" style="min-height:360px">
+      <h3 style="margin-bottom:4px;color:var(--green)">&#10003; 메가 메뉴 (권장)</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px">단일 패널, 카테고리 헤더로 그룹 구분</p>
+      <div style="position:relative" id="megaMenuContainer">
+        <div class="mega-trigger-bar">
+          <div class="mega-trigger" onmouseenter="showMega('products')" onmouseleave="startMegaClose()">제품</div>
+          <div class="mega-trigger" onmouseenter="showMega('solutions')" onmouseleave="startMegaClose()">솔루션</div>
+          <div class="mega-trigger" onmouseenter="showMega('resources')" onmouseleave="startMegaClose()">리소스</div>
+          <div class="mega-trigger" onmouseenter="showMega('company')" onmouseleave="startMegaClose()">회사 소개</div>
+        </div>
+        <div class="mega-panel" id="megaPanel" onmouseenter="cancelMegaClose()" onmouseleave="startMegaClose()">
+          <div id="megaCol1"></div>
+          <div id="megaCol2"></div>
+          <div id="megaCol3"></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:var(--surface2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:4px">핵심 규칙</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">
+          &#8226; 단일 패널, 최대 2단계<br>
+          &#8226; 카테고리 헤더 시각 구분<br>
+          &#8226; 닫기 딜레이 300~500ms<br>
+          &#8226; 키보드: Tab 접근 + Escape 닫기
+        </div>
+      </div>
+    </div>
+
+    <!-- Cascading menu comparison -->
+    <div class="card" style="min-height:360px">
+      <h3 style="margin-bottom:4px;color:var(--red)">&#10007; 캐스케이딩 메뉴 (비권장)</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px">2단계+에서 마우스 경로 이탈 문제 발생</p>
+      <div style="position:relative" id="cascadeContainer">
+        <div class="cascade-menu">
+          <div class="cascade-item" onmouseenter="showCascade(1)" onmouseleave="startCascadeClose(1)">
+            전자제품 <span style="color:var(--text3)">&rsaquo;</span>
+          </div>
+          <div class="cascade-item" onmouseenter="showCascade(2)" onmouseleave="startCascadeClose(2)">
+            의류 <span style="color:var(--text3)">&rsaquo;</span>
+          </div>
+          <div class="cascade-item">식품</div>
+          <div class="cascade-item">생활용품</div>
+        </div>
+        <!-- Sub-menus -->
+        <div class="cascade-menu cascade-sub" id="cascadeSub1" style="display:none;position:absolute;left:184px;top:0"
+             onmouseenter="cancelCascadeClose(1)" onmouseleave="startCascadeClose(1)">
+          <div class="cascade-item" onmouseenter="showCascade(3)" onmouseleave="startCascadeClose(3)">
+            스마트폰 <span style="color:var(--text3)">&rsaquo;</span>
+          </div>
+          <div class="cascade-item">노트북</div>
+          <div class="cascade-item">태블릿</div>
+        </div>
+        <div class="cascade-menu cascade-sub" id="cascadeSub2" style="display:none;position:absolute;left:184px;top:36px"
+             onmouseenter="cancelCascadeClose(2)" onmouseleave="startCascadeClose(2)">
+          <div class="cascade-item">남성복</div>
+          <div class="cascade-item">여성복</div>
+        </div>
+        <div class="cascade-menu cascade-sub" id="cascadeSub3" style="display:none;position:absolute;left:368px;top:0"
+             onmouseenter="cancelCascadeClose(3)" onmouseleave="startCascadeClose(3)">
+          <div class="cascade-item">Apple</div>
+          <div class="cascade-item">Samsung</div>
+        </div>
+      </div>
+      <div style="margin-top:24px;padding:12px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.15);border-radius:8px">
+        <div style="font-size:11px;color:var(--red);font-weight:600;margin-bottom:4px">NNGroup #14</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">
+          "캐스케이딩 메뉴는 2단계 이상에서 물리적으로 조작하기 어렵다." 마우스 대각선 이동 시 하위 메뉴가 닫히는 문제. Amazon의 삼각형 히트 영역은 예외적 구현.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mega menu guidelines table -->
+  <div class="card">
+    <h3 style="margin-bottom:12px">메가 메뉴 핵심 가이드라인</h3>
+    <table>
+      <thead><tr><th>규칙</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text);font-weight:600">단일 패널, 2단계까지</td><td>3단계 이상 중첩은 마우스 경로 이탈 위험</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">카테고리 헤더 구분</td><td>굵은 텍스트 또는 구분선으로 그룹 경계 명확히</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">닫기 딜레이 300~500ms</td><td>마우스가 벗어나도 즉시 닫지 않음 (실수 방지)</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">모바일 대응</td><td>전체화면 오버레이 또는 아코디언으로 변환</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">키보드 접근성</td><td>Tab으로 모든 링크 접근, Escape로 닫기</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:40px 0;color:var(--text3);font-size:12px">
+  Navigation Patterns &mdash; Based on NNGroup, Material Design 3, Apple HIG, Luke Wroblewski
+</footer>
+
+</div>
+
+<script>
+// ============ Flat Hierarchy ============
+function activateFlat(el){
+  document.querySelectorAll('#flatNodes .hier-node').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ============ Deep Hierarchy ============
+let deepState = 'hub';
+function deepNav(target){
+  const hub = document.getElementById('deepHub');
+  const l1 = document.getElementById('deepL1');
+  const l2 = document.getElementById('deepL2');
+  // Reset all
+  document.querySelectorAll('#deepDiagram .hier-node').forEach(n=>n.classList.remove('active'));
+  if(target==='hub'){
+    hub.classList.add('active');
+    l1.style.opacity='0.4'; l2.style.opacity='0.2';
+  } else if(target.startsWith('cat')){
+    const idx = parseInt(target.replace('cat',''))-1;
+    l1.children[idx].classList.add('active');
+    l1.style.opacity='1'; l2.style.opacity='0.6';
+  } else if(target.startsWith('sub')){
+    const idx = parseInt(target.replace('sub',''))-1;
+    l2.children[idx].classList.add('active');
+    l1.style.opacity='0.6'; l2.style.opacity='1';
+  }
+  deepState = target;
+}
+
+// ============ Screen Size Toggle ============
+const tabLabels = ['홈','검색','피드','알림','프로필'];
+function switchScreen(size){
+  document.querySelectorAll('.screen-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.screen-btn[data-screen="${size}"]`).classList.add('active');
+  document.getElementById('mockMobile').style.display = size==='mobile' ? 'block' : 'none';
+  document.getElementById('mockTablet').style.display = size==='tablet' ? 'block' : 'none';
+  document.getElementById('mockDesktop').style.display = size==='desktop' ? 'block' : 'none';
+}
+function switchMobileTab(el,idx){
+  document.querySelectorAll('#mobileTabBar .mock-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelector('#mobileContent > div:first-child').textContent = tabLabels[idx];
+}
+function switchRailTab(el,idx){
+  document.querySelectorAll('#tabletRail .mock-rail-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+function switchDrawerTab(el,idx){
+  document.querySelectorAll('#desktopDrawer .mock-drawer-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ============ Depth Management ============
+const depthLabels = [
+  {text:'1단계 — 가장 단순', desc:'랜딩 페이지 수준. 브레드크럼 불필요.', color:'var(--green)'},
+  {text:'2단계 — 쉽고 직관적', desc:'대부분의 앱에 적합한 깊이. 브레드크럼이 필요 없는 수준.', color:'var(--green)'},
+  {text:'3단계 — 관리 가능', desc:'브레드크럼 필요. 콘텐츠 앱, 이커머스에 적합.', color:'var(--yellow)'},
+  {text:'4단계 — 위험 구간', desc:'사용자가 위치를 잃기 쉬움. 로컬 네비게이션으로 보완 필요.', color:'var(--red)'},
+  {text:'5단계 — 회피 권장', desc:'포고스틱 행동 발생. 구조를 재설계하라.', color:'var(--red)'},
+];
+const breadcrumbData = [
+  ['홈'],
+  ['홈','카테고리'],
+  ['홈','카테고리','서브카테고리'],
+  ['홈','...','서브카테고리','상세 페이지'],
+  ['홈','...','...','서브카테고리','상세 페이지'],
+];
+function updateDepth(val){
+  const idx = parseInt(val)-1;
+  const info = depthLabels[idx];
+  // Update bar
+  const segments = document.querySelectorAll('#depthBar .depth-segment');
+  segments.forEach((s,i)=>{
+    s.className = 'depth-segment';
+    if(i < val){
+      if(val <= 2) s.classList.add('depth-ok');
+      else if(val === 3) s.classList.add(i < 2 ? 'depth-ok' : 'depth-warn');
+      else s.classList.add(i < 2 ? 'depth-ok' : i < 3 ? 'depth-warn' : 'depth-bad');
+    } else {
+      s.classList.add('depth-empty');
+    }
+  });
+  // Update label
+  document.getElementById('depthLabel').textContent = info.text;
+  document.getElementById('depthLabel').style.color = info.color;
+  document.getElementById('depthDesc').textContent = info.desc;
+  // Update synced breadcrumbs
+  renderSyncedBreadcrumb(idx);
+}
+function renderSyncedBreadcrumb(idx){
+  const items = breadcrumbData[idx];
+  const desktop = document.getElementById('syncedBreadcrumb');
+  const mobile = document.getElementById('syncedBreadcrumbMobile');
+  desktop.innerHTML = items.map((item,i)=>{
+    const isLast = i === items.length - 1;
+    const sep = isLast ? '' : '<span class="breadcrumb-sep">&#8250;</span>';
+    if(item === '...') return `<span class="breadcrumb-ellipsis">...</span>${sep}`;
+    const cls = isLast ? 'breadcrumb-item current' : 'breadcrumb-item';
+    return `<span class="${cls}">${item}</span>${sep}`;
+  }).join('');
+  // Mobile: show only last parent + back arrow
+  if(items.length <= 1){
+    mobile.innerHTML = '<span class="breadcrumb-item current">홈</span>';
+  } else {
+    const parent = items[items.length - 2] === '...' ? items[items.length - 3] || '이전' : items[items.length - 2];
+    mobile.innerHTML = `<span class="breadcrumb-item">&larr; ${parent}</span>`;
+  }
+}
+// Initialize
+updateDepth(2);
+
+function bcNav(idx){
+  // Simple visual feedback
+  event.target.style.background='rgba(240,176,136,0.2)';
+  setTimeout(()=>{ event.target.style.background=''; },300);
+}
+
+// ============ Thumb Zone Toggle ============
+let thumbVisible = true;
+function toggleThumbZone(){
+  thumbVisible = !thumbVisible;
+  document.getElementById('thumbOverlay').style.opacity = thumbVisible ? '0.5' : '0';
+}
+
+// ============ Mega Menu ============
+const megaData = {
+  products: {
+    col1: {title:'하드웨어', items:['스마트폰','노트북','태블릿','웨어러블','액세서리']},
+    col2: {title:'소프트웨어', items:['운영체제','클라우드 서비스','보안 솔루션','개발 도구']},
+    col3: {title:'구독', items:['프리미엄 플랜','비즈니스 플랜','교육 플랜']}
+  },
+  solutions: {
+    col1: {title:'비즈니스', items:['엔터프라이즈','스타트업','SMB','파트너십']},
+    col2: {title:'산업별', items:['금융','의료','교육','제조','리테일']},
+    col3: {title:'기술', items:['AI / ML','클라우드','IoT','보안']}
+  },
+  resources: {
+    col1: {title:'학습', items:['문서','튜토리얼','웨비나','인증 과정']},
+    col2: {title:'커뮤니티', items:['포럼','블로그','이벤트','오픈소스']},
+    col3: {title:'지원', items:['고객 지원','FAQ','상태 페이지']}
+  },
+  company: {
+    col1: {title:'소개', items:['비전','팀','채용','문화']},
+    col2: {title:'뉴스', items:['보도자료','미디어킷','투자자 정보']},
+    col3: {title:'연락', items:['영업 문의','파트너십','오피스 위치']}
+  }
+};
+
+let megaCloseTimer = null;
+function showMega(key){
+  clearTimeout(megaCloseTimer);
+  const data = megaData[key];
+  const panel = document.getElementById('megaPanel');
+  // Update triggers active state
+  document.querySelectorAll('.mega-trigger').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  // Populate columns
+  ['col1','col2','col3'].forEach(col=>{
+    const el = document.getElementById('mega'+col.charAt(0).toUpperCase()+col.slice(1));
+    const d = data[col];
+    el.innerHTML = `<div class="mega-cat-title">${d.title}</div>${d.items.map(i=>`<div class="mega-link">${i}</div>`).join('')}`;
+  });
+  panel.classList.add('show');
+}
+function startMegaClose(){
+  megaCloseTimer = setTimeout(()=>{
+    document.getElementById('megaPanel').classList.remove('show');
+    document.querySelectorAll('.mega-trigger').forEach(t=>t.classList.remove('active'));
+  }, 400); // 400ms delay
+}
+function cancelMegaClose(){
+  clearTimeout(megaCloseTimer);
+}
+
+// Keyboard support for mega menu
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){
+    document.getElementById('megaPanel').classList.remove('show');
+    document.querySelectorAll('.mega-trigger').forEach(t=>t.classList.remove('active'));
+  }
+});
+
+// ============ Cascading Menu ============
+const cascadeTimers = {};
+function showCascade(level){
+  clearTimeout(cascadeTimers[level]);
+  const sub = document.getElementById('cascadeSub'+level);
+  if(sub) sub.style.display = 'block';
+}
+function startCascadeClose(level){
+  cascadeTimers[level] = setTimeout(()=>{
+    const sub = document.getElementById('cascadeSub'+level);
+    if(sub) sub.style.display = 'none';
+    // Close deeper levels
+    if(level < 3) startCascadeClose(level + 1);
+  }, 200);
+}
+function cancelCascadeClose(level){
+  clearTimeout(cascadeTimers[level]);
+}
+</script>
+</body>
+</html>

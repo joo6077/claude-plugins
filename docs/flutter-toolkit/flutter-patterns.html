@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flutter 코드 패턴 — Flutter Toolkit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(34,211,238,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(34,211,238,0.03) 0%,transparent 50%);
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+/* HERO */
+.hero{padding:60px 0 48px;text-align:center}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+h1{font-size:clamp(2.2rem,4vw+1rem,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.subtitle{font-size:1.1rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+
+/* SECTION */
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.5rem,2.5vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:32px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;transition:var(--transition)}
+.card:hover{border-color:rgba(34,211,238,0.3)}
+.card-title{font-size:1.05rem;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card-desc{font-size:0.88rem;color:var(--text2);line-height:1.7}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(34,211,238,0.04)}
+
+/* NUM BADGE */
+.num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+  border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:700;flex-shrink:0}
+
+/* COMPARE PANELS */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+@media(max-width:700px){.compare{grid-template-columns:1fr}}
+.compare-good{background:var(--surface);border:1px solid rgba(74,222,128,0.25);border-radius:var(--radius);padding:24px}
+.compare-bad{background:var(--surface);border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);padding:24px}
+.compare-header{font-size:0.85rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.compare-good .compare-header{color:var(--green)}
+.compare-bad .compare-header{color:var(--red)}
+.compare-list{list-style:none;padding:0;margin:0}
+.compare-list li{padding:8px 0;border-bottom:1px solid var(--border);font-size:0.88rem;display:flex;align-items:center;gap:10px}
+.compare-list li:last-child{border-bottom:none}
+.compare-list .icon{font-size:1rem;flex-shrink:0}
+
+/* CODE */
+code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent2)}
+
+/* PRIORITY LIST */
+.priority{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.priority-item{display:flex;align-items:center;gap:16px;padding:16px 20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
+.priority-item:hover{border-color:rgba(34,211,238,0.3);transform:translateX(4px)}
+.priority-name{font-weight:600;font-size:0.95rem;min-width:200px}
+.priority-desc{font-size:0.85rem;color:var(--text2);flex:1}
+.priority-use{font-size:0.78rem;color:var(--text3);margin-left:auto;white-space:nowrap}
+
+/* TAG */
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600}
+.tag-cyan{background:rgba(34,211,238,0.12);color:var(--accent)}
+.tag-green{background:rgba(74,222,128,0.12);color:var(--green)}
+.tag-yellow{background:rgba(251,191,36,0.12);color:var(--yellow)}
+
+/* CHECKLIST */
+.checklist{margin-top:16px}
+.checklist-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center}
+.checklist-item:last-child{border-bottom:none}
+.checklist-box{width:20px;height:20px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition)}
+.checklist-box.checked{background:var(--green);border-color:var(--green)}
+.checklist-box.checked::after{content:'';width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+.checklist-text{font-size:0.88rem;color:var(--text);line-height:1.5;flex:1}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Flutter Toolkit</div>
+    <h1>Flutter 코드 패턴</h1>
+    <p class="subtitle">공식 AI 규칙 기반 — Do's &amp; Don'ts</p>
+  </div>
+
+  <!-- WIDGET PATTERNS -->
+  <div class="section">
+    <div class="section-label">Widget Patterns</div>
+    <div class="section-title">위젯 설계 원칙</div>
+    <div class="section-desc">Flutter 공식 AI Rules가 정의하는 위젯 구성 4대 원칙. 상속보다 합성, 메서드보다 클래스 추출을 우선한다.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Composition Over Inheritance</div>
+        <div class="card-desc">복잡한 위젯은 상속이 아닌 합성으로 구성한다. 위젯 트리를 작은 단위로 나누어 조합하면 재사용성과 테스트 용이성이 높아진다.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Private Widget Classes</div>
+        <div class="card-desc">헬퍼 메서드(<code>_buildHeader()</code>)가 아닌 private Widget 클래스로 추출한다. 별도 클래스는 독립적인 리빌드 범위를 가지며 성능에 유리하다.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--green)"></span>Const Constructor</div>
+        <div class="card-desc">가능한 모든 곳에 <code>const</code>를 사용하여 리빌드를 최소화한다. const 위젯은 프레임워크가 리빌드를 건너뛸 수 있다.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>Build 메서드 분리</div>
+        <div class="card-desc">큰 <code>build()</code> 메서드는 작은 private 위젯으로 분해한다. 각 위젯이 단일 책임을 가지면 가독성과 유지보수성이 향상된다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE MANAGEMENT -->
+  <div class="section">
+    <div class="section-label">State Management</div>
+    <div class="section-title">상태 관리 우선순위</div>
+    <div class="section-desc">서드파티 패키지 없이 Flutter 내장 도구만 사용할 때의 공식 우선순위. 프로젝트에 Riverpod/Bloc이 있으면 해당 패키지 패턴을 따른다.</div>
+
+    <div class="priority">
+      <div class="priority-item">
+        <div class="num">1</div>
+        <div class="priority-name"><code>ValueNotifier</code></div>
+        <div class="priority-desc">+ <code>ValueListenableBuilder</code></div>
+        <div class="priority-use">단일 값 상태</div>
+      </div>
+      <div class="priority-item">
+        <div class="num">2</div>
+        <div class="priority-name"><code>Stream</code></div>
+        <div class="priority-desc">+ <code>StreamBuilder</code></div>
+        <div class="priority-use">비동기 이벤트 시퀀스</div>
+      </div>
+      <div class="priority-item">
+        <div class="num">3</div>
+        <div class="priority-name"><code>Future</code></div>
+        <div class="priority-desc">+ <code>FutureBuilder</code></div>
+        <div class="priority-use">일회성 비동기</div>
+      </div>
+      <div class="priority-item">
+        <div class="num">4</div>
+        <div class="priority-name"><code>ChangeNotifier</code></div>
+        <div class="priority-desc">+ <code>ListenableBuilder</code></div>
+        <div class="priority-use">복합/다중 위젯 상태</div>
+      </div>
+      <div class="priority-item">
+        <div class="num">5</div>
+        <div class="priority-name">MVVM 패턴</div>
+        <div class="priority-desc">View &harr; ViewModel &harr; Repository &harr; Service</div>
+        <div class="priority-use">복잡한 앱</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="section">
+    <div class="section-label">Architecture</div>
+    <div class="section-title">아키텍처 원칙</div>
+    <div class="section-desc">레이어 분리, Feature-first 구조, MVVM 패턴의 핵심 규칙.</div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>레이어 분리</div>
+        <div class="card-desc" style="font-family:var(--mono);font-size:0.82rem;line-height:1.6">
+          Presentation<br>
+          &nbsp;&nbsp;&darr;<br>
+          Domain<br>
+          &nbsp;&nbsp;&darr;<br>
+          Data<br>
+          &nbsp;&nbsp;&darr;<br>
+          Core
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--green)"></span>Feature-first</div>
+        <div class="card-desc">대규모 프로젝트에서는 feature 내부에 presentation, domain, data를 모두 배치한다. 기능 단위로 응집도를 높이고 의존성을 명확히 한다.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>MVVM</div>
+        <div class="card-desc">Flutter 공식 권장. View &harr; ViewModel은 1:1, ViewModel이 Repository에서 데이터를 받아 UI 상태로 변환하고 Command 패턴으로 액션을 노출한다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DO'S vs DON'TS -->
+  <div class="section">
+    <div class="section-label">Do's vs Don'ts</div>
+    <div class="section-title">올바른 패턴과 안티패턴</div>
+    <div class="section-desc">Flutter 공식 AI Rules에서 명시하는 권장 사항과 금지 사항을 비교한다.</div>
+
+    <div class="compare">
+      <div class="compare-good">
+        <div class="compare-header"><span style="font-size:1.2rem">&#10003;</span> Do's</div>
+        <ul class="compare-list">
+          <li><span class="icon">&#10003;</span> <code>go_router</code> 네비게이션 (딥링크, 웹 지원)</li>
+          <li><span class="icon">&#10003;</span> SOLID 원칙 준수</li>
+          <li><span class="icon">&#10003;</span> <code>dart:developer.log</code> 사용</li>
+          <li><span class="icon">&#10003;</span> <code>compute()</code>로 비용 큰 연산을 Isolate에서 실행</li>
+          <li><span class="icon">&#10003;</span> 모든 public API에 <code>///</code> 문서화</li>
+          <li><span class="icon">&#10003;</span> <code>dart format</code>, <code>dart fix</code> 도구 활용</li>
+          <li><span class="icon">&#10003;</span> 다양한 화면 크기 테스트</li>
+        </ul>
+      </div>
+      <div class="compare-bad">
+        <div class="compare-header"><span style="font-size:1.2rem">&#10007;</span> Don'ts</div>
+        <ul class="compare-list">
+          <li><span class="icon">&#10007;</span> <code>print()</code> 사용 금지</li>
+          <li><span class="icon">&#10007;</span> <code>build()</code> 내 네트워크 호출 금지</li>
+          <li><span class="icon">&#10007;</span> 같은 Row/Column에 <code>Flexible</code> + <code>Expanded</code> 혼용 금지</li>
+          <li><span class="icon">&#10007;</span> <code>!</code> 연산자 남용 금지 (non-null 보장된 경우만)</li>
+          <li><span class="icon">&#10007;</span> 깊은 위젯 트리 중첩 금지 (합성으로 분해)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE GENERATION & TESTING -->
+  <div class="section">
+    <div class="section-label">Practices</div>
+    <div class="section-title">코드 생성 &amp; 테스팅</div>
+    <div class="section-desc">직렬화, 빌드 러너, 테스트 작성의 표준 규칙.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>코드 생성</div>
+        <div class="checklist">
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text">JSON 직렬화: <code>json_serializable</code> + <code>json_annotation</code></div>
+          </div>
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text"><code>fieldRename: FieldRename.snake</code> 사용</div>
+          </div>
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text"><code>dart run build_runner build --delete-conflicting-outputs</code></div>
+          </div>
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text">최대 라인 길이: 80자</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--green)"></span>테스팅</div>
+        <div class="checklist">
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text">Arrange-Act-Assert 구조</div>
+          </div>
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text">Mock보다 Fake/Stub 선호</div>
+          </div>
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text">Unit &rarr; Widget &rarr; Integration 순서</div>
+          </div>
+          <div class="checklist-item" onclick="toggle(this)">
+            <div class="checklist-box"></div>
+            <div class="checklist-text">높은 테스트 커버리지 목표</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function toggle(item){item.querySelector('.checklist-box').classList.toggle('checked')}
+</script>
+</body>
+</html>

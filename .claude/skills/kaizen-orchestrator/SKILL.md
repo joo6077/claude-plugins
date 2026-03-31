@@ -109,19 +109,19 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 ### Step 1: Phase 1 — 설계 가이드 카이젠
 
-**범위:** `docs/guides/skill-design-guide.md`, `docs/guides/agent-design-guide.md`
+**범위:** `harness/docs/guides/skill-design-guide.md`, `harness/docs/guides/agent-design-guide.md`
 
 공통 실행 패턴에 따라 서브에이전트로 실행. 리서치 소스는 `references/search-sources.md`.
 
 ### Step 2: Phase 2 — Contract 카이젠
 
-**범위:** `docs/guides/contract-design-guide.md`, `harness/skills/sprint-contract/SKILL.md`
+**범위:** `harness/docs/guides/contract-design-guide.md`, `harness/skills/sprint-contract/SKILL.md`
 
 공통 실행 패턴에 따라 `/contract-kaizen` 서브에이전트로 실행. Phase 1에서 설계 가이드가 변경되었으면 정합성 반영.
 
 ### Step 3: Phase 3 — Evaluator 카이젠
 
-**범위:** `docs/guides/qa-evaluation-guide.md`, `harness/agents/qa-evaluator.md`
+**범위:** `harness/docs/guides/qa-evaluation-guide.md`, `harness/agents/qa-evaluator.md`
 
 공통 실행 패턴에 따라 `/evaluator-kaizen` 서브에이전트로 실행. Phase 2에서 contract-schema가 변경되었으면 반영.
 

@@ -23,7 +23,7 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 
 ## References
 
-- `docs/guides/contract-design-guide.md` — 계약 작성 원칙 가이드
+- `../../docs/guides/contract-design-guide.md` — 계약 작성 원칙 가이드
 - `harness/references/contract-schema.md` — 계약 포맷 공유 정의
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
 

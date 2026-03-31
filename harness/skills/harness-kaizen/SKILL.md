@@ -61,8 +61,8 @@ user-invocable: true
 | 에이전트 로직 | `harness/agents/qa-evaluator.md` | `skills` |
 | Eval | `harness/evals/` | `skills` |
 | 아키텍처 | `harness/` 전체 구조, 훅, 스크립트 | `config` |
-| 스킬 설계 가이드 | `docs/guides/skill-design-guide.md` | `guide` |
-| 에이전트 설계 가이드 | `docs/guides/agent-design-guide.md` | `guide` |
+| 스킬 설계 가이드 | `../../docs/guides/skill-design-guide.md` | `guide` |
+| 에이전트 설계 가이드 | `../../docs/guides/agent-design-guide.md` | `guide` |
 
 `$ARGUMENTS`가 없으면 전체 영역을 스캔한다.
 
@@ -94,8 +94,8 @@ user-invocable: true
    - `.harness/project.yaml` 읽기
    - `harness/skills/` 내 모든 SKILL.md 목록 확인
    - `harness/agents/qa-evaluator.md` 읽기
-   - `docs/guides/skill-design-guide.md` 읽기
-   - `docs/guides/agent-design-guide.md` 읽기
+   - `../../docs/guides/skill-design-guide.md` 읽기
+   - `../../docs/guides/agent-design-guide.md` 읽기
    - `harness/.claude-plugin/plugin.json`에서 현재 버전 확인
 
 ### Step 2: COLLECT (수집)

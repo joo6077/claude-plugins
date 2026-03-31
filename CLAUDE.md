@@ -15,6 +15,12 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 ## Commands
 
 ```bash
+# 문서 동기화 (스킬/에이전트/설정 변경 후 README 갱신)
+python scripts/sync-docs.py              # 전체 동기화
+python scripts/sync-docs.py harness      # 특정 플러그인만
+python scripts/sync-docs.py --check-only # 변경 필요 여부만 확인
+python scripts/sync-docs.py --dry-run    # 미리보기
+
 # 플러그인 릴리스 (버전 bump + marketplace.json 갱신 + git commit/tag/push)
 bash scripts/release.sh <plugin-name> <patch|minor|major>
 # 예: bash scripts/release.sh harness patch
@@ -58,6 +64,10 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 
 `.claude-plugin/marketplace.json`이 모든 플러그인을 등록한다. 릴리스 시 `scripts/release.sh`가 이 파일의 version과 description 날짜를 자동 갱신한다.
 
+### 문서 자동 동기화
+
+`scripts/sync-docs.py`가 SKILL.md frontmatter, agents/*.md, plugin.json, hooks.json 등에서 데이터를 추출하여 README의 `<!-- AUTO:xxx -->` 마커 사이를 자동 갱신한다. PostToolUse 훅(`.claude/settings.json`)이 Edit/Write 후 `--check-only`를 실행하여 동기화 필요 시 알림한다.
+
 ### Harness Core Flow
 
 1. `/harness init` → `.harness/project.yaml` 생성
@@ -72,7 +82,7 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 
 6 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다.
 
-가이드 문서 (`docs/guides/`): `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`, `qa-evaluation-guide.md`. 공유 참조 (`harness/references/`): `contract-schema.md` (계약 포맷), `feedback-schema.yaml` (피드백 스키마). 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`, `trigger-check-common.sh`.
+가이드 문서 (`harness/docs/guides/`): `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`, `qa-evaluation-guide.md`. 공유 참조 (`harness/references/`): `contract-schema.md` (계약 포맷), `feedback-schema.yaml` (피드백 스키마). 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`, `trigger-check-common.sh`.
 
 ### Skill Format
 
@@ -97,7 +107,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 ## Key Conventions
 
 - 모든 문서와 커밋 메시지는 한국어 사용
-- 스킬 설계는 `docs/guides/skill-design-guide.md`의 9가지 아키타입을 따른다
+- 스킬 설계는 `harness/docs/guides/skill-design-guide.md`의 9가지 아키타입을 따른다
 - Gotchas 섹션이 스킬에서 가장 중요한 부분 — Claude가 반복하는 실수를 방지한다
 - harness evals는 `evals/test-fixtures/fixture-a~e` 디렉토리에 계약 시나리오별 테스트가 있다
 - flutter-toolkit evals는 `evals/evals.json`에 19개 스킬별 assertion이 정의되어 있다

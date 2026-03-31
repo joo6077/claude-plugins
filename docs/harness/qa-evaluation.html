@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA 평가 방법론 — Harness</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+                   radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+}
+.page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+  background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+.section{margin-bottom:clamp(48px,6vw,80px)}
+.section-label{
+  font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+  color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 80%)}
+.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+.card:hover{border-color:var(--accent)}
+.card-title{font-size:1.05rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.card-title .icon{font-size:1.2rem}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:12px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.6}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(217,119,87,0.04)}
+td:first-child{color:var(--text);font-weight:600;white-space:nowrap}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;
+  border-radius:50%;font-size:12px;font-weight:700;background:var(--accent-dim);color:var(--accent);margin-right:8px}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.6}
+.checklist li::before{content:'';width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:2px}
+.compare-bad,.compare-good{padding:16px 20px;border-radius:10px;font-size:13px;line-height:1.7}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--mono)}
+.tag-l1{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.tag-l2{background:rgba(217,119,87,0.12);color:var(--accent)}
+.tag-l3{background:rgba(74,222,128,0.12);color:var(--green)}
+.tag-high{background:rgba(74,222,128,0.12);color:var(--green)}
+.tag-med{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.tag-low{background:rgba(248,113,113,0.12);color:var(--red)}
+.mono{font-family:var(--mono);font-size:13px;color:var(--accent2)}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:24px;transition:color var(--transition)}
+.back-link:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="page">
+  <a href="../index.html" class="back-link">&larr; Documentation Home</a>
+  <h1>QA 평가 방법론</h1>
+  <p class="subtitle">Test Oracle, LLM-as-Judge 편향 완화, IV&amp;V 원칙 &#8212; qa-evaluator 에이전트가 Sprint Contract를 기계적으로 적용하여 구현을 판정하는 방법론</p>
+
+  <!-- Test Oracle -->
+  <div class="section">
+    <div class="section-label">Test Oracle</div>
+    <h2>Test Oracle로서의 역할</h2>
+    <p class="desc">qa-evaluator는 "정답을 아는 존재"(Test Oracle)로서 계약 조건 대비 구현을 판정한다. Sprint Contract가 Oracle Specification이며, evaluator는 이를 기계적으로 적용한다.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#9888;</span> 계약 외 판단 금지</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">계약에 없는 기준으로 판단하지 않는다. 코드 스타일, 성능 최적화 등 계약 외 사항은 평가 대상이 아니다.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128221;</span> 문자 그대로 적용</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">계약 조건의 "의도"가 아닌 "문자 그대로"를 적용한다. 해석의 여지를 제거하여 일관성을 보장한다.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128683;</span> 추론 금지</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">"아마 이런 뜻일 것이다"는 해석을 하지 않는다. 모호한 조건은 FAIL이 아닌 미검증으로 표시한다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LLM-as-Judge Bias -->
+  <div class="section">
+    <div class="section-label">LLM-as-Judge Bias</div>
+    <h2>LLM-as-Judge 편향 유형</h2>
+    <p class="desc">LLM이 판정자 역할을 할 때 발생하는 6가지 알려진 편향과 각각의 완화 전략</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>편향</th><th>설명</th><th>완화 전략</th></tr></thead>
+        <tbody>
+          <tr><td>위치 편향 <span class="mono">Position</span></td><td>먼저 본 항목에 호의적</td><td>조건 순서를 무작위로 평가</td></tr>
+          <tr><td>장황함 편향 <span class="mono">Verbosity</span></td><td>긴 코드/설명에 호의적</td><td>조건 충족 여부만 판단, 코드 양 무시</td></tr>
+          <tr><td>자기강화 편향 <span class="mono">Self-enhancement</span></td><td>자기가 생성한 것에 호의적</td><td>generator와 evaluator 컨텍스트 분리</td></tr>
+          <tr><td>구체성 편향 <span class="mono">Concreteness</span></td><td>구체적 코드에 추상 코드보다 호의적</td><td>계약 조건 충족만 판단, 구현 스타일 무시</td></tr>
+          <tr><td>구현 추종 편향 <span class="mono">Impl-following</span></td><td>실제 구현을 "정답"으로 간주하는 경향</td><td>계약 조건을 먼저 읽고, 코드는 증거 수집용으로만 사용</td></tr>
+          <tr><td>지시 해석 불일치 <span class="mono">Misalignment</span></td><td>평가 기준을 일관되지 않게 해석</td><td>조건별 boolean 체크리스트 분해로 해석 여지 최소화</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid-2" style="margin-top:20px">
+      <div class="compare-bad">
+        <div class="compare-label">Bad: 구현 추종 편향</div>
+        코드를 먼저 읽고 &rarr; 구현된 로직을 "의도된 행동"으로 추종 &rarr; 사실상 모든 것이 PASS
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Good: Specification-First</div>
+        계약 조건을 먼저 읽고 기대 행동 확립 &rarr; 코드는 증거 수집 대상 &rarr; 객관적 판정
+      </div>
+    </div>
+  </div>
+
+  <!-- IV&V -->
+  <div class="section">
+    <div class="section-label">IV&amp;V 원칙</div>
+    <h2>Independent Verification &amp; Validation</h2>
+    <p class="desc">evaluator는 generator의 의도나 과정을 알지 않는다. 계약과 산출물만으로 판정한다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="num">1</span> 컨텍스트 독립</div>
+        <p style="font-size:13px;color:var(--text2)">evaluator는 generator의 의도나 과정을 알지 않는다. 계약과 산출물만으로 판정한다.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="num">2</span> 증거 기반</div>
+        <p style="font-size:13px;color:var(--text2)">모든 PASS/FAIL에는 <span class="mono">{파일}:{라인}</span> 형태의 증거가 필요하다. self-assertion은 증거가 아니다.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="num">3</span> 커밋 메시지 불인정</div>
+        <p style="font-size:13px;color:var(--text2)">"커밋 메시지에 완료라고 썼다"는 증거가 아니다. 코드 자체를 검증해야 한다.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="num">4</span> TODO 불인정</div>
+        <p style="font-size:13px;color:var(--text2)">"TODO: 추후 수정"은 현재 PASS가 아니다. 현재 시점의 코드 상태만 판정한다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-Level Verification -->
+  <div class="section">
+    <div class="section-label">Verification Depth</div>
+    <h2>3-Level 검증 깊이</h2>
+    <p class="desc">모든 조건은 L3까지 도달해야 한다. L1/L2에서 PASS해도 L3에서 FAIL이면 전체 FAIL.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Level</th><th>검증 방법</th><th>도구</th><th>목적</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-l1">L1 구조</span></td><td>파일/디렉토리 존재 확인</td><td class="mono">Glob, ls</td><td>산출물이 있는가?</td></tr>
+          <tr><td><span class="tag tag-l2">L2 내용</span></td><td>파일 내용에 기대 요소 존재</td><td class="mono">Read, Grep</td><td>코드가 작성되었는가?</td></tr>
+          <tr><td><span class="tag tag-l3">L3 의미</span></td><td>코드 경로 추적, 행동 검증</td><td class="mono">Read + 논리 추적</td><td>코드가 의도대로 동작하는가?</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 style="font-size:clamp(16px,1.8vw,22px);margin-top:32px">CheckEval 프로토콜</h2>
+    <p class="desc">각 계약 조건을 boolean 서브체크로 분해한다. Likert 스케일 대신 boolean 분해로 평가자 간 일치도를 0.45 향상 (EMNLP 2025).</p>
+    <div class="grid-3">
+      <div class="card"><div class="card-title"><span class="num">1</span> Aspect Selection</div><p style="font-size:13px;color:var(--text2)">조건에서 검증해야 할 핵심 측면(aspect)을 식별한다</p></div>
+      <div class="card"><div class="card-title"><span class="num">2</span> Checklist Generation</div><p style="font-size:13px;color:var(--text2)">각 측면을 Yes/No boolean 질문으로 변환. 질문당 하나의 검증 포인트만 다룬다</p></div>
+      <div class="card"><div class="card-title"><span class="num">3</span> Boolean Evaluation</div><p style="font-size:13px;color:var(--text2)">각 질문에 L1/L2/L3 레벨로 답한다. 전체 PASS가 조건 충족 기준이다</p></div>
+    </div>
+  </div>
+
+  <!-- Confidence -->
+  <div class="section">
+    <div class="section-label">Confidence</div>
+    <h2>판정 신뢰도 평가</h2>
+    <p class="desc">각 조건의 PASS/FAIL 판정에 확신도를 부여하여 평가 품질을 추적한다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>확신도</th><th>기준</th><th>태그</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-high">높음</span></td><td>L3 검증 완료 + 명확한 증거(파일:라인)</td><td class="mono">&mdash;</td></tr>
+          <tr><td><span class="tag tag-med">중간</span></td><td>L2까지 검증 + 정황 증거</td><td class="mono">[medium-confidence]</td></tr>
+          <tr><td><span class="tag tag-low">낮음</span></td><td>L1만 검증 또는 정적 분석 한계</td><td class="mono">[low-confidence]</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="checklist">
+      <li>낮은 확신도 PASS는 [미검증]과 동일 취급한다</li>
+      <li>낮은 확신도 조건이 3개 이상이면 Sprint Feedback에 경고를 명시한다</li>
+      <li>확신도는 판정을 뒤집지 않는다 &mdash; FAIL은 확신도와 무관하게 FAIL이다</li>
+    </ul>
+  </div>
+
+  <!-- Self-improvement -->
+  <div class="section">
+    <div class="section-label">Self-Improvement</div>
+    <h2>자기진단 체크리스트</h2>
+    <p class="desc">qa-evaluator 실행 완료 후 자가 점검하는 5가지 항목</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>점검 내용</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">l3_unreached</td><td>L3 검증에 도달하지 못한 조건이 있는가?</td></tr>
+          <tr><td class="mono">bias_detected</td><td>편향 징후가 감지되었는가? (너무 관대, 증거 없이 PASS)</td></tr>
+          <tr><td class="mono">evidence_missing</td><td>증거 없이 판정한 조건이 있는가?</td></tr>
+          <tr><td class="mono">contract_misinterpret</td><td>계약 조건을 원래 의도와 다르게 해석했을 가능성이 있는가?</td></tr>
+          <tr><td class="mono">perspective_gap</td><td>단일 관점에서만 평가한 조건이 있는가?</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

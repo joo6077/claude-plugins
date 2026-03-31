@@ -49,3 +49,37 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 | 목적성 | 장식용 애니메이션이 아닌 기능적 목적 존재 | Material Design 3 Motion |
 | 듀레이션 | 200~500ms 범위 (너무 빠르거나 느리지 않음) | Apple HIG Motion |
 | reduced-motion | prefers-reduced-motion 대응 | WCAG 2.3.3 |
+
+## Visual Hierarchy
+
+| 기준 | PASS 조건 | 출처 |
+|------|-----------|------|
+| 크기 위계 | 제목/본문/캡션 간 크기 차이가 명확함 (최소 1.2배 이상 비율) | Material Design 3 Typography |
+| 대비 강조 | 핵심 콘텐츠가 주변보다 높은 대비를 가짐 | NNGroup Visual Hierarchy |
+| 여백 분리 | 그룹 간 여백이 그룹 내 여백보다 넓음 (Gestalt 근접성) | Gestalt 근접성 원칙 |
+
+## Layout & Grid
+
+| 기준 | PASS 조건 | 출처 |
+|------|-----------|------|
+| 그리드 일관성 | 정의된 그리드 시스템 내에서 요소가 정렬됨 | Material Design 3 Layout |
+| 거터 규칙성 | 열 간격(gutter)이 일관된 값을 사용함 | EightShapes Grid |
+| 반응형 전략 | 주요 breakpoint에서 레이아웃이 적절히 변환됨 | Apple HIG Layout |
+
+## Ethical Design
+
+| 기준 | PASS 조건 | 출처 |
+|------|-----------|------|
+| 다크 패턴 부재 | Confirmshaming, Roach Motel, Trick Questions 등 12가지 다크 패턴 미사용 | darkpatterns.org 분류 |
+| 동의 명시성 | 체크박스 기본 해제, 이중 부정 문구 미사용 | GDPR, 한국 전자상거래법 |
+| 탈퇴 대칭성 | 가입/구독 경로와 해지/탈퇴 경로의 단계 수가 동등함 | EU DSA |
+
+## Authenticity
+
+| 기준 | PASS 조건 | 출처 |
+|------|-----------|------|
+| 레이아웃 변주 | 연속 섹션이 동일 구조(예: 3열 카드)로 3회 이상 반복하지 않음 | NNGroup State of UX 2026 |
+| 컬러 맥락 | 컬러 팔레트가 브랜드/프로젝트에서 도출됨 (제네릭 보라-파랑 기본값 아님) | 925 Studios AI Slop Guide |
+| 장식 목적성 | blur, gradient, shadow 등 장식 효과에 기능적 목적 존재 | BSWEN AI UI Anti-Patterns |
+| 카피 구체성 | 헤드라인/CTA가 이 제품에만 해당하는 구체적 내용 (범용 문구 아님) | Crea8ive Solution Anti-AI Trends 2026 |
+| 이미지 고유성 | 이미지/일러스트가 프로젝트 고유 스타일임 (제네릭 스톡 느낌 아님) | authentic-design.md |

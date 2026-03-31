@@ -35,7 +35,7 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 
 | 영역 | 대상 파일 | 인자 필터 |
 |------|----------|----------|
-| 가이드 | `docs/guides/qa-evaluation-guide.md` | `guide` |
+| 가이드 | `../../docs/guides/qa-evaluation-guide.md` | `guide` |
 | 에이전트 프롬프트 | `harness/agents/qa-evaluator.md` | `skills` |
 
 ## 트리거 조건
@@ -126,7 +126,7 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 
 ## References
 
-- `docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드
+- `../../docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드
 - `harness/agents/qa-evaluator.md` — 개선 대상 에이전트
 - `harness/references/contract-schema.md` — 계약 스키마 (Phase 2 변경 감지용)
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마

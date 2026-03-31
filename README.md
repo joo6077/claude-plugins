@@ -4,11 +4,13 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 
 ## 플러그인 목록
 
+<!-- AUTO:plugins -->
 | 플러그인 | 버전 | 스택 | 설명 |
 |----------|------|------|------|
-| [`harness`](./harness/) | v0.3.5 | 범용 | Sprint Contract + QA Evaluator 기반 품질 보증 하네스 |
-| [`flutter-toolkit`](./flutter-toolkit/) | v0.5.0 | Flutter | 빌드, 감사, preflight 등 Flutter 개발 워크플로우 스킬 18종 |
-| [`design-kit`](./design-kit/) | v0.1.0 | 범용 | UI/UX 디자인 시스템 세팅 + 실시간 가이드 + 감사 |
+| [`harness`](./harness/) | v0.3.5 | 범용 | [v0.3.5 · 2026-03-30] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 |
+| [`flutter-toolkit`](./flutter-toolkit/) | v0.5.0 | Flutter | [v0.5.0 · 2026-03-30] Flutter 개발 워크플로우 스킬 모음 (빌드, 감사, preflight, 테스트 등) |
+| [`design-kit`](./design-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-03-30] 스택 무관 UI/UX 디자인 가이드 + 감사 플러그인 |
+<!-- /AUTO:plugins -->
 
 ---
 
@@ -128,7 +130,7 @@ Flutter 프로젝트 전용 개발 워크플로우 스킬 18종.
 스택 무관 UI/UX 디자인 플러그인.
 
 - 디자인 시스템 세팅 + 실시간 가이드 + 감사
-- `docs/design/` 리서치 문서 기반
+- `design-kit/docs/design/` 리서치 문서 기반
 
 > 자세한 내용은 [design-kit/README.md](./design-kit/README.md) 참조.
 

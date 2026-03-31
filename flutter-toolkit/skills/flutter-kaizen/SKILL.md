@@ -62,7 +62,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 | Eval | `flutter-toolkit/evals/` | `eval` |
 | 프로젝트 감지 | `flutter-toolkit/references/project-detection.md` | `skills` |
 | 아키텍처 | `flutter-toolkit/` 전체 구조, 훅, 스크립트 | `skills` |
-| 스킬 설계 가이드 | `docs/guides/skill-design-guide.md` | `guide` |
+| 스킬 설계 가이드 | `harness/docs/guides/skill-design-guide.md` | `guide` |
 | 신규 스킬 생성 | 연구 기반 새 스킬 필요성 도출 → 초안 직접 생성 | `skills` |
 
 `$ARGUMENTS`가 없으면 전체 영역을 스캔한다.
@@ -94,7 +94,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
    - `flutter-toolkit/skills/` 내 모든 SKILL.md 목록 확인
    - `flutter-toolkit/evals/evals.json` 읽기
    - `flutter-toolkit/references/project-detection.md` 읽기
-   - `docs/guides/skill-design-guide.md` 읽기
+   - `harness/docs/guides/skill-design-guide.md` 읽기
    - `flutter-toolkit/.claude-plugin/plugin.json`에서 현재 버전 확인
 
 ### Step 2: COLLECT (수집)
@@ -141,7 +141,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 - 연구에서 발견한 워크플로우 중 현재 flutter-toolkit에 대응하는 스킬이 없는 것이 있는가?
 - Flutter 생태계에서 반복되는 작업인데 아직 자동화되지 않은 것이 있는가?
 - skills.sh나 커뮤니티에서 인기 있는 Flutter 스킬 유형 중 우리에게 없는 것이 있는가?
-- `docs/guides/skill-design-guide.md`의 9가지 아키타입 중 flutter-toolkit에 미충족된 유형이 있는가?
+- `harness/docs/guides/skill-design-guide.md`의 9가지 아키타입 중 flutter-toolkit에 미충족된 유형이 있는가?
 
 **신규 스킬 판단 기준:**
 - 기존 스킬의 범위를 확장하는 것으로 충분한지 먼저 검토 — 별도 스킬이 꼭 필요한 경우만 생성

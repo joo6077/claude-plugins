@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아이코노그래피</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--teal:#2dd4bf;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(45,212,191,0.05) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(240,176,136,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--teal) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:rgba(45,212,191,0.12);color:var(--teal);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(45,212,191,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  button{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;
+    padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:inherit;
+  }
+  button:hover{border-color:var(--accent);background:rgba(232,150,90,0.08)}
+  button.active{background:rgba(232,150,90,0.15);border-color:var(--accent);color:var(--accent)}
+
+  /* Icon SVG base */
+  .icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .icon svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  /* Size scale */
+  .size-demo{display:flex;align-items:end;gap:clamp(16px,3vw,40px);flex-wrap:wrap;justify-content:center;padding:24px}
+  .size-item{text-align:center}
+  .size-box{display:inline-flex;align-items:center;justify-content:center;position:relative;
+    background:var(--surface2);border-radius:8px}
+  .size-grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(232,150,90,0.1) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(232,150,90,0.1) 1px,transparent 1px);
+    border-radius:8px;pointer-events:none}
+  .size-label{font-size:11px;font-weight:700;color:var(--teal);margin-top:8px;font-family:var(--mono)}
+  .size-use{font-size:10px;color:var(--text3);margin-top:2px;max-width:80px}
+
+  /* Touch target */
+  .touch-demo{display:flex;align-items:center;justify-content:center;gap:40px;padding:32px;flex-wrap:wrap}
+  .touch-box{position:relative;display:flex;align-items:center;justify-content:center}
+  .touch-outer{border:2px dashed var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative}
+  .touch-inner{background:var(--surface2);border-radius:6px;display:flex;align-items:center;justify-content:center}
+  .touch-label{position:absolute;bottom:-24px;font-size:10px;color:var(--text3);white-space:nowrap;font-family:var(--mono)}
+  .touch-pad-label{position:absolute;font-size:9px;color:var(--accent);font-family:var(--mono)}
+
+  /* Outlined vs Filled */
+  .style-pair{display:flex;align-items:center;gap:24px;justify-content:center;padding:20px}
+  .style-icon{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .style-icon .icon-box{width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+    background:var(--surface2);border-radius:12px}
+  .style-icon .style-type{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px}
+
+  /* Weight matching */
+  .weight-row{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .weight-text{flex:1;font-size:16px}
+  .weight-icon-box{width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+
+  /* Keyline grid */
+  .keyline-box{width:100px;height:100px;background:var(--surface2);border-radius:8px;position:relative;display:flex;align-items:center;justify-content:center}
+  .keyline-grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(232,150,90,0.08) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(232,150,90,0.08) 1px,transparent 1px);
+    background-size:calc(100%/24) calc(100%/24)}
+  .keyline-shape{position:absolute;border:2px solid;opacity:0.6}
+
+  /* SF Symbols */
+  .sf-scale{display:flex;align-items:center;gap:24px;justify-content:center;padding:20px}
+  .sf-item{text-align:center}
+  .sf-icon-box{display:flex;align-items:center;justify-content:center;width:56px;height:56px;
+    background:var(--surface2);border-radius:12px;margin:0 auto 8px}
+
+  /* Icon animations */
+  @keyframes iconSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes iconPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:0.7}}
+  @keyframes iconShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
+  @keyframes iconMorph{0%{d:path('M4 6h16M4 12h16M4 18h16')}100%{d:path('M6 6l12 12M12 12l0 0M18 6l-12 12')}}
+  @keyframes checkDraw{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
+  @keyframes strokeDraw{from{stroke-dashoffset:60}to{stroke-dashoffset:0}}
+  @keyframes bounceScale{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+  .anim-spin{animation:iconSpin 1.2s linear infinite}
+  .anim-pulse{animation:iconPulse 1.5s ease-in-out infinite}
+  .anim-shake{animation:iconShake 0.6s ease-in-out infinite}
+  .anim-bounce{animation:bounceScale 0.5s ease-out forwards}
+
+  /* 5-second test */
+  .test-area{min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:var(--surface2);border-radius:12px;padding:24px;text-align:center;position:relative}
+  .test-icon{font-size:48px;margin-bottom:16px}
+  .test-options{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .test-opt{padding:8px 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);
+    font-size:13px;cursor:pointer;transition:all var(--transition)}
+  .test-opt:hover{border-color:var(--accent)}
+  .test-opt.correct{background:rgba(74,222,128,0.12);border-color:var(--green);color:var(--green)}
+  .test-opt.wrong{background:rgba(248,113,113,0.12);border-color:var(--red);color:var(--red)}
+  .test-timer{font-size:32px;font-weight:800;color:var(--teal);font-family:var(--mono)}
+
+  /* Accessibility */
+  .a11y-example{background:var(--surface2);border-radius:10px;padding:16px;font-family:var(--mono);font-size:12px;
+    color:var(--text2);line-height:1.7;overflow-x:auto}
+  .a11y-tag{color:var(--teal)}
+  .a11y-attr{color:var(--accent)}
+  .a11y-val{color:var(--yellow)}
+
+  /* Checklist */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.5}
+  .check-square{width:20px;height:20px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s ease}
+  .check-square.done{background:var(--teal);border-color:var(--teal)}
+  .check-square.done::after{content:'\\2713';color:#000;font-size:12px;font-weight:700}
+
+  @media(max-width:768px){
+    .grid-2{grid-template-columns:1fr}
+    .size-demo{gap:16px}
+    .touch-demo{gap:20px}
+    .sf-scale{gap:12px}
+  }
+  @media(max-width:480px){
+    .grid-3,.grid-4{grid-template-columns:1fr 1fr}
+    .style-pair{gap:12px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="tag" style="margin-bottom:16px">Design Foundation</div>
+  <h1>아이코노그래피</h1>
+  <p class="subtitle">아이콘 크기 체계, 스타일 일관성, 인식률 테스트, 커스텀 아이콘 제작, 아이콘 애니메이션 원칙을 다룬다. 아이콘은 최소한의 시각 요소로 의미를 즉각적으로 전달해야 한다.</p>
+</header>
+
+<!-- Principles -->
+<section class="section">
+  <div class="section-label">원칙</div>
+  <div class="grid-4">
+    <div class="card" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">명확성</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5">최소 시각 요소로 의미를 즉각 전달. 핵심 형태만 남기고 단순화.</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">일관성</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5">동일한 스타일, 굵기, 크기 체계 사용. Outlined와 Filled 혼용 금지.</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">보편성</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5">문화 무관 이해. 텍스트 레이블 병행으로 인식률 향상.</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">접근성</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5">aria-hidden/aria-label 적용. 터치 타겟 최소 기준 충족.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 1. Icon Size Scale -->
+<section class="section">
+  <div class="section-label">크기 체계</div>
+  <h2>아이콘 크기 스케일 (20/24/40/48dp)</h2>
+  <p class="desc">Material Design 시스템 아이콘의 기본 크기는 24dp이며, 터치 타겟은 48dp이다. 광학 크기 축으로 크기별 획 두께를 자동 최적화한다.</p>
+
+  <div class="card">
+    <div class="size-demo" id="sizeDemo">
+      <!-- JS fills -->
+    </div>
+    <p class="caption">각 크기의 그리드 오버레이 -- 광학 크기(opsz)에 따라 획 두께가 조정됨</p>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">크기별 용도</div>
+    <table>
+      <thead><tr><th>용도</th><th>아이콘 크기</th><th>터치 타겟</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text)">밀집 레이아웃</td><td class="mono">20dp</td><td class="mono">40dp</td><td>데스크톱 전용</td></tr>
+        <tr><td style="color:var(--text);font-weight:700">시스템 아이콘 (기본)</td><td class="mono" style="color:var(--teal);font-weight:700">24dp</td><td class="mono" style="color:var(--teal);font-weight:700">48dp</td><td>대부분의 UI 요소</td></tr>
+        <tr><td style="color:var(--text)">강조 아이콘</td><td class="mono">40dp</td><td class="mono">48dp</td><td>빈 상태, 온보딩</td></tr>
+        <tr><td style="color:var(--text)">대형 디스플레이</td><td class="mono">48dp</td><td class="mono">48dp+</td><td>내비게이션 레일, 대시보드</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 2. Outlined vs Filled -->
+<section class="section">
+  <div class="section-label">스타일 일관성</div>
+  <h2>Outlined vs Filled 비교</h2>
+  <p class="desc">같은 화면 내에서 Outlined와 Filled는 상태 표현 용도로만 혼용한다. 선택된 탭은 Filled, 비선택 탭은 Outlined로 표시한다.</p>
+
+  <div class="card">
+    <div class="grid-3" style="gap:24px" id="stylePairs">
+      <!-- JS fills -->
+    </div>
+    <div style="display:flex;gap:20px;justify-content:center;margin-top:24px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)">
+        <div style="width:12px;height:12px;border:2px solid var(--text3);border-radius:3px"></div>
+        Outlined (fill: 0) -- 비선택, 기본 UI
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)">
+        <div style="width:12px;height:12px;background:var(--accent);border-radius:3px"></div>
+        Filled (fill: 1) -- 선택/활성 상태
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom nav example -->
+  <div class="card" style="margin-top:20px;text-align:center">
+    <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:16px">바텀 내비게이션 예시 (선택 탭 = Filled)</div>
+    <div style="display:inline-flex;background:var(--surface2);border-radius:16px;padding:8px 4px;gap:0" id="bottomNav">
+      <!-- JS fills -->
+    </div>
+  </div>
+</section>
+
+<!-- 3. Weight Matching -->
+<section class="section">
+  <div class="section-label">굵기 매칭</div>
+  <h2>텍스트 Weight &#8596; 아이콘 Weight</h2>
+  <p class="desc">아이콘의 굵기는 인접 텍스트의 폰트 무게와 시각적으로 일치시켜야 한다.</p>
+
+  <div class="card" id="weightDemo">
+    <!-- JS fills -->
+  </div>
+</section>
+
+<!-- 4. Touch Target -->
+<section class="section">
+  <div class="section-label">터치 타겟</div>
+  <h2>아이콘 터치 타겟 시각화</h2>
+  <p class="desc">24dp 아이콘에 48dp 터치 타겟을 적용하면 아이콘 주변에 12dp의 투명 패딩이 추가된다.</p>
+
+  <div class="card">
+    <div class="touch-demo">
+      <div class="touch-box">
+        <div class="touch-outer" style="width:96px;height:96px">
+          <div class="touch-inner" style="width:48px;height:48px">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="touch-pad-label" style="top:50%;left:-30px;transform:translateY(-50%)">12dp</div>
+          <div class="touch-pad-label" style="top:-18px;left:50%;transform:translateX(-50%)">12dp</div>
+        </div>
+        <div class="touch-label">Material: 24dp icon / 48dp target</div>
+      </div>
+      <div class="touch-box">
+        <div class="touch-outer" style="width:88px;height:88px;border-color:var(--accent2)">
+          <div class="touch-inner" style="width:44px;height:44px">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="touch-pad-label" style="top:50%;left:-26px;transform:translateY(-50%);color:var(--accent2)">11pt</div>
+          <div class="touch-pad-label" style="top:-18px;left:50%;transform:translateX(-50%);color:var(--accent2)">11pt</div>
+        </div>
+        <div class="touch-label">Apple: ~22pt icon / 44pt target</div>
+      </div>
+      <div class="touch-box">
+        <div class="touch-outer" style="width:48px;height:48px;border-color:var(--yellow)">
+          <div style="width:24px;height:24px;background:var(--surface2);border-radius:4px;display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+        </div>
+        <div class="touch-label" style="color:var(--yellow)">WCAG 2.2: 24x24 CSS px min</div>
+      </div>
+    </div>
+    <p class="caption">시각적 아이콘 크기와 실제 탭 가능 영역의 차이 -- 점선이 터치 타겟 경계</p>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">플랫폼별 터치 타겟 기준</div>
+    <table>
+      <thead><tr><th>플랫폼</th><th>아이콘 크기</th><th>최소 터치 타겟</th><th>패딩</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text)">Material (Android)</td><td class="mono">24dp</td><td class="mono">48dp</td><td>아이콘 주변 12dp</td></tr>
+        <tr><td style="color:var(--text)">Apple (iOS)</td><td class="mono">~22pt</td><td class="mono">44x44pt</td><td>아이콘 주변 ~11pt</td></tr>
+        <tr><td style="color:var(--text)">WCAG 2.2 AA</td><td class="mono">--</td><td class="mono">24x24 CSS px</td><td>인접 타겟 비중첩</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 5. Icon Grid Keyline -->
+<section class="section">
+  <div class="section-label">아이콘 그리드</div>
+  <h2>키라인 형태 (Keyline Shapes)</h2>
+  <p class="desc">Material Design 아이콘은 24x24dp 그리드 위에 디자인된다. 4가지 키라인 형태가 아이콘 디자인의 기초가 된다.</p>
+
+  <div class="card">
+    <div style="display:flex;gap:clamp(12px,3vw,32px);flex-wrap:wrap;justify-content:center;padding:16px">
+      <div style="text-align:center">
+        <div class="keyline-box">
+          <div class="keyline-grid"></div>
+          <div class="keyline-shape" style="width:83%;height:83%;border-radius:50%;border-color:var(--teal);top:8%;left:8%"></div>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+        </div>
+        <div style="font-size:12px;font-weight:700;margin-top:8px;color:var(--teal)">Circle</div>
+        <div style="font-size:11px;color:var(--text3)">20dp</div>
+      </div>
+      <div style="text-align:center">
+        <div class="keyline-box">
+          <div class="keyline-grid"></div>
+          <div class="keyline-shape" style="width:75%;height:75%;border-radius:2px;border-color:var(--accent);top:12.5%;left:12.5%"></div>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        </div>
+        <div style="font-size:12px;font-weight:700;margin-top:8px;color:var(--accent)">Square</div>
+        <div style="font-size:11px;color:var(--text3)">18x18dp</div>
+      </div>
+      <div style="text-align:center">
+        <div class="keyline-box">
+          <div class="keyline-grid"></div>
+          <div class="keyline-shape" style="width:67%;height:83%;border-radius:2px;border-color:var(--accent2);top:8%;left:17%"></div>
+          <svg width="32" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <div style="font-size:12px;font-weight:700;margin-top:8px;color:var(--accent2)">Rect (세로)</div>
+        <div style="font-size:11px;color:var(--text3)">16x20dp</div>
+      </div>
+      <div style="text-align:center">
+        <div class="keyline-box">
+          <div class="keyline-grid"></div>
+          <div class="keyline-shape" style="width:83%;height:67%;border-radius:2px;border-color:var(--yellow);top:17%;left:8%"></div>
+          <svg width="40" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        </div>
+        <div style="font-size:12px;font-weight:700;margin-top:8px;color:var(--yellow)">Rect (가로)</div>
+        <div style="font-size:11px;color:var(--text3)">20x16dp</div>
+      </div>
+    </div>
+    <p class="caption">24x24dp 그리드 위의 키라인 형태 -- 점선은 라이브 영역(live area) 경계</p>
+  </div>
+</section>
+
+<!-- 6. SF Symbols 3-Scale -->
+<section class="section">
+  <div class="section-label">SF Symbols</div>
+  <h2>SF Symbols 3단계 스케일</h2>
+  <p class="desc">SF Symbols는 San Francisco 폰트의 cap-height에 상대적인 Small / Medium / Large 3단계 스케일을 제공한다.</p>
+
+  <div class="card">
+    <div class="sf-scale">
+      <div class="sf-item">
+        <div class="sf-icon-box" style="border:1px solid var(--border)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--text2)">Small</div>
+        <div style="font-size:11px;color:var(--text3)">-20% / 보조 정보</div>
+      </div>
+      <div style="font-size:20px;color:var(--text3)">&#8594;</div>
+      <div class="sf-item">
+        <div class="sf-icon-box" style="border:2px solid var(--teal)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--teal)">Medium (기본)</div>
+        <div style="font-size:11px;color:var(--text3)">대부분의 UI</div>
+      </div>
+      <div style="font-size:20px;color:var(--text3)">&#8594;</div>
+      <div class="sf-item">
+        <div class="sf-icon-box" style="border:1px solid var(--border)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--text2)">Large</div>
+        <div style="font-size:11px;color:var(--text3)">+30% / 탭 바, 강조</div>
+      </div>
+    </div>
+    <p class="caption">SF Symbols는 모든 스케일에서 San Francisco cap-height에 수직 중앙 정렬</p>
+  </div>
+
+  <!-- Grade -->
+  <div class="card" style="margin-top:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">Grade (등급) 활용</div>
+    <div class="grid-3" style="gap:16px">
+      <div style="text-align:center;padding:16px;background:var(--surface2);border-radius:10px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="font-size:12px;font-weight:700;color:var(--text3);margin-top:8px">Grade -25</div>
+        <div style="font-size:11px;color:var(--text3)">저강조 / 어두운 배경</div>
+      </div>
+      <div style="text-align:center;padding:16px;background:var(--surface2);border-radius:10px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-top:8px">Grade 0</div>
+        <div style="font-size:11px;color:var(--text3)">기본값</div>
+      </div>
+      <div style="text-align:center;padding:16px;background:var(--surface2);border-radius:10px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="font-size:12px;font-weight:700;color:var(--teal);margin-top:8px">Grade 200</div>
+        <div style="font-size:11px;color:var(--text3)">고강조 / 주의 유도</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Icon Animation -->
+<section class="section">
+  <div class="section-label">아이콘 애니메이션</div>
+  <h2>아이콘 애니메이션 예시</h2>
+  <p class="desc">상태 전환, 로딩 표시, 피드백 확인, 주의 유도 용도에서만 아이콘에 애니메이션을 적용한다.</p>
+
+  <div class="grid-4" style="margin-bottom:24px">
+    <div class="card" style="text-align:center">
+      <div style="height:56px;display:flex;align-items:center;justify-content:center">
+        <svg class="anim-spin" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-top:8px">로딩 회전</div>
+      <div style="font-size:10px;color:var(--text3)">linear infinite</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="height:56px;display:flex;align-items:center;justify-content:center">
+        <svg class="anim-pulse" width="28" height="28" viewBox="0 0 24 24" fill="var(--red)" stroke="var(--red)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-top:8px">좋아요 펄스</div>
+      <div style="font-size:10px;color:var(--text3)">300ms scale bounce</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="height:56px;display:flex;align-items:center;justify-content:center">
+        <svg class="anim-shake" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-top:8px">알림 흔들기</div>
+      <div style="font-size:10px;color:var(--text3)">600-800ms 1-2회</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="height:56px;display:flex;align-items:center;justify-content:center">
+        <svg id="checkAnim" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" stroke-dasharray="63" stroke-dashoffset="63" style="animation:strokeDraw 0.5s ease forwards"/>
+          <polyline points="8 12 11 15 16 9" stroke-dasharray="24" stroke-dashoffset="24" style="animation:checkDraw 0.3s ease 0.4s forwards"/>
+        </svg>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-top:8px">완료 체크</div>
+      <div style="font-size:10px;color:var(--text3)">300-500ms draw</div>
+    </div>
+  </div>
+
+  <!-- Hamburger morph -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:16px">상태 전환 모프 (클릭하여 토글)</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center">
+      <div style="text-align:center">
+        <div style="width:56px;height:56px;background:var(--surface2);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="morphHamburger(this)">
+          <svg width="24" height="24" viewBox="0 0 24 24" stroke="var(--text)" stroke-width="2" stroke-linecap="round">
+            <line class="hb-top" x1="4" y1="7" x2="20" y2="7" style="transition:all 0.3s ease;transform-origin:center"/>
+            <line class="hb-mid" x1="4" y1="12" x2="20" y2="12" style="transition:all 0.3s ease"/>
+            <line class="hb-bot" x1="4" y1="17" x2="20" y2="17" style="transition:all 0.3s ease;transform-origin:center"/>
+          </svg>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">Menu &#8596; Close</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:56px;height:56px;background:var(--surface2);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="morphPlay(this)" data-state="play">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon class="play-shape" points="5,3 19,12 5,21" style="transition:all 0.25s ease"/>
+          </svg>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">Play &#8596; Pause</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Don't animate -->
+  <div class="grid-2">
+    <div class="card" style="border-color:rgba(74,222,128,0.2)">
+      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px">&#10003; 애니메이션할 가치가 있는 아이콘</div>
+      <table>
+        <thead><tr><th>용도</th><th>유형</th><th>듀레이션</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">상태 전환</td><td>morph</td><td class="mono">200-300ms</td></tr>
+          <tr><td style="color:var(--text)">로딩 표시</td><td>회전/진행</td><td class="mono">반복</td></tr>
+          <tr><td style="color:var(--text)">피드백 확인</td><td>draw/bounce</td><td class="mono">300-500ms</td></tr>
+          <tr><td style="color:var(--text)">주의 유도</td><td>shake/pulse</td><td class="mono">600-800ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="border-color:rgba(248,113,113,0.2)">
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:12px">&#10007; 애니메이션하면 안 되는 아이콘</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+        <li style="font-size:13px;color:var(--text2);display:flex;gap:8px"><span style="color:var(--red)">&#10007;</span>네비게이션 아이콘 (홈, 뒤로가기 등 고빈도 탭)</li>
+        <li style="font-size:13px;color:var(--text2);display:flex;gap:8px"><span style="color:var(--red)">&#10007;</span>정적 상태 아이콘 (카테고리 라벨, 메타데이터)</li>
+        <li style="font-size:13px;color:var(--text2);display:flex;gap:8px"><span style="color:var(--red)">&#10007;</span>다량 배치 아이콘 (리스트 아이템 순차 애니메이션)</li>
+      </ul>
+      <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--text3)">
+        <strong style="color:var(--yellow)">Lottie 주의:</strong> JSON 10KB 초과 시 성능 영향, 동시 10개+ 인스턴스는 프레임 드롭
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Five-Second Test -->
+<section class="section">
+  <div class="section-label">인식률 테스트</div>
+  <h2>5초 인식 테스트</h2>
+  <p class="desc">아이콘을 5초간 본 후 의미를 추측하라. NNGroup 연구에서 라벨 없는 아이콘은 인식 시간이 평균 3.2초 더 걸렸다.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="test-area" id="testArea">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">아이콘 인식 테스트</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px">"시작" 버튼을 눌러 5초간 아이콘을 관찰한 후 의미를 맞춰보세요</div>
+      <button id="testStart" onclick="startIconTest()" style="padding:12px 32px;font-size:14px;font-weight:700;background:rgba(45,212,191,0.12);border-color:var(--teal);color:var(--teal)">시작</button>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">합격 기준</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:60px;height:8px;border-radius:4px;background:var(--green)"></div>
+          <span style="font-size:13px;color:var(--text2)"><strong style="color:var(--green)">80%+</strong> 라벨 없이 사용 가능</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:60px;height:8px;border-radius:4px;background:var(--yellow)"></div>
+          <span style="font-size:13px;color:var(--text2)"><strong style="color:var(--yellow)">50-79%</strong> 라벨과 함께 사용</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:60px;height:8px;border-radius:4px;background:var(--red)"></div>
+          <span style="font-size:13px;color:var(--text2)"><strong style="color:var(--red)">&lt;50%</strong> 아이콘 변경 필요</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">보편적 아이콘의 실제 인식률</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:18px">&#9776;</span>
+          <div style="flex:1"><div style="height:8px;border-radius:4px;background:var(--yellow);width:58%"></div></div>
+          <span class="mono" style="color:var(--yellow)">~58%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:18px">&#8942;</span>
+          <div style="flex:1"><div style="height:8px;border-radius:4px;background:var(--red);width:48%"></div></div>
+          <span class="mono" style="color:var(--red)">~48%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:18px">&#8599;</span>
+          <div style="flex:1"><div style="height:8px;border-radius:4px;background:var(--yellow);width:55%"></div></div>
+          <span class="mono" style="color:var(--yellow)">~55%</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">햄버거, 케밥, 공유 아이콘도 인식률 50-60%에 불과</div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Accessibility Annotations -->
+<section class="section">
+  <div class="section-label">접근성</div>
+  <h2>아이콘 접근성 어노테이션</h2>
+  <p class="desc">의미를 전달하는 아이콘에는 aria-label을, 장식적 아이콘에는 aria-hidden="true"를 제공한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px">의미 전달 아이콘 (aria-label)</div>
+      <div class="a11y-example">
+<span style="color:var(--text3)">&lt;!-- 검색 버튼 --&gt;</span>
+<span class="a11y-tag">&lt;button</span> <span class="a11y-attr">aria-label</span>=<span class="a11y-val">"검색"</span><span class="a11y-tag">&gt;</span>
+  <span class="a11y-tag">&lt;svg</span> <span class="a11y-attr">aria-hidden</span>=<span class="a11y-val">"true"</span><span class="a11y-tag">&gt;</span>...
+<span class="a11y-tag">&lt;/button&gt;</span>
+
+<span style="color:var(--text3)">&lt;!-- 독립 아이콘 --&gt;</span>
+<span class="a11y-tag">&lt;svg</span> <span class="a11y-attr">role</span>=<span class="a11y-val">"img"</span>
+     <span class="a11y-attr">aria-label</span>=<span class="a11y-val">"경고: 저장 공간 부족"</span><span class="a11y-tag">&gt;</span>
+  ...
+<span class="a11y-tag">&lt;/svg&gt;</span>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--text3);margin-bottom:12px">장식적 아이콘 (aria-hidden)</div>
+      <div class="a11y-example">
+<span style="color:var(--text3)">&lt;!-- 텍스트 옆 장식 아이콘 --&gt;</span>
+<span class="a11y-tag">&lt;span&gt;</span>
+  <span class="a11y-tag">&lt;svg</span> <span class="a11y-attr">aria-hidden</span>=<span class="a11y-val">"true"</span><span class="a11y-tag">&gt;</span>...
+  설정
+<span class="a11y-tag">&lt;/span&gt;</span>
+
+<span style="color:var(--text3)">&lt;!-- 카테고리 라벨 아이콘 --&gt;</span>
+<span class="a11y-tag">&lt;li&gt;</span>
+  <span class="a11y-tag">&lt;svg</span> <span class="a11y-attr">aria-hidden</span>=<span class="a11y-val">"true"</span><span class="a11y-tag">/&gt;</span>
+  <span class="a11y-tag">&lt;span&gt;</span>음악<span class="a11y-tag">&lt;/span&gt;</span>
+<span class="a11y-tag">&lt;/li&gt;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVG structure -->
+  <div class="card" style="margin-top:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">올바른 SVG 아이콘 구조</div>
+    <div class="a11y-example">
+<span class="a11y-tag">&lt;svg</span> <span class="a11y-attr">xmlns</span>=<span class="a11y-val">"http://www.w3.org/2000/svg"</span>
+     <span class="a11y-attr">width</span>=<span class="a11y-val">"24"</span> <span class="a11y-attr">height</span>=<span class="a11y-val">"24"</span>
+     <span class="a11y-attr">viewBox</span>=<span class="a11y-val">"0 0 24 24"</span>
+     <span class="a11y-attr">fill</span>=<span class="a11y-val">"none"</span>
+     <span class="a11y-attr">stroke</span>=<span class="a11y-val">"currentColor"</span>  <span style="color:var(--text3)">&lt;!-- CSS color로 제어 --&gt;</span>
+     <span class="a11y-attr">stroke-width</span>=<span class="a11y-val">"2"</span>
+     <span class="a11y-attr">stroke-linecap</span>=<span class="a11y-val">"round"</span>
+     <span class="a11y-attr">stroke-linejoin</span>=<span class="a11y-val">"round"</span><span class="a11y-tag">&gt;</span>
+  <span class="a11y-tag">&lt;path</span> <span class="a11y-attr">d</span>=<span class="a11y-val">"M12 5v14M5 12h14"</span><span class="a11y-tag">/&gt;</span>
+<span class="a11y-tag">&lt;/svg&gt;</span>
+    </div>
+  </div>
+</section>
+
+<!-- Consistency Checklist -->
+<section class="section">
+  <div class="section-label">체크리스트</div>
+  <h2>아이콘 일관성 검증</h2>
+
+  <div class="card">
+    <ul class="checklist" id="checklist">
+      <li onclick="toggleCL(this)"><div class="check-square"></div><div>한 화면 내 모든 아이콘이 동일한 스타일(Outlined 또는 Filled)을 사용하는가?</div></li>
+      <li onclick="toggleCL(this)"><div class="check-square"></div><div>선택/비선택 상태만 fill 축으로 구분하는가?</div></li>
+      <li onclick="toggleCL(this)"><div class="check-square"></div><div>아이콘 weight가 인접 텍스트 폰트 무게와 시각적으로 매칭되는가?</div></li>
+      <li onclick="toggleCL(this)"><div class="check-square"></div><div>광학 크기(opsz)가 표시 크기에 맞게 설정되어 있는가?</div></li>
+      <li onclick="toggleCL(this)"><div class="check-square"></div><div>인터랙티브 아이콘의 터치 타겟이 플랫폼 최소 기준을 충족하는가?</div></li>
+      <li onclick="toggleCL(this)"><div class="check-square"></div><div>의미를 전달하는 아이콘에 aria-label이 제공되는가?</div></li>
+      <li onclick="toggleCL(this)"><div class="check-square"></div><div>장식적 아이콘에 aria-hidden="true"가 설정되는가?</div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- CSS implementation -->
+<section class="section">
+  <div class="section-label">구현 참고</div>
+  <h2>Material Symbols CSS 설정</h2>
+  <div class="card">
+    <div class="a11y-example">
+<span class="a11y-tag">.material-symbols-outlined</span> {
+  <span class="a11y-attr">font-size</span>: <span class="a11y-val">24px</span>;           <span style="color:var(--text3)">/* 기본 크기 */</span>
+  <span class="a11y-attr">font-variation-settings</span>:
+    <span class="a11y-val">'FILL' 0</span>,                <span style="color:var(--text3)">/* 0: outlined, 1: filled */</span>
+    <span class="a11y-val">'wght' 400</span>,              <span style="color:var(--text3)">/* 100~700 */</span>
+    <span class="a11y-val">'GRAD' 0</span>,                <span style="color:var(--text3)">/* -25~200 */</span>
+    <span class="a11y-val">'opsz' 24</span>;               <span style="color:var(--text3)">/* 20, 24, 40, 48 */</span>
+}
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:40px 0;color:var(--text3);font-size:12px">
+  Iconography Design System &mdash; Based on Material Symbols, SF Symbols, NNGroup, WCAG 2.2
+</footer>
+
+</div>
+
+<script>
+// ============ Icon helpers ============
+function svgIcon(name, size, sw){
+  sw = sw || 2;
+  const icons = {
+    home:`<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0v-6a1 1 0 011-1h2a1 1 0 011 1v6m-6 0h6"/>`,
+    search:`<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>`,
+    heart:`<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>`,
+    star:`<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>`,
+    settings:`<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>`,
+    bell:`<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>`,
+    user:`<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+    mail:`<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
+    plus:`<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>`,
+  };
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${icons[name]||icons.plus}</svg>`;
+}
+
+// ============ Size Scale Demo ============
+const sizes = [
+  {dp:20,label:'20dp',use:'밀집 UI',sw:2.2},
+  {dp:24,label:'24dp',use:'시스템 아이콘',sw:2,highlight:true},
+  {dp:40,label:'40dp',use:'강조 아이콘',sw:1.6},
+  {dp:48,label:'48dp',use:'대형 디스플레이',sw:1.4},
+];
+const sizeDemo = document.getElementById('sizeDemo');
+sizes.forEach(s=>{
+  const px = s.dp * 1.5; // visual scaling
+  const div = document.createElement('div');
+  div.className = 'size-item';
+  div.innerHTML = `<div class="size-box" style="width:${px}px;height:${px}px;${s.highlight?'border:2px solid var(--teal)':''}">
+    <div class="size-grid" style="background-size:${px/24}px ${px/24}px"></div>
+    <div style="position:relative;z-index:1;color:var(--text)">${svgIcon('search',s.dp*0.75,s.sw)}</div>
+  </div>
+  <div class="size-label">${s.label}</div>
+  <div class="size-use">${s.use}</div>`;
+  sizeDemo.appendChild(div);
+});
+
+// ============ Outlined vs Filled ============
+const iconNames=['home','search','heart','star','settings','bell'];
+const stylePairs = document.getElementById('stylePairs');
+iconNames.forEach(name=>{
+  const div = document.createElement('div');
+  div.style.cssText='display:flex;align-items:center;justify-content:center;gap:20px';
+  div.innerHTML = `<div class="style-icon">
+    <div class="icon-box" style="color:var(--text2)">${svgIcon(name,24,2)}</div>
+    <div class="style-type">Outlined</div>
+  </div>
+  <div style="color:var(--text3);font-size:16px">&#8596;</div>
+  <div class="style-icon">
+    <div class="icon-box" style="color:var(--accent)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${document.createElement('div').innerHTML=svgIcon(name,24,1.5),document.createElement('div').querySelector('svg')?.innerHTML||''}</svg>
+    </div>
+    <div class="style-type">Filled</div>
+  </div>`;
+  // Simpler approach for filled
+  const filledBox = div.querySelectorAll('.icon-box')[1];
+  filledBox.innerHTML = svgIcon(name,24,2).replace('fill="none"','fill="var(--accent)"').replace('stroke="currentColor"','stroke="var(--accent)"');
+  stylePairs.appendChild(div);
+});
+
+// ============ Bottom Nav ============
+const navItems = [
+  {name:'홈',icon:'home',active:true},
+  {name:'검색',icon:'search',active:false},
+  {name:'알림',icon:'bell',active:false},
+  {name:'프로필',icon:'user',active:false}
+];
+const bottomNav = document.getElementById('bottomNav');
+navItems.forEach(item=>{
+  const div = document.createElement('div');
+  div.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 20px;border-radius:12px;cursor:pointer;transition:all 0.2s ease;${item.active?'background:rgba(45,212,191,0.1)':''}`;
+  const iconColor = item.active ? 'var(--teal)' : 'var(--text3)';
+  const fill = item.active ? iconColor : 'none';
+  div.innerHTML = `<div style="color:${iconColor}">${svgIcon(item.icon,20,item.active?2:1.5).replace('fill="none"',`fill="${fill}"`)}</div>
+    <div style="font-size:10px;font-weight:${item.active?700:400};color:${iconColor}">${item.name}</div>`;
+  div.addEventListener('click',()=>{
+    bottomNav.querySelectorAll(':scope > div').forEach((d,i)=>{
+      d.style.background = '';
+      const ic = d.querySelector('div:first-child');
+      ic.style.color = 'var(--text3)';
+      d.querySelector('div:last-child').style.color = 'var(--text3)';
+      d.querySelector('div:last-child').style.fontWeight = '400';
+    });
+    div.style.background = 'rgba(45,212,191,0.1)';
+    div.querySelector('div:first-child').style.color = 'var(--teal)';
+    div.querySelector('div:last-child').style.color = 'var(--teal)';
+    div.querySelector('div:last-child').style.fontWeight = '700';
+  });
+  bottomNav.appendChild(div);
+});
+
+// ============ Weight Matching ============
+const weights = [
+  {textW:300,iconW:'200-300',label:'Light',sw:1.2},
+  {textW:400,iconW:'400',label:'Regular',sw:2},
+  {textW:500,iconW:'400-500',label:'Medium',sw:2.3},
+  {textW:700,iconW:'600-700',label:'Bold',sw:3},
+];
+const weightDemo = document.getElementById('weightDemo');
+weights.forEach(w=>{
+  const row = document.createElement('div');
+  row.className = 'weight-row';
+  row.innerHTML = `<div class="weight-text" style="font-weight:${w.textW};color:var(--text)">${w.label} (${w.textW})</div>
+    <div style="color:var(--text)">${svgIcon('search',22,w.sw)}</div>
+    <div style="font-size:12px;color:var(--text3);font-family:var(--mono);min-width:80px;text-align:right">wght: ${w.iconW}</div>`;
+  weightDemo.appendChild(row);
+});
+
+// ============ Hamburger Morph ============
+function morphHamburger(el){
+  const top = el.querySelector('.hb-top');
+  const mid = el.querySelector('.hb-mid');
+  const bot = el.querySelector('.hb-bot');
+  const isOpen = el.dataset.open === 'true';
+  if(!isOpen){
+    top.setAttribute('y1','12');top.setAttribute('y2','12');top.setAttribute('x1','6');top.setAttribute('x2','18');
+    top.style.transform='rotate(45deg)';
+    mid.style.opacity='0';
+    bot.setAttribute('y1','12');bot.setAttribute('y2','12');bot.setAttribute('x1','6');bot.setAttribute('x2','18');
+    bot.style.transform='rotate(-45deg)';
+    el.dataset.open='true';
+  } else {
+    top.setAttribute('y1','7');top.setAttribute('y2','7');top.setAttribute('x1','4');top.setAttribute('x2','20');
+    top.style.transform='rotate(0)';
+    mid.style.opacity='1';
+    bot.setAttribute('y1','17');bot.setAttribute('y2','17');bot.setAttribute('x1','4');bot.setAttribute('x2','20');
+    bot.style.transform='rotate(0)';
+    el.dataset.open='false';
+  }
+}
+
+function morphPlay(el){
+  const shape = el.querySelector('.play-shape');
+  if(el.dataset.state === 'play'){
+    shape.setAttribute('points','5,3 5,21 10,21 10,3 14,3 14,21 19,21 19,3');
+    el.dataset.state='pause';
+  } else {
+    shape.setAttribute('points','5,3 19,12 5,21 5,3');
+    el.dataset.state='play';
+  }
+}
+
+// ============ 5-Second Test ============
+const testIcons = [
+  {svg:'<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>',answer:'업로드',options:['다운로드','업로드','공유','위로']},
+  {svg:'<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',answer:'레이아웃',options:['테이블','레이아웃','그리드','창']},
+  {svg:'<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',answer:'닫기/취소',options:['삭제','에러','닫기/취소','금지']},
+  {svg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',answer:'메시지',options:['채팅','메시지','알림','댓글']},
+];
+let testIdx=0, testScore=0;
+
+function startIconTest(){
+  testIdx=0;testScore=0;
+  showTestIcon();
+}
+function showTestIcon(){
+  if(testIdx>=testIcons.length){
+    document.getElementById('testArea').innerHTML=`<div style="font-size:24px;font-weight:800;color:var(--teal)">${testScore}/${testIcons.length} 정답</div>
+      <div style="font-size:14px;color:var(--text2);margin-top:8px">${testScore>=3?'라벨 없이 사용 가능한 수준':testScore>=2?'라벨 병행 권장':'아이콘 재검토 필요'}</div>
+      <button onclick="startIconTest()" style="margin-top:16px;padding:10px 24px">다시 시작</button>`;
+    return;
+  }
+  const t=testIcons[testIdx];
+  const area=document.getElementById('testArea');
+  let sec=5;
+  area.innerHTML=`<div class="test-timer" id="timer">${sec}</div>
+    <div style="margin:16px 0"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${t.svg}</svg></div>
+    <div style="font-size:12px;color:var(--text3)">아이콘을 관찰하세요...</div>`;
+  const iv=setInterval(()=>{
+    sec--;
+    const timer=document.getElementById('timer');
+    if(timer)timer.textContent=sec;
+    if(sec<=0){
+      clearInterval(iv);
+      area.innerHTML=`<div style="font-size:14px;font-weight:700;margin-bottom:16px">이 아이콘의 의미는?</div>
+        <div class="test-options">${t.options.map(o=>`<div class="test-opt" onclick="checkAnswer(this,'${o}','${t.answer}')">${o}</div>`).join('')}</div>`;
+    }
+  },1000);
+}
+function checkAnswer(el,chosen,correct){
+  document.querySelectorAll('.test-opt').forEach(o=>{
+    o.style.pointerEvents='none';
+    if(o.textContent===correct)o.classList.add('correct');
+    else if(o===el&&chosen!==correct)o.classList.add('wrong');
+  });
+  if(chosen===correct)testScore++;
+  setTimeout(()=>{testIdx++;showTestIcon()},1200);
+}
+
+// ============ Checklist ============
+function toggleCL(li){li.querySelector('.check-square').classList.toggle('done')}
+</script>
+</body>
+</html>

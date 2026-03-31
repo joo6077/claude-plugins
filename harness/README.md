@@ -354,7 +354,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 # 특정 영역만 집중
 /harness-kaizen config    # 설정 (project.yaml, procedures, anti-patterns)
 /harness-kaizen skills    # 스킬 프롬프트, 에이전트, eval
-/harness-kaizen guide     # docs/guides/skill-design-guide.md
+/harness-kaizen guide     # harness/docs/guides/skill-design-guide.md
 
 # 계약 설계 개선
 /contract-kaizen
@@ -395,7 +395,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 | 에이전트 로직 | `agents/qa-evaluator.md` |
 | Eval | `evals/` 테스트 픽스처·평가 기준 (`evals/kaizen/` 포함) |
 | 아키텍처 | 폴더 구조, 훅, 스크립트 |
-| 설계 가이드 | `docs/guides/skill-design-guide.md` |
+| 설계 가이드 | `harness/docs/guides/skill-design-guide.md` |
 
 ### 버전 관리
 

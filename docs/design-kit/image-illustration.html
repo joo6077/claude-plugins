@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지 & 일러스트 사용 원칙 — Image & Illustration</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E8965A;--accent-dim:#C47A42;--accent-glow:rgba(232,150,90,0.15);
+  --success:#4ade80;--warning:#fbbf24;--danger:#f87171;
+  --pink:#f472b6;--purple:#a78bfa;--cyan:#22d3ee;--teal:#2dd4bf;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ─── Hero ─── */
+.hero {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px;
+  background: radial-gradient(ellipse at 50% 30%, rgba(167,139,250,0.08) 0%, transparent 70%);
+  position: relative;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  letter-spacing: 0.05em;
+}
+.hero-badge span { color: var(--purple); }
+.hero h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fff 0%, #c0a8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--text-secondary);
+  max-width: 640px;
+  line-height: 1.8;
+}
+
+/* ─── Sections ─── */
+section { padding: 80px 0; border-bottom: 1px solid var(--border-light); }
+section:last-child { border-bottom: none; }
+.section-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--purple);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.section-desc {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 680px;
+  margin-bottom: 48px;
+  line-height: 1.8;
+}
+
+/* ─── Cards ─── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: var(--transition);
+}
+.card:hover { border-color: rgba(167,139,250,0.4); }
+
+/* ─── Principles ─── */
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+.principle-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.principle-card::before {
+  content: attr(data-num);
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  font-size: 64px;
+  font-weight: 800;
+  color: rgba(167,139,250,0.06);
+  line-height: 1;
+}
+.principle-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+.principle-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* ─── Decision Tree ─── */
+.tree-container {
+  margin-top: 32px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.tree-node {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  text-align: center;
+  margin: 0 auto;
+  position: relative;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.tree-node:hover { border-color: var(--purple); }
+.tree-node.question {
+  border-color: var(--accent);
+  max-width: 480px;
+}
+.tree-node.question::before {
+  content: '?';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tree-node.result-photo {
+  border-color: var(--teal);
+  background: rgba(45,212,191,0.05);
+}
+.tree-node.result-illust {
+  border-color: var(--pink);
+  background: rgba(244,114,182,0.05);
+}
+.tree-node h4 { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.tree-node p { font-size: 0.82rem; color: var(--text-secondary); }
+.tree-branches {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+}
+.tree-branch {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tree-connector {
+  width: 2px;
+  height: 24px;
+  background: var(--border);
+  position: relative;
+}
+.tree-connector-label {
+  position: absolute;
+  top: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tree-connector-label.yes { left: 12px; color: var(--success); }
+.tree-connector-label.no { right: 12px; color: var(--danger); }
+.tree-center-connector {
+  width: 2px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 auto;
+}
+
+/* Interactive tree state */
+.tree-step { display: none; }
+.tree-step.active { display: block; }
+
+/* ─── Image Crop ─── */
+.crop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.crop-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-align: center;
+}
+.crop-preview {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2a1a3a, #1a2a4a, #1a3a2a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.crop-preview .subject {
+  width: 50px;
+  height: 70px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50% 50% 0 0;
+  border: 2px solid rgba(255,255,255,0.2);
+  position: relative;
+}
+.crop-preview .subject::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+}
+.crop-info {
+  padding: 12px;
+}
+.crop-ratio {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.crop-use {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ─── Focal Point ─── */
+.focal-demo {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) { .focal-demo { grid-template-columns: 1fr; } }
+
+.focal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.focal-image {
+  position: relative;
+  aspect-ratio: 16/10;
+  background: linear-gradient(135deg, #1a2540, #2a1a40, #1a3030);
+  overflow: hidden;
+}
+/* Rule of thirds grid */
+.thirds-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+.thirds-grid::before,
+.thirds-grid::after {
+  content: '';
+  position: absolute;
+}
+.thirds-line-h1, .thirds-line-h2, .thirds-line-v1, .thirds-line-v2 {
+  position: absolute;
+  background: rgba(255,255,255,0.2);
+}
+.thirds-line-h1 { top: 33.33%; left: 0; right: 0; height: 1px; }
+.thirds-line-h2 { top: 66.66%; left: 0; right: 0; height: 1px; }
+.thirds-line-v1 { left: 33.33%; top: 0; bottom: 0; width: 1px; }
+.thirds-line-v2 { left: 66.66%; top: 0; bottom: 0; width: 1px; }
+.focal-point {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--danger);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(248,113,113,0.5);
+}
+.focal-point::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: var(--danger);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.safe-zone {
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  right: 20%;
+  bottom: 20%;
+  border: 1px dashed rgba(74,222,128,0.4);
+  border-radius: 4px;
+}
+.safe-zone-label {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  font-size: 0.65rem;
+  color: var(--success);
+  opacity: 0.7;
+}
+.focal-info {
+  padding: 16px;
+}
+.focal-info h4 { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.focal-info p { font-size: 0.8rem; color: var(--text-secondary); }
+
+/* ─── Format Table ─── */
+.format-table-wrap {
+  margin-top: 32px;
+  overflow-x: auto;
+}
+.format-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.format-table th {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.format-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+.format-table tr:hover td { background: var(--bg-hover); }
+.format-name { color: var(--text); font-weight: 500; }
+.format-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.badge-best { background: rgba(74,222,128,0.15); color: var(--success); }
+.badge-good { background: rgba(232,150,90,0.15); color: var(--accent); }
+.badge-ok { background: rgba(251,191,36,0.15); color: var(--warning); }
+.badge-legacy { background: rgba(248,113,113,0.15); color: var(--danger); }
+
+/* Size comparison bars */
+.size-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.size-bar {
+  height: 8px;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ─── Lazy Loading Timeline ─── */
+.timeline-container {
+  margin-top: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+}
+.timeline {
+  position: relative;
+  padding-left: 40px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 28px;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute;
+  left: -32px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+.timeline-dot.eager { border-color: var(--success); background: rgba(74,222,128,0.3); }
+.timeline-dot.viewport { border-color: var(--warning); background: rgba(251,191,36,0.3); }
+.timeline-dot.lazy { border-color: var(--accent); background: rgba(232,150,90,0.3); }
+.timeline-dot.loaded { border-color: var(--purple); background: rgba(167,139,250,0.3); }
+.timeline-title { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.timeline-desc { font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px; }
+.timeline-code {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  overflow-x: auto;
+}
+
+/* ─── srcset Demo ─── */
+.srcset-demo {
+  margin-top: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.srcset-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.srcset-tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: var(--transition);
+  border-bottom: 2px solid transparent;
+}
+.srcset-tab.active {
+  color: var(--purple);
+  border-bottom-color: var(--purple);
+  background: rgba(167,139,250,0.05);
+}
+.srcset-preview {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+.srcset-device {
+  text-align: center;
+  transition: all 0.4s ease;
+}
+.srcset-screen {
+  background: linear-gradient(135deg, #1a2540, #2a1a40);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+.srcset-screen .res-label {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+.srcset-img-placeholder {
+  background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(232,150,90,0.2));
+  border-radius: 4px;
+}
+.srcset-info {
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.srcset-file-size {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ─── Alt Text Examples ─── */
+.alt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 32px;
+}
+@media (max-width: 768px) { .alt-grid { grid-template-columns: 1fr; } }
+.alt-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.alt-card-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.alt-card-header.bad { color: var(--danger); }
+.alt-card-header.good { color: var(--success); }
+.alt-example {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+.alt-example:last-child { border-bottom: none; }
+.alt-type {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.alt-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  background: var(--bg);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.alt-code.bad { border-left: 3px solid var(--danger); }
+.alt-code.good { border-left: 3px solid var(--success); }
+
+/* ─── Placeholder Strategies ─── */
+.placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.ph-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ph-preview {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+/* Blur-up */
+.ph-blur {
+  background: linear-gradient(135deg, #2a1a3a, #1a2a4a);
+  filter: blur(10px);
+  position: absolute;
+  inset: -10px;
+}
+.ph-blur-overlay {
+  position: relative;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.5);
+  z-index: 1;
+}
+/* LQIP */
+.ph-lqip {
+  background: linear-gradient(135deg, #3a2040, #20304a);
+  filter: blur(6px);
+  transform: scale(1.1);
+  position: absolute;
+  inset: 0;
+}
+/* Solid color */
+.ph-solid { background: #2a3a5a; }
+/* Skeleton shimmer */
+.ph-skeleton {
+  background: var(--bg-elevated);
+  position: relative;
+  overflow: hidden;
+}
+.ph-skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  animation: shimmer 2s infinite;
+}
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+.ph-info { padding: 12px 16px; }
+.ph-info h4 { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.ph-info p { font-size: 0.75rem; color: var(--text-secondary); }
+
+/* ─── Stock Photo Anti-Patterns ─── */
+.stock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.stock-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.stock-preview {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: var(--bg-elevated);
+  position: relative;
+}
+.stock-preview .x-mark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(248,113,113,0.2);
+  color: var(--danger);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stock-info { padding: 14px 16px; }
+.stock-cliche {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--danger);
+  margin-bottom: 4px;
+}
+.stock-problem {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.stock-alternative {
+  font-size: 0.78rem;
+  color: var(--success);
+  padding: 6px 10px;
+  background: rgba(74,222,128,0.06);
+  border-radius: 6px;
+  border-left: 2px solid var(--success);
+}
+
+/* ─── Photo vs Illust Table ─── */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 32px;
+}
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+.comparison-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.comparison-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; }
+.comparison-card h3.photo { color: var(--teal); }
+.comparison-card h3.illust { color: var(--pink); }
+.comparison-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.85rem;
+  align-items: baseline;
+}
+.comparison-row:last-child { border: none; }
+.comparison-situation {
+  color: var(--text);
+  font-weight: 500;
+  min-width: 100px;
+}
+.comparison-reason {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+/* ─── File Size Guide ─── */
+.filesize-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.filesize-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+}
+.filesize-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.filesize-label { font-size: 0.82rem; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+.filesize-target { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.filesize-max { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ─── References ─── */
+.references {
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.references h4 { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.references ul { list-style: none; padding: 0; }
+.references li { padding: 6px 0; font-size: 0.82rem; }
+.references a { color: var(--accent-dim); text-decoration: none; border-bottom: 1px dotted var(--accent-dim); }
+.references a:hover { color: var(--accent); }
+
+/* ─── Footer ─── */
+.footer {
+  padding: 48px 0;
+  text-align: center;
+  border-top: 1px solid var(--border-light);
+}
+.footer p { font-size: 0.82rem; color: var(--text-muted); }
+
+/* ─── Decision Tree Interactive ─── */
+.tree-interactive {
+  margin-top: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  min-height: 300px;
+}
+.tree-question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.tree-question .step-num {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--text);
+  font-size: 0.78rem;
+  line-height: 28px;
+  margin-right: 8px;
+}
+.tree-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.tree-btn {
+  padding: 12px 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.tree-btn:hover { border-color: var(--purple); background: rgba(167,139,250,0.1); }
+.tree-btn.yes:hover { border-color: var(--teal); background: rgba(45,212,191,0.1); }
+.tree-btn.no:hover { border-color: var(--pink); background: rgba(244,114,182,0.1); }
+
+.tree-result {
+  padding: 24px;
+  border-radius: var(--radius);
+  margin-top: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.tree-result.photo {
+  background: rgba(45,212,191,0.1);
+  border: 1px solid var(--teal);
+  color: var(--teal);
+}
+.tree-result.illust {
+  background: rgba(244,114,182,0.1);
+  border: 1px solid var(--pink);
+  color: var(--pink);
+}
+.tree-result .desc {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+.tree-restart {
+  margin-top: 16px;
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.tree-restart:hover { background: var(--bg-elevated); }
+.tree-history {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.tree-history-item {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+  section { padding: 48px 0; }
+  .crop-grid { grid-template-columns: repeat(2, 1fr); }
+  .alt-grid { grid-template-columns: 1fr; }
+  .comparison-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ Hero ═══════════ -->
+<header class="hero">
+  <div class="hero-badge">Design Foundations <span>/</span> Image & Illustration</div>
+  <h1>이미지 & 일러스트 사용 원칙</h1>
+  <p>UI에서 이미지와 일러스트를 선택, 배치, 최적화, 접근성 처리하는 원칙을 시각적으로 정리한다.</p>
+</header>
+
+<!-- ═══════════ Principles ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Principles</span>
+    <h2 class="section-title">핵심 원칙</h2>
+    <p class="section-desc">이미지는 콘텐츠를 보조하지 대체하지 않는다. 목적, 일관성, 성능 네 가지 축으로 이미지를 판단한다.</p>
+
+    <div class="principles-grid">
+      <div class="principle-card" data-num="01">
+        <h3>이미지는 콘텐츠를 보조한다</h3>
+        <p>이미지가 없으면 이해할 수 없는 UI는 접근성에 실패한 UI다. 대부분의 이미지는 텍스트를 시각적으로 보강하는 역할이다.</p>
+      </div>
+      <div class="principle-card" data-num="02">
+        <h3>모든 이미지는 목적이 있어야 한다</h3>
+        <p>"이 이미지를 제거하면 무엇이 달라지는가?"에 답할 수 없다면 불필요한 이미지다. 페이지 로딩 시간만 늘리고 주의를 분산시킨다.</p>
+      </div>
+      <div class="principle-card" data-num="03">
+        <h3>일관된 시각 언어를 유지한다</h3>
+        <p>사진, 3D, 2D 일러스트, 아이콘을 무작위 혼용하면 브랜드 정체성이 훼손된다. 하나의 스타일을 선택하고 일관되게 적용한다.</p>
+      </div>
+      <div class="principle-card" data-num="04">
+        <h3>성능은 시각적 품질만큼 중요하다</h3>
+        <p>고해상도 3초 로딩보다 최적화된 0.5초 로딩이 UX에 유리하다. LCP(Largest Contentful Paint)는 2.5초 이내가 "Good"이다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Decision Tree ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Decision Tree</span>
+    <h2 class="section-title">사진 vs 일러스트 의사결정 트리</h2>
+    <p class="section-desc">질문에 답하며 현재 상황에 사진이 적합한지, 일러스트가 적합한지 판단한다. 각 단계를 클릭하여 진행한다.</p>
+
+    <div class="tree-interactive" id="decisionTree">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Static comparison tables -->
+    <div class="comparison-grid">
+      <div class="comparison-card">
+        <h3 class="photo">사진이 적합한 경우</h3>
+        <div class="comparison-row">
+          <span class="comparison-situation">실제 제품</span>
+          <span class="comparison-reason">구매 결정에 실물 확인 필요</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">사람/팀 소개</span>
+          <span class="comparison-reason">신뢰감, 인간적 연결</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">장소/환경</span>
+          <span class="comparison-reason">분위기 전달, 현장감</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">음식/요리</span>
+          <span class="comparison-reason">시각적 욕구 자극</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">포트폴리오</span>
+          <span class="comparison-reason">실제 결과물 전시</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">UGC</span>
+          <span class="comparison-reason">아바타, 리뷰 이미지</span>
+        </div>
+      </div>
+      <div class="comparison-card">
+        <h3 class="illust">일러스트가 적합한 경우</h3>
+        <div class="comparison-row">
+          <span class="comparison-situation">추상 개념</span>
+          <span class="comparison-reason">클라우드 컴퓨팅, 보안 등</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">프로세스 안내</span>
+          <span class="comparison-reason">순서도, 워크플로우</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">빈 상태</span>
+          <span class="comparison-reason">검색 결과 없음, 장바구니 비어있음</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">에러/성공</span>
+          <span class="comparison-reason">404 페이지, 가입 완료</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">브랜드 차별화</span>
+          <span class="comparison-reason">고유 일러스트 스타일</span>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-situation">온보딩</span>
+          <span class="comparison-reason">기능 설명, 가치 제안</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Image Crop ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Crop & Aspect Ratio</span>
+    <h2 class="section-title">이미지 크롭 비교</h2>
+    <p class="section-desc">동일한 피사체를 다양한 비율로 크롭하면 전달하는 느낌이 달라진다. 용도별 권장 비율과 해상도를 확인한다.</p>
+
+    <div class="crop-grid">
+      <div class="crop-card">
+        <div class="crop-preview" style="aspect-ratio:16/9;">
+          <div class="subject"></div>
+        </div>
+        <div class="crop-info">
+          <div class="crop-ratio">16:9</div>
+          <div class="crop-use">히어로 배너 &middot; 1920x1080</div>
+        </div>
+      </div>
+      <div class="crop-card">
+        <div class="crop-preview" style="aspect-ratio:4/3;">
+          <div class="subject"></div>
+        </div>
+        <div class="crop-info">
+          <div class="crop-ratio">4:3</div>
+          <div class="crop-use">카드 썸네일 &middot; 640x480</div>
+        </div>
+      </div>
+      <div class="crop-card">
+        <div class="crop-preview" style="aspect-ratio:1/1;">
+          <div class="subject"></div>
+        </div>
+        <div class="crop-info">
+          <div class="crop-ratio">1:1</div>
+          <div class="crop-use">프로필, 제품 &middot; 600x600</div>
+        </div>
+      </div>
+      <div class="crop-card">
+        <div class="crop-preview" style="aspect-ratio:3/4;">
+          <div class="subject"></div>
+        </div>
+        <div class="crop-info">
+          <div class="crop-ratio">3:4</div>
+          <div class="crop-use">모바일 히어로 &middot; 1080x1440</div>
+        </div>
+      </div>
+      <div class="crop-card">
+        <div class="crop-preview" style="aspect-ratio:1.91/1;">
+          <div class="subject"></div>
+        </div>
+        <div class="crop-info">
+          <div class="crop-ratio">1.91:1</div>
+          <div class="crop-use">OG 이미지 &middot; 1200x630</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Focal Point ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Focal Point</span>
+    <h2 class="section-title">초점(Focal Point) 시각화</h2>
+    <p class="section-desc">삼분법(Rule of Thirds) 교차점에 핵심 피사체를 배치하면 시각적 균형이 잡힌다. Safe Zone(중앙 60%)에 초점을 두면 다양한 비율 크롭에서도 피사체가 유지된다.</p>
+
+    <div class="focal-demo">
+      <div class="focal-card">
+        <div class="focal-image">
+          <div class="thirds-line-h1"></div>
+          <div class="thirds-line-h2"></div>
+          <div class="thirds-line-v1"></div>
+          <div class="thirds-line-v2"></div>
+          <div class="focal-point" style="top:33.33%;left:33.33%"></div>
+          <div class="focal-point" style="top:33.33%;left:66.66%;opacity:0.3"></div>
+          <div class="focal-point" style="top:66.66%;left:33.33%;opacity:0.3"></div>
+          <div class="focal-point" style="top:66.66%;left:66.66%;opacity:0.3"></div>
+        </div>
+        <div class="focal-info">
+          <h4>삼분법(Rule of Thirds)</h4>
+          <p>가로/세로를 3등분하는 선의 교차점에 핵심 피사체를 배치한다. 4개의 교차점 중 가장 밝은 점이 주요 초점이다.</p>
+        </div>
+      </div>
+      <div class="focal-card">
+        <div class="focal-image">
+          <div class="safe-zone">
+            <span class="safe-zone-label">SAFE ZONE (60%)</span>
+          </div>
+          <div class="focal-point" style="top:50%;left:50%"></div>
+          <!-- Crop indicators -->
+          <div style="position:absolute;top:0;left:0;right:0;height:20%;background:rgba(248,113,113,0.08);border-bottom:1px dashed rgba(248,113,113,0.2)"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:20%;background:rgba(248,113,113,0.08);border-top:1px dashed rgba(248,113,113,0.2)"></div>
+          <div style="position:absolute;top:0;left:0;bottom:0;width:20%;background:rgba(248,113,113,0.08);border-right:1px dashed rgba(248,113,113,0.2)"></div>
+          <div style="position:absolute;top:0;right:0;bottom:0;width:20%;background:rgba(248,113,113,0.08);border-left:1px dashed rgba(248,113,113,0.2)"></div>
+        </div>
+        <div class="focal-info">
+          <h4>Safe Zone 크롭 영역</h4>
+          <p>양쪽 20%는 반응형 크롭 시 잘릴 수 있다. 핵심 피사체는 중앙 60% 영역에 위치시킨다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Format Comparison ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Image Formats</span>
+    <h2 class="section-title">이미지 포맷 비교</h2>
+    <p class="section-desc">동일한 사진을 각 포맷으로 변환했을 때의 파일 크기와 품질 차이. 선택 순서: SVG(벡터) &rarr; AVIF(사진) &rarr; WebP(범용) &rarr; JPEG/PNG(폴백)</p>
+
+    <div class="format-table-wrap">
+      <table class="format-table">
+        <thead>
+          <tr>
+            <th>포맷</th>
+            <th>압축</th>
+            <th>투명도</th>
+            <th>애니메이션</th>
+            <th>상대 크기</th>
+            <th>용도</th>
+            <th>권장도</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="format-name">AVIF</td>
+            <td>손실/무손실</td>
+            <td style="color:var(--success)">O</td>
+            <td style="color:var(--success)">O</td>
+            <td>
+              <div class="size-bar-wrap">
+                <div class="size-bar" style="width:30%;background:var(--success)"></div>
+                <span style="font-size:0.75rem">~30KB</span>
+              </div>
+            </td>
+            <td>고화질 사진</td>
+            <td><span class="format-badge badge-best">Best</span></td>
+          </tr>
+          <tr>
+            <td class="format-name">WebP</td>
+            <td>손실/무손실</td>
+            <td style="color:var(--success)">O</td>
+            <td style="color:var(--success)">O</td>
+            <td>
+              <div class="size-bar-wrap">
+                <div class="size-bar" style="width:45%;background:var(--accent)"></div>
+                <span style="font-size:0.75rem">~45KB</span>
+              </div>
+            </td>
+            <td>범용 웹 이미지</td>
+            <td><span class="format-badge badge-good">Good</span></td>
+          </tr>
+          <tr>
+            <td class="format-name">JPEG</td>
+            <td>손실</td>
+            <td style="color:var(--danger)">X</td>
+            <td style="color:var(--danger)">X</td>
+            <td>
+              <div class="size-bar-wrap">
+                <div class="size-bar" style="width:65%;background:var(--warning)"></div>
+                <span style="font-size:0.75rem">~65KB</span>
+              </div>
+            </td>
+            <td>폴백, 레거시</td>
+            <td><span class="format-badge badge-ok">Fallback</span></td>
+          </tr>
+          <tr>
+            <td class="format-name">PNG</td>
+            <td>무손실</td>
+            <td style="color:var(--success)">O</td>
+            <td style="color:var(--danger)">X</td>
+            <td>
+              <div class="size-bar-wrap">
+                <div class="size-bar" style="width:100%;background:var(--danger)"></div>
+                <span style="font-size:0.75rem">~200KB</span>
+              </div>
+            </td>
+            <td>투명도, 스크린샷</td>
+            <td><span class="format-badge badge-legacy">Heavy</span></td>
+          </tr>
+          <tr>
+            <td class="format-name">SVG</td>
+            <td>벡터</td>
+            <td style="color:var(--success)">O</td>
+            <td style="color:var(--success)">O</td>
+            <td>
+              <div class="size-bar-wrap">
+                <div class="size-bar" style="width:10%;background:var(--teal)"></div>
+                <span style="font-size:0.75rem">~2KB</span>
+              </div>
+            </td>
+            <td>아이콘, 로고</td>
+            <td><span class="format-badge badge-best">Best*</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- File size guidelines -->
+    <div class="filesize-grid">
+      <div class="filesize-card">
+        <div class="filesize-icon" style="background:rgba(74,222,128,0.15);color:var(--success)">S</div>
+        <div class="filesize-label">썸네일 (80-200px)</div>
+        <div class="filesize-target">5-15KB</div>
+        <div class="filesize-max">최대 30KB</div>
+      </div>
+      <div class="filesize-card">
+        <div class="filesize-icon" style="background:rgba(232,150,90,0.15);color:var(--accent)">M</div>
+        <div class="filesize-label">카드 이미지 (400-600px)</div>
+        <div class="filesize-target">30-60KB</div>
+        <div class="filesize-max">최대 100KB</div>
+      </div>
+      <div class="filesize-card">
+        <div class="filesize-icon" style="background:rgba(251,191,36,0.15);color:var(--warning)">L</div>
+        <div class="filesize-label">콘텐츠 (800px)</div>
+        <div class="filesize-target">50-100KB</div>
+        <div class="filesize-max">최대 200KB</div>
+      </div>
+      <div class="filesize-card">
+        <div class="filesize-icon" style="background:rgba(248,113,113,0.15);color:var(--danger)">XL</div>
+        <div class="filesize-label">히어로 (1920px)</div>
+        <div class="filesize-target">100-200KB</div>
+        <div class="filesize-max">최대 400KB</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Lazy Loading Timeline ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Lazy Loading</span>
+    <h2 class="section-title">Lazy Loading 타임라인</h2>
+    <p class="section-desc">페이지 로딩 시 이미지가 언제, 어떻게 로드되는지 시간순으로 시각화한다. LCP 이미지에는 절대 lazy를 적용하지 않는다.</p>
+
+    <div class="timeline-container">
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot eager"></div>
+          <div class="timeline-title">히어로 이미지 즉시 로드 (eager)</div>
+          <div class="timeline-desc">LCP 이미지는 loading="eager"와 fetchpriority="high"로 최우선 로드. Above the fold에 위치.</div>
+          <div class="timeline-code">&lt;img src="hero.webp" loading="eager" fetchpriority="high" alt="..."&gt;</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot eager"></div>
+          <div class="timeline-title">첫 화면 이미지 로드</div>
+          <div class="timeline-desc">뷰포트 안에 보이는 모든 이미지가 기본 우선순위로 로드된다. width/height 속성으로 Layout Shift를 방지한다.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot viewport"></div>
+          <div class="timeline-title">뷰포트 접근 감지</div>
+          <div class="timeline-desc">사용자가 스크롤하면 브라우저가 뷰포트에 접근하는 이미지를 감지한다. loading="lazy" 이미지의 로드가 시작된다.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot lazy"></div>
+          <div class="timeline-title">Below the fold 이미지 Lazy Load</div>
+          <div class="timeline-desc">스크롤 아래 이미지에만 lazy 적용. 초기 로딩 시간을 줄이고 대역폭을 절약한다.</div>
+          <div class="timeline-code">&lt;img src="photo.webp" loading="lazy" alt="..." width="800" height="600"&gt;</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot loaded"></div>
+          <div class="timeline-title">이미지 디코딩 및 렌더링 완료</div>
+          <div class="timeline-desc">플레이스홀더(LQIP, BlurHash, 스켈레톤)가 실제 이미지로 교체된다. 전환 애니메이션으로 부드럽게 표시.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning box -->
+    <div style="margin-top:24px; padding:20px 24px; background:var(--bg-card); border:1px solid var(--border); border-left:3px solid var(--danger); border-radius:var(--radius-sm);">
+      <div style="font-size:0.9rem;font-weight:600;color:var(--danger);margin-bottom:6px">LCP 이미지에 lazy 적용 금지</div>
+      <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7">LCP 이미지에 <code style="background:var(--bg-elevated);padding:2px 6px;border-radius:3px;font-family:var(--font-mono);font-size:0.8rem">loading="lazy"</code>를 적용하면 오히려 LCP가 악화된다. Above the fold 이미지는 반드시 <code style="background:var(--bg-elevated);padding:2px 6px;border-radius:3px;font-family:var(--font-mono);font-size:0.8rem">loading="eager"</code>(기본값)을 유지한다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ srcset Demo ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Responsive Images</span>
+    <h2 class="section-title">srcset 반응형 이미지 데모</h2>
+    <p class="section-desc">브라우저가 디바이스 해상도와 뷰포트 크기에 따라 최적의 이미지를 자동 선택한다. 디바이스별 선택되는 이미지 크기를 확인한다.</p>
+
+    <div class="srcset-demo">
+      <div class="srcset-tabs">
+        <button class="srcset-tab active" onclick="setSrcset('mobile')">모바일 (400w)</button>
+        <button class="srcset-tab" onclick="setSrcset('tablet')">태블릿 (800w)</button>
+        <button class="srcset-tab" onclick="setSrcset('desktop')">데스크톱 (1200w)</button>
+        <button class="srcset-tab" onclick="setSrcset('retina')">Retina (1920w)</button>
+      </div>
+      <div class="srcset-preview">
+        <div class="srcset-device" id="srcsetDevice">
+          <div class="srcset-screen" id="srcsetScreen" style="width:180px;height:320px;">
+            <div class="srcset-img-placeholder" id="srcsetImg" style="width:90%;height:60%"></div>
+            <div class="res-label" id="srcsetRes">400w</div>
+          </div>
+          <div class="srcset-info">
+            선택된 파일: <span class="srcset-file-size" id="srcsetSize">photo-400w.webp (15KB)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code example -->
+    <div style="margin-top:16px; padding:20px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); font-family:var(--font-mono); font-size:0.78rem; color:var(--text-secondary); overflow-x:auto; line-height:1.7;">
+      <span style="color:var(--text-muted)">&lt;</span><span style="color:var(--danger)">picture</span><span style="color:var(--text-muted)">&gt;</span><br>
+      &nbsp;&nbsp;<span style="color:var(--text-muted)">&lt;</span><span style="color:var(--danger)">source</span> <span style="color:var(--purple)">srcset</span>=<span style="color:var(--success)">"hero.avif"</span> <span style="color:var(--purple)">type</span>=<span style="color:var(--success)">"image/avif"</span><span style="color:var(--text-muted)">&gt;</span><br>
+      &nbsp;&nbsp;<span style="color:var(--text-muted)">&lt;</span><span style="color:var(--danger)">source</span> <span style="color:var(--purple)">srcset</span>=<span style="color:var(--success)">"hero.webp"</span> <span style="color:var(--purple)">type</span>=<span style="color:var(--success)">"image/webp"</span><span style="color:var(--text-muted)">&gt;</span><br>
+      &nbsp;&nbsp;<span style="color:var(--text-muted)">&lt;</span><span style="color:var(--danger)">img</span> <span style="color:var(--purple)">src</span>=<span style="color:var(--success)">"hero.jpg"</span> <span style="color:var(--purple)">alt</span>=<span style="color:var(--success)">"..."</span> <span style="color:var(--purple)">width</span>=<span style="color:var(--success)">"1920"</span> <span style="color:var(--purple)">height</span>=<span style="color:var(--success)">"1080"</span><span style="color:var(--text-muted)">&gt;</span><br>
+      <span style="color:var(--text-muted)">&lt;/</span><span style="color:var(--danger)">picture</span><span style="color:var(--text-muted)">&gt;</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Alt Text ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Accessibility</span>
+    <h2 class="section-title">alt 텍스트 작성 예시</h2>
+    <p class="section-desc">WCAG 1.1.1은 모든 비텍스트 콘텐츠에 텍스트 대안을 요구한다. WebAIM 조사에서 alt 텍스트 부재/부적절이 58%의 홈페이지에서 발견되었다.</p>
+
+    <div class="alt-grid">
+      <div class="alt-card">
+        <div class="alt-card-header bad">Bad &mdash; 잘못된 alt 텍스트</div>
+        <div class="alt-example">
+          <div class="alt-type">정보 전달 이미지</div>
+          <div class="alt-code bad">alt="차트"</div>
+        </div>
+        <div class="alt-example">
+          <div class="alt-type">기능적 이미지</div>
+          <div class="alt-code bad">alt="돋보기 아이콘의 이미지"</div>
+        </div>
+        <div class="alt-example">
+          <div class="alt-type">장식적 이미지</div>
+          <div class="alt-code bad">alt="배경 이미지"</div>
+        </div>
+        <div class="alt-example">
+          <div class="alt-type">텍스트 이미지</div>
+          <div class="alt-code bad">alt="쿠폰"</div>
+        </div>
+      </div>
+      <div class="alt-card">
+        <div class="alt-card-header good">Good &mdash; 올바른 alt 텍스트</div>
+        <div class="alt-example">
+          <div class="alt-type">정보 전달 이미지</div>
+          <div class="alt-code good">alt="2025년 매출 추이: 1분기 대비 4분기 23% 증가"</div>
+        </div>
+        <div class="alt-example">
+          <div class="alt-type">기능적 이미지</div>
+          <div class="alt-code good">alt="검색"</div>
+        </div>
+        <div class="alt-example">
+          <div class="alt-type">장식적 이미지</div>
+          <div class="alt-code good">alt=""</div>
+        </div>
+        <div class="alt-example">
+          <div class="alt-type">텍스트 이미지</div>
+          <div class="alt-code good">alt="30% 할인 쿠폰 - 코드: SAVE30"</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alt text rules -->
+    <div style="margin-top:24px; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;">
+      <div style="padding:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px">"~의 이미지" 불필요</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary)">스크린 리더가 이미 "이미지"라고 안내함</div>
+      </div>
+      <div style="padding:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px">핵심 정보를 앞에</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary)">중요한 내용부터 기술</div>
+      </div>
+      <div style="padding:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px">1-2문장 이내</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary)">125자 이내 권장</div>
+      </div>
+      <div style="padding:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px">맥락 반영</div>
+        <div style="font-size:0.78rem;color:var(--text-secondary)">같은 사진이라도 페이지 맥락에 따라 다른 alt</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Placeholder Strategies ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Placeholders</span>
+    <h2 class="section-title">플레이스홀더 전략 데모</h2>
+    <p class="section-desc">이미지 로딩 중 빈 공간이나 깜빡임을 방지하는 기법. 상황에 따라 적합한 전략이 다르다.</p>
+
+    <div class="placeholder-grid">
+      <div class="ph-card">
+        <div class="ph-preview">
+          <div class="ph-blur"></div>
+          <div class="ph-blur-overlay">blur-up 효과</div>
+        </div>
+        <div class="ph-info">
+          <h4>LQIP (Blur-up)</h4>
+          <p>극소 해상도(20-40px) 이미지를 블러 처리. 사진 중심 레이아웃에 적합.</p>
+        </div>
+      </div>
+      <div class="ph-card">
+        <div class="ph-preview">
+          <div class="ph-lqip"></div>
+          <div style="position:relative;z-index:1;font-size:0.7rem;color:rgba(255,255,255,0.5)">BlurHash</div>
+        </div>
+        <div class="ph-info">
+          <h4>BlurHash</h4>
+          <p>4x3 해시 문자열로 블러 이미지 생성. 모바일 앱에서 최소 데이터로 표현.</p>
+        </div>
+      </div>
+      <div class="ph-card">
+        <div class="ph-preview ph-solid">
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">주요 색상 추출</div>
+        </div>
+        <div class="ph-info">
+          <h4>단색 배경</h4>
+          <p>이미지 주요 색상 추출 후 배경 사용. 갤러리, 카드에 적합.</p>
+        </div>
+      </div>
+      <div class="ph-card">
+        <div class="ph-preview ph-skeleton"></div>
+        <div class="ph-info">
+          <h4>스켈레톤 Shimmer</h4>
+          <p>이미지 영역에 shimmer 애니메이션. 피드, 리스트에 적합.</p>
+        </div>
+      </div>
+      <div class="ph-card">
+        <div class="ph-preview" style="background:var(--bg-elevated); display:flex; align-items:center; justify-content:center; border-bottom:1px solid var(--border);">
+          <div style="width:90%;height:80%;border:2px dashed var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--text-muted)">width x height</div>
+        </div>
+        <div class="ph-info">
+          <h4>고정 영역 (w/h)</h4>
+          <p>이미지 크기 미리 지정으로 Layout Shift 방지. 모든 이미지에 필수.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ Stock Photo Anti-Patterns ═══════════ -->
+<section>
+  <div class="page">
+    <span class="section-label">Anti-Patterns</span>
+    <h2 class="section-title">스톡 사진 안티패턴 갤러리</h2>
+    <p class="section-desc">모든 B2B/SaaS 사이트에서 반복적으로 등장하는 스톡 사진 클리셰. 차별화 불가능한 이미지를 실제 콘텐츠로 대체한다.</p>
+
+    <div class="stock-grid">
+      <div class="stock-card">
+        <div class="stock-preview" style="font-size:1.8rem">
+          <span>&#129309;</span>
+          <span class="x-mark">X</span>
+        </div>
+        <div class="stock-info">
+          <div class="stock-cliche">악수하는 비즈니스맨</div>
+          <div class="stock-problem">모든 B2B 사이트에서 사용, 차별화 불가</div>
+          <div class="stock-alternative">대안: 실제 팀/오피스 사진</div>
+        </div>
+      </div>
+      <div class="stock-card">
+        <div class="stock-preview" style="font-size:1.8rem">
+          <span>&#127911;</span>
+          <span class="x-mark">X</span>
+        </div>
+        <div class="stock-info">
+          <div class="stock-cliche">헤드셋 쓴 고객 지원</div>
+          <div class="stock-problem">진부하고 인위적</div>
+          <div class="stock-alternative">대안: 실제 지원 과정 캡처</div>
+        </div>
+      </div>
+      <div class="stock-card">
+        <div class="stock-preview" style="font-size:1.8rem">
+          <span>&#128187;</span>
+          <span class="x-mark">X</span>
+        </div>
+        <div class="stock-info">
+          <div class="stock-cliche">노트북 든 행복한 사람</div>
+          <div class="stock-problem">모든 SaaS 랜딩에서 사용</div>
+          <div class="stock-alternative">대안: 제품 스크린샷 + 일러스트</div>
+        </div>
+      </div>
+      <div class="stock-card">
+        <div class="stock-preview" style="font-size:1.8rem">
+          <span>&#127758;</span>
+          <span class="x-mark">X</span>
+        </div>
+        <div class="stock-info">
+          <div class="stock-cliche">지구본/네트워크 그래픽</div>
+          <div class="stock-problem">"글로벌" 표현의 남용</div>
+          <div class="stock-alternative">대안: 실제 서비스 지역 지도</div>
+        </div>
+      </div>
+      <div class="stock-card">
+        <div class="stock-preview" style="font-size:1.8rem">
+          <span>&#128172;</span>
+          <span class="x-mark">X</span>
+        </div>
+        <div class="stock-info">
+          <div class="stock-cliche">화이트보드 브레인스토밍</div>
+          <div class="stock-problem">연출감 과다</div>
+          <div class="stock-alternative">대안: 실제 작업 환경 촬영</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Style consistency warning -->
+    <div style="margin-top:24px; padding:20px 24px; background:var(--bg-card); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:var(--radius-sm);">
+      <div style="font-size:0.9rem;font-weight:600;color:var(--warning);margin-bottom:6px">스타일 불일치 주의</div>
+      <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7">
+        <span style="color:var(--danger);font-weight:600">BAD:</span> 같은 페이지에 사실적 사진 + 플랫 일러스트 + 3D 렌더링 혼재<br>
+        <span style="color:var(--success);font-weight:600">GOOD:</span> 전체 제품에서 하나의 일러스트 스타일(선 굵기, 색상 팔레트, 원근법) 통일
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ References ═══════════ -->
+<section>
+  <div class="page">
+    <div class="references">
+      <h4>참고 문헌</h4>
+      <ul>
+        <li><a href="https://www.w3.org/WAI/tutorials/images/" target="_blank">W3C WAI &mdash; Images Tutorial</a></li>
+        <li><a href="https://www.w3.org/WAI/tutorials/images/decision-tree/" target="_blank">W3C WAI &mdash; An alt Decision Tree</a></li>
+        <li><a href="https://web.dev/articles/browser-level-image-lazy-loading" target="_blank">web.dev &mdash; Browser-level Image Lazy Loading</a></li>
+        <li><a href="https://www.debugbear.com/blog/image-optimization-web-performance" target="_blank">DebugBear &mdash; Optimizing Images for Web Performance</a></li>
+        <li><a href="https://requestmetrics.com/web-performance/high-performance-images/" target="_blank">Request Metrics &mdash; High Performance Images Guide</a></li>
+        <li><a href="https://web.dev/articles/lcp" target="_blank">web.dev &mdash; Largest Contentful Paint</a></li>
+        <li><a href="https://tiny-img.com/blog/best-image-size-for-website/" target="_blank">Tiny-img &mdash; Best Image Size for Website</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="page">
+    <p>Image & Illustration &mdash; Design Foundations &middot; 2026-03-30</p>
+  </div>
+</footer>
+
+<script>
+// ─── Decision Tree ───
+const treeSteps = [
+  { q:'표현하려는 대상이 실물(제품, 사람, 장소)인가?', yes:'photo1', no:1 },
+  { q:'추상적 개념(보안, 클라우드, AI 등)을 표현하는가?', yes:'illust1', no:2 },
+  { q:'프로세스나 단계를 시각화하는가?', yes:'illust2', no:3 },
+  { q:'빈 상태(Empty State)나 에러 상태인가?', yes:'illust3', no:4 },
+  { q:'사용자 생성 콘텐츠(아바타, 리뷰 등)인가?', yes:'photo2', no:5 },
+  { q:'브랜드 고유의 시각적 정체성을 구축하려는가?', yes:'illust4', no:'photo3' }
+];
+const treeResults = {
+  photo1: { type:'photo', title:'사진 사용 권장', desc:'실제 제품/사람/장소는 사진이 신뢰감과 현장감을 전달한다.' },
+  photo2: { type:'photo', title:'사진 사용 권장', desc:'사용자 생성 콘텐츠는 실제 이미지가 진정성을 전달한다.' },
+  photo3: { type:'photo', title:'사진 사용 권장 (기본)', desc:'특별한 조건이 없다면 실제 콘텐츠 사진이 가장 자연스럽다.' },
+  illust1: { type:'illust', title:'일러스트 사용 권장', desc:'추상 개념은 사진으로 표현하기 어렵다. 일러스트로 시각화한다.' },
+  illust2: { type:'illust', title:'일러스트 사용 권장', desc:'프로세스와 워크플로우는 다이어그램/일러스트가 효과적이다.' },
+  illust3: { type:'illust', title:'일러스트 사용 권장', desc:'빈 상태와 에러 상태는 가벼운 일러스트가 사용자에게 친근하다.' },
+  illust4: { type:'illust', title:'일러스트 사용 권장', desc:'고유한 일러스트 스타일은 브랜드 차별화에 효과적이다.' }
+};
+let currentStep = 0;
+let history = [];
+
+function renderTree() {
+  const container = document.getElementById('decisionTree');
+  if (typeof currentStep === 'number') {
+    const step = treeSteps[currentStep];
+    let historyHTML = history.length > 0 ? '<div class="tree-history">' + history.map(h => `<span class="tree-history-item">${h}</span>`).join('') + '</div>' : '';
+    container.innerHTML = `
+      ${historyHTML}
+      <div class="tree-question"><span class="step-num">${currentStep + 1}</span>${step.q}</div>
+      <div class="tree-buttons">
+        <button class="tree-btn yes" onclick="answerTree(true)">예</button>
+        <button class="tree-btn no" onclick="answerTree(false)">아니오</button>
+      </div>
+    `;
+  } else {
+    const result = treeResults[currentStep];
+    let historyHTML = '<div class="tree-history">' + history.map(h => `<span class="tree-history-item">${h}</span>`).join('') + '</div>';
+    container.innerHTML = `
+      ${historyHTML}
+      <div class="tree-result ${result.type}">
+        ${result.title}
+        <div class="desc">${result.desc}</div>
+      </div>
+      <button class="tree-restart" onclick="restartTree()">처음부터 다시</button>
+    `;
+  }
+}
+
+function answerTree(yes) {
+  const step = treeSteps[currentStep];
+  history.push((yes ? 'YES' : 'NO') + ': ' + step.q.substring(0, 20) + '...');
+  currentStep = yes ? step.yes : step.no;
+  renderTree();
+}
+
+function restartTree() {
+  currentStep = 0;
+  history = [];
+  renderTree();
+}
+renderTree();
+
+// ─── srcset Demo ───
+const srcsetConfigs = {
+  mobile: { w:180, h:320, imgW:'90%', imgH:'60%', res:'400w', size:'photo-400w.webp (15KB)', borderRadius:'16px' },
+  tablet: { w:300, h:220, imgW:'92%', imgH:'65%', res:'800w', size:'photo-800w.webp (45KB)', borderRadius:'12px' },
+  desktop: { w:440, h:260, imgW:'94%', imgH:'70%', res:'1200w', size:'photo-1200w.webp (85KB)', borderRadius:'8px' },
+  retina: { w:500, h:300, imgW:'96%', imgH:'75%', res:'1920w', size:'photo-1920w.webp (150KB)', borderRadius:'8px' }
+};
+
+function setSrcset(mode) {
+  document.querySelectorAll('.srcset-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  const cfg = srcsetConfigs[mode];
+  const screen = document.getElementById('srcsetScreen');
+  const img = document.getElementById('srcsetImg');
+  screen.style.width = cfg.w + 'px';
+  screen.style.height = cfg.h + 'px';
+  screen.style.borderRadius = cfg.borderRadius;
+  img.style.width = cfg.imgW;
+  img.style.height = cfg.imgH;
+  document.getElementById('srcsetRes').textContent = cfg.res;
+  document.getElementById('srcsetSize').textContent = cfg.size;
+}
+</script>
+</body>
+</html>

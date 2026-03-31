@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>간격 시스템 — Design Foundations</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+  --accent-glow:rgba(232,150,90,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1280px;margin:0 auto;padding:0 24px}
+section{padding:80px 0}section+section{border-top:1px solid var(--border)}
+
+/* HERO */
+.hero{padding:60px 0 80px;text-align:center;
+  background:radial-gradient(ellipse at 50% 0%,rgba(232,150,90,0.08) 0%,transparent 60%)}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+.hero h1{font-size:clamp(2.5rem,5vw+1rem,4.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px}
+.hero p{font-size:1.125rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+
+/* SECTION */
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:1rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:48px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;transition:var(--transition)}
+.card:hover{border-color:var(--border2)}
+.card-title{font-size:1.125rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* SPACING BAR */
+.space-bar-row{display:flex;align-items:center;gap:16px;padding:8px 0;border-bottom:1px solid var(--border)}
+.space-bar-row:last-child{border-bottom:none}
+.space-bar-label{flex:0 0 80px;font-size:12px;font-weight:600;color:var(--accent);font-family:monospace}
+.space-bar-val{flex:0 0 48px;font-size:12px;color:var(--text3);text-align:right}
+.space-bar{height:24px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0.7;
+  transition:var(--transition);min-width:2px}
+.space-bar-row:hover .space-bar{opacity:1}
+.space-bar-use{flex:1;font-size:12px;color:var(--text3);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* GRID OVERLAY */
+.grid-demo-area{
+  position:relative;width:100%;height:320px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+}
+.grid-overlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity var(--transition)}
+.grid-overlay.visible{opacity:1}
+.grid-overlay .g-line{position:absolute;background:rgba(232,150,90,0.08)}
+.grid-overlay .g-line.major{background:rgba(232,150,90,0.15)}
+
+/* NEGATIVE SPACE */
+.ns-demo{display:flex;gap:24px}
+.ns-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.ns-card .ns-header{padding:var(--ns-pad,16px);background:var(--surface2);font-weight:600;font-size:14px}
+.ns-card .ns-body{padding:var(--ns-pad,16px);font-size:13px;color:var(--text2);line-height:1.7}
+.ns-card .ns-footer{padding:var(--ns-pad,16px);border-top:1px solid var(--border);font-size:12px;color:var(--text3)}
+
+/* DENSITY */
+.density-demo{display:flex;gap:16px}
+.density-col{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.density-col .d-label{padding:8px 12px;background:var(--surface2);font-size:11px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;text-align:center}
+.density-item{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.density-item:last-child{border-bottom:none}
+.density-item .d-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-dim);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent)}
+.density-item .d-text{font-size:13px;min-width:0}
+.density-item .d-sub{font-size:11px;color:var(--text3)}
+
+/* TOUCH TARGET */
+.tt-compare{display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap;padding:32px 0}
+.tt-box{text-align:center}
+.tt-target{
+  display:flex;align-items:center;justify-content:center;border-radius:var(--radius);
+  border:2px dashed var(--accent);position:relative;margin:0 auto 8px;
+  background:var(--accent-dim);
+}
+.tt-target .inner{
+  background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:11px;font-weight:700;
+}
+.tt-label{font-size:12px;color:var(--text2);font-weight:600}
+.tt-size{font-size:11px;color:var(--text3)}
+
+/* PLAYGROUND */
+.pg-preview{
+  display:flex;align-items:center;justify-content:center;min-height:200px;
+  background:var(--bg2);border-radius:var(--radius);border:1px dashed var(--border);
+}
+.pg-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  transition:var(--transition);max-width:320px;width:100%;
+}
+.pg-card-title{font-size:15px;font-weight:600}
+.pg-card-text{font-size:13px;color:var(--text2);line-height:1.6}
+.pg-card-btn{
+  display:inline-block;padding:8px 20px;background:var(--accent);color:#fff;
+  border-radius:var(--radius-sm);font-size:13px;font-weight:600;
+}
+.pg-controls{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px}
+.pg-control{display:flex;flex-direction:column;gap:4px}
+.pg-control label{font-size:12px;color:var(--text2);font-weight:500}
+.pg-control input[type="range"]{
+  -webkit-appearance:none;width:140px;height:4px;background:var(--border);border-radius:2px;outline:none;
+}
+.pg-control input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;
+}
+.control-value{
+  display:inline-block;min-width:40px;padding:2px 8px;background:var(--surface2);
+  border-radius:var(--radius-sm);font-size:11px;font-weight:600;color:var(--accent);text-align:center;
+}
+
+/* GESTALT */
+.gestalt-demo{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap}
+.gestalt-group{display:flex;flex-direction:column;align-items:center}
+.gestalt-item{
+  width:64px;height:32px;background:var(--accent-dim);border:1px solid var(--accent);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--accent);font-weight:600;
+}
+
+/* ANTI-PATTERNS */
+.ap-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:700px){.ap-grid{grid-template-columns:1fr}}
+.ap-card{padding:24px;border-radius:var(--radius);border:1px solid}
+.ap-card.bad{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.04)}
+.ap-card.good{border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.04)}
+.ap-card .ap-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+.ap-card.bad .ap-label{color:var(--error)}.ap-card.good .ap-label{color:var(--success)}
+
+/* AUDIT */
+.audit-demo{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;overflow:hidden}
+.audit-callout{
+  position:absolute;display:flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;color:var(--accent);white-space:nowrap;
+  pointer-events:none;
+}
+.audit-callout .line{height:1px;background:var(--accent);flex-shrink:0}
+.audit-callout .val{padding:2px 6px;background:var(--accent-dim);border-radius:4px}
+
+.fig-caption{font-size:13px;color:var(--text3);text-align:center;margin-top:12px;font-style:italic}
+.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}
+.mb-16{margin-bottom:16px}.mb-24{margin-bottom:24px}.mb-32{margin-bottom:32px}
+.text-accent{color:var(--accent)}.text-muted{color:var(--text2)}
+
+@media(max-width:600px){
+  .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
+  .ns-demo,.density-demo{flex-direction:column}
+  .tt-compare{gap:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<header class="hero">
+  <div class="hero-badge">Design Foundations v0.3</div>
+  <h1>간격 시스템<br>& 레이아웃</h1>
+  <p>4px/8px 베이스 그리드, 스페이싱 토큰, 네거티브 스페이스, 콘텐츠 밀도, 터치 타겟 -- 간격과 레이아웃의 모든 것을 인터랙티브하게 탐색합니다.</p>
+</header>
+
+<!-- PRINCIPLES -->
+<section id="principles">
+  <div class="section-label">Principles</div>
+  <div class="section-title">4가지 간격 원칙</div>
+  <p class="section-desc">NNGroup, Material Design, 게슈탈트 심리학에서 도출한 핵심 원칙입니다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>일관된 간격 체계</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.7">모든 간격 값은 기본 단위의 배수로 제한한다. 13px vs 15px를 고민할 필요 없이 8px 또는 16px 중 선택. 선택지를 제한해야 계층 구조와 인터랙션에 집중 가능.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>여백은 디자인 도구</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.7">여백은 "비어있는 공간"이 아니라 정보 계층을 구성하는 능동적 도구. NNGroup 연구에서 마이크로/매크로 여백이 모두 부족하면 <strong class="text-accent">1.5배</strong> 더 많은 시간을 써서 정보를 찾음.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>내부 간격 &le; 외부 간격</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.7">관련 요소 간 내부 간격(padding)은 비관련 요소 간 외부 간격(margin)보다 작아야 한다. 게슈탈트 근접성 원칙: 가까이 있는 요소는 관련된 것으로 인식.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>그리드 기반 정렬</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.7">그리드는 사용자의 스캔 용이성을 향상시킨다. 정렬이 무너진 UI는 "대충 만든" 인상 -- 브랜드 신뢰도에 직접 영향.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GRID SYSTEM -->
+<section id="grid-system">
+  <div class="section-label">Grid</div>
+  <div class="section-title">4px / 8px 베이스 그리드</div>
+  <p class="section-desc">4px 단위는 미세 조정, 8px 단위는 대부분의 레이아웃에 사용. 오버레이 토글로 그리드를 확인하세요.</p>
+
+  <div class="card mb-32">
+    <div style="display:flex;gap:12px;margin-bottom:16px">
+      <button id="gridToggle4" onclick="toggleGrid(4)" style="padding:8px 16px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)">4px 그리드</button>
+      <button id="gridToggle8" onclick="toggleGrid(8)" style="padding:8px 16px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)">8px 그리드</button>
+      <button onclick="toggleGrid(0)" style="padding:8px 16px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)">숨기기</button>
+    </div>
+    <div class="grid-demo-area" id="gridDemoArea">
+      <div class="grid-overlay" id="gridOverlay"></div>
+      <!-- sample UI elements -->
+      <div style="position:absolute;top:24px;left:24px;right:24px;display:flex;gap:16px">
+        <div style="flex:1;height:120px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);padding:16px">
+          <div style="width:60%;height:14px;background:var(--border);border-radius:4px;margin-bottom:8px"></div>
+          <div style="width:80%;height:10px;background:var(--border);border-radius:3px;margin-bottom:6px;opacity:0.5"></div>
+          <div style="width:50%;height:10px;background:var(--border);border-radius:3px;opacity:0.3"></div>
+        </div>
+        <div style="flex:1;height:120px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);padding:16px">
+          <div style="width:70%;height:14px;background:var(--border);border-radius:4px;margin-bottom:8px"></div>
+          <div style="width:90%;height:10px;background:var(--border);border-radius:3px;margin-bottom:6px;opacity:0.5"></div>
+          <div style="width:40%;height:10px;background:var(--border);border-radius:3px;opacity:0.3"></div>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:24px;left:24px;right:24px;height:80px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);padding:16px;display:flex;align-items:center;gap:12px">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--accent-dim);flex-shrink:0"></div>
+        <div style="flex:1"><div style="width:40%;height:12px;background:var(--border);border-radius:3px;margin-bottom:6px"></div><div style="width:70%;height:10px;background:var(--border);border-radius:3px;opacity:0.4"></div></div>
+        <div style="width:64px;height:32px;background:var(--accent);border-radius:8px;opacity:0.7"></div>
+      </div>
+    </div>
+  </div>
+  <p class="fig-caption">그림 1. 4px/8px 베이스 그리드 오버레이 — 토글로 UI 요소가 그리드에 정렬되는지 확인</p>
+
+  <div class="mt-48">
+    <div class="card-title mb-16"><span class="dot"></span>MD3 윈도우 크기 클래스</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>크기 클래스</th><th>브레이크포인트</th><th>컬럼 수</th><th>마진</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Compact</strong></td><td>&lt; 600dp</td><td>4</td><td>16dp</td></tr>
+          <tr><td><strong>Medium</strong></td><td>600dp ~ 839dp</td><td>8</td><td>24dp</td></tr>
+          <tr><td><strong>Expanded</strong></td><td>840dp ~ 1199dp</td><td>12</td><td>24dp</td></tr>
+          <tr><td><strong>Large</strong></td><td>1200dp ~ 1599dp</td><td>12</td><td>24~40dp</td></tr>
+          <tr><td><strong>Extra-large</strong></td><td>&ge; 1600dp</td><td>12</td><td>40dp</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-32">
+    <div class="card-title mb-16"><span class="dot"></span>Apple HIG 레이아웃 마진</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>디바이스</th><th>최대 콘텐츠 너비</th><th>수평 마진</th></tr></thead>
+        <tbody>
+          <tr><td><strong>iPhone</strong></td><td>화면 87.5%</td><td>좌우 각 약 6.25%</td></tr>
+          <tr><td><strong>iPad</strong></td><td>692px</td><td>자동 센터링</td></tr>
+          <tr><td><strong>Desktop</strong></td><td>980px</td><td>자동 센터링</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TOKEN SCALE -->
+<section id="token-scale">
+  <div class="section-label">Tokens</div>
+  <div class="section-title">스페이싱 토큰 스케일</div>
+  <p class="section-desc">space-0(0px)부터 space-10(80px)까지 11단계. MD3 마진/거터는 8, 16, 24, 40dp 중 하나를 사용한다.</p>
+
+  <div class="card" id="tokenScale"></div>
+  <p class="fig-caption">그림 2. 스페이싱 토큰 시각 스케일 — 각 토큰 값을 비례 바로 표시 (hover 시 하이라이트)</p>
+</section>
+
+<!-- NEGATIVE SPACE -->
+<section id="negative-space">
+  <div class="section-label">Whitespace</div>
+  <div class="section-title">네거티브 스페이스 데모</div>
+  <p class="section-desc">동일한 콘텐츠에 서로 다른 여백을 적용하면 "답답함"과 "여유"가 극명하게 달라진다. 마이크로 + 매크로 여백이 모두 필요.</p>
+
+  <div class="ns-demo">
+    <div class="ns-card" style="--ns-pad:6px">
+      <div class="ns-header">마이크로 여백 부족 (6px)</div>
+      <div class="ns-body">콘텐츠가 경계에 너무 가깝다. 텍스트가 답답하게 느껴지고, 정보 계층이 모호해진다. 사용자는 읽기를 포기할 수 있다.</div>
+      <div class="ns-footer">Footer — 2026.03.30</div>
+    </div>
+    <div class="ns-card" style="--ns-pad:16px">
+      <div class="ns-header">기본 여백 (16px)</div>
+      <div class="ns-body">적절한 패딩으로 콘텐츠가 숨 쉴 공간을 확보한다. 텍스트 가독성이 향상되고 카드 구조가 명확해진다.</div>
+      <div class="ns-footer">Footer — 2026.03.30</div>
+    </div>
+    <div class="ns-card" style="--ns-pad:32px">
+      <div class="ns-header">여유 여백 (32px)</div>
+      <div class="ns-body">넉넉한 여백은 프리미엄 느낌을 준다. 고급 브랜드나 에디토리얼 레이아웃에 적합하다. 정보 밀도가 낮아진다.</div>
+      <div class="ns-footer">Footer — 2026.03.30</div>
+    </div>
+  </div>
+  <p class="fig-caption">그림 3. 네거티브 스페이스 비교 — 동일 콘텐츠에 6px, 16px, 32px 패딩 적용</p>
+
+  <div class="mt-32 table-wrap">
+    <table>
+      <thead><tr><th>유형</th><th>설명</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td><strong>마이크로 여백</strong></td><td>요소 내부/사이의 작은 공간</td><td>버튼 패딩 12px, 리스트 아이템 간 8px</td></tr>
+        <tr><td><strong>매크로 여백</strong></td><td>콘텐츠 블록 간 큰 공간</td><td>섹션 간 64px, 히어로 상하 80px</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CONTENT DENSITY -->
+<section id="density">
+  <div class="section-label">Density</div>
+  <div class="section-title">콘텐츠 밀도 (Content Density)</div>
+  <p class="section-desc">Compact / Default / Comfortable 세 밀도를 나란히 비교합니다. Gmail이 대표 사례로 사용자가 직접 선택 가능.</p>
+
+  <div class="density-demo" id="densityDemo">
+    <div class="density-col" id="densityCompact">
+      <div class="d-label">Compact (32~40dp)</div>
+    </div>
+    <div class="density-col" id="densityDefault">
+      <div class="d-label">Default (48~56dp)</div>
+    </div>
+    <div class="density-col" id="densityComfortable">
+      <div class="d-label">Comfortable (64~72dp)</div>
+    </div>
+  </div>
+  <p class="fig-caption">그림 4. 콘텐츠 밀도 3단계 — 동일 데이터를 Compact, Default, Comfortable로 표시</p>
+
+  <div class="mt-32 table-wrap">
+    <table>
+      <thead><tr><th>밀도</th><th>행 높이</th><th>패딩</th><th>적합한 맥락</th><th>사용자 행동</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Compact</strong></td><td>32~40dp</td><td>4~8dp</td><td>데이터 테이블, 전문가 대시보드</td><td>빠른 스캔, 대량 비교</td></tr>
+        <tr><td><strong>Default</strong></td><td>48~56dp</td><td>12~16dp</td><td>일반 앱, 이커머스, 피드</td><td>편안한 읽기, 탐색</td></tr>
+        <tr><td><strong>Comfortable</strong></td><td>64~72dp</td><td>16~24dp</td><td>온보딩, 설정, 접근성 우선</td><td>여유로운 터치</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-32 card">
+    <div class="card-title"><span class="dot"></span>밀도 결정 기준 플로우차트</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;padding:16px;background:var(--bg2);border-radius:var(--radius);font-family:monospace">
+      한 화면에서 10개 이상 항목을 비교해야 하는가?<br>
+      ├─ Yes → <span class="text-accent">Compact</span> 기본, Default 옵션 제공<br>
+      └─ No<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;├─ 터치 디바이스가 주 입력인가?<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ Yes → <span class="text-accent">Default</span> 기본 (터치 타겟 48dp 보장)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;└─ No (마우스/키보드) → Compact도 허용<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;└─ 접근성이 최우선인가?<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Yes → <span class="text-accent">Comfortable</span> 기본
+    </div>
+  </div>
+</section>
+
+<!-- TOUCH TARGET -->
+<section id="touch-target">
+  <div class="section-label">Touch Target</div>
+  <div class="section-title">터치 타겟 크기 비교</div>
+  <p class="section-desc">Apple 44pt vs Material 48dp vs WCAG 24px. MIT Touch Lab 연구: 성인 손가락 끝 평균 16~20mm.</p>
+
+  <div class="card mb-32">
+    <div class="tt-compare">
+      <div class="tt-box">
+        <div class="tt-target" style="width:96px;height:96px">
+          <div class="inner" style="width:88px;height:88px">48dp</div>
+        </div>
+        <div class="tt-label">Material Design</div>
+        <div class="tt-size">48 x 48dp (~9mm)</div>
+      </div>
+      <div class="tt-box">
+        <div class="tt-target" style="width:88px;height:88px">
+          <div class="inner" style="width:80px;height:80px">44pt</div>
+        </div>
+        <div class="tt-label">Apple HIG</div>
+        <div class="tt-size">44 x 44pt</div>
+      </div>
+      <div class="tt-box">
+        <div class="tt-target" style="width:64px;height:64px">
+          <div class="inner" style="width:48px;height:48px;font-size:10px">24px</div>
+        </div>
+        <div class="tt-label">WCAG 2.2 AA</div>
+        <div class="tt-size">24 x 24 CSS px</div>
+      </div>
+      <div class="tt-box">
+        <div class="tt-target" style="width:88px;height:88px">
+          <div class="inner" style="width:80px;height:80px">44px</div>
+        </div>
+        <div class="tt-label">WCAG 2.2 AAA</div>
+        <div class="tt-size">44 x 44 CSS px</div>
+      </div>
+    </div>
+    <p class="text-muted" style="font-size:13px;text-align:center">실선 = 시각적 요소, 점선 = 실제 탭 가능 영역(히트 영역). 시각적으로 작더라도 히트 영역은 최소 크기를 충족해야 한다.</p>
+  </div>
+  <p class="fig-caption">그림 5. 플랫폼별 터치 타겟 크기 비교 — 비례 크기로 시각화</p>
+
+  <div class="table-wrap mt-32">
+    <table>
+      <thead><tr><th>플랫폼</th><th>최소 터치 타겟</th><th>권장 터치 타겟</th><th>단위</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Apple (iOS)</strong></td><td>44 x 44</td><td>44 x 44</td><td>pt (point)</td></tr>
+        <tr><td><strong>Material (Android)</strong></td><td>48 x 48</td><td>48 x 48</td><td>dp</td></tr>
+        <tr><td><strong>WCAG 2.2 AA</strong></td><td>24 x 24</td><td>-</td><td>CSS px</td></tr>
+        <tr><td><strong>WCAG 2.2 AAA</strong></td><td>44 x 44</td><td>-</td><td>CSS px</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-32 card">
+    <div class="card-title"><span class="dot"></span>WCAG 2.5.8 예외 조건 5가지</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.7">
+      <p style="margin-bottom:8px"><strong>1. 간격(Spacing):</strong> 24px 원이 인접 타겟과 겹치지 않으면 통과</p>
+      <p style="margin-bottom:8px"><strong>2. 동등 대안:</strong> 같은 페이지에 기준 충족하는 동일 기능 컨트롤이 있는 경우</p>
+      <p style="margin-bottom:8px"><strong>3. 인라인:</strong> 문장 내부에 있거나 line-height로 크기가 제한되는 경우</p>
+      <p style="margin-bottom:8px"><strong>4. 사용자 에이전트:</strong> 브라우저 기본 렌더링 컨트롤 (날짜 선택기 등)</p>
+      <p><strong>5. 필수적:</strong> 타겟 위치가 정보에 본질적인 경우 (지도 핀 등)</p>
+    </div>
+  </div>
+</section>
+
+<!-- SPACING PLAYGROUND -->
+<section id="playground">
+  <div class="section-label">Interactive</div>
+  <div class="section-title">간격 플레이그라운드</div>
+  <p class="section-desc">카드의 패딩, 마진, 요소 간격을 실시간으로 조절하여 간격이 디자인에 미치는 영향을 체험하세요.</p>
+
+  <div class="card">
+    <div class="pg-preview" id="pgPreview" style="padding:40px">
+      <div class="pg-card" id="pgCard">
+        <div class="pg-card-title" id="pgTitle">카드 제목</div>
+        <div class="pg-card-text" id="pgText">본문 텍스트입니다. 간격이 가독성과 인지에 미치는 영향을 직접 체험하세요.</div>
+        <div><span class="pg-card-btn">액션 버튼</span></div>
+      </div>
+    </div>
+    <div class="pg-controls">
+      <div class="pg-control">
+        <label>카드 패딩 <span class="control-value" id="pgPadVal">16px</span></label>
+        <input type="range" id="pgPad" min="0" max="48" value="16" step="4">
+      </div>
+      <div class="pg-control">
+        <label>요소 간격 <span class="control-value" id="pgGapVal">12px</span></label>
+        <input type="range" id="pgGap" min="0" max="40" value="12" step="4">
+      </div>
+      <div class="pg-control">
+        <label>외부 마진 <span class="control-value" id="pgMarVal">40px</span></label>
+        <input type="range" id="pgMar" min="0" max="80" value="40" step="4">
+      </div>
+      <div class="pg-control">
+        <label>Border Radius <span class="control-value" id="pgRadVal">12px</span></label>
+        <input type="range" id="pgRad" min="0" max="32" value="12" step="2">
+      </div>
+    </div>
+  </div>
+  <p class="fig-caption">그림 6. 간격 플레이그라운드 — 패딩, 간격, 마진, border-radius를 실시간 조절</p>
+</section>
+
+<!-- GESTALT PROXIMITY -->
+<section id="gestalt">
+  <div class="section-label">Gestalt</div>
+  <div class="section-title">게슈탈트 근접성 원칙</div>
+  <p class="section-desc">가까이 있는 요소는 관련된 것으로 인식된다. 간격만으로 그룹을 형성할 수 있다.</p>
+
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <div class="card-title"><span class="dot"></span>균등 간격 (그룹 불분명)</div>
+        <div class="gestalt-demo" style="gap:12px;justify-content:center">
+          <div class="gestalt-item">A</div>
+          <div class="gestalt-item">B</div>
+          <div class="gestalt-item">C</div>
+          <div class="gestalt-item">D</div>
+          <div class="gestalt-item">E</div>
+          <div class="gestalt-item">F</div>
+        </div>
+        <p class="text-muted mt-16" style="font-size:12px;text-align:center">모든 요소가 동일한 12px 간격 → 관계 인지 불가</p>
+      </div>
+      <div>
+        <div class="card-title"><span class="dot"></span>근접성 간격 (그룹 명확)</div>
+        <div class="gestalt-demo" style="gap:0;justify-content:center">
+          <div class="gestalt-group" style="gap:4px;margin-right:32px">
+            <div class="gestalt-item">A</div>
+            <div class="gestalt-item">B</div>
+          </div>
+          <div class="gestalt-group" style="gap:4px;margin-right:32px">
+            <div class="gestalt-item">C</div>
+            <div class="gestalt-item">D</div>
+          </div>
+          <div class="gestalt-group" style="gap:4px">
+            <div class="gestalt-item">E</div>
+            <div class="gestalt-item">F</div>
+          </div>
+        </div>
+        <p class="text-muted mt-16" style="font-size:12px;text-align:center">그룹 내 4px, 그룹 간 32px → 자연스러운 3그룹 인지</p>
+      </div>
+    </div>
+  </div>
+  <p class="fig-caption">그림 7. 게슈탈트 근접성 원칙 — 간격만으로 그룹이 형성되는 데모</p>
+
+  <div class="mt-32 card">
+    <div class="card-title"><span class="dot"></span>안티패턴: 카드 내부 = 카드 간 간격</div>
+    <div class="grid-2">
+      <div>
+        <div style="font-size:12px;color:var(--error);font-weight:600;margin-bottom:8px">BAD: 내부 24px = 외부 24px</div>
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div style="padding:24px;background:var(--surface2);border:1px solid var(--border);border-radius:8px">카드 A 내용</div>
+          <div style="padding:24px;background:var(--surface2);border:1px solid var(--border);border-radius:8px">카드 B 내용</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--success);font-weight:600;margin-bottom:8px">GOOD: 내부 16px &lt; 외부 32px</div>
+        <div style="display:flex;flex-direction:column;gap:32px">
+          <div style="padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px">카드 A 내용</div>
+          <div style="padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px">카드 B 내용</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYOUT AUDIT -->
+<section id="audit">
+  <div class="section-label">Audit</div>
+  <div class="section-title">레이아웃 감사 예제</div>
+  <p class="section-desc">4단계 감사 방법: 그리드 오버레이 → 간격 값 수집 → 근접성 검증 → 터치 타겟 검증.</p>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>간격 어노테이션이 포함된 UI 예제</div>
+    <div class="audit-demo" id="auditDemo" style="min-height:280px">
+      <!-- Simulated UI -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--accent-dim);flex-shrink:0"></div>
+          <div>
+            <div style="font-size:15px;font-weight:600">프로필 이름</div>
+            <div style="font-size:12px;color:var(--text3)">2분 전</div>
+          </div>
+        </div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;padding:0 0 16px;border-bottom:1px solid var(--border)">본문 콘텐츠 영역입니다. 간격 감사 시 모든 간격 값을 추출하여 5개 이상의 서로 다른 값이 나오면 체계가 무너진 것으로 판단합니다.</div>
+        <div style="display:flex;gap:8px">
+          <div style="padding:8px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600">좋아요</div>
+          <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:8px;font-size:13px">댓글</div>
+          <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:8px;font-size:13px">공유</div>
+        </div>
+      </div>
+      <!-- Annotations -->
+      <div style="position:absolute;right:32px;top:36px;display:flex;align-items:center;gap:4px">
+        <div style="width:30px;height:1px;background:var(--accent)"></div>
+        <div style="padding:2px 8px;background:var(--accent-dim);border-radius:4px;font-size:10px;font-weight:700;color:var(--accent)">gap 12px</div>
+      </div>
+      <div style="position:absolute;right:32px;top:80px;display:flex;align-items:center;gap:4px">
+        <div style="width:30px;height:1px;background:var(--accent)"></div>
+        <div style="padding:2px 8px;background:var(--accent-dim);border-radius:4px;font-size:10px;font-weight:700;color:var(--accent)">padding-bottom 16px</div>
+      </div>
+      <div style="position:absolute;right:32px;top:190px;display:flex;align-items:center;gap:4px">
+        <div style="width:30px;height:1px;background:var(--accent)"></div>
+        <div style="padding:2px 8px;background:var(--accent-dim);border-radius:4px;font-size:10px;font-weight:700;color:var(--accent)">gap 16px</div>
+      </div>
+      <div style="position:absolute;right:32px;top:240px;display:flex;align-items:center;gap:4px">
+        <div style="width:30px;height:1px;background:var(--accent)"></div>
+        <div style="padding:2px 8px;background:var(--accent-dim);border-radius:4px;font-size:10px;font-weight:700;color:var(--accent)">button gap 8px</div>
+      </div>
+    </div>
+    <div class="mt-16" style="padding:16px;background:var(--bg2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);line-height:1.7">
+      <strong>감사 결과:</strong> 사용된 간격 값 = 8px, 12px, 16px (총 3종) → <span class="text-accent">체계적</span>. 모두 4px 배수 기반.<br>
+      근접성 검증: 아바타-텍스트 12px &lt; 섹션 간 16px → <span class="text-accent">통과</span>.<br>
+      터치 타겟: 버튼 높이 약 36px → 패딩 포함 히트 영역 확인 필요.
+    </div>
+  </div>
+  <p class="fig-caption">그림 8. 레이아웃 감사 — 간격 어노테이션, 값 수집, 근접성/터치 타겟 검증 결과</p>
+</section>
+
+<!-- ANTI-PATTERNS -->
+<section id="anti-patterns">
+  <div class="section-label">Anti-Patterns</div>
+  <div class="section-title">간격 안티패턴</div>
+  <p class="section-desc">일관성 없는 간격, 과도한 밀도, 과도한 여백 — 흔한 실수와 올바른 개선 방향.</p>
+
+  <div class="ap-grid">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad — 임의의 간격 값 혼재</div>
+      <div style="display:flex;flex-direction:column">
+        <div style="padding:7px 13px;background:var(--surface);margin-bottom:5px;border-radius:4px;font-size:13px">7px 패딩 / 5px 마진</div>
+        <div style="padding:15px 11px;background:var(--surface);margin-bottom:18px;border-radius:4px;font-size:13px">15px 패딩 / 18px 마진</div>
+        <div style="padding:22px 9px;background:var(--surface);border-radius:4px;font-size:13px">22px 패딩</div>
+      </div>
+      <p style="font-size:11px;color:var(--error);margin-top:8px">5개 이상 서로 다른 간격 → 체계 무너짐</p>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good — 8px 배수 체계</div>
+      <div style="display:flex;flex-direction:column">
+        <div style="padding:8px 16px;background:var(--surface);margin-bottom:8px;border-radius:4px;font-size:13px">8px 패딩 / 8px 마진</div>
+        <div style="padding:16px;background:var(--surface);margin-bottom:16px;border-radius:4px;font-size:13px">16px 패딩 / 16px 마진</div>
+        <div style="padding:24px 16px;background:var(--surface);border-radius:4px;font-size:13px">24px 패딩</div>
+      </div>
+      <p style="font-size:11px;color:var(--success);margin-top:8px">8, 16, 24px — 모두 8px 배수</p>
+    </div>
+  </div>
+
+  <div class="ap-grid mt-24">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad — 너무 밀집 (터치 타겟 부족)</div>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div style="padding:4px 8px;background:var(--surface);border-radius:4px;font-size:12px;display:flex;align-items:center;gap:4px">
+          <span style="width:16px;height:16px;background:var(--accent-dim);border-radius:3px;flex-shrink:0"></span>항목 1
+        </div>
+        <div style="padding:4px 8px;background:var(--surface);border-radius:4px;font-size:12px;display:flex;align-items:center;gap:4px">
+          <span style="width:16px;height:16px;background:var(--accent-dim);border-radius:3px;flex-shrink:0"></span>항목 2
+        </div>
+        <div style="padding:4px 8px;background:var(--surface);border-radius:4px;font-size:12px;display:flex;align-items:center;gap:4px">
+          <span style="width:16px;height:16px;background:var(--accent-dim);border-radius:3px;flex-shrink:0"></span>항목 3
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--error);margin-top:8px">행 높이 ~24dp → 터치 에러율 25%+</p>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good — 적절한 밀도 (48dp 행 높이)</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="padding:12px 16px;background:var(--surface);border-radius:4px;font-size:13px;display:flex;align-items:center;gap:8px">
+          <span style="width:24px;height:24px;background:var(--accent-dim);border-radius:6px;flex-shrink:0"></span>항목 1
+        </div>
+        <div style="padding:12px 16px;background:var(--surface);border-radius:4px;font-size:13px;display:flex;align-items:center;gap:8px">
+          <span style="width:24px;height:24px;background:var(--accent-dim);border-radius:6px;flex-shrink:0"></span>항목 2
+        </div>
+        <div style="padding:12px 16px;background:var(--surface);border-radius:4px;font-size:13px;display:flex;align-items:center;gap:8px">
+          <span style="width:24px;height:24px;background:var(--accent-dim);border-radius:6px;flex-shrink:0"></span>항목 3
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--success);margin-top:8px">행 높이 ~48dp → 터치 타겟 충족</p>
+    </div>
+  </div>
+
+  <div class="ap-grid mt-24">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad — 라벨-필드 근접성 위반</div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text2)">이메일</div>
+        <div style="height:16px"></div>
+        <div style="padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text3)">example@mail.com</div>
+        <div style="height:12px"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--text2)">비밀번호</div>
+        <div style="height:16px"></div>
+        <div style="padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text3)">********</div>
+      </div>
+      <p style="font-size:11px;color:var(--error);margin-top:8px">라벨-필드 16px &gt; 필드-필드 12px → 라벨이 아래 필드에 더 가까움</p>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good — 올바른 근접성</div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text2)">이메일</div>
+        <div style="height:6px"></div>
+        <div style="padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text3)">example@mail.com</div>
+        <div style="height:24px"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--text2)">비밀번호</div>
+        <div style="height:6px"></div>
+        <div style="padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text3)">********</div>
+      </div>
+      <p style="font-size:11px;color:var(--success);margin-top:8px">라벨-필드 6px &lt; 필드-필드 24px → 올바른 그룹핑</p>
+    </div>
+  </div>
+  <p class="fig-caption">그림 9. 간격 안티패턴 — 임의 값 혼재, 과밀집, 근접성 위반 등 흔한 실수와 개선</p>
+</section>
+
+</div>
+
+<script>
+// Grid Overlay Toggle
+function toggleGrid(size){
+  const overlay=document.getElementById('gridOverlay');
+  const area=document.getElementById('gridDemoArea');
+  if(size===0){overlay.classList.remove('visible');return}
+  overlay.classList.add('visible');
+  const w=area.offsetWidth,h=area.offsetHeight;
+  let html='';
+  for(let x=0;x<=w;x+=size){
+    const major=x%(size*2)===0;
+    html+=`<div class="g-line${major?' major':''}" style="left:${x}px;top:0;width:1px;height:100%"></div>`;
+  }
+  for(let y=0;y<=h;y+=size){
+    const major=y%(size*2)===0;
+    html+=`<div class="g-line${major?' major':''}" style="top:${y}px;left:0;height:1px;width:100%"></div>`;
+  }
+  overlay.innerHTML=html;
+}
+
+// Spacing Token Scale
+(function(){
+  const tokens=[
+    {name:'space-0',val:0,use:'요소 간 간격 없음'},
+    {name:'space-1',val:4,use:'아이콘-텍스트 미세 간격'},
+    {name:'space-2',val:8,use:'인라인 요소 간 기본 간격'},
+    {name:'space-3',val:12,use:'컴팩트 리스트 아이템 패딩'},
+    {name:'space-4',val:16,use:'카드 내부 패딩, 섹션 간 간격'},
+    {name:'space-5',val:24,use:'섹션 타이틀과 콘텐츠 사이'},
+    {name:'space-6',val:32,use:'주요 섹션 간 구분'},
+    {name:'space-7',val:40,use:'페이지 상단/하단 여백'},
+    {name:'space-8',val:48,use:'대형 카드 간 간격'},
+    {name:'space-9',val:64,use:'페이지 레벨 구분'},
+    {name:'space-10',val:80,use:'히어로 섹션 상하 여백'},
+  ];
+  const maxVal=80;
+  const el=document.getElementById('tokenScale');
+  el.innerHTML=tokens.map(t=>`<div class="space-bar-row">
+    <span class="space-bar-label">${t.name}</span>
+    <span class="space-bar-val">${t.val}px</span>
+    <div class="space-bar" style="width:${Math.max((t.val/maxVal)*100,0.5)}%"></div>
+    <span class="space-bar-use">${t.use}</span>
+  </div>`).join('');
+})();
+
+// Content Density Demo
+(function(){
+  const items=[
+    {name:'김설계',sub:'디자인 시스템 업데이트'},
+    {name:'이개발',sub:'API 엔드포인트 수정'},
+    {name:'박기획',sub:'Q2 로드맵 초안 공유'},
+    {name:'최검증',sub:'접근성 감사 리포트'},
+    {name:'정배포',sub:'v2.4.0 릴리스 노트'},
+  ];
+  const configs={
+    Compact:{pad:'4px 8px',gap:'0px',avatar:24,fontSize:'12px'},
+    Default:{pad:'12px 16px',gap:'0px',avatar:32,fontSize:'13px'},
+    Comfortable:{pad:'18px 20px',gap:'0px',avatar:40,fontSize:'14px'},
+  };
+  ['Compact','Default','Comfortable'].forEach(d=>{
+    const c=configs[d];
+    const col=document.getElementById('density'+d);
+    items.forEach(item=>{
+      const div=document.createElement('div');
+      div.className='density-item';
+      div.style.padding=c.pad;
+      div.innerHTML=`<div class="d-avatar" style="width:${c.avatar}px;height:${c.avatar}px">${item.name[0]}</div>
+        <div><div class="d-text" style="font-size:${c.fontSize}">${item.name}</div><div class="d-sub">${item.sub}</div></div>`;
+      col.appendChild(div);
+    });
+  });
+})();
+
+// Spacing Playground
+(function(){
+  const pad=document.getElementById('pgPad'),gap=document.getElementById('pgGap');
+  const mar=document.getElementById('pgMar'),rad=document.getElementById('pgRad');
+  const padV=document.getElementById('pgPadVal'),gapV=document.getElementById('pgGapVal');
+  const marV=document.getElementById('pgMarVal'),radV=document.getElementById('pgRadVal');
+  const card=document.getElementById('pgCard'),preview=document.getElementById('pgPreview');
+  const title=document.getElementById('pgTitle'),text=document.getElementById('pgText');
+
+  function update(){
+    const p=pad.value,g=gap.value,m=mar.value,r=rad.value;
+    padV.textContent=p+'px';gapV.textContent=g+'px';marV.textContent=m+'px';radV.textContent=r+'px';
+    card.style.padding=p+'px';
+    card.style.borderRadius=r+'px';
+    card.style.display='flex';
+    card.style.flexDirection='column';
+    card.style.gap=g+'px';
+    preview.style.padding=m+'px';
+  }
+  [pad,gap,mar,rad].forEach(el=>el.addEventListener('input',update));
+  update();
+})();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>폼 패턴 — Form Patterns</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--pink:#f472b6;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(74,222,128,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,150,90,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* Typography */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--green) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:rgba(74,222,128,0.12);color:var(--green);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(74,222,128,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(74,222,128,0.03)}
+
+  /* Buttons */
+  button,.btn{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;
+    padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:inherit;
+  }
+  button:hover,.btn:hover{border-color:var(--green);background:rgba(74,222,128,0.08)}
+  button.active,.btn.active{background:rgba(74,222,128,0.15);border-color:var(--green);color:var(--green)}
+
+  /* Toggle buttons */
+  .toggle-group{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+
+  /* Form demo styles */
+  .form-demo{background:var(--surface2);border-radius:12px;padding:clamp(16px,2vw,28px)}
+  .form-field{margin-bottom:16px}
+  .form-field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+  .form-field label.left{display:inline-block;width:100px;vertical-align:top;margin-bottom:0;margin-right:12px}
+  .form-field input,.form-field select{
+    width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);
+    border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;
+    transition:border-color var(--transition);
+  }
+  .form-field input:focus{border-color:var(--green)}
+  .form-field input.input-left{width:calc(100% - 112px);display:inline-block}
+  .form-field input.error{border-color:var(--red)}
+  .form-field input.success{border-color:var(--green)}
+  .form-field .error-msg{color:var(--red);font-size:12px;margin-top:4px;display:flex;align-items:center;gap:4px}
+  .form-field .success-msg{color:var(--green);font-size:12px;margin-top:4px;display:flex;align-items:center;gap:4px}
+  .form-field .placeholder-label{color:var(--text3)}
+  .badge-good{display:inline-block;background:rgba(74,222,128,0.12);color:var(--green);font-size:10px;font-weight:700;
+    padding:2px 8px;border-radius:10px;margin-left:8px}
+  .badge-bad{display:inline-block;background:rgba(248,113,113,0.12);color:var(--red);font-size:10px;font-weight:700;
+    padding:2px 8px;border-radius:10px;margin-left:8px}
+  .badge-warn{display:inline-block;background:rgba(251,191,36,0.12);color:var(--yellow);font-size:10px;font-weight:700;
+    padding:2px 8px;border-radius:10px;margin-left:8px}
+
+  /* Stepper */
+  .stepper{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px}
+  .step-node{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:1}
+  .step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:700;border:2px solid var(--border);background:var(--surface);
+    transition:all var(--transition);color:var(--text3)}
+  .step-circle.active{border-color:var(--green);background:rgba(74,222,128,0.15);color:var(--green)}
+  .step-circle.done{border-color:var(--green);background:var(--green);color:#0a0a0f}
+  .step-title{font-size:11px;font-weight:600;color:var(--text3);white-space:nowrap;transition:color var(--transition)}
+  .step-title.active{color:var(--green)}
+  .step-title.done{color:var(--text2)}
+  .step-line{width:60px;height:2px;background:var(--border);margin:0 8px;margin-bottom:22px;transition:background var(--transition)}
+  .step-line.done{background:var(--green)}
+  .step-content{min-height:160px}
+  .step-nav{display:flex;justify-content:space-between;margin-top:20px}
+  .btn-primary{background:var(--green);color:#0a0a0f;border-color:var(--green);font-weight:700}
+  .btn-primary:hover{background:#5eec9a;border-color:#5eec9a}
+
+  /* Funnel chart */
+  .funnel{display:flex;flex-direction:column;gap:6px;align-items:center;padding:20px 0}
+  .funnel-bar{height:36px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px;font-size:13px;font-weight:600;transition:all var(--transition);cursor:default}
+  .funnel-bar:hover{filter:brightness(1.1)}
+
+  /* Checklist */
+  .checklist{display:flex;flex-direction:column;gap:8px}
+  .check-item{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding:6px 0}
+  .check-box{width:20px;height:20px;border:2px solid var(--text3);border-radius:5px;
+    display:flex;align-items:center;justify-content:center;transition:all 0.15s ease;flex-shrink:0}
+  .check-box.checked{background:var(--green);border-color:var(--green)}
+  .check-box svg{width:12px;height:12px;stroke:#0a0a0f;stroke-width:3;fill:none;
+    stroke-dasharray:16;stroke-dashoffset:16;transition:stroke-dashoffset 0.2s ease 0.05s}
+  .check-box.checked svg{stroke-dashoffset:0}
+  .check-label{font-size:13px;color:var(--text2)}
+  .check-item:hover .check-label{color:var(--text)}
+
+  /* Masking demo */
+  .mask-field{margin-bottom:12px}
+  .mask-field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px}
+  .mask-field input{
+    width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);
+    border-radius:10px;color:var(--text);font-size:16px;font-family:var(--mono);outline:none;
+    letter-spacing:1px;transition:border-color var(--transition);
+  }
+  .mask-field input:focus{border-color:var(--green)}
+  .mask-raw{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px}
+
+  @media(max-width:768px){
+    .grid-2{grid-template-columns:1fr}
+    .stepper{flex-wrap:wrap;gap:4px}
+    .step-line{width:30px}
+  }
+  @media(max-width:480px){
+    .grid-3,.grid-4{grid-template-columns:1fr 1fr}
+    .toggle-group{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="tag" style="margin-bottom:16px">Interaction Pattern</div>
+  <h1>폼 패턴</h1>
+  <p class="subtitle">폼 설계의 핵심 원칙, 유효성 검사 타이밍, 멀티 스텝 폼, autocomplete, 입력 마스킹, 분석 지표를 인터랙티브 데모와 함께 정리한다. 좋은 폼은 보이지 않는다.</p>
+</header>
+
+<!-- ====== 1. Label Placement ====== -->
+<section class="section">
+  <div class="section-label">라벨 배치</div>
+  <h2>라벨 배치 방식 비교</h2>
+  <p class="desc">라벨 위치에 따라 폼 완료율이 달라진다. NNGroup은 상단 정렬을 기본 권장하며, 플레이스홀더를 라벨 대신 사용하면 유저빌리티 문제가 발생한다.</p>
+
+  <div class="toggle-group">
+    <button class="active" onclick="showLabelMode('top')">상단 정렬 <span class="badge-good">권장</span></button>
+    <button onclick="showLabelMode('left')">좌측 정렬 <span class="badge-warn">제한적</span></button>
+    <button onclick="showLabelMode('placeholder')">플레이스홀더 <span class="badge-bad">금지</span></button>
+  </div>
+
+  <div class="card">
+    <div id="labelDemo" class="form-demo">
+      <!-- Populated by JS -->
+    </div>
+    <p id="labelNote" class="caption"></p>
+  </div>
+</section>
+
+<!-- ====== 2. Validation ====== -->
+<section class="section">
+  <div class="section-label">유효성 검사</div>
+  <h2>인라인 유효성 검사 타이밍</h2>
+  <p class="desc">31%의 사이트가 인라인 검증을 제공하지 않고, 4%는 잘못 구현한다(Baymard). 아래 세 가지 방식을 직접 비교해보자.</p>
+
+  <div class="grid-3">
+    <!-- Premature -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <h3 style="font-size:15px;font-weight:700">조기 검증</h3>
+        <span class="badge-bad">나쁨</span>
+      </div>
+      <div class="form-demo">
+        <div class="form-field">
+          <label>이메일</label>
+          <input type="text" id="prematureEmail" placeholder="이메일을 입력하세요" onfocus="prematureValidate(this)" oninput="prematureValidate(this)">
+          <div id="prematureError" class="error-msg" style="display:none">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M6 3.5v3M6 8v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            유효한 이메일을 입력하세요
+          </div>
+        </div>
+      </div>
+      <p class="caption">포커스 시 즉시 에러 표시 — 사용자 좌절</p>
+    </div>
+
+    <!-- onBlur (correct) -->
+    <div class="card" style="border-color:rgba(74,222,128,0.3)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <h3 style="font-size:15px;font-weight:700">onBlur 검증</h3>
+        <span class="badge-good">올바름</span>
+      </div>
+      <div class="form-demo">
+        <div class="form-field">
+          <label>이메일</label>
+          <input type="text" id="blurEmail" placeholder="이메일을 입력하세요" onblur="blurValidate(this)" oninput="blurClear(this)">
+          <div id="blurError" class="error-msg" style="display:none">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M6 3.5v3M6 8v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            유효한 이메일을 입력하세요
+          </div>
+        </div>
+      </div>
+      <p class="caption">필드를 떠난 후(onBlur)에만 검증</p>
+    </div>
+
+    <!-- Positive validation -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <h3 style="font-size:15px;font-weight:700">긍정적 검증</h3>
+        <span class="badge-good">추천</span>
+      </div>
+      <div class="form-demo">
+        <div class="form-field">
+          <label>이메일</label>
+          <input type="text" id="positiveEmail" placeholder="이메일을 입력하세요" onblur="positiveValidate(this)" oninput="positiveClear(this)">
+          <div id="positiveSuccess" class="success-msg" style="display:none">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M3.5 6l2 2 3-3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            올바른 형식입니다
+          </div>
+          <div id="positiveError" class="error-msg" style="display:none">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M6 3.5v3M6 8v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            유효한 이메일을 입력하세요
+          </div>
+        </div>
+      </div>
+      <p class="caption">성공 시 초록 체크마크 피드백 제공</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;overflow-x:auto">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">에러 표시 가이드라인</h3>
+    <table>
+      <thead><tr><th>가이드라인</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text);font-weight:600">필드 옆 배치</td><td>에러 메시지는 해당 필드 바로 아래에 배치하여 작업 기억 부하를 최소화한다</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">색상 + 아이콘</td><td>색각 이상 사용자를 위해 아이콘을 병용한다. 색상만으로 에러를 표시하지 않는다</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">입력 완료 전 검증 금지</td><td>타이핑 중 에러 표시는 사용자를 좌절시킨다</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">요약만으로 표시 금지</td><td>폼 상단의 에러 요약은 필드별 에러를 보완하는 것이지 대체하지 않는다</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">반복 에러 시 추가 도움</td><td>3회 이상 동일 에러 시 지원 연락처나 개선된 안내를 제공한다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ====== 3. Form Layout ====== -->
+<section class="section">
+  <div class="section-label">폼 레이아웃</div>
+  <h2>단일 컬럼 레이아웃</h2>
+  <p class="desc">NNGroup은 단일 컬럼 레이아웃을 기본 권장한다. 다중 컬럼은 사용자가 필드 순서를 해석해야 하며 탭 순서가 예측 불가능해진다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <h3 style="font-size:15px;font-weight:700">단일 컬럼</h3>
+        <span class="badge-good">권장</span>
+      </div>
+      <div class="form-demo">
+        <div class="form-field"><label>이름</label><input type="text" placeholder="홍길동" readonly></div>
+        <div class="form-field"><label>이메일</label><input type="text" placeholder="hong@example.com" readonly></div>
+        <div class="form-field"><label>전화번호</label><input type="text" placeholder="010-1234-5678" readonly></div>
+        <div style="display:flex;gap:12px">
+          <div class="form-field" style="flex:2"><label>도시</label><input type="text" placeholder="서울" readonly></div>
+          <div class="form-field" style="flex:1"><label>우편번호</label><input type="text" placeholder="06234" readonly></div>
+        </div>
+      </div>
+      <p class="caption">관련 짧은 필드(도시/우편번호)만 같은 행에 배치</p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">레이아웃 체크리스트</h3>
+      <div class="checklist" id="layoutChecklist">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 4. Multi-Step Form ====== -->
+<section class="section">
+  <div class="section-label">멀티 스텝 폼</div>
+  <h2>멀티 스텝 폼 데모</h2>
+  <p class="desc">필드가 7개 이상이면 멀티 스텝을 고려한다. 진행 표시기, 의미 있는 단계 제목, 뒤로 가기와 데이터 보존이 핵심이다.</p>
+
+  <div class="card">
+    <div class="stepper" id="stepper">
+      <div class="step-node">
+        <div class="step-circle active" id="step-c-0">1</div>
+        <div class="step-title active" id="step-t-0">기본 정보</div>
+      </div>
+      <div class="step-line" id="step-l-0"></div>
+      <div class="step-node">
+        <div class="step-circle" id="step-c-1">2</div>
+        <div class="step-title" id="step-t-1">배송 정보</div>
+      </div>
+      <div class="step-line" id="step-l-1"></div>
+      <div class="step-node">
+        <div class="step-circle" id="step-c-2">3</div>
+        <div class="step-title" id="step-t-2">확인 및 결제</div>
+      </div>
+    </div>
+
+    <div class="form-demo" id="stepContent">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="step-nav">
+      <button id="stepPrev" onclick="stepNav(-1)" style="visibility:hidden">&#8592; 이전</button>
+      <button id="stepNext" class="btn-primary" onclick="stepNav(1)">다음 &#8594;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 5. Autocomplete ====== -->
+<section class="section">
+  <div class="section-label">Autocomplete</div>
+  <h2>HTML autocomplete 속성</h2>
+  <p class="desc">브라우저 자동완성을 올바르게 활용하면 입력 시간이 30% 이상 단축된다. inputmode 속성으로 모바일 키보드 타입도 최적화한다.</p>
+
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th>필드</th><th>autocomplete</th><th>inputmode</th><th>모바일 키보드</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:var(--text);font-weight:600">이름</td><td class="mono">name</td><td class="mono">text</td><td>일반 텍스트</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">이메일</td><td class="mono">email</td><td class="mono">email</td><td>@ 키 포함</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">전화번호</td><td class="mono">tel</td><td class="mono">tel</td><td>전화 다이얼 패드</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">주소</td><td class="mono">street-address</td><td class="mono">text</td><td>일반 텍스트</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">우편번호</td><td class="mono">postal-code</td><td class="mono">numeric</td><td>숫자 패드</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">카드번호</td><td class="mono">cc-number</td><td class="mono">numeric</td><td>숫자 패드</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">카드 만료</td><td class="mono">cc-exp</td><td class="mono">numeric</td><td>숫자 패드</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">비밀번호</td><td class="mono">current-password</td><td class="mono">text</td><td>일반 텍스트</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">새 비밀번호</td><td class="mono">new-password</td><td class="mono">text</td><td>일반 텍스트</td></tr>
+        <tr><td style="color:var(--text);font-weight:600">OTP</td><td class="mono">one-time-code</td><td class="mono">numeric</td><td>숫자 패드</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card" style="text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">&#9993;</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">email</div>
+      <input type="text" inputmode="email" placeholder="@ 키 포함 키보드" readonly style="width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;text-align:center;outline:none">
+      <div class="caption">inputmode="email"</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">&#128222;</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">tel</div>
+      <input type="text" inputmode="tel" placeholder="전화 다이얼 패드" readonly style="width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;text-align:center;outline:none">
+      <div class="caption">inputmode="tel"</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">&#128290;</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">numeric</div>
+      <input type="text" inputmode="numeric" placeholder="숫자 패드만" readonly style="width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;text-align:center;outline:none">
+      <div class="caption">inputmode="numeric"</div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 6. Input Masking ====== -->
+<section class="section">
+  <div class="section-label">입력 마스킹</div>
+  <h2>실시간 입력 마스킹 데모</h2>
+  <p class="desc">입력 마스크는 타이핑 중 실시간으로 형식을 적용한다. 전화번호, 카드번호, 금액 필드에서 가독성을 높이고 입력 오류를 줄인다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">전화번호</h3>
+      <div class="mask-field">
+        <label>Phone</label>
+        <input type="text" id="maskPhone" inputmode="numeric" placeholder="010-1234-5678" maxlength="13" oninput="maskPhone(this)">
+        <div class="mask-raw" id="maskPhoneRaw">원시값: </div>
+      </div>
+      <p class="caption">010-1234-5678 형식 자동 적용</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">카드번호</h3>
+      <div class="mask-field">
+        <label>Card Number</label>
+        <input type="text" id="maskCard" inputmode="numeric" placeholder="1234 5678 9012 3456" maxlength="19" oninput="maskCard(this)">
+        <div class="mask-raw" id="maskCardRaw">원시값: </div>
+      </div>
+      <p class="caption">4자리마다 공백 자동 삽입</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">금액</h3>
+      <div class="mask-field">
+        <label>Currency</label>
+        <input type="text" id="maskCurrency" inputmode="numeric" placeholder="&#8361;1,234,567" oninput="maskCurrency(this)">
+        <div class="mask-raw" id="maskCurrencyRaw">원시값: </div>
+      </div>
+      <p class="caption">천 단위 콤마 + &#8361; 접두사</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 7. Form Analytics ====== -->
+<section class="section">
+  <div class="section-label">폼 분석</div>
+  <h2>필드 이탈 퍼널 분석</h2>
+  <p class="desc">각 필드에서 이탈하는 비율을 퍼널 차트로 시각화하면 병목 필드를 즉시 식별할 수 있다. 이탈률이 높은 필드의 원인을 분류하고 개선한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:20px">필드별 이탈 퍼널</h3>
+      <div class="funnel" id="funnelChart">
+        <!-- Populated by JS -->
+      </div>
+      <p class="caption">빨간색 영역일수록 이탈률이 높아 개선이 필요한 필드</p>
+    </div>
+
+    <div class="card" style="overflow-x:auto">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">핵심 지표 건강 수준</h3>
+      <table>
+        <thead>
+          <tr><th>지표</th><th>건강한 수준</th><th>개선 신호</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text);font-weight:600">완료율</td>
+            <td><span style="color:var(--green)">60~80%</span></td>
+            <td>&lt; 50%이면 UX 문제</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600">필드 이탈률</td>
+            <td><span style="color:var(--green)">5% 미만/필드</span></td>
+            <td>특정 필드에서 급증 시 검토</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600">필드 소요 시간</td>
+            <td><span style="color:var(--green)">필드별 상이</span></td>
+            <td>평균 대비 2배 이상이면 혼란</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600">에러율</td>
+            <td><span style="color:var(--green)">10% 미만</span></td>
+            <td>20% 이상이면 검사 재설계</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600">재시도율</td>
+            <td><span style="color:var(--green)">1.2회 이하</span></td>
+            <td>1.5회 이상이면 라벨/형식 개선</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+// ============ 1. Label Placement Toggle ============
+function showLabelMode(mode){
+  const demo=document.getElementById('labelDemo');
+  const note=document.getElementById('labelNote');
+  document.querySelectorAll('.toggle-group button').forEach((b,i)=>{
+    b.classList.toggle('active',
+      (mode==='top'&&i===0)||(mode==='left'&&i===1)||(mode==='placeholder'&&i===2));
+  });
+  if(mode==='top'){
+    demo.innerHTML=`
+      <div class="form-field"><label>이름</label><input type="text" placeholder="예: 홍길동" readonly></div>
+      <div class="form-field"><label>이메일</label><input type="text" placeholder="예: hong@example.com" readonly></div>
+      <div class="form-field"><label>전화번호</label><input type="text" placeholder="예: 010-1234-5678" readonly></div>`;
+    note.innerHTML='<span style="color:var(--green)">&#10003;</span> NNGroup 기본 권장. 라벨과 필드를 한 번의 시선 고정(fixation)으로 파악할 수 있다.';
+  } else if(mode==='left'){
+    demo.innerHTML=`
+      <div class="form-field"><label class="left">이름</label><input class="input-left" type="text" placeholder="홍길동" readonly></div>
+      <div class="form-field"><label class="left">이메일</label><input class="input-left" type="text" placeholder="hong@example.com" readonly></div>
+      <div class="form-field"><label class="left">전화번호</label><input class="input-left" type="text" placeholder="010-1234-5678" readonly></div>`;
+    note.innerHTML='<span style="color:var(--yellow)">&#9888;</span> 세로 길이를 절약하지만 라벨-필드 거리가 발생한다. 매우 긴 데스크톱 폼에만 제한적으로 사용.';
+  } else {
+    demo.innerHTML=`
+      <div class="form-field"><input type="text" placeholder="이름" readonly style="color:var(--text3)"></div>
+      <div class="form-field"><input type="text" placeholder="이메일" readonly style="color:var(--text3)"></div>
+      <div class="form-field"><input type="text" placeholder="전화번호" readonly style="color:var(--text3)"></div>`;
+    note.innerHTML='<span style="color:var(--red)">&#10007;</span> NNGroup: "플레이스홀더 텍스트는 많은 유저빌리티 문제를 일으키며, 사용을 피하는 것이 최선." 입력 시작과 동시에 사라져 필드 목적을 잊게 만든다.';
+  }
+}
+showLabelMode('top');
+
+// ============ 2. Validation Demos ============
+function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+function prematureValidate(el){
+  const err=document.getElementById('prematureError');
+  if(!isValidEmail(el.value)){
+    el.classList.add('error');
+    err.style.display='flex';
+  } else {
+    el.classList.remove('error');
+    err.style.display='none';
+  }
+}
+
+function blurValidate(el){
+  const err=document.getElementById('blurError');
+  if(el.value&&!isValidEmail(el.value)){
+    el.classList.add('error');
+    err.style.display='flex';
+  }
+}
+function blurClear(el){
+  el.classList.remove('error');
+  document.getElementById('blurError').style.display='none';
+}
+
+function positiveValidate(el){
+  const ok=document.getElementById('positiveSuccess');
+  const err=document.getElementById('positiveError');
+  if(!el.value) return;
+  if(isValidEmail(el.value)){
+    el.classList.remove('error');
+    el.classList.add('success');
+    ok.style.display='flex';
+    err.style.display='none';
+  } else {
+    el.classList.add('error');
+    el.classList.remove('success');
+    ok.style.display='none';
+    err.style.display='flex';
+  }
+}
+function positiveClear(el){
+  el.classList.remove('error','success');
+  document.getElementById('positiveSuccess').style.display='none';
+  document.getElementById('positiveError').style.display='none';
+}
+
+// ============ 3. Layout Checklist ============
+const checkItems=[
+  '단일 컬럼 레이아웃 사용',
+  '라벨은 필드 바로 위에 배치',
+  '관련 필드는 여백으로 그룹화',
+  '필수/선택 필드 구분 명확',
+  '필드 너비가 기대 입력량에 비례',
+  '플레이스홀더를 라벨 대신 사용하지 않음',
+  'Reset/Clear 버튼 없음',
+  'CTA 버튼에 구체적 동작 라벨'
+];
+const cl=document.getElementById('layoutChecklist');
+checkItems.forEach((text,i)=>{
+  const item=document.createElement('div');
+  item.className='check-item';
+  item.innerHTML=`<div class="check-box checked" id="chk-${i}">
+    <svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-5"/></svg>
+  </div><span class="check-label">${text}</span>`;
+  item.addEventListener('click',()=>{
+    const box=document.getElementById('chk-'+i);
+    box.classList.toggle('checked');
+  });
+  cl.appendChild(item);
+});
+
+// ============ 4. Multi-Step Form ============
+let currentStep=0;
+const stepData=[
+  {name:'',email:'',phone:''},
+  {city:'',address:'',zip:''},
+  {}
+];
+const stepFields=[
+  [{label:'이름',key:'name',ph:'홍길동'},{label:'이메일',key:'email',ph:'hong@example.com'},{label:'전화번호',key:'phone',ph:'010-1234-5678'}],
+  [{label:'도시',key:'city',ph:'서울'},{label:'상세 주소',key:'address',ph:'강남구 테헤란로 123'},{label:'우편번호',key:'zip',ph:'06234'}],
+  []
+];
+
+function renderStep(){
+  const content=document.getElementById('stepContent');
+  const prevBtn=document.getElementById('stepPrev');
+  const nextBtn=document.getElementById('stepNext');
+
+  // Update stepper UI
+  for(let i=0;i<3;i++){
+    const c=document.getElementById('step-c-'+i);
+    const t=document.getElementById('step-t-'+i);
+    c.className='step-circle';
+    t.className='step-title';
+    if(i<currentStep){c.classList.add('done');t.classList.add('done');c.innerHTML='&#10003;';}
+    else if(i===currentStep){c.classList.add('active');t.classList.add('active');c.textContent=i+1;}
+    else{c.textContent=i+1;}
+    if(i<2){
+      const l=document.getElementById('step-l-'+i);
+      l.className='step-line'+(i<currentStep?' done':'');
+    }
+  }
+
+  prevBtn.style.visibility=currentStep===0?'hidden':'visible';
+
+  if(currentStep<2){
+    nextBtn.textContent='다음 \u2192';
+    nextBtn.className='btn-primary';
+    let html='';
+    stepFields[currentStep].forEach(f=>{
+      html+=`<div class="form-field">
+        <label>${f.label}</label>
+        <input type="text" placeholder="${f.ph}" value="${stepData[currentStep][f.key]||''}"
+          onchange="stepData[${currentStep}]['${f.key}']=this.value">
+      </div>`;
+    });
+    content.innerHTML=html;
+  } else {
+    nextBtn.textContent='결제하기';
+    nextBtn.className='btn-primary';
+    let html='<div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--green)">&#10003; 입력 내용 확인</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px">';
+    const labels={name:'이름',email:'이메일',phone:'전화번호',city:'도시',address:'상세 주소',zip:'우편번호'};
+    for(let s=0;s<2;s++){
+      for(const k in stepData[s]){
+        html+=`<div style="font-size:12px;color:var(--text3)">${labels[k]}</div>
+          <div style="font-size:13px;color:var(--text)">${stepData[s][k]||'<span style="color:var(--text3)">미입력</span>'}</div>`;
+      }
+    }
+    html+='</div>';
+    content.innerHTML=html;
+  }
+}
+function stepNav(dir){
+  // Save current values before navigating
+  if(currentStep<2){
+    const inputs=document.querySelectorAll('#stepContent input');
+    stepFields[currentStep].forEach((f,i)=>{
+      if(inputs[i]) stepData[currentStep][f.key]=inputs[i].value;
+    });
+  }
+  if(currentStep===2&&dir===1){
+    alert('결제가 완료되었습니다! (데모)');
+    return;
+  }
+  currentStep=Math.max(0,Math.min(2,currentStep+dir));
+  renderStep();
+}
+renderStep();
+
+// ============ 6. Input Masking ============
+function maskPhone(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>11) v=v.slice(0,11);
+  let formatted='';
+  if(v.length<=3) formatted=v;
+  else if(v.length<=7) formatted=v.slice(0,3)+'-'+v.slice(3);
+  else formatted=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7);
+  el.value=formatted;
+  document.getElementById('maskPhoneRaw').textContent='\uc6d0\uc2dc\uac12: '+v;
+}
+function maskCard(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>16) v=v.slice(0,16);
+  let formatted=v.match(/.{1,4}/g);
+  el.value=formatted?formatted.join(' '):'';
+  document.getElementById('maskCardRaw').textContent='\uc6d0\uc2dc\uac12: '+v;
+}
+function maskCurrency(el){
+  let v=el.value.replace(/[^\d]/g,'');
+  if(v.length>10) v=v.slice(0,10);
+  let formatted=v?'\u20a9'+Number(v).toLocaleString():'';
+  el.value=formatted;
+  document.getElementById('maskCurrencyRaw').textContent='\uc6d0\uc2dc\uac12: '+v;
+}
+
+// ============ 7. Funnel Chart ============
+const funnelData=[
+  {label:'폼 시작',users:1000,color:'var(--green)'},
+  {label:'이름',users:960,color:'var(--green)'},
+  {label:'이메일',users:920,color:'var(--green)'},
+  {label:'전화번호',users:830,color:'var(--yellow)'},
+  {label:'주소',users:690,color:'var(--orange)'},
+  {label:'카드번호',users:620,color:'var(--orange)'},
+  {label:'폼 완료',users:580,color:'var(--green)'},
+];
+const fc=document.getElementById('funnelChart');
+const maxUsers=funnelData[0].users;
+funnelData.forEach((d,i)=>{
+  const pct=d.users/maxUsers*100;
+  const dropoff=i>0?((funnelData[i-1].users-d.users)/funnelData[i-1].users*100).toFixed(1)+'%':'--';
+  const bar=document.createElement('div');
+  bar.className='funnel-bar';
+  bar.style.cssText=`width:${pct}%;background:rgba(${d.color==='var(--green)'?'74,222,128':d.color==='var(--yellow)'?'251,191,36':'251,146,60'},0.15);
+    border:1px solid rgba(${d.color==='var(--green)'?'74,222,128':d.color==='var(--yellow)'?'251,191,36':'251,146,60'},0.3);
+    color:var(--text);min-width:200px`;
+  bar.innerHTML=`<span>${d.label}</span>
+    <span style="display:flex;align-items:center;gap:12px">
+      <span style="font-family:var(--mono);font-size:12px">${d.users}</span>
+      <span style="font-size:11px;color:${i>0&&parseFloat(dropoff)>5?'var(--red)':'var(--text3)'}">${dropoff!=='--'?'-'+dropoff:''}</span>
+    </span>`;
+  fc.appendChild(bar);
+});
+</script>
+</body>
+</html>

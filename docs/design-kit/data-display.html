@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데이터 표시 패턴 — Data Display Patterns</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#06b6d4;--accent-dim:#0e7490;--accent-glow:rgba(232,150,90,0.15);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--pink:#f472b6;--purple:#a78bfa;--cyan:#22d3ee;
+    --radius:14px;--radius-sm:8px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(6,182,212,0.04) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--cyan) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:rgba(232,150,90,0.12);color:var(--cyan);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,150,90,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  button,.btn{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;
+    padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:inherit;
+  }
+  button:hover{border-color:var(--accent);background:rgba(232,150,90,0.08)}
+  .btn-active{border-color:var(--cyan) !important;background:rgba(232,150,90,0.12) !important;color:var(--cyan) !important}
+
+  /* Toggle button group */
+  .toggle-group{display:inline-flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+  .toggle-group button{border:none;border-radius:0;padding:8px 18px;font-size:12px;font-weight:600}
+  .toggle-group button.active{background:rgba(232,150,90,0.15);color:var(--cyan)}
+
+  /* List/Grid demo */
+  .list-item{display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:10px;
+    background:var(--surface2);margin-bottom:8px;transition:background var(--transition)}
+  .list-item:hover{background:rgba(232,150,90,0.06)}
+  .list-thumb{width:48px;height:48px;border-radius:10px;flex-shrink:0}
+  .list-info{flex:1;min-width:0}
+  .list-info h4{font-size:14px;font-weight:600;margin-bottom:2px}
+  .list-info p{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .list-meta{font-size:12px;color:var(--text3);font-family:var(--mono);flex-shrink:0}
+
+  .grid-item{border-radius:12px;overflow:hidden;background:var(--surface2);transition:transform var(--transition)}
+  .grid-item:hover{transform:translateY(-2px)}
+  .grid-item-img{width:100%;aspect-ratio:4/3;display:block}
+  .grid-item-body{padding:12px 14px}
+  .grid-item-body h4{font-size:13px;font-weight:600;margin-bottom:4px}
+  .grid-item-body p{font-size:11px;color:var(--text3)}
+
+  /* Data table */
+  .data-table{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+  .data-table table{min-width:600px}
+  .data-table th{background:var(--surface);cursor:pointer;user-select:none;white-space:nowrap}
+  .data-table th:hover{color:var(--cyan)}
+  .data-table th .sort-icon{margin-left:4px;font-size:10px;opacity:0.4}
+  .data-table th.sorted .sort-icon{opacity:1;color:var(--cyan)}
+  .data-table tr:nth-child(even) td{background:rgba(232,150,90,0.02)}
+  .data-table tr:hover td{background:rgba(232,150,90,0.06) !important}
+  .data-table .num{text-align:right;font-family:var(--mono);font-size:12px}
+  .task-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .task-badge{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--surface)}
+
+  /* Responsive table demo */
+  .responsive-frame{border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all 0.4s ease;position:relative}
+  .responsive-frame.desktop{max-width:100%}
+  .responsive-frame.mobile{max-width:375px;margin:0 auto}
+  .frame-toolbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);font-size:11px;color:var(--text3)}
+  .frame-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  /* Stack card transform */
+  .stack-card{background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:8px}
+  .stack-card-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+  .stack-card-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px}
+  .stack-card-value{font-size:13px;font-weight:600}
+
+  /* Empty/Loading states */
+  .empty-state{text-align:center;padding:48px 24px;background:var(--surface2);border-radius:var(--radius);border:2px dashed var(--border)}
+  .empty-icon{font-size:48px;margin-bottom:16px;opacity:0.3}
+  .empty-state h3{font-size:16px;font-weight:700;margin-bottom:8px}
+  .empty-state p{font-size:13px;color:var(--text3);margin-bottom:20px;max-width:360px;margin-inline:auto}
+  .empty-cta{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border-radius:10px;background:var(--cyan);color:#0a0a0f;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:opacity var(--transition)}
+  .empty-cta:hover{opacity:0.85;background:var(--cyan)}
+
+  .skeleton{background:var(--surface2);border-radius:8px;position:relative;overflow:hidden}
+  .skeleton::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent 0%,rgba(232,150,90,0.06) 50%,transparent 100%);
+    animation:shimmer 1.5s ease-in-out infinite;
+  }
+  @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+  .spinner{width:32px;height:32px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--cyan);animation:spin 0.8s linear infinite}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+  .progress-track{width:100%;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+  .progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent-dim),var(--cyan));transition:width 0.4s ease}
+
+  .time-strategy-table td:first-child{font-family:var(--mono);font-weight:700;color:var(--cyan);white-space:nowrap}
+
+  /* Sparkline & chart */
+  .sparkline-container{display:flex;align-items:center;gap:12px}
+  .sparkline-value{font-family:var(--mono);font-size:14px;font-weight:700;min-width:60px}
+  .sparkline-change{font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px}
+  .sparkline-change.up{color:var(--green);background:rgba(74,222,128,0.1)}
+  .sparkline-change.down{color:var(--red);background:rgba(248,113,113,0.1)}
+  .micro-bar{height:12px;border-radius:3px;background:var(--surface2);overflow:hidden;position:relative}
+  .micro-bar-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+  .mini-donut-wrap{display:flex;align-items:center;gap:10px}
+  .chart-tooltip{position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;pointer-events:none;z-index:10;opacity:0;transition:opacity 0.15s;white-space:nowrap}
+
+  /* Number formatter */
+  .formatter-input{width:100%;padding:14px 18px;border-radius:10px;background:var(--surface2);border:2px solid var(--border);
+    color:var(--text);font-size:18px;font-family:var(--mono);outline:none;transition:border-color var(--transition)}
+  .formatter-input:focus{border-color:var(--cyan)}
+  .formatter-result{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px}
+  .formatter-card{padding:14px;border-radius:10px;background:var(--surface2);text-align:center}
+  .formatter-card .label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+  .formatter-card .value{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--cyan)}
+  .formatter-card .value.small{font-size:15px}
+
+  .format-examples{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:16px}
+  .format-example{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px;background:var(--surface2);cursor:pointer;transition:background var(--transition)}
+  .format-example:hover{background:rgba(232,150,90,0.08)}
+  .format-example .original{font-size:12px;color:var(--text3);font-family:var(--mono)}
+  .format-example .converted{font-size:13px;font-weight:700;color:var(--cyan)}
+
+  @media(max-width:768px){
+    .grid-2{grid-template-columns:1fr}
+    .grid-view-container{grid-template-columns:1fr 1fr !important}
+  }
+  @media(max-width:480px){
+    .grid-3{grid-template-columns:1fr}
+    .grid-view-container{grid-template-columns:1fr !important}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="tag" style="margin-bottom:16px">Interaction Pattern</div>
+  <h1>데이터 표시 패턴</h1>
+  <p class="subtitle">리스트/그리드 선택 기준, 데이터 테이블과 반응형 전략, 인라인 차트, 빈 상태/로딩 상태, 한국어 만/억/조 숫자 포맷까지 -- 데이터를 사용자에게 전달하는 모든 시각 패턴을 다룬다.</p>
+</header>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- 1. 리스트 vs 그리드 -->
+<!-- ════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">리스트 vs 그리드</div>
+  <h2>콘텐츠 유형에 따른 뷰 선택</h2>
+  <p class="desc">이미지 중심이면 그리드, 텍스트 중심이면 리스트. 두 방식이 모두 유효할 때는 토글을 제공하고 사용자 선택을 기억한다.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:12px;color:var(--text3);font-weight:600">VIEW MODE</span>
+        <div class="toggle-group" id="viewToggle">
+          <button class="active" data-view="list" onclick="switchView('list')">&#9776; List</button>
+          <button data-view="grid" onclick="switchView('grid')">&#9638; Grid</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">텍스트 정보 = 리스트 / 이미지 정보 = 그리드</div>
+    </div>
+
+    <!-- List View -->
+    <div id="listView">
+      <div class="list-item">
+        <div class="list-thumb" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)"></div>
+        <div class="list-info">
+          <h4>프로젝트 대시보드 리디자인</h4>
+          <p>UI 컴포넌트 시스템 재구축 및 데이터 시각화 개선</p>
+        </div>
+        <div class="list-meta">2026.03.28</div>
+      </div>
+      <div class="list-item">
+        <div class="list-thumb" style="background:linear-gradient(135deg,#06b6d4,#22d3ee)"></div>
+        <div class="list-info">
+          <h4>모바일 결제 플로우</h4>
+          <p>간편결제 3-step 프로세스, 생체인증 통합</p>
+        </div>
+        <div class="list-meta">2026.03.25</div>
+      </div>
+      <div class="list-item">
+        <div class="list-thumb" style="background:linear-gradient(135deg,#f472b6,#ec4899)"></div>
+        <div class="list-info">
+          <h4>사용자 온보딩 개선</h4>
+          <p>첫 사용자 경험 최적화, 이탈률 35% 감소 목표</p>
+        </div>
+        <div class="list-meta">2026.03.22</div>
+      </div>
+      <div class="list-item">
+        <div class="list-thumb" style="background:linear-gradient(135deg,#fb923c,#f59e0b)"></div>
+        <div class="list-info">
+          <h4>알림 센터 통합</h4>
+          <p>푸시, 인앱, 이메일 알림을 통합 관리하는 허브 설계</p>
+        </div>
+        <div class="list-meta">2026.03.18</div>
+      </div>
+    </div>
+
+    <!-- Grid View -->
+    <div id="gridView" style="display:none">
+      <div class="grid-view-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+        <div class="grid-item">
+          <div class="grid-item-img" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)"></div>
+          <div class="grid-item-body"><h4>프로젝트 대시보드 리디자인</h4><p>2026.03.28</p></div>
+        </div>
+        <div class="grid-item">
+          <div class="grid-item-img" style="background:linear-gradient(135deg,#06b6d4,#22d3ee)"></div>
+          <div class="grid-item-body"><h4>모바일 결제 플로우</h4><p>2026.03.25</p></div>
+        </div>
+        <div class="grid-item">
+          <div class="grid-item-img" style="background:linear-gradient(135deg,#f472b6,#ec4899)"></div>
+          <div class="grid-item-body"><h4>사용자 온보딩 개선</h4><p>2026.03.22</p></div>
+        </div>
+        <div class="grid-item">
+          <div class="grid-item-img" style="background:linear-gradient(135deg,#fb923c,#f59e0b)"></div>
+          <div class="grid-item-body"><h4>알림 센터 통합</h4><p>2026.03.18</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">&#9776; 리스트 뷰가 적합한 경우</div>
+      <ul style="font-size:13px;color:var(--text2);padding-left:18px;line-height:1.6">
+        <li>텍스트 정보가 주요 콘텐츠 (이름, 설명, 가격, 날짜)</li>
+        <li>상세 정보 비교가 중요한 경우</li>
+        <li>F-패턴 읽기 흐름을 따르는 데이터</li>
+        <li>화면당 더 많은 항목 표시 필요</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">&#9638; 그리드 뷰가 적합한 경우</div>
+      <ul style="font-size:13px;color:var(--text2);padding-left:18px;line-height:1.6">
+        <li>이미지가 주요 콘텐츠 (상품, 갤러리, 포트폴리오)</li>
+        <li>시각적 차이로 항목을 구분할 때</li>
+        <li>탐색/브라우징 중심 경험</li>
+        <li>카드 뷰로 시각적 그룹핑 형성</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- 2. 데이터 테이블 -->
+<!-- ════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">데이터 테이블</div>
+  <h2>NNGroup의 4가지 핵심 태스크</h2>
+  <p class="desc">정렬 가능한 테이블, 지브라 스트라이핑, 호버 하이라이팅, 숫자 우측 정렬. 헤더를 클릭하여 정렬해 보세요.</p>
+
+  <div class="task-badges" style="margin-bottom:20px">
+    <div class="task-badge" style="border-color:var(--cyan)">&#128269; 레코드 찾기</div>
+    <div class="task-badge" style="border-color:var(--purple)">&#8596; 데이터 비교</div>
+    <div class="task-badge" style="border-color:var(--green)">&#9998; 단일 행 조회/편집</div>
+    <div class="task-badge" style="border-color:var(--orange)">&#9889; 레코드 액션</div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="data-table" id="sortableTable">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)" class="sorted">프로젝트 <span class="sort-icon">&#9650;</span></th>
+            <th onclick="sortTable(1)">팀 <span class="sort-icon">&#9650;</span></th>
+            <th onclick="sortTable(2)" style="text-align:right">매출 (만원) <span class="sort-icon">&#9650;</span></th>
+            <th onclick="sortTable(3)" style="text-align:right">성장률 <span class="sort-icon">&#9650;</span></th>
+            <th onclick="sortTable(4)" style="text-align:right">사용자 <span class="sort-icon">&#9650;</span></th>
+            <th style="text-align:center;width:80px">상태</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td style="font-weight:600;color:var(--text)">커머스 플랫폼</td>
+            <td>프론트엔드</td>
+            <td class="num">45,230</td>
+            <td class="num" style="color:var(--green)">+12.4%</td>
+            <td class="num">128,340</td>
+            <td style="text-align:center"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green)"></span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text)">결제 게이트웨이</td>
+            <td>백엔드</td>
+            <td class="num">32,100</td>
+            <td class="num" style="color:var(--green)">+8.7%</td>
+            <td class="num">89,120</td>
+            <td style="text-align:center"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green)"></span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text)">어드민 대시보드</td>
+            <td>풀스택</td>
+            <td class="num">8,450</td>
+            <td class="num" style="color:var(--red)">-2.1%</td>
+            <td class="num">3,210</td>
+            <td style="text-align:center"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--yellow)"></span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text)">모바일 앱</td>
+            <td>모바일</td>
+            <td class="num">67,890</td>
+            <td class="num" style="color:var(--green)">+23.5%</td>
+            <td class="num">412,500</td>
+            <td style="text-align:center"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green)"></span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text)">AI 추천 엔진</td>
+            <td>데이터</td>
+            <td class="num">15,670</td>
+            <td class="num" style="color:var(--green)">+45.2%</td>
+            <td class="num">56,780</td>
+            <td style="text-align:center"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cyan)"></span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text)">CRM 시스템</td>
+            <td>백엔드</td>
+            <td class="num">22,340</td>
+            <td class="num" style="color:var(--red)">-5.3%</td>
+            <td class="num">12,450</td>
+            <td style="text-align:center"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red)"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="caption">헤더를 클릭하면 오름차순/내림차순으로 정렬됩니다</p>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- 3. 반응형 테이블 -->
+<!-- ════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">반응형 테이블</div>
+  <h2>모바일 테이블 전략</h2>
+  <p class="desc">큰 화면에서 사용 가능한 테이블을 먼저 만든 후 작은 화면에 맞게 변환한다. 데스크톱/모바일 뷰를 전환하여 패턴을 비교해 보세요.</p>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="btn-active" onclick="switchResponsive('desktop',this)">&#128421; Desktop (Table)</button>
+    <button onclick="switchResponsive('stack',this)">&#128241; Mobile: Stack/Card</button>
+    <button onclick="switchResponsive('locked',this)">&#128274; Mobile: Column Lock</button>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <!-- Desktop Table -->
+    <div id="responsiveDesktop" class="responsive-frame desktop">
+      <div class="frame-toolbar">
+        <div class="frame-dot" style="background:#f87171"></div>
+        <div class="frame-dot" style="background:#fbbf24"></div>
+        <div class="frame-dot" style="background:#4ade80"></div>
+        <span style="margin-left:8px">Desktop View &mdash; 1280px</span>
+      </div>
+      <div style="padding:16px;overflow-x:auto">
+        <table style="min-width:500px">
+          <thead>
+            <tr>
+              <th>제품</th><th>카테고리</th><th style="text-align:right">가격</th><th style="text-align:right">재고</th><th>등급</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight:600;color:var(--text)">무선 키보드 MK-7</td><td>주변기기</td><td class="num">89,000</td><td class="num">234</td><td>A</td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">27" 모니터 UHD</td><td>디스플레이</td><td class="num">549,000</td><td class="num">45</td><td>S</td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">USB-C 허브 8in1</td><td>주변기기</td><td class="num">42,000</td><td class="num">1,203</td><td>B</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stack/Card Transform -->
+    <div id="responsiveStack" class="responsive-frame mobile" style="display:none">
+      <div class="frame-toolbar">
+        <div class="frame-dot" style="background:#f87171"></div>
+        <div class="frame-dot" style="background:#fbbf24"></div>
+        <div class="frame-dot" style="background:#4ade80"></div>
+        <span style="margin-left:8px">Mobile &mdash; 375px (Stack/Card)</span>
+      </div>
+      <div style="padding:12px">
+        <div class="stack-card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:8px;color:var(--text)">무선 키보드 MK-7</div>
+          <div class="stack-card-row"><span class="stack-card-label">카테고리</span><span class="stack-card-value" style="color:var(--text2)">주변기기</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">가격</span><span class="stack-card-value mono" style="color:var(--cyan)">89,000원</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">재고</span><span class="stack-card-value mono">234</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">등급</span><span class="stack-card-value">A</span></div>
+        </div>
+        <div class="stack-card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:8px;color:var(--text)">27" 모니터 UHD</div>
+          <div class="stack-card-row"><span class="stack-card-label">카테고리</span><span class="stack-card-value" style="color:var(--text2)">디스플레이</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">가격</span><span class="stack-card-value mono" style="color:var(--cyan)">549,000원</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">재고</span><span class="stack-card-value mono">45</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">등급</span><span class="stack-card-value">S</span></div>
+        </div>
+        <div class="stack-card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:8px;color:var(--text)">USB-C 허브 8in1</div>
+          <div class="stack-card-row"><span class="stack-card-label">카테고리</span><span class="stack-card-value" style="color:var(--text2)">주변기기</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">가격</span><span class="stack-card-value mono" style="color:var(--cyan)">42,000원</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">재고</span><span class="stack-card-value mono">1,203</span></div>
+          <div class="stack-card-row"><span class="stack-card-label">등급</span><span class="stack-card-value">B</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column Locking -->
+    <div id="responsiveLocked" class="responsive-frame mobile" style="display:none">
+      <div class="frame-toolbar">
+        <div class="frame-dot" style="background:#f87171"></div>
+        <div class="frame-dot" style="background:#fbbf24"></div>
+        <div class="frame-dot" style="background:#4ade80"></div>
+        <span style="margin-left:8px">Mobile &mdash; 375px (Column Lock + Scroll)</span>
+      </div>
+      <div style="position:relative;overflow:hidden">
+        <div style="display:flex">
+          <div style="min-width:120px;flex-shrink:0;background:var(--surface);z-index:2;border-right:2px solid var(--cyan)">
+            <div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:2px solid var(--border)">제품</div>
+            <div style="padding:10px 12px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border)">키보드 MK-7</div>
+            <div style="padding:10px 12px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);background:rgba(232,150,90,0.02)">모니터 UHD</div>
+            <div style="padding:10px 12px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border)">허브 8in1</div>
+          </div>
+          <div id="lockedScroller" style="overflow-x:auto;flex:1">
+            <div style="min-width:400px">
+              <div style="display:grid;grid-template-columns:100px 100px 80px 80px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:2px solid var(--border)">
+                <div style="padding:10px 12px">카테고리</div><div style="padding:10px 12px;text-align:right">가격</div><div style="padding:10px 12px;text-align:right">재고</div><div style="padding:10px 12px;text-align:center">등급</div>
+              </div>
+              <div style="display:grid;grid-template-columns:100px 100px 80px 80px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">
+                <div style="padding:10px 12px">주변기기</div><div style="padding:10px 12px;text-align:right;font-family:var(--mono)">89,000</div><div style="padding:10px 12px;text-align:right;font-family:var(--mono)">234</div><div style="padding:10px 12px;text-align:center">A</div>
+              </div>
+              <div style="display:grid;grid-template-columns:100px 100px 80px 80px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);background:rgba(232,150,90,0.02)">
+                <div style="padding:10px 12px">디스플레이</div><div style="padding:10px 12px;text-align:right;font-family:var(--mono)">549,000</div><div style="padding:10px 12px;text-align:right;font-family:var(--mono)">45</div><div style="padding:10px 12px;text-align:center">S</div>
+              </div>
+              <div style="display:grid;grid-template-columns:100px 100px 80px 80px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">
+                <div style="padding:10px 12px">주변기기</div><div style="padding:10px 12px;text-align:right;font-family:var(--mono)">42,000</div><div style="padding:10px 12px;text-align:right;font-family:var(--mono)">1,203</div><div style="padding:10px 12px;text-align:center">B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:8px;font-size:11px;color:var(--text3)">&#8592; 스크롤하여 더 보기 &#8594;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card" style="text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">&#128274;</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">컬럼 고정</div>
+      <div style="font-size:12px;color:var(--text3)">비교가 중요한 테이블에 적합</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">&#127183;</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">스택/카드 변환</div>
+      <div style="font-size:12px;color:var(--text3)">단일 레코드 조회 중심에 적합</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">&#128065;</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">컬럼 숨기기</div>
+      <div style="font-size:12px;color:var(--text3)">많은 컬럼 중 일부만 핵심일 때</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- 4. 빈 상태/로딩 상태 -->
+<!-- ════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">빈 상태 / 로딩 상태</div>
+  <h2>비어있을 때와 기다릴 때의 설계</h2>
+  <p class="desc">빈 상태는 시스템 상태를 전달하고 CTA를 제공한다. 로딩은 대기 시간에 따라 스피너, 스켈레톤, 프로그레스 바를 선택한다.</p>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="btn-active" onclick="switchLoadingState('empty',this)">빈 상태</button>
+    <button onclick="switchLoadingState('spinner',this)">스피너</button>
+    <button onclick="switchLoadingState('skeleton',this)">스켈레톤</button>
+    <button onclick="switchLoadingState('progress',this)">프로그레스 바</button>
+  </div>
+
+  <div class="card" style="min-height:280px;display:flex;align-items:center;justify-content:center">
+    <!-- Empty state -->
+    <div id="stateEmpty" style="width:100%">
+      <div class="empty-state">
+        <div class="empty-icon">&#128203;</div>
+        <h3>표시할 데이터가 없습니다</h3>
+        <p>선택한 날짜 범위에 해당하는 레코드가 없습니다. 필터를 조정하거나 새 항목을 추가해 보세요.</p>
+        <button class="empty-cta" onclick="this.textContent='&#10003; 추가됨!'">+ 새 항목 추가</button>
+      </div>
+    </div>
+
+    <!-- Spinner -->
+    <div id="stateSpinner" style="display:none;text-align:center">
+      <div class="spinner" style="margin:0 auto 16px"></div>
+      <div style="font-size:13px;color:var(--text3)">데이터를 불러오는 중...</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">1~2초 대기 시 권장</div>
+    </div>
+
+    <!-- Skeleton -->
+    <div id="stateSkeleton" style="display:none;width:100%">
+      <div style="display:flex;gap:16px;margin-bottom:16px">
+        <div class="skeleton" style="width:48px;height:48px;border-radius:10px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div>
+          <div class="skeleton" style="height:12px;width:80%"></div>
+        </div>
+        <div class="skeleton" style="width:60px;height:14px;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:16px">
+        <div class="skeleton" style="width:48px;height:48px;border-radius:10px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="skeleton" style="height:14px;width:45%;margin-bottom:8px"></div>
+          <div class="skeleton" style="height:12px;width:70%"></div>
+        </div>
+        <div class="skeleton" style="width:60px;height:14px;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:16px">
+        <div class="skeleton" style="width:48px;height:48px;border-radius:10px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="skeleton" style="height:14px;width:55%;margin-bottom:8px"></div>
+          <div class="skeleton" style="height:12px;width:65%"></div>
+        </div>
+        <div class="skeleton" style="width:60px;height:14px;flex-shrink:0"></div>
+      </div>
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:8px">2~10초 대기 시 권장 &mdash; 실제 레이아웃과 동일한 구조</div>
+    </div>
+
+    <!-- Progress bar -->
+    <div id="stateProgress" style="display:none;width:100%;text-align:center">
+      <div style="font-size:14px;font-weight:600;margin-bottom:16px">대용량 데이터 처리 중...</div>
+      <div class="progress-track" style="margin-bottom:8px">
+        <div class="progress-fill" id="progressBar" style="width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)">
+        <span id="progressPercent">0%</span>
+        <span>10초 이상 대기 시 권장</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Time strategy table -->
+  <div class="card" style="margin-top:20px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--cyan)">시간별 로딩 인디케이터 전략</div>
+    <div class="data-table time-strategy-table" style="border:none">
+      <table>
+        <thead>
+          <tr><th>대기 시간</th><th>권장 인디케이터</th><th>이유</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>&lt; 1초</td><td style="color:var(--text)">없음</td><td>빠른 깜빡임은 오히려 방해</td></tr>
+          <tr><td>1~2초</td><td style="color:var(--text)">스피너</td><td>시스템이 작동 중임을 알린다</td></tr>
+          <tr><td>2~10초</td><td style="color:var(--text);font-weight:600">스켈레톤 스크린</td><td>페이지 구조를 미리 보여줘 인지 부하를 줄인다</td></tr>
+          <tr><td>&gt; 10초</td><td style="color:var(--text)">프로그레스 바</td><td>남은 시간에 대한 감각을 제공</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- 5. 인라인 차트 -->
+<!-- ════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">인라인 차트</div>
+  <h2>스파크라인, 마이크로 바, 미니 도넛</h2>
+  <p class="desc">대시보드와 리스트 안에서 데이터를 시각적으로 보충하는 소형 차트. 호버하면 정확한 값을 볼 수 있다.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">스파크라인 &mdash; 시계열 추세</div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Sparkline Row 1 -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="min-width:100px;font-size:13px;font-weight:600">매출 추이</div>
+        <div style="position:relative;flex-shrink:0">
+          <canvas id="sparkline1" width="160" height="40" style="cursor:crosshair"></canvas>
+          <div class="chart-tooltip" id="tooltip1"></div>
+        </div>
+        <div class="sparkline-container">
+          <span class="sparkline-value">45,230</span>
+          <span class="sparkline-change up">+12.4%</span>
+        </div>
+      </div>
+      <!-- Sparkline Row 2 -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="min-width:100px;font-size:13px;font-weight:600">트래픽</div>
+        <div style="position:relative;flex-shrink:0">
+          <canvas id="sparkline2" width="160" height="40" style="cursor:crosshair"></canvas>
+          <div class="chart-tooltip" id="tooltip2"></div>
+        </div>
+        <div class="sparkline-container">
+          <span class="sparkline-value">128,340</span>
+          <span class="sparkline-change up">+5.2%</span>
+        </div>
+      </div>
+      <!-- Sparkline Row 3 -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="min-width:100px;font-size:13px;font-weight:600">이탈률</div>
+        <div style="position:relative;flex-shrink:0">
+          <canvas id="sparkline3" width="160" height="40" style="cursor:crosshair"></canvas>
+          <div class="chart-tooltip" id="tooltip3"></div>
+        </div>
+        <div class="sparkline-container">
+          <span class="sparkline-value">32.1%</span>
+          <span class="sparkline-change down">-2.8%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Micro Bar Charts -->
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">마이크로 바 차트</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>스토리지 사용량</span><span class="mono" style="color:var(--cyan)">73%</span></div>
+          <div class="micro-bar"><div class="micro-bar-fill" style="width:73%;background:linear-gradient(90deg,var(--accent-dim),var(--cyan))"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>목표 달성률</span><span class="mono" style="color:var(--green)">91%</span></div>
+          <div class="micro-bar"><div class="micro-bar-fill" style="width:91%;background:linear-gradient(90deg,#059669,var(--green))"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>CPU 사용률</span><span class="mono" style="color:var(--yellow)">58%</span></div>
+          <div class="micro-bar"><div class="micro-bar-fill" style="width:58%;background:linear-gradient(90deg,#d97706,var(--yellow))"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>에러율</span><span class="mono" style="color:var(--red)">12%</span></div>
+          <div class="micro-bar"><div class="micro-bar-fill" style="width:12%;background:linear-gradient(90deg,#dc2626,var(--red))"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini Donut Charts -->
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">미니 도넛 차트</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="mini-donut-wrap">
+          <canvas id="donut1" width="44" height="44"></canvas>
+          <div><div style="font-size:13px;font-weight:600">카테고리 비중</div><div style="font-size:11px;color:var(--text3)">전자기기 68% / 의류 22% / 기타 10%</div></div>
+        </div>
+        <div class="mini-donut-wrap">
+          <canvas id="donut2" width="44" height="44"></canvas>
+          <div><div style="font-size:13px;font-weight:600">트래픽 소스</div><div style="font-size:11px;color:var(--text3)">검색 52% / 직접 31% / 소셜 17%</div></div>
+        </div>
+        <div class="mini-donut-wrap">
+          <canvas id="donut3" width="44" height="44"></canvas>
+          <div><div style="font-size:13px;font-weight:600">디바이스 분포</div><div style="font-size:11px;color:var(--text3)">모바일 74% / 데스크톱 26%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- 6. 한국어 숫자 포맷 -->
+<!-- ════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">한국어 숫자 포맷</div>
+  <h2>만 / 억 / 조 단위 변환</h2>
+  <p class="desc">큰 숫자를 한국어 단위(만/억/조)로 축약한다. 숫자를 입력하면 실시간으로 변환 결과를 확인할 수 있다.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Live Formatter</div>
+    <input type="text" class="formatter-input" id="numberInput" placeholder="숫자를 입력하세요 (예: 1234567890)" oninput="formatNumber(this.value)">
+
+    <div class="formatter-result" id="formatResult">
+      <div class="formatter-card">
+        <div class="label">원본</div>
+        <div class="value" id="fmtOriginal">-</div>
+      </div>
+      <div class="formatter-card">
+        <div class="label">한국어</div>
+        <div class="value" id="fmtKorean">-</div>
+      </div>
+      <div class="formatter-card">
+        <div class="label">영문 (K/M/B)</div>
+        <div class="value" id="fmtEnglish">-</div>
+      </div>
+      <div class="formatter-card">
+        <div class="label">금액 (원)</div>
+        <div class="value small" id="fmtCurrency">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">예시 클릭하여 변환</div>
+    <div class="format-examples" id="formatExamples">
+      <div class="format-example" onclick="applyExample(9876)">
+        <span class="original">9,876</span>
+        <span class="converted">9,876</span>
+      </div>
+      <div class="format-example" onclick="applyExample(12345)">
+        <span class="original">12,345</span>
+        <span class="converted">1.2만</span>
+      </div>
+      <div class="format-example" onclick="applyExample(1234567)">
+        <span class="original">1,234,567</span>
+        <span class="converted">123.5만</span>
+      </div>
+      <div class="format-example" onclick="applyExample(12345678)">
+        <span class="original">12,345,678</span>
+        <span class="converted">0.1억</span>
+      </div>
+      <div class="format-example" onclick="applyExample(123456789000)">
+        <span class="original">123,456,789,000</span>
+        <span class="converted">1,234.6억</span>
+      </div>
+      <div class="format-example" onclick="applyExample(1500000000000)">
+        <span class="original">1,500,000,000,000</span>
+        <span class="converted">1.5조</span>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;padding:16px;background:var(--surface2);border-radius:10px">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">구현 규칙</div>
+      <ul style="font-size:12px;color:var(--text2);padding-left:18px;line-height:1.6">
+        <li>1만 미만: 원래 숫자 표시 (예: 9,876)</li>
+        <li>1만~1억 미만: 만 단위 (예: 1.2만, 123.5만)</li>
+        <li>1억~1조 미만: 억 단위 (예: 1.5억, 1,234.6억)</li>
+        <li>1조 이상: 조 단위 (예: 1.5조)</li>
+        <li>소수점은 최대 1자리까지만</li>
+        <li>금액(&#8361;)은 "약" 접두사 고려: "약 1.2억원"</li>
+        <li>정확한 값이 필요한 맥락(결제, 잔고)에서는 축약하지 않는다</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div><!-- .page -->
+
+<script>
+// ─── 1. List/Grid Toggle ───
+function switchView(mode) {
+  document.getElementById('listView').style.display = mode === 'list' ? 'block' : 'none';
+  document.getElementById('gridView').style.display = mode === 'grid' ? 'block' : 'none';
+  document.querySelectorAll('#viewToggle button').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.view === mode);
+  });
+}
+
+// ─── 2. Table Sorting ───
+var sortState = { col: 0, asc: true };
+function sortTable(colIndex) {
+  var tbody = document.getElementById('tableBody');
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  var isNum = colIndex >= 2 && colIndex <= 4;
+
+  if (sortState.col === colIndex) {
+    sortState.asc = !sortState.asc;
+  } else {
+    sortState.col = colIndex;
+    sortState.asc = true;
+  }
+
+  rows.sort(function(a, b) {
+    var aVal = a.cells[colIndex].textContent.trim();
+    var bVal = b.cells[colIndex].textContent.trim();
+    if (isNum) {
+      aVal = parseFloat(aVal.replace(/[^0-9.\-]/g, '')) || 0;
+      bVal = parseFloat(bVal.replace(/[^0-9.\-]/g, '')) || 0;
+      return sortState.asc ? aVal - bVal : bVal - aVal;
+    }
+    return sortState.asc ? aVal.localeCompare(bVal, 'ko') : bVal.localeCompare(aVal, 'ko');
+  });
+
+  rows.forEach(function(r) { tbody.appendChild(r); });
+
+  // Update sort icons
+  document.querySelectorAll('#sortableTable th').forEach(function(th, i) {
+    var icon = th.querySelector('.sort-icon');
+    if (!icon) return;
+    th.classList.toggle('sorted', i === colIndex);
+    icon.innerHTML = (i === colIndex && !sortState.asc) ? '&#9660;' : '&#9650;';
+  });
+}
+
+// ─── 3. Responsive Table Toggle ───
+function switchResponsive(mode, btn) {
+  document.getElementById('responsiveDesktop').style.display = mode === 'desktop' ? 'block' : 'none';
+  document.getElementById('responsiveStack').style.display = mode === 'stack' ? 'block' : 'none';
+  document.getElementById('responsiveLocked').style.display = mode === 'locked' ? 'block' : 'none';
+  btn.parentElement.querySelectorAll('button').forEach(function(b) { b.classList.remove('btn-active'); });
+  btn.classList.add('btn-active');
+}
+
+// ─── 4. Loading States Toggle ───
+var progressInterval = null;
+function switchLoadingState(mode, btn) {
+  ['stateEmpty','stateSpinner','stateSkeleton','stateProgress'].forEach(function(id) {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  if (mode === 'empty') document.getElementById('stateEmpty').style.display = 'block';
+  if (mode === 'spinner') document.getElementById('stateSpinner').style.display = 'block';
+  if (mode === 'skeleton') document.getElementById('stateSkeleton').style.display = 'block';
+  if (mode === 'progress') {
+    document.getElementById('stateProgress').style.display = 'block';
+    animateProgress();
+  }
+
+  btn.parentElement.querySelectorAll('button').forEach(function(b) { b.classList.remove('btn-active'); });
+  btn.classList.add('btn-active');
+}
+
+function animateProgress() {
+  if (progressInterval) clearInterval(progressInterval);
+  var bar = document.getElementById('progressBar');
+  var label = document.getElementById('progressPercent');
+  var pct = 0;
+  bar.style.width = '0%';
+  label.textContent = '0%';
+  progressInterval = setInterval(function() {
+    pct += Math.random() * 8 + 2;
+    if (pct >= 100) { pct = 100; clearInterval(progressInterval); }
+    bar.style.width = pct.toFixed(0) + '%';
+    label.textContent = pct.toFixed(0) + '%';
+  }, 300);
+}
+
+// ─── 5. Sparkline Drawing ───
+function drawSparkline(canvasId, tooltipId, data, color) {
+  var canvas = document.getElementById(canvasId);
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  var min = Math.min.apply(null, data);
+  var max = Math.max.apply(null, data);
+  var range = max - min || 1;
+  var pad = 4;
+
+  function getX(i) { return pad + (i / (data.length - 1)) * (w - 2 * pad); }
+  function getY(v) { return h - pad - ((v - min) / range) * (h - 2 * pad); }
+
+  function render() {
+    ctx.clearRect(0, 0, w, h);
+
+    // Area fill
+    ctx.beginPath();
+    ctx.moveTo(getX(0), h);
+    for (var i = 0; i < data.length; i++) ctx.lineTo(getX(i), getY(data[i]));
+    ctx.lineTo(getX(data.length - 1), h);
+    ctx.closePath();
+    var grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, color + '33');
+    grad.addColorStop(1, color + '05');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    for (var i = 0; i < data.length; i++) {
+      if (i === 0) ctx.moveTo(getX(i), getY(data[i]));
+      else ctx.lineTo(getX(i), getY(data[i]));
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Last point dot
+    var last = data.length - 1;
+    ctx.beginPath();
+    ctx.arc(getX(last), getY(data[last]), 3, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(getX(last), getY(data[last]), 5, 0, Math.PI * 2);
+    ctx.strokeStyle = color + '44';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  render();
+
+  // Tooltip on hover
+  var tooltip = document.getElementById(tooltipId);
+  canvas.addEventListener('mousemove', function(e) {
+    var rect = canvas.getBoundingClientRect();
+    var mx = e.clientX - rect.left;
+    var idx = Math.round((mx - pad) / (w - 2 * pad) * (data.length - 1));
+    idx = Math.max(0, Math.min(data.length - 1, idx));
+    tooltip.textContent = 'Day ' + (idx + 1) + ': ' + data[idx].toLocaleString();
+    tooltip.style.opacity = '1';
+    tooltip.style.left = (getX(idx) - 30) + 'px';
+    tooltip.style.top = (getY(data[idx]) - 32) + 'px';
+  });
+  canvas.addEventListener('mouseleave', function() {
+    tooltip.style.opacity = '0';
+  });
+}
+
+drawSparkline('sparkline1', 'tooltip1',
+  [32000, 34500, 31000, 38000, 36500, 42000, 40000, 39000, 43000, 45230],
+  '#22d3ee');
+drawSparkline('sparkline2', 'tooltip2',
+  [95000, 102000, 98000, 115000, 108000, 120000, 118000, 122000, 125000, 128340],
+  '#4ade80');
+drawSparkline('sparkline3', 'tooltip3',
+  [41, 39, 42, 38, 36, 35, 37, 34, 33, 32],
+  '#f87171');
+
+// ─── Mini Donut Charts ───
+function drawDonut(canvasId, segments) {
+  var canvas = document.getElementById(canvasId);
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var size = 44;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(dpr, dpr);
+
+  var cx = size / 2, cy = size / 2, r = 18, lw = 6;
+  var total = segments.reduce(function(s, seg) { return s + seg.value; }, 0);
+  var startAngle = -Math.PI / 2;
+
+  segments.forEach(function(seg) {
+    var sweep = (seg.value / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startAngle, startAngle + sweep);
+    ctx.strokeStyle = seg.color;
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    startAngle += sweep + 0.04; // small gap
+  });
+}
+
+drawDonut('donut1', [
+  { value: 68, color: '#22d3ee' },
+  { value: 22, color: '#a78bfa' },
+  { value: 10, color: '#5b627a' }
+]);
+drawDonut('donut2', [
+  { value: 52, color: '#4ade80' },
+  { value: 31, color: '#fbbf24' },
+  { value: 17, color: '#f472b6' }
+]);
+drawDonut('donut3', [
+  { value: 74, color: '#22d3ee' },
+  { value: 26, color: '#fb923c' }
+]);
+
+// ─── 6. Korean Number Formatter ───
+function formatKorean(n) {
+  var jo = 1000000000000;
+  var eok = 100000000;
+  var man = 10000;
+  if (n >= jo) return (n / jo).toFixed(1) + '조';
+  if (n >= eok) {
+    var eokVal = n / eok;
+    if (eokVal >= 10) return eokVal.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '억';
+    return eokVal.toFixed(1) + '억';
+  }
+  if (n >= man) return (n / man).toFixed(1) + '만';
+  return n.toLocaleString('ko-KR');
+}
+
+function formatEnglish(n) {
+  if (n >= 1e12) return (n / 1e12).toFixed(1) + 'T';
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toString();
+}
+
+function formatCurrency(n) {
+  if (n >= 1e12) return '약 ' + (n / 1e12).toFixed(1) + '조원';
+  if (n >= 1e8) return '약 ' + formatKorean(n) + '원';
+  return n.toLocaleString('ko-KR') + '원';
+}
+
+function formatNumber(raw) {
+  var cleaned = raw.replace(/[^0-9]/g, '');
+  if (!cleaned) {
+    document.getElementById('fmtOriginal').textContent = '-';
+    document.getElementById('fmtKorean').textContent = '-';
+    document.getElementById('fmtEnglish').textContent = '-';
+    document.getElementById('fmtCurrency').textContent = '-';
+    return;
+  }
+  var n = parseInt(cleaned, 10);
+  document.getElementById('fmtOriginal').textContent = n.toLocaleString('ko-KR');
+  document.getElementById('fmtKorean').textContent = formatKorean(n);
+  document.getElementById('fmtEnglish').textContent = formatEnglish(n);
+  document.getElementById('fmtCurrency').textContent = formatCurrency(n);
+}
+
+function applyExample(n) {
+  var input = document.getElementById('numberInput');
+  input.value = n.toLocaleString('ko-KR');
+  formatNumber(n.toString());
+}
+</script>
+</body>
+</html>

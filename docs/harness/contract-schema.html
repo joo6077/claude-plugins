@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprint Contract 스키마 — Harness</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+                   radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+}
+.page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+  background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+.section{margin-bottom:clamp(48px,6vw,80px)}
+.section-label{
+  font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+  color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 80%)}
+.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+.card:hover{border-color:var(--accent)}
+.card-title{font-size:1.05rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:12px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.6}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(217,119,87,0.04)}
+td:first-child{color:var(--text);font-weight:600;white-space:nowrap}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;
+  border-radius:50%;font-size:12px;font-weight:700;background:var(--accent-dim);color:var(--accent);margin-right:8px}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.6}
+.checklist li::before{content:'';width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:2px}
+.compare-bad,.compare-good{padding:16px 20px;border-radius:10px;font-size:13px;line-height:1.7}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.mono{font-family:var(--mono);font-size:13px;color:var(--accent2)}
+.code-block{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.6;
+  color:var(--text2);overflow-x:auto;margin-bottom:24px;
+}
+.code-block .key{color:var(--accent)}
+.code-block .val{color:var(--green)}
+.code-block .comment{color:var(--text3)}
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--mono)}
+.tag-simple{background:rgba(74,222,128,0.12);color:var(--green)}
+.tag-medium{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.tag-complex{background:rgba(248,113,113,0.12);color:var(--red)}
+.path-badge{
+  display:inline-block;padding:6px 16px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-family:var(--mono);font-size:14px;color:var(--accent);margin-bottom:24px;
+}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:24px;transition:color var(--transition)}
+.back-link:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="page">
+  <a href="../index.html" class="back-link">&larr; Documentation Home</a>
+  <h1>Sprint Contract 스키마</h1>
+  <p class="subtitle">YAML frontmatter, 카테고리 구조, 조건 ID 포맷 &#8212; sprint-contract와 qa-evaluator가 공유하는 계약 포맷 정의</p>
+
+  <!-- File Location -->
+  <div class="section">
+    <div class="section-label">File Location</div>
+    <h2>계약 파일 위치</h2>
+    <p class="desc">Sprint Contract는 프로젝트 루트의 <span class="mono">.harness/</span> 디렉토리에 Markdown 파일로 저장된다.</p>
+    <div class="path-badge">.harness/sprint-contract.md</div>
+    <p class="desc">contract-kaizen이 변경 제안 가능하며, evaluator-kaizen이 읽어서 평가 루브릭에 반영한다. 현재 스키마 버전: <strong style="color:var(--accent)">v1</strong></p>
+  </div>
+
+  <!-- YAML Frontmatter -->
+  <div class="section">
+    <div class="section-label">YAML Frontmatter</div>
+    <h2>메타데이터 필드</h2>
+    <p class="desc">모든 Sprint Contract는 YAML frontmatter로 시작한다. 4개의 필수 필드가 계약의 범위와 복잡도를 정의한다.</p>
+    <div class="code-block">
+      <span class="comment">---</span><br>
+      <span class="key">feature</span>: <span class="val">"{기능명}"</span><br>
+      <span class="key">created</span>: <span class="val">"{YYYY-MM-DD HH:mm}"</span><br>
+      <span class="key">complexity</span>: <span class="val">"{simple|medium|complex}"</span><br>
+      <span class="key">conditions</span>: <span class="val">{총 조건 수}</span><br>
+      <span class="comment">---</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>필드</th><th>타입</th><th>설명</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>feature</td><td class="mono">string</td><td>구현할 기능의 명칭</td><td class="mono">"로그인 화면 구현"</td></tr>
+          <tr><td>created</td><td class="mono">datetime</td><td>계약 생성 시각</td><td class="mono">"2026-03-30 14:00"</td></tr>
+          <tr><td>complexity</td><td class="mono">enum</td><td>기능 복잡도 (파일 영향 범위 기준)</td><td class="mono">medium</td></tr>
+          <tr><td>conditions</td><td class="mono">int</td><td>전체 조건 수 합계</td><td class="mono">10</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Required Sections -->
+  <div class="section">
+    <div class="section-label">Required Sections</div>
+    <h2>필수 섹션 목록</h2>
+    <p class="desc">모든 Sprint Contract는 4가지 필수 섹션을 포함해야 한다. 카테고리별 조건은 프로젝트 설정에 따라 동적이고, 나머지 3개는 자동 포함된다.</p>
+
+    <!-- Section 1: Categories -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title"><span class="num">1</span> 카테고리별 조건</div>
+      <div class="code-block" style="margin-top:12px;margin-bottom:12px">
+        <span class="comment">## {CategoryID}</span><br>
+        <span class="key">- [ ]</span> <span class="val">{PREFIX}-{NN}</span>: {PASS/FAIL 이진 판정 가능한 조건문}
+      </div>
+      <ul class="checklist">
+        <li><span class="mono">CategoryID</span>와 <span class="mono">PREFIX</span>는 <span class="mono">project.yaml.contract_categories</span>에서 가져온다</li>
+        <li>조건문은 능동태, 단일 조건, 측정 가능해야 한다</li>
+        <li>"잘 동작한다", "적절히 처리한다" 같은 모호 표현 금지</li>
+      </ul>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="compare-bad">
+          <div class="compare-label">Bad</div>
+          "로그인이 잘 동작한다"<br>"에러를 적절히 처리한다"
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">Good</div>
+          "잘못된 비밀번호 입력 시 HTTP 401을 반환한다"<br>"네트워크 오류 시 재시도 다이얼로그를 표시한다"
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Anti-patterns -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title"><span class="num">2</span> Anti-patterns</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px"><span class="mono">project.yaml.anti_patterns</span>에서 최소 2개 선별. 해당 구현에서 발생 가능성이 높은 것을 우선 선택한다.</p>
+      <div class="code-block">
+        <span class="comment">## Anti-patterns</span><br>
+        <span class="key">- [ ]</span> <span class="val">{id}</span>: {message}
+      </div>
+    </div>
+
+    <!-- Section 3: Reusability -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title"><span class="num">3</span> Reusability <span class="tag tag-simple" style="margin-left:8px">자동 포함</span></div>
+      <div class="code-block" style="margin-top:12px">
+        <span class="comment">## Reusability</span><br>
+        <span class="key">- [ ]</span> <span class="val">RE-01</span>: private 일회용 컴포넌트가 없다<br>
+        <span class="key">- [ ]</span> <span class="val">RE-02</span>: 기존 공용 컴포넌트를 재사용한다
+      </div>
+    </div>
+
+    <!-- Section 4: Diagnostics -->
+    <div class="card">
+      <div class="card-title"><span class="num">4</span> Diagnostics <span class="tag tag-simple" style="margin-left:8px">자동 포함</span></div>
+      <div class="code-block" style="margin-top:12px">
+        <span class="comment">## Diagnostics</span><br>
+        <span class="key">- [ ]</span> <span class="val">DG-01</span>: analyze 경고 0건<br>
+        <span class="key">- [ ]</span> <span class="val">DG-02</span>: analyze 에러 0건<br>
+        <span class="key">- [ ]</span> <span class="val">DG-03</span>: 테스트 전체 통과<br>
+        <span class="key">- [ ]</span> <span class="val">DG-04</span>: 콘솔 에러 0건
+      </div>
+    </div>
+  </div>
+
+  <!-- Condition ID Format -->
+  <div class="section">
+    <div class="section-label">ID Format</div>
+    <h2>조건 ID 포맷 규칙</h2>
+    <p class="desc">모든 조건은 카테고리 PREFIX와 2자리 순번으로 고유하게 식별된다. qa-evaluator가 이 ID로 조건을 추적한다.</p>
+    <div class="code-block">
+      <span class="comment"># 포맷: {PREFIX}-{NN}</span><br><br>
+      <span class="val">UI-01</span>: 로그인 폼이 화면 중앙에 위치한다<br>
+      <span class="val">UI-02</span>: 비밀번호 필드가 마스킹 처리된다<br>
+      <span class="val">API-01</span>: POST /auth/login 엔드포인트가 존재한다<br>
+      <span class="val">RE-01</span>: private 일회용 컴포넌트가 없다<br>
+      <span class="val">DG-03</span>: 테스트 전체 통과
+    </div>
+  </div>
+
+  <!-- Complexity Guide -->
+  <div class="section">
+    <div class="section-label">Complexity Guide</div>
+    <h2>복잡도별 조건 수 가이드</h2>
+    <p class="desc">기능의 파일 영향 범위에 따라 적절한 조건 수를 설정한다. 과소 조건은 검증 누락을, 과다 조건은 불필요한 부담을 발생시킨다.</p>
+    <div class="grid-3">
+      <div class="card" style="text-align:center">
+        <div style="margin-bottom:12px"><span class="tag tag-simple">Simple</span></div>
+        <div style="font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--green);line-height:1">4-6</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:8px">조건</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">파일 영향: 1-3개</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="margin-bottom:12px"><span class="tag tag-medium">Medium</span></div>
+        <div style="font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--yellow);line-height:1">8-12</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:8px">조건</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">파일 영향: 4-8개</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="margin-bottom:12px"><span class="tag tag-complex">Complex</span></div>
+        <div style="font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--red);line-height:1">12-20</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:8px">조건</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">파일 영향: 9+개</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

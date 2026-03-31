@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>접근성 — Accessibility</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+  --accent-glow:rgba(232,150,90,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1280px;margin:0 auto;padding:0 24px}
+section{padding:80px 0}section+section{border-top:1px solid var(--border)}
+
+/* HERO */
+.hero{padding:60px 0 80px;text-align:center;
+  background:radial-gradient(ellipse at 50% 0%,rgba(232,150,90,0.08) 0%,transparent 60%)}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+.hero h1{font-size:clamp(2.5rem,5vw+1rem,4.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px}
+.hero p{font-size:1.125rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+
+/* SECTION */
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:1rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:48px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;transition:var(--transition)}
+.card:hover{border-color:var(--border2)}
+.card-title{font-size:1.125rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+@media(min-width:901px) and (max-width:1100px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+
+/* POUR CARDS */
+.pour-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px;position:relative;overflow:hidden;transition:var(--transition);
+}
+.pour-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.pour-card .pour-icon{font-size:32px;margin-bottom:16px;display:block}
+.pour-card .pour-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px}
+.pour-card .pour-name{font-size:1.25rem;font-weight:700;margin-bottom:12px}
+.pour-card ul{list-style:none;padding:0}
+.pour-card ul li{font-size:13px;color:var(--text2);line-height:1.7;padding-left:16px;position:relative}
+.pour-card ul li::before{content:'';position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:50%}
+.pour-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+
+/* CONTRAST CHECKER */
+.cc-input{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cc-input label{font-size:13px;color:var(--text2);font-weight:500;min-width:60px}
+.cc-color-input{
+  width:48px;height:36px;border:2px solid var(--border);border-radius:var(--radius-sm);
+  cursor:pointer;padding:2px;background:var(--surface);
+}
+.cc-color-input::-webkit-color-swatch-wrapper{padding:0}
+.cc-color-input::-webkit-color-swatch{border:none;border-radius:4px}
+.cc-hex{
+  font-family:monospace;font-size:14px;padding:6px 12px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);width:100px;
+}
+.cc-result{padding:20px;background:var(--surface2);border-radius:var(--radius);text-align:center;margin-top:16px}
+.cc-ratio{font-size:36px;font-weight:800;margin-bottom:8px}
+.cc-badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.badge{padding:4px 14px;border-radius:100px;font-size:12px;font-weight:700}
+.badge.pass{background:rgba(74,222,128,0.15);color:#4ade80}
+.badge.fail{background:rgba(248,113,113,0.15);color:#f87171}
+.cc-preview{margin-top:16px;padding:24px;border-radius:var(--radius);font-size:18px;font-weight:600;text-align:center}
+
+/* TOUCH TARGETS */
+.touch-demo{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap;padding:40px 0}
+.touch-btn{
+  border:none;color:#fff;font-weight:600;cursor:pointer;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;transition:var(--transition);
+  position:relative;
+}
+.touch-btn:hover{opacity:0.85}
+.touch-btn .touch-label{position:absolute;bottom:-28px;font-size:11px;color:var(--text3);white-space:nowrap;font-weight:500}
+.touch-outline{position:relative}
+.touch-outline::after{content:'';position:absolute;border:2px dashed var(--text3);border-radius:var(--radius-sm);pointer-events:none}
+
+/* KEYBOARD DEMO */
+.kbd-demo-area{
+  display:flex;flex-wrap:wrap;gap:12px;padding:24px;background:var(--surface2);
+  border-radius:var(--radius);margin-bottom:24px;
+}
+.kbd-demo-area *:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.kbd-btn{padding:10px 20px;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition)}
+.kbd-btn:hover{background:var(--accent-dim);border-color:var(--accent)}
+.kbd-input{padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-size:14px;width:180px}
+.kbd-link{color:var(--accent);text-decoration:underline;font-size:14px;cursor:pointer;background:none;border:none;padding:8px}
+.kbd-select{padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-size:14px}
+.skip-link-demo{
+  position:absolute;left:-9999px;padding:10px 20px;background:var(--accent);color:#fff;
+  font-weight:600;border-radius:var(--radius-sm);font-size:14px;z-index:100;text-decoration:none;
+}
+.skip-link-demo:focus{position:static;left:auto}
+
+/* MODAL */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);
+  display:none;align-items:center;justify-content:center;z-index:2000}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;max-width:400px;width:90%;position:relative}
+.modal-box h3{font-size:1.125rem;font-weight:700;margin-bottom:12px}
+.modal-box p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.7}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text3);
+  font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}
+.modal-close:hover{color:var(--text)}
+
+/* COGNITIVE CARDS */
+.cog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:24px;transition:var(--transition)}
+.cog-card:hover{border-color:var(--border2)}
+.cog-card .cog-icon{font-size:28px;margin-bottom:12px;display:block}
+.cog-card .cog-name{font-size:1rem;font-weight:700;margin-bottom:8px}
+.cog-card .cog-desc{font-size:13px;color:var(--text2);line-height:1.7}
+
+/* MOTION */
+.motion-demo-container{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+@media(max-width:700px){.motion-demo-container{grid-template-columns:1fr}}
+.motion-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;text-align:center;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.motion-ball{width:40px;height:40px;border-radius:50%;background:var(--accent)}
+@keyframes bounceMove{
+  0%{transform:translateX(-80px)}
+  50%{transform:translateX(80px)}
+  100%{transform:translateX(-80px)}
+}
+@keyframes fadePulse{
+  0%{opacity:0.3}
+  50%{opacity:1}
+  100%{opacity:0.3}
+}
+.motion-ball.animated{animation:bounceMove 2s ease-in-out infinite}
+.motion-ball.reduced{animation:fadePulse 2s ease-in-out infinite}
+
+/* DANGER LEVELS */
+.danger-highest{color:var(--red);font-weight:700}
+.danger-high{color:var(--yellow);font-weight:600}
+.danger-medium{color:var(--yellow);font-weight:600}
+.danger-low{color:var(--green);font-weight:500}
+
+/* CHART BAR */
+.chart-bar-container{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.chart-row{display:flex;align-items:center;gap:12px}
+.chart-label{font-size:13px;font-weight:600;min-width:100px;text-align:right}
+.chart-bar-track{flex:1;height:32px;background:var(--surface2);border-radius:var(--radius-sm);overflow:hidden;position:relative}
+.chart-bar-fill{height:100%;border-radius:var(--radius-sm);display:flex;align-items:center;padding-left:12px;
+  font-size:12px;font-weight:700;color:#fff;transition:width 1s ease}
+.chart-pct{font-size:13px;font-weight:600;min-width:48px;color:var(--text2)}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.check-item:last-child{border-bottom:none}
+.check-item input[type="checkbox"]{
+  appearance:none;-webkit-appearance:none;width:20px;height:20px;border:2px solid var(--border);
+  border-radius:4px;cursor:pointer;flex-shrink:0;margin-top:2px;position:relative;transition:var(--transition);
+  background:var(--surface);
+}
+.check-item input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+.check-item input[type="checkbox"]:checked::after{
+  content:'';position:absolute;top:2px;left:6px;width:5px;height:10px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
+}
+.check-item label{font-size:14px;color:var(--text2);line-height:1.6;cursor:pointer}
+.check-item input[type="checkbox"]:checked+label{color:var(--text);text-decoration:line-through;opacity:0.6}
+
+/* COGA */
+.ap-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:700px){.ap-grid{grid-template-columns:1fr}}
+.ap-card{padding:24px;border-radius:var(--radius);border:1px solid}
+.ap-card.bad{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.04)}
+.ap-card.good{border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.04)}
+.ap-card .ap-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+.ap-card.bad .ap-label{color:var(--error)}.ap-card.good .ap-label{color:var(--success)}
+
+/* ARIA MAP */
+.aria-map{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  overflow:hidden;font-size:13px;
+}
+.aria-map-row{display:flex;border-bottom:1px solid var(--border);align-items:stretch}
+.aria-map-row:last-child{border-bottom:none}
+.aria-map-label{
+  min-width:120px;padding:12px 16px;background:var(--surface2);font-weight:600;
+  display:flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);
+}
+.aria-map-content{padding:12px 16px;color:var(--text2);flex:1;display:flex;align-items:center}
+
+.fig-caption{font-size:13px;color:var(--text3);text-align:center;margin-top:12px;font-style:italic}
+.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}
+.mb-16{margin-bottom:16px}.mb-24{margin-bottom:24px}.mb-32{margin-bottom:32px}
+.text-accent{color:var(--accent)}.text-muted{color:var(--text2)}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9em;
+  background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+@media(max-width:600px){
+  .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<header class="hero">
+  <div class="hero-badge">Accessibility</div>
+  <h1>접근성</h1>
+  <p>WCAG 2.2 핵심 원칙(POUR), 색상 대비, 터치 타겟 크기, 스크린 리더, 키보드 네비게이션, 인지 접근성, 모션 감수성까지 -- 모든 사용자를 위한 디자인을 인터랙티브하게 탐색합니다.</p>
+</header>
+
+<!-- ─── POUR 원칙 ─── -->
+<section id="pour">
+  <div class="section-label">Principles</div>
+  <div class="section-title">POUR 원칙</div>
+  <p class="section-desc">WCAG 2.2의 4가지 근본 원칙. 모든 접근성 성공 기준은 이 원칙 중 하나에 속한다.</p>
+
+  <div class="grid-4">
+    <div class="pour-card" style="--c:#E8965A" >
+      <div class="pour-icon">&#x1f441;</div>
+      <div class="pour-label" style="color:#E8965A">Perceivable</div>
+      <div class="pour-name">인식 가능</div>
+      <ul>
+        <li style="--dot:#E8965A">대체 텍스트 제공 (SC 1.1.1)</li>
+        <li style="--dot:#E8965A">자막 및 음성 해설 (SC 1.2.x)</li>
+        <li style="--dot:#E8965A">다양한 표현 방식 (SC 1.3.x)</li>
+        <li style="--dot:#E8965A">전경/배경 구분 (SC 1.4.x)</li>
+      </ul>
+      <style>.pour-card:nth-child(1)::before{background:linear-gradient(90deg,#E8965A,transparent)}</style>
+      <style>.pour-card:nth-child(1) ul li::before{background:#E8965A}</style>
+    </div>
+    <div class="pour-card" style="--c:#4ade80">
+      <div class="pour-icon">&#x1f9ad;</div>
+      <div class="pour-label" style="color:#4ade80">Operable</div>
+      <div class="pour-name">운용 가능</div>
+      <ul>
+        <li>키보드 접근 (SC 2.1.x)</li>
+        <li>충분한 시간 제공 (SC 2.2.x)</li>
+        <li>발작 유발 회피 (SC 2.3.x)</li>
+        <li>탐색 방법 제공 (SC 2.4.x)</li>
+      </ul>
+      <style>.pour-card:nth-child(2)::before{background:linear-gradient(90deg,#4ade80,transparent)}</style>
+      <style>.pour-card:nth-child(2) ul li::before{background:#4ade80}</style>
+    </div>
+    <div class="pour-card" style="--c:#fbbf24">
+      <div class="pour-icon">&#x1f4a1;</div>
+      <div class="pour-label" style="color:#fbbf24">Understandable</div>
+      <div class="pour-name">이해 가능</div>
+      <ul>
+        <li>텍스트 가독성 (SC 3.1.x)</li>
+        <li>예측 가능한 동작 (SC 3.2.x)</li>
+        <li>오류 방지/수정 (SC 3.3.x)</li>
+        <li>일관된 탐색 구조</li>
+      </ul>
+      <style>.pour-card:nth-child(3)::before{background:linear-gradient(90deg,#fbbf24,transparent)}</style>
+      <style>.pour-card:nth-child(3) ul li::before{background:#fbbf24}</style>
+    </div>
+    <div class="pour-card" style="--c:#F0B088">
+      <div class="pour-icon">&#x1f527;</div>
+      <div class="pour-label" style="color:#F0B088">Robust</div>
+      <div class="pour-name">견고성</div>
+      <ul>
+        <li>마크업 호환성 (SC 4.1.x)</li>
+        <li>이름/역할/값 확인 (SC 4.1.2)</li>
+        <li>상태 메시지 감지 (SC 4.1.3)</li>
+        <li>보조 기술 안정적 해석</li>
+      </ul>
+      <style>.pour-card:nth-child(4)::before{background:linear-gradient(90deg,#F0B088,transparent)}</style>
+      <style>.pour-card:nth-child(4) ul li::before{background:#F0B088}</style>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 색상 대비 ─── -->
+<section id="contrast">
+  <div class="section-label">Color Contrast</div>
+  <div class="section-title">색상 대비 체커</div>
+  <p class="section-desc">전경색과 배경색을 선택하면 실시간으로 WCAG 대비비를 계산합니다. AA (4.5:1), AAA (7:1), 비텍스트 (3:1) 기준을 확인하세요.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>대비 계산기</div>
+      <div class="cc-input">
+        <label>전경색</label>
+        <input type="color" class="cc-color-input" id="ccFg" value="#F5F0E8">
+        <input type="text" class="cc-hex" id="ccFgHex" value="#F5F0E8" maxlength="7">
+      </div>
+      <div class="cc-input">
+        <label>배경색</label>
+        <input type="color" class="cc-color-input" id="ccBg" value="#0d0d14">
+        <input type="text" class="cc-hex" id="ccBgHex" value="#0d0d14" maxlength="7">
+      </div>
+      <div class="cc-result">
+        <div class="cc-ratio" id="ccRatio">18.4 : 1</div>
+        <div class="cc-badges" id="ccBadges">
+          <span class="badge pass">AA Normal PASS</span>
+          <span class="badge pass">AA Large PASS</span>
+          <span class="badge pass">AAA Normal PASS</span>
+          <span class="badge pass">AAA Large PASS</span>
+          <span class="badge pass">Non-text PASS</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>미리보기</div>
+      <div id="ccPreview" class="cc-preview" style="background:#0d0d14;color:#F5F0E8">
+        가나다라마바사 — The quick brown fox<br>
+        <span style="font-size:14px;opacity:0.85;display:block;margin-top:8px">일반 텍스트 (16px) 대비 확인</span>
+        <span style="font-size:24px;font-weight:700;display:block;margin-top:8px">큰 텍스트 (24px)</span>
+      </div>
+      <div class="mt-24">
+        <div class="card-title" style="font-size:14px"><span class="dot"></span>WCAG 기준표</div>
+        <div class="table-wrap" style="margin-top:12px">
+          <table>
+            <thead><tr><th>수준</th><th>일반 텍스트</th><th>큰 텍스트</th></tr></thead>
+            <tbody>
+              <tr><td><strong>AA</strong></td><td>4.5 : 1</td><td>3 : 1</td></tr>
+              <tr><td><strong>AAA</strong></td><td>7 : 1</td><td>4.5 : 1</td></tr>
+              <tr><td><strong>비텍스트 (UI)</strong></td><td colspan="2">3 : 1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 터치 타겟 ─── -->
+<section id="touch">
+  <div class="section-label">Touch Targets</div>
+  <div class="section-title">터치 타겟 크기</div>
+  <p class="section-desc">44pt 미만의 버튼은 탭 오류율이 25% 이상 증가합니다. 아래 버튼을 직접 눌러 크기 차이를 체감해 보세요.</p>
+
+  <div class="card mb-32">
+    <div class="card-title"><span class="dot"></span>크기 비교 데모</div>
+    <div class="touch-demo">
+      <div style="text-align:center">
+        <button class="touch-btn" style="width:24px;height:24px;background:#f87171;font-size:10px" onclick="touchFeedback(this)">
+          <span class="touch-label">WCAG 24px</span>
+        </button>
+      </div>
+      <div style="text-align:center">
+        <button class="touch-btn" style="width:44px;height:44px;background:#fbbf24;font-size:12px" onclick="touchFeedback(this)">
+          <span class="touch-label">Apple 44px</span>
+        </button>
+      </div>
+      <div style="text-align:center">
+        <button class="touch-btn" style="width:48px;height:48px;background:#4ade80;font-size:13px" onclick="touchFeedback(this)">
+          <span class="touch-label">Material 48px</span>
+        </button>
+      </div>
+      <div style="text-align:center">
+        <button class="touch-btn" style="width:56px;height:56px;background:var(--accent);font-size:14px" onclick="touchFeedback(this)">
+          <span class="touch-label">권장 56px</span>
+        </button>
+      </div>
+    </div>
+    <p class="fig-caption" id="touchMsg">버튼을 클릭하여 크기 차이를 체감해 보세요</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>표준</th><th>최소 크기</th><th>수준</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>WCAG 2.5.8</strong></td>
+          <td>24 x 24 CSS px</td>
+          <td><span class="badge" style="background:rgba(232,150,90,0.15);color:var(--accent)">AA</span></td>
+          <td>WCAG 2.2 신규 기준. 간격 예외 있음</td>
+        </tr>
+        <tr>
+          <td><strong>WCAG 2.5.5</strong></td>
+          <td>44 x 44 CSS px</td>
+          <td><span class="badge" style="background:rgba(240,176,136,0.15);color:#F0B088">AAA</span></td>
+          <td>향상된 기준</td>
+        </tr>
+        <tr>
+          <td><strong>Apple HIG</strong></td>
+          <td>44 x 44 pt</td>
+          <td><span class="badge" style="background:rgba(248,113,113,0.15);color:#f87171">필수</span></td>
+          <td>iOS/macOS 필수 요구사항</td>
+        </tr>
+        <tr>
+          <td><strong>Material Design</strong></td>
+          <td>48 x 48 dp</td>
+          <td><span class="badge" style="background:rgba(74,222,128,0.15);color:#4ade80">권장</span></td>
+          <td>Android 권장 기준</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── 스크린 리더 ─── -->
+<section id="screen-reader">
+  <div class="section-label">Screen Reader</div>
+  <div class="section-title">스크린 리더</div>
+  <p class="section-desc">올바른 시맨틱 마크업과 ARIA 속성이 스크린 리더 호환성의 핵심입니다.</p>
+
+  <div class="card mb-32">
+    <div class="card-title"><span class="dot"></span>시맨틱 마크업 비교</div>
+    <div class="table-wrap" style="margin-top:8px">
+      <table>
+        <thead><tr><th>목적</th><th style="color:var(--success)">올바른 마크업</th><th style="color:var(--error)">잘못된 마크업</th></tr></thead>
+        <tbody>
+          <tr><td>탐색 영역</td><td><code>&lt;nav&gt;</code></td><td><code>&lt;div role="navigation"&gt;</code></td></tr>
+          <tr><td>메인 콘텐츠</td><td><code>&lt;main&gt;</code></td><td><code>&lt;div role="main"&gt;</code></td></tr>
+          <tr><td>헤딩</td><td><code>&lt;h1&gt; ~ &lt;h6&gt;</code></td><td><code>&lt;div role="heading"&gt;</code></td></tr>
+          <tr><td>버튼</td><td><code>&lt;button&gt;</code></td><td><code>&lt;div role="button"&gt;</code></td></tr>
+          <tr><td>목록</td><td><code>&lt;ul&gt;, &lt;ol&gt;</code></td><td><code>&lt;div role="list"&gt;</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card mb-32">
+    <div class="card-title"><span class="dot"></span>ARIA 랜드마크 페이지 맵</div>
+    <div class="aria-map mt-16">
+      <div class="aria-map-row">
+        <div class="aria-map-label">banner</div>
+        <div class="aria-map-content"><code>&lt;header&gt;</code> -- 사이트 전체 헤더</div>
+      </div>
+      <div class="aria-map-row">
+        <div class="aria-map-label">navigation</div>
+        <div class="aria-map-content"><code>&lt;nav&gt;</code> -- 탐색 링크 그룹</div>
+      </div>
+      <div class="aria-map-row">
+        <div class="aria-map-label" style="background:var(--accent-dim);color:var(--accent)">main</div>
+        <div class="aria-map-content" style="color:var(--text)"><code>&lt;main&gt;</code> -- 페이지의 핵심 콘텐츠 (페이지당 1개)</div>
+      </div>
+      <div class="aria-map-row">
+        <div class="aria-map-label">complementary</div>
+        <div class="aria-map-content"><code>&lt;aside&gt;</code> -- 보조 콘텐츠</div>
+      </div>
+      <div class="aria-map-row">
+        <div class="aria-map-label">search</div>
+        <div class="aria-map-content"><code>&lt;search&gt;</code> -- 검색 기능 (HTML5.2+)</div>
+      </div>
+      <div class="aria-map-row">
+        <div class="aria-map-label">contentinfo</div>
+        <div class="aria-map-content"><code>&lt;footer&gt;</code> -- 사이트 전체 푸터</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>aria-label 예시</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">
+        <code>&lt;button aria-label="메뉴 닫기"&gt;X&lt;/button&gt;</code><br>
+        <code>&lt;nav aria-label="메인 탐색"&gt;...&lt;/nav&gt;</code><br>
+        <code>&lt;input aria-label="검색어 입력" type="search"&gt;</code>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>aria-live 예시</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">
+        <code>&lt;div aria-live="polite"&gt;</code> -- 현재 읽기 완료 후 알림<br>
+        <code>&lt;div aria-live="assertive"&gt;</code> -- 즉시 알림 (긴급)<br>
+        <button class="kbd-btn mt-16" onclick="ariaLiveDemo()" style="font-size:13px">aria-live 데모</button>
+        <div id="ariaLiveOutput" aria-live="polite" style="margin-top:8px;color:var(--accent);min-height:20px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 키보드 네비게이션 ─── -->
+<section id="keyboard">
+  <div class="section-label">Keyboard Navigation</div>
+  <div class="section-title">키보드 네비게이션</div>
+  <p class="section-desc">Tab 키로 아래 요소들을 순서대로 이동해 보세요. 포커스 링이 보이는지 확인합니다.</p>
+
+  <div class="card mb-32">
+    <div class="card-title"><span class="dot"></span>인터랙티브 키보드 데모</div>
+    <a href="#keyboard" class="skip-link-demo" id="skipLink">메인 콘텐츠로 건너뛰기</a>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Tab 키로 포커스를 이동하세요. Skip Link는 Tab을 누르면 나타납니다.</p>
+    <div class="kbd-demo-area" id="kbdDemoArea">
+      <button class="kbd-btn" onclick="this.textContent='Clicked!'">Button 1</button>
+      <button class="kbd-btn" onclick="this.textContent='Clicked!'">Button 2</button>
+      <input class="kbd-input" type="text" placeholder="텍스트 입력...">
+      <select class="kbd-select">
+        <option>옵션 선택</option>
+        <option>옵션 A</option>
+        <option>옵션 B</option>
+      </select>
+      <button class="kbd-link" onclick="this.textContent='Followed!'">Link Style</button>
+      <button class="kbd-btn" id="openModalBtn" onclick="openModal()">모달 열기</button>
+    </div>
+    <div style="font-size:13px;color:var(--text3)">
+      <strong style="color:var(--text)">포커스 순서:</strong> Skip Link &rarr; Button 1 &rarr; Button 2 &rarr; Input &rarr; Select &rarr; Link &rarr; 모달 열기
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>컴포넌트</th><th>키보드 동작</th></tr></thead>
+      <tbody>
+        <tr><td>버튼</td><td><code>Enter</code> / <code>Space</code> -- 활성화</td></tr>
+        <tr><td>링크</td><td><code>Enter</code> -- 이동</td></tr>
+        <tr><td>탭 패널</td><td><code>Arrow Left/Right</code> -- 탭 전환, <code>Tab</code> -- 패널 콘텐츠로 이동</td></tr>
+        <tr><td>메뉴</td><td><code>Arrow Up/Down</code> -- 항목 이동, <code>Enter</code> -- 선택, <code>Escape</code> -- 닫기</td></tr>
+        <tr><td>모달</td><td><code>Escape</code> -- 닫기, <code>Tab</code> -- 내부 순환 (포커스 트랩)</td></tr>
+        <tr><td>드롭다운</td><td><code>Arrow Up/Down</code> -- 옵션 이동, <code>Enter</code> -- 선택, <code>Escape</code> -- 닫기</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── 인지 접근성 ─── -->
+<section id="cognitive">
+  <div class="section-label">Cognitive Accessibility</div>
+  <div class="section-title">인지 접근성</div>
+  <p class="section-desc">인지 장애(학습 장애, ADHD, 자폐 스펙트럼, 노인성 인지 저하)는 전체 장애의 약 40%를 차지합니다.</p>
+
+  <div class="grid-3 mb-32">
+    <div class="cog-card">
+      <div class="cog-icon">&#x1f4dd;</div>
+      <div class="cog-name">단순한 언어</div>
+      <div class="cog-desc">전문 용어, 약어, 이중 부정을 피한다. "유효하지 않은 입력" &rarr; "이메일에 @ 기호가 필요합니다"</div>
+    </div>
+    <div class="cog-card">
+      <div class="cog-icon">&#x1f50d;</div>
+      <div class="cog-name">예측 가능한 UI</div>
+      <div class="cog-desc">같은 기능은 항상 같은 위치, 같은 모양. 뒤로가기는 좌측 상단, 저장은 우측 하단.</div>
+    </div>
+    <div class="cog-card">
+      <div class="cog-icon">&#x1f6ab;</div>
+      <div class="cog-name">주의 분산 최소화</div>
+      <div class="cog-desc">자동 재생 미디어, 깜빡이는 배너, 움직이는 광고를 제거한다.</div>
+    </div>
+    <div class="cog-card">
+      <div class="cog-icon">&#x23f0;</div>
+      <div class="cog-name">충분한 시간</div>
+      <div class="cog-desc">세션 타임아웃 전 경고 + 연장 옵션. "세션이 5분 후 만료됩니다 [연장하기]"</div>
+    </div>
+    <div class="cog-card">
+      <div class="cog-icon">&#x2705;</div>
+      <div class="cog-name">명확한 피드백</div>
+      <div class="cog-desc">액션 결과를 즉시, 명시적으로 전달. "저장됨" 표시는 최소 3초 유지.</div>
+    </div>
+    <div class="cog-card">
+      <div class="cog-icon">&#x1f9e0;</div>
+      <div class="cog-name">기억 의존 최소화</div>
+      <div class="cog-desc">이전 단계 정보를 다음 단계에서 참조할 필요를 없앤다. 멀티 스텝 폼에서 요약 표시.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>COGA 실패 사례</div>
+    <div class="ap-grid mt-16">
+      <div class="ap-card bad">
+        <div class="ap-label">CAPTCHA 시각 퍼즐</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">시각적 퍼즐은 인지 장애 사용자에게 극도로 어렵다. 왜곡된 문자 인식은 학습 장애 사용자에게 불가능에 가까운 과제.</p>
+      </div>
+      <div class="ap-card good">
+        <div class="ap-label">reCAPTCHA v3 (스코어 기반)</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">사용자 상호작용 불필요. 백그라운드 행동 분석으로 봇 여부 판단. 인지 부하 제로.</p>
+      </div>
+      <div class="ap-card bad">
+        <div class="ap-label">복잡한 비밀번호 규칙</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">"대문자+소문자+숫자+특수문자+8자 이상"은 인지 부하가 높다. 기억 의존도 매우 높음.</p>
+      </div>
+      <div class="ap-card good">
+        <div class="ap-label">패스키 / 생체 인증</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">지문, 얼굴 인식, 보안 키로 인증. 기억할 내용 없음. 피싱 방지 효과도 있음.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 모션 감수성 ─── -->
+<section id="motion">
+  <div class="section-label">Motion Sensitivity</div>
+  <div class="section-title">모션 감수성</div>
+  <p class="section-desc">전정 기관 장애 사용자는 대규모 움직임으로 어지러움, 구역질, 두통을 경험합니다. prefers-reduced-motion으로 대안을 제공하세요.</p>
+
+  <div class="card mb-32">
+    <div class="card-title"><span class="dot"></span>위험 모션 유형</div>
+    <div class="table-wrap mt-16">
+      <table>
+        <thead><tr><th>위험도</th><th>모션 유형</th><th>대안</th></tr></thead>
+        <tbody>
+          <tr><td><span class="danger-highest">최고</span></td><td>시차 스크롤 (parallax)</td><td>정적 배경</td></tr>
+          <tr><td><span class="danger-highest">최고</span></td><td>전체 화면 줌/확대</td><td>크로스페이드 전환</td></tr>
+          <tr><td><span class="danger-high">높음</span></td><td>회전/스핀 (큰 요소)</td><td>정적 아이콘 또는 소형 인디케이터</td></tr>
+          <tr><td><span class="danger-high">높음</span></td><td>스크롤 연동 애니메이션</td><td>정적 배치</td></tr>
+          <tr><td><span class="danger-medium">중간</span></td><td>자동 캐러셀/슬라이더</td><td>수동 전환 + 일시정지</td></tr>
+          <tr><td><span class="danger-low">낮음</span></td><td>페이드 인/아웃 (150ms 이하)</td><td>유지 가능</td></tr>
+          <tr><td><span class="danger-low">낮음</span></td><td>체크마크 그리기</td><td>유지 가능</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card mb-32">
+    <div class="card-title"><span class="dot"></span>인터랙티브 비교: 일반 vs 모션 줄이기</div>
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="kbd-btn" id="motionPlayBtn" onclick="toggleMotionDemo(true)">애니메이션 재생</button>
+      <button class="kbd-btn" id="motionStopBtn" onclick="toggleMotionDemo(false)">애니메이션 정지</button>
+    </div>
+    <div class="motion-demo-container">
+      <div class="motion-box">
+        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em">일반 모션</div>
+        <div class="motion-ball" id="motionNormal"></div>
+        <div style="font-size:12px;color:var(--text3)">좌우 바운스 이동</div>
+      </div>
+      <div class="motion-box">
+        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em">reduced-motion</div>
+        <div class="motion-ball" id="motionReduced"></div>
+        <div style="font-size:12px;color:var(--text3)">부드러운 페이드만</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>prefers-reduced-motion CSS</div>
+    <pre style="background:var(--surface2);padding:20px;border-radius:var(--radius);font-size:13px;line-height:1.7;overflow-x:auto;color:var(--text2);font-family:'Cascadia Code','Fira Code','Consolas',monospace"><span style="color:#F0B088">@media</span> (<span style="color:var(--accent)">prefers-reduced-motion: reduce</span>) {
+  *, *::before, *::after {
+    <span style="color:var(--warn)">animation-duration</span>: 0.01ms !important;
+    <span style="color:var(--warn)">animation-iteration-count</span>: 1 !important;
+    <span style="color:var(--warn)">transition-duration</span>: 0.01ms !important;
+    <span style="color:var(--warn)">scroll-behavior</span>: auto !important;
+  }
+}</pre>
+  </div>
+</section>
+
+<!-- ─── 보조 기술 테스트 ─── -->
+<section id="testing">
+  <div class="section-label">Assistive Technology Testing</div>
+  <div class="section-title">보조 기술 테스트</div>
+  <p class="section-desc">자동화 도구는 전체 접근성 문제의 약 30~40%만 검출합니다. 실제 보조 기술 테스트가 필수입니다.</p>
+
+  <div class="card mb-32">
+    <div class="card-title"><span class="dot"></span>스크린 리더 점유율 (WebAIM 2024)</div>
+    <div class="chart-bar-container mt-24" id="srChart">
+      <div class="chart-row">
+        <div class="chart-label">VoiceOver</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:0;background:linear-gradient(90deg,#E8965A,#C07A3E)" data-width="34.2%">34.2%</div></div>
+        <div class="chart-pct">34.2%</div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-label">NVDA</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:0;background:linear-gradient(90deg,#4ade80,#2bb85e)" data-width="30.7%">30.7%</div></div>
+        <div class="chart-pct">30.7%</div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-label">JAWS</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:0;background:linear-gradient(90deg,#F0B088,#8b6ce0)" data-width="26.5%">26.5%</div></div>
+        <div class="chart-pct">26.5%</div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-label">TalkBack</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:0;background:linear-gradient(90deg,#fbbf24,#d9a020)" data-width="5.1%">5.1%</div></div>
+        <div class="chart-pct">5.1%</div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-label">macOS VO</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:0;background:linear-gradient(90deg,#f87171,#d65a5a)" data-width="2.5%">2.5%</div></div>
+        <div class="chart-pct">2.5%</div>
+      </div>
+    </div>
+    <p class="fig-caption">iOS VoiceOver + NVDA로 전체의 약 65%를 커버할 수 있습니다</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>스크린 리더 테스트 체크리스트</div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px">체크박스를 클릭하여 완료된 항목을 표시하세요. <span id="checkProgress" style="color:var(--accent);font-weight:600">0 / 9</span></p>
+    <div id="checklistArea">
+      <div class="check-item">
+        <input type="checkbox" id="chk1" onchange="updateCheckProgress()">
+        <label for="chk1">페이지 제목(<code>&lt;title&gt;</code>)이 페이지 목적을 명확히 설명하는가?</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk2" onchange="updateCheckProgress()">
+        <label for="chk2">헤딩 구조(h1 &rarr; h2 &rarr; h3)가 논리적 순서를 따르는가?</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk3" onchange="updateCheckProgress()">
+        <label for="chk3">모든 이미지에 의미 있는 <code>alt</code> 텍스트가 있는가? (장식: <code>alt=""</code>)</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk4" onchange="updateCheckProgress()">
+        <label for="chk4">폼 필드마다 연결된 <code>&lt;label&gt;</code>이 있는가?</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk5" onchange="updateCheckProgress()">
+        <label for="chk5">버튼/링크의 접근 가능한 이름이 기능을 설명하는가? ("여기를 클릭" 금지)</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk6" onchange="updateCheckProgress()">
+        <label for="chk6">동적 콘텐츠 변경이 <code>aria-live</code>로 스크린 리더에 통보되는가?</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk7" onchange="updateCheckProgress()">
+        <label for="chk7">모달 열림 시 포커스가 모달 내부로 이동하는가?</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk8" onchange="updateCheckProgress()">
+        <label for="chk8">모달 닫힘 시 포커스가 트리거 요소로 복귀하는가?</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk9" onchange="updateCheckProgress()">
+        <label for="chk9">Tab 순서가 시각적 순서와 일치하는가?</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- .page -->
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="포커스 트랩 데모 모달">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose" onclick="closeModal()" aria-label="모달 닫기">&times;</button>
+    <h3>포커스 트랩 데모</h3>
+    <p>이 모달 안에서 Tab을 누르면 포커스가 모달 내부에서만 순환합니다. Escape로 닫을 수 있습니다.</p>
+    <input class="kbd-input" type="text" placeholder="입력 필드 1..." style="margin-bottom:12px;width:100%">
+    <input class="kbd-input" type="text" placeholder="입력 필드 2..." style="margin-bottom:16px;width:100%">
+    <button class="kbd-btn" onclick="closeModal()" style="width:100%;justify-content:center">닫기 (Escape)</button>
+  </div>
+</div>
+
+<script>
+/* ─── Contrast Checker ─── */
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  var n = parseInt(hex,16);
+  return [(n>>16)&255,(n>>8)&255,n&255];
+}
+function luminance(r,g,b) {
+  var a = [r,g,b].map(function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});
+  return a[0]*0.2126+a[1]*0.7152+a[2]*0.0722;
+}
+function contrastRatio(hex1,hex2) {
+  var rgb1=hexToRgb(hex1),rgb2=hexToRgb(hex2);
+  var l1=luminance(rgb1[0],rgb1[1],rgb1[2]),l2=luminance(rgb2[0],rgb2[1],rgb2[2]);
+  var lighter=Math.max(l1,l2),darker=Math.min(l1,l2);
+  return (lighter+0.05)/(darker+0.05);
+}
+function updateContrast() {
+  var fg=document.getElementById('ccFg').value;
+  var bg=document.getElementById('ccBg').value;
+  document.getElementById('ccFgHex').value=fg;
+  document.getElementById('ccBgHex').value=bg;
+  var ratio=contrastRatio(fg,bg);
+  var r=ratio.toFixed(1);
+  document.getElementById('ccRatio').textContent=r+' : 1';
+  document.getElementById('ccRatio').style.color=ratio>=4.5?'#4ade80':ratio>=3?'#fbbf24':'#f87171';
+  var badges='';
+  badges+='<span class="badge '+(ratio>=4.5?'pass':'fail')+'">AA Normal '+(ratio>=4.5?'PASS':'FAIL')+'</span>';
+  badges+='<span class="badge '+(ratio>=3?'pass':'fail')+'">AA Large '+(ratio>=3?'PASS':'FAIL')+'</span>';
+  badges+='<span class="badge '+(ratio>=7?'pass':'fail')+'">AAA Normal '+(ratio>=7?'PASS':'FAIL')+'</span>';
+  badges+='<span class="badge '+(ratio>=4.5?'pass':'fail')+'">AAA Large '+(ratio>=4.5?'PASS':'FAIL')+'</span>';
+  badges+='<span class="badge '+(ratio>=3?'pass':'fail')+'">Non-text '+(ratio>=3?'PASS':'FAIL')+'</span>';
+  document.getElementById('ccBadges').innerHTML=badges;
+  var preview=document.getElementById('ccPreview');
+  preview.style.background=bg;preview.style.color=fg;
+}
+function syncHexInput(type) {
+  var hexInput=document.getElementById(type==='fg'?'ccFgHex':'ccBgHex');
+  var colorInput=document.getElementById(type==='fg'?'ccFg':'ccBg');
+  var v=hexInput.value;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)){colorInput.value=v;updateContrast()}
+}
+document.getElementById('ccFg').addEventListener('input',updateContrast);
+document.getElementById('ccBg').addEventListener('input',updateContrast);
+document.getElementById('ccFgHex').addEventListener('input',function(){syncHexInput('fg')});
+document.getElementById('ccBgHex').addEventListener('input',function(){syncHexInput('bg')});
+
+/* ─── Touch Target ─── */
+function touchFeedback(btn) {
+  var size=btn.style.width;
+  var msg=document.getElementById('touchMsg');
+  btn.style.transform='scale(0.9)';
+  setTimeout(function(){btn.style.transform='scale(1)'},150);
+  msg.textContent=size+' 크기의 버튼을 탭했습니다!';
+  msg.style.color='var(--accent)';
+}
+
+/* ─── aria-live Demo ─── */
+var ariaCount=0;
+function ariaLiveDemo() {
+  ariaCount++;
+  document.getElementById('ariaLiveOutput').textContent='[aria-live] 알림 #'+ariaCount+': 콘텐츠가 업데이트되었습니다. ('+new Date().toLocaleTimeString()+')';
+}
+
+/* ─── Modal Focus Trap ─── */
+function openModal() {
+  var overlay=document.getElementById('modalOverlay');
+  overlay.classList.add('open');
+  var focusables=overlay.querySelectorAll('button,input,[tabindex]');
+  if(focusables.length)focusables[0].focus();
+  overlay.addEventListener('keydown',trapFocus);
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('modalOverlay').removeEventListener('keydown',trapFocus);
+  document.getElementById('openModalBtn').focus();
+}
+function trapFocus(e) {
+  if(e.key==='Escape'){closeModal();return}
+  if(e.key!=='Tab')return;
+  var overlay=document.getElementById('modalOverlay');
+  var focusables=overlay.querySelectorAll('button,input,[tabindex]');
+  var first=focusables[0],last=focusables[focusables.length-1];
+  if(e.shiftKey){if(document.activeElement===first){e.preventDefault();last.focus()}}
+  else{if(document.activeElement===last){e.preventDefault();first.focus()}}
+}
+
+/* ─── Motion Demo ─── */
+function toggleMotionDemo(play) {
+  var normal=document.getElementById('motionNormal');
+  var reduced=document.getElementById('motionReduced');
+  if(play){normal.classList.add('animated');reduced.classList.add('reduced')}
+  else{normal.classList.remove('animated');reduced.classList.remove('reduced')}
+}
+
+/* ─── Checklist Progress ─── */
+function updateCheckProgress() {
+  var checks=document.querySelectorAll('#checklistArea input[type="checkbox"]');
+  var done=0;checks.forEach(function(c){if(c.checked)done++});
+  var el=document.getElementById('checkProgress');
+  el.textContent=done+' / '+checks.length;
+  if(done===checks.length){el.style.color='#4ade80';el.textContent+=(' -- 완료!')}
+  else{el.style.color='var(--accent)'}
+}
+
+/* ─── Chart Animation on Scroll ─── */
+var chartAnimated=false;
+function animateChart() {
+  if(chartAnimated)return;
+  var chart=document.getElementById('srChart');
+  var rect=chart.getBoundingClientRect();
+  if(rect.top<window.innerHeight*0.85){
+    chartAnimated=true;
+    chart.querySelectorAll('.chart-bar-fill').forEach(function(bar){
+      bar.style.width=bar.dataset.width;
+    });
+  }
+}
+window.addEventListener('scroll',animateChart);
+window.addEventListener('load',function(){animateChart();updateContrast()});
+
+</script>
+</body>
+</html>

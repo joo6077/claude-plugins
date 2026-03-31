@@ -111,7 +111,7 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 2. 각 측면을 Yes/No boolean 질문으로 변환한다
 3. 서브체크마다 L1→L2→L3 순서로 검증한다
 4. 서브체크 하나라도 FAIL이면 해당 조건은 FAIL이다
-상세 프로토콜: `docs/guides/qa-evaluation-guide.md` > Rubric 기반 분해 참조
+상세 프로토콜: `../docs/guides/qa-evaluation-guide.md` > Rubric 기반 분해 참조
 
 **Anti-pattern 검증:**
 `project.yaml`의 `anti_patterns` 목록을 Grep으로 변경/생성 파일에서 검색한다.
@@ -276,6 +276,6 @@ Iteration > 3이면 사용자에게 에스컬레이션한다.
 
 ## References
 
-- `docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드
+- `../docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드
 - `harness/references/contract-schema.md` — 계약 포맷 공유 정의
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>피드백 시스템 — Harness</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+                   radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+}
+.page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+  background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+.section{margin-bottom:clamp(48px,6vw,80px)}
+.section-label{
+  font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+  color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 80%)}
+.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+.card:hover{border-color:var(--accent)}
+.card-title{font-size:1.05rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:12px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.6}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(217,119,87,0.04)}
+td:first-child{color:var(--text);font-weight:600;white-space:nowrap}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;
+  border-radius:50%;font-size:12px;font-weight:700;background:var(--accent-dim);color:var(--accent);margin-right:8px}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.6}
+.checklist li::before{content:'';width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:2px}
+.mono{font-family:var(--mono);font-size:13px;color:var(--accent2)}
+.code-block{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.6;
+  color:var(--text2);overflow-x:auto;margin-bottom:24px;
+}
+.code-block .key{color:var(--accent)}
+.code-block .val{color:var(--green)}
+.code-block .comment{color:var(--text3)}
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--mono)}
+.tag-required{background:rgba(217,119,87,0.12);color:var(--accent)}
+.tag-optional{background:rgba(122,111,100,0.2);color:var(--text3)}
+.tag-contract{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.tag-evaluator{background:rgba(74,222,128,0.12);color:var(--green)}
+.path-badge{
+  display:inline-block;padding:6px 16px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-family:var(--mono);font-size:14px;color:var(--accent);margin-bottom:16px;
+}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:24px;transition:color var(--transition)}
+.back-link:hover{color:var(--accent)}
+
+/* Flow diagram */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:32px}
+.flow-node{
+  padding:14px 20px;border-radius:12px;font-size:13px;font-weight:600;
+  background:var(--surface);border:2px solid var(--border);text-align:center;
+  min-width:140px;transition:border-color var(--transition);
+}
+.flow-node:hover{border-color:var(--accent)}
+.flow-node.active{border-color:var(--accent);background:var(--accent-dim)}
+.flow-node .flow-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px}
+.flow-arrow{
+  width:40px;display:flex;align-items:center;justify-content:center;
+  color:var(--text3);font-size:18px;flex-shrink:0;
+}
+@media(max-width:900px){
+  .flow{flex-direction:column;align-items:stretch}
+  .flow-arrow{width:auto;height:30px;transform:rotate(90deg)}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <a href="../index.html" class="back-link">&larr; Documentation Home</a>
+  <h1>피드백 시스템</h1>
+  <p class="subtitle">수집 &rarr; 저장 &rarr; 분석 &rarr; 카이젠 사이클 &#8212; sprint-contract와 qa-evaluator 실행 후 글로벌 저장되는 피드백 파일 포맷 및 자기개선 메커니즘</p>
+
+  <!-- Flow Diagram -->
+  <div class="section">
+    <div class="section-label">Feedback Flow</div>
+    <h2>피드백 플로우 다이어그램</h2>
+    <p class="desc">스킬 실행부터 카이젠 트리거까지의 전체 피드백 사이클</p>
+    <div class="flow">
+      <div class="flow-node active">
+        <div class="flow-label">Phase 1</div>
+        sprint-contract<br>실행
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="flow-label">Phase 2</div>
+        qa-evaluator<br>판정
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="flow-label">Phase 3</div>
+        자기진단 +<br>교차진단
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="flow-label">Phase 4</div>
+        save-feedback.sh<br>YAML 저장
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="flow-label">Phase 5</div>
+        trigger-check<br>임계치 확인
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node active">
+        <div class="flow-label">Phase 6</div>
+        kaizen<br>자동 개선
+      </div>
+    </div>
+
+    <h2 style="font-size:clamp(16px,1.8vw,22px);margin-top:16px">글로벌 저장 경로</h2>
+    <p class="desc">피드백은 프로젝트가 아닌 사용자 홈 디렉토리에 글로벌로 저장되어, 여러 프로젝트의 피드백을 종합 분석할 수 있다.</p>
+    <div class="path-badge">~/.harness/feedback/</div>
+    <p class="desc" style="margin-top:12px">프로젝트는 <span class="mono">project_hash</span> (경로 SHA-256 앞 8자)로 구분된다. 스키마 버전: <strong style="color:var(--accent)">v1</strong></p>
+  </div>
+
+  <!-- Schema Fields -->
+  <div class="section">
+    <div class="section-label">Schema Fields</div>
+    <h2>공통 필수 필드</h2>
+    <p class="desc">모든 피드백 YAML에 반드시 포함되는 6개 필드</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>필드</th><th>타입</th><th>설명</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>timestamp</td><td class="mono">ISO-8601</td><td>피드백 생성 시각</td><td class="mono">"2026-03-30T14:00:00+09:00"</td></tr>
+          <tr><td>project_hash</td><td class="mono">string(8)</td><td>프로젝트 경로 SHA-256 앞 8자</td><td class="mono">"a1b2c3d4"</td></tr>
+          <tr><td>project_name</td><td class="mono">string</td><td>사람이 읽을 수 있는 프로젝트 식별자</td><td class="mono">"my-flutter-app"</td></tr>
+          <tr><td>skill</td><td class="mono">enum</td><td>실행한 스킬</td><td class="mono">sprint-contract | qa-evaluator</td></tr>
+          <tr><td>skill_version</td><td class="mono">semver</td><td>스킬 버전</td><td class="mono">"1.3.0"</td></tr>
+          <tr><td>outcome</td><td class="mono">enum</td><td>실행 결과</td><td class="mono">completed | failed | blocked</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Contract-specific -->
+    <h2 style="font-size:clamp(16px,1.8vw,22px);margin-top:32px">스킬별 전용 필드</h2>
+    <div class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title"><span class="tag tag-contract">sprint-contract</span></div>
+        <div class="table-wrap" style="margin-top:12px">
+          <table>
+            <thead><tr><th>필드</th><th>타입</th></tr></thead>
+            <tbody>
+              <tr><td>condition_count</td><td class="mono">int</td></tr>
+              <tr><td>category_count</td><td class="mono">int</td></tr>
+              <tr><td>category_coverage</td><td class="mono">float (0.0-1.0)</td></tr>
+              <tr><td>anti_pattern_count</td><td class="mono">int (&ge; 2)</td></tr>
+              <tr><td>complexity</td><td class="mono">enum</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="tag tag-evaluator">qa-evaluator</span></div>
+        <div class="table-wrap" style="margin-top:12px">
+          <table>
+            <thead><tr><th>필드</th><th>타입</th></tr></thead>
+            <tbody>
+              <tr><td>verdict</td><td class="mono">APPROVE | REJECT | BLOCKED</td></tr>
+              <tr><td>conditions_total</td><td class="mono">int</td></tr>
+              <tr><td>conditions_passed</td><td class="mono">int</td></tr>
+              <tr><td>l3_coverage</td><td class="mono">float (0.0-1.0)</td></tr>
+              <tr><td>reject_reasons</td><td class="mono">list[string]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Self-diagnosis -->
+  <div class="section">
+    <div class="section-label">Self-Diagnosis</div>
+    <h2>자기진단 체크리스트</h2>
+    <p class="desc">각 스킬은 실행 완료 후 고정된 boolean 체크리스트를 자가 점검하여 피드백에 기록한다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="tag tag-contract">sprint-contract 체크리스트</span></div>
+        <ul class="checklist" style="margin-top:12px">
+          <li><span class="mono">ambiguous_conditions</span> &mdash; 모호한 조건이 있는가?</li>
+          <li><span class="mono">missing_error_paths</span> &mdash; 에러 경로 조건이 누락되었는가?</li>
+          <li><span class="mono">untestable_conditions</span> &mdash; 테스트 불가능한 조건이 있는가?</li>
+          <li><span class="mono">category_coverage_gap</span> &mdash; 카테고리 커버리지에 갭이 있는가?</li>
+          <li><span class="mono">complexity_underestimate</span> &mdash; 복잡도를 과소평가했는가?</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="tag tag-evaluator">qa-evaluator 체크리스트</span></div>
+        <ul class="checklist" style="margin-top:12px">
+          <li><span class="mono">l3_unreached</span> &mdash; L3 검증에 미도달한 조건이 있는가?</li>
+          <li><span class="mono">bias_detected</span> &mdash; 편향 징후가 감지되었는가?</li>
+          <li><span class="mono">evidence_missing</span> &mdash; 증거 없이 판정한 조건이 있는가?</li>
+          <li><span class="mono">contract_misinterpret</span> &mdash; 계약 조건을 오해석했을 가능성이 있는가?</li>
+          <li><span class="mono">perspective_gap</span> &mdash; 단일 관점에서만 평가한 조건이 있는가?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cross-diagnosis -->
+  <div class="section">
+    <div class="section-label">Cross-Diagnosis</div>
+    <h2>교차 진단 프로세스</h2>
+    <p class="desc">qa-evaluator 실행 후 sprint-contract 서브에이전트를 호출하여 해석 정확성을 검증한다.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title"><span class="num">1</span> 전달 내용</div>
+        <p style="font-size:13px;color:var(--text2)">평가 판정 결과 (출력만 전달). 평가 과정의 추론이나 중간 메모는 전달하지 않는다.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="num">2</span> 핵심 질문</div>
+        <p style="font-size:13px;color:var(--text2)">"계약 조건의 원래 의도를 정확히 해석했는가?" &mdash; 계약 작성자 관점의 검증</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="num">3</span> 결과 기록</div>
+        <p style="font-size:13px;color:var(--text2)">피드백 YAML의 <span class="mono">cross_diagnosis_by</span>, <span class="mono">cross_diagnosis_notes</span> 필드에 기록</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example YAML -->
+  <div class="section">
+    <div class="section-label">Example</div>
+    <h2>피드백 YAML 예시</h2>
+    <p class="desc">sprint-contract 실행 후 저장되는 피드백 파일의 전체 구조</p>
+    <div class="code-block">
+      <span class="key">schema_version</span>: <span class="val">1</span><br>
+      <span class="key">timestamp</span>: <span class="val">"2026-03-30T14:00:00+09:00"</span><br>
+      <span class="key">project_hash</span>: <span class="val">"a1b2c3d4"</span><br>
+      <span class="key">project_name</span>: <span class="val">"my-flutter-app"</span><br>
+      <span class="key">skill</span>: <span class="val">sprint-contract</span><br>
+      <span class="key">skill_version</span>: <span class="val">"0.3.3"</span><br>
+      <span class="key">outcome</span>: <span class="val">completed</span><br><br>
+      <span class="key">contract</span>:<br>
+      &nbsp;&nbsp;<span class="key">condition_count</span>: <span class="val">8</span><br>
+      &nbsp;&nbsp;<span class="key">category_count</span>: <span class="val">4</span><br>
+      &nbsp;&nbsp;<span class="key">category_coverage</span>: <span class="val">0.8</span><br>
+      &nbsp;&nbsp;<span class="key">anti_pattern_count</span>: <span class="val">3</span><br>
+      &nbsp;&nbsp;<span class="key">complexity</span>: <span class="val">medium</span><br><br>
+      <span class="key">diagnosis</span>:<br>
+      &nbsp;&nbsp;<span class="key">checklist</span>:<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">ambiguous_conditions</span>: <span class="val">false</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">missing_error_paths</span>: <span style="color:var(--red)">true</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">untestable_conditions</span>: <span class="val">false</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">category_coverage_gap</span>: <span class="val">false</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">complexity_underestimate</span>: <span class="val">false</span><br>
+      &nbsp;&nbsp;<span class="key">cross_diagnosis_by</span>: <span class="val">qa-evaluator</span><br>
+      &nbsp;&nbsp;<span class="key">cross_diagnosis_notes</span>: <span class="val">"조건 3번 경계값 누락 가능성"</span><br>
+      &nbsp;&nbsp;<span class="key">improvement_suggestions</span>:<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">"에러 경로 조건을 별도 카테고리로 분리"</span><br><br>
+      <span class="key">user_rating</span>: <span class="comment">null</span><br>
+      <span class="key">user_comment</span>: <span class="comment">null</span>
+    </div>
+  </div>
+
+  <!-- User Signal -->
+  <div class="section">
+    <div class="section-label">User Signal</div>
+    <h2>사용자 시그널 (선택)</h2>
+    <p class="desc">사용자가 스킬 결과에 대해 평가를 남길 수 있는 선택적 필드</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>user_rating <span class="tag tag-optional">optional</span></td><td class="mono">enum | null</td><td>good 또는 bad. 미평가 시 null</td></tr>
+          <tr><td>user_comment <span class="tag tag-optional">optional</span></td><td class="mono">string | null</td><td>사용자의 자유 코멘트. 미작성 시 null</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
