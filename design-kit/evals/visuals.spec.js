@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
 
-const VISUALS_DIR = path.resolve(__dirname, '../../docs/design/visuals');
+const VISUALS_DIR = path.resolve(__dirname, '../../docs/design-kit');
 
 function fileUrl(filename) {
   const filePath = path.join(VISUALS_DIR, filename);
