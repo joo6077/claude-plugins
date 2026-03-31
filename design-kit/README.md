@@ -6,36 +6,46 @@
 
 ## 스킬
 
-| 스킬 | 아키타입 | 설명 |
-|------|----------|------|
-| `/design-system` | Code Scaffolding | 프로젝트에 디자인 토큰 체계 세팅 |
-| `/design-guide` | Library Reference | 개발 중 디자인 원칙 기반 실시간 가이드 |
-| `/design-audit` | Product Verification | 완성된 UI를 디자인 원칙 기준으로 감사 |
+<!-- AUTO:skills -->
+| 스킬 | 설명 |
+|------|------|
+| `design-audit` | 완성된 UI를 디자인 원칙 기준으로 체계적으로 감사한다. |
+| `design-guide` | 개발 중 UI 코드/설명을 받아 관련 디자인 원칙을 참조하여 가이드한다. |
+| `design-system` | 프로젝트에 디자인 토큰 체계(컬러, 타이포, 스페이싱, 라디우스 등)를 세팅한다. |
+<!-- /AUTO:skills -->
 
 ## 에이전트
 
-| 에이전트 | 모델 | 도구 | 설명 |
-|----------|------|------|------|
-| `design-reviewer` | sonnet | Read, Grep, Glob | design-audit이 호출하는 읽기 전용 독립 디자인 평가 에이전트 |
+<!-- AUTO:agents -->
+| 에이전트 | 설명 |
+|----------|------|
+| `design-reviewer` | UI 코드를 디자인 원칙 기준으로 독립 평가한다. |
+<!-- /AUTO:agents -->
 
 ## 훅
 
+<!-- AUTO:hooks -->
 | 이벤트 | 실행 | 설명 |
 |--------|------|------|
-| `SessionStart` | `scripts/env-check.sh` | 세션 시작 시 환경(OS) 확인 |
+| `SessionStart` | `env-check.sh` | SessionStart |
+<!-- /AUTO:hooks -->
 
 ## 스크립트
 
+<!-- AUTO:scripts -->
 | 스크립트 | 설명 |
 |----------|------|
-| `scripts/env-check.sh` | OS 감지 및 환경 검증 |
+| `env-check.sh` |  |
+<!-- /AUTO:scripts -->
 
 ## Evals
 
+<!-- AUTO:evals -->
 | 파일 | 설명 |
 |------|------|
-| `evals/evals.json` | 스킬별 평가 케이스 |
-| `evals/visuals.spec.js` | 시각적 회귀 테스트 스펙 |
+| `evals.json` | 파일 |
+| `visuals.spec.js` | 파일 |
+<!-- /AUTO:evals -->
 
 ## 사용 흐름
 

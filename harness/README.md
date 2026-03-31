@@ -6,15 +6,23 @@
 
 ## 스킬 목록
 
+<!-- AUTO:skills -->
 | 스킬 | 설명 |
 |------|------|
-| `/init` | `.harness/` 초기화, `project.yaml` 생성 |
-| `/sprint-contract` | 구현 전 완료 조건 정의 + 사용자 합의 |
-| `/harness-kaizen` | 하네스 전체를 리서치 기반으로 개선 (오케스트레이터 Phase 1) |
-| `/contract-kaizen` | sprint-contract + contract-schema를 피드백 기반으로 개선 (Phase 2) |
-| `/evaluator-kaizen` | qa-evaluator + 평가 방법론 가이드를 피드백 기반으로 개선 (Phase 3) |
-| `/create-skill` | 설계 가이드 기반 새 스킬 스캐폴딩 |
-| `/create-agent` | 설계 가이드 기반 새 에이전트 스캐폴딩 |
+| `contract-kaizen` | sprint-contract 스킬을 학술 논문·공식 문서·커뮤니티 리서치·글로벌 피드백 기반으로 점진적으로 개선하는 카이젠 스킬. |
+| `create-agent` | 설계 가이드 기반으로 새 에이전트를 생성한다. |
+| `create-skill` | 설계 가이드 기반으로 새 스킬을 생성한다. |
+| `evaluator-kaizen` | qa-evaluator 에이전트를 학술 논문·공식 문서·커뮤니티 리서치·글로벌 피드백 기반으로 점진적으로 개선하는 카이젠 스킬. |
+| `harness-kaizen` | 하네스 엔지니어링을 학술 논문·공식 문서·커뮤니티 리서치 기반으로 |
+| `init` | 현재 프로젝트에 .harness/ 디렉토리를 생성하고 초기 설정 파일을 세팅한다. |
+| `sprint-contract` | 기능 구현 전 완료 조건을 정의하고 사용자 합의를 받는다. |
+<!-- /AUTO:skills -->
+
+<!-- AUTO:agents -->
+| 에이전트 | 설명 |
+|----------|------|
+| `qa-evaluator` | Sprint Contract 기반으로 구현 결과를 독립 평가하는 QA 에이전트. |
+<!-- /AUTO:agents -->
 
 ## 셋업
 

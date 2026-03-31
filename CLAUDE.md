@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 
+<!-- AUTO:summary -->
 - **harness** — 스택 무관 범용 QA 프레임워크 (Sprint Contract + QA Evaluator)
 - **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 18종
 - **design-kit** — 스택 무관 UI/UX 디자인 플러그인 (디자인 시스템 세팅 + 실시간 가이드 + 감사)
+<!-- /AUTO:summary -->
 
 ## Commands
 
@@ -30,7 +32,7 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 # /evaluator-kaizen — qa-evaluator만 개선
 
 # flutter-toolkit evals
-# evals.json (flutter-toolkit/evals/evals.json) 참조 — 15개 테스트 케이스
+# evals.json (flutter-toolkit/evals/evals.json) 참조 — 19개 테스트 케이스
 ```
 
 ## Architecture
@@ -43,12 +45,12 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 <plugin>/
 ├── .claude-plugin/plugin.json   # 메타데이터 (name, version, author)
 ├── skills/<name>/SKILL.md       # 스킬 정의 (frontmatter + process)
-├── agents/                      # 독립 에이전트 (harness만 해당)
-├── hooks/                       # SessionStart/PreToolUse 훅
+├── agents/                      # 독립 에이전트
+├── hooks/                       # SessionStart/PreToolUse 훅 (선택)
 ├── evals/                       # 테스트 픽스처 및 assertions
-├── references/                  # 공유 참조 문서 (스키마, 소스 정책 등)
-├── templates/                   # 초기화 템플릿
-├── scripts/                     # 유틸리티 셸 스크립트
+├── references/                  # 공유 참조 문서 (선택, 스킬 내부에 둘 수도 있음)
+├── templates/                   # 초기화 템플릿 (선택)
+├── scripts/                     # 유틸리티 셸 스크립트 (선택)
 └── README.md
 ```
 
@@ -98,7 +100,24 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 - 스킬 설계는 `docs/guides/skill-design-guide.md`의 9가지 아키타입을 따른다
 - Gotchas 섹션이 스킬에서 가장 중요한 부분 — Claude가 반복하는 실수를 방지한다
 - harness evals는 `evals/test-fixtures/fixture-a~e` 디렉토리에 계약 시나리오별 테스트가 있다
-- flutter-toolkit evals는 `evals/evals.json`에 15개 스킬별 assertion이 정의되어 있다
+- flutter-toolkit evals는 `evals/evals.json`에 19개 스킬별 assertion이 정의되어 있다
+
+## Harness 트리거 규칙
+
+이 레포에서 작업할 때 아래 키워드가 사용자 요청에 포함되면 harness의 sprint-contract 스킬 + qa-evaluator 에이전트 세트를 실행한다:
+
+- **계약 키워드**: sprint-contract, sc, 계약, contract, 완료 조건, 스프린트, sprint, 조건 정의, 완료 기준, ㄱㅈ
+- **QA 키워드**: qa, qa-evaluator, 검증, 평가, 판정, approve, reject, 검수, 품질 확인, 판정해줘, QA 돌려줘, QA 피드백
+- **구현 키워드**: 구현해줘, 개발해줘, 기능 만들어줘, 화면 추가, 페이지 추가, 작업해줘, 착수, 코딩해줘, 기능 추가, 새 기능, feature, 리팩터링, refactor, API 연동, 엔드포인트 추가, 모듈 추가, 서비스 추가, ㄱㅎ, ㅊㄱ
+- **조건부 키워드**: 만들어줘, 추가해줘, 생성해줘 — "기능"과 함께 나올 때만 트리거. 단독 사용 시 다른 스킬(create-skill, flutter-widget 등) 우선
+
+실행 순서: `/sprint-contract` → 개발 → `qa-evaluator` 에이전트.
+단순 수정(색상 변경, 오타 수정, 1파일 변경)에는 트리거하지 않는다.
+
+원본 위치:
+- 에이전트: `harness/agents/qa-evaluator.md`
+- 스킬: `harness/skills/sprint-contract/SKILL.md`
+- `.claude/`에 복사본을 두지 않는다 — harness 플러그인 원본만 사용
 
 ## Platform Gotchas (Windows)
 
