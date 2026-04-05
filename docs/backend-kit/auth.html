@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인증과 인가 — Backend Kit</title>
+<style>
+:root {
+  --bg: #0d0d14;
+  --bg2: #12121c;
+  --surface: #181825;
+  --surface2: #1e1e30;
+  --surface3: #282845;
+  --border: #2a2a40;
+  --border2: #3a3a55;
+  --text: #F5F0E8;
+  --text2: #A89A8F;
+  --text3: #7A6F64;
+  --accent: #A78BFA;
+  --accent2: #C4B5FD;
+  --accent-dim: rgba(167, 139, 250, 0.12);
+  --accent-glow: rgba(167, 139, 250, 0.06);
+  --error: #f87171;
+  --success: #4ade80;
+  --warn: #fbbf24;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at top, var(--accent-glow), transparent 60%),
+    radial-gradient(ellipse at bottom, rgba(196, 181, 253, 0.04), transparent 50%);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 32px 96px;
+}
+
+/* ===== HERO ===== */
+.hero {
+  padding: 72px 0 56px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 64px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 16px;
+  background: var(--accent-dim);
+  color: var(--accent2);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #fff, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero .subtitle {
+  font-size: 18px;
+  color: var(--text2);
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ===== SECTIONS ===== */
+section {
+  margin-bottom: 72px;
+}
+
+.section-header {
+  margin-bottom: 36px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.section-header h2 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.section-header p {
+  margin-top: 10px;
+  color: var(--text2);
+  font-size: 15px;
+}
+
+/* ===== PRINCIPLE CARDS ===== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: var(--transition);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.12);
+}
+
+.card-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent-dim);
+  color: var(--accent2);
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.card p {
+  color: var(--text2);
+  font-size: 14.5px;
+  line-height: 1.75;
+  margin-bottom: 12px;
+}
+
+.card ul {
+  padding-left: 18px;
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.card ul li {
+  margin-bottom: 4px;
+}
+
+.card code {
+  background: var(--surface3);
+  color: var(--accent2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+
+.card-source {
+  display: inline-block;
+  margin-top: auto;
+  padding-top: 16px;
+  color: var(--accent);
+  font-size: 12px;
+  text-decoration: none;
+  border-top: 1px dashed var(--border2);
+  transition: var(--transition);
+}
+
+.card-source::before {
+  content: "↳ 출처: ";
+  color: var(--text3);
+}
+
+.card-source:hover {
+  color: var(--accent2);
+}
+
+/* Inline mini-table inside card */
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0 14px;
+  font-size: 13px;
+}
+
+.mini-table th,
+.mini-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+}
+
+.mini-table th {
+  color: var(--accent2);
+  font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--surface2);
+}
+
+.mini-table tr:last-child td {
+  border-bottom: none;
+}
+
+.mini-table .forbidden {
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* ===== TABLES ===== */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+table.main-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.main-table thead {
+  background: var(--surface2);
+}
+
+.main-table th {
+  text-align: left;
+  padding: 16px 20px;
+  font-weight: 600;
+  color: var(--accent2);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border2);
+}
+
+.main-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+}
+
+.main-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.main-table tbody tr:hover {
+  background: var(--accent-glow);
+}
+
+.main-table td strong, .main-table td b {
+  color: var(--text);
+}
+
+.main-table td code {
+  background: var(--surface3);
+  color: var(--accent2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+}
+
+/* ===== CODE BLOCKS ===== */
+.code-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px 22px;
+  margin: 14px 0;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.code-block .tk-key { color: var(--accent2); }
+.code-block .tk-str { color: #86efac; }
+.code-block .tk-num { color: #fbbf24; }
+.code-block .tk-cmt { color: var(--text3); }
+
+/* ===== ANTIPATTERNS ===== */
+.anti-table td:first-child {
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* ===== CHECKLIST ===== */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.checklist-item {
+  display: flex;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.checklist-item:hover {
+  border-color: var(--border2);
+  border-left-color: var(--accent2);
+  transform: translateX(2px);
+}
+
+.checklist-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.checklist-body strong {
+  color: var(--text);
+  font-size: 15px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.checklist-body p {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.checklist-body code {
+  background: var(--surface3);
+  color: var(--accent2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text3);
+  font-size: 13px;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 64px; }
+  .hero { padding: 48px 0 36px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .card { padding: 22px; }
+  .main-table th, .main-table td { padding: 12px 14px; font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Backend Kit v0.1</span>
+    <h1>인증과 인가</h1>
+    <p class="subtitle">
+      JWT와 Session 비교, OAuth 2.0/OIDC, RBAC/ABAC, 토큰 갱신 전략,
+      비밀번호 해싱, MFA, CORS, CSRF 방어를 다룬다.
+    </p>
+  </header>
+
+  <!-- ===== 원칙 ===== -->
+  <section>
+    <div class="section-header">
+      <span class="section-label">01 · Principles</span>
+      <h2>원칙</h2>
+      <p>표준 스펙(RFC/OWASP/NIST)과 업계 권장사항에 근거한 인증·인가 원칙.</p>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="card-number">1</span>
+        <h3>JWT는 stateless 확장성, Session은 서버 제어력 — 트레이드오프 기반으로 선택한다</h3>
+        <table class="mini-table">
+          <thead>
+            <tr><th>항목</th><th>JWT</th><th>Session</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>상태 저장</td><td>클라이언트 (클레임 포함)</td><td>서버 (Redis, DB)</td></tr>
+            <tr><td>수평 확장</td><td>저장소 공유 불필요</td><td>공유 저장소 필요</td></tr>
+            <tr><td>즉시 무효화</td><td>어려움 (블랙리스트)</td><td>쉬움 (세션 삭제)</td></tr>
+            <tr><td>토큰 크기</td><td>크다 (수백 바이트~수 KB)</td><td>작다 (세션 ID)</td></tr>
+          </tbody>
+        </table>
+        <p>
+          JWT는 마이크로서비스 간 인증 전파에 유리하고,
+          Session은 단일 서비스에서 즉시 무효화가 중요할 때 유리하다.
+          둘을 혼용하면 복잡성만 증가한다.
+        </p>
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc7519" target="_blank" rel="noopener">RFC 7519 — JSON Web Token</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">2</span>
+        <h3>OAuth 2.0은 인가, OIDC는 인증 레이어 — 혼동하지 않는다</h3>
+        <ul>
+          <li><strong>OAuth 2.0</strong>: "이 앱이 내 Google Drive에 접근해도 되는가?" — 리소스 접근 권한 위임.</li>
+          <li><strong>OIDC (OpenID Connect)</strong>: "이 사용자가 누구인가?" — OAuth 2.0 위에 ID Token(JWT)을 추가한 인증 프로토콜.</li>
+        </ul>
+        <p>
+          소셜 로그인을 구현할 때 OAuth 2.0의 access token으로 사용자 식별을 시도하면 안 된다.
+          OIDC의 <code>id_token</code>을 사용하거나, userinfo 엔드포인트를 호출한다.
+        </p>
+        <a class="card-source" href="https://openid.net/specs/openid-connect-core-1_0.html" target="_blank" rel="noopener">RFC 6749 + OpenID Connect Core 1.0</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">3</span>
+        <h3>비밀번호 해싱은 bcrypt(cost 10+) 또는 Argon2id — MD5/SHA 절대 금지</h3>
+        <table class="mini-table">
+          <thead>
+            <tr><th>알고리즘</th><th>권장</th><th>파라미터</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Argon2id</strong></td><td>최우선</td><td>메모리 19MiB+, iter 2, parallel 1</td></tr>
+            <tr><td><strong>bcrypt</strong></td><td>권장</td><td>cost 최소 10 (OWASP 12)</td></tr>
+            <tr><td><strong>scrypt</strong></td><td>허용</td><td>N=2^17, r=8, p=1</td></tr>
+            <tr><td><strong>PBKDF2</strong></td><td>레거시</td><td>iter 600,000+ (SHA-256)</td></tr>
+            <tr><td class="forbidden">MD5, SHA-1/256</td><td class="forbidden">금지</td><td>GPU 초당 수십억 해시</td></tr>
+          </tbody>
+        </table>
+        <p>
+          bcrypt의 cost factor 1 증가 = 해싱 시간 2배.
+          cost 10은 약 100ms, cost 12는 약 400ms.
+          서버 부하와 보안 사이에서 균형을 잡는다.
+        </p>
+        <a class="card-source" href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP — Password Storage Cheat Sheet</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">4</span>
+        <h3>RBAC는 역할 기반, ABAC는 속성 기반 — 요구사항 복잡도에 맞춰 선택한다</h3>
+        <ul>
+          <li><strong>RBAC</strong> (Role-Based Access Control): 사용자 → 역할 → 권한. 역할 수가 적고 정적일 때 적합. 예: admin, editor, viewer.</li>
+          <li><strong>ABAC</strong> (Attribute-Based Access Control): 사용자 속성, 리소스 속성, 환경 조건의 조합으로 접근 결정. 예: "본인 부서의 문서만 영업 시간 내 편집 가능."</li>
+        </ul>
+        <p>
+          RBAC로 시작하고, "역할 폭발"(role explosion — 조합마다 새 역할이 필요한 상황)이 발생하면
+          ABAC로 전환한다.
+        </p>
+        <a class="card-source" href="https://csrc.nist.gov/publications/detail/sp/800-162/final" target="_blank" rel="noopener">NIST SP 800-162 — Guide to ABAC</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">5</span>
+        <h3>Access token은 짧게(15분), Refresh token은 길게(7일) + 회전한다</h3>
+        <ul>
+          <li><strong>Access token TTL</strong>: 15분. 탈취되어도 피해 시간을 제한한다.</li>
+          <li><strong>Refresh token TTL</strong>: 7~14일. 사용할 때마다 새 refresh token을 발급하고 이전 것을 무효화한다(rotation).</li>
+          <li><strong>Refresh token 재사용 감지</strong>: 이미 사용된 refresh token이 다시 제출되면 해당 사용자의 모든 refresh token을 무효화한다 (token family invalidation).</li>
+        </ul>
+<pre class="code-block"><span class="tk-cmt">[Client] --access_token(만료)--> [Server] 401
+[Client] --refresh_token-------> [Auth Server] 새 access + 새 refresh 발급</span></pre>
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc6749" target="_blank" rel="noopener">RFC 6749 — OAuth 2.0 Authorization Framework</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">6</span>
+        <h3>CORS는 허용 origin을 명시적으로 지정한다</h3>
+        <ul>
+          <li><code>Access-Control-Allow-Origin: *</code>는 credentials(쿠키, Authorization 헤더)와 함께 사용할 수 없다. 브라우저가 거부한다.</li>
+          <li>허용 origin 목록을 서버에 유지하고, 요청의 <code>Origin</code> 헤더와 대조하여 동적으로 응답한다.</li>
+          <li><code>Access-Control-Max-Age</code>로 preflight 캐싱을 설정한다. 기본값은 5초, 최대 86400초(24시간, 브라우저별 상한 다름).</li>
+        </ul>
+<pre class="code-block"><span class="tk-key">Access-Control-Allow-Origin</span>: https://app.example.com
+<span class="tk-key">Access-Control-Allow-Credentials</span>: true
+<span class="tk-key">Access-Control-Allow-Methods</span>: GET, POST, PUT, DELETE
+<span class="tk-key">Access-Control-Max-Age</span>: <span class="tk-num">3600</span></pre>
+        <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" target="_blank" rel="noopener">MDN — Cross-Origin Resource Sharing</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">7</span>
+        <h3>CSRF 방어는 SameSite 쿠키 + CSRF 토큰 이중 방어를 적용한다</h3>
+        <ul>
+          <li><strong>SameSite=Lax</strong> (기본값): 대부분의 cross-site 요청에서 쿠키를 전송하지 않는다. 단, top-level GET 네비게이션은 허용.</li>
+          <li><strong>SameSite=Strict</strong>: 모든 cross-site 요청에서 쿠키 차단. 링크를 통한 로그인 유지가 안 되므로 UX 저하.</li>
+          <li><strong>CSRF 토큰</strong>: SameSite를 지원하지 않는 구형 브라우저 대비 이중 방어. Synchronizer Token 또는 Double Submit Cookie 패턴.</li>
+        </ul>
+        <p>
+          SameSite만으로 충분하다고 판단하지 않는다.
+          서브도메인 공격, 브라우저 버그 등 엣지 케이스가 존재한다.
+        </p>
+        <a class="card-source" href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP — CSRF Prevention Cheat Sheet</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== 수치 기준 ===== -->
+  <section>
+    <div class="section-header">
+      <span class="section-label">02 · Metrics</span>
+      <h2>수치 기준</h2>
+      <p>인증·인가 설계 시 참조하는 정량적 기준값.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="main-table">
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>bcrypt cost factor 최소값</strong></td><td>10 (OWASP 권장 12)</td></tr>
+          <tr><td><strong>Argon2id 최소 메모리</strong></td><td>19 MiB</td></tr>
+          <tr><td><strong>Argon2id iterations</strong></td><td>최소 2</td></tr>
+          <tr><td><strong>JWT access token TTL</strong></td><td>15분</td></tr>
+          <tr><td><strong>JWT refresh token TTL</strong></td><td>7~14일</td></tr>
+          <tr><td><strong>PBKDF2 iterations (SHA-256)</strong></td><td>600,000+</td></tr>
+          <tr><td><strong>CORS preflight 캐시 최대값</strong></td><td>86,400초 (브라우저별 상이)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== 안티패턴 ===== -->
+  <section>
+    <div class="section-header">
+      <span class="section-label">03 · Anti-patterns</span>
+      <h2>안티패턴</h2>
+      <p>인증·인가에서 피해야 할 패턴과 그 이유.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="main-table anti-table">
+        <thead>
+          <tr><th style="width:38%">안티패턴</th><th>문제</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>JWT payload에 민감 정보 저장</td>
+            <td>JWT는 서명만 되고 암호화되지 않음. Base64 디코딩으로 즉시 노출.</td>
+          </tr>
+          <tr>
+            <td>Refresh token 미회전</td>
+            <td>탈취된 refresh token으로 무한히 새 access token 발급 가능.</td>
+          </tr>
+          <tr>
+            <td><code>Access-Control-Allow-Origin: *</code></td>
+            <td>Credentials와 함께 사용 불가. 우회하려고 모든 Origin을 동적 반영하면 의미 없음.</td>
+          </tr>
+          <tr>
+            <td>비밀번호 평문 저장 또는 MD5 해싱</td>
+            <td>MD5는 GPU로 초당 수십억 해시 가능. 레인보우 테이블 공격에 무방비.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== Gotchas ===== -->
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Gotchas</span>
+      <h2>Gotchas</h2>
+      <p>반복적으로 놓치는 함정과 확인해야 할 체크 포인트.</p>
+    </div>
+
+    <div class="checklist">
+
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>JWT 서명 검증을 생략하면 <code>alg:none</code> 공격에 노출된다</strong>
+          <p>
+            공격자가 헤더의 <code>alg</code>을 <code>none</code>으로 변경하고 서명을 빈 문자열로 보내면,
+            검증 없이 통과한다.
+            라이브러리에서 허용 알고리즘을 명시적으로 지정한다
+            (<code>algorithms: ['RS256']</code>).
+          </p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Refresh token 탈취 시 세션 전체를 무효화해야 한다</strong>
+          <p>
+            단일 refresh token만 무효화하면 공격자가 이미 발급받은 access token으로 15분간 활동할 수 있다.
+            Token family 전체를 무효화하고,
+            필요하면 access token 블랙리스트를 추가한다.
+          </p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong><code>SameSite=None</code>은 <code>Secure</code> 속성이 필수다</strong>
+          <p>
+            Chrome 80+에서 <code>SameSite=None</code>이면서 <code>Secure</code>가 없는 쿠키는 거부된다.
+            HTTPS가 아닌 환경에서는 <code>SameSite=None</code> 자체를 사용할 수 없다.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    Backend Kit v0.1 · last updated 2026-04-04 ·
+    source: <code>docs/backend/fundamentals/auth.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인시던트 대응 — Infra Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;
+  --bg2:#12121c;
+  --surface:#181825;
+  --surface2:#1e1e30;
+  --surface3:#282845;
+  --border:#2a2a40;
+  --border2:#3a3a55;
+  --text:#F5F0E8;
+  --text2:#A89A8F;
+  --text3:#7A6F64;
+  --accent:#34D399;
+  --accent2:#6EE7B7;
+  --accent-dim:rgba(52,211,153,0.12);
+  --accent-glow:rgba(52,211,153,0.06);
+  --error:#f87171;
+  --success:#4ade80;
+  --warn:#fbbf24;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,var(--accent-glow) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(52,211,153,0.03) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+.page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+/* HERO */
+.hero{padding:72px 0 56px;text-align:center;position:relative}
+.hero-badge{
+  display:inline-block;
+  padding:6px 18px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  border:1px solid rgba(52,211,153,0.25);
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:18px;
+}
+.hero .subtitle{
+  font-size:1.05rem;
+  color:var(--text2);
+  max-width:720px;
+  margin:0 auto;
+  line-height:1.7;
+}
+
+/* SECTION */
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.section-title{
+  font-size:clamp(1.6rem,3vw,2.1rem);
+  font-weight:700;
+  line-height:1.2;
+  margin-bottom:10px;
+  letter-spacing:-0.02em;
+}
+.section-desc{
+  font-size:0.98rem;
+  color:var(--text2);
+  max-width:720px;
+  line-height:1.7;
+  margin-bottom:40px;
+}
+
+/* CARD */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:26px 26px 22px;
+  transition:border-color var(--transition),transform var(--transition);
+  display:flex;
+  flex-direction:column;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-num{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+.card-title{
+  font-size:1.02rem;
+  font-weight:700;
+  margin-bottom:10px;
+  letter-spacing:-0.01em;
+  color:var(--text);
+}
+.card-body{
+  font-size:13.5px;
+  color:var(--text2);
+  line-height:1.65;
+  flex-grow:1;
+  margin-bottom:16px;
+}
+.card-source{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  color:var(--text3);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:var(--radius-sm);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  transition:var(--transition);
+  align-self:flex-start;
+  font-family:var(--mono);
+}
+.card-source::before{content:"↗";font-size:10px;color:var(--accent)}
+.card-source:hover{
+  color:var(--accent);
+  border-color:var(--accent);
+  background:var(--accent-dim);
+}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:960px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+@media(min-width:961px) and (max-width:1200px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--surface);
+}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{
+  padding:14px 18px;
+  text-align:left;
+  font-weight:700;
+  font-size:12px;
+  color:var(--accent);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  border-bottom:1px solid var(--border);
+}
+td{
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+  color:var(--text2);
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+td strong{color:var(--text);font-weight:700}
+td code{
+  font-family:var(--mono);
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--surface2);
+  color:var(--accent2);
+  border:1px solid var(--border);
+}
+
+/* SEV pills */
+.sev-pill{
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:100px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  font-family:var(--mono);
+}
+.sev1{background:rgba(248,113,113,0.15);color:var(--error);border:1px solid rgba(248,113,113,0.3)}
+.sev2{background:rgba(251,191,36,0.15);color:var(--warn);border:1px solid rgba(251,191,36,0.3)}
+.sev3{background:rgba(52,211,153,0.12);color:var(--accent);border:1px solid rgba(52,211,153,0.3)}
+.sev4{background:var(--surface3);color:var(--text2);border:1px solid var(--border2)}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{
+  border-radius:var(--radius);
+  padding:22px;
+  position:relative;
+  overflow:hidden;
+}
+.compare-bad{
+  background:rgba(248,113,113,0.05);
+  border:1px solid rgba(248,113,113,0.22);
+}
+.compare-good{
+  background:rgba(52,211,153,0.05);
+  border:1px solid rgba(52,211,153,0.22);
+}
+.compare-label{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  padding:4px 10px;
+  border-radius:100px;
+}
+.compare-bad .compare-label{
+  color:var(--error);
+  background:rgba(248,113,113,0.12);
+}
+.compare-good .compare-label{
+  color:var(--success);
+  background:rgba(74,222,128,0.12);
+}
+.compare-title{
+  font-size:14.5px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+}
+.compare-body{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.65;
+}
+
+/* anti-pattern list */
+.anti-list{display:flex;flex-direction:column;gap:14px}
+.anti-item{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--error);
+  border-radius:var(--radius-sm);
+  padding:18px 22px;
+  transition:var(--transition);
+}
+.anti-item:hover{border-color:var(--border2);border-left-color:var(--error);transform:translateX(2px)}
+.anti-name{
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.anti-name::before{
+  content:"✗";
+  color:var(--error);
+  font-size:14px;
+  font-weight:700;
+}
+.anti-desc{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.65;
+}
+
+/* CHECKLIST */
+.checklist{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  max-width:860px;
+}
+.checklist li{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  font-size:14px;
+  color:var(--text2);
+  line-height:1.65;
+  padding:16px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  transition:var(--transition);
+}
+.checklist li:hover{border-color:var(--accent);background:var(--surface2)}
+.checklist .check{
+  width:22px;
+  height:22px;
+  border-radius:6px;
+  border:2px solid var(--accent);
+  flex-shrink:0;
+  margin-top:1px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:var(--accent);
+  font-weight:700;
+  background:var(--accent-dim);
+}
+
+/* ROLES */
+.role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.role-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.role-grid{grid-template-columns:1fr}}
+.role-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:18px;
+  text-align:center;
+}
+.role-icon{
+  width:40px;
+  height:40px;
+  margin:0 auto 10px;
+  border-radius:10px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:800;
+}
+.role-name{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px}
+.role-desc{font-size:11.5px;color:var(--text3);line-height:1.5}
+
+/* FLOW */
+.flow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:24px;
+}
+.flow-step{
+  padding:10px 18px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:700;
+  border:1px solid rgba(52,211,153,0.3);
+  font-family:var(--mono);
+}
+.flow-arrow{color:var(--text3);font-size:14px}
+
+/* FOOTER */
+.footer{
+  margin-top:64px;
+  padding-top:32px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:12px;
+  color:var(--text3);
+}
+.footer .accent{color:var(--accent);font-weight:700}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .card:hover,.anti-item:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Infra Kit v0.1</div>
+  <h1>인시던트 대응</h1>
+  <p class="subtitle">Severity 분류, 온콜 체계, 역할 분리, Runbook, Postmortem, RCA, Status Page, 복구 우선순위. 장애는 언제든 일어난다 — 대응 방식이 조직의 성숙도를 결정한다.</p>
+</div>
+
+<!-- PRINCIPLES -->
+<div class="section">
+  <div class="section-label">Core Principles</div>
+  <div class="section-title">핵심 원칙 8</div>
+  <p class="section-desc">Google SRE, Atlassian IM 가이드, Statuspage 공식 문서 기반. 각 원칙은 사용자 체감 영향과 조직 학습을 기준으로 정렬된다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-num">1</div>
+      <div class="card-title">Severity는 사용자/비즈니스 영향 기준으로 분류한다</div>
+      <div class="card-body">기술적 원인(서버 다운, DB 락)이 아니라 사용자가 체감하는 영향 범위와 심각도로 분류한다. 기술 원인 기준으로 분류하면 영향이 큰 장애를 과소평가하거나, 영향이 작은 문제에 과잉 대응하게 된다.</div>
+      <a class="card-source" href="https://www.atlassian.com/incident-management/kpis/severity-levels" target="_blank" rel="noopener">Atlassian — Severity Levels</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">2</div>
+      <div class="card-title">온콜은 primary/secondary 분리하고 handoff 시간을 명시한다</div>
+      <div class="card-body">Primary가 응답하지 못할 경우 secondary로 자동 에스컬레이션되어야 한다. handoff 시간(교대 시점)을 명확히 정의하여 "누가 지금 담당인가"에 모호함이 없어야 한다. 온콜 부담은 팀 전체에 공정하게 분배한다.</div>
+      <a class="card-source" href="https://sre.google/sre-book/being-on-call/" target="_blank" rel="noopener">Google SRE — Being On-Call</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">3</div>
+      <div class="card-title">탐지 → 선언 → 지휘 → 커뮤니케이션 역할을 분리한다</div>
+      <div class="card-body">Incident Commander(IC)가 의사결정과 조율을 맡고, Communicator가 이해관계자 업데이트를 담당한다. IC가 직접 디버깅에 뛰어들면 전체 조율이 중단된다. 역할이 명확해야 병렬 작업이 가능하다.</div>
+      <a class="card-source" href="https://www.atlassian.com/incident-management/incident-response/roles-responsibilities" target="_blank" rel="noopener">Atlassian — IR Roles</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">4</div>
+      <div class="card-title">Runbook은 실행 절차다</div>
+      <div class="card-body">개념 설명이 아니라 "따라 하면 자동화 가능한 수준"의 단계별 명령 시퀀스여야 한다. 판단이 필요한 지점은 분기 조건을 명시한다. Runbook이 실행 불가능한 산문이면 장애 시 아무도 참조하지 않는다.</div>
+      <a class="card-source" href="https://sre.google/sre-book/service-best-practices/" target="_blank" rel="noopener">Google SRE — Service Best Practices</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">5</div>
+      <div class="card-title">Postmortem은 blameless로 수행한다</div>
+      <div class="card-body">사람의 실수를 비난하는 대신, 그 실수를 허용한 환경과 안전장치 부재를 고친다. Blame culture가 형성되면 장애를 숨기거나 축소 보고하게 되어 조직 학습이 중단된다.</div>
+      <a class="card-source" href="https://sre.google/sre-book/service-best-practices/" target="_blank" rel="noopener">Google SRE — Service Best Practices</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">6</div>
+      <div class="card-title">RCA는 "왜 방어선이 실패했는가"에 집중한다</div>
+      <div class="card-body">직접 원인(what)이 아니라 방어선 실패(why)를 추적한다. 5 Whys + timeline 조합으로 인과 관계를 시간순으로 재구성한다. "서버가 죽었다"가 아니라 "왜 자동 복구가 작동하지 않았는가"가 핵심 질문이다.</div>
+      <a class="card-source" href="https://www.atlassian.com/software/confluence/templates/5-whys-analysis/" target="_blank" rel="noopener">Atlassian — 5 Whys Analysis</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">7</div>
+      <div class="card-title">Status page를 단일 진실원천(SSoT)으로 운영한다</div>
+      <div class="card-body">내부 슬랙, 이메일, 전화 등 여러 채널에 장애 상태가 흩어지면 혼란이 가중된다. Status page 하나를 공식 채널로 지정하고, 모든 업데이트를 여기에 먼저 게시한다. 고객, 내부 팀, 경영진 모두 같은 정보를 본다.</div>
+      <a class="card-source" href="https://developer.statuspage.io/" target="_blank" rel="noopener">Statuspage — Developer API</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">8</div>
+      <div class="card-title">복구 우선순위: data integrity &gt; core availability &gt; noncritical</div>
+      <div class="card-body">데이터 무결성이 최우선이다. 데이터가 손상된 상태로 서비스를 복구하면 피해가 확산된다. 핵심 기능의 가용성이 그다음이고, 부가 기능은 마지막이다. 이 순서를 사전에 합의해두지 않으면 장애 시 우선순위 논쟁으로 시간을 소모한다.</div>
+      <a class="card-source" href="https://sre.google/sre-book/service-best-practices/" target="_blank" rel="noopener">Google SRE — Service Best Practices</a>
+    </div>
+  </div>
+</div>
+
+<!-- ROLES -->
+<div class="section">
+  <div class="section-label">Roles</div>
+  <div class="section-title">역할 분리</div>
+  <p class="section-desc">한 사람이 모든 역할을 겸하면 조율이 무너진다. 규모가 작으면 한 사람이 여러 역할을 맡되 "지금 어떤 역할인가"를 명시한다.</p>
+  <div class="role-grid">
+    <div class="role-card">
+      <div class="role-icon">IC</div>
+      <div class="role-name">Incident Commander</div>
+      <div class="role-desc">의사결정 / 조율 / 우선순위 / 디버깅 금지</div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">C</div>
+      <div class="role-name">Communicator</div>
+      <div class="role-desc">Status page / 고객 공지 / 내부 업데이트</div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">SL</div>
+      <div class="role-name">Subject Lead</div>
+      <div class="role-desc">도메인 전문가 / 실제 복구 작업 수행</div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">S</div>
+      <div class="role-name">Scribe</div>
+      <div class="role-desc">Timeline 기록 / Postmortem 자료 수집</div>
+    </div>
+  </div>
+</div>
+
+<!-- METRICS -->
+<div class="section">
+  <div class="section-label">Reference Values</div>
+  <div class="section-title">Severity 분류 및 커뮤니케이션 기준</div>
+  <p class="section-desc">SEV 기준과 공지 cadence는 사전에 합의된 수치로 운영한다. 장애 시점에 협상하면 이미 늦는다.</p>
+
+  <div class="table-wrap" style="margin-bottom:24px">
+    <table>
+      <thead>
+        <tr>
+          <th>Severity</th>
+          <th>정의</th>
+          <th>첫 공지</th>
+          <th>업데이트 주기</th>
+          <th>에스컬레이션</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sev-pill sev1">SEV1</span></td>
+          <td><strong>전면 장애 또는 데이터 손상</strong>. 모든 사용자 영향.</td>
+          <td>15분 이내</td>
+          <td>30분 cadence</td>
+          <td>즉시 전사 에스컬레이션</td>
+        </tr>
+        <tr>
+          <td><span class="sev-pill sev2">SEV2</span></td>
+          <td><strong>핵심 기능 중대 저하</strong>. 우회 불가 또는 매우 어려움.</td>
+          <td>30분 이내</td>
+          <td>60분 cadence</td>
+          <td>엔지니어링 리더 공지</td>
+        </tr>
+        <tr>
+          <td><span class="sev-pill sev3">SEV3</span></td>
+          <td><strong>부분 기능 저하</strong>. 우회 가능.</td>
+          <td>업무 시간 내</td>
+          <td>필요 시</td>
+          <td>담당 팀 내부 처리</td>
+        </tr>
+        <tr>
+          <td><span class="sev-pill sev4">SEV4</span></td>
+          <td><strong>경미한 이슈</strong>. 사용자 영향 최소.</td>
+          <td>공지 불필요</td>
+          <td>—</td>
+          <td>티켓 백로그</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-label" style="margin-top:12px">Status Page Lifecycle</div>
+  <div class="flow">
+    <div class="flow-step">investigating</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">identified</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">monitoring</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">resolved</div>
+  </div>
+</div>
+
+<!-- ANTI PATTERNS -->
+<div class="section">
+  <div class="section-label">Anti-Patterns</div>
+  <div class="section-title">피해야 할 패턴</div>
+  <p class="section-desc">실전 장애에서 반복적으로 관찰되는 실수. "원인 먼저 vs 공지 먼저"는 특히 신뢰와 직결된다.</p>
+
+  <div class="compare" style="margin-bottom:24px">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <div class="compare-title">원인을 찾은 뒤에야 공지</div>
+      <div class="compare-body">"완전히 파악하고 올려야 프로페셔널하다"는 착각. 고객은 원인보다 <strong>인지하고 있음</strong>을 먼저 알고 싶어한다. 공지 지연 10분마다 신뢰 하락이 누적된다.</div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <div class="compare-title">탐지 즉시 investigating 공지</div>
+      <div class="compare-body">"결제 기능 이상 징후 확인, 조사 중입니다." — 확인된 사실만 게시하고 cadence에 맞춰 업데이트한다. 추측성 원인 언급은 금지.</div>
+    </div>
+  </div>
+
+  <div class="anti-list">
+    <div class="anti-item">
+      <div class="anti-name">IC가 직접 디버깅에 몰두</div>
+      <div class="anti-desc">조율자가 사라지면 병렬 작업이 중단되고 커뮤니케이션이 끊긴다. IC는 의사결정과 조율에만 집중하고, 실제 복구 작업은 Subject Lead에게 위임한다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">Postmortem을 개인 실수 보고서로 작성</div>
+      <div class="anti-desc">"누가 잘못했는가"로 프레이밍하면 blame culture가 형성된다. 다음 장애는 은폐되거나 축소 보고된다. "어떤 안전장치가 없었는가"로 질문을 바꾼다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">Runbook을 개념 문서로 작성</div>
+      <div class="anti-desc">"Redis 메모리가 높으면 적절히 조치한다" 같은 산문은 장애 시 쓸모가 없다. 단계별 명령어, 예상 출력, 분기 조건까지 명시해야 한다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">Chaos Engineering을 무작위 실험으로 수행</div>
+      <div class="anti-desc">steady state 가설과 abort condition 없이 장애를 주입하면 그냥 장애다. Litmus/Gremlin 같은 도구는 가설 기반 실험 프레임워크 위에서만 의미가 있다.</div>
+    </div>
+  </div>
+</div>
+
+<!-- GOTCHAS -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <div class="section-title">체크리스트</div>
+  <p class="section-desc">인시던트 대응 체계를 구축·운영할 때 반복 실수를 방지하기 위한 자가 진단 항목.</p>
+  <ul class="checklist">
+    <li>
+      <span class="check">✓</span>
+      <span><strong>SEV 기준이 "내부 긴장도"가 아닌 사용자 영향 범위·비즈니스 지표로 객관화</strong>되어 있는가? 조직마다 다르게 해석되는 기준은 합의가 아니다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>Status page에 추측성 문구("아마 곧 복구될 것")가 없는가?</strong> 복구 지연 시 신뢰가 더 크게 훼손된다. 확인된 사실만 게시한다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>RCA에 timeline이 포함</strong>되어 있는가? 시간순 재구성이 빠지면 "왜 그 시점에 그 판단을 했는가"를 이해할 수 없고 교훈이 남지 않는다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>Chaos 실험마다 steady state 정의 + abort condition</strong>이 사전에 작성되어 있는가? Litmus/Gremlin은 도구일 뿐이다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>온콜 primary/secondary handoff 시점이 달력에 명시</strong>되어 있는가? "누가 지금 담당인가"에 모호함이 남으면 SEV1 초기 대응이 지연된다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>복구 순서(data integrity → availability → noncritical)</strong>가 사전에 합의되어 있는가? 장애 시점에 우선순위 논쟁은 시간 낭비다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>Runbook의 각 단계가 카피-페이스트 가능한 명령어</strong>인가? 판단이 필요한 지점에는 분기 조건과 예상 출력이 함께 적혀 있는가?</span>
+    </li>
+  </ul>
+</div>
+
+<div class="footer">
+  Source: <span class="accent">docs/infra/operations/incident-response.md</span> &nbsp;·&nbsp; Infra Kit v0.1 &nbsp;·&nbsp; Last updated 2026-04-04
+</div>
+
+</div>
+</body>
+</html>

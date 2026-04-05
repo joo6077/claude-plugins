@@ -104,6 +104,100 @@ user-invocable: true
 
 flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로젝트 환경을 자동 감지한다 (FVM 래퍼, 아키텍처 패턴, 의존성 등). harness의 `.harness/project.yaml`과 연동하여 commands와 anti_patterns를 공유한다.
 
+## Skills Reference
+
+### 이 레포 스킬 (플러그인 소속)
+
+**harness — QA 프레임워크**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/init` | `.harness/` 디렉토리 초기화 + project.yaml 생성 |
+| `/sprint-contract` | 구현 전 완료 조건 정의. 기능 구현 요청 시 가장 먼저 실행 |
+| `qa-evaluator` (에이전트) | Sprint Contract 기준 APPROVE/REJECT 판정. 구현 완료 후 실행 |
+| `/create-skill` | skill-design-guide 기반 새 SKILL.md 스캐폴딩 |
+| `/create-agent` | agent-design-guide 기반 새 에이전트 .md 스캐폴딩 |
+| `/contract-kaizen` | sprint-contract 스킬 + 계약 설계 가이드 개선 |
+| `/evaluator-kaizen` | qa-evaluator 에이전트 + 평가 방법론 가이드 개선 |
+| `/harness-kaizen` | harness 스킬 전체 개선 |
+
+**flutter-toolkit — Flutter 개발 워크플로우 (18종)**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/flutter-screen` | Screen/Page 위젯 생성 + 라우터 등록 |
+| `/flutter-feature` | 화면+Provider+API를 한 번에 생성하는 복합 스킬 |
+| `/flutter-widget` | 프로젝트 컨벤션에 맞는 커스텀 위젯 생성 |
+| `/flutter-provider` | Riverpod Notifier + State 클래스 생성 |
+| `/flutter-api` | Clean Architecture 전 레이어 일괄 생성 (DataSource→Model→Repository→UseCase) |
+| `/flutter-test` | unit/widget/integration 테스트 코드 자동 생성 |
+| `/flutter-hooks` | Flutter Hooks 패턴 가이드 (HookWidget, 커스텀 Hook) |
+| `/flutter-error` | 에러 처리 패턴 가이드 (예외→Failure→UI 표시) |
+| `/flutter-l10n` | i18n 번역 문자열 추가/수정 + codegen 재생성 |
+| `/flutter-responsive` | 반응형 레이아웃 적용 (breakpoint, 멀티컬럼) |
+| `/flutter-transition` | 커스텀 페이지 전환 애니메이션 적용 |
+| `/flutter-skeleton` | 스켈레톤 shimmer 로딩 UI 구현 |
+| `/flutter-extract` | 재사용 위젯을 공용으로 추출·분리 |
+| `/flutter-build` | 코드 생성(build_runner) + 정적 분석(analyze) |
+| `/flutter-run` | 빌드 프리미티브 개별 실행 (codegen, analyze, fix, test) |
+| `/flutter-preflight` | Pre-commit quality gate (fix→codegen→analyze→test) |
+| `/flutter-audit` | 코드 품질 감사 — pre-commit 리뷰, PR 전 검토 (quick/deep 모드) |
+| `/flutter-kaizen` | flutter-toolkit 스킬 개선 |
+| `widget-inspector` (에이전트) | 프로젝트 코드에서 재사용 가능한 위젯 패턴 감지·리포팅 |
+
+**design-kit — UI/UX 디자인**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/design-guide` | UI 코드에 대한 디자인 원칙 가이드 (가벼운 리뷰) |
+| `/design-audit` | 완성된 UI를 카테고리별 PASS/FAIL로 체계적 감사 |
+| `/design-system` | 디자인 토큰 체계(컬러, 타이포, 스페이싱 등) 세팅 |
+| `design-reviewer` (에이전트) | design-audit에서 호출. UI 코드를 디자인 원칙 기준으로 독립 평가 |
+
+**이 레포 전용 스킬 (.claude/skills/)**
+
+| 스킬 | 용도 |
+|------|------|
+| `/kaizen` | 전체 6 Phase 카이젠 오케스트레이션 |
+| `/design-kaizen` | design-kit 스킬 개선 |
+| `/design-research` | 디자인 레퍼런스 크롤링 → design-kit/docs/design/ 문서 갱신 |
+| `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
+
+### 외부 플러그인 스킬 (이 레포에 없음)
+
+아래는 별도 설치된 플러그인이나 Claude Code 내장 기능으로, 이 레포 작업 시에도 사용 가능하다.
+
+**superpowers — 범용 워크플로우**
+
+| 스킬 | 용도 |
+|------|------|
+| `brainstorming` | 기능 설계·창작 작업 전 요구사항 탐색. 구현 전 자동 실행 |
+| `writing-plans` | 멀티스텝 작업의 구현 계획 작성 |
+| `executing-plans` | 작성된 계획을 리뷰 체크포인트와 함께 실행 |
+| `test-driven-development` | TDD 워크플로우 (테스트 먼저, 구현 후) |
+| `systematic-debugging` | 버그·테스트 실패 시 체계적 원인 분석 |
+| `requesting-code-review` | 작업 완료 후 코드 리뷰 요청 |
+| `receiving-code-review` | 리뷰 피드백 수신 시 기술적 검증 후 반영 |
+| `verification-before-completion` | 완료 선언 전 빌드·테스트 실행으로 증거 확보 |
+| `finishing-a-development-branch` | 개발 완료 후 merge/PR/cleanup 옵션 제시 |
+| `subagent-driven-development` | 독립 태스크를 서브에이전트로 병렬 실행 |
+| `dispatching-parallel-agents` | 2+ 독립 태스크 병렬 에이전트 디스패치 |
+| `using-git-worktrees` | 격리된 git worktree에서 피처 작업 |
+| `writing-skills` | 새 스킬 작성·검증 |
+
+**기타 외부 스킬**
+
+| 스킬 | 용도 |
+|------|------|
+| `/review` | 커밋/PR 전 빌드·import·포트·괄호 등 체크리스트 검토 |
+| `/simplify` | 변경 코드의 재사용성·품질·효율 리뷰 후 개선 |
+| `/release` | 플러그인 버전 bump + marketplace.json 갱신 + git commit/tag/push |
+| `/claude-api` | Claude API / Anthropic SDK 앱 빌드 |
+| `/codex:rescue` | Codex 서브에이전트에 조사·수정·리서치 위임 |
+| `/update-config` | Claude Code settings.json 설정 변경 |
+| `/loop` | 프롬프트/슬래시 커맨드를 주기적 반복 실행 |
+| `/schedule` | 원격 에이전트 cron 스케줄 생성·관리 |
+
 ## Key Conventions
 
 - 모든 문서와 커밋 메시지는 한국어 사용

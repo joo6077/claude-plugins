@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>상태 관리 — Flutter Toolkit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#22D3EE;
+    --accent2:#67E8F9;
+    --accent-dim:rgba(34,211,238,0.12);
+    --accent-glow:rgba(34,211,238,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *,
+  *::before,
+  *::after{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+  }
+
+  html{
+    scroll-behavior:smooth;
+    -webkit-text-size-adjust:100%;
+  }
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.65;
+    font-size:16px;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, var(--accent-glow), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, var(--accent-glow), transparent);
+    background-attachment:fixed;
+  }
+
+  ::selection{
+    background:var(--accent-dim);
+    color:var(--accent2);
+  }
+
+  .container{
+    max-width:1080px;
+    margin:0 auto;
+    padding:64px 32px 96px;
+  }
+
+  /* ─── Hero ─── */
+  .hero{
+    text-align:center;
+    padding:72px 24px 56px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:64px;
+  }
+
+  .badge{
+    display:inline-block;
+    padding:6px 14px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    color:var(--accent2);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    margin-bottom:24px;
+  }
+
+  .hero h1{
+    font-size:clamp(40px,6vw,64px);
+    font-weight:800;
+    line-height:1.1;
+    letter-spacing:-0.02em;
+    background:linear-gradient(135deg, var(--text) 0%, var(--accent2) 60%, var(--accent) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:20px;
+  }
+
+  .hero .subtitle{
+    font-size:19px;
+    color:var(--text2);
+    max-width:680px;
+    margin:0 auto;
+    line-height:1.6;
+  }
+
+  .hero .meta{
+    margin-top:28px;
+    display:flex;
+    gap:16px;
+    justify-content:center;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--text3);
+  }
+
+  .hero .meta span{
+    padding:4px 12px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:999px;
+  }
+
+  /* ─── Sections ─── */
+  section{
+    margin-bottom:72px;
+  }
+
+  .section-header{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:28px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .section-header h2{
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--text);
+  }
+
+  .section-header .tag{
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+
+  .section-intro{
+    color:var(--text2);
+    margin-bottom:24px;
+    font-size:15px;
+  }
+
+  /* ─── Principle cards ─── */
+  .cards{
+    display:grid;
+    gap:20px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    transition:border-color var(--transition), transform var(--transition);
+    position:relative;
+  }
+
+  .card:hover{
+    border-color:var(--border2);
+    transform:translateY(-1px);
+  }
+
+  .card-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:8px;
+    color:var(--accent2);
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:14px;
+  }
+
+  .card h3{
+    font-size:18px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:10px;
+    line-height:1.4;
+  }
+
+  .card p{
+    color:var(--text2);
+    font-size:14.5px;
+    margin-bottom:14px;
+  }
+
+  .card code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  .card-source{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--accent);
+    text-decoration:none;
+    font-size:12px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    transition:all var(--transition);
+    margin-right:8px;
+    margin-top:6px;
+  }
+
+  .card-source:hover{
+    background:var(--accent-dim);
+    border-color:var(--accent);
+    color:var(--accent2);
+  }
+
+  .card-source::before{
+    content:"→";
+    color:var(--accent);
+  }
+
+  /* ─── Metrics table ─── */
+  .metrics-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  .metrics-table th,
+  .metrics-table td{
+    padding:16px 20px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    font-size:14.5px;
+  }
+
+  .metrics-table th{
+    background:var(--surface2);
+    color:var(--accent);
+    font-weight:600;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+  }
+
+  .metrics-table tr:last-child td{
+    border-bottom:none;
+  }
+
+  .metrics-table tr:hover td{
+    background:var(--surface2);
+  }
+
+  .metrics-table td code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 8px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Anti-pattern compare ─── */
+  .compare{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .compare-item{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--error);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+  }
+
+  .compare-item .icon{
+    flex-shrink:0;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:rgba(248,113,113,0.12);
+    color:var(--error);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:16px;
+    line-height:1;
+  }
+
+  .compare-item p{
+    color:var(--text);
+    font-size:14.5px;
+    line-height:1.6;
+  }
+
+  .compare-item code{
+    background:var(--surface3);
+    color:#fda4af;
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Gotchas checklist ─── */
+  .checklist{
+    display:grid;
+    gap:14px;
+  }
+
+  .check-item{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    transition:border-color var(--transition);
+  }
+
+  .check-item:hover{
+    border-color:var(--accent);
+  }
+
+  .check-item .box{
+    flex-shrink:0;
+    width:22px;
+    height:22px;
+    border:2px solid var(--accent);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    font-size:14px;
+    font-weight:700;
+    margin-top:2px;
+  }
+
+  .check-item p{
+    color:var(--text2);
+    font-size:14.5px;
+    line-height:1.65;
+  }
+
+  .check-item strong{
+    color:var(--text);
+    font-weight:600;
+  }
+
+  .check-item code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Footer ─── */
+  footer{
+    margin-top:96px;
+    padding-top:32px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    color:var(--text3);
+    font-size:13px;
+  }
+
+  footer a{
+    color:var(--accent);
+    text-decoration:none;
+  }
+
+  /* ─── Responsive ─── */
+  @media (min-width:768px){
+    .compare{
+      grid-template-columns:1fr 1fr;
+    }
+  }
+
+  @media (max-width:640px){
+    .container{ padding:32px 20px 64px; }
+    .hero{ padding:40px 16px 32px; }
+    .hero h1{ font-size:36px; }
+    .hero .subtitle{ font-size:16px; }
+    .section-header h2{ font-size:22px; }
+    .card{ padding:22px; }
+    .metrics-table th,
+    .metrics-table td{ padding:12px 14px; font-size:13px; }
+  }
+
+  /* ─── Reduced motion ─── */
+  @media (prefers-reduced-motion:reduce){
+    *,
+    *::before,
+    *::after{
+      transition:none !important;
+      animation:none !important;
+      scroll-behavior:auto !important;
+    }
+    .card:hover{ transform:none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════ Hero ═══════════ -->
+  <header class="hero">
+    <span class="badge">Flutter Toolkit v0.1</span>
+    <h1>상태 관리</h1>
+    <p class="subtitle">
+      Riverpod / Bloc / Provider 비교와 선택 기준. Notifier·AsyncNotifier,
+      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">ref.mounted</code>,
+      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">copyWith</code>,
+      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">Result.when</code>
+      같은 핵심 패턴을 정리한다.
+    </p>
+    <div class="meta">
+      <span>version 0.1.0</span>
+      <span>updated 2026-04-05</span>
+      <span>flutter / dart</span>
+    </div>
+  </header>
+
+  <!-- ═══════════ 원칙 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">01</span>
+      <h2>원칙</h2>
+    </div>
+    <p class="section-intro">
+      상태 관리 선택은 프로젝트 수명의 방향을 결정한다. 아래 5개 원칙은 Riverpod 공식 문서와
+      pub.dev의 maintainer 가이드에서 도출되었다.
+    </p>
+
+    <div class="cards">
+      <article class="card">
+        <span class="card-num">1</span>
+        <h3>변경 가능한 복잡 상태는 Riverpod의 <code>NotifierProvider</code> / <code>AsyncNotifierProvider</code>를 기본으로 쓴다</h3>
+        <p>단순 파생값은 <code>Provider</code>, 비동기 로딩은 <code>AsyncNotifierProvider</code>.
+          새 화면의 상태를 설계할 때 첫 선택지는 언제나 Notifier 계열이다.</p>
+        <a class="card-source" href="https://docs-v2.riverpod.dev/docs/providers/notifier_provider" target="_blank" rel="noopener">
+          docs-v2.riverpod.dev
+        </a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">2</span>
+        <h3><code>provider</code> 패키지는 얇은 <code>InheritedWidget</code> 래퍼, <code>flutter_bloc</code>은 이벤트/상태 전이 모델이다</h3>
+        <p>팀 규모와 상태 복잡도에 맞춰 선택하고 한 프로젝트에서 혼용하지 않는다.
+          두 라이브러리가 공존하면 onboarding 비용이 두 배, 테스트 전략도 두 배가 된다.</p>
+        <a class="card-source" href="https://pub.dev/packages/provider" target="_blank" rel="noopener">pub.dev/packages/provider</a>
+        <a class="card-source" href="https://pub.dev/packages/flutter_bloc" target="_blank" rel="noopener">pub.dev/packages/flutter_bloc</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">3</span>
+        <h3>비동기 UI 상태는 <code>AsyncValue</code>처럼 loading / error / data 3 케이스 타입으로 표현한다</h3>
+        <p><code>bool isLoading</code> + nullable data 조합 금지. 3 케이스 sealed 타입은
+          UI 분기를 강제하여 "로딩 중인데 에러" 같은 불가능한 상태를 컴파일 타임에 막는다.</p>
+        <a class="card-source" href="https://pub.dev/packages/flutter_riverpod" target="_blank" rel="noopener">pub.dev/packages/flutter_riverpod</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">4</span>
+        <h3>상태 객체는 immutable + <code>copyWith</code> 기본</h3>
+        <p><code>freezed</code>로 sealed union과 <code>copyWith</code>를 자동 생성한다.
+          수작업 <code>copyWith</code>는 필드 추가 시 누락 버그의 온상이다.</p>
+        <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">pub.dev/packages/freezed</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">5</span>
+        <h3>Provider/Notifier 내부에서 <code>await</code> 이후 UI에 반영하기 전 <code>ref.mounted</code>를 확인한다</h3>
+        <p>dispose 이후 접근은 state 설정 예외를 발생시킨다. 화면 빠른 전환 시 실전에서
+          가장 많이 발생하는 런타임 에러 중 하나.</p>
+        <a class="card-source" href="https://pub.dev/documentation/flutter_riverpod/latest/flutter_riverpod/Ref-class.html" target="_blank" rel="noopener">flutter_riverpod Ref</a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══════════ 수치 기준 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">02</span>
+      <h2>수치 기준</h2>
+    </div>
+    <p class="section-intro">
+      2026-04 기준 최신 안정 버전과 실전 한계 수치. 의존성 업그레이드 시 이 표를 기준선으로 삼는다.
+    </p>
+
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값 / 기준</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>flutter_riverpod</code></td>
+          <td>3.3.1</td>
+          <td>2026-04 기준 최신 안정</td>
+        </tr>
+        <tr>
+          <td><code>flutter_bloc</code></td>
+          <td>9.1.1</td>
+          <td>2026-04 기준 최신 안정</td>
+        </tr>
+        <tr>
+          <td><code>provider</code></td>
+          <td>6.1.5+1</td>
+          <td>2026-04 기준 최신 안정</td>
+        </tr>
+        <tr>
+          <td>Provider 트리 한계</td>
+          <td>150개 이하</td>
+          <td><code>ChangeNotifierProvider</code>를 150개 이상 쌓으면 rebuild 추적 + stack overflow 위험</td>
+        </tr>
+        <tr>
+          <td>비동기 상태 케이스 수</td>
+          <td>3 (loading / error / data)</td>
+          <td>nullable bool 하나로 표현 금지</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════ 안티패턴 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">03</span>
+      <h2>안티패턴</h2>
+    </div>
+    <p class="section-intro">
+      코드 리뷰에서 발견되면 반드시 수정해야 하는 구조. 초기에는 동작하지만 시간이 지나면
+      버그 리포트와 성능 저하로 돌아온다.
+    </p>
+
+    <div class="compare">
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p>Notifier 바깥에서 state의 내부 필드를 직접 mutate
+          (<code>state.items.add(...)</code>).</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p><code>build</code> 메서드 안에서 HTTP/DB 호출을 바로 시작하는 구조.</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p><code>loading</code>/<code>error</code>/<code>data</code>를
+          <code>bool isLoading</code> + nullable 값으로 표현.</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p>같은 feature 안에 Bloc / Riverpod / Provider를 섞어 쓰는 구조.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ Gotchas ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">04</span>
+      <h2>Gotchas</h2>
+    </div>
+    <p class="section-intro">
+      공식 문서에 숨어 있지만 놓치기 쉬운 함정. 체크리스트로 훑어보고 설계 리뷰에 반영하라.
+    </p>
+
+    <div class="checklist">
+      <div class="check-item">
+        <div class="box">✓</div>
+        <p>
+          <strong><code>ChangeNotifierProvider</code>는 Riverpod 공식 문서상 scalable app에서는
+          migration 용도로만 권장된다.</strong>
+          새 코드는 <code>Notifier</code> / <code>AsyncNotifier</code>를 쓰는 편이 장기적으로 안전하다.
+          마이그레이션 중인 레거시 기능이 아니면 선택하지 말 것.
+        </p>
+      </div>
+      <div class="check-item">
+        <div class="box">✓</div>
+        <p>
+          <strong>sealed union + <code>Result.when</code> 분기는 강력하지만 단순 로그인 폼처럼
+          상태가 3개 이하인 화면에는 과한 ceremony가 된다.</strong>
+          화면당 상태 수를 보고 판단하라 — 2~3개의 간단한 flag라면 일반 Notifier + named constructor로 충분하다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Flutter Toolkit v0.1 · 상태 관리 ·
+      <a href="../flutter/state/state-management.md">source .md</a>
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

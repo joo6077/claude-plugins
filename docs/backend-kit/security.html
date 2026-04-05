@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>보안 — Backend Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#A78BFA;--accent2:#C4B5FD;
+  --accent-dim:rgba(167,139,250,0.12);--accent-glow:rgba(167,139,250,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,var(--accent-glow) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,var(--accent-glow) 0%,transparent 55%);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+.page{max-width:1120px;margin:0 auto;padding:0 24px 96px}
+
+/* ─── HERO ─── */
+.hero{padding:72px 0 56px;text-align:center}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:999px;
+  background:var(--accent-dim);border:1px solid var(--accent);
+  color:var(--accent2);font-size:12px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:24px;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 10px var(--accent)}
+.hero h1{
+  font-size:clamp(2.4rem,5.5vw,3.8rem);font-weight:800;line-height:1.08;
+  letter-spacing:-0.03em;margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 0%,var(--accent2) 55%,var(--accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero .subtitle{
+  font-size:1.1rem;color:var(--text2);max-width:720px;
+  margin:0 auto;line-height:1.75;
+}
+.hero-meta{
+  display:flex;justify-content:center;gap:20px;margin-top:28px;
+  font-size:12px;color:var(--text3);flex-wrap:wrap;
+}
+.hero-meta span{display:inline-flex;align-items:center;gap:6px}
+.hero-meta span::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent)}
+
+/* ─── SECTION ─── */
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{
+  font-size:12px;font-weight:700;color:var(--accent);
+  letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;
+}
+.section-title{
+  font-size:clamp(1.6rem,3.2vw,2.2rem);font-weight:700;
+  line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em;
+}
+.section-desc{
+  font-size:0.98rem;color:var(--text2);max-width:720px;
+  line-height:1.75;margin-bottom:40px;
+}
+
+/* ─── CARDS ─── */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px;
+  transition:var(--transition);position:relative;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);
+  box-shadow:0 12px 40px -20px var(--accent)}
+.card-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:var(--radius-sm);
+  background:var(--accent-dim);color:var(--accent);
+  font-size:13px;font-weight:700;margin-bottom:14px;
+  border:1px solid var(--accent);
+}
+.card-title{font-size:1.05rem;font-weight:700;margin-bottom:10px;line-height:1.35}
+.card-body{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:14px}
+.card-body strong{color:var(--text);font-weight:600}
+.card-body code{
+  font-family:var(--mono);font-size:12px;
+  background:var(--surface3);padding:2px 6px;border-radius:4px;
+  color:var(--accent2);
+}
+.card-body ul{list-style:none;margin:10px 0 4px;padding:0}
+.card-body ul li{
+  padding:4px 0 4px 16px;position:relative;font-size:13px;
+}
+.card-body ul li::before{
+  content:'▸';color:var(--accent);position:absolute;left:0;font-size:11px;
+}
+.card-source{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--text3);text-decoration:none;
+  padding:6px 10px;border-radius:var(--radius-sm);
+  background:var(--bg2);border:1px solid var(--border);
+  transition:var(--transition);font-family:var(--mono);
+}
+.card-source:hover{color:var(--accent2);border-color:var(--accent)}
+.card-source::before{content:'↗';font-size:10px;color:var(--accent)}
+
+/* ─── TABLE ─── */
+.table-wrap{
+  overflow-x:auto;border-radius:var(--radius);
+  border:1px solid var(--border);background:var(--surface);
+}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{
+  padding:16px 20px;text-align:left;font-weight:700;
+  font-size:11px;color:var(--accent);letter-spacing:0.1em;
+  text-transform:uppercase;white-space:nowrap;
+  border-bottom:1px solid var(--border);
+}
+td{padding:14px 20px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text2)}
+td:first-child{color:var(--text);font-weight:500}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--accent-glow)}
+td code{
+  font-family:var(--mono);font-size:12px;
+  background:var(--surface3);padding:2px 6px;border-radius:4px;color:var(--accent2);
+}
+
+/* ─── COMPARE (anti-pattern) ─── */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:700px){.compare-grid{grid-template-columns:1fr}}
+.compare-bad,.compare-good{
+  border-radius:var(--radius);padding:18px 20px;
+  position:relative;font-size:13px;line-height:1.65;
+}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22);color:var(--text2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22);color:var(--text2)}
+.compare-label{
+  font-size:10px;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.compare-bad .compare-label{color:var(--error)}
+.compare-good .compare-label{color:var(--success)}
+.compare-label::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+}
+.compare-bad .compare-label::before{background:var(--error)}
+.compare-good .compare-label::before{background:var(--success)}
+.compare-bad code,.compare-good code{
+  font-family:var(--mono);font-size:11px;
+  background:var(--surface3);padding:1px 5px;border-radius:3px;color:var(--accent2);
+}
+
+.anti-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px 26px;margin-bottom:16px;
+  border-left:3px solid var(--error);transition:var(--transition);
+}
+.anti-card:hover{border-color:var(--border2);border-left-color:var(--error)}
+.anti-title{
+  font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;
+  display:flex;align-items:center;gap:10px;
+}
+.anti-title::before{
+  content:'✕';color:var(--error);font-weight:900;font-size:13px;
+  width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(248,113,113,0.1);border-radius:4px;
+}
+.anti-body{font-size:13px;color:var(--text2);line-height:1.7}
+.anti-body code{font-family:var(--mono);font-size:11px;
+  background:var(--surface3);padding:2px 6px;border-radius:4px;color:var(--accent2)}
+
+/* ─── CHECKLIST (Gotchas) ─── */
+.checklist{list-style:none;display:flex;flex-direction:column;gap:14px}
+.checklist li{
+  display:flex;align-items:flex-start;gap:14px;
+  background:var(--surface);border:1px solid var(--border);
+  padding:18px 22px;border-radius:var(--radius);
+  font-size:13px;color:var(--text2);line-height:1.7;
+  transition:var(--transition);
+}
+.checklist li:hover{border-color:var(--accent);transform:translateX(4px)}
+.checklist .check{
+  width:22px;height:22px;border-radius:6px;
+  border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--accent);font-weight:900;
+  background:var(--accent-dim);
+}
+.checklist .check::before{content:'!'}
+.checklist strong{color:var(--text);font-weight:700;display:block;margin-bottom:4px}
+.checklist code{
+  font-family:var(--mono);font-size:11px;
+  background:var(--surface3);padding:2px 6px;border-radius:4px;color:var(--accent2);
+}
+
+/* ─── FOOTER ─── */
+.footer{
+  margin-top:80px;padding-top:32px;border-top:1px solid var(--border);
+  text-align:center;font-size:12px;color:var(--text3);
+}
+.footer a{color:var(--accent2);text-decoration:none}
+.footer a:hover{color:var(--accent)}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .card:hover,.checklist li:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ─────────── HERO ─────────── -->
+<header class="hero">
+  <div class="badge"><span class="badge-dot"></span>Backend Kit v0.1</div>
+  <h1>보안</h1>
+  <p class="subtitle">
+    OWASP Top 10, 주요 공격 벡터(SQLi · XSS · SSRF), 의존성 스캔, rate limiting,
+    보안 헤더, 시크릿 관리, PII 마스킹 — 릴리스 전 반드시 점검할 보안 원칙.
+  </p>
+  <div class="hero-meta">
+    <span>7 Principles</span>
+    <span>6 Numeric Standards</span>
+    <span>4 Anti-patterns</span>
+    <span>Updated 2026-04-04</span>
+  </div>
+</header>
+
+<!-- ─────────── PRINCIPLES ─────────── -->
+<section class="section">
+  <div class="section-label">Core Principles</div>
+  <h2 class="section-title">원칙</h2>
+  <p class="section-desc">
+    보안은 단일 방어선이 아니라 다층 방어(defense in depth)다. 각 원칙은
+    서로 다른 층위에서 특정 공격 벡터를 차단한다 — 하나만 빠져도 전체가 뚫린다.
+  </p>
+
+  <div class="grid-2">
+    <!-- 1 -->
+    <article class="card">
+      <div class="card-num">1</div>
+      <h3 class="card-title">OWASP Top 10을 체크리스트로 사용한다</h3>
+      <p class="card-body">
+        OWASP Top 10(2021)은 웹 애플리케이션 보안 위협의 업계 표준 분류다.
+        2021 버전 기준 <strong>A01: Broken Access Control</strong>이 1위로, 94%의 애플리케이션에서
+        발견되었다. A02는 <strong>Cryptographic Failures</strong>, A03은 <strong>Injection</strong>이다.
+        모든 백엔드 프로젝트는 릴리스 전 Top 10 항목을 최소 1회 점검한다.
+      </p>
+      <a class="card-source" href="https://owasp.org/Top10/" target="_blank" rel="noopener">
+        OWASP Top 10 — 2021
+      </a>
+    </article>
+
+    <!-- 2 -->
+    <article class="card">
+      <div class="card-num">2</div>
+      <h3 class="card-title">SQL Injection은 파라미터화된 쿼리로 방어</h3>
+      <p class="card-body">
+        문자열 연결로 SQL을 구성하면 공격자가 임의 쿼리를 실행할 수 있다.
+        <strong>파라미터화된 쿼리(prepared statement)</strong>가 유일한 방어법이다.
+        ORM을 사용하더라도 raw query 메서드(<code>raw()</code>, <code>execute()</code>,
+        <code>$queryRaw</code> 등)에서 문자열 보간을 쓰면 동일한 취약점이 발생한다.
+      </p>
+      <a class="card-source" href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">
+        OWASP — SQLi Prevention
+      </a>
+    </article>
+
+    <!-- 3 -->
+    <article class="card">
+      <div class="card-num">3</div>
+      <h3 class="card-title">XSS는 출력 인코딩 + CSP로 방어</h3>
+      <p class="card-body">
+        XSS는 3종이 있다: <strong>Stored</strong>(DB에 저장된 악성 스크립트),
+        <strong>Reflected</strong>(URL 파라미터 반사),
+        <strong>DOM-based</strong>(클라이언트 JS에서 발생).
+        서버 측 출력 인코딩이 1차 방어, <code>Content-Security-Policy</code> 헤더가 2차 방어다.
+        <code>innerHTML</code> 직접 삽입은 가장 흔한 DOM XSS 원인이다.
+      </p>
+      <a class="card-source" href="https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">
+        OWASP — XSS Prevention
+      </a>
+    </article>
+
+    <!-- 4 -->
+    <article class="card">
+      <div class="card-num">4</div>
+      <h3 class="card-title">SSRF는 URL 허용목록 + 내부 네트워크 차단</h3>
+      <p class="card-body">
+        서버가 사용자 입력 URL을 fetch하면 내부 네트워크(메타데이터 서비스, 내부 API)에
+        접근할 수 있다. AWS 메타데이터 엔드포인트
+        (<code>169.254.169.254</code>)가 대표적 타겟이다. 허용된 도메인/IP 범위만
+        접근 가능하도록 허용목록을 적용하고, private IP 대역
+        (<code>10.x</code>, <code>172.16-31.x</code>, <code>192.168.x</code>, <code>127.x</code>)을 차단한다.
+      </p>
+      <a class="card-source" href="https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">
+        OWASP — SSRF Prevention
+      </a>
+    </article>
+
+    <!-- 5 -->
+    <article class="card">
+      <div class="card-num">5</div>
+      <h3 class="card-title">의존성 취약점은 자동 스캔으로 관리</h3>
+      <p class="card-body">
+        알려진 취약점(CVE)이 있는 패키지를 사용하면 공격 표면이 된다.
+        <strong>Dependabot</strong>(GitHub 내장)은 취약점 발견 시 자동 PR을 생성하고,
+        <strong>Snyk</strong>는 더 세밀한 분석과 fix suggestion을 제공한다.
+        <code>npm audit</code>, <code>pip audit</code>, <code>cargo audit</code> 등 언어별
+        CLI 도구도 CI에 통합한다.
+      </p>
+      <a class="card-source" href="https://docs.github.com/en/code-security/dependabot" target="_blank" rel="noopener">
+        GitHub Dependabot Docs
+      </a>
+    </article>
+
+    <!-- 6 -->
+    <article class="card">
+      <div class="card-num">6</div>
+      <h3 class="card-title">보안 헤더 4종을 필수로 설정한다</h3>
+      <p class="card-body">
+        응답 헤더로 브라우저 보안 정책을 강제한다. 필수 헤더 4종:
+        <ul>
+          <li><strong>Content-Security-Policy</strong> — 스크립트/스타일 소스 제한. XSS 2차 방어</li>
+          <li><strong>Strict-Transport-Security</strong> — <code>max-age=31536000; includeSubDomains</code>. HTTPS 강제</li>
+          <li><strong>X-Content-Type-Options</strong> — <code>nosniff</code>. MIME 스니핑 방지</li>
+          <li><strong>X-Frame-Options</strong> — <code>DENY</code> 또는 <code>SAMEORIGIN</code>. 클릭재킹 방지</li>
+        </ul>
+      </p>
+      <a class="card-source" href="https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html" target="_blank" rel="noopener">
+        OWASP — HTTP Headers
+      </a>
+    </article>
+
+    <!-- 7 -->
+    <article class="card">
+      <div class="card-num">7</div>
+      <h3 class="card-title">로그에서 PII를 마스킹한다</h3>
+      <p class="card-body">
+        이메일, 전화번호, IP 주소, 신용카드 번호 등 개인식별정보(PII)가 로그에
+        평문으로 기록되면 로그 유출 시 개인정보 침해가 된다.
+        <strong>구조화된 로깅</strong>에서 민감 필드를 자동 마스킹하는 미들웨어를 적용한다.
+        이메일은 <code>j***@example.com</code>, 전화번호는 <code>010-****-1234</code>
+        형태로 마스킹한다.
+      </p>
+      <a class="card-source" href="https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html" target="_blank" rel="noopener">
+        OWASP — Logging Cheat Sheet
+      </a>
+    </article>
+  </div>
+</section>
+
+<!-- ─────────── NUMERIC STANDARDS ─────────── -->
+<section class="section">
+  <div class="section-label">Numeric Standards</div>
+  <h2 class="section-title">수치 기준</h2>
+  <p class="section-desc">
+    헤더 값, rate limit, 스캔 주기 등 릴리스 전 확인해야 할 정량 기준.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>기준값</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>HSTS max-age</td>
+          <td>최소 <code>31536000</code>초 (1년)</td>
+          <td><code>includeSubDomains</code> 권장</td>
+        </tr>
+        <tr>
+          <td>CSP</td>
+          <td><code>default-src 'self'</code>로 시작</td>
+          <td><code>report-uri</code>로 위반 모니터링</td>
+        </tr>
+        <tr>
+          <td>Rate limiting — 일반 API</td>
+          <td><code>100 req/min/IP</code></td>
+          <td>비인증 엔드포인트 기준</td>
+        </tr>
+        <tr>
+          <td>Rate limiting — 인증 API</td>
+          <td><code>10 req/min/IP</code></td>
+          <td>로그인, 비밀번호 재설정 등</td>
+        </tr>
+        <tr>
+          <td>의존성 스캔 주기</td>
+          <td>매일 자동 (Dependabot 기본)</td>
+          <td>Critical/High는 24시간 내 대응</td>
+        </tr>
+        <tr>
+          <td>시크릿 로테이션</td>
+          <td>90일 주기</td>
+          <td>API 키, DB 비밀번호 등</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─────────── ANTI-PATTERNS ─────────── -->
+<section class="section">
+  <div class="section-label">Anti-patterns</div>
+  <h2 class="section-title">안티패턴</h2>
+  <p class="section-desc">
+    반복적으로 발생하는 취약점 패턴. 코드 리뷰 시 가장 먼저 찾아야 할 항목들.
+  </p>
+
+  <!-- 1 -->
+  <div class="anti-card">
+    <div class="anti-title">문자열 연결 SQL</div>
+    <div class="compare-grid">
+      <div class="compare-bad">
+        <div class="compare-label">Bad</div>
+        <code>"SELECT * FROM users WHERE id = '" + userId + "'"</code><br>
+        가장 고전적이면서도 여전히 발생하는 취약점. ORM의 raw query에서도 동일하게 발생한다.
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Good</div>
+        <code>db.query("SELECT * FROM users WHERE id = ?", [userId])</code><br>
+        파라미터화된 쿼리로 SQL과 데이터를 분리한다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="anti-card">
+    <div class="anti-title">innerHTML 직접 삽입</div>
+    <div class="anti-body">
+      사용자 입력을 <code>innerHTML</code>이나 <code>dangerouslySetInnerHTML</code>에 직접
+      전달하면 DOM XSS가 발생한다. 반드시 <strong>DOMPurify</strong> 같은 새니타이저를
+      거쳐야 하며, 가능하다면 <code>textContent</code>나 React의 안전한 children 렌더링을
+      사용한다.
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="anti-card">
+    <div class="anti-title">SSRF 방어 없는 URL fetch</div>
+    <div class="anti-body">
+      사용자가 입력한 URL을 검증 없이 서버에서 fetch하면 내부 네트워크 탐색,
+      메타데이터 서비스 접근이 가능하다. <strong>webhook URL, 이미지 URL, OAuth callback</strong>이
+      대표적 공격 지점이다. 도메인 허용목록 + private IP 차단을 함께 적용한다.
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="anti-card">
+    <div class="anti-title">시크릿 하드코딩</div>
+    <div class="anti-body">
+      소스 코드에 API 키, DB 비밀번호를 직접 작성하면 <strong>git 히스토리에 영구 기록</strong>된다.
+      환경 변수 또는 시크릿 매니저(AWS Secrets Manager, HashiCorp Vault)를 사용한다.
+      <code>.env</code> 파일은 <code>.gitignore</code>에 반드시 포함한다.
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── GOTCHAS ─────────── -->
+<section class="section">
+  <div class="section-label">Gotchas</div>
+  <h2 class="section-title">체크리스트</h2>
+  <p class="section-desc">
+    원칙을 알아도 놓치기 쉬운 구체적 함정들. 구현 직전 다시 확인한다.
+  </p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check"></span>
+      <div>
+        <strong>ORM도 raw query 쓰면 injection 가능</strong>
+        Prisma의 <code>$queryRaw</code>, Django의 <code>raw()</code>, SQLAlchemy의
+        <code>text()</code>에서 f-string/문자열 보간을 사용하면 파라미터화가 무력화된다.
+        ORM을 쓴다는 이유로 안심하지 말고 raw query 호출 지점을 grep으로 찾아 점검한다.
+      </div>
+    </li>
+    <li>
+      <span class="check"></span>
+      <div>
+        <strong>CSP 도입 시 인라인 스크립트 깨짐</strong>
+        <code>script-src 'self'</code> 설정 시 인라인 <code>&lt;script&gt;</code> 태그와
+        <code>onclick</code> 핸들러가 차단된다. nonce 또는 hash 기반 허용이 필요하며,
+        기존 프로젝트에 CSP를 도입할 때는 <code>Content-Security-Policy-Report-Only</code>로
+        먼저 모니터링한 뒤 점진적으로 enforce한다.
+      </div>
+    </li>
+    <li>
+      <span class="check"></span>
+      <div>
+        <strong>Dependabot auto-merge는 breaking change 위험</strong>
+        patch 버전만 auto-merge하고, minor/major는 수동 리뷰한다. 특히 보안 패치가
+        API 변경을 동반하는 경우가 있어 맹목적 auto-merge는 프로덕션 장애의 원인이 된다.
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer class="footer">
+  <p>Backend Kit — Security · v0.1.0 · Last updated 2026-04-04</p>
+  <p style="margin-top:8px">
+    Source: <a href="../backend/fundamentals/security.md">docs/backend/fundamentals/security.md</a>
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

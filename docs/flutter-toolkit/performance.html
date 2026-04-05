@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성능 — Flutter Toolkit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#22D3EE;
+    --accent2:#67E8F9;
+    --accent-dim:rgba(34,211,238,0.12);
+    --accent-glow:rgba(34,211,238,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;background:
+    radial-gradient(ellipse at top left,var(--accent-glow),transparent 50%),
+    radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 50%),
+    var(--bg);
+  }
+  .container{max-width:1100px;margin:0 auto;padding:64px 32px 120px}
+  a{color:var(--accent);text-decoration:none;transition:color var(--transition)}
+  a:hover{color:var(--accent2)}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,monospace;font-size:.9em;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
+  pre code{display:block;padding:16px;overflow-x:auto;line-height:1.5}
+
+  /* HERO */
+  .hero{padding:80px 0 72px;text-align:left;position:relative}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .hero h1{font-size:clamp(40px,7vw,76px);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 55%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .subtitle{font-size:19px;color:var(--text2);max-width:720px;line-height:1.65}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;font-size:13px;color:var(--text3)}
+  .hero-meta span{display:inline-flex;align-items:center;gap:6px}
+  .hero-meta span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:.6}
+
+  /* SECTION */
+  section{margin-top:72px}
+  .section-header{margin-bottom:32px}
+  .section-label{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
+  .section-header h2{font-size:34px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
+  .section-header p{color:var(--text2);font-size:15px;max-width:640px}
+
+  /* CARDS */
+  .cards{display:grid;gap:20px}
+  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:28px 30px;transition:all var(--transition);position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity var(--transition)}
+  .card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .card:hover::before{opacity:1}
+  .card-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:14px;margin-bottom:16px;border:1px solid var(--accent)}
+  .card h3{font-size:20px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em}
+  .card p{color:var(--text2);font-size:15px;margin-bottom:14px}
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);border-top:1px dashed var(--border2);padding-top:14px;margin-top:8px;word-break:break-all}
+  .card-source::before{content:"↗";font-size:14px}
+
+  /* TABLE */
+  .metrics-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:16px 22px;border-bottom:1px solid var(--border)}
+  th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--surface2)}
+  td:first-child{color:var(--text)}
+  td:last-child{color:var(--accent2);font-family:"SF Mono",monospace;font-size:14px}
+
+  /* COMPARE */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  .compare-col{border:1px solid var(--border);border-radius:var(--radius);padding:26px;background:var(--surface)}
+  .compare-col.bad{border-color:rgba(248,113,113,.35)}
+  .compare-col.good{border-color:rgba(34,211,238,.4)}
+  .compare-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;padding:5px 12px;border-radius:999px}
+  .compare-col.bad .compare-label{color:var(--error);background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.4)}
+  .compare-col.good .compare-label{color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent)}
+  .compare-col ul{list-style:none}
+  .compare-col li{padding:10px 0;color:var(--text2);font-size:14px;border-bottom:1px dashed var(--border);display:flex;gap:10px;align-items:flex-start}
+  .compare-col li:last-child{border-bottom:none}
+  .compare-col.bad li::before{content:"×";color:var(--error);font-weight:800;flex-shrink:0}
+  .compare-col.good li::before{content:"✓";color:var(--accent);font-weight:800;flex-shrink:0}
+
+  /* GOTCHAS */
+  .gotchas{list-style:none;display:grid;gap:14px}
+  .gotcha{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 22px;display:flex;gap:14px;transition:all var(--transition)}
+  .gotcha:hover{background:var(--surface2);border-left-color:var(--accent2);transform:translateX(4px)}
+  .gotcha-check{flex-shrink:0;width:24px;height:24px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:14px;background:var(--accent-dim)}
+  .gotcha-body{flex:1}
+  .gotcha-body strong{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
+  .gotcha-body span{color:var(--text2);font-size:14px}
+
+  /* CODE BLOCKS */
+  .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-top:16px;overflow-x:auto;position:relative}
+  .code-block::before{content:"DART";position:absolute;top:8px;right:14px;font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700}
+  .code-block pre{font-family:"SF Mono","JetBrains Mono",Menlo,monospace;font-size:13px;line-height:1.6;color:var(--text2);white-space:pre;margin:0}
+  .code-block .kw{color:var(--accent2)}
+  .code-block .cm{color:var(--text3);font-style:italic}
+  .code-block .st{color:#fbbf24}
+
+  /* BUDGET VIS */
+  .budget{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:720px){.budget{grid-template-columns:1fr}}
+  .budget-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px}
+  .budget-card h4{font-size:13px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+  .budget-bar{height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;display:flex;overflow:hidden;margin-bottom:10px}
+  .budget-seg{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--bg)}
+  .budget-seg.build{background:var(--accent);flex:1}
+  .budget-seg.render{background:var(--accent2);flex:1}
+  .budget-total{font-family:"SF Mono",monospace;font-size:18px;color:var(--text);font-weight:700}
+  .budget-desc{color:var(--text2);font-size:13px;margin-top:8px}
+
+  /* SUMMARY */
+  .summary-box{background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:36px 40px;margin-top:24px;position:relative;overflow:hidden}
+  .summary-box::after{content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--accent-dim);filter:blur(40px);pointer-events:none}
+  .summary-box h3{font-size:22px;margin-bottom:14px;letter-spacing:-.01em;position:relative}
+  .summary-box p{color:var(--text2);font-size:15px;line-height:1.7;position:relative}
+
+  /* FOOTER */
+  footer{margin-top:120px;padding-top:40px;border-top:1px solid var(--border);color:var(--text3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  footer a{color:var(--text2)}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+    .card:hover{transform:none}
+    .gotcha:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <div class="badge">Flutter Toolkit v0.1</div>
+    <h1>성능</h1>
+    <p class="subtitle">
+      rebuild 최소화, <code>const</code> 적극 사용, <code>RepaintBoundary</code>로 hotspot 격리, <code>AutomaticKeepAlive</code>로 스크롤 캐시 관리, <code>ListView.builder</code>의 lazy 렌더, 이미지 캐시 조정, DevTools로 측정, CPU 바운드 작업은 isolate로. 모든 최적화는 frame budget 안에서 build + render를 끝내는 것을 목표로 한다.
+    </p>
+    <div class="hero-meta">
+      <span>버전 0.1.0</span>
+      <span>업데이트 2026-04-05</span>
+      <span>카테고리 Quality</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Principles</div>
+      <h2>다섯 가지 핵심 원칙</h2>
+      <p>측정 우선, build 비용 최소화, lazy 렌더, 선별적 격리, CPU 분리.</p>
+    </div>
+    <div class="cards">
+
+      <article class="card">
+        <div class="card-num">1</div>
+        <h3>Profiler-first — 측정 후 최적화</h3>
+        <p>
+          DevTools Performance view와 "Track widget rebuilds", "Highlight repaints" 옵션으로 실제 병목을 먼저 식별한다. 직감에 기반한 최적화는 대체로 무효하거나 역효과를 낸다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">docs.flutter.dev/perf/best-practices</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">2</div>
+        <h3>Build 비용을 작게 유지</h3>
+        <p>
+          <code>build</code> 메서드는 자주 호출된다. 비싼 계산, 객체 생성, 리스트 필터링을 <code>build</code> 안에 두지 말고 <code>initState</code> / Notifier / memoization으로 밖으로 빼라. 변하지 않는 서브트리는 <code>const</code>로 만들어 재사용되도록 한다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">docs.flutter.dev/perf/best-practices</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">3</div>
+        <h3>긴 리스트는 ListView.builder</h3>
+        <p>
+          아이템 수가 많거나 길이가 불확정인 리스트는 반드시 <code>ListView.builder</code> (또는 <code>.separated</code> / <code>.custom</code>)로 lazy 빌드한다. <code>ListView(children: [...])</code>는 모든 아이템을 미리 빌드하므로 메모리와 프레임을 동시에 낭비한다.
+        </p>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/ListView/ListView.builder.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/ListView/ListView.builder.html</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">4</div>
+        <h3>Repaint 격리와 keep-alive는 선별 적용</h3>
+        <p>
+          잦은 repaint가 일어나는 서브트리는 <code>RepaintBoundary</code>로 감싸 주변 트리의 재페인트를 막는다. 스크롤 아이템 상태를 유지해야 할 때만 <code>AutomaticKeepAliveClientMixin</code>을 적용한다. 둘 다 비용이 있으므로 무조건 씌우면 오히려 메모리와 layer 비용이 증가한다.
+        </p>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/RepaintBoundary-class.html</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/AutomaticKeepAliveClientMixin-mixin.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/AutomaticKeepAliveClientMixin-mixin.html</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">5</div>
+        <h3>무거운 CPU 작업은 isolate로</h3>
+        <p>
+          대용량 JSON 파싱, 이미지 디코딩, 암호 연산 같은 CPU bound 작업은 메인 isolate(UI thread)를 막는다. <code>compute()</code> 또는 <code>Isolate.run</code>으로 별도 isolate에 넘겨 UI 프레임을 보호한다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/perf/isolates" target="_blank" rel="noopener">docs.flutter.dev/perf/isolates</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Numbers</div>
+      <h2>수치 · Frame Budget</h2>
+      <p>주사율과 이미지 캐시 기본값.</p>
+    </div>
+    <div class="metrics-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>60Hz frame budget</td>
+            <td>16ms (build ~8ms + render ~8ms 목표)</td>
+          </tr>
+          <tr>
+            <td>120Hz frame budget</td>
+            <td>8ms 이하 (고주사율 디바이스)</td>
+          </tr>
+          <tr>
+            <td>기본 ImageCache 최대 엔트리</td>
+            <td>1000장</td>
+          </tr>
+          <tr>
+            <td>기본 ImageCache 최대 바이트</td>
+            <td>약 100MB (LRU)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Anti-patterns</div>
+      <h2>안티패턴 vs 권장</h2>
+      <p>프레임 예산을 태우는 대표적 실수들.</p>
+    </div>
+    <div class="compare">
+      <div class="compare-col bad">
+        <span class="compare-label">Avoid</span>
+        <ul>
+          <li>크고 정적인 리스트를 <code>ListView(children: [...])</code>로 한 번에 전개</li>
+          <li>애니메이션 진행 중 <code>Opacity</code>, <code>ClipRect</code>, <code>ShaderMask</code>, <code>saveLayer</code> 남용</li>
+          <li>모든 탭·모든 리스트 아이템에 <code>AutomaticKeepAlive</code> 일괄 적용</li>
+          <li>Profiler로 원인을 확인하지 않은 채 <code>RepaintBoundary</code>와 isolate를 뿌림</li>
+          <li>큰 이미지를 원본 해상도 그대로 <code>Image.network</code>로 띄움</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <span class="compare-label">Prefer</span>
+        <ul>
+          <li><code>ListView.builder</code>로 lazy 렌더 — 보이는 아이템만 빌드</li>
+          <li>애니메이션 중에는 <code>AnimatedOpacity</code>나 fade-in transition의 최적화 패스 활용</li>
+          <li>상태 유지가 필요한 아이템에만 선별적으로 keep-alive</li>
+          <li>DevTools로 병목 확인 후 hotspot에만 <code>RepaintBoundary</code> 배치</li>
+          <li><code>cacheWidth</code> / <code>cacheHeight</code>로 디코딩 비용 축소</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Frame Budget</div>
+      <h2>프레임 예산 시각화</h2>
+      <p>60Hz는 16ms, 120Hz는 8ms — build와 render가 이 시간 안에 끝나야 jank가 없다.</p>
+    </div>
+    <div class="budget">
+      <div class="budget-card">
+        <h4>60Hz · 16ms</h4>
+        <div class="budget-bar">
+          <div class="budget-seg build">build ~8ms</div>
+          <div class="budget-seg render">render ~8ms</div>
+        </div>
+        <div class="budget-total">16ms / frame</div>
+        <div class="budget-desc">일반 모바일 디바이스의 기본 리프레시 레이트. build는 UI thread에서, render는 raster thread에서 병렬 수행된다.</div>
+      </div>
+      <div class="budget-card">
+        <h4>120Hz · 8ms</h4>
+        <div class="budget-bar">
+          <div class="budget-seg build">build ~4ms</div>
+          <div class="budget-seg render">render ~4ms</div>
+        </div>
+        <div class="budget-total">8ms / frame</div>
+        <div class="budget-desc">ProMotion 등 고주사율 디바이스. 예산이 절반이므로 const 위젯과 RepaintBoundary 전략의 효과가 두드러진다.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Snippet</div>
+      <h2>예시 · compute로 CPU 분리</h2>
+      <p>수십 ms 이상 걸리는 CPU bound 작업만 isolate로.</p>
+    </div>
+    <div class="code-block">
+<pre><span class="cm">// 큰 JSON 파싱은 메인 isolate를 막는다 — compute로 넘긴다</span>
+Future&lt;List&lt;Article&gt;&gt; loadArticles(String jsonStr) <span class="kw">async</span> {
+  <span class="kw">return</span> compute(_parseArticles, jsonStr);
+}
+
+<span class="cm">// top-level 또는 static 함수여야 한다 (isolate message 제약)</span>
+List&lt;Article&gt; _parseArticles(String jsonStr) {
+  <span class="kw">final</span> raw = json.decode(jsonStr) <span class="kw">as</span> List;
+  <span class="kw">return</span> raw.map((e) =&gt; Article.fromJson(e)).toList();
+}
+
+<span class="cm">// 주의: 작은 작업에 쓰면 직렬화 비용이 더 커서 역효과</span>
+</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Snippet</div>
+      <h2>예시 · ListView.builder + cacheWidth</h2>
+      <p>lazy 렌더와 이미지 디코딩 비용 축소.</p>
+    </div>
+    <div class="code-block">
+<pre>ListView.builder(
+  itemCount: items.length,
+  itemBuilder: (context, i) {
+    <span class="kw">final</span> item = items[i];
+    <span class="kw">return</span> ListTile(
+      leading: Image.network(
+        item.thumbnailUrl,
+        cacheWidth: <span class="st">96</span>,   <span class="cm">// 원본 4K여도 96px로 디코딩</span>
+        cacheHeight: <span class="st">96</span>,
+        fit: BoxFit.cover,
+      ),
+      title: Text(item.title),
+    );
+  },
+);
+</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Gotchas</div>
+      <h2>Gotchas 체크리스트</h2>
+      <p>isolate 비용, RepaintBoundary 오해, const 연쇄, ImageCache 튜닝, setState 범위.</p>
+    </div>
+    <ul class="gotchas">
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>Isolate의 spawn/message 비용</strong>
+          <span><code>compute</code>는 인자와 결과를 복사(직렬화)한다. 작은 작업에 isolate를 쓰면 오히려 더 느리다. 실제로 수십 ms 이상 걸리는 CPU bound 작업에만 사용한다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>RepaintBoundary는 만능이 아니다</strong>
+          <span>서브트리가 실제로 자주 repaint되고, 부모는 그렇지 않을 때만 이득이 있다. 그렇지 않으면 layer 생성/합성 비용만 추가된다. DevTools의 "Highlight repaints"로 효과를 확인한 뒤 적용한다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>const 생성자 연쇄</strong>
+          <span>부모에 <code>const</code>를 붙이려면 모든 파라미터가 <code>const</code>여야 한다. 한 곳에서 <code>const</code>가 깨지면 상위까지 전부 재빌드되므로, 디자인 시스템 레벨 위젯부터 <code>const</code> 가능성을 설계에 포함한다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>ImageCache 재설정</strong>
+          <span>이미지가 많은 앱에서는 <code>PaintingBinding.instance.imageCache</code>의 <code>maximumSize</code> / <code>maximumSizeBytes</code>를 조정해야 한다. 기본값은 모든 앱에 최적은 아니다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>setState 범위</strong>
+          <span>큰 위젯 전체의 <code>setState</code> 대신 상태가 바뀌는 작은 서브트리로 분리(또는 <code>ValueListenableBuilder</code> / Riverpod <code>select</code>)하여 rebuild 범위를 좁힌다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>saveLayer 비용</strong>
+          <span><code>Opacity</code>, <code>ShaderMask</code>, <code>ClipRRect</code>의 일부 경로는 내부적으로 offscreen <code>saveLayer</code>를 호출한다. 애니메이션 프레임마다 이 경로를 타면 GPU 시간이 폭증한다.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Summary</div>
+      <h2>한 문장 요약</h2>
+    </div>
+    <div class="summary-box">
+      <h3>측정 후 최적화, hotspot만 격리</h3>
+      <p>
+        Profiler로 병목을 확인한 뒤에만 <code>RepaintBoundary</code>와 isolate를 적용한다. build는 가볍게, 긴 리스트는 <code>ListView.builder</code>로 lazy 렌더, const로 재빌드 범위를 좁힌다. 이미지는 <code>cacheWidth</code>/<code>cacheHeight</code>로 디코딩 비용을 줄이고, CPU bound 작업은 <code>compute</code>로 UI thread를 보호한다. 모든 최적화의 목표는 프레임 예산 안에서 build + render를 마치는 것이다.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div>Flutter Toolkit · 성능 리서치 문서</div>
+    <div>Source: <a href="../flutter/quality/performance.md">docs/flutter/quality/performance.md</a></div>
+  </footer>
+
+</div>
+</body>
+</html>

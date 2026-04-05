@@ -19,6 +19,9 @@ user-invocable: true
 4. **iframe 경로는 index.html 기준 상대경로** — `docs/index.html`에서 iframe으로 로드하므로 `file` 값은 `design-kit/typography-scale.html` 형태여야 한다.
 5. **sprint contract + QA 필수** — 페이지 추가 후 반드시 `/sprint-contract` → 구현 → qa-evaluator 순서를 수행한다. QA 없이 완료 선언하지 마라.
 6. **design-kit 원칙 적용 필수** — HTML 생성 시 design-kit의 디자인 원칙을 반드시 따른다. 특히 `design-kit/skills/design-audit/references/audit-criteria.md`의 7개 카테고리(Typography, Color, Spacing, Accessibility, Interaction, Motion, Authenticity) 기준을 충족해야 한다. 생성 후 `/design-audit`으로 검증하라.
+7. **1 문서 = 1 페이지 원칙** — 리서치 문서 N개가 있으면 HTML 페이지 N개를 만든다. 여러 문서를 하나로 묶거나 overview 하나로 통합하지 마라. design-kit(22개 주제 → 22개 페이지)이 유일한 기준이다.
+8. **최소 콘텐츠 밀도 400줄** — 각 HTML 페이지는 최소 400줄 이상이어야 한다. 167줄짜리 overview는 리서치 문서 내용을 충분히 시각화하지 못한 것이다. hero + 원칙 카드(출처 URL 포함) + 수치 테이블 + 안티패턴 bad/good 비교 + Gotchas 체크리스트는 필수 섹션이다.
+9. **원칙 카드에 출처 URL 누락 금지** — 모든 원칙 카드 하단에 `<a class="card-source" href="URL">출처명</a>` 링크 필수. 리서치 문서의 `> **출처:**` 인용을 HTML로 옮겨라. QA가 가장 자주 REJECT하는 항목이다.
 
 # Process
 
@@ -31,16 +34,37 @@ user-invocable: true
 | harness | `harness/docs/guides/`, `harness/references/` | `docs/harness/` |
 | flutter-toolkit | `flutter-toolkit/references/` | `docs/flutter-toolkit/` |
 | design-kit | `design-kit/docs/design/` | `docs/design-kit/` |
+| backend-kit | `docs/backend/` | `docs/backend-kit/` |
+| infra-kit | `docs/infra/` | `docs/infra-kit/` |
 | process | (공유) | `docs/process/` |
 
-## Step 2: 소스 .md 읽기
+신규 킷이면 `references/css-tokens.md`의 플러그인 매핑에 새 accent를 추가한 뒤 진행한다.
+
+## Step 2: 페이지 개수 결정
+
+**원칙: 리서치 문서 1개 = HTML 페이지 1개.**
+
+design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면 22개 페이지를 만든다. 12개면 12개. 4개면 4개.
+
+**문서를 묶거나 단일 overview로 만들지 마라.** 콘텐츠 밀도가 떨어지고 네비게이션에서 찾기 어려워진다.
+
+예시:
+- design-kit 22개 문서 → 22개 페이지 (color.md → color-palette.html)
+- backend-kit 12개 문서 → 12개 페이지 (api-design.md → api-design.html, database.md → database.html ...)
+- infra-kit 12개 문서 → 12개 페이지
+
+페이지 파일명은 소스 .md 파일명과 일치시키거나 더 서술적으로 변경하되, 1:1 매핑을 유지한다.
+
+## Step 3: 소스 .md 읽기
 
 해당 .md 파일을 읽어 핵심 내용을 파악한다:
 - 제목, 버전, 주요 섹션
 - 표, 코드 블록, 다이어그램 요소
+- 원칙 리스트와 출처 URL (반드시 HTML에 옮겨야 함)
+- 수치 기준, 안티패턴, Gotchas
 - 다른 문서와의 참조 관계
 
-## Step 3: HTML 생성
+## Step 4: HTML 생성
 
 `references/page-template.html`을 골격으로 사용한다:
 - `:root`의 `--accent`/`--accent2`를 `references/css-tokens.md`의 플러그인 매핑에 따라 설정
@@ -58,7 +82,7 @@ user-invocable: true
 - **Motion**: 애니메이션 200~500ms 범위, prefers-reduced-motion 대응
 - **Authenticity**: 연속 섹션 동일 구조 3회 반복 금지, 레이아웃 변주
 
-## Step 4: 파일 저장 + index.html 등록
+## Step 5: 파일 저장 + index.html 등록
 
 1. `docs/{plugin-name}/{page-name}.html`에 저장
 2. `docs/index.html`의 해당 플러그인 카테고리에 페이지 항목 추가:
@@ -67,7 +91,7 @@ user-invocable: true
    ```
 3. `getIcon()` 함수에 SVG 아이콘 추가
 
-## Step 5: 자가 검증
+## Step 6: 자가 검증
 
 Sprint Contract 전에 다음을 확인한다:
 1. Glob `docs/{plugin-name}/{page-name}.html` → 파일 존재 확인
@@ -77,7 +101,7 @@ Sprint Contract 전에 다음을 확인한다:
 
 하나라도 실패하면 수정 후 재검증한다.
 
-## Step 6: Sprint Contract + QA
+## Step 7: Sprint Contract + QA
 
 1. `/sprint-contract` 실행 — 페이지 존재, iframe 로딩, 컬러 토큰 정합성 등 조건 정의
 2. 구현 완료 확인

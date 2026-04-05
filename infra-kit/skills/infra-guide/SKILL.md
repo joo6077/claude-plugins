@@ -1,0 +1,55 @@
+---
+name: infra-guide
+description: >
+  인프라/DevOps 설정·코드를 받아 관련 인프라 원칙을 참조하여 가이드한다.
+  스택 무관 — 원칙과 이유만 설명하고 구현은 프로젝트 환경에 맞게 적용.
+  "인프라 가이드", "이 Dockerfile 괜찮아?", "CI 파이프라인 조언",
+  "K8s 설정 리뷰" (가벼운 리뷰) 같은 요청 시 트리거.
+  체계적 전수 검사에는 트리거하지 않는다 — infra-audit 사용.
+argument-hint: "[file-path or description]"
+user-invocable: true
+---
+
+# Gotchas
+
+1. **클라우드 벤더 특정 코드 강제 금지** — AWS/GCP/Azure 특정 설정을 강제하지 마라. 원칙만 설명하고 벤더 선택은 사용자에게 맡겨라.
+2. **주관적 피드백 금지** — "잘 구성됐다" 같은 표현 금지. 반드시 출처가 있는 원칙을 근거로 제시하라.
+3. **카테고리 과잉 방지** — Dockerfile 질문에 K8s/Terraform 원칙을 섞지 마라. 맥락에 관련된 원칙만 집중.
+4. **리서치 문서 없이 답변 금지** — principle-index.md를 통해 해당 원칙 문서를 읽은 후 답변하라.
+
+# Process
+
+## Step 1: 맥락 파악
+
+| 카테고리 | 키워드 |
+|----------|--------|
+| container | Docker, Dockerfile, Compose, 이미지, 컨테이너 |
+| cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner |
+| kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC |
+| iac | Terraform, Pulumi, CDK, 모듈, state, plan |
+| networking | VPC, 서브넷, NAT, DNS, 로드밸런서, ALB, NLB |
+| tls-secrets | TLS, 인증서, cert-manager, Vault, 시크릿 |
+| backup-dr | 백업, DR, RTO, RPO, PITR, 장애 복구 |
+| deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD |
+| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, SLO |
+| incident-response | 인시던트, 장애 대응, 온콜, postmortem, runbook |
+| cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, 태그 |
+| service-mesh | Istio, Linkerd, sidecar, mTLS, 서비스 메시 |
+
+## Step 2: 원칙 참조
+
+references/principle-index.md에서 해당 카테고리의 원칙 문서 경로를 찾아 읽는다.
+
+## Step 3: 가이드 제시
+
+### [카테고리] 항목 제목
+
+**원칙:** [원칙 이름]
+**근거:** [구체적 설명 + 수치 기준]
+**권장:** [개선 방향]
+
+> **출처:** [출처명](URL)
+
+# References
+
+- references/principle-index.md

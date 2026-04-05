@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>비동기 패턴 — Flutter Toolkit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#22D3EE;
+    --accent2:#67E8F9;
+    --accent-dim:rgba(34,211,238,0.12);
+    --accent-glow:rgba(34,211,238,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *,
+  *::before,
+  *::after{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+  }
+
+  html{
+    scroll-behavior:smooth;
+    -webkit-text-size-adjust:100%;
+  }
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.65;
+    font-size:16px;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, var(--accent-glow), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, var(--accent-glow), transparent);
+    background-attachment:fixed;
+  }
+
+  ::selection{
+    background:var(--accent-dim);
+    color:var(--accent2);
+  }
+
+  .container{
+    max-width:1080px;
+    margin:0 auto;
+    padding:64px 32px 96px;
+  }
+
+  /* ─── Hero ─── */
+  .hero{
+    text-align:center;
+    padding:72px 24px 56px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:64px;
+  }
+
+  .badge{
+    display:inline-block;
+    padding:6px 14px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    color:var(--accent2);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    margin-bottom:24px;
+  }
+
+  .hero h1{
+    font-size:clamp(40px,6vw,64px);
+    font-weight:800;
+    line-height:1.1;
+    letter-spacing:-0.02em;
+    background:linear-gradient(135deg, var(--text) 0%, var(--accent2) 60%, var(--accent) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:20px;
+  }
+
+  .hero .subtitle{
+    font-size:19px;
+    color:var(--text2);
+    max-width:720px;
+    margin:0 auto;
+    line-height:1.6;
+  }
+
+  .hero .meta{
+    margin-top:28px;
+    display:flex;
+    gap:16px;
+    justify-content:center;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--text3);
+  }
+
+  .hero .meta span{
+    padding:4px 12px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:999px;
+  }
+
+  /* ─── Sections ─── */
+  section{
+    margin-bottom:72px;
+  }
+
+  .section-header{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:28px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .section-header h2{
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--text);
+  }
+
+  .section-header .tag{
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+
+  .section-intro{
+    color:var(--text2);
+    margin-bottom:24px;
+    font-size:15px;
+  }
+
+  /* ─── Cards ─── */
+  .cards{
+    display:grid;
+    gap:20px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    transition:border-color var(--transition), transform var(--transition);
+    position:relative;
+  }
+
+  .card:hover{
+    border-color:var(--border2);
+    transform:translateY(-1px);
+  }
+
+  .card-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:8px;
+    color:var(--accent2);
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:14px;
+  }
+
+  .card h3{
+    font-size:18px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:10px;
+    line-height:1.4;
+  }
+
+  .card p{
+    color:var(--text2);
+    font-size:14.5px;
+    margin-bottom:14px;
+  }
+
+  .card code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  .card-source{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--accent);
+    text-decoration:none;
+    font-size:12px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    transition:all var(--transition);
+    margin-right:8px;
+    margin-top:6px;
+  }
+
+  .card-source:hover{
+    background:var(--accent-dim);
+    border-color:var(--accent);
+    color:var(--accent2);
+  }
+
+  .card-source::before{
+    content:"→";
+    color:var(--accent);
+  }
+
+  /* ─── Metrics table ─── */
+  .metrics-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  .metrics-table th,
+  .metrics-table td{
+    padding:16px 20px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    font-size:14.5px;
+  }
+
+  .metrics-table th{
+    background:var(--surface2);
+    color:var(--accent);
+    font-weight:600;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+  }
+
+  .metrics-table tr:last-child td{ border-bottom:none; }
+  .metrics-table tr:hover td{ background:var(--surface2); }
+
+  .metrics-table td code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 8px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Anti-pattern compare ─── */
+  .compare{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .compare-item{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--error);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+  }
+
+  .compare-item .icon{
+    flex-shrink:0;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:rgba(248,113,113,0.12);
+    color:var(--error);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:16px;
+  }
+
+  .compare-item p{
+    color:var(--text);
+    font-size:14.5px;
+    line-height:1.6;
+  }
+
+  .compare-item code{
+    background:var(--surface3);
+    color:#fda4af;
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Gotchas checklist ─── */
+  .checklist{ display:grid; gap:14px; }
+
+  .check-item{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    transition:border-color var(--transition);
+  }
+
+  .check-item:hover{ border-color:var(--accent); }
+
+  .check-item .box{
+    flex-shrink:0;
+    width:22px;
+    height:22px;
+    border:2px solid var(--accent);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    font-size:14px;
+    font-weight:700;
+    margin-top:2px;
+  }
+
+  .check-item p{
+    color:var(--text2);
+    font-size:14.5px;
+    line-height:1.65;
+  }
+
+  .check-item strong{ color:var(--text); font-weight:600; }
+
+  .check-item code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Footer ─── */
+  footer{
+    margin-top:96px;
+    padding-top:32px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    color:var(--text3);
+    font-size:13px;
+  }
+
+  footer a{ color:var(--accent); text-decoration:none; }
+
+  /* ─── Responsive ─── */
+  @media (min-width:768px){
+    .compare{ grid-template-columns:1fr 1fr; }
+  }
+
+  @media (max-width:640px){
+    .container{ padding:32px 20px 64px; }
+    .hero{ padding:40px 16px 32px; }
+    .hero h1{ font-size:36px; }
+    .hero .subtitle{ font-size:16px; }
+    .section-header h2{ font-size:22px; }
+    .card{ padding:22px; }
+    .metrics-table th,
+    .metrics-table td{ padding:12px 14px; font-size:13px; }
+  }
+
+  /* ─── Reduced motion ─── */
+  @media (prefers-reduced-motion:reduce){
+    *,
+    *::before,
+    *::after{
+      transition:none !important;
+      animation:none !important;
+      scroll-behavior:auto !important;
+    }
+    .card:hover{ transform:none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════ Hero ═══════════ -->
+  <header class="hero">
+    <span class="badge">Flutter Toolkit v0.1</span>
+    <h1>비동기 패턴</h1>
+    <p class="subtitle">
+      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">Future</code> vs
+      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">Stream</code> 선택 기준,
+      FutureBuilder/StreamBuilder vs AsyncValue, Isolate/compute, 취소 패턴.
+    </p>
+    <div class="meta">
+      <span>version 0.1.0</span>
+      <span>updated 2026-04-05</span>
+      <span>frame budget 16ms</span>
+    </div>
+  </header>
+
+  <!-- ═══════════ 원칙 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">01</span>
+      <h2>원칙</h2>
+    </div>
+    <p class="section-intro">
+      비동기 처리는 Flutter 앱의 모든 네트워크/DB/연산 경로에 걸쳐 있다.
+      5개 원칙이 jank와 crash의 대부분을 예방한다.
+    </p>
+
+    <div class="cards">
+      <article class="card">
+        <span class="card-num">1</span>
+        <h3>단발성 결과는 <code>Future</code>, 지속적 이벤트 스트림은 <code>Stream</code>을 쓴다</h3>
+        <p>한 번만 받아올 데이터를 Stream으로 감싸지 않는다. 단일 값에 Stream을 쓰면
+          subscribe/cancel 보일러플레이트만 늘어난다.</p>
+        <a class="card-source" href="https://dart.dev/language/concurrency" target="_blank" rel="noopener">dart.dev concurrency</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">2</span>
+        <h3>단순 async 렌더링은 <code>FutureBuilder</code> / <code>StreamBuilder</code>, 앱 상태와 결합되는 경우에는 <code>AsyncValue</code> 같은 상위 abstraction을 쓴다</h3>
+        <p>화면 상태가 provider와 섞이는 순간 Builder류는 한계가 온다. 캐싱, 공유,
+          수명주기 관리를 전부 위젯이 떠안게 되기 때문이다.</p>
+        <a class="card-source" href="https://pub.dev/packages/flutter_riverpod" target="_blank" rel="noopener">pub.dev/packages/flutter_riverpod</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">3</span>
+        <h3>async 오류는 <code>try</code>/<code>catch</code>로 처리하고, sync/async 오류를 동일하게 다루려면 <code>Future.sync</code>로 감싼다</h3>
+        <p>동기 예외와 비동기 예외가 다른 경로로 흐르면 에러 처리 누락이 생긴다.
+          <code>Future.sync</code>는 두 경로를 하나로 합치는 공식 관문이다.</p>
+        <a class="card-source" href="https://dart.dev/libraries/async/futures-error-handling" target="_blank" rel="noopener">dart.dev error-handling</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">4</span>
+        <h3>한 프레임(~16ms)을 넘길 계산은 isolate로 옮긴다</h3>
+        <p>JSON 대량 파싱은 <code>compute</code>가 기본. UI isolate를 블록시키면 스크롤과
+          애니메이션이 즉시 끊긴다.</p>
+        <a class="card-source" href="https://docs.flutter.dev/cookbook/networking/background-parsing" target="_blank" rel="noopener">docs.flutter.dev background-parsing</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">5</span>
+        <h3>취소는 <code>Future</code> 자체가 아니라 Dio의 <code>CancelToken</code>, Stream subscription cancel, provider dispose로 구현한다</h3>
+        <p>Dart <code>Future</code>는 표준 cancel API가 없다. 취소는 항상 레이어 위에서
+          제공하는 도구를 써야 한다.</p>
+        <a class="card-source" href="https://pub.dev/documentation/dio/latest/dio/CancelToken-class.html" target="_blank" rel="noopener">dio CancelToken</a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══════════ 수치 기준 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">02</span>
+      <h2>수치 기준</h2>
+    </div>
+    <p class="section-intro">
+      실전에서 성능과 정합성의 경계를 결정하는 숫자.
+    </p>
+
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값 / 기준</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>UI 프레임 예산</td>
+          <td>~16ms</td>
+          <td>이 시간을 넘기는 동기 계산은 jank를 유발한다 (60fps 기준)</td>
+        </tr>
+        <tr>
+          <td><code>compute</code> 전달 메시지 형</td>
+          <td>primitive / 단순 객체</td>
+          <td><code>Future</code>, <code>http.Response</code>, closure 등은 전달 불가</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════ 안티패턴 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">03</span>
+      <h2>안티패턴</h2>
+    </div>
+    <p class="section-intro">
+      코드 리뷰에서 반드시 잡아내야 하는 구조 4가지.
+    </p>
+
+    <div class="compare">
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p><code>FutureBuilder(future: apiCall())</code>처럼 <code>build</code>마다 새 Future를 생성 — 매 rebuild마다 API 재호출.</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p>1회성 조회인데 <code>Stream.fromFuture</code>로 감싸 <code>StreamBuilder</code>에 물리는 구조.</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p>작은 JSON 한 건도 <code>compute</code>로 보내 isolate spawn 비용이 이득을 넘김.</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p>화면 pop/dispose 시 in-flight 요청을 취소하지 않고 결과가 돌아오면 state를 그대로 반영.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ Gotchas ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">04</span>
+      <h2>Gotchas</h2>
+    </div>
+    <p class="section-intro">
+      플랫폼과 테스트에서 한 번쯤 반드시 부딪히는 함정.
+    </p>
+
+    <div class="checklist">
+      <div class="check-item">
+        <div class="box">✓</div>
+        <p>
+          <strong>Flutter web은 isolate 제약이 있다 (<code>dart:isolate</code>가 사실상 사용 불가).</strong>
+          <code>compute</code>는 web에서 main isolate에서 동작한다고 가정하고 설계하라.
+          web 타깃이 포함된 앱에서 "compute로 옮기면 다 해결"이라는 가정은 통하지 않는다.
+        </p>
+      </div>
+      <div class="check-item">
+        <div class="box">✓</div>
+        <p>
+          <strong>테스트에서 <code>pumpAndSettle</code>로 "모든 async를 기다린다"는 멘탈 모델은 끊임없이 흐르는 <code>Stream</code>이나 무한 animation과 만나면 timeout을 일으킨다.</strong>
+          해당 화면은 <code>pump(duration)</code>으로 명시적 제어해야 한다. 로딩 indicator 애니메이션,
+          실시간 스트림 화면을 테스트할 때 특히 주의.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Flutter Toolkit v0.1 · 비동기 패턴 ·
+      <a href="../flutter/state/async-patterns.md">source .md</a>
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

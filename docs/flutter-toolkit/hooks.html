@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flutter Hooks — Flutter Toolkit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#22D3EE;
+    --accent2:#67E8F9;
+    --accent-dim:rgba(34,211,238,0.12);
+    --accent-glow:rgba(34,211,238,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *,
+  *::before,
+  *::after{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+  }
+
+  html{
+    scroll-behavior:smooth;
+    -webkit-text-size-adjust:100%;
+  }
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.65;
+    font-size:16px;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, var(--accent-glow), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, var(--accent-glow), transparent);
+    background-attachment:fixed;
+  }
+
+  ::selection{
+    background:var(--accent-dim);
+    color:var(--accent2);
+  }
+
+  .container{
+    max-width:1080px;
+    margin:0 auto;
+    padding:64px 32px 96px;
+  }
+
+  /* ─── Hero ─── */
+  .hero{
+    text-align:center;
+    padding:72px 24px 56px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:64px;
+  }
+
+  .badge{
+    display:inline-block;
+    padding:6px 14px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    color:var(--accent2);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    margin-bottom:24px;
+  }
+
+  .hero h1{
+    font-size:clamp(40px,6vw,64px);
+    font-weight:800;
+    line-height:1.1;
+    letter-spacing:-0.02em;
+    background:linear-gradient(135deg, var(--text) 0%, var(--accent2) 60%, var(--accent) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:20px;
+  }
+
+  .hero .subtitle{
+    font-size:19px;
+    color:var(--text2);
+    max-width:720px;
+    margin:0 auto;
+    line-height:1.6;
+  }
+
+  .hero .meta{
+    margin-top:28px;
+    display:flex;
+    gap:16px;
+    justify-content:center;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--text3);
+  }
+
+  .hero .meta span{
+    padding:4px 12px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:999px;
+  }
+
+  /* ─── Sections ─── */
+  section{
+    margin-bottom:72px;
+  }
+
+  .section-header{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:28px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .section-header h2{
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--text);
+  }
+
+  .section-header .tag{
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+
+  .section-intro{
+    color:var(--text2);
+    margin-bottom:24px;
+    font-size:15px;
+  }
+
+  /* ─── Cards ─── */
+  .cards{
+    display:grid;
+    gap:20px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    transition:border-color var(--transition), transform var(--transition);
+    position:relative;
+  }
+
+  .card:hover{
+    border-color:var(--border2);
+    transform:translateY(-1px);
+  }
+
+  .card-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:8px;
+    color:var(--accent2);
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:14px;
+  }
+
+  .card h3{
+    font-size:18px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:10px;
+    line-height:1.4;
+  }
+
+  .card p{
+    color:var(--text2);
+    font-size:14.5px;
+    margin-bottom:14px;
+  }
+
+  .card code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  .card-source{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--accent);
+    text-decoration:none;
+    font-size:12px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    transition:all var(--transition);
+    margin-right:8px;
+    margin-top:6px;
+  }
+
+  .card-source:hover{
+    background:var(--accent-dim);
+    border-color:var(--accent);
+    color:var(--accent2);
+  }
+
+  .card-source::before{
+    content:"→";
+    color:var(--accent);
+  }
+
+  /* ─── Metrics table ─── */
+  .metrics-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  .metrics-table th,
+  .metrics-table td{
+    padding:16px 20px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    font-size:14.5px;
+  }
+
+  .metrics-table th{
+    background:var(--surface2);
+    color:var(--accent);
+    font-weight:600;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+  }
+
+  .metrics-table tr:last-child td{ border-bottom:none; }
+  .metrics-table tr:hover td{ background:var(--surface2); }
+
+  .metrics-table td code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 8px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Anti-pattern compare ─── */
+  .compare{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .compare-item{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--error);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+  }
+
+  .compare-item .icon{
+    flex-shrink:0;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:rgba(248,113,113,0.12);
+    color:var(--error);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:16px;
+  }
+
+  .compare-item p{
+    color:var(--text);
+    font-size:14.5px;
+    line-height:1.6;
+  }
+
+  .compare-item code{
+    background:var(--surface3);
+    color:#fda4af;
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Gotchas checklist ─── */
+  .checklist{ display:grid; gap:14px; }
+
+  .check-item{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    transition:border-color var(--transition);
+  }
+
+  .check-item:hover{ border-color:var(--accent); }
+
+  .check-item .box{
+    flex-shrink:0;
+    width:22px;
+    height:22px;
+    border:2px solid var(--accent);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    font-size:14px;
+    font-weight:700;
+    margin-top:2px;
+  }
+
+  .check-item p{
+    color:var(--text2);
+    font-size:14.5px;
+    line-height:1.65;
+  }
+
+  .check-item strong{ color:var(--text); font-weight:600; }
+
+  .check-item code{
+    background:var(--surface3);
+    color:var(--accent2);
+    padding:2px 7px;
+    border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:13px;
+  }
+
+  /* ─── Footer ─── */
+  footer{
+    margin-top:96px;
+    padding-top:32px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    color:var(--text3);
+    font-size:13px;
+  }
+
+  footer a{ color:var(--accent); text-decoration:none; }
+
+  /* ─── Responsive ─── */
+  @media (min-width:768px){
+    .compare{ grid-template-columns:1fr 1fr; }
+  }
+
+  @media (max-width:640px){
+    .container{ padding:32px 20px 64px; }
+    .hero{ padding:40px 16px 32px; }
+    .hero h1{ font-size:36px; }
+    .hero .subtitle{ font-size:16px; }
+    .section-header h2{ font-size:22px; }
+    .card{ padding:22px; }
+    .metrics-table th,
+    .metrics-table td{ padding:12px 14px; font-size:13px; }
+  }
+
+  /* ─── Reduced motion ─── */
+  @media (prefers-reduced-motion:reduce){
+    *,
+    *::before,
+    *::after{
+      transition:none !important;
+      animation:none !important;
+      scroll-behavior:auto !important;
+    }
+    .card:hover{ transform:none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════ Hero ═══════════ -->
+  <header class="hero">
+    <span class="badge">Flutter Toolkit v0.1</span>
+    <h1>Flutter Hooks</h1>
+    <p class="subtitle">
+      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">flutter_hooks</code>의
+      호출 규칙, <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">HookWidget</code> 계열 사용법,
+      useState / useEffect / useMemoized / useAnimationController 기본 훅과 커스텀 훅 작성 패턴.
+    </p>
+    <div class="meta">
+      <span>version 0.1.0</span>
+      <span>updated 2026-04-05</span>
+      <span>flutter_hooks 0.21.3+1</span>
+    </div>
+  </header>
+
+  <!-- ═══════════ 원칙 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">01</span>
+      <h2>원칙</h2>
+    </div>
+    <p class="section-intro">
+      Hook은 React에서 넘어온 패턴이지만 Dart/Flutter에서는 호출 순서에 더 민감하다.
+      5개 핵심 원칙을 공식 문서 기준으로 정리한다.
+    </p>
+
+    <div class="cards">
+      <article class="card">
+        <span class="card-num">1</span>
+        <h3>Hook은 <code>HookWidget</code> / <code>StatefulHookWidget</code> / <code>HookConsumerWidget</code>의 <code>build</code> 메서드 안에서만, 항상 같은 순서로 호출한다</h3>
+        <p>조건문/반복문 안에서 호출 금지. 호출 순서가 hook의 identity를 결정하므로
+          순서가 바뀌면 내부 상태 매핑이 전부 어긋난다.</p>
+        <a class="card-source" href="https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/use.html" target="_blank" rel="noopener">flutter_hooks/use.html</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">2</span>
+        <h3><code>HookWidget</code>은 별도 lifecycle 메서드 없이 local state와 disposable 객체를 선언적으로 관리한다</h3>
+        <p><code>StatefulWidget</code>의 보일러플레이트(<code>initState</code>/<code>dispose</code>)를 대체하는 용도.
+          dispose를 신경 쓸 필요가 없어 leak 위험이 낮다.</p>
+        <a class="card-source" href="https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/HookWidget-class.html" target="_blank" rel="noopener">HookWidget-class</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">3</span>
+        <h3>목적별로 훅을 구분해 쓴다</h3>
+        <p>side effect는 <code>useEffect</code>, 비싼 계산 캐싱은 <code>useMemoized</code>,
+          순수 local ephemeral 값은 <code>useState</code>. 혼용하면 rebuild cost와 예측 가능성이 모두 망가진다.</p>
+        <a class="card-source" href="https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/useEffect.html" target="_blank" rel="noopener">useEffect</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">4</span>
+        <h3><code>AnimationController</code>는 <code>useAnimationController</code>로 생성한다</h3>
+        <p>수동 <code>dispose</code> 없이도 위젯 제거 시 자동 해제된다.
+          수동 lifecycle 관리 경로를 피할 수 있는 대표적인 훅.</p>
+        <a class="card-source" href="https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/" target="_blank" rel="noopener">flutter_hooks docs</a>
+      </article>
+
+      <article class="card">
+        <span class="card-num">5</span>
+        <h3>Riverpod과 함께 쓸 때는 <code>HookConsumerWidget</code>을 사용한다</h3>
+        <p><code>HookWidget</code> + <code>Consumer</code> 중첩은 피한다. 트리가 얕아지고
+          <code>ref</code>와 hook이 같은 build 범위에 있게 된다.</p>
+        <a class="card-source" href="https://pub.dev/documentation/hooks_riverpod/latest/hooks_riverpod/HookConsumerWidget-class.html" target="_blank" rel="noopener">HookConsumerWidget</a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══════════ 수치 기준 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">02</span>
+      <h2>수치 기준</h2>
+    </div>
+    <p class="section-intro">
+      2026-04 기준 버전과 훅 동작에 영향을 주는 핵심 수치.
+    </p>
+
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값 / 기준</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>flutter_hooks</code></td>
+          <td>0.21.3+1</td>
+          <td>2026-04 기준 최신 안정</td>
+        </tr>
+        <tr>
+          <td><code>hooks_riverpod</code></td>
+          <td>3.3.1</td>
+          <td>2026-04 기준 최신 안정</td>
+        </tr>
+        <tr>
+          <td><code>useEffect</code>의 <code>keys</code> 인자</td>
+          <td>의존 값 리스트</td>
+          <td>생략하면 매 build마다 effect가 재실행된다</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════ 안티패턴 ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">03</span>
+      <h2>안티패턴</h2>
+    </div>
+    <p class="section-intro">
+      코드 리뷰에서 발견되면 즉시 수정해야 하는 4가지 구조.
+    </p>
+
+    <div class="compare">
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p>조건문/반복문 안에서 hook 호출 (<code>if (cond) useState(...)</code>).</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p><code>useEffect</code>에 <code>keys</code> 인자 생략해서 매 build마다 effect가 재실행되는 구조.</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p>전역/비즈니스 상태를 <code>useState</code>에 가둬 화면 재진입 시 날아가는 설계.</p>
+      </div>
+      <div class="compare-item">
+        <div class="icon">!</div>
+        <p><code>HookWidget</code>이 결국 <code>StatefulWidget</code>보다 코드가 길어지는데도 유지하는 선택.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ Gotchas ═══════════ -->
+  <section>
+    <div class="section-header">
+      <span class="tag">04</span>
+      <h2>Gotchas</h2>
+    </div>
+    <p class="section-intro">
+      훅 리팩토링 중 가장 자주 터지는 함정 2가지.
+    </p>
+
+    <div class="checklist">
+      <div class="check-item">
+        <div class="box">✓</div>
+        <p>
+          <strong>Hook 호출 순서가 바뀌면 각 hook의 내부 상태 매핑이 깨진다.</strong>
+          리팩토링 중 훅을 재배치할 때 가장 자주 터지는 버그 포인트다. 조건 분기 안에
+          훅을 넣었거나, 훅 두 개를 단순히 자리를 바꿨을 때도 동일한 증상이 발생한다.
+        </p>
+      </div>
+      <div class="check-item">
+        <div class="box">✓</div>
+        <p>
+          <strong><code>useMemoized</code>는 캐시지 reactive recompute가 아니다.</strong>
+          값이 keys 변화 없이 바뀔 일이 있다면 <code>useState</code> + <code>useEffect</code> 조합이나
+          Riverpod provider로 빼라. memo는 deps가 바뀔 때만 다시 계산한다는 사실을 잊으면
+          "왜 값이 안 갱신되지?" 버그로 이어진다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Flutter Toolkit v0.1 · Flutter Hooks ·
+      <a href="../flutter/state/hooks.md">source .md</a>
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

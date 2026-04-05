@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쿠버네티스 — Infra Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;
+  --bg2:#12121c;
+  --surface:#181825;
+  --surface2:#1e1e30;
+  --surface3:#282845;
+  --border:#2a2a40;
+  --border2:#3a3a55;
+  --text:#F5F0E8;
+  --text2:#A89A8F;
+  --text3:#7A6F64;
+  --accent:#34D399;
+  --accent2:#6EE7B7;
+  --accent-dim:rgba(52,211,153,0.12);
+  --accent-glow:rgba(52,211,153,0.06);
+  --error:#f87171;
+  --success:#4ade80;
+  --warn:#fbbf24;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,var(--accent-glow) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(52,211,153,0.03) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+.page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+/* HERO */
+.hero{padding:72px 0 56px;text-align:center;position:relative}
+.hero-badge{
+  display:inline-block;
+  padding:6px 18px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  border:1px solid rgba(52,211,153,0.25);
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:18px;
+}
+.hero .subtitle{
+  font-size:1.05rem;
+  color:var(--text2);
+  max-width:720px;
+  margin:0 auto;
+  line-height:1.7;
+}
+
+/* SECTION */
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.section-title{
+  font-size:clamp(1.6rem,3vw,2.1rem);
+  font-weight:700;
+  line-height:1.2;
+  margin-bottom:10px;
+  letter-spacing:-0.02em;
+}
+.section-desc{
+  font-size:0.98rem;
+  color:var(--text2);
+  max-width:720px;
+  line-height:1.7;
+  margin-bottom:40px;
+}
+
+/* CARD */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:26px 26px 22px;
+  transition:border-color var(--transition),transform var(--transition);
+  display:flex;
+  flex-direction:column;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-num{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+.card-title{
+  font-size:1.02rem;
+  font-weight:700;
+  margin-bottom:10px;
+  letter-spacing:-0.01em;
+  color:var(--text);
+}
+.card-body{
+  font-size:13.5px;
+  color:var(--text2);
+  line-height:1.65;
+  flex-grow:1;
+  margin-bottom:16px;
+}
+.card-source{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  color:var(--text3);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:var(--radius-sm);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  transition:var(--transition);
+  align-self:flex-start;
+  font-family:var(--mono);
+}
+.card-source::before{content:"↗";font-size:10px;color:var(--accent)}
+.card-source:hover{
+  color:var(--accent);
+  border-color:var(--accent);
+  background:var(--accent-dim);
+}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:960px){.grid-2,.grid-3{grid-template-columns:1fr}}
+@media(min-width:961px) and (max-width:1200px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--surface);
+}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{
+  padding:14px 18px;
+  text-align:left;
+  font-weight:700;
+  font-size:12px;
+  color:var(--accent);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  border-bottom:1px solid var(--border);
+}
+td{
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+  color:var(--text2);
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+td strong{color:var(--text);font-weight:700}
+td code{
+  font-family:var(--mono);
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--surface2);
+  color:var(--accent2);
+  border:1px solid var(--border);
+}
+
+/* PROBE blocks */
+.probe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:900px){.probe-grid{grid-template-columns:1fr}}
+.probe-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:var(--radius-sm);
+  padding:20px;
+}
+.probe-name{
+  font-family:var(--mono);
+  font-size:13px;
+  font-weight:700;
+  color:var(--accent);
+  margin-bottom:6px;
+}
+.probe-effect{font-size:12px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em}
+.probe-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{
+  border-radius:var(--radius);
+  padding:22px;
+  position:relative;
+  overflow:hidden;
+}
+.compare-bad{
+  background:rgba(248,113,113,0.05);
+  border:1px solid rgba(248,113,113,0.22);
+}
+.compare-good{
+  background:rgba(52,211,153,0.05);
+  border:1px solid rgba(52,211,153,0.22);
+}
+.compare-label{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  padding:4px 10px;
+  border-radius:100px;
+}
+.compare-bad .compare-label{
+  color:var(--error);
+  background:rgba(248,113,113,0.12);
+}
+.compare-good .compare-label{
+  color:var(--success);
+  background:rgba(74,222,128,0.12);
+}
+.compare-title{
+  font-size:14.5px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+}
+.compare-body{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.65;
+}
+.code-inline{
+  font-family:var(--mono);
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--surface2);
+  color:var(--accent2);
+  border:1px solid var(--border);
+}
+
+/* ANTI */
+.anti-list{display:flex;flex-direction:column;gap:14px}
+.anti-item{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--error);
+  border-radius:var(--radius-sm);
+  padding:18px 22px;
+  transition:var(--transition);
+}
+.anti-item:hover{border-color:var(--border2);border-left-color:var(--error);transform:translateX(2px)}
+.anti-name{
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.anti-name::before{
+  content:"✗";
+  color:var(--error);
+  font-size:14px;
+  font-weight:700;
+}
+.anti-desc{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.65;
+}
+
+/* CHECKLIST */
+.checklist{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  max-width:880px;
+}
+.checklist li{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  font-size:14px;
+  color:var(--text2);
+  line-height:1.65;
+  padding:16px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  transition:var(--transition);
+}
+.checklist li:hover{border-color:var(--accent);background:var(--surface2)}
+.checklist .check{
+  width:22px;
+  height:22px;
+  border-radius:6px;
+  border:2px solid var(--accent);
+  flex-shrink:0;
+  margin-top:1px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:var(--accent);
+  font-weight:700;
+  background:var(--accent-dim);
+}
+
+/* FOOTER */
+.footer{
+  margin-top:64px;
+  padding-top:32px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:12px;
+  color:var(--text3);
+}
+.footer .accent{color:var(--accent);font-weight:700}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .card:hover,.anti-item:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Infra Kit v0.1</div>
+  <h1>쿠버네티스</h1>
+  <p class="subtitle">리소스 매니페스트, Helm/Kustomize, RBAC, 네임스페이스, Pod Security Standards, requests/limits, HPA/VPA, 프로브, PDB. 클러스터는 기본값이 안전하지 않다 — 원칙으로 기본값을 덮어쓴다.</p>
+</div>
+
+<!-- PRINCIPLES -->
+<div class="section">
+  <div class="section-label">Core Principles</div>
+  <div class="section-title">핵심 원칙 8</div>
+  <p class="section-desc">Kubernetes 공식 문서와 Helm Best Practices 기반. requests/limits, probe 역할, RBAC 스코핑이 운영 안정성의 기본 축이다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-num">1</div>
+      <div class="card-title">모든 워크로드에 requests/limits를 명시한다</div>
+      <div class="card-body">requests는 스케줄러가 노드를 선택하는 기준이고, limits는 런타임 상한이다. requests가 없으면 노드에 과밀 배치되고, limits가 없으면 단일 Pod가 노드 전체를 점유할 수 있다. 두 값을 모두 명시하여 예측 가능한 스케줄링과 격리를 확보한다.</div>
+      <a class="card-source" href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/" target="_blank" rel="noopener">k8s — Manage Resources Containers</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">2</div>
+      <div class="card-title">liveness/readiness/startup probe 역할을 분리한다</div>
+      <div class="card-body">liveness 실패는 컨테이너 재시작, readiness 실패는 서비스 엔드포인트 제외, startup은 느린 초기화 완료 대기 전용이다. 역할을 혼동하면 초기화 중인 Pod가 재시작 루프에 빠지거나, 장애 Pod가 트래픽을 계속 받는다.</div>
+      <a class="card-source" href="https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/" target="_blank" rel="noopener">k8s — Liveness/Readiness/Startup Probes</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">3</div>
+      <div class="card-title">네임스페이스는 팀/정책 경계용이다</div>
+      <div class="card-body">네임스페이스는 RBAC, ResourceQuota, NetworkPolicy의 스코핑 단위다. 팀, 환경(dev/staging/prod), 서비스 그룹 단위로 분리한다. 버전 구분(v1/v2)에는 네임스페이스가 아닌 labels와 selectors를 사용한다. <code>default</code>에 워크로드를 배치하지 않는다.</div>
+      <a class="card-source" href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces" target="_blank" rel="noopener">k8s — Namespaces</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">4</div>
+      <div class="card-title">RBAC는 namespace-scoped RoleBinding을 우선한다</div>
+      <div class="card-body">ClusterRoleBinding은 클러스터 전체에 영향을 주므로 최소한으로 제한한다. 대부분의 권한은 namespace-scoped RoleBinding으로 충분하다. wildcard(<code>*</code>) 리소스/동사, <code>cluster-admin</code> 바인딩을 남용하지 않는다.</div>
+      <a class="card-source" href="https://kubernetes.io/docs/concepts/security/rbac-good-practices/" target="_blank" rel="noopener">k8s — RBAC Good Practices</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">5</div>
+      <div class="card-title">Pod Security Standards를 단계적으로 도입한다</div>
+      <div class="card-body">restricted 프로파일을 최종 목표로 설정하되, 기존 워크로드에 즉시 enforce하면 대량 실패가 발생한다. warn → audit → enforce 순서로 단계적으로 적용한다. 네임스페이스 레이블로 프로파일을 지정하며, privileged는 시스템 워크로드에만 허용한다.</div>
+      <a class="card-source" href="https://kubernetes.io/docs/concepts/security/pod-security-standards/" target="_blank" rel="noopener">k8s — Pod Security Standards</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">6</div>
+      <div class="card-title">HPA와 VPA의 역할을 구분한다</div>
+      <div class="card-body">HPA는 부하 증가 시 Pod 수를 늘린다. VPA는 개별 Pod의 requests/limits를 실 사용량에 맞게 조정(rightsizing)한다. 같은 CPU 메트릭에 HPA와 VPA를 동시 적용하면 충돌한다 — VPA는 메모리 rightsizing 또는 recommendation 모드로만 병행한다.</div>
+      <a class="card-source" href="https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/" target="_blank" rel="noopener">k8s — Horizontal Pod Autoscale</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">7</div>
+      <div class="card-title">Helm은 값 구조와 재사용성, Kustomize는 base/overlay 조합이다</div>
+      <div class="card-body">Helm은 템플릿 엔진으로 values.yaml을 통해 환경별 설정을 주입한다. Kustomize는 base 매니페스트 위에 overlay를 패치하는 방식으로 원본을 수정하지 않는다. 프로젝트 특성에 맞게 하나를 선택하거나 Helm 생성 후 Kustomize로 환경별 패치하는 조합도 가능하다.</div>
+      <a class="card-source" href="https://helm.sh/docs/chart_best_practices/" target="_blank" rel="noopener">Helm — Chart Best Practices</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">8</div>
+      <div class="card-title">PDB는 자발적 disruption 완화 전용이다</div>
+      <div class="card-body">PodDisruptionBudget은 노드 drain, 클러스터 업그레이드 등 자발적 disruption 시 최소 가용 Pod 수를 보장한다. 하드웨어 장애, OOM kill 같은 비자발적 disruption에는 적용되지 않는다. <code>minAvailable</code>/<code>maxUnavailable</code>로 설정하며, 모든 다운타임을 방지하는 장치가 아니다.</div>
+      <a class="card-source" href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/" target="_blank" rel="noopener">k8s — Disruptions</a>
+    </div>
+  </div>
+</div>
+
+<!-- PROBES -->
+<div class="section">
+  <div class="section-label">Probes</div>
+  <div class="section-title">Probe 역할 분리</div>
+  <p class="section-desc">세 probe의 효과는 완전히 다르다. 혼동하면 재시작 루프나 장애 Pod 트래픽 수신 같은 심각한 버그로 이어진다.</p>
+  <div class="probe-grid">
+    <div class="probe-card">
+      <div class="probe-name">livenessProbe</div>
+      <div class="probe-effect">→ Container Restart</div>
+      <div class="probe-desc">컨테이너가 살아있는지 확인. 실패 시 kubelet이 컨테이너를 재시작한다. 애플리케이션이 데드락 상태일 때 복구 수단.</div>
+    </div>
+    <div class="probe-card">
+      <div class="probe-name">readinessProbe</div>
+      <div class="probe-effect">→ Endpoint Removal</div>
+      <div class="probe-desc">트래픽을 받을 준비가 되었는지 확인. 실패 시 Service의 Endpoints에서 제외된다. 컨테이너는 계속 실행되며 재시작되지 않는다.</div>
+    </div>
+    <div class="probe-card">
+      <div class="probe-name">startupProbe</div>
+      <div class="probe-effect">→ Gate Other Probes</div>
+      <div class="probe-desc">초기화가 끝날 때까지 liveness/readiness를 비활성화한다. 부팅이 느린 앱이 재시작 루프에 빠지지 않게 한다.</div>
+    </div>
+  </div>
+</div>
+
+<!-- METRICS -->
+<div class="section">
+  <div class="section-label">Reference Values</div>
+  <div class="section-title">수치/기준값</div>
+  <p class="section-desc">probe 기본값, HPA 동기화 주기, CPU 단위 등. 기본값을 알고 있어야 의도적으로 조정할 수 있다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Probe 기본 periodSeconds</strong></td>
+          <td><code>10</code></td>
+          <td>점검 간격</td>
+        </tr>
+        <tr>
+          <td><strong>Probe 기본 timeoutSeconds</strong></td>
+          <td><code>1</code></td>
+          <td>응답 대기 시간</td>
+        </tr>
+        <tr>
+          <td><strong>Probe 기본 failureThreshold</strong></td>
+          <td><code>3</code></td>
+          <td>연속 실패 횟수</td>
+        </tr>
+        <tr>
+          <td><strong>terminationGracePeriodSeconds</strong></td>
+          <td><code>30</code></td>
+          <td>SIGTERM 후 SIGKILL까지</td>
+        </tr>
+        <tr>
+          <td><strong>Startup probe 예시</strong></td>
+          <td><code>failureThreshold 30 × periodSeconds 10 = 300s</code></td>
+          <td>느린 앱 부팅 허용</td>
+        </tr>
+        <tr>
+          <td><strong>HPA sync 주기</strong></td>
+          <td><code>15s</code></td>
+          <td><code>--horizontal-pod-autoscaler-sync-period</code></td>
+        </tr>
+        <tr>
+          <td><strong>HPA CPU 초기화 안정 기간</strong></td>
+          <td><code>5m</code></td>
+          <td><code>--horizontal-pod-autoscaler-initial-readiness-delay</code></td>
+        </tr>
+        <tr>
+          <td><strong>HPA readiness delay</strong></td>
+          <td><code>30s</code></td>
+          <td>Pod ready 후 메트릭 반영 대기</td>
+        </tr>
+        <tr>
+          <td><strong>CPU 최소 단위</strong></td>
+          <td><code>1m</code></td>
+          <td>1 milliCPU = 0.001 CPU</td>
+        </tr>
+        <tr>
+          <td><strong>500m CPU</strong></td>
+          <td><code>0.5 CPU 코어</code></td>
+          <td>1000m = 1 CPU</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ANTI PATTERNS -->
+<div class="section">
+  <div class="section-label">Anti-Patterns</div>
+  <div class="section-title">피해야 할 패턴</div>
+  <p class="section-desc">k8s 클러스터에서 반복적으로 관찰되는 설정 실수. probe 역할 혼동이 특히 파괴적이다.</p>
+
+  <div class="compare" style="margin-bottom:24px">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <div class="compare-title">liveness probe로 readiness를 대체</div>
+      <div class="compare-body">"요청이 느려지면 재시작하면 되지"라는 착각. 일시적으로 바쁜 Pod가 <strong>불필요하게 재시작</strong>되면서 응답이 더 느려지고, 캐스케이딩 장애로 번진다. 부하 = 재시작 사유가 아니다.</div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <div class="compare-title">readiness로 트래픽 제외 + liveness로 데드락 감지</div>
+      <div class="compare-body">readiness는 "지금 트래픽을 받을 수 있는가", liveness는 "이 컨테이너를 재시작해야 하는가"로 질문이 다르다. 두 probe의 엔드포인트와 임계치를 독립적으로 설계한다.</div>
+    </div>
+  </div>
+
+  <div class="anti-list">
+    <div class="anti-item">
+      <div class="anti-name">모든 워크로드를 default 네임스페이스에 배치</div>
+      <div class="anti-desc">RBAC, ResourceQuota, NetworkPolicy 스코핑이 불가능해진다. 팀/환경별 네임스페이스 분리가 기본이며, default는 튜토리얼용이라고 취급한다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">requests 없이 limits만 설정</div>
+      <div class="anti-desc">스케줄러가 적절한 노드를 선택하지 못하고, QoS 클래스가 <code>Burstable</code>로 설정되어 OOM 우선순위가 높아진다. requests = 스케줄링 기준, limits = 런타임 상한이다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">ClusterRoleBinding으로 광범위 권한 부여</div>
+      <div class="anti-desc">한 서비스의 권한 과잉이 클러스터 전체 보안 위험으로 확대된다. namespace-scoped RoleBinding으로 시작하고, ClusterRoleBinding은 예외로만 사용한다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">PDB를 롤링 업데이트 보호로 오해</div>
+      <div class="anti-desc">PDB는 자발적 disruption(drain)용이다. 롤링 업데이트 전략은 Deployment의 <code>maxUnavailable</code>/<code>maxSurge</code>로 제어한다. 두 메커니즘을 혼동하면 업데이트가 교착된다.</div>
+    </div>
+  </div>
+</div>
+
+<!-- GOTCHAS -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <div class="section-title">체크리스트</div>
+  <p class="section-desc">매니페스트 작성·배포 시 반복 실수를 방지하기 위한 자가 진단 항목. 기본값이 의외인 경우가 많다.</p>
+  <ul class="checklist">
+    <li>
+      <span class="check">✓</span>
+      <span><strong>limits만 설정하면 requests가 limits로 복사될 수 있음</strong>을 인지하는가? LimitRange가 설정된 네임스페이스에서 requests를 생략하면 기본값이나 limits 값이 requests로 들어가 스케줄링이 실패할 수 있다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>readiness probe 실패는 재시작이 아닌 엔드포인트 제외</strong>라는 점을 이해하는가? Service의 Endpoints 목록에서 해당 Pod가 빠질 뿐, 컨테이너는 계속 실행된다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>PDB는 <code>kubectl delete pod</code>를 막지 못한다</strong>는 것을 아는가? 직접 삭제는 Eviction API를 거치지 않으므로 PDB가 개입하지 않는다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>VPA는 별도 CRD 설치가 필요</strong>하다는 것을 확인했는가? k8s 코어에 포함되지 않으며, autoscaler 리포지토리에서 Recommender/Updater/Admission Controller를 별도 설치해야 한다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>startup probe가 필요한 앱</strong>(JVM, 대규모 초기화 등)을 식별하고 <code>failureThreshold × periodSeconds</code>로 충분한 부팅 시간을 확보했는가?</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>HPA와 VPA를 같은 CPU 메트릭에 동시 적용</strong>하지 않았는가? VPA는 메모리 rightsizing 또는 recommendation 모드로만 병행한다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>Pod Security Standards를 warn → audit → enforce 단계</strong>로 도입 중인가? 즉시 enforce하면 기존 워크로드가 대량 실패한다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="footer">
+  Source: <span class="accent">docs/infra/platform/kubernetes.md</span> &nbsp;·&nbsp; Infra Kit v0.1 &nbsp;·&nbsp; Last updated 2026-04-04
+</div>
+
+</div>
+</body>
+</html>

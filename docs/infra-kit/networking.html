@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>네트워킹 — Infra Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;
+  --bg2:#12121c;
+  --surface:#181825;
+  --surface2:#1e1e30;
+  --surface3:#282845;
+  --border:#2a2a40;
+  --border2:#3a3a55;
+  --text:#F5F0E8;
+  --text2:#A89A8F;
+  --text3:#7A6F64;
+  --accent:#34D399;
+  --accent2:#6EE7B7;
+  --accent-dim:rgba(52,211,153,0.12);
+  --accent-glow:rgba(52,211,153,0.06);
+  --error:#f87171;
+  --success:#4ade80;
+  --warn:#fbbf24;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,var(--accent-glow) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(52,211,153,0.03) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+.page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+/* HERO */
+.hero{padding:72px 0 56px;text-align:center;position:relative}
+.hero-badge{
+  display:inline-block;
+  padding:6px 18px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  border:1px solid rgba(52,211,153,0.25);
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:18px;
+}
+.hero .subtitle{
+  font-size:1.05rem;
+  color:var(--text2);
+  max-width:720px;
+  margin:0 auto;
+  line-height:1.7;
+}
+
+/* SECTION */
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.section-title{
+  font-size:clamp(1.6rem,3vw,2.1rem);
+  font-weight:700;
+  line-height:1.2;
+  margin-bottom:10px;
+  letter-spacing:-0.02em;
+}
+.section-desc{
+  font-size:0.98rem;
+  color:var(--text2);
+  max-width:720px;
+  line-height:1.7;
+  margin-bottom:40px;
+}
+
+/* CARD */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:26px 26px 22px;
+  transition:border-color var(--transition),transform var(--transition);
+  display:flex;
+  flex-direction:column;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-num{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+.card-title{
+  font-size:1.02rem;
+  font-weight:700;
+  margin-bottom:10px;
+  letter-spacing:-0.01em;
+  color:var(--text);
+}
+.card-body{
+  font-size:13.5px;
+  color:var(--text2);
+  line-height:1.65;
+  flex-grow:1;
+  margin-bottom:16px;
+}
+.card-source{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  color:var(--text3);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:var(--radius-sm);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  transition:var(--transition);
+  align-self:flex-start;
+  font-family:var(--mono);
+}
+.card-source::before{content:"↗";font-size:10px;color:var(--accent)}
+.card-source:hover{
+  color:var(--accent);
+  border-color:var(--accent);
+  background:var(--accent-dim);
+}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:960px){.grid-2,.grid-3{grid-template-columns:1fr}}
+@media(min-width:961px) and (max-width:1200px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--surface);
+}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{
+  padding:14px 18px;
+  text-align:left;
+  font-weight:700;
+  font-size:12px;
+  color:var(--accent);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  border-bottom:1px solid var(--border);
+}
+td{
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+  color:var(--text2);
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+td strong{color:var(--text);font-weight:700}
+td code{
+  font-family:var(--mono);
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--surface2);
+  color:var(--accent2);
+  border:1px solid var(--border);
+}
+code{
+  font-family:var(--mono);
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--surface2);
+  color:var(--accent2);
+  border:1px solid var(--border);
+}
+
+/* LAYER DEBUG */
+.layer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:900px){.layer-grid{grid-template-columns:1fr}}
+.layer-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:var(--radius-sm);
+  padding:20px;
+}
+.layer-name{
+  font-size:11px;
+  font-weight:800;
+  color:var(--accent);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.layer-tool{
+  font-family:var(--mono);
+  font-size:15px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+}
+.layer-desc{
+  font-size:12.5px;
+  color:var(--text2);
+  line-height:1.6;
+}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{
+  border-radius:var(--radius);
+  padding:22px;
+  position:relative;
+  overflow:hidden;
+}
+.compare-bad{
+  background:rgba(248,113,113,0.05);
+  border:1px solid rgba(248,113,113,0.22);
+}
+.compare-good{
+  background:rgba(52,211,153,0.05);
+  border:1px solid rgba(52,211,153,0.22);
+}
+.compare-label{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  padding:4px 10px;
+  border-radius:100px;
+}
+.compare-bad .compare-label{
+  color:var(--error);
+  background:rgba(248,113,113,0.12);
+}
+.compare-good .compare-label{
+  color:var(--success);
+  background:rgba(74,222,128,0.12);
+}
+.compare-title{
+  font-size:14.5px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+}
+.compare-body{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.65;
+}
+
+/* SG vs NACL */
+.duo-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.duo-grid{grid-template-columns:1fr}}
+.duo-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+}
+.duo-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-bottom:14px;
+  margin-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.duo-tag{
+  padding:3px 10px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:11px;
+  font-weight:700;
+  font-family:var(--mono);
+}
+.duo-name{font-size:15px;font-weight:700;color:var(--text)}
+.duo-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.duo-list li{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.6;
+  padding-left:18px;
+  position:relative;
+}
+.duo-list li::before{
+  content:"";
+  position:absolute;
+  left:4px;
+  top:9px;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+}
+
+/* ANTI */
+.anti-list{display:flex;flex-direction:column;gap:14px}
+.anti-item{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--error);
+  border-radius:var(--radius-sm);
+  padding:18px 22px;
+  transition:var(--transition);
+}
+.anti-item:hover{border-color:var(--border2);border-left-color:var(--error);transform:translateX(2px)}
+.anti-name{
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.anti-name::before{
+  content:"✗";
+  color:var(--error);
+  font-size:14px;
+  font-weight:700;
+}
+.anti-desc{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.65;
+}
+
+/* CHECKLIST */
+.checklist{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  max-width:880px;
+}
+.checklist li{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  font-size:14px;
+  color:var(--text2);
+  line-height:1.65;
+  padding:16px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  transition:var(--transition);
+}
+.checklist li:hover{border-color:var(--accent);background:var(--surface2)}
+.checklist .check{
+  width:22px;
+  height:22px;
+  border-radius:6px;
+  border:2px solid var(--accent);
+  flex-shrink:0;
+  margin-top:1px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:var(--accent);
+  font-weight:700;
+  background:var(--accent-dim);
+}
+
+/* FOOTER */
+.footer{
+  margin-top:64px;
+  padding-top:32px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:12px;
+  color:var(--text3);
+}
+.footer .accent{color:var(--accent);font-weight:700}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .card:hover,.anti-item:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Infra Kit v0.1</div>
+  <h1>네트워킹</h1>
+  <p class="subtitle">VPC/서브넷, CIDR, NAT, 보안 그룹/NACL, DNS, 로드 밸런서(ALB/NLB), CDN, 네트워크 디버깅. 네트워크는 바꾸기 어려운 기반 — 설계 시점에 결정된 제약이 오래 남는다.</p>
+</div>
+
+<!-- PRINCIPLES -->
+<div class="section">
+  <div class="section-label">Core Principles</div>
+  <div class="section-title">핵심 원칙 7</div>
+  <p class="section-desc">AWS VPC 공식 문서와 리눅스 네트워크 도구 매뉴얼 기반. 경계(region/AZ, 인스턴스/서브넷)와 역할(L4/L7, stateful/stateless)이 핵심이다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-num">1</div>
+      <div class="card-title">VPC는 region 경계, subnet은 AZ 경계로 설계한다</div>
+      <div class="card-body">VPC는 하나의 AWS 리전에 묶이며, 서브넷은 단일 가용 영역(AZ)에 배치된다. 이 경계 기준으로 네트워크를 나누면 장애 격리와 트래픽 흐름이 명확해진다. Public/Private/Isolated subnet 세 유형을 AZ마다 대칭 배치하는 것이 기본 패턴이다.</div>
+      <a class="card-source" href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-subnet-basics.html" target="_blank" rel="noopener">AWS — VPC Subnet Basics</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">2</div>
+      <div class="card-title">CIDR은 비중첩, 성장 여유, 멀티리전/온프레 연동까지 고려한다</div>
+      <div class="card-body">VPC CIDR 블록을 설계할 때 다른 VPC, 온프레미스 네트워크, 향후 피어링/Transit Gateway 대상과 겹치지 않아야 한다. RFC 1918 대역(10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)에서 할당하되 확장 여유를 확보한다.</div>
+      <a class="card-source" href="https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html" target="_blank" rel="noopener">AWS — Subnet Sizing</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">3</div>
+      <div class="card-title">NAT Gateway는 가용성 우선 시 AZ별 배치한다</div>
+      <div class="card-body">단일 NAT Gateway는 단일 AZ 장애 시 해당 AZ의 Private subnet뿐 아니라 다른 AZ의 아웃바운드까지 중단시킬 수 있다. 고가용성이 필요하면 각 AZ에 NAT Gateway를 배치하고, 각 Private subnet 라우팅이 같은 AZ의 NAT를 가리키도록 설정한다.</div>
+      <a class="card-source" href="https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-basics.html" target="_blank" rel="noopener">AWS — NAT Gateway Basics</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">4</div>
+      <div class="card-title">SG는 stateful 인스턴스 경계, NACL은 stateless 서브넷 경계</div>
+      <div class="card-body">Security Group(SG)은 인스턴스(ENI) 수준에서 허용 규칙만 정의하며 stateful이다(응답 트래픽 자동 허용). NACL은 서브넷 수준에서 허용/거부를 모두 정의하며 stateless이다(인바운드·아웃바운드 각각 명시). SG로 세밀한 접근 제어, NACL로 서브넷 단위 방어벽.</div>
+      <a class="card-source" href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html" target="_blank" rel="noopener">AWS — Network ACLs</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">5</div>
+      <div class="card-title">ALB는 L7 라우팅, NLB는 L4 고성능/정적 IP</div>
+      <div class="card-body">Application Load Balancer(ALB)는 HTTP/HTTPS 요청을 호스트명, 경로, 헤더 등으로 라우팅한다. Network Load Balancer(NLB)는 TCP/UDP/TLS를 처리하며 초저지연, 고 TPS, 정적 IP/Elastic IP가 필요한 경우에 적합하다. Classic Load Balancer는 신규 설계에서 사용하지 않는다.</div>
+      <a class="card-source" href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html" target="_blank" rel="noopener">AWS — ALB Introduction</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">6</div>
+      <div class="card-title">DNS와 LB는 멀티AZ, 헬스체크, 글로벌 엔트리포인트 우선</div>
+      <div class="card-body">Route 53 헬스체크 + Failover/Weighted 라우팅으로 AZ/리전 장애에 자동 대응한다. LB는 반드시 2개 이상 AZ에 걸쳐 배포하며, 대상 그룹 헬스체크로 비정상 인스턴스를 자동 제외한다. CloudFront/Global Accelerator로 사용자 근접 엣지에서 트래픽을 수신한다.</div>
+      <a class="card-source" href="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html" target="_blank" rel="noopener">AWS — What Is ELB</a>
+    </div>
+
+    <div class="card">
+      <div class="card-num">7</div>
+      <div class="card-title">네트워크 디버깅은 dig/traceroute/tcpdump를 계층별로 사용한다</div>
+      <div class="card-body">DNS 해석은 <code>dig</code>/<code>nslookup</code>, 경로는 <code>traceroute</code>/<code>mtr</code>, 패킷은 <code>tcpdump</code>/Wireshark로 진단한다. VPC Flow Logs는 SG/NACL 거부를 확인하는 데 유용하다. 문제 계층을 먼저 특정하고 해당 계층의 도구를 사용해야 효율적이다.</div>
+      <a class="card-source" href="https://man7.org/linux/man-pages/man8/traceroute.8.html" target="_blank" rel="noopener">man7.org — traceroute(8)</a>
+    </div>
+  </div>
+</div>
+
+<!-- SG vs NACL -->
+<div class="section">
+  <div class="section-label">Layer Separation</div>
+  <div class="section-title">SG vs NACL</div>
+  <p class="section-desc">동일 규칙을 양쪽에 복제하면 유지보수 부담만 증가한다. 경계와 상태성이 다른 두 메커니즘의 역할을 분리한다.</p>
+  <div class="duo-grid">
+    <div class="duo-card">
+      <div class="duo-head">
+        <span class="duo-tag">stateful</span>
+        <div class="duo-name">Security Group</div>
+      </div>
+      <ul class="duo-list">
+        <li>인스턴스/ENI 수준 경계</li>
+        <li>허용 규칙만 정의 (거부 불가)</li>
+        <li>응답 트래픽 자동 허용 (stateful)</li>
+        <li>세밀한 서비스-간 접근 제어에 적합</li>
+        <li>ephemeral port 규칙 불필요</li>
+      </ul>
+    </div>
+    <div class="duo-card">
+      <div class="duo-head">
+        <span class="duo-tag">stateless</span>
+        <div class="duo-name">Network ACL</div>
+      </div>
+      <ul class="duo-list">
+        <li>서브넷 수준 경계</li>
+        <li>허용/거부 규칙 모두 정의 가능</li>
+        <li>인바운드·아웃바운드 각각 명시 (stateless)</li>
+        <li>서브넷 단위 광범위 방어벽에 적합</li>
+        <li>ephemeral port(1024-65535) 명시 필수</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- LAYER DEBUG -->
+<div class="section">
+  <div class="section-label">Debugging by Layer</div>
+  <div class="section-title">계층별 디버깅 도구</div>
+  <p class="section-desc">문제 계층을 먼저 특정한다. 계층이 잘못되면 엉뚱한 지표를 보며 시간을 소모한다.</p>
+  <div class="layer-grid">
+    <div class="layer-card">
+      <div class="layer-name">L7 — DNS / App</div>
+      <div class="layer-tool">dig, nslookup</div>
+      <div class="layer-desc">DNS 해석, TTL, NS 레코드, CNAME 체인 확인. "이름이 IP로 바뀌는가"를 먼저 점검한다.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-name">L3 — Routing</div>
+      <div class="layer-tool">traceroute, mtr</div>
+      <div class="layer-desc">경로상 홉별 RTT와 손실을 확인한다. ICMP가 차단된 경로에서는 제한적 — 애플리케이션 계층 문제를 단정하지 말 것.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-name">L2/L4 — Packets</div>
+      <div class="layer-tool">tcpdump, Wireshark</div>
+      <div class="layer-desc">실제 패킷 내용, TCP 핸드셰이크, TLS ClientHello까지 확인한다. VPC Flow Logs는 ACCEPT/REJECT만 기록한다.</div>
+    </div>
+  </div>
+</div>
+
+<!-- METRICS -->
+<div class="section">
+  <div class="section-label">Reference Values</div>
+  <div class="section-title">수치/기준값</div>
+  <p class="section-desc">IP 예약 수, LB 서브넷 요건, NAT 대역폭 등. 용량 산정 시 반드시 예약분을 뺀 실사용 IP로 계산한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>AWS VPC CIDR 범위</strong></td>
+          <td><code>/16 ~ /28</code></td>
+          <td>65,536 IP ~ 16 IP</td>
+        </tr>
+        <tr>
+          <td><strong>AWS 서브넷 예약 IP</strong></td>
+          <td><code>5개</code></td>
+          <td>네트워크, VPC 라우터, DNS, 예약, 브로드캐스트</td>
+        </tr>
+        <tr>
+          <td><strong>GCP 서브넷 예약 IP</strong></td>
+          <td><code>4개</code></td>
+          <td>네트워크, 게이트웨이, 예약 2개</td>
+        </tr>
+        <tr>
+          <td><strong>ALB 최소 AZ 수</strong></td>
+          <td><code>2 AZ</code></td>
+          <td>가용성 요건</td>
+        </tr>
+        <tr>
+          <td><strong>ALB 서브넷 최소 크기</strong></td>
+          <td><code>/27 이상</code></td>
+          <td>32 IP + 8개 free IP 권장</td>
+        </tr>
+        <tr>
+          <td><strong>NLB 정적 IP</strong></td>
+          <td><code>AZ당 1개</code></td>
+          <td>Elastic IP 할당 가능</td>
+        </tr>
+        <tr>
+          <td><strong>NAT Gateway 기본 대역폭</strong></td>
+          <td><code>5 Gbps</code></td>
+          <td>최대 100 Gbps 자동 확장</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ANTI PATTERNS -->
+<div class="section">
+  <div class="section-label">Anti-Patterns</div>
+  <div class="section-title">피해야 할 패턴</div>
+  <p class="section-desc">사전 설계 부재가 원인인 실수가 대부분이다. 특히 CIDR 충돌과 단일 NAT 의존은 나중에 바꾸기 극도로 어렵다.</p>
+
+  <div class="compare" style="margin-bottom:24px">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <div class="compare-title">단일 NAT Gateway에 여러 AZ 의존</div>
+      <div class="compare-body">한 AZ의 NAT에 모든 Private subnet이 의존하면 <strong>해당 AZ 장애 시 전체 아웃바운드 중단</strong>이다. 비용 절감을 위해 단일 NAT를 선택하면 SLA 계산이 어긋난다.</div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <div class="compare-title">AZ별 NAT + 같은 AZ 라우팅</div>
+      <div class="compare-body">각 AZ에 NAT Gateway를 배치하고, 그 AZ의 Private subnet 라우팅 테이블이 <strong>같은 AZ의 NAT</strong>를 가리키게 한다. AZ 경계를 넘지 않으므로 격리 효과.</div>
+    </div>
+  </div>
+
+  <div class="anti-list">
+    <div class="anti-item">
+      <div class="anti-name">겹치는 RFC 1918 대역 무계획 사용</div>
+      <div class="anti-desc">VPC 피어링, Transit Gateway, VPN 연동 시 CIDR 충돌로 라우팅이 불가능해진다. 사전에 조직 차원의 IP 대역 레지스트리를 관리하고 신규 VPC 생성 시 검증한다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">SG와 NACL 중복 과설계</div>
+      <div class="anti-desc">동일한 규칙을 양쪽에 복제하면 유지보수 부담만 증가하고 변경 시 불일치 버그가 발생한다. SG는 세밀한 허용, NACL은 서브넷 단위 거부로 역할을 분리한다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">ALB/NLB를 익숙함만으로 선택</div>
+      <div class="anti-desc">L7 기능이 필요 없는데 ALB를 쓰거나, 정적 IP가 필요한데 ALB를 고집하는 사례. 요구사항(L4/L7, 정적 IP, TLS 종단, 초저지연)에 맞게 선택한다.</div>
+    </div>
+    <div class="anti-item">
+      <div class="anti-name">DNS TTL과 장애 전파 무고려</div>
+      <div class="anti-desc">TTL이 길면 장애 전환(failover) 반영이 늦고, 너무 짧으면 DNS 쿼리 비용과 지연이 증가한다. 정상 시 TTL과 failover 시 TTL을 분리 전략(예: 300s / 60s)으로 운영한다.</div>
+    </div>
+  </div>
+</div>
+
+<!-- GOTCHAS -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <div class="section-title">체크리스트</div>
+  <p class="section-desc">네트워크 설계·운영 시 반복 실수를 방지하기 위한 자가 진단 항목. "보이지 않는 차단"이 가장 디버깅이 어렵다.</p>
+  <ul class="checklist">
+    <li>
+      <span class="check">✓</span>
+      <span><strong>AWS 서브넷 예약 5개 IP</strong>를 반영해 용량을 산정했는가? /28 서브넷은 16개 중 <strong>11개만 사용 가능</strong>하다. 소규모 서브넷에서 실패가 두드러진다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>ALB 서브넷의 free IP가 충분</strong>한가? 부족하면 ALB 노드 스케일링이 실패하며 트래픽 급증 시 503 에러로 나타난다. /27 이상 + 8개 free IP가 권장치다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>NACL 아웃바운드에 ephemeral port(1024-65535) 허용</strong>이 있는가? NACL은 stateless이므로 응답 패킷이 별도로 막힌다. SG에서 허용해도 NACL에서 차단되면 통과 불가.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>traceroute 결과만으로 애플리케이션 장애를 단정</strong>하지 않는가? 네트워크 경로가 정상이어도 앱, DNS, TLS 계층에서 문제가 발생할 수 있다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>VPC Flow Logs가 ACCEPT/REJECT만 기록</strong>한다는 것을 이해하는가? 패킷 내용 분석이 필요하면 Traffic Mirroring 또는 tcpdump를 사용해야 한다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>VPC CIDR이 온프레/파트너 네트워크와 비중첩</strong>인지 확인했는가? 피어링/Transit Gateway 연동 시 충돌은 라우팅 불가로 이어지며 사후 수정이 매우 어렵다.</span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span><strong>Route 53 헬스체크와 LB 대상 그룹 헬스체크</strong>가 이중으로 구성되어 있는가? 어느 한 쪽만으로는 AZ/리전 단위 장애 전환이 자동화되지 않는다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="footer">
+  Source: <span class="accent">docs/infra/operations/networking.md</span> &nbsp;·&nbsp; Infra Kit v0.1 &nbsp;·&nbsp; Last updated 2026-04-04
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>데이터베이스 — Backend Kit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#A78BFA;
+    --accent2:#C4B5FD;
+    --accent-dim:rgba(167,139,250,0.12);
+    --accent-glow:rgba(167,139,250,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(ellipse at top left,var(--accent-glow),transparent 55%),
+      radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 55%),
+      var(--bg);
+    min-height:100vh;
+  }
+  a{color:var(--accent2);text-decoration:none;transition:color var(--transition)}
+  a:hover{color:var(--accent)}
+  code{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:0.9em;background:var(--surface2);padding:0.15em 0.4em;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;overflow-x:auto;margin:1rem 0;font-size:0.88rem}
+  pre code{background:transparent;border:none;padding:0;color:var(--text)}
+
+  .container{max-width:1100px;margin:0 auto;padding:3rem 1.5rem 6rem}
+
+  .hero{padding:3rem 0 4rem;border-bottom:1px solid var(--border);margin-bottom:3rem}
+  .badge{
+    display:inline-block;
+    padding:0.4rem 0.9rem;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    color:var(--accent2);
+    font-size:0.78rem;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    border-radius:999px;
+    margin-bottom:1.5rem;
+  }
+  .hero h1{
+    font-size:clamp(2.2rem,5vw,3.4rem);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    line-height:1.15;
+    background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 60%,var(--accent) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin-bottom:1rem;
+  }
+  .hero .subtitle{font-size:1.1rem;color:var(--text2);max-width:720px}
+  .hero-meta{
+    margin-top:1.5rem;
+    display:flex;
+    gap:1rem;
+    flex-wrap:wrap;
+    font-size:0.85rem;
+    color:var(--text3);
+  }
+  .hero-meta span{
+    padding:0.3rem 0.7rem;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+  }
+
+  section{margin-bottom:4rem}
+  h2{
+    font-size:1.7rem;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin-bottom:1.5rem;
+    display:flex;
+    align-items:center;
+    gap:0.75rem;
+  }
+  h2::before{
+    content:"";
+    display:inline-block;
+    width:4px;
+    height:1.4rem;
+    background:linear-gradient(180deg,var(--accent),var(--accent2));
+    border-radius:2px;
+  }
+  h3{
+    font-size:1.15rem;
+    font-weight:700;
+    margin-bottom:0.75rem;
+    color:var(--text);
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(380px,1fr));
+    gap:1.25rem;
+  }
+
+  .card{
+    background:linear-gradient(180deg,var(--surface),var(--surface2));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.5rem 1.5rem 1.25rem;
+    position:relative;
+    transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);
+    display:flex;
+    flex-direction:column;
+  }
+  .card:hover{
+    transform:translateY(-2px);
+    border-color:var(--border2);
+    box-shadow:0 10px 30px rgba(0,0,0,0.35),0 0 0 1px var(--accent-dim);
+  }
+  .card-num{
+    position:absolute;
+    top:1rem;
+    right:1.25rem;
+    font-size:2.4rem;
+    font-weight:800;
+    color:var(--surface3);
+    line-height:1;
+  }
+  .card h3{padding-right:2.5rem}
+  .card p{color:var(--text2);font-size:0.95rem;margin-bottom:0.75rem}
+  .card p strong{color:var(--text)}
+  .card ul{list-style:none;margin:0.5rem 0 0.75rem}
+  .card ul li{
+    color:var(--text2);
+    font-size:0.9rem;
+    padding:0.3rem 0 0.3rem 1.1rem;
+    position:relative;
+  }
+  .card ul li::before{
+    content:"▸";
+    position:absolute;
+    left:0;
+    color:var(--accent);
+  }
+  .card .mini-table{
+    font-size:0.82rem;
+    margin:0.5rem 0 0.75rem;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    overflow:hidden;
+  }
+  .card .mini-table table{width:100%;border-collapse:collapse}
+  .card .mini-table th,.card .mini-table td{
+    padding:0.45rem 0.6rem;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    font-size:0.8rem;
+  }
+  .card .mini-table th{color:var(--accent2);background:var(--surface3);text-transform:uppercase;letter-spacing:0.04em;font-size:0.7rem}
+  .card .mini-table tr:last-child td{border-bottom:none}
+  .card-source{
+    display:inline-block;
+    margin-top:auto;
+    padding-top:0.75rem;
+    font-size:0.8rem;
+    color:var(--text3);
+    border-top:1px dashed var(--border);
+    word-break:break-all;
+  }
+  .card-source::before{
+    content:"출처 ";
+    color:var(--accent);
+    font-weight:600;
+  }
+
+  .table-wrap{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  table{width:100%;border-collapse:collapse;font-size:0.92rem}
+  thead{background:var(--surface3)}
+  th,td{
+    text-align:left;
+    padding:0.85rem 1rem;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+  }
+  th{font-weight:700;color:var(--accent2);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--surface2)}
+  td code{font-size:0.85em}
+
+  .anti-grid{display:grid;gap:1rem}
+  .anti-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--error);
+    border-radius:var(--radius-sm);
+    padding:1.1rem 1.3rem;
+  }
+  .anti-card h4{font-size:1rem;color:var(--error);margin-bottom:0.4rem;font-weight:700}
+  .anti-card h4::before{content:"✗ ";font-weight:800}
+  .anti-card p{color:var(--text2);font-size:0.92rem}
+  .anti-card.good{border-left-color:var(--success)}
+  .anti-card.good h4{color:var(--success)}
+  .anti-card.good h4::before{content:"✓ "}
+
+  .gotchas{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.5rem;
+  }
+  .gotcha{
+    display:flex;
+    gap:0.9rem;
+    padding:1rem 0;
+    border-bottom:1px dashed var(--border);
+  }
+  .gotcha:last-child{border-bottom:none;padding-bottom:0}
+  .gotcha:first-child{padding-top:0}
+  .gotcha-check{
+    flex-shrink:0;
+    width:22px;
+    height:22px;
+    border:2px solid var(--accent);
+    border-radius:6px;
+    background:var(--accent-dim);
+    position:relative;
+    margin-top:2px;
+  }
+  .gotcha-check::after{
+    content:"";
+    position:absolute;
+    left:5px;
+    top:1px;
+    width:6px;
+    height:11px;
+    border:solid var(--accent);
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .gotcha-body{flex:1}
+  .gotcha-body strong{color:var(--text);display:block;margin-bottom:0.25rem;font-size:0.97rem}
+  .gotcha-body span{color:var(--text2);font-size:0.9rem}
+
+  footer{
+    margin-top:5rem;
+    padding-top:2rem;
+    border-top:1px solid var(--border);
+    color:var(--text3);
+    font-size:0.82rem;
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .container{padding:2rem 1rem 4rem}
+    .grid-2{grid-template-columns:1fr}
+    th,td{padding:0.7rem 0.6rem;font-size:0.85rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important}
+    .card:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Backend Kit v0.1</span>
+    <h1>데이터베이스 — 스키마 · 인덱스 · 마이그레이션</h1>
+    <p class="subtitle">
+      스키마 설계, 정규화와 반정규화, 인덱스 전략, 쿼리 최적화, N+1 문제, connection pooling,
+      expand-contract 마이그레이션 전략, 파티셔닝을 다룬다.
+    </p>
+    <div class="hero-meta">
+      <span>version 0.1.0</span>
+      <span>updated 2026-04-04</span>
+      <span>source: docs/backend/fundamentals/database.md</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>원칙</h2>
+    <div class="grid-2">
+
+      <article class="card">
+        <div class="card-num">01</div>
+        <h3>정규화 우선, 읽기 성능 병목에서만 반정규화한다</h3>
+        <p>
+          3NF(제3정규형)까지 정규화하여 데이터 무결성과 저장 효율을 확보한다.
+          반정규화는 측정된 읽기 병목이 있을 때만 적용한다.
+          반정규화 시 갱신 이상(update anomaly)이 발생하므로, 어떤 쿼리의 어떤 지표(latency, throughput)를
+          얼마나 개선하는지 수치로 증명한 후 진행한다.
+        </p>
+        <a class="card-source" href="https://www.postgresql.org/docs/current/ddl-basics.html" target="_blank" rel="noopener">PostgreSQL Documentation — Table Basics</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">02</div>
+        <h3>인덱스는 쿼리 패턴 기반으로 선택한다</h3>
+        <p>아래 표는 인덱스 타입별 용도와 적합한 쿼리를 요약한다.</p>
+        <div class="mini-table">
+          <table>
+            <thead><tr><th>타입</th><th>용도</th><th>적합 쿼리</th></tr></thead>
+            <tbody>
+              <tr><td><strong>B-tree</strong></td><td>범위/정렬/등치</td><td><code>WHERE created_at &gt; ?</code>, <code>ORDER BY id</code></td></tr>
+              <tr><td><strong>Hash</strong></td><td>등치 전용</td><td><code>WHERE email = ?</code> (PG는 B-tree가 대부분 더 낫다)</td></tr>
+              <tr><td><strong>GIN</strong></td><td>전문검색/배열/JSONB</td><td><code>tags @&gt; '{python}'</code></td></tr>
+              <tr><td><strong>GiST</strong></td><td>공간/범위</td><td><code>location &lt;-&gt; point(x,y)</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          복합 인덱스의 컬럼 순서는 선택도(selectivity)가 높은 컬럼을 앞에 둔다.
+          인덱스가 많을수록 쓰기 성능이 저하되므로, 실제 사용되는 쿼리 패턴에만 인덱스를 건다.
+        </p>
+        <a class="card-source" href="https://www.postgresql.org/docs/current/indexes.html" target="_blank" rel="noopener">PostgreSQL Documentation — Indexes</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">03</div>
+        <h3>EXPLAIN ANALYZE로 실행 계획을 확인한다</h3>
+        <p>쿼리 작성 후 반드시 <code>EXPLAIN ANALYZE</code>로 실행 계획을 확인한다. 주의할 지표:</p>
+        <ul>
+          <li><strong>Seq Scan</strong>: 대형 테이블에서 발생하면 인덱스 추가 검토</li>
+          <li><strong>Nested Loop</strong>: 소규모 결과 집합에서 효율적, 대규모에서는 Hash Join</li>
+          <li><strong>actual vs planned rows</strong>: 괴리가 크면 <code>ANALYZE</code>로 통계 갱신</li>
+        </ul>
+<pre><code>EXPLAIN ANALYZE
+SELECT * FROM orders
+WHERE user_id = 42 AND status = 'pending';</code></pre>
+        <a class="card-source" href="https://www.postgresql.org/docs/current/using-explain.html" target="_blank" rel="noopener">PostgreSQL Documentation — Using EXPLAIN</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">04</div>
+        <h3>N+1 문제는 ORM 레벨에서 해결한다</h3>
+        <p>
+          N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발생하는 패턴이다.
+          100개의 주문을 조회하면 101번의 쿼리가 실행된다.
+        </p>
+        <ul>
+          <li><strong>Eager loading</strong>: <code>joinedload()</code>(SQLAlchemy), <code>include()</code>(Prisma), <code>prefetch_related()</code>(Django)</li>
+          <li><strong>DataLoader 패턴</strong>: 같은 이벤트 루프 내 중복 요청을 배치로 묶음 (GraphQL 필수)</li>
+          <li><strong>SQL 직접 작성</strong>: ORM이 비효율 쿼리를 만들면 JOIN을 직접 작성</li>
+        </ul>
+        <a class="card-source" href="https://docs.sqlalchemy.org/en/20/orm/queryguide/relationships.html" target="_blank" rel="noopener">SQLAlchemy — Relationship Loading Techniques</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">05</div>
+        <h3>Connection pooling은 운영 환경 필수다</h3>
+        <p>
+          데이터베이스 연결은 비용이 크다(TCP 핸드셰이크 + 인증 + 메모리 할당).
+          Pool 없이 요청마다 연결을 생성하면 수백 동시 요청에서 DB가 연결 한도에 도달한다.
+        </p>
+        <ul>
+          <li><strong>PgBouncer</strong>: PostgreSQL 전용 경량 프록시. Transaction mode 권장</li>
+          <li><strong>HikariCP</strong>: JVM 생태계 표준. 최소 오버헤드 · 최대 throughput</li>
+          <li><strong>애플리케이션 내장 풀</strong>: SQLAlchemy <code>pool_size</code>, Prisma <code>connection_limit</code></li>
+        </ul>
+        <a class="card-source" href="https://www.pgbouncer.org/config.html" target="_blank" rel="noopener">PgBouncer Configuration · HikariCP</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">06</div>
+        <h3>Migration은 expand-contract 패턴을 따른다</h3>
+        <p>무중단 배포 환경에서 스키마 변경은 3단계로 진행한다:</p>
+        <ul>
+          <li><strong>Expand</strong>: 새 컬럼/테이블 추가. 기존 코드는 영향 없음</li>
+          <li><strong>Migrate</strong>: 이중 쓰기(dual write). 새 코드 + backfill</li>
+          <li><strong>Contract</strong>: 이전 컬럼/테이블 제거. 모든 코드가 새 스키마 사용 후</li>
+        </ul>
+        <p>
+          <code>ALTER TABLE ... ADD COLUMN</code>은 PostgreSQL에서 NOT NULL + DEFAULT가 없으면
+          테이블 재작성(rewrite) 없이 즉시 완료된다. 반면 컬럼 타입 변경은 전체 테이블을 잠글 수 있다.
+        </p>
+        <a class="card-source" href="https://martinfowler.com/bliki/ParallelChange.html" target="_blank" rel="noopener">Martin Fowler — Parallel Change</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">07</div>
+        <h3>파티셔닝은 TB급 테이블에서 range/list/hash 중 선택한다</h3>
+        <div class="mini-table">
+          <table>
+            <thead><tr><th>전략</th><th>적합 케이스</th><th>예시</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Range</strong></td><td>시계열/날짜</td><td>월별 로그 테이블</td></tr>
+              <tr><td><strong>List</strong></td><td>이산적 카테고리</td><td>국가별, 상태별</td></tr>
+              <tr><td><strong>Hash</strong></td><td>균등 분산</td><td>사용자 ID 기반 샤딩</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          파티셔닝은 쿼리가 파티션 키를 포함할 때만 효과적이다(partition pruning).
+          파티션 키 없는 쿼리는 모든 파티션을 스캔하므로 오히려 느려진다.
+        </p>
+        <a class="card-source" href="https://www.postgresql.org/docs/current/ddl-partitioning.html" target="_blank" rel="noopener">PostgreSQL Documentation — Table Partitioning</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>수치 기준</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>HikariCP <code>maximumPoolSize</code> 기본값</td><td>10</td></tr>
+          <tr><td>HikariCP <code>connectionTimeout</code> 기본값</td><td>30초</td></tr>
+          <tr><td>HikariCP <code>idleTimeout</code> 기본값</td><td>10분</td></tr>
+          <tr><td>HikariCP <code>maxLifetime</code> 기본값</td><td>30분</td></tr>
+          <tr><td>PgBouncer <code>default_pool_size</code> 기본값</td><td>20</td></tr>
+          <tr><td>PostgreSQL <code>shared_buffers</code> 권장값</td><td>시스템 RAM의 25%</td></tr>
+          <tr><td>PostgreSQL <code>work_mem</code> 기본값</td><td>4 MB (복잡한 정렬/해시에서 증가 검토)</td></tr>
+          <tr><td>Pool size 공식 (HikariCP 권장)</td><td><code>connections = (core_count * 2) + effective_spindle_count</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>안티패턴</h2>
+    <div class="anti-grid">
+
+      <div class="anti-card">
+        <h4>모든 컬럼에 인덱스</h4>
+        <p>쓰기 성능 저하, 디스크 낭비, 옵티마이저 혼란.</p>
+      </div>
+      <div class="anti-card good">
+        <h4>사용되는 쿼리 패턴에만 인덱스</h4>
+        <p>실제 쿼리 플랜과 WHERE/ORDER BY 빈도를 기반으로 최소 집합만 유지한다.</p>
+      </div>
+
+      <div class="anti-card">
+        <h4><code>SELECT *</code></h4>
+        <p>불필요한 데이터 전송, covering index 활용 불가.</p>
+      </div>
+      <div class="anti-card good">
+        <h4>필요한 컬럼만 명시</h4>
+        <p>네트워크·메모리·인덱스 사용을 모두 최적화한다.</p>
+      </div>
+
+      <div class="anti-card">
+        <h4>ORM 기본 lazy loading 방치</h4>
+        <p>N+1 문제로 쿼리 수가 데이터 크기에 비례하여 폭증.</p>
+      </div>
+      <div class="anti-card good">
+        <h4>eager loading / DataLoader 적용</h4>
+        <p>관계 로딩 전략을 명시적으로 선언하고, GraphQL에서는 DataLoader로 배치한다.</p>
+      </div>
+
+      <div class="anti-card">
+        <h4>Pool 크기 무제한</h4>
+        <p>DB 연결 한도 초과, 메모리 고갈, 전체 서비스 장애.</p>
+      </div>
+      <div class="anti-card good">
+        <h4>core_count 기반 상한 설정</h4>
+        <p><code>(core_count * 2) + effective_spindle_count</code> 공식을 기준점으로 부하 테스트로 조정.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Gotchas</h2>
+    <div class="gotchas">
+
+      <div class="gotcha">
+        <div class="gotcha-check"></div>
+        <div class="gotcha-body">
+          <strong>GIN 인덱스는 쓰기 성능을 저하시킨다</strong>
+          <span>GIN은 역인덱스 구조로 삽입 시 인덱스 갱신 비용이 크다. <code>fastupdate=on</code>(기본값)으로 완화할 수 있지만, 첫 번째 읽기에서 펜딩 리스트를 정리하므로 읽기 latency 스파이크가 발생할 수 있다.</span>
+        </div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check"></div>
+        <div class="gotcha-body">
+          <strong>EXPLAIN과 EXPLAIN ANALYZE 결과가 다를 수 있다</strong>
+          <span><code>EXPLAIN</code>은 통계 기반 예측이고, <code>EXPLAIN ANALYZE</code>는 실제 실행 결과다. 통계가 오래되면 예측 row 수와 실제 row 수가 크게 다를 수 있다. <code>ANALYZE</code> 명령으로 통계를 갱신한다.</span>
+        </div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check"></div>
+        <div class="gotcha-body">
+          <strong>Connection pool exhaustion은 deadlock처럼 보인다</strong>
+          <span>모든 커넥션이 점유된 상태에서 새 요청이 커넥션을 기다리면 타임아웃까지 멈춘다. 로그에는 "connection timeout"이지만 증상은 서비스 전체 행(hang)이므로 deadlock으로 오진하기 쉽다. 모니터링에 pool 사용률 메트릭을 반드시 포함한다.</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    Backend Kit · docs/backend/fundamentals/database.md · 2026-04-04
+  </footer>
+
+</div>
+</body>
+</html>

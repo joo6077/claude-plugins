@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infrastructure as Code — Infra Kit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#34D399;
+    --accent2:#6EE7B7;
+    --accent-dim:rgba(52,211,153,0.12);
+    --accent-glow:rgba(52,211,153,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+  html{
+    scroll-behavior:smooth;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Pretendard","Noto Sans KR",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.7;
+    font-size:15px;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, var(--accent-glow), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 40%, rgba(110,231,183,0.03), transparent 70%);
+    background-attachment:fixed;
+  }
+
+  .container{
+    max-width:1080px;
+    margin:0 auto;
+    padding:80px 32px 120px;
+  }
+
+  /* ============ HERO ============ */
+  .hero{
+    padding:60px 0 72px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:72px;
+    position:relative;
+  }
+
+  .hero::before{
+    content:"";
+    position:absolute;
+    top:20px;left:-20px;
+    width:3px;height:60px;
+    background:linear-gradient(180deg,var(--accent),transparent);
+    border-radius:2px;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 14px;
+    background:var(--accent-dim);
+    border:1px solid rgba(52,211,153,0.3);
+    border-radius:100px;
+    color:var(--accent);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    margin-bottom:28px;
+    transition:var(--transition);
+  }
+
+  .badge::before{
+    content:"";
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px var(--accent);
+  }
+
+  .hero h1{
+    font-size:clamp(38px,6vw,64px);
+    line-height:1.1;
+    font-weight:800;
+    letter-spacing:-0.03em;
+    margin-bottom:24px;
+    background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 60%,var(--accent) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+
+  .hero .subtitle{
+    font-size:19px;
+    color:var(--text2);
+    max-width:720px;
+    line-height:1.65;
+    font-weight:400;
+  }
+
+  .hero .meta{
+    display:flex;
+    gap:24px;
+    margin-top:36px;
+    flex-wrap:wrap;
+  }
+
+  .hero .meta-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--text3);
+    font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+  }
+
+  .hero .meta-item strong{color:var(--text2);font-weight:500;}
+
+  /* ============ SECTIONS ============ */
+  section{margin-bottom:88px;}
+
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:36px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .section-num{
+    font-family:"SF Mono",Menlo,monospace;
+    font-size:13px;
+    color:var(--accent);
+    font-weight:600;
+    letter-spacing:0.05em;
+  }
+
+  .section-head h2{
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    color:var(--text);
+  }
+
+  .section-desc{
+    color:var(--text2);
+    font-size:15px;
+    margin-left:auto;
+    max-width:400px;
+    text-align:right;
+  }
+
+  /* ============ PRINCIPLE CARDS ============ */
+  .cards{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+
+  @media(min-width:760px){
+    .cards{grid-template-columns:1fr 1fr;}
+  }
+
+  .card{
+    background:linear-gradient(180deg,var(--surface) 0%,var(--surface2) 100%);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px 28px 24px;
+    position:relative;
+    transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);
+    overflow:hidden;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    opacity:0;
+    transition:opacity var(--transition);
+  }
+
+  .card:hover{
+    border-color:var(--border2);
+    transform:translateY(-2px);
+    box-shadow:0 12px 40px rgba(0,0,0,0.4),0 0 0 1px var(--accent-dim);
+  }
+
+  .card:hover::before{opacity:1;}
+
+  .card-num{
+    font-family:"SF Mono",Menlo,monospace;
+    font-size:11px;
+    color:var(--accent);
+    font-weight:700;
+    letter-spacing:0.1em;
+    margin-bottom:12px;
+  }
+
+  .card h3{
+    font-size:18px;
+    font-weight:650;
+    color:var(--text);
+    margin-bottom:14px;
+    letter-spacing:-0.01em;
+    line-height:1.35;
+  }
+
+  .card p{
+    color:var(--text2);
+    font-size:14.5px;
+    line-height:1.7;
+    margin-bottom:18px;
+  }
+
+  .card-sources{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .card-source{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--text2);
+    font-size:12px;
+    text-decoration:none;
+    font-family:"SF Mono",Menlo,monospace;
+    transition:var(--transition);
+  }
+
+  .card-source::before{
+    content:"→";
+    color:var(--accent);
+    font-weight:600;
+  }
+
+  .card-source:hover{
+    background:var(--accent-dim);
+    border-color:var(--accent);
+    color:var(--accent2);
+    transform:translateX(2px);
+  }
+
+  /* ============ METRICS TABLE ============ */
+  .table-wrap{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+
+  thead{
+    background:var(--surface2);
+    border-bottom:1px solid var(--border2);
+  }
+
+  th{
+    padding:16px 20px;
+    text-align:left;
+    font-weight:600;
+    color:var(--text);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+
+  td{
+    padding:16px 20px;
+    border-top:1px solid var(--border);
+    color:var(--text2);
+  }
+
+  tr:hover td{background:var(--surface2);}
+
+  td:first-child{color:var(--text);font-weight:500;}
+
+  td code,.metric-val{
+    font-family:"SF Mono",Menlo,monospace;
+    color:var(--accent);
+    background:var(--accent-dim);
+    padding:2px 8px;
+    border-radius:4px;
+    font-size:13px;
+  }
+
+  /* ============ ANTIPATTERN COMPARE ============ */
+  .compare{
+    display:grid;
+    gap:16px;
+  }
+
+  .compare-row{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--error);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    transition:var(--transition);
+  }
+
+  .compare-row:hover{
+    border-left-color:var(--accent);
+    background:var(--surface2);
+  }
+
+  .compare-label{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    color:var(--error);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+
+  .compare-label::before{
+    content:"✕";
+    font-size:13px;
+  }
+
+  .compare-row h4{
+    font-size:16px;
+    color:var(--text);
+    font-weight:600;
+    margin-bottom:8px;
+    line-height:1.4;
+  }
+
+  .compare-row p{
+    color:var(--text2);
+    font-size:14px;
+    line-height:1.65;
+  }
+
+  /* ============ GOTCHAS CHECKLIST ============ */
+  .gotchas{
+    display:grid;
+    gap:14px;
+  }
+
+  .gotcha{
+    display:flex;
+    gap:18px;
+    padding:22px 26px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    transition:var(--transition);
+  }
+
+  .gotcha:hover{
+    border-color:var(--accent);
+    background:var(--surface2);
+    transform:translateX(3px);
+  }
+
+  .gotcha-mark{
+    flex-shrink:0;
+    width:24px;height:24px;
+    border-radius:6px;
+    background:var(--accent-dim);
+    border:1.5px solid var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    font-weight:700;
+    font-size:14px;
+    margin-top:1px;
+  }
+
+  .gotcha-body{flex:1;}
+
+  .gotcha-body p{
+    color:var(--text2);
+    font-size:14.5px;
+    line-height:1.7;
+  }
+
+  .gotcha-body strong{color:var(--text);font-weight:600;}
+
+  /* ============ FOOTER ============ */
+  footer{
+    margin-top:120px;
+    padding-top:32px;
+    border-top:1px solid var(--border);
+    color:var(--text3);
+    font-size:13px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+
+  footer a{
+    color:var(--text2);
+    text-decoration:none;
+    transition:color var(--transition);
+  }
+  footer a:hover{color:var(--accent);}
+
+  /* ============ REDUCED MOTION ============ */
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:0.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:0.01ms !important;
+      scroll-behavior:auto !important;
+    }
+    .card:hover,.gotcha:hover,.compare-row:hover,.card-source:hover{transform:none;}
+  }
+
+  @media(max-width:640px){
+    .container{padding:48px 20px 80px;}
+    .hero{padding:40px 0 48px;margin-bottom:48px;}
+    .section-head{flex-direction:column;align-items:flex-start;gap:8px;}
+    .section-desc{text-align:left;margin-left:0;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="badge">Infra Kit v0.1</div>
+    <h1>Infrastructure as Code</h1>
+    <p class="subtitle">
+      Terraform 모듈 구조, 상태 관리, drift 감지, plan/apply 워크플로우, 모듈 버저닝, Pulumi/CDK 비교, Policy as Code(OPA, Sentinel), import를 다룬다.
+    </p>
+    <div class="meta">
+      <div class="meta-item"><strong>version</strong> 0.1.0</div>
+      <div class="meta-item"><strong>updated</strong> 2026-04-04</div>
+      <div class="meta-item"><strong>principles</strong> 7</div>
+      <div class="meta-item"><strong>antipatterns</strong> 5</div>
+    </div>
+  </header>
+
+  <!-- PRINCIPLES -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">01 /</span>
+      <h2>원칙</h2>
+      <p class="section-desc">모듈 구조부터 Policy as Code까지, IaC 운영의 7가지 축</p>
+    </div>
+
+    <div class="cards">
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 01</div>
+        <h3>모듈은 표준 구조를 따른다</h3>
+        <p><code>main.tf</code>(리소스), <code>variables.tf</code>(입력), <code>outputs.tf</code>(출력), <code>README.md</code>(문서), <code>examples/</code>(사용 예시)로 구성한다. 이 구조는 Terraform Registry 게시 요건이기도 하며, 모듈 소비자가 별도 설명 없이 구조를 파악할 수 있게 한다. 단일 거대 모듈 대신 기능 단위로 분리하여 재사용성과 테스트 용이성을 확보한다.</p>
+        <div class="card-sources">
+          <a class="card-source" href="https://developer.hashicorp.com/terraform/language/modules/develop/structure" target="_blank" rel="noopener">Terraform — Standard Module Structure</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 02</div>
+        <h3>팀 작업은 remote backend + locking이 기본이다</h3>
+        <p>local state는 팀원 간 공유가 불가능하고, 동시 수정 시 상태 파일이 손상된다. S3+DynamoDB, GCS, Terraform Cloud 등 remote backend를 사용하고, state locking으로 동시 apply를 방지한다. state 파일에는 리소스 속성, 시크릿이 포함되므로 암호화 저장과 접근 제어를 적용한다.</p>
+        <div class="card-sources">
+          <a class="card-source" href="https://developer.hashicorp.com/terraform/language/state/remote" target="_blank" rel="noopener">Terraform — Remote State</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 03</div>
+        <h3>plan 검토 후 승인된 plan만 apply한다</h3>
+        <p><code>terraform plan</code>으로 변경 사항을 미리 확인하고, 검토/승인된 plan 파일(<code>-out=tfplan</code>)을 <code>terraform apply tfplan</code>으로 적용한다. plan과 apply 사이에 인프라가 변경되면 plan이 무효화되므로, CI에서는 plan → 승인 → apply를 하나의 파이프라인으로 묶는다.</p>
+        <div class="card-sources">
+          <a class="card-source" href="https://developer.hashicorp.com/terraform/cli/commands/plan" target="_blank" rel="noopener">Terraform — Plan</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 04</div>
+        <h3>Drift는 정기적으로 감지한다</h3>
+        <p>코드 외부에서 수동으로 변경된 인프라(drift)는 다음 apply 시 예기치 않은 결과를 만든다. <code>terraform plan</code>의 implicit refresh 또는 <code>terraform plan -refresh-only</code>로 현재 인프라 상태와 state 파일의 차이를 정기적으로 확인한다. CI에 야간/주간 drift 감지 파이프라인을 구성한다.</p>
+        <div class="card-sources">
+          <a class="card-source" href="https://developer.hashicorp.com/terraform/tutorials/state/refresh" target="_blank" rel="noopener">Terraform — Refresh</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 05</div>
+        <h3>import는 상태만 가져온다</h3>
+        <p><code>terraform import</code>는 기존 인프라 리소스를 state에 등록할 뿐, 해당 리소스의 HCL 코드를 자동 생성하지 않는다. import 후 반드시 <code>terraform plan</code>으로 state와 코드의 차이를 확인하고, HCL 코드를 실제 인프라와 일치하도록 작성한다. 코드 없이 import만 하면 다음 apply에서 리소스가 변경되거나 삭제될 수 있다.</p>
+        <div class="card-sources">
+          <a class="card-source" href="https://developer.hashicorp.com/terraform/cli/import/usage" target="_blank" rel="noopener">Terraform — Import Usage</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 06</div>
+        <h3>모듈 버전을 고정한다</h3>
+        <p>Registry 모듈은 semver 태그로 버전을 고정한다. 버전 없이 최신을 추종하면 upstream의 breaking change가 예고 없이 인프라에 적용된다. <code>version = "~&gt; 1.2.0"</code> 같은 제약으로 패치만 자동 반영하고, 마이너/메이저 업그레이드는 명시적으로 수행한다.</p>
+        <div class="card-sources">
+          <a class="card-source" href="https://developer.hashicorp.com/terraform/registry/modules/publish" target="_blank" rel="noopener">Terraform Registry — Publishing Modules</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 07</div>
+        <h3>Policy as Code로 예방 통제를 구현한다</h3>
+        <p>plan 시점에 정책을 검사하여 위반 리소스가 생성되기 전에 차단한다. Sentinel(Terraform Cloud/Enterprise)은 plan 데이터에 직접 접근하고, OPA(Open Policy Agent)는 plan JSON을 입력으로 받아 Rego로 평가한다. "사후 감사" 대신 "사전 차단"으로 컴플라이언스를 보장한다.</p>
+        <div class="card-sources">
+          <a class="card-source" href="https://developer.hashicorp.com/sentinel/docs/concepts/policy-as-code" target="_blank" rel="noopener">Sentinel — Policy as Code</a>
+          <a class="card-source" href="https://www.openpolicyagent.org/docs/latest/terraform/" target="_blank" rel="noopener">OPA — Terraform</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- METRICS -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">02 /</span>
+      <h2>수치 · 기준값</h2>
+      <p class="section-desc">plan exit-code, 태그 형식, import 단위</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:50%">항목</th>
+            <th>값</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>plan -detailed-exitcode: 변경 없음</td>
+            <td><span class="metric-val">0</span></td>
+            <td>no changes</td>
+          </tr>
+          <tr>
+            <td>plan -detailed-exitcode: 에러</td>
+            <td><span class="metric-val">1</span></td>
+            <td>error</td>
+          </tr>
+          <tr>
+            <td>plan -detailed-exitcode: 변경 있음</td>
+            <td><span class="metric-val">2</span></td>
+            <td>CI에서 분기 조건으로 활용</td>
+          </tr>
+          <tr>
+            <td>import CLI 단위</td>
+            <td><span class="metric-val">1 resource</span></td>
+            <td>대량 import는 스크립트로 반복</td>
+          </tr>
+          <tr>
+            <td>Registry 태그 형식</td>
+            <td><span class="metric-val">semver</span></td>
+            <td>v 접두사 선택적 (v1.0.1 허용)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ANTIPATTERNS -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">03 /</span>
+      <h2>안티패턴</h2>
+      <p class="section-desc">Terraform 운영에서 반복되는 함정 5가지</p>
+    </div>
+
+    <div class="compare">
+
+      <div class="compare-row">
+        <div class="compare-label">Anti-pattern 01</div>
+        <h4>환경별 분기가 과도한 거대 모듈</h4>
+        <p>하나의 모듈에 dev/staging/prod 분기를 <code>count</code>/<code>for_each</code> + 조건문으로 구현하면 복잡도가 폭발한다. 환경별 tfvars 또는 workspace로 분리한다.</p>
+      </div>
+
+      <div class="compare-row">
+        <div class="compare-label">Anti-pattern 02</div>
+        <h4>local state를 팀에서 공유</h4>
+        <p>파일 동기화(Dropbox, Git)로 state를 공유하면 동시 수정 시 손상된다. remote backend + locking이 필수다.</p>
+      </div>
+
+      <div class="compare-row">
+        <div class="compare-label">Anti-pattern 03</div>
+        <h4>CI에서 무조건 auto apply</h4>
+        <p>plan 검토 없이 자동 적용하면 의도하지 않은 인프라 변경이 프로덕션에 반영된다. plan → 승인 → apply 워크플로우를 준수한다.</p>
+      </div>
+
+      <div class="compare-row">
+        <div class="compare-label">Anti-pattern 04</div>
+        <h4>import 후 HCL 검증 생략</h4>
+        <p>state에는 등록되었지만 코드가 없으면 다음 plan에서 삭제로 표시된다. import 즉시 HCL 작성과 plan 확인을 수행한다.</p>
+      </div>
+
+      <div class="compare-row">
+        <div class="compare-label">Anti-pattern 05</div>
+        <h4>버전 pin 없이 최신 추종</h4>
+        <p><code>source</code> 지정 시 version 제약이 없으면 upstream 변경이 즉시 반영되어 인프라 장애가 발생할 수 있다.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- GOTCHAS -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">04 /</span>
+      <h2>Gotchas</h2>
+      <p class="section-desc">state lock, import 중복, state 민감정보 함정</p>
+    </div>
+
+    <div class="gotchas">
+
+      <div class="gotcha">
+        <div class="gotcha-mark">!</div>
+        <div class="gotcha-body">
+          <p><strong>state lock 실패 시 <code>-lock=false</code>로 강행하면 상태 파일이 충돌한다.</strong> 다른 사용자가 동시에 apply 중인 상황에서 lock을 우회하면 state 파일이 서로 다른 버전으로 덮어쓰여 복구가 어렵다. lock 실패 원인(잔존 lock, 권한 문제)을 먼저 해결한다.</p>
+        </div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-mark">!</div>
+        <div class="gotcha-body">
+          <p><strong>같은 인프라 객체를 여러 address로 import하면 상태가 손상된다.</strong> 하나의 실제 리소스를 두 개의 Terraform address에 매핑하면, 한쪽을 삭제할 때 실제 리소스가 삭제되고 다른 쪽이 orphan이 된다.</p>
+        </div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-mark">!</div>
+        <div class="gotcha-body">
+          <p><strong>remote state에도 민감 정보가 포함될 수 있다.</strong> 데이터베이스 비밀번호, API 키 등이 리소스 속성으로 state에 평문 저장된다. backend의 암호화(SSE-S3, CMEK)와 접근 제어(IAM, bucket policy)를 반드시 설정한다.</p>
+        </div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-mark">!</div>
+        <div class="gotcha-body">
+          <p><strong>Pulumi/CDK 비교 문서는 벤더 관점 편향이 있다.</strong> 각 도구의 공식 비교 페이지는 자사 장점을 강조한다. 팀의 기술 스택(TypeScript vs Python vs HCL), 기존 인프라 규모, 상태 관리 방식, 커뮤니티 모듈 생태계를 기준으로 중립적으로 평가한다.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div>Infra Kit · Infrastructure as Code · v0.1.0</div>
+    <div><a href="./index.html">← docs index</a></div>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>테스트 — Flutter Toolkit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#22D3EE;
+    --accent2:#67E8F9;
+    --accent-dim:rgba(34,211,238,0.12);
+    --accent-glow:rgba(34,211,238,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;background:
+    radial-gradient(ellipse at top left,var(--accent-glow),transparent 50%),
+    radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 50%),
+    var(--bg);
+  }
+  .container{max-width:1100px;margin:0 auto;padding:64px 32px 120px}
+  a{color:var(--accent);text-decoration:none;transition:color var(--transition)}
+  a:hover{color:var(--accent2)}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,monospace;font-size:.9em;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
+  pre code{display:block;padding:16px;overflow-x:auto;line-height:1.5}
+
+  /* HERO */
+  .hero{padding:80px 0 72px;text-align:left;position:relative}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .hero h1{font-size:clamp(40px,7vw,76px);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 55%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .subtitle{font-size:19px;color:var(--text2);max-width:680px;line-height:1.65}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;font-size:13px;color:var(--text3)}
+  .hero-meta span{display:inline-flex;align-items:center;gap:6px}
+  .hero-meta span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:.6}
+
+  /* SECTION */
+  section{margin-top:72px}
+  .section-header{margin-bottom:32px}
+  .section-label{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
+  .section-header h2{font-size:34px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
+  .section-header p{color:var(--text2);font-size:15px;max-width:640px}
+
+  /* CARDS */
+  .cards{display:grid;gap:20px}
+  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:28px 30px;transition:all var(--transition);position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity var(--transition)}
+  .card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .card:hover::before{opacity:1}
+  .card-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:14px;margin-bottom:16px;border:1px solid var(--accent)}
+  .card h3{font-size:20px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em}
+  .card p{color:var(--text2);font-size:15px;margin-bottom:14px}
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);border-top:1px dashed var(--border2);padding-top:14px;margin-top:8px;word-break:break-all}
+  .card-source::before{content:"↗";font-size:14px}
+
+  /* TABLE */
+  .metrics-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:16px 22px;border-bottom:1px solid var(--border)}
+  th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--surface2)}
+  td:first-child{color:var(--text)}
+  td:last-child{color:var(--accent2);font-family:"SF Mono",monospace;font-size:14px}
+
+  /* COMPARE */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  .compare-col{border:1px solid var(--border);border-radius:var(--radius);padding:26px;background:var(--surface)}
+  .compare-col.bad{border-color:rgba(248,113,113,.35)}
+  .compare-col.good{border-color:rgba(34,211,238,.4)}
+  .compare-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;padding:5px 12px;border-radius:999px}
+  .compare-col.bad .compare-label{color:var(--error);background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.4)}
+  .compare-col.good .compare-label{color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent)}
+  .compare-col ul{list-style:none}
+  .compare-col li{padding:10px 0;color:var(--text2);font-size:14px;border-bottom:1px dashed var(--border);display:flex;gap:10px;align-items:flex-start}
+  .compare-col li:last-child{border-bottom:none}
+  .compare-col.bad li::before{content:"×";color:var(--error);font-weight:800;flex-shrink:0}
+  .compare-col.good li::before{content:"✓";color:var(--accent);font-weight:800;flex-shrink:0}
+
+  /* GOTCHAS */
+  .gotchas{list-style:none;display:grid;gap:14px}
+  .gotcha{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 22px;display:flex;gap:14px;transition:all var(--transition)}
+  .gotcha:hover{background:var(--surface2);border-left-color:var(--accent2);transform:translateX(4px)}
+  .gotcha-check{flex-shrink:0;width:24px;height:24px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:14px;background:var(--accent-dim)}
+  .gotcha-body{flex:1}
+  .gotcha-body strong{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
+  .gotcha-body span{color:var(--text2);font-size:14px}
+
+  /* CODE BLOCKS */
+  .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-top:16px;overflow-x:auto;position:relative}
+  .code-block::before{content:"DART";position:absolute;top:8px;right:14px;font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700}
+  .code-block pre{font-family:"SF Mono","JetBrains Mono",Menlo,monospace;font-size:13px;line-height:1.6;color:var(--text2);white-space:pre;margin:0}
+  .code-block .kw{color:var(--accent2)}
+  .code-block .cm{color:var(--text3);font-style:italic}
+  .code-block .st{color:#fbbf24}
+
+  /* DECISION GRID */
+  .decision-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  @media(max-width:720px){.decision-grid{grid-template-columns:1fr}}
+  .decision-cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px}
+  .decision-cell h4{font-size:14px;color:var(--accent);margin-bottom:10px;letter-spacing:.04em;text-transform:uppercase}
+  .decision-cell p{color:var(--text2);font-size:14px;line-height:1.6}
+
+  /* PYRAMID */
+  .pyramid{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 0}
+  .pyramid-layer{padding:14px 24px;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-sm);font-size:14px;color:var(--text);text-align:center;position:relative}
+  .pyramid-layer strong{color:var(--accent);display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+  .pyramid-layer.top{width:40%;border-color:rgba(251,191,36,.4)}
+  .pyramid-layer.mid{width:70%;border-color:rgba(34,211,238,.3)}
+  .pyramid-layer.base{width:100%;border-color:rgba(74,222,128,.4)}
+
+  /* SUMMARY */
+  .summary-box{background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:36px 40px;margin-top:24px;position:relative;overflow:hidden}
+  .summary-box::after{content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--accent-dim);filter:blur(40px);pointer-events:none}
+  .summary-box h3{font-size:22px;margin-bottom:14px;letter-spacing:-.01em;position:relative}
+  .summary-box p{color:var(--text2);font-size:15px;line-height:1.7;position:relative}
+
+  /* FOOTER */
+  footer{margin-top:120px;padding-top:40px;border-top:1px solid var(--border);color:var(--text3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  footer a{color:var(--text2)}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+    .card:hover{transform:none}
+    .gotcha:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <div class="badge">Flutter Toolkit v0.1</div>
+    <h1>테스트</h1>
+    <p class="subtitle">
+      Unit / Widget / Integration 3계층 테스트 피라미드. mockito와 mocktail 중 팀 규칙에 맞는 하나를 골라 통일하고, widget test는 <code>testWidgets</code> + <code>WidgetTester</code> + <code>Finder</code>로 구성하며, UI 회귀가 중요한 지점만 golden으로 보호한다.
+    </p>
+    <div class="hero-meta">
+      <span>버전 0.1.0</span>
+      <span>업데이트 2026-04-05</span>
+      <span>카테고리 Quality</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Principles</div>
+      <h2>다섯 가지 핵심 원칙</h2>
+      <p>빠른 unit을 바닥에, 느린 integration을 꼭대기에 — 비용이 낮은 층에서 원인을 국소화한다.</p>
+    </div>
+    <div class="cards">
+
+      <article class="card">
+        <div class="card-num">1</div>
+        <h3>테스트 피라미드 — unit → widget → integration</h3>
+        <p>
+          빠르고 안정적인 unit 테스트가 바닥, 느리고 깨지기 쉬운 integration 테스트가 꼭대기에 있는 피라미드 형태를 유지한다. 느리고 flaky한 검증을 위로 밀어 올리지 말고, 가능한 한 아래 층에서 원인을 국소화한다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/testing/overview" target="_blank" rel="noopener">docs.flutter.dev/testing/overview</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">2</div>
+        <h3>widget test의 기본 단위</h3>
+        <p>
+          <code>testWidgets</code>, <code>WidgetTester</code>, <code>pumpWidget</code>, <code>Finder</code>, <code>Matcher</code>가 widget test의 기본 구성 요소다. <code>pumpWidget</code>으로 트리를 렌더링하고 <code>find.byType</code> / <code>find.text</code> / <code>find.byKey</code>로 대상을 잡은 뒤 <code>expect</code>로 Matcher를 통해 검증한다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/cookbook/testing/widget/introduction" target="_blank" rel="noopener">docs.flutter.dev/cookbook/testing/widget/introduction</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">3</div>
+        <h3>Finder는 명확히, pump는 명시적으로</h3>
+        <p>
+          Finder는 text / type / key 기준으로 모호하지 않게 잡아야 한다. 스크롤, 애니메이션, 비동기 상태 갱신은 <code>pump(Duration)</code> 또는 <code>pumpAndSettle</code>로 명시적으로 프레임을 진행시킨다. 단, <code>pumpAndSettle</code>을 만능 대기 함수처럼 쓰면 무한 애니메이션에서 타임아웃이 난다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/cookbook/testing/widget/finders" target="_blank" rel="noopener">docs.flutter.dev/cookbook/testing/widget/finders</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">4</div>
+        <h3>Golden test는 환경 고정이 전제</h3>
+        <p>
+          Golden(스크린샷) 테스트는 UI 회귀 방지에 강력하지만 theme, font, platform, device pixel ratio에 민감하다. 렌더 환경을 고정(폰트 로더, 테마 강제 지정, 고정 크기)하지 않으면 CI/로컬 간 깨짐이 반복된다. 모든 화면에 일괄 적용하지 말고 회귀 비용이 큰 화면에만 적용한다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/cookbook/testing/widget/introduction" target="_blank" rel="noopener">docs.flutter.dev/cookbook/testing/widget/introduction</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">5</div>
+        <h3>Integration test는 integration_test 패키지</h3>
+        <p>
+          실제 디바이스·에뮬레이터에서 앱 전체 플로우를 검증할 때는 <code>integration_test</code> 패키지를 사용한다. <code>flutter_driver</code>는 더 이상 권장되지 않는다. 사용자 시나리오(로그인 → 목록 → 상세) 같은 end-to-end 검증에 적합하다.
+        </p>
+        <a class="card-source" href="https://docs.flutter.dev/cookbook/testing/integration/introduction" target="_blank" rel="noopener">docs.flutter.dev/cookbook/testing/integration/introduction</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Numbers</div>
+      <h2>수치 · 실행 특성</h2>
+      <p>속도, 의존성 복잡도, mock 라이브러리 최신 버전.</p>
+    </div>
+    <div class="metrics-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Unit / Widget 실행 속도</td>
+            <td>Quick (ms 단위)</td>
+          </tr>
+          <tr>
+            <td>Integration 실행 속도</td>
+            <td>Slow (초~분 단위)</td>
+          </tr>
+          <tr>
+            <td>테스트 의존성 복잡도</td>
+            <td>unit &lt; widget &lt; integration</td>
+          </tr>
+          <tr>
+            <td>mockito 최신 버전</td>
+            <td>5.6.3</td>
+          </tr>
+          <tr>
+            <td>mocktail 최신 버전</td>
+            <td>1.0.4</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Anti-patterns</div>
+      <h2>안티패턴 vs 권장</h2>
+      <p>테스트 flake와 디버깅 비용을 늘리는 관행들.</p>
+    </div>
+    <div class="compare">
+      <div class="compare-col bad">
+        <span class="compare-label">Avoid</span>
+        <ul>
+          <li>Widget test에서 실제 네트워크 호출이나 실제 DB 접근을 수행</li>
+          <li><code>pumpAndSettle</code>을 모든 비동기 대기의 만능 해결책으로 사용</li>
+          <li>Golden test를 모든 화면에 무차별 적용 → 기계적 수락</li>
+          <li>mockito와 mocktail을 팀 규칙 없이 혼용</li>
+          <li>Integration test로 유닛 단위 버그까지 잡으려 시도</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <span class="compare-label">Prefer</span>
+        <ul>
+          <li>외부 의존은 fake/mock으로 격리해 widget test에서 순수 UI만 검증</li>
+          <li>무한 애니메이션이 있으면 <code>pump(Duration)</code>로 명시적 진행</li>
+          <li>회귀 비용이 큰 대표 화면에만 golden 적용</li>
+          <li>하나의 mock 라이브러리를 팀 규칙으로 고정</li>
+          <li>원인 localization은 unit/widget, integration은 시나리오 검증만</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Pyramid</div>
+      <h2>테스트 피라미드 시각화</h2>
+      <p>느린 검증은 꼭대기, 빠른 검증은 바닥 — 비중과 개수도 이 모양을 따른다.</p>
+    </div>
+    <div class="pyramid">
+      <div class="pyramid-layer top">
+        <strong>Integration</strong>
+        실 디바이스 · 시나리오 검증 · 초~분 단위
+      </div>
+      <div class="pyramid-layer mid">
+        <strong>Widget</strong>
+        pumpWidget · Finder · Matcher · ms 단위
+      </div>
+      <div class="pyramid-layer base">
+        <strong>Unit</strong>
+        순수 로직 · fake/mock · ms 단위 · 가장 많음
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Decision</div>
+      <h2>Mockito vs Mocktail</h2>
+      <p>팀 규칙으로 하나를 고정한다.</p>
+    </div>
+    <div class="decision-grid">
+      <div class="decision-cell">
+        <h4>Mockito (5.6.3)</h4>
+        <p>
+          <code>build_runner</code> codegen이 필요하다. 타입 안전성이 명시적이며 컴파일 타임에 mock 시그니처가 검증된다. 이미 codegen 파이프라인이 있는 프로젝트(Freezed, Retrofit 등)에 잘 맞는다.
+        </p>
+      </div>
+      <div class="decision-cell">
+        <h4>Mocktail (1.0.4)</h4>
+        <p>
+          codegen이 없다. null-safety와 상성이 좋고 설치가 가볍다. 타입 검증이 런타임에 일어나는 점은 trade-off. codegen을 피하고 싶거나 작은 프로젝트에 적합하다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Snippet</div>
+      <h2>예시 · widget test 기본 골격</h2>
+      <p><code>pumpWidget</code> → 한 프레임 더 <code>pump()</code> → Finder → expect.</p>
+    </div>
+    <div class="code-block">
+<pre><span class="kw">void</span> main() {
+  testWidgets(<span class="st">'counter increments'</span>, (WidgetTester tester) <span class="kw">async</span> {
+    <span class="cm">// 1. 트리 렌더</span>
+    <span class="kw">await</span> tester.pumpWidget(<span class="kw">const</span> MyApp());
+
+    <span class="cm">// 2. 초기 프레임 한 번 더 (FutureBuilder, 초기 애니메이션 반영)</span>
+    <span class="kw">await</span> tester.pump();
+
+    <span class="cm">// 3. Finder — 명확한 대상 지정</span>
+    expect(find.text(<span class="st">'0'</span>), findsOneWidget);
+
+    <span class="cm">// 4. 상호작용</span>
+    <span class="kw">await</span> tester.tap(find.byKey(<span class="kw">const</span> Key(<span class="st">'inc'</span>)));
+    <span class="kw">await</span> tester.pump(); <span class="cm">// setState 반영</span>
+
+    <span class="cm">// 5. 검증</span>
+    expect(find.text(<span class="st">'1'</span>), findsOneWidget);
+  });
+}
+</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Gotchas</div>
+      <h2>Gotchas 체크리스트</h2>
+      <p>flake의 원인과 CI/로컬 간 깨짐을 일으키는 함정들.</p>
+    </div>
+    <ul class="gotchas">
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>Mockito vs Mocktail 선택</strong>
+          <span>Mockito는 <code>build_runner</code> codegen이 필요하지만 타입 안전성이 명시적이다. Mocktail은 codegen이 없고 null-safety에 더 잘 맞지만, 타입 검증이 런타임에 일어난다. 팀 관습과 codegen 파이프라인 유무로 하나를 선택하고 일관되게 사용한다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>Integration test의 한계</strong>
+          <span>동작은 검증할 수 있지만 실패 원인을 특정 레이어로 좁히기 어렵다. 원인 localization은 unit/widget test에 맡기고, integration은 "사용자 관점 시나리오가 끝까지 통과하는가"만 확인한다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>Golden test의 플랫폼 의존</strong>
+          <span>macOS에서 통과한 golden이 Linux CI에서 깨지는 경우가 흔하다. CI 환경의 폰트·렌더러를 기준으로 golden을 관리하거나, 플랫폼별 golden을 분리한다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>pumpWidget 후 pump() 한 번 더</strong>
+          <span><code>FutureBuilder</code>, <code>StreamBuilder</code>, 초기 animation 프레임은 <code>pumpWidget</code> 직후 한 프레임 더 <code>pump()</code>해야 반영된다. 이 누락이 widget test flake의 흔한 원인이다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>pumpAndSettle 타임아웃</strong>
+          <span>무한 반복 애니메이션이 화면에 있으면 <code>pumpAndSettle</code>은 settle되지 못하고 타임아웃된다. 그 화면에서는 반드시 <code>pump(Duration)</code>으로 정해진 프레임만 진행시킨다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>Finder의 모호성</strong>
+          <span>같은 텍스트·타입이 여러 개 존재하면 <code>find.text</code>가 여러 개를 반환하여 assertion이 실패한다. 중복이 있는 화면에서는 <code>find.byKey</code> 또는 <code>find.descendant</code>로 범위를 좁힌다.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Summary</div>
+      <h2>한 문장 요약</h2>
+    </div>
+    <div class="summary-box">
+      <h3>아래에서 국소화, 위에서 시나리오</h3>
+      <p>
+        Unit/Widget에서 원인을 국소화하고, Integration에서는 사용자 관점 시나리오만 확인한다. mockito/mocktail 중 하나를 팀 규칙으로 고정한다. Golden은 회귀 비용이 큰 화면에만, 환경을 고정해 적용한다. <code>pumpAndSettle</code> 대신 <code>pump(Duration)</code>으로 명시적 프레임을 진행시켜 flake를 줄인다.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div>Flutter Toolkit · 테스트 리서치 문서</div>
+    <div>Source: <a href="../flutter/quality/testing.md">docs/flutter/quality/testing.md</a></div>
+  </footer>
+
+</div>
+</body>
+</html>

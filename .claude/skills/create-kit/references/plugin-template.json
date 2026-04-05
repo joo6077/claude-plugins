@@ -1,0 +1,11 @@
+{
+  "name": "{kit-name}",
+  "description": "{한국어 한 줄 설명 — 스택 무관 {도메인} 플러그인}",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jackson Kim"
+  },
+  "repository": "https://github.com/joo6077/claude-plugins",
+  "license": "MIT",
+  "keywords": ["{kit-name-without-suffix}", "{domain-keyword-1}", "{domain-keyword-2}", "{domain-keyword-3}"]
+}

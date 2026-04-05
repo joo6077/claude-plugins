@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API 레이어 — Flutter Toolkit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;
+  --bg2:#12121c;
+  --surface:#181825;
+  --surface2:#1e1e30;
+  --surface3:#282845;
+  --border:#2a2a40;
+  --border2:#3a3a55;
+  --text:#F5F0E8;
+  --text2:#A89A8F;
+  --text3:#7A6F64;
+  --accent:#22D3EE;
+  --accent2:#67E8F9;
+  --accent-dim:rgba(34,211,238,0.12);
+  --accent-glow:rgba(34,211,238,0.06);
+  --error:#f87171;
+  --success:#4ade80;
+  --warn:#fbbf24;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','JetBrains Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,var(--accent-glow) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(34,211,238,0.03) 0%,transparent 50%);
+  background-attachment:fixed;
+}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+a{color:var(--accent);text-decoration:none;transition:var(--transition)}
+a:hover{color:var(--accent2)}
+
+code{font-family:var(--mono);font-size:0.86em;padding:2px 6px;background:var(--surface2);border-radius:4px;color:var(--accent2)}
+
+.page{max-width:1120px;margin:0 auto;padding:0 24px 96px}
+
+/* HERO */
+.hero{padding:72px 0 56px;text-align:center;position:relative}
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 0%,var(--accent-dim) 0%,transparent 60%);
+  pointer-events:none;
+  z-index:-1;
+}
+.hero-badge{
+  display:inline-block;
+  padding:7px 20px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin-bottom:28px;
+  border:1px solid rgba(34,211,238,0.25);
+}
+h1{
+  font-size:clamp(2.4rem,5vw+1rem,4rem);
+  font-weight:800;
+  line-height:1.08;
+  letter-spacing:-0.035em;
+  margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.subtitle{
+  font-size:1.12rem;
+  color:var(--text2);
+  max-width:680px;
+  margin:0 auto;
+  line-height:1.75;
+}
+
+/* SECTION */
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.section-title{
+  font-size:clamp(1.6rem,2.6vw,2.1rem);
+  font-weight:700;
+  line-height:1.2;
+  margin-bottom:10px;
+  letter-spacing:-0.02em;
+}
+.section-desc{
+  font-size:0.96rem;
+  color:var(--text2);
+  max-width:720px;
+  line-height:1.75;
+  margin-bottom:36px;
+}
+
+/* CARDS */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:860px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.card{
+  background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 28px 22px;
+  transition:var(--transition);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+.card:hover{
+  border-color:rgba(34,211,238,0.35);
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px -12px rgba(34,211,238,0.18);
+}
+.card-index{
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:0.1em;
+  margin-bottom:10px;
+}
+.card-title{
+  font-size:1.08rem;
+  font-weight:700;
+  line-height:1.35;
+  margin-bottom:12px;
+  color:var(--text);
+}
+.card-desc{
+  font-size:0.9rem;
+  color:var(--text2);
+  line-height:1.72;
+  flex-grow:1;
+}
+.card-sources{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:18px;
+}
+.card-source{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--accent);
+  padding:6px 12px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  border:1px solid rgba(34,211,238,0.2);
+  transition:var(--transition);
+}
+.card-source::before{content:"→";font-weight:700}
+.card-source:hover{background:rgba(34,211,238,0.2);color:var(--accent2)}
+
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--surface);
+}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{
+  padding:16px 20px;
+  text-align:left;
+  font-weight:700;
+  font-size:12px;
+  color:var(--text2);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  border-bottom:1px solid var(--border);
+}
+td{
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+  color:var(--text);
+}
+td.mono{font-family:var(--mono);font-size:13px;color:var(--accent2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+
+.anti-table td:first-child{color:var(--error);font-weight:600}
+.anti-table td:last-child{color:var(--text2)}
+
+/* GOTCHAS */
+.gotcha-list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.gotcha{
+  display:flex;
+  gap:18px;
+  padding:20px 24px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--warn);
+  border-radius:var(--radius-sm);
+  transition:var(--transition);
+}
+.gotcha:hover{border-left-color:var(--accent);background:var(--surface2)}
+.gotcha-icon{
+  flex-shrink:0;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:rgba(251,191,36,0.15);
+  color:var(--warn);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:14px;
+}
+.gotcha-body strong{
+  display:block;
+  font-size:0.95rem;
+  color:var(--text);
+  margin-bottom:4px;
+}
+.gotcha-body span{
+  font-size:0.88rem;
+  color:var(--text2);
+  line-height:1.7;
+}
+
+.footer{
+  margin-top:64px;
+  padding-top:32px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  color:var(--text3);
+  font-size:13px;
+}
+.footer a{color:var(--text2)}
+.footer a:hover{color:var(--accent)}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="hero-badge">Flutter Toolkit v0.1</span>
+    <h1>API 레이어</h1>
+    <p class="subtitle">
+      Dio/Retrofit API 클라이언트, 인터셉터, Failure 변환, Freezed 모델, JsonSerializable,
+      응답 매핑까지 네트워크 경계의 모든 관심사를 하나의 레이어 규칙으로 정리한 리서치 문서.
+    </p>
+  </header>
+
+  <!-- 원칙 -->
+  <section class="section">
+    <div class="section-label">Principles</div>
+    <h2 class="section-title">다섯 가지 원칙</h2>
+    <p class="section-desc">
+      Dio·Retrofit·Freezed·JsonSerializable 조합을 실무에 적용할 때 흔들리지 말아야 할 기본 원칙.
+      각 원칙은 pub.dev와 Flutter 공식 문서에서 직접 확인한 근거 출처를 제공한다.
+    </p>
+
+    <div class="grid-2">
+
+      <article class="card">
+        <div class="card-index">PRINCIPLE 01</div>
+        <h3 class="card-title">Dio는 singleton으로 공통 BaseOptions와 함께 초기화</h3>
+        <p class="card-desc">
+          <code>baseUrl</code>, <code>timeout</code>, <code>headers</code>를
+          <code>BaseOptions</code>로 한 번만 설정하고 전체 앱에서 공유한다. 매 호출마다
+          Dio 인스턴스를 새로 만들면 connection pool 이점이 사라지고 interceptor가 중복 설치된다.
+        </p>
+        <div class="card-sources">
+          <a class="card-source" href="https://pub.dev/packages/dio" target="_blank" rel="noopener">dio on pub.dev</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-index">PRINCIPLE 02</div>
+        <h3 class="card-title">공통 처리는 Dio interceptor에서 한 번만</h3>
+        <p class="card-desc">
+          auth 토큰 주입, 로깅, 에러 변환, 재시도 같은 횡단 관심사는 Interceptor에 집중시키고,
+          개별 호출부에서는 반복하지 않는다. Interceptor 순서도 토큰 → 로깅 → 에러 변환 순으로 명시한다.
+        </p>
+        <div class="card-sources">
+          <a class="card-source" href="https://pub.dev/packages/dio" target="_blank" rel="noopener">dio on pub.dev</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-index">PRINCIPLE 03</div>
+        <h3 class="card-title">retrofit 인터페이스 + json_serializable DTO + freezed domain 조합</h3>
+        <p class="card-desc">
+          retrofit으로 API 인터페이스를 선언하고, DTO는 json_serializable로 직렬화하며,
+          도메인 모델은 freezed로 불변·<code>copyWith</code>·union을 얻는다. 세 패키지의 역할이
+          명확히 분리되어야 코드 생성 충돌이 없다.
+        </p>
+        <div class="card-sources">
+          <a class="card-source" href="https://pub.dev/packages/retrofit" target="_blank" rel="noopener">retrofit</a>
+          <a class="card-source" href="https://docs.flutter.dev/data-and-backend/serialization/json" target="_blank" rel="noopener">JSON Serialization</a>
+          <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">freezed</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-index">PRINCIPLE 04</div>
+        <h3 class="card-title">Repository 경계에서 DioException → Failure로 변환</h3>
+        <p class="card-desc">
+          <code>DioException</code>은 transport 레이어 에러다. Repository가 잡아 도메인의
+          Failure 타입으로 변환하여 UI 레이어는 Failure만 다루게 한다. UI가 DioException을
+          직접 알면 네트워크 라이브러리 교체가 불가능해진다.
+        </p>
+        <div class="card-sources">
+          <a class="card-source" href="https://pub.dev/packages/dio" target="_blank" rel="noopener">dio on pub.dev</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-index">PRINCIPLE 05</div>
+        <h3 class="card-title">DTO와 Domain 모델 분리, 매핑은 repository/mapper에서</h3>
+        <p class="card-desc">
+          API 스키마 변경이 UI까지 전파되지 않도록 DTO와 Domain 모델을 분리하고, 변환은 repository
+          또는 전용 mapper에서 수행한다. 두 모델을 같은 클래스로 사용하면 서버 스키마가 UI 계약이 된다.
+        </p>
+        <div class="card-sources">
+          <a class="card-source" href="https://docs.flutter.dev/app-architecture/guide" target="_blank" rel="noopener">Flutter App Architecture Guide</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 수치 기준 -->
+  <section class="section">
+    <div class="section-label">Metrics</div>
+    <h2 class="section-title">수치 기준</h2>
+    <p class="section-desc">
+      타임아웃, 패키지 버전, CancelToken 활용 같은 정량 기준. 업그레이드·디버깅 시 기준값으로 참고한다.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Dio 예시 connectTimeout</td><td class="mono">5s</td></tr>
+          <tr><td>Dio 예시 receiveTimeout</td><td class="mono">3–5s</td></tr>
+          <tr><td>dio 최신 버전</td><td class="mono">5.9.2</td></tr>
+          <tr><td>retrofit 최신 버전</td><td class="mono">4.9.2</td></tr>
+          <tr><td>json_serializable 최신 버전</td><td class="mono">6.13.1</td></tr>
+          <tr><td>freezed 최신 버전</td><td class="mono">3.2.5</td></tr>
+          <tr><td>CancelToken</td><td class="mono">여러 요청 간 공유 가능</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 안티패턴 -->
+  <section class="section">
+    <div class="section-label">Anti-patterns</div>
+    <h2 class="section-title">피해야 할 패턴</h2>
+    <p class="section-desc">
+      API 레이어 경계가 무너졌을 때 나타나는 전형적 증상들. 코드 리뷰에서 발견되면 즉시 리팩토링 대상.
+    </p>
+
+    <div class="table-wrap">
+      <table class="anti-table">
+        <thead>
+          <tr>
+            <th>안티패턴</th>
+            <th>문제</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Notifier/Widget에서 dio.get 직접 호출</td>
+            <td>레이어 경계 붕괴, 테스트 불가, mock dio 주입 불가</td>
+          </tr>
+          <tr>
+            <td>DTO에 비즈니스 로직 포함</td>
+            <td>스키마 변경 시 비즈니스 로직까지 영향, 도메인 불변성 상실</td>
+          </tr>
+          <tr>
+            <td>모든 에러를 단일 Exception으로 뭉갬</td>
+            <td>네트워크/파싱/서버 에러 구분 불가, UX 분기 구현 막힘</td>
+          </tr>
+          <tr>
+            <td>Map&lt;String, dynamic&gt;를 UI까지 전파</td>
+            <td>타입 안전성 상실, 런타임 KeyNotFound 에러 빈발</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Gotchas -->
+  <section class="section">
+    <div class="section-label">Gotchas</div>
+    <h2 class="section-title">실무 주의사항</h2>
+    <p class="section-desc">
+      retrofit·json_serializable을 도입할 때 프로젝트 초기에 반드시 합의해야 할 두 가지.
+    </p>
+
+    <div class="gotcha-list">
+      <div class="gotcha">
+        <div class="gotcha-icon">!</div>
+        <div class="gotcha-body">
+          <strong>retrofit Parser.FlutterCompute는 Map-heavy 응답에 역효과</strong>
+          <span>isolate 전송 비용이 파싱 비용보다 클 수 있다. 큰 배열이나 깊은 객체에만 선택적으로 적용하고, 작은 응답에는 메인 isolate 파싱이 더 빠르다. 벤치마크로 검증 후 결정한다.</span>
+        </div>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-icon">!</div>
+        <div class="gotcha-body">
+          <strong>json_serializable 옵션은 초기 합의 필수</strong>
+          <span><code>explicitToJson</code>, <code>fieldRename</code>, <code>genericArgumentFactories</code>는 프로젝트 시작 시 통일해야 한다. 후행 변경은 전수 리제너레이션을 유발하고 diff가 거대해진다.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Flutter Toolkit · API Layer research · <a href="./index.html">← docs index</a></p>
+  </footer>
+
+</main>
+</body>
+</html>

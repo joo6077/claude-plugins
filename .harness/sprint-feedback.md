@@ -1,62 +1,66 @@
 ---
-feature: "Phase 4 — 기존 20페이지 Claude 컬러 마이그레이션 + 전체 28페이지 디자인 QA"
-created: "2026-03-31"
+feature: "create-kit 스킬 재평가 (iteration 3)"
+evaluated: "2026-04-04 00:00"
 verdict: APPROVE
-iteration: 10
+iteration: 3
 ---
 
 # Sprint Feedback
-Feature: Phase 4 — 기존 20페이지 Claude 컬러 마이그레이션 + 전체 28페이지 디자인 QA
-Evaluated: 2026-03-31 (Iteration 10)
+Feature: create-kit 스킬 재평가
+Evaluated: 2026-04-04
 Verdict: APPROVE
+Iteration: 3
 
 ## Results
 
-### Architecture (4/4)
-- [x] AR-01: docs/design-kit/ 19페이지 + docs/process/ 1페이지 + harness 6페이지 + flutter 2페이지 모두 공통 토큰 사용 — PASS
-  - 근거: `--bg:#0d0d14` 28건, `--surface:#181825` 28건, `--text:#F5F0E8` 28건 (index.html 제외) — L3
-- [x] AR-02: docs/design-kit/ 19페이지 --accent:#E8965A — PASS
-  - 근거: 19개 파일 전체 `--accent:#E8965A` 확인 — L3
-- [x] AR-03: docs/process/kaizen-flow.html --accent:#4ADE80 — PASS
-  - 근거: `docs/process/kaizen-flow.html:1` `--accent:#4ADE80` — L3
-- [x] AR-04: 구 토큰(--bg:#0a0a0f, --surface:#151621, --border:#252840) CSS 변수 정의 0건 — PASS
-  - 근거: `--bg:#0a0a0f`, `--surface:#151621`, `--border:#252840` 패턴 grep 결과 0건 — L3
-  - 비고: `#0a0a0f` hex 값이 data-display.html:107, forms.html:97/105/120에 하드코딩 사용되나, 이는 AR-04(구 토큰 CSS 변수 정의 잔존)가 아닌 SK-03(하드코딩 hex) 범주이며 "본문/제목" 해당 없음
+### 기준 1: 아키타입 준수 (PASS)
+- [x] 코드 스캐폴딩(유형 5) 아키타입에 명확히 속한다 — PASS
+  - 근거: SKILL.md Phase 0-7이 스캐폴딩 자동화 파이프라인에 집중. 폴더 설계(references/ 5개 파일), 점진적 공개, 검증 체크리스트 포함 (L3)
 
-### Skill (4/4)
-- [x] SK-01: 전체 28페이지 line-height 1.2~1.7 범위 — PASS
-  - 근거: line-height 분포: 1.7(144건), 1.6(75건), 1.5(23건), 1.2(22건), 1.4(8건), 1.3(4건). 범위 외인 1.15는 h1 셀렉터에만 적용 (계약 허용, display heading 예외). px 단위(24px/32px/20px)는 grid-alignment.html 베이스라인 시각화 데모로 비율 환산 시 1.33~1.6 범위 내 — L3
-- [x] SK-02: 전체 28페이지 본문 font-size 최소 13px — PASS
-  - 근거: `.desc` 클래스 `clamp(13px,1.1vw,15px)` 전 페이지 적용. 12px 미만은 캡션/뱃지/코드/레이블 UI 보조 요소로 "본문" 해당 없음 — L3
-- [x] SK-03: 시맨틱 CSS 변수 사용, 본문/제목 하드코딩 hex 미사용 — PASS
-  - 근거: h1~h6, p, .desc 등 본문/제목 셀렉터에 하드코딩 hex color 없음. 하드코딩 hex는 버튼(.btn-primary, .empty-cta), 체크박스(SVG stroke), 데모 요소에만 존재 — L3
-- [x] SK-04: 연속 3회 이상 동일 레이아웃 구조 반복 없음 — PASS
-  - 근거: 샘플 5개 파일(accessibility, color-palette, forms, typography-scale, qa-evaluation) grep 결과, grid-2/grid-3 연속 3회 사용 패턴 없음. 동일 그리드가 여러 번 등장하나 모두 별개 section 내에 분산 — L3
+### 기준 2: frontmatter 품질 (PASS)
+- [x] 트리거/비트리거 명시, argument-hint, user-invocable 포함 — PASS
+  - 근거: SKILL.md:6-11. 트리거 6개 키워드, 비트리거("기존 킷 수정, 단일 스킬 추가"), argument-hint: `<kit-name> <domain-description>`, user-invocable: true (L2)
 
-### Error (1/1)
-- [x] ER-01: CSS 구문 오류 없음 — PASS
-  - 근거: 28개 HTML 파일 전체 중괄호 open/close 균형 확인, 불일치 0건 — L3
+### 기준 3: Gotchas 품질 (PASS)
+- [x] 6개 Gotchas 모두 실제 실패 근거 기반 — PASS
+  - 근거: SKILL.md:16-21. design-kit 사례, 3스킬 패턴 위반 결과, Codex 출처 누락 패턴, 카이젠 노출 위험, css-tokens.md 충돌, 병렬화 3-4배 수치 — 모두 레포 특화 지식 (L3)
+
+### 기준 4: Process 완전성 (PASS)
+- [x] 이전 FAIL 원인(overview.html 모순) 해소됨 — PASS
+  - 근거: SKILL.md:201 "여러 문서를 overview로 묶지 마라" vs SKILL.md:218 수정 후 "docs/{kit-name}/ HTML 페이지 N개 존재 (리서치 문서 수와 동일) + index.html에 전체 등록" — 1:1 매핑 원칙과 완전히 일치. overview.html 항목 제거로 모순 해소 (L3)
+  - 추가 검증: Phase 1.2의 P1(8개)+P2(4개)=12개와 체크리스트 SKILL.md:209 "12개 이상" 일관성 확인. PASS
+
+### 기준 5: References 연결 (PASS)
+- [x] 5개 참조 파일 모두 실재하고 내용이 유효하다 — PASS
+  - 근거: doc-template.md, skill-patterns.md, kaizen-template.md, plugin-template.json, readme-template.md 모두 존재. 각 Phase 호출 지점과 파일 내용이 일치 (L3)
+
+### 기준 6: 설계 원칙 준수 (PASS)
+- [x] skill-design-guide 핵심 원칙 반영 — PASS
+  - 근거: 폴더 설계(SKILL.md + references/ 5개), 점진적 공개(Phase별 참조), 트리거 조건 명시, Gotchas 포함, 검증 기준 제공 (L3)
+
+### 기준 7: 기존 스킬과의 관계 (PASS)
+- [x] create-skill/create-agent 충돌 없음, kaizen 경계 명확 — PASS
+  - 근거: create-skill, create-agent 스킬 미존재 확인(Glob). SKILL.md:9 비트리거 조건, Gotchas 4번 카이젠 분리 명시 (L2)
+
+### 기준 8: 실용성 (PASS)
+- [x] design-kit/backend-kit/infra-kit 수준 생성 가능 — PASS
+  - 근거: backend-kit(12개 리서치 문서 + 3스킬 + 1에이전트 + 4 HTML), infra-kit 동일 구조 실재 확인. create-kit이 각 Phase별 참조 파일 + 패턴을 완비. 수정으로 체크리스트 내부 일관성 추가 확보 (L3)
 
 ### Anti-patterns (2/2)
-- [x] AP-01: 하드코딩된 버전 없음 — PASS
-  - 근거: `hardcoded.*version` 패턴 grep 0건 — L3
-- [x] AP-02: force push 금지 — PASS
-  - 근거: `git push.*--force` 패턴 grep 0건 — L3
+- [x] AP-01: hardcoded version 패턴 0건 — PASS
+- [x] AP-02: force push 패턴 0건 — PASS
 
 ### Reusability (2/2)
-- [x] RE-01: 공유 가능 컴포넌트 private 처리 없음 — PASS
-  - 근거: scripts/ 디렉토리 공개 접근 가능, HTML 파일들 docs/ 아래 공개 위치 — L2
-- [x] RE-02: 기존 동일/유사 컴포넌트 재사용 — PASS
-  - 근거: 새로 추가된 중복 컴포넌트 없음, 기존 scripts/ 구조 유지 — L2
+- [x] RE-01: 공유 가능 컴포넌트를 private으로 만들지 않음 — PASS (스킬 파일 구조상 해당 없음)
+- [x] RE-02: 유사 컴포넌트 중복 생성 없음 — PASS (kaizen-template.md가 기존 design/backend/infra kaizen 패턴 재사용)
 
-### Diagnostics (4/4)
-- [x] DG-01: bash -n scripts/release.sh 워닝 0개 — PASS
-  - 근거: `bash -n scripts/release.sh` exit code 0, 출력 없음 — L3
-- [x] DG-02: 정적 HTML 사이트이므로 미적용 (N/A) — PASS (N/A)
-- [x] DG-03: 정적 HTML 사이트이므로 미적용 (N/A) — PASS (N/A)
-- [x] DG-04: 정적 HTML 사이트이므로 미적용 (N/A) — PASS (N/A)
+### Diagnostics (1/2)
+- [x] DG-01: bash -n scripts/release.sh 워닝 0개 — PASS (L1)
+- [x] DG-02: 런타임 검증 미수행 — [미검증] (MCP 서버 미설정)
+
+⚠️ 런타임 검증 미수행 — MCP 서버 미설정
 
 ## Summary
-- Total: 13/13 conditions passed (+ DG-02/03/04 N/A)
+- Total: 8/8 기준 PASS
 - Verdict: APPROVE
-- Runtime verification: 미수행 — MCP 서버 미설정 (project.yaml mcp_server: null)
+- 이전 REJECT 사유(기준 4, SKILL.md:218 overview.html 모순) 1줄 수정으로 완전히 해소됨

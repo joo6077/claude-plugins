@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>에러 처리 — Backend Kit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#A78BFA;
+    --accent2:#C4B5FD;
+    --accent-dim:rgba(167,139,250,0.12);
+    --accent-glow:rgba(167,139,250,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(ellipse at top left,var(--accent-glow),transparent 55%),
+      radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 55%),
+      var(--bg);
+    min-height:100vh;
+  }
+  a{color:var(--accent2);text-decoration:none;transition:color var(--transition)}
+  a:hover{color:var(--accent)}
+  code{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:0.9em;background:var(--surface2);padding:0.15em 0.4em;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;overflow-x:auto;margin:0.75rem 0;font-size:0.85rem}
+  pre code{background:transparent;border:none;padding:0;color:var(--text)}
+
+  .container{max-width:1100px;margin:0 auto;padding:3rem 1.5rem 6rem}
+
+  .hero{padding:3rem 0 4rem;border-bottom:1px solid var(--border);margin-bottom:3rem}
+  .badge{
+    display:inline-block;
+    padding:0.4rem 0.9rem;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    color:var(--accent2);
+    font-size:0.78rem;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    border-radius:999px;
+    margin-bottom:1.5rem;
+  }
+  .hero h1{
+    font-size:clamp(2.2rem,5vw,3.4rem);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    line-height:1.15;
+    background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 60%,var(--accent) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin-bottom:1rem;
+  }
+  .hero .subtitle{font-size:1.1rem;color:var(--text2);max-width:720px}
+  .hero-meta{
+    margin-top:1.5rem;
+    display:flex;
+    gap:1rem;
+    flex-wrap:wrap;
+    font-size:0.85rem;
+    color:var(--text3);
+  }
+  .hero-meta span{
+    padding:0.3rem 0.7rem;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+  }
+
+  section{margin-bottom:4rem}
+  h2{
+    font-size:1.7rem;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin-bottom:1.5rem;
+    display:flex;
+    align-items:center;
+    gap:0.75rem;
+  }
+  h2::before{
+    content:"";
+    display:inline-block;
+    width:4px;
+    height:1.4rem;
+    background:linear-gradient(180deg,var(--accent),var(--accent2));
+    border-radius:2px;
+  }
+  h3{
+    font-size:1.15rem;
+    font-weight:700;
+    margin-bottom:0.75rem;
+    color:var(--text);
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(380px,1fr));
+    gap:1.25rem;
+  }
+
+  .card{
+    background:linear-gradient(180deg,var(--surface),var(--surface2));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.5rem 1.5rem 1.25rem;
+    position:relative;
+    transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);
+    display:flex;
+    flex-direction:column;
+  }
+  .card:hover{
+    transform:translateY(-2px);
+    border-color:var(--border2);
+    box-shadow:0 10px 30px rgba(0,0,0,0.35),0 0 0 1px var(--accent-dim);
+  }
+  .card-num{
+    position:absolute;
+    top:1rem;
+    right:1.25rem;
+    font-size:2.4rem;
+    font-weight:800;
+    color:var(--surface3);
+    line-height:1;
+  }
+  .card h3{padding-right:2.5rem}
+  .card p{color:var(--text2);font-size:0.95rem;margin-bottom:0.75rem}
+  .card p strong{color:var(--text)}
+  .card ul{list-style:none;margin:0.25rem 0 0.75rem}
+  .card ul li{
+    color:var(--text2);
+    font-size:0.9rem;
+    padding:0.3rem 0 0.3rem 1.1rem;
+    position:relative;
+  }
+  .card ul li::before{
+    content:"▸";
+    position:absolute;
+    left:0;
+    color:var(--accent);
+  }
+  .card .mini-table{
+    font-size:0.82rem;
+    margin:0.5rem 0 0.75rem;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    overflow:hidden;
+  }
+  .card .mini-table table{width:100%;border-collapse:collapse}
+  .card .mini-table th,.card .mini-table td{
+    padding:0.45rem 0.6rem;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    font-size:0.8rem;
+  }
+  .card .mini-table th{color:var(--accent2);background:var(--surface3);text-transform:uppercase;letter-spacing:0.04em;font-size:0.7rem}
+  .card .mini-table tr:last-child td{border-bottom:none}
+  .card-source{
+    display:inline-block;
+    margin-top:auto;
+    padding-top:0.75rem;
+    font-size:0.8rem;
+    color:var(--text3);
+    border-top:1px dashed var(--border);
+    word-break:break-all;
+  }
+  .card-source::before{
+    content:"출처 ";
+    color:var(--accent);
+    font-weight:600;
+  }
+
+  .table-wrap{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  table{width:100%;border-collapse:collapse;font-size:0.92rem}
+  thead{background:var(--surface3)}
+  th,td{
+    text-align:left;
+    padding:0.85rem 1rem;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+  }
+  th{font-weight:700;color:var(--accent2);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--surface2)}
+  td code{font-size:0.85em}
+
+  .anti-grid{display:grid;gap:1rem}
+  .anti-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--error);
+    border-radius:var(--radius-sm);
+    padding:1.1rem 1.3rem;
+  }
+  .anti-card h4{font-size:1rem;color:var(--error);margin-bottom:0.4rem;font-weight:700}
+  .anti-card h4::before{content:"✗ ";font-weight:800}
+  .anti-card p{color:var(--text2);font-size:0.92rem}
+  .anti-card.good{border-left-color:var(--success)}
+  .anti-card.good h4{color:var(--success)}
+  .anti-card.good h4::before{content:"✓ "}
+
+  .gotchas{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.5rem;
+  }
+  .gotcha{
+    display:flex;
+    gap:0.9rem;
+    padding:1rem 0;
+    border-bottom:1px dashed var(--border);
+  }
+  .gotcha:last-child{border-bottom:none;padding-bottom:0}
+  .gotcha:first-child{padding-top:0}
+  .gotcha-check{
+    flex-shrink:0;
+    width:22px;
+    height:22px;
+    border:2px solid var(--accent);
+    border-radius:6px;
+    background:var(--accent-dim);
+    position:relative;
+    margin-top:2px;
+  }
+  .gotcha-check::after{
+    content:"";
+    position:absolute;
+    left:5px;
+    top:1px;
+    width:6px;
+    height:11px;
+    border:solid var(--accent);
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .gotcha-body{flex:1}
+  .gotcha-body strong{color:var(--text);display:block;margin-bottom:0.25rem;font-size:0.97rem}
+  .gotcha-body span{color:var(--text2);font-size:0.9rem}
+
+  footer{
+    margin-top:5rem;
+    padding-top:2rem;
+    border-top:1px solid var(--border);
+    color:var(--text3);
+    font-size:0.82rem;
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .container{padding:2rem 1rem 4rem}
+    .grid-2{grid-template-columns:1fr}
+    th,td{padding:0.7rem 0.6rem;font-size:0.85rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important}
+    .card:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Backend Kit v0.1</span>
+    <h1>에러 처리 — Result · Retry · Circuit Breaker</h1>
+    <p class="subtitle">
+      Result/Either 패턴, 글로벌 에러 핸들러, 에러 분류 체계, exponential backoff + jitter 재시도,
+      circuit breaker, graceful degradation, 구조화 로깅을 다룬다.
+    </p>
+    <div class="hero-meta">
+      <span>version 0.1.0</span>
+      <span>updated 2026-04-04</span>
+      <span>source: docs/backend/fundamentals/error-handling.md</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>원칙</h2>
+    <div class="grid-2">
+
+      <article class="card">
+        <div class="card-num">01</div>
+        <h3>복구 가능 / 불가능 에러를 구분한다</h3>
+        <ul>
+          <li><strong>복구 가능</strong>: 네트워크 타임아웃, 일시적 DB 장애, 잘못된 사용자 입력 — 재시도 또는 안내</li>
+          <li><strong>복구 불가능</strong>: 메모리 부족, 설정 누락, 스키마 불일치 — 프로세스 종료 + 운영팀 알림</li>
+        </ul>
+        <p>
+          복구 가능 에러에 <code>panic</code>/<code>process.exit</code>을 쓰면 서비스 가용성이 떨어지고,
+          복구 불가능 에러를 삼키면(catch-all 무시) 데이터 손상으로 이어진다.
+        </p>
+        <a class="card-source" href="https://doc.rust-lang.org/book/ch09-00-error-handling.html" target="_blank" rel="noopener">The Rust Programming Language — Error Handling</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">02</div>
+        <h3>Result/Either로 에러를 값으로 다룬다</h3>
+        <p>
+          예외(exception)는 제어 흐름을 비선형으로 만들고, 함수 시그니처에서 어떤 예외가 발생하는지 알 수 없다.
+          Result/Either 패턴은 성공과 실패를 하나의 타입으로 표현하여 컴파일러가 에러 처리를 강제한다.
+        </p>
+<pre><code>Result&lt;User, DbError&gt;     -- Rust
+Either&lt;Failure, User&gt;    -- Dart/fp
+Result&lt;User, AppError&gt;   -- Kotlin</code></pre>
+        <ul>
+          <li>함수 경계에서 에러를 변환한다 (SqlException → UserNotFound)</li>
+          <li><code>unwrap()</code>/<code>get()</code>은 테스트 코드에서만 사용</li>
+          <li>예외는 진짜 예외적 상황(프로그래머 실수, 불변 조건 위반)에만 사용</li>
+        </ul>
+        <a class="card-source" href="https://doc.rust-lang.org/std/result/" target="_blank" rel="noopener">Rust std::result</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">03</div>
+        <h3>글로벌 에러 핸들러로 일관된 응답을 보장한다</h3>
+        <p>
+          개별 엔드포인트에서 에러 포맷을 만들지 않는다. 프레임워크의 에러 핸들러 미들웨어에서
+          모든 에러를 RFC 9457 <code>application/problem+json</code>으로 변환한다.
+        </p>
+<pre><code>[Controller] --throws DomainError-->
+  [Global Error Handler] --returns-->
+    problem+json</code></pre>
+        <ul>
+          <li>도메인 에러 → 적절한 HTTP 상태 코드 매핑</li>
+          <li>예상치 못한 에러 → 500 + 내부 상세는 로그에만 (스택트레이스 노출 금지)</li>
+          <li>상관 ID(correlation ID)를 응답과 로그에 포함</li>
+        </ul>
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9457" target="_blank" rel="noopener">RFC 9457 — Problem Details for HTTP APIs</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">04</div>
+        <h3>Retry는 exponential backoff + jitter</h3>
+        <p>
+          일시적 장애(네트워크 불안정, 429)에 대해 재시도한다. 고정 간격 재시도는 장애 서버에 동시 요청 폭주(thundering herd)를 유발한다.
+        </p>
+<pre><code>sleep = min(base * 2^attempt + random_jitter, max_interval)</code></pre>
+        <div class="mini-table">
+          <table>
+            <thead><tr><th>파라미터</th><th>권장값</th></tr></thead>
+            <tbody>
+              <tr><td>base interval</td><td>1초</td></tr>
+              <tr><td>max attempts</td><td>5회</td></tr>
+              <tr><td>max interval</td><td>32초</td></tr>
+              <tr><td>jitter</td><td><code>[0, base * 2^attempt)</code> 균등 분포</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          재시도 대상: 5xx, 429, 네트워크 에러, DNS 실패.
+          재시도 금지: 4xx(400/401/403/404), 비멱등 POST(멱등 키 없이 재시도 금지).
+        </p>
+        <a class="card-source" href="https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/" target="_blank" rel="noopener">AWS — Exponential Backoff and Jitter</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">05</div>
+        <h3>Circuit breaker로 cascading failure 방지</h3>
+        <p>외부 서비스 호출 실패가 반복되면 요청을 차단하여 자기 서비스와 의존 서비스를 보호한다.</p>
+<pre><code>[Closed] --failure >= threshold--> [Open]
+  ^                                    |
+  |                                 timeout
+  |                                    v
+  |_______ success count OK _____ [Half-Open]</code></pre>
+        <div class="mini-table">
+          <table>
+            <thead><tr><th>상태</th><th>동작</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Closed</strong></td><td>정상. 모든 요청 통과 + 실패율 모니터링</td></tr>
+              <tr><td><strong>Open</strong></td><td>차단. 즉시 fallback. timeout 후 Half-Open</td></tr>
+              <tr><td><strong>Half-Open</strong></td><td>제한 요청(3~5개) 통과. 성공→Closed, 실패→Open</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>권장 설정: failure rate threshold 50%, sliding window 10초, Half-Open 시도 3~5회.</p>
+        <a class="card-source" href="https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker" target="_blank" rel="noopener">Microsoft — Circuit Breaker Pattern</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">06</div>
+        <h3>Graceful degradation: 핵심 유지, 부가 기능 fallback</h3>
+        <p>
+          추천 서비스가 죽어도 상품 목록은 보여야 한다. 알림이 느려도 주문은 완료되어야 한다.
+          Bulkhead 패턴으로 서비스 간 장애를 격리한다.
+        </p>
+        <ul>
+          <li><strong>Bulkhead</strong>: 서비스별 스레드 풀/커넥션 풀 분리</li>
+          <li><strong>Timeout</strong>: 모든 외부 호출에 timeout 설정 — 무한 대기는 리소스 고갈의 시작</li>
+          <li><strong>Fallback</strong>: 캐시된 결과, 기본값, 기능 비활성화 + 안내</li>
+        </ul>
+        <a class="card-source" href="https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead" target="_blank" rel="noopener">Microsoft — Bulkhead Pattern</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">07</div>
+        <h3>에러 로그는 구조화(JSON) + 상관 ID</h3>
+        <p>
+          텍스트 로그는 grep으로 분석이 어렵다. JSON 구조화 로그로 작성하고,
+          모든 요청에 상관 ID를 부여하여 분산 시스템에서 요청 흐름을 추적한다.
+        </p>
+<pre><code>{
+  "timestamp": "2026-04-04T10:30:00Z",
+  "level": "ERROR",
+  "correlation_id": "req-abc-123",
+  "service": "order-service",
+  "error_type": "PaymentGatewayTimeout",
+  "message": "Payment gateway 5200ms (timeout: 5000ms)",
+  "attempt": 3,
+  "user_id": "usr-456"
+}</code></pre>
+        <p>로그에 포함 금지: 비밀번호, 카드번호, 주민번호 등 PII. 마스킹(<code>****</code>)하거나 로그 레벨로 분리.</p>
+        <a class="card-source" href="https://www.elastic.co/guide/en/ecs/current/" target="_blank" rel="noopener">Elastic Common Schema</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>수치 기준</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>Retry base interval</td><td>1초</td></tr>
+          <tr><td>Retry max attempts</td><td>5회</td></tr>
+          <tr><td>Retry max interval</td><td>32초</td></tr>
+          <tr><td>Circuit breaker failure rate threshold</td><td>50%</td></tr>
+          <tr><td>Circuit breaker sliding window</td><td>10초</td></tr>
+          <tr><td>Half-Open 시도 횟수</td><td>3 ~ 5회</td></tr>
+          <tr><td>외부 호출 timeout 기본값</td><td>5초 (서비스 특성에 따라 조정)</td></tr>
+          <tr><td>Bulkhead 스레드 풀 크기</td><td>서비스별 10 ~ 20 (부하 테스트로 조정)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>안티패턴</h2>
+    <div class="anti-grid">
+
+      <div class="anti-card">
+        <h4>모든 에러 500 반환</h4>
+        <p>클라이언트가 복구 가능 에러와 서버 에러를 구분할 수 없다.</p>
+      </div>
+      <div class="anti-card good">
+        <h4>에러 분류 → 적절한 상태 코드</h4>
+        <p>4xx(클라이언트 에러)와 5xx(서버 에러)를 분리하고, RFC 9457 problem+json으로 세부 코드 전달.</p>
+      </div>
+
+      <div class="anti-card">
+        <h4>catch-all 무시 (<code>catch(e) {}</code>)</h4>
+        <p>에러가 사라져서 디버깅 불가. 데이터 불일치 원인이 된다.</p>
+      </div>
+      <div class="anti-card good">
+        <h4>로그 + 재발생 or 변환</h4>
+        <p>최소한 구조화 로그에 기록하고, 상위 계층으로 도메인 에러로 변환해 전달한다.</p>
+      </div>
+
+      <div class="anti-card">
+        <h4>Retry 무한 루프</h4>
+        <p>max attempts 없이 재시도하면 장애 서비스에 부하를 가중시킨다.</p>
+      </div>
+      <div class="anti-card good">
+        <h4>max attempts + backoff + jitter</h4>
+        <p>재시도 횟수 상한과 확률적 분산으로 thundering herd를 방지한다.</p>
+      </div>
+
+      <div class="anti-card">
+        <h4>Circuit breaker 없는 외부 호출</h4>
+        <p>외부 서비스 장애가 자기 서비스로 전파된다(cascading failure).</p>
+      </div>
+      <div class="anti-card good">
+        <h4>모든 외부 호출에 breaker 래핑</h4>
+        <p>Open 상태에서는 즉시 fallback, 요청 쓰레드가 쌓이지 않도록 한다.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Gotchas</h2>
+    <div class="gotchas">
+
+      <div class="gotcha">
+        <div class="gotcha-check"></div>
+        <div class="gotcha-body">
+          <strong>Jitter 없는 backoff는 thundering herd를 유발한다</strong>
+          <span>100개 클라이언트가 동시에 실패하면, exponential backoff만으로는 모두 같은 시간에 재시도한다(1s, 2s, 4s, 8s...). jitter를 추가해야 재시도 시점이 분산된다.</span>
+        </div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check"></div>
+        <div class="gotcha-body">
+          <strong>Circuit breaker 상태를 인스턴스별로 관리하면 불일치 발생</strong>
+          <span>인스턴스 A는 Open인데 B는 Closed일 수 있다. 이것이 문제인지 기능인지는 아키텍처에 따라 다르다. 엄격한 일관성이 필요하면 중앙 저장소(Redis)에 상태를 공유한다.</span>
+        </div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check"></div>
+        <div class="gotcha-body">
+          <strong>에러 로그에 PII를 포함하면 규정 위반</strong>
+          <span>GDPR, 개인정보보호법에 의해 로그에 개인 식별 정보가 포함되면 보존 정책, 접근 통제, 삭제 요청 처리 의무가 발생한다. 로그에는 사용자 ID(내부 식별자)만 포함하고, 이름/이메일/전화번호는 마스킹하거나 제외한다.</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    Backend Kit · docs/backend/fundamentals/error-handling.md · 2026-04-04
+  </footer>
+
+</div>
+</body>
+</html>

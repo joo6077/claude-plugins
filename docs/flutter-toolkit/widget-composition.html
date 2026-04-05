@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>위젯 컴포지션 — Flutter Toolkit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);--accent-glow:rgba(34,211,238,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  background-image:
+    radial-gradient(ellipse 1200px 800px at 50% -200px,var(--accent-glow),transparent 60%),
+    radial-gradient(ellipse 800px 600px at 100% 100%,rgba(34,211,238,0.03),transparent 70%);
+  background-attachment:fixed;min-height:100vh;
+}
+.container{max-width:1180px;margin:0 auto;padding:0 32px}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:rgba(13,13,20,0.78);border-bottom:1px solid var(--border);padding:16px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;letter-spacing:.3px;color:var(--text)}
+.nav-brand-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
+.nav-links{display:flex;gap:6px;flex-wrap:wrap}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;padding:8px 14px;border-radius:var(--radius-sm);transition:var(--transition)}
+.nav-links a:hover{color:var(--accent);background:var(--accent-dim)}
+
+/* Hero */
+.hero{padding:110px 0 80px;text-align:center;position:relative}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;
+  background:var(--accent-dim);border:1px solid rgba(34,211,238,0.3);color:var(--accent2);
+  font-size:12px;font-weight:500;letter-spacing:.6px;margin-bottom:28px;text-transform:uppercase}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+h1{font-size:clamp(38px,6vw,72px);font-weight:700;letter-spacing:-1.5px;line-height:1.05;
+  background:linear-gradient(135deg,#F5F0E8 0%,#A89A8F 50%,#22D3EE 120%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:22px}
+.subtitle{font-size:clamp(16px,2vw,20px);color:var(--text2);max-width:740px;margin:0 auto;font-weight:400}
+.hero-meta{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:36px;color:var(--text3);font-size:13px}
+.hero-meta span{display:flex;align-items:center;gap:6px}
+.hero-meta span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent)}
+
+/* Section */
+section{padding:72px 0;border-top:1px solid var(--border)}
+.section-head{margin-bottom:48px;max-width:780px}
+.section-eyebrow{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+h2{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-.8px;line-height:1.15;margin-bottom:16px}
+.section-desc{font-size:16px;color:var(--text2);line-height:1.7}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:30px;transition:var(--transition);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:var(--transition)}
+.card:hover{transform:translateY(-3px);border-color:var(--border2);background:var(--surface2)}
+.card:hover::before{opacity:1}
+.card-num{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
+  background:var(--accent-dim);color:var(--accent);border-radius:10px;font-weight:700;font-size:14px;margin-bottom:18px;
+  border:1px solid rgba(34,211,238,0.25)}
+.card h3{font-size:19px;font-weight:650;margin-bottom:12px;line-height:1.35;letter-spacing:-.3px}
+.card p{color:var(--text2);font-size:14.5px;line-height:1.65}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:18px;color:var(--accent);
+  text-decoration:none;font-size:12.5px;font-weight:500;padding:6px 12px;border-radius:var(--radius-sm);
+  background:var(--accent-dim);border:1px solid rgba(34,211,238,0.2);transition:var(--transition)}
+.card-source:hover{background:rgba(34,211,238,0.2);transform:translateX(2px)}
+.card-source::after{content:"→";transition:var(--transition)}
+.card-source:hover::after{transform:translateX(2px)}
+
+/* Table */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--surface2)}
+th{text-align:left;padding:18px 24px;font-size:12px;font-weight:600;text-transform:uppercase;
+  letter-spacing:1px;color:var(--accent);border-bottom:1px solid var(--border2)}
+td{padding:20px 24px;border-bottom:1px solid var(--border);font-size:14.5px;color:var(--text2);vertical-align:top}
+td:first-child{color:var(--text);font-weight:550;font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;font-size:13.5px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(34,211,238,0.03)}
+
+/* Compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:820px){.compare{grid-template-columns:1fr}}
+.compare-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;position:relative}
+.compare-col.bad{border-color:rgba(248,113,113,0.28)}
+.compare-col.good{border-color:rgba(74,222,128,0.28)}
+.compare-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;padding:5px 11px;border-radius:999px}
+.compare-col.bad .compare-label{background:rgba(248,113,113,0.1);color:var(--error);border:1px solid rgba(248,113,113,0.3)}
+.compare-col.good .compare-label{background:rgba(74,222,128,0.1);color:var(--success);border:1px solid rgba(74,222,128,0.3)}
+.compare-col ul{list-style:none}
+.compare-col li{padding:13px 0;padding-left:26px;position:relative;color:var(--text2);font-size:14.5px;
+  border-bottom:1px dashed var(--border);line-height:1.6}
+.compare-col li:last-child{border-bottom:none}
+.compare-col.bad li::before{content:"✕";position:absolute;left:0;top:13px;color:var(--error);font-weight:700}
+.compare-col.good li::before{content:"✓";position:absolute;left:0;top:13px;color:var(--success);font-weight:700}
+
+/* Checklist */
+.checklist{display:grid;gap:14px}
+.check-item{display:flex;gap:18px;padding:22px 26px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
+.check-item:hover{border-color:var(--border2);background:var(--surface2);transform:translateX(3px)}
+.check-box{flex-shrink:0;width:26px;height:26px;border-radius:8px;background:var(--accent-dim);
+  border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  color:var(--accent);font-weight:700;font-size:14px}
+.check-item p{color:var(--text2);font-size:14.5px;line-height:1.65}
+.check-item strong{color:var(--text);font-weight:600}
+
+/* Code inline */
+code{font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;font-size:.88em;
+  background:var(--bg2);padding:2px 7px;border-radius:5px;color:var(--accent2);border:1px solid var(--border)}
+
+/* Footer */
+footer{padding:64px 0 48px;border-top:1px solid var(--border);text-align:center;color:var(--text3);font-size:13px}
+footer p{margin-bottom:6px}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .card:hover{transform:none}
+  .check-item:hover{transform:none}
+  .card-source:hover{transform:none}
+  .card-source:hover::after{transform:none}
+}
+
+@media(max-width:640px){
+  .container{padding:0 20px}
+  .hero{padding:80px 0 60px}
+  section{padding:56px 0}
+  .card{padding:24px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="nav-brand"><span class="nav-brand-dot"></span>Flutter Toolkit · Docs</div>
+    <div class="nav-links">
+      <a href="#principles">원칙</a>
+      <a href="#metrics">수치</a>
+      <a href="#antipatterns">안티패턴</a>
+      <a href="#gotchas">Gotchas</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="badge">Flutter Toolkit v0.1</div>
+    <h1>위젯 컴포지션</h1>
+    <p class="subtitle">Stateless/Stateful/HookWidget 선택, 작은 위젯 분해, const, Key, rebuild 최소화를 다룬다.</p>
+    <div class="hero-meta">
+      <span>version 0.1.0</span>
+      <span>last updated 2026-04-05</span>
+      <span>5 principles</span>
+    </div>
+  </div>
+</header>
+
+<section id="principles">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">Principles</div>
+      <h2>다섯 가지 원칙</h2>
+      <p class="section-desc">위젯을 어떤 타입으로 만들고 어떻게 분해할지, rebuild 경계를 어디에 그을지 결정하는 다섯 가지 기본 원칙이다. 각 원칙은 Flutter 공식 문서를 출처로 한다.</p>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-num">01</div>
+        <h3>상태 소유권이 타입을 결정한다</h3>
+        <p>위젯 타입 선택 기준은 "상태 소유권과 lifecycle 필요성"이다. 내부 상태가 없으면 Stateless, 위젯 lifecycle에 묶인 상태가 있으면 Stateful, hooks로 lifecycle을 분해 재사용하고 싶으면 HookWidget.</p>
+        <a class="card-source" href="https://docs.flutter.dev/ui" target="_blank" rel="noopener">docs.flutter.dev/ui</a>
+      </div>
+
+      <div class="card">
+        <div class="card-num">02</div>
+        <h3>분해가 성능의 기본 전제</h3>
+        <p>Flutter는 aggressive composition 최적화가 전제다. 작은 위젯으로 분해하는 것이 기본적으로 성능에 유리하다 — 큰 build 메서드보다 쪼개진 서브 위젯이 rebuild 경계를 좁힌다.</p>
+        <a class="card-source" href="https://docs.flutter.dev/resources/inside-flutter" target="_blank" rel="noopener">docs.flutter.dev/resources/inside-flutter</a>
+      </div>
+
+      <div class="card">
+        <div class="card-num">03</div>
+        <h3>const로 canonical 공유하라</h3>
+        <p>const 생성자를 적극 사용해 동일 위젯 인스턴스를 재사용한다. const 위젯은 element tree에서 canonical하게 공유되어 rebuild 비용이 0에 수렴한다.</p>
+        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">docs.flutter.dev/perf/best-practices</a>
+      </div>
+
+      <div class="card">
+        <div class="card-num">04</div>
+        <h3>Key는 semantic identity를 보존한다</h3>
+        <p>Key는 같은 타입 반복 children의 semantic identity를 보존한다. 리스트 재정렬·삽입·삭제 시 state 보존 여부를 결정한다.</p>
+        <a class="card-source" href="https://api.flutter.dev/flutter/foundation/Key-class.html" target="_blank" rel="noopener">api.flutter.dev/Key-class</a>
+      </div>
+
+      <div class="card">
+        <div class="card-num">05</div>
+        <h3>Rebuild 범위를 좁히는 조합</h3>
+        <p>Rebuild 최소화는 setState 범위 축소 + child hoisting + select/selector 조합으로 달성한다. const로 상수화할 수 없는 child는 부모 밖으로 끌어올려 참조 공유로 재사용한다.</p>
+        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">docs.flutter.dev/perf/best-practices</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="metrics">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">Numbers &amp; Boundaries</div>
+      <h2>수치·경계값</h2>
+      <p class="section-desc">Key 사용에 대한 사실 기반 경계 조건. 추측으로 GlobalKey를 남발하지 않도록 한계선을 명확히 해둔다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th style="width:32%">항목</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>일반 child의 key</td>
+            <td>명시적 key가 필요 없다 — 타입과 위치로 충분히 식별된다.</td>
+          </tr>
+          <tr>
+            <td>Key 유일성 범위</td>
+            <td>sibling 범위에서만 유일하면 된다. 트리 전역 유일성은 요구되지 않는다.</td>
+          </tr>
+          <tr>
+            <td>GlobalKey</td>
+            <td>전역에서 유일해야 하며, 매 build마다 재생성하면 안 된다 (보통 State 필드로 보관).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="antipatterns">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">Anti-patterns</div>
+      <h2>하지 말아야 할 것 vs 해야 할 것</h2>
+      <p class="section-desc">현업에서 반복적으로 관찰되는 위젯 컴포지션 실수와 그에 대응하는 올바른 접근을 나란히 비교한다.</p>
+    </div>
+    <div class="compare">
+      <div class="compare-col bad">
+        <div class="compare-label">Anti-patterns</div>
+        <ul>
+          <li>500줄짜리 단일 <code>build</code> 메서드 — 분해하지 않으면 rebuild 경계가 전체가 된다.</li>
+          <li>리스트 아이템에 index 기반 key — reorder 시 identity가 무너져 state가 잘못 매핑된다.</li>
+          <li>모든 위젯에 <code>GlobalKey</code>를 다는 습관 — 메모리·lifecycle 비용이 커지고 hot reload 이슈가 늘어난다.</li>
+          <li>rebuild 원인을 모르는 채 <code>const</code>만 붙이는 습관 — 부모가 rebuild되면 const child는 이미 재사용되므로 이득이 없다.</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <div class="compare-label">Preferred</div>
+        <ul>
+          <li>책임 단위로 서브 위젯을 쪼개 rebuild 경계를 좁힌다.</li>
+          <li>안정적인 도메인 ID(ValueKey/ObjectKey)로 identity를 고정한다.</li>
+          <li>GlobalKey는 정말 전역 참조가 필요한 곳에만 제한적으로 사용한다.</li>
+          <li>rebuild 원인을 먼저 프로파일링하고, const는 그 결과에 근거해서 적용한다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gotchas">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">Gotchas</div>
+      <h2>반복되는 함정</h2>
+      <p class="section-desc">공식 문서에는 묻혀 있지만 프로덕션에서 자주 부딪히는 세부 사항. 체크리스트로 확인하라.</p>
+    </div>
+    <div class="checklist">
+      <div class="check-item">
+        <div class="check-box">✓</div>
+        <p><strong>Reorderable 리스트의 findChildIndexCallback.</strong> reorder 가능한 리스트에서 <code>findChildIndexCallback</code>을 지정하지 않으면 key가 있어도 상태가 손실될 수 있다 — <code>SliverChildBuilderDelegate</code>의 옵션을 확인하라.</p>
+      </div>
+      <div class="check-item">
+        <div class="check-box">✓</div>
+        <p><strong>HookWidget은 복잡도를 줄이지 않는다.</strong> StatefulWidget을 HookWidget으로 바꿔도 상태의 본질적 복잡도는 줄지 않는다 — 단지 재사용 축이 lifecycle에서 hook으로 옮겨갈 뿐이다. 상태가 복잡하면 먼저 책임 분리부터 검토하라.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Flutter Toolkit · Widget Composition Research</p>
+    <p>version 0.1.0 · last updated 2026-04-05</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD — Infra Kit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#34D399;
+    --accent2:#6EE7B7;
+    --accent-dim:rgba(52,211,153,0.12);
+    --accent-glow:rgba(52,211,153,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *,*::before,*::after{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+  }
+
+  html{
+    scroll-behavior:smooth;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Pretendard","Noto Sans KR",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.7;
+    font-size:15px;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%,var(--accent-glow),transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 40%,rgba(110,231,183,0.03),transparent 70%);
+    background-attachment:fixed;
+  }
+
+  a{
+    color:var(--accent);
+    text-decoration:none;
+    transition:color var(--transition);
+  }
+
+  a:hover{
+    color:var(--accent2);
+  }
+
+  code{
+    font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+    font-size:0.9em;
+    background:var(--surface2);
+    padding:0.15em 0.45em;
+    border-radius:4px;
+    color:var(--accent2);
+    border:1px solid var(--border);
+  }
+
+  .container{
+    max-width:1100px;
+    margin:0 auto;
+    padding:80px 32px 120px;
+  }
+
+  .hero{
+    text-align:center;
+    padding:60px 0 80px;
+    position:relative;
+  }
+
+  .hero::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle,var(--accent-glow) 0%,transparent 60%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .hero > *{
+    position:relative;
+    z-index:1;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 18px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    color:var(--accent2);
+    font-size:0.85rem;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    margin-bottom:28px;
+  }
+
+  .badge::before{
+    content:"";
+    width:6px;
+    height:6px;
+    background:var(--accent);
+    border-radius:50%;
+    box-shadow:0 0 10px var(--accent);
+  }
+
+  h1{
+    font-size:clamp(2.4rem,5vw,3.8rem);
+    font-weight:800;
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    background:linear-gradient(135deg,#fff,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:22px;
+  }
+
+  .subtitle{
+    font-size:1.15rem;
+    color:var(--text2);
+    max-width:720px;
+    margin:0 auto;
+    line-height:1.7;
+  }
+
+  section{
+    margin-top:80px;
+  }
+
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:32px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .section-num{
+    font-size:0.85rem;
+    color:var(--accent);
+    font-weight:700;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+  }
+
+  h2{
+    font-size:1.9rem;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--text);
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(440px,1fr));
+    gap:24px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:3px;
+    height:0;
+    background:var(--accent);
+    transition:height var(--transition);
+  }
+
+  .card:hover{
+    transform:translateY(-3px);
+    border-color:var(--border2);
+    box-shadow:0 20px 40px rgba(0,0,0,0.4),0 0 0 1px var(--accent-dim);
+  }
+
+  .card:hover::before{
+    height:100%;
+  }
+
+  .card-num{
+    font-size:0.78rem;
+    color:var(--accent);
+    font-weight:700;
+    letter-spacing:0.1em;
+    margin-bottom:10px;
+  }
+
+  .card h3{
+    font-size:1.2rem;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:14px;
+    line-height:1.4;
+  }
+
+  .card p{
+    color:var(--text2);
+    font-size:0.95rem;
+    line-height:1.75;
+    margin-bottom:18px;
+  }
+
+  .card-source{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:0.8rem;
+    color:var(--accent);
+    padding:6px 12px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent-dim);
+    border-radius:var(--radius-sm);
+    font-weight:600;
+    transition:all var(--transition);
+  }
+
+  .card-source::before{
+    content:"→";
+    transition:transform var(--transition);
+  }
+
+  .card-source:hover{
+    background:var(--accent);
+    color:var(--bg);
+    border-color:var(--accent);
+  }
+
+  .card-source:hover::before{
+    transform:translateX(3px);
+  }
+
+  .table-wrap{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+
+  th,td{
+    padding:16px 22px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+  }
+
+  th{
+    background:var(--surface2);
+    font-size:0.82rem;
+    font-weight:700;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+  }
+
+  td{
+    color:var(--text2);
+    font-size:0.95rem;
+  }
+
+  td:first-child{
+    color:var(--text);
+    font-weight:600;
+  }
+
+  td code{
+    color:var(--accent2);
+  }
+
+  tr:last-child td{
+    border-bottom:none;
+  }
+
+  tr:hover td{
+    background:var(--surface2);
+  }
+
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin-top:20px;
+  }
+
+  .compare-col{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+
+  .compare-col.bad{
+    border-left:3px solid var(--error);
+  }
+
+  .compare-col.good{
+    border-left:3px solid var(--success);
+  }
+
+  .compare-label{
+    display:inline-block;
+    font-size:0.72rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    padding:4px 10px;
+    border-radius:4px;
+    margin-bottom:14px;
+  }
+
+  .bad .compare-label{
+    background:rgba(248,113,113,0.15);
+    color:var(--error);
+  }
+
+  .good .compare-label{
+    background:rgba(74,222,128,0.15);
+    color:var(--success);
+  }
+
+  .compare-col h4{
+    font-size:1.02rem;
+    color:var(--text);
+    margin-bottom:10px;
+    font-weight:700;
+  }
+
+  .compare-col p{
+    color:var(--text2);
+    font-size:0.92rem;
+    line-height:1.7;
+  }
+
+  .anti-list{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .gotcha-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .gotcha{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--warn);
+    border-radius:var(--radius-sm);
+    padding:20px 24px;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    transition:border-color var(--transition);
+  }
+
+  .gotcha:hover{
+    border-left-color:var(--accent);
+  }
+
+  .gotcha-check{
+    flex-shrink:0;
+    width:24px;
+    height:24px;
+    border:2px solid var(--border2);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:2px;
+    font-size:0.85rem;
+    color:var(--accent);
+    font-weight:700;
+  }
+
+  .gotcha-body{
+    color:var(--text2);
+    font-size:0.94rem;
+    line-height:1.75;
+  }
+
+  footer{
+    margin-top:120px;
+    padding-top:40px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    color:var(--text3);
+    font-size:0.85rem;
+  }
+
+  @media(max-width:720px){
+    .container{
+      padding:40px 20px 60px;
+    }
+    .grid-2{
+      grid-template-columns:1fr;
+    }
+    .compare{
+      grid-template-columns:1fr;
+    }
+    th,td{
+      padding:12px 14px;
+      font-size:0.88rem;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *{
+      transition:none!important;
+      animation:none!important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <div class="badge">Infra Kit v0.1</div>
+    <h1>CI/CD</h1>
+    <p class="subtitle">GitHub Actions · GitLab CI 파이프라인 설계, OIDC 단기 토큰, 최소 권한, 캐싱 · 아티팩트 분리, 매트릭스 빌드, self-hosted runner 보안까지 — 빠르고 안전한 자동화 파이프라인의 원칙.</p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num">01 · Principles</span>
+      <h2>핵심 원칙</h2>
+    </div>
+    <div class="grid-2">
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 01</div>
+        <h3>DAG/<code>needs</code> 중심 설계로 임계경로를 최소화</h3>
+        <p>모든 작업을 순차적으로 나열하면 불필요한 대기가 발생한다. <code>needs</code>(GitHub Actions) 또는 <code>needs</code>/<code>dependencies</code>(GitLab CI)로 작업 간 의존 관계를 명시하면, 독립적인 작업이 병렬로 실행되어 파이프라인 전체 시간이 줄어든다. 파이프라인을 DAG(Directed Acyclic Graph)로 설계한다.</p>
+        <a class="card-source" href="https://docs.gitlab.com/ci/yaml/needs/" target="_blank" rel="noopener">GitLab CI — needs</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 02</div>
+        <h3>OIDC 단기 토큰을 기본으로 사용</h3>
+        <p>클라우드 프로바이더(AWS, GCP, Azure) 접근에 장기 액세스 키를 CI secret에 저장하면 키 유출 시 무제한 접근이 가능해진다. OIDC federation으로 CI 작업 실행 시점에 단기 토큰을 발급받으면 토큰 수명이 제한되고, 키 로테이션이 불필요하며, 감사 추적이 용이하다.</p>
+        <a class="card-source" href="https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect" target="_blank" rel="noopener">GitHub — Security hardening with OpenID Connect</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 03</div>
+        <h3><code>GITHUB_TOKEN</code>/job token에 최소 권한 부여</h3>
+        <p>기본 토큰 권한을 <code>read-all</code>로 낮추고, 각 작업에서 필요한 권한만 <code>permissions</code> 블록으로 명시한다. 포크(fork)에서 오는 PR과 외부 기여자의 워크플로우는 별도 격리 전략을 적용한다. <code>pull_request_target</code> 사용 시 체크아웃 대상에 특히 주의한다.</p>
+        <a class="card-source" href="https://docs.github.com/en/actions/concepts/security/github_token" target="_blank" rel="noopener">GitHub — GITHUB_TOKEN</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 04</div>
+        <h3>캐시와 아티팩트를 구분하여 사용</h3>
+        <p>캐시는 의존성(node_modules, pip 패키지, Go 모듈)을 재사용하여 설치 시간을 줄이는 용도다. 아티팩트는 빌드 산출물(바이너리, 테스트 리포트)을 후속 작업에 전달하거나 다운로드하는 용도다. 캐시는 hit/miss가 결과에 영향을 주면 안 되고, 아티팩트는 누락 시 파이프라인이 실패해야 한다.</p>
+        <a class="card-source" href="https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching" target="_blank" rel="noopener">GitHub — Dependency caching</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 05</div>
+        <h3>Self-hosted runner는 ephemeral을 우선</h3>
+        <p>장수(long-lived) runner는 이전 작업의 파일, 환경변수, 프로세스가 잔존하여 보안 위험과 재현 불가능한 빌드를 만든다. 매 작업마다 새 인스턴스를 생성하고 작업 후 폐기하는 ephemeral 패턴을 기본으로 한다. 비신뢰 코드(외부 PR)가 실행되는 인프라로 간주하고 네트워크를 격리한다.</p>
+        <a class="card-source" href="https://docs.gitlab.com/runner/security/" target="_blank" rel="noopener">GitLab Runner — Security</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PRINCIPLE 06</div>
+        <h3>매트릭스 빌드는 커버리지 확장용</h3>
+        <p>OS, 언어 버전, 의존성 조합을 매트릭스로 구성하여 호환성 커버리지를 넓힌다. <code>max-parallel</code>로 동시 실행 수를 제어하고, <code>fail-fast</code>로 첫 실패 시 나머지를 취소할지 결정한다. 매트릭스가 과도하면 리소스 낭비와 큐 대기가 발생하므로 실제 배포 대상 조합으로 제한한다.</p>
+        <a class="card-source" href="https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs" target="_blank" rel="noopener">GitHub — Using a matrix for your jobs</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num">02 · Numbers</span>
+      <h2>수치 & 기준값</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GitHub Actions 매트릭스 최대 jobs</td><td><strong>256</strong></td><td>워크플로우 실행당</td></tr>
+          <tr><td>아티팩트 보존 기본 기간</td><td><strong>90일</strong></td><td>리포지토리 설정에서 변경 가능</td></tr>
+          <tr><td><code>GITHUB_TOKEN</code> 최대 수명</td><td><strong>24시간</strong></td><td>작업 종료 시 자동 만료</td></tr>
+          <tr><td>Self-hosted runner 업데이트 기한</td><td><strong>30일</strong></td><td>이내 미업데이트 시 작업 거부</td></tr>
+          <tr><td>GitLab <code>needs</code> 최대 의존 수</td><td><strong>50개</strong> / job</td><td>초과 시 파이프라인 생성 실패</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num">03 · Anti-patterns</span>
+      <h2>안티패턴 & 올바른 접근</h2>
+    </div>
+    <div class="anti-list">
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4>장기 클라우드 키를 CI secret에 고정</h4>
+          <p>AWS access key, GCP service account JSON 등을 GitHub secret에 저장하고 수년간 방치. 키 로테이션을 잊으면 유출 시 무제한 접근이 가능하다.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4>OIDC federation으로 단기 토큰 발급</h4>
+          <p>CI 작업 실행 시점에 IdP에서 단기 토큰을 발급받아 사용. 수명이 제한되고 로테이션 불필요. 감사 로그로 누가/언제 어떤 작업을 했는지 추적 가능.</p>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4>캐시와 아티팩트 혼용</h4>
+          <p>캐시를 아티팩트처럼 쓰면 캐시 미스 시 다음 job이 실패. 아티팩트를 캐시처럼 쓰면 불필요한 저장 비용이 발생하고 보존 기간 정책이 꼬인다.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4>역할 분리: 캐시=선택적 최적화, 아티팩트=필수 전달</h4>
+          <p>캐시는 hit/miss가 결과에 영향 없어야 한다. 아티팩트는 빌드 산출물을 명시적으로 다음 job에 전달하며, 누락 시 파이프라인이 실패해야 한다.</p>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4>모든 브랜치에서 풀 파이프라인 실행</h4>
+          <p>feature 브랜치에서 전체 배포 파이프라인을 돌리면 리소스 낭비. 배포가 불필요한 브랜치에서도 프로덕션 빌드·스캔까지 수행되어 큐 대기 증가.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4>브랜치·이벤트별 필터로 실행 범위 제한</h4>
+          <p><code>on.push.branches</code>, <code>if</code> 조건, path 필터로 실행 범위를 제한. feature 브랜치는 lint+test만, main 브랜치는 전체 배포 파이프라인.</p>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4>장수 공유 runner</h4>
+          <p>상태가 축적되어 "내 로컬에서는 되는데" 문제를 재현. 이전 작업의 npm 캐시, 환경변수, 임시 파일이 다음 빌드에 영향을 주어 플래키 빌드 발생.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4>Ephemeral runner 패턴</h4>
+          <p>매 작업마다 새 인스턴스 생성 후 폐기. 네트워크 격리, 권한 최소화. 외부 PR 코드도 안전하게 실행 가능한 수준으로 격리 가정.</p>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4>매트릭스 폭발</h4>
+          <p>OS 3종 × 언어 5버전 × 의존성 3버전 = 45 jobs. 큐가 막히고 CI 비용이 급증. 실제로 배포되지 않는 조합까지 포함.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4>실제 배포 대상만 PR에서 실행</h4>
+          <p>핵심 조합만 PR에서 실행하고, 나머지 커버리지 매트릭스는 nightly 스케줄로 분리. <code>max-parallel</code>, <code>fail-fast</code> 조정.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num">04 · Gotchas</span>
+      <h2>Gotchas 체크리스트</h2>
+    </div>
+    <div class="gotcha-list">
+
+      <div class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body"><strong>GitHub secret masking은 구조화된 값에서 실패한다.</strong> JSON, multiline 문자열 등 구조화된 secret은 로그에서 마스킹이 불완전할 수 있다. <code>::add-mask::</code>로 개별 값을 명시적으로 마스킹하거나, 로그 출력 자체를 억제한다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body"><strong>GitLab <code>needs</code>는 이전 stage의 아티팩트를 자동으로 전달하지 않는다.</strong> <code>needs</code>를 사용하면 기존 stage 순서 기반 아티팩트 전달이 무시된다. <code>needs</code>에 명시한 job의 아티팩트만 전달되므로, 필요한 아티팩트를 생성하는 job을 <code>needs</code>에 포함해야 한다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body"><strong>포크 PR의 권한 모델은 원본 리포와 다르다.</strong> 포크에서 오는 <code>pull_request</code> 이벤트는 <code>GITHUB_TOKEN</code>이 read-only이고, secret에 접근할 수 없다. <code>pull_request_target</code>은 원본 리포 컨텍스트에서 실행되므로 포크 코드를 체크아웃하면 코드 인젝션 위험이 있다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body"><strong>Self-hosted runner에 이전 작업의 파일이 남는다.</strong> ephemeral이 아닌 runner에서 <code>$GITHUB_WORKSPACE</code> 외부에 생성된 파일, Docker 이미지, 환경변수가 다음 작업에 영향을 줄 수 있다. 작업 시작 시 정리 스크립트를 실행하거나 ephemeral runner를 사용한다.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    Infra Kit · CI/CD · last updated 2026-04-04
+  </footer>
+
+</div>
+</body>
+</html>

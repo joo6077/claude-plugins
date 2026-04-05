@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>이벤트 기반 아키텍처 — Backend Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#A78BFA;--accent2:#C4B5FD;
+  --accent-dim:rgba(167,139,250,0.12);--accent-glow:rgba(167,139,250,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,var(--accent-glow) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,var(--accent-glow) 0%,transparent 55%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1240px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+/* Back link */
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--text3);text-decoration:none;
+  margin-bottom:28px;transition:color var(--transition);
+}
+.back-link:hover{color:var(--accent)}
+
+/* Hero */
+.hero{margin-bottom:clamp(48px,6vw,84px)}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:999px;
+  background:var(--accent-dim);border:1px solid var(--border2);
+  font-size:12px;font-weight:700;color:var(--accent2);
+  text-transform:uppercase;letter-spacing:1.4px;
+  margin-bottom:20px;
+}
+.badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 10px var(--accent);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.55;transform:scale(1.25)}
+}
+h1{
+  font-size:clamp(32px,5vw,56px);font-weight:800;
+  letter-spacing:-1.2px;line-height:1.08;
+  background:linear-gradient(135deg,var(--text) 0%,var(--accent) 70%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:18px;
+}
+.subtitle{
+  color:var(--text2);font-size:clamp(15px,1.5vw,18px);
+  line-height:1.75;max-width:780px;
+}
+
+/* Section */
+.section{margin-bottom:clamp(56px,7vw,96px)}
+.section-label{
+  font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;
+  color:var(--accent);margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+}
+.section-label::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,var(--accent2) 0%,transparent 75%);
+}
+h2{
+  font-size:clamp(22px,2.6vw,32px);font-weight:700;
+  letter-spacing:-0.5px;margin-bottom:10px;
+}
+.section-desc{
+  color:var(--text2);font-size:15px;line-height:1.75;
+  max-width:760px;margin-bottom:28px;
+}
+
+/* Principle grid */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:clamp(20px,2.6vw,30px);
+  transition:border-color var(--transition),transform var(--transition),background var(--transition);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--accent-glow) 0%,transparent 60%);
+  opacity:0;transition:opacity var(--transition);pointer-events:none;
+}
+.card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.card:hover::before{opacity:1}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.card-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;height:32px;border-radius:10px;
+  background:var(--accent-dim);color:var(--accent);
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  border:1px solid var(--border2);flex-shrink:0;
+}
+.card-title{font-size:1.08rem;font-weight:700;letter-spacing:-0.2px;color:var(--text)}
+.card-body{color:var(--text2);font-size:14px;line-height:1.75;margin-bottom:16px}
+.card-source{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11.5px;
+  color:var(--accent2);text-decoration:none;
+  padding:6px 11px;border-radius:var(--radius-sm);
+  background:var(--accent-dim);border:1px solid var(--border2);
+  transition:all var(--transition);
+}
+.card-source::before{content:'↗';font-size:12px;opacity:0.7}
+.card-source:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.card-source + .card-source{margin-left:8px}
+
+/* Table */
+.table-wrap{
+  overflow-x:auto;border-radius:var(--radius);
+  border:1px solid var(--border);background:var(--surface);
+}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{
+  padding:16px 20px;text-align:left;font-weight:700;
+  font-size:11.5px;color:var(--accent2);
+  letter-spacing:1.4px;text-transform:uppercase;
+  white-space:nowrap;border-bottom:1px solid var(--border2);
+}
+td{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  vertical-align:top;color:var(--text2);line-height:1.65;
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background var(--transition)}
+tbody tr:hover{background:var(--accent-glow)}
+td:first-child{color:var(--text);font-weight:600}
+td .mono{font-family:var(--mono);color:var(--accent2);font-size:13px}
+.val-strong{
+  display:inline-block;padding:3px 10px;border-radius:var(--radius-sm);
+  background:var(--accent-dim);color:var(--accent2);
+  font-family:var(--mono);font-size:12.5px;font-weight:600;
+}
+
+/* Anti-pattern compare */
+.compare-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.compare-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+}
+@media(max-width:900px){.compare-row{grid-template-columns:1fr}}
+.compare-bad,.compare-good{
+  padding:18px 22px;border-radius:var(--radius);
+  font-size:13.5px;line-height:1.7;
+}
+.compare-bad{
+  background:rgba(248,113,113,0.06);
+  border:1px solid rgba(248,113,113,0.22);
+  color:#fca5a5;
+}
+.compare-good{
+  background:rgba(74,222,128,0.05);
+  border:1px solid rgba(74,222,128,0.2);
+  color:#86efac;
+}
+.compare-label{
+  font-size:10.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:1.5px;margin-bottom:10px;opacity:0.85;
+}
+.compare-label::before{
+  content:'';display:inline-block;width:8px;height:8px;
+  border-radius:50%;margin-right:8px;vertical-align:middle;
+}
+.compare-bad .compare-label::before{background:var(--error)}
+.compare-good .compare-label::before{background:var(--success)}
+.compare-title{color:var(--text);font-weight:700;font-size:14.5px;margin-bottom:6px}
+
+/* Gotchas checklist */
+.gotchas{
+  display:flex;flex-direction:column;gap:14px;
+}
+.gotcha{
+  display:flex;gap:16px;padding:20px 22px;
+  background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--warn);
+  border-radius:var(--radius);
+  transition:border-color var(--transition);
+}
+.gotcha:hover{border-color:var(--border2);border-left-color:var(--accent)}
+.gotcha-check{
+  flex-shrink:0;width:22px;height:22px;border-radius:6px;
+  border:2px solid var(--border2);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  margin-top:2px;color:var(--warn);font-size:13px;font-weight:800;
+}
+.gotcha-body{flex:1;color:var(--text2);font-size:14px;line-height:1.75}
+.gotcha-body strong{color:var(--text);font-weight:700;display:block;margin-bottom:4px}
+
+footer{
+  margin-top:clamp(56px,7vw,96px);padding-top:28px;
+  border-top:1px solid var(--border);
+  color:var(--text3);font-size:12px;text-align:center;
+}
+footer .mono{font-family:var(--mono);color:var(--accent2)}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="../index.html" class="back-link">&larr; Documentation Home</a>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="badge">Backend Kit v0.1</div>
+  <h1>이벤트 기반 아키텍처</h1>
+  <p class="subtitle">
+    메시지 큐와 이벤트 스트리밍의 차이, outbox 패턴, saga, 전달 보장(exactly-once/at-least-once),
+    DLQ, idempotency, CQRS, 이벤트 소싱, 스키마 진화까지 — 비동기 분산 시스템을
+    실전에서 굴리기 위해 반드시 알아야 할 원칙과 수치 기준을 정리한다.
+  </p>
+</header>
+
+<!-- Principles -->
+<section class="section">
+  <div class="section-label">Principles</div>
+  <h2>7가지 핵심 원칙</h2>
+  <p class="section-desc">
+    각 원칙은 메시징 전문 업체와 표준 문서(Kafka, RabbitMQ, AWS SQS, Stripe, Microservices.io, Microsoft)의
+    1차 출처를 근거로 작성되었다. 카드 하단 링크로 원문을 확인할 수 있다.
+  </p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">01</div>
+        <div class="card-title">큐와 스트리밍은 용도가 다르다</div>
+      </div>
+      <p class="card-body">
+        <strong style="color:var(--text)">메시지 큐(RabbitMQ, SQS)</strong>는 작업 분배(work distribution)에 적합하다.
+        메시지가 한 consumer에게 전달되면 큐에서 제거된다.
+        <strong style="color:var(--text)">이벤트 스트리밍(Kafka)</strong>은 이벤트 로그(event log)다.
+        메시지가 retention 기간 동안 보존되며 여러 consumer group이 독립적으로 읽는다.
+        단일 consumer 작업 분배에는 큐, 다중 consumer 이벤트 브로드캐스트에는 스트리밍을 선택한다.
+      </p>
+      <a class="card-source" href="https://kafka.apache.org/documentation/" target="_blank" rel="noopener noreferrer">Apache Kafka Docs</a>
+      <a class="card-source" href="https://www.rabbitmq.com/docs/tutorials" target="_blank" rel="noopener noreferrer">RabbitMQ Tutorials</a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">02</div>
+        <div class="card-title">Outbox 패턴으로 이중쓰기를 방지한다</div>
+      </div>
+      <p class="card-body">
+        DB 저장과 메시지 발행을 별도로 수행하면 하나만 성공하는
+        이중쓰기(dual write) 문제가 발생한다. Outbox 패턴은 비즈니스 데이터와 이벤트를
+        같은 DB 트랜잭션으로 outbox 테이블에 저장하고, 별도 프로세스(Debezium CDC 또는 폴링)가
+        outbox를 읽어 메시지 브로커에 발행한다. 원자성이 보장된다.
+      </p>
+      <a class="card-source" href="https://microservices.io/patterns/data/transactional-outbox.html" target="_blank" rel="noopener noreferrer">Microservices.io — Outbox</a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">03</div>
+        <div class="card-title">Saga로 분산 트랜잭션을 관리한다</div>
+      </div>
+      <p class="card-body">
+        마이크로서비스 간 ACID 트랜잭션은 불가능하다. Saga는 로컬 트랜잭션의 연쇄로
+        분산 트랜잭션을 구현한다. <strong style="color:var(--text)">Choreography</strong>는 각 서비스가 이벤트를
+        발행하고 다음 서비스가 반응한다(2~3단계). <strong style="color:var(--text)">Orchestration</strong>은 중앙
+        조정자가 각 서비스에 명령을 보낸다(4단계 이상). 실패 시 보상 트랜잭션으로 롤백한다.
+      </p>
+      <a class="card-source" href="https://microservices.io/patterns/data/saga.html" target="_blank" rel="noopener noreferrer">Microservices.io — Saga</a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">04</div>
+        <div class="card-title">Exactly-once는 대부분 환상이다</div>
+      </div>
+      <p class="card-body">
+        네트워크 분할, 프로세스 크래시가 발생하면 메시지가 중복 전달되거나 유실될 수 있다.
+        실용적인 접근은 <strong style="color:var(--text)">at-least-once 전달 + consumer 측 idempotency</strong>다.
+        Kafka는 "effectively exactly-once"를 제공하지만, 이는 Kafka 내부에서만 보장되며
+        외부 시스템(DB, API 호출)까지 포함하면 idempotency가 별도로 필요하다.
+      </p>
+      <a class="card-source" href="https://kafka.apache.org/documentation/#semantics" target="_blank" rel="noopener noreferrer">Kafka — Delivery Semantics</a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">05</div>
+        <div class="card-title">DLQ로 실패 메시지를 격리한다</div>
+      </div>
+      <p class="card-body">
+        처리 실패한 메시지를 무한 재시도하면 consumer가 차단된다.
+        Dead Letter Queue(DLQ)에 실패 메시지를 격리하고, 정상 메시지 처리를 계속한다.
+        DLQ의 메시지는 수동 검토 후 원인을 수정하고 재처리한다.
+        <span class="val-strong">maxReceiveCount</span> (SQS 기준 보통 3~5회)을 설정하여 재시도 횟수를 제한한다.
+      </p>
+      <a class="card-source" href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html" target="_blank" rel="noopener noreferrer">AWS — SQS DLQ</a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">06</div>
+        <div class="card-title">Idempotency key로 중복 처리를 방지한다</div>
+      </div>
+      <p class="card-body">
+        at-least-once 환경에서 같은 메시지가 2번 이상 도착할 수 있다. 각 메시지에 고유한
+        idempotency key를 부여하고, 처리 전 이미 처리된 key인지 확인한다.
+        Stripe API가 대표적 구현 — 클라이언트가 <span class="val-strong">Idempotency-Key</span> 헤더를
+        전송하면 서버가 24시간 동안 동일 key에 대해 같은 응답을 반환한다.
+      </p>
+      <a class="card-source" href="https://stripe.com/docs/api/idempotent_requests" target="_blank" rel="noopener noreferrer">Stripe — Idempotent Requests</a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">07</div>
+        <div class="card-title">CQRS로 읽기/쓰기 모델을 분리한다</div>
+      </div>
+      <p class="card-body">
+        Command Query Responsibility Segregation은 쓰기 모델(command)과 읽기 모델(query)을
+        분리한다. 쓰기는 정규화된 도메인 모델, 읽기는 비정규화된 뷰 모델을 사용한다.
+        이벤트 소싱과 자주 결합되지만 독립 적용도 가능하다.
+        읽기/쓰기 비율이 극단적으로 다른 시스템(예: 읽기 90% 이상)에서 효과적이며,
+        단순한 CRUD에는 과도한 복잡성이다.
+      </p>
+      <a class="card-source" href="https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs" target="_blank" rel="noopener noreferrer">Microsoft — CQRS Pattern</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Numbers -->
+<section class="section">
+  <div class="section-label">Numeric Baselines</div>
+  <h2>수치 기준</h2>
+  <p class="section-desc">
+    운영 시 참고할 숫자들. 기본값을 그대로 쓰지 말고 자신의 트래픽 프로파일에 맞춰 조정하되,
+    이 값들은 "정상 범위"의 출발점으로 사용한다.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Kafka 기본 retention</td>
+          <td><span class="val-strong">7일 (168시간)</span></td>
+          <td><span class="mono">log.retention.hours</span>로 설정</td>
+        </tr>
+        <tr>
+          <td>Kafka consumer group rebalance timeout</td>
+          <td><span class="val-strong">300초 (5분)</span></td>
+          <td><span class="mono">max.poll.interval.ms</span> 기본값</td>
+        </tr>
+        <tr>
+          <td>SQS 메시지 보존</td>
+          <td><span class="val-strong">기본 4일 / 최대 14일</span></td>
+          <td><span class="mono">MessageRetentionPeriod</span></td>
+        </tr>
+        <tr>
+          <td>SQS DLQ maxReceiveCount</td>
+          <td><span class="val-strong">3~5회</span></td>
+          <td>초과 시 DLQ로 이동</td>
+        </tr>
+        <tr>
+          <td>Idempotency key 보존 기간</td>
+          <td><span class="val-strong">24~48시간</span></td>
+          <td>Stripe는 24시간</td>
+        </tr>
+        <tr>
+          <td>Kafka 파티션당 권장 consumer</td>
+          <td><span class="val-strong">1개</span></td>
+          <td>consumer &gt; partition이면 유휴 consumer 발생</td>
+        </tr>
+        <tr>
+          <td>Outbox 폴링 간격</td>
+          <td><span class="val-strong">100ms~1초</span></td>
+          <td>CDC(Debezium) 사용 시 실시간에 가까움</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Anti-patterns -->
+<section class="section">
+  <div class="section-label">Anti-patterns</div>
+  <h2>피해야 할 패턴</h2>
+  <p class="section-desc">
+    실무에서 반복되는 실수들. 왼쪽은 흔한 잘못된 접근, 오른쪽은 권장 대안이다.
+  </p>
+
+  <div class="compare-grid">
+
+    <div class="compare-row">
+      <div class="compare-bad">
+        <div class="compare-label">Anti-pattern</div>
+        <div class="compare-title">동기 호출을 이벤트로 과도하게 변환</div>
+        단순 요청-응답이 적합한 동기 호출까지 이벤트로 바꾸면
+        디버깅이 어려워지고 지연이 증가한다.
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Recommended</div>
+        <div class="compare-title">결합도 기준으로 판단</div>
+        이벤트는 느슨한 결합이 꼭 필요한 경계(도메인 간, 팀 간)에만 사용하고,
+        내부 로직은 동기 호출로 단순하게 유지한다.
+      </div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-bad">
+        <div class="compare-label">Anti-pattern</div>
+        <div class="compare-title">Idempotency 없는 at-least-once</div>
+        중복 메시지를 처리하지 않으면 결제 2회 실행,
+        이메일 중복 발송 같은 사고가 발생한다.
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Recommended</div>
+        <div class="compare-title">모든 consumer에 idempotency key</div>
+        메시지마다 고유 key를 부여하고, 처리 전 저장소(Redis/DB)에서
+        중복을 검증한 뒤 처리한다.
+      </div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-bad">
+        <div class="compare-label">Anti-pattern</div>
+        <div class="compare-title">Outbox 없는 이중쓰기</div>
+        DB 저장 후 메시지 발행이 실패하거나 그 반대가 되면
+        데이터 불일치가 그대로 남는다.
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Recommended</div>
+        <div class="compare-title">Outbox 패턴 또는 CDC</div>
+        비즈니스 데이터와 이벤트를 같은 트랜잭션으로 저장하고,
+        별도 릴레이 프로세스가 브로커로 발행한다.
+      </div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-bad">
+        <div class="compare-label">Anti-pattern</div>
+        <div class="compare-title">모든 것에 CQRS</div>
+        단순 CRUD에 CQRS를 적용하면 코드량이 2배 이상 증가하고
+        eventual consistency 관리 부담이 생긴다.
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Recommended</div>
+        <div class="compare-title">요구사항 비대칭이 있을 때만</div>
+        읽기/쓰기 비율이나 모델이 뚜렷이 다른 영역(대시보드, 검색, 리포트)에만
+        선별적으로 도입한다.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Gotchas -->
+<section class="section">
+  <div class="section-label">Gotchas</div>
+  <h2>반복 실수 방지 체크리스트</h2>
+  <p class="section-desc">
+    Claude가 비동기 시스템을 다룰 때 반복적으로 빠지는 함정들.
+    구현 전 한 번씩 점검한다.
+  </p>
+
+  <div class="gotchas">
+
+    <div class="gotcha">
+      <div class="gotcha-check">!</div>
+      <div class="gotcha-body">
+        <strong>Kafka consumer offset 관리 실수로 메시지 유실/중복</strong>
+        <span class="mono" style="color:var(--accent2)">enable.auto.commit=true</span>(기본값)에서
+        처리 전 commit되면 유실, 처리 후 commit 전 크래시하면 중복이다.
+        수동 commit(<span class="mono" style="color:var(--accent2)">enable.auto.commit=false</span>)으로 전환하고
+        처리 완료 후 명시적으로 commit한다.
+      </div>
+    </div>
+
+    <div class="gotcha">
+      <div class="gotcha-check">!</div>
+      <div class="gotcha-body">
+        <strong>Saga 보상 트랜잭션 실패 시 수동 개입 필요</strong>
+        보상 트랜잭션도 실패할 수 있다(외부 API 장애 등).
+        보상 실패를 감지하는 모니터링과 수동 개입 프로세스를 반드시 준비한다.
+        "보상이 항상 성공한다"는 가정은 깨진다.
+      </div>
+    </div>
+
+    <div class="gotcha">
+      <div class="gotcha-check">!</div>
+      <div class="gotcha-body">
+        <strong>이벤트 스키마 변경은 모든 consumer에 영향</strong>
+        필드 추가는 하위 호환되지만, 필드 제거나 타입 변경은 기존 consumer를 깨뜨린다.
+        Avro + Schema Registry로 스키마 진화를 관리하고,
+        backward/forward compatibility를 CI에서 검증한다.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <span class="mono">docs/backend/patterns/event-driven.md</span> · Backend Kit v0.1 · last updated 2026-04-04
+</footer>
+
+</div>
+</body>
+</html>

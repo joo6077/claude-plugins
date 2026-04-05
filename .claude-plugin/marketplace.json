@@ -19,6 +19,16 @@
       "name": "design-kit",
       "source": "./design-kit",
       "description": "[v0.1.0 · 2026-03-30] 스택 무관 UI/UX 디자인 가이드 + 감사 플러그인"
+    },
+    {
+      "name": "backend-kit",
+      "source": "./backend-kit",
+      "description": "[v0.1.0 · 2026-04-04] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 플러그인"
+    },
+    {
+      "name": "infra-kit",
+      "source": "./infra-kit",
+      "description": "[v0.1.0 · 2026-04-04] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 플러그인"
     }
   ]
 }
