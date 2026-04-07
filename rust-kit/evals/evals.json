@@ -1,4 +1,197 @@
 {
   "skill_name": "rust-kit",
-  "evals": []
+  "evals": [
+    {
+      "id": 1,
+      "skill": "rust-init",
+      "prompt": "Rust 백엔드 프로젝트 새로 만들어줘",
+      "expected_output": "프로젝트 스캐폴딩 + Cargo.toml + rust-toolchain.toml",
+      "assertions": [
+        {"text": "rust-toolchain.toml 생성됨", "type": "output"},
+        {"text": "Cargo.toml에 [workspace] 또는 [package] 존재", "type": "output"},
+        {"text": "사용자에게 아키텍처 선택을 제안", "type": "behavior"},
+        {"text": "cargo build 성공 확인 실행", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 2,
+      "skill": "rust-feature",
+      "prompt": "users feature 모듈 추가해줘",
+      "expected_output": "feature 모듈 파일 생성 + mod.rs 등록",
+      "assertions": [
+        {"text": "프로젝트 감지 실행", "type": "behavior"},
+        {"text": "기존 feature 패턴 분석", "type": "behavior"},
+        {"text": "mod.rs에 pub mod 등록", "type": "output"},
+        {"text": "ARCH에 따른 구조 생성", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 3,
+      "skill": "rust-api",
+      "prompt": "GET /users 엔드포인트 추가해줘",
+      "expected_output": "핸들러 함수 + 라우터 등록",
+      "assertions": [
+        {"text": "프로젝트 감지 실행", "type": "behavior"},
+        {"text": "기존 핸들러 패턴 읽기", "type": "behavior"},
+        {"text": "async fn 핸들러 생성", "type": "output"},
+        {"text": ".route() 등록", "type": "output"}
+      ]
+    },
+    {
+      "id": 4,
+      "skill": "rust-model",
+      "prompt": "users 테이블 모델 만들어줘",
+      "expected_output": "구조체 + 마이그레이션 SQL + 쿼리 함수",
+      "assertions": [
+        {"text": "sqlx::FromRow derive", "type": "output"},
+        {"text": "마이그레이션 SQL 파일 생성", "type": "output"},
+        {"text": "DATABASE_URL 확인 안내", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 5,
+      "skill": "rust-service",
+      "prompt": "UserService 만들어줘",
+      "expected_output": "서비스 trait + impl",
+      "assertions": [
+        {"text": "trait 정의 생성", "type": "output"},
+        {"text": "impl 생성", "type": "output"},
+        {"text": "테스트 모듈 스켈레톤", "type": "output"}
+      ]
+    },
+    {
+      "id": 6,
+      "skill": "rust-auth",
+      "prompt": "JWT 인증 추가해줘",
+      "expected_output": "토큰 유틸 + 미들웨어 + Claims",
+      "assertions": [
+        {"text": "Claims 구조체 생성", "type": "output"},
+        {"text": "FromRequestParts impl", "type": "output"},
+        {"text": "환경변수에서 시크릿 로드 (하드코딩 없음)", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 7,
+      "skill": "rust-middleware",
+      "prompt": "CORS 미들웨어 추가해줘",
+      "expected_output": "CorsLayer 설정 + .layer() 등록",
+      "assertions": [
+        {"text": "tower-http 크레이트 사용", "type": "output"},
+        {"text": ".layer() 등록", "type": "output"},
+        {"text": "레이어 순서 고려", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 8,
+      "skill": "rust-grpc",
+      "prompt": "UserService gRPC 서비스 추가해줘",
+      "expected_output": ".proto + build.rs + 서비스 impl",
+      "assertions": [
+        {"text": ".proto 파일 생성", "type": "output"},
+        {"text": "build.rs tonic-build 설정", "type": "output"},
+        {"text": "protoc 설치 안내", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 9,
+      "skill": "rust-test",
+      "prompt": "UserService 테스트 만들어줘",
+      "expected_output": "테스트 코드 생성",
+      "assertions": [
+        {"text": "대상 분석 (공개 함수, trait 목록)", "type": "behavior"},
+        {"text": "#[cfg(test)] mod tests 또는 tests/ 파일", "type": "output"},
+        {"text": "기존 테스트 패턴 따름", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 10,
+      "skill": "rust-docker",
+      "prompt": "Dockerfile 만들어줘",
+      "expected_output": "멀티스테이지 Dockerfile + docker-compose",
+      "assertions": [
+        {"text": "cargo-chef 기반 캐싱", "type": "output"},
+        {"text": "멀티스테이지 빌드 (builder + runtime)", "type": "output"},
+        {"text": ".dockerignore 생성", "type": "output"}
+      ]
+    },
+    {
+      "id": 11,
+      "skill": "rust-error",
+      "prompt": "에러 처리 패턴 알려줘",
+      "expected_output": "3계층 에러 구조 가이드",
+      "assertions": [
+        {"text": "thiserror/anyhow 구분 설명", "type": "output"},
+        {"text": "IntoResponse impl 예시", "type": "output"},
+        {"text": "현재 프로젝트 에러 패턴 분석", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 12,
+      "skill": "rust-l10n",
+      "prompt": "다국어 지원 추가해줘",
+      "expected_output": "i18n 설정 + 로케일 파일 + 미들웨어",
+      "assertions": [
+        {"text": "HAS_RUST_I18N/HAS_FLUENT 감지", "type": "behavior"},
+        {"text": "로케일 파일 생성", "type": "output"},
+        {"text": "Accept-Language 미들웨어 설정", "type": "output"}
+      ]
+    },
+    {
+      "id": 13,
+      "skill": "rust-run",
+      "prompt": "clippy 돌려줘",
+      "expected_output": "cargo clippy 실행 결과",
+      "assertions": [
+        {"text": "cargo clippy -- -D warnings 실행", "type": "behavior"},
+        {"text": "IS_WORKSPACE면 --workspace 추가", "type": "behavior"},
+        {"text": "결과 포맷 출력", "type": "output"}
+      ]
+    },
+    {
+      "id": 14,
+      "skill": "rust-build",
+      "prompt": "빌드해줘",
+      "expected_output": "build + clippy 순서 실행",
+      "assertions": [
+        {"text": "build 먼저 실행", "type": "behavior"},
+        {"text": "build 성공 후 clippy 실행", "type": "behavior"},
+        {"text": "결과 리포트 테이블", "type": "output"}
+      ]
+    },
+    {
+      "id": 15,
+      "skill": "rust-preflight",
+      "prompt": "커밋 전 검사해줘",
+      "expected_output": "fmt → clippy → test → audit 순서 실행 + 리포트",
+      "assertions": [
+        {"text": "fmt → clippy → test → audit 순서 고정", "type": "behavior"},
+        {"text": "fmt 실패 시 자동 적용 후 재검사", "type": "behavior"},
+        {"text": "audit은 non-blocking (WARN)", "type": "behavior"},
+        {"text": "Preflight Report 테이블 출력", "type": "output"}
+      ]
+    },
+    {
+      "id": 16,
+      "skill": "rust-audit",
+      "prompt": "코드 리뷰해줘",
+      "expected_output": "카테고리별 PASS/FAIL 감사 리포트",
+      "assertions": [
+        {"text": "audit-criteria.md 기준 사용", "type": "behavior"},
+        {"text": "7개 카테고리 평가", "type": "output"},
+        {"text": "deep 모드 시 rust-reviewer 에이전트 호출", "type": "behavior"},
+        {"text": "최종 판정 APPROVE/REJECT", "type": "output"}
+      ]
+    },
+    {
+      "id": 17,
+      "skill": "rust-kaizen",
+      "prompt": "rust-kit 개선해줘",
+      "expected_output": "리서치 문서 기준 스킬 개선",
+      "assertions": [
+        {"text": "docs/rust/ 문서를 먼저 읽음", "type": "behavior"},
+        {"text": "한 번에 1~2개 스킬만 개선", "type": "behavior"},
+        {"text": "변경 근거에 리서치 문서 출처 포함", "type": "output"}
+      ]
+    }
+  ]
 }
