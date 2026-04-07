@@ -47,7 +47,7 @@ user-invocable: true
 
 ## Step 3: 하이파이 HTML 시안 5개 생성
 
-references/mockup-guidelines.md를 참조하여 시안을 생성한다:
+references/mockup-guidelines.md를 참조하고 templates/mockup.html 포맷으로 시안을 생성한다:
 
 각 시안은 standalone HTML 파일로 생성:
 - `.design/mockups/{페이지명}-{특징}.html` (예: `dashboard-sidebar.html`)
@@ -87,3 +87,4 @@ references/mockup-guidelines.md를 참조하여 시안을 생성한다:
 # References
 
 - `references/mockup-guidelines.md` — 시안 생성 기준 상세
+- `templates/mockup.html` — 시안 HTML 출력 포맷 (ID 오버레이 JavaScript 포함)

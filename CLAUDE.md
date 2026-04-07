@@ -10,7 +10,9 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **harness** — 스택 무관 범용 QA 프레임워크 (Sprint Contract + QA Evaluator)
 - **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 18종
 - **design-kit** — 스택 무관 UI/UX 디자인 플러그인 (디자인 시스템 세팅 + 실시간 가이드 + 감사)
-- **rust-kit** — Rust 전용 백엔드 개발 워크플로우 플러그인 (17종 스킬 + 에이전트)
+- **backend-kit** — 스택 무관 백엔드 개발 가이드, 감사, 아키텍처 세팅 플러그인
+- **infra-kit** — 스택 무관 인프라/DevOps 가이드, 감사, 초기 세팅 플러그인
+- **rust-kit** — Rust 전용 백엔드 개발 워크플로우 플러그인 — 프로젝트 스캐폴딩, API 생성, 모델 관리, 빌드/테스트/감사 자동화
 <!-- /AUTO:summary -->
 
 ## Commands

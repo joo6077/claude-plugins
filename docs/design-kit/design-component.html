@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>컴포넌트 카탈로그 — Design Component</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+  --accent-glow:rgba(232,150,90,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1280px;margin:0 auto;padding:0 24px}
+section{padding:80px 0}section+section{border-top:1px solid var(--border)}
+
+/* HERO */
+.hero{padding:60px 0 80px;text-align:center;
+  background:radial-gradient(ellipse at 50% 0%,rgba(232,150,90,0.08) 0%,transparent 60%)}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+.hero h1{font-size:clamp(2.5rem,5vw+1rem,4.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px}
+.hero p{font-size:1.125rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+
+/* SECTION */
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:1rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:48px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;transition:var(--transition)}
+.card:hover{border-color:var(--border2)}
+.card-title{font-size:1.125rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+@media(min-width:901px) and (max-width:1100px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+
+/* BADGE */
+.badge{padding:4px 14px;border-radius:100px;font-size:12px;font-weight:700}
+.badge.pass{background:rgba(74,222,128,0.15);color:#4ade80}
+.badge.fail{background:rgba(248,113,113,0.15);color:#f87171}
+
+/* UTILITY */
+.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}
+.mb-16{margin-bottom:16px}.mb-24{margin-bottom:24px}.mb-32{margin-bottom:32px}
+.text-accent{color:var(--accent)}.text-muted{color:var(--text2)}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9em;
+  background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+@media(max-width:600px){
+  .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
+}
+
+/* WORKFLOW */
+.workflow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin-bottom:48px}
+.workflow-item{font-size:14px;font-weight:600;padding:8px 20px;border-radius:100px;
+  border:1px solid var(--border);color:var(--text3);background:var(--surface);transition:var(--transition)}
+.workflow-item.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.workflow-arrow{color:var(--text3);font-size:18px;margin:0 8px;user-select:none}
+@media(max-width:600px){.workflow-item{font-size:12px;padding:6px 14px}.workflow-arrow{margin:0 4px;font-size:14px}}
+
+/* COMPONENT CARD */
+.comp-block{margin-bottom:64px}
+.comp-name{font-size:1.5rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.comp-name .comp-icon{font-size:24px}
+.comp-role{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px;max-width:680px}
+
+/* NEXT */
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px;max-width:680px;transition:var(--transition)}
+.next-card{cursor:pointer}
+.next-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.workflow-item:not(.active){cursor:pointer}
+.workflow-item:not(.active):hover{opacity:0.8;border-color:var(--border2)}
+.next-card-desc{font-size:14px;color:var(--text2);line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<header class="hero">
+  <div class="hero-badge">Design Kit</div>
+  <h1>컴포넌트 카탈로그</h1>
+  <p>반복되는 UI 요소를 컴포넌트로 정의하고 카탈로그화한다</p>
+</header>
+
+<!-- WORKFLOW -->
+<section>
+  <div style="text-align:center">
+    <div class="workflow">
+      <span class="workflow-item">design-concept</span>
+      <span class="workflow-arrow">&rarr;</span>
+      <span class="workflow-item">design-system</span>
+      <span class="workflow-arrow">&rarr;</span>
+      <span class="workflow-item">design-mockup</span>
+      <span class="workflow-arrow">&rarr;</span>
+      <span class="workflow-item active">design-component</span>
+    </div>
+  </div>
+</section>
+
+<!-- TEMPLATE -->
+<section>
+  <div class="section-label">TEMPLATE</div>
+  <div class="section-title">산출물 템플릿</div>
+  <div class="section-desc"><code>catalog.md</code> &mdash; 역할, Variants, 상태, 사이즈, 토큰 매핑, 사용 가이드라인을 포함한 컴포넌트 정의서</div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>역할</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">컴포넌트의 목적과 사용 맥락을 정의한다. 어떤 상황에서 이 컴포넌트를 사용하는지 명확히 한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Variants</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">primary, secondary, ghost 등 시각적 변형을 나열한다. 각 변형의 용도와 차이를 설명한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>상태</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">default, hover, active, disabled, loading, focused 등 인터랙션 상태별 스타일을 정의한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>사이즈</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">sm, md, lg 각 사이즈의 높이, 패딩, 폰트 크기를 구체적 수치로 정의한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>토큰 매핑</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">디자인 토큰과의 연결을 명시한다. 하드코딩 값 대신 토큰을 참조하여 일관성을 유지한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>사용 가이드라인</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">DO/DON'T 규칙을 정의한다. 올바른 사용과 잘못된 사용 예시를 함께 제시한다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLE -->
+<section>
+  <div class="section-label">EXAMPLE</div>
+  <div class="section-title">예시: TaskFlow</div>
+  <div class="section-desc">Button + TaskCard 2개 컴포넌트 정의</div>
+
+  <!-- Button Component -->
+  <div class="comp-block">
+    <div class="comp-name"><span class="comp-icon">&#9654;</span>Button</div>
+    <div class="comp-role">사용자 액션 트리거. 폼 제출, 네비게이션, 태스크 생성 등</div>
+
+    <!-- Variants -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">Variants</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variant</th><th>스타일</th><th>용도</th></tr></thead>
+        <tbody>
+          <tr><td><code>primary</code></td><td>amber 배경</td><td>주요 CTA</td></tr>
+          <tr><td><code>secondary</code></td><td>투명 배경 + 보더</td><td>보조 액션</td></tr>
+          <tr><td><code>ghost</code></td><td>배경 없음</td><td>저강조 액션</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 상태 -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">상태</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>상태</th><th>변화</th></tr></thead>
+        <tbody>
+          <tr><td><code>default</code></td><td>기본 스타일</td></tr>
+          <tr><td><code>hover</code></td><td>밝기 +8%</td></tr>
+          <tr><td><code>active</code></td><td>밝기 -4%</td></tr>
+          <tr><td><code>disabled</code></td><td>투명도 0.38</td></tr>
+          <tr><td><code>loading</code></td><td>스피너 표시</td></tr>
+          <tr><td><code>focused</code></td><td>포커스 링 2px</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 사이즈 -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">사이즈</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>사이즈</th><th>높이</th><th>패딩</th><th>폰트</th></tr></thead>
+        <tbody>
+          <tr><td><code>sm</code></td><td>32px</td><td>8px 12px</td><td>body-sm</td></tr>
+          <tr><td><code>md</code></td><td>40px</td><td>10px 16px</td><td>body-md</td></tr>
+          <tr><td><code>lg</code></td><td>48px</td><td>12px 20px</td><td>body-lg</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 토큰 매핑 -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">토큰 매핑</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>속성</th><th>토큰</th></tr></thead>
+        <tbody>
+          <tr><td>bg-default</td><td><code>color.primary</code></td></tr>
+          <tr><td>bg-hover</td><td><code>color.primary-hover</code></td></tr>
+          <tr><td>text</td><td><code>color.on-primary</code></td></tr>
+          <tr><td>radius</td><td><code>radius.md</code></td></tr>
+          <tr><td>padding</td><td><code>space.btn-{size}</code></td></tr>
+          <tr><td>font</td><td><code>typo.label-{size}</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TaskCard Component -->
+  <div class="comp-block">
+    <div class="comp-name"><span class="comp-icon">&#9632;</span>TaskCard</div>
+    <div class="comp-role">태스크 정보 표시. 대시보드 그리드에서 태스크 하나의 요약 정보를 제공한다.</div>
+
+    <!-- Variants -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">Variants</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variant</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>default</code></td><td>기본 카드</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 상태 -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">상태</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>상태</th><th>변화</th></tr></thead>
+        <tbody>
+          <tr><td><code>default</code></td><td>surface 배경</td></tr>
+          <tr><td><code>hover</code></td><td>border 하이라이트 + 미세 translate-y</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 구성요소 -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">구성요소</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>요소</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>제목</td><td>태스크 이름 표시</td></tr>
+          <tr><td>상태 배지</td><td>진행 상태 (대기/진행 중/완료)</td></tr>
+          <tr><td>담당자 아바타</td><td>이니셜 원형 아바타</td></tr>
+          <tr><td>기한 텍스트</td><td>마감일 표시</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 토큰 매핑 -->
+    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">토큰 매핑</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>속성</th><th>토큰</th></tr></thead>
+        <tbody>
+          <tr><td>bg</td><td><code>color.surface</code></td></tr>
+          <tr><td>border</td><td><code>color.border</code></td></tr>
+          <tr><td>title</td><td><code>typo.body-md</code> 600</td></tr>
+          <tr><td>meta</td><td><code>typo.body-sm</code> <code>color.text-secondary</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT -->
+<section>
+  <div class="section-label">NEXT</div>
+  <div class="section-title">다음 단계</div>
+  <div class="section-desc">카탈로그 정의 완료 후 구현으로 전환</div>
+
+  <div class="next-card">
+    <div class="next-card-desc">toolkit 플러그인(flutter-toolkit 등)으로 카탈로그에 정의된 컴포넌트를 실제 코드로 구현합니다</div>
+  </div>
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('.workflow-item:not(.active)').forEach(function(el){
+  el.addEventListener('click',function(){
+    var id=el.textContent.trim();
+    try{parent.navigate(id);}catch(e){}
+  });
+});
+document.querySelectorAll('.next-card').forEach(function(el){
+  var cmd=el.querySelector('.next-card-cmd');
+  if(!cmd)return;
+  var id=cmd.textContent.trim().replace(/^\//,'');
+  el.addEventListener('click',function(){
+    try{parent.navigate(id);}catch(e){}
+  });
+});
+</script>
+</body>
+</html>

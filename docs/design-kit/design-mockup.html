@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>디자인 목업 — Design Mockup</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+  --accent-glow:rgba(232,150,90,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1280px;margin:0 auto;padding:0 24px}
+section{padding:80px 0}section+section{border-top:1px solid var(--border)}
+
+/* HERO */
+.hero{padding:60px 0 80px;text-align:center;
+  background:radial-gradient(ellipse at 50% 0%,rgba(232,150,90,0.08) 0%,transparent 60%)}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+.hero h1{font-size:clamp(2.5rem,5vw+1rem,4.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px}
+.hero p{font-size:1.125rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+
+/* SECTION */
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:1rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:48px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;transition:var(--transition)}
+.card:hover{border-color:var(--border2)}
+.card-title{font-size:1.125rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-glow)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+@media(min-width:901px) and (max-width:1100px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+
+/* BADGE */
+.badge{padding:4px 14px;border-radius:100px;font-size:12px;font-weight:700}
+.badge.pass{background:rgba(74,222,128,0.15);color:#4ade80}
+.badge.fail{background:rgba(248,113,113,0.15);color:#f87171}
+
+/* UTILITY */
+.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}
+.mb-16{margin-bottom:16px}.mb-24{margin-bottom:24px}.mb-32{margin-bottom:32px}
+.text-accent{color:var(--accent)}.text-muted{color:var(--text2)}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9em;
+  background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+@media(max-width:600px){
+  .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
+}
+
+/* WORKFLOW */
+.workflow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin-bottom:48px}
+.workflow-item{font-size:14px;font-weight:600;padding:8px 20px;border-radius:100px;
+  border:1px solid var(--border);color:var(--text3);background:var(--surface);transition:var(--transition)}
+.workflow-item.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.workflow-arrow{color:var(--text3);font-size:18px;margin:0 8px;user-select:none}
+@media(max-width:600px){.workflow-item{font-size:12px;padding:6px 14px}.workflow-arrow{margin:0 4px;font-size:14px}}
+
+/* MOCKUP DEMO */
+.mockup-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  overflow:hidden;margin-bottom:32px}
+.mockup-inner{display:flex;min-height:480px}
+.mockup-sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);
+  padding:20px 0;flex-shrink:0;display:flex;flex-direction:column}
+.mockup-sidebar-brand{padding:0 20px 20px;font-size:15px;font-weight:700;color:var(--accent);
+  border-bottom:1px solid var(--border);margin-bottom:8px}
+.mockup-nav-item{padding:10px 20px;font-size:13px;color:var(--text2);cursor:pointer;
+  transition:var(--transition);display:flex;align-items:center;gap:10px;position:relative}
+.mockup-nav-item:hover{background:var(--accent-glow);color:var(--text)}
+.mockup-nav-item.active{color:var(--accent);background:var(--accent-dim)}
+.mockup-nav-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;
+  background:var(--accent);border-radius:0 2px 2px 0}
+.mockup-nav-icon{font-size:16px;width:20px;text-align:center}
+.mockup-main{flex:1;padding:24px;display:flex;flex-direction:column}
+.mockup-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.mockup-header h3{font-size:18px;font-weight:700}
+.mockup-btn{padding:8px 20px;border-radius:var(--radius-sm);border:none;font-size:13px;font-weight:600;
+  cursor:pointer;transition:var(--transition)}
+.mockup-btn-primary{background:var(--accent);color:#fff}
+.mockup-btn-primary:hover{filter:brightness(1.1)}
+.mockup-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;flex:1}
+.mockup-task-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;transition:var(--transition);cursor:default;position:relative}
+.mockup-task-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.mockup-task-title{font-size:14px;font-weight:600;margin-bottom:10px}
+.mockup-task-meta{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text3)}
+.mockup-task-badge{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.mockup-task-badge.todo{background:rgba(251,191,36,0.15);color:var(--warn)}
+.mockup-task-badge.progress{background:rgba(56,189,248,0.15);color:var(--info)}
+.mockup-task-badge.done{background:rgba(74,222,128,0.15);color:var(--success)}
+.mockup-avatar{width:24px;height:24px;border-radius:50%;background:var(--surface3);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text2)}
+
+@media(max-width:700px){
+  .mockup-inner{flex-direction:column}
+  .mockup-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);
+    flex-direction:row;overflow-x:auto;padding:12px}
+  .mockup-sidebar-brand{display:none}
+  .mockup-nav-item{white-space:nowrap;padding:8px 16px}
+  .mockup-nav-item.active::before{display:none}
+}
+
+/* ID OVERLAY */
+.fab-toggle{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;
+  background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(232,150,90,0.3);transition:var(--transition);z-index:1000;
+  display:flex;align-items:center;justify-content:center}
+.fab-toggle:hover{transform:scale(1.1)}
+.fab-toggle.active{background:var(--surface3);color:var(--accent)}
+.id-tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;font-size:11px;font-weight:600;padding:4px 10px;
+  border-radius:6px;white-space:nowrap;pointer-events:auto;cursor:pointer;
+  opacity:0;transition:opacity 0.15s;z-index:999;font-family:'Cascadia Code','Fira Code',monospace}
+.id-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--accent)}
+.id-tooltip.visible{opacity:1}
+.id-tooltip.copied{background:var(--success)}
+.id-tooltip.copied::after{border-top-color:var(--success)}
+
+/* NEXT CARDS */
+.next-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+@media(max-width:700px){.next-grid{grid-template-columns:1fr}}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px;transition:var(--transition);cursor:default}
+.next-card{cursor:pointer}
+.next-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.workflow-item:not(.active){cursor:pointer}
+.workflow-item:not(.active):hover{opacity:0.8;border-color:var(--border2)}
+.next-card-cmd{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px;font-family:'Cascadia Code','Fira Code',monospace}
+.next-card-desc{font-size:14px;color:var(--text2);line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<header class="hero">
+  <div class="hero-badge">Design Kit</div>
+  <h1>디자인 목업</h1>
+  <p>하이파이 HTML 시안 5개를 생성하여 제시한다</p>
+</header>
+
+<!-- WORKFLOW -->
+<section>
+  <div style="text-align:center">
+    <div class="workflow">
+      <span class="workflow-item">design-concept</span>
+      <span class="workflow-arrow">&rarr;</span>
+      <span class="workflow-item">design-system</span>
+      <span class="workflow-arrow">&rarr;</span>
+      <span class="workflow-item active">design-mockup</span>
+      <span class="workflow-arrow">&rarr;</span>
+      <span class="workflow-item">design-component</span>
+    </div>
+  </div>
+</section>
+
+<!-- TEMPLATE -->
+<section>
+  <div class="section-label">TEMPLATE</div>
+  <div class="section-title">산출물 템플릿</div>
+  <div class="section-desc"><code>mockup.html</code> &mdash; ID 시스템이 포함된 하이파이 HTML 시안</div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>ID 시스템</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7"><code>{컴포넌트명}-{4자리해시}</code> 포맷으로 모든 UI 요소에 유니크 ID를 부여한다. 시안과 구현 사이의 추적성을 보장하며, 피드백 시 정확한 요소를 지칭할 수 있다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>호버 오버레이</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">토글 버튼으로 ID 표시/숨김을 전환한다. 요소 위에 마우스를 올리면 해당 ID가 툴팁으로 표시되며, 클릭 시 클립보드에 복사된다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Figma 연동</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7">선택한 시안이나 개별 컴포넌트를 Figma MCP로 전송할 수 있다. 디자이너와 개발자 간 핸드오프를 자동화한다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLE -->
+<section>
+  <div class="section-label">EXAMPLE</div>
+  <div class="section-title">예시: TaskFlow</div>
+  <div class="section-desc">대시보드 시안 &mdash; 사이드바 네비게이션 + 카드 그리드 레이아웃</div>
+
+  <div class="mockup-frame">
+    <div class="mockup-inner">
+      <!-- Sidebar -->
+      <nav class="mockup-sidebar">
+        <div class="mockup-sidebar-brand">TaskFlow</div>
+        <div class="mockup-nav-item active" id="sidebar-nav-a1b2">
+          <span class="mockup-nav-icon">&#9776;</span>대시보드
+        </div>
+        <div class="mockup-nav-item" id="sidebar-nav-b2c3">
+          <span class="mockup-nav-icon">&#9744;</span>태스크
+        </div>
+        <div class="mockup-nav-item" id="sidebar-nav-c3d4">
+          <span class="mockup-nav-icon">&#128197;</span>캘린더
+        </div>
+        <div class="mockup-nav-item" id="sidebar-nav-d4e5">
+          <span class="mockup-nav-icon">&#9881;</span>설정
+        </div>
+      </nav>
+
+      <!-- Main -->
+      <div class="mockup-main">
+        <div class="mockup-header" id="header-main-f6g7">
+          <h3>대시보드</h3>
+          <button class="mockup-btn mockup-btn-primary" id="btn-create-e5f6">+ Create Task</button>
+        </div>
+
+        <div class="mockup-card-grid">
+          <div class="mockup-task-card" id="card-task-c3d4">
+            <div class="mockup-task-title">온보딩 플로우 설계</div>
+            <div style="margin-bottom:10px"><span class="mockup-task-badge progress">진행 중</span></div>
+            <div class="mockup-task-meta">
+              <span>4월 10일</span>
+              <div class="mockup-avatar">JK</div>
+            </div>
+          </div>
+          <div class="mockup-task-card" id="card-task-d4e5">
+            <div class="mockup-task-title">API 엔드포인트 연동</div>
+            <div style="margin-bottom:10px"><span class="mockup-task-badge todo">대기</span></div>
+            <div class="mockup-task-meta">
+              <span>4월 12일</span>
+              <div class="mockup-avatar">SH</div>
+            </div>
+          </div>
+          <div class="mockup-task-card" id="card-task-e5f6">
+            <div class="mockup-task-title">디자인 토큰 정리</div>
+            <div style="margin-bottom:10px"><span class="mockup-task-badge done">완료</span></div>
+            <div class="mockup-task-meta">
+              <span>4월 8일</span>
+              <div class="mockup-avatar">MJ</div>
+            </div>
+          </div>
+          <div class="mockup-task-card" id="card-task-f6g7">
+            <div class="mockup-task-title">대시보드 반응형 적용</div>
+            <div style="margin-bottom:10px"><span class="mockup-task-badge todo">대기</span></div>
+            <div class="mockup-task-meta">
+              <span>4월 15일</span>
+              <div class="mockup-avatar">JK</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB Toggle -->
+  <button class="fab-toggle" id="fab-id-overlay" title="ID 오버레이 토글">&#128270;</button>
+</section>
+
+<!-- NEXT -->
+<section>
+  <div class="section-label">NEXT</div>
+  <div class="section-title">다음 단계</div>
+  <div class="section-desc">시안 확정 후 진행할 수 있는 워크플로우</div>
+
+  <div class="next-grid">
+    <div class="next-card">
+      <div class="next-card-cmd">/design-component</div>
+      <div class="next-card-desc">시안에서 반복되는 UI 요소를 컴포넌트로 정의하고 카탈로그화</div>
+    </div>
+    <div class="next-card">
+      <div class="next-card-cmd">Figma 전송</div>
+      <div class="next-card-desc">Figma MCP가 설정되어 있으면 선택한 시안을 Figma로 전송</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  const fab = document.getElementById('fab-id-overlay');
+  let overlayOn = false;
+  let currentTooltip = null;
+
+  fab.addEventListener('click', function(){
+    overlayOn = !overlayOn;
+    fab.classList.toggle('active', overlayOn);
+    if(!overlayOn && currentTooltip){
+      currentTooltip.remove();
+      currentTooltip = null;
+    }
+  });
+
+  // Delegate mouseover/mouseout on mockup-frame
+  const frame = document.querySelector('.mockup-frame');
+  if(!frame) return;
+
+  frame.addEventListener('mouseover', function(e){
+    if(!overlayOn) return;
+    const el = e.target.closest('[id]');
+    if(!el || !frame.contains(el)) return;
+    if(currentTooltip) currentTooltip.remove();
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'id-tooltip';
+    tooltip.textContent = el.id;
+    el.style.position = el.style.position || 'relative';
+    if(getComputedStyle(el).position === 'static') el.style.position = 'relative';
+    el.appendChild(tooltip);
+    requestAnimationFrame(()=> tooltip.classList.add('visible'));
+    currentTooltip = tooltip;
+
+    tooltip.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      navigator.clipboard.writeText(el.id).then(()=>{
+        tooltip.textContent = 'Copied!';
+        tooltip.classList.add('copied');
+        setTimeout(()=>{
+          tooltip.textContent = el.id;
+          tooltip.classList.remove('copied');
+        }, 1200);
+      });
+    });
+  });
+
+  frame.addEventListener('mouseout', function(e){
+    if(!overlayOn) return;
+    const el = e.target.closest('[id]');
+    if(!el) return;
+    const tip = el.querySelector('.id-tooltip');
+    if(tip) tip.remove();
+    if(currentTooltip && !frame.contains(currentTooltip)) currentTooltip = null;
+  });
+})();
+</script>
+
+<script>
+document.querySelectorAll('.workflow-item:not(.active)').forEach(function(el){
+  el.addEventListener('click',function(){
+    var id=el.textContent.trim();
+    try{parent.navigate(id);}catch(e){}
+  });
+});
+document.querySelectorAll('.next-card').forEach(function(el){
+  var cmd=el.querySelector('.next-card-cmd');
+  if(!cmd)return;
+  var id=cmd.textContent.trim().replace(/^\//,'');
+  el.addEventListener('click',function(){
+    try{parent.navigate(id);}catch(e){}
+  });
+});
+</script>
+</body>
+</html>

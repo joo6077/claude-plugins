@@ -57,10 +57,11 @@ references/component-spec-template.md의 포맷으로 각 컴포넌트를 정의
 
 ## Step 3: 사용자 피드백
 
-- 컴포넌트 카탈로그를 사용자에게 제시
+- templates/catalog.md 포맷으로 컴포넌트 카탈로그를 생성하고 사용자에게 제시
 - 피드백을 받아 수정 (variant 추가/제거, 상태 조정, 토큰 변경)
 - 확정 시 `.design/components/catalog.md`에 저장
 
 # References
 
 - `references/component-spec-template.md` — 컴포넌트 정의 템플릿
+- `templates/catalog.md` — 컴포넌트 카탈로그 출력 포맷

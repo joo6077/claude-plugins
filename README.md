@@ -10,6 +10,9 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 | [`harness`](./harness/) | v0.3.5 | 범용 | [v0.3.5 · 2026-03-30] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 |
 | [`flutter-toolkit`](./flutter-toolkit/) | v0.5.0 | Flutter | [v0.5.0 · 2026-03-30] Flutter 개발 워크플로우 스킬 모음 (빌드, 감사, preflight, 테스트 등) |
 | [`design-kit`](./design-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-03-30] 스택 무관 UI/UX 디자인 가이드 + 감사 플러그인 |
+| [`backend-kit`](./backend-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-04] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 플러그인 |
+| [`infra-kit`](./infra-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-04] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 플러그인 |
+| [`rust-kit`](./rust-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-07] Rust 전용 백엔드 개발 워크플로우 플러그인 — 17종 스킬 + 에이전트 |
 <!-- /AUTO:plugins -->
 
 ---

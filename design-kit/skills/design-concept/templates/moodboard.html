@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moodboard — {{project-name}}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0d14;
+    color: #F5F0E8;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    padding: 2rem;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+
+  /* Header */
+  header { margin-bottom: 3rem; }
+  header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #F5F0E8;
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: #181825;
+    border: 1px solid rgba(232, 150, 90, 0.3);
+    color: #E8965A;
+  }
+
+  /* Section */
+  section {
+    background: #181825;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  section h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #E8965A;
+    border-bottom: 1px solid rgba(245, 240, 232, 0.08);
+    padding-bottom: 0.5rem;
+  }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .swatch {
+    width: 120px;
+    text-align: center;
+  }
+  .swatch-color {
+    width: 120px;
+    height: 80px;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(245, 240, 232, 0.06);
+  }
+  .swatch-label {
+    font-size: 0.75rem;
+    color: rgba(245, 240, 232, 0.6);
+  }
+  .swatch-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  /* Typography */
+  .type-sample {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(245, 240, 232, 0.06);
+  }
+  .type-sample:last-child { border-bottom: none; }
+  .type-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(245, 240, 232, 0.4);
+    margin-bottom: 0.25rem;
+  }
+  .type-heading {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: {{heading-font}}, sans-serif;
+  }
+  .type-subheading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: {{heading-font}}, sans-serif;
+  }
+  .type-body {
+    font-size: 1rem;
+    font-weight: 400;
+    font-family: {{body-font}}, sans-serif;
+  }
+  .type-caption {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(245, 240, 232, 0.6);
+    font-family: {{body-font}}, sans-serif;
+  }
+
+  /* UI Patterns */
+  .pattern-area {
+    min-height: 200px;
+    border: 1px dashed rgba(245, 240, 232, 0.12);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(245, 240, 232, 0.3);
+    font-size: 0.85rem;
+  }
+  .pattern-tags {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .pattern-tag {
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    background: rgba(232, 150, 90, 0.1);
+    color: #E8965A;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>{{project-name}}</h1>
+    <div class="badge-row">
+      <!-- {{mood-keywords}} -->
+      <span class="badge">{{keyword-1}}</span>
+      <span class="badge">{{keyword-2}}</span>
+      <span class="badge">{{keyword-3}}</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Color Palette</h2>
+    <p style="font-size:0.85rem; color:rgba(245,240,232,0.5); margin-bottom:1rem;">{{color-direction}}</p>
+    <div class="palette">
+      <!-- {{color-swatches}} -->
+      <div class="swatch">
+        <div class="swatch-color" style="background:#3B2F2F;"></div>
+        <div class="swatch-name">Warm Base</div>
+        <div class="swatch-label">#3B2F2F</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#5C4033;"></div>
+        <div class="swatch-name">Warm Mid</div>
+        <div class="swatch-label">#5C4033</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#8B7355;"></div>
+        <div class="swatch-name">Neutral Tone</div>
+        <div class="swatch-label">#8B7355</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#A0B4C3;"></div>
+        <div class="swatch-name">Cool Accent</div>
+        <div class="swatch-label">#A0B4C3</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#E8965A;"></div>
+        <div class="swatch-name">Point</div>
+        <div class="swatch-label">#E8965A</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Typography</h2>
+    <div class="type-sample">
+      <div class="type-label">Heading / {{font-classification}}</div>
+      <div class="type-heading">가나다라마바사 ABCDEfghij 012345</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-label">Subheading</div>
+      <div class="type-subheading">가나다라마바사 ABCDEfghij 012345</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-label">Body</div>
+      <div class="type-body">본문 텍스트 샘플입니다. The quick brown fox jumps over the lazy dog. 0123456789</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-label">Caption</div>
+      <div class="type-caption">캡션 텍스트 샘플입니다. Secondary information displayed at smaller size.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>UI Patterns</h2>
+    <div class="pattern-tags">
+      <!-- {{layout-pattern}} -->
+      <span class="pattern-tag">{{layout-type}}</span>
+      <span class="pattern-tag">{{navigation-type}}</span>
+      <span class="pattern-tag">{{density-level}}</span>
+      <span class="pattern-tag">{{card-style}}</span>
+    </div>
+    <div class="pattern-area">
+      {{layout-pattern-sketch}}
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

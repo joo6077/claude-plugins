@@ -57,7 +57,7 @@ references/concept-criteria.md의 카테고리별로 컨셉 요소를 정리한�
 
 ## Step 4: 컨셉 문서 생성
 
-`.design/concept.md`를 생성(또는 갱신)한다:
+templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)한다:
 
 ```markdown
 # 디자인 컨셉
@@ -83,7 +83,7 @@ references/concept-criteria.md의 카테고리별로 컨셉 요소를 정리한�
 
 ## Step 5: 비주얼 무드보드 HTML 생성
 
-`.design/moodboard.html`을 생성한다:
+templates/moodboard.html 포맷으로 `.design/moodboard.html`을 생성한다:
 - 컬러 방향을 시각화한 팔레트 샘플
 - 타이포그래피 샘플 (서체 분류별 예시)
 - 레이아웃 패턴 스케치
@@ -102,3 +102,5 @@ references/concept-criteria.md의 카테고리별로 컨셉 요소를 정리한�
 # References
 
 - `references/concept-criteria.md` — 컨셉 도출 기준 상세
+- `templates/concept.md` — 컨셉 문서 출력 포맷
+- `templates/moodboard.html` — 비주얼 무드보드 출력 포맷

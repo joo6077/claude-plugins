@@ -15,7 +15,7 @@ conditions: 18
 
 ## Script
 
-- [ ] SC-01: .claude/skills/create-kit/SKILL.md의 Gotcha에 "언어 전용 워크플로우 킷은 다종 스킬 패턴 허용" 예외가 추가되어 있다
+- [ ] SC-01: .claude/skills/create-kit/SKILL.md의 Gotcha에 "언어 전용 워크플로우 킷(flutter-toolkit, rust-kit 등)은 다종 스킬 패턴 허용" 예외가 추가되어 있다
 
 ## Error
 
