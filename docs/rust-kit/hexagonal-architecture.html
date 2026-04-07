@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>헥사고날 아키텍처 — Rust Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .source-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8}
+  .source-link:hover{opacity:1}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+  .port-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:border-color var(--transition)}
+  .port-card:hover{border-color:rgba(232,93,74,0.3)}
+  .port-name{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+  .port-adapters{font-size:11px;color:var(--text3);margin-top:8px}
+  .port-adapters span{display:inline-block;background:var(--surface2);border-radius:4px;padding:1px 6px;margin:2px 2px 0 0;font-family:var(--mono)}
+  .dep-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .dep-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-family:var(--mono);font-size:12px;color:var(--text2)}
+  .dep-box.core{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
+  .dep-arrow{color:var(--accent);font-weight:700;font-size:16px}
+  .disp-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  @media(max-width:600px){.disp-compare{grid-template-columns:1fr}}
+  .disp-box{background:var(--surface2);border-radius:10px;padding:14px 16px}
+  .disp-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+  .disp-pro{color:var(--green);font-size:12px}
+  .disp-con{color:var(--red);font-size:12px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Rust Kit</a>
+
+<h1>헥사고날 아키텍처</h1>
+<p class="subtitle">Alistair Cockburn이 2005년 제안한 Ports &amp; Adapters 패턴. 애플리케이션을 외부 세계(UI, DB, 메시지 브로커, 외부 API)로부터 격리하는 것이 핵심이다. 외부 시스템이 교체되어도 도메인 로직은 변경되지 않는다. Rust에서는 <code>trait</code>이 Port, <code>impl</code>이 Adapter 역할을 한다.</p>
+
+<!-- 의존 방향 다이어그램 -->
+<div class="section">
+  <div class="section-label">의존 방향 규칙</div>
+  <p class="desc">의존성은 항상 인프라 → 도메인 단방향이다. Cargo.toml 의존성으로 규칙이 컴파일 타임에 강제된다.</p>
+  <div class="card" style="text-align:center;padding:28px">
+    <div class="dep-flow" style="justify-content:center">
+      <div><div class="dep-box">HTTP / UI</div></div>
+      <span class="dep-arrow">→</span>
+      <div><div class="dep-box">api</div></div>
+      <span class="dep-arrow">→</span>
+      <div><div class="dep-box">adapters</div></div>
+      <span class="dep-arrow">→</span>
+      <div><div class="dep-box core">domain</div></div>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text3)">domain 크레이트가 sqlx, reqwest를 import하면 컴파일 단계에서 실패한다</div>
+  </div>
+</div>
+
+<!-- 원칙 -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <h3>도메인은 인프라를 모른다</h3>
+          <div class="rule-number">Dependency Inversion</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>도메인 크레이트(<code>domain/</code>)는 어떤 DB, 브로커, HTTP 클라이언트도 <code>use</code>하지 않는다. 도메인은 Port(trait)만 정의하고, 인프라 크레이트가 Adapter(impl)를 제공한다.</p>
+        <pre><span style="color:#4ade80">// 올바른 Port — 도메인 타입만 사용</span>
+#[async_trait]
+pub trait DatabasePort: Send + Sync {
+    async fn find_user(&amp;self, id: UserId)
+        -&gt; Result&lt;User, DomainError&gt;;
+    async fn save_user(&amp;self, user: &amp;User)
+        -&gt; Result&lt;(), DomainError&gt;;
+}
+
+<span style="color:#f87171">// 잘못된 Port — 인프라 타입 노출</span>
+pub trait DatabasePort {
+    async fn find_user(&amp;self, id: i64)
+        -&gt; Result&lt;sqlx::Row, sqlx::Error&gt;; // ❌
+}</pre>
+      </div>
+      <a href="https://alistair.cockburn.us/hexagonal-architecture/" target="_blank" class="source-link">&#8599; Alistair Cockburn — Hexagonal Architecture (2005)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <h3>Port는 최소화된 trait으로 표현한다</h3>
+          <div class="rule-number">Interface Segregation</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Port는 도메인이 필요한 능력만 선언한다. trait의 파라미터가 인프라 타입(<code>sqlx::Row</code>, <code>hyper::Response</code> 등)을 포함하면 Port가 아니라 구현 상세가 누출된 것이다.</p>
+        <p style="margin-top:10px;font-size:12px;color:var(--text3)">포트당 메서드 수 권장: 3~7개. 그 이상이면 포트 분리를 검토한다.</p>
+        <pre><span style="color:#f08575">// domain/src/ports/</span>
+pub trait DatabasePort: Send + Sync { ... }
+pub trait StoragePort: Send + Sync { ... }
+pub trait EmailPort: Send + Sync { ... }
+<span style="color:#4ade80">// 각 Port는 도메인 타입만 참조</span></pre>
+      </div>
+      <a href="https://alistair.cockburn.us/hexagonal-architecture/" target="_blank" class="source-link">&#8599; Alistair Cockburn — Hexagonal Architecture (2005)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <h3>Adapter는 인프라를 Port로 변환한다</h3>
+          <div class="rule-number">Translation Only</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Adapter는 인프라 라이브러리를 호출하고 결과를 도메인 타입으로 변환한다. 에러 변환(<code>sqlx::Error → DomainError</code>)도 Adapter 책임이다. 도메인 로직이 Adapter에 들어오면 서비스 레이어로 옮겨야 한다.</p>
+        <pre>pub struct PostgresUserAdapter { pool: sqlx::PgPool }
+
+#[async_trait]
+impl DatabasePort for PostgresUserAdapter {
+    async fn find_user(&amp;self, id: UserId)
+        -&gt; Result&lt;User, DomainError&gt;
+    {
+        let row = sqlx::query_as::&lt;_, UserRow&gt;(
+            "SELECT * FROM users WHERE id = $1"
+        )
+        .bind(id.0)
+        .fetch_one(&amp;self.pool)
+        .await
+        .map_err(|e| DomainError::NotFound(e.to_string()))?;
+        Ok(row.into()) <span style="color:#4ade80">// 변환만 담당</span>
+    }
+}</pre>
+      </div>
+      <a href="https://doc.rust-lang.org/book/ch10-02-traits.html" target="_blank" class="source-link">&#8599; Rust Book — Traits: Defining Shared Behavior</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <h3>제네릭 vs <code>Box&lt;dyn Port&gt;</code> 선택 기준</h3>
+          <div class="rule-number">Static vs Dynamic Dispatch</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>포트 수에 따라 디스패치 방식을 선택한다. <strong style="color:var(--accent2)">실용 기준: 포트 1~2개면 제네릭, 3개 이상이면 <code>Arc&lt;dyn Port&gt;</code> 혼용.</strong></p>
+        <div class="disp-compare">
+          <div class="disp-box">
+            <div class="disp-title">제네릭 (정적 디스패치)</div>
+            <div class="disp-pro">+ 컴파일 타임 최적화</div>
+            <div class="disp-pro">+ vtable 없음, 인라인 가능</div>
+            <div class="disp-con">- 타입 파라미터 증가 시 제네릭 폭발</div>
+          </div>
+          <div class="disp-box">
+            <div class="disp-title">Arc&lt;dyn Port&gt; (동적 디스패치)</div>
+            <div class="disp-pro">+ 포트 많을 때 구조체 단순</div>
+            <div class="disp-pro">+ DI 컨테이너 연동 용이</div>
+            <div class="disp-con">- vtable 간접 호출 ~5ns/call</div>
+          </div>
+        </div>
+        <pre><span style="color:#f08575">// 3개 이상 — Arc&lt;dyn Port&gt; 혼용</span>
+pub struct UserService {
+    db: Arc&lt;dyn DatabasePort&gt;,
+    storage: Arc&lt;dyn StoragePort&gt;,
+    email: Arc&lt;dyn EmailPort&gt;,
+}</pre>
+      </div>
+      <a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html" target="_blank" class="source-link">&#8599; Rust Book — Trait Objects</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 8개 포트 -->
+<div class="section">
+  <div class="section-label">8개 표준 Port</div>
+  <p class="desc">rust-kit이 정의하는 표준 Port trait과 교체 가능한 Adapter 목록.</p>
+  <div class="grid-4">
+    <div class="port-card">
+      <div class="port-name">DatabasePort</div>
+      <div style="font-size:12px;color:var(--text2)">관계형 DB CRUD. find/save/delete/list</div>
+      <div class="port-adapters">
+        <span>PostgresAdapter</span>
+        <span>SupabaseAdapter</span>
+        <span>SqliteAdapter</span>
+      </div>
+    </div>
+    <div class="port-card">
+      <div class="port-name">StoragePort</div>
+      <div style="font-size:12px;color:var(--text2)">오브젝트 스토리지. upload/download/presign</div>
+      <div class="port-adapters">
+        <span>S3Adapter</span>
+        <span>MinioAdapter</span>
+        <span>GcsAdapter</span>
+      </div>
+    </div>
+    <div class="port-card">
+      <div class="port-name">MessagingPort</div>
+      <div style="font-size:12px;color:var(--text2)">메시지 큐. publish/subscribe/ack</div>
+      <div class="port-adapters">
+        <span>RabbitMqAdapter</span>
+        <span>KafkaAdapter</span>
+        <span>NatsAdapter</span>
+      </div>
+    </div>
+    <div class="port-card">
+      <div class="port-name">AuthPort</div>
+      <div style="font-size:12px;color:var(--text2)">인증/IdP. verify/issue/revoke token</div>
+      <div class="port-adapters">
+        <span>JwtAdapter</span>
+        <span>SupabaseAuthAdapter</span>
+        <span>Auth0Adapter</span>
+      </div>
+    </div>
+    <div class="port-card">
+      <div class="port-name">EmailPort</div>
+      <div style="font-size:12px;color:var(--text2)">이메일 발송. send/send_bulk</div>
+      <div class="port-adapters">
+        <span>SmtpAdapter</span>
+        <span>ResendAdapter</span>
+        <span>SesAdapter</span>
+      </div>
+    </div>
+    <div class="port-card">
+      <div class="port-name">PaymentPort</div>
+      <div style="font-size:12px;color:var(--text2)">결제. checkout/capture/refund/webhook</div>
+      <div class="port-adapters">
+        <span>StripeAdapter</span>
+        <span>PaddleAdapter</span>
+      </div>
+    </div>
+    <div class="port-card">
+      <div class="port-name">InferencePort</div>
+      <div style="font-size:12px;color:var(--text2)">AI 추론. complete/stream/embed</div>
+      <div class="port-adapters">
+        <span>OpenAiAdapter</span>
+        <span>OllamaAdapter</span>
+        <span>VllmAdapter</span>
+      </div>
+    </div>
+    <div class="port-card">
+      <div class="port-name">JobPort</div>
+      <div style="font-size:12px;color:var(--text2)">백그라운드 작업. enqueue/cancel/status</div>
+      <div class="port-adapters">
+        <span>ApalisAdapter</span>
+        <span>FangAdapter</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 수치 기준 -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">아키텍처 선택에 관한 실측 기준과 트레이드오프.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Box&lt;dyn Port&gt;</code> vs 제네릭 전환 기준</td><td>포트 3개 이상</td><td>제네릭 폭발 방지</td></tr>
+        <tr><td>async_trait 오버헤드</td><td>~5ns/call</td><td>vtable + Box&lt;Future&gt; 할당. hot path 회피</td></tr>
+        <tr><td><code>Arc&lt;dyn Port&gt;</code> clone 비용</td><td>~2ns/clone</td><td>atomic ref count. 대부분 무시 가능</td></tr>
+        <tr><td>포트당 메서드 수 권장</td><td>3~7개</td><td>그 이상이면 포트 분리 검토</td></tr>
+        <tr><td>어댑터당 크레이트 기준</td><td>인프라 기술 1개</td><td>S3 + GCS를 하나의 어댑터 크레이트에 묶어도 무방</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 안티패턴 -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">헥사고날 아키텍처에서 자주 저지르는 설계 실수.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 포트에 인프라 타입 노출</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 모든 어댑터가 sqlx에 의존해야 함
+pub trait DatabasePort {
+    async fn find(&amp;self, id: i64)
+        -&gt; Result&lt;sqlx::Row, sqlx::Error&gt;;
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 도메인 타입만 사용</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 어댑터 교체 자유
+pub trait DatabasePort: Send + Sync {
+    async fn find(&amp;self, id: UserId)
+        -&gt; Result&lt;User, DomainError&gt;;
+}</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — Adapter에 도메인 로직 삽입</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 비즈니스 규칙이 인프라에 분산됨
+impl DatabasePort for PostgresUserAdapter {
+    async fn save_user(&amp;self, user: &amp;User) {
+        if !is_valid_email(&amp;user.email) { // 도메인 로직
+            return Err(...);
+        }
+        // DB 저장...
+    }
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — Adapter는 변환만 담당</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 도메인 로직은 Service에
+impl UserService {
+    async fn create_user(&amp;self, cmd: CreateUserCmd) {
+        validate_email(&amp;cmd.email)?; // Service 책임
+        self.db.save_user(&amp;user).await?;
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 단위 테스트에 실제 인프라 사용</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ Port 추상화를 쓰지 않은 신호
+#[test]
+async fn test_service() {
+    let pool = PgPool::connect(&amp;DB_URL).await.unwrap();
+    let service = UserService::new(pool);
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — MockPort 주입</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ DB 없이 도메인 로직 테스트
+#[tokio::test]
+async fn test_service() {
+    let mock_db = MockDatabasePort::new();
+    let service = UserService::new(Arc::new(mock_db));
+}</pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- Gotchas -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <p class="desc">헥사고날 아키텍처를 Rust로 구현할 때 자주 발생하는 함정.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">Rust 1.75+ AFIT로 async_trait 없이 async fn in trait 가능</strong><br>
+          <code>#[async_trait]</code>는 매 호출마다 힙 할당이 발생한다(~5ns). hot path에서는 <code>impl Future</code>를 직접 사용하거나 AFIT(Return Position Impl Trait in Trait)로 대체할 수 있다.
+          <pre style="margin-top:8px"><span style="color:#4ade80">// Rust 1.75+ — async_trait 없이</span>
+pub trait DatabasePort: Send + Sync {
+    fn find_user(&amp;self, id: UserId)
+        -&gt; impl Future&lt;Output = Result&lt;Option&lt;User&gt;, DomainError&gt;&gt; + Send;
+}</pre>
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)"><code>dyn Trait</code>은 <code>Send + Sync</code> 명시가 필요하다</strong><br>
+          <code>Arc&lt;dyn DatabasePort&gt;</code>가 <code>Send + Sync</code>를 요구하면 trait 정의에도 <code>: Send + Sync</code> 수퍼트레잇이 있어야 한다. tokio 런타임에서 task를 spawn할 때 <code>Send</code>가 없으면 컴파일 에러가 발생한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">제네릭 폭발 — 포트 4개 이상이면 <code>Arc&lt;dyn Port&gt;</code>로 전환</strong><br>
+          <code>UserService&lt;D, S, M, A&gt;</code>처럼 타입 파라미터가 4개 이상이면 컴파일 시간이 증가하고 바이너리 크기가 커진다. <code>ServiceDeps</code> 구조체로 묶어 전달하거나 트레잇 객체로 전환한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">어댑터 초기화 에러는 main에서 처리한다</strong><br>
+          <code>PgPool::connect</code>, AWS SDK 설정 등은 실패할 수 있다. <code>main.rs</code>에서 모든 어댑터를 초기화하고 실패 시 즉시 종료한다. 서비스 레이어에서 lazy init하면 에러를 늦게 발견한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">MockAdapter는 <code>#[cfg(test)]</code> 또는 test-helpers 크레이트에만 둔다</strong><br>
+          <code>MockDatabasePort</code>를 프로덕션 코드에 포함하면 테스트 코드가 바이너리에 배포된다. <code>#[cfg(test)]</code>나 별도 <code>test-helpers</code> 크레이트로 분리한다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
