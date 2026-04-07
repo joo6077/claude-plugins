@@ -5,9 +5,10 @@
 ## 결정 사항
 
 - **독립 플러그인** (`rust-kit/`)으로 생성. backend-kit(스택 무관)과 별개.
-- **기본 스택**: Axum 0.8 + Tokio 1.50 + SQLx 0.8 + serde + thiserror/anyhow + utoipa + cargo-nextest
+- **기본 스택**: Axum 0.8 + Tokio 1.50.0 + SQLx 0.8 + serde + thiserror/anyhow + utoipa + cargo-nextest <!-- Codex 검증: 2026-04-07, crates.io 기준 1.50.0 (2026-03-03 릴리스) -->
 - **버전 관리**: `rust-toolchain.toml`에 `channel = "stable"` (롤링 최신)
 - **스킬 17종 + 에이전트 1종 + 카이젠/리서치 2종** (카이젠/리서치는 `.claude/skills/`에 배치)
+- **아키텍처**: Hexagonal Architecture (Ports & Adapters) 기본. 모든 생성형 스킬이 trait(포트) → impl(어댑터) 순서로 코드를 생성
 
 ## 플러그인 구조
 
@@ -51,7 +52,8 @@ docs/rust/
 │   ├── async-concurrency.md
 │   ├── testing.md
 │   ├── project-structure.md
-│   └── performance.md
+│   ├── performance.md
+│   └── hexagonal-architecture.md
 ├── web/
 │   ├── axum-patterns.md
 │   ├── middleware.md
@@ -85,10 +87,20 @@ Step 3. Workspace 감지          Cargo.toml [workspace] 존재 여부
                                 members 패턴 → 멀티크레이트 구조 파악
 Step 4. 의존성 감지             Cargo.toml [dependencies] + [dev-dependencies]
                                 주요 크레이트 존재 여부를 HAS_* 플래그로 설정
-Step 5. 아키텍처 패턴 감지      src/ 디렉토리 구조 분석
+Step 5. 아키텍처 패턴 감지      src/ 디렉토리 구조 분석 (아래 테이블 참조)
 Step 6. 빌드 도구 감지          Makefile, justfile, cargo-make, cross 등
 Step 7. CI 감지                 .github/workflows/, .gitlab-ci.yml 등
 ```
+
+**Step 5 아키텍처 감지 테이블**:
+
+| ARCH | 감지 조건 |
+|------|---------|
+| `hexagonal` | `ports/` + `adapters/` 디렉토리 존재 (workspace 크레이트 내 또는 단일 크레이트 src/ 내) |
+| `workspace_service` | `crates/` 디렉토리 + workspace members 존재 (ports/adapters 없을 때) |
+| `modular` | `src/api/`, `src/domain/`, `src/infra/` 모듈 분리 (단일 크레이트, ports/adapters 없을 때) |
+| `flat` | `src/main.rs` + `src/lib.rs` 수준 |
+| `library` | `[lib]` only, `[[bin]]` 없음 |
 
 ### 감지 결과 변수
 
@@ -115,7 +127,8 @@ Step 7. CI 감지                 .github/workflows/, .gitlab-ci.yml 등
 - `HAS_RUST_I18N`, `HAS_FLUENT` — i18n
 
 **아키텍처**:
-- `ARCH` = `workspace_service` | `modular` | `flat` | `library`
+- `ARCH` = `hexagonal` | `workspace_service` | `modular` | `flat` | `library`
+  - `hexagonal`: `ports/` + `adapters/` 디렉토리 존재 (workspace 또는 단일 크레이트 모두 가능)
   - `workspace_service`: `crates/` 디렉토리 + workspace members (API, domain, infra 분리)
   - `modular`: 단일 크레이트 내 `src/api/`, `src/domain/`, `src/infra/` 모듈 분리
   - `flat`: `src/main.rs` + `src/lib.rs` 수준
@@ -183,11 +196,15 @@ my-project/
 │   │       ├── lib.rs
 │   │       ├── models/
 │   │       ├── services/
+│   │       ├── ports/      # trait 정의
+│   │       │   └── mod.rs
 │   │       └── errors.rs
-│   └── infra/              # DB, 외부 서비스 연동
+│   └── infra/              # DB, 외부 서비스 연동 (어댑터)
 │       ├── Cargo.toml
 │       └── src/
 │           ├── lib.rs
+│           ├── adapters/   # trait impl
+│           │   └── mod.rs
 │           ├── db/
 │           ├── cache/
 │           └── auth/
@@ -209,9 +226,13 @@ my-project/
 │   ├── domain/
 │   │   ├── mod.rs
 │   │   ├── models/
-│   │   └── services/
+│   │   ├── services/
+│   │   └── ports/
+│   │       └── mod.rs
 │   └── infra/
 │       ├── mod.rs
+│       ├── adapters/
+│       │   └── mod.rs
 │       └── db/
 ├── migrations/
 └── tests/
@@ -260,9 +281,11 @@ my-project/
 1. 프로젝트 감지
 2. HTTP 메서드, 경로, 요청/응답 스키마 확인
 3. 기존 핸들러 패턴 읽기 (에러 반환 방식, 추출자 사용 패턴)
-4. 핸들러 + 라우터 생성
-5. OpenAPI 스펙 등록 (HAS_UTOIPA)
-6. `cargo build` 확인 안내
+4. 포트 정의 — `domain/ports/`에 핸들러가 의존할 서비스 trait을 정의한다. 구현 상세(SQLx, 외부 API 등)를 trait에 노출하지 않는다.
+5. 어댑터 구현 — `infra/adapters/`에 trait impl을 생성한다. 구체 크레이트 의존은 이 레이어에만 존재한다.
+6. 핸들러 + 라우터 생성 (핸들러는 trait을 의존성으로 주입받는 패턴)
+7. OpenAPI 스펙 등록 (HAS_UTOIPA)
+8. `cargo build` 확인 안내
 
 **핸들러 패턴**:
 ```rust
@@ -295,9 +318,11 @@ async fn create_user(
 1. 프로젝트 감지
 2. 테이블 이름, 컬럼, 관계 확인
 3. 기존 모델 패턴 읽기
-4. 마이그레이션 SQL 생성
-5. Rust 구조체 + 쿼리 함수 생성
-6. `sqlx migrate run` 또는 `cargo sqlx prepare` 안내
+4. 포트 정의 — `domain/ports/`에 Repository trait을 정의한다. SQLx 타입(PgPool 등)을 trait 시그니처에 노출하지 않는다.
+5. 어댑터 구현 — `infra/adapters/`에 SQLx 기반 Repository impl을 생성한다. sqlx 의존은 이 레이어에만 존재한다.
+6. 마이그레이션 SQL 생성
+7. Rust 구조체 + 쿼리 함수 생성
+8. `sqlx migrate run` 또는 `cargo sqlx prepare` 안내
 
 **Gotchas**:
 - `sqlx::query!` 매크로는 컴파일 타임에 DB 연결 필요 — `DATABASE_URL` 환경변수 또는 `.env` 필수
@@ -320,12 +345,14 @@ async fn create_user(
 1. 프로젝트 감지
 2. 서비스 이름, 의존성(repository trait 등) 확인
 3. 기존 서비스 패턴 읽기
-4. trait + impl 생성
-5. 테스트 모듈 생성 (mock 포함)
+4. 포트 정의 — `domain/ports/`에 서비스가 의존할 port trait을 정의한다. 서비스 자체도 port trait으로 노출한다.
+5. 어댑터 구현 — `infra/adapters/`에 port trait impl을 생성한다. 구체 크레이트 의존은 이 레이어에만 존재한다.
+6. 서비스 trait + impl 생성
+7. 테스트 모듈 생성 (mock 포함)
 
 **패턴**:
 ```rust
-// trait 기반 DI
+// 포트 기반 DI (Hexagonal)
 #[async_trait]
 pub trait UserService: Send + Sync {
     async fn create_user(&self, req: CreateUserRequest) -> Result<User, DomainError>;
@@ -356,8 +383,10 @@ pub struct UserServiceImpl<R: UserRepository> {
 1. 프로젝트 감지
 2. 인증 방식 확인 (JWT only / JWT + refresh / OAuth + JWT)
 3. 기존 auth 패턴 읽기
-4. 토큰 유틸 + 미들웨어 + Claims 생성
-5. 환경변수 (.env) 에 시크릿 키 설정 안내
+4. 포트 정의 — `domain/ports/`에 `AuthProvider` trait을 정의한다. JWT 라이브러리 타입을 trait에 노출하지 않는다.
+5. 어댑터 구현 — `infra/adapters/`에 jsonwebtoken 기반 `AuthProvider` impl을 생성한다. jsonwebtoken 의존은 이 레이어에만 존재한다.
+6. 토큰 유틸 + 미들웨어 + Claims 생성
+7. 환경변수 (.env) 에 시크릿 키 설정 안내
 
 **패턴**:
 ```rust
@@ -395,8 +424,10 @@ where
 1. 프로젝트 감지
 2. 미들웨어 종류 확인
 3. 기존 미들웨어 스택 읽기
-4. 미들웨어 생성 + 라우터에 `.layer()` 등록
-5. `cargo build` 확인
+4. 포트 정의 — 미들웨어가 외부 상태(rate limiter, 캐시 등)에 의존할 경우 `domain/ports/`에 trait을 정의한다.
+5. 어댑터 구현 — 구체 구현(Redis, in-memory 등)을 `infra/adapters/`에 생성한다.
+6. 미들웨어 생성 + 라우터에 `.layer()` 등록
+7. `cargo build` 확인
 
 **Gotchas**:
 - tower 레이어 순서가 중요 — `.layer()`는 안쪽부터 바깥으로 적용됨 (마지막 `.layer()`가 가장 먼저 실행)
@@ -420,8 +451,10 @@ where
 2. 서비스 이름, RPC 메서드 확인
 3. proto 파일 생성
 4. build.rs 설정
-5. 서비스 구현 스켈레톤 생성
-6. `cargo build` 로 코드 생성 확인
+5. 포트 정의 — `domain/ports/`에 gRPC 서비스가 의존할 비즈니스 로직 trait을 정의한다. tonic 생성 타입을 domain에 노출하지 않는다.
+6. 어댑터 구현 — `infra/adapters/`에 tonic 서비스 trait impl을 생성한다. tonic 의존은 이 레이어에만 존재한다.
+7. 서비스 구현 스켈레톤 생성
+8. `cargo build` 로 코드 생성 확인
 
 **Gotchas**:
 - `protoc` 시스템 설치 필요 — tonic-build가 자체 포함하지 않음. `prost-build`의 `protoc` 자동 다운로드 옵션 안내
@@ -703,7 +736,7 @@ backend-reviewer와 동일 패턴:
 
 ## 리서치 문서 구조 (docs/rust/)
 
-총 17개 문서, 5개 카테고리:
+총 20개 문서, 5개 카테고리:
 
 | 카테고리 | 문서 | 대응 스킬 |
 |----------|------|----------|
@@ -713,6 +746,7 @@ backend-reviewer와 동일 패턴:
 | fundamentals/ | testing.md | rust-test |
 | fundamentals/ | project-structure.md | rust-init, rust-feature |
 | fundamentals/ | performance.md | rust-audit |
+| fundamentals/ | hexagonal-architecture.md | rust-init, rust-feature, rust-api, rust-model, rust-service, rust-auth |
 | web/ | axum-patterns.md | rust-api |
 | web/ | middleware.md | rust-middleware |
 | web/ | authentication.md | rust-auth |
@@ -724,6 +758,8 @@ backend-reviewer와 동일 패턴:
 | protocols/ | graphql.md | (확장용) |
 | protocols/ | realtime.md | (확장용) |
 | ops/ | docker.md | rust-docker |
+| ops/ | ci-cd.md | (확장용) |
+| ops/ | observability.md | (확장용) |
 
 ## evals 설계 (evals/evals.json)
 
@@ -759,7 +795,7 @@ backend-reviewer와 동일 패턴:
 ### 내부 일관성
 - 17종 스킬 분류(생성 11 + 가이드 1 + 실행 3 + 감사 1 + 메타 1) = 17 확인
 - 의존 관계에 순환 없음 확인
-- 리서치 문서 17개, docs-site HTML도 17페이지 (1:1 대응)
+- 리서치 문서 20개, docs-site HTML도 20페이지 (1:1 대응)
 
 ### 범위
 - 단일 구현 계획으로 처리 가능 — Phase별 분할 필요 (리서치 문서 → 플러그인 스캐폴딩 → 스킬 작성 → 에이전트 → 카이젠 → 레지스트리 → evals → docs-site)
