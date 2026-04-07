@@ -29,6 +29,11 @@
       "name": "infra-kit",
       "source": "./infra-kit",
       "description": "[v0.1.0 · 2026-04-04] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 플러그인"
+    },
+    {
+      "name": "rust-kit",
+      "source": "./rust-kit",
+      "description": "[v0.1.0 · 2026-04-07] Rust 전용 백엔드 개발 워크플로우 플러그인 — 17종 스킬 + 에이전트"
     }
   ]
 }

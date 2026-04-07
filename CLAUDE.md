@@ -10,6 +10,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **harness** — 스택 무관 범용 QA 프레임워크 (Sprint Contract + QA Evaluator)
 - **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 18종
 - **design-kit** — 스택 무관 UI/UX 디자인 플러그인 (디자인 시스템 세팅 + 실시간 가이드 + 감사)
+- **rust-kit** — Rust 전용 백엔드 개발 워크플로우 플러그인 (17종 스킬 + 에이전트)
 <!-- /AUTO:summary -->
 
 ## Commands
@@ -154,6 +155,28 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/design-system` | 디자인 토큰 체계(컬러, 타이포, 스페이싱 등) 세팅 |
 | `design-reviewer` (에이전트) | design-audit에서 호출. UI 코드를 디자인 원칙 기준으로 독립 평가 |
 
+**rust-kit — Rust 백엔드 개발 워크플로우 (17종)**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/rust-init` | 프로젝트 스캐폴딩 (workspace + toolchain + hexagonal 구조) |
+| `/rust-feature` | feature 모듈 스캐폴딩 |
+| `/rust-api` | Axum 라우터/핸들러 + utoipa OpenAPI |
+| `/rust-model` | SQLx 모델 + 마이그레이션 |
+| `/rust-service` | 비즈니스 로직 서비스 레이어 |
+| `/rust-auth` | JWT/OAuth 인증 레이어 |
+| `/rust-middleware` | Axum 미들웨어 (CORS, logging, rate-limit) |
+| `/rust-grpc` | tonic gRPC 서비스 |
+| `/rust-test` | 테스트 코드 생성 (unit + integration) |
+| `/rust-docker` | Dockerfile + docker-compose |
+| `/rust-error` | 에러 처리 패턴 가이드 (thiserror/anyhow) |
+| `/rust-l10n` | 백엔드 i18n (rust-i18n/fluent) |
+| `/rust-run` | 빌드 프리미티브 개별 실행 (build, clippy, fmt, test, audit, check) |
+| `/rust-build` | cargo build + clippy (rust-run wrapper) |
+| `/rust-preflight` | pre-commit gate (fmt → clippy → test → audit) |
+| `/rust-audit` | 코드 품질 감사 (quick/deep 모드) |
+| `rust-reviewer` (에이전트) | rust-audit에서 호출. 읽기 전용 독립 평가 |
+
 **이 레포 전용 스킬 (.claude/skills/)**
 
 | 스킬 | 용도 |
@@ -162,6 +185,8 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/design-kaizen` | design-kit 스킬 개선 |
 | `/design-research` | 디자인 레퍼런스 크롤링 → design-kit/docs/design/ 문서 갱신 |
 | `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
+| `/rust-research` | Rust 레퍼런스 크롤링 → docs/rust/ 문서 갱신 |
+| `/rust-kaizen` | rust-kit 스킬 개선 |
 
 ### 외부 플러그인 스킬 (이 레포에 없음)
 
