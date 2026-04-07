@@ -289,12 +289,13 @@ my-project/
 
 **핸들러 패턴**:
 ```rust
-// Axum extractor 기반
+// 포트 기반 DI (Hexagonal) — 인프라 직접 참조 없음
 async fn create_user(
-    State(pool): State<PgPool>,
+    State(service): State<Arc<dyn UserService>>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<UserResponse>, AppError> {
-    // ...
+    let user = service.create_user(payload).await?;
+    Ok(Json(user.into()))
 }
 ```
 
