@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>관측성 — Rust Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E85D4A;--accent2:#F08575;
+  --accent-dim:rgba(232,93,74,0.12);--accent-glow:rgba(232,93,74,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(232,93,74,0.06) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(232,93,74,0.03) 0%,transparent 55%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1240px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:28px;transition:color var(--transition)}
+.back-link:hover{color:var(--accent)}
+.hero{margin-bottom:clamp(48px,6vw,84px)}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--accent-dim);border:1px solid var(--border2);font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:20px}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.55;transform:scale(1.25)}}
+h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-1.2px;line-height:1.08;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 70%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+.subtitle{color:var(--text2);font-size:clamp(15px,1.5vw,18px);line-height:1.75;max-width:780px}
+.section{margin-bottom:clamp(56px,7vw,96px)}
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 75%)}
+h2{font-size:clamp(20px,2.5vw,30px);font-weight:700;letter-spacing:-0.5px;margin-bottom:10px}
+h3{font-size:clamp(15px,1.6vw,19px);font-weight:700;margin-bottom:8px}
+.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.8;max-width:740px;margin-bottom:28px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(18px,2.5vw,30px);transition:border-color var(--transition),transform var(--transition)}
+.card:hover{border-color:rgba(232,93,74,0.3);transform:translateY(-2px)}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
+.principle-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0;margin-bottom:10px}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.65;color:#e2d9d0;margin:14px 0}
+code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 16px;color:var(--text2);font-weight:700;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(232,93,74,0.04)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:640px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+.compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--error)}
+.compare-good .compare-label{color:var(--success)}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.65}
+.check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+.tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+.pillar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.pillar-icon{font-size:20px;margin-bottom:4px}
+.pillar-name{font-size:14px;font-weight:700;color:var(--text)}
+.pillar-crate{font-family:var(--mono);font-size:12px;color:var(--accent2)}
+.pillar-desc{font-size:12px;color:var(--text3);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a class="back-link" href="index.html">← Rust Kit</a>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="badge">Ops · 관측성</div>
+  <h1>관측성</h1>
+  <p class="subtitle">
+    <code>tracing</code>으로 구조화 로깅과 스팬을 생성하고,
+    <code>tracing-opentelemetry</code>로 OTLP 트레이싱을 내보내며,
+    <code>metrics-exporter-prometheus</code>로 Prometheus 메트릭을 노출한다.
+    세 가지 신호(로그, 트레이스, 메트릭)를 모두 설정해야 프로덕션에서 장애를 빠르게 진단할 수 있다.
+  </p>
+</div>
+
+<!-- ── 3개 신호 ── -->
+<div class="section">
+  <div class="section-label">관측성 3신호</div>
+  <h2>Logs · Traces · Metrics</h2>
+  <p class="desc">각 신호가 담당하는 역할과 Rust 생태계의 표준 크레이트다.</p>
+
+  <div class="grid-3" style="margin-bottom:32px">
+    <div class="pillar">
+      <div class="pillar-name">구조화 로그</div>
+      <div class="pillar-crate">tracing + tracing-subscriber</div>
+      <div class="pillar-desc">JSON 구조화 출력. RUST_LOG로 런타임 레벨 제어. 로그 집계 시스템(Loki, CloudWatch)과 연동.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-name">분산 트레이싱</div>
+      <div class="pillar-crate">tracing-opentelemetry + opentelemetry-otlp</div>
+      <div class="pillar-desc">OTLP gRPC로 Jaeger/Tempo에 스팬 전송. #[instrument]로 자동 계측. TraceLayer와 연동.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-name">메트릭</div>
+      <div class="pillar-crate">metrics + metrics-exporter-prometheus</div>
+      <div class="pillar-desc">counter, gauge, histogram 3종. /metrics 엔드포인트(9090). Prometheus + Grafana 연동.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">1</div>
+    <h3>tracing-subscriber로 구조화 JSON 로깅을 설정한다</h3>
+    <p class="desc" style="margin-bottom:12px">의존성 선언과 초기화 코드. <code>EnvFilter</code>로 <code>RUST_LOG</code> 환경변수를 읽는다.</p>
+    <pre>[dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-opentelemetry = "0.32"
+opentelemetry = "0.28"
+opentelemetry_sdk = { version = "0.28", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.28", features = ["tonic"] }
+metrics = "0.24"
+metrics-exporter-prometheus = "0.18"</pre>
+    <pre>use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+
+pub fn init_tracing() -> anyhow::Result&lt;()&gt; {
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info"));
+
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        .json()                    // 구조화 JSON 출력
+        .with_target(true)
+        .with_thread_ids(false)
+        .with_file(false);
+
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with(fmt_layer)
+        .init();
+
+    Ok(())
+}</pre>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">2</div>
+    <h3>tracing-opentelemetry로 OTLP 트레이싱을 내보낸다</h3>
+    <p class="desc" style="margin-bottom:12px">fmt layer와 otel layer를 같은 registry에 함께 등록한다. <code>SdkTracerProvider</code>를 반환하여 종료 시 <code>shutdown()</code>을 호출한다.</p>
+    <pre>use opentelemetry_otlp::SpanExporter;
+use opentelemetry_sdk::{runtime, trace::SdkTracerProvider};
+use tracing_opentelemetry::OpenTelemetryLayer;
+
+pub fn init_tracing_with_otel(
+    service_name: &str,
+) -> anyhow::Result&lt;SdkTracerProvider&gt; {
+    let exporter = SpanExporter::builder()
+        .with_tonic()
+        .build()?;
+
+    let provider = SdkTracerProvider::builder()
+        .with_batch_exporter(exporter, runtime::Tokio)
+        .build();
+
+    let tracer = provider.tracer(service_name.to_string());
+
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info"));
+
+    let fmt_layer = tracing_subscriber::fmt::layer().json();
+    let otel_layer = OpenTelemetryLayer::new(tracer);
+
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with(fmt_layer)
+        .with(otel_layer)
+        .init();
+
+    Ok(provider)
+}
+
+// main에서 종료 시 반드시 호출
+// provider.shutdown()?;</pre>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">3</div>
+    <h3>#[instrument]로 함수를 자동으로 스팬으로 계측한다</h3>
+    <p class="desc" style="margin-bottom:12px">민감한 파라미터는 <code>skip(...)</code>으로 제외한다. <code>Span::current().record()</code>로 동적 필드를 추가한다.</p>
+    <pre>use tracing::{instrument, info, warn, error, Span};
+
+#[instrument(skip(pool), fields(user_id = %id))]
+pub async fn get_user(pool: &PgPool, id: Uuid) -> Result&lt;User, AppError&gt; {
+    info!("Fetching user");
+
+    let user = sqlx::query_as!(UserRow, "SELECT * FROM users WHERE id = $1", id)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| {
+            error!(error = %e, "Database query failed");
+            AppError::Database(e)
+        })?
+        .ok_or_else(|| {
+            warn!("User not found");
+            AppError::NotFound
+        })?;
+
+    // 현재 스팬에 동적 필드 추가
+    Span::current().record("email", &user.email.as_str());
+
+    Ok(user.into())
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="principle-num">4</div>
+    <h3>metrics-exporter-prometheus로 메트릭을 노출한다</h3>
+    <p class="desc" style="margin-bottom:12px">앱 포트(8080)와 분리된 9090 포트로 <code>/metrics</code> 엔드포인트를 노출한다. 레이블 카디널리티에 주의한다.</p>
+    <pre>use metrics::{counter, gauge, histogram};
+use metrics_exporter_prometheus::PrometheusBuilder;
+
+pub fn init_metrics() -> anyhow::Result&lt;()&gt; {
+    PrometheusBuilder::new()
+        .with_http_listener(([0, 0, 0, 0], 9090))  // /metrics 엔드포인트
+        .install()?;
+    Ok(())
+}
+
+// 요청 카운터
+counter!("http_requests_total", "method" => "POST", "path" => "/users")
+    .increment(1);
+
+// 응답 시간 히스토그램
+let start = std::time::Instant::now();
+let result = process_request().await;
+histogram!("http_request_duration_seconds", "path" => "/users")
+    .record(start.elapsed().as_secs_f64());
+
+// 에러 카운터
+if result.is_err() {
+    counter!("http_errors_total", "path" => "/users").increment(1);
+}
+
+// 현재 활성 연결 수 게이지
+gauge!("active_connections").set(active_count as f64);</pre>
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <h2>버전 및 포트 설정</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>tracing-subscriber 버전</td>
+          <td><code>0.3.x</code></td>
+          <td>env-filter, json feature 활성화</td>
+        </tr>
+        <tr>
+          <td>tracing-opentelemetry 버전</td>
+          <td><code>0.32.x</code></td>
+          <td>opentelemetry 0.28과 호환</td>
+        </tr>
+        <tr>
+          <td>metrics-exporter-prometheus 버전</td>
+          <td><code>0.18.x</code></td>
+          <td>metrics 0.24와 호환</td>
+        </tr>
+        <tr>
+          <td>Prometheus 포트</td>
+          <td><code>9090</code></td>
+          <td>앱 포트(8080)와 분리</td>
+        </tr>
+        <tr>
+          <td>OTLP 기본 포트</td>
+          <td><code>4317</code> (gRPC)</td>
+          <td>OTEL_EXPORTER_OTLP_ENDPOINT 환경변수</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <h2>흔한 실수 4가지</h2>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">println!/eprintln! 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        구조화되지 않은 출력은 로그 집계 시스템(Loki, CloudWatch)에서
+        파싱하기 어렵다. 레벨 필터링도 불가능하다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">tracing 매크로 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        모든 로그는 <code>tracing::{info!, warn!, error!}</code> 매크로를 사용한다.
+        JSON 출력과 레벨 필터링, OpenTelemetry 연동이 자동으로 된다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">스팬 없이 OTLP exporter 설정</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        OTLP exporter를 설정해도 코드에 <code>#[instrument]</code>나
+        <code>span!</code>이 없으면 트레이스가 생성되지 않는다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">핵심 함수에 #[instrument] 추가</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        서비스 계층 함수에 <code>#[instrument]</code>를 붙인다.
+        <code>tower-http::TraceLayer</code>와 함께 사용하면 HTTP 스팬이 자동 생성된다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">높은 카디널리티 레이블 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>"user_id" =&gt; user_id</code>처럼 고유값을 레이블로 사용하면
+        Prometheus 메모리가 폭발적으로 증가한다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">열거형 수준으로 레이블 제한</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        레이블 값은 <code>method</code>, <code>status_code</code>, <code>path 패턴</code>처럼
+        유한한 열거형 값만 사용한다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">SdkTracerProvider를 그냥 drop</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        앱 종료 시 배치 exporter가 버퍼에 있는 스팬을 flush하기 전에
+        drop되면 마지막 스팬 데이터가 유실된다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">종료 전 provider.shutdown() 호출</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>provider.shutdown()</code>을 <code>main</code> 함수 종료 전에 명시적으로 호출한다.
+        tokio signal handler와 함께 사용하면 graceful shutdown에 통합된다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <h2>반드시 알아야 할 함정</h2>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">tracing-opentelemetry와 opentelemetry_sdk 버전을 정확히 맞춰야 한다</strong><br>
+          <code>tracing-opentelemetry 0.32</code>는 <code>opentelemetry 0.28</code>과 호환된다.
+          버전이 맞지 않으면 trait 구현 불일치 컴파일 에러가 발생한다.
+          <code>Cargo.toml</code>에서 버전을 명시적으로 고정한다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">RUST_LOG 환경변수로 런타임에 로그 레벨을 제어한다</strong><br>
+          <code>RUST_LOG=info,my_crate=debug,sqlx=warn</code>처럼 크레이트별로 레벨을 다르게 설정할 수 있다.
+          <code>EnvFilter::try_from_default_env()</code>가 이 환경변수를 자동으로 읽는다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">#[instrument(skip(...))]로 민감한 파라미터를 스팬에서 제외한다</strong><br>
+          <code>#[instrument]</code>는 기본적으로 모든 파라미터를 스팬 필드로 기록한다.
+          비밀번호, 토큰 같은 민감한 값은 반드시 <code>skip(password, token)</code>으로 제외한다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">tower-http의 TraceLayer와 #[instrument]는 독립적이다</strong><br>
+          <code>TraceLayer</code>는 HTTP 요청/응답 스팬을 자동으로 생성한다.
+          <code>#[instrument]</code>는 서비스 함수 스팬을 생성한다.
+          두 스팬은 자동으로 부모-자식 관계로 연결된다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 참조 ── -->
+<div class="section">
+  <div class="section-label">참조</div>
+  <h2>원칙 출처</h2>
+  <div class="grid-3">
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">tracing</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/tracing</p>
+    </div>
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">tracing-opentelemetry</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/tracing-opentelemetry</p>
+    </div>
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">metrics-exporter-prometheus</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/metrics-exporter-prometheus</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
