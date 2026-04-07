@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인증 원칙</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;margin:12px 0}
+  pre code{font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.6}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .flow{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .flow-step{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent)}
+  .flow-step-num{color:var(--accent);font-weight:800;font-size:13px;flex-shrink:0}
+  .flow-step-text{color:var(--text2);font-size:13px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>인증 원칙</h1>
+<p class="subtitle"><code>jsonwebtoken 10.x</code>를 사용한 JWT 기반 인증 패턴. access token과 refresh token을 분리하고, axum의 <code>FromRequestParts</code>로 인증된 사용자를 Extractor로 추출한다.</p>
+
+<!-- ── 원칙 카드 ── -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <p class="desc">JWT 발급-검증-추출-갱신 전 흐름을 타입 안전하게 구현하는 4가지 원칙.</p>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">1</span>
+        <h3>Claims 구조 정의</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">표준 필드(<code>sub</code>, <code>exp</code>, <code>iat</code>, <code>jti</code>)와 커스텀 필드(<code>token_type</code>, <code>roles</code>)를 함께 정의한다. <code>jti</code>는 토큰 revocation에 필수다.</p>
+      <pre><code>#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Claims {
+    pub sub: String,           // user id
+    pub exp: usize,            // expiration (Unix ts)
+    pub iat: usize,            // issued at
+    pub jti: String,           // revocation 용 JWT ID
+    pub token_type: TokenType,
+    pub roles: Vec&lt;String&gt;,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum TokenType { Access, Refresh }</code></pre>
+      <span class="pill">jsonwebtoken 10.x</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">2</span>
+        <h3>JwtService — 앱 시작 시 초기화</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px"><code>EncodingKey</code>와 <code>DecodingKey</code>를 앱 시작 시 한 번 초기화한다. <code>jsonwebtoken 10.x</code>는 crypto backend feature를 요구한다.</p>
+      <pre><code>// Cargo.toml
+jsonwebtoken = { version = "10", features = ["aws_lc_rs"] }
+
+pub struct JwtService {
+    encoding_key: EncodingKey,
+    decoding_key: DecodingKey,
+    access_duration: Duration,
+    refresh_duration: Duration,
+}
+
+impl JwtService {
+    pub fn new(secret: &amp;[u8]) -&gt; Self {
+        Self {
+            encoding_key: EncodingKey::from_secret(secret),
+            decoding_key: DecodingKey::from_secret(secret),
+            access_duration: Duration::minutes(15),
+            refresh_duration: Duration::days(30),
+        }
+    }
+
+    pub fn verify(&amp;self, token: &amp;str) -&gt; Result&lt;Claims, JwtError&gt; {
+        let validation = Validation::new(Algorithm::HS256);
+        decode::&lt;Claims&gt;(token, &amp;self.decoding_key, &amp;validation)
+            .map(|data| data.claims)
+            .map_err(JwtError::Decode)
+    }
+}</code></pre>
+      <span class="pill">crypto backend 필수</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">3</span>
+        <h3>AuthUser Extractor</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">핸들러마다 토큰 검증 코드를 반복하지 않는다. <code>AuthUser</code> Extractor 하나로 통일한다. Bearer 헤더 추출 → 검증 → token_type 확인 순서로 처리한다.</p>
+      <pre><code>// axum-extra = { version = "0.10", features = ["typed-header"] }
+
+pub struct AuthUser(pub Claims);
+
+#[async_trait]
+impl&lt;S&gt; FromRequestParts&lt;S&gt; for AuthUser
+where
+    S: Send + Sync,
+    AppState: FromRef&lt;S&gt;,
+{
+    type Rejection = ApiError;
+
+    async fn from_request_parts(
+        parts: &amp;mut Parts, state: &amp;S,
+    ) -&gt; Result&lt;Self, Self::Rejection&gt; {
+        let TypedHeader(Authorization(bearer)) =
+            TypedHeader::&lt;Authorization&lt;Bearer&gt;&gt;
+                ::from_request_parts(parts, state)
+                .await
+                .map_err(|_| ApiError::Unauthorized("Bearer token required"))?;
+
+        let app_state = AppState::from_ref(state);
+        let claims = app_state.jwt.verify(bearer.token())
+            .map_err(|_| ApiError::Unauthorized("Invalid token"))?;
+
+        if claims.token_type != TokenType::Access {
+            return Err(ApiError::Unauthorized("Access token required"));
+        }
+        Ok(AuthUser(claims))
+    }
+}</code></pre>
+      <span class="pill">FromRequestParts</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">4</span>
+        <h3>Refresh Token Rotation</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">Refresh token은 서버 저장소(Redis/DB)와 연동하여 관리한다. 매 갱신마다 새 토큰으로 교체(rotation)하고, 이전 토큰을 무효화한다.</p>
+      <div class="flow">
+        <div class="flow-step">
+          <span class="flow-step-num">1</span>
+          <span class="flow-step-text">refresh token 검증 (<code>verify()</code>) — 서명 + 만료 확인</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">2</span>
+          <span class="flow-step-text"><code>token_type == TokenType::Refresh</code> 확인 — access token으로 갱신 불가</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">3</span>
+          <span class="flow-step-text"><code>token_store.is_revoked(&amp;jti)</code> — Redis 블랙리스트 조회</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">4</span>
+          <span class="flow-step-text"><code>token_store.revoke(&amp;jti)</code> — 기존 토큰 무효화 (rotation)</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">5</span>
+          <span class="flow-step-text">새 access + refresh 토큰 발급 및 반환</span>
+        </div>
+      </div>
+      <span class="pill" style="margin-top:12px;display:inline-block">Redis TTL = token exp</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">JWT 인증 구현 시 지켜야 할 정량 기준값.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>jsonwebtoken 버전</td><td><code>10.x</code></td><td>crypto backend feature 필수</td></tr>
+        <tr><td>Access token 수명</td><td>15분</td><td>짧을수록 보안 강함</td></tr>
+        <tr><td>Refresh token 수명</td><td>7~30일</td><td>앱 성격에 따라 조정</td></tr>
+        <tr><td>JWT 알고리즘</td><td>HS256 (대칭) / RS256 (비대칭)</td><td>MSA는 RS256 권장</td></tr>
+        <tr><td>jti 저장소 TTL</td><td>Redis TTL = token exp</td><td>만료된 jti 자동 삭제</td></tr>
+        <tr><td>HMAC 시크릿 최소 길이</td><td>256비트 (32바이트)</td><td><code>openssl rand -hex 32</code>로 생성</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">JWT 인증 구현에서 반복되는 보안 실수와 올바른 대안.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — Refresh token을 로컬스토리지에 저장</div>
+      <pre><code>// 웹 클라이언트 측 코드
+localStorage.setItem('refresh_token', token);
+// XSS 공격으로 탈취 가능 ❌</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — HttpOnly 쿠키 사용</div>
+      <pre><code>// 서버에서 Set-Cookie 헤더로 설정
+Set-Cookie: refresh_token=...; HttpOnly; Secure;
+            SameSite=Strict; Path=/auth/refresh
+// JS에서 접근 불가 ✅</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 핸들러마다 토큰 직접 파싱</div>
+      <pre><code>async fn get_user(req: Request) -&gt; impl IntoResponse {
+    // 반복 코드, 일관성 없는 에러 처리 ❌
+    let token = req.headers()
+        .get("Authorization")...;
+    let claims = jwt.verify(token)?;
+    // 모든 핸들러에 동일 패턴 반복
+}</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — AuthUser Extractor 사용</div>
+      <pre><code>async fn get_user(
+    auth: AuthUser,  // 자동 추출 + 검증 ✅
+    State(state): State&lt;AppState&gt;,
+) -&gt; impl IntoResponse {
+    let user_id = &amp;auth.0.sub;
+    // 인증 로직 없이 바로 비즈니스 처리
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — JWT를 즉시 revoke 불가로 가정</div>
+      <pre><code>// "JWT는 stateless라 revoke 불가"
+// 로그아웃 후에도 토큰 유효 ❌
+// 비밀번호 변경 후에도 기존 토큰 유효 ❌</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — jti Redis 블랙리스트</div>
+      <pre><code>// 로그아웃 시 jti를 Redis에 추가
+state.token_store.revoke(&amp;claims.jti).await?;
+
+// 검증 시 블랙리스트 조회
+if state.token_store.is_revoked(&amp;claims.jti).await? {
+    return Err(ApiError::Unauthorized("Revoked"));
+} // ✅</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas 체크리스트</div>
+  <p class="desc">JWT 인증 구현 시 반복적으로 실수하는 포인트.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">✓</span>
+        <span><strong>exp 필드 크로스 플랫폼 문제</strong> — <code>usize</code>는 32bit에서 2038 문제가 생길 수 있다. <code>u64</code>나 <code>i64</code>로 정의하고 <code>Validation.set_required_spec_claims(&amp;["exp", "sub"])</code>로 명시적 검증을 설정한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>Validation::new()는 exp 자동 검증</strong> — <code>Validation::new(Algorithm::HS256)</code>은 exp 검증을 자동으로 수행한다. 별도 만료 체크가 불필요하다. 보안이 중요하면 <code>validation.leeway = 0</code>으로 시계 오차 허용을 제거한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>HMAC 시크릿 최소 32바이트</strong> — 짧은 시크릿은 브루트포스에 취약하다. <code>openssl rand -hex 32</code>로 생성하고 환경 변수로 주입한다. 코드에 하드코딩 절대 금지.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>axum-extra typed-header feature</strong> — <code>TypedHeader</code>를 사용하려면 <code>axum-extra = &#123; version = "0.10", features = ["typed-header"] &#125;</code>를 명시해야 한다. feature 없이 사용하면 컴파일 에러.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>에러 응답 세분화</strong> — 토큰 파싱 실패, 만료, 서명 불일치를 구분하지 않고 "Unauthorized"만 반환하면 디버깅이 어렵다. 서버 로그에는 상세 에러를, 응답에는 일반 메시지를 반환한다.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

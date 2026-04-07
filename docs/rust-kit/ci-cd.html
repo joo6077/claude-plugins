@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CI/CD — Rust Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E85D4A;--accent2:#F08575;
+  --accent-dim:rgba(232,93,74,0.12);--accent-glow:rgba(232,93,74,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(232,93,74,0.06) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(232,93,74,0.03) 0%,transparent 55%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1240px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:28px;transition:color var(--transition)}
+.back-link:hover{color:var(--accent)}
+.hero{margin-bottom:clamp(48px,6vw,84px)}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--accent-dim);border:1px solid var(--border2);font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:20px}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.55;transform:scale(1.25)}}
+h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-1.2px;line-height:1.08;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 70%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+.subtitle{color:var(--text2);font-size:clamp(15px,1.5vw,18px);line-height:1.75;max-width:780px}
+.section{margin-bottom:clamp(56px,7vw,96px)}
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 75%)}
+h2{font-size:clamp(20px,2.5vw,30px);font-weight:700;letter-spacing:-0.5px;margin-bottom:10px}
+h3{font-size:clamp(15px,1.6vw,19px);font-weight:700;margin-bottom:8px}
+.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.8;max-width:740px;margin-bottom:28px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(18px,2.5vw,30px);transition:border-color var(--transition),transform var(--transition)}
+.card:hover{border-color:rgba(232,93,74,0.3);transform:translateY(-2px)}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+.principle-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0;margin-bottom:10px}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.65;color:#e2d9d0;margin:14px 0}
+code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 16px;color:var(--text2);font-weight:700;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(232,93,74,0.04)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:640px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+.compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--error)}
+.compare-good .compare-label{color:var(--success)}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.65}
+.check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+.tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+.job-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px}
+.job-name{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.job-steps{list-style:none;display:flex;flex-direction:column;gap:4px}
+.job-steps li{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.job-steps li::before{content:'▸';color:var(--accent2);flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a class="back-link" href="index.html">← Rust Kit</a>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="badge">Ops · CI/CD</div>
+  <h1>CI/CD</h1>
+  <p class="subtitle">
+    GitHub Actions에서 Rust 프로젝트의 빌드, 테스트, 보안 감사를 자동화한다.
+    <code>cargo-nextest</code>로 빠른 테스트, <code>cargo-deny</code>로 의존성 보안 감사,
+    <code>Swatinem/rust-cache</code>로 컴파일 캐시를 구성하면 CI 실행 시간을 크게 줄일 수 있다.
+  </p>
+</div>
+
+<!-- ── 파이프라인 구조 ── -->
+<div class="section">
+  <div class="section-label">파이프라인 구조</div>
+  <h2>표준 4단계 CI 잡</h2>
+  <p class="desc">각 잡은 독립적으로 병렬 실행된다. 실패한 잡만 재실행할 수 있어 피드백이 빠르다.</p>
+
+  <div class="grid-4" style="margin-bottom:32px">
+    <div class="job-card">
+      <div class="job-name">check</div>
+      <ul class="job-steps">
+        <li>checkout</li>
+        <li>rust-toolchain</li>
+        <li>rust-cache</li>
+        <li>cargo check --all-targets</li>
+      </ul>
+    </div>
+    <div class="job-card">
+      <div class="job-name">test</div>
+      <ul class="job-steps">
+        <li>postgres service</li>
+        <li>rust-cache</li>
+        <li>install nextest</li>
+        <li>cargo nextest run</li>
+      </ul>
+    </div>
+    <div class="job-card">
+      <div class="job-name">lint</div>
+      <ul class="job-steps">
+        <li>clippy + rustfmt</li>
+        <li>rust-cache</li>
+        <li>cargo fmt --check</li>
+        <li>cargo clippy -D warnings</li>
+      </ul>
+    </div>
+    <div class="job-card">
+      <div class="job-name">audit</div>
+      <ul class="job-steps">
+        <li>install cargo-deny</li>
+        <li>cargo deny check</li>
+        <li>취약점 + 라이선스</li>
+        <li>yanked 크레이트</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">1</div>
+    <h3>표준 CI 워크플로우 전체 구성</h3>
+    <p class="desc" style="margin-bottom:12px"><code>RUSTFLAGS: "-D warnings"</code>로 경고를 에러로 처리한다. DB가 필요한 테스트는 서비스 컨테이너를 사용한다.</p>
+    <pre># .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --all-targets
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@nextest
+      - run: cargo nextest run --all-features
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@cargo-deny
+      - run: cargo deny check</pre>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">2</div>
+    <h3>cargo-nextest로 테스트 속도를 높인다</h3>
+    <p class="desc" style="margin-bottom:12px">테스트를 프로세스 단위로 격리하여 병렬 실행한다. 기존 <code>cargo test</code>보다 2~3배 빠른 경우가 많다.</p>
+    <pre>- uses: taiki-e/install-action@nextest
+- run: cargo nextest run
+# 특정 테스트만 실행
+- run: cargo nextest run --test integration_tests
+# 병렬 스레드 수 제한
+- run: cargo nextest run --test-threads 4</pre>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">3</div>
+    <h3>cargo-deny로 의존성 보안과 라이선스를 감사한다</h3>
+    <p class="desc" style="margin-bottom:12px">취약점, 라이선스, 중복 버전, yanked 크레이트를 한 번에 검사한다.</p>
+    <pre># deny.toml
+[advisories]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+vulnerability = "deny"
+unmaintained = "warn"
+yanked = "deny"
+
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "ISC",
+    "Unicode-DFS-2016",
+]
+deny = ["GPL-2.0", "GPL-3.0", "AGPL-3.0"]
+
+[bans]
+multiple-versions = "warn"</pre>
+  </div>
+
+  <div class="card">
+    <div class="principle-num">4</div>
+    <h3>Swatinem/rust-cache로 빌드 캐시를 공유한다</h3>
+    <p class="desc" style="margin-bottom:12px"><code>~/.cargo/registry</code>, <code>~/.cargo/git</code>, <code>target/</code>을 자동으로 캐시한다.</p>
+    <pre>- uses: Swatinem/rust-cache@v2
+  with:
+    # 워크스페이스 루트 명시 (기본값은 자동 감지)
+    workspaces: ". -> target"
+    # 캐시 키 추가 구분자 (캐시 무효화 시 v2로 bump)
+    key: "v1"</pre>
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <h2>액션 버전 및 설정값</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Rust toolchain action</td>
+          <td><code>dtolnay/rust-toolchain@stable</code></td>
+          <td>고정 버전보다 stable 권장</td>
+        </tr>
+        <tr>
+          <td>캐시 action</td>
+          <td><code>Swatinem/rust-cache@v2</code></td>
+          <td>actions/cache 직접 사용보다 간편</td>
+        </tr>
+        <tr>
+          <td>RUSTFLAGS</td>
+          <td><code>-D warnings</code></td>
+          <td>경고를 에러로 처리 — CI 필수</td>
+        </tr>
+        <tr>
+          <td>nextest 설치</td>
+          <td><code>taiki-e/install-action@nextest</code></td>
+          <td>바이너리 직접 다운로드, 빠름</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <h2>흔한 실수 4가지</h2>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">cargo test 그대로 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>cargo test</code>는 테스트 바이너리를 순차적으로 실행한다.
+        테스트가 많을수록 CI 시간이 길어진다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">cargo nextest run 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>cargo-nextest</code>는 더 세밀한 병렬화와 더 나은 출력을 제공한다.
+        동일한 테스트가 2~3배 빠르게 실행된다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">캐시 없이 매 CI 전체 재컴파일</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        의존성 컴파일은 수 분이 걸릴 수 있다.
+        캐시 없이 실행하면 PR마다 동일한 시간이 낭비된다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">Swatinem/rust-cache@v2 적용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        모든 잡에 <code>Swatinem/rust-cache@v2</code>를 추가한다.
+        registry와 target 디렉토리를 자동 캐시하여 반복 빌드 시간을 크게 줄인다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">clippy를 -D warnings 없이 실행</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        경고를 에러로 처리하지 않으면 clippy가 통과해도
+        코드 품질 경고가 누적된다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">-- -D warnings 항상 추가</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>cargo clippy --all-targets --all-features -- -D warnings</code>로
+        경고를 에러로 처리한다. <code>RUSTFLAGS=-D warnings</code>와 함께 사용한다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">cargo audit만 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>cargo audit</code>은 취약점만 검사한다.
+        라이선스 위반이나 yanked 크레이트는 감지하지 못한다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">cargo deny로 통합 검사</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>cargo deny</code>는 취약점 + 라이선스 + 중복 의존성 + yanked 크레이트를
+        <code>deny.toml</code> 한 파일로 통합 관리한다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <h2>반드시 알아야 할 함정</h2>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">SQLX_OFFLINE=true를 check/lint 잡에 설정해야 한다</strong><br>
+          DB 없는 CI 단계(check, lint)에서 sqlx query 매크로를 컴파일하려면
+          <code>.sqlx/</code> 캐시와 <code>SQLX_OFFLINE: "true"</code>가 필요하다.
+          설정 없이 실행하면 DB 연결 시도 후 컴파일 실패한다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">dtolnay/rust-toolchain은 rust-toolchain.toml을 자동으로 읽는다</strong><br>
+          프로젝트 루트에 <code>rust-toolchain.toml</code>이 있으면 toolchain 버전이 자동으로 고정된다.
+          action에 별도 버전을 명시하지 않아도 된다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">cargo-deny의 deny.toml이 없으면 cargo deny check가 실패한다</strong><br>
+          <code>cargo deny init</code>으로 기본 설정 파일을 생성한 뒤 커밋한다.
+          파일이 없으면 CI에서 즉시 실패한다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">서비스 컨테이너는 localhost로 접근한다</strong><br>
+          <code>services.postgres</code>로 정의한 PostgreSQL은 <code>localhost:5432</code>로 접근한다.
+          <code>DATABASE_URL</code>에 <code>localhost</code>를 사용한다.
+          컨테이너 이름(<code>postgres</code>)으로 접근하는 것은 동작하지 않는다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 참조 ── -->
+<div class="section">
+  <div class="section-label">참조</div>
+  <h2>원칙 출처</h2>
+  <div class="grid-3">
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">cargo-nextest</h3>
+      <p style="font-size:13px;color:var(--text3)">nexte.st</p>
+    </div>
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">cargo-deny</h3>
+      <p style="font-size:13px;color:var(--text3)">embarkstudios.github.io/cargo-deny</p>
+    </div>
+    <div class="card">
+      <span class="tag">GitHub Action</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">Swatinem/rust-cache</h3>
+      <p style="font-size:13px;color:var(--text3)">github.com/Swatinem/rust-cache</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

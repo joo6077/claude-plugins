@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>비동기와 동시성 원칙 — Rust Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .source-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8}
+  .source-link:hover{opacity:1}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+  .channel-table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0}
+  .channel-table th{text-align:left;padding:8px 12px;color:var(--text3);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+  .channel-table td{padding:8px 12px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);font-size:12px}
+  .channel-table td:first-child{font-family:var(--mono);color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Rust Kit</a>
+
+<h1>비동기와 동시성 원칙</h1>
+<p class="subtitle">Rust async는 Zero-cost abstraction이다. async fn은 상태 머신으로 컴파일되며 런타임 스레드 비용이 없다. Tokio는 멀티 스레드 work-stealing 런타임으로 I/O 집약 서버 애플리케이션의 사실상 표준이다. async와 동기 코드의 경계를 명확히 하는 것이 핵심이다.</p>
+
+<!-- 원칙 -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <h3>async 컨텍스트에서 블로킹 코드를 실행하지 않는다</h3>
+          <div class="rule-number">No Blocking in Async</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Tokio 런타임은 적은 수의 OS 스레드(기본 CPU 코어 수)로 수만 개의 태스크를 처리한다. 하나의 태스크가 스레드를 블로킹하면 같은 스레드의 다른 태스크가 모두 지연된다.</p>
+        <p style="margin-top:10px;font-size:12px;color:var(--yellow)">블로킹 기준: 100µs 이상 CPU 점유, 동기 I/O, std::thread::sleep</p>
+        <pre><span style="color:#f87171">// ❌ 금지 — async 내 블로킹 호출</span>
+async fn process(path: &amp;str) -&gt; Result&lt;String&gt; {
+    std::fs::read_to_string(path)?  // 런타임 스레드 블로킹
+}
+
+<span style="color:#4ade80">// ✅ 블로킹 작업을 별도 스레드풀로 위임</span>
+async fn process(path: String) -&gt; Result&lt;String&gt; {
+    tokio::task::spawn_blocking(move || {
+        std::fs::read_to_string(&amp;path)
+    }).await?
+}
+
+<span style="color:#4ade80">// ✅ 또는 Tokio async I/O 사용</span>
+async fn process(path: &amp;str) -&gt; Result&lt;String&gt; {
+    tokio::fs::read_to_string(path).await
+}</pre>
+      </div>
+      <a href="https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html" target="_blank" class="source-link">&#8599; Tokio — spawn_blocking</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <h3>async에서는 <code>tokio::sync</code>, 동기 코드에서는 <code>std::sync</code></h3>
+          <div class="rule-number">Sync Primitives</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>std::sync::Mutex::lock()</code>은 스레드를 블로킹한다. async 태스크 안에서 사용하면 런타임 스레드를 점유한다. <code>tokio::sync::Mutex</code>는 lock을 기다리는 동안 스레드를 양보한다.</p>
+        <pre><span style="color:#4ade80">// async 컨텍스트 — tokio::sync 사용</span>
+use tokio::sync::{Mutex, RwLock};
+let shared = Arc::new(Mutex::new(HashMap::new()));
+let guard = shared.lock().await; // 스레드 블로킹 없이 대기
+
+<span style="color:#f08575">// 예외: lock 대기 시간이 매우 짧고
+// await가 없는 경우 std::sync::Mutex가 더 빠름 (~10ns vs ~50ns)</span></pre>
+        <p style="font-size:12px;color:var(--text3);margin-top:10px">lock 범위를 최소화하고, Mutex guard를 보유한 채로 <code>.await</code>를 호출하지 않는다.</p>
+      </div>
+      <a href="https://tokio.rs/tokio/tutorial/shared-state" target="_blank" class="source-link">&#8599; Tokio — Shared State</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <h3>태스크 간 통신은 채널로 한다</h3>
+          <div class="rule-number">Message Passing</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>공유 상태 대신 메시지 전달이 데이터 경쟁을 구조적으로 방지한다. Tokio는 용도별 채널을 제공한다.</p>
+        <table class="channel-table">
+          <thead><tr><th>채널</th><th>용도</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td>mpsc</td><td>단방향 다대일</td><td>가장 일반적. 작업 큐, 이벤트 수집</td></tr>
+            <tr><td>oneshot</td><td>단발 응답</td><td>요청-응답 패턴</td></tr>
+            <tr><td>broadcast</td><td>일대다 방송</td><td>이벤트 팬아웃</td></tr>
+            <tr><td>watch</td><td>상태 관찰</td><td>최신 값만 필요한 경우</td></tr>
+          </tbody>
+        </table>
+        <pre><span style="color:#f08575">// mpsc — 워커 풀 패턴</span>
+let (tx, mut rx) = tokio::sync::mpsc::channel::&lt;Job&gt;(100);
+
+tokio::spawn(async move {
+    while let Some(job) = rx.recv().await {
+        process(job).await;
+    }
+});
+tx.send(job).await?;</pre>
+      </div>
+      <a href="https://tokio.rs/tokio/tutorial/channels" target="_blank" class="source-link">&#8599; Tokio — Message Passing</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <h3>태스크 취소와 타임아웃을 명시적으로 처리한다</h3>
+          <div class="rule-number">Cancellation</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Tokio 태스크는 <code>JoinHandle::abort()</code>로 취소되거나 <code>tokio::time::timeout</code>으로 제한할 수 있다. 취소 지점은 <code>.await</code>이다 — await 없이 CPU만 사용하는 루프는 취소되지 않는다.</p>
+        <pre>use tokio::time::{timeout, Duration};
+
+let result = timeout(
+    Duration::from_secs(5),
+    fetch_data(url)
+).await.map_err(|_| AppError::Timeout)?;
+
+<span style="color:#f08575">// JoinSet으로 여러 태스크 관리</span>
+let mut set = tokio::task::JoinSet::new();
+for item in items {
+    set.spawn(process(item));
+}
+while let Some(result) = set.join_next().await {
+    handle(result?)?;
+}</pre>
+      </div>
+      <a href="https://docs.rs/tokio/latest/tokio/time/fn.timeout.html" target="_blank" class="source-link">&#8599; Tokio — timeout</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 수치 기준 -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">async 런타임 비용과 동기화 프리미티브 오버헤드. 비교 기준으로 활용한다.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>tokio::spawn</code> 태스크 생성</td><td>~300ns</td><td>스레드 생성(~10µs)보다 30배 저렴</td></tr>
+        <tr><td><code>tokio::sync::Mutex</code> lock (비경쟁)</td><td>~50ns</td><td><code>std::sync::Mutex</code>(~10ns)보다 느림</td></tr>
+        <tr><td><code>mpsc</code> channel send (비경쟁)</td><td>~50ns</td><td>버퍼 있는 경우</td></tr>
+        <tr><td><code>spawn_blocking</code> 스레드풀 기본 크기</td><td>512개</td><td><code>TOKIO_WORKER_THREADS</code> 환경변수로 조정</td></tr>
+        <tr><td>async fn 호출 오버헤드</td><td>~0ns</td><td>상태 머신 컴파일, 가상 호출 없음</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 안티패턴 -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">async 코드에서 자주 범하는 실수 패턴.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — async 내 std::thread::sleep</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 스레드 블로킹
+async fn wait() {
+    std::thread::sleep(Duration::from_secs(1));
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — tokio::time::sleep</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 스레드 양보
+async fn wait() {
+    tokio::time::sleep(Duration::from_secs(1)).await;
+}</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — JoinHandle 무시 (fire-and-forget)</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 패닉이 조용히 소실됨
+tokio::spawn(important_task());</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — JoinHandle 보관 후 await</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 결과 확인
+let handle = tokio::spawn(important_task());
+handle.await??; // JoinError + 태스크 에러 처리</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 모든 곳에 Arc&lt;Mutex&gt;</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 채널로 해결 가능한 경우
+let state = Arc::new(Mutex::new(Vec::new()));
+// 여러 태스크가 동시에 lock 경쟁</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 채널로 소유권 이전</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 단일 소유자가 상태 관리
+let (tx, mut rx) = mpsc::channel(32);
+tokio::spawn(async move {
+    while let Some(item) = rx.recv().await {
+        state.push(item); // lock 경쟁 없음
+    }
+});</pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- Gotchas -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <p class="desc">async 코드에서 반복적으로 발생하는 컴파일 에러와 런타임 함정.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">async Mutex guard를 <code>.await</code> 경계에서 보유하면 컴파일 에러</strong><br>
+          <code>MutexGuard</code>를 들고 <code>.await</code>를 호출하면 "future is not Send" 에러가 발생한다. guard를 먼저 드롭하거나 별도 블록으로 분리한다.
+          <pre style="margin-top:8px"><span style="color:#f87171">// ❌ guard가 await를 가로지름</span>
+let guard = mutex.lock().await;
+do_something_async().await; // guard가 아직 살아있음
+
+<span style="color:#4ade80">// ✅ guard 먼저 드롭</span>
+let value = { mutex.lock().await.clone() };
+do_something_async().await;</pre>
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)"><code>spawn_blocking</code> 클로저는 <code>'static</code>을 요구한다</strong><br>
+          별도 스레드에서 실행되므로 <code>'static</code>이어야 한다. 지역 변수를 캡처하려면 <code>move</code> 클로저와 <code>Arc::clone</code>을 사용한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)"><code>select!</code>에서 취소된 브랜치의 사이드 이펙트 주의</strong><br>
+          먼저 완료된 브랜치를 선택하고 나머지를 취소한다. 취소된 future가 이미 부분 실행된 경우(네트워크 요청 시작 등) 사이드 이펙트가 남을 수 있다. 취소 안전성이 필요한 작업은 <code>select!</code> 외부로 분리한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">async 테스트에는 반드시 <code>#[tokio::test]</code></strong><br>
+          <code>#[test]</code>만 달면 컴파일은 되지만 async 코드가 실행되지 않는다. 빈 테스트처럼 항상 통과한다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

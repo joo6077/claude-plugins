@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로젝트 구조 원칙 — Rust Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .source-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8}
+  .source-link:hover{opacity:1}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+  .dep-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .dep-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-family:var(--mono);font-size:12px;color:var(--text2)}
+  .dep-box.highlight{border-color:var(--accent);color:var(--accent2)}
+  .dep-arrow{color:var(--accent);font-weight:700}
+  .vis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+  .vis-item{background:var(--surface2);border-radius:8px;padding:12px;font-size:12px}
+  .vis-item .vis-kw{font-family:var(--mono);color:var(--accent2);font-weight:700;margin-bottom:4px}
+  .vis-item .vis-desc{color:var(--text3);font-size:11px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Rust Kit</a>
+
+<h1>프로젝트 구조 원칙</h1>
+<p class="subtitle">Rust 프로젝트는 Cargo workspace로 여러 크레이트를 관리한다. 크레이트 경계가 의존성 규칙을 컴파일 타임에 강제한다 — 도메인이 인프라를 import하면 컴파일이 실패한다. 초기부터 workspace를 구성하면 나중에 분리 비용이 없다.</p>
+
+<!-- 원칙 -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <h3>Cargo workspace로 시작한다</h3>
+          <div class="rule-number">Workspace First</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>초기에 workspace 구조를 설정하면 이후 리팩토링 비용을 줄인다. 공통 의존성은 workspace 루트 <code>Cargo.toml</code>에 선언하여 버전을 일관되게 유지한다.</p>
+        <pre><span style="color:#f08575"># Cargo.toml (workspace 루트)</span>
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+sqlx = { version = "0.8", features = [
+    "postgres", "runtime-tokio-native-tls", "uuid"
+] }
+
+<span style="color:#f08575"># crates/domain/Cargo.toml</span>
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }</pre>
+      </div>
+      <a href="https://doc.rust-lang.org/cargo/reference/workspaces.html" target="_blank" class="source-link">&#8599; Cargo Book — Workspaces</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <h3>크레이트는 의존 방향 기준으로 분리한다</h3>
+          <div class="rule-number">Dependency Direction</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>의존 방향은 항상 단방향이다. <code>domain</code>은 외부 인프라 크레이트를 가지지 않는다. 순환 의존은 Cargo가 컴파일 에러로 차단한다.</p>
+        <div class="dep-flow">
+          <div class="dep-box">app</div>
+          <span class="dep-arrow">→</span>
+          <div class="dep-box">api</div>
+          <span class="dep-arrow">→</span>
+          <div class="dep-box">adapters</div>
+          <span class="dep-arrow">→</span>
+          <div class="dep-box highlight">domain</div>
+        </div>
+        <pre>crates/
+├── domain/   <span style="color:#4ade80"># 외부 인프라 없음 (thiserror, serde만)</span>
+├── adapters/ <span style="color:#f08575"># domain만 의존. sqlx, aws-sdk 포함</span>
+├── api/      <span style="color:#f08575"># domain + adapters. axum HTTP 레이어</span>
+└── app/      <span style="color:#f08575"># 모든 크레이트. main.rs, DI 조립</span></pre>
+      </div>
+      <a href="https://doc.rust-lang.org/cargo/guide/project-layout.html" target="_blank" class="source-link">&#8599; Cargo Book — Package Layout</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <h3><code>mod.rs</code> 대신 파일명 기반 모듈</h3>
+          <div class="rule-number">Module Style (Rust 2018+)</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Rust 2018 edition부터 <code>mod.rs</code> 없이 <code>foo.rs</code> + <code>foo/bar.rs</code> 구조를 사용할 수 있다. <code>mod.rs</code>는 디렉토리 안에 숨어 있어 에디터에서 혼동을 일으킨다.</p>
+        <div class="compare" style="margin-top:12px">
+          <div class="compare-good">
+            <div class="compare-label">권장 (Rust 2018+)</div>
+            <pre style="background:transparent;border:none;padding:0;margin:0;font-size:11px">src/
+├── lib.rs
+├── user.rs
+└── user/
+    ├── model.rs
+    └── service.rs</pre>
+          </div>
+          <div class="compare-bad">
+            <div class="compare-label">지양 (구형 스타일)</div>
+            <pre style="background:transparent;border:none;padding:0;margin:0;font-size:11px">src/
+├── lib.rs
+└── user/
+    ├── mod.rs  ← 혼동 유발
+    ├── model.rs
+    └── service.rs</pre>
+          </div>
+        </div>
+      </div>
+      <a href="https://doc.rust-lang.org/edition-guide/rust-2018/path-changes.html" target="_blank" class="source-link">&#8599; Rust Edition Guide — Path clarity</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <h3>가시성은 필요한 최소 범위로 제한한다</h3>
+          <div class="rule-number">Visibility Control</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>기본은 비공개. 과도한 <code>pub</code>은 내부 구현이 외부 계약이 되어 리팩토링을 어렵게 만든다.</p>
+        <div class="vis-grid">
+          <div class="vis-item">
+            <div class="vis-kw">pub</div>
+            <div class="vis-desc">외부 API. 명시적으로 공개할 때만</div>
+          </div>
+          <div class="vis-item">
+            <div class="vis-kw">pub(crate)</div>
+            <div class="vis-desc">크레이트 내부 공유. 외부 미노출</div>
+          </div>
+          <div class="vis-item">
+            <div class="vis-kw">pub(super)</div>
+            <div class="vis-desc">상위 모듈에만 공개</div>
+          </div>
+          <div class="vis-item">
+            <div class="vis-kw">(없음)</div>
+            <div class="vis-desc">기본값. 같은 모듈 내부만</div>
+          </div>
+        </div>
+        <pre>pub struct UserService {          <span style="color:#4ade80">// 외부 공개</span>
+    db: Arc&lt;dyn DatabasePort&gt;,    <span style="color:#f08575">// 비공개 필드</span>
+}
+pub(crate) fn internal_helper() { ... }
+pub(super) fn module_helper() { ... }</pre>
+      </div>
+      <a href="https://doc.rust-lang.org/reference/visibility-and-privacy.html" target="_blank" class="source-link">&#8599; Rust Reference — Visibility and Privacy</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 수치 기준 -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">크레이트 분리와 workspace 구성에 관한 실용적 기준.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>크레이트 분리 기준</td><td>의존 방향 경계</td><td>크기가 아닌 의존성 규칙 기준</td></tr>
+        <tr><td>workspace 멤버 수 권장</td><td>3~7개</td><td>그 이상이면 추가 workspace 분리 검토</td></tr>
+        <tr><td>크레이트당 public API 수</td><td>최소화</td><td><code>pub use</code>로 re-export 선별</td></tr>
+        <tr><td>빌드 캐시 효율</td><td>변경된 크레이트만 재빌드</td><td>workspace 분리의 주요 이점</td></tr>
+        <tr><td>순환 의존</td><td>0 (Cargo 강제)</td><td>컴파일 에러로 차단됨</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 안티패턴 -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">프로젝트 구조에서 자주 저지르는 실수.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 모든 타입을 pub으로 선언</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 내부 구현이 외부 계약이 됨
+pub struct DbRow { ... }
+pub fn build_query(...) { ... }
+pub fn format_result(...) { ... }</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 필요한 것만 공개</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 최소 가시성에서 시작
+struct DbRow { ... }
+pub(crate) fn build_query(...) { ... }
+pub fn find_user(...) { ... }  // 진짜 API만</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 단일 크레이트에 모든 코드</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 도메인 코드가 인프라를 import해도 경고 없음
+// src/lib.rs에 domain, adapters, api 혼재</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — workspace + 크레이트 분리</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 아키텍처 규칙을 컴파일 타임에 강제
+crates/
+├── domain/   # sqlx import → 컴파일 에러
+├── adapters/
+└── api/</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — use super::super:: 체인</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 모듈 구조 변경 시 모두 수정 필요
+use super::super::domain::user::UserId;</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 절대 경로 또는 re-export</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 안정적인 경로
+use crate::domain::user::UserId;
+// 또는 pub use로 단축 경로 제공</pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- Gotchas -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <p class="desc">workspace와 모듈 시스템에서 자주 발생하는 혼동.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">workspace <code>Cargo.lock</code>은 루트에 하나만 존재한다</strong><br>
+          workspace 멤버 크레이트에 별도 <code>Cargo.lock</code>이 생기지 않는다. 멤버 크레이트를 독립 배포하는 경우에는 별도 workspace로 분리한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)"><code>pub use</code> glob re-export는 API surface를 의도치 않게 넓힌다</strong><br>
+          <code>pub use adapters::*</code>처럼 glob re-export하면 내부 타입이 모두 공개된다. 명시적으로 필요한 타입만 re-export한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">workspace feature는 멤버에 자동 전파되지 않는다</strong><br>
+          루트 <code>Cargo.toml</code>의 <code>workspace.dependencies</code>에 feature를 미리 나열하거나, 멤버의 <code>Cargo.toml</code>에서 직접 feature를 지정한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">크레이트 이름과 파일 시스템 경로는 독립적이다</strong><br>
+          <code>crates/domain/Cargo.toml</code>의 <code>[package] name = "my-domain"</code>이 크레이트 이름이다. 디렉토리명과 다를 수 있다. 혼동을 방지하려면 이름을 일치시키는 것이 좋다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

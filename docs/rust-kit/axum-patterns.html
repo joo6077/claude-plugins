@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Axum 패턴</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;margin:12px 0}
+  pre code{font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.6}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Axum 패턴</h1>
+<p class="subtitle">tokio + tower 생태계 위에 구축된 ergonomic Rust 웹 프레임워크. 0.8.x부터 Router, State, Extractor 구성 방식이 확립되었다. 매크로 없이 타입 시스템으로 라우팅과 미들웨어를 표현하는 것이 핵심이다.</p>
+
+<!-- ── 원칙 카드 ── -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <p class="desc">Axum이 강제하는 타입 안전 패턴 5가지. 각 원칙의 출처는 axum 공식 문서 및 0.8.x 마이그레이션 가이드에서 도출했다.</p>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">1</span>
+        <h3>Router 계층적 구성</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">도메인별로 <code>Router</code>를 분리하고 <code>.nest()</code>로 조합한다. 각 도메인 모듈이 자체 <code>router()</code> 함수를 반환하게 하면 변경 범위가 제한된다.</p>
+      <pre><code>pub fn router() -> Router&lt;AppState&gt; {
+    Router::new()
+        .route("/", get(list_users).post(create_user))
+        .route("/:id", get(get_user).delete(delete_user))
+}
+
+// lib.rs — 조합
+Router::new()
+    .nest("/users", users::router())
+    .nest("/posts", posts::router())
+    .with_state(state)</code></pre>
+      <span class="pill">docs.rs/axum/router</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">2</span>
+        <h3>State는 Clone 비용이 낮아야 한다</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px"><code>State&lt;T&gt;</code>는 요청마다 <code>T</code>를 클론한다. <code>PgPool</code>, <code>Arc&lt;dyn Port&gt;</code> 같은 경량 핸들만 담는다. 무거운 리소스를 직접 포함하면 요청마다 복사 비용이 발생한다.</p>
+      <pre><code>#[derive(Clone)]
+pub struct AppState {
+    pub db: PgPool,           // 내부 Arc 사용
+    pub auth: Arc&lt;dyn AuthPort&gt;,
+    pub config: Arc&lt;Config&gt;,
+}</code></pre>
+      <span class="pill">O(1) clone 보장</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">3</span>
+        <h3>Extractor 조합으로 요청 파싱 선언</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px"><code>Path</code>, <code>Query</code>, <code>Json</code> 등을 함수 파라미터로 선언하면 Axum이 자동으로 파싱하고 실패 시 400 응답을 반환한다. 핸들러 내에서 <code>request.body()</code>를 직접 파싱하지 않는다.</p>
+      <pre><code>async fn list_users(
+    State(state): State&lt;AppState&gt;,
+    Query(pagination): Query&lt;Pagination&gt;,
+    Json(filter): Json&lt;UserFilter&gt;,
+) -&gt; impl IntoResponse { ... }</code></pre>
+      <span class="pill">타입 안전 파싱</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">4</span>
+        <h3>IntoResponse 구현으로 응답 타입 통일</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">핸들러마다 <code>(StatusCode, Json&lt;...&gt;)</code> 튜플을 반복하지 않는다. <code>ApiResponse&lt;T&gt;</code> 래퍼에 <code>IntoResponse</code>를 구현하고 공통 에러 변환을 처리한다.</p>
+      <pre><code>pub enum ApiResponse&lt;T: Serialize&gt; {
+    Ok(T), Created(T), Error(ApiError),
+}
+
+impl&lt;T: Serialize&gt; IntoResponse for ApiResponse&lt;T&gt; {
+    fn into_response(self) -&gt; Response {
+        match self {
+            Self::Ok(d) =&gt; (StatusCode::OK, Json(d)).into_response(),
+            Self::Created(d) =&gt; (StatusCode::CREATED, Json(d)).into_response(),
+            Self::Error(e) =&gt; e.into_response(),
+        }
+    }
+}</code></pre>
+      <span class="pill">응답 추상화</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">5</span>
+        <h3>FromRequestParts로 커스텀 Extractor</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">인증 토큰 추출, 요청 컨텍스트 주입 등 반복되는 파싱 로직은 커스텀 Extractor로 추출한다. 핸들러 시그니처가 의도를 명시적으로 표현하게 된다.</p>
+      <pre><code>pub struct AuthUser(pub Claims);
+
+#[async_trait]
+impl&lt;S&gt; FromRequestParts&lt;S&gt; for AuthUser
+where
+    S: Send + Sync,
+    AppState: FromRef&lt;S&gt;,
+{
+    type Rejection = ApiError;
+    async fn from_request_parts(
+        parts: &amp;mut Parts, state: &amp;S,
+    ) -&gt; Result&lt;Self, Self::Rejection&gt; {
+        // Bearer 토큰 추출 → 검증 → Ok(AuthUser(claims))
+    }
+}</code></pre>
+      <span class="pill">docs.rs/axum/extract</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">Axum 프로젝트 설정 시 지켜야 할 정량 기준값.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>기준값</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Axum 최소 버전</td><td><code>0.8.x</code></td><td>Router API 안정화</td></tr>
+        <tr><td>핸들러당 Extractor 수</td><td>5개 이하</td><td>그 이상이면 커스텀 Extractor 묶음 고려</td></tr>
+        <tr><td>State 클론 비용</td><td>O(1)</td><td>Arc, PgPool 등 경량 핸들 사용</td></tr>
+        <tr><td>IntoResponse 반환 타입</td><td><code>impl IntoResponse</code></td><td>구체 타입 노출 방지</td></tr>
+        <tr><td>#[async_trait] 불필요 시점</td><td>Rust 1.75+</td><td>핸들러는 일반 async fn</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">Axum 코드베이스에서 반복적으로 발견되는 잘못된 패턴과 올바른 대안.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — with_state() 중복 호출</div>
+      <pre><code>// 서브 라우터에서 미리 호출
+let user_router = users::router()
+    .with_state(state.clone()); // ❌
+
+Router::new()
+    .nest("/users", user_router)
+    .with_state(state) // 충돌</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 최상위에서 한 번만</div>
+      <pre><code>// 서브 라우터: 타입 파라미터만 명시
+pub fn router() -> Router&lt;AppState&gt; {
+    Router::new().route("/", get(handler))
+}
+
+// 최상위에서 한 번만 with_state()
+Router::new()
+    .nest("/users", users::router())
+    .with_state(state) // ✅</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — Extension으로 데이터 전달</div>
+      <pre><code>// Extension은 타입당 하나만, 런타임 패닉 위험
+app.layer(Extension(db_pool.clone()))
+
+async fn handler(
+    Extension(pool): Extension&lt;PgPool&gt;, // 런타임에 없으면 500
+) { ... }</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — State 또는 커스텀 Extractor</div>
+      <pre><code>// State로 타입 안전하게 공유
+async fn handler(
+    State(state): State&lt;AppState&gt;,
+) -&gt; impl IntoResponse {
+    let pool = &amp;state.db; // ✅ 컴파일 타임 보장
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 핸들러에서 Request 직접 파싱</div>
+      <pre><code>async fn handler(req: Request&lt;Body&gt;) {
+    let body = req.into_body();
+    let bytes = hyper::body::to_bytes(body).await?;
+    let data: MyDto = serde_json::from_slice(&amp;bytes)?;
+    // Extractor 우회 — 타입 안전성 없음 ❌
+}</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — Json Extractor 사용</div>
+      <pre><code>async fn handler(
+    Json(data): Json&lt;MyDto&gt;, // 자동 파싱, 실패 시 400
+) -&gt; impl IntoResponse {
+    // 이미 파싱 완료 ✅
+}</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas 체크리스트</div>
+  <p class="desc">Axum 작업 시 반복적으로 실수하는 포인트. 구현 전후로 확인하라.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">✓</span>
+        <span><strong>FromRef 부분 추출</strong> — 서브 라우터가 AppState의 일부만 필요하면 <code>FromRef&lt;AppState&gt; for SubState</code>를 구현한다. 전체 AppState를 공유하지 않아도 된다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>Extractor 순서</strong> — Body를 소비하는 Extractor (<code>Json</code>, <code>Bytes</code>, <code>String</code>)는 함수 파라미터 중 마지막에 위치해야 한다. <code>Path</code>, <code>Query</code>, <code>State</code>가 먼저 와야 컴파일된다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>Router Send + Sync 요구</strong> — 핸들러에서 <code>Rc</code>, <code>Cell</code> 등 <code>!Send</code> 타입을 캡처하면 컴파일 에러. tokio 멀티스레드 런타임에서 모든 핸들러는 <code>Send</code>여야 한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>404 폴백</strong> — 매칭되지 않는 경로는 <code>Router::fallback(handler)</code>로 설정한다. 미들웨어에서 처리하지 않는다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>ServiceBuilder 레이어 순서</strong> — <code>.layer()</code> 호출 순서가 요청에 대해서는 역순(마지막 layer가 먼저 실행), 응답에 대해서는 정순으로 적용된다. auth → rate-limit처럼 의존성 있는 미들웨어는 <code>ServiceBuilder</code>로 명시적으로 묶는다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>Router::layer() 선언 위치</strong> — <code>.layer()</code>는 그 시점까지 추가된 라우트에만 적용된다. 모든 라우트를 먼저 등록하고 마지막에 <code>.layer()</code>를 호출한다.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraphQL — Rust Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E85D4A;--accent2:#F08575;
+  --accent-dim:rgba(232,93,74,0.12);--accent-glow:rgba(232,93,74,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(232,93,74,0.06) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(232,93,74,0.03) 0%,transparent 55%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1240px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:28px;transition:color var(--transition)}
+.back-link:hover{color:var(--accent)}
+.hero{margin-bottom:clamp(48px,6vw,84px)}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--accent-dim);border:1px solid var(--border2);font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:20px}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.55;transform:scale(1.25)}}
+h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-1.2px;line-height:1.08;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 70%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+.subtitle{color:var(--text2);font-size:clamp(15px,1.5vw,18px);line-height:1.75;max-width:780px}
+.section{margin-bottom:clamp(56px,7vw,96px)}
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 75%)}
+h2{font-size:clamp(20px,2.5vw,30px);font-weight:700;letter-spacing:-0.5px;margin-bottom:10px}
+h3{font-size:clamp(15px,1.6vw,19px);font-weight:700;margin-bottom:8px}
+.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.8;max-width:740px;margin-bottom:28px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(18px,2.5vw,30px);transition:border-color var(--transition),transform var(--transition)}
+.card:hover{border-color:rgba(232,93,74,0.3);transform:translateY(-2px)}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
+.principle-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0;margin-bottom:10px}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.65;color:#e2d9d0;margin:14px 0}
+code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 16px;color:var(--text2);font-weight:700;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(232,93,74,0.04)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:640px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+.compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--error)}
+.compare-good .compare-label{color:var(--success)}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.65}
+.check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+.tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a class="back-link" href="index.html">← Rust Kit</a>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="badge">Protocols · GraphQL</div>
+  <h1>GraphQL</h1>
+  <p class="subtitle">
+    <code>async-graphql 7.x</code>는 Rust의 코드 퍼스트 GraphQL 라이브러리다.
+    <code>#[Object]</code>, <code>#[SimpleObject]</code>, <code>#[InputObject]</code> 매크로로 스키마를 정의하고,
+    <code>DataLoader</code>로 N+1 문제를 해결한다. axum과 함께 사용하면 REST와 GraphQL을 동일 서버에서 제공할 수 있다.
+  </p>
+</div>
+
+<!-- ── 원칙 ── -->
+<div class="section">
+  <div class="section-label">원칙</div>
+  <h2>핵심 패턴 4가지</h2>
+  <p class="desc">async-graphql 서비스를 올바르게 구성하는 네 가지 핵심 패턴이다.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">1</div>
+    <h3>Schema는 Query / Mutation / Subscription 세 루트 타입으로 구성한다</h3>
+    <p class="desc" style="margin-bottom:12px">각 루트 타입을 별도 struct로 선언하고 Schema::build로 조합한다.</p>
+    <pre>[dependencies]
+async-graphql = "7"
+async-graphql-axum = "7"</pre>
+    <pre>use async_graphql::{Schema, EmptySubscription, EmptyMutation, Object, Context, Result, ID};
+
+pub struct QueryRoot;
+
+#[Object]
+impl QueryRoot {
+    async fn user(&self, ctx: &Context&lt;'_&gt;, id: ID) -> Result&lt;Option&lt;User&gt;&gt; {
+        let db = ctx.data_unchecked::&lt;Arc&lt;dyn DatabasePort&gt;&gt;();
+        Ok(db.find_user(&id.to_string()).await?)
+    }
+
+    async fn users(&self, ctx: &Context&lt;'_&gt;) -> Result&lt;Vec&lt;User&gt;&gt; {
+        let db = ctx.data_unchecked::&lt;Arc&lt;dyn DatabasePort&gt;&gt;();
+        Ok(db.list_users().await?)
+    }
+}
+
+pub struct MutationRoot;
+
+#[Object]
+impl MutationRoot {
+    async fn create_user(
+        &self,
+        ctx: &Context&lt;'_&gt;,
+        input: CreateUserInput,
+    ) -> Result&lt;User&gt; {
+        let db = ctx.data_unchecked::&lt;Arc&lt;dyn DatabasePort&gt;&gt;();
+        Ok(db.create_user(input.into()).await?)
+    }
+}
+
+pub type AppSchema = Schema&lt;QueryRoot, MutationRoot, EmptySubscription&gt;;
+
+pub fn build_schema(db: Arc&lt;dyn DatabasePort&gt;) -> AppSchema {
+    Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+        .data(db)
+        .limit_complexity(100)   // DoS 방지 필수
+        .limit_depth(10)
+        .finish()
+}</pre>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">2</div>
+    <h3>#[SimpleObject]와 #[InputObject]로 DTO를 선언한다</h3>
+    <p class="desc" style="margin-bottom:12px">응답 타입은 <code>#[SimpleObject]</code>, 입력 타입은 <code>#[InputObject]</code>를 사용한다.</p>
+    <pre>use async_graphql::{SimpleObject, InputObject, ID};
+
+// 응답 타입 — 모든 public 필드가 자동으로 GraphQL 필드로 노출됨
+#[derive(SimpleObject)]
+pub struct User {
+    pub id: ID,
+    pub email: String,
+    pub name: String,
+    #[graphql(skip)]           // 민감한 필드는 반드시 skip
+    pub password_hash: String,
+}
+
+// 입력 타입
+#[derive(InputObject)]
+pub struct CreateUserInput {
+    pub email: String,
+    pub name: String,
+    pub password: String,
+}</pre>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">3</div>
+    <h3>DataLoader로 N+1 쿼리를 해결한다</h3>
+    <p class="desc" style="margin-bottom:12px">관계 필드에서 매 resolver마다 DB를 호출하면 N+1 문제가 발생한다. <code>DataLoader</code>는 동일 배치 내 요청을 한 번의 쿼리로 묶는다.</p>
+    <pre>use async_graphql::dataloader::{DataLoader, Loader};
+use std::collections::HashMap;
+
+pub struct UserLoader {
+    db: Arc&lt;dyn DatabasePort&gt;,
+}
+
+#[async_trait::async_trait]
+impl Loader&lt;String&gt; for UserLoader {
+    type Value = User;
+    type Error = anyhow::Error;
+
+    async fn load(
+        &self,
+        keys: &[String],
+    ) -> Result&lt;HashMap&lt;String, Self::Value&gt;, Self::Error&gt; {
+        let users = self.db.find_users_by_ids(keys).await?;
+        Ok(users.into_iter().map(|u| (u.id.to_string(), u)).collect())
+    }
+}
+
+// Schema 빌드 시 DataLoader 등록
+Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+    .data(DataLoader::new(UserLoader { db: db.clone() }, tokio::spawn))
+    .data(db)
+    .finish()
+
+// Resolver에서 사용
+#[Object]
+impl Post {
+    async fn author(&self, ctx: &Context&lt;'_&gt;) -> Result&lt;Option&lt;User&gt;&gt; {
+        let loader = ctx.data_unchecked::&lt;DataLoader&lt;UserLoader&gt;&gt;();
+        Ok(loader.load_one(self.author_id.clone()).await?)
+    }
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="principle-num">4</div>
+    <h3>axum에 GraphQL 엔드포인트를 마운트한다</h3>
+    <p class="desc" style="margin-bottom:12px"><code>async-graphql-axum</code>으로 POST 핸들러와 WebSocket subscription 엔드포인트를 함께 등록한다.</p>
+    <pre>use async_graphql_axum::{GraphQLRequest, GraphQLResponse, GraphQLSubscription};
+use axum::{routing::{post, any}, Extension, Router};
+
+async fn graphql_handler(
+    schema: Extension&lt;AppSchema&gt;,
+    req: GraphQLRequest,
+) -> GraphQLResponse {
+    schema.execute(req.into_inner()).await.into()
+}
+
+pub fn create_router(schema: AppSchema) -> Router {
+    Router::new()
+        .route("/graphql", post(graphql_handler))
+        .route(
+            "/graphql/ws",
+            any(GraphQLSubscription::new(schema.clone())),
+        )
+        .layer(Extension(schema))
+}</pre>
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <h2>버전 및 설정값</h2>
+  <p class="desc">프로덕션에서 반드시 설정해야 할 수치다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>async-graphql 버전</td>
+          <td><code>7.x</code></td>
+          <td>async-graphql-axum도 동일 버전 사용</td>
+        </tr>
+        <tr>
+          <td>DataLoader 배치 크기</td>
+          <td>기본값 (자동)</td>
+          <td>동일 async 배치 내 요청 자동 묶음</td>
+        </tr>
+        <tr>
+          <td>쿼리 복잡도 제한</td>
+          <td><code>.limit_complexity(100)</code></td>
+          <td>DoS 방지 — 프로덕션 필수</td>
+        </tr>
+        <tr>
+          <td>쿼리 깊이 제한</td>
+          <td><code>.limit_depth(10)</code></td>
+          <td>중첩 쿼리로 인한 N+1 방지</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <h2>흔한 실수 3가지</h2>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">#[Object] resolver에서 직접 DB 호출</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        관계 필드마다 DB를 호출하면 100개 Post의 author를 조회할 때
+        101번의 쿼리가 발생한다 (N+1 문제).
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">DataLoader를 항상 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        관계 필드 resolver는 반드시 <code>DataLoader</code>를 통해
+        배치 로딩한다. 단일 객체 조회도 DataLoader로 일원화한다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">data_unchecked 남용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>data_unchecked</code>는 데이터가 없으면 패닉한다.
+        Schema 빌드 시 확실히 등록된 데이터에만 사용해야 한다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">조건부 데이터는 ctx.data::&lt;T&gt;() 사용</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        조건부로 존재하는 데이터는 <code>ctx.data::&lt;T&gt;()</code> (Result 반환)를
+        사용하여 없는 경우를 안전하게 처리한다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">복잡도/깊이 제한 없이 프로덕션 배포</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        GraphQL은 임의로 중첩된 쿼리를 허용하므로 DoS 공격에 취약하다.
+        제한 없이 배포하면 한 번의 쿼리로 서버를 마비시킬 수 있다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">limit_complexity + limit_depth 설정</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>Schema::build(...).limit_complexity(100).limit_depth(10)</code>
+        설정을 반드시 추가한다. 서비스 성격에 따라 값을 조정한다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <h2>반드시 알아야 할 함정</h2>
+  <p class="desc">이 항목들을 모르면 보안 취약점이나 런타임 패닉으로 이어진다.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">#[SimpleObject]의 모든 public 필드가 자동으로 노출된다</strong><br>
+          민감한 필드(<code>password_hash</code>, <code>internal_id</code> 등)는
+          <code>#[graphql(skip)]</code>으로 명시적으로 제외한다.
+          추가할 때마다 확인하는 습관이 필요하다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">DataLoader는 같은 async 배치 내 요청만 묶는다</strong><br>
+          resolver들이 <code>await</code>로 중단되지 않고 동일 poll 사이클에서 실행되어야
+          배치가 묶인다. <code>tokio::spawn</code>을 executor로 전달하면 배치 타이밍이 최적화된다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">async-graphql과 async-graphql-axum 버전을 반드시 맞춰야 한다</strong><br>
+          버전이 다르면 <code>Schema</code> 타입이 호환되지 않아 컴파일 에러가 발생한다.
+          <code>Cargo.toml</code>에서 두 크레이트를 같은 메이저 버전으로 고정한다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">ID 타입은 내부적으로 String이다</strong><br>
+          <code>async_graphql::ID</code>는 GraphQL spec의 ID 스칼라 타입이다.
+          DB의 <code>Uuid</code>를 <code>ID</code>로 변환할 때
+          <code>ID::from(uuid.to_string())</code>을 사용한다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 참조 ── -->
+<div class="section">
+  <div class="section-label">참조</div>
+  <h2>원칙 출처</h2>
+  <div class="grid-3">
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">async-graphql</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/async-graphql</p>
+    </div>
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">async-graphql-axum</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/async-graphql-axum</p>
+    </div>
+    <div class="card">
+      <span class="tag">스펙</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">GraphQL Spec</h3>
+      <p style="font-size:13px;color:var(--text3)">spec.graphql.org</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

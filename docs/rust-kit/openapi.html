@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenAPI 원칙</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;margin:12px 0}
+  pre code{font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.6}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .flow-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .flow-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px;color:var(--text2)}
+  .arrow{color:var(--accent);font-weight:700;font-size:14px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>OpenAPI 원칙</h1>
+<p class="subtitle"><code>utoipa 5.x</code>를 사용하여 Rust 코드에서 OpenAPI 3.x 스펙을 생성한다. 핸들러 함수와 DTO에 매크로를 붙이면 런타임에 JSON 스펙이 자동 생성되고, Swagger UI로 서빙한다.</p>
+
+<!-- ── 원칙 카드 ── -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <p class="desc">utoipa를 사용한 코드 우선 OpenAPI 스펙 생성 원칙 4가지.</p>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">1</span>
+        <h3>ToSchema + #[utoipa::path]</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">DTO에 <code>ToSchema</code>를 derive하고, 핸들러에 <code>#[utoipa::path]</code>를 붙인다. 요청 바디, 응답 타입, 상태 코드, 보안 스키마를 선언적으로 정의한다.</p>
+      <pre><code>#[derive(Serialize, Deserialize, ToSchema)]
+pub struct CreateUserRequest {
+    /// 사용자 이메일 주소
+    pub email: String,
+    /// 사용자 이름 (2~50자)
+    pub name: String,
+}
+
+#[utoipa::path(
+    post,
+    path = "/users",
+    request_body = CreateUserRequest,
+    responses(
+        (status = 201, description = "생성 성공", body = UserResponse),
+        (status = 400, description = "잘못된 요청", body = ErrorResponse),
+        (status = 409, description = "이미 존재하는 이메일"),
+    ),
+    tag = "users",
+    security(("bearer_auth" = [])),
+)]
+pub async fn create_user(...) -&gt; impl IntoResponse { ... }</code></pre>
+      <span class="pill">utoipa 5.x</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">2</span>
+        <h3>#[derive(OpenApi)]로 스펙 루트 정의</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">앱 최상위에서 <code>#[derive(OpenApi)]</code>로 모든 path와 schema를 등록한다. Bearer 인증 스키마는 <code>Modify</code> trait으로 런타임에 주입한다.</p>
+      <pre><code>#[derive(OpenApi)]
+#[openapi(
+    paths(users::create_user, users::get_user, users::list_users),
+    components(schemas(
+        CreateUserRequest, UserResponse, ErrorResponse,
+    )),
+    tags((name = "users", description = "사용자 관리 API")),
+    modifiers(&amp;SecurityAddon),
+    info(title = "My API", version = "1.0.0"),
+)]
+pub struct ApiDoc;
+
+struct SecurityAddon;
+impl Modify for SecurityAddon {
+    fn modify(&amp;self, openapi: &amp;mut utoipa::openapi::OpenApi) {
+        let components = openapi.components
+            .get_or_insert_with(Default::default);
+        components.add_security_scheme(
+            "bearer_auth",
+            SecurityScheme::Http(
+                HttpBuilder::new()
+                    .scheme(HttpAuthScheme::Bearer)
+                    .bearer_format("JWT")
+                    .build(),
+            ),
+        );
+    }
+}</code></pre>
+      <span class="pill">컴파일 타임 스펙 생성</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">3</span>
+        <h3>Swagger UI 마운트</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">Swagger UI를 axum 라우터에 <code>.merge()</code>로 마운트한다. 프로덕션에서는 환경 변수로 조건부 비활성화한다.</p>
+      <pre><code>// Cargo.toml
+utoipa = { version = "5", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "9", features = ["axum"] }
+
+// router 설정
+pub fn create_router(state: AppState) -> Router {
+    let mut router = Router::new()
+        .nest("/users", users::router())
+        .with_state(state);
+
+    if std::env::var("ENABLE_SWAGGER_UI").is_ok() {
+        router = router.merge(
+            SwaggerUi::new("/swagger-ui")
+                .url("/api-docs/openapi.json", ApiDoc::openapi())
+        );
+    }
+    router
+}</code></pre>
+      <span class="pill">/swagger-ui (조건부)</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">4</span>
+        <h3>모듈별 OpenApi merge</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">대규모 앱에서 <code>paths()</code>에 모든 핸들러를 나열하면 유지보수가 어렵다. 각 모듈에 서브 <code>OpenApi</code>를 정의하고 <code>merge</code>로 합친다.</p>
+      <pre><code>// users 모듈
+#[derive(OpenApi)]
+#[openapi(
+    paths(create_user, get_user),
+    components(schemas(UserResponse)),
+)]
+struct UsersApiDoc;
+
+// posts 모듈
+#[derive(OpenApi)]
+#[openapi(
+    paths(create_post, get_post),
+    components(schemas(PostResponse)),
+)]
+struct PostsApiDoc;
+
+// 최상위에서 머지
+let mut doc = ApiDoc::openapi();
+doc.merge(UsersApiDoc::openapi());
+doc.merge(PostsApiDoc::openapi());</code></pre>
+      <div class="flow-row">
+        <span class="flow-box">ApiDoc</span>
+        <span class="arrow">+</span>
+        <span class="flow-box">UsersApiDoc</span>
+        <span class="arrow">+</span>
+        <span class="flow-box">PostsApiDoc</span>
+        <span class="arrow">=</span>
+        <span class="flow-box">merged spec</span>
+      </div>
+      <span class="pill" style="margin-top:12px;display:inline-block">모듈 분리 + merge</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">utoipa 설정 시 지켜야 할 정량 기준값.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>utoipa 버전</td><td><code>5.4.x</code></td><td>axum_extras feature 필요</td></tr>
+        <tr><td>utoipa-swagger-ui 버전</td><td><code>9.0.x</code></td><td>axum feature 필요</td></tr>
+        <tr><td>Swagger UI 경로</td><td><code>/swagger-ui</code></td><td>프로덕션에서 환경변수로 조건부 비활성화</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">utoipa 사용 시 반복되는 실수와 올바른 대안.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 한 파일에 모든 핸들러 나열</div>
+      <pre><code>#[derive(OpenApi)]
+#[openapi(
+    paths(
+        // 50개 핸들러를 모두 여기에...
+        users::create_user,
+        users::get_user,
+        posts::create_post,
+        posts::get_post,
+        // ... 유지보수 불가 ❌
+    ),
+)]
+pub struct ApiDoc;</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 모듈별 분리 + merge</div>
+      <pre><code>// 각 모듈이 자체 OpenApi 보유
+// users/mod.rs
+#[derive(OpenApi)]
+#[openapi(paths(create_user, get_user))]
+struct UsersApiDoc;
+
+// 최상위에서 merge
+let mut doc = ApiDoc::openapi();
+doc.merge(UsersApiDoc::openapi()); // ✅</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — ToSchema와 serde rename 불일치</div>
+      <pre><code>#[derive(Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct UserResponse {
+    pub user_id: String,  // JSON: "userId"
+    // ToSchema는 "user_id"로 스펙 생성 ❌
+    // 스펙과 실제 JSON 불일치
+}</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — schema rename_all 명시</div>
+      <pre><code>#[derive(Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+#[schema(rename_all = "camelCase")] // ✅ 스펙도 동기화
+pub struct UserResponse {
+    pub user_id: String,  // 스펙: "userId" ✅
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 프로덕션에서 Swagger UI 무조건 노출</div>
+      <pre><code>// 환경 분리 없이 항상 마운트
+Router::new()
+    .merge(SwaggerUi::new("/swagger-ui")
+        .url("/api-docs/openapi.json", ApiDoc::openapi()))
+    // 내부 API 스펙 외부 노출 ❌</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 환경변수 조건부 마운트</div>
+      <pre><code>if std::env::var("ENABLE_SWAGGER_UI").is_ok() {
+    router = router.merge(
+        SwaggerUi::new("/swagger-ui")
+            .url("/api-docs/openapi.json", ApiDoc::openapi())
+    );
+} // 프로덕션에서 비활성화 ✅</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas 체크리스트</div>
+  <p class="desc">utoipa 작업 시 반복적으로 실수하는 포인트.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">✓</span>
+        <span><strong>axum_extras feature 필수</strong> — axum의 <code>Path</code>, <code>Query</code> extractor를 utoipa가 인식하려면 <code>features = ["axum_extras"]</code>를 활성화해야 한다. 없으면 extractor 파라미터가 스펙에 반영되지 않는다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>Modify로만 런타임 스펙 변경 가능</strong> — <code>#[derive(OpenApi)]</code>는 컴파일 타임에 스펙을 생성한다. 서버 URL이나 보안 스키마처럼 환경에 따라 달라지는 값은 <code>Modify</code> 구현체를 통해 런타임에 주입한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>openapi.json 엔드포인트는 GET만 지원</strong> — <code>SwaggerUi::url()</code>이 등록하는 엔드포인트는 GET만 처리한다. 별도 인증이 필요하면 <code>.merge()</code> 이전에 미들웨어를 적용하거나 스펙 엔드포인트를 직접 구현한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>제네릭 타입 ToSchema 제한</strong> — <code>PageResponse&lt;T&gt;</code>처럼 제네릭 타입은 <code>#[schema(value_type = ...)]</code>으로 구체 타입을 지정하거나, 사용되는 모든 구체 타입을 <code>components</code>에 등록해야 한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>doc comment가 description이 된다</strong> — DTO 필드 위의 <code>/// ...</code> 주석이 OpenAPI description 필드로 변환된다. 필드 설명을 주석으로 작성하면 별도 <code>#[schema(description = ...)]</code> 없이도 스펙에 반영된다.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>gRPC / Tonic — Rust Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E85D4A;--accent2:#F08575;
+  --accent-dim:rgba(232,93,74,0.12);--accent-glow:rgba(232,93,74,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(232,93,74,0.06) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(232,93,74,0.03) 0%,transparent 55%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1240px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--text3);text-decoration:none;
+  margin-bottom:28px;transition:color var(--transition);
+}
+.back-link:hover{color:var(--accent)}
+
+.hero{margin-bottom:clamp(48px,6vw,84px)}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:999px;
+  background:var(--accent-dim);border:1px solid var(--border2);
+  font-size:12px;font-weight:700;color:var(--accent2);
+  text-transform:uppercase;letter-spacing:1.4px;
+  margin-bottom:20px;
+}
+.badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 10px var(--accent);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.55;transform:scale(1.25)}
+}
+h1{
+  font-size:clamp(32px,5vw,56px);font-weight:800;
+  letter-spacing:-1.2px;line-height:1.08;
+  background:linear-gradient(135deg,var(--text) 0%,var(--accent) 70%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:18px;
+}
+.subtitle{
+  color:var(--text2);font-size:clamp(15px,1.5vw,18px);
+  line-height:1.75;max-width:780px;
+}
+
+.section{margin-bottom:clamp(56px,7vw,96px)}
+.section-label{
+  font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;
+  color:var(--accent);margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+}
+.section-label::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,var(--accent2) 0%,transparent 75%);
+}
+h2{
+  font-size:clamp(20px,2.5vw,30px);font-weight:700;
+  letter-spacing:-0.5px;margin-bottom:10px;
+}
+h3{font-size:clamp(15px,1.6vw,19px);font-weight:700;margin-bottom:8px}
+.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.8;max-width:740px;margin-bottom:28px}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:clamp(18px,2.5vw,30px);
+  transition:border-color var(--transition),transform var(--transition);
+}
+.card:hover{border-color:rgba(232,93,74,0.3);transform:translateY(-2px)}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
+
+.principle-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:8px;
+  background:var(--accent-dim);color:var(--accent);
+  font-size:13px;font-weight:800;flex-shrink:0;margin-bottom:10px;
+}
+
+pre{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:18px 20px;
+  overflow-x:auto;font-family:var(--mono);font-size:12.5px;
+  line-height:1.65;color:#e2d9d0;margin:14px 0;
+}
+code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{
+  text-align:left;padding:11px 16px;
+  color:var(--text2);font-weight:700;
+  border-bottom:2px solid var(--border);
+  font-size:11px;letter-spacing:1px;text-transform:uppercase;
+}
+td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(232,93,74,0.04)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:640px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+.compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--error)}
+.compare-good .compare-label{color:var(--success)}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{
+  display:flex;align-items:flex-start;gap:12px;
+  font-size:13.5px;color:var(--text2);line-height:1.65;
+}
+.check{
+  width:20px;height:20px;border-radius:5px;
+  border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--accent);
+}
+.tag{
+  display:inline-block;background:var(--accent-dim);color:var(--accent);
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a class="back-link" href="index.html">← Rust Kit</a>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="badge">Protocols · gRPC</div>
+  <h1>gRPC / Tonic</h1>
+  <p class="subtitle">
+    <code>tonic 0.14.x</code>는 Rust의 표준 gRPC 구현이다. <code>.proto</code> 파일에서
+    <code>tonic-prost-build</code>로 서버·클라이언트 코드를 생성하고, tokio 위에서 비동기로 동작한다.
+    Proto-first 워크플로우를 따르면 타입 안전성과 코드 생성 이점을 모두 얻는다.
+  </p>
+</div>
+
+<!-- ── 원칙 ── -->
+<div class="section">
+  <div class="section-label">원칙</div>
+  <h2>핵심 패턴 4가지</h2>
+  <p class="desc">tonic 서비스를 올바르게 구성하는 네 가지 핵심 패턴이다.</p>
+
+  <div class="grid-2" style="margin-bottom:28px">
+    <div class="card">
+      <div class="principle-num">1</div>
+      <h3>build.rs에서 proto를 컴파일한다</h3>
+      <p class="desc" style="margin-bottom:12px"><code>tonic-prost-build</code>를 build-dependency로 추가하고 <code>build.rs</code>에서 컴파일 설정을 선언한다.</p>
+      <pre>[dependencies]
+tonic = "0.14"
+prost = "0.13"
+
+[build-dependencies]
+tonic-prost-build = "0.14"</pre>
+      <pre>// build.rs
+fn main() -> Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    tonic_prost_build::configure()
+        .build_server(true)
+        .build_client(true)
+        .compile_protos(
+            &["proto/user.proto"],
+            &["proto/"],
+        )?;
+    Ok(())
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="principle-num">2</div>
+      <h3>proto 서비스 정의</h3>
+      <p class="desc" style="margin-bottom:12px">단방향 RPC와 서버 스트리밍을 하나의 서비스에 정의한다.</p>
+      <pre>// proto/user.proto
+syntax = "proto3";
+package user;
+
+service UserService {
+    rpc GetUser (GetUserRequest)
+        returns (UserResponse);
+    rpc ListUsers (ListUsersRequest)
+        returns (stream UserResponse);
+    rpc CreateUser (CreateUserRequest)
+        returns (UserResponse);
+}
+
+message GetUserRequest { string id = 1; }
+message UserResponse {
+    string id    = 1;
+    string email = 2;
+    string name  = 3;
+}</pre>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="principle-num">3</div>
+    <h3>생성된 trait을 구현하여 서버를 만든다</h3>
+    <p class="desc" style="margin-bottom:12px">서버 스트리밍 핸들러는 associated type으로 반환 타입을 명시해야 한다.</p>
+    <pre>use tonic::{transport::Server, Request, Response, Status};
+
+pub mod user {
+    tonic::include_proto!("user");  // 인자는 패키지명
+}
+use user::user_service_server::{UserService, UserServiceServer};
+
+#[derive(Debug, Default)]
+pub struct UserServiceImpl {
+    db: Arc&lt;dyn DatabasePort&gt;,
+}
+
+#[tonic::async_trait]
+impl UserService for UserServiceImpl {
+    async fn get_user(
+        &self,
+        request: Request&lt;GetUserRequest&gt;,
+    ) -> Result&lt;Response&lt;UserResponse&gt;, Status&gt; {
+        let id = request.into_inner().id;
+        let user = self.db.find_user(&id).await
+            .map_err(|e| Status::internal(e.to_string()))?
+            .ok_or_else(|| Status::not_found("User not found"))?;
+
+        Ok(Response::new(UserResponse {
+            id: user.id.to_string(),
+            email: user.email,
+            name: user.name,
+        }))
+    }
+
+    // 서버 스트리밍 — associated type 필수
+    type ListUsersStream =
+        Pin&lt;Box&lt;dyn Stream&lt;Item = Result&lt;UserResponse, Status&gt;&gt; + Send&gt;&gt;;
+
+    async fn list_users(
+        &self,
+        _request: Request&lt;ListUsersRequest&gt;,
+    ) -> Result&lt;Response&lt;Self::ListUsersStream&gt;, Status&gt; {
+        let users = self.db.list_all_users().await
+            .map_err(|e| Status::internal(e.to_string()))?;
+
+        let stream = futures::stream::iter(users.into_iter().map(|u| {
+            Ok(UserResponse {
+                id: u.id.to_string(),
+                email: u.email,
+                name: u.name,
+            })
+        }));
+        Ok(Response::new(Box::pin(stream)))
+    }
+}
+
+#[tokio::main]
+async fn main() -> Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let addr = "[::1]:50051".parse()?;
+    let svc = UserServiceImpl::default();
+
+    Server::builder()
+        .add_service(UserServiceServer::new(svc))
+        .serve(addr)
+        .await?;
+    Ok(())
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="principle-num">4</div>
+    <h3>tonic::Status로 gRPC 에러를 표현한다</h3>
+    <p class="desc" style="margin-bottom:12px">HTTP 상태 코드 대신 gRPC status code를 사용한다. 민감한 정보는 절대 포함하지 않는다.</p>
+    <pre>// 표준 Status 생성자
+Status::ok("success")
+Status::not_found("User not found")
+Status::invalid_argument("Email is required")
+Status::unauthenticated("Invalid token")
+Status::permission_denied("Insufficient permissions")
+Status::internal("Database error")          // ← 메시지에 내부 정보 금지
+Status::unavailable("Service temporarily unavailable")
+Status::already_exists("Email already registered")
+
+// 메타데이터 포함 (요청 ID 등 디버깅 정보)
+let mut status = Status::invalid_argument("Validation failed");
+status.metadata_mut().insert(
+    "x-request-id",
+    request_id.parse()?
+);
+Err(status)
+
+// 인터셉터로 인증 공통 처리
+Server::builder()
+    .add_service(UserServiceServer::with_interceptor(svc, check_auth))
+// check_auth: fn(Request&lt;()&gt;) -> Result&lt;Request&lt;()&gt;, Status&gt;</pre>
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <h2>버전 및 설정값</h2>
+  <p class="desc">프로젝트에서 사용해야 할 버전과 기본 설정값이다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>기준값</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>tonic 버전</td>
+          <td><code>0.14.x</code></td>
+          <td>prost 0.13과 호환</td>
+        </tr>
+        <tr>
+          <td>tonic-prost-build 버전</td>
+          <td><code>0.14.x</code></td>
+          <td>build-dependencies에 추가</td>
+        </tr>
+        <tr>
+          <td>기본 포트</td>
+          <td><code>50051</code></td>
+          <td>gRPC 업계 관례</td>
+        </tr>
+        <tr>
+          <td>최대 메시지 크기</td>
+          <td>4MB (기본)</td>
+          <td><code>Server::builder().max_decoding_message_size()</code>로 조정</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <h2>흔한 실수 3가지</h2>
+  <p class="desc">tonic을 처음 사용할 때 반복되는 실수 패턴이다.</p>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">Rust 구조체를 직접 작성</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        tonic은 <code>.proto</code> 파일에서 타입과 서비스 코드를 생성한다.
+        Rust 구조체를 직접 작성하면 proto 스키마와 불일치가 생기고 클라이언트와의
+        호환성이 깨진다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">.proto → codegen → 구현 순서 준수</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        항상 <code>.proto</code> 파일을 먼저 작성하고, <code>build.rs</code>를 통해 코드를
+        생성한 뒤, 생성된 trait을 구현한다. 타입 정의는 proto가 single source of truth다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">Status::internal에 민감한 정보 포함</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>Status::internal(db_error.to_string())</code>처럼 내부 DB 에러나
+        스택 트레이스를 그대로 넣으면 클라이언트에 내부 구조가 노출된다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">서버 로그 + 일반 메시지 분리</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        상세 내용은 <code>tracing::error!</code>로 서버 로그에 기록하고,
+        클라이언트에는 <code>Status::internal("internal error")</code>처럼
+        일반적인 메시지만 반환한다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">피해야 할 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">스트리밍에서 전체 데이터 메모리 수집</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>Vec</code> 전체를 수집한 뒤 스트림으로 변환하면 메모리 사용량이 증가하고
+        스트리밍의 지연 전송 이점이 없어진다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴</div>
+      <h3 style="margin-bottom:8px;font-size:15px">futures::stream::try_unfold로 진짜 스트리밍</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <code>futures::stream::try_unfold</code>나 DB cursor를 활용하여
+        데이터를 청크 단위로 가져오면서 클라이언트에 즉시 전송한다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <h2>반드시 알아야 할 함정</h2>
+  <p class="desc">이 항목들을 모르면 컴파일 에러나 런타임 버그로 시간을 낭비한다.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">include_proto! 인자는 파일명이 아닌 패키지명</strong><br>
+          <code>tonic::include_proto!("user")</code>의 인자는 파일명이 아니라
+          <code>.proto</code> 파일 내 <code>package user;</code> 선언의 패키지명이다.
+          파일명이 <code>user_service.proto</code>여도 패키지가 <code>user</code>면 인자는 <code>"user"</code>다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">build.rs 변경 후 cargo clean이 필요할 수 있다</strong><br>
+          proto 파일을 수정했는데 변경이 반영되지 않으면
+          <code>cargo clean && cargo build</code>로 생성 코드를 재생성한다.
+          빌드 캐시가 오래된 생성 파일을 참조하는 경우다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">서버 스트리밍의 반환 타입은 associated type으로 선언해야 한다</strong><br>
+          <code>type ListUsersStream = Pin&lt;Box&lt;dyn Stream&lt;Item = Result&lt;UserResponse, Status&gt;&gt; + Send&gt;&gt;</code>처럼
+          associated type을 명시해야 한다. async_trait과 달리 tonic은 이 패턴을 직접 요구한다.
+        </div>
+      </li>
+      <li>
+        <div class="check">✓</div>
+        <div>
+          <strong style="color:var(--text)">인터셉터로 인증을 공통 처리한다</strong><br>
+          <code>UserServiceServer::with_interceptor(svc, check_auth)</code> 형태로 등록한다.
+          <code>check_auth</code>는 <code>fn(Request&lt;()&gt;) -> Result&lt;Request&lt;()&gt;, Status&gt;</code> 시그니처다.
+          각 핸들러에 중복 인증 코드를 넣지 않는다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 참조 ── -->
+<div class="section">
+  <div class="section-label">참조</div>
+  <h2>원칙 출처</h2>
+  <p class="desc">이 페이지의 원칙은 아래 문서에서 도출되었다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">tonic</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/tonic</p>
+    </div>
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">prost</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/prost</p>
+    </div>
+    <div class="card">
+      <span class="tag">공식 문서</span>
+      <h3 style="margin-top:10px;margin-bottom:6px">tonic-prost-build</h3>
+      <p style="font-size:13px;color:var(--text3)">docs.rs/tonic-prost-build</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

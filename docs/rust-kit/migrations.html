@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>마이그레이션 원칙</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;margin:12px 0}
+  pre code{font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.6}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .dir-tree{font-family:var(--mono);font-size:12px;color:var(--text2);background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;padding:16px;line-height:1.8}
+  .dir-tree .dir{color:var(--accent2)}
+  .dir-tree .file{color:var(--text2)}
+  .flow{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .flow-step{display:flex;align-items:flex-start;gap:12px;padding:8px 12px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent)}
+  .flow-step-num{color:var(--accent);font-weight:800;font-size:13px;flex-shrink:0;min-width:16px}
+  .flow-step-text{color:var(--text2);font-size:13px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>마이그레이션 원칙</h1>
+<p class="subtitle"><code>sqlx migrate</code>는 SQL 파일 기반의 데이터베이스 마이그레이션 도구다. <code>sqlx::migrate!()</code> 매크로로 앱 시작 시 자동 실행하거나 <code>sqlx-cli</code>로 수동 관리한다.</p>
+
+<!-- ── 원칙 카드 ── -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <p class="desc">마이그레이션 파일 명명, reversible 분리, 자동 실행, CI 검증 4가지 원칙.</p>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">1</span>
+        <h3>타임스탬프 접두사 네이밍</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px"><code>sqlx migrate add &lt;name&gt;</code> 명령이 현재 시각 기반 타임스탬프를 자동으로 붙인다. 숫자 오름차순이 실행 순서를 결정한다.</p>
+      <div class="dir-tree">
+        <div><span class="dir">migrations/</span></div>
+        <div>&nbsp;&nbsp;<span class="file">20240101000000_create_users.sql</span></div>
+        <div>&nbsp;&nbsp;<span class="file">20240102000000_create_posts.sql</span></div>
+        <div>&nbsp;&nbsp;<span class="file">20240103000000_add_user_roles.sql</span></div>
+      </div>
+      <pre style="margin-top:12px"><code># 자동 타임스탬프 생성
+sqlx migrate add create_users
+# → migrations/20240101000000_create_users.sql</code></pre>
+      <span class="pill">YYYYMMDDHHmmss</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">2</span>
+        <h3>Reversible 마이그레이션 — up/down 분리</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px"><code>-r</code> 플래그로 reversible 마이그레이션을 생성하면 <code>.up.sql</code>과 <code>.down.sql</code>이 한 쌍으로 생성된다.</p>
+      <pre><code>sqlx migrate add -r create_users
+# migrations/20240101000000_create_users.up.sql
+# migrations/20240101000000_create_users.down.sql</code></pre>
+      <pre><code>-- .up.sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
+CREATE INDEX idx_users_email ON users(email);
+
+-- .down.sql
+DROP TABLE IF EXISTS users;</code></pre>
+      <span class="pill">-r flag</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">3</span>
+        <h3>앱 시작 시 자동 마이그레이션</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px"><code>sqlx::migrate!()</code>는 <code>./migrations</code>를 기본 경로로 사용한다. 경로는 <code>Cargo.toml</code> 위치 기준이다.</p>
+      <pre><code>#[tokio::main]
+async fn main() -&gt; anyhow::Result&lt;()&gt; {
+    let pool = PgPoolOptions::new()
+        .connect(&amp;env::var("DATABASE_URL")?)
+        .await?;
+
+    // migrations/ 디렉토리의 SQL을 순서대로 실행
+    sqlx::migrate!("./migrations")
+        .run(&amp;pool)
+        .await?;
+
+    // 라우터 시작...
+    Ok(())
+}
+
+// 워크스페이스 구조에서 절대 경로 사용
+sqlx::migrate!(
+    concat!(env!("CARGO_MANIFEST_DIR"), "/migrations")
+)</code></pre>
+      <span class="pill">CARGO_MANIFEST_DIR 기준</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">4</span>
+        <h3>CI — cargo sqlx prepare --check</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px"><code>.sqlx/</code> 디렉토리를 git에 커밋하면 DB 없이 <code>cargo build</code>가 가능하다. CI에서 <code>--check</code>로 드리프트를 감지한다.</p>
+      <div class="flow">
+        <div class="flow-step">
+          <span class="flow-step-num">1</span>
+          <span class="flow-step-text">개발 환경: <code>cargo sqlx prepare</code> 실행 → <code>.sqlx/</code> 캐시 생성</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">2</span>
+          <span class="flow-step-text"><code>git add .sqlx/ &amp;&amp; git commit</code> — 캐시 커밋</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">3</span>
+          <span class="flow-step-text">CI: <code>cargo sqlx prepare --check</code> — 캐시가 최신인지 검증</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">4</span>
+          <span class="flow-step-text">CI: <code>SQLX_OFFLINE=true cargo build</code> — DB 없이 빌드</span>
+        </div>
+      </div>
+      <span class="pill" style="margin-top:12px;display:inline-block">오프라인 빌드 보장</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">sqlx 마이그레이션 설정 시 지켜야 할 정량 기준값.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>sqlx-cli 버전</td><td><code>0.8.x</code></td><td><code>cargo install sqlx-cli --no-default-features --features native-tls,postgres</code></td></tr>
+        <tr><td>타임스탬프 형식</td><td><code>YYYYMMDDHHmmss</code></td><td><code>sqlx migrate add</code>가 자동 생성</td></tr>
+        <tr><td>마이그레이션 실행 순서</td><td>타임스탬프 오름차순</td><td>숫자 정렬</td></tr>
+        <tr><td>_sqlx_migrations 테이블</td><td>자동 생성</td><td>실행 이력 + 체크섬 추적</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">마이그레이션 작업에서 반복되는 실수와 올바른 대안.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 기존 마이그레이션 파일 수정</div>
+      <pre><code>-- 20240101000000_create_users.sql 수정
+-- 컬럼 추가를 위해 기존 파일 편집 ❌
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    email TEXT NOT NULL,
+    new_column TEXT  -- 나중에 추가
+);
+-- 체크섬 불일치로 실행 거부됨</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 새 마이그레이션 파일 추가</div>
+      <pre><code># 변경은 새 파일로 ✅
+sqlx migrate add add_new_column_to_users
+
+-- 20240105000000_add_new_column_to_users.sql
+ALTER TABLE users ADD COLUMN new_column TEXT;
+-- 기존 체크섬 유지, 새 변경만 추가</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 프로덕션에서 migrate revert</div>
+      <pre><code># .down.sql이 DROP TABLE을 포함할 수 있음
+sqlx migrate revert  # ❌ 데이터 삭제 위험
+
+# 백업 없이 실행 → 복구 불가
+# 확인 없이 실행 → 운영 데이터 손실</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 백업 + 수동 검토 후 실행</div>
+      <pre><code># 1. DB 백업 먼저
+pg_dump $DATABASE_URL &gt; backup.sql
+
+# 2. .down.sql 내용 직접 확인
+cat migrations/20240101000000_*.down.sql
+
+# 3. 스테이징에서 먼저 테스트
+# 4. 검토 후 프로덕션 실행 ✅</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 하나의 파일에 너무 많은 변경</div>
+      <pre><code>-- 20240101000000_initial_setup.sql
+CREATE TABLE users (...);
+CREATE TABLE posts (...);
+CREATE INDEX ...;
+INSERT INTO roles VALUES (...);  -- 데이터 마이그레이션도
+-- 롤백 범위가 너무 큼 ❌</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 논리적 단위로 분리</div>
+      <pre><code>-- 20240101000000_create_users.sql
+CREATE TABLE users (...);
+
+-- 20240102000000_create_posts.sql
+CREATE TABLE posts (...);
+
+-- 20240103000000_seed_roles.sql
+INSERT INTO roles VALUES (...);
+-- 각각 독립적으로 롤백 가능 ✅</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas 체크리스트</div>
+  <p class="desc">마이그레이션 작업 시 반복적으로 실수하는 포인트.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">✓</span>
+        <span><strong>migrate!() 경로는 Cargo.toml 기준</strong> — <code>./migrations</code>는 현재 실행 디렉토리가 아니라 <code>Cargo.toml</code>이 있는 크레이트 루트 기준이다. 워크스페이스 구조에서는 <code>concat!(env!("CARGO_MANIFEST_DIR"), "/migrations")</code>를 사용한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>_sqlx_migrations 테이블 자동 생성</strong> — 마이그레이션 추적 테이블은 sqlx가 자동으로 만든다. 별도로 생성하거나 수동으로 관리하지 않는다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>CLI와 코드 혼용 가능</strong> — <code>sqlx migrate run</code>(CLI)과 <code>sqlx::migrate!()</code>(코드) 모두 같은 <code>_sqlx_migrations</code> 테이블을 공유한다. 두 방식을 혼용해도 중복 실행되지 않는다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>reversible/non-reversible 혼용 금지</strong> — 프로젝트 내에서 한 가지 방식으로 통일한다. 혼용하면 <code>revert</code>가 non-reversible 파일에서 실패한다.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong>체크섬 검증은 변경 불가</strong> — sqlx는 실행된 마이그레이션 파일의 체크섬을 저장한다. 기존 파일을 수정하면 체크섬 불일치로 이후 모든 마이그레이션 실행이 거부된다.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

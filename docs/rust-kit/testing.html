@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>테스팅 원칙 — Rust Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .source-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8}
+  .source-link:hover{opacity:1}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+  .tier-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin-right:6px}
+  .tier-unit{background:rgba(74,222,128,0.12);color:var(--green)}
+  .tier-int{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .tier-e2e{background:rgba(232,93,74,0.12);color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Rust Kit</a>
+
+<h1>테스팅 원칙</h1>
+<p class="subtitle">Rust는 언어 차원에서 테스트를 지원한다(<code>#[test]</code>, <code>#[cfg(test)]</code>). 외부 크레이트(cargo-nextest, mockall)는 실행 속도와 모킹을 보완한다. 테스트는 격리되어야 하고, 외부 의존성(DB, 네트워크)은 주입 가능해야 한다.</p>
+
+<!-- 원칙 -->
+<div class="section">
+  <div class="section-label">핵심 원칙</div>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <h3>단위 테스트는 같은 파일, 통합 테스트는 <code>tests/</code></h3>
+          <div class="rule-number">Test Organization</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>단위 테스트는 구현 파일 하단의 <code>#[cfg(test)]</code> 모듈에 둔다. 통합 테스트는 크레이트 루트의 <code>tests/</code> 디렉토리에 두고 public API만 사용한다.</p>
+        <pre><span style="color:#f08575">// src/domain/user.rs</span>
+pub fn validate_email(email: &amp;str) -&gt; bool { ... }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn valid_email_passes() {
+        assert!(validate_email("user@example.com"));
+    }
+
+    #[test]
+    fn empty_email_fails() {
+        assert!(!validate_email(""));
+    }
+}</pre>
+        <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:12px;font-family:var(--mono);color:var(--text3)">
+          crates/domain/<br>
+          ├── src/<br>
+          │&nbsp;&nbsp; └── user.rs &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--accent2)"># 단위 테스트 포함</span><br>
+          └── tests/<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;└── user_flow.rs <span style="color:var(--accent2)"># 통합 테스트 — public API만</span>
+        </div>
+      </div>
+      <a href="https://doc.rust-lang.org/book/ch11-00-testing.html" target="_blank" class="source-link">&#8599; Rust Book Ch.11 — How to Write Tests</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <h3><code>cargo-nextest</code>로 테스트를 실행한다</h3>
+          <div class="rule-number">Test Runner</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>cargo test</code>보다 2~3배 빠르고, 테스트를 프로세스 단위로 격리한다. 글로벌 상태 오염이 자동으로 방지된다. CI에서도 표준으로 사용한다.</p>
+        <pre><span style="color:#f08575"># 설치</span>
+cargo install cargo-nextest
+
+<span style="color:#f08575"># 실행</span>
+cargo nextest run
+cargo nextest run --test-threads 4
+cargo nextest run -p domain   # 특정 크레이트만</pre>
+        <pre><span style="color:#f08575"># .config/nextest.toml</span>
+[profile.default]
+fail-fast = false
+test-threads = "num-cpus"
+
+[profile.ci]
+fail-fast = true</pre>
+      </div>
+      <a href="https://nexte.st/docs/configuration/" target="_blank" class="source-link">&#8599; cargo-nextest — Configuration</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <h3>trait 기반 모킹으로 외부 의존성을 격리한다</h3>
+          <div class="rule-number">Dependency Injection</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>헥사고날 아키텍처의 Port trait을 활용하면 테스트에서 가짜 구현을 주입할 수 있다. <code>mockall</code>의 <code>#[automock]</code> 매크로로 mock을 자동 생성한다.</p>
+        <pre><span style="color:#f08575">// domain/src/ports/database.rs</span>
+#[cfg_attr(test, mockall::automock)]
+#[async_trait::async_trait]
+pub trait DatabasePort: Send + Sync {
+    async fn find_user(&amp;self, id: UserId)
+        -&gt; Result&lt;Option&lt;User&gt;, DomainError&gt;;
+}
+
+<span style="color:#f08575">// 테스트에서 mock 사용</span>
+#[tokio::test]
+async fn get_user_returns_not_found() {
+    let mut mock_db = MockDatabasePort::new();
+    mock_db
+        .expect_find_user()
+        .with(eq(UserId::from(1)))
+        .returning(|_| Ok(None));
+
+    let service = UserService::new(Arc::new(mock_db));
+    let result = service.get_user(UserId::from(1)).await;
+    assert!(matches!(result, Err(DomainError::NotFound { .. })));
+}</pre>
+      </div>
+      <a href="https://docs.rs/mockall/latest/mockall/" target="_blank" class="source-link">&#8599; mockall — Getting Started</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <h3>DB 테스트는 <code>sqlx::test</code>로 트랜잭션 격리</h3>
+          <div class="rule-number">DB Isolation</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>#[sqlx::test]</code>는 각 테스트마다 새 DB 트랜잭션을 시작하고 테스트 후 롤백한다. 테스트 간 DB 상태 오염이 없다.</p>
+        <pre><span style="color:#f08575">// adapters/tests/user_repository.rs</span>
+#[sqlx::test(fixtures("users"))]
+async fn find_existing_user(pool: sqlx::PgPool) {
+    let adapter = PostgresUserAdapter::new(pool);
+    let result = adapter.find_user(UserId::from(1)).await;
+    assert!(result.unwrap().is_some());
+}
+
+<span style="color:#f08575">// tests/fixtures/users.sql</span>
+INSERT INTO users (id, email)
+VALUES (1, 'test@example.com');</pre>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px">fixture 경로는 크레이트 루트 기준. 경로가 잘못되면 "fixture not found" 에러가 발생한다.</p>
+      </div>
+      <a href="https://docs.rs/sqlx/latest/sqlx/attr.test.html" target="_blank" class="source-link">&#8599; sqlx — Testing</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 수치 기준 -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">테스트 계층별 목표 실행 시간과 도구별 오버헤드.</p>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>cargo-nextest vs cargo test 속도</td>
+          <td>2~3× 빠름</td>
+          <td>프로세스 격리 + 병렬 실행</td>
+        </tr>
+        <tr>
+          <td>mockall 모킹 오버헤드</td>
+          <td>무시 가능</td>
+          <td>테스트 전용 코드. 프로덕션 바이너리 미포함</td>
+        </tr>
+        <tr>
+          <td>sqlx::test 트랜잭션 롤백</td>
+          <td>~5ms</td>
+          <td>실제 DB 연결 필요. 통합 테스트 전용</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge tier-unit">단위</span> 실행 목표</td>
+          <td>&lt; 1ms / 테스트</td>
+          <td>외부 I/O 없을 때 달성 가능</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge tier-int">통합</span> 실행 목표</td>
+          <td>&lt; 100ms / 테스트</td>
+          <td>DB, 네트워크 포함</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 안티패턴 -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">테스트 품질을 낮추는 흔한 실수 패턴.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 글로벌 상태로 데이터 공유</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 테스트 순서에 따라 결과 달라짐
+static mut SHARED_STATE: Vec&lt;Item&gt; = Vec::new();
+
+#[test]
+fn test_a() {
+    unsafe { SHARED_STATE.push(item); }
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 각 테스트가 독립적으로 데이터 생성</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 독립적, 순서 무관
+#[test]
+fn test_a() {
+    let state = vec![item()]; // 로컬 생성
+    assert_eq!(process(&amp;state), expected);
+}</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 단위 테스트에서 실제 DB</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 느리고 환경에 의존적
+#[test]
+fn test_user_service() {
+    let pool = PgPool::connect(&amp;DATABASE_URL).unwrap();
+    let service = UserService::new(pool);
+    // ...
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — Port trait mock 주입</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 빠르고 격리됨
+#[tokio::test]
+async fn test_user_service() {
+    let mock_db = MockDatabasePort::new();
+    let service = UserService::new(Arc::new(mock_db));
+    // ...
+}</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — unwrap()으로 실패 메시지 감추기</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ "called `Option::unwrap()` on a `None` value"
+let result = find_user(id).await.unwrap();</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 구체적인 실패 메시지</div>
+      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 실패 원인을 바로 알 수 있음
+let result = find_user(id).await
+    .expect("user should exist in fixture");
+// 또는
+assert!(result.is_ok(), "error: {:?}", result.err());</pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- Gotchas -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <p class="desc">테스트 환경에서 자주 발생하는 함정.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)"><code>#[tokio::test]</code>와 <code>#[sqlx::test]</code>를 동시에 사용하지 않는다</strong><br>
+          <code>#[sqlx::test]</code>는 자체 tokio 런타임을 포함한다. 두 속성을 중복 사용하면 런타임 중첩 에러가 발생한다. DB 테스트에는 <code>#[sqlx::test]</code>만 사용한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">mockall <code>expect_*</code>은 drop 시 검증한다</strong><br>
+          <code>MockDatabasePort</code>가 드롭될 때 설정한 호출 횟수를 검증한다. <code>assert!</code> 이전에 mock이 드롭되면 검증이 테스트 결과와 분리된다. 명시적으로 <code>drop(mock)</code>을 테스트 마지막에 호출하거나 블록 스코프를 사용한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">nextest는 <code>--no-capture</code>, cargo test는 <code>--nocapture</code></strong><br>
+          출력을 확인하려면 <code>cargo nextest run --no-capture</code>를 사용한다. <code>cargo test -- --nocapture</code>와 플래그 이름이 다르다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong style="color:var(--text)">fixture 경로는 크레이트 루트 기준이다</strong><br>
+          <code>#[sqlx::test(fixtures("users"))]</code>는 <code>tests/fixtures/users.sql</code>을 찾는다. 경로가 잘못되면 "fixture not found" 에러가 발생한다.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
