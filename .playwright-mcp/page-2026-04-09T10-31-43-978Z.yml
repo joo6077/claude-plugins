@@ -1,0 +1,344 @@
+- generic [active] [ref=e1]:
+  - button "Dark" [ref=e2] [cursor=pointer]
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]: Visual Reference v1.0
+      - heading "UI 비주얼 스타일 카탈로그 -- 35종" [level=1] [ref=e6]:
+        - text: UI 비주얼 스타일
+        - text: 카탈로그 -- 35종
+      - generic [ref=e7]: Design Morphisms · Surface Treatments · Visual Paradigms
+      - paragraph [ref=e8]: 웹과 앱 UI에서 사용되는 35가지 비주얼 스타일을 순수 CSS로 구현한 레퍼런스 카탈로그입니다. 각 카드의 데모 영역은 해당 스타일의 핵심 시각 특성을 보여줍니다.
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: Category A
+        - generic [ref=e12]: 핵심 Morphism 계열
+        - paragraph [ref=e13]: 사물의 표면, 깊이, 재질을 CSS로 표현하는 핵심 형태학적 스타일 9종. 스큐어모피즘에서 시작해 글래스, 클레이, 뉴모피즘까지 UI 표면의 진화를 담고 있습니다.
+      - generic [ref=e14]:
+        - generic [ref=e15] [cursor=pointer]:
+          - button "Press Me" [ref=e17]
+          - generic [ref=e18]:
+            - generic [ref=e19]:
+              - generic [ref=e20]: "01"
+              - text: Skeuomorphism
+            - generic [ref=e21]: 현실 세계의 질감, 그라데이션, 내부 그림자로 3D 버튼과 표면을 시뮬레이션하는 스타일
+        - generic [ref=e29] [cursor=pointer]:
+          - generic [ref=e30]:
+            - generic [ref=e31]: "02"
+            - text: Flat Design
+          - generic [ref=e32]: 그림자 없이 순수한 솔리드 컬러와 기하학적 형태만으로 구성하는 미니멀 스타일
+        - generic [ref=e33] [cursor=pointer]:
+          - generic [ref=e35]:
+            - generic [ref=e36]: F
+            - generic [ref=e37]: Flat 2.0
+            - generic [ref=e38]: Subtle depth
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: "03"
+              - text: Flat 2.0
+            - generic [ref=e42]: 플랫에 은은한 롱 섀도우와 부드러운 그라데이션으로 미세한 깊이를 추가한 스타일
+        - generic [ref=e43] [cursor=pointer]:
+          - generic [ref=e45]:
+            - generic [ref=e47]:
+              - generic [ref=e48]: Material Card
+              - generic [ref=e49]: Elevation shadow
+            - generic [ref=e50]: +
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - generic [ref=e53]: "04"
+              - text: Material Design
+            - generic [ref=e54]: 물리적 고도(elevation)에 따른 다중 그림자와 플로팅 카드 패턴의 구글 디자인 시스템
+        - generic [ref=e55] [cursor=pointer]:
+          - generic [ref=e58]: ☵
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: "05"
+              - text: Neumorphism
+            - generic [ref=e62]: 배경과 동일한 색상에 이중 그림자(밝음/어두움)로 부드러운 돌출 효과를 표현
+        - generic [ref=e63] [cursor=pointer]:
+          - generic [ref=e67]:
+            - generic [ref=e68]: Glass Card
+            - generic [ref=e69]: Backdrop blur effect
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic [ref=e72]: "06"
+              - text: Glassmorphism
+            - generic [ref=e73]: 반투명 배경과 backdrop-filter blur로 유리 질감을 표현하는 스타일
+        - generic [ref=e74] [cursor=pointer]:
+          - generic [ref=e76]:
+            - generic [ref=e77]: ★
+            - generic [ref=e78]: Clay UI
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - generic [ref=e81]: "07"
+              - text: Claymorphism
+            - generic [ref=e82]: 큰 border-radius에 내부 그림자와 파스텔 컬러로 점토 같은 3D 질감을 표현
+        - generic [ref=e83] [cursor=pointer]:
+          - generic [ref=e85]:
+            - generic [ref=e86]: Liquid Glass
+            - generic [ref=e87]: Refraction shimmer
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - generic [ref=e90]: "08"
+              - text: Liquid Glass
+            - generic [ref=e91]: 굴절 효과 그라데이션과 유리 반사 스트릭, 색상 시프트가 있는 투명 표면
+        - generic [ref=e92] [cursor=pointer]:
+          - generic [ref=e94]:
+            - generic [ref=e95]: ◆
+            - generic [ref=e96]: Artificial
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - generic [ref=e99]: "09"
+              - text: Artificial Morphism
+            - generic [ref=e100]: 뉴모피즘 그림자와 스큐어모피즘 텍스처 패턴 오버레이를 결합한 하이브리드 스타일
+    - generic [ref=e101]:
+      - generic [ref=e102]:
+        - generic [ref=e103]: Category B
+        - generic [ref=e104]: 타이포/레이아웃 기반
+        - paragraph [ref=e105]: 서체 선택, 배치 규칙, 공간 활용 방식이 스타일의 정체성을 결정하는 6종. 날것의 브루탈리즘에서 여백의 미니멀리즘까지 레이아웃 철학의 스펙트럼을 탐색합니다.
+      - generic [ref=e106]:
+        - generic [ref=e107] [cursor=pointer]:
+          - generic [ref=e108]:
+            - generic [ref=e109]: X
+            - generic [ref=e110]:
+              - heading "Raw HTML" [level=3] [ref=e111]
+              - paragraph [ref=e112]: No polish. Just content.
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]: "10"
+              - text: Brutalism
+            - generic [ref=e116]: 시스템 폰트, 정렬 무시, 강렬한 색상 대비로 날것의 질감을 드러내는 반디자인 스타일
+        - generic [ref=e117] [cursor=pointer]:
+          - generic [ref=e119]:
+            - generic [ref=e120]: Hello!
+            - generic [ref=e121]: Thick borders, bold shadows
+            - button "Action" [ref=e122]
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - generic [ref=e125]: "11"
+              - text: Neubrutalism
+            - generic [ref=e126]: 두꺼운 검정 테두리, 하드 드롭 섀도우, 밝은 파스텔+비비드 컬러 조합
+        - generic [ref=e127] [cursor=pointer]:
+          - generic [ref=e130]:
+            - heading "Typo grafie" [level=2] [ref=e131]:
+              - text: Typo
+              - text: grafie
+            - paragraph [ref=e133]: Grid-based layout with strict typographic hierarchy.
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - generic [ref=e136]: "12"
+              - text: Swiss / International
+            - generic [ref=e137]: 엄격한 그리드, 헬베티카 계열 서체, 비대칭 텍스트 레이아웃의 국제 타이포 스타일
+        - generic [ref=e138] [cursor=pointer]:
+          - generic [ref=e140]:
+            - generic [ref=e141]: Feature
+            - generic [ref=e142]: A
+            - generic [ref=e143]: B
+            - generic [ref=e144]: Highlight
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e147]: "13"
+              - text: Bento Grid
+            - generic [ref=e148]: 다양한 크기의 카드를 도시락 칸처럼 배열하는 그리드 레이아웃 패턴
+        - generic [ref=e149] [cursor=pointer]:
+          - generic [ref=e150]:
+            - generic [ref=e153]: MORE!
+            - generic [ref=e154]: is more
+          - generic [ref=e155]:
+            - generic [ref=e156]:
+              - generic [ref=e157]: "14"
+              - text: Maximalism
+            - generic [ref=e158]: 레이어된 패턴, 겹치는 요소, 혼합 서체, 고채도 컬러로 가득 채우는 스타일
+        - generic [ref=e159] [cursor=pointer]:
+          - generic [ref=e161]:
+            - heading "less" [level=3] [ref=e162]
+            - paragraph [ref=e164]: is more
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - generic [ref=e167]: "15"
+              - text: Minimalism
+            - generic [ref=e168]: 넓은 여백, 가는 서체, 단일 액센트 컬러, 최소한의 시각 요소
+    - generic [ref=e169]:
+      - generic [ref=e170]:
+        - generic [ref=e171]: Category C
+        - generic [ref=e172]: 레트로 / 노스탤지어
+        - paragraph [ref=e173]: 과거 시대의 시각 언어를 현대 CSS로 재해석한 7종. 글로시한 Frutiger Aero에서 네온빛 사이버펑크까지, 디지털 노스탤지어의 스펙트럼을 담고 있습니다.
+      - generic [ref=e174]:
+        - generic [ref=e175] [cursor=pointer]:
+          - button "Explore" [ref=e180]
+          - generic [ref=e181]:
+            - generic [ref=e182]:
+              - generic [ref=e183]: "16"
+              - text: Frutiger Aero
+            - generic [ref=e184]: 글로시 반사 버튼, 자연 녹색 그라데이션, 보케 도트가 특징인 2006-2013년 스타일
+        - generic [ref=e185] [cursor=pointer]:
+          - generic [ref=e188]: Y2K
+          - generic [ref=e189]:
+            - generic [ref=e190]:
+              - generic [ref=e191]: "17"
+              - text: Y2K Futurism
+            - generic [ref=e192]: 크롬/실버 그라데이션, 버블 형태, 반투명 플라스틱 질감의 밀레니엄 스타일
+        - generic [ref=e197] [cursor=pointer]:
+          - generic [ref=e198]:
+            - generic [ref=e199]: "18"
+            - text: Retro Futurism
+          - generic [ref=e200]: 어두운 배경에 네온 그리드, 원근감 있는 지평선, 신스웨이브 석양 그라데이션
+        - generic [ref=e201] [cursor=pointer]:
+          - generic [ref=e203]:
+            - heading "Aesthetic" [level=3] [ref=e204]
+            - paragraph [ref=e205]: DREAM
+          - generic [ref=e206]:
+            - generic [ref=e207]:
+              - generic [ref=e208]: "19"
+              - text: Vaporwave
+            - generic [ref=e209]: 핑크/틸/퍼플 파스텔 그라데이션에 VHS 스캔라인 오버레이, 세리프 이탤릭체
+        - generic [ref=e210] [cursor=pointer]:
+          - generic [ref=e212]:
+            - heading "CYBER CYBER CYBER" [level=3] [ref=e213]
+            - generic [ref=e214]: //system.override
+          - generic [ref=e215]:
+            - generic [ref=e216]:
+              - generic [ref=e217]: "20"
+              - text: Cyberpunk
+            - generic [ref=e218]: 극도로 어두운 배경, 네온 글로우 테두리, 글리치 텍스트 효과, 모노스페이스 서체
+        - generic [ref=e219] [cursor=pointer]:
+          - generic [ref=e225]: Memphis
+          - generic [ref=e226]:
+            - generic [ref=e227]:
+              - generic [ref=e228]: "21"
+              - text: Memphis Design
+            - generic [ref=e229]: 대담한 기하학적 도형, 원색+파스텔, 장난스러운 패턴이 흩뿌려진 80년대 스타일
+        - generic [ref=e239] [cursor=pointer]:
+          - generic [ref=e240]:
+            - generic [ref=e241]: "22"
+            - text: Corporate Memphis
+          - generic [ref=e242]: 긴 팔다리의 추상적 인물, 플랫한 밝은 색상의 기업용 일러스트레이션 스타일
+    - generic [ref=e243]:
+      - generic [ref=e244]:
+        - generic [ref=e245]: Category D
+        - generic [ref=e246]: 컬러 / 표면 효과
+        - paragraph [ref=e247]: 색상 처리와 표면 질감을 핵심 아이덴티티로 삼는 8종. 오로라 블러에서 메탈릭 크롬까지, 컬러와 텍스처가 UI의 감성을 결정하는 스타일들입니다.
+      - generic [ref=e248]:
+        - generic [ref=e249] [cursor=pointer]:
+          - generic [ref=e255]: Aurora Borealis
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - generic [ref=e258]: "23"
+              - text: Aurora UI
+            - generic [ref=e259]: 어두운 배경에 녹색/청색/보라색의 큰 소프트 블롭이 겹쳐 블러 처리된 오로라 효과
+        - generic [ref=e262] [cursor=pointer]:
+          - generic [ref=e263]:
+            - generic [ref=e264]: "24"
+            - text: Mesh Gradient
+          - generic [ref=e265]: 4~5개 색상이 유기적으로 섞이는 다중 포인트 그라데이션 (radial-gradient 스택)
+        - generic [ref=e266] [cursor=pointer]:
+          - generic [ref=e267]:
+            - generic [ref=e268]: Film Grain
+            - generic [ref=e269]: SVG noise texture overlay
+          - generic [ref=e270]:
+            - generic [ref=e271]:
+              - generic [ref=e272]: "25"
+              - text: Grain / Noise
+            - generic [ref=e273]: 그라데이션 위에 SVG 노이즈 필터로 필름 그레인 질감을 입힌 텍스처 스타일
+        - generic [ref=e274] [cursor=pointer]:
+          - generic [ref=e275]:
+            - generic [ref=e278]: Red
+            - generic [ref=e281]: Blue
+          - generic [ref=e282]:
+            - generic [ref=e283]:
+              - generic [ref=e284]: "26"
+              - text: Duotone
+            - generic [ref=e285]: 두 가지 대비 색상으로만 렌더링하는 mix-blend-mode 기반 이중톤 효과
+        - generic [ref=e286] [cursor=pointer]:
+          - generic [ref=e289]: Holographic
+          - generic [ref=e290]:
+            - generic [ref=e291]:
+              - generic [ref=e292]: "27"
+              - text: Holographic / Iridescent
+            - generic [ref=e293]: 무지개빛 그라데이션이 @keyframes로 시프트하며 빛의 굴절 효과를 연출
+        - generic [ref=e294] [cursor=pointer]:
+          - generic [ref=e297]: CHROME
+          - generic [ref=e298]:
+            - generic [ref=e299]:
+              - generic [ref=e300]: "28"
+              - text: Metallic / Chrome
+            - generic [ref=e301]: dark-light-dark 반복 linear-gradient로 금속 반사를 시뮬레이션하는 크롬 효과
+        - generic [ref=e302] [cursor=pointer]:
+          - generic [ref=e304]: NEON
+          - generic [ref=e305]:
+            - generic [ref=e306]:
+              - generic [ref=e307]: "29"
+              - text: Neon Glow
+            - generic [ref=e308]: 어두운 배경에 다중 레이어 box-shadow/text-shadow로 네온 발광 효과 연출
+        - generic [ref=e309] [cursor=pointer]:
+          - generic [ref=e311]:
+            - generic [ref=e314]: Dark UI
+            - generic [ref=e315]: 깊은 그레이 배경에 미묘한 고도 카드와 절제된 액센트 컬러를 사용합니다.
+            - button "Action" [ref=e316]
+          - generic [ref=e317]:
+            - generic [ref=e318]:
+              - generic [ref=e319]: "30"
+              - text: Dark Mode
+            - generic [ref=e320]: 깊은 그레이(#121212) 배경, 미묘한 엘리베이션, 뮤트 액센트, 순백 텍스트 금지
+    - generic [ref=e321]:
+      - generic [ref=e322]:
+        - generic [ref=e323]: Category E
+        - generic [ref=e324]: 모션 / 인터랙션
+        - paragraph [ref=e325]: 움직임과 깊이로 사용자 경험을 확장하는 2종. CSS 애니메이션과 perspective 변환으로 정적 UI에 역동성을 부여합니다.
+      - generic [ref=e326]:
+        - generic [ref=e327] [cursor=pointer]:
+          - generic [ref=e329]:
+            - generic [ref=e330]: K
+            - generic [ref=e331]: I
+            - generic [ref=e332]: "N"
+            - generic [ref=e333]: E
+            - generic [ref=e334]: T
+            - generic [ref=e335]: I
+            - generic [ref=e336]: C
+          - generic [ref=e337]:
+            - generic [ref=e338]:
+              - generic [ref=e339]: "31"
+              - text: Kinetic Typography
+            - generic [ref=e340]: 개별 글자에 CSS 애니메이션을 적용하여 파동, 바운스 등 역동적 텍스트 연출
+        - generic [ref=e341] [cursor=pointer]:
+          - generic [ref=e342]:
+            - generic [ref=e346]: Front
+            - generic [ref=e347]: Back ← Mid ← Front (Z-depth)
+          - generic [ref=e348]:
+            - generic [ref=e349]:
+              - generic [ref=e350]: "32"
+              - text: Parallax
+            - generic [ref=e351]: 서로 다른 transform scale의 레이어드 요소로 깊이감과 원근 효과를 표현
+    - generic [ref=e352]:
+      - generic [ref=e353]:
+        - generic [ref=e354]: Category F
+        - generic [ref=e355]: 플랫폼 특화
+        - paragraph [ref=e356]: 특정 OS나 디바이스 환경에 최적화된 비주얼 언어 3종. visionOS의 공간 디자인, Windows Fluent의 아크릴, 자연 모방의 바이오모피즘을 포함합니다.
+      - generic [ref=e357]:
+        - generic [ref=e358] [cursor=pointer]:
+          - generic [ref=e360]:
+            - generic [ref=e361]: ◇
+            - generic [ref=e362]: Spatial
+            - generic [ref=e363]: visionOS depth
+          - generic [ref=e364]:
+            - generic [ref=e365]:
+              - generic [ref=e366]: "33"
+              - text: Spatial Design
+            - generic [ref=e367]: 3D transform(rotateX/Y)으로 부유하는 카드, 유리 재질, 깊이 레이어 표현
+        - generic [ref=e368] [cursor=pointer]:
+          - generic [ref=e370]:
+            - generic [ref=e371]: Acrylic Surface
+            - generic [ref=e372]: Noise + blur + tint
+          - generic [ref=e375]:
+            - generic [ref=e376]:
+              - generic [ref=e377]: "34"
+              - text: Acrylic (Fluent)
+            - generic [ref=e378]: 글래스모피즘에 노이즈 레이어 + 색조 틴트 + exclusion 블렌드를 더한 Fluent 표면
+        - generic [ref=e379] [cursor=pointer]:
+          - generic [ref=e383]:
+            - generic [ref=e384]: Organic
+            - generic [ref=e385]: Flowing curves
+          - generic [ref=e386]:
+            - generic [ref=e387]:
+              - generic [ref=e388]: "35"
+              - text: Biomorphism
+            - generic [ref=e389]: 유기적 블롭 형태(비균일 border-radius), 자연 컬러 팔레트, 흐르는 곡선
