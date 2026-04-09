@@ -86,7 +86,7 @@ templates/references.md 포맷으로 `.design/references.md`를 생성한다:
 
 ## Step 4: 비주얼 카탈로그 HTML 생성
 
-templates/reference-catalog.html 포맷으로 `.design/reference-catalog.html`을 생성한다:
+../../templates/catalog.html 포맷으로 `.design/reference-catalog.html`을 생성한다:
 - 소스 채널별로 분류된 시각 카탈로그
 - 각 레퍼런스의 핵심 시각 요소를 CSS로 재현 (컬러 팔레트, 레이아웃 스케치, 컴포넌트 형태)
 - 필터링 가능 (소스 채널별, 참고 포인트별)
@@ -102,4 +102,4 @@ templates/reference-catalog.html 포맷으로 `.design/reference-catalog.html`�
 
 - `references/crawl-sources.md` — 소스 채널별 크롤링 대상 상세
 - `templates/references.md` — 레퍼런스 분석 문서 출력 포맷
-- `templates/reference-catalog.html` — 비주얼 카탈로그 출력 포맷
+- `../../templates/catalog.html` — 비주얼 카탈로그 출력 포맷 (공유 템플릿)

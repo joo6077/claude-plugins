@@ -155,4 +155,5 @@ references/component-spec-template.md의 포맷으로 각 컴포넌트를 정의
 # References
 
 - `references/component-spec-template.md` — 컴포넌트 정의 템플릿
-- `templates/catalog.md` — 컴포넌트 카탈로그 출력 포맷
+- `../../templates/component.html` — 컴포넌트 스펙 HTML 출력 포맷 (공유 템플릿)
+- `templates/catalog.md` — 컴포넌트 카탈로그 출력 포맷 (MD, 스킬 전용)
