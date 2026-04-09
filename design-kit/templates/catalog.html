@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="meta.title">{{PROJECT_NAME}} — 디자인 레퍼런스 카탈로그</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    /* ============================================================
+       BASE TEMPLATE — design-kit 공통 골격
+       반응형 + 다크/라이트 + 한/영 i18n
+       ============================================================ */
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* --- Color Tokens (Light) --- */
+    :root {
+      --color-bg: #ffffff;
+      --color-surface: #f5f5f5;
+      --color-surface-high: #eeeeee;
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #666666;
+      --color-text-tertiary: #999999;
+      --color-border: #e0e0e0;
+      --color-shadow: rgba(0, 0, 0, 0.08);
+      --color-accent: #1a73e8;
+      --color-accent-soft: rgba(26, 115, 232, 0.1);
+      --color-text-on-accent: #ffffff;
+      --color-success: #0d9e5f;
+      --color-warning: #e8a817;
+      --color-error: #d93025;
+
+      /* Typography */
+      --font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      --text-xs: clamp(11px, 1vw, 12px);
+      --text-sm: clamp(12px, 1.2vw, 14px);
+      --text-base: clamp(14px, 1.5vw, 16px);
+      --text-lg: clamp(16px, 2vw, 20px);
+      --text-xl: clamp(20px, 2.5vw, 28px);
+      --text-2xl: clamp(24px, 3.5vw, 40px);
+      --text-3xl: clamp(32px, 5vw, 56px);
+
+      /* Spacing */
+      --space-xs: clamp(4px, 0.5vw, 6px);
+      --space-sm: clamp(8px, 1vw, 12px);
+      --space-md: clamp(12px, 2vw, 20px);
+      --space-lg: clamp(20px, 3vw, 32px);
+      --space-xl: clamp(32px, 5vw, 56px);
+      --space-2xl: clamp(48px, 7vw, 80px);
+
+      /* Layout */
+      --content-max: 1200px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+
+      /* Transitions */
+      --transition-color: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* --- Color Tokens (Dark — system) --- */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-bg: #121212;
+        --color-surface: #1e1e1e;
+        --color-surface-high: #2a2a2a;
+        --color-text-primary: #e8e8e8;
+        --color-text-secondary: #aaaaaa;
+        --color-text-tertiary: #777777;
+        --color-border: #333333;
+        --color-shadow: rgba(0, 0, 0, 0.4);
+        --color-accent: #82b4ff;
+        --color-accent-soft: rgba(130, 180, 255, 0.15);
+        --color-text-on-accent: #000000;
+        --color-success: #34d399;
+        --color-warning: #fbbf24;
+        --color-error: #f87171;
+      }
+    }
+
+    /* --- Color Tokens (Dark — explicit) --- */
+    [data-theme="dark"] {
+      --color-bg: #121212;
+      --color-surface: #1e1e1e;
+      --color-surface-high: #2a2a2a;
+      --color-text-primary: #e8e8e8;
+      --color-text-secondary: #aaaaaa;
+      --color-text-tertiary: #777777;
+      --color-border: #333333;
+      --color-shadow: rgba(0, 0, 0, 0.4);
+      --color-accent: #82b4ff;
+      --color-accent-soft: rgba(130, 180, 255, 0.15);
+      --color-text-on-accent: #000000;
+      --color-success: #34d399;
+      --color-warning: #fbbf24;
+      --color-error: #f87171;
+    }
+
+    /* --- Base Styles --- */
+    body {
+      font-family: var(--font-family);
+      font-size: var(--text-base);
+      line-height: 1.6;
+      color: var(--color-text-primary);
+      background: var(--color-bg);
+      transition: var(--transition-color);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    :lang(ko) { word-break: keep-all; }
+    :lang(en) { word-break: normal; }
+
+    a { color: var(--color-accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      transition: filter 0.2s ease;
+    }
+    [data-theme="dark"] img:not([data-no-dim]) { filter: brightness(0.85); }
+
+    /* --- Toolbar --- */
+    .base-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      transition: var(--transition-color);
+    }
+
+    .base-toolbar-title {
+      margin-right: auto;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .base-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text-primary);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition-color);
+      user-select: none;
+    }
+    .base-btn:hover { background: var(--color-surface-high); }
+
+    /* --- Page Layout --- */
+    .base-page {
+      display: grid;
+      grid-template-columns: 1fr min(var(--content-max), calc(100% - var(--space-md) * 2)) 1fr;
+      min-height: 100vh;
+    }
+    .base-page > * { grid-column: 2; }
+    .base-page > .full-bleed { grid-column: 1 / -1; }
+
+    /* --- Content Sections --- */
+    .base-section {
+      padding: var(--space-xl) 0;
+    }
+    .base-section + .base-section {
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* --- Card Grid --- */
+    .base-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+
+    /* --- Card --- */
+    .base-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      transition: var(--transition-color);
+    }
+    .base-card:hover { box-shadow: 0 4px 16px var(--color-shadow); }
+
+    /* --- Typography --- */
+    .base-h1 { font-size: var(--text-3xl); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+    .base-h2 { font-size: var(--text-2xl); font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; }
+    .base-h3 { font-size: var(--text-xl); font-weight: 600; line-height: 1.4; }
+    .base-h4 { font-size: var(--text-lg); font-weight: 600; line-height: 1.4; }
+    .base-subtitle { font-size: var(--text-lg); color: var(--color-text-secondary); font-weight: 400; }
+    .base-caption { font-size: var(--text-sm); color: var(--color-text-tertiary); }
+
+    /* --- Tags / Badges --- */
+    .base-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-accent);
+      background: var(--color-accent-soft);
+      border-radius: 100px;
+    }
+
+    /* --- Footer --- */
+    .base-footer {
+      padding: var(--space-lg) 0;
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--color-text-tertiary);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* --- Accessibility --- */
+    :focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* --- Responsive: Mobile --- */
+    @media (max-width: 639px) {
+      .base-grid { grid-template-columns: 1fr; }
+      .base-toolbar-title { display: none; }
+      .base-h1 { font-size: var(--text-2xl); }
+    }
+
+    /* --- Print --- */
+    @media print {
+      .base-toolbar { display: none; }
+      body { background: var(--color-bg); color: var(--color-text-primary); }
+    }
+
+    /* ============================================================
+       CATALOG-SPECIFIC STYLES
+       ============================================================ */
+
+    /* --- Hero --- */
+    .catalog-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
+      text-align: center;
+    }
+    .catalog-hero-eyebrow {
+      display: inline-block;
+      margin-bottom: var(--space-sm);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+    }
+    .catalog-hero-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+      font-size: var(--text-sm);
+      color: var(--color-text-tertiary);
+    }
+    .catalog-hero-meta span::before {
+      content: "·";
+      margin-right: var(--space-md);
+    }
+    .catalog-hero-meta span:first-child::before { content: ""; margin-right: 0; }
+
+    /* --- Filter Bar --- */
+    .catalog-filter-bar {
+      padding: var(--space-md) 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      position: sticky;
+      top: 53px; /* toolbar height */
+      z-index: 90;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+      transition: var(--transition-color);
+    }
+    .catalog-filter-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+    .catalog-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 14px;
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      background: transparent;
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: var(--transition-color);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .catalog-filter-btn:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: var(--color-accent-soft);
+    }
+    .catalog-filter-btn.is-active {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: var(--color-text-on-accent);
+    }
+    .catalog-filter-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.25);
+      color: inherit;
+    }
+    .catalog-filter-btn:not(.is-active) .catalog-filter-count {
+      background: var(--color-surface-high);
+      color: var(--color-text-tertiary);
+    }
+
+    /* --- Reference Grid --- */
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--space-md);
+      margin-top: var(--space-lg);
+    }
+
+    @media (min-width: 768px) {
+      .catalog-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .catalog-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 1280px) {
+      .catalog-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 639px) {
+      .catalog-grid { grid-template-columns: 1fr; }
+    }
+
+    /* --- Reference Card --- */
+    .catalog-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: var(--transition-color), transform 0.15s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .catalog-card:hover {
+      box-shadow: 0 6px 20px var(--color-shadow);
+      transform: translateY(-2px);
+    }
+    .catalog-card[data-hidden="true"] {
+      display: none;
+    }
+
+    /* Thumbnail */
+    .catalog-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: var(--color-surface-high);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .catalog-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* 이미지가 없을 때 플레이스홀더 */
+    .catalog-thumb-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      color: var(--color-text-tertiary);
+      font-size: var(--text-sm);
+      background: var(--color-surface-high);
+    }
+    .catalog-thumb-placeholder svg {
+      width: 32px;
+      height: 32px;
+      opacity: 0.4;
+    }
+
+    /* Card body */
+    .catalog-card-body {
+      padding: var(--space-md);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .catalog-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+    .catalog-card-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+    }
+    .catalog-card-source {
+      font-size: var(--text-xs);
+      color: var(--color-text-tertiary);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .catalog-card-source a {
+      color: var(--color-text-tertiary);
+      transition: color 0.15s ease;
+    }
+    .catalog-card-source a:hover {
+      color: var(--color-accent);
+      text-decoration: none;
+    }
+    .catalog-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: var(--space-xs);
+    }
+    .catalog-card-note {
+      margin-top: var(--space-sm);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Empty state */
+    .catalog-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: var(--space-2xl) 0;
+      color: var(--color-text-tertiary);
+    }
+    .catalog-empty-icon {
+      font-size: 40px;
+      margin-bottom: var(--space-sm);
+    }
+
+    /* --- Result count --- */
+    .catalog-result-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--space-md);
+      font-size: var(--text-sm);
+      color: var(--color-text-tertiary);
+    }
+
+    /* --- Insight Cards (Summary section) --- */
+    .catalog-insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: var(--space-md);
+      margin-top: var(--space-lg);
+    }
+    .catalog-insight-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      transition: var(--transition-color);
+    }
+    .catalog-insight-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-accent-soft);
+      color: var(--color-accent);
+      font-size: var(--text-sm);
+      font-weight: 800;
+      margin-bottom: var(--space-sm);
+    }
+    .catalog-insight-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-xs);
+    }
+    .catalog-insight-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOOLBAR ========== -->
+  <header class="base-toolbar">
+    <span class="base-toolbar-title" data-i18n="toolbar.title">{{PROJECT_NAME}} · 디자인 레퍼런스</span>
+    <button class="base-btn" onclick="toggleTheme()" aria-label="테마 전환" id="theme-btn">
+      <span id="theme-icon">🌙</span>
+      <span data-i18n="toolbar.theme" id="theme-label">다크 모드</span>
+    </button>
+    <button class="base-btn" onclick="switchLang()" aria-label="언어 전환" id="lang-btn">
+      <span id="lang-label" lang="en">English</span>
+    </button>
+  </header>
+
+  <!-- ========== PAGE ========== -->
+  <main class="base-page">
+
+    <!-- 1. HERO -->
+    <section class="catalog-hero">
+      <span class="catalog-hero-eyebrow" data-i18n="hero.eyebrow">Design Reference Catalog</span>
+      <h1 class="base-h1" data-i18n="hero.title">{{PROJECT_NAME}}</h1>
+      <p class="base-subtitle" style="margin-top: var(--space-sm);" data-i18n="hero.subtitle">{{CONCEPT_DESCRIPTION}}</p>
+      <div class="catalog-hero-meta">
+        <span data-i18n="hero.date">{{COLLECTED_DATE}}</span>
+        <span data-i18n="hero.count">{{TOTAL_COUNT}}개 레퍼런스</span>
+        <span data-i18n="hero.author">{{AUTHOR}}</span>
+      </div>
+    </section>
+
+    <!-- 2. FILTER BAR -->
+    <div class="catalog-filter-bar full-bleed" id="filter-bar" role="group" aria-label="카테고리 필터">
+      <div style="display:flex; align-items:center; gap:var(--space-sm); flex-wrap:wrap; max-width:var(--content-max); margin:0 auto; padding:0 var(--space-md); width:100%;">
+        <span class="catalog-filter-label" data-i18n="filter.label">필터</span>
+        <button class="catalog-filter-btn is-active" data-filter="all" onclick="applyFilter('all')" data-i18n-filter="all">
+          전체
+          <span class="catalog-filter-count" id="count-all">0</span>
+        </button>
+        <!-- {{FILTER_BUTTONS}} — 스킬이 카테고리별로 추가 -->
+        <button class="catalog-filter-btn" data-filter="ui" onclick="applyFilter('ui')">
+          UI
+          <span class="catalog-filter-count" id="count-ui">0</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="typography" onclick="applyFilter('typography')">
+          <span data-i18n="filter.typography">타이포</span>
+          <span class="catalog-filter-count" id="count-typography">0</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="color" onclick="applyFilter('color')">
+          <span data-i18n="filter.color">컬러</span>
+          <span class="catalog-filter-count" id="count-color">0</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="layout" onclick="applyFilter('layout')">
+          <span data-i18n="filter.layout">레이아웃</span>
+          <span class="catalog-filter-count" id="count-layout">0</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="interaction" onclick="applyFilter('interaction')">
+          <span data-i18n="filter.interaction">인터랙션</span>
+          <span class="catalog-filter-count" id="count-interaction">0</span>
+        </button>
+        <button class="catalog-filter-btn" data-filter="motion" onclick="applyFilter('motion')">
+          <span data-i18n="filter.motion">모션</span>
+          <span class="catalog-filter-count" id="count-motion">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. REFERENCE GRID -->
+    <section class="base-section" id="references-section">
+      <div class="catalog-result-meta">
+        <span data-i18n="grid.title" class="base-h4">레퍼런스</span>
+        <span id="result-count" class="base-caption"></span>
+      </div>
+
+      <div class="catalog-grid" id="catalog-grid" role="list">
+
+        <!-- ======================================================
+             {{REFERENCE_CARDS}} — design-reference 스킬이 아래 패턴으로 카드 삽입
+             ====================================================== -->
+
+        <!-- 카드 예시 (스킬 출력 패턴):
+        <article class="catalog-card" data-category="ui layout" role="listitem">
+          <div class="catalog-thumb">
+            <img src="{{THUMB_URL}}" alt="{{TITLE}} 썸네일" loading="lazy">
+          </div>
+          <div class="catalog-card-body">
+            <div class="catalog-card-header">
+              <div>
+                <p class="catalog-card-title">{{TITLE}}</p>
+                <p class="catalog-card-source">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  <a href="{{SOURCE_URL}}" target="_blank" rel="noopener">{{SOURCE_NAME}}</a>
+                </p>
+              </div>
+            </div>
+            <div class="catalog-card-tags">
+              <span class="base-tag">UI</span>
+              <span class="base-tag">레이아웃</span>
+            </div>
+            <p class="catalog-card-note">{{REFERENCE_NOTE}}</p>
+          </div>
+        </article>
+        -->
+
+        <!-- 샘플 카드 1 -->
+        <article class="catalog-card" data-category="ui layout" role="listitem">
+          <div class="catalog-thumb">
+            <div class="catalog-thumb-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span>이미지 없음</span>
+            </div>
+          </div>
+          <div class="catalog-card-body">
+            <div class="catalog-card-header">
+              <div>
+                <p class="catalog-card-title">{{REFERENCE_TITLE_1}}</p>
+                <p class="catalog-card-source">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  <a href="{{SOURCE_URL_1}}" target="_blank" rel="noopener">{{SOURCE_NAME_1}}</a>
+                </p>
+              </div>
+            </div>
+            <div class="catalog-card-tags">
+              <span class="base-tag">UI</span>
+              <span class="base-tag">레이아웃</span>
+            </div>
+            <p class="catalog-card-note">{{REFERENCE_NOTE_1}}</p>
+          </div>
+        </article>
+
+        <!-- 샘플 카드 2 -->
+        <article class="catalog-card" data-category="typography color" role="listitem">
+          <div class="catalog-thumb">
+            <div class="catalog-thumb-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span>이미지 없음</span>
+            </div>
+          </div>
+          <div class="catalog-card-body">
+            <div class="catalog-card-header">
+              <div>
+                <p class="catalog-card-title">{{REFERENCE_TITLE_2}}</p>
+                <p class="catalog-card-source">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  <a href="{{SOURCE_URL_2}}" target="_blank" rel="noopener">{{SOURCE_NAME_2}}</a>
+                </p>
+              </div>
+            </div>
+            <div class="catalog-card-tags">
+              <span class="base-tag">타이포</span>
+              <span class="base-tag">컬러</span>
+            </div>
+            <p class="catalog-card-note">{{REFERENCE_NOTE_2}}</p>
+          </div>
+        </article>
+
+        <!-- 샘플 카드 3 -->
+        <article class="catalog-card" data-category="interaction motion" role="listitem">
+          <div class="catalog-thumb">
+            <div class="catalog-thumb-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span>이미지 없음</span>
+            </div>
+          </div>
+          <div class="catalog-card-body">
+            <div class="catalog-card-header">
+              <div>
+                <p class="catalog-card-title">{{REFERENCE_TITLE_3}}</p>
+                <p class="catalog-card-source">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  <a href="{{SOURCE_URL_3}}" target="_blank" rel="noopener">{{SOURCE_NAME_3}}</a>
+                </p>
+              </div>
+            </div>
+            <div class="catalog-card-tags">
+              <span class="base-tag">인터랙션</span>
+              <span class="base-tag">모션</span>
+            </div>
+            <p class="catalog-card-note">{{REFERENCE_NOTE_3}}</p>
+          </div>
+        </article>
+
+        <!-- Empty state (필터 결과 없음) -->
+        <div class="catalog-empty" id="empty-state" style="display:none;" aria-live="polite">
+          <div class="catalog-empty-icon">🔍</div>
+          <p data-i18n="grid.empty">해당 카테고리의 레퍼런스가 없습니다.</p>
+        </div>
+
+      </div><!-- /catalog-grid -->
+    </section>
+
+    <!-- 4. SUMMARY / INSIGHTS -->
+    <section class="base-section">
+      <h2 class="base-h2" data-i18n="summary.title">핵심 인사이트</h2>
+      <p class="base-subtitle" style="margin-top: var(--space-sm);" data-i18n="summary.subtitle">수집한 레퍼런스에서 도출한 패턴과 방향성</p>
+
+      <div class="catalog-insight-grid">
+
+        <!-- {{INSIGHT_CARDS}} — 스킬이 인사이트 카드 삽입 -->
+
+        <div class="catalog-insight-card">
+          <div class="catalog-insight-number">1</div>
+          <p class="catalog-insight-title" data-i18n="insight.title1">{{INSIGHT_TITLE_1}}</p>
+          <p class="catalog-insight-desc" data-i18n="insight.desc1">{{INSIGHT_DESC_1}}</p>
+        </div>
+
+        <div class="catalog-insight-card">
+          <div class="catalog-insight-number">2</div>
+          <p class="catalog-insight-title" data-i18n="insight.title2">{{INSIGHT_TITLE_2}}</p>
+          <p class="catalog-insight-desc" data-i18n="insight.desc2">{{INSIGHT_DESC_2}}</p>
+        </div>
+
+        <div class="catalog-insight-card">
+          <div class="catalog-insight-number">3</div>
+          <p class="catalog-insight-title" data-i18n="insight.title3">{{INSIGHT_TITLE_3}}</p>
+          <p class="catalog-insight-desc" data-i18n="insight.desc3">{{INSIGHT_DESC_3}}</p>
+        </div>
+
+        <div class="catalog-insight-card">
+          <div class="catalog-insight-number">4</div>
+          <p class="catalog-insight-title" data-i18n="insight.title4">{{INSIGHT_TITLE_4}}</p>
+          <p class="catalog-insight-desc" data-i18n="insight.desc4">{{INSIGHT_DESC_4}}</p>
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="base-footer">
+      <p data-i18n="footer.text">{{PROJECT_NAME}} · design-kit design-reference</p>
+    </footer>
+
+  </main><!-- /base-page -->
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    /* ---- Theme Toggle ---- */
+    (function initTheme() {
+      const saved = localStorage.getItem('dk-theme')
+        ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      applyTheme(saved);
+    })();
+
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+      if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      if (label) {
+        const lang = document.documentElement.lang;
+        label.textContent = theme === 'dark'
+          ? (lang === 'ko' ? '라이트 모드' : 'Light Mode')
+          : (lang === 'ko' ? '다크 모드' : 'Dark Mode');
+      }
+    }
+
+    function toggleTheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('dk-theme', next);
+      applyTheme(next);
+    }
+
+    /* ---- i18n ---- */
+    const T = {
+      ko: {
+        meta:    { title: '{{PROJECT_NAME}} — 디자인 레퍼런스 카탈로그' },
+        toolbar: { title: '{{PROJECT_NAME}} · 디자인 레퍼런스', theme: '다크 모드' },
+        hero: {
+          eyebrow: 'Design Reference Catalog',
+          title:    '{{PROJECT_NAME}}',
+          subtitle: '{{CONCEPT_DESCRIPTION}}',
+          date:     '{{COLLECTED_DATE}}',
+          count:    '{{TOTAL_COUNT}}개 레퍼런스',
+          author:   '{{AUTHOR}}'
+        },
+        filter: {
+          label:       '필터',
+          typography:  '타이포',
+          color:       '컬러',
+          layout:      '레이아웃',
+          interaction: '인터랙션',
+          motion:      '모션'
+        },
+        grid: {
+          title: '레퍼런스',
+          empty: '해당 카테고리의 레퍼런스가 없습니다.'
+        },
+        summary: {
+          title:    '핵심 인사이트',
+          subtitle: '수집한 레퍼런스에서 도출한 패턴과 방향성'
+        },
+        insight: {
+          title1: '{{INSIGHT_TITLE_1}}', desc1: '{{INSIGHT_DESC_1}}',
+          title2: '{{INSIGHT_TITLE_2}}', desc2: '{{INSIGHT_DESC_2}}',
+          title3: '{{INSIGHT_TITLE_3}}', desc3: '{{INSIGHT_DESC_3}}',
+          title4: '{{INSIGHT_TITLE_4}}', desc4: '{{INSIGHT_DESC_4}}'
+        },
+        footer: { text: '{{PROJECT_NAME}} · design-kit design-reference' }
+      },
+      en: {
+        meta:    { title: '{{PROJECT_NAME}} — Design Reference Catalog' },
+        toolbar: { title: '{{PROJECT_NAME}} · Design Refs', theme: 'Dark Mode' },
+        hero: {
+          eyebrow: 'Design Reference Catalog',
+          title:    '{{PROJECT_NAME}}',
+          subtitle: '{{CONCEPT_DESCRIPTION_EN}}',
+          date:     '{{COLLECTED_DATE}}',
+          count:    '{{TOTAL_COUNT}} references',
+          author:   '{{AUTHOR}}'
+        },
+        filter: {
+          label:       'Filter',
+          typography:  'Typography',
+          color:       'Color',
+          layout:      'Layout',
+          interaction: 'Interaction',
+          motion:      'Motion'
+        },
+        grid: {
+          title: 'References',
+          empty: 'No references found for this category.'
+        },
+        summary: {
+          title:    'Key Insights',
+          subtitle: 'Patterns and directions derived from collected references'
+        },
+        insight: {
+          title1: '{{INSIGHT_TITLE_1_EN}}', desc1: '{{INSIGHT_DESC_1_EN}}',
+          title2: '{{INSIGHT_TITLE_2_EN}}', desc2: '{{INSIGHT_DESC_2_EN}}',
+          title3: '{{INSIGHT_TITLE_3_EN}}', desc3: '{{INSIGHT_DESC_3_EN}}',
+          title4: '{{INSIGHT_TITLE_4_EN}}', desc4: '{{INSIGHT_DESC_4_EN}}'
+        },
+        footer: { text: '{{PROJECT_NAME}} · design-kit design-reference' }
+      }
+    };
+
+    let currentLang = localStorage.getItem('dk-lang') || 'ko';
+
+    (function initLang() {
+      applyLang(currentLang);
+    })();
+
+    function applyLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      localStorage.setItem('dk-lang', lang);
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const text = el.dataset.i18n.split('.').reduce((obj, k) => obj?.[k], T[lang]);
+        if (text) el.textContent = text;
+      });
+
+      const langLabel = document.getElementById('lang-label');
+      if (langLabel) {
+        langLabel.textContent = lang === 'ko' ? 'English' : '한국어';
+        langLabel.lang = lang === 'ko' ? 'en' : 'ko';
+      }
+
+      applyTheme(document.documentElement.dataset.theme);
+      updateResultCount();
+    }
+
+    function switchLang() {
+      applyLang(currentLang === 'ko' ? 'en' : 'ko');
+    }
+
+    /* ---- Filter Logic ---- */
+    let activeFilter = 'all';
+
+    function applyFilter(category) {
+      activeFilter = category;
+
+      // 버튼 상태
+      document.querySelectorAll('.catalog-filter-btn').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.filter === category);
+      });
+
+      // 카드 표시/숨김
+      const cards = document.querySelectorAll('#catalog-grid .catalog-card');
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const cats = (card.dataset.category || '').split(' ');
+        const match = category === 'all' || cats.includes(category);
+        card.dataset.hidden = match ? 'false' : 'true';
+        if (match) visibleCount++;
+      });
+
+      // Empty state
+      const empty = document.getElementById('empty-state');
+      if (empty) empty.style.display = visibleCount === 0 ? 'block' : 'none';
+
+      updateResultCount(visibleCount, cards.length);
+    }
+
+    function updateResultCount(visible, total) {
+      const cards = document.querySelectorAll('#catalog-grid .catalog-card');
+      const t = total ?? cards.length;
+      let v = visible;
+      if (v === undefined) {
+        v = [...cards].filter(c => c.dataset.hidden !== 'true').length;
+      }
+      const el = document.getElementById('result-count');
+      if (!el) return;
+      el.textContent = currentLang === 'ko'
+        ? (activeFilter === 'all' ? `총 ${t}개` : `${v} / ${t}개`)
+        : (activeFilter === 'all' ? `${t} total` : `${v} of ${t}`);
+    }
+
+    /* ---- Count Badges ---- */
+    function updateCountBadges() {
+      const cards = document.querySelectorAll('#catalog-grid .catalog-card');
+      const counts = { all: cards.length };
+      cards.forEach(card => {
+        (card.dataset.category || '').split(' ').forEach(cat => {
+          if (cat) counts[cat] = (counts[cat] || 0) + 1;
+        });
+      });
+      Object.entries(counts).forEach(([cat, count]) => {
+        const el = document.getElementById(`count-${cat}`);
+        if (el) el.textContent = count;
+      });
+    }
+
+    /* ---- Init ---- */
+    (function init() {
+      updateCountBadges();
+      applyFilter('all');
+    })();
+  </script>
+</body>
+</html>

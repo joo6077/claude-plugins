@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="meta.title">{{PROJECT_NAME}} — 무드보드</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    /* ============================================================
+       BASE TEMPLATE — design-kit 공통 골격
+       반응형 + 다크/라이트 + 한/영 i18n
+       ============================================================ */
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* --- Color Tokens (Light) --- */
+    :root {
+      --color-bg: #ffffff;
+      --color-surface: #f5f5f5;
+      --color-surface-high: #eeeeee;
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #666666;
+      --color-text-tertiary: #999999;
+      --color-border: #e0e0e0;
+      --color-shadow: rgba(0, 0, 0, 0.08);
+      --color-accent: #1a73e8;
+      --color-accent-soft: rgba(26, 115, 232, 0.1);
+      --color-success: #0d9e5f;
+      --color-warning: #e8a817;
+      --color-error: #d93025;
+
+      /* Typography */
+      --font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      --text-xs: clamp(11px, 1vw, 12px);
+      --text-sm: clamp(12px, 1.2vw, 14px);
+      --text-base: clamp(14px, 1.5vw, 16px);
+      --text-lg: clamp(16px, 2vw, 20px);
+      --text-xl: clamp(20px, 2.5vw, 28px);
+      --text-2xl: clamp(24px, 3.5vw, 40px);
+      --text-3xl: clamp(32px, 5vw, 56px);
+
+      /* Spacing */
+      --space-xs: clamp(4px, 0.5vw, 6px);
+      --space-sm: clamp(8px, 1vw, 12px);
+      --space-md: clamp(12px, 2vw, 20px);
+      --space-lg: clamp(20px, 3vw, 32px);
+      --space-xl: clamp(32px, 5vw, 56px);
+      --space-2xl: clamp(48px, 7vw, 80px);
+
+      /* Layout */
+      --content-max: 1200px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+
+      /* Transitions */
+      --transition-color: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+      /* Moodboard — 프로젝트 팔레트 (스킬이 채움) */
+      --mb-primary:   {{COLOR_PRIMARY}};
+      --mb-secondary: {{COLOR_SECONDARY}};
+      --mb-accent:    {{COLOR_ACCENT}};
+      --mb-neutral:   {{COLOR_NEUTRAL}};
+      --mb-surface1:  {{COLOR_SURFACE1}};
+      --mb-surface2:  {{COLOR_SURFACE2}};
+      --mb-text-on-primary: {{COLOR_TEXT_ON_PRIMARY}};
+    }
+
+    /* --- Color Tokens (Dark — system) --- */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-bg: #121212;
+        --color-surface: #1e1e1e;
+        --color-surface-high: #2a2a2a;
+        --color-text-primary: #e8e8e8;
+        --color-text-secondary: #aaaaaa;
+        --color-text-tertiary: #777777;
+        --color-border: #333333;
+        --color-shadow: rgba(0, 0, 0, 0.4);
+        --color-accent: #82b4ff;
+        --color-accent-soft: rgba(130, 180, 255, 0.15);
+        --color-success: #34d399;
+        --color-warning: #fbbf24;
+        --color-error: #f87171;
+      }
+    }
+
+    /* --- Color Tokens (Dark — explicit) --- */
+    [data-theme="dark"] {
+      --color-bg: #121212;
+      --color-surface: #1e1e1e;
+      --color-surface-high: #2a2a2a;
+      --color-text-primary: #e8e8e8;
+      --color-text-secondary: #aaaaaa;
+      --color-text-tertiary: #777777;
+      --color-border: #333333;
+      --color-shadow: rgba(0, 0, 0, 0.4);
+      --color-accent: #82b4ff;
+      --color-accent-soft: rgba(130, 180, 255, 0.15);
+      --color-success: #34d399;
+      --color-warning: #fbbf24;
+      --color-error: #f87171;
+    }
+
+    /* --- Base Styles --- */
+    body {
+      font-family: var(--font-family);
+      font-size: var(--text-base);
+      line-height: 1.6;
+      color: var(--color-text-primary);
+      background: var(--color-bg);
+      transition: var(--transition-color);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    :lang(ko) { word-break: keep-all; }
+    :lang(en) { word-break: normal; }
+
+    a { color: var(--color-accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      transition: filter 0.2s ease;
+    }
+    [data-theme="dark"] img:not([data-no-dim]) { filter: brightness(0.85); }
+
+    /* --- Toolbar --- */
+    .base-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      transition: var(--transition-color);
+    }
+
+    .base-toolbar-title {
+      margin-right: auto;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .base-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text-primary);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition-color);
+      user-select: none;
+    }
+    .base-btn:hover { background: var(--color-surface-high); }
+
+    /* --- Page Layout --- */
+    .base-page {
+      display: grid;
+      grid-template-columns: 1fr min(var(--content-max), calc(100% - var(--space-md) * 2)) 1fr;
+      min-height: 100vh;
+    }
+    .base-page > * { grid-column: 2; }
+    .base-page > .full-bleed { grid-column: 1 / -1; }
+
+    /* --- Content Sections --- */
+    .base-section {
+      padding: var(--space-xl) 0;
+    }
+    .base-section + .base-section {
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* --- Card Grid --- */
+    .base-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+
+    /* --- Card --- */
+    .base-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      transition: var(--transition-color);
+    }
+    .base-card:hover {
+      box-shadow: 0 4px 16px var(--color-shadow);
+    }
+
+    /* --- Typography --- */
+    .base-h1 { font-size: var(--text-3xl); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+    .base-h2 { font-size: var(--text-2xl); font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; }
+    .base-h3 { font-size: var(--text-xl); font-weight: 600; line-height: 1.4; }
+    .base-h4 { font-size: var(--text-lg); font-weight: 600; line-height: 1.4; }
+    .base-subtitle { font-size: var(--text-lg); color: var(--color-text-secondary); font-weight: 400; }
+    .base-caption { font-size: var(--text-sm); color: var(--color-text-tertiary); }
+
+    /* --- Tags / Badges --- */
+    .base-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-accent);
+      background: var(--color-accent-soft);
+      border-radius: 100px;
+    }
+
+    /* --- Footer --- */
+    .base-footer {
+      padding: var(--space-lg) 0;
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--color-text-tertiary);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* --- Accessibility --- */
+    :focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 639px) {
+      .base-grid { grid-template-columns: 1fr; }
+      .base-toolbar-title { display: none; }
+      .base-h1 { font-size: var(--text-2xl); }
+    }
+
+    /* --- Print --- */
+    @media print {
+      .base-toolbar { display: none; }
+      body { background: #fff; color: #000; }
+    }
+
+    /* ============================================================
+       MOODBOARD — 전용 스타일
+       ============================================================ */
+
+    /* --- Hero: 프로젝트명 + 컨셉 요약 --- */
+    .mb-hero {
+      padding: var(--space-2xl) 0;
+      text-align: center;
+    }
+
+    .mb-hero-eyebrow {
+      display: inline-block;
+      margin-bottom: var(--space-md);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+    }
+
+    .mb-hero-title {
+      font-size: var(--text-3xl);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--color-text-primary);
+    }
+
+    .mb-hero-concept {
+      margin-top: var(--space-md);
+      font-size: var(--text-xl);
+      font-weight: 400;
+      color: var(--color-text-secondary);
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .mb-hero-accent-bar {
+      margin: var(--space-lg) auto 0;
+      width: 48px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--mb-primary, var(--color-accent));
+    }
+
+    /* --- Section Label --- */
+    .mb-section-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+
+    .mb-section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-border);
+    }
+
+    .mb-section-label-text {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      white-space: nowrap;
+    }
+
+    /* --- Color Palette --- */
+    .mb-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+    }
+
+    .mb-swatch {
+      flex: 1 1 100px;
+      min-width: 100px;
+      max-width: 160px;
+    }
+
+    .mb-swatch-color {
+      height: 80px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: default;
+    }
+    [data-theme="dark"] .mb-swatch-color {
+      border-color: rgba(255,255,255,0.06);
+    }
+    .mb-swatch:hover .mb-swatch-color {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px var(--color-shadow);
+    }
+
+    .mb-swatch-info {
+      margin-top: var(--space-xs);
+    }
+
+    .mb-swatch-role {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-tertiary);
+    }
+
+    .mb-swatch-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-top: 2px;
+    }
+
+    .mb-swatch-hex {
+      font-size: var(--text-xs);
+      color: var(--color-text-tertiary);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    @media (max-width: 639px) {
+      .mb-swatch { min-width: calc(50% - var(--space-md) / 2); max-width: none; }
+    }
+
+    /* --- Typography Preview --- */
+    .mb-type-scale {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+
+    .mb-type-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: var(--space-md);
+      align-items: baseline;
+    }
+
+    .mb-type-meta {
+      text-align: right;
+    }
+
+    .mb-type-meta-role {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-tertiary);
+    }
+
+    .mb-type-meta-spec {
+      font-size: var(--text-xs);
+      color: var(--color-text-tertiary);
+      margin-top: 2px;
+    }
+
+    .mb-type-preview-heading {
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--color-text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mb-type-preview-subheading {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      color: var(--color-text-primary);
+    }
+
+    .mb-type-preview-body {
+      font-size: var(--text-base);
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--color-text-secondary);
+    }
+
+    .mb-type-preview-caption {
+      font-size: var(--text-sm);
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--color-text-tertiary);
+    }
+
+    .mb-type-divider {
+      height: 1px;
+      background: var(--color-border);
+    }
+
+    @media (max-width: 639px) {
+      .mb-type-row { grid-template-columns: 1fr; gap: var(--space-xs); }
+      .mb-type-meta { text-align: left; }
+    }
+
+    /* --- Mood Keywords --- */
+    .mb-keyword-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+
+    .mb-keyword {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 18px;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      border-radius: 100px;
+      border: 1.5px solid var(--color-border);
+      color: var(--color-text-primary);
+      background: var(--color-surface);
+      transition: var(--transition-color), transform 0.15s ease;
+      cursor: default;
+      user-select: none;
+    }
+
+    .mb-keyword:hover {
+      border-color: var(--mb-primary, var(--color-accent));
+      color: var(--mb-primary, var(--color-accent));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--color-shadow);
+    }
+
+    /* 키워드 크기 변형 — 스킬이 data-weight 속성으로 제어 */
+    .mb-keyword[data-weight="lg"] { font-size: var(--text-base); padding: 10px 22px; }
+    .mb-keyword[data-weight="sm"] { font-size: var(--text-xs); padding: 6px 14px; opacity: 0.75; }
+
+    /* Primary 키워드 강조 */
+    .mb-keyword[data-primary="true"] {
+      background: var(--mb-primary, var(--color-accent));
+      border-color: var(--mb-primary, var(--color-accent));
+      color: var(--mb-text-on-primary, #ffffff);
+    }
+    .mb-keyword[data-primary="true"]:hover {
+      color: var(--mb-text-on-primary, #ffffff);
+      opacity: 0.88;
+      transform: translateY(-2px);
+    }
+
+    /* --- Reference Image Grid (Masonry-style) --- */
+    .mb-masonry {
+      columns: 3 280px;
+      gap: var(--space-md);
+    }
+
+    .mb-masonry-item {
+      break-inside: avoid;
+      margin-bottom: var(--space-md);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      cursor: default;
+    }
+
+    .mb-masonry-item:hover {
+      box-shadow: 0 8px 24px var(--color-shadow);
+      transform: translateY(-2px);
+    }
+
+    .mb-masonry-placeholder {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-surface-high);
+      color: var(--color-text-tertiary);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    /* 높이 변형 — Pinterest 스타일 불규칙 */
+    .mb-masonry-item:nth-child(1) .mb-masonry-placeholder { height: 220px; }
+    .mb-masonry-item:nth-child(2) .mb-masonry-placeholder { height: 160px; }
+    .mb-masonry-item:nth-child(3) .mb-masonry-placeholder { height: 280px; }
+    .mb-masonry-item:nth-child(4) .mb-masonry-placeholder { height: 180px; }
+    .mb-masonry-item:nth-child(5) .mb-masonry-placeholder { height: 240px; }
+    .mb-masonry-item:nth-child(6) .mb-masonry-placeholder { height: 160px; }
+
+    .mb-masonry-caption {
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-xs);
+      color: var(--color-text-tertiary);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* 실제 이미지를 삽입할 경우 */
+    .mb-masonry-item img {
+      width: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    @media (max-width: 639px) {
+      .mb-masonry { columns: 1; }
+    }
+    @media (min-width: 640px) and (max-width: 899px) {
+      .mb-masonry { columns: 2; }
+    }
+
+    /* --- Tone & Manner --- */
+    .mb-tone-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .mb-tone-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      transition: var(--transition-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mb-tone-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--mb-primary, var(--color-accent));
+    }
+
+    .mb-tone-card:hover {
+      box-shadow: 0 4px 16px var(--color-shadow);
+    }
+
+    .mb-tone-icon {
+      font-size: 24px;
+      line-height: 1;
+      margin-bottom: var(--space-sm);
+    }
+
+    .mb-tone-label {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-tertiary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .mb-tone-value {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .mb-tone-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== TOOLBAR ========== -->
+  <header class="base-toolbar">
+    <span class="base-toolbar-title" data-i18n="toolbar.title">{{PROJECT_NAME}} 무드보드</span>
+    <button class="base-btn" onclick="toggleTheme()" aria-label="테마 전환">
+      <span id="theme-icon">🌙</span>
+      <span data-i18n="toolbar.theme" id="theme-label">다크 모드</span>
+    </button>
+    <button class="base-btn" onclick="switchLang()" aria-label="언어 전환">
+      <span id="lang-label" lang="en">English</span>
+    </button>
+  </header>
+
+  <!-- ========== PAGE ========== -->
+  <main class="base-page">
+
+    <!-- ==================== 1. HERO ==================== -->
+    <section class="mb-hero full-bleed base-section" style="border-top: none;">
+      <div style="max-width: var(--content-max); margin: 0 auto; padding: 0 var(--space-md);">
+        <span class="mb-hero-eyebrow" data-i18n="hero.eyebrow">Design Concept</span>
+        <h1 class="mb-hero-title" data-i18n="hero.title">{{PROJECT_NAME}}</h1>
+        <p class="mb-hero-concept" data-i18n="hero.concept">{{CONCEPT_ONELINER}}</p>
+        <div class="mb-hero-accent-bar"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. COLOR PALETTE ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.palette">컬러 팔레트</span>
+      </div>
+
+      <div class="mb-palette">
+        <!-- Primary -->
+        <div class="mb-swatch">
+          <div class="mb-swatch-color" style="background: var(--mb-primary);" title="{{COLOR_PRIMARY}}"></div>
+          <div class="mb-swatch-info">
+            <div class="mb-swatch-role" data-i18n="palette.primary">Primary</div>
+            <div class="mb-swatch-name">{{COLOR_PRIMARY_NAME}}</div>
+            <div class="mb-swatch-hex">{{COLOR_PRIMARY}}</div>
+          </div>
+        </div>
+
+        <!-- Secondary -->
+        <div class="mb-swatch">
+          <div class="mb-swatch-color" style="background: var(--mb-secondary);" title="{{COLOR_SECONDARY}}"></div>
+          <div class="mb-swatch-info">
+            <div class="mb-swatch-role" data-i18n="palette.secondary">Secondary</div>
+            <div class="mb-swatch-name">{{COLOR_SECONDARY_NAME}}</div>
+            <div class="mb-swatch-hex">{{COLOR_SECONDARY}}</div>
+          </div>
+        </div>
+
+        <!-- Accent -->
+        <div class="mb-swatch">
+          <div class="mb-swatch-color" style="background: var(--mb-accent);" title="{{COLOR_ACCENT}}"></div>
+          <div class="mb-swatch-info">
+            <div class="mb-swatch-role" data-i18n="palette.accent">Accent</div>
+            <div class="mb-swatch-name">{{COLOR_ACCENT_NAME}}</div>
+            <div class="mb-swatch-hex">{{COLOR_ACCENT}}</div>
+          </div>
+        </div>
+
+        <!-- Neutral -->
+        <div class="mb-swatch">
+          <div class="mb-swatch-color" style="background: var(--mb-neutral);" title="{{COLOR_NEUTRAL}}"></div>
+          <div class="mb-swatch-info">
+            <div class="mb-swatch-role" data-i18n="palette.neutral">Neutral</div>
+            <div class="mb-swatch-name">{{COLOR_NEUTRAL_NAME}}</div>
+            <div class="mb-swatch-hex">{{COLOR_NEUTRAL}}</div>
+          </div>
+        </div>
+
+        <!-- Surface 1 -->
+        <div class="mb-swatch">
+          <div class="mb-swatch-color" style="background: var(--mb-surface1);" title="{{COLOR_SURFACE1}}"></div>
+          <div class="mb-swatch-info">
+            <div class="mb-swatch-role" data-i18n="palette.surface1">Surface</div>
+            <div class="mb-swatch-name">{{COLOR_SURFACE1_NAME}}</div>
+            <div class="mb-swatch-hex">{{COLOR_SURFACE1}}</div>
+          </div>
+        </div>
+
+        <!-- Surface 2 -->
+        <div class="mb-swatch">
+          <div class="mb-swatch-color" style="background: var(--mb-surface2);" title="{{COLOR_SURFACE2}}"></div>
+          <div class="mb-swatch-info">
+            <div class="mb-swatch-role" data-i18n="palette.surface2">Background</div>
+            <div class="mb-swatch-name">{{COLOR_SURFACE2_NAME}}</div>
+            <div class="mb-swatch-hex">{{COLOR_SURFACE2}}</div>
+          </div>
+        </div>
+
+        <!-- {{EXTRA_SWATCHES}} — 필요 시 추가 -->
+      </div>
+    </section>
+
+    <!-- ==================== 3. TYPOGRAPHY ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.typography">타이포그래피</span>
+      </div>
+
+      <div class="mb-type-scale">
+        <!-- Heading -->
+        <div class="mb-type-row">
+          <div class="mb-type-meta">
+            <div class="mb-type-meta-role" data-i18n="type.heading">Heading</div>
+            <div class="mb-type-meta-spec">{{TYPE_HEADING_SPEC}}</div>
+          </div>
+          <div>
+            <div class="mb-type-preview-heading" data-i18n="type.heading.preview">{{TYPE_HEADING_SAMPLE}}</div>
+          </div>
+        </div>
+
+        <div class="mb-type-divider"></div>
+
+        <!-- Subheading -->
+        <div class="mb-type-row">
+          <div class="mb-type-meta">
+            <div class="mb-type-meta-role" data-i18n="type.subheading">Subheading</div>
+            <div class="mb-type-meta-spec">{{TYPE_SUBHEADING_SPEC}}</div>
+          </div>
+          <div>
+            <div class="mb-type-preview-subheading" data-i18n="type.subheading.preview">{{TYPE_SUBHEADING_SAMPLE}}</div>
+          </div>
+        </div>
+
+        <div class="mb-type-divider"></div>
+
+        <!-- Body -->
+        <div class="mb-type-row">
+          <div class="mb-type-meta">
+            <div class="mb-type-meta-role" data-i18n="type.body">Body</div>
+            <div class="mb-type-meta-spec">{{TYPE_BODY_SPEC}}</div>
+          </div>
+          <div>
+            <div class="mb-type-preview-body" data-i18n="type.body.preview">{{TYPE_BODY_SAMPLE}}</div>
+          </div>
+        </div>
+
+        <div class="mb-type-divider"></div>
+
+        <!-- Caption -->
+        <div class="mb-type-row">
+          <div class="mb-type-meta">
+            <div class="mb-type-meta-role" data-i18n="type.caption">Caption</div>
+            <div class="mb-type-meta-spec">{{TYPE_CAPTION_SPEC}}</div>
+          </div>
+          <div>
+            <div class="mb-type-preview-caption" data-i18n="type.caption.preview">{{TYPE_CAPTION_SAMPLE}}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. MOOD KEYWORDS ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.keywords">무드 키워드</span>
+      </div>
+
+      <div class="mb-keyword-cloud">
+        <!--
+          data-weight: "lg" | "md" (기본) | "sm"
+          data-primary: "true" → 강조 배지
+          스킬이 프로젝트 컨셉에 맞게 채움
+        -->
+        <span class="mb-keyword" data-weight="lg" data-primary="true">{{KEYWORD_1}}</span>
+        <span class="mb-keyword" data-weight="lg">{{KEYWORD_2}}</span>
+        <span class="mb-keyword">{{KEYWORD_3}}</span>
+        <span class="mb-keyword">{{KEYWORD_4}}</span>
+        <span class="mb-keyword" data-weight="sm">{{KEYWORD_5}}</span>
+        <span class="mb-keyword">{{KEYWORD_6}}</span>
+        <span class="mb-keyword" data-weight="sm">{{KEYWORD_7}}</span>
+        <span class="mb-keyword" data-weight="lg">{{KEYWORD_8}}</span>
+        <!-- {{EXTRA_KEYWORDS}} -->
+      </div>
+    </section>
+
+    <!-- ==================== 5. REFERENCE IMAGE GRID ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.references">레퍼런스</span>
+      </div>
+
+      <div class="mb-masonry">
+        <!--
+          실제 이미지 삽입 시: <img> 태그 사용
+          이미지 없을 때: mb-masonry-placeholder 유지
+          스킬이 src와 캡션을 채움
+        -->
+
+        <div class="mb-masonry-item">
+          <!-- <img src="{{REF_IMG_1_SRC}}" alt="{{REF_IMG_1_ALT}}"> -->
+          <div class="mb-masonry-placeholder">
+            <span data-i18n="ref.placeholder">Image</span>
+          </div>
+          <div class="mb-masonry-caption" data-i18n="ref.img1.caption">{{REF_IMG_1_CAPTION}}</div>
+        </div>
+
+        <div class="mb-masonry-item">
+          <!-- <img src="{{REF_IMG_2_SRC}}" alt="{{REF_IMG_2_ALT}}"> -->
+          <div class="mb-masonry-placeholder">
+            <span data-i18n="ref.placeholder">Image</span>
+          </div>
+          <div class="mb-masonry-caption" data-i18n="ref.img2.caption">{{REF_IMG_2_CAPTION}}</div>
+        </div>
+
+        <div class="mb-masonry-item">
+          <!-- <img src="{{REF_IMG_3_SRC}}" alt="{{REF_IMG_3_ALT}}"> -->
+          <div class="mb-masonry-placeholder">
+            <span data-i18n="ref.placeholder">Image</span>
+          </div>
+          <div class="mb-masonry-caption" data-i18n="ref.img3.caption">{{REF_IMG_3_CAPTION}}</div>
+        </div>
+
+        <div class="mb-masonry-item">
+          <!-- <img src="{{REF_IMG_4_SRC}}" alt="{{REF_IMG_4_ALT}}"> -->
+          <div class="mb-masonry-placeholder">
+            <span data-i18n="ref.placeholder">Image</span>
+          </div>
+          <div class="mb-masonry-caption" data-i18n="ref.img4.caption">{{REF_IMG_4_CAPTION}}</div>
+        </div>
+
+        <div class="mb-masonry-item">
+          <!-- <img src="{{REF_IMG_5_SRC}}" alt="{{REF_IMG_5_ALT}}"> -->
+          <div class="mb-masonry-placeholder">
+            <span data-i18n="ref.placeholder">Image</span>
+          </div>
+          <div class="mb-masonry-caption" data-i18n="ref.img5.caption">{{REF_IMG_5_CAPTION}}</div>
+        </div>
+
+        <div class="mb-masonry-item">
+          <!-- <img src="{{REF_IMG_6_SRC}}" alt="{{REF_IMG_6_ALT}}"> -->
+          <div class="mb-masonry-placeholder">
+            <span data-i18n="ref.placeholder">Image</span>
+          </div>
+          <div class="mb-masonry-caption" data-i18n="ref.img6.caption">{{REF_IMG_6_CAPTION}}</div>
+        </div>
+
+        <!-- {{EXTRA_REF_IMAGES}} -->
+      </div>
+    </section>
+
+    <!-- ==================== 6. TONE & MANNER ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.tone">톤 & 매너</span>
+      </div>
+
+      <div class="mb-tone-grid">
+        <!-- 브랜드 보이스 -->
+        <div class="mb-tone-card">
+          <div class="mb-tone-icon">{{TONE_VOICE_ICON}}</div>
+          <div class="mb-tone-label" data-i18n="tone.voice.label">Brand Voice</div>
+          <div class="mb-tone-value" data-i18n="tone.voice.value">{{TONE_VOICE}}</div>
+          <div class="mb-tone-desc" data-i18n="tone.voice.desc">{{TONE_VOICE_DESC}}</div>
+        </div>
+
+        <!-- 분위기 -->
+        <div class="mb-tone-card">
+          <div class="mb-tone-icon">{{TONE_MOOD_ICON}}</div>
+          <div class="mb-tone-label" data-i18n="tone.mood.label">Mood</div>
+          <div class="mb-tone-value" data-i18n="tone.mood.value">{{TONE_MOOD}}</div>
+          <div class="mb-tone-desc" data-i18n="tone.mood.desc">{{TONE_MOOD_DESC}}</div>
+        </div>
+
+        <!-- 시각 방향성 -->
+        <div class="mb-tone-card">
+          <div class="mb-tone-icon">{{TONE_VISUAL_ICON}}</div>
+          <div class="mb-tone-label" data-i18n="tone.visual.label">Visual Direction</div>
+          <div class="mb-tone-value" data-i18n="tone.visual.value">{{TONE_VISUAL}}</div>
+          <div class="mb-tone-desc" data-i18n="tone.visual.desc">{{TONE_VISUAL_DESC}}</div>
+        </div>
+
+        <!-- 타겟 경험 -->
+        <div class="mb-tone-card">
+          <div class="mb-tone-icon">{{TONE_EXPERIENCE_ICON}}</div>
+          <div class="mb-tone-label" data-i18n="tone.experience.label">Target Experience</div>
+          <div class="mb-tone-value" data-i18n="tone.experience.value">{{TONE_EXPERIENCE}}</div>
+          <div class="mb-tone-desc" data-i18n="tone.experience.desc">{{TONE_EXPERIENCE_DESC}}</div>
+        </div>
+
+        <!-- {{EXTRA_TONE_CARDS}} -->
+      </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="base-footer">
+      <p data-i18n="footer.text">{{PROJECT_NAME}} · design-kit moodboard · {{GENERATED_DATE}}</p>
+    </footer>
+
+  </main>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    /* ---- Theme Toggle ---- */
+    (function initTheme() {
+      const saved = localStorage.getItem('dk-theme')
+        ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      applyTheme(saved);
+    })();
+
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+      if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      if (label) {
+        const lang = document.documentElement.lang;
+        label.textContent = theme === 'dark'
+          ? (lang === 'ko' ? '라이트 모드' : 'Light Mode')
+          : (lang === 'ko' ? '다크 모드' : 'Dark Mode');
+      }
+    }
+
+    function toggleTheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('dk-theme', next);
+      applyTheme(next);
+    }
+
+    /* ---- i18n ---- */
+    const T = {
+      ko: {
+        meta:    { title: '{{PROJECT_NAME}} — 무드보드' },
+        toolbar: { title: '{{PROJECT_NAME}} 무드보드', theme: '다크 모드' },
+        hero:    { eyebrow: 'Design Concept', title: '{{PROJECT_NAME}}', concept: '{{CONCEPT_ONELINER}}' },
+        section: { palette: '컬러 팔레트', typography: '타이포그래피', keywords: '무드 키워드', references: '레퍼런스', tone: '톤 & 매너' },
+        palette: { primary: 'Primary', secondary: 'Secondary', accent: 'Accent', neutral: 'Neutral', surface1: 'Surface', surface2: 'Background' },
+        type: {
+          heading:   'Heading',    'heading.preview':   '{{TYPE_HEADING_SAMPLE}}',
+          subheading:'Subheading', 'subheading.preview':'{{TYPE_SUBHEADING_SAMPLE}}',
+          body:      'Body',       'body.preview':      '{{TYPE_BODY_SAMPLE}}',
+          caption:   'Caption',    'caption.preview':   '{{TYPE_CAPTION_SAMPLE}}'
+        },
+        ref: {
+          placeholder: 'Image',
+          'img1.caption': '{{REF_IMG_1_CAPTION}}',
+          'img2.caption': '{{REF_IMG_2_CAPTION}}',
+          'img3.caption': '{{REF_IMG_3_CAPTION}}',
+          'img4.caption': '{{REF_IMG_4_CAPTION}}',
+          'img5.caption': '{{REF_IMG_5_CAPTION}}',
+          'img6.caption': '{{REF_IMG_6_CAPTION}}'
+        },
+        tone: {
+          'voice.label': '브랜드 보이스', 'voice.value': '{{TONE_VOICE}}',       'voice.desc': '{{TONE_VOICE_DESC}}',
+          'mood.label':  '분위기',        'mood.value':  '{{TONE_MOOD}}',        'mood.desc':  '{{TONE_MOOD_DESC}}',
+          'visual.label':'시각 방향성',   'visual.value':'{{TONE_VISUAL}}',      'visual.desc':'{{TONE_VISUAL_DESC}}',
+          'experience.label':'타겟 경험', 'experience.value':'{{TONE_EXPERIENCE}}', 'experience.desc':'{{TONE_EXPERIENCE_DESC}}'
+        },
+        footer: { text: '{{PROJECT_NAME}} · design-kit moodboard · {{GENERATED_DATE}}' }
+      },
+      en: {
+        meta:    { title: '{{PROJECT_NAME}} — Moodboard' },
+        toolbar: { title: '{{PROJECT_NAME}} Moodboard', theme: 'Dark Mode' },
+        hero:    { eyebrow: 'Design Concept', title: '{{PROJECT_NAME}}', concept: '{{CONCEPT_ONELINER_EN}}' },
+        section: { palette: 'Color Palette', typography: 'Typography', keywords: 'Mood Keywords', references: 'References', tone: 'Tone & Manner' },
+        palette: { primary: 'Primary', secondary: 'Secondary', accent: 'Accent', neutral: 'Neutral', surface1: 'Surface', surface2: 'Background' },
+        type: {
+          heading:   'Heading',    'heading.preview':   '{{TYPE_HEADING_SAMPLE_EN}}',
+          subheading:'Subheading', 'subheading.preview':'{{TYPE_SUBHEADING_SAMPLE_EN}}',
+          body:      'Body',       'body.preview':      '{{TYPE_BODY_SAMPLE_EN}}',
+          caption:   'Caption',    'caption.preview':   '{{TYPE_CAPTION_SAMPLE_EN}}'
+        },
+        ref: {
+          placeholder: 'Image',
+          'img1.caption': '{{REF_IMG_1_CAPTION_EN}}',
+          'img2.caption': '{{REF_IMG_2_CAPTION_EN}}',
+          'img3.caption': '{{REF_IMG_3_CAPTION_EN}}',
+          'img4.caption': '{{REF_IMG_4_CAPTION_EN}}',
+          'img5.caption': '{{REF_IMG_5_CAPTION_EN}}',
+          'img6.caption': '{{REF_IMG_6_CAPTION_EN}}'
+        },
+        tone: {
+          'voice.label': 'Brand Voice',       'voice.value': '{{TONE_VOICE_EN}}',       'voice.desc': '{{TONE_VOICE_DESC_EN}}',
+          'mood.label':  'Mood',              'mood.value':  '{{TONE_MOOD_EN}}',        'mood.desc':  '{{TONE_MOOD_DESC_EN}}',
+          'visual.label':'Visual Direction',  'visual.value':'{{TONE_VISUAL_EN}}',      'visual.desc':'{{TONE_VISUAL_DESC_EN}}',
+          'experience.label':'Target Experience', 'experience.value':'{{TONE_EXPERIENCE_EN}}', 'experience.desc':'{{TONE_EXPERIENCE_DESC_EN}}'
+        },
+        footer: { text: '{{PROJECT_NAME}} · design-kit moodboard · {{GENERATED_DATE}}' }
+      }
+    };
+
+    let currentLang = localStorage.getItem('dk-lang') || 'ko';
+
+    (function initLang() {
+      applyLang(currentLang);
+    })();
+
+    function applyLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      localStorage.setItem('dk-lang', lang);
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        const text = key.split('.').reduce((obj, k) => obj?.[k], T[lang]);
+        if (text != null) el.textContent = text;
+      });
+
+      const langLabel = document.getElementById('lang-label');
+      if (langLabel) {
+        langLabel.textContent = lang === 'ko' ? 'English' : '한국어';
+        langLabel.lang = lang === 'ko' ? 'en' : 'ko';
+      }
+
+      applyTheme(document.documentElement.dataset.theme);
+    }
+
+    function switchLang() {
+      applyLang(currentLang === 'ko' ? 'en' : 'ko');
+    }
+  </script>
+</body>
+</html>
