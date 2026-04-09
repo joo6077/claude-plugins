@@ -2,28 +2,63 @@
 
 > 일시: {{date}}
 > 대상: {{target-path}}
-> 판정: **{{verdict}}**
+> 모드: {{quick|deep}}
+> 판정: **{{APPROVE|REJECT}}**
 
 ## 요약
 
-| 카테고리 | 판정 | 항목 수 |
-|----------|------|---------|
-| Typography | {{pass/fail}} | {{count}} |
-| Color | {{pass/fail}} | {{count}} |
-| Spacing | {{pass/fail}} | {{count}} |
-| Accessibility | {{pass/fail}} | {{count}} |
-| Interaction | {{pass/fail}} | {{count}} |
-| Motion | {{pass/fail}} | {{count}} |
+| 카테고리 | 판정 | Critical | Major | Minor | 미검증 |
+|----------|------|----------|-------|-------|--------|
+| Typography | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Color | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Spacing | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Accessibility | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Interaction | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Motion | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Visual Hierarchy | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Layout & Grid | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Ethical Design | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
+| Authenticity | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
 
-## FAIL 상세
+## Critical FAIL (즉시 수정)
 
 ### [카테고리] 항목 제목
 
+- **심각도:** Critical
 - **위치:** `파일경로:라인`
 - **위반 원칙:** [원칙명]
 - **출처:** [출처 URL/문서명]
 - **현재:** [현재 상태]
 - **권장:** [개선 방향]
+
+## Major FAIL (다음 스프린트 전)
+
+### [카테고리] 항목 제목
+
+- **심각도:** Major
+- **위치:** `파일경로:라인`
+- **위반 원칙:** [원칙명]
+- **출처:** [출처 URL/문서명]
+- **현재:** [현재 상태]
+- **권장:** [개선 방향]
+
+## Minor FAIL (개선 권장)
+
+### [카테고리] 항목 제목
+
+- **심각도:** Minor
+- **위치:** `파일경로:라인`
+- **위반 원칙:** [원칙명]
+- **출처:** [출처 URL/문서명]
+- **현재:** [현재 상태]
+- **권장:** [개선 방향]
+
+## 미검증 항목 (수동 확인 필요)
+
+### [카테고리] 항목 제목
+
+- **사유:** [정적 분석으로 판정 불가한 이유]
+- **확인 방법:** [수동 확인 절차]
 
 ## NOTE
 

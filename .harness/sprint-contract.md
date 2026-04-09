@@ -1,26 +1,21 @@
 ---
-feature: "Phase 3: visual-styles 35종 퀄리티 리워크"
-created: "2026-04-09 18:30"
-complexity: "높음"
-conditions: 12
+feature: "나머지 3개 스킬 리서치 기반 개선 (system/guide/audit)"
+created: "2026-04-09 19:30"
+complexity: "중간"
+conditions: 9
 ---
 
 ## Skill
-- [ ] SK-01: Given Neumorphism 카드를 확인할 때, Then 듀얼 방향 box-shadow(밝은쪽+어두운쪽)가 적용되어 있다
-- [ ] SK-02: Given Neubrutalism 모달을 열었을 때, Then 모든 box-shadow가 blur:0이고 hard offset(4px+ 이상)이다
-- [ ] SK-03: Given Neon Glow 모달을 열었을 때, Then box-shadow가 최소 3겹(다른 blur 값)으로 적용되어 있다
-- [ ] SK-04: Given Dark Mode 카드를 확인할 때, Then 배경이 #000이 아닌 #121212 계열이고 텍스트가 #fff가 아닌 #e0e0e0 계열이다
-- [ ] SK-05: Given Minimalism 카드를 확인할 때, Then padding이 30px 이상이고 font-weight가 300 이하이다
-- [ ] SK-06: Given Metallic/Chrome 카드를 확인할 때, Then linear-gradient stop이 4개 이상이다
+- [ ] SK-01: Given design-system SKILL.md를 확인할 때, Then Gotchas가 7개 이상이고 "3계층 토큰 아키텍처(primitive→semantic→component)" 관련 Gotcha가 존재한다
+- [ ] SK-02: Given design-system SKILL.md를 확인할 때, Then "다크모드 토큰 네이밍" 관련 Gotcha가 존재한다 (color-dark-* 안티패턴)
+- [ ] SK-03: Given design-guide SKILL.md를 확인할 때, Then Gotchas가 7개 이상이고 "우선순위 없는 나열 금지" 관련 Gotcha가 존재한다
+- [ ] SK-04: Given design-guide SKILL.md를 확인할 때, Then 산출물 포맷에 "문제/원칙/제안/근거" 구조가 정의되어 있다
+- [ ] SK-05: Given design-audit SKILL.md를 확인할 때, Then Gotchas가 7개 이상이고 "심각도 분류 필수(Critical/Major/Minor)" 관련 Gotcha가 존재한다
+- [ ] SK-06: Given design-audit SKILL.md를 확인할 때, Then "주관적 판정 금지" 관련 Gotcha가 존재한다
 
 ## Architecture
-- [ ] AR-01: visual-styles.html이 브라우저에서 에러 없이 로드된다 (JS 런타임 에러 0개, CSP 제외)
-- [ ] AR-02: 35종 카드 데모가 모두 렌더링된다 (style-card 요소 35개)
-- [ ] AR-03: 다크/라이트 모드 토글이 정상 동작한다
-- [ ] AR-04: 모바일(600px 이하)에서 1컬럼 그리드로 정상 표시된다
-
-## Error
-- [ ] ER-01: 라이트 모드에서 모달을 열어도 컴포넌트 스타일이 깨지지 않는다
+- [ ] AR-01: 3개 SKILL.md 모두 frontmatter가 유효하다
+- [ ] AR-02: design-audit의 audit-report.md 템플릿에 심각도별 섹션이 분리되어 있다
 
 ## Anti-patterns
-- [ ] AP-01: hardcoded version 없음
+- [ ] AP-01: 3개 SKILL.md에 구현 코드가 포함되지 않았다
