@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>design-kit 템플릿 가이드 — Design Kit</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;--text4:#3d4260;
+  --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+  --gold:#f0c040;--green:#34d399;--red:#f87171;--cyan:#22d3ee;--blue:#818cf8;
+  --radius:14px;--radius-sm:8px;--radius-xs:6px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --font:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Fira Code','SF Mono',Consolas,monospace;
+}
+[data-theme="light"]{
+  --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--surface3:#F5F0E8;
+  --border:#d4d9e6;--border2:#c0c6d8;
+  --text:#181825;--text2:#606882;--text3:#A89A8F;--text4:#c5cbd8;
+  --accent:#3b6fdb;--accent2:#7c5ec9;--accent-dim:rgba(59,111,219,0.1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  line-height:1.7;min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  transition:background var(--transition),color var(--transition);
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ── NAV ── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px clamp(20px,4vw,48px);
+  background:rgba(13,13,20,0.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+[data-theme="light"] .nav{background:rgba(244,245,249,0.9)}
+.nav-logo{font-size:14px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+.nav-logo span{color:var(--accent2)}
+.nav-actions{display:flex;gap:10px}
+.theme-toggle{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+  background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+  font-size:12px;font-weight:600;color:var(--text2);
+  transition:all var(--transition);white-space:nowrap;font-family:var(--font);
+}
+.theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+
+/* ── HERO ── */
+.hero{
+  position:relative;padding:clamp(64px,10vw,120px) clamp(20px,5vw,48px) clamp(48px,6vw,80px);
+  text-align:center;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);
+  width:900px;height:900px;
+  background:radial-gradient(circle,rgba(240,176,136,0.07) 0%,rgba(232,150,90,0.03) 40%,transparent 70%);
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:100px;padding:8px 20px;font-size:13px;color:var(--text2);
+  margin-bottom:24px;font-weight:600;
+}
+.hero-badge span{color:var(--accent2)}
+.hero h1{
+  font-size:clamp(32px,5vw,58px);font-weight:800;
+  letter-spacing:-1.5px;line-height:1.15;
+  background:linear-gradient(135deg,var(--text) 0%,var(--text2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:16px;
+}
+.hero h1 em{font-style:normal;-webkit-text-fill-color:var(--accent2)}
+.hero-sub{
+  font-size:clamp(15px,1.5vw,18px);color:var(--text2);
+  max-width:680px;margin:0 auto 40px;line-height:1.7;
+}
+.hero-stats{
+  display:flex;justify-content:center;gap:clamp(20px,4vw,56px);flex-wrap:wrap;
+}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:28px;font-weight:800;color:var(--accent2);font-family:var(--mono)}
+.hero-stat .label{font-size:12px;color:var(--text3);margin-top:4px}
+
+/* ── PAGE ── */
+.page{max-width:1240px;margin:0 auto;padding:0 clamp(20px,4vw,48px) 80px}
+.section{margin-bottom:clamp(60px,8vw,100px)}
+.section-label{font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.section-title{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-0.8px;margin-bottom:8px;line-height:1.2}
+.section-desc{font-size:clamp(14px,1.2vw,15px);color:var(--text2);margin-bottom:clamp(24px,3vw,40px);max-width:720px;line-height:1.7}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(20px,3vw,32px)}
+.card+.card{margin-top:16px}
+.card-title{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.card-desc{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:100px;
+  font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;
+}
+.badge-accent{background:var(--accent-dim);color:var(--accent2)}
+.badge-blue{background:rgba(129,140,248,0.15);color:var(--blue)}
+.badge-green{background:rgba(52,211,153,0.12);color:var(--green)}
+.badge-gold{background:rgba(240,192,64,0.12);color:var(--gold)}
+.badge-cyan{background:rgba(34,211,238,0.12);color:var(--cyan)}
+
+code,kbd{
+  font-family:var(--mono);font-size:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  padding:2px 7px;border-radius:4px;color:var(--cyan);word-break:break-all;
+}
+
+.table-wrap{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:700;color:var(--text2);padding:10px 14px;border-bottom:2px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:rgba(240,176,136,0.025)}
+td code{font-family:var(--mono);font-size:12px;color:var(--cyan);background:var(--surface2);padding:2px 7px;border-radius:4px;border:none}
+
+/* ── ARCHITECTURE DIAGRAM ── */
+.arch-flow{
+  display:flex;align-items:stretch;gap:0;
+  border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+  margin-bottom:24px;
+}
+.arch-layer{
+  flex:1;padding:24px 20px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.arch-layer:not(:last-child){border-right:1px solid var(--border)}
+.arch-layer-num{font-size:11px;font-weight:700;color:var(--text4);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.arch-layer-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.arch-layer-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.arch-arrow{
+  display:flex;align-items:center;padding:0 6px;
+  font-size:20px;color:var(--text4);align-self:center;
+}
+@media(max-width:700px){
+  .arch-flow{flex-direction:column}
+  .arch-layer:not(:last-child){border-right:none;border-bottom:1px solid var(--border)}
+  .arch-arrow{display:none}
+}
+
+/* ── TEMPLATE CARDS ── */
+.tmpl-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;transition:border-color var(--transition),box-shadow var(--transition);
+}
+.tmpl-card:hover{border-color:var(--border2);box-shadow:0 6px 24px rgba(0,0,0,0.2)}
+.tmpl-card-header{
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.tmpl-icon{
+  width:44px;height:44px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.tmpl-card-body{padding:20px 24px}
+.tmpl-filename{
+  font-family:var(--mono);font-size:13px;font-weight:600;
+  color:var(--accent2);margin-bottom:6px;
+}
+.tmpl-title{font-size:16px;font-weight:700;margin-bottom:6px}
+.tmpl-desc{font-size:13px;color:var(--text2);line-height:1.55}
+.tmpl-sections{
+  display:flex;flex-direction:column;gap:6px;margin-top:16px;
+}
+.tmpl-section-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;background:var(--surface2);border-radius:var(--radius-xs);
+  font-size:12px;
+}
+.tmpl-section-item .sec-name{font-weight:700;color:var(--text);min-width:130px;flex-shrink:0}
+.tmpl-section-item .sec-desc{color:var(--text2);line-height:1.5}
+.tmpl-placeholders{margin-top:16px}
+.tmpl-placeholders-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.ph-list{display:flex;flex-wrap:wrap;gap:6px}
+.ph-tag{
+  font-family:var(--mono);font-size:11px;padding:3px 8px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;color:var(--text3);
+}
+
+/* ── CSS VAR TABLE ── */
+.var-group{margin-bottom:20px}
+.var-group-title{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.var-row{
+  display:grid;grid-template-columns:220px 1fr;gap:12px;
+  padding:8px 0;border-bottom:1px solid var(--border);
+  align-items:center;font-size:13px;
+}
+.var-row:last-child{border-bottom:none}
+.var-name{font-family:var(--mono);color:var(--cyan);font-size:12px}
+.var-desc{color:var(--text2)}
+
+/* ── CLASS PILLS ── */
+.class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.class-item{
+  padding:10px 14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-xs);font-size:12px;
+}
+.class-item .cn{font-family:var(--mono);color:var(--accent2);font-weight:600;margin-bottom:4px}
+.class-item .cd{color:var(--text2);font-size:11px;line-height:1.4}
+
+/* ── CUSTOMIZATION STEPS ── */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-num{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--accent-dim);border:1px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:var(--accent2);flex-shrink:0;margin-top:2px;
+}
+.step-body{flex:1}
+.step-title{font-size:14px;font-weight:700;margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.code-block{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);
+  padding:14px 16px;margin-top:10px;font-family:var(--mono);font-size:12px;
+  color:var(--text2);line-height:1.7;overflow-x:auto;
+}
+.code-block .cm{color:var(--text4)}
+.code-block .cp{color:var(--cyan)}
+.code-block .cv{color:var(--accent2)}
+.code-block .cs{color:var(--green)}
+
+/* ── COMBINATION GUIDE ── */
+.combo-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:20px;
+}
+.combo-card-title{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.combo-card-desc{font-size:12px;color:var(--text2);line-height:1.55}
+.combo-step-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.combo-step{
+  display:flex;align-items:flex-start;gap:10px;font-size:12px;
+}
+.combo-step-idx{
+  width:18px;height:18px;border-radius:50%;background:var(--accent-dim);
+  color:var(--accent2);font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+}
+.combo-step-text{color:var(--text2);line-height:1.5}
+
+/* ── VISUAL DEMO: Template Preview ── */
+.preview-strip{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+}
+.preview-thumb{
+  border-radius:6px;overflow:hidden;border:1px solid var(--border);
+  cursor:pointer;transition:border-color var(--transition),transform var(--transition);
+}
+.preview-thumb:hover{border-color:var(--accent2);transform:translateY(-2px)}
+.preview-thumb-header{
+  height:32px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 10px;font-size:10px;font-weight:700;
+}
+.preview-thumb-body{padding:8px 10px;height:80px;position:relative;overflow:hidden}
+.preview-thumb-footer{
+  padding:6px 10px;border-top:1px solid var(--border);
+  font-size:9px;color:var(--text3);
+}
+@media(max-width:700px){.preview-strip{grid-template-columns:repeat(2,1fr)}}
+
+/* ── BACK TO TOP ── */
+.back-to-top{
+  position:fixed;bottom:24px;right:24px;width:44px;height:44px;
+  background:var(--surface);border:1px solid var(--border);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;color:var(--text2);z-index:100;
+  transition:all var(--transition);opacity:0;pointer-events:none;
+}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+footer{padding:40px clamp(20px,4vw,48px);text-align:center;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent2);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">design-kit <span>/ 템플릿 가이드</span></div>
+  <div class="nav-actions">
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+      <span id="theme-icon">&#9728;&#65039;</span>
+      <span id="theme-label">라이트 모드</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span>&#9654;</span> design-kit v0.3.0</div>
+  <h1>템플릿 <em>가이드</em></h1>
+  <p class="hero-sub">
+    base.html과 4개의 산출물 템플릿 구조를 이해하고, 각 플레이스홀더를 어떻게 채워야 하는지
+    단계별로 설명합니다. design-concept부터 design-component까지 완전한 레퍼런스.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">1</div><div class="label">베이스 템플릿</div></div>
+    <div class="hero-stat"><div class="num">4</div><div class="label">산출물 템플릿</div></div>
+    <div class="hero-stat"><div class="num">3</div><div class="label">내장 기능</div></div>
+    <div class="hero-stat"><div class="num">60+</div><div class="label">플레이스홀더</div></div>
+  </div>
+</section>
+
+<div class="page">
+
+<!-- ====== 01. 아키텍처 개요 ====== -->
+<section class="section" id="architecture">
+  <div class="section-label">01</div>
+  <h2 class="section-title">아키텍처 개요</h2>
+  <p class="section-desc">
+    design-kit 템플릿은 3계층으로 구성됩니다.
+    리서치 문서가 콘텐츠를 공급하고, base.html이 공통 인프라를 제공하며,
+    각 산출물 스킬 템플릿이 최종 결과물을 만들어냅니다.
+  </p>
+
+  <div class="arch-flow">
+    <div class="arch-layer" style="background:rgba(240,176,136,0.04)">
+      <div class="arch-layer-num">Layer 1</div>
+      <h3 class="arch-layer-title" style="color:var(--accent2)">Foundations 리서치</h3>
+      <div class="arch-layer-desc">
+        <code>design-kit/docs/design/</code><br><br>
+        색상 이론, 타이포그래피, 스페이싱, 애니메이션 원칙 등
+        디자인 원칙 문서. 스킬이 이 레퍼런스를 읽어 산출물의
+        방향성과 콘텐츠를 결정합니다.
+      </div>
+    </div>
+    <div class="arch-arrow">&rsaquo;</div>
+    <div class="arch-layer" style="background:rgba(129,140,248,0.04)">
+      <div class="arch-layer-num">Layer 2</div>
+      <h3 class="arch-layer-title" style="color:var(--blue)">base.html</h3>
+      <div class="arch-layer-desc">
+        <code>design-kit/templates/base.html</code><br><br>
+        모든 산출물이 공유하는 CSS 변수 체계, 반응형 레이아웃,
+        다크/라이트 토글, 한/영 i18n을 제공하는 공통 골격.
+        스킬 템플릿은 이 구조를 복사해 시작합니다.
+      </div>
+    </div>
+    <div class="arch-arrow">&rsaquo;</div>
+    <div class="arch-layer" style="background:rgba(52,211,153,0.04)">
+      <div class="arch-layer-num">Layer 3</div>
+      <h3 class="arch-layer-title" style="color:var(--green)">산출물 템플릿 × 4</h3>
+      <div class="arch-layer-desc">
+        <code>moodboard / catalog / mockup / component</code><br><br>
+        각 스킬이 사용하는 특화 템플릿.
+        base.html의 토큰과 클래스를 상속하면서
+        고유한 섹션과 플레이스홀더를 추가합니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">&#x1F4C1; 파일 구조</div>
+    <div class="code-block">
+<span class="cm">design-kit/</span>
+<span class="cm">├── templates/</span>
+<span class="cp">│   ├── base.html          </span><span class="cs">← 공통 CSS 변수 + 툴바 + i18n 스크립트</span>
+<span class="cp">│   ├── moodboard.html     </span><span class="cs">← design-concept 스킬 산출물</span>
+<span class="cp">│   ├── catalog.html       </span><span class="cs">← design-reference 스킬 산출물</span>
+<span class="cp">│   ├── mockup.html        </span><span class="cs">← design-mockup 스킬 산출물</span>
+<span class="cp">│   └── component.html     </span><span class="cs">← design-component 스킬 산출물</span>
+<span class="cm">└── docs/design/</span>
+<span class="cm">    ├── color-theory.md</span>
+<span class="cm">    ├── typography.md</span>
+<span class="cm">    └── ...</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 02. base.html ====== -->
+<section class="section" id="base">
+  <div class="section-label">02</div>
+  <h2 class="section-title">base.html — 공통 골격</h2>
+  <p class="section-desc">
+    모든 산출물 템플릿의 기반. 반응형 레이아웃, 다크/라이트 모드,
+    한/영 i18n 세 가지 기능이 기본 내장되어 있습니다.
+    스킬 템플릿은 base.html의 CSS 변수와 클래스를 그대로 사용합니다.
+  </p>
+
+  <!-- 3가지 내장 기능 -->
+  <div class="grid-3" style="margin-bottom:24px">
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:10px">&#x1F4F1;</div>
+      <div class="card-title">반응형 레이아웃</div>
+      <div class="card-desc">
+        <code>clamp()</code> 기반 타이포그래피와 스페이싱으로
+        모바일(320px)부터 데스크톱(1440px+)까지 단일 CSS로 대응합니다.
+        <code>.base-grid</code>, <code>.base-page</code>가 핵심 레이아웃 클래스.
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:10px">&#x1F311;</div>
+      <div class="card-title">다크 / 라이트 모드</div>
+      <div class="card-desc">
+        <code>data-theme="dark|light"</code>로 전환하며
+        <code>localStorage</code>에 사용자 설정을 저장합니다.
+        시스템 설정도 자동 감지하며 <code>@media prefers-color-scheme</code> 폴백 포함.
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:10px">&#x1F310;</div>
+      <div class="card-title">한/영 i18n</div>
+      <div class="card-desc">
+        <code>data-i18n="키"</code> 속성과 <code>T = {ko:{}, en:{}}</code>
+        딕셔너리 객체 방식. 언어 전환 시 DOM을 자동 업데이트하며
+        <code>localStorage</code>에 언어 설정을 저장합니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- CSS 변수 체계 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">CSS 변수 체계</div>
+    <div class="card-desc">모든 색상, 타이포, 스페이싱, 레이아웃을 변수로 관리합니다. 스킬 템플릿은 이 변수들을 오버라이드해 프로젝트 팔레트를 적용합니다.</div>
+    <div class="var-group">
+      <div class="var-group-title">컬러 토큰</div>
+      <div class="var-row"><div class="var-name">--color-bg</div><div class="var-desc">페이지 배경 (라이트: #ffffff, 다크: #121212)</div></div>
+      <div class="var-row"><div class="var-name">--color-surface</div><div class="var-desc">카드·패널 배경 (배경보다 한 단계 높음)</div></div>
+      <div class="var-row"><div class="var-name">--color-surface-high</div><div class="var-desc">호버·포커스 상태용 높은 표면</div></div>
+      <div class="var-row"><div class="var-name">--color-text-primary</div><div class="var-desc">주 텍스트 (제목, 본문)</div></div>
+      <div class="var-row"><div class="var-name">--color-text-secondary</div><div class="var-desc">보조 텍스트, 설명 문구</div></div>
+      <div class="var-row"><div class="var-name">--color-text-tertiary</div><div class="var-desc">비활성·캡션 텍스트</div></div>
+      <div class="var-row"><div class="var-name">--color-border</div><div class="var-desc">구분선, 카드 테두리</div></div>
+      <div class="var-row"><div class="var-name">--color-accent</div><div class="var-desc">브랜드 강조색 (링크, 버튼, 포커스 링)</div></div>
+      <div class="var-row"><div class="var-name">--color-accent-soft</div><div class="var-desc">강조색 10% 배경 (뱃지, 태그)</div></div>
+    </div>
+    <div class="var-group">
+      <div class="var-group-title">타이포그래피 토큰</div>
+      <div class="var-row"><div class="var-name">--text-xs ~ --text-3xl</div><div class="var-desc">clamp() 기반 6단계 폰트 사이즈 스케일</div></div>
+      <div class="var-row"><div class="var-name">--font-family</div><div class="var-desc">Pretendard Variable + 시스템 폰트 폴백</div></div>
+    </div>
+    <div class="var-group">
+      <div class="var-group-title">스페이싱 토큰</div>
+      <div class="var-row"><div class="var-name">--space-xs ~ --space-2xl</div><div class="var-desc">clamp() 기반 6단계 간격 스케일 (4px–80px)</div></div>
+      <div class="var-row"><div class="var-name">--content-max</div><div class="var-desc">콘텐츠 최대 너비: 1200px</div></div>
+      <div class="var-row"><div class="var-name">--radius-sm / -md / -lg</div><div class="var-desc">6px / 10px / 16px — 모서리 반경 3단계</div></div>
+    </div>
+  </div>
+
+  <!-- 클래스 목록 -->
+  <div class="card">
+    <div class="card-title">유틸리티 클래스 목록</div>
+    <div class="card-desc">base.html이 제공하는 기본 클래스. 스킬 템플릿이 이 클래스들을 활용합니다.</div>
+    <div class="class-grid">
+      <div class="class-item"><div class="cn">.base-page</div><div class="cd">중앙 정렬 + 풀블리드 3컬럼 그리드 레이아웃</div></div>
+      <div class="class-item"><div class="cn">.base-section</div><div class="cd">섹션 간 패딩 + 구분선</div></div>
+      <div class="class-item"><div class="cn">.base-grid</div><div class="cd">auto-fill minmax(280px) 카드 그리드</div></div>
+      <div class="class-item"><div class="cn">.base-grid--3col</div><div class="cd">데스크톱 강제 3컬럼</div></div>
+      <div class="class-item"><div class="cn">.base-card</div><div class="cd">surface + border + radius 카드</div></div>
+      <div class="class-item"><div class="cn">.base-h1 ~ .base-h4</div><div class="cd">클램프 기반 4단계 헤딩</div></div>
+      <div class="class-item"><div class="cn">.base-subtitle</div><div class="cd">text-lg 보조 제목 텍스트</div></div>
+      <div class="class-item"><div class="cn">.base-caption</div><div class="cd">text-sm tertiary 캡션</div></div>
+      <div class="class-item"><div class="cn">.base-btn</div><div class="cd">border 스타일 기본 버튼</div></div>
+      <div class="class-item"><div class="cn">.base-btn-primary</div><div class="cd">accent 배경 주 CTA 버튼</div></div>
+      <div class="class-item"><div class="cn">.base-input</div><div class="cd">포커스 링 + 테두리 인풋</div></div>
+      <div class="class-item"><div class="cn">.base-tag</div><div class="cd">accent-soft 배경 뱃지 태그</div></div>
+      <div class="class-item"><div class="cn">.base-toolbar</div><div class="cd">상단 고정 툴바 (테마/언어 버튼 컨테이너)</div></div>
+      <div class="class-item"><div class="cn">.base-footer</div><div class="cd">페이지 하단 푸터</div></div>
+      <div class="class-item"><div class="cn">.full-bleed</div><div class="cd">그리드 풀블리드 (hero 섹션 등)</div></div>
+      <div class="class-item"><div class="cn">.sr-only</div><div class="cd">스크린 리더 전용 (시각적 숨김)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 03. 4개 산출물 템플릿 ====== -->
+<section class="section" id="templates">
+  <div class="section-label">03</div>
+  <h2 class="section-title">4개 산출물 템플릿</h2>
+  <p class="section-desc">
+    각 스킬은 특화된 템플릿을 사용합니다.
+    base.html 골격을 상속하면서 산출물의 목적에 맞는 섹션과 플레이스홀더를 추가합니다.
+  </p>
+
+  <!-- 미리보기 스트립 -->
+  <div class="preview-strip" style="margin-bottom:32px">
+    <!-- moodboard -->
+    <div class="preview-thumb">
+      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#e2a877">
+        <span>MOODBOARD</span><span style="opacity:0.5">design-concept</span>
+      </div>
+      <div class="preview-thumb-body" style="background:#0f0f1a;padding:8px">
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+          <div style="width:20px;height:20px;border-radius:3px;background:#e2a877"></div>
+          <div style="width:20px;height:20px;border-radius:3px;background:#7c5ec9"></div>
+          <div style="width:20px;height:20px;border-radius:3px;background:#22d3ee"></div>
+          <div style="width:20px;height:20px;border-radius:3px;background:#1e1e30"></div>
+        </div>
+        <div style="height:8px;background:#1e1e30;border-radius:3px;margin-bottom:4px;width:80%"></div>
+        <div style="height:6px;background:#1e1e30;border-radius:3px;margin-bottom:4px;width:60%"></div>
+        <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+          <div style="padding:2px 6px;background:#2a2a45;border-radius:3px;font-size:9px;color:#a89a8f">미니멀</div>
+          <div style="padding:2px 6px;background:#2a2a45;border-radius:3px;font-size:9px;color:#a89a8f">모던</div>
+          <div style="padding:2px 6px;background:#2a2a45;border-radius:3px;font-size:9px;color:#a89a8f">클린</div>
+        </div>
+      </div>
+      <div class="preview-thumb-footer">컬러 팔레트 · 타이포 · 무드 키워드</div>
+    </div>
+    <!-- catalog -->
+    <div class="preview-thumb">
+      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a2e1a,#16301e);color:#34d399">
+        <span>CATALOG</span><span style="opacity:0.5">design-reference</span>
+      </div>
+      <div class="preview-thumb-body" style="background:#0f1a0f;padding:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div style="height:32px;background:#1a2e1a;border-radius:3px"></div>
+          <div style="height:32px;background:#1a2e1a;border-radius:3px"></div>
+          <div style="height:32px;background:#1a2e1a;border-radius:3px"></div>
+          <div style="height:32px;background:#1a2e1a;border-radius:3px"></div>
+        </div>
+        <div style="margin-top:6px;display:flex;gap:4px">
+          <div style="padding:2px 6px;background:#1a2e1a;border-radius:3px;font-size:9px;color:#34d399">ALL</div>
+          <div style="padding:2px 6px;background:#0f1a0f;border-radius:3px;font-size:9px;color:#666">Nav</div>
+          <div style="padding:2px 6px;background:#0f1a0f;border-radius:3px;font-size:9px;color:#666">Card</div>
+        </div>
+      </div>
+      <div class="preview-thumb-footer">레퍼런스 그리드 · 필터 · 인사이트</div>
+    </div>
+    <!-- mockup -->
+    <div class="preview-thumb">
+      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a1a2e,#2e1a2e);color:#818cf8">
+        <span>MOCKUP</span><span style="opacity:0.5">design-mockup</span>
+      </div>
+      <div class="preview-thumb-body" style="background:#0f0f1a;padding:8px;display:flex;gap:6px;justify-content:center">
+        <div style="width:26px;height:50px;border:2px solid #3a3a55;border-radius:4px;background:#1e1e30"></div>
+        <div style="width:36px;height:50px;border:2px solid #3a3a55;border-radius:4px;background:#1e1e30"></div>
+        <div style="width:26px;height:50px;border:2px solid #3a3a55;border-radius:4px;background:#1e1e30"></div>
+      </div>
+      <div class="preview-thumb-footer">멀티 컨셉 비교 · 디바이스 프레임</div>
+    </div>
+    <!-- component -->
+    <div class="preview-thumb">
+      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a2a2e,#16282e);color:#22d3ee">
+        <span>COMPONENT</span><span style="opacity:0.5">design-component</span>
+      </div>
+      <div class="preview-thumb-body" style="background:#0f181a;padding:8px">
+        <div style="height:18px;background:#1a282e;border-radius:3px;margin-bottom:6px;width:70%"></div>
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+          <div style="height:20px;width:50px;border-radius:3px;background:#22d3ee;opacity:0.7"></div>
+          <div style="height:20px;width:50px;border-radius:3px;background:#1a282e"></div>
+          <div style="height:20px;width:50px;border-radius:3px;background:#1a282e"></div>
+        </div>
+        <div style="height:6px;background:#1a282e;border-radius:3px;width:90%"></div>
+      </div>
+      <div class="preview-thumb-footer">라이브 프리뷰 · Variants · Props</div>
+    </div>
+  </div>
+
+  <!-- moodboard.html -->
+  <div class="tmpl-card" id="moodboard" style="margin-bottom:20px">
+    <div class="tmpl-card-header">
+      <div class="tmpl-icon" style="background:rgba(240,176,136,0.12)">&#x1F3A8;</div>
+      <div>
+        <div class="tmpl-filename">moodboard.html</div>
+        <div class="tmpl-title">무드보드 — design-concept 스킬 산출물</div>
+        <div class="tmpl-desc">프로젝트 무드, 컬러 팔레트, 타이포그래피, 시각 방향성을 한 화면에 정리하는 컨셉 시안. 개발 착수 전 스테이크홀더 정렬에 사용합니다.</div>
+      </div>
+    </div>
+    <div class="tmpl-card-body">
+      <div class="tmpl-sections">
+        <div class="tmpl-section-item">
+          <div class="sec-name">Hero (전면 배경)</div>
+          <div class="sec-desc">프로젝트 이름 + 컨셉 한 줄 요약. <code>--mb-primary</code> 컬러로 배경 그라디언트 구성.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">컬러 팔레트</div>
+          <div class="sec-desc">Primary / Secondary / Accent / Neutral / Surface1 / Surface2 + 선택적 추가 스와치 6색 기본.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">타이포그래피</div>
+          <div class="sec-desc">Heading / Subheading / Body / Caption 4단계 폰트 스펙 + 실제 텍스트 미리보기.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">무드 키워드</div>
+          <div class="sec-desc">weight 속성으로 크기가 다른 워드클라우드. <code>data-primary="true"</code>로 강조 키워드 지정.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">레퍼런스 이미지 갤러리</div>
+          <div class="sec-desc">6개 이미지 + 캡션. <code>loading="lazy"</code> 기본 적용.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">톤 &amp; 보이스</div>
+          <div class="sec-desc">브랜드 보이스 / 분위기 / 시각 방향성 / 타겟 경험 4가지 디렉션 카드.</div>
+        </div>
+      </div>
+      <div class="tmpl-placeholders">
+        <div class="tmpl-placeholders-title">주요 플레이스홀더</div>
+        <div class="ph-list">
+          <span class="ph-tag">&#123;&#123;PROJECT_NAME&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;CONCEPT_ONELINER&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_PRIMARY&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_SECONDARY&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_ACCENT&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_NEUTRAL&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_SURFACE1&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_SURFACE2&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_TEXT_ON_PRIMARY&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TYPE_HEADING_SPEC&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TYPE_BODY_SPEC&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;KEYWORD_1~N&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;REF_IMG_1~6&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TONE_VOICE&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TONE_MOOD&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;GENERATED_DATE&#125;&#125;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- catalog.html -->
+  <div class="tmpl-card" id="catalog" style="margin-bottom:20px">
+    <div class="tmpl-card-header">
+      <div class="tmpl-icon" style="background:rgba(52,211,153,0.1)">&#x1F4DA;</div>
+      <div>
+        <div class="tmpl-filename">catalog.html</div>
+        <div class="tmpl-title">레퍼런스 카탈로그 — design-reference 스킬 산출물</div>
+        <div class="tmpl-desc">크롤링된 UI 레퍼런스를 카테고리별로 필터링하고 인사이트를 정리하는 카탈로그. 디자인 방향성 리서치 단계에서 사용합니다.</div>
+      </div>
+    </div>
+    <div class="tmpl-card-body">
+      <div class="tmpl-sections">
+        <div class="tmpl-section-item">
+          <div class="sec-name">Hero + 메타데이터</div>
+          <div class="sec-desc">프로젝트 이름, 컨셉 설명, 수집 날짜, 레퍼런스 개수, 작성자.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">필터 바</div>
+          <div class="sec-desc"><code>&#123;&#123;FILTER_BUTTONS&#125;&#125;</code> 위치에 카테고리별 탭 버튼 삽입. JS가 data-category로 카드 필터링 처리.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">레퍼런스 카드 그리드</div>
+          <div class="sec-desc">썸네일 이미지 + 타이틀 + 소스 링크 + 카테고리 뱃지 + 노트. <code>&#123;&#123;REFERENCE_CARDS&#125;&#125;</code>에 반복 삽입.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">인사이트 카드 (4개)</div>
+          <div class="sec-desc">레퍼런스에서 도출한 핵심 인사이트 요약. <code>&#123;&#123;INSIGHT_TITLE_1~4&#125;&#125;</code> + <code>&#123;&#123;INSIGHT_DESC_1~4&#125;&#125;</code>.</div>
+        </div>
+      </div>
+      <div class="tmpl-placeholders">
+        <div class="tmpl-placeholders-title">주요 플레이스홀더</div>
+        <div class="ph-list">
+          <span class="ph-tag">&#123;&#123;PROJECT_NAME&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;CONCEPT_DESCRIPTION&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLLECTED_DATE&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TOTAL_COUNT&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;AUTHOR&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;FILTER_BUTTONS&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;REFERENCE_CARDS&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;THUMB_URL&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TITLE&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;SOURCE_URL&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;REFERENCE_NOTE&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;INSIGHT_TITLE_1~4&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;INSIGHT_DESC_1~4&#125;&#125;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- mockup.html -->
+  <div class="tmpl-card" id="mockup" style="margin-bottom:20px">
+    <div class="tmpl-card-header">
+      <div class="tmpl-icon" style="background:rgba(129,140,248,0.12)">&#x1F5A5;&#xFE0F;</div>
+      <div>
+        <div class="tmpl-filename">mockup.html</div>
+        <div class="tmpl-title">디자인 시안 — design-mockup 스킬 산출물</div>
+        <div class="tmpl-desc">A/B/C/D/E 최대 5가지 컨셉을 탭으로 전환하며 비교하는 하이파이 목업 프리뷰어. 디바이스 프레임 전환과 나란히 비교 모드 포함.</div>
+      </div>
+    </div>
+    <div class="tmpl-card-body">
+      <div class="tmpl-sections">
+        <div class="tmpl-section-item">
+          <div class="sec-name">Hero + 컨셉 탭</div>
+          <div class="sec-desc">화면 이름, 설명. 컨셉별 컬러 도트 탭 (A~E). 활성 탭에 따라 프리뷰·설명·노트가 전환.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">프리뷰 섹션</div>
+          <div class="sec-desc">디바이스 프레임(모바일/태블릿/데스크톱) 내에 <code>&#123;&#123;MOCKUP_A~E&#125;&#125;</code> HTML 삽입. 컨셉 타이틀 + 설명 + 태그 표시.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">비교 모드 (선택)</div>
+          <div class="sec-desc">두 컨셉을 좌/우로 나란히 비교하는 슬라이드형 Compare 뷰. <code>id="compare-section"</code>.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">피드백 섹션</div>
+          <div class="sec-desc">컨셉별 투표 버튼 + 텍스트 메모 입력. 선택 결과를 localStorage에 저장.</div>
+        </div>
+      </div>
+      <div class="tmpl-placeholders">
+        <div class="tmpl-placeholders-title">주요 플레이스홀더</div>
+        <div class="ph-list">
+          <span class="ph-tag">&#123;&#123;SCREEN_NAME&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;SCREEN_DESC&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COLOR_A~E&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;CONCEPT_A_TITLE~E_TITLE&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;CONCEPT_A_DESC~E_DESC&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TAGS_A~E&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;MOCKUP_A~E&#125;&#125;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- component.html -->
+  <div class="tmpl-card" id="component">
+    <div class="tmpl-card-header">
+      <div class="tmpl-icon" style="background:rgba(34,211,238,0.1)">&#x1F9E9;</div>
+      <div>
+        <div class="tmpl-filename">component.html</div>
+        <div class="tmpl-title">컴포넌트 스펙 — design-component 스킬 산출물</div>
+        <div class="tmpl-desc">단일 컴포넌트를 라이브 프리뷰, Variants, States, Sizes, Props/API, 디자인 토큰, Do/Don't 가이드라인 순서로 문서화하는 컴포넌트 스펙 시트.</div>
+      </div>
+    </div>
+    <div class="tmpl-card-body">
+      <div class="tmpl-sections">
+        <div class="tmpl-section-item">
+          <div class="sec-name">Hero (컴포넌트 메타)</div>
+          <div class="sec-desc">카테고리 뱃지, 버전, 상태(stable/beta/deprecated), 이름, 한 줄 설명, 플랫폼, 파일 경로.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">라이브 프리뷰</div>
+          <div class="sec-desc"><code>&#123;&#123;PREVIEW_HTML&#125;&#125;</code>에 실제 렌더링 HTML 삽입. 다크/라이트 전환 시 즉시 반영.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">Variants</div>
+          <div class="sec-desc"><code>&#123;&#123;VARIANT_1~N&#125;&#125;</code> + <code>&#123;&#123;VARIANT_N_HTML&#125;&#125;</code>. 각 variant 라벨 + 설명 + 렌더링.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">States</div>
+          <div class="sec-desc">Default / Hover / Active / Focus / Disabled / Loading + 커스텀 상태(<code>&#123;&#123;STATE_N&#125;&#125;</code>). 접근성 필수 상태 포함.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">Sizes</div>
+          <div class="sec-desc">SM / MD / LG 기본 3단계 + <code>&#123;&#123;SIZE_N&#125;&#125;</code> 추가 확장. 각 사이즈 렌더링 + 스펙 표시.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">Props / API</div>
+          <div class="sec-desc">prop 이름, 타입, 기본값, 필수 여부, 설명 테이블. <code>&#123;&#123;PROP_1~N&#125;&#125;</code> 행 반복.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">디자인 토큰</div>
+          <div class="sec-desc">컴포넌트가 사용하는 CSS 변수 목록. 토큰 이름 + 현재 값 + 용도. <code>&#123;&#123;TOKEN_1~N&#125;&#125;</code>.</div>
+        </div>
+        <div class="tmpl-section-item">
+          <div class="sec-name">Do / Don't 가이드라인</div>
+          <div class="sec-desc">올바른 사용 예 + 잘못된 사용 예 쌍. <code>&#123;&#123;GUIDELINE_PAIR_N&#125;&#125;</code>으로 쌍 추가.</div>
+        </div>
+      </div>
+      <div class="tmpl-placeholders">
+        <div class="tmpl-placeholders-title">주요 플레이스홀더</div>
+        <div class="ph-list">
+          <span class="ph-tag">&#123;&#123;COMPONENT_NAME&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COMPONENT_ONE_LINER&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COMPONENT_CATEGORY&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COMPONENT_VERSION&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COMPONENT_STATUS&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COMPONENT_PLATFORM&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;COMPONENT_FILE_PATH&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;PREVIEW_HTML&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;VARIANT_1~N&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;STATE_N&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;PROP_1~N&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;TOKEN_1~N&#125;&#125;</span>
+          <span class="ph-tag">&#123;&#123;GUIDELINE_PAIR_N&#125;&#125;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 04. 커스터마이징 방법 ====== -->
+<section class="section" id="customizing">
+  <div class="section-label">04</div>
+  <h2 class="section-title">커스터마이징 방법</h2>
+  <p class="section-desc">
+    스킬이 산출물을 생성할 때 적용하는 세 가지 커스터마이징 포인트.
+    CSS 변수 오버라이드, 섹션 조작, i18n 딕셔너리 수정 순서로 진행합니다.
+  </p>
+
+  <div class="card">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">CSS 변수 오버라이드 — 프로젝트 팔레트 적용</div>
+          <div class="step-desc">
+            <code>:root</code> 블록에서 <code>--color-accent</code>, <code>--color-bg</code> 등을 프로젝트 팔레트로 교체합니다.
+            moodboard.html의 경우 <code>--mb-primary ~ --mb-surface2</code> 변수를 추가로 채웁니다.
+          </div>
+          <div class="code-block">
+<span class="cm">/* :root 안에 추가 */</span>
+<span class="cp">--color-accent:</span> <span class="cv">#4f46e5</span><span class="cm">;</span>
+<span class="cp">--color-accent-soft:</span> <span class="cv">rgba(79, 70, 229, 0.1)</span><span class="cm">;</span>
+
+<span class="cm">/* moodboard 전용 팔레트 */</span>
+<span class="cp">--mb-primary:</span>   <span class="cv">#4f46e5</span><span class="cm">;</span>
+<span class="cp">--mb-secondary:</span> <span class="cv">#7c3aed</span><span class="cm">;</span>
+<span class="cp">--mb-accent:</span>    <span class="cv">#a78bfa</span><span class="cm">;</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">섹션 추가 / 제거 — 필요한 부분만 유지</div>
+          <div class="step-desc">
+            각 <code>&lt;section&gt;</code> 블록은 독립적으로 제거할 수 있습니다.
+            사이드바 메뉴가 있는 component.html은 해당 nav 항목도 함께 제거해야 합니다.
+            <code>&#123;&#123;SECTION_PLACEHOLDER&#125;&#125;</code> 주석이 있는 위치에 새 섹션을 삽입합니다.
+          </div>
+          <div class="code-block">
+<span class="cm">&lt;!-- 불필요한 섹션 제거 시 --&gt;</span>
+<span class="cm">&lt;!-- &lt;section class="spec-section" id="sizes"&gt; ... &lt;/section&gt; --&gt;</span>
+
+<span class="cm">&lt;!-- 새 섹션 추가 --&gt;</span>
+<span class="cs">&lt;section class="spec-section" id="animation"&gt;</span>
+  <span class="cs">&lt;h2 class="spec-section-title"&gt;</span><span class="cv">애니메이션</span><span class="cs">&lt;/h2&gt;</span>
+  <span class="cm">&lt;!-- ... --&gt;</span>
+<span class="cs">&lt;/section&gt;</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">i18n 딕셔너리 수정 — 한/영 텍스트 채우기</div>
+          <div class="step-desc">
+            페이지 하단 <code>&lt;script&gt;</code> 안의 <code>T = {ko:{}, en:{}}</code> 객체에서
+            <code>&#123;&#123;PLACEHOLDER&#125;&#125;</code> 값들을 실제 텍스트로 교체합니다.
+            HTML의 <code>data-i18n="키"</code> 속성과 딕셔너리 키가 일치해야 합니다.
+          </div>
+          <div class="code-block">
+<span class="cm">const T = {</span>
+  <span class="cp">ko:</span> <span class="cm">{</span>
+    <span class="cp">toolbar:</span> <span class="cm">{ title: </span><span class="cv">'프로젝트 이름 무드보드'</span> <span class="cm">},</span>
+    <span class="cp">hero:</span> <span class="cm">{ title: </span><span class="cv">'프로젝트 이름'</span><span class="cm">, concept: </span><span class="cv">'대담하고 신뢰감 있는'</span> <span class="cm">},</span>
+  <span class="cm">},</span>
+  <span class="cp">en:</span> <span class="cm">{</span>
+    <span class="cp">toolbar:</span> <span class="cm">{ title: </span><span class="cv">'Project Moodboard'</span> <span class="cm">},</span>
+    <span class="cp">hero:</span> <span class="cm">{ title: </span><span class="cv">'Project Name'</span><span class="cm">, concept: </span><span class="cv">'Bold &amp; Trustworthy'</span> <span class="cm">},</span>
+  <span class="cm">}</span>
+<span class="cm">};</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 05. 조합 가이드 ====== -->
+<section class="section" id="combination">
+  <div class="section-label">05</div>
+  <h2 class="section-title">조합 가이드</h2>
+  <p class="section-desc">
+    visual-styles.html 등 foundations 리서치 데이터를 스킬 산출물에 연결하는 방법.
+    각 템플릿은 어떤 리서치 데이터를 어떤 방식으로 활용하는지 설명합니다.
+  </p>
+
+  <div class="grid-2">
+    <div class="combo-card">
+      <div class="combo-card-title">
+        <span class="badge badge-accent">moodboard</span>
+        visual-styles 참조 데이터 활용
+      </div>
+      <div class="combo-card-desc">visual-styles.html의 컬러 팔레트 시각화 데이터를 moodboard의 팔레트 섹션으로 옮기는 워크플로우.</div>
+      <div class="combo-step-list">
+        <div class="combo-step">
+          <div class="combo-step-idx">1</div>
+          <div class="combo-step-text">visual-styles.html에서 Primary, Secondary, Accent hex 값 추출</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">2</div>
+          <div class="combo-step-text"><code>--mb-primary</code> ~ <code>--mb-surface2</code> CSS 변수에 적용</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">3</div>
+          <div class="combo-step-text">스와치 <code>&#123;&#123;COLOR_PRIMARY_NAME&#125;&#125;</code>, <code>&#123;&#123;COLOR_PRIMARY&#125;&#125;</code>에 이름 + hex 채우기</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">4</div>
+          <div class="combo-step-text">Hero 배경 그라디언트에 <code>var(--mb-primary)</code> 참조로 자동 반영</div>
+        </div>
+      </div>
+    </div>
+    <div class="combo-card">
+      <div class="combo-card-title">
+        <span class="badge badge-cyan">component</span>
+        디자인 토큰 매핑
+      </div>
+      <div class="combo-card-desc">design-system 스킬이 생성한 토큰 체계를 component.html의 토큰 섹션에 연결하는 방법.</div>
+      <div class="combo-step-list">
+        <div class="combo-step">
+          <div class="combo-step-idx">1</div>
+          <div class="combo-step-text">design-system 산출물의 CSS 변수 목록 추출</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">2</div>
+          <div class="combo-step-text"><code>&#123;&#123;TOKEN_1~N&#125;&#125;</code>에 해당 컴포넌트가 사용하는 변수만 필터링해 삽입</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">3</div>
+          <div class="combo-step-text">라이브 프리뷰 HTML에 동일한 CSS 변수 참조로 실시간 테마 전환 확인</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">4</div>
+          <div class="combo-step-text"><code>[data-theme="dark"]</code> 오버라이드로 다크 모드 토큰 검증</div>
+        </div>
+      </div>
+    </div>
+    <div class="combo-card">
+      <div class="combo-card-title">
+        <span class="badge badge-blue">mockup</span>
+        멀티 컨셉 조합 전략
+      </div>
+      <div class="combo-card-desc">moodboard에서 검증된 컬러 + catalog에서 수집된 레퍼런스를 mockup의 컨셉 A/B/C로 변환.</div>
+      <div class="combo-step-list">
+        <div class="combo-step">
+          <div class="combo-step-idx">1</div>
+          <div class="combo-step-text">moodboard 팔레트에서 컨셉별 Primary 컬러 선택 → <code>&#123;&#123;COLOR_A~C&#125;&#125;</code></div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">2</div>
+          <div class="combo-step-text">catalog 인사이트 → <code>&#123;&#123;CONCEPT_N_DESC&#125;&#125;</code> 근거 문장에 반영</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">3</div>
+          <div class="combo-step-text">각 컨셉 <code>&#123;&#123;TAGS_N&#125;&#125;</code>에 catalog의 인사이트 키워드 활용</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">4</div>
+          <div class="combo-step-text">피드백 섹션 결과를 다음 iteration moodboard에 반영</div>
+        </div>
+      </div>
+    </div>
+    <div class="combo-card">
+      <div class="combo-card-title">
+        <span class="badge badge-green">catalog</span>
+        레퍼런스 카드 배치 전략
+      </div>
+      <div class="combo-card-desc">레퍼런스 수가 많을 때 카테고리 필터와 인사이트 카드를 효과적으로 구성하는 방법.</div>
+      <div class="combo-step-list">
+        <div class="combo-step">
+          <div class="combo-step-idx">1</div>
+          <div class="combo-step-text">레퍼런스 카드에 <code>data-category</code> 속성으로 분류 (Navigation, Hero, Card…)</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">2</div>
+          <div class="combo-step-text"><code>&#123;&#123;FILTER_BUTTONS&#125;&#125;</code> 위치에 카테고리별 탭 버튼 생성</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">3</div>
+          <div class="combo-step-text">JS 필터 함수는 이미 구현되어 있으므로 data-category 값만 일치시키면 작동</div>
+        </div>
+        <div class="combo-step">
+          <div class="combo-step-idx">4</div>
+          <div class="combo-step-text">인사이트 카드 4개는 레퍼런스 분석 후 공통 패턴을 요약해 채우기</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스킬-템플릿 매핑 테이블 -->
+  <div class="card" style="margin-top:24px">
+    <div class="card-title">&#x1F4CB; 스킬 ↔ 템플릿 ↔ 산출물 매핑</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>스킬</th>
+            <th>사용 템플릿</th>
+            <th>산출물 파일 위치</th>
+            <th>주요 목적</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/design-concept</code></td>
+            <td><code>moodboard.html</code></td>
+            <td><code>docs/design-kit/design-concept.html</code></td>
+            <td>컨셉 방향성 정렬, 스테이크홀더 리뷰</td>
+          </tr>
+          <tr>
+            <td><code>/design-reference</code></td>
+            <td><code>catalog.html</code></td>
+            <td><code>docs/design-kit/design-reference.html</code></td>
+            <td>UI 레퍼런스 수집 및 인사이트 정리</td>
+          </tr>
+          <tr>
+            <td><code>/design-mockup</code></td>
+            <td><code>mockup.html</code></td>
+            <td><code>docs/design-kit/design-mockup.html</code></td>
+            <td>멀티 컨셉 하이파이 시안 비교 및 피드백</td>
+          </tr>
+          <tr>
+            <td><code>/design-component</code></td>
+            <td><code>component.html</code></td>
+            <td><code>docs/design-kit/design-component.html</code></td>
+            <td>컴포넌트 스펙 문서화, 개발 핸드오프</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</div><!-- /page -->
+
+<footer>
+  <p>design-kit — 템플릿 가이드 &middot; v0.3.0 &middot; 2026-04-09</p>
+  <p style="margin-top:8px">
+    <a href="./visual-styles.html">visual-styles</a> &middot;
+    <a href="./visual-hierarchy.html">visual-hierarchy</a> &middot;
+    <a href="./color-palette.html">color-palette</a>
+  </p>
+</footer>
+
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  const saved = localStorage.getItem('dk-theme');
+  const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  applyTheme(theme);
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  const icon = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
+  if(icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if(label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  localStorage.setItem('dk-theme', theme);
+}
+
+function toggleTheme(){
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+}
+
+// ===== BACK TO TOP =====
+window.addEventListener('scroll', function(){
+  document.getElementById('btt').classList.toggle('visible', window.scrollY > 400);
+});
+</script>
+</body>
+</html>
