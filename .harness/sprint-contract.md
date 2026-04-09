@@ -1,18 +1,24 @@
 ---
-feature: "Phase 1-2: visual-styles 참조 데이터 생성"
-created: "2026-04-09 17:30"
-complexity: "낮음"
-conditions: 6
+feature: "Phase 2: 3개 스킬 리서치 기반 개선"
+created: "2026-04-09 18:00"
+complexity: "중간"
+conditions: 12
 ---
 
 ## Skill
-- [ ] SK-01: Given visual-styles.md를 확인할 때, Then 35종 스타일이 모두 개별 섹션으로 정의되어 있다
-- [ ] SK-02: Given 임의 스타일 5종을 확인할 때, Then 각각 structure/texture/color/typography/tags/combines-well-with 6개 속성 레이어가 모두 존재한다
-- [ ] SK-03: Given 조합 가이드 섹션을 확인할 때, Then 레이어별 조합 방법과 예시 조합이 3개 이상 존재한다
+- [ ] SK-01: Given design-concept SKILL.md를 확인할 때, Then Gotchas가 7개 이상이다
+- [ ] SK-02: Given design-concept SKILL.md를 확인할 때, Then "무드 키워드를 시각 속성으로 번역" 관련 Gotcha가 존재한다
+- [ ] SK-03: Given design-concept SKILL.md를 확인할 때, Then "접근성 대비율을 컬러 방향 단계에서 고려" 관련 Gotcha가 존재한다
+- [ ] SK-04: Given design-reference SKILL.md를 확인할 때, Then Gotchas가 7개 이상이다
+- [ ] SK-05: Given design-reference SKILL.md를 확인할 때, Then "다양성 부족 방지" 관련 Gotcha가 존재한다
+- [ ] SK-06: Given design-reference SKILL.md를 확인할 때, Then "인사이트 도출 필수" 관련 Gotcha가 존재한다
+- [ ] SK-07: Given design-mockup SKILL.md를 확인할 때, Then Gotchas가 7개 이상이다
+- [ ] SK-08: Given design-mockup SKILL.md를 확인할 때, Then "Lorem ipsum 금지" 관련 Gotcha가 존재한다
+- [ ] SK-09: Given design-mockup SKILL.md를 확인할 때, Then "시안 레이블을 전략 의도 기반으로" 관련 Gotcha가 존재한다
 
 ## Architecture
-- [ ] AR-01: design-kit/references/visual-styles.md 파일이 존재한다
-- [ ] AR-02: 파일 상단에 속성 레이어 설명(structure/texture/color/typography/tags/combines-well-with)이 있다
+- [ ] AR-01: 3개 SKILL.md 모두 frontmatter(name, description, argument-hint, user-invocable)가 유효하다
+- [ ] AR-02: 3개 SKILL.md 모두 공유 templates/ 경로(../../templates/)를 참조한다
 
-## Reusability
-- [ ] RE-01: 각 스타일의 ko(한국어명) 필드가 존재하여 i18n 연동이 가능하다
+## Anti-patterns
+- [ ] AP-01: 3개 SKILL.md에 구현 코드(Flutter/React/CSS)가 포함되지 않았다
