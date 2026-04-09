@@ -2379,14 +2379,19 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 function toggleTheme(){
   const html = document.documentElement;
   const btn = document.getElementById('themeToggle');
-  if(html.getAttribute('data-theme')==='dark'){
-    html.setAttribute('data-theme','light');
-    btn.textContent='Light';
-  } else {
-    html.setAttribute('data-theme','dark');
-    btn.textContent='Dark';
-  }
+  const next = html.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  btn.textContent = next === 'dark' ? 'Dark' : 'Light';
+  localStorage.setItem('vs-theme', next);
 }
+(function initTheme(){
+  const saved = localStorage.getItem('vs-theme');
+  if(saved){
+    document.documentElement.setAttribute('data-theme', saved);
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.textContent = saved === 'dark' ? 'Dark' : 'Light';
+  }
+})()
 
 /* Style name mapping */
 const styleNames = {
