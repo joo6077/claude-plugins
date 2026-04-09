@@ -880,8 +880,10 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
   box-shadow:0 1px 2px rgba(0,0,0,0.2),inset 0 3px 8px rgba(0,0,0,0.2);
 }
 [data-modal-style="skeuomorphism"] .ms-btn-secondary{
-  background:linear-gradient(180deg,#d8d8e0,#a8a8b2);color:#444;
-  border:2px solid rgba(100,100,110,0.4);box-shadow:0 2px 4px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.5);border-radius:10px;
+  background:linear-gradient(180deg,#e8e8ee 0%,#d8d8e0 30%,#c0c0c8 70%,#b0b0ba 100%);color:#3a3a44;
+  border-top:2px solid rgba(255,255,255,0.6);border-left:1px solid rgba(255,255,255,0.4);
+  border-bottom:2px solid rgba(80,80,90,0.5);border-right:1px solid rgba(80,80,90,0.3);
+  box-shadow:0 3px 8px rgba(0,0,0,0.3),0 1px 2px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.6);border-radius:10px;
 }
 [data-modal-style="skeuomorphism"] .ms-input{
   background:linear-gradient(180deg,#c8c8d0 0%,#d8d8e0 100%);
@@ -899,15 +901,48 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 }
 [data-modal-style="skeuomorphism"] .ms-card-title{color:#333}
 [data-modal-style="skeuomorphism"] .ms-card-desc{color:#666}
-[data-modal-style="skeuomorphism"] .ms-card-action{background:linear-gradient(180deg,#e0e0e8,#b0b0b8);color:#444;border:1px solid rgba(100,100,110,0.4);box-shadow:0 2px 4px rgba(0,0,0,0.15);border-radius:6px}
-[data-modal-style="skeuomorphism"] .ms-badge{border:1px solid rgba(0,0,0,0.15);box-shadow:inset 0 1px 0 rgba(255,255,255,0.4)}
-[data-modal-style="skeuomorphism"] .ms-badge-info{background:linear-gradient(180deg,#b8d8f8,#8ab8e8);color:#2a5080}
-[data-modal-style="skeuomorphism"] .ms-badge-success{background:linear-gradient(180deg,#b8e8c8,#88c898);color:#2a6040}
-[data-modal-style="skeuomorphism"] .ms-badge-warn{background:linear-gradient(180deg,#f8e8b8,#e8c888);color:#806020}
-[data-modal-style="skeuomorphism"] .ms-toggle-slider{background:linear-gradient(180deg,#aaa,#888);box-shadow:inset 0 2px 4px rgba(0,0,0,0.3)}
-[data-modal-style="skeuomorphism"] .ms-toggle input:checked+.ms-toggle-slider{background:linear-gradient(180deg,#6a6,#484)}
-[data-modal-style="skeuomorphism"] .ms-toggle-slider::before{box-shadow:0 1px 3px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.6)}
-[data-modal-style="skeuomorphism"] .ms-alert{background:linear-gradient(180deg,#d0e8d0,#a8c8a8);color:#2a5a2a;border-left:4px solid #4a8a4a;box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);border-radius:8px}
+[data-modal-style="skeuomorphism"] .ms-card-action{
+  background:linear-gradient(180deg,#e8e8ee 0%,#d8d8e0 30%,#c4c4cc 70%,#b8b8c0 100%);color:#3a3a44;
+  border-top:1px solid rgba(255,255,255,0.6);border-bottom:1px solid rgba(80,80,90,0.45);
+  box-shadow:0 2px 6px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.5);border-radius:8px;font-weight:600;
+}
+[data-modal-style="skeuomorphism"] .ms-badge{
+  border-top:1px solid rgba(255,255,255,0.5);border-bottom:1px solid rgba(80,80,90,0.3);
+  box-shadow:0 2px 4px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.5);border-radius:10px;font-weight:700;
+}
+[data-modal-style="skeuomorphism"] .ms-badge-info{
+  background:linear-gradient(180deg,#c8e0f8 0%,#90b8e8 50%,#78a0d8 100%);color:#1a4070;
+  border-top:1px solid rgba(255,255,255,0.6);border-bottom:1px solid rgba(50,80,120,0.3);
+}
+[data-modal-style="skeuomorphism"] .ms-badge-success{
+  background:linear-gradient(180deg,#c8f0d0 0%,#88d098 50%,#68b878 100%);color:#1a5030;
+  border-top:1px solid rgba(255,255,255,0.6);border-bottom:1px solid rgba(40,100,60,0.3);
+}
+[data-modal-style="skeuomorphism"] .ms-badge-warn{
+  background:linear-gradient(180deg,#f8ecc0 0%,#e8d090 50%,#d8c070 100%);color:#705818;
+  border-top:1px solid rgba(255,255,255,0.6);border-bottom:1px solid rgba(120,90,30,0.3);
+}
+[data-modal-style="skeuomorphism"] .ms-toggle-slider{
+  background:linear-gradient(180deg,#c0c0c8 0%,#909098 50%,#787880 100%);
+  border-top:1px solid rgba(80,80,90,0.5);border-bottom:1px solid rgba(255,255,255,0.3);
+  box-shadow:inset 0 3px 6px rgba(0,0,0,0.35),0 1px 0 rgba(255,255,255,0.3);
+}
+[data-modal-style="skeuomorphism"] .ms-toggle input:checked+.ms-toggle-slider{
+  background:linear-gradient(180deg,#70b870 0%,#509050 50%,#407040 100%);
+  border-top:1px solid rgba(40,80,40,0.5);border-bottom:1px solid rgba(255,255,255,0.3);
+}
+[data-modal-style="skeuomorphism"] .ms-toggle-slider::before{
+  top:2px;width:20px;height:20px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.7);
+  background:linear-gradient(180deg,#f8f8fc 0%,#e8e8ee 40%,#d0d0d8 100%);
+  border-top:1px solid rgba(255,255,255,0.8);border-bottom:1px solid rgba(80,80,90,0.3);
+}
+[data-modal-style="skeuomorphism"] .ms-alert{
+  background:linear-gradient(180deg,#d8f0d8 0%,#b8d8b8 40%,#98c098 100%);color:#1a4a1a;
+  border-left:4px solid #3a7a3a;
+  border-top:1px solid rgba(255,255,255,0.5);border-bottom:1px solid rgba(40,80,40,0.25);
+  box-shadow:0 2px 6px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.5);border-radius:10px;
+}
 
 /* --- 2. Flat Design --- */
 [data-modal-style="flat-design"] .comp-item{background:#e3f2fd;border-radius:0;border:1px solid #e3f2fd}
