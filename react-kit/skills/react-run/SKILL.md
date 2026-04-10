@@ -2,7 +2,7 @@
 name: react-run
 description: >
   React 빌드 프리미티브를 개별 실행한다.
-  "dev 실행", "build만", "lint만", "vitest run", "wasm-pack 빌드", "codegen 실행",
+  "dev 실행", "build만", "lint만", "vitest run", "wasm-build 서브커맨드", "codegen 실행",
   "테스트 실행", "format", "tsc 확인", "e2e 실행" 같은 요청 시 사용한다.
   상위 워크플로우 스킬(react-build, react-preflight 등)에서 내부적으로도 호출된다.
   코드를 직접 수정하거나 새 파일을 생성하는 작업에는 사용하지 않는다.
