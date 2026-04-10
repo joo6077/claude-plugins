@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "plugin": "react-kit",
+  "description": "react-kit skill evaluations. Skills are added in Phase 2~9. Currently empty scaffold.",
+  "tests": []
+}
