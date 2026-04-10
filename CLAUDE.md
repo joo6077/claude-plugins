@@ -180,6 +180,35 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/rust-audit` | 코드 품질 감사 (quick/deep 모드) |
 | `rust-reviewer` (에이전트) | rust-audit에서 호출. 읽기 전용 독립 평가 |
 
+**react-kit — React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 (21종 + 3 에이전트)**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/react-init` | 프로젝트 스캐폴딩 (Vite + Tauri 2 + React 19 + TS strict + Tailwind v4 + shadcn + TanStack Router + Zustand + TanStack Query + Lingui + Rust WASM) |
+| `/react-screen` | TanStack Router 파일 기반 화면/라우트 추가 |
+| `/react-feature` | Clean Arch 4계층 복합 생성 (domain → data → presentation → infrastructure) |
+| `/react-widget` | shadcn 기반 cva variant 컴포넌트 + Container Queries |
+| `/react-store` | Zustand v5 스토어 (클라이언트 상태 전용) |
+| `/react-api` | Clean Arch 4계층 API (datasource → model → repository → usecase) + neverthrow Result |
+| `/react-query` | TanStack Query v5 훅 (queryKey 팩토리 + invalidation 전략) |
+| `/react-form` | React Hook Form + Zod resolver + setError('root.serverError') |
+| `/react-wasm` | Rust WASM 바인딩 (wasm-pack + Comlink Worker), WASM 카탈로그 기반 이식 판정 |
+| `/react-tauri` | Tauri command + invoke + capabilities, isTauri() 가드 + infrastructure/tauri/ 경계 |
+| `/react-test` | Clean Arch 레이어별 테스트 (Vitest unit / MSW integration / RTL component / Playwright e2e) |
+| `/react-error` | 3단계 에러 처리 (datasource → Failure → UI), Severity 매핑, ErrorBoundary |
+| `/react-l10n` | Lingui v5 매크로 (`<Trans>`/`t`/`<Plural>`) + extract/compile codegen |
+| `/react-responsive` | Tailwind v4 breakpoints + Container Queries (page-size vs container-size 자동 판정) |
+| `/react-skeleton` | shadcn Skeleton + TanStack Query isPending 분기 (스피너 금지, layout-matching) |
+| `/react-extract` | TypeScript AST 기반 재사용 컴포넌트 추출 (widget-inspector-react 연동) |
+| `/react-animation` | 3-Tier 애니메이션 (Tailwind+CSS / View Transitions / Pointer Primitives), **라이브러리 0개 원칙** |
+| `/react-run` | 빌드 프리미티브 (dev, build, lint, test, wasm-build, format, codegen) |
+| `/react-build` | 전체 빌드 (wasm-pack → tsc → vite build) |
+| `/react-preflight` | Pre-commit gate (fix → codegen → lint → tsc → test → wasm-build → vite-build) |
+| `/react-audit` | 6 카테고리 감사 (Architecture / Strict TS / Performance / Accessibility / Anti-patterns / **Library Policy**), quick/deep 모드 |
+| `widget-inspector-react` (에이전트) | React 재사용 패턴 감지 (중복 UI, shadcn 재발명, variant hint, container hint, cross-feature import) |
+| `animation-architect-react` (에이전트) | 3-Tier 애니메이션 자문 (Tier 판정 + 접근성 검토 + 구현 단계). 라이브러리 0개 원칙 enforce |
+| `react-reviewer` (에이전트) | react-audit 6 카테고리 독립 평가, Library Policy 빌드 게이트 검증 |
+
 **이 레포 전용 스킬 (.claude/skills/)**
 
 | 스킬 | 용도 |
