@@ -1,89 +1,71 @@
----
-feature: "react-kit Phase 8: G6 Build & Audit Skills (4종) + react-reviewer 에이전트"
-evaluated: "2026-04-10 22:30"
-verdict: APPROVE
-iteration: 3
----
-
-# Phase 8 QA Report (Iteration 3)
-
-Feature: react-kit Phase 8: G6 Build & Audit Skills (4종) + react-reviewer 에이전트
-Evaluated: 2026-04-10 22:30
+# Sprint Feedback
+Feature: react-kit Phase 10: 카이젠 스킬 + 최종 전체 정합성 검증
+Evaluated: 2026-04-10 22:10
 Verdict: APPROVE
-Iteration: 3
+Iteration: 2
 
-## Sprint Contract Results (19)
+## Results
 
-### Skill (7/7)
-- [x] SK-01: react-run/SKILL.md 존재 + frontmatter 유효 + name=react-run — PASS
-  - 근거: `react-kit/skills/react-run/SKILL.md:1` — name=react-run, YAML parse OK (L3)
-- [x] SK-02: react-build/SKILL.md 존재 + frontmatter 유효 + name=react-build — PASS
-  - 근거: `react-kit/skills/react-build/SKILL.md:1` — name=react-build, YAML parse OK (L3)
-- [x] SK-03: react-preflight/SKILL.md 존재 + frontmatter 유효 + name=react-preflight — PASS
-  - 근거: `react-kit/skills/react-preflight/SKILL.md:1` — name=react-preflight, YAML parse OK (L3)
-- [x] SK-04: react-audit/SKILL.md 존재 + frontmatter 유효 + name=react-audit — PASS
-  - 근거: `react-kit/skills/react-audit/SKILL.md:1` — name=react-audit, YAML parse OK (L3)
-- [x] SK-05: 각 스킬 description 트리거 키워드 3+, 기존 17개 스킬과 겹치지 않음 — PASS
-  - 근거: `react-kit/skills/react-run/SKILL.md:5` — "wasm-build 서브커맨드"로 교체 확인. 21개 스킬 quoted 키워드 전수 exact match 검사 → 중복 0건. 부분 포함 검사에서 react-feature "기능 추가" vs react-tauri "네이티브 기능 추가" 감지되었으나, "네이티브" 수식어가 명확한 의미 분리자로 작용하여 동일 트리거 시나리오 없음 (L3)
-- [x] SK-06: 각 스킬 Gotchas 섹션이 g6-build-audit.md 반영 — PASS
-  - 근거: react-run:15-20(§1.4), react-build:14-19(§2.6), react-preflight:15-20(§3.5), react-audit:15-21(§4.7) (L3)
-- [x] SK-07: 각 스킬 Process 섹션이 g6-build-audit.md §X.2~§X.6 반영 — PASS
-  - 근거: react-run 서브커맨드 테이블=§1.2, react-build 빌드순서=§2.2, react-preflight 7단계=§3.2, react-audit 모드선택=§4.2~4.4 (L3)
+### Kaizen Skills (4/4)
+- [x] KZ-01: `.claude/skills/react-kaizen/SKILL.md` 존재, frontmatter 유효, name=react-kaizen, description "React 카이젠"/"react-kit 개선" 키워드 포함 — PASS
+  - 근거: `.claude/skills/react-kaizen/SKILL.md:1-11` (L3)
+- [x] KZ-02: `.claude/skills/react-research/SKILL.md` 존재, frontmatter 유효, name=react-research, description "React 리서치"/"React 문서 갱신" 키워드 포함 — PASS
+  - 근거: `.claude/skills/react-research/SKILL.md:1-8` (L3)
+- [x] KZ-03: 두 카이젠 스킬이 Gotchas + Process + References 구조를 따름 (rust-kaizen과 동일 패턴) — PASS
+  - 근거: react-kaizen:13,21,67 / react-research:11,18,61 / rust-kaizen:13,19,49 (L3)
+- [x] KZ-04: react-kaizen References에 docs/react/kit-design/ 7개 그룹 문서(g1~g6, g5b) 개별 명시 + wasm-catalog 명시 — PASS
+  - 근거: `.claude/skills/react-kaizen/SKILL.md:69-76` — g1/g2/g3/g4/g5/g5b/g6 + wasm-catalog 8개 항목 각각 개별 나열됨 (L3)
 
-### Audit 특별 요구사항 (3/3)
-- [x] AU-01: quick/deep 두 모드 지원 + 파일 수 기반 자동 선택 규칙 명시 — PASS
-  - 근거: `react-kit/skills/react-audit/SKILL.md:39-57` — Auto 모드 섹션, 1~20/21~50/51+ 기준 테이블 (L3)
-- [x] AU-02: Deep 모드 4개 에이전트 병렬 축 명시 — PASS
-  - 근거: `react-kit/skills/react-audit/SKILL.md:186-246` — Agent 1~4 명시 + "동시에 실행한다" + Rules:286 "병렬로 실행" (L3)
-- [x] AU-03: 6개 카테고리 (Architecture/Strict TypeScript/Performance/Accessibility/Anti-patterns/Library Policy) 모두 커버 — PASS
-  - 근거: `react-kit/skills/react-audit/SKILL.md:64-172` — 6개 카테고리 체크리스트 전체, Rules:280 6개 명시 (L3)
+### Documentation (2/2)
+- [x] DC-01: CLAUDE.md "Skills Reference" 섹션에 react-kit 21종 스킬 + 3 에이전트 표가 rust-kit 표 직후에 추가됨 — PASS
+  - 근거: `CLAUDE.md:183-210` (rust-kit 표 끝 line 182 직후 line 183에 react-kit 표 헤더, 24개 행 확인) (L3)
+- [x] DC-02: CLAUDE.md Repository Overview에 react-kit 항목 존재 — PASS
+  - 근거: `CLAUDE.md:16` (L2)
 
-### Agent (2/2)
-- [x] AG-01: react-reviewer.md 존재 + frontmatter (name/description/tools/model) 유효 — PASS
-  - 근거: `react-kit/agents/react-reviewer.md:1-10` — name=react-reviewer, tools=Read Grep Glob, model=sonnet (L3)
-- [x] AG-02: 본문이 §5.1 역할 + 읽기 전용 선언 포함 — PASS
-  - 근거: `react-kit/agents/react-reviewer.md:14` "읽기 전용 에이전트", :18 "파일 수정, 생성, 삭제 금지", :27-29 /react-audit 통해서만 호출 (L3)
+### Plugin Final State (5/5)
+- [x] PF-01: react-kit/skills/ 하에 정확히 21개 스킬 디렉토리 존재 (각 SKILL.md 포함) — PASS
+  - 근거: `ls react-kit/skills/ | grep -v .gitkeep` = 21개 (L2)
+- [x] PF-02: react-kit/agents/ 하에 정확히 3개 에이전트 .md 존재 (widget-inspector-react, animation-architect-react, react-reviewer) — PASS
+  - 근거: `ls react-kit/agents/ | grep -v .gitkeep` = 3개 (L2)
+- [x] PF-03: react-kit/.claude-plugin/plugin.json version=0.1.0 — PASS
+  - 근거: `react-kit/.claude-plugin/plugin.json:6` (L2)
+- [x] PF-04: marketplace.json react-kit 엔트리 description에 v0.1.0 + 2026-04-10 + "21종 스킬 + 3 에이전트" 포함 — PASS
+  - 근거: `.claude-plugin/marketplace.json` react-kit description = "[v0.1.0 · 2026-04-10] React + ... 21종 스킬 + 3 에이전트..." (L3)
+- [x] PF-05: git tag react-kit/v0.1.0 존재 — PASS
+  - 근거: `git tag | grep react-kit` 출력 = react-kit/v0.1.0 (L2)
 
-### Script (2/2)
-- [x] SC-01: 5개 파일 frontmatter YAML parse 가능 — PASS
-  - 근거: 5개 파일 모두 parse 성공 (L3)
-- [x] SC-02: sync-docs.py --check-only react-kit → 21개 스킬 + 3개 에이전트 포함 — PASS
-  - 근거: 실행 결과 "모든 README가 동기화 상태입니다", AUTO:skills 21행, AUTO:agents 3행 확인 (L3)
+### Library Policy (2/2)
+- [x] LP-01: react-animation/SKILL.md와 animation-architect-react.md 모두에 Motion/framer-motion/dnd-kit/react-spring/react-transition-group 금지 명시 — PASS
+  - 근거: `react-kit/skills/react-animation/SKILL.md:17` (라이브러리 목록 명시) / `react-kit/agents/animation-architect-react.md:29-44` (절대 금지 라이브러리 섹션) (L3)
+- [x] LP-02: react-audit/SKILL.md Library Policy 카테고리가 동일 라이브러리 목록을 빌드 게이트로 명시 — PASS
+  - 근거: `react-kit/skills/react-audit/SKILL.md:150-157` — "### 6. Library Policy (빌드 게이트급)" 섹션, grep 패턴 및 금지 목록 명시 (L3)
 
-### Architecture (2/2)
-- [x] AR-01: /react-build가 wasm-pack → tsc → vite 순서 명시 — PASS
-  - 근거: `react-kit/skills/react-build/SKILL.md:4` (description), :33-52 (빌드 순서 다이어그램), :117 (MUST 순서 변경 금지) (L3)
-- [x] AR-02: /react-preflight가 fix → codegen → lint → tsc → test → wasm-build → vite-build 순서 명시 — PASS
-  - 근거: `react-kit/skills/react-preflight/SKILL.md:36-66` (7단계 실행 순서), :131 (MUST 7단계 순서 변경 금지) (L3)
-
-### Anti-patterns (Library Policy) (2/2)
-- [x] AP-01: Library Policy 카테고리가 금지 애니메이션 라이브러리를 빌드 실패 레벨로 검출 — PASS
-  - 근거: `react-kit/skills/react-audit/SKILL.md:15` (Gotchas: 빌드 게이트급), :154-157 (❌ 실패로 분류), :281 (MUST Library Policy 위반은 ❌ 실패) (L3)
-- [x] AP-02: /react-preflight 실패 시 롤백 규칙 명시 — PASS
-  - 근거: `react-kit/skills/react-preflight/SKILL.md:70-77` (단계별 실패 복구 안내 테이블) (L3)
-
-### Reusability (2/2)
-- [x] RE-01: SKILL.md + agent.md 구조 기존과 일관 — PASS
-  - 근거: frontmatter + Gotchas + Process + Rules + References 구조 5개 파일 모두 일관 (L2)
-- [x] RE-02: 총 21개 스킬 + 3개 에이전트 트리거 키워드 상호 배타적 — PASS
-  - 근거: 21개 스킬 quoted 키워드 전수 exact match 검사 → 중복 0건. react-run "wasm-build 서브커맨드" vs react-wasm "wasm-pack 빌드" 완전 분리 확인. 부분 포함 검사에서 "기능 추가"/"네이티브 기능 추가" 감지되었으나 수식어로 명확한 의미 분리 — 동일 사용자 요청에서 동시 매칭되지 않음 (L3)
+### Sync Docs (1/1)
+- [x] SD-01: `python3 scripts/sync-docs.py --check-only react-kit` 실행 시 동기화됨 상태 — PASS
+  - 근거: 실행 출력 "react-kit/README.md: 동기화됨 / CLAUDE.md: 동기화됨 / 모든 README가 동기화 상태입니다" (L3)
 
 ### Diagnostics (2/2)
-- [x] DG-01: 5개 파일 TODO/TBD/FIXME 0건 — PASS
-  - 근거: 정규식 스캔 5개 파일 합산 0건 (L3)
-- [x] DG-02: 모든 fenced code block 언어 힌트 — PASS
-  - 근거: fence 상태 추적 파서로 5개 파일 검사 → bare opening fence 0건 (L3)
+- [x] DG-01: react-kit/ 디렉토리 전체 placeholder (TODO/TBD/FIXME) 0건 — PASS
+  - 근거: `grep -r "TODO|TBD|FIXME" react-kit/ --include="*.md" -l` 출력 없음 (L3)
+- [x] DG-02: 21개 SKILL.md + 3개 agent.md frontmatter YAML 모두 parse 가능 — PASS
+  - 근거: python3 yaml.safe_load 전체 통과 "ALL OK: 21 skills + 3 agents YAML parse successful" (L3)
+
+### Anti-patterns (2/2)
+- [x] AP-01: hardcoded version 패턴 없음 (변경 파일 검사) — PASS
+- [x] AP-02: git push --force 패턴 없음 — PASS
+
+### Reusability (1/1)
+- [x] 변경 파일(.claude/skills/react-kaizen/, react-research/)은 이 레포 전용 스킬로 적절히 배치됨. scripts/ 중복 없음 — PASS
 
 ## Summary
-- Total: 19/19 conditions passed
-- Verdict: **APPROVE**
+- Total: 16/16 conditions passed
+- Anti-patterns: 2/2 PASS
+- Diagnostics: 2/2 PASS
+- Verdict: APPROVE
 
-## Changes from Iteration 2
-- **SK-05**: FAIL → PASS
-  - `react-kit/skills/react-run/SKILL.md:5` "wasm-pack 빌드" → "wasm-build 서브커맨드" 교체 (commit `1ce3e36`)
-  - 21개 스킬 전수 exact match 검사로 중복 0건 확인
-- **RE-02**: FAIL → PASS
-  - SK-05 수정으로 동일 문제 해소. 부분 포함 관계("기능 추가"/"네이티브 기능 추가") 추가 검사 — 수식어로 disambiguation 가능하여 PASS 판정
+## Changes from Iteration 1
+- KZ-04: FAIL → PASS. `.claude/skills/react-kaizen/SKILL.md` References 섹션에 `docs/react/kit-design/` 폴더 경로 하나로 포괄하던 방식을 g1~g6, g5b 7개 그룹 문서 + wasm-catalog 11개 항목 개별 명시로 교체.
+- 나머지 15개 조건: 회귀 없음 확인.
 
-## Note
-런타임 검증 미수행 — MCP 서버 미설정 (project.yaml: runtime_inspection.mcp_server=null)
+## Runtime Inspection
+⚠️ 런타임 검증 미수행 — MCP 서버 미설정 (project.yaml: mcp_server: null). 모든 판정은 정적 검증 기반.
