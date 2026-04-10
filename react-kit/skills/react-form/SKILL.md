@@ -19,6 +19,7 @@ user-invocable: true
 6. **Zod v4 + React Hook Form TypeScript 이슈** — `z.infer`가 `unknown`으로 잡히는 제네릭 타입 이슈가 보고된 사례가 있다. 스키마는 `z.object(...)` 직접 정의, 타입은 `z.infer<typeof Schema>` 직접 파생 패턴만 사용한다. 제네릭 래퍼(`type FormValues<T extends z.ZodType> = z.infer<T>`)는 생성하지 않는다.
 7. **폼 컴포넌트에서 직접 fetch 금지** — 컴포넌트 안에서 `fetch()`, repository, datasource를 직접 호출하지 않는다. 반드시 mutation 훅 또는 UseCase를 props로 주입한다.
 8. **Strict TS** — `useForm<Values>()` 제네릭 명시 필수. `register('<field>')` 필드명은 Values 키로 타입 체크된다. `any`, `as` 단언, `!` non-null 단언 금지.
+9. **상태 분리 원칙 (Zustand vs TanStack Query)** — 폼 submit 이후 서버 상태는 mutation 훅(TanStack Query)이 단일 진실 공급원이다. 폼 내부 임시 상태(draft, dirty flag) 만 필요하면 Zustand(`/react-store`)를 사용한다. 서버 응답을 폼 local state 로 복사 금지 — useMutation 의 `data` / `mutateAsync` 결과를 그대로 구독한다.
 
 # Process
 

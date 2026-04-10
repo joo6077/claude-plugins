@@ -2,7 +2,7 @@
 name: react-api
 description: >
   REST/GraphQL 엔드포인트를 domain → data → datasource → repository → usecase 4계층으로 일괄 또는 개별 생성한다.
-  "API 연동", "엔드포인트 추가", "useCase 만들어줘", "repository 추가", "4계층 API", "react-api" 같은 요청 시 트리거.
+  "엔드포인트 추가", "useCase 만들어줘", "repository 추가", "4계층 API", "datasource 생성", "react-api" 같은 요청 시 트리거.
   화면/컴포넌트만 필요할 때는 트리거하지 않는다 — /react-screen 또는 /react-widget 사용.
   TanStack Query 훅만 필요할 때는 트리거하지 않는다 — /react-query 사용.
 argument-hint: "<ResourceName> [list,get,create,update,delete] [--only model|repository|usecase] [--schema=<path>]"
