@@ -65,13 +65,20 @@ echo "  $CURRENT_VERSION -> $NEW_VERSION"
 echo "  Tag: $TAG"
 echo ""
 
+# ── sed -i 크로스플랫폼 (BSD/GNU) ──
+if sed --version >/dev/null 2>&1; then
+  SED_INPLACE=(sed -i)
+else
+  SED_INPLACE=(sed -i '')
+fi
+
 # ── plugin.json 업데이트 ──
-sed -i "s/\"version\": \"${CURRENT_VERSION}\"/\"version\": \"${NEW_VERSION}\"/" "$PLUGIN_JSON"
+"${SED_INPLACE[@]}" "s/\"version\": \"${CURRENT_VERSION}\"/\"version\": \"${NEW_VERSION}\"/" "$PLUGIN_JSON"
 echo "Updated: $PLUGIN_JSON"
 
 # ── marketplace.json 업데이트 ──
 # 해당 플러그인 name 블록의 description에서 [vX.Y.Z · YYYY-MM-DD] 패턴 치환
-sed -i "/$PLUGIN_NAME/,/description/{s/\[v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* · [0-9-]*\]/[v${NEW_VERSION} · ${TODAY}]/}" "$MARKETPLACE_JSON"
+"${SED_INPLACE[@]}" "/$PLUGIN_NAME/,/description/{s/\[v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* · [0-9-]*\]/[v${NEW_VERSION} · ${TODAY}]/;}" "$MARKETPLACE_JSON"
 echo "Updated: $MARKETPLACE_JSON"
 
 # ── Git commit + tag + push ──
