@@ -36,7 +36,7 @@ bash harness/evals/kaizen/feedback-system/save-test.sh
 bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 
 # 카이젠 수동 실행
-# /kaizen — 전체 6 Phase 오케스트레이션
+# /kaizen — 전체 9 Phase 오케스트레이션 (설계 가이드 → contract → evaluator → harness → flutter → design → backend → infra → rust → Final)
 # /contract-kaizen — sprint-contract만 개선
 # /evaluator-kaizen — qa-evaluator만 개선
 
@@ -83,7 +83,7 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 
 ### Kaizen Orchestration
 
-6 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다.
+9 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen → backend-kaizen → infra-kaizen → rust-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다. 전체 Phase 완료 후 Final 단계에서 교차 정합성 검증을 수행한다.
 
 가이드 문서 (`harness/docs/guides/`): `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`, `qa-evaluation-guide.md`. 공유 참조 (`harness/references/`): `contract-schema.md` (계약 포맷), `feedback-schema.yaml` (피드백 스키마). 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`, `trigger-check-common.sh`.
 
@@ -183,12 +183,17 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 
 | 스킬 | 용도 |
 |------|------|
-| `/kaizen` | 전체 6 Phase 카이젠 오케스트레이션 |
+| `/kaizen` | 전체 9 Phase 카이젠 오케스트레이션 (설계 가이드 → contract → evaluator → harness → flutter → design → backend → infra → rust → Final) |
 | `/design-kaizen` | design-kit 스킬 개선 |
 | `/design-research` | 디자인 레퍼런스 크롤링 → design-kit/docs/design/ 문서 갱신 |
-| `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
-| `/rust-research` | Rust 레퍼런스 크롤링 → docs/rust/ 문서 갱신 |
+| `/backend-kaizen` | backend-kit 스킬 개선 |
+| `/backend-research` | 백엔드 레퍼런스 크롤링 → docs/backend/ 문서 갱신 |
+| `/infra-kaizen` | infra-kit 스킬 개선 |
+| `/infra-research` | 인프라 레퍼런스 크롤링 → docs/infra/ 문서 갱신 |
 | `/rust-kaizen` | rust-kit 스킬 개선 |
+| `/rust-research` | Rust 레퍼런스 크롤링 → docs/rust/ 문서 갱신 |
+| `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
+| `/create-kit` | 새 플러그인 킷 생성 오케스트레이션 |
 
 ### 외부 플러그인 스킬 (이 레포에 없음)
 
