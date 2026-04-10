@@ -187,7 +187,7 @@ Agent 도구를 사용하여 아래 4개 에이전트를 **동시에** 실행한
 
 ### Agent 1: react-reviewer (Architecture + Strict TS)
 
-```
+```text
 다음 파일들의 Architecture 및 Strict TypeScript 규칙 준수 여부를 검사한다.
 
 - Architecture: Clean Arch 레이어 경계 (domain/data/presentation), feature 간 직접 import, 상대 경로 3단계 이상, export default
@@ -201,7 +201,7 @@ Agent 도구를 사용하여 아래 4개 에이전트를 **동시에** 실행한
 
 ### Agent 2: react-reviewer (Performance + Anti-patterns)
 
-```
+```text
 다음 파일들의 Performance 및 Anti-patterns 규칙 준수 여부를 검사한다.
 
 - Performance: WASM 렌더 안 직접 호출, WASM 카탈로그 위반, 문자열 마샬링, Worker 누락, 번들 크기, staleTime 누락
@@ -215,7 +215,7 @@ wasm-catalog 경로: docs/react/wasm-catalog.md
 
 ### Agent 3: react-reviewer (Accessibility + Library Policy)
 
-```
+```text
 다음 파일들의 Accessibility 및 Library Policy 규칙 준수 여부를 검사한다.
 
 - Accessibility: 하드코딩 i18n 문자열, aria-* 누락, keyboard 경로, prefers-reduced-motion, Error Boundary
@@ -231,7 +231,7 @@ Library Policy 위반은 경고가 아닌 실패(error)로 분류한다.
 
 G5 에서 정의된 에이전트를 병렬 5번째 축으로 실행한다.
 
-```
+```text
 다음 파일들에서 재사용 가능한 컴포넌트 패턴을 감지한다.
 
 - 구조적 중복: 비슷한 JSX 트리가 2곳 이상 반복

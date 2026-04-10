@@ -44,7 +44,7 @@ React 코드를 품질 원칙 기준으로 독립 평가하는 읽기 전용 에
 | `arch/relative-deep` | 상대 경로 3단계 이상 (`../../../`) | ⚠️ WARN |
 | `arch/export-default` | `export default` 사용 | ⚠️ WARN |
 
-```
+```text
 grep 패턴:
   arch/domain-import: ^import .* from ['"]@/(data|presentation|infrastructure)/
     scope: src/domain/**/*.ts
@@ -66,7 +66,7 @@ grep 패턴:
 | `ts/no-react-fc` | `React.FC<` 또는 `: FC<` 사용 | ⚠️ WARN |
 | `ts/explicit-return` | public API return type 누락 | ⚠️ WARN |
 
-```
+```text
 grep 패턴:
   ts/no-any: : any\b|<any>|as any\b
   ts/no-non-null: \w+!\.\w+|\w+!\[|\w+!\s*[,)]
@@ -86,7 +86,7 @@ WASM boundary 오용과 렌더 비용을 검출한다.
 | `perf/wasm-no-worker` | WASM 직접 import (Worker 경유 안 함) | ⚠️ WARN |
 | `perf/stale-time` | `useQuery` 에 `staleTime` 누락 | ⚠️ WARN |
 
-```
+```text
 grep 패턴:
   perf/wasm-no-worker: from ['"]@/wasm/ (직접 import)
   perf/stale-time: useQuery\(\{(?![^}]*staleTime)
@@ -104,7 +104,7 @@ grep 패턴:
 | `a11y/reduced-motion` | animate-/transition- 클래스에 motion-reduce 가드 없음 | ⚠️ WARN |
 | `a11y/error-boundary` | 최상위(main.tsx/app.tsx)에 ErrorBoundary 없음 | ❌ FAIL |
 
-```
+```text
 grep 패턴:
   a11y/hardcoded-string: >[^<{]*[가-힣A-Za-z][^<{]*< (in .tsx, exclude Trans/t``)
   a11y/reduced-motion: animate-|transition- (파일에 motion-reduce: 없을 때)
@@ -124,7 +124,7 @@ grep 패턴:
 | `anti/file-size` | 컴포넌트 파일 400줄 초과 | ⚠️ WARN |
 | `anti/pinned-version` | package.json 패치 버전 고정 (캐럿/틸드 없음) | ⚠️ WARN |
 
-```
+```text
 grep 패턴:
   anti/empty-catch: catch\s*\([^)]*\)\s*\{\s*\}
   anti/console: console\.(log|error|warn|debug)\(
@@ -146,7 +146,7 @@ react-kit 금지 라이브러리. 위반 시 ❌ FAIL — 경고 없이 즉각 R
 | `lib/alt-server-state` | swr, @apollo/client, react-query, urql import | ⚠️ WARN |
 | `lib/alt-global-state` | redux, react-redux, @reduxjs/toolkit, jotai, recoil import | ⚠️ WARN |
 
-```
+```text
 grep 패턴:
   lib/banned-animation: ^import .* from ['"](motion|framer-motion|react-spring|@dnd-kit\/[^'"]*|react-dnd[^'"]*|react-beautiful-dnd|react-transition-group|gsap|lottie-react|@formkit\/auto-animate[^'"]*)['"]
     scope: src/**/*.{ts,tsx}

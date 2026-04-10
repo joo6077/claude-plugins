@@ -29,7 +29,7 @@ WASM 포함 React 프로젝트의 전체 프로덕션 빌드 파이프라인.
 
 ## 빌드 순서
 
-```
+```text
 [1. WASM 빌드]
   pnpm wasm-pack build crates/core --target web --release --out-dir ../../src/wasm/core
         │ 실패 → Rust 컴파일 에러 출력 후 중단
@@ -92,7 +92,7 @@ cargo check --target wasm32-unknown-unknown -p core
 
 성공 시:
 
-```
+```text
 /react-build 완료 (XX.Xs)
 
 산출물:
@@ -105,7 +105,7 @@ cargo check --target wasm32-unknown-unknown -p core
 
 실패 시:
 
-```
+```text
 /react-build 실패 — [단계명] 에서 중단
 
 [에러 내용]

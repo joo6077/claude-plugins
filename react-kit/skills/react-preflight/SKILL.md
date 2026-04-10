@@ -32,7 +32,7 @@ React 프로젝트의 커밋 전 종합 품질 게이트.
 
 각 단계에서 **실패 시 즉시 중단**. 후속 단계 실행하지 않음 — fail-fast.
 
-```
+```text
 1. fix
    prettier --write . && eslint . --fix
         ↓ 자동 수정 적용 완료 (실패해도 계속 — fix 는 best-effort)
@@ -101,7 +101,7 @@ pnpm react-preflight --files "src/presentation/features/auth/**"
 
 성공 시:
 
-```
+```text
 /react-preflight 완료 ✓
 
   1. fix        ✓ (prettier + eslint --fix 적용)
@@ -117,7 +117,7 @@ pnpm react-preflight --files "src/presentation/features/auth/**"
 
 실패 시:
 
-```
+```text
 /react-preflight 실패 — [N단계: 단계명] 에서 중단
 
 [에러 내용]

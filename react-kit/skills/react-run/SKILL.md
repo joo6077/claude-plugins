@@ -65,14 +65,14 @@ React 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정한�
 
 성공 시:
 
-```
+```text
 /react-run <subcommand> 완료
   결과: <success / N issues / N failed>
 ```
 
 실패 시:
 
-```
+```text
 /react-run <subcommand> 실패
   [에러 내용 요약]
   [수정 방법 안내]
