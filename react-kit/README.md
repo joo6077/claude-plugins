@@ -13,56 +13,12 @@ TanStack Router, TanStack Query v5, Zustand, React Hook Form + Zod,
 neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 
 <!-- AUTO:skills -->
-## 스킬 (21종)
-
-### G1 — 스캐폴딩 & 생성
-| 스킬 | 용도 |
+| 스킬 | 설명 |
 |------|------|
-| `/react-init` | Vite + Tauri + WASM + shadcn + TanStack Router + Zustand 풀 스캐폴딩 |
-| `/react-screen` | 화면 + TanStack Router 파일 기반 라우트 등록 |
-| `/react-feature` | 복합 (화면 + 스토어 + UseCase + API) 4계층 skeleton |
-| `/react-widget` | shadcn/ui 기반 cva + forwardRef 재사용 컴포넌트 |
-
-### G2 — 상태 & 데이터
-| 스킬 | 용도 |
-|------|------|
-| `/react-store` | Zustand 스토어 + selector hooks + WASM 외부 접근 |
-| `/react-api` | Clean Arch 4계층 (datasource → model → repo → usecase) |
-| `/react-query` | TanStack Query v5 useQuery/useMutation + invalidation |
-| `/react-form` | React Hook Form + Zod resolver + Result 반환 |
-
-### G3 — 고성능 레이어
-| 스킬 | 용도 |
-|------|------|
-| `/react-wasm` | Rust → wasm-pack → Comlink Worker → Clean Arch 바인딩 (G0 카탈로그 기반 자동 판정) |
-| `/react-tauri` | Tauri command + invoke + capabilities + isTauri 가드 |
-
-### G4 — 품질 & 패턴
-| 스킬 | 용도 |
-|------|------|
-| `/react-test` | Vitest unit + Testing Library + Playwright 생성 |
-| `/react-error` | throw → Failure → Severity → UI 매핑 + Error Boundary |
-| `/react-l10n` | Lingui v5 매크로 + codegen + locale 전환 |
-
-### G5 — UI 패턴
-| 스킬 | 용도 |
-|------|------|
-| `/react-responsive` | Tailwind breakpoint + container queries 자동 판정 |
-| `/react-skeleton` | shadcn Skeleton shimmer + TanStack Query isPending 분기 |
-| `/react-extract` | 중복 위젯 감지 → shared 추출 → import 자동 수정 |
-
-### G5b — 애니메이션 (pure, no-library)
-| 스킬 | 용도 |
-|------|------|
-| `/react-animation` | Tailwind / View Transitions API / 커스텀 pointer primitives 3-tier 자동 판정 |
-
-### G6 — 빌드 & 감사
-| 스킬 | 용도 |
-|------|------|
-| `/react-run` | 빌드 프리미티브 개별 실행 (dev, build, lint, tsc, test, wasm-build, codegen, format) |
-| `/react-build` | 전체 빌드 파이프라인 (wasm-pack → tsc → vite) |
-| `/react-preflight` | pre-commit quality gate (fix → codegen → lint → tsc → test → wasm → build → audit) |
-| `/react-audit` | quick/deep 모드 + 4 병렬 에이전트 축 + 34 규칙 grep/AST 검사 |
+| `react-feature` | 하나의 feature를 구성하는 domain/data/presentation/infrastructure 4계층 파일을 한 번에 생성한다. |
+| `react-init` | Vite + Tauri 2 + React + TypeScript strict + Tailwind v4 + shadcn/ui + TanStack Router 스택으로 |
+| `react-screen` | 기존 React 프로젝트에 새 화면(Page)을 추가하고 TanStack Router 파일 기반 라우트를 등록한다. |
+| `react-widget` | shadcn/ui 컴포넌트를 기반으로 cva variant + Container Queries를 갖춘 재사용 UI 컴포넌트를 생성한다. |
 <!-- /AUTO:skills -->
 
 <!-- AUTO:agents -->
