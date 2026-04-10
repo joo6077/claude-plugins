@@ -1,0 +1,127 @@
+# ── Harness Project Config: react-kit ──
+
+stack: "react"
+
+# ── 빌드/분석 명령 ──
+commands:
+  analyze: "pnpm tsc --noEmit && pnpm eslint . --max-warnings=0"
+  test: "pnpm vitest run"
+  lint: "pnpm eslint . --max-warnings=0"
+  format: "pnpm prettier --write ."
+  codegen: "pnpm tsr generate && pnpm lingui extract && pnpm lingui compile"
+  build: "pnpm run wasm:build && pnpm tsc --noEmit && pnpm vite build"
+
+# ── 계약 카테고리 ──
+contract_categories:
+  - id: Architecture
+    prefix: "AR"
+    description: "Clean Architecture 레이어 경계, feature 분리, import 방향"
+  - id: StrictType
+    prefix: "ST"
+    description: "Strict TypeScript 준수 — any/as/! 금지, Zod 경계 검증, Result 타입"
+  - id: Performance
+    prefix: "PF"
+    description: "WASM 카탈로그 준수, render 경로 최적화, 번들 크기"
+  - id: Accessibility
+    prefix: "A11Y"
+    description: "i18n, ARIA, 키보드 경로, reduced-motion, Error Boundary"
+  - id: LibraryPolicy
+    prefix: "LP"
+    description: "금지 라이브러리 (motion/dnd-kit 등), deprecated API 사용 금지"
+  - id: Testing
+    prefix: "TS"
+    description: "Vitest unit, Testing Library component, Playwright e2e, 에러 경로 검증"
+
+# ── 안티패턴 (G6 감사 규칙 핵심 재수록) ──
+anti_patterns:
+  # Library Policy
+  - id: AP-01
+    pattern: "^import .* from ['\"](motion|framer-motion|react-spring|@dnd-kit/[^'\"]*|@formkit/auto-animate[^'\"]*|react-dnd[^'\"]*|gsap|lottie-react)['\"]"
+    message: "금지 애니메이션 라이브러리 import — react-kit 은 라이브러리 0개 원칙 (G5b)"
+    scope: "src/**/*.{ts,tsx}"
+  - id: AP-02
+    pattern: "^import .* from ['\"]@tauri-apps/"
+    message: "Tauri API 직접 import — infrastructure/tauri/ 래퍼 경유 필수 (isTauri 가드)"
+    scope: "src/**/*.{ts,tsx}"
+    exclude: "src/infrastructure/tauri/"
+  - id: AP-03
+    pattern: "from ['\"]@lingui/macro['\"]"
+    message: "deprecated Lingui macro 경로 — @lingui/react/macro 또는 @lingui/core/macro 사용"
+  - id: AP-04
+    pattern: "^import .* from ['\"](redux|react-redux|@reduxjs/toolkit|jotai|recoil|swr|@apollo/client|react-query|urql)['\"]"
+    message: "react-kit 은 Zustand (클라이언트) + TanStack Query (서버) 조합만 허용"
+
+  # Strict TypeScript
+  - id: AP-10
+    pattern: ": any\\b|<any>|as any\\b"
+    message: "any 사용 금지 — Strict TS 정책"
+  - id: AP-11
+    pattern: "\\w+!\\.\\w+"
+    message: "non-null 단언 ! 금지 — optional chaining ?. 또는 Zod parse 사용"
+
+  # Performance
+  - id: AP-20
+    pattern: "^import .* from ['\"]@/wasm/"
+    message: "WASM 모듈 직접 import — Comlink Worker 경유 필수 (G3)"
+    scope: "src/presentation/"
+
+  # Architecture
+  - id: AP-30
+    pattern: "^import .* from ['\"]@/(data|presentation|infrastructure)/"
+    message: "domain/ 레이어가 하위 레이어 import — Clean Arch 경계 위반"
+    scope: "src/domain/"
+
+  # Accessibility
+  - id: AP-40
+    pattern: "throw new"
+    message: "domain/ 에서 throw — Result 타입 반환 필수 (G2 패턴)"
+    scope: "src/domain/"
+
+# ── 재사용성 ──
+reusability:
+  shared_path: "src/presentation/shared/"
+  check_duplicate: true
+
+# ── Diagnostics ──
+diagnostics:
+  ide_exclude: []
+  console_errors:
+    - "Failed to load module"
+    - "Uncaught TypeError"
+    - "Hydration failed"
+  console_exclude:
+    - "React Router Future Flag Warning"
+
+# ── 런타임 검증 ──
+runtime_inspection:
+  mcp_server: null  # 필요 시 "playwright" 설정
+  vm_port: 5173
+  launch_script: "pnpm dev"
+
+# ── 트리거 조건 ──
+trigger:
+  min_files: 2
+  always:
+    - "화면 추가"
+    - "react-screen"
+    - "react-feature"
+    - "API 연동"
+    - "react-api"
+    - "WASM"
+    - "react-wasm"
+    - "Tauri command"
+    - "react-tauri"
+  never:
+    - "읽어줘"
+    - "설명해줘"
+    - "리포트만"
+
+# ── 검증 절차 ──
+verification:
+  procedures_dir: ".harness/procedures/"
+
+# ── 변명 차단 ──
+rationalization_overrides:
+  - "WASM 카탈로그 §2 비권장인데 '그래도 빠를 것 같아서' → 금지"
+  - "드래그앤드롭 접근성 '나중에' → 금지, 최소 키보드 경로 필수"
+  - "any '임시로' → 금지, Zod parse 또는 unknown + 가드"
