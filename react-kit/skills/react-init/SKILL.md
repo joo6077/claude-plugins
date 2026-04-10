@@ -175,7 +175,7 @@ pnpm add -D eslint typescript-eslint eslint-plugin-react eslint-plugin-react-hoo
 
 ### 단계 13 — harness 초기화
 
-```
+```text
 /harness init 호출 → .harness/project.yaml 자동 생성
 ```
 
@@ -187,7 +187,7 @@ git init && git add -A && git commit -m "chore: initial scaffold"
 
 ## 4. 산출 파일 구조
 
-```
+```text
 <project>/
 ├── package.json                  # pnpm workspace root + scripts
 ├── pnpm-workspace.yaml           # packages: ['.', 'crates/*']

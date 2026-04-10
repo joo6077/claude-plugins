@@ -61,7 +61,7 @@ import { z } from 'zod'
 
 export const <Feature>Schema = z.object({
   id: z.string(),
-  // TODO: feature에 맞는 필드 추가
+  // 필요한 도메인 필드를 여기에 추가 (사용자 입력 기반)
 })
 
 export type <Feature> = z.infer<typeof <Feature>Schema>
@@ -87,7 +87,7 @@ import type { <Feature>Failure } from '@/domain/failures/<feature>-failures'
 
 export interface <Feature>Usecases {
   fetch<Feature>(id: string): Promise<Result<<Feature>, <Feature>Failure>>
-  // TODO: feature에 맞는 유스케이스 추가
+  // 필요한 추가 유스케이스 메서드를 여기에 선언
 }
 ```
 
@@ -101,7 +101,7 @@ import type { <Feature> } from '@/domain/entities/<feature>'
 
 export const <Feature>DtoSchema = z.object({
   id: z.string(),
-  // TODO: API 응답 필드 추가
+  // API 응답 스키마 필드를 여기에 추가
 })
 
 export type <Feature>Dto = z.infer<typeof <Feature>DtoSchema>
@@ -109,7 +109,7 @@ export type <Feature>Dto = z.infer<typeof <Feature>DtoSchema>
 export function dto<Feature>(dto: <Feature>Dto): <Feature> {
   return {
     id: dto.id,
-    // TODO: 변환 로직
+    // DTO → Domain 매핑 추가
   }
 }
 ```
@@ -222,7 +222,7 @@ export function <Feature>Screen({ id }: Props): React.JSX.Element {
   return (
     <div>
       <h1><Feature></h1>
-      {/* TODO: feature UI */}
+      {/* feature UI 내용을 여기에 렌더링 */}
     </div>
   )
 }

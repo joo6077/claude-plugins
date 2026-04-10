@@ -70,7 +70,7 @@ const <widgetName>Variants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        // TODO: --variants 정의에 따라 추가
+        // 사용자가 지정한 --variants 값들을 여기에 추가
       },
       size: {
         sm: 'h-8 px-3 text-sm',
@@ -109,7 +109,7 @@ import * as React from 'react'
 import { cn } from '@/presentation/shared/lib/utils'
 
 type <WidgetName>Props = React.HTMLAttributes<HTMLDivElement> & {
-  // TODO: 필요한 props 추가
+  // 필요한 추가 props 를 여기에 선언
 }
 
 export const <WidgetName> = React.forwardRef<<HTMLDivElement>, <WidgetName>Props>(
