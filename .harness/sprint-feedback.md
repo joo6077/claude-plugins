@@ -1,81 +1,89 @@
-# Sprint Feedback
-Feature: react-kit Phase 7: G5b /react-animation 스킬 + animation-architect-react 에이전트
-Evaluated: 2026-04-10 21:30
+---
+feature: "react-kit Phase 8: G6 Build & Audit Skills (4종) + react-reviewer 에이전트"
+evaluated: "2026-04-10 22:30"
+verdict: APPROVE
+iteration: 3
+---
+
+# Phase 8 QA Report (Iteration 3)
+
+Feature: react-kit Phase 8: G6 Build & Audit Skills (4종) + react-reviewer 에이전트
+Evaluated: 2026-04-10 22:30
 Verdict: APPROVE
-Iteration: 2
+Iteration: 3
 
-## Results
+## Sprint Contract Results (19)
 
-### Skill (5/5)
-- [x] SK-01: SKILL.md 존재 + frontmatter 유효 — PASS
-  - 근거: `react-kit/skills/react-animation/SKILL.md:1-13` — name=react-animation, user-invocable=true, argument-hint 모두 존재 (L2)
-- [x] SK-02: description 트리거 키워드 3개 이상 + "라이브러리 0개" 원칙 언급 — PASS
-  - 근거: `SKILL.md:3-11` 다수 키워드, `SKILL.md:5` "외부 라이브러리 없이", `SKILL.md:17` "라이브러리 0개 원칙" (L3)
-- [x] SK-03: Gotchas 섹션에 각 Tier의 주요 실수 방지 규칙 반영 — PASS
-  - 근거: `SKILL.md:15-34` — T1(Gotcha 2,3), T2(Gotcha 4,10), T3(Gotcha 5,6,7) 각 Tier 실수 방지 규칙 포함 (L3)
-- [x] SK-04: Process 섹션에 3-Tier 구조 명시 — PASS
-  - 근거: `SKILL.md:37-59` 3-Tier 요약 표, `SKILL.md:60/164/279` 각 Tier 섹션 (L3)
-- [x] SK-05: 자동 티어 판정 로직 반영 — PASS
-  - 근거: `SKILL.md:40-51` 키워드-Tier 매핑 표 + T2/T3 경계 시 agent 자문 위임 (L3)
+### Skill (7/7)
+- [x] SK-01: react-run/SKILL.md 존재 + frontmatter 유효 + name=react-run — PASS
+  - 근거: `react-kit/skills/react-run/SKILL.md:1` — name=react-run, YAML parse OK (L3)
+- [x] SK-02: react-build/SKILL.md 존재 + frontmatter 유효 + name=react-build — PASS
+  - 근거: `react-kit/skills/react-build/SKILL.md:1` — name=react-build, YAML parse OK (L3)
+- [x] SK-03: react-preflight/SKILL.md 존재 + frontmatter 유효 + name=react-preflight — PASS
+  - 근거: `react-kit/skills/react-preflight/SKILL.md:1` — name=react-preflight, YAML parse OK (L3)
+- [x] SK-04: react-audit/SKILL.md 존재 + frontmatter 유효 + name=react-audit — PASS
+  - 근거: `react-kit/skills/react-audit/SKILL.md:1` — name=react-audit, YAML parse OK (L3)
+- [x] SK-05: 각 스킬 description 트리거 키워드 3+, 기존 17개 스킬과 겹치지 않음 — PASS
+  - 근거: `react-kit/skills/react-run/SKILL.md:5` — "wasm-build 서브커맨드"로 교체 확인. 21개 스킬 quoted 키워드 전수 exact match 검사 → 중복 0건. 부분 포함 검사에서 react-feature "기능 추가" vs react-tauri "네이티브 기능 추가" 감지되었으나, "네이티브" 수식어가 명확한 의미 분리자로 작용하여 동일 트리거 시나리오 없음 (L3)
+- [x] SK-06: 각 스킬 Gotchas 섹션이 g6-build-audit.md 반영 — PASS
+  - 근거: react-run:15-20(§1.4), react-build:14-19(§2.6), react-preflight:15-20(§3.5), react-audit:15-21(§4.7) (L3)
+- [x] SK-07: 각 스킬 Process 섹션이 g6-build-audit.md §X.2~§X.6 반영 — PASS
+  - 근거: react-run 서브커맨드 테이블=§1.2, react-build 빌드순서=§2.2, react-preflight 7단계=§3.2, react-audit 모드선택=§4.2~4.4 (L3)
 
-### Agent (3/3)
-- [x] AG-01: agent.md 존재 + frontmatter (name, description, tools, model) — PASS
-  - 근거: `react-kit/agents/animation-architect-react.md:2,9,10` — name/tools/model 명시 (L2)
-- [x] AG-02: §8.1 역할 / §8.2 트리거 조건 / §8.4 출력 포맷 반영 — PASS
-  - 근거: `agent.md:19-26` 역할, `agent.md:56-63` 트리거, `agent.md:102-143` 출력 포맷 (L3)
-- [x] AG-03: 읽기 전용 명시 — PASS
-  - 근거: `agent.md:15,155` "코드를 수정하지 않는다 — 읽기 전용 에이전트" (L3)
+### Audit 특별 요구사항 (3/3)
+- [x] AU-01: quick/deep 두 모드 지원 + 파일 수 기반 자동 선택 규칙 명시 — PASS
+  - 근거: `react-kit/skills/react-audit/SKILL.md:39-57` — Auto 모드 섹션, 1~20/21~50/51+ 기준 테이블 (L3)
+- [x] AU-02: Deep 모드 4개 에이전트 병렬 축 명시 — PASS
+  - 근거: `react-kit/skills/react-audit/SKILL.md:186-246` — Agent 1~4 명시 + "동시에 실행한다" + Rules:286 "병렬로 실행" (L3)
+- [x] AU-03: 6개 카테고리 (Architecture/Strict TypeScript/Performance/Accessibility/Anti-patterns/Library Policy) 모두 커버 — PASS
+  - 근거: `react-kit/skills/react-audit/SKILL.md:64-172` — 6개 카테고리 체크리스트 전체, Rules:280 6개 명시 (L3)
+
+### Agent (2/2)
+- [x] AG-01: react-reviewer.md 존재 + frontmatter (name/description/tools/model) 유효 — PASS
+  - 근거: `react-kit/agents/react-reviewer.md:1-10` — name=react-reviewer, tools=Read Grep Glob, model=sonnet (L3)
+- [x] AG-02: 본문이 §5.1 역할 + 읽기 전용 선언 포함 — PASS
+  - 근거: `react-kit/agents/react-reviewer.md:14` "읽기 전용 에이전트", :18 "파일 수정, 생성, 삭제 금지", :27-29 /react-audit 통해서만 호출 (L3)
 
 ### Script (2/2)
-- [x] SC-01: frontmatter YAML parse 가능 — PASS [정적]
-  - 근거: 두 파일 모두 유효한 `---` 구분자 + 필수 필드 완비 (L3)
-- [x] SC-02: sync-docs AUTO:skills 17개 + AUTO:agents 2개 포함 — PASS
-  - 근거: `react-kit/README.md:15-42` AUTO:skills 17행 + AUTO:agents 2행, sync-docs 실행 "동기화됨" (L3)
+- [x] SC-01: 5개 파일 frontmatter YAML parse 가능 — PASS
+  - 근거: 5개 파일 모두 parse 성공 (L3)
+- [x] SC-02: sync-docs.py --check-only react-kit → 21개 스킬 + 3개 에이전트 포함 — PASS
+  - 근거: 실행 결과 "모든 README가 동기화 상태입니다", AUTO:skills 21행, AUTO:agents 3행 확인 (L3)
 
 ### Architecture (2/2)
-- [x] AR-01: 3-Tier 구조 전체 커버 — PASS
-  - 근거: `SKILL.md:60-163` T1, `SKILL.md:164-277` T2, `SKILL.md:279-642` T3 (L2)
-- [x] AR-02: Tier 3 훅 파일 위치 + Zustand store 위치 명시 — PASS
-  - 근거: `SKILL.md:713-714` 아키텍처 배치 표 — useDrag/useDrop/useSortable → `src/presentation/shared/hooks/`, drag-store → `src/presentation/shared/stores/drag-store.ts` (L3)
+- [x] AR-01: /react-build가 wasm-pack → tsc → vite 순서 명시 — PASS
+  - 근거: `react-kit/skills/react-build/SKILL.md:4` (description), :33-52 (빌드 순서 다이어그램), :117 (MUST 순서 변경 금지) (L3)
+- [x] AR-02: /react-preflight가 fix → codegen → lint → tsc → test → wasm-build → vite-build 순서 명시 — PASS
+  - 근거: `react-kit/skills/react-preflight/SKILL.md:36-66` (7단계 실행 순서), :131 (MUST 7단계 순서 변경 금지) (L3)
 
-### Anti-patterns (4/4)
-- [x] AP-01: Motion/framer-motion 금지 명시 — PASS
-  - 근거: `SKILL.md:17`, `agent.md:33-34` (L2)
-- [x] AP-02: dnd-kit 금지 명시 — PASS
-  - 근거: `SKILL.md:17`, `agent.md:37` (L2)
-- [x] AP-03: react-spring / react-transition-group 금지 명시 — PASS (Iteration 1 FAIL → Iteration 2 수정 확인)
-  - 근거: `SKILL.md:17` "react-spring / react-transition-group" 명시, `agent.md:35` "`react-spring` / `@react-spring/web`", `agent.md:36` "`react-transition-group`" (L2)
-- [x] AP-04: Pointer cancel 처리 필수 규칙 명시 — PASS
-  - 근거: `SKILL.md:25` Gotcha 5 pointercancel 상태 leak 경고, `SKILL.md:350-357` onPointerCancel 핸들러 구현 예시 (L3)
-
-### Accessibility (1/1)
-- [x] AX-01: 접근성 경고 반영 — PASS
-  - 근거: `SKILL.md:644-706` §5 전체 — prefers-reduced-motion(`SKILL.md:648-653`), 키보드 fallback(`SKILL.md:654-683`), ARIA live regions(`SKILL.md:684-702`) (L3)
+### Anti-patterns (Library Policy) (2/2)
+- [x] AP-01: Library Policy 카테고리가 금지 애니메이션 라이브러리를 빌드 실패 레벨로 검출 — PASS
+  - 근거: `react-kit/skills/react-audit/SKILL.md:15` (Gotchas: 빌드 게이트급), :154-157 (❌ 실패로 분류), :281 (MUST Library Policy 위반은 ❌ 실패) (L3)
+- [x] AP-02: /react-preflight 실패 시 롤백 규칙 명시 — PASS
+  - 근거: `react-kit/skills/react-preflight/SKILL.md:70-77` (단계별 실패 복구 안내 테이블) (L3)
 
 ### Reusability (2/2)
-- [x] RE-01: 기존 react-kit/flutter-toolkit 스킬과 구조 일관 — PASS [정적]
-  - 근거: frontmatter + Gotchas + Process + References 구조 준수 (L2)
-- [x] RE-02: 트리거 키워드 기존 스킬과 미중복 — PASS [정적]
-  - 근거: 애니메이션/인터랙션 특화 키워드, 기존 스킬 영역과 비중복 (L2)
+- [x] RE-01: SKILL.md + agent.md 구조 기존과 일관 — PASS
+  - 근거: frontmatter + Gotchas + Process + Rules + References 구조 5개 파일 모두 일관 (L2)
+- [x] RE-02: 총 21개 스킬 + 3개 에이전트 트리거 키워드 상호 배타적 — PASS
+  - 근거: 21개 스킬 quoted 키워드 전수 exact match 검사 → 중복 0건. react-run "wasm-build 서브커맨드" vs react-wasm "wasm-pack 빌드" 완전 분리 확인. 부분 포함 검사에서 "기능 추가"/"네이티브 기능 추가" 감지되었으나 수식어로 명확한 의미 분리 — 동일 사용자 요청에서 동시 매칭되지 않음 (L3)
 
 ### Diagnostics (2/2)
-- [x] DG-01: TODO/TBD/FIXME 0건 — PASS
-  - 근거: 두 파일 Grep 결과 매칭 0건 (L2)
+- [x] DG-01: 5개 파일 TODO/TBD/FIXME 0건 — PASS
+  - 근거: 정규식 스캔 5개 파일 합산 0건 (L3)
 - [x] DG-02: 모든 fenced code block 언어 힌트 — PASS
-  - 근거: SKILL.md 열기 블록 18개 전부 언어 힌트 있음(tsx/ts/css), agent.md 열기 블록 3개 전부 언어 힌트 있음(text/markdown) (L2)
-
-### project.yaml Anti-patterns (2/2)
-- [x] hardcoded.*version: 매칭 없음 — PASS
-- [x] git push.*--force: 매칭 없음 — PASS
+  - 근거: fence 상태 추적 파서로 5개 파일 검사 → bare opening fence 0건 (L3)
 
 ## Summary
-- Total: 17/17 PASS (+ project.yaml 2/2 PASS)
-- Verdict: APPROVE
-- Iteration: 2
+- Total: 19/19 conditions passed
+- Verdict: **APPROVE**
 
-## Changes from Iteration 1
-- AP-03 FAIL → PASS: `SKILL.md:17` Gotcha 1 금지 목록에 `react-transition-group` 추가, `agent.md:35-36` 절대 금지 라이브러리 목록에 `react-spring` / `react-transition-group` 추가
-- 나머지 16개 조건: 회귀 없음 확인
+## Changes from Iteration 2
+- **SK-05**: FAIL → PASS
+  - `react-kit/skills/react-run/SKILL.md:5` "wasm-pack 빌드" → "wasm-build 서브커맨드" 교체 (commit `1ce3e36`)
+  - 21개 스킬 전수 exact match 검사로 중복 0건 확인
+- **RE-02**: FAIL → PASS
+  - SK-05 수정으로 동일 문제 해소. 부분 포함 관계("기능 추가"/"네이티브 기능 추가") 추가 검사 — 수식어로 disambiguation 가능하여 PASS 판정
 
-## 런타임 검증
-⚠️ 런타임 검증 미수행 — MCP 서버 미설정 (project.yaml `runtime_inspection.mcp_server: null`)
+## Note
+런타임 검증 미수행 — MCP 서버 미설정 (project.yaml: runtime_inspection.mcp_server=null)
