@@ -14,7 +14,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.
+1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / react-transition-group / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.
 
 2. **가장 낮은 Tier부터 시도**: "animation" 요청을 받으면 무조건 Tier 3부터 쓰는 실수가 잦다. 판정 규칙을 따라 Tier 1로 해결 가능한지 먼저 확인하고, 불가능할 때만 더 높은 Tier로 올라간다.
 

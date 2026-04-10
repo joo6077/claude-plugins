@@ -33,6 +33,7 @@ model: sonnet
 - `motion` (구 framer-motion)
 - `framer-motion`
 - `react-spring` / `@react-spring/web`
+- `react-transition-group`
 - `@dnd-kit/core` / `@dnd-kit/sortable`
 - `react-dnd` / `react-beautiful-dnd`
 - `@formkit/auto-animate`
