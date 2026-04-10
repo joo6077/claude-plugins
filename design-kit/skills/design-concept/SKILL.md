@@ -16,13 +16,41 @@ user-invocable: true
 
 1. **스택별 코드 생성 금지** — 이 스킬은 방향과 원칙만 정의한다. Flutter/React/CSS 코드를 직접 생성하지 마라. HTML 무드보드는 시각화 목적이므로 예외.
 2. **근거 없는 제안 금지** — "이 컬러가 좋을 것 같습니다" ✗. 반드시 리서치 문서 또는 웹 리서치 출처를 명시하라. `docs/design/` 리서치 문서와 웹 리서치 결과를 근거로 제안한다.
-3. **컬러 값 직접 지정 금지** — 컨셉 단계에서 hex 값을 확정하지 마라. "따뜻한 뉴트럴 계열, 높은 채도의 포인트 컬러" 같은 방향만 제시한다. 구체적 값은 design-system 스킬에서 정한다.
+3. **컬러 값 직접 지정 금지 (concept.md)** — `.design/concept.md`의 "컬러 방향" 표에는 hex 값을 쓰지 마라. "따뜻한 뉴트럴 계열, muted 채도, 번트 앰버 계열 포인트" 같은 **서술형 방향**만 쓴다. 구체적 hex, WCAG 수치 계산은 design-system 단계에서 확정한다.
+   **예외:** 무드보드 HTML(`.design/moodboard.html`)은 시각화 목적상 hex placeholder를 채울 수 있으나 **반드시 상단에 "방향 시각화용 참조값" disclaimer 배너가 렌더링되어야 한다**. 템플릿(`design-kit/templates/moodboard.html`)은 `.mb-disclaimer` 섹션과 `data-i18n="disclaimer.color"` 문구를 포함하며 생성 시 삭제 금지. 이 배너가 없으면 무드보드 hex가 "확정값"으로 오독된다 (Phase B 드라이런에서 실제 REJECT 근거였다).
 4. **기존 컨셉 무시 금지** — `.design/concept.md`가 이미 존재하면 반드시 로드하여 수정/확장 모드로 진입하라. 기존 내용을 무시하고 새로 만들면 이전 합의가 사라진다.
 5. **무드 키워드를 시각 속성으로 번역하지 않으면 의미 없음** — "미니멀", "따뜻함" 같은 키워드는 반드시 `color / type / image / shape / layout / motion` 각각에 대한 구체적 방향으로 번역해야 한다. 키워드만 나열하고 시각 규칙이 없으면 팀마다 다르게 해석되어 무드보드가 장식으로 끝난다.
 6. **컨셉 시안은 컬러 교체가 아니라 레이아웃 차별화** — 여러 컨셉 안을 제시할 때 색상만 바꾸는 것은 "스타일 옵션"이지 "컨셉 옵션"이 아니다. hero 구조, 그리드, 콘텐츠 밀도, 타이포 위계, 이미지 비중 중 최소 2개 이상이 달라야 검토 가치가 생긴다.
 7. **컬러 방향은 역할 기반으로 정의** — "예쁜 5색" 조합이 아니라 Primary/Secondary/Accent/Neutral/Semantic 역할로 나눠야 한다. 컨셉 단계에서도 "어떤 역할의 컬러가 어떤 톤인지"를 명시해야 design-system 단계에서 토큰 체계로 이어진다.
 8. **접근성 대비율을 컬러 방향 단계에서 언급** — 컨셉 단계에서 "고대비/저대비 무드"를 결정할 때 WCAG AA 기준(일반 텍스트 4.5:1, 큰 텍스트 3:1)을 제약으로 고려하라. 나중에 토큰 단계에서 브랜드색이 접근성을 통과 못해 방향을 바꾸는 일이 생긴다.
-9. **무드보드 HTML의 필수 섹션 누락 금지** — Step 5에서 생성하는 무드보드 HTML은 Mood Keywords, Color Palette, Typography, Imagery Direction, Texture/Material, Layout Cues, Do/Don't 섹션을 모두 포함해야 한다. 섹션이 빠지면 무드보드가 시각 자료 모음에 그친다.
+9. **무드보드 HTML의 필수 섹션 누락 금지** — Step 5에서 생성하는 무드보드 HTML은 **7개 필수 섹션**을 모두 포함해야 한다. 섹션이 빠지면 무드보드가 시각 자료 모음에 그친다.
+
+   **필수 섹션 ↔ 템플릿 매핑** (`design-kit/templates/moodboard.html` 기준):
+
+   | # | SKILL.md 요구 섹션 | 템플릿 섹션명 (`data-i18n="section.*"`) | 한글 라벨 |
+   |---|---------------------|-----------------------------------------|-----------|
+   | 1 | Mood Keywords       | `section.keywords`                      | 무드 키워드 |
+   | 2 | Color Palette       | `section.palette`                       | 컬러 팔레트 |
+   | 3 | Typography          | `section.typography`                    | 타이포그래피 |
+   | 4 | Imagery Direction   | `section.references`                    | 레퍼런스 (inspiration 이미지 그리드) |
+   | 5 | Texture / Material  | `section.texture`                       | 질감 & 소재 |
+   | 6 | Layout Cues         | `section.layout`                        | 레이아웃 큐 |
+   | 7 | Do / Don't          | `section.dodont`                        | Do / Don't |
+
+   **검증 체크리스트** (Step 5 완료 직후 반드시 실행):
+   ```bash
+   # 1) 미치환 placeholder 없어야 함
+   grep -c '{{' .design/moodboard.html   # → 0
+
+   # 2) 7개 섹션 모두 존재해야 함 (7개 매치)
+   grep -cE 'data-i18n="section\.(keywords|palette|typography|references|texture|layout|dodont)"' .design/moodboard.html  # → 7
+
+   # 3) color disclaimer 배너 존재 (Gotcha #3)
+   grep -c 'data-i18n="disclaimer.color"' .design/moodboard.html   # → 1
+   ```
+   하나라도 어긋나면 즉시 템플릿 치환을 재실행하고 누락 placeholder를 채워라.
+
+   **주의:** 과거 템플릿에 Tone & Manner 섹션(`section.tone`)이 있었고 Texture/Layout/DoDont가 없었다. Phase B 드라이런에서 이 불일치 때문에 REJECT를 받았다. 7개 필수 섹션과 Tone & Manner(선택)는 별개다.
 
 # Process
 
@@ -119,6 +147,8 @@ templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)�
 - **Do / Don't** — 이 컨셉에서 의도적으로 강조할 것 vs 피할 것
 
 브라우저에서 바로 열어 확인 가능한 standalone HTML로 생성한다.
+
+**생성 직후 반드시 Gotcha #9의 3개 검증 명령을 실행하라.** 미치환 placeholder 0개, 7개 섹션 매치, disclaimer 배너 1개 — 하나라도 어긋나면 재생성.
 
 ## Step 6: 사용자 피드백
 

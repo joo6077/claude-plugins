@@ -307,6 +307,141 @@
       background: var(--mb-primary, var(--color-accent));
     }
 
+    /* --- Color Disclaimer (Gotcha #3) --- */
+    .mb-disclaimer {
+      background: var(--color-warning, #e8a817);
+      color: #1a1a1a;
+      padding: var(--space-sm) 0;
+      border-top: 1px solid rgba(0,0,0,0.12);
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+    }
+    [data-theme="dark"] .mb-disclaimer {
+      background: rgba(232, 168, 23, 0.18);
+      color: var(--color-text-primary);
+    }
+    .mb-disclaimer-inner {
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: 0 var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .mb-disclaimer-icon {
+      font-size: var(--text-base);
+      line-height: 1;
+    }
+    .mb-disclaimer-text {
+      font-size: var(--text-sm);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .mb-disclaimer-text code {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      background: rgba(0,0,0,0.12);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.92em;
+    }
+    [data-theme="dark"] .mb-disclaimer-text code {
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* --- Texture / Material --- */
+    .mb-texture {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-md);
+    }
+    .mb-texture-card {
+      padding: var(--space-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+    .mb-texture-tag {
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: var(--text-xs);
+      padding: 3px 8px;
+      margin: 2px 4px 2px 0;
+      background: var(--color-surface-high);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      color: var(--color-text-secondary);
+    }
+    .mb-texture-desc {
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      margin-top: var(--space-sm);
+    }
+
+    /* --- Layout Cues --- */
+    .mb-layout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--space-md);
+    }
+    .mb-layout-card {
+      padding: var(--space-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--mb-accent, var(--color-accent));
+    }
+    .mb-layout-card-label {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-tertiary);
+      margin-bottom: var(--space-xs);
+    }
+    .mb-layout-card-text {
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      color: var(--color-text-primary);
+    }
+
+    /* --- Do / Don't --- */
+    .mb-dodont {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+    .mb-dodont-col {
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+    }
+    .mb-dodont-do   { background: rgba(13, 158, 95, 0.08); border-color: rgba(13, 158, 95, 0.35); }
+    .mb-dodont-dont { background: rgba(217, 48, 37, 0.08); border-color: rgba(217, 48, 37, 0.35); }
+    .mb-dodont-title {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-sm);
+    }
+    .mb-dodont-do   .mb-dodont-title { color: var(--color-success, #0d9e5f); }
+    .mb-dodont-dont .mb-dodont-title { color: var(--color-error, #d93025); }
+    .mb-dodont-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .mb-dodont-list li {
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      padding: var(--space-xs) 0;
+      border-bottom: 1px dashed var(--color-border);
+      color: var(--color-text-primary);
+    }
+    .mb-dodont-list li:last-child {
+      border-bottom: none;
+    }
+
     /* --- Section Label --- */
     .mb-section-label {
       display: flex;
@@ -661,6 +796,15 @@
       </div>
     </section>
 
+    <!-- ==================== COLOR DISCLAIMER ==================== -->
+    <!-- Gotcha #3 — 컨셉 단계에서 hex는 확정값이 아니라 방향 시각화용 참조값이다 -->
+    <section class="mb-disclaimer full-bleed" aria-live="polite">
+      <div class="mb-disclaimer-inner">
+        <span class="mb-disclaimer-icon" aria-hidden="true">⚠︎</span>
+        <p class="mb-disclaimer-text" data-i18n="disclaimer.color">아래 팔레트는 "방향 시각화용 참조값"입니다. 최종 hex 토큰은 /design-system 단계에서 확정됩니다.</p>
+      </div>
+    </section>
+
     <!-- ==================== 2. COLOR PALETTE ==================== -->
     <section class="base-section">
       <div class="mb-section-label">
@@ -923,6 +1067,83 @@
       </div>
     </section>
 
+    <!-- ==================== 7. TEXTURE / MATERIAL ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.texture">질감 & 소재</span>
+      </div>
+
+      <div class="mb-texture">
+        <div class="mb-texture-card">
+          <div>
+            <span class="mb-texture-tag">{{TEXTURE_TAG_1}}</span>
+            <span class="mb-texture-tag">{{TEXTURE_TAG_2}}</span>
+            <span class="mb-texture-tag">{{TEXTURE_TAG_3}}</span>
+          </div>
+          <p class="mb-texture-desc" data-i18n="texture.surface">{{TEXTURE_SURFACE_DESC}}</p>
+        </div>
+        <div class="mb-texture-card">
+          <div>
+            <span class="mb-texture-tag">{{TEXTURE_TAG_4}}</span>
+            <span class="mb-texture-tag">{{TEXTURE_TAG_5}}</span>
+          </div>
+          <p class="mb-texture-desc" data-i18n="texture.finish">{{TEXTURE_FINISH_DESC}}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 8. LAYOUT CUES ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.layout">레이아웃 큐</span>
+      </div>
+
+      <div class="mb-layout-grid">
+        <div class="mb-layout-card">
+          <div class="mb-layout-card-label" data-i18n="layout.hero.label">Hero 구조</div>
+          <div class="mb-layout-card-text" data-i18n="layout.hero.text">{{LAYOUT_HERO}}</div>
+        </div>
+        <div class="mb-layout-card">
+          <div class="mb-layout-card-label" data-i18n="layout.grid.label">그리드</div>
+          <div class="mb-layout-card-text" data-i18n="layout.grid.text">{{LAYOUT_GRID}}</div>
+        </div>
+        <div class="mb-layout-card">
+          <div class="mb-layout-card-label" data-i18n="layout.density.label">정보 밀도</div>
+          <div class="mb-layout-card-text" data-i18n="layout.density.text">{{LAYOUT_DENSITY}}</div>
+        </div>
+        <div class="mb-layout-card">
+          <div class="mb-layout-card-label" data-i18n="layout.flow.label">콘텐츠 흐름</div>
+          <div class="mb-layout-card-text" data-i18n="layout.flow.text">{{LAYOUT_FLOW}}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 9. DO / DON'T ==================== -->
+    <section class="base-section">
+      <div class="mb-section-label">
+        <span class="mb-section-label-text" data-i18n="section.dodont">Do / Don't</span>
+      </div>
+
+      <div class="mb-dodont">
+        <div class="mb-dodont-col mb-dodont-do">
+          <div class="mb-dodont-title" data-i18n="dodont.do">Do</div>
+          <ul class="mb-dodont-list">
+            <li data-i18n="dodont.do.1">{{DO_1}}</li>
+            <li data-i18n="dodont.do.2">{{DO_2}}</li>
+            <li data-i18n="dodont.do.3">{{DO_3}}</li>
+          </ul>
+        </div>
+        <div class="mb-dodont-col mb-dodont-dont">
+          <div class="mb-dodont-title" data-i18n="dodont.dont">Don't</div>
+          <ul class="mb-dodont-list">
+            <li data-i18n="dodont.dont.1">{{DONT_1}}</li>
+            <li data-i18n="dodont.dont.2">{{DONT_2}}</li>
+            <li data-i18n="dodont.dont.3">{{DONT_3}}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <!-- ==================== FOOTER ==================== -->
     <footer class="base-footer">
       <p data-i18n="footer.text">{{PROJECT_NAME}} · design-kit moodboard · {{GENERATED_DATE}}</p>
@@ -964,7 +1185,19 @@
         meta:    { title: '{{PROJECT_NAME}} — 무드보드' },
         toolbar: { title: '{{PROJECT_NAME}} 무드보드', theme: '다크 모드' },
         hero:    { eyebrow: 'Design Concept', title: '{{PROJECT_NAME}}', concept: '{{CONCEPT_ONELINER}}' },
-        section: { palette: '컬러 팔레트', typography: '타이포그래피', keywords: '무드 키워드', references: '레퍼런스', tone: '톤 & 매너' },
+        disclaimer: { color: '아래 팔레트는 "방향 시각화용 참조값"입니다. 최종 hex 토큰은 /design-system 단계에서 확정됩니다.' },
+        section: { palette: '컬러 팔레트', typography: '타이포그래피', keywords: '무드 키워드', references: '레퍼런스', tone: '톤 & 매너', texture: '질감 & 소재', layout: '레이아웃 큐', dodont: 'Do / Don\'t' },
+        texture: { surface: '{{TEXTURE_SURFACE_DESC}}', finish: '{{TEXTURE_FINISH_DESC}}' },
+        layout: {
+          'hero.label': 'Hero 구조',      'hero.text':    '{{LAYOUT_HERO}}',
+          'grid.label': '그리드',          'grid.text':    '{{LAYOUT_GRID}}',
+          'density.label': '정보 밀도',    'density.text': '{{LAYOUT_DENSITY}}',
+          'flow.label': '콘텐츠 흐름',     'flow.text':    '{{LAYOUT_FLOW}}'
+        },
+        dodont: {
+          do: 'Do',   'do.1':   '{{DO_1}}',   'do.2':   '{{DO_2}}',   'do.3':   '{{DO_3}}',
+          dont: "Don't", 'dont.1': '{{DONT_1}}', 'dont.2': '{{DONT_2}}', 'dont.3': '{{DONT_3}}'
+        },
         palette: { primary: 'Primary', secondary: 'Secondary', accent: 'Accent', neutral: 'Neutral', surface1: 'Surface', surface2: 'Background' },
         type: {
           heading:   'Heading',    'heading.preview':   '{{TYPE_HEADING_SAMPLE}}',
@@ -993,7 +1226,19 @@
         meta:    { title: '{{PROJECT_NAME}} — Moodboard' },
         toolbar: { title: '{{PROJECT_NAME}} Moodboard', theme: 'Dark Mode' },
         hero:    { eyebrow: 'Design Concept', title: '{{PROJECT_NAME}}', concept: '{{CONCEPT_ONELINER_EN}}' },
-        section: { palette: 'Color Palette', typography: 'Typography', keywords: 'Mood Keywords', references: 'References', tone: 'Tone & Manner' },
+        disclaimer: { color: 'The palette below is a "directional reference". Final hex tokens are locked in during /design-system.' },
+        section: { palette: 'Color Palette', typography: 'Typography', keywords: 'Mood Keywords', references: 'References', tone: 'Tone & Manner', texture: 'Texture & Material', layout: 'Layout Cues', dodont: "Do / Don't" },
+        texture: { surface: '{{TEXTURE_SURFACE_DESC_EN}}', finish: '{{TEXTURE_FINISH_DESC_EN}}' },
+        layout: {
+          'hero.label': 'Hero Structure',  'hero.text':    '{{LAYOUT_HERO_EN}}',
+          'grid.label': 'Grid',             'grid.text':    '{{LAYOUT_GRID_EN}}',
+          'density.label': 'Density',       'density.text': '{{LAYOUT_DENSITY_EN}}',
+          'flow.label': 'Content Flow',     'flow.text':    '{{LAYOUT_FLOW_EN}}'
+        },
+        dodont: {
+          do: 'Do',   'do.1':   '{{DO_1_EN}}',   'do.2':   '{{DO_2_EN}}',   'do.3':   '{{DO_3_EN}}',
+          dont: "Don't", 'dont.1': '{{DONT_1_EN}}', 'dont.2': '{{DONT_2_EN}}', 'dont.3': '{{DONT_3_EN}}'
+        },
         palette: { primary: 'Primary', secondary: 'Secondary', accent: 'Accent', neutral: 'Neutral', surface1: 'Surface', surface2: 'Background' },
         type: {
           heading:   'Heading',    'heading.preview':   '{{TYPE_HEADING_SAMPLE_EN}}',
