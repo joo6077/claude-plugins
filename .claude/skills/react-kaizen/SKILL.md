@@ -66,8 +66,14 @@ user-invocable: true
 
 # References
 
-- `docs/react/kit-design/` — 리서치 설계 문서 (SSOT)
-- `docs/react/wasm-catalog.md` — WASM 이식 카탈로그
-- `react-kit/skills/` — 개선 대상 스킬
-- `react-kit/agents/` — 개선 대상 에이전트 (widget-inspector-react, animation-architect-react, react-reviewer)
+- `docs/react/kit-design/g1-scaffolding.md` — G1 스캐폴딩 그룹 설계 (react-init/react-screen/react-feature/react-widget)
+- `docs/react/kit-design/g2-state-data.md` — G2 상태/데이터 그룹 설계 (react-store/react-api/react-query/react-form)
+- `docs/react/kit-design/g3-performance.md` — G3 성능 그룹 설계 (react-wasm/react-tauri)
+- `docs/react/kit-design/g4-quality.md` — G4 품질 그룹 설계 (react-test/react-error/react-l10n)
+- `docs/react/kit-design/g5-ui-patterns.md` — G5 UI 패턴 그룹 설계 (react-responsive/react-skeleton/react-extract + widget-inspector-react)
+- `docs/react/kit-design/g5b-animation.md` — G5b 애니메이션 그룹 설계 (react-animation + animation-architect-react)
+- `docs/react/kit-design/g6-build-audit.md` — G6 빌드/감사 그룹 설계 (react-run/react-build/react-preflight/react-audit + react-reviewer)
+- `docs/react/wasm-catalog.md` — WASM 이식 카탈로그 (이식 판정 SSOT)
+- `react-kit/skills/` — 개선 대상 21개 스킬
+- `react-kit/agents/` — 개선 대상 3개 에이전트
 - `react-kit/evals/evals.json` — 테스트 케이스 (향후 추가)
