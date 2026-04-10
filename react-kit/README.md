@@ -22,6 +22,8 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 | `react-query` | /react-api가 생성한 repository를 감싸는 TanStack Query v5 훅(useQuery·useMutation)을 생성한다. |
 | `react-screen` | 기존 React 프로젝트에 새 화면(Page)을 추가하고 TanStack Router 파일 기반 라우트를 등록한다. |
 | `react-store` | feature별 또는 전역 Zustand 스토어와 selector 훅을 생성한다. |
+| `react-tauri` | Tauri 2 Rust command를 정의하고 TS invoke 래퍼 + capabilities 등록까지 3-tier로 자동 생성한다. |
+| `react-wasm` | Rust 함수를 WebAssembly로 컴파일하고 Comlink Worker + Clean Architecture 데이터 레이어 바인딩까지 자동 생성한다. |
 | `react-widget` | shadcn/ui 컴포넌트를 기반으로 cva variant + Container Queries를 갖춘 재사용 UI 컴포넌트를 생성한다. |
 <!-- /AUTO:skills -->
 
