@@ -54,7 +54,7 @@ runtime_inspection:
 # ── 트리거 조건 ──
 trigger:
   min_files: 2
-  always: ["릴리스", "release", "버전"]
+  always: ["릴리스", "release", "버전", "react-kit", "react"]
   never: ["읽어줘", "설명해줘"]
 
 # ── 검증 절차 ──
