@@ -15,6 +15,7 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
 |------|------|
+| `react-animation` | React 컴포넌트에 애니메이션을 추가한다. 외부 라이브러리 없이 |
 | `react-api` | REST/GraphQL 엔드포인트를 domain → data → datasource → repository → usecase 4계층으로 일괄 또는 개별 생성한다. |
 | `react-error` | 데이터 경계의 예외를 Failure로 변환하고, React Error Boundary로 렌더 에러를 포획하며, Severity에 따라 UI 표시를 분기하는 3단계 에러 처리 패턴을 세팅한다. |
 | `react-extract` | feature 내부에 사유화되거나 중복된 컴포넌트를 감지하여 presentation/shared/components/로 추출한다. |
@@ -36,6 +37,7 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 <!-- AUTO:agents -->
 | 에이전트 | 설명 |
 |----------|------|
+| `animation-architect-react` | React 애니메이션 구현 전에 Tier 판정, 권장 전략, 접근성 검토를 자문한다. |
 | `widget-inspector-react` | React 프로젝트 코드에서 재사용 가능한 컴포넌트 패턴을 감지하고 리포팅한다. |
 <!-- /AUTO:agents -->
 
