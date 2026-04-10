@@ -16,13 +16,16 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 | 스킬 | 설명 |
 |------|------|
 | `react-api` | REST/GraphQL 엔드포인트를 domain → data → datasource → repository → usecase 4계층으로 일괄 또는 개별 생성한다. |
+| `react-error` | 데이터 경계의 예외를 Failure로 변환하고, React Error Boundary로 렌더 에러를 포획하며, Severity에 따라 UI 표시를 분기하는 3단계 에러 처리 패턴을 세팅한다. |
 | `react-feature` | 하나의 feature를 구성하는 domain/data/presentation/infrastructure 4계층 파일을 한 번에 생성한다. |
 | `react-form` | React Hook Form + Zod를 통합한 폼 컴포넌트를 생성한다. |
 | `react-init` | Vite + Tauri 2 + React + TypeScript strict + Tailwind v4 + shadcn/ui + TanStack Router 스택으로 |
+| `react-l10n` | Lingui v5 매크로 기반으로 번역 문자열을 추가하고 codegen 흐름을 자동화한다. |
 | `react-query` | /react-api가 생성한 repository를 감싸는 TanStack Query v5 훅(useQuery·useMutation)을 생성한다. |
 | `react-screen` | 기존 React 프로젝트에 새 화면(Page)을 추가하고 TanStack Router 파일 기반 라우트를 등록한다. |
 | `react-store` | feature별 또는 전역 Zustand 스토어와 selector 훅을 생성한다. |
 | `react-tauri` | Tauri 2 Rust command를 정의하고 TS invoke 래퍼 + capabilities 등록까지 3-tier로 자동 생성한다. |
+| `react-test` | 대상 파일/클래스를 분석하여 테스트 코드를 자동 생성한다. |
 | `react-wasm` | Rust 함수를 WebAssembly로 컴파일하고 Comlink Worker + Clean Architecture 데이터 레이어 바인딩까지 자동 생성한다. |
 | `react-widget` | shadcn/ui 컴포넌트를 기반으로 cva variant + Container Queries를 갖춘 재사용 UI 컴포넌트를 생성한다. |
 <!-- /AUTO:skills -->
