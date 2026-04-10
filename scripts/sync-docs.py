@@ -30,7 +30,7 @@ if sys.platform == "win32":
     )
 
 ROOT = Path(__file__).resolve().parent.parent
-PLUGINS = ["harness", "flutter-toolkit", "design-kit", "backend-kit", "infra-kit", "rust-kit"]
+PLUGINS = ["harness", "flutter-toolkit", "design-kit", "backend-kit", "infra-kit", "rust-kit", "react-kit"]
 
 MARKER_RE = re.compile(
     r"(<!-- AUTO:(\w+) -->)\n(.*?)(<!-- /AUTO:\2 -->)",
