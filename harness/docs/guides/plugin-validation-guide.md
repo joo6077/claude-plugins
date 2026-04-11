@@ -474,25 +474,61 @@ Exit: 2
 ## 7. 카이젠 연동
 
 각 킷의 카이젠 스킬(`*-kaizen`)이 이 가이드를 베이스라인으로 사용한다.
+이 §7 이 9개 카이젠 스킬의 "Plugin Validation 결과 반영" 단계의 SSOT(Single Source of Truth)다.
+각 카이젠 스킬은 킷 특화 규칙만 로컬에 유지하고, 공통 규칙은 이 섹션을 따른다.
 
-### 카이젠 진입 시 체크리스트
+### §7.1 실행 패턴
 
-카이젠 스킬은 실행 초반에 다음을 수행한다:
+카이젠 세션을 시작하기 전과 끝낼 때 모두 실행한다.
 
 ```bash
-# 카이젠 대상 킷의 현재 상태 파악
+# 세션 시작 시 현재 상태 파악
+python3 scripts/validate-plugin.py <kit-name>
+
+# 자동 수정 가능한 항목 먼저 (V5 placeholders, V6 code-fence)
+python3 scripts/validate-plugin.py <kit-name> --fix --check=placeholders,code-fence
+
+# 세션 종료 시 회귀 없음 확인
 python3 scripts/validate-plugin.py <kit-name>
 ```
 
-검증 결과를 카이젠 컨텍스트에 포함하여 "이미 FAIL 인 항목은 먼저 수정"하고 "PASS 인 항목은 변경으로 깨지지 않도록" 보장한다.
+### §7.2 우선순위 매핑
 
-### 가이드 갱신 기준
+| 결과 | 의미 | 처리 |
+|------|------|------|
+| **ERROR** (FAIL) | V1~V7 중 하나 이상 실패 | 카이젠 개선 우선순위 "높음"에 자동 편입. 이 세션에서 반드시 수정 |
+| **WARNING** | V4 trigger 키워드 중복 등 | 우선순위 "중간". description 보강으로 해소 권장 |
+| **PASS** | 모든 체크 통과 | 해당 카테고리 skip. 변경으로 FAIL 이 생기지 않도록 주의 |
+
+### §7.3 통합 규칙
+
+- `--fix` 자동 모드는 **V5 placeholders 와 V6 code-fence 만** 수정한다. 다른 체크는 수동 수정.
+- V3 refs BROKEN 은 링크 경로 또는 참조 파일을 수동으로 확인한 후 수정한다.
+- V1 frontmatter 누락은 1줄 수정이므로 즉시 처리한다.
+- V7 plugin-json 불일치가 릴리스 흐름 문제라면 카이젠이 아닌 `scripts/release.sh` (릴리스 스킬)에서 다룬다.
+
+### §7.4 각 카이젠 스킬의 참조 방식
+
+각 카이젠 스킬의 "Step N: Plugin Validation 결과 반영" 섹션은 다음 형식을 따른다:
+
+```markdown
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py <kit-name>` 을 실행하여
+7 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+
+**실행 패턴, 우선순위 매핑, 통합 규칙**은
+`harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT).
+```
+
+킷별 특화 규칙(예외 동작, Library Policy 원칙 등)만 각 스킬 로컬에 유지한다.
+
+### §7.5 가이드 갱신 기준
 
 이 가이드는 다음 상황에서 갱신한다:
 
 - 새 킷 추가 시: §6 킷별 예외 카탈로그에 추가
 - 새 검증 카테고리 도입 시: V8~ 형식으로 §3 에 추가
 - 기존 체크 기준 변경 시: 해당 V-번호 섹션 수정 + `last_updated` 갱신
+- 통합 규칙 변경 시: §7.3 수정
 
 가이드 갱신은 `harness-kaizen` 스킬이 담당한다.
 
