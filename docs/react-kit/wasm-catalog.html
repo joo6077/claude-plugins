@@ -77,6 +77,16 @@ pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px
 .compare-bad .compare-header{color:var(--red)}
 .compare-good .compare-header{color:var(--green)}
 .compare-note{font-size:0.82rem;color:var(--text2);margin-top:10px;line-height:1.6}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:16px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
+.card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 4px 20px rgba(56,189,248,0.06)}
+.card-icon{font-size:1.4rem;margin-bottom:10px}
+.card h3{font-size:0.95rem;font-weight:600;margin-bottom:8px;color:var(--text)}
+.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
+.check-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.check-list li{display:flex;align-items:flex-start;gap:10px;font-size:0.88rem;color:var(--text2);line-height:1.6}
+.check-icon{width:20px;height:20px;border-radius:5px;border:2px solid var(--yellow);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--yellow)}
+.check-list strong{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
@@ -100,11 +110,39 @@ pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px
   </div>
 
   <!-- 원칙 -->
-  <section>
+  <section id="principles">
     <div class="section-label">원칙</div>
-    <div class="callout">
-      <strong>측정 없이 가정하지 말고, 가정 없이 이식하지 말라.</strong>
-      카탈로그는 이미 누가 측정한 결과의 응축본이다. 직관이 아니라 카탈로그를 먼저 확인하라.
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📏</div>
+        <h3>측정 우선</h3>
+        <p>측정 없이 가정하지 말고, 가정 없이 이식하지 말라. 카탈로그는 이미 누가 측정한 결과의 응축본이다. 직관이 아니라 카탈로그를 먼저 확인하라.</p>
+        <a href="https://rustwasm.github.io/docs/book/why-rust-and-webassembly.html" class="card-source" target="_blank" rel="noopener">↗ Rust and WebAssembly Book</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚖️</div>
+        <h3>경계 비용이 결정한다</h3>
+        <p>WASM의 성능 이득은 경계 비용(JS↔WASM 왕복)으로 쉽게 상쇄된다. 경계를 자주 넘는 패턴이라면 WASM은 오히려 손해다.</p>
+        <a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Concepts" class="card-source" target="_blank" rel="noopener">↗ MDN WebAssembly 개념</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗂️</div>
+        <h3>카탈로그 테이블이 1차 기준</h3>
+        <p>§1 권장 카테고리에 해당하면 이식 제안, §2 비권장 카테고리에 해당하면 제안 거부. 테이블에 없으면 §5 휴리스틱 5개 중 3개 이상을 적용한다.</p>
+        <a href="https://rustwasm.github.io/docs/wasm-bindgen" class="card-source" target="_blank" rel="noopener">↗ wasm-bindgen Guide</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔢</div>
+        <h3>연산 밀도가 크기보다 중요</h3>
+        <p>데이터가 크다고 WASM이 이기는 게 아니다. compute per byte — 즉 연산 밀도가 높을수록 WASM 이득이 크다. 1 GB라도 단순 선형 스캔이면 V8으로 충분하다.</p>
+        <a href="https://v8.dev/features/simd" class="card-source" target="_blank" rel="noopener">↗ V8 SIMD 문서</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔌</div>
+        <h3>바이너리 버퍼로 한 번에 전달</h3>
+        <p>WASM 효율은 "한 번 진입, 오래 내부에서 처리"에서 나온다. 문자열을 잘게 쪼개 반복 전달하지 말고 Uint8Array / Float32Array로 한 번에 넘겨라.</p>
+        <a href="https://developer.mozilla.org/en-US/docs/WebAssembly" class="card-source" target="_blank" rel="noopener">↗ MDN WebAssembly</a>
+      </div>
     </div>
   </section>
 
@@ -468,6 +506,50 @@ async function processDocument(file: File) {
 
     <a href="https://rustwasm.github.io/docs/book/why-rust-and-webassembly.html" class="card-source" target="_blank" rel="noopener">↗ Rust and WebAssembly Book</a>
     <a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Concepts" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ MDN WebAssembly 개념</a>
+  </section>
+
+  <!-- Gotchas 체크리스트 -->
+  <section id="gotchas">
+    <div class="section-label">Gotchas 체크리스트</div>
+    <h2>WASM 이식 전·후 필수 확인 항목</h2>
+    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
+      wasm-catalog.md §6 오해 교정 + §11 마이그레이션 체크리스트 기반. 이 목록을 건너뛰면 반드시 경계 비용 손해 또는 빌드 실패가 발생한다.
+    </p>
+    <ul class="check-list">
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>§1 권장 카테고리 또는 §5 휴리스틱 3/5 이상 통과 확인.</strong> 카탈로그 판정 없이 직관으로 이식 결정 금지. 폼 검증·JSON 파싱·DOM 조작은 §2 비권장 카테고리다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>이식 대상 함수가 순수 함수에 가까운지 확인.</strong> 외부 상태·DOM·fetch 참조가 있으면 refactor 먼저. WASM은 DOM 직접 접근 불가 — 모든 DOM 업데이트가 JS 글루를 통과한다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>입출력 타입을 바이너리 버퍼로 설계.</strong> 문자열 인자는 UTF-16↔UTF-8 변환 비용(600~2,500 ns/call)을 항상 지불한다. Uint8Array / Float32Array로 설계하여 경계 1회 진입 패턴을 유지하라.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>메인 스레드 호출이 100 ms 넘으면 Comlink Worker 래핑 강제.</strong> 무거운 WASM 함수를 메인 스레드에서 동기 호출하면 UI 블록킹. Worker 배치 후 Comlink로 프록시하라.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>SIMD 의존 코드는 반드시 feature detection 가드.</strong> <code>WebAssembly.validate</code> + SIMD opcode 프로브로 가드하고 fallback JS 경로를 준비하라. Safari 는 SIMD/Threads 지원이 지연된 이력이 있다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>Threads(SharedArrayBuffer) 사용 시 COOP/COEP 헤더 필수.</strong> <code>Cross-Origin-Opener-Policy: same-origin</code> + <code>Cross-Origin-Embedder-Policy: require-corp</code> 없이는 SharedArrayBuffer가 차단된다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>wasm-opt -O3 적용 후 .wasm 파일이 gzip 500 KB 이하인지 확인.</strong> 초과 시 불필요한 feature flag를 제거하라. WASM 번들 크기는 초기 로드 성능에 직접 영향을 준다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>WASM 결과를 domain/entities/ Zod 스키마로 parse하고 Result로 래핑.</strong> WASM 함수가 panic할 수 있으면 <code>neverthrow</code> Result로 감싸 호출부에 전파. presentation 에서 raw WASM 결과를 그대로 쓰지 마라.</span>
+      </li>
+    </ul>
+    <a href="https://rustwasm.github.io/docs/book/why-rust-and-webassembly.html" class="card-source" target="_blank" rel="noopener">↗ Rust and WebAssembly Book — §11 마이그레이션 체크리스트</a>
   </section>
 
   <!-- 프로덕션 케이스 스터디 -->
