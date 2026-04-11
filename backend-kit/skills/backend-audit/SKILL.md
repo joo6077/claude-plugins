@@ -39,9 +39,12 @@ Agent 도구를 사용하여 backend-reviewer 서브에이전트를 생성한다
 
 | 카테고리 | 판정 | 근거 |
 |----------|------|------|
+| Architecture | PASS/FAIL | 구체적 파일:라인 + 원칙 (Hexagonal/Clean/DDD) |
 | API Design | PASS/FAIL | 구체적 파일:라인 + 원칙 |
 | Database | PASS/FAIL | ... |
 | ... | ... | ... |
+
+카테고리 순서는 `references/audit-criteria.md`의 섹션 순서와 일치시킨다 (Architecture → API Design → Database → Auth → Error → Security → Caching → Event-Driven → Testing, 총 9 카테고리).
 
 ## Step 4: 최종 판정
 

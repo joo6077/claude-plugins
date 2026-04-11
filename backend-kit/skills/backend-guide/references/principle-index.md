@@ -6,6 +6,7 @@
 
 | 카테고리 | 문서 경로 |
 |----------|-----------|
+| Architecture (Hexagonal / Clean / DDD) | ../../../../docs/backend/fundamentals/api-design.md (TBD — `/backend-research` Phase에서 `docs/backend/patterns/architecture.md` 신설 예정) |
 | API Design | ../../../../docs/backend/fundamentals/api-design.md |
 | Database | ../../../../docs/backend/fundamentals/database.md |
 | Authentication & Authorization | ../../../../docs/backend/fundamentals/auth.md |
