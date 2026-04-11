@@ -13,6 +13,28 @@ last_updated: 2026-03-30
 
 <!-- 엔트리는 최신순으로 추가 -->
 
+## [2026-04-10] - kaizen Phase 1~10 + Final (전체 9 Phase 오케스트레이션)
+
+### 변경 유형: patch (code-fence, gotchas, guides, disambiguation)
+
+### 변경 범위
+- **Phase 1** (a925a31): kaizen-orchestrator Step 0 pre-flight 데이터 수집
+- **Phase 2** (0af5ecc): contract-design-guide 구체성 레벨 [L1/L2/L3] + 예외 조항 패턴 추가
+- **Phase 3** (1f73810): qa-evaluator L1~L3 검증 깊이 vs 계약 구체성 레벨 용어 분리 + set intersection 키워드 배타성 절차 추가
+- **Phase 4** (07c6074): harness README/create-skill/init bare code fence 7건 언어 힌트 추가
+- **Phase 5** (6a43a5e): flutter-toolkit Gotchas 강화 + cross-kit disambiguation
+- **Phase 6** (31808d4): design-kit bare fences 7건 수정 + Gotchas 강화
+- **Phase 7**: SKIPPED (backend-kit — 이번 카이젠 범위 외)
+- **Phase 8** (a45a7b7): infra-kit bare fence 수정 + references 디렉토리 생성
+- **Phase 9** (ec00e20): rust-kit bare fences + todo!() false positive fix + fit-pal monorepo insights
+- **Phase 10** (6ded56a): react-kit bare fence 수정 + 세션 REJECT 패턴 공통 Gotchas 문서화
+- **Final** (이번): harness V5 (TODO→미완성 마커) + V6 (bare fence line 86) residue 해결
+
+### 핵심 개선
+- 전체 7 플러그인 validate-plugin: ERROR 0 (before: 1 ERROR harness), WARNING은 cross-kit 허용 케이스
+- Phase 2↔3 L 기호 충돌 해소: 계약 구체성 레벨 [L1/L2/L3] vs evaluator 검증 깊이 L1~L3 용어 분리 명시
+- react-kit 라이브러리 0개 원칙 회귀 없음 확인
+
 ## [0.3.5] - 2026-03-30 (evaluator-kaizen)
 
 ### 변경 유형: patch (guide, agent-prompt)
