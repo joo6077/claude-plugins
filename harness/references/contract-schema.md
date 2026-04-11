@@ -1,7 +1,9 @@
 # Sprint Contract 스키마
 
-> sprint-contract와 qa-evaluator가 공유하는 계약 포맷 정의.
-> contract-kaizen이 변경 제안 가능, evaluator-kaizen이 읽어서 평가 루브릭에 반영.
+> sprint-contract 와 qa-evaluator 가 공유하는 계약 포맷 정의.
+> contract-kaizen 이 변경 제안 가능, evaluator-kaizen 이 읽어서 평가 루브릭에 반영.
+>
+> **최근 갱신: 2026-04-11 (Phase 2 kaizen research)** — 조건 태그 (Specificity Tag) 서브섹션 신설, aggregation mode 개념 추가, 스키마 버전 v2 로 bump.
 
 ## 계약 파일
 
@@ -22,12 +24,50 @@ conditions: {총 조건 수}
 
 ```markdown
 ## {CategoryID}
-- [ ] {PREFIX}-{NN}: {PASS/FAIL 이진 판정 가능한 조건문}
+- [ ] {PREFIX}-{NN}: {PASS/FAIL 이진 판정 가능한 조건문} [specificity-tag]
 ```
 
-- `CategoryID`와 `PREFIX`는 `project.yaml.contract_categories`에서 가져온다
+- `CategoryID` 와 `PREFIX` 는 `project.yaml.contract_categories` 에서 가져온다
 - 조건문은 능동태, 단일 조건, 측정 가능해야 한다
 - "잘 동작한다", "적절히 처리한다" 같은 모호 표현 금지
+- 조건 끝에 **구체성 태그** 를 붙여라 — 상세는 아래 §조건 태그 섹션 참조
+
+#### 조건 태그 (Specificity Tag)
+
+모든 계약 조건은 끝에 구체성 태그를 붙여야 한다. 미명시 시 `[structural]` 로 간주.
+
+| 태그 | 의미 |
+|------|------|
+| `[exact]` | 이름/값/구조 문자 그대로 매칭 |
+| `[structural]` | 섹션/필드/파일 존재 확인 (기본값) |
+| `[goal]` | 목표 달성 여부만 판정, 수단 무관 |
+
+**예시:**
+
+```markdown
+- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
+- [ ] UI-02: 설정 화면에 접근성 라벨이 모든 버튼에 존재한다 [structural]
+- [ ] LO-01: 로그인 실패 시 사용자에게 실패 원인이 전달된다 [goal]
+```
+
+**Aggregation Mode** — 다수 대상 (파일/모듈/키워드) 조건은 태그에 모드를 함께 명시한다:
+
+| 모드 | 의미 |
+|------|------|
+| `enumerated` | 각 대상을 개별 이름으로 명시해야 PASS |
+| `collective` | 포괄 경로/패턴 하나로도 PASS (기본값) |
+
+**예시:**
+
+```markdown
+- [ ] RE-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이 각각 파일명으로 명시된다 [exact, enumerated]
+- [ ] RE-02: References 에 docs/react/kit-design/ 경로가 명시된다 [structural, collective]
+```
+
+**규칙:**
+
+- 숫자 레벨 태그 (L-one/L-two/L-three) 는 **QA 평가 깊이 전용** — 계약 태그로 재사용 금지
+- 상세한 작성법은 `harness/docs/guides/contract-design-guide.md` §조건 구체성 태그 참조
 
 ### 2. Anti-patterns
 
@@ -67,4 +107,9 @@ conditions: {총 조건 수}
 
 ## 스키마 버전
 
-현재: v1
+현재: **v2** (2026-04-11)
+
+변경 이력:
+
+- **v2 (2026-04-11)** — 조건 구체성 태그 (`[exact]` / `[structural]` / `[goal]`) 와 aggregation mode (`enumerated` / `collective`) 필수화. 숫자 레벨 태그 금지 명시.
+- **v1** — 초기 스키마.
