@@ -38,7 +38,7 @@ scope: "이번 세션 카이젠 14 commits (Step 0 pre-flight + Phase 1~10 + Fin
 
 ## Integrity (I) — 무결성
 - [ ] I-01: Local main 과 `origin/main` 동기 (`git log origin/main..main` 비어있음)
-- [ ] I-02: 카이젠 구현 자체는 clean. QA 평가 과정의 side effect 는 예외: (a) `.harness/sprint-contract.md` (이 계약 파일 자체), (b) `.harness/.meta/kaizen-data-pool.md` (E-08 실행으로 재생성), (c) `scripts/__pycache__/` (Python 바이트코드 캐시). 이 3 항목 외에는 modified 0 건
+- [ ] I-02: 카이젠 구현 자체는 clean. QA 평가 과정의 자동 side effect 는 예외: (a) `.harness/` 디렉토리 전체 (sprint-contract, sprint-feedback, history archive, .meta/ 캐시 모두 포함 — QA 프로세스가 직접 관리), (b) `scripts/__pycache__/` (Python 바이트코드), (c) `sync-docs.py --check-only` 실행 과정에서 갱신되는 README 파일 (예: flutter-toolkit/README.md — AUTO 마커 동기화). 이 범위 외에는 modified 0 건
 - [ ] I-03: 카이젠 14 commits 모두 linear history (0 merge commits)
 - [ ] I-04: `validate-plugin.py` 자체가 Python 문법 유효 (`python3 -m py_compile scripts/validate-plugin.py` 성공)
 
