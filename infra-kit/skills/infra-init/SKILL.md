@@ -48,7 +48,7 @@ references/init-checklist.md를 참조하여 필요한 카테고리를 결정:
 3. **개선 사항** — 현재 상태와 권장 규격의 차이점
 
 예시:
-```
+```markdown
 ### Container
 **현재:** Dockerfile 존재, 단일 스테이지, root 실행
 **권장:** 멀티스테이지, non-root, .dockerignore
