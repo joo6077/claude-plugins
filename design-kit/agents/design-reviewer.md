@@ -38,13 +38,16 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 
 ### 3. Spacing
 - 스페이싱 스케일 일관성
-- 터치 타겟 크기 (44×44pt)
+- 터치 타겟 크기 — **WCAG 2.2 SC 2.5.8 Minimum (AA) = 24×24 CSS px** / SC 2.5.5 Enhanced (AAA) = 44×44 CSS px / Apple HIG 44pt는 터치 디바이스 실용 권장치 (플랫폼 가이드)
 - 여백 일관성
 
 ### 4. Accessibility
-- 색상 대비 AA
-- 터치 타겟
-- 포커스 인디케이터
+- 색상 대비 AA (WCAG 2.2 SC 1.4.3 — 일반 텍스트 4.5:1, 대형 텍스트 3:1)
+- 터치 타겟 (WCAG 2.2 SC 2.5.8 AA ≥24×24 CSS px)
+- 포커스 인디케이터 (WCAG 2.2 SC 2.4.7)
+- **Focus Not Obscured** (WCAG 2.2 SC 2.4.11 AA) — 키보드 포커스를 받은 요소가 sticky header/toast/overlay로 완전히 가려지지 않음 (부분 가림 허용)
+- **Dragging Movements** (WCAG 2.2 SC 2.5.7 AA) — 드래그 전용 UX에 single-pointer 대체 제공
+- **Accessible Authentication Min** (WCAG 2.2 SC 3.3.8 AA) — 인지 기능 테스트가 인증 유일 수단이면 FAIL
 
 ### 5. Interaction
 - 액션 피드백 존재

@@ -16,16 +16,36 @@ user-invocable: true
 
 1. **스택별 코드 생성 금지** — 이 스킬은 방향과 원칙만 정의한다. Flutter/React/CSS 코드를 직접 생성하지 마라. HTML 무드보드는 시각화 목적이므로 예외.
 2. **근거 없는 제안 금지** — "이 컬러가 좋을 것 같습니다" ✗. 반드시 리서치 문서 또는 웹 리서치 출처를 명시하라. `docs/design/` 리서치 문서와 웹 리서치 결과를 근거로 제안한다.
-3. **컬러 값 직접 지정 금지 (concept.md)** — `.design/concept.md`의 "컬러 방향" 표에는 hex 값을 쓰지 마라. "따뜻한 뉴트럴 계열, muted 채도, 번트 앰버 계열 포인트" 같은 **서술형 방향**만 쓴다. 구체적 hex, WCAG 수치 계산은 design-system 단계에서 확정한다.
+3. **컬러 값 직접 지정 금지 (concept.md)** — `.design/concept.md`의 "컬러 방향" 표에는 hex 값을 쓰지 마라. "따뜻한 뉴트럴 계열, muted 채도, 번트 앰버 계열 포인트" 같은 **서술형 방향**만 쓴다. 구체적 hex(또는 oklch) 확정과 WCAG 수치 계산은 design-system 단계에서 수행한다.
+
+   **재발 방지 — SK-06 (2026-04-10 글로벌 피드백):** 드라이런에서 Claude가 `| Accent | #E8965A |` 형태로 hex 확정값을 concept.md에 기재하여 REJECT된 사례가 있다. Gotcha 본문에 원칙만 적고 검증 명령이 없으면 다음 세션의 Claude가 동일 실수를 반복한다.
 
    **Bad (concept.md에서 REJECT 사유):**
+
    ```text
-   | Accent | #E8965A |   — hex 확정값 기재 → REJECT
+   | Accent | #E8965A |   — hex 확정값 기재 → REJECT (SK-06)
    ```
+
    **Good (서술형 방향):**
+
    ```text
-   | Accent | 번트 앰버 계열, muted 채도, WCAG AA 통과 가능한 중간 명도 |
+   | Accent | 번트 앰버 계열, muted 채도, WCAG 2.2 AA 통과 가능한 중간 명도 |
    ```
+
+   **검증 체크리스트** (Step 4에서 concept.md 생성/갱신 직후 반드시 실행):
+
+   ```bash
+   # 1) concept.md 본문에 hex 리터럴(#rgb, #rrggbb, #rrggbbaa) 0건
+   grep -nE '#[0-9a-fA-F]{3,8}\b' .design/concept.md   # → 0 match
+
+   # 2) 컬러 방향 표에 5개 역할 행 모두 존재 (Primary/Secondary/Accent/Neutral/Semantic)
+   grep -cE '^\|\s*(Primary|Secondary|Accent|Neutral|Semantic)\s*\|' .design/concept.md   # → 5
+
+   # 3) oklch() 리터럴도 concept 단계에서는 사용 금지 (서술형만 허용)
+   grep -cE 'oklch\(' .design/concept.md   # → 0
+   ```
+
+   매치가 1건이라도 나오면 즉시 해당 행을 서술형으로 되돌려라. 재생성 후 동일 명령을 재실행하여 0건/5건/0건을 확인한 뒤 Step 5로 넘어간다.
 
    **예외:** 무드보드 HTML(`.design/moodboard.html`)은 시각화 목적상 hex placeholder를 채울 수 있으나 **반드시 상단에 "방향 시각화용 참조값" disclaimer 배너가 렌더링되어야 한다**. 템플릿(`design-kit/templates/moodboard.html`)은 `.mb-disclaimer` 섹션과 `data-i18n="disclaimer.color"` 문구를 포함하며 생성 시 삭제 금지. 이 배너가 없으면 무드보드 hex가 "확정값"으로 오독된다 (Phase B 드라이런에서 실제 REJECT 근거였다).
 4. **기존 컨셉 무시 금지** — `.design/concept.md`가 이미 존재하면 반드시 로드하여 수정/확장 모드로 진입하라. 기존 내용을 무시하고 새로 만들면 이전 합의가 사라진다.
@@ -144,6 +164,8 @@ templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)�
 ## 레퍼런스
 {{참고 사이트/앱 목록 + 각각에서 참고할 요소}}
 ```
+
+**생성/갱신 직후 반드시 Gotcha #3의 검증 체크리스트 3개를 실행하라.** hex 리터럴 0건, 5개 역할 행, oklch() 0건이 모두 충족되어야 Step 5로 넘어간다. 미충족 시 해당 행을 서술형으로 되돌리고 재실행. 이 체크포인트는 SK-06 재발 방지의 핵심이므로 "나중에" 미루지 마라.
 
 ## Step 5: 비주얼 무드보드 HTML 생성
 

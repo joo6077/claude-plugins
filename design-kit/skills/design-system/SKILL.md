@@ -23,6 +23,8 @@ user-invocable: true
 8. **DTCG 금지 문자 사용 주의** — 토큰 이름에 `.` `{` `}` `$` 같은 DTCG 예약 문자를 섞으면 파서 오류가 난다. 경로 구분은 `/` 또는 `.`만 사용하고, `$` 접두사는 메타 키(`$value`, `$type`)에만 허용된다.
 9. **스택별 코드 생성 금지** — 이 스킬은 원칙과 토큰 명세만 출력한다. Flutter/React/CSS 코드를 직접 생성하지 마라. 해당 toolkit 플러그인에 위임하라.
 10. **HTML 예시 `:root` CSS 변수는 design-kit 기존 파일과 정합해야 한다** — Step 4에서 토큰 명세 예시로 HTML 스니펫을 포함할 경우, `:root { --color-*: ...; }` 값이 `design-kit/docs/` 또는 `design-kit/templates/` 내 기존 HTML 파일의 CSS 변수 값과 일치해야 한다. 값 불일치는 시스템 분열의 시작이며 실제 REJECT 사유였다 (AR-06). 새 변수를 추가할 때는 기존 파일에도 동시에 반영하거나 불일치 이유를 명시하라.
+11. **컬러 primitive는 OKLCH 권장 (2026 표준)** — Tailwind CSS v4(2026 Production Ready)가 기본 팔레트를 HSL→OKLCH로 전환했고, shadcn/ui v4도 HSL→`oklch()` 전환을 완료했다. OKLCH는 지각적 lightness(L)·chroma(C)·hue(H) 축으로 램프가 균일하고 P3 wide gamut을 활용해 sRGB 제약을 풀 수 있다. primitive 정의 시 `oklch(L% C H)` 표기를 우선하고, 레거시 브라우저 fallback이 필요하면 sRGB hex를 병기하라. **브라우저 지원:** Safari 16.4+ / Chrome 111+ / Firefox 128+ (Tailwind v4 지원 범위와 동일). **Figma 주의:** Figma Variables는 OKLCH 미지원이라 hex 근사치를 병기하는 것이 관행(Obra shadcn kit 등). 출처: [Tailwind v4 blog](https://tailwindcss.com/blog/tailwindcss-v4), [shadcn Tailwind v4](https://ui.shadcn.com/docs/tailwind-v4), [Evil Martians OKLCH](https://evilmartians.com/chronicles/better-dynamic-themes-in-tailwind-with-oklch-color-magic), [MDN oklch()](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch).
+12. **DTCG v1 스키마 준수** — Design Tokens Community Group이 2025-10-28에 **Design Tokens Format Module 2025.10**을 첫 stable "Final Community Group Report"로 공개했다 (DTCG v1). JSON 포맷은 `$value`, `$type`, `$description` prefix를 사용하며, 그룹 객체(`$value` 없음)는 그룹 단위 `$type` 기본값을 설정할 수 있다. alias는 dot notation 문자열로 참조하고, `$extensions`는 툴 벤더 메타데이터, `$schema`는 validation 용이다. **금지:** legacy `value`/`type` 키(prefix 없음), 커스텀 `$` prefix 키, dot notation 외 alias 형식. Tokens Studio / Style Dictionary / zeroheight 등 다운스트림 도구가 이 포맷을 가정한다. 출처: [W3C DTCG v1 announcement 2025-10-28](https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/), [W3C Final Report](https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/), [Tokens Studio DTCG vs Legacy](https://docs.tokens.studio/manage-settings/token-format).
 
 # Process
 
@@ -73,6 +75,8 @@ Tier 3 — Component (컴포넌트 예외 오버라이드)
 | Radius | 필수 | radius.none(0), radius.sm(4), radius.md(8), radius.lg(16), radius.full(9999) | 유한 scale |
 | Elevation | 선택 | elevation.level-0 ~ level-4 (shadow값) | — |
 | Motion | 선택 | motion.duration.fast(100ms), motion.duration.normal(200ms), motion.easing.standard | — |
+
+**참고 — Material 3 Expressive (2025-05 발표, Android 16):** MD3 Expressive는 HCT(Hue-Chroma-Tone) 기반 **tonal palette 정교화**로 primary/secondary/tertiary 분리를 강화했고, 46개 연구/18,000명 참가를 근거로 더 풍부한 컬러 토큰 세트와 동적 컬러 개인화를 유지한다. 타이포는 variable font axes(예: Roboto Flex)로 weight/width를 시스템화하고, 모션은 springy 애니메이션으로 표현력을 강화했다. MD3 tonal 구조를 채택할 때는 HCT 톤 스텝을 semantic alias에 매핑하여 primitive로 저장한다. 출처: [Supercharge MD3 Expressive](https://supercharge.design/blog/material-3-expressive), [Dezeen Google Expressive](https://www.dezeen.com/2025/05/28/google-ushers-in-age-of-expressive-interfaces-with-material-design-update/).
 
 ## Step 3: HAS_DS=true → 기존 시스템 분석
 

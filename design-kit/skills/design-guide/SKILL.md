@@ -37,7 +37,7 @@ user-invocable: true
 | accessibility | 접근성, a11y, 대비, 터치 타겟 |
 | motion | 애니메이션, 전환, transition, 마이크로인터랙션 |
 | visual hierarchy | 위계, 강조, 눈에 띄게, 중요도, 시선 |
-| layout & grid | 그리드, 열, 정렬, 레이아웃, 반응형, breakpoint |
+| layout & grid | 그리드, 열, 정렬, 레이아웃, 반응형, breakpoint, container query, `@container`, inline-size, self-aware component |
 | image | 이미지, 일러스트, 사진, 아이콘 스타일 |
 | ethical design | 다크 패턴, 윤리, 동의, 탈퇴, 구독 해지 |
 | authenticity | AI스러운, 제네릭, 템플릿, 개성, 진정성, 브랜드 톤 |

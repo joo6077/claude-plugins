@@ -51,3 +51,53 @@
 - `label` — 버튼, 캡션
 
 각 단계에 lg/md/sm 서브 사이즈를 둔다.
+
+## 6. DTCG v1 포맷 (2025-10-28 stable)
+
+> **출처:** [W3C DTCG — Design Tokens Specification Reaches First Stable Version (2025-10-28)](https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/)
+> **출처:** [W3C Final Community Group Report — Design Tokens Format Module 2025.10](https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/)
+> **출처:** [Tokens Studio — Token Format: W3C DTCG vs Legacy](https://docs.tokens.studio/manage-settings/token-format)
+
+Design Tokens Community Group이 2025-10-28에 발표한 **Design Tokens Format Module 2025.10**은 DTCG v1 첫 stable version(Final Community Group Report)이다. W3C Recommendation은 아니지만 Tokens Studio, Style Dictionary, zeroheight 등 주요 툴체인이 이 포맷을 가정한다.
+
+### 핵심 스키마
+
+- **`$value`** — 토큰의 실제 값. 이 키가 있으면 토큰 객체로 인식된다.
+- **`$type`** — 토큰 타입(`color`, `dimension`, `fontFamily`, `fontWeight`, `duration`, `cubicBezier`, `shadow`, `gradient`, `typography`, `border`, `transition` 등).
+- **`$description`** — 사람이 읽을 설명(선택).
+- **`$extensions`** — 툴 벤더 메타데이터 네임스페이스(선택).
+- **그룹 객체** — `$value`가 없는 객체는 그룹이며, `$type`을 설정하면 하위 토큰의 기본 타입이 된다.
+- **alias** — `{group.token}` dot notation 문자열로 다른 토큰을 참조한다.
+
+### 최소 예시
+
+```json
+{
+  "$schema": "https://design-tokens.org/schemas/format/2025-10/",
+  "color": {
+    "$type": "color",
+    "brand": {
+      "primary": {
+        "$value": "oklch(62% 0.18 250)",
+        "$description": "브랜드 핵심 CTA 컬러 (OKLCH primitive)"
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "{color.brand.primary}",
+        "$description": "본문 주요 텍스트 — brand.primary alias"
+      }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "md": { "$value": "16px" }
+  }
+}
+```
+
+### 주의 사항
+
+- legacy 포맷의 prefix 없는 `value`/`type` 키는 DTCG v1과 호환되지 않는다.
+- 커스텀 `$` prefix 키(`$myMeta` 등)는 피하고 메타데이터는 `$extensions.<vendor>` 아래에 둔다.
+- Figma Variables는 OKLCH 미지원이므로, DTCG 토큰에 `oklch()`를 쓰고 Figma 쪽에는 hex 근사치를 병기하는 것이 관행이다.

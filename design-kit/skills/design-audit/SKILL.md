@@ -14,7 +14,14 @@ user-invocable: true
 
 1. **코드 품질 평가 금지** — 아키텍처, 성능, 코드 스타일을 평가하지 마라. 디자인 원칙 준수 여부만 판정한다.
 2. **토큰 미사용 FAIL 남발 금지** — 디자인 토큰이 없는 프로젝트에서 "토큰 미사용"으로 FAIL을 남발하지 마라. 토큰 체계가 없으면 design-system 스킬 사용을 권장하는 NOTE로 남겨라.
-3. **접근성 카테고리 필수** — 시각적으로 문제없어 보여도 반드시 검사한다: contrast ratio(WCAG AA 4.5:1), 터치 타겟(최소 44×44pt), 포커스 인디케이터, 폼 라벨 연결. 생략하면 REJECT.
+3. **접근성 카테고리 필수** — 시각적으로 문제없어 보여도 반드시 검사한다: contrast ratio(WCAG 2.2 AA 4.5:1), 터치 타겟, 포커스 인디케이터, 폼 라벨 연결, WCAG 2.2 신규 SC(Focus Not Obscured 2.4.11 AA, Dragging Movements 2.5.7 AA, Accessible Authentication Min 3.3.8 AA). 생략하면 REJECT.
+
+   **터치 타겟 기준 정리 (2026-04-11 갱신):**
+   - **WCAG 2.2 SC 2.5.8 Target Size (Minimum) — AA** = **24×24 CSS px** (예외: sufficient spacing / inline text / user-agent / essential)
+   - **WCAG 2.2 SC 2.5.5 Target Size (Enhanced) — AAA** = 44×44 CSS px
+   - **Apple HIG 44pt** = 터치 디바이스 실용 권장치 (플랫폼 가이드라인)
+
+   기존 리포트에서 "44×44pt"만 명시하면 독자가 "WCAG AA 요구"로 오독할 수 있으니, AA/AAA/플랫폼 권장을 구분하여 기재한다. 출처: [W3C WCAG 2.2 SC 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html), [W3C What's New in WCAG 2.2](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/).
 4. **AI 안티패턴 검사 포함** — Authenticity 카테고리를 반드시 포함하라. 균일 border-radius, 제네릭 보라-파랑 팔레트, 동일 구조 반복, 목적 없는 장식 효과는 FAIL 사유다.
 5. **심각도 분류 필수** — FAIL 항목마다 심각도를 표기한다: `Critical`(접근성·윤리), `Major`(위계·일관성), `Minor`(세부 조정). 심각도 없는 FAIL 리포트는 불완전하다.
 6. **주관적 판정 금지** — "보기 좋다", "이 정도면 괜찮다"는 근거가 될 수 없다. 모든 PASS/FAIL은 audit-criteria.md에 정의된 원칙과 수치 기준에 근거해야 한다.
@@ -42,13 +49,13 @@ user-invocable: true
 | 카테고리 | 핵심 체크포인트 | 심각도 기준 |
 |----------|-----------------|-------------|
 | **Typography** | 타이포 스케일 일관성, 행간 1.2~1.6배, 본문 최소 14px(모바일)/16px(웹) | Major |
-| **Color** | 텍스트 대비 4.5:1, 시맨틱 토큰 사용, 다크모드 대비 유지 | Critical(대비) / Major(토큰) |
-| **Spacing** | 스페이싱 스케일 일관성, 터치 타겟 44×44pt, 그룹 간/내 여백 위계 | Critical(터치) / Major(스케일) |
-| **Accessibility** | 색상만으로 상태 전달 금지, 포커스 인디케이터, 폼 라벨, 대체 텍스트 | Critical |
-| **Interaction** | 액션 피드백, 로딩 인디케이터, 에러 표시, 취소/되돌리기 경로 | Major |
+| **Color** | 텍스트 대비 WCAG 2.2 AA 4.5:1, 시맨틱 토큰 사용, 다크모드 대비 유지, OKLCH/P3 wide gamut 사용 시 sRGB fallback 확인 | Critical(대비) / Major(토큰) |
+| **Spacing** | 스페이싱 스케일 일관성, 터치 타겟 WCAG 2.2 SC 2.5.8 AA ≥24×24 CSS px (AAA SC 2.5.5 = 44×44), 그룹 간/내 여백 위계 | Critical(터치) / Major(스케일) |
+| **Accessibility** | 색상만으로 상태 전달 금지, 포커스 인디케이터, 폼 라벨, 대체 텍스트, WCAG 2.2 SC 2.4.11 Focus Not Obscured (AA), SC 2.5.7 Dragging Movements (AA), SC 3.3.8 Accessible Authentication Min (AA) | Critical |
+| **Interaction** | 액션 피드백, 로딩 인디케이터, 에러 표시, 취소/되돌리기 경로, 드래그 전용 UX 시 single-pointer 대체(WCAG 2.2 SC 2.5.7) | Major |
 | **Motion** | 애니메이션 목적성, 듀레이션 200~500ms, prefers-reduced-motion 대응 | Major |
 | **Visual Hierarchy** | 제목/본문/캡션 비율 차이, 핵심 콘텐츠 대비 강조, 그룹 여백 분리 | Major |
-| **Layout & Grid** | 그리드 정렬, 거터 일관성, 주요 breakpoint 반응형 전략 | Major |
+| **Layout & Grid** | 그리드 정렬, 거터 일관성, 주요 breakpoint 반응형 전략, 컴포넌트 수준 반응형은 `container-type: inline-size` + `@container` 권장 (2026 Baseline) | Major |
 | **Ethical Design** | 다크 패턴 12유형 부재, 동의 명시성, 가입·탈퇴 경로 대칭성 | Critical |
 | **Authenticity** | 동일 구조 3회 이상 반복, 제네릭 팔레트, 목적 없는 장식, 범용 카피 | Minor~Major |
 
