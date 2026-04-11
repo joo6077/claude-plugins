@@ -1,14 +1,19 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.0.0
-last_updated: 2026-03-30
+version: 1.1.0
+last_updated: 2026-04-11
 ---
 
 # Claude Code 에이전트 설계 가이드
 
-> 공식 문서, Anthropic 연구, 학술 논문, 커뮤니티 실전 경험을 기반으로 정리한 에이전트(서브에이전트) 설계 원칙과 실전 팁
+> 공식 문서(2026-04 최신), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙과 실전 팁
 
 **이 문서의 용도:** 새 에이전트를 만들거나 기존 에이전트를 개선할 때 참고한다. 이 프로젝트(`claude-plugins`)의 실제 에이전트를 적용 사례로 함께 다룬다.
+
+**주요 출처:**
+- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-04)
+- [Building Effective Agents — Anthropic Research](https://www.anthropic.com/research/building-effective-agents)
+- [Claude Code Sub-Agent Best Practices — claudefa.st](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
 
 ---
 
@@ -59,28 +64,34 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 
 ### frontmatter 전체 필드
 
+> **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-04)
+
 | 필드 | 필수 | 설명 |
 |------|------|------|
 | `name` | 예 | 고유 식별자 (소문자, 하이픈) |
 | `description` | 예 | 언제 위임할지 Claude가 판단하는 기준 |
 | `tools` | 아니오 | 허용 도구 목록. 생략 시 전체 상속 |
 | `disallowedTools` | 아니오 | 차단 도구 목록 |
-| `model` | 아니오 | `sonnet`, `opus`, `haiku`, `inherit` (기본값) |
+| `model` | 아니오 | `sonnet`, `opus`, `haiku`, 풀 model ID(예: `claude-opus-4-6`), `inherit` (기본값) |
 | `permissionMode` | 아니오 | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
 | `maxTurns` | 아니오 | 최대 에이전트 턴 수 |
-| `skills` | 아니오 | 시작 시 주입할 스킬 목록 |
-| `mcpServers` | 아니오 | 이 에이전트 전용 MCP 서버 |
-| `hooks` | 아니오 | 라이프사이클 훅 |
+| `skills` | 아니오 | 시작 시 주입할 스킬 목록 (전체 내용이 context 에 inject 됨, 스킬 invoke 가능성만 주어지는 게 아님) |
+| `mcpServers` | 아니오 | 이 에이전트 전용 MCP 서버 (parent 세션에서 숨기고 싶을 때 inline 정의) |
+| `hooks` | 아니오 | 라이프사이클 훅 (`PreToolUse`, `PostToolUse`, `Stop` → 런타임에 `SubagentStop` 으로 변환) |
 | `memory` | 아니오 | 영속 메모리: `user`, `project`, `local` |
 | `background` | 아니오 | `true`면 백그라운드 실행 |
 | `effort` | 아니오 | `low`, `medium`, `high`, `max` |
 | `isolation` | 아니오 | `worktree`면 격리된 git worktree에서 실행 |
+| `initialPrompt` | 아니오 | 에이전트 시작 시 자동으로 주입되는 초기 사용자 메시지 |
+| `color` | 아니오 | 터미널 UI 에 표시되는 에이전트 색상 (시각 구분용) |
+
+**플러그인 에이전트 제약:** `hooks`, `mcpServers`, `permissionMode` 필드는 플러그인으로 배포된 에이전트에서는 **무시된다**. 이 필드가 필요하면 `.claude/agents/` 로 복사해라.
 
 ---
 
 ## 3. description은 위임 트리거다
 
-> **출처:** [Claude Code Sub-agents 공식 문서](https://code.claude.com/docs/en/sub-agents) — "Claude uses each subagent's description to decide when to delegate tasks."
+> **출처:** [Create custom subagents — Understand automatic delegation](https://code.claude.com/docs/en/sub-agents#understand-automatic-delegation) — "Claude automatically delegates tasks based on the task description in your request, the description field in subagent configurations, and current context. To encourage proactive delegation, include phrases like 'use proactively' in your subagent's description field."
 
 스킬의 description과 동일한 원칙이 적용된다. description은 사람을 위한 요약이 아니라 **Claude가 에이전트를 선택하는 트리거 조건**이다.
 
@@ -99,7 +110,30 @@ description: >
   /develop Step 완료 후, 또는 사용자가 "QA 돌려줘"라고 요청할 때 사용.
 ```
 
-**프로액티브 위임**이 필요하면 description에 "use proactively"를 포함해라.
+### "use proactively" 키워드 — 공식 언더트리거 방지 메커니즘
+
+Claude 는 서브에이전트를 필요한 상황에서도 **undertrigger** (위임하지 않는) 경향이 있다. 이를 해결하기 위해 Anthropic 공식 문서는 description 에 `use proactively` 또는 `proactively` 를 명시적으로 포함하라고 권장한다.
+
+**Good — 프로액티브 위임 명시:**
+
+```yaml
+description: >
+  Expert code review specialist. Proactively reviews code for quality,
+  security, and maintainability. Use immediately after writing or modifying code.
+```
+
+```yaml
+description: >
+  Debugging specialist for errors, test failures, and unexpected behavior.
+  Use proactively when encountering any issues.
+```
+
+**적용 체크리스트:**
+- 코드 작성/수정 직후 자동으로 돌아야 하는 리뷰어 → `Proactively reviews... Use immediately after...`
+- 에러/실패 발생 시 자동 개입해야 하는 디버거 → `Use proactively when encountering...`
+- 명시적 호출이 필요한 에이전트(예: QA) → `use proactively` 생략하고 트리거 키워드만 나열
+
+이 프로젝트의 `qa-evaluator` 는 사용자 명시 호출 및 `/sprint-contract` 완료 후 연계로 호출되므로 "use proactively" 를 생략한다.
 
 ---
 
@@ -111,13 +145,27 @@ description: >
 
 ### 역할별 도구 매핑
 
+> **출처:** [Create custom subagents — Available tools](https://code.claude.com/docs/en/sub-agents#available-tools), [Claude Code Sub-Agent Best Practices](https://claudefa.st/blog/guide/agents/sub-agent-best-practices) (2026-04)
+
 | 역할 | 도구 | 이유 |
 |------|------|------|
-| 읽기 전용 리뷰어 | `Read, Grep, Glob` | 코드 수정 불가 → 안전 |
-| QA 평가자 | `Read, Grep, Glob, Bash` | 분석 명령 실행 필요 |
-| 구현자 | `Read, Edit, Write, Bash` | 코드 수정 + 실행 |
+| 읽기 전용 리뷰어 / 감사자 | `Read, Grep, Glob` | 코드 수정 불가 → 안전 |
+| QA 평가자 | `Read, Grep, Glob, Bash` | 분석 명령 실행 필요, Edit/Write 금지 |
+| 연구자 / 리서치 에이전트 | `Read, Grep, Glob, WebFetch, WebSearch` | 읽기 + 외부 검색 |
+| 구현자 / 코드 라이터 | `Read, Write, Edit, Bash, Glob, Grep` | 코드 수정 + 실행 |
+| 문서 작성자 | `Read, Write, Edit, Glob, Grep, WebFetch, WebSearch` | 문서 편집 + 출처 조회 |
 | 데이터 분석가 | `Bash, Read, Write` | 쿼리 실행 + 결과 저장 |
-| 연구자 | `Read, Grep, Glob, WebSearch, WebFetch` | 읽기 + 외부 검색 |
+| 아키텍트 / PM | `Read, Grep, Glob` + MCP docs tools | read-heavy, 탐색 중심 |
+
+### 내장 서브에이전트 도구 프로파일 (참고)
+
+Claude Code 공식 내장 서브에이전트는 다음 패턴을 따른다:
+
+- **Explorer / Research 계열**: Read-only tools (Write/Edit 거부), 모델 `haiku` 로 저지연·저비용
+- **Debugger 계열**: All tools, 모델 `inherit` (부모 세션 수준)
+- **Code Reviewer 계열**: Read-only, 모델 `inherit`
+
+새 에이전트 설계 시 이 프로파일 중 어느 것에 해당하는지 먼저 판단하면 도구 리스트를 빠르게 좁힐 수 있다.
 
 ### 조건부 제한이 필요할 때
 
@@ -131,6 +179,28 @@ hooks:
         - type: command
           command: "./scripts/validate-readonly-query.sh"
 ```
+
+### Agent(agent_type) — 스폰 가능 서브에이전트 제한
+
+> **출처:** [Create custom subagents — Allow only specific subagents to spawn others](https://code.claude.com/docs/en/sub-agents) (2026-04)
+
+메인 스레드 에이전트(`claude --agent` 로 실행)는 `Agent` 도구로 다른 서브에이전트를 스폰할 수 있다. 스폰 가능한 서브에이전트를 **화이트리스트로 제한** 하려면 `tools` 필드에 `Agent(agent_type)` 문법을 사용한다.
+
+```yaml
+---
+name: coordinator
+description: Coordinates work across specialized agents
+tools: Agent(worker, researcher), Read, Bash
+---
+```
+
+이 예시에서는 `worker` 와 `researcher` 서브에이전트만 스폰 가능하다. 그 외를 호출하면 요청이 실패하며, 에이전트는 허용된 타입만 프롬프트에서 볼 수 있다.
+
+**규칙:**
+- `Agent(...)` 로 명시하면 **화이트리스트** 방식 (나열된 것만 허용)
+- `Agent` 만 쓰면 **전체 허용**
+- `Agent` 자체를 생략하면 **모든 서브에이전트 스폰 불가**
+- 서브에이전트 자체는 다른 서브에이전트를 스폰할 수 없으므로 `Agent(agent_type)` 은 **메인 스레드 에이전트에만** 적용된다
 
 ---
 
@@ -155,7 +225,7 @@ hooks:
 
 수동으로 모델을 고정하는 대신, 작업 유형에 따라 **자동으로 모델을 라우팅**하는 패턴이 등장하고 있다. 오케스트레이터가 작업을 분류하고 적합한 모델로 위임한다.
 
-```
+```text
 요청 → 분류기 → 탐색 작업 → haiku
                 → 코드 리뷰 → sonnet
                 → 아키텍처 판단 → opus
@@ -173,7 +243,7 @@ Anthropic이 식별한 핵심 패턴. 에이전트를 설계할 때 이 중 하�
 
 ### 패턴 1: 프롬프트 체이닝 (Prompt Chaining)
 
-```
+```text
 LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결과
 ```
 
@@ -182,7 +252,7 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 ### 패턴 2: 라우팅 (Routing)
 
-```
+```text
 입력 → 분류기 → 전문가 A / 전문가 B / 전문가 C
 ```
 
@@ -191,7 +261,7 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 ### 패턴 3: 병렬화 (Parallelization)
 
-```
+```text
         ┌→ 작업 A ─┐
 입력 ───┼→ 작업 B ──┼→ 합성
         └→ 작업 C ─┘
@@ -202,7 +272,7 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 ### 패턴 4: 오케스트레이터-워커 (Orchestrator-Workers)
 
-```
+```text
 오케스트레이터 LLM → 동적으로 하위 작업 분해 → 워커들 → 합성
 ```
 
@@ -211,7 +281,7 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 ### 패턴 5: 평가자-최적화자 (Evaluator-Optimizer)
 
-```
+```text
 생성 LLM ←→ 평가 LLM (반복 피드백 루프)
 ```
 
@@ -222,7 +292,7 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 > **출처:** [Building AI Coding Agents for the Terminal — arxiv:2603.05344](https://arxiv.org/abs/2603.05344)
 
-```
+```text
 사용자 요청 → 계획 에이전트 (추론) → 실행 계획 → 실행 에이전트 (도구 호출) → 결과
 ```
 
@@ -272,13 +342,13 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 ### Bad
 
-```
+```text
 "인증 고쳐줘"
 ```
 
 ### Good
 
-```
+```text
 "OAuth 리다이렉트 루프를 수정해라. 로그인 성공 후 /dashboard 대신
 /login으로 리다이렉트되는 문제. src/lib/auth.ts의 auth 미들웨어 참조."
 ```
@@ -350,7 +420,7 @@ memory: project   # user | project | local
 
 ### 현재 에이전트 구조
 
-```
+```text
 harness/agents/
 └── qa-evaluator.md          # 단일 에이전트
 ```
@@ -389,20 +459,28 @@ harness/agents/
 |------|------|
 | 단순함 우선 | 스킬로 충분하면 에이전트를 만들지 마라 |
 | description은 트리거 | "언제 위임할지"를 구체적으로 명시 |
+| Undertrigger 방지 | `use proactively` 키워드로 자동 위임 장려 |
 | 최소 권한 | 필요한 도구만 부여 |
+| Agent 스코핑 | `Agent(agent_type)` 로 스폰 가능 서브에이전트 화이트리스트 |
 | 모델 최적화 | 작업 복잡도에 맞는 모델 선택 |
 | 호출 품질 | 컨텍스트·범위·파일참조·성공기준 4요소 |
 | 독립 컨텍스트 | 생성과 평가는 분리 |
+| 중첩 불가 | 서브에이전트는 다른 서브에이전트를 spawn 할 수 없음 |
 | 영속 메모리 | 대화를 넘어서 학습시켜라 |
-| 5가지 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자 중 선택 |
+| 6가지 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행 중 선택 |
+| 계약 모호성 방지 | 평가 전 이진 판정 가능성 선제 점검 |
 
 ---
 
 ## 출처
 
-- [Claude Code Sub-agents 공식 문서](https://code.claude.com/docs/en/sub-agents)
+- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-04 최신)
+- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04 최신)
 - [Building Effective Agents — Anthropic Research](https://www.anthropic.com/research/building-effective-agents)
-- [Claude Code Sub-Agent Best Practices](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
+- [Claude Code Sub-Agent Best Practices — claudefa.st](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
+- [Best Practices for Claude Code subagents — PubNub](https://www.pubnub.com/blog/best-practices-for-claude-code-sub-agents/)
+- [Claude Code Subagents — Medium (Apr 2026)](https://medium.com/@sathishkraju/claude-code-subagents-the-complete-guide-to-ai-agent-delegation-d0a9aba419d0)
+- [Claude Code Workflows and Best Practices 2026](https://smart-webtech.com/blog/claude-code-workflows-and-best-practices/)
 - [Designing LLM-based MAS for SE — arxiv:2511.08475](https://arxiv.org/abs/2511.08475)
 - [LLM Agent Evaluation Survey — arxiv:2503.16416](https://arxiv.org/abs/2503.16416)
 - [agentic-code Quality Gates Framework](https://github.com/shinpr/agentic-code)

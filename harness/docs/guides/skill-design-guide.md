@@ -1,14 +1,20 @@
 ---
 title: Claude Code 스킬 설계 가이드
-version: 1.0.0
-last_updated: 2026-03-30
+version: 1.1.0
+last_updated: 2026-04-11
 ---
 
 # Claude Code 스킬 설계 가이드
 
-> Anthropic이 내부 스킬을 분석하며 발견한 설계 원칙과 실전 팁 정리
+> Anthropic 공식 문서(2026-04 최신) + 내부 스킬 분석 + 커뮤니티 실전 경험 정리
 
 **이 문서의 용도:** 새 스킬을 만들거나 기존 스킬을 개선할 때 참고한다. 이 프로젝트(`claude-plugins`)의 실제 스킬을 적용 사례로 함께 다룬다.
+
+**주요 출처:**
+- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04)
+- [Extend Claude with Skills — Claude Code Docs](https://code.claude.com/docs/en/skills)
+- [anthropics/skills — skill-creator SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
+- [Equipping Agents for the Real World — Anthropic Engineering](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 
 ---
 
@@ -16,7 +22,7 @@ last_updated: 2026-03-30
 
 스킬은 마크다운 파일 하나가 아니라 **폴더 단위**로 설계한다.
 
-```
+```text
 my-skill/
 ├── my-skill.md          # 메인 지시문 (개요 + 파일 목록)
 ├── references/          # API 문서, 코드 스니펫
@@ -81,7 +87,7 @@ Claude가 **반복적으로 실패하는 지점**을 모아 놓은 목록이다.
 
 ### 가차스 추가 흐름
 
-```
+```text
 Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다음부터 같은 실수 방지
 ```
 
@@ -95,7 +101,7 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 
 **Bad — 스킬과 계약의 이름이 다름:**
 
-```
+```text
 스킬 본문: "Anatomy 섹션 — 필수 파트: Header, Body, Footer"
 계약 조건: "SK-05: 레이아웃 구조 확인 (헤더/바디/푸터 포함 여부)"
 ```
@@ -104,7 +110,7 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 
 **Good — 스킬과 계약의 이름이 일치:**
 
-```
+```text
 스킬 본문: "Anatomy 섹션 — 필수 파트: Header, Body, Footer"
 계약 조건: "SK-05: Anatomy 섹션 확인 — Header, Body, Footer 필수 파트 포함 여부"
 ```
@@ -140,7 +146,7 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 `sprint-contract` 스킬은 계약 작성 후 `references/red-flags.md`로 자가 검증한다.
 `qa-evaluator` 에이전트는 L3 깊이까지 코드 경로를 추적해야 PASS를 줄 수 있다.
 
-```
+```text
 Claude가 산출물 생성 → 검증 기준으로 자가 확인 → 실패 시 수정 후 재검증
 ```
 
@@ -148,24 +154,88 @@ Claude가 산출물 생성 → 검증 기준으로 자가 확인 → 실패 시 
 
 ## 4. 디스크립션은 트리거 조건이다
 
-스킬의 `description` 필드는 사람을 위한 요약이 아니라 **Claude가 스킬을 선택하는 트리거 조건**이다.
+> **출처:** [Skill Authoring Best Practices — Writing effective descriptions](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#writing-effective-descriptions)
 
-### Bad
+스킬의 `description` 필드는 사람을 위한 요약이 아니라 **Claude가 스킬을 선택하는 트리거 조건**이다. Claude 는 세션 시작 시 모든 스킬의 메타데이터(name + description)를 시스템 프롬프트에 pre-load 하며, 이 값 하나로 100개 이상의 스킬 중 어느 것을 로드할지 판단한다.
+
+### frontmatter 필드 규칙 (공식 스키마)
+
+> **출처:** [Skill Authoring Best Practices — YAML frontmatter requirements](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#yaml-frontmatter-requirements)
+
+SKILL.md frontmatter 는 두 개의 필수 필드를 가지며, 각 필드는 엄격한 검증 규칙을 따른다.
+
+**`name` 필드 규칙:**
+- 최대 64 자
+- 소문자 + 숫자 + 하이픈(`-`) 만 허용
+- XML 태그 금지
+- 예약어 금지: `anthropic`, `claude` 포함 불가
+- **gerund form(동명사) 권장**: `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`
+- 허용 대안: 명사구(`pdf-processing`), 동사형(`process-pdfs`)
+- **금지:** `helper`, `utils`, `tools`, `documents` 같은 모호한 이름
+
+**`description` 필드 규칙:**
+- 최대 1024 자
+- 비어 있을 수 없음
+- XML 태그 금지
+- **3인칭으로 작성한다 (필수).** 1인칭("I can help...") 또는 2인칭("You can use this...")은 시스템 프롬프트에 주입되었을 때 관점 불일치로 인해 discovery 실패를 일으킨다
+
+### 3인칭 작성 규칙
+
+> **출처:** [Skill Authoring Best Practices — Writing effective descriptions](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#writing-effective-descriptions) — "Always write in third person. The description is injected into the system prompt, and inconsistent point-of-view can cause discovery problems."
+
+**Bad — 1인칭/2인칭 혼용:**
+
+```yaml
+description: "I can help you process Excel files"
+description: "You can use this to process Excel files"
+```
+
+**Good — 3인칭 선언문:**
+
+```yaml
+description: Processes Excel files and generates reports. Use when analyzing .xlsx files, pivot tables, or tabular data.
+```
+
+### Undertrigger 경향과 "pushy" 디스크립션
+
+> **출처:** [skill-creator SKILL.md — Description Best Practices](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) — "Claude has a tendency to 'undertrigger' skills — to not use them when they'd be useful. To combat this, please make the skill descriptions a little bit 'pushy'."
+
+Claude 는 구조적으로 스킬을 **undertrigger** (필요한데도 안 쓰는) 하는 경향이 있다. 이를 보정하기 위해 description 은 약간 "pushy" 해야 한다 — 트리거 맥락, 파일 유형, 사용자가 말할 법한 키워드를 명시적으로 나열해라.
+
+**Bad — 무엇을 하는지만 설명 (트리거 약함):**
+
+```yaml
+description: How to build a simple fast dashboard to display internal data.
+```
+
+**Good — 트리거 맥락까지 나열 (undertrigger 방지):**
+
+```yaml
+description: >
+  How to build a simple fast dashboard to display internal data.
+  Use this skill whenever the user mentions dashboards, data visualization,
+  internal metrics, or wants to display any kind of company data,
+  even if they don't explicitly ask for a "dashboard".
+```
+
+### Bad / Good 기본 예시
+
+**Bad:**
 
 ```yaml
 description: 배포 관련 스킬
 ```
 
-### Good
+**Good:**
 
 ```yaml
 description: >
-  사용자가 서비스를 프로덕션에 배포하려 하거나,
-  PR 머지 후 배포 상태를 확인하려 할 때 사용한다.
+  Deploys services to production and verifies deployment status.
+  Use when the user requests production deployment, PR merge checks,
+  or asks to "deploy", "ship", or "roll out" a service.
 ```
 
-Claude는 세션 시작 시 모든 스킬의 디스크립션을 스캔하여 요청에 맞는 스킬을 판단한다.
-**"언제 이 스킬을 켜라"**를 명시해야 한다.
+**"무엇을 하는 스킬인가"뿐 아니라 트리거 키워드와 비트리거 조건까지 명시해야 한다.**
 
 ### 이 프로젝트의 실제 예시
 
@@ -229,7 +299,62 @@ description: >
 
 ## 5. 점진적 공개(Progressive Disclosure)
 
+> **출처:** [Skill Authoring Best Practices — Progressive disclosure patterns](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#progressive-disclosure-patterns)
+
 메인 스킬 파일에 모든 정보를 넣지 않는다. 파일을 분리하고 목록만 제공한다.
+
+### 3-레벨 로딩 시스템
+
+스킬은 3 단계로 컨텍스트에 로드된다:
+
+1. **Metadata** (~100 단어, 항상 시스템 프롬프트에 상주): `name` + `description`
+2. **SKILL.md body** (스킬이 트리거될 때 로드): 핵심 지침과 워크플로우
+3. **Bundled resources** (필요할 때만 읽음): `scripts/`, `references/`, `assets/`
+
+메타데이터만 항상 상주하고 나머지는 on-demand 로 읽는다. 바로 이 구조가 "컨텍스트 절약"의 핵심이다.
+
+### SKILL.md 본문 500 라인 상한 (공식)
+
+> **출처:** [Skill Authoring Best Practices — Token budgets](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#token-budgets) — "Keep SKILL.md body under 500 lines for optimal performance."
+
+SKILL.md 의 본문은 **500 라인 미만**으로 유지한다. 초과하면:
+
+- `references/` 로 API 레퍼런스, 긴 설명을 분리
+- `templates/` 로 출력 포맷 예시 분리
+- `scripts/` 로 반복 로직을 실행 가능한 스크립트로 분리
+
+500 라인은 "성능 최적화 한계"이며 강제 제약은 아니지만, 넘으면 스킬이 로드될 때 컨텍스트 사용량이 급격히 증가한다.
+
+### Reference 파일은 1-level deep (필수)
+
+> **출처:** [Skill Authoring Best Practices — Avoid deeply nested references](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-deeply-nested-references) — "Keep references one level deep from SKILL.md. All reference files should link directly from SKILL.md to ensure Claude reads complete files when needed."
+
+Claude 는 참조 파일이 **다른 참조 파일에서 다시 링크**되어 있을 때 `head -100` 같은 명령으로 일부만 미리보는 경향이 있어 정보 누락이 발생한다. 모든 reference 는 SKILL.md 에서 직접 링크되어야 한다.
+
+**Bad — 너무 깊음:**
+
+```markdown
+# SKILL.md
+See [advanced.md](advanced.md)...
+
+# advanced.md
+See [details.md](details.md)...
+
+# details.md
+Here's the actual information...
+```
+
+**Good — 1-level deep:**
+
+```markdown
+# SKILL.md
+**Basic usage**: [instructions inline]
+**Advanced features**: See [advanced.md](advanced.md)
+**API reference**: See [reference.md](reference.md)
+**Examples**: See [examples.md](examples.md)
+```
+
+**추가 규칙:** 100 라인을 넘는 reference 파일에는 상단에 Table of Contents 를 포함한다 (부분 미리보기 상황에서도 전체 스코프를 파악할 수 있도록).
 
 ### 메인 스킬 파일 구성 방법
 
@@ -243,11 +368,38 @@ description: >
 
 ---
 
+## 5.5. Degrees of Freedom — 자유도를 태스크에 맞춰라
+
+> **출처:** [Skill Authoring Best Practices — Set appropriate degrees of freedom](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom)
+
+스킬의 구체성 레벨은 태스크의 **취약성(fragility)** 과 **가변성(variability)** 에 맞춰야 한다. Anthropic 공식 문서는 3 단계로 구분한다.
+
+| 자유도 | 형식 | 사용 시점 |
+|--------|------|-----------|
+| **High freedom** | 텍스트 지침 | 여러 접근이 유효, 문맥에 따라 판단, 경험 기반 heuristic |
+| **Medium freedom** | 파라미터 있는 pseudocode/script | 선호 패턴이 있으나 일부 변형 허용 |
+| **Low freedom** | 파라미터 없는 정확한 명령 | 취약한 작업, 일관성 필수, 정확한 순서 필요 |
+
+**비유 (공식 문서 인용):** Claude 를 경로를 탐색하는 로봇으로 생각하라.
+- 양옆이 낭떠러지인 좁은 다리 → 안전한 길이 하나 → Low freedom (정확한 명령)
+- 위험 없는 열린 들판 → 여러 길이 성공 → High freedom (일반 방향만 제시)
+
+### L1/L2/L3 네이밍 충돌 해결 권고
+
+이 프로젝트는 qa-evaluator 의 **검증 깊이 L1/L2/L3** 와 이 자유도 개념을 혼동하면 안 된다:
+
+- **L1/L2/L3** = **QA 평가 깊이** (Glob → Grep → Read/Bash)
+- **High/Medium/Low freedom** = **스킬 지침의 구체성 레벨**
+
+스킬 지침의 구체성을 논할 때는 반드시 "high/medium/low freedom" 용어를 사용하고, L1/L2/L3 은 QA 검증 깊이 전용으로 예약한다.
+
+---
+
 ## 6. 스크립트 폴더 — 헬퍼 함수 제공
 
 스킬 안에 스크립트를 넣어 Claude에게 **헬퍼 함수 라이브러리**를 제공한다.
 
-```
+```text
 my-skill/
 └── scripts/
     ├── fetch_events.py    # 이벤트 조회 함수
@@ -278,7 +430,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 
 ### 모드 전환 패턴
 
-```
+```text
 평소: 자유 모드 (제한 없음)
   ↓ 위험한 작업
 프로덕션: 안전 모드 (위험 명령 차단)
@@ -314,6 +466,77 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 
 ---
 
+## 8.5. Evaluation-Driven Development — 평가 먼저, 문서 나중
+
+> **출처:** [Skill Authoring Best Practices — Build evaluations first](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#build-evaluations-first) — "Create evaluations BEFORE writing extensive documentation."
+
+스킬 작성의 기본 순서는 **문서 먼저가 아니라 평가(eval) 먼저** 다. 존재하지 않는 문제를 문서화하지 않기 위함이다.
+
+### 공식 권장 개발 루프
+
+1. **Gap 식별**: 스킬 없이 대표 태스크를 Claude 로 실행해 실패 지점을 기록
+2. **Eval 생성**: 이 gap 을 검증할 **최소 3개 시나리오** 작성
+3. **Baseline 측정**: 스킬 없는 상태에서 Claude 의 성능 측정
+4. **최소 지침 작성**: gap 을 해결할 만큼의 최소한의 본문만 작성
+5. **반복**: eval 실행 → baseline 대비 → 리팩터링
+
+### Eval 구조 예시
+
+```json
+{
+  "skills": ["pdf-processing"],
+  "query": "Extract all text from this PDF file and save it to output.txt",
+  "files": ["test-files/document.pdf"],
+  "expected_behavior": [
+    "Successfully reads the PDF file using an appropriate library or CLI",
+    "Extracts text content from all pages without missing any",
+    "Saves to output.txt in a clear, readable format"
+  ]
+}
+```
+
+### Trigger Eval Set (description 최적화 시)
+
+> **출처:** [skill-creator SKILL.md — Description Optimization](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md#description-optimization-when-skill-is-ready)
+
+스킬이 준비되면 description 의 트리거 정확도를 측정한다. **20개 쿼리** (should-trigger 8-10개 + should-not-trigger 8-10개) 를 작성하고, 각 쿼리는:
+
+- 구체적이고 현실적 (파일 경로, 회사명, URL, 오타 포함)
+- 다양한 표현 (캐주얼/포멀, 간접적 언급)
+- near-miss 도 포함 (인접 도메인, 모호한 표현)
+
+**Bad**: "Format this data" (너무 일반적)
+**Good**: "ok so my boss just sent me this xlsx file... revenue is in column C..."
+
+이 레포의 `flutter-toolkit/evals/evals.json` 이 이 패턴의 실제 구현이다.
+
+---
+
+## 8.6. MCP 도구 참조 — Fully-Qualified Name 필수
+
+> **출처:** [Skill Authoring Best Practices — MCP tool references](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#mcp-tool-references) — "If your Skill uses MCP tools, always use fully qualified tool names to avoid 'tool not found' errors."
+
+스킬이 MCP (Model Context Protocol) 도구를 참조할 때는 반드시 **fully-qualified name** 을 사용한다.
+
+**형식:** `ServerName:tool_name`
+
+**Good:**
+
+```markdown
+Use the `BigQuery:bigquery_schema` tool to retrieve table schemas.
+Use the `GitHub:create_issue` tool to create issues.
+```
+
+**Bad — 서버 prefix 누락:**
+
+```markdown
+Use the `bigquery_schema` tool to retrieve schemas.
+```
+
+여러 MCP 서버가 활성화된 경우 서버 prefix 가 없으면 Claude 가 도구를 찾지 못하거나 잘못된 서버의 도구를 호출할 수 있다.
+
+---
+
 ## 9. 실전 시작 가이드
 
 ### 처음부터 완벽하게 만들지 마라
@@ -326,7 +549,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 
 ### 스킬 성장 사이클
 
-```
+```text
 v0.1: 지시문 3줄 + Gotchas 1개
   ↓ Claude가 API 호출 순서 틀림
 v0.2: Gotchas에 호출 순서 규칙 추가
@@ -348,7 +571,7 @@ v0.5: templates/report.md 추가
 
 ### 현재 스킬 구조
 
-```
+```text
 harness/skills/
 ├── init/
 │   └── SKILL.md              # 단일 파일
@@ -377,7 +600,7 @@ harness/skills/
 
 **폴더 확장 여지.** `sprint-contract`는 현재 SKILL.md 하나에 6단계 프로세스, Red Flags, Rationalization Table까지 모두 담고 있다 (약 160줄). 스킬이 더 성장하면:
 
-```
+```text
 sprint-contract/
 ├── SKILL.md                    # 개요 + 파일 목록 + Gotchas
 ├── references/
@@ -404,8 +627,28 @@ sprint-contract/
 | 폴더로 설계 | 마크다운 하나가 아닌 폴더 하나를 설계한다 |
 | 뻔한 말 금지 | Claude가 이미 아는 것은 넣지 않는다 |
 | Gotchas 최우선 | 반복 실패 지점을 기록하는 것이 가장 높은 가치 |
-| 점진적 공개 | 메인 파일에는 개요만, 상세는 별도 파일로 분리 |
+| frontmatter 스키마 엄수 | name ≤ 64, description ≤ 1024, 3인칭, XML 금지, 예약어 금지 |
+| Undertrigger 방지 | description 은 "pushy" 하게 — 트리거 맥락 나열 |
+| 500 라인 상한 | SKILL.md body 는 500 라인 미만 |
+| Reference 1-level deep | 참조 파일에서 또 참조하지 마라 |
+| 자유도 매칭 | high/medium/low freedom 을 태스크 취약성에 맞춰라 |
+| Eval 먼저 | 최소 3개 평가를 문서보다 먼저 작성 |
+| MCP 도구 풀네임 | `ServerName:tool_name` 필수 |
 | 트리거 조건 명시 | description은 "언제 켜라"를 구체적으로 쓴다 |
 | 헬퍼 제공 | 스크립트로 보일러플레이트를 줄인다 |
 | 모드 부여 | 온 디맨드 훅스로 상황별 가드레일 설정 |
 | 점진적 발전 | 몇 줄로 시작해서 실패를 관찰하며 한 줄씩 추가 |
+
+---
+
+## 출처
+
+- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04)
+- [Extend Claude with Skills — Claude Code Docs](https://code.claude.com/docs/en/skills)
+- [Agent Skills Overview — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
+- [anthropics/skills — GitHub](https://github.com/anthropics/skills)
+- [skill-creator SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
+- [Equipping Agents for the Real World with Agent Skills — Anthropic Engineering](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+- [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices)
+- [Codex CLI Agent Skills](https://developers.openai.com/codex/skills)
+- [skills.sh](https://skills.sh)
