@@ -20,6 +20,9 @@ import re
 import sys
 from pathlib import Path
 
+import plugin_utils
+from plugin_utils import read_text, load_marketplace, list_kits, REPO_ROOT
+
 # Windows cp949 stdout 대응
 if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(
@@ -29,8 +32,7 @@ if sys.platform == "win32":
         sys.stderr.buffer, encoding="utf-8", errors="replace", line_buffering=True,
     )
 
-ROOT = Path(__file__).resolve().parent.parent
-PLUGINS = ["harness", "flutter-toolkit", "design-kit", "backend-kit", "infra-kit", "rust-kit", "react-kit"]
+ROOT = REPO_ROOT
 
 MARKER_RE = re.compile(
     r"(<!-- AUTO:(\w+) -->)\n(.*?)(<!-- /AUTO:\2 -->)",
@@ -40,19 +42,15 @@ MARKER_RE = re.compile(
 
 # ── Task 1: 핵심 유틸리티 함수 ───────────────────────────────────────
 
-def parse_frontmatter(path: Path) -> dict | None:
-    """YAML frontmatter를 파싱한다 (PyYAML 없이).
+def _parse_frontmatter_file(path: Path) -> dict | None:
+    """파일 경로를 받아 YAML frontmatter 를 파싱한다. 실패 시 None 반환.
 
-    지원 포맷:
-      key: value
-      key: >
-        block scalar continuation (2-space indent)
-    프론트매터 없거나 읽기 실패 시 stderr 경고 후 None 반환.
+    description block scalar(`>`) 는 첫 indent 줄만 추출한다.
+    이는 README 테이블에서 한 줄 설명만 필요하기 때문이다.
     """
-    try:
-        text = path.read_text(encoding="utf-8")
-    except Exception as e:
-        print(f"  [경고] 파일 읽기 실패: {path} ({e})", file=sys.stderr)
+    text = read_text(path)
+    if not text:
+        print(f"  [경고] 파일 읽기 실패: {path}", file=sys.stderr)
         return None
 
     m = re.match(r"^---\s*\n(.*?)\n---", text, re.DOTALL)
@@ -67,8 +65,8 @@ def parse_frontmatter(path: Path) -> dict | None:
     while i < len(lines):
         line = lines[i]
 
-        # key: > (block scalar) — description은 첫 줄만 추출
-        bm = re.match(r"^(\w[\w-]*):\s*>\s*$", line)
+        # key: > (block scalar) — description은 첫 indent 줄만 추출
+        bm = re.match(r"^(\w[\w-]*):\s*>\-?\s*$", line)
         if bm:
             key = bm.group(1)
             parts: list[str] = []
@@ -76,7 +74,6 @@ def parse_frontmatter(path: Path) -> dict | None:
             while i < len(lines) and re.match(r"^\s{2}", lines[i]):
                 parts.append(lines[i].strip())
                 i += 1
-            # description은 첫 줄만 (SKILL.md에서 트리거 키워드 등은 제외)
             if key == "description" and parts:
                 data[key] = parts[0]
             else:
@@ -123,12 +120,9 @@ def has_marker(text: str, key: str) -> bool:
 
 def collect_skills(plugin_dir: Path) -> list[dict]:
     """skills/*/SKILL.md에서 name, description을 수집한다."""
-    skills_dir = plugin_dir / "skills"
-    if not skills_dir.is_dir():
-        return []
     results = []
-    for skill_md in sorted(skills_dir.glob("*/SKILL.md")):
-        data = parse_frontmatter(skill_md)
+    for skill_md in plugin_utils.iter_skills(plugin_dir):
+        data = _parse_frontmatter_file(skill_md)
         if data:
             results.append({
                 "name": data.get("name", ""),
@@ -139,12 +133,9 @@ def collect_skills(plugin_dir: Path) -> list[dict]:
 
 def collect_agents(plugin_dir: Path) -> list[dict]:
     """agents/*.md에서 name, description, model, tools를 수집한다."""
-    agents_dir = plugin_dir / "agents"
-    if not agents_dir.is_dir():
-        return []
     results = []
-    for agent_md in sorted(agents_dir.glob("*.md")):
-        data = parse_frontmatter(agent_md)
+    for agent_md in plugin_utils.iter_agents(plugin_dir):
+        data = _parse_frontmatter_file(agent_md)
         if data:
             results.append({
                 "name": data.get("name", ""),
@@ -259,14 +250,6 @@ def load_plugin_json(plugin_dir: Path) -> dict | None:
     return json.loads(pj.read_text(encoding="utf-8"))
 
 
-def load_marketplace() -> dict | None:
-    """marketplace.json을 로드한다."""
-    mp = ROOT / ".claude-plugin" / "marketplace.json"
-    if not mp.exists():
-        return None
-    return json.loads(mp.read_text(encoding="utf-8"))
-
-
 # ── Task 3: 테이블 렌더러 ───────────────────────────────────────────
 
 def render_skills_table(skills: list[dict]) -> str:
@@ -318,14 +301,14 @@ def render_plugins_table() -> str:
     """루트 README용 플러그인 테이블."""
     mp = load_marketplace()
     mp_descs: dict[str, str] = {}
-    if mp:
-        for p in mp.get("plugins", []):
-            mp_descs[p["name"]] = p.get("description", "")
+    for p in mp.get("plugins", []):
+        mp_descs[p["name"]] = p.get("description", "")
 
     stacks = {"harness": "범용", "flutter-toolkit": "Flutter", "design-kit": "범용"}
     lines = ["| 플러그인 | 버전 | 스택 | 설명 |", "|----------|------|------|------|"]
-    for name in PLUGINS:
-        pj = load_plugin_json(ROOT / name)
+    for kit_path in list_kits(mp):
+        name = kit_path.name
+        pj = load_plugin_json(kit_path)
         version = pj["version"] if pj else "?"
         desc = mp_descs.get(name, "") or (pj["description"] if pj else "")
         stack = stacks.get(name, "범용")
@@ -343,9 +326,10 @@ def render_summary_list() -> str:
         "design-kit": "스택 무관 UI/UX 디자인 플러그인 (디자인 시스템 세팅 + 실시간 가이드 + 감사)",
     }
     lines = []
-    for name in PLUGINS:
-        pj = load_plugin_json(ROOT / name)
-        skill_count = len(collect_skills(ROOT / name))
+    for kit_path in list_kits():
+        name = kit_path.name
+        pj = load_plugin_json(kit_path)
+        skill_count = len(collect_skills(kit_path))
         base = desc_map.get(name, pj["description"] if pj else "")
         if name == "flutter-toolkit" and skill_count > 0:
             desc = f"{base} {skill_count}종"
@@ -474,6 +458,9 @@ def sync_claude_md(*, dry_run: bool, check_only: bool) -> bool:
 # ── Task 5: CLI ──────────────────────────────────────────────────────
 
 def main() -> None:
+    kit_paths = list_kits()
+    kit_names = [k.name for k in kit_paths]
+
     parser = argparse.ArgumentParser(description="README 자동 동기화")
     parser.add_argument("plugin", nargs="?", help="특정 플러그인만 동기화")
     parser.add_argument("--check-only", action="store_true", help="변경 필요 여부만 확인")
@@ -483,16 +470,16 @@ def main() -> None:
     any_changed = False
 
     if args.plugin:
-        if args.plugin not in PLUGINS:
+        if args.plugin not in kit_names:
             print(f"알 수 없는 플러그인: {args.plugin}", file=sys.stderr)
-            print(f"사용 가능: {', '.join(PLUGINS)}", file=sys.stderr)
+            print(f"사용 가능: {', '.join(kit_names)}", file=sys.stderr)
             sys.exit(1)
         changed = sync_plugin(
             args.plugin, dry_run=args.dry_run, check_only=args.check_only
         )
         any_changed = any_changed or changed
     else:
-        for name in PLUGINS:
+        for name in kit_names:
             changed = sync_plugin(name, dry_run=args.dry_run, check_only=args.check_only)
             any_changed = any_changed or changed
 
