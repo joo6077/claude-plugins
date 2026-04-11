@@ -171,7 +171,7 @@ Final: 전체 정합성 검증
 
 각 Phase는 **새 서브에이전트**로 실행한다 (Agent tool). 이전 Phase의 변경사항이 디스크에 커밋되어 있으므로 fresh load로 반영된다.
 
-```
+```text
 1. Triage: 피드백 읽기 → 개선 필요? → 불필요 시 SKIP + 로그
    ⚠ 피드백이 0건이면 SKIP하지 않고 리서치 전용 모드로 진행
 2. 자체 리서치: 해당 스킬의 search-sources.md 기반, 3-5개 도메인만
@@ -236,7 +236,7 @@ python3 scripts/collect-kaizen-data.py
 
 **각 Phase 서브에이전트 프롬프트에 데이터 풀 경로 전달 필수:**
 
-```
+```text
 데이터 소스:
 - `.harness/.meta/kaizen-data-pool.md` — 카이젠 공통 데이터 풀 (Step 0 에서 생성)
   너의 Phase 범위에 해당하는 섹션 (§N) 을 우선 참조.
