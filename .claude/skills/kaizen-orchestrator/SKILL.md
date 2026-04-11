@@ -22,6 +22,22 @@ user-invocable: true
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
 - `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
+- `references/phase-research-templates.md` — **Phase 1~10 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Gap 7 추가, 2026-04-12)
+
+## 연동 스크립트
+
+- `scripts/sync-orchestrator.py` — marketplace.json → AUTO:plugin_phases 마커 영역 자동 동기화
+- `scripts/spawn-kaizen-phase.sh <N>` — Phase N 부트스트랩 (git tag + data-pool §N + subagent 프롬프트)
+- `scripts/finalize-phase.sh <N> <pass|fail> [--revert]` — Phase 종료 처리 (failure-count 갱신 + auto-revert 제안)
+- `scripts/validate-post-kaizen.py` — Step 12 Post-Kaizen Checklist 자동 검증 (12 항목). PR 생성 전 필수 실행
+- `scripts/append-audit-log.py` — Step 11 Final 종료 시 이번 사이클 meta-issue 를 `.harness/.meta/orchestrator-audit-log.md` 에 append
+- `scripts/detect-docs-drift.py` — Step 11.5 에서 재생성 필요한 HTML 경로 manifest 생성
+- `scripts/fix-markdown-lint.py` — MD031/MD032/MD034/MD060 auto-fix (사전 실행 권장)
+- `scripts/sync-evals.py` — 각 플러그인 skills/ 와 evals/evals.json 동기화
+
+## 관련 스킬
+
+- `/meta-kaizen` — 이 오케스트레이터 SKILL.md 자체를 리서치 기반으로 개선하는 메타 카이젠. Phase 1~10 범위 밖. 주 1 회 이하 권장.
 
 ## Gotchas
 
@@ -147,9 +163,28 @@ Final: 전체 정합성 검증
 ## 트리거 조건
 
 ### 주기적 (cron)
-- 매주 월요일 09:00 KST
-- Claude Code schedule (remote trigger) 사용
+
+- 매주 월요일 09:00 KST (= UTC 00:00)
+- Claude Code `schedule` 스킬로 remote trigger 등록
 - 개별 카이젠(contract-kaizen, evaluator-kaizen, harness-kaizen, flutter-kaizen, design-kaizen)의 cron은 비활성화하고 이 오케스트레이터만 실행
+
+**등록 명령 (최초 1 회):**
+
+```text
+/schedule create --cron "0 0 * * 1" --command "/kaizen-orchestrator research-mode" --description "주간 카이젠 research-mode 자동 실행"
+```
+
+**상태 확인:**
+
+```text
+/schedule list
+```
+
+**해제 (임시 비활성화):**
+
+```text
+/schedule delete <id>
+```
 
 ### 수동
 - `/kaizen-orchestrator` — 전체 (Phase 1→2→3→4→5→6→7→8→9→10→Final)
