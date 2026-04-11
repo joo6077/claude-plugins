@@ -127,6 +127,14 @@ WASM boundary 오용과 불필요한 렌더 비용을 검출한다.
   - grep: `animate-` 또는 `transition-` 클래스 있는데 `motion-reduce:` 또는 `@media (prefers-reduced-motion` 없음
 - [ ] **최상위 Error Boundary 없음** → ❌ 실패
   - grep: `src/main.tsx` 또는 `src/app.tsx` 에 `ErrorBoundary` 없음
+- [ ] **WCAG 2.2 SC 2.5.8 Target Size (Minimum) AA — 24×24 미만** → ⚠️ 경고
+  - 검사: 인터랙티브 요소(`<button>`, `<a>`, `<input type="button|submit|checkbox|radio">`, `[role="button"]`, `[role="link"]`) 의 Tailwind size 유틸에서 `h-*` / `w-*` / `size-*` / `min-h-*` / `min-w-*` 가 6(24px) 미만인 경우
+  - grep: `(?:h|w|size|min-h|min-w)-[0-5]\b` (Tailwind scale 0~5 = 0~20px)
+  - 예외: inline 텍스트 링크, user-agent 기본 컨트롤 (no class override), `pointer: coarse` 미디어 쿼리로 터치 디바이스에서만 확장하는 패턴
+  - 근거: WCAG 2.2 (2023-10 공식 발효) — Phase 6 design-kit 정합 기준
+- [ ] **WCAG 2.2 SC 2.4.11 Focus Not Obscured (Minimum) AA** → ⚠️ 경고
+  - 검사: `position: sticky` 또는 `fixed` 가 있는 컨테이너 (header, footer, bottom-sheet) 에 focus ring 이 가려질 때, 대상 요소가 스크롤 영역이라면 `scroll-mt-*` / `scroll-padding-top` 선언 필요
+  - 권장: `scroll-mt-16` 이상 또는 `:focus-visible { scroll-margin-top: 4rem; }`
 
 ### 5. Anti-patterns
 
@@ -152,16 +160,18 @@ WASM boundary 오용과 불필요한 렌더 비용을 검출한다.
 react-kit 이 금지하는 라이브러리. 위반 시 ❌ 실패 — 경고 없이 즉각 REJECT.
 
 - [ ] **금지 애니메이션/인터랙션 라이브러리** → ❌ 실패
-  - grep: `^import .* from ['"](motion|framer-motion|react-spring|@dnd-kit\/[^'"]*|react-dnd[^'"]*|react-beautiful-dnd|react-transition-group|gsap|lottie-react|@formkit\/auto-animate[^'"]*)['"]`
+  - grep: `^import .* from ['"](motion|framer-motion|react-spring|@dnd-kit\/[^'"]*|react-dnd[^'"]*|react-beautiful-dnd|react-transition-group|gsap|lottie-react|@formkit\/auto-animate[^'"]*|animate\.css)['"]`
   - scope: `src/**/*.{ts,tsx}`
-  - 금지 목록: `motion`, `framer-motion`, `@dnd-kit/*`, `react-spring`, `react-dnd`, `react-beautiful-dnd`, `react-transition-group`, `gsap`, `lottie-react`, `@formkit/auto-animate`
+  - 금지 목록: `motion`, `framer-motion`, `@dnd-kit/*`, `react-spring`, `react-dnd`, `react-beautiful-dnd`, `react-transition-group`, `gsap`, `lottie-react`, `@formkit/auto-animate`, `animate.css`
+  - 근거: react-kit 은 라이브러리 0개 원칙 고수 — `references/common-gotchas.md` G2 의 금지 목록과 정합. 추가는 가능, 삭제 금지.
 - [ ] **deprecated shadcn 패키지** (`shadcn-ui`) → ❌ 실패
   - grep: `from ['"]shadcn-ui['"]` 또는 `package.json` 의 `"shadcn-ui"` dependency
 - [ ] **deprecated MSW v1 API** (`rest.get` 등) → ⚠️ 경고
   - grep: `import \{[^}]*\brest\b[^}]*\} from ['"]msw['"]`
 - [ ] **deprecated Lingui macro 경로** (`@lingui/macro`) → ⚠️ 경고
   - grep: `from ['"]@lingui/macro['"]`
-  - 교체: `from '@lingui/react/macro'` 또는 `from '@lingui/core/macro'`
+  - 교체: JSX 매크로(`Trans`, `Plural`, `Select`, `SelectOrdinal`) → `from '@lingui/react/macro'`, core 매크로(`t`, `plural`, `select`, `selectOrdinal`, `defineMessage`, `msg`) → `from '@lingui/core/macro'`
+  - 근거: Lingui v5 (2024-11 stable) 에서 `@lingui/macro` 단일 엔트리는 분리됐고 v5 에서도 alias 유지되지만 새 코드에서 사용 금지
 - [ ] **Tauri API 직접 import** (isTauri 가드 없이, `src/infrastructure/tauri/` 외부에서) → ❌ 실패
   - grep: `^import .* from ['"]@tauri-apps/`
   - scope: `src/` 중 `src/infrastructure/tauri/` 제외

@@ -19,6 +19,50 @@ user-invocable: true
 6. **`enabled` 가드 필수** — 파라미터가 아직 확정되지 않은 상태(빈 문자열, undefined)에서 fetch되지 않도록 `enabled: !!userId` 같은 조건을 항상 추가한다.
 7. **staleTime vs gcTime 구분** — `staleTime` (기본 0): "데이터가 신선한 동안 재요청 안 함". `gcTime` (기본 5분): "비활성 캐시 보존 기간". 자주 바뀌지 않는 데이터는 staleTime을 길게 설정한다.
 8. **invalidation 전략 선택** — 업데이트: `setQueryData(detail) + invalidateQueries(list)`. 생성: `invalidateQueries(list)`. 삭제: `removeQueries(detail) + invalidateQueries(list)`. 로그아웃: `queryClient.clear()`. 상황에 맞게 선택한다.
+9. **TanStack Query v5 QueryClient 메서드 시그니처 object-form 강제** — v5 에서 `invalidateQueries`, `cancelQueries`, `removeQueries`, `resetQueries`, `getQueriesData`, `setQueriesData`, `ensureQueryData`, `isFetching` 가 모두 **`{ queryKey, ...filters }` 단일 object 인자**로 통일됐다. 복수 인자 형태는 v5 에서 제거 (TanStack Query v5 migration).
+
+    나쁜 예 — v4 레거시 시그니처:
+
+    ```ts
+    queryClient.invalidateQueries(userKeys.list({ page: 1 }))
+    queryClient.removeQueries(userKeys.detail(id), { exact: true })
+    ```
+
+    좋은 예 — v5 object form:
+
+    ```ts
+    queryClient.invalidateQueries({ queryKey: userKeys.list({ page: 1 }) })
+    queryClient.removeQueries({ queryKey: userKeys.detail(id), exact: true })
+    ```
+
+10. **`queryOptions()` 유틸 + 3제네릭 명시로 select 타입 회귀 회피** — `queryOptions()` 로 queryKey/queryFn/select 를 재사용 가능한 객체로 묶으면 타입 안정성이 올라가지만, v5 초기에 **`queryOptions` + `select` 조합에서 `TData` 타입 추론이 `unknown` 으로 회귀하는 이슈**가 보고된 적 있다 (TanStack Query #5436). 방어책으로 `useQuery<TData, TError, TSelected>` 3 제네릭을 명시한다.
+
+    권장 패턴:
+
+    ```ts
+    import { queryOptions, useQuery } from '@tanstack/react-query'
+
+    export const userQueryOptions = (id: string) =>
+      queryOptions({
+        queryKey: userKeys.detail(id),
+        queryFn: async () => {
+          const result = await userRepository.fetchUser(id)
+          if (result.isErr()) throw result.error
+          return result.value
+        },
+        staleTime: 1000 * 60,
+        enabled: id !== '',
+      })
+
+    // 기본 사용 — 3 제네릭 불필요 (Pass-through)
+    const { data } = useQuery(userQueryOptions(id))
+
+    // select 사용 시에만 3 제네릭 명시
+    const { data: userName } = useQuery<User, UserFailure, string>({
+      ...userQueryOptions(id),
+      select: (u) => u.name,
+    })
+    ```
 
 # Process
 

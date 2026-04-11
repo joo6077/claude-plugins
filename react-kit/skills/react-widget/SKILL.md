@@ -11,17 +11,47 @@ user-invocable: true
 
 # Gotchas
 
-1. **기존 shadcn 컴포넌트 직접 수정 금지** — shadcn은 "코드 소유" 모델이라 수정이 가능하지만, `/react-widget`은 래핑해서 확장한다. 직접 수정은 shadcn CLI 업데이트 시 충돌.
+1. **기존 shadcn 컴포넌트 직접 수정 금지** — shadcn은 "코드 소유" 모델이라 수정이 가능하지만, `/react-widget`은 래핑해서 확장한다. 직접 수정은 shadcn CLI 업데이트 시 충돌. shadcn v2 (CLI v4, 2026-03) 는 `--dry-run`/`--diff` 플래그로 설치 전 미리보기 가능.
 2. **`cn` 유틸리티 경로 고정** — `@/presentation/shared/lib/utils`의 `cn(...)`을 import한다. `@/lib/utils` 같은 다른 경로 사용 금지 (Clean Arch 준수).
-3. **`React.FC` 금지** — 제네릭 추론이 약하고 children이 암묵적으로 포함된다. 대신 `(props: Props) => JSX.Element` 또는 `forwardRef<Ref, Props>` 사용.
-4. **Props 타입은 `type`으로 정의** — `interface` 아님. `VariantProps` 같은 유틸리티 타입과 교차 타입으로 조합하기 위함.
-5. **`displayName` 필수** — `forwardRef` 컴포넌트는 `displayName` 설정 필수. React DevTools 디버깅 용이성.
+3. **`React.FC` 금지** — 제네릭 추론이 약하고 children이 암묵적으로 포함된다. 대신 `(props: Props) => JSX.Element` 또는 React 19 `ref as prop` 패턴 사용.
+4. **React 19 `ref as prop` 권장 — `forwardRef` deprecation 예고** — React 19 stable(2024-12, 2026-04 현재 19.2+) 에서 **`ref` 는 일반 prop 으로 전달 가능**하다. 새 컴포넌트는 `forwardRef` 없이 `ref?: Ref<HTMLButtonElement>` 를 Props 타입에 포함한다. 기존 `forwardRef` 컴포넌트는 하위호환으로 경고 없이 동작하지만 새 코드는 ref-as-prop 패턴 고정. displayName 설정도 함수명만 제대로 붙으면 자동 추론됨 (React v19 블로그, shadcn tailwind-v4 docs).
+
+    나쁜 예 — forwardRef 신규 작성:
+
+    ```tsx
+    export const MyButton = React.forwardRef<HTMLButtonElement, Props>(
+      ({ className, variant, ...props }, ref) => (
+        <button ref={ref} className={cn(buttonVariants({ variant }), className)} {...props} />
+      ),
+    )
+    MyButton.displayName = 'MyButton'
+    ```
+
+    좋은 예 — React 19 ref as prop:
+
+    ```tsx
+    import type { ButtonHTMLAttributes, Ref } from 'react'
+
+    type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+      VariantProps<typeof buttonVariants> & {
+        ref?: Ref<HTMLButtonElement>
+      }
+
+    export function MyButton({ ref, className, variant, ...props }: MyButtonProps) {
+      return (
+        <button ref={ref} className={cn(buttonVariants({ variant }), className)} {...props} />
+      )
+    }
+    ```
+
+5. **Props 타입은 `type`으로 정의** — `interface` 아님. `VariantProps` 같은 유틸리티 타입과 교차 타입으로 조합하기 위함.
 6. **`onClick` 재정의 금지** — HTML 속성에 이미 `onClick`이 있으므로 Props 타입에서 덮어쓰면 타입 충돌. 필요하면 명시적으로 다시 선언.
-7. **Container Queries는 Tailwind v4 전용** — `@container` + `@md:` 유틸리티는 Tailwind v4 이상에서 내장. v3에서는 별도 플러그인 필요하므로 프로젝트 Tailwind 버전 확인 후 사용.
-8. **Strict TS 통과 필수** — `tsc --noEmit`과 `eslint --max-warnings=0`을 통과해야 한다. cva 반환 타입을 `any`로 캐스팅하는 코드 생성 금지.
-9. **기존 파일 overwrite 금지** — 같은 경로 파일이 이미 존재하면 거부한다. `--force` 플래그가 있을 때만 덮어쓴다.
-10. **실패 시 전체 롤백** — 복수 파일 생성 중 하나라도 실패 시 스킬 실행으로 생성된 파일을 모두 삭제하고 원상복구한다.
-11. **`export default` 금지** — named export로 통일한다 (Clean Arch 규칙).
+7. **Container Queries는 Tailwind v4 내장** — `@container` + `@sm:`/`@md:`/`@lg:` 유틸리티는 Tailwind v4 에서 내장(2025-01 stable). v3에서는 별도 플러그인 필요하므로 프로젝트 Tailwind 버전 확인 후 사용 (Tailwind v4 container queries).
+8. **WCAG 2.2 SC 2.5.8 터치타겟 최소 24×24** (Level AA, 2023 공식 발효 / 2026 보편 적용) — 모든 인터랙티브 variant(button, icon-button, chip, toggle) 는 **최소 24×24 CSS 픽셀** 터치타겟을 보장해야 한다. Tailwind 유틸리티 기준 최소 `size-6` (1.5rem = 24px). `size: 'sm'` variant 도 24px 미만 금지 — 권장 최솟값은 `h-8 w-8` (32px) 이상. 예외: inline 텍스트 링크, user-agent 기본 컨트롤. Phase 6 design-kit 정합 기준.
+9. **Strict TS 통과 필수** — `tsc --noEmit`과 `eslint --max-warnings=0`을 통과해야 한다. cva 반환 타입을 `any`로 캐스팅하는 코드 생성 금지.
+10. **기존 파일 overwrite 금지** — 같은 경로 파일이 이미 존재하면 거부한다. `--force` 플래그가 있을 때만 덮어쓴다.
+11. **실패 시 전체 롤백** — 복수 파일 생성 중 하나라도 실패 시 스킬 실행으로 생성된 파일을 모두 삭제하고 원상복구한다.
+12. **`export default` 금지** — named export로 통일한다 (Clean Arch 규칙).
 
 # Process
 
@@ -54,17 +84,17 @@ pnpm dlx shadcn@latest add <base>
 
 ## 5. 컴포넌트 생성
 
-### variant 있는 경우 (cva 패턴)
+### variant 있는 경우 (cva + React 19 ref-as-prop)
 
 `src/presentation/shared/components/<kebab-name>.tsx`:
 
 ```tsx
-import * as React from 'react'
+import type { HTMLAttributes, Ref } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/presentation/shared/lib/utils'
 
 const <widgetName>Variants = cva(
-  // base classes
+  // base classes — WCAG 2.2 SC 2.5.8 24×24 최소 터치타겟 보장 (h-8 w-8 = 32px)
   'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:opacity-50 disabled:pointer-events-none',
   {
     variants: {
@@ -73,6 +103,7 @@ const <widgetName>Variants = cva(
         // 사용자가 지정한 --variants 값들을 여기에 추가
       },
       size: {
+        // 24px(size-6) 이하는 SC 2.5.8 위반 — 최소 32px 권장
         sm: 'h-8 px-3 text-sm',
         md: 'h-10 px-4',
         lg: 'h-12 px-6 text-lg',
@@ -85,43 +116,47 @@ const <widgetName>Variants = cva(
   },
 )
 
-type <WidgetName>Props = React.HTMLAttributes<HTMLDivElement> &
-  VariantProps<typeof <widgetName>Variants>
+type <WidgetName>Props = HTMLAttributes<HTMLDivElement> &
+  VariantProps<typeof <widgetName>Variants> & {
+    ref?: Ref<HTMLDivElement>
+  }
 
-export const <WidgetName> = React.forwardRef<<HTMLDivElement>, <WidgetName>Props>(
-  ({ className, variant, size, ...props }, ref) => (
+// React 19 ref as prop — forwardRef 불필요. 함수명이 displayName 역할.
+export function <WidgetName>({
+  ref,
+  className,
+  variant,
+  size,
+  ...props
+}: <WidgetName>Props) {
+  return (
     <div
       ref={ref}
       className={cn(<widgetName>Variants({ variant, size }), className)}
       {...props}
     />
-  ),
-)
-<WidgetName>.displayName = '<WidgetName>'
+  )
+}
 ```
 
 base가 `button`이면 `HTMLDivElement` → `HTMLButtonElement`, `HTMLAttributes` → `ButtonHTMLAttributes`로 교체한다.
 
-### variant 없는 경우 (단순 컴포넌트)
+**React 18 하위 호환이 필요한 경우에만** 기존 `forwardRef` 패턴을 사용할 수 있다 — 신규 생성은 ref-as-prop 을 기본값으로 한다.
+
+### variant 없는 경우 (단순 컴포넌트, React 19 ref-as-prop)
 
 ```tsx
-import * as React from 'react'
+import type { HTMLAttributes, Ref } from 'react'
 import { cn } from '@/presentation/shared/lib/utils'
 
-type <WidgetName>Props = React.HTMLAttributes<HTMLDivElement> & {
+type <WidgetName>Props = HTMLAttributes<HTMLDivElement> & {
+  ref?: Ref<HTMLDivElement>
   // 필요한 추가 props 를 여기에 선언
 }
 
-export const <WidgetName> = React.forwardRef<<HTMLDivElement>, <WidgetName>Props>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('', className)}
-      {...props}
-    />
-  ),
-)
-<WidgetName>.displayName = '<WidgetName>'
+export function <WidgetName>({ ref, className, ...props }: <WidgetName>Props) {
+  return <div ref={ref} className={cn('', className)} {...props} />
+}
 ```
 
 ### 반응형 레이아웃이 필요한 경우 (Container Queries)

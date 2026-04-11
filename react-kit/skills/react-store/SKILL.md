@@ -19,6 +19,29 @@ user-invocable: true
 6. **Actions 안에서 `get()` 주의** — 이전 상태로부터 다음 상태를 계산할 때는 `set((state) => ({ ... }))` 함수 형태가 안전하다. `get()` 은 동시 업데이트 시 race condition 위험.
 7. **persist 직렬화 주의** — `Map`, `Set`, `Date` 객체는 기본 JSON 직렬화가 안 된다. `--with-persist` 옵션 사용 시 `createJSONStorage` 커스터마이즈 또는 primitive 값만 저장.
 8. **`createStore` vs `create` 혼동 금지** — `create`는 전역 훅 기반 (react-kit 기본). `createStore`는 React Context로 여러 인스턴스를 제공하거나 SSR 할 때만 사용.
+9. **Zustand v5 객체/배열 selector trap — `useShallow` 강제** — v5(2024-11 stable)는 use-sync-external-store shim 을 제거하고 React 18+ 네이티브 `useSyncExternalStore` 를 사용한다. selector 가 매번 새 객체/배열을 반환하면 React 가 "Maximum update depth exceeded" 를 throw 하며 컴포넌트 트리 unmount — 성능 문제가 아니라 **크래시**다. v5 에서는 반드시 `zustand/react/shallow` 의 `useShallow` 로 감싼다 (Zustand v5 announce, v5 migration).
+
+    나쁜 예 — 매 렌더마다 새 객체:
+
+    ```ts
+    const { user, token } = useAuthStore((s) => ({ user: s.user, token: s.token }))
+    // → Maximum update depth exceeded
+    ```
+
+    좋은 예 — useShallow 로 얕은 비교:
+
+    ```ts
+    import { useShallow } from 'zustand/react/shallow'
+
+    const [user, token] = useAuthStore(
+      useShallow((s) => [s.user, s.token] as const),
+    )
+    ```
+
+    단일 필드 구독은 `useAuthStore((s) => s.user)` 그대로 괜찮다 — primitive/reference equality 로 이미 안전.
+
+10. **v5 에서 커스텀 equality function 은 `createWithEqualityFn` 로** — `create()` 는 v5 에서 equality customizing 을 지원하지 않는다. 특수한 비교가 필요하면 `zustand/traditional` 의 `createWithEqualityFn` 을 쓰고, 일반적으로는 `useShallow` 로 충분하다.
+11. **최소 React 버전 18+** — v5 는 React 17 이하 미지원. react-kit 은 React 19 가 기본이므로 이슈 없음, 단 공용 라이브러리 프로젝트에서 v4→v5 마이그레이션 시 피어 의존성을 사전 확인한다.
 
 # Process
 
@@ -47,6 +70,7 @@ PascalCase 변형 계산: `auth-store` → `Auth`, `useAuthStore`.
 
 ```ts
 import { create } from 'zustand'
+import { useShallow } from 'zustand/react/shallow'
 import type { <Entity> } from '@/domain/entities/<entity>'
 
 type <Feature>State = {
@@ -71,8 +95,15 @@ export const use<Feature>Store = create<<Feature>Store>()((set) => ({
   clear: () => set(initialState),
 }))
 
-// Selector hooks — 컴포넌트에서 직접 useAuthStore((s) => ...) 대신 사용
+// Selector hooks — 컴포넌트에서 직접 useFeatureStore((s) => ...) 대신 사용
+// 단일 primitive 는 selector 직접, 다중 필드는 useShallow 필수 (Zustand v5)
 export const use<Feature><Field> = () => use<Feature>Store((s) => s.<field>)
+
+// 다중 필드 구독 — useShallow 로 감싸 객체 selector trap 을 회피한다
+export const use<Feature>Slice = () =>
+  use<Feature>Store(
+    useShallow((s) => ({ <field>: s.<field> })),
+  )
 ```
 
 ### 4-2. 전역 shared 스토어 (`scope: shared`)

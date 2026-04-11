@@ -20,6 +20,23 @@ user-invocable: true
 6. **모바일 퍼스트 원칙 누락** — 항상 가장 좁은 너비를 기본값으로 선언하고(`grid-cols-1`) 큰 쪽으로 확장(`sm:grid-cols-2`)한다. 데스크탑 레이아웃을 먼저 쓰고 모바일에서 override하는 패턴은 specificity 지옥을 만든다.
 7. **`cn()` 없이 조건부 클래스 합성** — `className={isActive ? 'foo' : 'bar'}` 중첩이 복잡해지면 `cn()` 유틸리티로 정리한다. 직접 문자열 합성은 Tailwind Merge와 충돌할 수 있다.
 8. **기존 파일 className 이외 변경 금지** — 이 스킬은 className 속성만 수정한다. 컴포넌트 로직, Props 타입, 파일 구조는 건드리지 않는다.
+9. **WCAG 2.2 SC 2.5.8 터치타겟 24×24 — breakpoint 전환에서 유지** (Level AA) — 좁은 화면 breakpoint 에서 아이콘 버튼/네비 아이템이 축소될 때도 **최소 24×24 CSS 픽셀** 을 보장해야 한다. Tailwind 기준 `min-w-6 min-h-6` 가드를 상시 걸거나, `size-*` 를 6 미만으로 내리지 않는다. 권장 최솟값은 `size-8`(32px) — 손가락 정확도 여유분. Phase 6 design-kit 정합 (WCAG 2.2 / SC 2.5.8).
+
+    나쁜 예 — md 이하에서 22px 로 축소:
+
+    ```tsx
+    <button className="h-10 w-10 md:h-6 md:w-6">
+      <Icon />
+    </button>
+    ```
+
+    좋은 예 — 최소 size-8 가드 유지:
+
+    ```tsx
+    <button className="h-10 w-10 md:h-8 md:w-8 min-h-8 min-w-8">
+      <Icon />
+    </button>
+    ```
 
 # Process
 
