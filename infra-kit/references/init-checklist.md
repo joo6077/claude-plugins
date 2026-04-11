@@ -30,13 +30,23 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 | Bitbucket Pipelines | `bitbucket-pipelines.yml` |
 
 최소 파이프라인 단계:
+
 - [ ] build (컴파일/이미지 빌드)
 - [ ] test (단위/통합 테스트)
 - [ ] security scan (Trivy/Snyk 이미지 스캔)
+- [ ] **SBOM 생성** (Syft 또는 Trivy — CycloneDX 또는 SPDX 포맷, 아티팩트로 저장)
+- [ ] **이미지 서명** (Sigstore Cosign keyless + OIDC, 저장 후 `cosign verify` 배포 게이트)
+- [ ] **SLSA provenance** (in-toto attestation 생성 → 레지스트리에 첨부 → 배포 전 `verify-attestation`)
 - [ ] deploy (환경별 분기)
 
-시크릿: 소스코드 직접 포함 금지, Secrets 또는 OIDC 사용
-참조: `docs/infra/platform/cicd.md`
+시크릿: 소스코드 직접 포함 금지. **secretless CI 우선** — 클라우드/레지스트리 인증은 OIDC short-lived federation, 공개 패키지 배포는 PyPI Trusted Publishers / npm provenance. reusable workflow + environment protection으로 신뢰 경계 고정.
+
+참조:
+
+- `docs/infra/platform/cicd.md`
+- 출처: [SLSA spec](https://slsa.dev/spec)
+- 출처: [Sigstore Cosign](https://docs.sigstore.dev/cosign/verifying/attestation/)
+- 출처: [PyPI Trusted Publishers](https://docs.pypi.org/trusted-publishers/)
 
 ---
 
@@ -59,8 +69,12 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 - [ ] 헬스체크 엔드포인트 (`/health`, `/readyz`)
 - [ ] 메트릭 노출 (`/metrics` 또는 사이드카 에이전트)
 - [ ] 기본 알림 규칙 (에러율, 응답 시간 임계값)
+- [ ] **OpenTelemetry Collector + OTLP** — 3 신호(메트릭/로그/트레이스)를 OTel Collector로 통합 export, `service.name` 등 semantic conventions 준수 (Logs spec 2025 stable)
 
-참조: `docs/infra/operations/observability.md`
+참조:
+
+- `docs/infra/operations/observability.md`
+- 출처: [OpenTelemetry spec status](https://opentelemetry.io/docs/specs/status/)
 
 ---
 
@@ -82,19 +96,37 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 - [ ] `ConfigMap` / `Secret` — 환경별 분리
 - [ ] `HorizontalPodAutoscaler` — 트래픽 기반 자동 확장
 - [ ] RBAC — 최소 권한 ServiceAccount
+- [ ] **Pod Security Admission 라벨** — 네임스페이스에 `pod-security.kubernetes.io/enforce=baseline` 최소, 신규는 `restricted` 목표. `warn`/`audit` 단계적 도입
+- [ ] **Gateway API 우선** — 신규 North-South 트래픽은 `gateway.networking.k8s.io` 사용 (Ingress API는 frozen, 기존 리소스만 유지)
+- [ ] **Sidecar containers (v1.33+ stable)** — 사이드카는 `initContainers` + `restartPolicy: Always` 네이티브 사이드카 패턴 사용 (레거시 shared-termination hack 금지)
 
-참조: `docs/infra/platform/kubernetes.md`
+참조:
+
+- `docs/infra/platform/kubernetes.md`
+- 출처: [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/)
+- 출처: [Ingress → Gateway API 권장](https://kubernetes.io/docs/concepts/services-networking/ingress/)
+- 출처: [Sidecar containers (stable v1.33)](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers)
 
 ---
 
-### IaC (선택 — Terraform/Pulumi/CDK 사용 시)
+### IaC (선택 — Terraform/OpenTofu/Pulumi/CDK 사용 시)
 
 - [ ] 표준 모듈 구조 (`main.tf`, `variables.tf`, `outputs.tf`)
 - [ ] Remote backend 설정 (S3+DynamoDB / GCS / Terraform Cloud)
 - [ ] State locking 활성화
 - [ ] `.gitignore`에 `*.tfstate`, `.terraform/` 추가
+- [ ] **State encryption** — OpenTofu 1.7+는 native state encryption, Terraform은 backend-level 암호화(SSE-S3/CMEK)
+- [ ] **Ephemeral values** — Terraform 1.10+ `ephemeral` 블록 / write-only arguments로 시크릿이 state/plan에 저장되지 않게 구성
+- [ ] **모듈 테스트** — `terraform test` / `tofu test` 모듈 테스트 프레임워크 도입 (1.7+ mocking 지원)
+- [ ] **OpenTofu 대안 검토** — v1.7+ native state encryption, v1.9+ provider-level `for_each` 필요 시 OpenTofu 선택
 
-참조: `docs/infra/platform/iac.md`
+참조:
+
+- `docs/infra/platform/iac.md`
+- 출처: [Terraform Ephemeral values](https://developer.hashicorp.com/terraform/language/ephemeral)
+- 출처: [Terraform tests](https://developer.hashicorp.com/terraform/language/tests)
+- 출처: [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/)
+- 출처: [OpenTofu provider for_each](https://opentofu.org/docs/language/meta-arguments/for_each/)
 
 ---
 

@@ -12,7 +12,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **클라우드 벤더 특정 코드 강제 금지** — AWS/GCP/Azure 특정 설정을 강제하지 마라. 원칙만 설명하고 벤더 선택은 사용자에게 맡겨라.
+1. **클라우드 벤더 특정 코드 강제 금지** — AWS/GCP/Azure 특정 설정을 강제하지 마라. 원칙만 설명하고 벤더 선택은 사용자에게 맡겨라. `supply-chain`(Chainguard Images / Sigstore), `platform-engineering`(Backstage / Port / Cortex / Humanitec) 카테고리에서도 특정 벤더·배포판을 강제 처방하지 마라 — 원칙과 상호운용 표준(CycloneDX/SPDX, in-toto attestation, OCI)을 기준으로 설명하고 선택지는 제시만 한다.
 2. **주관적 피드백 금지** — "잘 구성됐다" 같은 표현 금지. 반드시 출처가 있는 원칙을 근거로 제시하라.
 3. **카테고리 과잉 방지** — Dockerfile 질문에 K8s/Terraform 원칙을 섞지 마라. 맥락에 관련된 원칙만 집중.
 4. **리서치 문서 없이 답변 금지** — principle-index.md를 통해 해당 원칙 문서를 읽은 후 답변하라.
@@ -25,20 +25,22 @@ user-invocable: true
 |----------|--------|
 | container | Docker, Dockerfile, Compose, 이미지, 컨테이너 |
 | cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner |
-| kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC |
-| iac | Terraform, Pulumi, CDK, 모듈, state, plan |
+| kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC, Pod Security, Gateway API, Sidecar |
+| iac | Terraform, Pulumi, CDK, OpenTofu, 모듈, state, plan, ephemeral |
 | networking | VPC, 서브넷, NAT, DNS, 로드밸런서, ALB, NLB |
 | tls-secrets | TLS, 인증서, cert-manager, Vault, 시크릿 |
 | backup-dr | 백업, DR, RTO, RPO, PITR, 장애 복구 |
-| deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD |
-| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, SLO |
+| deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD, Flux, Argo Rollouts |
+| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, OpenTelemetry, SLO |
 | incident-response | 인시던트, 장애 대응, 온콜, postmortem, runbook |
 | cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, 태그 |
 | service-mesh | Istio, Linkerd, sidecar, mTLS, 서비스 메시 |
+| supply-chain | SBOM, Cosign, SLSA, 서명, attestation, 공급망, Syft, Trivy |
+| platform-engineering | IDP, Backstage, Port, Cortex, golden path, self-service, scorecard |
 
 ## Step 2: 원칙 참조
 
-references/principle-index.md에서 해당 카테고리의 원칙 문서 경로를 찾아 읽는다.
+`infra-kit/references/principle-index.md`에서 해당 카테고리의 원칙 문서 경로를 찾아 읽는다.
 
 ## Step 3: 가이드 제시
 
@@ -52,4 +54,4 @@ references/principle-index.md에서 해당 카테고리의 원칙 문서 경로�
 
 # References
 
-- references/principle-index.md
+- ../../references/principle-index.md

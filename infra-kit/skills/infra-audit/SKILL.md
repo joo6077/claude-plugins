@@ -41,11 +41,12 @@ user-invocable: true
 | Kubernetes | PASS/FAIL/N/A | ... |
 | IaC | PASS/FAIL/N/A | ... |
 | Security | PASS/FAIL | ... |
+| Supply Chain | PASS/FAIL/N/A | 이미지 서명(Cosign) / SBOM / SLSA provenance |
 | Backup & DR | PASS/FAIL/N/A | ... |
 | Deployment | PASS/FAIL | ... |
 | Observability | PASS/FAIL | ... |
 
-해당 없는 카테고리(K8s 미사용 등)는 N/A로 표시하고 판정에서 제외한다.
+해당 없는 카테고리(K8s 미사용, Cosign/SLSA 도입 전 초기 단계 등)는 N/A로 표시하고 판정에서 제외한다.
 
 ## Step 4: 최종 판정
 
@@ -54,4 +55,4 @@ user-invocable: true
 
 # References
 
-- references/audit-criteria.md
+- ../../references/audit-criteria.md

@@ -14,7 +14,7 @@ user-invocable: true
 # Gotchas
 
 1. **벤더 강제 금지** — AWS/GCP/Azure 중 하나를 강제하지 마라. 사용자의 기존 환경을 먼저 감지하고 그에 맞춰라.
-2. **과도한 복잡도 경고** — K8s, 서비스 메시, Terraform은 프로젝트 규모에 맞을 때만 제안. 소규모 프로젝트에 K8s를 강제하지 마라.
+2. **과도한 복잡도 경고** — K8s, 서비스 메시, Terraform/OpenTofu는 프로젝트 규모에 맞을 때만 제안. 소규모 프로젝트에 K8s를 강제하지 마라. **Supply chain 강화(Cosign/SLSA/SBOM), Internal Developer Platform(Backstage/Port), Service Mesh(Istio/Linkerd) 같은 2026 고도화 항목도 규모·위험도·팀 역량이 준비된 경우에만 제안**한다. 1~3인 소규모 팀에 Backstage/IDP 포털을 강요하지 마라.
 3. **프로덕션 설정 강제 금지** — 초기 세팅은 개발 환경부터. 프로덕션 최적화는 별도로.
 4. **기존 설정 덮어쓰기 금지** — 이미 Dockerfile/CI가 있으면 분석 후 개선점만 제안.
 
@@ -30,7 +30,7 @@ user-invocable: true
 
 ## Step 2: 카테고리별 세팅
 
-references/init-checklist.md를 참조하여 필요한 카테고리를 결정:
+`infra-kit/references/init-checklist.md`를 참조하여 필요한 카테고리를 결정:
 
 | 카테고리 | 필수 여부 | 산출물 |
 |----------|-----------|--------|
@@ -57,4 +57,4 @@ references/init-checklist.md를 참조하여 필요한 카테고리를 결정:
 
 # References
 
-- references/init-checklist.md
+- ../../references/init-checklist.md
