@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Integration — React Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#38BDF8;--accent2:#7DD3FC;
+  --accent-dim:rgba(56,189,248,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:640px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(56,189,248,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
+.card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 4px 20px rgba(56,189,248,0.06)}
+.card-icon{font-size:1.4rem;margin-bottom:10px}
+.card h3{font-size:0.95rem;margin-bottom:8px}
+.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
+.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
+.card-source:hover{opacity:1}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(56,189,248,0.025)}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.skill-group{margin-bottom:36px}
+.group-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.group-tag{display:inline-block;padding:3px 12px;border-radius:6px;font-size:0.75rem;font-weight:700;font-family:var(--mono);background:var(--accent-dim);color:var(--accent)}
+.group-name{font-size:1rem;font-weight:600;color:var(--text)}
+.skill-row{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;transition:border-color var(--transition)}
+.skill-row:hover{border-color:rgba(56,189,248,0.2)}
+.skill-name{font-family:var(--mono);font-size:0.85rem;color:var(--accent2);min-width:180px;flex-shrink:0}
+.skill-desc{font-size:0.86rem;color:var(--text2)}
+.agent-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.agent-card h4{font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.agent-tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.75rem;font-weight:600;background:rgba(167,139,250,0.15);color:#c4b5fd}
+.agent-card p{color:var(--text2);font-size:0.87rem;line-height:1.6;margin-bottom:6px}
+.agent-scope{font-size:0.8rem;color:var(--text3);font-family:var(--mono)}
+.quickstart-step{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--surface2);border-radius:8px;margin-bottom:8px}
+.qs-num{min-width:24px;height:24px;border-radius:4px;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;font-family:var(--mono)}
+.qs-body{flex:1}
+.qs-cmd{font-family:var(--mono);font-size:0.85rem;color:var(--accent2)}
+.qs-desc{font-size:0.82rem;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="index.html" class="logo-link">React Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">Integration</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>Final Integration</h1>
+    <p class="subtitle">
+      react-kit 플러그인 전체 구조 — 21 스킬 + 3 에이전트, harness 통합, Clean Architecture,
+      marketplace 등록, 핵심 철학.
+    </p>
+    <div class="badge">전체 통합 명세</div>
+  </div>
+
+  <!-- 핵심 철학 -->
+  <section id="philosophy">
+    <div class="section-label">핵심 철학</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>성능 우선</h3>
+        <p>번들 크기와 런타임 성능을 모든 결정의 1순위 판단 기준. 측정 없이 가정하지 않는다.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚫</div>
+        <h3>라이브러리 0개 애니메이션</h3>
+        <p>Motion/dnd-kit/react-spring 금지. Tailwind + View Transitions API + 커스텀 pointer primitives로 순수 구현.</p>
+        <a href="animation.html" class="card-source">↗ G5b Animation 페이지</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏗️</div>
+        <h3>Clean Architecture</h3>
+        <p>flutter-toolkit, rust-kit과 일관된 레이어 분리. domain → data → presentation → infrastructure.</p>
+        <a href="state-data.html" class="card-source">↗ State &amp; Data 페이지</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📐</div>
+        <h3>Strict TypeScript</h3>
+        <p>any/as/! 금지, Zod 경계 검증 필수. 생성된 모든 파일은 tsc --noEmit 통과 보장.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">✅</div>
+        <h3>Result 타입</h3>
+        <p>throw 금지, neverthrow <code>Result&lt;T, Failure&gt;</code>로 타입 안전 에러 처리. domain에서 throw 감지 시 감사 오류.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>WASM 결정은 카탈로그 기반</h3>
+        <p>측정 없이도 research-backed 판정. G0 wasm-catalog.md가 1차 기준.</p>
+        <a href="wasm-catalog.html" class="card-source">↗ WASM Catalog 페이지</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 스킬 -->
+  <section id="skills">
+    <div class="section-label">스킬 21종</div>
+    <h2>G1~G6 스킬 전체 목록</h2>
+
+    <div class="skill-group">
+      <div class="group-header">
+        <span class="group-tag">G1</span>
+        <span class="group-name">스캐폴딩 &amp; 생성</span>
+      </div>
+      <div class="skill-row"><span class="skill-name">/react-init</span><span class="skill-desc">Vite + Tauri + WASM + shadcn + TanStack Router + Zustand 풀 스캐폴딩 (14-step)</span></div>
+      <div class="skill-row"><span class="skill-name">/react-screen</span><span class="skill-desc">화면 + TanStack Router 파일 기반 라우트 등록</span></div>
+      <div class="skill-row"><span class="skill-name">/react-feature</span><span class="skill-desc">복합 (화면 + 스토어 + UseCase + API) 4계층 skeleton</span></div>
+      <div class="skill-row"><span class="skill-name">/react-widget</span><span class="skill-desc">shadcn/ui 기반 cva + forwardRef 재사용 컴포넌트</span></div>
+    </div>
+
+    <div class="skill-group">
+      <div class="group-header">
+        <span class="group-tag">G2</span>
+        <span class="group-name">상태 &amp; 데이터</span>
+      </div>
+      <div class="skill-row"><span class="skill-name">/react-store</span><span class="skill-desc">Zustand v5 스토어 + selector hooks + UI 클라이언트 상태</span></div>
+      <div class="skill-row"><span class="skill-name">/react-api</span><span class="skill-desc">Clean Arch 4계층 (datasource → model → repo → usecase) 일괄 생성</span></div>
+      <div class="skill-row"><span class="skill-name">/react-query</span><span class="skill-desc">TanStack Query v5 useQuery/useMutation + queryKey 3-level 명명 + invalidation</span></div>
+      <div class="skill-row"><span class="skill-name">/react-form</span><span class="skill-desc">React Hook Form + Zod resolver + Result 반환 통합</span></div>
+    </div>
+
+    <div class="skill-group">
+      <div class="group-header">
+        <span class="group-tag">G3</span>
+        <span class="group-name">고성능 레이어</span>
+      </div>
+      <div class="skill-row"><span class="skill-name">/react-wasm</span><span class="skill-desc">Rust → wasm-pack → Comlink Worker → Clean Arch 바인딩 (G0 카탈로그 기반 자동 판정)</span></div>
+      <div class="skill-row"><span class="skill-name">/react-tauri</span><span class="skill-desc">Tauri command + invoke + capabilities + isTauri 가드</span></div>
+    </div>
+
+    <div class="skill-group">
+      <div class="group-header">
+        <span class="group-tag">G4</span>
+        <span class="group-name">품질 &amp; 패턴</span>
+      </div>
+      <div class="skill-row"><span class="skill-name">/react-test</span><span class="skill-desc">Vitest unit + Testing Library component + Playwright E2E 생성</span></div>
+      <div class="skill-row"><span class="skill-name">/react-error</span><span class="skill-desc">throw → Failure → Severity → UI 매핑 + RootErrorBoundary</span></div>
+      <div class="skill-row"><span class="skill-name">/react-l10n</span><span class="skill-desc">Lingui v5 매크로 (<code>@lingui/react/macro</code>) + codegen + locale 전환</span></div>
+    </div>
+
+    <div class="skill-group">
+      <div class="group-header">
+        <span class="group-tag">G5</span>
+        <span class="group-name">UI 패턴</span>
+      </div>
+      <div class="skill-row"><span class="skill-name">/react-responsive</span><span class="skill-desc">Tailwind breakpoint + container queries 자동 판정 + 변환</span></div>
+      <div class="skill-row"><span class="skill-name">/react-skeleton</span><span class="skill-desc">shadcn Skeleton shimmer + TanStack Query isPending 분기</span></div>
+      <div class="skill-row"><span class="skill-name">/react-extract</span><span class="skill-desc">중복 위젯 감지 → shared 추출 → import 자동 수정</span></div>
+    </div>
+
+    <div class="skill-group">
+      <div class="group-header">
+        <span class="group-tag">G5b</span>
+        <span class="group-name">애니메이션 (pure, no-library)</span>
+      </div>
+      <div class="skill-row"><span class="skill-name">/react-animation</span><span class="skill-desc">Tailwind T1 / View Transitions API T2 / Pointer Events T3 — 3-Tier 자동 판정. 라이브러리 0개 원칙</span></div>
+    </div>
+
+    <div class="skill-group">
+      <div class="group-header">
+        <span class="group-tag">G6</span>
+        <span class="group-name">빌드 &amp; 감사</span>
+      </div>
+      <div class="skill-row"><span class="skill-name">/react-run</span><span class="skill-desc">빌드 프리미티브 개별 실행 (dev, build, lint, tsc, test, wasm-build, codegen, format, e2e, tauri-dev, tauri-build)</span></div>
+      <div class="skill-row"><span class="skill-name">/react-build</span><span class="skill-desc">전체 빌드 파이프라인 (wasm-pack → tsc → vite)</span></div>
+      <div class="skill-row"><span class="skill-name">/react-preflight</span><span class="skill-desc">pre-commit quality gate (fix → codegen → lint → tsc → test → wasm → build)</span></div>
+      <div class="skill-row"><span class="skill-name">/react-audit</span><span class="skill-desc">quick/deep 모드 + 4 병렬 에이전트 축 + 34 규칙 grep/AST 검사</span></div>
+    </div>
+    <a href="build-audit.html" class="card-source">↗ Build &amp; Audit 페이지</a>
+  </section>
+
+  <!-- 3 에이전트 -->
+  <section id="agents">
+    <div class="section-label">에이전트 3종</div>
+    <h2>독립 에이전트</h2>
+    <div class="agent-card">
+      <h4><span class="agent-tag">에이전트</span> react-reviewer</h4>
+      <p><code>/react-audit</code>에서 호출되는 독립 평가 에이전트. Quick 모드에서 단독 실행, Deep 모드에서 4개 카테고리별 인스턴스로 분화.</p>
+      <p>패턴: <em>Independent Reviewer</em> — 메인 컨텍스트 편향 배제를 위해 새 세션 spawn. 읽기 전용 도구만 사용하여 판정 독립성 보장.</p>
+      <div class="agent-scope">도구 스코프: Read / Grep / Glob — 쓰기 권한 없음</div>
+      <div class="agent-scope" style="margin-top:4px">모델: Sonnet (Deep+Performance 축은 Opus 옵션)</div>
+    </div>
+    <div class="agent-card">
+      <h4><span class="agent-tag">에이전트</span> widget-inspector-react</h4>
+      <p>중복 위젯 감지 / 사유화된 재사용 가능 컴포넌트 감지 / 복잡도 임계값 초과 감지. 결과를 리포트로 제시, 사용자 승인 후 <code>/react-extract</code>가 실행.</p>
+      <p>패턴: <em>Codebase Scanner</em> — 전체 스캔 → 리포트 → 사용자 승인 → 다른 스킬이 실행.</p>
+      <div class="agent-scope">도구 스코프: Read / Grep / Glob</div>
+    </div>
+    <div class="agent-card">
+      <h4><span class="agent-tag">에이전트</span> animation-architect-react</h4>
+      <p>복잡 애니메이션 설계 자문. Tier 1/2/3 판정 + 엣지케이스 대응 가이드. <code>/react-animation</code>의 대안 판단이 어려울 때 호출.</p>
+      <p>패턴: <em>Design Consultant</em> — 자문 → 사용자 승인 → 스킬이 구현.</p>
+      <div class="agent-scope">도구 스코프: Read / Grep / Glob</div>
+    </div>
+  </section>
+
+  <!-- Clean Architecture -->
+  <section id="architecture">
+    <div class="section-label">아키텍처</div>
+    <h2>Clean Architecture 레이어</h2>
+    <pre>src/
+├── domain/              # entities, usecases, failures (순수)
+│   ├── entities/        # Zod 스키마 + z.infer 타입
+│   ├── usecases/        # 함수 시그니처 (인터페이스)
+│   └── failures/        # discriminated union Failure 타입
+├── data/                # datasources, models, repositories
+│   ├── datasources/
+│   │   ├── remote/      # fetch + Zod parse
+│   │   ├── local/       # localStorage
+│   │   └── wasm/        # Comlink Worker 래퍼
+│   ├── models/          # DTO 타입
+│   └── repositories/    # UseCase 구현체
+├── presentation/        # features, shared, routes, styles
+│   ├── features/        # 기능별 store + hooks + components + screens
+│   ├── shared/          # 공용 components/ui (shadcn), hooks, lib/utils
+│   ├── routes/          # TanStack Router 파일 기반 라우트
+│   └── styles/          # globals.css (@import "tailwindcss")
+└── infrastructure/      # tauri, storage, http, i18n
+    ├── tauri/           # isTauri 가드 래퍼 — Tauri API 직접 접근 차단
+    ├── http/
+    └── i18n/
+
+crates/core/             # Rust 코어 (WASM + Tauri 네이티브 공유)
+src-tauri/               # Tauri 백엔드 commands + capabilities</pre>
+    <a href="state-data.html" class="card-source">↗ G2 State &amp; Data 페이지</a>
+    <a href="performance.html" class="card-source" style="margin-left:16px">↗ G3 Performance 페이지</a>
+  </section>
+
+  <!-- Harness 통합 -->
+  <section id="harness">
+    <div class="section-label">Harness 통합</div>
+    <h2>project.yaml 계약 카테고리</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Prefix</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Architecture</td><td><code>AR</code></td><td>Clean Architecture 레이어 경계, feature 분리, import 방향</td></tr>
+          <tr><td>StrictType</td><td><code>ST</code></td><td>Strict TypeScript 준수 — any/as/! 금지, Zod 경계 검증, Result 타입</td></tr>
+          <tr><td>Performance</td><td><code>PF</code></td><td>WASM 카탈로그 준수, render 경로 최적화, 번들 크기</td></tr>
+          <tr><td>Accessibility</td><td><code>A11Y</code></td><td>i18n, ARIA, 키보드 경로, reduced-motion, Error Boundary</td></tr>
+          <tr><td>LibraryPolicy</td><td><code>LP</code></td><td>금지 라이브러리 (motion/dnd-kit 등), deprecated API 사용 금지</td></tr>
+          <tr><td>Testing</td><td><code>TS</code></td><td>Vitest unit, Testing Library component, Playwright e2e, 에러 경로 검증</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <code>/react-init</code>이 <code>/harness init</code>을 함께 호출할 때 <code>templates/harness-project.yaml.template</code>을 사용자 프로젝트의 <code>.harness/project.yaml</code>로 복사. 사용자는 필요 시 수정 가능.
+    </div>
+  </section>
+
+  <!-- Quickstart -->
+  <section id="quickstart">
+    <div class="section-label">빠른 시작</div>
+    <h2>Quickstart</h2>
+    <div style="margin:16px 0">
+      <div class="quickstart-step">
+        <div class="qs-num">1</div>
+        <div class="qs-body">
+          <div class="qs-cmd">/react-init my-app</div>
+          <div class="qs-desc">새 프로젝트 초기화 (14-step 전체 스캐폴딩)</div>
+        </div>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-num">2</div>
+        <div class="qs-body">
+          <div class="qs-cmd">/harness init</div>
+          <div class="qs-desc">harness 세팅 — .harness/project.yaml 생성</div>
+        </div>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-num">3</div>
+        <div class="qs-body">
+          <div class="qs-cmd">/react-feature user-profile</div>
+          <div class="qs-desc">첫 feature 4계층 생성 (domain → data → presentation → routes)</div>
+        </div>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-num">4</div>
+        <div class="qs-body">
+          <div class="qs-cmd">/react-api User</div>
+          <div class="qs-desc">API 연동 — datasource + model + repository + usecase 일괄</div>
+        </div>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-num">5</div>
+        <div class="qs-body">
+          <div class="qs-cmd">/react-wasm "이미지 리사이즈"</div>
+          <div class="qs-desc">고성능 WASM 이식 (G0 카탈로그 자동 판정 → Rust + Comlink 생성)</div>
+        </div>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-num">6</div>
+        <div class="qs-body">
+          <div class="qs-cmd">/react-preflight</div>
+          <div class="qs-desc">커밋 전 7-step quality gate (fix → codegen → lint → tsc → test → wasm → build)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 플러그인 구조 -->
+  <section id="plugin-structure">
+    <div class="section-label">플러그인 구조</div>
+    <h2>react-kit/ 폴더 트리</h2>
+    <pre>react-kit/
+├── .claude-plugin/plugin.json
+├── README.md
+│
+├── skills/                     # 21개 스킬
+│   ├── react-init/SKILL.md     # G1
+│   ├── react-screen/SKILL.md
+│   ├── react-feature/SKILL.md
+│   ├── react-widget/SKILL.md
+│   ├── react-store/SKILL.md    # G2
+│   ├── react-api/SKILL.md
+│   ├── react-query/SKILL.md
+│   ├── react-form/SKILL.md
+│   ├── react-wasm/SKILL.md     # G3
+│   ├── react-tauri/SKILL.md
+│   ├── react-test/SKILL.md     # G4
+│   ├── react-error/SKILL.md
+│   ├── react-l10n/SKILL.md
+│   ├── react-responsive/SKILL.md  # G5
+│   ├── react-skeleton/SKILL.md
+│   ├── react-extract/SKILL.md
+│   ├── react-animation/SKILL.md   # G5b
+│   ├── react-run/SKILL.md      # G6
+│   ├── react-build/SKILL.md
+│   ├── react-preflight/SKILL.md
+│   └── react-audit/SKILL.md
+│
+├── agents/                     # 3개 에이전트
+│   ├── react-reviewer.md
+│   ├── widget-inspector-react.md
+│   └── animation-architect-react.md
+│
+├── references/                 # 공유 레퍼런스
+│   ├── project-detection.md
+│   ├── clean-arch-layout.md
+│   ├── result-patterns.md
+│   ├── wasm-catalog.md
+│   └── style-guide.md
+│
+├── templates/                  # 스캐폴딩 템플릿
+│   ├── tsconfig.template.json
+│   ├── vite.config.template.ts
+│   ├── eslint.config.template.js
+│   └── harness-project.yaml.template
+│
+└── evals/
+    ├── evals.json
+    └── test-fixtures/
+        ├── empty-project/
+        ├── clean-arch-project/
+        ├── wasm-project/
+        └── tauri-project/</pre>
+    <a href="https://github.com/joo6077/claude-plugins" class="card-source" target="_blank" rel="noopener">↗ GitHub 저장소</a>
+  </section>
+
+  <!-- 관련 페이지 -->
+  <section id="related">
+    <div class="section-label">관련 페이지</div>
+    <h2>그룹별 상세 문서</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>G1 · Scaffolding</h3>
+        <p>14-step 초기화, tsconfig strict, TanStack Router 라우트 생성, shadcn 위젯 패턴.</p>
+        <a href="scaffolding.html" class="card-source">↗ Scaffolding 페이지</a>
+      </div>
+      <div class="card">
+        <h3>G2 · State &amp; Data</h3>
+        <p>Zustand v5 / TanStack Query v5 역할 분리, Clean Arch 4계층, RHF + Zod.</p>
+        <a href="state-data.html" class="card-source">↗ State &amp; Data 페이지</a>
+      </div>
+      <div class="card">
+        <h3>G3 · Performance</h3>
+        <p>/react-wasm 5단계 파이프라인, Tauri command 브릿지, isTauri 가드.</p>
+        <a href="performance.html" class="card-source">↗ Performance 페이지</a>
+      </div>
+      <div class="card">
+        <h3>G4 · Quality</h3>
+        <p>테스트 전략, Failure 타입, RootErrorBoundary, Lingui v5 macros.</p>
+        <a href="quality.html" class="card-source">↗ Quality 페이지</a>
+      </div>
+      <div class="card">
+        <h3>G5 · UI Patterns</h3>
+        <p>반응형 레이아웃, Skeleton shimmer, 위젯 추출 자동화.</p>
+        <a href="ui-patterns.html" class="card-source">↗ UI Patterns 페이지</a>
+      </div>
+      <div class="card">
+        <h3>G5b · Animation</h3>
+        <p>라이브러리 0개 원칙, 3-Tier, View Transitions API, useDrag FSM.</p>
+        <a href="animation.html" class="card-source">↗ Animation 페이지</a>
+      </div>
+      <div class="card">
+        <h3>G6 · Build &amp; Audit</h3>
+        <p>/react-preflight 7-step gate, /react-audit 병렬 에이전트, 감사 규칙 중요도.</p>
+        <a href="build-audit.html" class="card-source">↗ Build &amp; Audit 페이지</a>
+      </div>
+      <div class="card">
+        <h3>G0 · WASM Catalog</h3>
+        <p>9개 권장/10개 비권장 카테고리, 경계 비용 수치, 5가지 휴리스틱.</p>
+        <a href="wasm-catalog.html" class="card-source">↗ WASM Catalog 페이지</a>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

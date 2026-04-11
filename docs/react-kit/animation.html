@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>React Kit — G5b 애니메이션 (라이브러리 0개)</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(18px,2vw,24px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(56,189,248,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:hover td{background:rgba(56,189,248,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .source-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8}
+  .source-link:hover{opacity:1}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7}
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;margin-bottom:32px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  /* 금지 패널 */
+  .ban-panel{background:rgba(248,113,113,0.06);border:2px solid rgba(248,113,113,0.4);border-radius:var(--radius);padding:24px;margin-bottom:24px}
+  .ban-title{font-size:13px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .ban-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+  .ban-item{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:12px;color:var(--red)}
+
+  /* 티어 배지 */
+  .tier-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+  .tier-1{background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .tier-2{background:rgba(56,189,248,0.12);color:var(--accent);border:1px solid rgba(56,189,248,0.3)}
+  .tier-3{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)}
+
+  .card-source{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8;border-top:1px solid var(--border);padding-top:10px;width:100%}
+  .card-source:hover{opacity:1}
+
+  .footer-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+  .footer-link{color:var(--accent2);font-size:13px;text-decoration:none;opacity:0.8}
+  .footer-link:hover{opacity:1}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="../index.html" class="nav-back">&#8592; 문서 허브</a>
+
+<h1>G5b — 애니메이션 (라이브러리 0개)</h1>
+<p class="subtitle">react-kit 은 외부 애니메이션 라이브러리를 일절 사용하지 않는다. Tailwind CSS + 네이티브 브라우저 API + 커스텀 Pointer Event primitives 만으로 모든 시나리오를 커버한다.</p>
+
+<div class="meta-row">
+  <span class="tag">G5b</span>
+  <span class="tag">/react-animation</span>
+  <span class="tag">NO THIRD-PARTY LIBRARY</span>
+  <span class="tag">View Transitions API Baseline 2026</span>
+  <span class="tag">Pointer Events</span>
+</div>
+
+<!-- ── 금지 패널 ── -->
+<div class="section">
+  <div class="section-label">라이브러리 0개 원칙 — 절대 금지</div>
+  <div class="ban-panel">
+    <div class="ban-title">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      아래 라이브러리 import 시 /react-audit 이 자동 검출 + 빌드 실패
+    </div>
+    <div class="ban-list">
+      <div class="ban-item">motion</div>
+      <div class="ban-item">framer-motion</div>
+      <div class="ban-item">@dnd-kit/core</div>
+      <div class="ban-item">@dnd-kit/sortable</div>
+      <div class="ban-item">react-spring</div>
+      <div class="ban-item">@react-spring/web</div>
+      <div class="ban-item">react-transition-group</div>
+      <div class="ban-item">react-beautiful-dnd</div>
+      <div class="ban-item">react-dnd</div>
+      <div class="ban-item">@formkit/auto-animate</div>
+      <div class="ban-item">gsap</div>
+      <div class="ban-item">lottie-react</div>
+      <div class="ban-item">animate.css</div>
+    </div>
+    <p style="margin-top:16px;font-size:12px;color:var(--text3)">
+      허용: Tailwind v4 animate-* / transition-* · tailwindcss-animate (shadcn 기본) · CSS @keyframes · View Transitions API · Pointer Events API · requestAnimationFrame · Web Animations API · SVG + 삼각함수
+    </p>
+  </div>
+</div>
+
+<!-- ── 왜 라이브러리 0개인가 ── -->
+<div class="section">
+  <div class="section-label">라이브러리 0개 원칙 근거</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="num">1</span><div></div></div>
+      <h3>성능 우선</h3>
+      <p class="card-body">react-kit 최상위 원칙. Motion +50KB, dnd-kit +30KB — 허용하지 않는다. 번들 크기는 첫 페인트 시간에 직결된다.</p>
+      <a class="card-source" href="docs/react/kit-design/g5b-animation.md#문서-목적">출처: g5b-animation.md §문서목적</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="num">2</span><div></div></div>
+      <h3>커스텀 최대화</h3>
+      <p class="card-body">라이브러리 API에 묶이지 않고 요구사항에 정확히 맞는 구현만 생성. 불필요한 추상화 계층 0개.</p>
+      <a class="card-source" href="docs/react/kit-design/g5b-animation.md#문서-목적">출처: g5b-animation.md §문서목적</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="num">3</span><div></div></div>
+      <h3>브라우저 진화 활용</h3>
+      <p class="card-body">View Transitions API가 2026-01 기준 Chrome/Safari/Firefox 144+에서 Baseline으로 안착. 과거 라이브러리가 해결하던 문제를 네이티브가 더 빠르게 푼다.</p>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API">출처: MDN View Transition API</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="num">4</span><div></div></div>
+      <h3>디버깅 단순화</h3>
+      <p class="card-body">스택 트레이스가 라이브러리 내부로 들어가지 않는다. 모든 애니메이션 코드가 사용자 소유 — 완전한 투명성.</p>
+      <a class="card-source" href="docs/react/kit-design/g5b-animation.md#문서-목적">출처: g5b-animation.md §문서목적</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 3-Tier 구조 ── -->
+<div class="section">
+  <div class="section-label">3-Tier 구조 — 낮은 티어 우선</div>
+  <p class="desc">/react-animation 스킬은 요청을 받으면 자동으로 가장 낮은 티어부터 시도한다. "무조건 Motion" 접근과 달리 필요한 만큼만 사용.</p>
+  <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>티어</th>
+          <th>도구</th>
+          <th>적용 시나리오</th>
+          <th>구현 난이도</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tier-badge tier-1">T1</span></td>
+          <td><code>animate-*</code> + <code>transition-*</code> + CSS <code>@keyframes</code></td>
+          <td>상태 변화 (fade/slide/scale), hover 효과, 단순 loop</td>
+          <td style="color:var(--green)">낮음</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge tier-2">T2</span></td>
+          <td>View Transitions API (<code>startViewTransition</code> + <code>view-transition-name</code>)</td>
+          <td>그리드↔보드 전환, shared element, 라우트 전환, FLIP</td>
+          <td style="color:var(--accent)">중</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge tier-3">T3</span></td>
+          <td>커스텀 Pointer Primitives + FSM + requestAnimationFrame</td>
+          <td>드래그앤드롭, 제스처, momentum, SVG 연결선</td>
+          <td style="color:var(--yellow)">높음</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Tier 1 ── -->
+<div class="section">
+  <div class="section-label">Tier 1 — Tailwind + CSS</div>
+  <p class="desc">단순 상태 변화는 99% 이 단계에서 끝난다. tailwindcss-animate 플러그인은 shadcn/ui 설치 시 함께 들어온다.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <h3>Tailwind 내장 유틸리티</h3>
+      <div style="overflow-x:auto;margin-top:12px">
+        <table>
+          <thead><tr><th>카테고리</th><th>유틸</th></tr></thead>
+          <tbody>
+            <tr><td>Transition</td><td><code>transition-transform</code>, <code>transition-colors</code></td></tr>
+            <tr><td>Duration</td><td><code>duration-75</code> ~ <code>duration-1000</code></td></tr>
+            <tr><td>Easing</td><td><code>ease-in</code>, <code>ease-out</code>, <code>ease-in-out</code></td></tr>
+            <tr><td>Animation</td><td><code>animate-spin</code>, <code>animate-pulse</code>, <code>animate-bounce</code></td></tr>
+            <tr><td>Delay</td><td><code>delay-75</code> ~ <code>delay-1000</code> (stagger용)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="card-source" href="https://tailwindcss.com/docs/animation">출처: Tailwind CSS 공식 문서</a>
+    </div>
+    <div class="card">
+      <h3>tailwindcss-animate 플러그인</h3>
+      <p class="card-body" style="margin-bottom:12px">shadcn/ui 기본 페어. <code>data-state</code> 속성 선택자로 상태 기반 애니메이션 제어.</p>
+      <pre><code class="language-tsx">&#60;div
+  data-state={open ? 'open' : 'closed'}
+  className="
+    data-[state=open]:animate-in
+    data-[state=closed]:animate-out
+    data-[state=closed]:fade-out-0
+    data-[state=open]:fade-in-0
+    data-[state=closed]:slide-out-to-left
+    data-[state=open]:slide-in-from-left
+    duration-300
+  "
+&#62;드로어 내용&#60;/div&#62;</code></pre>
+      <a class="card-source" href="https://github.com/jamiebuilds/tailwindcss-animate">출처: tailwindcss-animate GitHub</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>CSS @keyframes 직접 선언 (Tailwind v4)</h3>
+    <p class="card-body" style="margin-bottom:12px">Tailwind v4의 <code>@theme</code> 블록 안에 <code>@keyframes</code> 정의 → 자동으로 유틸 클래스 생성.</p>
+    <pre><code class="language-css">/* src/presentation/styles/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --animate-wiggle: wiggle 1s ease-in-out infinite;
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50%      { transform: rotate(3deg); }
+  }
+}</code></pre>
+    <a class="card-source" href="https://tailwindcss.com/docs/v4-beta">출처: Tailwind CSS v4 공식 문서</a>
+  </div>
+
+  <div class="card">
+    <h3>스태거 리스트 진입 패턴</h3>
+    <pre><code class="language-tsx">{items.map((item, i) => (
+  &#60;div
+    key={item.id}
+    className="animate-in slide-in-from-bottom-4 fade-in-0"
+    style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'backwards' }}
+  &#62;
+    {item.name}
+  &#60;/div&#62;
+))}</code></pre>
+    <a class="card-source" href="docs/react/kit-design/g5b-animation.md#14-tier-1-시나리오-예시">출처: g5b-animation.md §1.4</a>
+  </div>
+</div>
+
+<!-- ── Tier 1 Gotchas ── -->
+<div class="section">
+  <div class="section-label">Tier 1 주의사항</div>
+  <ul class="checklist">
+    <li><span class="check">!</span><strong>transition-all 주의</strong> — 변화하는 속성에만 걸 것. <code>transition-transform</code>/<code>transition-colors</code>처럼 명시적으로.</li>
+    <li><span class="check">!</span><strong>will-change 남용 금지</strong> — GPU 레이어 힌트지만 남용하면 메모리 낭비. hover 시 동적 추가/제거로 정확히 제어.</li>
+    <li><span class="check">!</span><strong>Reduced motion 필수</strong> — <code>motion-reduce:transition-none</code> 같은 Tailwind variant 사용. /react-audit 이 누락 검출.</li>
+    <li><span class="check">!</span><strong>data-state 변경 빈도</strong> — 너무 자주 바뀌면 애니메이션 재시작. 상태 머신으로 전환 타이밍 제어.</li>
+  </ul>
+</div>
+
+<!-- ── Tier 2 ── -->
+<div class="section">
+  <div class="section-label">Tier 2 — View Transitions API</div>
+  <p class="desc">2026-01 Baseline. Chrome/Safari/Firefox 144+에서 같은 문서 SPA DOM 변경 시 자동 FLIP 애니메이션. 라이브러리가 하던 "shared element transition"을 네이티브로 해결.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <h3>기본 유틸리티 래퍼</h3>
+      <pre><code class="language-ts">// src/presentation/shared/lib/view-transition.ts
+export function withViewTransition(
+  updateDOM: () => void,
+  options?: { types?: string[] },
+): void {
+  if (typeof document.startViewTransition !== 'function') {
+    updateDOM()
+    return
+  }
+  try {
+    if (options?.types?.length) {
+      document.startViewTransition({
+        update: updateDOM,
+        types: options.types,
+      })
+    } else {
+      document.startViewTransition(updateDOM)
+    }
+  } catch {
+    updateDOM()
+  }
+}</code></pre>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API">출처: MDN View Transition API</a>
+    </div>
+    <div class="card">
+      <h3>view-transition-name — 공유 요소</h3>
+      <p class="card-body" style="margin-bottom:12px">DOM 구조가 바뀌어도 "같은 요소"로 식별되어 자동 FLIP 이동.</p>
+      <pre><code class="language-tsx">&#60;img
+  src={user.avatarUrl}
+  alt={user.name}
+  style={{
+    viewTransitionName: `user-avatar-${user.id}`,
+  }}
+/&#62;</code></pre>
+      <p class="card-body" style="margin-top:12px;font-size:12px;color:var(--text3)">주의: view-transition-name은 전역 고유해야 함. 동시 2개 이상이면 콘솔 에러 발생.</p>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/view-transition-name">출처: MDN view-transition-name</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>그리드 ↔ 보드 전환 (대표 시나리오)</h3>
+    <pre><code class="language-tsx">// 뷰 모드 전환 버튼
+export function TaskViewSwitcher() {
+  const viewMode = useTaskStore((s) => s.viewMode)
+  const setViewMode = useTaskStore((s) => s.setViewMode)
+
+  return (
+    &#60;button
+      onClick={() => {
+        withViewTransition(() => {
+          setViewMode(viewMode === 'grid' ? 'board' : 'grid')
+        })
+      }}
+    &#62;
+      {viewMode === 'grid' ? '보드 뷰로' : '그리드 뷰로'}
+    &#60;/button&#62;
+  )
+}
+
+// 각 카드에 고유 view-transition-name
+{tasks.map((task) => (
+  &#60;div
+    key={task.id}
+    style={{ viewTransitionName: `task-${task.id}` }}
+    className="rounded-lg border p-4"
+  &#62;
+    {task.title}
+  &#60;/div&#62;
+))}</code></pre>
+    <a class="card-source" href="docs/react/kit-design/g5b-animation.md#23-그리드-↔-보드-뷰-전환-대표-시나리오">출처: g5b-animation.md §2.3</a>
+  </div>
+
+  <div class="card">
+    <h3>CSS로 전환 세부 조정</h3>
+    <pre><code class="language-css">::view-transition-group(*) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 특정 요소만 다르게 */
+::view-transition-group(user-avatar-123) {
+  animation-duration: 0.6s;
+}
+
+/* 진입 요소 (old 없음, new만) */
+::view-transition-new(root):only-child {
+  animation: fade-in 0.3s ease-out;
+}</code></pre>
+    <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/::view-transition-group">출처: MDN ::view-transition-group</a>
+  </div>
+</div>
+
+<!-- ── Tier 2 Gotchas ── -->
+<div class="section">
+  <div class="section-label">Tier 2 주의사항</div>
+  <ul class="checklist">
+    <li><span class="check">!</span><strong>view-transition-name 전역 고유 필수</strong> — 동시 2개 이상이면 "duplicate name" 에러. 동적 id로 고유화.</li>
+    <li><span class="check">!</span><strong>contain: layout 필요</strong> — 복잡한 요소는 <code>contain: layout</code> CSS 추가로 정확한 전환 보장.</li>
+    <li><span class="check">!</span><strong>Firefox 144+ types 미지원</strong> — <code>types</code> 파라미터는 Chromium 계열만 안전. withViewTransition의 fallback 코드 필수.</li>
+    <li><span class="check">!</span><strong>Reduced motion</strong> — <code>prefers-reduced-motion: reduce</code>에서 startViewTransition을 건너뛰는 로직 추가 권장.</li>
+    <li><span class="check">!</span><strong>scroll position 보존</strong> — 전환 후 스크롤 위치가 리셋될 수 있음. <code>scroll-behavior</code>와 함께 조정.</li>
+  </ul>
+</div>
+
+<!-- ── Tier 3 ── -->
+<div class="section">
+  <div class="section-label">Tier 3 — 커스텀 Pointer Primitives</div>
+  <p class="desc">드래그앤드롭, 제스처, 복잡한 gesture-driven 애니메이션은 Pointer Events API + 상태 머신으로 직접 구현한다. dnd-kit 없이.</p>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="card">
+      <h3>왜 Pointer Events인가</h3>
+      <ul class="checklist" style="margin-top:8px">
+        <li><span class="check">✓</span>단일 API로 mouse/touch/pen 통합 — 각각 다른 핸들러 불필요</li>
+        <li><span class="check">✓</span><code>setPointerCapture</code> — 요소 밖으로 나가도 이벤트 계속 수신 (드래그 핵심)</li>
+        <li><span class="check">✓</span><code>touch-action: none</code> — 드래그 중 기본 스크롤/줌 차단</li>
+      </ul>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events">출처: MDN Pointer Events</a>
+    </div>
+    <div class="card">
+      <h3>FSM 3상태 설계</h3>
+      <div style="overflow-x:auto;margin-top:8px">
+        <table>
+          <thead><tr><th>상태</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>idle</code></td><td>포인터 interaction 없음</td></tr>
+            <tr><td><code>dragging</code></td><td>포인터 캡처 중, 위치 추적 중</td></tr>
+            <tr><td><code>dropping</code></td><td>pointerup 후 drop handler 실행 중</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="card-source" href="docs/react/kit-design/g5b-animation.md#32-useDrag-커스텀-훅">출처: g5b-animation.md §3.2</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>useDrag 커스텀 훅 핵심 구조</h3>
+    <pre><code class="language-tsx">// src/presentation/shared/hooks/use-drag.ts
+import { useCallback, useReducer, useRef } from 'react'
+
+type DragState =
+  | { kind: 'idle' }
+  | { kind: 'dragging'; startX: number; startY: number; offsetX: number; offsetY: number; pointerId: number }
+  | { kind: 'dropping'; offsetX: number; offsetY: number }
+
+export function useDrag() {
+  const [state, dispatch] = useReducer(dragReducer, { kind: 'idle' })
+  const ref = useRef&#60;HTMLElement | null&#62;(null)
+
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    e.currentTarget.setPointerCapture(e.pointerId)
+    dispatch({ type: 'start', x: e.clientX, y: e.clientY, pointerId: e.pointerId })
+  }, [])
+
+  // onPointerMove, onPointerUp, onPointerCancel ...
+  return { state, handlers: { onPointerDown, ... }, ref, resolve }
+}</code></pre>
+    <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/API/Element/setPointerCapture">출처: MDN setPointerCapture</a>
+  </div>
+</div>
+
+<!-- ── 안티패턴 비교 ── -->
+<div class="section">
+  <div class="section-label">안티패턴 vs 올바른 패턴</div>
+
+  <div class="compare" style="margin-bottom:20px">
+    <div class="compare-bad">
+      <div class="compare-label">금지 — 라이브러리 의존</div>
+      <pre><code class="language-tsx">// ❌ Motion import — 빌드 실패
+import { motion } from 'motion/react'
+
+&#60;motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+&#62;
+  내용
+&#60;/motion.div&#62;</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">권장 — Tier 1 Tailwind</div>
+      <pre><code class="language-tsx">// ✅ tailwindcss-animate 활용
+&#60;div
+  data-state={show ? 'open' : 'closed'}
+  className="
+    data-[state=open]:animate-in
+    data-[state=closed]:animate-out
+    data-[state=open]:fade-in-0
+    data-[state=closed]:fade-out-0
+    duration-300
+  "
+&#62;
+  내용
+&#60;/div&#62;</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">금지 — dnd-kit 의존</div>
+      <pre><code class="language-tsx">// ❌ @dnd-kit/core import — 빌드 실패
+import { DndContext, useDraggable } from '@dnd-kit/core'</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">권장 — Tier 3 Pointer Events</div>
+      <pre><code class="language-tsx">// ✅ 커스텀 useDrag 훅
+import { useDrag } from '@/presentation/shared/hooks/use-drag'
+
+const { state, handlers } = useDrag()
+&#60;div
+  {...handlers}
+  style={{
+    transform: state.kind === 'dragging'
+      ? `translate(${state.offsetX}px, ${state.offsetY}px)`
+      : 'none',
+    touchAction: 'none',
+  }}
+/&#62;</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ── 접근성 ── -->
+<div class="section">
+  <div class="section-label">접근성 필수 사항</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>prefers-reduced-motion</h3>
+      <p class="card-body" style="margin-bottom:12px">모든 애니메이션에 reduced-motion 가드 필수. /react-audit이 누락 검출.</p>
+      <pre><code class="language-tsx">// Tailwind variant로 간단히
+className="animate-in fade-in-0 motion-reduce:animate-none"
+
+// CSS 미디어 쿼리로
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; }
+}</code></pre>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion">출처: MDN prefers-reduced-motion</a>
+    </div>
+    <div class="card">
+      <h3>드래그앤드롭 키보드 경로</h3>
+      <p class="card-body" style="margin-bottom:12px">useDrag 훅을 사용하는 컴포넌트는 반드시 키보드 대안 경로 제공. /react-audit 검출 항목.</p>
+      <pre><code class="language-tsx">// 키보드로 드래그 대체 이동
+&#60;div
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => {
+    if (e.key === 'ArrowUp') moveItem(index, -1)
+    if (e.key === 'ArrowDown') moveItem(index, 1)
+    if (e.key === ' ') toggleSelect(index)
+  }}
+  aria-grabbed={state.kind === 'dragging'}
+  {...dragHandlers}
+/&#62;</code></pre>
+      <a class="card-source" href="https://www.w3.org/WAI/ARIA/apg/patterns/dnd/">출처: W3C ARIA Authoring Practices Guide</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 푸터 ── -->
+<div class="section">
+  <div class="section-label">관련 문서</div>
+  <div class="footer-links">
+    <a href="ui-patterns.html" class="footer-link">→ G5 UI 패턴</a>
+    <a href="scaffolding.html" class="footer-link">→ G1 스캐폴딩</a>
+    <a href="build-audit.html" class="footer-link">→ G6 빌드 &amp; 감사</a>
+    <a href="integration.html" class="footer-link">→ 전체 통합</a>
+    <a href="../index.html" class="footer-link">→ 문서 허브</a>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

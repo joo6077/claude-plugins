@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scaffolding — React Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#38BDF8;--accent2:#7DD3FC;
+  --accent-dim:rgba(56,189,248,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:640px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(56,189,248,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
+.card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 4px 20px rgba(56,189,248,0.06)}
+.card-icon{font-size:1.4rem;margin-bottom:10px}
+.card h3{font-size:0.95rem;margin-bottom:8px}
+.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
+.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
+.card-source:hover{opacity:1}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(56,189,248,0.03)}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.callout.warn{border-left-color:var(--yellow)}
+.callout.error{border-left-color:var(--red)}
+.step-list{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+.step{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.step-num{min-width:28px;height:28px;border-radius:50%;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0}
+.step-body{flex:1}
+.step-title{font-weight:600;font-size:0.92rem;margin-bottom:4px}
+.step-desc{color:var(--text2);font-size:0.85rem}
+.gotcha-list{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.gotcha{background:var(--surface);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:14px 16px;font-size:0.88rem}
+.gotcha-title{color:var(--yellow);font-weight:600;margin-bottom:6px;font-size:0.85rem}
+.gotcha-body{color:var(--text2);line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="index.html" class="logo-link">React Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">Scaffolding</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>G1 · Scaffolding &amp; Generation</h1>
+    <p class="subtitle">
+      <code>/react-init</code>, <code>/react-screen</code>, <code>/react-feature</code>, <code>/react-widget</code> —
+      Vite + Tauri 2 + TypeScript strict + Tailwind v4 + shadcn/ui 풀 스캐폴딩과 4계층 코드 생성.
+    </p>
+    <div class="badge">G1 — Scaffolding &amp; Generation Layer</div>
+  </div>
+
+  <!-- 공통 설계 원칙 -->
+  <section>
+    <div class="section-label">공통 설계 원칙</div>
+    <h2>4개 스킬 공통 규칙</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>프로젝트 감지 공유</h3>
+        <p>모든 스킬이 <code>react-kit/references/project-detection.md</code>를 읽어 pnpm 버전, Tailwind 설치 여부, shadcn 초기화 여부, Cargo workspace 존재 여부 등을 감지한다.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🛡️</div>
+        <h3>중복 감지 필수</h3>
+        <p>이미 같은 이름/경로의 파일이 존재하면 overwrite 금지. 사용자 확인 후 <code>--force</code> 플래그가 있을 때만 덮어쓴다.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📐</div>
+        <h3>Strict TypeScript 강제</h3>
+        <p>생성된 모든 TS 파일은 <code>tsc --noEmit</code>과 <code>eslint --max-warnings=0</code>을 통과해야 한다. <code>any</code>, <code>as</code> 단언, <code>!</code> non-null 단언 포함 코드 생성 금지.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">↩️</div>
+        <h3>실패 시 롤백</h3>
+        <p>복수 파일 생성 중 하나라도 실패하면 해당 스킬 실행으로 생성된 파일을 모두 삭제하고 원상복구한다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- /react-init -->
+  <section id="react-init">
+    <div class="section-label">스킬 01</div>
+    <h2>/react-init — 14-Step 프로젝트 스캐폴딩</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      Vite + Tauri 2 + React + TypeScript strict + Tailwind v4 + shadcn/ui + TanStack Router + Zustand + TanStack Query + Lingui + Rust WASM 파이프라인을 한 번에 세팅.
+    </p>
+    <div class="step-list">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">pnpm workspace 생성</div><div class="step-desc"><code>mkdir -p my-app &amp;&amp; cd my-app &amp;&amp; pnpm init</code> + <code>pnpm-workspace.yaml</code> 작성</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Vite + React + TypeScript 스캐폴딩</div><div class="step-desc"><code>pnpm create vite@latest . --template react-swc-ts</code> + tsconfig.json strict 옵션 확장</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Tailwind CSS v4 (Vite 플러그인)</div><div class="step-desc"><code>pnpm add -D tailwindcss @tailwindcss/vite</code> — <code>npx tailwindcss init</code> 없이 플러그인만 등록</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">shadcn/ui 초기화</div><div class="step-desc"><code>pnpm dlx shadcn@latest init --template vite</code> + 기본 컴포넌트 설치</div></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">TanStack Router 플러그인</div><div class="step-desc"><code>pnpm add @tanstack/react-router</code> + <code>@tanstack/router-plugin</code> + vite.config.ts 등록</div></div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">상태 관리 &amp; 데이터</div><div class="step-desc"><code>pnpm add zustand @tanstack/react-query react-hook-form @hookform/resolvers zod neverthrow</code></div></div></div>
+      <div class="step"><div class="step-num">7</div><div class="step-body"><div class="step-title">i18n (Lingui)</div><div class="step-desc"><code>pnpm add @lingui/react @lingui/core</code> + <code>pnpm add -D @lingui/cli @lingui/vite-plugin @lingui/macro</code></div></div></div>
+      <div class="step"><div class="step-num">8</div><div class="step-body"><div class="step-title">다크모드</div><div class="step-desc"><code>pnpm add next-themes</code> — Vite SSR 경고 없이 client-only 모드로 사용</div></div></div>
+      <div class="step"><div class="step-num">9</div><div class="step-body"><div class="step-title">Rust WASM 파이프라인</div><div class="step-desc"><code>cargo new --lib crates/core</code> + <code>vite-plugin-wasm</code> + <code>vite-plugin-top-level-await</code> 등록</div></div></div>
+      <div class="step"><div class="step-num">10</div><div class="step-body"><div class="step-title">Tauri 2 초기화</div><div class="step-desc"><code>pnpm add -D @tauri-apps/cli</code> + <code>pnpm tauri init</code> (devUrl: 5173, frontendDist: ../dist)</div></div></div>
+      <div class="step"><div class="step-num">11</div><div class="step-body"><div class="step-title">테스트 도구</div><div class="step-desc"><code>vitest @testing-library/react @testing-library/jest-dom jsdom playwright @playwright/test</code></div></div></div>
+      <div class="step"><div class="step-num">12</div><div class="step-body"><div class="step-title">ESLint 9+ flat config + Prettier</div><div class="step-desc"><code>eslint typescript-eslint eslint-plugin-react eslint-plugin-react-hooks prettier</code></div></div></div>
+      <div class="step"><div class="step-num">13</div><div class="step-body"><div class="step-title">harness 초기화</div><div class="step-desc"><code>/harness init</code> 호출 → <code>.harness/project.yaml</code> 자동 생성</div></div></div>
+      <div class="step"><div class="step-num">14</div><div class="step-body"><div class="step-title">git 초기 커밋</div><div class="step-desc"><code>git init &amp;&amp; git add -A &amp;&amp; git commit -m "chore: initial scaffold"</code></div></div></div>
+    </div>
+    <a href="https://tailwindcss.com/docs/guides/vite" class="card-source" target="_blank" rel="noopener">↗ Tailwind v4 Vite 가이드</a>
+    <a href="https://ui.shadcn.com/docs/installation/vite" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ shadcn Vite 설치</a>
+    <a href="https://v2.tauri.app/start/create-project/" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ Tauri 2 Create Project</a>
+  </section>
+
+  <!-- tsconfig -->
+  <section id="tsconfig">
+    <div class="section-label">TypeScript 설정</div>
+    <h2>Strict TypeScript 필수 옵션</h2>
+    <pre>{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}</pre>
+    <a href="https://www.typescriptlang.org/docs/handbook/compiler-options.html" class="card-source" target="_blank" rel="noopener">↗ TypeScript 컴파일러 옵션</a>
+  </section>
+
+  <!-- /react-screen -->
+  <section id="react-screen">
+    <div class="section-label">스킬 02</div>
+    <h2>/react-screen — 화면 + 라우트 생성</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      기존 프로젝트에 새 화면을 추가하고 TanStack Router 파일 기반 라우트를 등록한다.
+    </p>
+    <h3>TanStack Router 파일 기반 라우트 등록 절차</h3>
+    <div class="step-list">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">라우트 파일 생성</div><div class="step-desc"><code>src/presentation/routes/&lt;path&gt;.tsx</code> — <code>createFileRoute</code>로 라우트 정의</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">화면 컴포넌트 배치</div><div class="step-desc"><code>src/presentation/features/&lt;feature&gt;/screens/&lt;Name&gt;Screen.tsx</code></div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">라우트 파일에서 위임</div><div class="step-desc">라우트 파일은 screens 경로를 import하여 얇게 위임</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">자동 코드젠</div><div class="step-desc">Vite dev server 실행 중이면 <code>tanstackRouter</code> 플러그인이 <code>routeTree.gen.ts</code> 재생성</div></div></div>
+    </div>
+    <h3>Lazy load 패턴</h3>
+    <pre>// src/presentation/routes/dashboard.tsx
+import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/dashboard')({
+  component: lazyRouteComponent(() =&gt;
+    import('@/presentation/features/dashboard/screens/DashboardScreen').then(
+      (m) =&gt; ({ default: m.DashboardScreen }),
+    ),
+  ),
+})</pre>
+    <div class="callout">
+      <code>autoCodeSplitting: true</code> 플러그인 옵션이 켜져 있으면 (<code>/react-init</code> 기본값) 수동 lazy 래핑 없이도 자동 분할. 하지만 스킬은 명시적 lazy를 기본으로 생성한다.
+    </div>
+    <a href="https://tanstack.com/router/latest/docs/installation/with-vite" class="card-source" target="_blank" rel="noopener">↗ TanStack Router Vite 설치</a>
+  </section>
+
+  <!-- /react-feature -->
+  <section id="react-feature">
+    <div class="section-label">스킬 03</div>
+    <h2>/react-feature — 복합 4계층 생성</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      하나의 feature를 구성하는 domain → data → presentation → routes 4계층 파일을 한 번에 생성한다.
+    </p>
+    <pre>        ┌─────────────────────────────────┐
+        │  1. domain/entities             │  (순수 TS + Zod 스키마)
+        │     domain/failures             │
+        └───────────┬─────────────────────┘
+                    │  ↑ 의존
+        ┌───────────┴─────────────────────┐
+        │  2. domain/usecases             │  (인터페이스만)
+        └───────────┬─────────────────────┘
+                    │  ↑ 구현
+        ┌───────────┴─────────────────────┐
+        │  3. data/datasources/remote     │  (fetch + Zod parse)
+        │     data/models                 │
+        │     data/repositories           │
+        └───────────┬─────────────────────┘
+                    │  ↑ 주입
+        ┌───────────┴─────────────────────┐
+        │  4. presentation/features/&lt;f&gt;/  │
+        │     ├── store.ts (Zustand)       │
+        │     ├── hooks/useXxx.ts          │  (TanStack Query)
+        │     ├── components/              │
+        │     ├── screens/                 │
+        │     └── index.ts (public API)    │
+        └───────────┬─────────────────────┘
+                    │  ↑ 라우트 등록
+        ┌───────────┴─────────────────────┐
+        │  5. presentation/routes/&lt;f&gt;.tsx  │
+        └─────────────────────────────────┘</pre>
+    <a href="https://tanstack.com/router/latest/docs/api/file-based-routing" class="card-source" target="_blank" rel="noopener">↗ TanStack Router File-based Routing</a>
+  </section>
+
+  <!-- /react-widget -->
+  <section id="react-widget">
+    <div class="section-label">스킬 04</div>
+    <h2>/react-widget — shadcn 기반 재사용 컴포넌트</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      <code>src/presentation/shared/components/</code>에 cva + forwardRef 패턴의 재사용 위젯을 생성한다.
+    </p>
+    <pre>// src/presentation/shared/components/primary-button.tsx
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/presentation/shared/lib/utils'
+
+const primaryButtonVariants = cva(
+  'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:opacity-50 disabled:pointer-events-none',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+      },
+      size: {
+        sm: 'h-9 px-3 text-sm',
+        md: 'h-10 px-4',
+        lg: 'h-11 px-8 text-lg',
+      },
+    },
+    defaultVariants: { variant: 'default', size: 'md' },
+  },
+)
+
+type PrimaryButtonProps = React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt; &amp;
+  VariantProps&lt;typeof primaryButtonVariants&gt;
+
+export const PrimaryButton = React.forwardRef&lt;HTMLButtonElement, PrimaryButtonProps&gt;(
+  ({ className, variant, size, ...props }, ref) =&gt; (
+    &lt;button
+      ref={ref}
+      className={cn(primaryButtonVariants({ variant, size }), className)}
+      {...props}
+    /&gt;
+  ),
+)
+PrimaryButton.displayName = 'PrimaryButton'</pre>
+    <a href="https://ui.shadcn.com/docs/installation/vite" class="card-source" target="_blank" rel="noopener">↗ shadcn/ui Vite 문서</a>
+    <a href="https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ shadcn 리네임 공지 (2024-08)</a>
+  </section>
+
+  <!-- Gotchas -->
+  <section id="gotchas">
+    <div class="section-label">Gotchas</div>
+    <h2>자주 하는 실수 방지</h2>
+    <div class="gotcha-list">
+      <div class="gotcha">
+        <div class="gotcha-title">⚠️ Tailwind v4 — npx tailwindcss init 없어짐</div>
+        <div class="gotcha-body">v3 문서의 <code>npx tailwindcss init</code>은 v4에서 <strong>없어짐</strong>. <code>@tailwindcss/vite</code> 플러그인과 <code>@import "tailwindcss";</code>만 쓴다. <a href="https://tailwindcss.com/docs/upgrade-guide" style="color:var(--accent)">↗ Tailwind v4 업그레이드 가이드</a></div>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-title">⚠️ shadcn 패키지 리네임 (2024-08)</div>
+        <div class="gotcha-body">과거 <code>shadcn-ui</code> npm 패키지는 2024년 8월부터 deprecated. 현재는 <code>pnpm dlx shadcn@latest init --template vite</code> 사용. <code>npx shadcn-ui@latest init</code> 더 이상 동작 안 함.</div>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-title">⚠️ TanStack Router — routeTree.gen.ts 수동 수정 금지</div>
+        <div class="gotcha-body">플러그인이 자동 생성하고 덮어쓴다. 수정 필요하면 플러그인 옵션 조정. 기본은 .gitignore 제외 권장 (merge conflict 최소화).</div>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-title">⚠️ Rust WASM crate-type 둘 다 필요</div>
+        <div class="gotcha-body"><code>crates/core/Cargo.toml</code>에 <code>crate-type = ["cdylib", "rlib"]</code> 둘 다 있어야 WASM 빌드와 Tauri 네이티브 재사용이 동시에 가능. <code>cdylib</code>만 있으면 Tauri 쪽에서 import 불가.</div>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-title">⚠️ eslint-plugin-react-hooks flat config 수동 와이어링</div>
+        <div class="gotcha-body">2026-04 기준 flat config 지원이 공식 문서에 완전히 반영되지 않아, <code>eslint.config.js</code>에서 <code>plugins: { 'react-hooks': reactHooks }</code> + <code>rules: reactHooks.configs.recommended.rules</code> 형태로 수동 등록 필요.</div>
+      </div>
+      <div class="gotcha">
+        <div class="gotcha-title">⚠️ pnpm workspace ↔ Cargo workspace 혼동</div>
+        <div class="gotcha-body"><code>pnpm-workspace.yaml</code>의 packages와 <code>Cargo.toml</code>의 workspace.members를 혼동하지 마라. 전자는 npm 패키지, 후자는 Rust crate. <code>crates/core</code>는 두 파일 모두에 등재되어야 한다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 디렉토리 트리 -->
+  <section id="file-tree">
+    <div class="section-label">산출물</div>
+    <h2>/react-init 생성 디렉토리 트리</h2>
+    <pre>my-app/
+├── package.json            # pnpm workspace root + scripts
+├── pnpm-workspace.yaml     # packages: ['.', 'crates/*']
+├── Cargo.toml              # Rust workspace root
+├── tsconfig.json           # strict: true 외 7개 옵션
+├── vite.config.ts          # React + Tailwind v4 + TanStack Router + WASM
+├── eslint.config.js        # flat config v9+
+├── lingui.config.ts
+├── .prettierrc
+│
+├── src/
+│   ├── domain/
+│   │   ├── entities/
+│   │   ├── usecases/
+│   │   ├── failures/
+│   │   └── types/
+│   ├── data/
+│   │   ├── datasources/{remote,local,wasm}/
+│   │   ├── models/
+│   │   └── repositories/
+│   ├── presentation/
+│   │   ├── features/
+│   │   ├── shared/
+│   │   │   ├── components/ui/   # shadcn 컴포넌트
+│   │   │   └── lib/utils.ts     # cn 헬퍼
+│   │   ├── routes/
+│   │   │   ├── __root.tsx
+│   │   │   └── index.tsx
+│   │   └── styles/globals.css   # @import "tailwindcss";
+│   └── infrastructure/
+│       ├── tauri/client.ts      # isTauri 가드 래퍼
+│       ├── http/client.ts
+│       └── i18n/setup.ts
+│
+├── src-tauri/              # Tauri Rust 백엔드
+├── crates/core/            # 고성능 Rust 코어 (WASM 타겟)
+└── .harness/
+    └── project.yaml</pre>
+  </section>
+
+  <!-- vite.config.ts template -->
+  <section class="section">
+    <h2 class="section-title">vite.config.ts 기준 템플릿</h2>
+    <p style="color:var(--text-secondary);margin-bottom:1.2rem;">/react-init이 생성하는 Vite 설정 파일. Tailwind v4 + TanStack Router + WASM 플러그인이 모두 통합된다.</p>
+    <div class="card">
+      <div class="card-source"><a href="https://vitejs.dev/config/" target="_blank">vitejs.dev/config</a> · <a href="https://tailwindcss.com/docs/installation/vite" target="_blank">Tailwind v4 Vite</a></div>
+      <pre style="margin:0;font-size:0.82rem;line-height:1.6;overflow-x:auto;"><code>import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [
+    TanStackRouterVite(),   // routeTree.gen.ts 자동 생성
+    react(),
+    tailwindcss(),          // @import "tailwindcss"; 한 줄로 충분
+    wasm(),
+    topLevelAwait(),
+  ],
+  resolve: {
+    alias: { '@': path.resolve(__dirname, './src') },
+  },
+  build: {
+    target: 'esnext',       // top-level await 지원
+  },
+})</code></pre>
+    </div>
+    <div class="callout callout-warn" style="margin-top:1rem;">
+      <strong>Tailwind v4 주의:</strong> <code>npx tailwindcss init</code> 실행 금지. 설정 파일이 없어야 정상이다. <code>globals.css</code>에 <code>@import "tailwindcss";</code> 한 줄만 추가하면 된다.
+    </div>
+  </section>
+
+  <!-- Scaffolding Gotchas -->
+  <section class="section">
+    <h2 class="section-title">Scaffolding 핵심 Gotchas</h2>
+    <p style="color:var(--text-secondary);margin-bottom:1.2rem;">반복적으로 나타나는 실수 패턴. /react-init 및 /react-feature 실행 전에 반드시 확인하라.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>실수 패턴</th>
+          <th>올바른 접근</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700;color:var(--accent);">G1</td>
+          <td><code>tailwindcss init</code> 실행 후 <code>tailwind.config.js</code> 생성</td>
+          <td>v4에는 설정 파일이 없다. <code>@tailwindcss/vite</code> 플러그인만 추가하면 끝</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:var(--accent);">G2</td>
+          <td>shadcn 패키지를 <code>shadcn-ui</code>로 설치</td>
+          <td>2024-08부터 패키지명이 <code>shadcn</code>으로 변경됨. <code>npx shadcn@latest init</code></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:var(--accent);">G3</td>
+          <td>TanStack Router 라우트 파일을 수동으로 등록</td>
+          <td><code>TanStackRouterVite()</code> 플러그인이 <code>routeTree.gen.ts</code>를 자동 생성. 직접 편집 금지</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:var(--accent);">G4</td>
+          <td>새 feature에서 Zod 스키마를 여러 레이어에 중복 배치</td>
+          <td>Zod는 최초 진입점(API 응답 파싱 or Form submit)에서만. 내부 레이어는 <code>Result&lt;T&gt;</code>만 전달</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:var(--accent);">G5</td>
+          <td>domain 레이어에서 <code>throw</code> 사용</td>
+          <td>domain은 <code>Result&lt;T, AppError&gt;</code>만 반환. throw는 infrastructure 경계에서만 허용</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:var(--accent);">G6</td>
+          <td>Rust crate-type을 <code>["cdylib"]</code>만으로 설정</td>
+          <td>Tauri + WASM 동시 지원 시 <code>["cdylib", "rlib"]</code> 필수. rlib 없으면 native build 실패</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:var(--accent);">G7</td>
+          <td>/react-feature 실행 후 rollback 없이 일부 레이어만 생성</td>
+          <td>4레이어(domain/data/presentation/infrastructure) 전체 생성 또는 전체 롤백. 중간 상태 커밋 금지</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

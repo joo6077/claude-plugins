@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WASM Catalog — React Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#38BDF8;--accent2:#7DD3FC;
+  --accent-dim:rgba(56,189,248,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:680px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(56,189,248,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.87rem}
+th{background:var(--surface2);color:var(--text2);padding:11px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(56,189,248,0.025)}
+.tag-yes{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;background:rgba(74,222,128,0.15);color:var(--green)}
+.tag-no{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;background:rgba(248,113,113,0.15);color:var(--red)}
+.tag-warn{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;background:rgba(251,191,36,0.15);color:var(--yellow)}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.callout.warn{border-left-color:var(--yellow)}
+.callout.error{border-left-color:var(--red)}
+.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
+.card-source:hover{opacity:1}
+.cost-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0}
+.cost-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px}
+.cost-label{font-size:0.75rem;color:var(--text3);margin-bottom:6px;font-family:var(--mono)}
+.cost-value{font-size:1.3rem;font-weight:700;color:var(--accent2);font-family:var(--mono)}
+.cost-note{font-size:0.78rem;color:var(--text3);margin-top:6px}
+@media(max-width:640px){.cost-row{grid-template-columns:1fr 1fr}}
+.heuristic-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+@media(max-width:640px){.heuristic-grid{grid-template-columns:1fr}}
+.h-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.h-title{font-weight:600;font-size:0.9rem;margin-bottom:8px;color:var(--text)}
+.h-row{display:flex;gap:8px;margin-bottom:6px;font-size:0.84rem;align-items:flex-start}
+.h-side-yes{color:var(--green);font-weight:600;min-width:60px;font-size:0.78rem;margin-top:1px}
+.h-side-no{color:var(--red);font-weight:600;min-width:60px;font-size:0.78rem;margin-top:1px}
+.h-text{color:var(--text2)}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="index.html" class="logo-link">React Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">WASM Catalog</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>G0 · WASM Decision Catalog</h1>
+    <p class="subtitle">
+      어떤 코드를 Rust → WebAssembly로 이식할지, 어떤 코드를 JS/TS로 둘지 판정하는 리서치 기반 카탈로그.
+      <code>/react-wasm</code> 스킬이 이 카탈로그를 1차 기준으로 사용한다.
+    </p>
+    <div class="badge">G0 — 의사결정 카탈로그</div>
+  </div>
+
+  <!-- 원칙 -->
+  <section>
+    <div class="section-label">원칙</div>
+    <div class="callout">
+      <strong>측정 없이 가정하지 말고, 가정 없이 이식하지 말라.</strong>
+      카탈로그는 이미 누가 측정한 결과의 응축본이다. 직관이 아니라 카탈로그를 먼저 확인하라.
+    </div>
+  </section>
+
+  <!-- 경계 비용 -->
+  <section id="boundary-cost">
+    <div class="section-label">핵심 수치</div>
+    <h2>Boundary Cost — JS↔WASM 경계 비용</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      WASM 결정에서 가장 자주 오해되는 축. "WASM이 빠르니까 작은 것도 옮기자"는 이 수치 때문에 거의 항상 손해다.
+    </p>
+    <div class="cost-row">
+      <div class="cost-card">
+        <div class="cost-label">JS↔WASM 호출 오버헤드 (정수 인자)</div>
+        <div class="cost-value">50~100 ns</div>
+        <div class="cost-note">/ call. secondary source 추정, unverified</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-label">문자열 마샬링 (짧은 문자열)</div>
+        <div class="cost-value">600~2,500 ns</div>
+        <div class="cost-note">/ call. UTF-16↔UTF-8 변환 비용 포함</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-label">ArrayBuffer 전송 (Transferable)</div>
+        <div class="cost-value">~0</div>
+        <div class="cost-note">zero-copy 이동</div>
+      </div>
+    </div>
+    <div class="callout warn">
+      50 ns = "초당 2천만 회 이하 호출이면 누적 경계 비용이 CPU 1% 미만". 2,500 ns = "초당 40만 회 문자열 호출이면 경계 비용이 CPU 100%". <strong>경계를 자주 넘을수록 WASM이 불리하다.</strong>
+    </div>
+  </section>
+
+  <!-- WASM 권장 카테고리 -->
+  <section id="recommended">
+    <div class="section-label">WASM 권장</div>
+    <h2>9개 권장 카테고리</h2>
+    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
+      공개된 프로덕션 시스템 또는 엔진팀 벤치마크에서 WebAssembly가 JavaScript를 유의미하게 앞선 것이 확인된 영역.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>카테고리</th>
+            <th>근거</th>
+            <th>프로덕션 사례</th>
+            <th>출처</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>이미지 처리</strong><br><small style="color:var(--text3)">resize, filter, codec</small></td>
+            <td>Figma dense-file 로드 29s → &lt;8s (약 3.6x). Squoosh WASM 코덱 전 브라우저 이득 확인</td>
+            <td>Figma, Squoosh</td>
+            <td><a href="https://www.figma.com/blog/figma-faster/" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ Figma</a></td>
+          </tr>
+          <tr>
+            <td><strong>비디오/오디오 인코딩·디코딩</strong></td>
+            <td>ffmpeg.wasm이 SIMD/threads로 C/C++ 코덱을 실용 속도로 구동. JS 대안이 현실적으로 없음</td>
+            <td>ffmpeg.wasm</td>
+            <td><a href="https://ffmpegwasm.netlify.app/docs/performance/" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ ffmpeg.wasm</a></td>
+          </tr>
+          <tr>
+            <td><strong>압축/해제</strong><br><small style="color:var(--text3)">lz4, brotli, zstd, gzip</small></td>
+            <td>lz4-wasm: 66k JSON에서 compression ~2.9x, decompression ~25x vs lz4 js</td>
+            <td>lz4-wasm, fflate, brotli-wasm</td>
+            <td><a href="https://github.com/PSeitz/lz4-wasm" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ lz4-wasm</a></td>
+          </tr>
+          <tr>
+            <td><strong>ML 추론</strong><br><small style="color:var(--text3)">ONNX, TFLite, tensor ops</small></td>
+            <td>V8 SIMD 적용 시 hand-tracking 14~15 FPS → 38~40 FPS (약 2.6x)</td>
+            <td>MediaPipe, onnxruntime-web, transformers.js</td>
+            <td><a href="https://v8.dev/features/simd" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ V8 SIMD</a></td>
+          </tr>
+          <tr>
+            <td><strong>SQL / DB 엔진</strong></td>
+            <td>DuckDB-Wasm이 TPC-H 다중 스케일에서 이전 웹 데이터 처리 라이브러리들을 앞섬</td>
+            <td>DuckDB-Wasm, sql.js</td>
+            <td><a href="https://duckdb.org/library/duckdb-wasm/" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ DuckDB-Wasm</a></td>
+          </tr>
+          <tr>
+            <td><strong>복잡 파서</strong><br><small style="color:var(--text3)">markdown, SQL, 바이너리, protobuf</small></td>
+            <td>markdown-wasm이 JS 파서 대비 벤치마크 우위 공식 문서화</td>
+            <td>markdown-wasm, wasmparser</td>
+            <td><a href="https://github.com/rsms/markdown-wasm" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ markdown-wasm</a></td>
+          </tr>
+          <tr>
+            <td><strong>수치 계산 / 행렬 / FFT</strong></td>
+            <td>pffft.wasm이 pure JS FFT를 SIMD로 추월. 물리 엔진 Rapier도 WASM 기반</td>
+            <td>pffft.wasm, Rapier</td>
+            <td><a href="https://0110.be/l/pffft_benchmark" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ pffft 벤치마크</a></td>
+          </tr>
+          <tr>
+            <td><strong>대용량 집계</strong><br><small style="color:var(--text3)">&gt;10만 row 스캔·집계·JOIN</small></td>
+            <td>DuckDB-Wasm이 컬럼형 벡터 실행으로 분석 SQL을 Worker 안에서 구동</td>
+            <td>DuckDB-Wasm, DataFusion WASM, Arquero</td>
+            <td><a href="https://duckdb.org/library/duckdb-wasm/" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ DuckDB-Wasm</a></td>
+          </tr>
+          <tr>
+            <td><strong>암호화 bulk</strong><br><small style="color:var(--text3)">blake3, argon2, 스트림 AES-CTR</small></td>
+            <td>반복 라운드가 많은 해시/KDF는 WASM이 SIMD로 JS 대비 우위. Web Crypto가 커버 안 하는 알고리즘에서만</td>
+            <td>hash-wasm, argon2-browser</td>
+            <td><a href="https://github.com/Daninet/hash-wasm" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ hash-wasm</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- WASM 비권장 카테고리 -->
+  <section id="not-recommended">
+    <div class="section-label">JS/TS 유지</div>
+    <h2>10개 비권장 카테고리</h2>
+    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
+      WASM으로 이식해도 이득이 없거나 오히려 손해인 영역. <code>/react-wasm</code>은 이 카테고리 매칭 시 제안을 거부한다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>카테고리</th>
+            <th>이유</th>
+            <th>출처</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>UI 상태, DOM 인접 작업, 컴포넌트 렌더</strong></td>
+            <td>WASM은 DOM 직접 접근 불가. 모든 DOM 업데이트가 JS 글루를 통과하므로 경계 비용이 본 작업을 지배</td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/WebAssembly" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ MDN WASM</a></td>
+          </tr>
+          <tr>
+            <td><strong>폼 검증, 작은 함수, 소규모 리스트</strong><br><small style="color:var(--text3)">&lt;1만 아이템</small></td>
+            <td>V8 JIT (Sparkplug, Maglev, TurboFan)이 hot small code path를 공격적으로 최적화. JS↔WASM 래퍼 비용이 남아 JS 동률 또는 우위</td>
+            <td><a href="https://v8.dev/blog/maglev" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ V8 Maglev</a></td>
+          </tr>
+          <tr>
+            <td><strong>JSON 파싱 / 직렬화</strong></td>
+            <td>V8이 Chrome 138에서 JSON.stringify를 "2x 이상" 향상. JSON 경로는 이미 네이티브 SIMD급 최적화</td>
+            <td><a href="https://v8.dev/blog/json-stringify" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ V8 JSON</a></td>
+          </tr>
+          <tr>
+            <td><strong>문자열 처리</strong><br><small style="color:var(--text3)">정규식, split, concat, template</small></td>
+            <td>JS 문자열은 엔진 네이티브. WASM은 UTF-16↔UTF-8 마샬링/복사 비용을 항상 지불</td>
+            <td><a href="https://github.com/rsms/markdown-wasm" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ bridge overhead 경고</a></td>
+          </tr>
+          <tr>
+            <td><strong>Web Crypto 소규모 호출</strong><br><small style="color:var(--text3)">단발 AES-GCM, SHA-256 한 번</small></td>
+            <td>브라우저가 이미 네이티브 crypto API를 노출. 소규모 호출의 WASM 우위는 경계 비용에 묻힐 가능성 큼</td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ SubtleCrypto</a></td>
+          </tr>
+          <tr>
+            <td><strong>고빈도 콜백 (&gt;1만/sec)</strong></td>
+            <td>매 호출마다 JS↔WASM 경계를 넘으면 누적 비용이 compute 비용을 압도. 배치화 불가능하면 금기</td>
+            <td><a href="https://github.com/rsms/markdown-wasm" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ JS callback overhead</a></td>
+          </tr>
+          <tr>
+            <td><strong>tiny 함수 (&lt;100μs per call)</strong></td>
+            <td>호출 오버헤드 50~100 ns가 상대적으로 크게 느껴짐. 호출당 compute가 작을수록 JS 우위</td>
+            <td><a href="https://v8.dev/blog/v8-release-90" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ V8 90</a></td>
+          </tr>
+          <tr>
+            <td><strong>애니메이션, 스크롤, 드래그</strong></td>
+            <td>requestAnimationFrame + CSS/GPU 경로가 정답. WASM은 프레임 예산 16ms를 깎아먹을 뿐</td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ rAF</a></td>
+          </tr>
+          <tr>
+            <td><strong>네트워크 호출, fetch 래퍼</strong></td>
+            <td>I/O 바운드. CPU 가속 의미 없음</td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ Fetch API</a></td>
+          </tr>
+          <tr>
+            <td><strong>이벤트 버스, 작은 reducer, Zustand 업데이트</strong></td>
+            <td>hot small path. V8 JIT 영역. dispatch마다 경계 비용 발생</td>
+            <td><a href="https://v8.dev/blog/maglev" style="color:var(--accent);font-size:0.8rem" target="_blank" rel="noopener">↗ V8 Maglev</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5가지 휴리스틱 -->
+  <section id="heuristics">
+    <div class="section-label">카탈로그 미스 시</div>
+    <h2>5가지 판정 휴리스틱</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      카탈로그 테이블에 정확히 해당하지 않는 요청이 오면 아래 5개 중 <strong>3개 이상</strong> WASM 쪽이면 이식 제안, 아니면 JS 유지.
+    </p>
+    <div class="heuristic-grid">
+      <div class="h-card">
+        <div class="h-title">H1 · 데이터 크기</div>
+        <div class="h-row"><span class="h-side-yes">WASM</span><span class="h-text">바이너리 버퍼 (Uint8Array, Float32Array) + KB~MB 단위</span></div>
+        <div class="h-row"><span class="h-side-no">JS</span><span class="h-text">문자열, 일반 객체, 작은 배열 (&lt;1 KB)</span></div>
+      </div>
+      <div class="h-card">
+        <div class="h-title">H2 · 호출 빈도</div>
+        <div class="h-row"><span class="h-side-yes">WASM</span><span class="h-text">낮은 빈도 (초당 &lt;100) + 무거운 본 작업 (ms 단위)</span></div>
+        <div class="h-row"><span class="h-side-no">JS</span><span class="h-text">높은 빈도 (초당 &gt;1만) + 가벼운 본 작업</span></div>
+      </div>
+      <div class="h-card">
+        <div class="h-title">H3 · 내부 연산 형태</div>
+        <div class="h-row"><span class="h-side-yes">WASM</span><span class="h-text">반복 루프 중심, 분기 적고, 숫자·바이너리, 행렬·벡터</span></div>
+        <div class="h-row"><span class="h-side-no">JS</span><span class="h-text">문자열/객체 조작, 정규식, JSON.parse, DOM 인접</span></div>
+      </div>
+      <div class="h-card">
+        <div class="h-title">H4 · 외부 리소스 접근</div>
+        <div class="h-row"><span class="h-side-yes">WASM</span><span class="h-text">순수 함수. fetch, DOM, timer, Tauri API 불필요</span></div>
+        <div class="h-row"><span class="h-side-no">JS</span><span class="h-text">외부 접근 있음 — WASM은 JS 브리지 거쳐야 함</span></div>
+      </div>
+      <div class="h-card" style="grid-column:1/-1">
+        <div class="h-title">H5 · 알고리즘 특성</div>
+        <div class="h-row"><span class="h-side-yes">WASM</span><span class="h-text">SIMD/threads 활용 가능 — 픽셀, 해시, 행렬, 정렬, 컨볼루션</span></div>
+        <div class="h-row"><span class="h-side-no">JS</span><span class="h-text">본질적으로 순차적 — 상태 기계, DOM 업데이트, UI 애니메이션</span></div>
+      </div>
+    </div>
+    <h3>판정 예시</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>작업</th><th>H1</th><th>H2</th><th>H3</th><th>H4</th><th>H5</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>10 MB CSV 파싱</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>~</td><td><span class="tag-yes">WASM</span></td></tr>
+          <tr><td>이미지 썸네일 생성 (512px)</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><span class="tag-yes">WASM 5/5</span></td></tr>
+          <tr><td>폼 검증 (Zod 스키마)</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td><span class="tag-no">JS 0/5</span></td></tr>
+          <tr><td>리스트 정렬 500 아이템</td><td>✗</td><td>~</td><td>✓</td><td>✓</td><td>✗</td><td><span class="tag-no">JS 2/5</span></td></tr>
+          <tr><td>리스트 정렬 1M 아이템 멀티키</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><span class="tag-yes">WASM 5/5</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 흔한 오해 -->
+  <section id="misconceptions">
+    <div class="section-label">오해</div>
+    <h2>WASM이 이길 것 같지만 실제로는 지는 케이스</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>오해</th><th>진실</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"React 로직을 WASM으로 빼면 빠르다"</td>
+            <td>React는 DOM 인접 작업. state 업데이트는 V8 JIT 대상이고 렌더는 브라우저 페인트 파이프라인. WASM으로 빼는 순간 매 렌더 경계 비용 발생</td>
+          </tr>
+          <tr>
+            <td>"JSON 파싱을 WASM으로 빼면 빠르다"</td>
+            <td>V8은 Chrome 138에서 JSON.stringify를 2x 이상 개선. JSON parse는 이미 SIMD 경로 사용. 빠르게 하려면 포맷 자체를 바이너리(Arrow, Protobuf)로 바꿔야 함</td>
+          </tr>
+          <tr>
+            <td>"큰 데이터면 무조건 WASM이 이긴다"</td>
+            <td>크기가 아니라 <strong>연산 밀도 (compute per byte)</strong>가 결정. 1 GB라도 한 번 훑으면 V8 선형 스캔으로 충분. 10 MB라도 복잡한 재계산이면 WASM 이득</td>
+          </tr>
+          <tr>
+            <td>"Threads를 켜면 자동으로 빨라진다"</td>
+            <td>COOP/COEP 헤더 없이는 SharedArrayBuffer가 차단. 그리고 작업이 상호 의존성 없는 분할 가능한 compute여야만 효과 있음</td>
+          </tr>
+          <tr>
+            <td>"Rust는 빠른 언어라서 WASM도 무조건 JS보다 빠르다"</td>
+            <td>JS↔WASM 경계가 존재하는 한 경계 비용이 본 작업보다 클 수 있음. 언어 자체의 속도가 아니라 경계 패턴이 결정</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <a href="https://rustwasm.github.io/docs/wasm-bindgen" class="card-source" target="_blank" rel="noopener">↗ wasm-bindgen Guide</a>
+    <a href="https://developer.mozilla.org/en-US/docs/WebAssembly" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ MDN WebAssembly</a>
+  </section>
+
+  <!-- SIMD + Threads -->
+  <section id="simd-threads">
+    <div class="section-label">기술 현황</div>
+    <h2>SIMD + Threads 지원 (2026-04 기준)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>기능</th><th>상태</th><th>조건</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>WASM SIMD (fixed-width 128)</strong></td>
+            <td><span class="tag-yes">사용 가능</span></td>
+            <td>주요 브라우저에서 실사용 가능. MDN 호환성 테이블에 정식 지원으로 등재</td>
+          </tr>
+          <tr>
+            <td><strong>Threads (SharedArrayBuffer)</strong></td>
+            <td><span class="tag-warn">조건부</span></td>
+            <td>Cross-origin isolation 필수 — <code>Cross-Origin-Opener-Policy: same-origin</code> + <code>Cross-Origin-Embedder-Policy: require-corp</code></td>
+          </tr>
+          <tr>
+            <td><strong>Safari SIMD/Threads</strong></td>
+            <td><span class="tag-warn">확인 필요</span></td>
+            <td>과거 지원 지연 이력. 런타임 feature detection (<code>WebAssembly.validate</code> + SIMD opcode probe) 으로 가드 권장</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 프로덕션 케이스 스터디 -->
+  <section id="case-studies">
+    <div class="section-label">케이스 스터디</div>
+    <h2>프로덕션 사례 5건</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>케이스</th><th>문제</th><th>해결</th><th>교훈</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://www.figma.com/blog/figma-faster/" style="color:var(--accent)" target="_blank" rel="noopener">Figma</a></td>
+            <td>대용량 파일 로딩에서 JS 기반 파서/렌더러 성능 한계</td>
+            <td>C++ 핵심 로직을 WebAssembly 이식. 초기 로드 29s → 8s (약 3.6x)</td>
+            <td>단일 진입점으로 들어가서 내부에서 오래 머무는 작업이 WASM 최적 후보</td>
+          </tr>
+          <tr>
+            <td><a href="https://developer.chrome.com/blog/hotpath-with-wasm?hl=en" style="color:var(--accent)" target="_blank" rel="noopener">Squoosh</a></td>
+            <td>브라우저에서 MozJPEG, WebP, AVIF 코덱을 실제로 돌려야 하는데 JS 구현이 없음</td>
+            <td>각 코덱 C 구현을 WASM으로 컴파일. 코덱마다 .wasm 파일 분리해서 lazy load</td>
+            <td>"JS 대안이 없는" 영역에서는 WASM이 선택의 문제가 아니라 유일한 길</td>
+          </tr>
+          <tr>
+            <td><a href="https://duckdb.org/library/duckdb-wasm/" style="color:var(--accent)" target="_blank" rel="noopener">DuckDB-Wasm</a></td>
+            <td>브라우저에서 대용량 CSV/Parquet에 대한 분석 SQL 실행</td>
+            <td>DuckDB 컬럼 엔진을 WASM 으로 빌드. Worker에서 실행, Arrow IPC로 zero-copy 교환</td>
+            <td>전문화된 실행 엔진을 통째로 가져오는 것이 JS로 재구현보다 훨씬 현실적</td>
+          </tr>
+          <tr>
+            <td><a href="https://v8.dev/features/simd" style="color:var(--accent)" target="_blank" rel="noopener">MediaPipe</a></td>
+            <td>실시간 손 추적을 JS로는 frame rate 확보 불가</td>
+            <td>XNNPACK + WASM SIMD. 14~15 FPS → 38~40 FPS (약 2.6x)</td>
+            <td>ML 추론은 텐서 연산이라 SIMD 효과가 강하게 나오는 전형적 WASM 승리 카테고리</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.photopea.com/learn/about" style="color:var(--accent)" target="_blank" rel="noopener">Photopea</a></td>
+            <td>PSD 파일 파싱, 레이어 블렌딩, 필터 적용 모두 JS로는 성능 한계</td>
+            <td>C++ 이미지 처리 코어를 WASM 으로 컴파일. 필터/블렌딩은 대부분 WASM 내부에서 수행</td>
+            <td>"인터랙션 → 대량 픽셀 처리 → 결과 표시" 사이클은 WASM 코어 + JS UI 조합의 이상적 분할</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>

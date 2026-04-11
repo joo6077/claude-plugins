@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI Patterns — React Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#38BDF8;--accent2:#7DD3FC;
+  --accent-dim:rgba(56,189,248,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:640px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(56,189,248,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
+.card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 4px 20px rgba(56,189,248,0.06)}
+.card-icon{font-size:1.4rem;margin-bottom:10px}
+.card h3{font-size:0.95rem;margin-bottom:8px}
+.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
+.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
+.card-source:hover{opacity:1}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(56,189,248,0.025)}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.callout.warn{border-left-color:var(--yellow)}
+.step-list{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+.step{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.step-num{min-width:28px;height:28px;border-radius:50%;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0}
+.step-body{flex:1}
+.step-title{font-weight:600;font-size:0.92rem;margin-bottom:4px}
+.step-desc{color:var(--text2);font-size:0.85rem}
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:640px){.before-after{grid-template-columns:1fr}}
+.ba-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.ba-before .ba-label{color:var(--red)}
+.ba-after .ba-label{color:var(--green)}
+.state-table{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+@media(max-width:640px){.state-table{grid-template-columns:1fr 1fr}}
+.state-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.state-title{font-size:0.82rem;font-weight:600;margin-bottom:6px}
+.state-desc{font-size:0.78rem;color:var(--text3)}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="index.html" class="logo-link">React Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">UI Patterns</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>G5 · UI Patterns</h1>
+    <p class="subtitle">
+      <code>/react-responsive</code>, <code>/react-skeleton</code>, <code>/react-extract</code> —
+      기존 컴포넌트 위에 UI 품질 레이어를 얹는 세 스킬. 새로 만들지 않고 래핑하거나 변환한다.
+    </p>
+    <div class="badge">G5 — UI Quality Layer</div>
+  </div>
+
+  <!-- 공통 원칙 -->
+  <section>
+    <div class="section-label">공통 설계 원칙</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>기존 구조 비파괴</h3>
+        <p>3개 스킬 모두 기존 컴포넌트를 래핑하거나 변환하지, 처음부터 다시 만들지 않는다. 잘 동작하는 코드를 건드려서 회귀를 내지 않도록.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📐</div>
+        <h3>Strict TS 유지</h3>
+        <p>추출된 공용 컴포넌트도 G1의 strict 규칙 (<code>any</code> 금지, <code>forwardRef</code>, Props 타입 명시)을 그대로 준수.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <h3>디자인 시스템 호환</h3>
+        <p>design-kit 토큰을 그대로 쓰는 Tailwind 클래스만 사용. 하드코딩된 픽셀값 금지.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- /react-responsive -->
+  <section id="react-responsive">
+    <div class="section-label">스킬 01</div>
+    <h2>/react-responsive — 반응형 레이아웃 적용</h2>
+
+    <h3>페이지 쿼리 vs 컨테이너 쿼리 결정 규칙</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>시나리오</th><th>선택</th><th>이유</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>앱 최상위 레이아웃 (사이드바 펼침/접힘, 상단 네비)</td><td><strong>페이지 (sm/md/lg)</strong></td><td>뷰포트 전체가 레퍼런스. 전체 앱 구조 결정</td></tr>
+          <tr><td>그리드 아이템 재배치 (카드 목록 1→2→3 컬럼)</td><td><strong>페이지 (sm/md/lg)</strong></td><td>유저가 "화면 크기"로 기대하는 경험</td></tr>
+          <tr><td>사이드바 안의 카드 (같은 카드가 전체 화면에도, 모달 안에도)</td><td><strong>컨테이너 (@container)</strong></td><td>부모 영역 크기에 따라 적응해야 재사용 가능</td></tr>
+          <tr><td>재사용 컴포넌트 내부 레이아웃 (Card 안의 header/meta)</td><td><strong>컨테이너 (@container)</strong></td><td>컴포넌트가 어디에 들어가도 올바르게 보임</td></tr>
+          <tr><td>모달/드로어 내부</td><td><strong>컨테이너 (@container)</strong></td><td>모달 너비 기준, 페이지 너비가 아니라</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Tailwind v4 breakpoint 체계</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>키</th><th>min-width</th><th>용도</th></tr></thead>
+        <tbody>
+          <tr><td><code>sm:</code></td><td>640px</td><td>큰 모바일 / 세로 태블릿</td></tr>
+          <tr><td><code>md:</code></td><td>768px</td><td>세로 태블릿</td></tr>
+          <tr><td><code>lg:</code></td><td>1024px</td><td>가로 태블릿 / 작은 노트북</td></tr>
+          <tr><td><code>xl:</code></td><td>1280px</td><td>노트북</td></tr>
+          <tr><td><code>2xl:</code></td><td>1536px</td><td>큰 데스크탑</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Container Queries — <code>@container</code> (Tailwind v4 내장)</h3>
+    <pre>&lt;div className="@container"&gt;
+  &lt;div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3"&gt;
+    {/* 부모 @container 의 너비가 @md (28rem) 이상이면 2컬럼 */}
+  &lt;/div&gt;
+&lt;/div&gt;
+
+{/* 네임드 컨테이너 — 중첩 시 타겟 지정 */}
+&lt;div className="@container/sidebar"&gt;
+  &lt;div className="@md/sidebar:text-lg"&gt;
+    {/* sidebar 컨테이너가 @md 이상일 때만 */}
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+
+    <h3>변환 예시</h3>
+    <div class="before-after">
+      <div class="ba-before">
+        <div class="ba-label">Before — 고정 레이아웃</div>
+        <pre>export function ProductGrid({ products }) {
+  return (
+    &lt;div className="grid grid-cols-3 gap-4"&gt;
+      {products.map((p) =&gt; (
+        &lt;ProductCard key={p.id} {...p} /&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</pre>
+      </div>
+      <div class="ba-after">
+        <div class="ba-label">After — 페이지 쿼리 반응형</div>
+        <pre>export function ProductGrid({ products }) {
+  return (
+    &lt;div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"&gt;
+      {products.map((p) =&gt; (
+        &lt;ProductCard key={p.id} {...p} /&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</pre>
+      </div>
+    </div>
+    <div class="callout warn">
+      <strong>컨테이너 쿼리가 페이지 쿼리를 대체하지 않는다.</strong> 둘은 서로 다른 문제를 푼다. Tailwind v3 프로젝트는 <code>@tailwindcss/container-queries</code> 플러그인 설치 필요.
+    </div>
+    <a href="https://tailwindcss.com/docs/guides/vite" class="card-source" target="_blank" rel="noopener">↗ Tailwind v4 공식 문서</a>
+  </section>
+
+  <!-- /react-skeleton -->
+  <section id="react-skeleton">
+    <div class="section-label">스킬 02</div>
+    <h2>/react-skeleton — 로딩 상태 shimmer 구현</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      TanStack Query <code>isPending</code> 중에 실 레이아웃 모양의 shadcn Skeleton 조각을 표시. 스피너 대신 "곧 이런 콘텐츠가 나올 거예요"라는 구조 예고.
+    </p>
+
+    <h3>isPending 연동 패턴</h3>
+    <pre>// src/presentation/features/user/components/user-profile-card.tsx
+import { Skeleton } from '@/presentation/shared/components/ui/skeleton'
+import { useUser } from '../hooks/use-user'
+
+export function UserProfileCard({ userId }: { userId: string }) {
+  const { data, isPending, isError, error } = useUser(userId)
+
+  if (isPending) return &lt;UserProfileCardSkeleton /&gt;
+  if (isError) return &lt;UserProfileCardError error={error} /&gt;
+  if (!data) return &lt;UserProfileCardEmpty /&gt;
+
+  return (
+    &lt;div className="rounded-lg border p-6 space-y-4"&gt;
+      &lt;h2 className="text-xl font-semibold"&gt;{data.name}&lt;/h2&gt;
+      &lt;p className="text-muted-foreground"&gt;{data.email}&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}
+
+function UserProfileCardSkeleton() {
+  return (
+    &lt;div className="rounded-lg border p-6 space-y-4"&gt;
+      &lt;Skeleton className="h-7 w-48" /&gt;   {/* 제목 자리 */}
+      &lt;Skeleton className="h-5 w-64" /&gt;   {/* 부제목 자리 */}
+    &lt;/div&gt;
+  )
+}</pre>
+
+    <h3>4가지 상태 구분 — 명확히 분기</h3>
+    <div class="state-table">
+      <div class="state-card">
+        <div class="state-title" style="color:var(--accent)">Loading</div>
+        <div class="state-desc"><code>isPending === true</code></div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">Skeleton 표시</div>
+      </div>
+      <div class="state-card">
+        <div class="state-title" style="color:var(--red)">Error</div>
+        <div class="state-desc"><code>isError === true</code></div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">에러 메시지 + 재시도</div>
+      </div>
+      <div class="state-card">
+        <div class="state-title" style="color:var(--yellow)">Empty</div>
+        <div class="state-desc"><code>data === undefined</code></div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">"데이터 없음" + CTA</div>
+      </div>
+      <div class="state-card">
+        <div class="state-title" style="color:var(--green)">Success</div>
+        <div class="state-desc">data 있음</div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">실제 콘텐츠</div>
+      </div>
+    </div>
+    <div class="callout">
+      Skeleton이 쓰이는 건 오직 Loading뿐. Empty 상태에 Skeleton을 써서 "곧 뭐가 나올 것 같다"는 오해를 주지 말 것.
+      <br><br>
+      <strong>Skeleton 크기 가이드:</strong> 텍스트는 <code>h-4~h-7</code>, 버튼은 <code>h-9~h-10</code>, 이미지는 <code>aspect-square/aspect-video</code>. 항상 <code>bg-muted</code> 필수 (없으면 투명해서 안 보임).
+    </div>
+    <a href="https://ui.shadcn.com/docs/components/skeleton" class="card-source" target="_blank" rel="noopener">↗ shadcn Skeleton 문서</a>
+    <a href="https://tanstack.com/query/latest/docs/framework/react/guides/queries" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ TanStack Query isPending</a>
+  </section>
+
+  <!-- /react-extract -->
+  <section id="react-extract">
+    <div class="section-label">스킬 03</div>
+    <h2>/react-extract — 재사용 컴포넌트 추출</h2>
+    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
+      feature 내부에 사유화된 위젯 또는 중복된 위젯을 <code>presentation/shared/components/</code>로 추출하고 import 경로를 자동 정리.
+    </p>
+
+    <h3>추출 8단계 흐름</h3>
+    <div class="step-list">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Import 참조 스캔</div><div class="step-desc">전체 프로젝트에서 대상 컴포넌트를 import하는 파일 목록 수집 (TypeScript AST 또는 grep 기반)</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">파일 이동</div><div class="step-desc"><code>source_path</code> → <code>destination</code>으로 물리 이동</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">컴포넌트 이름 확인</div><div class="step-desc">kebab-case 파일명 ↔ PascalCase 컴포넌트명 일관성 검증</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Props 타입 노출 확인</div><div class="step-desc">이동 대상이 <code>export type SomethingProps</code>를 함께 export하는지 (없으면 추가)</div></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Import 경로 일괄 수정</div><div class="step-desc">참조하는 모든 파일의 import 구문을 <code>@/presentation/shared/components/...</code> absolute import로 업데이트</div></div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">Unused import 정리</div><div class="step-desc">원본 feature에 남아있던 import 중 안 쓰는 것 제거</div></div></div>
+      <div class="step"><div class="step-num">7</div><div class="step-body"><div class="step-title">tsc + eslint 검증</div><div class="step-desc">이동 후 타입 에러/린트 에러 없는지 확인. 에러가 생기면 전체 롤백 후 에러 보고</div></div></div>
+      <div class="step"><div class="step-num">8</div><div class="step-body"><div class="step-title">결과 리포트</div><div class="step-desc">변경된 파일 수, 이동된 경로, 업데이트된 import 개수 요약</div></div></div>
+    </div>
+
+    <h3>Import 경로 변환 규칙</h3>
+    <div class="before-after">
+      <div class="ba-before">
+        <div class="ba-label">Before</div>
+        <pre>import { LogoBanner } from './logo-banner'
+// feature 내부 상대 경로</pre>
+      </div>
+      <div class="ba-after">
+        <div class="ba-label">After</div>
+        <pre>import { LogoBanner } from '@/presentation/shared/components/logo-banner'
+// absolute import</pre>
+      </div>
+    </div>
+
+    <h3>widget-inspector-react 에이전트 연동</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>중복 위젯 감지</h3>
+        <p>다른 feature에 같은 이름/구조의 컴포넌트 발견 시 리포트.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <h3>과도한 사유화 감지</h3>
+        <p>private이지만 재사용 가능해 보이는 컴포넌트 표시.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📏</div>
+        <h3>복잡도 임계값 초과</h3>
+        <p>컴포넌트 하나가 300줄+ 초과 시 분할 권고.</p>
+      </div>
+    </div>
+    <div class="callout">
+      사용자가 리포트 중 일부를 승인하면 <code>/react-extract</code>가 자동 트리거되어 실제 이동 + import 정리 수행. <code>--dry-run</code> 플래그로 실제 파일 이동 없이 변경 내역만 미리 확인 가능.
+    </div>
+    <div class="callout warn">
+      <strong>추출 전제 조건:</strong> named export만 지원 (<code>export default</code>는 먼저 named export로 리팩터 후 이동). Type-only import는 <code>import type</code>으로 분리 (<code>verbatimModuleSyntax: true</code> 정책).
+    </div>
+    <a href="https://tanstack.com/query/latest/docs/framework/react/guides/queries" class="card-source" target="_blank" rel="noopener">↗ TanStack Query Guides</a>
+  </section>
+
+  <!-- Container queries 심화 -->
+  <section id="container-queries-advanced">
+    <div class="section-label">컨테이너 쿼리 심화</div>
+    <h2>@container 기본 사이즈 테이블</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>키</th><th>min-width</th><th>주요 용도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>@xs</code></td><td>20rem (320px)</td><td>초소형 컨테이너, 단일 아이콘/숫자</td></tr>
+          <tr><td><code>@sm</code></td><td>24rem (384px)</td><td>소형 카드, 좁은 사이드바</td></tr>
+          <tr><td><code>@md</code></td><td>28rem (448px)</td><td>2컬럼 전환 기준점</td></tr>
+          <tr><td><code>@lg</code></td><td>32rem (512px)</td><td>중형 컨테이너, 3컬럼 시작</td></tr>
+          <tr><td><code>@xl</code></td><td>36rem (576px)</td><td>대형 카드, 4컬럼 그리드</td></tr>
+          <tr><td><code>@2xl</code></td><td>42rem (672px)</td><td>넓은 컨테이너, 멀티 섹션</td></tr>
+          <tr><td><code>@3xl</code></td><td>48rem (768px)</td><td>전체 너비에 가까운 컨테이너</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>재사용 컴포넌트에서 @container 사용 예시</h3>
+    <pre>// 재사용 ProductCard — 어디에 놓여도 컨테이너 크기에 반응
+export function ProductList({ products }: { products: Product[] }) {
+  return (
+    &lt;div className="@container"&gt;
+      &lt;div className="grid grid-cols-1 gap-3 @md:grid-cols-2 @xl:grid-cols-3"&gt;
+        {products.map((p) =&gt; &lt;ProductCard key={p.id} {...p} /&gt;)}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}
+
+// 네임드 컨테이너 — 중첩 컨테이너 구분
+export function DashboardLayout() {
+  return (
+    &lt;div className="@container/dashboard"&gt;
+      &lt;aside className="@container/sidebar"&gt;
+        &lt;nav className="@sm/sidebar:space-y-2 @md/sidebar:space-y-4"&gt;
+          {/* sidebar 너비가 @sm 이상일 때 spacing 증가 */}
+        &lt;/nav&gt;
+      &lt;/aside&gt;
+    &lt;/div&gt;
+  )
+}</pre>
+    <a href="https://tailwindcss.com/docs/responsive-design" class="card-source" target="_blank" rel="noopener">↗ Tailwind v4 반응형 문서</a>
+  </section>
+
+  <!-- Skeleton 설계 심화 -->
+  <section id="skeleton-advanced">
+    <div class="section-label">Skeleton 심화</div>
+    <h2>실 레이아웃 1:1 매핑 전략</h2>
+    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
+      Skeleton과 실제 콘텐츠의 크기가 다르면 전환 시 레이아웃 시프트(CLS)가 발생한다. 동일한 구조로 매핑해야 한다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>콘텐츠 타입</th><th>Skeleton 클래스</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>h1/h2 제목</td><td><code>h-7 w-48 rounded-md</code></td><td>너비는 예상 텍스트 길이에 맞게</td></tr>
+          <tr><td>부제목/설명 텍스트</td><td><code>h-5 w-64 rounded-md</code></td><td>여러 줄이면 <code>space-y-2</code>로 쌓기</td></tr>
+          <tr><td>본문 단락 (3줄)</td><td><code>h-4 w-full rounded-md</code> × 3</td><td>마지막 줄은 <code>w-3/4</code>로 자연스럽게</td></tr>
+          <tr><td>버튼</td><td><code>h-9 w-24 rounded-md</code></td><td>버튼 크기 (sm: h-9, md: h-10, lg: h-11)</td></tr>
+          <tr><td>이미지/썸네일 (정사각)</td><td><code>aspect-square rounded-md</code></td><td>부모 너비 기준 자동 높이</td></tr>
+          <tr><td>이미지/썸네일 (16:9)</td><td><code>aspect-video rounded-md</code></td><td>동영상 플레이스홀더</td></tr>
+          <tr><td>아바타 (원형)</td><td><code>h-10 w-10 rounded-full</code></td><td>원형은 <code>rounded-full</code></td></tr>
+          <tr><td>배지/태그</td><td><code>h-5 w-16 rounded-full</code></td><td>인라인 뱃지</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>리스트 Skeleton — 5개 반복</h3>
+    <pre>function UserListSkeleton() {
+  return (
+    &lt;ul className="space-y-3"&gt;
+      {Array.from({ length: 5 }).map((_, i) =&gt; (
+        &lt;li key={i} className="flex items-center gap-3 rounded-lg border p-4"&gt;
+          &lt;Skeleton className="h-10 w-10 rounded-full" /&gt;  {/* 아바타 */}
+          &lt;div className="flex-1 space-y-2"&gt;
+            &lt;Skeleton className="h-4 w-32" /&gt;             {/* 이름 */}
+            &lt;Skeleton className="h-3 w-48" /&gt;             {/* 이메일 */}
+          &lt;/div&gt;
+          &lt;Skeleton className="h-8 w-16 rounded-md" /&gt;    {/* 버튼 */}
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  )
+}</pre>
+    <a href="https://ui.shadcn.com/docs/components/skeleton" class="card-source" target="_blank" rel="noopener">↗ shadcn Skeleton 컴포넌트</a>
+  </section>
+
+  <!-- G5 공통 Gotchas -->
+  <section id="gotchas">
+    <div class="section-label">Gotchas</div>
+    <h2>G5 스킬 공통 주의사항</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>스킬</th><th>실수</th><th>올바른 방법</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>/react-responsive</td>
+            <td>모든 컴포넌트를 <code>@container</code>로 감쌈</td>
+            <td>앱 최상위 레이아웃은 페이지 쿼리. 재사용 컴포넌트만 컨테이너 쿼리</td>
+          </tr>
+          <tr>
+            <td>/react-responsive</td>
+            <td>텍스트 크기 반응형 다단 변경 (<code>text-sm md:text-base lg:text-lg</code>)</td>
+            <td>타이포 리듬 깨짐. 디자인 시스템의 정해진 scale만 사용</td>
+          </tr>
+          <tr>
+            <td>/react-skeleton</td>
+            <td><code>bg-muted</code> 없는 Skeleton</td>
+            <td>투명해서 animate-pulse가 안 보임. 항상 배경색 포함 필수</td>
+          </tr>
+          <tr>
+            <td>/react-skeleton</td>
+            <td>Empty 상태에 Skeleton 표시</td>
+            <td>Skeleton은 오직 <code>isPending === true</code>일 때만. Empty는 별도 EmptyState UI</td>
+          </tr>
+          <tr>
+            <td>/react-skeleton</td>
+            <td>Skeleton 크기가 실제 콘텐츠와 다름</td>
+            <td>1:1 크기 매핑 필수 — 레이아웃 시프트(CLS) 방지</td>
+          </tr>
+          <tr>
+            <td>/react-extract</td>
+            <td><code>export default</code> 컴포넌트 이동</td>
+            <td>먼저 named export로 리팩터 후 추출. <code>import type</code> 분리 필수</td>
+          </tr>
+          <tr>
+            <td>/react-extract</td>
+            <td>이동 후 tsc 검증 없이 완료 보고</td>
+            <td>스킬은 이동 후 반드시 <code>tsc --noEmit</code> + <code>eslint</code> 실행. 에러 시 전체 롤백</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>
