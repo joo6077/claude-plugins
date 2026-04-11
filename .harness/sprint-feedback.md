@@ -1,135 +1,167 @@
 # Sprint Feedback
-Feature: backend-kit Phase 7 Kaizen Research Mode (Hexagonal/Clean/DDD + OAuth 2.1/DPoP + Outbox + Pact+Testcontainers)
-Evaluated: 2026-04-11 23:00
+Feature: infra-kit 3 스킬 + infra-reviewer 에이전트 + references 2026 K8s/Terraform/DevOps/Supply Chain 반영 카이젠
+Evaluated: 2026-04-11 23:10
 Verdict: APPROVE
-Iteration: 2
+Iteration: 1
 
 ## Results
 
-### AR: Architecture 카테고리 신설 (6/6)
+### SC: Supply Chain 카테고리 신설 (6/6)
 
-- [x] AR-01: `backend-guide/SKILL.md` Step 1 표에 `architecture` 행 추가 (키워드 8개) — PASS
-  - 근거: `backend-kit/skills/backend-guide/SKILL.md:29` — `| architecture | hexagonal, ports, adapter, clean, DDD, 도메인, bounded context, layered |` (L3)
-- [x] AR-02: `backend-audit/SKILL.md` Step 3 표에 Architecture 카테고리 추가, 총 9개 순서 명시 — PASS
-  - 근거: `backend-kit/skills/backend-audit/SKILL.md:43,47` — Architecture 행 + 순서 주석 (L3)
-- [x] AR-03: `audit-criteria.md` `## 1. Architecture` 섹션 + 4개 기준표 + 출처 URL 3개 — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:6-13` — 도메인-persistence 분리, Port/Adapter 경계, 의존성 inward-only, 과복잡도 경고 (L3)
-- [x] AR-04: `backend-system/SKILL.md` Step 2 표에 `아키텍처 패턴` 필수 행 추가 — PASS
-  - 근거: `backend-kit/skills/backend-system/SKILL.md:36` — Hexagonal/Clean/DDD 선택, 단순 CRUD 간소화 계층형 허용 명시 (L3)
-- [x] AR-05: `system-principles.md` `## 아키텍처 패턴` 섹션 + 3패턴 표 + 도입 기준 + 출처 3개 — PASS
-  - 근거: `backend-kit/skills/backend-system/references/system-principles.md:5-13` — Hexagonal/Clean/DDD 3행 + 도입 기준 + 과복잡도 경고 (L3)
-- [x] AR-06: `principle-index.md` Architecture 행 + TBD 주석 (허용 조건) — PASS
-  - 근거: `backend-kit/skills/backend-guide/references/principle-index.md:9` — TBD + `/backend-research` Phase 예정 주석 명시 (L3)
+- [x] SC-01: principle-index.md supply-chain 행 추가 — PASS
+  - 근거: `infra-kit/references/principle-index.md:20` — 키워드 9개(SBOM, Cosign, SLSA, 서명, attestation, 공급망, Syft, Trivy, Chainguard), 문서 경로 `docs/infra/platform/container.md` (L3)
+- [x] SC-02: infra-guide SKILL.md supply-chain 행 추가 — PASS
+  - 근거: `infra-kit/skills/infra-guide/SKILL.md:38` — 키워드 SC-01과 정합(SBOM, Cosign, SLSA, 서명 등), 총 14개 카테고리 (L3)
+- [x] SC-03: audit-criteria.md Supply Chain 섹션 신설 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:145-166` — 5개 기준 항목(이미지 서명/SBOM/SLSA provenance/런타임 탐지/베이스 이미지 거버넌스), 참조 URL 7개 이상(sigstore.dev, slsa.dev, trivy.dev 포함) (L3)
+- [x] SC-04: infra-reviewer.md Supply Chain 카테고리 추가 — PASS
+  - 근거: `infra-kit/agents/infra-reviewer.md:36` — 6번 카테고리 "Supply Chain (해당 시 — 이미지 서명/SBOM/SLSA provenance)", 총 9개 카테고리 (L3)
+- [x] SC-05: infra-audit SKILL.md Step 3 테이블 Supply Chain 행 추가 — PASS
+  - 근거: `infra-kit/skills/infra-audit/SKILL.md:44` — `| Supply Chain | PASS/FAIL/N/A | 이미지 서명(Cosign) / SBOM / SLSA provenance |` (L3)
+- [x] SC-06: init-checklist.md Supply Chain 3개 체크 항목 추가 — PASS
+  - 근거: `infra-kit/references/init-checklist.md:37-39` — SBOM 생성, 이미지 서명(Cosign), SLSA provenance 체크 항목. 출처 URL: sigstore.dev, slsa.dev (L3)
 
-### AP: API 하이브리드 전략 + OpenAPI 3.1 / AsyncAPI 3 (3/3)
+### PE: Platform Engineering (IDP) 카테고리 신설 (2/2)
 
-- [x] AP-01: `backend-guide/SKILL.md` Gotcha #5 하이브리드 API 전략 + 출처 URL — PASS
-  - 근거: `backend-kit/skills/backend-guide/SKILL.md:19` — REST/GraphQL/gRPC boundary 기준 병용 요지, Java Code Geeks 2026 출처 (L3)
-- [x] AP-02: `audit-criteria.md` API Design 표에 OpenAPI 3.1 + 하이브리드 API 경계 기준 2줄 추가 — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:21-22` — 두 기준 + 출처 각 1개 (L3)
-- [x] AP-03: `audit-criteria.md` Event-Driven 표에 AsyncAPI 3.x 기준 + asyncapi.com 출처 — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:82` (L3)
+- [x] PE-01: principle-index.md platform-engineering 행 추가 — PASS
+  - 근거: `infra-kit/references/principle-index.md:21` — 키워드 8개(IDP, Backstage, Port, Cortex, Humanitec, golden path, self-service, scorecard), 문서 경로 `docs/infra/platform/cicd.md` (L3)
+- [x] PE-02: infra-guide SKILL.md platform-engineering 행 추가 — PASS
+  - 근거: `infra-kit/skills/infra-guide/SKILL.md:39` — 키워드 PE-01과 정합(IDP, Backstage, Port, Cortex, golden path, self-service, scorecard) (L3)
 
-### SE: Security — RFC 9700 / OAuth 2.1 / DPoP / mTLS (4/4)
+### K8: Kubernetes 2026 반영 (4/4)
 
-- [x] SE-01: `audit-criteria.md` Auth 섹션에 RFC 9700 BCP 기준 3개 (PKCE 필수, Implicit/ROPC 금지, JWT RFC 9068) — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:41-43` (L3)
-- [x] SE-02: Auth 섹션에 Sender-constrained tokens (DPoP/mTLS) 기준 + Kong DPoP 출처 — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:44` (L3)
-- [x] SE-03: `system-principles.md` 인증/인가 행에 OAuth 2.1 + PKCE + DPoP/mTLS + RFC 9700 출처 — PASS
-  - 근거: `backend-kit/skills/backend-system/references/system-principles.md:21` (L3)
-- [x] SE-04: `backend-guide/SKILL.md` auth 행에 PKCE, DPoP 추가 — PASS
-  - 근거: `backend-kit/skills/backend-guide/SKILL.md:33` — `OAuth 2.1, PKCE, DPoP` 포함 (L3)
+- [x] K8-01: audit-criteria.md Kubernetes 표 PSA 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:52` — `pod-security.kubernetes.io/enforce` 라벨, baseline/restricted, warn/audit 단계적 승격. 출처: kubernetes.io/docs/concepts/security/pod-security-admission/ (L3)
+- [x] K8-02: audit-criteria.md Gateway API 권장 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:53` — Gateway API(`gateway.networking.k8s.io`) 사용, Ingress frozen 언급. 출처: kubernetes.io/docs/concepts/services-networking/ingress/ (L3)
+- [x] K8-03: init-checklist.md Kubernetes 섹션 Gateway API + PodSecurity 라벨 추가 — PASS
+  - 근거: `infra-kit/references/init-checklist.md:99-100` — PSA 라벨 + Gateway API 우선 체크 항목 (L3)
+- [x] K8-04: init-checklist.md Sidecar containers v1.33 GA 항목 추가 — PASS
+  - 근거: `infra-kit/references/init-checklist.md:101` — `initContainers + restartPolicy: Always 네이티브 사이드카`. 출처: `infra-kit/references/init-checklist.md:108` (L3)
 
-### ED: Event-Driven 2026 실무 패턴 (3/3)
+### IA: IaC (Terraform 1.10+ / OpenTofu 1.7+) 반영 (5/5)
 
-- [x] ED-01: `audit-criteria.md` Event-Driven 표에 Outbox relay batch+backpressure 기준 + Azure Cosmos 출처 — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:80` (L3)
-- [x] ED-02: Event-Driven 표에 per-aggregate sequence + PublishedAt/Attempts + exponential backoff + DLQ + Solace 출처 — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:81` (L3)
-- [x] ED-03: `backend-guide/SKILL.md` event-driven 행에 CQRS 추가 — PASS
-  - 근거: `backend-kit/skills/backend-guide/SKILL.md:37` — `outbox, CQRS, saga, DLQ` (L3)
+- [x] IA-01: audit-criteria.md IaC 표 Ephemeral values 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:73` — Terraform 1.10+ ephemeral 블록/write-only arguments. 출처: developer.hashicorp.com/terraform/language/ephemeral (L3)
+- [x] IA-02: audit-criteria.md State encryption 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:74` — OpenTofu 1.7+ native state encryption. 출처: opentofu.org/docs/v1.11/language/state/encryption/ (L3)
+- [x] IA-03: audit-criteria.md terraform test 프레임워크 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:75` — terraform test / tofu test. 출처: developer.hashicorp.com/terraform/language/tests (L3)
+- [x] IA-04: init-checklist.md IaC 섹션 OpenTofu 대안 주석 추가 — PASS
+  - 근거: `infra-kit/references/init-checklist.md:121` — v1.7+ native state encryption, v1.9+ provider-level for_each. 출처: opentofu.org/docs/language/meta-arguments/for_each/ (L3)
+- [x] IA-05: infra-guide SKILL.md iac 키워드에 OpenTofu + ephemeral 추가 — PASS
+  - 근거: `infra-kit/skills/infra-guide/SKILL.md:29` — "Terraform, Pulumi, CDK, OpenTofu, 모듈, state, plan, ephemeral" (L3)
 
-### TE: Testing — Pact + Testcontainers 2026 (2/2)
+### CD: CI/CD 2026 (3/3)
 
-- [x] TE-01: `audit-criteria.md` Testing 표에 Pact v4+ 컨슈머 드리븐 계약 테스트 기준 + prgrmmng.com 출처 — PASS
-  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:90` (L3)
-- [x] TE-02: `system-principles.md` 테스트 행에 Pact v4 + Testcontainers + prgrmmng.com 출처 — PASS
-  - 근거: `backend-kit/skills/backend-system/references/system-principles.md:30` (L3)
+- [x] CD-01: audit-criteria.md SLSA provenance 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:29` — SLSA provenance 행. 출처: slsa.dev/spec (L3)
+- [x] CD-02: audit-criteria.md Secretless publish 기준 추가/확장 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:27` — PyPI/npm Trusted Publishers, reusable workflow + OIDC. 출처: docs.pypi.org/trusted-publishers (L3)
+- [x] CD-03: init-checklist.md SLSA provenance + Trusted Publishers 항목 추가 — PASS
+  - 근거: `infra-kit/references/init-checklist.md:39` SLSA provenance 체크 항목, `라인 42` Trusted Publishers 텍스트 언급. 계약 "그룹화해도 무방" 조항 충족 (L3)
 
-### RV: backend-reviewer 에이전트 갱신 (2/2)
+### GO: GitOps 2026 (2/2)
 
-- [x] RV-01: `backend-reviewer.md` audit-criteria.md 유일한 진실원천 문장 유지 + Architecture 카테고리 1번 위치 + 과복잡도 FAIL 사유 명시 — PASS
-  - 근거: `backend-kit/agents/backend-reviewer.md:27,29,39` (L3)
-- [x] RV-02: 출력 포맷 일반 컬럼 유지(카테고리|판정|파일:라인|근거|출처) — Architecture 자연 포함 가능, 추가 변경 불필요 self-audit 명시 — PASS
-  - 근거: `backend-kit/agents/backend-reviewer.md:49-52` (L3)
+- [x] GO-01: principle-index.md deployment-strategies 키워드에 Flux 추가 — PASS
+  - 근거: `infra-kit/references/principle-index.md:15` — "ArgoCD, Flux, Argo Rollouts" 포함 (L3)
+- [x] GO-02: audit-criteria.md Deployment 표 GitOps source-of-truth 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:123` — Argo CD/Flux 클러스터 직접 변경 금지. 출처: argoproj.github.io/argo-rollouts/ + fluxcd.io/blog/2025/05/flux-v2.6.0/ (L3)
 
-### QO: 과복잡도 경고 (1/1)
+### OB: Observability 2026 (2/2)
 
-- [x] QO-01: `backend-system/SKILL.md` Gotcha #4에 Hexagonal/Clean/DDD 키워드 + "bounded context 2+" 문장 + 출처 — PASS
-  - 근거: `backend-kit/skills/backend-system/SKILL.md:19` (L3)
+- [x] OB-01: audit-criteria.md Observability 표 OTel 3 신호 통합 기준 추가 — PASS
+  - 근거: `infra-kit/references/audit-criteria.md:106` — OTel SDK/Collector, Logs spec 2025 stable, semconv. 출처: opentelemetry.io/docs/specs/status/ + opentelemetry.io/docs/specs/semconv/ (L3)
+- [x] OB-02: init-checklist.md 관측성 섹션 OTel Collector/OTLP 항목 추가 — PASS
+  - 근거: `infra-kit/references/init-checklist.md:72` — OTel Collector + OTLP, 3 신호, semantic conventions. 출처: opentelemetry.io/docs/specs/status/ (L3)
+
+### RV: infra-reviewer 에이전트 동기화 (2/2)
+
+- [x] RV-01: infra-reviewer.md audit-criteria.md SSOT 문장 유지 + Supply Chain 카테고리 반영 — PASS
+  - 근거: `infra-kit/agents/infra-reviewer.md:28` SSOT 문장, `라인 36` Supply Chain 6번 카테고리 (L3)
+- [x] RV-02: 출력 포맷 테이블 기존 컬럼 유지 — PASS
+  - 근거: `infra-kit/agents/infra-reviewer.md:46-47` — 카테고리/판정/파일:라인/근거/출처 컬럼 유지 (L3)
+
+### GQ: Gotcha (2/2)
+
+- [x] GQ-01: infra-init SKILL.md Gotcha #2 Supply chain/IDP 문장 추가 — PASS
+  - 근거: `infra-kit/skills/infra-init/SKILL.md:17` — Cosign/SLSA/SBOM, Backstage/Port, 규모·위험도·팀 역량 준비 시만 제안. 1~3인 소규모 팀 IDP 강요 금지 (L3)
+- [x] GQ-02: infra-guide SKILL.md Gotcha #1 벤더 중립 + supply-chain/platform-engineering 문장 추가 — PASS
+  - 근거: `infra-kit/skills/infra-guide/SKILL.md:15` — Chainguard/Backstage 강제 금지, CycloneDX/SPDX/in-toto/OCI 상호운용 표준 기준 (L3)
 
 ### I: 인프라 / 품질 게이트 (8/8)
 
-- [x] I-01: `validate-plugin backend-kit` → V1~V7 전부 OK — PASS
-  - 근거: 실행 결과 `Total: 1 plugins, 1 OK, Exit: 0` (L3)
-- [x] I-02: 전체 7 킷 → Total 7 OK, Exit 0 — PASS
-  - 근거: 실행 결과 `Total: 7 plugins, 7 OK, Exit: 0` (L3)
-- [x] I-03: `sync-docs --check-only` → 모든 README 동기화 상태 — PASS
-  - 근거: 실행 결과 "모든 README가 동기화 상태입니다." (L3)
-- [x] I-04: bare code fence 0건 (V6 code-fence OK) — PASS
-  - 근거: validate-plugin `V6 code-fence  0 bare — OK` (L3)
-- [x] I-05: MD031/MD032/MD060/MD028/MD034/MD033 위반 0건 — PASS [정적]
-  - 근거: 변경 파일에 code block 없음, bare URL 없음, 인라인 HTML 없음 (frontmatter 내 `<target-path>`는 YAML 영역으로 적용 제외). markdownlint 직접 실행 불가 — 정적 검증으로 판정. (L2)
-- [x] I-06: 변경 파일이 Scope(7개 backend-kit 파일) 내에만 존재, Phase 1~6 미수정 — PASS
-  - 근거: `git diff --name-only 20a8415 1896c80` 결과 정확히 7개 backend-kit 파일만 (L3)
-- [x] I-07: commit prefix `kaizen(phase7-research):` + 한국어 본문, hash 1896c80 — PASS
-  - 근거: `git log --oneline -1` 1896c80 확인 (L3)
+- [x] I-01: validate-plugin.py infra-kit → V1~V7 전부 OK — PASS
+  - 근거: 실행 결과 "Total: 1 plugins, 1 OK, Exit: 0" (L3)
+- [x] I-02: 전체 7킷 validate-plugin → Total 7 OK, Exit 0 — PASS
+  - 근거: 실행 결과 "Total: 7 plugins, 7 OK, Exit: 0" (L3)
+- [x] I-03: sync-docs.py --check-only → 모든 README 동기화 상태 — PASS
+  - 근거: 실행 결과 "모든 README가 동기화 상태입니다" (L3)
+- [x] I-04: bare code fence 0건 — PASS
+  - 근거: V6 code-fence OK (validate-plugin 실행 결과). 라인 56의 닫는 fence는 표준 Markdown 닫기 패턴 (L3)
+- [x] I-05: markdownlint 주요 규칙 위반 0건 — PASS
+  - 근거: 모든 URL이 `[텍스트](URL)` 형식, bare URL 없음. code fence에 언어 힌트 존재. markdownlint 도구 미설치로 정적 검증 (L2) [정적]
+- [x] I-06: scope 외 파일 수정 없음 — PASS
+  - 근거: commit aa8e114 변경 파일 8개 전부 scope 내 (.harness/sprint-contract.md 허용) (L3)
+- [x] I-07: commit 메시지 prefix `kaizen(phase8-research):` + 한국어 본문 — PASS
+  - 근거: commit aa8e114 메시지 "kaizen(phase8-research): infra-kit 2026 K8s/Terraform/OpenTofu/Supply Chain/Observability 반영" (L3)
 - [x] I-08: 브랜치 `kaizen/2026-04-11-research`, push 금지 — PASS
-  - 근거: `git branch` 현재 브랜치 확인 (L3)
+  - 근거: `git branch --show-current` 결과 "kaizen/2026-04-11-research" (L3)
 
 ### TR: Trace / 출처 / 2026 트렌드 (3/3)
 
-- [x] TR-01: 신규 출처 URL 17개 (최소 6개 충족) — PASS
-  - 근거: grep 결과 17개 고유 URL (Hexagonal/DDD + 하이브리드 API + OpenAPI 3.1 + AsyncAPI 3 + RFC 9700/DPoP + Outbox/CQRS + Pact/Testcontainers 전 카테고리 커버) (L3)
-- [x] TR-02: backend-kit 파일 내 실제 URL 인용 확인 — PASS
-  - 근거: grep -roh 결과 모든 URL이 backend-kit/skills/, backend-kit/agents/ 하위 파일에서 실제 인용 (L3)
-- [x] TR-03: 리포트 내 리서치 출처 URL 목록 (최소 6개) — PASS
-  - 아래 목록 참조
+- [x] TR-01: 순증 URL 8개 이상 (K8s 2+ / Terraform 1 / OpenTofu 1 / Supply Chain 2 / IDP 1 / Observability 1 mix) — PASS
+  - 근거: K8s 3개 + Terraform 2개 + OpenTofu 2개 + Supply Chain 8개 + Observability 2개 + CI/CD 4개 + Deployment 2개 = 고유 URL 21개 (L3)
+- [x] TR-02: sprint-contract.md 외 실제 변경 파일 내 URL 인용 — PASS
+  - 근거: audit-criteria.md, init-checklist.md에 URL 직접 인용 확인 (L3)
+- [x] TR-03: 리포트에 리서치 출처 URL 목록 (최소 8개) 명시 — PASS
+  - 근거: commit aa8e114 메시지에 21개 URL 목록 기재 + 본 피드백 TR-01 근거 (L3)
 
-### Anti-patterns (3/3)
+### Anti-patterns (PASS)
 
-- [x] AP-01 (hardcoded version): 해당 없음 — PASS
-- [x] AP-02 (git force push): 해당 없음 — PASS
-- [x] AP-03 (bare code fence): V6 0건 확인 — PASS
+- [x] AP-01: hardcoded version 없음 — PASS
+- [x] AP-02: force push 없음 — PASS
+- [x] AP-03: bare code fence 0건 — PASS (V6 OK 검증. 라인 56은 닫는 fence로 표준 패턴)
+- [x] AP-04: SKILL.md/agents name 필드 — PASS (V1 OK)
 
-## 리서치 출처 URL 목록 (TR-03)
+### Reusability (PASS)
 
-1. [Hexagonal vs Clean vs Onion 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f) — Hexagonal/Clean/DDD
-2. [GraphQL vs REST vs gRPC 2026 — Java Code Geeks](https://www.javacodegeeks.com/2026/02/graphql-vs-rest-vs-grpc-the-2026-api-architecture-decision.html) — 하이브리드 API
-3. [OpenAPI Spec 3.1 — Swagger](https://swagger.io/specification/) — OpenAPI 3.1
-4. [AsyncAPI 3.0 spec](https://www.asyncapi.com/docs/reference/specification/v3.0.0) — AsyncAPI 3
-5. [RFC 9700 OAuth 2.0 BCP](https://datatracker.ietf.org/doc/rfc9700/) — OAuth 2.1 BCP
-6. [Kong DPoP — demonstrating proof of possession](https://konghq.com/blog/engineering/demonstrating-proof-of-possession-dpop-preventing-illegal-access-of-apis) — DPoP
-7. [microservices.io Outbox Pattern](https://microservices.io/patterns/data/transactional-outbox.html) — Outbox
-8. [prgrmmng Pact + Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact) — Pact v4+
-9. [AWS Prescriptive Hexagonal Architecture](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) — Hexagonal
-10. [Vaadin DDD + Hexagonal](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) — DDD
+- 새 컴포넌트 없음 (references 문서 갱신). 중복 공유 경로 위반 없음.
+
+### Diagnostics (PASS)
+
+- validate-plugin 7 OK, sync-docs 동기화, bare fence 0건
 
 ## Summary
 
-- Total: 32/32 conditions passed
-- Verdict: **APPROVE**
-- commit hash: 1896c80
-- 브랜치: kaizen/2026-04-11-research
-- validate-plugin: 7 plugins 7 OK (Exit 0)
-- bare code fence: 0건
-- 리서치 URL 인용: 17개 고유 URL (최소 6개 요건 충족)
+- Total: 40/40 conditions passed
+- Verdict: APPROVE
+- Commit: aa8e114
+- Branch: kaizen/2026-04-11-research
 
-## 미검증 사항
+## 리서치 출처 URL 목록 (TR-03)
 
-- I-05: markdownlint 직접 실행 불가 (미설치) — 정적 검증으로 대체 (L2). 새로 추가된 내용은 표(|...|) + 산문 위주로 code block 없음. 위반 가능성 매우 낮음으로 판단.
+1. https://kubernetes.io/docs/concepts/security/pod-security-admission/
+2. https://kubernetes.io/docs/concepts/services-networking/ingress/
+3. https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers
+4. https://developer.hashicorp.com/terraform/language/ephemeral
+5. https://developer.hashicorp.com/terraform/language/tests
+6. https://opentofu.org/docs/v1.11/language/state/encryption/
+7. https://opentofu.org/docs/language/meta-arguments/for_each/
+8. https://slsa.dev/spec
+9. https://slsa.dev/provenance
+10. https://docs.sigstore.dev/cosign/verifying/attestation/
+11. https://docs.pypi.org/trusted-publishers/
+12. https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect
+13. https://docs.github.com/en/actions/how-tos/security-for-github-actions/security-hardening-your-deployments/using-openid-connect-with-reusable-workflows
+14. https://trivy.dev/docs/dev/guide/supply-chain/sbom/
+15. https://github.com/anchore/syft
+16. https://falco.org/
+17. https://tetragon.io/
+18. https://edu.chainguard.dev/chainguard/chainguard-images/overview/
+19. https://opentelemetry.io/docs/specs/status/
+20. https://opentelemetry.io/docs/specs/semconv/
+21. https://argoproj.github.io/argo-rollouts/
+22. https://fluxcd.io/blog/2025/05/flux-v2.6.0/
 
-## 런타임 검증
-
-⚠️ 런타임 검증 미수행 — MCP 서버 미설정 (project.yaml mcp_server: null)
+⚠️ 런타임 검증 미수행 — MCP 서버 미설정 (project.yaml runtime_inspection.mcp_server: null)
