@@ -1,100 +1,109 @@
 # Sprint Feedback
-Feature: flutter-toolkit 18개 스킬 + widget-inspector + references 2026 최신 Flutter/Riverpod/Freezed/go_router 트렌드 반영 카이젠 (Phase 5 research mode)
+Feature: design-kit Phase 6 Kaizen Research Mode (OKLCH + DTCG v1 + WCAG 2.2 + Container Queries + MD3 Expressive)
 Evaluated: 2026-04-11 21:30
 Verdict: APPROVE
 Iteration: 1
 
 ## Results
 
-### Provider — Riverpod 3.0 (4/4)
+### SK: design-concept SK-06 재발 방지 (3/3)
+- [x] SK-01: Gotcha #3 SK-06 글로벌 피드백 인용 + bash 검증 명령 3개 — PASS
+  - 근거: `design-kit/skills/design-concept/SKILL.md:21` — "재발 방지 — SK-06 (2026-04-10 글로벌 피드백):" 명시; L37 ```bash 코드블록에 grep hex 명령 + 5개 역할 행 확인 + oklch() 0건 확인 명령 (L3)
+- [x] SK-02: Step 4 말미 Gotcha #3 검증 체크리스트 실행 체크포인트 — PASS
+  - 근거: `design-kit/skills/design-concept/SKILL.md:168` — "생성/갱신 직후 반드시 Gotcha #3의 검증 체크리스트 3개를 실행하라." + "이 체크포인트는 SK-06 재발 방지의 핵심이므로 '나중에' 미루지 마라." (L3)
+- [x] SK-03: Bad/Good 예시 `text` 언어 힌트 유지, bare fence 0건 — PASS
+  - 근거: `design-kit/skills/design-concept/SKILL.md:25,30` — Bad/Good 예시 ```text 힌트; validate-plugin V6 "0 bare — OK" (L3)
 
-- [x] PR-01: Riverpod 3.0 Notifier 재생성 라이프사이클 경고 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:19` — "Riverpod 3.0 Notifier 재생성 라이프사이클 — 2.x의 pseudo-singleton 동작이 폐기됐다. provider 가 rebuild 될 때마다 Notifier 도 재생성되므로 Timer/StreamSubscription/TextEditingController 등 생명주기 객체를 Notifier 의 필드로 직접 유지하면 리소스 누수가 발생한다. 해결: 해당 객체를 별도 provider 로 분리하고 ref.onDispose(() => controller.dispose()) 로 바인딩한다. (출처: https://riverpod.dev/docs/3.0_migration, https://riverpod.dev/docs/whats_new)"
-- [x] PR-02: StateNotifierProvider / StateProvider / ChangeNotifierProvider legacy 분류 명시 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:20` — "Riverpod 3.0 legacy provider — StateNotifierProvider, StateProvider, ChangeNotifierProvider 는 3.0 에서 legacy 로 분류됐다. 신규 코드는 @riverpod / Notifier / AsyncNotifier 기반으로 작성한다. (출처: https://pub.dev/packages/flutter_riverpod/changelog)"
-- [x] PR-03: == 기반 알림 필터링 + StreamProvider/StreamNotifier 영향 경고 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:21` — "Riverpod 3.0 == 기반 알림 필터링 — 3.0 부터 모든 provider 가 상태 알림을 == 비교로 필터링한다. 특히 StreamProvider/StreamNotifier 에서 값 동등성이 있는 이벤트는 listener 에 전달되지 않는다. ... (출처: https://riverpod.dev/docs/whats_new)"
-- [x] PR-04: Freezed sealed Result 기반이면 switch expression 사용 가이드 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:17` — "프로젝트 Result 타입이 Freezed sealed class 기반이면 .when 대신 Dart pattern matching (switch expression) 사용 — Freezed 3.0부터 .when/.map 메서드가 제거되었다 (출처: https://pub.dev/packages/freezed/changelog)"
+### DS: design-system OKLCH + DTCG v1 + MD3 Expressive (4/4)
+- [x] DS-01: OKLCH 권장 Gotcha #11 — 필수 문구 4개 요소 + URL 4개 — PASS
+  - 근거: `design-kit/skills/design-system/SKILL.md:26` — Gotcha #11 "컬러 primitive는 OKLCH 권장 (2026 표준)"; Tailwind v4/shadcn v4, Safari 16.4+/Chrome 111+/Firefox 128+, Figma hex 근사치 관행, 4개 출처 URL (L3)
+- [x] DS-02: DTCG v1 스키마 준수 Gotcha #12 — $value/$type/$description + dot notation + 금지사항 + URL — PASS
+  - 근거: `design-kit/skills/design-system/SKILL.md:27` — DTCG v1 stable 2025-10-28 기준 모든 요소 포함; W3C DTCG URL 포함 (L3)
+- [x] DS-03: Step 2에 MD3 Expressive HCT tonal palette + URL — PASS
+  - 근거: `design-kit/skills/design-system/SKILL.md:79` — "참고 — Material 3 Expressive (2025-05 발표, Android 16):" HCT tonal, variable font axes, springy motion; Supercharge + Dezeen URL (L3)
+- [x] DS-04: token-principles.md 섹션 6 "DTCG v1 포맷 (2025-10-28 stable)" + json 코드블록 + URL 3개 — PASS
+  - 근거: `design-kit/skills/design-system/references/token-principles.md:55-104` — 섹션 6 신규 추가, ```json 코드블록 L74, 기존 1~5 섹션 유지 (L3)
 
-### Hooks — flutter_hooks + context.mounted (2/2)
+### AU: design-audit WCAG 2.2 반영 (5/5)
+- [x] AU-01: design-audit/SKILL.md Gotcha #3 WCAG 2.2 SC 2.5.8 24×24 CSS px AA 명시 — PASS
+  - 근거: `design-kit/skills/design-audit/SKILL.md:19-24` — SC 2.5.8 AA=24px, SC 2.5.5 AAA=44px, Apple HIG 44pt 구분, W3C URL 2개 (L3)
+- [x] AU-02: Step 2 Accessibility 행 WCAG 2.2 신규 SC 3개 이상 — PASS
+  - 근거: `design-kit/skills/design-audit/SKILL.md:54` — SC 2.4.11, SC 2.5.7, SC 3.3.8 포함 (L3)
+- [x] AU-03: audit-criteria.md Spacing 터치 타겟 행 WCAG 2.2 SC 2.5.8/2.5.5/Apple HIG 3행으로 갱신 — PASS
+  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:27-29` — 3개 행 분리 + URL 각각 포함 (L3)
+- [x] AU-04: audit-criteria.md WCAG 2.2 신규 SC 섹션 8개 기준 표 — PASS
+  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:41-55` — 8개 SC 기준, PASS 조건 + URL 각각 포함 (L3)
+- [x] AU-05: audit-criteria.md APCA 보조 체크 NOTE 섹션 — PASS
+  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:57-63` — WCAG 2.2 AA가 컴플라이언스 타겟, Lc 60/75 임계값, 3개 URL (L3)
 
-- [x] HK-01: async gap 후 context.mounted 체크 필수 명시 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-hooks/SKILL.md:21` — "async 메서드에서 showDialog / Navigator.push / Future<T> 결과 수신 후 같은 BuildContext 를 재사용하기 전에는 반드시 if (!context.mounted) return; — async gap 동안 위젯이 dispose 되면 context.pop, ScaffoldMessenger.of(context), Theme.of(context) 호출이 크래시로 이어진다. ref.mounted 는 Notifier 생명주기, context.mounted 는 Widget 생명주기이므로 둘은 별개다 (apps sprint-feedback iter 2, UI-06 / AR-01 FIX 패턴 기반)"
-- [x] HK-02: build() 100줄 이하 권장 노트 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-hooks/SKILL.md:25` — "build() 메서드는 100줄 이하 권장 — 그 이상이면 private Widget 클래스로 분리하여 composition 을 적용하라. 합성이 메서드 분리보다 성능·재사용성·테스트 가능성 모두 우수하다 (Flutter 공식 AI rules + apps CG-12 관습)" — 금지가 아닌 권장 표현으로 정확히 반영됨
+### DR: design-reviewer WCAG 2.2 반영 (2/2)
+- [x] DR-01: Spacing 카테고리에 SC 2.5.8 AA=24px / SC 2.5.5 AAA=44px / Apple HIG 44pt 구분 — PASS
+  - 근거: `design-kit/agents/design-reviewer.md:41` — 계약 요구 형식 정확 충족 (L3)
+- [x] DR-02: Accessibility 카테고리에 Focus Not Obscured SC 2.4.11 AA 체크포인트 — PASS
+  - 근거: `design-kit/agents/design-reviewer.md:48` — "Focus Not Obscured (WCAG 2.2 SC 2.4.11 AA)" (L3)
 
-### Screen / Router — go_router 2026 (2/2)
+### RE: Container Queries 반영 (2/2)
+- [x] RE-01: audit-criteria.md Layout & Grid Container Queries 행 + URL 3개 — PASS
+  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:96` — inline-size 권장, block-size 금지, 2026 Baseline, MDN/web.dev/LogRocket URL (L3)
+- [x] RE-02: design-guide/SKILL.md layout & grid 행에 container query/@container/inline-size/self-aware component 키워드 — PASS
+  - 근거: `design-kit/skills/design-guide/SKILL.md:40` — 4개 키워드 모두 포함 (L3)
 
-- [x] SC-01: StatefulShellRoute + StatefulShellBranch 분기 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-screen/SKILL.md:188-221` — "#### StatefulShellRoute (바텀 네비 탭 + 탭별 독립 스택)" 섹션이 신규로 추가됨. StatefulShellRoute.indexedStack builder + branches: [StatefulShellBranch(routes: [GoRoute(...)])] 완전한 코드 예시 포함. "2026 기준 go_router 공식 권장 패턴" 명시
-- [x] SC-02: StatefulShellBranch.preload 파라미터 언급 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-screen/SKILL.md:208-209` — 코드 예시 내 `// preload: true → 탭 최초 진입 전에 미리 빌드 (go_router 최신 지원)`, `preload: true,` 명시
+### GU: 기타 갱신 (3/3)
+- [x] GU-01: design-component/SKILL.md Gotcha #3 DTCG v1 alias dot notation + URL — PASS
+  - 근거: `design-kit/skills/design-component/SKILL.md:19` — "DTCG v1 (2025-10-28 stable) dot notation" + URL (L3)
+- [x] GU-02: design-mockup/SKILL.md Gotcha #3 WCAG 2.2 SC 2.5.8 AA=24px 맥락 추가 — PASS
+  - 근거: `design-kit/skills/design-mockup/SKILL.md:19` — "WCAG 2.2 SC 2.5.8 AA = 24×24 CSS px" + URL (L3)
+- [x] GU-03: design-reference/SKILL.md ZERO change — PASS
+  - 근거: commit 929b3b1 변경 파일 9개에 design-reference/SKILL.md 미포함; ZERO change 허용 (계약 명시) (L2)
 
-### Error Handling — Freezed 3.0 대응 (1/1)
+### I: 인프라/품질 게이트 (7/8)
+- [x] I-01: design-kit validate-plugin V1~V7 전부 OK — PASS
+  - 근거: `python3 scripts/validate-plugin.py design-kit` → Total: 1 plugins, 1 OK, Exit: 0 (L3)
+- [x] I-02: 전체 7 킷 validate-plugin Total 7 OK, Exit 0 — PASS
+  - 근거: `python3 scripts/validate-plugin.py` → Total: 7 plugins, 7 OK, Exit: 0 (L3)
+- [x] I-03: sync-docs.py --check-only → "모든 README가 동기화 상태" — PASS
+  - 근거: `python scripts/sync-docs.py --check-only` → "모든 README가 동기화 상태입니다." (L3)
+- [x] I-04: bare code fence 0건 — PASS
+  - 근거: validate-plugin V6 "0 bare — OK" (L3)
+- [ ] I-05: markdownlint 주요 규칙 위반 0건 — [미검증]
+  - 근거: markdownlint 미설치 환경. 수동 검토 기준 명백한 MD031/MD032/MD060/MD028/MD034/MD033 위반 없음. markdownlint 설치 후 수동 확인 권장.
+- [x] I-06: git working tree 수정 파일 scope 내 유지 — PASS
+  - 근거: `git diff --name-only HEAD~1 HEAD` → 9개 파일 전부 design-kit/ 내부 (L3)
+- [x] I-07: commit 메시지 prefix `kaizen(phase6-research):` + 한국어 본문 — PASS
+  - 근거: commit hash 929b3b1 — "kaizen(phase6-research): design-kit OKLCH + DTCG v1 + WCAG 2.2 + Container Queries + Material 3 Expressive 2026 반영" (L3)
+- [x] I-08: 브랜치 kaizen/2026-04-11-research 유지, push 금지 — PASS
+  - 근거: `git branch` → "* kaizen/2026-04-11-research" (L2)
 
-- [x] ER-01: Result.when 패턴 예시에 "Freezed sealed 기반이면 switch expression" 주석 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-error/SKILL.md:20` (Gotcha) — "프로젝트 Result 타입이 Freezed sealed class 기반이면 .when(success:, failure:) 가 아니라 Dart pattern matching (switch expression) 으로 분기하라 — Freezed 3.0 부터 .when/.map 메서드가 제거됐다. (출처: https://pub.dev/packages/freezed/changelog)"
-  - `flutter-toolkit/skills/flutter-error/SKILL.md:209-220` — 패턴 C' 예시: `switch (result) { case Success(:final data): ... case Failure(:final failure): ... }` 코드 추가됨
+### TR: 출처/트렌드 (3/3)
+- [x] TR-01: 5개 카테고리 URL 각 1개 이상 — PASS
+  - 근거: OKLCH(evilmartians), DTCG(W3C 2025-10-28), WCAG 2.2(w3.org/WAI), MD3 Expressive(supercharge.design), Container Queries(MDN) — 5개 카테고리 충족 (L3)
+- [x] TR-02: SK-06 (2026-04-10) 식별자 참조 — PASS
+  - 근거: `design-kit/skills/design-concept/SKILL.md:21` — "SK-06 (2026-04-10 글로벌 피드백)" (L3)
+- [x] TR-03: 이 리포트에 출처 URL 5개 이상 명시 — PASS
+  - 출처 URL 목록:
+    1. https://tailwindcss.com/blog/tailwindcss-v4 (OKLCH / Tailwind v4)
+    2. https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/ (DTCG v1)
+    3. https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/ (WCAG 2.2 신규 SC)
+    4. https://supercharge.design/blog/material-3-expressive (MD3 Expressive)
+    5. https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries (Container Queries)
+    6. https://evilmartians.com/chronicles/better-dynamic-themes-in-tailwind-with-oklch-color-magic (OKLCH extra)
 
-### Audit — Riverpod 3.0 + Freezed 3.0 (2/2)
-
-- [x] AU-01: State Management 체크리스트에 Notifier 내부 Timer/Controller 금지 항목 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-audit/SKILL.md:101` — "Riverpod 3.0: Notifier 내부 필드로 Timer / StreamSubscription / TextEditingController 등 생명주기 객체를 직접 유지하지 않음 — 2.x pseudo-singleton 동작이 폐기되어 provider rebuild 마다 Notifier 가 재생성되므로 리소스 누수 발생. 이런 객체는 별도 provider 로 분리 후 ref.onDispose 로 바인딩"
-- [x] AU-02: Result.when 체크 항목에 "Freezed sealed 기반이면 switch expression" 병기 — PASS (L3)
-  - 근거: `flutter-toolkit/skills/flutter-audit/SKILL.md:103` — "프로젝트에 Result 타입이 있으면 Result.when(success:, failure:) 분기 사용. 단 Result 가 Freezed sealed class 기반이면 Freezed 3.0 에서 .when/.map 이 제거됐으므로 Dart pattern matching (switch expression) 사용 ([Freezed changelog](https://pub.dev/packages/freezed/changelog))"
-
-### Widget Inspector (1/1)
-
-- [x] WI-01: HookWidget + @freezed Props 번들링 준수 여부 감지 기준 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/agents/widget-inspector.md:85-99` — "### 5. Props 번들링 위반 (HAS_FREEZED + HAS_HOOKS)" 섹션 신규 추가. HAS_FREEZED = true 와 HAS_HOOKS = true 동시 감지 시 HookWidget/HookConsumerWidget 의 개별 파라미터 나열 패턴 탐지. 판단 기준(2개 초과 파라미터, Named constructor variant 면제), Step 2에 "Props 번들링 위반 (HAS_FREEZED + HAS_HOOKS 프로젝트에서만)" 추가됨
-
-### References — Project Detection + flutter-ai-rules (3/3)
-
-- [x] RD-01: project-detection.md 에 Makefile 기반 monorepo 감지 추가 — PASS (L3)
-  - 근거: `flutter-toolkit/references/project-detection.md:32-46` — "### Step 2b. Makefile 기반 monorepo 감지" 신규 섹션. Makefile 존재 확인 후 app-run, app-run-staging, app-run-prod, app-run-profile, app-test, app-analyze, app-fix, app-clean, app-codegen, app-codegen-filter, app-build, app-preflight 타겟 중 하나 이상 있으면 HAS_MAKEFILE = true. $MAKE = make 변수 제공. fit-pal sprint-feedback iter 2 AC-6 출처 명시
-- [x] RD-02: HAS_MAKEFILE 스킬 매핑 테이블 추가 + flutter-preflight/flutter-run 우선 사용 연동 — PASS (L3)
-  - 근거: `flutter-toolkit/references/project-detection.md:48-57` — "HAS_MAKEFILE = true 일 때 주요 스킬 매핑" 테이블. flutter-run codegen / analyze / fix / test / flutter-preflight / flutter-build 모두 Makefile 우선 동작 명시. `flutter-toolkit/references/project-detection.md:136-147` — 감지 결과 요약 템플릿에 "Makefile: {true|false}" 필드 추가
-- [x] RD-03: flutter-ai-rules.md 2026 생태계 노트 + 최종 확인 날짜 2026-04-11 갱신 — PASS (L3)
-  - 근거: `flutter-toolkit/references/flutter-ai-rules.md:4` — "최종 확인: 2026-04-11" / `:70` — "최종 리서치: 2026-04-11 (WebSearch)" / `:68` — "## 2026 생태계 노트 (Riverpod 3.0 / Freezed 3.0 / go_router / Flutter 3.29+)" / Lines 74-113 — Riverpod 3.0, Freezed 3.0, go_router, Flutter 3.29, flutter_hooks, Makefile monorepo 각 서브섹션 모두 출처 URL 포함
-
-### Anti-patterns (3/3)
-
-- [x] AP-01: hardcoded version 없음 — PASS (L1)
-- [x] AP-02: git push --force 없음 — PASS (L1)
-- [x] AP-03: bare code fence 0건 — PASS (L3)
-  - 검증: `python3` 스크립트로 개방 bare fence (`^\`\`\`\s*$` 이 opening 위치에 해당하는 것) 탐지 결과 0건. 나타나는 `\`\`\`` 라인은 모두 닫힘 fence(closing)임을 in_block 상태 추적으로 확인
-- [x] AP-04: 모든 SKILL.md / agents/*.md frontmatter에 name 필드 존재 — PASS (L2)
-
-### 스프린트 전용 규칙 (4/4)
-
-- [x] Phase 1~4 파일(harness/**) 수정 금지 — PASS (L3)
-  - 근거: `git show 515b66a --name-only` 결과에 harness/ 경로 파일 없음. eb88cc2 commit도 flutter-toolkit/agents/widget-inspector.md 1파일만 변경
-- [x] flutter-toolkit plugin.json 버전 bump 없음 (Final Phase 대기) — PASS (L3)
-  - 근거: `flutter-toolkit/.claude-plugin/plugin.json` version: "0.5.0" 유지. 515b66a 변경 파일 목록에 plugin.json 없음
-- [x] 리서치 소스 URL 인용 — PASS (L3)
-  - Riverpod: riverpod.dev/docs/3.0_migration, riverpod.dev/docs/whats_new, pub.dev/packages/riverpod/changelog, pub.dev/packages/flutter_riverpod/changelog
-  - Freezed: pub.dev/packages/freezed/changelog
-  - go_router: pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html, pub.dev/packages/go_router/changelog
-  - Flutter 3.29+: docs.flutter.dev/release/release-notes/release-notes-3.29.0, docs.flutter.dev/release/breaking-changes
-  - flutter_hooks: pub.dev/packages/flutter_hooks, riverpod.dev/docs/concepts/about_hooks
-
-### Regression 검증 (3/3)
-
-- [x] VG-01: python3 scripts/validate-plugin.py 7 OK — PASS (L3)
-  - 근거: 실행 결과 "Total: 7 plugins, 7 OK / Exit: 0" — flutter-toolkit 포함 전 킷 OK
-- [x] VG-02: python3 scripts/sync-docs.py --check-only — 동기화 완료 — PASS (L3)
-  - 근거: 실행 결과 "모든 README가 동기화 상태입니다."
-- [x] VG-03: 변경된 markdown 파일에 bare code fence 0건 — PASS (L3)
-  - 근거: 8개 파일 전수 검사, 개방 bare fence 없음
+### Anti-patterns (4/4)
+- [x] AP-01: hardcoded.*version 패턴 0건 — PASS
+- [x] AP-02: git push.*--force 패턴 0건 — PASS
+- [x] AP-03: bare code fence 0건 — PASS (V6 OK)
+- [x] AP-04: frontmatter name 필드 누락 0건 — PASS (V1 OK)
 
 ## Summary
+- Total: 28/29 conditions passed (I-05 미검증 1건)
+- 미검증: 1건 (markdownlint 미설치)
+- Verdict: APPROVE
 
-- Total: 16/16 conditions passed
-- Verdict: **APPROVE**
+### 커밋 정보
+- Commit: `929b3b1`
+- Branch: `kaizen/2026-04-11-research`
 
-모든 13개 기능 조건 + 3개 검증 조건 전부 PASS. Phase 1~4 파일 미수정 확인, plugin.json 버전 bump 없음 확인, bare code fence 0건 확인.
-
-리서치 출처 URL이 모든 핵심 Gotcha에 직접 인라인으로 포함되어 있어 계약 요구사항의 "공식 출처 URL 인용" 조건을 L3 수준으로 충족함.
-
-Runtime inspection: MCP 서버 미설정 — 정적 검증만으로 판정. 정적 분석으로 16/16 PASS 달성.
+### 검증 깊이
+- L3 도달: 26/29 조건
+- L2 도달: 2/29 조건 (GU-03 ZERO change, I-08 push 여부)
+- 미검증: 1/29 조건 (I-05 markdownlint 미설치)
