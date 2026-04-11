@@ -19,8 +19,9 @@ import json
 import re
 import sys
 import tomllib
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 try:
     import yaml
@@ -28,23 +29,11 @@ except ImportError:
     print("ERROR: pyyaml 이 설치되지 않았습니다. pip install pyyaml 로 설치하세요.", file=sys.stderr)
     sys.exit(2)
 
-# ---------------------------------------------------------------------------
-# 상수 및 타입
-# ---------------------------------------------------------------------------
+from plugin_utils import load_marketplace, list_kits, read_text, parse_frontmatter, REPO_ROOT
 
-REPO_ROOT = Path(__file__).parent.parent
-MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
-
-# 각 체크의 CLI 이름
-CHECK_NAMES = {
-    "frontmatter": "V1",
-    "templates": "V2",
-    "refs": "V3",
-    "triggers": "V4",
-    "placeholders": "V5",
-    "code-fence": "V6",
-    "plugin-json": "V7",
-}
+# ---------------------------------------------------------------------------
+# 상수
+# ---------------------------------------------------------------------------
 
 # V5 --fix 치환 매핑: (패턴, 대체문자열)
 FIX_PLACEHOLDER_RULES = [
@@ -119,31 +108,28 @@ class PluginResult:
 
 
 # ---------------------------------------------------------------------------
-# 헬퍼
+# CheckContext
 # ---------------------------------------------------------------------------
 
-def load_yaml_frontmatter(text: str) -> tuple[dict | None, str]:
-    """마크다운 파일에서 YAML frontmatter 와 본문을 분리 파싱한다."""
-    if not text.startswith("---"):
-        return None, text
-    end = text.find("\n---", 3)
-    if end == -1:
-        return None, text
-    fm_text = text[3:end].strip()
-    body = text[end + 4:].lstrip("\n")
-    try:
-        data = yaml.safe_load(fm_text)
-        return data if isinstance(data, dict) else None, body
-    except yaml.YAMLError:
-        return None, body
+@dataclass
+class CheckContext:
+    """단일 킷 검증에 필요한 모든 컨텍스트."""
 
+    kit_path: Path
+    marketplace_data: dict
+    fix: bool = False
+    all_keywords: dict[str, set[str]] = field(default_factory=dict)
+    _file_cache: dict[Path, str] = field(default_factory=dict)
 
-def read_text(path: Path) -> str:
-    """UTF-8 로 파일을 읽는다. 실패 시 빈 문자열 반환."""
-    try:
-        return path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return ""
+    def read(self, path: Path) -> str:
+        """파일 내용을 캐시하여 반환한다."""
+        if path not in self._file_cache:
+            self._file_cache[path] = read_text(path)
+        return self._file_cache[path]
+
+    def invalidate(self, path: Path) -> None:
+        """fix 후 캐시를 무효화한다."""
+        self._file_cache.pop(path, None)
 
 
 # ---------------------------------------------------------------------------
@@ -151,19 +137,19 @@ def read_text(path: Path) -> str:
 # V1 — see harness/docs/guides/plugin-validation-guide.md §3.1
 # ---------------------------------------------------------------------------
 
-def check_v1_frontmatter(kit_path: Path) -> CheckResult:
+def check_v1_frontmatter(ctx: CheckContext) -> CheckResult:
     """SKILL.md 와 agents/*.md 의 YAML frontmatter 필수 필드를 검증한다."""
     result = CheckResult("V1", "frontmatter")
     required_skill = {"name", "description", "user-invocable"}
     required_agent = {"name", "description", "tools", "model"}
 
-    skill_files = sorted(kit_path.glob("skills/*/SKILL.md"))
-    agent_files = sorted(kit_path.glob("agents/*.md"))
+    skill_files = sorted(ctx.kit_path.glob("skills/*/SKILL.md"))
+    agent_files = sorted(ctx.kit_path.glob("agents/*.md"))
     failures: list[str] = []
 
     for path in skill_files:
-        text = read_text(path)
-        fm, _ = load_yaml_frontmatter(text)
+        text = ctx.read(path)
+        fm, _ = parse_frontmatter(text)
         rel = path.relative_to(REPO_ROOT)
         if fm is None:
             failures.append(f"FAIL {rel}: frontmatter 파싱 실패")
@@ -177,8 +163,8 @@ def check_v1_frontmatter(kit_path: Path) -> CheckResult:
                 failures.append(f"FAIL {rel}: 빈 필드 {sorted(empty)}")
 
     for path in agent_files:
-        text = read_text(path)
-        fm, _ = load_yaml_frontmatter(text)
+        text = ctx.read(path)
+        fm, _ = parse_frontmatter(text)
         rel = path.relative_to(REPO_ROOT)
         if fm is None:
             failures.append(f"FAIL {rel}: frontmatter 파싱 실패")
@@ -211,10 +197,10 @@ def check_v1_frontmatter(kit_path: Path) -> CheckResult:
 # V2 — see harness/docs/guides/plugin-validation-guide.md §3.2
 # ---------------------------------------------------------------------------
 
-def check_v2_templates(kit_path: Path) -> CheckResult:
+def check_v2_templates(ctx: CheckContext) -> CheckResult:
     """templates/ 내 JSON/YAML/TOML 파일을 표준 파서로 파싱 검증한다."""
     result = CheckResult("V2", "templates")
-    tmpl_dir = kit_path / "templates"
+    tmpl_dir = ctx.kit_path / "templates"
 
     if not tmpl_dir.exists():
         result.status = "OK"
@@ -241,7 +227,7 @@ def check_v2_templates(kit_path: Path) -> CheckResult:
             skipped += 1
             continue
 
-        text = read_text(path)
+        text = ctx.read(path)
         rel = path.relative_to(REPO_ROOT)
 
         if stem.endswith(".json"):
@@ -306,16 +292,16 @@ def _body_without_code_blocks(body: str) -> str:
     return "".join(result_lines)
 
 
-def check_v3_refs(kit_path: Path) -> CheckResult:
+def check_v3_refs(ctx: CheckContext) -> CheckResult:
     """SKILL.md 본문의 상대 경로 링크가 실제로 존재하는지 검증한다."""
     result = CheckResult("V3", "refs")
-    skill_files = sorted(kit_path.glob("skills/*/SKILL.md"))
+    skill_files = sorted(ctx.kit_path.glob("skills/*/SKILL.md"))
     total_links = 0
     failures: list[str] = []
 
     for skill_path in skill_files:
-        text = read_text(skill_path)
-        _, body = load_yaml_frontmatter(text)
+        text = ctx.read(skill_path)
+        _, body = parse_frontmatter(text)
         # 코드 블록 내부는 링크 검사 제외 (정규식 패턴 등 false-positive 방지)
         search_body = _body_without_code_blocks(body)
         for match in LINK_PATTERN.finditer(search_body):
@@ -358,15 +344,15 @@ def check_v3_refs(kit_path: Path) -> CheckResult:
 # V4 — see harness/docs/guides/plugin-validation-guide.md §3.4
 # ---------------------------------------------------------------------------
 
-def check_v4_triggers(kit_path: Path, all_keywords: dict[str, set[str]] | None = None) -> CheckResult:
+def check_v4_triggers(ctx: CheckContext) -> CheckResult:
     """description 에서 따옴표 키워드를 추출하여 킷 내부 중복을 검출한다."""
     result = CheckResult("V4", "triggers")
-    skill_files = sorted(kit_path.glob("skills/*/SKILL.md"))
+    skill_files = sorted(ctx.kit_path.glob("skills/*/SKILL.md"))
     keyword_map: dict[str, list[str]] = {}
 
     for skill_path in skill_files:
-        text = read_text(skill_path)
-        fm, _ = load_yaml_frontmatter(text)
+        text = ctx.read(skill_path)
+        fm, _ = parse_frontmatter(text)
         if not fm:
             continue
         desc = str(fm.get("description", ""))
@@ -384,14 +370,14 @@ def check_v4_triggers(kit_path: Path, all_keywords: dict[str, set[str]] | None =
             duplicates.append(f"WARN \"{kw}\" — {', '.join(skills)}")
 
     # 외부 킷 교차 중복 체크 (all_keywords 제공 시)
-    if all_keywords:
+    if ctx.all_keywords:
         for kw, skills in keyword_map.items():
-            for other_kit, other_kws in all_keywords.items():
-                if other_kit == kit_path.name:
+            for other_kit, other_kws in ctx.all_keywords.items():
+                if other_kit == ctx.kit_path.name:
                     continue
                 if kw in other_kws:
                     duplicates.append(
-                        f"WARN \"{kw}\" — {kit_path.name} / {other_kit} (cross-kit)"
+                        f"WARN \"{kw}\" — {ctx.kit_path.name} / {other_kit} (cross-kit)"
                     )
 
     unique_kws = len(keyword_map)
@@ -410,17 +396,17 @@ def check_v4_triggers(kit_path: Path, all_keywords: dict[str, set[str]] | None =
 # V5 — see harness/docs/guides/plugin-validation-guide.md §3.5
 # ---------------------------------------------------------------------------
 
-def check_v5_placeholders(kit_path: Path, fix: bool = False) -> CheckResult:
+def check_v5_placeholders(ctx: CheckContext) -> CheckResult:
     """SKILL.md, agents, README, references 에 TODO/TBD/FIXME 가 없는지 검증한다."""
     result = CheckResult("V5", "placeholders")
     failures: list[str] = []
     checked_files: list[Path] = []
 
     for glob_pat in PLACEHOLDER_GLOBS:
-        checked_files.extend(sorted(kit_path.glob(glob_pat)))
+        checked_files.extend(sorted(ctx.kit_path.glob(glob_pat)))
 
     for path in checked_files:
-        text = read_text(path)
+        text = ctx.read(path)
         lines = text.splitlines()
         file_hits: list[tuple[int, str]] = []
         for lineno, line in enumerate(lines, start=1):
@@ -429,7 +415,7 @@ def check_v5_placeholders(kit_path: Path, fix: bool = False) -> CheckResult:
 
         if file_hits:
             rel = path.relative_to(REPO_ROOT)
-            if fix:
+            if ctx.fix:
                 new_lines = []
                 for line in lines:
                     new_line = line
@@ -437,14 +423,15 @@ def check_v5_placeholders(kit_path: Path, fix: bool = False) -> CheckResult:
                         new_line = pat.sub(replacement, new_line)
                     new_lines.append(new_line)
                 path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+                ctx.invalidate(path)
                 failures.append(f"FIXED {rel}: {len(file_hits)} placeholder(s) replaced")
             else:
                 for lineno, snippet in file_hits:
                     failures.append(f"FAIL {rel}:{lineno} — {snippet[:80]}")
 
     if failures:
-        result.status = "WARN" if fix else "FAIL"
-        result.summary = f"{len(failures)} found{' (fixed)' if fix else ''}"
+        result.status = "WARN" if ctx.fix else "FAIL"
+        result.summary = f"{len(failures)} found{' (fixed)' if ctx.fix else ''}"
         result.details = failures
     else:
         result.status = "OK"
@@ -457,20 +444,20 @@ def check_v5_placeholders(kit_path: Path, fix: bool = False) -> CheckResult:
 # V6 — see harness/docs/guides/plugin-validation-guide.md §3.6
 # ---------------------------------------------------------------------------
 
-def check_v6_code_fence(kit_path: Path, fix: bool = False) -> CheckResult:
+def check_v6_code_fence(ctx: CheckContext) -> CheckResult:
     """마크다운 코드 블록 여는 fence 에 언어 힌트가 있는지 검증한다."""
     result = CheckResult("V6", "code-fence")
     md_files: list[Path] = []
-    md_files.extend(kit_path.glob("skills/*/SKILL.md"))
-    md_files.extend(kit_path.glob("agents/*.md"))
-    md_files.extend(kit_path.glob("references/*.md"))
-    if (kit_path / "README.md").exists():
-        md_files.append(kit_path / "README.md")
+    md_files.extend(ctx.kit_path.glob("skills/*/SKILL.md"))
+    md_files.extend(ctx.kit_path.glob("agents/*.md"))
+    md_files.extend(ctx.kit_path.glob("references/*.md"))
+    if (ctx.kit_path / "README.md").exists():
+        md_files.append(ctx.kit_path / "README.md")
 
     failures: list[str] = []
 
     for path in sorted(set(md_files)):
-        text = read_text(path)
+        text = ctx.read(path)
         lines = text.splitlines()
         in_block = False
         file_hits: list[int] = []
@@ -488,21 +475,22 @@ def check_v6_code_fence(kit_path: Path, fix: bool = False) -> CheckResult:
 
         if file_hits:
             rel = path.relative_to(REPO_ROOT)
-            if fix:
+            if ctx.fix:
                 new_lines = list(lines)
                 for lineno in file_hits:
                     idx = lineno - 1
                     indent = len(new_lines[idx]) - len(new_lines[idx].lstrip())
                     new_lines[idx] = " " * indent + "```text"
                 path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+                ctx.invalidate(path)
                 failures.append(f"FIXED {rel}: {len(file_hits)} bare fence(s) → ```text")
             else:
                 for lineno in file_hits:
                     failures.append(f"FAIL {rel}:{lineno} — bare ``` (no language hint)")
 
     if failures:
-        result.status = "WARN" if fix else "FAIL"
-        result.summary = f"{len(failures)} bare{' (fixed)' if fix else ''}"
+        result.status = "WARN" if ctx.fix else "FAIL"
+        result.summary = f"{len(failures)} bare{' (fixed)' if ctx.fix else ''}"
         result.details = failures
     else:
         result.status = "OK"
@@ -515,10 +503,10 @@ def check_v6_code_fence(kit_path: Path, fix: bool = False) -> CheckResult:
 # V7 — see harness/docs/guides/plugin-validation-guide.md §3.7
 # ---------------------------------------------------------------------------
 
-def check_v7_plugin_json(kit_path: Path, marketplace_data: dict) -> CheckResult:
+def check_v7_plugin_json(ctx: CheckContext) -> CheckResult:
     """plugin.json 버전과 marketplace.json 버전 태그를 비교한다."""
     result = CheckResult("V7", "plugin-json")
-    plugin_json_path = kit_path / ".claude-plugin" / "plugin.json"
+    plugin_json_path = ctx.kit_path / ".claude-plugin" / "plugin.json"
 
     if not plugin_json_path.exists():
         result.status = "FAIL"
@@ -526,19 +514,18 @@ def check_v7_plugin_json(kit_path: Path, marketplace_data: dict) -> CheckResult:
         return result
 
     try:
-        plugin_data = json.loads(read_text(plugin_json_path))
+        plugin_data = json.loads(ctx.read(plugin_json_path))
     except json.JSONDecodeError as exc:
         result.status = "FAIL"
         result.summary = f"plugin.json parse error — {exc}"
         return result
 
     plugin_version = plugin_data.get("version", "")
-    plugin_name = plugin_data.get("name", "")
 
     # marketplace 에서 이 킷 찾기
-    kit_name = kit_path.name
+    kit_name = ctx.kit_path.name
     market_entry = next(
-        (p for p in marketplace_data.get("plugins", []) if p.get("name") == kit_name),
+        (p for p in ctx.marketplace_data.get("plugins", []) if p.get("name") == kit_name),
         None,
     )
 
@@ -572,34 +559,26 @@ def check_v7_plugin_json(kit_path: Path, marketplace_data: dict) -> CheckResult:
 
 
 # ---------------------------------------------------------------------------
-# 킷 검증 오케스트레이터
+# CHECK_REGISTRY + validate_kit
 # ---------------------------------------------------------------------------
 
-def validate_kit(
-    kit_path: Path,
-    marketplace_data: dict,
-    enabled_checks: set[str],
-    fix: bool,
-    all_kit_keywords: dict[str, list[str]] | None = None,
-) -> PluginResult:
+CHECK_REGISTRY: dict[str, Callable[[CheckContext], CheckResult]] = {
+    "frontmatter": check_v1_frontmatter,
+    "templates": check_v2_templates,
+    "refs": check_v3_refs,
+    "triggers": check_v4_triggers,
+    "placeholders": check_v5_placeholders,
+    "code-fence": check_v6_code_fence,
+    "plugin-json": check_v7_plugin_json,
+}
+
+
+def validate_kit(ctx: CheckContext, enabled_checks: set[str]) -> PluginResult:
     """단일 킷에 대해 활성화된 체크를 모두 실행한다."""
-    result = PluginResult(kit_path.name, kit_path)
-
-    if "frontmatter" in enabled_checks:
-        result.checks.append(check_v1_frontmatter(kit_path))
-    if "templates" in enabled_checks:
-        result.checks.append(check_v2_templates(kit_path))
-    if "refs" in enabled_checks:
-        result.checks.append(check_v3_refs(kit_path))
-    if "triggers" in enabled_checks:
-        result.checks.append(check_v4_triggers(kit_path, all_kit_keywords))
-    if "placeholders" in enabled_checks:
-        result.checks.append(check_v5_placeholders(kit_path, fix))
-    if "code-fence" in enabled_checks:
-        result.checks.append(check_v6_code_fence(kit_path, fix))
-    if "plugin-json" in enabled_checks:
-        result.checks.append(check_v7_plugin_json(kit_path, marketplace_data))
-
+    result = PluginResult(ctx.kit_path.name, ctx.kit_path)
+    for name, fn in CHECK_REGISTRY.items():
+        if name in enabled_checks:
+            result.checks.append(fn(ctx))
     return result
 
 
@@ -693,26 +672,36 @@ def resolve_exit_code(results: list[PluginResult]) -> int:
     return 0
 
 
+def _collect_cross_kit_keywords(marketplace_data: dict) -> dict[str, set[str]]:
+    """V4 cross-kit 중복 검출용 전체 킷 키워드 사전 수집."""
+    all_kit_keywords: dict[str, set[str]] = {}
+    for kit_path in list_kits(marketplace_data):
+        kws: set[str] = set()
+        for sf in kit_path.glob("skills/*/SKILL.md"):
+            text = read_text(sf)
+            fm, _ = parse_frontmatter(text)
+            if fm:
+                desc = str(fm.get("description", ""))
+                for m in KEYWORD_PATTERN.finditer(desc):
+                    kw = m.group(1).lower().strip()
+                    if len(kw) >= 3:
+                        kws.add(kw)
+        all_kit_keywords[kit_path.name] = kws
+    return all_kit_keywords
+
+
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
 
-    # marketplace.json 로드
-    if not MARKETPLACE_JSON.exists():
-        print(f"ERROR: {MARKETPLACE_JSON} 를 찾을 수 없습니다.", file=sys.stderr)
-        sys.exit(2)
-
     try:
-        marketplace_data = json.loads(MARKETPLACE_JSON.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        print(f"ERROR: marketplace.json parse 실패 — {exc}", file=sys.stderr)
+        marketplace_data = load_marketplace()
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"ERROR: marketplace.json 로드 실패 — {exc}", file=sys.stderr)
         sys.exit(2)
 
     # 검증 대상 킷 목록 결정
-    all_kits = [
-        REPO_ROOT / p["source"].lstrip("./")
-        for p in marketplace_data.get("plugins", [])
-    ]
+    all_kits = list_kits(marketplace_data)
 
     if args.plugin:
         target_kits = [k for k in all_kits if k.name == args.plugin]
@@ -724,7 +713,7 @@ def main() -> None:
         target_kits = all_kits
 
     # 활성 체크 결정
-    all_check_names = set(CHECK_NAMES.keys())
+    all_check_names = set(CHECK_REGISTRY.keys())
     if args.check:
         requested = {c.strip() for c in args.check.split(",")}
         unknown = requested - all_check_names
@@ -735,33 +724,21 @@ def main() -> None:
     else:
         enabled_checks = all_check_names
 
-    # V4 cross-kit 검증용 전체 킷 키워드 사전 수집 (O(1) lookup 을 위해 set 사용)
+    # V4 cross-kit 검증용 전체 킷 키워드 사전 수집
     all_kit_keywords: dict[str, set[str]] = {}
     if "triggers" in enabled_checks and len(target_kits) > 1:
-        for kit_path in all_kits:
-            kws: set[str] = set()
-            for sf in kit_path.glob("skills/*/SKILL.md"):
-                text = read_text(sf)
-                fm, _ = load_yaml_frontmatter(text)
-                if fm:
-                    desc = str(fm.get("description", ""))
-                    for m in KEYWORD_PATTERN.finditer(desc):
-                        kw = m.group(1).lower().strip()
-                        if len(kw) >= 3:
-                            kws.add(kw)
-            all_kit_keywords[kit_path.name] = kws
+        all_kit_keywords = _collect_cross_kit_keywords(marketplace_data)
 
     # 킷별 검증 실행
     results: list[PluginResult] = []
     for kit_path in target_kits:
-        pr = validate_kit(
-            kit_path,
-            marketplace_data,
-            enabled_checks,
-            args.fix,
-            all_kit_keywords if "triggers" in enabled_checks else None,
+        ctx = CheckContext(
+            kit_path=kit_path,
+            marketplace_data=marketplace_data,
+            fix=args.fix,
+            all_keywords=all_kit_keywords,
         )
-        results.append(pr)
+        results.append(validate_kit(ctx, enabled_checks))
 
     # 출력
     if args.json:
