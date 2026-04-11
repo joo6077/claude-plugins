@@ -56,7 +56,7 @@ user-invocable: true
 
 Agent 도구를 사용하여 design-reviewer 서브에이전트를 생성한다:
 
-```
+```text
 Agent 도구 호출:
 - subagent_type: design-reviewer
 - prompt: "다음 파일을 디자인 원칙 기준으로 [quick|deep] 모드로 평가하라: [대상 파일 목록]"

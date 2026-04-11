@@ -22,6 +22,7 @@ user-invocable: true
 7. **스페이싱 base 근거 명시 필수** — 4px base가 아니면 반드시 근거를 문서화하라. base 숫자보다 "허용 scale만 사용하는 일관성"이 더 중요하다.
 8. **DTCG 금지 문자 사용 주의** — 토큰 이름에 `.` `{` `}` `$` 같은 DTCG 예약 문자를 섞으면 파서 오류가 난다. 경로 구분은 `/` 또는 `.`만 사용하고, `$` 접두사는 메타 키(`$value`, `$type`)에만 허용된다.
 9. **스택별 코드 생성 금지** — 이 스킬은 원칙과 토큰 명세만 출력한다. Flutter/React/CSS 코드를 직접 생성하지 마라. 해당 toolkit 플러그인에 위임하라.
+10. **HTML 예시 `:root` CSS 변수는 design-kit 기존 파일과 정합해야 한다** — Step 4에서 토큰 명세 예시로 HTML 스니펫을 포함할 경우, `:root { --color-*: ...; }` 값이 `design-kit/docs/` 또는 `design-kit/templates/` 내 기존 HTML 파일의 CSS 변수 값과 일치해야 한다. 값 불일치는 시스템 분열의 시작이며 실제 REJECT 사유였다 (AR-06). 새 변수를 추가할 때는 기존 파일에도 동시에 반영하거나 불일치 이유를 명시하라.
 
 # Process
 
@@ -29,7 +30,7 @@ user-invocable: true
 
 프로젝트 루트에서 디자인 토큰/테마 파일을 탐색한다:
 
-```
+```text
 # 탐색 패턴 (스택 무관)
 **/theme/**
 **/tokens/**
@@ -46,7 +47,7 @@ user-invocable: true
 
 모든 토큰은 아래 3계층으로 분리한다. 계층을 건너뛰어 연결하지 않는다.
 
-```
+```text
 Tier 1 — Primitive (값 저장소)
   예: color.palette.green.500 = #22c55e
       space.scale.4 = 4px
@@ -103,6 +104,7 @@ templates/design-tokens.md 포맷으로 토큰 명세를 생성한다.
 - light/dark 양쪽 semantic 매핑이 존재하는지 확인
 - 허용 scale 외 임의 수치가 없는지 확인
 - component 토큰이 있다면 스코프가 해당 컴포넌트로만 제한되었는지 확인
+- **:root CSS 변수 정합성 체크** (Gotcha #10) — 산출물에 HTML `:root` 스니펫이 포함된 경우, `design-kit/docs/` 및 `design-kit/templates/` 내 기존 HTML 파일의 CSS 변수 값과 대조하여 불일치 항목이 없는지 확인한다. 불일치 발견 시 기존 파일을 동시에 갱신하거나 이유를 명시한다.
 
 # References
 

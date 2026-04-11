@@ -53,7 +53,7 @@
 
 ## 사용 흐름
 
-```
+```text
 1. /design-system     → 프로젝트 디자인 토큰 세팅
 2. (개발 중) /design-guide  → 실시간 디자인 조언
 3. (개발 후) /design-audit  → 디자인 품질 감사

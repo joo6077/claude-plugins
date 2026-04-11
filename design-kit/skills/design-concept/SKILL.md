@@ -17,6 +17,16 @@ user-invocable: true
 1. **스택별 코드 생성 금지** — 이 스킬은 방향과 원칙만 정의한다. Flutter/React/CSS 코드를 직접 생성하지 마라. HTML 무드보드는 시각화 목적이므로 예외.
 2. **근거 없는 제안 금지** — "이 컬러가 좋을 것 같습니다" ✗. 반드시 리서치 문서 또는 웹 리서치 출처를 명시하라. `docs/design/` 리서치 문서와 웹 리서치 결과를 근거로 제안한다.
 3. **컬러 값 직접 지정 금지 (concept.md)** — `.design/concept.md`의 "컬러 방향" 표에는 hex 값을 쓰지 마라. "따뜻한 뉴트럴 계열, muted 채도, 번트 앰버 계열 포인트" 같은 **서술형 방향**만 쓴다. 구체적 hex, WCAG 수치 계산은 design-system 단계에서 확정한다.
+
+   **Bad (concept.md에서 REJECT 사유):**
+   ```text
+   | Accent | #E8965A |   — hex 확정값 기재 → REJECT
+   ```
+   **Good (서술형 방향):**
+   ```text
+   | Accent | 번트 앰버 계열, muted 채도, WCAG AA 통과 가능한 중간 명도 |
+   ```
+
    **예외:** 무드보드 HTML(`.design/moodboard.html`)은 시각화 목적상 hex placeholder를 채울 수 있으나 **반드시 상단에 "방향 시각화용 참조값" disclaimer 배너가 렌더링되어야 한다**. 템플릿(`design-kit/templates/moodboard.html`)은 `.mb-disclaimer` 섹션과 `data-i18n="disclaimer.color"` 문구를 포함하며 생성 시 삭제 금지. 이 배너가 없으면 무드보드 hex가 "확정값"으로 오독된다 (Phase B 드라이런에서 실제 REJECT 근거였다).
 4. **기존 컨셉 무시 금지** — `.design/concept.md`가 이미 존재하면 반드시 로드하여 수정/확장 모드로 진입하라. 기존 내용을 무시하고 새로 만들면 이전 합의가 사라진다.
 5. **무드 키워드를 시각 속성으로 번역하지 않으면 의미 없음** — "미니멀", "따뜻함" 같은 키워드는 반드시 `color / type / image / shape / layout / motion` 각각에 대한 구체적 방향으로 번역해야 한다. 키워드만 나열하고 시각 규칙이 없으면 팀마다 다르게 해석되어 무드보드가 장식으로 끝난다.
@@ -115,6 +125,7 @@ templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)�
 | {{keyword}} | ... | ... | ... | ... | ... |
 
 ## 컬러 방향
+<!-- ⚠ hex 값 직접 기재 금지 — 서술형 방향만 허용. hex 확정은 design-system 단계에서 수행. -->
 {{Primary/Secondary/Accent/Neutral/Semantic 역할별 톤 계열과 채도 방향. WCAG AA 대비 가능성 메모}}
 
 ## 타이포그래피 방향

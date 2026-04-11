@@ -30,7 +30,7 @@ user-invocable: true
 
 프로젝트에서 이전 단계 산출물을 탐색한다:
 
-```
+```text
 # 감지 대상
 .design/concept.md              → 컨셉 로드 (컬러/타이포/UI 패턴 방향)
 **/theme/** **/tokens/**        → 디자인 토큰 로드
@@ -73,7 +73,7 @@ references/component-spec-template.md의 포맷으로 각 컴포넌트를 정의
 
 모든 컴포넌트 스펙 상단에 아래 형식의 문서 헤더를 포함한다:
 
-```
+```text
 ## Button
 
 범용 액션 트리거 컴포넌트. 폼 제출, 네비게이션, 인라인 동작에 사용한다.
