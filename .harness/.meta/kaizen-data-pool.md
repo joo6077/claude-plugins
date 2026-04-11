@@ -1,6 +1,6 @@
 # Kaizen Data Pool
 
-Generated: 2026-04-11T18:25:24
+Generated: 2026-04-11T18:28:46
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
@@ -8,20 +8,20 @@ Generator: `scripts/collect-kaizen-data.py`
 ## 1. 글로벌 Evaluator Feedback
 
 - 경로: `/Users/jackson/.harness/feedback/evaluator`
-- 총 파일: **70**
+- 총 파일: **71**
 
 ### Verdict 분포
 
 - **APPROVE**: 42
-- **REJECT**: 28
+- **REJECT**: 29
 
 ### Skill 분포
 
-- `qa-evaluator`: 70
+- `qa-evaluator`: 71
 
 ### Project 분포
 
-- `claude-plugins`: 70
+- `claude-plugins`: 71
 
 ### 최근 REJECT 사유 (Top 20)
 
@@ -34,7 +34,9 @@ Generator: `scripts/collect-kaizen-data.py`
 - [2026-04-10] **claude-plugins**: PU-04: sync-docs.py가 plugin_utils.parse_frontmatter() (pyyaml 기반) 대신 parse_frontmatter_raw() (regex 기반)를 호출함. 계약이 명시한 함수명 및 구현 방식 불일치.
 - [2026-04-10] **claude-plugins**: PH-01: agent-design-guide.md에 계약 모호성 방지 원칙 누락 (skill-design-guide.md §3.5 대응 항목 없음)
 - [2026-04-10] **claude-plugins**: KZ-04: react-kaizen References 섹션에 docs/react/kit-design/ 7개 그룹 문서(g1~g6, g5b) 개별 미명시. 폴더 경로 하나로 포괄 처리됨
+- [2026-04-10] **claude-plugins**: I-02: 예외 3항목 외 modified 파일 존재 (sprint-feedback.md, flutter-toolkit/README.md, history 아카이브)
 - [2026-04-10] **claude-plugins**: I-02: Working tree modified 2건 (.harness/sprint-contract.md, .harness/.meta/kaizen-data-pool.md) — 계약 'modified 0건' 미충족
+- [2026-04-10] **claude-plugins**: I-01: Fix commit 5f2f894 push 미완료 — git log origin/main..main 1건
 - [2026-04-10] **claude-plugins**: DG-02: react-init/SKILL.md line 178, 190 코드블록 언어 힌트 누락
 - [2026-04-10] **claude-plugins**: DG-02: 5개 파일 모두에서 언어 힌트 없는 fenced code block 존재 (react-run 2개, react-build 3개, react-preflight 3개, react-audit 4개+, react-reviewer 6개+)
 - [2026-04-10] **claude-plugins**: DG-01: react-feature/SKILL.md(5건)와 react-widget/SKILL.md(2건)에서 코드 템플릿 내 TODO 7건 발견 — 계약 0건 조건 불충족
@@ -43,8 +45,6 @@ Generator: `scripts/collect-kaizen-data.py`
 - [2026-04-10] **claude-plugins**: CD-02: integration.html 안티패턴 bad·good 비교 없음(compare-bad 0건)
 - [2026-04-10] **claude-plugins**: CD-02: integration.html Gotchas 섹션 없음; scaffolding/performance/ui-patterns/wasm-catalog에 bad·good 비교 섹션(compare-bad/compare-good) 없음
 - [2026-04-10] **claude-plugins**: CD-02: build-audit.html — compare-bad/compare-good 비교 0건 (테이블 형식으로 대체됨)
-- [2026-04-10] **claude-plugins**: CD-02: build-audit.html — Gotchas 체크리스트 섹션(id=gotchas) 없음
-- [2026-04-10] **claude-plugins**: AR-03: moodboard.html 필수 7개 섹션 중 5개만 존재 (Texture/Material, Layout Cues, Do/Don't 누락) — Gotcha #9 위반, 최솟값 6개 미충족
 
 ### 최근 Improvement Suggestions (Top 15)
 
@@ -73,13 +73,13 @@ Generator: `scripts/collect-kaizen-data.py`
 
 - 경로: `/Users/jackson/Hub/10_Dev/apps`
 - sprint-feedback.md: 136 lines
-- history sprint-contracts: 15
+- history sprint-contracts: 16
 - 최근 contracts:
-  - 20260411-1339-sprint-contract.md
   - 20260411-1531-sprint-contract.md
   - 20260411-1616-sprint-contract.md
   - 20260411-1656-sprint-contract.md
   - 20260411-1815-sprint-contract.md
+  - 20260411-2110-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
