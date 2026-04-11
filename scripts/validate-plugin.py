@@ -172,7 +172,7 @@ def check_v1_frontmatter(kit_path: Path) -> CheckResult:
         if missing:
             failures.append(f"FAIL {rel}: 누락 필드 {sorted(missing)}")
         else:
-            empty = [f for f in required_skill if not fm.get(f) and fm.get(f) != False]
+            empty = [f for f in required_skill if fm.get(f) is None or fm.get(f) == ""]
             if empty:
                 failures.append(f"FAIL {rel}: 빈 필드 {sorted(empty)}")
 
@@ -358,7 +358,7 @@ def check_v3_refs(kit_path: Path) -> CheckResult:
 # V4 — see harness/docs/guides/plugin-validation-guide.md §3.4
 # ---------------------------------------------------------------------------
 
-def check_v4_triggers(kit_path: Path, all_keywords: dict[str, list[str]] | None = None) -> CheckResult:
+def check_v4_triggers(kit_path: Path, all_keywords: dict[str, set[str]] | None = None) -> CheckResult:
     """description 에서 따옴표 키워드를 추출하여 킷 내부 중복을 검출한다."""
     result = CheckResult("V4", "triggers")
     skill_files = sorted(kit_path.glob("skills/*/SKILL.md"))
@@ -415,15 +415,11 @@ def check_v5_placeholders(kit_path: Path, fix: bool = False) -> CheckResult:
     result = CheckResult("V5", "placeholders")
     failures: list[str] = []
     checked_files: list[Path] = []
-    script_self = Path(__file__).resolve()
 
     for glob_pat in PLACEHOLDER_GLOBS:
         checked_files.extend(sorted(kit_path.glob(glob_pat)))
 
     for path in checked_files:
-        # 자기 자신(validate-plugin.py) 제외 — self-hosting
-        if path.resolve() == script_self:
-            continue
         text = read_text(path)
         lines = text.splitlines()
         file_hits: list[tuple[int, str]] = []
@@ -611,14 +607,6 @@ def validate_kit(
 # 출력
 # ---------------------------------------------------------------------------
 
-STATUS_SYMBOL = {
-    "OK": "OK",
-    "WARN": "WARN",
-    "FAIL": "FAIL",
-    "SKIP": "SKIP",
-}
-
-
 def print_human(results: list[PluginResult]) -> None:
     """사람이 읽기 좋은 형식으로 출력한다."""
     for pr in results:
@@ -642,13 +630,7 @@ def print_human(results: list[PluginResult]) -> None:
     if n_error:
         parts.append(f"{n_error} ERROR")
     print(f"\nTotal: {', '.join(parts)}")
-
-    exit_code = 0
-    if n_error:
-        exit_code = 2
-    elif n_warn:
-        exit_code = 1
-    print(f"Exit: {exit_code}")
+    print(f"Exit: {resolve_exit_code(results)}")
 
 
 def print_json_output(results: list[PluginResult]) -> None:
@@ -753,11 +735,11 @@ def main() -> None:
     else:
         enabled_checks = all_check_names
 
-    # V4 cross-kit 검증용 전체 킷 키워드 사전 수집
-    all_kit_keywords: dict[str, list[str]] = {}
+    # V4 cross-kit 검증용 전체 킷 키워드 사전 수집 (O(1) lookup 을 위해 set 사용)
+    all_kit_keywords: dict[str, set[str]] = {}
     if "triggers" in enabled_checks and len(target_kits) > 1:
         for kit_path in all_kits:
-            kws: list[str] = []
+            kws: set[str] = set()
             for sf in kit_path.glob("skills/*/SKILL.md"):
                 text = read_text(sf)
                 fm, _ = load_yaml_frontmatter(text)
@@ -766,7 +748,7 @@ def main() -> None:
                     for m in KEYWORD_PATTERN.finditer(desc):
                         kw = m.group(1).lower().strip()
                         if len(kw) >= 3:
-                            kws.append(kw)
+                            kws.add(kw)
             all_kit_keywords[kit_path.name] = kws
 
     # 킷별 검증 실행
