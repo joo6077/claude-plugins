@@ -1,95 +1,118 @@
-# Sprint Feedback
-Feature: docs-site: react-kit 9 HTML 페이지 + index.html 등록
-Evaluated: 2026-04-10 18:00
-Verdict: APPROVE
-Iteration: 4
+---
+feature: "Simplify 잔여 findings 전부 적용 (plugin_utils + CheckContext + dispatch + 캐시 + kaizen fragment 링크)"
+iteration: 3
+evaluated: "2026-04-10 15:00"
+verdict: APPROVE
+---
 
-## Changes from Iteration 3
-- build-audit.html (668 → 812 lines): compare-bad/good 3쌍 신설, Gotchas check-list 8항목 신설, card-source 2건 추가
-  - CSS 추가: .bad-good-grid, .compare-bad, .compare-good, .compare-header, .compare-note, .check-list, .check-icon
-  - 안티패턴 비교 섹션(id="antipatterns" 하위): Library Policy / Architecture / Strict TS 3쌍
-  - Gotchas 섹션(id="gotchas"): 8항목 체크리스트 (g6 §1.4/2.6/3.5/4.7 반영)
-  - card-source: 안티패턴 섹션 L762, Gotchas 섹션 L807
+# Sprint Feedback
+Feature: Simplify 잔여 findings 전부 적용 (plugin_utils + CheckContext + dispatch + 캐시 + kaizen fragment 링크)
+Evaluated: 2026-04-10 15:00
+Verdict: APPROVE
+Iteration: 3
 
 ## Results
 
-### Files (9/9 PASS)
-- [x] FL-01: `docs/react-kit/scaffolding.html` — PASS
-  - 근거: 537 lines ≥ 400 (L1)
-- [x] FL-02: `docs/react-kit/state-data.html` — PASS
-  - 근거: 487 lines (L2)
-- [x] FL-03: `docs/react-kit/performance.html` — PASS
-  - 근거: 549 lines (L2)
-- [x] FL-04: `docs/react-kit/quality.html` — PASS
-  - 근거: 534 lines (L2)
-- [x] FL-05: `docs/react-kit/ui-patterns.html` — PASS
-  - 근거: 584 lines (L2)
-- [x] FL-06: `docs/react-kit/animation.html` — PASS
-  - 근거: 570 lines (L2)
-- [x] FL-07: `docs/react-kit/build-audit.html` — PASS
-  - 근거: 812 lines (L2)
-- [x] FL-08: `docs/react-kit/wasm-catalog.html` — PASS
-  - 근거: 601 lines (L2)
-- [x] FL-09: `docs/react-kit/integration.html` — PASS
-  - 근거: 660 lines (L2)
+### Plugin Utils — PU (5/5)
 
-### Content Density (3/3 PASS)
-- [x] CD-01: 각 HTML 페이지 최소 400 lines — PASS
-  - 근거: 최소 487 lines(state-data), 최대 812 lines(build-audit) (L2)
-- [x] CD-02: 필수 섹션 (hero / 원칙 카드 / 수치 테이블 / 안티패턴 bad·good 비교 / Gotchas 체크리스트) — PASS
-  - 근거 (build-audit.html 최종 검증):
-    - compare-bad 3쌍: L688(Library Policy), L713(Architecture), L741(Strict TS) (L3)
-    - compare-good 3쌍: L697, L724, L749 — 각 bad와 1:1 대응 (L3)
-    - id="gotchas" 섹션: L765 존재, `<ul class="check-list">` L772, 8개 `<li>` L774/778/782/786/790/794/798/802 (L3)
-    - 기존 원칙 카드, 수치 테이블(L598-662) 회귀 없음 확인 (L3)
-  - Iter 1~3 PASS 파일 회귀 없음: wasm-catalog.html(check-list L518-551), integration.html(compare-bad 3쌍 L431/469/508) 확인
-- [x] CD-03: 원칙 카드 하단 `<a class="card-source">` 링크 — PASS
-  - 근거: build-audit.html card-source 21건(신규 2건 L762/L807 포함), 9개 파일 전체 (L2)
+- [x] PU-01: scripts/plugin_utils.py 신규 파일 존재. Python 3.11+ 표준 라이브러리 + pyyaml만 의존 — PASS
+  - 근거: `scripts/plugin_utils.py:1-13` — import json, re, pathlib (표준 라이브러리) + yaml (pyyaml). 외부 의존 없음. (L3)
 
-### Design System (4/4 PASS)
-- [x] DS-01: `--accent:#38BDF8`, `--accent2:#7DD3FC` — PASS
-  - 근거: 9개 파일 전체 각 1건 Grep 확인 (L2)
-- [x] DS-02: body gradient `rgba(56,189,248,0.06)` — PASS
-  - 근거: 9개 파일 전체 확인, 회귀 없음 (Iter 3 L2 기준 유지)
-- [x] DS-03: h1 gradient, .section-label accent, .card:hover 보더 — PASS
-  - 근거: Iter 3 L3 검증 유지, build-audit.html 변경 범위(L156-168, L680-812)가 design system 변수 수정 없음 (L3)
-- [x] DS-04: 외부 CDN 0건 — PASS
-  - 근거: Iter 3 검증 유지, 신규 추가 섹션에 cdn/jsdelivr/unpkg 패턴 없음 (L2)
+- [x] PU-02: export 함수/상수 7종 — PASS
+  - 근거: `scripts/plugin_utils.py:15` (REPO_ROOT), L19 (load_marketplace), L25 (list_kits), L34 (read_text), L42 (parse_frontmatter), L104 (iter_skills), L109 (iter_agents). 7종 모두 존재. (L2)
 
-### Index 등록 (3/3 PASS)
-- [x] IX-01: React Kit 카테고리 등록, rust-kit 이후/process 이전 — PASS
-  - 근거: Iter 3 L3 검증 유지 (`index.html:432-445`)
-- [x] IX-02: categories에 9개 page 항목 — PASS
-  - 근거: Iter 3 L2 검증 유지 (`index.html:436-444`)
-- [x] IX-03: getIcon() 9개 SVG 아이콘 — PASS
-  - 근거: Iter 3 L2 검증 유지 (`index.html:588-596`)
+- [x] PU-03: sync-docs.py PLUGINS 하드코딩 제거, list_kits() 동적 로드 — PASS
+  - 근거: `scripts/sync-docs.py:24` — list_kits import. L427, L451, L475, L295 — list_kits() 호출. PLUGINS 상수 없음. (L3)
 
-### Library Policy (1/1 PASS)
-- [x] LP-01: animation.html "라이브러리 0개 원칙" 섹션 + 금지 목록 명시 — PASS
-  - 근거: Iter 3 L3 검증 유지 (`animation.html:110,118-123`)
+- [x] PU-04: sync-docs.py가 plugin_utils의 frontmatter 파서(parse_frontmatter_raw)를 사용하여 내부 중복 파싱 구현을 제거. SSOT는 plugin_utils. 예외 조항 충족. — PASS (갱신된 PU-04 문구 기준)
+  - 서브체크 1 — plugin_utils 파서 사용: `scripts/sync-docs.py:24` — `from plugin_utils import ..., parse_frontmatter_raw, ...`. `sync-docs.py:55` — `parse_frontmatter_raw(text)` 호출. PASS. (L3)
+  - 서브체크 2 — SSOT 달성 (내부 중복 없음): `_parse_frontmatter_file`은 `parse_frontmatter_raw(text)` 단순 호출 wrapper (sync-docs.py:45-58). sync-docs.py 내부에 자체 `---` regex 파싱, yaml.safe_load, line-split 파싱 로직 없음 (Grep 확인). PASS. (L3)
+  - 서브체크 3 — 예외 조항 기술적 타당성: pyyaml 실행 검증 — folded scalar(`>`) 결과: `'트리거 키워드 포함 설명. 두 번째 줄도 description의 일부다. 세 번째 줄까지.\n'` (전체 공백 합산). parse_frontmatter_raw 결과: `'트리거 키워드 포함 설명.'` (첫 indent 줄만). README 테이블 한 줄 요약 용도에 pyyaml 사용 시 회귀 발생 사실 확인. PASS. (L3 — 실행 검증)
 
-### Accessibility (2/2 PASS)
-- [x] AX-01: prefers-reduced-motion 또는 정적 페이지 — PASS
-  - 근거: Iter 3 L3 검증 유지
-- [x] AX-02: 본문 텍스트 WCAG AA 4.5:1 이상 — PASS [정적]
-  - 근거: Iter 3 L2 검증 유지
+- [x] PU-05: validate-plugin.py가 plugin_utils에서 4개 함수 import, 자체 중복 제거 — PASS
+  - 근거: `scripts/validate-plugin.py:32` — `from plugin_utils import load_marketplace, list_kits, read_text, parse_frontmatter, REPO_ROOT`. (L3)
 
-### Diagnostics (2/2 PASS)
-- [x] DG-01: valid HTML (DOCTYPE/charset/head/body) — PASS
-  - 근거: Iter 3 L2 검증 유지, build-audit.html 변경분 head/body 구조 유지 (L2)
-- [x] DG-02: TODO/TBD/FIXME 0건 — PASS
-  - 근거: Iter 3 검증 유지
+### CheckContext + Dispatch — CC (7/7)
 
-### Anti-patterns (2/2 PASS)
-- [x] AP-01, AP-02: HTML 문서에 hardcoded version/force push 패턴 없음 — PASS
+- [x] CC-01: CheckContext dataclass, 5개 필드 — PASS
+  - 근거: `scripts/validate-plugin.py:114-123` — kit_path, marketplace_data, fix, all_keywords, _file_cache. (L2)
+
+- [x] CC-02: read() 메서드 — 캐시 hit 즉시 반환, miss 시 read_text() 호출 후 캐시 — PASS
+  - 근거: `scripts/validate-plugin.py:124-128`. (L3)
+
+- [x] CC-03: invalidate(path) 메서드 — PASS
+  - 근거: `scripts/validate-plugin.py:130-132` — `self._file_cache.pop(path, None)`. (L3)
+
+- [x] CC-04: 7 check 함수 시그니처 `(ctx: CheckContext) -> CheckResult` — PASS
+  - 근거: L140 (V1), L200 (V2), L295 (V3), L347 (V4), L399 (V5), L447 (V6), L506 (V7). (L2)
+
+- [x] CC-05: CHECK_REGISTRY 7 키 — PASS
+  - 근거: `scripts/validate-plugin.py:565-573` — 7키 확인. (L2)
+
+- [x] CC-06: validate_kit 루프 dispatch — PASS
+  - 근거: `scripts/validate-plugin.py:576-582` — `for name, fn in CHECK_REGISTRY.items()`. (L3)
+
+- [x] CC-07: V5/V6 fix 후 ctx.invalidate() 호출 — PASS
+  - 근거: `scripts/validate-plugin.py:426` (V5), L484 (V6). (L3)
+
+### Kaizen Fragment — KZ (3/3)
+
+- [x] KZ-01: plugin-validation-guide.md §7 카이젠 연동 섹션 신설 — PASS
+  - 근거: `harness/docs/guides/plugin-validation-guide.md:474-534` — §7.1~§7.5 확인. (L3)
+
+- [x] KZ-02: 9 kaizen 스킬 공통 본문 제거 + §7 링크 치환 — PASS
+  - 근거: 9개 파일 모두 "plugin-validation-guide.md §7 에서 정의한다 (SSOT)" 링크 존재. (L3)
+
+- [x] KZ-03: react-kaizen의 kit 특화 지침 유지 — PASS
+  - 근거: `.claude/skills/react-kaizen/SKILL.md:73-75` — Library Policy 원칙 보존. (L2)
+
+### Regression — RG (3/3)
+
+- [x] RG-01: validate-plugin.py — backend-kit=OK, react-kit=ERROR, flutter-toolkit=ERROR 분류 유지 — PASS
+  - 근거: 실행 결과 확인. (L3 — 실행)
+
+- [x] RG-02: sync-docs.py --check-only → "모든 README가 동기화 상태입니다" — PASS
+  - 근거: 실행 결과 마지막 줄 "모든 README가 동기화 상태입니다." 확인. (L3 — 실행)
+
+- [x] RG-03: validate-plugin.py --check=frontmatter → flutter-hooks FAIL, exit 2 — PASS
+  - 근거: 실행: `FAIL flutter-toolkit/skills/flutter-hooks/SKILL.md: 누락 필드 ['user-invocable']`, exit 2. (L3 — 실행)
+
+### Diagnostics — DG (1/1)
+
+- [x] DG-01: 수정 파일 placeholder 0건 — PASS
+  - 근거: Grep 및 validate-plugin.py V5 확인. 0건. (L3)
+
+### Anti-patterns (2/2)
+
+- [x] AP-01: hardcoded version 없음 — PASS
+- [x] AP-02: force push 없음 — PASS
+
+### Reusability (1/1)
+
+- [x] plugin_utils.py 공유 사용 — PASS
+
+## PU-04 계약 수정 정당성 판정
+
+**계약 수정 정당성: 인정.**
+
+Iter 2 QA가 제시한 "수정 옵션 B (plugin_utils에 두 파서 공존, 적합한 것 사용)"와 실질적으로 동등한 해결이다.
+
+기술적 사실 (실행 검증):
+- pyyaml folded scalar: 전체 줄을 공백으로 합산 → README 테이블 회귀 유발
+- parse_frontmatter_raw: description 첫 indent 줄만 추출 → README 테이블 정상 동작
+
+계약의 근본 의도 ("sync-docs와 validate-plugin 간 중복 파싱 제거, SSOT = plugin_utils")는 완전히 달성됐다.
+새 PU-04 문구는 기술적 제약을 정확히 반영하며, 예외 조항은 회귀 없음(RG-02 PASS)으로 실증됐다.
 
 ## Summary
-- Total: 18/18 conditions PASS
+- Total: 17/17 conditions passed
 - Verdict: APPROVE
-- Iteration: 4
+- Iteration: 3
 
-## Final Status — react-kit docs site 완료
-- 9개 HTML 페이지 전체 생성 완료 (scaffolding/state-data/performance/quality/ui-patterns/animation/build-audit/wasm-catalog/integration)
-- docs/index.html React Kit 카테고리 등록 완료 (9개 항목 + getIcon 9개 아이콘)
-- CD-02 최종 해소: build-audit.html — compare-bad/good 3쌍 + check-list 8항목
-- 모든 18 conditions APPROVE
+## Changes from Iteration 2
+
+- PU-04: FAIL → PASS. 계약 PU-04 문구가 "parse_frontmatter_raw 사용 허용" 예외 조항을 포함하도록 갱신됨. 새 문구 기준 3개 서브체크 모두 통과.
+- 나머지 16 조건: 변경 없음. Iteration 2 PASS 결과 그대로 유지.
+
+## 런타임 검증
+RG-01/02/03은 직접 스크립트 실행으로 검증 (MCP 서버 미설정).
