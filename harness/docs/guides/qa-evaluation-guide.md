@@ -46,6 +46,27 @@ Independent Verification & Validation (IV&V) 원칙:
 
 ---
 
+## 용어 구분 — L1/L2/L3 기호 충돌 주의
+
+> 이 가이드의 **L1/L2/L3**는 **evaluator 검증 깊이**를 의미한다.
+> sprint-contract 계약서의 `[L1]/[L2]/[L3]` 태그는 **조건 구체성 레벨**로, 동일 기호지만 의미가 다르다.
+
+| 체계 | 기호 | 의미 | 위치 |
+|------|------|------|------|
+| **Evaluator 검증 깊이** (이 가이드) | L1 | 파일/디렉토리 존재 확인 | qa-evaluation-guide, qa-evaluator |
+| **Evaluator 검증 깊이** (이 가이드) | L2 | 파일 내용에 기대 요소 존재 확인 | qa-evaluation-guide, qa-evaluator |
+| **Evaluator 검증 깊이** (이 가이드) | L3 | 코드 경로 추적, 의미·의도 검증 | qa-evaluation-guide, qa-evaluator |
+| **계약 구체성 레벨** (contract-design-guide) | [L1] / exact | 특정 이름·값을 문자 그대로 매칭 | sprint-contract 조건 끝 태그 |
+| **계약 구체성 레벨** (contract-design-guide) | [L2] / structural | 섹션·필드 존재 여부 확인 | sprint-contract 조건 끝 태그 |
+| **계약 구체성 레벨** (contract-design-guide) | [L3] / goal | 목표 달성 여부만 판정 (수단 무관) | sprint-contract 조건 끝 태그 |
+
+**혼동 방지 규칙:**
+- 계약서의 `[L1]` 태그를 보고 "존재 확인(Glob)만 하면 된다"고 해석하지 않는다. 계약의 `[L1]`은 exact 이름 매칭 요구이지 evaluator의 검증 깊이 L1(존재 확인)과 무관하다.
+- evaluator 검증 깊이 L1~L3는 계약 조건의 구체성 레벨과 무관하게 **항상 L3까지 도달**해야 한다.
+- Sprint Feedback에서 `[L2]`를 근거 태그로 쓸 때는 evaluator 검증 깊이 L2(내용 확인)를 의미한다. 계약의 구체성 레벨과 혼용하지 않는다.
+
+---
+
 ## 검증 방법론
 
 ### 3-Level 검증
@@ -59,6 +80,23 @@ Independent Verification & Validation (IV&V) 원칙:
 **모든 조건은 L3까지 도달해야 한다.** L1/L2에서 PASS해도 L3에서 FAIL이면 전체 FAIL.
 
 학술적 근거: 3계층 모델은 industry code review의 lint → semantic → AI 모델과 대응한다.
+
+**L3 검증 심층화 절차:**
+
+단순 Grep 매칭은 L2에서 멈추는 함정이다. L3 도달을 위해 아래 2단계를 반드시 수행한다:
+
+1. **Grep 존재 확인** — 기대 요소가 파일에 있는지 검색 (L2)
+2. **Read 전체 내용 확인 → 의미 추적** — 해당 요소가 포함된 파일을 Read로 열어 맥락(호출 흐름, 조건 분기, 반환 경로)을 확인하고 조건의 의도와 실제 구현이 일치하는지 추적 (L3)
+
+```
+# L3 도달 예시
+# ❌ L2에서 멈춤: Grep으로 'design-tokens.md' 언급 확인 → PASS
+# ✅ L3 도달: Read로 design-tokens.md 전체 내용 확인 → 토큰 구조가
+#            조건이 요구하는 카테고리(color/spacing/typography)를 모두 포함하는지 의미 매칭
+```
+
+- audit-report.md, design-tokens.md 같은 산출 문서는 Grep으로 존재만 확인하지 말고 **Read로 내용까지 확인**해야 L3 커버리지를 충족한다.
+- 파일이 크면 핵심 섹션을 Read(offset/limit)로 부분 읽기하되, 판정에 필요한 구체적 증거(파일:라인)를 확보한다.
 
 ### Rubric 기반 분해 (CheckEval 프로토콜)
 
@@ -93,6 +131,46 @@ CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도�
 서브체크 하나라도 FAIL이면 해당 조건은 FAIL.
 
 > **적용 기준**: 단순 조건(파일 존재, 설정값 확인)은 분해 없이 직접 L3 검증. 복합 조건(여러 시스템 간 상호작용, 다단계 흐름)은 반드시 Aspect 분해 후 서브체크 수행.
+
+### 스킬 트리거 키워드 배타성 검증 (Set Intersection)
+
+스킬 간 트리거 키워드 중복은 Claude가 잘못된 스킬을 실행하는 직접 원인이다. 키워드 배타성 조건이 계약에 포함된 경우 아래 절차를 따른다.
+
+**검증 절차:**
+
+1. **키워드 추출** — 대상 SKILL.md의 `description` frontmatter에서 트리거 키워드 목록을 Grep으로 추출한다
+2. **비교 대상 수집** — 같은 플러그인 내 모든 SKILL.md 파일 목록을 Glob으로 수집한다
+3. **Set Intersection 비교** — 각 SKILL.md의 description을 Read하여 키워드를 추출하고, 대상 스킬의 키워드와 교차 비교한다
+4. **부분 포함 관계 판정** — 완전 일치뿐 아니라 **부분 문자열 포함 관계**도 배타성 위반으로 판정한다
+
+**부분 포함 관계 판정 기준:**
+
+```
+# 위반 예시
+스킬 A: "API 연동"
+스킬 B: "API 연동 화면"
+→ "API 연동"이 "API 연동 화면"의 부분 문자열 → 배타성 위반 FAIL
+
+# 비위반 예시
+스킬 A: "컴포넌트 추출"
+스킬 B: "화면 추출"
+→ 부분 문자열 관계 없음 → PASS
+```
+
+**판정 기준:**
+- 완전 일치 키워드: FAIL (명백한 중복)
+- 부분 포함 관계 키워드: FAIL (사용자 입력에 따라 의도치 않은 스킬이 실행됨)
+- 비슷한 의미의 다른 단어: 문맥 분석 후 판정 (FAIL이 불확실하면 `[medium-confidence]` 태그)
+
+> **실제 사례**: SK-05/RE-02 REJECT — `react-run`의 'wasm-pack 빌드'와 `react-wasm`의 'wasm-pack 빌드' 완전 중복, `react-api`의 '"API 연동"'이 `react-feature`의 '"API 연동 화면"'과 부분 포함 관계. Grep 기반 단순 존재 확인으로는 부분 포함 관계를 잡지 못해 Iter 1에서 놓쳤던 케이스.
+
+### 코드블록 언어 힌트 검증 (DG-02) — HTML 파일 적용 기준
+
+Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락(DG-02) 조건이 계약에 포함된 경우:
+
+- **Markdown 파일** (`.md`): ` ```언어명 ` 형식의 언어 힌트 필수. 힌트 없는 ` ``` ` 블록은 FAIL
+- **HTML 파일** (`.html`): fenced code block 문법이 없으므로 DG-02 조건 **적용 제외**. 대신 `<pre><code class="language-xxx">` 형식의 언어 클래스 또는 syntax highlight 마커 사용 여부를 확인한다
+- HTML 파일에 DG-02를 적용하는 계약 조건은 범위를 `*.md` 파일로 한정했는지 확인하고, 한정하지 않았다면 HTML 파일은 PASS 처리 + 피드백에 "HTML 파일은 DG-02 적용 제외" 명시
 
 ### 다관점 평가 (Perspective-Based Reading)
 
