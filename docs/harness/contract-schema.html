@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sprint Contract 스키마 — Harness</title>
+<title>Contract Schema v2 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
   --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
-  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --accent:#0ea5e9;--accent2:#14b8a6;--accent-dim:rgba(14,165,233,0.12);
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
@@ -18,213 +18,386 @@ html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
   background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
-                   radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(14,165,233,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.04) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
 }
-.page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
-h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
-  background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
-h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
-.section{margin-bottom:clamp(48px,6vw,80px)}
-.section-label{
-  font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
-  color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
-}
-.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 80%)}
-.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
-.card:hover{border-color:var(--accent)}
-.card-title{font-size:1.05rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
+.badge-v2{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0d14}
+
+.hero{padding:72px 0 56px;text-align:center}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
+.hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);min-height:24px;display:inline-flex;align-items:center}
+
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 70%)}
+.section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em}
+.section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card p{font-size:13.5px;color:var(--text2);line-height:1.7}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition)}
+.card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source::before{content:'↗';font-weight:800}
+
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
-table{width:100%;border-collapse:collapse;font-size:14px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:920px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
 thead{background:var(--surface2)}
-th{padding:14px 16px;text-align:left;font-weight:600;font-size:12px;color:var(--text2);
-  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.6}
+th{padding:14px 16px;text-align:left;font-weight:700;font-size:12px;color:var(--text2);
+  letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:rgba(217,119,87,0.04)}
-td:first-child{color:var(--text);font-weight:600;white-space:nowrap}
-.num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;
-  border-radius:50%;font-size:12px;font-weight:700;background:var(--accent-dim);color:var(--accent);margin-right:8px}
-.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
-.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.6}
-.checklist li::before{content:'';width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:2px}
-.compare-bad,.compare-good{padding:16px 20px;border-radius:10px;font-size:13px;line-height:1.7}
-.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
-.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
-.compare-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.mono{font-family:var(--mono);font-size:13px;color:var(--accent2)}
-.code-block{
-  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
-  padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.6;
-  color:var(--text2);overflow-x:auto;margin-bottom:24px;
+tbody tr:hover{background:var(--accent-dim)}
+td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
+
+code,.code-block{font-family:var(--mono);font-size:12.5px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:8px 0}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:760px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7;
+  padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
+.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
+
+.timeline{display:flex;flex-direction:column;gap:14px;border-left:2px solid var(--border);padding-left:24px;margin:24px 0}
+.timeline-item{position:relative}
+.timeline-item::before{content:'';position:absolute;left:-31px;top:8px;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--bg)}
+.timeline-version{font-size:13px;font-weight:800;color:var(--accent);letter-spacing:0.04em}
+.timeline-date{font-size:11px;color:var(--text3);margin-left:8px}
+.timeline-desc{font-size:13px;color:var(--text2);margin-top:4px}
+
+.footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.footer a:hover{color:var(--accent2)}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;scroll-behavior:auto !important}
 }
-.code-block .key{color:var(--accent)}
-.code-block .val{color:var(--green)}
-.code-block .comment{color:var(--text3)}
-.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--mono)}
-.tag-simple{background:rgba(74,222,128,0.12);color:var(--green)}
-.tag-medium{background:rgba(251,191,36,0.12);color:var(--yellow)}
-.tag-complex{background:rgba(248,113,113,0.12);color:var(--red)}
-.path-badge{
-  display:inline-block;padding:6px 16px;border-radius:8px;
-  background:var(--surface2);border:1px solid var(--border);
-  font-family:var(--mono);font-size:14px;color:var(--accent);margin-bottom:24px;
-}
-.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:24px;transition:color var(--transition)}
-.back-link:hover{color:var(--accent)}
 </style>
 </head>
 <body>
 <div class="page">
-  <a href="../index.html" class="back-link">&larr; Documentation Home</a>
-  <h1>Sprint Contract 스키마</h1>
-  <p class="subtitle">YAML frontmatter, 카테고리 구조, 조건 ID 포맷 &#8212; sprint-contract와 qa-evaluator가 공유하는 계약 포맷 정의</p>
 
-  <!-- File Location -->
-  <div class="section">
-    <div class="section-label">File Location</div>
-    <h2>계약 파일 위치</h2>
-    <p class="desc">Sprint Contract는 프로젝트 루트의 <span class="mono">.harness/</span> 디렉토리에 Markdown 파일로 저장된다.</p>
-    <div class="path-badge">.harness/sprint-contract.md</div>
-    <p class="desc">contract-kaizen이 변경 제안 가능하며, evaluator-kaizen이 읽어서 평가 루브릭에 반영한다. 현재 스키마 버전: <strong style="color:var(--accent)">v1</strong></p>
+<div class="topbar">
+  <div class="brand"><span class="brand-dot"></span>HARNESS · Contract Schema</div>
+  <span class="badge badge-v2">v2 · 2026-04-11</span>
+</div>
+
+<div class="hero">
+  <h1>Sprint Contract Schema v2</h1>
+  <p class="subtitle"><code>sprint-contract</code> 와 <code>qa-evaluator</code> 가 공유하는 계약 포맷 정의. v2 에서 specificity tag 와 aggregation mode 가 필수화되었으며, 숫자 레벨 태그 (L1/L2/L3) 가 명시적으로 금지되었다.</p>
+  <div class="meta">
+    <span>Phase 2 Kaizen</span>
+    <span>schema v2</span>
+    <span>최근 갱신 2026-04-11</span>
+    <span>경로 .harness/sprint-contract.md</span>
   </div>
+</div>
 
-  <!-- YAML Frontmatter -->
-  <div class="section">
-    <div class="section-label">YAML Frontmatter</div>
-    <h2>메타데이터 필드</h2>
-    <p class="desc">모든 Sprint Contract는 YAML frontmatter로 시작한다. 4개의 필수 필드가 계약의 범위와 복잡도를 정의한다.</p>
-    <div class="code-block">
-      <span class="comment">---</span><br>
-      <span class="key">feature</span>: <span class="val">"{기능명}"</span><br>
-      <span class="key">created</span>: <span class="val">"{YYYY-MM-DD HH:mm}"</span><br>
-      <span class="key">complexity</span>: <span class="val">"{simple|medium|complex}"</span><br>
-      <span class="key">conditions</span>: <span class="val">{총 조건 수}</span><br>
-      <span class="comment">---</span>
+<!-- SECTION 1: VERSION TIMELINE -->
+<div class="section">
+  <div class="section-label">Version History</div>
+  <div class="section-title">v1 → v2 변경 이력</div>
+  <p class="section-desc">스키마 버전 이력. v2 는 Phase 2 카이젠에서 도입되었고, 계약과 평가자 양쪽에서 동일하게 소비된다.</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <span class="timeline-version">v2</span>
+      <span class="timeline-date">2026-04-11 (Phase 2 kaizen)</span>
+      <p class="timeline-desc">조건 구체성 태그 (<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>) 와 aggregation mode (<code>[enumerated]</code>/<code>[collective]</code>) 필수화. 숫자 레벨 태그 (L1/L2/L3) 금지 명시 — QA 평가 깊이와 충돌 방지.</p>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>필드</th><th>타입</th><th>설명</th><th>예시</th></tr></thead>
-        <tbody>
-          <tr><td>feature</td><td class="mono">string</td><td>구현할 기능의 명칭</td><td class="mono">"로그인 화면 구현"</td></tr>
-          <tr><td>created</td><td class="mono">datetime</td><td>계약 생성 시각</td><td class="mono">"2026-03-30 14:00"</td></tr>
-          <tr><td>complexity</td><td class="mono">enum</td><td>기능 복잡도 (파일 영향 범위 기준)</td><td class="mono">medium</td></tr>
-          <tr><td>conditions</td><td class="mono">int</td><td>전체 조건 수 합계</td><td class="mono">10</td></tr>
-        </tbody>
-      </table>
+    <div class="timeline-item">
+      <span class="timeline-version">v1</span>
+      <span class="timeline-date">초기 스키마</span>
+      <p class="timeline-desc">메타데이터 frontmatter (feature, created, complexity, conditions) + 카테고리별 조건 + Anti-patterns + Reusability + Diagnostics 섹션. 조건 끝 태그 없음.</p>
     </div>
   </div>
+</div>
 
-  <!-- Required Sections -->
-  <div class="section">
-    <div class="section-label">Required Sections</div>
-    <h2>필수 섹션 목록</h2>
-    <p class="desc">모든 Sprint Contract는 4가지 필수 섹션을 포함해야 한다. 카테고리별 조건은 프로젝트 설정에 따라 동적이고, 나머지 3개는 자동 포함된다.</p>
+<!-- SECTION 2: FILE METADATA -->
+<div class="section">
+  <div class="section-label">File Metadata</div>
+  <div class="section-title">계약 파일 위치 + frontmatter</div>
+  <p class="section-desc">계약 파일은 항상 <code>.harness/sprint-contract.md</code> 에 저장된다. 메타데이터는 YAML frontmatter 로 작성.</p>
 
-    <!-- Section 1: Categories -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="num">1</span> 카테고리별 조건</div>
-      <div class="code-block" style="margin-top:12px;margin-bottom:12px">
-        <span class="comment">## {CategoryID}</span><br>
-        <span class="key">- [ ]</span> <span class="val">{PREFIX}-{NN}</span>: {PASS/FAIL 이진 판정 가능한 조건문}
-      </div>
-      <ul class="checklist">
-        <li><span class="mono">CategoryID</span>와 <span class="mono">PREFIX</span>는 <span class="mono">project.yaml.contract_categories</span>에서 가져온다</li>
-        <li>조건문은 능동태, 단일 조건, 측정 가능해야 한다</li>
-        <li>"잘 동작한다", "적절히 처리한다" 같은 모호 표현 금지</li>
-      </ul>
-      <div class="grid-2" style="margin-top:16px">
-        <div class="compare-bad">
-          <div class="compare-label">Bad</div>
-          "로그인이 잘 동작한다"<br>"에러를 적절히 처리한다"
-        </div>
-        <div class="compare-good">
-          <div class="compare-label">Good</div>
-          "잘못된 비밀번호 입력 시 HTTP 401을 반환한다"<br>"네트워크 오류 시 재시도 다이얼로그를 표시한다"
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 2: Anti-patterns -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="num">2</span> Anti-patterns</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:12px"><span class="mono">project.yaml.anti_patterns</span>에서 최소 2개 선별. 해당 구현에서 발생 가능성이 높은 것을 우선 선택한다.</p>
-      <div class="code-block">
-        <span class="comment">## Anti-patterns</span><br>
-        <span class="key">- [ ]</span> <span class="val">{id}</span>: {message}
-      </div>
-    </div>
-
-    <!-- Section 3: Reusability -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="num">3</span> Reusability <span class="tag tag-simple" style="margin-left:8px">자동 포함</span></div>
-      <div class="code-block" style="margin-top:12px">
-        <span class="comment">## Reusability</span><br>
-        <span class="key">- [ ]</span> <span class="val">RE-01</span>: private 일회용 컴포넌트가 없다<br>
-        <span class="key">- [ ]</span> <span class="val">RE-02</span>: 기존 공용 컴포넌트를 재사용한다
-      </div>
-    </div>
-
-    <!-- Section 4: Diagnostics -->
+  <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="num">4</span> Diagnostics <span class="tag tag-simple" style="margin-left:8px">자동 포함</span></div>
-      <div class="code-block" style="margin-top:12px">
-        <span class="comment">## Diagnostics</span><br>
-        <span class="key">- [ ]</span> <span class="val">DG-01</span>: analyze 경고 0건<br>
-        <span class="key">- [ ]</span> <span class="val">DG-02</span>: analyze 에러 0건<br>
-        <span class="key">- [ ]</span> <span class="val">DG-03</span>: 테스트 전체 통과<br>
-        <span class="key">- [ ]</span> <span class="val">DG-04</span>: 콘솔 에러 0건
-      </div>
+      <div class="card-title"><span class="dot"></span>파일 경로</div>
+      <code class="code-block">.harness/sprint-contract.md</code>
+      <p>모든 sprint-contract 스킬과 qa-evaluator 에이전트가 이 경로를 참조한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>frontmatter 예시</div>
+      <code class="code-block">---
+feature: "로그인 화면"
+created: "2026-04-11 14:30"
+complexity: "medium"
+conditions: 10
+---</code>
+      <p><code>complexity</code>: <code>simple</code> / <code>medium</code> / <code>complex</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: SPECIFICITY TAGS -->
+<div class="section">
+  <div class="section-label">Specificity Tag</div>
+  <div class="section-title">조건 끝 태그 — 모든 조건에 필수</div>
+  <p class="section-desc">v2 부터 모든 계약 조건은 끝에 구체성 태그를 붙여야 한다. 미명시 시 <code>[structural]</code> 로 간주된다 (기본값).</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>태그</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td><code>[exact]</code></td><td>이름/값/구조 문자 그대로 매칭</td></tr>
+        <tr><td><code>[structural]</code></td><td>섹션/필드/파일 존재 확인 (기본값)</td></tr>
+        <tr><td><code>[goal]</code></td><td>목표 달성 여부만 판정, 수단 무관</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <code class="code-block">- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
+- [ ] UI-02: 설정 화면에 접근성 라벨이 모든 버튼에 존재한다 [structural]
+- [ ] LO-01: 로그인 실패 시 사용자에게 실패 원인이 전달된다 [goal]</code>
+
+  <div class="card" style="margin-top:18px;border-left:3px solid var(--accent)">
+    <div class="card-title"><span class="dot"></span>네이밍 규칙</div>
+    <p>숫자 레벨 태그 (L1/L2/L3) 는 <strong>QA 평가 깊이 전용</strong>으로 예약되어 있다. 계약 태그로 재사용 금지. 자세한 작성 기준은 <a href="contract-design.html" style="color:var(--accent)">Contract Design Guide</a> 의 §태그 선택 기준 참조.</p>
+  </div>
+</div>
+
+<!-- SECTION 4: AGGREGATION MODE -->
+<div class="section">
+  <div class="section-label">Aggregation Mode</div>
+  <div class="section-title">다수 대상 조건 — enumerated vs collective</div>
+  <p class="section-desc">조건이 다수 대상 (파일/모듈/키워드) 에 적용될 때, 태그에 모드를 함께 명시한다. 기본값은 <code>collective</code> (포괄, 더 관대).</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>모드</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td><code>enumerated</code></td><td>각 대상을 개별 이름으로 명시해야 PASS</td></tr>
+        <tr><td><code>collective</code> (기본)</td><td>포괄 경로/패턴 하나로도 PASS</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <code class="code-block">- [ ] RE-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이
+       각각 파일명으로 명시된다 [exact, enumerated]
+- [ ] RE-02: References 에 docs/react/kit-design/ 경로가 명시된다
+       [structural, collective]</code>
+
+  <div class="grid-2" style="margin-top:18px">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>모드 적용 규칙</div>
+      <p>모드는 태그가 <code>[exact]</code> 또는 <code>[structural]</code> 일 때만 의미가 있다. <code>[goal]</code> 은 aggregation 개념 자체가 적용되지 않는다.</p>
+      <a class="card-source" href="contract-design.html">Contract Design Guide</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>네 가지 조합</div>
+      <p><code>[exact, enumerated]</code> 가장 엄격, <code>[structural, enumerated]</code> 섹션별 검증, <code>[structural, collective]</code> 기본값, <code>[goal, collective]</code> 의미 매칭.</p>
+      <a class="card-source" href="qa-evaluation.html">QA Evaluation Guide</a>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: REQUIRED SECTIONS -->
+<div class="section">
+  <div class="section-label">Required Sections</div>
+  <div class="section-title">필수 섹션 — 4가지</div>
+  <p class="section-desc">모든 Sprint Contract 는 아래 4 가지 섹션을 반드시 포함한다. Reusability 와 Diagnostics 는 sprint-contract 스킬이 자동으로 추가한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>1. 카테고리별 조건</div>
+      <code class="code-block">## {CategoryID}
+- [ ] {PREFIX}-{NN}: {조건문} [tag]</code>
+      <p><code>CategoryID</code> 와 <code>PREFIX</code> 는 <code>project.yaml.contract_categories</code> 에서 가져온다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>2. Anti-patterns</div>
+      <code class="code-block">## Anti-patterns
+- [ ] {id}: {message}</code>
+      <p><code>project.yaml.anti_patterns</code> 에서 <strong>최소 2 개</strong> 선별. 해당 구현에서 발생 가능성이 높은 것을 우선.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>3. Reusability (자동)</div>
+      <code class="code-block">## Reusability
+- [ ] RE-01: private 일회용
+       컴포넌트가 없다
+- [ ] RE-02: 기존 공용 컴포넌트
+       를 재사용한다</code>
+      <p>스킬이 자동 삽입.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>4. Diagnostics (자동)</div>
+      <code class="code-block">## Diagnostics
+- [ ] DG-01: analyze 경고 0건
+- [ ] DG-02: analyze 에러 0건
+- [ ] DG-03: 테스트 전체 통과
+- [ ] DG-04: 콘솔 에러 0건</code>
+      <p>스킬이 자동 삽입.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: COMPLEXITY GUIDE -->
+<div class="section">
+  <div class="section-label">Complexity Guide</div>
+  <div class="section-title">복잡도별 조건 수 가이드</div>
+  <p class="section-desc">파일 영향 범위와 조건 수의 권장 비율. 과소 산정 안티패턴 방지용.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>복잡도</th><th>파일 영향</th><th>조건 수</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td><code>simple</code></td><td>1-3 파일</td><td>4-6 조건</td><td>색상 변경, 텍스트 수정, 단일 위젯 추가</td></tr>
+        <tr><td><code>medium</code></td><td>4-8 파일</td><td>8-12 조건</td><td>새 화면 + 라우트 + provider, API 연동</td></tr>
+        <tr><td><code>complex</code></td><td>9+ 파일</td><td>12-20 조건</td><td>새 feature 모듈, 멀티 레이어 리팩터링</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 7: V1 vs V2 COMPARE -->
+<div class="section">
+  <div class="section-label">v1 vs v2</div>
+  <div class="section-title">스키마 마이그레이션 — v1 계약을 v2 로</div>
+  <p class="section-desc">v1 으로 작성된 기존 계약을 v2 로 마이그레이션할 때의 변환 규칙.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">v1 — 태그 없음</div>
+      <code class="code-block">- [ ] UI-01: 라우터에 /settings
+       경로가 등록된다
+- [ ] UI-02: 모든 버튼에 접근성
+       라벨이 존재한다
+- [ ] RE-01: References 에
+       7 개 그룹 문서가 명시된다</code>
+      <p>판정 방식이 불명확 — QA Evaluator 가 해석 차이로 REJECT 가능.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">v2 — 태그 + aggregation</div>
+      <code class="code-block">- [ ] UI-01: 라우터에 /settings
+       경로가 등록된다 [exact]
+- [ ] UI-02: 모든 버튼에 접근성
+       라벨이 존재한다 [structural]
+- [ ] RE-01: References 에 g1, g2,
+       g3, g4, g5, g5b, g6 7 개 파일
+       이 명시된다 [exact, enumerated]</code>
+      <p>판정 방식이 사전 합의됨 — 평가 시 해석 충돌 없음.</p>
     </div>
   </div>
 
-  <!-- Condition ID Format -->
-  <div class="section">
-    <div class="section-label">ID Format</div>
-    <h2>조건 ID 포맷 규칙</h2>
-    <p class="desc">모든 조건은 카테고리 PREFIX와 2자리 순번으로 고유하게 식별된다. qa-evaluator가 이 ID로 조건을 추적한다.</p>
-    <div class="code-block">
-      <span class="comment"># 포맷: {PREFIX}-{NN}</span><br><br>
-      <span class="val">UI-01</span>: 로그인 폼이 화면 중앙에 위치한다<br>
-      <span class="val">UI-02</span>: 비밀번호 필드가 마스킹 처리된다<br>
-      <span class="val">API-01</span>: POST /auth/login 엔드포인트가 존재한다<br>
-      <span class="val">RE-01</span>: private 일회용 컴포넌트가 없다<br>
-      <span class="val">DG-03</span>: 테스트 전체 통과
-    </div>
+  <div class="card" style="margin-top:18px;border-left:3px solid var(--yellow)">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>레거시 호환</div>
+    <p>v1 계약의 <code>[L1]</code> / <code>[L2]</code> / <code>[L3]</code> 태그가 남아 있는 경우, qa-evaluator 는 다음 매핑으로 해석한다: <code>[L1]</code> ≡ <code>[exact]</code>, <code>[L2]</code> ≡ <code>[structural]</code>, <code>[L3]</code> ≡ <code>[goal]</code>. 신규 계약에는 사용 금지.</p>
+    <a class="card-source" href="qa-evaluation.html">QA Evaluation §Specificity Tag 소비</a>
+  </div>
+</div>
+
+<!-- SECTION 8: VALIDATION CHECKLIST -->
+<div class="section">
+  <div class="section-label">Schema Validation</div>
+  <div class="section-title">v2 계약 검증 체크리스트</div>
+  <p class="section-desc">계약 파일을 작성/수정한 뒤 자가 점검 항목. <code>sprint-contract</code> 스킬이 이 항목을 자동 검사한다.</p>
+  <ul class="checklist">
+    <li><span class="check">✓</span> 파일 경로가 <code>.harness/sprint-contract.md</code> 와 일치</li>
+    <li><span class="check">✓</span> frontmatter 에 <code>feature</code>, <code>created</code>, <code>complexity</code>, <code>conditions</code> 4 필드 존재</li>
+    <li><span class="check">✓</span> 모든 조건이 <code>- [ ]</code> 체크박스로 시작</li>
+    <li><span class="check">✓</span> 모든 조건에 ID (예: <code>UI-01</code>) 가 부여됨</li>
+    <li><span class="check">✓</span> 모든 조건 끝에 specificity tag <code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code> 명시</li>
+    <li><span class="check">✓</span> 다수 대상 조건은 aggregation mode <code>[enumerated]</code>/<code>[collective]</code> 명시</li>
+    <li><span class="check">✓</span> 숫자 레벨 태그 (L1/L2/L3) 가 조건에 등장하지 않음 (legacy 변환 완료)</li>
+    <li><span class="check">✓</span> Anti-patterns 섹션에 최소 2 개 항목</li>
+    <li><span class="check">✓</span> Reusability 섹션 (RE-01, RE-02) 자동 포함</li>
+    <li><span class="check">✓</span> Diagnostics 섹션 (DG-01 ~ DG-04) 자동 포함</li>
+    <li><span class="check">✓</span> 복잡도와 조건 수가 가이드 비율과 일치 (simple 4-6, medium 8-12, complex 12-20)</li>
+    <li><span class="check">✓</span> 모든 조건이 외부 관찰 가능한 행동 — 클래스명/메서드명/DB명 없음</li>
+  </ul>
+</div>
+
+<!-- SECTION 9: CONSUMERS -->
+<div class="section">
+  <div class="section-label">Consumers</div>
+  <div class="section-title">스키마 소비자 — 누가 이 파일을 읽는가</div>
+  <p class="section-desc">contract-schema v2 는 두 개의 핵심 소비자 + 카이젠 트랙이 동일하게 읽는다. 한쪽이 변경되면 다른 쪽도 동기화되어야 한다. 스키마 v2 는 단순한 형식 합의가 아니라 sprint-contract 와 qa-evaluator 사이의 <strong>계약 인터페이스</strong>다.</p>
+
+  <div class="card" style="margin-bottom:24px;border-left:3px solid var(--accent)">
+    <div class="card-title"><span class="dot"></span>왜 동기화가 필요한가</div>
+    <p>한 측 (작성자) 이 새 태그를 도입했는데 다른 측 (소비자) 이 이를 모르면 평가 시 silent failure 가 발생한다. 예: 작성자가 <code>[goal]</code> 을 추가했는데 평가자가 <code>[exact]</code> 로만 처리하면 모든 [goal] 조건이 false negative REJECT 가 된다. 스키마 변경은 항상 양쪽 동시 마이그레이션.</p>
   </div>
 
-  <!-- Complexity Guide -->
-  <div class="section">
-    <div class="section-label">Complexity Guide</div>
-    <h2>복잡도별 조건 수 가이드</h2>
-    <p class="desc">기능의 파일 영향 범위에 따라 적절한 조건 수를 설정한다. 과소 조건은 검증 누락을, 과다 조건은 불필요한 부담을 발생시킨다.</p>
-    <div class="grid-3">
-      <div class="card" style="text-align:center">
-        <div style="margin-bottom:12px"><span class="tag tag-simple">Simple</span></div>
-        <div style="font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--green);line-height:1">4-6</div>
-        <div style="font-size:13px;color:var(--text3);margin-top:8px">조건</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">파일 영향: 1-3개</div>
-      </div>
-      <div class="card" style="text-align:center">
-        <div style="margin-bottom:12px"><span class="tag tag-medium">Medium</span></div>
-        <div style="font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--yellow);line-height:1">8-12</div>
-        <div style="font-size:13px;color:var(--text3);margin-top:8px">조건</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">파일 영향: 4-8개</div>
-      </div>
-      <div class="card" style="text-align:center">
-        <div style="margin-bottom:12px"><span class="tag tag-complex">Complex</span></div>
-        <div style="font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--red);line-height:1">12-20</div>
-        <div style="font-size:13px;color:var(--text3);margin-top:8px">조건</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">파일 영향: 9+개</div>
-      </div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>sprint-contract 스킬</div>
+      <p>계약을 <strong>작성</strong>하는 측. 사용자와 합의하여 카테고리·조건·태그·anti-patterns 를 결정하고 v2 포맷에 맞게 저장. 작성 후 schema validation 자가 점검.</p>
+      <a class="card-source" href="https://github.com/jacksonbang/claude-plugins/blob/main/harness/skills/sprint-contract/SKILL.md">sprint-contract SKILL.md</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>qa-evaluator 에이전트</div>
+      <p>계약을 <strong>소비</strong>하는 측. 각 조건의 specificity tag 와 aggregation mode 에 따라 검증 방식을 분기. 모든 조건은 evaluator 검증 깊이 L3 까지 도달해야 한다.</p>
+      <a class="card-source" href="https://github.com/jacksonbang/claude-plugins/blob/main/harness/agents/qa-evaluator.md">qa-evaluator agent</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>kaizen 트랙</div>
+      <p>contract-kaizen 과 evaluator-kaizen 이 글로벌 피드백 + 스키마를 함께 분석해 가이드 문서를 갱신. 스키마가 v3 로 bump 되면 양쪽 모두 동시 마이그레이션.</p>
+      <a class="card-source" href="feedback-system.html">Feedback System</a>
     </div>
   </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <h3>Phase 2 Kaizen 변경 요약</h3>
+  <p>Phase 2 에서 contract-schema 가 v1 → <strong>v2</strong> 로 bump 되었다. 핵심 변경: ① 모든 조건 끝에 specificity tag (<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>) 필수화, ② 다수 대상 조건에 aggregation mode (<code>[enumerated]</code>/<code>[collective]</code>) 신설, ③ 숫자 레벨 태그 (L1/L2/L3) 금지 명시 — QA 평가 깊이와의 네이밍 충돌 해결, ④ legacy 계약 마이그레이션 매핑 (<code>[L1]</code>≡<code>[exact]</code> 등) 정의, ⑤ 카테고리 ID prefix 와 조건 ID 형식 (<code>{PREFIX}-{NN}</code>) 명문화. <code>sprint-contract</code> 스킬과 <code>qa-evaluator</code> 에이전트가 동일하게 v2 를 소비한다.</p>
+
+  <h3>출처 / 관련 문서</h3>
+  <ul>
+    <li><a href="https://github.com/jacksonbang/claude-plugins/blob/main/harness/references/contract-schema.md">harness/references/contract-schema.md (소스)</a></li>
+    <li><a href="contract-design.html">Contract Design Guide — 작성 원칙</a></li>
+    <li><a href="qa-evaluation.html">QA Evaluation Guide — 태그 소비 규칙</a></li>
+    <li><a href="feedback-system.html">Feedback System — 글로벌 피드백 스키마</a></li>
+    <li><a href="https://standards.ieee.org/ieee/29148/6937/">IEEE 29148 — Requirements Engineering</a></li>
+    <li><a href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge Reliability Study — arxiv 2506.13639</a></li>
+  </ul>
+</div>
+
 </div>
 </body>
 </html>

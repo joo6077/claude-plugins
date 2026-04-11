@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>피드백 시스템 — Harness</title>
+<title>Feedback System — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
   --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
-  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --accent:#0ea5e9;--accent2:#14b8a6;--accent-dim:rgba(14,165,233,0.12);
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
@@ -18,288 +18,398 @@ html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
   background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
-                   radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(14,165,233,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.04) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
 }
-.page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
-h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
-  background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
-h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
-.section{margin-bottom:clamp(48px,6vw,80px)}
-.section-label{
-  font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
-  color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
-}
-.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent2) 0%,transparent 80%)}
-.desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
-.card:hover{border-color:var(--accent)}
-.card-title{font-size:1.05rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-thead{background:var(--surface2)}
-th{padding:14px 16px;text-align:left;font-weight:600;font-size:12px;color:var(--text2);
-  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.6}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:rgba(217,119,87,0.04)}
-td:first-child{color:var(--text);font-weight:600;white-space:nowrap}
-.num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;
-  border-radius:50%;font-size:12px;font-weight:700;background:var(--accent-dim);color:var(--accent);margin-right:8px}
-.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
-.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.6}
-.checklist li::before{content:'';width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:2px}
-.mono{font-family:var(--mono);font-size:13px;color:var(--accent2)}
-.code-block{
-  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
-  padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.6;
-  color:var(--text2);overflow-x:auto;margin-bottom:24px;
-}
-.code-block .key{color:var(--accent)}
-.code-block .val{color:var(--green)}
-.code-block .comment{color:var(--text3)}
-.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--mono)}
-.tag-required{background:rgba(217,119,87,0.12);color:var(--accent)}
-.tag-optional{background:rgba(122,111,100,0.2);color:var(--text3)}
-.tag-contract{background:rgba(251,191,36,0.12);color:var(--yellow)}
-.tag-evaluator{background:rgba(74,222,128,0.12);color:var(--green)}
-.path-badge{
-  display:inline-block;padding:6px 16px;border-radius:8px;
-  background:var(--surface2);border:1px solid var(--border);
-  font-family:var(--mono);font-size:14px;color:var(--accent);margin-bottom:16px;
-}
-.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:24px;transition:color var(--transition)}
-.back-link:hover{color:var(--accent)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* Flow diagram */
-.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:32px}
-.flow-node{
-  padding:14px 20px;border-radius:12px;font-size:13px;font-weight:600;
-  background:var(--surface);border:2px solid var(--border);text-align:center;
-  min-width:140px;transition:border-color var(--transition);
-}
-.flow-node:hover{border-color:var(--accent)}
-.flow-node.active{border-color:var(--accent);background:var(--accent-dim)}
-.flow-node .flow-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px}
-.flow-arrow{
-  width:40px;display:flex;align-items:center;justify-content:center;
-  color:var(--text3);font-size:18px;flex-shrink:0;
-}
-@media(max-width:900px){
-  .flow{flex-direction:column;align-items:stretch}
-  .flow-arrow{width:auto;height:30px;transform:rotate(90deg)}
+.page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
+
+.hero{padding:72px 0 56px;text-align:center}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
+.hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);min-height:24px;display:inline-flex;align-items:center}
+
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 70%)}
+.section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em}
+.section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card p{font-size:13.5px;color:var(--text2);line-height:1.7}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition)}
+.card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source::before{content:'↗';font-weight:800}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:920px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:700;font-size:12px;color:var(--text2);
+  letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-dim)}
+td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
+
+code,.code-block{font-family:var(--mono);font-size:12.5px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:8px 0}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:760px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7;
+  padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
+.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
+
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0;font-size:13px;color:var(--text2)}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-weight:600;min-height:24px;display:inline-flex;align-items:center}
+.flow-arrow{color:var(--accent);font-weight:800;font-size:18px}
+
+.field-tag{display:inline-block;padding:3px 8px;border-radius:6px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
+.field-required{background:rgba(248,113,113,0.15);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
+.field-optional{background:rgba(122,111,100,0.15);color:var(--text3);border:1px solid var(--border)}
+.field-new{background:rgba(74,222,128,0.15);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+
+.footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.footer a:hover{color:var(--accent2)}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;scroll-behavior:auto !important}
 }
 </style>
 </head>
 <body>
 <div class="page">
-  <a href="../index.html" class="back-link">&larr; Documentation Home</a>
+
+<div class="topbar">
+  <div class="brand"><span class="brand-dot"></span>HARNESS · Feedback System</div>
+  <span class="badge">Phase 4 · 2026-04-11</span>
+</div>
+
+<div class="hero">
   <h1>피드백 시스템</h1>
-  <p class="subtitle">수집 &rarr; 저장 &rarr; 분석 &rarr; 카이젠 사이클 &#8212; sprint-contract와 qa-evaluator 실행 후 글로벌 저장되는 피드백 파일 포맷 및 자기개선 메커니즘</p>
+  <p class="subtitle"><code>sprint-contract</code> 와 <code>qa-evaluator</code> 실행 후 글로벌 저장되는 피드백 파일 포맷. Phase 4 카이젠은 2026 agentic regression detection 트렌드 (Sauce Labs, ContextQA, GrowthBook) 를 반영해 누적 분석 필드 3개 (<code>repeat_count</code>, <code>first_seen_at</code>, <code>regression_link</code>) 를 추가했다.</p>
+  <div class="meta">
+    <span>Phase 4 Kaizen</span>
+    <span>schema_version 1</span>
+    <span>최근 갱신 2026-04-11</span>
+    <span>저장소 ~/.harness/feedback/</span>
+  </div>
+</div>
 
-  <!-- Flow Diagram -->
-  <div class="section">
-    <div class="section-label">Feedback Flow</div>
-    <h2>피드백 플로우 다이어그램</h2>
-    <p class="desc">스킬 실행부터 카이젠 트리거까지의 전체 피드백 사이클</p>
-    <div class="flow">
-      <div class="flow-node active">
-        <div class="flow-label">Phase 1</div>
-        sprint-contract<br>실행
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-node">
-        <div class="flow-label">Phase 2</div>
-        qa-evaluator<br>판정
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-node">
-        <div class="flow-label">Phase 3</div>
-        자기진단 +<br>교차진단
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-node">
-        <div class="flow-label">Phase 4</div>
-        save-feedback.sh<br>YAML 저장
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-node">
-        <div class="flow-label">Phase 5</div>
-        trigger-check<br>임계치 확인
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-node active">
-        <div class="flow-label">Phase 6</div>
-        kaizen<br>자동 개선
-      </div>
-    </div>
+<!-- SECTION 1: WHAT IS FEEDBACK -->
+<div class="section">
+  <div class="section-label">Overview</div>
+  <div class="section-title">피드백 시스템 개요</div>
+  <p class="section-desc">매번 sprint-contract 와 qa-evaluator 가 실행될 때마다 결과 + 자가진단 + 교차진단을 YAML 파일로 글로벌 저장한다. 피드백은 카이젠 (harness/contract/evaluator-kaizen) 의 입력으로 소비된다.</p>
 
-    <h2 style="font-size:clamp(16px,1.8vw,22px);margin-top:16px">글로벌 저장 경로</h2>
-    <p class="desc">피드백은 프로젝트가 아닌 사용자 홈 디렉토리에 글로벌로 저장되어, 여러 프로젝트의 피드백을 종합 분석할 수 있다.</p>
-    <div class="path-badge">~/.harness/feedback/</div>
-    <p class="desc" style="margin-top:12px">프로젝트는 <span class="mono">project_hash</span> (경로 SHA-256 앞 8자)로 구분된다. 스키마 버전: <strong style="color:var(--accent)">v1</strong></p>
+  <div class="flow">
+    <span class="flow-step">sprint-contract 실행</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">자기진단</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">교차진단 (qa-evaluator)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">YAML 저장</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">카이젠 입력</span>
   </div>
 
-  <!-- Schema Fields -->
-  <div class="section">
-    <div class="section-label">Schema Fields</div>
-    <h2>공통 필수 필드</h2>
-    <p class="desc">모든 피드백 YAML에 반드시 포함되는 6개 필드</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>필드</th><th>타입</th><th>설명</th><th>예시</th></tr></thead>
-        <tbody>
-          <tr><td>timestamp</td><td class="mono">ISO-8601</td><td>피드백 생성 시각</td><td class="mono">"2026-03-30T14:00:00+09:00"</td></tr>
-          <tr><td>project_hash</td><td class="mono">string(8)</td><td>프로젝트 경로 SHA-256 앞 8자</td><td class="mono">"a1b2c3d4"</td></tr>
-          <tr><td>project_name</td><td class="mono">string</td><td>사람이 읽을 수 있는 프로젝트 식별자</td><td class="mono">"my-flutter-app"</td></tr>
-          <tr><td>skill</td><td class="mono">enum</td><td>실행한 스킬</td><td class="mono">sprint-contract | qa-evaluator</td></tr>
-          <tr><td>skill_version</td><td class="mono">semver</td><td>스킬 버전</td><td class="mono">"1.3.0"</td></tr>
-          <tr><td>outcome</td><td class="mono">enum</td><td>실행 결과</td><td class="mono">completed | failed | blocked</td></tr>
-        </tbody>
-      </table>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>저장 위치</div>
+      <code class="code-block">~/.harness/feedback/
+└── {project_hash}-{timestamp}.yaml</code>
+      <p>프로젝트 경로 SHA-256 앞 8자 + ISO-8601 타임스탬프. <code>save-feedback.sh</code> 가 스키마 검증 후 저장.</p>
     </div>
-
-    <!-- Contract-specific -->
-    <h2 style="font-size:clamp(16px,1.8vw,22px);margin-top:32px">스킬별 전용 필드</h2>
-    <div class="grid-2" style="margin-top:16px">
-      <div class="card">
-        <div class="card-title"><span class="tag tag-contract">sprint-contract</span></div>
-        <div class="table-wrap" style="margin-top:12px">
-          <table>
-            <thead><tr><th>필드</th><th>타입</th></tr></thead>
-            <tbody>
-              <tr><td>condition_count</td><td class="mono">int</td></tr>
-              <tr><td>category_count</td><td class="mono">int</td></tr>
-              <tr><td>category_coverage</td><td class="mono">float (0.0-1.0)</td></tr>
-              <tr><td>anti_pattern_count</td><td class="mono">int (&ge; 2)</td></tr>
-              <tr><td>complexity</td><td class="mono">enum</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="tag tag-evaluator">qa-evaluator</span></div>
-        <div class="table-wrap" style="margin-top:12px">
-          <table>
-            <thead><tr><th>필드</th><th>타입</th></tr></thead>
-            <tbody>
-              <tr><td>verdict</td><td class="mono">APPROVE | REJECT | BLOCKED</td></tr>
-              <tr><td>conditions_total</td><td class="mono">int</td></tr>
-              <tr><td>conditions_passed</td><td class="mono">int</td></tr>
-              <tr><td>l3_coverage</td><td class="mono">float (0.0-1.0)</td></tr>
-              <tr><td>reject_reasons</td><td class="mono">list[string]</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>저장 보존 정책</div>
+      <p>최근 6 개월 + 최대 500 건. 글로벌 피드백이 무한 누적되면 카이젠 입력 토큰이 과부하되므로, 오래된 피드백은 자동 정리된다.</p>
+      <a class="card-source" href="https://growthbook.io/blog/feedback-loops-agentic-coding/">Feedback Loops in Agentic Coding</a>
     </div>
   </div>
+</div>
 
-  <!-- Self-diagnosis -->
-  <div class="section">
-    <div class="section-label">Self-Diagnosis</div>
-    <h2>자기진단 체크리스트</h2>
-    <p class="desc">각 스킬은 실행 완료 후 고정된 boolean 체크리스트를 자가 점검하여 피드백에 기록한다.</p>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title"><span class="tag tag-contract">sprint-contract 체크리스트</span></div>
-        <ul class="checklist" style="margin-top:12px">
-          <li><span class="mono">ambiguous_conditions</span> &mdash; 모호한 조건이 있는가?</li>
-          <li><span class="mono">missing_error_paths</span> &mdash; 에러 경로 조건이 누락되었는가?</li>
-          <li><span class="mono">untestable_conditions</span> &mdash; 테스트 불가능한 조건이 있는가?</li>
-          <li><span class="mono">category_coverage_gap</span> &mdash; 카테고리 커버리지에 갭이 있는가?</li>
-          <li><span class="mono">complexity_underestimate</span> &mdash; 복잡도를 과소평가했는가?</li>
-        </ul>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="tag tag-evaluator">qa-evaluator 체크리스트</span></div>
-        <ul class="checklist" style="margin-top:12px">
-          <li><span class="mono">l3_unreached</span> &mdash; L3 검증에 미도달한 조건이 있는가?</li>
-          <li><span class="mono">bias_detected</span> &mdash; 편향 징후가 감지되었는가?</li>
-          <li><span class="mono">evidence_missing</span> &mdash; 증거 없이 판정한 조건이 있는가?</li>
-          <li><span class="mono">contract_misinterpret</span> &mdash; 계약 조건을 오해석했을 가능성이 있는가?</li>
-          <li><span class="mono">perspective_gap</span> &mdash; 단일 관점에서만 평가한 조건이 있는가?</li>
-        </ul>
-      </div>
+<!-- SECTION 2: COMMON FIELDS -->
+<div class="section">
+  <div class="section-label">Common Fields</div>
+  <div class="section-title">공통 필수 필드</div>
+  <p class="section-desc">모든 피드백 YAML 에 공통으로 포함되는 필수 필드. <code>save-feedback.sh</code> 가 검증한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>필드</th><th>타입</th><th>예시</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>schema_version</code> <span class="field-tag field-required">필수</span></td><td>int</td><td><code>1</code></td><td>스키마 버전</td></tr>
+        <tr><td><code>timestamp</code> <span class="field-tag field-required">필수</span></td><td>ISO-8601</td><td><code>"2026-03-30T14:00:00+09:00"</code></td><td>피드백 생성 시각</td></tr>
+        <tr><td><code>project_hash</code> <span class="field-tag field-required">필수</span></td><td>string(8)</td><td><code>"a1b2c3d4"</code></td><td>프로젝트 경로 SHA-256 앞 8자</td></tr>
+        <tr><td><code>project_name</code> <span class="field-tag field-required">필수</span></td><td>string</td><td><code>"my-flutter-app"</code></td><td>사람이 읽을 수 있는 식별자</td></tr>
+        <tr><td><code>skill</code> <span class="field-tag field-required">필수</span></td><td>enum</td><td><code>sprint-contract</code> / <code>qa-evaluator</code></td><td>실행한 스킬/에이전트</td></tr>
+        <tr><td><code>skill_version</code> <span class="field-tag field-required">필수</span></td><td>semver</td><td><code>"1.3.0"</code></td><td>스킬 버전</td></tr>
+        <tr><td><code>outcome</code> <span class="field-tag field-required">필수</span></td><td>enum</td><td><code>completed</code> / <code>failed</code> / <code>blocked</code></td><td>실행 결과</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 3: SKILL-SPECIFIC FIELDS -->
+<div class="section">
+  <div class="section-label">Skill-Specific</div>
+  <div class="section-title">스킬별 전용 필드 (contract / evaluator)</div>
+  <p class="section-desc">실행한 스킬에 따라 전용 필드가 추가된다. <code>contract</code> 는 sprint-contract 에서, <code>evaluation</code> 은 qa-evaluator 에서 사용.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>contract 필드 (sprint-contract)</div>
+      <code class="code-block">contract:
+  condition_count: 8
+  category_count: 4
+  category_coverage: 0.8
+  anti_pattern_count: 3
+  complexity: medium</code>
+      <p><code>category_coverage</code> 는 0.0~1.0 (project.yaml 카테고리 대비 비율). <code>anti_pattern_count</code> 는 최소 2.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>evaluation 필드 (qa-evaluator)</div>
+      <code class="code-block">evaluation:
+  verdict: APPROVE  # or REJECT / BLOCKED
+  conditions_total: 10
+  conditions_passed: 9
+  l3_coverage: 0.95
+  reject_reasons:
+    - "DG-02 fenced fence 누락"</code>
+      <p><code>l3_coverage</code> 는 L3 검증 도달 비율. REJECT 시 사유 목록 필수.</p>
     </div>
   </div>
+</div>
 
-  <!-- Cross-diagnosis -->
-  <div class="section">
-    <div class="section-label">Cross-Diagnosis</div>
-    <h2>교차 진단 프로세스</h2>
-    <p class="desc">qa-evaluator 실행 후 sprint-contract 서브에이전트를 호출하여 해석 정확성을 검증한다.</p>
-    <div class="grid-3">
-      <div class="card">
-        <div class="card-title"><span class="num">1</span> 전달 내용</div>
-        <p style="font-size:13px;color:var(--text2)">평가 판정 결과 (출력만 전달). 평가 과정의 추론이나 중간 메모는 전달하지 않는다.</p>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="num">2</span> 핵심 질문</div>
-        <p style="font-size:13px;color:var(--text2)">"계약 조건의 원래 의도를 정확히 해석했는가?" &mdash; 계약 작성자 관점의 검증</p>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="num">3</span> 결과 기록</div>
-        <p style="font-size:13px;color:var(--text2)">피드백 YAML의 <span class="mono">cross_diagnosis_by</span>, <span class="mono">cross_diagnosis_notes</span> 필드에 기록</p>
-      </div>
+<!-- SECTION 4: DIAGNOSIS FIELDS -->
+<div class="section">
+  <div class="section-label">Diagnosis</div>
+  <div class="section-title">자기진단 + 교차진단 — diagnosis 필드</div>
+  <p class="section-desc">실행 후 자가 점검 (checklist) + 교차 진단 (cross_diagnosis) 결과가 모두 저장된다. 카이젠은 이 데이터를 분석해 가이드 문서를 개선한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>sprint-contract checklist</div>
+      <code class="code-block">diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: true
+    untestable_conditions: false
+    category_coverage_gap: false
+    complexity_underestimate: false</code>
+      <p>5 개 boolean 필드. 하나라도 <code>true</code> 면 다음 iteration 에서 개선 필요.</p>
+      <a class="card-source" href="contract-design.html">Contract Design Guide</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>qa-evaluator checklist</div>
+      <code class="code-block">diagnosis:
+  checklist:
+    l3_unreached: false
+    bias_detected: false
+    evidence_missing: false
+    contract_misinterpret: false
+    perspective_gap: false</code>
+      <p>5 개 boolean 필드. evaluator 자체 품질 점검.</p>
+      <a class="card-source" href="qa-evaluation.html">QA Evaluation Guide</a>
     </div>
   </div>
 
-  <!-- Example YAML -->
-  <div class="section">
-    <div class="section-label">Example</div>
-    <h2>피드백 YAML 예시</h2>
-    <p class="desc">sprint-contract 실행 후 저장되는 피드백 파일의 전체 구조</p>
-    <div class="code-block">
-      <span class="key">schema_version</span>: <span class="val">1</span><br>
-      <span class="key">timestamp</span>: <span class="val">"2026-03-30T14:00:00+09:00"</span><br>
-      <span class="key">project_hash</span>: <span class="val">"a1b2c3d4"</span><br>
-      <span class="key">project_name</span>: <span class="val">"my-flutter-app"</span><br>
-      <span class="key">skill</span>: <span class="val">sprint-contract</span><br>
-      <span class="key">skill_version</span>: <span class="val">"0.3.3"</span><br>
-      <span class="key">outcome</span>: <span class="val">completed</span><br><br>
-      <span class="key">contract</span>:<br>
-      &nbsp;&nbsp;<span class="key">condition_count</span>: <span class="val">8</span><br>
-      &nbsp;&nbsp;<span class="key">category_count</span>: <span class="val">4</span><br>
-      &nbsp;&nbsp;<span class="key">category_coverage</span>: <span class="val">0.8</span><br>
-      &nbsp;&nbsp;<span class="key">anti_pattern_count</span>: <span class="val">3</span><br>
-      &nbsp;&nbsp;<span class="key">complexity</span>: <span class="val">medium</span><br><br>
-      <span class="key">diagnosis</span>:<br>
-      &nbsp;&nbsp;<span class="key">checklist</span>:<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">ambiguous_conditions</span>: <span class="val">false</span><br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">missing_error_paths</span>: <span style="color:var(--red)">true</span><br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">untestable_conditions</span>: <span class="val">false</span><br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">category_coverage_gap</span>: <span class="val">false</span><br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">complexity_underestimate</span>: <span class="val">false</span><br>
-      &nbsp;&nbsp;<span class="key">cross_diagnosis_by</span>: <span class="val">qa-evaluator</span><br>
-      &nbsp;&nbsp;<span class="key">cross_diagnosis_notes</span>: <span class="val">"조건 3번 경계값 누락 가능성"</span><br>
-      &nbsp;&nbsp;<span class="key">improvement_suggestions</span>:<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">"에러 경로 조건을 별도 카테고리로 분리"</span><br><br>
-      <span class="key">user_rating</span>: <span class="comment">null</span><br>
-      <span class="key">user_comment</span>: <span class="comment">null</span>
-    </div>
+  <div class="card" style="margin-top:18px">
+    <div class="card-title"><span class="dot"></span>교차진단 (cross_diagnosis)</div>
+    <code class="code-block">diagnosis:
+  cross_diagnosis_by: qa-evaluator   # 또는 sprint-contract
+  cross_diagnosis_notes: "조건 3번 경계값 누락 가능성"
+  improvement_suggestions:
+    - "에러 경로 조건을 별도 카테고리로 분리"</code>
+    <p>sprint-contract 를 실행했으면 qa-evaluator 가 교차진단, qa-evaluator 를 실행했으면 sprint-contract 가 교차진단. 각자의 시야 한계를 보완한다.</p>
   </div>
+</div>
 
-  <!-- User Signal -->
-  <div class="section">
-    <div class="section-label">User Signal</div>
-    <h2>사용자 시그널 (선택)</h2>
-    <p class="desc">사용자가 스킬 결과에 대해 평가를 남길 수 있는 선택적 필드</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>user_rating <span class="tag tag-optional">optional</span></td><td class="mono">enum | null</td><td>good 또는 bad. 미평가 시 null</td></tr>
-          <tr><td>user_comment <span class="tag tag-optional">optional</span></td><td class="mono">string | null</td><td>사용자의 자유 코멘트. 미작성 시 null</td></tr>
-        </tbody>
-      </table>
+<!-- SECTION 5: NEW REGRESSION FIELDS (PHASE 4) -->
+<div class="section">
+  <div class="section-label">Phase 4 New Fields</div>
+  <div class="section-title">누적 분석 필드 — repeat_count / first_seen_at / regression_link</div>
+  <p class="section-desc">Phase 4 카이젠의 핵심 추가. 2026 agentic regression detection 트렌드 (Sauce Labs, ContextQA, GrowthBook 의 "Feedback Loops are the Next Breakthrough in Agentic Coding") 에 맞춰 신설된 optional 필드. <code>save-feedback.sh</code> 의 required 리스트에는 포함되지 않으며, 없어도 검증 PASS.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>repeat_count</code> <span class="field-tag field-new" style="margin-left:6px">v1+</span></div>
+      <p>동일 <code>diagnosis.checklist</code> 시그니처가 글로벌 피드백에서 반복된 횟수. <strong>contract-kaizen / evaluator-kaizen 의 "최근 10건 중 3 회 이상" 임계치 판단</strong>에 사용.</p>
+      <code class="code-block">repeat_count: 2</code>
+      <a class="card-source" href="https://saucelabs.com/blog/agentic-regression-detection">Sauce Labs Agentic Regression</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>first_seen_at</code> <span class="field-tag field-new" style="margin-left:6px">v1+</span></div>
+      <p>동일 시그니처가 처음 발견된 타임스탬프. <strong>만성 이슈 vs 신규 이슈 구분</strong>에 사용. 2 주 이상 지속되면 만성 이슈로 분류.</p>
+      <code class="code-block">first_seen_at:
+  "2026-03-28T09:15:00+09:00"</code>
+      <a class="card-source" href="https://contextqa.com/agentic-testing">ContextQA Agentic Testing</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>regression_link</code> <span class="field-tag field-new" style="margin-left:6px">v1+</span></div>
+      <p>이전 APPROVE 피드백 파일명. APPROVE 후 같은 영역에서 다시 REJECT 발생 시 <strong>회귀 추적</strong>용. <code>null</code> 이면 회귀 아님.</p>
+      <code class="code-block">regression_link:
+  "a1b2c3d4-2026-04-10T120000.yaml"</code>
+      <a class="card-source" href="https://growthbook.io/blog/feedback-loops-agentic-coding/">GrowthBook Feedback Loops</a>
     </div>
   </div>
+</div>
+
+<!-- SECTION 6: COMPLETE EXAMPLE -->
+<div class="section">
+  <div class="section-label">Complete Example</div>
+  <div class="section-title">완전한 피드백 YAML 예시</div>
+  <p class="section-desc">sprint-contract 실행 후 저장되는 전체 YAML 구조. Phase 4 누적 분석 필드 포함.</p>
+
+  <code class="code-block">schema_version: 1
+timestamp: "2026-03-30T14:00:00+09:00"
+project_hash: "a1b2c3d4"
+project_name: "my-flutter-app"
+skill: sprint-contract
+skill_version: "0.3.3"
+outcome: completed
+
+contract:
+  condition_count: 8
+  category_count: 4
+  category_coverage: 0.8
+  anti_pattern_count: 3
+  complexity: medium
+
+diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: true
+    untestable_conditions: false
+    category_coverage_gap: false
+    complexity_underestimate: false
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "조건 3번 경계값 누락 가능성"
+  improvement_suggestions:
+    - "에러 경로 조건을 별도 카테고리로 분리"
+
+# Phase 4 누적 분석 필드 (optional)
+repeat_count: 2
+first_seen_at: "2026-03-28T09:15:00+09:00"
+regression_link: null
+
+# 사용자 시그널 (optional)
+user_rating: null
+user_comment: null</code>
+</div>
+
+<!-- SECTION 7: BAD/GOOD COMPARE -->
+<div class="section">
+  <div class="section-label">Common Mistakes</div>
+  <div class="section-title">피드백 작성 안티패턴</div>
+  <p class="section-desc">save-feedback.sh 가 검증을 통과하더라도, 카이젠 입력으로는 쓸모없는 피드백이 발생할 수 있는 안티패턴.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 모호한 진단</div>
+      <code class="code-block">diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    # ... 전부 false
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "OK"
+  improvement_suggestions: []</code>
+      <p>모든 항목이 false + 빈 suggestions = 카이젠이 분석할 정보 없음. 진짜 OK 인지 점검을 안 했는지 구분 불가.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 구체적 진단</div>
+      <code class="code-block">diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: true
+    untestable_conditions: false
+    category_coverage_gap: false
+    complexity_underestimate: false
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: >
+    UI-03 의 "사용자에게 적절히
+    표시" 가 모호. [goal] 태그
+    추가 권장.
+  improvement_suggestions:
+    - "에러 경로 카테고리 신설"
+    - "UI-03 [goal] 태그 추가"</code>
+      <p>구체적 항목 + 인용 + 제안 ≥ 1.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 8: GOTCHAS CHECKLIST -->
+<div class="section">
+  <div class="section-label">Gotchas Checklist</div>
+  <div class="section-title">피드백 시스템 운영 체크리스트</div>
+  <p class="section-desc">피드백 저장·소비 시 점검 항목.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span> <code>save-feedback.sh</code> 가 schema_version, timestamp, project_hash 등 7 개 필수 필드를 검증</li>
+    <li><span class="check">✓</span> <code>project_hash</code> 는 프로젝트 경로 SHA-256 앞 8자 — 여러 PC 에서 동일 프로젝트면 동일 해시</li>
+    <li><span class="check">✓</span> <code>diagnosis.checklist</code> 는 스킬별 고정 필드 (sprint-contract 5개, qa-evaluator 5개) — 임의 추가 금지</li>
+    <li><span class="check">✓</span> <code>improvement_suggestions</code> 가 빈 배열이면 카이젠 입력 가치 없음 — 최소 1 개 작성</li>
+    <li><span class="check">✓</span> <strong>Phase 4 누적 필드</strong> <code>repeat_count</code>/<code>first_seen_at</code>/<code>regression_link</code> 는 optional 이지만 카이젠 효율을 크게 높임</li>
+    <li><span class="check">✓</span> <code>regression_link</code> 가 non-null 이면 동일 영역의 회귀 — 우선순위 높게 다룸</li>
+    <li><span class="check">✓</span> <code>repeat_count ≥ 3</code> 이면 만성 패턴 — 가이드 문서 갱신 필요</li>
+    <li><span class="check">✓</span> 글로벌 피드백 디렉토리 정리 정책: 최근 6 개월 + 최대 500 건</li>
+    <li><span class="check">✓</span> 사용자 시그널 (<code>user_rating</code>, <code>user_comment</code>) 은 optional 이지만 가이드 우선순위 가중에 사용</li>
+    <li><span class="check">✓</span> <code>outcome: blocked</code> 는 외부 차단 (네트워크, 도구 권한 등) — 스킬 자체 품질 문제 아님</li>
+  </ul>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <h3>Phase 4 Kaizen 변경 요약</h3>
+  <p>Phase 4 에서 harness 의 피드백 시스템에 누적 분석 트랙이 추가되었다. 핵심 변경: ① <code>repeat_count</code> — 동일 진단 시그니처 반복 횟수, "최근 10 건 중 3 회 이상" 임계치 판단에 사용, ② <code>first_seen_at</code> — 첫 발견 타임스탬프, 만성 vs 신규 이슈 구분, ③ <code>regression_link</code> — 이전 APPROVE 피드백 파일명, 회귀 추적용. 세 필드 모두 <strong>optional</strong> 이며 <code>save-feedback.sh</code> 의 required 리스트에는 포함되지 않는다 (기존 피드백과 호환). harness-kaizen / contract-kaizen / evaluator-kaizen 의 Triage 단계가 이 필드를 소비해 우선순위를 매긴다. Phase 4 는 또한 글로벌 피드백 보존 정책 (6 개월 + 최대 500 건) 을 명문화하고, save-feedback.sh / verify-feedback.sh 스크립트의 동작을 schema 와 정합시켰다.</p>
+
+  <h3>출처</h3>
+  <ul>
+    <li><a href="https://github.com/jacksonbang/claude-plugins/blob/main/harness/references/feedback-schema.yaml">harness/references/feedback-schema.yaml (소스)</a></li>
+    <li><a href="https://saucelabs.com/blog/agentic-regression-detection">Sauce Labs — Agentic Regression Detection 2026</a></li>
+    <li><a href="https://contextqa.com/agentic-testing">ContextQA — Agentic Testing Trends</a></li>
+    <li><a href="https://growthbook.io/blog/feedback-loops-agentic-coding/">GrowthBook — Feedback Loops are the Next Breakthrough in Agentic Coding</a></li>
+    <li><a href="contract-schema.html">Contract Schema v2 — 입력 스키마</a></li>
+    <li><a href="qa-evaluation.html">QA Evaluation Guide — diagnosis 소비</a></li>
+    <li><a href="contract-design.html">Contract Design Guide — diagnosis 소비</a></li>
+  </ul>
+</div>
+
 </div>
 </body>
 </html>
