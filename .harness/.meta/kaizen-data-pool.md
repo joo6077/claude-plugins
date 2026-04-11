@@ -1,6 +1,6 @@
 # Kaizen Data Pool
 
-Generated: 2026-04-11T18:28:46
+Generated: 2026-04-11T18:38:33
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
@@ -8,20 +8,20 @@ Generator: `scripts/collect-kaizen-data.py`
 ## 1. 글로벌 Evaluator Feedback
 
 - 경로: `/Users/jackson/.harness/feedback/evaluator`
-- 총 파일: **71**
+- 총 파일: **72**
 
 ### Verdict 분포
 
-- **APPROVE**: 42
+- **APPROVE**: 43
 - **REJECT**: 29
 
 ### Skill 분포
 
-- `qa-evaluator`: 71
+- `qa-evaluator`: 72
 
 ### Project 분포
 
-- `claude-plugins`: 71
+- `claude-plugins`: 72
 
 ### 최근 REJECT 사유 (Top 20)
 
@@ -148,7 +148,6 @@ Iteration: 2
 
 ## 4. 현재 레포 최근 Sprint Contracts
 
-- `.harness/history/20260411-1327-kaizen-orchestrator-expansion-sprint-contract.md`
 - `.harness/history/20260411-1537-docs-site-react-kit-sprint-contract.md`
 - `.harness/history/20260411-1632-simplify-refactor-sprint-contract.md`
 - `.harness/history/20260411-1649-session-comprehensive-qa-sprint-contract.md`
@@ -156,8 +155,80 @@ Iteration: 2
 - `.harness/history/20260411-1733-kaizen-phase2-contract-sprint-contract.md`
 - `.harness/history/20260411-1737-kaizen-phase3-evaluator-sprint-contract.md`
 - `.harness/history/20260411-1815-phase6-residue-sprint-contract.md`
+- `.harness/history/20260411-1833-kaizen-comprehensive-qa-sprint-contract.md`
 - `.harness/history/20260411-kaizen-phase6-design-kit-sprint-contract.md`
 - `.harness/history/20260411-phase5-flutter-toolkit-sprint-contract.md`
+
+## 5. Validate-Plugin 최근 실행 스냅샷
+
+```text
+=== harness ===
+  V1 frontmatter     7 skills + 1 agent — OK
+  V2 templates       2 parsed, 1 skipped (ts/js) — OK
+  V3 refs            0 links — OK
+  V4 triggers        26 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.3.5 matches marketplace — OK
+
+=== flutter-toolkit ===
+  V1 frontmatter     18 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        141 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.5.0 matches marketplace — OK
+
+=== design-kit ===
+  V1 frontmatter     7 skills + 1 agent — OK
+  V2 templates       5 skipped (ts/js) — OK
+  V3 refs            0 links — OK
+  V4 triggers        39 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.2.0 matches marketplace — OK
+
+=== backend-kit ===
+  V1 frontmatter     3 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        12 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.0 matches marketplace — OK
+
+=== infra-kit ===
+  V1 frontmatter     3 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        12 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.0 matches marketplace — OK
+
+=== rust-kit ===
+  V1 frontmatter     16 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        79 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.0 matches marketplace — OK
+
+=== react-kit ===
+  V1 frontmatter     21 skills + 3 agents — OK
+  V2 templates       5 parsed, 4 skipped (ts/js) — OK
+  V3 refs            0 links — OK
+  V4 triggers        156 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.0 matches marketplace — OK
+
+Total: 7 plugins, 7 OK
+Exit: 0
+```
+
 
 ## 6. Phase 별 참조 가이드
 
