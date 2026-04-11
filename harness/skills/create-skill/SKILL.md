@@ -49,7 +49,7 @@ user-invocable: true
 
 ### 3. 폴더 구조 생성
 
-```
+```text
 {대상}/skills/{스킬명}/
 ├── SKILL.md              # 메인 (frontmatter + Gotchas + Process)
 └── references/           # 필요 시에만 (100줄 초과 예상 시)

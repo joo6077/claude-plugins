@@ -57,7 +57,7 @@ bash "${PLUGIN_DIR}/scripts/init.sh" "." "<stack>"
 
 초기화가 완료되면 사용자에게 다음 단계를 안내한다:
 
-```
+```text
 harness 초기화 완료!
 
 다음 단계:

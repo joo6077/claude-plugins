@@ -26,7 +26,7 @@
 
 ## 셋업
 
-```
+```text
 .harness/
 ├── project.yaml              ← 프로젝트 설정 (필수)
 ├── procedures/                ← 검증 절차 (스택별)
@@ -62,7 +62,7 @@
 
 ### 피드백 흐름
 
-```
+```text
 sprint-contract 완료
   → save-feedback.sh contract → ~/.harness/feedback/{hash}-contract.yaml
 
@@ -374,7 +374,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 
 ### 6단계 파이프라인
 
-```
+```text
 상태확인 → TRIAGE → COLLECT → VERIFY → ANALYZE → PROPOSE+APPLY
 (트리거)   (피드백)  (리서치)  (3중검증)  (갭분석)  (브랜치→변경→PR)
 ```
@@ -415,7 +415,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 
 ### 산출물
 
-```
+```text
 docs/kaizen/
 ├── research-log.md    # 누적 연구 기록 (소스별 채택/폐기)
 └── changelog.md       # 카이젠 변경 이력 (버전, 근거, Before/After)
@@ -425,7 +425,7 @@ docs/kaizen/
 
 카이젠 스킬 자체를 평가하는 메타 eval 픽스처:
 
-```
+```text
 evals/kaizen/
 ├── contract-kaizen/    # contract-kaizen eval 픽스처
 ├── evaluator-kaizen/   # evaluator-kaizen eval 픽스처
