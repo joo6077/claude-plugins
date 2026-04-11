@@ -217,6 +217,7 @@ pattern = r'["\']([^"\']{3,})["\']'  # 3자 이상 키워드만 추출
 - 2자 이하 키워드: 너무 일반적이므로 추출에서 제외
 - `--fix`, `--json` 같은 CLI 플래그 패턴: 제외
 - 공통 동사(`구현해줘`, `만들어줘`): 중복이 설계 의도일 수 있음. WARNING 으로 처리하되 ERROR 는 아님
+- **Cross-kit context disambiguation**: 두 kit 이 exact-match 키워드를 공유해도, 각 kit 의 description 전체가 **kit-specific 고유 단어** (예: flutter-toolkit → `flutter`, `dart`, `HookWidget`, `Riverpod`; react-kit → `react`, `vite`, `tauri`, `shadcn`; rust-kit → `rust`, `cargo`, `axum`) 를 포함하면 **disambiguation 성공으로 간주하여 WARN 제거**. 이는 "같은 개념 다른 프레임워크" 케이스 (예: Flutter "테스트 만들어줘" vs React "테스트 만들어줘") 가 false positive 로 처리되는 것을 방지한다. 구현: `scripts/validate-plugin.py` 의 `KIT_CONTEXT_TOKENS` 상수.
 
 **FAIL 예시**
 
@@ -228,6 +229,24 @@ description: >
 # flutter-screen/SKILL.md
 description: >
   "새 화면 추가" 요청 시 트리거.  # 동일 키워드 → WARNING
+```
+
+**PASS 예시 (context disambiguation 적용)**
+
+```yaml
+# flutter-toolkit/skills/flutter-test/SKILL.md
+description: >
+  Flutter 프로젝트에 WidgetTester 기반 unit/widget test 코드를 생성.
+  "테스트 만들어줘", "unit test" 요청 시 트리거.
+# → "Flutter", "WidgetTester" 가 KIT_CONTEXT_TOKENS["flutter-toolkit"] 과 매칭
+
+# react-kit/skills/react-test/SKILL.md
+description: >
+  React + Vitest 기반 테스트 코드 생성.
+  "테스트 만들어줘", "unit test" 요청 시 트리거.
+# → "React", "Vitest" 가 KIT_CONTEXT_TOKENS["react-kit"] 과 매칭
+
+# 결과: "테스트 만들어줘" exact-match 겹침이지만 양쪽 kit 모두 context_hit=True 이므로 WARN 제거
 ```
 
 ---

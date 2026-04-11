@@ -57,6 +57,26 @@ LINK_PATTERN = re.compile(r'\[(?:[^\]]*)\]\(([^)#][^)]*)\)')
 # V7 마켓플레이스 버전 태그 패턴
 MARKETPLACE_VERSION_PATTERN = re.compile(r'\[v(\d+\.\d+\.\d+)\s*[·•]\s*\d{4}-\d{2}-\d{2}\]')
 
+# V4 kit-specific context tokens — description 에 해당 kit 의 고유 단어가 포함되면
+# exact-match cross-kit 중복은 disambiguation 성공으로 간주하여 WARN 제거.
+# 이는 "같은 개념 다른 프레임워크" 케이스 (예: React `테스트 만들어줘` vs Flutter `테스트 만들어줘`)
+# 를 false positive 로 처리하지 않기 위함.
+KIT_CONTEXT_TOKENS: dict[str, set[str]] = {
+    "harness": {"harness", "sprint-contract", "qa-evaluator", "계약"},
+    "flutter-toolkit": {
+        "flutter", "dart", "widget", "hookwidget", "hookconsumerwidget",
+        "riverpod", "gorouter", "auto_route", "freezed", "slang", "arb",
+    },
+    "design-kit": {"design-kit", "디자인", "figma", "mockup", "디자인 토큰", "moodboard"},
+    "backend-kit": {"백엔드", "backend-kit", "hexagonal", "api 설계"},
+    "infra-kit": {"infra-kit", "devops", "kubernetes", "terraform", "인프라"},
+    "rust-kit": {"rust", "cargo", "axum", "sqlx", "tonic", "clippy", "rustc"},
+    "react-kit": {
+        "react", "vite", "tauri", "shadcn", "zustand", "tanstack",
+        "wasm", "wasm-pack", "tailwind v4", "react hook form",
+    },
+}
+
 # ---------------------------------------------------------------------------
 # 결과 구조체
 # ---------------------------------------------------------------------------
@@ -119,6 +139,7 @@ class CheckContext:
     marketplace_data: dict
     fix: bool = False
     all_keywords: dict[str, set[str]] = field(default_factory=dict)
+    all_context_hits: dict[str, bool] = field(default_factory=dict)
     _file_cache: dict[Path, str] = field(default_factory=dict)
 
     def read(self, path: Path) -> str:
@@ -370,12 +391,20 @@ def check_v4_triggers(ctx: CheckContext) -> CheckResult:
             duplicates.append(f"WARN \"{kw}\" — {', '.join(skills)}")
 
     # 외부 킷 교차 중복 체크 (all_keywords 제공 시)
+    # Context disambiguation: 두 kit 모두 description 에 kit-specific
+    # 고유 단어(KIT_CONTEXT_TOKENS)를 포함하면 exact-match cross-kit 겹침은
+    # 의도된 "같은 개념 다른 프레임워크" 패턴으로 간주하여 WARN 에서 제외.
     if ctx.all_keywords:
+        self_context_hit = ctx.all_context_hits.get(ctx.kit_path.name, False)
         for kw, skills in keyword_map.items():
             for other_kit, other_kws in ctx.all_keywords.items():
                 if other_kit == ctx.kit_path.name:
                     continue
                 if kw in other_kws:
+                    other_context_hit = ctx.all_context_hits.get(other_kit, False)
+                    if self_context_hit and other_context_hit:
+                        # 양쪽 모두 kit-specific context 보유 → disambiguation 성공
+                        continue
                     duplicates.append(
                         f"WARN \"{kw}\" — {ctx.kit_path.name} / {other_kit} (cross-kit)"
                     )
@@ -672,22 +701,38 @@ def resolve_exit_code(results: list[PluginResult]) -> int:
     return 0
 
 
-def _collect_cross_kit_keywords(marketplace_data: dict) -> dict[str, set[str]]:
-    """V4 cross-kit 중복 검출용 전체 킷 키워드 사전 수집."""
+def _collect_cross_kit_keywords(
+    marketplace_data: dict,
+) -> tuple[dict[str, set[str]], dict[str, bool]]:
+    """V4 cross-kit 중복 검출용 전체 킷 키워드 사전 수집.
+
+    Returns:
+        (all_kit_keywords, all_context_hits)
+        - all_kit_keywords: kit 이름 → 해당 kit 의 description 에서 추출한 trigger 키워드 집합
+        - all_context_hits: kit 이름 → kit-specific context token 포함 여부 (bool)
+          (KIT_CONTEXT_TOKENS 에 정의된 고유 단어를 description 전체에서 발견하면 True)
+    """
     all_kit_keywords: dict[str, set[str]] = {}
+    all_context_hits: dict[str, bool] = {}
     for kit_path in list_kits(marketplace_data):
         kws: set[str] = set()
+        full_desc = ""
         for sf in kit_path.glob("skills/*/SKILL.md"):
             text = read_text(sf)
             fm, _ = parse_frontmatter(text)
             if fm:
                 desc = str(fm.get("description", ""))
+                full_desc += " " + desc.lower()
                 for m in KEYWORD_PATTERN.finditer(desc):
                     kw = m.group(1).lower().strip()
                     if len(kw) >= 3:
                         kws.add(kw)
         all_kit_keywords[kit_path.name] = kws
-    return all_kit_keywords
+        context_tokens = KIT_CONTEXT_TOKENS.get(kit_path.name, set())
+        all_context_hits[kit_path.name] = any(
+            tok.lower() in full_desc for tok in context_tokens
+        )
+    return all_kit_keywords, all_context_hits
 
 
 def main() -> None:
@@ -724,10 +769,11 @@ def main() -> None:
     else:
         enabled_checks = all_check_names
 
-    # V4 cross-kit 검증용 전체 킷 키워드 사전 수집
+    # V4 cross-kit 검증용 전체 킷 키워드 + context hit 사전 수집
     all_kit_keywords: dict[str, set[str]] = {}
+    all_context_hits: dict[str, bool] = {}
     if "triggers" in enabled_checks and len(target_kits) > 1:
-        all_kit_keywords = _collect_cross_kit_keywords(marketplace_data)
+        all_kit_keywords, all_context_hits = _collect_cross_kit_keywords(marketplace_data)
 
     # 킷별 검증 실행
     results: list[PluginResult] = []
@@ -737,6 +783,7 @@ def main() -> None:
             marketplace_data=marketplace_data,
             fix=args.fix,
             all_keywords=all_kit_keywords,
+            all_context_hits=all_context_hits,
         )
         results.append(validate_kit(ctx, enabled_checks))
 
