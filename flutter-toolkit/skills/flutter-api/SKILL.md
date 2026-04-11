@@ -67,7 +67,7 @@ user-invocable: true
 
 Entity + DTO(Model) 쌍을 생성한다.
 
-```
+```text
 lib/features/<feature>/
 ├── domain/entities/<name>_entity.dart       # 도메인 엔티티
 └── data/models/<name>_model.dart            # DTO + toEntity()
@@ -119,7 +119,7 @@ extension UserModelX on UserModel {
 
 Repository interface(domain) + impl(data)을 생성한다.
 
-```
+```text
 lib/features/<feature>/
 ├── domain/repositories/<feature>_repository.dart       # interface
 └── data/repositories/<feature>_repository_impl.dart    # impl
@@ -197,7 +197,7 @@ Failure _mapFailure(Object error, [StackTrace? st]) {
 
 UseCase + Params를 생성한다.
 
-```
+```text
 lib/features/<feature>/domain/usecases/<name>_usecase.dart
 ```
 
@@ -259,7 +259,7 @@ Clean Architecture가 아닌 프로젝트에서는 간소화된 Service + Model 
 
 ### 생성 구조
 
-```
+```text
 lib/features/<feature>/
 ├── models/<name>_model.dart       # 데이터 모델
 └── services/<feature>_service.dart # API 서비스

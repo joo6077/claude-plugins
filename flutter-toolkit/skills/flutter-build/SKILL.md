@@ -61,7 +61,7 @@ $FLUTTER analyze
 
 두 단계 결과를 통합 요약:
 
-```
+```text
 build 완료
   1. codegen : success (또는 skipped)
   2. analyze : clean (0 issues)
@@ -69,7 +69,7 @@ build 완료
 
 실패 시:
 
-```
+```text
 build 실패 (step N)
   1. codegen : success / failed / skipped
   2. analyze : success / failed / skipped

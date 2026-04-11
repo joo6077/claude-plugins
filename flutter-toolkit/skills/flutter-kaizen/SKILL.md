@@ -177,7 +177,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
    - ANALYZE에서 신규 스킬이 도출되었으면 이 단계에서 직접 생성한다
    - 초안 수준(v0.1)으로 생성 — skill-design-guide 원칙 "몇 줄의 지시문 + Gotchas 1개"
    - 생성 구조:
-     ```
+     ```text
      flutter-toolkit/skills/{신규스킬명}/
      ├── SKILL.md          # frontmatter + Gotchas + 기본 Process
      └── references/       # 필요 시에만

@@ -107,7 +107,7 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 ### Step 3: 리포트 생성
 
-```
+```text
 -- Widget Inspector Report ([quick|deep]) --
 
 Duplicates (구조적 중복)
@@ -130,7 +130,7 @@ Total: N extraction candidates
 ```
 
 후보가 0건이면:
-```
+```text
 -- Widget Inspector Report ([quick|deep]) --
 Clean — 추출 후보 없음
 ```

@@ -10,6 +10,7 @@ description: >
   키워드가 나오면 이 스킬을 참조한다.
   /flutter-widget 스킬에서 위젯을 생성할 때도 이 스킬의 규칙을 따른다.
   HAS_HOOKS 감지 시에만 활성화된다.
+user-invocable: true
 ---
 
 ## Gotchas
@@ -18,6 +19,8 @@ description: >
 - PageController 등 컨트롤러를 build() 안에서 직접 생성하면 리빌드마다 메모리 누수 — `useMemoized(() => PageController())`로 감싸라
 - async 작업 후 상태 변경 전에 반드시 `ref.mounted` 확인 — 안 하면 "setState() called after dispose" 크래시
 - AnimationController는 반드시 `useAnimationController()`로 생성. dispose 자동 관리됨
+- `HAS_FREEZED = true` 프로젝트에서 HookWidget 생성 시 파라미터를 개별 필드로 받지 말고 반드시 `@freezed Props` 클래스로 번들링 — 개별 파라미터 나열은 Props 패턴 위반. 디자인 시스템 Named constructor variant 위젯만 면제
+- `HAS_FREEZED = true` + `HAS_HOOKS = true`가 모두 true인 프로젝트에서는 `HookWidget` + `@freezed Props` 조합이 프로젝트 표준 — ConsumerWidget이나 StatelessWidget으로 만들면 일관성 깨짐
 
 # Flutter Hooks + Props 패턴 가이드
 
@@ -37,7 +40,7 @@ description: >
 
 ## 위젯 타입 선택
 
-```
+```text
 Riverpod ref 필요? (HAS_RIVERPOD = true)
   ├─ Yes → HookConsumerWidget (build(context, ref))
   └─ No  → HookWidget (build(context))

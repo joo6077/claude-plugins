@@ -105,7 +105,7 @@ MVVM 감지 시 레이어별 규칙 적용 ([Flutter 공식 아키텍처 가이�
 
 스킬이 내부적으로 사용하는 감지 결과 형식:
 
-```
+```text
 Package: {name}
 SDK Manager: {fvm|asdf|system}
 Flutter: {$FLUTTER}

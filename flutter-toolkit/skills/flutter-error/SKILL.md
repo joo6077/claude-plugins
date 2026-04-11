@@ -60,7 +60,7 @@ user-invocable: true
 
 ## 에러 처리 아키텍처 (관심사 분리)
 
-```
+```text
 Repository: Exception → Failure/Error 변환
      ↓
 Provider/State: failure 저장 (state.failure 또는 equivalent)

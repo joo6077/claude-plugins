@@ -34,7 +34,7 @@ Feature name: `$ARGUMENTS` (required, snake_case. e.g., `workout`, `profile`)
 
 **ARCH = clean** (Clean Architecture):
 
-```
+```text
 lib/features/$ARGUMENTS/
   ├── data/
   │   ├── datasources/
@@ -51,7 +51,7 @@ lib/features/$ARGUMENTS/
 
 **ARCH = feature_first**:
 
-```
+```text
 lib/features/$ARGUMENTS/
   ├── models/
   ├── services/
@@ -67,7 +67,7 @@ lib/features/$ARGUMENTS/
 
 **ARCH = flat**:
 
-```
+```text
 lib/src/$ARGUMENTS/
   ├── $ARGUMENTS_model.dart
   ├── $ARGUMENTS_service.dart

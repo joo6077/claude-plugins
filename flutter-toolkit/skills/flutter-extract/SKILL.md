@@ -52,7 +52,7 @@ user-invocable: true
 
 사용자에게 추출 계획을 보여주고 확인받는다:
 
-```
+```text
 추출 계획:
 
 1. _InfoCard (home_screen.dart:45)
