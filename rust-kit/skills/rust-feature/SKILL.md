@@ -17,6 +17,7 @@ user-invocable: true
 4. **빈 모듈 금지** — 생성하는 모든 파일에 최소한의 구조체 또는 함수를 포함한다.
 5. **Consumer-Owned Port 원칙** — 새 feature 모듈이 다른 모듈의 기능을 필요로 하면 **자신의 crate 안에** outbound port trait을 정의하라. 예: `social` 모듈이 알림을 보내야 하면 `modules/social/src/port.rs`에 `SocialNotifier` trait을 정의하고, `modules/notification`은 그 trait을 구현하는 `NotificationAdapter`를 제공한다. `social`이 `notification::port`를 직접 import하는 순간 헥사고날이 깨진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 1번.
 6. **Composition Root 단일화** — feature 모듈 자체는 DI 와이어링을 하지 않는다. 모든 `Arc<dyn Port>` 조립은 `apps/api/src/main.rs` 또는 `apps/worker/src/main.rs`에서만 이루어진다. 모듈이 다른 모듈의 구현체를 `new()`로 직접 생성하면 단일 Composition Root 원칙이 깨진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 3번.
+7. **Domain event + outbox 패턴** — 새 feature가 다른 모듈에 알림/감사 로그/인덱스 동기화 같은 후처리를 필요로 하면 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. feature 모듈의 `service.rs`는 트랜잭션 안에서 write + outbox insert를 원자적으로 실행하고, 외부 시스템 호출은 별도 워커가 outbox를 폴링하여 수행한다. 모듈 간 직접 호출 대신 이 패턴을 쓰면 Consumer-Owned Port 의존 방향이 깨지지 않는다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 4번.
 
 # Process
 

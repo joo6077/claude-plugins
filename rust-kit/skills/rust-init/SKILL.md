@@ -19,6 +19,7 @@ user-invocable: true
 5. **Consumer-Owned Port 원칙** — 헥사고날을 채택할 때 포트는 "소비자"가 소유한다. 모듈 A가 모듈 B의 기능이 필요하면 A 내부에 outbound port(trait)를 정의하고, B는 그 trait을 구현하는 adapter를 apps/ Composition Root에서 주입한다. 모듈이 다른 모듈의 `port.rs`를 직접 import하면 그 시점에서 헥사고날이 깨진다. 출처: fit-pal `server/CLAUDE.md` 아키텍처 섹션.
 6. **Composition Root 단일화** — 모듈 조립(DI 와이어링)은 `apps/api/src/main.rs`, `apps/worker/src/main.rs` 한 곳에서만 한다. 모듈끼리 직접 인스턴스를 생성하지 말고 `Arc<dyn Port>` trait object로 주입한다. 출처: fit-pal `server/CLAUDE.md` §아키텍처.
 7. **workspace lints는 SSOT** — 여러 crate에 같은 clippy 설정을 복붙하지 말고 workspace 루트 `[workspace.lints]`에 한 번만 정의하고 member crate에서는 `[lints] workspace = true` 한 줄로 상속받는다 (RFC 3389, Rust 1.74+).
+8. **Domain event + outbox 패턴** — cross-module write 후처리(알림 발송, 감사 로그, 인덱스 동기화)는 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. 트랜잭션 경계 안에서 write + outbox insert를 원자적으로 실행하고 별도 워커가 outbox를 폴링하여 외부 시스템에 전달한다. 초기 프로젝트 스캐폴딩 시 `modules/*/port.rs`에 `DomainEventPublisher` trait + `apps/worker/` outbox relay 스켈레톤을 함께 만들어 두면 이후 feature 추가가 깔끔해진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 4번.
 
 # Process
 

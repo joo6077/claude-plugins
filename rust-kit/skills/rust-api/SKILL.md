@@ -16,6 +16,7 @@ user-invocable: true
 - **`Json<T>` 추출자는 요청 본문을 한 번만 소비** — 한 핸들러에서 `Json`과 `Bytes`를 동시에 추출하거나 두 번 추출하면 컴파일 에러가 난다.
 - **`Path<(String, i64)>` 순서 일치 필수** — URL 세그먼트 순서와 정확히 일치해야 한다. 순서가 틀리면 런타임에 추출 실패한다. 복수 파라미터는 구조체 + `#[derive(Deserialize)]`로 이름 기반 추출을 선호하라 (`Path<UserIdPath>`).
 - **포트에서 인프라 타입 제거** — 핸들러가 의존하는 `UserService`/`UserRepository` trait 시그니처에 `sqlx::Error`, `PgPool`, `sea_orm::DatabaseConnection`, `sea_orm::DbErr` 등 인프라 구체 타입을 노출하지 마라. DTO/`DomainError`만 주고받는다. 포트가 DB 타입을 노출하면 adapter 교체가 불가능해진다. 출처: fit-pal `server/CLAUDE.md`.
+- **Composition Root 단일화** — 핸들러가 서비스 구현체를 직접 `UserServiceImpl::new(...)`로 생성하지 마라. 모듈 조립(DI 와이어링)은 `apps/api/src/main.rs` 한 곳에서만 하고, 핸들러는 `State<Arc<dyn UserServicePort>>`로 trait object만 받는다. Composition Root가 여러 곳에 흩어지면 테스트에서 mock 주입이 불가능해지고, 모듈 간 의존 그래프가 불투명해진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 3번.
 
 # Axum 핸들러/라우터 생성
 
