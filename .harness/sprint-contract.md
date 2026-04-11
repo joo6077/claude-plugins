@@ -10,6 +10,7 @@ Iteration: 1
 2026년 Anthropic 공식 문서(Skill Authoring Best Practices, Sub-agents Docs, skill-creator SKILL.md)에서 확인한 2026 최신 설계 원칙을 `harness/docs/guides/skill-design-guide.md` 와 `harness/docs/guides/agent-design-guide.md` 에 반영한다.
 
 최근 REJECT 패턴에서 도출된 아래 issue 도 동시 해결:
+
 - PH-01: agent-design-guide 에 계약 모호성 방지 원칙이 누락되어 있음 (이미 §10 에 반영됨 — 추가 검증)
 - SK-05 / RE-02: 트리거 키워드 set intersection 배타성 (이미 §4 에 반영됨 — 공식 "undertrigger" 개념으로 보강)
 - DG-02: 코드 펜스 언어 힌트 필수 — 두 문서 내 코드 블록 전수 점검 대상
@@ -17,11 +18,11 @@ Iteration: 1
 
 ## 리서치 소스 (URL 필수)
 
-1. https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices — Skill Authoring Best Practices (Anthropic 공식)
-2. https://code.claude.com/docs/en/sub-agents — Claude Code Sub-agents 공식
-3. https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md — skill-creator SKILL.md
-4. https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills — Equipping Agents for Real World
-5. https://github.com/anthropics/skills — 공식 skills repo
+1. [Skill Authoring Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (Anthropic 공식)
+2. [Claude Code Sub-agents](https://code.claude.com/docs/en/sub-agents) (공식)
+3. [skill-creator SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
+4. [Equipping Agents for the Real World with Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+5. [anthropics/skills](https://github.com/anthropics/skills) — 공식 skills repo
 
 ## 완료 조건 (Sprint Contract)
 
