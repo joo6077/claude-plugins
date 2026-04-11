@@ -87,7 +87,36 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 
 ---
 
-## 3.5. 검증 가능한 성공 기준을 제공하라
+## 3.5. QA 계약과 1:1 매칭되는 이름을 사용하라
+
+스킬이 정의하는 **카테고리, 필드, 섹션 이름**은 QA 계약(Sprint Contract)에서 그대로 재사용된다. 이름이 어긋나면 평가자가 "이 조건이 어느 항목에 해당하는지" 해석해야 하고, 해석이 엇갈리면 REJECT 또는 모호한 PASS가 발생한다.
+
+**원칙:** 스킬 본문에 등장하는 카테고리 ID, 섹션명, 필드명은 해당 스킬로 생성된 Sprint Contract의 조건 항목명과 정확히 일치해야 한다.
+
+**Bad — 스킬과 계약의 이름이 다름:**
+
+```
+스킬 본문: "Anatomy 섹션 — 필수 파트: Header, Body, Footer"
+계약 조건: "SK-05: 레이아웃 구조 확인 (헤더/바디/푸터 포함 여부)"
+```
+
+평가자가 SK-05를 검증할 때 "레이아웃 구조"가 Anatomy를 가리키는지 불명확하다.
+
+**Good — 스킬과 계약의 이름이 일치:**
+
+```
+스킬 본문: "Anatomy 섹션 — 필수 파트: Header, Body, Footer"
+계약 조건: "SK-05: Anatomy 섹션 확인 — Header, Body, Footer 필수 파트 포함 여부"
+```
+
+**적용 체크리스트:**
+- 스킬에 카테고리 ID(SK-xx, CD-xx 등)를 정의했으면, 계약 조건에도 동일 ID를 사용
+- 스킬 본문의 필드명을 계약 작성 시 그대로 복사하여 재해석 여지를 없앰
+- 스킬을 수정할 때 이름이 바뀌면 기존 계약 템플릿도 함께 갱신
+
+---
+
+## 3.6. 검증 가능한 성공 기준을 제공하라
 
 > **출처:** [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices) — "Give Claude a way to verify its work. This is the single highest-leverage thing you can do."
 
@@ -160,6 +189,40 @@ description: >
   현재 프로젝트에 .harness/ 디렉토리를 생성하고 초기 설정 파일을 세팅한다.
   "harness 초기화", "harness init", "QA 세팅해줘" 같은 요청에 사용.
   이미 .harness/가 존재하면 트리거하지 않는다.
+```
+
+### 트리거 키워드 중복 방지 원칙
+
+플러그인이 여러 스킬을 포함할 때, **description에 사용하는 트리거 키워드는 다른 스킬과 set intersection이 공집합이어야 한다.**
+
+같은 키워드가 두 스킬의 description에 모두 등장하면 Claude가 어떤 스킬을 선택할지 예측하기 어렵다.
+
+**Bad — 중복 키워드로 충돌 발생:**
+
+```yaml
+# 스킬 A
+description: "테스트 만들어줘" 요청에 React 컴포넌트 테스트를 생성한다.
+
+# 스킬 B (다른 스킬)
+description: "테스트 만들어줘" 요청에 Flutter 위젯 테스트를 생성한다.
+```
+
+**Good — 키워드 분리로 명확한 트리거:**
+
+```yaml
+# 스킬 A
+description: React 컴포넌트 테스트 생성. "React 테스트", "컴포넌트 테스트 만들어줘" 요청에 사용.
+
+# 스킬 B
+description: Flutter 위젯 테스트 생성. "Flutter 테스트", "위젯 테스트 만들어줘" 요청에 사용.
+```
+
+**예외:** 동일 키워드라도 **플랫폼/스택 컨텍스트로 명확히 구분**되는 경우는 허용된다. 단, description에 구분 조건을 반드시 명시해야 한다:
+
+```yaml
+description: >
+  Flutter 프로젝트에서 "화면 추가" 요청에 사용.
+  React 프로젝트에서는 react-screen 스킬이 우선한다.
 ```
 
 ---
