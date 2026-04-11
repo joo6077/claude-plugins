@@ -43,6 +43,12 @@ Phase 9: Rust-kit 카이젠 (rust-kaizen)
   rust-kit/skills/*/SKILL.md
   rust-kit/references/
   docs/rust/ (리서치 문서)
+      ↓ Rust 백엔드 완료 후 React-kit으로
+Phase 10: React-kit 카이젠 (react-kaizen)
+  react-kit/skills/*/SKILL.md
+  react-kit/agents/*.md
+  react-kit/references/
+  docs/react/ (리서치 문서)
 ```
 
 ## Phase 간 의존성 상세
@@ -60,6 +66,7 @@ Phase 9: Rust-kit 카이젠 (rust-kaizen)
 | docs/backend/ | backend-kit 전 스킬 | 백엔드 리서치 원칙 (프레임워크/패턴/보안) |
 | docs/infra/ | infra-kit 전 스킬 | 인프라/DevOps 리서치 원칙 (IaC/CI/관측성) |
 | docs/rust/ | rust-kit 전 스킬 | Rust 백엔드 리서치 원칙 (Axum/SQLx/tonic) |
+| docs/react/ | react-kit 전 스킬 | React + Vite + Tauri + WASM 리서치 원칙 (21 스킬 + 3 에이전트) |
 
 ## Phase 스킵 시 전파 규칙
 
@@ -71,7 +78,8 @@ Phase 9: Rust-kit 카이젠 (rust-kaizen)
 - Phase 6 스킵 → Phase 7~9 진행에 영향 없음 (독립 스택)
 - Phase 7 스킵 → Phase 8~9 진행에 영향 없음 (독립 스택)
 - Phase 8 스킵 → Phase 9 진행에 영향 없음 (독립 스택)
-- Phase 7/8/9 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust}/ 기준 점진 개선)
+- Phase 9 스킵 → Phase 10 진행에 영향 없음 (독립 스택)
+- Phase 7/8/9/10 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react}/ 기준 점진 개선)
 
 ## QA 실패 시 롤백 범위
 

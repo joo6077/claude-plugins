@@ -2,17 +2,17 @@
 name: kaizen-orchestrator
 description: >
   카이젠 전체 실행을 의존성 순서에 맞춰 오케스트레이션한다.
-  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit 순서로
+  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit 순서로
   Phase별 실행하며, 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
   주 1회 cron 자동 실행, 또는 수동 호출("/kaizen", "카이젠 전체 실행").
   개별 플러그인만 카이젠하려면 해당 카이젠 스킬을 직접 사용.
-argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|final]"
+argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|phase10|final]"
 user-invocable: true
 ---
 
 # Kaizen Orchestrator
 
-설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit 순서로 카이젠을 실행한다.
+설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit 순서로 카이젠을 실행한다.
 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
 전체 Phase 완료 후 크로스 Phase 정합성을 최종 검증한다.
 
@@ -57,6 +57,8 @@ Phase 8: Infra-kit 카이젠 (infra-kaizen)
     ↓
 Phase 9: Rust-kit 카이젠 (rust-kaizen)
     ↓
+Phase 10: React-kit 카이젠 (react-kaizen)
+    ↓
 Final: 전체 정합성 검증
 ```
 
@@ -71,6 +73,7 @@ Final: 전체 정합성 검증
 7. Backend-kit 카이젠 — 백엔드 스킬 개선 (docs/backend/ 리서치 기준)
 8. Infra-kit 카이젠 — 인프라/DevOps 스킬 개선 (docs/infra/ 리서치 기준)
 9. Rust-kit 카이젠 — Rust 백엔드 스킬 개선 (docs/rust/ 리서치 기준)
+10. React-kit 카이젠 — React + Vite + Tauri + WASM 스킬 개선 (docs/react/ 리서치 기준)
 
 ## 트리거 조건
 
@@ -80,7 +83,7 @@ Final: 전체 정합성 검증
 - 개별 카이젠(contract-kaizen, evaluator-kaizen, harness-kaizen, flutter-kaizen, design-kaizen)의 cron은 비활성화하고 이 오케스트레이터만 실행
 
 ### 수동
-- `/kaizen-orchestrator` — 전체 (Phase 1→2→3→4→5→6→7→8→9→Final)
+- `/kaizen-orchestrator` — 전체 (Phase 1→2→3→4→5→6→7→8→9→10→Final)
 - `/kaizen-orchestrator phase1` — 설계 가이드만
 - `/kaizen-orchestrator phase2` — contract-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase3` — evaluator-kaizen만 (Phase 2 완료 전제)
@@ -90,7 +93,8 @@ Final: 전체 정합성 검증
 - `/kaizen-orchestrator phase7` — backend-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase8` — infra-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase9` — rust-kaizen만 (Phase 1 완료 전제)
-- `/kaizen-orchestrator final` — Final QA만 (Phase 1~9 완료 전제)
+- `/kaizen-orchestrator phase10` — react-kaizen만 (Phase 1 완료 전제)
+- `/kaizen-orchestrator final` — Final QA만 (Phase 1~10 완료 전제)
 
 ## Process
 
@@ -173,15 +177,23 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 공통 실행 패턴에 따라 `/rust-kaizen` 서브에이전트로 실행. 리서치 문서가 부족하면 `/rust-research`를 먼저 호출하여 `docs/rust/`를 갱신한 뒤 진행한다. `/rust-kaizen` 스킬 자체는 이 레포 개발용이며 rust-kit 플러그인에 포함되지 않는다 — 개선 대상은 rust-kit 플러그인 스킬이다. Phase 1에서 설계 가이드가 변경되었으면 rust-kit 전 스킬을 전수 감사한다.
 
-### Step 10: Final — 전체 정합성 검증
+### Step 10: Phase 10 — React-kit 카이젠
 
-**범위:** Phase 1~9 전체 변경사항
+**범위:** `react-kit/skills/*/SKILL.md`, `react-kit/agents/*.md`, `react-kit/references/`, `docs/react/` 리서치 문서
+
+공통 실행 패턴에 따라 `/react-kaizen` 서브에이전트로 실행. 리서치 문서가 부족하면 `/react-research`를 먼저 호출하여 `docs/react/`를 갱신한 뒤 진행한다. `/react-kaizen` 스킬 자체는 이 레포 개발용이며 react-kit 플러그인에 포함되지 않는다 — 개선 대상은 react-kit 플러그인에 포함된 21개 스킬 + 3개 에이전트다. Phase 1에서 설계 가이드가 변경되었으면 react-kit 전 스킬을 전수 감사한다.
+
+**특별 주의**: react-kit 의 G5b 애니메이션 스킬 (`react-animation`) 과 animation-architect-react 에이전트, 그리고 `react-audit` 의 Library Policy 카테고리는 **라이브러리 0개 원칙** (Motion/framer-motion/dnd-kit/react-spring/react-transition-group 등 빌드 게이트급 금지) 을 빌드 게이트로 enforce 한다. 이 원칙은 카이젠에서 절대 완화하지 말고, 신규 금지 라이브러리 추가만 허용한다.
+
+### Step 11: Final — 전체 정합성 검증
+
+**범위:** Phase 1~10 전체 변경사항
 
 1. **Final Sprint Contract 생성:**
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~9 변경에 반영되었는가
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~10 변경에 반영되었는가
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
-     - Phase 4 harness 변경이 Phase 5~9 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit)과 충돌하지 않는가
+     - Phase 4 harness 변경이 Phase 5~10 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit)과 충돌하지 않는가
      - 버전 번호가 각 플러그인에서 올바르게 업데이트되었는가
      - changelog, research-log이 모든 Phase 변경을 포함하는가
    - Diagnostics: 전체 `bash -n` 검증
@@ -197,7 +209,7 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 3. 500개 초과 시 oldest-first로 삭감
 4. 정리 로그를 `.meta/cleanup-log.yaml`에 기록
 
-### Step 11: PR 생성
+### Step 12: PR 생성
 
 1. **버전 업데이트:**
    - harness 변경 있으면: `harness/.claude-plugin/plugin.json` 버전 bump
@@ -207,6 +219,8 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
    - infra-kit 변경 있으면: `infra-kit/.claude-plugin/plugin.json` 버전 bump
    - rust-kit 변경 있으면: `rust-kit/.claude-plugin/plugin.json` 버전 bump
      (⚠ `/rust-kaizen` 스킬은 이 레포 개발용으로 rust-kit 플러그인에 포함되지 않는다 — bump 대상은 rust-kit 플러그인에 포함된 스킬뿐)
+   - react-kit 변경 있으면: `react-kit/.claude-plugin/plugin.json` 버전 bump
+     (⚠ `/react-kaizen` 스킬은 이 레포 개발용으로 react-kit 플러그인에 포함되지 않는다 — bump 대상은 react-kit 플러그인에 포함된 스킬뿐)
    - `.claude-plugin/marketplace.json` 갱신 (모든 플러그인 description 날짜/버전 동기화)
    - changelog 엔트리 추가 (존재하는 파일만):
      - `docs/kaizen/changelog.md` (harness 관련)
@@ -219,6 +233,7 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
    - `docs/backend/research-log.md` (backend 관련, 존재 시)
    - `docs/infra/research-log.md` (infra 관련, 존재 시)
    - `docs/rust/research-log.md` (rust 관련, 존재 시)
+   - `docs/react/research-log.md` (react 관련, 존재 시)
 
 3. **PR 생성:**
    - 브랜치명: `kaizen/{날짜}`
@@ -239,6 +254,6 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 ## 개별 카이젠과의 관계
 
-- `/contract-kaizen`, `/evaluator-kaizen`, `/harness-kaizen`, `/flutter-kaizen`, `/design-kaizen`, `/backend-kaizen`, `/infra-kaizen`, `/rust-kaizen`은 **독립 실행 가능** — 긴급 수정이나 특정 영역만 업데이트할 때
+- `/contract-kaizen`, `/evaluator-kaizen`, `/harness-kaizen`, `/flutter-kaizen`, `/design-kaizen`, `/backend-kaizen`, `/infra-kaizen`, `/rust-kaizen`, `/react-kaizen`은 **독립 실행 가능** — 긴급 수정이나 특정 영역만 업데이트할 때
 - 독립 실행 시에는 오케스트레이터 순서를 따르지 않음 (자체 프로세스 실행)
 - 정기 cron은 **오케스트레이터만 실행** — 개별 카이젠 cron은 비활성화
