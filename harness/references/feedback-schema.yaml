@@ -51,6 +51,19 @@ schema_version: 1
 # user_rating: enum [good, bad] | null
 # user_comment: string | null
 
+# --- 누적 분석 필드 (v1 extension, optional) ---
+# 2026 agentic regression detection 트렌드 (Sauce Labs, ContextQA, GrowthBook "Feedback Loops
+# are the Next Breakthrough in Agentic Coding") 에 맞춰 추가된 optional 필드.
+# save-feedback.sh 의 required 리스트에는 포함되지 않으며, 없어도 검증 PASS.
+# harness-kaizen / contract-kaizen / evaluator-kaizen 의 Triage 단계가 이 필드를 소비한다.
+#
+# repeat_count: int — 동일 diagnosis.checklist 시그니처가 글로벌 피드백에서 반복된 횟수.
+#                    contract-kaizen / evaluator-kaizen 의 "최근 10건 중 3회 이상" 임계치 판단에 사용.
+# first_seen_at: ISO-8601 — 동일 시그니처가 처음 발견된 타임스탬프. 만성 이슈 vs 신규 이슈 구분.
+# regression_link: string | null — 이전 APPROVE 피드백 파일명 (예: "a1b2c3d4-2026-04-10T120000.yaml").
+#                                  APPROVE 후 같은 영역에서 다시 REJECT 발생 시 회귀 추적용.
+#                                  null 이면 회귀 아님.
+
 # 예시:
 example:
   schema_version: 1
@@ -77,5 +90,9 @@ example:
     cross_diagnosis_notes: "조건 3번 경계값 누락 가능성"
     improvement_suggestions:
       - "에러 경로 조건을 별도 카테고리로 분리"
+  # 누적 분석 필드 (optional)
+  repeat_count: 2
+  first_seen_at: "2026-03-28T09:15:00+09:00"
+  regression_link: null
   user_rating: null
   user_comment: null

@@ -27,11 +27,13 @@ user-invocable: true
 
 ## Gotchas
 
-- WebFetch로 URL 접근 시 arXiv PDF 직접 접근은 실패할 수 있다. `arxiv.org/abs/` (abstract 페이지)를 사용해라
-- GitHub trending은 페이지 구조가 자주 바뀐다. WebSearch로 "github trending {키워드}"를 검색하는 게 더 안정적이다
-- Anthropic docs changelog는 단일 URL이 없을 수 있다. WebSearch로 "anthropic docs changelog site:docs.anthropic.com" 검색해라
-- 논문 제목만으로 검색하면 동명 논문이 나올 수 있다. 반드시 저자명 또는 arXiv ID를 함께 확인해라
-- `release.sh`는 interactive prompt가 있다 (dirty check). 카이젠 브랜치에서는 커밋 후 실행해야 한다
+- WebFetch 로 URL 접근 시 arXiv PDF 직접 접근은 실패할 수 있다. `arxiv.org/abs/` (abstract 페이지) 를 사용해라
+- GitHub trending 은 페이지 구조가 자주 바뀐다. WebSearch 로 "github trending {키워드}" 를 검색하는 게 더 안정적이다
+- Anthropic docs changelog 는 단일 URL 이 없을 수 있다. WebSearch 로 "anthropic docs changelog site:docs.anthropic.com" 검색해라
+- 논문 제목만으로 검색하면 동명 논문이 나올 수 있다. 반드시 저자명 또는 arXiv ID 를 함께 확인해라
+- `release.sh` 는 interactive prompt 가 있다 (dirty check). 카이젠 브랜치에서는 커밋 후 실행해야 한다
+- **피드백 0 건이면 triage 에서 SKIP 하지 마라** — contract-kaizen / evaluator-kaizen 과 동일하게 **리서치 전용 모드** 로 진행한다 (패턴 분석 생략, `references/search-sources.md` 우선순위 상위 3 개 도메인만 리서치). 피드백 누적이 없어도 2026 트렌드 리서치 기반 예방적 개선은 항상 가능하다 (리서치 근거: GrowthBook "Feedback Loops are the Next Breakthrough in Agentic Coding", Martin Fowler "Humans and Agents in Software Engineering Loops")
+- 피드백 패턴 분석 시 동일 `diagnosis.checklist` 시그니처가 **최근 10 건 중 3 회 이상** 반복되면 해당 영역을 최우선 개선 대상으로 승격시켜라. 이는 contract-kaizen / evaluator-kaizen 의 임계치와 일치시켜 일관성을 유지한다
 
 ## 핵심 제약: 할루시네이션 절대 불가
 
@@ -63,6 +65,7 @@ user-invocable: true
 | 아키텍처 | `harness/` 전체 구조, 훅, 스크립트 | `config` |
 | 스킬 설계 가이드 | `../../docs/guides/skill-design-guide.md` | `guide` |
 | 에이전트 설계 가이드 | `../../docs/guides/agent-design-guide.md` | `guide` |
+| 피드백 스키마 | `../../references/feedback-schema.yaml` | `config` |
 
 `$ARGUMENTS`가 없으면 전체 영역을 스캔한다.
 
@@ -98,7 +101,22 @@ user-invocable: true
    - `../../docs/guides/agent-design-guide.md` 읽기
    - `harness/.claude-plugin/plugin.json`에서 현재 버전 확인
 
-### Step 2: COLLECT (수집)
+### Step 2a: Triage (피드백 패턴 분석)
+
+2026 agentic regression detection 트렌드 (Sauce Labs, ContextQA, GrowthBook) 에 맞춰 COLLECT 전에 글로벌 피드백을 먼저 분석한다. contract-kaizen / evaluator-kaizen 과 동일한 Triage 프로토콜을 공유한다.
+
+1. `bash harness/scripts/feedback-path.sh` 로 글로벌 피드백 경로 확인
+2. `contract/` 와 `evaluator/` 하위 YAML 파일 읽기 (최근 10 건)
+3. 패턴 분석:
+   - 반복 실패 패턴 — 동일 `diagnosis.checklist` 시그니처 빈도 (최근 10 건 중 3 회 이상 = 임계치 초과)
+   - optional 필드 활용 — `repeat_count` 가 2 이상인 피드백 우선 검토
+   - `regression_link` 가 non-null 인 피드백 — APPROVE 후 재발한 회귀 이슈 (최우선 개선)
+   - 카테고리 편중 — `category_coverage` 가 일관되게 낮은 영역
+   - 교차 진단에서 반복 지적되는 문제 (`cross_diagnosis_notes`)
+4. 피드백이 0 건이면 패턴 분석 생략 → **리서치 전용 모드** 로 Step 2b 진행 (Gotchas 참조)
+5. 임계치 초과 항목이 있으면 Step 2b 리서치 도메인 선정 시 해당 영역 우선
+
+### Step 2b: COLLECT (수집)
 
 `references/search-sources.md`를 읽고 소스별로 검색한다.
 

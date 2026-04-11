@@ -59,10 +59,11 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 1. `bash harness/scripts/feedback-path.sh`로 글로벌 피드백 경로 확인
 2. `contract/` 하위 YAML 파일 읽기
 3. 패턴 분석:
-   - 반복 실패 패턴 (동일 diagnosis.checklist 항목이 true인 빈도)
-   - 카테고리 편중 (category_coverage가 일관되게 낮은 영역)
+   - 반복 실패 패턴 (동일 diagnosis.checklist 항목이 true 인 빈도, 최근 10 건 중 3 회 이상 = 임계치)
+   - 카테고리 편중 (category_coverage 가 일관되게 낮은 영역)
    - 복잡도 과소평가 빈도
    - 교차 진단에서 반복 지적되는 문제
+   - **누적 분석 필드 활용** (feedback-schema.yaml v1 extension): `repeat_count` 가 2 이상인 피드백은 만성 이슈로 우선순위 높음. `regression_link` 가 non-null 이면 APPROVE 후 재발한 회귀 이슈로 최우선. `first_seen_at` 으로 신규 vs 만성 구분. 리서치 근거: 2026 agentic regression detection (ContextQA "agent interprets logs, correlates failure with recent changes", Sauce Labs "beyond pass/fail").
 4. 피드백이 0건이면 패턴 분석 생략 → 리서치 전용 모드로 Step 3 진행
 5. 피드백이 있지만 개선 포인트가 없으면 SKIP + `docs/kaizen/research-log.md`에 "개선 포인트 없음" 기록 후 종료
 

@@ -60,11 +60,12 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 1. `bash harness/scripts/feedback-path.sh`로 글로벌 피드백 경로 확인
 2. `evaluator/` 하위 YAML 파일 읽기
 3. 패턴 분석:
-   - L3 미도달 빈도 (l3_coverage가 일관되게 낮은 패턴)
-   - REJECT 반복 패턴 (동일 reject_reasons)
+   - L3 미도달 빈도 (l3_coverage 가 일관되게 낮은 패턴)
+   - REJECT 반복 패턴 (동일 reject_reasons, 최근 10 건 중 3 회 이상 = 임계치)
    - False APPROVE 징후 (APPROVE 후 관련 영역에서 버그 보고)
    - 편향 감지 빈도
    - 교차 진단에서 반복 지적되는 문제
+   - **누적 분석 필드 활용** (feedback-schema.yaml v1 extension): `repeat_count` 가 2 이상인 피드백은 평가 루브릭의 blind spot 가능성. `regression_link` 가 non-null 이면 이전 APPROVE 가 false positive 였을 가능성 — 해당 평가 영역의 L3 기준을 강화할지 검토. 리서치 근거: 2026 agentic test management (Sauce Labs "pattern-based defect prediction", ContextQA "self-healing regression loops").
 4. 피드백이 0건이면 패턴 분석 생략 → 리서치 전용 모드로 Step 3 진행
 5. 피드백이 있지만 개선 포인트가 없으면 SKIP + 로그 기록 후 종료
 

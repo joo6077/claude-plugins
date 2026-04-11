@@ -18,10 +18,12 @@ user-invocable: true
 
 ## Gotchas
 
-- 스킬로 충분한 작업에 에이전트를 만들면 불필요한 복잡성 — "별도 컨텍스트 격리"나 "도구 제한"이 필요한지 먼저 판단해라
-- description을 사람용 요약으로 쓰면 위임 정확도가 떨어진다 — "언제 위임할지" + 트리거 키워드 + 비트리거 조건 명시
-- 도구를 전체 상속(tools 생략)하면 에이전트의 격리 의미가 없다 — 역할에 필요한 도구만 명시적으로 나열
-- 플러그인 에이전트는 hooks, mcpServers, permissionMode를 지원하지 않는다 — 필요하면 `.claude/agents/`에 생성
+- 스킬로 충분한 작업에 에이전트를 만들면 불필요한 복잡성 — "별도 컨텍스트 격리" 나 "도구 제한" 이 필요한지 먼저 판단해라
+- description 을 사람용 요약으로 쓰면 위임 정확도가 떨어진다 — "언제 위임할지" + 트리거 키워드 + negative trigger (비트리거 조건) 명시
+- 도구를 전체 상속(tools 생략) 하면 에이전트의 격리 의미가 없다 — 역할에 필요한 도구만 명시적으로 나열
+- 플러그인 에이전트는 hooks, mcpServers, permissionMode 를 지원하지 않는다 — 필요하면 `.claude/agents/` 에 생성
+- **frontmatter drift 방지**: `tools`, `model` 필드는 validate-plugin V1 검증 대상이다. 둘 중 하나라도 누락되면 에이전트가 Claude 에게 invisible 처리되거나 위임 실패한다 (리서치 근거: LLM Model Drift — byaiteam.com 2025-12-30, Anthropic Agent Skills 공식 frontmatter 요구사항). 생성 직후 `python3 scripts/validate-plugin.py <plugin-name>` 으로 검증해라.
+- description 관점 일관성 (3 인칭 또는 명령형) — create-skill Gotchas 와 동일한 Anthropic best practice 규칙을 따른다
 
 ## Process
 
@@ -64,15 +66,17 @@ user-invocable: true
 
 ### 4. 에이전트 파일 생성
 
+`tools` 와 `model` 은 **필수 필드** 다. 누락 시 validate-plugin V1 FAIL + Claude invisible.
+
 ```markdown
 ---
 name: {에이전트명}
 description: >
   {역할 1줄}.
   {언제 위임하는지 트리거 조건}.
-  {비트리거 조건}.
-tools: {도구 목록}
-model: {sonnet|opus|haiku|inherit}
+  {negative trigger — 어떤 경우에는 위임하지 않는지}.
+tools: {도구 목록}           # 필수 — 쉼표 구분, 역할에 필요한 최소 set
+model: {sonnet|opus|haiku|inherit}   # 필수 — 작업 복잡도 기반 선택
 # memory: {user|project|local}  # 필요 시
 ---
 
@@ -87,11 +91,13 @@ model: {sonnet|opus|haiku|inherit}
 
 ### 5. 검증
 
-- [ ] frontmatter 필수 필드 존재 (name, description)
-- [ ] description에 위임 트리거 + 비트리거 조건 포함
-- [ ] tools가 역할에 맞게 최소한으로 제한됨
-- [ ] model이 작업 복잡도에 맞게 선택됨
+- [ ] frontmatter 필수 필드 존재 (name, description, tools, model — 4 개 모두)
+- [ ] description 에 위임 트리거 + negative trigger (비트리거 조건) 포함
+- [ ] description 관점 일관성 (3 인칭 또는 명령형 통일)
+- [ ] tools 가 역할에 맞게 최소한으로 제한됨
+- [ ] model 이 작업 복잡도에 맞게 선택됨
 - [ ] 플러그인 에이전트면 hooks/mcpServers/permissionMode 미사용 확인
+- [ ] **validate-plugin 연동**: `python3 scripts/validate-plugin.py <plugin-name>` 실행하여 V1/V4/V5/V6 최소 4 개가 OK 인지 확인. 에이전트의 V1 필수 필드는 `name`, `description`, `tools`, `model` 4 개 (스킬과 달리 `user-invocable` 없음). 기준은 `harness/docs/guides/plugin-validation-guide.md §3.1` 참조.
 
 ### 6. 사용자에게 결과 제시
 

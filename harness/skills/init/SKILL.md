@@ -66,3 +66,13 @@ harness 초기화 완료!
 
 설정 완료 후 /sprint-contract로 첫 계약을 작성하세요.
 ```
+
+### 플러그인 모노레포 환경일 때 (optional)
+
+현재 프로젝트 루트에 `.claude-plugin/marketplace.json` 또는 `<kit>/.claude-plugin/plugin.json` 이 있으면 플러그인 모노레포다. 이 경우 **베이스라인 스냅샷** 을 권장한다 (리서치 근거: 2026 agentic regression detection — "baseline snapshot 확보 후 다음 사이클에서 회귀 비교", Sauce Labs / ContextQA):
+
+```bash
+python3 scripts/validate-plugin.py
+```
+
+7 카테고리 (V1~V7) 결과를 기록해 두면 이후 카이젠/릴리스 주기마다 drift 비교가 가능하다. 기준 문서: `harness/docs/guides/plugin-validation-guide.md`.

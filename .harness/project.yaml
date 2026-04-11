@@ -33,6 +33,12 @@ anti_patterns:
   - id: AP-02
     pattern: "git push.*--force"
     message: "force push 금지"
+  - id: AP-03
+    pattern: "^```\\s*$"
+    message: "bare code fence 금지 — validate-plugin V6 FAIL (언어 힌트 필수: ```text, ```bash, ```yaml 등)"
+  - id: AP-04
+    pattern: "^---\\s*\\n(?![^-]*name:)"
+    message: "SKILL.md / agents/*.md frontmatter 에서 name 필드 누락 — validate-plugin V1 FAIL"
 
 # ── 재사용성 ──
 reusability:
@@ -54,7 +60,7 @@ runtime_inspection:
 # ── 트리거 조건 ──
 trigger:
   min_files: 2
-  always: ["릴리스", "release", "버전", "react-kit", "react"]
+  always: ["릴리스", "release", "버전", "react-kit", "react", "kaizen"]
   never: ["읽어줘", "설명해줘"]
 
 # ── 검증 절차 ──

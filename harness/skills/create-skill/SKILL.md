@@ -17,10 +17,13 @@ user-invocable: true
 
 ## Gotchas
 
-- description을 사람용 요약으로 쓰면 트리거 정확도가 떨어진다 — "언제 이 스킬을 켜라" + 트리거 키워드 + 비트리거 조건까지 명시해라
-- Gotchas 없이 스킬을 만들면 안 된다 — 최소 1개, "처음엔 모르더라도 빈 Gotchas 섹션은 만들어 둬라"
-- 메인 SKILL.md에 모든 내용을 넣으면 컨텍스트 과부하 — 100줄 넘으면 references/ 분리 검토
-- 뻔한 내용(일반 코딩 지식)을 넣으면 가치 없다 — Claude가 추론만으로 절대 알 수 없는 정보만 넣어라
+- description 을 사람용 요약으로 쓰면 트리거 정확도가 떨어진다 — "언제 이 스킬을 켜라" + 트리거 키워드 + **negative trigger (비트리거 조건)** 까지 명시해라. negative trigger 는 "X 같은 요청에는 트리거하지 않는다" 형식으로 최소 1 개 이상 포함한다 (리서치 근거: skills-best-practices, mgechev — "React skill should specify: Don't use for Vue, Svelte, or vanilla CSS").
+- description 은 **3 인칭 일관성** 을 유지해라 — "이 스킬은 ~한다" 또는 명령형 ("~해라") 중 하나로 통일. 1 인칭 ("나는 ~할 수 있다") 이나 2 인칭 ("당신의 ~") 은 Anthropic 공식 best practice 위반이다. description 은 system prompt 에 injection 되므로 관점 불일치가 discovery 문제를 유발한다.
+- description 은 "무엇을 하는 스킬인가" + "언제 사용하는가" 양쪽을 모두 포함해야 한다 — Anthropic 공식 예시: "Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction."
+- Gotchas 없이 스킬을 만들면 안 된다 — 최소 1 개, "처음엔 모르더라도 빈 Gotchas 섹션은 만들어 둬라"
+- 메인 SKILL.md 에 모든 내용을 넣으면 컨텍스트 과부하 — 100 줄 넘으면 references/ 분리 검토. 전체 SKILL.md 본문 1500-2000 words 타깃 (Anthropic best practices 기준).
+- 뻔한 내용(일반 코딩 지식)을 넣으면 가치 없다 — Claude 가 추론만으로 절대 알 수 없는 정보만 넣어라
+- 스킬 생성 직후 반드시 `python3 scripts/validate-plugin.py <plugin-name>` 으로 V1 frontmatter / V4 trigger 중복 / V5 placeholder / V6 bare code fence 검증을 돌려라. 생성만 하고 검증 안 하면 frontmatter drift 로 스킬이 Claude 에게 invisible 처리된다.
 
 ## Process
 
@@ -85,11 +88,17 @@ user-invocable: true
 
 ### 5. 검증
 
-- [ ] frontmatter 4개 필드 존재 (name, description, argument-hint, user-invocable)
-- [ ] description에 트리거 키워드 + 비트리거 조건 포함
-- [ ] Gotchas 섹션 존재
-- [ ] Process에 검증 기준 포함
-- [ ] 9가지 아키타입 중 해당 유형 확인
+- [ ] frontmatter 4 개 필드 존재 (name, description, argument-hint, user-invocable)
+- [ ] description 에 트리거 키워드 + negative trigger (비트리거 조건) 포함
+- [ ] description 관점 일관성 (3 인칭 또는 명령형 통일, 혼용 금지)
+- [ ] Gotchas 섹션 존재 (최소 1 개)
+- [ ] Process 에 검증 기준 포함
+- [ ] 9 가지 아키타입 중 해당 유형 확인
+- [ ] **validate-plugin 연동**: `python3 scripts/validate-plugin.py <plugin-name>` 실행하여 아래 7 카테고리 중 V1/V4/V5/V6 최소 4 개가 OK 인지 확인. 기준은 `harness/docs/guides/plugin-validation-guide.md §3` 참조.
+  - V1 frontmatter — 필수 필드 (name/description/user-invocable) 모두 존재
+  - V4 triggers — description 키워드가 기존 스킬과 중복되지 않음 (또는 kit-context 로 disambiguated)
+  - V5 placeholders — 미완성 마커 (할일/보류/수정요망 세 종류) 0 건
+  - V6 code-fence — bare fence 0 건 (언어 힌트 필수)
 
 ### 6. 사용자에게 결과 제시
 
