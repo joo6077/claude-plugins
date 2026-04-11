@@ -73,7 +73,7 @@ cd my-app
 
 이 플러그인이 생성하는 프로젝트는 Clean Architecture 를 따른다:
 
-```
+```text
 src/
 ├── domain/              # entities, usecases, failures (순수)
 ├── data/                # datasources, models, repositories
