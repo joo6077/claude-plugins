@@ -228,3 +228,38 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 | 커밋 메시지 | `flutter-kaizen:` prefix | `flutter-kaizen: flutter-widget Gotchas에 const 생성자 주의사항 추가` |
 | 브랜치명 | 버전 + 날짜 | `flutter-kaizen/0.4.0-2026-04-07` |
 | PR 제목 | bump 유형 + 플러그인명 | `[minor] flutter-toolkit: widget 스킬 패턴 개선` |
+
+## Step 6: Plugin Validation 결과 반영
+
+이 카이젠 세션을 시작하기 전과 끝낼 때 모두 `scripts/validate-plugin.py` 를 실행하여 flutter-toolkit 의 7가지 품질 카테고리 상태를 확인한다.
+
+### 실행
+
+```bash
+# 세션 시작 시 현재 상태 파악
+python3 scripts/validate-plugin.py flutter-toolkit
+
+# 자동 수정 가능한 항목 먼저 (V5 placeholders, V6 code-fence)
+python3 scripts/validate-plugin.py flutter-toolkit --fix --check=placeholders,code-fence
+
+# 세션 종료 시 회귀 없음 확인
+python3 scripts/validate-plugin.py flutter-toolkit
+```
+
+### 우선순위 반영 규칙
+
+- **ERROR** (V1~V7 중 실패): 카이젠 Step 4 (ANALYZE) 의 "높음" 레벨에 자동 편입. 이 카이젠 세션에서 반드시 수정.
+- **WARNING**: "중간" 레벨. V4 trigger 키워드 중복은 description 보강으로 처리.
+- **PASS**: 해당 카테고리 skip.
+
+### 통합 규칙
+
+- `--fix` 자동 모드는 V5 placeholders 와 V6 code-fence 만 수정한다. 다른 체크는 수동 수정.
+- V3 refs BROKEN 은 수동으로 링크 경로 확인 후 수정.
+- V1 frontmatter 누락은 1줄 수정이라 즉시 처리.
+- V7 plugin-json 불일치는 release.sh 흐름 문제라면 카이젠이 아닌 릴리스 스킬에서 다룬다.
+
+## References
+
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 7 카테고리 기준 (SSOT)
+- `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구

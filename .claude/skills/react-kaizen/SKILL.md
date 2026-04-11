@@ -64,6 +64,40 @@ user-invocable: true
 
 카이젠 작업도 일반 개발과 동일하게 `.harness/sprint-contract.md` 를 작성하고 `harness:qa-evaluator` 로 APPROVE 를 받은 후 commit 한다.
 
+## Step 7: Plugin Validation 결과 반영
+
+이 카이젠 세션을 시작하기 전과 끝낼 때 모두 `scripts/validate-plugin.py` 를 실행하여 react-kit 의 7가지 품질 카테고리 상태를 확인한다.
+
+### 실행
+
+```bash
+# 세션 시작 시 현재 상태 파악
+python3 scripts/validate-plugin.py react-kit
+
+# 자동 수정 가능한 항목 먼저 (V5 placeholders, V6 code-fence)
+python3 scripts/validate-plugin.py react-kit --fix --check=placeholders,code-fence
+
+# 세션 종료 시 회귀 없음 확인
+python3 scripts/validate-plugin.py react-kit
+```
+
+### 우선순위 반영 규칙
+
+- **ERROR** (V1~V7 중 실패): 카이젠 Step 3 (개선 우선순위) 의 "높음" 레벨에 자동 편입. 이 카이젠 세션에서 반드시 수정.
+- **WARNING**: "중간" 레벨. V4 trigger 키워드 중복은 description 보강으로 처리.
+- **PASS**: 해당 카테고리 skip.
+
+### 통합 규칙
+
+- `--fix` 자동 모드는 V5 placeholders 와 V6 code-fence 만 수정한다. 다른 체크는 수동 수정.
+- V3 refs BROKEN 은 수동으로 링크 경로 확인 후 수정.
+- V1 frontmatter 누락은 1줄 수정이라 즉시 처리.
+- V7 plugin-json 불일치는 release.sh 흐름 문제라면 카이젠이 아닌 릴리스 스킬에서 다룬다.
+
+### Library Policy 카이젠 절대 불가 원칙
+
+`react-animation`, `animation-architect-react`, `react-audit` 의 Library Policy 카테고리에 정의된 **라이브러리 0개 원칙** (Motion/framer-motion/dnd-kit/react-spring/react-transition-group 등 빌드 게이트급 금지 목록) 은 이 검증 단계에서도, 그 어떤 카이젠 세션에서도 **절대 완화하지 않는다**. Plugin Validation 결과와 무관하게 이 원칙은 고정이다. 신규 금지 라이브러리 추가만 허용한다.
+
 # References
 
 - `docs/react/kit-design/g1-scaffolding.md` — G1 스캐폴딩 그룹 설계 (react-init/react-screen/react-feature/react-widget)
@@ -77,3 +111,5 @@ user-invocable: true
 - `react-kit/skills/` — 개선 대상 21개 스킬
 - `react-kit/agents/` — 개선 대상 3개 에이전트
 - `react-kit/evals/evals.json` — 테스트 케이스 (향후 추가)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 7 카테고리 기준 (SSOT)
+- `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구
