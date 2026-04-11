@@ -68,6 +68,14 @@ tr:hover td{background:rgba(56,189,248,0.03)}
 .gotcha{background:var(--surface);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:14px 16px;font-size:0.88rem}
 .gotcha-title{color:var(--yellow);font-weight:600;margin-bottom:6px;font-size:0.85rem}
 .gotcha-body{color:var(--text2);line-height:1.6}
+.bad-good-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:640px){.bad-good-grid{grid-template-columns:1fr}}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:20px}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:20px}
+.compare-header{font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-header{color:var(--red)}
+.compare-good .compare-header{color:var(--green)}
+.compare-note{font-size:0.82rem;color:var(--text2);margin-top:10px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -397,6 +405,80 @@ export default defineConfig({
     <div class="callout callout-warn" style="margin-top:1rem;">
       <strong>Tailwind v4 주의:</strong> <code>npx tailwindcss init</code> 실행 금지. 설정 파일이 없어야 정상이다. <code>globals.css</code>에 <code>@import "tailwindcss";</code> 한 줄만 추가하면 된다.
     </div>
+  </section>
+
+  <!-- 안티패턴 비교 -->
+  <section class="section">
+    <div class="section-label">안티패턴 비교</div>
+    <h2 class="section-title">Bad vs Good — G1 핵심 실수 패턴</h2>
+    <p style="color:var(--text-secondary);margin-bottom:1.2rem;">g1-scaffolding.md §1.6 / §2.6 / §3.5 / §4.6 Gotchas 기반. 반복적으로 관찰된 실수를 코드 수준에서 비교한다.</p>
+
+    <div class="bad-good-grid">
+      <div class="compare-bad">
+        <div class="compare-header">❌ 안티패턴 — 상대경로 import</div>
+        <pre><code>// 컴포넌트 이동 후 경로 계산 실패
+import { Button } from '../../../shared/ui/button'
+import { useUser } from '../../hooks/use-user'</code></pre>
+        <p class="compare-note">경로 depth가 달라지면 import가 깨진다. /react-extract 이동 후 항상 절대경로로 통일해야 한다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-header">✅ 권장 — 절대경로 alias</div>
+        <pre><code>// tsconfig paths + vite resolve.alias 설정 후
+import { Button } from '@/presentation/shared/components/ui/button'
+import { useUser } from '@/presentation/features/user/hooks/use-user'</code></pre>
+        <p class="compare-note">@/ alias는 어느 depth에서도 동일하게 동작. /react-init이 tsconfig + vite.config 자동 설정.</p>
+      </div>
+    </div>
+
+    <div class="bad-good-grid">
+      <div class="compare-bad">
+        <div class="compare-header">❌ 안티패턴 — any 타입 남용</div>
+        <pre><code>// API 응답 타입을 any로 처리
+async function fetchUser(id: string): Promise&lt;any&gt; {
+  const res = await fetch(`/api/users/${id}`)
+  return res.json() // 타입 검증 없음
+}</code></pre>
+        <p class="compare-note">any는 Strict TS 정책 위반. /react-audit이 AP-10 규칙으로 감지하여 error 레벨 리포트.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-header">✅ 권장 — Zod 경계 검증</div>
+        <pre><code>import { z } from 'zod'
+import { ok, err } from 'neverthrow'
+
+const UserSchema = z.object({ id: z.string(), name: z.string() })
+
+async function fetchUser(id: string) {
+  const res = await fetch(`/api/users/${id}`)
+  const parsed = UserSchema.safeParse(await res.json())
+  if (!parsed.success) return err({ kind: 'ParseError' })
+  return ok(parsed.data) // Result&lt;User, Failure&gt;
+}</code></pre>
+        <p class="compare-note">API 진입점에서만 Zod parse. 내부 레이어는 Result&lt;T, Failure&gt;만 전달한다.</p>
+      </div>
+    </div>
+
+    <div class="bad-good-grid">
+      <div class="compare-bad">
+        <div class="compare-header">❌ 안티패턴 — shadcn 수동 복사</div>
+        <pre><code># 컴포넌트를 직접 복사/붙여넣기
+cp shadcn-button.tsx src/components/button.tsx
+# 또는 구 패키지명 사용
+npx shadcn-ui@latest add button</code></pre>
+        <p class="compare-note">2024-08부터 패키지명이 shadcn으로 변경. shadcn-ui는 deprecated.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-header">✅ 권장 — pnpm dlx shadcn</div>
+        <pre><code># 초기화
+pnpm dlx shadcn@latest init
+
+# 컴포넌트 추가 (presentation/shared/components/ui/ 에 생성)
+pnpm dlx shadcn@latest add button card skeleton</code></pre>
+        <p class="compare-note">shadcn CLI가 자동으로 components.json 기준 경로에 설치. import 경로 불일치 없음.</p>
+      </div>
+    </div>
+
+    <a href="https://ui.shadcn.com/docs/installation/vite" class="card-source" target="_blank" rel="noopener">↗ shadcn/ui Vite 설치 가이드</a>
+    <a href="https://vitejs.dev/guide/" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ Vite 공식 문서</a>
   </section>
 
   <!-- Scaffolding Gotchas -->

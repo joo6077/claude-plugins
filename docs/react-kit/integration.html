@@ -74,6 +74,10 @@ tr:hover td{background:rgba(56,189,248,0.025)}
 .qs-body{flex:1}
 .qs-cmd{font-family:var(--mono);font-size:0.85rem;color:var(--accent2)}
 .qs-desc{font-size:0.82rem;color:var(--text3);margin-top:2px}
+.check-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.check-list li{display:flex;align-items:flex-start;gap:10px;font-size:0.88rem;color:var(--text2);line-height:1.6}
+.check-icon{width:20px;height:20px;border-radius:5px;border:2px solid var(--yellow);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--yellow)}
+.check-list strong{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
@@ -104,6 +108,7 @@ tr:hover td{background:rgba(56,189,248,0.025)}
         <div class="card-icon">⚡</div>
         <h3>성능 우선</h3>
         <p>번들 크기와 런타임 성능을 모든 결정의 1순위 판단 기준. 측정 없이 가정하지 않는다.</p>
+        <a href="performance.html" class="card-source">↗ G3 Performance 페이지</a>
       </div>
       <div class="card">
         <div class="card-icon">🚫</div>
@@ -121,11 +126,13 @@ tr:hover td{background:rgba(56,189,248,0.025)}
         <div class="card-icon">📐</div>
         <h3>Strict TypeScript</h3>
         <p>any/as/! 금지, Zod 경계 검증 필수. 생성된 모든 파일은 tsc --noEmit 통과 보장.</p>
+        <a href="quality.html" class="card-source">↗ G4 Quality 페이지</a>
       </div>
       <div class="card">
         <div class="card-icon">✅</div>
         <h3>Result 타입</h3>
         <p>throw 금지, neverthrow <code>Result&lt;T, Failure&gt;</code>로 타입 안전 에러 처리. domain에서 throw 감지 시 감사 오류.</p>
+        <a href="quality.html#error" class="card-source">↗ G4 에러 처리 패턴</a>
       </div>
       <div class="card">
         <div class="card-icon">📊</div>
@@ -401,6 +408,64 @@ src-tauri/               # Tauri 백엔드 commands + capabilities</pre>
         ├── wasm-project/
         └── tauri-project/</pre>
     <a href="https://github.com/joo6077/claude-plugins" class="card-source" target="_blank" rel="noopener">↗ GitHub 저장소</a>
+  </section>
+
+  <!-- Gotchas 체크리스트 -->
+  <section id="gotchas">
+    <div class="section-label">Gotchas 체크리스트</div>
+    <h2>21 스킬 교차 공통 주의사항</h2>
+    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
+      G1~G6b 스킬 전체를 관통하는 반복 실수 패턴. 구현 착수 전 이 목록을 확인하라.
+      개별 스킬 Gotchas는 각 그룹 페이지 참조.
+    </p>
+    <ul class="check-list">
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>any / as / ! 금지 — 전 스킬 공통.</strong> 생성 코드에 <code>any</code>, <code>as SomeType</code>, <code>value!</code> non-null 단언이 포함되면 /react-audit AP-10·11이 error로 감지한다. Zod <code>safeParse</code> 또는 타입 가드로 대체하라.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>domain/ 레이어에서 throw 금지.</strong> domain은 <code>Result&lt;T, Failure&gt;</code>만 반환한다. <code>throw new Error(...)</code>가 감지되면 AP-40 + /react-audit Architecture 축 error. infrastructure 경계에서만 예외를 받아 Result로 변환하라.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>Tauri API는 infrastructure/tauri/ 래퍼 경유 필수.</strong> <code>@tauri-apps/</code>를 domain·data·presentation에서 직접 import하면 웹 빌드 런타임 오류 + AP-02 error. <code>isTauri()</code> 가드 래퍼를 반드시 거쳐라.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>WASM 이식 전 G0 카탈로그 확인 필수.</strong> 직관으로 이식 결정 금지. wasm-catalog.md §1 권장 카테고리 또는 §5 휴리스틱 3/5 이상일 때만 /react-wasm 실행. 폼 검증·JSON 파싱·DOM 조작은 §2 비권장 카테고리다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>애니메이션 라이브러리 import 절대 금지.</strong> <code>motion</code>, <code>framer-motion</code>, <code>react-spring</code>, <code>@dnd-kit/*</code>, <code>gsap</code>, <code>lottie-react</code>는 AP-01 규칙 — LibraryPolicy error. Tailwind T1 → View Transitions API T2 → 커스텀 pointer primitives T3 순서로 판정하라.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>복수 파일 생성 실패 시 전체 롤백.</strong> /react-feature·/react-api 등 복수 레이어를 생성하다 하나라도 실패하면 해당 실행으로 생성된 파일 전체를 삭제하고 원상복구한다. 중간 상태 커밋 금지.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>Zod는 최초 진입점에서만.</strong> API 응답 파싱 또는 Form submit 시 한 번만 parse. 내부 레이어(domain → data → presentation)는 이미 검증된 타입만 전달한다. 레이어마다 Zod 재검증은 불필요한 중복이다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>Skeleton은 실 레이아웃 1:1 매핑.</strong> <code>isPending</code>일 때 스피너 대신 Skeleton을 쓰되, 크기·위치가 실제 콘텐츠와 달라지면 CLS가 발생한다. shadcn Skeleton에 <code>bg-muted</code> 배경색 없으면 투명해서 보이지 않는다.</span>
+      </li>
+      <li>
+        <div class="check-icon">!</div>
+        <span><strong>구현 전 반드시 /harness sprint-contract 실행.</strong> 2+ 파일 변경, 새 화면·컴포넌트·API 연동 시 계약 없이 착수 금지. 완료 후 qa-evaluator로 APPROVE 받아야 구현 종료다.</span>
+      </li>
+    </ul>
+    <div class="callout">
+      스킬별 세부 Gotchas: <a href="scaffolding.html" style="color:var(--accent)">G1</a> ·
+      <a href="state-data.html" style="color:var(--accent)">G2</a> ·
+      <a href="performance.html" style="color:var(--accent)">G3</a> ·
+      <a href="quality.html" style="color:var(--accent)">G4</a> ·
+      <a href="ui-patterns.html" style="color:var(--accent)">G5</a> ·
+      <a href="animation.html" style="color:var(--accent)">G5b</a> ·
+      <a href="build-audit.html" style="color:var(--accent)">G6</a> ·
+      <a href="wasm-catalog.html" style="color:var(--accent)">G0 WASM</a>
+    </div>
   </section>
 
   <!-- 관련 페이지 -->

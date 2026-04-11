@@ -68,6 +68,14 @@ tr:hover td{background:rgba(56,189,248,0.025)}
 @media(max-width:640px){.two-col{grid-template-columns:1fr}}
 .tag-wasm{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;background:rgba(56,189,248,0.15);color:var(--accent)}
 .tag-tauri{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;background:rgba(167,139,250,0.15);color:#c4b5fd}
+.bad-good-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:640px){.bad-good-grid{grid-template-columns:1fr}}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:20px}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:20px}
+.compare-header{font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-header{color:var(--red)}
+.compare-good .compare-header{color:var(--green)}
+.compare-note{font-size:0.82rem;color:var(--text2);margin-top:10px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -393,6 +401,98 @@ export async function loadConfig(path: string) {
       </table>
     </div>
     <a href="https://v2.tauri.app/security/" class="card-source" target="_blank" rel="noopener">↗ Tauri 2 Capabilities &amp; Security</a>
+  </section>
+
+  <!-- 안티패턴 비교 -->
+  <section id="antipatterns">
+    <div class="section-label">안티패턴 비교</div>
+    <h2>Bad vs Good — G3 핵심 실수 패턴</h2>
+    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">g3-performance.md §1.5 / §1.6 / §2.6 Gotchas 기반. WASM·Tauri 통합에서 반복 관찰된 오류를 코드 수준으로 비교한다.</p>
+
+    <div class="bad-good-grid">
+      <div class="compare-bad">
+        <div class="compare-header">❌ 안티패턴 — render 안에서 WASM 직접 호출</div>
+        <pre><code>function ImageProcessor({ file }: Props) {
+  // 매 렌더마다 WASM 경계 비용 발생
+  const resized = wasmResize(file.buffer, 800, 600)
+  return &lt;img src={URL.createObjectURL(resized)} /&gt;
+}</code></pre>
+        <p class="compare-note">렌더마다 JS→WASM 경계를 넘는다. /react-audit §8 감사 항목에서 error로 감지된다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-header">✅ 권장 — useMemo / useMutation으로 분리</div>
+        <pre><code>function ImageProcessor({ file }: Props) {
+  const { mutate, data } = useMutation({
+    mutationFn: (buf: ArrayBuffer) =&gt;
+      wasmClient.resize(buf, 800, 600), // Comlink Worker
+  })
+  useEffect(() =&gt; { mutate(file.buffer) }, [file])
+  return data ? &lt;img src={URL.createObjectURL(data)} /&gt; : &lt;Spinner /&gt;
+}</code></pre>
+        <p class="compare-note">WASM 호출은 Comlink Worker + useMutation으로 메인 스레드 블로킹 없이 실행한다.</p>
+      </div>
+    </div>
+
+    <div class="bad-good-grid">
+      <div class="compare-bad">
+        <div class="compare-header">❌ 안티패턴 — Tauri API 직접 import</div>
+        <pre><code>// presentation/ 또는 domain/ 에서 직접 사용
+import { readTextFile } from '@tauri-apps/plugin-fs'
+
+async function loadConfig(path: string) {
+  return readTextFile(path) // 웹 빌드에서 런타임 오류
+}</code></pre>
+        <p class="compare-note">웹 빌드(브라우저)에서 실행 시 런타임 오류. /react-audit AP-02 규칙이 error 레벨로 감지한다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-header">✅ 권장 — infrastructure/tauri/ 래퍼 + isTauri() 가드</div>
+        <pre><code>// src/infrastructure/tauri/fs.ts
+import { isTauri } from '@tauri-apps/api/core'
+import { readTextFile } from '@tauri-apps/plugin-fs'
+import { ok, err } from 'neverthrow'
+
+export async function readConfig(path: string) {
+  if (!isTauri()) return err({ kind: 'NotSupported' })
+  const text = await readTextFile(path)
+  return ok(text)
+}</code></pre>
+        <p class="compare-note">isTauri() 런타임 가드로 웹/데스크탑 양쪽 dist를 단일 번들로 공유할 수 있다.</p>
+      </div>
+    </div>
+
+    <div class="bad-good-grid">
+      <div class="compare-bad">
+        <div class="compare-header">❌ 안티패턴 — Rust에서 panic! 전파</div>
+        <pre><code>#[wasm_bindgen]
+pub fn parse_csv(data: &amp;[u8]) -&gt; Vec&lt;Row&gt; {
+    let text = std::str::from_utf8(data).unwrap(); // panic!
+    csv::Reader::from_reader(text.as_bytes())
+        .records()
+        .map(|r| r.unwrap()) // panic!
+        .collect()
+}</code></pre>
+        <p class="compare-note">WASM panic은 JS 쪽에서 unhandled exception으로 나타나 에러 경로 추적이 불가능하다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-header">✅ 권장 — Result&lt;T, JsError&gt; 반환</div>
+        <pre><code">use wasm_bindgen::JsError;
+
+#[wasm_bindgen]
+pub fn parse_csv(data: &amp;[u8]) -&gt; Result&lt;JsValue, JsError&gt; {
+    let text = std::str::from_utf8(data)
+        .map_err(|e| JsError::new(&amp;e.to_string()))?;
+    let rows: Vec&lt;Row&gt; = csv::Reader::from_reader(text.as_bytes())
+        .records()
+        .collect::&lt;Result&lt;_, _&gt;&gt;()
+        .map_err(|e| JsError::new(&amp;e.to_string()))?;
+    Ok(serde_wasm_bindgen::to_value(&amp;rows)?)
+}</code></pre>
+        <p class="compare-note">Result 반환으로 JS 쪽이 정상 try/catch 또는 neverthrow Result로 처리 가능해진다.</p>
+      </div>
+    </div>
+
+    <a href="https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html" class="card-source" target="_blank" rel="noopener">↗ wasm-bindgen Result 타입</a>
+    <a href="https://v2.tauri.app/develop/calling-rust/" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ Tauri 2 invoke 가이드</a>
   </section>
 
   <!-- Gotchas -->
