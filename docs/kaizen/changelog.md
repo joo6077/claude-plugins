@@ -1,7 +1,7 @@
 ---
 title: Kaizen Changelog
-version: 1.0.0
-last_updated: 2026-03-30
+version: 1.1.0
+last_updated: 2026-04-11
 ---
 
 # Kaizen Changelog
@@ -12,6 +12,34 @@ last_updated: 2026-03-30
 ---
 
 <!-- 엔트리는 최신순으로 추가 -->
+
+## [2026-04-11] - kaizen research-mode rerun (Phase 1~10 + Final)
+
+### 변경 유형: minor (2026 최신 생태계 반영 전면 카이젠)
+
+### 변경 범위
+
+7개 플러그인 전체를 2026-04-11 기준 공식 문서/릴리스 노트/학술 논문 리서치 기반으로 갱신. Phase 1~10 각 단계별 독립 qa-evaluator 서브에이전트 평가로 197/199 조건 PASS.
+
+- **harness v0.3.5 → v0.3.6**: skill/agent design guide에 Anthropic 공식 2026 패턴 반영, LLM-as-judge 2026 연구(arxiv 12건) 기반 평가 방법론 재설계, contract-design-guide 네이밍 태그 전환(L1/L2/L3 → [exact]/[structural]/[goal]), Aggregation Mode([enumerated]/[collective]) 도입, feedback-schema 누적 분석 필드 확장.
+- **flutter-toolkit v0.5.0 → v0.5.1**: Riverpod 3.0 Notifier 라이프사이클 + Freezed 3.0 sealed switch expression + go_router StatefulShellRoute preload + Flutter 3.29 context.mounted async gap + Makefile monorepo 감지.
+- **design-kit v0.2.0 → v0.2.1**: Tailwind v4 OKLCH 기본 팔레트, DTCG v1 stable (2025-10-28), WCAG 2.2 신규 SC 8건 (SC 2.5.8 24×24 터치타겟 등), Container Queries Baseline, Material 3 Expressive, SK-06 재발 방지 검증 명령.
+- **backend-kit v0.1.0 → v0.1.1**: Hexagonal/Clean/DDD 2026 실무 + 하이브리드 API 경계 기준 + OpenAPI 3.1 + AsyncAPI 3.0 + RFC 9700 OAuth 2.1 BCP + DPoP/mTLS sender-constrained + Outbox relay batch + Pact v4 + Testcontainers.
+- **infra-kit v0.1.0 → v0.1.1**: Kubernetes PSA restricted + Gateway API + Sidecar native(v1.33 GA), Terraform 1.10+ ephemeral + test framework + OpenTofu state encryption, Supply Chain 신규 섹션 (SLSA + Cosign + Syft + Trusted Publishers + Falco), OpenTelemetry 3 signals stable, GitOps(Argo CD/Flux) + Platform Engineering.
+- **rust-kit v0.1.0 → v0.1.1**: Rust 2024 edition 기본, Axum 0.8 `{id}` 경로 + `async_trait` 제거, SQLx 0.8 + SeaORM 1.1 이중 지원 + MockDatabase 테스트, Tonic 0.13, Clippy 2026 lint 세트 (workspace.lints SSOT), cargo-deny v2, Consumer-Owned Port + Composition Root 단일화 + Domain event/outbox 패턴.
+- **react-kit v0.1.0 → v0.1.1**: React 19 stable (ref as prop + Actions), TanStack Query v5 object-form + queryOptions, Tauri 2 GA ACL `core:default`, Tailwind v4 `@theme` + OKLCH, Vite 8 Rolldown, Zustand v5 useShallow 강제, Lingui v5 macro split, Zod v4 + RHF 호환성 workaround, WCAG 2.2 SC 2.5.8 24×24 터치타겟, 라이브러리 0개 원칙 강화 (animate.css 추가).
+
+### QA 결과
+
+- Phase 1 APPROVE 23/23, Phase 2 APPROVE 29/29, Phase 3 APPROVE 27/27, Phase 4 APPROVE 22/22, Phase 5 APPROVE 16/16, Phase 6 APPROVE 28/29, Phase 7 APPROVE 32/32, Phase 8 APPROVE 40/40, Phase 9 APPROVE 29/29 (iter2), Phase 10 APPROVE 22/22, Final APPROVE 10/10.
+- validate-plugin: 7 plugins, 7 OK, Exit 0 (전 Phase 유지)
+- sync-docs --check-only: 모든 README 동기화 상태
+
+### 주요 리서치 소스 (research-log.md 참조)
+
+공식 문서: Anthropic skill best practices, React 19 blog, Tauri 2.0 stable, Tailwind v4, W3C DTCG v1 Final Report, W3C WCAG 2.2, Kubernetes PSA docs, Terraform/OpenTofu docs, Axum/SQLx/SeaORM changelogs, TanStack Query v5 migration. 학술: arxiv 2412.05579 (LLMs-as-Judges Survey), 2506.13639 (LLM-as-Judge Reliability), 2510.24358 (AAA Benchmarking), 2506.10467 (Multi-Agent Spec), 2411.15594 (LLM-as-Judge Survey), 2410.21819 (Self-Preference Bias), 2506.22316 (Scoring Bias), 2602.05125 (Recursive Rubric Decomposition), 2403.18771 (CheckEval).
+
+---
 
 ## [2026-04-10] - kaizen Phase 1~10 + Final (전체 9 Phase 오케스트레이션)
 

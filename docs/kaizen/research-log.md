@@ -1,7 +1,7 @@
 ---
 title: Kaizen Research Log
-version: 1.0.0
-last_updated: 2026-03-30
+version: 1.1.0
+last_updated: 2026-04-11
 ---
 
 # Kaizen Research Log
@@ -12,6 +12,102 @@ last_updated: 2026-03-30
 ---
 
 <!-- 엔트리는 최신순으로 추가 -->
+
+## [2026-04-11] - Research mode rerun (Phase 1~10)
+
+### Phase 1 — 설계 가이드 (Anthropic 공식 패턴)
+
+- [Skill Authoring Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) — 채택
+- [Claude Code Sub-agents 공식](https://code.claude.com/docs/en/sub-agents) — 채택
+- [skill-creator SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) — 채택 (500 라인 상한, gerund form, MCP fully-qualified name)
+- [Equipping Agents with Agent Skills (Anthropic engineering)](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) — 채택
+
+### Phase 2 — Contract 계약 기반 QA (학술 + 실무)
+
+- [LLMs-as-Judges: A Comprehensive Survey — arxiv 2412.05579](https://arxiv.org/abs/2412.05579) — 채택 (judge criteria 체계화)
+- [LLM-as-Judge Reliability Empirical Study — arxiv 2506.13639](https://arxiv.org/html/2506.13639v1) — 채택 (CoT minimal gain)
+- [SE of LLM-Empowered Agentic System — arxiv 2510.09721](https://arxiv.org/html/2510.09721v3) — 채택 (unit test = formal contract)
+- [Automatically Benchmarking LLM Code Agents (AAA) — arxiv 2510.24358](https://arxiv.org/html/2510.24358v1) — 채택 (PRD + AAA 패턴)
+- [Specification & Evaluation of Multi-Agent LLM Systems — arxiv 2506.10467](https://arxiv.org/html/2506.10467) — 참조
+- [Gherkin Best Practices](https://github.com/andredesousa/gherkin-best-practices) — 채택 (one When-Then pair)
+- [Avoiding Ambiguity in Requirements — Tjong thesis](https://cs.uwaterloo.ca/~dberry/FTP_SITE/tech.reports/TjongThesis.pdf) — 채택 (어휘/구문/의미 모호성 분류)
+
+### Phase 3 — Evaluator LLM-as-Judge 최신 연구
+
+- [Judging the Judges Position Bias — arxiv 2406.07791](https://arxiv.org/abs/2406.07791) — 채택 (Swap Test)
+- [Self-Preference Bias in LLM-as-a-Judge — arxiv 2410.21819](https://arxiv.org/abs/2410.21819) — 채택
+- [Justice or Prejudice — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1) — 채택 (12 편향 분류)
+- [Evaluating Scoring Bias — arxiv 2506.22316](https://arxiv.org/html/2506.22316v1) — 채택 (binary PASS/FAIL)
+- [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6) — 채택
+- [CheckEval — arxiv 2403.18771](https://arxiv.org/abs/2403.18771) — 채택 (boolean 분해)
+- [Recursive Rubric Decomposition — arxiv 2602.05125](https://arxiv.org/html/2602.05125v1/) — 채택 (RRD for [goal] tag)
+
+### Phase 4 — QA 자동화 프레임워크
+
+- [Growthbook: Feedback loops in agentic coding](https://blog.growthbook.io/feedback-loops-are-the-next-breakthrough-in-agentic-coding/) — 채택
+- [Sauce Labs QA 2026 trends](https://saucelabs.com/resources/blog/beyond-pass-fail-3-strategic-trends-that-will-define-qa-in-2026) — 참조
+- [Agentic testing guide 2026](https://vtestcorp.com/insights/agentic-testing-the-complete-guide-to-ai-powered-software-testing-in-2026/) — 참조
+- [mgechev skills best practices](https://github.com/mgechev/skills-best-practices) — 채택 (negative trigger 패턴)
+
+### Phase 5 — Flutter 2026 생태계
+
+- [Riverpod 3.0 migration](https://riverpod.dev/docs/3.0_migration) — 채택
+- [Freezed 3.0 changelog](https://pub.dev/packages/freezed/changelog) — 채택 (sealed + switch expression)
+- [go_router StatefulShellRoute](https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html) — 채택 (preload)
+- [Flutter 3.29 release notes](https://docs.flutter.dev/release/release-notes/release-notes-3.29.0) — 채택
+
+### Phase 6 — Design System 2026
+
+- [Tailwind v4 announcement](https://tailwindcss.com/blog/tailwindcss-v4) — 채택 (OKLCH 기본)
+- [W3C DTCG v1 Final Report 2025-10-28](https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/) — 채택
+- [W3C WCAG 2.2 What's New](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/) — 채택 (SC 2.5.8 24×24)
+- [Material 3 Expressive](https://supercharge.design/blog/material-3-expressive) — 참조
+- [MDN Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries) — 채택
+
+### Phase 7 — Backend 아키텍처 2026
+
+- [Hexagonal vs Clean vs Onion 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f) — 채택
+- [OpenAPI 3.1 spec](https://swagger.io/specification/) — 채택 (JSON Schema)
+- [AsyncAPI 3.0](https://www.asyncapi.com/docs/reference/specification/v3.0.0) — 채택
+- [RFC 9700 OAuth 2.1 BCP](https://datatracker.ietf.org/doc/rfc9700/) — 채택
+- [DPoP best practices](https://konghq.com/blog/engineering/demonstrating-proof-of-possession-dpop-preventing-illegal-access-of-apis) — 채택
+- [Transactional Outbox pattern](https://microservices.io/patterns/data/transactional-outbox.html) — 채택
+- [Pact + Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact) — 채택
+
+### Phase 8 — Infrastructure 2026
+
+- [Kubernetes Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/) — 채택
+- [Terraform 1.10 ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral) — 채택
+- [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/) — 채택
+- [SLSA provenance](https://slsa.dev/provenance) — 채택
+- [Sigstore Cosign attestation](https://docs.sigstore.dev/cosign/verifying/attestation/) — 채택
+- [OpenTelemetry status](https://opentelemetry.io/docs/specs/status/) — 채택 (3 signals stable)
+- [Argo Rollouts](https://argoproj.github.io/argo-rollouts/) — 채택
+- [Flux v2.6](https://fluxcd.io/blog/2025/05/flux-v2.6.0/) — 채택
+
+### Phase 9 — Rust 백엔드 2026
+
+- [Rust Edition 2024 Guide](https://doc.rust-lang.org/edition-guide/) — 채택
+- [Axum 0.8 announcement](https://tokio.rs/blog/2024-12-01-announcing-axum-0-8-0) — 채택 ({id} 문법)
+- [SQLx 0.8 CHANGELOG](https://github.com/launchbadge/sqlx/blob/main/CHANGELOG.md) — 채택
+- [SeaORM 1.1 docs](https://www.sea-ql.org/SeaORM/) — 채택 (MockDatabase)
+- [Tonic 0.13 CHANGELOG](https://github.com/hyperium/tonic/blob/master/CHANGELOG.md) — 채택
+- fit-pal `server/` ground truth — 채택 (실무 패턴 검증)
+
+### Phase 10 — React 19 + Tauri 2 + Tailwind v4
+
+- [React v19 blog](https://react.dev/blog/2024/12/05/react-19) — 채택
+- [Tauri 2.0 stable](https://v2.tauri.app/blog/tauri-20/) — 채택
+- [Tauri capabilities](https://v2.tauri.app/security/capabilities/) — 채택 (core:default ACL)
+- [Tailwind v4 theme](https://tailwindcss.com/docs/theme) — 채택
+- [shadcn Tailwind v4](https://ui.shadcn.com/docs/tailwind-v4) — 채택
+- [Vite 8 Rolldown](https://vite.dev/blog/announcing-vite8) — 채택
+- [TanStack Query v5 migration](https://tanstack.com/query/v5/docs/react/guides/migrating-to-v5) — 채택 (object-form)
+- [Zustand v5 announce](https://pmnd.rs/blog/announcing-zustand-v5/) — 채택 (useShallow 강제)
+- [Lingui v5 migration](https://lingui.dev/releases/migration-5) — 채택 (macro split)
+- [RHF+Zod v4 호환성 issue #813](https://github.com/react-hook-form/resolvers/issues/813) — 채택 (zod/v3 workaround)
+
+---
 
 ## 2026-03-30 (evaluator-kaizen)
 

@@ -1,11 +1,17 @@
 {
   "name": "harness",
   "description": "Sprint Contract + QA Evaluator 기반 품질 보증 하네스. 프로젝트 스택에 관계없이 .harness/project.yaml 설정만으로 동작한다.",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "author": {
     "name": "Jackson Kim"
   },
   "repository": "https://github.com/joo6077/claude-plugins",
   "license": "MIT",
-  "keywords": ["harness", "qa", "sprint-contract", "quality", "testing"]
+  "keywords": [
+    "harness",
+    "qa",
+    "sprint-contract",
+    "quality",
+    "testing"
+  ]
 }

@@ -7,13 +7,13 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 <!-- AUTO:plugins -->
 | 플러그인 | 버전 | 스택 | 설명 |
 |----------|------|------|------|
-| [`harness`](./harness/) | v0.3.5 | 범용 | [v0.3.5 · 2026-03-30] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 |
-| [`flutter-toolkit`](./flutter-toolkit/) | v0.5.0 | Flutter | [v0.5.0 · 2026-03-30] Flutter 개발 워크플로우 스킬 모음 (빌드, 감사, preflight, 테스트 등) |
-| [`design-kit`](./design-kit/) | v0.2.0 | 범용 | [v0.2.0 · 2026-04-10] 스택 무관 UI/UX 디자인 가이드 + 감사 플러그인 |
-| [`backend-kit`](./backend-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-04] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 플러그인 |
-| [`infra-kit`](./infra-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-04] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 플러그인 |
-| [`rust-kit`](./rust-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-07] Rust 전용 백엔드 개발 워크플로우 플러그인 — 17종 스킬 + 에이전트 |
-| [`react-kit`](./react-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-10] React + Vite + Tauri 2 + Rust WASM 전용 개발 워크플로우 플러그인 — 21종 스킬 + 3 에이전트, 라이브러리 0개 애니메이션 |
+| [`harness`](./harness/) | v0.3.6 | 범용 | [v0.3.6 · 2026-04-11] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (2026 QA 자동화 트렌드 반영) |
+| [`flutter-toolkit`](./flutter-toolkit/) | v0.5.1 | Flutter | [v0.5.1 · 2026-04-11] Flutter 개발 워크플로우 스킬 모음 (Riverpod 3.0 / Freezed 3.0 / go_router StatefulShellRoute) |
+| [`design-kit`](./design-kit/) | v0.2.1 | 범용 | [v0.2.1 · 2026-04-11] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries) |
+| [`backend-kit`](./backend-kit/) | v0.1.1 | 범용 | [v0.1.1 · 2026-04-11] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (Hexagonal/Clean/DDD + OAuth 2.1 + Outbox + Pact) |
+| [`infra-kit`](./infra-kit/) | v0.1.1 | 범용 | [v0.1.1 · 2026-04-11] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (K8s PSA / Terraform 1.10 / SLSA / OTel) |
+| [`rust-kit`](./rust-kit/) | v0.1.1 | 범용 | [v0.1.1 · 2026-04-11] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 |
+| [`react-kit`](./react-kit/) | v0.1.1 | 범용 | [v0.1.1 · 2026-04-11] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 |
 <!-- /AUTO:plugins -->
 
 ---
