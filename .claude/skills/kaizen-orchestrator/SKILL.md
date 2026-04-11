@@ -39,6 +39,8 @@ user-invocable: true
 ## Phase 의존성
 
 ```
+Step 0: Pre-flight — 피드백 데이터 풀 수집 (scripts/collect-kaizen-data.py)
+    ↓
 Phase 1: 설계 가이드 카이젠
     ↓
 Phase 2: Contract 카이젠 (contract-kaizen)
@@ -122,6 +124,63 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 - Regression PASS → 해당 Phase 카운터 0으로 리셋
 - Regression FAIL → 해당 Phase 카운터 +1
 - 카운터 >= 2 → Phase 일시 중단 + 사용자 에스컬레이션
+
+### Step 0: Pre-flight — 피드백 데이터 풀 수집 (Phase 1 이전 **필수** 실행)
+
+모든 Phase 1~10 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈를 근거로 개선하도록 보장한다.
+
+**실행:**
+
+```bash
+python3 scripts/collect-kaizen-data.py
+```
+
+**출력:** `.harness/.meta/kaizen-data-pool.md`
+
+**수집 소스 (스크립트 내장):**
+
+1. **글로벌 Evaluator 피드백** — `~/.harness/feedback/evaluator/*.yaml`
+   - verdict 분포 (APPROVE/REJECT)
+   - skill/project 분포
+   - 최근 REJECT 사유 Top 20
+   - 최근 improvement_suggestions Top 15
+2. **외부 프로젝트 피드백** — `~/Hub/10_Dev/*/.harness/`
+   - `sprint-feedback.md` 앞부분 (실사용 현장의 QA 리포트)
+   - `history/*-sprint-contract.md` 최근 5개 (사용자가 어떤 계약을 자주 작성하는지)
+3. **followup 문서** — `docs/superpowers/followup-*.md` 최근 5개 (해결되지 않은 숙제 목록)
+4. **레포 sprint-contract 이력** — `.harness/history/*-sprint-contract.md` 최근 10개
+5. **validate-plugin 스냅샷** — `python3 scripts/validate-plugin.py` 현재 실행 결과 (7 kit 상태)
+   - `--skip-validate` 옵션으로 생략 가능
+
+**Phase 별 참조 매핑** (데이터 풀 §6 에 테이블 포함):
+
+| Phase | 주요 참조 섹션 |
+|-------|-------------|
+| 1 설계 가이드 | §1 improvement suggestions |
+| 2 Contract | §1 reject 사유 (계약 모호성 패턴) |
+| 3 Evaluator | §1 improvement (L3 커버리지, set intersection) |
+| 4 Harness | §5 validate-plugin 현재 상태 |
+| 5 Flutter | §2 Hub 외부 프로젝트 (fit-pal, apps) |
+| 6 Design | §5 validate-plugin 현재 상태 |
+| 7 Backend | §1 backend 관련 feedback |
+| 8 Infra | §5 validate-plugin 현재 상태 |
+| 9 Rust | §2 Hub 외부 프로젝트 (fit-pal server) |
+| 10 React | §3 followup-2026-04-11, §5 |
+
+**각 Phase 서브에이전트 프롬프트에 데이터 풀 경로 전달 필수:**
+
+```
+데이터 소스:
+- `.harness/.meta/kaizen-data-pool.md` — 카이젠 공통 데이터 풀 (Step 0 에서 생성)
+  너의 Phase 범위에 해당하는 섹션 (§N) 을 우선 참조.
+```
+
+**Gotchas:**
+
+- Step 0 을 건너뛰고 Phase 1 부터 시작하지 마라 — 각 Phase 가 같은 데이터를 다시 수집하면 중복 작업이다.
+- 데이터 풀은 Phase 진행 중에는 재생성하지 마라 — Phase 별로 상태가 흔들린다. 전체 카이젠 종료 후 다음 사이클에 다시 수집한다.
+- 데이터 풀 파일은 스크립트 생성물이므로 직접 수정 금지. 내용이 틀리면 수집 로직(`scripts/collect-kaizen-data.py`)을 고친다.
+- 글로벌 feedback 이 0건이어도 Step 0 은 실행한다 — 외부 프로젝트 피드백이나 followup 은 여전히 유효할 수 있다.
 
 ### Step 1: Phase 1 — 설계 가이드 카이젠
 
