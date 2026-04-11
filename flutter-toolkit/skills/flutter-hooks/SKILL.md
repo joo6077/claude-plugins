@@ -18,9 +18,11 @@ user-invocable: true
 - StatefulWidget/ConsumerStatefulWidget 신규 작성 금지 — HookWidget/HookConsumerWidget만 사용. `hooks_riverpod` 패키지에서 import한다 (`flutter_riverpod` 아님)
 - PageController 등 컨트롤러를 build() 안에서 직접 생성하면 리빌드마다 메모리 누수 — `useMemoized(() => PageController())`로 감싸라
 - async 작업 후 상태 변경 전에 반드시 `ref.mounted` 확인 — 안 하면 "setState() called after dispose" 크래시
+- **`async` 메서드에서 `showDialog` / `Navigator.push` / `Future<T>` 결과 수신 후 같은 `BuildContext` 를 재사용하기 전에는 반드시 `if (!context.mounted) return;`** — async gap 동안 위젯이 dispose 되면 `context.pop`, `ScaffoldMessenger.of(context)`, `Theme.of(context)` 호출이 크래시로 이어진다. `ref.mounted` 는 Notifier 생명주기, `context.mounted` 는 Widget 생명주기이므로 둘은 별개다 (apps sprint-feedback iter 2, UI-06 / AR-01 FIX 패턴 기반)
 - AnimationController는 반드시 `useAnimationController()`로 생성. dispose 자동 관리됨
 - `HAS_FREEZED = true` 프로젝트에서 HookWidget 생성 시 파라미터를 개별 필드로 받지 말고 반드시 `@freezed Props` 클래스로 번들링 — 개별 파라미터 나열은 Props 패턴 위반. 디자인 시스템 Named constructor variant 위젯만 면제
 - `HAS_FREEZED = true` + `HAS_HOOKS = true`가 모두 true인 프로젝트에서는 `HookWidget` + `@freezed Props` 조합이 프로젝트 표준 — ConsumerWidget이나 StatelessWidget으로 만들면 일관성 깨짐
+- `build()` 메서드는 **100줄 이하 권장** — 그 이상이면 private Widget 클래스로 분리하여 composition 을 적용하라. 합성이 메서드 분리보다 성능·재사용성·테스트 가능성 모두 우수하다 (Flutter 공식 AI rules + apps CG-12 관습)
 
 # Flutter Hooks + Props 패턴 가이드
 

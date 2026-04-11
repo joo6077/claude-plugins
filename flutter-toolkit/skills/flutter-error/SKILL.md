@@ -17,6 +17,7 @@ user-invocable: true
 - 예외 → Failure 변환은 반드시 경계 계층(Repository/DataSource)에서 수행 — Presentation 레이어까지 예외가 새면 안 된다
 - 빈 catch 블록 `catch (e) {}` 금지 — 최소한 `errorProvider.notifier.show(failure)` 호출 필수
 - `catch (e) { print(e); }` 로그만 남기고 UI에 표시 안 하면 사용자는 실패를 모른다 — 반드시 UI 피드백
+- **프로젝트 Result 타입이 Freezed sealed class 기반이면 `.when(success:, failure:)` 가 아니라 Dart pattern matching (switch expression) 으로 분기**하라 — Freezed 3.0 부터 `.when`/`.map` 메서드가 제거됐다. 자체 정의한 커스텀 Result (수동 `when` 메서드 보유) 일 때만 아래 `.when` 예시를 그대로 사용할 수 있다 (출처: <https://pub.dev/packages/freezed/changelog>)
 
 # Error Handling 패턴 가이드
 
@@ -194,7 +195,7 @@ ref.listen(someProvider.select((s) => s.failure), (prev, failure) {
 ```
 
 ```dart
-// 패턴 C: Result를 직접 받는 경우
+// 패턴 C: Result를 직접 받는 경우 (커스텀 Result 에 수동 when 메서드가 있을 때)
 final result = await ref.read(someUseCaseProvider)(params);
 if (!mounted) return;
 
@@ -202,6 +203,21 @@ result.when(
   success: (data) { /* 성공 처리 */ },
   failure: (failure) { _showError(failure); },
 );
+```
+
+```dart
+// 패턴 C': Result 가 Freezed sealed class 기반 (Freezed 3.0 에서 .when 제거됨)
+final result = await ref.read(someUseCaseProvider)(params);
+if (!mounted) return;
+
+switch (result) {
+  case Success(:final data):
+    // 성공 처리
+    break;
+  case Failure(:final failure):
+    _showError(failure);
+    break;
+}
 ```
 
 ---

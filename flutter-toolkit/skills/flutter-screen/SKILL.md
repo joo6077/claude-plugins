@@ -185,6 +185,47 @@ GoRoute(
 ),
 ```
 
+#### StatefulShellRoute (바텀 네비 탭 + 탭별 독립 스택)
+
+Screen 타입이 **바텀 네비게이션 탭이고 각 탭이 독립적인 네비게이션 히스토리를 유지**해야 하면 (예: 홈 탭에서 푸시한 detail 이 다른 탭으로 이동 후 돌아왔을 때 유지), `StatefulShellRoute.indexedStack` 을 사용한다. 2026 기준 go_router 공식 권장 패턴이다.
+
+```dart
+// lib/core/router/app_router.dart
+StatefulShellRoute.indexedStack(
+  builder: (context, state, navigationShell) {
+    return ScaffoldWithNavBar(navigationShell: navigationShell);
+  },
+  branches: [
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const HomeScreen(),
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      // preload: true → 탭 최초 진입 전에 미리 빌드 (go_router 최신 지원)
+      preload: true,
+      routes: [
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
+      ],
+    ),
+  ],
+),
+```
+
+bottom navigation 은 `navigationShell.currentIndex` / `navigationShell.goBranch(index)` 로 제어한다. `navigationShell` 이 bottom nav 의 현재 index 와 탭 전환을 모두 담당하므로 별도 상태가 필요 없다.
+
+출처:
+
+- <https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html>
+- <https://pub.dev/documentation/go_router/latest/go_router/StatefulShellBranch-class.html>
+- <https://pub.dev/packages/go_router/changelog> (preload, notifyRootObserver)
+
 #### HAS_AUTO_ROUTE
 
 Screen/Page 클래스에 `@RoutePage()` annotation을 추가하고, 라우터 파일에 등록한다:

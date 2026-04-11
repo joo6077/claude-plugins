@@ -14,10 +14,14 @@ user-invocable: true
 
 - keepAlive provider는 keepAlive provider만 참조해야 한다 — 비keepAlive를 참조하면 stale state 발생
 - `ref.watch(provider)`로 전체 객체를 감시하면 불필요한 리빌드 — `ref.watch(provider.select((s) => s.isLoading))`으로 필요한 필드만 선택
-- `Result<T>.when(success:, failure:)` 양쪽 분기를 반드시 처리 — 한쪽만 처리하면 unhandled state
+- `Result<T>.when(success:, failure:)` 양쪽 분기를 반드시 처리 — 한쪽만 처리하면 unhandled state. 단 **프로젝트 Result 타입이 Freezed sealed class 기반이면 `.when` 대신 Dart pattern matching (switch expression) 사용** — Freezed 3.0부터 `.when`/`.map` 메서드가 제거되었다 (출처: <https://pub.dev/packages/freezed/changelog>). 프로젝트가 자체 정의한 Result 에 수동 `when` 메서드가 있는 경우에만 `.when(...)` 유지
 - `@Riverpod` codegen 사용 시 `build_runner`를 돌려야 `.g.dart` 생성됨 — 코드만 쓰고 codegen을 빠뜨리면 컴파일 에러
-- Riverpod 3.0에서 `.valueOrNull`이 `.value`로 변경됨 — 기존 코드에 `.valueOrNull`이 있으면 마이그레이션 필요. `dart fix --apply`로 자동 처리 가능
-- Riverpod 3.0의 offline persistence/mutations는 아직 experimental — 프로덕션에서는 수동 캐싱 패턴 유지 권장
+- **Riverpod 3.0 Notifier 재생성 라이프사이클** — 2.x의 pseudo-singleton 동작이 폐기됐다. provider 가 rebuild 될 때마다 Notifier 도 재생성되므로 **Timer/StreamSubscription/TextEditingController 등 생명주기 객체를 Notifier 의 필드로 직접 유지하면 리소스 누수**가 발생한다. 해결: 해당 객체를 **별도 provider 로 분리하고 `ref.onDispose(() => controller.dispose())` 로 바인딩**한다. 공식 권장 패턴은 async 메서드 끝에 `if (!ref.mounted) return;` 을 항상 붙이는 것이다 (출처: <https://riverpod.dev/docs/3.0_migration>, <https://riverpod.dev/docs/whats_new>)
+- **Riverpod 3.0 legacy provider** — `StateNotifierProvider`, `StateProvider`, `ChangeNotifierProvider` 는 3.0 에서 legacy 로 분류됐다. 제거되지는 않았지만 메인 API 에서 제외되었으므로 **신규 코드는 `@riverpod` / `Notifier` / `AsyncNotifier` 기반**으로 작성한다. 기존 코드 마이그레이션 시에는 프로젝트의 기존 패턴을 존중하되, 새 파일에서 legacy 를 추가하지 않는다 (출처: <https://pub.dev/packages/flutter_riverpod/changelog>)
+- **Riverpod 3.0 `==` 기반 알림 필터링** — 3.0 부터 모든 provider 가 상태 알림을 `==` 비교로 필터링한다. 특히 `StreamProvider`/`StreamNotifier` 에서 값 동등성이 있는 이벤트는 listener 에 전달되지 않는다. 모델에 `operator ==` / `hashCode` 를 정의하지 않으면 참조 동등성으로 판단되어 매번 알림이 발생하거나, Freezed/Equatable 로 값 동등성을 정의하면 같은 값이 필터링되므로 **의도한 동작을 명시적으로 설계**하라 (출처: <https://riverpod.dev/docs/whats_new>)
+- Riverpod 3.0 에서 `.valueOrNull` 이 `.value` 로 변경됨 — 기존 코드에 `.valueOrNull` 이 있으면 마이그레이션 필요. `dart fix --apply` 로 자동 처리 가능
+- Riverpod 3.0 에서 `Ref` 의 타입 파라미터가 제거됨 — `FutureProviderRef` / `StreamProviderRef` 등 subclass 가 전부 삭제됐다. 신규 코드는 **`Ref` 를 직접** 사용한다 (출처: <https://riverpod.dev/docs/3.0_migration>)
+- Riverpod 3.0 의 offline persistence/mutations 는 아직 experimental — 프로덕션에서는 수동 캐싱 패턴 유지 권장
 
 Riverpod Notifier + State 클래스를 프로젝트 codegen 패턴에 맞게 생성한다.
 

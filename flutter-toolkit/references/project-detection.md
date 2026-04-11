@@ -25,8 +25,36 @@ pubspec.yaml에서 추출:
 | 없음 | 시스템 | `flutter`, `dart` |
 
 감지 결과를 `$FLUTTER`, `$DART` 변수로 참조:
+
 - FVM: `$FLUTTER = fvm flutter`, `$DART = fvm dart`
 - 기타: `$FLUTTER = flutter`, `$DART = dart`
+
+### Step 2b. Makefile 기반 monorepo 감지
+
+프로젝트 루트에 `Makefile` 이 존재하고 Flutter 관련 타겟 (`app-run`, `app-test`, `app-analyze`, `app-codegen`, `app-preflight` 등) 이 정의되어 있으면 `HAS_MAKEFILE = true`. 이 경우 flutter-preflight / flutter-run 스킬은 `$FLUTTER` 직접 호출 대신 `make <target>` 을 우선 사용한다.
+
+이유: Makefile 기반 monorepo (예: fit-pal) 는 `dart-define-from-file=.dart_defines.json`, `--observatory-port=8181`, launch.json/tasks.json 연동 설정을 Makefile 타겟 한 곳에 집중 관리한다. `fvm flutter run` 을 직접 호출하면 이 설정들이 누락되어 앱이 다른 환경으로 기동되거나 디버거가 연결되지 않는다 (fit-pal sprint-feedback iter 2 AC-6 기반).
+
+감지 절차:
+
+1. 프로젝트 루트에서 `Makefile` 존재 확인
+2. Makefile 본문에 다음 타겟 중 하나 이상 존재하면 `HAS_MAKEFILE = true`:
+   - `app-run`, `app-run-staging`, `app-run-prod`, `app-run-profile`
+   - `app-test`, `app-analyze`, `app-fix`, `app-clean`
+   - `app-codegen`, `app-codegen-filter`
+   - `app-build`, `app-preflight`
+3. `$MAKE = make` 변수를 제공 (Windows 에서는 `gmake` 또는 프로젝트 관습 우선)
+
+`HAS_MAKEFILE = true` 일 때 주요 스킬 매핑:
+
+| 스킬 | 기본 동작 | Makefile 우선 동작 |
+|------|----------|-------------------|
+| flutter-run codegen | `$DART run build_runner build --delete-conflicting-outputs` | `$MAKE app-codegen` (또는 `app-codegen-filter FILTER=...`) |
+| flutter-run analyze | `$FLUTTER analyze` | `$MAKE app-analyze` |
+| flutter-run fix | `$DART fix --apply lib/ && $DART format lib/` | `$MAKE app-fix` |
+| flutter-run test | `$FLUTTER test` | `$MAKE app-test` |
+| flutter-preflight | fix → codegen → analyze → test | `$MAKE app-preflight` |
+| flutter-build | codegen → analyze | `$MAKE app-build` |
 
 ### Step 3. 의존성 감지
 
@@ -110,7 +138,8 @@ Package: {name}
 SDK Manager: {fvm|asdf|system}
 Flutter: {$FLUTTER}
 Dart: {$DART}
-Architecture: {clean|feature_first|flat}
+Makefile: {true|false}  # HAS_MAKEFILE — true 면 $MAKE <target> 우선
+Architecture: {clean|feature_first|flat|mvvm}
 Dependencies: {감지된 패키지 목록}
 Design System: {true|false}
 Widget Base: {HookWidget|StatelessWidget|ConsumerWidget}

@@ -82,6 +82,22 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 - 구조 패턴이 3곳 이상에서 반복되면 강력한 추출 후보
 - 2곳이면 약한 후보 (리포트에 포함하되 우선순위 낮게)
 
+### 5. Props 번들링 위반 (HAS_FREEZED + HAS_HOOKS)
+
+`HAS_FREEZED = true` 와 `HAS_HOOKS = true` 가 모두 감지된 프로젝트에서 `HookWidget` / `HookConsumerWidget` 의 생성자가 **개별 파라미터 나열** (`required String title, int count, VoidCallback? onTap` 등) 형태를 쓰면 프로젝트 표준 (`@freezed Props` 번들링) 에 위반된다.
+
+**탐지 방법:**
+- Grep 으로 `extends HookWidget` / `extends HookConsumerWidget` 클래스를 수집
+- 생성자의 파라미터 개수가 2개 초과 (super.key 제외) 이고 `Props` 타입 단일 파라미터가 아닌 경우 후보
+- 디자인 시스템 Named constructor variant 패턴 (`this._(...)` 리다이렉트) 이 발견되면 면제
+
+**판단 기준:**
+- `_props` / `Props` 타입 단일 파라미터 → 준수
+- 개별 파라미터 3개 이상 → 위반 후보 (Named constructor variant 가 아닌 경우)
+- 프로젝트에 기존 위반 사례가 많으면 우선순위 낮게 (기존 패턴 일관성 우선)
+
+출처: flutter-hooks SKILL.md Gotchas + apps sprint-feedback iter 2 AR-01 패턴
+
 ## Process
 
 ### Step 1: 스캔 범위 결정
@@ -98,12 +114,13 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 ### Step 2: 감지 실행
 
-감지 기준 4가지를 순서대로 적용한다:
+감지 기준 5가지를 순서대로 적용한다:
 
 1. private 위젯 수집 (`class _.*Widget`, `class _.*State`)
 2. build 메서드 크기 측정
 3. 구조적 중복 비교 (quick: feature 내부만, deep: 전체)
 4. 패턴 반복 탐지 (deep 모드에서만 전체 비교)
+5. Props 번들링 위반 (`HAS_FREEZED` + `HAS_HOOKS` 프로젝트에서만)
 
 ### Step 3: 리포트 생성
 
@@ -125,6 +142,10 @@ Private → Shared (범용 private 위젯)
 Pattern Repetition (패턴 반복)
   [패턴 설명 — 발견 위치 목록]
   → 추출 제안: 공통 WidgetName으로 통합
+
+Props Bundling Violation (HAS_FREEZED + HAS_HOOKS)
+  [파일:클래스 — 개별 파라미터 N개 나열]
+  → 제안: @freezed Props 클래스로 번들링
 
 Total: N extraction candidates
 ```

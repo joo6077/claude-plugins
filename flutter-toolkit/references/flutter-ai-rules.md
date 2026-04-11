@@ -1,7 +1,7 @@
 # Flutter 공식 AI Rules 요약
 
 > 출처: [flutter/flutter/docs/rules/rules.md](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md)
-> 최종 확인: 2026-03-30
+> 최종 확인: 2026-04-11
 
 Flutter 공식 AI rules는 LLM이 Flutter 코드를 생성할 때 따라야 할 패턴을 정의한다.
 flutter-toolkit 스킬은 이 규칙과 정합성을 유지해야 한다.
@@ -64,3 +64,49 @@ flutter-toolkit 스킬은 이 규칙과 정합성을 유지해야 한다.
 ## 라인 길이
 
 - 최대 80자
+
+## 2026 생태계 노트 (Riverpod 3.0 / Freezed 3.0 / go_router / Flutter 3.29+)
+
+> 최종 리서치: 2026-04-11 (WebSearch)
+
+Flutter 공식 rules 외에 2026 기준으로 flutter-toolkit 이 추가로 정합해야 하는 생태계 변화 요약. 모든 항목에 출처 URL 포함.
+
+### Riverpod 3.0
+
+- `Ref.mounted` 공식 패턴 — disposed Notifier 접근 시 에러 throw. async 메서드 끝에 `if (!ref.mounted) return;` 필수. 출처: <https://riverpod.dev/docs/whats_new>
+- Notifier 재생성 라이프사이클 — 2.x pseudo-singleton 폐기. Timer/StreamSubscription/Controller 를 Notifier 필드로 유지하면 리소스 누수. 별도 provider + `ref.onDispose` 로 분리. 출처: <https://riverpod.dev/docs/3.0_migration>
+- `StateNotifierProvider` / `StateProvider` / `ChangeNotifierProvider` 는 legacy. 신규 코드는 `@riverpod` / `Notifier` 기반. 출처: <https://pub.dev/packages/flutter_riverpod/changelog>
+- Ref 의 타입 파라미터 제거 — `FutureProviderRef` 등 subclass 전부 삭제, `Ref` 직접 사용
+- `==` 기반 알림 필터링 — `StreamProvider`/`StreamNotifier` 동등성 이벤트가 listener 에 전달되지 않음. 모델의 `operator ==` / `hashCode` 정의가 알림 동작을 결정
+- `.valueOrNull` → `.value` 로 변경. `dart fix --apply` 로 자동 마이그레이션 가능
+
+### Freezed 3.0
+
+- `@freezed abstract class` (단일) / `@freezed sealed class` (union) 필수. factory 생성자만 있는 class 는 이제 abstract 또는 sealed 여야 한다. 출처: <https://pub.dev/packages/freezed/changelog>
+- `.when` / `.map` 메서드 제거 → Dart pattern matching (switch expression) 사용
+- List / Map / Set 은 `UnmodifiableListView` / `UnmodifiableMapView` / `UnmodifiableSetView` 로 자동 변환됨
+- `@With` / `@Implements` 문법이 generic annotation 기반으로 변경
+
+### go_router (2026)
+
+- `StatefulShellRoute.indexedStack` + `StatefulShellBranch` 로 바텀 네비 스테이트풀 네스티드 네비게이션 구현 (각 탭 독립 스택). 출처: <https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html>
+- `StatefulShellBranch.preload: true` 로 탭 최초 진입 전 preload 지원 추가
+- `notifyRootObserver` 로 ShellRoute 전환 이벤트를 root observer 에 전달 가능. 출처: <https://pub.dev/packages/go_router/changelog>
+
+### Flutter 3.29 / 3.27 breaking changes
+
+- Flutter 3.29: 웹 HTML 렌더러 제거. 출처: <https://docs.flutter.dev/release/release-notes/release-notes-3.29.0>
+- Flutter 3.29: 스크립트 기반 Flutter Gradle plugin 제거 (3.19 부터 deprecated 였음). 기존 Android 프로젝트 migration 필요
+- Flutter 3.27: DisplayP3 색공간 지원 추가, 일부 `Color` 메서드 deprecation
+- Impeller OpenGL ES 백엔드 확장 (3.29 기준 거의 전 디바이스 커버). 출처: <https://docs.flutter.dev/release/breaking-changes>
+
+### flutter_hooks
+
+- `HookConsumerWidget` 로 hooks + Riverpod provider 통합. 출처: <https://riverpod.dev/docs/concepts/about_hooks>
+- `useMemoized` + `useEffect` 조합으로 데이터 페칭 중복 방지
+- `useEffect` cleanup 은 반환 함수로 등록 — 위젯 dispose / 의존성 변경 시 호출. 출처: <https://pub.dev/packages/flutter_hooks>
+
+### Makefile 기반 monorepo 관습 (fit-pal / apps)
+
+- `dart-define-from-file=.dart_defines.json`, `--observatory-port=8181` 등 실행 옵션을 Makefile 타겟에 집중. 직접 `fvm flutter run` 호출 시 환경 누락으로 다른 플레이버 기동 위험
+- flutter-preflight / flutter-run 스킬은 `HAS_MAKEFILE = true` 감지 시 `make <target>` 우선
