@@ -36,7 +36,7 @@ anyhow = "1"
 
 `$ARGUMENTS`에서 파일/모듈 경로를 파싱한다. 경로가 없으면 에러 관련 파일을 자동으로 탐색한다:
 
-```
+```text
 ARCH = workspace_service → crates/domain/src/errors.rs, crates/api/src/errors.rs, crates/infra/src/errors.rs
 ARCH = modular          → src/domain/errors.rs, src/api/errors.rs, src/infra/errors.rs
 ARCH = flat             → src/errors.rs
@@ -61,7 +61,7 @@ ARCH = flat             → src/errors.rs
 
 ### 계층 구조
 
-```
+```text
 InfraError (DB, 외부 API, IO)
     ↓ From impl
 DomainError (비즈니스 규칙 위반, 리소스 없음)

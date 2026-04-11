@@ -16,6 +16,7 @@ user-invocable: true
 2. **fmt 실패 시 자동 적용** — `cargo fmt -- --check` 실패 시 `cargo fmt`를 적용한 후 재검사한다. 자동 수정 후 unstaged changes가 생기므로 `git add` 안내를 출력한다.
 3. **audit은 non-blocking** — 외부 크레이트 취약점은 즉시 수정 불가할 수 있으므로 WARN으로만 표시한다.
 4. **clippy 또는 test 실패 시 즉시 중단** — 이후 단계를 실행하지 않는다.
+5. **Makefile 환경에서는 `make server-preflight` 사용** — `APP_ENV`, `DATABASE_URL` 등 환경변수가 Makefile에 정의된 경우 직접 `cargo` 호출 시 누락된다. migration이 포함된 프로젝트(fit-pal 패턴: `DATABASE_URL=postgres://fitpal:fitpal@localhost:5432/fitpal`)는 preflight 전에 DB가 올라와 있어야 한다.
 
 # Process
 

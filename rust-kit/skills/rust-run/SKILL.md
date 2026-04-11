@@ -16,6 +16,7 @@ user-invocable: true
 2. **workspace에서 `--workspace` 누락 금지** — 없으면 루트 크레이트만 실행되어 하위 크레이트 문제를 놓친다.
 3. **`cargo nextest`가 없을 때 에러 금지** — 설치 여부 확인 후 없으면 `cargo test`로 폴백한다.
 4. **`cargo audit` 미설치 시 skip** — 설치 안내만 출력하고 중단하지 않는다.
+5. **Makefile 기반 monorepo에서는 `cargo` 직접 호출 금지** — `make server-run`, `make server-test` 등 Makefile 타겟을 사용한다. Makefile이 `APP_ENV`, `RUST_LOG`, `DATABASE_URL` 등 필수 환경변수를 주입하므로 직접 `cargo run`하면 환경변수 누락으로 실행 실패한다 (fit-pal 패턴: `APP_ENV=dev RUST_LOG=debug cargo run -p fitpal-api`).
 
 # Process
 

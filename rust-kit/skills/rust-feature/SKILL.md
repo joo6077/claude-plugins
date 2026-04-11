@@ -40,7 +40,7 @@ user-invocable: true
 
 ### ARCH = workspace_service
 
-```
+```text
 crates/api/src/handlers/{feature}/
 ├── mod.rs          # pub mod 선언
 ├── handler.rs      # 핸들러 함수
@@ -55,7 +55,7 @@ crates/infra/src/db/{feature}.rs         # DB 쿼리
 
 ### ARCH = modular
 
-```
+```text
 src/api/handlers/{feature}/
 ├── mod.rs
 ├── handler.rs
@@ -70,7 +70,7 @@ src/infra/db/{feature}.rs
 
 ### ARCH = flat
 
-```
+```text
 src/{feature}.rs    # 모든 로직을 한 파일에
 ```
 

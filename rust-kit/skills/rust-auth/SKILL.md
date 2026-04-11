@@ -124,15 +124,15 @@ impl AuthProvider for JwtAuthProvider {
 
     // refresh token 구현은 DB/Redis 어댑터와 조합
     async fn generate_refresh_token(&self, _user_id: &str) -> Result<TokenPair, DomainError> {
-        todo!("refresh_token_store 연동 필요")
+        unimplemented!("refresh_token_store 연동 필요")
     }
 
     async fn rotate_refresh_token(&self, _refresh_token: &str) -> Result<TokenPair, DomainError> {
-        todo!("refresh_token_store 연동 필요")
+        unimplemented!("refresh_token_store 연동 필요")
     }
 
     async fn revoke_refresh_token(&self, _refresh_token: &str) -> Result<(), DomainError> {
-        todo!("refresh_token_store 연동 필요")
+        unimplemented!("refresh_token_store 연동 필요")
     }
 }
 ```
@@ -194,7 +194,7 @@ where
 
 `.env.example`에 다음을 추가하도록 안내한다:
 
-```
+```text
 JWT_SECRET=your-secret-key-min-32-chars
 JWT_ACCESS_TTL_SECS=3600
 JWT_REFRESH_TTL_SECS=604800

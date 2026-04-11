@@ -158,7 +158,7 @@ Router::new()
 ```toml
 # locales/ja.toml
 [messages]
-# TODO: 번역 필요
+# 번역 대기 (fallback: EN)
 order_created = "Order created: %{order_id}"
 ```
 
@@ -196,7 +196,7 @@ cargo build
 
 1. 생성/수정된 파일 목록 출력.
 2. 추가된 번역 키 목록과 지원 로케일을 표로 정리한다.
-3. TODO 주석이 있는 로케일(번역 미완성)이 있으면 명시한다.
+3. 번역 대기 주석이 있는 로케일(번역 미완성)이 있으면 명시한다.
 4. 다음 단계 안내:
    - 새 로케일을 추가하려면 `locales/<code>.toml` 파일을 생성하고 기존 키를 모두 채우세요.
    - 에러 메시지 국제화는 `rust-error` 스킬의 에러 타입에 locale을 전달하는 패턴을 참고하세요.

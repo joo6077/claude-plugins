@@ -17,6 +17,7 @@ user-invocable: true
 2. **추측성 FAIL 금지** — 실제 코드를 확인한 후 판정한다. "아마 문제가 있을 것"으로 FAIL하지 않는다.
 3. **보안 카테고리 생략 금지** — 항상 Security 카테고리를 포함한다.
 4. **deep 모드에서만 에이전트 호출** — quick 모드는 직접 검사한다.
+5. **clippy는 `--workspace --all-targets -- -D warnings` 옵션 필수** — workspace 전체 + 바이너리/테스트/예제 포함. `-D warnings` 없으면 워닝이 에러로 집계되지 않아 CI 불일치 발생 (fit-pal 패턴: `cargo clippy --workspace --all-targets -- -D warnings`).
 
 # Process
 
@@ -49,7 +50,7 @@ references/audit-criteria.md를 읽고, 대상 파일을 직접 검사하여 카
 
 rust-reviewer 에이전트를 Agent 도구로 호출:
 
-```
+```text
 subagent_type: "rust-kit:rust-reviewer"
 prompt: |
   다음 파일을 Rust 원칙 기준으로 평가하라.

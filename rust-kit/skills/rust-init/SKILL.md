@@ -52,7 +52,7 @@ user-invocable: true
 
 ### workspace_service 구조
 
-```
+```text
 {project}/
 ├── Cargo.toml              # [workspace] members = ["crates/*"], resolver = "2"
 ├── rust-toolchain.toml     # channel = "stable", components = ["rustfmt", "clippy"]
@@ -91,7 +91,7 @@ user-invocable: true
 
 ### modular 구조
 
-```
+```text
 {project}/
 ├── Cargo.toml
 ├── rust-toolchain.toml
@@ -124,7 +124,7 @@ user-invocable: true
 
 ### flat 구조
 
-```
+```text
 {project}/
 ├── Cargo.toml
 ├── rust-toolchain.toml

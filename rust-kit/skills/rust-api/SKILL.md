@@ -105,11 +105,11 @@ impl UserServiceImpl {
 impl UserService for UserServiceImpl {
     async fn create_user(&self, req: CreateUserRequest) -> Result<User, DomainError> {
         // SQLx 쿼리는 이 레이어에서만 사용
-        todo!()
+        unimplemented!()
     }
 
     async fn get_user(&self, id: i64) -> Result<User, DomainError> {
-        todo!()
+        unimplemented!()
     }
 }
 ```
