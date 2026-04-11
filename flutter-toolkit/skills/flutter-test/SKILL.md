@@ -1,10 +1,11 @@
 ---
 name: flutter-test
 description: >
-  대상 파일/클래스를 분석하여 테스트 코드를 자동 생성한다.
-  unit test, widget test, integration test를 프로젝트 패턴에 맞게 생성.
+  대상 파일/클래스를 분석하여 Flutter 테스트 코드를 자동 생성한다.
+  WidgetTester 기반 widget test, Riverpod ProviderContainer unit test,
+  integration_test 패키지를 프로젝트 패턴에 맞게 생성.
   "테스트 만들어줘", "unit test", "widget test", "테스트 코드 생성",
-  "test 추가", "테스트 작성" 같은 요청 시 트리거.
+  "test 추가", "테스트 작성" 같은 Flutter 프로젝트 요청 시 트리거.
   테스트 실행만 할 때는 flutter-run을 사용한다.
 argument-hint: "<file-or-class> [unit|widget|integration]"
 user-invocable: true

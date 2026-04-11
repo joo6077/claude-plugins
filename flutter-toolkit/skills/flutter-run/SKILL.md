@@ -2,11 +2,12 @@
 name: flutter-run
 description: >
   Flutter 빌드 프리미티브 실행 (codegen, analyze, fix, test).
-  "코드 생성해줘", "빌드해줘", "분석 돌려줘", "테스트 실행", "포맷팅",
+  "코드 생성해줘", "분석 돌려줘", "테스트 실행", "포맷팅",
   "build_runner", "freezed 생성", "린트 확인", "codegen", "analyze",
   "dart fix", "flutter test" 같은 요청 시 사용한다.
   상위 워크플로우 스킬(flutter-build, flutter-preflight 등)에서 내부적으로도 호출된다.
   코드를 직접 수정하거나 새 파일을 생성하는 작업에는 사용하지 않는다.
+  Makefile 기반 프로젝트(dart-define, observatory-port, launch.json)에서도 동작한다.
 argument-hint: "<codegen|analyze|fix|test> [args]"
 user-invocable: true
 ---
@@ -16,6 +17,7 @@ user-invocable: true
 - Windows에서 `fvm.bat` 사용 — `fvm` 직접 호출은 PATH 이슈 발생
 - partial codegen `--build-filter="lib/features/auth/**"`는 필터 밖 의존성을 재생성하지 않는다 — 새 import/타입 추가 시 full codegen 사용
 - `dart fix --apply` 후 반드시 `analyze` 실행 — fix가 새 워닝을 만들 수 있다
+- Makefile 기반 monorepo(fit-pal 등)에서는 `fvm flutter run` 직접 호출 대신 `make app-run` 사용 — dart-define, observatory-port, launch.json 설정이 Makefile에 집중 관리된다. 직접 호출하면 dart-define 환경변수 누락으로 앱이 다른 환경으로 기동됨
 
 Flutter 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정한다.
 
@@ -92,14 +94,14 @@ $FLUTTER test
 
 성공 시:
 
-```
+```text
 /flutter-run <subcommand> 완료
   결과: <success/N issues/N failed>
 ```
 
 실패 시:
 
-```
+```text
 /flutter-run <subcommand> 실패
   [에러 내용]
 ```

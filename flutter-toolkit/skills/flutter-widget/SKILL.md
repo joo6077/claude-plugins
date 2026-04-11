@@ -19,6 +19,7 @@ user-invocable: true
 - Flutter 3.38+에서 `MaterialState`가 `WidgetState`로 마이그레이션됨 — `MaterialStateProperty` 대신 `WidgetStateProperty` 사용. `dart fix --apply`로 자동 변환 가능
 - 헬퍼 메서드(`_buildHeader()`)가 아닌 private Widget 클래스로 추출해라 — Flutter 공식 AI rules 권장 패턴. 합성(composition)이 메서드 분리보다 성능·재사용성 모두 우수
 - Flutter 3.41에서 `FontWeight`가 variable font의 weight axis도 제어함 — `FontVariation('wght', 700)` 별도 설정이 불필요해짐. 기존 코드에 중복 설정이 있으면 제거 필요
+- 외부 라이브러리 위젯을 래핑할 때는 라이브러리 기본값을 반드시 명시적으로 오버라이드하라 — 기본 생성자(`LibWidget()`)로 넘기면 라이브러리 내부 기본값이 적용되어 원하지 않는 동작이 나온다. 예: html_editor_enhanced의 `defaultToolbarButtons`는 InsertButtons를 포함한 전체 버튼이 기본값 — 원하는 버튼 목록만 `HtmlToolbarOptions(defaultToolbarButtons: [...])` 로 명시 전달해야 한다
 
 프로젝트의 스타일 가이드와 컨벤션에 맞는 새 위젯을 생성한다.
 

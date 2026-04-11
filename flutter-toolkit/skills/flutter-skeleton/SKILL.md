@@ -1,11 +1,12 @@
 ---
 name: flutter-skeleton
 description: >
-  화면/페이지의 로딩 상태를 스켈레톤 shimmer로 구현한다.
-  CircularProgressIndicator 대신 shimmer 블록을 사용하여 실제 레이아웃과 동일한 구조의 스켈레톤을 만든다.
+  Flutter 화면/페이지의 로딩 상태를 스켈레톤 shimmer로 구현한다.
+  CircularProgressIndicator 대신 shimmer 패키지 shimmer 블록을 사용하여
+  실제 Flutter 위젯 레이아웃과 동일한 구조의 스켈레톤을 만든다.
   '로딩 화면', '스켈레톤', 'shimmer', 'loading state', '로딩 UI',
   '스피너 교체', 'CircularProgressIndicator 대체', '로딩 스켈레톤 추가',
-  '빈 화면 로딩', 'skeleton loading', 'placeholder UI' 같은 요청 시 사용한다.
+  '빈 화면 로딩', 'skeleton loading', 'placeholder UI' 같은 Flutter 프로젝트 요청 시 사용한다.
 argument-hint: "<screen_or_page_name>"
 user-invocable: true
 ---
@@ -63,7 +64,7 @@ user-invocable: true
 
 shimmer 블록은 실제 텍스트/위젯과 **동일한 크기**여야 한다.
 
-```
+```text
 shimmer height = fontSize
 shimmer borderRadius = max(fontSize * 0.3, 3)
 ```

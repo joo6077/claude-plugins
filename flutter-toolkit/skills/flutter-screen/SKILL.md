@@ -1,11 +1,10 @@
 ---
 name: flutter-screen
 description: >
-  Screen 또는 Page 위젯을 생성하고 라우터에 등록한다.
-  새 화면, 페이지, 라우트를 추가할 때 사용.
-  Screen(바텀 네비 탭) / Page(push 진입) 구분.
+  Flutter Screen 또는 Page 위젯을 생성하고 GoRouter/auto_route에 등록한다.
+  StatelessWidget/HookConsumerWidget 기반 화면, 바텀 네비 탭(Screen), push 진입(Page) 구분.
   "화면 추가", "페이지 만들어줘", "screen 생성", "page 생성",
-  "new screen", "new page", "route 추가", "라우트 등록" 같은 요청 시 트리거.
+  "new screen", "new page", "route 추가", "라우트 등록" 같은 Flutter 프로젝트 요청 시 트리거.
 argument-hint: "<feature>"
 user-invocable: true
 ---
