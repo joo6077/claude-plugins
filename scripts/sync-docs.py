@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 import plugin_utils
-from plugin_utils import read_text, load_marketplace, list_kits, REPO_ROOT
+from plugin_utils import read_text, load_marketplace, list_kits, parse_frontmatter_raw, REPO_ROOT
 
 # Windows cp949 stdout 대응
 if sys.platform == "win32":
@@ -43,53 +43,19 @@ MARKER_RE = re.compile(
 # ── Task 1: 핵심 유틸리티 함수 ───────────────────────────────────────
 
 def _parse_frontmatter_file(path: Path) -> dict | None:
-    """파일 경로를 받아 YAML frontmatter 를 파싱한다. 실패 시 None 반환.
+    """파일을 읽고 plugin_utils.parse_frontmatter_raw 로 frontmatter 를 파싱한다.
 
-    description block scalar(`>`) 는 첫 indent 줄만 추출한다.
-    이는 README 테이블에서 한 줄 설명만 필요하기 때문이다.
+    description block scalar(`>`) 는 첫 indent 줄만 추출된다 — README 테이블
+    한 줄 요약에 맞춘 동작. 경고 출력은 이 wrapper 가 담당한다.
     """
     text = read_text(path)
     if not text:
         print(f"  [경고] 파일 읽기 실패: {path}", file=sys.stderr)
         return None
-
-    m = re.match(r"^---\s*\n(.*?)\n---", text, re.DOTALL)
-    if not m:
+    data = parse_frontmatter_raw(text)
+    if data is None:
         print(f"  [경고] 프론트매터 없음, 스킵: {path}", file=sys.stderr)
-        return None
-
-    block = m.group(1)
-    data: dict[str, str] = {}
-    lines = block.split("\n")
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-
-        # key: > (block scalar) — description은 첫 indent 줄만 추출
-        bm = re.match(r"^(\w[\w-]*):\s*>\-?\s*$", line)
-        if bm:
-            key = bm.group(1)
-            parts: list[str] = []
-            i += 1
-            while i < len(lines) and re.match(r"^\s{2}", lines[i]):
-                parts.append(lines[i].strip())
-                i += 1
-            if key == "description" and parts:
-                data[key] = parts[0]
-            else:
-                data[key] = " ".join(parts)
-            continue
-
-        # key: value (inline)
-        km = re.match(r"^(\w[\w-]*):\s*(.+)$", line)
-        if km:
-            key = km.group(1)
-            val = km.group(2).strip().strip("\"'")
-            data[key] = val
-
-        i += 1
-
-    return data if "name" in data else None
+    return data
 
 
 def first_line(text: str | None) -> str:
