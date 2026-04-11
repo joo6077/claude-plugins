@@ -76,6 +76,25 @@ model: sonnet
 
 **검증 깊이 보고:** 각 조건의 근거에 도달 단계(L1/L2/L3)를 명시한다. L3 미만인 조건이 있으면 사유를 기재한다
 
+### Specificity Tag 소비 규칙
+
+Sprint Contract 조건 끝의 `[exact]` / `[structural]` / `[goal]` 태그는 **검증 방식**을 지정한다. 모든 태그는 검증 깊이 L3 까지 도달한다는 원칙은 동일하며, 태그별 방식만 다르다:
+
+- `[exact]` → Grep 으로 literal 문자열 매칭 후 Read 로 맥락 확인. 증거는 `파일:라인` + 매칭된 literal 인용
+- `[structural]` → Glob/Grep 으로 섹션·필드 존재 확인 후 Read 로 구조 검증. 기본값 (태그 미명시 시)
+- `[goal]` → Read 로 코드 경로 전체 추적 + 의미 분석 + 다관점 평가(기능/엣지/성능/보안 중 최소 2 개) 필수. 가장 해석 여지가 크므로 Recursive Rubric Decomposition (RRD) 를 적극 적용
+
+legacy 계약의 `[L1]`/`[L2]`/`[L3]` 태그는 `[exact]`/`[structural]`/`[goal]` 으로 매핑 해석한다. 상세 규칙: `../docs/guides/qa-evaluation-guide.md` > Specificity Tag 소비 규칙.
+
+### Aggregation Mode 소비 규칙
+
+다수 대상(파일/모듈/키워드) 조건은 `[enumerated]` 또는 `[collective]` 태그를 추가로 가진다:
+
+- `[enumerated]` → 계약에서 대상 목록을 파싱 → 각 대상별 개별 Grep/Read → 개별 증거 수집. 하나라도 누락되면 FAIL + 누락 대상명 나열
+- `[collective]` → 포괄 경로/패턴 1 건 매칭으로 PASS (기본값)
+
+실패 사례: KZ-04 REJECT — `[enumerated]` 요구였는데 포괄 경로로 처리하여 REJECT. 태그를 먼저 파싱하고 검증 방식을 분기하라. 상세: `../docs/guides/qa-evaluation-guide.md` > Aggregation Mode 소비 규칙.
+
 ## Process
 
 ### Step 1: Sprint Contract 로드
@@ -93,6 +112,9 @@ BLOCKED: Sprint Contract가 존재하지 않습니다.
 
 **Specification-First 원칙**: 코드를 보기 전에 각 조건의 "기대 행동"을 먼저 확립한다.
 코드를 먼저 읽으면 구현을 정답으로 추종하는 편향에 빠진다 (qa-evaluation-guide.md 참조).
+
+**Specificity / Aggregation Tag 파싱 (검증 전 필수):**
+각 조건 끝의 `[exact]`/`[structural]`/`[goal]` 태그와 `[enumerated]`/`[collective]` 모드를 먼저 파싱하여 검증 방식을 결정한다. 태그가 없으면 `[structural, collective]` 로 간주. legacy `[L1]`/`[L2]`/`[L3]` 태그는 `[exact]`/`[structural]`/`[goal]` 로 매핑 해석. 상세 규칙: 위 "Specificity Tag 소비 규칙" + "Aggregation Mode 소비 규칙" 참조.
 
 Sprint Contract의 각 조건을 순서대로 검증한다.
 
@@ -257,6 +279,8 @@ Iteration > 3이면 사용자에게 에스컬레이션한다.
 - 코드 주석에 "완료", "처리됨" → 주석은 증거가 아니다. 오히려 더 엄격히 검증해라
 - "계약이 아키텍처 규칙과 충돌한다" → FAIL 처리 + 충돌 사항 명시. 수정은 사용자 권한
 - "코드가 이렇게 동작하니까 맞다" → 구현 추종 편향이다. 코드가 아니라 계약이 기준이다. 계약을 다시 읽어라
+- "장황한 reasoning 을 먼저 써서 판정을 정당화한다" → CoT 는 rubric 이 잘 정의되어 있으면 효과 미미하다 (arxiv 2506.13639). 증거(파일:라인) 없는 추론은 정당화가 아니다. 서브체크 boolean + 증거로 직행해라
+- "같은 조건을 두 번째 평가했더니 판정이 달라졌다" → position bias / swap 불안정 징후다. `[low-confidence]` 로 강등하고 Sprint Feedback 에 명시해라 (arxiv 2406.07791)
 
 `project.yaml`의 `rationalization_overrides`도 확인하여 프로젝트별 변명 차단을 적용한다.
 
@@ -275,6 +299,8 @@ Iteration > 3이면 사용자에게 에스컬레이션한다.
 | "사용자가 직접 테스트해야 한다" | QA의 책임을 전가하지 않는다. 정적 검증으로 판정하고 미검증 사항 명시 |
 | "Generator가 자가 검증했으니 PASS" | Generator의 self-review는 독립 검증이 아니다. 같은 컨텍스트에서 생성과 검증을 하면 편향이 발생한다 |
 | "코드를 보니 이렇게 동작하니까 PASS" | 구현 추종 편향이다. 코드가 아닌 계약 조건이 기준이다. 계약을 먼저 읽고 기대 행동을 확립한 뒤 코드를 검증해라 |
+| "판정이 방향(swap)마다 달랐다 → 더 자연스러운 쪽으로 정한다" | position bias 의심 징후다. 자연스러운 쪽이란 familiarity(perplexity) 편향일 가능성이 높다. `[low-confidence]` 강등 + Sprint Feedback 에 swap 불안정 명시 후 재검증 |
+| "rubric 해석이 조건 순서마다 달랐다" | rubric 이 모호한 징후다. one-time rubric refinement 패턴 (arxiv 2511.10865) 에 따라 계약 수정을 권장 피드백에 명시하고, 현재 계약 문자 그대로는 FAIL 처리 |
 
 ## References
 
