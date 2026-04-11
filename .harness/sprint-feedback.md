@@ -1,113 +1,100 @@
 # Sprint Feedback
-Feature: harness 지원 스킬 + .harness/project.yaml + 지원 문서 2026 QA 자동화 트렌드 반영 카이젠 (Phase 4)
-Evaluated: 2026-04-11 20:00
+Feature: flutter-toolkit 18개 스킬 + widget-inspector + references 2026 최신 Flutter/Riverpod/Freezed/go_router 트렌드 반영 카이젠 (Phase 5 research mode)
+Evaluated: 2026-04-11 21:30
 Verdict: APPROVE
 Iteration: 1
 
 ## Results
 
-### GI — Gitignore (2/2)
-- [x] GI-01: `.gitignore`에 `scripts/__pycache__/` exact string 존재, 기존 3줄 보존 — PASS
-  - 근거: `.gitignore:4` — `scripts/__pycache__/` 라인 확인 (L2). `git status --short` 실행 시 `?? scripts/__pycache__/` 미표시 확인 (L3)
-- [x] GI-02: `.gitignore` 4줄 이상, LF line-ending, 빈 줄로 끝나지 않음 — PASS
-  - 근거: `wc -l` = 4줄. xxd 마지막 바이트 `0a` (LF). 마지막 바이트가 `__/\n` (double newline 아님) (L3)
+### Provider — Riverpod 3.0 (4/4)
 
-### PY — Project YAML (2/2)
-- [x] PY-01: `anti_patterns` 배열에 AP-03 (bare code fence), AP-04 (frontmatter name 누락) 신규 추가, AP-01/AP-02 보존 — PASS
-  - 근거: `.harness/project.yaml:36-42` — AP-03, AP-04 확인 (L2). AP-01, AP-02 보존 확인 (L3)
-- [x] PY-02: `trigger.always` 배열에 `"kaizen"` exact string 존재 — PASS
-  - 근거: `.harness/project.yaml:63` — `"kaizen"` 포함 (L2)
+- [x] PR-01: Riverpod 3.0 Notifier 재생성 라이프사이클 경고 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:19` — "Riverpod 3.0 Notifier 재생성 라이프사이클 — 2.x의 pseudo-singleton 동작이 폐기됐다. provider 가 rebuild 될 때마다 Notifier 도 재생성되므로 Timer/StreamSubscription/TextEditingController 등 생명주기 객체를 Notifier 의 필드로 직접 유지하면 리소스 누수가 발생한다. 해결: 해당 객체를 별도 provider 로 분리하고 ref.onDispose(() => controller.dispose()) 로 바인딩한다. (출처: https://riverpod.dev/docs/3.0_migration, https://riverpod.dev/docs/whats_new)"
+- [x] PR-02: StateNotifierProvider / StateProvider / ChangeNotifierProvider legacy 분류 명시 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:20` — "Riverpod 3.0 legacy provider — StateNotifierProvider, StateProvider, ChangeNotifierProvider 는 3.0 에서 legacy 로 분류됐다. 신규 코드는 @riverpod / Notifier / AsyncNotifier 기반으로 작성한다. (출처: https://pub.dev/packages/flutter_riverpod/changelog)"
+- [x] PR-03: == 기반 알림 필터링 + StreamProvider/StreamNotifier 영향 경고 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:21` — "Riverpod 3.0 == 기반 알림 필터링 — 3.0 부터 모든 provider 가 상태 알림을 == 비교로 필터링한다. 특히 StreamProvider/StreamNotifier 에서 값 동등성이 있는 이벤트는 listener 에 전달되지 않는다. ... (출처: https://riverpod.dev/docs/whats_new)"
+- [x] PR-04: Freezed sealed Result 기반이면 switch expression 사용 가이드 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:17` — "프로젝트 Result 타입이 Freezed sealed class 기반이면 .when 대신 Dart pattern matching (switch expression) 사용 — Freezed 3.0부터 .when/.map 메서드가 제거되었다 (출처: https://pub.dev/packages/freezed/changelog)"
 
-### FS — Feedback Schema (2/2)
-- [x] FS-01: `feedback-schema.yaml` 주석 블록에 `repeat_count`, `first_seen_at`, `regression_link` 3종 의미/용도 YAML 주석 명시, `schema_version: 1` 보존, "v1 extension (optional)" 표기 — PASS
-  - 근거: `feedback-schema.yaml:54-65` — 3종 필드 주석 확인, "v1 extension, optional" 표기 확인 (L3). `schema_version: 1` 유지 확인 (L2). save-feedback.sh required 리스트에 3종 미포함 확인 (L3)
-- [x] FS-02: `example:` 블록에 3종 필드 중 최소 1개 실제 값 포함 — PASS
-  - 근거: `feedback-schema.yaml:94-96` — `repeat_count: 2`, `first_seen_at: "2026-03-28T09:15:00+09:00"`, `regression_link: null` 모두 포함 (L2)
+### Hooks — flutter_hooks + context.mounted (2/2)
 
-### CS — Create Skill (4/4)
-- [x] CS-01: Process 4단계 "SKILL.md 작성" frontmatter 템플릿에 `{비트리거 조건}` 항목 추가, negative trigger 명시 요구 — PASS
-  - 근거: `create-skill/SKILL.md:70` — frontmatter 템플릿에 `{비트리거 조건}` 포함 (L2). Step 2 `비트리거 조건` 항목 추가 확인 (L3)
-- [x] CS-02: Process 5단계 "검증"에 validate-plugin 연동 항목 추가 — PASS
-  - 근거: `create-skill/SKILL.md:97-101` — `validate-plugin` V1/V4/V5/V6 체크리스트 항목 명시 (L3)
-- [x] CS-03: Gotchas 섹션에 description 3인칭 일관성 Gotcha 최소 1개 추가 — PASS
-  - 근거: `create-skill/SKILL.md:21` — "description 은 **3 인칭 일관성** 을 유지해라" Gotcha (L3)
-- [x] CS-04: Gotchas 섹션에 "negative trigger" 또는 "비트리거" 문자열 최소 1회 등장 — PASS
-  - 근거: `create-skill/SKILL.md:20` — "**negative trigger (비트리거 조건)**" 문자열 Gotchas 섹션에 확인 (L2)
+- [x] HK-01: async gap 후 context.mounted 체크 필수 명시 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-hooks/SKILL.md:21` — "async 메서드에서 showDialog / Navigator.push / Future<T> 결과 수신 후 같은 BuildContext 를 재사용하기 전에는 반드시 if (!context.mounted) return; — async gap 동안 위젯이 dispose 되면 context.pop, ScaffoldMessenger.of(context), Theme.of(context) 호출이 크래시로 이어진다. ref.mounted 는 Notifier 생명주기, context.mounted 는 Widget 생명주기이므로 둘은 별개다 (apps sprint-feedback iter 2, UI-06 / AR-01 FIX 패턴 기반)"
+- [x] HK-02: build() 100줄 이하 권장 노트 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-hooks/SKILL.md:25` — "build() 메서드는 100줄 이하 권장 — 그 이상이면 private Widget 클래스로 분리하여 composition 을 적용하라. 합성이 메서드 분리보다 성능·재사용성·테스트 가능성 모두 우수하다 (Flutter 공식 AI rules + apps CG-12 관습)" — 금지가 아닌 권장 표현으로 정확히 반영됨
 
-### CA — Create Agent (3/3)
-- [x] CA-01: Process 5단계 "검증" 체크리스트에 validate-plugin 연동 항목 추가 — PASS
-  - 근거: `create-agent/SKILL.md:100` — validate-plugin V1/V4/V5/V6 체크리스트 항목 (L3)
-- [x] CA-02: Gotchas 섹션에 frontmatter drift 방지 Gotcha 추가 — PASS
-  - 근거: `create-agent/SKILL.md:25` — "**frontmatter drift 방지**" Gotcha, tools/model 필수 필드 V1 검증 대상 명시, 리서치 근거(byaiteam.com 2025-12-30) 포함 (L3)
-- [x] CA-03: Process 4단계 템플릿 frontmatter에 tools, model 필수 주석 존재 — PASS
-  - 근거: `create-agent/SKILL.md:69` — "`tools` 와 `model` 은 **필수 필드** 다" 설명 (L2). 템플릿 라인 78-79에 `# 필수 —` 주석 (L3)
+### Screen / Router — go_router 2026 (2/2)
 
-### IN — Init (2/2)
-- [x] IN-01: "실행 후 안내" 섹션에 `scripts/validate-plugin.py` baseline 실행 권장 항목 추가 (플러그인 모노레포 환경 한정) — PASS
-  - 근거: `init/SKILL.md:70-78` — "플러그인 모노레포 환경일 때 (optional)" 섹션, `python3 scripts/validate-plugin.py` 실행 권장, Sauce Labs/ContextQA 리서치 근거 명시 (L3)
-- [x] IN-02: Gotchas 섹션에 ".harness/ 덮어쓰기 금지" Gotcha 보존 — PASS
-  - 근거: `init/SKILL.md:54` — "`.harness/`가 이미 존재하면 **덮어쓰지 않고 중단**한다" Gotcha (L2)
+- [x] SC-01: StatefulShellRoute + StatefulShellBranch 분기 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-screen/SKILL.md:188-221` — "#### StatefulShellRoute (바텀 네비 탭 + 탭별 독립 스택)" 섹션이 신규로 추가됨. StatefulShellRoute.indexedStack builder + branches: [StatefulShellBranch(routes: [GoRoute(...)])] 완전한 코드 예시 포함. "2026 기준 go_router 공식 권장 패턴" 명시
+- [x] SC-02: StatefulShellBranch.preload 파라미터 언급 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-screen/SKILL.md:208-209` — 코드 예시 내 `// preload: true → 탭 최초 진입 전에 미리 빌드 (go_router 최신 지원)`, `preload: true,` 명시
 
-### HK — Harness Kaizen (3/3)
-- [x] HK-01: Step 2a Triage에 글로벌 피드백 패턴 분석 절차 추가, `feedback-path.sh` 실행 → 최근 10건 파싱 → 반복 진단 패턴 식별 — PASS
-  - 근거: `harness-kaizen/SKILL.md:104-118` — Step 2a Triage 신설, `bash harness/scripts/feedback-path.sh`, 최근 10건, `diagnosis.checklist` 시그니처 빈도, `regression_link` 우선 등 contract-kaizen/evaluator-kaizen 동일 수준 구체성 (L3)
-- [x] HK-02: Gotchas 섹션에 "피드백 0 건이면 triage에서 SKIP하지 마라" + "리서치 전용 모드" 문자열 등장 — PASS
-  - 근거: `harness-kaizen/SKILL.md:35` — Gotchas 섹션에 "피드백 0 건이면 triage 에서 SKIP 하지 마라", "**리서치 전용 모드**" 문자열 (L3)
-- [x] HK-03: "개선 대상 범위" 표에 `../../references/feedback-schema.yaml` 행 추가 — PASS
-  - 근거: `harness-kaizen/SKILL.md:68` — `| 피드백 스키마 | \`../../references/feedback-schema.yaml\` | \`config\` |` 행 (L2)
+### Error Handling — Freezed 3.0 대응 (1/1)
 
-### CK — Contract Kaizen (2/2)
-- [x] CK-01: Step 2 Triage 패턴 분석 불릿에 누적 분석 필드 활용(regression_link, repeat_count, first_seen_at) 추가 — PASS
-  - 근거: `contract-kaizen/SKILL.md:66` — "**누적 분석 필드 활용**" 항목, `repeat_count`, `regression_link`, `first_seen_at` 3종 활용 방법과 리서치 근거(ContextQA, Sauce Labs) 명시 (L3)
-- [x] CK-02: Gotchas 줄 수 0 이상 유지, "피드백 0건 → 리서치 전용" Gotcha 보존 — PASS
-  - 근거: `contract-kaizen/SKILL.md:26` — "피드백이 0건이면 triage에서 SKIP하지 마라. 리서치 전용 모드로 진행한다" (L2)
+- [x] ER-01: Result.when 패턴 예시에 "Freezed sealed 기반이면 switch expression" 주석 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-error/SKILL.md:20` (Gotcha) — "프로젝트 Result 타입이 Freezed sealed class 기반이면 .when(success:, failure:) 가 아니라 Dart pattern matching (switch expression) 으로 분기하라 — Freezed 3.0 부터 .when/.map 메서드가 제거됐다. (출처: https://pub.dev/packages/freezed/changelog)"
+  - `flutter-toolkit/skills/flutter-error/SKILL.md:209-220` — 패턴 C' 예시: `switch (result) { case Success(:final data): ... case Failure(:final failure): ... }` 코드 추가됨
 
-### EK — Evaluator Kaizen (2/2)
-- [x] EK-01: Step 2 Triage 패턴 분석 불릿에 누적 분석 필드 활용 추가 — PASS
-  - 근거: `evaluator-kaizen/SKILL.md:68` — "**누적 분석 필드 활용**", `repeat_count` blind spot 가능성, `regression_link` false positive 추적, 리서치 근거(Sauce Labs, ContextQA) 명시 (L3)
-- [x] EK-02: "qa-evaluator 자체를 개선하는 Phase에서 QA는 현재(구) 버전 evaluator로 수행한다" Gotcha 보존 — PASS
-  - 근거: `evaluator-kaizen/SKILL.md:31` — Gotchas 섹션에 "**현재(구) 버전** evaluator" Gotcha (L2)
+### Audit — Riverpod 3.0 + Freezed 3.0 (2/2)
 
-### I — Integrity (4/4)
-- [x] I-01: `python3 scripts/validate-plugin.py` 실행 결과 7 OK, Exit 0 — PASS
-  - 근거: 실행 결과 "Total: 7 plugins, 7 OK, Exit: 0" (L3)
-- [x] I-02: `python3 scripts/sync-docs.py --check-only` exit 0 — PASS
-  - 근거: "모든 README가 동기화 상태입니다. Exit code: 0" (L3)
-- [x] I-03: Phase 1~3 파일(skill-design-guide.md, agent-design-guide.md, sprint-contract/SKILL.md, contract-design-guide.md, contract-schema.md, qa-evaluation-guide.md, qa-evaluator.md) modified 0건 — PASS
-  - 근거: `git diff-tree --no-commit-id -r --name-only f120396` 출력에 Phase 1~3 파일 없음 (L3, [collective])
-- [x] I-04: 커밋 메시지 `kaizen(phase4-research):` prefix, 리서치 URL 3개 이상 — PASS
-  - 근거: 커밋 subject = "kaizen(phase4-research): harness 지원 스킬..." (L2). 커밋 body에 URL 8개(https:// 8회) (L3)
+- [x] AU-01: State Management 체크리스트에 Notifier 내부 Timer/Controller 금지 항목 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-audit/SKILL.md:101` — "Riverpod 3.0: Notifier 내부 필드로 Timer / StreamSubscription / TextEditingController 등 생명주기 객체를 직접 유지하지 않음 — 2.x pseudo-singleton 동작이 폐기되어 provider rebuild 마다 Notifier 가 재생성되므로 리소스 누수 발생. 이런 객체는 별도 provider 로 분리 후 ref.onDispose 로 바인딩"
+- [x] AU-02: Result.when 체크 항목에 "Freezed sealed 기반이면 switch expression" 병기 — PASS (L3)
+  - 근거: `flutter-toolkit/skills/flutter-audit/SKILL.md:103` — "프로젝트에 Result 타입이 있으면 Result.when(success:, failure:) 분기 사용. 단 Result 가 Freezed sealed class 기반이면 Freezed 3.0 에서 .when/.map 이 제거됐으므로 Dart pattern matching (switch expression) 사용 ([Freezed changelog](https://pub.dev/packages/freezed/changelog))"
 
-### Anti-patterns (5/5)
-- [x] AP-P4-01: 리서치 URL 없이 주장만 반영 — PASS
-  - 근거: 신규 추가 Gotcha/항목에 "(리서치 근거: ...)" 형식 URL 포함 (L3)
-- [x] AP-P4-02: Phase 1~3 파일 수정 없음 — PASS
-  - 근거: I-03과 동일 (L3)
-- [x] AP-P4-03: feedback-schema.yaml schema_version 1 유지 — PASS
-  - 근거: `feedback-schema.yaml:5` = `schema_version: 1`. diff에 `schema_version` 신규 추가 없음 (L3)
-- [x] AP-P4-04: bare code fence 0건 (새로 추가된 열기 펜스에 언어 힌트 없는 것 없음) — PASS
-  - 근거: `validate-plugin harness` V6 code-fence 0 bare OK (L3). `git show f120396 -- init/SKILL.md`의 새 `+``` `는 닫기 펜스(```bash 블록 닫힘)이므로 V6 위반 아님
-- [x] AP-P4-05: `.gitignore`에 `scripts/__pycache__/` exact 경로 (넓은 범위 아님) — PASS
-  - 근거: `.gitignore:4` = `scripts/__pycache__/` (L2)
+### Widget Inspector (1/1)
 
-### Diagnostics
-- [x] validate-plugin 7 OK — PASS (I-01과 동일)
-- [x] sync-docs --check-only exit 0 — PASS (I-02와 동일)
+- [x] WI-01: HookWidget + @freezed Props 번들링 준수 여부 감지 기준 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/agents/widget-inspector.md:85-99` — "### 5. Props 번들링 위반 (HAS_FREEZED + HAS_HOOKS)" 섹션 신규 추가. HAS_FREEZED = true 와 HAS_HOOKS = true 동시 감지 시 HookWidget/HookConsumerWidget 의 개별 파라미터 나열 패턴 탐지. 판단 기준(2개 초과 파라미터, Named constructor variant 면제), Step 2에 "Props 번들링 위반 (HAS_FREEZED + HAS_HOOKS 프로젝트에서만)" 추가됨
 
-⚠️ 런타임 검증 미수행 — MCP 서버 미설정 (project.yaml `runtime_inspection.mcp_server: null`)
+### References — Project Detection + flutter-ai-rules (3/3)
+
+- [x] RD-01: project-detection.md 에 Makefile 기반 monorepo 감지 추가 — PASS (L3)
+  - 근거: `flutter-toolkit/references/project-detection.md:32-46` — "### Step 2b. Makefile 기반 monorepo 감지" 신규 섹션. Makefile 존재 확인 후 app-run, app-run-staging, app-run-prod, app-run-profile, app-test, app-analyze, app-fix, app-clean, app-codegen, app-codegen-filter, app-build, app-preflight 타겟 중 하나 이상 있으면 HAS_MAKEFILE = true. $MAKE = make 변수 제공. fit-pal sprint-feedback iter 2 AC-6 출처 명시
+- [x] RD-02: HAS_MAKEFILE 스킬 매핑 테이블 추가 + flutter-preflight/flutter-run 우선 사용 연동 — PASS (L3)
+  - 근거: `flutter-toolkit/references/project-detection.md:48-57` — "HAS_MAKEFILE = true 일 때 주요 스킬 매핑" 테이블. flutter-run codegen / analyze / fix / test / flutter-preflight / flutter-build 모두 Makefile 우선 동작 명시. `flutter-toolkit/references/project-detection.md:136-147` — 감지 결과 요약 템플릿에 "Makefile: {true|false}" 필드 추가
+- [x] RD-03: flutter-ai-rules.md 2026 생태계 노트 + 최종 확인 날짜 2026-04-11 갱신 — PASS (L3)
+  - 근거: `flutter-toolkit/references/flutter-ai-rules.md:4` — "최종 확인: 2026-04-11" / `:70` — "최종 리서치: 2026-04-11 (WebSearch)" / `:68` — "## 2026 생태계 노트 (Riverpod 3.0 / Freezed 3.0 / go_router / Flutter 3.29+)" / Lines 74-113 — Riverpod 3.0, Freezed 3.0, go_router, Flutter 3.29, flutter_hooks, Makefile monorepo 각 서브섹션 모두 출처 URL 포함
+
+### Anti-patterns (3/3)
+
+- [x] AP-01: hardcoded version 없음 — PASS (L1)
+- [x] AP-02: git push --force 없음 — PASS (L1)
+- [x] AP-03: bare code fence 0건 — PASS (L3)
+  - 검증: `python3` 스크립트로 개방 bare fence (`^\`\`\`\s*$` 이 opening 위치에 해당하는 것) 탐지 결과 0건. 나타나는 `\`\`\`` 라인은 모두 닫힘 fence(closing)임을 in_block 상태 추적으로 확인
+- [x] AP-04: 모든 SKILL.md / agents/*.md frontmatter에 name 필드 존재 — PASS (L2)
+
+### 스프린트 전용 규칙 (4/4)
+
+- [x] Phase 1~4 파일(harness/**) 수정 금지 — PASS (L3)
+  - 근거: `git show 515b66a --name-only` 결과에 harness/ 경로 파일 없음. eb88cc2 commit도 flutter-toolkit/agents/widget-inspector.md 1파일만 변경
+- [x] flutter-toolkit plugin.json 버전 bump 없음 (Final Phase 대기) — PASS (L3)
+  - 근거: `flutter-toolkit/.claude-plugin/plugin.json` version: "0.5.0" 유지. 515b66a 변경 파일 목록에 plugin.json 없음
+- [x] 리서치 소스 URL 인용 — PASS (L3)
+  - Riverpod: riverpod.dev/docs/3.0_migration, riverpod.dev/docs/whats_new, pub.dev/packages/riverpod/changelog, pub.dev/packages/flutter_riverpod/changelog
+  - Freezed: pub.dev/packages/freezed/changelog
+  - go_router: pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html, pub.dev/packages/go_router/changelog
+  - Flutter 3.29+: docs.flutter.dev/release/release-notes/release-notes-3.29.0, docs.flutter.dev/release/breaking-changes
+  - flutter_hooks: pub.dev/packages/flutter_hooks, riverpod.dev/docs/concepts/about_hooks
+
+### Regression 검증 (3/3)
+
+- [x] VG-01: python3 scripts/validate-plugin.py 7 OK — PASS (L3)
+  - 근거: 실행 결과 "Total: 7 plugins, 7 OK / Exit: 0" — flutter-toolkit 포함 전 킷 OK
+- [x] VG-02: python3 scripts/sync-docs.py --check-only — 동기화 완료 — PASS (L3)
+  - 근거: 실행 결과 "모든 README가 동기화 상태입니다."
+- [x] VG-03: 변경된 markdown 파일에 bare code fence 0건 — PASS (L3)
+  - 근거: 8개 파일 전수 검사, 개방 bare fence 없음
 
 ## Summary
-- Total: 22/22 conditions PASS + 5/5 anti-patterns PASS
-- Verdict: APPROVE
-- Iteration: 1
-- Commit: f120396
 
-### 검증 깊이
-- L3 도달: 22/22 조건 (100%)
-- 정적 분석 기반, 런타임 검증 미수행
+- Total: 16/16 conditions passed
+- Verdict: **APPROVE**
 
-### 주목할 만한 품질 지표
-- Phase 1~3 파일 수정 0건 (범위 준수)
-- validate-plugin 7 plugins 7 OK 유지
-- feedback-schema.yaml schema_version 1 유지 (하위 호환)
-- 커밋 메시지에 리서치 URL 8개 포함 (계약 요구 3개 이상 충족)
+모든 13개 기능 조건 + 3개 검증 조건 전부 PASS. Phase 1~4 파일 미수정 확인, plugin.json 버전 bump 없음 확인, bare code fence 0건 확인.
+
+리서치 출처 URL이 모든 핵심 Gotcha에 직접 인라인으로 포함되어 있어 계약 요구사항의 "공식 출처 URL 인용" 조건을 L3 수준으로 충족함.
+
+Runtime inspection: MCP 서버 미설정 — 정적 검증만으로 판정. 정적 분석으로 16/16 PASS 달성.
