@@ -8,6 +8,11 @@
             "type": "command",
             "command": "python scripts/sync-docs.py --check-only 2>/dev/null || true",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "if git diff --name-only 2>/dev/null | grep -q '.claude-plugin/marketplace.json\\|.claude/skills/kaizen-orchestrator/SKILL.md'; then python3 scripts/sync-orchestrator.py --check-only 2>&1 || echo '⚠ kaizen-orchestrator drift — run: python3 scripts/sync-orchestrator.py'; fi",
+            "timeout": 5000
           }
         ]
       }

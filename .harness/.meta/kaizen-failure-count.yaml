@@ -9,4 +9,12 @@ phase_3: 0
 phase_4: 0
 phase_5: 0
 phase_6: 0
-last_updated: null
+phase_7: 0
+phase_8: 0
+phase_9: 0  # 2026-04-11 research-mode rerun: iter1 REJECT (H-01, H-03 FAIL) → iter2 APPROVE — reset
+phase_10: 0
+last_updated: "2026-04-11"
+last_cycle: "kaizen/2026-04-11-research"
+notes: |
+  2026-04-11 research-mode rerun: Phase 1~10 전체 APPROVE, Final cross-phase 10/10 APPROVE.
+  Phase 9 만 iter1 REJECT (H-01 rust-init/rust-feature domain event+outbox 누락, H-03 rust-api Composition Root 누락) → iter2 수정 후 APPROVE. 해당 Phase 카운터는 APPROVE 로 0 으로 리셋.
