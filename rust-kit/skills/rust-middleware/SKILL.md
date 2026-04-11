@@ -11,8 +11,9 @@ user-invocable: true
 # Gotchas
 
 1. **tower 레이어 순서** — `.layer()`는 안쪽부터 바깥으로 적용된다. 마지막에 등록한 `.layer()`가 요청을 가장 먼저 받는다. CORS는 바깥쪽(마지막)에, 인증은 안쪽(먼저)에 등록한다.
-2. **`CorsLayer`는 `tower-http` 크레이트** — `axum`에 내장되어 있지 않다. `Cargo.toml`에 `tower-http = { version = "...", features = ["cors", "trace", "request-id", "timeout"] }` 추가 필요.
-3. **rate limiting 상태는 공유 저장소 필요** — `Arc<Mutex<HashMap>>` 방식은 단일 인스턴스에서만 동작한다. 멀티 인스턴스(K8s 등) 환경이면 Redis 어댑터가 필요하다. 구현 전에 배포 환경을 확인한다.
+2. **tower-http 0.6 feature 조합** — Axum 0.8과 호환되는 tower-http 버전은 **0.6.x** (fit-pal 기준 `tower-http = "0.6.8"`). `Cargo.toml`에 `tower-http = { version = "0.6", features = ["cors", "trace", "request-id", "timeout", "compression-gzip", "limit"] }`처럼 필요한 feature를 명시한다. feature를 빠뜨리면 `CorsLayer`/`TraceLayer`/`TimeoutLayer` 타입이 아예 제공되지 않고 컴파일 에러가 난다.
+3. **rate limiting 상태는 공유 저장소 필요** — `Arc<Mutex<HashMap>>` 방식은 단일 인스턴스에서만 동작한다. 멀티 인스턴스(K8s 등) 환경이면 Redis 어댑터가 필요하다. 구현 전에 배포 환경을 확인한다. 실무 2026 표준은 `tower_governor = "0.8"` + `governor = "0.10"` 조합으로 in-memory GCRA rate limiting을 시작하고, 멀티 인스턴스에서 Redis로 이주 (fit-pal 실무 기준).
+4. **`governor`/`tower_governor` Axum 호환 버전** — `tower_governor 0.8` + `axum 0.8` + `tower-http 0.6` 조합이 2026-04 기준 안정적. 버전 mismatch 시 `Service` trait bound 에러가 발생한다.
 
 # Process
 

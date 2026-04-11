@@ -13,6 +13,8 @@ user-invocable: true
 1. **JWT 시크릿 하드코딩 금지** — `JWT_SECRET`은 반드시 환경변수에서 로드한다. `.env.example`에 키 이름만 남긴다.
 2. **exp 중복 검사 금지** — `jsonwebtoken::decode`는 `exp` 클레임을 자동으로 검증한다. 수동 만료 시간 비교를 추가하면 로직 중복이 된다.
 3. **refresh token은 반드시 DB 저장** — refresh token을 메모리나 JWT 페이로드에 넣으면 무효화(로그아웃, 탈취 대응)가 불가능하다. `refresh_tokens` 테이블 또는 Redis에 저장한다.
+4. **Axum 0.8 `FromRequestParts`는 native async fn** — `#[async_trait]`과 `use axum::async_trait`을 더 이상 사용하지 않는다. `impl<S> FromRequestParts<S> for AuthUser where S: Send + Sync { type Rejection = ...; async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> { ... } }` 형태로 직접 선언한다. 0.7 코드에서 마이그레이션할 때는 `#[async_trait]` 어노테이션과 `use axum::async_trait;` import를 함께 제거한다.
+5. **jsonwebtoken 10.x `rust_crypto` feature** — `jsonwebtoken = { version = "10", features = ["rust_crypto"] }`로 고정하면 OpenSSL 동적 링크 없이 pure Rust crypto를 사용한다. Docker scratch/distroless 이미지 호환성이 좋다. fit-pal 실무 기준.
 
 # Process
 
@@ -124,15 +126,15 @@ impl AuthProvider for JwtAuthProvider {
 
     // refresh token 구현은 DB/Redis 어댑터와 조합
     async fn generate_refresh_token(&self, _user_id: &str) -> Result<TokenPair, DomainError> {
-        unimplemented!("refresh_token_store 연동 필요")
+        unimplemented!("예시 스켈레톤 — refresh_token_store 어댑터 연동 필요")
     }
 
     async fn rotate_refresh_token(&self, _refresh_token: &str) -> Result<TokenPair, DomainError> {
-        unimplemented!("refresh_token_store 연동 필요")
+        unimplemented!("예시 스켈레톤 — refresh_token_store 어댑터 연동 필요")
     }
 
     async fn revoke_refresh_token(&self, _refresh_token: &str) -> Result<(), DomainError> {
-        unimplemented!("refresh_token_store 연동 필요")
+        unimplemented!("예시 스켈레톤 — refresh_token_store 어댑터 연동 필요")
     }
 }
 ```
@@ -141,14 +143,13 @@ impl AuthProvider for JwtAuthProvider {
 
 `src/infra/adapters/auth.rs` (modular) 또는 `src/auth_adapter.rs` (flat)에 동일 패턴으로 생성한다.
 
-## 5. Axum extractor 생성
+## 5. Axum 0.8 extractor 생성
 
-핸들러에서 `AuthUser`를 파라미터로 선언하면 자동 검증된다.
+Axum 0.8부터 `FromRequestParts`는 **native `async fn in trait`**을 사용한다. `#[async_trait]` 매크로와 `use axum::async_trait` import는 **제거**한다.
 
 ```rust
-// 위치: ARCH에 따라 crates/api/src/extractors/auth.rs 또는 src/api/extractors/auth.rs
+// 위치: ARCH에 따라 apps/api/src/extractors/auth.rs 또는 src/api/extractors/auth.rs
 use axum::{
-    async_trait,
     extract::FromRequestParts,
     http::{request::Parts, StatusCode},
     RequestPartsExt,
@@ -162,7 +163,7 @@ use domain::ports::auth::{AuthProvider, Claims};
 
 pub struct AuthUser(pub Claims);
 
-#[async_trait]
+// Axum 0.8 — #[async_trait] 제거, native async fn 사용
 impl<S> FromRequestParts<S> for AuthUser
 where
     S: Send + Sync,
@@ -175,7 +176,8 @@ where
             .await
             .map_err(|_| (StatusCode::UNAUTHORIZED, "Missing Authorization header"))?;
 
-        // State에서 AuthProvider 주입 (App 상태에 Arc<dyn AuthProvider> 등록 필요)
+        // 권장: AuthProvider를 Router::with_state()로 주입하고 State<Arc<dyn AuthProvider>>를
+        // 별도 파라미터로 받는 middleware fn 패턴을 사용하라. 여기서는 Extension 기반 예시.
         let auth = parts
             .extensions
             .get::<Arc<dyn AuthProvider>>()
@@ -189,6 +191,12 @@ where
     }
 }
 ```
+
+> **Axum 0.7 → 0.8 마이그레이션 체크리스트**:
+> 1. `use axum::async_trait;` 제거
+> 2. `FromRequest`/`FromRequestParts` impl 블록의 `#[async_trait]` 어노테이션 제거
+> 3. trait impl 블록 내부의 `async fn` 시그니처는 그대로 유지 (Rust 1.75+ RPIT in trait)
+> 4. 라우트 문자열의 `:id` → `{id}` 치환 (rust-api 스킬 참조)
 
 ## 6. 환경변수 안내
 

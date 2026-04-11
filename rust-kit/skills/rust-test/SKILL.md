@@ -10,9 +10,13 @@ user-invocable: true
 
 ## Gotchas
 
-- `#[sqlx::test]`는 테스트별 독립 DB 트랜잭션을 자동으로 제공한다. 직접 `PgPool`을 만들거나 수동으로 롤백하지 마라.
-- `#[tokio::test]`는 기본이 `current_thread` flavor다. `tokio::spawn`이나 멀티스레드 동작이 필요하면 `#[tokio::test(flavor = "multi_thread")]`를 명시하라.
-- mockall의 `#[automock]`은 trait에만 적용 가능하다. 구체 struct 메서드에는 사용할 수 없으니, 테스트 대상이 trait이 아니면 먼저 trait 추출을 제안하라.
+- **SQLx `#[sqlx::test]`** — 테스트별 독립 DB 트랜잭션을 자동으로 제공한다. 직접 `PgPool`을 만들거나 수동으로 롤백하지 마라. `migrations = "./migrations"` 인자로 마이그레이션 자동 적용 가능.
+- **SeaORM `MockDatabase`** — SeaORM은 Docker/실제 DB 없이 **`MockDatabase::new(DatabaseBackend::Postgres)`**로 단위 테스트를 실행할 수 있다. `.append_query_results(vec![...])`로 쿼리 응답을 주입한다. `HAS_SEAORM` + `features = ["mock"]` (fit-pal 기준). `cargo test --lib`만으로 완전히 격리된 단위 테스트 가능.
+- **통합 테스트는 `serial_test` + TRUNCATE 격리** — 실제 DB를 사용하는 통합 테스트는 `modules/{module}/tests/` 크레이트 `tests/` 디렉토리에 두고, 각 테스트를 `#[serial_test::serial]`로 직렬화한 뒤 fixture setup에서 `TRUNCATE TABLE ... RESTART IDENTITY CASCADE`로 상태 초기화한다. 병렬 실행 시 테스트간 데이터 간섭을 방지한다. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
+- **`test_support` 모듈** — `src/test_support.rs`에 `#[cfg(test)]`로 mock 구현체, fixture builder, test DB setup 헬퍼를 모아두고 `pub(crate)`로 공개한다. 각 테스트 파일에서 중복 작성 금지 (SSOT).
+- **`#[tokio::test]`는 기본이 `current_thread` flavor** — `tokio::spawn`이나 멀티스레드 동작이 필요하면 `#[tokio::test(flavor = "multi_thread")]`를 명시하라. OTel 트레이싱 subscriber, Axum TestServer 같은 case에서 필요할 수 있다.
+- **mockall `#[automock]`은 trait에만** — 구체 struct 메서드에는 사용할 수 없으니, 테스트 대상이 trait이 아니면 먼저 trait 추출을 제안하라. 외부 HTTP 클라이언트, OIDC, 이메일 등은 반드시 port trait으로 먼저 감싼다.
+- **라우터 상태는 trait object** — 통합 테스트에서 mock 서비스를 주입하려면 프로덕션 코드가 `Arc<dyn UserService>` 형태의 trait object를 `Router::with_state()`에 받아야 한다. 구체 타입 `UserServiceImpl`를 state로 넣으면 테스트에서 mock으로 교체 불가. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
 
 # Rust 테스트 코드 생성
 
@@ -179,7 +183,9 @@ async fn test_create_user_returns_201() {
 
 ---
 
-## 7. DB 통합 테스트 생성 (sqlx::test)
+## 7. DB 테스트 생성 (SQLx 또는 SeaORM)
+
+### §7X — SQLx `#[sqlx::test]` 통합 테스트
 
 `HAS_SQLX`이면 `#[sqlx::test]`를 사용한다. 테스트마다 독립 트랜잭션이 제공되어 롤백이 자동으로 된다:
 
@@ -208,6 +214,88 @@ async fn test_find_user_by_id_returns_error_when_missing(pool: PgPool) {
     assert!(matches!(result, Err(DomainError::UserNotFound(_))));
 }
 ```
+
+### §7S — SeaORM `MockDatabase` 단위 테스트
+
+`HAS_SEAORM`이면 Docker/실제 DB 없이 `MockDatabase`로 Repository adapter를 단위 테스트한다. Cargo feature에 `"mock"`이 포함되어야 한다.
+
+```rust
+// modules/user/src/test_support.rs 또는 인라인 #[cfg(test)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sea_orm::{DatabaseBackend, MockDatabase, MockExecResult};
+    use std::sync::Arc;
+    use chrono::Utc;
+    use crate::infra::entities::user;
+
+    #[tokio::test]
+    async fn test_find_by_id_returns_user() {
+        let db = MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![vec![user::Model {
+                id: 1,
+                name: "Alice".to_string(),
+                email: "alice@example.com".to_string(),
+                created_at: Utc::now(),
+            }]])
+            .into_connection();
+
+        let repo = SeaUserRepository::new(Arc::new(db));
+        let found = repo.find_by_id(1).await.unwrap();
+        assert!(found.is_some());
+        assert_eq!(found.unwrap().email, "alice@example.com");
+    }
+
+    #[tokio::test]
+    async fn test_create_inserts_row() {
+        let db = MockDatabase::new(DatabaseBackend::Postgres)
+            .append_exec_results(vec![MockExecResult { last_insert_id: 1, rows_affected: 1 }])
+            .append_query_results(vec![vec![user::Model {
+                id: 1,
+                name: "Bob".to_string(),
+                email: "bob@example.com".to_string(),
+                created_at: Utc::now(),
+            }]])
+            .into_connection();
+
+        let repo = SeaUserRepository::new(Arc::new(db));
+        let created = repo.create("Bob", "bob@example.com").await.unwrap();
+        assert_eq!(created.name, "Bob");
+    }
+}
+```
+
+`MockDatabase`는 `cargo test --lib`만으로 완전히 격리되어 CI에서 Docker 없이 실행 가능하다. 실제 쿼리 실행 대신 사전 설정된 응답을 순서대로 반환한다.
+
+### §7I — 통합 테스트 (실제 DB, serial_test 격리)
+
+실제 DB 동작까지 확인하려면 `modules/{mod}/tests/` 에 통합 테스트를 둔다:
+
+```rust
+// modules/user/tests/user_integration_test.rs
+use serial_test::serial;
+use sqlx::PgPool; // 또는 sea_orm::Database
+
+async fn reset_db(pool: &PgPool) {
+    sqlx::query("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+        .execute(pool)
+        .await
+        .expect("reset_db failed");
+}
+
+#[tokio::test]
+#[serial]
+async fn test_create_user_persists_to_db() {
+    let pool = test_support::setup_db().await;
+    reset_db(&pool).await;
+
+    let repo = UserRepositoryImpl::new(pool.clone());
+    let user = repo.create("Alice", "alice@example.com").await.unwrap();
+    assert_eq!(user.name, "Alice");
+}
+```
+
+`#[serial]`로 직렬화하면 여러 테스트가 같은 DB에 접근해도 충돌하지 않는다.
 
 ---
 

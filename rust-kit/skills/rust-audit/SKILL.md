@@ -15,9 +15,12 @@ user-invocable: true
 
 1. **Rust 이외 도메인 평가 금지** — UI 디자인, 인프라 설정은 평가 대상이 아니다.
 2. **추측성 FAIL 금지** — 실제 코드를 확인한 후 판정한다. "아마 문제가 있을 것"으로 FAIL하지 않는다.
-3. **보안 카테고리 생략 금지** — 항상 Security 카테고리를 포함한다.
+3. **보안 카테고리 생략 금지** — 항상 Security 카테고리를 포함한다 (`unsafe_code = "forbid"` 준수, 시크릿 하드코딩, 민감정보 로깅 필수 체크).
 4. **deep 모드에서만 에이전트 호출** — quick 모드는 직접 검사한다.
-5. **clippy는 `--workspace --all-targets -- -D warnings` 옵션 필수** — workspace 전체 + 바이너리/테스트/예제 포함. `-D warnings` 없으면 워닝이 에러로 집계되지 않아 CI 불일치 발생 (fit-pal 패턴: `cargo clippy --workspace --all-targets -- -D warnings`).
+5. **clippy는 `--workspace --all-targets --all-features -- -D warnings` 필수** — workspace 전체 + 바이너리/테스트/예제 + 모든 feature 포함. `-D warnings` 없으면 워닝이 에러로 집계되지 않아 CI 불일치 발생. 프로젝트에 `[workspace.lints.clippy]` pedantic deny가 설정되어 있으면 해당 규칙이 lint 자동 반영되므로 별도 `-W clippy::pedantic` 플래그는 불필요. fit-pal 패턴: `cargo clippy --workspace --all-targets -- -D warnings`.
+6. **workspace lints 상속 확인** — member crate가 `[lints] workspace = true`를 누락하면 pedantic deny가 적용되지 않는다. 감사 시 각 member `Cargo.toml`에 이 선언이 있는지 먼저 확인한다.
+7. **Axum 0.8 path 문법 감사** — `.route("/...:\w+",)` 정규식으로 grep해서 `:id` colon 문법 잔재가 있으면 즉시 FAIL. Axum 0.8에서 컴파일 에러가 나기 때문에 사실상 빌드 확인만으로도 잡히지만, 리팩토링 중간 상태를 감사하는 경우 명시적으로 체크한다.
+8. **SQLx vs SeaORM 구분** — DB adapter 감사 시 프로젝트가 SQLx를 쓰는지 SeaORM을 쓰는지 먼저 감지. 감사 기준은 해당 ORM에 맞게 적용 (예: SeaORM 프로젝트에 "sqlx::query! 필수" FAIL 기준 적용 금지).
 
 # Process
 

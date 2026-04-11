@@ -10,9 +10,12 @@ user-invocable: true
 
 ## Gotchas
 
-- Axum 0.7+ 에서 `State`는 `Router::with_state()`로 주입한다. `Extension` 레이어나 글로벌 상태를 쓰지 마라 — 타입 안전성이 깨진다.
-- `Json<T>` 추출자는 요청 본문을 한 번만 소비할 수 있다. 한 핸들러에서 `Json`과 `Bytes`를 동시에 추출하거나 두 번 추출하면 컴파일 에러가 난다.
-- `Path<(String, i64)>` 순서는 URL 세그먼트 순서와 정확히 일치해야 한다. 순서가 틀리면 런타임에 추출 실패한다.
+- **Axum 0.8 path parameter 문법 breaking change** — 0.8부터 `:id` colon 문법이 **완전 제거**되고 `{id}` 중괄호 문법만 지원한다. `.route("/users/:id", ...)` 는 컴파일 에러다. 반드시 `.route("/users/{id}", ...)`로 작성한다. 와일드카드는 `{*rest}`. (Axum 0.8 announcement 2024-12-01, matchit 2.x)
+- **Axum 0.8 `#[async_trait]` 제거** — `FromRequest`, `FromRequestParts`, `Handler` 등 핵심 trait이 native `async fn in trait`으로 전환되었다. 사용자 extractor를 구현할 때 `#[async_trait]` 매크로를 **붙이지 말고** `async fn from_request_parts(...) -> Result<Self, Self::Rejection>`를 직접 선언한다. `axum::async_trait` 재수출은 deprecated.
+- **State는 `Router::with_state()`로 주입** — `Extension` 레이어나 글로벌 상태를 쓰지 마라. 타입 안전성이 깨진다. 테스트 시 mock trait object를 주입하려면 `State<Arc<dyn Port>>` 패턴을 사용한다.
+- **`Json<T>` 추출자는 요청 본문을 한 번만 소비** — 한 핸들러에서 `Json`과 `Bytes`를 동시에 추출하거나 두 번 추출하면 컴파일 에러가 난다.
+- **`Path<(String, i64)>` 순서 일치 필수** — URL 세그먼트 순서와 정확히 일치해야 한다. 순서가 틀리면 런타임에 추출 실패한다. 복수 파라미터는 구조체 + `#[derive(Deserialize)]`로 이름 기반 추출을 선호하라 (`Path<UserIdPath>`).
+- **포트에서 인프라 타입 제거** — 핸들러가 의존하는 `UserService`/`UserRepository` trait 시그니처에 `sqlx::Error`, `PgPool`, `sea_orm::DatabaseConnection`, `sea_orm::DbErr` 등 인프라 구체 타입을 노출하지 마라. DTO/`DomainError`만 주고받는다. 포트가 DB 타입을 노출하면 adapter 교체가 불가능해진다. 출처: fit-pal `server/CLAUDE.md`.
 
 # Axum 핸들러/라우터 생성
 
@@ -84,7 +87,7 @@ pub trait UserService: Send + Sync {
 - 이미 구현체가 있으면 메서드만 추가한다.
 
 ```rust
-// infra/adapters/user_service_impl.rs
+// infra/adapters/user_service_impl.rs  — 예시 스켈레톤 (실제 사용 시 SQL/ORM 쿼리 구현 필요)
 use async_trait::async_trait;
 use sqlx::PgPool;
 use crate::domain::ports::UserService;
@@ -104,15 +107,17 @@ impl UserServiceImpl {
 #[async_trait]
 impl UserService for UserServiceImpl {
     async fn create_user(&self, req: CreateUserRequest) -> Result<User, DomainError> {
-        // SQLx 쿼리는 이 레이어에서만 사용
-        unimplemented!()
+        // 예시: 실제 프로젝트에서는 sqlx::query_as!(..) 또는 SeaORM ActiveModel로 교체
+        unimplemented!("예시 스켈레톤 — SQLx/SeaORM 구현 필요")
     }
 
     async fn get_user(&self, id: i64) -> Result<User, DomainError> {
-        unimplemented!()
+        unimplemented!("예시 스켈레톤 — SQLx/SeaORM 구현 필요")
     }
 }
 ```
+
+> `#[async_trait]`은 user-defined trait에는 여전히 사용 가능하다 (Axum 0.8은 프레임워크 trait에서만 제거했다). 단, Rust 1.75+ RPITIT로 작성하면 heap allocation을 줄일 수 있으며 `dyn Trait`이 필요 없는 경우 우선 고려한다.
 
 ---
 
@@ -149,7 +154,7 @@ pub async fn get_user(
 }
 ```
 
-라우터에 등록한다:
+라우터에 등록한다. **Axum 0.8 path 문법은 `{id}` 중괄호만 지원**한다:
 
 ```rust
 // api/router.rs 또는 api/routes/users.rs
@@ -161,10 +166,12 @@ use super::handlers::users;
 pub fn users_router(service: Arc<dyn UserService>) -> Router {
     Router::new()
         .route("/users", axum::routing::post(users::create_user))
-        .route("/users/:id", axum::routing::get(users::get_user))
+        .route("/users/{id}", axum::routing::get(users::get_user))
         .with_state(service)
 }
 ```
+
+> `.route("/users/:id", ...)`은 Axum 0.8에서 **컴파일 에러**가 난다. 기존 0.7 프로젝트를 마이그레이션할 때는 정규식 `:\w+`로 모든 라우트 문자열을 일괄 치환한다. 와일드카드는 `*rest` → `{*rest}`.
 
 ---
 

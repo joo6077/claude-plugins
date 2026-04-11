@@ -12,11 +12,12 @@ user-invocable: true
 
 # Gotchas
 
-1. **순서 변경 금지** — fmt → clippy → test → audit 순서는 고정이다. clippy 전에 fmt를 해야 포맷 워닝이 없다.
-2. **fmt 실패 시 자동 적용** — `cargo fmt -- --check` 실패 시 `cargo fmt`를 적용한 후 재검사한다. 자동 수정 후 unstaged changes가 생기므로 `git add` 안내를 출력한다.
-3. **audit은 non-blocking** — 외부 크레이트 취약점은 즉시 수정 불가할 수 있으므로 WARN으로만 표시한다.
+1. **순서 변경 금지** — fmt → clippy → test → audit 순서는 고정이다. clippy 전에 fmt를 해야 포맷 워닝이 없다. fit-pal `server-preflight` Makefile 타겟 검증 순서와 동일.
+2. **fmt 실패 시 자동 적용** — `cargo fmt --all -- --check` 실패 시 `cargo fmt --all`를 적용한 후 재검사한다. 자동 수정 후 unstaged changes가 생기므로 `git add` 안내를 출력한다.
+3. **audit은 non-blocking** — 외부 크레이트 취약점은 즉시 수정 불가할 수 있으므로 WARN으로만 표시한다. 단 `deny.toml`의 `licenses.allow` 위반이나 `sources.unknown-registry = "deny"` 위반은 즉시 FAIL.
 4. **clippy 또는 test 실패 시 즉시 중단** — 이후 단계를 실행하지 않는다.
-5. **Makefile 환경에서는 `make server-preflight` 사용** — `APP_ENV`, `DATABASE_URL` 등 환경변수가 Makefile에 정의된 경우 직접 `cargo` 호출 시 누락된다. migration이 포함된 프로젝트(fit-pal 패턴: `DATABASE_URL=postgres://fitpal:fitpal@localhost:5432/fitpal`)는 preflight 전에 DB가 올라와 있어야 한다.
+5. **Makefile 환경에서는 `make server-preflight` 사용** — `APP_ENV`, `DATABASE_URL`, `RUST_LOG` 등 환경변수가 Makefile에 정의된 경우 직접 `cargo` 호출 시 누락된다. migration이 포함된 프로젝트(fit-pal 패턴: `DATABASE_URL=postgres://fitpal:fitpal@localhost:5432/fitpal`)는 preflight 전에 DB가 올라와 있어야 한다. fit-pal `server-preflight` 타겟 = `server-fmt` → `server-lint` → `server-test` 체인.
+6. **DB 의존 테스트가 있으면 `infra-up`을 선행** — `sqlx::test` 또는 `serial_test` 통합 테스트는 실제 Postgres를 요구한다. fit-pal 패턴은 `make infra-up` (docker compose up -d) → `make server-migrate` → `make server-preflight` 순서. preflight 단독 실행은 DB가 이미 기동된 상태를 가정한다.
 
 # Process
 

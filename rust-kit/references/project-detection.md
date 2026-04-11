@@ -12,8 +12,30 @@ rust-kit 스킬이 공통으로 실행하는 프로젝트 환경 감지 절차.
 
 | 조건 | 결과 |
 |------|------|
-| `rust-toolchain.toml` 존재 | 파일에서 `channel`, `components` 파싱 |
+| `rust-toolchain.toml` 존재 | 파일에서 `channel`, `components`, `profile` 파싱 → `$RUST_CHANNEL` |
 | 없음 | `rustup default` 결과 사용 |
+
+## Step 2a. Edition 감지
+
+`Cargo.toml` 또는 `[workspace.package]`의 `edition` 값을 읽어 `$EDITION` 에 저장한다.
+
+| 값 | 의미 |
+|----|------|
+| `"2024"` | Rust 2024 Edition (1.85+, 2026 기본) — RPIT capture 변경, `unsafe extern`, let chain stable |
+| `"2021"` | 레거시 지원 — 신규 프로젝트에는 권장하지 않음 |
+| 미지정 | `Cargo.toml`이 잘못됨 — 에러 |
+
+## Step 2b. Workspace lints 감지
+
+`[workspace.lints]` 섹션 존재 여부:
+
+| 조건 | 결과 |
+|------|------|
+| `[workspace.lints.clippy]` pedantic = deny | `HAS_WORKSPACE_LINTS = true`, `LINTS_STRICTNESS = "pedantic"` |
+| `[workspace.lints]` 존재하나 pedantic 없음 | `HAS_WORKSPACE_LINTS = true`, `LINTS_STRICTNESS = "basic"` |
+| 없음 | `HAS_WORKSPACE_LINTS = false` — audit 시 권장 메시지 출력 |
+
+member crate가 `[lints] workspace = true`를 선언하는지도 같이 확인한다.
 
 ## Step 3. Workspace 감지
 
@@ -21,7 +43,7 @@ rust-kit 스킬이 공통으로 실행하는 프로젝트 환경 감지 절차.
 
 | 조건 | 결과 |
 |------|------|
-| `[workspace]` 존재 | `IS_WORKSPACE = true`, `WORKSPACE_MEMBERS` = members 목록 |
+| `[workspace]` 존재 | `IS_WORKSPACE = true`, `WORKSPACE_MEMBERS` = members 목록, `$RESOLVER` = resolver 값 |
 | 없음 | `IS_WORKSPACE = false` |
 
 ## Step 4. 의존성 감지

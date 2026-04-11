@@ -10,9 +10,11 @@ user-invocable: true
 
 ## Gotchas
 
-- `anyhow`와 `thiserror` 혼용은 금지가 아니다. 라이브러리/도메인 코드에는 `thiserror`(구체적 에러 타입), 앱 진입점(`main.rs`, CLI 스크립트)에는 `anyhow`(편의)가 관용적이다.
-- `.unwrap()`과 `.expect()`는 프로덕션 코드에서 금지다. 테스트 코드에서만 허용된다. 발견 즉시 `?` 또는 명시적 에러 처리로 교체를 제안한다.
-- `?` 연산자 체이닝 시 `From<SrcError> for DstError` impl이 누락되면 컴파일 에러가 난다. 에러 타입 간 변환 경로를 먼저 확인하라.
+- **도메인 레이어에 `anyhow::Error` 금지** — 라이브러리/도메인 코드에는 **`thiserror` 기반 구체 enum만** 사용한다. `anyhow::Error`는 app 최상위(`apps/api/src/main.rs`, CLI 스크립트)에서만 허용. 도메인 에러에 anyhow를 섞으면 호출자가 `match`로 case를 분기할 수 없어 에러 처리가 전부 "generic 500"으로 퇴화한다. 출처: fit-pal `server/CLAUDE.md` §코딩 컨벤션.
+- **`.unwrap()`/`.expect()` 허용 범위** — 프로덕션 코드에서는 금지. 단 **main 초기화 (`main()` 안의 `std::env::var("...").expect(...)` 등)와 테스트 코드**에서는 허용한다 (fit-pal CLAUDE.md 금지 사항). 기타 위치에서 발견 시 즉시 `?` 또는 명시적 에러 처리로 교체를 제안한다.
+- **`unsafe` 금지** — workspace-wide `unsafe_code = "forbid"` 원칙. 외부 FFI가 반드시 필요한 경우 외에는 `unsafe` 블록을 만들지 마라. FFI가 필요하면 별도 shared crate로 격리한다. 출처: fit-pal `workspace.lints.rust` 및 `CLAUDE.md` §금지 사항.
+- **`println!` 대신 `tracing::info!`/`tracing::warn!`/`tracing::error!`** — 구조화 로깅 없이는 OTel 트레이싱/필드 추출이 불가능하다. 라이브러리 코드에서는 `println!`/`eprintln!`/`dbg!`를 사용하지 마라.
+- **`From<SrcError> for DstError` 누락 시 컴파일 에러** — `?` 연산자 체이닝 시 변환 경로를 먼저 확인하라. `#[from]` 또는 `impl From`을 추가한다.
 
 # 에러 처리 패턴 가이드
 

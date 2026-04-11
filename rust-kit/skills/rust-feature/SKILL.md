@@ -12,9 +12,11 @@ user-invocable: true
 # Gotchas
 
 1. **`mod.rs` vs 파일 모듈 혼용 금지** — 프로젝트 기존 패턴을 따른다. 한 프로젝트에서 두 방식을 섞지 않는다.
-2. **workspace 순환 의존 금지** — domain 크레이트가 api나 infra를 의존하면 안 된다. 의존 방향: api → domain ← infra.
+2. **workspace 순환 의존 금지** — domain 크레이트가 api나 infra를 의존하면 안 된다. 의존 방향: `apps → modules ← shared` (또는 `api → domain ← infra`). modules/* 끼리도 직접 의존 금지 — Consumer-Owned Port 경유만 허용.
 3. **`pub` 범위 최소화** — `pub(crate)` 기본, `pub`은 크레이트 경계에서만.
 4. **빈 모듈 금지** — 생성하는 모든 파일에 최소한의 구조체 또는 함수를 포함한다.
+5. **Consumer-Owned Port 원칙** — 새 feature 모듈이 다른 모듈의 기능을 필요로 하면 **자신의 crate 안에** outbound port trait을 정의하라. 예: `social` 모듈이 알림을 보내야 하면 `modules/social/src/port.rs`에 `SocialNotifier` trait을 정의하고, `modules/notification`은 그 trait을 구현하는 `NotificationAdapter`를 제공한다. `social`이 `notification::port`를 직접 import하는 순간 헥사고날이 깨진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 1번.
+6. **Composition Root 단일화** — feature 모듈 자체는 DI 와이어링을 하지 않는다. 모든 `Arc<dyn Port>` 조립은 `apps/api/src/main.rs` 또는 `apps/worker/src/main.rs`에서만 이루어진다. 모듈이 다른 모듈의 구현체를 `new()`로 직접 생성하면 단일 Composition Root 원칙이 깨진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 3번.
 
 # Process
 

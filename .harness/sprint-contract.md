@@ -1,141 +1,146 @@
-# Sprint Contract — Phase 8 Kaizen Research Mode (infra-kit)
+# Sprint Contract — Phase 9 Kaizen Research Mode (rust-kit)
 
-Feature: infra-kit 3 스킬 + infra-reviewer 에이전트 + references 2026 최신 K8s/Terraform/DevOps/Supply Chain 트렌드 반영 카이젠
+Feature: rust-kit 16 스킬 + rust-reviewer 에이전트 + references 2026 최신 Rust 2024/Axum 0.8/SQLx 0.8/tonic 0.13/SeaORM 1.1/Clippy 생태계 트렌드 반영 카이젠
 Created: 2026-04-11
 Branch: kaizen/2026-04-11-research
 Iteration: 1
 
 ## Context
 
-Phase 1~7 완료 (commit 4587154 → 465234b). Phase 8은 infra-kit 플러그인의 3개 스킬(infra-init, infra-guide, infra-audit), `agents/infra-reviewer.md`, 그리고 플러그인 수준 references (`infra-kit/references/*.md` — audit-criteria, principle-index, init-checklist)를 2026 K8s/Terraform/OpenTofu/DevOps/Supply Chain 생태계에 맞춰 갱신한다.
+Phase 1~8 완료 (commit 4587154 → 71835bb). Phase 9는 rust-kit 플러그인의 16개 스킬(rust-init, rust-feature, rust-api, rust-model, rust-service, rust-auth, rust-middleware, rust-grpc, rust-test, rust-docker, rust-error, rust-l10n, rust-run, rust-build, rust-preflight, rust-audit), `agents/rust-reviewer.md`, 그리고 플러그인 수준 references (`rust-kit/references/project-detection.md`, `rust-kit/skills/rust-audit/references/audit-criteria.md`)를 2026 Rust 생태계 현실에 맞춰 갱신한다.
 
-데이터 풀 §1 글로벌 feedback에서 infra-kit 스킬/에이전트에 직접 귀속된 REJECT는 없다. §5 validate-plugin 스냅샷 — infra-kit v0.1.0, 3 skills + 1 agent, V1~V7 OK. 회귀 금지 기준선.
+데이터 풀 §5 validate-plugin 스냅샷 — rust-kit v0.1.0, 16 skills + 1 agent, V1~V7 OK. 회귀 금지 기준선.
 
-외부 리서치 (Codex, 2026-04-11):
+§2 Hub 외부 프로젝트 피드백: `/Users/jackson/Hub/10_Dev/fit-pal/server` 는 **실무 운영 중인 Rust 2024 + Axum 0.8.8 + SeaORM 1.1.19 모듈러 모놀리스**로, 본 Phase 9의 ground truth 출처다. `/Users/jackson/Hub/10_Dev/fit-pal/.harness/sprint-feedback.md` (Monorepo Makefile APPROVE iter 2, 33/33)은 Rust preflight 명령 체계(`cargo clippy --workspace --all-targets -- -D warnings`, `cargo fmt --all -- --check`, `APP_ENV`/`DATABASE_URL` 환경변수 주입)를 검증한다.
 
-- **Kubernetes 1.30~1.33 주요 변경점**: Pod Security Admission은 2026 기본 내장 표준 (PSP 제거, 네임스페이스 라벨 enforce/audit/warn). Sidecar containers는 **v1.33 stable(GA)**. In-place Pod resize는 v1.33 Beta, **v1.35 GA(2025-12-19)**. Ingress는 API frozen — 공식 문서가 Gateway API 사용을 권장. Structured Authentication Config는 v1.30 Beta → v1.34 stable. ValidatingAdmissionPolicy는 v1.30 stable. 1.32에서 `flowcontrol.apiserver.k8s.io/v1beta3` 제거, 1.33에서 Endpoints API 공식 deprecation. ([Sidecar containers stable](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers), [In-place Pod resize GA blog](https://kubernetes.io/blog/2025/12/19/kubernetes-v1-35-in-place-pod-resize-ga/), [Ingress deprecated in favor of Gateway API](https://kubernetes.io/docs/concepts/services-networking/ingress/), [ValidatingAdmissionPolicy stable](https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy), [PSA 문서](https://kubernetes.io/docs/concepts/security/pod-security-admission/), [Endpoints deprecation](https://kubernetes.io/blog/2025/04/24/endpoints-deprecation/))
+외부 리서치 (2026-04-11):
 
-- **Terraform 1.9~1.11+ 2026**: Stacks는 HCP Terraform 정식 문서 체계에 편입. `terraform test` 프레임워크는 1.7+ mocking으로 실전성 확보. **Ephemeral values / resources (1.10+)**가 핵심 변화 — write-only arguments, `ephemeralasnull`, state/plan 비저장 패턴. Provider-defined functions는 1.8+ 확장 포인트로 정착. ([Terraform Stacks](https://developer.hashicorp.com/terraform/language/stacks), [terraform test](https://developer.hashicorp.com/terraform/language/tests), [Ephemeral values](https://developer.hashicorp.com/terraform/language/ephemeral), [Provider-defined functions](https://developer.hashicorp.com/terraform/plugin/framework/functions))
+- **Rust 2024 Edition**: Rust 2024는 `stable` 1.85 (2025-02-20)에 편입되어 2026-04 현재 **거의 모든 신규 프로젝트의 기본 edition**. `edition = "2024"`는 `resolver = "3"`를 자동 활성화한다. 주요 마이그레이션 포인트: (1) **`let` chain**이 stable (`if let Some(a) = x && let Some(b) = y`), (2) **RPIT capture rules**: `impl Trait` 반환값이 기본적으로 모든 in-scope lifetime을 capture하도록 변경 (`+ use<>`로 명시 필요한 경우 존재), (3) **`unsafe extern`**: `extern "C" { ... }` 블록 전체를 `unsafe extern`으로 감싸야 함, (4) **`if let` temporary scope** 변경 (drop 순서 영향 가능), (5) **`Future`/`IntoFuture` prelude 포함**. Rust 1.88 (2025-06-26)까지 반영 필요. `rust-toolchain.toml` 예시: `channel = "1.88.0"` (fit-pal 실무 기준) 또는 `stable`. ([Rust 2024 edition guide](https://doc.rust-lang.org/edition-guide/rust-2024/index.html), [Rust 1.85 블로그](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0/), [Rust 1.88 블로그](https://blog.rust-lang.org/2025/06/26/Rust-1.88.0/))
 
-- **OpenTofu 1.7~1.10 2026**: **State/plan encryption native (1.7+)** 정착. **Provider iteration `for_each` (1.9)** — 멀티리전/멀티어카운트 provider duplication 해결. 1.10은 OCI registry, native S3 state locking, OTel tracing (experimental). Terraform 대비 호환성은 "v1 compatibility promises" — 넓게 유지하되 신규 OpenTofu 기능 도입 시 drift 존재. ([State encryption](https://opentofu.org/docs/v1.11/language/state/encryption/), [Provider for_each](https://opentofu.org/docs/language/meta-arguments/for_each/), [OpenTofu 1.10 what's new](https://opentofu.org/docs/v1.10/intro/whats-new/), [v1 compatibility promises](https://opentofu.org/docs/language/v1-compatibility-promises/), [Migration guide](https://opentofu.org/docs/intro/migration/))
+- **Axum 0.8 breaking changes (2024-12-01 릴리스)**: (1) **Path 파라미터 문법**: `:id` colon 문법 **완전 제거**, **`{id}` 중괄호 문법만 지원** — `.route("/users/:id", ...)` → `.route("/users/{id}", ...)`. 모든 기존 라우트 마이그레이션 필요. (2) **async fn in traits native 채택**: `#[async_trait]`가 `FromRequest`, `FromRequestParts`, `Handler` 등에서 **제거됨**. 직접 trait 구현 시 `async fn` 사용. axum이 재export하던 `axum::async_trait`도 deprecated. (3) **`Handler::call`이 `IntoFuture`** 기반으로 변경. (4) **Extractor 타입 파라미터 순서** 일부 완화. (5) `matchit` 라우터 2.x로 업그레이드 — 충돌 감지/역추적 개선. ([Axum 0.8 changelog](https://github.com/tokio-rs/axum/blob/main/axum/CHANGELOG.md), [Axum 0.8 announcement](https://tokio.rs/blog/2024-12-01-announcing-axum-0-8-0), [path parameter matchit2 PR](https://github.com/tokio-rs/axum/pull/2945))
 
-- **Platform Engineering / IDP 2026**: 공통 패턴 = golden path + self-service + scorecards/catalog. Backstage는 scaffolder/templates, Port/Cortex는 scorecards. 2026 IDP 설계 원칙은 "포털 자체"보다 **개발자 흐름 자동화**가 핵심 — golden path 템플릿 + score 기반 표준 준수 측정. ([Backstage software templates](https://backstage.io/docs/features/software-templates), [Port scorecards](https://docs.port.io/scorecards/overview/), [Cortex scorecards](https://docs.cortex.io/scorecards), [Humanitec platform engineering](https://humanitec.com/platform-engineering))
+- **SeaORM 1.1.x vs SQLx**: fit-pal은 **SeaORM 1.1.19** 사용 (SQLx 아님). 2025-2026 Rust 백엔드 실무에서 **SQLx와 SeaORM은 상호 배타가 아닌 병렬 옵션**이다. rust-kit은 현재 SQLx만 가정 — SeaORM 패턴 추가 필요. SeaORM 1.1 (2024-10 + 패치)은 (1) `ActiveModel::insert().exec_with_returning()`, (2) `ConnectionTrait` 제네릭으로 transaction/connection 통합, (3) **`MockDatabase`** 네이티브 단위 테스트 (Docker 불필요), (4) `sea-orm-migration`로 마이그레이션 (sqlx-cli 아님), (5) `with-chrono`/`with-uuid`/`with-json` feature, (6) `runtime-tokio-rustls` 기본. ([SeaORM 1.1 docs](https://www.sea-ql.org/SeaORM/docs/), [SeaORM migration](https://www.sea-ql.org/sea-orm-tutorial/ch01-09-migration.html), [SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/), [ActiveModel](https://www.sea-ql.org/SeaORM/docs/basic-crud/insert/))
 
-- **GitOps 2026 — Argo CD 3.x / Flux 2.6**: Argo CD는 2026 초 기준 이미 **3.x 라인**. Flux **v2.6 GA (2025-05-29)** — OCI artifacts GA, object-level workload identity. Argo Rollouts 1.8.x가 canary/blue-green/analysis 실운영 축. ([Argo CD releases](https://github.com/argoproj/argo-cd/releases), [Flux 2.6 release](https://fluxcd.io/blog/2025/05/flux-v2.6.0/), [Argo Rollouts](https://argoproj.github.io/argo-rollouts/))
+- **SQLx 0.8 (2024-07-22 릴리스, 0.8.x 2026-Q1 현재 0.8.x 계열 유지)**: (1) `.sqlx/` 오프라인 캐시는 0.7부터 사이드카 방식 — 0.8도 동일. (2) **runtime feature 재편**: `runtime-tokio` + `tls-rustls` 조합. `runtime-tokio-native-tls`/`runtime-tokio-rustls` 레거시 네이밍은 alias만 유지. (3) `query_as!`는 여전히 compile-time 검증. (4) **PgConnection::in_transaction()** 헬퍼 추가. (5) `sqlx-cli` `database drop/create/reset` 자동화. ([SQLx 0.8 announcement](https://github.com/launchbadge/sqlx/blob/main/CHANGELOG.md), [SQLx offline](https://docs.rs/sqlx/latest/sqlx/macro.query.html#offline-mode))
 
-- **Container Security 2026 — Supply Chain**: Cosign + in-toto attestation이 2026 이미지 서명 기본축 — `verify-attestation`까지 포함한 attest/verify 워크플로우 기본. **SLSA provenance**는 L3/L4 기준점. Distroless는 유효하나 **Chainguard Images**가 "distroless + provenance + 업데이트 체계"로 운영 친화적. **SBOM 툴체인 = Trivy + Syft/Grype + CycloneDX/SPDX**. **eBPF runtime security (Falco/Tetragon)**는 정적 스캔 보완 레이어. ([Cosign verifying attestation](https://docs.sigstore.dev/cosign/verifying/attestation/), [SLSA provenance](https://slsa.dev/provenance), [Chainguard Images](https://edu.chainguard.dev/chainguard/chainguard-images/overview/), [Trivy SBOM](https://trivy.dev/docs/dev/guide/supply-chain/sbom/), [Syft](https://github.com/anchore/syft), [Falco](https://falco.org/), [Tetragon](https://tetragon.io/))
+- **Tonic 0.13 (2025 릴리스)**: (1) prost 0.13 동반. (2) `tonic-build` API는 `configure().compile_protos(&[...], &[...])` 유지. (3) `#[tonic::async_trait]` 여전히 권장 — Tonic의 `Server` trait이 dyn 호환을 유지하기 위해 async_trait 매크로 필요. native async fn in trait는 tonic 내부 코드 생성 시 점진적으로 migration 중이지만, **사용자 impl은 여전히 `#[tonic::async_trait]` 표준**. (4) streaming은 `type XxxStream = Pin<Box<dyn Stream<...> + Send>>` + `ReceiverStream` 패턴 유지. (5) `tonic-health`/`tonic-reflection`이 별도 크레이트로 분리. ([tonic 0.13 CHANGELOG](https://github.com/hyperium/tonic/blob/master/CHANGELOG.md), [tonic async_trait 논의](https://github.com/hyperium/tonic/issues/1242))
 
-- **Observability 2026 — OpenTelemetry**: **OTel Logs는 2025년 안정화 완료** (Bridge API/SDK/Protocol stable). **Semantic Conventions는 1.x 릴리스 체계 + 일부 도메인 안정화 진행 중**. **Grafana LGTM (Loki/Mimir/Tempo/Pyroscope)**이 OSS 조합 축. **Beyla + OTel eBPF OBI**로 zero-code instrumentation. **OTel Profiles는 2026-03-26 public alpha** — continuous profiling 표준화 진행형. ([OTel status summary](https://opentelemetry.io/docs/specs/status/), [OTel Logs SDK](https://opentelemetry.io/docs/specs/otel/logs/sdk/), [OTel semantic conventions](https://opentelemetry.io/docs/specs/semconv/), [Grafana LGTM OTel](https://grafana.com/blog/otel-lgtm/), [OTel OBI zero-code](https://opentelemetry.io/docs/zero-code/obi/), [OTel Profiles pprof](https://opentelemetry.io/docs/specs/otel/profiles/pprof/))
+- **Clippy 최신 lint (rustc 1.88 기준, 2025-2026)**: **pedantic 기본 deny**는 fit-pal 패턴 (`workspace.lints.clippy.pedantic = { level = "deny", priority = -1 }`). 2026 실무 권장 lint 패키지: `all`/`correctness`/`pedantic`/`suspicious` 모두 deny, 노이즈가 큰 일부만 allow (`module_name_repetitions`, `must_use_candidate`, `missing_errors_doc`, `missing_panics_doc`). 명시적 deny: `needless_pass_by_value`, `redundant_clone`, `cloned_instead_of_copied`, `inefficient_to_string`, **`large_futures`** (Send async recursion 비용). `unsafe_code = "forbid"` workspace 레벨. `broken_intra_doc_links = "deny"`. ([Clippy lints index](https://rust-lang.github.io/rust-clippy/master/), [large_futures lint](https://rust-lang.github.io/rust-clippy/master/#large_futures), [workspace lints RFC](https://rust-lang.github.io/rfcs/3389-manifest-lint.html))
 
-- **CI/CD 2026 보안 — SLSA / OIDC / Trusted Publishers**: SLSA provenance가 2026 CI/CD 기본 산출물. GitHub Actions OIDC는 secretless CI 핵심 — short-lived federation. Reusable workflows + OIDC로 배포 표준화. Environment protection은 PyPI Trusted Publishers / OIDC와 같이 사용 시 의미 커짐. **PyPI Trusted Publishers**는 2026 매우 성숙 (id-token: write + project/workflow binding). ([SLSA spec](https://slsa.dev/spec), [GitHub Actions OIDC](https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect), [Reusable workflows + OIDC](https://docs.github.com/en/actions/how-tos/security-for-github-actions/security-hardening-your-deployments/using-openid-connect-with-reusable-workflows), [PyPI Trusted Publishers](https://docs.pypi.org/trusted-publishers/))
+- **SeaORM MockDatabase + mockall 테스트 패턴**: 2026 Rust 백엔드 단위 테스트 표준은 "**trait 추상화 + mockall `#[automock]` + SeaORM MockDatabase 조합**". 외부 HTTP 클라이언트, OIDC, 이메일, FCM 등은 `Arc<dyn Port>` trait object로 라우터 상태에 주입, 테스트 시 mock 구현체로 교체. DB 레이어는 SeaORM `MockDatabase`로 SQL 실행 없이 단위 테스트. 통합 테스트는 `serial_test` + TRUNCATE 격리로 crate `tests/` 디렉토리에. ([SeaORM mock](https://www.sea-ql.org/SeaORM/docs/write-test/mock/), [mockall automock](https://docs.rs/mockall/latest/mockall/attr.automock.html), [serial_test](https://docs.rs/serial_test/))
 
-## Scope
+- **utoipa 5.4 + Scalar UI**: fit-pal은 `utoipa = "5.4"` + `utoipa-scalar = "0.3"`. 2026 Rust OpenAPI 표준 조합은 **utoipa (매크로 기반 스펙 생성) + Scalar UI (Swagger UI 대체 모던 UI)**. `#[utoipa::path(...)]` + `#[derive(ToSchema)]` + `#[derive(OpenApi)]` 상속 구조. ApiDoc struct의 `paths(...)` / `components(schemas(...))`에 등록. Scalar mount: `.route("/docs", Scalar::with_url("/docs/openapi.json", ApiDoc::openapi()))`. ([utoipa 5.4](https://docs.rs/utoipa/5.4/), [utoipa-scalar](https://docs.rs/utoipa-scalar/), [Scalar API reference](https://scalar.com/))
 
-### 수정 대상
+- **Cargo workspace lints + deny.toml + rust-toolchain.toml**: 2026 프로젝트 스캐폴딩 삼종 세트. (1) **`[workspace.lints]`** — workspace 루트에서 모든 member crate의 clippy/rustc/rustdoc lint를 SSOT로 관리. member crate에서는 `[lints] workspace = true` 한 줄만 작성. (2) **`deny.toml`** — `cargo-deny`의 v2 형식 (advisories `vulnerability`/`notice` 필드 제거), `licenses.allow` allow-list 방식, `bans.multiple-versions = "warn"`, `sources.unknown-registry = "deny"`. (3) **`rust-toolchain.toml`** — `channel = "1.88.0"` 또는 `stable`, `components = ["rustfmt", "clippy"]`, `profile = "default"`. ([workspace lints RFC 3389](https://rust-lang.github.io/rfcs/3389-manifest-lint.html), [cargo-deny v2](https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html), [rust-toolchain.toml](https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file))
 
-- `infra-kit/skills/infra-init/SKILL.md`
-- `infra-kit/skills/infra-guide/SKILL.md`
-- `infra-kit/skills/infra-audit/SKILL.md`
-- `infra-kit/agents/infra-reviewer.md`
-- `infra-kit/references/audit-criteria.md`
-- `infra-kit/references/principle-index.md`
-- `infra-kit/references/init-checklist.md`
+- **tracing-opentelemetry 0.32 + OTel 0.31**: fit-pal 기준 `tracing = "0.1.44"`, `tracing-subscriber = "0.3.23"`, `tracing-opentelemetry = "0.32.1"`, `opentelemetry = "0.31.0"`, `opentelemetry_sdk = "0.31.0"`, `opentelemetry-otlp = "0.31.0"`. 2026 Rust observability 표준은 **tracing layer + OTel otlp exporter + Grafana LGTM**. `RUST_LOG` env + `EnvFilter` + `fmt` layer + `OpenTelemetryLayer` 조합. ([tracing-opentelemetry](https://docs.rs/tracing-opentelemetry/), [opentelemetry-otlp](https://docs.rs/opentelemetry-otlp/0.31/))
 
-### 수정 금지 (Phase 1~7 파일 / 범위 외)
+- **Makefile / justfile 환경변수 주입 패턴**: fit-pal 검증 패턴은 (1) `APP_ENV=dev RUST_LOG=debug cargo run -p <crate>`, (2) `DATABASE_URL=postgres://user:pass@host:port/db cargo run -p migration`, (3) `cargo clippy --workspace --all-targets -- -D warnings`, (4) `cargo fmt --all -- --check`, (5) Makefile 타겟 `server-run`/`server-test`/`server-lint`/`server-fmt`/`server-fmt-fix`/`server-migrate`/`server-preflight`. `.PHONY` 선언 필수. Makefile 없이 직접 cargo 호출 시 환경변수 누락. `justfile` 대안도 동일 패턴. (fit-pal `.harness/sprint-feedback.md` 33/33 APPROVE 근거)
 
-- `harness/**`, `flutter-toolkit/**`, `design-kit/**`, `backend-kit/**` (Phase 1~7)
-- `docs/infra/**` — 범위 외 (docs 갱신은 `/infra-research` 스킬 영역)
-- `infra-kit/.claude-plugin/plugin.json` — 버전 bump는 Final Phase에서
-- `.harness/` 파일 (`.harness/sprint-contract.md` 외)
-- `.harness/.meta/kaizen-data-pool.md` 수정 금지
-- `infra-kit/skills/*/references/**` — 플러그인 루트의 `infra-kit/references/` 만 사용 (skills 하위 references 디렉토리는 비어 있음을 유지)
+## 범위
 
-## Goal
+- rust-kit/skills/*/SKILL.md (16개)
+- rust-kit/agents/rust-reviewer.md
+- rust-kit/references/project-detection.md
+- rust-kit/skills/rust-audit/references/audit-criteria.md
 
-2026 K8s(Sidecar GA / Gateway API / PSA restricted / VAP stable) + Terraform 1.10+ 및 OpenTofu 1.7+ (ephemeral, state encryption, provider for_each) + GitOps(Argo CD 3 / Flux 2.6 / Argo Rollouts) + Supply Chain(Cosign/SLSA/SBOM/Chainguard) + Observability(OTel Logs stable / Profiles alpha / LGTM / eBPF) + CI/CD(OIDC secretless / Trusted Publishers)를 infra-kit 3 스킬 + infra-reviewer + 3 references에 반영한다. validate-plugin 7 OK / bare fence 0건 / markdownlint 주요 규칙을 유지해야 한다.
+## 수정 금지
 
-## 완료 조건
+- harness/**, flutter-toolkit/**, design-kit/**, backend-kit/**, infra-kit/**, react-kit/** (Phase 1~8/10)
+- rust-kit/.claude-plugin/plugin.json (버전은 Final Phase에서)
+- .harness/*.yaml, .meta/*, evals/*, history/*, .superpowers/*, scripts/*, docs/rust/** (리서치 소스)
+- docs/index.html, docs/rust-kit.html, backend-kit.html 등 plugin docs pages (Final Phase 대상)
 
-### SC: Supply Chain 카테고리 신설
+## Conditions
 
-- [ ] **SC-01**: `infra-kit/references/principle-index.md` 카테고리 표에 `supply-chain` 행 1개 추가 — 키워드 최소 3개 (`SBOM`, `Cosign`, `SLSA`, `서명`, `attestation`, `공급망` 중 3개 이상) + 문서 경로는 기존 `docs/infra/platform/container.md` 또는 `docs/infra/platform/cicd.md` 중 1개 연결(신규 docs 파일 금지). 기존 12개 카테고리는 유지 — 총 13개.
-- [ ] **SC-02**: `infra-guide/SKILL.md` Step 1 카테고리 표에 `supply-chain` 행 1개 추가 — 키워드 SC-01과 정합(최소 3개 공통). 기존 12개 카테고리 유지 + supply-chain 포함 13개.
-- [ ] **SC-03**: `infra-kit/references/audit-criteria.md`에 `## Supply Chain` 섹션 신설 — 최소 3개 기준 표 항목 (예: "이미지 서명(Cosign)", "SBOM 생성(Syft/Trivy CycloneDX/SPDX)", "SLSA provenance"). 각 항목에 PASS / FAIL 조건 명시. 참조 URL 최소 2개 (sigstore.dev, slsa.dev, trivy.dev 중 2개).
-- [ ] **SC-04**: `infra-kit/agents/infra-reviewer.md` 평가 카테고리 목록에 `Supply Chain` 카테고리 1개 추가. 기존 8개 카테고리 뒤(또는 Security 바로 뒤)에 위치. 총 9개 카테고리.
-- [ ] **SC-05**: `infra-audit/SKILL.md` Step 3 리포트 테이블 예시에 `Supply Chain` 행 1개 추가 (PASS/FAIL/N/A 표기 예시 포함).
-- [ ] **SC-06**: `infra-kit/references/init-checklist.md`에 Supply Chain 카테고리 섹션 1개 신설 또는 CI/CD 섹션 체크리스트에 **서명(Cosign)**, **SBOM(Syft/Trivy CycloneDX/SPDX)**, **SLSA provenance** 3개 체크 항목 추가. 출처 URL 최소 1개 (sigstore.dev 또는 slsa.dev).
+### R (Research & Rust 2024 Edition, 4개)
 
-### PE: Platform Engineering (IDP) 카테고리 신설
+- [ ] R-01: **rust-init** Gotchas가 `edition = "2024"` + `resolver = "3"` 기본 채택을 명시하고, 2021/2024 매트릭스 제공 (기존 Gotcha #2는 2021→2024 기본 전환으로 갱신). workspace_service/modular 구조 예시 `Cargo.toml`이 `edition = "2024"` 샘플 포함.
+- [ ] R-02: **rust-init** Gotchas 또는 Process에 `rust-toolchain.toml` 생성 절차가 `channel`/`components`/`profile` 3요소 명시. 예시 `channel = "1.88.0"` 또는 `stable` 2 옵션.
+- [ ] R-03: **rust-init** Process에 **`[workspace.lints]`** SSOT 패턴 가이드 추가 (rust/rustdoc/clippy 3 네임스페이스, pedantic deny + 노이즈 allow 샘플, `[lints] workspace = true` member 규약). fit-pal 실무 세트를 레퍼런스로 인용.
+- [ ] R-04: **rust-init** Process에 **`deny.toml`** v2 형식 초기 템플릿 생성 단계 추가 (advisories v2, licenses.allow allow-list, bans.multiple-versions="warn", sources.unknown-registry="deny").
 
-- [ ] **PE-01**: `infra-kit/references/principle-index.md`에 `platform-engineering` 카테고리 행 1개 추가 — 키워드 최소 3개 (`IDP`, `Backstage`, `golden path`, `self-service`, `scorecard`, `Port`, `Humanitec` 중 3개 이상). 문서 경로는 기존 `docs/infra/platform/cicd.md` 또는 `docs/infra/operations/deployment-strategies.md` 중 근접한 것 연결.
-- [ ] **PE-02**: `infra-guide/SKILL.md` Step 1 카테고리 표에 `platform-engineering` 행 1개 추가 — 키워드 PE-01과 정합(최소 3개 공통).
+### A (Axum 0.8 breaking changes, 5개)
 
-### K8: Kubernetes 2026 반영
+- [ ] A-01: **rust-api** Gotchas에 Axum 0.8 **path parameter 문법** breaking change 명시 (`:id` deprecated → `{id}` only). 본문 코드 예시 `.route("/users/:id", ...)` → `.route("/users/{id}", ...)` 전부 교체.
+- [ ] A-02: **rust-api** Gotchas에 Axum 0.8 **`#[async_trait]` 제거 — `FromRequest`/`FromRequestParts`는 native async fn 사용** 원칙 추가. `axum::async_trait`은 deprecated로 명시.
+- [ ] A-03: **rust-auth** extractor 코드 예시에서 `#[async_trait]` + `use axum::async_trait` 제거. `impl<S> FromRequestParts<S> for AuthUser` 블록을 native `async fn from_request_parts` 형태로 교체. Gotchas에 Axum 0.8 이주 포인트 명시.
+- [ ] A-04: **rust-middleware** 본문 예시 경로가 `:id` 스타일이면 `{id}`로 교체. Gotchas에 tower-http 0.6.x 버전대 명시 + `request-id`/`compression-gzip`/`limit`/`trace` feature 조합.
+- [ ] A-05: **rust-api** Process에서 라우터 예시가 Axum 0.8 `Router::with_state` + `Arc<dyn Trait>` state 주입 패턴을 유지하되 path 예시를 `{id}`로 통일.
 
-- [ ] **K8-01**: `infra-kit/references/audit-criteria.md` `## Kubernetes` 표에 **Pod Security Admission(restricted 우선, baseline 허용)** 기준 1줄 추가. 출처 URL 1개 (kubernetes.io/docs/concepts/security/pod-security-admission/).
-- [ ] **K8-02**: `infra-kit/references/audit-criteria.md` Kubernetes 표 또는 networking 관련 항목에 **Gateway API 권장 (Ingress frozen)** 기준 1줄 추가. 출처 URL 1개 (kubernetes.io/docs/concepts/services-networking/ingress/ 또는 Gateway API 공식).
-- [ ] **K8-03**: `infra-kit/references/init-checklist.md` Kubernetes(선택) 섹션에 **Gateway API 사용 권장 (신규 프로젝트)**, **PodSecurity 라벨 설정(enforce/audit/warn)** 2개 체크 항목 추가.
-- [ ] **K8-04**: `infra-kit/references/init-checklist.md` Kubernetes 섹션에 **Sidecar containers(v1.33 GA) 공식 native sidecar 사용 권장 — 레거시 multi-container + shared termination 패턴 대체** 1줄 주석 추가. 출처 URL 1개 (kubernetes.io/docs/concepts/workloads/pods/sidecar-containers).
+### D (Database layer — SQLx 0.8 + SeaORM 1.1, 4개)
 
-### IA: IaC (Terraform 1.10+ / OpenTofu 1.7+) 반영
+- [ ] D-01: **rust-model** 상단에 **ORM 선택 분기** 섹션 추가 — HAS_SQLX 또는 HAS_SEAORM 감지 후 각각의 구현 경로 제시. SeaORM 경로는 fit-pal 패턴(Entity/ActiveModel/Repository trait/ConnectionTrait 제네릭) 명시.
+- [ ] D-02: **rust-model** SQLx 경로 Gotchas에 SQLx 0.8 runtime feature 최신 조합 (`runtime-tokio` + `tls-rustls` 또는 `runtime-tokio-rustls` alias) 명시.
+- [ ] D-03: **rust-model** SeaORM 경로가 `sea-orm-migration` CLI 사용법과 `Migrator::up(&db, None).await` 런타임 마이그레이션 방식 2종 명시. SQLx 경로는 기존 `cargo sqlx migrate run` + `.sqlx/` 오프라인 캐시 유지.
+- [ ] D-04: **rust-test** DB 통합 테스트 섹션에 **SeaORM MockDatabase** 분기 추가 (SQLx `#[sqlx::test]`와 병렬). fit-pal `test_support` 모듈 + `serial_test` + TRUNCATE 격리 패턴 참조.
 
-- [ ] **IA-01**: `infra-kit/references/audit-criteria.md` `## IaC` 표에 **Ephemeral values / write-only arguments (Terraform 1.10+ / OpenTofu)** 기준 1줄 추가 또는 기존 "시크릿 제외" 행을 확장. 출처 URL 1개 (developer.hashicorp.com/terraform/language/ephemeral).
-- [ ] **IA-02**: `infra-kit/references/audit-criteria.md` IaC 표에 **State encryption (OpenTofu 1.7+ native 또는 backend 암호화)** 기준 1줄 추가. 출처 URL 1개 (opentofu.org state encryption 또는 Terraform backend 암호화).
-- [ ] **IA-03**: `infra-kit/references/audit-criteria.md` IaC 표에 **`terraform test` / OpenTofu test 프레임워크 도입** 기준 1줄 추가. 출처 URL 1개 (developer.hashicorp.com/terraform/language/tests).
-- [ ] **IA-04**: `infra-kit/references/init-checklist.md` IaC 섹션에 **OpenTofu 대안 명시 (v1.7+ state encryption native, v1.9+ provider for_each)** 1줄 주석 추가. 출처 URL 1개 (opentofu.org).
-- [ ] **IA-05**: `infra-guide/SKILL.md` Step 1 카테고리 표 `iac` 키워드에 `OpenTofu` 또는 `ephemeral` 1개 추가 (기존 키워드 유지).
+### H (Hexagonal / Consumer-Owned Port, 3개)
 
-### CD: CI/CD 2026 (OIDC / SLSA / Trusted Publishers)
+- [ ] H-01: **rust-init**/**rust-feature** Gotchas에 **Consumer-Owned Port** 원칙 명시 — "포트는 소비자가 소유한다. 모듈이 다른 모듈의 port.rs를 직접 import하면 안 된다". cross-module write 후처리는 **domain event + outbox**로 한다는 원칙 추가.
+- [ ] H-02: **rust-api**/**rust-service** Gotchas에 **포트에서 인프라 타입 제거** 원칙 명시 — `DatabaseTransaction`, SeaORM model, `PgPool`, `sqlx::Error` 등 인프라 타입을 포트 trait 시그니처에 노출 금지. DTO/도메인 이벤트만 주고받는다.
+- [ ] H-03: **rust-feature**/**rust-api** Gotchas에 **Composition Root 단일화** 원칙 명시 — 모듈 조립은 `apps/api/src/main.rs` 또는 `apps/worker/src/main.rs` 한 곳에서만. 모듈끼리 직접 생성 금지, `Arc<dyn Port>` trait object 주입.
 
-- [ ] **CD-01**: `infra-kit/references/audit-criteria.md` `## CI/CD` 표에 **SLSA provenance 생성/검증** 기준 1줄 추가. 출처 URL 1개 (slsa.dev/provenance 또는 slsa.dev/spec).
-- [ ] **CD-02**: `infra-kit/references/audit-criteria.md` CI/CD 표에 **Secretless publish — PyPI Trusted Publishers / npm provenance / reusable workflow + OIDC** 기준 1줄 추가 또는 기존 `OIDC 인증` 행을 확장. 출처 URL 1개 (docs.pypi.org/trusted-publishers 또는 GitHub reusable workflows + OIDC).
-- [ ] **CD-03**: `infra-kit/references/init-checklist.md` CI/CD 섹션에 **SLSA provenance**, **Trusted Publishers (해당 시)** 2개 항목 추가 (SC-06과 중복 허용 — 한 체크리스트에 SBOM과 함께 그룹화해도 무방).
+### T (Tonic 0.13 + Testing + Tooling, 4개)
 
-### GO: GitOps 2026 (Argo CD 3 / Flux 2.6 / Argo Rollouts)
+- [ ] T-01: **rust-grpc** 의존성 버전을 `tonic = "0.13"`, `prost = "0.13"`, `tonic-build = "0.13"` 수준으로 업데이트. Gotchas에 `#[tonic::async_trait]` 유지 원칙 명시 (tonic 사용자 impl은 여전히 매크로 사용).
+- [ ] T-02: **rust-test** Gotchas에 SeaORM MockDatabase 패턴과 mockall `#[automock]` 병행 사용법 + fit-pal `test_support` 모듈 컨벤션 명시. `#[tokio::test(flavor = "multi_thread")]` 사용 기준 명확화.
+- [ ] T-03: **rust-run**/**rust-preflight** Gotchas에 fit-pal 검증된 Makefile 타겟 (`server-run`, `server-test`, `server-lint`, `server-fmt`, `server-fmt-fix`, `server-migrate`, `server-preflight`) 예시 + `APP_ENV`/`RUST_LOG`/`DATABASE_URL` 환경변수 주입 필수 원칙 추가.
+- [ ] T-04: **rust-run** `audit` 서브커맨드에 `cargo deny check` v2 형식(`advisories`/`licenses`/`bans`/`sources`) 기본 실행 포함 명시. `cargo-audit` 미설치 skip 정책은 유지.
 
-- [ ] **GO-01**: `infra-kit/references/principle-index.md` `deployment-strategies` 행 키워드에 **Flux** 1개 추가 (기존 키워드 유지). `ArgoCD`는 기존 유지.
-- [ ] **GO-02**: `infra-kit/references/audit-criteria.md` `## Deployment` 표에 **GitOps source-of-truth (ArgoCD/Flux) — 클러스터 직접 변경 금지** 기준 1줄 추가. 출처 URL 1개 (fluxcd.io 또는 argoproj.github.io).
+### C (Clippy lints + error patterns, 4개)
 
-### OB: Observability 2026 (OTel Logs stable / eBPF)
+- [ ] C-01: **rust-audit** `audit-criteria.md`에 **Clippy pedantic 2026 기준** 카테고리 행 추가 — `needless_pass_by_value`, `redundant_clone`, `cloned_instead_of_copied`, `inefficient_to_string`, `large_futures` 등 fit-pal workspace lint 세트 명시. 출처는 "Clippy lints index + fit-pal workspace.lints".
+- [ ] C-02: **rust-audit** `audit-criteria.md` Security 행에 `unsafe_code = "forbid"` 원칙 + `unwrap()`/`expect()`은 main 초기화와 테스트에서만 허용(FAIL 판정 조건 완화) 명시. 출처 fit-pal CLAUDE.md.
+- [ ] C-03: **rust-error** Gotchas에 **`anyhow::Error` in domain layer 금지** 원칙 추가 — domain layer에는 `thiserror` 구체 enum만, `anyhow`는 app 최상위(main.rs, CLI)에서만. fit-pal CLAUDE.md 인용.
+- [ ] C-04: **rust-audit** SKILL.md Gotchas에 workspace lints 기반 lint 발견 절차 명시 — `cargo clippy --workspace --all-targets -- -D warnings`가 workspace.lints.clippy 설정을 반영한다는 점.
 
-- [ ] **OB-01**: `infra-kit/references/audit-criteria.md` `## Observability` 표에 **OpenTelemetry (Logs stable 2025, semantic conventions 1.x)** 기준 1줄 추가 또는 기존 "분산 트레이싱" 행을 OTel 3 신호 통합으로 확장. 출처 URL 1개 (opentelemetry.io/docs/specs/status/ 또는 semconv).
-- [ ] **OB-02**: `infra-kit/references/init-checklist.md` 관측성 섹션에 **OpenTelemetry Collector / OTLP export** 1줄 추가. 출처 URL 1개 (opentelemetry.io).
+### P (Preventive / regressions / deferred from previous kaizen, 5개)
 
-### RV: infra-reviewer 에이전트 동기화
+- [ ] P-01: **rust-api** `unimplemented!()` 2건 (lines 108, 112), **rust-auth** `unimplemented!()` 3건 (lines 127, 131, 135)은 **유지 허용** (todo!() false-positive 회피 — 이전 Phase 9 결정 사항). 단 위 블록이 여전히 스킬 예시 코드임을 주석으로 명시 ("예시: refresh_token_store 연동 후 구현")하여 실제 프로덕션으로 복사될 때 에러를 유도.
+- [ ] P-02: `rust-l10n` Extension/Locale 패턴은 유지하되 Gotchas에 Axum 0.8에서 `axum::extract::Request`/`axum::middleware::Next` API 그대로 사용 가능함을 명시.
+- [ ] P-03: **모든 rust-kit SKILL.md와 agents/rust-reviewer.md**의 bare fenced code block 0건 유지 (validate-plugin V6 회귀 금지). 새로 추가하는 code block은 ````rust`, ````bash`, ````toml`, ````text`, ````dockerfile` 등 언어 힌트 필수.
+- [ ] P-04: **모든 수정 파일**의 파일 끝 newline 1개 유지. 한글 띄어쓰기/조사 일관성 유지 ("—" 대시 사용, "·" 중점 허용).
+- [ ] P-05: 수정 후 **`python3 scripts/validate-plugin.py`** 실행 결과 **7 OK (rust-kit V1~V7 포함)** 유지. **`python3 scripts/sync-docs.py --check-only`** 에서 rust-kit README drift 없음 (있으면 sync-docs 실행 후 commit 포함).
 
-- [ ] **RV-01**: `infra-kit/agents/infra-reviewer.md` 핵심 규칙에 "audit-criteria.md가 유일한 진실원천"이라는 기존 문장 유지 + SC-04에서 추가된 Supply Chain 카테고리가 평가 카테고리 목록에 반영됨.
-- [ ] **RV-02**: `infra-kit/agents/infra-reviewer.md` 출력 포맷 테이블은 기존 일반 컬럼(카테고리/판정/파일:라인/근거/출처)을 유지 — Supply Chain도 자연스럽게 표현 가능. 추가 수정 불필요 (self-audit 명시).
+## Commands
 
-### GQ: Gotcha — 과복잡도 경고 / 벤더 중립
+- 실행: (수동 편집만, 빌드/런타임 없음)
+- 검증: `python3 scripts/validate-plugin.py rust-kit` + `python3 scripts/validate-plugin.py` (7 OK) + `python3 scripts/sync-docs.py --check-only`
+- bare fence 검증: `python3 scripts/validate-plugin.py rust-kit --check=code-fence`
 
-- [ ] **GQ-01**: `infra-init/SKILL.md` Gotcha #2(과도한 복잡도 경고)에 **"Supply chain(Cosign/SLSA) / IDP(Backstage) / Service Mesh / Istio는 규모·위험도에 맞을 때만 제안"** 맥락 1문장 추가. 기존 K8s/Terraform 문구 유지.
-- [ ] **GQ-02**: `infra-guide/SKILL.md` Gotcha #1(벤더 중립)을 유지하되, 새로 추가된 `supply-chain`/`platform-engineering` 카테고리에서도 특정 벤더(Chainguard, Backstage 등)를 강제하지 말라는 1문장 추가. 기존 AWS/GCP/Azure 문구 유지.
+## Inputs
 
-### I: 인프라 / 품질 게이트
+- `rust-kit/skills/*/SKILL.md` (16)
+- `rust-kit/agents/rust-reviewer.md`
+- `rust-kit/references/project-detection.md`
+- `rust-kit/skills/rust-audit/references/audit-criteria.md`
+- `.harness/.meta/kaizen-data-pool.md` §2, §5
+- `/Users/jackson/Hub/10_Dev/fit-pal/server/Cargo.toml` (실무 ground truth)
+- `/Users/jackson/Hub/10_Dev/fit-pal/server/CLAUDE.md` (실무 컨벤션)
+- `/Users/jackson/Hub/10_Dev/fit-pal/server/deny.toml` (cargo-deny v2 실제 예시)
+- `/Users/jackson/Hub/10_Dev/fit-pal/server/rust-toolchain.toml`
+- `/Users/jackson/Hub/10_Dev/fit-pal/.harness/sprint-feedback.md` (Makefile 검증)
 
-- [ ] **I-01**: `python3 scripts/validate-plugin.py infra-kit` → V1~V7 전부 OK.
-- [ ] **I-02**: `python3 scripts/validate-plugin.py` (전체 7 킷) → Total 7 OK, Exit 0. 회귀 금지.
-- [ ] **I-03**: `python scripts/sync-docs.py --check-only` → infra-kit 영역 "모두 최신 상태" 또는 sync 필요 없음. 필요 시 sync 후 재실행하여 통과.
-- [ ] **I-04**: bare code fence 0건 (V6 code-fence OK로 검증) — 새로 추가하는 모든 fenced block은 반드시 언어 힌트 명시 (`bash`, `markdown`, `text`, `yaml` 등).
-- [ ] **I-05**: 변경된 파일들에 MD031/MD032/MD060/MD028/MD034/MD033 markdownlint 규칙 위반 0건 — 수정 영역 주변 context 기준.
-- [ ] **I-06**: git working tree modified 파일이 위 Scope 외로 벗어나지 않는다. `scripts/__pycache__/`, `.harness/sprint-contract.md` 는 허용. `.harness/.meta/kaizen-data-pool.md` 수정 금지.
-- [ ] **I-07**: git commit 메시지 prefix `kaizen(phase8-research):` 형식 + 한국어 본문. commit hash 리포트에 기재.
-- [ ] **I-08**: 브랜치 유지 — `kaizen/2026-04-11-research`, push 금지.
+## Outputs
 
-### TR: Trace / 출처 / 2026 트렌드
+- 16 SKILL.md 수정 (Gotchas/Process 갱신)
+- `rust-reviewer.md` 감사 기준 연동 (수정 필요 시)
+- `audit-criteria.md` — Clippy 2026 lint 카테고리, Security 행 갱신
+- `project-detection.md` — edition/lints 감지 (필요 시)
+- commit message: `kaizen(phase9-research): rust-kit 2026 Rust 2024/Axum 0.8/SeaORM 1.1/Clippy 반영`
+- validate-plugin 7 OK + sync-docs check 통과
 
-- [ ] **TR-01**: 새로 추가된 출처 URL 최소 **8개 이상** 순증 (Kubernetes 2+ / Terraform 1 / OpenTofu 1 / Supply Chain 2 / IDP 1 / Observability 1 이상 mix). 중복 URL은 1회만 카운트, sprint-contract.md 외 실제 변경 파일 내 인용 기준.
-- [ ] **TR-02**: `infra-kit` 변경 파일 내에 해당 출처 URL이 실제 인용되어 있어야 한다 (단순 sprint-contract.md 인용은 카운트하지 않는다).
-- [ ] **TR-03**: 리포트에 리서치 출처 URL 목록 (최소 8개) 명시.
+## Acceptance (자기 감사 L3)
+
+1. 위 R/A/D/H/T/C/P 조건이 각 파일:라인 근거와 함께 충족.
+2. `python3 scripts/validate-plugin.py rust-kit` 출력 `V1 16 skills + 1 agent`, `V6 0 bare`, `V7 v0.1.0 matches marketplace`.
+3. `python3 scripts/validate-plugin.py` 전체 7 OK.
+4. `python3 scripts/sync-docs.py --check-only` 변경 없음 (있으면 sync 실행 후 재검증).
+5. git status 에 **수정 대상 파일 + sprint-contract.md** 외 다른 modified 없음 (kaizen-data-pool.md 제외).
+6. commit 1개 (또는 필요 시 sync-docs commit 1개 추가).
 
 ## Rollback
 
-Self-audit FAIL 3회 연속 또는 validate-plugin 회귀 발생 시 `git checkout -- infra-kit/` 로 롤백. commit 전이면 working tree만 버리면 된다.
-
-## Notes
-
-- `docs/infra/**`는 이번 Phase 범위 외 — 해당 갱신은 별도 `/infra-research` Phase 책임. 이번 Phase는 스킬/에이전트/references 레벨 갱신만.
-- SC-01, PE-01의 문서 경로는 기존 `docs/infra/**`의 근접 파일로 연결 (신규 docs 파일 생성 금지). 향후 `/infra-research`에서 신규 docs(`platform/supply-chain.md`, `operations/platform-engineering.md`)가 생성되면 후속 Phase에서 경로를 교체한다.
-- `infra-kit/skills/*/references/` 하위 디렉토리는 비어 있으므로 건드리지 않는다 — 플러그인 루트의 `infra-kit/references/` 만 SSOT로 사용한다.
-- 카테고리가 12→13으로 증가하는 변경은 infra-guide Step 1의 카테고리 표와 principle-index.md 양쪽에 반드시 sync 되어야 한다. 하나만 변경하면 REJECT.
-- infra-init Gotcha #2 수정은 "추가 경고" 한 문장만 넣는 최소 침습 변경 — 기존 경고를 삭제하지 않는다.
+- 실패 시: `git checkout rust-kit/` + `git checkout .harness/sprint-contract.md`로 원복.
+- 각 조건 REJECT 시 개별 Edit 로 재수정 후 재평가.

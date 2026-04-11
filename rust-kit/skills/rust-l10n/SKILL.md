@@ -10,9 +10,10 @@ user-invocable: true
 
 ## Gotchas
 
-- 번역 키의 변수 플레이스홀더(`%{name}`)는 모든 로케일 파일에 동일하게 존재해야 한다. 한 로케일에만 있으면 다른 로케일에서 런타임 패닉이 난다.
-- `rust-i18n`은 컴파일 타임 키 검증이 없다. 키 오타 시 런타임에 키 이름 그대로 반환되므로, 생성 후 실제 응답을 확인해야 한다.
-- Accept-Language 헤더 파싱은 quality factor(`q=0.9`) 처리가 복잡하다. `accept-language` 크레이트를 사용하고 직접 파싱하지 마라.
+- **변수 플레이스홀더 일관성 필수** — 번역 키의 변수(`%{name}`)는 모든 로케일 파일에 동일하게 존재해야 한다. 한 로케일에만 있으면 다른 로케일에서 런타임 패닉이 난다.
+- **`rust-i18n`은 컴파일 타임 키 검증 없음** — 키 오타 시 런타임에 키 이름 그대로 반환되므로, 생성 후 실제 응답을 확인해야 한다.
+- **Accept-Language 헤더 파싱** — quality factor(`q=0.9`) 처리가 복잡하다. `accept-language` 크레이트를 사용하고 직접 파싱하지 마라.
+- **Axum 0.8 호환성** — `axum::extract::Request`, `axum::middleware::Next`, `axum::response::Response`, `axum::middleware::from_fn` API는 Axum 0.8에서도 그대로 유지된다. 이 스킬의 Locale middleware 패턴은 0.8에서도 동일하게 동작. 단 라우터 등록 시 path 문자열은 `{id}` 문법을 사용할 것 (rust-api 참조).
 
 # 백엔드 i18n 설정 + 번역 키 추가
 
