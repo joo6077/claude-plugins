@@ -66,35 +66,11 @@ user-invocable: true
 
 ## Step 7: Plugin Validation 결과 반영
 
-이 카이젠 세션을 시작하기 전과 끝낼 때 모두 `scripts/validate-plugin.py` 를 실행하여 react-kit 의 7가지 품질 카테고리 상태를 확인한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py react-kit` 을 실행하여 7 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
-### 실행
+**실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
-```bash
-# 세션 시작 시 현재 상태 파악
-python3 scripts/validate-plugin.py react-kit
-
-# 자동 수정 가능한 항목 먼저 (V5 placeholders, V6 code-fence)
-python3 scripts/validate-plugin.py react-kit --fix --check=placeholders,code-fence
-
-# 세션 종료 시 회귀 없음 확인
-python3 scripts/validate-plugin.py react-kit
-```
-
-### 우선순위 반영 규칙
-
-- **ERROR** (V1~V7 중 실패): 카이젠 Step 3 (개선 우선순위) 의 "높음" 레벨에 자동 편입. 이 카이젠 세션에서 반드시 수정.
-- **WARNING**: "중간" 레벨. V4 trigger 키워드 중복은 description 보강으로 처리.
-- **PASS**: 해당 카테고리 skip.
-
-### 통합 규칙
-
-- `--fix` 자동 모드는 V5 placeholders 와 V6 code-fence 만 수정한다. 다른 체크는 수동 수정.
-- V3 refs BROKEN 은 수동으로 링크 경로 확인 후 수정.
-- V1 frontmatter 누락은 1줄 수정이라 즉시 처리.
-- V7 plugin-json 불일치는 release.sh 흐름 문제라면 카이젠이 아닌 릴리스 스킬에서 다룬다.
-
-### Library Policy 카이젠 절대 불가 원칙
+### react-kit 특화 규칙 — Library Policy 절대 완화 금지
 
 `react-animation`, `animation-architect-react`, `react-audit` 의 Library Policy 카테고리에 정의된 **라이브러리 0개 원칙** (Motion/framer-motion/dnd-kit/react-spring/react-transition-group 등 빌드 게이트급 금지 목록) 은 이 검증 단계에서도, 그 어떤 카이젠 세션에서도 **절대 완화하지 않는다**. Plugin Validation 결과와 무관하게 이 원칙은 고정이다. 신규 금지 라이브러리 추가만 허용한다.
 
