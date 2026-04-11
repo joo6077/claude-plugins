@@ -24,7 +24,7 @@ qa-evaluator는 "정답을 아는 존재"(test oracle)로서 계약 조건 대�
 LLM이 판정자 역할을 할 때 발생하는 알려진 편향:
 
 | 편향 | 설명 | 완화 전략 |
-|------|------|-----------|
+| ---- | ---- | --------- |
 | 위치 편향 (Position bias) | 먼저 본 항목에 호의적 — IJCNLP 2025 연구에서 Response A 가 68% 선호되는 사례 보고 | **Swap Test**: 조건을 `(A, B)` 순서로 1 회, `(B, A)` 순서로 1 회 총 2 회 평가하고, 두 결과가 일치할 때만 판정 확정. 불일치 시 `[low-confidence]` 강등 + 재검증 ([arxiv 2406.07791](https://arxiv.org/abs/2406.07791), [arxiv 2602.02219](https://arxiv.org/html/2602.02219)) |
 | 자기 선호 편향 (Self-preference bias) | LLM 이 자기와 "친숙한"(낮은 perplexity) 출력에 호의적 | generator 와 evaluator 의 컨텍스트를 **물리적으로 분리**(별도 서브에이전트 실행) + 구현자가 쓴 주석·커밋 메시지는 증거에서 제외 ([arxiv 2410.21819](https://arxiv.org/abs/2410.21819)) |
 | 장황함 편향 (Verbosity bias) | 긴 코드/설명에 호의적 | 조건 충족 여부만 판단, 코드 양 무시 |
@@ -34,7 +34,7 @@ LLM이 판정자 역할을 할 때 발생하는 알려진 편향:
 | 지시 해석 불일치 (Instruction-following misalignment) | 평가 기준을 일관되지 않게 해석 | 조건별 boolean 체크리스트 분해로 해석 여지 최소화 |
 
 > **종합 편향 survey**: [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6), [Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1) 에서 12 개 이상의 편향을 분류. 본 가이드는 계약 기반 검증 맥락에서 영향이 큰 6 개에 집중한다.
-
+>
 > **구현 추종 편향 경고**: LLM은 코드를 읽을 때 구현된 로직을 "의도된 행동"으로 추종하는 경향이 있다
 > ([Understanding LLM-Driven Test Oracle Generation](https://arxiv.org/abs/2601.05542)).
 > qa-evaluator는 반드시 계약 조건을 먼저 읽고 "기대 행동"을 확립한 뒤 코드를 검증해야 한다.
@@ -57,7 +57,7 @@ Independent Verification & Validation (IV&V) 원칙:
 > sprint-contract 계약서의 `[L1]/[L2]/[L3]` 태그는 **조건 구체성 레벨**로, 동일 기호지만 의미가 다르다.
 
 | 체계 | 기호 | 의미 | 위치 |
-|------|------|------|------|
+| ---- | ---- | ---- | ---- |
 | **Evaluator 검증 깊이** (이 가이드) | L1 | 파일/디렉토리 존재 확인 | qa-evaluation-guide, qa-evaluator |
 | **Evaluator 검증 깊이** (이 가이드) | L2 | 파일 내용에 기대 요소 존재 확인 | qa-evaluation-guide, qa-evaluator |
 | **Evaluator 검증 깊이** (이 가이드) | L3 | 코드 경로 추적, 의미·의도 검증 | qa-evaluation-guide, qa-evaluator |
@@ -66,6 +66,7 @@ Independent Verification & Validation (IV&V) 원칙:
 | **계약 구체성 레벨** (contract-design-guide) | [L3] / goal | 목표 달성 여부만 판정 (수단 무관) | sprint-contract 조건 끝 태그 |
 
 **혼동 방지 규칙:**
+
 - 계약서의 `[L1]` 태그를 보고 "존재 확인(Glob)만 하면 된다"고 해석하지 않는다. 계약의 `[L1]`은 exact 이름 매칭 요구이지 evaluator의 검증 깊이 L1(존재 확인)과 무관하다.
 - evaluator 검증 깊이 L1~L3는 계약 조건의 구체성 레벨과 무관하게 **항상 L3까지 도달**해야 한다.
 - Sprint Feedback에서 `[L2]`를 근거 태그로 쓸 때는 evaluator 검증 깊이 L2(내용 확인)를 의미한다. 계약의 구체성 레벨과 혼용하지 않는다.
@@ -79,7 +80,7 @@ Independent Verification & Validation (IV&V) 원칙:
 > 근거: Phase 2 contract-schema v2 (2026-04-11). 계약 조건 끝의 `[exact]` / `[structural]` / `[goal]` 태그는 **검증 방식**을 지정한다.
 
 | 태그 | 의미 | evaluator 검증 방식 | 증거 형식 |
-|------|------|---------------------|-----------|
+| ---- | ---- | ------------------- | --------- |
 | `[exact]` | 이름/값/구조 문자 그대로 매칭 | Grep 으로 literal 매칭 → Read 로 맥락 확인 | `파일:라인` + 매칭된 literal 문자열 인용 |
 | `[structural]` | 섹션/필드/파일 존재 확인 | Glob/Grep 으로 섹션·필드 존재 확인 → Read 로 구조 검증 (필드 타입, 하위 항목 수 등) | `파일:라인` + 섹션 헤더 또는 필드명 |
 | `[goal]` | 목표 달성 여부만 판정, 수단 무관 | Read 로 코드 경로 전체 추적 → 의미 분석 + **다관점 평가** 필수 (기능/엣지/성능/보안 중 최소 2 개) | `파일:라인` + 목표 달성 논증 (왜 이 코드가 목표를 달성하는가) |
@@ -104,7 +105,7 @@ Independent Verification & Validation (IV&V) 원칙:
 > 근거: Phase 2 contract-schema v2. 다수 대상(파일/모듈/키워드)에 적용되는 조건은 `[enumerated]` 또는 `[collective]` 태그를 가진다.
 
 | 모드 | 의미 | evaluator 검증 방식 | PASS 기준 |
-|------|------|---------------------|-----------|
+| ------ | ------ | --------------------- | ----------- |
 | `[enumerated]` | 각 대상을 개별 이름으로 명시 요구 | 계약 조건에서 대상 목록을 먼저 파싱 → 각 대상별로 개별 Grep/Read → 개별 증거 수집 | 모든 대상에 대해 각각 증거 확보 시 PASS. 하나라도 누락되면 FAIL + 누락 대상명 나열 |
 | `[collective]` | 포괄 경로/패턴 하나로 지정 가능 (기본값) | 포괄 경로·패턴 1 건을 Grep/Glob 으로 확인 | 포괄 매칭 1 건 증거로 PASS |
 
@@ -124,7 +125,7 @@ Independent Verification & Validation (IV&V) 원칙:
 ### 3-Level 검증
 
 | Level | 검증 방법 | 도구 | 목적 |
-|-------|----------|------|------|
+| ------- | ---------- | ------ | ------ |
 | L1: 구조 | 파일/디렉토리 존재 확인 | Glob, ls | 산출물이 있는가? |
 | L2: 내용 | 파일 내용에 기대 요소 존재 | Read, Grep | 코드가 작성되었는가? |
 | L3: 의미 | 코드 경로 추적, 행동 검증 | Read + 논리 추적 | 코드가 의도대로 동작하는가? |
@@ -167,7 +168,7 @@ Independent Verification & Validation (IV&V) 원칙:
 CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도를 0.45 향상시켰다 (EMNLP 2025).
 
 > **Recursive Rubric Decomposition (RRD)**: 고수준 루브릭 항목이 여전히 모호하면 한 번 더 서브포인트로 재귀 분해한다 ([arxiv 2602.05125](https://arxiv.org/html/2602.05125v1/)). 예: "로그인 화면이 정상 동작한다" → ① 필드 존재 ② 유효성 검사 ③ 서버 호출 ④ 에러 표시 로 1 차 분해 후, ②를 다시 ②a 빈 입력, ②b 잘못된 이메일 형식, ②c 비밀번호 최소 길이 로 재귀 분해. RRD 는 계약 조건이 `[goal]` 태그인 경우 특히 유용하며, 한 번 분해했는데도 서브체크 1 개가 10+ 라인을 Read 해야 판정 가능하면 재귀 분해 신호다.
-
+>
 > **Chain-of-Thought 효용 한계**: 루브릭이 잘 정의되어 있으면(이 문서의 L3 검증 + 서브체크 분해 적용 시) CoT 가 판정 신뢰도에 주는 이득은 미미하다 ([arxiv 2506.13639](https://arxiv.org/html/2506.13639v1)). 장황한 reasoning 을 작성하지 말고, **증거(파일:라인) + 서브체크 boolean 결과**에 집중한다. CoT 는 계약이 불명확할 때의 임시방편일 뿐, 본 가이드의 우선 전략은 계약을 선명히 쓰고(Phase 2 contract-design-guide) 서브체크로 분해하는 것이다.
 
 **3단계 분해 프로토콜:**
@@ -225,6 +226,7 @@ CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도�
 ```
 
 **판정 기준:**
+
 - 완전 일치 키워드: FAIL (명백한 중복)
 - 부분 포함 관계 키워드: FAIL (사용자 입력에 따라 의도치 않은 스킬이 실행됨)
 - 비슷한 의미의 다른 단어: 문맥 분석 후 판정 (FAIL이 불확실하면 `[medium-confidence]` 태그)
@@ -244,7 +246,7 @@ Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락(DG-02) 조건
 각 조건을 최소 2개 관점에서 평가한다:
 
 | 관점 | 초점 | 예시 질문 |
-|------|------|-----------|
+| ------ | ------ | ----------- |
 | 기능 | 명시된 행동이 구현되었는가? | "버튼 클릭 시 API 호출되는가?" |
 | 엣지 케이스 | 경계 조건에서 올바른가? | "빈 입력, null, 최대 길이에서?" |
 | 성능 | 비효율이나 병목이 있는가? | "N+1 쿼리, 불필요한 리렌더링?" |
@@ -284,7 +286,7 @@ Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락(DG-02) 조건
 각 조건의 PASS/FAIL 판정에 확신도를 부여한다:
 
 | 확신도 | 기준 | 태그 |
-|--------|------|------|
+| -------- | ------ | ------ |
 | 높음 | L3 검증 완료 + 명확한 증거(파일:라인) | — |
 | 중간 | L2까지 검증 + 정황 증거 | `[medium-confidence]` |
 | 낮음 | L1만 검증 또는 정적 분석 한계 | `[low-confidence]` |
@@ -313,7 +315,7 @@ Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락(DG-02) 조건
 qa-evaluator 실행 완료 후 다음 항목을 자가 점검한다:
 
 | 항목 | 점검 내용 |
-|------|-----------|
+| ------ | ----------- |
 | l3_unreached | L3 검증에 도달하지 못한 조건이 있는가? |
 | bias_detected | 편향 징후가 감지되었는가? (너무 관대, 증거 없이 PASS) |
 | evidence_missing | 증거 없이 판정한 조건이 있는가? |
