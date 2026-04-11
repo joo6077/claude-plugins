@@ -1,109 +1,135 @@
 # Sprint Feedback
-Feature: design-kit Phase 6 Kaizen Research Mode (OKLCH + DTCG v1 + WCAG 2.2 + Container Queries + MD3 Expressive)
-Evaluated: 2026-04-11 21:30
+Feature: backend-kit Phase 7 Kaizen Research Mode (Hexagonal/Clean/DDD + OAuth 2.1/DPoP + Outbox + Pact+Testcontainers)
+Evaluated: 2026-04-11 23:00
 Verdict: APPROVE
-Iteration: 1
+Iteration: 2
 
 ## Results
 
-### SK: design-concept SK-06 재발 방지 (3/3)
-- [x] SK-01: Gotcha #3 SK-06 글로벌 피드백 인용 + bash 검증 명령 3개 — PASS
-  - 근거: `design-kit/skills/design-concept/SKILL.md:21` — "재발 방지 — SK-06 (2026-04-10 글로벌 피드백):" 명시; L37 ```bash 코드블록에 grep hex 명령 + 5개 역할 행 확인 + oklch() 0건 확인 명령 (L3)
-- [x] SK-02: Step 4 말미 Gotcha #3 검증 체크리스트 실행 체크포인트 — PASS
-  - 근거: `design-kit/skills/design-concept/SKILL.md:168` — "생성/갱신 직후 반드시 Gotcha #3의 검증 체크리스트 3개를 실행하라." + "이 체크포인트는 SK-06 재발 방지의 핵심이므로 '나중에' 미루지 마라." (L3)
-- [x] SK-03: Bad/Good 예시 `text` 언어 힌트 유지, bare fence 0건 — PASS
-  - 근거: `design-kit/skills/design-concept/SKILL.md:25,30` — Bad/Good 예시 ```text 힌트; validate-plugin V6 "0 bare — OK" (L3)
+### AR: Architecture 카테고리 신설 (6/6)
 
-### DS: design-system OKLCH + DTCG v1 + MD3 Expressive (4/4)
-- [x] DS-01: OKLCH 권장 Gotcha #11 — 필수 문구 4개 요소 + URL 4개 — PASS
-  - 근거: `design-kit/skills/design-system/SKILL.md:26` — Gotcha #11 "컬러 primitive는 OKLCH 권장 (2026 표준)"; Tailwind v4/shadcn v4, Safari 16.4+/Chrome 111+/Firefox 128+, Figma hex 근사치 관행, 4개 출처 URL (L3)
-- [x] DS-02: DTCG v1 스키마 준수 Gotcha #12 — $value/$type/$description + dot notation + 금지사항 + URL — PASS
-  - 근거: `design-kit/skills/design-system/SKILL.md:27` — DTCG v1 stable 2025-10-28 기준 모든 요소 포함; W3C DTCG URL 포함 (L3)
-- [x] DS-03: Step 2에 MD3 Expressive HCT tonal palette + URL — PASS
-  - 근거: `design-kit/skills/design-system/SKILL.md:79` — "참고 — Material 3 Expressive (2025-05 발표, Android 16):" HCT tonal, variable font axes, springy motion; Supercharge + Dezeen URL (L3)
-- [x] DS-04: token-principles.md 섹션 6 "DTCG v1 포맷 (2025-10-28 stable)" + json 코드블록 + URL 3개 — PASS
-  - 근거: `design-kit/skills/design-system/references/token-principles.md:55-104` — 섹션 6 신규 추가, ```json 코드블록 L74, 기존 1~5 섹션 유지 (L3)
+- [x] AR-01: `backend-guide/SKILL.md` Step 1 표에 `architecture` 행 추가 (키워드 8개) — PASS
+  - 근거: `backend-kit/skills/backend-guide/SKILL.md:29` — `| architecture | hexagonal, ports, adapter, clean, DDD, 도메인, bounded context, layered |` (L3)
+- [x] AR-02: `backend-audit/SKILL.md` Step 3 표에 Architecture 카테고리 추가, 총 9개 순서 명시 — PASS
+  - 근거: `backend-kit/skills/backend-audit/SKILL.md:43,47` — Architecture 행 + 순서 주석 (L3)
+- [x] AR-03: `audit-criteria.md` `## 1. Architecture` 섹션 + 4개 기준표 + 출처 URL 3개 — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:6-13` — 도메인-persistence 분리, Port/Adapter 경계, 의존성 inward-only, 과복잡도 경고 (L3)
+- [x] AR-04: `backend-system/SKILL.md` Step 2 표에 `아키텍처 패턴` 필수 행 추가 — PASS
+  - 근거: `backend-kit/skills/backend-system/SKILL.md:36` — Hexagonal/Clean/DDD 선택, 단순 CRUD 간소화 계층형 허용 명시 (L3)
+- [x] AR-05: `system-principles.md` `## 아키텍처 패턴` 섹션 + 3패턴 표 + 도입 기준 + 출처 3개 — PASS
+  - 근거: `backend-kit/skills/backend-system/references/system-principles.md:5-13` — Hexagonal/Clean/DDD 3행 + 도입 기준 + 과복잡도 경고 (L3)
+- [x] AR-06: `principle-index.md` Architecture 행 + TBD 주석 (허용 조건) — PASS
+  - 근거: `backend-kit/skills/backend-guide/references/principle-index.md:9` — TBD + `/backend-research` Phase 예정 주석 명시 (L3)
 
-### AU: design-audit WCAG 2.2 반영 (5/5)
-- [x] AU-01: design-audit/SKILL.md Gotcha #3 WCAG 2.2 SC 2.5.8 24×24 CSS px AA 명시 — PASS
-  - 근거: `design-kit/skills/design-audit/SKILL.md:19-24` — SC 2.5.8 AA=24px, SC 2.5.5 AAA=44px, Apple HIG 44pt 구분, W3C URL 2개 (L3)
-- [x] AU-02: Step 2 Accessibility 행 WCAG 2.2 신규 SC 3개 이상 — PASS
-  - 근거: `design-kit/skills/design-audit/SKILL.md:54` — SC 2.4.11, SC 2.5.7, SC 3.3.8 포함 (L3)
-- [x] AU-03: audit-criteria.md Spacing 터치 타겟 행 WCAG 2.2 SC 2.5.8/2.5.5/Apple HIG 3행으로 갱신 — PASS
-  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:27-29` — 3개 행 분리 + URL 각각 포함 (L3)
-- [x] AU-04: audit-criteria.md WCAG 2.2 신규 SC 섹션 8개 기준 표 — PASS
-  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:41-55` — 8개 SC 기준, PASS 조건 + URL 각각 포함 (L3)
-- [x] AU-05: audit-criteria.md APCA 보조 체크 NOTE 섹션 — PASS
-  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:57-63` — WCAG 2.2 AA가 컴플라이언스 타겟, Lc 60/75 임계값, 3개 URL (L3)
+### AP: API 하이브리드 전략 + OpenAPI 3.1 / AsyncAPI 3 (3/3)
 
-### DR: design-reviewer WCAG 2.2 반영 (2/2)
-- [x] DR-01: Spacing 카테고리에 SC 2.5.8 AA=24px / SC 2.5.5 AAA=44px / Apple HIG 44pt 구분 — PASS
-  - 근거: `design-kit/agents/design-reviewer.md:41` — 계약 요구 형식 정확 충족 (L3)
-- [x] DR-02: Accessibility 카테고리에 Focus Not Obscured SC 2.4.11 AA 체크포인트 — PASS
-  - 근거: `design-kit/agents/design-reviewer.md:48` — "Focus Not Obscured (WCAG 2.2 SC 2.4.11 AA)" (L3)
+- [x] AP-01: `backend-guide/SKILL.md` Gotcha #5 하이브리드 API 전략 + 출처 URL — PASS
+  - 근거: `backend-kit/skills/backend-guide/SKILL.md:19` — REST/GraphQL/gRPC boundary 기준 병용 요지, Java Code Geeks 2026 출처 (L3)
+- [x] AP-02: `audit-criteria.md` API Design 표에 OpenAPI 3.1 + 하이브리드 API 경계 기준 2줄 추가 — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:21-22` — 두 기준 + 출처 각 1개 (L3)
+- [x] AP-03: `audit-criteria.md` Event-Driven 표에 AsyncAPI 3.x 기준 + asyncapi.com 출처 — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:82` (L3)
 
-### RE: Container Queries 반영 (2/2)
-- [x] RE-01: audit-criteria.md Layout & Grid Container Queries 행 + URL 3개 — PASS
-  - 근거: `design-kit/skills/design-audit/references/audit-criteria.md:96` — inline-size 권장, block-size 금지, 2026 Baseline, MDN/web.dev/LogRocket URL (L3)
-- [x] RE-02: design-guide/SKILL.md layout & grid 행에 container query/@container/inline-size/self-aware component 키워드 — PASS
-  - 근거: `design-kit/skills/design-guide/SKILL.md:40` — 4개 키워드 모두 포함 (L3)
+### SE: Security — RFC 9700 / OAuth 2.1 / DPoP / mTLS (4/4)
 
-### GU: 기타 갱신 (3/3)
-- [x] GU-01: design-component/SKILL.md Gotcha #3 DTCG v1 alias dot notation + URL — PASS
-  - 근거: `design-kit/skills/design-component/SKILL.md:19` — "DTCG v1 (2025-10-28 stable) dot notation" + URL (L3)
-- [x] GU-02: design-mockup/SKILL.md Gotcha #3 WCAG 2.2 SC 2.5.8 AA=24px 맥락 추가 — PASS
-  - 근거: `design-kit/skills/design-mockup/SKILL.md:19` — "WCAG 2.2 SC 2.5.8 AA = 24×24 CSS px" + URL (L3)
-- [x] GU-03: design-reference/SKILL.md ZERO change — PASS
-  - 근거: commit 929b3b1 변경 파일 9개에 design-reference/SKILL.md 미포함; ZERO change 허용 (계약 명시) (L2)
+- [x] SE-01: `audit-criteria.md` Auth 섹션에 RFC 9700 BCP 기준 3개 (PKCE 필수, Implicit/ROPC 금지, JWT RFC 9068) — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:41-43` (L3)
+- [x] SE-02: Auth 섹션에 Sender-constrained tokens (DPoP/mTLS) 기준 + Kong DPoP 출처 — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:44` (L3)
+- [x] SE-03: `system-principles.md` 인증/인가 행에 OAuth 2.1 + PKCE + DPoP/mTLS + RFC 9700 출처 — PASS
+  - 근거: `backend-kit/skills/backend-system/references/system-principles.md:21` (L3)
+- [x] SE-04: `backend-guide/SKILL.md` auth 행에 PKCE, DPoP 추가 — PASS
+  - 근거: `backend-kit/skills/backend-guide/SKILL.md:33` — `OAuth 2.1, PKCE, DPoP` 포함 (L3)
 
-### I: 인프라/품질 게이트 (7/8)
-- [x] I-01: design-kit validate-plugin V1~V7 전부 OK — PASS
-  - 근거: `python3 scripts/validate-plugin.py design-kit` → Total: 1 plugins, 1 OK, Exit: 0 (L3)
-- [x] I-02: 전체 7 킷 validate-plugin Total 7 OK, Exit 0 — PASS
-  - 근거: `python3 scripts/validate-plugin.py` → Total: 7 plugins, 7 OK, Exit: 0 (L3)
-- [x] I-03: sync-docs.py --check-only → "모든 README가 동기화 상태" — PASS
-  - 근거: `python scripts/sync-docs.py --check-only` → "모든 README가 동기화 상태입니다." (L3)
-- [x] I-04: bare code fence 0건 — PASS
-  - 근거: validate-plugin V6 "0 bare — OK" (L3)
-- [ ] I-05: markdownlint 주요 규칙 위반 0건 — [미검증]
-  - 근거: markdownlint 미설치 환경. 수동 검토 기준 명백한 MD031/MD032/MD060/MD028/MD034/MD033 위반 없음. markdownlint 설치 후 수동 확인 권장.
-- [x] I-06: git working tree 수정 파일 scope 내 유지 — PASS
-  - 근거: `git diff --name-only HEAD~1 HEAD` → 9개 파일 전부 design-kit/ 내부 (L3)
-- [x] I-07: commit 메시지 prefix `kaizen(phase6-research):` + 한국어 본문 — PASS
-  - 근거: commit hash 929b3b1 — "kaizen(phase6-research): design-kit OKLCH + DTCG v1 + WCAG 2.2 + Container Queries + Material 3 Expressive 2026 반영" (L3)
-- [x] I-08: 브랜치 kaizen/2026-04-11-research 유지, push 금지 — PASS
-  - 근거: `git branch` → "* kaizen/2026-04-11-research" (L2)
+### ED: Event-Driven 2026 실무 패턴 (3/3)
 
-### TR: 출처/트렌드 (3/3)
-- [x] TR-01: 5개 카테고리 URL 각 1개 이상 — PASS
-  - 근거: OKLCH(evilmartians), DTCG(W3C 2025-10-28), WCAG 2.2(w3.org/WAI), MD3 Expressive(supercharge.design), Container Queries(MDN) — 5개 카테고리 충족 (L3)
-- [x] TR-02: SK-06 (2026-04-10) 식별자 참조 — PASS
-  - 근거: `design-kit/skills/design-concept/SKILL.md:21` — "SK-06 (2026-04-10 글로벌 피드백)" (L3)
-- [x] TR-03: 이 리포트에 출처 URL 5개 이상 명시 — PASS
-  - 출처 URL 목록:
-    1. https://tailwindcss.com/blog/tailwindcss-v4 (OKLCH / Tailwind v4)
-    2. https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/ (DTCG v1)
-    3. https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/ (WCAG 2.2 신규 SC)
-    4. https://supercharge.design/blog/material-3-expressive (MD3 Expressive)
-    5. https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries (Container Queries)
-    6. https://evilmartians.com/chronicles/better-dynamic-themes-in-tailwind-with-oklch-color-magic (OKLCH extra)
+- [x] ED-01: `audit-criteria.md` Event-Driven 표에 Outbox relay batch+backpressure 기준 + Azure Cosmos 출처 — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:80` (L3)
+- [x] ED-02: Event-Driven 표에 per-aggregate sequence + PublishedAt/Attempts + exponential backoff + DLQ + Solace 출처 — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:81` (L3)
+- [x] ED-03: `backend-guide/SKILL.md` event-driven 행에 CQRS 추가 — PASS
+  - 근거: `backend-kit/skills/backend-guide/SKILL.md:37` — `outbox, CQRS, saga, DLQ` (L3)
 
-### Anti-patterns (4/4)
-- [x] AP-01: hardcoded.*version 패턴 0건 — PASS
-- [x] AP-02: git push.*--force 패턴 0건 — PASS
-- [x] AP-03: bare code fence 0건 — PASS (V6 OK)
-- [x] AP-04: frontmatter name 필드 누락 0건 — PASS (V1 OK)
+### TE: Testing — Pact + Testcontainers 2026 (2/2)
+
+- [x] TE-01: `audit-criteria.md` Testing 표에 Pact v4+ 컨슈머 드리븐 계약 테스트 기준 + prgrmmng.com 출처 — PASS
+  - 근거: `backend-kit/skills/backend-audit/references/audit-criteria.md:90` (L3)
+- [x] TE-02: `system-principles.md` 테스트 행에 Pact v4 + Testcontainers + prgrmmng.com 출처 — PASS
+  - 근거: `backend-kit/skills/backend-system/references/system-principles.md:30` (L3)
+
+### RV: backend-reviewer 에이전트 갱신 (2/2)
+
+- [x] RV-01: `backend-reviewer.md` audit-criteria.md 유일한 진실원천 문장 유지 + Architecture 카테고리 1번 위치 + 과복잡도 FAIL 사유 명시 — PASS
+  - 근거: `backend-kit/agents/backend-reviewer.md:27,29,39` (L3)
+- [x] RV-02: 출력 포맷 일반 컬럼 유지(카테고리|판정|파일:라인|근거|출처) — Architecture 자연 포함 가능, 추가 변경 불필요 self-audit 명시 — PASS
+  - 근거: `backend-kit/agents/backend-reviewer.md:49-52` (L3)
+
+### QO: 과복잡도 경고 (1/1)
+
+- [x] QO-01: `backend-system/SKILL.md` Gotcha #4에 Hexagonal/Clean/DDD 키워드 + "bounded context 2+" 문장 + 출처 — PASS
+  - 근거: `backend-kit/skills/backend-system/SKILL.md:19` (L3)
+
+### I: 인프라 / 품질 게이트 (8/8)
+
+- [x] I-01: `validate-plugin backend-kit` → V1~V7 전부 OK — PASS
+  - 근거: 실행 결과 `Total: 1 plugins, 1 OK, Exit: 0` (L3)
+- [x] I-02: 전체 7 킷 → Total 7 OK, Exit 0 — PASS
+  - 근거: 실행 결과 `Total: 7 plugins, 7 OK, Exit: 0` (L3)
+- [x] I-03: `sync-docs --check-only` → 모든 README 동기화 상태 — PASS
+  - 근거: 실행 결과 "모든 README가 동기화 상태입니다." (L3)
+- [x] I-04: bare code fence 0건 (V6 code-fence OK) — PASS
+  - 근거: validate-plugin `V6 code-fence  0 bare — OK` (L3)
+- [x] I-05: MD031/MD032/MD060/MD028/MD034/MD033 위반 0건 — PASS [정적]
+  - 근거: 변경 파일에 code block 없음, bare URL 없음, 인라인 HTML 없음 (frontmatter 내 `<target-path>`는 YAML 영역으로 적용 제외). markdownlint 직접 실행 불가 — 정적 검증으로 판정. (L2)
+- [x] I-06: 변경 파일이 Scope(7개 backend-kit 파일) 내에만 존재, Phase 1~6 미수정 — PASS
+  - 근거: `git diff --name-only 20a8415 1896c80` 결과 정확히 7개 backend-kit 파일만 (L3)
+- [x] I-07: commit prefix `kaizen(phase7-research):` + 한국어 본문, hash 1896c80 — PASS
+  - 근거: `git log --oneline -1` 1896c80 확인 (L3)
+- [x] I-08: 브랜치 `kaizen/2026-04-11-research`, push 금지 — PASS
+  - 근거: `git branch` 현재 브랜치 확인 (L3)
+
+### TR: Trace / 출처 / 2026 트렌드 (3/3)
+
+- [x] TR-01: 신규 출처 URL 17개 (최소 6개 충족) — PASS
+  - 근거: grep 결과 17개 고유 URL (Hexagonal/DDD + 하이브리드 API + OpenAPI 3.1 + AsyncAPI 3 + RFC 9700/DPoP + Outbox/CQRS + Pact/Testcontainers 전 카테고리 커버) (L3)
+- [x] TR-02: backend-kit 파일 내 실제 URL 인용 확인 — PASS
+  - 근거: grep -roh 결과 모든 URL이 backend-kit/skills/, backend-kit/agents/ 하위 파일에서 실제 인용 (L3)
+- [x] TR-03: 리포트 내 리서치 출처 URL 목록 (최소 6개) — PASS
+  - 아래 목록 참조
+
+### Anti-patterns (3/3)
+
+- [x] AP-01 (hardcoded version): 해당 없음 — PASS
+- [x] AP-02 (git force push): 해당 없음 — PASS
+- [x] AP-03 (bare code fence): V6 0건 확인 — PASS
+
+## 리서치 출처 URL 목록 (TR-03)
+
+1. [Hexagonal vs Clean vs Onion 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f) — Hexagonal/Clean/DDD
+2. [GraphQL vs REST vs gRPC 2026 — Java Code Geeks](https://www.javacodegeeks.com/2026/02/graphql-vs-rest-vs-grpc-the-2026-api-architecture-decision.html) — 하이브리드 API
+3. [OpenAPI Spec 3.1 — Swagger](https://swagger.io/specification/) — OpenAPI 3.1
+4. [AsyncAPI 3.0 spec](https://www.asyncapi.com/docs/reference/specification/v3.0.0) — AsyncAPI 3
+5. [RFC 9700 OAuth 2.0 BCP](https://datatracker.ietf.org/doc/rfc9700/) — OAuth 2.1 BCP
+6. [Kong DPoP — demonstrating proof of possession](https://konghq.com/blog/engineering/demonstrating-proof-of-possession-dpop-preventing-illegal-access-of-apis) — DPoP
+7. [microservices.io Outbox Pattern](https://microservices.io/patterns/data/transactional-outbox.html) — Outbox
+8. [prgrmmng Pact + Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact) — Pact v4+
+9. [AWS Prescriptive Hexagonal Architecture](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) — Hexagonal
+10. [Vaadin DDD + Hexagonal](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) — DDD
 
 ## Summary
-- Total: 28/29 conditions passed (I-05 미검증 1건)
-- 미검증: 1건 (markdownlint 미설치)
-- Verdict: APPROVE
 
-### 커밋 정보
-- Commit: `929b3b1`
-- Branch: `kaizen/2026-04-11-research`
+- Total: 32/32 conditions passed
+- Verdict: **APPROVE**
+- commit hash: 1896c80
+- 브랜치: kaizen/2026-04-11-research
+- validate-plugin: 7 plugins 7 OK (Exit 0)
+- bare code fence: 0건
+- 리서치 URL 인용: 17개 고유 URL (최소 6개 요건 충족)
 
-### 검증 깊이
-- L3 도달: 26/29 조건
-- L2 도달: 2/29 조건 (GU-03 ZERO change, I-08 push 여부)
-- 미검증: 1/29 조건 (I-05 markdownlint 미설치)
+## 미검증 사항
+
+- I-05: markdownlint 직접 실행 불가 (미설치) — 정적 검증으로 대체 (L2). 새로 추가된 내용은 표(|...|) + 산문 위주로 code block 없음. 위반 가능성 매우 낮음으로 판단.
+
+## 런타임 검증
+
+⚠️ 런타임 검증 미수행 — MCP 서버 미설정 (project.yaml mcp_server: null)
