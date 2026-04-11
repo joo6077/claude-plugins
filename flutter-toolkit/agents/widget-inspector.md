@@ -151,6 +151,7 @@ Total: N extraction candidates
 ```
 
 후보가 0건이면:
+
 ```text
 -- Widget Inspector Report ([quick|deep]) --
 Clean — 추출 후보 없음
