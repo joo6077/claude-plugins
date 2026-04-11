@@ -48,9 +48,15 @@ Phase 번호 매핑:
 EOF
 }
 
-if [[ $# -eq 0 ]] || [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
     usage
     exit 0
+fi
+
+if [[ $# -eq 0 ]]; then
+    echo "ERROR: phase-num 인자가 필요합니다" >&2
+    usage
+    exit 1
 fi
 
 PHASE_NUM="$1"

@@ -132,9 +132,10 @@ if [[ "$RESULT" == "fail" ]] && [[ "$REVERT_FLAG" == "--revert" ]]; then
     if git rev-parse --verify "$TAG" >/dev/null 2>&1; then
         echo
         echo "📝 revert 명령 (수동 실행):"
-        echo "   git reset --hard $TAG"
+        echo "   git revert $TAG..HEAD"
         echo
-        echo "⚠ 이 명령은 자동 실행되지 않습니다. Phase $PHASE_NUM 이후 모든 커밋이 사라집니다."
+        echo "⚠ 이 명령은 자동 실행되지 않습니다. revert 는 히스토리를 보존하며 Phase $PHASE_NUM 이후 커밋들을 되돌리는 새 커밋을 만듭니다."
+        echo "   히스토리 파괴형 reset 이 필요하면 대신: git reset --hard $TAG (주의: 복구 불가)"
     else
         echo "⚠ tag $TAG 없음 — revert 불가" >&2
     fi
