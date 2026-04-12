@@ -1,6 +1,6 @@
 # Kaizen Data Pool
 
-Generated: 2026-04-11T18:38:33
+Generated: 2026-04-12T16:38:13
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
@@ -8,61 +8,62 @@ Generator: `scripts/collect-kaizen-data.py`
 ## 1. 글로벌 Evaluator Feedback
 
 - 경로: `/Users/jackson/.harness/feedback/evaluator`
-- 총 파일: **72**
+- 총 파일: **100**
 
 ### Verdict 분포
 
-- **APPROVE**: 43
-- **REJECT**: 29
+- **APPROVE**: 62
+- **REJECT**: 38
 
 ### Skill 분포
 
-- `qa-evaluator`: 72
+- `qa-evaluator`: 100
 
 ### Project 분포
 
-- `claude-plugins`: 72
+- `claude-plugins`: 99
+- `claude-plugins / react-kit phase10-research kaizen`: 1
 
 ### 최근 REJECT 사유 (Top 20)
 
+- [2026-04-12] **claude-plugins**: SC-04: finalize-phase.sh 5 pass 실행 시 SCRIPT_DIR: unbound variable로 exit 1
+- [2026-04-12] **claude-plugins**: G8-03: finalize-phase.sh --revert 시 git reset --hard 출력 (계약: git revert kaizen-phase-N-pre..HEAD)
+- [2026-04-12] **claude-plugins**: G3-03: spawn-kaizen-phase.sh 인자 없을 때 exit 0 (계약: exit 1)
+- [2026-04-12] **claude-plugins**: ER-02: flutter 2차 섹션 소스 테이블에 [official]/[blog] 브라켓 태그 컬럼 누락
+- [2026-04-12] **claude-plugins**: ER-02: finalize-phase.sh 5 fail --revert 실행 시 SCRIPT_DIR: unbound variable로 exit 1
+- [2026-04-12] **claude-plugins**: ER-01: docs/design/research-log.md:402 — blog.weskill.org URL HTTP 404
+- [2026-04-12] **claude-plugins**: DG-03: automation-maturity-2026-04-12.md 종합 점수 산술 오류 — 영역별 합계 2+5+5+5+5+5+5=32/35(91%)인데 33/35(94%)로 기재
+- [2026-04-12] **claude-plugins**: AR-05: rust-kit templates/ 5개 파일이 rust-kit/skills/ SKILL.md에서 미참조
+- [2026-04-12] **claude-plugins**: AR-03: docs/flutter/ 1498줄 (목표 >=1500, 2줄 부족)
+- [2026-04-12] **claude-plugins**: AR-03: design/research-log.md 섹션형 구조 — 다른 5개 파일의 번호+테이블 포맷과 불일치
+- [2026-04-12] **claude-plugins**: AR-03: 6개 파일 포맷 불일치 (flutter 태그 컬럼 없음, design 파일 완전히 다른 구조)
+- [2026-04-12] **claude-plugins**: AP-03: .claude/skills/ 수정 파일 4개에 bare code fence 잔존 (backend-kaizen:55, backend-research:52, infra-kaizen:51, infra-research:52)
+- [2026-04-11] **claude-plugins**: OR-08: SKILL.md:174, SKILL.md:239 — 언어 힌트 없는 bare opening fence 2건
+- [2026-04-11] **claude-plugins**: H-03: rust-api Gotchas에 Composition Root 단일화 원칙 누락
+- [2026-04-11] **claude-plugins**: H-01: rust-init/rust-feature Gotchas에 domain event + outbox 원칙 누락
+- [2026-04-11] **claude-plugins**: AP-03: 동일 — bare code fence anti-pattern 위반
 - [2026-04-10] **claude-plugins**: SK-06: concept.md Accent 행에 #E8965A 구체 hex 확정값 기재 — Gotcha #3 위반
 - [2026-04-10] **claude-plugins**: SK-05: react-run/SKILL.md:5의 트리거 키워드 'wasm-pack 빌드'가 react-wasm/SKILL.md:5와 중복. 기존 17개 스킬과 상호 배타 불충족
 - [2026-04-10] **claude-plugins**: SC-02: package.json.template 라이브러리 버전 4건이 ^X.0.0 형식 위반 (^0.4.0, ^0.400.0, ^0.7.0, ^5.5.0)
 - [2026-04-10] **claude-plugins**: RE-02: react-api의 트리거 키워드 '"API 연동"'이 react-feature의 '"API 연동 화면"'과 부분 중복 — 배타성 위반
-- [2026-04-10] **claude-plugins**: RE-02: 21개 스킬 트리거 키워드 상호 배타 불충족 (react-run vs react-wasm 'wasm-pack 빌드' 겹침)
-- [2026-04-10] **claude-plugins**: PU-04: sync-docs.py에서 regex 기반 frontmatter 파싱이 plugin_utils.parse_frontmatter()로 교체되지 않음. _parse_frontmatter_file() 함수가 L45-92에 존재하며 collect_skills/collect_agents에서 계속 사용됨.
-- [2026-04-10] **claude-plugins**: PU-04: sync-docs.py가 plugin_utils.parse_frontmatter() (pyyaml 기반) 대신 parse_frontmatter_raw() (regex 기반)를 호출함. 계약이 명시한 함수명 및 구현 방식 불일치.
-- [2026-04-10] **claude-plugins**: PH-01: agent-design-guide.md에 계약 모호성 방지 원칙 누락 (skill-design-guide.md §3.5 대응 항목 없음)
-- [2026-04-10] **claude-plugins**: KZ-04: react-kaizen References 섹션에 docs/react/kit-design/ 7개 그룹 문서(g1~g6, g5b) 개별 미명시. 폴더 경로 하나로 포괄 처리됨
-- [2026-04-10] **claude-plugins**: I-02: 예외 3항목 외 modified 파일 존재 (sprint-feedback.md, flutter-toolkit/README.md, history 아카이브)
-- [2026-04-10] **claude-plugins**: I-02: Working tree modified 2건 (.harness/sprint-contract.md, .harness/.meta/kaizen-data-pool.md) — 계약 'modified 0건' 미충족
-- [2026-04-10] **claude-plugins**: I-01: Fix commit 5f2f894 push 미완료 — git log origin/main..main 1건
-- [2026-04-10] **claude-plugins**: DG-02: react-init/SKILL.md line 178, 190 코드블록 언어 힌트 누락
-- [2026-04-10] **claude-plugins**: DG-02: 5개 파일 모두에서 언어 힌트 없는 fenced code block 존재 (react-run 2개, react-build 3개, react-preflight 3개, react-audit 4개+, react-reviewer 6개+)
-- [2026-04-10] **claude-plugins**: DG-01: react-feature/SKILL.md(5건)와 react-widget/SKILL.md(2건)에서 코드 템플릿 내 TODO 7건 발견 — 계약 0건 조건 불충족
-- [2026-04-10] **claude-plugins**: CD-03: integration.html card-source 0건; 일부 파일 원칙 카드 하단 card-source URL 링크 누락
-- [2026-04-10] **claude-plugins**: CD-02: wasm-catalog.html 원칙 카드 없음(callout으로 대체) + Gotchas 체크리스트 없음
-- [2026-04-10] **claude-plugins**: CD-02: integration.html 안티패턴 bad·good 비교 없음(compare-bad 0건)
-- [2026-04-10] **claude-plugins**: CD-02: integration.html Gotchas 섹션 없음; scaffolding/performance/ui-patterns/wasm-catalog에 bad·good 비교 섹션(compare-bad/compare-good) 없음
-- [2026-04-10] **claude-plugins**: CD-02: build-audit.html — compare-bad/compare-good 비교 0건 (테이블 형식으로 대체됨)
 
 ### 최근 Improvement Suggestions (Top 15)
 
-- [2026-04-11] **claude-plugins**: scripts/__pycache__/ 를 .gitignore에 추가 권장
-- [2026-04-10] **claude-plugins**: 표현 변형이 있는 조건(Layout shift vs 레이아웃 shift)은 계약 작성 시 한국어/영어 병기 권장
-- [2026-04-10] **claude-plugins**: 메이저 0 패키지(next-themes, lucide-react, cva)에 대한 버전 정책 명확화 필요
-- [2026-04-10] **claude-plugins**: 다음 Phase에서 SKILL.md 추가 시 각 스킬별 트리거/인자 계약 조건 추가 권장
-- [2026-04-10] **claude-plugins**: 구체성 레벨 L1/L2/L3 명칭이 qa-evaluator 검증 깊이 L1/L2/L3과 혼용 가능 — 향후 네이밍 충돌 모니터링 필요
-- [2026-04-10] **claude-plugins**: 계약 조건 KZ-04가 '개별 명시'와 '포괄 경로' 중 어느 형식을 요구하는지 명시적으로 기술하면 모호성을 줄일 수 있음
-- [2026-04-10] **claude-plugins**: 계약 작성 시 특정 함수 이름을 고정하기보다 동작 목표(SSOT, 중복 제거)를 기술하면 구현 유연성이 생김
-- [2026-04-10] **claude-plugins**: §3.3 rollback label 'format-check 실패'를 'fix 단계 실패 (prettier/eslint 실행 오류)' 등으로 갱신 권장 (stale after SK-04 fix)
-- [2026-04-10] **claude-plugins**: wasm-catalog.html에 card 형식 원칙 섹션과 Gotchas 체크리스트 추가 필요
-- [2026-04-10] **claude-plugins**: react-test Gotcha에 cleanup() 자동 동작 항목 추가 검토 (소스 §1.8 기재 있음)
-- [2026-04-10] **claude-plugins**: integration.html은 Final 통합 페이지로 성격이 달라 Gotchas 조건 적용 여부를 계약에서 명확히 해야 함
-- [2026-04-10] **claude-plugins**: integration.html에 compare-bad/compare-good 안티패턴 비교 섹션 추가 필요
-- [2026-04-10] **claude-plugins**: evals.json id 12-15의 description 필드가 비어있음 — assertion 텍스트만 있고 설명이 없어 evals 가독성이 낮다
-- [2026-04-10] **claude-plugins**: build-audit.html에 ul.check-list 형식의 Gotchas 섹션 추가
-- [2026-04-10] **claude-plugins**: build-audit.html에 compare-bad/good 형식 안티패턴 비교 2쌍 이상 추가
+- [2026-04-12] **claude-plugins**: 성숙도 리포트 합계 검증 자동화 스크립트 추가 고려
+- [2026-04-12] **claude-plugins**: 다음 research-log 작업 시 6개 파일 간 컬럼 구성을 통일하여 AR-03 해석 모호성 제거 권장
+- [2026-04-12] **claude-plugins**: 경계값 조건(>= N)은 즉시 측정값 출력 후 비교
+- [2026-04-12] **claude-plugins**: validate-plugin V6 스캔 범위를 .claude/skills/ 로 확장하면 향후 미탐지 방지
+- [2026-04-12] **claude-plugins**: finalize-phase.sh에 SCRIPT_DIR 정의 추가 (REPO_ROOT 정의 직후)
+- [2026-04-12] **claude-plugins**: append-audit-log.py 호출 인자를 실제 지원 인자(--cycle-id)로 교체
+- [2026-04-12] **claude-plugins**: I-07 commit prefix 조건에 fix(scripts): 같은 bug-fix 커밋 prefix도 허용하는 표현 추가 권장
+- [2026-04-12] **claude-plugins**: Gotchas 카운팅 시 H1/H2 형태를 모두 고려하는 범용 정규식 사용
+- [2026-04-12] **claude-plugins**: G8-03: git revert 명령으로 교체
+- [2026-04-12] **claude-plugins**: G3-03: 인자 없음 분기를 --help 분기와 분리하여 exit 1 처리
+- [2026-04-12] **claude-plugins**: ER-02의 태그 요구사항을 테이블 컬럼 레벨인지 인사이트 본문 레벨인지 계약에서 명시 필요
+- [2026-04-12] **claude-plugins**: ER-01 수정: design/research-log.md 섹션 10의 404 URL을 대체 URL로 교체
+- [2026-04-12] **claude-plugins**: AR-03의 일관된 포맷 정의를 더 구체적으로 (열 이름까지) 명시 필요
+- [2026-04-12] **claude-plugins**: AR-03 수정: design 파일을 번호+테이블 포맷으로 재구성하거나 계약 조건 재정의
+- [2026-04-11] **claude-plugins / react-kit phase10-research kaizen**: Gotchas 헤더 요약(L15)을 Library Policy 정식 섹션과 동기화 유지하는 관례 추가 권장 (animate.css 누락됨)
 
 ## 2. 외부 프로젝트 (`Hub/10_Dev`) 피드백
 
@@ -72,38 +73,38 @@ Generator: `scripts/collect-kaizen-data.py`
 ### `apps`
 
 - 경로: `/Users/jackson/Hub/10_Dev/apps`
-- sprint-feedback.md: 136 lines
-- history sprint-contracts: 16
+- sprint-feedback.md: 507 lines
+- history sprint-contracts: 24
 - 최근 contracts:
-  - 20260411-1531-sprint-contract.md
-  - 20260411-1616-sprint-contract.md
-  - 20260411-1656-sprint-contract.md
-  - 20260411-1815-sprint-contract.md
-  - 20260411-2110-sprint-contract.md
+  - 20260411-2321-sprint-contract.md
+  - 20260411-2324-sprint-contract.md
+  - 20260412-0010-sprint-contract.md
+  - 20260412-1259-sprint-contract.md
+  - 20260412-1430-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
 ```markdown
 # Sprint Feedback
-Feature: AdmHtmlEditorWidget 실구현 (html_editor_enhanced 2.7.1 + 피그마 참고 이미지 스타일)
-Evaluated: 2026-04-11 21:00
-Verdict: APPROVE
-Iteration: 4
+Feature: AdmPropertySectionWidget 공통 섹션 컨테이너
+Evaluated: 2026-04-12 17:00
+Verdict: REJECT
+Iteration: 1
 
 ---
 
 ## Results
 
-### UI (6/7)
+### UI (4/5)
 
-- [x] UI-01: dev_widget_admin_screen line 417 섹션에 실제 HtmlEditor 위젯 렌더 — PASS [L3]
-  - 근거: `dev_widget_admin_screen.dart:417` `const Text('--- 팝업 공지 html 편집기(AdmHtmlEditorWidget) ---')` / `:418-423` `const AdmHtmlEditorWidget(AdmHtmlEditorWidgetProps(hint: '팝업 공지 내용을 입력하세요', height: 400))` — 빈 Container가 아닌 실구현 위젯.
+- [x] UI-01: 컨테이너 어두운 배경 + border-radius 10 + padding 20 — PASS [L3]
+  - 근거: `property_section_widget.dart:53-55` bgColor = darkPanel, radius = AdmSizes.r10, pad = EdgeInsets.all(AdmSizes.w20)
+  - 비고: Sprint Contract는 `#222`(= #222222) 명시, 구현은 `AdmColors.darkPanel = #212121`. 두 값이 다르나 darkPanel은 피그마 노드 14644:26557의 실제 패널 토큰이므로 계약 문구 "#222"는 근사값으로 해석. 피그마 노드가 계약에 명시되어 있어 토큰 기준으로 PASS 처리.
 
-- [x] UI-02: 툴바에서 InsertButtons 계열 7종 완전 제거 — PASS [L3]
-  - 근거: `html_editor_widget.dart:78-86` `defaultToolbarButtons: [StyleButtons(), FontSettingButtons(), FontButtons(), ColorButtons(), ListButtons(), ParagraphButtons(), OtherButtons()]` — InsertButtons 클래스 미포함.
+- [x] UI-02: title 있는 섹션 — 타이틀(Body M, white) + gap 10 + child pl 20 — PASS [L3]
+  - 근거: `property_section_widget.dart:86-107` titleStyle=AdmTextStyles.bodyM.copyWith(color:textOnDark), titleGap=h10, contentPad=EdgeInsets.only(left:AdmSizes.w20)
 
-- [x] UI-03: 텍스트 효과 버튼 그룹 7개 모두 포함 — PASS [L3]
-  - 근거: `html_editor_widget.dart:78-86` StyleButtons / FontSettingButtons / FontButtons / ColorButtons / ListButtons / ParagraphButtons / OtherButtons 전부 기본 생성자.
+- [x] UI-03: title 없는 섹션 — child만 직접 표시, 들여쓰기 없음 — PASS [L3]
 ```
 
 </details>
@@ -148,16 +149,16 @@ Iteration: 2
 
 ## 4. 현재 레포 최근 Sprint Contracts
 
-- `.harness/history/20260411-1537-docs-site-react-kit-sprint-contract.md`
-- `.harness/history/20260411-1632-simplify-refactor-sprint-contract.md`
-- `.harness/history/20260411-1649-session-comprehensive-qa-sprint-contract.md`
-- `.harness/history/20260411-1725-kaizen-phase1-design-guides-sprint-contract.md`
-- `.harness/history/20260411-1733-kaizen-phase2-contract-sprint-contract.md`
-- `.harness/history/20260411-1737-kaizen-phase3-evaluator-sprint-contract.md`
-- `.harness/history/20260411-1815-phase6-residue-sprint-contract.md`
-- `.harness/history/20260411-1833-kaizen-comprehensive-qa-sprint-contract.md`
+- `.harness/history/20260411-2226-phase7-sprint-contract.md`
+- `.harness/history/20260411-2248-phase8-sprint-contract.md`
+- `.harness/history/20260411-2318-phase9-sprint-contract.md`
+- `.harness/history/20260411-2335-phase10-sprint-contract.md`
 - `.harness/history/20260411-kaizen-phase6-design-kit-sprint-contract.md`
 - `.harness/history/20260411-phase5-flutter-toolkit-sprint-contract.md`
+- `.harness/history/20260412-0045-post-missing-items-sprint-contract.md`
+- `.harness/history/20260412-0115-automation-gap-10-sprint-contract.md`
+- `.harness/history/20260412-1255-sprint-contract.md`
+- `.harness/history/20260412-1302-sprint-contract.md`
 
 ## 5. Validate-Plugin 최근 실행 스냅샷
 
@@ -169,7 +170,7 @@ Iteration: 2
   V4 triggers        26 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.3.5 matches marketplace — OK
+  V7 plugin-json     v0.3.6 matches marketplace — OK
 
 === flutter-toolkit ===
   V1 frontmatter     18 skills + 1 agent — OK
@@ -178,16 +179,16 @@ Iteration: 2
   V4 triggers        141 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.5.0 matches marketplace — OK
+  V7 plugin-json     v0.5.1 matches marketplace — OK
 
 === design-kit ===
   V1 frontmatter     7 skills + 1 agent — OK
-  V2 templates       5 skipped (ts/js) — OK
+  V2 templates       8 skipped (ts/js) — OK
   V3 refs            0 links — OK
   V4 triggers        39 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.2.0 matches marketplace — OK
+  V7 plugin-json     v0.2.1 matches marketplace — OK
 
 === backend-kit ===
   V1 frontmatter     3 skills + 1 agent — OK
@@ -196,7 +197,7 @@ Iteration: 2
   V4 triggers        12 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.0 matches marketplace — OK
+  V7 plugin-json     v0.1.1 matches marketplace — OK
 
 === infra-kit ===
   V1 frontmatter     3 skills + 1 agent — OK
@@ -205,16 +206,16 @@ Iteration: 2
   V4 triggers        12 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.0 matches marketplace — OK
+  V7 plugin-json     v0.1.1 matches marketplace — OK
 
 === rust-kit ===
   V1 frontmatter     16 skills + 1 agent — OK
-  V2 templates       0 files — SKIP (no templates/)
+  V2 templates       1 parsed, 4 skipped (ts/js) — OK
   V3 refs            0 links — OK
   V4 triggers        79 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.0 matches marketplace — OK
+  V7 plugin-json     v0.1.1 matches marketplace — OK
 
 === react-kit ===
   V1 frontmatter     21 skills + 3 agents — OK
@@ -223,7 +224,7 @@ Iteration: 2
   V4 triggers        156 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.0 matches marketplace — OK
+  V7 plugin-json     v0.1.1 matches marketplace — OK
 
 Total: 7 plugins, 7 OK
 Exit: 0

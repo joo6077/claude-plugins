@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
   --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
-  --accent:#0ea5e9;--accent2:#14b8a6;--accent-dim:rgba(14,165,233,0.12);
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
@@ -18,8 +18,8 @@ html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
   background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-  background-image:radial-gradient(ellipse at 20% 0%,rgba(14,165,233,0.07) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.04) 0%,transparent 50%);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.04) 0%,transparent 50%);
   -webkit-font-smoothing:antialiased;
 }
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
@@ -29,12 +29,12 @@ body{
 
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
-.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(217,119,87,0.5)}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
 
 .hero{padding:72px 0 56px;text-align:center}
 .hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
-  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  background:linear-gradient(135deg,var(--text) 0%,var(--accent) 55%,var(--accent2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
 .hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
 .hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
@@ -47,7 +47,7 @@ body{
 .section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative}
-.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
 .card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.7}
@@ -92,7 +92,7 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 .level-badge{display:inline-block;padding:4px 10px;border-radius:6px;font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:0.04em}
 .level-l1{background:rgba(74,222,128,0.15);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
 .level-l2{background:rgba(251,191,36,0.15);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)}
-.level-l3{background:rgba(14,165,233,0.15);color:var(--accent);border:1px solid rgba(14,165,233,0.3)}
+.level-l3{background:rgba(217,119,87,0.15);color:var(--accent);border:1px solid rgba(217,119,87,0.3)}
 
 .footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
 .footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
@@ -112,16 +112,16 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · QA Evaluation Guide</div>
-  <span class="badge">Phase 3 · 2026-04-11</span>
+  <span class="badge">Phase 3 · 2026-04-12</span>
 </div>
 
 <div class="hero">
   <h1>QA 평가 가이드</h1>
-  <p class="subtitle"><code>qa-evaluator</code> 가 참조하는 평가 방법론. Phase 3 카이젠은 LLM-as-judge 2026 최신 연구 (Swap Test, Self-preference, Recursive Rubric Decomposition, CheckEval boolean 분해) 와 Phase 2 contract-schema v2 의 specificity tag / aggregation mode 소비 규칙을 추가했다.</p>
+  <p class="subtitle"><code>qa-evaluator</code> 가 참조하는 평가 방법론. Phase 3 카이젠은 LLM-as-judge 2026 최신 연구 (Swap Test, Self-preference, Recursive Rubric Decomposition, CheckEval boolean 분해), Phase 2 contract-schema v2 의 specificity tag / aggregation mode 소비 규칙, 그리고 수량/경계값 조건 검증 프로토콜 (측정 → 비교 → 보고 3단계, 카운팅 패턴 주의사항) 을 추가했다.</p>
   <div class="meta">
     <span>Phase 3 Kaizen</span>
     <span>schema v2 소비</span>
-    <span>최근 갱신 2026-04-11</span>
+    <span>최근 갱신 2026-04-12</span>
     <span>출처 13건</span>
   </div>
 </div>
@@ -146,7 +146,34 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
   </div>
 </div>
 
-<!-- SECTION 2: BIAS MITIGATION -->
+<!-- SECTION 2: TERMINOLOGY — L1/L2/L3 DISAMBIGUATION -->
+<div class="section">
+  <div class="section-label">Terminology</div>
+  <div class="section-title">L1/L2/L3 기호 충돌 주의 — Evaluator 검증 깊이 vs 계약 구체성 레벨</div>
+  <p class="section-desc">이 가이드의 <strong>L1/L2/L3</strong> 는 evaluator 검증 깊이를 의미한다. sprint-contract 계약서의 <code>[L1]/[L2]/[L3]</code> 태그는 조건 구체성 레벨로, 동일 기호지만 의미가 다르다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>체계</th><th>기호</th><th>의미</th><th>위치</th></tr></thead>
+      <tbody>
+        <tr><td>Evaluator 검증 깊이 (이 가이드)</td><td><span class="level-badge level-l1">L1</span></td><td>파일/디렉토리 존재 확인</td><td>qa-evaluation-guide, qa-evaluator</td></tr>
+        <tr><td>Evaluator 검증 깊이 (이 가이드)</td><td><span class="level-badge level-l2">L2</span></td><td>파일 내용에 기대 요소 존재 확인</td><td>qa-evaluation-guide, qa-evaluator</td></tr>
+        <tr><td>Evaluator 검증 깊이 (이 가이드)</td><td><span class="level-badge level-l3">L3</span></td><td>코드 경로 추적, 의미·의도 검증</td><td>qa-evaluation-guide, qa-evaluator</td></tr>
+        <tr><td>계약 구체성 레벨 (contract-design-guide)</td><td><code>[L1]</code> / <code>[exact]</code></td><td>특정 이름·값을 문자 그대로 매칭</td><td>sprint-contract 조건 끝 태그</td></tr>
+        <tr><td>계약 구체성 레벨 (contract-design-guide)</td><td><code>[L2]</code> / <code>[structural]</code></td><td>섹션·필드 존재 여부 확인</td><td>sprint-contract 조건 끝 태그</td></tr>
+        <tr><td>계약 구체성 레벨 (contract-design-guide)</td><td><code>[L3]</code> / <code>[goal]</code></td><td>목표 달성 여부만 판정 (수단 무관)</td><td>sprint-contract 조건 끝 태그</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ul class="checklist">
+    <li><span class="check">!</span> 계약서의 <code>[L1]</code> 태그를 보고 "존재 확인(Glob)만 하면 된다"고 해석하지 않는다. 계약의 <code>[L1]</code> 은 exact 이름 매칭 요구이지 evaluator 의 검증 깊이 L1 과 무관하다.</li>
+    <li><span class="check">!</span> evaluator 검증 깊이 L1~L3 는 계약 조건의 구체성 레벨과 무관하게 <strong>항상 L3 까지 도달</strong>해야 한다.</li>
+    <li><span class="check">!</span> Phase 2 (2026-04) 이후 권장 표기: contract-schema v2 부터 계약 조건은 숫자 레벨 대신 문자 태그 <code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code> 을 사용한다.</li>
+  </ul>
+</div>
+
+<!-- SECTION 3: BIAS MITIGATION -->
 <div class="section">
   <div class="section-label">Bias Mitigation</div>
   <div class="section-title">LLM-as-Judge 편향 7종 + 완화 전략</div>
@@ -174,7 +201,7 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
   </div>
 </div>
 
-<!-- SECTION 3: SWAP TEST -->
+<!-- SECTION 4: SWAP TEST -->
 <div class="section">
   <div class="section-label">Swap Test</div>
   <div class="section-title">Position Bias 검출 — (A,B) 와 (B,A) 양방향 평가</div>
@@ -211,7 +238,7 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
   </div>
 </div>
 
-<!-- SECTION 4: 3-LEVEL VERIFICATION -->
+<!-- SECTION 5: 3-LEVEL VERIFICATION -->
 <div class="section">
   <div class="section-label">3-Level Verification</div>
   <div class="section-title">L1 / L2 / L3 — 모든 조건은 L3까지 도달</div>
@@ -237,9 +264,16 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
     <p>단순 Grep 매칭은 L2 에서 멈추는 함정이다. L3 도달을 위해: <strong>(1) Grep 존재 확인</strong> → <strong>(2) Read 전체 내용 확인 → 의미 추적</strong> (호출 흐름, 조건 분기, 반환 경로). audit-report.md, design-tokens.md 같은 산출 문서는 Grep 으로 존재만 확인하지 말고 Read 로 내용까지 확인해야 L3 커버리지 충족.</p>
     <a class="card-source" href="https://arxiv.org/abs/2601.05542">3-tier Code Review Model</a>
   </div>
+
+  <div class="card" style="margin-top:18px;border-left:3px solid var(--yellow)">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>전수 검사 조건 L3 절차</div>
+    <p>"모든 HTML 파일에 card 섹션이 있다" 나 "모든 SKILL.md 의 fenced code block 에 언어 힌트가 있다" 같은 <strong>전수 검사 조건</strong>은 샘플 1~2 건만 확인하면 L2 에서 멈추는 함정에 빠진다.</p>
+    <p style="margin-top:10px"><strong>(1)</strong> Glob 으로 대상 파일 목록 수집 → <strong>(2)</strong> 각 파일을 Read 또는 Grep (위반 패턴 파일별 카운트) → <strong>(3)</strong> FAIL 파일명:라인 전체 나열 (샘플 기재 금지) → <strong>(4)</strong> "N 개 파일 중 M 개 위반" 전체 카운트 보고</p>
+    <p style="margin-top:10px;font-size:12px;color:var(--text3)">실패 사례: DG-02 REJECT (2026-04-10) — 5 개 파일에서 언어 힌트 누락. evaluator 가 1 개 파일만 샘플 확인하고 PASS 처리. 전수 검사로 전환 시 FAIL 로 재판정.</p>
+  </div>
 </div>
 
-<!-- SECTION 5: SPECIFICITY TAG CONSUMPTION -->
+<!-- SECTION 6: SPECIFICITY TAG CONSUMPTION -->
 <div class="section">
   <div class="section-label">Specificity Tag</div>
   <div class="section-title">contract-schema v2 태그 소비 규칙</div>
@@ -268,14 +302,17 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
     </table>
   </div>
 
-  <code class="code-block">조건: LO-01 [goal]: 로그인 실패 시 사용자에게 실패 원인이 전달된다
+  <code class="code-block">조건: CG-01 [exact]: "조건 구체성 레벨" 표에서 컬럼 이름이 [exact]/[structural]/[goal] 로 교체됨
+→ evaluator: Grep 으로 [exact], [structural], [goal] literal 매칭 확인 후
+   Read 로 맥락 (표 헤더인가? 예시 코드인가?) 까지 검증.
 
+조건: LO-01 [goal]: 로그인 실패 시 사용자에게 실패 원인이 전달된다
 → evaluator: 로그인 실패 코드 경로 (datasource → repository → provider → UI)
    를 Read 로 추적하고, UI 에서 실제로 사용자에게 전달되는지 렌더 로직까지 확인.
    RRD 적용: ① 실패 감지 ② 원인 분류 ③ 메시지 생성 ④ UI 전달 로 분해.</code>
 </div>
 
-<!-- SECTION 6: AGGREGATION MODE CONSUMPTION -->
+<!-- SECTION 7: AGGREGATION MODE CONSUMPTION -->
 <div class="section">
   <div class="section-label">Aggregation Mode</div>
   <div class="section-title">enumerated vs collective — 평가자 검증 분기</div>
@@ -299,13 +336,19 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
     </table>
   </div>
 
-  <div class="card" style="margin-top:18px;border-left:3px solid var(--yellow)">
-    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>실패 사례 — KZ-04 REJECT</div>
-    <p><code>react-kaizen</code> References 섹션에 <code>docs/react/kit-design/</code> 7 개 그룹 문서 (g1~g6, g5b) 개별 미명시. 계약이 <code>[enumerated]</code> 요구였는데 포괄 경로로 처리되어 REJECT. Phase 2 에서 contract-design-guide 가 모드 명시를 강제했고, evaluator 는 태그에 따라 검증 방식을 분기한다.</p>
+  <div class="grid-2">
+    <div class="card" style="border-left:3px solid var(--yellow)">
+      <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>실패 사례 — KZ-04 REJECT</div>
+      <p><code>react-kaizen</code> References 섹션에 <code>docs/react/kit-design/</code> 7 개 그룹 문서 (g1~g6, g5b) 개별 미명시. 계약이 <code>[enumerated]</code> 요구였는데 포괄 경로로 처리되어 REJECT. Phase 2 에서 contract-design-guide 가 모드 명시를 강제했고, evaluator 는 태그에 따라 검증 방식을 분기한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>태그 조합 예시</div>
+      <p><code>[exact, enumerated]</code> — 이름 목록을 개별 literal 매칭 (가장 엄격). <code>[structural, enumerated]</code> — 섹션/필드 목록을 개별 구조 검증. <code>[structural, collective]</code> — 포괄 경로 1 건 구조 검증 (기본값). <code>[goal, collective]</code> — 포괄 패턴 하나가 목표 달성에 기여하는지 의미 검증.</p>
+    </div>
   </div>
 </div>
 
-<!-- SECTION 7: RUBRIC DECOMPOSITION (RRD + CheckEval) -->
+<!-- SECTION 8: RUBRIC DECOMPOSITION (RRD + CheckEval) -->
 <div class="section">
   <div class="section-label">Rubric Decomposition</div>
   <div class="section-title">CheckEval boolean 분해 + Recursive Rubric Decomposition</div>
@@ -341,7 +384,176 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
   </div>
 </div>
 
-<!-- SECTION 8: SELF-DIAGNOSIS CHECKLIST -->
+<!-- SECTION 9: QUANTITATIVE VERIFICATION (NEW) -->
+<div class="section">
+  <div class="section-label">Quantitative Verification</div>
+  <div class="section-title">수량/경계값 조건 검증 — 측정 → 비교 → 보고</div>
+  <p class="section-desc">수량이나 경계값이 포함된 조건 (<code>&gt;= N줄</code>, <code>&lt;= M개</code>, <code>정확히 K건</code>) 은 측정 → 비교 → 보고 3단계를 반드시 수행한다. "대략 맞는 것 같다"는 L2 에서 멈추는 함정이다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="level-badge level-l1">1</span> 측정</div>
+      <p>조건의 대상을 실제로 카운트한다. 파일 줄 수는 <code>wc -l</code>, 항목 수는 Grep 카운트, 파일 수는 Glob 결과 카운트 등.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="level-badge level-l2">2</span> 즉시 출력</div>
+      <p>측정값을 Sprint Feedback 근거에 명시한다. 예: <code>측정값: 1498줄 (기준: &gt;= 1500)</code></p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="level-badge level-l3">3</span> 비교 판정</div>
+      <p>측정값과 기준값을 비교하여 PASS/FAIL 판정. <strong>경계값 미달은 무조건 FAIL</strong> (1498 &gt;= 1500 → FAIL).</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;border-left:3px solid var(--yellow)">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>카운팅 패턴 주의사항</div>
+    <p>항목을 카운트할 때 Grep 패턴이 대상의 <strong>모든 변형을 포함</strong>하는지 확인한다:</p>
+    <p style="margin-top:8px">Markdown 헤더: <code>##</code> 뿐 아니라 <code>###</code>, <code>####</code> 등 하위 레벨도 고려. 번호 매기기: <code>1.</code> 형식과 <code>- </code> 불릿 형식 모두 고려. Gotchas 항목 카운트: H2 하위의 H3 또는 불릿 형태 모두 매칭하는 범용 정규식 사용.</p>
+  </div>
+
+  <div class="compare" style="margin-top:18px">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — "거의 맞으니 PASS"</div>
+      <code class="code-block">조건: docs/flutter/ >= 1500줄
+측정값: 1498줄
+판정: PASS (거의 1500줄이니까)
+→ 경계값 무시</code>
+      <p>경계값 미달을 "거의 충족"으로 PASS 처리하면 안 된다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 정확한 측정 + 비교</div>
+      <code class="code-block">조건: docs/flutter/ >= 1500줄
+측정: wc -l → 1498줄
+비교: 1498 >= 1500 → false
+판정: FAIL (2줄 부족)
+→ 근거에 측정값 명시</code>
+      <p>측정값과 기준값을 수치로 비교. 2줄 부족도 FAIL.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="card-title"><span class="dot"></span>실제 사례 — AR-03 REJECT (2026-04-12)</div>
+    <p><code>docs/flutter/</code> 파일 총 줄 수가 1498줄로 기준 1500줄에 2줄 부족. 경계값 미달을 "거의 충족"으로 PASS 처리하지 않고 FAIL로 정확히 판정한 사례.</p>
+  </div>
+</div>
+
+<!-- SECTION 10: SKILL TRIGGER KEYWORD EXCLUSIVITY -->
+<div class="section">
+  <div class="section-label">Set Intersection</div>
+  <div class="section-title">스킬 트리거 키워드 배타성 검증</div>
+  <p class="section-desc">스킬 간 트리거 키워드 중복은 Claude 가 잘못된 스킬을 실행하는 직접 원인이다. 키워드 배타성 조건이 계약에 포함된 경우 아래 절차를 따른다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>검증 절차 4단계</div>
+      <p><strong>(1)</strong> 대상 SKILL.md 의 description frontmatter 에서 트리거 키워드 목록을 Grep 으로 추출. <strong>(2)</strong> 같은 플러그인 내 모든 SKILL.md 파일 목록을 Glob 으로 수집. <strong>(3)</strong> 각 SKILL.md 의 description 을 Read 하여 키워드를 추출하고 대상 스킬의 키워드와 교차 비교. <strong>(4)</strong> 완전 일치뿐 아니라 <strong>부분 문자열 포함 관계</strong>도 배타성 위반으로 판정.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>판정 기준</div>
+      <p><strong>완전 일치</strong>: FAIL (명백한 중복). <strong>부분 포함 관계</strong>: FAIL (의도치 않은 스킬 실행). <strong>비슷한 의미의 다른 단어</strong>: 문맥 분석 후 판정, 불확실하면 <code>[medium-confidence]</code> 태그.</p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:18px">
+    <div class="compare-bad">
+      <div class="compare-label">FAIL — 부분 포함 관계</div>
+      <code class="code-block">스킬 A: "API 연동"
+스킬 B: "API 연동 화면"
+→ "API 연동"이 "API 연동 화면"의
+   부분 문자열 → 배타성 위반 FAIL</code>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">PASS — 부분 포함 없음</div>
+      <code class="code-block">스킬 A: "컴포넌트 추출"
+스킬 B: "화면 추출"
+→ 부분 문자열 관계 없음 → PASS</code>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="card-title"><span class="dot"></span>실제 사례 — SK-05/RE-02 REJECT</div>
+    <p><code>react-run</code> 의 'wasm-pack 빌드'와 <code>react-wasm</code> 의 'wasm-pack 빌드' 완전 중복, <code>react-api</code> 의 '"API 연동"'이 <code>react-feature</code> 의 '"API 연동 화면"'과 부분 포함 관계. Grep 기반 단순 존재 확인으로는 부분 포함 관계를 잡지 못해 Iter 1 에서 놓쳤던 케이스.</p>
+  </div>
+</div>
+
+<!-- SECTION 11: CODE BLOCK LANGUAGE HINT (DG-02) -->
+<div class="section">
+  <div class="section-label">Code Block Hints</div>
+  <div class="section-title">코드블록 언어 힌트 검증 (DG-02) — HTML 파일 적용 기준</div>
+  <p class="section-desc">Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락 (DG-02) 조건이 계약에 포함된 경우의 적용 범위.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>파일 유형</th><th>적용 여부</th><th>검증 방식</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>.md</code> (Markdown)</td>
+          <td><span style="color:var(--red);font-weight:700">필수 적용</span></td>
+          <td><code>```언어명</code> 형식의 언어 힌트 필수. 힌트 없는 <code>```</code> 블록은 FAIL</td>
+        </tr>
+        <tr>
+          <td><code>.html</code> (HTML)</td>
+          <td><span style="color:var(--green);font-weight:700">적용 제외</span></td>
+          <td>fenced code block 문법이 없으므로 DG-02 조건 적용 제외. 대신 <code>&lt;pre&gt;&lt;code class="language-xxx"&gt;</code> 형식 확인</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>범위 확인 규칙</div>
+    <p>HTML 파일에 DG-02 를 적용하는 계약 조건은 범위를 <code>*.md</code> 파일로 한정했는지 확인하고, 한정하지 않았다면 HTML 파일은 PASS 처리 + 피드백에 "HTML 파일은 DG-02 적용 제외" 명시.</p>
+  </div>
+</div>
+
+<!-- SECTION 12: PERSPECTIVE-BASED READING -->
+<div class="section">
+  <div class="section-label">Multi-Perspective</div>
+  <div class="section-title">다관점 평가 — Perspective-Based Reading</div>
+  <p class="section-desc">각 조건을 최소 2 개 관점에서 평가한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>관점</th><th>초점</th><th>예시 질문</th></tr></thead>
+      <tbody>
+        <tr><td>기능</td><td>명시된 행동이 구현되었는가?</td><td>"버튼 클릭 시 API 호출되는가?"</td></tr>
+        <tr><td>엣지 케이스</td><td>경계 조건에서 올바른가?</td><td>"빈 입력, null, 최대 길이에서?"</td></tr>
+        <tr><td>성능</td><td>비효율이나 병목이 있는가?</td><td>"N+1 쿼리, 불필요한 리렌더링?"</td></tr>
+        <tr><td>보안</td><td>취약점이 있는가?</td><td>"SQL 인젝션, XSS 가능성?"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 13: EVIDENCE-BASED & METAMORPHIC -->
+<div class="section">
+  <div class="section-label">Judgment Criteria</div>
+  <div class="section-title">Evidence-Based 판정 + Metamorphic Testing + Specification-First</div>
+  <p class="section-desc">모든 PASS/FAIL 에는 증거가 필요하다. "확인했다", "문제 없다" 같은 self-assertion 은 증거가 아니다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>PASS 증거</div>
+      <p><code>{파일}:{라인}</code> — 해당 코드가 조건을 충족하는 이유를 명시한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>FAIL 증거</div>
+      <p><code>{파일}:{라인}</code> — 해당 코드가 조건을 충족하지 않는 이유, 또는 코드 부재를 명시한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Metamorphic Testing</div>
+      <p>절대 정답을 모를 때 관계 기반으로 검증: 비례 관계, 멱등성, 독립성. 계약 조건으로 직접 판정 가능한 경우 불필요.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;border-left:3px solid var(--accent)">
+    <div class="card-title"><span class="dot"></span>Specification-First 검증 순서</div>
+    <p><strong>(1)</strong> 먼저 Sprint Contract 를 읽고 각 조건의 "기대 행동" 을 확립한다. <strong>(2)</strong> 그 다음 코드를 검증한다 — 코드는 증거 수집 대상이지, 기대 행동의 출처가 아니다. <strong>(3)</strong> 코드를 먼저 읽으면 구현 추종 편향에 빠진다.</p>
+    <a class="card-source" href="https://arxiv.org/abs/2601.05542">Test Oracle Generation</a>
+  </div>
+</div>
+
+<!-- SECTION 14: SELF-DIAGNOSIS CHECKLIST -->
 <div class="section">
   <div class="section-label">Self-Diagnosis</div>
   <div class="section-title">qa-evaluator 자가 점검 + 교차 진단</div>
@@ -360,10 +572,22 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
     <li><span class="check">✓</span> 계약 조건 모호 발견 시 자체 재해석 금지 — REJECT 사유에 명시</li>
     <li><span class="check">✓</span> 전수 검사 조건은 샘플 1~2 건이 아닌 <strong>전체 파일 카운트</strong> 보고</li>
     <li><span class="check">✓</span> 키워드 배타성은 set intersection + 부분 포함 관계까지 검증</li>
+    <li><span class="check">✓</span> 수량/경계값 조건은 측정값을 수치로 명시 + 기준값과 비교 판정</li>
   </ul>
+
+  <div class="card" style="margin-top:18px">
+    <div class="card-title"><span class="dot"></span>교차 진단 프로토콜</div>
+    <p>qa-evaluator 실행 후 Agent tool 로 sprint-contract 서브에이전트를 호출한다. <strong>전달</strong>: 평가 판정 결과 (출력만). <strong>미전달</strong>: 평가 과정의 추론, 중간 메모. <strong>핵심 질문</strong>: "계약 조건의 원래 의도를 정확히 해석했는가?" 결과는 피드백 YAML 의 <code>cross_diagnosis</code> 필드에 기록.</p>
+  </div>
+
+  <div class="card" style="margin-top:18px;border-left:3px solid var(--accent)">
+    <div class="card-title"><span class="dot"></span>Human-in-the-loop Rubric Refinement</div>
+    <p>계약 조건의 해석 차이가 발견되면 evaluator 는 <strong>계약 수정 권장</strong>을 Sprint Feedback 에 명시한다 — 단, 실제 수정은 사용자 권한이다. LLM 이 1 차 평가 → 해석 충돌 발견 시 rubric 개선 제안 → 사용자가 승인·수정 → 이후 평가는 refined rubric 기준. evaluator 가 계약을 무단으로 재해석하거나 "의도를 미루어" PASS 처리하지 않는다.</p>
+    <a class="card-source" href="https://arxiv.org/abs/2511.10865">Human-in-the-Loop Patch Evaluation</a>
+  </div>
 </div>
 
-<!-- SECTION 9: CONFIDENCE & MUTATION -->
+<!-- SECTION 15: CONFIDENCE & MUTATION -->
 <div class="section">
   <div class="section-label">Confidence & Mutation</div>
   <div class="section-title">판정 확신도 + Mutation Testing — 평가자를 평가하라</div>
@@ -392,12 +616,17 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
       <a class="card-source" href="https://en.wikipedia.org/wiki/Mutation_testing">Mutation Testing Method</a>
     </div>
   </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="card-title"><span class="dot"></span>피드백 수집 지표</div>
+    <p><code>verdict</code>: APPROVE/REJECT/BLOCKED. <code>conditions_total</code>: 전체 조건 수. <code>conditions_passed</code>: PASS 조건 수. <code>l3_coverage</code>: L3 검증 도달 비율. <code>reject_reasons</code>: REJECT 시 사유 목록.</p>
+  </div>
 </div>
 
 <!-- FOOTER -->
 <div class="footer">
   <h3>Phase 3 Kaizen 변경 요약</h3>
-  <p>Phase 3 에서 qa-evaluation-guide 가 <strong>LLM-as-judge 2026 최신 연구</strong>를 대거 흡수했다. 핵심 변경: ① <strong>Swap Test</strong> 표준화 — (A,B)/(B,A) 양방향 평가, 불일치 시 <code>[low-confidence]</code> 강등, ② <strong>Self-preference bias</strong> 완화 — generator/evaluator 컨텍스트 물리적 분리, ③ <strong>Recursive Rubric Decomposition (RRD)</strong> — 모호 조건 재귀 분해, ④ <strong>CheckEval boolean 분해</strong> — Likert 스케일 금지 + 평가자 일치도 0.45 향상, ⑤ <strong>CoT 효용 한계</strong> — 루브릭이 잘 정의되면 CoT 이득 미미, 증거+boolean 결과에 집중, ⑥ Phase 2 contract-schema v2 의 <strong>specificity tag / aggregation mode 소비 규칙</strong> 추가, ⑦ legacy <code>[L1]/[L2]/[L3]</code> 태그 매핑 정의, ⑧ Markdown 전수 검사 조건의 L3 절차 (Glob → 파일별 카운트 → FAIL 파일명:라인 나열) 명문화.</p>
+  <p>Phase 3 에서 qa-evaluation-guide 가 <strong>LLM-as-judge 2026 최신 연구</strong>를 대거 흡수했다. 핵심 변경: ① <strong>Swap Test</strong> 표준화 — (A,B)/(B,A) 양방향 평가, 불일치 시 <code>[low-confidence]</code> 강등, ② <strong>Self-preference bias</strong> 완화 — generator/evaluator 컨텍스트 물리적 분리, ③ <strong>Recursive Rubric Decomposition (RRD)</strong> — 모호 조건 재귀 분해, ④ <strong>CheckEval boolean 분해</strong> — Likert 스케일 금지 + 평가자 일치도 0.45 향상, ⑤ <strong>CoT 효용 한계</strong> — 루브릭이 잘 정의되면 CoT 이득 미미, ⑥ <strong>specificity tag / aggregation mode 소비 규칙</strong>, ⑦ legacy <code>[L1]/[L2]/[L3]</code> 태그 매핑, ⑧ Markdown 전수 검사 조건 L3 절차, ⑨ <strong>수량/경계값 조건 검증 프로토콜</strong> — 측정 → 비교 → 보고 3단계 + 카운팅 패턴 주의사항.</p>
 
   <h3>출처</h3>
   <ul>
@@ -414,6 +643,12 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
     <li><a href="https://www.anthropic.com/research/statistical-approach-to-model-evals">Anthropic Statistical Approach to Model Evals</a></li>
     <li><a href="https://arxiv.org/abs/2403.18771">CheckEval — arxiv 2403.18771</a></li>
     <li><a href="https://arxiv.org/abs/2302.05527">CodeBERTScore — arxiv 2302.05527</a></li>
+  </ul>
+
+  <h3>관련 스키마</h3>
+  <ul>
+    <li><code>harness/references/contract-schema.md</code> — Sprint Contract v2 스키마 (specificity tag + aggregation mode)</li>
+    <li><code>harness/references/feedback-schema.yaml</code> — 피드백 YAML 스키마</li>
   </ul>
 </div>
 

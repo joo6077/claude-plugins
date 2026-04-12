@@ -1,7 +1,7 @@
 ---
 title: Kaizen Research Log
 version: 1.1.0
-last_updated: 2026-04-11
+last_updated: 2026-04-12
 ---
 
 # Kaizen Research Log
@@ -12,6 +12,31 @@ last_updated: 2026-04-11
 ---
 
 <!-- 엔트리는 최신순으로 추가 -->
+
+## [2026-04-12] - 리서치 확충 + Phase 1~10 카이젠
+
+**트리거:** 자동화 성숙도 Gap 3번(리서치 깊이) 해소
+
+### 리서치 소스 (per-kit)
+
+| Kit | 파일 | 줄 수 | 소스 수 | 주요 토픽 |
+|-----|------|-------|---------|----------|
+| Flutter | docs/flutter/research-log.md | 319 | 45 | Riverpod 3.0, Impeller, Shorebird, Flame |
+| Design | docs/design/research-log.md | 304 | 68 | DTCG spec, OKLCH, Radix, Panda CSS |
+| Backend | docs/backend/research-log.md | 358 | 62 | FAPI 2.0, OTel, Temporal, Hono |
+| Infra | docs/infra/research-log.md | 292 | 61 | K8s 1.35, Cilium, SpinKube, WASI |
+| Rust | docs/rust/research-log.md | 370 | 58 | Axum 0.8, SQLx 0.9, SeaORM, Dioxus |
+| React | docs/react/research-log.md | 322 | 61 | React Compiler, Vite Rolldown, Storybook 9 |
+
+### 리서치 방법
+
+- 1차: Claude WebSearch/WebFetch로 232개 소스 수집 + 3중 검증
+- 2차: Codex 교차검증으로 123개 소스 추가
+- 합계: 355개 검증된 소스
+
+### 카이젠 적용 결과
+
+Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. Phase 1 SKIP (이미 최신).
 
 ## [2026-04-11] - Research mode rerun (Phase 1~10)
 

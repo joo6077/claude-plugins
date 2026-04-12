@@ -1,7 +1,7 @@
 ---
 title: Kaizen Changelog
 version: 1.1.0
-last_updated: 2026-04-11
+last_updated: 2026-04-12
 ---
 
 # Kaizen Changelog
@@ -12,6 +12,33 @@ last_updated: 2026-04-11
 ---
 
 <!-- 엔트리는 최신순으로 추가 -->
+
+## [2026-04-12] - kaizen research-log 확충 + Phase 1~10 카이젠
+
+### 변경 유형: minor (355개 소스 기반 리서치 확충 + 전 Phase 카이젠)
+
+### 변경 범위
+
+- **리서치 확충**: 6개 kit research-log 200줄+로 확충 (Claude+Codex 교차검증, 355소스)
+- **자동화 성숙도**: 23/35(66%)→32/35(91%), 5개 영역 5/5 달성
+- **Phase 2 (Contract)**: 경계값 측정법, 스코프 세분화 GAP 추가
+- **Phase 3 (Evaluator)**: 수량/경계값 조건 검증 프로토콜 추가
+- **Phase 4 (Harness)**: init.sh sed -i 크로스 플랫폼 버그 수정
+- **Phase 5 (Flutter)**: 9스킬 Gotchas (Riverpod 3.0, Dart macros 중단, Impeller 등)
+- **Phase 6 (Design)**: 6스킬 (APCA, DTCG $extends, Container Queries, Fluid Typography)
+- **Phase 7 (Backend)**: 8파일 (FAPI 2.0, Passkeys, OTel Logs GA, Kafka 4.x, Modular Monolith)
+- **Phase 8 (Infra)**: 7파일 (K8s 1.35, Cilium eBPF, EU CRA SBOM, Cost Optimization)
+- **Phase 9 (Rust)**: 12스킬 (Rust 2024, Axum 0.8, SeaORM, async closures, cargo-mutants)
+- **Phase 10 (React)**: 15파일 (React Compiler v1.0, Vite Rolldown, View Transitions, animate.css 금지)
+
+### 인프라 개선
+
+- kaizen-state.yaml 자동 갱신 (spawn/finalize 연동)
+- validate-post-kaizen.py FAIL 힌트 14개 추가
+- finalize-phase.sh --auto-revert 플래그 추가
+- settings.json PostToolUse에 validate-plugin + docs-site 알림 훅 추가
+
+---
 
 ## [2026-04-11] - kaizen research-mode rerun (Phase 1~10 + Final)
 
