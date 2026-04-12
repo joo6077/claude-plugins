@@ -19,7 +19,9 @@ user-invocable: true
 6. **실패 시 전체 롤백** — 라우트 파일과 화면 파일 중 하나라도 생성 실패 시 스킬 실행으로 생성한 파일을 모두 삭제하고 원상복구한다.
 7. **Strict TS 통과 필수** — 생성한 모든 TS 파일은 `tsc --noEmit`과 `eslint --max-warnings=0`을 통과해야 한다. `any`, `as` 단언, `!` non-null 단언 포함 금지.
 8. **화면 컴포넌트는 features 하위에** — 라우트 파일은 얇게 위임만 한다. 실제 컴포넌트는 `src/presentation/features/<feature>/screens/`에 배치한다.
-9. **`export default` 금지** — Clean Arch 규칙에 따라 named export로 통일한다.
+9. **`export default` 금지** — Clean Arch 규칙에 따라 named export로 통���한다.
+10. **TanStack Router flat route 기본** — 파일 기반 라우팅에서 flat route (점 표기법 `posts.$postId.edit.tsx`) 를 기본으로 사용한다. 디렉토리 기반과 혼합도 지원되지만, flat route 가 파일 탐색이 간편하고 코드 스플리팅이 자동 적용된다. 특수 규칙: `__root.tsx` (루트 레이아웃), `_` prefix (pathless layout wrapper), `$` (동적 파라미터).
+11. **React 19.2 `<Activity />` 로 탭/패널 pre-render** — `<Activity mode="visible|hidden">` 컴포넌트로 비활성 탭/패널을 낮은 우선순위로 pre-render 할 수 있다. hidden 모드에서 자식은 렌더되지만 Effect 는 mount 되지 않는다. 탭 전환 시 즉시 표시가 필요한 화면에 적합. 단, React 19.2+ 에서만 사용 가능하며 canary 채널에서 안정화 중이므로 적용 전 버전을 확인한다.
 
 # Process
 

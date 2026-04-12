@@ -20,6 +20,7 @@ user-invocable: true
 7. **`setupFiles` 필수** — `@testing-library/jest-dom` matchers 를 전역 등록하려면 setup 파일에서 `import '@testing-library/jest-dom'` 을 실행해야 한다.
 8. **Playwright 과 Vitest 파일 확장자 분리** — Playwright 은 `.spec.ts`, Vitest 는 `.test.ts`. 혼용하면 두 러너가 같은 파일을 동시에 실행해 충돌.
 9. **`vi.mocked(...)` 로 타입 안전성 유지** — `as any` 로 모킹한 객체의 타입 우회 금지. Strict TS.
+10. **Vitest 브라우저 모드 컴포넌트 테스팅 옵션** — CSS 레이아웃, 브라우저 API 동작, 실제 이벤트 핸들링을 검증해야 할 때 `vitest-browser-react` + Playwright provider 로 실제 브라우저 환경에서 테스트할 수 있다. `page.getByRole()`, `.click()`, `.fill()`, `expect.element()` API 제공. jsdom 의 한계(CSS 미지원, 이벤트 불일치)를 넘어야 하는 경우에만 사용하고, 일반 컴포넌트 테스트는 jsdom 이 기본이다.
 
 ## Process
 

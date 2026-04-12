@@ -20,6 +20,8 @@ user-invocable: true
 7. **폼 컴포넌트에서 직접 fetch 금지** — 컴포넌트 안에서 `fetch()`, repository, datasource를 직접 호출하지 않는다. 반드시 mutation 훅 또는 UseCase를 props로 주입한다.
 8. **Strict TS** — `useForm<Values>()` 제네릭 명시 필수. `register('<field>')` 필드명은 Values 키로 타입 체크된다. `any`, `as` 단언, `!` non-null 단언 금지.
 9. **상태 분리 원칙 (Zustand vs TanStack Query)** — 폼 submit 이후 서버 상태는 mutation 훅(TanStack Query)이 단일 진실 공급원이다. 폼 내부 임시 상태(draft, dirty flag) 만 필요하면 Zustand(`/react-store`)를 사용한다. 서버 응답을 폼 local state 로 복사 금지 — useMutation 의 `data` / `mutateAsync` 결과를 그대로 구독한다.
+10. **RHF v8 beta — 아직 프로덕션 사용 금지** — React Hook Form v8.0.0-beta.1 (2026-01-11) 이 공개됐으나 breaking changes 포함. 2026-Q2 기준 **v7.71.x 안정 버전을 사용**한다. v8 stable 릴리스 전까지 마이그레이션하지 않는다.
+11. **`@hookform/resolvers` v5.2.2 Standard Schema 지원** — Standard Schema 기반 resolver 가 추가됐다. 단, Zod v4 타입 호환성 이슈는 여전하므로 `import { z } from 'zod/v3'` workaround 를 유지한다. Standard Schema 로 전환 시 resolver import 경로가 변경되므로 점진적 마이그레이션을 권���한다.
 
 # Process
 

@@ -42,6 +42,22 @@ user-invocable: true
 
 10. **v5 에서 커스텀 equality function 은 `createWithEqualityFn` 로** — `create()` 는 v5 에서 equality customizing 을 지원하지 않는다. 특수한 비교가 필요하면 `zustand/traditional` 의 `createWithEqualityFn` 을 쓰고, 일반적으로는 `useShallow` 로 충분하다.
 11. **최소 React 버전 18+** — v5 는 React 17 이하 미지원. react-kit 은 React 19 가 기본이므로 이슈 없음, 단 공용 라이브러리 프로젝트에서 v4→v5 마이그레이션 시 피어 의존성을 사전 확인한다.
+12. **DevTools 미들웨어 import 경로 변경 (v5)** — v4 의 `zustand/middleware/devtools` 는 v5 에서 `zustand/middleware` 로 통합됨. `import { devtools } from 'zustand/middleware'` 로 사용한다. `set()` 세 번째 인자로 액션 이름을 지정하면 Redux DevTools 에서 타임트래블 디버깅이 가능하다.
+
+    나쁜 예 — v4 경로:
+
+    ```ts
+    import { devtools } from 'zustand/middleware/devtools'
+    ```
+
+    좋은 예 — v5 경로:
+
+    ```ts
+    import { devtools } from 'zustand/middleware'
+    ```
+
+13. **persist 미들웨어 v5.0.9 이하 상태 불일치 버그** — v5.0.9 이하에서 persist 미들웨어가 초기 상태를 자동으로 저장하지 않아 동적 초기값 설정 시 상태 불일치가 발생할 수 있다. **v5.0.10+ 즉시 업그레이드 권장**. 동적 초기값이 필요하면 `setState()` 를 명시적으로 호출한다.
+14. **Slices 패턴으로 대규모 스토어 분할** — 단일 스토어가 10+ 필드로 비대해지면 도메인별 슬라이스로 분할한다: `create((...a) => ({ ...createFishSlice(...a), ...createBearSlice(...a) }))`. 각 슬라이스는 독립 파일에 정의하고 `create()` 에서 합성한다.
 
 # Process
 

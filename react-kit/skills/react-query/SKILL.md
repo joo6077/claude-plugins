@@ -64,6 +64,18 @@ user-invocable: true
     })
     ```
 
+11. **Optimistic Updates — 두 가지 접근법 구분** — (1) `onMutate` 에서 캐시 직접 수정 + `onError` rollback: 서버 실패 시 이전 상태 복원. 복잡하지만 캐시 즉시 반영. (2) `useMutation` 의 `variables` 반환값으로 UI 낙관적 표시: 캐시를 건드리지 않아 무결성 유지에 유리하고 코드가 단순하다. **v5 에서 추가된 방식 (2) 를 기본으로 권장**하고, 다수 컴포넌트가 같은 캐시를 구독할 때만 방식 (1) 을 사용한다.
+
+12. **`ensureQueryData` 로 중복 fetch 방지** — `queryClient.prefetchQuery()` 와 달리 `ensureQueryData()` 는 캐시에 데이터가 이미 있으면 fetch 를 건너뛴다. TanStack Router `loader` 에서 라우트 전환 전 데이터를 미리 가져올 때 `ensureQueryData` + `queryOptions()` 조합이 타입 안전하고 효율적이다.
+
+    ```ts
+    // route loader 에서 prefetch
+    export const Route = createFileRoute('/users/$userId')({
+      loader: ({ params }) =>
+        queryClient.ensureQueryData(userQueryOptions(params.userId)),
+    })
+    ```
+
 # Process
 
 ## 1. 프로젝트 환경 감지

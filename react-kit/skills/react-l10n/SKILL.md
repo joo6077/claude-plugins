@@ -18,7 +18,28 @@ user-invocable: true
 5. **domain 레이어에 매크로 import 금지** — `src/domain/` 은 i18n 을 모른다. Failure 의 사용자 메시지 매핑은 presentation 레이어의 `display-failure.ts` 에서 처리한다.
 6. **`extract` 후 빈 번역 키** — `lingui extract` 실행 후 `ko.po` 에 빈 `msgstr` 로 남은 키는 런타임에 원본(en) 으로 fallback 된다. 번역 추가 안내를 사용자에게 반드시 전달한다.
 7. **동적 key 는 `msg` 매크로** — 컴포넌트 밖 상수 정의나 reducer message 에는 `msg` 매크로를 쓰고 `i18n._(msg)` 로 호출한다. 동적 key 에 `any` 사용 금지.
-8. **서버 컴포넌트 미지원** — react-kit 기본 구성(Vite + TanStack Router)은 SSR 없음. Lingui RSC 지원은 해당 없다.
+8. **서버 컴포넌트 미지원** — react-kit ��본 구성(Vite + TanStack Router)은 SSR 없음. Lingui RSC 지원은 해당 없다.
+9. **`useLingui` 매크로 — 컴포넌트 내 비-JSX 메시지 간소화** — `@lingui/react/macro` 에서 import. `const { t } = useLingui()` 패턴으로 컴포넌트 함수 스코프 내에서 사용한다. **모듈 레벨에서 사용 불가** — 반드시 함수 스코프 안에서 호출한다. 모듈 레벨 상수는 기존 `msg` 매크로 + `i18n._(msg)` 패턴을 유지한다.
+
+    나쁜 예 — 모듈 레벨:
+
+    ```ts
+    import { useLingui } from '@lingui/react/macro'
+    const { t } = useLingui() // 에러: 함수 밖 호출
+    ```
+
+    좋은 예 — 컴포넌트 내부:
+
+    ```tsx
+    import { useLingui } from '@lingui/react/macro'
+    function MyComponent() {
+      const { t } = useLingui()
+      return <p>{t`안녕하세요`}</p>
+    }
+    ```
+
+10. **매크로 분리 codemod** — 기존 `@lingui/macro` 에서 v5 분리 import 로 일괄 전환: `npx @lingui/codemods split-macro-imports <path>`. 수동 import 경로 변경 실수를 방지한다.
+11. **RTL 언어 지원 — shadcn CLI 자동 매핑 (2026-01)** — shadcn CLI 가 logical property (`start`/`end`) 를 자동 매핑하여 아랍어, 히브리어 등 RTL 언어를 즉시 대응한다. 새 컴포넌트 추가 시 `left`/`right` 대신 `start`/`end` logical property 를 사용하면 별도 RTL 스타일링 없이 양방향 레이아웃이 동작��다.
 
 ## Process
 

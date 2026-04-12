@@ -20,12 +20,15 @@ user-invocable: true
 7. **next-themes + Vite** — SSR 경고 발생 가능. client-only 모드로 사용하고 초기 테마를 `<html class="dark">`로 inline script로 설정.
 8. **TanStack Router codegen** — `routeTree.gen.ts`는 플러그인이 자동 생성하므로 수동 수정 금지. 기본적으로 `.gitignore` 제외 권장(merge conflict 최소화).
 9. **Strict TS 위반 거부** — 생성된 초기 파일에 `any`, `as`, `!`가 포함되면 생성 실패로 간주하고 롤백. `pnpm tsc --noEmit`으로 검증 필수.
-10. **`eslint-plugin-react-hooks` flat config 수동 와이어링** — `eslint.config.js`에서 `plugins: { 'react-hooks': reactHooks }` + `rules: reactHooks.configs.recommended.rules` 형태로 수동 구성 필요(facebook/react#28313).
+10. **`eslint-plugin-react-hooks` v6 flat config 기본** — v6 (React 19.2+) 부터 flat config 가 기본이며 React Compiler lint 룰이 통합됐다. `eslint.config.js` 에서 `plugins: { 'react-hooks': reactHooks }` + `rules: reactHooks.configs.recommended.rules` 형태로 구성한다.
 11. **Rust WASM crate-type** — `crates/core/Cargo.toml`에 `crate-type = ["cdylib", "rlib"]` 둘 다 있어야 WASM 빌드와 Tauri 네이티브 재사용이 동시에 가능하다.
 12. **Vite 8 (Rolldown) 2026-03-12 stable** — `pnpm create vite@latest` 는 2026-04 기준 **Vite 8 템플릿**을 받는다. Vite 8 은 Rust 기반 Rolldown 단일 번들러로 통합되어 10~30배 빠른 빌드 + 기존 플러그인 호환성 유지. 기존 Vite 6/7 프로젝트는 `pnpm add -D vite@latest` 로 단순 업그레이드. Environment API 는 framework authors 대상이므로 일반 앱은 신경 쓸 필요 없음 (Vite 8 announce).
 13. **기존 파일 overwrite 금지** — 같은 이름의 파일/디렉토리가 이미 존재하면 생성을 거부한다. `--force` 플래그가 있을 때만 덮어쓴다.
 14. **실패 시 전체 롤백** — 복수 파일 생성 중 하나라도 실패하면 스킬 실행으로 생성된 파일을 모두 삭제하고 원상복구한다.
 15. **하드코딩된 버전 번호 금지** — 의존성 설치 시 `pnpm add <package>@latest`로 최신 버전을 받는다. 특정 패치 버전을 고정하지 않는다.
+16. **React Compiler v1.0 (2025-10) 기본 활성화** — Vite `create-vite` 템플릿에서 기본 포함. `babel-plugin-react-compiler` 로 자동 메모이제이션 적용. **정확한 버전 핀 권장** (`1.0.0`, `^1.0.0` 아님) — 메모이제이션 변경이 `useEffect` 동작에 영향 가능. 점진적 도입은 `compilationMode: 'annotation'` + `"use memo"` directive 로 디렉토리 단위 rollout. Meta 프로덕션 검증: 초기 로드 12% 개선, 특정 인터랙션 2.5배 속도 향상.
+17. **`@vitejs/plugin-react` v6 — Babel 제거, Oxc 기반** — Vite 8 과 함께 출시. React Refresh 트랜스폼을 Oxc 로 처리하여 Babel 의존성 제거. 기존 Babel 플러그인을 사용하는 프로젝트는 별도 `babel.config.js` 와 `@vitejs/plugin-react` 의 `babel` 옵션으로 유지 가능하지만, 새 프로젝트는 Oxc 기본 경로를 따른다.
+18. **shadcn Luma 디자인 시스템 (2026-03)** — `shadcn/create` 에서 Luma preset 선택 가능. 둥근 기하학, 부드러운 elevation, 넉넉한 spacing. Radix UI 외에 Base UI 프리미티브도 선택 가능하여 번들 사이즈 최적화 옵션이 열렸다. 초기화 시 사용자에게 프리미티브 선택지(Radix/Base UI) 를 제시한다.
 
 # Process
 

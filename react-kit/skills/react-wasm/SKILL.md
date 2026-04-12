@@ -24,6 +24,8 @@ user-invocable: true
 11. **Strict TS** — `wasm-pack`이 생성한 `.d.ts`를 신뢰하되, `serde-wasm-bindgen`으로 교환된 Struct 타입은 Zod 스키마로 추가 검증한다.
 12. **crates/core 사전 확인** — G1 `/react-init --with-wasm`으로 초기화된 프로젝트에만 적용. `crates/core/` 디렉토리가 없으면 에러로 안내하고 `/react-init --with-wasm`을 먼저 실행하도록 유도한다.
 13. **`Transferable` 활용** — `ArrayBuffer`를 Worker로 전달할 때 Transferable로 zero-copy 이동 가능. 원본 보존이 필요한 경우만 복사한다(복사 비용 ~1~3 ms / MB).
+14. **rustwasm org 아카이빙 (2025-09)** — wasm-pack, gloo, twiggy, walrus 등 rustwasm GitHub org 프로젝트가 아카이빙됐다. **wasm-bindgen 만 독립 org (`github.com/wasm-bindgen/wasm-bindgen`) 로 이전**. wasm-pack 은 여전히 동작하지만 신규 메인테이너 활동이 제한적이다. 대안으로 `wasm-bindgen-cli` + `wasm-opt` + 빌드 스크립트 직접 조합이 커스텀 cargo profile, 병렬 빌드 등에서 유리하다. react-kit 기본은 wasm-pack 유지하되, 빌드 커스터마이징이 필요하면 대안 경로를 안내한다.
+15. **WASM SIMD 128-bit 전 브라우저 지원** — 2025 초 기준 모든 주요 브라우저에서 128-bit SIMD 를 지원한다. SIMD 활용 시 특정 워크로드에서 JS 대비 10-15배 성능 향상이 가능하다. 단, Gotcha #9 의 feature detection 은 여전히 필수 — SIMD opcode 미지원 환경에서 런타임 에러가 발생한다.
 
 # Process
 

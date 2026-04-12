@@ -23,6 +23,10 @@ user-invocable: true
 10. **stateless command가 기본** — 복수 command가 상태를 공유해야 하면 `app.manage(...)` + `State<'_, T>` 인자 패턴을 사용한다. 이 스킬 기본 생성물은 stateless command이고, stateful은 사용자 명시 요청 시에만 추가한다.
 11. **src-tauri/ 사전 확인** — G1 `/react-init --with-tauri`로 초기화된 프로젝트에만 적용. `src-tauri/` 디렉토리가 없으면 에러로 안내하고 `/react-init --with-tauri`를 먼저 실행하도록 유도한다.
 12. **mobile 대응 범위 외** — Tauri 2 iOS/Android는 별도 permission 스키마가 필요하다. 이 스킬은 desktop 타겟만 다루고, mobile 지원은 별도 확장 스킬에서 처리한다.
+13. **IPC Raw Payloads 로 직렬화 오버헤드 제거** — v2 는 JSON 직렬화 외에 Raw Request/Response 를 지원한다. 대용량 바이너리 데이터(이미지, 파일 청크 등) 전송 시 Custom Protocol 기반 IPC 로 JSON 오버헤드를 제거할 수 있다. 일반 command 는 JSON 이 충분하므로, Raw Payload 는 성능 병목이 측정된 경우에만 적용한다.
+14. **Stronghold 보안 저장소 기본값** — 민감 데이터(토큰, API 키, 자격 증명) 저장은 `@tauri-apps/plugin-stronghold` 를 기본으로 사용한다. `tauri add stronghold` 로 설치하고 JS guest binding (`@tauri-apps/plugin-stronghold`) + Argon2 helper 를 활용한다. `localStorage` 에 민감 데이터 저장 금지.
+15. **Updater 플러그인 — 서명 아티팩트 자동 생성** — v2 updater plugin 은 `bundle.createUpdaterArtifacts` 설정 시 플랫폼별 서명 번들(AppImage/macOS archive/MSI/NSIS) 을 자동 생성한다. 배포 파이프라인에 서명/업데이트 아티팩트 단계를 포함시킨다.
+16. **Deep Link + Single Instance 조합 필수** — deep-link plugin 의 `onOpenUrl` 은 Windows/Linux 에서 single-instance plugin 없이 동작이 제한된다. OAuth callback 등 deep-link 활용 시 반드시 `single-instance` + `deep-link` 두 플러그인을 함께 설정한다. macOS/Android/iOS 는 런타임 동적 등록 불가 — config 기반 등록이 필요하다.
 
 # Process
 

@@ -12,7 +12,7 @@ user-invocable: true
 
 ## Gotchas
 
-- **Library Policy 는 빌드 게이트급**: `motion`, `framer-motion`, `@dnd-kit/*`, `react-spring`, `react-transition-group`, `react-dnd`, `react-beautiful-dnd`, `gsap`, `lottie-react`, `@formkit/auto-animate` import 는 ❌ 실패 — 경고가 아니라 즉각 REJECT
+- **Library Policy 는 빌드 게이트급**: `motion`, `framer-motion`, `@dnd-kit/*`, `react-spring`, `react-transition-group`, `react-dnd`, `react-beautiful-dnd`, `gsap`, `lottie-react`, `@formkit/auto-animate`, `animate.css` import 는 ��� 실패 — 경고가 아니라 즉각 REJECT
 - **WASM 렌더 안 호출**: JSX return 블록 안에서 useMemo 없이 WASM 함수를 직접 호출하면 매 렌더마다 WASM boundary 를 건넘. ❌ 실패
 - **False positive 관리**: `// react-audit-ignore: <rule>` 주석으로 해당 라인 제외 가능
 - **Baseline 모드**: 기존 대형 프로젝트에 처음 도입 시 `.react-audit-baseline.json` 으로 "현재 이하로 악화되지 않음" 만 감지하는 모드 지원

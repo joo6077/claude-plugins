@@ -38,6 +38,7 @@ model: sonnet
 - `react-dnd` / `react-beautiful-dnd`
 - `@formkit/auto-animate`
 - `gsap`
+- `animate.css`
 - `lottie-react`
 - `animate.css`
 

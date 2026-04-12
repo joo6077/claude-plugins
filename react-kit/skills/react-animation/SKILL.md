@@ -14,7 +14,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / react-transition-group / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.
+1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / react-transition-group / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd / animate.css 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.
 
 2. **가장 낮은 Tier부터 시도**: "animation" 요청을 받으면 무조건 Tier 3부터 쓰는 실수가 잦다. 판정 규칙을 따라 Tier 1로 해결 가능한지 먼저 확인하고, 불가능할 때만 더 높은 Tier로 올라간다.
 
@@ -34,6 +34,10 @@ user-invocable: true
 
 10. **Firefox types 파라미터 미지원**: `document.startViewTransition({ update, types: [...] })` 의 `types` 옵션은 2026년 기준 Chromium 계열에서만 안정적으로 지원된다. `withViewTransition` 래퍼에서 try/catch로 fallback을 처리한다.
 
+11. **scroll-driven animation 브라우저 지원 확인**: `animation-timeline: scroll()` / `view()` 는 Chrome 안정이지만 Firefox 는 2026-Q2 기준 플래그 필요. 브라우저 지원 범위가 충분하지 않으면 `@supports (animation-timeline: scroll())` 로 감싸고, 미지원 시 정적 스타일로 fallback 한다.
+
+12. **`view-transition-name: match-element` 활용 (Chrome 137+)**: 수십 개 요소에 수동으로 고유 이름을 부여하는 대신 `view-transition-name: match-element` CSS 값을 사용하면 브라우저가 자동으로 요소를 매칭한다. 단, 2026-Q2 기준 Chromium 전용이므로 fallback 경로를 유지한다.
+
 # Process
 
 ## 1. 자동 티어 판정
@@ -44,7 +48,9 @@ user-invocable: true
 |------------------|-----------|
 | "fade in", "slide up", "scale", "pulse", "bounce", "hover 효과", "opacity", "shimmer", "진입 애니메이션" | **T1** |
 | "skeleton 로딩 → 완료 전환", "버튼 hover", "accordion", "모달 open/close", "상태 변화" | **T1** |
+| "스크롤 애니메이션", "scroll-driven", "parallax", "스크롤 진행 바", "스크롤 기반" | **T1** |
 | "페이지 전환", "shared element", "grid to board", "뷰 전환", "라우트 전환", "DOM 구조 변경" | **T2** |
+| "scroll-triggered", "스크롤 교차 시 트리거", "특정 위치에서 애니메이션 시작" | **T2** |
 | "드래그앤드롭", "정렬 리스트", "sortable", "kanban", "드래그", "드롭", "gesture", "화살표 연결선" | **T3** |
 
 T2/T3 경계가 애매하면 `animation-architect-react` 에이전트에 자문을 요청한다.
@@ -53,7 +59,7 @@ T2/T3 경계가 애매하면 `animation-architect-react` 에이전트에 자문�
 
 | Tier | 도구 | 적용 시나리오 | 난이도 |
 |------|------|--------------|--------|
-| **T1** | Tailwind `animate-*` + CSS `@keyframes` | 상태 변화, hover, 단순 loop | 낮음 |
+| **T1** | Tailwind `animate-*` + CSS `@keyframes` + scroll-driven | 상태 변화, hover, 단순 loop, 스크롤 연동 | 낮음 |
 | **T2** | View Transitions API | 뷰/라우트 전환, shared element, FLIP | 중 |
 | **T3** | Pointer Events + FSM + requestAnimationFrame | 드래그앤드롭, 제스처, SVG 연결선 | 높음 |
 
@@ -161,9 +167,58 @@ Tailwind 유틸로 커버 안 되는 커스텀 애니메이션은 `globals.css` 
 ))}
 ```
 
+### 2.5 Scroll-driven Animations (CSS 네이티브)
+
+스크롤 위치에 연동되는 애니메이션을 JS 없이 CSS `animation-timeline` 으로 구현한다. Chrome 안정, Firefox 플래그 필요 (2026-Q2 기준). `@supports` 로 감싸 미지원 브라우저에서 graceful fallback 한다.
+
+**스크롤 진행 바:**
+
+```css
+/* globals.css */
+@keyframes progress-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+```
+
+```tsx
+<div
+  className="fixed top-0 left-0 h-1 w-full origin-left bg-primary motion-reduce:hidden"
+  style={{
+    animation: 'progress-grow linear',
+    animationTimeline: 'scroll(root block)',
+  }}
+/>
+```
+
+**요소 진입 시 fade-in (view timeline):**
+
+```css
+@keyframes fade-slide-in {
+  from { opacity: 0; transform: translateY(2rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@supports (animation-timeline: view()) {
+  .scroll-reveal {
+    animation: fade-slide-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}
+```
+
+```tsx
+<section className="scroll-reveal motion-reduce:opacity-100">
+  스크롤 시 등장하는 콘텐츠
+</section>
+```
+
+> **주의**: scroll-triggered animations (Chrome 145, 2026) 는 특정 스크롤 오프셋 교차 시 시간 기반 애니메이션을 트리거하는 별개 개념이다. scroll-driven 과 혼동하지 않는다. scroll-triggered 는 Tier 2 후보로 분류한다.
+
 ## 3. Tier 2 — View Transitions API 구현
 
-2026-01 기준 Baseline (Chrome/Safari/Firefox 144+). SPA 내 DOM 변경 시 자동 FLIP 애니메이션.
+2026-04 기준 Baseline Newly Available (Chrome/Safari/Firefox 144+). SPA 내 DOM 변경 시 자동 FLIP 애니메이션.
 
 ### 3.1 withViewTransition 래퍼 생성
 

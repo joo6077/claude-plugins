@@ -138,7 +138,7 @@ react-kit 금지 라이브러리. 위반 시 ❌ FAIL — 경고 없이 즉각 R
 
 | 규칙 ID | 검사 내용 | 심각도 |
 |---------|-----------|--------|
-| `lib/banned-animation` | motion, framer-motion, @dnd-kit/*, react-spring, react-dnd, react-beautiful-dnd, react-transition-group, gsap, lottie-react, @formkit/auto-animate import | ❌ FAIL |
+| `lib/banned-animation` | motion, framer-motion, @dnd-kit/*, react-spring, react-dnd, react-beautiful-dnd, react-transition-group, gsap, lottie-react, @formkit/auto-animate, animate.css import | ❌ FAIL |
 | `lib/deprecated-shadcn` | `shadcn-ui` 패키지 import 또는 dependency | ❌ FAIL |
 | `lib/tauri-no-guard` | `@tauri-apps/*` 를 `src/infrastructure/tauri/` 외부에서 import | ❌ FAIL |
 | `lib/deprecated-msw-v1` | `rest` 를 `msw` 에서 import | ⚠️ WARN |
@@ -148,7 +148,7 @@ react-kit 금지 라이브러리. 위반 시 ❌ FAIL — 경고 없이 즉각 R
 
 ```text
 grep 패턴:
-  lib/banned-animation: ^import .* from ['"](motion|framer-motion|react-spring|@dnd-kit\/[^'"]*|react-dnd[^'"]*|react-beautiful-dnd|react-transition-group|gsap|lottie-react|@formkit\/auto-animate[^'"]*)['"]
+  lib/banned-animation: ^import .* from ['"](motion|framer-motion|react-spring|@dnd-kit\/[^'"]*|react-dnd[^'"]*|react-beautiful-dnd|react-transition-group|gsap|lottie-react|@formkit\/auto-animate|animate\.css[^'"]*)['"]
     scope: src/**/*.{ts,tsx}
   lib/deprecated-shadcn: from ['"]shadcn-ui['"]
   lib/tauri-no-guard: ^import .* from ['"]@tauri-apps/ (scope: src/, exclude: src/infrastructure/tauri/)

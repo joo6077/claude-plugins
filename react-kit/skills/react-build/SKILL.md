@@ -17,6 +17,8 @@ user-invocable: true
 - **환경 변수 prefix**: `VITE_*` prefix 만 브라우저 번들에 포함. 다른 prefix 는 런타임에 `undefined`
 - **base 설정**: `vite.config.ts` 의 `base` 옵션이 Tauri (기본 `/`) 와 웹 배포 서브패스에서 다를 수 있음. `--mode` 별 분기 확인 필요
 - **wasm-pack 경로**: `crates/core/` 가 없으면 `--skip-wasm` 자동 활성화. 명시적으로 비활성화하지 않는 한 경고 출력
+- **Vite 8 Rolldown 마이그레이션 주의**: 기존 Vite 6/7 프로젝트에서 Vite 8 로 업그레이드 시 `optimizeDeps.esbuildOptions` 는 자동 변환되지만 deprecated — `optimizeDeps.rolldownOptions` 로 이전해야 한다. `transformWithEsbuild` 사용 커스텀 플러그인은 `esbuild` 를 직접 설치하거나 `transformWithOxc` 로 교체한다. 단계적 마이그레이션 경로: `rolldown-vite@7.2.2` (Vite 7 + Rolldown) → `vite@^8.0.0`
+- **`--analyze` 옵션과 Rolldown**: Vite 8 내장 DevTools 가 빌드 분석/디버깅을 지원하므로 `rollup-plugin-visualizer` 외에 `vite build --debug` 로도 번들 분석 가능
 
 WASM 포함 React 프로젝트의 전체 프로덕션 빌드 파이프라인.
 

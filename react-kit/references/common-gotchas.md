@@ -28,7 +28,7 @@ react-kit 스킬/에이전트를 작성하거나 개선할 때 반복되는 실�
 - `react-kit/agents/animation-architect-react.md` — § 금지 라이브러리 목록
 - `react-kit/skills/react-audit/SKILL.md` — Library Policy 카테고리
 
-금지 목록 (Phase 10 재확인: 2026-04-11): `motion` / `framer-motion` / `dnd-kit` / `react-spring` / `react-transition-group` / `react-dnd` / `react-beautiful-dnd` / `@formkit/auto-animate` / `gsap` / `lottie-react` / `animate.css`
+금지 목록 (Phase 10 재확인: 2026-04-12): `motion` / `framer-motion` / `dnd-kit` / `react-spring` / `react-transition-group` / `react-dnd` / `react-beautiful-dnd` / `@formkit/auto-animate` / `gsap` / `lottie-react` / `animate.css`
 
 **확장 사유**: 이 목록은 react-kit 의 라이브러리 0개 애니메이션 원칙에서 파생된다. 새 라이브러리 금지 추가는 자유롭지만, 기존 항목 삭제/완화는 빌드 게이트 성격이 훼손되므로 엄격히 금지된다. 예외 허용은 사용자 명시 요청 + sprint-contract 계약 문구로만 가능하다.
 
