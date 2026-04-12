@@ -5,7 +5,7 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-04-11 (Phase 3 kaizen research)** — LLM-as-judge 2026 최신 연구 (position bias swap test, self-preference perplexity, Recursive Rubric Decomposition, CoT 효용 한계) 반영 + Phase 2 contract-schema v2 의 specificity tag / aggregation mode 소비 규칙 추가.
+> **최근 갱신: 2026-04-12 (Phase 3 kaizen)** — 수량/경계값 조건 검증 프로토콜 추가 (측정→비교→보고 3단계, 카운팅 패턴 주의사항). 이전: LLM-as-judge 2026 최신 연구 반영 + contract-schema v2 소비 규칙.
 
 ---
 
@@ -199,6 +199,32 @@ CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도�
 서브체크 하나라도 FAIL이면 해당 조건은 FAIL.
 
 > **적용 기준**: 단순 조건(파일 존재, 설정값 확인)은 분해 없이 직접 L3 검증. 복합 조건(여러 시스템 간 상호작용, 다단계 흐름)은 반드시 Aspect 분해 후 서브체크 수행.
+
+### 수량/경계값 조건 검증 (Quantitative Verification)
+
+수량이나 경계값이 포함된 조건(">= N줄", "<= M개", "정확히 K건")은 측정 → 비교 → 보고 3단계를 반드시 수행한다. "대략 맞는 것 같다"는 L2에서 멈추는 함정이다.
+
+**검증 절차:**
+
+1. **측정** — 조건의 대상을 실제로 카운트한다. 파일 줄 수는 `wc -l`, 항목 수는 Grep 카운트, 파일 수는 Glob 결과 카운트 등
+2. **즉시 출력** — 측정값을 Sprint Feedback 근거에 명시한다. 예: `측정값: 1498줄 (기준: >= 1500)`
+3. **비교 판정** — 측정값과 기준값을 비교하여 PASS/FAIL 판정. 경계값 미달은 무조건 FAIL (1498 >= 1500 → FAIL)
+
+**카운팅 시 패턴 주의사항:**
+
+항목을 카운트할 때 Grep 패턴이 대상의 모든 변형을 포함하는지 확인한다:
+- Markdown 헤더: `##` 뿐 아니라 `###`, `####` 등 하위 레벨도 고려
+- 번호 매기기: `1.` 형식과 `- ` 불릿 형식 모두 고려
+- Gotchas 항목 카운트: H2(`## Gotchas`) 하위의 H3(`### 항목`) 또는 불릿(`- **항목**`) 형태 모두 매칭하는 범용 정규식 사용
+
+```text
+# 실패 사례: AR-03 REJECT
+# 조건: docs/flutter/ >= 1500줄
+# 측정값: 1498줄 → 2줄 부족 → FAIL
+# 교훈: "거의 1500줄"이라고 PASS 처리하면 안 된다
+```
+
+> **실제 사례**: AR-03 REJECT (2026-04-12) — `docs/flutter/` 파일 총 줄 수가 1498줄로 기준 1500줄에 2줄 부족. 경계값 미달을 "거의 충족"으로 PASS 처리하지 않고 FAIL로 정확히 판정한 사례.
 
 ### 스킬 트리거 키워드 배타성 검증 (Set Intersection)
 
