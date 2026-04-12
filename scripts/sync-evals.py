@@ -29,7 +29,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # 대상 플러그인 (evals.json 을 가진 것만)
-TARGET_KITS = ["flutter-toolkit", "rust-kit", "react-kit", "design-kit"]
+TARGET_KITS = ["flutter-toolkit", "rust-kit", "react-kit", "design-kit", "backend-kit", "infra-kit"]
 
 
 def load_evals(kit: str) -> dict | None:

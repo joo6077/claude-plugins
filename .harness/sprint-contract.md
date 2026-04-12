@@ -1,55 +1,44 @@
 ---
-feature: "자동화 성숙도 5개 영역 5/5 달성 (cron 제외)"
-created: "2026-04-13 00:00"
-complexity: "복잡"
-conditions: 20
+feature: "테스트 스킬 3종 추가 + 테스트 인프라 구축"
+created: "2026-04-12 14:30"
+complexity: "complex"
+conditions: 18
 ---
 
-# Sprint Contract — 자동화 성숙도 5/5 달성
+## Skill
+- [ ] SK-01: backend-kit/skills/backend-test/SKILL.md가 존재하며 frontmatter에 name, description, argument-hint, user-invocable 필드가 포함된다 [structural]
+- [ ] SK-02: infra-kit/skills/infra-test/SKILL.md가 존재하며 frontmatter에 name, description, argument-hint, user-invocable 필드가 포함된다 [structural]
+- [ ] SK-03: design-kit/skills/design-test/SKILL.md가 존재하며 frontmatter에 name, description, argument-hint, user-invocable 필드가 포함된다 [structural]
+- [ ] SK-04: 3개 테스트 스킬 모두 Gotchas 섹션에 최소 5개 이상 항목이 있다 [structural]
+- [ ] SK-05: 3개 테스트 스킬 모두 Process 섹션에 프로젝트 감지 → 대상 분석 → 기존 패턴 탐색 → 테스트 생성 → 실행 검증 단계가 포함된다 [structural]
+- [ ] SK-06: backend-test는 스택 무관 — pytest/jest/JUnit/go test 등 프로젝트 감지 결과에 따라 분기하는 로직이 Process에 명시된다 [goal]
+- [ ] SK-07: infra-test는 IaC 테스트(Terraform validate, Pulumi test, Ansible lint 등)와 CI 파이프라인 테스트를 커버하는 분기가 Process에 명시된다 [goal]
+- [ ] SK-08: design-test는 디자인 토큰 검증, 접근성 테스트(WCAG), 시각 회귀 테스트를 커버하는 분기가 Process에 명시된다 [goal]
 
-## Context
+## Script
+- [ ] SC-01: scripts/run-evals.py 또는 동등한 테스트 러너 스크립트가 존재하며 evals.json을 읽어 assertion을 검증할 수 있다 [goal]
+- [ ] SC-02: .github/workflows/ 디렉토리에 CI 워크플로우 YAML이 존재하며 validate-plugin.py와 테스트 러너를 실행하는 job이 정의된다 [structural]
+- [ ] SC-03: package.json의 test 스크립트가 stub이 아닌 실제 테스트 커맨드를 실행한다 [goal]
+- [ ] SC-04: react-kit/evals/test-fixtures/ 내 5개 디렉토리 중 최소 2개에 .gitkeep이 아닌 실제 픽스처 파일이 존재한다 [structural]
 
-cron(영역 1) 제외, 5개 영역(3,4,5,6,7)을 각각 5/5로 끌어올린다.
+## Error
+- [ ] ER-01: 테스트 러너 스크립트가 evals.json 파싱 실패 시 명확한 에러 메시지와 비정상 종료 코드를 반환한다 [goal]
+- [ ] ER-02: CI 워크플로우가 테스트 실패 시 PR을 블로킹한다 (fail-fast 또는 continue-on-error: false) [structural]
 
-## 영역 3: Phase 실행 (3→5)
-
-- [ ] P3-01: spawn-kaizen-phase.sh 실행 시 kaizen-state.yaml의 current_phase, status가 자동 갱신된다
-- [ ] P3-02: finalize-phase.sh pass 실행 시 kaizen-state.yaml의 last_approve_timestamp가 현재 시각으로 갱신된다
-- [ ] P3-03: finalize-phase.sh fail 실행 시 kaizen-state.yaml의 last_reject_timestamp가 현재 시각으로 갱신된다
-- [ ] P3-04: 10개 Phase 전부 완료 후 finalize-phase.sh 10 pass 실행 시 status가 "completed"로 전환된다
-
-## 영역 4: 산출물 동기화 (4→5)
-
-- [ ] P4-01: .claude/settings.json PostToolUse 훅에 harness 소스 변경 시 docs-site 재생성 알림이 포함된다
-- [ ] P4-02: finalize-phase.sh 완료 시 changelog 자동 append 또는 알림이 출력된다
-
-## 영역 5: 오케스트레이터 self-improvement (4→5)
-
-- [ ] P5-01: meta-kaizen 스킬 SKILL.md가 존재하고 user-invocable: true이다
-- [ ] P5-02: meta-kaizen 스킬의 Process 섹션에 외부 리서치(WebSearch/Codex) 기반 orchestrator 개선 단계가 포함된다
-
-## 영역 6: 품질 보증 (4→5)
-
-- [ ] P6-01: .claude/settings.json PostToolUse 훅에 validate-plugin 자동 실행이 포함된다
-- [ ] P6-02: validate-plugin 훅의 timeout이 10000ms 이하이다
-
-## 영역 7: 안전성/복구 (4→5)
-
-- [ ] P7-01: finalize-phase.sh fail 실행 시 auto-revert 여부를 사용자에게 안내하고, --auto-revert 플래그로 자동 revert를 지원한다
-- [ ] P7-02: validate-post-kaizen.py의 scope-isolation 체크가 Phase별 파일 범위를 검증한다 (이미 존재 확인)
+## Architecture
+- [ ] AR-01: 3개 테스트 스킬이 각 플러그인의 기존 스킬 네이밍 패턴을 따른다 (backend-test, infra-test, design-test) [exact]
+- [ ] AR-02: 각 플러그인의 evals.json에 새 테스트 스킬의 eval 항목이 추가된다 [structural]
+- [ ] AR-03: sync-evals.py의 대상 킷 목록에 backend-kit, infra-kit가 포함된다 [exact]
+- [ ] AR-04: README.md 스킬 테이블에 3개 테스트 스킬이 등록된다 (sync-docs.py 실행 또는 수동) [goal]
 
 ## Anti-patterns
-
-- [ ] AP-01: settings.json 훅이 기존 훅을 덮어쓰지 않고 추가한다
-- [ ] AP-02: auto-revert는 --auto-revert 명시 플래그 없이는 절대 실행되지 않는다
+- [ ] AP-03: bare code fence 금지 — 모든 코드 블록에 언어 힌트 필수
+- [ ] AP-04: SKILL.md frontmatter에서 name 필드 누락 금지
 
 ## Reusability
-
-- [ ] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다
-- [ ] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다
+- [ ] RE-01: private 일회용 컴포넌트가 없다
+- [ ] RE-02: 기존 공용 컴포넌트를 재사용한다
 
 ## Diagnostics
-
-- [ ] DG-01: `python3 scripts/validate-plugin.py` 워닝 0개
-- [ ] DG-02: `bash scripts/finalize-phase.sh 5 pass` exit 0
-- [ ] DG-03: 성숙도 리포트 영역별 합계가 산술적으로 정확하다
+- [ ] DG-01: python3 scripts/validate-plugin.py 실행 시 새로 추가된 3개 스킬에서 ERROR 0건
+- [ ] DG-02: python3 scripts/sync-evals.py --check-only 실행 시 missing drift 0건

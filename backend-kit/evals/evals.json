@@ -64,6 +64,31 @@
         {"text": "Amazon Prime Video, Shopify 등 실제 사례를 근거로 제시한다", "type": "output"},
         {"text": "트레이드오프 양면을 제시하고 일방적 권고를 하지 않는다", "type": "behavior"}
       ]
+    },
+    {
+      "id": 6,
+      "skill": "backend-test",
+      "prompt": "이 Python FastAPI 서비스의 user_service.py에 테스트 만들어줘",
+      "expected_output": "pytest 기반 unit + API test 생성, 기존 패턴 탐색 후 생성",
+      "assertions": [
+        {"text": "프로젝트 스택(Python/Node/Java/Go)을 먼저 감지한 후 적합한 테스트 프레임워크를 선택한다", "type": "behavior"},
+        {"text": "기존 테스트 디렉토리 구조와 네이밍 패턴을 탐색하고 따른다", "type": "behavior"},
+        {"text": "happy path와 error path를 모두 커버하는 테스트를 생성한다", "type": "output"},
+        {"text": "DB 의존 코드에는 Testcontainers 또는 트랜잭션 롤백 격리를 안내한다", "type": "output"},
+        {"text": "생성된 테스트를 실행하여 결과를 확인한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 7,
+      "skill": "backend-test",
+      "prompt": "Go 프로젝트 handler 통합 테스트 추가해줘",
+      "expected_output": "httptest 기반 API integration test 생성",
+      "assertions": [
+        {"text": "Go 프로젝트를 감지하고 testing + testify 기반으로 생성한다", "type": "behavior"},
+        {"text": "httptest.NewRequest로 핸들러 테스트를 생성한다", "type": "output"},
+        {"text": "외부 서비스만 mock하고 내부 서비스는 실제 코드를 사용한다", "type": "behavior"},
+        {"text": "Rust/Dart 프로젝트 감지 시 전용 스킬로 리다이렉트한다", "type": "behavior"}
+      ]
     }
   ]
 }

@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Plugin Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: pip install pyyaml
+
+      - name: Validate plugins (7-category)
+        run: python3 scripts/validate-plugin.py
+
+      - name: Sync evals check
+        run: python3 scripts/sync-evals.py --check-only
+
+      - name: Run eval assertions
+        run: python3 scripts/run-evals.py --verbose
+
+  playwright:
+    name: Playwright Visual Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: npx playwright test design-kit/evals/visuals.spec.js
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: test-results/
+          retention-days: 7
+
+  harness:
+    name: Harness Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run feedback save test
+        run: bash harness/evals/kaizen/feedback-system/save-test.sh
+
+      - name: Run feedback aggregation test
+        run: |
+          if command -v yq &>/dev/null; then
+            bash harness/evals/kaizen/feedback-system/aggregation-test.sh
+          else
+            echo "SKIP: yq not installed"
+          fi

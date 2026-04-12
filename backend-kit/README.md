@@ -13,6 +13,7 @@
 | `/backend-guide` | 백엔드 코드/설계에 대한 원칙 기반 가이드 (가벼운 리뷰) |
 | `/backend-audit` | 백엔드 코드를 카테고리별 PASS/FAIL로 체계적 감사 |
 | `/backend-system` | 프로젝트 백엔드 아키텍처 기반 세팅 (API 규격, 에러 처리 등) |
+| `/backend-test` | 대상 파일/모듈 분석 후 테스트 코드 자동 생성 (pytest/jest/JUnit/go test 등 스택 무관) |
 
 ## 에이전트
 

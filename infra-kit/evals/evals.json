@@ -38,6 +38,31 @@
         {"text": "초기 세팅은 개발 환경부터 시작하고 프로덕션 최적화를 강제하지 않는다", "type": "behavior"},
         {"text": "프로젝트 규모에 맞지 않는 과도한 도구(K8s, 서비스 메시)를 소규모에 강제하지 않는다", "type": "behavior"}
       ]
+    },
+    {
+      "id": 4,
+      "skill": "infra-test",
+      "prompt": "이 Terraform 모듈에 테스트 만들어줘",
+      "expected_output": "terraform test (HCL) 기반 IaC 테스트 생성, plan 모드 검증",
+      "assertions": [
+        {"text": "인프라 스택(Terraform/Pulumi/CDK/Dockerfile/K8s)을 먼저 감지한다", "type": "behavior"},
+        {"text": "프로덕션 인프라에 직접 apply하는 테스트를 생성하지 않는다", "type": "behavior"},
+        {"text": "terraform test의 assert 블록으로 리소스 속성을 검증한다", "type": "output"},
+        {"text": "기존 테스트 패턴(tests/ 디렉토리, Makefile 타겟)을 먼저 탐색한다", "type": "behavior"},
+        {"text": "CI 파이프라인에 통합하는 방법을 안내한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 5,
+      "skill": "infra-test",
+      "prompt": "Dockerfile이랑 GitHub Actions 검증 테스트 추가해줘",
+      "expected_output": "hadolint + actionlint + 구조 검증 스크립트 생성",
+      "assertions": [
+        {"text": "Dockerfile에는 hadolint 정적 분석을 적용한다", "type": "output"},
+        {"text": "GitHub Actions에는 actionlint를 적용한다", "type": "output"},
+        {"text": "CI 파이프라인 YAML의 구문 검사를 포함한다", "type": "output"},
+        {"text": "보안 관련 검증(시크릿 노출, SHA 고정)을 포함한다", "type": "behavior"}
+      ]
     }
   ]
 }

@@ -7,7 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx playwright test",
+    "test:visual": "npx playwright test design-kit/evals/visuals.spec.js",
+    "validate": "python3 scripts/validate-plugin.py",
+    "sync-evals": "python3 scripts/sync-evals.py --check-only"
   },
   "repository": {
     "type": "git",

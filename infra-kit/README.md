@@ -13,6 +13,7 @@
 | `/infra-guide` | 인프라 설정에 대한 원칙 기반 가이드 (가벼운 리뷰) |
 | `/infra-audit` | 인프라 설정을 카테고리별 PASS/FAIL로 체계적 감사 |
 | `/infra-init` | 프로젝트 인프라 기반 초기 세팅 (Docker, CI/CD, 시크릿 등) |
+| `/infra-test` | 인프라 설정 테스트 자동 생성 (Terraform test, hadolint, actionlint, kubeconform 등) |
 
 ## 에이전트
 

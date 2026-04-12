@@ -1,76 +1,93 @@
----
-feature: "자동화 성숙도 5개 영역 5/5 달성 (cron 제외)"
-evaluated: "2026-04-12 13:00"
-verdict: APPROVE
-iteration: 2
----
-
 # Sprint Feedback
-Feature: 자동화 성숙도 5/5 달성 (영역 3, 4, 5, 6, 7)
-Evaluated: 2026-04-12
-Verdict: APPROVE
-Iteration: 2
+Feature: 테스트 스킬 3종 추가 + 테스트 인프라 구축
+Evaluated: 2026-04-12 15:10
+Verdict: REJECT
+Iteration: 1
 
 ## Results
 
-### 영역 3: Phase 실행 (4/4)
-- [x] P3-01: spawn-kaizen-phase.sh 실행 시 kaizen-state.yaml의 current_phase, status가 자동 갱신된다 — PASS
-  - 근거: `scripts/spawn-kaizen-phase.sh:106-122 (현재 파일)` — `re.sub`으로 `current_phase`, `status: running`, `cycle_id` 세 필드를 갱신. L3: STATE_FILE 존재 시 항상 실행. 이번 변경으로 코드 위치가 이동됐으나 로직은 동일.
-- [x] P3-02: finalize-phase.sh pass 실행 시 kaizen-state.yaml의 last_approve_timestamp가 현재 시각으로 갱신된다 — PASS
-  - 근거: `scripts/finalize-phase.sh:133-148` — `RESULT == "pass"` 분기에서 `last_approve_timestamp: "{ts}"` regex 치환. L3: 실행 결과 `✓ kaizen-state.yaml 업데이트 (result=pass)` exit 0 확인.
-- [x] P3-03: finalize-phase.sh fail 실행 시 kaizen-state.yaml의 last_reject_timestamp가 현재 시각으로 갱신된다 — PASS
-  - 근거: `scripts/finalize-phase.sh:149-158` — RESULT != pass(else) 분기에서 `last_reject_timestamp` regex 치환. L3: 코드 경로 추적.
-- [x] P3-04: 10개 Phase 전부 완료 후 finalize-phase.sh 10 pass 실행 시 status가 "completed"로 전환된다 — PASS
-  - 근거: `scripts/finalize-phase.sh:135-136` — `PHASE_NUM -eq 10` 조건 분기, `NEW_STATUS="completed"` 설정 후 146번 줄 `status: {status}` 치환. L3: 코드 경로 추적.
+### Skill (7/8)
 
-### 영역 4: 산출물 동기화 (2/2)
-- [x] P4-01: .claude/settings.json PostToolUse 훅에 harness 소스 변경 시 docs-site 재생성 알림이 포함된다 — PASS
-  - 근거: `.claude/settings.json:28-31` — `harness/docs/guides/|harness/skills/|harness/agents/` 패턴 감지 시 `💡 harness 소스 변경 감지 — /docs-site 로 HTML 재생성 필요` 출력. L3: 5개 훅 중 5번째로 존재.
-- [x] P4-02: finalize-phase.sh 완료 시 changelog 자동 append 또는 알림이 출력된다 — PASS
-  - 근거: `scripts/finalize-phase.sh:204` — `📝 changelog 업데이트 필요: docs/kaizen/changelog.md 에 오늘($TODAY) 엔트리 추가` 출력. L3: pass/fail 분기 외부에서 항상 실행.
+- [x] SK-01: backend-kit/skills/backend-test/SKILL.md 존재 + frontmatter 4개 필드 포함 — PASS
+  - 근거: `backend-kit/skills/backend-test/SKILL.md:1-12` — name, description, argument-hint, user-invocable 모두 존재 [L3]
+- [x] SK-02: infra-kit/skills/infra-test/SKILL.md 존재 + frontmatter 4개 필드 포함 — PASS
+  - 근거: `infra-kit/skills/infra-test/SKILL.md:1-13` — 4개 필드 모두 존재 [L3]
+- [x] SK-03: design-kit/skills/design-test/SKILL.md 존재 + frontmatter 4개 필드 포함 — PASS
+  - 근거: `design-kit/skills/design-test/SKILL.md:1-12` — 4개 필드 모두 존재 [L3]
+- [x] SK-04: 3개 스킬 모두 Gotchas 5개 이상 — PASS
+  - 근거: backend-test 10개, infra-test 8개, design-test 9개 (awk로 Gotchas 섹션 분리 계수) [L3]
+- [x] SK-05: 3개 스킬 모두 Process 5단계 포함 — PASS
+  - 근거: backend-test: Step 0(프로젝트 감지)→Step 1(대상 분석)→Step 2(기존 패턴)→Step 3(생성)→Step 5(실행 검증). infra-test: Step 0~8. design-test: Step 0~8. 지정된 5단계 흐름 포함 [L3]
+- [x] SK-06: backend-test 스택 무관 분기 Process에 명시 — PASS
+  - 근거: `backend-kit/skills/backend-test/SKILL.md:31-43` — Step 0 감지 테이블에서 Python/Node/Java/Go/Elixir별 테스트 프레임워크 분기, Rust/Dart는 전용 스킬 리다이렉트 [L3]
+- [x] SK-07: infra-test IaC + CI 파이프라인 분기 명시 — PASS
+  - 근거: `infra-kit/skills/infra-test/SKILL.md:30-41` — Terraform/Pulumi/CDK/Container/GitHub Actions/GitLab CI/K8s/Ansible 감지 테이블, Step 3(IaC), Step 5(CI 파이프라인), Step 6(K8s) 분기 [L3]
+- [ ] SK-08: design-test 토큰 검증 + 접근성(WCAG) + 시각 회귀 분기 명시 — PASS
+  - 근거: `design-kit/skills/design-test/SKILL.md` — Step 3(토큰), Step 4(axe-core WCAG 2.2 AA), Step 5(Playwright 시각 회귀, maxDiffPixelRatio) 분기 명시 [L3]
+  *(SK-08은 PASS로 판정됨. 위 체크박스 표기 오류)*
 
-### 영역 5: 오케스트레이터 self-improvement (2/2)
-- [x] P5-01: meta-kaizen 스킬 SKILL.md가 존재하고 user-invocable: true이다 — PASS
-  - 근거: `.claude/skills/meta-kaizen/SKILL.md:9` — `user-invocable: true`. L2: 파일 존재, L3: frontmatter에 `user-invocable: true` 확인.
-- [x] P5-02: meta-kaizen 스킬의 Process 섹션에 외부 리서치(WebSearch/Codex) 기반 orchestrator 개선 단계가 포함된다 — PASS
-  - 근거: `.claude/skills/meta-kaizen/SKILL.md:46-59` — Step 3 리서치 섹션에 `Context7`과 `Codex (codex-rescue) 위임` 명시, fallback(WebSearch) 포함. L3: 구체적 MCP 도구 호출 방법 포함.
+### Script (3/4)
 
-### 영역 6: 품질 보증 (2/2)
-- [x] P6-01: .claude/settings.json PostToolUse 훅에 validate-plugin 자동 실행이 포함된다 — PASS
-  - 근거: `.claude/settings.json:18-25` — validate-plugin 관련 두 훅 존재 (훅 3: refs,placeholders, 훅 4: 전체 검증). L3: `skills/*.SKILL.md|agents/*.md|.claude-plugin/plugin.json` 변경 시 트리거.
-- [x] P6-02: validate-plugin 훅의 timeout이 10000ms 이하이다 — PASS
-  - 근거: `.claude/settings.json:20,25` — validate-plugin 관련 두 훅 모두 `timeout: 10000`. L3: 10000 <= 10000 조건 충족.
+- [x] SC-01: scripts/run-evals.py 존재, evals.json 읽어 assertion 검증 — PASS
+  - 근거: `scripts/run-evals.py:46-54` — json.loads로 evals.json 파싱, `validate_eval_entry`에서 skill 존재/prompt/assertions/placeholder 검증 수행 [L3]
+- [x] SC-02: .github/workflows/ci.yml 존재, validate-plugin.py + 테스트 러너 job 정의 — PASS
+  - 근거: `.github/workflows/ci.yml:24-31` — validate job에서 `python3 scripts/validate-plugin.py`와 `python3 scripts/run-evals.py --verbose` 실행 [L3]
+- [x] SC-03: package.json test 스크립트가 실제 커맨드 실행 — PASS
+  - 근거: `package.json:10` — `"test": "npx playwright test"` — Playwright 러너를 실제 실행하는 커맨드 (echo/exit 0 stub 아님) [L3]
+- [x] SC-04: react-kit/evals/test-fixtures/ 내 2개 이상 디렉토리에 실제 픽스처 파일 존재 — PASS
+  - 근거: empty-project/package.json, empty-project/tsconfig.json, clean-arch-project/package.json, clean-arch-project/tsconfig.json, tauri-project/package.json — 3개 디렉토리에 실제 파일 5개 [L3]
 
-### 영역 7: 안전성/복구 (2/2)
-- [x] P7-01: finalize-phase.sh fail 실행 시 auto-revert 여부를 사용자에게 안내하고, --auto-revert 플래그로 자동 revert를 지원한다 — PASS
-  - 근거: `scripts/finalize-phase.sh:163-191` — 플래그 없음: 188-190번 줄에서 `--revert`, `--auto-revert` 두 옵션 안내. `--auto-revert`: 166-175번 줄에서 `git revert --no-edit $TAG..HEAD` 자동 실행. L3: 코드 경로 추적.
-- [x] P7-02: validate-post-kaizen.py의 scope-isolation 체크가 Phase별 파일 범위를 검증한다 (이미 존재 확인) — PASS
-  - 근거: `scripts/validate-post-kaizen.py:297-338` — `check_scope_isolation()` 함수가 git log 기반으로 Phase 간 파일 범위 교차 여부 검증. 이번 변경(hint 필드 추가)은 핵심 로직에 영향 없음. L3: 함수 구조 확인.
+### Error (1/2)
+
+- [ ] ER-01: 테스트 러너 스크립트가 evals.json 파싱 실패 시 비정상 종료 코드 반환 — FAIL
+  - 근거: `scripts/run-evals.py:46-54` — JSONDecodeError 발생 시 stderr 메시지 출력 후 `return None` → `validate_kit:136-139`에서 `data is None`이면 `(0, 0)` 반환 → `grand_fail` 증가 없음 → `sys.exit(0)` (exit code 0). 파싱 실패임에도 성공으로 종료
+  - 수정: `load_evals`에서 JSONDecodeError 시 `sys.exit(2)` 또는 caller에서 None 반환 시 `grand_fail` 카운터를 증가시켜 exit code 1 이상 반환
+- [x] ER-02: CI 워크플로우가 테스트 실패 시 PR 블로킹 — PASS
+  - 근거: `.github/workflows/ci.yml:9-31` — validate/playwright/harness job 기본값은 continue-on-error: false. `continue-on-error: true`는 `aggregation-test.sh` 단계에만 적용 (yq 미설치 예외 처리). 핵심 검증 job은 실패 시 블로킹 [L3]
+
+### Architecture (3/4)
+
+- [x] AR-01: 3개 스킬이 기존 네이밍 패턴 준수 — PASS
+  - 근거: `ls backend-kit/skills/` → backend-test, `ls infra-kit/skills/` → infra-test, `ls design-kit/skills/` → design-test. `<kit-prefix>-test` 패턴 정확 일치 [L3]
+- [x] AR-02: 각 플러그인 evals.json에 새 스킬 eval 항목 추가 — PASS
+  - 근거: backend-kit/evals/evals.json:70,83 — "skill": "backend-test" 2건. infra-kit/evals/evals.json:44,57 — "skill": "infra-test" 2건. design-kit/evals/evals.json:172,185 — "skill": "design-test" 2건 [L3]
+- [x] AR-03: sync-evals.py TARGET_KITS에 backend-kit, infra-kit 포함 — PASS
+  - 근거: `scripts/sync-evals.py:32` — `TARGET_KITS = ["flutter-toolkit", "rust-kit", "react-kit", "design-kit", "backend-kit", "infra-kit"]` literal 확인 [L3/exact]
+- [ ] AR-04: README.md 스킬 테이블에 3개 테스트 스킬 등록 — FAIL
+  - 근거: design-kit/README.md:19에 design-test 등록됨. backend-kit/README.md 스킬 테이블에 backend-test 없음(3개 스킬만: backend-guide, backend-audit, backend-system). infra-kit/README.md 스킬 테이블에 infra-test 없음(3개 스킬만: infra-guide, infra-audit, infra-init)
+  - 수정: `python3 scripts/sync-docs.py backend-kit infra-kit` 실행하거나 두 README의 스킬 테이블에 수동으로 backend-test, infra-test 항목 추가
 
 ### Anti-patterns (2/2)
-- [x] AP-01: settings.json 훅이 기존 훅을 덮어쓰지 않고 추가한다 — PASS
-  - 근거: `.claude/settings.json` — git diff로 이전 커밋 3개 훅(sync-docs, sync-orchestrator, validate-plugin refs,placeholders)이 1~3번 위치에 그대로 유지되며 4~5번에 신규 훅 추가됨. L3: additive 변경 확인.
-- [x] AP-02: auto-revert는 --auto-revert 명시 플래그 없이는 절대 실행되지 않는다 — PASS
-  - 근거: `scripts/finalize-phase.sh:166` — `REVERT_FLAG == "--auto-revert"` 엄격한 문자열 비교. `git revert` 실행은 해당 분기 내부(170번 줄)에만 존재. `--revert` 플래그는 안내문만 출력(180번 줄). 플래그 없음은 옵션 안내만(188-190번 줄). L3: 코드 경로 추적.
+
+- [x] AP-03: bare code fence 없음 — PASS
+  - 근거: validate-plugin.py V6 체크(여는 fence에만 적용)가 7/7 OK 반환. 스킬 파일 내 ```` ``` ````로만 닫히는 위치는 모두 닫는 fence [L3]
+- [x] AP-04: frontmatter name 필드 누락 없음 — PASS
+  - 근거: 3개 SKILL.md 모두 frontmatter 첫 필드로 name 포함 (SK-01~03 근거와 동일) [L3]
 
 ### Reusability (2/2)
-- [x] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다 — PASS
-  - 근거: 신규/수정 스크립트 모두 `scripts/` 공유 경로에 위치. L3: 모든 컴포넌트 접근 가능.
-- [x] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다 — PASS
-  - 근거: 이번 변경은 기존 스크립트 수정 + automation-maturity 파일 수정. 중복 신규 생성 없음. L3: 확인.
 
-### Diagnostics (3/3)
-- [x] DG-01: `python3 scripts/validate-plugin.py` 워닝 0개 — PASS
-  - 근거: 실행 결과 `Total: 7 plugins, 7 OK, Exit: 0`. L3: 실제 실행 확인.
-- [x] DG-02: `bash scripts/finalize-phase.sh 5 pass` exit 0 — PASS
-  - 근거: 실행 결과 `EXIT: 0`. 출력: `✓ Phase 5 PASS`, `✓ kaizen-state.yaml 업데이트 (result=pass)`. L3: 실제 실행 확인.
-- [x] DG-03: 성숙도 리포트 영역별 합계가 산술적으로 정확하다 — PASS
-  - 근거: `.harness/.meta/automation-maturity-2026-04-12.md:3` — `## 종합 점수: 32 / 35 (91%)`. 영역별 합계: 2+5+5+5+5+5+5 = 32. 32/35 = 91.4% ≈ 91%. 산술 일치. L3: 헤더 값과 테이블 합계 1:1 검증.
+- [x] RE-01: private 일회용 컴포넌트 없음 — PASS
+  - 근거: 3개 스킬 모두 각 플러그인의 skills/ 경로에 위치, 전용 에이전트/클래스 신규 생성 없음 [L3]
+- [x] RE-02: 기존 공용 컴포넌트 재사용 — PASS
+  - 근거: 3개 스킬 References에서 기존 principle-index.md, system-principles.md, token-principles.md 참조 [L3]
+
+### Diagnostics (2/2)
+
+- [x] DG-01: validate-plugin.py 새 스킬 ERROR 0건 — PASS
+  - 근거: 사용자 보고 "7/7 OK (ERROR 0건)" — AP-03 분석으로 V6 체크 통과 확인 [정적]
+- [x] DG-02: sync-evals.py --check-only 새 스킬 drift 0건 — PASS
+  - 근거: 사용자 보고 "새 스킬 drift 0건" — AR-03으로 TARGET_KITS 포함 확인 [정적]
 
 ## Summary
-- Total: 19/19 conditions passed
-- Verdict: APPROVE
-- 이번 iteration에서 수정된 항목: DG-03 — automation-maturity 리포트 "33/35 (94%)" → "32/35 (91%)" 수정 완료. 영역별 테이블도 일관되게 갱신됨.
-- 추가 변경 사항 검토: finalize-phase.sh 및 spawn-kaizen-phase.sh 기능 강화, settings.json 훅 2개 추가 — 모두 기존 PASS 조건에 영향 없음 확인.
+
+- Total: 16/18 조건 PASS
+- Verdict: REJECT
+- FAIL 항목:
+  1. **ER-01** (Critical) — run-evals.py가 evals.json 파싱 실패 시 exit code 0으로 정상 종료. CI에서 파싱 오류를 감지하지 못함
+  2. **AR-04** (Medium) — backend-kit/README.md, infra-kit/README.md에 새 테스트 스킬이 등록되지 않음
+
+- 수정 우선순위:
+  1. ER-01: `scripts/run-evals.py` load_evals 함수에서 파싱 오류 시 exit(2) 추가
+  2. AR-04: `python3 scripts/sync-docs.py backend-kit infra-kit` 실행
 
 ⚠️ 런타임 검증 미수행 — MCP 서버 미설정
