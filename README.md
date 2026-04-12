@@ -67,6 +67,10 @@ claude plugin install harness@joo6077-plugins --scope project
 claude plugin update harness@joo6077-plugins
 claude plugin update flutter-toolkit@joo6077-plugins
 claude plugin update design-kit@joo6077-plugins
+claude plugin update backend-kit@joo6077-plugins
+claude plugin update infra-kit@joo6077-plugins
+claude plugin update rust-kit@joo6077-plugins
+claude plugin update react-kit@joo6077-plugins
 ```
 
 ### 삭제
@@ -75,6 +79,10 @@ claude plugin update design-kit@joo6077-plugins
 claude plugin uninstall harness@joo6077-plugins
 claude plugin uninstall flutter-toolkit@joo6077-plugins
 claude plugin uninstall design-kit@joo6077-plugins
+claude plugin uninstall backend-kit@joo6077-plugins
+claude plugin uninstall infra-kit@joo6077-plugins
+claude plugin uninstall rust-kit@joo6077-plugins
+claude plugin uninstall react-kit@joo6077-plugins
 ```
 
 ### 릴리스 (관리자)
@@ -84,6 +92,10 @@ claude plugin uninstall design-kit@joo6077-plugins
 bash scripts/release.sh harness patch
 bash scripts/release.sh flutter-toolkit patch
 bash scripts/release.sh design-kit patch
+bash scripts/release.sh backend-kit patch
+bash scripts/release.sh infra-kit patch
+bash scripts/release.sh rust-kit patch
+bash scripts/release.sh react-kit patch
 ```
 
 ---
@@ -138,6 +150,43 @@ Flutter 프로젝트 전용 개발 워크플로우 스킬 18종.
 
 > 자세한 내용은 [design-kit/README.md](./design-kit/README.md) 참조.
 
+### backend-kit
+
+스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅.
+
+- Hexagonal/Clean/DDD 아키텍처, OAuth 2.1, FAPI 2.0, Outbox 패턴
+- `docs/backend/` 리서치 문서 기반
+
+> 자세한 내용은 [backend-kit/README.md](./backend-kit/README.md) 참조.
+
+### infra-kit
+
+스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅.
+
+- K8s Gateway API, Terraform/OpenTofu, SLSA, OTel, FinOps
+- `docs/infra/` 리서치 문서 기반
+
+> 자세한 내용은 [infra-kit/README.md](./infra-kit/README.md) 참조.
+
+### rust-kit
+
+Rust 전용 백엔드 개발 워크플로우 17종.
+
+- Rust 2024 Edition, Axum 0.8, SQLx, SeaORM, tonic gRPC
+- `docs/rust/` 리서치 문서 기반
+
+> 자세한 내용은 [rust-kit/README.md](./rust-kit/README.md) 참조.
+
+### react-kit
+
+React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 21종 + 3 에이전트.
+
+- React 19, TanStack Router/Query, Zustand, shadcn/ui, Tailwind v4
+- 라이브러리 0개 애니메이션 원칙
+- `docs/react/` 리서치 문서 기반
+
+> 자세한 내용은 [react-kit/README.md](./react-kit/README.md) 참조.
+
 ---
 
 ## 구조
@@ -166,6 +215,27 @@ claude-plugins/
 │   ├── agents/
 │   ├── hooks/
 │   └── scripts/
+├── backend-kit/                 # 백엔드 개발
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── agents/
+│   └── references/
+├── infra-kit/                   # 인프라/DevOps
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── agents/
+│   └── references/
+├── rust-kit/                    # Rust 백엔드
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/                  # 개발 워크플로우 스킬 17종
+│   ├── agents/
+│   ├── references/
+│   └── templates/
+├── react-kit/                   # React + Vite + Tauri 2
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/                  # 개발 워크플로우 스킬 21종
+│   ├── agents/                  # 3 에이전트
+│   └── references/
 ├── docs/                        # 설계 가이드, 리서치, 카이젠 로그
 ├── scripts/
 │   └── release.sh               # 플러그인 릴리스 자동화
