@@ -43,6 +43,8 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - 다수 대상 (파일/모듈/키워드) 조건 작성 시 **aggregation mode** 를 태그에 함께 명시하라. `[exact, enumerated]` 은 각 대상을 개별 이름으로 명시해야 PASS, `[structural, collective]` 은 포괄 경로/패턴 하나로도 PASS. 모드 미명시 시 기본값은 `collective`. (KZ-04 REJECT 패턴 방지)
 - 특정 파일·타입에 조건이 적용되지 않는 경우 **예외 조항을 조건 내부에 인라인으로 명시하라**. `예외: (a) integration.html — Final 통합 페이지로 제외` 형태. 구두 합의나 별도 메모는 QA 시점에 반영되지 않는다
 - 조건에 한국어 + 영어가 혼용되는 키워드 (예: "Layout shift" vs "레이아웃 shift") 가 있으면 **병기하거나 한쪽으로 통일 선언** 하라. 표현 변형은 키워드 매칭·의미 해석을 엇갈리게 만든다
+- 경계값 조건 (`>= N`, `<= N`, `== N`) 작성 시 **측정 대상 + 측정 방법(명령어/도구)**을 인라인으로 명시하라. "1500줄 이상이다" 만으로는 wc -l / grep -c / 에디터 줄 수 중 무엇인지 불명확하여 근소한 차이에서 판정이 엇갈린다
+- 포맷 일관성을 요구하는 조건은 **적용 수준(file-level / section-level / field-level)**을 명시하라. "일관된 포맷" 단독 사용 금지. 핵심 필드(컬럼명 등)까지 열거하면 가장 정확하다
 
 ## 설정 로드
 
@@ -177,6 +179,8 @@ conditions: {N}
    - `complexity_underestimate`: 복잡도를 과소평가하여 조건 수가 부족한가?
    - `implementation_leakage`: 조건에 내부 구현 용어(클래스명, 메서드명, DB명)가 포함되었는가?
    - `nfr_coverage`: 해당 기능의 비기능 요구사항이 조건에 반영되었는가?
+   - `boundary_without_measurement`: 경계값(>=, <=, ==) 조건에 측정 방법이 누락되었는가?
+   - `format_granularity_missing`: 포맷 일관성 조건에 적용 수준(file/section/field)이 명시되었는가?
 2. 각 항목에 대해 true/false 판정
 
 ### 8. 교차 진단
