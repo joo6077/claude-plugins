@@ -20,6 +20,8 @@ user-invocable: true
 - **`#[from]` 남용 시 에러 출처 모호화** — `thiserror`의 `#[from]`은 편리하지만, 동일 source error(예: `std::io::Error`)가 여러 variant에서 `#[from]`으로 사용되면 컴파일 에러가 난다. 이 경우 수동 `impl From`으로 context를 추가하거나 variant를 세분화해라.
 - **`anyhow::Context` trait을 도메인 에러에 쓰지 마라** — `.context("...")`는 `anyhow::Error`에만 체이닝 가능하다. 도메인 `thiserror` enum에 context를 추가하려면 별도 variant에 `String` 필드를 두거나 `#[error(transparent)]`로 inner error를 감싸라.
 - **에러 enum variant 폭발 방지** — 하나의 에러 enum에 15개 이상의 variant가 생기면 도메인 경계를 재검토해라. 모듈별로 에러를 분리하고 상위 에러에서 `#[from]`으로 합성하는 계층 구조를 사용한다.
+- **에러 크레이트 선택 Decision Table** — 용도에 따라 크레이트를 구분한다: **라이브러리/도메인** → `thiserror` (구조적 enum, `#[error]`/`#[from]`/`#[source]`), **애플리케이션 최상위** → `anyhow` (`context()`로 에러 체인 설명 추가), **CLI 도구** → `color-eyre` + `miette` (풍부한 panic hook + 색상 포맷 + 사용자 친화 에러 출력), **대규모 프로젝트** → `error-stack` (snafu 수준 context 강제 + anyhow 수준 편의성 균형, GreptimeDB 채택). 라이브러리에서 `anyhow`를 사용하면 타입 정보가 손실되어 호출자가 `match`로 분기할 수 없다.
+- **`#[diagnostic::do_not_recommend]` 활용** — Rust 1.85+에서 라이브러리 author가 특정 trait impl을 컴파일러 에러 메시지에서 제외할 수 있다. 커스텀 에러 trait 계층이 복잡할 때 사용자에게 보이는 에러 메시지를 개선하는 데 유용하다.
 
 # 에러 처리 패턴 가이드
 

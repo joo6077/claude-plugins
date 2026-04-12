@@ -13,7 +13,10 @@ user-invocable: true
 # Gotchas
 
 1. **`cargo init` vs `cargo new` 혼동 금지** — 기존 디렉토리에 초기화하면 `cargo init`, 새 디렉토리를 만들면 `cargo new`.
-2. **Edition 2024가 2026 기본값** — 신규 프로젝트는 `edition = "2024"` + `resolver = "3"`을 기본으로 생성한다. Rust 1.85+(2025-02-20)에서 stable 편입되어 2026 현재 실무 표준. 기존 코드 유지가 필요한 경우에만 `edition = "2021"` + `resolver = "2"` 유지. edition 2024는 RPIT capture 규칙 변경·`unsafe extern`·`let` chain·`if let` temporary scope 변경 등을 포함하므로 마이그레이션 시 `cargo fix --edition`으로 전환한다.
+2. **Edition 2024가 2026 기본값** — 신규 프로젝트는 `edition = "2024"` + `resolver = "3"`을 기본으로 생성한다. Rust 1.85+(2025-02-20)에서 stable 편입되어 2026 현재 실무 표준. 기존 코드 유지가 필요한 경우에만 `edition = "2021"` + `resolver = "2"` 유지. edition 2024는 RPIT capture 규칙 변경·`unsafe extern`·`let` chain·`if let` temporary scope 변경 등을 포함하므로 마이그레이션 시 `cargo fix --edition`으로 전환한다. **resolver 3**은 `package.rust-version`을 고려하는 Rust-version-aware dependency resolution을 기본 활성화하여 MSRV가 서로 다른 크레이트를 섞을 때 더 보수적으로 동작한다.
+2a. **`gen` 예약어 충돌 주의** — Edition 2024에서 `gen`이 미래 generator 블록용 키워드로 예약되었다. 변수명·함수명·모듈명으로 `gen`을 사용하면 컴파일 에러가 난다. `generate`, `gen_id` 등으로 대체하라.
+2b. **rustfmt version-sort 변경** — Edition 2024 style에서 import/identifier 정렬이 ASCIIbetical에서 version-sort 알고리즘으로 바뀐다. `NonZeroU8`, `NonZeroU16` 같은 숫자 포함 식별자의 정렬 결과가 달라지므로 대규모 리포지토리에서 포맷 diff가 한 번 발생할 수 있다. `rustfmt.toml`에 `style_edition = "2024"`를 명시하면 edition과 독립적으로 제어 가능.
+2c. **rustdoc doctest 결합** — Edition 2024는 doctest들을 하나의 바이너리로 합쳐 compile overhead를 줄인다. `Location`/`type_name` 같은 code-location 민감 테스트는 `standalone_crate` 태그가 필요할 수 있다.
 3. **타겟 아키텍처 고정 금지** — `.cargo/config.toml`에 `[target.x86_64-unknown-linux-gnu]` 같은 타겟을 고정하면 크로스 플랫폼이 깨진다.
 4. **과도한 의존성 금지** — 사용자가 선택한 의존성만 추가한다. "나중에 필요할 수도 있으니" 추가하지 않는다.
 5. **Consumer-Owned Port 원칙** — 헥사고날을 채택할 때 포트는 "소비자"가 소유한다. 모듈 A가 모듈 B의 기능이 필요하면 A 내부에 outbound port(trait)를 정의하고, B는 그 trait을 구현하는 adapter를 apps/ Composition Root에서 주입한다. 모듈이 다른 모듈의 `port.rs`를 직접 import하면 그 시점에서 헥사고날이 깨진다. 출처: fit-pal `server/CLAUDE.md` 아키텍처 섹션.
@@ -55,7 +58,7 @@ user-invocable: true
 체크리스트로 제시 (2026-04 기준 minimum-compatible 최신):
 
 - [x] `axum = "0.8"` (기본) — 0.8 path 파라미터는 `{id}` 문법, `#[async_trait]` 제거됨
-- [x] `tokio = { version = "1", features = ["full"] }` (기본)
+- [x] `tokio = { version = "1", features = ["full"] }` (기본, LTS: 1.47.x until 2026-09, 1.51.x until 2027-03)
 - [x] `serde = { version = "1", features = ["derive"] }` + `serde_json` (기본)
 - [x] `tracing = "0.1"` + `tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }` (기본)
 - [x] `thiserror = "2"` (기본, 2.x는 error source/display 매크로 안정화)
@@ -66,7 +69,7 @@ user-invocable: true
 - [ ] `jsonwebtoken = { version = "10", features = ["rust_crypto"] }` (JWT)
 - [ ] `tower-http = { version = "0.6", features = ["cors", "trace", "request-id", "timeout", "compression-gzip", "limit"] }`
 - [ ] `rust-i18n = "3"` (다국어) 또는 `fluent` (복잡한 pluralization)
-- [ ] `tracing-opentelemetry = "0.32"` + `opentelemetry = "0.31"` + `opentelemetry-otlp = { version = "0.31", features = ["trace", "metrics", "grpc-tonic"] }` (OTel 연동)
+- [ ] `tracing-opentelemetry = "0.32"` + `opentelemetry = "0.31"` + `opentelemetry-otlp = { version = "0.31", features = ["trace", "metrics", "grpc-tonic"] }` (OTel 연동, 4계층 스택: tracing → tracing-subscriber → tracing-opentelemetry → opentelemetry-otlp)
 - [ ] 개발 의존성: `mockall = "0.13"` (`#[automock]` trait mock), `serial_test = "3"` (통합 테스트 격리)
 
 > Context7 또는 공식 릴리스 노트로 상위 minor 버전이 이미 나왔는지 반드시 확인한다. 본 목록은 2026-04 기준 실무 검증 조합이며, 프로젝트 착수 시점 기준으로 재확인이 필요하다.

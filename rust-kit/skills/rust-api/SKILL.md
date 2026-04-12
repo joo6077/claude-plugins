@@ -68,16 +68,18 @@ user-invocable: true
 
 ```rust
 // domain/ports/user_service.rs
-use async_trait::async_trait;
 use crate::domain::models::{User, CreateUserRequest};
 use crate::domain::errors::DomainError;
 
-#[async_trait]
+/// Rust 1.75+ native async fn in trait — `#[async_trait]` 불필요.
+/// `dyn Trait`이 필요한 경우만 `#[async_trait]` 사용 (trait object dispatch).
 pub trait UserService: Send + Sync {
-    async fn create_user(&self, req: CreateUserRequest) -> Result<User, DomainError>;
-    async fn get_user(&self, id: i64) -> Result<User, DomainError>;
+    fn create_user(&self, req: CreateUserRequest) -> impl Future<Output = Result<User, DomainError>> + Send;
+    fn get_user(&self, id: i64) -> impl Future<Output = Result<User, DomainError>> + Send;
 }
 ```
+
+> **`dyn Trait` 필요 시**: `State<Arc<dyn UserService>>`처럼 trait object로 사용해야 한다면 native async fn in trait은 object-safe하지 않으므로 `#[async_trait]`을 유지한다. Composition Root에서 제네릭 `<S: UserService>`로 받는 경우에는 native async fn을 선호한다.
 
 `mod.rs`에 `pub mod user_service;`를 추가한다.
 

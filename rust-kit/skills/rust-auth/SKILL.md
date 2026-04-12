@@ -15,6 +15,7 @@ user-invocable: true
 3. **refresh token은 반드시 DB 저장** — refresh token을 메모리나 JWT 페이로드에 넣으면 무효화(로그아웃, 탈취 대응)가 불가능하다. `refresh_tokens` 테이블 또는 Redis에 저장한다.
 4. **Axum 0.8 `FromRequestParts`는 native async fn** — `#[async_trait]`과 `use axum::async_trait`을 더 이상 사용하지 않는다. `impl<S> FromRequestParts<S> for AuthUser where S: Send + Sync { type Rejection = ...; async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> { ... } }` 형태로 직접 선언한다. 0.7 코드에서 마이그레이션할 때는 `#[async_trait]` 어노테이션과 `use axum::async_trait;` import를 함께 제거한다.
 5. **jsonwebtoken 10.x `rust_crypto` feature** — `jsonwebtoken = { version = "10", features = ["rust_crypto"] }`로 고정하면 OpenSSL 동적 링크 없이 pure Rust crypto를 사용한다. Docker scratch/distroless 이미지 호환성이 좋다. fit-pal 실무 기준.
+6. **`OptionalFromRequestParts`로 optional auth 처리** — Axum 0.8의 `OptionalFromRequestParts` trait을 사용하면 `Option<AuthUser>` extractor가 rejection을 에러 응답으로 변환할 수 있다. 기존에는 rejection이 무조건 `None`으로 변환되어 "토큰이 잘못된 건지 없는 건지" 디버깅이 어려웠다. 공개 API + 인증 사용자 추가 기능 패턴에서 유용하다.
 
 # Process
 

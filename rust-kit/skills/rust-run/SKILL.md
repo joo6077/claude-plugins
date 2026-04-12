@@ -38,6 +38,8 @@ user-invocable: true
 - **환경변수 `RUST_LOG`를 설정하지 않고 테스트 로그가 안 보인다고 보고하지 마라** — `cargo test`는 기본적으로 stdout을 캡처한다. `-- --nocapture`와 `RUST_LOG=debug`를 함께 설정해야 로그가 출력된다.
 - **병렬 테스트가 서로 간섭할 때 `--test-threads=1`을 기본값으로 강제하지 마라** — 전체 테스트를 직렬화하면 CI 시간이 폭증한다. 간섭하는 테스트만 `#[serial]` (serial_test 크레이트)로 표시하라.
 - **`cargo check`와 `cargo build`의 차이를 무시하지 마라** — `check`는 코드 생성(codegen) 단계를 건너뛰어 빠르지만, 링크 에러나 proc-macro 런타임 문제를 잡지 못한다. 최종 검증은 반드시 `build`로 하라.
+- **tokio-console로 async task 디버깅** — `console-subscriber` 크레이트를 추가하면 htop 스타일로 task/resource/span을 실시간 모니터링할 수 있다. **개발 전용** — 프로덕션에서는 비활성화한다. `RUSTFLAGS="--cfg tokio_unstable"` 환경변수가 필요하다.
+- **Cranelift 백엔드로 dev build 가속** — `rustc_codegen_cranelift`는 nightly에서 `codegen-backend = "cranelift"`로 사용 가능하며 debug compile time ~20% 개선을 목표로 한다. SIMD/panic unwind 제약이 있어 LLVM 완전 대체가 아닌 dev profile 전용이다.
 
 ## 0. 프로젝트 감지
 

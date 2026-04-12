@@ -14,6 +14,8 @@ user-invocable: true
 2. **tower-http 0.6 feature 조합** — Axum 0.8과 호환되는 tower-http 버전은 **0.6.x** (fit-pal 기준 `tower-http = "0.6.8"`). `Cargo.toml`에 `tower-http = { version = "0.6", features = ["cors", "trace", "request-id", "timeout", "compression-gzip", "limit"] }`처럼 필요한 feature를 명시한다. feature를 빠뜨리면 `CorsLayer`/`TraceLayer`/`TimeoutLayer` 타입이 아예 제공되지 않고 컴파일 에러가 난다.
 3. **rate limiting 상태는 공유 저장소 필요** — `Arc<Mutex<HashMap>>` 방식은 단일 인스턴스에서만 동작한다. 멀티 인스턴스(K8s 등) 환경이면 Redis 어댑터가 필요하다. 구현 전에 배포 환경을 확인한다. 실무 2026 표준은 `tower_governor = "0.8"` + `governor = "0.10"` 조합으로 in-memory GCRA rate limiting을 시작하고, 멀티 인스턴스에서 Redis로 이주 (fit-pal 실무 기준).
 4. **`governor`/`tower_governor` Axum 호환 버전** — `tower_governor 0.8` + `axum 0.8` + `tower-http 0.6` 조합이 2026-04 기준 안정적. 버전 mismatch 시 `Service` trait bound 에러가 발생한다.
+5. **`from_fn`은 `State` extractor를 지원하지 않는다** — `middleware::from_fn` 클로저 안에서 `State(s): State<AppState>`를 뽑으면 컴파일 에러가 난다. 상태가 필요한 미들웨어는 반드시 **`middleware::from_fn_with_state(state, f)`**를 사용한다. Axum 0.7/0.8 마이그레이션에서 가장 흔한 "왜 State가 안 뽑히지?" 류 오류 포인트다.
+6. **`from_fn` 계열 extractor 순서 제약** — 미들웨어 함수 시그니처는 `FromRequestParts` extractor 0개 이상 + (선택) 하나의 `FromRequest` extractor + 마지막 인자 `Next` 순서여야 한다. 커스텀 extractor와 `Request`를 섞을 때 인자 순서가 틀리면 에러 메시지가 장황하고 원인 파악이 어렵다.
 
 # Process
 

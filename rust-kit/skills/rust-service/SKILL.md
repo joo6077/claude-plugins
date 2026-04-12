@@ -21,6 +21,8 @@ user-invocable: true
 - **async 메서드에서 blocking I/O 호출 금지** — `std::fs::read`, `std::thread::sleep`, CPU 집약 연산을 async 메서드에서 직접 호출하면 tokio runtime이 블록된다. `tokio::task::spawn_blocking`으로 격리하거나 `tokio::fs`를 사용해라.
 - **서비스 간 순환 의존 금지** — ServiceA → ServiceB → ServiceA 순환이 생기면 `Arc` 순환 참조로 메모리 릭이 발생하고 테스트에서 mock 주입이 불가능해진다. 공통 로직은 별도 서비스로 추출하거나 domain event로 간접 통신해라.
 - **에러 변환은 서비스 레이어에서** — Repository가 반환하는 infra error(`sqlx::Error`, `reqwest::Error`)를 그대로 상위에 전파하지 마라. 서비스 메서드에서 도메인 에러로 변환(`map_err`)하여 핸들러가 infra 타입에 의존하지 않게 한다.
+- **async closure 활용 (Rust 1.85+)** — `async || {}` 문법이 안정화되어 `AsyncFn`/`AsyncFnMut`/`AsyncFnOnce` trait을 사용할 수 있다. 기존 `|| async {}` (매 호출마다 새 future 생성)와 달리 환경 변수 캡처가 가능하여 미들웨어 팩토리, 재시도 래퍼 등 고차 함수 시그니처가 자연스러워진다.
+- **cancellation safety 주의** — Tokio runtime에서 future가 도중에 drop되면 트랜잭션이 절반만 실행될 수 있다. `tokio::select!` 분기나 timeout 래핑 시 cancellation-safe한 메서드(`recv()`, `read()`)와 unsafe한 메서드(`read_exact()`)를 구분하라. TokioConf 2026에서도 주요 토픽으로 강조되었다.
 
 # 서비스 레이어 생성
 

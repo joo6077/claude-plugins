@@ -15,6 +15,9 @@ user-invocable: true
 - **SQLx 0.8 오프라인 모드** — `SQLX_OFFLINE=true`는 `.sqlx/` 디렉토리가 존재하고 최신 상태일 때만 동작한다. 쿼리를 수정한 후에는 반드시 `cargo sqlx prepare`를 다시 실행해야 한다. runtime feature는 `runtime-tokio` + `tls-rustls` 조합을 권장 (`runtime-tokio-rustls`는 alias).
 - **SeaORM 1.1 ActiveModel/Entity 분리** — SeaORM은 `Entity`(쿼리 진입점) + `Model`(read DTO) + `ActiveModel`(insert/update용 opt field wrapper)을 분리한다. 포트 trait에는 이 타입들을 노출하지 말고 순수 도메인 모델로 DTO를 주고받아라.
 - **SeaORM `ConnectionTrait` 제네릭** — 트랜잭션과 일반 커넥션을 동시에 지원하려면 내부 메서드 시그니처를 `<C: ConnectionTrait>(conn: &C, ...)` 형태로 받는다. 이렇게 해야 `&DatabaseConnection`과 `&DatabaseTransaction` 모두 전달 가능하다. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
+- **SeaORM `LoaderTrait` batch loading** — `find_with_related` JOIN 결과의 중복 row 전송을 피하려면 `LoaderTrait`로 관련 엔티티를 배치 쿼리로 불러온다. one-to-many/many-to-many에서 상위 row duplication이 큰 경우 SQLx 수동 JOIN보다 유지보수성이 좋다.
+- **SeaORM nested partial model** — `DerivePartialModel` + nested select로 alias boilerplate 없이 복합 조회 결과를 중첩 struct로 매핑한다. SQLx `query_as!`는 flat row 중심이므로 3계층+ 조회(order + items + cakes)에서는 SeaORM이 모델링 편의성이 높다.
+- **SQLx `sql-check` 분리 크레이트** — SQLx에서 분리된 compile-time SQL validation 전용 레이어. `tokio-postgres` 등 custom driver를 쓰면서 SQL 문자열 검증만 필요한 경우에 적합하다 (2026-01 공개).
 - **마이그레이션 타임스탬프 중복 금지** — 파일명 타임스탬프(`YYYYMMDDHHMMSS`)가 겹치면 SQLx/SeaORM 양쪽 모두 에러를 낸다. 항상 현재 시각을 사용하고 같은 초에 여러 파일을 만들지 마라.
 - **nullable 컬럼은 `Option<T>` 필수** — DB가 `NOT NULL`인데 Rust 필드를 `Option<T>`로 하면 조회 시 항상 Some(..)이지만 타입 안전성이 떨어진다. 반대로 nullable 컬럼을 `T`로 하면 `null` 조회 시 SQLx는 `Error::ColumnDecode`, SeaORM은 `DbErr::AttrNotSet`이 발생한다.
 - **마이그레이션 파일은 한 번 적용되면 수정 금지** — 이미 prod/staging에 적용된 마이그레이션을 수정하면 체크섬 불일치로 전체 마이그레이션이 실패한다. 수정이 필요하면 새 마이그레이션 파일을 추가하여 `ALTER TABLE`로 변경해라.

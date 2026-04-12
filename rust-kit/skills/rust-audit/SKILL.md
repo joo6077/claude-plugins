@@ -21,6 +21,9 @@ user-invocable: true
 6. **workspace lints 상속 확인** — member crate가 `[lints] workspace = true`를 누락하면 pedantic deny가 적용되지 않는다. 감사 시 각 member `Cargo.toml`에 이 선언이 있는지 먼저 확인한다.
 7. **Axum 0.8 path 문법 감사** — `.route("/...:\w+",)` 정규식으로 grep해서 `:id` colon 문법 잔재가 있으면 즉시 FAIL. Axum 0.8에서 컴파일 에러가 나기 때문에 사실상 빌드 확인만으로도 잡히지만, 리팩토링 중간 상태를 감사하는 경우 명시적으로 체크한다.
 8. **SQLx vs SeaORM 구분** — DB adapter 감사 시 프로젝트가 SQLx를 쓰는지 SeaORM을 쓰는지 먼저 감지. 감사 기준은 해당 ORM에 맞게 적용 (예: SeaORM 프로젝트에 "sqlx::query! 필수" FAIL 기준 적용 금지).
+9. **2026 clippy pedantic 필수 lint** — `needless_pass_by_value`, `redundant_clone`, `cloned_instead_of_copied`, `inefficient_to_string`, `large_futures`가 pedantic deny 기본 세트에 포함되어야 한다. 누락 시 INFO로 보고한다.
+10. **cargo-deny v2 형식 확인** — `deny.toml`이 v2 형식(`multiple-versions = "warn"`, `unknown-registry = "deny"`)인지 확인한다. v1 형식(deprecated `vulnerability`/`notice` 필드)이면 마이그레이션을 권고한다.
+11. **Edition 2024 준수 확인** — 신규 프로젝트에서 `edition = "2024"` + `resolver = "3"`이 아니면 INFO로 보고한다. `gen` 변수명, `:id` path 문법 등 edition 2024 비호환 패턴도 감사한다.
 
 # Process
 

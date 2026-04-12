@@ -20,6 +20,11 @@ user-invocable: true
 - **테스트 간 상태 격리 필수** — 테스트가 공유 리소스(DB, 파일, 환경 변수)를 사용하면 병렬 실행 시 간헐적 실패가 발생한다. 환경 변수는 `temp_env` 크레이트로 scoped 설정하고, DB는 `#[sqlx::test]` 또는 테스트별 트랜잭션 롤백으로 격리해라.
 - **Fixture builder 패턴 사용** — 테스트 데이터를 매번 인라인으로 구성하면 50줄짜리 setup이 테스트 의도를 가린다. `UserFixture::builder().email("test@x.com").build()` 패턴으로 `test_support` 모듈에 builder를 두고 재사용해라.
 - **`#[tokio::test]` vs `#[sqlx::test]` 혼용 주의** — 같은 파일에서 둘을 섞으면 DB pool 초기화 충돌이 날 수 있다. DB 관련 테스트는 `#[sqlx::test]`로 통일하고, pure logic 테스트만 `#[tokio::test]`를 사용해라.
+- **proptest로 property-based testing** — `proptest 1.11` (2026-03)은 자동 shrinking 포함 property-based testing을 제공한다. 날짜 파싱, 수학 invariant, 직렬화 round-trip 검증에 효과적이다. 단위 테스트로 커버하기 어려운 경계값/조합 케이스에 활용하라.
+- **rstest로 parameterized test** — `rstest 0.26` (2025-07)의 `#[rstest]` + `#[case]`로 테이블 기반 테스트, `#[fixture]`로 setup 공유가 가능하다. 동일 로직을 여러 입력으로 반복 검증할 때 boilerplate를 줄인다.
+- **testcontainers로 실제 인프라 통합 테스트** — `testcontainers 0.27` (2026-03)은 Docker 기반으로 PostgreSQL, Redis, Kafka 등 실제 인스턴스를 테스트 격리 환경에서 구동한다. CI에서 `--test-threads=1`과 조합하라.
+- **cargo-mutants로 테스트 품질 검증** — coverage가 아니라 "테스트가 동작 차이를 감지하는지"를 본다. `--iterate`로 missed mutant 개선 루프를 줄이고, baseline test로 원본 트리가 통과하는지 먼저 검증한다. flaky test가 있으면 의미가 무너진다.
+- **Miri로 unsafe UB 검증** — `cargo +nightly miri test`는 out-of-bounds, use-after-free, data race, aliasing 위반 등을 잡는다. unsafe 코드가 있거나 low-level crate를 만들면 CI에 Miri 레인을 별도로 두되, "Miri 통과 = soundness 보장"은 아님을 인지하라.
 
 # Rust 테스트 코드 생성
 
@@ -67,6 +72,10 @@ user-invocable: true
 | trait impl | mock 기반 단위 테스트 | 같은 파일 또는 `tests/unit/` |
 | Axum 핸들러 | 통합 테스트 (TestClient 또는 실제 서버) | `tests/integration/` |
 | DB 의존 함수 | `#[sqlx::test]` 통합 테스트 | `tests/integration/` |
+| 경계값/조합 검증 | proptest property-based | 같은 파일 또는 `tests/property/` |
+| 테이블 기반 반복 검증 | rstest parameterized | 같은 파일 `#[cfg(test)] mod tests` |
+| 실제 인프라 (Docker) | testcontainers 통합 테스트 | `tests/integration/` |
+| unsafe 코드 UB 검증 | Miri (`cargo +nightly miri test`) | 기존 테스트에 추가 실행 |
 
 여러 타입이 혼재하면 사용자에게 우선순위를 확인한다.
 

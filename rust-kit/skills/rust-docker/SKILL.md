@@ -22,6 +22,7 @@ user-invocable: true
 - **Workspace 빌드 시 `--bin` 지정 필수** — mono-repo workspace에서 `cargo build --release`만 하면 모든 binary를 빌드하여 이미지 크기와 빌드 시간이 불필요하게 늘어난다. `cargo build --release --bin $BINARY_NAME`으로 타깃을 한정한다.
 - **`EXPOSE` 포트와 실제 바인드 포트 불일치** — `EXPOSE 3000`은 문서용이지 실제 포트 매핑이 아니다. 앱이 `0.0.0.0:8080`에 바인드하면서 `EXPOSE 3000`만 써놓으면 디버깅 시 혼란을 준다. 앱의 실제 바인드 포트와 일치시켜라.
 - **`COPY . .` 위치 주의** — cargo-chef cook 이후에 `COPY . .`를 하지 않으면 소스 코드가 없어 빌드 실패한다. 반대로 cook 이전에 `COPY . .`를 하면 소스 변경마다 의존성 캐시가 무효화된다. 순서: `COPY Cargo.toml Cargo.lock ./` → chef cook → `COPY . .` → `cargo build`.
+- **cargo-chef + sccache CI 조합** — `cargo-chef`로 의존성 컴파일 레이어를 캐싱하고, `sccache`로 컴파일 결과물 자체를 캐싱하면 CI Docker 빌드 시간을 50%+ 단축할 수 있다. `RUSTC_WRAPPER=sccache` 환경변수와 S3/GCS 백엔드를 조합한다.
 
 # Dockerfile + docker-compose 생성
 
