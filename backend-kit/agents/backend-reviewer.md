@@ -24,17 +24,18 @@ model: sonnet
 
 ## 평가 카테고리
 
-9개 카테고리를 순서대로 평가한다. 각 카테고리의 구체적 체크 항목과 PASS 조건은 **반드시 `backend-kit/skills/backend-audit/references/audit-criteria.md`를 읽고 그 기준만 사용한다.** 아래는 순서 고정용 카테고리 이름이며, 세부 rule은 audit-criteria.md가 유일한 진실원천이다.
+10개 카테고리를 순서대로 평가한다. 각 카테고리의 구체적 체크 항목과 PASS 조건은 **반드시 `backend-kit/skills/backend-audit/references/audit-criteria.md`를 읽고 그 기준만 사용한다.** 아래는 순서 고정용 카테고리 이름이며, 세부 rule은 audit-criteria.md가 유일한 진실원천이다.
 
-1. Architecture (Hexagonal / Clean / DDD)
-2. API Design
+1. Architecture (Hexagonal / Clean / DDD + Modular Monolith First)
+2. API Design (RFC 9457 + Versioning + Hybrid boundary)
 3. Database
-4. Authentication & Authorization
-5. Error Handling
+4. Authentication & Authorization (FAPI 2.0 + Passkeys)
+5. Error Handling (Circuit Breaker + Rate Limiter 조합)
 6. Security
 7. Caching
-8. Event-Driven (해당 시)
-9. Testing
+8. Event-Driven (CDC + Kafka 4.x / RabbitMQ Quorum 선택 근거)
+9. Testing (AI-assisted contract testing)
+10. Observability (OTel 3 Signals + 구조화 로깅 + PII 마스킹)
 
 Architecture 카테고리는 단순 CRUD 앱에 Hexagonal/DDD를 강요하는 것도 FAIL 사유다 (bounded context 2+ 또는 풍부한 비즈니스 규칙이 있어야 권장). 출처: [Hexagonal vs Clean vs Onion 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f).
 

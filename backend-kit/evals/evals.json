@@ -17,13 +17,14 @@
       "id": 2,
       "skill": "backend-audit",
       "prompt": "src/api/ 디렉토리 백엔드 감사 돌려줘",
-      "expected_output": "카테고리별 PASS/FAIL 판정 리포트, backend-reviewer 에이전트 독립 평가 포함",
+      "expected_output": "10개 카테고리별 PASS/FAIL 판정 리포트, backend-reviewer 에이전트 독립 평가 포함",
       "assertions": [
         {"text": "지정 디렉토리 하위의 백엔드 관련 파일을 대상으로 감사한다", "type": "behavior"},
         {"text": "backend-reviewer 에이전트를 호출하여 독립 평가를 수행한다", "type": "behavior"},
-        {"text": "아키텍처, 보안, 성능 원칙 기준으로 PASS/FAIL을 판정한다", "type": "output"},
+        {"text": "10개 카테고리(Architecture~Observability) 순서로 PASS/FAIL을 판정한다", "type": "output"},
         {"text": "보안 검사(injection, 시크릿 노출, CORS)를 생략하지 않는다", "type": "behavior"},
-        {"text": "N+1 판정 시 실제 코드에서 루프 내 쿼리를 확인한다", "type": "behavior"}
+        {"text": "N+1 판정 시 실제 코드에서 루프 내 쿼리를 확인한다", "type": "behavior"},
+        {"text": "Observability 카테고리에서 OTel 3 Signals 통합, 구조화 로깅, PII 마스킹을 검사한다", "type": "behavior"}
       ]
     },
     {
@@ -36,7 +37,32 @@
         {"text": "기존 에러 핸들링/인증 패턴이 있으면 분석 후 개선점만 제안한다", "type": "behavior"},
         {"text": "스택별 코드를 직접 생성하지 않고 원칙과 규격만 출력한다", "type": "output"},
         {"text": "사용자가 요청한 부분(API 규격, 에러 핸들링)만 세팅하고 불필요한 영역을 강제하지 않는다", "type": "behavior"},
-        {"text": "프로젝트 규모에 맞지 않는 과도한 패턴(CQRS, 마이크로서비스)은 경고한다", "type": "behavior"}
+        {"text": "프로젝트 규모에 맞지 않는 과도한 패턴(CQRS, 마이크로서비스)은 경고한다", "type": "behavior"},
+        {"text": "에러 처리에 Circuit Breaker(3-state) + Rate Limiter 조합 패턴을 포함한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 4,
+      "skill": "backend-guide",
+      "prompt": "우리 서비스 인증을 OAuth로 구현하려는데 어떻게 해야 해?",
+      "expected_output": "OAuth 2.1 BCP(RFC 9700) 기반 가이드, FAPI 2.0 고보안 옵션, Passkeys 도입 권장 포함",
+      "assertions": [
+        {"text": "OAuth 2.1이 아직 Draft(draft-15)임을 명시하고 RFC 9700 BCP를 실무 기준선으로 안내한다", "type": "output"},
+        {"text": "Implicit grant와 ROPC가 금지된 이유를 구체적으로 설명한다", "type": "output"},
+        {"text": "고보안 환경 시 FAPI 2.0(DPoP/mTLS + PAR + JARM) 옵션을 언급한다", "type": "output"},
+        {"text": "Passkeys/WebAuthn 도입을 패스워드 전용 인증의 대안으로 제시한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 5,
+      "skill": "backend-guide",
+      "prompt": "팀 5명인데 마이크로서비스로 가야 할까?",
+      "expected_output": "Modular Monolith First 권장, 마이크로서비스 비용/복잡도 트레이드오프 제시",
+      "assertions": [
+        {"text": "팀 규모 10명 미만에서는 Modular Monolith First를 기본 제안한다", "type": "output"},
+        {"text": "마이크로서비스 인프라 비용(3.75-6x)과 디버깅 시간(35% 증가) 수치를 제시한다", "type": "output"},
+        {"text": "Amazon Prime Video, Shopify 등 실제 사례를 근거로 제시한다", "type": "output"},
+        {"text": "트레이드오프 양면을 제시하고 일방적 권고를 하지 않는다", "type": "behavior"}
       ]
     }
   ]

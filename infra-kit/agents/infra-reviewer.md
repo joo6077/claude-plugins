@@ -25,17 +25,18 @@ model: sonnet
 
 ## 평가 카테고리
 
-9개 카테고리를 순서대로 평가한다. 각 카테고리의 구체적 체크 항목과 PASS 조건은 **반드시 `infra-kit/references/audit-criteria.md`를 읽고 그 기준만 사용한다.** 아래는 순서 고정용 카테고리 이름이며, 세부 rule은 audit-criteria.md가 유일한 진실원천이다.
+10개 카테고리를 순서대로 평가한다. 각 카테고리의 구체적 체크 항목과 PASS 조건은 **반드시 `infra-kit/references/audit-criteria.md`를 읽고 그 기준만 사용한다.** 아래는 순서 고정용 카테고리 이름이며, 세부 rule은 audit-criteria.md가 유일한 진실원천이다.
 
 1. Container
 2. CI/CD
 3. Kubernetes (해당 시)
 4. IaC (해당 시)
 5. Security
-6. Supply Chain (해당 시 — 이미지 서명/SBOM/SLSA provenance)
-7. Backup & DR (해당 시)
-8. Deployment
-9. Observability
+6. Supply Chain (해당 시 — Cosign v3/SBOM CycloneDX ECMA-424/SLSA/EU CRA)
+7. Backup & DR (해당 시 — Velero/etcd+PV)
+8. Deployment (GitOps Argo CD 3.x/Flux v2.8+, Progressive Delivery)
+9. Observability (OTel 3 신호/Grafana Alloy/eBPF profiling)
+10. Cost Optimization (해당 시 — 태깅/Shift-Left/FOCUS/AI 비용)
 
 ## 평가 기준 참조
 

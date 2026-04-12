@@ -7,18 +7,20 @@ infra-guide 스킬이 카테고리별 원칙 문서 경로를 찾을 때 참조�
 |----------|--------|-----------|
 | container | Docker, Dockerfile, Compose, 이미지, 컨테이너 | `docs/infra/platform/container.md` |
 | cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner | `docs/infra/platform/cicd.md` |
-| kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC | `docs/infra/platform/kubernetes.md` |
-| iac | Terraform, Pulumi, CDK, 모듈, state, plan | `docs/infra/platform/iac.md` |
+| kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC, Gateway API, Karpenter, In-Place Pod Resize | `docs/infra/platform/kubernetes.md` |
+| iac | Terraform, Pulumi, CDK, OpenTofu, 모듈, state, plan, ephemeral, Crossplane | `docs/infra/platform/iac.md` |
 | networking | VPC, 서브넷, NAT, DNS, 로드밸런서, ALB, NLB | `docs/infra/operations/networking.md` |
 | tls-secrets | TLS, 인증서, cert-manager, Vault, 시크릿 | `docs/infra/security/tls-secrets.md` |
-| backup-dr | 백업, DR, RTO, RPO, PITR, 장애 복구 | `docs/infra/operations/backup-dr.md` |
+| backup-dr | 백업, DR, RTO, RPO, PITR, Velero, 장애 복구, etcd | `docs/infra/operations/backup-dr.md` |
 | deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD, Flux, Argo Rollouts | `docs/infra/operations/deployment-strategies.md` |
-| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, SLO | `docs/infra/operations/observability.md` |
+| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, Alloy, OpenTelemetry, SLO, eBPF profiling | `docs/infra/operations/observability.md` |
 | incident-response | 인시던트, 장애 대응, 온콜, postmortem, runbook | `docs/infra/operations/incident-response.md` |
-| cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, 태그 | `docs/infra/operations/cost-optimization.md` |
-| service-mesh | Istio, Linkerd, sidecar, mTLS, 서비스 메시 | `docs/infra/operations/service-mesh.md` |
-| supply-chain | SBOM, Cosign, SLSA, 서명, attestation, 공급망, Syft, Trivy, Chainguard | `docs/infra/platform/container.md` |
-| platform-engineering | IDP, Backstage, Port, Cortex, Humanitec, golden path, self-service, scorecard | `docs/infra/platform/cicd.md` |
+| cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, FOCUS, shift-left, 태그 | `docs/infra/operations/cost-optimization.md` |
+| service-mesh | Istio, Linkerd, Cilium, eBPF, sidecar, mTLS, 서비스 메시 | `docs/infra/operations/service-mesh.md` |
+| supply-chain | SBOM, Cosign, SLSA, 서명, attestation, 공급망, Syft, Trivy, Chainguard, CycloneDX, EU CRA | `docs/infra/platform/container.md` |
+| platform-engineering | IDP, Backstage, Port, Cortex, Humanitec, Crossplane, golden path, self-service, scorecard | `docs/infra/platform/cicd.md` |
+| gitops | ArgoCD, Flux, Argo Rollouts, progressive delivery, drift | `docs/infra/operations/deployment-strategies.md` |
+| sustainability | Green Software, 탄소, RTC, SCI, 탄소 추적 | `docs/infra/operations/cost-optimization.md` |
 
 ## 사용 방법
 

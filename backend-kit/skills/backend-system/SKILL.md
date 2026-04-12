@@ -40,11 +40,11 @@ references/system-principles.md를 참조하여 필요한 카테고리를 정의
 | 아키텍처 패턴 | 필수 | Hexagonal / Clean / DDD 중 프로젝트 규모에 맞는 선택, 도메인-persistence 분리 규약, 의존성 방향(inward-only). 단순 CRUD는 "간소화 계층형" 선택 가능 |
 | API 규격 | 필수 | HTTP 메서드 규칙, 상태코드 매핑, RFC 9457 problem+json 에러 포맷, OpenAPI 3.1 스펙 파일 |
 | 에러 처리 | 필수 | 에러 분류, 글로벌 핸들러 패턴, retry 정책 (exponential backoff + jitter) |
-| 인증/인가 | 필수 | 토큰 전략 (OAuth 2.1 Authorization Code + PKCE), 세션 관리, CORS 정책, 고보안 시 DPoP/mTLS |
-| 로깅 | 필수 | 구조화 로그 포맷, 로그 레벨, PII 마스킹 규칙 |
-| 테스트 전략 | 선택 | 테스트 피라미드 비율, fixture 관리, Pact + Testcontainers 계약 테스트 |
+| 인증/인가 | 필수 | 토큰 전략 (OAuth 2.1 Authorization Code + PKCE), 세션 관리, CORS 정책, 고보안 시 FAPI 2.0(DPoP/mTLS + PAR + JARM). Passkeys/WebAuthn 도입 계획 포함 |
+| 관측성 | 필수 | OTel 3 Signals(Traces+Metrics+Logs) 통합, 구조화 로그(JSON + trace_id/span_id), W3C Trace Context 전파, PII 마스킹 규칙 |
+| 테스트 전략 | 선택 | 테스트 피라미드 비율, fixture 관리, Pact v4 + Testcontainers 계약 테스트, AI-assisted contract testing(PactFlow MCP) |
 | 캐싱 | 선택 | 캐시 계층, TTL 정책, 무효화 규칙 |
-| 이벤트 기반 | 선택 | AsyncAPI 3 스펙, Outbox relay (batch + backpressure), idempotency, CQRS (도입 기준 충족 시) |
+| 이벤트 기반 | 선택 | AsyncAPI 3 스펙, Outbox relay (batch + backpressure), idempotency, CDC(Debezium) 파이프라인, 메시지 브로커 선택(Kafka 4.x/RabbitMQ Quorum/NATS), CQRS (도입 기준 충족 시) |
 
 ## Step 3: 규격 문서 출력
 

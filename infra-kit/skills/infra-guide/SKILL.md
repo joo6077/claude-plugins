@@ -29,18 +29,21 @@ user-invocable: true
 |----------|--------|
 | container | Docker, Dockerfile, Compose, 이미지, 컨테이너 |
 | cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner |
-| kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC, Pod Security, Gateway API, Sidecar |
-| iac | Terraform, Pulumi, CDK, OpenTofu, 모듈, state, plan, ephemeral |
+| kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC, Pod Security, Gateway API, TLSRoute, Sidecar, Karpenter, In-Place Resize, DRA |
+| iac | Terraform, Pulumi, CDK, OpenTofu, Crossplane, 모듈, state, plan, ephemeral, Pulumi ESC |
 | networking | VPC, 서브넷, NAT, DNS, 로드밸런서, ALB, NLB |
 | tls-secrets | TLS, 인증서, cert-manager, Vault, 시크릿 |
 | backup-dr | 백업, DR, RTO, RPO, PITR, 장애 복구 |
-| deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD, Flux, Argo Rollouts |
-| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, OpenTelemetry, SLO |
+| deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD 3.x, Flux v2.8, Argo Rollouts, progressive delivery |
+| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, Alloy, OpenTelemetry, SLO, eBPF profiling |
 | incident-response | 인시던트, 장애 대응, 온콜, postmortem, runbook |
-| cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, 태그 |
-| service-mesh | Istio, Linkerd, sidecar, mTLS, 서비스 메시 |
-| supply-chain | SBOM, Cosign, SLSA, 서명, attestation, 공급망, Syft, Trivy |
-| platform-engineering | IDP, Backstage, Port, Cortex, golden path, self-service, scorecard |
+| cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, FOCUS, shift-left, 태그, AI 비용 |
+| service-mesh | Istio, Linkerd, Cilium, eBPF, sidecar, mTLS, 서비스 메시 |
+| supply-chain | SBOM, Cosign v3, SLSA, 서명, attestation, 공급망, Syft, Trivy, CycloneDX, EU CRA |
+| platform-engineering | IDP, Backstage, Port, Cortex, Crossplane, Dagger, golden path, self-service, scorecard |
+| backup-dr | 백업, DR, RTO, RPO, Velero, etcd, 크로스 리전, 장애 복구 |
+| sustainability | Green Software, 탄소, RTC, SCI, 탄소 추적 |
+| devenv | Dev Containers, Codespaces, Nix, 재현 가능한 개발환경 |
 
 ## Step 2: 원칙 참조
 

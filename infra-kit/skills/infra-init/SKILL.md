@@ -14,7 +14,7 @@ user-invocable: true
 # Gotchas
 
 1. **벤더 강제 금지** — AWS/GCP/Azure 중 하나를 강제하지 마라. 사용자의 기존 환경을 먼저 감지하고 그에 맞춰라.
-2. **과도한 복잡도 경고** — K8s, 서비스 메시, Terraform/OpenTofu는 프로젝트 규모에 맞을 때만 제안. 소규모 프로젝트에 K8s를 강제하지 마라. **Supply chain 강화(Cosign/SLSA/SBOM), Internal Developer Platform(Backstage/Port), Service Mesh(Istio/Linkerd) 같은 2026 고도화 항목도 규모·위험도·팀 역량이 준비된 경우에만 제안**한다. 1~3인 소규모 팀에 Backstage/IDP 포털을 강요하지 마라.
+2. **과도한 복잡도 경고** — K8s, 서비스 메시, Terraform/OpenTofu는 프로젝트 규모에 맞을 때만 제안. 소규모 프로젝트에 K8s를 강제하지 마라. **Supply chain 강화(Cosign v3/SLSA/SBOM/EU CRA), Internal Developer Platform(Backstage/Crossplane), Service Mesh(Cilium eBPF/Istio/Linkerd), FinOps(FOCUS 표준/Shift-Left) 같은 2026 고도화 항목도 규모·위험도·팀 역량이 준비된 경우에만 제안**한다. 1~3인 소규모 팀에 Backstage/IDP 포털이나 Crossplane을 강요하지 마라.
 3. **프로덕션 설정 강제 금지** — 초기 세팅은 개발 환경부터. 프로덕션 최적화는 별도로.
 4. **기존 설정 덮어쓰기 금지** — 이미 Dockerfile/CI가 있으면 분석 후 개선점만 제안.
 5. **시크릿을 예시 값으로 하드코딩하지 마라** — docker-compose.yml이나 CI 파이프라인에 `password: mypassword123` 같은 예시 시크릿을 넣으면 그대로 프로덕션에 배포되는 사고가 발생한다. `.env.example`에 키 이름만 남기고 실제 값은 비워둬야 한다.
@@ -41,8 +41,10 @@ user-invocable: true
 | Container | 필수 | Dockerfile + .dockerignore + compose |
 | CI/CD | 필수 | 파이프라인 설정 (build→test→deploy) |
 | 배포 전략 | 권장 | 배포 방식 선택 + 롤백 절차 |
-| 관측성 | 권장 | 로깅 포맷 + 헬스체크 + 기본 메트릭 |
+| 관측성 | 권장 | 로깅 포맷 + 헬스체크 + 기본 메트릭 + OTel Collector |
 | 시크릿 | 필수 | .env 패턴 + 시크릿 관리 방침 |
+| Supply Chain | 권장 | SBOM 생성 + 이미지 서명 + SLSA provenance |
+| Cost Optimization | 권장 | 태깅 전략 + Shift-Left 비용 예측 |
 
 ## Step 3: 규격 문서 출력
 

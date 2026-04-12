@@ -17,7 +17,7 @@ user-invocable: true
 3. **N+1 탐지 시 ORM 코드 필수 확인** — 쿼리 패턴을 보지 않고 "N+1일 수 있다"는 추측성 FAIL 금지. 실제 코드에서 루프 내 쿼리를 확인해야 한다.
 4. **보안 검사 생략 금지** — 코드가 "내부용"이어도 injection, 시크릿 노출, CORS 설정은 반드시 검사한다.
 5. **PASS/FAIL 근거에 파일:라인 필수** — "Architecture FAIL — 의존 방향 위반"만으로는 사용자가 수정 위치를 알 수 없다. 반드시 `src/api/handler.rs:42`처럼 구체적 파일과 라인 번호를 포함해야 한다.
-6. **리포트 카테고리 순서 변경 금지** — `audit-criteria.md`에 정의된 순서(Architecture → API Design → Database → Auth → Error → Security → Caching → Event-Driven → Testing)를 반드시 따른다. 순서를 바꾸면 이전 리포트와 비교가 불가능해진다.
+6. **리포트 카테고리 순서 변경 금지** — `audit-criteria.md`에 정의된 순서(Architecture → API Design → Database → Auth → Error → Security → Caching → Event-Driven → Testing → Observability)를 반드시 따른다. 순서를 바꾸면 이전 리포트와 비교가 불가능해진다.
 7. **N/A 남발 금지** — 해당 없는 카테고리는 N/A로 표시하되, 프로젝트에 DB가 있는데 Database를 N/A로 처리하거나, 인증 코드가 있는데 Auth를 N/A로 처리하면 안 된다. 코드를 실제로 확인한 후에만 N/A를 판정하라.
 8. **단일 파일 감사 시에도 아키텍처 컨텍스트 확인** — 파일 하나만 감사하더라도 해당 파일이 속한 레이어(domain/infra/api)와 의존 방향을 파악해야 정확한 판정이 가능하다. import 구문만 봐도 레이어 위반을 탐지할 수 있다.
 
@@ -48,7 +48,7 @@ Agent 도구를 사용하여 backend-reviewer 서브에이전트를 생성한다
 | Database | PASS/FAIL | ... |
 | ... | ... | ... |
 
-카테고리 순서는 `references/audit-criteria.md`의 섹션 순서와 일치시킨다 (Architecture → API Design → Database → Auth → Error → Security → Caching → Event-Driven → Testing, 총 9 카테고리).
+카테고리 순서는 `references/audit-criteria.md`의 섹션 순서와 일치시킨다 (Architecture → API Design → Database → Auth → Error → Security → Caching → Event-Driven → Testing → Observability, 총 10 카테고리).
 
 ## Step 4: 최종 판정
 

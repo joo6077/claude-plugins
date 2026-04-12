@@ -45,12 +45,13 @@ user-invocable: true
 | Kubernetes | PASS/FAIL/N/A | ... |
 | IaC | PASS/FAIL/N/A | ... |
 | Security | PASS/FAIL | ... |
-| Supply Chain | PASS/FAIL/N/A | 이미지 서명(Cosign) / SBOM / SLSA provenance |
-| Backup & DR | PASS/FAIL/N/A | ... |
-| Deployment | PASS/FAIL | ... |
-| Observability | PASS/FAIL | ... |
+| Supply Chain | PASS/FAIL/N/A | 이미지 서명(Cosign v3) / SBOM(CycloneDX ECMA-424) / SLSA provenance / EU CRA 규정 |
+| Backup & DR | PASS/FAIL/N/A | Velero / etcd+PV 이중 백업 / 크로스 리전 복구 |
+| Deployment | PASS/FAIL | GitOps(Argo CD 3.x / Flux v2.8+) / Progressive Delivery |
+| Observability | PASS/FAIL | OTel 3 신호 / Grafana Alloy / eBPF 프로파일링 |
+| Cost Optimization | PASS/FAIL/N/A | 태깅 전략 / Shift-Left 비용 예측 / FOCUS 표준 |
 
-해당 없는 카테고리(K8s 미사용, Cosign/SLSA 도입 전 초기 단계 등)는 N/A로 표시하고 판정에서 제외한다.
+해당 없는 카테고리(K8s 미사용, Cosign/SLSA 도입 전 초기 단계, EU 비대상 등)는 N/A로 표시하고 판정에서 제외한다.
 
 ## Step 4: 최종 판정
 
