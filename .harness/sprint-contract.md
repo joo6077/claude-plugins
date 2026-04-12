@@ -1,57 +1,47 @@
 ---
-feature: "6개 kit research-log 200줄+ 확충"
-created: "2026-04-12 22:30"
-complexity: "중간"
-conditions: 16
+feature: "자동화 성숙도 5개 영역 5/5 달성 (cron 제외)"
+created: "2026-04-13 00:00"
+complexity: "복잡"
+conditions: 20
 ---
 
-# Sprint Contract — 리서치 로그 확충
+# Sprint Contract — 자동화 성숙도 5/5 달성
 
 ## Context
 
-자동화 성숙도 Gap 3번 해소: 6개 kit(Flutter, Design, Backend, Infra, Rust, React)의 research-log를 골격 수준(45~99줄)에서 200줄+ 수준으로 확충한다. Context7/Codex/WebSearch 기반 외부 소스 리서치를 포함하며, 모든 소스 URL은 검증된 것이어야 한다.
+cron(영역 1) 제외, 5개 영역(3,4,5,6,7)을 각각 5/5로 끌어올린다.
 
-## 영향 범위
+## 영역 3: Phase 실행 (3→5)
 
-**수정:**
-- `docs/flutter/research-log.md` (99줄 → 200+)
-- `docs/backend/research-log.md` (61줄 → 200+)
-- `docs/infra/research-log.md` (69줄 → 200+)
-- `docs/rust/research-log.md` (59줄 → 200+)
-- `docs/react/research-log.md` (70줄 → 200+)
+- [ ] P3-01: spawn-kaizen-phase.sh 실행 시 kaizen-state.yaml의 current_phase, status가 자동 갱신된다
+- [ ] P3-02: finalize-phase.sh pass 실행 시 kaizen-state.yaml의 last_approve_timestamp가 현재 시각으로 갱신된다
+- [ ] P3-03: finalize-phase.sh fail 실행 시 kaizen-state.yaml의 last_reject_timestamp가 현재 시각으로 갱신된다
+- [ ] P3-04: 10개 Phase 전부 완료 후 finalize-phase.sh 10 pass 실행 시 status가 "completed"로 전환된다
 
-**신규 생성:**
-- `docs/design/research-log.md` (0줄 → 200+)
+## 영역 4: 산출물 동기화 (4→5)
 
-**수정 금지:**
-- 기존 research-log 엔트리 삭제/수정 (append-only)
-- 스킬 SKILL.md, plugin.json, marketplace.json
+- [ ] P4-01: .claude/settings.json PostToolUse 훅에 harness 소스 변경 시 docs-site 재생성 알림이 포함된다
+- [ ] P4-02: finalize-phase.sh 완료 시 changelog 자동 append 또는 알림이 출력된다
 
-## Skill
+## 영역 5: 오케스트레이터 self-improvement (4→5)
 
-- [ ] SK-01: 6개 research-log 파일 모두 200줄 이상
-- [ ] SK-02: 각 research-log에 신규 추가된 소스 엔트리 최소 20개
-- [ ] SK-03: 모든 소스 엔트리에 URL이 포함되어 있다 (URL 없는 엔트리 0개)
+- [ ] P5-01: meta-kaizen 스킬 SKILL.md가 존재하고 user-invocable: true이다
+- [ ] P5-02: meta-kaizen 스킬의 Process 섹션에 외부 리서치(WebSearch/Codex) 기반 orchestrator 개선 단계가 포함된다
 
-## Script
+## 영역 6: 품질 보증 (4→5)
 
-- [ ] SC-01: `python3 scripts/validate-plugin.py` exit 0 (7 OK) — 기존 구조 깨뜨리지 않음
+- [ ] P6-01: .claude/settings.json PostToolUse 훅에 validate-plugin 자동 실행이 포함된다
+- [ ] P6-02: validate-plugin 훅의 timeout이 10000ms 이하이다
 
-## Error
+## 영역 7: 안전성/복구 (4→5)
 
-- [ ] ER-01: 깨진 URL(404, 접근 불가)이 포함된 엔트리가 0개
-- [ ] ER-02: 각 소스에 적절한 태그 부착 ([official], [blog], [spec], [paper], [dated: YYYY-MM] 중 최소 1개)
-
-## Architecture
-
-- [ ] AR-01: `docs/design/` 디렉토리가 존재하고 research-log.md가 생성됨
-- [ ] AR-02: 각 research-log가 기존 엔트리를 보존하며 신규 섹션을 append
-- [ ] AR-03: 6개 파일 모두 일관된 엔트리 포맷 (번호, 제목, URL, 태그, 요약 구조)
+- [ ] P7-01: finalize-phase.sh fail 실행 시 auto-revert 여부를 사용자에게 안내하고, --auto-revert 플래그로 자동 revert를 지원한다
+- [ ] P7-02: validate-post-kaizen.py의 scope-isolation 체크가 Phase별 파일 범위를 검증한다 (이미 존재 확인)
 
 ## Anti-patterns
 
-- [ ] AP-03: 모든 research-log에 bare code fence 0개 (언어 힌트 필수)
-- [ ] AP-05: 할루시네이션된 URL 0개 — 존재하지 않는 URL을 소스로 기재 금지
+- [ ] AP-01: settings.json 훅이 기존 훅을 덮어쓰지 않고 추가한다
+- [ ] AP-02: auto-revert는 --auto-revert 명시 플래그 없이는 절대 실행되지 않는다
 
 ## Reusability
 
@@ -61,4 +51,5 @@ conditions: 16
 ## Diagnostics
 
 - [ ] DG-01: `python3 scripts/validate-plugin.py` 워닝 0개
-- [ ] DG-02: 기존 research-log 내용 미삭제 확인 (diff에서 삭제 라인 0)
+- [ ] DG-02: `bash scripts/finalize-phase.sh 5 pass` exit 0
+- [ ] DG-03: 성숙도 리포트 영역별 합계가 산술적으로 정확하다

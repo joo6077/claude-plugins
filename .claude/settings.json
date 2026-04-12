@@ -18,6 +18,16 @@
             "type": "command",
             "command": "if git diff --name-only 2>/dev/null | grep -qE 'skills/.*SKILL\\.md|agents/.*\\.md|\\.claude-plugin/plugin\\.json'; then python3 scripts/validate-plugin.py --check=refs,placeholders 2>&1 | tail -3 || true; fi",
             "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "if git diff --name-only 2>/dev/null | grep -qE 'skills/.*SKILL\\.md|agents/.*\\.md|\\.claude-plugin/plugin\\.json|evals/'; then python3 scripts/validate-plugin.py 2>&1 | tail -3 || true; fi",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "if git diff --name-only 2>/dev/null | grep -qE 'harness/docs/guides/|harness/skills/|harness/agents/'; then echo '💡 harness 소스 변경 감지 — /docs-site 로 HTML 재생성 필요'; fi",
+            "timeout": 3000
           }
         ]
       }

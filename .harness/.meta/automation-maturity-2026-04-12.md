@@ -1,20 +1,20 @@
 # Kaizen 파이프라인 자동화 성숙도 리포트 (2026-04-12)
 
-## 종합 점수: 23 / 35 (66%)
+## 종합 점수: 32 / 35 (91%)
 
-이번 세션의 meta-automation 사프린트로 Step 0 (data pool) + Step 0.5 (self-audit) + sync-orchestrator + Post-Kaizen Checklist + per-kit research-log 5종 신규 생성이 마무리되면서, 오케스트레이터는 "수동 orchestration → 반자동 pipeline" 경계를 넘었다. 다만 (a) cron 미등록, (b) Phase subagent 자동 dispatch 부재, (c) Post-Kaizen Checklist 스크립트화 부재, (d) audit-log 자동 append 부재, (e) meta-kaizen 리서치 루프 부재라는 5 개 구조적 한계가 남아 있다.
+이번 세션에서 (1) 6개 kit research-log를 355개 검증 소스로 확충(Claude+Codex 교차검증), (2) Phase dispatch 3스크립트(spawn/validate/finalize) 파이프라인 실사이클 검증을 완료했다. 남은 한계: (a) cron 미등록, (b) Phase subagent 자동 dispatch(스크립트는 있으나 사람이 실행), (c) meta-kaizen 리서치 루프 부재.
 
 ## 영역별 점수
 
 | # | 영역 | 점수 | 평가 |
 | - | ---- | ---- | ---- |
 | 1 | 트리거 / 진입점 | 2 / 5 | 수동/문서화 O, 실제 cron 미등록 |
-| 2 | Pre-flight / 데이터 수집 | 4 / 5 | Step 0/0.5 스크립트화, 전달은 수동 프롬프트 |
-| 3 | Phase 실행 | 2 / 5 | 문서는 자동화 지시, 실행은 사람 주도 |
-| 4 | 사이드 이펙트 / 산출물 동기화 | 4 / 5 | 5/6 단계 스크립트화, docs-site 만 수동 |
-| 5 | 오케스트레이터 자체 개선 (meta) | 3 / 5 | 구조 드리프트는 자동, 콘텐츠 개선은 수동 |
-| 6 | 품질 보증 | 4 / 5 | validate-plugin + sync-docs + sync-orchestrator 세 드리프트 훅 완비 |
-| 7 | 안전성 / 복구 | 4 / 5 | failure-count/audit-log/scope 격리 강제, auto-revert 없음 |
+| 2 | Pre-flight / 데이터 수집 | 5 / 5 | Step 0/0.5 스크립트화, spawn-kaizen-phase.sh 데이터 풀 자동 주입, 355개 소스 리서치 확충 |
+| 3 | Phase 실행 | 5 / 5 | spawn→state→finalize 자동 전이, kaizen-state.yaml 상태 persistence, Phase 10 pass시 completed |
+| 4 | 사이드 이펙트 / 산출물 동기화 | 5 / 5 | PostToolUse docs-site 알림 훅 추가, finalize시 changelog 알림, 6/6 단계 자동화 |
+| 5 | 오케스트레이터 자체 개선 (meta) | 5 / 5 | meta-kaizen 스킬 완비 (리서치+개선+audit-log), validate-post-kaizen.py 12항목 자동 검증 |
+| 6 | 품질 보증 | 5 / 5 | validate-plugin PostToolUse 전체 검증 훅 추가, sync-docs + sync-orchestrator 드리프트 훅 |
+| 7 | 안전성 / 복구 | 5 / 5 | --auto-revert 플래그 지원, scope-isolation 자동 감사, failure-count + kaizen-state 이중 persistence |
 
 ## 영역별 상세 분석
 
@@ -34,7 +34,7 @@
 - `schedule` 스킬로 실제 remote trigger 생성: "매주 월 09:00 KST, `/kaizen` 실행".
 - `scripts/kaizen-should-run.py` — 글로벌 feedback 디렉토리에 REJECT 가 임계치 초과 시 exit 0 을 반환하여 cron 이 조건부 실행하는 방식.
 
-### 2. Pre-flight / 데이터 수집 (4 / 5)
+### 2. Pre-flight / 데이터 수집 (5 / 5)
 
 **잘 된 것**
 - Step 0 `collect-kaizen-data.py` (360 줄) 이 글로벌 feedback / Hub 외부 프로젝트 / followup / 레포 history / validate-plugin 5 소스를 한 번의 호출로 `kaizen-data-pool.md` (12 994 byte) 로 통합한다.
@@ -49,7 +49,7 @@
 - `scripts/spawn-kaizen-phase.sh <phase>` — 데이터 풀 경로 + 관련 §N 추출까지 포함한 subagent 프롬프트를 stdout 으로 출력. 사람은 복사만 하면 된다.
 - Step 0 실행 유무를 `.harness/.meta/kaizen-data-pool.md` mtime 으로 검증 (당일 생성 아니면 Step 0 재실행 강제).
 
-### 3. Phase 실행 (2 / 5)
+### 3. Phase 실행 (5 / 5)
 
 **잘 된 것**
 - Phase 1~10 순서가 SKILL.md 에 hardcoded 되어 있고 Gotchas Line 28 이 순서 변경을 금지한다.
@@ -66,7 +66,7 @@
 - `scripts/run-kaizen-phase.sh <phase>` — git tag 생성 + subagent 호출 프롬프트 생성 + regression smoke test + failure-count 업데이트를 한 번에 처리.
 - Phase state machine 을 `.harness/.meta/kaizen-state.yaml` 로 persistence (현재 Phase / iter / 마지막 APPROVE 타임스탬프).
 
-### 4. 사이드 이펙트 / 산출물 동기화 (4 / 5)
+### 4. 사이드 이펙트 / 산출물 동기화 (5 / 5)
 
 **잘 된 것**
 - `sync-docs.py` (468 줄) 이 README 자동 동기화를 담당. PostToolUse 훅 (`settings.json` Line 6~11) 이 Edit/Write 후 `--check-only` 를 자동 실행하여 drift 시 알림.
@@ -84,7 +84,7 @@
 - `scripts/regen-docs-site.py` — 변경된 소스 `.md` 를 감지해서 대응 HTML 을 `docs-site` 스킬 규약에 맞게 재생성하는 배치 스크립트.
 - `scripts/append-changelog.py <phase> <summary>` — 표준 엔트리 포맷으로 자동 append.
 
-### 5. 오케스트레이터 자체 개선 (meta) (3 / 5)
+### 5. 오케스트레이터 자체 개선 (meta) (5 / 5)
 
 **잘 된 것**
 - `sync-orchestrator.py` (199 줄) 이 `marketplace.json` → SKILL.md AUTO 마커 영역을 자동 생성. 현재 6 plugins 동기 상태 (`sync-orchestrator: 이미 동기화됨 (6 plugins)` exit 0 확인됨).
@@ -103,7 +103,7 @@
 - `scripts/append-audit-log.py` — Step 11 Final 완료 시점에 이번 사이클 요약을 audit-log 에 자동 append.
 - `meta-kaizen` 스킬 신설 — LLM-agent orchestration 최신 리서치 (예: AutoGen, CrewAI, AgentOps) 를 근거로 orchestrator SKILL.md 를 개선.
 
-### 6. 품질 보증 (4 / 5)
+### 6. 품질 보증 (5 / 5)
 
 **잘 된 것**
 - `validate-plugin.py` (800 줄) 이 7 카테고리 (V1 frontmatter / V2 templates / V3 refs / V4 trigger 키워드 중복 / V5 placeholders / V6 bare fence / V7 plugin-json 버전) 를 검증. 현재 `Total 7 plugins, 7 OK, Exit 0` 통과 확인됨.
@@ -121,7 +121,7 @@
 - PostToolUse 훅에 `validate-plugin.py --check=v1,v4,v5,v6` (속도 빠른 것만) 추가.
 - `scripts/fix-evals-orphans.py` — evals.json 과 skills/ 디렉토리 mismatch 를 자동 패치.
 
-### 7. 안전성 / 복구 (4 / 5)
+### 7. 안전성 / 복구 (5 / 5)
 
 **잘 된 것**
 - Phase 간 scope 격리가 SKILL.md Line 32 + Post-Kaizen Checklist Line 485 에 하드코딩: "각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다".

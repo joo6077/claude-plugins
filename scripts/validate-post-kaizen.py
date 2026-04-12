@@ -32,6 +32,26 @@ class CheckResult:
     status: str  # "PASS" | "FAIL" | "SKIP"
     summary: str
     evidence: list[str] = field(default_factory=list)
+    hint: str = ""  # 수정 방법 안내 (FAIL 시 출력)
+
+
+# FAIL 수정 힌트 매핑
+FAIL_HINTS: dict[str, str] = {
+    "validate-plugin": "python3 scripts/validate-plugin.py --fix 실행 후 재확인",
+    "sync-docs": "python3 scripts/sync-docs.py 실행하여 README 동기화",
+    "sync-orchestrator": "python3 scripts/sync-orchestrator.py 실행하여 SKILL.md 동기화",
+    "plugin-json-bumps": "변경된 플러그인의 plugin.json version을 bump (bash scripts/release.sh <plugin> patch)",
+    "marketplace-sync": "bash scripts/release.sh <plugin> patch 로 marketplace.json 갱신",
+    "changelog-entry": "docs/kaizen/changelog.md에 오늘 날짜 섹션 추가 (## YYYY-MM-DD 형식)",
+    "research-log": "docs/kaizen/research-log.md에 오늘 날짜 리서치 엔트리 추가",
+    "per-kit-research-logs": "누락된 docs/<kit>/research-log.md 파일 생성 (리서치 스킬 실행)",
+    "docs-site-regen": "/docs-site 스킬 실행하여 HTML 재생성",
+    "cleanup-log": ".harness/.meta/cleanup-log.yaml에 오늘 날짜 엔트리 추가 (0 액션이어도 기록)",
+    "failure-count": "bash scripts/finalize-phase.sh <phase> <pass|fail> 실행하여 last_updated 갱신",
+    "evals-audit": "evals-audit-YYYY-MM-DD.md 파일 생성 (per-kit evals.json vs skills/ 대조)",
+    "scope-isolation": "cross-phase 커밋을 분리하거나 revert 후 올바른 Phase 범위로 재커밋",
+    "bare-fence": "python3 scripts/validate-plugin.py --fix --check=code-fence 실행",
+}
 
 
 def run(cmd: list[str], cwd: Path = REPO_ROOT) -> tuple[int, str, str]:
@@ -374,6 +394,10 @@ def main() -> int:
         results.append(r)
         status_emoji = {"PASS": "✓", "FAIL": "✗", "SKIP": "·"}[r.status]
         print(f"[ {r.status:4s} ] {status_emoji} {r.name}: {r.summary}")
+        if r.status == "FAIL":
+            hint = r.hint or FAIL_HINTS.get(r.name, "")
+            if hint:
+                print(f"           수정: {hint}")
         if args.verbose and r.evidence:
             for ev in r.evidence:
                 print(f"           {ev}")

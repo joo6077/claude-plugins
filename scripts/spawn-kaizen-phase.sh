@@ -106,6 +106,23 @@ case "$PHASE_NUM" in
     *) PHASE_SECTIONS="$COMMON_SECTIONS" ;;
 esac
 
+# Step 2.5: kaizen-state.yaml 자동 갱신
+STATE_FILE=".harness/.meta/kaizen-state.yaml"
+if [[ -f "$STATE_FILE" ]]; then
+    TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    python3 - "$STATE_FILE" "$PHASE_NUM" "$TIMESTAMP" <<'PYEOF'
+import sys, re
+from pathlib import Path
+path, phase, ts = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
+text = path.read_text(encoding="utf-8")
+text = re.sub(r'(?m)^current_phase:.*$', f'current_phase: {phase}', text)
+text = re.sub(r'(?m)^status:.*$', 'status: running', text)
+text = re.sub(r'(?m)^cycle_id:.*$', f'cycle_id: "kaizen-{ts[:10]}"', text)
+path.write_text(text, encoding="utf-8")
+PYEOF
+    echo "✓ kaizen-state.yaml 업데이트 (phase=$PHASE_NUM, status=running)" >&2
+fi
+
 # Step 3: 프롬프트 템플릿 출력 (stdout)
 cat <<EOF
 ## Phase $PHASE_NUM — $PHASE_NAME 부트스트랩 완료

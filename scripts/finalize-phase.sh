@@ -126,20 +126,81 @@ text = re.sub(
 path.write_text(text, encoding="utf-8")
 PYEOF
 
-# --revert 처리
-if [[ "$RESULT" == "fail" ]] && [[ "$REVERT_FLAG" == "--revert" ]]; then
-    TAG="kaizen-phase-${PHASE_NUM}-pre"
-    if git rev-parse --verify "$TAG" >/dev/null 2>&1; then
-        echo
-        echo "📝 revert 명령 (수동 실행):"
-        echo "   git revert $TAG..HEAD"
-        echo
-        echo "⚠ 이 명령은 자동 실행되지 않습니다. revert 는 히스토리를 보존하며 Phase $PHASE_NUM 이후 커밋들을 되돌리는 새 커밋을 만듭니다."
-        echo "   히스토리 파괴형 reset 이 필요하면 대신: git reset --hard $TAG (주의: 복구 불가)"
+# kaizen-state.yaml 자동 갱신
+STATE_FILE=".harness/.meta/kaizen-state.yaml"
+if [[ -f "$STATE_FILE" ]]; then
+    TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    if [[ "$RESULT" == "pass" ]]; then
+        # Phase 10 pass = 전체 사이클 완료
+        if [[ "$PHASE_NUM" -eq 10 ]]; then
+            NEW_STATUS="completed"
+        else
+            NEW_STATUS="running"
+        fi
+        python3 - "$STATE_FILE" "$PHASE_NUM" "$TIMESTAMP" "$NEW_STATUS" <<'STATE_PY'
+import sys, re
+from pathlib import Path
+path, phase, ts, status = Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
+text = path.read_text(encoding="utf-8")
+text = re.sub(r'(?m)^last_approve_timestamp:.*$', f'last_approve_timestamp: "{ts}"', text)
+text = re.sub(r'(?m)^status:.*$', f'status: {status}', text)
+path.write_text(text, encoding="utf-8")
+STATE_PY
     else
-        echo "⚠ tag $TAG 없음 — revert 불가" >&2
+        python3 - "$STATE_FILE" "$TIMESTAMP" <<'STATE_PY'
+import sys, re
+from pathlib import Path
+path, ts = Path(sys.argv[1]), sys.argv[2]
+text = path.read_text(encoding="utf-8")
+text = re.sub(r'(?m)^last_reject_timestamp:.*$', f'last_reject_timestamp: "{ts}"', text)
+text = re.sub(r'(?m)^status:.*$', 'status: running', text)
+path.write_text(text, encoding="utf-8")
+STATE_PY
+    fi
+    echo "✓ kaizen-state.yaml 업데이트 (result=$RESULT)" >&2
+fi
+
+# --revert / --auto-revert 처리
+TAG="kaizen-phase-${PHASE_NUM}-pre"
+if [[ "$RESULT" == "fail" ]]; then
+    if [[ "$REVERT_FLAG" == "--auto-revert" ]]; then
+        if git rev-parse --verify "$TAG" >/dev/null 2>&1; then
+            echo
+            echo "🔄 Auto-revert 실행: git revert --no-edit $TAG..HEAD"
+            git revert --no-edit "$TAG..HEAD" && \
+                echo "✓ Auto-revert 완료" || \
+                echo "✗ Auto-revert 실패 — 수동 확인 필요" >&2
+        else
+            echo "⚠ tag $TAG 없음 — auto-revert 불가" >&2
+        fi
+    elif [[ "$REVERT_FLAG" == "--revert" ]]; then
+        if git rev-parse --verify "$TAG" >/dev/null 2>&1; then
+            echo
+            echo "📝 revert 명령 (수동 실행):"
+            echo "   git revert --no-edit $TAG..HEAD"
+            echo
+            echo "⚠ 이 명령은 자동 실행되지 않습니다."
+            echo "   자동 revert 를 원하면: bash scripts/finalize-phase.sh $PHASE_NUM fail --auto-revert"
+        else
+            echo "⚠ tag $TAG 없음 — revert 불가" >&2
+        fi
+    else
+        echo
+        echo "💡 revert 하려면: bash scripts/finalize-phase.sh $PHASE_NUM fail --revert"
+        echo "   자동 revert: bash scripts/finalize-phase.sh $PHASE_NUM fail --auto-revert"
     fi
 fi
 
+# audit-log 자동 append (스크립트가 존재할 때만)
+AUDIT_SCRIPT="$REPO_ROOT/scripts/append-audit-log.py"
+if [[ -f "$AUDIT_SCRIPT" ]]; then
+    python3 "$AUDIT_SCRIPT" --phase "$PHASE_NUM" --result "$RESULT" --date "$TODAY" 2>/dev/null && \
+        echo "✓ audit-log 엔트리 추가됨" || \
+        echo "⚠ audit-log append 실패 (무시)" >&2
+fi
+
+# changelog 알림
+echo
+echo "📝 changelog 업데이트 필요: docs/kaizen/changelog.md 에 오늘($TODAY) 엔트리 추가"
 echo
 echo "$FAILURE_FILE 업데이트 완료 (last_updated: $TODAY)"
