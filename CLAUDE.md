@@ -163,7 +163,28 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/design-guide` | UI 코드에 대한 디자인 원칙 가이드 (가벼운 리뷰) |
 | `/design-audit` | 완성된 UI를 카테고리별 PASS/FAIL로 체계적 감사 |
 | `/design-system` | 디자인 토큰 체계(컬러, 타이포, 스페이싱 등) 세팅 |
+| `/design-test` | 디자인 품질 테스트 생성 (토큰 검증, WCAG 접근성, 시각 회귀, 반응형) |
 | `design-reviewer` (에이전트) | design-audit에서 호출. UI 코드를 디자인 원칙 기준으로 독립 평가 |
+
+**backend-kit — 스택 무관 백엔드 개발 가이드**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/backend-guide` | 백엔드 코드/설계에 대�� 원칙 기반 가이드 (가벼운 리뷰) |
+| `/backend-audit` | 백엔드 코드를 10개 카테고리별 PASS/FAIL로 체계적 감사 |
+| `/backend-system` | 프로젝트 백엔드 아키텍처 기반 세팅 (API 규격, 에러 처리 등) |
+| `/backend-test` | 백엔드 테스트 코드 자동 생성 (pytest/jest/JUnit/go test 등 스택 무관) |
+| `backend-reviewer` (에이전트) | backend-audit에서 호출. 읽기 전용 독립 평가 |
+
+**infra-kit — 스택 무관 인프라/DevOps 가이드**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/infra-guide` | 인프라 설정에 대한 원칙 기반 가이드 (가벼운 리뷰) |
+| `/infra-audit` | 인프라 설정을 카테고리별 PASS/FAIL로 체계적 감사 |
+| `/infra-init` | 프로젝트 인프라 기반 초기 세팅 (Docker, CI/CD, 시크릿 등) |
+| `/infra-test` | 인프라 테스트 자동 생성 (Terraform test, hadolint, actionlint, kubeconform 등) |
+| `infra-reviewer` (에이전트) | infra-audit에서 호출. 읽기 전용 독립 평가 |
 
 **rust-kit — Rust 백엔드 개발 워크플로우 (17종)**
 

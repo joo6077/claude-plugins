@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인프라 테스트 — Infra Kit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#34D399;
+    --accent2:#6EE7B7;
+    --accent-dim:rgba(52,211,153,0.12);
+    --accent-glow:rgba(52,211,153,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  *,*::before,*::after{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+  }
+
+  html{
+    scroll-behavior:smooth;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Pretendard","Noto Sans KR",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.7;
+    font-size:15px;
+    min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%,var(--accent-glow),transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 40%,rgba(110,231,183,0.03),transparent 70%);
+    background-attachment:fixed;
+  }
+
+  a{
+    color:var(--accent);
+    text-decoration:none;
+    transition:color var(--transition);
+  }
+
+  a:hover{
+    color:var(--accent2);
+  }
+
+  code{
+    font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+    font-size:0.9em;
+    background:var(--surface2);
+    padding:0.15em 0.45em;
+    border-radius:4px;
+    color:var(--accent2);
+    border:1px solid var(--border);
+  }
+
+  pre{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:20px 24px;
+    overflow-x:auto;
+    margin:16px 0;
+    line-height:1.6;
+  }
+
+  pre code{
+    background:none;
+    border:none;
+    padding:0;
+    font-size:0.88em;
+    color:var(--text2);
+  }
+
+  .container{
+    max-width:1100px;
+    margin:0 auto;
+    padding:80px 32px 120px;
+  }
+
+  .hero{
+    text-align:center;
+    padding:60px 0 80px;
+    position:relative;
+  }
+
+  .hero::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle,var(--accent-glow) 0%,transparent 60%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .hero > *{
+    position:relative;
+    z-index:1;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 18px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    color:var(--accent2);
+    font-size:0.85rem;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    margin-bottom:28px;
+  }
+
+  .badge::before{
+    content:"";
+    width:6px;
+    height:6px;
+    background:var(--accent);
+    border-radius:50%;
+    box-shadow:0 0 10px var(--accent);
+  }
+
+  h1{
+    font-size:clamp(2.4rem,5vw,3.8rem);
+    font-weight:800;
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    background:linear-gradient(135deg,#fff,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:22px;
+  }
+
+  .subtitle{
+    font-size:1.15rem;
+    color:var(--text2);
+    max-width:720px;
+    margin:0 auto;
+    line-height:1.7;
+  }
+
+  section{
+    margin-top:80px;
+  }
+
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:32px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .section-num{
+    font-size:0.85rem;
+    color:var(--accent);
+    font-weight:700;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+  }
+
+  h2{
+    font-size:1.9rem;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--text);
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(440px,1fr));
+    gap:24px;
+  }
+
+  .grid-3{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:24px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:3px;
+    height:0;
+    background:var(--accent);
+    transition:height var(--transition);
+  }
+
+  .card:hover{
+    transform:translateY(-3px);
+    border-color:var(--border2);
+    box-shadow:0 20px 40px rgba(0,0,0,0.4),0 0 0 1px var(--accent-dim);
+  }
+
+  .card:hover::before{
+    height:100%;
+  }
+
+  .card-num{
+    font-size:0.78rem;
+    color:var(--accent);
+    font-weight:700;
+    letter-spacing:0.1em;
+    margin-bottom:10px;
+  }
+
+  .card h3{
+    font-size:1.2rem;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:14px;
+    line-height:1.4;
+  }
+
+  .card p{
+    color:var(--text2);
+    font-size:0.95rem;
+    line-height:1.75;
+    margin-bottom:18px;
+  }
+
+  .card-source{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:0.8rem;
+    color:var(--accent);
+    padding:6px 12px;
+    background:var(--accent-dim);
+    border:1px solid var(--accent-dim);
+    border-radius:var(--radius-sm);
+    font-weight:600;
+    transition:all var(--transition);
+  }
+
+  .card-source::before{
+    content:"\2192";
+    transition:transform var(--transition);
+  }
+
+  .card-source:hover{
+    background:var(--accent);
+    color:var(--bg);
+    border-color:var(--accent);
+  }
+
+  .card-source:hover::before{
+    transform:translateX(3px);
+  }
+
+  .table-wrap{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+
+  th,td{
+    padding:16px 22px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+  }
+
+  th{
+    background:var(--surface2);
+    font-size:0.82rem;
+    font-weight:700;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+  }
+
+  td{
+    color:var(--text2);
+    font-size:0.95rem;
+  }
+
+  td:first-child{
+    color:var(--text);
+    font-weight:600;
+  }
+
+  td code{
+    color:var(--accent2);
+  }
+
+  tr:last-child td{
+    border-bottom:none;
+  }
+
+  tr:hover td{
+    background:var(--surface2);
+  }
+
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin-top:20px;
+  }
+
+  .compare-col{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+
+  .compare-col.bad{
+    border-left:3px solid var(--error);
+  }
+
+  .compare-col.good{
+    border-left:3px solid var(--success);
+  }
+
+  .compare-label{
+    display:inline-block;
+    font-size:0.72rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    padding:4px 10px;
+    border-radius:4px;
+    margin-bottom:14px;
+  }
+
+  .bad .compare-label{
+    background:rgba(248,113,113,0.15);
+    color:var(--error);
+  }
+
+  .good .compare-label{
+    background:rgba(74,222,128,0.15);
+    color:var(--success);
+  }
+
+  .compare-col h4{
+    font-size:1.02rem;
+    color:var(--text);
+    margin-bottom:10px;
+    font-weight:700;
+  }
+
+  .compare-col p{
+    color:var(--text2);
+    font-size:0.92rem;
+    line-height:1.7;
+  }
+
+  .anti-list{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .gotcha-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .gotcha{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--warn);
+    border-radius:var(--radius-sm);
+    padding:20px 24px;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    transition:border-color var(--transition);
+  }
+
+  .gotcha:hover{
+    border-left-color:var(--accent);
+  }
+
+  .gotcha-check{
+    flex-shrink:0;
+    width:24px;
+    height:24px;
+    border:2px solid var(--border2);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:2px;
+    font-size:0.85rem;
+    color:var(--accent);
+    font-weight:700;
+  }
+
+  .gotcha-body{
+    color:var(--text2);
+    font-size:0.94rem;
+    line-height:1.75;
+  }
+
+  .section-desc{
+    color:var(--text2);
+    font-size:1rem;
+    line-height:1.75;
+    margin-bottom:28px;
+    max-width:820px;
+  }
+
+  footer{
+    margin-top:120px;
+    padding-top:40px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    color:var(--text3);
+    font-size:0.85rem;
+  }
+
+  @media(max-width:720px){
+    .container{
+      padding:40px 20px 60px;
+    }
+    .grid-2,.grid-3{
+      grid-template-columns:1fr;
+    }
+    .compare{
+      grid-template-columns:1fr;
+    }
+    th,td{
+      padding:12px 14px;
+      font-size:0.88rem;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *{
+      transition:none!important;
+      animation:none!important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ============================== HERO ============================== -->
+  <header class="hero">
+    <div class="badge">Infra Kit v0.1</div>
+    <h1>인프라 테스트 자동 생성</h1>
+    <p class="subtitle">IaC 검증(Terraform test, Terratest, Pulumi), Dockerfile lint, CI 파이프라인 검증, K8s manifest 검증 — 프로젝트 인프라 스택을 감지하고 적합한 테스트 코드를 자동으로 생성한다.</p>
+  </header>
+
+  <!-- ======================== 01 · 인프라 스택 감지 ======================== -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">01 &middot; Detection</span>
+      <h2>인프라 스택 감지</h2>
+    </div>
+    <p class="section-desc">프로젝트 루트에서 파일과 디렉토리를 탐색하여 인프라 스택을 자동 식별한다. 감지 결과에 따라 적합한 테스트 도구를 선택한다. 스택 감지 없이 테스트를 생성하면 Terraform 프로젝트에 Pulumi 테스트를 만드는 실수가 발생한다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>감지 대상</th><th>스택</th><th>테스트 도구</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>*.tf</code> / <code>.terraform/</code></td><td>Terraform</td><td><code>terraform test</code>, Terratest</td></tr>
+          <tr><td><code>Pulumi.yaml</code> / <code>Pulumi.*.yaml</code></td><td>Pulumi</td><td><code>pulumi preview --expect-no-changes</code>, Policy as Code</td></tr>
+          <tr><td><code>cdk.json</code> / <code>lib/*.ts</code> (CDK)</td><td>AWS CDK</td><td><code>cdk synth</code> + snapshot test</td></tr>
+          <tr><td><code>Dockerfile</code> / <code>docker-compose*.yml</code></td><td>Container</td><td>hadolint, docker build, container-structure-test</td></tr>
+          <tr><td><code>.github/workflows/*.yml</code></td><td>GitHub Actions CI</td><td>actionlint, act (로컬 실행)</td></tr>
+          <tr><td><code>.gitlab-ci.yml</code></td><td>GitLab CI</td><td>gitlab-ci-lint</td></tr>
+          <tr><td><code>k8s/</code> / <code>helm/</code> / <code>kustomize/</code></td><td>Kubernetes</td><td>kubeconform, <code>helm template</code>, kustomize build</td></tr>
+          <tr><td><code>ansible/</code> / <code>*.yml</code> (playbook)</td><td>Ansible</td><td>ansible-lint, molecule</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================== 02 · 테스트 유형 자동 추론 ======================== -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">02 &middot; Inference</span>
+      <h2>테스트 유형 자동 추론</h2>
+    </div>
+    <p class="section-desc">대상 파일이 주어지면 테스트 유형을 자동으로 추론한다. 유형을 명시적으로 지정할 수도 있지만, 대부분의 경우 파일 확장자와 경로만으로 올바른 테스트 전략을 선택할 수 있다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>대상 파일</th><th>테스트 유형</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>*.tf</code> 모듈</td><td>iac (terraform test)</td><td>HCL 기반 네이티브 테스트 우선</td></tr>
+          <tr><td><code>Dockerfile</code></td><td>container (hadolint + build)</td><td>정적 분석 + 빌드 검증 병행</td></tr>
+          <tr><td><code>docker-compose*.yml</code></td><td>container (config validate)</td><td><code>docker compose config</code>로 구문 검증</td></tr>
+          <tr><td><code>.github/workflows/*.yml</code></td><td>cicd (actionlint + 구조 검증)</td><td>SHA 고정, 필수 단계 존재 확인</td></tr>
+          <tr><td><code>k8s/*.yaml</code> / <code>helm/</code></td><td>k8s (kubeconform + template)</td><td>kubeval은 deprecated, kubeconform 사용</td></tr>
+          <tr><td>보안 관련 요청</td><td>security (Checkov/tfsec/Trivy)</td><td>스캔은 테스트와 별도 단계로 분리</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================== 03 · IaC 테스트 ======================== -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">03 &middot; IaC Tests</span>
+      <h2>IaC 테스트</h2>
+    </div>
+    <p class="section-desc">Infrastructure as Code 테스트는 <code>plan</code> 모드에서 실행하여 실제 인프라에 영향을 주지 않고 리소스 구성을 검증한다. Terraform은 네이티브 HCL 테스트와 Go 기반 Terratest를 지원하며, Pulumi는 mock 기반 단위 테스트를 제공한다.</p>
+    <div class="grid-3">
+
+      <article class="card">
+        <div class="card-num">TERRAFORM HCL TEST</div>
+        <h3>Terraform 네이티브 테스트</h3>
+        <p>Terraform 1.6+ / OpenTofu 1.7+에서 지원하는 HCL 기반 테스트. <code>command = plan</code>으로 실제 적용 없이 리소스 속성과 출력값을 검증한다.</p>
+        <pre><code># tests/{module}.tftest.hcl
+run "verify_resource_creation" {
+  command = plan
+
+  variables {
+    environment    = "test"
+    instance_type  = "t3.micro"
+  }
+
+  assert {
+    condition     = aws_instance.main.instance_type == "t3.micro"
+    error_message = "Instance type mismatch"
+  }
+}
+
+run "verify_output_format" {
+  command = plan
+
+  assert {
+    condition     = can(regex("^[a-z]", output.resource_name))
+    error_message = "Resource name must start with lowercase"
+  }
+}</code></pre>
+        <a class="card-source" href="https://developer.hashicorp.com/terraform/language/tests" target="_blank" rel="noopener">Terraform Test Framework</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">TERRATEST (GO)</div>
+        <h3>Go 기반 통합 테스트</h3>
+        <p>복잡한 인프라 검증이 필요할 때 사용한다. Plan 검증이 기본이며, Apply가 필요한 경우 <code>defer Destroy</code>로 격리 환경에서만 실행한다.</p>
+        <pre><code>// test/{module}_test.go
+package test
+
+import (
+    "testing"
+    "github.com/gruntwork-io/terratest/modules/terraform"
+    "github.com/stretchr/testify/assert"
+)
+
+func TestModule(t *testing.T) {
+    opts := &amp;terraform.Options{
+        TerraformDir: "../modules/{module}",
+        Vars: map[string]interface{}{
+            "environment": "test",
+        },
+    }
+    defer terraform.Destroy(t, opts)
+    terraform.InitAndPlan(t, opts)
+}</code></pre>
+        <a class="card-source" href="https://terratest.gruntwork.io/" target="_blank" rel="noopener">Terratest Documentation</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">PULUMI UNIT TEST</div>
+        <h3>Pulumi Mock 기반 테스트</h3>
+        <p>Pulumi runtime mock을 사용하여 클라우드 API 호출 없이 인프라 코드를 단위 테스트한다. 리소스 속성과 출력값을 apply 콜백으로 검증한다.</p>
+        <pre><code>// __tests__/infra.test.ts
+import * as pulumi from "@pulumi/pulumi/runtime";
+import { describe, it, expect } from "vitest";
+
+pulumi.setMocks({ /* mock provider */ });
+
+describe("Infrastructure", () =&gt; {
+  it("should create bucket with versioning",
+    async () =&gt; {
+      const { bucket } = await import("../index");
+      const versioning = await new Promise(
+        resolve =&gt;
+          bucket.versioning.apply(v =&gt; resolve(v))
+      );
+      expect(versioning?.enabled).toBe(true);
+  });
+});</code></pre>
+        <a class="card-source" href="https://www.pulumi.com/docs/using-pulumi/testing/" target="_blank" rel="noopener">Pulumi Testing Guide</a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ======================== 04 · Container 테스트 ======================== -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">04 &middot; Container Tests</span>
+      <h2>Container 테스트</h2>
+    </div>
+    <p class="section-desc">Dockerfile 정적 분석(hadolint)과 빌드된 이미지의 구조 검증(container-structure-test)은 서로 다른 관심사다. hadolint는 Dockerfile 작성 규칙을, container-structure-test는 실제 이미지 내부의 파일 존재, 포트, 사용자, 명령어를 검증한다.</p>
+    <div class="grid-2">
+
+      <article class="card">
+        <div class="card-num">HADOLINT</div>
+        <h3>Dockerfile 정적 분석</h3>
+        <p>Dockerfile의 베스트 프랙티스 위반을 감지한다. <code>.hadolint.yaml</code> 설정 파일로 프로젝트 정책에 따라 규칙을 조정할 수 있다. 신뢰할 수 있는 레지스트리만 허용하여 공급망 공격을 방지한다.</p>
+        <pre><code># .hadolint.yaml
+ignored:
+  - DL3008   # Pin versions in apt-get
+trustedRegistries:
+  - docker.io</code></pre>
+        <pre><code># 실행
+hadolint Dockerfile</code></pre>
+        <a class="card-source" href="https://github.com/hadolint/hadolint" target="_blank" rel="noopener">hadolint</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">CONTAINER STRUCTURE TEST</div>
+        <h3>이미지 구조 검증</h3>
+        <p>빌드된 이미지가 예상대로 구성되었는지 확인한다. 바이너리 존재 여부, 실행 사용자, 노출 포트, 명령어 실행 결과까지 YAML 선언으로 테스트한다.</p>
+        <pre><code># container-structure-test.yaml
+schemaVersion: "2.0.0"
+metadataTest:
+  exposedPorts: ["8080"]
+  cmd: []
+  user: "nonroot"
+fileExistenceTests:
+  - name: "app binary exists"
+    path: "/app/server"
+    shouldExist: true
+commandTests:
+  - name: "healthcheck endpoint"
+    command: "curl"
+    args: ["-f", "http://localhost:8080/health"]
+    exitCode: 0</code></pre>
+        <a class="card-source" href="https://github.com/GoogleContainerTools/container-structure-test" target="_blank" rel="noopener">container-structure-test</a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ======================== 05 · CI / K8s 테스트 ======================== -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">05 &middot; CI / K8s Tests</span>
+      <h2>CI 파이프라인 &amp; K8s 테스트</h2>
+    </div>
+    <p class="section-desc">CI 워크플로우 파일의 구문 오류와 보안 문제를 사전에 감지하고, Kubernetes manifest가 API 스키마에 부합하는지 검증한다. OPA/Rego 정책으로 조직의 배포 규칙(latest 태그 금지 등)을 강제할 수 있다.</p>
+    <div class="grid-3">
+
+      <article class="card">
+        <div class="card-num">ACTIONLINT</div>
+        <h3>GitHub Actions 정적 분석</h3>
+        <p>워크플로우 YAML의 구문 오류, 잘못된 <code>uses:</code> 참조, 셸 스크립트 오류를 감지한다. 추가로 third-party action의 SHA 고정 여부를 확인하는 구조 검증 스크립트를 병행한다.</p>
+        <pre><code># 정적 분석
+actionlint .github/workflows/*.yml
+
+# SHA 고정 확인
+grep -rn "uses:" .github/workflows/ \
+  | grep -v "@[a-f0-9]\{40\}" \
+  | grep -v "actions/"</code></pre>
+        <a class="card-source" href="https://github.com/rhysd/actionlint" target="_blank" rel="noopener">actionlint</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">KUBECONFORM</div>
+        <h3>K8s Manifest 스키마 검증</h3>
+        <p>kubeval은 deprecated되었으므로 kubeconform을 사용한다. Helm 차트는 <code>helm template</code>으로 렌더링한 후 파이프라인으로 검증한다.</p>
+        <pre><code># manifest 직접 검증
+kubeconform -strict \
+  -kubernetes-version 1.30.0 \
+  k8s/*.yaml
+
+# Helm chart 검증
+helm template my-release helm/chart/ \
+  | kubeconform -strict
+
+# kustomize 빌드 검증
+kustomize build k8s/overlays/dev \
+  | kubeconform -strict</code></pre>
+        <a class="card-source" href="https://github.com/yannh/kubeconform" target="_blank" rel="noopener">kubeconform</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">CONFTEST / OPA</div>
+        <h3>Policy as Code 테스트</h3>
+        <p>OPA/Rego 정책으로 조직의 배포 규칙을 코드화한다. <code>:latest</code> 태그 금지, 리소스 제한 필수 등 운영 정책을 manifest에 자동 적용하고 CI에서 강제한다.</p>
+        <pre><code># policy/no-latest-tag.rego
+package main
+
+deny[msg] {
+  input.kind == "Deployment"
+  container := input.spec.template
+    .spec.containers[_]
+  endswith(container.image, ":latest")
+  msg := sprintf(
+    "Container '%s' uses :latest tag",
+    [container.name]
+  )
+}
+
+# 실행
+conftest test k8s/*.yaml \
+  --policy policy/</code></pre>
+        <a class="card-source" href="https://www.conftest.dev/" target="_blank" rel="noopener">conftest</a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ======================== 06 · Gotchas 체크리스트 ======================== -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">06 &middot; Gotchas</span>
+      <h2>Gotchas 체크리스트</h2>
+    </div>
+    <div class="gotcha-list">
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong>스택 감지 없이 테스트 생성 금지.</strong> Terraform 프로젝트에 Pulumi 테스트를 생성하면 안 된다. 반드시 프로젝트 루트의 파일을 탐색하여 스택을 먼저 식별한다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong><code>terraform validate</code>만으로 충족 선언 금지.</strong> validate는 구문 검사일 뿐이다. 실제 인프라 로직 검증은 <code>terraform test</code> (HCL 기반) 또는 Terratest (Go 기반)로 해야 한다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong>프로덕션 인프라에 직접 테스트 실행 금지.</strong> IaC 테스트는 반드시 <code>plan</code>/dry-run 모드 또는 격리된 테스트 환경에서 실행한다. <code>terraform apply</code>를 테스트에서 호출하면 안 된다 (Terratest의 auto-destroy 제외).</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong>Dockerfile lint와 빌드 테스트 혼동 금지.</strong> hadolint는 정적 분석이고, 실제 빌드 테스트는 <code>docker build --target test</code> 또는 multi-stage test 스테이지로 분리한다. 이 둘은 관심사가 다르다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong>CI 파이프라인 테스트에서 시크릿 노출 주의.</strong> <code>act</code> (GitHub Actions 로컬 실행) 사용 시 <code>.secrets</code> 파일을 <code>.gitignore</code>에 포함한다. CI 테스트 결과에 환경 변수 덤프를 남기지 마라.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong>K8s manifest 검증 도구 혼용 주의.</strong> kubeval은 deprecated. <code>kubeconform</code> 또는 <code>kubectl --dry-run=server</code>를 사용하라. Helm 차트는 <code>helm template | kubeconform</code> 파이프라인으로 검증한다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong>보안 스캔을 테스트로 대체하지 마라.</strong> Trivy/Snyk/Checkov는 보안 스캔 도구이지 테스트가 아니다. 스캔 결과를 CI에 게이트로 넣되, 별도 단계로 분리하라. 테스트 통과와 보안 통과는 별개 관심사다.</div>
+      </div>
+
+      <div class="gotcha">
+        <div class="gotcha-check">&check;</div>
+        <div class="gotcha-body"><strong>OpenTofu/Terraform 호환성 주의.</strong> OpenTofu 1.7+는 <code>tofu test</code>에서 mocking 지원. Terraform은 1.6+에서 <code>terraform test</code> 지원. 프로젝트가 어떤 도구를 쓰는지 반드시 확인하라.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================== 07 · 안티패턴 ======================== -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">07 &middot; Anti-patterns</span>
+      <h2>안티패턴 &amp; 올바른 접근</h2>
+    </div>
+    <div class="anti-list">
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4><code>terraform validate</code>만으로 "테스트 완료" 선언</h4>
+          <p><code>validate</code>는 HCL 구문과 프로바이더 스키마만 확인한다. 리소스 속성이 의도한 값인지, 출력이 올바른 형식인지는 검증하지 못한다. 구문은 맞지만 로직이 틀린 인프라가 배포된다.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4><code>terraform test</code>로 assert 기반 검증</h4>
+          <p><code>.tftest.hcl</code> 파일에서 <code>command = plan</code>으로 실행하고 <code>assert</code> 블록으로 리소스 속성과 출력값을 검증한다. 실제 적용 없이도 인프라 로직의 정확성을 확인할 수 있다.</p>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4>테스트에서 <code>terraform apply</code> 실행</h4>
+          <p>프로덕션 또는 공유 환경에서 apply를 호출하면 실제 리소스가 생성/변경된다. 비용 발생, 데이터 손실, 서비스 중단의 위험이 있으며, 테스트 실패 시 리소스가 남아 고아 인프라가 된다.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4>plan 모드 + 격리 환경에서만 apply</h4>
+          <p>기본 테스트는 <code>command = plan</code>으로 실행한다. Apply가 반드시 필요한 통합 테스트는 Terratest의 <code>defer Destroy</code>로 격리 환경에서만 실행하고, 완료 후 리소스를 자동 정리한다.</p>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-col bad">
+          <span class="compare-label">Bad</span>
+          <h4>K8s 배포에 <code>:latest</code> 태그 허용</h4>
+          <p><code>:latest</code>는 이미지 버전이 불확정이어서 동일 manifest로 다른 결과가 나온다. 롤백이 불가능하고, 캐시된 이미지와 실제 이미지가 달라 디버깅이 극도로 어렵다.</p>
+        </div>
+        <div class="compare-col good">
+          <span class="compare-label">Good</span>
+          <h4>OPA 정책으로 <code>:latest</code> 차단</h4>
+          <p>Conftest + OPA/Rego 정책으로 <code>:latest</code> 태그를 CI에서 자동 차단한다. 시맨틱 버전 또는 커밋 SHA 기반 태그를 강제하여 배포의 재현성과 추적 가능성을 확보한다.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    Infra Kit &middot; Infra Test &middot; last updated 2026-04-12
+  </footer>
+
+</div>
+</body>
+</html>
