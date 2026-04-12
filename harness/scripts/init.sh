@@ -29,7 +29,10 @@ mkdir -p "$HARNESS_DIR/procedures" "$HARNESS_DIR/history"
 
 # 2. project.yaml 복사 + stack 치환
 cp "$HARNESS_ROOT/templates/project.yaml" "$HARNESS_DIR/project.yaml"
-sed -i "s/^stack: \"\"/stack: \"$STACK\"/" "$HARNESS_DIR/project.yaml"
+# macOS sed -i requires '' suffix, Linux does not — use temp file for cross-platform
+TMPFILE="$(mktemp)"
+sed "s/^stack: \"\"/stack: \"$STACK\"/" "$HARNESS_DIR/project.yaml" > "$TMPFILE"
+mv "$TMPFILE" "$HARNESS_DIR/project.yaml"
 
 # 3. env.sh 복사
 cp "$HARNESS_ROOT/templates/env.sh" "$HARNESS_DIR/env.sh"
