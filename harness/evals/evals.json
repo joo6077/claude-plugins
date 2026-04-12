@@ -1,0 +1,95 @@
+{
+  "skill_name": "harness",
+  "evals": [
+    {
+      "id": 1,
+      "skill": "init",
+      "prompt": "이 프로젝트에 harness 초기화해줘",
+      "expected_output": ".harness/ 디렉토리 생성 + project.yaml 초기 설정 (스택 자동 감지 또는 사용자 입력)",
+      "assertions": [
+        {"text": ".harness/ 디렉토리 존재 여부를 먼저 확인한다", "type": "behavior"},
+        {"text": "프로젝트 루트 파일(pubspec.yaml, Cargo.toml, package.json 등)로 스택을 자동 감지한다", "type": "behavior"},
+        {"text": "project.yaml에 stack, commands, contract_categories, anti_patterns가 포함된다", "type": "output"},
+        {"text": "이미 .harness/가 존재하면 사용자에게 알리고 중단한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 2,
+      "skill": "sprint-contract",
+      "prompt": "사용자 프로필 편집 기능 구현해줘",
+      "expected_output": "구현 전 Sprint Contract 생성 — 완료 조건, 검증 기준, 범위 정의 + 사용자 합의",
+      "assertions": [
+        {"text": "구현 코드를 작성하기 전에 계약을 먼저 생성한다", "type": "behavior"},
+        {"text": "contract-design-guide.md의 원칙을 따라 계약을 작성한다", "type": "behavior"},
+        {"text": "contract-schema.md 포맷에 맞는 완료 조건(acceptance criteria)이 포함된다", "type": "output"},
+        {"text": "red-flags.md 기준으로 계약 품질을 자체 검증한다", "type": "behavior"},
+        {"text": "사용자에게 계약 내용을 보여주고 합의를 받은 후 구현을 시작한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 3,
+      "skill": "create-skill",
+      "prompt": "flutter-animation이라는 새 스킬 만들어줘",
+      "expected_output": "skill-design-guide 기반 SKILL.md + 폴더 스캐폴딩",
+      "assertions": [
+        {"text": "skill-design-guide.md를 먼저 읽고 9가지 아키타입 중 적합한 것을 선택한다", "type": "behavior"},
+        {"text": "SKILL.md frontmatter에 name, description, argument-hint, user-invocable가 포함된다", "type": "output"},
+        {"text": "description에 트리거 키워드와 negative trigger(비트리거 조건)가 포함된다", "type": "output"},
+        {"text": "Gotchas 섹션이 최소 1개 이상 포함된다", "type": "output"},
+        {"text": "생성 후 validate-plugin.py로 frontmatter 검증을 실행한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 4,
+      "skill": "create-agent",
+      "prompt": "performance-analyzer 에이전트 만들어줘",
+      "expected_output": "agent-design-guide 기반 에이전트 .md 파일 스캐폴딩",
+      "assertions": [
+        {"text": "agent-design-guide.md를 먼저 읽고 6가지 디자인 패턴 중 적합한 것을 선택한다", "type": "behavior"},
+        {"text": "스킬로 충분한 작업인지 먼저 판단하고, 에이전트가 필요한 이유를 확인한다", "type": "behavior"},
+        {"text": "frontmatter에 tools와 model 필드가 명시적으로 포함된다", "type": "output"},
+        {"text": "description에 트리거 키워드와 negative trigger가 포함된다", "type": "output"},
+        {"text": "생성 후 validate-plugin.py로 frontmatter 검증을 실행한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 5,
+      "skill": "contract-kaizen",
+      "prompt": "계약 카이젠 돌려줘",
+      "expected_output": "피드백 분석 + 리서치 기반 sprint-contract 스킬 및 contract-design-guide 개선",
+      "assertions": [
+        {"text": "글로벌 피드백(~/.harness/feedback/)을 수집하고 패턴을 분석한다", "type": "behavior"},
+        {"text": "search-sources.md 기반으로 리서치 도메인 3-5개를 선정하여 검색한다", "type": "behavior"},
+        {"text": "Draft를 먼저 작성하고 QA Evaluator 평가 후 적용한다", "type": "behavior"},
+        {"text": "contract-schema.md 변경 시 PR 본문에 명시한다", "type": "output"},
+        {"text": "피드백 0건이면 리서치 전용 모드로 진행한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 6,
+      "skill": "evaluator-kaizen",
+      "prompt": "평가자 카이젠 실행해줘",
+      "expected_output": "피드백 분석 + 리서치 기반 qa-evaluator 에이전트 및 qa-evaluation-guide 개선",
+      "assertions": [
+        {"text": "글로벌 피드백을 수집하고 패턴을 분석한다", "type": "behavior"},
+        {"text": "search-sources.md 기반으로 리서치 도메인 3-5개를 선정하여 검색한다", "type": "behavior"},
+        {"text": "Phase 2(contract-kaizen)에서 contract-schema.md 변경 여부를 확인한다", "type": "behavior"},
+        {"text": "Draft → QA → Apply 순서를 지킨다", "type": "behavior"},
+        {"text": "피드백 0건이면 리서치 전용 모드로 진행한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 7,
+      "skill": "harness-kaizen",
+      "prompt": "하네스 스킬 전체 개선해줘",
+      "expected_output": "리서치 기반 harness 프레임워크 전반 개선 — search-sources.md 기반 검색 + Sprint Contract + QA",
+      "assertions": [
+        {"text": "search-sources.md 기반으로 최신 연구와 실무 기법을 리서치한다", "type": "behavior"},
+        {"text": "현재 스킬 상태와 리서치 결과를 비교하여 GAP 분석을 수행한다", "type": "behavior"},
+        {"text": "Sprint Contract를 생성하여 완료 조건을 정의한다", "type": "behavior"},
+        {"text": "변경 DRAFT를 먼저 작성하고 QA 통과 후 적용한다", "type": "behavior"},
+        {"text": "kaizen-failure-count.yaml에 실패 카운트를 기록한다", "type": "behavior"}
+      ]
+    }
+  ]
+}

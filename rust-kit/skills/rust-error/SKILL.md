@@ -15,6 +15,11 @@ user-invocable: true
 - **`unsafe` 금지** — workspace-wide `unsafe_code = "forbid"` 원칙. 외부 FFI가 반드시 필요한 경우 외에는 `unsafe` 블록을 만들지 마라. FFI가 필요하면 별도 shared crate로 격리한다. 출처: fit-pal `workspace.lints.rust` 및 `CLAUDE.md` §금지 사항.
 - **`println!` 대신 `tracing::info!`/`tracing::warn!`/`tracing::error!`** — 구조화 로깅 없이는 OTel 트레이싱/필드 추출이 불가능하다. 라이브러리 코드에서는 `println!`/`eprintln!`/`dbg!`를 사용하지 마라.
 - **`From<SrcError> for DstError` 누락 시 컴파일 에러** — `?` 연산자 체이닝 시 변환 경로를 먼저 확인하라. `#[from]` 또는 `impl From`을 추가한다.
+- **에러 variant에 HTTP status code 매핑 필수** — API 레이어에서 `IntoResponse`를 구현할 때 모든 에러 variant에 적절한 status code를 매핑해라. `NotFound → 404`, `Unauthorized → 401`, `Conflict → 409`. 매핑 누락 시 모든 에러가 `500 Internal Server Error`로 퇴화한다.
+- **에러 메시지에 내부 정보 노출 금지** — `Display` impl에 SQL 쿼리, 스택 트레이스, DB 스키마 정보를 포함하면 API 응답으로 유출된다. 사용자 대면 메시지와 내부 로깅 메시지를 분리해라. `tracing::error!`에는 상세 정보를, 응답에는 generic 메시지만 보낸다.
+- **`#[from]` 남용 시 에러 출처 모호화** — `thiserror`의 `#[from]`은 편리하지만, 동일 source error(예: `std::io::Error`)가 여러 variant에서 `#[from]`으로 사용되면 컴파일 에러가 난다. 이 경우 수동 `impl From`으로 context를 추가하거나 variant를 세분화해라.
+- **`anyhow::Context` trait을 도메인 에러에 쓰지 마라** — `.context("...")`는 `anyhow::Error`에만 체이닝 가능하다. 도메인 `thiserror` enum에 context를 추가하려면 별도 variant에 `String` 필드를 두거나 `#[error(transparent)]`로 inner error를 감싸라.
+- **에러 enum variant 폭발 방지** — 하나의 에러 enum에 15개 이상의 variant가 생기면 도메인 경계를 재검토해라. 모듈별로 에러를 분리하고 상위 에러에서 `#[from]`으로 합성하는 계층 구조를 사용한다.
 
 # 에러 처리 패턴 가이드
 

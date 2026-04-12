@@ -24,6 +24,10 @@ user-invocable: true
 - 플러그인 에이전트는 hooks, mcpServers, permissionMode 를 지원하지 않는다 — 필요하면 `.claude/agents/` 에 생성
 - **frontmatter drift 방지**: `tools`, `model` 필드는 validate-plugin V1 검증 대상이다. 둘 중 하나라도 누락되면 에이전트가 Claude 에게 invisible 처리되거나 위임 실패한다 (리서치 근거: LLM Model Drift — byaiteam.com 2025-12-30, Anthropic Agent Skills 공식 frontmatter 요구사항). 생성 직후 `python3 scripts/validate-plugin.py <plugin-name>` 으로 검증해라.
 - description 관점 일관성 (3 인칭 또는 명령형) — create-skill Gotchas 와 동일한 Anthropic best practice 규칙을 따른다
+- `model: sonnet` 을 기본으로 쓰되, 판단/평가/합성이 필요한 에이전트는 `model: opus` 를 지정해라. 모델 선택 없이 기본 상속하면 호출 시점의 모델에 의존하여 품질이 불안정해진다
+- 에이전트 파일명은 `kebab-case.md` 로 통일해라. camelCase, snake_case 를 쓰면 다른 에이전트/스킬의 네이밍 규칙과 불일치한다
+- 에이전트가 코드를 수정하면 안 되는 경우(리뷰어, 감사) `Edit`, `Write` 를 tools 에서 제외해라. 읽기 전용 에이전트가 파일을 수정하면 독립 평가의 의미가 사라진다
+- 에이전트 생성 후 반드시 해당 플러그인의 README에 등록 여부를 확인해라. `sync-docs.py --check-only` 가 drift 를 알려주지만, 에이전트 추가 자체는 자동 반영되지 않는다
 
 ## Process
 

@@ -1,0 +1,49 @@
+// ============================================================
+// rust-api Axum handler template
+// ============================================================
+// 사용법: rust-api 스킬이 핸들러를 생성할 때 이 템플릿의
+//         {{placeholder}} 값을 실제 feature/모델 정보로 치환한다.
+//
+// 플레이스홀더:
+//   {{FEATURE}}            — feature 이름 (snake_case, 예: users)
+//   {{FEATURE_PASCAL}}     — PascalCase (예: User)
+//   {{HTTP_METHOD}}        — HTTP 메서드 소문자 (get, post, put, delete, patch)
+//   {{ROUTE_PATH}}         — 라우트 경로 (예: /users/{id})
+//   {{SERVICE_PORT}}       — 서비스 포트 trait 이름 (예: UserService)
+//   {{REQUEST_TYPE}}       — 요청 DTO 타입 (예: CreateUserRequest, 없으면 제거)
+//   {{RESPONSE_TYPE}}      — 응답 DTO 타입 (예: UserResponse)
+//   {{PATH_PARAMS}}        — Path 파라미터 추출 (예: Path(id): Path<i64>)
+//   {{UTOIPA_ANNOTATION}}  — HAS_UTOIPA 시 #[utoipa::path(...)] 블록
+// ============================================================
+
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    Json,
+};
+use std::sync::Arc;
+
+use crate::domain::ports::{{SERVICE_PORT}};
+use crate::domain::models::{{{REQUEST_TYPE}}, {{RESPONSE_TYPE}}};
+use crate::api::errors::AppError;
+
+{{UTOIPA_ANNOTATION}}
+pub async fn {{HTTP_METHOD}}_{{FEATURE}}(
+    State(service): State<Arc<dyn {{SERVICE_PORT}}>>,
+    {{PATH_PARAMS}}
+    {{REQUEST_BODY}}
+) -> Result<{{RETURN_TYPE}}, AppError> {
+    // 비즈니스 로직 호출
+    {{HANDLER_BODY}}
+}
+
+// ── 라우터 등록 ──
+// Axum 0.8: path 파라미터는 반드시 {id} 중괄호 문법 사용 (:id 금지)
+
+use axum::Router;
+
+pub fn {{FEATURE}}_router(service: Arc<dyn {{SERVICE_PORT}}>) -> Router {
+    Router::new()
+        .route("{{ROUTE_PATH}}", axum::routing::{{HTTP_METHOD}}({{HTTP_METHOD}}_{{FEATURE}}))
+        .with_state(service)
+}

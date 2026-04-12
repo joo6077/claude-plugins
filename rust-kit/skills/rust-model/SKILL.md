@@ -17,6 +17,9 @@ user-invocable: true
 - **SeaORM `ConnectionTrait` 제네릭** — 트랜잭션과 일반 커넥션을 동시에 지원하려면 내부 메서드 시그니처를 `<C: ConnectionTrait>(conn: &C, ...)` 형태로 받는다. 이렇게 해야 `&DatabaseConnection`과 `&DatabaseTransaction` 모두 전달 가능하다. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
 - **마이그레이션 타임스탬프 중복 금지** — 파일명 타임스탬프(`YYYYMMDDHHMMSS`)가 겹치면 SQLx/SeaORM 양쪽 모두 에러를 낸다. 항상 현재 시각을 사용하고 같은 초에 여러 파일을 만들지 마라.
 - **nullable 컬럼은 `Option<T>` 필수** — DB가 `NOT NULL`인데 Rust 필드를 `Option<T>`로 하면 조회 시 항상 Some(..)이지만 타입 안전성이 떨어진다. 반대로 nullable 컬럼을 `T`로 하면 `null` 조회 시 SQLx는 `Error::ColumnDecode`, SeaORM은 `DbErr::AttrNotSet`이 발생한다.
+- **마이그레이션 파일은 한 번 적용되면 수정 금지** — 이미 prod/staging에 적용된 마이그레이션을 수정하면 체크섬 불일치로 전체 마이그레이션이 실패한다. 수정이 필요하면 새 마이그레이션 파일을 추가하여 `ALTER TABLE`로 변경해라.
+- **인덱스 네이밍 컨벤션** — `idx_{table}_{columns}` 형식을 따라라(예: `idx_users_email`). 복합 인덱스는 `idx_orders_user_id_created_at`. 이름 없이 생성하면 DB가 자동 생성하는 이름이 DB 벤더마다 달라 마이그레이션 이식성이 깨진다.
+- **`DEFAULT` 값이 있는 컬럼 추가 시 `NOT NULL` 안전하게 적용** — 기존 테이블에 `NOT NULL` 컬럼을 추가하려면 반드시 `DEFAULT` 값을 함께 지정해라. `DEFAULT` 없이 `NOT NULL`을 추가하면 기존 행이 제약 위반으로 마이그레이션 자체가 실패한다.
 
 # DB 모델 + 마이그레이션 생성 (SQLx 또는 SeaORM)
 
@@ -463,3 +466,8 @@ Docker 이미지에 `cargo install sea-orm-cli`를 포함시키지 않고 앱 �
 3. 다음 단계 안내:
    - Repository를 활용하는 서비스 레이어가 필요하면 `rust-service` 스킬을 사용하세요.
    - API 핸들러를 바로 연결하려면 `rust-api` 스킬을 사용하세요.
+
+# References
+
+- references/project-detection.md
+- templates/rust-model.rs.template — SQLx 모델 템플릿

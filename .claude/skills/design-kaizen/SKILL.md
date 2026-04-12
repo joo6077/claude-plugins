@@ -14,6 +14,8 @@ user-invocable: true
 1. **리서치 문서 먼저 확인** — 스킬을 수정하기 전에 design-kit/docs/design/ 문서가 최신인지 확인하라. 오래된 리서치를 기반으로 스킬을 개선하면 잘못된 원칙이 반영된다.
 2. **Gotchas 추가 시 실패 근거 필수** — "이런 실수를 할 수 있다"가 아니라 "실제로 이런 실패가 발생했다"는 근거가 있어야 한다. 추측성 Gotchas는 추가하지 않는다.
 3. **기존 스킬 구조 유지** — SKILL.md의 섹션 구조(Gotchas → Process → References)를 변경하지 마라. 내용만 개선한다.
+4. **audit-criteria.md와 스킬 Gotchas 중복 금지** — audit-criteria.md는 체크리스트 항목, Gotchas는 반복 실수 방지 지침이다. 같은 내용을 양쪽에 복사하지 마라. 역할이 다르다.
+5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py design-kit`을 실행하라. 7 카테고리 중 하나라도 FAIL이면 수정 후 재검증한다.
 
 # Process
 

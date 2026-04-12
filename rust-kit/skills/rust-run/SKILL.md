@@ -26,6 +26,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **서브커맨드 문자열을 정규화하지 않으면 안 된다** — 사용자가 "빌드", "build", "b" 등 다양한 형태로 입력할 수 있다. 매핑 테이블을 통해 정규화하라. 인식 불가 시 사용 가능한 서브커맨드 목록을 보여주라.
+- **workspace 플래그를 단일 크레이트 프로젝트에 전달하지 마라** — `[workspace]` 섹션이 없는 프로젝트에서 `--workspace`를 붙이면 에러가 발생한다. Cargo.toml을 읽어 workspace 여부를 먼저 판단하라.
+- **nightly 전용 커맨드를 stable에서 실행하지 마라** — `cargo +nightly udeps`, `cargo miri test` 등은 nightly가 필수다. 실행 전 `rustup show`로 현재 toolchain을 확인하고, stable이면 `rustup run nightly`로 감싸거나 불가능을 알려라.
+- **`cargo test`와 `cargo nextest run`을 혼용하지 마라** — 프로젝트에 `cargo-nextest`가 설정되어 있으면(`.config/nextest.toml` 존재) nextest를 사용하라. 둘의 출력 형식과 필터 문법이 다르다.
+- **`cargo fmt`를 `--check` 없이 실행하면 파일이 수정된다** — 확인만 하고 싶은 경우 `--check`를 반드시 붙여라. 의도치 않은 파일 변경은 git status를 오염시킨다.
+- **`cargo clippy --fix`의 자동 수정을 맹신하지 마라** — clippy의 자동 수정이 의미를 바꿀 수 있다(예: `clone()` 제거가 borrow checker 에러 유발). 수정 후 반드시 `cargo check`로 컴파일을 확인하라.
+- **`cargo audit`를 `advisory-db` 업데이트 없이 실행하지 마라** — 오래된 DB로 검사하면 최신 취약점을 놓친다. `cargo audit fetch` 후 `cargo audit`를 실행하거나 `--deny warnings`로 새 advisory를 감지하라.
+- **환경변수 `RUST_LOG`를 설정하지 않고 테스트 로그가 안 보인다고 보고하지 마라** — `cargo test`는 기본적으로 stdout을 캡처한다. `-- --nocapture`와 `RUST_LOG=debug`를 함께 설정해야 로그가 출력된다.
+- **병렬 테스트가 서로 간섭할 때 `--test-threads=1`을 기본값으로 강제하지 마라** — 전체 테스트를 직렬화하면 CI 시간이 폭증한다. 간섭하는 테스트만 `#[serial]` (serial_test 크레이트)로 표시하라.
+- **`cargo check`와 `cargo build`의 차이를 무시하지 마라** — `check`는 코드 생성(codegen) 단계를 건너뛰어 빠르지만, 링크 에러나 proc-macro 런타임 문제를 잡지 못한다. 최종 검증은 반드시 `build`로 하라.
+
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 프로젝트 환경을 파악한다.

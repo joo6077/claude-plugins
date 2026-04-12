@@ -34,7 +34,43 @@ AnimationController, Tween, Hero, implicit vs explicit, Curves, Rive/Lottie, Cus
 - Hero tag 충돌 방치 — route 하나에 동일 tag가 둘 이상이면 런타임 assertion.
 - CustomPainter의 shouldRepaint를 항상 true로 — 매 프레임 전체 repaint가 발생해 성능이 망가진다.
 
+## 실전 패턴
+
+### Staggered Animation
+
+여러 위젯이 순차적으로 등장하는 패턴. `Interval`로 각 요소의 시작/끝 시점을 배분한다.
+
+```dart
+// Interval(0.0, 0.5) → 전체 duration의 전반부에서 실행
+// Interval(0.3, 0.8) → 30%~80% 구간에서 실행
+final slideAnim = Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero)
+    .animate(CurvedAnimation(parent: controller, curve: Interval(0.0, 0.6, curve: Curves.easeOut)));
+```
+
+- 출처: https://docs.flutter.dev/ui/animations/staggered-animations
+
+### AnimatedSwitcher vs PageRouteBuilder
+
+같은 위치에서 위젯을 교체할 때는 `AnimatedSwitcher`, route 전환은 `PageRouteBuilder`/`CustomTransitionPage`를 쓴다. 혼동하면 layout shift가 발생한다.
+
+- 출처: https://api.flutter.dev/flutter/widgets/AnimatedSwitcher-class.html
+
+### RepaintBoundary 활용
+
+애니메이션되는 위젯을 `RepaintBoundary`로 감싸면 해당 서브트리만 별도 레이어로 분리되어 나머지 UI의 repaint를 방지한다.
+
+- 출처: https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html
+
+## 성능 프로파일링
+
+- DevTools의 "Performance Overlay"에서 UI thread와 Raster thread 모두 16ms 이내인지 확인
+- `Timeline.startSync('animation_label')`로 특정 애니메이션의 비용을 측정
+- Impeller 환경(iOS 기본, Android opt-in)에서는 shader compilation jank가 사라지므로 first-frame 성능이 개선됨
+- 출처: https://docs.flutter.dev/perf/ui-performance
+
 ## Gotchas
 
 - Rive는 renderer 선택과 Impeller 사용 환경에 따라 동작 차이가 있다 — iOS/Android/웹에서 동일하게 보이는지 QA 단계에서 반드시 확인하라.
 - Lottie는 CPU/GPU 부담이 커질 수 있다 — 반복 재생되는 경우 `LottieOptions.enableMergePaths`, renderCache 등 옵션을 검토하라.
+- AnimationController를 HookWidget에서 사용할 때 `useAnimationController`의 `duration` 파라미터 변경은 hot reload에서 반영되지 않을 수 있다 — restart가 필요하다.
+- `addStatusListener`를 사용할 때 dispose에서 제거하지 않으면 메모리 릭이 발생한다. `useEffect`의 cleanup에서 반드시 제거하라.

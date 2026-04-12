@@ -66,3 +66,79 @@ Golden(스크린샷) 테스트는 UI 회귀 방지에 강력하지만 theme, fon
 - **Integration test의 한계**: 동작은 검증할 수 있지만 실패 원인을 특정 레이어로 좁히기 어렵다. 원인 localization은 unit/widget test에 맡기고, integration은 "사용자 관점 시나리오가 끝까지 통과하는가"만 확인한다.
 - **Golden test의 플랫폼 의존**: macOS에서 통과한 golden이 Linux CI에서 깨지는 경우가 흔하다. CI 환경의 폰트·렌더러를 기준으로 golden을 관리하거나, 플랫폼별 golden을 분리한다.
 - **`pumpWidget` 후 `pump()` 한 번 더**: `FutureBuilder`, `StreamBuilder`, 초기 animation 프레임은 `pumpWidget` 직후 한 프레임 더 `pump()`해야 반영된다. 이 누락이 widget test flake의 흔한 원인이다.
+
+## 실전 패턴
+
+### Widget Test 기본 구조
+
+```dart
+testWidgets('로그인 버튼 클릭 시 provider에 로그인 요청', (tester) async {
+  final mockAuth = MockAuthRepository();
+  when(() => mockAuth.login(any(), any())).thenAnswer((_) async => Right(user));
+
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [authRepositoryProvider.overrideWithValue(mockAuth)],
+      child: const MaterialApp(home: LoginPage()),
+    ),
+  );
+
+  await tester.enterText(find.byKey(Key('email')), 'test@test.com');
+  await tester.enterText(find.byKey(Key('password')), 'pass123');
+  await tester.tap(find.byKey(Key('loginBtn')));
+  await tester.pump();
+
+  verify(() => mockAuth.login('test@test.com', 'pass123')).called(1);
+});
+```
+
+- 출처: https://docs.flutter.dev/cookbook/testing/widget/tap-drag
+
+### Golden Test 실전
+
+```dart
+testWidgets('ProductCard golden', (tester) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: appLightTheme,
+      home: Scaffold(body: ProductCard(product: mockProduct)),
+    ),
+  );
+  await expectLater(
+    find.byType(ProductCard),
+    matchesGoldenFile('goldens/product_card_light.png'),
+  );
+});
+```
+
+CI에서 golden update: `flutter test --update-goldens`
+
+- 출처: https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html
+
+### 테스트 피라미드 비율 권장
+
+| 레이어 | 비율 | 대상 |
+|--------|------|------|
+| Unit | 70% | Repository, UseCase, Notifier 로직 |
+| Widget | 20% | 개별 위젯, 화면 단위 상호작용 |
+| Integration | 10% | 핵심 사용자 시나리오 E2E |
+
+### Fake vs Mock 선택
+
+- **Fake**: 인터페이스의 간단한 인메모리 구현. 로직 검증에 적합
+- **Mock**: 호출 여부/횟수/인자 검증. 상호작용 검증에 적합
+- Repository 계층은 Fake 선호 (실제 로직 흐름 검증), Notifier에서 Repository 호출 검증은 Mock 선호
+
+### 비동기 테스트 패턴
+
+```dart
+testWidgets('AsyncNotifier loading → data 전이', (tester) async {
+  await tester.pumpWidget(testApp);
+  // loading 상태
+  expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  // data 도착 대기
+  await tester.pump(const Duration(milliseconds: 100));
+  await tester.pump(); // FutureBuilder 갱신
+  expect(find.text('Product Name'), findsOneWidget);
+});
+```

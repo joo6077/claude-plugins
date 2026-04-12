@@ -69,7 +69,103 @@ API 스키마 변경이 UI까지 전파되지 않도록 DTO와 Domain 모델을 
 
 ---
 
+## 실전 패턴
+
+### Retrofit DataSource 정의
+
+```dart
+@RestApi(baseUrl: '')
+abstract class ProductApi {
+  factory ProductApi(Dio dio, {String baseUrl}) = _ProductApi;
+
+  @GET('/products')
+  Future<List<ProductDto>> getProducts(@Query('page') int page);
+
+  @GET('/products/{id}')
+  Future<ProductDto> getProduct(@Path('id') String id);
+
+  @POST('/products')
+  Future<ProductDto> createProduct(@Body() CreateProductDto dto);
+
+  @DELETE('/products/{id}')
+  Future<void> deleteProduct(@Path('id') String id);
+}
+```
+
+- 출처: https://pub.dev/packages/retrofit
+
+### DTO → Entity 변환 (Repository에서)
+
+```dart
+class ProductRepositoryImpl implements ProductRepository {
+  final ProductApi _api;
+
+  @override
+  Future<Either<Failure, List<Product>>> getProducts(int page) async {
+    try {
+      final dtos = await _api.getProducts(page);
+      return Right(dtos.map((dto) => dto.toDomain()).toList());
+    } on DioException catch (e) {
+      return Left(e.toFailure());
+    }
+  }
+}
+```
+
+### Dio Interceptor 계층
+
+```text
+Dio
+├── AuthInterceptor — JWT 토큰 주입, 401 시 refresh
+├── LogInterceptor — request/response 로깅 (debug only)
+├── RetryInterceptor — 5xx/timeout 시 재시도 (최대 3회)
+└── CacheInterceptor — GET 요청 ETag/304 캐싱 (선택)
+```
+
+- 출처: https://pub.dev/documentation/dio/latest/dio/Interceptor-class.html
+
+### 에러 변환 Extension
+
+```dart
+extension DioExceptionX on DioException {
+  Failure toFailure() => switch (type) {
+    DioExceptionType.connectionTimeout => const Failure.network('연결 시간 초과'),
+    DioExceptionType.receiveTimeout => const Failure.network('응답 시간 초과'),
+    DioExceptionType.badResponse => _parseServerError(response),
+    DioExceptionType.cancel => const Failure.cancelled(),
+    _ => Failure.unknown(message ?? '알 수 없는 오류'),
+  };
+}
+```
+
+### Pagination 패턴
+
+| 패턴 | 사용 시점 |
+|------|----------|
+| Offset-based (`?page=2&limit=20`) | 총 개수가 필요하거나, 특정 페이지 점프가 필요할 때 |
+| Cursor-based (`?after=abc123`) | 실시간 데이터, 무한 스크롤, 일관된 결과 필요 시 |
+
+Repository에서 pagination 메타(hasMore, nextCursor)를 Entity와 함께 반환:
+
+```dart
+class PaginatedResult<T> {
+  final List<T> items;
+  final bool hasMore;
+  final String? nextCursor;
+}
+```
+
+## 테스트 전략
+
+- **DataSource**: `MockDio` 또는 `dio_test` 패키지로 HTTP 응답 모킹
+- **Repository**: DataSource를 Fake/Mock으로 교체, Either<Failure, T> 반환 검증
+- **DTO 변환**: 실제 JSON fixture 파일로 `fromJson`/`toJson` round-trip 검증
+- **Interceptor**: `RequestInterceptorHandler`/`ResponseInterceptorHandler` mock으로 동작 검증
+
 ## Gotchas
 
 - **retrofit Parser.FlutterCompute는 Map-heavy 응답에 역효과** — isolate 전송 비용이 파싱 비용보다 클 수 있다. 큰 배열/깊은 객체에만 선택적으로 적용.
 - **json_serializable 옵션은 초기 합의 필수** — `explicitToJson`, `fieldRename`, `genericArgumentFactories`는 프로젝트 시작 시 통일해야 한다. 후행 변경은 전수 리제너레이션을 유발.
+- **Dio baseUrl 중복** — Retrofit `@RestApi(baseUrl: '')`과 Dio 인스턴스의 `baseUrl`이 겹치면 URL이 이중 결합된다. 한쪽만 지정하라.
+- **401 refresh 무한 루프** — refresh token도 만료되었는데 retry가 계속 refresh를 시도하면 무한 루프. refresh 실패 시 즉시 로그아웃으로 분기해야 한다.
+- **freezed DTO vs Entity 분리** — DTO에 `@JsonSerializable`을 붙이고, Entity에는 순수 `@freezed`만 쓴다. 같은 클래스에 둘 다 붙이면 API 스키마 변경이 도메인 로직까지 전파된다.

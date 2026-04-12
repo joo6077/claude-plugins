@@ -6,6 +6,27 @@
 set -eo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# ── --help 지원 ──
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  echo "Plugin Release Script"
+  echo ""
+  echo "Usage: bash scripts/release.sh <plugin-name> <patch|minor|major>"
+  echo ""
+  echo "Bumps the plugin version in plugin.json and marketplace.json,"
+  echo "then creates a git commit + tag and pushes to origin."
+  echo ""
+  echo "Arguments:"
+  echo "  plugin-name   Name of the plugin directory (e.g. harness, flutter-toolkit)"
+  echo "  bump-type     Version bump type: patch, minor, or major"
+  echo ""
+  echo "Available plugins:"
+  for d in "$REPO_ROOT"/*/; do
+    [ -f "$d/.claude-plugin/plugin.json" ] && echo "  - $(basename "$d")"
+  done
+  exit 0
+fi
+
 PLUGIN_NAME="${1:-}"
 BUMP_TYPE="${2:-}"
 

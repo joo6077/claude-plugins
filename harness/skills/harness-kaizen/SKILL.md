@@ -34,6 +34,9 @@ user-invocable: true
 - `release.sh` 는 interactive prompt 가 있다 (dirty check). 카이젠 브랜치에서는 커밋 후 실행해야 한다
 - **피드백 0 건이면 triage 에서 SKIP 하지 마라** — contract-kaizen / evaluator-kaizen 과 동일하게 **리서치 전용 모드** 로 진행한다 (패턴 분석 생략, `references/search-sources.md` 우선순위 상위 3 개 도메인만 리서치). 피드백 누적이 없어도 2026 트렌드 리서치 기반 예방적 개선은 항상 가능하다 (리서치 근거: GrowthBook "Feedback Loops are the Next Breakthrough in Agentic Coding", Martin Fowler "Humans and Agents in Software Engineering Loops")
 - 피드백 패턴 분석 시 동일 `diagnosis.checklist` 시그니처가 **최근 10 건 중 3 회 이상** 반복되면 해당 영역을 최우선 개선 대상으로 승격시켜라. 이는 contract-kaizen / evaluator-kaizen 의 임계치와 일치시켜 일관성을 유지한다
+- **Scope Creep 방지** — 한 카이젠 사이클에서 개선하는 파일은 최대 3개로 제한해라. 4개 이상을 한 번에 수정하면 Regression Smoke Test에서 원인 특정이 불가능해지고 revert 범위가 넓어진다. 큰 개선은 여러 사이클로 분할한다.
+- **Cross-Phase 오염 금지** — harness-kaizen Phase에서 contract-schema.md나 qa-evaluation-guide.md를 직접 수정하지 마라. 그것은 contract-kaizen(Phase 2)과 evaluator-kaizen(Phase 3)의 전담 영역이다. harness-kaizen에서 발견한 교차 이슈는 "DEFERRED to phase-N" 주석으로 기록만 하고 해당 Phase에 위임한다.
+- **Regression 원인 추적 누락** — Smoke Test FAIL 시 단순 revert만 하고 끝내면 같은 패턴의 실패가 반복된다. revert 후 반드시 "왜 실패했는가"를 1줄로 기록하고 다음 사이클의 피드백 입력으로 활용해라.
 
 ## 핵심 제약: 할루시네이션 절대 불가
 

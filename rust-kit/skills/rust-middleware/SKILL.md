@@ -17,6 +17,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **미들웨어 적용 순서가 실행 순서와 반대임을 잊지 마라** — Axum에서 `.layer(A).layer(B)` 순서로 추가하면 요청은 B → A 순서로 통과한다. CORS를 인증보다 먼저 실행하려면 인증을 먼저 `.layer()`하고 CORS를 나중에 `.layer()`해야 한다.
+- **CORS preflight(OPTIONS)를 인증 미들웨어가 차단하지 않도록 하라** — 브라우저의 preflight 요청은 Authorization 헤더를 포함하지 않는다. 인증 미들웨어에서 OPTIONS 메서드를 예외 처리하거나, CORS 레이어를 인증 밖에 배치하라.
+- **Tower Layer와 Axum handler middleware를 혼동하지 마라** — `tower::Layer`는 `Service`를 감싸는 범용 래퍼, `axum::middleware::from_fn`은 Axum 전용 함수형 미들웨어다. 재사용성이 필요하면 Layer, 빠른 프로토타이핑이면 `from_fn`을 사용하라.
+- **rate limiter 상태를 요청마다 새로 생성하지 마라** — `Arc<Mutex<HashMap<IpAddr, ...>>>`나 `governor` 크레이트의 `RateLimiter`를 앱 상태에 한 번 생성하고 공유하라. 미들웨어 함수 안에서 매번 새 인스턴스를 만들면 제한이 작동하지 않는다.
+- **로깅 미들웨어에서 요청 body를 소비하지 마라** — `Body`를 읽으면 후속 핸들러가 body를 사용할 수 없다. `tower_http::trace::TraceLayer`를 사용하거나, body를 clone한 후 되돌려 넣어야 한다.
+- **`CorsLayer::permissive()`를 프로덕션에 사용하지 마라** — 개발 편의용이며, 모든 origin/method/header를 허용한다. 프로덕션에서는 `.allow_origin()`, `.allow_methods()`, `.allow_headers()`를 명시적으로 설정하라.
+- **미들웨어에서 `next.run(req).await` 호출을 빠뜨리지 마라** — `from_fn` 미들웨어에서 next를 호출하지 않으면 요청이 핸들러에 도달하지 못하고 영원히 대기하거나 즉시 응답한다. early return 경로에서도 의도적인지 확인하라.
+- **에러 응답 형식을 미들웨어마다 다르게 만들지 마라** — 인증 실패는 JSON, rate limit은 plain text로 응답하면 클라이언트 파싱이 깨진다. 모든 미들웨어 에러 응답을 `application/json` 형식의 통일된 에러 구조체로 반환하라.
+- **타임아웃 미들웨어를 라우트 전체에 일괄 적용하지 마라** — 파일 업로드, WebSocket, SSE 같은 장시간 연결은 별도 타임아웃이 필요하다. `tower_http::timeout::TimeoutLayer`를 라우트 그룹별로 차등 적용하라.
+- **미들웨어의 타입 에러를 `Box<dyn Error>`로 뭉뚱그리지 마라** — Axum의 `HandleError`나 `IntoResponse` 구현에서 구체적 에러 타입을 사용해야 디버깅이 가능하다. 모든 에러를 박싱하면 로그에서 원인을 추적할 수 없다.
+
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 `ARCH`, `HAS_AXUM`, `HAS_TRACING` 등을 파악한다.

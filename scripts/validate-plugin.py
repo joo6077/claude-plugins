@@ -251,21 +251,25 @@ def check_v2_templates(ctx: CheckContext) -> CheckResult:
         text = ctx.read(path)
         rel = path.relative_to(REPO_ROOT)
 
+        # Placeholder 치환: {{...}} → 빈 문자열 (템플릿 파일은 순수 파싱 불가)
+        import re as _re
+        text_clean = _re.sub(r"\{\{[^}]*\}\}", "", text)
+
         if stem.endswith(".json"):
             try:
-                json.loads(text)
+                json.loads(text_clean)
                 parsed += 1
             except json.JSONDecodeError as exc:
                 failures.append(f"FAIL {rel}: JSON parse error — {exc}")
         elif stem.endswith((".yaml", ".yml")):
             try:
-                yaml.safe_load(text)
+                yaml.safe_load(text_clean)
                 parsed += 1
             except yaml.YAMLError as exc:
                 failures.append(f"FAIL {rel}: YAML parse error — {exc}")
         elif stem.endswith(".toml"):
             try:
-                tomllib.loads(text)
+                tomllib.loads(text_clean)
                 parsed += 1
             except tomllib.TOMLDecodeError as exc:
                 failures.append(f"FAIL {rel}: TOML parse error — {exc}")

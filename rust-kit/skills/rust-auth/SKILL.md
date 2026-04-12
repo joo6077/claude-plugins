@@ -18,6 +18,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **시크릿을 소스코드에 하드코딩하지 마라** — JWT signing key, OAuth client secret을 `const`나 `static`으로 박으면 git history에 영구 노출된다. 반드시 `std::env::var("JWT_SECRET")` 또는 `.env` 파일에서 로드하라.
+- **토큰 만료 시간을 누락하지 마라** — `exp` 클레임 없이 JWT를 발급하면 토큰이 영원히 유효하다. access token은 15분~1시간, refresh token은 7~30일로 반드시 설정하라.
+- **refresh token rotation을 빠뜨리지 마라** — refresh token 사용 시 기존 토큰을 무효화하고 새 토큰을 발급하라. 단일 refresh token을 재사용하면 탈취 시 무한 액세스가 가능하다.
+- **비밀번호 해싱에 SHA-256을 사용하지 마라** — `argon2`, `bcrypt`, `scrypt` 같은 비용 기반 해시를 사용하라. SHA 계열은 무차별 대입에 취약하다. `password_hash` 크레이트의 `PasswordHasher` 트레이트를 권장한다.
+- **HMAC과 RSA 알고리즘을 혼동하지 마라** — `jsonwebtoken` 크레이트에서 `Algorithm::HS256`으로 서명한 토큰을 `RS256` 키로 검증하면 항상 실패한다. 발급과 검증에 동일한 알고리즘+키 쌍을 사용하라.
+- **Authorization 헤더 파싱에서 "Bearer " 접두사를 빠뜨리지 마라** — `Authorization: Bearer <token>` 형식에서 "Bearer " 7글자를 strip하지 않으면 토큰 디코딩이 실패한다. 대소문자도 주의하라.
+- **CORS와 인증 미들웨어 순서를 잘못 배치하지 마라** — CORS preflight(OPTIONS)는 인증 없이 통과해야 한다. 인증 미들웨어가 CORS보다 먼저 실행되면 preflight가 401을 반환한다.
+- **에러 응답에 내부 정보를 노출하지 마라** — "Invalid password for user admin@example.com" 같은 메시지는 사용자 존재 여부를 확인시켜 준다. "Invalid credentials"로 통일하라.
+- **OAuth state 파라미터를 검증하지 않으면 CSRF에 노출된다** — OAuth 콜백에서 `state` 값을 세션에 저장한 값과 비교하라. 생략하면 공격자가 자신의 계정을 피해자 세션에 연결할 수 있다.
+- **middleware extractor 순서를 잘못 배치하지 마라** — Axum에서 `Claims` extractor가 `Json<Body>` 뒤에 오면 body가 이미 소비되어 파싱 에러가 발생한다. 인증 extractor는 항상 body extractor 앞에 배치하라.
+
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 `ARCH`, `IS_WORKSPACE`, `HAS_JSONWEBTOKEN`, `HAS_AXUM` 등을 파악한다.

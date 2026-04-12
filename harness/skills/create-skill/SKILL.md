@@ -24,6 +24,10 @@ user-invocable: true
 - 메인 SKILL.md 에 모든 내용을 넣으면 컨텍스트 과부하 — 100 줄 넘으면 references/ 분리 검토. 전체 SKILL.md 본문 1500-2000 words 타깃 (Anthropic best practices 기준).
 - 뻔한 내용(일반 코딩 지식)을 넣으면 가치 없다 — Claude 가 추론만으로 절대 알 수 없는 정보만 넣어라
 - 스킬 생성 직후 반드시 `python3 scripts/validate-plugin.py <plugin-name>` 으로 V1 frontmatter / V4 trigger 중복 / V5 placeholder / V6 bare code fence 검증을 돌려라. 생성만 하고 검증 안 하면 frontmatter drift 로 스킬이 Claude 에게 invisible 처리된다.
+- **아키타입 미선정 상태로 구조 작성 금지** — skill-design-guide의 9가지 아키타입(Generator, Guide, Runner 등) 중 하나를 먼저 확정하고 그에 맞는 Process 구조를 따라라. 아키타입 없이 자유 형식으로 쓰면 Process 단계 순서가 비논리적이 되고 QA Evaluator가 재현 불가 판정한다.
+- **argument-hint 누락은 discovery 실패** — user-invocable 스킬이면서 인자를 받는 경우 `argument-hint`를 반드시 작성해라. 빈 문자열이면 Claude가 인자 전달 가능성 자체를 인지하지 못해 사용자가 매번 수동으로 입력해야 한다.
+- **스킬 이름에 프레임워크/언어 접두사 필수** — 범용(harness, design-kit)이 아닌 스택 종속 스킬은 반드시 `flutter-`, `rust-`, `react-` 같은 접두사를 붙여라. 접두사 없으면 다른 킷의 동명 스킬과 충돌하거나 트리거 우선순위가 모호해진다.
+- **references/ 분리 판단 기준** — Process 본문에서 3회 이상 참조되는 정보(감지 로직, 템플릿 코드, 체크리스트)는 references/로 분리해라. 인라인으로 남기면 SKILL.md가 2000 words를 초과하여 Claude 컨텍스트 효율이 떨어진다.
 
 ## Process
 

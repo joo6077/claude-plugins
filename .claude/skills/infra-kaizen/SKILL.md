@@ -14,6 +14,8 @@ user-invocable: true
 1. **추측성 Gotchas 추가 금지** — 실제 실패 근거 없이 추가하지 마라.
 2. **리서치 문서 기반만** — docs/infra/ 문서에 없는 원칙을 스킬에 추가하지 마라.
 3. **스킬 범위 변경 금지** — description 변경은 사용자 승인 필수.
+4. **한 번에 전체 스킬 수정 금지** — infra-kit 스킬 3개 + 에이전트를 동시에 대량 수정하면 품질이 떨어진다. 1~2개씩 개선하라.
+5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py infra-kit`을 실행하여 7 카테고리 상태를 확인하라. 회귀가 발생하면 즉시 수정한다.
 
 # Process
 
@@ -46,7 +48,7 @@ docs/infra/ 원칙 vs 스킬 반영 상태:
 
 ## Step 5: 커밋
 
-```
+```text
 kaizen(infra-kit): [개선 내용 요약]
 ```
 

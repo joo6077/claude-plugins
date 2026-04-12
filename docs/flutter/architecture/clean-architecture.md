@@ -64,7 +64,88 @@ Widget에서 repository/service를 직접 new하지 않는다. get_it은 service
 
 ---
 
+## 실전 디렉토리 구조
+
+### Feature-first + Clean Architecture (권장)
+
+```text
+lib/
+├── features/
+│   ├── auth/
+│   │   ├── data/
+│   │   │   ├── datasources/       # Remote/Local DataSource
+│   │   │   ├── models/            # DTO (JSON ↔ Entity 변환)
+│   │   │   └── repositories/      # Repository 구현체
+│   │   ├── domain/
+│   │   │   ├── entities/          # 순수 비즈니스 객체
+│   │   │   ├── repositories/      # Repository 인터페이스
+│   │   │   └── usecases/          # (선택) 비즈니스 규칙
+│   │   └── presentation/
+│   │       ├── providers/          # Riverpod Notifier
+│   │       ├── pages/              # 전체 화면 위젯
+│   │       └── widgets/            # feature 전용 UI
+│   └── product/
+│       └── ...
+├── shared/
+│   ├── presentation/widgets/      # 공유 UI 컴포넌트
+│   ├── domain/                    # 공용 entity, failure
+│   └── data/                      # HTTP client, interceptor
+└── app/
+    ├── router.dart                # 라우팅 설정
+    └── di.dart                    # Provider 조합
+```
+
+- 출처: https://docs.flutter.dev/app-architecture/guide
+
+### UseCase 생략 기준
+
+| 조건 | UseCase 필요? |
+|------|--------------|
+| 단순 CRUD (repository 위임만) | X — Repository 직접 호출 |
+| 2+ repository 조합 | O |
+| 비즈니스 규칙 (validation, 권한 확인) | O |
+| 캐시 정책 결정 | O |
+
+### DI 패턴 (Riverpod)
+
+```dart
+// Domain layer — 인터페이스만 정의
+abstract class AuthRepository {
+  Future<Either<Failure, User>> login(String email, String password);
+}
+
+// Data layer — 구현
+class AuthRepositoryImpl implements AuthRepository { ... }
+
+// DI — Provider로 바인딩
+@riverpod
+AuthRepository authRepository(Ref ref) =>
+    AuthRepositoryImpl(client: ref.read(httpClientProvider));
+```
+
+- 출처: https://docs-v2.riverpod.dev/docs/concepts/combining_providers
+
+### 계층 간 데이터 흐름
+
+```text
+UI (Widget) → Provider (Notifier) → UseCase → Repository → DataSource → API
+     ↑                                                                     ↓
+     └─── Entity (domain) ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← Model (DTO)
+```
+
+- Model → Entity 변환은 Repository에서 수행 (toDomain() 메서드)
+- UI는 Entity만 알고, DTO/JSON 구조를 모른다
+
+## 테스트 전략
+
+- **Unit**: UseCase, Repository impl, Model 변환
+- **Widget**: Provider mock 주입 후 화면 상호작용
+- **Integration**: E2E 시나리오 (로그인 → 목록 → 상세)
+- Mock 경계: Repository 인터페이스에서 끊기 — DataSource는 통합 테스트에서만 검증
+
 ## Gotchas
 
 - **Clean Architecture 과설계 주의** — 작은 앱에 과도한 추상화는 변경 비용을 오히려 증가시킨다.
 - **Riverpod ≠ 아키텍처 분리** — 상태관리 도구와 Clean Architecture는 별개다. Riverpod을 써도 Domain/Data 경계는 자동으로 생기지 않는다.
+- **Data layer가 Domain을 import하면 안 된다** — 의존 방향은 항상 Presentation → Domain ← Data. Data가 Domain의 Entity를 반환하려면 Domain에서 정의한 인터페이스를 구현하는 형태여야 한다.
+- **shared/ 남용 금지** — 2+ feature에서 실제로 사용되기 전까지는 feature 내부에 둬라. 1 feature에서만 쓰이는데 shared에 넣으면 결합도만 높아진다.

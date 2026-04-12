@@ -21,6 +21,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **mod.rs 패턴과 파일명 패턴을 혼용하지 마라** — 프로젝트가 `feature/mod.rs` 스타일이면 일관되게 따르고, `feature.rs` + `feature/` 디렉토리 스타일이면 그것을 따르라. 혼용하면 `mod` 선언이 꼬인다.
+- **상위 모듈에 `pub mod` 선언을 빠뜨리지 마라** — 파일을 생성만 하고 `lib.rs`나 부모 `mod.rs`에 `pub mod feature_name;`을 추가하지 않으면 컴파일러가 해당 모듈을 인식하지 못한다.
+- **모듈 이름에 하이픈을 사용하지 마라** — Rust 모듈명은 snake_case만 허용한다. `user-auth`가 아니라 `user_auth`로 명명하라. 하이픈은 크레이트 이름에서만 사용 가능하다.
+- **내부 타입을 무조건 `pub`으로 노출하지 마라** — hexagonal 아키텍처에서 domain 레이어의 내부 구현체는 `pub(crate)` 또는 `pub(super)`로 가시성을 제한하라. 모든 것을 `pub`으로 만들면 캡슐화가 무너진다.
+- **순환 의존성을 만들지 마라** — `domain` → `infrastructure`로 의존하면 hexagonal 원칙이 깨진다. domain은 trait만 정의하고, infrastructure가 impl하는 구조를 유지하라. `use crate::infrastructure::*`가 domain에 있으면 잘못이다.
+- **빈 모듈 파일을 생성하지 마라** — 최소한 모듈의 공개 인터페이스(trait, struct, enum)의 시그니처를 포함하라. 빈 파일은 빌드는 되지만 다음 단계에서 "뭘 구현해야 하지?" 상태가 된다.
+- **feature 모듈 내부 구조를 프로젝트 컨벤션과 다르게 만들지 마라** — 기존 feature들이 `handler.rs`, `service.rs`, `repository.rs` 구조면 새 feature도 동일하게 따르라. 임의로 `controller.rs`, `logic.rs` 같은 이름을 쓰지 마라.
+- **`#[cfg(feature = "...")]`와 Cargo feature를 혼동하지 마라** — 이 스킬의 "feature"는 도메인 기능 모듈이지, Cargo.toml의 `[features]` 섹션이 아니다. Cargo feature flag가 필요하면 별도로 명시하라.
+- **에러 타입을 feature마다 독립 정의하지 마라** — 프로젝트에 공통 에러 타입(`AppError`, `DomainError`)이 있으면 그것을 확장하라. feature마다 별도 에러 enum을 만들면 핸들러에서 변환 보일러플레이트가 폭증한다.
+- **테스트 모듈 위치를 잘못 잡지 마라** — 단위 테스트는 같은 파일 하단 `#[cfg(test)] mod tests`, 통합 테스트는 `tests/` 디렉토리에 배치하라. feature 모듈 안에 `tests/` 디렉토리를 만들면 cargo가 인식하지 못한다.
+
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 프로젝트 환경을 파악한다.
@@ -99,3 +112,4 @@ src/{feature}.rs    # 모든 로직을 한 파일에
 # References
 
 - references/project-detection.md
+- templates/rust-feature-mod.rs.template — feature 모듈 스캐폴딩 템플릿

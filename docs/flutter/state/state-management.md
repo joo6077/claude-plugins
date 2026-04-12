@@ -41,7 +41,76 @@ Riverpod / Bloc / Provider 비교와 선택 기준. Notifier·AsyncNotifier, `re
 - `loading`/`error`/`data`를 `bool isLoading` + nullable 값으로 표현.
 - 같은 feature 안에 Bloc / Riverpod / Provider를 섞어 쓰는 구조.
 
+## 실전 패턴
+
+### AsyncNotifier 기본 구조
+
+```dart
+@riverpod
+class ProductList extends _$ProductList {
+  @override
+  FutureOr<List<Product>> build() => _fetch();
+
+  Future<List<Product>> _fetch() async {
+    final repo = ref.read(productRepositoryProvider);
+    return repo.getAll();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(_fetch);
+  }
+
+  Future<void> delete(String id) async {
+    final prev = state.valueOrNull ?? [];
+    state = AsyncData(prev.where((p) => p.id != id).toList()); // optimistic
+    final result = await ref.read(productRepositoryProvider).delete(id);
+    if (!ref.mounted) return;
+    result.fold(
+      (failure) { state = AsyncData(prev); /* rollback */ },
+      (_) { /* success, already updated */ },
+    );
+  }
+}
+```
+
+- 출처: https://docs-v2.riverpod.dev/docs/providers/notifier_provider
+
+### State 설계 원칙
+
+| 상태 유형 | 관리 위치 | 예시 |
+|----------|----------|------|
+| 서버 데이터 (캐시) | AsyncNotifierProvider | 상품 목록, 사용자 프로필 |
+| UI 로컬 상태 | useState (hooks) 또는 StateProvider | 탭 인덱스, 폼 입력 |
+| 앱 전역 설정 | NotifierProvider | 테마 모드, 로케일 |
+| 인증 상태 | AsyncNotifierProvider + StreamProvider | 로그인/로그아웃 |
+
+### ref.invalidate vs ref.refresh
+
+- `ref.invalidate(provider)` — 다음 읽을 때 rebuild (lazy)
+- `ref.refresh(provider)` — 즉시 rebuild 후 새 값 반환 (eager)
+- 리스트 갱신은 `invalidate`로 충분, 즉시 새 값이 필요하면 `refresh`
+
+출처: https://docs-v2.riverpod.dev/docs/concepts/combining_providers
+
+### Provider 선택 플로우차트
+
+1. 외부 값을 그대로 노출? → `Provider`
+2. 비동기 데이터 fetch? → `FutureProvider` (단순) 또는 `AsyncNotifierProvider` (CRUD 포함)
+3. 스트림 구독? → `StreamProvider`
+4. 동기 상태 + 로직? → `NotifierProvider`
+5. `@riverpod` codegen 사용 시 위 구분이 자동으로 결정됨
+
+## 테스트 전략
+
+- `ProviderContainer`로 격리된 테스트 환경 생성
+- `overrideWith`로 mock repository 주입
+- `container.listen`으로 상태 전이 순서(loading → data) 검증
+- 출처: https://docs-v2.riverpod.dev/docs/essentials/testing
+
 ## Gotchas
 
 - `ChangeNotifierProvider`는 Riverpod 공식 문서상 scalable app에서는 **migration 용도로만** 권장된다. 새 코드는 `Notifier` / `AsyncNotifier`를 쓰는 편이 장기적으로 안전하다.
 - sealed union + `Result.when` 분기는 강력하지만 단순 로그인 폼처럼 상태가 3개 이하인 화면에는 과한 ceremony가 된다. 화면당 상태 수를 보고 판단하라.
+- `ref.watch`를 `onPressed` callback 안에서 호출하면 안 된다 — callback 내부는 `ref.read`만 허용된다. watch는 build 메서드(또는 Notifier의 build)에서만 호출하라.
+- `autoDispose`를 모든 provider에 붙이면 화면 전환 시 캐시가 사라져 불필요한 재요청이 발생한다 — keepAlive를 조합하거나 autoDispose 없이 명시적 invalidate를 쓰라.

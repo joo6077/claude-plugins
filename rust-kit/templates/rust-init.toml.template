@@ -1,0 +1,72 @@
+# ============================================================
+# rust-init Cargo.toml workspace template
+# ============================================================
+# 사용법: rust-init 스킬이 workspace_service 아키텍처로 프로젝트를 생성할 때
+#         {{placeholder}} 값을 실제 프로젝트 설정으로 치환한다.
+#
+# 플레이스홀더:
+#   {{PROJECT_NAME}}     — 프로젝트 이름 (snake_case)
+#   {{RUST_EDITION}}     — Rust edition ("2024" 기본)
+#   {{RESOLVER}}         — workspace resolver ("3" 기본, edition 2024)
+#   {{TOOLCHAIN}}        — rust-toolchain.toml channel ("1.88.0" 또는 "stable")
+#   {{WORKSPACE_DEPS}}   — [workspace.dependencies] 블록 (사용자 선택에 따라 생성)
+# ============================================================
+
+[workspace]
+resolver = "{{RESOLVER}}"
+members = ["apps/*", "modules/*", "shared/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "{{RUST_EDITION}}"
+publish = false
+
+[workspace.dependencies]
+# ── 기본 의존성 (항상 포함) ──
+tokio = { version = "1", features = ["full"] }
+axum = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# ── 선택 의존성 (사용자 선택 시 주석 해제) ──
+# tower-http = { version = "0.6", features = ["cors", "trace", "request-id", "timeout", "compression-gzip", "limit"] }
+# utoipa = { version = "5.4", features = ["axum_extras", "uuid"] }
+# utoipa-scalar = { version = "0.3", features = ["axum"] }
+# sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "tls-rustls", "macros", "migrate", "uuid", "chrono"] }
+# sea-orm = { version = "1.1", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros", "with-chrono", "with-uuid", "with-json", "mock"] }
+# jsonwebtoken = { version = "10", features = ["rust_crypto"] }
+
+{{WORKSPACE_DEPS}}
+
+# ── 워크스페이스 공통 린트 (SSOT, RFC 3389) ──
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.rustdoc]
+broken_intra_doc_links = "deny"
+bare_urls = "deny"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+correctness = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+suspicious = { level = "deny", priority = -1 }
+# pedantic 노이즈 큰 것 allow
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+# 추가 deny
+needless_pass_by_value = "deny"
+redundant_clone = "deny"
+cloned_instead_of_copied = "deny"
+inefficient_to_string = "deny"
+large_futures = "deny"
+
+[profile.dev]
+debug = "line-tables-only"
+split-debuginfo = "packed"

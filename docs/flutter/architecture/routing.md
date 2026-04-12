@@ -66,7 +66,71 @@ BottomNavigationBar 같은 탭별 독립 back stack이 필요할 때 이 구조�
 
 ---
 
+## 실전 패턴
+
+### GoRouter 기본 설정
+
+```dart
+final router = GoRouter(
+  initialLocation: '/',
+  redirect: (context, state) {
+    final isLoggedIn = ref.read(authProvider).isLoggedIn;
+    final isLoginRoute = state.matchedLocation == '/login';
+    if (!isLoggedIn && !isLoginRoute) return '/login';
+    if (isLoggedIn && isLoginRoute) return '/';
+    return null; // no redirect
+  },
+  routes: [
+    GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
+    GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+    ShellRoute(
+      builder: (_, __, child) => MainShell(child: child),
+      routes: [ /* nested tabs */ ],
+    ),
+  ],
+);
+```
+
+- 출처: https://pub.dev/documentation/go_router/latest/
+
+### ShellRoute로 탭 네비게이션
+
+`ShellRoute`를 사용하면 탭 전환 시에도 shell(BottomNavigationBar)이 유지되고, 각 탭은 독립적 네비게이션 스택을 가질 수 있다.
+
+- `StatefulShellRoute.indexedStack` — 각 탭의 상태를 보존하면서 탭 전환
+- 출처: https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html
+
+### 딥링크 + 인증 가드 조합
+
+```text
+1. 딥링크 수신 → GoRouter redirect 실행
+2. 미인증? → /login으로 redirect + 원래 경로를 queryParam에 저장
+3. 로그인 성공 → queryParam의 returnTo로 redirect
+```
+
+### Route 별 transition
+
+```dart
+GoRoute(
+  path: '/detail/:id',
+  pageBuilder: (context, state) => CustomTransitionPage(
+    key: state.pageKey,
+    child: DetailPage(id: state.pathParameters['id']!),
+    transitionsBuilder: (_, animation, __, child) =>
+        FadeTransition(opacity: animation, child: child),
+  ),
+)
+```
+
+## 테스트 전략
+
+- `GoRouter.of(context).go('/path')`를 widget test에서 검증하려면 `GoRouter`를 `MaterialApp.router`에 주입
+- `MockGoRouter`로 `go`/`push` 호출 여부 검증
+- 출처: https://pub.dev/packages/go_router#testing
+
 ## Gotchas
 
 - **go_router active feature development 크지 않음** — 메이저 신기능보다 안정화 위주. 최신 변경사항은 CHANGELOG로 확인.
 - **auto_route는 코드생성 의존** — CI에 `build_runner` 단계가 반드시 필요하고, 생성 파일 커밋 정책을 명확히 정해야 한다.
+- **`context.go` vs `context.push`** — `go`는 스택을 교체, `push`는 스택에 추가. "뒤로가기"가 필요하면 push, 탭 전환처럼 완전히 이동이면 go.
+- **redirect 무한 루프** — redirect 함수에서 자기 자신의 경로로 redirect하면 무한 루프. redirect 내에서 "이미 해당 경로면 null 반환" 조건이 필수다.

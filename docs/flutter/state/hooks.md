@@ -39,7 +39,62 @@ last_updated: 2026-04-05
 - 전역/비즈니스 상태를 `useState`에 가둬 화면 재진입 시 날아가는 설계.
 - `HookWidget`이 결국 `StatefulWidget`보다 코드가 길어지는데도 유지하는 선택.
 
+## 실전 패턴
+
+### 커스텀 훅 작성
+
+```dart
+/// Debounce된 검색어를 반환하는 커스텀 훅
+ValueNotifier<String> useDebouncedSearch(String input, {Duration delay = const Duration(milliseconds: 300)}) {
+  final debounced = useState(input);
+  useEffect(() {
+    final timer = Timer(delay, () => debounced.value = input);
+    return timer.cancel; // cleanup
+  }, [input]);
+  return debounced;
+}
+```
+
+- 출처: https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html
+
+### useEffect keys 규칙
+
+| keys 값 | 동작 |
+|---------|------|
+| `[]` (빈 리스트) | mount 시 1회만 실행, unmount 시 cleanup |
+| `[dep1, dep2]` | dep1 또는 dep2 변경 시 재실행 |
+| 생략 (null) | **매 build마다** 재실행 — 거의 항상 버그 |
+
+### Props 번들링 (@freezed)
+
+훅 파라미터가 3개 이상이면 `@freezed` Props 클래스로 번들링하여 의미 단위로 묶는다:
+
+```dart
+@freezed
+class SearchProps with _$SearchProps {
+  const factory SearchProps({required String query, required int page, required String category}) = _SearchProps;
+}
+
+class SearchScreen extends HookConsumerWidget {
+  final SearchProps props;
+  // ...
+}
+```
+
+### useState vs useValueNotifier
+
+- `useState` — 값 변경 시 위젯 rebuild 발생 (일반적 선택)
+- `useValueNotifier` — ValueNotifier 반환, 부분 구독(`ValueListenableBuilder`)과 조합 가능
+
+## 테스트 전략
+
+- Hook을 직접 테스트하려면 `HookWidget` wrapper를 만들어 widget test로 검증
+- `useEffect` cleanup이 호출되는지는 `tester.pumpWidget(Container())`로 unmount 후 side effect 검증
+- 커스텀 훅의 keys 동작은 build를 트리거한 뒤 state 변화를 assert
+
 ## Gotchas
 
 - Hook 호출 순서가 바뀌면 각 hook의 내부 상태 매핑이 깨진다. 리팩토링 중 훅을 재배치할 때 가장 자주 터지는 버그 포인트다.
 - `useMemoized`는 **캐시**지 reactive recompute가 아니다. 값이 keys 변화 없이 바뀔 일이 있다면 `useState` + `useEffect` 조합이나 Riverpod provider로 빼라.
+- `useEffect` 안에서 `ref.read`는 가능하지만 `ref.watch`를 호출하면 안 된다 — effect는 build 바깥 맥락이므로 watch의 구독이 제대로 동작하지 않는다.
+- `useTextEditingController`는 `initialText`를 한 번만 적용한다 — 부모에서 전달하는 값이 변경되어도 controller.text는 갱신되지 않는다. 동적 값이 필요하면 `useEffect`에서 수동으로 `.text =`를 설정하라.

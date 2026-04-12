@@ -30,6 +30,9 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 - Draft → QA → Apply 순서를 지켜라. 개선안을 파일에 적용하기 전에 QA Evaluator가 DRAFT를 평가해야 한다.
 - qa-evaluator 자체를 개선하는 Phase에서 QA는 **현재(구) 버전** evaluator로 수행한다. 개선된 버전으로 자기 자신을 QA하지 마라.
 - Regression Smoke Test가 FAIL이면 git revert하고 BLOCKED로 기록한다. 연속 2회 FAIL이면 Phase를 중단하고 사용자에게 알린다.
+- **피드백 파싱 시 diagnosis vs suggestion 혼동 금지** — feedback-schema.yaml에서 `diagnosis`는 "무엇이 잘못됐는가"(현상 기술), `suggestion`은 "어떻게 고칠 것인가"(처방). 두 필드를 뒤바꿔 해석하면 개선 방향이 정반대로 왜곡된다. 파싱 후 반드시 "이 문장은 현상인가 처방인가"를 구분해라.
+- **평가 루브릭 변경 시 기존 계약과의 호환성 검증 필수** — 루브릭에 새 평가 축을 추가하면 과거 sprint-contract에는 해당 축의 완료 조건이 없어 자동 FAIL이 된다. 새 축은 `optional: true` 또는 grace period를 두고, 다음 contract-kaizen에서 contract-schema에도 반영되었는지 확인해라.
+- **개선안의 severity 편향 방지** — evaluator가 REJECT threshold를 낮추는 방향으로만 개선하면 "모든 구현이 APPROVE"가 되어 QA 의미가 사라진다. 개선안 적용 전후로 최근 10건의 판정 분포(APPROVE/REJECT 비율)를 비교하고, APPROVE 비율이 90%를 초과하면 threshold 완화가 아닌 다른 축 개선을 우선해라.
 
 ## 개선 대상
 

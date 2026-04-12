@@ -18,6 +18,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **proto 파일 경로를 build.rs에서 잘못 지정하지 마라** — `tonic_build::compile_protos("proto/service.proto")`의 경로는 Cargo.toml 기준 상대경로다. workspace 루트가 아니라 크레이트 루트 기준임을 확인하라.
+- **build.rs에 `tonic-build` 의존성을 `[build-dependencies]`에 넣어야 한다** — `[dependencies]`에 넣으면 런타임 바이너리에 protobuf 컴파일러가 포함된다. 반드시 `[build-dependencies]`에 배치하라.
+- **protoc 바이너리 미설치를 간과하지 마라** — `tonic-build`는 시스템에 `protoc`가 설치되어 있어야 한다. CI/Docker에서 빌드 실패하면 `apt install protobuf-compiler` 또는 `prost-build`의 `protoc` feature로 번들링하라.
+- **streaming RPC와 unary RPC의 반환 타입을 혼동하지 마라** — unary는 `Result<Response<T>, Status>`, server streaming은 `Result<Response<ReceiverStream<Result<T, Status>>>, Status>`다. 반환 타입이 틀리면 컴파일은 되지만 클라이언트가 데이터를 못 받는다.
+- **proto 파일에서 package를 빠뜨리지 마라** — `package myapp.v1;` 없이 service를 정의하면 생성된 Rust 모듈 경로가 예측 불가능해진다. 항상 versioned package를 명시하라.
+- **reflection 서비스를 프로덕션에 무조건 포함하지 마라** — `tonic_reflection::server::Builder`는 개발/디버깅용이다. 프로덕션에서는 feature flag로 감싸거나 제거하라. API 스키마가 외부에 노출된다.
+- **gRPC 상태 코드를 HTTP 상태 코드처럼 사용하지 마라** — `Status::not_found()`는 리소스 부재, `Status::invalid_argument()`는 입력 검증 실패다. `Status::internal()`을 모든 에러에 쓰면 클라이언트가 재시도 판단을 못 한다.
+- **proto import 경로를 include에 등록하지 않으면 안 된다** — `tonic_build::configure().proto_path("proto/")` 없이 다른 proto를 import하면 "file not found" 에러가 발생한다. 모든 proto 디렉토리를 `.proto_path()`에 등록하라.
+- **메시지 필드에 `optional`을 빠뜨려 breaking change를 만들지 마라** — proto3에서 필드를 추가할 때 `optional` 없이 추가하면 기존 클라이언트가 디코딩 시 기본값을 받는다. 하위 호환성을 위해 새 필드는 항상 `optional`로 선언하라.
+- **tonic 서버의 TCP listener 주소를 localhost로만 바인딩하지 마라** — Docker/k8s 환경에서 `127.0.0.1`로 바인딩하면 컨테이너 외부에서 접근 불가다. `0.0.0.0:50051`로 바인딩하고 네트워크 정책으로 접근을 제한하라.
+
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 `ARCH`, `IS_WORKSPACE`, `HAS_TONIC` 등을 파악한다.

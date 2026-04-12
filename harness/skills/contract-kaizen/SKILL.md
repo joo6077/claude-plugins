@@ -29,6 +29,10 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 - contract-schema.md를 변경하면 evaluator-kaizen(Phase 3)에 영향을 준다. 스키마 변경은 반드시 PR 본문에 명시해라.
 - Draft → QA → Apply 순서를 지켜라. 개선안을 파일에 적용하기 전에 QA Evaluator가 DRAFT를 평가해야 한다.
 - Regression Smoke Test가 FAIL이면 git revert하고 BLOCKED로 기록한다. 연속 2회 FAIL이면 Phase를 중단하고 사용자에게 알린다.
+- contract-design-guide.md의 원칙을 sprint-contract SKILL.md에 복붙하지 마라. 가이드는 "왜", 스킬은 "어떻게"다. 스킬에서 가이드를 참조(경로 언급)만 하라.
+- 기존 Gotchas 항목을 삭제하거나 재작성하지 마라. 실전에서 축적된 항목이므로 append-only로 추가만 허용된다.
+- Gotchas 추가 시 "~할 수 있다" 형태의 추측이 아니라 실제 REJECT 사례 또는 피드백에서 나온 실패만 추가하라.
+- contract-schema.md에 새 필드를 추가할 때 기존 계약 파일(.harness/history/)과의 호환성을 확인하라. 필수 필드 추가는 기존 계약 파싱을 깨뜨린다.
 
 ## 개선 대상
 

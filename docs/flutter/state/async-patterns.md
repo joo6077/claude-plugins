@@ -39,7 +39,78 @@ last_updated: 2026-04-05
 - 작은 JSON 한 건도 `compute`로 보내 isolate spawn 비용이 이득을 넘김.
 - 화면 pop/dispose 시 in-flight 요청을 취소하지 않고 결과가 돌아오면 state를 그대로 반영.
 
+## 실전 패턴
+
+### FutureBuilder 올바른 사용
+
+```dart
+class MyWidget extends StatefulWidget { ... }
+class _MyWidgetState extends State<MyWidget> {
+  late final Future<Data> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = fetchData(); // initState에서 한 번만 생성
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Data>(
+      future: _future, // build에서 재생성하지 않음
+      builder: (context, snapshot) => switch (snapshot) {
+        AsyncSnapshot(hasData: true, :final data!) => DataWidget(data),
+        AsyncSnapshot(hasError: true, :final error!) => ErrorWidget(error),
+        _ => const LoadingWidget(),
+      },
+    );
+  }
+}
+```
+
+- 출처: https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html
+
+### Isolate 통신 패턴 (Flutter 3.19+)
+
+`Isolate.run`은 단발성 작업에 적합. 지속적 작업은 `Isolate.spawn` + `ReceivePort`/`SendPort`:
+
+```dart
+final result = await Isolate.run(() {
+  // heavy computation here
+  return jsonDecode(hugeJsonString) as Map<String, dynamic>;
+});
+```
+
+- 출처: https://dart.dev/language/isolates
+
+### 취소 패턴 비교
+
+| 접근법 | 사용 시점 |
+|--------|----------|
+| `CancelToken` (Dio) | HTTP 요청 취소 — 화면 pop 시 |
+| `StreamSubscription.cancel()` | Stream 구독 해제 |
+| `ref.onDispose(() => ...)` | Riverpod provider dispose 시 cleanup |
+| `useEffect` return | Hook 위젯 unmount 시 자동 cleanup |
+
+### Debounce + Cancel 조합
+
+검색 입력처럼 rapid-fire 요청이 발생하는 경우:
+1. Timer로 debounce (300ms)
+2. 이전 요청의 CancelToken을 cancel
+3. 새 요청 발생
+
+이 패턴은 `useDebounce` 커스텀 훅 + `ref.onDispose`로 구현한다.
+
+## 테스트 전략
+
+- `FutureBuilder` 테스트: `tester.pump()` 1회 → loading 확인, `tester.pumpAndSettle()` → data/error 확인
+- Mock을 `Future.delayed(Duration(milliseconds: 100), () => data)`로 만들어 loading 상태 확인 가능
+- `compute` 테스트: 실제 isolate spawn이 일어나므로 integration test에서 검증
+- 출처: https://docs.flutter.dev/cookbook/testing
+
 ## Gotchas
 
 - Flutter **web**은 isolate 제약이 있다 (`dart:isolate`가 사실상 사용 불가). `compute`는 web에서 main isolate에서 동작한다고 가정하고 설계하라.
 - 테스트에서 `pumpAndSettle`로 "모든 async를 기다린다"는 멘탈 모델은 끊임없이 흐르는 `Stream`이나 무한 animation과 만나면 timeout을 일으킨다. 해당 화면은 `pump(duration)`으로 명시적 제어해야 한다.
+- `async*` generator로 만든 Stream은 listener가 없으면 아예 실행되지 않는다 — 구독 전에 yield가 실행될 거라고 가정하면 안 된다.
+- `Future.wait`은 하나라도 실패하면 전체가 실패한다 — 부분 성공이 필요하면 각 Future를 `Result`로 감싸서 `Future.wait`에 넘겨라.

@@ -21,6 +21,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **fmt를 clippy보다 반드시 먼저 실행하라** — `cargo fmt` 후 코드 레이아웃이 변경되면 clippy 경고 위치가 달라진다. fmt 없이 clippy를 실행하면 수정 후 다시 clippy 위치가 바뀌어 혼란스럽다.
+- **테스트 실패 시 파이프라인을 즉시 중단하라** — test가 실패했는데 audit까지 진행하면 시간만 낭비된다. `cargo test` 실패 → 즉시 FAIL 보고 → 파이프라인 종료가 올바른 흐름이다.
+- **`cargo audit`은 non-blocking(경고)으로 처리하라** — advisory DB의 취약점이 프로젝트에 실제 영향을 주는지 판단이 필요하다. audit 경고만으로 커밋을 차단하면 upstream 패치를 기다리는 동안 개발이 멈춘다.
+- **workspace에서 `--workspace` 플래그를 빠뜨리지 마라** — `cargo test`만 실행하면 루트 크레이트만 테스트된다. `cargo test --workspace`로 모든 멤버 크레이트를 테스트하라.
+- **fmt 체크를 `--check` 모드로 실행하지 않으면 안 된다** — preflight에서 `cargo fmt`(수정 모드)를 실행하면 파일이 변경되어 staged 상태가 꼬인다. `cargo fmt --check`로 확인만 하고, 실패 시 사용자에게 `cargo fmt` 실행을 안내하라.
+- **clippy의 `--all-targets`를 빠뜨리지 마라** — 기본 clippy는 lib + bin만 검사한다. `--all-targets`를 추가해야 tests, examples, benches도 검사된다. 테스트 코드의 lint 위반이 CI에서 터지는 것을 방지한다.
+- **환경변수에 의존하는 테스트가 실패할 때 전체를 FAIL로 보고하지 마라** — `.env` 파일 미존재, DB 미연결 등 환경 문제로 실패하는 통합 테스트는 `#[ignore]` 표시 여부를 확인하고, 단위 테스트만 게이트로 사용하라.
+- **preflight 결과를 구조화하지 않고 텍스트 덤프로 보고하지 마라** — 각 단계별 PASS/FAIL + 소요 시간 + 실패 시 핵심 에러 메시지 1~3줄로 요약하라. cargo 전체 출력을 붙이면 사용자가 읽지 않는다.
+- **이전 preflight에서 생성된 아티팩트를 정리하지 않으면 안 된다** — `cargo test`가 남긴 임시 파일, `cargo audit`의 advisory-db lock 등이 다음 실행에 영향을 줄 수 있다. 각 단계 시작 전 clean 상태를 확인하라.
+- **nightly 전용 옵션을 stable toolchain에서 실행하지 마라** — `cargo fmt`의 일부 옵션(`imports_granularity` 등)은 nightly에서만 동작한다. `rust-toolchain.toml`의 channel이 stable이면 해당 옵션을 `.rustfmt.toml`에서 제거하라.
+
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 프로젝트 환경을 파악한다.

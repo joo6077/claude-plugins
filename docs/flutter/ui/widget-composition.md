@@ -34,7 +34,63 @@ Stateless/Stateful/HookWidget 선택, 작은 위젯 분해, const, Key, rebuild 
 - 모든 위젯에 GlobalKey를 다는 습관 — 메모리·lifecycle 비용이 커지고 hot reload 이슈가 늘어난다.
 - rebuild 원인을 모르는 채 const만 붙이는 습관 — 부모가 rebuild되면 const child는 이미 재사용되므로 이득이 없다.
 
+## 실전 패턴
+
+### Child Hoisting
+
+rebuild되지 않아야 하는 서브트리를 부모 위젯의 파라미터로 받아 참조를 고정:
+
+```dart
+class ParentWidget extends StatelessWidget {
+  // child는 build 밖에서 한 번 생성 → rebuild 면제
+  final Widget child;
+  const ParentWidget({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      color: _computeColor(),
+      child: child, // 매번 재생성되지 않음
+    );
+  }
+}
+```
+
+- 출처: https://docs.flutter.dev/perf/best-practices
+
+### Builder Pattern으로 Rebuild 격리
+
+`Builder`, `ValueListenableBuilder`, `AnimatedBuilder` 등은 callback 내부만 rebuild한다. setState 범위를 줄이는 가장 간단한 방법:
+
+```dart
+ValueListenableBuilder<int>(
+  valueListenable: counter,
+  builder: (context, value, child) => Text('$value'),
+  child: const ExpensiveWidget(), // 한 번만 빌드
+)
+```
+
+- 출처: https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html
+
+### 위젯 분해 기준
+
+| 기준 | 분해 필요 |
+|------|----------|
+| build 메서드 100줄 초과 | O |
+| 동일 구조 2+ 반복 | O |
+| 독립적 상태(controller, animation) 보유 | O |
+| 다른 화면에서 재사용 가능 | O |
+
+## 테스트
+
+- `find.byType()`으로 분해된 위젯의 존재를 확인
+- `tester.pump()`으로 rebuild cycle 후 state 보존 검증
+- Key 기반 reorder 후 `find.byKey()`로 identity 유지 확인
+
 ## Gotchas
 
 - reorder 가능한 리스트에서 `findChildIndexCallback`을 지정하지 않으면 key가 있어도 상태가 손실될 수 있다 — `SliverChildBuilderDelegate`의 옵션을 확인하라.
 - StatefulWidget을 HookWidget으로 바꿔도 상태의 본질적 복잡도는 줄지 않는다 — 단지 재사용 축이 lifecycle에서 hook으로 옮겨갈 뿐이다. 상태가 복잡하면 먼저 책임 분리부터 검토하라.
+- `const` 위젯 내부에서 `Theme.of(context)`를 호출하면 const의 이점이 사라진다 — BuildContext 의존이 생기는 순간 const는 compile-time 상수가 아니다.
+- Private helper method(`Widget _buildXxx()`)로 분해하면 rebuild 격리가 되지 않는다 — 별도 위젯 클래스로 분리해야 Element가 분리된다.

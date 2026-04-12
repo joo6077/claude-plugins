@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{project_name}} — Design Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; color: #1f2937; background: #ffffff; padding: 32px; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; margin-bottom: 24px; }
+    .principle { margin-bottom: 24px; padding: 16px; border-left: 4px solid #3b82f6; background: #f8fafc; border-radius: 0 8px 8px 0; }
+    .principle-title { font-weight: 600; margin-bottom: 8px; }
+    .principle-desc { font-size: 0.9rem; color: #4b5563; line-height: 1.6; }
+    .source { font-size: 0.75rem; color: #9ca3af; margin-top: 8px; }
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+    .do { padding: 12px; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0; }
+    .dont { padding: 12px; background: #fef2f2; border-radius: 8px; border: 1px solid #fecaca; }
+    .do::before { content: "✓ DO"; font-size: 0.7rem; font-weight: 700; color: #16a34a; }
+    .dont::before { content: "✗ DON'T"; font-size: 0.7rem; font-weight: 700; color: #dc2626; }
+    .code { font-family: monospace; font-size: 0.8rem; margin-top: 6px; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Design Guide — {{topic}}</h1>
+
+  <div class="principle">
+    <div class="principle-title">{{principle_name}}</div>
+    <div class="principle-desc">{{principle_description}}</div>
+    <div class="do-dont">
+      <div class="do"><span class="code">{{do_example}}</span></div>
+      <div class="dont"><span class="code">{{dont_example}}</span></div>
+    </div>
+    <div class="source">Source: {{source_url}}</div>
+  </div>
+
+  <!-- {{principles_repeat}} -->
+</body>
+</html>

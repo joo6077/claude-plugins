@@ -17,6 +17,9 @@ user-invocable: true
 - **`Path<(String, i64)>` 순서 일치 필수** — URL 세그먼트 순서와 정확히 일치해야 한다. 순서가 틀리면 런타임에 추출 실패한다. 복수 파라미터는 구조체 + `#[derive(Deserialize)]`로 이름 기반 추출을 선호하라 (`Path<UserIdPath>`).
 - **포트에서 인프라 타입 제거** — 핸들러가 의존하는 `UserService`/`UserRepository` trait 시그니처에 `sqlx::Error`, `PgPool`, `sea_orm::DatabaseConnection`, `sea_orm::DbErr` 등 인프라 구체 타입을 노출하지 마라. DTO/`DomainError`만 주고받는다. 포트가 DB 타입을 노출하면 adapter 교체가 불가능해진다. 출처: fit-pal `server/CLAUDE.md`.
 - **Composition Root 단일화** — 핸들러가 서비스 구현체를 직접 `UserServiceImpl::new(...)`로 생성하지 마라. 모듈 조립(DI 와이어링)은 `apps/api/src/main.rs` 한 곳에서만 하고, 핸들러는 `State<Arc<dyn UserServicePort>>`로 trait object만 받는다. Composition Root가 여러 곳에 흩어지면 테스트에서 mock 주입이 불가능해지고, 모듈 간 의존 그래프가 불투명해진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 3번.
+- **라우트 네이밍은 복수형 명사 + RESTful 동사 매핑** — `/user`가 아니라 `/users`. 동작은 HTTP method로 표현하고 URL에 동사를 넣지 마라(`/users/delete` 금지 → `DELETE /users/{id}`). 비-CRUD 동작만 예외적으로 `/users/{id}/activate` 같은 동사 경로를 허용한다.
+- **응답 타입은 항상 `Json<T>`로 래핑** — 핸들러가 raw `String`이나 `impl IntoResponse`를 반환하면 OpenAPI(utoipa) 스키마 생성이 불가능하다. `Json<ResponseDto>`를 반환하고 `#[utoipa::path(..., responses(...))]`로 문서화해라.
+- **Extractor 순서 의존성** — Axum에서 body를 소비하는 extractor(`Json`, `Form`, `Multipart`)는 반드시 마지막 인자여야 한다. `Path`, `Query`, `State`는 body를 소비하지 않으므로 앞에 둔다. 순서가 틀리면 런타임에 "Missing request body" 에러가 발생한다.
 
 # Axum 핸들러/라우터 생성
 
@@ -222,3 +225,8 @@ struct ApiDoc;
 4. 다음 단계 안내:
    - DB 모델이 필요하면 `rust-model` 스킬로 Repository trait + SQLx impl을 생성하세요.
    - 서비스 비즈니스 로직을 채우려면 `rust-service` 스킬을 사용하세요.
+
+# References
+
+- references/project-detection.md
+- templates/rust-api-handler.rs.template — Axum 핸들러 템플릿

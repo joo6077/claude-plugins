@@ -23,6 +23,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **rust-toolchain.toml의 channel을 nightly로 설정하지 마라** — 특별한 이유(async trait, GAT 등 nightly-only 기능) 없이 nightly를 기본으로 하면 빌드 재현성이 깨진다. `stable` 또는 특정 버전(`1.77.0`)을 사용하라.
+- **edition을 2021 미만으로 설정하지 마라** — 2024년 이후 프로젝트에서 edition 2018을 쓸 이유가 없다. `edition = "2021"` 이상을 사용하라. resolver도 자동으로 "2"가 된다.
+- **workspace members 경로에 와일드카드를 남용하지 마라** — `members = ["crates/*"]`는 편리하지만 임시 디렉토리나 예제가 의도치 않게 포함될 수 있다. 초기 세팅에서는 명시적으로 나열하라.
+- **hexagonal 레이어 간 의존 방향을 역전시키지 마라** — `domain` 크레이트가 `infrastructure`를 의존하면 아키텍처가 무너진다. 의존 방향은 항상 infrastructure → application → domain이다. Cargo.toml의 `[dependencies]`로 강제하라.
+- **`.cargo/config.toml`을 생성하지 않으면 linker 문제가 생길 수 있다** — macOS에서 `mold` linker, Linux에서 `lld`를 지정하면 링크 시간이 극적으로 줄어든다. 초기 세팅에 포함하라.
+- **`.gitignore`에 `/target`만 넣고 끝내지 마라** — `.env`, `*.pem`, `*.key`, IDE 설정(`.idea/`, `.vscode/` 중 선택) 등도 포함하라. 시크릿 파일이 첫 커밋에 들어가면 되돌리기 어렵다.
+- **workspace의 공통 의존성을 `[workspace.dependencies]`에 정의하지 않으면 안 된다** — 멤버 크레이트마다 `serde = "1.0"`을 개별 선언하면 버전 불일치가 발생한다. workspace 레벨에서 한 번 정의하고 멤버에서 `serde.workspace = true`로 참조하라.
+- **bin 크레이트와 lib 크레이트를 분리하지 않으면 안 된다** — `main.rs`에 비즈니스 로직을 넣으면 통합 테스트에서 import할 수 없다. `lib.rs`(로직) + `main.rs`(진입점만) 구조를 유지하라.
+- **Cargo.toml의 `[profile.dev]`에 opt-level을 설정하지 않으면 디버그 빌드가 느릴 수 있다** — 의존성만 `opt-level = 1`로 올리면 (`[profile.dev.package."*"]`) 디버그 빌드 속도와 런타임 성능 사이 균형을 잡을 수 있다.
+- **초기 프로젝트에 불필요한 크레이트를 미리 추가하지 마라** — `tracing`, `serde`, `tokio`는 거의 필수지만, `diesel`, `sea-orm`, `lettre` 같은 것은 실제 feature 구현 시점에 추가하라. 미사용 의존성은 빌드 시간만 늘린다.
+
 ## 1. 프로젝트 이름/설명 확인
 
 사용자에게 프로젝트 이름을 확인한다. 미지정 시 현재 디렉토리 이름 사용.
@@ -283,3 +296,4 @@ allow-git = []
 
 - references/project-detection.md
 - docs/rust/fundamentals/project-structure.md
+- templates/rust-init.toml.template — 초기 Cargo.toml workspace 템플릿

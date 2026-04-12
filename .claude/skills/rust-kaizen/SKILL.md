@@ -15,6 +15,8 @@ user-invocable: true
 1. **리서치 문서 없이 개선 금지** — docs/rust/ 문서를 먼저 읽고, 그 기준으로만 개선한다.
 2. **스킬 삭제 금지** — 기존 스킬을 삭제하지 않는다. 개선만 한다.
 3. **한 번에 1~2개 스킬만 개선** — 전체 스킬을 한 번에 수정하면 품질이 떨어진다.
+4. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 종료 시 `scripts/validate-plugin.py rust-kit`을 실행하라. 회귀가 있으면 즉시 수정한다.
+5. **Gotchas에 Rust 컴파일러가 이미 잡는 실수를 넣지 마라** — borrow checker, lifetime, type mismatch는 컴파일러가 잡으므로 Gotchas에 불필요하다. 런타임 실수나 설계 실수만 추가한다.
 
 # Process
 

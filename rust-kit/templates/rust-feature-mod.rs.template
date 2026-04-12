@@ -1,0 +1,92 @@
+// ============================================================
+// rust-feature 모듈 스캐폴딩 template
+// ============================================================
+// 사용법: rust-feature 스킬이 새 feature 모듈을 생성할 때
+//         {{placeholder}} 값을 실제 feature 정보로 치환한다.
+//
+// 플레이스홀더:
+//   {{FEATURE}}           — feature 이름 snake_case (예: orders)
+//   {{FEATURE_PASCAL}}    — PascalCase (예: Order)
+//   {{ARCH}}              — 아키텍처 (workspace_service, modular, flat)
+// ============================================================
+
+// ── ARCH = workspace_service ──
+// 생성 파일 목록:
+//   modules/{{FEATURE}}/Cargo.toml
+//   modules/{{FEATURE}}/src/lib.rs
+//   modules/{{FEATURE}}/src/port.rs      — Consumer-Owned outbound port trait
+//   modules/{{FEATURE}}/src/service.rs   — 비즈니스 로직
+//   modules/{{FEATURE}}/src/dto.rs       — Request/Response DTO
+//   apps/api/src/handlers/{{FEATURE}}/mod.rs
+//   apps/api/src/handlers/{{FEATURE}}/handler.rs
+//   apps/api/src/handlers/{{FEATURE}}/dto.rs
+
+// ── modules/{{FEATURE}}/src/lib.rs ──
+
+pub mod port;
+pub mod service;
+pub mod dto;
+
+// ── modules/{{FEATURE}}/src/port.rs ──
+// Consumer-Owned Port: 이 모듈이 "소비"하는 외부 기능을 trait으로 정의
+// 다른 모듈의 port.rs를 직접 import하지 않는다
+
+use async_trait::async_trait;
+use crate::dto::{{FEATURE_PASCAL}}Dto;
+
+#[async_trait]
+pub trait {{FEATURE_PASCAL}}Repository: Send + Sync {
+    async fn find_by_id(&self, id: i64) -> Result<Option<{{FEATURE_PASCAL}}Dto>, Box<dyn std::error::Error + Send + Sync>>;
+    async fn create(&self, dto: {{FEATURE_PASCAL}}Dto) -> Result<{{FEATURE_PASCAL}}Dto, Box<dyn std::error::Error + Send + Sync>>;
+}
+
+// ── modules/{{FEATURE}}/src/service.rs ──
+
+use std::sync::Arc;
+use crate::port::{{FEATURE_PASCAL}}Repository;
+
+pub struct {{FEATURE_PASCAL}}Service {
+    repo: Arc<dyn {{FEATURE_PASCAL}}Repository>,
+}
+
+impl {{FEATURE_PASCAL}}Service {
+    pub fn new(repo: Arc<dyn {{FEATURE_PASCAL}}Repository>) -> Self {
+        Self { repo }
+    }
+}
+
+// ── modules/{{FEATURE}}/src/dto.rs ──
+
+#[derive(Debug, Clone)]
+pub struct {{FEATURE_PASCAL}}Dto {
+    pub id: i64,
+    // 필드는 rust-model 또는 사용자 입력으로 채운다
+}
+
+// ── modules/{{FEATURE}}/Cargo.toml ──
+// [package]
+// name = "{{PROJECT}}-{{FEATURE}}"
+// version.workspace = true
+// edition.workspace = true
+// publish.workspace = true
+//
+// [dependencies]
+// async-trait = "0.1"
+// serde.workspace = true
+//
+// [lints]
+// workspace = true
+
+// ── ARCH = modular ──
+// 생성 파일 목록:
+//   src/api/handlers/{{FEATURE}}/mod.rs
+//   src/api/handlers/{{FEATURE}}/handler.rs
+//   src/api/handlers/{{FEATURE}}/dto.rs
+//   src/domain/models/{{FEATURE}}.rs
+//   src/domain/services/{{FEATURE}}.rs
+//   src/domain/ports/{{FEATURE}}.rs
+//   src/infra/adapters/{{FEATURE}}.rs
+
+// ── ARCH = flat ──
+// 생성 파일:
+//   src/{{FEATURE}}.rs  (모든 로직 단일 파일)

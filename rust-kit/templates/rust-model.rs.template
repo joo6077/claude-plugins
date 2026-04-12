@@ -1,0 +1,79 @@
+// ============================================================
+// rust-model SQLx/SeaORM model template
+// ============================================================
+// 사용법: rust-model 스킬이 도메인 모델 + Repository trait + 어댑터를 생성할 때
+//         {{placeholder}} 값을 실제 테이블/필드 정보로 치환한다.
+//
+// 플레이스홀더:
+//   {{MODEL_NAME}}        — 모델 이름 PascalCase (예: User)
+//   {{TABLE_NAME}}        — 테이블 이름 snake_case (예: users)
+//   {{FIELDS}}            — 구조체 필드 목록
+//   {{SERDE_DERIVE}}      — HAS_SERDE 시 #[derive(serde::Serialize, serde::Deserialize)]
+//   {{ID_TYPE}}           — ID 타입 (i64, Uuid 등)
+//   {{TIMESTAMP_TYPE}}    — 타임스탬프 타입 (chrono::DateTime<Utc> 등)
+//   {{MIGRATION_SQL}}     — CREATE TABLE SQL문
+//   {{REPOSITORY_METHODS}} — Repository trait 메서드 목록
+// ============================================================
+
+// ── 도메인 모델 (domain/models/{{TABLE_NAME}}.rs) ──
+
+use chrono::{DateTime, Utc};
+
+#[derive(Debug, Clone)]
+{{SERDE_DERIVE}}
+pub struct {{MODEL_NAME}} {
+    pub id: {{ID_TYPE}},
+    {{FIELDS}}
+    pub created_at: {{TIMESTAMP_TYPE}},
+}
+
+// ── Repository 포트 (domain/ports/{{TABLE_NAME}}_repository.rs) ──
+// 주의: 포트에 sqlx::Error, PgPool 등 인프라 타입 노출 금지
+
+use async_trait::async_trait;
+use crate::domain::errors::DomainError;
+
+#[async_trait]
+pub trait {{MODEL_NAME}}Repository: Send + Sync {
+    async fn find_by_id(&self, id: {{ID_TYPE}}) -> Result<Option<{{MODEL_NAME}}>, DomainError>;
+    async fn find_all(&self) -> Result<Vec<{{MODEL_NAME}}>, DomainError>;
+    async fn create(&self, {{CREATE_PARAMS}}) -> Result<{{MODEL_NAME}}, DomainError>;
+    async fn update(&self, id: {{ID_TYPE}}, {{UPDATE_PARAMS}}) -> Result<{{MODEL_NAME}}, DomainError>;
+    async fn delete(&self, id: {{ID_TYPE}}) -> Result<(), DomainError>;
+    {{REPOSITORY_METHODS}}
+}
+
+// ── SQLx 어댑터 (infra/adapters/{{TABLE_NAME}}_repository_impl.rs) ──
+// 이 파일은 HAS_SQLX 경로에서만 생성된다
+
+use sqlx::PgPool;
+
+pub struct Pg{{MODEL_NAME}}Repository {
+    pool: PgPool,
+}
+
+impl Pg{{MODEL_NAME}}Repository {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+}
+
+#[async_trait]
+impl {{MODEL_NAME}}Repository for Pg{{MODEL_NAME}}Repository {
+    async fn find_by_id(&self, id: {{ID_TYPE}}) -> Result<Option<{{MODEL_NAME}}>, DomainError> {
+        let row = sqlx::query_as!(
+            {{MODEL_NAME}},
+            r#"SELECT {{SELECT_COLUMNS}} FROM {{TABLE_NAME}} WHERE id = $1"#,
+            id
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(DomainError::from)?;
+        Ok(row)
+    }
+
+    // ... 나머지 CRUD 메서드는 rust-model 스킬이 필드 정보로 생성
+}
+
+// ── 마이그레이션 (migrations/{{TIMESTAMP}}_create_{{TABLE_NAME}}.sql) ──
+// {{MIGRATION_SQL}}

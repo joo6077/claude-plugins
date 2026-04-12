@@ -24,6 +24,19 @@ user-invocable: true
 
 # Process
 
+## Gotchas
+
+- **생성된 코드를 감사하지 마라** — `target/`, `generated/`, `*.generated.rs`, protobuf 출력 등 자동 생성 파일은 스캔 대상에서 제외하라. 수동 수정 불가능한 코드에 FAIL을 매기면 노이즈만 생긴다.
+- **스타일 선호를 FAIL로 판정하지 마라** — `match` vs `if let`, `unwrap_or_else` vs `unwrap_or_default` 같은 동등한 관용구 차이는 INFO로 보고하되 FAIL 근거로 쓰지 마라.
+- **quick 모드에서 전체 파일을 읽지 마라** — `git diff --name-only`로 변경 파일만 특정하고, 해당 파일만 읽어라. 전체 크레이트를 읽으면 토큰을 소진하고 리뷰 품질이 떨어진다.
+- **clippy 경고와 감사 항목을 혼동하지 마라** — clippy가 이미 잡는 lint(unused_imports, dead_code)를 감사 리포트에 중복 나열하면 가치가 없다. 아키텍처/설계/보안 수준 이슈에 집중하라.
+- **unsafe 블록을 무조건 FAIL로 처리하지 마라** — FFI 바인딩, 성능 크리티컬 경로에서 unsafe는 정당할 수 있다. `// SAFETY:` 주석 존재 여부와 실제 불변성 근거를 확인하라.
+- **deep 모드에서 에이전트를 4개 초과 spawn하지 마라** — 병렬 에이전트가 많으면 컨텍스트 경합과 중복 발견이 발생한다. 카테고리별 최대 4개(아키텍처, 보안, 성능, 에러처리)로 제한하라.
+- **Cargo.toml 의존성 버전을 감사 범위에서 빠뜨리지 마라** — `cargo audit`로 알려진 취약점을 확인하고, yanked 크레이트가 있는지 `cargo deny`도 체크하라.
+- **테스트 코드에 프로덕션 수준 감사를 적용하지 마라** — `#[cfg(test)]` 모듈의 `unwrap()`, `expect()`, 하드코딩된 값은 테스트 맥락에서 정상이다. FAIL로 보고하면 false positive다.
+- **리포트에 파일 경로 없이 발견 사항만 나열하지 마라** — 모든 항목에 `src/domain/auth.rs:42` 형식의 정확한 위치를 포함하라. 위치 없는 피드백은 실행 불가능하다.
+- **이전 감사 결과를 참조하지 않고 매번 처음부터 시작하지 마라** — `.harness/` 디렉토리에 이전 감사 리포트가 있으면 읽어서 반복 지적을 피하고, 해결된 항목은 RESOLVED로 표시하라.
+
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 프로젝트 환경을 파악한다.

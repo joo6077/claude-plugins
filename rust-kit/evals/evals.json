@@ -181,17 +181,6 @@
         {"text": "deep 모드 시 rust-reviewer 에이전트 호출", "type": "behavior"},
         {"text": "최종 판정 APPROVE/REJECT", "type": "output"}
       ]
-    },
-    {
-      "id": 17,
-      "skill": "rust-kaizen",
-      "prompt": "rust-kit 개선해줘",
-      "expected_output": "리서치 문서 기준 스킬 개선",
-      "assertions": [
-        {"text": "docs/rust/ 문서를 먼저 읽음", "type": "behavior"},
-        {"text": "한 번에 1~2개 스킬만 개선", "type": "behavior"},
-        {"text": "변경 근거에 리서치 문서 출처 포함", "type": "output"}
-      ]
     }
   ]
 }

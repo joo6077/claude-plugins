@@ -17,6 +17,10 @@ user-invocable: true
 2. **과도한 복잡도 경고** — K8s, 서비스 메시, Terraform/OpenTofu는 프로젝트 규모에 맞을 때만 제안. 소규모 프로젝트에 K8s를 강제하지 마라. **Supply chain 강화(Cosign/SLSA/SBOM), Internal Developer Platform(Backstage/Port), Service Mesh(Istio/Linkerd) 같은 2026 고도화 항목도 규모·위험도·팀 역량이 준비된 경우에만 제안**한다. 1~3인 소규모 팀에 Backstage/IDP 포털을 강요하지 마라.
 3. **프로덕션 설정 강제 금지** — 초기 세팅은 개발 환경부터. 프로덕션 최적화는 별도로.
 4. **기존 설정 덮어쓰기 금지** — 이미 Dockerfile/CI가 있으면 분석 후 개선점만 제안.
+5. **시크릿을 예시 값으로 하드코딩하지 마라** — docker-compose.yml이나 CI 파이프라인에 `password: mypassword123` 같은 예시 시크릿을 넣으면 그대로 프로덕션에 배포되는 사고가 발생한다. `.env.example`에 키 이름만 남기고 실제 값은 비워둬야 한다.
+6. **healthcheck 없이 depends_on만 쓰지 마라** — `depends_on`은 컨테이너 시작 순서만 보장하고 서비스 준비 상태는 보장하지 않는다. DB가 실제로 커넥션을 받을 준비가 될 때까지 기다리려면 `depends_on.condition: service_healthy` + `healthcheck`를 반드시 함께 설정해야 한다.
+7. **CI 파이프라인에 캐시 설정 누락 금지** — Docker layer cache, npm/pip/cargo cache를 설정하지 않으면 매 빌드마다 의존성을 처음부터 다운로드하여 빌드 시간이 수배 늘어난다. 초기 세팅 시 캐시 전략을 함께 구성해야 한다.
+8. **멀티스테이지 빌드 미적용 경고** — 빌더와 런타임을 분리하지 않으면 컴파일러, 소스코드, dev-dependencies가 프로덕션 이미지에 포함되어 이미지 크기가 수배 커지고 공격 표면이 늘어난다. Dockerfile 초기 세팅 시 멀티스테이지를 기본으로 구성하라.
 
 # Process
 

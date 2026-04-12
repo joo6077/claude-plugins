@@ -17,6 +17,9 @@ user-invocable: true
 - **`#[tokio::test]`는 기본이 `current_thread` flavor** — `tokio::spawn`이나 멀티스레드 동작이 필요하면 `#[tokio::test(flavor = "multi_thread")]`를 명시하라. OTel 트레이싱 subscriber, Axum TestServer 같은 case에서 필요할 수 있다.
 - **mockall `#[automock]`은 trait에만** — 구체 struct 메서드에는 사용할 수 없으니, 테스트 대상이 trait이 아니면 먼저 trait 추출을 제안하라. 외부 HTTP 클라이언트, OIDC, 이메일 등은 반드시 port trait으로 먼저 감싼다.
 - **라우터 상태는 trait object** — 통합 테스트에서 mock 서비스를 주입하려면 프로덕션 코드가 `Arc<dyn UserService>` 형태의 trait object를 `Router::with_state()`에 받아야 한다. 구체 타입 `UserServiceImpl`를 state로 넣으면 테스트에서 mock으로 교체 불가. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
+- **테스트 간 상태 격리 필수** — 테스트가 공유 리소스(DB, 파일, 환경 변수)를 사용하면 병렬 실행 시 간헐적 실패가 발생한다. 환경 변수는 `temp_env` 크레이트로 scoped 설정하고, DB는 `#[sqlx::test]` 또는 테스트별 트랜잭션 롤백으로 격리해라.
+- **Fixture builder 패턴 사용** — 테스트 데이터를 매번 인라인으로 구성하면 50줄짜리 setup이 테스트 의도를 가린다. `UserFixture::builder().email("test@x.com").build()` 패턴으로 `test_support` 모듈에 builder를 두고 재사용해라.
+- **`#[tokio::test]` vs `#[sqlx::test]` 혼용 주의** — 같은 파일에서 둘을 섞으면 DB pool 초기화 충돌이 날 수 있다. DB 관련 테스트는 `#[sqlx::test]`로 통일하고, pure logic 테스트만 `#[tokio::test]`를 사용해라.
 
 # Rust 테스트 코드 생성
 

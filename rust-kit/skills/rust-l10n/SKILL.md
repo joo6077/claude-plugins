@@ -14,6 +14,12 @@ user-invocable: true
 - **`rust-i18n`은 컴파일 타임 키 검증 없음** — 키 오타 시 런타임에 키 이름 그대로 반환되므로, 생성 후 실제 응답을 확인해야 한다.
 - **Accept-Language 헤더 파싱** — quality factor(`q=0.9`) 처리가 복잡하다. `accept-language` 크레이트를 사용하고 직접 파싱하지 마라.
 - **Axum 0.8 호환성** — `axum::extract::Request`, `axum::middleware::Next`, `axum::response::Response`, `axum::middleware::from_fn` API는 Axum 0.8에서도 그대로 유지된다. 이 스킬의 Locale middleware 패턴은 0.8에서도 동일하게 동작. 단 라우터 등록 시 path 문자열은 `{id}` 문법을 사용할 것 (rust-api 참조).
+- **키 네이밍 계층 구조 강제** — 번역 키는 `module.context.action` 형식(예: `user.profile.updated`)을 따라라. 평탄한 키(`profile_updated`)는 키 수가 100개를 넘으면 충돌과 검색 불가가 발생한다.
+- **Fallback locale 미설정 시 빈 문자열 반환** — `rust-i18n`은 키가 없을 때 키 이름을 반환하지만, fluent는 빈 문자열을 반환할 수 있다. 항상 `fallback = "en"` 또는 기본 로케일을 `rust_i18n::set_locale()` 전에 설정해라.
+- **Interpolation 변수 타입 불일치** — `rust-i18n`의 `t!("key", name = val)`에서 `val`은 `Display` trait을 구현해야 한다. `&str`이 아닌 커스텀 타입을 직접 전달하면 컴파일 에러가 난다. `.to_string()`으로 변환하거나 `Display`를 구현해라.
+- **Plural form은 locale마다 규칙이 다르다** — 영어는 singular/plural 2개지만 러시아어는 3개, 아랍어는 6개다. fluent의 `PLURAL()` 함수를 사용하면 CLDR 규칙을 자동 적용한다. `rust-i18n`에서는 수동으로 키를 분기해야 하므로 복수형이 필요하면 fluent를 권장해라.
+- **로케일 파일 위치 컨벤션** — `rust-i18n`은 기본적으로 `locales/` 디렉토리에서 `{locale}.toml` 또는 `{locale}.yaml`을 찾는다. 경로를 커스터마이즈하려면 `#[i18n(..., locales = "path")]` 매크로 인자를 정확히 지정해라. 상대 경로는 `Cargo.toml` 위치 기준이다.
+- **번역 키 추가 후 모든 로케일 파일 동기화 필수** — 한 로케일에만 키를 추가하고 나머지를 누락하면 런타임에 fallback 키 이름이 사용자에게 노출된다. 키 추가 시 지원하는 모든 로케일 파일에 동시에 추가하고, 번역이 미확정이면 "NEEDS_TRANSLATION" 마커와 함께 영어 원문을 임시 삽입해라.
 
 # 백엔드 i18n 설정 + 번역 키 추가
 

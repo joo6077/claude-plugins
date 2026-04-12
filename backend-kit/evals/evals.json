@@ -1,0 +1,43 @@
+{
+  "skill_name": "backend-kit",
+  "evals": [
+    {
+      "id": 1,
+      "skill": "backend-guide",
+      "prompt": "이 API 엔드포인트 설계 괜찮은지 봐줘. GET /users로 전체 목록 조회하고 있어",
+      "expected_output": "principle-index.md 기반 API 설계 원칙 참조, 페이지네이션/필터링 필요성 안내",
+      "assertions": [
+        {"text": "principle-index.md를 통해 관련 원칙 문서를 읽은 후 답변한다", "type": "behavior"},
+        {"text": "스택별 코드를 직접 제시하지 않고 원칙과 이유만 설명한다", "type": "output"},
+        {"text": "사용자 질문 맥락(API 설계)에 관련된 원칙만 집중한다", "type": "behavior"},
+        {"text": "주관적 피드백 없이 출처가 있는 원칙을 근거로 제시한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 2,
+      "skill": "backend-audit",
+      "prompt": "src/api/ 디렉토리 백엔드 감사 돌려줘",
+      "expected_output": "카테고리별 PASS/FAIL 판정 리포트, backend-reviewer 에이전트 독립 평가 포함",
+      "assertions": [
+        {"text": "지정 디렉토리 하위의 백엔드 관련 파일을 대상으로 감사한다", "type": "behavior"},
+        {"text": "backend-reviewer 에이전트를 호출하여 독립 평가를 수행한다", "type": "behavior"},
+        {"text": "아키텍처, 보안, 성능 원칙 기준으로 PASS/FAIL을 판정한다", "type": "output"},
+        {"text": "보안 검사(injection, 시크릿 노출, CORS)를 생략하지 않는다", "type": "behavior"},
+        {"text": "N+1 판정 시 실제 코드에서 루프 내 쿼리를 확인한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 3,
+      "skill": "backend-system",
+      "prompt": "이 프로젝트에 API 규격이랑 에러 핸들링 패턴 잡아줘",
+      "expected_output": "프로젝트 스택 감지 후 API 규격 + 에러 핸들링 원칙 정의, 기존 패턴 분석 포함",
+      "assertions": [
+        {"text": "프로젝트 루트에서 프레임워크와 기존 아키텍처 패턴을 먼저 감지한다", "type": "behavior"},
+        {"text": "기존 에러 핸들링/인증 패턴이 있으면 분석 후 개선점만 제안한다", "type": "behavior"},
+        {"text": "스택별 코드를 직접 생성하지 않고 원칙과 규격만 출력한다", "type": "output"},
+        {"text": "사용자가 요청한 부분(API 규격, 에러 핸들링)만 세팅하고 불필요한 영역을 강제하지 않는다", "type": "behavior"},
+        {"text": "프로젝트 규모에 맞지 않는 과도한 패턴(CQRS, 마이크로서비스)은 경고한다", "type": "behavior"}
+      ]
+    }
+  ]
+}

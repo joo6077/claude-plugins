@@ -1,6 +1,263 @@
 {
   "version": 1,
   "plugin": "react-kit",
-  "description": "react-kit skill evaluations. Skills are added in Phase 2~9. Currently empty scaffold.",
-  "tests": []
+  "description": "react-kit skill evaluations — 21 skills + 3 agents.",
+  "tests": [
+    {
+      "id": 1,
+      "skill": "react-init",
+      "prompt": "새 React 프로젝트 만들어줘. Tauri 데스크탑 앱이야",
+      "expected_output": "Vite + Tauri 2 + React 19 + TS strict + Tailwind v4 + shadcn + TanStack Router 모노레포 스캐폴딩",
+      "assertions": [
+        {"text": "Vite + React + TypeScript strict 모드로 프로젝트를 생성한다", "type": "output"},
+        {"text": "--with-tauri 플래그에 따라 Tauri 2 설정을 포함한다", "type": "behavior"},
+        {"text": "TanStack Router 파일 기반 라우팅을 설정한다", "type": "output"},
+        {"text": "Tailwind v4 + shadcn/ui를 설치하고 설정한다", "type": "output"},
+        {"text": "기존 프로젝트에 모듈 추가 요청이면 /react-screen이나 /react-feature로 안내한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 2,
+      "skill": "react-screen",
+      "prompt": "대시보드 화면 추가해줘. /dashboard 경로로",
+      "expected_output": "TanStack Router 파일 기반 라우트에 Dashboard 페이지 생성 + 등록",
+      "assertions": [
+        {"text": "TanStack Router 파일 기반 라우트 규칙에 맞는 파일을 생성한다", "type": "output"},
+        {"text": "routes/ 디렉토리에 파일을 생성한다", "type": "output"},
+        {"text": "lazy loading 여부를 판단하고 적용한다", "type": "behavior"},
+        {"text": "loader가 필요하면 createFileRoute로 loader를 포함한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 3,
+      "skill": "react-feature",
+      "prompt": "notification feature 만들어줘. API 연동까지",
+      "expected_output": "domain/data/presentation/infrastructure 4계층 파일 일괄 생성",
+      "assertions": [
+        {"text": "domain, data, presentation, infrastructure 4계층 디렉토리를 생성한다", "type": "output"},
+        {"text": "--with-api 플래그에 따라 API 레이어(datasource, repository, usecase)를 포함한다", "type": "behavior"},
+        {"text": "화면 파일만 필요한 경우 /react-screen으로 안내한다", "type": "behavior"},
+        {"text": "@/ absolute import 경로를 사용한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 4,
+      "skill": "react-widget",
+      "prompt": "상태 배지 컴포넌트 만들어줘. success, warning, error 3가지 variant로",
+      "expected_output": "shadcn/ui 기반 cva variant + Container Queries 컴포넌트 생성",
+      "assertions": [
+        {"text": "cva로 success, warning, error variant를 정의한다", "type": "output"},
+        {"text": "shadcn/ui 컴포넌트를 base로 활용한다", "type": "behavior"},
+        {"text": "Container Queries 적용 여부를 판단한다", "type": "behavior"},
+        {"text": "forwardRef 또는 React 19 ref prop 패턴을 적용한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 5,
+      "skill": "react-store",
+      "prompt": "사이드바 열림/닫힘 상태 관리하는 Zustand 스토어 만들어줘",
+      "expected_output": "Zustand v5 스토어 + selector 훅 생성",
+      "assertions": [
+        {"text": "Zustand v5 createStore 패턴으로 생성한다", "type": "output"},
+        {"text": "개별 selector 훅을 함께 export한다", "type": "output"},
+        {"text": "서버 데이터(API 응답)를 관리하려는 경우 /react-query를 안내한다", "type": "behavior"},
+        {"text": "persist 미들웨어 필요 여부를 판단한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 6,
+      "skill": "react-api",
+      "prompt": "Product 리소스에 list, get, create API 4계층 만들어줘",
+      "expected_output": "datasource → model → repository → usecase 4계층 일괄 생성",
+      "assertions": [
+        {"text": "domain(entity, repository interface), data(datasource, model, repository impl), usecase를 생성한다", "type": "output"},
+        {"text": "neverthrow Result 타입을 반환값으로 사용한다", "type": "output"},
+        {"text": "--only 옵션으로 개별 레이어만 생성할 수 있다", "type": "behavior"},
+        {"text": "TanStack Query 훅만 필요하면 /react-query를 안내한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 7,
+      "skill": "react-query",
+      "prompt": "Product 리소스에 TanStack Query 훅 만들어줘",
+      "expected_output": "useQuery/useMutation 훅 + queryKey 팩토리 생성",
+      "assertions": [
+        {"text": "queryKey 팩토리 패턴을 사용한다", "type": "output"},
+        {"text": "list/get에 useQuery, create/update/delete에 useMutation을 사용한다", "type": "output"},
+        {"text": "mutation 성공 시 invalidation 전략을 포함한다", "type": "output"},
+        {"text": "API 계층(repository)이 없으면 /react-api를 먼저 실행하도록 안내한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 8,
+      "skill": "react-form",
+      "prompt": "회원가입 폼 만들어줘. 이메일, 비밀번호, 이름 필드로",
+      "expected_output": "React Hook Form + Zod schema + 서버 에러 처리 포함 폼 컴포넌트",
+      "assertions": [
+        {"text": "Zod 스키마로 클라이언트 유효성 검증을 정의한다", "type": "output"},
+        {"text": "React Hook Form useForm + zodResolver를 사용한다", "type": "output"},
+        {"text": "서버 에러를 setError('root.serverError')로 처리하는 패턴이 포함된다", "type": "output"},
+        {"text": "shadcn/ui Form 컴포넌트와 통합한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 9,
+      "skill": "react-wasm",
+      "prompt": "이미지 리사이즈 로직을 Rust WASM으로 이식해줘",
+      "expected_output": "wasm-pack + Comlink Worker + Clean Architecture 데이터 레이어 바인딩 생성",
+      "assertions": [
+        {"text": "G0 카탈로그 기준으로 WASM 이식 적합성을 자동 판정한다", "type": "behavior"},
+        {"text": "wasm-bindgen으로 Rust 함수를 export한다", "type": "output"},
+        {"text": "Comlink Worker로 메인 스레드 차단 없이 호출한다", "type": "output"},
+        {"text": "UI/DOM 작업이나 JS로 충분한 연산이면 거부하고 이유를 설명한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 10,
+      "skill": "react-tauri",
+      "prompt": "파일 시스템 접근 커맨드 만들어줘. 파일 읽기/쓰기",
+      "expected_output": "Tauri 2 Rust command + TS invoke 래퍼 + capabilities 등록 3-tier 생성",
+      "assertions": [
+        {"text": "Rust side에 #[tauri::command] 함수를 생성한다", "type": "output"},
+        {"text": "TS side에 invoke 래퍼 함수를 생성한다", "type": "output"},
+        {"text": "capabilities에 필요한 permissions를 등록한다", "type": "output"},
+        {"text": "isTauri() 가드로 웹 환경에서의 fallback을 포함한다", "type": "output"},
+        {"text": "CPU 바운드 순수 계산이면 /react-wasm을 안내한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 11,
+      "skill": "react-test",
+      "prompt": "ProductRepository에 대한 unit test 만들어줘",
+      "expected_output": "Clean Architecture 레이어에 맞는 Vitest unit 테스트 생성",
+      "assertions": [
+        {"text": "대상 파일의 public 메서드를 분석한다", "type": "behavior"},
+        {"text": "Clean Architecture 레이어에 따라 unit/component/e2e 유형을 자동 선택한다", "type": "behavior"},
+        {"text": "Vitest + Arrange-Act-Assert 구조를 따른다", "type": "output"},
+        {"text": "MSW로 네트워크 호출을 모킹한다 (integration test 시)", "type": "output"},
+        {"text": "테스트 실행만 원하면 /react-run을 안내한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 12,
+      "skill": "react-error",
+      "prompt": "에러 처리 패턴 세팅해줘. 글로벌로",
+      "expected_output": "3단계 에러 처리: datasource 예외 → Failure 변환 → UI ErrorBoundary + Severity 매핑",
+      "assertions": [
+        {"text": "datasource 경계에서 예외를 Failure 타입으로 변환하는 패턴을 세팅한다", "type": "output"},
+        {"text": "React Error Boundary로 렌더 에러를 포획한다", "type": "output"},
+        {"text": "Severity(info/warning/error/fatal)에 따라 UI 표시를 분기한다", "type": "output"},
+        {"text": "Result/Failure 타입 정의를 포함한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 13,
+      "skill": "react-l10n",
+      "prompt": "프로필 화면에 '프로필 설정' 번역 키 추가해줘. 영어는 'Profile Settings'로",
+      "expected_output": "Lingui v5 매크로 기반 번역 문자열 추가 + extract/compile codegen",
+      "assertions": [
+        {"text": "Lingui v5 Trans 컴포넌트 또는 t 매크로를 사용한다", "type": "output"},
+        {"text": "하드코딩된 문자열을 매크로로 교체한다", "type": "output"},
+        {"text": "lingui extract + compile codegen을 실행한다", "type": "behavior"},
+        {"text": "컴포넌트 파일에서 해당 문자열을 찾아 매크로로 래핑한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 14,
+      "skill": "react-responsive",
+      "prompt": "대시보드 화면을 태블릿에서 2컬럼 레이아웃으로 바꿔줘",
+      "expected_output": "Tailwind v4 breakpoint 또는 Container Queries 기반 반응형 적용",
+      "assertions": [
+        {"text": "페이지 레벨은 Tailwind breakpoint(sm/md/lg), 컴포넌트 레벨은 Container Queries를 사용한다", "type": "behavior"},
+        {"text": "page-size vs container-size 판정을 자동으로 수행한다", "type": "behavior"},
+        {"text": "모바일 퍼스트 접근을 따른다", "type": "output"},
+        {"text": "새 컴포넌트 생성이 필요하면 /react-widget을 안내한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 15,
+      "skill": "react-skeleton",
+      "prompt": "상품 목록 화면에 로딩 스켈레톤 추가해줘",
+      "expected_output": "shadcn Skeleton + TanStack Query isPending 분기 스켈레톤 구현",
+      "assertions": [
+        {"text": "TanStack Query isPending 상태에 맞춰 분기한다", "type": "output"},
+        {"text": "실 레이아웃 모양과 동일한 구조의 shadcn Skeleton을 사용한다", "type": "output"},
+        {"text": "스피너/CircularProgressIndicator 대신 shimmer 블록을 사용한다", "type": "output"},
+        {"text": "shadcn Skeleton 컴포넌트 설치 여부를 확인한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 16,
+      "skill": "react-extract",
+      "prompt": "ProductCard 컴포넌트를 shared로 추출해줘",
+      "expected_output": "feature 내부 컴포넌트를 presentation/shared/components/로 추출 + import 경로 업데이트",
+      "assertions": [
+        {"text": "대상 컴포넌트의 의존성과 사용처를 분석한다", "type": "behavior"},
+        {"text": "presentation/shared/components/로 이동한다", "type": "output"},
+        {"text": "import 경로를 @/ absolute로 자동 업데이트한다", "type": "output"},
+        {"text": "하드코딩된 값을 props로 파라미터화한다", "type": "output"},
+        {"text": "추출 후 tsc로 에러 없음을 확인한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 17,
+      "skill": "react-animation",
+      "prompt": "카드 리스트에 fade-in 스크롤 애니메이션 추가해줘",
+      "expected_output": "라이브러리 0개 원칙, Tier 1(Tailwind+CSS) 기반 애니메이션 구현",
+      "assertions": [
+        {"text": "외부 애니메이션 라이브러리를 사용하지 않는다 (라이브러리 0개 원칙)", "type": "behavior"},
+        {"text": "Tier 1(Tailwind+CSS) / Tier 2(View Transitions) / Tier 3(Pointer Primitives) 중 적합한 티어를 선택한다", "type": "behavior"},
+        {"text": "접근성(prefers-reduced-motion)을 고려한다", "type": "output"},
+        {"text": "Tailwind animate 유틸리티 또는 CSS @keyframes를 사용한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 18,
+      "skill": "react-run",
+      "prompt": "vitest만 돌려줘",
+      "expected_output": "react-run test 서브커맨드 실행",
+      "assertions": [
+        {"text": "서브커맨드(dev, build, lint, test, wasm-build, format, codegen)를 파싱하여 해당 명령만 실행한다", "type": "behavior"},
+        {"text": "패키지 매니저(pnpm/npm/yarn)를 프로젝트에서 감지한다", "type": "behavior"},
+        {"text": "코드를 직접 수정하거나 새 파일을 생성하지 않는다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 19,
+      "skill": "react-build",
+      "prompt": "프로덕션 빌드해줘",
+      "expected_output": "wasm-pack → tsc → vite build 순서 실행",
+      "assertions": [
+        {"text": "wasm-pack → tsc → vite build 순서를 지킨다", "type": "behavior"},
+        {"text": "한 단계라도 실패하면 즉시 중단한다", "type": "behavior"},
+        {"text": "WASM이 없으면 wasm-pack 단계를 스킵한다", "type": "behavior"},
+        {"text": "결과 보고서에 각 단계 성공/실패를 표시한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 20,
+      "skill": "react-preflight",
+      "prompt": "커밋해도 되는지 확인해줘",
+      "expected_output": "7단계 파이프라인: fix → codegen → lint → tsc → test → wasm-build → vite-build 순서 실행",
+      "assertions": [
+        {"text": "fix → codegen → lint → tsc → test → wasm-build → vite-build 7단계를 순서대로 실행한다", "type": "behavior"},
+        {"text": "실패 시 즉시 중단하고 복구 안내를 제공한다", "type": "behavior"},
+        {"text": "WASM이 없으면 wasm-build 단계를 스킵한다", "type": "behavior"},
+        {"text": "각 단계 결과를 요약 보고한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 21,
+      "skill": "react-audit",
+      "prompt": "코드 감사 돌려줘. deep 모드로",
+      "expected_output": "6카테고리 감사: Architecture / Strict TS / Performance / Accessibility / Anti-patterns / Library Policy",
+      "assertions": [
+        {"text": "변경 파일 수로 quick/deep 모드를 자동 선택하거나 명시적 지정을 따른다", "type": "behavior"},
+        {"text": "Architecture, Strict TS, Performance, Accessibility, Anti-patterns, Library Policy 6카테고리를 평가한다", "type": "output"},
+        {"text": "deep 모드에서 최대 4 에이전트를 병렬로 실행한다", "type": "behavior"},
+        {"text": "Library Policy 빌드 게이트 검증을 포함한다", "type": "output"},
+        {"text": "react-reviewer 에이전트를 호출하여 독립 평가한다", "type": "behavior"}
+      ]
+    }
+  ]
 }

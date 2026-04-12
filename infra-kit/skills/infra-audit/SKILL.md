@@ -16,6 +16,10 @@ user-invocable: true
 2. **벤더 특정 기능 FAIL 금지** — AWS-only 기능이 없다고 FAIL 주지 마라. 범용 원칙만 기준.
 3. **보안 검사 생략 금지** — "내부용"이어도 non-root, 시크릿 관리, OIDC, TLS는 반드시 검사.
 4. **프로덕션 vs 개발 구분** — 개발용 docker-compose에 리소스 제한 미설정은 FAIL이 아니다. 프로덕션 설정만 엄격 적용.
+5. **PASS/FAIL 근거에 파일:라인 필수** — "Container FAIL — non-root 미설정"만으로는 수정 위치를 알 수 없다. `Dockerfile:15`처럼 구체적 위치를 포함해야 한다.
+6. **N/A 카테고리도 이유를 명시하라** — Kubernetes를 N/A로 표시할 때 "프로젝트에 K8s 매니페스트가 없음"처럼 근거를 함께 적어라. 단순히 N/A만 표기하면 검사를 빠뜨린 것인지 실제로 해당 없는 것인지 구분이 불가능하다.
+7. **CI 워크플로우의 시크릿 처리 감사 필수** — GitHub Actions/GitLab CI에서 `${{ secrets.XXX }}`가 아니라 평문으로 시크릿을 노출하는 경우가 많다. 환경변수, 파이프라인 설정에서 시크릿이 평문 노출되는지 반드시 확인한다.
+8. **이미지 태그 `latest` 사용 FAIL** — 프로덕션 Dockerfile/compose에서 `FROM node:latest`, `image: postgres:latest`처럼 `latest` 태그를 사용하면 재현 불가능한 빌드가 된다. 반드시 구체적 버전 태그(`postgres:16-alpine`)를 사용하라.
 
 # Process
 

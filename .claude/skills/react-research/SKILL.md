@@ -14,6 +14,7 @@ user-invocable: true
 2. **출처 없는 내용 금지** — 모든 원칙, API, 수치에 출처 URL 을 명시한다 (React 공식 문서, MDN, package npm 페이지 등).
 3. **한 번에 전체 갱신 금지** — `category` 인자로 특정 그룹만 갱신한다. 미지정 시 사용자에게 확인.
 4. **라이브러리 0개 원칙 보존** — 새 리서치에서 "이 라이브러리가 편리하다" 라는 제안을 받더라도, G5b 애니메이션의 금지 목록은 유지한다. React + Tailwind + 표준 Web API 만 사용한다는 원칙을 계속 반영한다.
+5. **버전 불일치 주의** — docs/react/ 문서에 명시된 라이브러리 버전과 react-kit/skills/react-init/SKILL.md의 버전이 다르면 문서를 스킬 기준으로 맞춰라. 스킬이 SSOT다.
 
 # Process
 

@@ -13,6 +13,8 @@ user-invocable: true
 1. **기존 문서 구조 유지** — frontmatter, 섹션 순서를 바꾸지 않는다. 내용만 갱신.
 2. **출처 없는 내용 금지** — 모든 원칙과 수치에 출처(URL 포함)를 명시한다.
 3. **한 번에 전체 갱신 금지** — category 인자로 특정 카테고리만 갱신한다. 미지정 시 사용자에게 확인.
+4. **크레이트 버전 명시 필수** — 크레이트를 언급할 때 검증한 버전을 `[crate@version]` 형태로 명시하라. 버전 없는 크레이트 추천은 6개월 후 outdated 될 수 있다.
+5. **nightly-only 기능과 stable 구분** — nightly에서만 동작하는 기능을 stable처럼 서술하지 마라. `[nightly]` 태그 필수.
 
 # Process
 

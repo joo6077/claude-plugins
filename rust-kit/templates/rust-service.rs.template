@@ -1,0 +1,82 @@
+// ============================================================
+// rust-service 비즈니스 로직 서비스 레이어 template
+// ============================================================
+// 사용법: rust-service 스킬이 서비스를 생성할 때
+//         {{placeholder}} 값을 실제 서비스/포트 정보로 치환한다.
+//
+// 플레이스홀더:
+//   {{SERVICE_NAME}}      — 서비스 이름 PascalCase (예: UserService)
+//   {{SERVICE_IMPL}}      — 구현체 이름 (예: UserServiceImpl)
+//   {{PORT_DEPS}}         — 의존하는 포트 trait 목록 (예: UserRepository, EmailPort)
+//   {{PORT_FIELDS}}       — 구조체 필드 (제네릭 또는 Arc<dyn> 방식)
+//   {{PORT_CONSTRUCTOR}}  — new() 파라미터
+//   {{SERVICE_METHODS}}   — trait 메서드 구현
+//   {{DOMAIN_IMPORTS}}    — 도메인 모델/에러 import
+//   {{DI_STYLE}}          — "generic" (의존 1~2개) 또는 "arc_dyn" (3개 이상)
+// ============================================================
+
+use async_trait::async_trait;
+use crate::domain::errors::DomainError;
+{{DOMAIN_IMPORTS}}
+
+// ── 서비스 포트 (domain/ports/{{SERVICE_NAME_SNAKE}}.rs) ──
+// 핸들러 레이어가 구체 구현을 모르도록 서비스도 trait으로 노출
+
+#[async_trait]
+pub trait {{SERVICE_NAME}}: Send + Sync {
+    {{SERVICE_TRAIT_METHODS}}
+}
+
+// ── 서비스 구현체 (domain/services/{{SERVICE_NAME_SNAKE}}_impl.rs) ──
+
+// --- DI_STYLE = "generic" (의존 1~2개) ---
+
+pub struct {{SERVICE_IMPL}}<{{GENERIC_PARAMS}}>
+where
+    {{GENERIC_BOUNDS}}
+{
+    {{PORT_FIELDS}}
+}
+
+impl<{{GENERIC_PARAMS}}> {{SERVICE_IMPL}}<{{GENERIC_PARAMS}}>
+where
+    {{GENERIC_BOUNDS}}
+{
+    pub fn new({{PORT_CONSTRUCTOR}}) -> Self {
+        Self { {{FIELD_INIT}} }
+    }
+}
+
+#[async_trait]
+impl<{{GENERIC_PARAMS}}> {{SERVICE_NAME}} for {{SERVICE_IMPL}}<{{GENERIC_PARAMS}}>
+where
+    {{GENERIC_BOUNDS_SEND_SYNC}}
+{
+    {{SERVICE_METHODS}}
+}
+
+// --- DI_STYLE = "arc_dyn" (의존 3개 이상) ---
+// 의존이 3개 이상이면 제네릭 대신 Arc<dyn Trait> 필드 사용
+//
+// pub struct {{SERVICE_IMPL}} {
+//     repo: Arc<dyn {{REPOSITORY_PORT}}>,
+//     {{ARC_FIELDS}}
+// }
+
+// ── 테스트 (같은 파일 하단) ──
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Mock 구현체를 인라인으로 작성하거나 mockall 사용
+    // struct Mock{{REPOSITORY_PORT}} { ... }
+
+    #[tokio::test]
+    async fn test_{{SERVICE_NAME_SNAKE}}_basic() {
+        // let svc = {{SERVICE_IMPL}}::new(mock_repo, mock_port);
+        // let result = svc.some_method(...).await;
+        // assert!(result.is_ok());
+        todo!("테스트 구현")
+    }
+}
