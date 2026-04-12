@@ -20,6 +20,8 @@ user-invocable: true
 - 헬퍼 메서드(`_buildHeader()`)가 아닌 private Widget 클래스로 추출해라 — Flutter 공식 AI rules 권장 패턴. 합성(composition)이 메서드 분리보다 성능·재사용성 모두 우수
 - Flutter 3.41에서 `FontWeight`가 variable font의 weight axis도 제어함 — `FontVariation('wght', 700)` 별도 설정이 불필요해짐. 기존 코드에 중복 설정이 있으면 제거 필요
 - 외부 라이브러리 위젯을 래핑할 때는 라이브러리 기본값을 반드시 명시적으로 오버라이드하라 — 기본 생성자(`LibWidget()`)로 넘기면 라이브러리 내부 기본값이 적용되어 원하지 않는 동작이 나온다. 예: html_editor_enhanced의 `defaultToolbarButtons`는 InsertButtons를 포함한 전체 버튼이 기본값 — 원하는 버튼 목록만 `HtmlToolbarOptions(defaultToolbarButtons: [...])` 로 명시 전달해야 한다
+- **Flutter 3.41 신규 위젯** — `RepeatingAnimationBuilder` (반복 애니메이션 간편 생성), `DeviceOrientationBuilder` (기기 방향에 반응하는 위젯), `CarouselView.builder` (lazy 캐러셀), `Navigator.popUntilWithResult` (결과 전달 + 다중 pop). 새 위젯 생성 시 이 빌트인 위젯이 요구사항을 충족하는지 먼저 확인하라 — 이미 제공되는 기능을 재구현하면 유지보수 부담만 늘어난다 (출처: <https://blog.flutter.dev/whats-new-in-flutter-3-41-302ec140e632>)
+- **content-sized Flutter views (3.41)** — 하이브리드 앱에서 Flutter view 가 콘텐츠 크기에 맞게 자동 리사이즈됨. 고정 치수 요구가 제거됐으므로, 하이브리드 앱 내 위젯을 만들 때 `SizedBox` 로 강제 크기를 지정하지 않아도 된다 (출처: <https://docs.flutter.dev/release/release-notes/release-notes-3.41.0>)
 
 프로젝트의 스타일 가이드와 컨벤션에 맞는 새 위젯을 생성한다.
 

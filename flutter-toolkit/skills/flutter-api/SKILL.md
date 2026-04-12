@@ -17,6 +17,8 @@ user-invocable: true
 
 - 상대 import `import '../'` 금지 — 반드시 `package:app/...` 절대 import 사용. 리팩터링 시 경로 깨짐 방지
 - Failure 변환은 Repository/DataSource 경계에서 수행 — UseCase에서 try-catch 하지 마라
+- **Freezed 3.2+ Mixed mode + `when`/`map` 제거** — Freezed 3.2.0 부터 `.when()`/`.map()` 메서드가 제거됐다. sealed class 기반 union 타입은 Dart 3 pattern matching (`switch` expression) 으로 분기해야 한다. `eject union cases` 기능으로 기존 union 을 standalone sealed class 로 변환 가능. 프로젝트에 `.when()` 호출이 남아 있으면 마이그레이션 필요 (출처: <https://pub.dev/packages/freezed/changelog>)
+- **Freezed + json_serializable 버전 핀닝** — Freezed 3.2.3 + json_serializable 6.11.3 조합에서 analyzer >=9 / build >=4 호환 이슈가 보고됨. `pubspec.lock` 에서 버전 호환성을 반드시 확인하라 (출처: community report 2025-09)
 
 # API 레이어 생성
 

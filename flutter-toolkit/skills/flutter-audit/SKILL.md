@@ -17,6 +17,8 @@ user-invocable: true
 - Provider watch 대신 select 사용 여부를 체크한다 — 성능 이슈의 주요 원인
 - 커스텀 위젯에 const 생성자가 빠져 있으면 리빌드 최적화가 안 된다 — audit에서 지적 대상
 - Flutter 3.41에서 테스트 매처 `containsSemantics`가 `isSemantics`로 변경됨 — 테스트 코드에 deprecated 매처가 남아 있으면 지적 대상. `matchesSemantics`(exact)와 구분 필요
+- **Impeller 플랫폼별 상태 체크리스트 (2026-04)** — iOS: 필수 (Skia 전환 불가). Android API 29+: 기본 활성 (Vulkan 없으면 OpenGL 폴백, frame drop 12%→1.5%). macOS: opt-in 플래그 기반 실험적. Web/Windows/Linux: 미지원 (canvaskit/skwasm = Skia). 감사 시 대상 플랫폼에 따라 Impeller 관련 성능 지적을 분기하라 — Web 앱에 Impeller 최적화를 요구하면 오탐 (출처: <https://docs.flutter.dev/perf/impeller>)
+- **Android AGP 9.0 마이그레이션 (pre-stable)** — Flutter 3.44 에서 Android Gradle Plugin 9.0 전환이 본격화. 플러그인 호환성이 완전하지 않으므로 `android.newDsl=false` 같은 임시 플래그가 필요할 수 있다. 감사 시 `build.gradle` 에 AGP 9 관련 설정이 있으면 호환성 경고를 포함하라 (출처: <https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9>)
 
 Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감지하여 적합한 규칙으로 검사한다.
 

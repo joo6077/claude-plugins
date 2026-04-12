@@ -14,6 +14,8 @@ user-invocable: true
 
 - breakpoint 값을 하드코딩하지 마라 — 프로젝트에 이미 정의된 breakpoint 상수가 있는지 먼저 확인
 - LayoutBuilder 안에서 Provider를 watch하면 레이아웃 변경마다 불필요한 리빌드 발생 — Provider는 LayoutBuilder 밖에서 watch
+- **Flutter Web WASM 빌드 시 반응형 폴백** — `flutter build web --wasm` 으로 빌드하면 WasmGC 미지원 브라우저(iOS WebKit 전면, Firefox/Safari 일부)에서 자동으로 JS 렌더러로 폴백한다. 반응형 breakpoint 테스트 시 WASM 과 JS 모드 양쪽에서 레이아웃이 동일한지 확인하라 — 렌더러 차이로 미세한 레이아웃 차이가 발생할 수 있다 (출처: <https://docs.flutter.dev/platform-integration/web/wasm>)
+- **Web Stateful Hot Reload (Flutter 3.38+)** — Web 에서도 Stateful Hot Reload 가 기본 활성화됐다. 반응형 레이아웃 조정 시 브라우저 리사이즈 + hot reload 로 빠른 피드백 루프 가능. `web_dev_config.yaml` 로 CORS 프록시/로컬 SSL 설정도 가능 (출처: <https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228>)
 
 반응형 레이아웃을 적용하거나 기존 화면을 반응형으로 전환한다.
 

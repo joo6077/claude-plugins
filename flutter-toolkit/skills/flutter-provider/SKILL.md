@@ -21,7 +21,8 @@ user-invocable: true
 - **Riverpod 3.0 `==` 기반 알림 필터링** — 3.0 부터 모든 provider 가 상태 알림을 `==` 비교로 필터링한다. 특히 `StreamProvider`/`StreamNotifier` 에서 값 동등성이 있는 이벤트는 listener 에 전달되지 않는다. 모델에 `operator ==` / `hashCode` 를 정의하지 않으면 참조 동등성으로 판단되어 매번 알림이 발생하거나, Freezed/Equatable 로 값 동등성을 정의하면 같은 값이 필터링되므로 **의도한 동작을 명시적으로 설계**하라 (출처: <https://riverpod.dev/docs/whats_new>)
 - Riverpod 3.0 에서 `.valueOrNull` 이 `.value` 로 변경됨 — 기존 코드에 `.valueOrNull` 이 있으면 마이그레이션 필요. `dart fix --apply` 로 자동 처리 가능
 - Riverpod 3.0 에서 `Ref` 의 타입 파라미터가 제거됨 — `FutureProviderRef` / `StreamProviderRef` 등 subclass 가 전부 삭제됐다. 신규 코드는 **`Ref` 를 직접** 사용한다 (출처: <https://riverpod.dev/docs/3.0_migration>)
-- Riverpod 3.0 의 offline persistence/mutations 는 아직 experimental — 프로덕션에서는 수동 캐싱 패턴 유지 권장
+- Riverpod 3.0 의 offline persistence/mutations 는 아직 experimental (2026-03 기준 안정화 선언 없음) — 프로덕션에서는 수동 캐싱 패턴 유지 권장. mutations 는 폼 제출 등 사이드이펙트에 loading/success/error 상태를 자동 관리하지만 API 가 변경될 수 있다 (출처: <https://riverpod.dev/docs/whats_new>)
+- **Riverpod 3.0 Pause/Resume** — `ref.listen` 리스너를 `pause()`/`resume()` 으로 수동 일시정지/재개 가능. 화면 비가시 시 자동 일시정지도 지원한다. `Ref.isPaused` 로 상태 확인 가능. 일시정지 후 resume 시 누락된 알림이 있을 수 있으므로 resume 직후 상태를 명시적으로 읽는 패턴을 권장 (출처: <https://pub.dev/packages/flutter_riverpod/changelog>)
 
 Riverpod Notifier + State 클래스를 프로젝트 codegen 패턴에 맞게 생성한다.
 

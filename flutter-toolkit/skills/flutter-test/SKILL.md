@@ -19,6 +19,9 @@ user-invocable: true
 - widget test에서 `pumpAndSettle()`은 타임아웃 될 수 있다 — 무한 애니메이션(CircularProgressIndicator 등)이 있으면 `pump(Duration)` 사용
 - `HAS_BLOC` 프로젝트에서 `blocTest`를 사용해라 — `build`, `act`, `expect` 패턴으로 Bloc 상태 변화를 테스트
 - 테스트에서 `containsSemantics`는 deprecated(Flutter 3.41) — `isSemantics`(부분 매칭) 또는 `matchesSemantics`(완전 매칭) 사용
+- **Patrol 4.x Web 플랫폼 지원** — Patrol 4.0+ 부터 Web E2E 테스트 지원이 추가됐다. VS Code 확장 + 디버깅 개선, `dart.library.js_interop` 마이그레이션, Android API 36 에뮬레이터 지원 포함. 월 200K+ 다운로드로 Flutter E2E 테스팅 사실상 표준 (출처: <https://pub.dev/packages/patrol/changelog>)
+- **Golden test: `alchemist` 사용 권장** — `golden_toolkit` 은 중단됐고 `alchemist` 가 대체. CI/CD 파이프라인에서 golden test 통합이 표준 관행으로 정착됨. 새 프로젝트에서 golden test 도입 시 `alchemist` 기반으로 설정하라 (출처: community 2025-12)
+- **Maestro (대안 E2E)** — Semantics label/identifier 기반 black-box E2E 도구. Flutter Web 지원, Flutter Desktop 미지원 (2026-03). Flutter `Key` 는 접근성 레이어에 노출되지 않으므로 selector 로 사용 불가. Patrol 과 달리 언어 무관 YAML 기반 시나리오 (출처: <https://docs.maestro.dev/get-started/supported-platform/flutter>)
 
 ## 0. 프로젝트 감지
 

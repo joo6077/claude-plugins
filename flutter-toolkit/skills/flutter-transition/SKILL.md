@@ -15,6 +15,8 @@ user-invocable: true
 
 - fit-pal에서는 커스텀 페이지 전환이 금지되어 있다 (`buildPage` 대신 `build`로 위젯만 반환) — 프로젝트 규칙을 먼저 확인해라
 - 예외: 탭 전환 시 `buildNoTransition`만 허용되는 프로젝트가 있다 — 프로젝트의 CLAUDE.md 또는 라우터 설정 확인
+- **auto_route 11.0 breaking changes** — `redirect` 가 `redirectUntil` 로 리네이밍됐고, `navigateNamed` / `pushNamed` 등 deprecated named navigation 메서드가 제거됐다. `.named` 생성자로 codegen 없이 shorthand named route 를 사용할 수 있다. 기존 코드에 `redirect` 가 남아 있으면 컴파일 에러 발생 (출처: <https://pub.dev/packages/auto_route/changelog>)
+- **Flutter 3.44 page transition builders 재구성 (pre-stable)** — 3.44 에서 page transition builders 가 재구성될 예정. 커스텀 전환 코드가 있으면 3.44 업그레이드 시 호환성 확인 필요 (출처: <https://docs.flutter.dev/release/breaking-changes>)
 
 GoRouter, auto_route, Navigator 기반 커스텀 페이지 전환 애니메이션을 적용한다.
 

@@ -15,6 +15,7 @@ user-invocable: true
 - 페이지 전환 애니메이션 커스텀 적용 금지 — `buildPage` 대신 `build`로 위젯만 반환. 예외: 탭 전환 시 `buildNoTransition`만 허용
 - BottomSheet에 SafeArea 래핑 금지 — `MediaQuery.paddingOf(context).bottom`으로 내부에서 처리
 - Flutter 3.38+에서 `PredictiveBackPageTransitionBuilder`가 Android 기본 페이지 전환이 됨 — 커스텀 전환 적용 시 Android에서 시스템 백 제스처와 충돌할 수 있으므로 확인 필요
+- **go_router 17.0 breaking change** — `ShellRoute` 가 기본으로 GoRouter observer 에 알림을 보내게 변경됨. 기존에 observer 가 ShellRoute 이벤트를 받지 않는다고 가정한 코드는 의도치 않은 동작 발생 가능. `notifyRootObserver: false` 파라미터로 이전 동작을 복원할 수 있다. 최소 SDK 요구사항: Flutter 3.32 / Dart 3.8 (출처: <https://pub.dev/packages/go_router/changelog>)
 
 Screen 또는 Page를 생성하고 라우터에 등록한다.
 

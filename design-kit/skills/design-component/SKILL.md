@@ -23,6 +23,8 @@ user-invocable: true
 7. **Anatomy 누락 금지** — 복합 컴포넌트(Dialog, Menu, Accordion 등)는 구성 요소(part) 계층을 명시하라. 어떤 part가 필수/선택인지, 어떤 part가 상태를 가지는지 표기한다.
 8. **접근성 섹션 누락 금지** — 인터랙티브 컴포넌트에 WAI-ARIA 역할/속성, 키보드 인터랙션 테이블, 라벨링 요구사항을 포함하라. 접근성 없는 컴포넌트 스펙은 불완전하다.
 9. **When to use / When not to use 누락 금지** — 모든 컴포넌트에 사용 시점과 비사용 시점을 명시하라. 유사 컴포넌트(예: Menu vs Select, Dialog vs Sheet)와의 구분 기준을 포함한다.
+10. **Compound Component 패턴 식별** — Dropdown, Select, Modal, Accordion 등 여러 파트로 구성된 컴포넌트는 Compound Component 패턴(Context API로 상태 공유 + 네임스페이스 API)과 Slot Pattern(named slot 분리)을 Anatomy 섹션에 반영하라. "prop soup"(모든 옵션을 하나의 props에 몰아넣는 것)은 안티패턴이다. 출처: research-log §G.
+11. **다크모드 토큰 매핑 필수** — 컴포넌트의 Design Tokens 섹션에 light/dark 양쪽 semantic 토큰 매핑을 포함하라. 다크모드에서 순수 블랙(`#000000`) 회피, 채도 낮추기(desaturated/muted), 표면 레이어 밝기 미세 차이로 구분하는 원칙을 적용한다. hover/focus 상태 배경 대비 3:1 이상 확보. 출처: research-log §H.
 
 # Process
 

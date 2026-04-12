@@ -21,6 +21,9 @@ user-invocable: true
 7. **접근성·에러 케이스 누락 금지** — 시각적 레이아웃에만 집중하다 키보드 접근, 스크린리더, 에러 상태, 빈 상태를 빠뜨리는 실수를 하지 마라. WCAG 위반은 가장 높은 우선순위다.
 8. **픽셀 nitpick에 갇히지 마라** — 고영향 이슈가 있는데 픽셀 정렬이나 사소한 간격에 집착하지 마라. 한 세션에서는 상위 1~3개 blocking issue에만 집중하고 나머지는 Minor로 분류한다.
 9. **디자인 시스템 우회 지적** — 커스텀 one-off override나 토큰 외 하드코딩된 값이 있으면 반드시 언급하라. 일관성 붕괴는 단기적으로는 Minor처럼 보이지만 장기적으로 유지보수 비용을 높인다.
+10. **APCA Lc 참조 안내** — 접근성 대비 가이드 시 WCAG 2.2 AA(4.5:1) 기준을 우선 적용하되, 추가로 APCA Lc 임계값을 informational로 제시하라. 본문 텍스트 Lc 75~90, 비본문 Lc 60 이상. APCA는 폰트 크기+굵기별 차등 대비를 요구하므로 가는 폰트(300w)에 더 높은 Lc가 필요하다. 법적 표준은 WCAG 2.2 AA이며 APCA는 WCAG 3.0 WD 참고용. 출처: research-log §C.
+11. **Fluid Typography/Spacing 가이드** — 타이포그래피나 간격 질문 시 고정 크기 외에 `clamp(min, preferred, max)` 기반 fluid scale 옵션을 언급하라. Modular Scale 비율(1.125~1.618)과 Utopia 접근법을 참고로 안내한다. 출처: research-log §E, §F.
+12. **Compound Component 패턴 인식** — 컴포넌트 구조 관련 질문 시 Compound Components(Context API로 상태 공유) + Slot Pattern(named slot 분리) 패턴을 인지하고 안내하라. "prop soup" 문제가 보이면 compound 패턴을 제안한다. 출처: research-log §G.
 
 # Process
 
@@ -34,10 +37,10 @@ user-invocable: true
 | color | 컬러, 색상, 팔레트, 다크모드 |
 | spacing | 간격, 패딩, 마진, 정렬 |
 | interaction | 버튼, 탭, 스와이프, 제스처 |
-| accessibility | 접근성, a11y, 대비, 터치 타겟 |
+| accessibility | 접근성, a11y, 대비, 터치 타겟, APCA, contrast |
 | motion | 애니메이션, 전환, transition, 마이크로인터랙션 |
 | visual hierarchy | 위계, 강조, 눈에 띄게, 중요도, 시선 |
-| layout & grid | 그리드, 열, 정렬, 레이아웃, 반응형, breakpoint, container query, `@container`, inline-size, self-aware component |
+| layout & grid | 그리드, 열, 정렬, 레이아웃, 반응형, breakpoint, container query, `@container`, inline-size, self-aware component, cqw, cqi, fluid |
 | image | 이미지, 일러스트, 사진, 아이콘 스타일 |
 | ethical design | 다크 패턴, 윤리, 동의, 탈퇴, 구독 해지 |
 | authenticity | AI스러운, 제네릭, 템플릿, 개성, 진정성, 브랜드 톤 |

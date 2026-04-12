@@ -23,6 +23,8 @@ user-invocable: true
 7. **디바이스 프레임은 목적에 따라 선택적으로 사용하라** — 클라이언트 발표나 near-final 데모에는 디바이스 프레임이 완성 인상을 준다. 그러나 레이아웃 구조 비교나 콘텐츠 밀도 검토가 목적이면 프레임 없이 보여주는 편이 낫다. 프레임 chrome이 실제 논점인 레이아웃 판단을 방해할 수 있다.
 8. **인터랙션이 쟁점이면 정적 비교에 의존하지 마라** — 드롭다운, 오버레이, 멀티스텝 플로우, 로딩 상태, 모달 전환은 나란히 놓인 정지 화면만으로 판단하기 어렵다. HTML 시안에 hover/focus/click 인터랙션을 포함하거나, 인터랙티브 프로토타입 링크를 함께 제공하라.
 9. **반응형 시안은 breakpoint별 스냅샷만으로 끝내지 마라** — mobile/tablet/desktop 3단 구성을 보여줄 때, 각 화면에서 동일한 유저 시나리오 상태를 맞춰 두어야 비교가 의미 있다. 컬럼 수, 거터, max-width 등 레이아웃 규칙도 함께 명시하라.
+10. **Container Queries 활용 권장** — 반응형 시안에서 페이지 레벨 분기는 media queries, 컴포넌트 레벨 분기는 `container-type: inline-size` + `@container` queries를 사용하라. 2026 Baseline 기준 모든 주요 브라우저 지원. cqw/cqi 유닛으로 컨테이너 상대 크기 지정이 가능하다. 콘텐츠가 깨지는 지점에 breakpoint를 설정하고 디바이스 타겟 기반은 피하라. 출처: research-log §J.
+11. **Fluid Typography 적용** — 시안 내 텍스트에 `clamp(min, preferred, max)` 기반 fluid font-size를 적용하면 breakpoint 없이 모든 뷰포트에서 자연스러운 크기 전환을 보여줄 수 있다. 특히 히어로/디스플레이 텍스트에 효과적이다. 출처: research-log §E.
 10. **mockup.html은 HTML 형식이 정상 산출물이다** — 이 스킬의 출력물(`.design/mockups/*.html`)은 의도적으로 HTML 형식을 사용한다. `design-tokens.md`, `audit-report.md` 같은 `.md` 계약 패턴과 구조가 다른 것은 설계상 의도된 차이이며 오류가 아니다. QA 평가 또는 검증 도구가 "HTML 형식이 .md 패턴과 다르다"고 지적할 경우 False positive로 처리하고 이 Gotcha를 근거로 무시한다.
 
 # Process
