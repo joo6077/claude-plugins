@@ -43,7 +43,7 @@
     {
       "name": "planning-kit",
       "source": "./planning-kit",
-      "description": "[v0.1.0 · 2026-04-13] 스택 무관 제품 기획 플러그인 — JTBD / PR-FAQ / Shape Up / RICE·Kano·WSJF / DDD Event Storming + Mermaid erDiagram / GitHub Projects v2 동기화"
+      "description": "[v0.1.1 · 2026-04-14] 스택 무관 제품 기획 플러그인 — JTBD / PR-FAQ / Shape Up / RICE·Kano·WSJF / DDD Event Storming + Mermaid erDiagram / GitHub Projects v2 동기화"
     }
   ]
 }
