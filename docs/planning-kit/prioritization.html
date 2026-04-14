@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prioritization — Planning Kit</title>
+<style>
+:root {
+  --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
+  --border: #2a2a40; --border2: #3a3a55;
+  --text: #F5F0E8; --text2: #A89A8F; --text3: #7A6F64;
+  --accent: #EC4899; --accent2: #F9A8D4;
+  --accent-dim: rgba(236, 72, 153, 0.12); --accent-glow: rgba(236, 72, 153, 0.06);
+  --error: #f87171; --success: #4ade80; --warn: #fbbf24;
+  --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
+    radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
+.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+.badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
+  border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+.hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--text), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
+section { margin-bottom: 72px; }
+.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-number { display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
+  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
+  line-height: 1.4; letter-spacing: -0.01em; }
+.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
+.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+.card ul li { margin-bottom: 4px; }
+.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
+  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
+  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
+.card-source::before { content: "↳ 출처: "; color: var(--text3); }
+.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+thead { background: var(--surface2); }
+th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
+td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--accent-glow); }
+td strong, td b { color: var(--text); }
+td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
+  background: var(--surface); line-height: 1.7; }
+.compare.bad { border-left: 3px solid var(--error); }
+.compare.good { border-left: 3px solid var(--success); }
+.compare .tag { display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
+.compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
+.compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
+.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
+.compare p { color: var(--text2); font-size: 14px; }
+.checklist { display: flex; flex-direction: column; gap: 14px; }
+.checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); transition: var(--transition); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.refs { display: flex; flex-wrap: wrap; gap: 10px; }
+.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
+.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
+  text-align: center; color: var(--text3); font-size: 13px; }
+footer a { color: var(--accent); text-decoration: none; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
+  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
+.callout strong { color: var(--text); }
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 64px; }
+  .hero { padding: 48px 0 36px; }
+  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .card { padding: 22px; }
+  th, td { padding: 12px 14px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Planning Kit v0.1 · Prioritization</span>
+    <h1>Prioritization</h1>
+    <p class="subtitle">
+      우선순위 프레임워크는 결정을 대신해 주지 않는다. 팀이 어떤 <strong>trade-off를 어떤 언어로 토론할지</strong>
+      정해 줄 뿐이다. RICE · ICE · MoSCoW · Kano · WSJF · Opportunity Scoring은 전제가 모두 다르다.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">01 · Frameworks</span>
+      <h2>우선순위 프레임워크</h2>
+      <p>제품 단계 · 데이터 밀도 · 조직 규모에 따라 적합한 도구가 다르다.</p>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="card-number">1</span>
+        <h3>RICE</h3>
+        <p>
+          <strong>Reach · Impact · Confidence · Effort</strong>를 결합해 아이디어를 비교하는 Intercom 프레임워크.
+          Reach를 Impact와 분리하는 점이 특징이다.
+        </p>
+        <ul>
+          <li>Reach: 일정 기간 동안 영향 받는 인원 · 건수</li>
+          <li>Impact: 1인당 효과 크기 (1 / 2 / 3 / 0.5 식 스케일)</li>
+          <li>Confidence: 추정의 신뢰도 (50% / 80% / 100%)</li>
+          <li>Effort: person-month 기준 투입량</li>
+        </ul>
+        <a class="card-source" href="https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/" target="_blank" rel="noopener">Intercom — RICE</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">2</span>
+        <h3>ICE</h3>
+        <p>
+          <strong>Impact · Confidence · Ease</strong>로 빠르게 점수화하는 lightweight prioritization.
+          growth / experimentation 환경에서 속도가 장점이다.
+        </p>
+        <ul>
+          <li>초기 단계 backlog triage에 유리</li>
+          <li>"결정 지연의 비용"이 클 때 적합</li>
+          <li>주관성이 크므로 실험 backlog에 한정 권장</li>
+        </ul>
+        <a class="card-source" href="https://workshopweaver.com/facilitation-methods/ice-scoring" target="_blank" rel="noopener">Workshop Weaver — ICE Scoring</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">3</span>
+        <h3>MoSCoW</h3>
+        <p>
+          <strong>Must · Should · Could · Won't</strong>로 요구사항을 분류하는 협상 프레임워크.
+          DSDM/Agile Business Consortium 계열에서 deadline이 고정된 프로그램에 강하다.
+        </p>
+        <ul>
+          <li>"이번 릴리스에서의 필수성"을 토론하게 만듦</li>
+          <li>Must가 timebox를 깨면 재협상</li>
+          <li>Won't를 명시 = 비범위 합의</li>
+        </ul>
+        <a class="card-source" href="https://www.agilebusiness.org/businessagility/what-is-dsdm.html" target="_blank" rel="noopener">Agile Business — DSDM / MoSCoW</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">4</span>
+        <h3>Kano Model</h3>
+        <p>
+          기능이 고객 만족에 미치는 영향이 <strong>선형이 아님</strong>을 설명한다.
+          기본요건(must-be) · 성능요건(performance) · 매력요건(delighters)로 분류.
+        </p>
+        <ul>
+          <li>없으면 불만이 큰 기본요건인가?</li>
+          <li>비례적으로 만족이 올라가는 성능요건인가?</li>
+          <li>있으면 기쁨을 주는 매력요건인가?</li>
+        </ul>
+        <a class="card-source" href="https://www.qualtrics.com/fr/articles/strategy-research/modele-kano/" target="_blank" rel="noopener">Qualtrics — Kano Model</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">5</span>
+        <h3>WSJF (Weighted Shortest Job First)</h3>
+        <p>
+          SAFe의 <strong>Cost of Delay / Job Size</strong> 계산.
+          "큰 일이라도 delay cost가 크면 먼저 해야 한다"는 경제적 관점.
+        </p>
+        <ul>
+          <li>CoD = User-Business Value + Time Criticality + Risk/Opp Enablement</li>
+          <li>Job Size는 상대 추정</li>
+          <li>portfolio / program increment 수준에 적합</li>
+        </ul>
+        <a class="card-source" href="https://scaledagileframework.com/wsjf/" target="_blank" rel="noopener">SAFe — WSJF</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">6</span>
+        <h3>Opportunity Scoring (Ulwick)</h3>
+        <p>
+          중요도는 높은데 만족도는 낮은 <strong>desired outcome</strong>을 기회로 보는 ODI 계열 접근.
+          기능이 아니라 customer outcome을 우선순위 단위로 삼는다.
+        </p>
+        <ul>
+          <li>Opportunity Score = Importance + max(Importance − Satisfaction, 0)</li>
+          <li>특정 세그먼트의 unmet need를 드러냄</li>
+          <li>solution bias를 줄이는 효과</li>
+        </ul>
+        <a class="card-source" href="https://strategyn.com/lp/outcome-driven-innovation/" target="_blank" rel="noopener">Strategyn — ODI / Opportunity Scoring</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">02 · Selection guide</span>
+      <h2>언제 어떤 프레임워크를 쓸까</h2>
+      <p>한 프레임워크로 모든 상황을 덮으려 하지 않는다.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>상황</th><th>1순위</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>성장 단계 backlog 비교</strong></td><td>RICE</td><td>데이터가 있고 다수 아이템 비교</td></tr>
+          <tr><td><strong>growth 실험 triage</strong></td><td>ICE</td><td>속도 &gt; 정밀도</td></tr>
+          <tr><td><strong>deadline 고정 프로그램</strong></td><td>MoSCoW</td><td>범위 협상이 핵심</td></tr>
+          <tr><td><strong>기능 만족도 차별화</strong></td><td>Kano</td><td>parity vs delight 구분</td></tr>
+          <tr><td><strong>SAFe / portfolio</strong></td><td>WSJF</td><td>경제적 sequencing</td></tr>
+          <tr><td><strong>JTBD/ODI 이후 문제공간</strong></td><td>Opportunity Scoring</td><td>outcome 기준 우선순위</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">03 · RICE Example</span>
+      <h2>RICE 계산 예시</h2>
+      <p>동일한 기간 단위와 추정 규칙을 쓴다는 가정 하의 비교.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>아이템</th><th>Reach (Q)</th><th>Impact</th><th>Confidence</th><th>Effort (pm)</th><th>Score</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>검색 자동완성</strong></td><td>12,000</td><td>2</td><td>0.8</td><td>2</td><td><code>9,600</code></td></tr>
+          <tr><td><strong>알림 재설계</strong></td><td>40,000</td><td>1</td><td>0.5</td><td>3</td><td><code>6,666</code></td></tr>
+          <tr><td><strong>관리자 대시보드</strong></td><td>800</td><td>3</td><td>1.0</td><td>4</td><td><code>600</code></td></tr>
+          <tr><td><strong>데이터 export v2</strong></td><td>5,000</td><td>1</td><td>0.8</td><td>1</td><td><code>4,000</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--text3); font-size:13px; margin-top:12px;">
+      공식: <code>(Reach × Impact × Confidence) / Effort</code>. Reach 추정이 허술하면 정밀한 척하는 숫자놀이가 된다.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Anti-patterns</span>
+      <h2>안티패턴 vs 좋은 패턴</h2>
+      <p>점수를 뽑는 행위가 판단을 대신하지 않도록.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>모든 팀이 RICE로만 우선순위 결정</h4>
+        <p>전략적 필수 과제 · dependency work는 점수로 설명되지 않는다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>RICE + "전략 태그" 혼용</h4>
+        <p>score 상위 + 전략적 must-have 2~3개를 따로 확보.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>MoSCoW의 Must가 70%를 차지</h4>
+        <p>모두가 Must라고 주장해 프레임워크가 무력화된다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>Must 비율 상한(e.g. 60%) 합의</h4>
+        <p>timebox 내 실현 가능성을 보장하기 위한 운영 규칙.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Kano를 직감으로 분류</h4>
+        <p>정성/정량 조사 없이 PM 주관으로 매력요건 판정.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>Kano 설문 + 세그먼트 분리</h4>
+        <p>"기능이 있으면 / 없으면" 2문항 설문, 세그먼트별 반응 비교.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">05 · Gotchas</span>
+      <h2>Gotchas</h2>
+      <p>우선순위 작업에서 자주 놓치는 함정.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>서로 다른 목표의 아이템을 한 표에서 비교</strong>
+          <p>retention 개선과 인프라 마이그레이션을 같은 RICE 표에 넣으면 의미가 희석된다. 같은 outcome 묶음 안에서 비교하라.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>ICE의 Ease 점수가 편향을 만든다</strong>
+          <p>쉬운 것만 계속 우선이 되고, 전략적으로 중요한 어려운 과제가 밀린다. "전략 lane"을 별도로 두자.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Kano 분류는 시간에 따라 변한다</strong>
+          <p>delighter는 곧 basic expectation이 된다. 1년에 한 번은 재조사하라.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>WSJF를 SAFe 문맥 없이 기계적 적용</strong>
+          <p>CoD · Job Size 상대 추정에 정치가 개입된다. 평가 주체를 분리하거나 delphi 방식을 병행하라.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Opportunity Scoring은 research quality에 민감</strong>
+          <p>정성적 감으로 점수화하면 ODI의 장점이 사라진다. interview 수 · 세그먼트 coverage를 먼저 검증.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">06 · References</span>
+      <h2>함께 보기</h2>
+      <p>Planning Kit 내 관련 페이지.</p>
+    </div>
+    <div class="refs">
+      <a href="discovery.html">Discovery</a>
+      <a href="prd-patterns.html">PRD Patterns</a>
+      <a href="stories.html">Stories</a>
+      <a href="risks.html">Risks</a>
+      <a href="cognitive-biases.html">Cognitive Biases</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">07 · Mini Glossary</span>
+      <h2>용어 미니 사전</h2>
+      <p>팀 공유 시 혼동되는 용어들.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>용어</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Reach</strong></td><td>일정 기간 동안 영향 받는 유저/요청 수 (지표 단위 명시)</td></tr>
+          <tr><td><strong>Cost of Delay</strong></td><td>지연 1주당 잃는 경제적 가치. biz value + time criticality + risk 합산</td></tr>
+          <tr><td><strong>Job Size</strong></td><td>상대적 규모 추정. story point 계열 스케일</td></tr>
+          <tr><td><strong>Opportunity Score</strong></td><td>Importance + max(Importance − Satisfaction, 0)</td></tr>
+          <tr><td><strong>Kill Criteria</strong></td><td>중단해야 하는 사전 정의 조건</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    Planning Kit v0.1 · last updated 2026-04-14 ·
+    source: <code>docs/planning/prioritization.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

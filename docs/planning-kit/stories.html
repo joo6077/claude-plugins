@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stories — Planning Kit</title>
+<style>
+:root {
+  --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
+  --border: #2a2a40; --border2: #3a3a55;
+  --text: #F5F0E8; --text2: #A89A8F; --text3: #7A6F64;
+  --accent: #EC4899; --accent2: #F9A8D4;
+  --accent-dim: rgba(236, 72, 153, 0.12); --accent-glow: rgba(236, 72, 153, 0.06);
+  --error: #f87171; --success: #4ade80; --warn: #fbbf24;
+  --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
+    radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
+.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+.badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
+  border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+.hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--text), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
+section { margin-bottom: 72px; }
+.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-number { display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
+  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
+  line-height: 1.4; letter-spacing: -0.01em; }
+.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
+.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+.card ul li { margin-bottom: 4px; }
+.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
+  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
+  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
+.card-source::before { content: "↳ 출처: "; color: var(--text3); }
+.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+thead { background: var(--surface2); }
+th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
+td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--accent-glow); }
+td strong, td b { color: var(--text); }
+td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
+  background: var(--surface); line-height: 1.7; }
+.compare.bad { border-left: 3px solid var(--error); }
+.compare.good { border-left: 3px solid var(--success); }
+.compare .tag { display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
+.compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
+.compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
+.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
+.compare p { color: var(--text2); font-size: 14px; }
+.checklist { display: flex; flex-direction: column; gap: 14px; }
+.checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); transition: var(--transition); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.refs { display: flex; flex-wrap: wrap; gap: 10px; }
+.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
+.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
+  text-align: center; color: var(--text3); font-size: 13px; }
+footer a { color: var(--accent); text-decoration: none; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
+  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
+.callout strong { color: var(--text); }
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 64px; }
+  .hero { padding: 48px 0 36px; }
+  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .card { padding: 22px; }
+  th, td { padding: 12px 14px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Planning Kit v0.1 · Stories</span>
+    <h1>Stories</h1>
+    <p class="subtitle">
+      스토리는 backlog를 예쁘게 적는 기술이 아니라, 작게 나누되 맥락을 잃지 않게 만드는 언어 체계다.
+      INVEST · Gherkin · Story Mapping · Acceptance Criteria를 함께 써서 가치 · 맥락 · 검증 기준을
+      동시에 담는다.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">01 · Methods</span>
+      <h2>스토리 작성 방법론</h2>
+      <p>네 가지 도구가 서로 다른 질문에 답한다.</p>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="card-number">1</span>
+        <h3>INVEST</h3>
+        <p>
+          좋은 user story의 <strong>품질 체크리스트</strong>.
+          Independent · Negotiable · Valuable · Estimable · Small · Testable 여섯 조건으로 스토리를 점검한다.
+        </p>
+        <ul>
+          <li>Independent: 다른 스토리에 과도하게 묶이지 않음</li>
+          <li>Negotiable: 솔루션이 아니라 대화 가능한 요구</li>
+          <li>Valuable · Estimable · Small · Testable</li>
+        </ul>
+        <a class="card-source" href="https://agilealliance.org/glossary/invest/" target="_blank" rel="noopener">Agile Alliance — INVEST</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">2</span>
+        <h3>Gherkin / Given-When-Then</h3>
+        <p>
+          executable specification 문법.
+          <strong>Given</strong>(초기 맥락), <strong>When</strong>(사건), <strong>Then</strong>(기대 결과)로
+          비즈니스 규칙을 예시로 표현한다.
+        </p>
+        <ul>
+          <li>UI 버튼 위치가 아닌 <em>관찰 가능한 결과</em>를 서술</li>
+          <li>각 시나리오 3~5 step으로 유지</li>
+          <li>도메인 언어 사용, 구현 세부는 금지</li>
+        </ul>
+        <a class="card-source" href="https://cucumber.io/docs/gherkin/reference" target="_blank" rel="noopener">Cucumber — Gherkin Reference</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">3</span>
+        <h3>Story Mapping (Jeff Patton)</h3>
+        <p>
+          backlog를 납작한 리스트가 아니라 <strong>사용자 활동 흐름</strong>에 따라 배치한다.
+          end-to-end 맥락 유지 + release slicing에 강하다.
+        </p>
+        <ul>
+          <li>backbone activity를 사용자 여정 순서대로 배치</li>
+          <li>activity 아래에 세부 story 분해</li>
+          <li>첫 release slice = 작지만 완결된 경험</li>
+        </ul>
+        <a class="card-source" href="https://jpattonassociates.com/story-mapping/" target="_blank" rel="noopener">Jeff Patton — Story Mapping</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">4</span>
+        <h3>Acceptance Criteria 패턴</h3>
+        <p>
+          스토리가 "done"인지 판단하는 명시적 조건.
+          관찰 가능 · 테스트 가능해야 하며, 범위와 예외를 명확히 한다.
+        </p>
+        <ul>
+          <li>성공 조건 · 예외 조건 · 권한/제약을 분리</li>
+          <li>happy path뿐 아니라 edge case · error state · data 제약 포함</li>
+          <li>구현 힌트를 주되 구현을 강제하지 않음</li>
+        </ul>
+        <a class="card-source" href="https://cucumber.io/docs/gherkin/reference" target="_blank" rel="noopener">Cucumber — Examples as Contract</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">02 · Gherkin Example</span>
+      <h2>Gherkin 시나리오 예시</h2>
+      <p>관찰 가능한 결과 중심으로 쓴 수용 기준.</p>
+    </div>
+<pre class="code-block">Feature: 워크스페이스 초대 수락
+  As a 초대받은 사용자
+  I want 초대 링크를 클릭하면 워크스페이스에 즉시 참여하도록
+  So that 온보딩 첫 단계에서 이탈하지 않게
+
+  Scenario: 유효한 초대 링크 수락
+    Given "acme" 워크스페이스의 유효한 초대 토큰을 가진 사용자가 있다
+    And 해당 사용자는 아직 계정이 없다
+    When 사용자가 초대 링크를 클릭하고 이메일/비밀번호를 등록한다
+    Then 사용자는 "acme" 워크스페이스의 member 권한으로 입장한다
+    And 워크스페이스 홈의 첫 3단계 온보딩이 노출된다
+
+  Scenario: 만료된 초대 링크
+    Given 만료된 초대 토큰
+    When 사용자가 링크를 클릭한다
+    Then "초대가 만료되었습니다" 페이지가 표시된다
+    And 초대자에게 재발송 요청 버튼이 제공된다
+</pre>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">03 · INVEST Scorecard</span>
+      <h2>INVEST 체크 기준</h2>
+      <p>backlog refinement에서 스토리 하나를 6축으로 점검한다.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>축</th><th>합격 기준</th><th>실패 신호</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Independent</strong></td><td>다른 스토리 종료를 기다리지 않고 시작 가능</td><td>"A가 끝나야 시작할 수 있음"</td></tr>
+          <tr><td><strong>Negotiable</strong></td><td>해결 방법에 여지가 있음</td><td>구현 상세가 스토리에 박제됨</td></tr>
+          <tr><td><strong>Valuable</strong></td><td>사용자/비즈니스 가치가 한 문장으로 설명됨</td><td>기술 태스크 제목과 동일</td></tr>
+          <tr><td><strong>Estimable</strong></td><td>팀이 대략 추정 가능</td><td>"해봐야 안다"만 반복</td></tr>
+          <tr><td><strong>Small</strong></td><td>한 iteration 안에 소화 가능</td><td>1 스프린트 이상 소요</td></tr>
+          <tr><td><strong>Testable</strong></td><td>acceptance criteria가 관찰 가능</td><td>"잘 동작하면 OK"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Story Map Structure</span>
+      <h2>Story Map 기본 구조</h2>
+      <p>backbone activity 위에 slice별 세부 story가 얹힌다.</p>
+    </div>
+<pre class="code-block">Backbone (사용자 활동 흐름):
+  [Discover] →  [Sign up] →  [Onboard] →  [Invite team] →  [Get value]
+
+Release slice 1 — Walking Skeleton (MVP):
+  Discover     : 랜딩 페이지에서 가치 한 줄 노출
+  Sign up      : 이메일 + 비밀번호 가입만 지원
+  Onboard      : 워크스페이스 생성 1단계
+  Invite team  : 이메일 초대 1건
+  Get value    : 첫 프로젝트 생성 + 1 issue 만들기
+
+Release slice 2 — Activation 강화:
+  Discover     : 비교 표 · 데모 비디오
+  Sign up      : Google / GitHub OAuth
+  Onboard      : 템플릿 선택 · 샘플 데이터
+  Invite team  : 링크 기반 bulk 초대
+  Get value    : 첫 automation / integration 연결
+
+Release slice 3 — Team scale:
+  Onboard      : role 기반 onboarding 분기
+  Invite team  : SSO · SCIM 프로비저닝
+  Get value    : cross-team 대시보드</pre>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">05 · Anti-patterns</span>
+      <h2>안티패턴 vs 좋은 패턴</h2>
+      <p>스토리가 task 티켓으로 쪼그라드는 전형적 실수.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>"결제 버튼 추가" 같은 task 제목형 스토리</h4>
+        <p>가치 · 맥락 · 검증 기준이 전부 빠져 있다. 완료의 의미가 불명확.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>"사용자는 장바구니에서 즉시 결제할 수 있다" + Acceptance</h4>
+        <p>사용자 가치가 드러나고, 완료 판정 기준이 관찰 가능하다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Gherkin에 UI step 범람</h4>
+        <p>"버튼 X를 클릭한다"가 누적되며 brittle test 문서로 전락한다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>도메인 언어로 "행동 규칙"을 기술</h4>
+        <p>UI 세부는 step definition에 격리. 테스트의 수명이 길어진다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Story Map이 워크숍 사진으로만 남음</h4>
+        <p>backlog/roadmap과 연결되지 않아 휘발된다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>Map의 slice가 release plan에 그대로 연결됨</h4>
+        <p>매 release마다 map 업데이트 + PR 링크로 추적.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">06 · Gotchas</span>
+      <h2>Gotchas</h2>
+      <p>스토리 작성에서 반복되는 실수.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>INVEST 항목을 형식적으로만 맞추기</strong>
+          <p>여섯 축이 모두 체크돼도 실제로는 맥락 없는 스토리일 수 있다. 품질 체크이지 우선순위 도구가 아니다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>모든 스토리를 Gherkin으로 쓰지 않는다</strong>
+          <p>비즈니스 규칙이 중요한 스토리에만 Gherkin을 쓰고, 단순 작업은 체크리스트형 acceptance로 충분하다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Story Map 상세화가 유지비를 폭발시킴</strong>
+          <p>map은 "전체 구조 이해"용이지 상세 scheduler가 아니다. 고해상도 slice는 sprint board가 맡는다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Acceptance Criteria를 설계 문서화</strong>
+          <p>너무 상세해지면 협상 가능성이 사라지고, 너무 추상적이면 쓸모가 없다. 관찰 가능한 행동 수준에서 멈춰라.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">07 · Acceptance Styles</span>
+      <h2>Acceptance Criteria 3가지 포맷</h2>
+      <p>상황에 맞는 포맷을 고르고 섞지 않는다.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>포맷</th><th>적합한 상황</th><th>예시</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Checklist</strong></td>
+            <td>단순 UI/CRUD 스토리</td>
+            <td>"초대 링크 입력 필드 · 복사 버튼 · 만료일 표시"</td>
+          </tr>
+          <tr>
+            <td><strong>Gherkin</strong></td>
+            <td>비즈니스 규칙 · edge case가 복잡</td>
+            <td><code>Given/When/Then</code> 시나리오 세트</td>
+          </tr>
+          <tr>
+            <td><strong>Rule-based</strong></td>
+            <td>규칙이 많지만 시나리오는 단순</td>
+            <td>"만료 72h 전 이메일 · 만료 후 7d 로그 보존 · 재발송 rate 5/h"</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">08 · References</span>
+      <h2>함께 보기</h2>
+      <p>Planning Kit 내 관련 페이지.</p>
+    </div>
+    <div class="refs">
+      <a href="prd-patterns.html">PRD Patterns</a>
+      <a href="discovery.html">Discovery</a>
+      <a href="prioritization.html">Prioritization</a>
+      <a href="flows.html">Flows</a>
+      <a href="github-integration.html">GitHub Integration</a>
+    </div>
+  </section>
+
+  <footer>
+    Planning Kit v0.1 · last updated 2026-04-14 ·
+    source: <code>docs/planning/stories.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

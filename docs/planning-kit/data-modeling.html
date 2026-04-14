@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Modeling — Planning Kit</title>
+<style>
+:root {
+  --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
+  --border: #2a2a40; --border2: #3a3a55;
+  --text: #F5F0E8; --text2: #A89A8F; --text3: #7A6F64;
+  --accent: #EC4899; --accent2: #F9A8D4;
+  --accent-dim: rgba(236, 72, 153, 0.12); --accent-glow: rgba(236, 72, 153, 0.06);
+  --error: #f87171; --success: #4ade80; --warn: #fbbf24;
+  --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
+    radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
+.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+.badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
+  border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+.hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--text), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
+section { margin-bottom: 72px; }
+.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-number { display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
+  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
+  line-height: 1.4; letter-spacing: -0.01em; }
+.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
+.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+.card ul li { margin-bottom: 4px; }
+.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
+  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
+  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
+.card-source::before { content: "↳ 출처: "; color: var(--text3); }
+.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+thead { background: var(--surface2); }
+th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
+td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--accent-glow); }
+td strong, td b { color: var(--text); }
+td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
+  background: var(--surface); line-height: 1.7; }
+.compare.bad { border-left: 3px solid var(--error); }
+.compare.good { border-left: 3px solid var(--success); }
+.compare .tag { display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
+.compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
+.compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
+.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
+.compare p { color: var(--text2); font-size: 14px; }
+.checklist { display: flex; flex-direction: column; gap: 14px; }
+.checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); transition: var(--transition); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.refs { display: flex; flex-wrap: wrap; gap: 10px; }
+.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
+.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
+  text-align: center; color: var(--text3); font-size: 13px; }
+footer a { color: var(--accent); text-decoration: none; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
+  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
+.callout strong { color: var(--text); }
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 64px; }
+  .hero { padding: 48px 0 36px; }
+  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .card { padding: 22px; }
+  th, td { padding: 12px 14px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Planning Kit v0.1 · Data Modeling</span>
+    <h1>Data Modeling</h1>
+    <p class="subtitle">
+      제품 기획에서 데이터 모델링은 DB 스키마 설계의 하위 작업이 아니다. 어떤 도메인 개념이 어떤 경계 안에서
+      작동하고, 어떤 이벤트가 시스템 동작을 바꾸는지 <strong>모델의 언어로 끌어올리는 일</strong>이다.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">01 · Methods</span>
+      <h2>모델링 방법론</h2>
+      <p>DDD · Event Storming · ERD · Data Dictionary를 한 흐름으로 연결한다.</p>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="card-number">1</span>
+        <h3>DDD 핵심 개념</h3>
+        <p>
+          Eric Evans의 DDD. <strong>Bounded Context</strong>(모델 · 언어가 일관된 경계),
+          <strong>Aggregate</strong>(변경 일관성 단위), <strong>Entity</strong>(식별성),
+          <strong>Value Object</strong>(속성값 자체가 의미), <strong>Domain Event</strong>.
+        </p>
+        <ul>
+          <li>용어 충돌 방지를 위한 컨텍스트 구분</li>
+          <li>같은 aggregate 안에서만 강한 일관성 보장</li>
+          <li>도메인 이벤트로 흐름을 드러냄</li>
+        </ul>
+        <a class="card-source" href="https://www.domainlanguage.com/ddd/reference/" target="_blank" rel="noopener">Domain Language — DDD Reference</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">2</span>
+        <h3>Event Storming (Alberto Brandolini)</h3>
+        <p>
+          복잡한 비즈니스 프로세스를 <strong>도메인 이벤트 중심</strong>으로 빠르게 모델링하는 협업 기법.
+          Big Picture → Process Design → Software Design 3단계로 해상도를 올릴 수 있다.
+        </p>
+        <ul>
+          <li>실제 발생하는 사건을 과거형 event로 기록</li>
+          <li>hotspot · unknown area를 먼저 드러냄</li>
+          <li>command · policy · actor · read model 구분</li>
+        </ul>
+        <a class="card-source" href="https://www.eventstorming.com/" target="_blank" rel="noopener">EventStorming.com</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">3</span>
+        <h3>ERD (Crow's Foot)</h3>
+        <p>
+          엔터티와 관계를 구조적으로 명시한다.
+          Crow's Foot 표기는 one-to-many · optionality를 시각적으로 분명히 보여준다.
+        </p>
+        <ul>
+          <li>엔터티명은 단수형 권장</li>
+          <li>관계를 문장으로 읽었을 때 자연스러운가 점검</li>
+          <li>속성 vs 별도 엔터티 판단</li>
+        </ul>
+        <a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid — ER Diagram</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">4</span>
+        <h3>Mermaid erDiagram</h3>
+        <p>
+          Markdown 안에 가벼운 ERD를 유지하기에 적합.
+          PlantUML 호환 관계 표기와 attribute block 지원.
+        </p>
+        <ul>
+          <li>관계 라벨은 first entity 관점에서 읽기</li>
+          <li>PK / FK 명시</li>
+          <li>복잡한 물리 스키마 전체는 별도 도구 사용</li>
+        </ul>
+        <a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid — erDiagram</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">5</span>
+        <h3>Mermaid classDiagram</h3>
+        <p>
+          개념 모델 · aggregate 내부 구조 · 도메인 오브젝트 관계 표현에 적합.
+          속성 + 행위를 함께 적을 수 있어 ERD보다 <strong>행위적 모델</strong>을 담기 쉽다.
+        </p>
+        <ul>
+          <li>클래스명 = 도메인 언어</li>
+          <li>연관 · 구성 · 상속 구분</li>
+          <li>구현 클래스 다이어그램으로 곧장 내려가지 않기</li>
+        </ul>
+        <a class="card-source" href="https://mermaid.js.org/syntax/classDiagram.html" target="_blank" rel="noopener">Mermaid — Class Diagram</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">6</span>
+        <h3>Data Dictionary</h3>
+        <p>
+          필드 목록이 아니라 <strong>데이터 계약</strong>. 이름 · 설명 · 타입 · 허용값 · null 가능성 · owner ·
+          변경 규칙을 담는다. analytics/event naming drift 방지 효과.
+        </p>
+        <ul>
+          <li>source of truth / owner 명시</li>
+          <li>PII 여부와 retention rule</li>
+          <li>생성/수정 시맨틱스 정의</li>
+        </ul>
+        <a class="card-source" href="https://elearn.domainlanguage.com/modules/bcintro/" target="_blank" rel="noopener">Domain Language — Bounded Context Intro</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">02 · Mermaid ER Example</span>
+      <h2>ER 다이어그램 예시</h2>
+      <p>Workspace · Project · Issue 계층.</p>
+    </div>
+<pre class="code-block">erDiagram
+  ORGANIZATION ||--o{ WORKSPACE : owns
+  WORKSPACE   ||--o{ MEMBER    : has
+  WORKSPACE   ||--o{ PROJECT   : contains
+  PROJECT     ||--o{ ISSUE     : includes
+
+  ORGANIZATION {
+    string id PK
+    string name
+  }
+  WORKSPACE {
+    string id PK
+    string organization_id FK
+    string name
+  }
+  ISSUE {
+    string id PK
+    string project_id FK
+    string status
+  }
+</pre>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">03 · Data Dictionary Schema</h2>
+      <h2>Data Dictionary 최소 포맷</h2>
+      <p>필드 하나를 기술할 때 담아야 할 속성들.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Attribute</th><th>설명</th><th>예시</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>name</strong></td><td>필드 이름 (API/DB/UI에서 같은 이름)</td><td><code>subscription_status</code></td></tr>
+          <tr><td><strong>business meaning</strong></td><td>도메인 언어로 설명</td><td>"구독의 현재 결제 상태"</td></tr>
+          <tr><td><strong>type</strong></td><td>데이터 타입 · enum 정의</td><td><code>enum: active|past_due|canceled</code></td></tr>
+          <tr><td><strong>nullable / default</strong></td><td>null 허용 여부 · 기본값</td><td>not null · default <code>active</code></td></tr>
+          <tr><td><strong>owner · source of truth</strong></td><td>값을 생성/보증하는 시스템</td><td>Billing Service</td></tr>
+          <tr><td><strong>update semantics</strong></td><td>언제 어떻게 변경되는가</td><td>webhook on invoice.updated</td></tr>
+          <tr><td><strong>PII · retention</strong></td><td>개인정보 여부 · 보존 기간</td><td>non-PII · retain 7y</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Anti-patterns</span>
+      <h2>안티패턴 vs 좋은 패턴</h2>
+      <p>"DDD 용어만 붙이고 CRUD를 유지"하는 전형적 실수.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>구독 · 청구 · 권한을 한 모델로 섞기</h4>
+        <p>용어 충돌이 생기고 나중에 조직/시스템 경계도 꼬인다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>Bounded Context별로 용어 사전 분리</h4>
+        <p>Subscription context의 "status"와 Authorization context의 "status"가 다를 수 있음을 인정.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Aggregate를 지나치게 크게 잡기</h4>
+        <p>전체 Workspace를 하나의 aggregate로 묶으면 동시성 병목 · 트랜잭션 실패가 늘어난다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>변경 일관성이 필요한 최소 단위로 분리</h4>
+        <p>Issue · Comment · Label 등 별도 aggregate, cross-aggregate는 eventual consistency.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Event Storming이 스티커 부착 워크숍으로 끝남</h4>
+        <p>벽에 메모만 쌓이고 모델/문서로 정제되지 않는다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>Storming 결과를 classDiagram · Context Map으로 문서화</h4>
+        <p>워크숍 직후 24~48시간 내 artifact 확정 규칙 운영.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">05 · Gotchas</span>
+      <h2>Gotchas</h2>
+      <p>모델링 문서에서 자주 놓치는 함정.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>ERD만으로 도메인을 설명하려 한다</strong>
+          <p>ERD는 구조 표현이 강하지만 행위 규칙과 시간 흐름을 잘 보여주지 못한다. Event Storming · classDiagram과 함께.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Value Object를 Entity처럼 다루기</strong>
+          <p>주소 · 금액 · 기간처럼 속성값 자체가 의미의 전부인 객체에 id를 붙이면 equality 비교가 복잡해진다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Data Dictionary에 owner가 빠짐</strong>
+          <p>운영 ownership 없이는 금방 썩는다. glossary와 schema registry가 분리되면 중복 관리가 생긴다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Mermaid erDiagram에 FK 표시 누락</strong>
+          <p>attribute block에 <code>PK</code>/<code>FK</code>를 명시해야 관계 의도가 드러난다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>DDD 용어를 "코드 주석용 장식"으로 쓴다</strong>
+          <p>용어만 붙이고 CRUD 설계를 유지하면 효과가 없다. aggregate 경계가 코드의 트랜잭션 경계로 이어져야 한다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">06 · References</span>
+      <h2>함께 보기</h2>
+      <p>Planning Kit 내 관련 페이지.</p>
+    </div>
+    <div class="refs">
+      <a href="flows.html">Flows</a>
+      <a href="stories.html">Stories</a>
+      <a href="prd-patterns.html">PRD Patterns</a>
+      <a href="risks.html">Risks</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">07 · Mini Glossary</span>
+      <h2>용어 미니 사전</h2>
+      <p>DDD 기본 용어 빠른 참조.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>용어</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Bounded Context</strong></td><td>특정 모델과 언어가 일관되게 통하는 경계</td></tr>
+          <tr><td><strong>Aggregate</strong></td><td>변경 일관성 보장의 최소 단위</td></tr>
+          <tr><td><strong>Entity</strong></td><td>식별성(id)이 의미의 핵심인 객체</td></tr>
+          <tr><td><strong>Value Object</strong></td><td>속성값 자체가 의미의 전부인 객체 (equality 비교)</td></tr>
+          <tr><td><strong>Domain Event</strong></td><td>도메인에서 의미 있는 사건을 과거형으로 드러낸 객체</td></tr>
+          <tr><td><strong>Context Map</strong></td><td>Bounded Context 간 관계(shared kernel, ACL, upstream/downstream)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    Planning Kit v0.1 · last updated 2026-04-14 ·
+    source: <code>docs/planning/data-modeling.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

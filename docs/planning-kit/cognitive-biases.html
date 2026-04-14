@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Biases — Planning Kit</title>
+<style>
+:root {
+  --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
+  --border: #2a2a40; --border2: #3a3a55;
+  --text: #F5F0E8; --text2: #A89A8F; --text3: #7A6F64;
+  --accent: #EC4899; --accent2: #F9A8D4;
+  --accent-dim: rgba(236, 72, 153, 0.12); --accent-glow: rgba(236, 72, 153, 0.06);
+  --error: #f87171; --success: #4ade80; --warn: #fbbf24;
+  --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
+    radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
+.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+.badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
+  border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+.hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--text), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
+section { margin-bottom: 72px; }
+.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-number { display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
+  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
+  line-height: 1.4; letter-spacing: -0.01em; }
+.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
+.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+.card ul li { margin-bottom: 4px; }
+.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
+  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
+  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
+.card-source::before { content: "↳ 출처: "; color: var(--text3); }
+.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+thead { background: var(--surface2); }
+th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
+td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--accent-glow); }
+td strong, td b { color: var(--text); }
+td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
+  background: var(--surface); line-height: 1.7; }
+.compare.bad { border-left: 3px solid var(--error); }
+.compare.good { border-left: 3px solid var(--success); }
+.compare .tag { display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
+.compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
+.compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
+.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
+.compare p { color: var(--text2); font-size: 14px; }
+.checklist { display: flex; flex-direction: column; gap: 14px; }
+.checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); transition: var(--transition); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.refs { display: flex; flex-wrap: wrap; gap: 10px; }
+.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
+.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
+  text-align: center; color: var(--text3); font-size: 13px; }
+footer a { color: var(--accent); text-decoration: none; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
+  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
+.callout strong { color: var(--text); }
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 64px; }
+  .hero { padding: 48px 0 36px; }
+  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .card { padding: 22px; }
+  th, td { padding: 12px 14px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Planning Kit v0.1 · Cognitive Biases</span>
+    <h1>Cognitive Biases</h1>
+    <p class="subtitle">
+      제품 기획은 불완전한 정보로 반복 판단하는 일이라 좋은 프레임워크를 알아도 편향을 피하기 어렵다.
+      문제는 편향 자체보다, 그것이 "데이터 기반 판단"처럼 위장된다는 점이다.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">01 · Biases</span>
+      <h2>PM 조직에서 자주 보이는 편향</h2>
+      <p>개인 의지가 아니라 <strong>팀 운영 장치</strong>로 대응해야 한다.</p>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="card-number">1</span>
+        <h3>확증편향 (Confirmation Bias)</h3>
+        <p>
+          기존 믿음에 맞는 증거에 더 주목하고 반대 증거를 덜 다루는 경향.
+          "우리가 원래 믿던 방향"에 맞는 인터뷰 인용 · metric만 채택하는 형태로 나타난다.
+        </p>
+        <ul>
+          <li>이 가설을 반박할 증거는 무엇인가?</li>
+          <li>decision memo에 pro/con 모두 기록</li>
+          <li>인터뷰에서 불편한 신호를 별도 섹션에</li>
+        </ul>
+        <a class="card-source" href="https://thedecisionlab.com/biases/confirmation-bias" target="_blank" rel="noopener">The Decision Lab — Confirmation Bias</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">2</span>
+        <h3>매몰비용 / Escalation of Commitment</h3>
+        <p>
+          이미 들인 시간 · 돈 · 정치적 자본 때문에 나쁜 결정을 계속 밀어붙이게 된다.
+          "이미 3개월 만들었으니 출시는 해보자" 같은 논리가 전형.
+        </p>
+        <ul>
+          <li>오늘 처음 본 아이템이라면 같은 결정을 하겠는가?</li>
+          <li>kill criteria가 사전에 정의돼 있었는가?</li>
+          <li>continuation cost vs opportunity cost 비교</li>
+        </ul>
+        <a class="card-source" href="https://thedecisionlab.com/biases/commitment-bias" target="_blank" rel="noopener">The Decision Lab — Commitment Bias</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">3</span>
+        <h3>계획 오류 (Planning Fallacy)</h3>
+        <p>
+          작업 기간 · 비용 · 리스크를 <strong>과소추정</strong>하는 경향.
+          처음 해보는 통합 · migration · 조직 간 coordination에서 심해진다.
+        </p>
+        <ul>
+          <li>비슷한 과거 사례(reference class) 참조</li>
+          <li>낙관/기준/비관 3점 추정</li>
+          <li>delivery risk와 coordination risk 분리</li>
+        </ul>
+        <a class="card-source" href="https://thedecisionlab.com/biases/planning-fallacy" target="_blank" rel="noopener">The Decision Lab — Planning Fallacy</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">4</span>
+        <h3>가용성 편향 (Availability Bias)</h3>
+        <p>
+          최근 본 사례 · 인상 강한 사례가 실제 빈도보다 더 중요해 보이는 편향.
+          최근 VOC · 큰 고객 불만 · 극적 장애가 roadmap을 과도하게 지배.
+        </p>
+        <ul>
+          <li>반복 패턴 vs 단일 강한 사례 구분</li>
+          <li>recency와 frequency를 분리 집계</li>
+          <li>표본 편향이 큰 source 가중치 조정</li>
+        </ul>
+        <a class="card-source" href="https://thedecisionlab.com/biases/availability-heuristic" target="_blank" rel="noopener">The Decision Lab — Availability Heuristic</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">5</span>
+        <h3>권위 편향 (Authority Bias)</h3>
+        <p>
+          직급 · 전문성 · 명성 때문에 <strong>주장의 근거보다 발화자</strong>를 더 신뢰하는 경향.
+          창업자 · 임원 · 큰 고객의 의견이 discovery 결과를 압도할 때.
+        </p>
+        <ul>
+          <li>증거 기반인가, 지위 기반인가?</li>
+          <li>권위자 의견도 동일한 가설 검증 규칙 적용</li>
+          <li>회의 구조상 junior dissent가 가능한가?</li>
+        </ul>
+        <a class="card-source" href="https://thedecisionlab.com/biases/authority-bias" target="_blank" rel="noopener">The Decision Lab — Authority Bias</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">6</span>
+        <h3>서바이벌십 편향 (Survivorship Bias)</h3>
+        <p>
+          살아남은 사례만 보고 전체를 오판하는 경향.
+          성공한 경쟁사 · 유명 growth playbook 사례를 그대로 일반화할 때.
+        </p>
+        <ul>
+          <li>같은 시도를 했다가 실패한 사례는?</li>
+          <li>맥락 조건(시장 · 채널 · 브랜드 · 자본)이 같은가?</li>
+          <li>보이지 않는 base rate 확인</li>
+        </ul>
+        <a class="card-source" href="https://thedecisionlab.com/fr-CA/biases/survivorship-bias" target="_blank" rel="noopener">The Decision Lab — Survivorship Bias</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">02 · Countermeasures</span>
+      <h2>편향별 운영 대응</h2>
+      <p>개인 차원 "조심하자" 구호가 아닌 팀 프로세스로.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>편향</th><th>운영 장치</th><th>언제 트리거</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>확증</strong></td><td>Red team review · 반증 질문 필수 섹션</td><td>discovery synthesis · experiment readout</td></tr>
+          <tr><td><strong>매몰비용</strong></td><td>kill criteria + 주기적 renewal review</td><td>장기 프로젝트 중간 점검 · MVP 이후</td></tr>
+          <tr><td><strong>계획 오류</strong></td><td>Reference class forecasting · 3점 추정</td><td>일정 산정 · external commitment 전</td></tr>
+          <tr><td><strong>가용성</strong></td><td>VOC 태깅 · incidence count vs severity count</td><td>VOC triage · incident aftermath</td></tr>
+          <tr><td><strong>권위</strong></td><td>문서 기반 비동기 검토 · junior first 라운드</td><td>exec review · founder-led decision</td></tr>
+          <tr><td><strong>서바이벌십</strong></td><td>failed case DB · base rate 첨부</td><td>벤치마킹 · 경쟁사 모방 전략</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">03 · Review Checklist</span>
+      <h2>의사결정 문서 리뷰 체크리스트</h2>
+      <p>decision memo를 닫기 전에 묻는 6개 질문.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">?</div>
+        <div class="checklist-body">
+          <strong>반증 증거 섹션이 존재하는가</strong>
+          <p>pro만 가득하고 con이 짧으면 확증편향 의심.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">?</div>
+        <div class="checklist-body">
+          <strong>kill criteria가 측정 가능한가</strong>
+          <p>"시장 반응이 안 좋으면 접는다"는 kill criteria가 아니다. 수치 + 기한으로 정의.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">?</div>
+        <div class="checklist-body">
+          <strong>비슷한 과거 사례가 있는가</strong>
+          <p>내부 reference class가 없다면 외부 사례 + 실패 사례를 함께 참조.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">?</div>
+        <div class="checklist-body">
+          <strong>단일 강한 사례 vs 반복 패턴 구분</strong>
+          <p>근거로 인용된 사례가 가용성 편향의 결과인지 점검.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">?</div>
+        <div class="checklist-body">
+          <strong>권위자 의견에 검증 계획이 붙어 있는가</strong>
+          <p>임원/창업자 발언도 다른 가설과 동일한 실험 대상.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">?</div>
+        <div class="checklist-body">
+          <strong>성공 사례 인용 시 실패 사례도 찾아봤는가</strong>
+          <p>유명한 playbook일수록 실패 사례가 감춰져 있다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Anti-patterns</span>
+      <h2>안티패턴 vs 좋은 패턴</h2>
+      <p>편향 대응이 "구호 포스터"로 끝나는 실수.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>"편향 주의" 슬로건만 걸고 프로세스는 그대로</h4>
+        <p>문화 캠페인으로 해결되지 않는다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>decision memo 템플릿에 반증 섹션 필수화</h4>
+        <p>문서 구조가 편향을 강제로 드러낸다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>kill criteria를 프로젝트 끝에 회고로만</h4>
+        <p>매몰비용 편향을 사후에 복기만 한다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>kill criteria를 kickoff에 명시 + 분기 체크</h4>
+        <p>선제적 중단 가능. 재약속 vs 중단을 분기별로 검토.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>임원 발언 직후 팀이 방향 급선회</h4>
+        <p>권위 편향이 순식간에 roadmap을 바꾼다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>"검토 후 답변" 24~48h 비동기 리뷰</h4>
+        <p>근거와 가설을 글로 정리, 감정적 순응 차단.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">05 · Gotchas</span>
+      <h2>Gotchas</h2>
+      <p>편향 대응 자체도 편향에 빠질 수 있다.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>"반대 의견도 들었다"는 자기만족</strong>
+          <p>실제 결정에 반영되는 구조인지 점검. 반론이 memo에 박제되는가?</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Reference class 선택이 확증편향</strong>
+          <p>비슷한 사례를 자기 유리하게 고르면 forecasting이 망가진다. 후보 사례 전체를 먼저 나열.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>편향 체크리스트가 길어져 형식화</strong>
+          <p>모두가 체크만 하고 실제 내용은 안 본다. 2~3개 핵심 질문에 집중.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>권위자 dissent도 권위 편향</strong>
+          <p>"유명 엔지니어가 반대하니 중단하자"도 같은 문제. 근거로 돌아가라.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">06 · References</span>
+      <h2>함께 보기</h2>
+      <p>Planning Kit 내 관련 페이지.</p>
+    </div>
+    <div class="refs">
+      <a href="risks.html">Risks</a>
+      <a href="discovery.html">Discovery</a>
+      <a href="prioritization.html">Prioritization</a>
+      <a href="prd-patterns.html">PRD Patterns</a>
+    </div>
+  </section>
+
+  <footer>
+    Planning Kit v0.1 · last updated 2026-04-14 ·
+    source: <code>docs/planning/cognitive-biases.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

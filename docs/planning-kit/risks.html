@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risks — Planning Kit</title>
+<style>
+:root {
+  --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
+  --border: #2a2a40; --border2: #3a3a55;
+  --text: #F5F0E8; --text2: #A89A8F; --text3: #7A6F64;
+  --accent: #EC4899; --accent2: #F9A8D4;
+  --accent-dim: rgba(236, 72, 153, 0.12); --accent-glow: rgba(236, 72, 153, 0.06);
+  --error: #f87171; --success: #4ade80; --warn: #fbbf24;
+  --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
+    radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
+.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+.badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
+  border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+.hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--text), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
+section { margin-bottom: 72px; }
+.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-number { display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
+  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
+  line-height: 1.4; letter-spacing: -0.01em; }
+.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
+.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+.card ul li { margin-bottom: 4px; }
+.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
+  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
+  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
+.card-source::before { content: "↳ 출처: "; color: var(--text3); }
+.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+thead { background: var(--surface2); }
+th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
+td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--accent-glow); }
+td strong, td b { color: var(--text); }
+td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
+  background: var(--surface); line-height: 1.7; }
+.compare.bad { border-left: 3px solid var(--error); }
+.compare.good { border-left: 3px solid var(--success); }
+.compare .tag { display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
+.compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
+.compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
+.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
+.compare p { color: var(--text2); font-size: 14px; }
+.checklist { display: flex; flex-direction: column; gap: 14px; }
+.checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); transition: var(--transition); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.refs { display: flex; flex-wrap: wrap; gap: 10px; }
+.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
+.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
+  text-align: center; color: var(--text3); font-size: 13px; }
+footer a { color: var(--accent); text-decoration: none; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
+  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
+.callout strong { color: var(--text); }
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 64px; }
+  .hero { padding: 48px 0 36px; }
+  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .card { padding: 22px; }
+  th, td { padding: 12px 14px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Planning Kit v0.1 · Risks</span>
+    <h1>Risks</h1>
+    <p class="subtitle">
+      리스크 관리는 delivery 추적표 유지가 아니라 <strong>실패 메커니즘을 설계 초기에 드러내는 일</strong>이다.
+      대부분의 제품 실패는 "몰랐다"보다 "일찍 알 수 있었는데 묻지 않았다"에 가깝다.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">01 · Methods</span>
+      <h2>리스크 분석 기법</h2>
+      <p>Pre-mortem · Inversion · FMEA · 4-risks는 각각 다른 질문을 한다.</p>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="card-number">1</span>
+        <h3>Pre-mortem (Gary Klein)</h3>
+        <p>
+          "프로젝트가 <strong>이미 실패했다</strong>"고 가정하고 각자가 그 실패의 그럴듯한 원인을 적는다.
+          planning phase에서 말하기 어려운 reservations를 안전하게 드러낸다.
+        </p>
+        <ul>
+          <li>6~12개월 뒤 실패 시나리오를 상상</li>
+          <li>개인별로 먼저 쓰고, 그다음 공유 (집단 순응 차단)</li>
+          <li>나온 원인마다 조기 경보 지표 정의</li>
+        </ul>
+        <a class="card-source" href="https://hbr.org/2007/09/performing-a-project-premortem" target="_blank" rel="noopener">HBR — Performing a Project Premortem</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">2</span>
+        <h3>Inversion</h3>
+        <p>
+          성공 조건보다 <strong>실패 조건</strong>을 먼저 정의해 blind spot을 줄인다.
+          "이 결정을 망하게 만드는 조건"을 사전에 명시.
+        </p>
+        <ul>
+          <li>반드시 피해야 할 실패 상태는 무엇인가?</li>
+          <li>어떤 신호가 보이면 즉시 중단해야 하는가?</li>
+          <li>no-go · rollback 조건을 사전 정의</li>
+        </ul>
+        <a class="card-source" href="https://fs.blog/inversion/" target="_blank" rel="noopener">Farnam Street — Inversion</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">3</span>
+        <h3>Failure Modes / FMEA</h3>
+        <p>
+          시스템 · 제품 · 프로세스가 <strong>어떤 방식으로 실패할 수 있는지</strong>와 영향을 구조적으로 분석.
+          ASQ 기준 severity · occurrence · detection 3축.
+        </p>
+        <ul>
+          <li>Failure mode · Effect · Cause · Detection · Mitigation</li>
+          <li>onboarding · permissions · billing · migration에 경량 적용</li>
+          <li>점수화보다 치명적 failure chain 드러내기에 집중</li>
+        </ul>
+        <a class="card-source" href="https://asq.org/learn-about-quality/process-analysis-tools/overview/fmea.html" target="_blank" rel="noopener">ASQ — FMEA Overview</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">4</span>
+        <h3>4-risks Matrix</h3>
+        <p>
+          Marty Cagan의 discovery 리스크 4축: <strong>Value · Usability · Feasibility · Viability</strong>.
+          "리스크 많음"이라는 막연한 표현 대신 누가 무엇을 줄여야 하는지 명확해진다.
+        </p>
+        <ul>
+          <li>현재 가장 큰 리스크 축과 그 근거</li>
+          <li>리스크 축별 owner (PM · Design · Eng · Biz)</li>
+          <li>launch 전/후 검증 가능성 구분</li>
+        </ul>
+        <a class="card-source" href="https://www.svpg.com/four-big-risks/" target="_blank" rel="noopener">SVPG — Four Big Risks</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">02 · FMEA Template</span>
+      <h2>경량 FMEA 표</h2>
+      <p>제조업식 RPN 점수 없이 핵심 흐름만 추린 버전.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Flow</th><th>Failure mode</th><th>Effect</th><th>Detection</th><th>Mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>초대 수락</strong></td>
+            <td>토큰 만료 후 재발송 안내 누락</td>
+            <td>신규 유저 이탈 · 지원 문의 증가</td>
+            <td>FE error event · support ticket 태그</td>
+            <td>만료 페이지에 재발송 CTA · 72h pre-expire 알림</td>
+          </tr>
+          <tr>
+            <td><strong>결제</strong></td>
+            <td>webhook 유실로 status 불일치</td>
+            <td>사용자는 결제 완료, 앱은 미결제로 인식</td>
+            <td>daily reconciliation job · dashboard alert</td>
+            <td>idempotent handler · reconciliation retry</td>
+          </tr>
+          <tr>
+            <td><strong>권한 변경</strong></td>
+            <td>role cache stale</td>
+            <td>강등된 유저가 관리자 화면 접근</td>
+            <td>중앙 감사 로그 · e2e test</td>
+            <td>role change 시 session invalidate · TTL 단축</td>
+          </tr>
+          <tr>
+            <td><strong>마이그레이션</strong></td>
+            <td>null 컬럼 backfill 누락</td>
+            <td>legacy 레코드 로드 실패 · 500 에러</td>
+            <td>pre-flight 쿼리 · canary deploy</td>
+            <td>phased rollout · fallback read path</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">03 · Pre-mortem Steps</span>
+      <h2>Pre-mortem 워크숍 절차</h2>
+      <p>60~90분 미팅 기준 표준 흐름.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">1</div>
+        <div class="checklist-body">
+          <strong>상황 가정 공유 (5분)</strong>
+          <p>"6~12개월 뒤 이 프로젝트는 실패했다"는 가정을 공지. 반드시 과거형으로 말하도록 고정.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">2</div>
+        <div class="checklist-body">
+          <strong>개인 라이팅 (10~15분)</strong>
+          <p>각자 실패 원인을 최소 5개 이상 기록. 서로 보지 않는다 — 권위 편향 차단.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">3</div>
+        <div class="checklist-body">
+          <strong>라운드 공유 + 클러스터링 (25~30분)</strong>
+          <p>한 명씩 1개씩 돌아가며 공유하고 유사 원인을 그룹화. 판단 없이 수집.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">4</div>
+        <div class="checklist-body">
+          <strong>조기 경보 지표 · 대응 실험 (20분)</strong>
+          <p>가장 치명적인 상위 3~5 원인을 골라 early warning metric과 검증 실험을 정의.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">5</div>
+        <div class="checklist-body">
+          <strong>오너 · 마감 할당 (10분)</strong>
+          <p>추적 아이템별 owner와 date를 정해 pre-mortem이 회의록으로만 끝나지 않게 한다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Anti-patterns</span>
+      <h2>안티패턴 vs 좋은 패턴</h2>
+      <p>리스크 문서가 "방어 문서"로 전락하는 전형적 실수.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>pre-mortem 결과가 회의록에만 남음</h4>
+        <p>원인을 나열하고 끝. 대응 실험/지표로 연결되지 않음.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>상위 원인마다 early warning metric + owner</h4>
+        <p>추적 가능한 형태로 전환, 이후 주간 리뷰에 반영.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>모든 리스크를 "high"로 분류</h4>
+        <p>치명도 · 회복 가능성 구분 없이 방어적 목록 확대 재생산.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>치명도 × 가역성 매트릭스로 분류</h4>
+        <p>irreversible · high-severity 리스크만 go/no-go gating 대상.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>4-risks가 한 사람(PM) 책임으로 몰림</h4>
+        <p>feasibility는 엔지니어, usability는 디자이너가 주도해야 함.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>축별 owner 배정 + 축별 실험 계획</h4>
+        <p>책임 분담이 명확하고 discovery가 cross-functional해진다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">05 · Gotchas</span>
+      <h2>Gotchas</h2>
+      <p>리스크 문서에서 반복되는 실수.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>위계가 센 조직에서 pre-mortem이 형식화된다</strong>
+          <p>임원 앞에서 실패 원인을 말하기 어렵다. 익명 수집 · 문서 기반 비동기 pre-mortem으로 대체.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Inversion이 보수주의로 흐른다</strong>
+          <p>모든 리스크를 동일 취급하지 말고 치명도와 가역성을 분리해야 실험을 할 수 있다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>FMEA가 점수 놀이로 전락</strong>
+          <p>severity × occurrence × detection 수식이 원인 파악을 대체하지 않는다. failure chain 자체에 집중.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>viability를 value에 묻어버리기</strong>
+          <p>비즈니스 성립 가능성(법무 · 판매 · 운영)을 고객 가치 축에 합치면 다시 맹점이 생긴다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>리스크 문서의 업데이트 주기가 없다</strong>
+          <p>한 번 쓰고 방치되면 쓸모가 없다. 2주 · 월 단위 review cadence를 정해야 한다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">06 · References</span>
+      <h2>함께 보기</h2>
+      <p>Planning Kit 내 관련 페이지.</p>
+    </div>
+    <div class="refs">
+      <a href="discovery.html">Discovery</a>
+      <a href="cognitive-biases.html">Cognitive Biases</a>
+      <a href="prd-patterns.html">PRD Patterns</a>
+      <a href="prioritization.html">Prioritization</a>
+    </div>
+  </section>
+
+  <footer>
+    Planning Kit v0.1 · last updated 2026-04-14 ·
+    source: <code>docs/planning/risks.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

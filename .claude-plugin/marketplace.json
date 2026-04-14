@@ -39,6 +39,11 @@
       "name": "react-kit",
       "source": "./react-kit",
       "description": "[v0.1.1 · 2026-04-11] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션"
+    },
+    {
+      "name": "planning-kit",
+      "source": "./planning-kit",
+      "description": "[v0.1.0 · 2026-04-13] 스택 무관 제품 기획 플러그인 — JTBD / PR-FAQ / Shape Up / RICE·Kano·WSJF / DDD Event Storming + Mermaid erDiagram / GitHub Projects v2 동기화"
     }
   ]
 }

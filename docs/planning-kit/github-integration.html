@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Integration — Planning Kit</title>
+<style>
+:root {
+  --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
+  --border: #2a2a40; --border2: #3a3a55;
+  --text: #F5F0E8; --text2: #A89A8F; --text3: #7A6F64;
+  --accent: #EC4899; --accent2: #F9A8D4;
+  --accent-dim: rgba(236, 72, 153, 0.12); --accent-glow: rgba(236, 72, 153, 0.06);
+  --error: #f87171; --success: #4ade80; --warn: #fbbf24;
+  --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
+    radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
+.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+.badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
+  border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+.hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--text), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
+section { margin-bottom: 72px; }
+.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-number { display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
+  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
+  line-height: 1.4; letter-spacing: -0.01em; }
+.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
+.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+.card ul li { margin-bottom: 4px; }
+.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
+  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
+  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
+.card-source::before { content: "↳ 출처: "; color: var(--text3); }
+.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+thead { background: var(--surface2); }
+th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
+td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--accent-glow); }
+td strong, td b { color: var(--text); }
+td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
+  background: var(--surface); line-height: 1.7; }
+.compare.bad { border-left: 3px solid var(--error); }
+.compare.good { border-left: 3px solid var(--success); }
+.compare .tag { display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
+.compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
+.compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
+.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
+.compare p { color: var(--text2); font-size: 14px; }
+.checklist { display: flex; flex-direction: column; gap: 14px; }
+.checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); transition: var(--transition); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.refs { display: flex; flex-wrap: wrap; gap: 10px; }
+.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
+.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
+  text-align: center; color: var(--text3); font-size: 13px; }
+footer a { color: var(--accent); text-decoration: none; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
+  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
+.callout strong { color: var(--text); }
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 64px; }
+  .hero { padding: 48px 0 36px; }
+  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .card { padding: 22px; }
+  th, td { padding: 12px 14px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge">Planning Kit v0.1 · GitHub Integration</span>
+    <h1>GitHub Integration</h1>
+    <p class="subtitle">
+      2026년 기준 GitHub Projects v2 · Issues · Milestones는 planning substrate로도 꽤 강하다.
+      도구 선호보다 <strong>운영 모델 정렬</strong>이 핵심이다. PRD → Epic → Story → Task 매핑과
+      <code>gh</code> CLI 자동화를 명확히 하라.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">01 · Patterns</span>
+      <h2>GitHub 기반 planning 패턴</h2>
+      <p>Projects · Issues · Milestones · CLI · 비교 관점을 정리.</p>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+        <span class="card-number">1</span>
+        <h3>Projects v2 + Issues + Milestones 베스트 프랙티스</h3>
+        <p>
+          Projects는 <strong>planning/tracking 허브</strong>, Issues는 계층형 sub-issues · dependencies ·
+          labels · issue types · milestones로 work decomposition을 지원한다.
+        </p>
+        <ul>
+          <li>Project = 팀/프로덕트 단위 운영판 (single source of truth)</li>
+          <li>Issue → sub-issue 분해</li>
+          <li>blocking/blocked dependency 명시</li>
+          <li>views · fields · automation · insights를 역할별 분리</li>
+        </ul>
+        <a class="card-source" href="https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects" target="_blank" rel="noopener">GitHub Docs — Projects Best Practices</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">2</span>
+        <h3>gh CLI 패턴</h3>
+        <p>
+          <code>gh issue</code>, <code>gh project</code>, <code>gh search issues</code> 계열이 planning 자동화의 핵심.
+          <code>project</code> scope 권한과 JSON 출력이 중요.
+        </p>
+        <ul>
+          <li>이슈 생성 시 label/milestone/project 함께 지정</li>
+          <li>반복 리포팅은 <code>--json</code> + <code>--jq</code></li>
+          <li>Project field schema를 CLI로 재현 가능하게 관리</li>
+          <li>비개발 직군용 대시보드는 별도 제공</li>
+        </ul>
+        <a class="card-source" href="https://cli.github.com/manual/gh_issue" target="_blank" rel="noopener">gh Manual — gh issue</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">3</span>
+        <h3>Linear 와의 비교</h3>
+        <p>
+          Linear는 <strong>product development system</strong>. GitHub integration으로 PR/commit/issue sync를 제공.
+          GitHub는 code-adjacent planning, Linear는 planning-adjacent code sync에 강하다.
+        </p>
+        <ul>
+          <li>code review + planning 단일 surface → GitHub</li>
+          <li>workflow · triage · templates opinionation → Linear</li>
+          <li>OSS + product 혼합 → GitHub</li>
+          <li>많은 팀은 둘을 병행 사용</li>
+        </ul>
+        <a class="card-source" href="https://linear.app/docs/github-integration" target="_blank" rel="noopener">Linear Docs — GitHub Integration</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">4</span>
+        <h3>PRD → Epic → Story → Task 분해</h3>
+        <p>
+          <strong>계층을 tool primitive에 맞게 매핑</strong>하는 것이 핵심.
+          PRD는 외부 문서/issue document, Epic은 parent issue, Story는 child issue,
+          Task는 sub-issue/checklist.
+        </p>
+        <ul>
+          <li>Milestone = release 또는 timebox</li>
+          <li>PR은 task/story에 연결 (PRD를 직접 닫지 않음)</li>
+          <li>팀 규모에 따라 3단계로 축소 가능</li>
+        </ul>
+        <a class="card-source" href="https://docs.github.com/articles/about-issues" target="_blank" rel="noopener">GitHub Docs — About Issues</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">5</span>
+        <h3>Milestones 사용 규칙</h3>
+        <p>
+          Milestone은 대부분의 팀에서 <strong>release 또는 timebox</strong> 둘 중 하나로 고정해야 한다.
+          섞어 쓰면 burndown이 무의미해진다.
+        </p>
+        <ul>
+          <li>release milestone: 시멘틱 버전 태그와 1:1</li>
+          <li>timebox milestone: "2026-Q2 Sprint 3" 같은 시간 상자</li>
+          <li>완료 기준은 milestone description에 명시</li>
+        </ul>
+        <a class="card-source" href="https://docs.github.com/en/enterprise-cloud@latest/issues/using-labels-and-milestones-to-track-work/about-milestones" target="_blank" rel="noopener">GitHub Docs — About Milestones</a>
+      </div>
+
+      <div class="card">
+        <span class="card-number">6</span>
+        <h3>Project Templates / Issue Documents</h3>
+        <p>
+          Linear 스타일에 영향을 받아 GitHub에도 project template · issue template · issue document가 자리잡았다.
+          반복되는 프로세스의 필수 필드를 사전 강제한다.
+        </p>
+        <ul>
+          <li>issue template에 Context · Success · Risks 필드 포함</li>
+          <li>project template에 기본 view · milestone 구조 포함</li>
+          <li>새 initiative는 template에서 fork하여 시작</li>
+        </ul>
+        <a class="card-source" href="https://linear.app/docs/project-templates" target="_blank" rel="noopener">Linear Docs — Project Templates (참고)</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">02 · Layer Mapping</span>
+      <h2>PRD → Epic → Story → Task 매핑표</h2>
+      <p>각 레이어의 질문과 GitHub primitive.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>질문</th><th>GitHub primitive</th><th>닫히는 조건</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PRD</strong></td>
+            <td>왜 지금 이걸 하는가?</td>
+            <td>Notion/Linear/README · project document</td>
+            <td>outcome metric 달성</td>
+          </tr>
+          <tr>
+            <td><strong>Epic / Initiative</strong></td>
+            <td>어떤 outcome을 이루나?</td>
+            <td>parent issue (issue type: Epic)</td>
+            <td>모든 child story가 closed</td>
+          </tr>
+          <tr>
+            <td><strong>Story</strong></td>
+            <td>어떤 사용자 가치를 제공하나?</td>
+            <td>child issue (issue type: Story)</td>
+            <td>acceptance criteria 충족 PR merge</td>
+          </tr>
+          <tr>
+            <td><strong>Task / Sub-issue</strong></td>
+            <td>어떻게 구현/운영하나?</td>
+            <td>sub-issue · checklist</td>
+            <td>PR merge · 작업 완료</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">03 · gh CLI Recipes</span>
+      <h2>gh CLI 자동화 레시피</h2>
+      <p>반복 planning 작업의 최소 자동화.</p>
+    </div>
+<pre class="code-block"># 이슈 생성 (label · milestone · project · assignee 한번에)
+gh issue create \
+  --title "결제 webhook reconciliation 개선" \
+  --body-file ./specs/billing-recon.md \
+  --label "area/billing,type/story" \
+  --milestone "2026-Q2-Sprint3" \
+  --project "Product Planning" \
+  --assignee "@me"
+
+# 내 할 일 JSON으로 조회 (in_progress + high priority)
+gh search issues \
+  --owner my-org --state open --assignee "@me" \
+  --label "priority/P1" \
+  --json number,title,labels,milestone \
+  --jq '.[] | "\(.number)  \(.milestone.title)  \(.title)"'
+
+# Project v2 item의 status 필드 업데이트
+gh project item-edit \
+  --id PVTI_lAHO... \
+  --field-id PVTSSF_lAHO... \
+  --single-select-option-id 47fc9ee4 \
+  --project-id PVT_kwHO...
+</pre>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Anti-patterns</span>
+      <h2>안티패턴 vs 좋은 패턴</h2>
+      <p>GitHub planning에서 반복되는 실수.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>상태 · 날짜 · owner를 여러 곳에 중복 기록</h4>
+        <p>Project field + issue body + README가 서로 어긋난다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>single source of truth 규칙 명문화</h4>
+        <p>상태 = Project field, owner = issue assignee, 날짜 = milestone due date.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Milestone을 release와 timebox에 섞어 사용</h4>
+        <p>burndown · 완료율 지표가 무의미해진다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>두 종류를 label prefix로 분리</h4>
+        <p><code>release/*</code>, <code>sprint/*</code>로 분리하거나 Milestone은 한 용도만 사용.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Project field schema를 수시 변경 + 스크립트 방치</h4>
+        <p>자동화 파이프라인이 조용히 깨진다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>field schema를 코드 리포에 버전 관리</h4>
+        <p>변경 시 PR · CI에서 스크립트 호환성 체크.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">05 · Gotchas</span>
+      <h2>Gotchas</h2>
+      <p>GitHub planning에서 자주 놓치는 함정.</p>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>PR close keyword가 상위 issue까지 닫는다</strong>
+          <p>Story나 Epic을 PR close로 닫으면 부분 작업만으로 큰 단위가 closed. close는 task/sub-issue 수준까지.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>gh CLI project scope 토큰 누락</strong>
+          <p>Personal access token에 <code>project</code> scope가 없으면 field 편집이 조용히 실패. 초기 권한 점검 필수.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>sub-issue 계층이 3단계를 넘어간다</strong>
+          <p>운영비가 급증. 팀 규모/cadence에 맞게 최대 3단계로 제한.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>비개발 직군이 CLI를 못 써 소외된다</strong>
+          <p>Projects web view + saved view 기반 UI를 별도 제공. CLI는 엔지니어링 자동화용.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Linear 병행 시 sync가 쌍방향으로 흐른다</strong>
+          <p>어느 쪽이 "source"인지 team level에서 명시. 대개 planning = Linear, code = GitHub로 단방향.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">06 · References</span>
+      <h2>함께 보기</h2>
+      <p>Planning Kit 내 관련 페이지.</p>
+    </div>
+    <div class="refs">
+      <a href="prd-patterns.html">PRD Patterns</a>
+      <a href="stories.html">Stories</a>
+      <a href="prioritization.html">Prioritization</a>
+      <a href="risks.html">Risks</a>
+    </div>
+  </section>
+
+  <footer>
+    Planning Kit v0.1 · last updated 2026-04-14 ·
+    source: <code>docs/planning/github-integration.md</code>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -144,6 +144,27 @@ last_updated: 2026-04-12
 | 7 | Context7 `react-hook-form` + `zod` | 공식 | v4 호환성 workaround | WebFetch GitHub issues |
 | 8 | [Vite 8 Rolldown announcement](https://vite.dev/blog/announcing-vite8) | 공식 | 최신 번들러 | WebFetch |
 
+## Phase 11 — planning-kit
+
+### 필수 소스 (3 건 이상)
+
+planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks, Stories, Flows, Data Modeling, GitHub 동기화) 을 다루므로 소스는 `docs/planning/*.md` 에 이미 검증된 1차 URL 을 재사용한다.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Teresa Torres — Continuous Discovery / Opportunity Solution Tree](https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/) | community (1차) | discovery 스킬 (plan-discover) 의 기반. OST 구조, weekly touchpoint 원칙 | WebFetch |
+| 2 | [Marty Cagan — Four Big Risks](https://www.svpg.com/four-big-risks/) | community (1차) | plan-risks 의 4-risks matrix (Value/Usability/Feasibility/Viability) 기준 | WebFetch |
+| 3 | [Basecamp — Shape Up (Pitch / Appetite / Betting Table)](https://basecamp.com/shapeup/1.5-chapter-06) | 공식 | plan-prd 의 Shape Up pitch 템플릿, appetite 기반 스코핑 | WebFetch |
+| 4 | [Alan Klement — JTBD switching moments](https://www.alanklement.com/) | community (1차) | plan-discover 인터뷰 프레임 (switching interview) | WebFetch |
+| 5 | [Strategyn / Tony Ulwick — ODI](https://strategyn.com/what-customers-want/) | community (1차) | desired outcome 정량화 원칙 | WebFetch |
+| 6 | [Agile Alliance — INVEST](https://agilealliance.org/glossary/invest/) | community | plan-stories 의 INVEST 기준 (Independent/Negotiable/…) | WebFetch |
+| 7 | [Cucumber Gherkin docs](https://cucumber.io/docs/gherkin/) | 공식 | plan-stories 의 Given-When-Then 수용 기준 | WebFetch |
+| 8 | [HBR — Performing a Project Premortem (Gary Klein)](https://hbr.org/2007/09/performing-a-project-premortem) | 공식 | plan-risks 의 pre-mortem 절차 | WebFetch |
+| 9 | [Mermaid.js — ER diagram](https://mermaid.js.org/syntax/entityRelationshipDiagram.html) | 공식 | plan-data-model 의 ER/flow 다이어그램 렌더링 | WebFetch |
+| 10 | [GitHub Projects REST/GraphQL Docs](https://docs.github.com/en/rest/projects) | 공식 | plan-sync-github (Issue/Projects v2 동기화) | WebFetch |
+| 11 | [Lean Stack — Lean Canvas / RAT](https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure) | community (1차) | plan-prioritize 의 riskiest assumption 접근 | WebFetch |
+| 12 | `docs/planning/*.md` (레포 내 누적 리서치 9 편) | 내부 | 각 스킬이 인용한 1차 URL 풀 | 파일 Read |
+
 ## 사용 규칙
 
 1. **리서치 로그 저장** — 각 Phase 종료 시 `docs/<kit>/research-log.md` (또는 `docs/kaizen/research-log.md`) 에 조회한 소스를 "2026-MM-DD" 엔트리로 기록.

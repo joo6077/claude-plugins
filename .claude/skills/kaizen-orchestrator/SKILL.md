@@ -2,17 +2,17 @@
 name: kaizen-orchestrator
 description: >
   카이젠 전체 실행을 의존성 순서에 맞춰 오케스트레이션한다.
-  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit 순서로
+  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit 순서로
   Phase별 실행하며, 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
   주 1회 cron 자동 실행, 또는 수동 호출("/kaizen", "카이젠 전체 실행").
   개별 플러그인만 카이젠하려면 해당 카이젠 스킬을 직접 사용.
-argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|phase10|final]"
+argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|phase10|phase11|final]"
 user-invocable: true
 ---
 
 # Kaizen Orchestrator
 
-설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit 순서로 카이젠을 실행한다.
+설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit 순서로 카이젠을 실행한다.
 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
 전체 Phase 완료 후 크로스 Phase 정합성을 최종 검증한다.
 
@@ -22,7 +22,7 @@ user-invocable: true
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
 - `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
-- `references/phase-research-templates.md` — **Phase 1~10 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Gap 7 추가, 2026-04-12)
+- `references/phase-research-templates.md` — **Phase 1~11 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가, 2026-04-14)
 
 ## 연동 스크립트
 
@@ -37,7 +37,7 @@ user-invocable: true
 
 ## 관련 스킬
 
-- `/meta-kaizen` — 이 오케스트레이터 SKILL.md 자체를 리서치 기반으로 개선하는 메타 카이젠. Phase 1~10 범위 밖. 주 1 회 이하 권장.
+- `/meta-kaizen` — 이 오케스트레이터 SKILL.md 자체를 리서치 기반으로 개선하는 메타 카이젠. Phase 1~11 범위 밖. 주 1 회 이하 권장.
 
 ## Gotchas
 
@@ -144,6 +144,8 @@ Phase 9: Rust-kit 카이젠 (rust-kaizen)
     ↓
 Phase 10: React-kit 카이젠 (react-kaizen)
     ↓
+Phase 11: Planning-kit 카이젠 (planning-kaizen)
+    ↓
 Final: 전체 정합성 검증
 ```
 
@@ -159,6 +161,7 @@ Final: 전체 정합성 검증
 8. Infra-kit 카이젠 — 인프라/DevOps 스킬 개선 (docs/infra/ 리서치 기준)
 9. Rust-kit 카이젠 — Rust 백엔드 스킬 개선 (docs/rust/ 리서치 기준)
 10. React-kit 카이젠 — React + Vite + Tauri + WASM 스킬 개선 (docs/react/ 리서치 기준)
+11. Planning-kit 카이젠 — 제품 기획 스킬 개선 (docs/planning/ 리서치 기준, Discovery/PRD/Prioritization/Risks/Stories/Flows/Data Model/GitHub Sync)
 
 ## 트리거 조건
 
@@ -166,7 +169,7 @@ Final: 전체 정합성 검증
 
 - 매주 월요일 09:00 KST (= UTC 00:00)
 - Claude Code `schedule` 스킬로 remote trigger 등록
-- 개별 카이젠(contract-kaizen, evaluator-kaizen, harness-kaizen, flutter-kaizen, design-kaizen)의 cron은 비활성화하고 이 오케스트레이터만 실행
+- 개별 카이젠(contract-kaizen, evaluator-kaizen, harness-kaizen, flutter-kaizen, design-kaizen, backend-kaizen, infra-kaizen, rust-kaizen, react-kaizen, planning-kaizen)의 cron은 비활성화하고 이 오케스트레이터만 실행
 
 **등록 명령 (최초 1 회):**
 
@@ -187,7 +190,7 @@ Final: 전체 정합성 검증
 ```
 
 ### 수동
-- `/kaizen-orchestrator` — 전체 (Phase 1→2→3→4→5→6→7→8→9→10→Final)
+- `/kaizen-orchestrator` — 전체 (Phase 1→2→3→4→5→6→7→8→9→10→11→Final)
 - `/kaizen-orchestrator phase1` — 설계 가이드만
 - `/kaizen-orchestrator phase2` — contract-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase3` — evaluator-kaizen만 (Phase 2 완료 전제)
@@ -198,7 +201,8 @@ Final: 전체 정합성 검증
 - `/kaizen-orchestrator phase8` — infra-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase9` — rust-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase10` — react-kaizen만 (Phase 1 완료 전제)
-- `/kaizen-orchestrator final` — Final QA만 (Phase 1~10 완료 전제)
+- `/kaizen-orchestrator phase11` — planning-kaizen만 (Phase 1 완료 전제)
+- `/kaizen-orchestrator final` — Final QA만 (Phase 1~11 완료 전제)
 
 ## Process
 
@@ -268,6 +272,7 @@ python3 scripts/collect-kaizen-data.py
 | 8 Infra | §5 validate-plugin 현재 상태 |
 | 9 Rust | §2 Hub 외부 프로젝트 (fit-pal server) |
 | 10 React | §3 followup-2026-04-11, §5 |
+| 11 Planning | §1 planning 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
 
 **각 Phase 서브에이전트 프롬프트에 데이터 풀 경로 전달 필수:**
 
@@ -389,17 +394,27 @@ python3 scripts/collect-kaizen-data.py
 
 **특별 주의**: react-kit 의 G5b 애니메이션 스킬 (`react-animation`) 과 animation-architect-react 에이전트, 그리고 `react-audit` 의 Library Policy 카테고리는 **라이브러리 0개 원칙** (Motion/framer-motion/dnd-kit/react-spring/react-transition-group 등 빌드 게이트급 금지) 을 빌드 게이트로 enforce 한다. 이 원칙은 카이젠에서 절대 완화하지 말고, 신규 금지 라이브러리 추가만 허용한다.
 
+### Step 10.9: Phase 11 — planning-kit 카이젠
+
+**범위:** `planning-kit/skills/*/SKILL.md`, `planning-kit/agents/planning-reviewer.md`, `planning-kit/references/`, `docs/planning/` 리서치 문서
+
+공통 실행 패턴에 따라 `/planning-kaizen` 서브에이전트로 실행. 리서치 문서가 부족하면 `/planning-research` 를 먼저 호출하여 `docs/planning/` 를 갱신한 뒤 진행한다. `/planning-kaizen` 스킬 자체는 이 레포 개발용이며 planning-kit 플러그인에 포함되지 않는다 — 개선 대상은 planning-kit 플러그인에 포함된 10 개 스킬 (plan-discover / plan-prd / plan-prioritize / plan-risks / plan-stories / plan-flow / plan-data-model / plan-sync-github / plan-guide / plan-audit) 과 planning-reviewer 에이전트다. Phase 1 에서 설계 가이드가 변경되었으면 planning-kit 전 스킬을 전수 감사한다.
+
+**필수 리서치 소스:** `references/phase-research-templates.md` 의 Phase 11 테이블 (Teresa Torres OST / Marty Cagan 4-risks / Basecamp Shape Up / Alan Klement JTBD / Strategyn ODI / Agile Alliance INVEST / Cucumber Gherkin / HBR Pre-mortem / Mermaid ER / GitHub Projects REST / Lean Stack RAT) 최소 3 건 이상 조회.
+
+> 플러그인 설명: 스택 무관 제품 기획 플러그인 — 소크라테스식 질문, PRD, 우선순위, 리스크, 개념 데이터 모델(Mermaid), GitHub 프로젝트 동기화
+
 ### Step 11: Final — 전체 정합성 검증
 
-**범위:** Phase 1~10 전체 변경사항
+**범위:** Phase 1~11 전체 변경사항 (Phase 11 planning-kit 포함 전수 체크)
 
 1. **Final Sprint Contract 생성:**
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~10 변경에 반영되었는가
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~11 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
-     - Phase 4 harness 변경이 Phase 5~10 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit)과 충돌하지 않는가
-     - 버전 번호가 각 플러그인에서 올바르게 업데이트되었는가
-     - changelog, research-log이 모든 Phase 변경을 포함하는가
+     - Phase 4 harness 변경이 Phase 5~11 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit)과 충돌하지 않는가
+     - 버전 번호가 각 플러그인에서 올바르게 업데이트되었는가 (planning-kit plugin.json 포함)
+     - changelog, research-log이 모든 Phase 변경을 포함하는가 (docs/planning/research-log.md 포함)
    - Diagnostics: 전체 `bash -n` 검증
 
 2. **QA Evaluator 실행:**
@@ -423,6 +438,7 @@ python3 scripts/collect-kaizen-data.py
 | infra-kit | `docs/infra/` | `docs/infra-kit/` |
 | rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
 | react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
+| planning-kit | `planning-kit/references/`, `docs/planning/` | `docs/planning-kit/` |
 | process (공유) | (내부 문서) | `docs/process/` |
 
 **절차:**
@@ -473,6 +489,8 @@ cleanup_log:
      (⚠ `/rust-kaizen` 스킬은 이 레포 개발용으로 rust-kit 플러그인에 포함되지 않는다 — bump 대상은 rust-kit 플러그인에 포함된 스킬뿐)
    - react-kit 변경 있으면: `react-kit/.claude-plugin/plugin.json` 버전 bump
      (⚠ `/react-kaizen` 스킬은 이 레포 개발용으로 react-kit 플러그인에 포함되지 않는다 — bump 대상은 react-kit 플러그인에 포함된 스킬뿐)
+   - planning-kit 변경 있으면: `planning-kit/.claude-plugin/plugin.json` 버전 bump
+     (⚠ `/planning-kaizen` 스킬은 이 레포 개발용으로 planning-kit 플러그인에 포함되지 않는다 — bump 대상은 planning-kit 플러그인에 포함된 10 개 스킬 + planning-reviewer 에이전트)
    - `.claude-plugin/marketplace.json` 갱신 (모든 플러그인 description 날짜/버전 동기화)
 
 2. **changelog 업데이트 (모든 Phase 변경 반영 — 건너뛰기 금지):**
@@ -487,6 +505,7 @@ cleanup_log:
    - `docs/infra/research-log.md` (infra 관련, Phase 8) — **파일이 없으면 신규 생성**
    - `docs/rust/research-log.md` (rust 관련, Phase 9) — **파일이 없으면 신규 생성**
    - `docs/react/research-log.md` (react 관련, Phase 10) — **파일이 없으면 신규 생성**
+   - `docs/planning/research-log.md` (planning 관련, Phase 11) — **파일이 없으면 신규 생성**
    - `docs/flutter/research-log.md` (flutter 관련, Phase 5) — **파일이 없으면 신규 생성**
    - 각 per-kit research-log 는 frontmatter (title, version, last_updated), "## [YYYY-MM-DD] - Phase N kaizen" 엔트리, 리서치 소스 URL 최소 5 건 포함.
 
@@ -496,7 +515,7 @@ cleanup_log:
    - 정합성 유지 확인을 `.harness/.meta/evals-audit-{YYYY-MM-DD}.md` 에 기록 (변경 없음이어도 점검 기록)
 
 5. **kaizen-failure-count.yaml 업데이트:**
-   - `.harness/.meta/kaizen-failure-count.yaml` 에 `phase_1` ~ `phase_10` 엔트리가 모두 존재하는지 확인 (없으면 추가)
+   - `.harness/.meta/kaizen-failure-count.yaml` 에 `phase_1` ~ `phase_11` 엔트리가 모두 존재하는지 확인 (없으면 추가)
    - Regression PASS 인 Phase 는 카운터 0 으로 리셋
    - Regression FAIL 인 Phase 는 카운터 +1 → 2 이상이면 사용자 에스컬레이션
    - `last_updated` 필드를 카이젠 실행 날짜로 갱신
@@ -506,18 +525,18 @@ cleanup_log:
 
    아래 체크리스트를 **완전히** 통과하지 않으면 PR 생성을 **금지**한다. 하나라도 미통과 시 해당 Step 으로 돌아가 수정한다.
 
-   - [ ] 각 변경된 플러그인 `plugin.json` 버전이 bump 되었다
-   - [ ] `.claude-plugin/marketplace.json` 의 7개 플러그인 `description` 이 버전/날짜와 정합한다
+   - [ ] 각 변경된 플러그인 `plugin.json` 버전이 bump 되었다 (planning-kit 포함)
+   - [ ] `.claude-plugin/marketplace.json` 의 플러그인 `description` (planning-kit 포함) 이 버전/날짜와 정합한다
    - [ ] `python3 scripts/sync-docs.py --check-only` 가 "모든 README가 동기화 상태입니다" 를 반환한다
-   - [ ] `python3 scripts/validate-plugin.py` 가 Total 7 plugins, 7 OK, Exit 0 을 반환한다
+   - [ ] `python3 scripts/validate-plugin.py` 가 모든 플러그인 (planning-kit 포함) OK, Exit 0 을 반환한다
    - [ ] `docs/kaizen/changelog.md` 에 이번 사이클 엔트리가 추가되었다 (Phase 1~4 변경 반영)
    - [ ] `docs/kaizen/flutter-changelog.md` 에 Phase 5 엔트리가 추가되었다 (해당 Phase 변경 있을 시)
-   - [ ] `docs/kaizen/research-log.md` + `docs/kaizen/flutter-research-log.md` + per-kit research-log 5개 파일이 모두 존재하고 이번 사이클 엔트리를 포함한다
+   - [ ] `docs/kaizen/research-log.md` + `docs/kaizen/flutter-research-log.md` + per-kit research-log 6개 파일 (backend/infra/rust/react/flutter/planning) 이 모두 존재하고 이번 사이클 엔트리를 포함한다
    - [ ] Step 11.5 docs-site 재생성이 실행되었다 — 변경된 소스에 대응하는 `docs/<plugin>/*.html` 이 최신 상태다
    - [ ] Step 11.6 글로벌 피드백 정리가 실행되었다 — `.harness/.meta/cleanup-log.yaml` 에 이번 사이클 엔트리가 있다
    - [ ] `.harness/.meta/kaizen-failure-count.yaml` `last_updated` 필드가 이번 사이클 날짜다
    - [ ] `.harness/.meta/evals-audit-{YYYY-MM-DD}.md` 가 존재한다 (evals 점검 기록)
-   - [ ] Phase 1~10 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다
+   - [ ] Phase 1~11 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다 (Phase 11 planning-kit 포함)
 
 7. **PR 생성:**
    - 브랜치명: `kaizen/{날짜}`

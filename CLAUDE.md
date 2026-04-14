@@ -14,6 +14,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **infra-kit** — 스택 무관 인프라/DevOps 가이드, 감사, 초기 세팅 플러그인
 - **rust-kit** — Rust 전용 백엔드 개발 워크플로우 플러그인 — 프로젝트 스캐폴딩, API 생성, 모델 관리, 빌드/테스트/감사 자동화
 - **react-kit** — React + Vite + Tauri 2 + Rust WASM 전용 개발 워크플로우 플러그인 — 21종 스킬 + 3 에이전트, 라이브러리 0개 애니메이션, Clean Architecture, Strict TypeScript 강제
+- **planning-kit** — 스택 무관 제품 기획 플러그인 — 소크라테스식 질문, PRD, 우선순위, 리스크, 개념 데이터 모델(Mermaid), GitHub 프로젝트 동기화
 <!-- /AUTO:summary -->
 
 ## Commands

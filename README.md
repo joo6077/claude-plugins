@@ -14,6 +14,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 | [`infra-kit`](./infra-kit/) | v0.1.1 | 범용 | [v0.1.1 · 2026-04-11] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (K8s PSA / Terraform 1.10 / SLSA / OTel) |
 | [`rust-kit`](./rust-kit/) | v0.1.1 | 범용 | [v0.1.1 · 2026-04-11] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 |
 | [`react-kit`](./react-kit/) | v0.1.1 | 범용 | [v0.1.1 · 2026-04-11] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 |
+| [`planning-kit`](./planning-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-04-13] 스택 무관 제품 기획 플러그인 — JTBD / PR-FAQ / Shape Up / RICE·Kano·WSJF / DDD Event Storming + Mermaid erDiagram / GitHub Projects v2 동기화 |
 <!-- /AUTO:plugins -->
 
 ---
