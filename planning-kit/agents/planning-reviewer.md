@@ -31,7 +31,7 @@ plan-audit 스킬이 다음을 전달:
 
 ## Step 3: 카테고리별 판정
 
-10 카테고리 각각에 대해. `principle_violated` 필드는 반드시 docs/planning/*.md 섹션 + 1차 출처 URL 을 함께 인용:
+12 카테고리 각각에 대해 (카테고리 0a Reference, 0b Ideation 은 선택 — 기록이 없으면 N/A). `principle_violated` 필드는 반드시 docs/planning/*.md 섹션 + 1차 출처 URL 을 함께 인용:
 
 ```yaml
 category: <name>
@@ -49,6 +49,8 @@ fix_suggestion: <개선 방향>
 
 | 카테고리 | docs/planning 섹션 | 1차 출처 |
 |---------|-------------------|---------|
+| Reference (선택) | reference.md §Lightning Demo, §Feature Matrix, §VPC, §Blue Ocean, §Positioning | [GV Sprint](https://www.gv.com/sprint/), [Strategyzer VPC](https://www.strategyzer.com/library/the-value-proposition-canvas), [Blue Ocean](https://www.blueoceanstrategy.com/tools/four-actions-framework/), [April Dunford](https://www.aprildunford.com/) |
+| Ideation (선택) | ideation.md §HMW, §Crazy 8s, §Affinity, §Impact-Effort | [Stanford d.school](https://dschool.stanford.edu/resources), [GV Sprint](https://www.gv.com/sprint/), [Design Council](https://www.designcouncil.org.uk/our-resources/the-double-diamond/) |
 | Discovery | discovery.md §JTBD, §Continuous Discovery, §4-risks | [Klement](https://www.alanklement.com/), [Torres](https://www.producttalk.org/glossary-discovery-continuous-discovery/), [Cagan](https://www.svpg.com/four-big-risks/) |
 | PRD Format | prd-patterns.md §Amazon, §Shape Up, §Linear | [Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes), [Shape Up](https://basecamp.com/shapeup/1.5-chapter-06) |
 | Non-goals | prd-patterns.md §Shape Up (rabbit holes/no-gos) | [Shape Up §9](https://basecamp.com/shapeup/2.3-chapter-09) |

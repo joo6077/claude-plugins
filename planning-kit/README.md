@@ -13,6 +13,8 @@ planning-kit 은 harness 파이프라인의 **0번 단계**다. "기획 → 계�
 <!-- AUTO:skills:start -->
 | 스킬 | 용도 |
 |------|------|
+| `/plan-reference` | "X 같은 앱" 류 요청을 레퍼런스 teardown + Feature Matrix + VPC + Blue Ocean + Positioning 으로 분해 |
+| `/plan-ideate` | 막연한 생각 덩어리를 HMW · Crazy 8s · SCAMPER 로 발산하고 Affinity · Mindmap 으로 정리, Dot Voting · Impact-Effort 로 수렴 |
 | `/plan-discover` | 소크라테스식 질문으로 문제·사용자·가정·성공기준을 드러낸다 (JTBD + 5 Whys + Riskiest Assumption) |
 | `/plan-prd` | Amazon PR/FAQ 또는 Shape Up Pitch 포맷으로 PRD 작성 |
 | `/plan-stories` | 유저 스토리 + INVEST 검증 + Acceptance Criteria(Gherkin) |
@@ -36,6 +38,9 @@ planning-kit 은 harness 파이프라인의 **0번 단계**다. "기획 → 계�
 ## harness 연계
 
 ```text
+생각 덩어리 / "X 같은 앱"
+  ↓ /plan-reference      ("X 같은" 일 때, teardown + Feature Matrix)
+  ↓ /plan-ideate         (발산·정리·수렴, Top 3 선정)
 아이디어
   ↓ /plan-discover       (문제·사용자·가정)
   ↓ /plan-prd            (PRD)

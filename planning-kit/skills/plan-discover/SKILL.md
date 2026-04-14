@@ -28,9 +28,13 @@ user-invocable: true
 
 # Process
 
-## Step 0: 리서치 문서 로드
+## Step 0: 전단계 확인
 
-`docs/planning/discovery.md` 가 있으면 로드하여 현재 권장 패턴을 확인한다. 없으면 `/planning-research` 를 먼저 돌리라고 안내.
+아이디어가 아직 모호하다면 `/plan-ideate` 먼저 권고한다. plan-discover 는 "탐색할 문제 후보 하나" 가 정해진 상태를 전제한다.
+
+## Step 0.5: 리서치 문서 로드
+
+`docs/planning/discovery.md` + (있으면) `docs/planning/ideation.md` 로드. 없으면 `/planning-research` 권고.
 
 ## Step 1: Problem (3문항)
 

@@ -41,10 +41,12 @@ user-invocable: true
 
 Agent 도구로 `planning-reviewer` 서브에이전트 spawn. 프롬프트에 평가 대상 파일 경로 + 10 카테고리 체크리스트 전달.
 
-## Step 3: 10 카테고리 평가 기준
+## Step 3: 12 카테고리 평가 기준
 
 | # | 카테고리 | PASS 조건 | 참조 문서 | 1차 출처 |
 |---|---------|-----------|----------|----------|
+| 0a | Reference | (선택) 레퍼런스 제품이 존재하면 Lightning Demo 5+ 제품 + Feature Matrix + Positioning Statement 존재. "X 같은 앱" 류 요청이 아니면 N/A | reference.md | [GV Sprint Lightning Demo](https://www.gv.com/sprint/), [Strategyzer VPC](https://www.strategyzer.com/library/the-value-proposition-canvas), [April Dunford](https://www.aprildunford.com/) |
+| 0b | Ideation | (선택) 발산(HMW/Crazy 8s 등) + 정리(Affinity/Mindmap) + 수렴(Dot/Impact-Effort) 흔적 존재. 단일 아이디어에서 바로 discovery 진입한 경우 N/A | ideation.md | [Stanford d.school](https://dschool.stanford.edu/resources), [GV Sprint](https://www.gv.com/sprint/), [Design Council Double Diamond](https://www.designcouncil.org.uk/our-resources/the-double-diamond/) |
 | 1 | Discovery | Problem/User/JTBD/Assumption/Metric 모두 존재 + switching moments 인터뷰 증거 | discovery.md §JTBD / §Continuous Discovery | [Klement](https://www.alanklement.com/), [Torres](https://www.producttalk.org/glossary-discovery-continuous-discovery/) |
 | 2 | PRD Format | PR/FAQ 또는 Shape Up 또는 Linear 스펙 포맷 완결 (Problem + Appetite/Solution + Rabbit holes/No-gos 또는 PR + FAQ) | prd-patterns.md §Amazon Working Backwards / §Shape Up | [Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes), [Shape Up §6](https://basecamp.com/shapeup/1.5-chapter-06) |
 | 3 | Non-goals | 최소 3개 명시 (Shape Up 의 no-gos / rabbit holes 포함) | prd-patterns.md §Shape Up | [Shape Up §9](https://basecamp.com/shapeup/2.3-chapter-09) |
