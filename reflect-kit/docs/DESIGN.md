@@ -198,7 +198,7 @@ approach_note: <str>                  # 시도한 접근법 1줄
 |---|---|---|
 | 1 | kit 이름 `reflect-kit` | Reflexion 논문 + 한국어 "성찰" 뉘앙스 + joo6077-plugins 네이밍 컨벤션 |
 | 2 | raw 저장 유지 + redaction | 사용자 Q1=A. 편의성 유지 + 위험 축소 |
-| 3 | project_id = `<basename>-<hash6>` | basename 충돌 방지 (Codex audit major) |
+| 3 | project_id = Hybrid (`<basename>` 기본 + 충돌 시 `-<hash6>` fallback) | **v0.3.0 전환**. 운영 데이터 상 basename 충돌 0건 — 상시 해시는 over-engineered. 독립 리뷰로 backward-compatible Hybrid 선정 (아래 상세) |
 | 4 | 카테고리 multi-label | 상호배타 아님 (Codex audit major) |
 | 5 | Surface 4축 분해 + precedence | 단일 필드 압축 불가 (Codex audit major) |
 | 6 | 임계값 hypothesis 마킹 | Claude 공식 권고(2회→CLAUDE.md)와 불일치, 운영 데이터 부재 |
@@ -206,3 +206,42 @@ approach_note: <str>                  # 시도한 접근법 1줄
 | 8 | codex exec 사용 (API key 불필요) | 사용자 지적 — 기존 인증 재사용 |
 | 9 | 성공 사례 수집 보류 | ROI 낮음, ledger로 간접 측정 대체 |
 | 10 | 보존 정책 = 누적 | 사용자 결정. 용량 이슈 발생 시 재논의 |
+
+## 결정 #3 상세 — Hybrid project_id (v0.3.0 전환)
+
+### 배경
+
+v0.1.0~v0.2.0 은 `project_id = <basename>-<6자 md5 hex>` 를 상시 적용했다. 이유는 Codex adversarial audit 의 major 지적("basename 충돌 위험"). 이론적 근거로 hash 를 붙였지만 운영 데이터에서는 정당성이 떨어졌다.
+
+### 독립 리뷰 결과 (2026-04-17, general-purpose opus)
+
+- **A안 (v0.2.0 현행 유지)**: 부적합. RESEARCH.md 근거는 이론이며 운영 데이터로 입증되지 않음. 7개 프로젝트 중 basename 충돌 0건. 레거시 버킷(해시 없는 디렉토리) 존재 자체가 "규칙 무결성이 이미 깨진" 증거.
+- **B안 (basename only)**: UX 최고(사용자 인지 가능한 id)지만 breaking change. 기존 hash 디렉토리 강제 마이그레이션 필요.
+- **C안 (Hybrid, backward-compatible)**: **선정**. basename 기본 + 충돌 감지 fallback + 기존 hash read 지원. UX 개선 + 안전장치 + 데이터 이동 0건.
+
+### Hybrid 동작
+
+| 상황 | 반환 id | 추가 동작 |
+|------|---------|-----------|
+| 첫 write, basename 디렉토리 없음 | `<basename>` | bucket 생성 + `.project-root` 마커에 git root 기록 |
+| 재호출, 마커가 자기 repo 와 일치 | `<basename>` | no-op |
+| 다른 git root 가 같은 basename 으로 호출 | `<basename>-<hash6>` | stderr 1회 경고 (PID 기반 마커로 중복 억제) |
+| 기존 v0.2.0 hash 디렉토리 read | glob union | `normalize_project_query` 로 `<basename>` + `<basename>-<hash6>` 둘 다 스캔 |
+
+### Backward-compat 보증
+
+- 기존 `<basename>-<hash6>` 디렉토리는 read 경로에서 glob union 으로 그대로 포함
+- `/reflect-digest project=<basename>` 과 `/reflect-digest project=<basename>-<hash6>` 은 동일 결과
+- 마이그레이션 스크립트 실행 불필요 — 데이터 이동 0건
+- 사용자는 별도 action 없이 v0.2.0 → v0.3.0 자동 전환
+
+### 왜 마커 파일(`.project-root`)인가
+
+- 디렉토리 이름만으로는 "같은 basename 에 다른 repo" 구분 불가
+- 마커는 bucket 생성 시 1회 write, 이후 stat + cat 만으로 충돌 감지 가능
+- read 경로에서도 side-effect 가 자기 bucket 에 한정 (외부 bucket 건드리지 않음)
+
+### 한계와 미지 영역
+
+- `.project-root` 마커 없이 생성된 v0.2.0 디렉토리는 "충돌 없는" 것으로 간주 (read 에서만 glob union 포함)
+- 같은 basename 의 다른 repo 가 매우 짧은 시간 내 동시에 write 할 때 race condition 가능 (마커 생성 전) — 개인 스케일에서는 무시 가능

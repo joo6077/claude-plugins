@@ -65,16 +65,21 @@ print_help() {
 }
 
 # --scan: 레거시 디렉토리 + 후보 경로 목록
+#
+# v0.3.0: basename-only 는 더 이상 "레거시" 가 아니라 Hybrid 기본값.
+# 본 스캔은 운영 현황 파악 + 수동 정비용으로 남겨둔다.
+# 내부 디렉토리(_cron, . 또는 _ prefix) 는 project bucket 이 아니므로 제외.
 scan_legacy() {
   source_project_id_lib
   echo "== 레거시 project_id 디렉토리 스캔 =="
-  echo "   (해시 없는 basename-only 디렉토리)"
+  echo "   (해시 없는 basename-only 디렉토리 — v0.3.0 이후 정상 포맷)"
   echo ""
   local found=0
   for d in "$LOGS_DIR"/*/; do
     [ -d "$d" ] || continue
     local pid
     pid=$(basename "$d")
+    is_internal_logs_dir "$pid" && continue
     if [[ ! "$pid" =~ $HASH_PATTERN ]]; then
       found=$((found + 1))
       echo "[$pid] (레거시)"
@@ -109,6 +114,7 @@ plan_migration() {
     [ -d "$d" ] || continue
     local pid
     pid=$(basename "$d")
+    is_internal_logs_dir "$pid" && continue
     [[ "$pid" =~ $HASH_PATTERN ]] && continue
 
     local candidates
@@ -144,6 +150,7 @@ execute_migration() {
     [ -d "$d" ] || continue
     local pid
     pid=$(basename "$d")
+    is_internal_logs_dir "$pid" && continue
     [[ "$pid" =~ $HASH_PATTERN ]] && continue
 
     local candidates

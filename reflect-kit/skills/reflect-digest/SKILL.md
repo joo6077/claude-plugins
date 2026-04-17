@@ -21,7 +21,7 @@ user-invocable: true
 ## Gotchas
 
 1. **리포트만 — 실제 승격 반영은 금지**. digest 는 후보 리스트를 내는 역할이다. `CLAUDE.md` / memory / skill / hook 에 규칙을 직접 쓰지 마라. 반영은 `/reflect-promote` 가 담당한다. digest가 "써두는 게 더 편하다"며 직접 쓰면 ledger 가 깨지고 rollback 이 불가능해진다.
-2. **project_id 는 반드시 `<basename>-<hash>` 전체**. basename 만으로 프로젝트 매칭하면 같은 이름의 다른 repo 가 섞인다. 헬퍼 `_lib-project-id.sh` 의 `compute_project_id` 만 사용.
+2. **project_id 쿼리는 `normalize_project_query` 헬퍼로 확장하라** (v0.3.0+). Hybrid 포맷에서 basename 만으로도 정상 id 이지만, 같은 basename 의 기존 `<basename>-<hash6>` 디렉토리도 read 에 포함해야 한다. `compute_project_id` 는 쓰기 id 계산, `normalize_project_query` 는 읽기 glob 확장용.
 3. **period 범위 밖 엔트리를 섞지 마라**. 사용자가 `period=7d` 로 요청했으면 `promoted_at` / 타임스탬프 헤더 기준으로 엄격히 필터링한다. "최근과 가까우니까" 임의로 포함 금지 — 재발률 계산이 왜곡된다.
 4. **단일 `surface_candidate` 필드를 재도입하지 마라**. scope × risk × procedurality × enforcement 4축 precedence 로만 계산한다. digest 가 편의상 단일 필드를 만들면 promote 단계가 precedence 를 재판정하지 않고 그대로 믿어 surface 판정 품질이 떨어진다.
 5. **CLAUDE.md 200줄 한도 계산을 누락하지 마라**. 규칙 #4(project CLAUDE.md 승격) 후보로 판정한 경우, 현재 CLAUDE.md 라인 수를 측정하고 180줄 이상이면 리포트에 **path_scoped_rule 로 fallback 검토 필요** 플래그를 달아라.
@@ -29,18 +29,37 @@ user-invocable: true
 
 ## 입력
 
-- `project` (optional): 집계할 프로젝트 ID (형식: `<basename>-<6자 hash>`).
-  - 없으면 현재 cwd로부터 동일 해시 규칙으로 계산.
-  - **`project=all`**: cross-project 집계 모드 — `~/.claude/logs/` 하위 모든 프로젝트 디렉토리를 순회한다 (v0.2.0+).
+- `project` (optional): 집계할 프로젝트 id. 다음 3 형태 모두 수용 (v0.3.0+):
+  - `<basename>` — Hybrid 기본 (예: `project=app_kiosk`)
+  - `<basename>-<6자 hash>` — 충돌 감지된 프로젝트 또는 v0.2.0 레거시 (예: `project=app_kiosk-a3b4f9`)
+  - `all` — cross-project 집계 (`~/.claude/logs/` 전 프로젝트 순회)
+  - 없으면 현재 cwd 로부터 계산. `normalize_project_query` 가 `<basename>` 입력을 `<basename>` + `<basename>-<hash6>` glob union 으로 확장하여 기존 해시 디렉토리도 함께 읽는다.
 - `period` (optional): `7d` / `30d` / `all`. 기본 `7d`.
 
-## 프로젝트 ID
+## 프로젝트 ID (v0.3.0 Hybrid)
 
 로그 경로는 `~/.claude/logs/<project_id>/`.
-`project_id`는 `<basename(git-root)>-<6자 md5 hex>` 형식.
-git root 없으면 `cwd`의 md5로 대체.
-헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh` 의 `compute_project_id`.
-basename만 같고 다른 repo라도 hash가 달라 충돌하지 않는다.
+
+- **기본**: `<basename(git-root)>` — 충돌 없는 경우 hash 없이 사용
+- **충돌 fallback**: `<basename>-<6자 md5 hex>` — 동일 basename + 다른 git root 감지 시 자동 전환 + stderr 1회 경고
+- **backward-compat**: 기존 `<basename>-<hash6>` 디렉토리는 read 에서 glob union 으로 그대로 포함 — 마이그레이션 불필요
+
+헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh`
+- `compute_project_id "$cwd"` — 쓰기용 id 계산 (basename 또는 hash fallback)
+- `normalize_project_query "<query>"` — 읽기용 glob pattern union 확장
+
+### 정규화 쿼리 동작
+
+입력이 어느 형태든 **같은 basename 의 glob union** 으로 확장되어 backward-compat 을 보장한다:
+
+| 입력 | 확장 결과 |
+|------|-----------|
+| `app_kiosk` | `app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]` |
+| `app_kiosk-a3b4f9` | `app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]` (basename 추출 후 동일 union) |
+
+결과: `/reflect-digest project=app_kiosk` 와 `/reflect-digest project=app_kiosk-a3b4f9` 는 항상 동일한 스캔 대상 집합을 선택한다.
+
+Matching 디렉토리 0개이면 stderr 에 `no matching buckets for project=<query>` 출력 후 종료.
 
 ## 데이터 소스
 
@@ -78,19 +97,22 @@ approach_note: <str>
 ## Process
 
 1. **프로젝트·기간 결정**
-   - `project` 인자 없으면 `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh` 의 `compute_project_id "$PWD"`
+   - `project` 인자 없으면 `compute_project_id "$PWD"` 로 basename (또는 hash fallback) 계산
+   - `project` 있으면 `normalize_project_query "$project"` 로 glob pattern union 확장
+   - `project=all` 이면 `~/.claude/logs/*/` 전체 순회 (단 `is_internal_logs_dir` 로 `_cron`, `.*`, `_*` 제외)
    - `period` 기본 `7d`
-2. **로그 파일 나열**: `ls ~/.claude/logs/<project_id>/reflections-*.md`
-3. **엔트리 파싱**: 타임스탬프 헤더 기준 분할 → `yaml` 코드블록 추출 → period 범위 밖 제외
-4. **집계**
+2. **로그 디렉토리 매칭**: 확장된 glob 패턴으로 `~/.claude/logs/` 하위 매칭. 0개이면 `no matching buckets for project=<query>` 를 stderr 에 출력하고 종료.
+3. **로그 파일 나열**: 매칭된 각 디렉토리의 `reflections-*.md` 전부 (union)
+4. **엔트리 파싱**: 타임스탬프 헤더 기준 분할 → `yaml` 코드블록 추출 → period 범위 밖 제외
+5. **집계**
    - `mistake_tag`별 count
    - `primary_category`별 count (+ `also_applies` 가중치 0.5 반영)
    - `severity` 분포
    - `tools_used.skills / agents / mcp_servers` 교차 빈도 (특정 스킬 호출 시 반복되는 실수)
    - 4축별 분포 (`scope`, `risk_class`, `procedurality`, `enforcement_need`)
-5. **승격 후보 계산 (아래 Precedence Table)**
-6. **리포트 출력**
-7. **결과 저장 (옵션)**: `~/.claude/logs/<project_id>/digest-YYYY-MM-DD.md`. 반영 자체는 후속 `/reflect-promote`가 맡음.
+6. **승격 후보 계산 (아래 Precedence Table)**
+7. **리포트 출력**
+8. **결과 저장 (옵션)**: `~/.claude/logs/<project_id>/digest-YYYY-MM-DD.md` — `project` 인자로 쓴 id 그대로 사용. 반영 자체는 후속 `/reflect-promote` 가 맡음.
 
 ## Cross-project 집계 (v0.2.0: `project=all`)
 
@@ -99,9 +121,10 @@ Precedence Table #3 (`scope == global` AND 복수 프로젝트 freq ≥ 3) 판�
 
 ### 1. 글로벌 순회 규칙
 
-- `~/.claude/logs/*/` 하위 모든 디렉토리를 project_id로 취급
-- 해시 없는 레거시 디렉토리(`basename` 만)는 **별도 버킷**으로 표시 (legacy). 마이그레이션 권고는 `reflect-kit/scripts/legacy-id-migrate.sh` 참조
-- 디렉토리별 `reflections-YYYY-MM.md` 와 `.errors.log` 둘 다 읽음. 읽기 실패는 해당 프로젝트만 skip (ER-03)
+- `~/.claude/logs/*/` 하위 모든 디렉토리를 project bucket 으로 취급
+- **내부 디렉토리 제외**: `is_internal_logs_dir` 로 `_cron`, dot-prefix, underscore-prefix 디렉토리는 순회에서 자동 제외 (예: `_cron/` 은 install-scheduler.sh 로그 — project 가 아님)
+- v0.3.0 Hybrid 에서 `<basename>` 과 `<basename>-<hash6>` 는 동등 bucket. 두 형태가 공존하는 프로젝트는 `normalize_project_query` 로 자동 병합 집계
+- 디렉토리별 `reflections-YYYY-MM.md` 와 `.errors.log` 둘 다 읽음. 읽기 실패는 해당 bucket 만 skip
 
 ### 2. 이중 freq 계산 (프로젝트별 + 글로벌)
 
@@ -128,20 +151,22 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 ### 4. Given-When-Then 동작 계약
 
 - **Given** `/reflect-digest project=all period=30d` 호출,
-- **When** digest가 `~/.claude/logs/*/reflections-*.md` 를 순회하고,
+- **When** digest가 `~/.claude/logs/*/reflections-*.md` 를 순회하고 (내부 디렉토리 제외),
 - **Then** 리포트 상단에 아래 형태의 메타라인이 정확히 표시된다:
   ```text
   # Reflect Digest — project=all (30d)
-  대상 프로젝트: N개 (레거시 L개 / 해시 포맷 H개) / 총 엔트리: M개
+  대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
   집계 실패 프로젝트: K개 (project_id 리스트)
   ```
+- `basename B개` = hash suffix 없는 Hybrid 기본 포맷 bucket 수
+- `hash-fallback H개` = `<basename>-<6자 hex>` 충돌 fallback + v0.2.0 레거시 bucket 수
 - `집계 실패 프로젝트` 블록이 0개여도 라인 자체는 생략하지 않고 `0개` 로 명시한다 (검증 용이성).
 
 ### 5. 출력 포맷 예시 (cross-project)
 
 ```text
 # Reflect Digest — project=all (30d)
-대상 프로젝트: 7개 (레거시 3개 / 해시 포맷 4개) / 총 엔트리: 142개
+대상 프로젝트: 7개 (basename 4개 / hash-fallback 3개) / 총 엔트리: 142개
 집계 실패 프로젝트: 0개
 
 ## 글로벌 상위 패턴 (mistake_tag × project_count)
@@ -151,7 +176,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 |    8  |    2     | startup-env-check-hook-failure | tool_failure | high | single | hard | **hook 검토 (rule #1)** |
 
 ## 프로젝트별 Top 3
-- `claude-plugins-701489`: tag-a (5) · tag-b (3) · tag-c (2)
+- `claude-plugins`: tag-a (5) · tag-b (3) · tag-c (2)
 - `fit-pal-aa2a00`: tag-d (4) · tag-e (3)
 - ...
 ```
@@ -248,12 +273,14 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 
 - harness-kaizen 규칙을 이 리포트에 섞지 마라 — 별개 시스템
 - 승격을 이 스킬에서 실제로 반영하지 마라 — **리포트만**. 반영은 `/reflect-promote`가 담당.
-- basename만으로 프로젝트 매칭하지 마라 — 반드시 `<basename>-<hash>` 전체 ID 사용.
+- `<basename>` 쿼리를 단일 디렉토리 매칭으로 처리하지 마라 — 반드시 `normalize_project_query` 로 glob union 확장 (기존 hash 디렉토리 누락 방지).
+- 내부 디렉토리(`_cron`, dot/underscore-prefix)를 project bucket 으로 집계하지 마라 — `is_internal_logs_dir` 필터 필수.
 - 단일 `surface_candidate` 필드를 재도입하지 마라 — 4축 precedence로만 계산.
 - period 범위 밖 엔트리를 섞지 마라.
 
 ## 예시 사용
 
 - `/reflect-digest` — 현재 프로젝트, 지난 7일
-- `/reflect-digest project=fit-pal-a3b4f9 period=30d`
-- `/reflect-digest period=all`
+- `/reflect-digest project=app_kiosk period=30d` — basename 입력 (v0.3.0 Hybrid). `app_kiosk` 와 `app_kiosk-<hash6>` 모두 포함
+- `/reflect-digest project=fit-pal-a3b4f9 period=30d` — 완전 id 입력 (backward-compat)
+- `/reflect-digest project=all period=30d` — cross-project 집계

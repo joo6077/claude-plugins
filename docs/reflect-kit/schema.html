@@ -178,14 +178,16 @@ approach_note: &lt;str&gt;                  # 시도한 접근법 1줄</pre>
   </section>
 
   <section>
-    <div class="section-label">4 · Project ID</div>
+    <div class="section-label">4 · Project ID (v0.3.0 Hybrid)</div>
     <h2>로그 분리 식별자</h2>
-    <pre>&lt;basename(git-root)&gt;-&lt;6자 md5 hex&gt;</pre>
+    <pre>기본:         &lt;basename(git-root)&gt;
+충돌 fallback: &lt;basename&gt;-&lt;6자 md5 hex&gt;</pre>
     <ul style="color:var(--text2);padding-left:20px;line-height:1.9">
-      <li>git root 없으면 cwd 절대경로의 md5로 대체</li>
-      <li>헬퍼: <code>${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh</code>의 <code>compute_project_id</code></li>
-      <li>basename만 같고 다른 repo라도 hash가 달라 충돌하지 않는다</li>
-      <li>예: <code>fit-pal-a3b4f9</code>, <code>claude-plugins-1a3bcba</code></li>
+      <li>v0.3.0 Hybrid — basename 기본 사용, <code>.project-root</code> 마커로 충돌 감지 시 자동 hash fallback + stderr 1회 경고</li>
+      <li>기존 <code>&lt;basename&gt;-&lt;hash6&gt;</code> 디렉토리는 glob union 으로 read 지원 (backward-compatible · 마이그레이션 불필요)</li>
+      <li>git root 없으면 cwd basename 사용 (기존 fallback 유지)</li>
+      <li>헬퍼: <code>${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh</code> — <code>compute_project_id</code> (쓰기 id), <code>normalize_project_query</code> (읽기 glob union), <code>is_internal_logs_dir</code> (<code>_cron</code>/dot/underscore 제외)</li>
+      <li>예: <code>claude-plugins</code> (basename), <code>fit-pal-a3b4f9</code> (충돌 감지 또는 v0.2.0 레거시)</li>
     </ul>
   </section>
 

@@ -4,7 +4,15 @@
 
 Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개인 레벨에 적용한다. 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고, 빈도·위험도·절차성 기준으로 Claude Code의 여러 surface(CLAUDE.md / memory / skill / hook)에 승격 반영한다. 승격된 규칙은 30일 pre/post 재발률로 효과를 측정한다.
 
-버전: `0.2.0`
+버전: `0.3.0`
+
+## v0.3.0 변경 요약
+
+- **Hybrid project_id** — `<basename>` 기본 + 충돌 감지 시 `<basename>-<hash6>` fallback. 기존 `<hash6>` 디렉토리는 read 에서 glob union 으로 그대로 포함 (마이그레이션 불필요, 데이터 이동 0건)
+- **정규화 쿼리** — `/reflect-digest project=<basename>` 와 `/reflect-digest project=<basename>-<hash6>` 가 동일 결과 반환 (`normalize_project_query` 헬퍼)
+- **내부 디렉토리 제외** — `_cron`, dot/underscore-prefix 디렉토리(예: install-scheduler 로그)를 project bucket 순회에서 자동 제외 (`is_internal_logs_dir` 필터)
+- **충돌 1회 경고** — 동일 basename + 다른 git root 감지 시 stderr 경고는 단일 프로세스에서 1회만 (PID 기반 마커)
+- **docs/DESIGN.md** — 결정 #3 Hybrid 전환 근거 상세 기록 (독립 리뷰 A/B/C안 비교, backward-compat 보증)
 
 ## 목적
 
@@ -77,7 +85,7 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 └── promotions-ledger.md        # /reflect-promote 승격 이력
 ```
 
-`project_id` = `<basename(git-root)>-<6자 md5 hex>`. 헬퍼: `hooks/_lib-project-id.sh`.
+`project_id` = `<basename(git-root)>` (Hybrid 기본, v0.3.0+) / 충돌 시 `<basename>-<6자 md5 hex>` fallback. 헬퍼: `hooks/_lib-project-id.sh` — `compute_project_id` (쓰기용), `normalize_project_query` (읽기용 glob 확장).
 
 ## 의존성
 

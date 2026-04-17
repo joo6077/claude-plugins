@@ -154,7 +154,7 @@ a.src-link:hover{text-decoration:underline}
     <div class="score-badge">5축 24/25 · read-only</div>
     <div class="finding-grid" style="margin-top:24px">
       <div class="finding"><span class="finding-sev sev-blocker">BLOCKER</span><div class="finding-title">raw 로그 PII 유출 리스크</div><div class="finding-fix">✅ 해결: <code>_lib-redact.sh</code> 구현. Q1=A redaction 정책.</div></div>
-      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">basename 식별자 충돌</div><div class="finding-fix">✅ 해결: <code>&lt;basename&gt;-&lt;hash6&gt;</code> 포맷.</div></div>
+      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">basename 식별자 충돌</div><div class="finding-fix">✅ v0.1 해결: <code>&lt;basename&gt;-&lt;hash6&gt;</code> 상시 적용. 🔄 v0.3.0 재검토: 운영 데이터 상 충돌 0건 확인 후 Hybrid(<code>&lt;basename&gt;</code> 기본 + 충돌 시 <code>-&lt;hash6&gt;</code> fallback)로 전환 — backward-compatible, 데이터 이동 0건.</div></div>
       <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">category 4종 상호배타 아님</div><div class="finding-fix">✅ 해결: <code>primary_category + also_applies</code> multi-label.</div></div>
       <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">surface 단일 필드 압축</div><div class="finding-fix">✅ 해결: scope × risk × procedurality × enforcement 4축 분해.</div></div>
       <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">codex exec 실패 은폐</div><div class="finding-fix">✅ 해결: exit code 검사 + <code>.errors.log</code> 사유 태그.</div></div>

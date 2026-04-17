@@ -193,7 +193,7 @@ tr:hover td{background:rgba(244,63,94,0.03)}
     <div class="cards">
       <div class="card"><h3>1. kit 이름 <code>reflect-kit</code></h3><p>Reflexion 논문 + 한국어 "성찰" 뉘앙스 + joo6077-plugins 네이밍 컨벤션.</p></div>
       <div class="card"><h3>2. raw 저장 + redaction</h3><p>편의성 유지 + 시크릿 자동 치환. 민감 패턴 10종 (sk-ant-*, ghp_*, AKIA*, JWT, private key 등).</p></div>
-      <div class="card"><h3>3. project_id 해시화</h3><p><code>&lt;basename&gt;-&lt;6자 md5&gt;</code>. basename 충돌 방지.</p></div>
+      <div class="card"><h3>3. project_id Hybrid (v0.3.0)</h3><p><code>&lt;basename&gt;</code> 기본 + 충돌 감지 시 <code>-&lt;hash6&gt;</code> fallback. 기존 hash 디렉토리는 glob union 으로 read 지원 (backward-compatible).</p></div>
       <div class="card"><h3>4. 카테고리 multi-label</h3><p><code>primary_category + also_applies</code>. misunderstanding과 wrong_approach는 상호배타 아님.</p></div>
       <div class="card"><h3>5. Surface 4축 분해</h3><p>단일 필드 대신 scope × risk × procedurality × enforcement로 precedence 판정.</p></div>
       <div class="card"><h3>6. 임계값 hypothesis</h3><p>freq 2/3은 임시값. kaizen이 30일 calibration.</p></div>
