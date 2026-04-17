@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Research — Reflect Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#F43F5E;--accent2:#FDA4AF;
+  --accent-dim:rgba(244,63,94,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(244,63,94,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(244,63,94,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:720px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(244,63,94,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.85rem}
+th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(244,63,94,0.03)}
+a.src-link{color:var(--accent);text-decoration:none;font-family:var(--mono);font-size:0.8rem;word-break:break-all}
+a.src-link:hover{text-decoration:underline}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.callout.warn{border-left-color:var(--yellow)}
+.score-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);font-weight:700;font-size:0.9rem;border:1px solid rgba(244,63,94,0.25)}
+.finding-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin:16px 0}
+.finding{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.finding-sev{font-family:var(--mono);font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:10px}
+.sev-blocker{background:rgba(248,113,113,0.15);color:var(--red)}
+.sev-major{background:rgba(251,191,36,0.15);color:var(--yellow)}
+.sev-minor{background:rgba(168,168,168,0.15);color:var(--text2)}
+.finding-title{font-size:0.92rem;font-weight:600;margin-bottom:8px;color:var(--text)}
+.finding-fix{color:var(--green);font-size:0.82rem;line-height:1.6;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="../index.html" class="logo-link">Reflect Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">Research</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>Research — Reflect Kit</h1>
+    <p class="subtitle">
+      reflect-kit 설계 근거가 된 Codex 리서치 2회분 요약. 방법론 비교 · surface 선택 기준 · 반복 실수 탐지 스택 · 설계 감사 발견·해결 정리.
+    </p>
+    <div class="badge">Codex 리서치 2회 · 5축 스코어 합계 49/50</div>
+  </div>
+
+  <section>
+    <div class="section-label">리서치 #1</div>
+    <h2>방법론 / Surface / 탐지 / 측정 (2026-04-16)</h2>
+    <div class="score-badge">5축 25/25 · read-only</div>
+  </section>
+
+  <section>
+    <div class="section-label">방법론 비교</div>
+    <h2>개인 사용자 레벨 적용성</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>방법론</th><th>적용성</th><th>난이도</th><th>기대 효과</th><th>Claude Code식 해석</th><th>출처</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Reflexion</strong></td><td>높음</td><td>중</td><td>높음</td><td>실패/교정 로그를 "언어적 반성 + 에피소드 메모리"로 저장하고 다음 세션에 재주입. reflect-kit 수집 레이어와 1:1 매칭</td><td><a class="src-link" href="https://arxiv.org/abs/2303.11366">2303.11366</a></td></tr>
+          <tr><td><strong>Self-Refine</strong></td><td>높음</td><td>낮음~중</td><td>중</td><td>세션 종료 요약, 실패 요약, 규칙 초안 생성. 훅/배치로 돌리기 쉬움</td><td><a class="src-link" href="https://arxiv.org/abs/2303.17651">2303.17651</a></td></tr>
+          <tr><td>CoVe</td><td>중</td><td>중</td><td>중~높음</td><td>사실성/외부근거/체크리스트 검증에 강함. 반복 실수 교정엔 과함</td><td><a class="src-link" href="https://arxiv.org/abs/2309.11495">2309.11495</a></td></tr>
+          <tr><td>Constitutional AI</td><td>중~높음</td><td>낮음</td><td>중</td><td>개인 "헌법"을 CLAUDE.md/skill rubric로 두고 자기비평</td><td><a class="src-link" href="https://arxiv.org/abs/2212.08073">2212.08073</a></td></tr>
+          <tr><td>Self-Consistency</td><td>중</td><td>중~높음</td><td>중</td><td>다수결/합의. 비용 큼, 기본축엔 비효율</td><td><a class="src-link" href="https://arxiv.org/abs/2203.11171">2203.11171</a></td></tr>
+          <tr><td>DSPy</td><td>낮음~중</td><td>높음</td><td>중</td><td>외부 분석기/분류기 용. Claude 주입 표면엔 부적합</td><td><a class="src-link" href="https://dspy.ai/">dspy.ai</a></td></tr>
+          <tr><td>DPO / KTO</td><td>매우 낮음</td><td>매우 높음</td><td>직접 효과 낮음</td><td>파인튜닝 전제. 선호쌍 아이디어만 차용 가능</td><td><a class="src-link" href="https://openreview.net/forum?id=HPuSIXJaa9">DPO</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>추론</strong>: 개인 사용자 레벨 실용축은 <code>Reflexion + Self-Refine + 얇은 Constitutional rubric + 제한적 CoVe</code>. DPO/KTO는 학습법이라 직접 적용 불가. reflect-kit은 Reflexion을 근간으로, kaizen 스킬에 Self-Refine 적용(초안→자기비평→개선 프롬프트).
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Surface 선택 기준</div>
+    <h2>6종 surface 비교</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Surface</th><th>토큰 비용</th><th>영향력</th><th>적용 지연</th><th>업데이트 비용</th><th>적합한 피드백</th></tr></thead>
+        <tbody>
+          <tr><td>CLAUDE.md</td><td>높음</td><td>높음</td><td>즉시</td><td>중</td><td>항상 지켜야 할 규칙, 프로젝트 불변 규약</td></tr>
+          <tr><td>auto memory</td><td>중하</td><td>중</td><td>즉시</td><td>매우 낮음</td><td>개인 선호, 자주 쓰는 명령, 디버깅 메모</td></tr>
+          <tr><td>skills</td><td>평시 매우 낮음</td><td>높음</td><td>필요 시</td><td>중</td><td>다단계 절차, 체크리스트, 리뷰 플레이북</td></tr>
+          <tr><td>agents</td><td>평시 낮음</td><td>높음</td><td>필요 시</td><td>중</td><td>특정 역할 검증기, reviewer, classifier</td></tr>
+          <tr><td>hooks</td><td>평시 0에 가까움</td><td>매우 높음</td><td>즉시(이벤트)</td><td>중~높음</td><td>강제/차단/자동수집/자동주입</td></tr>
+          <tr><td>slash commands</td><td>평시 0에 가까움</td><td>낮음~중</td><td>수동 즉시</td><td>낮음</td><td>명시적으로 돌리는 분석, 주간 집계</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>결정 규칙</strong> — "항상 그래야 함" → CLAUDE.md 또는 hook / "자주 도움되지만 치명적 아님" → auto memory / "절차·검토 프롬프트" → skill / "위반하면 안 됨"은 memory가 아니라 <strong>hook 쪽</strong>.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">반복 실수 탐지 스택</div>
+    <h2>regex + sequence + embedding + LLM</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>단계</th><th>방법</th><th>역할</th></tr></thead>
+        <tbody>
+          <tr><td>1 (기본선)</td><td>키워드 매칭</td><td><code>tool failure</code>, "아니", "다시", "그 뜻이 아니고", "파일 경로", "권한"</td></tr>
+          <tr><td>2</td><td>sequence pattern</td><td><code>실패 → 사용자 교정 → 재시도 성공</code> 2~4턴</td></tr>
+          <tr><td>3</td><td>embedding clustering</td><td>같은 의미 다른 표현 묶기</td></tr>
+          <tr><td>4</td><td>LLM 분류</td><td>클러스터 라벨링, surface 추천, contract 초안</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      regex only = recall 낮음. LLM only = 비쌈. <code>regex/sequence prefilter + embedding cluster + LLM adjudication</code> 3단 조합이 현실적. <br>reflect-kit 초기 구현은 "LLM 직접 분류(codex exec)"로 시작 — 데이터 쌓이면 보조안으로 진화.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">리서치 #2 — Adversarial Audit</div>
+    <h2>초기 설계의 결함 8건과 해결 (2026-04-16)</h2>
+    <div class="score-badge">5축 24/25 · read-only</div>
+    <div class="finding-grid" style="margin-top:24px">
+      <div class="finding"><span class="finding-sev sev-blocker">BLOCKER</span><div class="finding-title">raw 로그 PII 유출 리스크</div><div class="finding-fix">✅ 해결: <code>_lib-redact.sh</code> 구현. Q1=A redaction 정책.</div></div>
+      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">basename 식별자 충돌</div><div class="finding-fix">✅ 해결: <code>&lt;basename&gt;-&lt;hash6&gt;</code> 포맷.</div></div>
+      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">category 4종 상호배타 아님</div><div class="finding-fix">✅ 해결: <code>primary_category + also_applies</code> multi-label.</div></div>
+      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">surface 단일 필드 압축</div><div class="finding-fix">✅ 해결: scope × risk × procedurality × enforcement 4축 분해.</div></div>
+      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">codex exec 실패 은폐</div><div class="finding-fix">✅ 해결: exit code 검사 + <code>.errors.log</code> 사유 태그.</div></div>
+      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">임계값 근거 부재</div><div class="finding-fix">✅ 해결: hypothesis 마킹 + <code>/reflect-kaizen</code> 30d calibration.</div></div>
+      <div class="finding"><span class="finding-sev sev-major">MAJOR</span><div class="finding-title">regression ledger 부재</div><div class="finding-fix">✅ 해결: <code>promotions-ledger.md</code> 스키마 + <code>/reflect-promote</code>.</div></div>
+      <div class="finding"><span class="finding-sev sev-minor">MINOR</span><div class="finding-title">CLAUDE.md 200줄 spillover 정책</div><div class="finding-fix">✅ 해결: <code>.claude/rules/&lt;tag&gt;.md</code> path-scoped 스필오버.</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">공개 사례 (벤치마크)</div>
+    <h2>Claude / Cursor / Cline / Continue / aider</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>도구</th><th>피드백 메커니즘</th><th>출처</th></tr></thead>
+        <tbody>
+          <tr><td>Claude Code</td><td>CLAUDE.md, auto memory, skills, subagents, hooks</td><td><a class="src-link" href="https://code.claude.com/docs/en/memory">memory docs</a></td></tr>
+          <tr><td>Cursor</td><td>Rules/Memories, Bugbot learned rules, hybrid online/offline eval</td><td><a class="src-link" href="https://cursor.com/blog/bugbot-learning/">bugbot-learning</a></td></tr>
+          <tr><td>Cline</td><td>Memory Bank (구조화 문서 기반 지속 메모리)</td><td><a class="src-link" href="https://docs.cline.bot/features/memory-bank">memory-bank</a></td></tr>
+          <tr><td>Continue</td><td>rules-memory</td><td><a class="src-link" href="https://www.continue.dev/continuedev/rules-memory">rules-memory</a></td></tr>
+          <tr><td>aider</td><td>conventions (항상 읽는 규약 파일)</td><td><a class="src-link" href="https://aider.chat/docs/usage/conventions.html">conventions</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>reflect-kit 포지셔닝</strong>: Cursor의 "learned rules + hybrid eval"과 가장 가깝지만, Claude Code 고유의 <strong>skills / subagents / hooks</strong> 조합으로 차별화. 승격 이력을 파일 기반(<code>promotions-ledger.md</code>)으로 관리해 회귀 측정이 수동 개입 없이 돌아간다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">두 리서치의 공통 결론</div>
+    <h2>4가지 원칙</h2>
+    <ol style="color:var(--text2);padding-left:24px;line-height:2">
+      <li>Reflexion 구조가 개인 사용자 레벨 개선 루프의 근간</li>
+      <li>Surface는 단일 차원이 아니라 <code>scope × risk × procedurality × enforcement × frequency</code> 다차원으로 결정</li>
+      <li>임계값은 사전 고정하지 말고 데이터로 calibrate</li>
+      <li>수집·분석·승격·측정을 하나의 사이클로 닫아야 효과 있음</li>
+    </ol>
+  </section>
+</main>
+</body>
+</html>

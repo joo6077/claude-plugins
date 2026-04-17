@@ -44,6 +44,11 @@
       "name": "planning-kit",
       "source": "./planning-kit",
       "description": "[v0.2.0 · 2026-04-14] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2"
+    },
+    {
+      "name": "reflect-kit",
+      "source": "./reflect-kit",
+      "description": "[v0.1.0 · 2026-04-17] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — 3 훅 수집 · /reflect-digest 집계 · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration"
     }
   ]
 }

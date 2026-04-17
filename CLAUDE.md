@@ -15,6 +15,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **rust-kit** — Rust 전용 백엔드 개발 워크플로우 플러그인 — 프로젝트 스캐폴딩, API 생성, 모델 관리, 빌드/테스트/감사 자동화
 - **react-kit** — React + Vite + Tauri 2 + Rust WASM 전용 개발 워크플로우 플러그인 — 21종 스킬 + 3 에이전트, 라이브러리 0개 애니메이션, Clean Architecture, Strict TypeScript 강제
 - **planning-kit** — 스택 무관 제품 기획 플러그인 — 소크라테스식 질문, PRD, 우선순위, 리스크, 개념 데이터 모델(Mermaid), GitHub 프로젝트 동기화
+- **reflect-kit** — 개인 Claude Code 사용자의 대화 피드백 → 학습 → 재주입 파이프라인 kit. Reflexion 방법론을 개인 레벨에 적용하여 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고 빈도·위험도·절차성 기준으로 CLAUDE.md / memory / skill / hook에 승격한다.
 <!-- /AUTO:summary -->
 
 ## Commands
@@ -237,6 +238,15 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `widget-inspector-react` (에이전트) | React 재사용 패턴 감지 (중복 UI, shadcn 재발명, variant hint, container hint, cross-feature import) |
 | `animation-architect-react` (에이전트) | 3-Tier 애니메이션 자문 (Tier 판정 + 접근성 검토 + 구현 단계). 라이브러리 0개 원칙 enforce |
 | `react-reviewer` (에이전트) | react-audit 6 카테고리 독립 평가, Library Policy 빌드 게이트 검증 |
+
+**reflect-kit — 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론)**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/reflect-digest` | 주간/월간 reflections 로그 집계. 4축 precedence table로 승격 후보 도출 (리포트만) |
+| `/reflect-promote` | 승격 후보를 실제 surface(CLAUDE.md/memory/skill/hook/path-scoped)에 반영 + ledger 관리 + rollback |
+| `/reflect-kaizen` | LLM-as-judge 스팟체크 + 30d post_freq calibration + 임계값/프롬프트 개선 제안 |
+| 훅 3종 | UserPromptSubmit(log-prompt), PostToolUseFailure(log-tool-failure), Stop(log-reflection, 백그라운드) |
 
 **이 레포 전용 스킬 (.claude/skills/)**
 

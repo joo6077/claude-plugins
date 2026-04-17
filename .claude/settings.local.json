@@ -17,7 +17,9 @@
       "WebFetch(domain:ui.shadcn.com)",
       "Bash([ -f .harness/sprint-contract.md ])",
       "Bash(mv .harness/sprint-contract.md \".harness/history/$\\(date +%Y%m%d-%H%M\\)-sprint-contract.md\")",
-      "Bash(sort find:*)"
+      "Bash(sort find:*)",
+      "Bash(cp /Users/jackson/.claude/plans/reflect-kit/DESIGN.md /Users/jackson/Hub/10_Dev/claude-plugins/reflect-kit/docs/DESIGN.md)",
+      "Bash(cp /Users/jackson/.claude/plans/reflect-kit/RESEARCH.md /Users/jackson/Hub/10_Dev/claude-plugins/reflect-kit/docs/RESEARCH.md)"
     ]
   }
 }

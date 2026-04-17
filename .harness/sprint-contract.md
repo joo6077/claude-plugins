@@ -9,7 +9,7 @@ conditions: 23
 - [ ] SK-01: `reflect-kit/skills/` 하위에 3개 스킬 폴더가 존재하며 각각 `SKILL.md` 파일을 가진다 — `reflect-digest/`, `reflect-promote/`, `reflect-kaizen/` [exact, enumerated]
 - [ ] SK-02: 3개 SKILL.md 모두 valid YAML frontmatter를 가지며 `name`, `description`, `argument-hint`, `user-invocable` 필드가 존재한다 [exact, enumerated]
 - [ ] SK-03: `reflect-digest/SKILL.md`의 description과 본문에서 기존 `dialog-feedback-digest`, `misunderstandings-*.md`, `dialog-feedback-promote` 참조가 모두 신규 이름(`reflect-digest`, `reflections-*.md`, `reflect-promote`)으로 대체되어 있다 — 해당 문자열 0회 매치 [exact, collective]
-- [ ] SK-04: `reflect-promote/SKILL.md`는 다음 프로세스 섹션을 포함한다 — 후보 입력 수신, DESIGN.md Precedence Table 기반 surface 판정, 실제 파일 수정(CLAUDE.md/memory/skill/hook/.claude/rules), ULID 기반 rule_id 발급, `promotions-ledger.md` append, rollback 절차 [structural, enumerated]
+- [ ] SK-04: `reflect-promote/SKILL.md`는 다음 프로세스 섹션을 포함한다 — 후보 입력 수신, DESIGN.md Precedence Table 기반 surface 판정, 실제 파일 수정(CLAUDE.md/memory/skill/hook/.claude/rules), `uuidgen` 기반 rule_id 발급(ULID 라이브러리 의존성 회피), `promotions-ledger.md` append, rollback 절차 [structural, enumerated]
 - [ ] SK-05: `reflect-kaizen/SKILL.md`는 다음 4개 프로세스 섹션을 모두 포함하며 각 섹션은 최소 3개 단계(- 또는 숫자 bullet)를 가진다 — (1) 최근 reflections 랜덤 10건 LLM-as-judge 재분류, (2) 원 분류 vs 재분류 일치도 측정 + 70% 미만 시 프롬프트 개선 트리거, (3) `promotions-ledger.md`의 `post_freq` 30일 calibration, (4) 임계값/프롬프트 개선 제안 [structural, enumerated]
 - [ ] SK-06: 3개 스킬 모두 본문에 `Gotchas` 섹션과 `Process` 섹션을 포함하며, Gotchas는 최소 3개 이상 항목을 가진다 [structural, enumerated]
 - [ ] SK-07: `docs/reflect-kit/` 하위에 `design.html`, `research.html`, `schema.html` 3개 standalone HTML 페이지가 존재하며, 각 페이지 `:root`의 `--accent` 값은 `#F43F5E`, `--accent2`는 `#FDA4AF`, `--accent-dim`은 `rgba(244,63,94,0.12)`로 설정된다. 외부 CDN/CSS/JS 링크 0개 [exact, enumerated]

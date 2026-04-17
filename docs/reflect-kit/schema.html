@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Schema — Reflect Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#F43F5E;--accent2:#FDA4AF;
+  --accent-dim:rgba(244,63,94,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(244,63,94,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(244,63,94,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:720px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(244,63,94,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0;white-space:pre}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(244,63,94,0.03)}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.tag-list{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.tag-item{display:grid;grid-template-columns:220px 1fr;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.88rem}
+.tag-key{font-family:var(--mono);color:var(--accent2);font-size:0.82rem}
+.tag-desc{color:var(--text2);line-height:1.6}
+@media(max-width:640px){.tag-item{grid-template-columns:1fr}}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:16px 0}
+.category-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.category-name{font-family:var(--mono);color:var(--accent);font-weight:700;font-size:0.9rem;margin-bottom:8px}
+.category-desc{color:var(--text2);font-size:0.85rem;line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="../index.html" class="logo-link">Reflect Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">Schema</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>Schema — Reflect Kit</h1>
+    <p class="subtitle">
+      파이프라인이 주고받는 데이터의 정본. Reflection 엔트리 YAML · Promotion Ledger · 훅 에러 로그 태그 · project_id 포맷 네 가지를 한 페이지에 모은다.
+    </p>
+    <div class="badge">YAML 스키마 · Ledger · 에러 태그 · project_id</div>
+  </div>
+
+  <section>
+    <div class="section-label">1 · Reflection Entry</div>
+    <h2>log-reflection.sh 출력 YAML</h2>
+    <p style="color:var(--text2);margin-bottom:16px">경로: <code>~/.claude/logs/&lt;project_id&gt;/reflections-YYYY-MM.md</code> — 각 타임스탬프 헤더 아래 여러 YAML 블록이 올 수 있다. <code>no issues</code> 한 줄이면 블록 없음.</p>
+    <pre>primary_category: misunderstanding | repeated_error | wrong_approach | tool_failure
+also_applies: []                      # multi-label: 추가 해당 카테고리
+mistake_tag: &lt;kebab-case 영문 태그&gt;   # 같은 패턴이면 같은 태그 (집계 키)
+trigger: &lt;str&gt;                        # 사용자 프롬프트/상황 스니펫 1줄
+undesired_behavior: &lt;str&gt;             # Claude가 한 잘못 1줄
+desired_behavior: &lt;str&gt;               # 사용자가 원한 것 1줄
+severity: low | medium | high
+# Surface 결정 4축
+scope: session | project | global
+risk_class: low | medium | high
+procedurality: single_rule | multi_step_procedure
+enforcement_need: soft_reminder | hard_gate
+evidence_turns: &lt;int&gt;                 # 교정이 드러난 턴 수
+tools_used:
+  skills: []                          # invoke된 slash command
+  agents: []                          # spawn된 subagent type
+  mcp_servers: []                     # 사용한 MCP 서버 prefix
+approach_note: &lt;str&gt;                  # 시도한 접근법 1줄</pre>
+  </section>
+
+  <section>
+    <div class="section-label">카테고리</div>
+    <h2>4종 (상호배타 아님)</h2>
+    <div class="category-grid">
+      <div class="category-card">
+        <div class="category-name">misunderstanding</div>
+        <div class="category-desc">사용자 의도 오해 — 엉뚱한 파일 수정, 범위 오해, 잘못된 가정</div>
+      </div>
+      <div class="category-card">
+        <div class="category-name">repeated_error</div>
+        <div class="category-desc">같은 세션 내 또는 사용자 교정 뒤에도 반복된 같은 실수</div>
+      </div>
+      <div class="category-card">
+        <div class="category-name">wrong_approach</div>
+        <div class="category-desc">더 적절한 스킬/에이전트/MCP가 있었는데 비효율적으로 시도</div>
+      </div>
+      <div class="category-card">
+        <div class="category-name">tool_failure</div>
+        <div class="category-desc">도구 호출 실패 중 맥락이 의미 있는 것 (단순 exit code-only는 제외)</div>
+      </div>
+    </div>
+    <div class="callout">
+      <code>primary_category</code>에 지배적인 하나, <code>also_applies</code>에 추가 해당 카테고리를 배열로. 단일 필드 <code>surface_candidate</code>는 스키마에서 제거됐다 — 4축 precedence로만 계산한다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">2 · Promotion Ledger</div>
+    <h2>reflect-promote 승격 이력</h2>
+    <p style="color:var(--text2);margin-bottom:16px">경로: <code>~/.claude/logs/&lt;project_id&gt;/promotions-ledger.md</code> — 승격마다 한 엔트리 append. 30일 뒤 kaizen이 <code>post_freq</code>를 채운다.</p>
+    <pre>- rule_id: &lt;uuid&gt;                       # uuidgen
+  mistake_tag: &lt;tag&gt;
+  promoted_to: project_claude_md | project_memory | global_claude_md |
+               global_memory | skill | path_scoped_rule | hook
+  target_path: &lt;실제 수정된 파일 절대경로&gt;
+  promoted_at: &lt;ISO8601 with TZ&gt;
+  source_evidence:
+    - path: ~/.claude/logs/&lt;id&gt;/reflections-YYYY-MM.md
+      anchor: &lt;타임스탬프 헤더&gt;
+  initial_freq: &lt;int&gt;                   # 승격 시점 빈도
+  calibration_window_days: 30
+  post_freq: &lt;int | null&gt;               # 30일 뒤 kaizen이 업데이트
+  status: active | demoted | removed
+  demotion_reason: &lt;str&gt;                # 강등 시만</pre>
+    <h3 style="margin-top:24px">회귀 판정 규칙</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>조건</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td><code>post_freq == 0</code> AND <code>risk_class == low</code></td><td><code>status: demoted</code> 후보 (과잉제약)</td></tr>
+          <tr><td><code>post_freq &gt;= initial_freq</code></td><td>효과 없음 → 프롬프트/surface 재검토</td></tr>
+          <tr><td><code>post_freq &lt; initial_freq</code></td><td>효과 있음 → 유지</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">3 · Error Log Tags</div>
+    <h2>.errors.log — 훅 실패 사유 태그</h2>
+    <p style="color:var(--text2);margin-bottom:16px">구조: 한 줄당 <code>&lt;ISO8601+TZ&gt; [&lt;hook-name&gt;] &lt;reason&gt;</code>. <code>log-reflection.sh</code>가 사용하는 태그:</p>
+    <div class="tag-list">
+      <div class="tag-item"><div class="tag-key">skip:cli-missing</div><div class="tag-desc">codex CLI 없음</div></div>
+      <div class="tag-item"><div class="tag-key">skip:transcript-path-empty</div><div class="tag-desc">stdin에 transcript_path 없음</div></div>
+      <div class="tag-item"><div class="tag-key">skip:transcript-file-missing path=&lt;&gt;</div><div class="tag-desc">transcript 파일 없음</div></div>
+      <div class="tag-item"><div class="tag-key">skip:transcript-too-short lines=&lt;N&gt;</div><div class="tag-desc">10줄 미만</div></div>
+      <div class="tag-item"><div class="tag-key">skip:transcript-empty-after-tail</div><div class="tag-desc">tail 결과 빈 값</div></div>
+      <div class="tag-item"><div class="tag-key">fail:codex-exit-&lt;N&gt; session=&lt;&gt;</div><div class="tag-desc">codex exec 비정상 종료</div></div>
+      <div class="tag-item"><div class="tag-key">fail:codex-empty-output session=&lt;&gt;</div><div class="tag-desc">codex 빈 응답</div></div>
+    </div>
+    <div class="callout">
+      <code>/reflect-digest</code>가 <code>.errors.log</code>를 읽어 훅 실패 요약도 리포트에 포함한다. 특정 태그가 반복되면 인프라 문제 신호다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">4 · Project ID</div>
+    <h2>로그 분리 식별자</h2>
+    <pre>&lt;basename(git-root)&gt;-&lt;6자 md5 hex&gt;</pre>
+    <ul style="color:var(--text2);padding-left:20px;line-height:1.9">
+      <li>git root 없으면 cwd 절대경로의 md5로 대체</li>
+      <li>헬퍼: <code>${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh</code>의 <code>compute_project_id</code></li>
+      <li>basename만 같고 다른 repo라도 hash가 달라 충돌하지 않는다</li>
+      <li>예: <code>fit-pal-a3b4f9</code>, <code>claude-plugins-1a3bcba</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label">버전 관리</div>
+    <div class="callout">
+      스키마 변경 시 이 페이지와 <code>reflect-kit/docs/DESIGN.md</code>, <code>reflect-kit/docs/SCHEMA.md</code>를 동시에 업데이트한다. 호환되지 않는 변경(필드 삭제·의미 변경)은 <code>log-reflection.sh</code> 프롬프트도 함께 수정해야 한다.
+    </div>
+  </section>
+</main>
+</body>
+</html>
