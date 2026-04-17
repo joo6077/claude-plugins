@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apple Human Interface Guidelines — Design Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,150,90,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(16px,1.2vw,18px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,150,90,0.25)}
+  .card h3{margin-bottom:8px;color:var(--text)}
+  .card p{color:var(--text2);font-size:16px;line-height:1.65}
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--mono);
+    padding:4px 10px;border:1px solid rgba(232,150,90,0.3);border-radius:6px;transition:all var(--transition)}
+  .card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  th{text-align:left;padding:12px 14px;color:var(--text);font-weight:700;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(232,150,90,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:18px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare p{font-size:13px;color:var(--text2);line-height:1.65}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0;margin-right:10px}
+  .stat{display:flex;flex-direction:column;gap:4px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+  .stat-value{font-size:24px;font-weight:800;color:var(--accent);font-family:var(--mono)}
+  .stat-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Apple Human Interface Guidelines</h1>
+<p class="subtitle">
+  Apple HIG 핵심 원칙, iOS/macOS/visionOS/watchOS/CarPlay 플랫폼별 차이, SF Symbols 심층, 주요 컴포넌트 패턴.
+  design-kit 의 디자인 시스템 레이어가 참조하는 공식 가이드라인.
+</p>
+
+<!-- ── 1. 4대 핵심 원칙 ── -->
+<div class="section">
+  <div class="section-label">1 · 4대 핵심 원칙</div>
+  <p class="desc">Apple 의 디자인 철학은 <strong>명확성 · 존중 · 깊이 · 일관성</strong> 네 기둥으로 정의된다. 기능적 완결성과 콘텐츠 우선주의가 모든 결정을 관통한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="tag">01</span>
+      <h3>명확성 (Clarity)</h3>
+      <p>모든 요소가 읽기 쉽고 이해하기 쉬워야 한다. 크기 · 색상 · 무게로 위계를 신호하고, 전문 용어 없는 간결한 레이블, SF Symbols 기반 기능적 아이콘을 제공한다.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines">developer.apple.com/hig</a>
+    </div>
+    <div class="card">
+      <span class="tag">02</span>
+      <h3>존중 (Deference)</h3>
+      <p>UI 는 콘텐츠의 프레임이지 경쟁자가 아니다. 유체 애니메이션 · 반투명으로 콘텐츠가 주인공이 되게 하고, 장식적 요소는 기능적 목적이 있을 때만 사용한다.</p>
+      <a class="card-source" href="https://dev.to/matheussricardoo/navigating-apples-human-interface-guidelines-hig-a-practical-guide-26ka">DEV Community — Practical Guide</a>
+    </div>
+    <div class="card">
+      <span class="tag">03</span>
+      <h3>깊이 (Depth)</h3>
+      <p>레이어링과 자연스러운 전환으로 공간적 맥락을 제공한다. z 축 그림자 · 투명도 · 전환 애니메이션 · 제스처 연속성으로 사용자 현재 위치를 시각화한다.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines">developer.apple.com/hig</a>
+    </div>
+    <div class="card">
+      <span class="tag">04</span>
+      <h3>일관성 (Consistency)</h3>
+      <p>플랫폼 전체에서 예측 가능한 경험. 시스템 제공 컨트롤과 표준 패턴을 우선 사용하고, 앱 내부에서도 용어 · 아이콘 · 동작의 일관성을 유지한다.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines">developer.apple.com/hig</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 2. 플랫폼별 핵심 수치 ── -->
+<div class="section">
+  <div class="section-label">2 · 플랫폼별 핵심 수치</div>
+  <p class="desc">각 플랫폼의 입력 방식과 맥락이 터치 타겟 · 인터랙션 시간을 결정한다. 이 수치는 <em>최소값</em>으로, 특수 맥락(운전 중 등)에서는 확장한다.</p>
+
+  <table>
+    <thead>
+      <tr><th>플랫폼</th><th>최소 타겟</th><th>인터랙션 시간</th><th>기본 입력</th><th>핵심 제약</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>iOS</strong></td><td><code>44×44 pt</code></td><td>제한 없음</td><td>터치</td><td>한 손 조작 영역 고려</td></tr>
+      <tr><td><strong>iPadOS</strong></td><td><code>44×44 pt</code></td><td>제한 없음</td><td>터치 + Pencil</td><td>Size Classes 적응 레이아웃</td></tr>
+      <tr><td><strong>macOS</strong></td><td>정밀 포인팅 허용</td><td>제한 없음</td><td>마우스 · 트랙패드 · 키보드</td><td>메뉴 바 · 사이드바 · 툴바</td></tr>
+      <tr><td><strong>visionOS</strong></td><td>시선 포커스 링</td><td>제한 없음</td><td>시선 + 핀치</td><td>유리 질감 · 3D 공간</td></tr>
+      <tr><td><strong>watchOS</strong></td><td><code>38 pt</code></td><td><code>2 ~ 5 초</code></td><td>탭 · 크라운 · Siri</td><td>Glance-and-go</td></tr>
+      <tr><td><strong>CarPlay</strong></td><td>iOS 대비 확대</td><td><code>≤ 2 초</code></td><td>터치 · 노브 · Siri</td><td>운전 중 시야 제한</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 3. iOS 주요 컴포넌트 패턴 ── -->
+<div class="section">
+  <div class="section-label">3 · iOS 주요 컴포넌트 패턴</div>
+  <p class="desc">탭 바 · 내비게이션 바 · 시트 · 알럿. 네 가지가 iOS 앱 구조의 90% 를 차지한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3><span class="num">1</span>내비게이션 바</h3>
+      <p><strong>Large Title</strong> — 정적 상태 34pt 좌측 정렬, 스크롤 시 17pt 중앙 정렬로 축소 전환. 최상위 화면에서만 사용하고 하위 화면은 표준 크기.</p>
+      <p style="margin-top:8px">좌측 뒤로가기 · 중앙 제목 · 우측 트레일링 액션의 3단 구조를 유지한다.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/navigation-bars">developer.apple.com/.../navigation-bars</a>
+    </div>
+    <div class="card">
+      <h3><span class="num">2</span>탭 바</h3>
+      <p><strong>iPhone 최대 5개 탭</strong> — 초과 시 "더보기" 탭 자동 생성. 각 탭은 독립적 내비 스택 유지. SF Symbols 아이콘 + 레이블 조합.</p>
+      <p style="margin-top:8px">iPadOS 18+ 는 적응형 탭 바: 컴팩트(탭) ↔ 확장(사이드바) 사용자 전환.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/tab-bars">developer.apple.com/.../tab-bars</a>
+    </div>
+    <div class="card">
+      <h3><span class="num">3</span>시트 (Sheets)</h3>
+      <p><strong>Page / Form / Full Screen</strong> 3가지 프레젠테이션. 모달 사용 최소화 — 주의 유발 · 작업 완료 · 중요 저장 시에만 사용. 시트 내부 시트 중첩 지양.</p>
+      <p style="margin-top:8px">닫기/취소 동작(스와이프 다운 또는 버튼)을 항상 명확히 제공한다.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/sheets">developer.apple.com/.../sheets</a>
+    </div>
+    <div class="card">
+      <h3><span class="num">4</span>알럿 (Alerts)</h3>
+      <p><strong>필수적 · 실행 가능한 정보만</strong>. 2개 버튼일 때 기본 액션 우측(또는 상단), 취소 좌측. 파괴적 액션은 빨간색 + 확인 단계 필수. 자동 사라짐 없음.</p>
+      <p style="margin-top:8px">알럿(시스템 주도) vs 액션 시트(사용자 액션 응답) 구분.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/alerts">developer.apple.com/.../alerts</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 4. macOS 핵심 차이 ── -->
+<div class="section">
+  <div class="section-label">4 · macOS vs iOS 핵심 차이</div>
+  <p class="desc">마우스/트랙패드 기반의 정밀 포인팅, 다중 윈도우, 메뉴 바는 iOS 에 없는 macOS 고유 요소다. 같은 앱이라도 플랫폼 간 네비게이션 패턴이 바뀐다.</p>
+
+  <table>
+    <thead><tr><th>축</th><th>iOS</th><th>macOS</th></tr></thead>
+    <tbody>
+      <tr><td>최상위 탐색</td><td>탭 바 (하단)</td><td>사이드바 (좌측)</td></tr>
+      <tr><td>액션 제공</td><td>내비 바 트레일링</td><td>툴바 (상단 · 커스터마이징)</td></tr>
+      <tr><td>전역 메뉴</td><td>없음</td><td>메뉴 바 (화면 최상단)</td></tr>
+      <tr><td>단축키</td><td>외부 키보드 있을 때</td><td>Cmd + X 체계 전면 활용</td></tr>
+      <tr><td>윈도우</td><td>단일</td><td>다중 · 타일링 · 전체화면</td></tr>
+      <tr><td>툴바 커스터마이징</td><td>불가</td><td>사용자 재배치 가능</td></tr>
+    </tbody>
+  </table>
+
+  <p class="desc" style="margin-top:20px">
+    <strong>메뉴 바 높이 24pt (Big Sur 이후)</strong>. 앱의 모든 명령은 메뉴 바를 통해 접근 가능해야 하며, 단축키를 메뉴 항목 우측에 표기한다.
+  </p>
+</div>
+
+<!-- ── 5. visionOS — 공간 컴퓨팅 ── -->
+<div class="section">
+  <div class="section-label">5 · visionOS — 공간 컴퓨팅</div>
+  <p class="desc">Apple Vision Pro 는 시선 추적 + 핀치 손 제스처가 기본 입력이다. 2D UI 의 "여백" 개념이 실제 물리 공간의 거리/배치로 확장된다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>윈도우 (Windows)</h3>
+      <p>SwiftUI 기반 2D 인터페이스가 공간에 배치. 기존 iOS/iPadOS 뷰를 재사용하며 3D 콘텐츠로 깊이 추가 가능.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/designing-for-visionos">HIG — visionOS</a>
+    </div>
+    <div class="card">
+      <h3>볼륨 (Volumes)</h3>
+      <p>RealityKit 또는 Unity 3D 콘텐츠. 모든 각도에서 관찰 가능한 장면. 유리 바닥 그림자로 물리적 실재감.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/spatial-layout">HIG — Spatial Layout</a>
+    </div>
+    <div class="card">
+      <h3>몰입형 공간</h3>
+      <p>Full Immersion vs Passthrough 모드. 사용자가 실제 환경과 가상 환경 사이를 단계적으로 전환할 수 있다.</p>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/designing-for-visionos">HIG — visionOS</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 6. watchOS · CarPlay ── -->
+<div class="section">
+  <div class="section-label">6 · watchOS · CarPlay</div>
+  <p class="desc">둘 다 <em>짧은 주시 시간</em>이 공통 제약이다. watchOS 는 glance-and-go, CarPlay 는 운전 중 2초 이내 판독 가능해야 한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>watchOS 설계 원칙</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
+        <li>1~2개 핵심 지표, 1~2개 액션, 리스트는 10개 이하</li>
+        <li>탭 바 금지 → 세로 리스트 또는 수평 페이지 스와이프</li>
+        <li>컴플리케이션은 시계 화면 앱 데이터 표시, 최대 3~4줄</li>
+        <li>알림 인라인 액션으로 앱 열지 않고 "승인/거절" 즉시 처리</li>
+        <li>Digital Crown 은 정밀 입력(시간·볼륨)에서 터치보다 우수</li>
+      </ul>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/designing-for-watchos">HIG — watchOS</a>
+    </div>
+    <div class="card">
+      <h3>CarPlay 설계 원칙</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
+        <li>Glanceable UI — 큰 텍스트 · 높은 대비 · 단순 레이아웃</li>
+        <li>목록 최대 24 항목, 한 화면 4~6개가 실무 권장</li>
+        <li>허용 앱 유형: 오디오 · 내비 · 메시지 · 충전 · 주차 (한정)</li>
+        <li>Siri 통합 필수 — 음성으로 대부분의 기능 접근</li>
+        <li>야간 모드 기본 — 밝은 UI 는 운전자 시야 방해</li>
+      </ul>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/designing-for-carplay">HIG — CarPlay</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 7. SF Symbols 심층 ── -->
+<div class="section">
+  <div class="section-label">7 · SF Symbols 심층</div>
+  <p class="desc">6,000+ 벡터 심볼 라이브러리. San Francisco 시스템 폰트와 수직/무게 정렬이 보장되므로 텍스트와 나란히 두어도 어긋나지 않는다.</p>
+
+  <div class="grid-4" style="margin-bottom:24px">
+    <div class="stat">
+      <div class="stat-value">6,000+</div>
+      <div class="stat-label">심볼 개수</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">9×3</div>
+      <div class="stat-label">무게 × 스케일</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">4</div>
+      <div class="stat-label">렌더링 모드</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">Auto</div>
+      <div class="stat-label">RTL 미러링</div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>렌더링 모드</th><th>설명</th><th>적합한 용도</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Monochrome</strong></td><td>단색, tintColor 따름</td><td>대부분의 UI 아이콘 (기본)</td></tr>
+      <tr><td><strong>Hierarchical</strong></td><td>기본 색상 + 불투명도 레이어</td><td>복잡한 심볼의 레이어 구분</td></tr>
+      <tr><td><strong>Palette</strong></td><td>레이어별 개별 색상</td><td>브랜드 색상 · 다색 아이콘</td></tr>
+      <tr><td><strong>Multicolor</strong></td><td>Apple 사전 정의 고정 색</td><td>날씨 · 기기 · 자연 심볼</td></tr>
+    </tbody>
+  </table>
+
+  <p class="desc" style="margin-top:20px">
+    <strong>Variable Value (SF Symbols 4+)</strong> — 0.0~1.0 연속 값으로 심볼의 채움 수준 표현. 볼륨 · 신호 강도 · 배터리 잔량 같은 상태를 하나의 심볼로 시각화.
+  </p>
+  <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/sf-symbols">HIG — SF Symbols</a>
+</div>
+
+<!-- ── 8. Bad vs Good ── -->
+<div class="section">
+  <div class="section-label">8 · 안티패턴 vs 올바른 패턴</div>
+  <p class="desc">HIG 원칙을 위반하는 전형적 실수와 교정안. design-kit 의 design-audit 스킬이 가장 자주 지적하는 항목.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 한 손 조작 무시</div>
+      <p>주요 CTA 를 iPhone 화면 최상단에 배치. 큰 화면 사용자는 엄지 닿지 않아 양손 조작 강제.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 엄지 존 배치</div>
+      <p>주요 액션은 화면 하단 또는 탭 바 근처(엄지 닿는 영역)에 배치. 상단은 제목 · 보조 정보만.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 탭 바 6개 이상</div>
+      <p>iPhone 탭 바에 6개 이상의 탭 강제 배치. 아이콘 간격이 좁아지고 오탭 빈번.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 5개 이하</div>
+      <p>최대 5개로 제한. 초과 항목은 "더보기" 탭 또는 첫 탭의 하위 메뉴로 배치.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 시트 중첩</div>
+      <p>시트 안에서 또 다른 시트를 pushModal. 사용자가 어느 맥락에 있는지 혼란.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 푸시 내비</div>
+      <p>시트 내부에서는 내비게이션 스택으로 드릴다운. 최종 완료/취소만 시트를 닫음.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 알럿 남용</div>
+      <p>저장 성공 · 새 메시지 · 단순 안내까지 알럿으로 표시. 사용자 경험 중단.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 토스트 · 배지</div>
+      <p>알럿은 필수/실행가능 정보에만. 저장 성공은 인라인 체크, 새 메시지는 배지로.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — SF Symbols 무시</div>
+      <p>커스텀 비트맵 아이콘 사용. 다크모드 · 동적 타이포 · RTL 에서 모두 수동 처리.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — SF Symbols</div>
+      <p>시스템 심볼 우선 사용. 무게 · 스케일 · 다크모드 · RTL 자동 처리.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 9. Gotchas 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">9 · Gotchas 체크리스트</div>
+  <p class="desc">HIG 준수 구현 시 반드시 확인할 항목. design-audit 에서 FAIL 빈도가 높은 순서로 정렬.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>터치 타겟 44×44pt</strong> — 아이콘 시각 크기가 작아도 터치 영역은 <code>44pt</code> 확보. 인접 타겟 간 최소 8pt 간격.</div></li>
+    <li><span class="check">✓</span><div><strong>Safe Area 대응</strong> — 노치 · Dynamic Island · 홈 인디케이터를 피하는 레이아웃. 전체화면 콘텐츠는 Safe Area 무시 옵션 명시.</div></li>
+    <li><span class="check">✓</span><div><strong>Size Classes 분기</strong> — iPhone Compact vs iPad Regular 에서 동일 앱이 레이아웃 재구성. 하드코딩된 width 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>Dynamic Type 지원</strong> — 시스템 타이포 스케일 사용. 고정 font size(17pt) 대신 <code>.body</code>, <code>.headline</code> 같은 스타일 토큰.</div></li>
+    <li><span class="check">✓</span><div><strong>Haptic Feedback</strong> — 중요 액션에 햅틱. 성공/실패/선택 변경 시 <code>UIImpactFeedbackGenerator</code> 또는 SwiftUI <code>.sensoryFeedback</code>.</div></li>
+    <li><span class="check">✓</span><div><strong>다크 모드 기본 구현</strong> — <code>UIColor.label</code>, <code>UIColor.systemBackground</code> 같은 동적 컬러만 사용. 하드코딩 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>VoiceOver 라벨</strong> — 모든 인터랙티브 요소에 <code>accessibilityLabel</code>. 장식 이미지는 <code>.isAccessibilityElement = false</code>.</div></li>
+    <li><span class="check">✓</span><div><strong>Reduce Motion 대응</strong> — <code>UIAccessibility.isReduceMotionEnabled</code> 체크 후 애니메이션 길이 축소 또는 제거.</div></li>
+    <li><span class="check">✓</span><div><strong>visionOS 포커스 상태</strong> — 시선 추적 포커스에 대응하는 hover 상태 구현. <code>.hoverEffect</code> 또는 커스텀 스타일.</div></li>
+    <li><span class="check">✓</span><div><strong>키보드 단축키(macOS/iPadOS)</strong> — 주요 메뉴 항목에 Cmd+X 단축키. <code>UIKeyCommand</code> 또는 SwiftUI <code>.keyboardShortcut</code>.</div></li>
+  </ul>
+</div>
+
+<!-- ── 10. 실무 팁 · FAQ ── -->
+<div class="section">
+  <div class="section-label">10 · 실무 팁 · FAQ</div>
+  <p class="desc">실제 프로젝트 적용 시 자주 부딪히는 질문들. HIG 의 공식 가이드만으로는 답하기 어려운 경계 케이스.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Q. 커스텀 폰트를 써도 HIG 준수인가?</h3>
+      <p>브랜드 아이덴티티가 강한 앱은 커스텀 폰트 허용. 단 <strong>Dynamic Type</strong> 연동은 필수 — <code>UIFont.preferredFont</code> 스케일을 따르거나 <code>.scaledFont</code> 수정자를 사용한다. 고정 크기 하드코딩은 HIG 접근성 원칙 위반.</p>
+    </div>
+    <div class="card">
+      <h3>Q. 탭 바 5개 규칙을 꼭 지켜야 하나?</h3>
+      <p>iPhone 에서는 공간 제약으로 사실상 필수. 6개 이상 필요하면 <strong>"더보기"</strong> 탭으로 하위 메뉴화 또는 사이드바 패턴(iPad) 채택. iPadOS 18+ 의 적응형 탭 바는 확장 모드에서 7개까지 자연스럽게 표시 가능.</p>
+    </div>
+    <div class="card">
+      <h3>Q. 크로스 플랫폼 앱에 HIG 를 어떻게 적용?</h3>
+      <p>iOS 빌드는 HIG, Android 빌드는 Material Design 를 각각 따른다. Flutter 는 <code>CupertinoApp</code> + <code>MaterialApp</code> 분기 또는 <code>Platform.isIOS</code> 감지로 플랫폼별 UI 전환. 공통 비즈니스 로직 + 플랫폼별 presentation 구조.</p>
+    </div>
+    <div class="card">
+      <h3>Q. visionOS 앱도 즉시 출시 가능한가?</h3>
+      <p>iOS 앱은 Vision Pro 에서 "호환 모드"로 기본 동작. 하지만 시선/핀치 입력 최적화 · 공간 레이아웃 활용은 별도 튜닝 필요. <code>ornaments</code> · <code>.hoverEffect</code> · glass 재질을 도입해 visionOS 네이티브 경험 구현.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>TL;DR — HIG 를 한 문장으로</h3>
+    <p>"콘텐츠가 주인공이다. UI 는 콘텐츠를 돋보이게 하는 프레임이며, 플랫폼마다 입력 방식이 다르므로 그에 맞춰 인터랙션 패턴을 조정한다." — 이 원칙만 지켜도 대부분의 HIG 조항이 자동으로 충족된다.</p>
+    <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/foundations">HIG — Foundations</a>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

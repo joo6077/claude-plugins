@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Material Design 3 — Design Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,150,90,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(16px,1.2vw,18px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,150,90,0.25)}
+  .card h3{margin-bottom:8px;color:var(--text)}
+  .card p{color:var(--text2);font-size:16px;line-height:1.65}
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--mono);
+    padding:4px 10px;border:1px solid rgba(232,150,90,0.3);border-radius:6px;transition:all var(--transition)}
+  .card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  th{text-align:left;padding:12px 14px;color:var(--text);font-weight:700;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(232,150,90,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:18px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare p{font-size:13px;color:var(--text2);line-height:1.65}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0;margin-right:10px}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.6}
+  pre .k{color:var(--accent)}
+  pre .c{color:var(--text3)}
+  .timeline{display:flex;gap:0;margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+  .timeline-step{flex:1;padding:16px;background:var(--surface);text-align:center;position:relative}
+  .timeline-step + .timeline-step{border-left:1px solid var(--border)}
+  .timeline-year{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px}
+  .timeline-title{font-size:13px;font-weight:700;margin-top:4px;color:var(--text)}
+  .timeline-desc{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Material Design 3</h1>
+<p class="subtitle">
+  M3 핵심 원칙, M3 Expressive 업데이트, Material You 다이내믹 컬러, 디자인 토큰 3계층, Jetpack Compose 통합, 주요 컴포넌트 패턴.
+  Android/Flutter 프로젝트의 디자인 시스템이 참조하는 공식 가이드라인.
+</p>
+
+<!-- ── 1. 버전 타임라인 ── -->
+<div class="section">
+  <div class="section-label">1 · Material Design 진화</div>
+  <p class="desc">2014년 물리적 종이 메타포로 시작해 2021 Material You 로 개인화 중심 전환, 2025 M3 Expressive 로 표현력을 확장했다.</p>
+
+  <div class="timeline">
+    <div class="timeline-step">
+      <div class="timeline-year">2014</div>
+      <div class="timeline-title">M1</div>
+      <div class="timeline-desc">물리적 종이 메타포 · 그림자 · 그리드</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-year">2018</div>
+      <div class="timeline-title">M2</div>
+      <div class="timeline-desc">커스터마이징 강화 · 둥근 모서리 · 흰 여백</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-year">2021</div>
+      <div class="timeline-title">M3 — Material You</div>
+      <div class="timeline-desc">다이내믹 컬러 · 개인화 · 부드러운 곡선</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-year">2025</div>
+      <div class="timeline-title">M3 Expressive</div>
+      <div class="timeline-desc">화려한 색 · 스프링 모션 · Squircle</div>
+    </div>
+  </div>
+  <a class="card-source" href="https://en.wikipedia.org/wiki/Material_Design">Wikipedia — Material Design</a>
+</div>
+
+<!-- ── 2. 핵심 설계 원칙 ── -->
+<div class="section">
+  <div class="section-label">2 · 핵심 설계 원칙</div>
+  <p class="desc">M3 의 세 기둥 — 개인화 · 적응형 · 접근성. 각 원칙이 다이내믹 컬러 · 반응형 그리드 · 토널 팔레트로 구체화된다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <span class="tag">01</span>
+      <h3>개인화 (Personalization)</h3>
+      <p>사용자 배경화면에서 알고리즘으로 색상 추출 → 앱 · 시스템 UI 에 개인 맞춤 팔레트 적용. 브랜드 컬러와 사용자 선호를 동시에 반영하는 유연한 색상 체계.</p>
+      <a class="card-source" href="https://m3.material.io/foundations">m3.material.io/foundations</a>
+    </div>
+    <div class="card">
+      <span class="tag">02</span>
+      <h3>적응형 (Adaptive)</h3>
+      <p>폰 · 태블릿 · 폴더블 · 데스크톱 · Wear OS 까지 다양한 폼팩터에 적응. 반응형 그리드 + Canonical layouts(목록-상세, 피드, 보조 패널) 활용.</p>
+      <a class="card-source" href="https://m3.material.io/foundations">m3.material.io/foundations</a>
+    </div>
+    <div class="card">
+      <span class="tag">03</span>
+      <h3>접근성 우선 (A11y)</h3>
+      <p>토널 팔레트 시스템으로 대비 있는 색상 조합 자동 생성. WCAG 기준 충족 색상 역할(role) 체계. Tone 차이가 곧 대비비를 결정.</p>
+      <a class="card-source" href="https://m3.material.io/foundations">m3.material.io/foundations</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 3. 토큰 3계층 ── -->
+<div class="section">
+  <div class="section-label">3 · 디자인 토큰 3계층</div>
+  <p class="desc">Reference → System → Component 계층 구조. 각 수준이 하위 수준에서 값을 상속받아, 라이트/다크 전환 시 상위 참조만 바꾸면 전체 테마가 변경된다.</p>
+
+  <table>
+    <thead><tr><th>계층</th><th>역할</th><th>예시</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Reference Tokens</strong></td><td>원시 값 (HEX · px · 폰트)</td><td><code>md.ref.palette.primary40 = #6750A4</code></td></tr>
+      <tr><td><strong>System Tokens</strong></td><td>역할 · 의미 (테마 전환 지점)</td><td><code>md.sys.color.primary = md.ref.palette.primary40</code></td></tr>
+      <tr><td><strong>Component Tokens</strong></td><td>개별 UI 속성</td><td><code>md.comp.filled-button.container.color = md.sys.color.primary</code></td></tr>
+    </tbody>
+  </table>
+
+  <pre><span class="c">// System Token 예시 — 라이트/다크 전환은 여기서 교체</span>
+md.sys.color.primary     = md.ref.palette.primary40
+md.sys.color.on-primary  = md.ref.palette.primary100
+md.sys.color.surface     = md.ref.palette.neutral99
+md.sys.typescale.body-large = { font: Roboto, size: 16sp, weight: 400 }
+md.sys.shape.corner.medium  = 12dp</pre>
+
+  <a class="card-source" href="https://m3.material.io/foundations/design-tokens">m3.material.io/foundations/design-tokens</a>
+</div>
+
+<!-- ── 4. 다이내믹 컬러 ── -->
+<div class="section">
+  <div class="section-label">4 · 다이내믹 컬러 · HCT 색상 공간</div>
+  <p class="desc">Google 이 M3 를 위해 개발한 HCT(Hue · Chroma · Tone) 색상 공간. 기존 HSL/HSV 와 달리 <strong>인지적 균일성</strong>을 보장하여 Tone 차이만으로 WCAG 대비비를 계산할 수 있다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>Hue (색조)</h3>
+      <p>빨강 · 파랑 등. <code>0 ~ 360°</code>. HSL 과 동일 차원이지만 HCT 에서는 채도/밝기와 독립적으로 변화.</p>
+    </div>
+    <div class="card">
+      <h3>Chroma (채도)</h3>
+      <p>색의 선명도. <code>0 ~ 120+</code>. Primary 는 chroma 48(선명), Secondary 는 chroma 16(차분).</p>
+    </div>
+    <div class="card">
+      <h3>Tone (밝기)</h3>
+      <p>WCAG 대비 계산에 직접 사용 가능. <code>0(검정) ~ 100(흰색)</code>. Tone 40 vs Tone 100 = 대비비 7:1 (AAA).</p>
+    </div>
+  </div>
+
+  <table style="margin-top:24px">
+    <thead><tr><th>색상 역할</th><th>용도</th><th>Tone (라이트)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Primary</strong></td><td>주요 버튼 · 활성 상태</td><td>40</td></tr>
+      <tr><td><strong>Secondary</strong></td><td>필터 칩 · 보조 컴포넌트</td><td>40</td></tr>
+      <tr><td><strong>Tertiary</strong></td><td>대비 악센트 · 강조</td><td>40</td></tr>
+      <tr><td><strong>Error</strong></td><td>오류 상태 표시</td><td>40</td></tr>
+      <tr><td><strong>Surface</strong></td><td>배경 · 카드 · 시트</td><td>99</td></tr>
+      <tr><td><strong>On-*</strong></td><td>역할 위 콘텐츠 (대비 보장)</td><td>100 / 10</td></tr>
+      <tr><td><strong>*-Container</strong></td><td>해당 역할의 컨테이너</td><td>90</td></tr>
+    </tbody>
+  </table>
+  <a class="card-source" href="https://m3.material.io/styles/color/roles">m3.material.io/styles/color/roles</a>
+</div>
+
+<!-- ── 5. 주요 컴포넌트 ── -->
+<div class="section">
+  <div class="section-label">5 · 주요 컴포넌트 패턴</div>
+  <p class="desc">FAB · 네비게이션(Bar/Rail/Drawer) · 카드 · 칩. 네 컴포넌트가 M3 앱의 레이아웃 기준을 만든다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3><span class="num">1</span>FAB 4종</h3>
+      <p><strong>Small 40 · Standard 56 · Large 96 · Extended(가변)</strong>. 화면당 하나만 사용. M3 에서 M2 대비 각진 형태로 전환, 코너 반경 FAB 16 · Small 12 · Large 28dp.</p>
+      <a class="card-source" href="https://m3.material.io/components/floating-action-button/overview">m3.material.io/.../fab</a>
+    </div>
+    <div class="card">
+      <h3><span class="num">2</span>적응형 네비게이션</h3>
+      <p><strong>&lt;600dp Bar · 600~1240 Rail · &gt;1240 Drawer</strong>. 화면 크기에 따라 다른 네비 컴포넌트 자동 전환. Rail 은 M3 Expressive 에서 접힘/펼침 상태 지원.</p>
+      <a class="card-source" href="https://m3.material.io/components/navigation-rail/guidelines">m3.material.io/.../navigation</a>
+    </div>
+    <div class="card">
+      <h3><span class="num">3</span>카드 3종</h3>
+      <p><strong>Elevated · Filled · Outlined</strong>. 시각적 분리 강도 순. 코너 반경 12dp medium. 전체 카드를 탭 타겟으로 만들거나 내부 버튼 배치 가능.</p>
+      <a class="card-source" href="https://m3.material.io/components/cards/specs">m3.material.io/components/cards</a>
+    </div>
+    <div class="card">
+      <h3><span class="num">4</span>칩 4종</h3>
+      <p><strong>Assist · Filter · Input · Suggestion</strong>. 높이 32dp, 코너 반경 8dp. Filter/Input 은 선택 상태 표시, Input 은 삭제(x) 버튼 포함 가능.</p>
+      <a class="card-source" href="https://m3.material.io/components/chips/specs">m3.material.io/components/chips</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 6. M3 Expressive ── -->
+<div class="section">
+  <div class="section-label">6 · M3 Expressive (2025, Android 16)</div>
+  <p class="desc">M3 의 미니멀 톤에서 벗어나 과감한 색상 · 형태 · 모션을 도입. 기존 M3 와 하위 호환 — Expressive 컴포넌트를 점진적 도입 가능.</p>
+
+  <table>
+    <thead><tr><th>영역</th><th>M3 기존</th><th>M3 Expressive</th></tr></thead>
+    <tbody>
+      <tr><td>색상</td><td>5가지 키 컬러</td><td><strong>6번째 키 컬러</strong> + 고채도 변형</td></tr>
+      <tr><td>Shape</td><td>코너 4단계</td><td><strong>Squircle</strong> + 더 큰 반경</td></tr>
+      <tr><td>타이포그래피</td><td>5역할 × 3크기</td><td>가변 서체 축 강화 + Expressive 스케일</td></tr>
+      <tr><td>모션</td><td>7 이징 + 16 듀레이션</td><td><strong>스프링 물리 기반</strong></td></tr>
+      <tr><td>컴포넌트</td><td>표준 크기</td><td><strong>XL 변형</strong> 추가 (FAB XL · Button XL)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card" style="margin-top:20px">
+    <h3>Squircle (스퀴클)</h3>
+    <p>원과 사각형의 중간 형태. CSS <code>border-radius</code> 와 달리 모서리에서 직선→곡선 전환이 <strong>연속 곡률</strong>로 부드럽다. iOS 는 오래전부터 앱 아이콘에 사용했으며, M3 Expressive 가 Android 에 도입했다.</p>
+    <a class="card-source" href="https://material.io/blog/material-3-expressive-update">material.io/blog/m3-expressive</a>
+  </div>
+</div>
+
+<!-- ── 7. Jetpack Compose / Flutter ── -->
+<div class="section">
+  <div class="section-label">7 · 구현 — Jetpack Compose · Flutter</div>
+  <p class="desc">Android Jetpack Compose 는 MaterialTheme 으로, Flutter 는 ColorScheme.fromSeed 로 동일한 HCT 알고리즘을 공유한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Jetpack Compose</h3>
+      <pre><span class="k">MaterialTheme</span>(
+  colorScheme = <span class="k">dynamicColorScheme</span>(context),
+  typography = Typography(
+    displayLarge = TextStyle(/* ... */),
+  ),
+  shapes = Shapes(
+    small = RoundedCornerShape(4.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp),
+  )
+) {
+  <span class="c">// MaterialTheme.colorScheme.primary 로 참조</span>
+}</pre>
+      <a class="card-source" href="https://m3.material.io/develop/android/jetpack-compose">m3.../develop/jetpack-compose</a>
+    </div>
+    <div class="card">
+      <h3>Flutter</h3>
+      <pre><span class="k">MaterialApp</span>(
+  theme: ThemeData(
+    useMaterial3: <span class="k">true</span>,
+    colorSchemeSeed: Colors.blue,
+    <span class="c">// 또는 ColorScheme.fromSeed(seedColor: brandColor)</span>
+  ),
+)</pre>
+      <p style="margin-top:8px"><code>ColorScheme.fromSeed()</code> 는 Material Color Utilities 의 HCT 알고리즘을 내부 사용. Android 다이내믹 컬러와 동일한 팔레트 생성 로직.</p>
+      <a class="card-source" href="https://docs.flutter.dev/release/breaking-changes/material-3-migration">flutter.dev/.../material-3-migration</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 8. Bad vs Good ── -->
+<div class="section">
+  <div class="section-label">8 · 안티패턴 vs 올바른 패턴</div>
+  <p class="desc">M3 원칙을 위반하는 전형적 실수와 교정안.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 하드코딩 컬러</div>
+      <p><code>color: Color(0xFF6750A4)</code> 로 Primary 직접 지정. 다크 모드 · 다이내믹 컬러 적용 불가.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — System Token</div>
+      <p><code>color: colorScheme.primary</code> 참조. 테마 변경 시 자동 전환.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — FAB 2개 이상</div>
+      <p>화면 한 곳에 Save + Share 두 FAB 배치. 주요 단일 액션 개념 위배.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — FAB 1개 + 툴바</div>
+      <p>가장 중요한 단일 액션만 FAB, 나머지는 TopAppBar 의 액션 아이콘.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 고정 Bar 강제</div>
+      <p>태블릿에서도 Navigation Bar(하단) 강제. 화면 넓이를 활용 못함.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 적응형 분기</div>
+      <p>600dp 경계로 Rail 전환. 1240dp 초과 시 Drawer. 화면 크기에 맞는 UX.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — useMaterial3: false</div>
+      <p>Flutter 프로젝트에서 M2 유지. 2025 기준 deprecated.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — useMaterial3: true</div>
+      <p>M3 기본 활성. ColorScheme.fromSeed 로 브랜드 색만 지정.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 9. Gotchas 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">9 · Gotchas 체크리스트</div>
+  <p class="desc">M3 준수 구현 시 design-audit 에서 자주 지적되는 항목.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>Material 3 활성화</strong> — <code>useMaterial3: true</code> (Flutter), Compose 는 <code>androidx.compose.material3</code> import.</div></li>
+    <li><span class="check">✓</span><div><strong>ColorScheme 단일 소스</strong> — 모든 컬러 참조는 <code>colorScheme.*</code>. 직접 HEX 하드코딩 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>라이트/다크 토큰 분리</strong> — <code>ColorScheme.fromSeed</code> 에 <code>Brightness.light</code> / <code>Brightness.dark</code> 각각 생성.</div></li>
+    <li><span class="check">✓</span><div><strong>타입스케일 15단계 준수</strong> — Display · Headline · Title · Body · Label × Large/Medium/Small. 임의 사이즈 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>코너 반경 4단계</strong> — None 0 · Small 4 · Medium 12 · Large 16dp. Expressive 는 추가 XL. 임의 반경 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>Elevation 토큰 사용</strong> — <code>md.sys.elevation.level0 ~ level5</code> 6단계만. 임의 그림자 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>적응형 네비게이션 분기</strong> — <code>WindowSizeClass</code> 또는 <code>MediaQuery</code> 로 Bar/Rail/Drawer 자동 전환.</div></li>
+    <li><span class="check">✓</span><div><strong>On-* 대비 자동 보장</strong> — <code>colorScheme.onPrimary</code> 위에 텍스트 배치 시 대비비 자동. 수동 계산 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>Motion 토큰</strong> — Emphasized/Standard/Legacy 이징 + duration 토큰. 임의 Curve/Duration 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>Expressive 점진 도입</strong> — 기존 M3 컴포넌트와 병존 가능. 스프링 모션은 강조 요소부터 단계적.</div></li>
+  </ul>
+</div>
+
+<!-- ── 10. 실무 팁 · FAQ ── -->
+<div class="section">
+  <div class="section-label">10 · 실무 팁 · FAQ</div>
+  <p class="desc">M3 도입 시 자주 부딪히는 경계 케이스.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Q. 다이내믹 컬러를 반드시 써야 하나?</h3>
+      <p>강한 브랜드 아이덴티티가 있는 앱은 <strong>완전 브랜드</strong> 전략으로 비활성 가능. 다만 시스템 · 유틸리티 앱은 사용자 경험 통일을 위해 활성 권장. ColorScheme.fromSeed 는 한 Seed 로 전 팔레트 생성하므로 브랜드 + 접근성 동시 확보.</p>
+    </div>
+    <div class="card">
+      <h3>Q. iOS 에도 M3 를 쓸 수 있나?</h3>
+      <p>Flutter 프로젝트는 <code>useMaterial3: true</code> 가 iOS/Android 공통 적용되며, 플랫폼 감지는 별도 <code>CupertinoApp</code> 분기로 한다. 크로스 플랫폼에서 M3 단일 채택 시 iOS 사용자에게 낯선 패턴이므로 주의.</p>
+    </div>
+    <div class="card">
+      <h3>Q. FAB 과 BottomAppBar 는 같이 쓸 수 있나?</h3>
+      <p>M3 는 <code>BottomAppBar</code> 내부에 FAB 가 embed 되는 패턴을 공식 지원. Embedded FAB · Floating FAB · Docked FAB 세 위치 옵션. 화면당 FAB 하나 원칙은 유지.</p>
+    </div>
+    <div class="card">
+      <h3>Q. Custom theme 과 Material 컴포넌트 충돌?</h3>
+      <p>컴포넌트 토큰 오버라이드로 해결. Compose <code>MaterialTheme(colorScheme = ..., typography = ..., shapes = ...)</code>, Flutter <code>ThemeData(extensions: [MyCustomTheme(...)])</code>. Material 기본값은 유지하되 브랜드 포인트만 재정의.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>TL;DR — M3 를 한 문장으로</h3>
+    <p>"토큰 3계층(Reference → System → Component)으로 일관성을 확보하고, HCT 색상 공간으로 접근성을 자동화하며, 화면 크기에 따라 Bar/Rail/Drawer 를 자동 분기한다." — 이 세 원칙이 M3 의 핵심.</p>
+    <a class="card-source" href="https://m3.material.io/foundations">m3.material.io/foundations</a>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>Related · Apple HIG 비교</h3>
+      <p>iOS 는 Apple HIG, Android 는 Material Design 이 기본. 크로스 플랫폼 앱은 두 시스템 모두 이해하고 분기 설계해야 한다.</p>
+      <a class="card-source" href="apple-hig.html">apple-hig.html — Apple HIG</a>
+    </div>
+    <div class="card">
+      <h3>Related · 오픈소스 DS</h3>
+      <p>Material 이 아닌 React/웹 프로젝트는 Radix/Shadcn/Tailwind 조합이 사실상 표준. 시스템 선택 가이드 참조.</p>
+      <a class="card-source" href="open-source-systems.html">open-source-systems.html</a>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

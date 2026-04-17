@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dark / Light Mode — Design Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,150,90,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(16px,1.2vw,18px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,150,90,0.25)}
+  .card h3{margin-bottom:8px;color:var(--text)}
+  .card p{color:var(--text2);font-size:16px;line-height:1.65}
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--mono);
+    padding:4px 10px;border:1px solid rgba(232,150,90,0.3);border-radius:6px;transition:all var(--transition)}
+  .card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  th{text-align:left;padding:12px 14px;color:var(--text);font-weight:700;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(232,150,90,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:18px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare p{font-size:13px;color:var(--text2);line-height:1.65}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.7}
+  .swatch{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px}
+  .swatch-chip{width:20px;height:20px;border-radius:5px;border:1px solid rgba(0,0,0,0.15);box-shadow:0 1px 0 rgba(0,0,0,0.3)}
+  .demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  @media(max-width:640px){.demo-grid{grid-template-columns:1fr}}
+  .demo-cell{padding:24px}
+  .demo-light{background:#ffffff;color:#1a1a1a}
+  .demo-dark{background:#121212;color:#e8e8e8}
+  .demo-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:0.6;margin-bottom:12px}
+  .demo-title{font-size:18px;font-weight:700;margin-bottom:4px}
+  .demo-body{font-size:13px;opacity:0.75;line-height:1.55}
+  .demo-btn{display:inline-block;margin-top:12px;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700}
+  .demo-light .demo-btn{background:#1a73e8;color:white}
+  .demo-dark .demo-btn{background:#82b4ff;color:#0d0d14}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Dark / Light Mode</h1>
+<p class="subtitle">
+  design-kit HTML 산출물 템플릿에 적용할 다크/라이트 테마 전환 패턴.
+  CSS 변수 + <code>data-theme</code> 속성 + <code>prefers-color-scheme</code> 조합으로 기본 구현한다.
+</p>
+
+<!-- ── 1. 라이브 데모 ── -->
+<div class="section">
+  <div class="section-label">1 · 라이트 vs 다크 시각 비교</div>
+  <p class="desc">단순 반전이 아닌 <strong>역할별 독립 설계</strong>가 핵심. 같은 accent(파랑)도 다크에서는 밝기를 올려 같은 인지 중요도를 유지한다.</p>
+
+  <div class="demo-grid">
+    <div class="demo-cell demo-light">
+      <div class="demo-label">LIGHT</div>
+      <div class="demo-title">디자인 시스템</div>
+      <div class="demo-body">색상 · 타이포그래피 · 간격의 기초를 정의하는 토큰 체계. 라이트 모드의 기본 배경은 <code>#ffffff</code>, 텍스트는 <code>#1a1a1a</code>.</div>
+      <span class="demo-btn">Get Started</span>
+    </div>
+    <div class="demo-cell demo-dark">
+      <div class="demo-label">DARK</div>
+      <div class="demo-title">디자인 시스템</div>
+      <div class="demo-body">동일한 레이아웃이 다크에서도 동일 인지 위계. 배경 <code>#121212</code>(순검정 회피), accent <code>#82b4ff</code>(밝기 ↑).</div>
+      <span class="demo-btn">Get Started</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── 2. 우선순위 & 핵심 패턴 ── -->
+<div class="section">
+  <div class="section-label">2 · 테마 전환 우선순위</div>
+  <p class="desc"><strong>localStorage → 시스템 설정 → 기본값(라이트)</strong> 순서로 해석한다. 사용자가 수동 전환한 선택을 가장 우선시하고, 아직 선택 전이면 OS 설정을 따르며, 없으면 라이트.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <span class="tag">1순위</span>
+      <h3>localStorage</h3>
+      <p><code>localStorage.getItem('theme')</code> 값이 있으면 최우선 적용. 사용자가 명시적 선택한 상태.</p>
+    </div>
+    <div class="card">
+      <span class="tag">2순위</span>
+      <h3>prefers-color-scheme</h3>
+      <p>OS/브라우저 설정. <code>matchMedia('(prefers-color-scheme: dark)')</code> 로 감지. macOS · iOS · Windows 11 · Android 다크모드 반영.</p>
+    </div>
+    <div class="card">
+      <span class="tag">3순위</span>
+      <h3>기본값 라이트</h3>
+      <p>둘 다 정보 없으면 라이트. 처음 방문자의 오탐 방지 — 사용자가 인지하지 못한 채 다크로 시작하면 배경 깜빡임 경험.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 3. CSS 변수 토큰 체계 ── -->
+<div class="section">
+  <div class="section-label">3 · CSS 변수 토큰 체계</div>
+  <p class="desc">MD3 + Apple HIG 기반. 단순 반전이 아닌 역할(role)별 독립 값 정의. <code>--color-bg</code> 는 <code>#fff ↔ #121212</code>, <code>--color-accent</code> 는 <code>#1a73e8 ↔ #82b4ff</code>.</p>
+
+  <table>
+    <thead><tr><th>역할</th><th>라이트</th><th>다크</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>bg</td><td><span class="swatch"><span class="swatch-chip" style="background:#ffffff"></span>#ffffff</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#121212"></span>#121212</span></td><td><strong>#000 금지</strong> (할레이션)</td></tr>
+      <tr><td>surface</td><td><span class="swatch"><span class="swatch-chip" style="background:#f5f5f5"></span>#f5f5f5</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#1e1e1e"></span>#1e1e1e</span></td><td>카드 · 패널 배경</td></tr>
+      <tr><td>surface-high</td><td><span class="swatch"><span class="swatch-chip" style="background:#eeeeee"></span>#eeeeee</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#2a2a2a"></span>#2a2a2a</span></td><td>높은 elevation</td></tr>
+      <tr><td>text-primary</td><td><span class="swatch"><span class="swatch-chip" style="background:#1a1a1a"></span>#1a1a1a</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#e8e8e8"></span>#e8e8e8</span></td><td><strong>#fff 금지</strong></td></tr>
+      <tr><td>text-secondary</td><td><span class="swatch"><span class="swatch-chip" style="background:#666666"></span>#666666</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#aaaaaa"></span>#aaaaaa</span></td><td>보조 텍스트</td></tr>
+      <tr><td>border</td><td><span class="swatch"><span class="swatch-chip" style="background:#e0e0e0"></span>#e0e0e0</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#333333"></span>#333333</span></td><td>구분선</td></tr>
+      <tr><td>shadow</td><td><code>rgba(0,0,0,.08)</code></td><td><code>rgba(0,0,0,.4)</code></td><td>강도 증가</td></tr>
+      <tr><td>accent</td><td><span class="swatch"><span class="swatch-chip" style="background:#1a73e8"></span>#1a73e8</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#82b4ff"></span>#82b4ff</span></td><td>밝기 ↑</td></tr>
+    </tbody>
+  </table>
+
+  <p class="desc" style="margin-top:20px">
+    다크 모드에서 <strong>elevation</strong> 은 그림자가 배경에 묻히므로, <em>tonal overlay</em>(더 밝은 surface)로 표현한다. <code>--color-surface-high</code> 가 그 역할.
+  </p>
+</div>
+
+<!-- ── 4. CSS 구현 ── -->
+<div class="section">
+  <div class="section-label">4 · CSS 구현 — 3단 선택자</div>
+  <p class="desc"><code>:root</code> 기본값 → <code>@media (prefers-color-scheme: dark)</code> → <code>[data-theme="dark"]</code> 명시 오버라이드. 시스템 다크 + 사용자 라이트 선택 케이스도 <code>:root:not([data-theme="light"])</code> 로 처리.</p>
+
+  <pre>:root {
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-surface-high: #eeeeee;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #666666;
+  --color-border: #e0e0e0;
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-accent: #1a73e8;
+}
+
+<span style="color:var(--accent)">/* 시스템 다크 모드, 단 명시적 라이트 선택 아닐 때 */</span>
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #121212;
+    --color-surface: #1e1e1e;
+    --color-surface-high: #2a2a2a;
+    --color-text-primary: #e8e8e8;
+    --color-text-secondary: #aaaaaa;
+    --color-border: #333333;
+    --color-shadow: rgba(0, 0, 0, 0.4);
+    --color-accent: #82b4ff;
+  }
+}
+
+<span style="color:var(--accent)">/* 사용자 명시 다크 선택 (시스템 설정 무시) */</span>
+[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-surface-high: #2a2a2a;
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #aaaaaa;
+  --color-border: #333333;
+  --color-shadow: rgba(0, 0, 0, 0.4);
+  --color-accent: #82b4ff;
+}</pre>
+</div>
+
+<!-- ── 5. 토글 JS ── -->
+<div class="section">
+  <div class="section-label">5 · 토글 JS — 최소 구현</div>
+  <p class="desc">standalone HTML 권장 패턴. 프레임워크 없이 10줄 이내로 구현. <strong>FOUC 방지</strong>를 위해 <code>&lt;head&gt;</code> 내 인라인 스크립트에서 먼저 <code>data-theme</code> 를 결정한다.</p>
+
+  <pre>&lt;script&gt;
+  <span style="color:var(--accent)">// 페이지 로드 즉시 — FOUC 방지</span>
+  const saved = localStorage.getItem('theme')
+    ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.dataset.theme = saved;
+
+  function toggleTheme() {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  }
+&lt;/script&gt;</pre>
+
+  <div class="card" style="margin-top:16px">
+    <h3>FOUC 방지 왜 필요한가</h3>
+    <p><code>&lt;body&gt;</code> 이후에 JS 가 실행되면 라이트로 그려진 후 다크로 재렌더링되어 화면이 깜빡인다. 반드시 <strong>HTML 파싱 첫 순간</strong>에 <code>data-theme</code> 를 설정해야 한다. <code>&lt;head&gt;</code> 끝 인라인 스크립트가 표준 패턴.</p>
+  </div>
+</div>
+
+<!-- ── 6. 이미지/미디어 대응 ── -->
+<div class="section">
+  <div class="section-label">6 · 이미지 · 미디어 대응</div>
+  <p class="desc">다크 모드에서 이미지의 흰 배경이 튀거나, 컬러 일러스트 채도가 과하게 진동하는 문제. 유형별 처리법이 다르다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>일반 이미지</h3>
+      <p><code>filter: brightness(0.85)</code> 로 살짝 어둡게. 사진 톤 유지하면서 눈부심 감소.</p>
+    </div>
+    <div class="card">
+      <h3>Inline SVG</h3>
+      <p><code>fill: currentColor</code> · <code>stroke: currentColor</code>. CSS 변수 전환 시 아이콘 색 자동 대응.</p>
+    </div>
+    <div class="card">
+      <h3>배경 사진</h3>
+      <p><code>opacity: 0.8</code> 또는 다크 오버레이 (<code>rgba(0,0,0,.3)</code>) 레이어. 텍스트 가독성 유지.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 7. 접근성 ── -->
+<div class="section">
+  <div class="section-label">7 · 접근성 기준</div>
+  <p class="desc">라이트 대비 다크에서는 색상 진동 · 대비 저하 문제가 동시에 발생할 수 있다. WCAG 2.1 기준으로 검증해야 한다.</p>
+
+  <table>
+    <thead><tr><th>항목</th><th>기준</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>일반 텍스트 대비</td><td><strong>4.5:1 이상</strong></td><td>WCAG AA</td></tr>
+      <tr><td>대형 텍스트 (18px+)</td><td><strong>3:1 이상</strong></td><td>WCAG AA Large</td></tr>
+      <tr><td>포커스 링</td><td><strong>3:1 이상 vs 배경</strong></td><td><code>outline:2px solid var(--color-accent)</code></td></tr>
+      <tr><td>상태 색상</td><td>색상 단독 사용 금지</td><td>아이콘 · 텍스트 병행</td></tr>
+      <tr><td>비텍스트 UI 대비</td><td><strong>3:1 이상</strong></td><td>버튼 보더 · 체크박스 · 슬라이더 트랙</td></tr>
+    </tbody>
+  </table>
+  <a class="card-source" href="https://www.w3.org/TR/WCAG21/">W3C · WCAG 2.1</a>
+</div>
+
+<!-- ── 8. 안티패턴 vs 올바른 패턴 ── -->
+<div class="section">
+  <div class="section-label">8 · 안티패턴 vs 올바른 패턴</div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 단순 반전</div>
+      <p><code>filter: invert(1)</code> 로 전체 반전. 보더 · 그림자 · 이미지가 모두 깨진다. 사진도 음화 효과.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 역할별 토큰</div>
+      <p>CSS 변수로 역할(bg · surface · text · accent)별 독립 값. 라이트/다크 각각 최적 설계.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 순검정 배경</div>
+      <p><code>background: #000</code>. 밝은 텍스트와 극단적 대비로 할레이션(halo) 발생, 눈 피로 증가.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — #121212</div>
+      <p>Material Design 권장. 충분히 어둡되 할레이션을 일으키지 않는 절제된 검정.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 고채도 그대로</div>
+      <p>라이트용 <code>#0066FF</code> accent 를 다크에서 그대로 사용. 어두운 배경에서 색 진동.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — Tone 상승</div>
+      <p>다크에서 tone 을 40 → 80 근처로 올림 (<code>#82b4ff</code>). 채도는 낮추고 밝기 증가.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — FOUC</div>
+      <p>JS 를 <code>&lt;body&gt;</code> 끝에서 실행. 라이트로 그려진 후 다크로 재렌더링 → 깜빡임.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — head 인라인</div>
+      <p><code>&lt;head&gt;</code> 끝 인라인 스크립트가 <code>data-theme</code> 먼저 설정. 첫 페인트 전에 결정.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 시스템 무시</div>
+      <p>다크 토글 구현 안 하거나, 첫 방문에도 라이트 강제. OS 다크모드 사용자에게 불편.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 3단 우선순위</div>
+      <p>localStorage → <code>prefers-color-scheme</code> → 라이트. 사용자 선택을 존중하되 시스템 설정도 반영.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 9. Gotchas 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">9 · Gotchas 체크리스트</div>
+  <p class="desc">다크/라이트 구현 시 design-audit 에서 자주 지적되는 항목.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>CSS 변수 필수</strong> — 모든 색상이 <code>var(--color-*)</code> 참조. 하드코딩 hex 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>FOUC 방지</strong> — <code>&lt;head&gt;</code> 인라인 스크립트로 <code>data-theme</code> 선설정. 첫 페인트 전 결정.</div></li>
+    <li><span class="check">✓</span><div><strong>localStorage 우선</strong> — 사용자 명시 선택 > 시스템 설정. 매 세션 유지.</div></li>
+    <li><span class="check">✓</span><div><strong>대비 WCAG AA</strong> — 텍스트 4.5:1, 대형 3:1, UI 3:1. 둘 다 라이트/다크 각각 검증.</div></li>
+    <li><span class="check">✓</span><div><strong>#000 · #fff 회피</strong> — 순검정/순흰색 대신 <code>#121212</code> · <code>#e8e8e8</code> 사용.</div></li>
+    <li><span class="check">✓</span><div><strong>Accent 밝기 보정</strong> — 다크에서 brand 컬러 tone 을 올려 동일 인지 중요도 유지.</div></li>
+    <li><span class="check">✓</span><div><strong>Elevation = tonal overlay</strong> — 그림자 대신 더 밝은 surface로 높이 표현.</div></li>
+    <li><span class="check">✓</span><div><strong>이미지 필터</strong> — 일반 이미지 <code>brightness(0.85)</code>, SVG 는 <code>currentColor</code>.</div></li>
+    <li><span class="check">✓</span><div><strong>포커스 링 가시성</strong> — 배경과 3:1 이상 대비. accent 컬러 2px solid 권장.</div></li>
+    <li><span class="check">✓</span><div><strong>상태 색상 + 보조 신호</strong> — 성공/경고/오류를 색상 단독이 아닌 아이콘 · 텍스트 병행 (색맹 대응).</div></li>
+    <li><span class="check">✓</span><div><strong>다크모드 스크린샷</strong> — 디자인 검증 시 라이트/다크 각각 캡처해서 비교.</div></li>
+  </ul>
+</div>
+
+<!-- ── 10. 출처 ── -->
+<div class="section">
+  <div class="section-label">10 · 출처 · 참고 자료</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>공식 가이드라인</h3>
+      <p>이 페이지의 기준은 Material Design 3 Color Roles 와 Apple HIG Dark Mode 의 교집합에서 도출.</p>
+      <a class="card-source" href="https://m3.material.io/styles/color/roles">Material Design 3 — Color Roles</a>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/dark-mode" style="margin-left:8px">Apple HIG — Dark Mode</a>
+    </div>
+    <div class="card">
+      <h3>접근성 기준</h3>
+      <p>WCAG 2.1 Level AA 대비비를 기준으로 라이트/다크 각각 검증.</p>
+      <a class="card-source" href="https://www.w3.org/TR/WCAG21/">W3C · WCAG 2.1 Contrast</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 11. 실무 팁 · FAQ ── -->
+<div class="section">
+  <div class="section-label">11 · 실무 팁 · FAQ</div>
+  <p class="desc">다크/라이트 구현 시 자주 부딪히는 경계 케이스.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Q. 테마 전환 애니메이션은 어떻게?</h3>
+      <p><code>:root { transition: background 0.3s, color 0.3s; }</code> 정도면 충분. 너무 긴 transition(0.5s+)은 체감 성능 저하. <strong>prefers-reduced-motion</strong> 대응으로 transition 끄기 옵션 필수.</p>
+    </div>
+    <div class="card">
+      <h3>Q. 다크모드에서 일러스트 어떻게?</h3>
+      <p>이상적인 건 <strong>라이트/다크 각각 일러스트 제작</strong>. 현실적으로는 SVG inline + <code>currentColor</code> 로 자동 전환. 사진/그래픽 일러스트는 <code>&lt;picture&gt;</code> + <code>prefers-color-scheme</code> 미디어 쿼리로 소스 분기.</p>
+    </div>
+    <div class="card">
+      <h3>Q. "시스템 따라가기" 옵션이 필요한가?</h3>
+      <p>UX 관점으로 필요. 3옵션 토글(라이트/다크/시스템)을 제공하면 사용자 선택권 증가. 구현: localStorage 값이 <code>"auto"</code>일 때 <code>prefers-color-scheme</code> 감지 + 리스너 등록해 실시간 반영.</p>
+    </div>
+    <div class="card">
+      <h3>Q. SSR 에서 FOUC 가 여전히 발생?</h3>
+      <p>Next.js App Router 는 <code>next-themes</code> · <code>script</code> <code>dangerouslySetInnerHTML</code> 로 first paint 전 테마 주입. 일반 SSR 은 쿠키로 서버에서 <code>data-theme</code> 를 HTML 에 미리 찍어 보냄.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>TL;DR — 다크 모드를 한 문장으로</h3>
+    <p>"CSS 변수로 역할별 토큰을 정의하고, <code>data-theme</code> 속성으로 스위치하며, <code>localStorage → prefers-color-scheme → 라이트</code> 우선순위로 초기값을 결정한다. FOUC 방지를 위해 <code>&lt;head&gt;</code> 내 인라인 스크립트가 필수." — 이 패턴이 표준.</p>
+    <a class="card-source" href="https://m3.material.io/styles/color/dark-theme/overview">Material Design 3 — Dark Theme</a>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>Related · 반응형</h3>
+      <p>다크/라이트 + 반응형을 동시에 적용하는 경우, 브레이크포인트별 토큰 값 조정 패턴 참조.</p>
+      <a class="card-source" href="responsive.html">responsive.html</a>
+    </div>
+    <div class="card">
+      <h3>Related · i18n</h3>
+      <p>다크/라이트와 독립적이지만 함께 자주 구현되는 feature. 세 전환(테마 · 언어 · 레이아웃)이 공존 가능한 설계.</p>
+      <a class="card-source" href="i18n.html">i18n.html</a>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

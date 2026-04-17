@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flutter 공식 AI Rules — Flutter Toolkit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(34,211,238,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(34,211,238,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(16px,1.2vw,18px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(34,211,238,0.25)}
+  .card h3{margin-bottom:8px;color:var(--text)}
+  .card p{color:var(--text2);font-size:16px;line-height:1.65}
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--mono);padding:4px 10px;border:1px solid rgba(34,211,238,0.3);border-radius:6px;transition:all var(--transition)}
+  .card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  th{text-align:left;padding:12px 14px;color:var(--text);font-weight:700;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(34,211,238,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:18px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare p{font-size:13px;color:var(--text2);line-height:1.65}
+  .compare pre{background:transparent;border:0;padding:4px 0;font-size:11px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.7}
+  .priority-list{display:flex;flex-direction:column;gap:8px;counter-reset:pri}
+  .priority-list li{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text2)}
+  .priority-list li::before{counter-increment:pri;content:counter(pri);width:28px;height:28px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .priority-list code{font-family:var(--mono);color:var(--accent);background:var(--surface2);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Flutter 공식 AI Rules</h1>
+<p class="subtitle">
+  Flutter 공식 repo <code>docs/rules/rules.md</code> 의 AI rules 요약 + 2026 생태계(Riverpod 3.0 · Freezed 3.0 · go_router · Flutter 3.29+) 정합 노트.
+  flutter-toolkit 스킬이 참조하는 베이스라인 규범.
+</p>
+
+<!-- ── 1. 위젯 패턴 ── -->
+<div class="section">
+  <div class="section-label">1 · 위젯 패턴</div>
+  <p class="desc">Flutter 위젯 작성의 핵심 4원칙. 복잡도가 커져도 성능 저하 없이 유지보수되게 만든다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="tag">01</span>
+      <h3>Composition Over Inheritance</h3>
+      <p>복잡한 위젯은 <strong>상속이 아닌 합성</strong>으로 구성. StatefulWidget 상속 대신 기존 위젯을 감싸 새 위젯 구성.</p>
+    </div>
+    <div class="card">
+      <span class="tag">02</span>
+      <h3>Private Widget Class</h3>
+      <p>헬퍼 메서드(<code>_buildHeader()</code>)가 아닌 <strong>private Widget 클래스</strong>로 추출. const 최적화 유지.</p>
+    </div>
+    <div class="card">
+      <span class="tag">03</span>
+      <h3>Const Constructor</h3>
+      <p>가능한 모든 곳에 <code>const</code> 사용. 리빌드 시 동일 const 객체 재사용으로 성능 향상.</p>
+    </div>
+    <div class="card">
+      <span class="tag">04</span>
+      <h3>Build 분리</h3>
+      <p>큰 <code>build()</code> 메서드는 작은 private 위젯으로 분해. 가독성 + 부분 리빌드 최적화.</p>
+    </div>
+  </div>
+
+  <a class="card-source" href="https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md">flutter/flutter · docs/rules/rules.md</a>
+</div>
+
+<!-- ── 2. State Management ── -->
+<div class="section">
+  <div class="section-label">2 · State Management — 공식 우선순위</div>
+  <p class="desc">서드파티 패키지 없을 때. 프로젝트에 Riverpod/Bloc 이 이미 있으면 해당 패턴을 따른다.</p>
+
+  <ol class="priority-list">
+    <li><code>ValueNotifier</code> + <code>ValueListenableBuilder</code> — 단일 값</li>
+    <li><code>Stream</code> + <code>StreamBuilder</code> — 비동기 이벤트 시퀀스</li>
+    <li><code>Future</code> + <code>FutureBuilder</code> — 일회성 비동기</li>
+    <li><code>ChangeNotifier</code> + <code>ListenableBuilder</code> — 복합/다중 위젯 상태</li>
+    <li>MVVM 패턴 — 복잡한 앱</li>
+  </ol>
+</div>
+
+<!-- ── 3. 아키텍처 ── -->
+<div class="section">
+  <div class="section-label">3 · 아키텍처</div>
+  <p class="desc">레이어 분리 — Presentation → Domain → Data → Core. 대규모 프로젝트는 feature-first 구조.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>Layer-first (소형)</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">lib/
+├── presentation/
+├── domain/
+├── data/
+└── core/</pre>
+      <p>전체 앱 공통 레이어. 피처 수가 적을 때 간단하고 직관적.</p>
+    </div>
+    <div class="card">
+      <h3>Feature-first (대형)</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">lib/features/
+├── auth/
+│   ├── presentation/
+│   ├── domain/
+│   └── data/
+└── home/
+    ├── presentation/
+    ├── domain/
+    └── data/</pre>
+      <p>피처 내부에 레이어. 모듈 독립성 높고 팀 병렬 개발 용이.</p>
+    </div>
+    <div class="card">
+      <h3>MVVM 구조</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">View ↔ ViewModel (1:1)
+     ↔ Repository
+     ↔ Service</pre>
+      <p>View 와 ViewModel 1:1 매칭. 테스트성 + 상태 분리 명확.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 4. Do's & Don'ts ── -->
+<div class="section">
+  <div class="section-label">4 · Do's & Don'ts</div>
+
+  <div class="grid-2">
+    <div class="compare-good">
+      <div class="compare-label">✓ Do</div>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.9">
+        <li><code>go_router</code> 내비게이션 (딥링크 · 웹 지원)</li>
+        <li>SOLID 원칙 준수</li>
+        <li><code>dart:developer.log</code> 사용</li>
+        <li><code>compute()</code> — 비용 큰 연산은 Isolate</li>
+        <li>모든 public API 에 <code>///</code> 문서화</li>
+        <li><code>dart_format</code>, <code>dart_fix</code> 도구 활용</li>
+        <li>다양한 화면 크기 테스트</li>
+      </ul>
+    </div>
+    <div class="compare-bad">
+      <div class="compare-label">✗ Don't</div>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.9">
+        <li><code>print()</code> 사용 금지 → <code>dart:developer.log</code></li>
+        <li><code>build()</code> 내 네트워크 호출 금지</li>
+        <li>같은 Row/Column 에 <code>Flexible</code> + <code>Expanded</code> 혼용 금지</li>
+        <li><code>!</code> 연산자 남용 금지 (non-null 보장된 경우만)</li>
+        <li>깊은 위젯 트리 중첩 금지 → 합성으로 분해</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── 5. 코드 생성 · 테스트 · 기타 ── -->
+<div class="section">
+  <div class="section-label">5 · 코드 생성 · 테스트 · 기타</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>코드 생성</h3>
+      <p>JSON 직렬화: <code>json_serializable</code> + <code>json_annotation</code>. <code>fieldRename: FieldRename.snake</code> 권장.</p>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">dart run build_runner build \
+  --delete-conflicting-outputs</pre>
+    </div>
+    <div class="card">
+      <h3>테스팅</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
+        <li><strong>Arrange-Act-Assert</strong> 구조</li>
+        <li>Mock 보다 Fake/Stub 선호</li>
+        <li>Unit → Widget → Integration 순서</li>
+        <li>높은 테스트 커버리지 목표</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>라인 길이</h3>
+      <p>최대 <strong>80자</strong>. <code>analysis_options.yaml</code> 에 <code>page_width: 80</code> 설정.</p>
+    </div>
+    <div class="card">
+      <h3>로깅</h3>
+      <p><code>dart:developer</code> 의 <code>log</code> 사용. DevTools 에서 필터링/레벨 관리 가능. <code>print()</code> 는 프로덕션 로그로 부적합.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 6. 2026 생태계: Riverpod 3.0 ── -->
+<div class="section">
+  <div class="section-label">6 · 2026 생태계 — Riverpod 3.0</div>
+  <p class="desc">Flutter 공식 rules 외에 2026 기준으로 flutter-toolkit 이 정합해야 하는 변화. 최종 리서치 2026-04-11.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3><code>Ref.mounted</code> 공식 패턴</h3>
+      <p>disposed Notifier 접근 시 에러 throw. async 메서드 끝에 <code>if (!ref.mounted) return;</code> 필수.</p>
+      <a class="card-source" href="https://riverpod.dev/docs/whats_new">riverpod.dev · What's New</a>
+    </div>
+    <div class="card">
+      <h3>Notifier 라이프사이클</h3>
+      <p>2.x pseudo-singleton 폐기. Timer/StreamSubscription/Controller 를 Notifier 필드로 유지하면 리소스 누수. 별도 provider + <code>ref.onDispose</code> 로 분리.</p>
+      <a class="card-source" href="https://riverpod.dev/docs/3.0_migration">riverpod.dev · 3.0 Migration</a>
+    </div>
+    <div class="card">
+      <h3>Legacy Provider 대체</h3>
+      <p><code>StateNotifierProvider</code> · <code>StateProvider</code> · <code>ChangeNotifierProvider</code> 모두 legacy. 신규 코드는 <code>@riverpod</code> / <code>Notifier</code> 기반.</p>
+      <a class="card-source" href="https://pub.dev/packages/flutter_riverpod/changelog">pub.dev · flutter_riverpod</a>
+    </div>
+    <div class="card">
+      <h3><code>==</code> 기반 알림 필터링</h3>
+      <p>StreamProvider/StreamNotifier 동등성 이벤트가 listener 에 전달되지 않음. 모델의 <code>operator ==</code> / <code>hashCode</code> 정의가 알림 동작 결정. <code>.valueOrNull</code> → <code>.value</code> (dart fix --apply).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 7. Freezed 3.0 · go_router ── -->
+<div class="section">
+  <div class="section-label">7 · Freezed 3.0 · go_router (2026)</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Freezed 3.0</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
+        <li><code>@freezed abstract class</code>(단일) / <code>@freezed sealed class</code>(union) 필수</li>
+        <li><code>.when</code> / <code>.map</code> 제거 → Dart pattern matching (switch expression)</li>
+        <li>List/Map/Set 는 <code>Unmodifiable*View</code> 로 자동 변환</li>
+        <li><code>@With</code> / <code>@Implements</code> 가 generic annotation 기반으로 변경</li>
+      </ul>
+      <a class="card-source" href="https://pub.dev/packages/freezed/changelog">pub.dev · freezed/changelog</a>
+    </div>
+    <div class="card">
+      <h3>go_router (2026)</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
+        <li><code>StatefulShellRoute.indexedStack</code> + <code>StatefulShellBranch</code> 로 바텀 네비 스테이트풀 네스티드</li>
+        <li><code>StatefulShellBranch.preload: true</code> 로 탭 preload 지원</li>
+        <li><code>notifyRootObserver</code> 로 ShellRoute 전환 이벤트 root observer 에 전달</li>
+      </ul>
+      <a class="card-source" href="https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html">pub.dev · StatefulShellRoute</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 8. Flutter 3.29 breaking changes ── -->
+<div class="section">
+  <div class="section-label">8 · Flutter 3.29 / 3.27 breaking changes</div>
+  <p class="desc">프로젝트 업그레이드 시 반드시 확인. 하위 호환 깨짐.</p>
+
+  <table>
+    <thead><tr><th>버전</th><th>변경</th><th>영향</th></tr></thead>
+    <tbody>
+      <tr><td><strong>3.29</strong></td><td>웹 HTML 렌더러 제거</td><td>CanvasKit / Skwasm 만 남음. 레거시 웹 앱 마이그레이션 필수</td></tr>
+      <tr><td><strong>3.29</strong></td><td>스크립트 기반 Flutter Gradle plugin 제거</td><td>3.19 부터 deprecated. 기존 Android 프로젝트 migration 필요</td></tr>
+      <tr><td><strong>3.27</strong></td><td>DisplayP3 색공간 지원</td><td>일부 <code>Color</code> 메서드 deprecation</td></tr>
+      <tr><td><strong>3.29</strong></td><td>Impeller OpenGL ES 백엔드 확장</td><td>거의 전 디바이스 커버. Skia 의존 제거 흐름</td></tr>
+    </tbody>
+  </table>
+  <a class="card-source" href="https://docs.flutter.dev/release/release-notes/release-notes-3.29.0">docs.flutter.dev · 3.29 Release Notes</a>
+</div>
+
+<!-- ── 9. flutter_hooks · Makefile monorepo ── -->
+<div class="section">
+  <div class="section-label">9 · flutter_hooks · Makefile monorepo</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>flutter_hooks</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
+        <li><code>HookConsumerWidget</code> 로 hooks + Riverpod provider 통합</li>
+        <li><code>useMemoized</code> + <code>useEffect</code> 조합으로 데이터 페칭 중복 방지</li>
+        <li><code>useEffect</code> cleanup 은 반환 함수로 등록 — 위젯 dispose / 의존성 변경 시 호출</li>
+      </ul>
+      <a class="card-source" href="https://pub.dev/packages/flutter_hooks">pub.dev · flutter_hooks</a>
+    </div>
+    <div class="card">
+      <h3>Makefile 기반 monorepo</h3>
+      <p><code>dart-define-from-file=.dart_defines.json</code>, <code>--observatory-port=8181</code> 등 실행 옵션을 Makefile 타겟에 집중. 직접 <code>fvm flutter run</code> 호출 시 환경 누락으로 다른 플레이버 기동 위험.</p>
+      <p style="margin-top:8px"><strong>flutter-preflight / flutter-run</strong> 스킬은 <code>HAS_MAKEFILE = true</code> 감지 시 <code>make &lt;target&gt;</code> 우선.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 10. Bad vs Good ── -->
+<div class="section">
+  <div class="section-label">10 · 안티패턴 vs 올바른 패턴</div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 헬퍼 메서드</div>
+      <pre>Widget _buildHeader() {
+  return Container(...);
+}</pre>
+      <p>리빌드마다 새 Container 생성. const 최적화 불가.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — Private Widget</div>
+      <pre>class _Header extends StatelessWidget {
+  const _Header();
+  @override
+  Widget build(BuildContext c) =&gt;
+    Container(...);
+}</pre>
+      <p>const 인스턴스 재사용. 트리 리빌드 최적화.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — print()</div>
+      <pre>print('Error: $err');</pre>
+      <p>프로덕션 로그 레벨 · 필터링 불가. DevTools 에서 관리 안 됨.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — developer.log</div>
+      <pre>import 'dart:developer';
+log('Error', error: err);</pre>
+      <p>DevTools Logging 뷰에서 레벨 필터링.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — build() 내 fetch</div>
+      <pre>Widget build(BuildContext c) {
+  fetchData().then((d) =&gt; ...);
+  return ...;
+}</pre>
+      <p>매 리빌드마다 네트워크 호출. 서버 부하 + 레이스 컨디션.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — initState/Notifier</div>
+      <pre>void initState() {
+  super.initState();
+  _future = fetchData();
+}</pre>
+      <p>1회 호출. Riverpod 에서는 <code>@riverpod</code> async 함수 사용.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — Flexible + Expanded</div>
+      <pre>Row(children: [
+  Flexible(child: A()),
+  Expanded(child: B()),
+])</pre>
+      <p>같은 Row 에 혼용. 공간 분배 규칙 불명확.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 일관</div>
+      <pre>Row(children: [
+  Expanded(flex: 1, child: A()),
+  Expanded(flex: 2, child: B()),
+])</pre>
+      <p>flex 비율로 명시적 분배. 둘 중 하나로 통일.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — ref.mounted 미체크</div>
+      <pre>await fetch();
+state = newState; <span style="color:var(--red)">// disposed 후 호출 → 에러</span></pre>
+      <p>Riverpod 3.0 은 disposed Notifier 접근 시 에러 throw.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — mounted 가드</div>
+      <pre>await fetch();
+if (!ref.mounted) return;
+state = newState;</pre>
+      <p>async 메서드 끝마다 mounted 확인.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 11. Gotchas 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">11 · Gotchas 체크리스트</div>
+  <p class="desc">flutter-audit 에서 자주 지적되는 항목.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>Composition &gt; Inheritance</strong> — StatefulWidget 상속 대신 기존 위젯 감싸기.</div></li>
+    <li><span class="check">✓</span><div><strong>Private Widget 클래스</strong> — 헬퍼 메서드 대신 <code>class _Foo extends StatelessWidget</code>.</div></li>
+    <li><span class="check">✓</span><div><strong>const 최대 활용</strong> — 모든 가능 위치에 <code>const</code>. <code>prefer_const_constructors</code> lint 활성화.</div></li>
+    <li><span class="check">✓</span><div><strong>print() 금지</strong> — <code>dart:developer</code> <code>log</code> 사용.</div></li>
+    <li><span class="check">✓</span><div><strong>build() 내 네트워크 금지</strong> — <code>initState</code> 또는 <code>@riverpod</code> 함수로.</div></li>
+    <li><span class="check">✓</span><div><strong>go_router 사용</strong> — 딥링크 · 웹 지원. Navigator 1.0 은 지양.</div></li>
+    <li><span class="check">✓</span><div><strong><code>Ref.mounted</code> 가드</strong> — Riverpod 3.0 async 메서드 끝에 필수.</div></li>
+    <li><span class="check">✓</span><div><strong>Freezed abstract/sealed</strong> — factory 생성자만 있는 class 는 abstract 또는 sealed.</div></li>
+    <li><span class="check">✓</span><div><strong>pattern matching</strong> — <code>.when</code> / <code>.map</code> 대신 switch expression.</div></li>
+    <li><span class="check">✓</span><div><strong>Makefile 우선</strong> — <code>HAS_MAKEFILE</code> 감지 시 <code>make &lt;target&gt;</code>, 직접 <code>fvm flutter</code> 지양.</div></li>
+    <li><span class="check">✓</span><div><strong>80자 라인</strong> — <code>analysis_options.yaml</code> <code>page_width: 80</code>.</div></li>
+    <li><span class="check">✓</span><div><strong>모든 public API 에 ///</strong> — dartdoc 생성. 팀 협업 · AI 이해도 증가.</div></li>
+  </ul>
+</div>
+
+<!-- ── 12. 출처 ── -->
+<div class="section">
+  <div class="section-label">12 · 출처 · 참고 자료</div>
+  <div class="grid-3">
+    <div class="card">
+      <h3>Flutter 공식 AI Rules</h3>
+      <a class="card-source" href="https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md">flutter/flutter · rules.md</a>
+    </div>
+    <div class="card">
+      <h3>Riverpod 3.0</h3>
+      <a class="card-source" href="https://riverpod.dev/docs/3.0_migration">riverpod.dev · 3.0 Migration</a>
+    </div>
+    <div class="card">
+      <h3>Freezed 3.0</h3>
+      <a class="card-source" href="https://pub.dev/packages/freezed/changelog">pub.dev · freezed</a>
+    </div>
+    <div class="card">
+      <h3>go_router</h3>
+      <a class="card-source" href="https://pub.dev/packages/go_router/changelog">pub.dev · go_router</a>
+    </div>
+    <div class="card">
+      <h3>Flutter 3.29</h3>
+      <a class="card-source" href="https://docs.flutter.dev/release/release-notes/release-notes-3.29.0">docs.flutter.dev · 3.29</a>
+    </div>
+    <div class="card">
+      <h3>flutter_hooks</h3>
+      <a class="card-source" href="https://pub.dev/packages/flutter_hooks">pub.dev · flutter_hooks</a>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

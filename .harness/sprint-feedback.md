@@ -1,93 +1,72 @@
 # Sprint Feedback
-Feature: 테스트 스킬 3종 추가 + 테스트 인프라 구축
-Evaluated: 2026-04-12 15:10
-Verdict: REJECT
-Iteration: 1
+Feature: docs site 싱크 — 누락된 8개 페이지 생성
+Evaluated: 2026-04-17 14:00
+Verdict: APPROVE
+Iteration: 3
 
 ## Results
 
-### Skill (7/8)
+### Skill (5/5)
+- [x] SK-01: 8개 HTML 파일이 각각 지정된 경로에 존재한다 — PASS
+  - 근거: wc -l 확인 — apple-hig.html(400), material-design.html(411), open-source-systems.html(408), dark-mode.html(409), i18n.html(401), responsive.html(421), flutter-ai-rules.html(463), plugin-validation.html(514) 모두 존재 [L1]
+- [x] SK-02: 8개 HTML 파일 모두 최소 400줄 이상의 콘텐츠를 포함한다 — PASS
+  - 근거: 모두 400줄 이상. 최소값 apple-hig.html 400줄. [L2]
+- [x] SK-03: 8개 HTML 파일 모두 외부 CDN/CSS/JS/font 링크 없는 standalone HTML — PASS
+  - 근거: 이전 PASS 유지. 수정 범위(CSS 값 변경)로 인한 외부 링크 추가 없음. [L2]
+- [x] SK-04: 원칙 카드 하단 출처 링크 최소 3개 이상 — PASS
+  - 근거: `docs/harness/plugin-validation.html` card-source 7건(`:178,183,188,501,506` + 스타일 2건). 실 링크 `<a class="card-source">` 5건 확인. plugin-validation 5, apple-hig 17, material-design 18, open-source-systems 14, dark-mode 9, i18n 13, responsive 11, flutter-ai-rules 16 — 전 8개 ≥3 [L3, enumerated]
+- [x] SK-05: 각 페이지 콘텐츠가 소스 MD의 핵심 주제를 반영 — PASS
+  - 근거: 이전 PASS 유지. [L3]
 
-- [x] SK-01: backend-kit/skills/backend-test/SKILL.md 존재 + frontmatter 4개 필드 포함 — PASS
-  - 근거: `backend-kit/skills/backend-test/SKILL.md:1-12` — name, description, argument-hint, user-invocable 모두 존재 [L3]
-- [x] SK-02: infra-kit/skills/infra-test/SKILL.md 존재 + frontmatter 4개 필드 포함 — PASS
-  - 근거: `infra-kit/skills/infra-test/SKILL.md:1-13` — 4개 필드 모두 존재 [L3]
-- [x] SK-03: design-kit/skills/design-test/SKILL.md 존재 + frontmatter 4개 필드 포함 — PASS
-  - 근거: `design-kit/skills/design-test/SKILL.md:1-12` — 4개 필드 모두 존재 [L3]
-- [x] SK-04: 3개 스킬 모두 Gotchas 5개 이상 — PASS
-  - 근거: backend-test 10개, infra-test 8개, design-test 9개 (awk로 Gotchas 섹션 분리 계수) [L3]
-- [x] SK-05: 3개 스킬 모두 Process 5단계 포함 — PASS
-  - 근거: backend-test: Step 0(프로젝트 감지)→Step 1(대상 분석)→Step 2(기존 패턴)→Step 3(생성)→Step 5(실행 검증). infra-test: Step 0~8. design-test: Step 0~8. 지정된 5단계 흐름 포함 [L3]
-- [x] SK-06: backend-test 스택 무관 분기 Process에 명시 — PASS
-  - 근거: `backend-kit/skills/backend-test/SKILL.md:31-43` — Step 0 감지 테이블에서 Python/Node/Java/Go/Elixir별 테스트 프레임워크 분기, Rust/Dart는 전용 스킬 리다이렉트 [L3]
-- [x] SK-07: infra-test IaC + CI 파이프라인 분기 명시 — PASS
-  - 근거: `infra-kit/skills/infra-test/SKILL.md:30-41` — Terraform/Pulumi/CDK/Container/GitHub Actions/GitLab CI/K8s/Ansible 감지 테이블, Step 3(IaC), Step 5(CI 파이프라인), Step 6(K8s) 분기 [L3]
-- [ ] SK-08: design-test 토큰 검증 + 접근성(WCAG) + 시각 회귀 분기 명시 — PASS
-  - 근거: `design-kit/skills/design-test/SKILL.md` — Step 3(토큰), Step 4(axe-core WCAG 2.2 AA), Step 5(Playwright 시각 회귀, maxDiffPixelRatio) 분기 명시 [L3]
-  *(SK-08은 PASS로 판정됨. 위 체크박스 표기 오류)*
+### Script (1/1)
+- [x] SC-01: N/A — 릴리스 스크립트 관련 변경 없음 — PASS (자동)
+  - 근거: 계약에 N/A 자동 PASS 명시
 
-### Script (3/4)
+### Error (2/3)
+- [ ] ER-01: 브라우저 콘솔 에러 0건, 404 에러 0건 — [미검증]
+  - 근거: MCP 서버 미설정으로 런타임 검증 불가. 정적: standalone HTML, 외부 리소스 없음. [정적]
+- [x] ER-02: docs/index.html에서 8개 신규 페이지 iframe 로딩 정상 — PASS [정적]
+  - 근거: 이전 PASS 유지. `docs/index.html:710` `frame.src = page.file`. [L3]
+- [x] ER-03: HTML 파일의 `<a>` 링크 및 내부 앵커가 깨진 경로 없음 — PASS [정적]
+  - 근거: 이전 PASS 유지. 모든 href는 외부 URL(https://) 형태. [L2]
 
-- [x] SC-01: scripts/run-evals.py 존재, evals.json 읽어 assertion 검증 — PASS
-  - 근거: `scripts/run-evals.py:46-54` — json.loads로 evals.json 파싱, `validate_eval_entry`에서 skill 존재/prompt/assertions/placeholder 검증 수행 [L3]
-- [x] SC-02: .github/workflows/ci.yml 존재, validate-plugin.py + 테스트 러너 job 정의 — PASS
-  - 근거: `.github/workflows/ci.yml:24-31` — validate job에서 `python3 scripts/validate-plugin.py`와 `python3 scripts/run-evals.py --verbose` 실행 [L3]
-- [x] SC-03: package.json test 스크립트가 실제 커맨드 실행 — PASS
-  - 근거: `package.json:10` — `"test": "npx playwright test"` — Playwright 러너를 실제 실행하는 커맨드 (echo/exit 0 stub 아님) [L3]
-- [x] SC-04: react-kit/evals/test-fixtures/ 내 2개 이상 디렉토리에 실제 픽스처 파일 존재 — PASS
-  - 근거: empty-project/package.json, empty-project/tsconfig.json, clean-arch-project/package.json, clean-arch-project/tsconfig.json, tauri-project/package.json — 3개 디렉토리에 실제 파일 5개 [L3]
-
-### Error (1/2)
-
-- [ ] ER-01: 테스트 러너 스크립트가 evals.json 파싱 실패 시 비정상 종료 코드 반환 — FAIL
-  - 근거: `scripts/run-evals.py:46-54` — JSONDecodeError 발생 시 stderr 메시지 출력 후 `return None` → `validate_kit:136-139`에서 `data is None`이면 `(0, 0)` 반환 → `grand_fail` 증가 없음 → `sys.exit(0)` (exit code 0). 파싱 실패임에도 성공으로 종료
-  - 수정: `load_evals`에서 JSONDecodeError 시 `sys.exit(2)` 또는 caller에서 None 반환 시 `grand_fail` 카운터를 증가시켜 exit code 1 이상 반환
-- [x] ER-02: CI 워크플로우가 테스트 실패 시 PR 블로킹 — PASS
-  - 근거: `.github/workflows/ci.yml:9-31` — validate/playwright/harness job 기본값은 continue-on-error: false. `continue-on-error: true`는 `aggregation-test.sh` 단계에만 적용 (yq 미설치 예외 처리). 핵심 검증 job은 실패 시 블로킹 [L3]
-
-### Architecture (3/4)
-
-- [x] AR-01: 3개 스킬이 기존 네이밍 패턴 준수 — PASS
-  - 근거: `ls backend-kit/skills/` → backend-test, `ls infra-kit/skills/` → infra-test, `ls design-kit/skills/` → design-test. `<kit-prefix>-test` 패턴 정확 일치 [L3]
-- [x] AR-02: 각 플러그인 evals.json에 새 스킬 eval 항목 추가 — PASS
-  - 근거: backend-kit/evals/evals.json:70,83 — "skill": "backend-test" 2건. infra-kit/evals/evals.json:44,57 — "skill": "infra-test" 2건. design-kit/evals/evals.json:172,185 — "skill": "design-test" 2건 [L3]
-- [x] AR-03: sync-evals.py TARGET_KITS에 backend-kit, infra-kit 포함 — PASS
-  - 근거: `scripts/sync-evals.py:32` — `TARGET_KITS = ["flutter-toolkit", "rust-kit", "react-kit", "design-kit", "backend-kit", "infra-kit"]` literal 확인 [L3/exact]
-- [ ] AR-04: README.md 스킬 테이블에 3개 테스트 스킬 등록 — FAIL
-  - 근거: design-kit/README.md:19에 design-test 등록됨. backend-kit/README.md 스킬 테이블에 backend-test 없음(3개 스킬만: backend-guide, backend-audit, backend-system). infra-kit/README.md 스킬 테이블에 infra-test 없음(3개 스킬만: infra-guide, infra-audit, infra-init)
-  - 수정: `python3 scripts/sync-docs.py backend-kit infra-kit` 실행하거나 두 README의 스킬 테이블에 수동으로 backend-test, infra-test 항목 추가
+### Architecture (6/6)
+- [x] AR-01: docs/index.html categories 배열에 8개 신규 페이지 항목 등록 — PASS
+  - 근거: 이전 PASS 유지. `docs/index.html` 8개 `{id, title, file}` 3필드 확인. [L2, enumerated]
+- [x] AR-02: docs/index.html getIcon() 함수에 8개 신규 id case 추가 — PASS
+  - 근거: 이전 PASS 유지. 8개 SVG case 존재. [L2, enumerated]
+- [x] AR-03: 각 페이지 --accent 값이 플러그인별 지정값과 일치 — PASS
+  - 근거: 이전 PASS 유지. CSS 폰트 수정 범위로 인한 accent 변경 없음. [L2, enumerated]
+- [x] AR-04: body 배경 gradient rgba 값이 css-tokens.md 매핑과 일치 — PASS
+  - 근거: 이전 PASS 유지. [L2]
+- [x] AR-05: 공통 기본 토큰 5종(--bg, --surface, --border, --text, --radius) 정의 — PASS
+  - 근거: 이전 PASS 유지. [L2]
+- [x] AR-06: WCAG AA 4.5:1 이상, 본문 폰트 ≥16px, 연속 동일 구조 3회 반복 없음 — PASS
+  - 근거: `.desc` — 전 8개 파일 `clamp(16px,1.2vw,18px)` 확인 (apple-hig:34, material-design:34, open-source-systems:34, dark-mode:34, i18n:34, responsive:33, flutter-ai-rules:33, plugin-validation:33). `.card p` — 전 8개 파일 `font-size:16px` 확인 (plugin-validation:38, apple-hig:40, material-design:40, open-source-systems:40, dark-mode:39, i18n:39, responsive:38, flutter-ai-rules:38). WCAG AA 대비비 17.06:1 이전 PASS 유지. [L3, enumerated]
 
 ### Anti-patterns (2/2)
-
-- [x] AP-03: bare code fence 없음 — PASS
-  - 근거: validate-plugin.py V6 체크(여는 fence에만 적용)가 7/7 OK 반환. 스킬 파일 내 ```` ``` ````로만 닫히는 위치는 모두 닫는 fence [L3]
-- [x] AP-04: frontmatter name 필드 누락 없음 — PASS
-  - 근거: 3개 SKILL.md 모두 frontmatter 첫 필드로 name 포함 (SK-01~03 근거와 동일) [L3]
+- [x] AP-03: bare code fence 금지 — PASS
+  - 근거: 이전 PASS 유지. [L2]
+- [x] AP-05: 외부 CDN/font/script 링크 금지 — PASS
+  - 근거: 이전 PASS 유지. 수정 범위 내 외부 링크 추가 없음. [L2]
 
 ### Reusability (2/2)
+- [x] RE-01: 신규 페이지의 공통 CSS 패턴 재사용 — PASS
+  - 근거: 이전 PASS 유지. [L2]
+- [x] RE-02: 기존 .card, .grid-2, .section-label 등 기본 클래스 재사용 — PASS
+  - 근거: 이전 PASS 유지. [L2]
 
-- [x] RE-01: private 일회용 컴포넌트 없음 — PASS
-  - 근거: 3개 스킬 모두 각 플러그인의 skills/ 경로에 위치, 전용 에이전트/클래스 신규 생성 없음 [L3]
-- [x] RE-02: 기존 공용 컴포넌트 재사용 — PASS
-  - 근거: 3개 스킬 References에서 기존 principle-index.md, system-principles.md, token-principles.md 참조 [L3]
-
-### Diagnostics (2/2)
-
-- [x] DG-01: validate-plugin.py 새 스킬 ERROR 0건 — PASS
-  - 근거: 사용자 보고 "7/7 OK (ERROR 0건)" — AP-03 분석으로 V6 체크 통과 확인 [정적]
-- [x] DG-02: sync-evals.py --check-only 새 스킬 drift 0건 — PASS
-  - 근거: 사용자 보고 "새 스킬 drift 0건" — AR-03으로 TARGET_KITS 포함 확인 [정적]
+### Diagnostics (2/3)
+- [x] DG-01: bash -n scripts/release.sh 워닝 0개 — PASS
+  - 근거: 이전 PASS 유지. release.sh 미변경. [L1]
+- [ ] DG-02: IDE diagnostics 워닝/인포 0개 — [미검증]
+  - 근거: MCP/런타임 없이 정적 확인 불가. [미검증]
+- [x] DG-03: 브라우저 콘솔 에러/경고 0건 — PASS [정적]
+  - 근거: 이전 PASS 유지. standalone HTML, 외부 리소스 없음. [정적]
 
 ## Summary
-
-- Total: 16/18 조건 PASS
-- Verdict: REJECT
-- FAIL 항목:
-  1. **ER-01** (Critical) — run-evals.py가 evals.json 파싱 실패 시 exit code 0으로 정상 종료. CI에서 파싱 오류를 감지하지 못함
-  2. **AR-04** (Medium) — backend-kit/README.md, infra-kit/README.md에 새 테스트 스킬이 등록되지 않음
-
-- 수정 우선순위:
-  1. ER-01: `scripts/run-evals.py` load_evals 함수에서 파싱 오류 시 exit(2) 추가
-  2. AR-04: `python3 scripts/sync-docs.py backend-kit infra-kit` 실행
+- Total: 17/19 conditions passed (미검증 2개: ER-01, DG-02)
+- Verdict: APPROVE
+- FAIL 없음. 미검증 2건(ER-01, DG-02)은 MCP 미설정으로 정적 대체 판정 — 정적 분석 기준 이슈 없음.
 
 ⚠️ 런타임 검증 미수행 — MCP 서버 미설정

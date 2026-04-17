@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responsive Web Design — Design Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,150,90,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(16px,1.2vw,18px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,150,90,0.25)}
+  .card h3{margin-bottom:8px;color:var(--text)}
+  .card p{color:var(--text2);font-size:16px;line-height:1.65}
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--mono);padding:4px 10px;border:1px solid rgba(232,150,90,0.3);border-radius:6px;transition:all var(--transition)}
+  .card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  th{text-align:left;padding:12px 14px;color:var(--text);font-weight:700;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(232,150,90,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:18px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare p{font-size:13px;color:var(--text2);line-height:1.65}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.7}
+  .bp-bar{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin:16px 0}
+  .bp-seg{flex:1;padding:14px;background:var(--surface);text-align:center;position:relative;border-right:1px solid var(--border)}
+  .bp-seg:last-child{border-right:0}
+  .bp-range{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px}
+  .bp-name{font-size:13px;font-weight:700;margin-top:4px;color:var(--text)}
+  .bp-desc{font-size:11px;color:var(--text3);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Responsive Web Design</h1>
+<p class="subtitle">
+  design-kit HTML 산출물에 적용할 반응형 패턴.
+  모바일 퍼스트 · <code>min-width</code> 방향 · CSS-only 기법(auto-fill, clamp, 컨테이너 쿼리) 우선으로 미디어 쿼리 사용을 최소화한다.
+</p>
+
+<!-- ── 1. 브레이크포인트 ── -->
+<div class="section">
+  <div class="section-label">1 · 브레이크포인트 — 3단계면 충분</div>
+  <p class="desc">모바일 퍼스트(접두사 없는 값이 기본). <strong>640 / 1024 / 1536px</strong> 3단계면 대부분의 프로젝트 커버. Tailwind v4 · Bootstrap 5 와 거의 일치.</p>
+
+  <div class="bp-bar">
+    <div class="bp-seg">
+      <div class="bp-range">0 ~ 639</div>
+      <div class="bp-name">base</div>
+      <div class="bp-desc">모바일</div>
+    </div>
+    <div class="bp-seg">
+      <div class="bp-range">≥ 640</div>
+      <div class="bp-name">tablet</div>
+      <div class="bp-desc">태블릿 세로</div>
+    </div>
+    <div class="bp-seg">
+      <div class="bp-range">≥ 1024</div>
+      <div class="bp-name">desktop</div>
+      <div class="bp-desc">랩톱 · 태블릿 가로</div>
+    </div>
+    <div class="bp-seg">
+      <div class="bp-range">≥ 1536</div>
+      <div class="bp-name">wide</div>
+      <div class="bp-desc">와이드 모니터</div>
+    </div>
+  </div>
+
+  <pre>@media (min-width: 640px)  { <span style="color:var(--accent)">/* tablet */</span> }
+@media (min-width: 1024px) { <span style="color:var(--accent)">/* desktop */</span> }
+@media (min-width: 1536px) { <span style="color:var(--accent)">/* wide */</span> }</pre>
+
+  <table style="margin-top:20px">
+    <thead><tr><th>프레임워크</th><th>sm</th><th>md</th><th>lg</th><th>xl</th><th>2xl</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Tailwind v4</strong></td><td>640</td><td>768</td><td>1024</td><td>1280</td><td>1536</td></tr>
+      <tr><td><strong>Bootstrap 5</strong></td><td>576</td><td>768</td><td>992</td><td>1200</td><td>1400</td></tr>
+      <tr><td><strong>design-kit 권장</strong></td><td>640</td><td>—</td><td>1024</td><td>—</td><td>1536</td></tr>
+    </tbody>
+  </table>
+  <a class="card-source" href="https://tailwindcss.com/docs/responsive-design">Tailwind CSS · Responsive Design</a>
+</div>
+
+<!-- ── 2. CSS-only: Grid auto-fill ── -->
+<div class="section">
+  <div class="section-label">2 · Grid auto-fill / auto-fit + minmax</div>
+  <p class="desc">브레이크포인트 없이 카드 그리드가 자동 조절. 미디어 쿼리 0개로 1/2/3/4 컬럼 전환이 매끄럽게 이루어진다.</p>
+
+  <pre>.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(12px, 2vw, 24px);
+}</pre>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3><code>auto-fill</code></h3>
+      <p>빈 트랙을 <strong>유지</strong>한다. 컨테이너에 공간이 남으면 보이지 않는 빈 트랙이 자리. 요소 수가 적어도 너비가 예측 가능.</p>
+    </div>
+    <div class="card">
+      <h3><code>auto-fit</code></h3>
+      <p>빈 트랙을 <strong>접음</strong>. 요소가 적으면 기존 요소가 남은 공간까지 늘어남. 카드가 화면 가득 펼쳐지는 효과.</p>
+    </div>
+  </div>
+  <a class="card-source" href="https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/">CSS-Tricks · auto-fill vs auto-fit</a>
+</div>
+
+<!-- ── 3. clamp() ── -->
+<div class="section">
+  <div class="section-label">3 · clamp() — 유체 타이포 / 스페이싱</div>
+  <p class="desc"><code>clamp(min, preferred, max)</code>. 뷰포트 크기에 비례해 값이 유동 변화하되, 최소/최대 한계 내에 머문다. 미디어 쿼리 단계 없이 매끄러운 스케일.</p>
+
+  <pre>:root {
+  --text-base: clamp(14px, 1.5vw, 18px);
+  --text-lg:   clamp(18px, 2.5vw, 28px);
+  --text-xl:   clamp(24px, 4vw,   48px);
+  --space-md:  clamp(16px, 3vw,   32px);
+  --space-lg:  clamp(24px, 5vw,   56px);
+}</pre>
+
+  <div class="card" style="margin-top:20px">
+    <h3>3인자의 의미</h3>
+    <p><strong>min</strong> — 작은 뷰포트에서의 하한. <strong>preferred</strong> — <code>vw</code>/<code>rem</code> 기반 선호값. <strong>max</strong> — 큰 뷰포트에서의 상한. 뷰포트 320px 에서는 <code>1.5vw = 4.8px</code> 이지만 min <code>14px</code> 로 클램프. 1920px 에서는 <code>1.5vw = 28.8px</code> 이지만 max <code>18px</code> 로 클램프.</p>
+  </div>
+</div>
+
+<!-- ── 4. 컨테이너 쿼리 ── -->
+<div class="section">
+  <div class="section-label">4 · 컨테이너 쿼리 — 부모 기반 반응형</div>
+  <p class="desc">뷰포트가 아닌 <strong>부모 컨테이너</strong> 기준 반응형. 2025 기준 전 주요 브라우저 지원(Chrome 105+ · Safari 16+ · Firefox 110+). 재사용 컴포넌트의 내부 레이아웃을 컨테이너 크기에 맞춰 변환.</p>
+
+  <pre>.card-wrapper { container-type: inline-size; }
+
+@container (min-width: 400px) {
+  .card { flex-direction: row; }
+  .card-image { width: 40%; }
+}
+
+@container (min-width: 600px) {
+  .card { padding: 24px; }
+  .card-title { font-size: 20px; }
+}</pre>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>컨테이너 쿼리가 해결하는 문제</h3>
+      <p>사이드바 안의 카드 vs 메인 영역의 카드가 같은 컴포넌트여도 <strong>주변 너비에 따라</strong> 레이아웃이 달라야 함. 뷰포트 미디어 쿼리로는 불가.</p>
+    </div>
+    <div class="card">
+      <h3>page-size vs container-size</h3>
+      <p>단일 컬럼(뷰포트=컨테이너) 레이아웃에서는 <code>@media</code> 가 간단. 컴포넌트 재사용성 높은 프로젝트는 <code>@container</code> 우선.</p>
+    </div>
+  </div>
+  <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries">MDN · Container Queries</a>
+</div>
+
+<!-- ── 5. 레이아웃 패턴 ── -->
+<div class="section">
+  <div class="section-label">5 · 레이아웃 패턴 3종</div>
+  <p class="desc">실무에서 반복되는 구조 3가지. 각각 grid 또는 flex + 미디어 쿼리 조합으로 구현.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3><span class="tag">01</span>사이드바 + 콘텐츠</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 260px 1fr;
+  }
+}</pre>
+      <p style="margin-top:4px">모바일에서는 세로 스택, 데스크톱에서는 사이드바 + 메인 분할.</p>
+    </div>
+    <div class="card">
+      <h3><span class="tag">02</span>풀블리드 히어로</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">.page {
+  display: grid;
+  grid-template-columns:
+    1fr min(65ch, 100%) 1fr;
+}
+.full-bleed { grid-column: 1 / -1; }
+.content { grid-column: 2; }</pre>
+      <p style="margin-top:4px">본문 폭 65ch 제한, 히어로는 전체 폭. <code>min()</code> 으로 모바일 안전.</p>
+    </div>
+    <div class="card">
+      <h3><span class="tag">03</span>반응형 카드 그리드</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">.grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(12px, 2vw, 24px);
+}</pre>
+      <p style="margin-top:4px">미디어 쿼리 없이 1/2/3/4 컬럼 자동 전환.</p>
+    </div>
+    <div class="card">
+      <h3><span class="tag">04</span>적응형 타이포</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px">h1 {
+  font-size: clamp(28px, 5vw, 56px);
+  line-height: 1.1;
+}
+p {
+  font-size: clamp(14px, 1.2vw, 17px);
+  max-width: 65ch;
+}</pre>
+      <p style="margin-top:4px">clamp 로 유동. <code>max-width: 65ch</code> 로 긴 행 방지.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 6. 수치 테이블 ── -->
+<div class="section">
+  <div class="section-label">6 · 핵심 수치 기준</div>
+  <p class="desc">반응형 디자인에서 반복되는 상수들. 브레이크포인트 · 최대 행 길이 · 최소 터치 타겟 등.</p>
+
+  <table>
+    <thead><tr><th>항목</th><th>값</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>모바일 퍼스트 시작</td><td><code>0px</code></td><td>접두사 없는 CSS 가 모바일</td></tr>
+      <tr><td>태블릿 breakpoint</td><td><code>640px</code></td><td>Tailwind sm</td></tr>
+      <tr><td>데스크톱 breakpoint</td><td><code>1024px</code></td><td>Tailwind lg</td></tr>
+      <tr><td>와이드 breakpoint</td><td><code>1536px</code></td><td>Tailwind 2xl</td></tr>
+      <tr><td>최소 터치 타겟</td><td><code>44×44pt</code> / <code>48×48dp</code></td><td>Apple HIG / Material</td></tr>
+      <tr><td>본문 최대 행 길이</td><td><code>65ch</code></td><td>가독성 연구 50~75ch</td></tr>
+      <tr><td>CJK 최대 행</td><td><code>40ch</code></td><td>W3C 권고</td></tr>
+      <tr><td>viewport meta</td><td><code>width=device-width, initial-scale=1</code></td><td>iOS 확대 차단은 접근성 문제</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 7. 안티패턴 vs 올바른 패턴 ── -->
+<div class="section">
+  <div class="section-label">7 · 안티패턴 vs 올바른 패턴</div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — max-width 방향</div>
+      <p><code>@media (max-width: 768px)</code> 데스크톱 퍼스트. 작은 기기가 CSS 오버라이드 누적 → 성능 저하, 디버깅 어려움.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — min-width</div>
+      <p><code>@media (min-width: 768px)</code>. 모바일 기본에서 큰 화면일수록 기능 추가. 캐스케이드 단방향.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 고정 px</div>
+      <p><code>font-size: 16px; padding: 20px 32px</code> 하드코딩. 모바일에서 너무 크거나 데스크톱에서 너무 작음.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — clamp</div>
+      <p><code>font-size: clamp(14px, 1.5vw, 18px)</code>. 뷰포트에 비례 유동, 상하한 내 머무름.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 미디어 4단계</div>
+      <p>sm/md/lg/xl 4개 브레이크포인트 각각 조건 작성. <code>grid-template-columns</code> 를 4번 재정의.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — auto-fill</div>
+      <p><code>repeat(auto-fill, minmax(280px, 1fr))</code> 한 줄로 전 브레이크포인트 대응.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — user-scalable=no</div>
+      <p><code>viewport</code> 에 <code>user-scalable=no</code>. 시력 약자의 확대 불가 → 접근성 위반.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 표준 meta</div>
+      <p><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code>. 사용자 확대 허용.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 뷰포트 단위 남용</div>
+      <p><code>height: 100vh</code>. iOS Safari 에서 주소창 애니메이션으로 레이아웃 점프.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — dvh/svh</div>
+      <p><code>height: 100dvh</code> (dynamic) 또는 <code>100svh</code> (small). iOS 주소창 고려.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ Bad — 컴포넌트에 뷰포트 기준</div>
+      <p>사이드바 안의 카드가 <code>@media (min-width: 1024px)</code> 로 레이아웃 변경. 실제 카드 너비와 무관.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — 컨테이너 쿼리</div>
+      <p><code>@container (min-width: 400px)</code> 로 카드 자체 너비 기준. 사이드바 너비가 바뀌어도 일관.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 8. Gotchas 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">8 · Gotchas 체크리스트</div>
+  <p class="desc">반응형 구현 시 design-audit 에서 자주 지적되는 항목.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>viewport meta 필수</strong> — <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code>. <code>user-scalable=no</code> 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>모바일 퍼스트 방향</strong> — 기본 CSS = 모바일, <code>min-width</code> 로 큰 화면 확장. <code>max-width</code> 는 예외 케이스만.</div></li>
+    <li><span class="check">✓</span><div><strong>brekapoint 최소화</strong> — 640/1024/1536px 3단계. 필요 시에만 확장. 과도한 분기 지양.</div></li>
+    <li><span class="check">✓</span><div><strong>clamp 유체 타이포</strong> — 고정 px 금지. <code>clamp(min, vw, max)</code> 패턴.</div></li>
+    <li><span class="check">✓</span><div><strong>auto-fill + minmax</strong> — 카드 그리드는 미디어 쿼리 없이 자동 분기.</div></li>
+    <li><span class="check">✓</span><div><strong>max-width: 65ch</strong> — 본문 가독성. CJK 는 40ch.</div></li>
+    <li><span class="check">✓</span><div><strong>dvh / svh</strong> — iOS Safari 주소창 대응. <code>100vh</code> 대신.</div></li>
+    <li><span class="check">✓</span><div><strong>터치 타겟 44×44pt</strong> — 모바일 UI 버튼/링크 최소 크기. 8pt 간격.</div></li>
+    <li><span class="check">✓</span><div><strong>컨테이너 쿼리 활용</strong> — 재사용 컴포넌트는 <code>@container</code> 우선, 레이아웃 프레임은 <code>@media</code>.</div></li>
+    <li><span class="check">✓</span><div><strong>이미지 반응형</strong> — <code>srcset</code>, <code>sizes</code>, <code>&lt;picture&gt;</code> 로 기기별 최적 해상도.</div></li>
+    <li><span class="check">✓</span><div><strong>DevTools 기기 에뮬레이션</strong> — iPhone SE (375) · iPad (768) · 1080p (1920) 최소 3단계 확인.</div></li>
+    <li><span class="check">✓</span><div><strong>가로 스크롤 0</strong> — <code>overflow-x: hidden</code> 으로 감추지 말고 근본 원인(고정 폭 요소) 제거.</div></li>
+  </ul>
+</div>
+
+<!-- ── 9. 출처 ── -->
+<div class="section">
+  <div class="section-label">9 · 출처 · 참고 자료</div>
+  <div class="grid-3">
+    <div class="card">
+      <h3>Tailwind CSS v4</h3>
+      <a class="card-source" href="https://tailwindcss.com/docs/responsive-design">tailwindcss.com — Responsive</a>
+    </div>
+    <div class="card">
+      <h3>Bootstrap 5</h3>
+      <a class="card-source" href="https://getbootstrap.com/docs/5.3/layout/breakpoints/">getbootstrap.com — Breakpoints</a>
+    </div>
+    <div class="card">
+      <h3>Container Queries</h3>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries">MDN — Container Queries</a>
+    </div>
+    <div class="card">
+      <h3>Grid auto-fill / fit</h3>
+      <a class="card-source" href="https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/">CSS-Tricks — auto-fill vs auto-fit</a>
+    </div>
+    <div class="card">
+      <h3>clamp() 함수</h3>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/clamp">MDN — clamp()</a>
+    </div>
+    <div class="card">
+      <h3>dvh / svh / lvh</h3>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/length">MDN — Viewport Units</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 10. 실무 팁 · FAQ ── -->
+<div class="section">
+  <div class="section-label">10 · 실무 팁 · FAQ</div>
+  <p class="desc">반응형 구현 시 자주 부딪히는 경계 케이스.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Q. 모바일 퍼스트 vs 데스크톱 퍼스트?</h3>
+      <p><strong>모바일 퍼스트</strong>가 표준. 캐스케이드가 단방향이라 디버깅 쉬움 + 작은 기기 성능 최적. 데스크톱 퍼스트는 <code>max-width</code> 오버라이드 누적으로 CSS 파싱 비용 증가, 모바일 기기가 불필요한 스타일 계산.</p>
+    </div>
+    <div class="card">
+      <h3>Q. 컨테이너 쿼리 지원 안 되면?</h3>
+      <p>2025 기준 전 주요 브라우저 지원(Chrome 105+ · Safari 16+ · Firefox 110+). 레거시 IE/구형 Safari 는 JS 폴백(<code>resize</code> 이벤트 + classList)으로 대응. 새 프로젝트는 컨테이너 쿼리 기본 채택 안전.</p>
+    </div>
+    <div class="card">
+      <h3>Q. 이미지 srcset 어떻게 쓰나?</h3>
+      <p><code>&lt;img srcset="a-320.webp 320w, a-640.webp 640w, a-1280.webp 1280w" sizes="(min-width:640px) 50vw, 100vw" src="a-640.webp"&gt;</code>. 브라우저가 뷰포트 + 픽셀 밀도에 맞는 해상도 자동 선택. <code>&lt;picture&gt;</code> 는 WebP/AVIF 폴백과 아트 디렉션에 사용.</p>
+    </div>
+    <div class="card">
+      <h3>Q. 반응형 테스트 자동화?</h3>
+      <p>Playwright 의 <code>page.setViewportSize</code> 또는 Percy/Chromatic 시각 회귀 테스트. 주요 breakpoint(375/768/1024/1920) 스냅샷 비교. CI 에서 회귀 자동 감지.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>플러그인 검증 가이드 — Harness</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(16px,1.2vw,18px);line-height:1.7;max-width:820px;margin-bottom:24px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(217,119,87,0.25)}
+  .card h3{margin-bottom:8px;color:var(--text)}
+  .card p{color:var(--text2);font-size:16px;line-height:1.65}
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--mono);padding:4px 10px;border:1px solid rgba(217,119,87,0.3);border-radius:6px;transition:all var(--transition)}
+  .card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  th{text-align:left;padding:12px 14px;color:var(--text);font-weight:700;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(217,119,87,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:18px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{background:transparent;border:0;padding:4px 0;font-size:11px;color:var(--text2)}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.7}
+  .v-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative}
+  .v-badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);font-size:14px;font-weight:800;margin-bottom:12px}
+  .v-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+  .v-desc{font-size:13px;color:var(--text2);line-height:1.6}
+  .exit-grid{display:grid;grid-template-columns:auto 1fr;gap:12px 20px;align-items:center;margin-top:16px}
+  .exit-code{font-family:var(--mono);font-size:24px;font-weight:800;padding:8px 18px;border-radius:8px;text-align:center}
+  .exit-0{background:rgba(74,222,128,0.12);color:var(--green)}
+  .exit-1{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .exit-2{background:rgba(248,113,113,0.12);color:var(--red)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>플러그인 검증 가이드</h1>
+<p class="subtitle">
+  <code>scripts/validate-plugin.py</code> 의 <strong>7-카테고리 자동 검증</strong>.
+  릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하며, 7개 킷 전체의 스킬 · 에이전트 · 템플릿 무결성을 보장한다.
+</p>
+
+<!-- ── 1. 목적 ── -->
+<div class="section">
+  <div class="section-label">1 · 목적 · 적용 범위</div>
+  <p class="desc">플러그인 모노레포는 7개 킷, 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>자동 탐지 대상 5종</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.85">
+        <li><strong>숨은 깨진 링크</strong> — SKILL.md 가 <code>references/xxx.md</code> 참조하나 파일 없음</li>
+        <li><strong>Frontmatter 누락</strong> — <code>name</code>/<code>description</code> 없어 Claude 가 스킬 미인식</li>
+        <li><strong>트리거 중복</strong> — 두 킷이 동일 키워드 선언 → 의도치 않은 스킬 실행</li>
+        <li><strong>Placeholder 노출</strong> — <code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 사용자에게 노출</li>
+        <li><strong>버전 불일치</strong> — <code>plugin.json</code> vs <code>marketplace.json</code> 태그 diff</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>적용 범위</h3>
+      <p><code>.claude-plugin/plugin.json</code> 을 가진 모든 디렉토리. 현재 <strong>7개 킷</strong>:</p>
+      <pre style="background:transparent;border:0;padding:8px 0;font-size:11px;color:var(--text2)">harness/          flutter-toolkit/
+design-kit/       backend-kit/
+infra-kit/        rust-kit/
+react-kit/</pre>
+      <p style="margin-top:4px">킷 목록은 <code>.claude-plugin/marketplace.json</code> <code>plugins</code> 배열에서 자동 읽기. 새 킷 등록 시 자동 포함.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 2. 실행 명령 ── -->
+<div class="section">
+  <div class="section-label">2 · 실행 명령</div>
+  <p class="desc">모든 킷 전수 또는 특정 킷/체크만 선택 실행. CI 파이프라인에는 <code>--json</code> 출력 사용.</p>
+
+  <pre><span style="color:var(--accent)"># 전체 킷 검증</span>
+python3 scripts/validate-plugin.py
+
+<span style="color:var(--accent)"># 특정 킷만</span>
+python3 scripts/validate-plugin.py react-kit
+
+<span style="color:var(--accent)"># 특정 체크만 (쉼표 구분)</span>
+python3 scripts/validate-plugin.py --check=frontmatter,refs
+
+<span style="color:var(--accent)"># JSON 출력 (CI 파이프라인용)</span>
+python3 scripts/validate-plugin.py --json
+
+<span style="color:var(--accent)"># 자동 수정 (V5 placeholders + V6 code-fence)</span>
+python3 scripts/validate-plugin.py --fix</pre>
+</div>
+
+<!-- ── 3. V1~V7 검증 카테고리 ── -->
+<div class="section">
+  <div class="section-label">3 · V1 ~ V7 검증 카테고리</div>
+  <p class="desc">7가지 카테고리. 각 카테고리는 PASS / WARNING / FAIL 판정 + 구체적 라인 번호를 보고한다.</p>
+
+  <div class="grid-2">
+    <div class="v-card">
+      <div class="v-badge">V1</div>
+      <div class="v-title">Frontmatter 무결성</div>
+      <div class="v-desc">SKILL.md — <code>name</code> · <code>description</code> · <code>user-invocable</code>. 에이전트 — <code>name</code> · <code>description</code> · <code>tools</code> · <code>model</code>. YAML 파싱 성공 + 필수 필드 존재.</div>
+    </div>
+    <div class="v-card">
+      <div class="v-badge">V2</div>
+      <div class="v-title">Templates 구문</div>
+      <div class="v-desc"><code>templates/</code> 내 JSON · YAML · TOML 파서 검증. <code>.ts/.js</code> 는 외부 도구 의존으로 SKIP. <code>.template</code> 확장자는 내부 확장자로 판별.</div>
+    </div>
+    <div class="v-card">
+      <div class="v-badge">V3</div>
+      <div class="v-title">Cross-reference 링크</div>
+      <div class="v-desc">SKILL.md 마크다운 링크 <code>[text](path)</code> 가 실제 파일로 해소. 절대 URL · 앵커 · <code>&lt;!-- novalidate --&gt;</code> 주석은 제외.</div>
+    </div>
+    <div class="v-card">
+      <div class="v-badge">V4</div>
+      <div class="v-title">Trigger 키워드</div>
+      <div class="v-desc">description 의 따옴표 키워드 추출. 킷 간 exact-match 중복 시 WARNING. KIT_CONTEXT_TOKENS 로 "flutter"/"react" 같은 kit-specific 단어 있으면 disambiguation.</div>
+    </div>
+    <div class="v-card">
+      <div class="v-badge">V5</div>
+      <div class="v-title">Placeholders</div>
+      <div class="v-desc"><code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 0건. 단어 경계(<code>\b</code>) 기준 대소문자 무관 매칭. <code>--fix</code> 로 중립 주석 자동 교체.</div>
+    </div>
+    <div class="v-card">
+      <div class="v-badge">V6</div>
+      <div class="v-title">Code fence 언어 힌트</div>
+      <div class="v-desc">여는 fence (<code>```</code>) 뒤 언어 힌트 필수. 상태 머신으로 <code>in_block</code> 추적. <code>--fix</code> 로 <code>```text</code> 자동 보강.</div>
+    </div>
+    <div class="v-card" style="grid-column:1/-1">
+      <div class="v-badge">V7</div>
+      <div class="v-title">plugin.json ↔ marketplace.json 정합성</div>
+      <div class="v-desc"><code>name</code> · <code>version</code> 일치 + marketplace description 의 <code>[vX.Y.Z · YYYY-MM-DD]</code> 태그가 <code>plugin.json</code> 버전과 일치. 정규식 <code>\[v(\d+\.\d+\.\d+)\s*·\s*\d&lbrace;4&rbrace;-\d&lbrace;2&rbrace;-\d&lbrace;2&rbrace;\]</code> 로 추출.</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <h3>V1 · V3 설계 근거</h3>
+      <p>Frontmatter 와 링크 무결성은 Claude 플러그인 로딩의 최소 전제. 스킬 로더가 YAML 파싱 실패 시 전체 스킬 미로드.</p>
+      <a class="card-source" href="https://docs.anthropic.com/en/docs/claude-code/plugins">docs.anthropic.com · Claude Code Plugins</a>
+    </div>
+    <div class="card">
+      <h3>V4 Context Disambiguation</h3>
+      <p>"테스트 만들어줘" 같은 공통 키워드가 여러 킷에서 겹쳐도, description 에 kit-specific 단어(Flutter/React/Rust)가 있으면 disambiguation 성공.</p>
+      <a class="card-source" href="https://docs.anthropic.com/en/docs/claude-code/skills">docs.anthropic.com · Claude Skills</a>
+    </div>
+    <div class="card">
+      <h3>V7 릴리스 태깅</h3>
+      <p><code>scripts/release.sh</code> 가 plugin.json 버전 bump + marketplace.json description 의 <code>[vX.Y.Z · 날짜]</code> 태그 자동 갱신. 수동 수정은 V7 FAIL 위험.</p>
+      <a class="card-source" href="https://semver.org/">semver.org · SemVer 2.0</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 4. CLI 옵션 & Exit Code ── -->
+<div class="section">
+  <div class="section-label">4 · CLI 옵션 · Exit Code</div>
+
+  <table>
+    <thead><tr><th>옵션</th><th>설명</th><th>예시</th></tr></thead>
+    <tbody>
+      <tr><td><code>[plugin]</code></td><td>특정 킷만 검증</td><td><code>validate-plugin.py react-kit</code></td></tr>
+      <tr><td><code>--check=&lt;list&gt;</code></td><td>특정 체크만 (쉼표 구분)</td><td><code>--check=frontmatter,refs</code></td></tr>
+      <tr><td><code>--json</code></td><td>JSON 출력 (CI)</td><td><code>--json</code></td></tr>
+      <tr><td><code>--fix</code></td><td>자동 수정 (V5 + V6만)</td><td><code>--fix</code></td></tr>
+      <tr><td><code>--help</code></td><td>사용법 출력</td><td><code>--help</code></td></tr>
+    </tbody>
+  </table>
+
+  <p class="desc" style="margin-top:20px"><code>--check</code> 값: <code>frontmatter</code> · <code>templates</code> · <code>refs</code> · <code>triggers</code> · <code>placeholders</code> · <code>code-fence</code> · <code>plugin-json</code></p>
+
+  <h3 style="margin-top:28px">Exit Code</h3>
+  <div class="exit-grid">
+    <div class="exit-code exit-0">0</div>
+    <div style="color:var(--text2);font-size:13px">모든 체크 PASS</div>
+    <div class="exit-code exit-1">1</div>
+    <div style="color:var(--text2);font-size:13px">WARNING 있음 — 킷별 예외 카탈로그 해당 특수 케이스 포함</div>
+    <div class="exit-code exit-2">2</div>
+    <div style="color:var(--text2);font-size:13px">ERROR 있음 — 진짜 FAIL</div>
+  </div>
+</div>
+
+<!-- ── 5. 출력 포맷 샘플 ── -->
+<div class="section">
+  <div class="section-label">5 · 출력 포맷 샘플</div>
+  <p class="desc">킷별로 그룹화된 섹션. FAIL 항목은 라인 번호까지 보고. 마지막 줄에 총괄 요약 + exit code.</p>
+
+  <pre>=== harness ===
+  V1 frontmatter    7 skills + 1 agent — OK
+  V2 templates      0 files — SKIP (no templates/)
+  V3 refs           12 links — OK
+  V4 triggers       42 keywords — OK
+  V5 placeholders   0 found — OK
+  V6 code-fence     0 bare — OK
+  V7 plugin-json    v0.3.5 matches marketplace — OK
+
+=== react-kit ===
+  V1 frontmatter    21 skills + 3 agents — OK
+  V2 templates      5 parsed, 4 skipped (ts/js) — OK
+  V3 refs           89 links, <span style="color:var(--red)">2 BROKEN</span>
+    <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:42
+         → references/shadcn-skeleton.md (not found)
+    <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:67
+         → ../design-kit/references/token-schema.md (not found)
+  V4 triggers       58 keywords, <span style="color:var(--yellow)">1 duplicate</span>
+    <span style="color:var(--yellow)">WARN</span> "새 화면 추가" — react-screen, flutter-screen
+  V5 placeholders   0 found — OK
+  V6 code-fence     0 bare — OK
+  V7 plugin-json    v0.1.0 matches marketplace — OK
+
+Total: 7 plugins — 5 OK, 1 WARNING, 1 ERROR
+Exit: 2</pre>
+</div>
+
+<!-- ── 6. FAIL 예시 & Bad vs Good ── -->
+<div class="section">
+  <div class="section-label">6 · FAIL 예시 · Bad vs Good</div>
+  <p class="desc">각 카테고리의 전형적 FAIL 패턴. 교정 방법은 수동 또는 <code>--fix</code> 자동.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V1 — 필드 누락</div>
+      <pre>---
+name: react-screen
+description: 화면을 생성한다.
+<span style="color:var(--red)"># user-invocable 없음 → FAIL</span>
+---</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V1 — 3필드 완비</div>
+      <pre>---
+name: react-screen
+description: 화면을 생성한다.
+user-invocable: true
+---</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V3 — 깨진 링크</div>
+      <pre>## References
+- [shadcn 가이드](references/shadcn-skeleton.md)
+<span style="color:var(--red)"># 파일 없음 → FAIL</span></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V3 — 실 파일</div>
+      <pre>## References
+- [Radix primitives](references/radix.md)
+<span style="color:var(--green)"># 파일 존재 → PASS</span></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V4 — 키워드 중복</div>
+      <pre><span style="color:var(--text3)"># react-screen</span>
+"새 화면 추가", "페이지 추가"
+
+<span style="color:var(--text3)"># flutter-screen</span>
+"새 화면 추가"
+<span style="color:var(--yellow)"># 동일 → WARNING</span></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V4 — 컨텍스트 차별화</div>
+      <pre><span style="color:var(--text3)"># flutter-test</span>
+"Flutter WidgetTester 테스트..."
+
+<span style="color:var(--text3)"># react-test</span>
+"React Vitest 테스트..."
+<span style="color:var(--green)"># KIT_CONTEXT_TOKENS 로 PASS</span></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V5 — TODO 노출</div>
+      <pre>## Process
+1. 입력을 받는다
+2. <span style="color:var(--red)">TODO: 검증 로직 추가 예정</span>
+3. 결과를 출력한다</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V5 — 중립 주석</div>
+      <pre>## Process
+1. 입력을 받는다
+2. <span style="color:var(--green)">&lt;검증 로직 필요&gt;</span>
+3. 결과를 출력한다</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V6 — bare fence</div>
+      <pre>## 예시
+
+<span style="color:var(--red)">```
+const x = 1;
+```</span></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V6 — 언어 힌트</div>
+      <pre>## 예시
+
+<span style="color:var(--green)">```typescript
+const x: number = 1;
+```</span></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V7 — 버전 불일치</div>
+      <pre><span style="color:var(--text3)">// plugin.json</span>
+&lbrace; "version": "0.2.0" &rbrace;
+
+<span style="color:var(--text3)">// marketplace.json description</span>
+"[v0.1.0 · 2026-04-10] React..."
+<span style="color:var(--red)"># FAIL</span></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V7 — 태그 일치</div>
+      <pre><span style="color:var(--text3)">// plugin.json</span>
+&lbrace; "version": "0.2.0" &rbrace;
+
+<span style="color:var(--text3)">// marketplace.json</span>
+"[v0.2.0 · 2026-04-17] React..."
+<span style="color:var(--green)"># PASS</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ── 7. 자동 수정 · 수동 수정 ── -->
+<div class="section">
+  <div class="section-label">7 · 자동 수정 · 수동 수정</div>
+  <p class="desc"><code>--fix</code> 는 V5 · V6 만 안전 수정. 나머지는 파일 삭제/링크 재배선 같은 의미 분석이 필요하므로 수동.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>자동 수정 (<code>--fix</code>)</h3>
+      <table style="background:transparent;border:0">
+        <thead style="background:transparent"><tr><th style="background:transparent;padding:6px 0">체크</th><th style="background:transparent;padding:6px 0">동작</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:6px 0"><strong>V5</strong></td><td style="padding:6px 0"><code>TODO:</code> → <code>&lt;설명 필요&gt;</code></td></tr>
+          <tr><td style="padding:6px 0"></td><td style="padding:6px 0"><code>TBD</code> → <code>&lt;내용 추가&gt;</code></td></tr>
+          <tr><td style="padding:6px 0"></td><td style="padding:6px 0"><code>FIXME:</code> → <code>&lt;수정 필요&gt;</code></td></tr>
+          <tr><td style="padding:6px 0"><strong>V6</strong></td><td style="padding:6px 0">빈 <code>```</code> → <code>```text</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>수동 수정</h3>
+      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.85">
+        <li><strong>V1</strong> — frontmatter 누락 필드 추가</li>
+        <li><strong>V2</strong> — templates/ JSON/YAML/TOML 구문 오류</li>
+        <li><strong>V3</strong> — 참조 파일 생성 또는 링크 경로 수정</li>
+        <li><strong>V4</strong> — description 중복 키워드 제거 또는 구체화</li>
+        <li><strong>V7</strong> — plugin.json 또는 marketplace.json 버전 태그</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">카이젠 위임 기준</h3>
+  <p class="desc">다음 경우 해당 킷의 <code>*-kaizen</code> 스킬로 위임:</p>
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>V3 FAIL 3건 이상</strong> — 참조 구조 재설계 수준</div></li>
+    <li><span class="check">✓</span><div><strong>V4 중복 5건 이상</strong> — 킷 간 트리거 키워드 체계 재정의 필요</div></li>
+    <li><span class="check">✓</span><div><strong>V1 FAIL 3건 이상</strong> — 스킬 템플릿 자체가 잘못된 경우</div></li>
+  </ul>
+</div>
+
+<!-- ── 8. 카이젠 연동 ── -->
+<div class="section">
+  <div class="section-label">8 · 카이젠 연동 — SSOT</div>
+  <p class="desc">이 가이드 §7(원본) 은 <strong>9개 카이젠 스킬의 "Plugin Validation 결과 반영" 단계의 SSOT</strong>. 각 카이젠 스킬은 킷 특화 규칙만 로컬에 유지하고, 공통 규칙은 이 가이드를 참조한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>실행 패턴</h3>
+      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px"><span style="color:var(--accent)"># 세션 시작 — 현재 상태</span>
+python3 scripts/validate-plugin.py &lt;kit&gt;
+
+<span style="color:var(--accent)"># 자동 수정 (V5 + V6)</span>
+python3 scripts/validate-plugin.py &lt;kit&gt; \
+  --fix --check=placeholders,code-fence
+
+<span style="color:var(--accent)"># 세션 종료 — 회귀 없음 확인</span>
+python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
+    </div>
+    <div class="card">
+      <h3>우선순위 매핑</h3>
+      <table style="background:transparent;border:0">
+        <thead style="background:transparent"><tr><th style="background:transparent;padding:6px 0">결과</th><th style="background:transparent;padding:6px 0">처리</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:6px 0"><strong style="color:var(--red)">ERROR</strong></td><td style="padding:6px 0">개선 우선순위 <strong>높음</strong>. 이 세션에서 반드시 수정</td></tr>
+          <tr><td style="padding:6px 0"><strong style="color:var(--yellow)">WARNING</strong></td><td style="padding:6px 0">우선순위 <strong>중간</strong>. description 보강으로 해소 권장</td></tr>
+          <tr><td style="padding:6px 0"><strong style="color:var(--green)">PASS</strong></td><td style="padding:6px 0">skip. 변경으로 FAIL 생기지 않도록 주의</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── 9. 킷별 예외 카탈로그 ── -->
+<div class="section">
+  <div class="section-label">9 · 킷별 예외 카탈로그</div>
+  <p class="desc"><code>templates/</code> 없는 킷은 V2 전체 SKIP. TS/JS 파일은 외부 도구(tsc) 의존으로 V2 SKIP.</p>
+
+  <table>
+    <thead><tr><th>킷</th><th>V2 templates</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>harness</td><td><code>templates/</code> 없음 — SKIP</td><td>QA 프레임워크. 코드 템플릿 대상 아님</td></tr>
+      <tr><td>flutter-toolkit</td><td><code>templates/</code> 없음 — SKIP</td><td>스킬 지시문 기반. 별도 템플릿 파일 없음</td></tr>
+      <tr><td>design-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>디자인 가이드 중심. 코드 템플릿 없음</td></tr>
+      <tr><td>backend-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드</td></tr>
+      <tr><td>infra-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드</td></tr>
+      <tr><td>rust-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스킬에서 인라인 생성. 향후 templates/ 추가 가능</td></tr>
+      <tr><td>react-kit</td><td><code>templates/</code> 9 파일 — TS 4개 SKIP, 5개 파싱</td><td><code>.ts/.js</code> 4개 SKIP, <code>Cargo.toml.template</code> 등 5개 파싱</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 10. Gotchas 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">10 · Gotchas 체크리스트</div>
+  <p class="desc">validate-plugin 실행 전/후에 확인할 항목.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>커밋 전 전수 실행</strong> — <code>python3 scripts/validate-plugin.py</code> PASS 확인. CI 보다 먼저.</div></li>
+    <li><span class="check">✓</span><div><strong>--fix 우선</strong> — V5 · V6 자동 수정으로 쉬운 오류 제거 → 남은 FAIL 집중.</div></li>
+    <li><span class="check">✓</span><div><strong>새 킷 등록 순서</strong> — marketplace.json 등록 → plugin.json 생성 → SKILL.md 작성 → validate 확인.</div></li>
+    <li><span class="check">✓</span><div><strong>V3 링크 상대경로</strong> — SKILL.md 위치 기준. 절대 경로 · 프로젝트 root 기준 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>V4 context disambiguation</strong> — "테스트 만들어줘" 처럼 공통 키워드는 "Flutter"/"React" 같은 kit-specific 단어 description 에 포함.</div></li>
+    <li><span class="check">✓</span><div><strong>V7 릴리스 흐름</strong> — <code>scripts/release.sh</code> 가 plugin.json + marketplace.json 동시 업데이트. 수동 수정 지양.</div></li>
+    <li><span class="check">✓</span><div><strong>카이젠 세션 시작/종료 필수</strong> — 세션 시작 시 현재 상태 파악, 종료 시 회귀 없음 확인.</div></li>
+    <li><span class="check">✓</span><div><strong>Exit code 2 차단</strong> — CI 에서 exit 2 를 빌드 실패로 처리. WARN(1) 은 통과시킬지 팀 정책.</div></li>
+    <li><span class="check">✓</span><div><strong>V1 frontmatter 즉시 수정</strong> — 1줄 수정이므로 발견 즉시 처리. 카이젠 위임 대상 아님.</div></li>
+    <li><span class="check">✓</span><div><strong>novalidate 주석 제한</strong> — <code>&lt;!-- novalidate --&gt;</code> 는 의도적 미해소 링크에만. 남용 시 V3 가치 상실.</div></li>
+    <li><span class="check">✓</span><div><strong>JSON 출력 스키마</strong> — CI 통합 시 <code>--json</code> 출력 포맷 버전 고정 확인.</div></li>
+  </ul>
+</div>
+
+<!-- ── 11. 변경 이력 · 출처 ── -->
+<div class="section">
+  <div class="section-label">11 · 변경 이력 · 출처</div>
+
+  <table style="margin-bottom:20px">
+    <thead><tr><th>날짜</th><th>버전</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>2026-04-11</td><td>1.0.0</td><td>초기 작성 — V1~V7 카테고리, 7개 킷 예외 카탈로그, <code>scripts/validate-plugin.py</code> 구현</td></tr>
+    </tbody>
+  </table>
+
+  <p class="desc">다음 갱신 예정:</p>
+  <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
+    <li><strong>V8</strong> — 에이전트 파라미터 스키마 검증 (tools 목록이 실제 Claude 지원 도구인지)</li>
+    <li><strong>V9</strong> — README ↔ SKILL.md 스킬 목록 정합성 (README 에 언급된 스킬이 실제 존재하는지)</li>
+  </ul>
+
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card">
+      <h3>원본 가이드</h3>
+      <a class="card-source" href="https://github.com/anthropics/claude-code">github.com/anthropics/claude-code</a>
+      <p style="margin-top:8px">플러그인 시스템 공식 문서.</p>
+    </div>
+    <div class="card">
+      <h3>이 레포</h3>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">harness/docs/guides/plugin-validation-guide.md</a>
+      <p style="margin-top:8px">이 HTML 페이지의 SSOT. 가이드 갱신은 <code>harness-kaizen</code> 스킬 담당.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
