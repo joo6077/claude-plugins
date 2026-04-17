@@ -29,7 +29,9 @@ user-invocable: true
 
 ## 입력
 
-- `project` (optional): 집계할 프로젝트 ID (형식: `<basename>-<6자 hash>`). 없으면 현재 cwd로부터 동일 해시 규칙으로 계산.
+- `project` (optional): 집계할 프로젝트 ID (형식: `<basename>-<6자 hash>`).
+  - 없으면 현재 cwd로부터 동일 해시 규칙으로 계산.
+  - **`project=all`**: cross-project 집계 모드 — `~/.claude/logs/` 하위 모든 프로젝트 디렉토리를 순회한다 (v0.2.0+).
 - `period` (optional): `7d` / `30d` / `all`. 기본 `7d`.
 
 ## 프로젝트 ID
@@ -89,6 +91,70 @@ approach_note: <str>
 5. **승격 후보 계산 (아래 Precedence Table)**
 6. **리포트 출력**
 7. **결과 저장 (옵션)**: `~/.claude/logs/<project_id>/digest-YYYY-MM-DD.md`. 반영 자체는 후속 `/reflect-promote`가 맡음.
+
+## Cross-project 집계 (v0.2.0: `project=all`)
+
+`project=all` 로 호출 시 단일 프로젝트가 아닌 **전 프로젝트를 글로벌 순회**한다.
+Precedence Table #3 (`scope == global` AND 복수 프로젝트 freq ≥ 3) 판정은 이 모드에서만 의미 있다.
+
+### 1. 글로벌 순회 규칙
+
+- `~/.claude/logs/*/` 하위 모든 디렉토리를 project_id로 취급
+- 해시 없는 레거시 디렉토리(`basename` 만)는 **별도 버킷**으로 표시 (legacy). 마이그레이션 권고는 `reflect-kit/scripts/legacy-id-migrate.sh` 참조
+- 디렉토리별 `reflections-YYYY-MM.md` 와 `.errors.log` 둘 다 읽음. 읽기 실패는 해당 프로젝트만 skip (ER-03)
+
+### 2. 이중 freq 계산 (프로젝트별 + 글로벌)
+
+- `mistake_tag` 별로 두 가지 빈도를 동시에 계산:
+  - `per_project_freq[tag][pid]` — 각 프로젝트 안에서의 빈도
+  - `global_freq[tag]` — 모든 프로젝트 합산 빈도
+  - `project_count[tag]` — 이 tag가 등장한 **서로 다른 프로젝트 수**
+- Precedence #3 판정: `global_freq[tag] ≥ 3 AND project_count[tag] ≥ 2` 일 때 global 승격 후보
+
+### 3. Precedence Table 재적용
+
+single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
+
+| # | 조건 (project=all 기준) | 승격 surface |
+|---|---|---|
+| 1 | 어느 프로젝트든 `enforcement_need == hard_gate` | **hook 검토** |
+| 2 | `procedurality == multi_step_procedure` AND `global_freq ≥ 2` | **skill** |
+| 3 | `global_freq ≥ 3` AND `project_count ≥ 2` | risk=high → **글로벌 CLAUDE.md** / 나머지 → **글로벌 memory** |
+| 4 | 단일 프로젝트에 국한되고 `per_project_freq ≥ 3` | **project CLAUDE.md** (해당 프로젝트) |
+| 5 | 단일 프로젝트에 국한되고 `per_project_freq ≥ 2` | **project memory** (해당 프로젝트) |
+| 6 | `risk_class == low` AND 전체 freq == 1 | **관망** |
+| 7 | 그 외 | **수동 review** |
+
+### 4. Given-When-Then 동작 계약
+
+- **Given** `/reflect-digest project=all period=30d` 호출,
+- **When** digest가 `~/.claude/logs/*/reflections-*.md` 를 순회하고,
+- **Then** 리포트 상단에 아래 형태의 메타라인이 정확히 표시된다:
+  ```text
+  # Reflect Digest — project=all (30d)
+  대상 프로젝트: N개 (레거시 L개 / 해시 포맷 H개) / 총 엔트리: M개
+  집계 실패 프로젝트: K개 (project_id 리스트)
+  ```
+- `집계 실패 프로젝트` 블록이 0개여도 라인 자체는 생략하지 않고 `0개` 로 명시한다 (검증 용이성).
+
+### 5. 출력 포맷 예시 (cross-project)
+
+```text
+# Reflect Digest — project=all (30d)
+대상 프로젝트: 7개 (레거시 3개 / 해시 포맷 4개) / 총 엔트리: 142개
+집계 실패 프로젝트: 0개
+
+## 글로벌 상위 패턴 (mistake_tag × project_count)
+| count | projects | mistake_tag | primary | risk | proc | enforce | 승격 후보 |
+|------:|---------:|-------------|---------|------|------|---------|-----------|
+|   12  |    3     | wrong-path-inference | misunderstanding | medium | single | soft | 글로벌 memory (rule #3) |
+|    8  |    2     | startup-env-check-hook-failure | tool_failure | high | single | hard | **hook 검토 (rule #1)** |
+
+## 프로젝트별 Top 3
+- `claude-plugins-701489`: tag-a (5) · tag-b (3) · tag-c (2)
+- `fit-pal-aa2a00`: tag-d (4) · tag-e (3)
+- ...
+```
 
 ## Surface Precedence Table
 

@@ -1,53 +1,43 @@
 ---
-feature: "reflect-kit 플러그인 신설 v0.1.0 — 글로벌 dialog-feedback 시스템의 플러그인화"
-created: "2026-04-17 10:42"
-complexity: "복잡"
+feature: "reflect-kit v0.2.0 — Claude fallback · 스케줄러 · cross-project digest · redaction 강화 · 구ID 마이그레이션"
+created: "2026-04-17 14:16"
+complexity: "중간"
 conditions: 23
 ---
 
 ## Skill
-- [ ] SK-01: `reflect-kit/skills/` 하위에 3개 스킬 폴더가 존재하며 각각 `SKILL.md` 파일을 가진다 — `reflect-digest/`, `reflect-promote/`, `reflect-kaizen/` [exact, enumerated]
-- [ ] SK-02: 3개 SKILL.md 모두 valid YAML frontmatter를 가지며 `name`, `description`, `argument-hint`, `user-invocable` 필드가 존재한다 [exact, enumerated]
-- [ ] SK-03: `reflect-digest/SKILL.md`의 description과 본문에서 기존 `dialog-feedback-digest`, `misunderstandings-*.md`, `dialog-feedback-promote` 참조가 모두 신규 이름(`reflect-digest`, `reflections-*.md`, `reflect-promote`)으로 대체되어 있다 — 해당 문자열 0회 매치 [exact, collective]
-- [ ] SK-04: `reflect-promote/SKILL.md`는 다음 프로세스 섹션을 포함한다 — 후보 입력 수신, DESIGN.md Precedence Table 기반 surface 판정, 실제 파일 수정(CLAUDE.md/memory/skill/hook/.claude/rules), `uuidgen` 기반 rule_id 발급(ULID 라이브러리 의존성 회피), `promotions-ledger.md` append, rollback 절차 [structural, enumerated]
-- [ ] SK-05: `reflect-kaizen/SKILL.md`는 다음 4개 프로세스 섹션을 모두 포함하며 각 섹션은 최소 3개 단계(- 또는 숫자 bullet)를 가진다 — (1) 최근 reflections 랜덤 10건 LLM-as-judge 재분류, (2) 원 분류 vs 재분류 일치도 측정 + 70% 미만 시 프롬프트 개선 트리거, (3) `promotions-ledger.md`의 `post_freq` 30일 calibration, (4) 임계값/프롬프트 개선 제안 [structural, enumerated]
-- [ ] SK-06: 3개 스킬 모두 본문에 `Gotchas` 섹션과 `Process` 섹션을 포함하며, Gotchas는 최소 3개 이상 항목을 가진다 [structural, enumerated]
-- [ ] SK-07: `docs/reflect-kit/` 하위에 `design.html`, `research.html`, `schema.html` 3개 standalone HTML 페이지가 존재하며, 각 페이지 `:root`의 `--accent` 값은 `#F43F5E`, `--accent2`는 `#FDA4AF`, `--accent-dim`은 `rgba(244,63,94,0.12)`로 설정된다. 외부 CDN/CSS/JS 링크 0개 [exact, enumerated]
+- [ ] SK-01: `reflect-kit/skills/reflect-digest/SKILL.md`에 `project=all` 인자 지원이 명시되며 "cross-project 집계" 섹션을 포함한다. 섹션은 (a) `~/.claude/logs/*/reflections-*.md` 글로벌 순회 규칙, (b) 프로젝트별 빈도 + 글로벌 freq 합산 표시, (c) Precedence #3(`scope=global AND 복수 프로젝트 freq≥3`) 판정 연동 3단계를 모두 포함한다 [structural, enumerated]
+- [ ] SK-02: Given `project=all` 인자가 전달되면, When digest가 전 프로젝트 로그를 순회하고, Then 리포트 상단에 "대상 프로젝트 수 N개 / 총 엔트리 M개" 메타라인이 표시되도록 SKILL.md 출력 포맷 예시가 명시된다 [structural]
+- [ ] SK-03: `reflect-kit/skills/reflect-promote/SKILL.md`의 Precedence rule #3 설명에 "복수 프로젝트 freq ≥ 3" 판정 근거를 `/reflect-digest project=all` 출력으로 링크하는 문장이 1개 이상 추가된다 [structural]
 
 ## Script
-- [ ] SC-01: `reflect-kit/.claude-plugin/plugin.json`이 존재하며 `name: "reflect-kit"`, `version: "0.1.0"`, `author`, `description`, `repository`, `license`, `keywords` 필드를 가진다 [exact, enumerated]
-- [ ] SC-02: `reflect-kit/hooks/hooks.json`이 존재하며 `UserPromptSubmit` / `PostToolUseFailure` / `Stop` 3개 이벤트 핸들러를 가진다. 각 command는 `${CLAUDE_PLUGIN_ROOT}/hooks/{log-prompt|log-tool-failure|log-reflection}.sh` 형태다 — `${PLUGIN_DIR}` 문자열 0회 매치 [exact, enumerated]
-- [ ] SC-03: `log-reflection.sh`는 내부에서 codex 분석을 백그라운드(`nohup ... & disown` 또는 동등)로 실행하고 훅 본체는 즉시 `exit 0` 반환한다 — 훅 command 자체에 `async: true` 필드 없음 [exact, collective]
-- [ ] SC-04: `.claude-plugin/marketplace.json`의 `plugins` 배열에 `reflect-kit` 엔트리가 추가되며 `name`, `source: "./reflect-kit"`, `description` 필드를 가진다 [exact, enumerated]
-- [ ] SC-05: v0.1.0 수동 릴리스가 완료된다 — git commit (신규 파일 포함), `git tag reflect-kit/v0.1.0` 생성, `git push origin main` + `git push origin reflect-kit/v0.1.0` 실행. `scripts/release.sh`는 0.1.0 최초 태그에 사용하지 않는다 [goal]
+- [ ] SC-01: `reflect-kit/hooks/log-reflection.sh`에서 codex exec가 `codex_exit != 0` 또는 empty output을 반환하면, Claude CLI fallback이 실행된다 — 구체: `command -v claude` 체크 후 `claude -p --model haiku-4.5` 로 동일 프롬프트 호출, 성공 시 reflections-YYYY-MM.md에 append + `.errors.log`에 `fallback:claude-used session=<id>` 태그 기록. Claude CLI 미설치 시 `skip:fallback-unavailable` 태그 기록 후 exit 0 [exact, enumerated]
+- [ ] SC-02: `reflect-kit/hooks/_lib-redact.sh`에 JSON 쌍따옴표 내 짧은 시크릿 매칭 패턴이 최소 1개 추가된다. 테스트: 입력 `{"API_KEY": "sk-short-xyz-1234567890"}` 에 `redact_sensitive` 적용 시 해당 값 부분이 `[REDACTED]` 으로 치환되는 것을 `grep`으로 확인할 수 있어야 한다. 기존 11종 패턴(sk-ant, sk-proj, sk-{20자+}, github_pat, ghp/gho/ghu/ghs/ghr, xox, AKIA, AIza, eyJ, Bearer, ENV_KEY=) 은 **전부 유지** — 해당 패턴 라인 11개가 파일에 모두 존재 [exact, enumerated]
+- [ ] SC-03: `reflect-kit/scripts/install-scheduler.sh` 신규 파일이 존재하며 다음을 만족한다 — (a) `--dry-run` 플래그로 등록할 cron 라인을 stdout에 출력만, (b) `--install` 플래그로 `crontab -l | (cat; echo <line>) | crontab -` 방식 등록, (c) 주간(월 09:00)과 월간(매월 1일 09:00) 2개 cron 라인을 동시 관리, (d) 실행 권한(`+x`) 부여, (e) **멱등성 보장 — `--install` 2회 실행 시 동일 cron 라인이 중복 등록되지 않는다** (`crontab -l`에 동일 라인 존재 여부를 `grep -qF`로 체크 후 건너뜀) [exact, enumerated]
+- [ ] SC-04: `reflect-kit/scripts/legacy-id-migrate.sh` 신규 파일이 존재하며 다음을 만족한다 — (a) `--scan` 플래그로 `~/.claude/logs/` 내 **해시 접미사(`-[0-9a-f]{6}$` 패턴) 없는** 레거시 project_id 디렉토리를 감지하는 로직이 구현되어 있음 (스크립트 내부 정규식·케이스 구분 등 알고리즘이 존재), 감지된 디렉토리와 basename 기반 후보 git repo 경로를 stdout 리스트 출력, (b) `--dry-run` 플래그로 rename/merge 계획(이동 대상·신규 ID·기존 reflections-*.md와 충돌 여부)만 stdout 출력, (c) `--execute` 플래그로 실제 rename + 충돌 디렉토리는 `misunderstandings-*.md`/`reflections-*.md`/`YYYY-MM.md` 각각 concat merge 실행, (d) **concat merge 순서는 파일명(YYYY-MM 또는 타임스탬프 헤더) 오름차순으로 정렬하여 병합** — 최신 엔트리가 파일 말미에 오도록 보장, (e) 실행 권한(`+x`) 부여. 평가 환경 참고 목록: `app_kiosk`, `apps`, `flutter_playwright` 3개가 `--scan` 결과에 포함됨 (머신에 따라 다를 수 있음 — 계약 검증은 로직 존재 여부 우선) [exact, enumerated]
+- [ ] SC-05: 릴리스 완료 — `reflect-kit/.claude-plugin/plugin.json`의 version이 `"0.2.0"`이 되고, `.claude-plugin/marketplace.json`의 reflect-kit description이 `[v0.2.0 · 2026-04-17]` 접두사로 갱신되며, `git tag reflect-kit/v0.2.0` 생성 + origin push 완료. **정적 검증**: `git tag -l reflect-kit/v0.2.0` 로컬 확인 + `reflect-kit/.claude-plugin/plugin.json` version 필드 직접 읽기. **런타임 검증** (네트워크 필요): `git ls-remote origin 'refs/tags/reflect-kit/v0.2.0'` 로 원격 반영 확인 (네트워크 미연결 환경에서는 로컬 검증만 요구하고 원격 확인은 DEFERRED 처리 가능) [exact, enumerated]
 
 ## Error
-- [ ] ER-01: `log-prompt.sh` / `log-tool-failure.sh` / `log-reflection.sh` 3개 훅 모두 redaction을 적용한다 — `_lib-redact.sh`의 `redact_sensitive()` 함수가 각 훅에서 source + 호출된다 [exact, enumerated]
-- [ ] ER-02: `log-reflection.sh`는 실패 시 `.errors.log`에 `skip:cli-missing | skip:transcript-path-empty | skip:transcript-file-missing | skip:transcript-too-short | skip:transcript-empty-after-tail | fail:codex-exit-<N> | fail:codex-empty-output` 중 하나의 태그로 사유를 기록한다 [exact, enumerated]
-- [ ] ER-03: 글로벌 정리(C 단계) 전에 플러그인 설치·검증(E 단계)이 완료된다 — 관찰 가능한 artifact 형태로 검증: (a) 플러그인 설치 시점의 `~/.claude/logs/<project_id>/YYYY-MM.md` line count 기준값을 측정하고, (b) 테스트 프롬프트 1개 제출 + 의도적 실패 bash 1건 실행 후 `wc -l` 결과가 최소 +2줄 이상 증가했음을 보고한다. 또한 (c) `reflections-YYYY-MM.md` 또는 `.errors.log` 중 하나에 세션 종료 후 신규 엔트리가 추가되었음을 확인한다 [goal]
-- [ ] ER-04: 데이터 마이그레이션(D 단계)은 기존 `misunderstandings-*.md` 파일을 `reflections-*.md`로 rename한 뒤 rename 스크립트 실행 결과가 "0 files not renamed"를 보장한다 — 기존 파일 1개 이상이었다면 rename 후 동명이 존재해야 함 [goal]
+- [ ] ER-01: codex 실패 + Claude fallback 실패 **둘 다** 발생하면, `.errors.log`에 2개 태그가 순서대로 append된다 — 먼저 `fail:codex-exit-<N>` 또는 `fail:codex-empty-output`, 그 다음 `fallback:claude-exit-<M>` 또는 `fallback:claude-empty-output`. 한 쪽 태그만 기록되고 다른 쪽이 누락되면 FAIL [exact, enumerated]
+- [ ] ER-02: Claude CLI가 설치되어 있지 않은 환경에서 codex도 실패한 경우, `.errors.log`에 `skip:fallback-unavailable` 태그가 정확히 1회 기록되고 훅은 exit 0으로 종료한다 [exact]
+- [ ] ER-03: Given `/reflect-digest project=all` 실행 중 일부 프로젝트 로그 파일이 읽기 실패하거나 YAML 파싱 실패, When 해당 프로젝트만 skip 처리, Then 리포트 말미에 "집계 실패 프로젝트: N개 (project_id 리스트)" 블록이 표시되어야 하며 digest 자체는 정상 종료한다 [goal]
 
 ## Architecture
-- [ ] AR-01: `reflect-kit/` 디렉토리 구조가 기존 kit 컨벤션을 따른다 — `.claude-plugin/plugin.json`, `hooks/`, `skills/<name>/SKILL.md`, `docs/`, `README.md` [exact, enumerated]
-- [ ] AR-02: 훅 스크립트들(`log-prompt.sh`, `log-tool-failure.sh`, `log-reflection.sh`, `_lib-project-id.sh`, `_lib-redact.sh`)의 상대 경로 해결이 `BASH_SOURCE[0]` 기반 `SCRIPT_DIR` 계산으로 되어 있으며, 플러그인 경로(`${CLAUDE_PLUGIN_ROOT}`)에서도 동작한다 [exact, collective]
-- [ ] AR-03: `reflect-kit/docs/` 에 `DESIGN.md`, `RESEARCH.md`, `SCHEMA.md` 3개 문서가 존재한다. `DESIGN.md`와 `RESEARCH.md`는 `~/.claude/plans/reflect-kit/`의 동명 파일을 복사·참조한 것이며, `SCHEMA.md`는 `DESIGN.md`에서 YAML 스키마 + Ledger 스키마 부분만 추출한 별도 문서다 [exact, enumerated]
-- [ ] AR-04: `reflect-kit/README.md`는 `~/.claude/plans/reflect-kit/README.md`의 구성을 따르며, 설치 방법 + 훅 이벤트 + 스킬 3종 + 로그 경로 + 의존성 섹션을 모두 포함한다 [structural, collective]
-- [ ] AR-05: 플러그인 신설이 `scripts/sync-docs.py reflect-kit` 실행 시 에러 없이 완료되며, `reflect-kit/README.md`의 `<!-- AUTO:xxx -->` 마커 사이가 plugin.json/SKILL.md frontmatter에서 자동 생성된 값으로 채워진다 [goal]
-- [ ] AR-06: `docs/index.html`의 categories 배열에 reflect-kit 3개 페이지 항목(`{id, title, file}` 3필드)이 모두 등록되며, `getIcon()` 함수에 reflect-kit 3개 페이지의 `id` 키에 대응하는 SVG 아이콘 case가 추가된다 [exact, enumerated]
-- [ ] AR-07: `CLAUDE.md`의 "Skills Reference" 섹션에 reflect-kit 블록이 추가되며, 스킬 3개(`/reflect-digest`, `/reflect-promote`, `/reflect-kaizen`) 각 행이 테이블에 포함된다. 또한 Repository Overview 섹션의 플러그인 목록에 reflect-kit 1줄 설명이 추가된다 [structural, enumerated]
+- [ ] AR-01: `reflect-kit/scripts/` 디렉토리가 신규 생성되고, 그 안의 `install-scheduler.sh` 파일이 `ls -l` 결과 실행 권한(`x`) 을 가진다 [exact]
+- [ ] AR-02: `log-reflection.sh` fallback 로직 추가 이후에도 기존 백그라운드 wrapper 구조가 유지된다 — (a) `$1 == "--background"` 분기 로직 존재, (b) fast path에서 `nohup ... &` + `disown` + 즉시 `exit 0`, (c) fallback 호출은 백그라운드 진입점 내부에서만 수행 (fast path 지연 없음) [structural, enumerated]
+- [ ] AR-03: `reflect-kit/README.md`에 "## 스케줄러" 또는 "## Scheduling" 섹션이 추가되며, (a) `/schedule` 슬래시 명령 예시, (b) crontab 직접 등록 예시, (c) `scripts/install-scheduler.sh` 사용법 3가지가 모두 언급된다 [structural, enumerated]
 
 ## Anti-patterns
-- [ ] AP-01: 버전을 하드코딩하지 않는다 — README / docs 내 버전 언급은 plugin.json의 버전값과 일치해야 한다
-- [ ] AP-02: (의도적 공백 — `git push --force` 방지 규칙은 이 기능의 관련성 낮음, 커밋/푸시 시점에 작업자가 준수)
-- [ ] AP-03: bare code fence 금지 — 모든 3개 SKILL.md / README.md / docs 내 fenced code block은 언어 힌트를 가진다 (```bash, ```yaml, ```json, ```text, ```markdown 등)
-- [ ] AP-04: SKILL.md / agents/*.md frontmatter에서 name 필드 누락 금지 — 3개 SKILL.md 모두 name 필드 존재
+- [ ] AP-01: 버전을 하드코딩하지 않는다 — README/docs 내 버전 언급은 plugin.json v0.2.0과 일치
+- [ ] AP-03: bare code fence 금지 — 모든 SKILL.md/README/scripts 주석 내 fence는 언어 힌트 포함 (```bash, ```yaml, ```text 등)
+- [ ] AP-04: SKILL.md frontmatter name 필드 누락 금지
 
 ## Reusability
-- [ ] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다 — `_lib-project-id.sh`, `_lib-redact.sh`는 hooks/ 최상위에 배치되며 세 훅 스크립트에서 공통 source된다
-- [ ] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다 — 글로벌 `~/.claude/hooks/` 및 `~/.claude/skills/dialog-feedback-digest/`의 기존 스크립트·SKILL을 처음부터 재작성하지 않고 복사·rename·필드 수정으로 이식한다
+- [ ] RE-01: Claude CLI fallback 호출 로직을 log-reflection.sh 내부에 인라인 구현하지 않고, 훅 내부 함수(예: `try_claude_fallback()`)로 추출하여 재테스트·재사용 가능하게 한다
+- [ ] RE-02: 기존 _lib-redact.sh의 11종 시크릿 패턴을 재작성하지 않고 **추가만** 한다 — regression 방지
 
 ## Diagnostics
-- [ ] DG-01: `bash -n reflect-kit/hooks/*.sh` 워닝 0개 (신규 hooks 파일 5개 전체 bash 문법 체크) + `ls -l reflect-kit/hooks/*.sh` 결과 5개 모두 실행 권한(`x`) 부여되어 있다 (`chmod +x` 누락 방지)
-- [ ] DG-02: IDE diagnostics 워닝/인포 0개 (신규 생성 파일 대상, 스펠체크 제외)
-- [ ] DG-03: `python3 scripts/validate-plugin.py reflect-kit` 실행 결과 전 카테고리 PASS (스킬 frontmatter, 코드펜스, 레퍼런스 무결성 포함)
-- [ ] DG-04: Claude Code 재시작 후 `/reflect-digest` 호출 시 에러 0건, 출력 생성됨 (E 단계 검증)
+- [ ] DG-01: `bash -n reflect-kit/hooks/*.sh reflect-kit/scripts/*.sh` 워닝 0개 + 해당 파일 전체 실행 권한(`+x`) 확인
+- [ ] DG-02: IDE diagnostics 워닝/인포 0개 (신규 생성/수정 파일 대상, 스펠체크 제외)
+- [ ] DG-03: `python3 scripts/validate-plugin.py reflect-kit` 전 카테고리 PASS (V1~V7)
+- [ ] DG-04: 수동 fallback 시뮬레이션 — codex 한도 도달 상황(exit 1)을 인위적 재현해 reflections-*.md에 Claude 생성 YAML 블록이 append되고 `.errors.log`에 `fallback:claude-used` 엔트리가 기록됨을 확인 (목표 달성 검증) [goal]

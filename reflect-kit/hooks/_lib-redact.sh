@@ -33,5 +33,6 @@ redact_sensitive() {
     -e 's/AIza[A-Za-z0-9_-]{30,}/[REDACTED-GOOGLE-KEY]/g' \
     -e 's/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_.+-]+/[REDACTED-JWT]/g' \
     -e 's/([Bb]earer[[:space:]]+)[A-Za-z0-9._~+/=-]{20,}/\1[REDACTED]/g' \
-    -e 's/([A-Z_]*(API|AUTH|ACCESS|PRIVATE|SECRET|TOKEN|KEY|PASSWORD|PASS|PWD)[A-Z_]*[[:space:]]*[=:][[:space:]]*)["'"'"']?[A-Za-z0-9+/=_.~-]{8,}["'"'"']?/\1[REDACTED]/g'
+    -e 's/([A-Z_]*(API|AUTH|ACCESS|PRIVATE|SECRET|TOKEN|KEY|PASSWORD|PASS|PWD)[A-Z_]*[[:space:]]*[=:][[:space:]]*)["'"'"']?[A-Za-z0-9+/=_.~-]{8,}["'"'"']?/\1[REDACTED]/g' \
+    -e 's/("[A-Z_]*(API|AUTH|ACCESS|PRIVATE|SECRET|TOKEN|KEY|PASSWORD|PASS|PWD)[A-Z_]*"[[:space:]]*:[[:space:]]*")[^"]{4,}"/\1[REDACTED]"/g'
 }

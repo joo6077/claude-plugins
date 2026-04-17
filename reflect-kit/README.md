@@ -4,7 +4,7 @@
 
 Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개인 레벨에 적용한다. 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고, 빈도·위험도·절차성 기준으로 Claude Code의 여러 surface(CLAUDE.md / memory / skill / hook)에 승격 반영한다. 승격된 규칙은 30일 pre/post 재발률로 효과를 측정한다.
 
-버전: `0.1.0`
+버전: `0.2.0`
 
 ## 목적
 
@@ -112,6 +112,40 @@ claude plugin install reflect-kit@joo6077-plugins
 4. 사용자가 `/reflect-digest` 호출 → 주간 리포트 + 승격 후보
 5. 사용자가 `/reflect-promote` 호출 → 후보 승인 → 실제 surface 반영 + ledger 기록
 6. 월 1회 `/reflect-kaizen` → 분류 품질 스팟체크 + 임계값 calibration
+
+## Scheduling (v0.2.0+)
+
+`/reflect-digest` 와 `/reflect-kaizen` 은 수동 실행이 기본이지만, 주 1회 digest + 월 1회 kaizen 은 자동화하는 것이 권장된다. 세 가지 방식 지원:
+
+### 방식 1: `/schedule` 슬래시 명령 (Claude Code remote trigger)
+
+```text
+/schedule create "reflect-digest-weekly" "0 9 * * 1" "/reflect-digest period=7d"
+/schedule create "reflect-kaizen-monthly" "0 9 1 * *" "/reflect-kaizen window=30d"
+```
+
+매주 월요일 09:00 → 주간 digest. 매월 1일 09:00 → 월간 kaizen.
+
+### 방식 2: 로컬 crontab 직접 등록
+
+```bash
+# crontab -e
+0 9 * * 1  claude exec "/reflect-digest period=7d" > ~/.claude/logs/_cron/digest-$(date +\%Y\%m\%d).log 2>&1
+0 9 1 * *  claude exec "/reflect-kaizen window=30d" > ~/.claude/logs/_cron/kaizen-$(date +\%Y\%m\%d).log 2>&1
+```
+
+### 방식 3: `scripts/install-scheduler.sh` (로컬 crontab 자동 등록)
+
+```bash
+# 등록 예정 cron 라인 미리보기 (crontab 변경 없음)
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh --dry-run
+
+# crontab에 주간+월간 2개 라인 추가 (멱등 — 중복 등록 방지)
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh --install
+
+# 등록된 reflect-kit 항목 제거
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh --uninstall
+```
 
 ## 원칙
 

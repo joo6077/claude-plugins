@@ -134,6 +134,39 @@ $transcript_content
 PROMPT_EOF
 )
 
+# ── Claude CLI fallback 함수 ────────────────────────────────────────────
+# codex exec 실패(exit != 0 또는 empty output) 시 `claude -p --model haiku-4.5`로 재시도.
+# 성공 시 전역 변수 `summary`에 결과를 세팅하고 return 0. 실패 시 사유 태그 기록 후 return 1.
+try_claude_fallback() {
+  local codex_reason="$1"   # "codex-exit-N" 또는 "codex-empty-output"
+  log_hook_error "$log_dir" "$HOOK_NAME" "fail:$codex_reason session=$session_id"
+
+  if ! command -v claude >/dev/null 2>&1; then
+    log_hook_error "$log_dir" "$HOOK_NAME" "skip:fallback-unavailable session=$session_id"
+    return 1
+  fi
+
+  local fb_tmp fb_exit=0 fb_summary
+  fb_tmp=$(mktemp)
+  echo "$prompt" | claude -p --model haiku-4.5 > "$fb_tmp" 2>/dev/null
+  fb_exit=$?
+  fb_summary=$(cat "$fb_tmp" 2>/dev/null)
+  rm -f "$fb_tmp"
+
+  if [ "$fb_exit" -ne 0 ]; then
+    log_hook_error "$log_dir" "$HOOK_NAME" "fallback:claude-exit-$fb_exit session=$session_id"
+    return 1
+  fi
+  if [ -z "$fb_summary" ]; then
+    log_hook_error "$log_dir" "$HOOK_NAME" "fallback:claude-empty-output session=$session_id"
+    return 1
+  fi
+
+  log_hook_error "$log_dir" "$HOOK_NAME" "fallback:claude-used session=$session_id"
+  summary="$fb_summary"
+  return 0
+}
+
 # ── codex exec 호출 ─────────────────────────────────────────────────────
 out_tmp=$(mktemp)
 codex_exit=0
@@ -150,13 +183,11 @@ codex_exit=$?
 summary=$(cat "$out_tmp" 2>/dev/null)
 rm -f "$out_tmp"
 
+# ── codex 실패 시 Claude fallback 시도 ──────────────────────────────────
 if [ "$codex_exit" -ne 0 ]; then
-  log_hook_error "$log_dir" "$HOOK_NAME" "fail:codex-exit-$codex_exit session=$session_id"
-  exit 0
-fi
-if [ -z "$summary" ]; then
-  log_hook_error "$log_dir" "$HOOK_NAME" "fail:codex-empty-output session=$session_id"
-  exit 0
+  try_claude_fallback "codex-exit-$codex_exit" || exit 0
+elif [ -z "$summary" ]; then
+  try_claude_fallback "codex-empty-output" || exit 0
 fi
 
 trimmed=$(echo "$summary" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
