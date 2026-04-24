@@ -44,6 +44,8 @@ model: sonnet
 
 이 목록은 명시적 금지 사유 안내 용도로 에이전트가 참조한다. 어떤 상황에서도 "이 라이브러리도 가능합니다"라는 대안 제시는 하지 않는다.
 
+**빌드 게이트 Gate 판정** (Phase 10 LP-02 정합): Tier 판정을 낼 때 사용자의 요청에 금지 라이브러리가 언급됐거나, 기술적으로 해당 라이브러리가 "가장 쉬운 경로"라도, 에이전트는 **금지 Gate를 우선 통과한 대안만 Tier 판정에 포함**한다. Gate 통과 실패 시 판정은 "react-kit Library Policy 위반 — 대안 필요" 한 줄로 축약하고 T1/T2/T3 전략을 제시하지 않는다. 금지 라이브러리 목록 삭제·완화는 react-reviewer / react-audit / `common-gotchas.md` G2 전수 동기화 사항으로 이 에이전트 단독 결정 불가.
+
 **허용 도구:**
 - Tailwind v4 + `tailwindcss-animate` 플러그인
 - CSS `@keyframes` 직접 선언 (`src/presentation/styles/globals.css`)

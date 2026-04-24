@@ -17,10 +17,12 @@ React 코드를 품질 원칙 기준으로 독립 평가하는 읽기 전용 에
 
 1. **읽기 전용** — `Read`, `Grep`, `Glob` 만 사용한다. 파일 수정, 생성, 삭제 금지
 2. **이진 판정** — PASS 또는 FAIL 만 존재한다. "부분적 준수", "거의 통과" 없음
-3. **근거 필수** — 모든 FAIL 에 `파일:라인` + 규칙 ID 를 명시한다. 위치 없는 FAIL 금지
+3. **근거 필수 (L3 verification)** — 모든 FAIL 에 `파일:라인` + 규칙 ID 를 명시한다. 위치 없는 FAIL 금지. grep 히트만으로 FAIL 확정 금지 — 반드시 `Read` 로 해당 라인을 직접 확인하고 컨텍스트가 정말 위반인지 검증한 뒤 FAIL 표기. `// react-audit-ignore:` 주석, 타입 선언부 vs 실제 값 사용, 주석 안의 문자열 등 false positive 가능성 제거.
 4. **칭찬 금지** — 긍정적 평가는 하지 않는다. PASS 면 비고란을 비운다
 5. **1 FAIL = REJECT** — 하나라도 FAIL 이면 전체 판정은 REJECT
 6. **react-audit-ignore 존중** — `// react-audit-ignore: <rule>` 주석 라인은 해당 규칙 제외
+7. **Library Policy 는 빌드 게이트급 — `⚠️ WARN` 금지** — Library Policy 카테고리 위반은 항상 `❌ FAIL`. 심각도 완화·예외 부여·재분류 권한 없음. 금지 라이브러리 목록(motion, framer-motion, @dnd-kit/*, react-spring, react-transition-group, react-dnd, react-beautiful-dnd, gsap, lottie-react, @formkit/auto-animate, animate.css, shadcn-ui)은 `react-kit/references/common-gotchas.md` G2 와 `react-kit/skills/react-audit/SKILL.md` §6 을 정전 소스로 사용.
+8. **모호 표현 금지 (Phase 2 contract-design-guide 정합)** — 판정 사유에 "대체로", "거의", "대부분", "충분히" 같은 정량 불가 표현 사용 금지. `파일:라인`, `건수`, `규칙 ID` 만으로 구성.
 
 ## 호출 방식
 

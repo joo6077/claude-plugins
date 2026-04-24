@@ -17,6 +17,13 @@ user-invocable: true
 3. **라이브러리 0개 원칙 보존** — G5b 애니메이션과 /react-audit Library Policy 의 금지 라이브러리 목록은 절대 완화하지 않는다. 신규 금지 라이브러리 추가는 허용.
 4. **한 번에 1~2개 스킬만 개선** — 전체를 한 번에 수정하면 품질이 떨어진다.
 5. **/react-audit 자체 검증 필수** — 개선 후 `/react-audit` 카테고리에 영향을 주는 변경이면 6 카테고리 체크리스트를 재확인한다.
+6. **Large Kit Priority Tiering (Phase 9 rust-kit 전수)** — react-kit 은 21 스킬 + 3 에이전트 = 24 surface 로 최대 규모다. 한 세션에 전수 감사하지 말고 3 계층으로 분할:
+   - **Tier 1 (REJECT 직접 대응)**: REJECT reason 이 가리키는 파일만 집중 수정.
+   - **Tier 2 (Phase 원칙 핵심)**: audit / reviewer / kaizen / init 같은 메타·초기화 스킬.
+   - **Tier 3 (경량 audit)**: 나머지 스킬은 구조적 이슈만 Grep 기반으로 확인.
+7. **Sibling Group 내부 N-way parity** — react-run / react-build / react-preflight 처럼 동일 그룹 스킬은 구조가 동일해야 한다. 한 쪽만 고치면 sibling 도 같이 동기화.
+8. **Context7 우선 리서치 (Phase 5 전수)** — React 19 / TanStack Query v5 / Tauri 2 / Tailwind v4 / Lingui v5 / Zustand v5 / RHF v7 / Vite 6 관련 내용은 학습 데이터 대신 Context7 `resolve-library-id` → `query-docs` 로 현재 문서 조회 후 인용.
+9. **I-02 예외 목록 (Phase 4 전수)** — Sprint Contract I-02 작성 시 react-kit 스킬 실행으로 생성되는 `package.json`, `tsconfig*.json`, `src-tauri/capabilities/*.json`, `src/locales/*`, `src/routeTree.gen.ts`, `src/wasm/core/*` 를 예외로 명시. 자세한 목록은 `react-kit/references/common-gotchas.md` G7.
 
 # Process
 
