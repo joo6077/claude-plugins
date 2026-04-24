@@ -1,77 +1,61 @@
 ---
-feature: "kaizen-phase3-evaluator-kaizen"
-created: "2026-04-24 11:35"
-complexity: "medium"
+feature: "kaizen-phase5-flutter-toolkit-kaizen"
+created: "2026-04-24"
+complexity: "medium-high"
 conditions: 18
 branch: "kaizen/2026-04-24"
-phase: 3
+phase: 5
 ---
 
-# Sprint Contract — Phase 3: Evaluator Kaizen
+# Sprint Contract — Phase 5: Flutter Toolkit Kaizen
 
 Generated: 2026-04-24
-Feature: kaizen-phase3-evaluator-kaizen
-Scope (수정 허용): `harness/docs/guides/qa-evaluation-guide.md`, `harness/agents/qa-evaluator.md` (2 files only)
+Feature: Phase 1~4 신규 원칙(skill §3.5/§3.6/§5.5/§8.7/§8.8/§11 + agent §3.5/§12 + contract Scope Range + qa-eval Rule-by-Rule) 을 flutter-toolkit 18 스킬 + widget-inspector 에 전수하고, insights-report 의 Flutter 마찰점 3종(TextStyle 마이그레이션, Stack vs Column, Figma 토큰 enumerate) 을 반영한다. Riverpod 3.0.2 / Freezed 3 / go_router 17.2.2 최신 Context7 리서치 결과를 Gotchas 에 반영.
+
+Scope (수정 허용): `flutter-toolkit/skills/*/SKILL.md`, `flutter-toolkit/agents/widget-inspector.md`, `flutter-toolkit/references/*.md` (범위 외 금지: harness/, design-kit/, backend-kit/, infra-kit/, rust-kit/, react-kit/, reflect-kit/, planning-kit/, 기타 최상위 파일)
 Branch: kaizen/2026-04-24
 
-## Context
+## Research (R)
+- [ ] R-01 [structural]: Context7 조회 결과(Riverpod 3.0.2 / Freezed 3 / go_router 17.2.2) 가 본 문서 Context 섹션 또는 변경된 SKILL.md Gotchas 에 버전과 함께 기록된다
+- [ ] R-02 [structural]: insights-report Flutter 마찰점 3종(TextStyle 마이그레이션, Stack vs Column, Figma 토큰 enumerate) 이 최소 2개 스킬(flutter-widget 필수 + flutter-screen 또는 flutter-feature) 의 Gotchas 에 구체적 문구로 반영된다
+- [ ] R-03 [structural]: Phase 1~4 신규 원칙 8건이 반영된 스킬을 매핑하는 표가 커밋 메시지 또는 본 문서 하단에 명시된다
 
-Phase 1 (skill/agent-design-guide v1.2.0) + Phase 2 (contract-design-guide v3 · contract-schema v3) 에서 승격된 원칙을 **평가자 레이어**에 전수한다. qa-evaluation-guide 와 qa-evaluator 에이전트가 Phase 1/2 의 Binary Decidability · Scope Range · `[미검증]` 마커 · Sibling Consistency · 3 단계 fallback · Rule-by-Rule Audit · Cross-Surface Parity 를 평가 프로토콜로 흡수한다.
+## Skill Content (SK)
+- [ ] SK-01 [exact]: flutter-widget, flutter-screen, flutter-feature 세 SKILL.md Gotchas 에 **동일한 "Enumerate-before-Act"** 표현(또는 한글 대응 "편집 전 전수 나열") 이 모두 존재한다 (Sibling Consistency — skill §8.8 대응)
+- [ ] SK-02 [exact]: flutter-widget SKILL.md Gotchas 에 TextStyle / 레거시 타이포 토큰 **마이그레이션 누락 방지** (리팩터링 시 전수 확인) 원칙이 추가된다
+- [ ] SK-03 [exact]: flutter-widget SKILL.md Gotchas 에 **Stack vs Column 선택 근거 enumerate** 원칙이 추가된다 (insights #2 대응)
+- [ ] SK-04 [exact]: flutter-audit SKILL.md 에 **Rule-by-Rule Audit 완료 선언 전 전수 대조** 섹션 또는 Gotcha 가 추가된다 (skill §3.6 대응)
+- [ ] SK-05 [exact]: flutter-audit SKILL.md 에 **Binary Decidability Pre-Check** 가 체크리스트 형태로 포함된다 (agent §3.5 대응 — 감사 시작 전 각 항목의 이진 판정 가능성 확인)
+- [ ] SK-06 [exact]: flutter-hooks, flutter-error SKILL.md 에 **가이드형 스킬도 Process Step 순서 고정** (탐색→진단→처방) 명확성 선언이 있다
+- [ ] SK-07 [exact]: flutter-kaizen SKILL.md 에 **Cross-Surface Parity Checklist** 섹션이 추가되어 flutter-toolkit 내 sibling group(widget/screen/feature, audit/preflight/build, l10n/responsive, transition/skeleton, error/hooks) 의 공통 원칙 누락 검사 절차를 정의한다 (skill §11 대응)
 
-Diagnosis 패턴 대응:
-- l3_unreached (13회) — L3 샘플링 시 미검증 명시 의무 규칙 추가
-- contract_misinterpret (7회) — Binary Decidability Pre-Check 평가자 프로토콜 반영
-- perspective_gap (5회) — User-Value / Business-Intent 관점 체크리스트 추가
+## Agent (AG)
+- [ ] AG-01 [exact]: widget-inspector.md Gotchas 에 **Binary Decidability** 원칙 (후보/non-후보 판정 기준이 이진임을 명시) 이 추가된다
+- [ ] AG-02 [exact]: widget-inspector.md Rules 에 **정적 Grep 만으로 후보 확정 금지 — Read 로 내용 확인 후 보고** 항목이 추가된다 (L3 Honesty · agent §10)
 
-## Categories
+## Version Update (V)
+- [ ] V-01 [exact]: flutter-toolkit/skills 내 최소 1개 파일 Gotchas 에 `Riverpod 3` / `Freezed 3` / `go_router 17` 중 하나 이상의 버전이 2026-04 Context7 리서치 기준으로 언급된다
+- [ ] V-02 [exact]: flutter-hooks Gotchas 의 Freezed 관련 마이그레이션 설명이 "Freezed 3 부터 `.when`/`.map` 제거 → Dart switch expression" 로 명확히 서술된다 (중복되거나 이미 있으면 그대로 유지)
 
-### Cross-Surface Parity (CP)
+## Diagnostics (DG)
+- [ ] DG-01 [goal]: 18 SKILL.md + widget-inspector.md 전 파일에서 bare opening fence (```만 있고 언어 힌트 없음) 0건 (python 스크립트 검증)
+- [ ] DG-02 [goal]: 18 SKILL.md + widget-inspector.md 전 파일에서 TODO / FIXME placeholder 0건 (Grep 검증)
+- [ ] DG-03 [structural]: flutter-widget, flutter-screen, flutter-feature Gotchas 에서 "Enumerate-before-Act" 문구 3건 이상 Grep 매칭 (Sibling parity 검증)
 
-- [ ] CP-01: qa-evaluation-guide.md 에 "Cross-Surface Parity Checklist" 섹션이 존재하고, skill-design-guide §11 + agent-design-guide §12 + contract-design-guide §원칙 전수성 과의 parity table 을 포함한다 [structural]
-- [ ] CP-02: qa-evaluation-guide.md Parity Table 이 아래 4 개 parity item 을 모두 명시한다: (1) Binary Decidability, (2) Rule-by-Rule Audit, (3) Unverifiable / `[미검증]` 정책, (4) Sibling Consistency (측정: Grep 으로 각 용어 literal 매칭) [exact, enumerated]
+## Integrity (I)
+- [ ] I-01 [goal]: 커밋 완료 후 `git status` 출력에 범위 외 파일(harness/, design-kit/, backend-kit/, infra-kit/, rust-kit/, react-kit/, reflect-kit/, planning-kit/, .claude/, docs/, scripts/) 0건
+- [ ] I-02 [goal]: 커밋 SHA 1건, 메시지는 `chore(kaizen-phase5): ...` prefix
+- [ ] I-03 [goal]: push 는 Phase 11 최종 통합 단계에서 수행하므로 본 Phase 에서는 로컬 커밋 1건 으로 충분
 
-### Binary Decidability Pre-Check (BD)
+## 원칙 매핑 표
 
-- [ ] BD-01: qa-evaluation-guide.md 에 "Binary Decidability Pre-Check" 섹션이 존재하고, 평가 시작 전 (Step 2 이전) 수행할 4 개 이상 체크 항목을 나열한다 [structural]
-- [ ] BD-02: BD 섹션에 "이 조건의 FAIL 상태를 1 문장으로 기술 가능한가?" 테스트 항목이 명시된다 (측정: Grep "FAIL 상태" 또는 "1 문장") [exact]
-- [ ] BD-03: BD 섹션에 "범위어(주요/모든/대부분/핵심) 발견 시 포함/제외 목록이 인라인 enumerated 되어 있는지 확인" 규칙이 명시된다 [exact]
-- [ ] BD-04: qa-evaluator.md Process 에 "Step 1.5: Binary Decidability Pre-Check" 또는 동급 단계가 Step 1 과 Step 2 사이에 존재한다 (측정: Step 순서 Read) [structural]
-
-### Rule-by-Rule Audit (RA)
-
-- [ ] RA-01: qa-evaluation-guide.md 에 "Rule-by-Rule Audit" 섹션이 존재하고, 평가자가 판정 완료 전에 모든 계약 조건을 1 회 더 전수 점검하는 절차를 기술한다 [structural]
-- [ ] RA-02: RA 섹션이 insights 마찰점 #1 (Proactive quality gaps) 을 참조하고, 부분 점검 → 전수 점검 전환 의무를 명시한다 [exact]
-
-### `[미검증]` 마커 평가 프로토콜 (UV)
-
-- [ ] UV-01: qa-evaluation-guide.md 에 "`[미검증]` 마커 평가 프로토콜" 섹션이 존재하고, 카운팅 로직 (1 건까지 PASS / 2 건 이상 자동 REJECT) 을 명시한다 [structural]
-- [ ] UV-02: UV 섹션에 3 단계 fallback 수행 의무 (단계 2 → 단계 3 순서, 2 단계 미가용 시 3 단계 `[미검증]` 마커) 가 명시된다 [exact]
-- [ ] UV-03: qa-evaluator.md 의 "기본 엄격도 규칙" 또는 Process Step 에 `[미검증]` 건수 집계 규칙이 "2 건 이상 자동 REJECT" 로 명시된다 (측정: Grep "2 건 이상" + "미검증") [exact]
-
-### Sibling Enumerated Verification (SE)
-
-- [ ] SE-01: qa-evaluation-guide.md 에 `[exact, enumerated]` 또는 `[structural, enumerated]` 조건에 대한 "Sibling Enumerated 전수 Grep" 절차가 존재한다. N 개 대상 전부 확인 + 하나라도 빠지면 FAIL + 누락 대상명 나열 [structural]
-- [ ] SE-02: SE 섹션에 rust-kit H-01/H-03 REJECT 사례가 실패 예시로 인용된다 [exact]
-
-### L3 Coverage Honesty (LC)
-
-- [ ] LC-01: qa-evaluation-guide.md 에 "L3 샘플링 시 미검증 명시 의무" 규칙이 존재한다. 시간 제약으로 전수 L3 도달 불가면 샘플링 대상과 미검증 대상 목록을 명시적으로 분리 보고 [structural]
-- [ ] LC-02: qa-evaluator.md 의 "얕은 검증 감지" 또는 동급 섹션에 "L3 샘플링 후 미검증 샘플 명시 없이 전체 PASS 금지" 규칙이 추가된다 [exact]
-
-### Multi-Perspective Evaluation (MP)
-
-- [ ] MP-01: qa-evaluation-guide.md "다관점 평가" 섹션에 기존 4 관점(기능/엣지/성능/보안) 외 "User-Value" 또는 "Business-Intent" 관점 1 개 이상이 추가된다 [exact]
-- [ ] MP-02: MP 섹션이 perspective_gap 5 회 diagnosis 에 대응하여 "구현자 관점만으로 평가 금지" 규칙을 명시한다 [exact]
-
-### Anti-patterns
-
-- [ ] AP-01: qa-evaluator.md "Rationalization Table" 에 "미검증 2 건 누적 시 PASS 로 뭉뚱그림" 변명 행이 추가된다 [exact]
-- [ ] AP-02: qa-evaluator.md Red Flags 에 "범위어 enumerated 없음에도 범위를 자체 해석" 변명 감지 항목이 추가된다 [exact]
-
-## Anti-patterns
-- [ ] 범위 밖 파일 수정 — scope 2 개 파일 외 변경 금지
-- [ ] 장황한 reasoning — 증거(섹션명) 기반 간결 서술
-
-## Diagnostics
-- [ ] DG-01: 커밋이 `chore(kaizen-phase3):` prefix 를 사용한다
-- [ ] DG-02: 커밋이 Phase 1/2 parity 를 명시적으로 언급한다 (Cross-Surface Parity, Binary Decidability 중 하나 이상)
+| 원칙 | 출처 가이드 | 반영 스킬 |
+|------|-------------|-----------|
+| Binary Decidability Pre-Check | skill §3.5, agent §3.5 | flutter-audit, widget-inspector |
+| Rule-by-Rule Audit Before Completion | skill §3.6 | flutter-audit, flutter-preflight |
+| Enumerate-before-Act | skill §5.5 | flutter-widget, flutter-screen, flutter-feature |
+| Code Examples 품질 (fence 언어힌트, TODO 금지) | skill §8.7 | 전수 유지 검증 |
+| Sibling-Skill Principle Consistency | skill §8.8 | flutter-widget/screen/feature 공통 Gotcha |
+| Cross-Surface Parity Checklist | skill §11, agent §12 | flutter-kaizen |
+| L3 Honesty / `[미검증]` 마커 | qa-eval / agent §10 | widget-inspector Rules |
+| Scope Range / Verification Method | contract-design v3 | flutter-audit 감사 범위 |

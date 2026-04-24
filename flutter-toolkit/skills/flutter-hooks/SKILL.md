@@ -23,6 +23,8 @@ user-invocable: true
 - `HAS_FREEZED = true` 프로젝트에서 HookWidget 생성 시 파라미터를 개별 필드로 받지 말고 반드시 `@freezed Props` 클래스로 번들링 — 개별 파라미터 나열은 Props 패턴 위반. 디자인 시스템 Named constructor variant 위젯만 면제
 - `HAS_FREEZED = true` + `HAS_HOOKS = true`가 모두 true인 프로젝트에서는 `HookWidget` + `@freezed Props` 조합이 프로젝트 표준 — ConsumerWidget이나 StatelessWidget으로 만들면 일관성 깨짐
 - `build()` 메서드는 **100줄 이하 권장** — 그 이상이면 private Widget 클래스로 분리하여 composition 을 적용하라. 합성이 메서드 분리보다 성능·재사용성·테스트 가능성 모두 우수하다 (Flutter 공식 AI rules + apps CG-12 관습)
+- **가이드형 스킬도 Process Step 순서 고정 (agent §3.5 Binary Decidability 대응)** — 본 스킬은 "가이드" 이지만 적용 시 **탐색 → 진단 → 처방** 3-Step 순서를 반드시 지킨다. (1) 탐색: 대상 파일을 `Read` 로 읽고 현재 사용 중인 pattern(StatefulWidget / HookWidget / ConsumerWidget / HookConsumerWidget) 과 HAS_HOOKS/HAS_FREEZED 감지값을 확인. (2) 진단: Gotchas 의 각 규칙에 대한 위반 여부를 파일:라인 근거와 함께 이진(위반/준수) 으로 판정. (3) 처방: 위반 항목별 마이그레이션 diff 또는 새 작성 템플릿 제시. 3 단계를 건너뛰고 "이렇게 하면 됩니다" 로 바로 넘어가면 사용자가 상태 파악을 재수행해야 한다
+- **Freezed 3 마이그레이션 (2026-04 최신, /rrousselgit/freezed)** — Freezed 3 부터 `.when` / `.map` 가 제거됐다. `@freezed sealed class` 로 선언한 뒤 Dart 3 `switch` expression 또는 `if case` 로 pattern matching. 레거시 코드에 `.when(success:, failure:)` 가 남아 있으면 `switch (result) { Success(:final data) => ..., Failure(:final err) => ... }` 로 교체 (출처: Context7 `/rrousselgit/freezed` migration_guide.md)
 
 # Flutter Hooks + Props 패턴 가이드
 

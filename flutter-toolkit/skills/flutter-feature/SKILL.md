@@ -16,6 +16,7 @@ disable-model-invocation: true
 - 아키텍처 감지 결과(Clean/Feature-first/Flat)에 따라 디렉토리 구조가 완전히 달라진다 — 감지 없이 하드코딩하면 기존 구조와 충돌
 - 새 feature 디렉토리 생성 후 반드시 codegen 실행 — Freezed/Retrofit 어노테이션이 있으면 `.g.dart`/`.freezed.dart` 없어서 컴파일 에러
 - import는 반드시 `package:app/features/<feature>/...` 절대 경로 — 상대 import 사용하면 preflight에서 FAIL
+- **Enumerate-before-Act (low-freedom 영역 · skill-design-guide §5.5)** — 새 feature 모듈 생성 전에 (a) `ls lib/features/` 로 기존 feature 이름을 **전수 나열** 하여 중복·유사명을 방지하고, (b) 해당 프로젝트의 기존 feature 중 하나를 샘플로 읽어 레이어별 파일 naming 관례(`*_page.dart` vs `*_screen.dart`, `*_repository.dart` vs `*_repo.dart`)를 파악한 뒤 생성한다. 근사치 추정으로 feature 명·naming 을 결정하면 기존 컨벤션과 드리프트가 생겨 전체 feature 재명명 iteration 이 발생 (insights-report #2 Wrong approach 대응)
 
 프로젝트의 아키텍처 패턴에 맞게 새 feature 모듈을 생성한다.
 
