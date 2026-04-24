@@ -26,15 +26,21 @@ user-invocable: true
 
 # Process
 
-## Step 0: 리서치 문서 로드
+## Step 0: 자동 로드 (독립 단계)
 
-`docs/planning/stories.md` (INVEST, Gherkin, Story Mapping) 로드.
+**이 단계에서 스토리를 작성하지 않는다.** 작성에 필요한 배경만 로드한다:
+
+1. **원칙 문서**: `docs/planning/stories.md` (INVEST, Gherkin, Story Mapping). 없으면 `/planning-research stories` 권고 후 중단.
+2. **이전 단계 산출물**: `.planning/prd-*.md` 가 있으면 로드 (최신 우선). 없으면 `/plan-prd` 먼저 권고.
+3. **선택 참조**: `.planning/discover-*.md` (persona 추출용), `.planning/data-model-*.md` (엔티티 이름 매핑용).
+
+원칙 문서나 PRD 둘 중 하나라도 없으면 Step 1 진입 금지 — 추측 기반 스토리는 Estimable 판정 불가.
 
 ## Step 1: 입력 파싱
 
-- PRD 경로가 있으면 로드
-- Problem / User / Solution 식별
+- Step 0 에서 로드된 PRD 에서 Problem / User / Solution 식별
 - 기능 경계 단위로 1차 분할
+- 추가로 사용자가 명시한 기능 설명이 있으면 병합
 
 ## Step 2: 초안 스토리 생성
 

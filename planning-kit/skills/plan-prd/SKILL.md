@@ -27,14 +27,20 @@ user-invocable: true
 
 # Process
 
-## Step 0: 리서치 문서 로드
+## Step 0: 자동 로드 (독립 단계)
 
-`docs/planning/prd-patterns.md` 로드. Amazon PR/FAQ · Shape Up Pitch · Linear/Stripe/Notion 공개 템플릿 참조.
+**이 단계에서 PRD 를 작성하지 않는다.** 작성에 필요한 배경만 로드한다:
+
+1. **원칙 문서**: `docs/planning/prd-patterns.md` (Amazon PR/FAQ · Shape Up Pitch · Linear/Stripe/Notion 공개 템플릿). 없으면 `/planning-research prd-patterns` 권고 후 중단.
+2. **이전 단계 산출물**: `.planning/discover-*.md` (discovery) 가 있으면 로드. 없으면 Step 1 에서 Problem/User/JTBD/Success Metric 명시 여부 확인.
+3. **선택 참조**: `.planning/ideate-*.md` (발산/수렴 맥락), `.planning/reference-*.md` (경쟁 teardown, 차별화 근거).
+
+원칙 문서 없이 Step 1 진입 금지 — 학습 데이터 기반 PRD 는 Shape Up / PR/FAQ 포맷 엄밀성을 보증하지 못한다.
 
 ## Step 1: 입력 확인
 
-- discovery 파일 경로가 주어지면 로드
-- 없으면 Problem / User / JTBD / Success Metric 4개가 명시적으로 있는지 확인. 없으면 `/plan-discover` 재지시.
+- Step 0 에서 로드된 discovery 가 있으면 그대로 사용
+- 없으면 Problem / User / JTBD / Success Metric 4개가 사용자 설명 또는 경로 인수에 명시적으로 있는지 확인. 없으면 `/plan-discover` 재지시.
 
 ## Step 2: 포맷 선택
 

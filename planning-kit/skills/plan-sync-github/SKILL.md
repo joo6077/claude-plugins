@@ -25,6 +25,8 @@ user-invocable: true
 11. **계층 분해 3단계까지** — 레벨 수가 많을수록 운영비가 급증. PRD(문서) → Epic(parent issue) → Story(child issue) → Task(sub-issue/checklist) 가 한계. PR 은 task/story 에 연결하고 PRD 를 직접 닫는 단위로 쓰지 마라. 출처: [GitHub Projects Best Practices](https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects).
 12. **Milestone 은 release 또는 timebox 중 하나로 일관** — 섞어 쓰면 의미가 흐려짐. 출처: [GitHub — About Milestones](https://docs.github.com/en/enterprise-cloud@latest/issues/using-labels-and-milestones-to-track-work/about-milestones).
 13. **gh project 는 project scope 권한 필요** — 반복 리포팅은 `--json`/`--jq` 로 자동화. Project field schema 가 자주 바뀌면 스크립트 유지비 발생. 출처: [gh project manual](https://cli.github.com/manual/gh_project), [gh issue manual](https://cli.github.com/manual/gh_issue).
+14. **생성 리소스 ≠ 로컬 산출물** — 이 스킬이 생성하는 GitHub Issues/Milestones/Projects 는 **외부에 보이는 reversible 리소스**다. 로컬 `.planning/*.md` 산출물 생성과 달리 사용자/팀원이 즉시 관측하므로 dry-run + 승인 없이 실행 금지 (Gotcha 1 강화). 실패 시 이미 생성된 리소스는 자동 롤백 금지 — 목록만 보고하고 사용자가 수동 cleanup 결정하도록 둔다 (Gotcha 8).
+15. **sync-log 는 재실행 안전성 계약** — `.planning/sync-log-<date>.md` 에 생성된 모든 Issue URL + Milestone number + Project item id 를 기록. 다음 실행에서 이 로그를 먼저 읽어 중복 생성 방지 (Gotcha 2 강화). 로그 없이 재실행하면 같은 Epic 이 #100 / #200 / #300 으로 세 번 생성된다.
 
 # Process
 

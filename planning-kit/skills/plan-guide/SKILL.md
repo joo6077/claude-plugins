@@ -22,6 +22,18 @@ user-invocable: true
 
 # Process
 
+> **가이드형 3-Step 원칙**: 이 스킬은 "가벼운 리뷰" 전용이므로 핵심은 (1) 맥락 판별 → (2) 원칙 로드 → (3) 적용+응답 3-Step. Step 0(자동 로드)과 Step 4(확장 안내)는 보조로 배치한다. 전수 감사 프로세스로 팽창시키지 마라 — `/plan-audit` 영역.
+
+## Step 0: 자동 로드 (독립 단계)
+
+**이 단계에서 사용자 문서를 건드리지 않는다.** 가이드 제공에 필요한 원칙 문서만 로드한다:
+
+1. `docs/planning/` 전체 파일 존재 확인 (discovery, prd-patterns, stories, prioritization, flows, data-modeling, risks, cognitive-biases, github-integration, reference, ideation 총 11편).
+2. 사용자가 언급한 파일 경로가 있으면 해당 파일을 읽어 맥락 파악.
+3. 이전 세션 산출물이 있을 수 있는 `.planning/` 에 관련 파일이 있으면 함께 로드 (예: 사용자가 "이 PRD 괜찮아?" 라고 물으면 `.planning/prd-*.md` 읽기).
+
+원칙 문서가 없으면 `/planning-research <area>` 권고 후 중단 — 학습 데이터 기반 조언은 가이드가 아니라 소음이다.
+
 ## Step 1: 맥락 파악
 
 사용자 질문에서 영역 식별:
