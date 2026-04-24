@@ -28,6 +28,8 @@ user-invocable: true
 7. **상태/예외 화면 포함** — 기본 화면만 검사하지 마라. 빈 상태, 에러 상태, 로딩 상태, 데이터 과다/과소 상태가 코드에 존재하면 함께 검사한다.
 8. **코드 미확인 항목 구분** — 런타임 렌더링, 실제 인터랙션처럼 정적 분석으로 판정 불가한 항목은 PASS/FAIL이 아닌 `[미검증]`으로 표기하고 수동 확인 방법을 안내한다.
 9. **휴리스틱-카테고리 혼동 금지** — Nielsen 10 휴리스틱은 평가 관점 프레임이다. 실제 판정은 반드시 audit-criteria.md의 10개 카테고리 기준(Typography, Color, Spacing, Accessibility, Interaction, Motion, Visual Hierarchy, Layout & Grid, Ethical Design, Authenticity)으로 매핑하여 수행한다.
+10. **Rule-by-Rule Audit — 완료 선언 전 10 카테고리 전수 대조** — APPROVE/REJECT 판정 전에 audit-criteria.md 의 10 카테고리 × 핵심 체크포인트를 모두 순회하며 각 항목에 `PASS / FAIL / [미검증]` 을 명시한 표가 리포트에 포함되어야 한다. 일부 카테고리를 "해당 없음" 으로 뭉뚱그리지 말고 이유를 기재하라. 카테고리를 건너뛴 감사는 감사가 아니다 (skill-design-guide §3.6 Rule-by-Rule Audit 대응).
+11. **Binary Decidability Pre-Check — 감사 시작 전 이진 판정 가능성 확인** — 감사 범위를 정한 뒤 각 예상 FAIL 항목이 "코드/스타일/토큰만으로 PASS/FAIL 이 이진 판정 가능한가" 를 먼저 체크한다. 런타임 렌더링 · 실제 인터랙션 · MCP Figma 대조가 필요한 항목은 즉시 `[미검증]` 으로 분류하고 PASS 로 통과시키지 마라. 미검증 2 건 이상이면 전체 판정이 REJECT 로 기울 수 있음을 리포트 상단에 경고로 기재한다 (agent-design-guide §3.5 Binary Decidability 대응 · skill 측 반영).
 
 # Process
 

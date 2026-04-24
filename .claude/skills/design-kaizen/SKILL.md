@@ -16,6 +16,18 @@ user-invocable: true
 3. **기존 스킬 구조 유지** — SKILL.md의 섹션 구조(Gotchas → Process → References)를 변경하지 마라. 내용만 개선한다.
 4. **audit-criteria.md와 스킬 Gotchas 중복 금지** — audit-criteria.md는 체크리스트 항목, Gotchas는 반복 실수 방지 지침이다. 같은 내용을 양쪽에 복사하지 마라. 역할이 다르다.
 5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py design-kit`을 실행하라. 7 카테고리 중 하나라도 FAIL이면 수정 후 재검증한다.
+6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 자동 로드 로직) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 design-kit SK-05 REJECT 재발 방지 — design-concept 에 Step 0 자동 로드는 있었지만 design-component 에는 Gotcha 외부의 Process Step 형태로만 있어 평가자 판정 갈렸던 사례).
+
+   | Sibling Group | 공통 원칙 검증 항목 |
+   |---------------|---------------------|
+   | design-concept · design-component · design-mockup · design-reference | **Step 0 = 자동 감지 및 로드** 독립 Process 단계 존재 (Gotchas 외부, 이름 정확히 일치) |
+   | design-audit · design-reviewer (agent) | **Binary Decidability Pre-Check · Rule-by-Rule Audit · 미검증 3항 · L3 Coverage Honesty** 4 항목 동시 존재 |
+   | design-guide · design-system | **가이드형 스킬 Process Step 순서 고정 (탐색→진단→처방) · Enumerate-before-Act** |
+   | design-mockup · design-reference | **HTML 산출물 의도 설계 명시 (AR-01 예외 선언)** |
+   | design-system · design-component | **DTCG v1 · OKLCH · 다크모드 토큰 매핑** 공통 원칙 정합성 |
+
+7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지).
+8. **Phase 1~5 신규 원칙 감사 (kaizen 시작 시 전수 확인)** — skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / §5.5 Enumerate-before-Act / §8.7 Code Examples / §8.8 Sibling Consistency / §11 Cross-Surface Parity · agent §3.5 Binary Decidability / §10 Unverifiable / §12 Parity 전수 확인. 각 원칙에 대해 반영 스킬 목록을 리포트에 명시.
 
 # Process
 
