@@ -21,19 +21,22 @@ user-invocable: true
 6. **에러 포맷 혼용 금지** — 프로젝트 내에서 RFC 9457 `problem+json`과 자체 `{ "error": "..." }` 포맷이 혼용되면 클라이언트가 파싱 분기를 해야 한다. 하나의 에러 응답 포맷을 선택하고 프로젝트 전체에 일관 적용해야 한다.
 7. **인증/인가 세팅 시 토큰 저장 위치를 명시하라** — JWT 전략만 정의하고 "토큰을 어디에 저장할지"(httpOnly cookie vs localStorage vs 메모리)를 빠뜨리면 클라이언트 보안 정책이 불완전하다. 서버 사이드 세팅이지만 클라이언트 저장소 권장 사항까지 함께 제시해야 한다.
 8. **로깅 규격에 PII 마스킹 규칙 필수 포함** — 구조화 로그 포맷만 정의하고 이메일/전화번호/IP 등 개인정보 마스킹 규칙을 빠뜨리면 GDPR/PIPA 위반 위험이 있다. 마스킹 대상 필드 목록과 마스킹 방식(해시, 부분 가림 등)을 규격에 포함하라.
+9. **Enumerate-before-Act (skill-design-guide §5.5 대응)** — 기존 프로젝트의 기반을 세팅할 때 "감지 → 권장 규격 → 개선점" 을 rule-by-rule 로 **한 번에 모두 나열** 후 사용자 승인. 라운드-트립 금지 (/insights 마찰점 #1 재발 방지).
+10. **Outbox 필수 함정 명시 (Phase 7 리서치)** — 이벤트 기반 패턴 세팅 시 Transactional Outbox 를 권장하되, 반드시 3 가지 함정을 문서에 포함하라: (a) relay 재시도로 인한 **at-least-once**(consumer idempotency 필수), (b) 다중 인스턴스에서의 **메시지 순서 보장** (aggregate 단위 sequence), (c) 개발자가 outbox 쓰기를 빠뜨릴 위험(**정적 분석/리뷰 체크리스트 포함**). 출처: [microservices.io Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html).
+11. **OAuth 2.1 draft 명시 (Phase 7 리서치)** — 인증 세팅 시 OAuth 2.1 은 `draft-ietf-oauth-v2-1-15` (2026-09-03 만료) 로 아직 Draft 임을 명시. 실무 기준선은 RFC 9700 BCP. 이미 PKCE 필수, Implicit/ROPC 제거, 엄격 redirect URI 매칭이 적용되어 있다. 출처: [IETF OAuth 2.1 Draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/).
 
-# Process
+# Process (3-Step · 탐색 → 진단 → 처방)
 
-## Step 1: 프로젝트 백엔드 구조 감지
+## Step 1: 탐색 — 프로젝트 백엔드 구조 감지
 
 프로젝트 루트에서 백엔드 관련 파일을 탐색한다:
 - 프레임워크 감지 (package.json, requirements.txt, build.gradle, Cargo.toml 등)
 - 기존 아키텍처 패턴 분석 (디렉토리 구조, 에러 핸들러, 미들웨어)
 - API 스펙 파일 존재 여부 (openapi.yaml, schema.graphql, .proto)
 
-## Step 2: 규격 카테고리 정의
+## Step 2: 진단 — 규격 카테고리 Rule-by-Rule 열거
 
-references/system-principles.md를 참조하여 필요한 카테고리를 정의한다:
+references/system-principles.md 를 참조하여 필요한 카테고리를 rule 단위로 모두 나열한다 (Gotcha 9). 현재 상태와 리서치 기준의 차이를 한 번에 열거.
 
 | 카테고리 | 필수 여부 | 산출물 |
 |----------|-----------|--------|
@@ -46,12 +49,12 @@ references/system-principles.md를 참조하여 필요한 카테고리를 정의
 | 캐싱 | 선택 | 캐시 계층, TTL 정책, 무효화 규칙 |
 | 이벤트 기반 | 선택 | AsyncAPI 3 스펙, Outbox relay (batch + backpressure), idempotency, CDC(Debezium) 파이프라인, 메시지 브로커 선택(Kafka 4.x/RabbitMQ Quorum/NATS), CQRS (도입 기준 충족 시) |
 
-## Step 3: 규격 문서 출력
+## Step 3: 처방 — 규격 문서 출력
 
 각 카테고리별로:
 1. 현재 상태 (있으면 분석, 없으면 "미설정")
-2. 권장 규격 (리서치 문서 기반)
-3. 개선 사항 (차이점)
+2. 권장 규격 (리서치 문서 기반 + 출처 URL 포함)
+3. 개선 사항 (차이점 + 우선순위 + 트레이드오프)
 
 # References
 

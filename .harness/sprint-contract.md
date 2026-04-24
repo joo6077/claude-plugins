@@ -1,103 +1,81 @@
 ---
-feature: "kaizen-phase6-design-kit-kaizen"
+feature: "kaizen-phase7-backend-kit-kaizen"
 created: "2026-04-24"
 complexity: "high"
 conditions: 20
 branch: "kaizen/2026-04-24"
-phase: 6
+phase: 7
 ---
 
-# Sprint Contract — Phase 6: Design-kit Kaizen
+# Sprint Contract — Phase 7: Backend-kit Kaizen
 
 Generated: 2026-04-24
-Feature: Phase 1~5 신규 원칙을 design-kit 8 스킬 + design-reviewer 에 전수하고, design-kit 5 REJECT reasons(SK-05 × 2, PH-01, I-02, AR-01, AR-06) 을 전수 해소한다. Phase 6 리서치 테이블 5 건(Tailwind v4 OKLCH · W3C DTCG v1 · WCAG 2.2 · MDN Container Queries · Material 3 Expressive) 을 최소 3 건 조회하고 변경 근거로 명시한다.
+Feature: Phase 1~6 신규 원칙을 backend-kit 4 스킬(backend-guide · backend-audit · backend-system · backend-test) + backend-reviewer 에이전트 + `.claude/skills/backend-kaizen` 에 전수하고, backend-kit 5 REJECT reasons(AR-03 · AR-04 · SK-07 · SK-13 · ER-01) 을 전수 해소 또는 회귀 방지 검증한다. Phase 7 리서치 테이블 6 건 중 최소 3 건(OAuth 2.1 draft-15 · Transactional Outbox · Pact v4 + Testcontainers) 의 URL 을 변경 근거로 인용한다.
 
-Scope (수정 허용): `design-kit/skills/*/SKILL.md`, `design-kit/agents/design-reviewer.md`, `design-kit/references/*.md`, `.claude/skills/design-kaizen/SKILL.md` (범위 외 금지: harness/, flutter-toolkit/, backend-kit/, infra-kit/, rust-kit/, react-kit/, reflect-kit/, planning-kit/, `design-kit/docs/design/` (리서치 문서는 design-research 영역), 기타 최상위 파일)
+Scope (수정 허용): `backend-kit/skills/*/SKILL.md`, `backend-kit/agents/backend-reviewer.md`, `backend-kit/skills/*/references/*.md`, `backend-kit/README.md`, `backend-kit/evals/evals.json`, `.claude/skills/backend-kaizen/SKILL.md`, `scripts/run-evals.py` (ER-01 수정 한정), `.harness/sprint-contract.md` (본 파일).
+범위 외 금지: harness/, flutter-toolkit/, design-kit/, infra-kit/, rust-kit/, react-kit/, reflect-kit/, planning-kit/, `docs/backend/` 리서치 문서 (backend-research 영역), 기타 최상위 파일.
+
 Branch: kaizen/2026-04-24
 
 ## Research (R)
-- [ ] R-01 [structural]: Phase 6 리서치 테이블 5 건 중 최소 3 건의 URL 이 변경된 SKILL.md Gotchas 또는 본 문서 Context 섹션에 인용된다
-- [ ] R-02 [structural]: design-kit 5 REJECT reasons(SK-05 × 2 · PH-01 · I-02 · AR-01 · AR-06) 각각에 대해 반영 파일 + 변경 내용이 커밋 메시지에 매핑된다
-- [ ] R-03 [structural]: Phase 1~5 신규 원칙 8 건(skill §3.5/§3.6/§5.5/§8.7/§8.8/§11 · agent §3.5/§12) 의 design-kit 반영 스킬 목록 표가 커밋 메시지에 포함된다
 
-## Skill Content — REJECT reason 전수 해소 (RR)
-- [ ] RR-01 [exact]: `design-kit/skills/design-concept/SKILL.md` Process 에 **Step 0 = 자동 로드 (독립 단계)** 가 존재하며 제목이 "자동 로드" 또는 "자동 감지 및 로드" 로 명확히 표기되어 Gotchas 외부의 Process Step 으로 분류된다 (SK-05 대응, 현재 "Step 0: 기존 컨셉 감지" 를 design-component 와 동일한 표기로 sibling-align)
-- [ ] RR-02 [exact]: `design-kit/skills/design-component/SKILL.md` Process 에 **Step 0: 자동 감지 및 로드** 가 독립 단계로 존재한다 (현재 존재함 — 유지 조건, sibling parity 보장)
-- [ ] RR-03 [exact]: `design-kit/skills/design-mockup/SKILL.md` Gotchas 또는 계약 주석에 **HTML 산출물 예외 조항** 이 명시되어 `.design/mockups/*.html` 이 `.md` 계약 패턴과 구조적 차이를 갖는 것이 의도된 설계임을 선언한다 (AR-01 대응, 이미 Gotcha #10 존재 — 유지 + 정합성 확인)
-- [ ] RR-04 [exact]: `design-kit/skills/design-system/SKILL.md` Gotcha #10 (HTML :root CSS 변수 정합성) 이 AR-06 재발을 명시적으로 언급하며 "기존 HTML 파일 과 값 일치 확인" 조건을 담는다 (AR-06 대응, 현재 존재 — 유지)
-- [ ] RR-05 [exact]: `design-kit/agents/design-reviewer.md` 에 **Binary Decidability Pre-Check** 섹션이 존재한다 (PH-01 대응 — agent §3.5 전수)
+- [ ] R-01 [structural]: Phase 7 리서치 테이블 6 건 중 최소 3 건의 URL 이 변경된 SKILL.md/audit-criteria.md Gotchas 또는 본 문서 Context 섹션에 인용된다.
+- [ ] R-02 [structural]: backend-kit 5 REJECT reasons (AR-03 · AR-04 · SK-07 · SK-13 · ER-01) 각각에 대해 반영 파일 + 변경 내용 + 회귀 방지 근거가 커밋 메시지에 매핑된다.
 
-## Skill Content — Phase 1~5 원칙 전수 (SK)
-- [ ] SK-01 [exact]: `design-kit/skills/design-guide/SKILL.md` Gotchas 또는 Process Step 1 에 **가이드형 스킬 Process Step 순서 고정** (탐색→진단→처방) 선언이 있다 (Phase 5 principle, flutter-error/flutter-hooks 패턴 parity)
-- [ ] SK-02 [exact]: `design-kit/skills/design-system/SKILL.md` Gotchas 에 **Enumerate-before-Act** (토큰 수정 전 전체 토큰 목록 + 위반 리스트업 후 편집) 원칙이 추가된다 (insights #1 · skill §5.5)
-- [ ] SK-03 [exact]: `design-kit/skills/design-audit/SKILL.md` Gotchas 에 **Rule-by-Rule Audit 완료 선언 전 10 카테고리 전수 대조** 원칙이 명시된다 (skill §3.6)
-- [ ] SK-04 [exact]: `design-kit/skills/design-audit/SKILL.md` Gotchas 에 **Binary Decidability Pre-Check** (감사 시작 전 각 FAIL 항목의 이진 판정 가능성 확인) 이 추가된다 (agent §3.5 skill 측 반영)
-- [ ] SK-05 [exact]: `design-kit/agents/design-reviewer.md` "핵심 규칙" 또는 전용 섹션에 **Rule-by-Rule Audit · 미검증 3항 프로토콜 · L3 Coverage Honesty** 세 항목이 모두 존재한다
-- [ ] SK-06 [exact]: `.claude/skills/design-kaizen/SKILL.md` 에 **Cross-Surface Parity Checklist** 섹션이 추가되어 design-kit sibling group(concept/component/mockup 자동로드 · audit/reviewer Rule-by-Rule · guide/system 가이드형 3-Step · reference/mockup HTML 출력) 의 공통 원칙 누락 검사 절차를 정의한다 (skill §11)
-- [ ] SK-07 [exact]: `design-kit/skills/design-reference/SKILL.md` Gotchas 에 **Context7 / 공식 문서 출처 기재 형식 통일** (출처 URL 인라인, `출처:` 접두사) 원칙이 Phase 6 sibling Gotcha 표기법으로 통일된다 (Phase 5 원칙 4)
+## REJECT Reason Resolution (AR)
 
-## I-02 명시화 (II)
-- [ ] II-01 [exact]: 본 Sprint Contract 내 **I-02 조건** 에 예외 목록이 명시적 enumeration 으로 포함된다: `.harness/sprint-contract.md` (생성 대상) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · README 자동 동기화 파일. 이 외 modified 0 건.
+- [ ] AR-03 [regression-guard]: `backend-kit/README.md` 존재 + 스킬 테이블에 backend-test 포함 + 에이전트 테이블 포함 + 리서치 문서 카테고리 요약 포함.
+- [ ] AR-04 [regression-guard]: `backend-kit/evals/evals.json` 존재 + 4 스킬 전수 커버(backend-guide × 2 · backend-audit × 1 · backend-system × 1 · backend-test × 2) + 엔트리 수 >= 7 + placeholder 텍스트 0 건.
 
-## Implementation (I)
-- [ ] I-01 [exact]: 모든 Phase 6 변경을 **단일 커밋** 으로 제출하고 메시지 prefix 는 `chore(kaizen-phase6):` 이다. 커밋 본문에 (a) REJECT reason 5 건 매핑 표, (b) Phase 1~5 원칙 반영 스킬 목록 표, (c) Context7/리서치 출처 URL 이 포함된다
-- [ ] I-02 [exact]: 커밋 완료 후 `git status --short` 출력에서 다음 예외 외 modified / untracked 항목이 0 건이다 — 예외: `.harness/sprint-contract.md`, `.harness/sprint-feedback.md`, `.harness/.meta/kaizen-data-pool.md`, `.vscode/` (untracked), sync-docs 자동 갱신 README/HTML
-- [ ] I-03 [exact]: `scripts/validate-plugin.py design-kit` 실행 시 7 카테고리 중 `refs` / `placeholders` / `code-fence` 카테고리에서 새로 FAIL 이 증가하지 않는다 (기존 FAIL 유지는 허용하되 새 FAIL 0 건)
+## Skill (SK)
 
-## Evidence (E)
-- [ ] E-01 [structural]: 각 RR / SK 조건에 대해 평가자가 `grep -n` 으로 즉시 검증 가능한 문자열 패턴이 존재한다 (본 문서 §Verification Commands 섹션)
+- [ ] SK-07 [L2]: `backend-kit/skills/backend-audit/SKILL.md` Step 3 "리포트 생성" 이 10 카테고리 표(판정/파일:라인/근거/출처 열) 가 모두 채워진 실효 체크리스트 + CONDITIONAL APPROVE 규칙 + Rule-by-Rule Audit 앵커를 포함한다. 표 자리 표시자(`...`) 금지.
+- [ ] SK-13 [L2]: `.claude/skills/backend-kaizen/SKILL.md` References 섹션이 존재하고 최소 6 항목(backend-guide/audit/system/test · reviewer · docs/backend · plugin-validation-guide · validate-plugin.py) 을 포함한다.
+- [ ] SK-14 [L3]: `.claude/skills/backend-kaizen/SKILL.md` Gotchas 에 Cross-Surface Parity Checklist (§11) + I-02 예외 목록 (design-kaizen 과 동일 포맷) + Phase 1~6 신규 원칙 감사 Gotcha 가 존재한다.
+- [ ] SK-15 [L2]: `backend-kit/skills/backend-audit/SKILL.md` Gotchas 에 Binary Decidability Pre-Check + Rule-by-Rule Audit 2 항목이 존재하고 각 항목이 REJECT/PASS 판정 근거를 명확히 지시한다.
 
-## Verification Commands
+## Principle Reflection (PR)
 
-```bash
-# RR-01 design-concept Step 0
-grep -nE '^## Step 0:' design-kit/skills/design-concept/SKILL.md   # → 1 line ≥ 1
+- [ ] PR-01 [L3]: skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / §5.5 Enumerate-before-Act / §8.7 Code Examples 품질 / §8.8 Sibling Consistency / §11 Cross-Surface Parity 6 항목이 backend-kit 스킬/에이전트 중 최소 1곳씩에 모두 반영된다.
+- [ ] PR-02 [L3]: agent §3.5 Binary Decidability / §10 Unverifiable / §12 L3 Coverage Honesty 3 항목이 backend-reviewer.md 에 모두 존재한다.
+- [ ] PR-03 [L2]: 가이드형 3-Step (탐색→진단→처방) 원칙이 backend-guide Process 구조에 반영된다 (Phase 5 Flutter parity).
 
-# RR-02 design-component Step 0
-grep -nE '^## Step 0:' design-kit/skills/design-component/SKILL.md  # → 1 line
+## Error (ER)
 
-# RR-03 design-mockup HTML 예외 조항
-grep -nE 'HTML 형식이 정상 산출물|False positive|AR-01' design-kit/skills/design-mockup/SKILL.md  # → ≥1
+- [ ] ER-01 [L3]: `scripts/run-evals.py` 의 `load_evals` 에서 `JSONDecodeError` 시 `sys.exit(2)` 로 즉시 종료 (exit code 1 ≠ 2 구분 명확화). 변경 후 `python3 scripts/run-evals.py backend-kit` 정상 실행 + 의도적 파싱 오류 입력 시 exit 2 확인 [L3 검증].
 
-# RR-04 design-system AR-06 언급
-grep -nE 'AR-06|기존 HTML 파일' design-kit/skills/design-system/SKILL.md  # → ≥1
+## Integrity (II)
 
-# RR-05 design-reviewer Binary Decidability
-grep -nE 'Binary Decidability|이진 판정 가능성' design-kit/agents/design-reviewer.md  # → ≥1
+- [ ] II-01 [L3]: `scripts/validate-plugin.py backend-kit` 7 카테고리 전수 결과 0 건 regression. 변경 후 실행 결과 커밋 메시지에 수록.
+- [ ] II-02 [L3]: `python3 scripts/run-evals.py backend-kit` PASS (전수 assertions OK).
+- [ ] II-03 [structural]: 커밋 직전 `git status --short` 기준 modified/untracked 허용 예외 = `.harness/sprint-contract.md` (본 contract) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regen) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 0 건.
 
-# SK-01 design-guide 가이드형 3-Step
-grep -nE '탐색.*진단.*처방|가이드형 스킬.*Process Step' design-kit/skills/design-guide/SKILL.md  # → ≥1
+## Anti-Pattern (AP)
 
-# SK-02 design-system Enumerate-before-Act
-grep -nE 'Enumerate-before-Act|편집 전 전수 나열' design-kit/skills/design-system/SKILL.md  # → ≥1
+- [ ] AP-01 [L2]: backend-kit 스킬 본문에 `(placeholder)` / `TODO:` / `TBD` / `FIXME` 문자열 0 건 (validate-plugin 의 `placeholders` 체크 통과).
+- [ ] AP-02 [L2]: code fence 에 언어 힌트 누락(bare ```) 0 건 (validate-plugin code-fence 체크 통과).
+- [ ] AP-03 [L3]: backend-reviewer.md 평가 카테고리 번호 `1 ~ 10` 이 `audit-criteria.md` 섹션 번호와 1:1 일치 (Architecture → API Design → Database → Auth → Error → Security → Caching → Event-Driven → Testing → Observability).
 
-# SK-03 design-audit Rule-by-Rule
-grep -nE 'Rule-by-Rule|전수 대조' design-kit/skills/design-audit/SKILL.md  # → ≥1
+## Research Context (Phase 7 Sources)
 
-# SK-04 design-audit Binary Decidability
-grep -nE 'Binary Decidability|이진 판정' design-kit/skills/design-audit/SKILL.md  # → ≥1
+필수 리서치 소스 (min 3 인용):
 
-# SK-05 design-reviewer Rule-by-Rule + 미검증 + L3 Coverage Honesty
-grep -nE 'Rule-by-Rule|L3 Coverage|미검증' design-kit/agents/design-reviewer.md  # → ≥3 lines collectively
+1. **IETF OAuth 2.1 Draft-15** (2026-03-02, expires 2026-09-03) — https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/ · RFC 9700 BCP 를 통합, Implicit/ROPC 제거, PKCE 필수, 엄격 redirect URI 매칭.
+2. **Transactional Outbox Pattern** — https://microservices.io/patterns/data/transactional-outbox.html · Dual-write 문제 해결, outbox 테이블 + message relay 컴포넌트, idempotency/ordering/dev accountability 함정.
+3. **Pact v4 + Testcontainers** — https://prgrmmng.com/contract-testing-with-testcontainers-and-pact · Consumer-driven contract, Pact Broker coordinator, v4 는 gRPC/async messaging/GraphQL 지원 확장.
+4. (optional) **Hexagonal vs Clean vs Onion 2026** — https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f
+5. (optional) **Azure Circuit Breaker + Rate Limiter 조합** — https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker
+6. (optional) **RFC 9457 problem+json** — https://www.rfc-editor.org/rfc/rfc9457.html
 
-# SK-06 design-kaizen Cross-Surface Parity
-grep -nE 'Cross-Surface Parity|Sibling Group' .claude/skills/design-kaizen/SKILL.md  # → ≥1
+## Sibling Group Parity (Phase 6 Template)
 
-# SK-07 design-reference 출처 형식 통일
-grep -cE '출처:' design-kit/skills/design-reference/SKILL.md  # → ≥1
+| Sibling Group | 공통 원칙 검증 항목 |
+|---------------|---------------------|
+| backend-guide · backend-system | 가이드형 Process 3-Step (탐색→진단→처방) · Enumerate-before-Act · 트레이드오프 제시 |
+| backend-audit · backend-reviewer (agent) | Binary Decidability Pre-Check · Rule-by-Rule Audit · 미검증 3항 · L3 Coverage Honesty 4 항목 동시 존재 |
+| backend-guide · backend-audit · backend-system · backend-test | 10 카테고리 명명 규칙 일치 (Architecture · API Design · Database · Auth · Error · Security · Caching · Event-Driven · Testing · Observability) |
+| backend-test · infra-test (Phase 8) | Step 0 스택 감지 독립 단계 + 기존 테스트 패턴 탐색 + 외부 실환경 강제 금지 |
 
-# I-03 validate-plugin
-python3 scripts/validate-plugin.py design-kit
-```
+## HTML 산출물 예외
 
-## Phase 6 Research Sources (사전 조회 · ≥3 필수)
-
-| # | 소스 | 유형 | 조회 상태 |
-|---|------|------|----------|
-| 1 | [Tailwind CSS v4 blog](https://tailwindcss.com/blog/tailwindcss-v4) | 공식 | 기존 design-system Gotcha #11 에 인용됨 ✓ |
-| 2 | [W3C DTCG v1 Final Report 2025-10-28](https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/) | 표준 | 기존 design-system Gotcha #12, design-component Gotcha #3 에 인용됨 ✓ |
-| 3 | [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/) | 표준 | 기존 design-audit Gotcha #3, design-reviewer #3-#4 에 인용됨 ✓ |
-| 4 | [MDN Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries) | 공식 | 기존 design-audit 8, design-mockup Gotcha #10 에 인용됨 ✓ |
-| 5 | Material 3 Expressive (2025-05) | 공식 | 기존 design-system Step 2 참고 섹션에 인용됨 ✓ |
-
-결과: 5 / 5 기 인용 상태로 R-01 충족.
+backend-kit 는 HTML 산출물이 없으므로 design-kit AR-01 패턴의 예외 선언은 불필요. 단, `openapi.yaml`/`migrations`/스택별 파일(Dockerfile 등)은 `.md` 패턴과 구조적으로 다르므로 audit 시 별도 산출물 범주로 식별한다.

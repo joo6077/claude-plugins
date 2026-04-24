@@ -41,11 +41,16 @@ PLACEHOLDER_PATTERNS = [
     "FIXME",
 ]
 
-_PARSE_ERROR = object()
+def load_evals(kit: str) -> dict | None:
+    """evals.json 로드. 파일 없으면 None 반환. 파싱 실패 시 즉시 sys.exit(2) 로 종료.
 
+    exit code 구분 (run-evals.py docstring 과 일치):
+      - 0: 전체 PASS
+      - 1: FAIL 있음 (assertion 불충족)
+      - 2: 구조적 에러 (evals.json 파싱 실패 · 파일 손상 등 회복 불가)
 
-def load_evals(kit: str) -> dict | None | object:
-    """evals.json 로드. 파일 없으면 None, 파싱 실패 시 _PARSE_ERROR."""
+    Phase 7 kaizen 에서 backend-kit/infra-kit ER-01 재발 방지를 위해 강화 (2026-04-24).
+    """
     path = REPO_ROOT / kit / "evals" / "evals.json"
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -53,7 +58,8 @@ def load_evals(kit: str) -> dict | None | object:
         return None
     except json.JSONDecodeError as exc:
         print(f"  ERROR: {path} parse error: {exc}", file=sys.stderr)
-        return _PARSE_ERROR
+        print(f"  FATAL: evals.json structural error — exit 2", file=sys.stderr)
+        sys.exit(2)
 
 
 def get_eval_list(data: dict) -> list[dict]:
@@ -119,11 +125,12 @@ def validate_eval_entry(kit: str, entry: dict, verbose: bool) -> list[str]:
 
 
 def validate_kit(kit: str, verbose: bool) -> tuple[int, int]:
-    """플러그인 검증. (pass_count, fail_count) 반환."""
+    """플러그인 검증. (pass_count, fail_count) 반환.
+
+    주의: evals.json 파싱 실패 시 load_evals 내부에서 sys.exit(2) 로 즉시 종료하므로
+    본 함수는 파싱 실패 분기를 처리하지 않는다.
+    """
     data = load_evals(kit)
-    if data is _PARSE_ERROR:
-        print(f"  FAIL: evals.json 파싱 실패")
-        return (0, 1)
     if data is None:
         if verbose:
             print(f"  SKIP (evals.json 없음)")

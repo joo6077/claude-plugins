@@ -23,10 +23,12 @@ user-invocable: true
 9. **deprecation 없이 마이그레이션 권고 금지** — "OAuth 2.0 대신 OAuth 2.1을 쓰라"고 할 때 2.0의 어떤 grant가 제거되었고 왜 위험한지(implicit grant → token 노출)를 근거로 함께 설명해야 한다. 단순 버전 번호 비교만으로 마이그레이션을 권고하지 마라.
 10. **OAuth 2.1 은 아직 Draft** — 2026-04 기준 OAuth 2.1 은 `draft-ietf-oauth-v2-1-15` (Active Internet-Draft, expires 2026-09). 최종 RFC 가 아니므로 "OAuth 2.1 표준"이라고 단정하지 마라. 실무 기준선은 RFC 9700(BCP) + FAPI 2.0 Final 을 사용한다. 출처: [IETF OAuth 2.1 Draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
 11. **마이크로서비스 무조건 권장 금지** — 팀 규모 10명 미만이면 Modular Monolith First 를 기본으로 제안하라. 마이크로서비스는 인프라 비용 3.75-6x, 디버깅 시간 35% 증가. Amazon Prime Video 가 마이크로서비스→모놀리스 전환으로 인프라 비용 90% 절감한 사례를 참고. 출처: [ByteIota 2026](https://byteiota.com/modular-monolith-42-ditch-microservices-in-2026/)
+12. **Enumerate-before-Act (skill-design-guide §5.5 대응)** — 가이드 제공 전에 해당 코드/설명에서 **관련 원칙 위반 후보를 전부 나열** 한 뒤 한 번에 제시하라. "하나 고치면 다음에 또 지적"의 round-trip 을 차단한다 (/insights 마찰점 #1). 예: auth 코드를 보면 Implicit grant / PKCE 미사용 / JWT localStorage 저장 / CORS wildcard 를 한 번에 모두 나열하고 사용자 승인을 기다린다.
+13. **3-Step Process (Phase 5 flutter-error/flutter-hooks parity)** — 가이드형 스킬은 반드시 탐색(코드/설명 맥락 파악) → 진단(원칙 위반 rule-by-rule 열거) → 처방(우선순위 + 트레이드오프 + 출처) 3단계를 **순서 고정**으로 따른다. 맥락 없이 바로 처방을 내지 말 것.
 
-# Process
+# Process (3-Step · 탐색 → 진단 → 처방)
 
-## Step 1: 맥락 파악
+## Step 1: 탐색 — 맥락 파악
 
 사용자가 제공한 코드/설명에서 관련 백엔드 카테고리를 식별한다:
 
@@ -53,11 +55,11 @@ user-invocable: true
 | type-safe-api | tRPC, Effect-TS, Hono RPC, 타입 안전 |
 | edge-db | D1, Durable Objects, Neon, Turso, TiDB, 서버리스 DB |
 
-## Step 2: 원칙 참조
+## Step 2: 진단 — 원칙 위반 Rule-by-Rule 열거
 
-references/principle-index.md에서 해당 카테고리의 원칙 문서 경로를 찾아 읽는다.
+references/principle-index.md 에서 해당 카테고리의 원칙 문서 경로를 찾아 읽고, 사용자 코드/설명에 적용되는 원칙 위반 후보를 **개별 row 단위로 모두 열거** 한다 (Gotcha 12 Enumerate-before-Act). 카테고리 단위 묶음 평가 금지.
 
-## Step 3: 가이드 제시
+## Step 3: 처방 — 가이드 제시 (우선순위 · 트레이드오프 · 출처)
 
 각 피드백 항목은 반드시 이 포맷을 따른다:
 
