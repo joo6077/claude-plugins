@@ -1,20 +1,16 @@
-# 카이젠 Phase별 연속 Regression 실패 카운터
-# 오케스트레이터가 Phase 완료 시 업데이트한다.
-# 성공 시 해당 Phase 카운터 0으로 리셋.
-# 연속 2회 실패 시 해당 Phase 일시 중단 + 사용자 알림.
-
-phase_1: 0  # reset on pass (2026-04-12)
-phase_2: 0  # reset on pass (2026-04-12)
-phase_3: 0  # reset on pass (2026-04-12)
-phase_4: 0  # reset on pass (2026-04-12)
-phase_5: 0  # reset on pass (2026-04-12)
-phase_6: 0  # reset on pass (2026-04-12)
-phase_7: 0  # reset on pass (2026-04-12)
-phase_8: 0  # reset on pass (2026-04-12)
-phase_9: 0  # reset on pass (2026-04-12)
-phase_10: 0  # reset on pass (2026-04-12)
-last_updated: "2026-04-12"
-last_cycle: "kaizen/2026-04-11-research"
-notes: |
-  2026-04-11 research-mode rerun: Phase 1~10 전체 APPROVE, Final cross-phase 10/10 APPROVE.
-  Phase 9 만 iter1 REJECT (H-01 rust-init/rust-feature domain event+outbox 누락, H-03 rust-api Composition Root 누락) → iter2 수정 후 APPROVE. 해당 Phase 카운터는 APPROVE 로 0 으로 리셋.
+# Kaizen Phase failure counter
+# Regression PASS → reset to 0
+# Regression FAIL → +1; if >= 2, pause phase + escalate
+last_updated: "2026-04-24"
+phases:
+  phase_1: 0  # design-guide (APPROVE iter1)
+  phase_2: 0  # contract-kaizen (APPROVE iter1)
+  phase_3: 0  # evaluator-kaizen (APPROVE iter1)
+  phase_4: 0  # harness-kaizen (APPROVE iter1)
+  phase_5: 0  # flutter-toolkit (APPROVE iter1)
+  phase_6: 0  # design-kit (APPROVE iter1, 5 REJECT 전수 해소)
+  phase_7: 0  # backend-kit (APPROVE iter1, 5 REJECT 전수 해소)
+  phase_8: 0  # infra-kit (APPROVE iter1, 5 REJECT 전수 해소)
+  phase_9: 0  # rust-kit (APPROVE iter1, 4 REJECT 전수 해소)
+  phase_10: 0  # react-kit (APPROVE iter1, 4 REJECT 전수 해소, Library Policy 보존)
+  phase_11: 0  # planning-kit (APPROVE iter1, 예방적 감사)

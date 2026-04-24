@@ -3,6 +3,52 @@ title: Kaizen Changelog
 version: 1.1.0
 last_updated: 2026-04-12
 ---
+## [2026-04-24] — kaizen cycle (Phase 1~11)
+
+### 요약
+
+11-Phase 카이젠 전 사이클 완료. 30일치 `/insights` 리포트 + 138 evaluator 피드백 + 1798 reflections + 5개 외부 프로젝트 QA 데이터를 기반으로 전수 개선.
+
+### Phase별 변경
+
+- **Phase 1 (skill-design-guide v1.2.0, agent-design-guide v1.2.0)**: Rule-by-Rule Audit, Substring containment 트리거, Enumerate-before-Act, Code Examples 품질, Sibling Consistency, Long-Running Skills 체크포인트, Cross-Surface Parity Checklist, Binary Decidability Pre-Check, Unverifiable 3항 (총 11개 신규 원칙)
+- **Phase 2 (contract-design-guide v3, sprint-contract, contract-schema v3)**: Scope Range 인라인 명시, Verification Method 3단계 fallback, Sibling enumerated 검증, `[미검증]` 마커 정책
+- **Phase 3 (qa-evaluation-guide, qa-evaluator)**: Binary Decidability Pre-Check (Step 1.5), Rule-by-Rule Audit, `[미검증]` 2건 자동 REJECT, Sibling Enumerated Verification, L3 Coverage Honesty, User-Value/Business-Intent 관점
+- **Phase 4 (harness 6 support skills)**: create-skill/create-agent/init/*-kaizen에 Phase 1~3 원칙 전수 주입
+- **Phase 5 (flutter-toolkit 18 skills)**: Sibling Consistency (widget/screen/feature), Stack vs Column 의사결정 트리, Riverpod 3.0.2·Freezed 3·go_router 17.2.2 Context7 출처 반영
+- **Phase 6 (design-kit 8 skills + reviewer)**: 5 REJECT 해소 (자동 로드 Step 0 독립, modified 예외, HTML 산출물 명시), CONDITIONAL APPROVE 판정
+- **Phase 7 (backend-kit 4 skills + reviewer)**: 5 REJECT 해소 (README/evals/Step 3/References), ER-01 run-evals exit 2, Outbox/CB/OAuth 2.1 sibling
+- **Phase 8 (infra-kit 4 skills + reviewer)**: 5 REJECT 해소, Kubernetes PSA·Terraform 1.10+·OTel Rule-by-Rule 표
+- **Phase 9 (rust-kit 17 skills + reviewer)**: 4 REJECT 해소 (PgPool→trait DI, Composition Root, 리서치 수 통일), Sibling rust↔backend 3-pair parity
+- **Phase 10 (react-kit 21 skills + 3 agents)**: 4 REJECT 해소 (TODO 템플릿 정책, Zustand/Query/Hook Form 3-way 상태 분리, Trigger substring 제거), Library Policy 원칙 보존
+- **Phase 11 (planning-kit 10 skills + reviewer)**: Phase 1~10 누적 원칙 흡수 (예방적 감사), 12-카테고리 통일, 4-way verdict + CONDITIONAL + NEEDS_VERIFICATION
+
+### 버전 업데이트
+
+| 플러그인 | 이전 → 이후 |
+|---------|-------------|
+| harness | 0.3.6 → 0.4.0 (minor — guides v1.2.0 + schema v3) |
+| flutter-toolkit | 0.5.1 → 0.5.2 |
+| design-kit | 0.2.1 → 0.2.2 |
+| backend-kit | 0.1.1 → 0.1.2 |
+| infra-kit | 0.1.1 → 0.1.2 |
+| rust-kit | 0.1.1 → 0.1.2 |
+| react-kit | 0.1.1 → 0.1.2 |
+| planning-kit | 0.2.0 → 0.3.0 (minor — 12-category + 4-way verdict) |
+
+### 메트릭
+
+- 전체 REJECT 이력 해소: 22건 (design-kit 5 + backend-kit 5 + infra-kit 5 + rust-kit 4 + react-kit 4 + harness 다수)
+- 각 Phase QA verdict: APPROVE (11/11)
+- validate-plugin.py: 9/9 OK
+- docs-site 재생성: 5 HTML (harness guides + contract-schema v3)
+
+### Meta-issues (Step 0.5 audit log 기준)
+
+이전 사이클(2026-04-11) meta-issues 3건 모두 이번 사이클에서 재발 없음:
+- ✅ docs-site 재생성 Step 11.5 실행됨
+- ✅ per-kit research-log 필요 시 생성 (해당 없음)
+- ✅ flutter-changelog 갱신 (해당 없음, Phase 5 변경만)
 
 # Kaizen Changelog
 
