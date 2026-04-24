@@ -45,6 +45,10 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - 조건에 한국어 + 영어가 혼용되는 키워드 (예: "Layout shift" vs "레이아웃 shift") 가 있으면 **병기하거나 한쪽으로 통일 선언** 하라. 표현 변형은 키워드 매칭·의미 해석을 엇갈리게 만든다
 - 경계값 조건 (`>= N`, `<= N`, `== N`) 작성 시 **측정 대상 + 측정 방법(명령어/도구)**을 인라인으로 명시하라. "1500줄 이상이다" 만으로는 wc -l / grep -c / 에디터 줄 수 중 무엇인지 불명확하여 근소한 차이에서 판정이 엇갈린다
 - 포맷 일관성을 요구하는 조건은 **적용 수준(file-level / section-level / field-level)**을 명시하라. "일관된 포맷" 단독 사용 금지. 핵심 필드(컬럼명 등)까지 열거하면 가장 정확하다
+- **범위어 (주요 / 모든 / 대부분 / 핵심) 가 등장하는 조건은 반드시 인라인 enumerate 하라.** "주요 interactive element" ✗ → "버튼·카드·입력 (badge/decoration 제외)" ✓. contract-design-guide §스코프 범위 인라인 명시 참조 (SK-02 재발 방지)
+- **검증 수단이 없는 조건은 작성하지 마라.** 조건마다 "어떤 명령/도구/관찰로 PASS/FAIL 판정하는지" 를 인라인으로 적어라 (예: "측정: `wc -l`", "측정: MCP Figma read-back"). 외부 도구 의존 시 3 단계 fallback 을 명시 — 기본 / fallback / `[미검증]` 수용 임계 (1 건까지)
+- **sibling 스킬 공통 원칙은 반드시 `[exact, enumerated]` 또는 `[structural, enumerated]` aggregation mode 로 작성하라.** 대상 스킬을 숫자로 명시 + 이름 전부 열거. "rust-api 에 적용" ✗ → "rust-init, rust-feature, rust-service, rust-api 4 스킬 모두에 적용" ✓ (rust-kit H-01/H-03 재발 방지)
+- **조건의 FAIL 상태를 1 문장으로 기술 가능해야 한다.** FAIL 이미지가 떠오르지 않으면 그 조건은 모호하므로 재작성하라. 이는 Binary Decidability Pre-Check 사전 점검이다 (contract-design-guide §계약 작성자 의무 참조)
 
 ## 설정 로드
 
@@ -83,6 +87,44 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - 어떤 feature인지 (신규 vs 기존 확장)
 - 영향 범위 (레이어, 파일 수)
 - 복잡도 판단 (단순/중간/복잡)
+
+### 1.5. 트리거 키워드 중복 검사 (스킬/에이전트 생성 계약 시)
+
+계약이 **새 스킬 / 새 에이전트 생성** 을 요구하거나 description 변경을 수반하면,
+**sibling description 과의 트리거 키워드 중복** 을 조건으로 삽입하기 전 실제로
+검사해야 한다. set intersection 뿐 아니라 **substring containment** 까지 둘 다
+확인한다.
+
+**검사 절차:**
+
+1. 대상 플러그인의 description 을 Grep 으로 추출한다:
+   ```bash
+   rg -n "^description:" <plugin>/skills/*/SKILL.md <plugin>/agents/*.md 2>/dev/null
+   ```
+2. 각 description 에서 트리거 키워드 (`"..."` 로 묶인 구문, 또는 콤마 분리 구문) 를
+   정규식으로 파싱하여 `{skill_id: [keyword, ...]}` 맵을 만든다
+3. **Set intersection 검사**: 모든 스킬 쌍 (i, j) 에 대해 `keywords[i] ∩ keywords[j]`
+   가 공집합인지 확인 — 완전 일치 중복
+4. **Substring containment 검사**: 모든 키워드 쌍 (k1, k2) 에 대해 `k1 != k2` 이면서
+   `k1 ⊂ k2` (또는 k2 ⊂ k1) 인 경우가 없는지 확인 — 부분문자열 중복
+5. 두 검사 모두 0 건 확인 후 계약 조건에 "substring containment 포함 배타성" 을
+   요구하는 문구로 작성한다
+
+**실패 사례 (RE-02 / SK-05, react-kit 2026-04)**:
+- "API 연동" (react-api) ⊂ "API 연동 화면" (react-feature) — substring 중복, set
+  intersection 만 검사하면 미탐지
+- "wasm-pack 빌드" (react-run) == "wasm-pack 빌드" (react-wasm) — set intersection
+  으로 탐지 가능하지만 이전 사이클에서 누락되어 REJECT
+
+**계약 조건 예시:**
+
+```text
+- [ ] RE-05: <plugin> 내 모든 스킬/에이전트 description 의 트리거 키워드가
+      (a) set intersection 공집합이고 (b) 어느 키워드도 다른 키워드의 부분문자열이
+      아니다 [exact, enumerated]
+      (측정: `rg -n "^description:" ...` 후 Python/bash 로 set intersection +
+      substring pair 0 건 확인)
+```
 
 ### 2. 완료 조건 생성
 
