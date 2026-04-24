@@ -33,6 +33,10 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 - **피드백 파싱 시 diagnosis vs suggestion 혼동 금지** — feedback-schema.yaml에서 `diagnosis`는 "무엇이 잘못됐는가"(현상 기술), `suggestion`은 "어떻게 고칠 것인가"(처방). 두 필드를 뒤바꿔 해석하면 개선 방향이 정반대로 왜곡된다. 파싱 후 반드시 "이 문장은 현상인가 처방인가"를 구분해라.
 - **평가 루브릭 변경 시 기존 계약과의 호환성 검증 필수** — 루브릭에 새 평가 축을 추가하면 과거 sprint-contract에는 해당 축의 완료 조건이 없어 자동 FAIL이 된다. 새 축은 `optional: true` 또는 grace period를 두고, 다음 contract-kaizen에서 contract-schema에도 반영되었는지 확인해라.
 - **개선안의 severity 편향 방지** — evaluator가 REJECT threshold를 낮추는 방향으로만 개선하면 "모든 구현이 APPROVE"가 되어 QA 의미가 사라진다. 개선안 적용 전후로 최근 10건의 판정 분포(APPROVE/REJECT 비율)를 비교하고, APPROVE 비율이 90%를 초과하면 threshold 완화가 아닌 다른 축 개선을 우선해라.
+- **Cross-Surface Parity 전파 확인** — qa-evaluation-guide 신규 원칙(Binary Decidability Pre-Check / `[미검증]` 프로토콜 / Sibling Enumerated / L3 Coverage Honesty) 을 수정할 때 skill-design-guide §11 · agent-design-guide §12 · contract-design-guide §Cross-Surface Parity 에 대응 parity item 이 존재하는지 `grep -n "Parity Item" harness/docs/guides/*.md` 로 확인하라. 누락 surface 는 관련 Phase(1 또는 2)로 DEFERRED.
+- **L3 Coverage Honesty 회귀 체크** — 최근 10건 글로벌 피드백(evaluator/ YAML)에서 `[샘플링-N/전체-M]` 태그가 명시된 비율을 측정해라. 30% 초과가 태그 **누락** 상태면(= 전수 검증 주장했는데 실제로는 샘플링) L3 Coverage Honesty 원칙 강화를 이번 사이클 최우선 개선 대상으로 승격. QA 검증 증거 인플레이션을 조기 차단하기 위함 (qa-evaluation-guide §L3 Coverage Honesty 2026-04 추가).
+- **`/insights` 3대 마찰점 반영 체크리스트** — 카이젠 개선안 draft 시 `.claude/kaizen-input/insights-report.md §Friction Points` 를 대조하여 (1) Proactive quality gaps (Rule-by-Rule Audit 강화), (2) Wrong approach (enumerate-before-act 검증 단계 추가), (3) Session truncation (평가 체크포인트 분할) 중 해당 항목을 improvements 목록에 mapping 해라. 해당 없으면 "N/A — 예방적 개선" 명시.
+- **평가자 자기순환 방지** — qa-evaluator.md 를 개선하는 Phase 에서 DRAFT 평가는 반드시 **현재(구) 버전** evaluator 로 수행한다. 개선된 버전으로 자기 자신을 QA 하면 self-preference bias (arxiv 2410.21819) 발생. 기존 Gotcha 재강조.
 
 ## 개선 대상
 

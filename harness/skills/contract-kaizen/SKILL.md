@@ -33,6 +33,11 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 - 기존 Gotchas 항목을 삭제하거나 재작성하지 마라. 실전에서 축적된 항목이므로 append-only로 추가만 허용된다.
 - Gotchas 추가 시 "~할 수 있다" 형태의 추측이 아니라 실제 REJECT 사례 또는 피드백에서 나온 실패만 추가하라.
 - contract-schema.md에 새 필드를 추가할 때 기존 계약 파일(.harness/history/)과의 호환성을 확인하라. 필수 필드 추가는 기존 계약 파싱을 깨뜨린다.
+- **Cross-Surface Parity 전파 누락 금지** — contract-design-guide 에 신규 원칙(Binary Decidability / Scope Range / Verification Method / Sibling Consistency 등)을 추가하면 skill-design-guide §11 · agent-design-guide §12 · qa-evaluation-guide §Cross-Surface Parity 에 동일 parity item 이 존재하는지 `grep -n "Parity Item" harness/docs/guides/*.md` 로 확인해라. 누락된 surface 가 있으면 해당 Phase(1 또는 3)에 DEFERRED 주석으로 기록한다. 전파하지 않으면 PH-01 / SK-13 유형 cascade REJECT 재발.
+- **`/insights` 3대 마찰점 반영 체크리스트** — 카이젠 개선안 draft 시 반드시 아래 3개 마찰점(`.claude/kaizen-input/insights-report.md` §Friction Points)을 Step 5 GAP 분석에서 대조해라:
+  - (1) **Proactive quality gaps**: 개선안이 "Claude가 규칙 위반을 놓치는" 패턴을 해소하는가? Enumerate-before-Act 패턴 포함 여부 확인.
+  - (2) **Wrong approach / false dichotomies**: 계약 문구가 Figma/코드/기존 구조에 대한 사전 검증을 요구하는가? "token 이름 확인 후 편집" 같은 enumerate 지시 포함 여부.
+  - (3) **Session truncation**: 장시간 카이젠 세션은 Step별 checkpoint commit + SESSION_LOG 유지 규칙을 따랐는가? (skill-design-guide §9)
 
 ## 개선 대상
 
@@ -96,7 +101,9 @@ arXiv preprint은 `[preprint]`, 비공식 블로그는 `[blog]`, 6개월 이상�
    - 피드백에서 반복되지만 Gotchas에 없는 패턴
 2. **예방적 분석**: 리서치 anti-pattern을 현재 프롬프트에 대조
    - 아직 발생하지 않았지만 발생할 수 있는 취약점
-3. 개선점 목록 작성 (가이드 개선 / 스킬 프롬프트 개선 / Gotchas 추가 / 스키마 변경)
+3. **Cross-Surface Parity 확인**: 이번 개선안이 contract-design-guide 의 원칙을 변경하거나 추가한다면 skill-design-guide §11 · agent-design-guide §12 · qa-evaluation-guide §Cross-Surface Parity 에 동일 parity item 이 존재하는지 `grep -n "Parity Item\|Binary Decidability\|Sibling Consistency\|Scope Range\|Verification Method" harness/docs/guides/*.md` 로 교차 확인. 누락된 surface 는 DEFERRED 주석 + 관련 Phase 로 위임.
+4. **`/insights` 3대 마찰점 대조**: `.claude/kaizen-input/insights-report.md §Friction Points` 를 Read 하고, 이번 개선안이 (1) Proactive quality gaps (2) Wrong approach (3) Session truncation 중 하나라도 해소하는지 mapping 1줄 주석. 해당 없으면 "N/A — 이번 사이클은 리서치 기반 예방 개선" 로 명시.
+5. 개선점 목록 작성 (가이드 개선 / 스킬 프롬프트 개선 / Gotchas 추가 / 스키마 변경)
 
 ### Step 6: Sprint Contract (DRAFT) + 개선안 작성
 
