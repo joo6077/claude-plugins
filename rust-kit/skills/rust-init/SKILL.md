@@ -23,6 +23,8 @@ user-invocable: true
 6. **Composition Root 단일화** — 모듈 조립(DI 와이어링)은 `apps/api/src/main.rs`, `apps/worker/src/main.rs` 한 곳에서만 한다. 모듈끼리 직접 인스턴스를 생성하지 말고 `Arc<dyn Port>` trait object로 주입한다. 출처: fit-pal `server/CLAUDE.md` §아키텍처.
 7. **workspace lints는 SSOT** — 여러 crate에 같은 clippy 설정을 복붙하지 말고 workspace 루트 `[workspace.lints]`에 한 번만 정의하고 member crate에서는 `[lints] workspace = true` 한 줄로 상속받는다 (RFC 3389, Rust 1.74+).
 8. **Domain event + outbox 패턴** — cross-module write 후처리(알림 발송, 감사 로그, 인덱스 동기화)는 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. 트랜잭션 경계 안에서 write + outbox insert를 원자적으로 실행하고 별도 워커가 outbox를 폴링하여 외부 시스템에 전달한다. 초기 프로젝트 스캐폴딩 시 `modules/*/port.rs`에 `DomainEventPublisher` trait + `apps/worker/` outbox relay 스켈레톤을 함께 만들어 두면 이후 feature 추가가 깔끔해진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 4번.
+9. **Enumerate-before-Act (skill-design-guide §5.5)** — 프로젝트 스캐폴딩 전에 사용자에게 (a) 아키텍처 선택지 3 개(workspace_service / modular / flat), (b) 의존성 체크리스트(ORM / OpenAPI / 인증 / i18n / 관측성), (c) 디렉토리 레이아웃 diff 를 먼저 **모두 열거**하고 합의한 뒤에만 파일을 생성한다. 일부만 보여주고 중간에 선택을 바꾸면 migration 비용이 크다.
+10. **Sibling Consistency (skill-design-guide §8.8) — rust-init · rust-feature · rust-service · rust-api** — 4 스킬 모두 "Composition Root 단일화" + "Consumer-Owned Port" + "Domain event + outbox" + "포트에서 인프라 타입 제거" 4 원칙을 동일 문구·동일 출처(fit-pal `server/CLAUDE.md`) 로 유지한다. 한 스킬에서만 수정되면 드리프트가 발생하므로 카이젠 시 Grep 대조 필수. 프로젝트 스캐폴딩 단계에서 이 4 원칙이 기본 가드레일로 `modules/*/port.rs` 스켈레톤에 포함되도록 한다.
 
 # Process
 

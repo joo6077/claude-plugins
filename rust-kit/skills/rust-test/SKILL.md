@@ -25,6 +25,7 @@ user-invocable: true
 - **testcontainers로 실제 인프라 통합 테스트** — `testcontainers 0.27` (2026-03)은 Docker 기반으로 PostgreSQL, Redis, Kafka 등 실제 인스턴스를 테스트 격리 환경에서 구동한다. CI에서 `--test-threads=1`과 조합하라.
 - **cargo-mutants로 테스트 품질 검증** — coverage가 아니라 "테스트가 동작 차이를 감지하는지"를 본다. `--iterate`로 missed mutant 개선 루프를 줄이고, baseline test로 원본 트리가 통과하는지 먼저 검증한다. flaky test가 있으면 의미가 무너진다.
 - **Miri로 unsafe UB 검증** — `cargo +nightly miri test`는 out-of-bounds, use-after-free, data race, aliasing 위반 등을 잡는다. unsafe 코드가 있거나 low-level crate를 만들면 CI에 Miri 레인을 별도로 두되, "Miri 통과 = soundness 보장"은 아님을 인지하라.
+- **Sibling Consistency (skill-design-guide §8.8) — rust-test ↔ backend-test** — backend-test 가 강제하는 3 계층 패턴(단위 / 통합 / 컨트랙트) 과 동일 구조를 유지한다: (1) **단위** = SeaORM `MockDatabase::new(DatabaseBackend::Postgres)` 또는 mockall `#[automock]` (Docker 불필요), (2) **통합** = `#[sqlx::test]` 트랜잭션 격리 또는 `testcontainers` 실제 DB, (3) **컨트랙트** = Pact v4 consumer-driven contract (존재 시). Step 0 에서 스택 감지 (`HAS_SQLX` / `HAS_SEAORM` / `HAS_MOCKALL`) 를 독립 단계로 분리하여 테스트 패턴 자동 선택. 외부 실환경(production DB) 강제 금지 — CI 에서 재현 불가.
 
 # Rust 테스트 코드 생성
 

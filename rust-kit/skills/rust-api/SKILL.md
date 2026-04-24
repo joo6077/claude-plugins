@@ -20,6 +20,9 @@ user-invocable: true
 - **라우트 네이밍은 복수형 명사 + RESTful 동사 매핑** — `/user`가 아니라 `/users`. 동작은 HTTP method로 표현하고 URL에 동사를 넣지 마라(`/users/delete` 금지 → `DELETE /users/{id}`). 비-CRUD 동작만 예외적으로 `/users/{id}/activate` 같은 동사 경로를 허용한다.
 - **응답 타입은 항상 `Json<T>`로 래핑** — 핸들러가 raw `String`이나 `impl IntoResponse`를 반환하면 OpenAPI(utoipa) 스키마 생성이 불가능하다. `Json<ResponseDto>`를 반환하고 `#[utoipa::path(..., responses(...))]`로 문서화해라.
 - **Extractor 순서 의존성** — Axum에서 body를 소비하는 extractor(`Json`, `Form`, `Multipart`)는 반드시 마지막 인자여야 한다. `Path`, `Query`, `State`는 body를 소비하지 않으므로 앞에 둔다. 순서가 틀리면 런타임에 "Missing request body" 에러가 발생한다.
+- **핸들러 state 에 인프라 타입 직접 주입 금지 (SK-03 회귀 방지)** — `State<PgPool>` · `State<sqlx::PgPool>` · `State<sea_orm::DatabaseConnection>` 같이 핸들러 시그니처에 DB pool/connection 구체 타입을 직접 받으면 Composition Root 단일화가 깨지고 mock 주입이 불가능해진다. 항상 `State<Arc<dyn UserService>>` trait object 형태만 허용하고, 인프라 타입(`PgPool` 등)은 `infra/adapters/*_impl.rs` 어댑터 레이어에만 등장해야 한다. Grep 체크: `grep -n "State<PgPool>\|State<sqlx::\|State(pool)" src/api/handlers/` 결과 0 건이어야 한다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 3번 + Axum 0.8 docs `with_state` 패턴(https://docs.rs/axum/latest/axum/struct.Router.html#method.with_state).
+- **Enumerate-before-Act (skill-design-guide §5.5)** — 엔드포인트를 추가하기 전, 기존 핸들러 파일을 `Grep`/`Glob` 으로 전수 스캔하여 (a) 중복 라우트, (b) 유사 네이밍 충돌, (c) 기존 `ApiDoc` 등록 경로를 먼저 열거한다. 열거 결과를 간단 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 선(先) 작성 후(後) 중복 발견은 롤백 비용이 크다.
+- **Sibling Consistency (skill-design-guide §8.8)** — `rust-api` 는 `rust-service` · `rust-model` · `rust-middleware` · `rust-auth` 와 함께 Hexagonal 레이어 세트를 구성한다. 핸들러에서 "포트에서 인프라 타입 제거" 원칙을 강조할 때 sibling 스킬의 동일 원칙 문구 (rust-service Gotcha "포트에서 인프라 타입 제거") 와 네이밍·출처를 일치시킨다. 드리프트가 발생하면 동일 표현으로 복제.
 
 # Axum 핸들러/라우터 생성
 
