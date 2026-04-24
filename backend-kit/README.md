@@ -47,3 +47,14 @@
 
 - `/backend-research` — 외부 소스 크롤링으로 docs/backend/ 문서 갱신
 - `/backend-kaizen` — 리서치 문서 기준으로 스킬 품질 점진 개선
+
+## 검증
+
+- `python3 scripts/run-evals.py backend-kit` — 7 스킬 assertion 전수 검증 (exit 0 = PASS, 1 = FAIL, 2 = 파싱 오류)
+- `python3 scripts/validate-plugin.py backend-kit` — 7 카테고리 구조 감사 (refs/placeholders/code-fence 등)
+
+## Phase 7 kaizen (2026-04-24)
+
+- Phase 1~6 신규 원칙 전수 반영 (Binary Decidability · Rule-by-Rule Audit · Enumerate-before-Act · Cross-Surface Parity · CONDITIONAL APPROVE · L3 Coverage Honesty · 미검증 마커)
+- 리서치 반영: OAuth 2.1 draft-15 · Transactional Outbox · Pact v4 + Testcontainers
+- REJECT reason 해소: AR-03 · AR-04 · SK-07 · SK-13 · ER-01

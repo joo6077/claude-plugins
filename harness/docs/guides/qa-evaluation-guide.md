@@ -5,7 +5,7 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-04-12 (Phase 3 kaizen)** — 수량/경계값 조건 검증 프로토콜 추가 (측정→비교→보고 3단계, 카운팅 패턴 주의사항). 이전: LLM-as-judge 2026 최신 연구 반영 + contract-schema v2 소비 규칙.
+> **최근 갱신: 2026-04-24 (Phase 3 kaizen · v3 흡수)** — Phase 1/2 Cross-Surface Parity 흡수. Binary Decidability Pre-Check, Rule-by-Rule Audit, `[미검증]` 마커 평가 프로토콜 (1/2건 임계), Sibling Enumerated 전수 Grep 절차, L3 Coverage Honesty 규칙, User-Value/Business-Intent 관점을 평가자 프로토콜로 흡수. 이전: 2026-04-12 수량/경계값 조건 검증 프로토콜 추가 · LLM-as-judge 2026 최신 연구 반영 + contract-schema v2 소비 규칙.
 
 ---
 
@@ -48,6 +48,137 @@ Independent Verification & Validation (IV&V) 원칙:
 - 계약과 산출물만으로 판정한다
 - "커밋 메시지에 완료라고 썼다" ≠ 증거
 - "TODO: 추후 수정" ≠ 현재 PASS
+
+---
+
+## Binary Decidability Pre-Check (평가 시작 전 필수)
+
+> **대응:** `agent-design-guide.md §3.5` · `contract-design-guide.md §Binary Decidability` · `skill-design-guide.md §3.5`
+>
+> **배경:** Phase 1/2 에서 계약 작성자에게 "이진 판정 가능한 조건을 작성하라" 를 강제했지만, 평가자 역시 **조건을 검증하기 전에** 그 조건이 실제로 이진 판정 가능한지 자체 점검해야 한다. 조건이 모호하면 검증 도중 해석이 갈려 오판·재평가 루프가 발생한다 (contract_misinterpret: 7회 진단).
+
+### 원칙
+
+Sprint Contract 의 각 조건에 대해 Step 2 (조건별 정적 검증) 을 시작하기 **전** 에 아래 체크리스트를 전수 실행한다. 모호 조건은 `[미검증]` 또는 REJECT 사유로 명시하고, 평가자가 해석 여지를 임의로 메우지 않는다.
+
+### 사전 체크리스트 (평가 시작 전)
+
+각 조건에 대해 아래 항목을 모두 점검한다:
+
+1. **FAIL 상태 1 문장 테스트** — "이 조건이 FAIL 인 상태를 1 문장으로 기술 가능한가?" 자문. 기술 불가면 조건 모호. 예: "로그인이 잘 동작한다" → FAIL 상태를 1 문장으로 쓸 수 없음 → 모호. 반면 "로그인 실패 시 HTTP 401 반환" → FAIL: "401 이 아닌 응답이 반환됨" 명확
+2. **구체성 태그 확인** — 조건 끝에 `[exact]` / `[structural]` / `[goal]` 태그 존재 여부. 미명시면 `[structural]` 로 간주하되 REJECT 사유에 "태그 누락" 플래그
+3. **범위어 enumerate 확인** — 조건에 "주요 / 모든 / 대부분 / 핵심 / 일부" 같은 **범위어**가 있으면 포함/제외 목록이 인라인 enumerate 되어 있는지 확인한다. 없으면 평가자가 범위를 자체 해석하지 말고 REJECT 사유에 "범위 미명시" 명시 (SK-02 재발 방지)
+4. **검증 수단 존재 확인** — 조건에 "측정: ...", 도구명, 관찰 대상 중 하나가 명시되었는가? 없으면 `[structural]` 기본 fallback 적용하되 REJECT 사유에 "검증 수단 미명시" 명시
+5. **`[exact, enumerated]` / `[structural, enumerated]` 대상 목록 확인** — 태그가 enumerated 이면 나열된 대상 N 개가 계약에 실제로 쓰여 있는지 확인. N 이 애매하면 REJECT 사유에 "enumerated 대상 수 불분명"
+
+### 모호 조건 발견 시 대응
+
+- **평가자가 해석을 메우지 않는다.** Phase 1/2 의 one-time rubric refinement 패턴 ([arxiv 2511.10865](https://arxiv.org/abs/2511.10865)) 적용: 해석 차이가 있으면 평가는 문자 그대로 진행 (엄격 쪽), Sprint Feedback 에 계약 수정 권장 명시
+- 위 5 개 항목 중 하나라도 미충족이면 해당 조건은 **FAIL 쪽으로 기운 엄격 해석** + Sprint Feedback 의 `contract_ambiguity_notes` 에 "조건 ID — 모호 유형 — 제안 구체화" 기록
+
+### 실패 사례
+
+- **PH-01 (design-kit, 2026-04)**: 평가자가 모호 조건을 자체 해석 → 해석 충돌 → REJECT 반복
+- **SK-02 (harness, 2026-04)**: "주요 interactive element" 범위어가 enumerate 되지 않아 평가자가 badge/decoration 포함 여부를 자체 판단 → 구현과 해석 불일치
+
+---
+
+## Rule-by-Rule Audit Before Completion (판정 완료 전 필수)
+
+> **대응:** `skill-design-guide.md §3.6` · `/insights` 마찰점 #1 (Proactive quality gaps)
+>
+> **배경:** 평가자가 조건 일부만 검증하고 "나머지는 비슷하니까 PASS" 로 뭉뚱그리는 패턴. /insights 리포트에서 "Claude consistently fails to spot obvious improvements that your rules already cover" 로 지적됨. 부분 점검의 유혹을 구조적으로 차단하기 위해 전수 점검 단계를 명문화한다.
+
+### 원칙
+
+Step 4 (판정) 직전에 **모든 계약 조건을 1 회 더 전수 스캔** 한다. 평가 도중 "자명하다"고 넘긴 조건이라도 판정 직전 체크리스트 형식으로 되돌아온다.
+
+### 전수 점검 절차
+
+1. Sprint Contract 의 모든 조건 ID 를 번호순으로 나열한다
+2. 각 조건 ID 에 대해:
+   - 증거(파일:라인) 가 기록되어 있는가?
+   - 검증 깊이 (L1/L2/L3) 가 명시되어 있는가?
+   - 구체성 태그 (`[exact]` / `[structural]` / `[goal]`) 에 맞는 검증 방식을 적용했는가?
+   - enumerated 조건이면 N 개 대상 전부 개별 증거 수집했는가?
+3. 하나라도 결여되어 있으면 해당 조건을 재검증한다. "비슷한 조건이 PASS 했으니 이것도 PASS" 는 금지
+
+### 왜 필요한가 (insights 마찰점 #1)
+
+> "Batch-identify refactor opportunities up front. Before editing any file in a refactoring sweep, have Claude enumerate every applicable rule violation first." — /insights 추천 패턴 #1
+
+평가 역시 같다. 조건별 "생각나는 대로" 점검하면 커버리지 구멍이 생긴다. 판정 직전 **rule-by-rule** 로 1 회 더 돌리면 커버리지 공백이 자동으로 드러난다.
+
+---
+
+## `[미검증]` 마커 평가 프로토콜
+
+> **대응:** `contract-design-guide.md §미검증 마커` · `contract-schema.md v3 §SCH-02` · `agent-design-guide.md §10`
+>
+> **배경:** mcp_server=null, 런타임 미실행, 외부 도구 미가용 등으로 정적 검증이 불가능한 조건의 **일관된 처리** 를 위해 도입. fit-pal LG-02/DG-04 · fit-pal-flutter 2026-04-17 REJECT 의 근본 원인이었다.
+
+### 마커 부착 절차
+
+외부 도구·MCP·런타임 등으로 검증 불가 시 평가자는 아래 순서를 따른다:
+
+1. **단계 1 (기본 검증)** 시도 — 계약에 기술된 1차 검증 도구 실행
+2. 단계 1 실패 시 **단계 2 (Fallback 정적 검증)** 시도 — 계약에 명시된 대체 정적 검증 수행 (예: 파일 Grep, CSS 변수 대조, log 파일 tail)
+3. 단계 2 도 실패 시 **단계 3 (`[미검증]` 마커)** 부착 — 근거 블록에 "검증 불가 사유 한 줄 + 사용한 단계 기록"
+4. 계약에 fallback 기술이 없으면 **계약 작성자가 누락** 한 것이므로 REJECT 사유에 "fallback 미기술" 플래그
+
+### 카운팅 및 자동 REJECT 임계 (v3 규정)
+
+`[미검증]` 건수는 평가 종료 시 집계하고 아래 규칙으로 판정:
+
+| 미검증 건수 | 평가 결과 |
+|------------|----------|
+| 0 건 | 통상 판정 |
+| 1 건 | PASS 허용 (단, Sprint Feedback 에 "미검증 1 건" 경고 명시) |
+| 2 건 이상 | **자동 REJECT** — 개별 조건은 FAIL 이 없어도 전체 verdict 는 REJECT |
+
+### 집계 의무
+
+Step 4 판정 시 평가자는 Sprint Feedback 에 다음을 기록:
+
+```text
+## Unverifiable Summary
+- 총 미검증 건수: N
+- 건 목록: [조건 ID, 사유, 시도한 fallback 단계]
+- Verdict 영향: {PASS 허용 | 자동 REJECT}
+```
+
+### 실패 사례 (이 프로토콜 없이 발생)
+
+- **fit-pal-flutter 2026-04-17**: 미검증 3 건 (LG-02, DG-03, DG-04) 발생했으나 평가자가 카운팅 규칙을 명시하지 않아 partial PASS 처리 → 추후 REJECT 재판정
+- **fit-pal 2026-04-21**: UI-04/LG-04 미검증에도 3 단계 fallback 미수행 → 단계 2 대체 정적 검증 가능했음에도 건너뛰고 바로 [미검증]
+
+---
+
+## Sibling Enumerated Verification (전수 Grep 절차)
+
+> **대응:** `contract-design-guide.md §Sibling Consistency` · `contract-schema.md §Sibling Consistency enumerated`
+>
+> **배경:** 플러그인 내 여러 스킬에 공통 원칙을 요구하는 조건 (`[exact, enumerated]` / `[structural, enumerated]`) 에서 평가자가 1~2 개 샘플만 확인하고 PASS 처리하는 패턴 방지. rust-kit H-01/H-03 REJECT 의 직접 원인이었다.
+
+### 절차
+
+`[*, enumerated]` 태그 발견 시:
+
+1. **대상 목록 파싱** — 조건 문장에서 나열된 sibling 스킬/파일 이름을 모두 추출. N 개 정확히 센다
+2. **N 개 전수 Grep** — 각 대상에 대해 개별 Grep 수행. 한 대상당 한 줄 증거(`파일:라인 매칭 문자열`) 기록
+3. **누락 대상명 나열** — 하나라도 Grep 증거가 없으면 해당 조건은 **FAIL**. 누락된 대상명을 모두 나열 (샘플 한두 개만 기재 금지)
+4. **카운트 보고** — Sprint Feedback 에 "N 개 중 M 개 충족 (누락: X, Y, Z)" 형태로 집계
+
+### PASS/FAIL 기준
+
+- 모든 N 개 대상에 증거 확보 시 PASS
+- 한 개라도 누락 시 FAIL + 누락 대상 전체 명시
+- 샘플 1~2 개만 확인하고 "나머지도 비슷할 것" 이라는 PASS 금지
+
+### 실패 사례
+
+- **rust-kit H-01/H-03 (2026-04)**: "domain event + outbox 원칙이 rust-init, rust-feature, rust-service, rust-api 4 개 스킬 Gotchas 에 있다" 조건에서 rust-service 만 확인하고 PASS → 실제로 rust-init/rust-feature/rust-api 3 개 누락 → REJECT
+- **react-kit KZ-04 (2026-04)**: References 에 `docs/react/kit-design/` 7 개 그룹 문서 (g1~g6, g5b) 개별 명시 요구였는데 포괄 경로로 처리 → REJECT
 
 ---
 
@@ -162,6 +293,27 @@ Independent Verification & Validation (IV&V) 원칙:
 
 실제 실패 사례: DG-02 REJECT (2026-04-10) — react-run (2 개), react-build (3 개), react-preflight (3 개), react-audit (4 개+), react-reviewer (6 개+) 등 5 개 파일에서 언어 힌트 누락. evaluator 가 1 개 파일만 샘플 확인하고 PASS 처리한 case. 전수 검사로 전환 시 FAIL 로 재판정된 사례다.
 
+### L3 Coverage Honesty — 샘플링 시 미검증 명시 의무
+
+> **배경:** l3_unreached 진단이 13 회 누적. 시간 제약으로 대상이 많을 때 평가자가 샘플링으로 끝내고 전체 PASS 로 뭉뚱그리는 패턴. 부분 검증을 감추면 다음 세션의 평가자가 구멍을 찾지 못한다.
+
+**규칙:**
+
+- L3 전수 검증이 시간 제약으로 불가능하면 **샘플링 대상** 과 **미검증 대상** 을 명시적으로 분리하여 보고한다
+- 샘플링으로 검증한 조건은 `[샘플링-N개/전체-M개]` 태그를 증거에 붙인다
+- 미검증 대상은 `[미검증]` 마커 집계에 합산된다 (상기 카운팅 로직 적용)
+- "20 개 중 2 개만 확인 + 나머지는 비슷하니까 PASS" 는 금지 — 나머지 18 개는 미검증으로 분류
+
+**보고 형식:**
+
+```text
+- [x] AR-01: ... — PASS [L3, 샘플링-3/전체-20]
+  - 근거: rust-api (파일:라인), rust-service (파일:라인), rust-middleware (파일:라인) — 3 개 L3 확인
+  - [미검증-17] rust-init/-feature/-model/-auth 등 17 개 스킬: 시간 제약으로 L3 미도달 → 미검증 카운터 +17
+```
+
+> **실제 사례**: infra-kit 2026-04 — 리서치 문서 20 개 중 2 개만 L3 검증, 18 개는 L1/L2 수준. 평가자가 "시간 제약으로 샘플링" 을 Sprint Feedback 에 명시해 다음 iteration 에서 전수 검증을 추적 가능했다. 명시하지 않았다면 잠재 구멍이 영원히 묻혔을 case.
+
 ### Rubric 기반 분해 (CheckEval 프로토콜)
 
 각 계약 조건을 boolean 서브체크로 분해한다 ([CheckEval](https://arxiv.org/abs/2403.18771) 패턴).
@@ -269,7 +421,7 @@ Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락(DG-02) 조건
 
 ### 다관점 평가 (Perspective-Based Reading)
 
-각 조건을 최소 2개 관점에서 평가한다:
+각 조건을 최소 2개 관점에서 평가한다. 구현자 시점만으로 평가하면 사용자 가치나 비즈니스 의도가 누락된다 (perspective_gap: 5회 diagnosis).
 
 | 관점 | 초점 | 예시 질문 |
 | ------ | ------ | ----------- |
@@ -277,6 +429,10 @@ Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락(DG-02) 조건
 | 엣지 케이스 | 경계 조건에서 올바른가? | "빈 입력, null, 최대 길이에서?" |
 | 성능 | 비효율이나 병목이 있는가? | "N+1 쿼리, 불필요한 리렌더링?" |
 | 보안 | 취약점이 있는가? | "SQL 인젝션, XSS 가능성?" |
+| **User-Value** | 사용자가 이 동작으로 무엇을 얻는가? | "에러 메시지가 사용자에게 실제로 도움이 되는가?", "로딩 상태가 인지 가능한가?" |
+| **Business-Intent** | 계약의 상위 의도에 부합하는가? | "규제 준수·데이터 일관성·SLA 달성 측면에서 의도를 실현하는가?" |
+
+**구현자 관점만으로 평가 금지.** "코드가 동작한다" 만 확인하고 끝내지 마라. 조건이 사용자/비즈니스 의도를 어떻게 실현하는지 한 문장으로 서술 가능해야 한다. 서술 불가면 `[goal]` 조건에서 관점 부족 플래그.
 
 ---
 
@@ -401,5 +557,50 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 
 관련 스키마:
 
-- `harness/references/contract-schema.md` — Sprint Contract v2 스키마 (specificity tag + aggregation mode)
+- `harness/references/contract-schema.md` — Sprint Contract v3 스키마 (specificity tag + aggregation mode + 검증 수단 + `[미검증]` 마커 + sibling enumerated)
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
+
+---
+
+## Cross-Surface Parity Checklist
+
+> **대응:** `skill-design-guide.md §11` · `agent-design-guide.md §12` · `contract-design-guide.md §원칙 전수성`
+>
+> **배경:** Phase 1/2 에서 Cross-Surface Parity 가 설계 가이드 · 계약 가이드 레이어에 고정되었다. Phase 3 는 동일 parity 를 **평가자 레이어** 에 흡수하고, 향후 본 가이드가 개정될 때 상·하위 surface 로의 전파를 자동 체크한다.
+
+### 원칙
+
+qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하는지 자동 체크한다:
+
+- 상위: `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`
+- 동급: `harness/references/contract-schema.md`
+- 하위: `harness/agents/qa-evaluator.md`, `*-kit/agents/*-reviewer.md`
+
+### Parity Table (4 개 parity item)
+
+| # | Parity Item | skill-design-guide | agent-design-guide | contract-design-guide | **qa-evaluation-guide (이 가이드)** |
+|---|-------------|-------------------|-------------------|----------------------|-------------------------------------|
+| 1 | Binary Decidability | §3.5 (계약 모호성 방지) | §3.5 (Pre-Check) | §Binary Decidability | **§Binary Decidability Pre-Check** |
+| 2 | Rule-by-Rule Audit | §3.6 | §10 (reviewer audit) | — (평가 위임) | **§Rule-by-Rule Audit Before Completion** |
+| 3 | Unverifiable / `[미검증]` 정책 | — (스킬 전용 아님) | §10 Unverifiable | §미검증 마커 | **§`[미검증]` 마커 평가 프로토콜** |
+| 4 | Sibling Consistency | §8.8 | §3 (sibling agent) | §Sibling Consistency | **§Sibling Enumerated Verification** |
+
+### 개정 시 체크리스트
+
+qa-evaluation-guide.md 편집 시:
+
+- [ ] 새 평가 원칙을 추가했는가? → 상위 skill/agent/contract 가이드에 원천 원칙이 있는지 Grep 확인
+- [ ] 원칙 네이밍 (섹션명, 용어) 을 변경했는가? → qa-evaluator.md · contract-schema.md 에서 동일 네이밍 사용 중인지 Grep 하여 동기화
+- [ ] 실패 사례를 추가했는가? → 해당 REJECT 가 발생한 프로젝트의 feedback YAML 에 연결 링크 포함
+- [ ] parity table 의 컬럼을 추가/삭제했는가? → 상위 3 개 가이드의 parity table 도 동일하게 갱신
+
+### 실패 사례 (이 원칙 없이 발생)
+
+- **PH-01 (design-kit, 2026-04)**: skill-design-guide §3.5 가 agent-design-guide 와 qa-evaluation-guide 에 전수되지 않아 평가자가 모호 조건을 그대로 평가 → REJECT
+- **SK-13 (backend-kit/infra-kit)**: 상위 가이드 원칙이 하위 스킬 SKILL.md 로 전수되지 않은 meta-gap
+
+### 버전 정보
+
+- **Guide version**: 2026-04-24 (Phase 3 kaizen · v3 흡수)
+- **Parity with**: skill-design-guide v1.2.0, agent-design-guide v1.2.0, contract-design-guide v3 (2026-04-24)
+- **Schema link**: contract-schema.md v3

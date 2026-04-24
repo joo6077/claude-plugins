@@ -19,6 +19,10 @@ user-invocable: true
 - Flutter 3.41에서 테스트 매처 `containsSemantics`가 `isSemantics`로 변경됨 — 테스트 코드에 deprecated 매처가 남아 있으면 지적 대상. `matchesSemantics`(exact)와 구분 필요
 - **Impeller 플랫폼별 상태 체크리스트 (2026-04)** — iOS: 필수 (Skia 전환 불가). Android API 29+: 기본 활성 (Vulkan 없으면 OpenGL 폴백, frame drop 12%→1.5%). macOS: opt-in 플래그 기반 실험적. Web/Windows/Linux: 미지원 (canvaskit/skwasm = Skia). 감사 시 대상 플랫폼에 따라 Impeller 관련 성능 지적을 분기하라 — Web 앱에 Impeller 최적화를 요구하면 오탐 (출처: <https://docs.flutter.dev/perf/impeller>)
 - **Android AGP 9.0 마이그레이션 (pre-stable)** — Flutter 3.44 에서 Android Gradle Plugin 9.0 전환이 본격화. 플러그인 호환성이 완전하지 않으므로 `android.newDsl=false` 같은 임시 플래그가 필요할 수 있다. 감사 시 `build.gradle` 에 AGP 9 관련 설정이 있으면 호환성 경고를 포함하라 (출처: <https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9>)
+- **Binary Decidability Pre-Check (agent §3.5 대응)** — 감사 시작 **전** 체크리스트의 각 항목이 PASS/FAIL 중 하나로 귀결 가능한지 자체 검토. "적절한", "충분한", "최소한" 같은 정성적 수식어가 있으면 파일/라인/임계값을 먼저 구체화하고, 그래도 모호하면 해당 항목은 `[미검증]` 으로 표기하되 **조용한 PASS 금지**. 같은 sprint 에 `[미검증]` 이 2 건 이상이면 verdict 는 REJECT 로 귀결 (harness 전역 관습)
+- **Rule-by-Rule Audit — 완료 선언 전 전수 대조 (skill-design-guide §3.6 대응)** — 감사 리포트 제출 직전, 본 Gotchas + Architecture/State/Widget/Design System/i18n 체크리스트를 다시 한 번 읽고 각 규칙에 대해 "확인했는가 / 근거는 파일:라인 으로 가능한가" 를 1:1 대조한 뒤 보고. "그 외에도 혹시 놓친 규칙이 있는가?" 메타 질문을 스스로 1 회 더 수행 (insights-report #1 Proactive quality gaps 대응). 사용자가 첫 피드백 루프가 되면 안 된다
+- **L3 Honesty — 정적 Grep 만으로 PASS 금지 (qa-evaluation-guide 대응)** — 파일 존재·키워드 포함은 L1/L2. PASS 를 주려면 `Read` 로 실제 내용을 읽거나 `Bash` 로 analyze/test 명령을 실행해 결과를 확인(L3). L3 수행이 불가능한 항목은 `[미검증]` 마커를 리포트에 붙이고 사유(예: "dart test 환경 미구성") 를 기재
+- **감사 범위 Scope Range 선언 (contract-design-guide 대응)** — 리포트 서두에 "감사 대상: <glob 패턴 or 파일 목록>" 을 명시하여 평가자·사용자가 범위를 재해석하지 않도록 한다. `quick` 모드는 `git diff --name-only` 결과, `deep` 모드는 `lib/` 전체 (또는 `$ARGUMENTS` 의 path) 가 기본 Scope Range
 
 Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감지하여 적합한 규칙으로 검사한다.
 

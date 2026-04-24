@@ -1,7 +1,7 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.1.0
-last_updated: 2026-04-11
+version: 1.2.0
+last_updated: 2026-04-24
 ---
 
 # Claude Code 에이전트 설계 가이드
@@ -134,6 +134,44 @@ description: >
 - 명시적 호출이 필요한 에이전트(예: QA) → `use proactively` 생략하고 트리거 키워드만 나열
 
 이 프로젝트의 `qa-evaluator` 는 사용자 명시 호출 및 `/sprint-contract` 완료 후 연계로 호출되므로 "use proactively" 를 생략한다.
+
+### Sibling Agent 트리거 키워드 배타성 (substring 포함)
+
+> **대응:** skill-design-guide §4 "트리거 키워드 중복 방지 원칙"
+
+에이전트도 스킬과 같은 규칙을 따른다 — description 의 트리거 키워드는 **sibling agent 와 set intersection + substring containment 가 모두 공집합** 이어야 한다. "QA 돌려줘" 같은 키워드가 여러 에이전트 description 에 중복되거나, 한 에이전트의 키워드가 다른 에이전트 키워드의 부분문자열이면 Claude 가 어떤 에이전트로 위임할지 예측 불가하다. 플러그인 내 에이전트가 2+ 개이면 편집 시 반드시 `rg -n "description:" agents/*.md` 로 확인 후 저장한다.
+
+---
+
+## 3.5. 계약 모호성 방지 · Binary Decidability Pre-Check (필수 승격 섹션)
+
+> **대응:** skill-design-guide §3.5 "QA 계약과 1:1 매칭되는 이름을 사용하라"
+> **배경 (재발 방지):** 지난 kaizen 사이클에서 이 원칙은 skill-design-guide 에만 존재하고 이 가이드에는 §10 Gotchas 내 1 bullet 으로만 있어 design-kit PH-01 REJECT 가 발생했다. 본 사이클에서 **독립 최상위 섹션** 으로 승격한다.
+
+### 원칙
+
+Reviewer / Evaluator 에이전트는 평가를 시작하기 **전**에 Sprint Contract 의 각 조건이 **이진(PASS/FAIL) 판정 가능한지** 자체 검토해야 한다. 모호한 조건은 평가 중 해석 차이로 REJECT iteration 을 낭비시킨다.
+
+### 수행 절차 (평가 시작 전)
+
+1. **이진 판정 가능성 검사.** 각 조건이 "PASS" 또는 "FAIL" 중 하나로 귀결 가능한가? "충분히", "상당한", "어느 정도" 같은 정성적 수식어가 있으면 계약 작성자에게 구체화 요청 또는 REJECT 사유로 명시
+2. **구체성 태그 존재 확인.** contract-design-guide 의 `[exact]` / `[structural]` / `[goal]` 태그 사용 여부 확인:
+   - `[exact]`: 문자 그대로 매칭 (정규식 · 라인번호 · 정확한 값)
+   - `[structural]`: 구조적 일치 (섹션 존재 · 카운트 · 관계)
+   - `[goal]`: 결과 상태 (빌드 성공 · 테스트 통과 · 사용자 경험)
+3. **경계 정의 의무.** 파일 경로 · 함수명 · 라인 수가 미명시면 에이전트 자체적으로 경계를 정의하되 **판정 근거 블록에 명시**
+4. **모호성 발견 시 REJECT 사유에 포함.** 평가 도중 조건의 모호성이 드러나면 다음 iteration 에서 계약 작성자가 수정할 수 있도록 REJECT 사유에 "모호성: [조건 ID] — [모호한 문구] — [제안하는 구체화]" 포함
+
+### 실패 사례 (이 원칙 없이 발생)
+
+- **PH-01 (design-kit)**: "계약 모호성 방지 원칙" 이 이 가이드에 누락되어 평가자가 모호 조건을 그대로 평가 → 결과 해석 충돌 → REJECT
+- **SK-02 (harness, 2026-04)**: "Neubrutalism 모달 box-shadow offset 3px" 조건에서 "주요 interactive element" 범위가 모호 → 평가자가 badge/decoration 에도 적용 → REJECT
+
+### 평가자 자체 체크리스트 (평가 시작 직전)
+
+- [ ] 모든 조건에 구체성 태그(`[exact]`/`[structural]`/`[goal]`) 가 붙어 있는가?
+- [ ] 정성적 수식어(충분히, 상당한, 등) 가 있는 조건은 경계 정의 완료되었는가?
+- [ ] 파일/라인 근거가 명시되지 않은 조건은 에이전트가 자체 경계 정의 후 근거 블록에 기록했는가?
 
 ---
 
@@ -408,11 +446,16 @@ memory: project   # user | project | local
 
 - **cross-kit 키워드 중복은 Grep만으로 탐지되지 않는다.** 두 스킬의 description에서 트리거 키워드를 정규식으로 추출한 뒤 set intersection으로 정확히 비교해야 한다. 단순히 "같은 단어가 있는지" Grep하면 부분 문자열 매칭 오탐이 발생한다.
 
-- **계약 모호성 방지 — 평가 이전에 조건의 이진 판정 가능성을 확인하라.** Reviewer/Evaluator 에이전트는 Sprint Contract 의 각 조건이 **이진 (PASS/FAIL) 판정 가능** 한지 평가 시작 전에 검토해야 한다. 해석 여지가 있는 조건은 QA 중 혼란을 유발하고 iteration 을 낭비한다. 구체적으로:
-  - 조건에 "~충분히", "~정도", "~상당한" 같은 정성적 표현이 있으면 계약 작성자에게 구체화 요구
-  - 파일 경로/함수명/라인 수가 명시되지 않은 조건은 해당 에이전트가 자체적으로 경계를 정의 후 진행하되 판정 근거에 명시
-  - 계약이 `contract-design-guide.md` §5 의 구체성 레벨 (`[exact]` / `[structural]` / `[goal]`) 태그를 사용하면 그 레벨에 맞춰 평가 (예: `[exact]` 는 문자 그대로 매칭, `[goal]` 은 결과 상태만 확인)
-  - 평가 도중 조건의 모호성이 드러나면 **REJECT 사유에 명시** 하여 계약 작성자가 다음 iteration 에서 수정할 수 있도록 한다
+- **계약 모호성 방지 — 평가 이전에 조건의 이진 판정 가능성을 확인하라.** 본 원칙은 최상위 §3.5 "Binary Decidability Pre-Check" 로 승격되었다. 평가 시작 전 §3.5 체크리스트를 필수 수행한다
+
+- **Unverifiable 조건 정책 — 인프라 부재로 검증 불가한 조건의 일관 처리.** MCP 서버 미설정(예: `mcp_server: null` 로 인해 Figma read-back 불가), 런타임 미실행, 도구 미설치 등의 이유로 **실제 검증이 불가능한 조건** 이 있을 때는 아래 3 항 필수:
+  1. **명시적 마커 표기** — 해당 조건 결과에 `[정적]` 또는 `[미검증]` 마커를 붙이고, 무엇 때문에 검증이 불가한지 한 줄로 기재 (예: `[미검증] mcp_server: null — Figma 시각 대조 불가`)
+  2. **2건 이상 누적 시 REJECT** — 한 sprint 에 미검증 항목이 2건 이상이면 verdict 는 REJECT 로 귀결한다 (harness 전역 관습). 부분 L2 만 검증된 조건도 미검증 집계 대상
+  3. **조용한 PASS 금지** — 검증을 건너뛰고 정적 증거만으로 PASS 를 주는 것은 엄격히 금지. 검증 불가면 FAIL 또는 `[미검증]` 중 하나로 표기하되 PASS 처리 금지
+
+  **실패 사례 (이 정책 없이 발생):**
+  - fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
+  - 원인: 미검증 마커 없이 PASS 부여 → 계약 해석 레벨에서 이슈 불가시
 
 ---
 
@@ -453,6 +496,53 @@ harness/agents/
 
 ---
 
+## 12. 원칙 전수성 · Cross-Surface Parity Checklist
+
+> **배경 (meta-issue):** skill-design-guide §3.5 "계약 모호성 방지 원칙" 이 이 가이드에 전수되지 않아 design-kit PH-01 REJECT 가 발생했다. 이 가이드 레벨의 변경이 파생 산출물(qa-evaluation-guide, qa-evaluator 에이전트, 하위 리뷰어 에이전트)로 자동 전파되지 않는 구조적 공백을 보완한다.
+
+### 원칙
+
+에이전트 설계 가이드가 개정되면, **스킬 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 에이전트(.md)** 에 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
+
+### 전수 대상 parity items (5개)
+
+두 가이드(agent-design-guide, skill-design-guide)는 아래 5개 항목을 **동일한 개념 · 동일한 용어** 로 공유한다:
+
+| # | Parity Item | agent-design-guide 위치 | skill-design-guide 대응 위치 |
+|---|-------------|------------------------|------------------------------|
+| 1 | Binary Decidability / 계약 모호성 방지 | §3.5 (Binary Decidability Pre-Check) | §3.5 (QA 계약과 1:1 매칭) |
+| 2 | 트리거 키워드 배타성 (substring 포함) | §3 "Sibling Agent 트리거 키워드 배타성" | §4 (트리거 키워드 중복 방지) |
+| 3 | 검증 가능한 성공 기준 / L3 커버리지 | §10 Reviewer/Evaluator Gotchas (L3) | §3.6 (Give a way to verify) |
+| 4 | Rule-by-rule audit before completion | §10 Reviewer 전수 대조 | §3.6 (Rule-by-Rule Audit) |
+| 5 | Unverifiable / degraded-mode 정책 | §10 Unverifiable 조건 정책 | — (에이전트 전용) |
+
+Item 5 는 평가자 행동에만 관련되므로 skill-design-guide 에는 존재하지 않는 것이 정상. 다른 4 개는 양쪽 존재.
+
+### 개정 시 체크리스트
+
+agent-design-guide.md 를 편집할 때:
+
+- [ ] 새 원칙을 추가했는가? → skill-design-guide 에 대응 항목이 필요한지 판정
+- [ ] 원칙 네이밍(카테고리 ID, 섹션명) 을 변경했는가? → qa-evaluation-guide · qa-evaluator.md · 하위 리뷰어 에이전트에서 동일 네이밍 사용 중인지 Grep 하여 동기화
+- [ ] Bad/Good 예시 또는 실패 사례를 추가했는가? → 대응 원칙이 있는 다른 가이드도 동일 형태의 예시 포함하도록 업데이트
+- [ ] frontmatter `version` 을 bump 했는가? → 대응 파일들도 같은 방향으로 bump
+
+### 실패 패턴 (이 원칙 없이 발생한 실제 REJECT)
+
+- **PH-01 (design-kit, 2026-04)**: skill-design-guide §3.5 "계약 모호성 방지" 가 이 가이드에 누락 → 계약 작성자는 원칙을 알지만 평가자는 원칙 불명 → 평가 결과 해석 충돌 → REJECT
+- **SK-13 (backend-kit, infra-kit)**: References 섹션이 skill-design-guide 는 요구하지만 하위 스킬(backend-kaizen, infra-kaizen) SKILL.md 에 누락 → 상위 guide 의 원칙이 하위 surface 에 전파되지 않음
+
+### Downstream 파일 전파 범위
+
+본 가이드 개정이 영향 줄 수 있는 하위 surface:
+
+- `harness/agents/qa-evaluator.md` — reviewer 전용 Gotcha 변경 시 반영
+- `harness/docs/guides/qa-evaluation-guide.md` — 평가 방법론 원칙 변경 시
+- `harness/docs/guides/contract-design-guide.md` — 계약 모호성 · 태그 · 키워드 배타성 변경 시
+- `*-kit/agents/*-reviewer.md` (design-reviewer, backend-reviewer, infra-reviewer, widget-inspector, widget-inspector-react, animation-architect-react, rust-reviewer, react-reviewer) — 공통 Gotcha 또는 도구 스코핑 변경 시
+
+---
+
 ## 요약
 
 | 원칙 | 핵심 |
@@ -460,6 +550,7 @@ harness/agents/
 | 단순함 우선 | 스킬로 충분하면 에이전트를 만들지 마라 |
 | description은 트리거 | "언제 위임할지"를 구체적으로 명시 |
 | Undertrigger 방지 | `use proactively` 키워드로 자동 위임 장려 |
+| **Substring 배타성** | sibling agent 와 키워드 set intersection + substring 공집합 |
 | 최소 권한 | 필요한 도구만 부여 |
 | Agent 스코핑 | `Agent(agent_type)` 로 스폰 가능 서브에이전트 화이트리스트 |
 | 모델 최적화 | 작업 복잡도에 맞는 모델 선택 |
@@ -468,7 +559,9 @@ harness/agents/
 | 중첩 불가 | 서브에이전트는 다른 서브에이전트를 spawn 할 수 없음 |
 | 영속 메모리 | 대화를 넘어서 학습시켜라 |
 | 6가지 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행 중 선택 |
-| 계약 모호성 방지 | 평가 전 이진 판정 가능성 선제 점검 |
+| **Binary Decidability** | §3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격) |
+| **Unverifiable 정책** | `[미검증]` 마커 · 2건 누적 REJECT · 조용한 PASS 금지 |
+| **Cross-Surface Parity** | agent/skill/contract/eval 가이드의 원칙 전수 검토 (§12) |
 
 ---
 

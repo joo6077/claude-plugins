@@ -22,6 +22,8 @@ user-invocable: true
 6. **K8s manifest 검증 도구 혼용 주의** — kubeval은 deprecated. kubeconform 또는 `kubectl --dry-run=server`를 사용하라. Helm 차트는 `helm template | kubeconform` 파이프라인으로
 7. **보안 스캔을 테스트로 대체하지 마라** — Trivy/Snyk/Checkov는 보안 스캔 도구이지 테스트가 아니다. 스캔 결과를 CI에 게이트로 넣되, 별도 단계로 분리하라
 8. **OpenTofu/Terraform 호환성 주의** — OpenTofu 1.7+는 `tofu test`에서 mocking 지원. Terraform은 1.6+에서 `terraform test` 지원. 프로젝트가 어떤 걸 쓰는지 확인하라
+9. **Sibling Consistency (backend-test parity)** — Step 0 스택 감지 독립 단계 + 기존 테스트 패턴 탐색 + 외부 실환경 강제 금지 세 항목은 infra-test / backend-test 공통으로 유지해야 한다. 한쪽만 변경하면 sibling drift 로 평가 불일치 발생 (Phase 7/8 동기화 규칙).
+10. **Ephemeral values 기반 테스트 fixture (Phase 8 리서치)** — Terraform 1.10+ `ephemeral` 블록이나 OpenTofu 1.7+ write-only 인수로 시크릿을 다루는 모듈은 `terraform test` fixture 에서 평문 주입 금지. 테스트도 동일하게 `run "xxx" { variables { secret = ... } }` 블록 대신 환경변수/Vault dev 모드를 사용하라. 출처: [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral).
 
 ## Process
 

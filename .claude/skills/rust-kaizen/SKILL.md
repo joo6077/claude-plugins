@@ -17,36 +17,62 @@ user-invocable: true
 3. **한 번에 1~2개 스킬만 개선** — 전체 스킬을 한 번에 수정하면 품질이 떨어진다.
 4. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 종료 시 `scripts/validate-plugin.py rust-kit`을 실행하라. 회귀가 있으면 즉시 수정한다.
 5. **Gotchas에 Rust 컴파일러가 이미 잡는 실수를 넣지 마라** — borrow checker, lifetime, type mismatch는 컴파일러가 잡으므로 Gotchas에 불필요하다. 런타임 실수나 설계 실수만 추가한다.
+6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 예시) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 rust-kit Phase 9 에서 backend-kit Phase 7 · infra-kit Phase 8 패턴 계승 드리프트 차단).
+
+   | Sibling Group | 공통 원칙 검증 항목 |
+   |---------------|---------------------|
+   | rust-init · rust-feature · rust-service · rust-api | **Composition Root 단일화 + Consumer-Owned Port + Domain Event + Outbox + 포트에서 인프라 타입 제거** 4 항목 일관 존재 |
+   | rust-audit · rust-reviewer (agent) | **Binary Decidability Pre-Check · Rule-by-Rule Audit · 미검증 마커 · L3 Coverage Honesty** 4 항목 동시 존재 |
+   | rust-audit · backend-audit | **10+ row Rule-by-Rule 표 + CONDITIONAL APPROVE 규칙 + Rust 고유 카테고리(Ownership / Async / unsafe / SQLx offline)** |
+   | rust-test · backend-test | **Step 0 스택 감지 독립 단계 + 기존 패턴 탐색 + SeaORM MockDatabase · #[sqlx::test] · testcontainers 3 단계** |
+   | rust-service · backend-system (Phase 7) | **Outbox · Circuit Breaker · OAuth 2.1 · RFC 9457 problem+json** 중 Rust 맥락에서 적용 가능한 원칙 참조 |
+
+7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 rust-kit I-02 회귀 방지 — Phase 6/7/8 design-kit/backend-kit/infra-kit 패턴 계승). **Rust 전용 산출물 예외**: rust-kit 의 산출물에 `Cargo.toml` · `rust-toolchain.toml` · `migrations/*.sql` · `deny.toml` 이 포함될 경우 placeholder/bare code-fence 규칙의 `.md` 전용 검사에서 제외한다 (파일 포맷상 태그 없는 fence 가 정상).
+8. **Phase 1~8 신규 원칙 감사 (kaizen 시작 시 전수 확인)** — skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / §5.5 Enumerate-before-Act / §8.7 Code Examples / §8.8 Sibling Consistency / §11 Cross-Surface Parity · agent §3.5 Binary Decidability / §10 Unverifiable / §12 L3 Coverage Honesty 9 항목 전수 확인. 각 원칙에 대해 반영 스킬 목록을 리포트에 명시.
+9. **REJECT 4 reason 회귀 방지 (H-01 · H-03 · SK-03 · AR-02)** — 카이젠 세션 종료 시 아래 4 개 Grep 체크를 수행:
+   - H-01: `grep -c "domain event\|outbox" rust-kit/skills/rust-init/SKILL.md rust-kit/skills/rust-feature/SKILL.md` 각각 >= 1
+   - H-03: `grep -c "Composition Root" rust-kit/skills/rust-api/SKILL.md` >= 1
+   - SK-03: `grep -n "State<PgPool>\|State<sqlx::\|State(pool)" rust-kit/skills/rust-api/SKILL.md` 0 건 (핸들러 레이어 state 는 `Arc<dyn ...>` trait object 만 허용)
+   - AR-02: `grep -rn "17개 리서치\|17 리서치\|docs/rust/ 리서치 문서 17" .` 0 건 (리서치 문서 실제 수 20 과 일치)
+10. **16 스킬 + 1 에이전트 전수 모드** — 다른 kit 과 달리 rust-kit 은 16 개 SKILL.md + rust-reviewer 총 17 surface 로 대규모다. 한 세션에서 17 개 전체를 깊게 고칠 수 없으므로 **우선순위 3 계층** (1) REJECT 직접 대상 (rust-init · rust-feature · rust-api) → (2) Phase 1~8 원칙 핵심 surface (rust-audit · rust-reviewer · rust-test · rust-service) → (3) 잔여 10 스킬 경량 audit 으로 단계 분할하고 각 단계 완료 후 `validate-plugin.py` 를 실행한다.
 
 # Process
 
-## Step 1: 현황 분석
+## Step 1: 현재 상태 읽기
 
-rust-kit/skills/ 디렉토리의 모든 SKILL.md를 읽고 현재 상태를 파악한다.
+rust-kit 스킬 16 개 + rust-reviewer 에이전트:
+- rust-kit/skills/{rust-init,rust-feature,rust-api,rust-model,rust-service,rust-auth,rust-middleware,rust-grpc,rust-test,rust-docker,rust-error,rust-l10n,rust-run,rust-build,rust-preflight,rust-audit}/SKILL.md
+- rust-kit/agents/rust-reviewer.md
 
-## Step 2: 리서치 문서 비교
+## Step 2: 격차 분석
 
-docs/rust/ 리서치 문서와 스킬의 Gotchas, Process, 코드 예시를 비교한다.
-차이가 있는 부분을 목록화한다.
+docs/rust/ 원칙 vs 스킬 반영 상태:
+- fundamentals/{ownership-borrowing,error-handling,async-concurrency,testing,project-structure,performance,hexagonal-architecture}.md
+- web/{axum-patterns,authentication,middleware,openapi}.md
+- data/{sqlx-patterns,migrations,caching}.md
+- protocols/{grpc-tonic,graphql,realtime}.md
+- ops/{docker,ci-cd,observability}.md
+- 글로벌 피드백 (~/.harness/feedback/)
 
-## Step 3: 개선 우선순위
+## Step 3: 개선 적용
 
-| 우선순위 | 기준 |
-|----------|------|
-| 높음 | 잘못된 정보, deprecated API 사용, 안티패턴 포함 |
-| 중간 | 누락된 Gotchas, 불완전한 Process |
-| 낮음 | 코드 예시 개선, 트리거 키워드 보완 |
+- SKILL.md Gotchas 추가/수정 (우선순위 3 계층 순서로)
+- rust-audit/references/audit-criteria.md 체크리스트 갱신 (존재 시)
+- rust-reviewer.md 출력 포맷 / L3 Coverage Honesty 규칙 갱신
+- templates/ 갱신 (필요 시)
 
-## Step 4: 개선 실행
+## Step 4: 검증
 
-상위 1~2개 스킬을 개선한다. 각 개선마다:
-1. 변경 전 내용
-2. 변경 후 내용
-3. 변경 근거 (리서치 문서 출처)
+- description 트리거 조건 유지 확인
+- 리서치 문서 ↔ 스킬 references 경로 정합성
+- Cross-Surface Parity Grep 대조 (Gotcha 6)
+- REJECT 4 reason 회귀 체크 (Gotcha 9)
 
-## Step 5: 검증
+## Step 5: 커밋
 
-변경된 스킬의 evals를 확인하고, 필요하면 evals.json도 업데이트한다.
+```text
+chore(kaizen-phase<N>): [개선 내용 요약]
+```
 
 ## Step 6: Plugin Validation 결과 반영
 
@@ -56,8 +82,15 @@ docs/rust/ 리서치 문서와 스킬의 Gotchas, Process, 코드 예시를 비�
 
 # References
 
-- docs/rust/ — 리서치 문서 (SSOT)
-- rust-kit/skills/ — 개선 대상 스킬
-- rust-kit/evals/evals.json — 테스트 케이스
+- rust-kit/skills/ — 개선 대상 스킬 (16 개)
+- rust-kit/agents/rust-reviewer.md — 독립 평가 에이전트
+- rust-kit/references/project-detection.md — 스택 감지 공통 절차
+- rust-kit/evals/evals.json — 플러그인 evals
+- docs/rust/ — 리서치 SSOT (fundamentals / web / data / protocols / ops · 20 문서)
+- backend-kit/skills/backend-audit/SKILL.md — sibling ground truth (10 카테고리 Rule-by-Rule · CONDITIONAL APPROVE)
+- infra-kit/skills/infra-audit/SKILL.md — sibling ground truth (Phase 8 Rule-by-Rule 20-row)
+- harness/docs/guides/skill-design-guide.md — §3.5 · §3.6 · §5.5 · §8.7 · §8.8 · §11 신규 원칙 SSOT
+- harness/docs/guides/agent-design-guide.md — §3.5 · §10 · §12 신규 원칙 SSOT
 - `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 7 카테고리 기준 (SSOT)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구
+- `scripts/run-evals.py` — 플러그인 evals 자동화 도구

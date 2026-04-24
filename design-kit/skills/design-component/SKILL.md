@@ -30,7 +30,7 @@ user-invocable: true
 
 ## Step 0: 자동 감지 및 로드
 
-프로젝트에서 이전 단계 산출물을 탐색한다:
+프로젝트에서 이전 단계 산출물을 탐색한다 (sibling parity — design-concept/design-mockup Step 0 동일 패턴):
 
 ```text
 # 감지 대상
@@ -42,6 +42,8 @@ user-invocable: true
 - 시안 존재 → 시안에서 반복되는 UI 요소를 자동 식별하여 제안
 - 토큰 존재 → 컴포넌트별 토큰 매핑 자동 생성
 - 둘 다 없음 → 사용자가 직접 컴포넌트 목록을 지정
+
+**이 Step 0 은 독립 Process 단계다 (SK-05 재발 방지)** — 자동 감지 로직을 Gotchas 섹션이나 다른 Step 하위 항목으로 내리지 마라. 평가자는 "프로세스 단계"로 카운트되는 섹션에서만 자동 로드 준수를 판정한다.
 
 ## Step 1: 대상 파악
 

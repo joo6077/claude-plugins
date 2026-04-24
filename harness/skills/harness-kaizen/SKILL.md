@@ -35,8 +35,21 @@ user-invocable: true
 - **피드백 0 건이면 triage 에서 SKIP 하지 마라** — contract-kaizen / evaluator-kaizen 과 동일하게 **리서치 전용 모드** 로 진행한다 (패턴 분석 생략, `references/search-sources.md` 우선순위 상위 3 개 도메인만 리서치). 피드백 누적이 없어도 2026 트렌드 리서치 기반 예방적 개선은 항상 가능하다 (리서치 근거: GrowthBook "Feedback Loops are the Next Breakthrough in Agentic Coding", Martin Fowler "Humans and Agents in Software Engineering Loops")
 - 피드백 패턴 분석 시 동일 `diagnosis.checklist` 시그니처가 **최근 10 건 중 3 회 이상** 반복되면 해당 영역을 최우선 개선 대상으로 승격시켜라. 이는 contract-kaizen / evaluator-kaizen 의 임계치와 일치시켜 일관성을 유지한다
 - **Scope Creep 방지** — 한 카이젠 사이클에서 개선하는 파일은 최대 3개로 제한해라. 4개 이상을 한 번에 수정하면 Regression Smoke Test에서 원인 특정이 불가능해지고 revert 범위가 넓어진다. 큰 개선은 여러 사이클로 분할한다.
-- **Cross-Phase 오염 금지** — harness-kaizen Phase에서 contract-schema.md나 qa-evaluation-guide.md를 직접 수정하지 마라. 그것은 contract-kaizen(Phase 2)과 evaluator-kaizen(Phase 3)의 전담 영역이다. harness-kaizen에서 발견한 교차 이슈는 "DEFERRED to phase-N" 주석으로 기록만 하고 해당 Phase에 위임한다.
+- **Cross-Phase 오염 금지 (scope_out 명시 리스트)** — harness-kaizen Phase 에서 아래 파일은 **어떤 이유로도** 직접 수정하지 마라. 이들은 각 전담 Phase 의 책임 영역이다:
+  - `harness/skills/sprint-contract/**` — Phase 2 (contract-kaizen) 전담
+  - `harness/agents/qa-evaluator.md` — Phase 3 (evaluator-kaizen) 전담
+  - `harness/docs/guides/skill-design-guide.md` — Phase 1 (guide-kaizen) 전담
+  - `harness/docs/guides/agent-design-guide.md` — Phase 1 전담
+  - `harness/docs/guides/contract-design-guide.md` — Phase 2 전담
+  - `harness/docs/guides/qa-evaluation-guide.md` — Phase 3 전담
+  - `harness/references/contract-schema.md` — Phase 2 전담
+  - `harness/references/feedback-schema.yaml` — Phase 2/3 공동, harness-kaizen 수정 금지
+
+  발견한 교차 이슈는 "DEFERRED to phase-N" 주석으로 기록만 하고 해당 Phase 에 위임한다. 이 리스트를 무시하면 Phase 간 변경 충돌 + Regression 원인 추적 불가 상태가 된다.
+
 - **Regression 원인 추적 누락** — Smoke Test FAIL 시 단순 revert만 하고 끝내면 같은 패턴의 실패가 반복된다. revert 후 반드시 "왜 실패했는가"를 1줄로 기록하고 다음 사이클의 피드백 입력으로 활용해라.
+- **`/insights` 3대 마찰점 반영 체크리스트** — Step 4 ANALYZE 단계에서 `.claude/kaizen-input/insights-report.md §Friction Points` 를 대조하라. 개선안이 (1) Proactive quality gaps (Rule-by-Rule Audit / Enumerate-before-Act 강화), (2) Wrong approach / false dichotomies (token/코드 verify 단계 추가), (3) Session truncation (checkpoint commit + SESSION_LOG 유지) 중 어느 것을 해소하는지 mapping. 해당 없으면 "N/A — 리서치 기반 예방적 개선" 로 명시.
+- **Cross-Surface Parity 전파 인식** — 본 harness-kaizen 에서 `harness/skills/{init,create-skill,create-agent,contract-kaizen,evaluator-kaizen,harness-kaizen}/SKILL.md` 를 수정할 때, 수정 내용이 skill/agent/contract/eval 4개 가이드의 parity item 과 연동되는지 확인하라. parity 관련 변경이 필요하면 DEFERRED 로 Phase 1/2/3 에 위임한다.
 
 ## 핵심 제약: 할루시네이션 절대 불가
 

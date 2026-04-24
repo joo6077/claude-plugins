@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA Evaluation Guide v3 — Harness</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#0ea5e9;--accent2:#14b8a6;--accent-dim:rgba(14,165,233,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(14,165,233,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.04) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
+.hero{padding:72px 0 56px;text-align:center}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
+.hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);min-height:24px;display:inline-flex;align-items:center}
+.section{padding:56px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 70%)}
+.section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em}
+.section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative;margin-bottom:16px}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card p{font-size:13.5px;color:var(--text2);line-height:1.7}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition)}
+.card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source::before{content:'↗';font-weight:800}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:920px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:700;font-size:12px;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-dim)}
+td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
+code,.code-block{font-family:var(--mono);font-size:12.5px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:8px 0}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:760px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
+.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
+.level-box{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.level-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.level-num{font-size:22px;font-weight:800;color:var(--accent);margin-bottom:6px}
+.level-name{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px}
+.level-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.unverified-table{background:rgba(248,113,113,0.04);border:1px solid rgba(248,113,113,0.2);border-radius:12px;overflow:hidden;margin:16px 0}
+.unverified-table table thead{background:rgba(248,113,113,0.1)}
+.unverified-table table th{color:var(--red)}
+.parity-box{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.parity-box-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.footer a:hover{color:var(--accent2)}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <div class="brand"><span class="brand-dot"></span>HARNESS · QA Evaluation Guide</div>
+  <span class="badge">v3 · 2026-04-24</span>
+</div>
+
+<div class="hero">
+  <h1>QA Evaluation Guide</h1>
+  <p class="subtitle">qa-evaluator 에이전트가 참조하는 평가 방법론. Phase 3 카이젠(v3)에서 Binary Decidability Pre-Check, Rule-by-Rule Audit, [미검증] 마커 프로토콜, Sibling Enumerated Verification, L3 Coverage Honesty 규칙, User-Value/Business-Intent 관점을 흡수했다.</p>
+  <div class="meta">
+    <span>Phase 3 Kaizen · v3</span>
+    <span>최근 갱신 2026-04-24</span>
+    <span>참조: contract-schema.md v3</span>
+  </div>
+</div>
+
+<!-- SECTION 1: CORE PRINCIPLES -->
+<div class="section">
+  <div class="section-label">Core Principles</div>
+  <div class="section-title">핵심 원칙 — Test Oracle · IV&amp;V 독립성 · 편향 완화</div>
+  <p class="section-desc">qa-evaluator는 "정답을 아는 존재"(test oracle)로서 계약 조건 대비 구현을 판정한다. 계약이 oracle specification이며, evaluator는 이를 기계적으로 적용한다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Test Oracle 역할</div>
+      <p>계약에 없는 기준으로 판단하지 않는다. 조건의 "의도"가 아닌 "문자 그대로"를 적용한다. "아마 이런 뜻일 것이다"는 해석 금지.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>IV&amp;V 독립성</div>
+      <p>evaluator는 generator의 의도나 과정을 알지 않는다. 계약과 산출물만으로 판정한다. "커밋 메시지에 완료라고 썼다" ≠ 증거.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Specification-First</div>
+      <p>먼저 Sprint Contract를 읽고 "기대 행동"을 확립한다. 그 다음 코드를 검증한다. 코드를 먼저 읽으면 구현 추종 편향에 빠진다.</p>
+      <a class="card-source" href="https://arxiv.org/abs/2601.05542">LLM Test Oracle Generation</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:4px">
+    <div class="card-title"><span class="dot"></span>LLM-as-Judge 편향 완화 전략</div>
+    <div class="table-wrap" style="margin-top:12px">
+      <table>
+        <thead><tr><th>편향</th><th>설명</th><th>완화 전략</th></tr></thead>
+        <tbody>
+          <tr><td>위치 편향</td><td>먼저 본 항목에 호의적</td><td>Swap Test: (A,B), (B,A) 순서로 2회 평가, 불일치 시 <code>[low-confidence]</code></td></tr>
+          <tr><td>자기 선호 편향</td><td>자기와 친숙한 출력에 호의적</td><td>generator와 evaluator 컨텍스트 물리적 분리 (별도 서브에이전트)</td></tr>
+          <tr><td>장황함 편향</td><td>긴 코드/설명에 호의적</td><td>조건 충족 여부만 판단, 코드 양 무시</td></tr>
+          <tr><td>점수 분포 편향</td><td>중간값에 판정이 몰림</td><td>이진 PASS/FAIL만 사용, Likert 스케일 금지</td></tr>
+          <tr><td>구현 추종 편향</td><td>실제 구현을 "정답"으로 간주</td><td>계약 조건을 먼저 읽고, 코드는 증거 수집용으로만 사용</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="card-source" href="https://arxiv.org/html/2411.15594v6">Survey on LLM-as-a-Judge — arxiv:2411.15594</a>
+  </div>
+</div>
+
+<!-- SECTION 2: BINARY DECIDABILITY PRE-CHECK -->
+<div class="section">
+  <div class="section-label">Binary Decidability</div>
+  <div class="section-title">평가 시작 전 필수 — Binary Decidability Pre-Check</div>
+  <p class="section-desc">Sprint Contract의 각 조건에 대해 Step 2(조건별 검증)를 시작하기 <strong>전</strong>에 아래 체크리스트를 전수 실행한다. 모호 조건은 <code>[미검증]</code> 또는 REJECT 사유로 명시하고, 평가자가 해석 여지를 임의로 메우지 않는다.</p>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>사전 체크리스트 (5항목)</div>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">1</span>FAIL 상태 1문장 테스트 — "이 조건이 FAIL인 상태를 1문장으로 기술 가능한가?" 불가능하면 조건 모호</li>
+      <li><span class="check">2</span>구체성 태그 확인 — <code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code> 태그 존재 여부. 미명시면 <code>[structural]</code>로 간주하되 REJECT 사유에 "태그 누락" 플래그</li>
+      <li><span class="check">3</span>범위어 enumerate 확인 — "주요/모든/대부분/핵심" 같은 범위어가 있으면 포함/제외 목록이 인라인 enumerate되었는지 확인. 없으면 REJECT 사유에 "범위 미명시"</li>
+      <li><span class="check">4</span>검증 수단 존재 확인 — "측정: ...", 도구명, 관찰 대상 중 하나가 명시되었는가? 없으면 기본 fallback 적용 + REJECT 사유에 "검증 수단 미명시"</li>
+      <li><span class="check">5</span>enumerated 대상 목록 확인 — 태그가 enumerated이면 나열된 대상 N개가 계약에 실제로 쓰여 있는지 확인. N이 애매하면 REJECT 사유에 "enumerated 대상 수 불분명"</li>
+    </ul>
+  </div>
+
+  <div class="grid-2" style="margin-top:4px">
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 사례 — PH-01</div>
+      <p>평가자가 모호 조건을 자체 해석 → 해석 충돌 → REJECT 반복. 사전 체크리스트 없이 평가를 시작한 결과.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 사례 — SK-02</div>
+      <p>"주요 interactive element" 범위어가 enumerate되지 않아 badge/decoration 포함 여부를 평가자가 자체 판단 → REJECT.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: RULE-BY-RULE AUDIT -->
+<div class="section">
+  <div class="section-label">Rule-by-Rule Audit</div>
+  <div class="section-title">판정 완료 전 필수 — Rule-by-Rule Audit Before Completion</div>
+  <p class="section-desc">Step 4(판정) 직전에 <strong>모든 계약 조건을 1회 더 전수 스캔</strong>한다. "자명하다"고 넘긴 조건이라도 판정 직전 체크리스트 형식으로 되돌아온다.</p>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>전수 점검 절차</div>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">1</span>Sprint Contract의 모든 조건 ID를 번호순으로 나열한다</li>
+      <li><span class="check">2</span>각 조건 ID에 대해: 증거(파일:라인)가 기록되어 있는가? 검증 깊이(L1/L2/L3)가 명시되어 있는가?</li>
+      <li><span class="check">3</span>구체성 태그에 맞는 검증 방식을 적용했는가? enumerated 조건이면 N개 대상 전부 개별 증거를 수집했는가?</li>
+      <li><span class="check">4</span>하나라도 결여되어 있으면 해당 조건을 재검증한다. "비슷한 조건이 PASS했으니 이것도 PASS"는 금지</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SECTION 4: UNVERIFIED MARKER -->
+<div class="section">
+  <div class="section-label">[미검증] 마커</div>
+  <div class="section-title">[미검증] 마커 평가 프로토콜 — 카운팅 + 자동 REJECT 임계</div>
+  <p class="section-desc">MCP null, 런타임 미실행, 외부 도구 미가용 등으로 정적 검증이 불가능한 조건의 일관된 처리. fit-pal LG-02/DG-04 REJECT의 근본 원인이었다.</p>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title"><span class="dot"></span>마커 부착 절차 (3단계)</div>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">1</span>단계 1(기본 검증) 시도 — 계약에 기술된 1차 검증 도구 실행</li>
+      <li><span class="check">2</span>단계 1 실패 시 단계 2(Fallback 정적 검증) 시도 — 파일 Grep, CSS 변수 대조, log tail 등</li>
+      <li><span class="check">3</span>단계 2도 실패 시 단계 3(<code>[미검증]</code> 마커) 부착 — 근거 블록에 "검증 불가 사유 한 줄 + 사용한 단계 기록"</li>
+    </ul>
+  </div>
+
+  <div class="unverified-table">
+    <table>
+      <thead><tr><th>미검증 건수</th><th>평가 결과</th></tr></thead>
+      <tbody>
+        <tr><td>0건</td><td>통상 판정</td></tr>
+        <tr><td>1건</td><td>PASS 허용 (단, Sprint Feedback에 "미검증 1건" 경고 명시)</td></tr>
+        <tr><td style="color:var(--red);font-weight:700">2건 이상</td><td style="color:var(--red);font-weight:700">자동 REJECT — 개별 조건 FAIL 없어도 전체 verdict REJECT</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>집계 의무 — Sprint Feedback 기록 형식</div>
+    <code class="code-block">## Unverifiable Summary
+- 총 미검증 건수: N
+- 건 목록: [조건 ID, 사유, 시도한 fallback 단계]
+- Verdict 영향: {PASS 허용 | 자동 REJECT}</code>
+  </div>
+</div>
+
+<!-- SECTION 5: 3-LEVEL VERIFICATION -->
+<div class="section">
+  <div class="section-label">Verification Methodology</div>
+  <div class="section-title">3-Level 검증 — L1 구조 · L2 내용 · L3 의미 (L3 필수)</div>
+  <p class="section-desc"><strong>모든 조건은 L3까지 도달해야 한다.</strong> L1/L2에서 PASS해도 L3에서 FAIL이면 전체 FAIL. 단순 Grep 매칭은 L2에서 멈추는 함정이다.</p>
+
+  <div class="level-box">
+    <div class="level-item">
+      <div class="level-num">L1</div>
+      <div class="level-name">구조 확인</div>
+      <div class="level-desc">파일/디렉토리 존재 확인. 도구: Glob, ls. "산출물이 있는가?"</div>
+    </div>
+    <div class="level-item">
+      <div class="level-num">L2</div>
+      <div class="level-name">내용 확인</div>
+      <div class="level-desc">파일 내용에 기대 요소 존재. 도구: Read, Grep. "코드가 작성되었는가?"</div>
+    </div>
+    <div class="level-item" style="border-color:var(--accent)">
+      <div class="level-num" style="color:var(--green)">L3</div>
+      <div class="level-name" style="color:var(--green)">의미 검증</div>
+      <div class="level-desc">코드 경로 추적, 행동 검증. 도구: Read + 논리 추적. "의도대로 동작하는가?"</div>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">L2에서 멈춤 (Bad)</div>
+      <code class="code-block">Grep으로 'design-tokens.md'
+언급 확인 → PASS</code>
+      <p>파일 존재만 확인. 내용이 요구 조건을 충족하는지 미검증.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">L3 도달 (Good)</div>
+      <code class="code-block">Read로 design-tokens.md
+전체 내용 확인 → 토큰 구조가
+color/spacing/typography
+카테고리를 모두 포함하는지
+의미 매칭</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>L3 Coverage Honesty — 샘플링 시 미검증 명시 의무</div>
+    <p>시간 제약으로 L3 전수 검증이 불가능하면 <strong>샘플링 대상과 미검증 대상을 분리하여 보고</strong>한다. "20개 중 2개만 확인 + 나머지는 비슷하니까 PASS"는 금지.</p>
+    <code class="code-block" style="margin-top:12px">- [x] AR-01: ... — PASS [L3, 샘플링-3/전체-20]
+  - 근거: rust-api (파일:라인), rust-service (파일:라인)
+  - [미검증-17] rust-init/-feature/-model 등 17개: 시간 제약으로 L3 미도달</code>
+  </div>
+</div>
+
+<!-- SECTION 6: SIBLING ENUMERATED -->
+<div class="section">
+  <div class="section-label">Sibling Verification</div>
+  <div class="section-title">Sibling Enumerated Verification — 전수 Grep 절차</div>
+  <p class="section-desc">플러그인 내 여러 스킬에 공통 원칙을 요구하는 조건(<code>[*, enumerated]</code>)에서 1~2개 샘플만 확인하고 PASS 처리하는 패턴 방지. rust-kit H-01/H-03 REJECT의 직접 원인.</p>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>절차 (4단계)</div>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">1</span>대상 목록 파싱 — 조건 문장에서 나열된 sibling 스킬/파일 이름을 모두 추출. N개 정확히 센다</li>
+      <li><span class="check">2</span>N개 전수 Grep — 각 대상에 대해 개별 Grep 수행. 한 대상당 한 줄 증거(파일:라인 매칭 문자열) 기록</li>
+      <li><span class="check">3</span>누락 대상명 나열 — 하나라도 Grep 증거가 없으면 해당 조건은 FAIL. 누락된 대상명을 모두 나열</li>
+      <li><span class="check">4</span>카운트 보고 — Sprint Feedback에 "N개 중 M개 충족 (누락: X, Y, Z)" 형태로 집계</li>
+    </ul>
+  </div>
+
+  <div class="grid-2" style="margin-top:4px">
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 — rust-kit H-01/H-03</div>
+      <p>"domain event + outbox 원칙이 rust-init, rust-feature, rust-service, rust-api 4개 스킬 Gotchas에 있다" 조건에서 rust-service만 확인하고 PASS. 실제로 3개 누락 → REJECT.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 — react-kit KZ-04</div>
+      <p>References에 7개 그룹 문서(g1~g6, g5b) 개별 명시 요구였는데 포괄 경로로 처리 → REJECT. enumerated 태그를 collective로 처리한 사례.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: SPECIFICITY TAG CONSUMPTION -->
+<div class="section">
+  <div class="section-label">Tag Consumption</div>
+  <div class="section-title">Specificity Tag 소비 규칙 + 용어 충돌 주의</div>
+  <p class="section-desc">이 가이드의 L1/L2/L3는 <strong>evaluator 검증 깊이</strong>를 의미한다. sprint-contract 계약서의 <code>[L1]</code>/<code>[L2]</code>/<code>[L3]</code> 태그는 <strong>조건 구체성 레벨</strong>로 동일 기호지만 의미가 다르다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>태그</th><th>evaluator 검증 방식</th><th>증거 형식</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>[exact]</code></td>
+          <td>Grep으로 literal 매칭 → Read로 맥락 확인</td>
+          <td><code>파일:라인</code> + 매칭된 literal 문자열 인용</td>
+        </tr>
+        <tr>
+          <td><code>[structural]</code></td>
+          <td>Glob/Grep으로 섹션·필드 존재 확인 → Read로 구조 검증</td>
+          <td><code>파일:라인</code> + 섹션 헤더 또는 필드명</td>
+        </tr>
+        <tr>
+          <td><code>[goal]</code></td>
+          <td>Read로 코드 경로 전체 추적 → 의미 분석 + 다관점 평가 (최소 2개)</td>
+          <td><code>파일:라인</code> + 목표 달성 논증</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>다관점 평가 (Perspective-Based Reading)</div>
+    <div class="table-wrap" style="margin-top:12px">
+      <table>
+        <thead><tr><th>관점</th><th>초점</th><th>예시 질문</th></tr></thead>
+        <tbody>
+          <tr><td>기능</td><td>명시된 행동이 구현되었는가?</td><td>"버튼 클릭 시 API 호출되는가?"</td></tr>
+          <tr><td>엣지 케이스</td><td>경계 조건에서 올바른가?</td><td>"빈 입력, null, 최대 길이에서?"</td></tr>
+          <tr><td>성능</td><td>비효율이나 병목이 있는가?</td><td>"N+1 쿼리, 불필요한 리렌더링?"</td></tr>
+          <tr><td>보안</td><td>취약점이 있는가?</td><td>"SQL 인젝션, XSS 가능성?"</td></tr>
+          <tr><td><strong>User-Value</strong></td><td>사용자가 이 동작으로 무엇을 얻는가?</td><td>"에러 메시지가 실제로 도움이 되는가?"</td></tr>
+          <tr><td><strong>Business-Intent</strong></td><td>계약의 상위 의도에 부합하는가?</td><td>"규제 준수·데이터 일관성·SLA 달성?"</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>구현자 관점만으로 평가 금지. <code>[goal]</code> 조건에서 다관점 평가는 필수.</p>
+  </div>
+</div>
+
+<!-- SECTION 8: CROSS-SURFACE PARITY -->
+<div class="section">
+  <div class="section-label">Cross-Surface Parity</div>
+  <div class="section-title">원칙 전수성 — Phase 3에서 평가자 레이어에 흡수</div>
+  <p class="section-desc">qa-evaluation-guide가 개정되면 상위 skill/agent/contract 가이드와 하위 qa-evaluator.md에 대응 원칙이 있는지 체크한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Parity Item</th><th>skill-design-guide</th><th>agent-design-guide</th><th>contract-design-guide</th><th>qa-evaluation-guide (이 가이드)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Binary Decidability</td><td>§3.5</td><td>§3.5 Pre-Check</td><td>§Binary Decidability</td><td>§Binary Decidability Pre-Check</td></tr>
+        <tr><td>2</td><td>Rule-by-Rule Audit</td><td>§3.6</td><td>§10 reviewer audit</td><td>— (평가 위임)</td><td>§Rule-by-Rule Audit Before Completion</td></tr>
+        <tr><td>3</td><td>Unverifiable 정책</td><td>—</td><td>§10 Unverifiable</td><td>§미검증 마커</td><td>§[미검증] 마커 평가 프로토콜</td></tr>
+        <tr><td>4</td><td>Sibling Consistency</td><td>§8.8</td><td>§3 sibling agent</td><td>§Sibling Consistency</td><td>§Sibling Enumerated Verification</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="parity-box">
+    <div class="parity-box-title">개정 시 체크리스트</div>
+    <ul class="checklist">
+      <li><span class="check">□</span>새 평가 원칙을 추가했는가? → 상위 skill/agent/contract 가이드에 원천 원칙이 있는지 Grep 확인</li>
+      <li><span class="check">□</span>원칙 네이밍을 변경했는가? → qa-evaluator.md · contract-schema.md에서 동일 네이밍 사용 중인지 Grep</li>
+      <li><span class="check">□</span>parity table의 컬럼을 추가/삭제했는가? → 상위 3개 가이드의 parity table도 동일하게 갱신</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">
+  <h3>LLM-as-Judge 2026 최신 연구</h3>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2406.07791">Position Bias in LLM-as-a-Judge — arxiv:2406.07791 (IJCNLP 2025)</a></li>
+    <li><a href="https://arxiv.org/html/2602.02219">Rubric-Based LLM-as-a-Judge Position Bias — arxiv:2602.02219</a></li>
+    <li><a href="https://arxiv.org/abs/2410.21819">Self-Preference Bias — arxiv:2410.21819</a></li>
+    <li><a href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge Empirical Study — arxiv:2506.13639</a></li>
+    <li><a href="https://arxiv.org/html/2602.05125v1/">Recursive Rubric Decomposition (RRD) — arxiv:2602.05125</a></li>
+    <li><a href="https://arxiv.org/abs/2403.18771">CheckEval (Boolean 서브체크) — arxiv:2403.18771</a></li>
+    <li><a href="https://arxiv.org/abs/2601.05542">LLM Test Oracle Generation — arxiv:2601.05542</a></li>
+    <li><a href="https://www.anthropic.com/research/statistical-approach-to-model-evals">Statistical Approach to Model Evals — Anthropic</a></li>
+  </ul>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/qa-evaluation-guide.md · v3 · 2026-04-24</p>
+</div>
+
+</div>
+</body>
+</html>

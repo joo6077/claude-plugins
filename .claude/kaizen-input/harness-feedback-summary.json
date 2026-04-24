@@ -1,0 +1,349 @@
+{
+  "generated_at": "2026-04-24T10:44:40.566402",
+  "evaluations_count": 138,
+  "contracts_count": 34,
+  "verdicts": {
+    "APPROVE": 77,
+    "REJECT": 61
+  },
+  "projects": {
+    "claude-plugins": 109,
+    "fit-pal": 19,
+    "fit-pal-server": 4,
+    "fit-pal-flutter": 1,
+    "fit-pal-app": 1,
+    "fitpal-server": 1,
+    "iyaki-zip-dev": 1,
+    "claude-plugins / react-kit phase10-research kaizen": 1,
+    "flutter_playwright": 1
+  },
+  "checklist_flags": {
+    "l3_unreached": 13,
+    "contract_misinterpret": 7,
+    "perspective_gap": 5
+  },
+  "reject_reasons_sample": [
+    [
+      "fit-pal",
+      "AR-03(b): textTertiary Dark #767676 vs bg.surface Dark #1C1C1C = 3.75:1 (< 4.5:1 요구)"
+    ],
+    [
+      "fit-pal",
+      "RE-02: 신규 semantic 키 5개 추가 (brand.primary, brand.accent, action.primary.*)"
+    ],
+    [
+      "fit-pal",
+      "DG-03: build.js가 string 타입 token을 double/bare-identifier로 생성 — 유효하지 않은 Dart 출력"
+    ],
+    [
+      "fit-pal",
+      "DG-04: 생성 Dart에 컴파일 에러 (stringFont* bare identifier) + 8자 hex 색상 값 오류"
+    ],
+    [
+      "fit-pal",
+      "AR-03(b): color.text.tertiary Dark (#838383) vs bg.surface Dark (#1C1C1C) = 4.495:1 < 4.5:1 WCAG AA 미달"
+    ],
+    [
+      "fit-pal",
+      "LG-05: 파이프라인 생성 Dart와 기존 app_color_token.dart 불일치 4건 (textTertiary/statusWarning 교정값, seamCover alpha, inputFill 누락)"
+    ],
+    [
+      "fit-pal",
+      "DG-02: SKILL.md References 섹션에 docs/design/figma-decoration-session-log.md 의 §9/§10 링크 누락 (현재 §2.1, §3.1, §8만 있음)"
+    ],
+    [
+      "fit-pal",
+      "AP-02: lazy_generation.rs:85 .expect() 프로덕션 경로 — 계약 허용 예외 목록(unwrap_or/and_hms_opt known-valid) 미포함"
+    ],
+    [
+      "fit-pal",
+      "RE-02: ensure_slots_exist 시그니처 impl ConnectionTrait + Send (계약 명시: + Send + Sync)"
+    ],
+    [
+      "fit-pal-server",
+      "LG-02: list_member_ids 가 GroupPort::list_members(Uuid::nil(), ...) 호출 → find_active_member 에서 항상 Forbidden 반환. 내부 컨텍스트 동작 불가."
+    ],
+    [
+      "fit-pal-server",
+      "LG-04: ScheduleNotification enum 에 group_id 필드 없어 payload 에 group_id 미포함. 계약 명시 payload(group_id/slot_id/outcome?) 불충족."
+    ],
+    [
+      "fit-pal",
+      "UI-04: [미검증] MCP Figma read-back 불가 (mcp_server=null)"
+    ],
+    [
+      "fit-pal",
+      "LG-04: [미검증] Figma 노드 read-back 불가 (mcp_server=null)"
+    ],
+    [
+      "fit-pal",
+      "DG-03: [미검증] 카탈로그 앱 런타임 구동 불가"
+    ],
+    [
+      "fit-pal",
+      "DG-04: [미검증] Figma read-back 런타임 불가"
+    ],
+    [
+      "fit-pal",
+      "미검증 4건 >= 2 임계값 → REJECT (core rule)"
+    ],
+    [
+      "fit-pal",
+      "LG-05: token-mapping-table.md의 colorBrand*/colorAction* 5개 식별자가 generated Dart에 미존재. 계약 개정 시 매핑 표와 RE-02 간 내적 모순 미해소."
+    ],
+    [
+      "fit-pal",
+      "UI-04: IFButton Figma Component variant(3)×state(3)=9개 — 계약의 variant(7)×size(3)×state(5) 미충족"
+    ],
+    [
+      "fit-pal",
+      "UI-05: Figma 8섹션(Extras 추가) — 계약 7섹션 불일치"
+    ],
+    [
+      "fit-pal",
+      "LG-01: DTCG JSON에 app_decoration_token/app_padding/IF*Tokens 없음 — 계약 In scope 미이행"
+    ],
+    [
+      "fit-pal",
+      "LG-03: Future Tokens brand/action 5개 미도입"
+    ],
+    [
+      "fit-pal",
+      "LG-04: token-mapping-table.md 교정 내역 Dark tertiary #767676 vs 표 #848484 자기 모순"
+    ],
+    [
+      "fit-pal",
+      "RE-01: IFButton done state/canSubmit boolean Figma 미구현, widget-audit.md 불일치 미명시"
+    ],
+    [
+      "fit-pal",
+      "LG-05: atomic write 미구현 — copyFileSync 사용, renameSync 미사용"
+    ],
+    [
+      "fit-pal",
+      "AR-01: generated 배선이 app_theme.dart가 아닌 app_color_token.dart에서 발생 [low-confidence]"
+    ],
+    [
+      "fit-pal",
+      "AP-01: pre-existing TODO 8건 (group feature 파일)"
+    ],
+    [
+      "fit-pal",
+      "미검증 4건 초과 (ER-02, DG-02, DG-03, DG-04) — MCP 서버 미설정"
+    ],
+    [
+      "fit-pal",
+      "UI-03: figma-snapshot-v02.json totalWidgets:32 vs listed 39 내부 모순. MetalSurface 리포트 주장(search 0) vs snapshot 실제(neutral 1개) 불일치"
+    ],
+    [
+      "fit-pal",
+      "산출물-Display-dump: widget-deep-dump.md Step3 TODO 상태를 완료로 표현"
+    ],
+    [
+      "flutter_playwright",
+      "AR-01: 도구 수 49개, 허용 범위 45~47 초과"
+    ],
+    [
+      "flutter_playwright",
+      "AR-02: toolkit evaluate 단독 동사 네이밍"
+    ],
+    [
+      "flutter_playwright",
+      "AR-02c: get_network_log server 배치 아님, toolkit에 존재"
+    ],
+    [
+      "flutter_playwright",
+      "AR-05: evaluate → evaluate_expression rename 미적용"
+    ],
+    [
+      "flutter_playwright",
+      "AR-07: embed 모드 응답에 bounds 필드 없음"
+    ],
+    [
+      "flutter_playwright",
+      "AR-08: format default json 미지정, dump_tree 등 format 파라미터 무시"
+    ],
+    [
+      "flutter_playwright",
+      "LG-08: _yamlFallback 중복 YAML 구현"
+    ],
+    [
+      "flutter_playwright",
+      "ER-01: YAML 실패 시 JSON fallback 없음"
+    ],
+    [
+      "flutter_playwright",
+      "ER-03: evaluate 구 이름 여전히 활성"
+    ],
+    [
+      "flutter_playwright",
+      "AP-01: embed 응답 shape bounds 없음"
+    ],
+    [
+      "flutter_playwright",
+      "DG-03: d/b/c/f 시나리오 미커버"
+    ]
+  ],
+  "improvement_suggestions_sample": [
+    [
+      "claude-plugins",
+      "ER-01 라이트모드 조건에 정적 구조 검증 허용 여부를 계약에 명시하면 미검증 태그 없이 PASS 처리 가능"
+    ],
+    [
+      "claude-plugins",
+      "SK-02 계약 조건에서 항목 이름을 구현과 동일하게 명시하면 모호성 제거 가능"
+    ],
+    [
+      "claude-plugins",
+      "SK-05 Anatomy 조건에서 필수 파트 명시 방식을 더 명확히 정의하면 좋음"
+    ],
+    [
+      "claude-plugins",
+      "ER-01 서브체크에서 design-tokens.md, audit-report.md를 Read로 내용까지 확인하면 L3 커버리지를 높일 수 있다"
+    ],
+    [
+      "claude-plugins",
+      "I-02 조건을 다음 계약에서 'modified + untracked 파일 모두 포함' 또는 'modified만'으로 명확히 구분 권장"
+    ],
+    [
+      "fit-pal",
+      "toDartColorHex()에 RRGGBBAA→AARRGGBB 재배열 로직 추가"
+    ],
+    [
+      "fit-pal",
+      "build.js에 fontFamily 타입(string) → Dart String 처리 분기 추가"
+    ],
+    [
+      "fit-pal",
+      "AR-03 계약 배경색 기준을 bg.surface와 bg.screen 중 명확히 지정"
+    ],
+    [
+      "fit-pal",
+      "LG-03 regex를 실제 토큰 네임스페이스(icon, gradient, overlay, feedback, camelCase)에 맞게 갱신"
+    ],
+    [
+      "fit-pal",
+      "AR-03 계약의 기준 배경색을 명확히 지정 (bg.surface vs bg.screen 혼용 가능성)"
+    ],
+    [
+      "fit-pal",
+      "LG-05 계약의 '두 파일 일치' 조건이 의도적 교정값 차이를 허용하는지 명시 필요"
+    ],
+    [
+      "fit-pal",
+      "token-mapping-table.md Future Tokens 섹션을 다음 스프린트 계약에 포함하여 LG-05 범위를 명시적으로 확장"
+    ],
+    [
+      "fit-pal",
+      "MCP 서버 설정 후 DG-02/UI-02/AR-04 런타임 검증 활성화"
+    ],
+    [
+      "fit-pal",
+      "ER-02/DG-02/DG-04는 MCP 런타임 연결 시 실제 런타임 검증 권장"
+    ],
+    [
+      "fit-pal",
+      "AR-04 섹션 레벨 카드 배경은 스냅샷에 섹션별 hasBackground 필드 추가 시 완전 검증 가능"
+    ],
+    [
+      "fit-pal",
+      "피드백 파일을 iteration마다 history 디렉토리에 보존하여 이전 PASS 증거를 추적 가능하게 할 것"
+    ],
+    [
+      "fit-pal",
+      "DG-02 조건 작성 시 References 섹션과 근거 섹션을 명시적으로 구분할 것 — 현재 계약은 References 섹션에 링크 추가를 요구하지만 근거 섹션에도 해당 내용 추가가 자연스러움"
+    ],
+    [
+      "fit-pal",
+      "AR-01 조건에서 untracked 파일 처리 방침을 명시할 것 — '스프린트 결과물 신규 파일 0개' vs '워킹 트리 신규 파일 0개' 구분"
+    ],
+    [
+      "fit-pal",
+      "AP-02 계약 허용 예외에 fmt::Write on String의 .expect()를 infallible 케이스로 명시 추가 권장"
+    ],
+    [
+      "fit-pal",
+      "RE-02 계약 Send+Sync vs clippy implied_bounds 충돌 — 계약을 Send만으로 수정하거나 #[allow] 주석 허용을 명시 권장"
+    ],
+    [
+      "fit-pal-server",
+      "LG-02: GroupPort 에 내부 전용 list_all_member_ids(group_id) 메서드 추가 권장 (권한 체크 없음)"
+    ],
+    [
+      "fit-pal-server",
+      "LG-04: ScheduleNotification enum 에 group_id 필드 추가하거나 계약 LG-04 payload 요건에서 group_id 제거"
+    ],
+    [
+      "fit-pal-server",
+      "계약 작성 시 ScheduleNotification enum 구조와 payload 필드를 동기화 검토 권장"
+    ],
+    [
+      "fit-pal-server",
+      "LG-02 관련: list_all_member_ids는 worker도 동일하게 쓸 예정이므로 worker Composition Root 재사용 문서화 권장"
+    ],
+    [
+      "fit-pal-server",
+      "DG-04 런타임 검증: MCP 서버 설정 시 schedule 경로 실제 401 응답 확인 자동화 추가 권장"
+    ],
+    [
+      "fit-pal",
+      "DA-01 조건이 seed_group_with_due_pending_slot(empty sequence)과 seed_group_with_real_routine_and_attend_votes(UPDATE로 덮어쓰기) 2단계로 나뉘어 있어 향후 계약에서 UPDATE 패턴도 명시하면 검증이 더 명확해진다."
+    ],
+    [
+      "fit-pal",
+      "MCP Figma 서버 설정 시 UI-04/LG-04/DG-04 재검증 가능"
+    ],
+    [
+      "fit-pal",
+      "카탈로그 앱 구동 후 DG-03 수동 확인 권장"
+    ],
+    [
+      "fit-pal",
+      "LG-05 계약 개정 시 매핑 표의 검증 범위를 명시 (예: Semantic Colors 섹션만, Future Tokens 제외)"
+    ],
+    [
+      "fit-pal",
+      "RE-02와 LG-05의 허용 키 집합을 일치시켜 내적 모순 해소"
+    ],
+    [
+      "fit-pal",
+      "UI-03 검증을 위해 스냅샷에 publishedComponents 목록을 별도 제공해야 함"
+    ],
+    [
+      "fit-pal",
+      "LG-04 token-mapping-table.md 단일 문서 내 hex 값 일관성 검증 자동화 필요"
+    ],
+    [
+      "fit-pal",
+      "LG-01 IF*Tokens DTCG 편입이 계약 Scope In에 있으나 구현 안 됨 — 다음 스프린트 계약에서 명시적 제외 표시 권장"
+    ],
+    [
+      "fit-pal",
+      "AR-01 계약 문구를 'generated 직접 참조는 app_color_token.dart와 app_theme.dart 외 0곳'으로 명확화"
+    ],
+    [
+      "fit-pal",
+      "AP-01에 변경 파일 범위 한정 조건 추가 (pre-existing TODO 제외 여부 명시)"
+    ],
+    [
+      "fit-pal",
+      "LG-05 atomic write 요구사항에 'renameSync 사용' 명시"
+    ],
+    [
+      "fit-pal",
+      "snapshot 내부 일관성 검증 — totalWidgets가 listed 수와 일치하는지 자동 확인"
+    ],
+    [
+      "fit-pal",
+      "리포트 완료 주장 전 widget-deep-dump.md의 TODO 항목 클리어 여부 확인"
+    ],
+    [
+      "claude-plugins",
+      "DG-04 fallback 시뮬레이션은 런타임 MCP 서버 설정 시 자동화 가능"
+    ],
+    [
+      "flutter_playwright",
+      "evaluate → evaluate_expression 1줄 수정으로 AR-05/ER-03/AR-01/AR-02 연쇄 해결"
+    ]
+  ]
+}

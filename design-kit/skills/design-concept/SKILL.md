@@ -85,11 +85,20 @@ user-invocable: true
 
 # Process
 
-## Step 0: 기존 컨셉 감지
+## Step 0: 자동 감지 및 로드
 
-`.design/concept.md`가 존재하는지 확인한다:
-- 존재 → 로드하여 수정/확장 모드로 진입. 기존 컨셉 내용을 사용자에게 요약하고 변경할 부분을 확인한다.
-- 미존재 → 신규 생성 모드로 진행.
+프로젝트에서 이전 단계 산출물을 탐색한다 (sibling parity — design-component/design-mockup Step 0 동일 패턴):
+
+```text
+# 감지 대상
+.design/concept.md          → 기존 컨셉 로드 (수정/확장 모드)
+**/theme/** **/tokens/**    → 이미 토큰 체계가 있으면 컨셉 방향 제약으로 활용
+```
+
+- `.design/concept.md` 존재 → 로드하여 수정/확장 모드로 진입. 기존 컨셉 내용을 사용자에게 요약하고 변경할 부분을 확인한다.
+- `.design/concept.md` 미존재 → 신규 생성 모드로 진행.
+
+**이 Step 0 은 독립 Process 단계다 (SK-05 재발 방지)** — Gotchas 의 "기존 컨셉 무시 금지" 지침(Gotcha #4) 과 별개로 Process 첫 단계에서 반드시 수행한다. 자동 로드 로직을 Gotchas 섹션에만 기재하면 평가자가 "프로세스 단계" 요건 미충족으로 판정한다 (2026-04 design-kit REJECT 사유).
 
 ## Step 1: 사용자 입력 분석
 

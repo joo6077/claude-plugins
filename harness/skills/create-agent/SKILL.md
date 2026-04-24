@@ -28,6 +28,11 @@ user-invocable: true
 - 에이전트 파일명은 `kebab-case.md` 로 통일해라. camelCase, snake_case 를 쓰면 다른 에이전트/스킬의 네이밍 규칙과 불일치한다
 - 에이전트가 코드를 수정하면 안 되는 경우(리뷰어, 감사) `Edit`, `Write` 를 tools 에서 제외해라. 읽기 전용 에이전트가 파일을 수정하면 독립 평가의 의미가 사라진다
 - 에이전트 생성 후 반드시 해당 플러그인의 README에 등록 여부를 확인해라. `sync-docs.py --check-only` 가 drift 를 알려주지만, 에이전트 추가 자체는 자동 반영되지 않는다
+- **Binary Decidability Pre-Check (리뷰어 계열 필수)** — 평가/감사 에이전트(`*-reviewer`, `qa-evaluator`)는 평가 시작 전에 계약 조건을 boolean 판정 가능한지 pre-check 하는 단계를 반드시 포함해야 한다 (agent-design-guide §3.5). "적절히", "필요 시", "보통" 같은 모호 표현을 감지하면 즉시 REJECT 또는 계약 수정 요청을 반환하도록 시스템 프롬프트에 명시해라. 없으면 PH-01 (design-kit 2026-04) 유형 REJECT 재발.
+- **Unverifiable 조건 정책 3항** — 평가 에이전트는 검증 불가 상황(mcp_server:null, 런타임 미실행 등) 에서 `[미검증]` 마커를 달고, **2건 이상이면 자동 REJECT** 규칙을 시스템 프롬프트에 명시해야 한다 (agent-design-guide §10). 3항: (1) 미검증 마커 의무, (2) 2건 이상 자동 REJECT, (3) fit-pal/fit-pal-flutter 2026-04 패턴 재발 방지를 위한 "런타임 검증 불가 사유 명시". 없으면 LG-02/DG-04/UI-04 유형 REJECT 재발.
+- **Cross-Surface Parity 체크 (agent-design-guide §12)** — 새 에이전트의 시스템 프롬프트 원칙을 추가할 때 parity item 4개(Binary Decidability / 트리거 배타성 / 검증 기준 / Unverifiable 정책) 중 하나인지 판정하고, 해당하면 skill-design-guide §11 · contract-design-guide · qa-evaluation-guide 와 동일 용어로 존재하는지 Grep 으로 확인해라.
+- **Rule-by-Rule Audit Before Completion (평가 에이전트 필수)** — 평가/감사 에이전트는 판정 제출 전에 모든 계약 조건을 전수 대조하는 Step 을 포함해야 한다 (agent-design-guide §10 · qa-evaluation-guide §Rule-by-Rule). "샘플링으로 충분" 패턴은 L3 Coverage Honesty 위반이며 `[샘플링-N/전체-M]` 태그 없이 완료 선언 시 자동 REJECT.
+- **Sibling Agent 트리거 키워드 배타성 (substring 포함)** — 동일 plugin 의 형제 에이전트 (예: design-reviewer, rust-reviewer, react-reviewer, widget-inspector, animation-architect, backend-reviewer 등) description 간 트리거 키워드 substring containment 까지 금지 (agent-design-guide §3). RE-02 (react-kit 2026-04) 재발 방지.
 
 ## Process
 
@@ -101,6 +106,9 @@ model: {sonnet|opus|haiku|inherit}   # 필수 — 작업 복잡도 기반 선택
 - [ ] tools 가 역할에 맞게 최소한으로 제한됨
 - [ ] model 이 작업 복잡도에 맞게 선택됨
 - [ ] 플러그인 에이전트면 hooks/mcpServers/permissionMode 미사용 확인
+- [ ] **Cross-Surface Parity 4 개 item 확인** (agent-design-guide §12): Binary Decidability Pre-Check / 트리거 배타성 (substring 포함) / 검증 기준 / Unverifiable 정책 — 새 원칙이 parity item 에 해당하면 skill-design-guide §11 · contract-design-guide · qa-evaluation-guide 와의 정합성 Grep
+- [ ] **리뷰어/평가자 계열인 경우 추가 체크**: (1) Binary Decidability Pre-Check 단계 포함, (2) `[미검증]` 마커 정책 3항 포함, (3) Rule-by-Rule Audit 전수 대조 Step 포함, (4) L3 Coverage Honesty `[샘플링-N/전체-M]` 태그 규칙 명시
+- [ ] **Sibling Agent 트리거 배타성**: 동일 plugin 내 형제 에이전트 description 간 substring containment 금지 확인
 - [ ] **validate-plugin 연동**: `python3 scripts/validate-plugin.py <plugin-name>` 실행하여 V1/V4/V5/V6 최소 4 개가 OK 인지 확인. 에이전트의 V1 필수 필드는 `name`, `description`, `tools`, `model` 4 개 (스킬과 달리 `user-invocable` 없음). 기준은 `harness/docs/guides/plugin-validation-guide.md §3.1` 참조.
 
 ### 6. 사용자에게 결과 제시

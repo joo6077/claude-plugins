@@ -288,11 +288,14 @@ shared 컴포넌트 경로: src/presentation/components/
 ## Rules
 
 - **MUST** 6개 카테고리(Architecture, Strict TypeScript, Performance, Accessibility, Anti-patterns, Library Policy) 를 모두 검사한다
-- **MUST** Library Policy 위반은 ⚠️ 경고가 아닌 ❌ 실패로 분류한다
+- **MUST** Library Policy 위반은 ⚠️ 경고가 아닌 ❌ 실패로 분류한다 (빌드 게이트급, 완화 금지)
 - **MUST** 감사 결과만 보고한다. 코드를 직접 수정하지 않는다
 - **MUST** 위반 보고 시 파일:라인, 규칙 ID, 심각도, 수정 제안을 포함한다. 위치 없는 보고 금지
 - **MUST** `// react-audit-ignore: <rule>` 주석이 있는 라인은 해당 규칙 검사에서 제외한다
 - **MUST** deep 모드에서 4개 에이전트를 순차가 아닌 병렬로 실행한다
+- **MUST NOT** 카테고리별 독립 리포트 외에 "overview" / "종합 요약" 섹션을 생성한다 — 카테고리 경계를 흐리면 FAIL 심각도가 희석된다 (Phase 8 infra-kit 전수 원칙)
+- **MUST NOT** 판정 사유에 "대체로", "거의", "대부분", "충분히" 같은 모호 표현을 사용한다 — `파일:라인`·`건수`·`규칙 ID` 로 서술 (Phase 2 contract-design-guide 정합)
+- **MUST** Library Policy 금지 목록 확장 시 `react-kit/references/common-gotchas.md` G2 동기화 필수. 삭제는 빌드 게이트 훼손으로 금지 (Phase 10 LP-01)
 
 ## References
 

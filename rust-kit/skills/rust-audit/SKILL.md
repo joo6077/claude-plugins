@@ -24,6 +24,10 @@ user-invocable: true
 9. **2026 clippy pedantic 필수 lint** — `needless_pass_by_value`, `redundant_clone`, `cloned_instead_of_copied`, `inefficient_to_string`, `large_futures`가 pedantic deny 기본 세트에 포함되어야 한다. 누락 시 INFO로 보고한다.
 10. **cargo-deny v2 형식 확인** — `deny.toml`이 v2 형식(`multiple-versions = "warn"`, `unknown-registry = "deny"`)인지 확인한다. v1 형식(deprecated `vulnerability`/`notice` 필드)이면 마이그레이션을 권고한다.
 11. **Edition 2024 준수 확인** — 신규 프로젝트에서 `edition = "2024"` + `resolver = "3"`이 아니면 INFO로 보고한다. `gen` 변수명, `:id` path 문법 등 edition 2024 비호환 패턴도 감사한다.
+12. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 코드에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "더 나을 것 같다"처럼 주관 해석 여지가 남는 기준은 카테고리 평가 시작 시점에 근거 제약(파일:라인 + 출처 URL) 을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "API Design 이 깔끔한지" → "핸들러 state 가 `Arc<dyn Port>` 인지 (파일:라인 + fit-pal §아키텍처 3번)".
+13. **Rule-by-Rule Audit 프로토콜 (skill-design-guide §3.6 대응)** — `references/audit-criteria.md` 7 카테고리 × N 체크항목을 한 번에 묶어 "대체로 PASS/FAIL" 로 리포트하지 말고, 각 체크항목 단위로 개별 판정과 근거를 생성하라. 묶음 판정은 PASS 세부가 가려지고 FAIL 누락 추적이 불가능해진다. 리포트 표(Step 4) 각 row 는 한 체크항목에 대응한다.
+14. **미검증 항목 마커 프로토콜 (evaluator v3 대응)** — 런타임 환경/외부 시스템 접근 불가(예: production DB pool 설정·실제 Redis 연결·OAuth provider 응답)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 이유를 기술하라 (예: `[미검증] production DB 접근 불가 — pool 설정 파일 정적 리뷰만 수행`). 미검증 2 건 이상은 CONDITIONAL APPROVE 규칙을 적용한다 (Step 4 참조).
+15. **Sibling Consistency (skill-design-guide §8.8) — rust-audit ↔ backend-audit** — 동일 개념의 Rule-by-Rule 표 / CONDITIONAL APPROVE 판정 규칙 / 출처 URL 포맷을 backend-audit Step 3 와 parity 있게 유지한다. Rust 고유 카테고리(Ownership & Borrowing · unsafe 블록 · async Send+Sync · SQLx offline) 은 독립 row 로 추가하되, RFC 9457 / OWASP 같이 스택 공통인 원칙은 backend-audit 와 동일 문구로 인용한다.
 
 # Process
 
@@ -77,21 +81,40 @@ prompt: |
   대상 파일: [목록]
 ```
 
-## 4. 리포트 생성
+## 4. 리포트 생성 (Rule-by-Rule 표 — Gotcha 13 필수)
 
-| 카테고리 | 판정 | 근거 |
-|----------|------|------|
-| Ownership & Borrowing | {PASS/FAIL} | {파일:라인 + 설명} |
-| Error Handling | {PASS/FAIL} | |
-| Async | {PASS/FAIL} | |
-| Security | {PASS/FAIL} | |
-| Performance | {PASS/FAIL} | |
-| Testing | {PASS/FAIL} | |
-| API Design | {PASS/FAIL} | |
+카테고리 순서는 `references/audit-criteria.md` 섹션 순서와 일치시킨다 (총 7 카테고리). 각 row 는 **하나의 체크항목(rule)** 에 대응하며, 카테고리 단위로 묶지 않고 개별 판정·근거·출처를 생성한다. 표 자리표시자(`...`) 금지.
 
-**최종 판정:** {APPROVE / REJECT}
-**FAIL 수:** {N}개
+| # | 카테고리 | 체크항목 | 판정 | 근거(파일:라인) | 출처 URL |
+|---|----------|---------|------|-----------------|----------|
+| 1 | Ownership & Borrowing | 불필요 `.clone()` 부재 | PASS/FAIL | `src/service/user.rs:42` Copy 타입에 clone 호출 0 건 | [Rust Book Ownership](https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html) |
+| 2 | Ownership & Borrowing | `needless_pass_by_value` 위반 0 건 | PASS/FAIL | clippy 출력 해당 lint 0 건 | [Clippy needless_pass_by_value](https://rust-lang.github.io/rust-clippy/master/#needless_pass_by_value) |
+| 3 | Error Handling | `?` 연산자 + `From` 구현 패턴 | PASS/FAIL | `src/domain/error.rs:1-40` thiserror 2 derive 사용 | [thiserror docs](https://docs.rs/thiserror/latest/thiserror/) |
+| 4 | Error Handling | 프로덕션 경로 `.unwrap()/.expect()` 부재 | PASS/FAIL | `grep -rn "\.unwrap()\|\.expect(" src/ --include='*.rs' \| grep -v "#\[cfg(test)\]"` 결과 0 건 | fit-pal `server/CLAUDE.md` §에러 처리 |
+| 5 | Async | `#[tokio::test(flavor = "multi_thread")]` 명시 (필요 시) | PASS/FAIL | `tests/integration/*.rs` Axum TestServer 케이스 확인 | [Tokio test attribute](https://docs.rs/tokio/latest/tokio/attr.test.html) |
+| 6 | Async | blocking I/O 부재 (`std::fs::read` 등) | PASS/FAIL | async 함수 내 `std::thread::sleep`/`std::fs` 호출 0 건 | [Tokio spawn_blocking](https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html) |
+| 7 | Async | trait 시그니처에 `Send + Sync` 일관 | PASS/FAIL | `src/domain/ports/*.rs` trait `Send + Sync` 선언 존재 | fit-pal `server/CLAUDE.md` §아키텍처 |
+| 8 | Security | `unsafe` 블록 부재 또는 `// SAFETY:` 주석 필수 | PASS/FAIL | `grep -rn "unsafe {" src/` 결과 모두 주석 + `unsafe_code = "forbid"` 워크스페이스 lint | [Rust Reference Unsafe](https://doc.rust-lang.org/reference/unsafe-keyword.html) |
+| 9 | Security | 시크릿 하드코딩 부재 | PASS/FAIL | `.env.example` + repo 내 `secret`/`token`/`password` 리터럴 0 건 | OWASP Top 10 A02 |
+| 10 | Security | SQL injection 방어 (SQLx `query!`/`query_as!` 매크로 + bind 파라미터) | PASS/FAIL | `src/infra/db/*.rs` raw `format!("SELECT ...")` 0 건 | [SQLx query macro](https://docs.rs/sqlx/latest/sqlx/macro.query.html) |
+| 11 | Performance | `large_futures` deny + `redundant_clone` deny workspace lint | PASS/FAIL | `Cargo.toml` `[workspace.lints.clippy]` 해당 lint 포함 | [Clippy lint index](https://rust-lang.github.io/rust-clippy/master/) |
+| 12 | Performance | SQLx offline cache (`.sqlx/`) 존재 + CI 에서 `cargo sqlx prepare --check` 실행 | PASS/FAIL | `.sqlx/` 디렉토리 + CI workflow step 확인 | [SQLx prepare --check](https://github.com/launchbadge/sqlx/blob/main/sqlx-cli/README.md) |
+| 13 | Testing | `#[sqlx::test]` 또는 `MockDatabase` 사용 (Docker 없는 단위 테스트 가능) | PASS/FAIL | `tests/*.rs` 각 테스트 어노테이션 확인 | [SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) |
+| 14 | API Design | 핸들러 state 는 `Arc<dyn Port>` trait object (SK-03) | PASS/FAIL | `grep -n "State<PgPool>\|State<sqlx::" src/api/handlers/` 결과 0 건 | fit-pal `server/CLAUDE.md` §아키텍처 3번 |
+
+위 표는 대표 rule 예시이며, 실제 리포트는 `references/audit-criteria.md` 의 모든 기준 rule 을 빠짐없이 열거해야 한다 (Rule-by-Rule Audit · Gotcha 13).
+
+## 5. 최종 판정
+
+판정 분류는 세 가지다:
+
+- **APPROVE** — 전 row PASS + 미검증 태그 0 건.
+- **CONDITIONAL APPROVE** — 전 row PASS 이지만 `[미검증]` 태그 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · MCP server 설정) 후 재검증 권고. 2 건 이상은 REJECT.
+- **REJECT** — 1 건 이상 FAIL 또는 `[미검증]` 2 건 이상. 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 함께 제시한다.
 
 # References
 
-- references/audit-criteria.md — 카테고리별 PASS/FAIL 체크리스트
+- references/audit-criteria.md — 카테고리별 PASS/FAIL 체크리스트 (존재 시 SSOT)
+- backend-kit/skills/backend-audit/SKILL.md §Step 3 — 10 카테고리 Rule-by-Rule sibling ground truth
+- harness/docs/guides/skill-design-guide.md §3.6 — Rule-by-Rule Audit 원칙 SSOT
+- harness/docs/guides/agent-design-guide.md §3.5 · §10 · §12 — Binary Decidability · Unverifiable · L3 Coverage Honesty

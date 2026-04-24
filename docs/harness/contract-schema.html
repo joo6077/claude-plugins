@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Contract Schema v2 — Harness</title>
+<title>Contract Schema v3 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -31,7 +31,7 @@ body{
 .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
 .brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
-.badge-v2{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0d14}
+.badge-v3{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0d14}
 
 .hero{padding:72px 0 56px;text-align:center}
 .hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
@@ -97,6 +97,14 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 .timeline-date{font-size:11px;color:var(--text3);margin-left:8px}
 .timeline-desc{font-size:13px;color:var(--text2);margin-top:4px}
 
+.highlight-card{background:rgba(14,165,233,0.07);border:1px solid rgba(14,165,233,0.25);border-radius:var(--radius);padding:24px;margin:18px 0}
+.highlight-card .hl-title{font-size:13px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.highlight-card p{font-size:13.5px;color:var(--text2);line-height:1.7}
+
+.threshold-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);margin-bottom:10px}
+.threshold-num{font-size:20px;font-weight:800;font-family:var(--mono);min-width:42px;text-align:center}
+.threshold-label{font-size:13px;color:var(--text2);flex:1}
+
 .footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
 .footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
 .footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
@@ -115,16 +123,16 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · Contract Schema</div>
-  <span class="badge badge-v2">v2 · 2026-04-11</span>
+  <span class="badge badge-v3">v3 · 2026-04-24</span>
 </div>
 
 <div class="hero">
-  <h1>Sprint Contract Schema v2</h1>
-  <p class="subtitle"><code>sprint-contract</code> 와 <code>qa-evaluator</code> 가 공유하는 계약 포맷 정의. v2 에서 specificity tag 와 aggregation mode 가 필수화되었으며, 숫자 레벨 태그 (L1/L2/L3) 가 명시적으로 금지되었다.</p>
+  <h1>Sprint Contract Schema v3</h1>
+  <p class="subtitle"><code>sprint-contract</code>과 <code>qa-evaluator</code>가 공유하는 계약 포맷 정의. v3에서 <code>[미검증]</code> 마커 임계값 프로토콜과 Sibling Enumerated 요건이 추가되었으며, Binary Decidability를 작성 의무로 승격했다.</p>
   <div class="meta">
-    <span>Phase 2 Kaizen</span>
-    <span>schema v2</span>
-    <span>최근 갱신 2026-04-11</span>
+    <span>Phase 3 Kaizen</span>
+    <span>schema v3</span>
+    <span>최근 갱신 2026-04-24</span>
     <span>경로 .harness/sprint-contract.md</span>
   </div>
 </div>
@@ -132,14 +140,19 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 <!-- SECTION 1: VERSION TIMELINE -->
 <div class="section">
   <div class="section-label">Version History</div>
-  <div class="section-title">v1 → v2 변경 이력</div>
-  <p class="section-desc">스키마 버전 이력. v2 는 Phase 2 카이젠에서 도입되었고, 계약과 평가자 양쪽에서 동일하게 소비된다.</p>
+  <div class="section-title">v1 → v3 변경 이력</div>
+  <p class="section-desc">스키마 버전별 핵심 변경 사항. 각 버전은 sprint-contract 스킬과 qa-evaluator 에이전트 양쪽에 동시 마이그레이션된다.</p>
 
   <div class="timeline">
     <div class="timeline-item">
+      <span class="timeline-version">v3</span>
+      <span class="timeline-date">2026-04-24 (Phase 3 kaizen)</span>
+      <p class="timeline-desc"><strong>[미검증] 마커 임계값 프로토콜</strong> 추가 — 0개: 정상, 1개: 경고 후 진행, 2개 이상: 자동 REJECT. <strong>Sibling Enumerated 요건</strong> 추가 — sibling 범위 조건은 반드시 각 항목을 열거해야 <code>[enumerated]</code> 유효. <strong>Binary Decidability</strong>를 선택사항에서 작성 의무(author obligation)로 승격 — 모든 조건에 Pass/Fail 판정 기준이 사전에 명시되어야 함.</p>
+    </div>
+    <div class="timeline-item">
       <span class="timeline-version">v2</span>
       <span class="timeline-date">2026-04-11 (Phase 2 kaizen)</span>
-      <p class="timeline-desc">조건 구체성 태그 (<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>) 와 aggregation mode (<code>[enumerated]</code>/<code>[collective]</code>) 필수화. 숫자 레벨 태그 (L1/L2/L3) 금지 명시 — QA 평가 깊이와 충돌 방지.</p>
+      <p class="timeline-desc">조건 구체성 태그 (<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>)와 aggregation mode (<code>[enumerated]</code>/<code>[collective]</code>) 필수화. 숫자 레벨 태그 (L1/L2/L3) 금지 명시 — QA 평가 깊이와 충돌 방지.</p>
     </div>
     <div class="timeline-item">
       <span class="timeline-version">v1</span>
@@ -153,7 +166,7 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 <div class="section">
   <div class="section-label">File Metadata</div>
   <div class="section-title">계약 파일 위치 + frontmatter</div>
-  <p class="section-desc">계약 파일은 항상 <code>.harness/sprint-contract.md</code> 에 저장된다. 메타데이터는 YAML frontmatter 로 작성.</p>
+  <p class="section-desc">계약 파일은 항상 <code>.harness/sprint-contract.md</code>에 저장된다. 메타데이터는 YAML frontmatter로 작성.</p>
 
   <div class="grid-2">
     <div class="card">
@@ -165,73 +178,144 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
       <div class="card-title"><span class="dot"></span>frontmatter 예시</div>
       <code class="code-block">---
 feature: "로그인 화면"
-created: "2026-04-11 14:30"
+created: "2026-04-24 14:30"
 complexity: "medium"
 conditions: 10
 ---</code>
       <p><code>complexity</code>: <code>simple</code> / <code>medium</code> / <code>complex</code></p>
     </div>
   </div>
-</div>
 
-<!-- SECTION 3: SPECIFICITY TAGS -->
-<div class="section">
-  <div class="section-label">Specificity Tag</div>
-  <div class="section-title">조건 끝 태그 — 모든 조건에 필수</div>
-  <p class="section-desc">v2 부터 모든 계약 조건은 끝에 구체성 태그를 붙여야 한다. 미명시 시 <code>[structural]</code> 로 간주된다 (기본값).</p>
-
-  <div class="table-wrap">
+  <div class="table-wrap" style="margin-top:20px">
     <table>
-      <thead><tr><th>태그</th><th>의미</th></tr></thead>
+      <thead><tr><th>복잡도</th><th>파일 영향</th><th>권장 조건 수</th><th>예시</th></tr></thead>
       <tbody>
-        <tr><td><code>[exact]</code></td><td>이름/값/구조 문자 그대로 매칭</td></tr>
-        <tr><td><code>[structural]</code></td><td>섹션/필드/파일 존재 확인 (기본값)</td></tr>
-        <tr><td><code>[goal]</code></td><td>목표 달성 여부만 판정, 수단 무관</td></tr>
+        <tr><td><code>simple</code></td><td>1-3 파일</td><td>4–6 조건</td><td>색상 변경, 단일 위젯 추가</td></tr>
+        <tr><td><code>medium</code></td><td>4-8 파일</td><td>8–12 조건</td><td>새 화면 + 라우트 + provider, API 연동</td></tr>
+        <tr><td><code>complex</code></td><td>9+ 파일</td><td>12–20 조건</td><td>새 feature 모듈, 멀티 레이어 리팩터링</td></tr>
       </tbody>
     </table>
   </div>
-
-  <code class="code-block">- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
-- [ ] UI-02: 설정 화면에 접근성 라벨이 모든 버튼에 존재한다 [structural]
-- [ ] LO-01: 로그인 실패 시 사용자에게 실패 원인이 전달된다 [goal]</code>
-
-  <div class="card" style="margin-top:18px;border-left:3px solid var(--accent)">
-    <div class="card-title"><span class="dot"></span>네이밍 규칙</div>
-    <p>숫자 레벨 태그 (L1/L2/L3) 는 <strong>QA 평가 깊이 전용</strong>으로 예약되어 있다. 계약 태그로 재사용 금지. 자세한 작성 기준은 <a href="contract-design.html" style="color:var(--accent)">Contract Design Guide</a> 의 §태그 선택 기준 참조.</p>
-  </div>
 </div>
 
-<!-- SECTION 4: AGGREGATION MODE -->
+<!-- SECTION 3: CONDITION FORMAT -->
 <div class="section">
-  <div class="section-label">Aggregation Mode</div>
-  <div class="section-title">다수 대상 조건 — enumerated vs collective</div>
-  <p class="section-desc">조건이 다수 대상 (파일/모듈/키워드) 에 적용될 때, 태그에 모드를 함께 명시한다. 기본값은 <code>collective</code> (포괄, 더 관대).</p>
+  <div class="section-label">Condition Format</div>
+  <div class="section-title">조건 포맷 — Specificity Tag + Aggregation Mode</div>
+  <p class="section-desc">v2부터 모든 계약 조건은 끝에 구체성 태그를 붙여야 한다. v3 전체 포맷은 아래와 같다.</p>
 
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>모드</th><th>의미</th></tr></thead>
-      <tbody>
-        <tr><td><code>enumerated</code></td><td>각 대상을 개별 이름으로 명시해야 PASS</td></tr>
-        <tr><td><code>collective</code> (기본)</td><td>포괄 경로/패턴 하나로도 PASS</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <code class="code-block">- [ ] {PREFIX}-{NN}: {조건문} [{specificity}] [{aggregation}?] [{미검증}?]</code>
 
-  <code class="code-block">- [ ] RE-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이
-       각각 파일명으로 명시된다 [exact, enumerated]
-- [ ] RE-02: References 에 docs/react/kit-design/ 경로가 명시된다
-       [structural, collective]</code>
-
-  <div class="grid-2" style="margin-top:18px">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>모드 적용 규칙</div>
-      <p>모드는 태그가 <code>[exact]</code> 또는 <code>[structural]</code> 일 때만 의미가 있다. <code>[goal]</code> 은 aggregation 개념 자체가 적용되지 않는다.</p>
-      <a class="card-source" href="contract-design.html">Contract Design Guide</a>
+  <div class="grid-2" style="margin-top:20px">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em">Specificity Tag</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>태그</th><th>의미</th><th>기본값</th></tr></thead>
+          <tbody>
+            <tr><td><code>[exact]</code></td><td>이름/값/구조 문자 그대로 매칭</td><td></td></tr>
+            <tr><td><code>[structural]</code></td><td>섹션/필드/파일 존재 확인</td><td>✓ 기본</td></tr>
+            <tr><td><code>[goal]</code></td><td>목표 달성 여부, 수단 무관</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>네 가지 조합</div>
-      <p><code>[exact, enumerated]</code> 가장 엄격, <code>[structural, enumerated]</code> 섹션별 검증, <code>[structural, collective]</code> 기본값, <code>[goal, collective]</code> 의미 매칭.</p>
-      <a class="card-source" href="qa-evaluation.html">QA Evaluation Guide</a>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em">Aggregation Mode</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>모드</th><th>의미</th><th>기본값</th></tr></thead>
+          <tbody>
+            <tr><td><code>[enumerated]</code></td><td>각 대상을 개별 이름으로 명시해야 PASS</td><td></td></tr>
+            <tr><td><code>[collective]</code></td><td>포괄 경로/패턴 하나로도 PASS</td><td>✓ 기본</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <code class="code-block" style="margin-top:18px">- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
+- [ ] UI-02: 모든 버튼에 접근성 라벨이 존재한다 [structural]
+- [ ] LO-01: 로그인 실패 시 사용자에게 실패 원인이 전달된다 [goal]
+- [ ] RE-01: References에 g1, g2, g3, g4, g5 5개 파일이 각각 명시된다 [exact, enumerated]
+- [ ] SK-02: Gotchas 섹션이 존재하고 [미검증] 표시 없이 작성된다 [structural]</code>
+
+  <div class="card" style="margin-top:18px;border-left:3px solid var(--yellow)">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>L1/L2/L3 태그 금지</div>
+    <p>숫자 레벨 태그는 <strong>QA 평가 깊이 전용</strong>으로 예약되어 있다. 계약 태그로 재사용 금지. 레거시 계약의 <code>[L1]</code>/<code>[L2]</code>/<code>[L3]</code>가 남아 있으면 qa-evaluator가 <code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>로 해석하지만 신규 계약에는 사용 금지.</p>
+  </div>
+</div>
+
+<!-- SECTION 4: V3 ADDITIONS -->
+<div class="section">
+  <div class="section-label">v3 Additions</div>
+  <div class="section-title">v3 신규 사항 — Binary Decidability · [미검증] · Sibling Enumerated</div>
+  <p class="section-desc">Phase 3 카이젠에서 추가된 세 가지 핵심 변경. 모두 sprint-contract 작성 의무와 qa-evaluator 소비 방식에 영향을 미친다.</p>
+
+  <!-- Binary Decidability -->
+  <div class="highlight-card" style="margin-bottom:24px">
+    <div class="hl-title">1. Binary Decidability — 작성 의무</div>
+    <p>모든 조건은 <strong>Yes/No 판정이 사전에 명확해야</strong> 한다. "적절히 처리된다", "잘 동작한다" 같은 모호한 기준은 허용되지 않는다. 작성자는 조건을 작성하면서 "이 조건은 어떻게 Pass/Fail을 판정하는가?"를 자문해야 한다.</p>
+  </div>
+
+  <div class="compare" style="margin-bottom:28px">
+    <div class="compare-bad">
+      <div class="compare-label">Binary Decidability 위반</div>
+      <code class="code-block">- [ ] UI-01: 에러 메시지가 적절히
+       표시된다 [goal]
+- [ ] DG-01: 코드 품질이 양호하다
+       [structural]</code>
+      <p>평가자가 "적절히", "양호하다"를 각자 다르게 해석 — 결과 불일치.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Binary Decidability 준수</div>
+      <code class="code-block">- [ ] UI-01: 로그인 실패 시 화면에
+       에러 메시지 텍스트가 보인다 [goal]
+- [ ] DG-01: flutter analyze 경고
+       0건 [exact]</code>
+      <p>외부에서 관찰 가능한 결과로 기술 — 평가자 해석 충돌 없음.</p>
+    </div>
+  </div>
+
+  <!-- [미검증] marker -->
+  <p style="font-size:1.1rem;font-weight:700;margin-bottom:14px">[미검증] 마커 임계값 프로토콜</p>
+  <p class="section-desc" style="margin-bottom:18px">조건 내용을 실제로 확인하지 못한 경우 <code>[미검증]</code> 마커를 붙인다. qa-evaluator는 마커 수를 집계하여 아래 임계값으로 판정한다.</p>
+
+  <div class="threshold-row">
+    <div class="threshold-num" style="color:var(--green)">0</div>
+    <div class="threshold-label"><strong>정상</strong> — 모든 조건이 실제 확인됨. 정상 진행.</div>
+  </div>
+  <div class="threshold-row">
+    <div class="threshold-num" style="color:var(--yellow)">1</div>
+    <div class="threshold-label"><strong>경고</strong> — 1개 항목 미검증. 경고 메시지 출력 후 평가 계속 진행. 최종 APPROVE 가능.</div>
+  </div>
+  <div class="threshold-row" style="margin-bottom:20px">
+    <div class="threshold-num" style="color:var(--red)">2+</div>
+    <div class="threshold-label"><strong>자동 REJECT</strong> — 2개 이상 미검증. 조건 내용을 신뢰할 수 없어 평가 중단. 재작성 후 재평가.</div>
+  </div>
+
+  <code class="code-block">- [ ] SK-02: Gotchas 섹션이 존재한다 [structural] [미검증]
+  <!-- 실제 파일을 읽지 않았으므로 [미검증] 마킹 --></code>
+
+  <!-- Sibling Enumerated -->
+  <p style="font-size:1.1rem;font-weight:700;margin:24px 0 14px">Sibling Enumerated 요건</p>
+  <p class="section-desc" style="margin-bottom:18px">sibling 파일들(동일 디렉토리의 복수 SKILL.md 등)을 범위로 하는 조건은 반드시 각 파일을 개별 열거해야 <code>[enumerated]</code>가 유효하다. 포괄 경로만 명시하면 <code>[collective]</code>로 다운그레이드된다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">sibling 열거 없음 — collective로 강등</div>
+      <code class="code-block">- [ ] H-01: harness 스킬 전체에
+       Gotchas 섹션이 존재한다
+       [structural, enumerated]</code>
+      <p>"전체"는 열거가 아님 — evaluator가 collective로 다운그레이드하거나 REJECT.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">sibling 열거 완료 — enumerated 유효</div>
+      <code class="code-block">- [ ] H-01: sprint-contract SKILL.md,
+       create-skill SKILL.md, create-agent
+       SKILL.md 각각에 Gotchas 섹션이
+       존재한다 [structural, enumerated]</code>
+      <p>각 파일명 열거 → evaluator가 파일별 개별 확인.</p>
     </div>
   </div>
 </div>
@@ -240,20 +324,20 @@ conditions: 10
 <div class="section">
   <div class="section-label">Required Sections</div>
   <div class="section-title">필수 섹션 — 4가지</div>
-  <p class="section-desc">모든 Sprint Contract 는 아래 4 가지 섹션을 반드시 포함한다. Reusability 와 Diagnostics 는 sprint-contract 스킬이 자동으로 추가한다.</p>
+  <p class="section-desc">모든 Sprint Contract는 아래 4가지 섹션을 반드시 포함한다. Reusability와 Diagnostics는 sprint-contract 스킬이 자동으로 추가한다.</p>
 
   <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span>1. 카테고리별 조건</div>
       <code class="code-block">## {CategoryID}
 - [ ] {PREFIX}-{NN}: {조건문} [tag]</code>
-      <p><code>CategoryID</code> 와 <code>PREFIX</code> 는 <code>project.yaml.contract_categories</code> 에서 가져온다.</p>
+      <p><code>CategoryID</code>와 <code>PREFIX</code>는 <code>project.yaml.contract_categories</code>에서 가져온다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>2. Anti-patterns</div>
       <code class="code-block">## Anti-patterns
 - [ ] {id}: {message}</code>
-      <p><code>project.yaml.anti_patterns</code> 에서 <strong>최소 2 개</strong> 선별. 해당 구현에서 발생 가능성이 높은 것을 우선.</p>
+      <p><code>project.yaml.anti_patterns</code>에서 <strong>최소 2개</strong> 선별. 해당 구현에서 발생 가능성이 높은 것을 우선.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>3. Reusability (자동)</div>
@@ -276,123 +360,113 @@ conditions: 10
   </div>
 </div>
 
-<!-- SECTION 6: COMPLEXITY GUIDE -->
+<!-- SECTION 6: FULL V3 EXAMPLE -->
 <div class="section">
-  <div class="section-label">Complexity Guide</div>
-  <div class="section-title">복잡도별 조건 수 가이드</div>
-  <p class="section-desc">파일 영향 범위와 조건 수의 권장 비율. 과소 산정 안티패턴 방지용.</p>
+  <div class="section-label">Full Example</div>
+  <div class="section-title">v3 계약 전체 예시</div>
+  <p class="section-desc">medium 복잡도, 10개 조건, sibling enumerated + [미검증] 마커 모두 포함한 완성형 v3 계약 예시.</p>
 
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>복잡도</th><th>파일 영향</th><th>조건 수</th><th>예시</th></tr></thead>
-      <tbody>
-        <tr><td><code>simple</code></td><td>1-3 파일</td><td>4-6 조건</td><td>색상 변경, 텍스트 수정, 단일 위젯 추가</td></tr>
-        <tr><td><code>medium</code></td><td>4-8 파일</td><td>8-12 조건</td><td>새 화면 + 라우트 + provider, API 연동</td></tr>
-        <tr><td><code>complex</code></td><td>9+ 파일</td><td>12-20 조건</td><td>새 feature 모듈, 멀티 레이어 리팩터링</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <code class="code-block">---
+feature: "설정 화면 + 언어 변경"
+created: "2026-04-24 10:00"
+complexity: "medium"
+conditions: 10
+---
+
+## UI
+- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
+- [ ] UI-02: SettingsScreen 위젯이 lib/presentation/screens/에 생성된다 [structural]
+- [ ] UI-03: 언어 선택 드롭다운에 한국어/영어 2개 옵션이 존재한다 [exact, enumerated]
+
+## Logic
+- [ ] LO-01: 언어 선택 시 앱 전체 locale이 즉시 변경된다 [goal]
+- [ ] LO-02: 선택된 언어가 앱 재시작 후에도 유지된다 [goal]
+
+## Skill
+- [ ] SK-01: sprint-contract SKILL.md, create-skill SKILL.md 양쪽에
+       복잡도 가이드 테이블이 존재한다 [structural, enumerated]
+- [ ] SK-02: l10n 문서 경로가 References에 명시된다 [structural] [미검증]
+
+## Anti-patterns
+- [ ] AP-01: hard-coded 문자열이 위젯 내부에 직접 삽입되지 않는다
+- [ ] AP-02: locale 상태가 전역 변수가 아닌 Provider로 관리된다
+
+## Reusability
+- [ ] RE-01: private 일회용 컴포넌트가 없다
+- [ ] RE-02: 기존 공용 드롭다운 컴포넌트를 재사용한다
+
+## Diagnostics
+- [ ] DG-01: flutter analyze 경고 0건
+- [ ] DG-02: flutter analyze 에러 0건
+- [ ] DG-03: 테스트 전체 통과
+- [ ] DG-04: 콘솔 에러 0건</code>
 </div>
 
-<!-- SECTION 7: V1 vs V2 COMPARE -->
-<div class="section">
-  <div class="section-label">v1 vs v2</div>
-  <div class="section-title">스키마 마이그레이션 — v1 계약을 v2 로</div>
-  <p class="section-desc">v1 으로 작성된 기존 계약을 v2 로 마이그레이션할 때의 변환 규칙.</p>
-
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">v1 — 태그 없음</div>
-      <code class="code-block">- [ ] UI-01: 라우터에 /settings
-       경로가 등록된다
-- [ ] UI-02: 모든 버튼에 접근성
-       라벨이 존재한다
-- [ ] RE-01: References 에
-       7 개 그룹 문서가 명시된다</code>
-      <p>판정 방식이 불명확 — QA Evaluator 가 해석 차이로 REJECT 가능.</p>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">v2 — 태그 + aggregation</div>
-      <code class="code-block">- [ ] UI-01: 라우터에 /settings
-       경로가 등록된다 [exact]
-- [ ] UI-02: 모든 버튼에 접근성
-       라벨이 존재한다 [structural]
-- [ ] RE-01: References 에 g1, g2,
-       g3, g4, g5, g5b, g6 7 개 파일
-       이 명시된다 [exact, enumerated]</code>
-      <p>판정 방식이 사전 합의됨 — 평가 시 해석 충돌 없음.</p>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:18px;border-left:3px solid var(--yellow)">
-    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>레거시 호환</div>
-    <p>v1 계약의 <code>[L1]</code> / <code>[L2]</code> / <code>[L3]</code> 태그가 남아 있는 경우, qa-evaluator 는 다음 매핑으로 해석한다: <code>[L1]</code> ≡ <code>[exact]</code>, <code>[L2]</code> ≡ <code>[structural]</code>, <code>[L3]</code> ≡ <code>[goal]</code>. 신규 계약에는 사용 금지.</p>
-    <a class="card-source" href="qa-evaluation.html">QA Evaluation §Specificity Tag 소비</a>
-  </div>
-</div>
-
-<!-- SECTION 8: VALIDATION CHECKLIST -->
+<!-- SECTION 7: VALIDATION CHECKLIST -->
 <div class="section">
   <div class="section-label">Schema Validation</div>
-  <div class="section-title">v2 계약 검증 체크리스트</div>
-  <p class="section-desc">계약 파일을 작성/수정한 뒤 자가 점검 항목. <code>sprint-contract</code> 스킬이 이 항목을 자동 검사한다.</p>
+  <div class="section-title">v3 계약 검증 체크리스트</div>
+  <p class="section-desc">계약 파일을 작성/수정한 뒤 자가 점검 항목. sprint-contract 스킬이 이 항목을 자동 검사한다.</p>
   <ul class="checklist">
-    <li><span class="check">✓</span> 파일 경로가 <code>.harness/sprint-contract.md</code> 와 일치</li>
-    <li><span class="check">✓</span> frontmatter 에 <code>feature</code>, <code>created</code>, <code>complexity</code>, <code>conditions</code> 4 필드 존재</li>
+    <li><span class="check">✓</span> 파일 경로가 <code>.harness/sprint-contract.md</code>와 일치</li>
+    <li><span class="check">✓</span> frontmatter에 <code>feature</code>, <code>created</code>, <code>complexity</code>, <code>conditions</code> 4 필드 존재</li>
     <li><span class="check">✓</span> 모든 조건이 <code>- [ ]</code> 체크박스로 시작</li>
-    <li><span class="check">✓</span> 모든 조건에 ID (예: <code>UI-01</code>) 가 부여됨</li>
-    <li><span class="check">✓</span> 모든 조건 끝에 specificity tag <code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code> 명시</li>
-    <li><span class="check">✓</span> 다수 대상 조건은 aggregation mode <code>[enumerated]</code>/<code>[collective]</code> 명시</li>
-    <li><span class="check">✓</span> 숫자 레벨 태그 (L1/L2/L3) 가 조건에 등장하지 않음 (legacy 변환 완료)</li>
-    <li><span class="check">✓</span> Anti-patterns 섹션에 최소 2 개 항목</li>
-    <li><span class="check">✓</span> Reusability 섹션 (RE-01, RE-02) 자동 포함</li>
-    <li><span class="check">✓</span> Diagnostics 섹션 (DG-01 ~ DG-04) 자동 포함</li>
-    <li><span class="check">✓</span> 복잡도와 조건 수가 가이드 비율과 일치 (simple 4-6, medium 8-12, complex 12-20)</li>
-    <li><span class="check">✓</span> 모든 조건이 외부 관찰 가능한 행동 — 클래스명/메서드명/DB명 없음</li>
+    <li><span class="check">✓</span> 모든 조건에 ID (<code>PREFIX-NN</code> 형식) 부여됨</li>
+    <li><span class="check">✓</span> 모든 조건 끝에 specificity tag 명시</li>
+    <li><span class="check">✓</span> 다수 대상 조건은 aggregation mode 명시</li>
+    <li><span class="check">✓</span> <strong>[v3]</strong> 모든 조건이 Binary Decidability 기준 충족 — 모호 기준 없음</li>
+    <li><span class="check">✓</span> <strong>[v3]</strong> [미검증] 마커가 0개 또는 최대 1개</li>
+    <li><span class="check">✓</span> <strong>[v3]</strong> [enumerated] 조건은 각 대상이 이름으로 열거됨</li>
+    <li><span class="check">✓</span> 숫자 레벨 태그 (L1/L2/L3) 없음 (legacy 변환 완료)</li>
+    <li><span class="check">✓</span> Anti-patterns 섹션에 최소 2개 항목</li>
+    <li><span class="check">✓</span> Reusability 섹션 (RE-01, RE-02) 포함</li>
+    <li><span class="check">✓</span> Diagnostics 섹션 (DG-01 ~ DG-04) 포함</li>
+    <li><span class="check">✓</span> 복잡도와 조건 수가 가이드 비율과 일치</li>
   </ul>
 </div>
 
-<!-- SECTION 9: CONSUMERS -->
+<!-- SECTION 8: CONSUMERS -->
 <div class="section">
   <div class="section-label">Consumers</div>
-  <div class="section-title">스키마 소비자 — 누가 이 파일을 읽는가</div>
-  <p class="section-desc">contract-schema v2 는 두 개의 핵심 소비자 + 카이젠 트랙이 동일하게 읽는다. 한쪽이 변경되면 다른 쪽도 동기화되어야 한다. 스키마 v2 는 단순한 형식 합의가 아니라 sprint-contract 와 qa-evaluator 사이의 <strong>계약 인터페이스</strong>다.</p>
-
-  <div class="card" style="margin-bottom:24px;border-left:3px solid var(--accent)">
-    <div class="card-title"><span class="dot"></span>왜 동기화가 필요한가</div>
-    <p>한 측 (작성자) 이 새 태그를 도입했는데 다른 측 (소비자) 이 이를 모르면 평가 시 silent failure 가 발생한다. 예: 작성자가 <code>[goal]</code> 을 추가했는데 평가자가 <code>[exact]</code> 로만 처리하면 모든 [goal] 조건이 false negative REJECT 가 된다. 스키마 변경은 항상 양쪽 동시 마이그레이션.</p>
-  </div>
+  <div class="section-title">스키마 소비자 — Cross-Surface Parity</div>
+  <p class="section-desc">contract-schema v3는 두 개의 핵심 소비자 + 카이젠 트랙이 동일하게 읽는다. 스키마 버전이 바뀌면 세 곳 모두 동시 마이그레이션되어야 한다.</p>
 
   <div class="grid-3">
     <div class="card">
       <div class="card-title"><span class="dot"></span>sprint-contract 스킬</div>
-      <p>계약을 <strong>작성</strong>하는 측. 사용자와 합의하여 카테고리·조건·태그·anti-patterns 를 결정하고 v2 포맷에 맞게 저장. 작성 후 schema validation 자가 점검.</p>
-      <a class="card-source" href="https://github.com/jacksonbang/claude-plugins/blob/main/harness/skills/sprint-contract/SKILL.md">sprint-contract SKILL.md</a>
+      <p>계약을 <strong>작성</strong>하는 측. 사용자와 합의하여 카테고리·조건·태그·anti-patterns를 결정하고 v3 포맷에 맞게 저장. Binary Decidability 자가 점검, [미검증] 마커 최소화, sibling 조건 열거 확인.</p>
+      <a class="card-source" href="contract-design-guide.html">Contract Design Guide</a>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>qa-evaluator 에이전트</div>
-      <p>계약을 <strong>소비</strong>하는 측. 각 조건의 specificity tag 와 aggregation mode 에 따라 검증 방식을 분기. 모든 조건은 evaluator 검증 깊이 L3 까지 도달해야 한다.</p>
-      <a class="card-source" href="https://github.com/jacksonbang/claude-plugins/blob/main/harness/agents/qa-evaluator.md">qa-evaluator agent</a>
+      <p>계약을 <strong>소비</strong>하는 측. specificity tag, aggregation mode, [미검증] 마커 수, sibling enumerated 열거 완전성을 소비하여 판정. 2개 이상 [미검증]이면 자동 REJECT.</p>
+      <a class="card-source" href="qa-evaluation-guide.html">QA Evaluation Guide</a>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>kaizen 트랙</div>
-      <p>contract-kaizen 과 evaluator-kaizen 이 글로벌 피드백 + 스키마를 함께 분석해 가이드 문서를 갱신. 스키마가 v3 로 bump 되면 양쪽 모두 동시 마이그레이션.</p>
-      <a class="card-source" href="feedback-system.html">Feedback System</a>
+      <p>contract-kaizen과 evaluator-kaizen이 글로벌 피드백과 스키마를 함께 분석해 가이드 문서를 갱신. 스키마가 v4로 bump되면 sprint-contract, qa-evaluator, contract-schema 세 곳 모두 동시 마이그레이션.</p>
+      <a class="card-source" href="skill-design-guide.html">Skill Design Guide §Cross-Surface</a>
     </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;border-left:3px solid var(--accent)">
+    <div class="card-title"><span class="dot"></span>왜 동기화가 필요한가</div>
+    <p>한 측(작성자)이 새 태그를 도입했는데 다른 측(소비자)이 이를 모르면 평가 시 silent failure가 발생한다. 예: 작성자가 <code>[goal]</code>을 추가했는데 평가자가 <code>[exact]</code>로만 처리하면 모든 [goal] 조건이 false negative REJECT가 된다. 스키마 변경은 항상 양쪽 동시 마이그레이션.</p>
   </div>
 </div>
 
 <!-- FOOTER -->
 <div class="footer">
-  <h3>Phase 2 Kaizen 변경 요약</h3>
-  <p>Phase 2 에서 contract-schema 가 v1 → <strong>v2</strong> 로 bump 되었다. 핵심 변경: ① 모든 조건 끝에 specificity tag (<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>) 필수화, ② 다수 대상 조건에 aggregation mode (<code>[enumerated]</code>/<code>[collective]</code>) 신설, ③ 숫자 레벨 태그 (L1/L2/L3) 금지 명시 — QA 평가 깊이와의 네이밍 충돌 해결, ④ legacy 계약 마이그레이션 매핑 (<code>[L1]</code>≡<code>[exact]</code> 등) 정의, ⑤ 카테고리 ID prefix 와 조건 ID 형식 (<code>{PREFIX}-{NN}</code>) 명문화. <code>sprint-contract</code> 스킬과 <code>qa-evaluator</code> 에이전트가 동일하게 v2 를 소비한다.</p>
+  <h3>Phase 3 Kaizen 변경 요약</h3>
+  <p>Phase 3에서 contract-schema가 v2 → <strong>v3</strong>로 bump되었다. 핵심 변경: ① <strong>Binary Decidability 작성 의무</strong>로 승격 — 모호한 기준(적절히, 잘 동작) 계약 조건 금지, ② <strong>[미검증] 마커 임계값 프로토콜</strong> — 0개 정상/1개 경고/2개 이상 자동 REJECT, ③ <strong>Sibling Enumerated 요건</strong> — sibling 범위 조건은 각 파일 이름 열거 없이 [enumerated] 유효 불가, ④ 전체 v3 예시 계약 추가. sprint-contract 스킬과 qa-evaluator 에이전트 양쪽에 동시 마이그레이션.</p>
 
   <h3>출처 / 관련 문서</h3>
   <ul>
     <li><a href="https://github.com/jacksonbang/claude-plugins/blob/main/harness/references/contract-schema.md">harness/references/contract-schema.md (소스)</a></li>
-    <li><a href="contract-design.html">Contract Design Guide — 작성 원칙</a></li>
-    <li><a href="qa-evaluation.html">QA Evaluation Guide — 태그 소비 규칙</a></li>
-    <li><a href="feedback-system.html">Feedback System — 글로벌 피드백 스키마</a></li>
+    <li><a href="contract-design-guide.html">Contract Design Guide — 작성 원칙</a></li>
+    <li><a href="qa-evaluation-guide.html">QA Evaluation Guide — 태그 소비 규칙</a></li>
+    <li><a href="skill-design-guide.html">Skill Design Guide — Cross-Surface Parity</a></li>
+    <li><a href="agent-design-guide.html">Agent Design Guide — Binary Decidability</a></li>
     <li><a href="https://standards.ieee.org/ieee/29148/6937/">IEEE 29148 — Requirements Engineering</a></li>
     <li><a href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge Reliability Study — arxiv 2506.13639</a></li>
   </ul>

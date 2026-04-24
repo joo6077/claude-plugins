@@ -5,11 +5,15 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-04-12 (Phase 2 kaizen)** — 경계값 조건 작성법, 스코프 세분화
-> (granularity) 서브섹션 신설. AR-03/ER-02 REJECT 패턴 반영.
+> **최근 갱신: 2026-04-24 (Phase 2 kaizen · v3)** — Cross-Surface Parity 섹션 신설
+> (skill-design-guide §11 / agent-design-guide §12 원칙 전수), Binary Decidability
+> 계약 작성자 의무 서브섹션, Scope Range 인라인 명시 (SK-02 대응), Verification
+> Method Required / Unverifiable Policy (mcp_server=null 대응), Sibling Consistency
+> 조건 패턴 (rust-kit H-01/H-03 대응) 추가. 스키마 v3 bump.
 >
-> 이전: 2026-04-11 — 숫자 레벨 네이밍 충돌 해결, Aggregation Mode / 태그 선택 기준
-> 서브섹션 신설, AAA·LLM-as-Judge 연구 인용 추가.
+> 이전: 2026-04-12 — 경계값 조건 작성법, 스코프 세분화 (granularity) 서브섹션.
+> 2026-04-11 — 숫자 레벨 네이밍 충돌 해결, Aggregation Mode / 태그 선택 기준,
+> AAA·LLM-as-Judge 연구 인용 추가.
 
 ---
 
@@ -17,10 +21,21 @@
 
 ### 검증 가능성 (Verifiability)
 
-모든 조건은 제3자가 코드만 보고 PASS/FAIL을 판정할 수 있어야 한다.
+모든 조건은 제3자가 코드만 보고 PASS/FAIL을 판정할 수 있어야 한다. 이는
+Agile Alliance 의 INVEST 원칙 중 **Testable** 과 동일한 요구이다 — "제3자가
+objectively 확인 가능해야 하며, 측정 가능한 값과 구체 행동으로 기술한다"
+([Agile Alliance INVEST](https://www.agilealliance.org/glossary/invest/)).
+주관적 언어 ("잘 동작한다", "적절히", "충분히") 는 금지.
 
 - **좋은 예**: "로그인 실패 시 HTTP 401을 반환한다"
 - **나쁜 예**: "로그인이 적절히 처리된다"
+
+> **LLM-as-Judge 연구 보강 (2026-04-24)**: 평가 criteria 의 **극단값 (PASS/FAIL 양끝)**
+> 정의가 중간값 설명보다 judge alignment 에 더 큰 영향을 준다
+> ([arxiv 2506.13639](https://arxiv.org/html/2506.13639v1)). 즉 "이 조건이 PASS
+> 인 상태" 와 "이 조건이 FAIL 인 상태" 를 각각 한 문장으로 구체화하는 것이 중간
+> 정도 서술을 풍부하게 하는 것보다 중요하다. 계약 작성 시 각 조건의 FAIL 이미지를
+> 먼저 떠올리고 그 부정으로 PASS 를 기술하면 이진 판정 가능성이 올라간다.
 
 ### 단일 해석 (Unambiguity)
 
@@ -89,6 +104,24 @@ Then  {기대 결과}      |  Assert  {관찰 1회}
 **좋은 예**: "신규 사용자 등록 요청 시 성공 응답을 반환한다"
 
 이 규칙을 위반하면 "구현 누수(implementation leakage)"라 한다. 구현이 변경되면 조건도 깨지므로, 조건의 수명이 짧아진다.
+
+### 계약 작성자 의무 — 이진 판정 가능성 (Binary Decidability)
+
+> **대응:** `agent-design-guide.md §3.5 "Binary Decidability Pre-Check"` (평가자 의무 측)
+
+계약 **작성자** 는 조건을 제출하기 전, 각 조건이 **PASS 또는 FAIL 중 정확히 하나**
+로 귀결 가능한지 자체 점검한다. 평가자의 Binary Decidability Pre-Check 는 계약이
+이미 이진 판정 가능하다는 전제 위에서 동작하며, 계약 작성 단계에서 모호성이 남으면
+평가 iteration 이 낭비된다 ([arxiv 2506.13639](https://arxiv.org/html/2506.13639v1)
+— criteria 명확화가 추가 CoT 보강보다 ROI 높음).
+
+**작성자 체크리스트 (조건 제출 전):**
+
+- [ ] 이 조건에 정성적 수식어 (충분히 / 상당한 / 적절히 / 대부분 / 거의) 가 없는가?
+- [ ] 이 조건의 FAIL 상태가 1 문장으로 기술 가능한가? 불가능하면 조건이 모호하다
+- [ ] 이 조건의 태그 (`[exact]`/`[structural]`/`[goal]`) 가 부여되어 있는가?
+- [ ] 이 조건을 읽고 2 명의 평가자가 서로 다른 판정에 도달할 가능성이 있는가?
+      있다면 모호성 원인 (어휘 / 구문 / 의미 / 범위 / 측정 방법) 을 제거하라
 
 ### 조건 구체성 태그 (Specificity Tag)
 
@@ -229,6 +262,126 @@ Then  {기대 결과}      |  Assert  {관찰 1회}
 > 했고 QA 가 REJECT. field-level 로 "소스 테이블에 `[official]`/`[blog]` 태그
 > 컬럼 포함" 을 명시했다면 사전에 해소 가능했던 케이스.
 
+### 스코프 범위 인라인 명시 (Scope Range)
+
+조건에 "주요", "모든", "대부분", "핵심" 같은 **범위어** 가 등장하면 그 범위가
+무엇을 포함하고 무엇을 제외하는지 **조건 내부에 인라인 enumerate** 해야 한다.
+그렇지 않으면 평가자가 범위를 자체 해석하여 동일 구현이 PASS 또는 REJECT 로
+갈린다.
+
+**Bad (범위 모호):**
+
+```text
+- [ ] UI-02: 주요 interactive element 의 box-shadow offset 이 >= 4px 이다 [exact]
+```
+
+"주요 interactive element" 가 버튼·카드·입력만 의미하는지, badge 와 decoration
+까지 포함하는지 불명확. 실제 SK-02 REJECT 사례 — Neubrutalism 시안에서 badge
+box-shadow offset 3px 가 범위 내라고 간주되어 REJECT.
+
+**Good (범위 인라인 명시):**
+
+```text
+- [ ] UI-02: 버튼·카드·입력 요소 의 box-shadow offset 이 >= 4px 이다
+      (badge, decoration, 장식용 icon 은 범위 외) [exact, enumerated]
+```
+
+**규칙:**
+
+- 범위어가 포함된 조건은 **반드시** 괄호나 "예외: ..." 형태로 포함/제외 목록을
+  인라인 기술한다
+- 범위가 5 개 이상이면 `applies_to: <pattern>` 로 대체 (예외 조항 포맷 참조)
+- "주요 / 모든 / 대부분" 단독 사용 금지 — 작성자가 직접 열거 책임
+
+> **실제 발생 사례 (SK-02 REJECT)**: "Neubrutalism 모달의 .ms-card-action box-shadow
+> offset 3px, .ms-badge box-shadow offset 2px" 로 구현되었으나 계약이 "주요 interactive
+> element" 로만 서술되어 badge/decoration 이 범위에 포함되는지 해석이 갈려 REJECT.
+> "버튼·카드·입력" 처럼 인라인 enumerate 했다면 사전에 해소 가능했던 케이스.
+
+### 검증 수단 명시 의무 (Verification Method Required)
+
+모든 조건은 **어떻게 판정할지** 를 인라인으로 명시해야 한다. 측정 명령 (`wc -l`,
+`grep`, `cargo build`), 도구 (MCP Figma, Playwright, IDE Problems 패널), 관찰
+대상 (파일 경로 · 섹션명 · 상태 코드) 중 하나 이상을 조건에 적어라.
+
+**금지 — 검증 수단 없음:**
+
+```text
+- [ ] DG-04: 런타임 에러가 없다 [goal]
+```
+
+이 조건은 누가 어떻게 판정하는지 불명확. 앱을 구동해야 하는지, 로그를 읽어야
+하는지, MCP 서버가 필요한지 아무도 모른다.
+
+**허용 — 측정 도구 명시:**
+
+```text
+- [ ] DG-04: 앱 구동 시 console 에 ERROR 레벨 로그 0 건
+      (측정: MCP Figma read-back 또는 `flutter run` 직접 실행 후 stdout 확인) [goal]
+```
+
+#### MCP / 외부 도구 의존 조건의 3 단계 fallback
+
+MCP 서버, 외부 API, 로컬 실행 환경에 의존하는 조건은 다음 3 단계를 조건에
+명시한다:
+
+| 단계 | 의미 | 작성 방식 |
+|------|------|----------|
+| 1. 기본 검증 | 선호하는 도구·명령 | "측정: MCP Figma read-back" |
+| 2. Fallback | 기본 도구 미가용 시 대체 정적 검증 | "미가용 시: 파일 내 CSS 변수 값 Grep 으로 대조" |
+| 3. 미검증 수용 | 둘 다 불가능 시 | "둘 다 불가능 시 `[미검증]` 마커 허용 (계약 전체에서 1 건까지)" |
+
+**규칙:**
+
+- 평가 시점에 MCP 서버가 `null` 이거나 로컬 환경 제약으로 1~2 단계가 불가능하면
+  조건에 기술된 **3 단계 fallback** 이 적용된다
+- **계약 작성 단계에서 `[미검증]` 허용 건수가 2 건 이상 예상되면 조건을 재설계하라.**
+  qa-evaluation-guide 의 "미검증 2 건 이상 REJECT" 정책과 맞물려 작성 단계에서
+  REJECT 가 예측 가능하다
+- 조건에 fallback 을 명시하지 않으면 평가자가 도구를 임의 선택하여 판정이 엇갈림
+
+> **실제 발생 사례 (fit-pal LG-02/DG-04, fit-pal-flutter 2026-04-17)**: 시각 검증
+> 조건 3 건이 `mcp_server=null` 로 미검증 처리되어 "미검증 2 건 이상 REJECT"
+> 규칙으로 REJECT. 계약이 3 단계 fallback 을 기술했다면 정적 대체 검증으로
+> PASS 가능했던 케이스.
+
+### 형제 스킬 일관성 (Sibling Consistency)
+
+동일 플러그인 내 여러 스킬이 **공통 원칙** 을 요구할 때 (예: 헥사고날 패턴, 에러
+처리 규칙, 코드 생성 템플릿), 계약은 "이 원칙이 sibling 스킬 **전부** 에 적용되어
+있다" 를 **enumerated** 형태로 명시해야 한다. 한 스킬에만 적용되었는지 전체에
+적용되었는지 해석 여지를 없앤다.
+
+**Bad (sibling cross-check 누락):**
+
+```text
+- [ ] SK-03: rust-api 핸들러 예시가 domain event + outbox 원칙을 따른다 [structural]
+```
+
+rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검하게
+됨. 실제로 rust-service 에는 원칙이 있고 rust-init/rust-feature/rust-api 에는
+누락된 상태로 통과 (H-01/H-03 REJECT).
+
+**Good (sibling enumerated):**
+
+```text
+- [ ] SK-03: domain event + outbox 원칙이 rust-init, rust-feature, rust-service,
+      rust-api 4 개 스킬의 Gotchas 섹션 **전부** 에 적용되어 있다 [exact, enumerated]
+```
+
+**규칙:**
+
+- 공통 원칙 조건은 반드시 `[exact, enumerated]` 또는 `[structural, enumerated]`
+  aggregation mode 를 사용한다 (`collective` 금지 — 한 개만 통과하면 PASS 되므로)
+- sibling 스킬 개수를 조건에 **숫자로** 명시한다 ("4 개 스킬 전부")
+- 적용 대상 스킬을 빠짐없이 열거한다 (생략 금지)
+
+> **실제 발생 사례 (rust-kit H-01/H-03 REJECT, 2026-04)**: "domain event + outbox"
+> 원칙이 rust-service Gotchas 에만 있고 rust-init/rust-feature/rust-api 에는
+> 누락. 계약이 단일 스킬 기준으로 작성되어 sibling gap 을 잡지 못함. enumerated
+> mode 로 "4 개 스킬 전부" 를 요구했다면 작성자가 스킬 편집 시 전파를 강제할
+> 수 있었던 케이스.
+
 ### 예외 조항 포맷 (Exception Clause)
 
 조건이 특정 파일·상황·타입에는 적용되지 않을 경우, 조건 내부에 인라인으로 예외를 명시한다. 별도 문서로 분리하거나 구두로 합의하면 QA 시점에 예외가 반영되지 않는다.
@@ -319,6 +472,10 @@ Then  {기대 결과}      |  Assert  {관찰 1회}
 | 숫자 레벨 태그 혼용 | 계약 조건 태그에 QA 평가 깊이용 숫자 레벨을 재사용 → QA 검증 깊이와 충돌 | 반드시 문자 태그 `[exact]` / `[structural]` / `[goal]` 만 사용 (skill-design-guide §5.5 참조) |
 | 경계값 측정 방법 미명시 | ">= N" 조건에 측정 명령/도구 없음 → 구현자와 평가자가 다른 방법으로 측정하여 판정 엇갈림 | 임계값 + 측정 대상 + 측정 방법(명령어)을 조건에 인라인으로 명시 |
 | 포맷 세분화 수준 미명시 | "일관된 포맷" 요구에 파일/섹션/필드 중 어느 수준인지 불명확 → 부분 불일치를 간과하거나 과잉 REJECT | 최소 section-level 까지 명시, 핵심 필드는 field-level 로 열거 |
+| 스코프 범위어 미명시 | "주요", "모든", "대부분" 같은 범위어가 인라인 enumerate 없이 등장 → 평가자가 범위를 자체 해석하여 PASS/REJECT 엇갈림 | 범위 포함/제외 목록을 조건 내부에 괄호 또는 "예외: ..." 형태로 명시 (SK-02 재발 방지) |
+| 검증 수단 미명시 | 조건이 어떤 명령·도구·관찰로 판정되는지 기술 없음 → 평가자가 도구를 임의 선택 (특히 MCP `null` 시 미검증 급증) | 측정 명령/도구/관찰 대상을 조건에 인라인 기술, 외부 도구 의존 시 3 단계 fallback 명시 |
+| Sibling 스킬 커버리지 누락 | 공통 원칙이 plugin 내 여러 스킬에 적용돼야 하지만 계약이 단일 스킬만 점검 → 일부 스킬에만 적용된 상태 통과 | `[exact, enumerated]` + 스킬 숫자/이름 전부 열거로 sibling 전수 요구 (rust-kit H-01/H-03 재발 방지) |
+| 정성적 수식어 사용 | "충분히", "상당한", "적절히", "대부분" 등 binary 판정 불가 수식어 | 구체 수치/기준값으로 대체 또는 조건 분리 (Binary Decidability Pre-Check 실패 1 순위) |
 
 ---
 
@@ -366,3 +523,61 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 - `category_coverage`: project.yaml 카테고리 대비 커버 비율
 - `anti_pattern_count`: 선택된 안티패턴 수
 - `complexity`: 판단된 복잡도
+
+---
+
+## 원칙 전수성 · Cross-Surface Parity Checklist
+
+> **대응:** [`skill-design-guide.md §11`](skill-design-guide.md) · [`agent-design-guide.md §12`](agent-design-guide.md)
+>
+> **배경 (meta-issue):** 지난 kaizen 사이클에서 skill-design-guide §3.5 "계약
+> 모호성 방지" 원칙이 이 가이드에 전수되지 않아 design-kit PH-01 REJECT 가
+> 발생했다. Phase 2 (2026-04-24) 에서 계약 설계 레이어에 **대응 섹션을 구조적으로
+> 고정** 하여 원칙 전수 공백을 메운다.
+
+### 원칙
+
+계약 설계 가이드가 개정되면, 상위 **skill-design-guide · agent-design-guide** 와
+하위 **qa-evaluation-guide · sprint-contract SKILL.md · qa-evaluator 에이전트** 에
+대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
+
+### 계약 설계에 전수된 parity items (3 개)
+
+| # | Parity Item | skill-design-guide 위치 | agent-design-guide 위치 | **contract-design-guide 대응 위치 (이 가이드)** |
+|---|-------------|------------------------|------------------------|------------------------------------------------|
+| 1 | 계약 모호성 방지 / Binary Decidability | §3.5 (QA 계약과 1:1 매칭) | §3.5 (Binary Decidability Pre-Check) | **§조건 작성법 > "계약 작성자 의무 — 이진 판정 가능성"** |
+| 2 | 트리거 키워드 배타성 (substring 포함) | §4 (set intersection + substring) | §3 + §10 (sibling agent 검사) | **§sprint-contract SKILL.md Process Step (키워드 검사 의무)** |
+| 3 | 미검증 항목 정책 | — (스킬 전용 아님) | §10 Unverifiable 조건 정책 | **§조건 작성법 > "검증 수단 명시 의무" (3 단계 fallback)** |
+
+> 두 가이드의 item 1 · item 4 (rule-by-rule audit) 는 contract 가이드에
+> 해당 위치 없이 qa-evaluation-guide 로 위임된다 (중복 배제).
+
+### 개정 시 체크리스트
+
+contract-design-guide.md 를 편집할 때:
+
+- [ ] 새 원칙을 추가했는가? → skill-design-guide §11 / agent-design-guide §12 Parity Table 에 contract 대응 위치 컬럼을 갱신
+- [ ] 원칙 네이밍 (카테고리 ID, 섹션명) 을 변경했는가? → sprint-contract SKILL.md · qa-evaluator.md · qa-evaluation-guide 에서 동일 네이밍 사용 중인지 Grep 하여 동기화
+- [ ] Bad/Good 예시를 추가했는가? → 해당 원칙이 있는 skill/agent 가이드에도 동일 구조의 예시 존재 여부 확인
+- [ ] contract-schema.md 스키마 버전을 bump 해야 하는가? → 조건 태그/필드 변경 시 필수
+
+### 실패 패턴 (이 원칙 없이 발생한 실제 REJECT)
+
+- **SK-02 (harness, 2026-04)**: 범위어 "주요 interactive element" 가 인라인 enumerate 되지 않아 badge/decoration 해석 엇갈림 → 범위 명시 원칙이 contract-design-guide 에 없어 계약 작성자가 원칙을 몰랐음 (현 사이클에서 SR 섹션 신설로 해소)
+- **미검증 항목 2 건 REJECT (fit-pal, fit-pal-flutter)**: mcp_server=null 상태에서 시각 검증 불가 조건이 2 건 이상 → 계약이 fallback 을 사전 기술하지 않아 REJECT (현 사이클 UV 섹션 신설로 해소)
+- **H-01/H-03 (rust-kit)**: sibling 스킬 커버리지 조건이 계약에 enumerate 되지 않아 일부 스킬만 적용된 상태가 PASS (현 사이클 SC 섹션 신설로 해소)
+
+### Downstream 전파 범위
+
+본 가이드 개정이 영향 줄 수 있는 하위 surface:
+
+- `harness/skills/sprint-contract/SKILL.md` — Process Step, Gotchas
+- `harness/references/contract-schema.md` — 스키마 버전 및 필드
+- `harness/docs/guides/qa-evaluation-guide.md` — 평가 방법론 (대응 원칙)
+- `harness/agents/qa-evaluator.md` — 평가 절차
+
+### 버전 정보
+
+- **Guide version**: 2026-04-24 (Phase 2 kaizen · v3)
+- **Schema version**: v3 (contract-schema.md)
+- **Parity with**: skill-design-guide v1.2.0, agent-design-guide v1.2.0

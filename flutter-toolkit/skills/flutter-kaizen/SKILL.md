@@ -33,6 +33,17 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 - pub.dev 패키지 트렌드는 다운로드 수만으로 판단하지 마라. likes, pub points, popularity 점수를 함께 확인해라
 - `release.sh`는 interactive prompt가 있다 (dirty check). 카이젠 브랜치에서는 커밋 후 실행해야 한다
 - flutter-toolkit 스킬은 `references/project-detection.md`에 의존한다. 스킬 수정 시 detection 로직과의 정합성을 확인해라
+- **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 프로젝트 감지 활용) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (rust-kit H-01/H-03 REJECT 패턴의 flutter 버전 재발 방지).
+
+  | Sibling Group | 공통 원칙 검증 항목 |
+  |---------------|---------------------|
+  | flutter-widget · flutter-screen · flutter-feature | Enumerate-before-Act · HAS_DS 분기 · 기존 패턴 읽기 |
+  | flutter-audit · flutter-preflight · flutter-build | Rule-by-Rule Audit · Binary Decidability · Scope Range |
+  | flutter-hooks · flutter-error | 가이드형 스킬 Process Step 순서 고정 (탐색→진단→처방) |
+  | flutter-l10n · flutter-responsive · flutter-skeleton · flutter-transition | 프로젝트 감지 참조 · HAS_DS 분기 일관성 |
+  | flutter-api · flutter-provider | Riverpod codegen · ref.mounted vs context.mounted |
+
+- **Phase 1~4 신규 원칙 감사 (kaizen 시작 시 전수 확인)** — skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / §5.5 Enumerate-before-Act / §8.7 Code Examples / §8.8 Sibling Consistency / §11 Cross-Surface Parity · agent §3.5 Binary Decidability / §10 Unverifiable / §12 Parity 전수 확인. 각 원칙에 대해 반영 스킬 목록을 리포트에 명시
 
 ## 핵심 제약: 할루시네이션 절대 불가
 

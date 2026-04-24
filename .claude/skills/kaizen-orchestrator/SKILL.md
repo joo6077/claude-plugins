@@ -113,6 +113,22 @@ user-invocable: true
 
 > 플러그인 설명: [v0.1.1 · 2026-04-11] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션
 
+### Step 11: Phase 11 — planning-kit 카이젠
+
+**범위:** `planning-kit/skills/*/SKILL.md`, `planning-kit/references/`
+
+공통 실행 패턴에 따라 `/planning-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 planning-kit 전 스킬을 전수 감사한다. planning-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.2.0 · 2026-04-14] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2
+
+### Step 12: Phase 12 — reflect-kit 카이젠
+
+**범위:** `reflect-kit/skills/*/SKILL.md`, `reflect-kit/references/`
+
+공통 실행 패턴에 따라 `/reflect-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 reflect-kit 전 스킬을 전수 감사한다. reflect-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.3.0 · 2026-04-17] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸
+
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->` 마커 영역을 직접 편집하지 마라.** 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 킷 추가/수정/삭제 시 marketplace.json 을 고친 뒤 `python3 scripts/sync-orchestrator.py` 를 실행하면 이 섹션이 동기화된다. 직접 편집 시 다음 실행에서 덮어써진다.
 - **Step 0.5 Orchestrator Self-Audit 는 건너뛰기 금지.** 이전 사이클의 수동 개입 이력 (`.harness/.meta/orchestrator-audit-log.md`) 과 `sync-orchestrator.py --check-only` drift 를 먼저 확인해야 Phase 1 로 진입한다.

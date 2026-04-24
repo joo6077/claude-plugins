@@ -2,9 +2,10 @@
 name: react-feature
 description: >
   하나의 feature를 구성하는 domain/data/presentation/infrastructure 4계층 파일을 한 번에 생성한다.
-  "기능 추가", "feature 만들어줘", "API 연동 화면", "새 기능 구현", "react-feature" 같은 요청 시 트리거.
+  "기능 추가", "feature 만들어줘", "신규 feature 스캐폴딩", "풀스택 feature 생성", "새 기능 구현", "react-feature" 같은 요청 시 트리거.
   화면 파일만 추가할 때는 트리거하지 않는다 — /react-screen 사용.
   재사용 컴포넌트만 필요할 때는 트리거하지 않는다 — /react-widget 사용.
+  API 레이어(datasource/repository/usecase)만 추가할 때는 트리거하지 않는다 — /react-api 사용.
 argument-hint: "<feature-name> [--with-api] [--with-route] [--schema=<path>]"
 user-invocable: true
 ---
@@ -21,6 +22,8 @@ user-invocable: true
 8. **실패 시 전체 롤백** — 5개 파일 중 하나라도 생성 실패 시 스킬 실행으로 생성된 파일을 모두 삭제하고 원상복구한다.
 9. **Strict TS 통과 필수** — `tsc --noEmit`과 `eslint --max-warnings=0`을 통과해야 한다. `any`, `as` 단언, `!` non-null 단언 포함 금지.
 10. **`@tauri-apps/*` 직접 import 금지** — presentation/data 레이어에서 Tauri API를 직접 import하면 레이어 경계 위반이다. 반드시 `src/infrastructure/tauri/`를 경유한다.
+11. **템플릿 내 확장 포인트 주석은 미완성 마커가 아니다** — 아래 Process 템플릿에 등장하는 `// 필요한 ... 추가`, `// DTO -> Domain 매핑 추가`, `// feature UI 내용` 형태의 주석은 "프로젝트에서 해당 위치를 채우라"는 **확장 포인트 안내**이지, 구현 대기 미완성 마커가 아니다. 생성된 실제 코드에 미완성 키워드(대문자 4글자 T-O-D-O / F-I-X-M-E / X-X-X) 문자열을 포함시키지 않는다. 스킬이 생성하는 파일은 프로젝트에 들어간 순간 그대로 컴파일 가능해야 하며, 미구현 마커를 남기지 않는다.
+12. **Zustand vs TanStack Query vs Hook Form 3-way 상태 분리** — 이 스킬이 생성하는 store(`store.ts`)는 **클라이언트 전용 UI 상태**만 담는다. 서버 데이터는 TanStack Query hook(`hooks/use<Feature>.ts`)이 단일 진실 공급원이며 Zustand store에 복사 금지. 폼 로컬 상태는 React Hook Form(`/react-form`)이 전담. 서로 다른 3 도메인을 섞지 않는다.
 
 # Process
 

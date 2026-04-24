@@ -1,6 +1,6 @@
 # Kaizen Data Pool
 
-Generated: 2026-04-12T16:38:13
+Generated: 2026-04-24T10:48:01
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
@@ -8,103 +8,110 @@ Generator: `scripts/collect-kaizen-data.py`
 ## 1. 글로벌 Evaluator Feedback
 
 - 경로: `/Users/jackson/.harness/feedback/evaluator`
-- 총 파일: **100**
+- 총 파일: **138**
 
 ### Verdict 분포
 
-- **APPROVE**: 62
-- **REJECT**: 38
+- **APPROVE**: 77
+- **REJECT**: 61
 
 ### Skill 분포
 
-- `qa-evaluator`: 100
+- `qa-evaluator`: 138
 
 ### Project 분포
 
-- `claude-plugins`: 99
+- `claude-plugins`: 109
+- `fit-pal`: 19
+- `fit-pal-server`: 4
+- `fit-pal-flutter`: 1
+- `fit-pal-app`: 1
+- `fitpal-server`: 1
+- `iyaki-zip-dev`: 1
 - `claude-plugins / react-kit phase10-research kaizen`: 1
+- `flutter_playwright`: 1
 
 ### 최근 REJECT 사유 (Top 20)
 
-- [2026-04-12] **claude-plugins**: SC-04: finalize-phase.sh 5 pass 실행 시 SCRIPT_DIR: unbound variable로 exit 1
-- [2026-04-12] **claude-plugins**: G8-03: finalize-phase.sh --revert 시 git reset --hard 출력 (계약: git revert kaizen-phase-N-pre..HEAD)
-- [2026-04-12] **claude-plugins**: G3-03: spawn-kaizen-phase.sh 인자 없을 때 exit 0 (계약: exit 1)
-- [2026-04-12] **claude-plugins**: ER-02: flutter 2차 섹션 소스 테이블에 [official]/[blog] 브라켓 태그 컬럼 누락
-- [2026-04-12] **claude-plugins**: ER-02: finalize-phase.sh 5 fail --revert 실행 시 SCRIPT_DIR: unbound variable로 exit 1
-- [2026-04-12] **claude-plugins**: ER-01: docs/design/research-log.md:402 — blog.weskill.org URL HTTP 404
-- [2026-04-12] **claude-plugins**: DG-03: automation-maturity-2026-04-12.md 종합 점수 산술 오류 — 영역별 합계 2+5+5+5+5+5+5=32/35(91%)인데 33/35(94%)로 기재
-- [2026-04-12] **claude-plugins**: AR-05: rust-kit templates/ 5개 파일이 rust-kit/skills/ SKILL.md에서 미참조
-- [2026-04-12] **claude-plugins**: AR-03: docs/flutter/ 1498줄 (목표 >=1500, 2줄 부족)
-- [2026-04-12] **claude-plugins**: AR-03: design/research-log.md 섹션형 구조 — 다른 5개 파일의 번호+테이블 포맷과 불일치
-- [2026-04-12] **claude-plugins**: AR-03: 6개 파일 포맷 불일치 (flutter 태그 컬럼 없음, design 파일 완전히 다른 구조)
-- [2026-04-12] **claude-plugins**: AP-03: .claude/skills/ 수정 파일 4개에 bare code fence 잔존 (backend-kaizen:55, backend-research:52, infra-kaizen:51, infra-research:52)
-- [2026-04-11] **claude-plugins**: OR-08: SKILL.md:174, SKILL.md:239 — 언어 힌트 없는 bare opening fence 2건
-- [2026-04-11] **claude-plugins**: H-03: rust-api Gotchas에 Composition Root 단일화 원칙 누락
-- [2026-04-11] **claude-plugins**: H-01: rust-init/rust-feature Gotchas에 domain event + outbox 원칙 누락
-- [2026-04-11] **claude-plugins**: AP-03: 동일 — bare code fence anti-pattern 위반
-- [2026-04-10] **claude-plugins**: SK-06: concept.md Accent 행에 #E8965A 구체 hex 확정값 기재 — Gotcha #3 위반
-- [2026-04-10] **claude-plugins**: SK-05: react-run/SKILL.md:5의 트리거 키워드 'wasm-pack 빌드'가 react-wasm/SKILL.md:5와 중복. 기존 17개 스킬과 상호 배타 불충족
-- [2026-04-10] **claude-plugins**: SC-02: package.json.template 라이브러리 버전 4건이 ^X.0.0 형식 위반 (^0.4.0, ^0.400.0, ^0.7.0, ^5.5.0)
-- [2026-04-10] **claude-plugins**: RE-02: react-api의 트리거 키워드 '"API 연동"'이 react-feature의 '"API 연동 화면"'과 부분 중복 — 배타성 위반
+- [2026-04-23] **flutter_playwright**: AR-02: toolkit evaluate 단독 동사 네이밍
+- [2026-04-23] **flutter_playwright**: AR-01: 도구 수 49개, 허용 범위 45~47 초과
+- [2026-04-22] **fit-pal-server**: API-02: traces_sample_rate 필드 타입 f64 (계약 요구 f32). #[derive(Default)] 잔존 + 수동 impl Default 없음. 계약 패치 후 코드 미업데이트.
+- [2026-04-21] **fit-pal-server**: LG-04: ScheduleNotification enum 에 group_id 필드 없어 payload 에 group_id 미포함. 계약 명시 payload(group_id/slot_id/outcome?) 불충족.
+- [2026-04-21] **fit-pal-server**: LG-02: list_member_ids 가 GroupPort::list_members(Uuid::nil(), ...) 호출 → find_active_member 에서 항상 Forbidden 반환. 내부 컨텍스트 동작 불가.
+- [2026-04-21] **fit-pal**: UI-04: [미검증] MCP Figma read-back 불가 (mcp_server=null)
+- [2026-04-21] **fit-pal**: RE-02: ensure_slots_exist 시그니처 impl ConnectionTrait + Send (계약 명시: + Send + Sync)
+- [2026-04-21] **fit-pal**: LG-04: [미검증] Figma 노드 read-back 불가 (mcp_server=null)
+- [2026-04-21] **fit-pal**: AP-02: lazy_generation.rs:85 .expect() 프로덕션 경로 — 계약 허용 예외 목록(unwrap_or/and_hms_opt known-valid) 미포함
+- [2026-04-20] **fit-pal**: LG-04: fitpal-routine 크레이트 미구현 — 7개 DTO 없음 (Task 2~3 미완료)
+- [2026-04-20] **fit-pal**: LG-03: fitpal-routine 크레이트 미구현 — SkipPolicyMode 없음 (Task 2~3 미완료)
+- [2026-04-20] **fit-pal**: DG-03: cargo test --workspace에서 fitpal-message 통합 테스트 3건 FAIL (pre-existing, sprint scope_out). DG-03 계약이 --workspace를 literal 명시하므로 FAIL 처리.
+- [2026-04-19] **fit-pal**: DG-02: SKILL.md References 섹션에 docs/design/figma-decoration-session-log.md 의 §9/§10 링크 누락 (현재 §2.1, §3.1, §8만 있음)
+- [2026-04-17] **fit-pal-flutter**: 미검증 항목 3개 (LG-02, DG-03, DG-04) — 미검증 2개 이상 REJECT 규칙 적용
+- [2026-04-17] **fit-pal-flutter**: LG-02: 시각적 Figma 대조 불가 (mcp_server: null)
+- [2026-04-17] **claude-plugins**: SK-06: reflect-digest/SKILL.md에 Gotchas 섹션과 Process 섹션 미존재
+- [2026-04-17] **claude-plugins**: SK-04: docs/harness/plugin-validation.html card-source 2개 — 최소 3개 조건 미달
+- [2026-04-17] **claude-plugins**: SK-01: normalize_project_query가 <basename>-<hash6> 입력 시 단일 패턴만 반환 — project=<basename>과 project=<basename>-<hash6> 호출 시 스캔 집합 불일치. _lib-project-id.sh:100-101
+- [2026-04-17] **claude-plugins**: SK-01: 8개 HTML 파일 전부 미생성 — 구현 자체가 미수행
+- [2026-04-17] **claude-plugins**: SC-05: git tag reflect-kit/v0.2.0 로컬 미생성 (git tag -l 결과 없음)
 
 ### 최근 Improvement Suggestions (Top 15)
 
-- [2026-04-12] **claude-plugins**: 성숙도 리포트 합계 검증 자동화 스크립트 추가 고려
-- [2026-04-12] **claude-plugins**: 다음 research-log 작업 시 6개 파일 간 컬럼 구성을 통일하여 AR-03 해석 모호성 제거 권장
-- [2026-04-12] **claude-plugins**: 경계값 조건(>= N)은 즉시 측정값 출력 후 비교
-- [2026-04-12] **claude-plugins**: validate-plugin V6 스캔 범위를 .claude/skills/ 로 확장하면 향후 미탐지 방지
-- [2026-04-12] **claude-plugins**: finalize-phase.sh에 SCRIPT_DIR 정의 추가 (REPO_ROOT 정의 직후)
-- [2026-04-12] **claude-plugins**: append-audit-log.py 호출 인자를 실제 지원 인자(--cycle-id)로 교체
-- [2026-04-12] **claude-plugins**: I-07 commit prefix 조건에 fix(scripts): 같은 bug-fix 커밋 prefix도 허용하는 표현 추가 권장
-- [2026-04-12] **claude-plugins**: Gotchas 카운팅 시 H1/H2 형태를 모두 고려하는 범용 정규식 사용
-- [2026-04-12] **claude-plugins**: G8-03: git revert 명령으로 교체
-- [2026-04-12] **claude-plugins**: G3-03: 인자 없음 분기를 --help 분기와 분리하여 exit 1 처리
-- [2026-04-12] **claude-plugins**: ER-02의 태그 요구사항을 테이블 컬럼 레벨인지 인사이트 본문 레벨인지 계약에서 명시 필요
-- [2026-04-12] **claude-plugins**: ER-01 수정: design/research-log.md 섹션 10의 404 URL을 대체 URL로 교체
-- [2026-04-12] **claude-plugins**: AR-03의 일관된 포맷 정의를 더 구체적으로 (열 이름까지) 명시 필요
-- [2026-04-12] **claude-plugins**: AR-03 수정: design 파일을 번호+테이블 포맷으로 재구성하거나 계약 조건 재정의
-- [2026-04-11] **claude-plugins / react-kit phase10-research kaizen**: Gotchas 헤더 요약(L15)을 Library Policy 정식 섹션과 동기화 유지하는 관례 추가 권장 (animate.css 누락됨)
+- [2026-04-23] **flutter_playwright**: evaluate → evaluate_expression 1줄 수정으로 AR-05/ER-03/AR-01/AR-02 연쇄 해결
+- [2026-04-22] **fit-pal-server**: 계약 패치 후 코드 동기화 여부를 제출 전 체크리스트에 추가
+- [2026-04-22] **fit-pal-server**: DG-04 런타임 검증 — MCP 서버 설정 시 smoke test로 실제 worker 구동 확인 권장
+- [2026-04-22] **fit-pal**: DG-04 런타임 검증을 위한 CI smoke test 추가 권장
+- [2026-04-22] **fit-pal**: DA-01 조건이 seed_group_with_due_pending_slot(empty sequence)과 seed_group_with_real_routine_and_attend_votes(UPDATE로 덮어쓰기) 2단계로 나뉘어 있어 향후 계약에서 UPDATE 패턴도 명시하면 검증이 더 명확해진다.
+- [2026-04-21] **fitpal-server**: DG-04 scope_out 범위의 fitpal-message flaky 테스트를 별도 이슈로 추적하는 것을 권장
+- [2026-04-21] **fit-pal-server**: LG-04: ScheduleNotification enum 에 group_id 필드 추가하거나 계약 LG-04 payload 요건에서 group_id 제거
+- [2026-04-21] **fit-pal-server**: LG-02: GroupPort 에 내부 전용 list_all_member_ids(group_id) 메서드 추가 권장 (권한 체크 없음)
+- [2026-04-21] **fit-pal-server**: LG-02 관련: list_all_member_ids는 worker도 동일하게 쓸 예정이므로 worker Composition Root 재사용 문서화 권장
+- [2026-04-21] **fit-pal-server**: DG-04 런타임 검증: MCP 서버 설정 시 schedule 경로 실제 401 응답 확인 자동화 추가 권장
+- [2026-04-21] **fit-pal**: 카탈로그 앱 구동 후 DG-03 수동 확인 권장
+- [2026-04-21] **fit-pal**: RE-02 계약 Send+Sync vs clippy implied_bounds 충돌 — 계약을 Send만으로 수정하거나 #[allow] 주석 허용을 명시 권장
+- [2026-04-21] **fit-pal**: MCP Figma 서버 설정 시 UI-04/LG-04/DG-04 재검증 가능
+- [2026-04-21] **fit-pal**: AP-02 계약 허용 예외에 fmt::Write on String의 .expect()를 infallible 케이스로 명시 추가 권장
+- [2026-04-20] **fit-pal**: 계약 feature 이름에 Task 1~3이 포함되어 있으나 사용자가 Task 1만 구현했음 — 구현 범위와 계약 범위 사전 명확화 권장
 
 ## 2. 외부 프로젝트 (`Hub/10_Dev`) 피드백
 
 - Hub 루트: `/Users/jackson/Hub/10_Dev`
-- 발견된 프로젝트: **2**
+- 발견된 프로젝트: **4**
 
 ### `apps`
 
 - 경로: `/Users/jackson/Hub/10_Dev/apps`
-- sprint-feedback.md: 507 lines
-- history sprint-contracts: 24
+- sprint-feedback.md: 163 lines
+- history sprint-contracts: 25
 - 최근 contracts:
-  - 20260411-2321-sprint-contract.md
   - 20260411-2324-sprint-contract.md
   - 20260412-0010-sprint-contract.md
   - 20260412-1259-sprint-contract.md
   - 20260412-1430-sprint-contract.md
+  - 20260412-1620-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
 ```markdown
 # Sprint Feedback
-Feature: AdmPropertySectionWidget 공통 섹션 컨테이너
-Evaluated: 2026-04-12 17:00
+Feature: 위젯 리팩토링 — 터치 효과 추출, 셀렉트 통합, 캐러셀 분리
+Evaluated: 2026-04-12 20:00
 Verdict: REJECT
-Iteration: 1
+Iteration: 3
 
 ---
 
 ## Results
 
-### UI (4/5)
+### UI (3/3)
 
-- [x] UI-01: 컨테이너 어두운 배경 + border-radius 10 + padding 20 — PASS [L3]
-  - 근거: `property_section_widget.dart:53-55` bgColor = darkPanel, radius = AdmSizes.r10, pad = EdgeInsets.all(AdmSizes.w20)
-  - 비고: Sprint Contract는 `#222`(= #222222) 명시, 구현은 `AdmColors.darkPanel = #212121`. 두 값이 다르나 darkPanel은 피그마 노드 14644:26557의 실제 패널 토큰이므로 계약 문구 "#222"는 근사값으로 해석. 피그마 노드가 계약에 명시되어 있어 토큰 기준으로 PASS 처리.
+- [x] UI-01: 터치 효과 적용 위젯이 리팩토링 전과 동일한 탭 피드백을 표시한다 — PASS [L3]
+  - 근거: `pressable_widget.dart:39-57` — GestureDetector(onTapDown/Up/Cancel) + AnimatedScale(easeOut, buttonPressedScale). 버튼/날짜필드 모두 PressableWidget 래핑 확인.
 
-- [x] UI-02: title 있는 섹션 — 타이틀(Body M, white) + gap 10 + child pl 20 — PASS [L3]
-  - 근거: `property_section_widget.dart:86-107` titleStyle=AdmTextStyles.bodyM.copyWith(color:textOnDark), titleGap=h10, contentPad=EdgeInsets.only(left:AdmSizes.w20)
+- [x] UI-02: 언어/서버 선택 메시지 박스의 옵션 리스트가 리팩토링 전과 동일하게 표시된다 — PASS [L3]
+  - 근거: `select_option_list_widget.dart:40-57` — Column + for loop, 선택 행 `AdmColors.progressTrack` 배경, `AdmSizes.h48` 높이. 두 메시지박스 모두 `AdmSelectOptionListWidget` 사용 확인.
 
-- [x] UI-03: title 없는 섹션 — child만 직접 표시, 들여쓰기 없음 — PASS [L3]
+- [x] UI-03: 캐러셀 위젯의 PageView와 인디케이터가 리팩토링 전과 동일하게 표시된다 — PASS [L3]
+  - 근거: `carousel_widget.dart:55-90` — Column(PageView.builder + _CarouselIndicator). 도트 색상/크기/간격 Props 동일.
 ```
 
 </details>
@@ -112,32 +119,87 @@ Iteration: 1
 ### `fit-pal`
 
 - 경로: `/Users/jackson/Hub/10_Dev/fit-pal`
-- sprint-feedback.md: 109 lines
-- history sprint-contracts: 0
+- sprint-feedback.md: 0 lines
+- history sprint-contracts: 8
+- 최근 contracts:
+  - 20260420-2003-sprint-contract.md
+  - 20260421-1113-sprint-contract.md
+  - 20260421-1137-sprint-contract.md
+  - 20260421-1254-sprint-contract.md
+  - 20260421-1320-sprint-contract.md
+### `flutter_playwright`
+
+- 경로: `/Users/jackson/Hub/10_Dev/flutter_playwright`
+- sprint-feedback.md: 152 lines
+- history sprint-contracts: 9
+- 최근 contracts:
+  - 20260416-1815-sprint-contract.md
+  - 20260417-1028-sprint-contract.md
+  - 20260422-0945-sprint-contract.md
+  - 20260422-phase-a-sprint-contract.md
+  - 20260422-phase-b-sprint-contract.md
+
+<details><summary>sprint-feedback.md 앞부분</summary>
+
+```markdown
+# Sprint Feedback (Phase B — kept above)
+
+---
+
+# Sprint Feedback
+Feature: MCP Tool Consolidation + Playwright Parity + Rename (clean break)
+Evaluated: 2026-04-23 (Phase C)
+Verdict: REJECT
+Iteration: 1
+
+## Results
+
+### Architecture (4/8)
+
+- [ ] AR-01: 최종 MCP 도구 수가 45~47개 — FAIL
+  - 근거: server 도구: reload_app, restart_app, get_vm_info, dump_tree, get_app_errors, take_screenshot, get_view_details, console_logs, tracing, get_performance_metrics, get_frame_metrics, snapshot_widgets, screenshot_widget, dump_widget_style, find_widget, evaluate_expression, resize_view = 17개. toolkit 도구: tap_widget, long_press_widget, hover_widget, drag_widget, swipe_area, scroll_area, type_text, select_option, set_checkbox, press_key, handle_dialog, fill_form, navigate, wait_for, resize_view, read_prefs, prefs_set, prefs_delete, prefs_clear, save_app_state, restore_app_state, read_state, mutate_state, poll_state, verify_visible, assert_widget, intercept_network, clear_network_intercepts, recording, set_overlay, get_network_log, evaluate = 32개. 합계 49개. 허용 범위 45~47 초과.
+  - 원인: toolkit에 `evaluate`(AR-05로 삭제 필요)와 `get_network_log`(AR-02c에서 server 배치 필요) 여분 2개 + `resize_view` server/toolkit 중복. AR-05 evaluate 미rename → toolkit에서 구 이름 도구 잔존.
+  - 수정: toolkit `expression_entries.dart` 의 `name: 'evaluate'` → `'evaluate_expression'` 로 rename. `get_network_log` server 측으로 이전 또는 계약 수정.
+
+- [ ] AR-02: `verb_object` snake_case 네이밍 — FAIL (부분)
+```
+
+</details>
+
+### `iyaki-zip-dev`
+
+- 경로: `/Users/jackson/Hub/10_Dev/iyaki-zip-dev`
+- sprint-feedback.md: 135 lines
+- history sprint-contracts: 4
+- 최근 contracts:
+  - 20260414-1551-sprint-contract.md
+  - 20260414-2300-sprint-contract.md
+  - 20260415-1400-sprint-contract.md
+  - 20260420-2020-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
 ```markdown
 # Sprint Feedback
-Feature: Monorepo Makefile
-Evaluated: 2026-03-30 16:00
-Verdict: APPROVE
-Iteration: 2
+Feature: sprint4-figma-gap
+Evaluated: 2026-04-15 17:20
+Verdict: REJECT
+Iteration: 1
 
 ## Results
 
-### Flutter App 커맨드 (15/15)
-- [x] app-run (dev, dart-define + observatory-port 포함): PASS
-  - 근거: `Makefile:24` — `--dart-define-from-file=.dart_defines.json --observatory-port=8181` 모두 포함. launch.json:13과 일치
-- [x] app-run-staging: PASS
-  - 근거: `Makefile:29-30`
-- [x] app-run-prod: PASS
-  - 근거: `Makefile:32-33`
-- [x] app-run-profile: PASS
-  - 근거: `Makefile:26-27` — launch.json:22(App: Dev Profile)에 observatory-port 없음, Makefile도 동일하게 없음. 일치
-- [x] app-test: PASS
-  - 근거: `Makefile:39-40`
-- [x] app-analyze: PASS
+### UI (4/6)
+
+- [x] UI-01: Smart guide line renders in OverlayLayer during drag near other card edge/center — PASS (structural)
+  - 근거: `DragController.ts:124-130` — computeGuides called, guide lines pushed as `guideLine` OverlayCommand; `OverlayLayer.ts:110-115` renders them. `CanvasView.tsx:64` passes `initialSmartGuideConfig`.
+  - [정적] 런타임 검증 미수행 — MCP 서버 미설정
+
+- [ ] UI-02: **DESCOPED** (removed from contract per user decision; UI-02 not present in the 26-condition contract above)
+  - 계약에 없음 — 평가 대상 외
+
+- [ ] UI-03: Right-click on card shows Edit/Duplicate/Delete/Bring to front/Send to back; Esc/outside click closes — PASS (structural)
+  - 근거: `CanvasContextMenu.tsx:82-99` — all 5 menu items rendered when `hitId != null`; shadcn ContextMenu (Radix primitive) handles Esc + outside click natively; callbacks wired in `CanvasView.tsx:210-222`.
+  - [정적] 런타임 검증 미수행
 ```
 
 </details>
@@ -149,23 +211,21 @@ Iteration: 2
 
 ## 4. 현재 레포 최근 Sprint Contracts
 
-- `.harness/history/20260411-2226-phase7-sprint-contract.md`
-- `.harness/history/20260411-2248-phase8-sprint-contract.md`
-- `.harness/history/20260411-2318-phase9-sprint-contract.md`
-- `.harness/history/20260411-2335-phase10-sprint-contract.md`
 - `.harness/history/20260411-kaizen-phase6-design-kit-sprint-contract.md`
 - `.harness/history/20260411-phase5-flutter-toolkit-sprint-contract.md`
 - `.harness/history/20260412-0045-post-missing-items-sprint-contract.md`
 - `.harness/history/20260412-0115-automation-gap-10-sprint-contract.md`
 - `.harness/history/20260412-1255-sprint-contract.md`
 - `.harness/history/20260412-1302-sprint-contract.md`
+- `.harness/history/20260412-2146-sprint-contract.md`
+- `.harness/history/20260417-1037-sprint-contract.md`
+- `.harness/history/20260417-1042-sprint-contract.md`
+- `.harness/history/20260417-1717-sprint-contract.md`
 
 ## 5. Validate-Plugin 최근 실행 스냅샷
 
 ```text
-=== harness ===
-  V1 frontmatter     7 skills + 1 agent — OK
-  V2 templates       2 parsed, 1 skipped (ts/js) — OK
+... (이전 출력 생략)
   V3 refs            0 links — OK
   V4 triggers        26 keywords — OK
   V5 placeholders    0 found — OK
@@ -182,28 +242,28 @@ Iteration: 2
   V7 plugin-json     v0.5.1 matches marketplace — OK
 
 === design-kit ===
-  V1 frontmatter     7 skills + 1 agent — OK
+  V1 frontmatter     8 skills + 1 agent — OK
   V2 templates       8 skipped (ts/js) — OK
   V3 refs            0 links — OK
-  V4 triggers        39 keywords — OK
+  V4 triggers        46 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
   V7 plugin-json     v0.2.1 matches marketplace — OK
 
 === backend-kit ===
-  V1 frontmatter     3 skills + 1 agent — OK
+  V1 frontmatter     4 skills + 1 agent — OK
   V2 templates       0 files — SKIP (no templates/)
   V3 refs            0 links — OK
-  V4 triggers        12 keywords — OK
+  V4 triggers        18 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
   V7 plugin-json     v0.1.1 matches marketplace — OK
 
 === infra-kit ===
-  V1 frontmatter     3 skills + 1 agent — OK
+  V1 frontmatter     4 skills + 1 agent — OK
   V2 templates       0 files — SKIP (no templates/)
   V3 refs            0 links — OK
-  V4 triggers        12 keywords — OK
+  V4 triggers        19 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
   V7 plugin-json     v0.1.1 matches marketplace — OK
@@ -226,7 +286,25 @@ Iteration: 2
   V6 code-fence      0 bare — OK
   V7 plugin-json     v0.1.1 matches marketplace — OK
 
-Total: 7 plugins, 7 OK
+=== planning-kit ===
+  V1 frontmatter     12 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        95 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.2.0 matches marketplace — OK
+
+=== reflect-kit ===
+  V1 frontmatter     3 skills — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        20 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.3.0 matches marketplace — OK
+
+Total: 9 plugins, 9 OK
 Exit: 0
 ```
 

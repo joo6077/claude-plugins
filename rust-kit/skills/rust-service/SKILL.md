@@ -23,6 +23,8 @@ user-invocable: true
 - **에러 변환은 서비스 레이어에서** — Repository가 반환하는 infra error(`sqlx::Error`, `reqwest::Error`)를 그대로 상위에 전파하지 마라. 서비스 메서드에서 도메인 에러로 변환(`map_err`)하여 핸들러가 infra 타입에 의존하지 않게 한다.
 - **async closure 활용 (Rust 1.85+)** — `async || {}` 문법이 안정화되어 `AsyncFn`/`AsyncFnMut`/`AsyncFnOnce` trait을 사용할 수 있다. 기존 `|| async {}` (매 호출마다 새 future 생성)와 달리 환경 변수 캡처가 가능하여 미들웨어 팩토리, 재시도 래퍼 등 고차 함수 시그니처가 자연스러워진다.
 - **cancellation safety 주의** — Tokio runtime에서 future가 도중에 drop되면 트랜잭션이 절반만 실행될 수 있다. `tokio::select!` 분기나 timeout 래핑 시 cancellation-safe한 메서드(`recv()`, `read()`)와 unsafe한 메서드(`read_exact()`)를 구분하라. TokioConf 2026에서도 주요 토픽으로 강조되었다.
+- **Sibling Consistency (skill-design-guide §8.8) — rust-service ↔ backend-system** — backend-system 이 다루는 백엔드 공통 원칙(Transactional Outbox · Circuit Breaker + Rate Limiter 조합 · OAuth 2.1 Authorization Code + PKCE · RFC 9457 problem+json) 중 Rust 서비스 레이어에서 적용 가능한 항목은 동일 참조로 기재한다. 예: Outbox 는 이미 Gotcha 에 반영됨; Circuit Breaker 는 `tower::Layer` 로 service 외부에서 감싸고 service 내부 구현으로 넣지 마라 (resilience 는 infra 관심사). 출처: [Azure Circuit Breaker 패턴](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker) · [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html).
+- **Enumerate-before-Act (skill-design-guide §5.5)** — 서비스 메서드를 추가하기 전에 기존 `src/domain/services/*` 또는 `modules/*/service.rs` 를 전수 스캔하여 중복 유즈케이스·유사 네이밍을 먼저 열거한다. 동일 도메인 로직이 두 서비스에 분산되면 트랜잭션 경계가 혼란스러워진다.
 
 # 서비스 레이어 생성
 

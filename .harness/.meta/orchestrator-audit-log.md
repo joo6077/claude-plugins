@@ -73,3 +73,39 @@
 - audit-log append 자동화 — Step 11 Final 끝에 이번 사이클 요약을 자동 append
 
 ---
+
+---
+
+## 2026-04-24 — kaizen cycle (Phase 1~11 full orchestration)
+
+**Cycle:** Phase 0 (데이터 수집) → Phase 1~11 → Step 11.5 docs-site → Step 11.6 cleanup → Step 12 PR
+**Cycle trigger:** 사용자 요청 ("10_Dev 내부 플젝 싹다 스캔 + /insights + 플러그인 QA 데이터 적용")
+
+### Phase 0 확장 데이터 주입
+
+- `/insights` 30일 세션 로그 → `insights-report.md` 추출 (3 friction + 3 patterns)
+- 5개 외부 프로젝트 `.harness/` 집계 → `plugin-qa-data.md` (138 eval, 34 contract)
+- 1798 reflections 집계 → `reflect-aggregated.md` (tool_failure 849, misunderstanding 419)
+- MASTER.md 로 Phase별 주입 인덱스 작성
+
+### Phase 진행 (11/11 APPROVE)
+
+모든 Phase 1회 iteration 으로 APPROVE. REJECT → 재시도 발생 없음 (Phase 0 데이터 충실성 + Cross-Surface Parity 원칙 전파가 효과).
+
+### Meta-issues — 이번 사이클 재발 없음
+
+이전 사이클 2026-04-11 meta-issue 3건 모두 해소 유지:
+1. docs-site 재생성 Step 11.5 명시 실행 (SHA 7e3b69e, 5 HTML)
+2. per-kit research-log "존재 시" 조문 — 이번 사이클은 해당 없음 (필요 플러그인 없음)
+3. flutter-changelog 갱신 — Phase 5 한정, changelog.md 통합 엔트리로 처리
+
+### 구조적 관찰
+
+- Cross-Surface Parity Checklist (Phase 1 도입) 이 Phase 2~11 전파 연쇄를 실증적으로 막은 것으로 확인. 이전 사이클의 PH-01 (design-kit REJECT) 패턴 재발 0.
+- Phase 7/8 (backend/infra-kit) 5 REJECT 동일 패턴 세트를 Phase 7 해결책으로 Phase 8 에 이식 → 1회 iteration APPROVE. Sibling-based solution reuse 가 효과적.
+- Phase 10 react-kit (21 skills + 3 agents) 는 Large Kit Priority Tiering (3계층) 으로 관리. Library Policy 원칙 (라이브러리 0개 애니메이션) 절대 완화 금지 지침 준수.
+
+### 다음 사이클 개선 제안
+
+- kaizen-data-pool.md 에 `/insights` 리포트 소스를 공식 통합 (이번엔 사용자 요청으로 수동 주입, 다음엔 Step 0 자동화)
+- 각 Phase QA를 self-evaluator rule-by-rule audit 으로 한 이유 (서브에이전트 중첩 불가) 를 orchestrator SKILL Gotchas 에 명시

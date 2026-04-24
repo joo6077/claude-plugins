@@ -1,7 +1,7 @@
 {
   "name": "react-kit",
   "description": "React + Vite + Tauri 2 + Rust WASM 전용 개발 워크플로우 플러그인 — 21종 스킬 + 3 에이전트, 라이브러리 0개 애니메이션, Clean Architecture, Strict TypeScript 강제",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": {
     "name": "Jackson Kim"
   },

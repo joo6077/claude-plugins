@@ -72,6 +72,13 @@ harness 초기화 완료!
 2. .harness/procedures/ — 카테고리별 검증 절차 작성 (선택)
 
 설정 완료 후 /sprint-contract로 첫 계약을 작성하세요.
+
+참조 가이드 (첫 계약 전에 한 번씩 읽기 권장):
+- harness/docs/guides/contract-design-guide.md §Binary Decidability — 계약 조건을 이진 판정 가능하게 작성하는 원칙
+- harness/docs/guides/contract-design-guide.md §Scope Range — 스코프를 인라인으로 명시하는 패턴
+- harness/docs/guides/contract-design-guide.md §Verification Method — L1/L2/L3 검증 수단 fallback
+- harness/docs/guides/qa-evaluation-guide.md §`[미검증]` 마커 평가 프로토콜 — 런타임 검증 불가 시 처리
+- harness/docs/guides/skill-design-guide.md §11 Cross-Surface Parity — 신규 원칙의 surface 간 전파 체크
 ```
 
 ### 플러그인 모노레포 환경일 때 (optional)

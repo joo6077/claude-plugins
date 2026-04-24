@@ -28,6 +28,13 @@ user-invocable: true
 - **argument-hint 누락은 discovery 실패** — user-invocable 스킬이면서 인자를 받는 경우 `argument-hint`를 반드시 작성해라. 빈 문자열이면 Claude가 인자 전달 가능성 자체를 인지하지 못해 사용자가 매번 수동으로 입력해야 한다.
 - **스킬 이름에 프레임워크/언어 접두사 필수** — 범용(harness, design-kit)이 아닌 스택 종속 스킬은 반드시 `flutter-`, `rust-`, `react-` 같은 접두사를 붙여라. 접두사 없으면 다른 킷의 동명 스킬과 충돌하거나 트리거 우선순위가 모호해진다.
 - **references/ 분리 판단 기준** — Process 본문에서 3회 이상 참조되는 정보(감지 로직, 템플릿 코드, 체크리스트)는 references/로 분리해라. 인라인으로 남기면 SKILL.md가 2000 words를 초과하여 Claude 컨텍스트 효율이 떨어진다.
+- **Binary Decidability 검증 가능 성공 기준** — Process의 각 Step은 QA 계약과 1:1로 매칭 가능한 "측정 가능한 완료 기준"을 포함해야 한다 (skill-design-guide §3.5). "적절히 처리한다", "필요 시 추가한다" 같은 모호 표현은 금지. Grep 가능한 키워드, 파일 경로, 라인 수, boolean 조건으로만 기술해라. 모호 조건은 평가자 단계에서 자동 REJECT 대상이 된다 (PH-01 / design-kit 2026-04 REJECT 사례).
+- **Cross-Surface Parity 체크 필수** — 새 Gotcha를 추가하거나 원칙을 도입할 때 skill-design-guide §11의 5개 parity item (Binary Decidability / 트리거 배타성 / 검증 기준 / Rule-by-Rule Audit / Unverifiable 정책) 중 하나에 해당하는지 판정해라. 해당하면 agent-design-guide · contract-design-guide · qa-evaluation-guide에 동일 용어로 존재하는지 Grep 하여 전파 필요성을 사용자에게 보고해라 (없으면 PH-01 / SK-13 같은 cascade REJECT 가 발생한다).
+- **Sibling-Skill 원칙 일관성** — 동일 plugin 내 형제 스킬이 이미 존재하면 생성 전에 `grep -n "^- " <sibling>/SKILL.md` 로 기존 Gotchas 목록을 enumerated 수집하고, 공통 원칙(예: rust-init/rust-feature/rust-api의 domain event + outbox 원칙, Composition Root 단일화) 누락이 없는지 set intersection 으로 대조해라. 하나라도 누락되면 H-01/H-03 패턴 REJECT 가 재발한다 (skill-design-guide §8.8).
+- **Code Examples 품질 규칙** — SKILL.md에 포함하는 fenced code block은 (1) 언어 힌트 필수 (```bash, ```yaml, ```text 등 — bare fence 는 V6 FAIL), (2) 미완성 마커(대문자 3글자 작업 마커, `<할일>`, `<보류>`, `<수정요망>`) 금지 (V5 FAIL), (3) 변수 치환은 `{변수명}` 중괄호 표기 일관 사용. DG-01/DG-02 (react-kit REJECT) 재발 방지 (skill-design-guide §8.7).
+- **Enumerate-before-Act (low-freedom 영역)** — 스캐폴딩/생성/대량 수정처럼 자유도가 낮은 스킬은 Process Step 초반에 "편집 전 enumerated 목록 작성 + 사용자 승인" 단계를 두어라 (skill-design-guide §5.5). 이 단계가 없으면 /insights 마찰점 1번(Proactive quality gaps — Claude가 규칙 위반을 놓침)이 재발한다. 예: "먼저 target 파일 전부 Read → 위반 체크리스트 → 승인 → 일괄 편집".
+- **Trigger 키워드 substring 검사** — description 트리거 키워드는 기존 스킬과 (1) 정확 중복 금지, (2) substring containment 금지 (예: "API 연동" ⊂ "API 연동 화면" 위반). `python3 scripts/validate-plugin.py <plugin> --check=triggers` 로 검증되며 RE-02 (react-kit 2026-04) REJECT 재발 방지 (skill-design-guide §4).
+- **Rule-by-Rule Audit Before Completion** — 스킬 Process의 마지막 Step은 반드시 "완료 선언 전 규칙 전수 대조 패스" 를 포함해야 한다 (skill-design-guide §3.6). create-skill이 만드는 스킬도 이 패턴을 상속하도록 Gotchas 섹션에 "완료 전 rule-by-rule audit" 항목을 기본 포함시켜라.
 
 ## Process
 
@@ -98,9 +105,12 @@ user-invocable: true
 - [ ] Gotchas 섹션 존재 (최소 1 개)
 - [ ] Process 에 검증 기준 포함
 - [ ] 9 가지 아키타입 중 해당 유형 확인
+- [ ] **Cross-Surface Parity 5 개 item 확인** (skill-design-guide §11): Binary Decidability / 트리거 배타성 (substring 포함) / 검증 가능한 성공 기준 / Rule-by-rule audit / Unverifiable 정책 (에이전트 전용, 해당 시) — 새 Gotcha 가 이 중 하나에 해당하면 형제 surface 로의 전파 필요성을 사용자에게 보고
+- [ ] **Sibling Enumerated 비교**: 형제 스킬이 있으면 `grep -n "^- " <sibling>/SKILL.md` 로 기존 Gotchas 목록 나열 후 공통 원칙 누락 여부 대조
+- [ ] **Code Examples 품질** (§8.7): 모든 fenced block 에 언어 힌트 존재 + 미완성 마커(V5 placeholder 3종) 0 건
 - [ ] **validate-plugin 연동**: `python3 scripts/validate-plugin.py <plugin-name>` 실행하여 아래 7 카테고리 중 V1/V4/V5/V6 최소 4 개가 OK 인지 확인. 기준은 `harness/docs/guides/plugin-validation-guide.md §3` 참조.
   - V1 frontmatter — 필수 필드 (name/description/user-invocable) 모두 존재
-  - V4 triggers — description 키워드가 기존 스킬과 중복되지 않음 (또는 kit-context 로 disambiguated)
+  - V4 triggers — description 키워드가 기존 스킬과 중복되지 않음 (substring containment 도 금지)
   - V5 placeholders — 미완성 마커 (할일/보류/수정요망 세 종류) 0 건
   - V6 code-fence — bare fence 0 건 (언어 힌트 필수)
 

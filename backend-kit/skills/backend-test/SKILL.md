@@ -23,6 +23,8 @@ user-invocable: true
 8. **환경 변수 하드코딩 금지** — DB URL, API 키를 테스트 파일에 직접 넣지 마라. `.env.test` 또는 fixture/conftest에서 주입하라
 9. **비동기 테스트에서 타임아웃 미설정 금지** — async 테스트는 적절한 타임아웃을 설정하라. 무한 대기는 CI를 멈춘다
 10. **ORM 쿼리 테스트 시 N+1 검증 포함** — 리스트 조회 API 테스트에서 쿼리 수를 assert하라. Django: `assertNumQueries`, SQLAlchemy: `connection.execute` 카운트, JPA: Hibernate statistics
+11. **Pact v4 + Testcontainers 계약 테스트 (Phase 7 리서치)** — 외부 서비스 연동 코드에는 consumer-driven contract 를 권장. Pact v4 는 REST 외 gRPC / async messaging(Kafka · RabbitMQ) / GraphQL 지원. Pact Broker 는 Testcontainer 로 CI 에서 격리 실행 가능. 출처: [Pact + Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact).
+12. **Sibling Consistency (Phase 8 infra-test parity)** — Step 0 스택 감지 독립 단계 + 기존 테스트 패턴 탐색 + 외부 실환경 강제 금지 세 항목은 backend-test / infra-test 공통으로 유지해야 한다. 한쪽만 변경하면 sibling drift 로 평가 불일치 발생.
 
 ## Process
 

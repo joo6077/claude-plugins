@@ -1,7 +1,7 @@
 ---
 title: Claude Code 스킬 설계 가이드
-version: 1.1.0
-last_updated: 2026-04-11
+version: 1.2.0
+last_updated: 2026-04-24
 ---
 
 # Claude Code 스킬 설계 가이드
@@ -150,6 +150,24 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 Claude가 산출물 생성 → 검증 기준으로 자가 확인 → 실패 시 수정 후 재검증
 ```
 
+### Rule-by-Rule Audit Before Completion — 완료 선언 전 규칙 전수 대조
+
+> **출처:** `/insights` 30일 세션 분석 (Friction Point #1: Proactive quality gaps in refactoring) · Anthropic Skill Authoring Best Practices "Observe how Claude navigates Skills"
+
+Claude 는 리팩터링/대량 편집 시 **규칙에 이미 기재된 위반을 놓치고** 사용자가 지적해야 비로소 고치는 패턴을 반복한다. 이를 방지하려면 스킬이 규칙 리스트(Gotchas, anti-patterns, contract categories, style migrations)를 보유할 경우, 완료 선언 전에 **규칙별 1:1 대조 패스** 를 강제해야 한다.
+
+**원칙:**
+- 스킬 산출물 제출 전, Gen 이 자기 스킬의 규칙 리스트를 다시 읽고 각 규칙에 대한 위반 여부를 파일/라인 근거와 함께 보고
+- 체크 결과를 리포트(또는 dryrun 출력)로 Gen 자신이 스스로 확인 — 사용자가 첫 피드백 루프가 되면 안 됨
+- "그 외에도 혹시 놓친 규칙이 있는가?" 1 회 더 스스로 질문 (meta-audit)
+
+**안티패턴 (insights-report 인용):** "Claude fixes some issues, you point out missed ones, Claude fixes those, you find more." 이 N 회 왕복을 "1 review + 1 execution" 으로 축약하는 것이 본 원칙의 목적이다.
+
+```text
+Bad:  Claude 편집 완료 → 사용자가 놓친 규칙 지적 → 반복
+Good: Claude 편집 → 규칙 체크리스트 전수 대조 → 위반 목록 발견 → 수정 → 완료 선언
+```
+
 ---
 
 ## 4. 디스크립션은 트리거 조건이다
@@ -263,9 +281,23 @@ description: >
 
 ### 트리거 키워드 중복 방지 원칙
 
-플러그인이 여러 스킬을 포함할 때, **description에 사용하는 트리거 키워드는 다른 스킬과 set intersection이 공집합이어야 한다.**
+플러그인이 여러 스킬을 포함할 때, **description에 사용하는 트리거 키워드는 다른 스킬과 두 가지 검사를 모두 통과해야 한다:**
 
-같은 키워드가 두 스킬의 description에 모두 등장하면 Claude가 어떤 스킬을 선택할지 예측하기 어렵다.
+1. **Set intersection 이 공집합** — 동일 키워드가 두 스킬 description 에 동시에 등장하지 않음
+2. **Substring containment 도 공집합** — 어느 키워드도 다른 스킬 키워드의 부분문자열(substring)이 아님
+
+같은 키워드(또는 포함 관계의 키워드)가 두 스킬의 description에 모두 등장하면 Claude가 어떤 스킬을 선택할지 예측하기 어렵다. 단순 `Grep` 은 부분문자열 중복을 놓치므로, 키워드 목록을 정규식으로 추출한 뒤 **set intersection + substring 검사** 를 모두 수행해야 한다.
+
+**Bad — substring containment 위반 (실제 REJECT 사례, react-kit RE-02):**
+
+```text
+react-feature description: "... API 연동 화면을 한 번에 생성 ..."
+react-api     description: "... API 연동 시 Clean Arch 4계층 ..."
+
+키워드 "API 연동" 이 "API 연동 화면" 의 부분문자열 → 배타성 위반 → REJECT
+```
+
+또 다른 실제 REJECT 사례 (react-kit SK-05): `react-run` 의 `wasm-pack 빌드` 가 `react-wasm` 의 `wasm-pack 빌드` 와 정확히 일치 → set intersection 위반.
 
 **Bad — 중복 키워드로 충돌 발생:**
 
@@ -392,6 +424,20 @@ Here's the actual information...
 - **High/Medium/Low freedom** = **스킬 지침의 구체성 레벨**
 
 스킬 지침의 구체성을 논할 때는 반드시 "high/medium/low freedom" 용어를 사용하고, L1/L2/L3 은 QA 검증 깊이 전용으로 예약한다.
+
+### Enumerate-before-Act — Low-freedom 영역의 고정 규율
+
+> **출처:** `/insights` 30일 세션 분석 (Friction Point #2: Wrong approach and false dichotomies in architecture work)
+
+**토큰 네이밍, Figma 컴포넌트 식별, 스펙 수치, 디자인 시스템 컬러 · 계약 카테고리 ID** 같은 low-freedom 영역은 편집 전 반드시 **enumerate-before-act** 를 적용한다:
+
+1. 편집 시작 전, 기존에 존재하는 토큰/옵션/스펙을 **전부 목록화**
+2. 대상 후보를 1-N 인덱스로 나열하여 Gen 스스로 또는 사용자가 지목하게 함
+3. 지목된 항목을 최종 확인 후 편집 시작
+
+**실패 사례 (insights-report 인용):** "Claude often commits to an approach (widget choice, contract wording, solution framing) without verifying against Figma tokens, existing code, or your actual intent, leading to rework cycles."
+
+Low-freedom 영역에서 "근사치로 추정" 또는 "아마도 이게 맞을 것 같다" 는 3+ iteration 재작업의 가장 큰 원인이다. 한 번의 enumerate 로 N 번의 왕복이 방지된다.
 
 ---
 
@@ -537,6 +583,78 @@ Use the `bigquery_schema` tool to retrieve schemas.
 
 ---
 
+## 8.7. Code Examples — Fenced Block 품질 규칙
+
+> **출처:** plugin QA REJECT 반복 사례 (react-kit DG-01/DG-02, reflect-kit AP-03, infra/backend-kit bare fence)
+
+SKILL.md 안의 코드 예시는 **생성될 실제 코드** 또는 **설명용 의사 코드** 중 하나의 역할을 명확히 해야 한다. 아래 3 원칙을 지킨다:
+
+1. **모든 fenced code block 에 언어 힌트 필수.** bare fence(``` 단독) 금지. 실행 가능한 코드면 `bash`, `python`, `dart`, `typescript`, `yaml`, `json` 등. 설명용이면 `text` 또는 `pseudo`
+2. **코드 템플릿 내부에 `TODO` / `FIXME` / 미완성 placeholder 금지.** 스킬이 "생성하라" 고 지시하는 템플릿은 그대로 실행 가능한 상태여야 함 — 사용자가 손으로 채워야 하는 부분은 `// 여기에 비즈니스 로직 구현` 같은 **명시적 주석** 으로 전환
+3. **인용/모조 코드와 실행 코드의 구분 명확.** "예시" 블록은 `text` 로, "이 코드를 생성하라" 블록은 해당 언어로
+
+**Bad — bare fence + TODO 잔존 (react-kit DG-01 REJECT 사례):**
+
+````text
+```
+function handleSubmit(data) {
+  // TODO: 유효성 검사
+  // TODO: API 호출
+}
+```
+````
+
+**Good — 언어 힌트 + 실행 가능한 템플릿:**
+
+````text
+```typescript
+function handleSubmit(data: FormData): Result<void, SubmitError> {
+  const validated = schema.safeParse(data);
+  if (!validated.success) return err(ValidationError.fromZod(validated.error));
+  return submitUseCase.execute(validated.data);
+}
+```
+````
+
+**검증법:** SKILL.md 저장 후 `rg -n '^```\s*$' <file>` 로 bare fence 탐지, `rg -n 'TODO|FIXME' <file>` 로 placeholder 잔존 탐지. 둘 다 0건이어야 한다.
+
+---
+
+## 8.8. Sibling-Skill Principle Consistency — 형제 스킬 간 원칙 일관성
+
+> **출처:** plugin QA REJECT 반복 사례 (rust-kit H-01, H-03)
+
+하나의 kit 내 **동일 계열 스킬** (init / feature / api / service 등) 에 공통으로 적용되는 원칙은 **모든 sibling SKILL.md 의 Gotchas 에 동일한 표현으로 등장해야 한다.**
+
+**원칙 (rust-kit H-01/H-03 실제 REJECT 사례):**
+
+- `rust-service` SKILL.md Gotchas 에는 "Composition Root 단일화" 원칙이 있는데 `rust-api` SKILL.md 에는 누락 → H-03 REJECT
+- `rust-service` SKILL.md Gotchas 에는 "domain event + outbox" 원칙이 있는데 `rust-init` · `rust-feature` 에는 누락 → H-01 REJECT
+
+이 누락은 "일부 스킬은 원칙을 알고 있지만 다른 스킬은 모른다" 는 **비대칭 지식 상태** 를 만들어, 사용자가 어떤 스킬로 들어오느냐에 따라 완성도가 달라진다.
+
+**Bad — 형제 스킬 간 원칙 비대칭:**
+
+```text
+rust-service/SKILL.md  Gotchas: ["Composition Root 단일화 ...", "domain event + outbox ..."]
+rust-api/SKILL.md      Gotchas: ["... (Composition Root 누락) ..."]
+rust-init/SKILL.md     Gotchas: ["... (domain event 누락) ..."]
+```
+
+**Good — 동일 표현으로 전 sibling 에 등장:**
+
+```text
+rust-service/SKILL.md  Gotchas: ["Composition Root 단일화 원칙", "domain event + outbox"]
+rust-api/SKILL.md      Gotchas: ["Composition Root 단일화 원칙", "domain event + outbox"]
+rust-init/SKILL.md     Gotchas: ["Composition Root 단일화 원칙", "domain event + outbox"]
+```
+
+**운영 절차:**
+- 새 Gotcha 를 sibling 중 한 곳에 추가하면 **전 sibling 스킬 SKILL.md 를 동시에 grep 하여 동일 표현 누락 여부 확인**
+- kaizen (플러그인 개선 Phase) 에서 kit 단위 cross-check 필수 — 각 kit 의 sibling group 을 식별한 뒤 공통 원칙 리스트를 생성하고 누락 탐지
+
+---
+
 ## 9. 실전 시작 가이드
 
 ### 처음부터 완벽하게 만들지 마라
@@ -562,6 +680,21 @@ v0.5: templates/report.md 추가
 ```
 
 > 스킬은 문서가 아니라, **에이전트의 실패를 관찰하며 경험치를 쌓는 살아 있는 시스템**이다.
+
+### Long-Running Skills — Checkpoint Commits & SESSION_LOG
+
+> **출처:** `/insights` 30일 세션 분석 (Friction Point #3: Session truncation and tool/infrastructure failures)
+
+긴 멀티페이즈 스킬(`kaizen-orchestrator`, `create-kit`, `/docs-site`, sprint-level refactor 등) 은 **output_token_limit · sandbox 차단 · 백그라운드 에이전트 행업** 등으로 중단될 가능성이 구조적으로 높다. 30일 세션 로그 분석에서 평균 세션 길이가 6시간에 달하고, 5+ 세션이 output 토큰 제한으로 잘렸다.
+
+이런 스킬은 설계 시점부터 **중단 복원 가능성(resumability)** 을 원칙으로 삼는다:
+
+1. **Checkpoint commit** — 각 페이즈 또는 주요 단계 완료 직후 commit & push. 마지막 한 번에 commit 하지 않음
+2. **SESSION_LOG.md** — 각 체크포인트마다 3-line 상태를 `SESSION_LOG.md` 에 append (무엇 완료 · 다음 할 일 · 블로커) → 다음 세션이 이 파일만 읽고 resume 가능
+3. **응답당 300 라인 제한** — 스킬 지침에 "한 응답에 300 라인 초과하면 분할" 명시
+4. **중첩 스킬 호출 간 반환 데이터 최소화** — 토큰 경제 상 요약만 반환
+
+**적용 예시:** `kaizen-orchestrator` 스킬은 Phase 1~10 을 각 Phase 별 sub-agent + 각자 commit 으로 분할하여 어느 Phase 에서 중단되어도 다음 Phase 를 독립적으로 재개할 수 있다.
 
 ---
 
@@ -620,6 +753,44 @@ sprint-contract/
 
 ---
 
+## 11. 원칙 전수성 · Cross-Surface Parity Checklist
+
+> **배경 (meta-issue):** 지난 kaizen 사이클에서 `skill-design-guide §3.5 "계약 모호성 방지 원칙"` 은 이 가이드에만 추가되었고 `agent-design-guide` 에 전수되지 않아 design-kit PH-01 REJECT 가 발생했다. 가이드 레벨의 변경이 **파생 산출물(계약 설계 가이드, 평가자 가이드, 하위 스킬 Gotchas) 로 자동 전파되지 않는다** 는 구조적 공백이 있었다.
+
+### 원칙
+
+스킬 설계 가이드가 개정되면, **에이전트 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 스킬 Gotchas** 에 대응 원칙이 존재하는지 **자동으로 체크** 해야 한다. 전파가 필요한 원칙인지, 스킬 전용인지 판정하고 전자라면 즉시 복제한다.
+
+### 전수 대상 parity items (5개)
+
+두 가이드(skill-design-guide, agent-design-guide)는 아래 5개 항목을 **동일한 개념 · 동일한 용어** 로 공유한다:
+
+| # | Parity Item | skill-design-guide 위치 | agent-design-guide 대응 위치 |
+|---|-------------|------------------------|------------------------------|
+| 1 | 계약 모호성 방지 / Binary Decidability | §3.5 (QA 계약과 1:1 매칭) | §3.5 (Binary Decidability Pre-Check) |
+| 2 | 트리거 키워드 배타성 (substring 포함) | §4 (트리거 키워드 중복 방지) | §3 description 트리거 + §10 sibling agent 검사 |
+| 3 | 검증 가능한 성공 기준 | §3.6 (Give a way to verify) | §10 Reviewer L3 커버리지 |
+| 4 | Rule-by-rule audit before completion | §3.6 (Rule-by-Rule Audit) | §10 Reviewer 전수 대조 |
+| 5 | Unverifiable / degraded-mode 정책 | — (해당 없음 · 에이전트 전용) | §10 Unverifiable 조건 정책 |
+
+Item 5 는 평가자 행동에만 관련되므로 skill-design-guide 에는 존재하지 않는다. 이 예외는 문서화된 상태이며 다른 4개는 **양쪽 모두 존재** 한다.
+
+### 개정 시 체크리스트
+
+skill-design-guide.md 를 편집할 때:
+
+- [ ] 새 원칙을 추가했는가? → agent-design-guide 에 대응 항목이 필요한지 판정
+- [ ] 원칙 네이밍(카테고리 ID, 섹션명) 을 변경했는가? → agent-design-guide · contract-design-guide · qa-evaluation-guide · 하위 스킬 SKILL.md 에서 동일 네이밍 사용 중인지 Grep 하여 동기화
+- [ ] Bad/Good 예시를 추가했는가? → 대응 원칙이 있는 다른 가이드도 Bad/Good 예시를 포함하도록 업데이트 (일관성)
+- [ ] frontmatter `version` 을 bump 했는가? → 대응 파일들도 같은 방향으로 bump
+
+### 실패 패턴 (이 원칙 없이 발생한 실제 REJECT)
+
+- **PH-01 (design-kit, 2026-04)**: skill-design-guide §3.5 "계약 모호성 방지" 가 agent-design-guide 에 누락 → 계약 작성자는 원칙을 알지만 평가자는 몰라 평가 시 혼란 → REJECT
+- **SK-13 (backend-kit, infra-kit)**: References 섹션이 skill-design-guide 는 요구하지만 하위 스킬(backend-kaizen, infra-kaizen)의 SKILL.md 에는 누락 → 하위 스킬이 상위 guide 를 참조 안 함
+
+---
+
 ## 요약
 
 | 원칙 | 핵심 |
@@ -632,8 +803,15 @@ sprint-contract/
 | 500 라인 상한 | SKILL.md body 는 500 라인 미만 |
 | Reference 1-level deep | 참조 파일에서 또 참조하지 마라 |
 | 자유도 매칭 | high/medium/low freedom 을 태스크 취약성에 맞춰라 |
+| **Enumerate-before-Act** | low-freedom 영역은 선(先) 목록화 · 후(後) 편집 |
+| **Rule-by-rule audit** | 완료 선언 전 규칙 전수 대조 패스 의무 |
 | Eval 먼저 | 최소 3개 평가를 문서보다 먼저 작성 |
 | MCP 도구 풀네임 | `ServerName:tool_name` 필수 |
+| **Substring 배타성** | 키워드 set intersection + substring containment 모두 공집합 |
+| **Code 예시 품질** | fenced block 언어 힌트 필수 · TODO/placeholder 금지 |
+| **Sibling 일관성** | 형제 스킬 간 공통 원칙 누락 없이 동일 표현 |
+| **Cross-Surface Parity** | skill/agent/contract/eval 가이드의 원칙 전수 검토 |
+| **Checkpoint commits** | Long-running 스킬은 페이즈마다 commit + SESSION_LOG |
 | 트리거 조건 명시 | description은 "언제 켜라"를 구체적으로 쓴다 |
 | 헬퍼 제공 | 스크립트로 보일러플레이트를 줄인다 |
 | 모드 부여 | 온 디맨드 훅스로 상황별 가드레일 설정 |

@@ -24,6 +24,8 @@ user-invocable: true
 10. **APCA Lc 참조 안내** — 접근성 대비 가이드 시 WCAG 2.2 AA(4.5:1) 기준을 우선 적용하되, 추가로 APCA Lc 임계값을 informational로 제시하라. 본문 텍스트 Lc 75~90, 비본문 Lc 60 이상. APCA는 폰트 크기+굵기별 차등 대비를 요구하므로 가는 폰트(300w)에 더 높은 Lc가 필요하다. 법적 표준은 WCAG 2.2 AA이며 APCA는 WCAG 3.0 WD 참고용. 출처: research-log §C.
 11. **Fluid Typography/Spacing 가이드** — 타이포그래피나 간격 질문 시 고정 크기 외에 `clamp(min, preferred, max)` 기반 fluid scale 옵션을 언급하라. Modular Scale 비율(1.125~1.618)과 Utopia 접근법을 참고로 안내한다. 출처: research-log §E, §F.
 12. **Compound Component 패턴 인식** — 컴포넌트 구조 관련 질문 시 Compound Components(Context API로 상태 공유) + Slot Pattern(named slot 분리) 패턴을 인지하고 안내하라. "prop soup" 문제가 보이면 compound 패턴을 제안한다. 출처: research-log §G.
+13. **가이드형 스킬도 Process Step 순서 고정 (탐색→진단→처방)** — 본 스킬은 원칙 안내형이지만 적용 시 3-Step 순서를 반드시 따른다. (1) **탐색:** 사용자가 제시한 코드/설명에서 관련 카테고리·디자인 토큰·기존 컴포넌트·출처를 Grep/Read 로 전수 파악 (Step 1). (2) **진단:** 위반 항목을 파일:라인 + 위반 원칙 + 우선순위(Critical/Important/Minor) 로 목록화 (Step 2~3). (3) **처방:** 각 진단에 대해 권장 방향을 "하나의 가능성" 으로 제시하고 근거·출처를 첨부 (Step 3 포맷). 진단 단계를 생략하고 바로 "이렇게 바꾸세요" 로 넘어가면 Gotcha #6 의 "해법만 강요" 안티패턴이 된다. flutter-error · flutter-hooks 가이드 스킬 sibling parity 와 동일 원칙 (Phase 5 원칙 2).
+14. **Enumerate-before-Act — 리뷰 대상 전수 나열 우선** — 여러 파일/위젯에 걸친 리뷰 요청(예: "이 디렉토리 UI 다 봐줘")에서는 편집/피드백 전에 대상 파일 목록 + 카테고리별 후보 위반 개수를 **먼저 리스트업** 하고 사용자 승인 후 진단으로 넘어간다. 부분 피드백 → 재지적 → 추가 피드백 루프를 방지한다 (insights-report #1 마찰점 대응).
 
 # Process
 

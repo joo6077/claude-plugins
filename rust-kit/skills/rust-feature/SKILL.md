@@ -18,6 +18,8 @@ user-invocable: true
 5. **Consumer-Owned Port 원칙** — 새 feature 모듈이 다른 모듈의 기능을 필요로 하면 **자신의 crate 안에** outbound port trait을 정의하라. 예: `social` 모듈이 알림을 보내야 하면 `modules/social/src/port.rs`에 `SocialNotifier` trait을 정의하고, `modules/notification`은 그 trait을 구현하는 `NotificationAdapter`를 제공한다. `social`이 `notification::port`를 직접 import하는 순간 헥사고날이 깨진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 1번.
 6. **Composition Root 단일화** — feature 모듈 자체는 DI 와이어링을 하지 않는다. 모든 `Arc<dyn Port>` 조립은 `apps/api/src/main.rs` 또는 `apps/worker/src/main.rs`에서만 이루어진다. 모듈이 다른 모듈의 구현체를 `new()`로 직접 생성하면 단일 Composition Root 원칙이 깨진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 3번.
 7. **Domain event + outbox 패턴** — 새 feature가 다른 모듈에 알림/감사 로그/인덱스 동기화 같은 후처리를 필요로 하면 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. feature 모듈의 `service.rs`는 트랜잭션 안에서 write + outbox insert를 원자적으로 실행하고, 외부 시스템 호출은 별도 워커가 outbox를 폴링하여 수행한다. 모듈 간 직접 호출 대신 이 패턴을 쓰면 Consumer-Owned Port 의존 방향이 깨지지 않는다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 4번.
+8. **Enumerate-before-Act (skill-design-guide §5.5)** — feature 모듈을 추가하기 전에 기존 `modules/*` (또는 `src/api/handlers/*`) 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 중복 이름, (b) 유사 네이밍 충돌, (c) 기존 shared port 존재 여부를 먼저 열거한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 모듈 생성은 Consumer-Owned Port 의존 그래프를 깨뜨린다.
+9. **Sibling Consistency (skill-design-guide §8.8) — rust-init · rust-feature · rust-service · rust-api** — 4 스킬 모두 "Composition Root 단일화" + "Consumer-Owned Port" + "Domain event + outbox" + "포트에서 인프라 타입 제거" 4 원칙을 동일 문구·동일 출처(fit-pal `server/CLAUDE.md`) 로 유지한다. 한 스킬에서만 수정되면 드리프트가 발생하므로 카이젠 시 Grep 대조 필수.
 
 # Process
 

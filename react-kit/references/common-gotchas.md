@@ -95,9 +95,58 @@ N. **[제목]**: [설명]
 
 ---
 
+## G7. I-02 "modified 0건" 예외 목록 (Phase 4 harness 전수)
+
+**원칙**: 카이젠·감사 계약의 `I-02: working tree modified 0건` 조건에서 react-kit 작업 시 아래 파일/디렉토리는 예외로 취급한다. 이유는 스킬 실행 자체가 이 파일들을 touching 하기 때문이다.
+
+- `package.json` / `pnpm-lock.yaml` — 의존성 추가/업데이트 (`/react-init`, `/react-wasm`, `/react-tauri`).
+- `tsconfig.json` / `tsconfig.node.json` — strict 옵션, path alias 세팅.
+- `src-tauri/capabilities/*.json` — Tauri 2 capability 추가 (core:default, plugin permission).
+- `src/locales/*.po` / `src/locales/*.ts` — Lingui `extract` / `compile` 생성물.
+- `src/routeTree.gen.ts` — TanStack Router `tsr generate` 산출물.
+- `src/wasm/core/*` — `pnpm wasm-pack build ...` 산출물 (gitignore 처리 기본).
+
+계약 작성 시 I-02 조건에 이 예외 목록을 명시적으로 append 한다. 미명시 시 스킬 정상 실행 결과가 I-02 위반으로 잡힐 수 있다.
+
+**사례 (Phase 8 infra-kit 연쇄)**: kaizen 계약의 I-02 가 예외 없이 작성되어 `.harness/sprint-contract.md`, `.harness/.meta/kaizen-data-pool.md` 같은 카이젠 자체 산출물이 위반 처리됐다. 같은 패턴이 react-kit 에서도 재현될 수 있다.
+
+---
+
+## G8. Sibling Group 내부 N-way parity (Phase 9 rust-kit 전수)
+
+**원칙**: 동일 그룹 스킬들은 `Gotchas` / `Process` / `Rules` / `Report Format` 섹션 구조를 parity 유지한다. 한 스킬만 포맷이 다르면 사용자는 어느 스킬이 정식 패턴인지 혼동한다.
+
+**Sibling Group (react-kit)**:
+- 빌드 프리미티브 3총사: `react-run` / `react-build` / `react-preflight` — Gotchas + 서브커맨드 테이블 + Report Format + Rules 구조 동일.
+- API 스캐폴딩 3총사: `react-feature` / `react-api` / `react-widget` — Gotchas + Process + Strict TS 검증 + 완료 안내 동일.
+- 메타 스킬: `react-audit` / `react-extract` — Mode(quick/deep) + Agent 도구 위임 구조 동일.
+
+카이젠 시 sibling 한쪽만 수정하면 다른 쪽도 동일 구조로 동기화해야 한다.
+
+---
+
+## G9. Context7 우선 리서치 (Phase 5 flutter-toolkit 전수)
+
+**원칙**: react-kit 스킬이 다루는 라이브러리 (React 19, TanStack Query v5, TanStack Router, Tauri 2, Tailwind v4, Zustand v5, Lingui v5, React Hook Form v7, Zod v4, Vite 6, shadcn CLI v4, Vitest, Playwright) API 를 인용할 때는 학습 데이터 대신 **Context7** `resolve-library-id` → `query-docs` 로 현재 공식 문서를 조회한다. Context7 미수록 시 `codex-rescue` 로 공식 문서 리서치 위임.
+
+이 원칙은 카이젠 수행자(Claude)에게 적용되며, 스킬 사용자(최종 프로젝트 개발자)에게는 권장 사항이다.
+
+---
+
+## G10. Library Policy 빌드 게이트급 원칙 — ⚠️ WARN 금지
+
+**원칙**: Library Policy 카테고리 위반은 **`❌ FAIL` 로 분류**한다. `⚠️ WARN` 으로 완화 금지. react-reviewer 핵심 규칙 / react-audit Rules / animation-architect-react Tier 판정 모두 일관.
+
+**근거**: react-kit 은 라이브러리 0개 애니메이션·인터랙션 원칙을 정체성으로 한다. WARN 완화는 이 정체성을 침식한다.
+
+**카이젠 시 체크**: 금지 목록 문구를 복사 후 `severity` / `⚠️` / `경고` 같은 단어로 바꾸지 않는다. "FAIL", "❌", "REJECT" 레벨 유지.
+
+---
+
 ## 사용 가이드
 
 이 파일은 다음 시점에 참조한다:
 - 새 react-kit 스킬 작성 시 (harness `create-skill` 전 필독)
 - react-kit 카이젠 시 Gotchas 섹션 품질 검증 기준으로
 - QA Evaluator 가 react-kit 스킬을 평가할 때 체크리스트로
+- Sprint Contract 작성 시 I-02 예외 목록 참조 (G7)
