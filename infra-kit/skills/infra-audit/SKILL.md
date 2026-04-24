@@ -20,6 +20,9 @@ user-invocable: true
 6. **N/A 카테고리도 이유를 명시하라** — Kubernetes를 N/A로 표시할 때 "프로젝트에 K8s 매니페스트가 없음"처럼 근거를 함께 적어라. 단순히 N/A만 표기하면 검사를 빠뜨린 것인지 실제로 해당 없는 것인지 구분이 불가능하다.
 7. **CI 워크플로우의 시크릿 처리 감사 필수** — GitHub Actions/GitLab CI에서 `${{ secrets.XXX }}`가 아니라 평문으로 시크릿을 노출하는 경우가 많다. 환경변수, 파이프라인 설정에서 시크릿이 평문 노출되는지 반드시 확인한다.
 8. **이미지 태그 `latest` 사용 FAIL** — 프로덕션 Dockerfile/compose에서 `FROM node:latest`, `image: postgres:latest`처럼 `latest` 태그를 사용하면 재현 불가능한 빌드가 된다. 반드시 구체적 버전 태그(`postgres:16-alpine`)를 사용하라.
+9. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 설정 파일에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "보안이 충분해 보인다"처럼 주관 해석 여지가 남는 기준은 **카테고리 평가 시작 시점에** 근거 제약(파일:라인 + 출처 URL)을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "K8s 네임스페이스 보안이 좋은지"가 아니라 "네임스페이스에 `pod-security.kubernetes.io/enforce=baseline` 라벨이 있는지 (Kubernetes PSA)"로 좁힌다.
+10. **Rule-by-Rule Audit 프로토콜 (skill-design-guide §3.6 대응)** — `audit-criteria.md` 10 카테고리 × N 체크항목을 한 번에 묶어 "대체로 PASS/FAIL" 로 리포트하지 말고, 각 체크항목 단위로 개별 판정과 근거를 생성하라. 묶음 판정은 PASS 세부가 가려지고 FAIL 누락 추적이 불가능해진다. 리포트 표의 각 row 는 한 체크항목에 대응한다.
+11. **미검증 항목 마커 프로토콜 (evaluator v3 · agent-design-guide §10 대응)** — 런타임 환경/외부 시스템 접근 불가(예: production K8s 클러스터 kubectl 접근 · 실제 Cosign 서명 검증 · terraform state 파일 열람)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 이유를 기술하라 (예: `[미검증] production cluster kubectl 접근 불가 — manifest 정적 리뷰만 수행`). 미검증 2건 이상은 CONDITIONAL APPROVE 규칙을 적용한다 (Step 4 참조).
 
 # Process
 
@@ -34,30 +37,43 @@ user-invocable: true
 - subagent_type: infra-reviewer
 - prompt: "다음 파일을 인프라 원칙 기준으로 평가하라: [대상 파일 목록]"
 
-## Step 3: 리포트 생성
+## Step 3: 리포트 생성 (Rule-by-Rule 표)
 
-에이전트 결과를 카테고리별 테이블로 정리한다:
+카테고리 순서는 `references/audit-criteria.md` 섹션 순서와 일치시킨다 (총 10 카테고리). 각 row 는 **하나의 체크항목(rule)** 에 대응하며, 카테고리 단위로 묶지 않고 개별 판정·근거·출처를 생성한다 (Gotcha 10 참조). 표 자리표시자(`...`) 금지.
 
-| 카테고리 | 판정 | 근거 |
-|----------|------|------|
-| Container | PASS/FAIL | 구체적 파일:라인 + 원칙 |
-| CI/CD | PASS/FAIL | ... |
-| Kubernetes | PASS/FAIL/N/A | ... |
-| IaC | PASS/FAIL/N/A | ... |
-| Security | PASS/FAIL | ... |
-| Supply Chain | PASS/FAIL/N/A | 이미지 서명(Cosign v3) / SBOM(CycloneDX ECMA-424) / SLSA provenance / EU CRA 규정 |
-| Backup & DR | PASS/FAIL/N/A | Velero / etcd+PV 이중 백업 / 크로스 리전 복구 |
-| Deployment | PASS/FAIL | GitOps(Argo CD 3.x / Flux v2.8+) / Progressive Delivery |
-| Observability | PASS/FAIL | OTel 3 신호 / Grafana Alloy / eBPF 프로파일링 |
-| Cost Optimization | PASS/FAIL/N/A | 태깅 전략 / Shift-Left 비용 예측 / FOCUS 표준 |
+| # | 카테고리 | 체크항목 | 판정 | 근거(파일:라인) | 출처 URL |
+|---|----------|---------|------|-----------------|----------|
+| 1 | Container | 멀티스테이지 빌드 | PASS/FAIL | `Dockerfile:1-30` 에 `COPY --from=builder` 확인 | [Docker best practices](https://docs.docker.com/build/building/best-practices/) |
+| 2 | Container | non-root 실행 | PASS/FAIL | `Dockerfile:25` `USER 1001:1001` | [Docker USER](https://docs.docker.com/reference/dockerfile/#user) |
+| 3 | Container | 이미지 태그 핀닝 | PASS/FAIL | `docker-compose.yml:12` `postgres:16-alpine` (digest 권장) | [OCI Image spec](https://github.com/opencontainers/image-spec) |
+| 4 | CI/CD | OIDC 인증 (장기 키 부재) | PASS/FAIL | `.github/workflows/deploy.yml:40` `id-token: write` | [GitHub Actions OIDC](https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect) |
+| 5 | CI/CD | Actions SHA 핀닝 | PASS/FAIL | `.github/workflows/*.yml` 서드파티 액션 SHA 해시 참조 | [GitHub Actions SHA Pinning Policy](https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/) |
+| 6 | CI/CD | SLSA provenance 생성+검증 | PASS/FAIL | `.github/workflows/release.yml` in-toto attestation + `verify-attestation` | [SLSA provenance](https://slsa.dev/provenance) |
+| 7 | Kubernetes | Pod Security Admission 라벨 | PASS/FAIL/N/A | `k8s/namespace.yaml:5` `pod-security.kubernetes.io/enforce=baseline` | [Kubernetes PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/) |
+| 8 | Kubernetes | 리소스 requests/limits | PASS/FAIL/N/A | `k8s/deployment.yaml:30` resources 블록 확인 | [Kubernetes PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/) |
+| 9 | Kubernetes | Gateway API vs Ingress | PASS/FAIL/N/A | `k8s/gateway.yaml:1` `gateway.networking.k8s.io/v1` 사용 | [Gateway API v1.4](https://kubernetes.io/blog/2025/11/06/gateway-api-v1-4/) |
+| 10 | IaC | Ephemeral values for secrets | PASS/FAIL/N/A | `infra/vault.tf:15` `ephemeral` 블록 또는 write-only 인수 사용 | [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral) |
+| 11 | IaC | State 암호화 | PASS/FAIL/N/A | `infra/backend.tf:1` OpenTofu 1.7+ native encryption 또는 KMS SSE | [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/) |
+| 12 | IaC | `terraform test` 존재 | PASS/FAIL/N/A | `tests/module.tftest.hcl:1` run 블록 | [Terraform tests](https://developer.hashicorp.com/terraform/language/tests) |
+| 13 | Security | TLS 1.2+ 외부 엔드포인트 | PASS/FAIL | `k8s/ingress.yaml:20` tls 블록 + cert-manager ClusterIssuer | [cert-manager](https://cert-manager.io/docs/) |
+| 14 | Security | 시크릿 로테이션 | PASS/FAIL | `infra/secrets.tf:10` auto-rotation lifecycle 또는 Vault 동적 시크릿 | OWASP Secrets |
+| 15 | Supply Chain | Cosign v3 이미지 서명 | PASS/FAIL/N/A | `.github/workflows/release.yml:80` `cosign sign --bundle` + `cosign verify` | [Sigstore Cosign](https://docs.sigstore.dev/cosign/verifying/attestation/) |
+| 16 | Supply Chain | SBOM (CycloneDX/SPDX) | PASS/FAIL/N/A | `.github/workflows/release.yml:50` Trivy/Syft 산출물 저장 | [CycloneDX ECMA-424](https://cyclonedx.org/) |
+| 17 | Backup & DR | K8s 백업 도구 (Velero) | PASS/FAIL/N/A | `k8s/velero-schedule.yaml:1` 스케줄 백업 + 보존 정책 | Velero docs |
+| 18 | Deployment | GitOps source of truth | PASS/FAIL | `argo/application.yaml:1` Argo CD 3.x / Flux v2.8+ sync | [Argo CD 3.0 Upgrade](https://argo-cd.readthedocs.io/en/latest/operator-manual/upgrading/2.14-3.0/) |
+| 19 | Observability | OTel 3 signals 통합 | PASS/FAIL | `otel-collector.yaml:1` traces+metrics+logs pipeline + semconv | [OpenTelemetry spec status](https://opentelemetry.io/docs/specs/status/) |
+| 20 | Cost Optimization | 리소스 태깅 전략 | PASS/FAIL/N/A | `infra/variables.tf:1` `default_tags` 블록(team/env/service/cost-center) | [State of FinOps 2026](https://data.finops.org/) |
 
-해당 없는 카테고리(K8s 미사용, Cosign/SLSA 도입 전 초기 단계, EU 비대상 등)는 N/A로 표시하고 판정에서 제외한다.
+위 표는 대표 rule 예시이며, 실제 리포트는 `audit-criteria.md` 의 모든 기준 rule 을 빠짐없이 열거해야 한다 (Rule-by-Rule Audit · Gotcha 10). 해당 없는 카테고리(K8s 미사용, Cosign/SLSA 도입 전 초기 단계, EU 비대상 등)는 N/A 로 표시하고 판정에서 제외한다.
 
 ## Step 4: 최종 판정
 
-- 모든 카테고리 PASS → **APPROVE**
-- 1개 이상 FAIL → **REJECT** + 개선 사항 목록
+판정 분류는 세 가지다:
+
+- **APPROVE** — 전 카테고리 PASS (또는 N/A) + 미검증 태그 0 건.
+- **CONDITIONAL APPROVE** — 전 카테고리 PASS 이지만 `[미검증]` 태그 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production K8s kubectl 접근권한 · Cosign keyring 설정) 후 재검증 권고. 2 건 이상은 REJECT.
+- **REJECT** — 1 건 이상 FAIL 또는 `[미검증]` 2 건 이상. 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 함께 제시한다.
 
 # References
 
-- ../../references/audit-criteria.md
+- ../../references/audit-criteria.md — 카테고리별 PASS/FAIL 체크리스트
