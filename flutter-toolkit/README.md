@@ -42,6 +42,10 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 | `references/project-detection.md` | FVM 래퍼, 아키텍처 패턴, 의존성 등 프로젝트 환경 자동 감지 로직 |
 | `references/flutter-ai-rules.md` | Flutter AI 코딩 규칙 (코드 생성 품질 가이드) |
 
+## 참조 (Cross-Kit Principles)
+
+본 kit 는 **harness/references/cross-kit-principles.md** 의 Phase 1 v1.3.0 신규 원칙 5 건 (Pre-Edit Batch Audit / Pre-Sprint Sync Check / Session Lifecycle / Hook-Triggered Auto-Correction / Self-Evaluator Rule-by-Rule Audit) 을 본 kit 의 audit / reviewer / sprint-entry 흐름에 적용한다. 매트릭스의 flutter-toolkit 열 참조.
+
 ## 요구사항
 
 - FVM 설치 (Windows: `fvm.bat`)

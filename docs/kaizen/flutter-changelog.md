@@ -1,12 +1,19 @@
 ---
 title: Flutter Kaizen Changelog
-version: 1.1.0
-last_updated: 2026-04-11
+version: 1.2.0
+last_updated: 2026-05-07
 ---
 
 # Flutter Kaizen Changelog
 
 > flutter-kaizen에 의한 flutter-toolkit 변경 이력을 기록한다.
+
+## [2026-05-07] — Phase 5 kaizen (Phase 1 v1.3.0 신규 원칙 흡수)
+
+- flutter-toolkit/README.md 에 cross-kit-principles 매트릭스 cross-reference 섹션 신규
+- plugin.json v0.5.2 → v0.5.3 patch bump
+- 매핑: flutter-audit / flutter-extract ANALYZE ↔ Pre-Edit Batch Audit, widget-inspector self-check ↔ Self-Evaluator Audit, PostToolUse dart format/analyze ↔ Hook-Triggered Auto-Correction
+- 단일 진실 원천(SSOT): `harness/references/cross-kit-principles.md` v1
 
 ## [2026-04-11] - Phase 5 research-mode kaizen
 
@@ -55,11 +62,13 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
 ### 변경 유형: minor (skill-prompt, new-skill, eval)
 
 ### 연구 기반
+
 - [Flutter 3.41 Breaking Changes](https://docs.flutter.dev/release/breaking-changes) — semantics 매처 변경, variable font weight
 - [AToMIC 논문](https://arxiv.org/abs/2510.18861) — LLM 기반 Flutter 테스트 자동 생성
 - [Flutter AI Rules](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md) — Arrange-Act-Assert, Fake/Stub 우선
 
 ### 변경 내역
+
 - **flutter-audit Gotcha**: containsSemantics → isSemantics 테스트 매처 변경
 - **flutter-widget Gotcha**: FontWeight가 variable font weight axis 제어
 - **flutter-test 신규 생성**: unit/widget/integration 테스트 자동 생성 스킬 v0.1
@@ -73,12 +82,14 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
 ### 변경 유형: minor (skill-prompt, reference, detection)
 
 ### 연구 기반
+
 - [Flutter Official Architecture Guide](https://docs.flutter.dev/app-architecture/guide) — MVVM 패턴 공식 권장
 - [Riverpod 3.0 Newsletter](https://codewithandrea.com/newsletter/september-2025/) — `.valueOrNull` → `.value`, offline persistence
 - [Flutter 3.38 Release Notes](https://docs.flutter.dev/release/release-notes/release-notes-3.38.0) — WidgetState 마이그레이션, PredictiveBack 기본 전환
 - [Flutter Official AI Rules](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md) — LLM 코드 생성 공식 가이드라인
 
 ### 변경 내역
+
 - **flutter-toolkit/references/flutter-ai-rules.md**: 신규 생성 — Flutter 공식 AI rules 핵심 요약
   - Before: 공식 AI rules 참조 없음
   - After: 위젯 패턴, 상태관리, 아키텍처, Do's/Don'ts 요약 문서

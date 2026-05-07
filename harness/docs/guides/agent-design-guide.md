@@ -1,7 +1,7 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.2.0
-last_updated: 2026-04-24
+version: 1.3.0
+last_updated: 2026-05-07
 ---
 
 # Claude Code 에이전트 설계 가이드
@@ -11,6 +11,7 @@ last_updated: 2026-04-24
 **이 문서의 용도:** 새 에이전트를 만들거나 기존 에이전트를 개선할 때 참고한다. 이 프로젝트(`claude-plugins`)의 실제 에이전트를 적용 사례로 함께 다룬다.
 
 **주요 출처:**
+
 - [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-04)
 - [Building Effective Agents — Anthropic Research](https://www.anthropic.com/research/building-effective-agents)
 - [Claude Code Sub-Agent Best Practices — claudefa.st](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
@@ -24,7 +25,7 @@ last_updated: 2026-04-24
 가장 먼저 판단해야 할 것: **이 작업에 에이전트가 필요한가?**
 
 | 기준 | 스킬 사용 | 에이전트 사용 |
-|------|-----------|---------------|
+| ------ | ----------- | --------------- |
 | 컨텍스트 | 메인 대화에서 실행 | 별도 컨텍스트 윈도우에서 격리 실행 |
 | 도구 제한 | 메인 대화의 도구 전체 사용 | 도구를 제한하여 안전하게 격리 |
 | 출력량 | 적음~중간 | 대량 (테스트 실행, 코드베이스 탐색 등) |
@@ -54,7 +55,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 ### 배치 위치 (우선순위순)
 
 | 위치 | 범위 | 우선순위 |
-|------|------|----------|
+| ------ | ------ | ---------- |
 | `--agents` CLI 플래그 | 현재 세션만 | 1 (최고) |
 | `.claude/agents/` | 현재 프로젝트 | 2 |
 | `~/.claude/agents/` | 모든 프로젝트 | 3 |
@@ -67,7 +68,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 > **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-04)
 
 | 필드 | 필수 | 설명 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `name` | 예 | 고유 식별자 (소문자, 하이픈) |
 | `description` | 예 | 언제 위임할지 Claude가 판단하는 기준 |
 | `tools` | 아니오 | 허용 도구 목록. 생략 시 전체 상속 |
@@ -129,6 +130,7 @@ description: >
 ```
 
 **적용 체크리스트:**
+
 - 코드 작성/수정 직후 자동으로 돌아야 하는 리뷰어 → `Proactively reviews... Use immediately after...`
 - 에러/실패 발생 시 자동 개입해야 하는 디버거 → `Use proactively when encountering...`
 - 명시적 호출이 필요한 에이전트(예: QA) → `use proactively` 생략하고 트리거 키워드만 나열
@@ -156,6 +158,7 @@ Reviewer / Evaluator 에이전트는 평가를 시작하기 **전**에 Sprint Co
 
 1. **이진 판정 가능성 검사.** 각 조건이 "PASS" 또는 "FAIL" 중 하나로 귀결 가능한가? "충분히", "상당한", "어느 정도" 같은 정성적 수식어가 있으면 계약 작성자에게 구체화 요청 또는 REJECT 사유로 명시
 2. **구체성 태그 존재 확인.** contract-design-guide 의 `[exact]` / `[structural]` / `[goal]` 태그 사용 여부 확인:
+
    - `[exact]`: 문자 그대로 매칭 (정규식 · 라인번호 · 정확한 값)
    - `[structural]`: 구조적 일치 (섹션 존재 · 카운트 · 관계)
    - `[goal]`: 결과 상태 (빌드 성공 · 테스트 통과 · 사용자 경험)
@@ -186,7 +189,7 @@ Reviewer / Evaluator 에이전트는 평가를 시작하기 **전**에 Sprint Co
 > **출처:** [Create custom subagents — Available tools](https://code.claude.com/docs/en/sub-agents#available-tools), [Claude Code Sub-Agent Best Practices](https://claudefa.st/blog/guide/agents/sub-agent-best-practices) (2026-04)
 
 | 역할 | 도구 | 이유 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 읽기 전용 리뷰어 / 감사자 | `Read, Grep, Glob` | 코드 수정 불가 → 안전 |
 | QA 평가자 | `Read, Grep, Glob, Bash` | 분석 명령 실행 필요, Edit/Write 금지 |
 | 연구자 / 리서치 에이전트 | `Read, Grep, Glob, WebFetch, WebSearch` | 읽기 + 외부 검색 |
@@ -235,6 +238,7 @@ tools: Agent(worker, researcher), Read, Bash
 이 예시에서는 `worker` 와 `researcher` 서브에이전트만 스폰 가능하다. 그 외를 호출하면 요청이 실패하며, 에이전트는 허용된 타입만 프롬프트에서 볼 수 있다.
 
 **규칙:**
+
 - `Agent(...)` 로 명시하면 **화이트리스트** 방식 (나열된 것만 허용)
 - `Agent` 만 쓰면 **전체 허용**
 - `Agent` 자체를 생략하면 **모든 서브에이전트 스폰 불가**
@@ -249,7 +253,7 @@ tools: Agent(worker, researcher), Read, Bash
 **작업 복잡도에 맞는 모델을 선택**하여 비용을 최적화한다.
 
 | 작업 유형 | 모델 | 이유 |
-|-----------|------|------|
+| ----------- | ------ | ------ |
 | 코드베이스 탐색, 파일 검색 | **haiku** | 빠르고 저렴. 읽기 전용 |
 | 코드 리뷰, 테스트 작성, 구현 | **sonnet** | 능력과 속도의 균형 |
 | 아키텍처 판단, 복잡한 평가 | **opus** | 최고 추론 능력 |
@@ -339,9 +343,34 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 **오케스트레이터-워커와의 차이:** 오케스트레이터-워커는 동적으로 하위 작업을 분배하지만, 계획-실행 분리는 계획 자체를 별도 에이전트가 전담한다. 계획 에이전트에는 `Read, Grep, Glob`만 부여하고 `Edit, Write`는 실행 에이전트에만 부여하여 안전성을 높인다.
 
+### 패턴 7: Hook-Triggered Auto-Correction (PostToolUse + Agent)
+
+> **출처:** `/insights` 30일 세션 분석 (Feature Suggestion #2: "Hooks — PostToolUse 로 dart format / cargo fmt / cargo clippy 자동 실행")
+
+```text
+Edit/Write 발생 → PostToolUse 훅 → 정적 검증 (format/clippy/analyze) → 위반 발견 시 read-only 리뷰어 에이전트 spawn → 수정 제안서
+```
+
+Edit/Write 후 `PostToolUse` 훅이 결정론적 정적 검증(`cargo fmt --check`, `dart format --set-exit-if-changed`, `eslint --max-warnings=0`) 을 자동 실행한다. 위반이 검출되면 read-only 리뷰어 에이전트(`Read, Grep, Glob` 만)를 spawn 하여 fix 제안서를 만들고, 메인 Claude 가 그 제안을 토대로 Edit 한다. 사용자가 매번 "포맷 돌려" / "clippy 돌려" 라고 prompt 할 필요 없이 lifecycle event 가 quality gate 를 자동으로 닫는다.
+
+**적합:**
+
+- 결정론적 자동 수정 가능한 규칙 — `cargo fmt`, `dart format`, `eslint --fix`, `prettier --write`
+- 실패 발견 시 fix 가 단일 명령으로 끝나는 영역 (포맷팅, import 정렬, 단순 lint)
+- 대량 편집(refactor) 후 일관성 enforce 가 필요한 경우
+
+**부적합:**
+
+- 의미적 판단이 필요한 리뷰 (architecture decision, domain logic, naming) — 인간/평가자 에이전트 필요
+- 훅 실행이 1초 이상 소요되는 무거운 검증 (전체 빌드, 풀 테스트) — 별도 trigger 권장
+- 비결정론적 수정이 필요한 영역 (코드 리팩토링 제안)
+
+**구현 형태:** 훅은 `.claude/settings.json` 의 `hooks.PostToolUse` 에 matcher (`Edit|Write`) + command 로 등록. 명령이 비-zero exit 이면 메인 Claude 가 결과를 받아 후속 조치를 결정. 에이전트 spawn 은 메인 Claude 가 결정 (훅이 직접 spawn 하지 않음 — 훅은 stateless).
+
 ### 이 프로젝트의 실제 예시
 
 `qa-evaluator`는 **패턴 5 (평가자-최적화자)**를 구현한다:
+
 - Generator(메인 Claude)가 코드를 생성
 - QA Evaluator(독립 에이전트)가 Sprint Contract 기준으로 평가
 - REJECT 시 Generator가 피드백 반영하여 재구현
@@ -408,7 +437,7 @@ memory: project   # user | project | local
 ```
 
 | 범위 | 위치 | 사용 시기 |
-|------|------|-----------|
+| ------ | ------ | ----------- |
 | `user` | `~/.claude/agent-memory/{name}/` | 모든 프로젝트에 걸친 학습 |
 | `project` | `.claude/agent-memory/{name}/` | 프로젝트별 지식 (git 공유 가능) |
 | `local` | `.claude/agent-memory-local/{name}/` | 프로젝트별, git 미포함 |
@@ -416,6 +445,7 @@ memory: project   # user | project | local
 메모리 활성화 시 에이전트의 시스템 프롬프트에 메모리 디렉토리 읽기/쓰기 지침이 자동 추가된다.
 
 **팁:**
+
 - 작업 시작 전: "메모리를 확인하고 이전에 발견한 패턴을 참고해라"
 - 작업 완료 후: "배운 것을 메모리에 저장해라"
 - 시간이 지나면 점점 더 효과적인 에이전트가 된다
@@ -454,8 +484,11 @@ memory: project   # user | project | local
   3. **조용한 PASS 금지** — 검증을 건너뛰고 정적 증거만으로 PASS 를 주는 것은 엄격히 금지. 검증 불가면 FAIL 또는 `[미검증]` 중 하나로 표기하되 PASS 처리 금지
 
   **실패 사례 (이 정책 없이 발생):**
+
   - fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
   - 원인: 미검증 마커 없이 PASS 부여 → 계약 해석 레벨에서 이슈 불가시
+
+- **Self-Evaluator Rule-by-Rule Audit — 서브에이전트 중첩 불가의 공식 우회법.** 서브에이전트가 다른 서브에이전트를 spawn 할 수 없으므로, 카이젠 Phase 처럼 **서브에이전트 내부에서 QA 를 돌려야 하는 경우** Phase subagent 가 **자기 산출물을 자기 규칙 리스트로** 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 1회 iteration APPROVE 를 달성한 핵심 기법으로 `.harness/.meta/orchestrator-audit-log.md` 에 기록되어 있다. **자기 평가는 외부 평가의 대체가 아니다** — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수.
 
 ---
 
@@ -489,7 +522,7 @@ harness/agents/
 ### 성장 경로
 
 | 현재 상태 | 다음 단계 | 트리거 |
-|-----------|-----------|--------|
+| ----------- | ----------- | -------- |
 | 단일 에이전트 | 역할별 에이전트 분리 (리뷰어, 테스터 등) | 에이전트 유형이 3개 이상 필요할 때 |
 | 메모리 없음 | `memory: project` 추가 | 같은 실패 패턴이 반복 관찰될 때 |
 | 모델 고정 | 작업 복잡도별 모델 분기 | 비용 최적화 필요 시 |
@@ -509,7 +542,7 @@ harness/agents/
 두 가이드(agent-design-guide, skill-design-guide)는 아래 5개 항목을 **동일한 개념 · 동일한 용어** 로 공유한다:
 
 | # | Parity Item | agent-design-guide 위치 | skill-design-guide 대응 위치 |
-|---|-------------|------------------------|------------------------------|
+| --- | ------------- | ------------------------ | ------------------------------ |
 | 1 | Binary Decidability / 계약 모호성 방지 | §3.5 (Binary Decidability Pre-Check) | §3.5 (QA 계약과 1:1 매칭) |
 | 2 | 트리거 키워드 배타성 (substring 포함) | §3 "Sibling Agent 트리거 키워드 배타성" | §4 (트리거 키워드 중복 방지) |
 | 3 | 검증 가능한 성공 기준 / L3 커버리지 | §10 Reviewer/Evaluator Gotchas (L3) | §3.6 (Give a way to verify) |
@@ -546,7 +579,7 @@ agent-design-guide.md 를 편집할 때:
 ## 요약
 
 | 원칙 | 핵심 |
-|------|------|
+| ------ | ------ |
 | 단순함 우선 | 스킬로 충분하면 에이전트를 만들지 마라 |
 | description은 트리거 | "언제 위임할지"를 구체적으로 명시 |
 | Undertrigger 방지 | `use proactively` 키워드로 자동 위임 장려 |

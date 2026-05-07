@@ -7,15 +7,15 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 <!-- AUTO:plugins -->
 | 플러그인 | 버전 | 스택 | 설명 |
 |----------|------|------|------|
-| [`harness`](./harness/) | v0.4.0 | 범용 | [v0.4.0 · 2026-04-24] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (2026 QA 자동화 트렌드 반영) |
-| [`flutter-toolkit`](./flutter-toolkit/) | v0.5.2 | Flutter | [v0.5.2 · 2026-04-24] Flutter 개발 워크플로우 스킬 모음 (Riverpod 3.0 / Freezed 3.0 / go_router StatefulShellRoute) |
-| [`design-kit`](./design-kit/) | v0.2.2 | 범용 | [v0.2.2 · 2026-04-24] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries) |
-| [`backend-kit`](./backend-kit/) | v0.1.2 | 범용 | [v0.1.2 · 2026-04-24] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (Hexagonal/Clean/DDD + OAuth 2.1 + Outbox + Pact) |
-| [`infra-kit`](./infra-kit/) | v0.1.2 | 범용 | [v0.1.2 · 2026-04-24] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (K8s PSA / Terraform 1.10 / SLSA / OTel) |
-| [`rust-kit`](./rust-kit/) | v0.1.2 | 범용 | [v0.1.2 · 2026-04-24] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 |
-| [`react-kit`](./react-kit/) | v0.1.2 | 범용 | [v0.1.2 · 2026-04-24] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 |
-| [`planning-kit`](./planning-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-04-24] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 |
-| [`reflect-kit`](./reflect-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-04-17] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸 |
+| [`harness`](./harness/) | v0.4.1 | 범용 | [v0.4.1 · 2026-05-07] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (2026 QA 자동화 트렌드 반영) |
+| [`flutter-toolkit`](./flutter-toolkit/) | v0.5.3 | Flutter | [v0.5.3 · 2026-05-07] Flutter 개발 워크플로우 스킬 모음 (Riverpod 3.0 / Freezed 3.0 / go_router StatefulShellRoute) |
+| [`design-kit`](./design-kit/) | v0.2.3 | 범용 | [v0.2.3 · 2026-05-07] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries) |
+| [`backend-kit`](./backend-kit/) | v0.1.3 | 범용 | [v0.1.3 · 2026-05-07] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (Hexagonal/Clean/DDD + OAuth 2.1 + Outbox + Pact) |
+| [`infra-kit`](./infra-kit/) | v0.1.3 | 범용 | [v0.1.3 · 2026-05-07] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (K8s PSA / Terraform 1.10 / SLSA / OTel) |
+| [`rust-kit`](./rust-kit/) | v0.1.3 | 범용 | [v0.1.3 · 2026-05-07] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 |
+| [`react-kit`](./react-kit/) | v0.1.3 | 범용 | [v0.1.3 · 2026-05-07] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 |
+| [`planning-kit`](./planning-kit/) | v0.3.1 | 범용 | [v0.3.1 · 2026-05-07] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 |
+| [`reflect-kit`](./reflect-kit/) | v0.3.1 | 범용 | [v0.3.1 · 2026-05-07] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸 |
 <!-- /AUTO:plugins -->
 
 ---

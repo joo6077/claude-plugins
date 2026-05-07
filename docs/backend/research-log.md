@@ -1,12 +1,32 @@
 ---
 version: 1.1.0
-last_updated: 2026-04-12
+last_updated: 2026-05-07
 ---
 
 # Backend Kit Research Log
 
 > backend-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 > 다음 사이클에서 중복 리서치를 방지하고, 개선 결정의 근거 출처를 추적한다.
+
+## [2026-05-07] — Phase 7 kaizen (backend, /insights 흡수)
+
+### 데이터 소스
+
+- 데이터 풀 §0 `/insights` 30 일 분석 (3 friction · 3 pattern · 3 feature)
+- `harness/references/cross-kit-principles.md` v1 매트릭스의 backend 열
+
+### Phase 7 변경
+
+- backend/README.md 에 cross-kit-principles 매트릭스 cross-reference 섹션 추가
+- plugin.json patch bump (이번 사이클)
+- 매핑: backend-audit ANALYZE ↔ Pre-Edit Batch Audit, backend-reviewer self-check ↔ Self-Evaluator Audit, PostToolUse 정적 검증 ↔ Hook-Triggered Auto-Correction
+
+### 외부 리서치 인용 (이전 사이클 보존, 이번 사이클 추가 없음)
+
+이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
+
+---
+
 
 ---
 

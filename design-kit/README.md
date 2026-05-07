@@ -66,6 +66,10 @@
 - **플러그인 간 의존성 없음** — 다른 플러그인과 독립적으로 동작
 - **출처 기반** — 모든 가이드/판정에 출처 명시 (Apple HIG, Material Design, WCAG 등)
 
+## 참조 (Cross-Kit Principles)
+
+본 kit 는 **harness/references/cross-kit-principles.md** 의 Phase 1 v1.3.0 신규 원칙 5 건 (Pre-Edit Batch Audit / Pre-Sprint Sync Check / Session Lifecycle / Hook-Triggered Auto-Correction / Self-Evaluator Rule-by-Rule Audit) 을 design-audit / design-reviewer / sprint-entry 흐름에 적용한다. 매트릭스의 design-kit 열 참조.
+
 ## 설치
 
 ```bash

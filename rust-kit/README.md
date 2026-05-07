@@ -75,3 +75,9 @@ Axum + Tokio + SQLx 기반 Rust 백엔드 프로젝트의 스캐폴딩, API 생�
 
 - `/rust-research` — 외부 소스 크롤링으로 docs/rust/ 문서 갱신
 - `/rust-kaizen` — 리서치 문서 기준으로 스킬 품질 점진 개선
+
+### Phase 9 kaizen (2026-05-07)
+
+- Phase 1 v1.3.0 신규 원칙 흡수 — `/insights` Friction #1·#2·#3 의 rust-kit 측 reframe
+- 적용 매핑은 **harness/references/cross-kit-principles.md** rust-kit 열 참조
+- rust-audit ANALYZE ↔ Pre-Edit Batch Audit, rust-reviewer self-check ↔ Self-Evaluator Audit, PostToolUse cargo fmt/clippy ↔ Hook-Triggered Auto-Correction

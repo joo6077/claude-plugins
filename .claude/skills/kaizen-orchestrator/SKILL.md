@@ -22,7 +22,7 @@ user-invocable: true
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
 - `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
-- `references/phase-research-templates.md` — **Phase 1~11 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가, 2026-04-14)
+- `references/phase-research-templates.md` — **Phase 1~12 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit 추가 2026-05-07)
 
 ## 연동 스크립트
 
@@ -37,7 +37,7 @@ user-invocable: true
 
 ## 관련 스킬
 
-- `/meta-kaizen` — 이 오케스트레이터 SKILL.md 자체를 리서치 기반으로 개선하는 메타 카이젠. Phase 1~11 범위 밖. 주 1 회 이하 권장.
+- `/meta-kaizen` — 이 오케스트레이터 SKILL.md 자체를 리서치 기반으로 개선하는 메타 카이젠. Phase 1~12 범위 밖. 주 1 회 이하 권장.
 
 ## Gotchas
 
@@ -66,7 +66,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/flutter-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 flutter-toolkit 전 스킬을 전수 감사한다. flutter-toolkit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.5.1 · 2026-04-11] Flutter 개발 워크플로우 스킬 모음 (Riverpod 3.0 / Freezed 3.0 / go_router StatefulShellRoute)
+> 플러그인 설명: [v0.5.3 · 2026-05-07] Flutter 개발 워크플로우 스킬 모음 (Riverpod 3.0 / Freezed 3.0 / go_router StatefulShellRoute)
 
 ### Step 6: Phase 6 — design-kit 카이젠
 
@@ -75,7 +75,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/design-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 design-kit 전 스킬을 전수 감사한다. design-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.2.1 · 2026-04-11] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries)
+> 플러그인 설명: [v0.2.3 · 2026-05-07] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries)
 
 ### Step 7: Phase 7 — backend-kit 카이젠
 
@@ -84,7 +84,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/backend-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 backend-kit 전 스킬을 전수 감사한다. backend-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.1.1 · 2026-04-11] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (Hexagonal/Clean/DDD + OAuth 2.1 + Outbox + Pact)
+> 플러그인 설명: [v0.1.3 · 2026-05-07] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (Hexagonal/Clean/DDD + OAuth 2.1 + Outbox + Pact)
 
 ### Step 8: Phase 8 — infra-kit 카이젠
 
@@ -93,7 +93,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/infra-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 infra-kit 전 스킬을 전수 감사한다. infra-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.1.1 · 2026-04-11] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (K8s PSA / Terraform 1.10 / SLSA / OTel)
+> 플러그인 설명: [v0.1.3 · 2026-05-07] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (K8s PSA / Terraform 1.10 / SLSA / OTel)
 
 ### Step 9: Phase 9 — rust-kit 카이젠
 
@@ -102,7 +102,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/rust-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 rust-kit 전 스킬을 전수 감사한다. rust-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.1.1 · 2026-04-11] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026
+> 플러그인 설명: [v0.1.3 · 2026-05-07] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026
 
 ### Step 10: Phase 10 — react-kit 카이젠
 
@@ -111,7 +111,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/react-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 react-kit 전 스킬을 전수 감사한다. react-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.1.1 · 2026-04-11] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션
+> 플러그인 설명: [v0.1.3 · 2026-05-07] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션
 
 ### Step 11: Phase 11 — planning-kit 카이젠
 
@@ -119,7 +119,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/planning-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 planning-kit 전 스킬을 전수 감사한다. planning-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.2.0 · 2026-04-14] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2
+> 플러그인 설명: [v0.3.1 · 2026-05-07] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2
 
 ### Step 12: Phase 12 — reflect-kit 카이젠
 
@@ -127,7 +127,7 @@ user-invocable: true
 
 공통 실행 패턴에 따라 `/reflect-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 reflect-kit 전 스킬을 전수 감사한다. reflect-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.3.0 · 2026-04-17] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸
+> 플러그인 설명: [v0.3.1 · 2026-05-07] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸
 
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->` 마커 영역을 직접 편집하지 마라.** 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 킷 추가/수정/삭제 시 marketplace.json 을 고친 뒤 `python3 scripts/sync-orchestrator.py` 를 실행하면 이 섹션이 동기화된다. 직접 편집 시 다음 실행에서 덮어써진다.
@@ -162,6 +162,8 @@ Phase 10: React-kit 카이젠 (react-kaizen)
     ↓
 Phase 11: Planning-kit 카이젠 (planning-kaizen)
     ↓
+Phase 12: Reflect-kit 카이젠 (reflect-kaizen)
+    ↓
 Final: 전체 정합성 검증
 ```
 
@@ -178,6 +180,7 @@ Final: 전체 정합성 검증
 9. Rust-kit 카이젠 — Rust 백엔드 스킬 개선 (docs/rust/ 리서치 기준)
 10. React-kit 카이젠 — React + Vite + Tauri + WASM 스킬 개선 (docs/react/ 리서치 기준)
 11. Planning-kit 카이젠 — 제품 기획 스킬 개선 (docs/planning/ 리서치 기준, Discovery/PRD/Prioritization/Risks/Stories/Flows/Data Model/GitHub Sync)
+12. Reflect-kit 카이젠 — 개인 Claude Code 피드백 → 학습 → 재주입 파이프라인 개선 (Reflexion 방법론)
 
 ## 트리거 조건
 
@@ -185,7 +188,7 @@ Final: 전체 정합성 검증
 
 - 매주 월요일 09:00 KST (= UTC 00:00)
 - Claude Code `schedule` 스킬로 remote trigger 등록
-- 개별 카이젠(contract-kaizen, evaluator-kaizen, harness-kaizen, flutter-kaizen, design-kaizen, backend-kaizen, infra-kaizen, rust-kaizen, react-kaizen, planning-kaizen)의 cron은 비활성화하고 이 오케스트레이터만 실행
+- 개별 카이젠(contract-kaizen, evaluator-kaizen, harness-kaizen, flutter-kaizen, design-kaizen, backend-kaizen, infra-kaizen, rust-kaizen, react-kaizen, planning-kaizen, reflect-kaizen)의 cron은 비활성화하고 이 오케스트레이터만 실행
 
 **등록 명령 (최초 1 회):**
 
@@ -218,7 +221,8 @@ Final: 전체 정합성 검증
 - `/kaizen-orchestrator phase9` — rust-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase10` — react-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase11` — planning-kaizen만 (Phase 1 완료 전제)
-- `/kaizen-orchestrator final` — Final QA만 (Phase 1~11 완료 전제)
+- `/kaizen-orchestrator phase12` — reflect-kaizen만 (Phase 1 완료 전제)
+- `/kaizen-orchestrator final` — Final QA만 (Phase 1~12 완료 전제)
 
 ## Process
 
@@ -249,7 +253,7 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 ### Step 0: Pre-flight — 피드백 데이터 풀 수집 (Phase 1 이전 **필수** 실행)
 
-모든 Phase 1~10 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈를 근거로 개선하도록 보장한다.
+모든 Phase 1~12 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈·`/insights` 30 일 분석을 근거로 개선하도록 보장한다.
 
 **실행:**
 
@@ -261,6 +265,11 @@ python3 scripts/collect-kaizen-data.py
 
 **수집 소스 (스크립트 내장):**
 
+0. **`/insights` 외부 도구 산출물** — `<repo>/.claude/kaizen-input/insights-report.md` 또는 `~/.claude/kaizen-input/insights-report.md` (자동 탐색)
+   - `/insights` 는 Claude Code 마켓플레이스 등록 스킬이 아니라 사용자가 외부 도구로 30일 세션 사용 데이터를 분석한 산출물 (Friction Points / Recommended Patterns / Feature Suggestions)
+   - 파일이 존재하면 데이터 풀 §0 (최상위) 으로 삽입되어 **모든 Phase 가 최우선 참조**
+   - 60일 초과 시 STALE 경고 표시. STALE 이면 사용자에게 `/insights` 재실행 권고
+   - 파일이 없으면 §0 에 "(없음)" 안내 후 진행 — Step 0 자체는 막지 않는다
 1. **글로벌 Evaluator 피드백** — `~/.harness/feedback/evaluator/*.yaml`
    - verdict 분포 (APPROVE/REJECT)
    - skill/project 분포
@@ -276,19 +285,22 @@ python3 scripts/collect-kaizen-data.py
 
 **Phase 별 참조 매핑** (데이터 풀 §6 에 테이블 포함):
 
+§0 (`/insights`) 가 존재할 때는 **모든 Phase** 가 §0 을 최우선 참조한 뒤 자신의 도메인 섹션을 본다. 각 Phase subagent 프롬프트는 데이터 풀 §0 을 첫 번째 참조로 명시해야 한다.
+
 | Phase | 주요 참조 섹션 |
 |-------|-------------|
-| 1 설계 가이드 | §1 improvement suggestions |
-| 2 Contract | §1 reject 사유 (계약 모호성 패턴) |
-| 3 Evaluator | §1 improvement (L3 커버리지, set intersection) |
-| 4 Harness | §5 validate-plugin 현재 상태 |
-| 5 Flutter | §2 Hub 외부 프로젝트 (fit-pal, apps) |
-| 6 Design | §5 validate-plugin 현재 상태 |
-| 7 Backend | §1 backend 관련 feedback |
-| 8 Infra | §5 validate-plugin 현재 상태 |
-| 9 Rust | §2 Hub 외부 프로젝트 (fit-pal server) |
-| 10 React | §3 followup-2026-04-11, §5 |
-| 11 Planning | §1 planning 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
+| 1 설계 가이드 | §0 + §1 improvement suggestions |
+| 2 Contract | §0 + §1 reject 사유 (계약 모호성 패턴) |
+| 3 Evaluator | §0 + §1 improvement (L3 커버리지, set intersection) |
+| 4 Harness | §0 + §5 validate-plugin 현재 상태 |
+| 5 Flutter | §0 + §2 Hub 외부 프로젝트 (fit-pal, apps) |
+| 6 Design | §0 + §5 validate-plugin 현재 상태 |
+| 7 Backend | §0 + §1 backend 관련 feedback |
+| 8 Infra | §0 + §5 validate-plugin 현재 상태 |
+| 9 Rust | §0 + §2 Hub 외부 프로젝트 (fit-pal server) |
+| 10 React | §0 + §3 followup-2026-04-11, §5 |
+| 11 Planning | §0 + §1 planning 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
+| 12 Reflect | §0 + §1 Reflexion 패턴 피드백 |
 
 **각 Phase 서브에이전트 프롬프트에 데이터 풀 경로 전달 필수:**
 
@@ -304,6 +316,10 @@ python3 scripts/collect-kaizen-data.py
 - 데이터 풀은 Phase 진행 중에는 재생성하지 마라 — Phase 별로 상태가 흔들린다. 전체 카이젠 종료 후 다음 사이클에 다시 수집한다.
 - 데이터 풀 파일은 스크립트 생성물이므로 직접 수정 금지. 내용이 틀리면 수집 로직(`scripts/collect-kaizen-data.py`)을 고친다.
 - 글로벌 feedback 이 0건이어도 Step 0 은 실행한다 — 외부 프로젝트 피드백이나 followup 은 여전히 유효할 수 있다.
+- `/insights` 리포트 파일이 없어도 Step 0 은 진행한다 (§0 에 "(없음)" 으로 표시). 사용자가 외부 `/insights` 도구를 실행하지 않은 상태일 수 있다.
+- `/insights` 리포트가 60일 초과 STALE 이면 데이터 풀에 ⚠ 마커가 붙는다. 이 사이클은 진행하되, **사용자에게 `/insights` 재실행을 권고**하라.
+- `/insights` 가 30일 세션 분석이지만 카이젠 사이클(주 1 회)이 더 빈번하므로, 이전 사이클과 같은 리포트가 재참조될 수 있다. 매 사이클 §0 의 friction point 가 이미 해결되었는지 각 Phase QA Acceptance Criteria 에 명시한다.
+- `--insights=PATH` 인자가 명시적으로 전달되면 자동 탐색 경로보다 우선한다 (사용자가 특정 리포트 버전을 강제하고 싶을 때).
 
 ### Step 0.5: Orchestrator Self-Audit (자동 — 건너뛰기 금지)
 
@@ -422,14 +438,14 @@ python3 scripts/collect-kaizen-data.py
 
 ### Step 11: Final — 전체 정합성 검증
 
-**범위:** Phase 1~11 전체 변경사항 (Phase 11 planning-kit 포함 전수 체크)
+**범위:** Phase 1~12 전체 변경사항 (Phase 11 planning-kit + Phase 12 reflect-kit 포함 전수 체크)
 
 1. **Final Sprint Contract 생성:**
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~11 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 포함)
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~12 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
-     - Phase 4 harness 변경이 Phase 5~11 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit)과 충돌하지 않는가
-     - 버전 번호가 각 플러그인에서 올바르게 업데이트되었는가 (planning-kit plugin.json 포함)
+     - Phase 4 harness 변경이 Phase 5~12 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit)과 충돌하지 않는가
+     - 버전 번호가 각 플러그인에서 올바르게 업데이트되었는가 (planning-kit + reflect-kit plugin.json 포함)
      - changelog, research-log이 모든 Phase 변경을 포함하는가 (docs/planning/research-log.md 포함)
    - Diagnostics: 전체 `bash -n` 검증
 
@@ -531,7 +547,7 @@ cleanup_log:
    - 정합성 유지 확인을 `.harness/.meta/evals-audit-{YYYY-MM-DD}.md` 에 기록 (변경 없음이어도 점검 기록)
 
 5. **kaizen-failure-count.yaml 업데이트:**
-   - `.harness/.meta/kaizen-failure-count.yaml` 에 `phase_1` ~ `phase_11` 엔트리가 모두 존재하는지 확인 (없으면 추가)
+   - `.harness/.meta/kaizen-failure-count.yaml` 에 `phase_1` ~ `phase_12` 엔트리가 모두 존재하는지 확인 (없으면 추가)
    - Regression PASS 인 Phase 는 카운터 0 으로 리셋
    - Regression FAIL 인 Phase 는 카운터 +1 → 2 이상이면 사용자 에스컬레이션
    - `last_updated` 필드를 카이젠 실행 날짜로 갱신
@@ -552,7 +568,7 @@ cleanup_log:
    - [ ] Step 11.6 글로벌 피드백 정리가 실행되었다 — `.harness/.meta/cleanup-log.yaml` 에 이번 사이클 엔트리가 있다
    - [ ] `.harness/.meta/kaizen-failure-count.yaml` `last_updated` 필드가 이번 사이클 날짜다
    - [ ] `.harness/.meta/evals-audit-{YYYY-MM-DD}.md` 가 존재한다 (evals 점검 기록)
-   - [ ] Phase 1~11 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다 (Phase 11 planning-kit 포함)
+   - [ ] Phase 1~12 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다 (Phase 11 planning-kit + Phase 12 reflect-kit 포함)
 
 7. **PR 생성:**
    - 브랜치명: `kaizen/{날짜}`

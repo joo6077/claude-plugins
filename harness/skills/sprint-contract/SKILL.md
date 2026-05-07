@@ -49,6 +49,7 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - **검증 수단이 없는 조건은 작성하지 마라.** 조건마다 "어떤 명령/도구/관찰로 PASS/FAIL 판정하는지" 를 인라인으로 적어라 (예: "측정: `wc -l`", "측정: MCP Figma read-back"). 외부 도구 의존 시 3 단계 fallback 을 명시 — 기본 / fallback / `[미검증]` 수용 임계 (1 건까지)
 - **sibling 스킬 공통 원칙은 반드시 `[exact, enumerated]` 또는 `[structural, enumerated]` aggregation mode 로 작성하라.** 대상 스킬을 숫자로 명시 + 이름 전부 열거. "rust-api 에 적용" ✗ → "rust-init, rust-feature, rust-service, rust-api 4 스킬 모두에 적용" ✓ (rust-kit H-01/H-03 재발 방지)
 - **조건의 FAIL 상태를 1 문장으로 기술 가능해야 한다.** FAIL 이미지가 떠오르지 않으면 그 조건은 모호하므로 재작성하라. 이는 Binary Decidability Pre-Check 사전 점검이다 (contract-design-guide §계약 작성자 의무 참조)
+- **계약 작성 자체에 Pre-Edit Batch Audit 원칙을 적용하라.** 계약 초안 (DRAFT) 을 사용자에게 제시하기 전에, 대상 코드/파일을 read-only 로 audit 하여 (a) 어떤 위반/갭이 이미 존재하는지 enumerate (b) 후보 옵션 (예: Stack vs Column, widget extend vs new) 을 옵션 표로 제시 (c) 사용자 합의 후 조건 확정. skill-design-guide v1.3.0 §3.6 "Pre-Edit Batch Audit" 의 계약-시점 적용 (Friction #2 false-dichotomy 의 reframe). 이는 sprint-contract Process 의 "DRAFT 작성 → 사용자 합의" 단계에 직접 매핑된다
 
 ## 설정 로드
 

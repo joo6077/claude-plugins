@@ -5,7 +5,20 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-04-24 (Phase 3 kaizen · v3 흡수)** — Phase 1/2 Cross-Surface Parity 흡수. Binary Decidability Pre-Check, Rule-by-Rule Audit, `[미검증]` 마커 평가 프로토콜 (1/2건 임계), Sibling Enumerated 전수 Grep 절차, L3 Coverage Honesty 규칙, User-Value/Business-Intent 관점을 평가자 프로토콜로 흡수. 이전: 2026-04-12 수량/경계값 조건 검증 프로토콜 추가 · LLM-as-judge 2026 최신 연구 반영 + contract-schema v2 소비 규칙.
+> **최근 갱신: 2026-05-07 (Phase 3 kaizen · v3.1)** — `/insights` 30 일 분석 흡수.
+> Friction #1 (proactive quality gap) 은 본 가이드의 Rule-by-Rule Audit 프로토콜로
+> 이미 강제 (skill-design-guide v1.3.0 §3.6 의 평가자 측 짝). Phase 1 신규 원칙
+> "Pre-Edit Batch Audit" 의 평가자 측 대응은 본 가이드 "조건 평가 시작 전 전수
+> enumerate" 절차에 cross-reference. agent-design-guide v1.3.0 §10 신규
+> "Self-Evaluator Rule-by-Rule Audit" gotcha 는 평가자 자기 산출물 self-check 패스의
+> 연구적 근거이며, verdict 직전 의무 절차이다.
+>
+> 이전 (2026-04-24, v3 흡수): Phase 1/2 Cross-Surface Parity 흡수. Binary
+> Decidability Pre-Check, Rule-by-Rule Audit, `[미검증]` 마커 평가 프로토콜 (1/2건
+> 임계), Sibling Enumerated 전수 Grep 절차, L3 Coverage Honesty 규칙, User-Value/
+> Business-Intent 관점을 평가자 프로토콜로 흡수. 이전: 2026-04-12 수량/경계값
+> 조건 검증 프로토콜 추가 · LLM-as-judge 2026 최신 연구 반영 + contract-schema
+> v2 소비 규칙.
 
 ---
 
@@ -97,6 +110,7 @@ Step 4 (판정) 직전에 **모든 계약 조건을 1 회 더 전수 스캔** �
 
 1. Sprint Contract 의 모든 조건 ID 를 번호순으로 나열한다
 2. 각 조건 ID 에 대해:
+
    - 증거(파일:라인) 가 기록되어 있는가?
    - 검증 깊이 (L1/L2/L3) 가 명시되어 있는가?
    - 구체성 태그 (`[exact]` / `[structural]` / `[goal]`) 에 맞는 검증 방식을 적용했는가?
@@ -131,7 +145,7 @@ Step 4 (판정) 직전에 **모든 계약 조건을 1 회 더 전수 스캔** �
 `[미검증]` 건수는 평가 종료 시 집계하고 아래 규칙으로 판정:
 
 | 미검증 건수 | 평가 결과 |
-|------------|----------|
+| ------------ | ---------- |
 | 0 건 | 통상 판정 |
 | 1 건 | PASS 허용 (단, Sprint Feedback 에 "미검증 1 건" 경고 명시) |
 | 2 건 이상 | **자동 REJECT** — 개별 조건은 FAIL 이 없어도 전체 verdict 는 REJECT |
@@ -365,6 +379,7 @@ CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도�
 **카운팅 시 패턴 주의사항:**
 
 항목을 카운트할 때 Grep 패턴이 대상의 모든 변형을 포함하는지 확인한다:
+
 - Markdown 헤더: `##` 뿐 아니라 `###`, `####` 등 하위 레벨도 고려
 - 번호 매기기: `1.` 형식과 `- ` 불릿 형식 모두 고려
 - Gotchas 항목 카운트: H2(`## Gotchas`) 하위의 H3(`### 항목`) 또는 불릿(`- **항목**`) 형태 모두 매칭하는 범용 정규식 사용
@@ -579,7 +594,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 ### Parity Table (4 개 parity item)
 
 | # | Parity Item | skill-design-guide | agent-design-guide | contract-design-guide | **qa-evaluation-guide (이 가이드)** |
-|---|-------------|-------------------|-------------------|----------------------|-------------------------------------|
+| --- | ------------- | ------------------- | ------------------- | ---------------------- | ------------------------------------- |
 | 1 | Binary Decidability | §3.5 (계약 모호성 방지) | §3.5 (Pre-Check) | §Binary Decidability | **§Binary Decidability Pre-Check** |
 | 2 | Rule-by-Rule Audit | §3.6 | §10 (reviewer audit) | — (평가 위임) | **§Rule-by-Rule Audit Before Completion** |
 | 3 | Unverifiable / `[미검증]` 정책 | — (스킬 전용 아님) | §10 Unverifiable | §미검증 마커 | **§`[미검증]` 마커 평가 프로토콜** |
