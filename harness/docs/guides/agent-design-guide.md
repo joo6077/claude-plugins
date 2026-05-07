@@ -1,7 +1,7 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.2.0
-last_updated: 2026-04-24
+version: 1.3.0
+last_updated: 2026-05-07
 ---
 
 # Claude Code 에이전트 설계 가이드
@@ -339,6 +339,30 @@ LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결�
 
 **오케스트레이터-워커와의 차이:** 오케스트레이터-워커는 동적으로 하위 작업을 분배하지만, 계획-실행 분리는 계획 자체를 별도 에이전트가 전담한다. 계획 에이전트에는 `Read, Grep, Glob`만 부여하고 `Edit, Write`는 실행 에이전트에만 부여하여 안전성을 높인다.
 
+### 패턴 7: Hook-Triggered Auto-Correction (PostToolUse + Agent)
+
+> **출처:** `/insights` 30일 세션 분석 (Feature Suggestion #2: "Hooks — PostToolUse 로 dart format / cargo fmt / cargo clippy 자동 실행")
+
+```text
+Edit/Write 발생 → PostToolUse 훅 → 정적 검증 (format/clippy/analyze) → 위반 발견 시 read-only 리뷰어 에이전트 spawn → 수정 제안서
+```
+
+Edit/Write 후 `PostToolUse` 훅이 결정론적 정적 검증(`cargo fmt --check`, `dart format --set-exit-if-changed`, `eslint --max-warnings=0`) 을 자동 실행한다. 위반이 검출되면 read-only 리뷰어 에이전트(`Read, Grep, Glob` 만)를 spawn 하여 fix 제안서를 만들고, 메인 Claude 가 그 제안을 토대로 Edit 한다. 사용자가 매번 "포맷 돌려" / "clippy 돌려" 라고 prompt 할 필요 없이 lifecycle event 가 quality gate 를 자동으로 닫는다.
+
+**적합:**
+
+- 결정론적 자동 수정 가능한 규칙 — `cargo fmt`, `dart format`, `eslint --fix`, `prettier --write`
+- 실패 발견 시 fix 가 단일 명령으로 끝나는 영역 (포맷팅, import 정렬, 단순 lint)
+- 대량 편집(refactor) 후 일관성 enforce 가 필요한 경우
+
+**부적합:**
+
+- 의미적 판단이 필요한 리뷰 (architecture decision, domain logic, naming) — 인간/평가자 에이전트 필요
+- 훅 실행이 1초 이상 소요되는 무거운 검증 (전체 빌드, 풀 테스트) — 별도 trigger 권장
+- 비결정론적 수정이 필요한 영역 (코드 리팩토링 제안)
+
+**구현 형태:** 훅은 `.claude/settings.json` 의 `hooks.PostToolUse` 에 matcher (`Edit|Write`) + command 로 등록. 명령이 비-zero exit 이면 메인 Claude 가 결과를 받아 후속 조치를 결정. 에이전트 spawn 은 메인 Claude 가 결정 (훅이 직접 spawn 하지 않음 — 훅은 stateless).
+
 ### 이 프로젝트의 실제 예시
 
 `qa-evaluator`는 **패턴 5 (평가자-최적화자)**를 구현한다:
@@ -456,6 +480,8 @@ memory: project   # user | project | local
   **실패 사례 (이 정책 없이 발생):**
   - fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
   - 원인: 미검증 마커 없이 PASS 부여 → 계약 해석 레벨에서 이슈 불가시
+
+- **Self-Evaluator Rule-by-Rule Audit — 서브에이전트 중첩 불가의 공식 우회법.** 서브에이전트가 다른 서브에이전트를 spawn 할 수 없으므로, 카이젠 Phase 처럼 **서브에이전트 내부에서 QA 를 돌려야 하는 경우** Phase subagent 가 **자기 산출물을 자기 규칙 리스트로** 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 1회 iteration APPROVE 를 달성한 핵심 기법으로 `.harness/.meta/orchestrator-audit-log.md` 에 기록되어 있다. **자기 평가는 외부 평가의 대체가 아니다** — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수.
 
 ---
 

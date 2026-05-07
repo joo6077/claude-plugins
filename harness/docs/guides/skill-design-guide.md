@@ -1,7 +1,7 @@
 ---
 title: Claude Code 스킬 설계 가이드
-version: 1.2.0
-last_updated: 2026-04-24
+version: 1.3.0
+last_updated: 2026-05-07
 ---
 
 # Claude Code 스킬 설계 가이드
@@ -57,8 +57,9 @@ Anthropic이 내부 스킬 수백 개를 분석하여 발견한 패턴. **좋은
 | 7 | **CI/CD** | PR 모니터링 및 자동 롤백 | 배포 파이프라인 스킬 |
 | 8 | **런북(Runbook)** | 장애 시 자동 조사 및 보고서 | 인시던트 대응 스킬 |
 | 9 | **인프라 운영** | 리소스 정리 및 비용 분석 | 미사용 리소스 정리 |
+| 10 | **Session Lifecycle** | 세션 종료/이어가기/요약 자동화 | handoff, work-summary, resume-prompt |
 
-> 이 목록을 체크리스트로 사용하여 팀에 아직 없는 스킬 유형을 점검하라.
+> 1~9 는 Anthropic 공식 분석 패턴, **10 은 본 레포 운영 경험에서 추가** (긴 세션의 toll/network/output_token 한계로 truncation 이 잦은 환경에서 lifecycle 스킬이 별도 카테고리로 식별됨, 2026-05 /insights). 이 목록을 체크리스트로 사용하여 팀에 아직 없는 스킬 유형을 점검하라.
 
 ---
 
@@ -166,6 +167,26 @@ Claude 는 리팩터링/대량 편집 시 **규칙에 이미 기재된 위반을
 ```text
 Bad:  Claude 편집 완료 → 사용자가 놓친 규칙 지적 → 반복
 Good: Claude 편집 → 규칙 체크리스트 전수 대조 → 위반 목록 발견 → 수정 → 완료 선언
+```
+
+### Pre-Edit Batch Audit — 리팩터링 시작 전 위반 전수 enumerate
+
+> **출처:** `/insights` 30일 세션 분석 (Friction Point #1 + Recommended Pattern #1: "Batch-identify refactor opportunities up front") · Friction Point #2 (Wrong approach / false dichotomies)
+
+Rule-by-Rule Audit (위) 가 **완료 시점** 의 안전망이라면, Pre-Edit Batch Audit 는 **편집 시작 시점** 에 같은 규칙 리스트를 능동 적용한다. 두 패스가 짝을 이뤄야 N 회 round-trip 이 "1 review + 1 execution" 으로 축약된다.
+
+**원칙:**
+
+- 리팩터링/대량 편집 (3+ 파일, 1+ 규칙군) 시작 **전**, 대상 파일 전수를 읽어 **모든 적용 규칙 위반을 enumerate** 한 체크리스트를 사용자에게 제시하고 승인받은 뒤 편집 시작
+- 아키텍처 선택 (`Stack vs Column`, `Service vs UseCase`, `widget extend vs new`) 같은 false-dichotomy 영역도 enumerate 대상 — Friction #2 의 reframe. 옵션 A/B/C 를 모두 보여주고 trade-off 를 명시한 뒤 선택받는다
+- 체크리스트는 형식 자유이지만 항목당 (a) 파일/라인 근거 (b) 위반 규칙 식별자 (c) 권장 조치 3 요소 포함
+- "혹시 누락된 영역이 있는가?" meta-audit 1 회 후 사용자에게 제시
+
+**적용 범위:** 본 원칙은 high-freedom 영역 (아키텍처, 디자인 선택) 과 low-freedom 영역 (린트 규칙, 토큰 마이그레이션) 양쪽에 모두 적용된다 — §5.5 Enumerate-before-Act 가 low-freedom 만 다룬 것을 확장.
+
+```text
+Bad:  편집 시작 → 일부 위반 수정 → 사용자 지적 → 추가 수정 → 사용자 또 지적 → ...
+Good: 대상 파일 전수 audit → 위반 N 건 체크리스트 → 사용자 승인 → 일괄 편집 → Rule-by-Rule Audit (완료 시점)
 ```
 
 ---
@@ -696,6 +717,25 @@ v0.5: templates/report.md 추가
 
 **적용 예시:** `kaizen-orchestrator` 스킬은 Phase 1~10 을 각 Phase 별 sub-agent + 각자 commit 으로 분할하여 어느 Phase 에서 중단되어도 다음 Phase 를 독립적으로 재개할 수 있다.
 
+### Pre-Sprint Sync Check — 병행 작업 충돌 방지
+
+> **출처:** `/insights` 30일 세션 분석 (Recommended Pattern #2: "Check for parallel work before starting a task")
+
+여러 세션·cron·협업자가 같은 레포에서 동시에 자동화를 돌리는 환경에서, **시작 직전 병행 작업 확인을 의무화** 한다. 30일 분석에서 "이미 다른 세션이 같은 작업을 완료했거나 인접 파일을 수정 중" 으로 인한 hours-level 재작업이 반복 식별되었다.
+
+**원칙 (long-running 스킬 + 멀티세션 sprint 한정):**
+
+1. Sprint task 첫 단계에서 `git fetch --all && git log origin/<base> --oneline -20` 실행
+2. 인접 파일 동시 수정 흔적이 있으면 reconciliation commit 후 진행, 없으면 그대로 진행
+3. orchestrator 류 스킬은 이 단계를 Step 0 (pre-flight) 의 일부로 흡수 — 매 sprint 마다 따로 실행하지 않도록 자동화
+
+**부적합:** 1 파일 변경, 단순 질의, read-only 분석 — 이 단계는 noise 가 된다. **적합:** kaizen, create-kit, 멀티 Phase orchestrator, sprint-level refactor.
+
+```text
+Bad:  세션 시작 → 작업 → commit → push 거부 (다른 세션이 먼저 push) → 충돌 해결로 hours 소모
+Good: 세션 시작 → git fetch + log 검사 → 병행 흔적 확인 → reconciliation 또는 progress
+```
+
 ---
 
 ## 10. 적용 사례 — 이 프로젝트의 스킬 분석
@@ -772,8 +812,11 @@ sprint-contract/
 | 3 | 검증 가능한 성공 기준 | §3.6 (Give a way to verify) | §10 Reviewer L3 커버리지 |
 | 4 | Rule-by-rule audit before completion | §3.6 (Rule-by-Rule Audit) | §10 Reviewer 전수 대조 |
 | 5 | Unverifiable / degraded-mode 정책 | — (해당 없음 · 에이전트 전용) | §10 Unverifiable 조건 정책 |
+| 6 | Pre-Edit Batch Audit ↔ Self-Evaluator Rule-by-Rule | §3.6 (Pre-Edit Batch Audit) | §10 (Self-Evaluator Rule-by-Rule Audit) |
+| 7 | Pre-Sprint Sync Check | §9 (Pre-Sprint Sync Check) | — (멀티세션 sprint orchestrator 한정 · 단일 평가자 에이전트는 해당 없음) |
+| 8 | Hook-Triggered Auto-Correction | — (스킬은 훅을 직접 spawn 하지 않음 · 패턴은 agent 가이드 전용) | §6 패턴 7 |
 
-Item 5 는 평가자 행동에만 관련되므로 skill-design-guide 에는 존재하지 않는다. 이 예외는 문서화된 상태이며 다른 4개는 **양쪽 모두 존재** 한다.
+Item 5 와 7 은 에이전트(평가자) 또는 멀티세션 orchestrator 행동에만 관련되어 skill-design-guide 에 존재하지 않는다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. 이 예외들은 모두 문서화되었고 나머지 5 개 (1~4, 6) 는 **양쪽 모두 존재** 한다.
 
 ### 개정 시 체크리스트
 
