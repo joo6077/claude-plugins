@@ -5,11 +5,19 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-04-24 (Phase 2 kaizen · v3)** — Cross-Surface Parity 섹션 신설
-> (skill-design-guide §11 / agent-design-guide §12 원칙 전수), Binary Decidability
-> 계약 작성자 의무 서브섹션, Scope Range 인라인 명시 (SK-02 대응), Verification
-> Method Required / Unverifiable Policy (mcp_server=null 대응), Sibling Consistency
-> 조건 패턴 (rust-kit H-01/H-03 대응) 추가. 스키마 v3 bump.
+> **최근 갱신: 2026-05-07 (Phase 2 kaizen · v3.1)** — `/insights` 30 일 세션
+> 분석 흡수. Friction #1 (proactive quality gap) 은 본 문서의 "다수 대상 인라인
+> enumerate" + "Sibling Consistency" 절이 이미 강제하고 있어 신규 절 없음.
+> Friction #2 (false-dichotomy) 은 Phase 1 신규 skill-design-guide §3.6
+> "Pre-Edit Batch Audit" (v1.3.0) 가 계약 **작성 단계** 에서 옵션 enumerate →
+> 사용자 합의를 강제하므로, 본 가이드 사용 시 해당 절을 cross-reference 한다.
+> Friction #3 (truncation) 은 계약 자체와 무관 (스킬 Process 책임).
+>
+> 이전 (2026-04-24, v3): Cross-Surface Parity 섹션 신설 (skill-design-guide §11
+> / agent-design-guide §12 원칙 전수), Binary Decidability 계약 작성자 의무
+> 서브섹션, Scope Range 인라인 명시 (SK-02 대응), Verification Method Required
+> / Unverifiable Policy (mcp_server=null 대응), Sibling Consistency 조건 패턴
+> (rust-kit H-01/H-03 대응) 추가. 스키마 v3 bump.
 >
 > 이전: 2026-04-12 — 경계값 조건 작성법, 스코프 세분화 (granularity) 서브섹션.
 > 2026-04-11 — 숫자 레벨 네이밍 충돌 해결, Aggregation Mode / 태그 선택 기준,
