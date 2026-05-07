@@ -192,6 +192,34 @@ Bad:  편집 시작 → 일부 위반 수정 → 사용자 지적 → 추가 수
 Good: 대상 파일 전수 audit → 위반 N 건 체크리스트 → 사용자 승인 → 일괄 편집 → Rule-by-Rule Audit (완료 시점)
 ```
 
+### Scope-Bound Edits — 허락 없는 삭제/디자인 선택 금지
+
+> **출처:** `/insights` 2026-05-07 fresh report (130 sessions): "Claude 측 걸림돌 — 과욕적 범위 확장 (허락 없는 삭제, 요청 안 한 디자인 선택)" · `~/.claude/CLAUDE.md` "사용자가 특정 작업 범위를 요청하면 정확히 그 범위만 수행하라"
+
+Pre-Edit Batch Audit 가 *시작 시점* 의 enumerate 라면, 본 원칙은 *모든 편집 동안* 의 boundary enforcement 다. 사용자가 X 를 요청했을 때 X 만 수행하고, **X 와 인접해 보이는 Y/Z 는 명시적 승인 없이 절대 건드리지 않는다**. 가장 빈번한 위반 사례:
+
+- 리팩터링 중 "보기 안 좋아 보이는" 인접 코드를 silently 정리
+- 파일 삭제 — 본 작업 범위 외 파일을 "안 쓰는 듯해서" 제거
+- 디자인 선택 — 사용자가 시안을 명시하지 않은 영역에서 임의로 컬러/spacing/네이밍 결정
+- 의존성 — 본 작업 범위 밖 패키지를 "겸사겸사" 업그레이드/제거
+- 브랜치 정책 — main 직접 push, force push, branch 삭제 등 사용자 명시 승인이 필요한 액션을 자동 수행
+
+**원칙:**
+
+1. 요청 X 의 경계를 시작 전에 한 줄로 적고 사용자에게 확인 ("이번 변경 범위: X 파일의 Y 함수만, 나머지는 손대지 않음")
+2. 작업 중 인접 위반/개선 발견 시 → 즉시 패치하지 말고 별도 list 로 보관 → 사용자 승인 후 별도 commit
+3. **Hard-stop actions** (외부 영향, 비가역) 는 매번 명시 승인 필요: file deletion, package removal, branch deletion, force push, main push, schema migration, secret rotation
+4. 자동화 훅 (PostToolUse 등) 으로 결정론적 수정 (lint/format) 은 OK — 하지만 의미적 변경은 Hard-stop 대상
+
+**안티패턴 (insights-report 2026-05-07 인용):** "허락 없는 편집, 과도한 주석, 오버엔지니어링, 명시적 지시 없이 Claude 가 앞서가는 행위" → 사용자 인내심이 끊어지는 상위 마찰 원인. 마라톤급 세션에서 N 회 누적되면 "다음 세션에 내가 뭐라고 말할지 말해야지!!!!" 같은 격한 반응을 유발한다.
+
+```text
+Bad:  사용자 "X 함수 수정해" → Claude X 수정 + 옆 Y 도 정리 + Z 파일 삭제 + main push
+Good: 사용자 "X 함수 수정해" → Claude X 만 수정 → 인접 개선점 발견 → 별도 list → 사용자 승인 후 처리
+```
+
+**Cross-Surface Parity:** 본 원칙은 §11 parity 표 9 번째 항목 — agent-design-guide 의 평가자 행동 (허락 없는 평가 범위 확장 금지) 과 짝.
+
 ---
 
 ## 4. 디스크립션은 트리거 조건이다
@@ -829,6 +857,7 @@ sprint-contract/
 | 6 | Pre-Edit Batch Audit ↔ Self-Evaluator Rule-by-Rule | §3.6 (Pre-Edit Batch Audit) | §10 (Self-Evaluator Rule-by-Rule Audit) |
 | 7 | Pre-Sprint Sync Check | §9 (Pre-Sprint Sync Check) | — (멀티세션 sprint orchestrator 한정 · 단일 평가자 에이전트는 해당 없음) |
 | 8 | Hook-Triggered Auto-Correction | — (스킬은 훅을 직접 spawn 하지 않음 · 패턴은 agent 가이드 전용) | §6 패턴 7 |
+| 9 | Scope-Bound Edits ↔ Scope-Bound Evaluation | §3.6 (Scope-Bound Edits) | §10 (Reviewer 평가 범위 확장 금지) |
 
 Item 5 와 7 은 에이전트(평가자) 또는 멀티세션 orchestrator 행동에만 관련되어 skill-design-guide 에 존재하지 않는다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. 이 예외들은 모두 문서화되었고 나머지 5 개 (1~4, 6) 는 **양쪽 모두 존재** 한다.
 
