@@ -79,12 +79,16 @@ def today() -> str:
 
 def check_validate_plugin() -> CheckResult:
     code, out, err = run(["python3", "scripts/validate-plugin.py"])
-    if code == 0 and "7 OK" in out:
+    # plugin count is dynamic — match "Total: N plugins, N OK" pattern with N >= 7
+    import re
+    m = re.search(r"Total:\s+(\d+)\s+plugins,\s+(\d+)\s+OK", out)
+    if code == 0 and m and m.group(1) == m.group(2) and int(m.group(1)) >= 7:
+        n = m.group(1)
         return CheckResult(
             "validate-plugin",
             "PASS",
-            "7 plugins, 7 OK",
-            ["Total: 7 plugins, 7 OK"],
+            f"{n} plugins, {n} OK",
+            [f"Total: {n} plugins, {n} OK"],
         )
     return CheckResult(
         "validate-plugin",
