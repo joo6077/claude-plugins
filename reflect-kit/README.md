@@ -174,3 +174,10 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh --uninstall
 - **harness** — Sprint Contract / QA Evaluator 자체 품질. reflect-kit과 도메인 분리
 - **flutter-toolkit / rust-kit** — 언어별 코드 품질. audit 로직이 reflect-kit과 구분됨
 - **design-kit** — UI/UX 원칙 감사. reflect-kit과 surface 공유 가능(향후)
+
+## Phase 12 kaizen (2026-05-07, 첫 사이클)
+
+- 카이젠 오케스트레이터 Phase 12 신규 추가 — reflect-kit 이 처음으로 정식 카이젠 대상에 포함됨
+- Phase 1 v1.3.0 신규 원칙 흡수 — `/insights` Friction #1·#2·#3 의 reflect-kit 측 reframe
+- 적용 매핑은 **harness/references/cross-kit-principles.md** reflect-kit 열 참조
+- 핵심 매핑: reflect-digest 의 카테고리별 집계 ↔ Pre-Edit Batch Audit (enumerate), 3 훅 자체 ↔ Hook-Triggered Auto-Correction (Stop/UserPromptSubmit/PostToolUseFailure), reflect-kit 도메인 자체 ↔ **Session Lifecycle 카테고리** (skill-design-guide §2 의 10 번째 유형)

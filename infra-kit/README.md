@@ -59,3 +59,9 @@
 - 리서치 반영: Kubernetes PSA · Terraform 1.10+ ephemeral · OpenTelemetry 3 signals stable · OpenTofu state encryption · SLSA provenance · Sigstore Cosign v3
 - REJECT reason 해소: AR-03 · AR-04 · SK-07 · SK-08 · SK-13
 - Sibling Parity: infra-test ↔ backend-test Step 0 스택 감지 + 기존 패턴 탐색 + 외부 실환경 금지 3 항목 동기화
+
+## Phase 8 kaizen (2026-05-07)
+
+- Phase 1 v1.3.0 신규 원칙 흡수 — `/insights` Friction #1·#2·#3 의 infra-kit 측 reframe
+- 적용 매핑은 **harness/references/cross-kit-principles.md** infra-kit 열 참조
+- infra-audit ANALYZE ↔ Pre-Edit Batch Audit, infra-reviewer self-check ↔ Self-Evaluator Audit, PostToolUse hadolint/actionlint ↔ Hook-Triggered Auto-Correction

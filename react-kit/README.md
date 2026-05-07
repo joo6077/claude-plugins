@@ -94,3 +94,10 @@ src-tauri/               # Tauri 백엔드
 4. **Strict TypeScript**: any/as/! 금지, Zod 경계 검증 필수
 5. **Result 타입**: throw 금지, neverthrow Result<T, Failure> 로 타입 안전 에러
 6. **WASM 결정은 카탈로그 기반**: 측정 없이도 research-backed 판정 (G0 wasm-catalog.md)
+
+## Phase 10 kaizen (2026-05-07)
+
+- Phase 1 v1.3.0 신규 원칙 흡수 — `/insights` Friction #1·#2·#3 의 react-kit 측 reframe
+- Library Policy (라이브러리 0개 애니메이션) 절대 완화 금지 원칙 보존
+- 적용 매핑은 **harness/references/cross-kit-principles.md** react-kit 열 참조
+- react-audit ANALYZE 6 카테고리 ↔ Pre-Edit Batch Audit, react-reviewer 6-category self-check ↔ Self-Evaluator Audit, PostToolUse eslint/tsc/biome ↔ Hook-Triggered Auto-Correction

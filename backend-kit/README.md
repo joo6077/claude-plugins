@@ -58,3 +58,9 @@
 - Phase 1~6 신규 원칙 전수 반영 (Binary Decidability · Rule-by-Rule Audit · Enumerate-before-Act · Cross-Surface Parity · CONDITIONAL APPROVE · L3 Coverage Honesty · 미검증 마커)
 - 리서치 반영: OAuth 2.1 draft-15 · Transactional Outbox · Pact v4 + Testcontainers
 - REJECT reason 해소: AR-03 · AR-04 · SK-07 · SK-13 · ER-01
+
+## Phase 7 kaizen (2026-05-07)
+
+- Phase 1 v1.3.0 신규 원칙 흡수 — `/insights` Friction #1·#2·#3 의 backend-kit 측 reframe
+- 적용 매핑은 **harness/references/cross-kit-principles.md** backend-kit 열 참조
+- backend-audit ANALYZE 단계 ↔ Pre-Edit Batch Audit, backend-reviewer self-check ↔ Self-Evaluator Rule-by-Rule, PostToolUse pytest/lint ↔ Hook-Triggered Auto-Correction

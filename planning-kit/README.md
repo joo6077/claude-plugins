@@ -58,3 +58,9 @@ planning-kit 은 harness 파이프라인의 **0번 단계**다. "기획 → 계�
 ## 리서치 문서
 
 `docs/planning/` 에 방법론별 리서치 문서가 있으며, 모든 스킬이 이를 SSOT 로 참조한다. 주기적으로 `/planning-research` 와 `/planning-kaizen` 으로 갱신된다.
+
+## Phase 11 kaizen (2026-05-07)
+
+- Phase 1 v1.3.0 신규 원칙 흡수 — `/insights` Friction #1·#2·#3 의 planning-kit 측 reframe
+- 적용 매핑은 **harness/references/cross-kit-principles.md** planning-kit 열 참조
+- plan-audit + plan-discover enumerate 단계 ↔ Pre-Edit Batch Audit, planning-reviewer self-check ↔ Self-Evaluator Audit, plan-prd/plan-stories sprint handoff 시점 ↔ Session Lifecycle
