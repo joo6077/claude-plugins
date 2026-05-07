@@ -6,11 +6,11 @@ last_updated: 2026-05-07
 
 # Kaizen Research Log
 
-## [2026-05-07] — Phase 1~4 (harness 도메인) + /insights 영구 통합
+## [2026-05-07] — Phase 1~4 (harness 도메인) + /insights 산출물 자동 통합 파이프라인
 
 ### 데이터 소스 (Step 0)
 
-- **`/insights` 30일 세션 분석** (NEW · 영구 통합) — `.claude/kaizen-input/insights-report.md`
+- **`/insights` 산출물 자동 통합 파이프라인 신규** — `.claude/kaizen-input/insights-report.md` 자동 탐색. `/insights` 슬래시 커맨드 자체는 Claude Code CLI 사용자 직접 실행 명령으로, 메인 세션이 invoke 불가. 이번 사이클은 13 일 전 (2026-04-24 자) 사용자가 사전 생성해둔 산출물을 입력으로 사용.
   - 3 Friction Points · 3 Recommended Patterns · 3 Feature Suggestions
 - 글로벌 evaluator 피드백 150 건 (REJECT 64, APPROVE 85, 외부 4 프로젝트 + claude-plugins)
 - Hub 외부 프로젝트 4 (apps, fit-pal*, flutter_playwright)

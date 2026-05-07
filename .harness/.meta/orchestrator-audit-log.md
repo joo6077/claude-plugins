@@ -112,10 +112,13 @@
 
 ---
 
-## 2026-05-07 — kaizen cycle (Phase 1~12, /insights 영구 통합)
+## 2026-05-07 — kaizen cycle (Phase 1~12, /insights 산출물 자동 통합 파이프라인 구축)
 
 **Cycle:** Step 0/0.5 → Phase 1~12 → Final + Step 11.5/11.6/12 PR
 **Cycle trigger:** 사용자 명시 요청 ("/insights 카이젠에 영구 반영 + 풀 사이클 진행")
+
+**중요한 구분 — `/insights` 스킬 실행 vs 산출물 활용:**
+이번 사이클에서 메인 세션은 `/insights` **슬래시 커맨드 자체를 실행하지 않았다.** 해당 커맨드는 Claude Code CLI 의 사용자 직접 실행 명령으로 추정되며, 메인 세션의 Skill 도구 목록에도, 마켓플레이스 플러그인에도, `~/.claude/commands/` 에도 없다. 따라서 메인 세션이 invoke 할 surface 가 없다. 본 사이클은 **사용자가 13 일 전 (2026-04-24) 사전 생성해둔 `.claude/kaizen-input/insights-report.md` 산출물을 입력으로 사용**했고, **다음 사이클부터 동일 경로의 신선한 산출물이 자동 통합되도록 파이프라인을 구축**했다.
 
 ### 이번 사이클 해소된 메타 이슈 (이전 사이클 backlog)
 
@@ -123,6 +126,7 @@
    - 영구 조치: `scripts/collect-kaizen-data.py` 에 `collect_insights_report()` 신규 + 자동 탐색 (repo `.claude/kaizen-input/` → `~/.claude/kaizen-input/`) + 60일 stale 경고 + 데이터 풀 §0 으로 삽입.
    - SKILL.md Step 0 에 정책 명시 + Gotchas 6 건.
    - 검증: `python3 scripts/collect-kaizen-data.py` 실행 결과 "/insights 리포트: ... (13일 전)" 출력 확인됨.
+   - **남은 한계 (다음 사이클 backlog 4 번 참조):** 메인 세션이 `/insights` 자체를 invoke 하지 못하므로, fresh 산출물 생성은 사용자 수동 실행 의존. 자동화 완성도는 "산출물 활용" 단계까지만이고 "산출물 생성" 은 외부 의존.
 
 2. **self-evaluator rule-by-rule audit 의 가이드 누락** — 이전 사이클 backlog 2번.
    - 영구 조치: agent-design-guide v1.3.0 §10 Reviewer Gotchas 에 1 줄 추가. orchestrator-audit-log 인용 명시.

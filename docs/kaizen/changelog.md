@@ -4,18 +4,19 @@ version: 1.2.0
 last_updated: 2026-05-07
 ---
 
-## [2026-05-07] — kaizen cycle (Phase 1~12, /insights 영구 통합)
+## [2026-05-07] — kaizen cycle (Phase 1~12, /insights 산출물 자동 통합 파이프라인 구축)
 
 ### 요약
 
-12-Phase 카이젠. **`/insights` 30 일 세션 분석을 데이터 풀 §0 으로 영구 자동 통합** (사용자 명시 요청). 신규 Phase 12 (reflect-kit) 가 정식 카이젠 대상에 포함되어 11→12 Phase 확장. Phase 1 가이드 v1.2.0 → v1.3.0 신규 원칙 5 건 도출 후 Phase 2~12 에 cross-surface parity 매트릭스로 전수 적용.
+12-Phase 카이젠. **이번 사이클의 "/insights" 부분은 스킬 실행이 아니라 산출물 활용 + 자동 통합 파이프라인 구축** 이다. `/insights` 슬래시 커맨드 자체는 Claude Code CLI 사용자 직접 실행 명령으로, 메인 세션이 invoke 할 수 없다. 따라서 (1) 13일 전 사용자가 생성해둔 `.claude/kaizen-input/insights-report.md` (mtime 2026-04-24) 를 입력으로 사용하고, (2) 다음 사이클부터 동일 경로의 신선한 산출물이 자동 통합되도록 `collect-kaizen-data.py` 에 자동 탐색 로직을 영구 추가했다. 신규 Phase 12 (reflect-kit) 가 정식 카이젠 대상에 포함되어 11→12 Phase 확장. Phase 1 가이드 v1.2.0 → v1.3.0 신규 원칙 5 건 도출 후 Phase 2~12 에 cross-surface parity 매트릭스로 전수 적용.
 
-### `/insights` 영구 통합 (Step 0 확장)
+### `/insights` 산출물 자동 통합 (Step 0 확장)
 
 - `scripts/collect-kaizen-data.py` 에 `collect_insights_report()` 신규 — `<repo>/.claude/kaizen-input/insights-report.md` → `~/.claude/kaizen-input/insights-report.md` 자동 탐색 (60일 stale 경고)
 - 데이터 풀 §0 신규 — 모든 Phase subagent 최우선 참조 섹션
 - 데이터 풀 §6 매핑 표 — 12 Phase 모두 §0 우선
 - orchestrator SKILL.md Step 0 Gotchas 6 건 추가
+- **이번 사이클 사용 산출물:** 13 일 전 (2026-04-24 자) 생성된 insights-report.md. fresh `/insights` 는 사용자가 다음 사이클 전에 CLI 에서 직접 재실행 권장 (60일 STALE 임계 미만이라 자동 차단은 안 됨)
 
 ### Phase 별 변경
 
