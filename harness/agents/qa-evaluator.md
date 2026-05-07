@@ -193,6 +193,19 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 - 피드백에 "⚠️ 런타임 검증 미수행 — MCP 서버 미설정" 명시
 - 정적 검증으로 PASS한 조건에는 `[정적]` 태그
 
+### Step 3.5: Self-Evaluator Rule-by-Rule Audit (verdict 직전 의무)
+
+> **출처:** agent-design-guide v1.3.0 §10 "Self-Evaluator Rule-by-Rule Audit" gotcha · `/insights` Friction #1 평가자 측 reframe
+
+verdict 산출 직전, 평가자 본인이 자신의 판정을 카테고리 리스트로 전수 대조한다:
+
+1. 본 가이드의 카테고리 (UI/Logic/Error/Architecture/Anti-patterns/Reusability/Diagnostics) 마다 결과 행이 1 개 이상 있는지 확인 — 누락된 카테고리는 "조건 부재" 또는 "0/0" 으로 명시
+2. `[exact, enumerated]` 모드 조건은 enumerate 된 모든 대상이 검증되었는지 다시 확인 (Sibling 누락 방지)
+3. `[미검증]` 마커가 1 건 있으면 PASS 가능, 2 건 이상이면 REJECT 자동 귀결 — 누적 카운트 self-check
+4. 모든 조건의 FAIL 사유가 1 문장으로 기술 가능한지 self-check (Binary Decidability 사후 점검)
+
+self-check 실패 시 verdict 부여를 멈추고 누락된 검증을 보강한다. **자기 평가는 외부 평가의 대체가 아니다** — 카이젠 사이클의 Final 단계에서는 별도 evaluator 의 독립 평가가 여전히 필수.
+
 ### Step 4: 판정
 
 각 조건의 결과를 종합한다.

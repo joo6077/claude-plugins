@@ -5,7 +5,20 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-04-24 (Phase 3 kaizen · v3 흡수)** — Phase 1/2 Cross-Surface Parity 흡수. Binary Decidability Pre-Check, Rule-by-Rule Audit, `[미검증]` 마커 평가 프로토콜 (1/2건 임계), Sibling Enumerated 전수 Grep 절차, L3 Coverage Honesty 규칙, User-Value/Business-Intent 관점을 평가자 프로토콜로 흡수. 이전: 2026-04-12 수량/경계값 조건 검증 프로토콜 추가 · LLM-as-judge 2026 최신 연구 반영 + contract-schema v2 소비 규칙.
+> **최근 갱신: 2026-05-07 (Phase 3 kaizen · v3.1)** — `/insights` 30 일 분석 흡수.
+> Friction #1 (proactive quality gap) 은 본 가이드의 Rule-by-Rule Audit 프로토콜로
+> 이미 강제 (skill-design-guide v1.3.0 §3.6 의 평가자 측 짝). Phase 1 신규 원칙
+> "Pre-Edit Batch Audit" 의 평가자 측 대응은 본 가이드 "조건 평가 시작 전 전수
+> enumerate" 절차에 cross-reference. agent-design-guide v1.3.0 §10 신규
+> "Self-Evaluator Rule-by-Rule Audit" gotcha 는 평가자 자기 산출물 self-check 패스의
+> 연구적 근거이며, verdict 직전 의무 절차이다.
+>
+> 이전 (2026-04-24, v3 흡수): Phase 1/2 Cross-Surface Parity 흡수. Binary
+> Decidability Pre-Check, Rule-by-Rule Audit, `[미검증]` 마커 평가 프로토콜 (1/2건
+> 임계), Sibling Enumerated 전수 Grep 절차, L3 Coverage Honesty 규칙, User-Value/
+> Business-Intent 관점을 평가자 프로토콜로 흡수. 이전: 2026-04-12 수량/경계값
+> 조건 검증 프로토콜 추가 · LLM-as-judge 2026 최신 연구 반영 + contract-schema
+> v2 소비 규칙.
 
 ---
 
