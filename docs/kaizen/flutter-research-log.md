@@ -19,16 +19,16 @@ last_updated: 2026-04-11
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
 | - | ---- | --- | ---- | ------ | ---- |
-| 1 | Riverpod 3.0 migration | https://riverpod.dev/docs/3.0_migration | 공식 | 높음 | 채택 |
-| 2 | Riverpod whats new | https://riverpod.dev/docs/whats_new | 공식 | 높음 | 채택 |
-| 3 | flutter_riverpod changelog | https://pub.dev/packages/flutter_riverpod/changelog | 공식 | 높음 | 채택 |
-| 4 | Freezed 3.0 changelog | https://pub.dev/packages/freezed/changelog | 공식 | 높음 | 채택 (abstract/sealed 필수, when/map 제거) |
-| 5 | go_router StatefulShellRoute | https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html | 공식 | 높음 | 채택 |
-| 6 | go_router changelog (preload) | https://pub.dev/packages/go_router/changelog | 공식 | 높음 | 채택 |
-| 7 | Flutter 3.29 release notes | https://docs.flutter.dev/release/release-notes/release-notes-3.29.0 | 공식 | 높음 | 채택 |
-| 8 | Flutter breaking changes | https://docs.flutter.dev/release/breaking-changes | 공식 | 높음 | 채택 |
-| 9 | flutter_hooks | https://pub.dev/packages/flutter_hooks | 공식 | 높음 | 채택 |
-| 10 | Riverpod about_hooks | https://riverpod.dev/docs/concepts/about_hooks | 공식 | 높음 | 채택 (context.mounted vs ref.mounted) |
+| 1 | Riverpod 3.0 migration | <https://riverpod.dev/docs/3.0_migration> | 공식 | 높음 | 채택 |
+| 2 | Riverpod whats new | <https://riverpod.dev/docs/whats_new> | 공식 | 높음 | 채택 |
+| 3 | flutter_riverpod changelog | <https://pub.dev/packages/flutter_riverpod/changelog> | 공식 | 높음 | 채택 |
+| 4 | Freezed 3.0 changelog | <https://pub.dev/packages/freezed/changelog> | 공식 | 높음 | 채택 (abstract/sealed 필수, when/map 제거) |
+| 5 | go_router StatefulShellRoute | <https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html> | 공식 | 높음 | 채택 |
+| 6 | go_router changelog (preload) | <https://pub.dev/packages/go_router/changelog> | 공식 | 높음 | 채택 |
+| 7 | Flutter 3.29 release notes | <https://docs.flutter.dev/release/release-notes/release-notes-3.29.0> | 공식 | 높음 | 채택 |
+| 8 | Flutter breaking changes | <https://docs.flutter.dev/release/breaking-changes> | 공식 | 높음 | 채택 |
+| 9 | flutter_hooks | <https://pub.dev/packages/flutter_hooks> | 공식 | 높음 | 채택 |
+| 10 | Riverpod about_hooks | <https://riverpod.dev/docs/concepts/about_hooks> | 공식 | 높음 | 채택 (context.mounted vs ref.mounted) |
 | 11 | fit-pal server monorepo (Makefile) | (internal) | ground truth | 높음 | 채택 |
 | 12 | apps iter2 sprint-feedback (22/22) | (internal) | ground truth | 높음 | 채택 |
 | 13 | fit-pal iter2 sprint-feedback (33/33) | (internal) | ground truth | 높음 | 채택 |
@@ -48,7 +48,7 @@ last_updated: 2026-04-11
 
 ### PR
 
-- https://github.com/joo6077/claude-plugins/pull/6
+- <https://github.com/joo6077/claude-plugins/pull/6>
 
 ---
 
@@ -59,15 +59,15 @@ last_updated: 2026-04-11
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
-|---|------|-----|------|--------|------|
-| 1 | Flutter Official Architecture Guide | https://docs.flutter.dev/app-architecture/guide | 공식 | 높음 | 채택 |
-| 2 | Riverpod 3.0 (codewithandrea) | https://codewithandrea.com/newsletter/september-2025/ | blog | 중간 | 채택 |
-| 3 | Flutter 3.38 Release Notes | https://docs.flutter.dev/release/release-notes/release-notes-3.38.0 | 공식 | 높음 | 채택 |
-| 4 | Flutter 3.41 Breaking Changes | https://docs.flutter.dev/release/breaking-changes | 공식 | 높음 | 채택 |
-| 5 | AToMIC: LLM Test Gen for Flutter | https://arxiv.org/abs/2510.18861 | preprint | 중간 | 채택 |
-| 6 | Flutter Official AI Rules (rules.md) | https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md | 공식 | 높음 | 채택 |
-| 7 | Flutter AI Development Guide | https://docs.flutter.dev/ai/create-with-ai | 공식 | 높음 | 채택 |
-| 8 | skills.sh (flutter-animations) | https://skills.sh | skills.sh | 중간 | 폐기 |
+| --- | ------ | ----- | ------ | -------- | ------ |
+| 1 | Flutter Official Architecture Guide | <https://docs.flutter.dev/app-architecture/guide> | 공식 | 높음 | 채택 |
+| 2 | Riverpod 3.0 (codewithandrea) | <https://codewithandrea.com/newsletter/september-2025/> | blog | 중간 | 채택 |
+| 3 | Flutter 3.38 Release Notes | <https://docs.flutter.dev/release/release-notes/release-notes-3.38.0> | 공식 | 높음 | 채택 |
+| 4 | Flutter 3.41 Breaking Changes | <https://docs.flutter.dev/release/breaking-changes> | 공식 | 높음 | 채택 |
+| 5 | AToMIC: LLM Test Gen for Flutter | <https://arxiv.org/abs/2510.18861> | preprint | 중간 | 채택 |
+| 6 | Flutter Official AI Rules (rules.md) | <https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md> | 공식 | 높음 | 채택 |
+| 7 | Flutter AI Development Guide | <https://docs.flutter.dev/ai/create-with-ai> | 공식 | 높음 | 채택 |
+| 8 | skills.sh (flutter-animations) | <https://skills.sh> | skills.sh | 중간 | 폐기 |
 
 ### 채택한 인사이트
 
@@ -81,7 +81,7 @@ last_updated: 2026-04-11
 ### 신규 스킬 갭 분석
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | Issue |
-|-----------|---------|------|---------|-------|
+| ----------- | --------- | ------ | --------- | ------- |
 | `flutter-test` | 제품 검증 + 코드 스캐폴딩 | AToMIC 논문(BMW 실증), Flutter AI Rules(테스팅 패턴) | 높음 | #3 → **v0.5.0에서 초안 생성됨** |
 | `flutter-migrate` | 런북 | Flutter 3.38/3.41 breaking changes, Riverpod 3.0 마이그레이션 | 중간 | #4 |
 
@@ -93,4 +93,4 @@ last_updated: 2026-04-11
 
 ### PR
 
-- https://github.com/joo6077/claude-plugins/pull/2
+- <https://github.com/joo6077/claude-plugins/pull/2>

@@ -1,6 +1,6 @@
 ---
 version: 1.0.0
-last_updated: 2026-04-11
+last_updated: 2026-05-07
 ---
 
 # Flutter Kit Research Log
@@ -8,6 +8,26 @@ last_updated: 2026-04-11
 > Flutter 관련 리서치 로그. `docs/kaizen/flutter-research-log.md` 와 동일 내용을 per-kit view 로 보관한다.
 > kaizen-orchestrator 의 per-kit research-log 정책 (Step 12) 에 따라 생성됨.
 > 상세 소스/인사이트는 `docs/kaizen/flutter-research-log.md` 를 참조.
+
+## [2026-05-07] — Phase 5 kaizen (flutter, /insights 흡수)
+
+### 데이터 소스
+
+- 데이터 풀 §0 `/insights` 30 일 분석 (3 friction · 3 pattern · 3 feature)
+- `harness/references/cross-kit-principles.md` v1 매트릭스의 flutter 열
+
+### Phase 5 변경
+
+- flutter/README.md 에 cross-kit-principles 매트릭스 cross-reference 섹션 추가
+- plugin.json patch bump (이번 사이클)
+- 매핑: flutter-audit ANALYZE ↔ Pre-Edit Batch Audit, flutter-reviewer self-check ↔ Self-Evaluator Audit, PostToolUse 정적 검증 ↔ Hook-Triggered Auto-Correction
+
+### 외부 리서치 인용 (이전 사이클 보존, 이번 사이클 추가 없음)
+
+이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
+
+---
+
 
 ---
 

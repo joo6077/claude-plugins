@@ -1,10 +1,55 @@
 ---
 title: Kaizen Research Log
-version: 1.1.0
-last_updated: 2026-04-12
+version: 1.2.0
+last_updated: 2026-05-07
 ---
 
 # Kaizen Research Log
+
+## [2026-05-07] — Phase 1~4 (harness 도메인) + /insights 영구 통합
+
+### 데이터 소스 (Step 0)
+
+- **`/insights` 30일 세션 분석** (NEW · 영구 통합) — `.claude/kaizen-input/insights-report.md`
+  - 3 Friction Points · 3 Recommended Patterns · 3 Feature Suggestions
+- 글로벌 evaluator 피드백 150 건 (REJECT 64, APPROVE 85, 외부 4 프로젝트 + claude-plugins)
+- Hub 외부 프로젝트 4 (apps, fit-pal*, flutter_playwright)
+- followup 1 건 (followup-2026-04-11.md)
+- 레포 sprint-contract 이력 10 건
+- validate-plugin 9 OK 스냅샷
+
+### Phase 1 신규 원칙 도출
+
+| 원칙 | 출처 | 적용 위치 |
+| ------ | ------ | ---------- |
+| Pre-Edit Batch Audit | /insights Friction #1 + Recommended Pattern #1 | skill-design-guide §3.6 |
+| Pre-Sprint Sync Check | /insights Recommended Pattern #2 | skill-design-guide §9 |
+| Session Lifecycle 카테고리 | /insights Feature Suggestion #1 | skill-design-guide §2 (10번째 유형) |
+| Hook-Triggered Auto-Correction | /insights Feature Suggestion #2 | agent-design-guide §6 (패턴 7) |
+| Self-Evaluator Rule-by-Rule Audit | orchestrator-audit-log 2026-04-24 학습 + agent §10 | agent-design-guide §10 + qa-evaluator Step 3.5 |
+
+### 외부 리서치 인용 (Phase 1~3 가이드 변경 근거)
+
+- Anthropic Best Practices for Claude Code (2026-04 최신) — Rule-by-Rule Audit + 검증 가능성 원칙
+- arxiv:2603.05344 — Plan-Execute 분리 패턴
+- claudefa.st sub-agent best practices — 병렬 vs 순차 vs 백그라운드
+- LLM-as-judge 2026 연구 (이전 사이클 인용 보존)
+
+### Phase 5~12 reuse — cross-kit-principles 매트릭스
+
+각 kit 별 무거운 변경 대신 `harness/references/cross-kit-principles.md` 매트릭스 단일 진실 원천(SSOT) 도입. 8 kit × 5 신규 원칙 = 40 셀 매트릭스로 전수 적용 위치 명시.
+
+### Sprint Contract Self-Evaluator 결과
+
+- DG-01 (Pre-Edit Batch Audit 신규) — PASS
+- DG-02 (Pre-Sprint Sync Check 신규) — PASS
+- DG-03 (10번째 유형 표 행) — PASS
+- DG-04 (패턴 7 + PostToolUse) — PASS
+- DG-05 (self-evaluator gotcha) — PASS
+- DG-06 (version bump 1.3.0) — PASS
+- DG-07 (Cross-Surface Parity 표 5 → 8 행) — PASS
+
+---
 
 > 매주 연구한 소스와 채택/폐기 여부를 기록한다.
 > 다음 실행 시 이 로그를 참조하여 중복 연구를 방지한다.
@@ -20,7 +65,7 @@ last_updated: 2026-04-12
 ### 리서치 소스 (per-kit)
 
 | Kit | 파일 | 줄 수 | 소스 수 | 주요 토픽 |
-|-----|------|-------|---------|----------|
+| ----- | ------ | ------- | --------- | ---------- |
 | Flutter | docs/flutter/research-log.md | 319 | 45 | Riverpod 3.0, Impeller, Shorebird, Flame |
 | Design | docs/design/research-log.md | 304 | 68 | DTCG spec, OKLCH, Radix, Panda CSS |
 | Backend | docs/backend/research-log.md | 358 | 62 | FAPI 2.0, OTel, Temporal, Hono |
@@ -142,14 +187,14 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
-|---|------|-----|------|--------|------|
-| 1 | A Survey on LLM-as-a-Judge | https://arxiv.org/abs/2411.15594 | peer-reviewed survey `[preprint]` | 높음 | 채택 |
-| 2 | CheckEval: Robust Evaluation Framework using LLM via Checklist | https://arxiv.org/abs/2403.18771 | EMNLP 2025 | 높음 | 채택 |
-| 3 | Understanding LLM-Driven Test Oracle Generation | https://arxiv.org/abs/2601.05542 | AIware 2025 | 높음 | 채택 |
-| 4 | Rubric Is All You Need: LLM-based Code Evaluation with Question-Specific Rubrics | https://arxiv.org/abs/2503.23989 | ICER 2025 | 높음 | 채택 (참고) |
-| 5 | A Statistical Approach to Model Evaluations | https://www.anthropic.com/research/statistical-approach-to-model-evals | 공식 (Anthropic) | 높음 | 채택 |
-| 6 | Bloom: Automated Behavioral Evaluations | https://alignment.anthropic.com/2025/bloom-auto-evals/ | 공식 (Anthropic) | 높음 | 채택 (참고) |
-| 7 | Test Oracle Automation in the Era of LLMs (ACM TOSEM) | https://dl.acm.org/doi/10.1145/3715107 | peer-reviewed | 높음 | 폐기 |
+| --- | ------ | ----- | ------ | -------- | ------ |
+| 1 | A Survey on LLM-as-a-Judge | <https://arxiv.org/abs/2411.15594> | peer-reviewed survey `[preprint]` | 높음 | 채택 |
+| 2 | CheckEval: Robust Evaluation Framework using LLM via Checklist | <https://arxiv.org/abs/2403.18771> | EMNLP 2025 | 높음 | 채택 |
+| 3 | Understanding LLM-Driven Test Oracle Generation | <https://arxiv.org/abs/2601.05542> | AIware 2025 | 높음 | 채택 |
+| 4 | Rubric Is All You Need: LLM-based Code Evaluation with Question-Specific Rubrics | <https://arxiv.org/abs/2503.23989> | ICER 2025 | 높음 | 채택 (참고) |
+| 5 | A Statistical Approach to Model Evaluations | <https://www.anthropic.com/research/statistical-approach-to-model-evals> | 공식 (Anthropic) | 높음 | 채택 |
+| 6 | Bloom: Automated Behavioral Evaluations | <https://alignment.anthropic.com/2025/bloom-auto-evals/> | 공식 (Anthropic) | 높음 | 채택 (참고) |
+| 7 | Test Oracle Automation in the Era of LLMs (ACM TOSEM) | <https://dl.acm.org/doi/10.1145/3715107> | peer-reviewed | 높음 | 폐기 |
 
 ### 채택한 인사이트
 
@@ -184,12 +229,12 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
-|---|------|-----|------|--------|------|
-| 1 | Spec-driven development (Thoughtworks) | https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices | blog `[blog]` | 중간 | 채택 |
-| 2 | Automated Repair of Ambiguous Problem Descriptions (SpecFix) | https://arxiv.org/abs/2505.07270 | preprint `[preprint]` | 높음 | 채택 |
-| 3 | Evaluation-Driven Development of LLM Agents (EDDOps) | https://arxiv.org/abs/2411.13768 | preprint `[preprint]` `[dated: 2024-11]` | 높음 | 채택 (참고) |
-| 4 | ATDD for Claude Code (swingerman/atdd) | https://github.com/swingerman/atdd | community `[community]` | 중간 | 채택 |
-| 5 | Given-When-Then Acceptance Criteria Guide | https://www.parallelhq.com/blog/given-when-then-acceptance-criteria | blog `[blog]` | 중간 | 채택 |
+| --- | ------ | ----- | ------ | -------- | ------ |
+| 1 | Spec-driven development (Thoughtworks) | <https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices> | blog `[blog]` | 중간 | 채택 |
+| 2 | Automated Repair of Ambiguous Problem Descriptions (SpecFix) | <https://arxiv.org/abs/2505.07270> | preprint `[preprint]` | 높음 | 채택 |
+| 3 | Evaluation-Driven Development of LLM Agents (EDDOps) | <https://arxiv.org/abs/2411.13768> | preprint `[preprint]` `[dated: 2024-11]` | 높음 | 채택 (참고) |
+| 4 | ATDD for Claude Code (swingerman/atdd) | <https://github.com/swingerman/atdd> | community `[community]` | 중간 | 채택 |
+| 5 | Given-When-Then Acceptance Criteria Guide | <https://www.parallelhq.com/blog/given-when-then-acceptance-criteria> | blog `[blog]` | 중간 | 채택 |
 
 ### 채택한 인사이트
 
@@ -223,13 +268,13 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
-|---|------|-----|------|--------|------|
-| 1 | Survey on Evaluation of LLM-based Agents | https://arxiv.org/abs/2503.16416 | peer-reviewed `[preprint]` | 높음 | 채택 (참고) |
-| 2 | Beyond Task Completion: Assessment Framework for Agentic AI | https://arxiv.org/abs/2512.12791 | peer-reviewed `[preprint]` | 높음 | 채택 (참고) |
-| 3 | Agentic AI Coding: Best Practice Patterns for Speed with Quality | https://codescene.com/blog/agentic-ai-coding-best-practice-patterns-for-speed-with-quality | blog | 중간 | 채택 |
-| 4 | agentic-code: Quality Gates Framework | https://github.com/shinpr/agentic-code | community | 중간 | 채택 |
-| 5 | Best Practices for Claude Code | https://code.claude.com/docs/en/best-practices | 공식 | 높음 | 채택 |
-| 6 | Evaluation and Benchmarking of LLM Agents: A Survey | https://arxiv.org/abs/2507.21504 | peer-reviewed `[preprint]` | 높음 | 폐기 |
+| --- | ------ | ----- | ------ | -------- | ------ |
+| 1 | Survey on Evaluation of LLM-based Agents | <https://arxiv.org/abs/2503.16416> | peer-reviewed `[preprint]` | 높음 | 채택 (참고) |
+| 2 | Beyond Task Completion: Assessment Framework for Agentic AI | <https://arxiv.org/abs/2512.12791> | peer-reviewed `[preprint]` | 높음 | 채택 (참고) |
+| 3 | Agentic AI Coding: Best Practice Patterns for Speed with Quality | <https://codescene.com/blog/agentic-ai-coding-best-practice-patterns-for-speed-with-quality> | blog | 중간 | 채택 |
+| 4 | agentic-code: Quality Gates Framework | <https://github.com/shinpr/agentic-code> | community | 중간 | 채택 |
+| 5 | Best Practices for Claude Code | <https://code.claude.com/docs/en/best-practices> | 공식 | 높음 | 채택 |
+| 6 | Evaluation and Benchmarking of LLM Agents: A Survey | <https://arxiv.org/abs/2507.21504> | peer-reviewed `[preprint]` | 높음 | 폐기 |
 
 ### 채택한 인사이트
 

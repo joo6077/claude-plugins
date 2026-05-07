@@ -109,3 +109,57 @@
 
 - kaizen-data-pool.md 에 `/insights` 리포트 소스를 공식 통합 (이번엔 사용자 요청으로 수동 주입, 다음엔 Step 0 자동화)
 - 각 Phase QA를 self-evaluator rule-by-rule audit 으로 한 이유 (서브에이전트 중첩 불가) 를 orchestrator SKILL Gotchas 에 명시
+
+---
+
+## 2026-05-07 — kaizen cycle (Phase 1~12, /insights 영구 통합)
+
+**Cycle:** Step 0/0.5 → Phase 1~12 → Final + Step 11.5/11.6/12 PR
+**Cycle trigger:** 사용자 명시 요청 ("/insights 카이젠에 영구 반영 + 풀 사이클 진행")
+
+### 이번 사이클 해소된 메타 이슈 (이전 사이클 backlog)
+
+1. **`/insights` 자동 통합 부재** — 이전 2026-04-24 사이클의 "다음 사이클 개선 제안" 1번 항목.
+   - 영구 조치: `scripts/collect-kaizen-data.py` 에 `collect_insights_report()` 신규 + 자동 탐색 (repo `.claude/kaizen-input/` → `~/.claude/kaizen-input/`) + 60일 stale 경고 + 데이터 풀 §0 으로 삽입.
+   - SKILL.md Step 0 에 정책 명시 + Gotchas 6 건.
+   - 검증: `python3 scripts/collect-kaizen-data.py` 실행 결과 "/insights 리포트: ... (13일 전)" 출력 확인됨.
+
+2. **self-evaluator rule-by-rule audit 의 가이드 누락** — 이전 사이클 backlog 2번.
+   - 영구 조치: agent-design-guide v1.3.0 §10 Reviewer Gotchas 에 1 줄 추가. orchestrator-audit-log 인용 명시.
+
+### 이번 사이클 신규 메타 이슈 (다음 사이클 재발 감시 대상)
+
+1. **Phase 12 (reflect-kit) 누락 보정 — orchestrator SKILL.md 의 수동 영역에서 발생 (심각도: 중간)**
+   - 증상: orchestrator SKILL.md 의 AUTO:plugin_phases 영역은 sync-orchestrator.py 가 자동으로 Phase 12 를 추가했지만, **수동 영역** (Phase 의존성 그래프, Phase 순서 논리, 트리거 조건, 수동 트리거 인자, Phase 1~N 표기 4 곳, Final 범위 + 정합성, failure-count, scope 격리 체크) 7+ 개 위치에 Phase 12 가 누락되어 있었음.
+   - 근본 원인: AUTO 영역만 자동화되어 있고 수동 영역은 여전히 사람/메인-세션이 편집해야 함. 카이젠 오케스트레이터 SKILL.md 의 메타-자동화가 부분적.
+   - 임시 조치 (이번 사이클): 수동 영역 7+ 위치 Phase 12 전수 추가. 이번 사이클 Phase 4 (Harness 카이젠) 의 일부로 처리.
+   - 영구 조치 제안 (다음 사이클 backlog): `scripts/sync-orchestrator.py` 에 Phase 1~N 표기 자동 갱신 옵션 추가, 또는 orchestrator SKILL.md 의 수동 영역 자체를 마커 기반으로 재구조화.
+
+2. **per-kit research-log 의 일부 누락 — planning-kit (심각도: 낮음)**
+   - 증상: docs/planning/research-log.md 가 부재.
+   - 영구 조치: 이번 사이클에서 신규 생성 (frontmatter + 외부 리서치 인용 11 건 보존 + 다음 사이클 백로그 3 건).
+
+3. **마크다운 lint 워닝 누적 (심각도: 낮음, 비차단)**
+   - 증상: skill-design-guide.md MD025/MD032/MD060 등, changelog.md MD024 (시기별 동일 헤딩), research-log.md MD060/MD012.
+   - 근본 원인: 가이드 문서를 사람이 손으로 작성하면서 lint 규칙 의식하지 않음.
+   - 임시 조치: Final 단계에서 `scripts/fix-markdown-lint.py` 일괄 실행으로 자동 fix 시도.
+   - 영구 조치 제안: PostToolUse 훅에서 .md 변경 시 자동 lint fix 실행 (Phase 1 신규 패턴 7 Hook-Triggered Auto-Correction 의 첫 번째 적용 대상).
+
+### 재발 감시 대상 (다음 사이클 Step 0.5 에서 확인)
+
+- [ ] `/insights` 리포트가 60일 초과 STALE 로 표시되었는데도 사용자가 재실행하지 않은 채 카이젠이 진행되었는가?
+- [ ] orchestrator SKILL.md 의 수동 영역 Phase 1~N 표기에 새로 추가된 Phase 가 누락되었는가?
+- [ ] Phase 12 reflect-kit 의 cron 비활성 목록 / 수동 트리거 인자가 모두 동기화되었는가?
+- [ ] cross-kit-principles 매트릭스가 다음 사이클에서도 Phase 1 신규 원칙의 SSOT 로 작동하고 있는가?
+- [ ] 마크다운 lint 워닝이 PostToolUse 훅 또는 fix-markdown-lint.py 자동 실행으로 사이클 종료 시점에 0 건인가?
+
+### 자동화 추가 후 남은 한계
+
+- **`/insights` 외부 도구 자체 자동 실행 부재**: `/insights` 는 사용자가 수동으로 실행하여 산출물을 `.claude/kaizen-input/` 에 배치하는 외부 도구. orchestrator 가 직접 호출할 수 없음. 60일 STALE 경고로 보완하지만 자동화 한계 존재.
+- **Phase 5~12 의 가벼운 cross-ref 적용 vs 무거운 카이젠**: 이번 사이클은 효율성을 위해 각 kit README 에 cross-ref 만 추가했고, 본격적 SKILL.md 변경은 하지 않았음. 다음 사이클이나 reject 패턴이 발견되면 각 kit 의 SKILL.md 와 reviewer 에이전트에 직접 변경 필요.
+
+### 다음 사이클 액션 아이템 (backlog)
+
+- `scripts/sync-orchestrator.py` 에 수동 영역 Phase 1~N 표기 자동 갱신 옵션 추가
+- PostToolUse 훅에 .md lint auto-fix 등록 (패턴 7 첫 적용 대상)
+- per-kit research-log 자동 생성 검사 스크립트 (`scripts/validate-post-kaizen.py` 의 항목으로 추가)

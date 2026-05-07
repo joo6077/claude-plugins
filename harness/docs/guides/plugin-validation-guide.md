@@ -121,7 +121,7 @@ description: >
 확장자별 파서 매핑:
 
 | 확장자 | 파서 |
-|--------|------|
+| -------- | ------ |
 | `.json` | `json.loads()` |
 | `.yaml`, `.yml` | `yaml.safe_load()` |
 | `.toml` | `tomllib.loads()` (Python 3.11 표준) |
@@ -159,6 +159,7 @@ name: [broken yaml
 
 SKILL.md 본문에 등장하는 마크다운 링크가 실제 파일로 해소되어야 한다.
 검증 대상 패턴:
+
 - Markdown 링크: `[text](path)`
 
 절대 URL(`https://`, `http://`)과 앵커만 있는 링크(`#section`)는 제외한다. 코드 인라인 경로(예: 본문에 그대로 적힌 상대 경로 문자열)는 V3 범위 밖이다 — 독자가 눈으로 검증한다.
@@ -328,8 +329,10 @@ if line.startswith("```") and not in_block:
 ## 예시
 
 ```
+
 // 언어 힌트 없음 → FAIL
 const x = 1;
+
 ```
 ````
 
@@ -337,8 +340,10 @@ const x = 1;
 ## 올바른 예시
 
 ```typescript
+
 // 언어 힌트 있음 → PASS
 const x: number = 1;
+
 ```
 ````
 
@@ -393,7 +398,7 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 ### CLI 옵션
 
 | 옵션 | 설명 | 예시 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `[plugin]` | 특정 킷만 검증 | `validate-plugin.py react-kit` |
 | `--check=<list>` | 특정 체크만 (쉼표 구분) | `--check=frontmatter,refs` |
 | `--json` | JSON 출력 (CI 파이프라인용) | `--json` |
@@ -434,7 +439,7 @@ Exit: 2
 ### Exit Code
 
 | Code | 의미 |
-|------|------|
+| ------ | ------ |
 | 0 | 모든 체크 PASS |
 | 1 | WARNING 있음 (킷별 예외 카탈로그에 해당하는 특수 케이스 포함) |
 | 2 | ERROR 있음 (진짜 FAIL) |
@@ -448,7 +453,7 @@ Exit: 2
 `--fix` 모드로 안전하게 자동 수정 가능한 두 체크:
 
 | 체크 | 수정 동작 |
-|------|----------|
+| ------ | ---------- |
 | V5 Placeholders | `TODO:` → `<설명 필요>`, `TBD` → `<내용 추가>`, `FIXME:` → `<수정 필요>` |
 | V6 Code fence | 빈 ` ``` ` → ` ```text ` |
 
@@ -457,7 +462,7 @@ Exit: 2
 ### 수동 수정
 
 | 체크 | 수동 수정 방법 |
-|------|--------------|
+| ------ | -------------- |
 | V1 | SKILL.md 또는 agents/*.md frontmatter 에 누락 필드 추가 |
 | V2 | templates/ 의 JSON/YAML/TOML 구문 오류 수정 |
 | V3 | 참조 파일 생성 또는 링크 경로 수정 |
@@ -477,7 +482,7 @@ Exit: 2
 ## 6. 킷별 예외 카탈로그
 
 | 킷 | V2 templates | 비고 |
-|-------|-------------|------|
+| ------- | ------------- | ------ |
 | harness | `templates/` 없음 — SKIP | QA 프레임워크. 코드 템플릿 대상 아님 |
 | flutter-toolkit | `templates/` 없음 — SKIP | 스킬 지시문 기반. 별도 템플릿 파일 없음 |
 | design-kit | `templates/` 없음 — SKIP | 디자인 가이드 중심. 코드 템플릿 없음 |
@@ -514,7 +519,7 @@ python3 scripts/validate-plugin.py <kit-name>
 ### §7.2 우선순위 매핑
 
 | 결과 | 의미 | 처리 |
-|------|------|------|
+| ------ | ------ | ------ |
 | **ERROR** (FAIL) | V1~V7 중 하나 이상 실패 | 카이젠 개선 우선순위 "높음"에 자동 편입. 이 세션에서 반드시 수정 |
 | **WARNING** | V4 trigger 키워드 중복 등 | 우선순위 "중간". description 보강으로 해소 권장 |
 | **PASS** | 모든 체크 통과 | 해당 카테고리 skip. 변경으로 FAIL 이 생기지 않도록 주의 |
@@ -556,9 +561,10 @@ python3 scripts/validate-plugin.py <kit-name>
 ## 8. 변경 이력
 
 | 날짜 | 버전 | 내용 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 2026-04-11 | 1.0.0 | 초기 작성 — V1~V7 카테고리, 7개 킷 예외 카탈로그, scripts/validate-plugin.py 구현 |
 
 다음 갱신 예정:
+
 - V8: 에이전트 파라미터 스키마 검증 (tools 목록이 실제 Claude 지원 도구인지)
 - V9: README ↔ SKILL.md 스킬 목록 정합성 (README 에 언급된 스킬이 실제 존재하는지)

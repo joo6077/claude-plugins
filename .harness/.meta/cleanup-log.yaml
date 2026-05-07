@@ -33,3 +33,11 @@ cleanup_log:
     over_500_truncated: 0
     deleted: 0
     notes: "Phase 11 사이클 종료 — 피드백 정리 불필요 (6개월 초과 0건, 500 미만)"
+
+  - date: "2026-05-07"
+    cycle: "kaizen/2026-05-07-insights-permanent"
+    total_before: 201
+    aged_over_6_months: 0
+    over_500_truncated: 0
+    deleted: 0
+    notes: "Phase 12 사이클 종료 — /insights 영구 통합 완료. 피드백 173→201 건 (28건 증가). 6개월 초과 0건, 500 미만으로 삭제 액션 없음."

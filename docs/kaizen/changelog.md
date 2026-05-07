@@ -1,8 +1,54 @@
 ---
 title: Kaizen Changelog
-version: 1.1.0
-last_updated: 2026-04-12
+version: 1.2.0
+last_updated: 2026-05-07
 ---
+
+## [2026-05-07] — kaizen cycle (Phase 1~12, /insights 영구 통합)
+
+### 요약
+
+12-Phase 카이젠. **`/insights` 30 일 세션 분석을 데이터 풀 §0 으로 영구 자동 통합** (사용자 명시 요청). 신규 Phase 12 (reflect-kit) 가 정식 카이젠 대상에 포함되어 11→12 Phase 확장. Phase 1 가이드 v1.2.0 → v1.3.0 신규 원칙 5 건 도출 후 Phase 2~12 에 cross-surface parity 매트릭스로 전수 적용.
+
+### `/insights` 영구 통합 (Step 0 확장)
+
+- `scripts/collect-kaizen-data.py` 에 `collect_insights_report()` 신규 — `<repo>/.claude/kaizen-input/insights-report.md` → `~/.claude/kaizen-input/insights-report.md` 자동 탐색 (60일 stale 경고)
+- 데이터 풀 §0 신규 — 모든 Phase subagent 최우선 참조 섹션
+- 데이터 풀 §6 매핑 표 — 12 Phase 모두 §0 우선
+- orchestrator SKILL.md Step 0 Gotchas 6 건 추가
+
+### Phase 별 변경
+
+- **Phase 1 (skill-design-guide v1.3.0, agent-design-guide v1.3.0)**: 5 건 신규 원칙 — Pre-Edit Batch Audit (Friction #1+#2), Pre-Sprint Sync Check (Pattern #2), Session Lifecycle 카테고리 (Feature #1), Hook-Triggered Auto-Correction 패턴 7 (Feature #2), Self-Evaluator Rule-by-Rule Audit gotcha. §11 Cross-Surface Parity 표 5 → 8 행 확장.
+- **Phase 2 (contract-design-guide v3.1, sprint-contract)**: Friction #2 흡수 — Pre-Edit Batch Audit 의 계약-시점 적용 cross-reference. Gotcha 1 건.
+- **Phase 3 (qa-evaluation-guide v3.1, qa-evaluator)**: Step 3.5 Self-Evaluator Audit 신규 (verdict 직전 의무).
+- **Phase 4 (kaizen-orchestrator SKILL.md)**: Phase 12 reflect-kit 전수 누락 보정 + failure-count.yaml phase_12.
+- **Phase 5~12 (각 kit)**: cross-kit-principles 매트릭스 SSOT 도입. 각 kit README cross-reference. 8 kit 일괄. react-kit Library Policy 보존.
+
+### 버전 업데이트
+
+| 플러그인 | 이전 → 이후 |
+| --------- | ------------- |
+| harness | 0.4.0 → 0.4.1 |
+| flutter-toolkit | 0.5.2 → 0.5.3 |
+| design-kit | 0.2.2 → 0.2.3 |
+| backend-kit | 0.1.2 → 0.1.3 |
+| infra-kit | 0.1.2 → 0.1.3 |
+| rust-kit | 0.1.2 → 0.1.3 |
+| react-kit | 0.1.2 → 0.1.3 |
+| planning-kit | 0.3.0 → 0.3.1 |
+| reflect-kit | 0.3.0 → 0.3.1 (Phase 12 첫 카이젠 포함) |
+
+### Sprint Contract 자기평가
+
+DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
+
+### Meta-issues — 이번 사이클 재발 없음
+
+이전 (2026-04-24) 5 건 meta-issue 해소 유지. 신규 meta-issue 는 audit-log 별도 append.
+
+---
+
 ## [2026-04-24] — kaizen cycle (Phase 1~11)
 
 ### 요약
@@ -26,7 +72,7 @@ last_updated: 2026-04-12
 ### 버전 업데이트
 
 | 플러그인 | 이전 → 이후 |
-|---------|-------------|
+| --------- | ------------- |
 | harness | 0.3.6 → 0.4.0 (minor — guides v1.2.0 + schema v3) |
 | flutter-toolkit | 0.5.1 → 0.5.2 |
 | design-kit | 0.2.1 → 0.2.2 |
@@ -46,6 +92,7 @@ last_updated: 2026-04-12
 ### Meta-issues (Step 0.5 audit log 기준)
 
 이전 사이클(2026-04-11) meta-issues 3건 모두 이번 사이클에서 재발 없음:
+
 - ✅ docs-site 재생성 Step 11.5 실행됨
 - ✅ per-kit research-log 필요 시 생성 (해당 없음)
 - ✅ flutter-changelog 갱신 (해당 없음, Phase 5 변경만)
@@ -119,6 +166,7 @@ last_updated: 2026-04-12
 ### 변경 유형: patch (code-fence, gotchas, guides, disambiguation)
 
 ### 변경 범위
+
 - **Phase 1** (a925a31): kaizen-orchestrator Step 0 pre-flight 데이터 수집
 - **Phase 2** (0af5ecc): contract-design-guide 구체성 레벨 [L1/L2/L3] + 예외 조항 패턴 추가
 - **Phase 3** (1f73810): qa-evaluator L1~L3 검증 깊이 vs 계약 구체성 레벨 용어 분리 + set intersection 키워드 배타성 절차 추가
@@ -132,6 +180,7 @@ last_updated: 2026-04-12
 - **Final** (이번): harness V5 (TODO→미완성 마커) + V6 (bare fence line 86) residue 해결
 
 ### 핵심 개선
+
 - 전체 7 플러그인 validate-plugin: ERROR 0 (before: 1 ERROR harness), WARNING은 cross-kit 허용 케이스
 - Phase 2↔3 L 기호 충돌 해소: 계약 구체성 레벨 [L1/L2/L3] vs evaluator 검증 깊이 L1~L3 용어 분리 명시
 - react-kit 라이브러리 0개 원칙 회귀 없음 확인
@@ -141,12 +190,14 @@ last_updated: 2026-04-12
 ### 변경 유형: patch (guide, agent-prompt)
 
 ### 연구 기반
+
 - [A Survey on LLM-as-a-Judge](https://arxiv.org/abs/2411.15594) — LLM 판정자 편향 분류 + 완화 전략 체계
 - [CheckEval: Robust Evaluation Framework](https://arxiv.org/abs/2403.18771) `EMNLP 2025` — Boolean 체크리스트 분해로 평가자 간 일치도 0.45 향상
 - [Understanding LLM-Driven Test Oracle Generation](https://arxiv.org/abs/2601.05542) `AIware 2025` — LLM이 구현을 정답으로 추종하는 편향 발견
 - [A Statistical Approach to Model Evaluations](https://www.anthropic.com/research/statistical-approach-to-model-evals) (Anthropic) — 평가 신뢰도 측정 통계적 프레임워크
 
 ### 변경 내역
+
 - **docs/guides/qa-evaluation-guide.md**: 편향 테이블 3개 → 6개로 확장
   - Before: 위치 편향, 장황함 편향, 자기강화 편향 (3개)
   - After: + 구체성 편향, 구현 추종 편향, 지시 해석 불일치 (6개). 각 편향별 완화 전략 명시
@@ -184,12 +235,14 @@ last_updated: 2026-04-12
 ### 변경 유형: patch (guide, skill-prompt)
 
 ### 연구 기반
+
 - [Spec-driven development](https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices) `[blog]` — semi-structured specs가 LLM 할루시네이션 감소
 - [SpecFix: Automated Repair of Ambiguous Problem Descriptions](https://arxiv.org/abs/2505.07270) `[preprint]` — 문제 기술의 43.58%에 수정 가능한 모호성 존재
 - [ATDD for Claude Code](https://github.com/swingerman/atdd) `[community]` — External Observables Only 원칙 (구현 누수 방지)
 - [Given-When-Then Acceptance Criteria Guide](https://www.parallelhq.com/blog/given-when-then-acceptance-criteria) `[blog]` — NFR 누락이 일반적 안티패턴
 
 ### 변경 내역
+
 - **docs/guides/contract-design-guide.md**: "외부 관찰 가능성" 섹션 신규 추가
   - Before: 조건에 구현 상세 포함 여부를 점검하는 가이드라인 없음
   - After: 금지 요소 목록(클래스명/메서드명/DB명/프레임워크 용어) + 좋은 예/나쁜 예 제시
@@ -217,11 +270,13 @@ last_updated: 2026-04-12
 ### 변경 유형: patch (guide, skill-prompt, agent-logic)
 
 ### 연구 기반
+
 - [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices) — "Give Claude a way to verify its work"가 단일 최고 레버리지 행동
 - [Agentic AI Coding: Best Practice Patterns](https://codescene.com/blog/agentic-ai-coding-best-practice-patterns-for-speed-with-quality) — Multi-Level Code Safeguards (3단계 검증)
 - [agentic-code](https://github.com/shinpr/agentic-code) — "LLMs cannot reliably review their own outputs within the same context"
 
 ### 변경 내역
+
 - **docs/guides/skill-design-guide.md**: Section 3.5 "검증 가능한 성공 기준을 제공하라" 추가
   - Before: 검증 관련 원칙 없음
   - After: 스킬별 검증 기준 예시 테이블 + 자가 검증 흐름 추가

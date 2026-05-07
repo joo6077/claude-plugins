@@ -11,6 +11,7 @@ last_updated: 2026-05-07
 **이 문서의 용도:** 새 스킬을 만들거나 기존 스킬을 개선할 때 참고한다. 이 프로젝트(`claude-plugins`)의 실제 스킬을 적용 사례로 함께 다룬다.
 
 **주요 출처:**
+
 - [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04)
 - [Extend Claude with Skills — Claude Code Docs](https://code.claude.com/docs/en/skills)
 - [anthropics/skills — skill-creator SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
@@ -47,7 +48,7 @@ my-skill/
 Anthropic이 내부 스킬 수백 개를 분석하여 발견한 패턴. **좋은 스킬은 하나의 유형에 명확히 속하고, 나쁜 스킬은 여러 유형에 걸친다.**
 
 | # | 유형 | 설명 | 예시 |
-|---|------|------|------|
+| --- | ------ | ------ | ------ |
 | 1 | **라이브러리 레퍼런스** | 내부 라이브러리 사용법 및 함정 정리 | 사내 SDK 가이드 |
 | 2 | **제품 검증** | Playwright 등 도구로 코드 자동 확인 | E2E 테스트 스킬 |
 | 3 | **데이터 조회** | 모니터링/분석 스택 연결 | Grafana 대시보드 조회 |
@@ -117,6 +118,7 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 ```
 
 **적용 체크리스트:**
+
 - 스킬에 카테고리 ID(SK-xx, CD-xx 등)를 정의했으면, 계약 조건에도 동일 ID를 사용
 - 스킬 본문의 필드명을 계약 작성 시 그대로 복사하여 재해석 여지를 없앰
 - 스킬을 수정할 때 이름이 바뀌면 기존 계약 템플릿도 함께 갱신
@@ -136,7 +138,7 @@ Claude가 실수 → 실수 패턴 식별 → Gotchas에 한 줄 추가 → 다�
 ### 적용 방법
 
 | 스킬 유형 | 검증 기준 예시 |
-|-----------|---------------|
+| ----------- | --------------- |
 | 코드 스캐폴딩 | 생성 후 `commands.analyze` 실행, 워닝 0개 확인 |
 | 코드 리뷰 | 지적 사항마다 `파일:라인` 근거 필수 |
 | 계약 생성 | 모든 조건이 PASS/FAIL 이진 판정 가능한지 자가 검증 |
@@ -158,6 +160,7 @@ Claude가 산출물 생성 → 검증 기준으로 자가 확인 → 실패 시 
 Claude 는 리팩터링/대량 편집 시 **규칙에 이미 기재된 위반을 놓치고** 사용자가 지적해야 비로소 고치는 패턴을 반복한다. 이를 방지하려면 스킬이 규칙 리스트(Gotchas, anti-patterns, contract categories, style migrations)를 보유할 경우, 완료 선언 전에 **규칙별 1:1 대조 패스** 를 강제해야 한다.
 
 **원칙:**
+
 - 스킬 산출물 제출 전, Gen 이 자기 스킬의 규칙 리스트를 다시 읽고 각 규칙에 대한 위반 여부를 파일/라인 근거와 함께 보고
 - 체크 결과를 리포트(또는 dryrun 출력)로 Gen 자신이 스스로 확인 — 사용자가 첫 피드백 루프가 되면 안 됨
 - "그 외에도 혹시 놓친 규칙이 있는가?" 1 회 더 스스로 질문 (meta-audit)
@@ -204,6 +207,7 @@ Good: 대상 파일 전수 audit → 위반 N 건 체크리스트 → 사용자 
 SKILL.md frontmatter 는 두 개의 필수 필드를 가지며, 각 필드는 엄격한 검증 규칙을 따른다.
 
 **`name` 필드 규칙:**
+
 - 최대 64 자
 - 소문자 + 숫자 + 하이픈(`-`) 만 허용
 - XML 태그 금지
@@ -213,6 +217,7 @@ SKILL.md frontmatter 는 두 개의 필수 필드를 가지며, 각 필드는 �
 - **금지:** `helper`, `utils`, `tools`, `documents` 같은 모호한 이름
 
 **`description` 필드 규칙:**
+
 - 최대 1024 자
 - 비어 있을 수 없음
 - XML 태그 금지
@@ -428,12 +433,13 @@ Here's the actual information...
 스킬의 구체성 레벨은 태스크의 **취약성(fragility)** 과 **가변성(variability)** 에 맞춰야 한다. Anthropic 공식 문서는 3 단계로 구분한다.
 
 | 자유도 | 형식 | 사용 시점 |
-|--------|------|-----------|
+| -------- | ------ | ----------- |
 | **High freedom** | 텍스트 지침 | 여러 접근이 유효, 문맥에 따라 판단, 경험 기반 heuristic |
 | **Medium freedom** | 파라미터 있는 pseudocode/script | 선호 패턴이 있으나 일부 변형 허용 |
 | **Low freedom** | 파라미터 없는 정확한 명령 | 취약한 작업, 일관성 필수, 정확한 순서 필요 |
 
 **비유 (공식 문서 인용):** Claude 를 경로를 탐색하는 로봇으로 생각하라.
+
 - 양옆이 낭떠러지인 좁은 다리 → 안전한 길이 하나 → Low freedom (정확한 명령)
 - 위험 없는 열린 들판 → 여러 길이 성공 → High freedom (일반 방향만 제시)
 
@@ -485,6 +491,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 ### 안전 모드 (`/careful`)
 
 프로덕션 서버 작업 시 위험한 명령을 차단한다:
+
 - `rm -rf`
 - `DROP TABLE`
 - `git push --force`
@@ -492,6 +499,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 ### 동결 모드 (`/freeze`)
 
 디버깅 시 특정 폴더만 수정 가능하도록 잠근다:
+
 - 로그 추가 시 다른 파일 수정 방지
 - 의도치 않은 변경 차단
 
@@ -514,7 +522,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 ## 8. 스킬 공유 전략
 
 | 규모 | 방법 |
-|------|------|
+| ------ | ------ |
 | 소규모 팀 | `references/` 폴더에 스킬 추가하여 팀원 간 공유 |
 | 대규모 팀 | 플러그인 마켓플레이스 방식 — 필요한 스킬만 설치 |
 | Anthropic 방식 | 샌드박스 폴더 → Slack 홍보 → 사용량 많으면 공식 마켓 등록 |
@@ -526,6 +534,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 2026년 기준 `SKILL.md` 형식은 Claude Code, Codex CLI, Cursor, Gemini CLI, Antigravity 등에서 호환된다. 스킬을 작성할 때 특정 도구에 종속되지 않도록 하면 여러 플랫폼에서 사용할 수 있다.
 
 **호환성 유지 규칙:**
+
 - frontmatter는 `name`, `description` 필드를 공통으로 사용 (모든 플랫폼 지원)
 - `argument-hint`, `user-invocable` 등 Claude Code 전용 필드는 다른 플랫폼에서 무시됨 (호환에 영향 없음)
 - 본문의 Process/Gotchas 구조는 마크다운이므로 플랫폼 무관
@@ -618,10 +627,12 @@ SKILL.md 안의 코드 예시는 **생성될 실제 코드** 또는 **설명용 
 
 ````text
 ```
+
 function handleSubmit(data) {
   // TODO: 유효성 검사
   // TODO: API 호출
 }
+
 ```
 ````
 
@@ -629,11 +640,13 @@ function handleSubmit(data) {
 
 ````text
 ```typescript
+
 function handleSubmit(data: FormData): Result<void, SubmitError> {
   const validated = schema.safeParse(data);
   if (!validated.success) return err(ValidationError.fromZod(validated.error));
   return submitUseCase.execute(validated.data);
 }
+
 ```
 ````
 
@@ -671,6 +684,7 @@ rust-init/SKILL.md     Gotchas: ["Composition Root 단일화 원칙", "domain ev
 ```
 
 **운영 절차:**
+
 - 새 Gotcha 를 sibling 중 한 곳에 추가하면 **전 sibling 스킬 SKILL.md 를 동시에 grep 하여 동일 표현 누락 여부 확인**
 - kaizen (플러그인 개선 Phase) 에서 kit 단위 cross-check 필수 — 각 kit 의 sibling group 을 식별한 뒤 공통 원칙 리스트를 생성하고 누락 탐지
 
@@ -786,7 +800,7 @@ sprint-contract/
 ### 성장 경로 요약
 
 | 현재 상태 | 다음 단계 | 트리거 |
-|-----------|-----------|--------|
+| ----------- | ----------- | -------- |
 | SKILL.md만 있음 | Gotchas 섹션 추가 | Claude가 같은 실수를 2회 이상 반복할 때 |
 | 모든 내용이 SKILL.md에 | references/ 분리 | SKILL.md가 200줄을 넘거나, 같은 참조를 매번 읽을 때 |
 | 예시 없음 | templates/ 추가 | 출력 형식이 매번 달라질 때 |
@@ -806,7 +820,7 @@ sprint-contract/
 두 가이드(skill-design-guide, agent-design-guide)는 아래 5개 항목을 **동일한 개념 · 동일한 용어** 로 공유한다:
 
 | # | Parity Item | skill-design-guide 위치 | agent-design-guide 대응 위치 |
-|---|-------------|------------------------|------------------------------|
+| --- | ------------- | ------------------------ | ------------------------------ |
 | 1 | 계약 모호성 방지 / Binary Decidability | §3.5 (QA 계약과 1:1 매칭) | §3.5 (Binary Decidability Pre-Check) |
 | 2 | 트리거 키워드 배타성 (substring 포함) | §4 (트리거 키워드 중복 방지) | §3 description 트리거 + §10 sibling agent 검사 |
 | 3 | 검증 가능한 성공 기준 | §3.6 (Give a way to verify) | §10 Reviewer L3 커버리지 |
@@ -837,7 +851,7 @@ skill-design-guide.md 를 편집할 때:
 ## 요약
 
 | 원칙 | 핵심 |
-|------|------|
+| ------ | ------ |
 | 폴더로 설계 | 마크다운 하나가 아닌 폴더 하나를 설계한다 |
 | 뻔한 말 금지 | Claude가 이미 아는 것은 넣지 않는다 |
 | Gotchas 최우선 | 반복 실패 지점을 기록하는 것이 가장 높은 가치 |

@@ -1,11 +1,31 @@
 ---
 version: 1.1.0
-last_updated: 2026-04-12
+last_updated: 2026-05-07
 ---
 
 # React Kit Research Log
 
 > react-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
+
+## [2026-05-07] — Phase 10 kaizen (react, /insights 흡수)
+
+### 데이터 소스
+
+- 데이터 풀 §0 `/insights` 30 일 분석 (3 friction · 3 pattern · 3 feature)
+- `harness/references/cross-kit-principles.md` v1 매트릭스의 react 열
+
+### Phase 10 변경
+
+- react/README.md 에 cross-kit-principles 매트릭스 cross-reference 섹션 추가
+- plugin.json patch bump (이번 사이클)
+- 매핑: react-audit ANALYZE ↔ Pre-Edit Batch Audit, react-reviewer self-check ↔ Self-Evaluator Audit, PostToolUse 정적 검증 ↔ Hook-Triggered Auto-Correction
+
+### 외부 리서치 인용 (이전 사이클 보존, 이번 사이클 추가 없음)
+
+이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
+
+---
+
 
 ---
 
