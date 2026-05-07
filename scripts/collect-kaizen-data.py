@@ -37,37 +37,55 @@ DEFAULT_OUTPUT = REPO_ROOT / ".harness" / ".meta" / "kaizen-data-pool.md"
 DEFAULT_HUB = Path.home() / "Hub" / "10_Dev"
 GLOBAL_FEEDBACK_DIR = Path.home() / ".harness" / "feedback" / "evaluator"
 
-# `/insights` 외부 도구 산출물 자동 탐색 경로 (우선순위 순)
-INSIGHTS_CANDIDATES = [
-    REPO_ROOT / ".claude" / "kaizen-input" / "insights-report.md",
-    Path.home() / ".claude" / "kaizen-input" / "insights-report.md",
-]
+# `/insights` Claude Code CLI 슬래시 커맨드의 산출물 경로.
+# 사용자가 `/insights` 를 실행하면 `~/.claude/usage-data/report.html` 가 생성된다.
+INSIGHTS_PATH = Path.home() / ".claude" / "usage-data" / "report.html"
 INSIGHTS_FRESH_DAYS = 60  # 60일 초과 시 stale 경고
+INSIGHTS_VERY_FRESH_HOURS = 24  # 24시간 이내 = "방금 실행됨" 표시
+
+
+def _extract_html_text(html: str) -> str:
+    """HTML 에서 가독 텍스트만 추출. 표준 라이브러리만 사용 (BeautifulSoup 의존성 회피)."""
+    import re as _re
+    import html as _html
+    txt = _re.sub(r"<script.*?</script>", "", html, flags=_re.S | _re.I)
+    txt = _re.sub(r"<style.*?</style>", "", txt, flags=_re.S | _re.I)
+    txt = _re.sub(r"<(br|/?p|/?div|/?li|/?h[1-6]|/?tr)[^>]*>", "\n", txt, flags=_re.I)
+    txt = _re.sub(r"<[^>]+>", " ", txt)
+    txt = _html.unescape(txt)
+    txt = _re.sub(r"[ \t]+", " ", txt)
+    txt = _re.sub(r"\n{3,}", "\n\n", txt)
+    return txt.strip()
 
 
 def collect_insights_report() -> dict | None:
-    """`/insights` 외부 도구 산출물(insights-report.md)을 자동 탐색·로드한다.
+    """`/insights` 산출물(report.html)을 로드한다.
 
     파일이 없으면 None 반환. 있으면 경로/mtime/content 를 dict 로 반환한다.
     카이젠 오케스트레이터 Step 0 에서 데이터 풀에 §0 (최상위) 으로 삽입된다.
     """
-    for path in INSIGHTS_CANDIDATES:
-        if not path.is_file():
-            continue
-        try:
-            content = path.read_text(encoding="utf-8")
-        except Exception:
-            continue
-        mtime = datetime.datetime.fromtimestamp(path.stat().st_mtime)
-        age_days = (datetime.datetime.now() - mtime).days
-        return {
-            "path": path,
-            "mtime": mtime.isoformat(timespec="seconds"),
-            "age_days": age_days,
-            "stale": age_days > INSIGHTS_FRESH_DAYS,
-            "content": content,
-        }
-    return None
+    path = INSIGHTS_PATH
+    if not path.is_file():
+        return None
+    try:
+        raw = path.read_text(encoding="utf-8")
+    except Exception:
+        return None
+    content = _extract_html_text(raw)
+    mtime = datetime.datetime.fromtimestamp(path.stat().st_mtime)
+    age_seconds = (datetime.datetime.now() - mtime).total_seconds()
+    age_days = age_seconds / 86400
+    very_fresh = age_seconds < INSIGHTS_VERY_FRESH_HOURS * 3600
+    return {
+        "path": path,
+        "mtime": mtime.isoformat(timespec="seconds"),
+        "age_days": int(age_days),
+        "age_hours": round(age_seconds / 3600, 1),
+        "very_fresh": very_fresh,
+        "stale": age_days > INSIGHTS_FRESH_DAYS,
+        "content": content,
+        "format": "html-extracted",
+    }
 
 
 def collect_global_feedback() -> dict:
@@ -208,20 +226,25 @@ def render_data_pool(
 
     # §0: /insights 리포트 (있을 때만, 모든 Phase 가 최우선 참조)
     if insights is not None:
-        rel = insights["path"]
         try:
             rel = insights["path"].relative_to(REPO_ROOT)
         except ValueError:
             rel = insights["path"]
-        stale_warn = " ⚠ STALE" if insights["stale"] else ""
+        if insights["stale"]:
+            fresh_marker = " ⚠ STALE (60일 초과)"
+        elif insights["very_fresh"]:
+            fresh_marker = f" ✓ VERY FRESH ({insights['age_hours']}시간 전)"
+        else:
+            fresh_marker = f" ({insights['age_days']}일 전)"
+        fmt_note = " · HTML 추출 텍스트" if insights["format"] == "html-extracted" else " · Markdown 추출본"
         lines += [
             "## 0. `/insights` Report (외부 도구 산출물)",
             "",
-            f"- 경로: `{rel}`",
-            f"- 최근 갱신: {insights['mtime']} ({insights['age_days']}일 전){stale_warn}",
-            "- 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions)",
+            f"- 경로: `{rel}`{fmt_note}",
+            f"- 최근 갱신: {insights['mtime']}{fresh_marker}",
+            "- 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions / 이번 사이클 신규 워크플로우 제안)",
             "",
-            "<details><summary>insights-report.md 본문</summary>",
+            "<details><summary>insights report 본문 (auto-extracted)</summary>",
             "",
             insights["content"].rstrip(),
             "",
@@ -232,8 +255,8 @@ def render_data_pool(
         lines += [
             "## 0. `/insights` Report",
             "",
-            "- (없음) `~/.claude/kaizen-input/insights-report.md` 또는 `<repo>/.claude/kaizen-input/insights-report.md` 미존재",
-            "- `/insights` 외부 도구 실행 후 산출물을 위 경로에 배치하면 다음 사이클부터 자동 통합된다.",
+            f"- (없음) `{INSIGHTS_PATH}` 미존재",
+            "- 사용자가 Claude Code CLI 에서 `/insights` 를 실행하면 자동 생성된다.",
             "",
         ]
 
@@ -419,13 +442,18 @@ def main() -> None:
 
     print(f"\nData pool 생성: {args.output}", file=sys.stderr)
     if insights is not None:
-        stale_marker = " ⚠ STALE" if insights["stale"] else ""
+        if insights["stale"]:
+            marker = " ⚠ STALE"
+        elif insights["very_fresh"]:
+            marker = f" ✓ VERY FRESH ({insights['age_hours']}h ago)"
+        else:
+            marker = f" ({insights['age_days']}d ago)"
         print(
-            f"  - /insights 리포트: {insights['path']} ({insights['age_days']}일 전){stale_marker}",
+            f"  - /insights 산출물: {insights['path']}{marker} · format={insights['format']}",
             file=sys.stderr,
         )
     else:
-        print("  - /insights 리포트: 없음 (자동 탐색 경로 미존재)", file=sys.stderr)
+        print(f"  - /insights 산출물: 없음 ({INSIGHTS_PATH} 미존재)", file=sys.stderr)
     print(
         f"  - global feedback: {global_fb['total']}개",
         f"(REJECT {global_fb['by_verdict'].get('REJECT', 0)}, "

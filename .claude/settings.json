@@ -1,5 +1,27 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BR=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); if [ \"$BR\" = \"main\" ] || [ \"$BR\" = \"master\" ] || [ \"$BR\" = \"dev\" ]; then echo \"⚠ 보호 브랜치($BR) 직접 편집 — 새 브랜치 권장. /insights Scope-Bound Edits Hard-stop 대상\" >&2; fi; exit 0",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "AHEAD_BEHIND=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null); if [ -n \"$AHEAD_BEHIND\" ]; then BEHIND=$(echo $AHEAD_BEHIND | awk '{print $2}'); if [ \"${BEHIND:-0}\" -gt 0 ]; then echo \"⚠ 현재 브랜치가 upstream 보다 ${BEHIND} 커밋 뒤짐 — Pre-Sprint Sync Check 권장: git fetch --all && git pull\" >&2; fi; fi; exit 0",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "ZOMBIE=$(ps aux 2>/dev/null | grep -E 'mcp[-_]server|figma-developer-mcp|playwright-mcp' | grep -v grep | wc -l | tr -d ' '); if [ \"${ZOMBIE:-0}\" -gt 5 ]; then echo \"⚠ MCP 프로세스 ${ZOMBIE}건 누적 — 좀비 가능성. /insights 권장 정리: pkill -f mcp_server 또는 Claude Code 재시작\" >&2; fi; exit 0",
+            "timeout": 2000
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",

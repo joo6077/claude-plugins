@@ -15,6 +15,8 @@
 | `evaluator-kaizen` | qa-evaluator 에이전트를 학술 논문·공식 문서·커뮤니티 리서치·글로벌 피드백 기반으로 점진적으로 개선하는 카이젠 스킬. |
 | `harness-kaizen` | 하네스 엔지니어링을 학술 논문·공식 문서·커뮤니티 리서치 기반으로 |
 | `init` | 현재 프로젝트에 .harness/ 디렉토리를 생성하고 초기 설정 파일을 세팅한다. |
+| `refactor-checklist` | 리팩터링 시작 전, 대상 파일에 적용할 모든 규칙 위반을 enumerate 한 체크리스트를 산출하고 사용자 승인을 받는다. |
+| `sprint` | Contract → 구현 → QA → Commit → Push 의 단일 sprint 루프를 한 호출로 실행한다. |
 | `sprint-contract` | 기능 구현 전 완료 조건을 정의하고 사용자 합의를 받는다. |
 <!-- /AUTO:skills -->
 

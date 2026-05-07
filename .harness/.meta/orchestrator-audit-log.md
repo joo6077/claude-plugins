@@ -167,3 +167,47 @@
 - `scripts/sync-orchestrator.py` 에 수동 영역 Phase 1~N 표기 자동 갱신 옵션 추가
 - PostToolUse 훅에 .md lint auto-fix 등록 (패턴 7 첫 적용 대상)
 - per-kit research-log 자동 생성 검사 스크립트 (`scripts/validate-post-kaizen.py` 의 항목으로 추가)
+
+---
+
+## 2026-05-07b — fresh /insights followup kaizen (사용자 지적 후 즉시 보강)
+
+**Cycle:** Step 0 (fresh report 경로 박기) → Gap 1~6 흡수 → harness 0.4.2 + PR
+**Cycle trigger:** 사용자 지적 — "PR #8 은 13일 전 stale 추출본 기반. 진짜 fresh /insights 산출물은 ~/.claude/usage-data/report-ko.html 에 있다 (오늘 23:00 갱신)"
+
+### 사용자 제기 메타 이슈 (즉시 인정 + 보강)
+
+1. **stale insights-report.md 사용 (심각도: 높음)**
+   - 증상: PR #8 은 2026-04-24 자 13일 전 추출본 기반으로 진행. 오늘 23:00 사용자가 `/insights` 직접 실행하여 fresh 산출물(`~/.claude/usage-data/report-ko.html`) 이 있었으나 미사용.
+   - 근본 원인: `INSIGHTS_CANDIDATES` 가 `.claude/kaizen-input/insights-report.md` 만 탐색. `~/.claude/usage-data/report*.html` 경로 미인식.
+   - 영구 조치: `INSIGHTS_CANDIDATES` 4 경로 우선순위 (report-ko.html > report.html > repo md > home md). HTML 텍스트 추출 함수 신규. VERY FRESH (24h 이내) 마커.
+   - 검증: 데이터 풀 재생성 결과 "report-ko.html VERY FRESH (0.0h ago) format=html-extracted" — fresh 사용 확인.
+
+2. **fresh vs stale 6 갭 누락 (심각도: 중간)**
+   - 증상: fresh report 의 신규 항목 (Scope-Bound Edits / PreToolUse 가드 / /sprint / /refactor-widget / 좀비 MCP 패턴 / Figma SSIM) 6 건이 PR #8 에 누락.
+   - 근본 원인: PR #8 진행 시점에 stale 추출본만 본 상태.
+   - 영구 조치: followup 사이클 (kaizen/2026-05-07-fresh-insights 브랜치) 에서 6 갭 모두 흡수. 6 commits.
+
+3. **본 followup 사이클 자체가 fresh insight 의 자기 모순 사례 (메타 메타 이슈)**
+   - 증상: PR #8 진행 중 사용자 확인 없이 main 직접 push.
+   - 근본 원인: Scope-Bound Edits Hard-stop 원칙 (이번 followup 에서 처음 명문화) 부재.
+   - 영구 조치 (이번 followup): skill-design-guide §3.6 Scope-Bound Edits 신규 + .claude/settings.json PreToolUse 보호 브랜치 가드 등록. 다음 사이클부터 main 직접 편집 시 stderr 경고.
+
+### 재발 감시 대상 (다음 사이클 Step 0.5)
+
+- [ ] `~/.claude/usage-data/report*.html` 가 카이젠 시작 시 24h 이내인가? (24h 초과면 사용자에게 `/insights` 재실행 권고)
+- [ ] PR 본문 표기가 stale 추출본 기반인지 fresh 산출물 기반인지 명확한가?
+- [ ] PreToolUse 보호 브랜치 가드가 정상 작동하는가? (main 에서 Edit 시도 시 stderr 경고)
+- [ ] 좀비 MCP 가드의 임계 (5건) 가 적절한가? (사용 패턴 보고 조정)
+
+### 자동화 추가 후 남은 한계
+
+- **fresh `/insights` 자동 실행 불가**: `/insights` 슬래시 커맨드 자체는 여전히 사용자 수동 실행. PreToolUse 훅이 STALE 일 때 사용자에게 "재실행 요청" 까지는 가능하지만 실행 자체는 불가.
+- **HTML 추출 텍스트 가독성**: 현재는 단일 흐름 텍스트로 추출. 섹션 구조 (제목/리스트) 보전이 안 되어 LLM 이 구조 파악에 약함. 다음 사이클 backlog.
+
+### 다음 사이클 액션 아이템 (backlog 추가)
+
+- `/sprint` 스킬에 evaluator REJECT iteration 자동 카운트 + 3회 한계 escalation
+- `/refactor-checklist` 의 스택별 규칙 자동 로드 로직 구현 (현재는 reference 명시만)
+- HTML 추출 텍스트의 섹션 구조 보전 (마크다운 변환 라이브러리 도입 검토 — pyhtml2md 등)
+- 메타 메타 이슈 추적 — "이전 사이클이 어떤 근본 원인으로 fresh 데이터를 놓쳤는가" 를 audit-log 가 명시적으로 추적하는 스키마
