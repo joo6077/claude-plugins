@@ -367,6 +367,18 @@ Edit/Write 후 `PostToolUse` 훅이 결정론적 정적 검증(`cargo fmt --chec
 
 **구현 형태:** 훅은 `.claude/settings.json` 의 `hooks.PostToolUse` 에 matcher (`Edit|Write`) + command 로 등록. 명령이 비-zero exit 이면 메인 Claude 가 결과를 받아 후속 조치를 결정. 에이전트 spawn 은 메인 Claude 가 결정 (훅이 직접 spawn 하지 않음 — 훅은 stateless).
 
+**보완 패턴 — PreToolUse 가드 (사후 수정이 아닌 사전 차단):**
+
+> **출처:** `/insights` 2026-05-07 fresh report (130 sessions): "브랜치가 origin에서 벗어났거나 좀비 MCP 프로세스가 있을 때 편집을 차단하는 PreToolUse 훅으로 세션을 잡아먹는 패턴을 막을 수 있습니다."
+
+PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전* 의 risk gate 다. 다음 3 영역에서 효과적:
+
+1. **Origin Sync 가드** — `git rev-list --left-right --count HEAD...@{u}` 결과로 upstream 보다 N커밋 뒤지면 stderr 경고. 병렬 자동화 충돌 (Pattern #2 Pre-Sprint Sync Check 자동화) 자동 발견.
+2. **좀비 프로세스 가드** — `ps aux | grep mcp_server` 결과 5건 초과면 정리 권고. /insights 의 "45+ stale 프로세스 사고" 재발 방지.
+3. **보호 브랜치 가드** — `git rev-parse --abbrev-ref HEAD` 결과가 main/master/dev 면 stderr 경고. Scope-Bound Edits Hard-stop (skill-design-guide §3.6) 자동 enforcement.
+
+**graceful degradation 원칙:** PreToolUse 훅은 `exit 0` 으로 편집 자체를 막지 않는다 (stderr 경고만). 강한 차단이 필요하면 사용자가 settings 에서 enable. 이는 false-positive (예: 의도된 main 직접 편집) 시 워크플로우 마비를 막기 위함. 이 레포의 `.claude/settings.json` 에 3 훅 모두 등록 완료.
+
 ### 이 프로젝트의 실제 예시
 
 `qa-evaluator`는 **패턴 5 (평가자-최적화자)**를 구현한다:
