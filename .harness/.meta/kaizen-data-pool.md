@@ -1,54 +1,1470 @@
 # Kaizen Data Pool
 
-Generated: 2026-05-07T22:02:11
+Generated: 2026-05-07T23:01:39
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
 
 ## 0. `/insights` Report (외부 도구 산출물)
 
-- 경로: `.claude/kaizen-input/insights-report.md`
-- 최근 갱신: 2026-04-24T14:12:37 (13일 전)
-- 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions)
+- 경로: `/Users/jackson/.claude/usage-data/report-ko.html` · HTML 추출 텍스트
+- 최근 갱신: 2026-05-07T23:00:56 ✓ VERY FRESH (0.0시간 전)
+- 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions / 이번 사이클 신규 워크플로우 제안)
 
-<details><summary>insights-report.md 본문</summary>
+<details><summary>insights report 본문 (auto-extracted)</summary>
 
-# /insights Report Extract
+Claude Code 인사이트 (한국어) 
+ 
 
-30일 세션 로그 분석 결과. 원본: `~/.claude/usage-data/report.html`
+ 
+ 
+ 
+ 
 
-## Key Insight
-- Key pattern: You run Claude as an autonomous sprint executor under formal contracts, intervening sharply and explicitly when it fails to proactively apply the rules you've established.
+ 
+Claude Code 인사이트
 
-## Friction Points (마찰점)
-### 1. Proactive quality gaps in refactoring During your anti-AI-tone refactoring sweeps, Claude consistently fails to spot obv
-Proactive quality gaps in refactoring During your anti-AI-tone refactoring sweeps, Claude consistently fails to spot obvious improvements (text style migrations, redundant variables, hardcoded values) that your rules already cover, making you re-prompt with mounting frustration. Consider having Claude produce an explicit rule-by-rule checklist pass before claiming a file is done, so violations surface without your intervention. Claude forgot to migrate legacy bodyMSemiBold despite rule R1 mandating it, triggering an angry correction On S6 list widgets you had to point out TextStyle migration, unneeded null branches, and manual SizedBox gaps repeatedly, eventually codifying them as new rules
+ 
+130개 세션에서 2,391개 메시지 (전체 827) | 2026-04-14 ~ 2026-05-07
 
-### 2. Wrong approach and false dichotomies in architecture work Claude often commits to an approach (widget choice, contract w
-Wrong approach and false dichotomies in architecture work Claude often commits to an approach (widget choice, contract wording, solution framing) without verifying against Figma tokens, existing code, or your actual intent, leading to rework cycles. Requiring Claude to verify exact style/token names and enumerate options before acting would cut the iteration count. Repeatedly used Stack where Column sufficed and mismatched Figma text style tokens, causing visual drift and frustration Parity/Consolidation contract needed 3 iterations due to arithmetic errors, naming issues, and unclear server/toolkit boundaries
+ 
 
-### 3. Session truncation and tool/infrastructure failures A meaningful share of your sessions end mid-task due to output token
-Session truncation and tool/infrastructure failures A meaningful share of your sessions end mid-task due to output token limits, sandbox network blocks, or hung background agents, producing unclear outcomes and lost work. Splitting large multi-phase runs into smaller committed checkpoints and avoiding long inline responses would reduce these dead-ends. Multiple sessions showed only API errors from exceeded output token limits, leaving goals indeterminable Two of three Codex background research tasks (R2, R3) hung indefinitely, and a final git push was blocked by sandbox HTTPS leaving 2 commits unpushed
+ 
+한눈에 보기
 
-## Recommended Patterns
-### 1. Batch-identify refactor opportunities up front Before editing any file in a refactoring sweep, have Claude enumerate eve
-Batch-identify refactor opportunities up front Before editing any file in a refactoring sweep, have Claude enumerate every applicable rule violation first, then you approve the list. Your anti-AI-tone sessions show a repeated pattern: Claude fixes some issues, you point out missed ones (legacy text styles, hardcoded values, unneeded nulls), Claude fixes those, you find more. Front-loading a full audit turns N frustrating round-trips into 1 review + 1 execution. This also prevents Claude from 'over-interpreting rules' or making unauthorized changes because the scope is locked before edits begin. Paste into Claude Code: Before editing anything, read the target files and produce a checklist of EVERY anti-AI-tone rule violation you find: TextStyle token migrations (including legacy bodyMSemiBold), Stack-vs-Column choices, unnecessary local variables, unneeded null branches, hardcoded values, manual SizedBox gaps, Figma text-style name mismatches. Show me the full checklist and wait for my approval before making any changes. Copy
+ 
 
-### 2. Check for parallel work before starting a task Make 'git fetch + log inspection' the mandatory first step of any sprint 
-Check for parallel work before starting a task Make 'git fetch + log inspection' the mandatory first step of any sprint task. Multiple sessions wasted effort because parallel automation had already completed or was concurrently modifying the same tasks (Tasks 20/21 session explicitly required a reconciliation commit). You're running enough concurrent work that this collision is structural, not incidental. A 30-second check upfront prevents hours of desync. Paste into Claude Code: Before starting Task X, run: git fetch --all && git log origin/dev --oneline -20 && git log --all --oneline --since='2 days ago' | head -30. Check whether this task or adjacent files have been touched by parallel automation. Report findings before proceeding. Copy
+ 
+ 잘 되고 있는 것: 매우 규율 잡힌 운영을 하고 있습니다. 계약(Contract) → QA → 푸시 스프린트 사이클을 짧은 확인('ㄱㄱ')으로 굴리고, 명시적 세션 핸드오프 문서로 며칠에 걸친 다단계 작업을 이어갑니다. Claude가 무언가를 놓쳤을 때 그 자리에서 패치만 하는 게 아니라 규칙 파일, 스킬, 훅 기반 강제까지 코드로 박아넣어 모든 마찰 지점을 영구적인 레버리지로 바꿉니다. 인상적인 작업 → 
 
-### 3. Guard against output-token truncation on long sessions For multi-phase sprints, explicitly request chunked output and in
-Guard against output-token truncation on long sessions For multi-phase sprints, explicitly request chunked output and intermediate commits. At least 5 of your sessions were truncated or rendered unreadable by output_token_limit errors. Your average session is long (568 hours / 93 sessions ≈ 6 hours) and involves heavy Bash/Edit/Read loops. Instructing Claude to commit progress every checkpoint and keep per-turn responses short preserves state when limits hit and makes resumption trivial. Paste into Claude Code: This will be a long session. Rules: (1) commit and push after every checkpoint, not at the end; (2) keep each response under 300 lines — if more is needed, split across turns; (3) after each checkpoint, write a 3-line status to a SESSION_LOG.md so we can resume if the session is truncated. Copy
+ 
+ 걸림돌이 되는 것: Claude 측: 과욕적 범위 확장(허락 없는 삭제, 요청 안 한 디자인 선택), 규칙 기반 리팩터링에서 사전 점검 체크리스트를 건너뛰는 경향. 사용자 측: 긴 세션이 출력 토큰 한도, MCP/에이전트 멈춤, 병렬 자동화 충돌로 탈선. 스프린트 시작 전 30초 브랜치/프로세스 사전 점검만 해도 막을 수 있습니다. 문제가 발생하는 지점 → 
 
-## Feature Suggestions (Skills/Hooks/MCP)
-### 1. Custom Skills Reusable markdown prompts invoked via /command for repetitive workflows. Why for you: You run the same Con
-Custom Skills Reusable markdown prompts invoked via /command for repetitive workflows. Why for you: You run the same Contract → Implement → QA → Commit → Push → Handoff cycle every sprint (131 commits across 48 sessions), and anti-AI-tone refactoring follows a fixed rule checklist. Encoding these as /contract, /qa, /handoff, /refactor-antitone skills would eliminate the repeated rule-reminding and missed-step friction. mkdir -p .claude/skills/handoff && cat > .claude/skills/handoff/SKILL.md <<'EOF' --- name: handoff description: Produce session handoff with completion summary, next-session resume prompt, and push status --- 1. Summarize what was completed this session (commits, tasks, QA status) 2. List outstanding work and blockers 3. Write a copy-pasteable next-session prompt the user can send verbatim 4. Report git push status for all branches touched EOF Copy
+ 
+ 바로 시도할 퀵윈: 스프린트 워크플로우를 /sprint 스킬로 승격하여 contract-QA-push 루프를 매번 다시 설명하지 않게 하고, 편집 전 anti-AI-tone 체크리스트를 로드하는 /refactor-widget 스킬과 짝지으세요. 브랜치가 origin에서 벗어났거나 좀비 MCP 프로세스가 있을 때 편집을 차단하는 PreToolUse 훅으로 세션을 잡아먹는 패턴을 막을 수 있습니다. 시도해볼 기능 → 
 
-### 2. Hooks Shell commands that auto-run on Claude lifecycle events. Why for you: You already deployed a PreToolUse hook to en
-Hooks Shell commands that auto-run on Claude lifecycle events. Why for you: You already deployed a PreToolUse hook to enforce skill usage in one session — extend this pattern. A PostToolUse hook running `dart format` / `cargo fmt` / `cargo clippy` after Edit events would catch the clippy/fmt issues that show up during QA, and a PreToolUse hook checking `git fetch && git status` would prevent the parallel-automation desync you hit multiple times. // .claude/settings.json { "hooks": { "PostToolUse": [ {"matcher": "Edit|Write", "command": "[ -f Cargo.toml ] && cargo fmt --all -- --check 2>&1 | head -20 || true"} ], "PreToolUse": [ {"matcher": "Bash", "command": "echo '[hook] current branch:' $(git branch --show-current)"} ] } } Copy
+ 
+ 야심찬 워크플로우: 모델이 강해질수록 계약 기반 사이클은 몇 시간 동안 무인으로 돌아가야 합니다 — 계약 작성, TDD 실행, 리베이스 복구, 영구 state 파일을 통한 컨텍스트 경계 넘어 재개. 5시간 이상을 태운 Flutter–Figma parity 작업이 최고 레버리지 타깃입니다. 스크린샷, Figma와 픽셀 diff, FigmaDecoration 파라미터를 SSIM 수렴까지 자동 조정하는 자가검증 루프는 가장 고통스러운 세션을 측정 가능한 최적화 문제로 바꿔줍니다. 앞으로의 가능성 → 
 
-### 3. MCP Servers Connect Claude to external tools like Figma, GitHub, and databases. Why for you: You repeatedly hit friction
-MCP Servers Connect Claude to external tools like Figma, GitHub, and databases. Why for you: You repeatedly hit friction on Figma text-style name verification and Flutter/HTML visual parity (one session burned 5+ hours on button matching). A Figma MCP server would let Claude fetch exact token names and pixel values directly instead of guessing, eliminating a major class of rework. Your flutter-playwright MCP also needs stabilization given the 45+ stale process incident. claude mcp add figma -- npx -y figma-developer-mcp --figma-api-key=$FIGMA_API_KEY # Then ask: 'fetch the exact text style tokens for frame X from Figma before refactoring' Copy
+ 
+
+ 
+
+ 
+
+ 
+ 작업 영역 
+ CC 사용 방식 
+ 인상적인 작업 
+ 문제 지점 
+ 시도할 기능 
+ 새 사용 패턴 
+ 앞으로의 가능성 
+ 팀 피드백 
+ 
+
+ 
+
+ 
+
+2,391
+
+메시지
+
+ 
+
++92,817/-11,678
+
+라인
+
+ 
+
+1047
+
+파일
+
+ 
+
+18
+
+일수
+
+ 
+
+132.8
+
+일평균 메시지
+
+ 
+
+ 
+작업 영역
+
+ 
+
+ 
+ 
+
+ 
+
+ Schedule-Vote 백엔드 (Rust) 
+ ~12 세션 
+ 
+
+ 
+친구 전용 피트니스 스케줄링 MVP의 멀티 스프린트 백엔드 개발. 서브에이전트 오케스트레이션과 계약 기반 TDD로 Task 1-22 실행. Claude는 QA 사이클, Sentry 통합, ReminderJob/ResolutionJob 구현, 통합 테스트 수정을 처리하고 dev 브랜치에 다수의 커밋을 리베이스 푸시했습니다.
+
+ 
+
+ 
+
+ 
+
+ Flutter UI 리팩터링 & Anti-AI-Tone 규칙 
+ ~15 세션 
+ 
+
+ 
+i18n locale key 추출과 함께 프로젝트 스타일 규칙을 따르는 admin 위젯, messagebox 컴포넌트, carousel/toolbar 위젯의 체계적 리팩터링. Edit 도구 기반 반복 작업이 많았고 Claude가 Stack vs Column 선택, TextStyle 마이그레이션, 오버엔지니어링에서 사용자 교정을 자주 요구하여, 피드백 로그에 새 규칙들이 문서화되었습니다.
+
+ 
+
+ 
+
+ 
+
+ Figma-Flutter 디자인 패리티 
+ ~8 세션 
+ 
+
+ 
+Aqua 버튼 그래디언트, FigmaDecoration per-side 보더, skeuomorphic CSS 매칭을 포함한 Figma 디자인과 Flutter 구현의 픽셀 단위 일치 작업. QA 검증 포함 5개 스킬로 구성된 figma-flutter-kit 제작. MCP 디바이스 설정과 시각적 불일치로 인한 마찰이 자주 발생하여 다회 반복이 필요했습니다.
+
+ 
+
+ 
+
+ 
+
+ Flutter MCP 재설계 & 애니메이션 엔진 
+ ~7 세션 
+ 
+
+ 
+영구 연결 인디케이터를 포함한 Observer-only 아키텍처로의 Flutter MCP 서버 다단계 재설계 및 Sprint 5 force-layout 알고리즘 벤치마킹(d3-main 어댑터 선정). 병렬 리서치/리뷰에 Codex를 활용했으나 일부 리서치 에이전트가 멈추거나 부정확한 주장을 반환하여 사용자 교정이 필요했습니다.
+
+ 
+
+ 
+
+ 
+
+ Worldbuilding IDE & 그룹 초대 기획 
+ ~6 세션 
+ 
+
+ 
+ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기능에 대한 디자인 스펙, 스프린트 계약, 13-task 구현 계획을 만든 전략적 기획 세션. Claude가 핸드오프 문서를 포함한 QA 검증 완료 계획을 전달했지만, 빠른 반복을 원할 때 공식 디스커버리 프로세스를 과도하게 적용한 경우가 있었습니다.
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+요청한 작업 유형
+
+ 
+
+ 
+코드 리팩터링
+
+ 
+
+ 
+46
+
+ 
+
+ 
+코드 설명
+
+ 
+
+ 
+22
+
+ 
+
+ 
+기능 구현
+
+ 
+
+ 
+20
+
+ 
+
+ 
+세션 핸드오프
+
+ 
+
+ 
+15
+
+ 
+
+ 
+리팩터링
+
+ 
+
+ 
+12
+
+ 
+
+ 
+문서 업데이트
+
+ 
+
+ 
+12
+
+ 
+
+ 
+
+ 
+
+ 
+자주 사용한 도구
+
+ 
+
+ 
+Bash
+
+ 
+
+ 
+4686
+
+ 
+
+ 
+Edit
+
+ 
+
+ 
+2447
+
+ 
+
+ 
+Read
+
+ 
+
+ 
+2375
+
+ 
+
+ 
+Grep
+
+ 
+
+ 
+636
+
+ 
+
+ 
+Write
+
+ 
+
+ 
+628
+
+ 
+
+ 
+TodoWrite
+
+ 
+
+ 
+443
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+언어
+
+ 
+
+ 
+Markdown
+
+ 
+
+ 
+1315
+
+ 
+
+ 
+TypeScript
+
+ 
+
+ 
+712
+
+ 
+
+ 
+Rust
+
+ 
+
+ 
+373
+
+ 
+
+ 
+JSON
+
+ 
+
+ 
+173
+
+ 
+
+ 
+YAML
+
+ 
+
+ 
+131
+
+ 
+
+ 
+HTML
+
+ 
+
+ 
+122
+
+ 
+
+ 
+
+ 
+
+ 
+세션 유형
+
+ 
+
+ 
+멀티 태스크
+
+ 
+
+ 
+41
+
+ 
+
+ 
+반복 개선
+
+ 
+
+ 
+28
+
+ 
+
+ 
+단일 태스크
+
+ 
+
+ 
+11
+
+ 
+
+ 
+간단한 질문
+
+ 
+
+ 
+3
+
+ 
+
+ 
+탐색
+
+ 
+
+ 
+2
+
+ 
+
+ 
+
+ 
+
+ 
+Claude Code 사용 방식
+
+ 
+
+ 
+당신은 길고 다단계인 엔지니어링 캠페인을 굴리는 고처리량 기술 디렉터 입니다. 세션은 마라톤급 길이(130 세션 평균 11시간, 168 커밋)이며 공식 산출물 — 스프린트 계약, Phase 체크포인트, QA APPROVE 사이클, 다음 세션을 위한 명시적 핸드오프 프롬프트 — 을 중심으로 구조화되어 있습니다. 서브에이전트, Codex 리서치 태스크, 병렬 자동화로 적극적으로 위임하고, Claude가 계약→구현→QA→푸시 사이클을 자율적으로 돌리기를 기대합니다. 확인은 보통 짧고('ㄱㄱ' / 'go'), 스펙은 사전 로드해두고 손 안 대는 실행을 원한다는 신호를 줍니다.
+
+자율적인 틀에도 불구하고, Claude가 표류할 때 매섭게 끼어들고 교정합니다 . Claude가 명백한 개선(레거시 `bodyMSemiBold` 마이그레이션, 불필요한 null 분기, 하드코드된 값)을 놓치거나, Column이면 충분한데 Stack을 쓰거나, 검증 없이 Figma 텍스트 스타일 이름을 만들어내면 짜증이 폭발합니다. 반응이 격해지고 — '다음 세션에 내가 뭐라고 말할지 말해야지!!!!' — 그 인스턴스를 고치는 데 그치지 않고 영구 프로젝트 규칙으로 코드화합니다. 이 규칙을 산출물로 만드는 패턴 (anti-AI-tone 리팩터링 스윕, 피드백 로그, 스킬 사용을 강제하는 PreToolUse 훅)은 모든 마찰 지점을 일회성이 아닌 시스템적 갭으로 보고 닫는다는 것을 보여줍니다.
+
+어려운 문제의 반복은 참아주지만(Flutter/HTML 버튼 매칭에 5시간 이상, Parity/Consolidation 계약 3회 수정), 프로세스 위반 에는 인내심이 끊어집니다 — 허락 없는 편집, 과도한 주석, 오버엔지니어링, 명시적 지시 없이 Claude가 앞서가는 행위. 모멘텀이 필요할 때는 잘못된 이분법과 공식 디스커버리 오버헤드도 거부합니다. 인프라 중심의 도구 사용량(Bash 4,686회, TodoWrite 443회, Agent 호출 381회)은 Claude를 페어 프로그래밍 파트너가 아닌 관리형 인력으로 오케스트레이션하고 있음을 확인해줍니다.
+
+ 
+ 핵심 패턴: 공식 계약과 QA 게이트를 갖춘 자율 스프린트 실행자로 Claude를 운영하지만, 일회성 실수를 영구 프로젝트 규칙으로 승격하여 표류를 매섭게 교정합니다.
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+사용자 응답 시간 분포
+
+ 
+
+ 
+2-10s
+
+ 
+
+ 
+103
+
+ 
+
+ 
+10-30s
+
+ 
+
+ 
+315
+
+ 
+
+ 
+30s-1m
+
+ 
+
+ 
+362
+
+ 
+
+ 
+1-2m
+
+ 
+
+ 
+403
+
+ 
+
+ 
+2-5m
+
+ 
+
+ 
+379
+
+ 
+
+ 
+5-15m
+
+ 
+
+ 
+187
+
+ 
+
+ 
+>15m
+
+ 
+
+ 
+102
+
+ 
+
+ 
+
+ 중앙값: 77.3초 • 평균: 229.6초
+ 
+
+ 
+
+ 
+ 
+
+ 
+멀티 클로딩 (병렬 세션)
+
+ 
+
+ 
+
+ 
+191
+
+ 
+중첩 이벤트
+
+ 
+
+ 
+
+ 
+116
+
+ 
+관련 세션
+
+ 
+
+ 
+
+ 
+56%
+
+ 
+메시지 비중
+
+ 
+
+ 
+
+ 
+
+ 여러 Claude Code 세션을 동시에 실행하고 있습니다. 멀티 클로딩은 세션이 시간상 중첩될 때 감지되며,
+ 병렬 워크플로우를 시사합니다.
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 시간대별 사용자 메시지
+ 
+ PT (UTC-8) 
+ ET (UTC-5) 
+ London (UTC) 
+ CET (UTC+1) 
+ Tokyo (UTC+9) 
+ 사용자 지정 오프셋... 
+ 
+ 
+ 
+
+ 
+
+ 
+
+ 
+아침 (6-12)
+
+ 
+
+ 
+416
+
+ 
+
+ 
+
+ 
+오후 (12-18)
+
+ 
+
+ 
+1250
+
+ 
+
+ 
+
+ 
+저녁 (18-24)
+
+ 
+
+ 
+647
+
+ 
+
+ 
+
+ 
+새벽 (0-6)
+
+ 
+
+ 
+78
+
+ 
+
+ 
+
+ 
+
+ 
+발생한 도구 오류
+
+ 
+
+ 
+기타
+
+ 
+
+ 
+308
+
+ 
+
+ 
+명령 실패
+
+ 
+
+ 
+135
+
+ 
+
+ 
+사용자 거부
+
+ 
+
+ 
+38
+
+ 
+
+ 
+파일 없음
+
+ 
+
+ 
+20
+
+ 
+
+ 
+파일 변경됨
+
+ 
+
+ 
+19
+
+ 
+
+ 
+편집 실패
+
+ 
+
+ 
+8
+
+ 
+
+ 
+
+ 
+
+ 
+인상적인 작업
+
+ 
+Flutter, Rust 백엔드, 디자인 시스템에 걸친 130 세션에서 강력한 핸드오프 위생을 갖춘 매우 규율 잡힌 계약 기반 개발 관행을 운영하고 있습니다.
+
+ 
+
+ 
+
+ 
+계약-QA-푸시 스프린트 사이클
+
+ 
+계약 → 구현 → QA APPROVE → 커밋/푸시 루프를 엄격하게 굴리며, 여러 스프린트에 걸쳐 13개 이상의 태스크를 전체 QA 승인으로 마무리합니다(예: 백엔드 Task 1-13 schedule-vote MVP, Sprint 5 Task 4-9를 짧은 'ㄱㄱ' 확인으로). 스킬 사용을 강제하는 PreToolUse 훅까지 설치한 것은 프로세스 준수를 1급 엔지니어링 관심사로 취급한다는 증거입니다.
+
+ 
+
+ 
+
+ 
+규율 잡힌 세션 핸드오프
+
+ 
+15개의 명시적 session_handoff 목표가 포착되었습니다. 컨텍스트 연속성을 산출물로 취급하며, 다음 세션 프롬프트 템플릿, 종합 핸드오프 문서, 마무리 전 깔끔한 커밋 경계를 요구합니다. 이를 통해 장기 다단계 작업(Phase A→B→C MCP 재설계, 멀티 스프린트 백엔드)을 세션 간 모멘텀 손실 없이 이어갑니다.
+
+ 
+
+ 
+
+ 
+피드백을 규칙으로 코드화
+
+ 
+Claude가 리팩터링 기회를 놓치거나 스타일 규칙을 잘못 해석할 때, 그 자리에서만 고치지 않고 프로젝트 문서, anti-AI-tone 규칙 파일, 스킬 업그레이드로 교훈을 푸시합니다(예: method-vs-class 추출 규칙을 3개 문서에 추가, 반복 후 리스트 빌딩 패턴 코드화). 모든 마찰 지점을 미래 세션의 영구 레버리지로 바꿉니다.
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+What Helped Most (Claude's Capabilities)
+
+ 
+
+ 
+Multi-file Changes
+
+ 
+
+ 
+40
+
+ 
+
+ 
+Correct Code Edits
+
+ 
+
+ 
+13
+
+ 
+
+ 
+Good Debugging
+
+ 
+
+ 
+13
+
+ 
+
+ 
+Good Explanations
+
+ 
+
+ 
+9
+
+ 
+
+ 
+Proactive Help
+
+ 
+
+ 
+4
+
+ 
+
+ 
+Fast/Accurate Search
+
+ 
+
+ 
+2
+
+ 
+
+ 
+
+ 
+
+ 
+Outcomes
+
+ 
+
+ 
+Not Achieved
+
+ 
+
+ 
+2
+
+ 
+
+ 
+Partially Achieved
+
+ 
+
+ 
+11
+
+ 
+
+ 
+Mostly Achieved
+
+ 
+
+ 
+36
+
+ 
+
+ 
+Fully Achieved
+
+ 
+
+ 
+33
+
+ 
+
+ 
+Unclear
+
+ 
+
+ 
+3
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+Where Things Go Wrong
+
+ 
+Your sessions show strong overall delivery but recurring friction stems from Claude making changes you didn't ask for, missing rule-based refactoring opportunities until you escalate, and infrastructure/tooling failures that derail multi-hour workflows.
+
+ 
+
+ 
+ 
+
+ 
+Unauthorized or over-eager scope expansion
+
+ 
+Claude frequently makes deletions, edits, or design choices you didn't sanction, forcing you to course-correct or restore work. Being more conservative — confirming before destructive or scope-expanding actions — would prevent these reversals.
+
+ 
+Claude deleted locator_entries action tools (tap/enter_text/scroll/swipe) thinking they were redundant, then had to restore them after you clarified only locate_widget was the target
+
+Claude proceeded with refactors and rule reinterpretations without explicit direction across multiple anti-ai-tone sessions, requiring you to roll back unauthorized changes
+ 
+ 
+
+ 
+ 
+
+ 
+Missed rule-based improvements requiring escalation
+
+ 
+Claude repeatedly fails to apply documented refactoring rules autonomously, making you point out the same categories of issues with mounting frustration. Front-loading a rule-checklist pass before declaring work done would catch these.
+
+ 
+You had to escalate angrily ('다음 세션에 내가 뭐라고 말할지 말해야지!!!!') when Claude skipped legacy bodyMSemiBold migration despite rule R1 explicitly requiring it
+
+Claude missed TextStyle migrations, unnecessary local variables, unneeded null branches, and manual SizedBox gaps across S6 list widget refactors, leading you to add new rules to the feedback log just to enforce baseline attention
+ 
+ 
+
+ 
+ 
+
+ 
+Tool and infrastructure failures derailing long sessions
+
+ 
+Multi-hour workflows repeatedly hit output token limits, MCP connection issues, and orphaned background agents that waste your time and leave work unfinished. Detecting these early and falling back faster, plus chunking output proactively, would reduce lost progress.
+
+ 
+Several sessions are unanalyzable because Claude's responses exceeded the 500 output token maximum and the transcript is just API errors, meaning entire sessions of your work produced no recoverable outcome
+
+Two of three Codex background research tasks (R2 Play Console, R3 Sentry) hung indefinitely, flutter-playwright MCP failed due to 45+ stale processes, and golden parity tests hung on toImage — each requiring manual diagnosis before you could proceed
+ 
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+Primary Friction Types
+
+ 
+
+ 
+Wrong Approach
+
+ 
+
+ 
+77
+
+ 
+
+ 
+Misunderstood Request
+
+ 
+
+ 
+50
+
+ 
+
+ 
+Buggy Code
+
+ 
+
+ 
+34
+
+ 
+
+ 
+User Rejected Action
+
+ 
+
+ 
+21
+
+ 
+
+ 
+Excessive Changes
+
+ 
+
+ 
+17
+
+ 
+
+ 
+Tool Failure
+
+ 
+
+ 
+6
+
+ 
+
+ 
+
+ 
+
+ 
+Inferred Satisfaction (model-estimated)
+
+ 
+
+ 
+Frustrated
+
+ 
+
+ 
+23
+
+ 
+
+ 
+Dissatisfied
+
+ 
+
+ 
+80
+
+ 
+
+ 
+Likely Satisfied
+
+ 
+
+ 
+297
+
+ 
+
+ 
+Satisfied
+
+ 
+
+ 
+36
+
+ 
+
+ 
+
+ 
+
+ 
+ 
+ 
+Existing CC Features to Try
+
+ 
+
+ 
+Suggested CLAUDE.md Additions
+
+ 
+Just copy this into Claude Code to add it to your CLAUDE.md.
+
+ 
+
+ Copy All Checked 
+ 
+
+ 
+ 
+
+ 
+ 
+ ## Anti-AI-Tone Refactoring Rules
+- Always check for legacy text style migrations (e.g., bodyMSemiBold) per rule R1 - migrate ALL occurrences, not just obvious ones
+- Proactively identify these refactoring opportunities WITHOUT being asked: TextStyle migration, unnecessary local variables, unneeded null branches, hardcoded values, manual SizedBox gaps
+- Verify exact Figma text style token names before applying - do NOT guess
+- Prefer Column over Stack when children don't actually overlap 
+ Copy 
+ 
+ 
+These exact issues recurred across 8+ refactoring sessions with increasing user frustration ('다음 세션에 내가 뭐라고 말할지 말해야지!!!!') - user repeatedly had to point out the same missed improvements.
+
+ 
+
+ 
+ 
+
+ 
+ 
+ ## Session Handoffs
+When a session is wrapping up or hitting context limits, ALWAYS produce a next-session prompt template (not just a summary) that the user can paste verbatim to resume work. Include: current branch state, last commit, next concrete action, and any blocking context. 
+ Copy 
+ 
+ 
+session_handoff appeared 15 times as a top goal, and the user explicitly demanded this format with frustration when Claude only produced a summary instead of a paste-ready prompt.
+
+ 
+
+ 
+ 
+
+ 
+ 
+ ## Sprint/Contract Workflow
+- Do NOT start implementation without an approved Sprint Contract
+- Before working on any task, check if parallel automation or another session has already completed/started it (git log, branch status)
+- After QA REJECT, re-read the contract verbatim before fixing - watch for exact string matches (f32 vs f64, parameter names, Default impls)
+- Run rebase BEFORE push, and verify push actually succeeded (don't assume) 
+ Copy 
+ 
+ 
+Multiple sessions show duplicated work with parallel automation, contract string-matching failures on QA re-evaluation, and unpushed rebase chains - these are repeated process failures.
+
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+Just copy this into Claude Code and it'll set it up for you.
+
+ 
+
+ 
+ 
+
+ 
+Custom Skills
+
+ 
+Define reusable markdown prompts callable via /command
+
+ 
+ Why for you: You already created /insights and figma-flutter-kit skills successfully. Given 46 refactoring + 15 handoff + 12 doc-update sessions, codify /handoff (next-session prompt template), /sprint-contract (contract draft+QA loop), and /anti-ai-refactor (the rule checklist) to stop re-explaining the same workflow.
+
+ 
+ 
+
+ 
+
+ 
+
+ mkdir -p .claude/skills/handoff && cat > .claude/skills/handoff/SKILL.md <<'EOF'
+# Handoff Skill
+Produce a paste-ready next-session prompt with:
+1. Current branch + last commit SHA
+2. What was completed this session (bullets)
+3. Next concrete action (1-2 sentences)
+4. Any blocking context (open PRs, failing tests, MCP issues)
+Format as a code block the user can copy verbatim.
+EOF 
+ Copy 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+Hooks
+
+ 
+Auto-run shell commands at lifecycle events
+
+ 
+ Why for you: You had 4 output-token-limit errors, MCP stale-process issues (45+ orphaned processes), and unpushed commits. A PreToolUse hook for git push verification and a SessionStart hook to clean stale flutter-playwright processes would prevent these recurring blockers. You already deployed a PreToolUse hook for skill enforcement - extend the pattern.
+
+ 
+ 
+
+ 
+
+ 
+
+ // .claude/settings.json
+{
+ "hooks": {
+ "SessionStart": [{"command": "pkill -f flutter-playwright || true"}],
+ "PostToolUse": [{"matcher": "Bash", "command": "git status --porcelain | grep -q . && echo 'WARN: uncommitted changes'"}]
+ }
+} 
+ Copy 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+Task Agents
+
+ 
+Spawn focused sub-agents for parallel/exploratory work
+
+ 
+ Why for you: Your subagent-driven sprints (Tasks 1-13, 13-task group-invite) succeeded, but Codex delegation hung 2/3 times on R2/R3 research. Use Claude's built-in Task agents instead of external Codex for research-bounded tasks - they're more reliable and don't orphan. Reserve Codex for true second-opinion review.
+
+ 
+ 
+
+ 
+
+ 
+
+ // In your prompt:
+"Use a Task agent to research Sentry 0.47 Rust integration patterns and return a 1-page summary with code examples. Run in parallel with another Task agent researching Play Console review timelines." 
+ Copy 
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+ 
+New Ways to Use Claude Code
+
+ 
+Just copy this into Claude Code and it'll walk you through it.
+
+ 
+
+ 
+ 
+
+ 
+Codify the Sprint Contract → QA → Push loop as a skill
+
+ 
+You execute the same contract-driven workflow across dozens of sprints. Make it a /sprint skill instead of re-prompting each time.
+
+ 
+Sessions show a consistent pattern: draft contract → implement → QA evaluator → fix REJECTs → commit → push. You hit friction with contract string-matching (f32/f64, Default impls), unpushed rebases, and duplicated parallel work. A /sprint skill that enforces 'check git log for parallel work first, draft contract, get user approval, implement, run QA, verify push succeeded' would eliminate 4-5 recurring friction points per sprint.
+
+ 
+ 
+
+ 
+Paste into Claude Code:
+
+ 
+
+ Create a .claude/skills/sprint/SKILL.md that enforces our contract-driven workflow: (1) check git log + dev branch for parallel work, (2) draft sprint contract and wait for user approval, (3) implement via TDD, (4) run QA evaluator and fix exact contract strings on REJECT, (5) commit logical chunks, (6) rebase + push + VERIFY push succeeded. Include checklist gates. 
+ Copy 
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+Stop re-explaining anti-AI-tone refactoring rules
+
+ 
+Promote the proactive-improvement checklist to CLAUDE.md and reference it from a /refactor-widget skill.
+
+ 
+8+ sessions show user catching Claude missing the SAME issues: legacy TextStyle migration, unnecessary local variables, hardcoded values, Stack-vs-Column, manual SizedBox gaps. User explicitly added rules to feedback logs multiple times. Move this from per-session correction into a persistent skill+CLAUDE.md combo so Claude self-checks before claiming a refactor is done.
+
+ 
+ 
+
+ 
+Paste into Claude Code:
+
+ 
+
+ Read all my anti-AI-tone refactoring feedback logs and consolidate them into (1) a CLAUDE.md section with the top 10 proactive-check rules, and (2) a .claude/skills/refactor-widget/SKILL.md that runs through each rule as a self-review checklist before declaring a file done. 
+ Copy 
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+Pre-flight check before sprint work to avoid duplicated effort
+
+ 
+Add a mandatory git/branch reconnaissance step before starting any task that parallel automation might have touched.
+
+ 
+Tasks 20/21 and others show Claude working on items that automation had already completed or was concurrently modifying, forcing reconciliation commits. Given you run multi-agent automation and Codex in parallel, a 30-second 'git fetch + log review + open-PR scan' at task start would prevent the desync entirely.
+
+ 
+ 
+
+ 
+Paste into Claude Code:
+
+ 
+
+ Before starting Task X, run git fetch, then show me: (1) commits on dev since my last local sync, (2) any commits matching this task's keywords, (3) any open PRs touching the files you plan to modify. Wait for my go-ahead before implementing. 
+ Copy 
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+ 
+On the Horizon
+
+ 
+With 949 hours across 130 sessions and 168 commits, your workflow is shifting from co-pilot to autonomous orchestrator—the next leap is letting Claude drive entire sprints, parallel investigations, and self-verification loops without manual nudging.
+
+ 
+
+ 
+ 
+
+ 
+Fully Autonomous Sprint Contract Loops
+
+ 
+Your data shows strong success with contract-QA-push cycles (Sprints 5-13 reached APPROVE with 13+ commits), but sessions like the Phase D resume and kaizen orchestration died mid-flight from context limits and token caps. Imagine kicking off a multi-task sprint and walking away while Claude drafts the contract, implements via TDD, runs QA, fixes rejections, commits, and pushes—self-recovering from rebase conflicts and resuming across context boundaries via durable state files.
+
+ 
+ Getting started: Combine Claude Code's headless mode (`claude -p` with `--resume`), persistent sprint-state JSON files, and PreToolUse hooks (which you already deployed for skill enforcement) to enforce contract verification gates between tasks.
+
+ 
+
+Paste into Claude Code:
+ Set up an autonomous sprint runner for my next backend sprint. Create a `sprint-state.json` schema tracking {current_task, contract_status, qa_iterations, commits_pushed, blockers}. Then write a wrapper script that: (1) reads the sprint plan, (2) drafts a contract per task, (3) implements via TDD, (4) runs the QA evaluator subagent, (5) auto-fixes rejections up to 3 iterations, (6) commits and pushes, (7) updates sprint-state.json, and (8) resumes the next task—all without my input. Add PreToolUse hooks that block commits if contract verification fails. Test it on a 3-task sprint and report which steps required human escalation. Copy 
+
+ 
+
+ 
+ 
+
+ 
+Parallel Agents With Reconciliation Guardrails
+
+ 
+You hit real friction (Tasks 20/21) where parallel automation duplicated Claude's work, requiring reconciliation commits, and Codex research agents orphaned mid-run on R2/R3. A mature parallel-agent setup would shard work by file ownership, share a live task ledger, detect concurrent edits before writing, and fall back gracefully when one agent hangs—turning your 4-6 hour sequential sweeps into 30-minute parallel bursts.
+
+ 
+ Getting started: Use Claude Code's Agent tool with explicit ownership manifests, a shared `agent-ledger.md` file polled before each Edit, and timeout-based fallback to WebSearch/Context7 when delegated research stalls (a pattern you already discovered manually).
+
+ 
+
+Paste into Claude Code:
+ Design a parallel-agent orchestrator for my anti-AI-tone refactoring sweeps. Spawn 4 subagents concurrently, each owning a non-overlapping file shard from the S6 widget list. Before any Edit, each agent must (1) acquire a lock in `agent-ledger.md`, (2) verify no other agent has staged changes to that file, and (3) re-read the file to detect external modifications. Add a 5-minute timeout per agent with automatic fallback to a synchronous WebSearch path if a Codex delegation hangs. After all agents finish, run a reconciliation pass that diffs against the original and flags any rule violations (TextStyle migration, unnecessary SizedBox, hardcoded values) before committing. Show me the orchestration code and run it on the next 8 widget files. Copy 
+
+ 
+
+ 
+ 
+
+ 
+Self-Verifying Visual Parity Test Loops
+
+ 
+The Flutter-vs-HTML button matching session burned 5+ hours and ended in frustration with the mismatch unresolved, and Aqua button gradient/border alignment took multiple sessions. Picture an autonomous visual-parity loop where Claude generates a screenshot, diffs it pixel-by-pixel against the Figma reference, mutates the FigmaDecoration parameters via gradient descent, and iterates until SSIM crosses a threshold—turning subjective 'does this match?' into a measurable convergence problem.
+
+ 
+ Getting started: Wire flutter-playwright MCP screenshot capture to a Python image-diff harness (PIL/SSIM), have Claude write a parameter-search loop that adjusts border, gradient stops, and shadow sigma, and gate the loop with a numeric pass criterion instead of human judgment.
+
+ 
+
+Paste into Claude Code:
+ Build an autonomous visual-parity convergence loop for my Figma-to-Flutter button matching. Steps: (1) capture the Figma reference as a PNG via the Figma MCP, (2) render the Flutter widget via flutter-playwright MCP and screenshot it, (3) compute SSIM + per-channel pixel diff, (4) if SSIM < 0.98, identify the worst-diff region, hypothesize which FigmaDecoration parameter is responsible (border width, gradient stop, shadow sigma, color), mutate it, and re-render, (5) repeat up to 20 iterations or until convergence. Log every iteration's parameter delta and SSIM score to `parity-log.md`. Before starting, verify the MCP environment is clean (no stale processes—check for the 45+ orphan issue we hit before). Run it on the Aqua Press Me button and the HTML mockup button that failed last session. Copy 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+ 
+
+ 
+"User snaps in Korean: '다음 세션에 내가 뭐라고 말할지 말해야지!!!!' after Claude forgets the next-session prompt"
+
+ 
+During a session handoff, Claude delivered a landing summary but skipped the requested next-session prompt template, prompting an exasperated all-caps Korean outburst (roughly: 'You have to tell me what to SAY next session!!!!').
 
 </details>
 
@@ -298,93 +1714,6 @@ Iteration: 2
 - `.harness/history/20260424-phase1-design-guides-sprint-contract.md`
 - `.harness/history/20260424-phase6-design-kit-sprint-contract.md`
 - `.harness/history/20260424-phase8-sprint-contract.md`
-
-## 5. Validate-Plugin 최근 실행 스냅샷
-
-```text
-... (이전 출력 생략)
-  V3 refs            0 links — OK
-  V4 triggers        26 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.4.0 matches marketplace — OK
-
-=== flutter-toolkit ===
-  V1 frontmatter     18 skills + 1 agent — OK
-  V2 templates       0 files — SKIP (no templates/)
-  V3 refs            0 links — OK
-  V4 triggers        141 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.5.2 matches marketplace — OK
-
-=== design-kit ===
-  V1 frontmatter     8 skills + 1 agent — OK
-  V2 templates       8 skipped (ts/js) — OK
-  V3 refs            0 links — OK
-  V4 triggers        46 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.2.2 matches marketplace — OK
-
-=== backend-kit ===
-  V1 frontmatter     4 skills + 1 agent — OK
-  V2 templates       0 files — SKIP (no templates/)
-  V3 refs            0 links — OK
-  V4 triggers        18 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.2 matches marketplace — OK
-
-=== infra-kit ===
-  V1 frontmatter     4 skills + 1 agent — OK
-  V2 templates       0 files — SKIP (no templates/)
-  V3 refs            0 links — OK
-  V4 triggers        19 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.2 matches marketplace — OK
-
-=== rust-kit ===
-  V1 frontmatter     16 skills + 1 agent — OK
-  V2 templates       1 parsed, 4 skipped (ts/js) — OK
-  V3 refs            0 links — OK
-  V4 triggers        79 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.2 matches marketplace — OK
-
-=== react-kit ===
-  V1 frontmatter     21 skills + 3 agents — OK
-  V2 templates       5 parsed, 4 skipped (ts/js) — OK
-  V3 refs            0 links — OK
-  V4 triggers        157 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.2 matches marketplace — OK
-
-=== planning-kit ===
-  V1 frontmatter     12 skills + 1 agent — OK
-  V2 templates       0 files — SKIP (no templates/)
-  V3 refs            0 links — OK
-  V4 triggers        95 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.3.0 matches marketplace — OK
-
-=== reflect-kit ===
-  V1 frontmatter     3 skills — OK
-  V2 templates       0 files — SKIP (no templates/)
-  V3 refs            0 links — OK
-  V4 triggers        20 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.3.0 matches marketplace — OK
-
-Total: 9 plugins, 9 OK
-Exit: 0
-```
-
 
 ## 6. Phase 별 참조 가이드
 
