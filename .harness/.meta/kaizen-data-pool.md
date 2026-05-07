@@ -1,19 +1,19 @@
 # Kaizen Data Pool
 
-Generated: 2026-05-07T23:01:39
+Generated: 2026-05-07T23:10:48
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
 
 ## 0. `/insights` Report (외부 도구 산출물)
 
-- 경로: `/Users/jackson/.claude/usage-data/report-ko.html` · HTML 추출 텍스트
-- 최근 갱신: 2026-05-07T23:00:56 ✓ VERY FRESH (0.0시간 전)
+- 경로: `/Users/jackson/.claude/usage-data/report.html` · HTML 추출 텍스트
+- 최근 갱신: 2026-05-07T22:55:55 ✓ VERY FRESH (0.2시간 전)
 - 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions / 이번 사이클 신규 워크플로우 제안)
 
 <details><summary>insights report 본문 (auto-extracted)</summary>
 
-Claude Code 인사이트 (한국어) 
+Claude Code Insights 
  
 
  
@@ -22,45 +22,46 @@ Claude Code 인사이트 (한국어)
  
 
  
-Claude Code 인사이트
+Claude Code Insights
 
  
-130개 세션에서 2,391개 메시지 (전체 827) | 2026-04-14 ~ 2026-05-07
+2,391 messages across 130 sessions (827 total) | 2026-04-14 to 2026-05-07
 
  
-
- 
-한눈에 보기
-
  
 
  
- 잘 되고 있는 것: 매우 규율 잡힌 운영을 하고 있습니다. 계약(Contract) → QA → 푸시 스프린트 사이클을 짧은 확인('ㄱㄱ')으로 굴리고, 명시적 세션 핸드오프 문서로 며칠에 걸친 다단계 작업을 이어갑니다. Claude가 무언가를 놓쳤을 때 그 자리에서 패치만 하는 게 아니라 규칙 파일, 스킬, 훅 기반 강제까지 코드로 박아넣어 모든 마찰 지점을 영구적인 레버리지로 바꿉니다. 인상적인 작업 → 
-
- 
- 걸림돌이 되는 것: Claude 측: 과욕적 범위 확장(허락 없는 삭제, 요청 안 한 디자인 선택), 규칙 기반 리팩터링에서 사전 점검 체크리스트를 건너뛰는 경향. 사용자 측: 긴 세션이 출력 토큰 한도, MCP/에이전트 멈춤, 병렬 자동화 충돌로 탈선. 스프린트 시작 전 30초 브랜치/프로세스 사전 점검만 해도 막을 수 있습니다. 문제가 발생하는 지점 → 
-
- 
- 바로 시도할 퀵윈: 스프린트 워크플로우를 /sprint 스킬로 승격하여 contract-QA-push 루프를 매번 다시 설명하지 않게 하고, 편집 전 anti-AI-tone 체크리스트를 로드하는 /refactor-widget 스킬과 짝지으세요. 브랜치가 origin에서 벗어났거나 좀비 MCP 프로세스가 있을 때 편집을 차단하는 PreToolUse 훅으로 세션을 잡아먹는 패턴을 막을 수 있습니다. 시도해볼 기능 → 
-
- 
- 야심찬 워크플로우: 모델이 강해질수록 계약 기반 사이클은 몇 시간 동안 무인으로 돌아가야 합니다 — 계약 작성, TDD 실행, 리베이스 복구, 영구 state 파일을 통한 컨텍스트 경계 넘어 재개. 5시간 이상을 태운 Flutter–Figma parity 작업이 최고 레버리지 타깃입니다. 스크린샷, Figma와 픽셀 diff, FigmaDecoration 파라미터를 SSIM 수렴까지 자동 조정하는 자가검증 루프는 가장 고통스러운 세션을 측정 가능한 최적화 문제로 바꿔줍니다. 앞으로의 가능성 → 
+At a Glance
 
  
 
  
+ What's working: You run a remarkably disciplined operation: contract → QA → push sprint cycles driven by terse confirmations, with explicit session handoff documents that let you sustain multi-phase efforts across days. When Claude misses something, you don't just patch in place—you codify the lesson into rule files, skills, and even hook-based enforcement, turning each friction point into permanent leverage. Impressive Things You Did → 
+
+ 
+ What's hindering you: On Claude's side: over-eager scope expansion (unauthorized deletions, unrequested design choices) and a tendency to skip the proactive-improvement checklist on rule-based refactors, forcing you to escalate the same issues repeatedly. On your side: long sessions get derailed by output token limits, MCP/agent hangs, and parallel-automation conflicts that you could catch earlier with a quick pre-flight branch/process check before kicking off sprint work. Where Things Go Wrong → 
+
+ 
+ Quick wins to try: Promote your sprint workflow into a /sprint Skill so you stop re-prompting the contract-QA-push loop, and pair it with a /refactor-widget skill that loads your anti-AI-tone checklist before any edits. A PreToolUse Hook that blocks edits when the branch has diverged from origin or stale MCP processes are detected would prevent the duplicated-work and connection-failure patterns that keep eating sessions. Features to Try → 
+
+ 
+ Ambitious workflows: As models get stronger, your contract-driven cycles should run unattended for hours—drafting contracts, executing TDD, recovering from rebases, and resuming across context boundaries via durable state files. The Flutter-vs-Figma parity work that burned 5+ hours is the highest-leverage target: a self-verifying visual loop that screenshots, diffs against Figma, and iterates FigmaDecoration parameters until SSIM converges would turn your most painful sessions into measurable optimization problems. On the Horizon → 
 
  
 
  
- 작업 영역 
- CC 사용 방식 
- 인상적인 작업 
- 문제 지점 
- 시도할 기능 
- 새 사용 패턴 
- 앞으로의 가능성 
- 팀 피드백 
+
+ 
+
+ 
+ What You Work On 
+ How You Use CC 
+ Impressive Things 
+ Where Things Go Wrong 
+ Features to Try 
+ New Usage Patterns 
+ On the Horizon 
+ Team Feedback 
  
 
  
@@ -69,102 +70,37 @@ Claude Code 인사이트
 
 2,391
 
-메시지
+Messages
 
  
 
 +92,817/-11,678
 
-라인
+Lines
 
  
 
 1047
 
-파일
+Files
 
  
 
 18
 
-일수
+Days
 
  
 
 132.8
 
-일평균 메시지
-
- 
-
- 
-작업 영역
+Msgs/Day
 
  
 
  
  
-
- 
-
- Schedule-Vote 백엔드 (Rust) 
- ~12 세션 
- 
-
- 
-친구 전용 피트니스 스케줄링 MVP의 멀티 스프린트 백엔드 개발. 서브에이전트 오케스트레이션과 계약 기반 TDD로 Task 1-22 실행. Claude는 QA 사이클, Sentry 통합, ReminderJob/ResolutionJob 구현, 통합 테스트 수정을 처리하고 dev 브랜치에 다수의 커밋을 리베이스 푸시했습니다.
-
- 
-
- 
-
- 
-
- Flutter UI 리팩터링 & Anti-AI-Tone 규칙 
- ~15 세션 
- 
-
- 
-i18n locale key 추출과 함께 프로젝트 스타일 규칙을 따르는 admin 위젯, messagebox 컴포넌트, carousel/toolbar 위젯의 체계적 리팩터링. Edit 도구 기반 반복 작업이 많았고 Claude가 Stack vs Column 선택, TextStyle 마이그레이션, 오버엔지니어링에서 사용자 교정을 자주 요구하여, 피드백 로그에 새 규칙들이 문서화되었습니다.
-
- 
-
- 
-
- 
-
- Figma-Flutter 디자인 패리티 
- ~8 세션 
- 
-
- 
-Aqua 버튼 그래디언트, FigmaDecoration per-side 보더, skeuomorphic CSS 매칭을 포함한 Figma 디자인과 Flutter 구현의 픽셀 단위 일치 작업. QA 검증 포함 5개 스킬로 구성된 figma-flutter-kit 제작. MCP 디바이스 설정과 시각적 불일치로 인한 마찰이 자주 발생하여 다회 반복이 필요했습니다.
-
- 
-
- 
-
- 
-
- Flutter MCP 재설계 & 애니메이션 엔진 
- ~7 세션 
- 
-
- 
-영구 연결 인디케이터를 포함한 Observer-only 아키텍처로의 Flutter MCP 서버 다단계 재설계 및 Sprint 5 force-layout 알고리즘 벤치마킹(d3-main 어댑터 선정). 병렬 리서치/리뷰에 Codex를 활용했으나 일부 리서치 에이전트가 멈추거나 부정확한 주장을 반환하여 사용자 교정이 필요했습니다.
-
- 
-
- 
-
- 
-
- Worldbuilding IDE & 그룹 초대 기획 
- ~6 세션 
- 
-
- 
-ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기능에 대한 디자인 스펙, 스프린트 계약, 13-task 구현 계획을 만든 전략적 기획 세션. Claude가 핸드오프 문서를 포함한 QA 검증 완료 계획을 전달했지만, 빠른 반복을 원할 때 공식 디스커버리 프로세스를 과도하게 적용한 경우가 있었습니다.
+What You Work On
 
  
 
@@ -173,17 +109,87 @@ ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기�
 
  
 
+ Schedule-Vote Backend (Rust) 
+ ~12 sessions 
+ 
+
+ 
+Multi-sprint backend development for a friends-only fitness scheduling MVP, executing Tasks 1-22 via contract-driven TDD with subagent orchestration. Claude handled QA cycles, Sentry integration, ReminderJob/ResolutionJob implementation, integration test fixes, and managed git rebases with multiple commits pushed to dev branch.
+
+ 
+
+ 
+ 
+
+ 
+
+ Flutter UI Refactoring & Anti-AI-Tone Rules 
+ ~15 sessions 
+ 
+
+ 
+Systematic refactoring of admin widgets, messagebox components, and carousel/toolbar widgets following project style rules with i18n locale key extraction. Heavy iterative work with Edit tool where Claude often required user corrections on Stack vs Column choices, TextStyle migrations, and over-engineering, leading to documented rule additions in feedback logs.
+
+ 
+
+ 
+ 
+
+ 
+
+ Figma-Flutter Design Parity 
+ ~8 sessions 
+ 
+
+ 
+Pixel-perfect alignment between Figma designs and Flutter implementations, including Aqua button gradients, FigmaDecoration per-side borders, and skeuomorphic CSS matching. Created a figma-flutter-kit suite of 5 skills with QA validation, though sessions frequently hit friction with MCP device configuration and visual mismatches requiring multi-hour iteration.
+
+ 
+
+ 
+ 
+
+ 
+
+ Flutter MCP Redesign & Animation Engine 
+ ~7 sessions 
+ 
+
+ 
+Multi-phase redesign of Flutter MCP server toward Observer-only architecture with persistent connection indicators, plus Sprint 5 force-layout algorithm benchmarking (d3-main adapter selected). Used Codex for parallel research/review, though several research agents hung or returned inaccurate claims requiring user correction.
+
+ 
+
+ 
+ 
+
+ 
+
+ Worldbuilding IDE & Group-Invite Planning 
+ ~6 sessions 
+ 
+
+ 
+Strategic planning sessions producing design specs, sprint contracts, and 13-task implementation plans for new features like group-invite with ID search and the worldbuilding IDE pivot. Claude delivered comprehensive QA-reviewed plans with handoff documentation, occasionally over-applying formal discovery process when user wanted faster iteration.
+
+ 
+
+ 
  
 
  
 
  
-요청한 작업 유형
 
  
 
  
-코드 리팩터링
+What You Wanted
+
+ 
+
+ 
+Code Refactoring
 
  
 
@@ -193,7 +199,7 @@ ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기�
  
 
  
-코드 설명
+Code Explanation
 
  
 
@@ -203,7 +209,7 @@ ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기�
  
 
  
-기능 구현
+Feature Implementation
 
  
 
@@ -213,7 +219,7 @@ ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기�
  
 
  
-세션 핸드오프
+Session Handoff
 
  
 
@@ -223,7 +229,7 @@ ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기�
  
 
  
-리팩터링
+Refactoring
 
  
 
@@ -233,7 +239,7 @@ ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기�
  
 
  
-문서 업데이트
+Documentation Update
 
  
 
@@ -247,7 +253,7 @@ ID 검색 기반 그룹 초대 기능과 worldbuilding IDE 피벗 같은 신기�
  
 
  
-자주 사용한 도구
+Top Tools Used
 
  
 
@@ -320,7 +326,7 @@ TodoWrite
  
 
  
-언어
+Languages
 
  
 
@@ -389,12 +395,12 @@ HTML
  
 
  
-세션 유형
+Session Types
 
  
 
  
-멀티 태스크
+Multi Task
 
  
 
@@ -404,7 +410,7 @@ HTML
  
 
  
-반복 개선
+Iterative Refinement
 
  
 
@@ -414,7 +420,7 @@ HTML
  
 
  
-단일 태스크
+Single Task
 
  
 
@@ -424,7 +430,7 @@ HTML
  
 
  
-간단한 질문
+Quick Question
 
  
 
@@ -434,7 +440,7 @@ HTML
  
 
  
-탐색
+Exploration
 
  
 
@@ -448,29 +454,30 @@ HTML
  
 
  
-Claude Code 사용 방식
+ 
+How You Use Claude Code
 
  
 
  
-당신은 길고 다단계인 엔지니어링 캠페인을 굴리는 고처리량 기술 디렉터 입니다. 세션은 마라톤급 길이(130 세션 평균 11시간, 168 커밋)이며 공식 산출물 — 스프린트 계약, Phase 체크포인트, QA APPROVE 사이클, 다음 세션을 위한 명시적 핸드오프 프롬프트 — 을 중심으로 구조화되어 있습니다. 서브에이전트, Codex 리서치 태스크, 병렬 자동화로 적극적으로 위임하고, Claude가 계약→구현→QA→푸시 사이클을 자율적으로 돌리기를 기대합니다. 확인은 보통 짧고('ㄱㄱ' / 'go'), 스펙은 사전 로드해두고 손 안 대는 실행을 원한다는 신호를 줍니다.
+You operate as a high-throughput technical director running long, multi-phase engineering campaigns. Your sessions are marathon-length (averaging ~11 hours each across 130 sessions, with 168 commits) and structured around formal artifacts: Sprint Contracts, Phase checkpoints, QA APPROVE cycles, and explicit handoff prompts for the next session. You delegate aggressively—using subagents, Codex research tasks, and parallel automation—and expect Claude to drive contract→implement→QA→push cycles autonomously. Your confirmations are often terse ('ㄱㄱ' / 'go'), signaling you've front-loaded the specification and now want execution without hand-holding.
 
-자율적인 틀에도 불구하고, Claude가 표류할 때 매섭게 끼어들고 교정합니다 . Claude가 명백한 개선(레거시 `bodyMSemiBold` 마이그레이션, 불필요한 null 분기, 하드코드된 값)을 놓치거나, Column이면 충분한데 Stack을 쓰거나, 검증 없이 Figma 텍스트 스타일 이름을 만들어내면 짜증이 폭발합니다. 반응이 격해지고 — '다음 세션에 내가 뭐라고 말할지 말해야지!!!!' — 그 인스턴스를 고치는 데 그치지 않고 영구 프로젝트 규칙으로 코드화합니다. 이 규칙을 산출물로 만드는 패턴 (anti-AI-tone 리팩터링 스윕, 피드백 로그, 스킬 사용을 강제하는 PreToolUse 훅)은 모든 마찰 지점을 일회성이 아닌 시스템적 갭으로 보고 닫는다는 것을 보여줍니다.
+Despite the autonomous framing, you interrupt and correct sharply when Claude drifts . Multiple sessions show frustration spikes when Claude misses obvious improvements (legacy `bodyMSemiBold` migration, unneeded null branches, hardcoded values), uses Stack where Column suffices, or invents Figma text style names without verification. Your reactions escalate—'다음 세션에 내가 뭐라고 말할지 말해야지!!!!'—and you frequently codify the correction into permanent project rules rather than just fixing the instance. This rule-as-output pattern (anti-AI-tone refactoring sweeps, feedback logs, PreToolUse hooks enforcing skill usage) shows you treat each friction point as a systemic gap to close, not a one-off.
 
-어려운 문제의 반복은 참아주지만(Flutter/HTML 버튼 매칭에 5시간 이상, Parity/Consolidation 계약 3회 수정), 프로세스 위반 에는 인내심이 끊어집니다 — 허락 없는 편집, 과도한 주석, 오버엔지니어링, 명시적 지시 없이 Claude가 앞서가는 행위. 모멘텀이 필요할 때는 잘못된 이분법과 공식 디스커버리 오버헤드도 거부합니다. 인프라 중심의 도구 사용량(Bash 4,686회, TodoWrite 443회, Agent 호출 381회)은 Claude를 페어 프로그래밍 파트너가 아닌 관리형 인력으로 오케스트레이션하고 있음을 확인해줍니다.
-
- 
- 핵심 패턴: 공식 계약과 QA 게이트를 갖춘 자율 스프린트 실행자로 Claude를 운영하지만, 일회성 실수를 영구 프로젝트 규칙으로 승격하여 표류를 매섭게 교정합니다.
+You tolerate iteration on hard problems (5+ hours on a Flutter/HTML button match, 3 contract revisions for Parity/Consolidation) but lose patience with process violations : unauthorized edits, over-commenting, over-engineering, and Claude moving ahead without explicit direction. You also push back on false dichotomies and formal-discovery overhead when you want momentum. The infrastructure-heavy tool usage (4,686 Bash calls, 443 TodoWrite, 381 Agent invocations) confirms you're orchestrating Claude as a managed workforce rather than pair-programming with it.
 
  
+ Key pattern: You run Claude as an autonomous sprint executor with formal contracts and QA gates, but sharply correct drift by promoting one-off mistakes into permanent project rules.
 
  
 
  
+
+ 
  
 
  
-사용자 응답 시간 분포
+User Response Time Distribution
 
  
 
@@ -546,7 +553,7 @@ Claude Code 사용 방식
 
  
 
- 중앙값: 77.3초 • 평균: 229.6초
+ Median: 77.3s • Average: 229.6s
  
 
  
@@ -555,8 +562,9 @@ Claude Code 사용 방식
  
 
  
-멀티 클로딩 (병렬 세션)
+Multi-Clauding (Parallel Sessions)
 
+ 
  
 
  
@@ -565,7 +573,7 @@ Claude Code 사용 방식
 191
 
  
-중첩 이벤트
+Overlap Events
 
  
 
@@ -575,7 +583,7 @@ Claude Code 사용 방식
 116
 
  
-관련 세션
+Sessions Involved
 
  
 
@@ -585,7 +593,7 @@ Claude Code 사용 방식
 56%
 
  
-메시지 비중
+Of Messages
 
  
 
@@ -593,27 +601,28 @@ Claude Code 사용 방식
 
  
 
- 여러 Claude Code 세션을 동시에 실행하고 있습니다. 멀티 클로딩은 세션이 시간상 중첩될 때 감지되며,
- 병렬 워크플로우를 시사합니다.
+ You run multiple Claude Code sessions simultaneously. Multi-clauding is detected when sessions
+ overlap in time, suggesting parallel workflows.
+ 
+
+ 
+ 
+
+ 
  
 
  
 
  
- 
 
- 
-
- 
-
- 시간대별 사용자 메시지
+ User Messages by Time of Day
  
  PT (UTC-8) 
  ET (UTC-5) 
  London (UTC) 
  CET (UTC+1) 
  Tokyo (UTC+9) 
- 사용자 지정 오프셋... 
+ Custom offset... 
  
  
  
@@ -623,7 +632,7 @@ Claude Code 사용 방식
  
 
  
-아침 (6-12)
+Morning (6-12)
 
  
 
@@ -635,7 +644,7 @@ Claude Code 사용 방식
  
 
  
-오후 (12-18)
+Afternoon (12-18)
 
  
 
@@ -647,7 +656,7 @@ Claude Code 사용 방식
  
 
  
-저녁 (18-24)
+Evening (18-24)
 
  
 
@@ -659,7 +668,7 @@ Claude Code 사용 방식
  
 
  
-새벽 (0-6)
+Night (0-6)
 
  
 
@@ -673,12 +682,12 @@ Claude Code 사용 방식
  
 
  
-발생한 도구 오류
+Tool Errors Encountered
 
  
 
  
-기타
+Other
 
  
 
@@ -688,7 +697,7 @@ Claude Code 사용 방식
  
 
  
-명령 실패
+Command Failed
 
  
 
@@ -698,7 +707,7 @@ Claude Code 사용 방식
  
 
  
-사용자 거부
+User Rejected
 
  
 
@@ -708,7 +717,7 @@ Claude Code 사용 방식
  
 
  
-파일 없음
+File Not Found
 
  
 
@@ -718,7 +727,7 @@ Claude Code 사용 방식
  
 
  
-파일 변경됨
+File Changed
 
  
 
@@ -728,7 +737,7 @@ Claude Code 사용 방식
  
 
  
-편집 실패
+Edit Failed
 
  
 
@@ -742,43 +751,48 @@ Claude Code 사용 방식
  
 
  
-인상적인 작업
+ 
+Impressive Things You Did
 
  
-Flutter, Rust 백엔드, 디자인 시스템에 걸친 130 세션에서 강력한 핸드오프 위생을 갖춘 매우 규율 잡힌 계약 기반 개발 관행을 운영하고 있습니다.
-
- 
-
- 
-
- 
-계약-QA-푸시 스프린트 사이클
-
- 
-계약 → 구현 → QA APPROVE → 커밋/푸시 루프를 엄격하게 굴리며, 여러 스프린트에 걸쳐 13개 이상의 태스크를 전체 QA 승인으로 마무리합니다(예: 백엔드 Task 1-13 schedule-vote MVP, Sprint 5 Task 4-9를 짧은 'ㄱㄱ' 확인으로). 스킬 사용을 강제하는 PreToolUse 훅까지 설치한 것은 프로세스 준수를 1급 엔지니어링 관심사로 취급한다는 증거입니다.
+Across 130 sessions spanning Flutter, Rust backend, and design-systems work, you run a highly disciplined contract-driven development practice with strong handoff hygiene.
 
  
 
  
-
- 
-규율 잡힌 세션 핸드오프
-
- 
-15개의 명시적 session_handoff 목표가 포착되었습니다. 컨텍스트 연속성을 산출물로 취급하며, 다음 세션 프롬프트 템플릿, 종합 핸드오프 문서, 마무리 전 깔끔한 커밋 경계를 요구합니다. 이를 통해 장기 다단계 작업(Phase A→B→C MCP 재설계, 멀티 스프린트 백엔드)을 세션 간 모멘텀 손실 없이 이어갑니다.
-
  
 
  
+Contract-QA-Push Sprint Cycles
 
  
-피드백을 규칙으로 코드화
-
- 
-Claude가 리팩터링 기회를 놓치거나 스타일 규칙을 잘못 해석할 때, 그 자리에서만 고치지 않고 프로젝트 문서, anti-AI-tone 규칙 파일, 스킬 업그레이드로 교훈을 푸시합니다(예: method-vs-class 추출 규칙을 3개 문서에 추가, 반복 후 리스트 빌딩 패턴 코드화). 모든 마찰 지점을 미래 세션의 영구 레버리지로 바꿉니다.
+You consistently drive multi-task sprints through a rigorous Contract → Implementation → QA APPROVE → Commit/Push loop, often landing 13+ tasks across multiple sprints with full QA approval (e.g., Backend Tasks 1-13 schedule-vote MVP, Sprint 5 Tasks 4-9 via terse 'ㄱㄱ' confirmations). You even installed a PreToolUse hook to enforce skill usage, showing you treat process compliance as a first-class engineering concern.
 
  
 
+ 
+ 
+
+ 
+Disciplined Session Handoffs
+
+ 
+With 15 explicit session_handoff goals captured, you treat context continuity as a deliverable — demanding next-session prompt templates, comprehensive handoff docs, and clean commit boundaries before ending. This lets you sustain long-running multi-phase efforts (Phase A→B→C MCP redesign, multi-sprint backend work) without losing momentum between sessions.
+
+ 
+
+ 
+ 
+
+ 
+Codified Feedback Into Rules
+
+ 
+When Claude misses refactoring opportunities or misinterprets style rules, you don't just correct in-place — you push the lessons into project documentation, anti-AI-tone rule files, and skill upgrades (e.g., method-vs-class extraction rule added to three docs, list-building patterns codified after iteration). This turns every friction point into permanent leverage for future sessions.
+
+ 
+
+ 
  
 
  
@@ -1714,6 +1728,93 @@ Iteration: 2
 - `.harness/history/20260424-phase1-design-guides-sprint-contract.md`
 - `.harness/history/20260424-phase6-design-kit-sprint-contract.md`
 - `.harness/history/20260424-phase8-sprint-contract.md`
+
+## 5. Validate-Plugin 최근 실행 스냅샷
+
+```text
+... (이전 출력 생략)
+  V3 refs            0 links — OK
+  V4 triggers        36 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.4.2 matches marketplace — OK
+
+=== flutter-toolkit ===
+  V1 frontmatter     18 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        141 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.5.3 matches marketplace — OK
+
+=== design-kit ===
+  V1 frontmatter     8 skills + 1 agent — OK
+  V2 templates       8 skipped (ts/js) — OK
+  V3 refs            0 links — OK
+  V4 triggers        46 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.2.3 matches marketplace — OK
+
+=== backend-kit ===
+  V1 frontmatter     4 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        18 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.3 matches marketplace — OK
+
+=== infra-kit ===
+  V1 frontmatter     4 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        19 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.3 matches marketplace — OK
+
+=== rust-kit ===
+  V1 frontmatter     16 skills + 1 agent — OK
+  V2 templates       1 parsed, 4 skipped (ts/js) — OK
+  V3 refs            0 links — OK
+  V4 triggers        79 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.3 matches marketplace — OK
+
+=== react-kit ===
+  V1 frontmatter     21 skills + 3 agents — OK
+  V2 templates       5 parsed, 4 skipped (ts/js) — OK
+  V3 refs            0 links — OK
+  V4 triggers        157 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.3 matches marketplace — OK
+
+=== planning-kit ===
+  V1 frontmatter     12 skills + 1 agent — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        95 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.3.1 matches marketplace — OK
+
+=== reflect-kit ===
+  V1 frontmatter     3 skills — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        20 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.3.1 matches marketplace — OK
+
+Total: 9 plugins, 9 OK
+Exit: 0
+```
+
 
 ## 6. Phase 별 참조 가이드
 

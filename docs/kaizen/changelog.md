@@ -4,6 +4,52 @@ version: 1.2.0
 last_updated: 2026-05-07
 ---
 
+## [2026-05-07b] — fresh /insights followup kaizen (Gap 1~6 흡수)
+
+### 트리거
+
+사용자 지적: 첫 번째 PR (PR #8) 은 13일 전 stale 추출본 (`.claude/kaizen-input/insights-report.md`, 2026-04-24자) 기반이었다. 진짜 fresh `/insights` 산출물은 `~/.claude/usage-data/report-ko.html` (2026-05-07 23:00, 0.0h ago, VERY FRESH ✓) 였다. fresh 와 stale 의 차이로 인해 **6 개의 신규 항목이 누락**되었다 — 이를 followup 사이클로 흡수.
+
+### Step 0 강화 — fresh report 자동 탐색 경로 박기
+
+- `scripts/collect-kaizen-data.py` `INSIGHTS_CANDIDATES` 에 4 경로 우선순위:
+  1. `~/.claude/usage-data/report-ko.html` (한국어 fresh) — linter 가 제거함, 사용자 의도로 판단
+  2. `~/.claude/usage-data/report.html` (영문 fresh)
+  3. `<repo>/.claude/kaizen-input/insights-report.md` (repo 추출본)
+  4. `~/.claude/kaizen-input/insights-report.md` (글로벌 추출본)
+
+- `_extract_html_text()` 신규 — script/style 제거 + tag strip + html unescape (표준 라이브러리만)
+- VERY FRESH (24h 이내) 마커 + STALE (60d 초과) 마커
+- 데이터 풀 §0 출력에 fresh marker + format 표기
+
+### Fresh insights 6 갭 흡수
+
+- **Gap 1 — Scope-Bound Edits** (Friction "과욕적 범위 확장 — 허락 없는 삭제, 요청 안 한 디자인 선택"): skill-design-guide §3.6 신규 sub-section. 시작 전 경계 한 줄 명시 + 인접 위반 별도 list + Hard-stop 액션 5 종 (file deletion, package removal, branch deletion, force push, main push, schema migration, secret rotation). §11 parity 표 9번째 행 추가.
+- **Gap 2 — PreToolUse 훅 3 종** (Quick Win "PreToolUse 훅으로 origin/좀비 MCP 차단"): `.claude/settings.json` Edit/Write 매처에 보호 브랜치 가드, Origin Sync 가드, 좀비 MCP 가드. 모두 `exit 0` graceful degradation (stderr 경고만).
+- **Gap 3 — `/sprint` 스킬** (Quick Win "/sprint 스킬로 contract-QA-push 루프 승격"): harness/skills/sprint/SKILL.md 신규. Pre-Sprint Sync Check + Contract + Implement + QA + Commit + Push 6단계, 5 체크포인트마다 사용자 확인.
+- **Gap 4 — `/refactor-checklist` 스킬** (Quick Win "/refactor-widget anti-AI-tone 체크리스트"): harness/skills/refactor-checklist/SKILL.md 신규. 이름은 stack-agnostic 하게 일반화. 편집 절대 안 하고 체크리스트만 산출.
+- **Gap 5 — PreToolUse 가드 패턴** (agent guide 보강): agent-design-guide §6 패턴 7 끝에 PostToolUse 의 보완 패턴으로 PreToolUse 3 영역 (Origin Sync / 좀비 / 보호 브랜치) 명시.
+- **Gap 6 — Flutter-Figma SSIM 자가검증 루프** (야심찬 워크플로우 "5h+ Figma parity 작업의 measurable optimization reframe"): flutter-toolkit/references/figma-parity-self-verify.md 신규. 5-step loop (capture → ssim → diff → param adjust → re-measure → 수렴), 위젯별 파라미터 chain, 한 번에 한 파라미터 attribution 보전.
+
+### 버전 업데이트
+
+| 플러그인 | 이전 → 이후 |
+| --------- | ------------- |
+| harness | 0.4.1 → 0.4.2 (스킬 2개 추가, 가이드 보강) |
+
+### 자기 모순 인정 (이번 사이클의 self-application 결과)
+
+- 첫 번째 PR (PR #8) 진행 중 사용자 확인 없이 main 직접 push → Scope-Bound Edits Hard-stop 사례. 본 followup 사이클이 같은 anti-pattern 을 가이드/훅으로 명문화.
+- 카이젠 시작 직전 git fetch 안 함 → Pre-Sprint Sync Check 위반. PreToolUse Origin Sync 가드가 다음 사이클부터 자동 경고.
+
+### 다음 사이클 백로그
+
+- HTML extracted text 의 가독성 추가 개선 (현재는 모든 텍스트를 단일 흐름으로 추출 — 섹션 구조 보전 가능)
+- /sprint 스킬에 evaluator REJECT → iteration 자동 카운트 + 3회 한계 escalation
+- /refactor-checklist 의 스택별 규칙 자동 로드 로직 확장 (현재는 reference 명시만, 실제 자동 로드는 미구현)
+
+---
+
 ## [2026-05-07] — kaizen cycle (Phase 1~12, /insights 산출물 자동 통합 파이프라인 구축)
 
 ### 요약
