@@ -1,0 +1,20 @@
+{
+  "name": "bambu-kit",
+  "description": "Bambu Lab H2S용 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jackson Kim"
+  },
+  "repository": "https://github.com/joo6077/claude-plugins",
+  "license": "MIT",
+  "keywords": [
+    "bambu",
+    "bambu-studio",
+    "3d-printing",
+    "h2s",
+    "petg",
+    "scarf-seam",
+    "makerworld",
+    "print-profile"
+  ]
+}

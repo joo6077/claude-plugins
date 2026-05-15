@@ -49,6 +49,11 @@
       "name": "reflect-kit",
       "source": "./reflect-kit",
       "description": "[v0.3.1 · 2026-05-07] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸"
+    },
+    {
+      "name": "bambu-kit",
+      "source": "./bambu-kit",
+      "description": "[v0.1.0 · 2026-05-16] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들 (Codex 8회 리서치 + 실측 dogfood 2건 검증)"
     }
   ]
 }
