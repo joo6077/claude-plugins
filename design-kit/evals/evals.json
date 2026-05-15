@@ -7,10 +7,22 @@
       "prompt": "이 프로젝트에 디자인 토큰 세팅해줘",
       "expected_output": "프로젝트 디자인 시스템 유무 감지 후 토큰 체계 제안 또는 기존 시스템 분석",
       "assertions": [
-        {"text": "기존 디자인 시스템 유무를 먼저 감지한다", "type": "behavior"},
-        {"text": "컬러, 타이포, 스페이싱, 라디우스 카테고리를 포함한다", "type": "output"},
-        {"text": "시맨틱 네이밍을 사용한다 (blue-500 같은 값 기반 이름 미사용)", "type": "output"},
-        {"text": "스택별 코드를 직접 생성하지 않는다", "type": "behavior"}
+        {
+          "text": "기존 디자인 시스템 유무를 먼저 감지한다",
+          "type": "behavior"
+        },
+        {
+          "text": "컬러, 타이포, 스페이싱, 라디우스 카테고리를 포함한다",
+          "type": "output"
+        },
+        {
+          "text": "시맨틱 네이밍을 사용한다 (blue-500 같은 값 기반 이름 미사용)",
+          "type": "output"
+        },
+        {
+          "text": "스택별 코드를 직접 생성하지 않는다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -19,9 +31,18 @@
       "prompt": "기존 디자인 시스템이 있는 프로젝트에서 토큰 분석해줘",
       "expected_output": "기존 토큰을 리서치 기준과 비교하여 개선점 리포트",
       "assertions": [
-        {"text": "기존 토큰 구조를 분석한다", "type": "behavior"},
-        {"text": "누락된 카테고리를 식별한다", "type": "output"},
-        {"text": "다크 모드 대응 여부를 확인한다", "type": "output"}
+        {
+          "text": "기존 토큰 구조를 분석한다",
+          "type": "behavior"
+        },
+        {
+          "text": "누락된 카테고리를 식별한다",
+          "type": "output"
+        },
+        {
+          "text": "다크 모드 대응 여부를 확인한다",
+          "type": "output"
+        }
       ]
     },
     {
@@ -30,9 +51,18 @@
       "prompt": "이 레이아웃 간격이 괜찮은지 봐줘",
       "expected_output": "스페이싱 관련 디자인 원칙 기반 피드백",
       "assertions": [
-        {"text": "출처가 있는 원칙을 근거로 제시한다", "type": "output"},
-        {"text": "스택별 구현 코드를 직접 제시하지 않는다", "type": "behavior"},
-        {"text": "관련 카테고리(spacing)만 집중하여 답한다", "type": "behavior"}
+        {
+          "text": "출처가 있는 원칙을 근거로 제시한다",
+          "type": "output"
+        },
+        {
+          "text": "스택별 구현 코드를 직접 제시하지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "관련 카테고리(spacing)만 집중하여 답한다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -41,8 +71,14 @@
       "prompt": "이 버튼 색상이 접근성 기준에 맞는지 확인해줘",
       "expected_output": "WCAG 대비 비율 기준 피드백",
       "assertions": [
-        {"text": "WCAG AA 기준(4.5:1)을 언급한다", "type": "output"},
-        {"text": "주관적 피드백('보기 좋다') 없이 원칙만 제시한다", "type": "behavior"}
+        {
+          "text": "WCAG AA 기준(4.5:1)을 언급한다",
+          "type": "output"
+        },
+        {
+          "text": "주관적 피드백('보기 좋다') 없이 원칙만 제시한다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -51,10 +87,22 @@
       "prompt": "이 화면 디자인 감사해줘",
       "expected_output": "10개 카테고리 PASS/FAIL 판정 리포트",
       "assertions": [
-        {"text": "design-reviewer 에이전트를 Agent 도구로 호출한다", "type": "behavior"},
-        {"text": "typography, color, spacing, accessibility, interaction, motion, visual-hierarchy, layout-grid, ethical-design, authenticity 10개 카테고리를 포함한다", "type": "output"},
-        {"text": "FAIL 항목에 파일:라인 위치를 명시한다", "type": "output"},
-        {"text": "코드 품질/아키텍처는 평가하지 않는다", "type": "behavior"}
+        {
+          "text": "design-reviewer 에이전트를 Agent 도구로 호출한다",
+          "type": "behavior"
+        },
+        {
+          "text": "typography, color, spacing, accessibility, interaction, motion, visual-hierarchy, layout-grid, ethical-design, authenticity 10개 카테고리를 포함한다",
+          "type": "output"
+        },
+        {
+          "text": "FAIL 항목에 파일:라인 위치를 명시한다",
+          "type": "output"
+        },
+        {
+          "text": "코드 품질/아키텍처는 평가하지 않는다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -63,8 +111,14 @@
       "prompt": "디자인 토큰이 없는 프로젝트에서 design audit 실행",
       "expected_output": "토큰 미사용을 FAIL이 아닌 NOTE로 처리",
       "assertions": [
-        {"text": "토큰 미사용을 FAIL로 판정하지 않는다", "type": "behavior"},
-        {"text": "design-system 스킬 사용을 NOTE로 권장한다", "type": "output"}
+        {
+          "text": "토큰 미사용을 FAIL로 판정하지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "design-system 스킬 사용을 NOTE로 권장한다",
+          "type": "output"
+        }
       ]
     },
     {
@@ -73,9 +127,18 @@
       "prompt": "이 화면이 AI가 만든 것처럼 보이는지 감사해줘",
       "expected_output": "Authenticity 카테고리 포함 10개 카테고리 감사 리포트",
       "assertions": [
-        {"text": "Authenticity 카테고리를 포함하여 평가한다", "type": "behavior"},
-        {"text": "레이아웃 반복, 컬러 맥락, 장식 목적성, 카피 구체성을 검사한다", "type": "output"},
-        {"text": "FAIL 시 구체적 안티패턴명(예: 유니폼 border-radius)을 명시한다", "type": "output"}
+        {
+          "text": "Authenticity 카테고리를 포함하여 평가한다",
+          "type": "behavior"
+        },
+        {
+          "text": "레이아웃 반복, 컬러 맥락, 장식 목적성, 카피 구체성을 검사한다",
+          "type": "output"
+        },
+        {
+          "text": "FAIL 시 구체적 안티패턴명(예: 유니폼 border-radius)을 명시한다",
+          "type": "output"
+        }
       ]
     },
     {
@@ -84,9 +147,18 @@
       "prompt": "이 UI가 너무 제네릭한 것 같은데 어떻게 개선할 수 있을까?",
       "expected_output": "Authenticity 원칙 기반 구체적 개선 피드백",
       "assertions": [
-        {"text": "AI 안티패턴(제네릭 팔레트, 균일 반복 등)을 식별한다", "type": "output"},
-        {"text": "출처가 있는 원칙을 근거로 제시한다", "type": "output"},
-        {"text": "스택별 코드를 직접 제시하지 않는다", "type": "behavior"}
+        {
+          "text": "AI 안티패턴(제네릭 팔레트, 균일 반복 등)을 식별한다",
+          "type": "output"
+        },
+        {
+          "text": "출처가 있는 원칙을 근거로 제시한다",
+          "type": "output"
+        },
+        {
+          "text": "스택별 코드를 직접 제시하지 않는다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -95,8 +167,14 @@
       "prompt": "이 화면 전체 디자인 감사해줘 — 모든 카테고리",
       "expected_output": "10개 카테고리 전체 PASS/FAIL 판정 리포트",
       "assertions": [
-        {"text": "10개 카테고리(typography, color, spacing, accessibility, interaction, motion, visual-hierarchy, layout-grid, ethical-design, authenticity)를 모두 평가한다", "type": "output"},
-        {"text": "design-reviewer 에이전트를 호출한다", "type": "behavior"}
+        {
+          "text": "10개 카테고리(typography, color, spacing, accessibility, interaction, motion, visual-hierarchy, layout-grid, ethical-design, authenticity)를 모두 평가한다",
+          "type": "output"
+        },
+        {
+          "text": "design-reviewer 에이전트를 호출한다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -105,8 +183,14 @@
       "prompt": "이 화면의 시각적 위계가 부족한 것 같은데 조언해줘",
       "expected_output": "Visual Hierarchy 원칙 기반 피드백",
       "assertions": [
-        {"text": "visual-hierarchy.md 리서치 문서를 참조한다", "type": "behavior"},
-        {"text": "크기 비율, 대비, 여백 분리 원칙을 언급한다", "type": "output"}
+        {
+          "text": "visual-hierarchy.md 리서치 문서를 참조한다",
+          "type": "behavior"
+        },
+        {
+          "text": "크기 비율, 대비, 여백 분리 원칙을 언급한다",
+          "type": "output"
+        }
       ]
     },
     {
@@ -115,9 +199,18 @@
       "prompt": "이 구독 해지 플로우가 윤리적인지 확인해줘",
       "expected_output": "Ethical Design 원칙 기반 피드백",
       "assertions": [
-        {"text": "ethical-design.md 리서치 문서를 참조한다", "type": "behavior"},
-        {"text": "다크 패턴 분류(Roach Motel 등)를 언급한다", "type": "output"},
-        {"text": "탈퇴 대칭성 원칙을 언급한다", "type": "output"}
+        {
+          "text": "ethical-design.md 리서치 문서를 참조한다",
+          "type": "behavior"
+        },
+        {
+          "text": "다크 패턴 분류(Roach Motel 등)를 언급한다",
+          "type": "output"
+        },
+        {
+          "text": "탈퇴 대칭성 원칙을 언급한다",
+          "type": "output"
+        }
       ]
     },
     {
@@ -126,11 +219,26 @@
       "prompt": "이 프로젝트 디자인 컨셉 잡아줘",
       "expected_output": ".design/concept.md + .design/moodboard.html 생성. concept.md는 서술형 컬러 방향만, moodboard.html은 참조용 hex + disclaimer 배너.",
       "assertions": [
-        {"text": ".design/concept.md 파일의 '컬러 방향' 섹션에 hex 값(#RRGGBB)을 직접 확정하지 않는다 (Gotcha #3)", "type": "output"},
-        {"text": "moodboard.html 상단에 'disclaimer.color' 배너가 렌더링된다 — 팔레트가 참조값임을 고지 (Gotcha #3)", "type": "output"},
-        {"text": "concept.md에 컨셉 선언 · 무드 키워드 · 키워드→시각 매핑 · 컬러 방향 · 레이아웃 방향 · Do/Don't · 레퍼런스 섹션이 모두 존재한다", "type": "output"},
-        {"text": "컬러 방향은 Primary/Secondary/Accent/Neutral/Semantic 역할 기반으로 나눠져 있다 (Gotcha #7)", "type": "output"},
-        {"text": "WCAG AA 대비율을 컨셉 단계에서 제약으로 언급한다 (Gotcha #8)", "type": "output"}
+        {
+          "text": ".design/concept.md 파일의 '컬러 방향' 섹션에 hex 값(#RRGGBB)을 직접 확정하지 않는다 (Gotcha #3)",
+          "type": "output"
+        },
+        {
+          "text": "moodboard.html 상단에 'disclaimer.color' 배너가 렌더링된다 — 팔레트가 참조값임을 고지 (Gotcha #3)",
+          "type": "output"
+        },
+        {
+          "text": "concept.md에 컨셉 선언 · 무드 키워드 · 키워드→시각 매핑 · 컬러 방향 · 레이아웃 방향 · Do/Don't · 레퍼런스 섹션이 모두 존재한다",
+          "type": "output"
+        },
+        {
+          "text": "컬러 방향은 Primary/Secondary/Accent/Neutral/Semantic 역할 기반으로 나눠져 있다 (Gotcha #7)",
+          "type": "output"
+        },
+        {
+          "text": "WCAG AA 대비율을 컨셉 단계에서 제약으로 언급한다 (Gotcha #8)",
+          "type": "output"
+        }
       ]
     },
     {
@@ -139,10 +247,22 @@
       "prompt": "이 프로젝트 무드보드 만들어줘",
       "expected_output": ".design/moodboard.html — 7개 필수 섹션 + placeholder 0개 + disclaimer 배너",
       "assertions": [
-        {"text": ".design/moodboard.html에 미치환 {{PLACEHOLDER}}가 0개이다", "type": "output"},
-        {"text": "section.keywords / section.palette / section.typography / section.references / section.texture / section.layout / section.dodont 7개 data-i18n 키가 모두 존재한다 (Gotcha #9)", "type": "output"},
-        {"text": "standalone HTML로 생성되어 브라우저에서 외부 의존 없이 렌더링된다", "type": "output"},
-        {"text": "Flutter/React/Vue 구현 코드를 직접 생성하지 않는다 (Gotcha #1)", "type": "behavior"}
+        {
+          "text": ".design/moodboard.html에 미치환 {{PLACEHOLDER}}가 0개이다",
+          "type": "output"
+        },
+        {
+          "text": "section.keywords / section.palette / section.typography / section.references / section.texture / section.layout / section.dodont 7개 data-i18n 키가 모두 존재한다 (Gotcha #9)",
+          "type": "output"
+        },
+        {
+          "text": "standalone HTML로 생성되어 브라우저에서 외부 의존 없이 렌더링된다",
+          "type": "output"
+        },
+        {
+          "text": "Flutter/React/Vue 구현 코드를 직접 생성하지 않는다 (Gotcha #1)",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -151,9 +271,18 @@
       "prompt": "컨셉 2개 안으로 뽑아줘 A랑 B",
       "expected_output": "컨셉 A/B 두 안. hero 구조 · 그리드 · 정보 밀도 · 타이포 위계 · 이미지 비중 중 최소 2개 축에서 차별화.",
       "assertions": [
-        {"text": "A/B 두 안이 hero 구조/그리드/정보 밀도/타이포 위계/이미지 비중 중 최소 2개 축에서 달라진다 (Gotcha #6)", "type": "output"},
-        {"text": "A/B가 색상만 다른 '스타일 옵션'이 아니라 레이아웃이 다른 '컨셉 옵션'이다", "type": "output"},
-        {"text": "차별화 축을 표나 대조 블록으로 명시한다", "type": "output"}
+        {
+          "text": "A/B 두 안이 hero 구조/그리드/정보 밀도/타이포 위계/이미지 비중 중 최소 2개 축에서 달라진다 (Gotcha #6)",
+          "type": "output"
+        },
+        {
+          "text": "A/B가 색상만 다른 '스타일 옵션'이 아니라 레이아웃이 다른 '컨셉 옵션'이다",
+          "type": "output"
+        },
+        {
+          "text": "차별화 축을 표나 대조 블록으로 명시한다",
+          "type": "output"
+        }
       ]
     },
     {
@@ -162,9 +291,18 @@
       "prompt": "기존 컨셉 .design/concept.md 수정해줘",
       "expected_output": "기존 concept.md 로드 후 수정/확장 모드로 진입",
       "assertions": [
-        {"text": ".design/concept.md 존재 여부를 Step 0에서 확인한다", "type": "behavior"},
-        {"text": "기존 내용을 요약하여 사용자에게 제시한 후 변경할 부분을 확인한다 (Gotcha #4)", "type": "behavior"},
-        {"text": "기존 합의 사항을 덮어쓰지 않고 확장한다", "type": "behavior"}
+        {
+          "text": ".design/concept.md 존재 여부를 Step 0에서 확인한다",
+          "type": "behavior"
+        },
+        {
+          "text": "기존 내용을 요약하여 사용자에게 제시한 후 변경할 부분을 확인한다 (Gotcha #4)",
+          "type": "behavior"
+        },
+        {
+          "text": "기존 합의 사항을 덮어쓰지 않고 확장한다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -173,11 +311,26 @@
       "prompt": "이 프로젝트에 접근성 테스트 만들어줘",
       "expected_output": "Playwright + axe-core 기반 WCAG 2.2 AA 접근성 테스트 생성",
       "assertions": [
-        {"text": "UI 스택(React/Vue/HTML 등)을 먼저 감지한다", "type": "behavior"},
-        {"text": "WCAG 2.2 AA 기준으로 접근성 테스트를 생성한다", "type": "output"},
-        {"text": "대비 비율(4.5:1), 터치 타겟(24x24px), 접근성 이름 검증을 포함한다", "type": "output"},
-        {"text": "다크 모드 토큰이 있으면 양쪽 모드에서 테스트한다", "type": "behavior"},
-        {"text": "Flutter 프로젝트 감지 시 flutter-test로 리다이렉트한다", "type": "behavior"}
+        {
+          "text": "UI 스택(React/Vue/HTML 등)을 먼저 감지한다",
+          "type": "behavior"
+        },
+        {
+          "text": "WCAG 2.2 AA 기준으로 접근성 테스트를 생성한다",
+          "type": "output"
+        },
+        {
+          "text": "대비 비율(4.5:1), 터치 타겟(24x24px), 접근성 이름 검증을 포함한다",
+          "type": "output"
+        },
+        {
+          "text": "다크 모드 토큰이 있으면 양쪽 모드에서 테스트한다",
+          "type": "behavior"
+        },
+        {
+          "text": "Flutter 프로젝트 감지 시 flutter-test로 리다이렉트한다",
+          "type": "behavior"
+        }
       ]
     },
     {
@@ -186,10 +339,58 @@
       "prompt": "디자인 토큰 일관성 검증이랑 시각 회귀 테스트 추가해줘",
       "expected_output": "토큰 검증 + Playwright 시각 회귀 테스트 생성",
       "assertions": [
-        {"text": "디자인 토큰 파일을 분석하여 일관성 검증 테스트를 생성한다", "type": "output"},
-        {"text": "시각 회귀 테스트에 maxDiffPixelRatio threshold를 설정한다", "type": "output"},
-        {"text": "프로젝트 디자인 시스템의 breakpoint를 사용한다 (임의 값 미사용)", "type": "behavior"},
-        {"text": "reset/normalize CSS, 외부 라이브러리 코드는 하드코딩 탐지에서 제외한다", "type": "behavior"}
+        {
+          "text": "디자인 토큰 파일을 분석하여 일관성 검증 테스트를 생성한다",
+          "type": "output"
+        },
+        {
+          "text": "시각 회귀 테스트에 maxDiffPixelRatio threshold를 설정한다",
+          "type": "output"
+        },
+        {
+          "text": "프로젝트 디자인 시스템의 breakpoint를 사용한다 (임의 값 미사용)",
+          "type": "behavior"
+        },
+        {
+          "text": "reset/normalize CSS, 외부 라이브러리 코드는 하드코딩 탐지에서 제외한다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "skill": "design-component",
+      "prompt": "(placeholder) design-component 스킬 동작 검증",
+      "expected_output": "(TODO: add expected output)",
+      "assertions": [
+        {
+          "text": "(design-component) 스킬이 올바르게 실행된다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "skill": "design-mockup",
+      "prompt": "(placeholder) design-mockup 스킬 동작 검증",
+      "expected_output": "(TODO: add expected output)",
+      "assertions": [
+        {
+          "text": "(design-mockup) 스킬이 올바르게 실행된다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "skill": "design-reference",
+      "prompt": "(placeholder) design-reference 스킬 동작 검증",
+      "expected_output": "(TODO: add expected output)",
+      "assertions": [
+        {
+          "text": "(design-reference) 스킬이 올바르게 실행된다",
+          "type": "behavior"
+        }
       ]
     }
   ]
