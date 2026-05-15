@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bambu Print Profile — H2S 자동 JSON 생성 워크플로우</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#14B8A6;--accent2:#5EEAD4;--accent-dim:rgba(20,184,166,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(20,184,166,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* Typography */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px;letter-spacing:0.2px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(20,184,166,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  /* Card internals */
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(20,184,166,0.03)}
+  td code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+
+  /* Checklist */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
+  .checklist code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  /* Compare panels */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .compare li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:16px;position:relative}
+  .compare-good li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:700}
+  .compare-bad li::before{content:'×';position:absolute;left:0;color:var(--red);font-weight:700}
+  .compare li code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  /* Pre/code */
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  pre.tree{font-size:13px;line-height:1.85;color:var(--text)}
+  pre .kw{color:var(--accent2);font-weight:600}
+  pre .ok{color:var(--green)}
+  pre .bad{color:var(--red)}
+  pre .cm{color:var(--text3)}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  /* Source link (per spec) */
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono)}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+
+  /* Nav */
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+
+  /* Status badges */
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+  .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
+  .badge-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .badge-info{background:var(--accent-dim);color:var(--accent)}
+
+  /* Phase header */
+  .phase-tag{font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+
+  /* Callout */
+  .callout{border-left:3px solid var(--yellow);background:rgba(251,191,36,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin:14px 0}
+  .callout strong{color:var(--yellow)}
+
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Bambu Kit</a>
+
+<h1>Bambu Print Profile — H2S 자동 JSON 생성 워크플로우</h1>
+<p class="subtitle">MakerWorld URL 또는 로컬 모델 → 모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 process+filament JSON + zip 번들. <code>H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+</code> 환경 가정. 4건의 Codex research run과 실측 피드백으로 references 4종을 채워 silent skip을 유발하는 메타필드 누락 패턴을 회피한다.</p>
+
+<!-- ── Section 1: 트리거 조건 ── -->
+<div class="section">
+  <div class="section-label">트리거 조건 (Triggers)</div>
+  <p class="desc">스킬은 H2S + Bambu Studio 환경에 한정된다. 다른 프린터(X1/P1/A1)나 다른 슬라이서(OrcaSlicer/PrusaSlicer) 요청에는 트리거되지 않는다. 단순 1필드 변경에도 트리거되지 않는다 — 그건 Bambu Studio UI에서 직접 처리하는 게 빠르다.</p>
+
+  <div class="compare">
+    <div class="compare-good">
+      <div class="compare-label">트리거함 — 워크플로우 실행</div>
+      <ul>
+        <li>MakerWorld URL이 메시지에 포함 (<code>makerworld.com/en/models/...</code>)</li>
+        <li>로컬 모델 파일 경로 언급 (<code>.3mf</code> / <code>.stl</code> / <code>.step</code>)</li>
+        <li>"삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅", "프린트 셋팅"</li>
+        <li>"MakerWorld 모델 출력하려고" 같은 출력 의도 표현</li>
+        <li>"원기둥 seam 안 보이게", "회전체 표면 깔끔하게" 같은 형상 + seam 결합 요청</li>
+        <li>모델명 + 소재 + 품질 요구가 묶여서 들어오는 경우</li>
+      </ul>
+    </div>
+    <div class="compare-bad">
+      <div class="compare-label">트리거 안 함 — 다른 도구 사용</div>
+      <ul>
+        <li>단순 1필드 변경 ("온도 245로 해줘", "색만 바꿔줘") → Studio UI 직접</li>
+        <li>기존 프로파일 리뷰만 요청 ("이 설정 어때?")</li>
+        <li>다른 프린터 / 다른 슬라이서 언급 (X1C, P1S, A1, OrcaSlicer, PrusaSlicer)</li>
+        <li>슬라이싱 결과 분석만 요청 ("이 출력 어땠어?")</li>
+        <li>하드웨어 트러블슈팅 ("벨트 텐션", "노즐 막힘")</li>
+        <li>장비 펌웨어/메인보드 관련 질문</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Why H2S만?</strong> Bambu Studio의 시스템 프리셋은 프린터별로 inherit chain이 완전히 다르다. <code>compatible_printers</code>가 정확히 매칭되지 않으면 import는 성공해도 드롭다운에 안 보이는 silent skip이 발생한다. 멀티 프린터 지원은 v2 카이젠 백로그.
+  </div>
+</div>
+
+<!-- ── Section 2: 워크플로우 5단계 ── -->
+<div class="section">
+  <div class="section-label">워크플로우 5단계 (Phase 1~5)</div>
+  <p class="desc">입력(URL/파일/대화 컨텍스트) → 모델 컨텍스트 추출 → 소재 추천 → JSON 생성 → zip 번들 → 검증 + (선택) coupon test. 각 Phase는 references 4종 중 어느 파일을 로드해야 하는지 명시되어 있다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <div class="phase-tag">Phase 1</div>
+          <h3>모델 컨텍스트 추출</h3>
+          <div class="rule-number">Input Branching</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>입력 형태에 따라 4갈래로 분기한다. WebFetch는 MakerWorld의 Cloudflare 차단으로 거의 100% 실패하므로 바로 <code>codex-rescue</code>에 위임하는 게 토큰 효율적이다.</p>
+        <h4>분기 표</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:6px">
+          <li><span class="badge badge-info">URL</span> WebFetch 시도 안 함 → <code>codex-rescue</code> research mode 위임</li>
+          <li><span class="badge badge-info">.3mf</span> <code>unzip -p &lt;path&gt; Metadata/project_settings.config</code>로 embedded 설정 직독</li>
+          <li><span class="badge badge-info">.stl</span> bounding box + 부품 수만 추출, 회전체 식별은 사용자 설명 의존</li>
+          <li><span class="badge badge-info">대화 컨텍스트</span> 이미 정보가 있다면 그대로 사용</li>
+        </ul>
+        <p style="margin-top:10px">추출 후 사용자에게 <strong style="color:var(--text)">짧게 보고</strong>: 모델명, 부품 수, 회전체 여부, 권장 소재 후기(있다면). 정보 부족 시 즉시 사용자에게 채워달라고 요청.</p>
+      </div>
+      <a class="card-source" href="https://makerworld.com" target="_blank">↗ makerworld.com (모델 소스)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <div class="phase-tag">Phase 2</div>
+          <h3>소재 추천 (2~3개 + 사용자 픽)</h3>
+          <div class="rule-number">Material Match</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>references/materials.md</code>의 40+ 필라멘트 카탈로그를 로드. 모델 용도/형상/사용자 요구에 맞춰 매칭한다.</p>
+        <h4>용도 → 우선 후보</h4>
+        <div class="table-wrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th>용도</th><th>우선 후보</th></tr></thead>
+            <tbody>
+              <tr><td>박스 오프너/도구 (functional)</td><td><code>PETG HF</code>, <code>PLA Tough+</code></td></tr>
+              <tr><td>내열 부품 (vent, hot duct)</td><td><code>PETG HF</code>, <code>ASA</code>, <code>PC</code></td></tr>
+              <tr><td>외관 prototype</td><td><code>PLA Basic</code>, <code>PLA Matte</code></td></tr>
+              <tr><td>기어/지그</td><td><code>PAHT-CF</code>, <code>PETG-CF</code></td></tr>
+              <tr><td>Sealing/gasket</td><td><code>TPU 90A</code> (85A 비추)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>필수 cross-check</h4>
+        <p>AMS 2 Pro 직접 로드 가능 여부 (PET-CF/PPA-CF/PPS-CF/TPU 95A HF는 외부 스풀) · AMS HT 65°C 사전+continuous 건조 요구 (PETG/PA/PC) · H2S 노즐 호환 (CF류는 hardened).</p>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio" target="_blank">↗ Bambu Studio (필라멘트 baseline)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <div class="phase-tag">Phase 3</div>
+          <h3>프로파일 JSON 생성</h3>
+          <div class="rule-number">JSON Build</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>references/bambu-fields-baseline.md</code> + <code>references/seam-recipes.md</code>를 로드하여 process JSON과 filament JSON을 각각 생성한다. 메타필드는 절대 누락하지 말 것 — Bambu Studio는 silent skip한다.</p>
+        <h4>출력물</h4>
+        <ul class="checklist" style="margin-top:6px">
+          <li><span class="check">✓</span> <code>process/&lt;name&gt;.json</code> — layer/wall/seam/speed/support 등 모델 형상 기반 override</li>
+          <li><span class="check">✓</span> <code>filament/&lt;material&gt;.json</code> — scarf 필드만 override (배열 형태)</li>
+          <li><span class="check">✓</span> 멀티 소재 시 filament JSON N개</li>
+        </ul>
+        <p style="margin-top:10px">메타필드 7종은 다음 섹션의 표를 참조. <code>nozzle_temperature</code>는 절대 안 건드린다 — 사용자가 .3mf creator 튜닝 또는 base 기본값 유지를 명시 요청했음 (2026-05-16).</p>
+      </div>
+      <a class="card-source" href="#" onclick="return false">↗ Codex run a2a01770a87626167 (JSON import gate)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <div class="phase-tag">Phase 4</div>
+          <h3>Bundle + Verify</h3>
+          <div class="rule-number">Zip & Sanity</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Bambu Studio의 <em>Import Configs</em> 호환 zip 구조를 만든다. 출력 경로는 <code>~/Hub/60_3D Print/Settings/&lt;modelname&gt;/</code> 고정.</p>
+        <h4>zip 구조</h4>
+<pre class="tree">&lt;modelname&gt;.zip
+├── process/
+│   └── &lt;process name&gt;.json
+└── filament/
+    ├── &lt;filament 1&gt;.json
+    └── &lt;filament 2&gt;.json   <span class="cm"># 멀티 소재인 경우</span></pre>
+        <h4>안내</h4>
+        <p><code>File → Import → Import Configs...</code> → zip 선택. 좌측 Process/Filament 드롭다운에 새 preset이 보이는지 <strong style="color:var(--text)">반드시 확인</strong>. 안 보이면 셸로 검증:</p>
+<pre>ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/process/"
+ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/filament/"
+<span class="cm"># .json + .info 페어 확인</span></pre>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/wiki" target="_blank">↗ Bambu Studio Wiki — Import Configs</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">5</span>
+        <div>
+          <div class="phase-tag">Phase 5 (선택, 강력 권장)</div>
+          <h3>Coupon Test</h3>
+          <div class="rule-number">De-risk Print</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>본 출력 전에 작은 cylinder primitive로 빠른 검증. coupon은 본 process의 <strong style="color:var(--text)">scarf 설정만 동일</strong>하게 두고 나머지를 lean하게 깎는다.</p>
+        <h4>대상 케이스</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+          <li><span class="badge badge-warn">필요</span> 출력 시간 &gt; 4시간</li>
+          <li><span class="badge badge-warn">필요</span> 회전체 + seam-critical</li>
+          <li><span class="badge badge-warn">필요</span> 새 소재 또는 새 scarf 조합 첫 시도</li>
+        </ul>
+        <h4>coupon-process.json 차이</h4>
+        <ul style="list-style:disc;padding-left:18px;margin-top:6px;color:var(--text2);font-size:13px">
+          <li><code>top/bottom_shell_layers</code> = 0</li>
+          <li><code>sparse_infill_density</code> = 0%</li>
+          <li>scarf 관련 필드는 <strong>본 process와 동일</strong></li>
+        </ul>
+        <p style="margin-top:10px">Studio에서 cylinder primitive 30×30×9mm 추가 → coupon process 적용 → 짧게 출력 → 결과 평가 후 본 출력 결정.</p>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio" target="_blank">↗ Bambu Studio (primitive 모델)</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 3: 필수 메타필드 ── -->
+<div class="section">
+  <div class="section-label">필수 메타필드 (Silent Skip 회피)</div>
+  <p class="desc">Bambu Studio는 메타필드가 빠지거나 잘못된 JSON을 import해도 에러를 띄우지 않는다. 드롭다운에 preset이 보이지 않을 뿐. Codex run <code>a2a01770a87626167</code>으로 검증된 7종 필드는 절대 누락하지 말 것.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th style="width:28%">필드</th><th style="width:34%">값</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>type</code></td>
+          <td><code>"process"</code> 또는 <code>"filament"</code></td>
+          <td>JSON 분류 결정. 잘못 쓰면 그 카테고리 드롭다운에 안 뜸.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td><code>"&lt;모델명&gt; - &lt;변종&gt; 0.12mm"</code></td>
+          <td>사용자 인지 가능한 이름. UI에 그대로 노출되므로 식별성 우선.</td>
+        </tr>
+        <tr>
+          <td><code>version</code></td>
+          <td><code>"2.6.0.2"</code></td>
+          <td><strong style="color:var(--yellow)">Semver parseable</strong> 필수. Studio v2.6.0과 호환되는 값.</td>
+        </tr>
+        <tr>
+          <td><code>from</code></td>
+          <td><code>"User"</code></td>
+          <td><strong style="color:var(--red)">대문자 U</strong> — <code>"user"</code> 소문자는 silent skip된다.</td>
+        </tr>
+        <tr>
+          <td><code>inherits</code></td>
+          <td>시스템 프리셋명 정확 일치</td>
+          <td>못 찾으면 silent skip. 셸로 사전 검증 권장 (<code>ls ~/Library/Application Support/BambuStudio/system/BBL/...</code>).</td>
+        </tr>
+        <tr>
+          <td><code>print_settings_id</code> / <code>filament_settings_id</code></td>
+          <td><code>name</code>과 동일. filament은 <strong>배열 형태</strong></td>
+          <td>빠지면 "Preset type is unknown" 에러 또는 silent skip.</td>
+        </tr>
+        <tr>
+          <td><code>compatible_printers</code></td>
+          <td><code>["Bambu Lab H2S 0.4 nozzle"]</code></td>
+          <td>H2S 고정. 다른 프린터 문자열은 매칭 실패 → silent skip.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>왜 silent skip인가?</strong> Bambu Studio는 사용자 데이터 손상을 막기 위해 의심스러운 preset을 조용히 무시한다. 에러 다이얼로그 없음, 로그도 거의 없음. 이 스킬의 가장 큰 실패 모드이며 Codex run <code>a2a01770a87626167</code>이 7종 필드 조합을 모두 시험하여 도출한 baseline이다.
+  </div>
+</div>
+
+<!-- ── Section 4: JSON 튜닝 정책 ── -->
+<div class="section">
+  <div class="section-label">JSON 튜닝 정책 (Override Scope)</div>
+  <p class="desc">"무엇을 만지고 무엇을 안 만지는가"가 명확해야 한다. 기본 원칙: <strong style="color:var(--text)">모델 형상/seam 전략에 직결되는 필드만 override</strong>. 사용자 영역(노즐 온도, retraction, fan)은 base profile 또는 .3mf creator 튜닝에 맡긴다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">P</span>
+        <div>
+          <h3>Process JSON — Override 대상</h3>
+          <div class="rule-number">Print Geometry &amp; Strategy</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>layer_height</code>, <code>initial_layer_print_height</code> — 사용자 요구</li>
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>wall_loops</code>, <code>sparse_infill_density</code>, <code>top/bottom_shell_layers</code>, <code>wall_sequence</code> — 모델 형상 기반</li>
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>seam_position</code>, <code>seam_slope_*</code>, <code>scarf_angle_threshold</code>, <code>override_filament_scarf_seam_setting</code> — seam 전략</li>
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>outer_wall_speed</code>, <code>inner_wall_speed</code> — 소재별</li>
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>enable_arc_fitting</code> — 원통 모델</li>
+          <li><span style="color:var(--green);font-weight:700">+</span> 멀티컬러: <code>enable_prime_tower</code>, <code>prime_tower_width</code>/<code>brim_width</code>/<code>flat_ironing</code>, <code>flush_into_*</code></li>
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>enable_support</code>, <code>raft_layers</code></li>
+        </ul>
+      </div>
+      <a class="card-source" href="#" onclick="return false">↗ Codex run aab7cad186e9523af (멀티컬러 필드)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">F</span>
+        <div>
+          <h3>Filament JSON — Override 대상 (좁다)</h3>
+          <div class="rule-number">Scarf Only</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>seam-recipes.md</code>에서 결정된 scarf 필드만 override한다. 그 외는 base profile에 위임.</p>
+        <h4>Override 허용</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>filament_scarf_seam_type</code> (<code>none</code>/<code>external</code>/<code>all</code>)</li>
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>filament_scarf_height</code>, <code>filament_scarf_gap</code>, <code>filament_scarf_length</code></li>
+        </ul>
+        <h4 style="margin-top:14px">절대 안 건드림 (DO NOT touch)</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+          <li><span style="color:var(--red);font-weight:700">×</span> <code>nozzle_temperature</code>, <code>nozzle_temperature_initial_layer</code></li>
+          <li><span style="color:var(--red);font-weight:700">×</span> retraction / fan / cooling 관련 모든 필드</li>
+        </ul>
+        <p style="margin-top:10px;font-size:12.5px;color:var(--text3)">사용자 명시 요청 (2026-05-16): .3mf creator 튜닝 값 또는 base profile 기본값을 유지한다.</p>
+      </div>
+      <a class="card-source" href="#" onclick="return false">↗ Codex run a06a8ac153247d901 (wipe_on_loops 부재 검증)</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 5: Seam 전략 결정 트리 ── -->
+<div class="section">
+  <div class="section-label">Seam 전략 결정 트리</div>
+  <p class="desc">모델 형상이 seam 전략의 1차 결정 인자다. <code>seam-recipes.md</code>의 형상×소재 매트릭스 + Real-world findings에서 도출. PETG HF + entire_loop 콤보는 stringing에 민감하므로 사전/연속 건조 필수.</p>
+
+  <div class="card">
+<pre class="tree">회전체/원기둥 (전방향 노출)?
+  <span class="kw">YES</span> → seam_position: <span class="ok">random</span> + seam_slope_type: <span class="ok">external</span> + seam_slope_entire_loop: <span class="ok">1</span>
+        + seam_slope_inner_walls: <span class="ok">0</span>     <span class="cm"># 내벽 scarf 불필요 — 안 보이는 곳</span>
+        + wall_sequence: <span class="ok">inner-outer-inner wall</span>
+        + 소재별 scarf 파라미터:
+            <span class="kw">PETG</span>  → gap <span class="ok">8%</span>  / length <span class="ok">12</span>
+            <span class="kw">PLA</span>   → gap <span class="ok">10%</span> / length <span class="ok">20</span>
+
+  <span class="kw">NO</span>  → 형상 분기:
+       박스/직육면체    → seam_position: <span class="ok">back</span>    + 일반 seam (scarf 짧게 또는 <span class="ok">none</span>)
+       유기적/피규어    → seam_position: <span class="ok">aligned</span> + painted seam 가이드 (Studio UI)
+       얇은 벽/미세    → seam_position: <span class="ok">aligned</span> + scarf length 짧게 (<span class="ok">5-10mm</span>)</pre>
+
+    <div class="callout" style="margin-top:18px">
+      <strong>경고 — PETG HF + entire_loop:</strong> <code>seam-recipes.md</code> Finding 4 참조. stringing이 발생하면 거의 확실히 필라멘트 흡습이 원인이다. 사용자에게 <strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>임을 강조한다. 실측 H2D Vent Pipe 케이스에서 동일 패턴 재현됨.
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 6: Gotcha 자기 검증 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">Gotcha 자기 검증 체크리스트 (생성 직후 7항)</div>
+  <p class="desc">JSON 생성 직후 사용자에게 zip을 넘기기 <strong style="color:var(--text)">전에</strong> 7항을 self-verify한다. 한 항이라도 실패하면 그 자리에서 수정. silent skip은 사용자가 Studio에서 import한 뒤에야 발견되므로 비용이 크다.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">1</span><div><code>version</code>이 <code>"2.6.0.2"</code> (또는 현재 Bambu Studio 버전 매칭). semver parseable이어야 함.</div></li>
+      <li><span class="check">2</span><div><code>from</code>이 <strong style="color:var(--text)">"User"</strong> (대문자 U). 소문자 <code>"user"</code>는 실패한다.</div></li>
+      <li><span class="check">3</span><div><code>print_settings_id</code> / <code>filament_settings_id</code> 존재. <strong style="color:var(--text)">filament은 배열</strong> 형태 (<code>["..."]</code>).</div></li>
+      <li><span class="check">4</span><div><code>inherits</code>가 시스템 프리셋에 실제 존재. 필요 시 셸 검증: <code>ls ~/Library/Application\ Support/BambuStudio/system/BBL/{process,filament,machine}/ | grep</code></div></li>
+      <li><span class="check">5</span><div><code>compatible_printers</code>에 H2S 명시 (<code>"Bambu Lab H2S 0.4 nozzle"</code>).</div></li>
+      <li><span class="check">6</span><div>filament JSON의 scarf 필드는 모두 <strong style="color:var(--text)">배열</strong> (<code>["..."]</code>). 스칼라로 두면 silent skip.</div></li>
+      <li><span class="check">7</span><div><code>nozzle_temperature</code> 등 사용자 영역 필드 안 건드렸는지. 무심코 base 값을 복사해 넣지 말 것.</div></li>
+    </ul>
+    <a class="card-source" href="#" onclick="return false">↗ Codex run a2a01770a87626167 (JSON import gate 검증)</a>
+  </div>
+
+  <div class="callout">
+    <strong>WebFetch fallback 체인:</strong> WebFetch (보통 Cloudflare 차단) → <code>codex-rescue</code> 에이전트에 research 위임 (캐시 검색 결과 활용 가능) → 사용자에게 직접 정보 요청 ("이 모델 어떤 부품 구성이고 어떤 소재 권장돼?"). WebFetch 시도로 토큰을 낭비하지 말 것.
+  </div>
+</div>
+
+<!-- ── Section 7: 검증된 실측 사례 + 출처 ── -->
+<div class="section">
+  <div class="section-label">검증된 실측 사례 + 출처</div>
+  <p class="desc">v1 스킬은 손으로 수집한 실측 피드백 2건을 baseline으로 한다. v2 카이젠은 홈서버 Linux daemon이 MQTT + FTPS + JSONL로 print outcome을 자동 capture하여 references에 환류하는 것을 목표로 한다 (TODO.md).</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>모델</th><th>소재</th><th>결과</th><th>seam 전략</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Box opener knife <br><code style="font-size:11px">MakerWorld 583712</code></td>
+          <td>PLA Basic dual-color</td>
+          <td><span class="badge badge-ok">정상 출력</span> 검증됨</td>
+          <td>회전체 손잡이는 <code>random</code> + <code>external</code></td>
+        </tr>
+        <tr>
+          <td>H2D Vent Pipe <br><code style="font-size:11px">MakerWorld 1441653</code></td>
+          <td>PETG HF + TPU 90A</td>
+          <td><span class="badge badge-warn">stringing 발생</span> (필라멘트 건조 부족 의심)</td>
+          <td><code>random</code> + <code>external</code> + <code>entire_loop</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card">
+      <div class="card-header">
+        <span class="num">★</span>
+        <div>
+          <h3>References 빌드 출처</h3>
+          <div class="rule-number">Codex Research Runs</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h4>4건의 References baseline 빌드</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:12px">
+          <li><code>a5afcf864d05cf3b7</code></li>
+          <li><code>aeb457c7603a420db</code></li>
+          <li><code>afcf4968339021b29</code></li>
+          <li><code>ab679b7fbc81fa7b6</code></li>
+        </ul>
+        <h4>3건의 추가 검증 run</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:12px">
+          <li><code>aab7cad186e9523af</code> — 멀티컬러 필드</li>
+          <li><code>a2a01770a87626167</code> — JSON import gate (silent skip 회피)</li>
+          <li><code>a06a8ac153247d901</code> — <code>wipe_on_loops</code> Bambu 부재 확인</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#" onclick="return false">↗ ~/.claude/codex-research-log/2026-05.md (전체 로그)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">⊙</span>
+        <div>
+          <h3>매 실행 시 권장 사전 절차</h3>
+          <div class="rule-number">Pre-flight</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h4>1. 현재 Bambu Studio 버전 cross-check</h4>
+<pre>defaults read /Applications/BambuStudio.app/\
+  Contents/Info.plist CFBundleShortVersionString
+<span class="cm"># 02.06.00.xx 이면 references baseline 그대로</span>
+<span class="cm"># major 버전 다르면 references 업데이트 권장</span></pre>
+        <h4>2. memory 자동 로드</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+          <li><code>3d_printing_setup.md</code> — 하드웨어 환경</li>
+          <li><code>bambu_studio_json_import.md</code> — silent skip 규칙</li>
+          <li><code>bambu_print_profile_skill.md</code> — v1 학습 환류</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases" target="_blank">↗ Bambu Studio Releases</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">⏱</span>
+        <div>
+          <h3>실측 피드백 기록 위치</h3>
+          <div class="rule-number">Field Notes</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>각 모델별 출력 결과와 튜닝 노트는 다음 경로에 보존된다:</p>
+<pre>/Users/jackson/Hub/60_3D Print/Settings/
+  &lt;modelname&gt;/
+    notes.md      <span class="cm"># 케이스별 detail</span>
+    process/
+    filament/</pre>
+        <p>다음 카이젠 사이클에서 이 노트들을 references에 환류한다 (현재 v1은 손으로, v2는 daemon으로).</p>
+      </div>
+      <a class="card-source" href="#" onclick="return false">↗ bambu-kit/skills/bambu-print-profile/TODO.md</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">v2</span>
+        <div>
+          <h3>v2 카이젠 백로그</h3>
+          <div class="rule-number">Roadmap</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:6px">
+          <li>홈서버 Linux에 print outcome capture daemon (MQTT + FTPS + JSONL)</li>
+          <li>실측 피드백을 references에 자동 환류 (v1은 손으로 함)</li>
+          <li>카이젠 스킬은 이 레포의 <code>.claude/skills/bambu-research</code> + <code>.claude/skills/bambu-kaizen</code>에 분리됨 (자동 주기 폴링 + SKILL 격차 분석)</li>
+          <li>bambu-kit 플러그인 자체에는 카이젠 포함 X — 사용자 환경에 무관한 개발 도구이므로 분리</li>
+          <li>다른 프린터(X1/P1/A1) 지원 검토 (compatible_printers 매칭 + inherit chain 차이 해결)</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#" onclick="return false">↗ bambu-kit/skills/bambu-print-profile/TODO.md</a>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

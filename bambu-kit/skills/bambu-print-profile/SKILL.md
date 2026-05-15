@@ -1,6 +1,7 @@
 ---
 name: bambu-print-profile
 description: Bambu Lab H2S 환경에서 MakerWorld URL이나 로컬 모델 파일을 받아 process+filament JSON 프로파일을 자동 생성하여 import용 zip 번들로 떨궈주는 스킬. references/ 4종을 토대로 모델 형상 분석 → 소재 추천 → seam 전략 결정 → Bambu Studio용 JSON 생성까지 수행한다. "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력" 같은 요청 시 트리거. 단순 색상/온도/한 값 변경에는 트리거 X. 다른 프린터(X1/P1/A1 등)나 다른 슬라이서(OrcaSlicer/PrusaSlicer)에는 트리거 X — H2S + Bambu Studio 고정.
+user-invocable: true
 ---
 
 # Bambu Print Profile Skill
@@ -23,10 +24,12 @@ H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. 사용자의 모�
 
 ## 작업 디렉토리 / 파일 구조
 
-```
-~/.claude/skills/bambu-print-profile/
+bambu-kit 플러그인 일부. 설치 시 `~/.claude/plugins/cache/joo6077-plugins/bambu-kit/<version>/skills/bambu-print-profile/`에 풀린다.
+
+```text
+bambu-kit/skills/bambu-print-profile/
 ├── SKILL.md                          # 이 파일
-├── TODO.md                           # v2 카이젠/자동 capture 메모
+├── BACKLOG.md                        # v2 카이젠/자동 capture 백로그
 └── references/
     ├── bambu-fields-baseline.md      # Bambu Studio JSON schema (필수 필드, 키 이름)
     ├── materials.md                  # 40+ 필라멘트 카탈로그 + 용도 매핑
@@ -105,7 +108,7 @@ H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. 사용자의 모�
 
 **Seam 전략 결정 트리 (seam-recipes.md + Real-world findings 활용):**
 
-```
+```text
 회전체/원기둥 (전방향 노출)?
   YES → seam_position: random + seam_slope_type: external + seam_slope_entire_loop: 1
         + seam_slope_inner_walls: 0 (내벽 scarf 불필요 — 안 보이는 곳)
@@ -122,7 +125,7 @@ H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. 사용자의 모�
 ### Phase 4 — Bundle + Verify
 
 zip 구조 (Bambu Studio Import Configs 호환):
-```
+```text
 <modelname>.zip
 ├── process/
 │   └── <process name>.json
@@ -168,11 +171,11 @@ WebFetch (보통 Cloudflare 차단)
 → `codex-rescue` 에이전트에 research 위임 (캐시 검색 결과 활용 가능)
 → 사용자에게 직접 정보 요청 ("이 모델 어떤 부품 구성이고 어떤 소재 권장돼?")
 
-## v2 TODO (수동으로 진행)
+## v2 백로그 (수동으로 진행)
 
-`~/.claude/skills/bambu-print-profile/TODO.md` 참조. 핵심:
+플러그인 내 `bambu-kit/skills/bambu-print-profile/BACKLOG.md` 참조. 핵심:
 - 홈서버 Linux에 print outcome capture daemon (MQTT + FTPS + JSONL)
-- 카이젠 스킬 (`bambu-print-profile-kaizen`) 주 1회 cron → kaizen-sources.md 데이터 소스 폴링 → references 자동 보강
+- 카이젠 스킬은 이 레포의 `.claude/skills/bambu-research` + `.claude/skills/bambu-kaizen`에 분리됨 (자동 주기 폴링 + SKILL 격차 분석). bambu-kit 플러그인에는 포함되지 않는다.
 - 실측 피드백을 references에 자동 환류 (v1은 손으로 함)
 
 ## 매 실행 시 권장 사전 절차

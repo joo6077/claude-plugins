@@ -248,6 +248,14 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/reflect-kaizen` | LLM-as-judge 스팟체크 + 30d post_freq calibration + 임계값/프롬프트 개선 제안 |
 | 훅 3종 | UserPromptSubmit(log-prompt), PostToolUseFailure(log-tool-failure), Stop(log-reflection, 백그라운드) |
 
+**bambu-kit — Bambu Lab H2S 자동 process+filament JSON 생성**
+
+| 스킬 | 용도 |
+|------|------|
+| `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 JSON 생성 → import용 zip 번들 출력. references 4종 SSOT (bambu-fields-baseline / materials / seam-recipes / kaizen-sources) |
+
+도구형 1스킬 킷 (guide/audit/system 3종 패턴 비적용). H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 한정.
+
 **이 레포 전용 스킬 (.claude/skills/)**
 
 | 스킬 | 용도 |
@@ -261,6 +269,8 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/infra-research` | 인프라 레퍼런스 크롤링 → docs/infra/ 문서 갱신 |
 | `/rust-kaizen` | rust-kit 스킬 개선 |
 | `/rust-research` | Rust 레퍼런스 크롤링 → docs/rust/ 문서 갱신 |
+| `/bambu-kaizen` | bambu-kit 스킬 개선 (references + 실측 dogfood 기반) |
+| `/bambu-research` | Bambu/MakerWorld/scarf seam 외부 소스 폴링 → bambu-kit references 갱신 |
 | `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
 | `/create-kit` | 새 플러그인 킷 생성 오케스트레이션 |
 
