@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materials — Bambu 필라멘트 카탈로그 + 용도 매핑 + AMS 호환성</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#14B8A6;--accent2:#5EEAD4;--accent-dim:rgba(20,184,166,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(20,184,166,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:780px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:780px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.12);color:var(--red)}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(20,184,166,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(20,184,166,0.03)}
+  td code, p code, li code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono)}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.15);color:var(--yellow)}
+
+  .signal-card{background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
+  .signal-card h3{color:var(--green)}
+  .signal-card .num{background:rgba(74,222,128,0.15);color:var(--green)}
+
+  .spec-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px}
+  .spec-row:last-child{border-bottom:none}
+  .spec-key{color:var(--text3);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;min-width:90px}
+  .spec-val{color:var(--text2);text-align:right;font-family:var(--mono);font-size:12px}
+
+  .dry-bar{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .dry-row{display:grid;grid-template-columns:80px 1fr 70px;gap:10px;align-items:center;font-size:12px}
+  .dry-label{color:var(--text2);font-family:var(--mono)}
+  .dry-track{height:12px;background:var(--surface2);border-radius:6px;overflow:hidden;position:relative}
+  .dry-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dry-val{color:var(--text3);font-family:var(--mono);text-align:right}
+
+  @media (prefers-reduced-motion: reduce) {
+    *,*::before,*::after { transition:none !important; animation:none !important; }
+    html { scroll-behavior:auto }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Materials — Bambu 필라멘트 카탈로그 + 용도 매핑 + AMS 호환성</h1>
+<p class="subtitle">PLA · PETG · ABS/ASA · PA · PC · TPU · CF/GF 강화 — 40+ SKU 분류, AMS HT/AMS 2 Pro 로딩 가능 여부, 건조 요구. Bambu Studio 2.6.0 (v02.06.00.51) 기준 H2S 0.4 base 프로파일에서 추출했고 외부 스풀 강제 SKU와 H2S 노즐 hardened 권장 SKU를 명시한다. Codex research run <code>aeb457c7603a420db</code> · 점수 23/25.</p>
+
+<!-- ── Section 1 — PLA family ── -->
+<div class="section">
+  <div class="section-label">PLA — Cosmetic 우선 / 낮은 내열</div>
+  <p class="desc">PLA 계열 18종. 모두 비가열 챔버, 55°C 8h 건조, AMS 2 Pro 직접 로드 가능. 단, Glow/Galaxy/Sparkle/Wood/Marble 같은 마모성 컬러는 hardened 노즐 권장. Aero/Silk/Sparkle/Translucent/Marble은 MVS 6~12로 속도를 낮춰야 한다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">1</span>
+        <h3>PLA Basic / Lite / Tough+ — 일반 시제품</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">가장 검증된 PLA 트리오. Basic은 표준값, Lite는 저가 대안, Tough+는 PLA계 고인성으로 245°C까지 노즐을 올린다.</p>
+      <div class="spec-row"><span class="spec-key">SKU</span><span class="spec-val">PLA Basic / Lite / Tough+</span></div>
+      <div class="spec-row"><span class="spec-key">Nozzle</span><span class="spec-val">220-245°C / Bed 55°C</span></div>
+      <div class="spec-row"><span class="spec-key">MVS</span><span class="spec-val">20-40 mm³/s</span></div>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">55°C 8h, AMS HT 가능</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">SS / HS, 비가열</span></div>
+      <div style="margin-top:10px">
+        <span class="tag">cosmetic</span><span class="tag">prototype</span><span class="tag">functional-light</span>
+      </div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ Bambu Filament Store (PLA family)</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">2</span>
+        <h3>PLA Matte / Silk+ / Translucent — 외관 우선</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">Matte는 무광 + 레이어 은폐, Silk+는 개선형 광택, Translucent는 반투명. 광택/반투명은 속도를 낮춰야(MVS 12) 표면이 산다.</p>
+      <div class="spec-row"><span class="spec-key">SKU</span><span class="spec-val">PLA Matte / Silk / Silk+ / Translucent</span></div>
+      <div class="spec-row"><span class="spec-key">Nozzle</span><span class="spec-val">220-230°C / Bed 55-60°C</span></div>
+      <div class="spec-row"><span class="spec-key">MVS</span><span class="spec-val">12-40 mm³/s (반투명/실크 12)</span></div>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">55°C 8h</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">SS / HS, 비가열</span></div>
+      <div style="margin-top:10px">
+        <span class="tag">cosmetic</span><span class="tag">light-pipe</span>
+      </div>
+      <a class="card-source" href="https://cdn1.bambulab.com/filament/filament-guide/241213/filament-guide-us.pdf" target="_blank" rel="noopener">→ Bambu Filament Guide PDF</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">3</span>
+        <h3>PLA-CF — 무광 강성 PLA</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">탄소 섬유 충전 PLA. 강성·무광·치수 안정성 ↑, 노즐 마모 ↑. 230°C / MVS 15. AMS 2 Pro 공식 지원 목록에 포함된 유일한 CF 계열 PLA.</p>
+      <div class="spec-row"><span class="spec-key">SKU</span><span class="spec-val">PLA-CF</span></div>
+      <div class="spec-row"><span class="spec-key">Nozzle</span><span class="spec-val">230°C / Bed 55°C / MVS 15</span></div>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">55°C 8h 권장</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK (PLA-CF 포함)</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">hardened 0.4 / 0.6 권장</span></div>
+      <div style="margin-top:10px">
+        <span class="tag">cosmetic</span><span class="tag">functional</span><span class="tag tag-warn">노즐 마모 ↑</span>
+      </div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ PLA-CF SKU</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">4</span>
+        <h3>PLA Glow / Galaxy / Sparkle / Marble / Wood — 효과 컬러</h3>
+      </div>
+      <p class="desc" style="margin-bottom:12px">야광·반짝임·금속·석재·목재 충전. 모두 PLA 베이스이지만 충전재로 인해 노즐 마모 + 막힘 위험이 있다. 0.2 노즐 비권장, 0.4+ hardened 권장.</p>
+      <div class="spec-row"><span class="spec-key">SKU</span><span class="spec-val">PLA Glow / Galaxy / Sparkle / Marble / Wood / Metal / Aero / Dynamic</span></div>
+      <div class="spec-row"><span class="spec-key">Nozzle</span><span class="spec-val">220-230°C / Bed 55°C</span></div>
+      <div class="spec-row"><span class="spec-key">MVS</span><span class="spec-val">6-21 mm³/s (Aero 6, Sparkle/Marble 12)</span></div>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">55°C 8h</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK (Glow는 마모 주의)</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">hardened 0.4+ 권장</span></div>
+      <div style="margin-top:10px">
+        <span class="tag">cosmetic</span><span class="tag tag-warn">노즐 마모</span><span class="tag tag-warn">막힘 주의</span>
+      </div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ PLA Effect colors</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 2 — PETG family ── -->
+<div class="section">
+  <div class="section-label">PETG — 실사용 부품 기본값</div>
+  <p class="desc">PETG 4종. PETG HF는 entire_loop stringing 위험이 검증된 실측 신호. PETG-CF는 강성/무광이 강점이며 내열은 일반 PETG급. 모두 65°C 8h 건조, AMS HT 가능, 챔버는 낮게 유지한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="principle-title"><span class="num">1</span><h3>PETG Basic — PLA 대안 기본값</h3></div>
+      <p class="desc" style="margin-bottom:12px">PLA보다 내열·내수성 우수. 실사용 부품의 기본 후보. 245°C / Bed 70°C / MVS 18-21.</p>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">65°C 8h 권장, AMS HT 가능</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">SS / HS, 챔버 낮게</span></div>
+      <div style="margin-top:10px"><span class="tag">functional</span><span class="tag">내수</span></div>
+      <a class="card-source" href="https://cdn1.bambulab.com/filament/filament-guide/241213/filament-guide-us.pdf" target="_blank" rel="noopener">→ Filament Guide §PETG</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">2</span><h3>PETG HF — 빠른 실사용 부품</h3></div>
+      <p class="desc" style="margin-bottom:12px">High-flow PETG. MVS 25-40으로 PETG Basic의 2배 속도. <strong>entire_loop 영역에서 stringing 위험이 실측 확인</strong>됨 — retraction/wipe 튜닝 필수. 65°C 8h 건조 사실상 필수.</p>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">65°C 8h 필수급</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">SS / HS, 낮은 챔버</span></div>
+      <div style="margin-top:10px"><span class="tag">functional</span><span class="tag tag-warn">stringing 검증됨</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ PETG HF SKU</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">3</span><h3>PETG Translucent — 라이트 파이프</h3></div>
+      <p class="desc" style="margin-bottom:12px">투명감을 위해 MVS 6으로 매우 낮게 출력. 245-250°C / Bed 70°C. 라이트 파이프, 케이스 윈도우 같은 반투명 용도.</p>
+      <div class="spec-row"><span class="spec-key">MVS</span><span class="spec-val">6 mm³/s (느린 출력 필수)</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div style="margin-top:10px"><span class="tag">cosmetic</span><span class="tag">functional</span></div>
+      <a class="card-source" href="https://cdn1.bambulab.com/filament/filament-guide/241213/filament-guide-us.pdf" target="_blank" rel="noopener">→ Filament Guide §PETG-Translucent</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">4</span><h3>PETG-CF — 강성 PETG</h3></div>
+      <p class="desc" style="margin-bottom:12px">탄소 섬유 충전 PETG. 강성/무광 ↑, 내열은 PETG급 그대로. 255°C / MVS 11.5. AMS 2 Pro 공식 지원 목록 포함.</p>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">65°C 8h</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">hardened 0.4 / 0.6</span></div>
+      <div style="margin-top:10px"><span class="tag">functional</span><span class="tag tag-warn">노즐 마모</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ PETG-CF SKU</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 3 — ABS / ASA family ── -->
+<div class="section">
+  <div class="section-label">ABS · ASA — 엔지니어링 / 외장 / 내후성</div>
+  <p class="desc">5종. 챔버 45-60°C + 환기가 사실상 필수. ASA 계열은 UV 내후성이 강점이라 외장 브래킷·드론 외피·옥외 마운트에 우선 후보. ABS-GF / ASA-CF는 hardened 0.6, ASA-Aero는 경량 외장.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>SKU</th><th>Studio base</th><th>Nozzle / Bed / MVS</th><th>건조</th><th>AMS 2 Pro</th><th>노즐 / 챔버</th><th>용도</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>ABS</strong></td><td><code>Bambu ABS @base</code></td><td>260-270 / 90 / 20-35</td><td>80°C 8h 권장</td><td>OK</td><td>SS, 45-60°C</td><td>engineering: 내열·후가공, 냄새·수축</td></tr>
+        <tr><td><strong>ABS-GF</strong></td><td><code>Bambu ABS-GF @base</code></td><td>260-270 / 90 / 12</td><td>80°C 8h</td><td>OK</td><td>hardened 0.6, 45-60°C</td><td>engineering: 강성·치수안정</td></tr>
+        <tr><td><strong>ASA</strong></td><td><code>Bambu ASA @base</code></td><td>270 / 100 / 20-35</td><td>80°C 8h 권장</td><td>OK</td><td>SS, 45-60°C</td><td>outdoor: UV·내후성</td></tr>
+        <tr><td><strong>ASA-CF</strong></td><td><code>Bambu ASA-CF @base</code></td><td>275 / 100 / 18</td><td>80°C 8h</td><td>OK</td><td>hardened 0.6, 45-60°C</td><td>outdoor engineering: 무광·강성</td></tr>
+        <tr><td><strong>ASA-Aero</strong></td><td><code>Bambu ASA-Aero @base</code></td><td>270 / 90 / 6</td><td>80°C 8h</td><td>OK</td><td>hardened/0.6, 45-60°C</td><td>경량 외장, 내후성</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">출처: Bambu Studio 2.6.0 H2S 0.4 base 프로파일 + Bambu Filament Guide.</p>
+</div>
+
+<!-- ── Section 4 — PC family ── -->
+<div class="section">
+  <div class="section-label">PC — 고내열 엔지니어링</div>
+  <p class="desc">2종. 270-280°C / Bed 110°C. 수축 관리가 핵심. PC FR은 난연 등급으로 전장·하우징·전기 부품에 우선.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="principle-title"><span class="num">1</span><h3>PC — 표준 폴리카보네이트</h3></div>
+      <div class="spec-row"><span class="spec-key">Studio</span><span class="spec-val"><code>Bambu PC @base</code></span></div>
+      <div class="spec-row"><span class="spec-key">Nozzle/Bed</span><span class="spec-val">270-280 / 110°C</span></div>
+      <div class="spec-row"><span class="spec-key">MVS</span><span class="spec-val">20-35 mm³/s</span></div>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">80°C 8h 필수급</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐 / 챔버</span><span class="spec-val">SS, 챔버 45-60°C</span></div>
+      <div style="margin-top:10px"><span class="tag">engineering</span><span class="tag">고내열</span></div>
+      <a class="card-source" href="https://cdn1.bambulab.com/filament/filament-guide/241213/filament-guide-us.pdf" target="_blank" rel="noopener">→ Filament Guide §PC</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">2</span><h3>PC FR — 난연 PC</h3></div>
+      <div class="spec-row"><span class="spec-key">Studio</span><span class="spec-val"><code>Bambu PC FR @base</code></span></div>
+      <div class="spec-row"><span class="spec-key">Nozzle/Bed</span><span class="spec-val">270-280 / 110°C / MVS 18</span></div>
+      <div class="spec-row"><span class="spec-key">건조</span><span class="spec-val">80°C 8h</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐 / 챔버</span><span class="spec-val">SS / HS, 45-60°C</span></div>
+      <div style="margin-top:10px"><span class="tag">engineering</span><span class="tag">난연 (FR)</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ PC FR SKU</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 5 — PA / PET / PPA / PPS family ── -->
+<div class="section">
+  <div class="section-label">PA · PET · PPA · PPS — CF/GF 강화 엔지니어링</div>
+  <p class="desc">7종. 흡습이 가장 큰 변수다. PAHT-CF가 범용 기본값이며, PA-CF는 단종 — 신규 추천 금지. PET-CF / PPA-CF / PPS-CF는 외부 스풀 우선이 공식 권장이다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>SKU</th><th>Studio base</th><th>Nozzle / Bed / MVS</th><th>건조</th><th>AMS 2 Pro</th><th>H2S 노즐 / 챔버</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>PA-CF</strong> ⚠️</td><td><code>Bambu PA-CF @base</code></td><td>290 / 100 / 8</td><td>80°C 8-12h, AMS HT 권장</td><td>구형/단종 주의</td><td>hardened 0.6, 45-60°C</td><td><strong>단종</strong> — PAHT-CF로 대체</td></tr>
+        <tr><td><strong>PAHT-CF</strong></td><td><code>Bambu PAHT-CF @base</code></td><td>290 / 100 / 8</td><td>80°C 8-12h, AMS HT 권장</td><td>OK</td><td>hardened 0.6, 45-60°C</td><td>저흡습 PA12-CF, 범용 기본값</td></tr>
+        <tr><td><strong>PA6-CF</strong></td><td><code>Bambu PA6-CF @base</code></td><td>275 / 100 / 8</td><td>80-100°C 필수, AMS HT 보관/출력</td><td>공식 비교상 제한 가능성</td><td>hardened 0.6, 45-60°C</td><td>강도/인성 ↑, 흡습 ↑</td></tr>
+        <tr><td><strong>PA6-GF</strong></td><td><code>Bambu PA6-GF @base</code></td><td>265 / 100 / 10.5</td><td>80°C+ 필수</td><td>OK</td><td>hardened 0.6, 45-60°C</td><td>강성·치수안정·흡습</td></tr>
+        <tr><td><strong>PET-CF</strong></td><td><code>Bambu PET-CF @base</code></td><td>270 / 100 / 8</td><td>80°C+ 필수, AMS HT 보관만</td><td><strong>외부 스풀 우선</strong></td><td>hardened 0.6, 45-60°C</td><td>고강성·저흡습, AMS 제약</td></tr>
+        <tr><td><strong>PPA-CF</strong></td><td><code>Bambu PPA-CF @base</code></td><td>290 / 100 / 8</td><td>100°C 외부 오븐, AMS HT는 보관</td><td><strong>외부 스풀 우선</strong></td><td>hardened 0.6, 45-60°C</td><td>PA계 고성능/고내열</td></tr>
+        <tr><td><strong>PPS-CF</strong></td><td><code>Bambu PPS-CF @base</code></td><td>320 / 110 / 6</td><td>100°C 외부 오븐 필요</td><td><strong>외부 스풀 우선</strong></td><td>hardened 0.6, 50-65°C</td><td>최고 내열/내화학</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 6 — TPU family ── -->
+<div class="section">
+  <div class="section-label">TPU — Flexible</div>
+  <p class="desc">5종. 경도(Shore A)에 따라 출력 난이도 + 용도가 갈린다. 멀티컬러는 <code>TPU for AMS</code>만 정상 동작. TPU 95A HF는 AMS 직접 로드 불가 — 외부 스풀 강제.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="num">A</span><h3>TPU 85A — 매우 유연</h3></div>
+      <p class="desc" style="margin-bottom:10px">Shore 85A. 매우 부드러워 출력 난이도 ↑, MVS 3으로 느림. <strong>sealing/gasket 용도에는 부적합</strong>이 검증됨.</p>
+      <div class="spec-row"><span class="spec-key">Nozzle/Bed</span><span class="spec-val">225 / 35 / MVS 3</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">외부 스풀 우선</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ TPU 85A SKU</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">B</span><h3>TPU 90A — 표준 유연</h3></div>
+      <p class="desc" style="margin-bottom:10px">Shore 90A. sealing/gasket 검증된 대안. MVS 5.6.</p>
+      <div class="spec-row"><span class="spec-key">Nozzle/Bed</span><span class="spec-val">225 / 35 / MVS 5.6</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">외부 스풀 우선</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ TPU 90A SKU</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">C</span><h3>TPU 95A / HF — 일반 / 고속</h3></div>
+      <p class="desc" style="margin-bottom:10px">Shore 95A. 일반 TPU의 베이스. HF는 MVS 12로 빠르지만 <strong>AMS 직접 로드 불가</strong>.</p>
+      <div class="spec-row"><span class="spec-key">Nozzle/Bed</span><span class="spec-val">230 / 35 / MVS 3.6 (HF: 12)</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">95A: 외부 우선 / HF: 불가</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ TPU 95A SKU</a>
+    </div>
+
+    <div class="card" style="grid-column:1/-1">
+      <div class="principle-title"><span class="num">D</span><h3>TPU for AMS — 멀티컬러 유연</h3></div>
+      <p class="desc" style="margin-bottom:12px">Shore 68D 베이스로 AMS 호환성을 위해 강성을 일부 희생. <strong>유연 + 멀티컬러 워크플로</strong>가 필요한 유일한 선택.</p>
+      <div class="spec-row"><span class="spec-key">Studio</span><span class="spec-val"><code>Bambu TPU for AMS @base</code></span></div>
+      <div class="spec-row"><span class="spec-key">Nozzle/Bed</span><span class="spec-val">230 / 35 / MVS 12</span></div>
+      <div class="spec-row"><span class="spec-key">AMS 2 Pro</span><span class="spec-val">직접 로드 OK</span></div>
+      <div class="spec-row"><span class="spec-key">노즐</span><span class="spec-val">SS / HS 0.4+, 비가열</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/products/ams-2-pro" target="_blank" rel="noopener">→ AMS 2 Pro 호환 목록</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 7 — Support family ── -->
+<div class="section">
+  <div class="section-label">Support — 서포트 / 인터페이스</div>
+  <p class="desc">6종. 베이스 소재에 맞춰 분리성/잔여물 최소화 인터페이스를 선택한다. PVA는 수용성, Support W는 PLA 계열, Support For PA/PET와 Support G는 고온재용.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>SKU</th><th>Studio base</th><th>Nozzle/Bed/MVS</th><th>건조</th><th>호환 베이스</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>PVA</strong></td><td><code>Bambu PVA @base</code></td><td>240 / 55 / 6</td><td>건조 필수, AMS HT 권장</td><td>수용성 일반</td></tr>
+        <tr><td><strong>Support W</strong></td><td><code>Bambu Support W @base</code></td><td>220 / 55 / 12</td><td>55°C 8h</td><td>PLA 계열</td></tr>
+        <tr><td><strong>Support For PLA</strong></td><td><code>Bambu Support For PLA @base</code></td><td>220 / 55 / 6</td><td>55°C 8h</td><td>PLA 인터페이스</td></tr>
+        <tr><td><strong>Support For PLA/PETG</strong></td><td><code>Bambu Support For PLA/PETG @base</code></td><td>210 / 60 / 6</td><td>건조 권장</td><td>PLA + PETG</td></tr>
+        <tr><td><strong>Support for ABS</strong></td><td><code>Bambu Support for ABS @base</code></td><td>260-270 / 90 / 6</td><td>80°C 8h</td><td>ABS / ASA</td></tr>
+        <tr><td><strong>Support For PA/PET · Support G</strong></td><td><code>Bambu Support For PA/PET @base</code></td><td>280 / — / 8</td><td>건조 필수</td><td>PA / PET-CF / 고온재</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 8 — 용도 매핑 ── -->
+<div class="section">
+  <div class="section-label">용도 매핑 — 기능 → 우선 후보 소재</div>
+  <p class="desc">기능 키워드에서 첫 번째 후보 소재로 가는 추천 매핑. functional / 내열 / 외관 / 실외 / 기어/지그 / 멀티컬러 / sealing-gasket 7개 축.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>용도</th><th>1순위</th><th>2순위 / 보완</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>빠른 시제품 / 치수 확인</td><td><strong>PLA Basic</strong></td><td>PLA Lite</td></tr>
+        <tr><td>고급 외관 / 무광</td><td><strong>PLA Matte</strong></td><td>PLA-CF, ASA-CF</td></tr>
+        <tr><td>광택 / 장식</td><td><strong>PLA Silk+</strong></td><td>PLA Metal, PLA Galaxy, PLA Sparkle</td></tr>
+        <tr><td>반투명 / 라이트 파이프</td><td><strong>PETG Translucent</strong></td><td>PLA Translucent</td></tr>
+        <tr><td>실사용 브래킷 / 커버</td><td><strong>PETG HF</strong></td><td>PETG Basic</td></tr>
+        <tr><td>실외 외장 / UV 노출</td><td><strong>ASA</strong></td><td>ASA-CF, ASA-Aero</td></tr>
+        <tr><td>내열 하우징</td><td><strong>PC</strong></td><td>PC FR (난연)</td></tr>
+        <tr><td>기어 / 지그 / 고강도</td><td><strong>PAHT-CF</strong></td><td>PA6-CF (흡습 감수)</td></tr>
+        <tr><td>최고 내열 / 내화학</td><td><strong>PPS-CF</strong></td><td>PPA-CF</td></tr>
+        <tr><td>유연 + AMS 멀티컬러</td><td><strong>TPU for AMS</strong></td><td>—</td></tr>
+        <tr><td>유연 단일 소재 (고속)</td><td><strong>TPU 95A HF</strong> (외부 스풀)</td><td>TPU 90A</td></tr>
+        <tr><td>sealing / gasket</td><td><strong>TPU 90A</strong></td><td>TPU 95A (강성 ↑)</td></tr>
+        <tr><td>쉬운 서포트 제거 (PLA/PETG)</td><td><strong>Support For PLA/PETG</strong></td><td>Support W</td></tr>
+        <tr><td>쉬운 서포트 제거 (ABS)</td><td><strong>Support for ABS</strong></td><td>—</td></tr>
+        <tr><td>쉬운 서포트 제거 (PA/PET)</td><td><strong>Support For PA/PET</strong></td><td>Support G</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 9 — AMS 2 Pro 직접 로드 가능 여부 ── -->
+<div class="section">
+  <div class="section-label">AMS 2 Pro — 직접 로드 OK vs 외부 스풀 필요</div>
+  <p class="desc">공식 표 기준 PLA·PETG·ABS·ASA·PET·PA·PC·PVA·BVOH·PP·POM·HIPS와 Bambu PLA-CF / PAHT-CF / PETG-CF / Support for PLA/PETG / TPU for AMS는 직접 로드 OK. 그 외 CF/PPS/PPA + TPU 95A HF는 외부 스풀 또는 AMS HT bypass 권장.</p>
+
+  <div class="compare">
+    <div class="compare-good">
+      <div class="compare-label">✓ 직접 로드 OK</div>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check">✓</span><span>PLA 전 계열 (Basic, Matte, Silk+, Translucent, Tough+, CF, Glow, Galaxy, Sparkle, Wood…)</span></li>
+        <li><span class="check">✓</span><span>PETG 전 계열 (Basic, HF, Translucent, CF)</span></li>
+        <li><span class="check">✓</span><span>ABS, ABS-GF, ASA, ASA-CF, ASA-Aero</span></li>
+        <li><span class="check">✓</span><span>PC, PC FR</span></li>
+        <li><span class="check">✓</span><span>PAHT-CF, PA6-GF</span></li>
+        <li><span class="check">✓</span><span>PVA, Support W, Support For PLA/PETG, Support for ABS</span></li>
+        <li><span class="check">✓</span><span><strong>TPU for AMS</strong> (유일한 멀티컬러 TPU)</span></li>
+      </ul>
+    </div>
+    <div class="compare-bad">
+      <div class="compare-label">✗ 외부 스풀 필요</div>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">!</span><span><strong>PET-CF</strong> — AMS HT는 보관만</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">!</span><span><strong>PPA-CF</strong> — 100°C 외부 오븐 권장</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">!</span><span><strong>PPS-CF</strong> — 100°C 외부 오븐 필수, AMS HT만으론 부족</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">!</span><span><strong>TPU 95A HF</strong> — AMS 직접 로드 불가 (공식)</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">!</span><span>TPU 85A / 90A / 95A — 외부 스풀 우선 권장</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">!</span><span>PA-CF (단종) — 신규 추천 금지, PAHT-CF 대체</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">!</span><span>Support For PA/PET, Support G — 직접 로드 가능 여부 확인 필요</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="caption">출처: AMS 2 Pro 공식 호환 목록 + 로컬 Bambu Studio v02.06.00.51 시스템 프로파일.</p>
+</div>
+
+<!-- ── Section 10 — 건조 요구 차트 ── -->
+<div class="section">
+  <div class="section-label">건조 요구 — AMS HT 사전 건조 + Continuous</div>
+  <p class="desc">AMS HT는 65°C까지 사전 건조 + 보관이 가능하다. 80°C+ 가 필요한 PA/PC/PPA/PPS는 AMS HT만으론 부족하고 외부 오븐을 병용해야 한다. 아래는 카테고리별 권장 건조 온도/시간 분포.</p>
+
+  <div class="card">
+    <div class="dry-bar">
+      <div class="dry-row">
+        <span class="dry-label">PLA</span>
+        <div class="dry-track"><div class="dry-fill" style="width:55%"></div></div>
+        <span class="dry-val">55°C 8h</span>
+      </div>
+      <div class="dry-row">
+        <span class="dry-label">PETG</span>
+        <div class="dry-track"><div class="dry-fill" style="width:65%"></div></div>
+        <span class="dry-val">65°C 8h</span>
+      </div>
+      <div class="dry-row">
+        <span class="dry-label">TPU</span>
+        <div class="dry-track"><div class="dry-fill" style="width:70%"></div></div>
+        <span class="dry-val">70°C 8h</span>
+      </div>
+      <div class="dry-row">
+        <span class="dry-label">ABS / ASA / PC</span>
+        <div class="dry-track"><div class="dry-fill" style="width:80%"></div></div>
+        <span class="dry-val">80°C 8h</span>
+      </div>
+      <div class="dry-row">
+        <span class="dry-label">PA-CF / PAHT-CF</span>
+        <div class="dry-track"><div class="dry-fill" style="width:85%"></div></div>
+        <span class="dry-val">80°C 8-12h</span>
+      </div>
+      <div class="dry-row">
+        <span class="dry-label">PA6-CF / PET-CF / PA6-GF</span>
+        <div class="dry-track"><div class="dry-fill" style="width:90%"></div></div>
+        <span class="dry-val">80-100°C 필수</span>
+      </div>
+      <div class="dry-row">
+        <span class="dry-label">PPA-CF / PPS-CF</span>
+        <div class="dry-track"><div class="dry-fill" style="width:100%"></div></div>
+        <span class="dry-val">100°C 외부 오븐</span>
+      </div>
+    </div>
+    <p class="caption" style="text-align:left;margin-top:14px">막대 길이는 권장 건조 온도(°C)에 비례. AMS HT 65°C 한계선은 PETG~TPU 사이 — PA/PC/PPA/PPS는 외부 오븐 병용 필수.</p>
+    <a class="card-source" href="https://cdn1.bambulab.com/filament/filament-guide/241213/filament-guide-us.pdf" target="_blank" rel="noopener">→ Bambu Filament Guide §Drying</a>
+  </div>
+</div>
+
+<!-- ── Section 11 — H2S 노즐 호환 경고 ── -->
+<div class="section">
+  <div class="section-label">H2S 노즐 호환 — Hardened 권장 SKU</div>
+  <p class="desc">CF/GF 강화 + 일부 PLA 효과 컬러는 SS(stainless steel) 노즐에서 마모가 빠르다. H2S/P2S용 hardened 0.4 / 0.6 hotend로 교체해야 수명이 정상 유지된다.</p>
+
+  <div class="warn-card">
+    <div class="principle-title">
+      <span class="num">!</span>
+      <h3>Hardened steel 권장 SKU</h3>
+    </div>
+    <p class="desc" style="margin-bottom:14px">아래 SKU는 SS 노즐 사용 시 단기간(50~200h) 내에 노즐 보어 마모로 압출량이 떨어진다. 신규 출력 시 hardened로 사전 교체.</p>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-size:13px;color:var(--text);margin-bottom:8px">CF / GF 강화 (필수)</h4>
+        <ul class="checklist">
+          <li><span class="check">!</span><span>PLA-CF, PETG-CF, ABS-GF, ASA-CF, ASA-Aero</span></li>
+          <li><span class="check">!</span><span>PA-CF, PAHT-CF, PA6-CF, PA6-GF</span></li>
+          <li><span class="check">!</span><span>PET-CF, PPA-CF, PPS-CF</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-size:13px;color:var(--text);margin-bottom:8px">PLA 효과 컬러 (권장)</h4>
+        <ul class="checklist">
+          <li><span class="check">!</span><span>PLA Glow, Galaxy, Sparkle</span></li>
+          <li><span class="check">!</span><span>PLA Marble, Wood (충전재 막힘 + 마모)</span></li>
+          <li><span class="check">!</span><span>0.2 노즐 비권장 (Galaxy, Sparkle)</span></li>
+        </ul>
+      </div>
+    </div>
+    <a class="card-source" href="https://us.store.bambulab.com/en/products/bambu-hotend-h2-p2s" target="_blank" rel="noopener">→ Bambu Hotend H2 / P2S — Hardened 옵션</a>
+  </div>
+</div>
+
+<!-- ── Section 12 — Anti-pattern 비교 ── -->
+<div class="section">
+  <div class="section-label">Anti-pattern — TPU 경도 오선택</div>
+  <p class="desc">실측에서 검증된 대표 안티패턴. sealing/gasket 부품에 TPU 85A를 쓰면 압축 영구변형 + 압축 응력 부족으로 실제 sealing 기능을 잃는다. 90A로 한 단계 올리는 것이 검증된 해법.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ 잘못된 선택</div>
+      <h3 style="color:var(--text);margin-bottom:10px">TPU 85A로 sealing / gasket 출력</h3>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span>Shore 85A는 너무 부드러워 압축 변형 후 복원이 약하다</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span>MVS 3으로 출력 시간이 길어 비효율</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span>실측: vent pipe 가스켓에서 가압 후 누수 발생</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span>AMS 2 Pro 직접 로드 불가 (외부 스풀 필요)</span></li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ 검증된 해법</div>
+      <h3 style="color:var(--text);margin-bottom:10px">TPU 90A 사용</h3>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check">✓</span><span>Shore 90A는 sealing에 충분한 탄성 + 압축 응력</span></li>
+        <li><span class="check">✓</span><span>MVS 5.6 — 85A 대비 거의 2배 속도</span></li>
+        <li><span class="check">✓</span><span>실측: 가스켓 가압 후 누수 없음</span></li>
+        <li><span class="check">✓</span><span>멀티컬러 필요 시 → <code>TPU for AMS</code> (Shore 68D 베이스)</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 13 — 검증된 실측 신호 ── -->
+<div class="section">
+  <div class="section-label">검증된 실측 신호 — Dogfood 결과</div>
+  <p class="desc">스킬 dogfood 과정에서 실측 확인된 이슈/신호. 동일 형상에서 재현되므로 추천 로직에 반영한다.</p>
+
+  <div class="grid-2">
+    <div class="signal-card">
+      <div class="principle-title">
+        <span class="num">★</span>
+        <h3>PETG HF — entire_loop stringing</h3>
+      </div>
+      <p class="desc" style="margin-bottom:10px">vent pipe 출력 시 PETG HF에서 entire_loop wipe 영역에 가는 stringing이 반복 관찰됨. retraction distance + wipe distance 튜닝 필요.</p>
+      <div class="spec-row"><span class="spec-key">대상</span><span class="spec-val">PETG HF</span></div>
+      <div class="spec-row"><span class="spec-key">증상</span><span class="spec-val">루프 시작/끝 stringing</span></div>
+      <div class="spec-row"><span class="spec-key">대안</span><span class="spec-val">PETG Basic으로 fallback</span></div>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ PETG HF SKU</a>
+    </div>
+
+    <div class="signal-card">
+      <div class="principle-title">
+        <span class="num">★</span>
+        <h3>Box opener — PLA dual-color seam</h3>
+      </div>
+      <p class="desc" style="margin-bottom:10px">Box opener 출력에서 PLA 듀얼컬러 사용 시 컬러 경계의 seam이 한쪽으로 치우치는 신호. 같은 base(<code>PLA Basic</code>) 두 색 + scarf seam 활성화로 해소됨.</p>
+      <div class="spec-row"><span class="spec-key">대상</span><span class="spec-val">PLA Basic + AMS 듀얼</span></div>
+      <div class="spec-row"><span class="spec-key">해법</span><span class="spec-val">scarf seam ON + 같은 base</span></div>
+      <div class="spec-row"><span class="spec-key">검증</span><span class="spec-val">box opener dogfood OK</span></div>
+      <a class="card-source" href="https://cdn1.bambulab.com/filament/filament-guide/241213/filament-guide-us.pdf" target="_blank" rel="noopener">→ Filament Guide §AMS multi-color</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 14 — 트레이드오프 비교 ── -->
+<div class="section">
+  <div class="section-label">비슷한 소재 트레이드오프</div>
+  <p class="desc">자주 헷갈리는 5쌍의 트레이드오프 요약. 추천 시 사용자 의도(외관/내열/속도/멀티컬러)에 맞춰 분기.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:10px">PLA Matte vs PETG Translucent</h3>
+      <p class="desc" style="margin-bottom:8px"><strong>PLA Matte</strong> — 외관·쉬운 출력 ↑, 내열·내충격 ↓</p>
+      <p class="desc" style="margin-bottom:0"><strong>PETG Translucent</strong> — 질김·내열 ↑, 투명감 위해 MVS 6 필수, 표면 튜닝 민감</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px">PETG HF vs ABS / ASA</h3>
+      <p class="desc" style="margin-bottom:8px"><strong>PETG HF</strong> — 냄새/수축 ↓, 실사용 부품 기본값으로 적합</p>
+      <p class="desc" style="margin-bottom:0"><strong>ABS / ASA</strong> — 내열·후가공·내후성 ↑, 챔버 45-60°C + 환기 사실상 필수</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px">PAHT-CF vs PA6-CF</h3>
+      <p class="desc" style="margin-bottom:8px"><strong>PAHT-CF</strong> — 저흡습·안정성 ↑, 추천 기본값</p>
+      <p class="desc" style="margin-bottom:0"><strong>PA6-CF</strong> — 강도·인성 ↑, 흡습 관리 빡빡 (80-100°C 건조)</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px">PPA-CF / PPS-CF vs PAHT-CF</h3>
+      <p class="desc" style="margin-bottom:8px"><strong>PPA / PPS-CF</strong> — 고내열 최상위, 건조 온도·AMS 경로 제약 큼 → "필요할 때만"</p>
+      <p class="desc" style="margin-bottom:0"><strong>PAHT-CF</strong> — 범용 엔지니어링은 더 현실적</p>
+    </div>
+
+    <div class="card" style="grid-column:1/-1">
+      <h3 style="margin-bottom:10px">TPU 95A HF vs TPU for AMS</h3>
+      <p class="desc" style="margin-bottom:8px"><strong>TPU 95A HF</strong> — 더 TPU답고 빠름(MVS 12), 외부 스풀 전제, AMS 직접 로드 불가</p>
+      <p class="desc" style="margin-bottom:0"><strong>TPU for AMS</strong> — Shore 68D 베이스로 강성 ↑, 멀티컬러/AMS 워크플로 우선이면 유일 선택</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 15 — Gotchas 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">Gotchas — 카탈로그 사용 시 반복 실수</div>
+  <p class="desc">스킬이 base profile을 추천하기 전에 반드시 거르는 7가지 체크.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">!</span><span><strong>AMS HT 사전 건조 필수</strong> — PETG/TPU/ABS/ASA/PC/PA 계열은 출력 시작 전 65°C 사전 건조 사이클 1회. 흡습이 stringing/표면결함의 가장 큰 단일 원인.</span></li>
+      <li><span class="check">!</span><span><strong>CF/GF 류는 hardened 노즐</strong> — PLA-CF / PETG-CF / PAHT-CF / PA6-GF / PET-CF / PPA-CF / PPS-CF / ASA-CF / ABS-GF는 H2S 0.4/0.6 hardened steel hotend 필수. SS 노즐에서 50-200h 내 마모.</span></li>
+      <li><span class="check">!</span><span><strong>PETG HF + entire_loop stringing 위험</strong> — 검증된 실측 신호. retraction/wipe 튜닝 필요. 형상이 stringing-prone하면 PETG Basic으로 fallback 추천.</span></li>
+      <li><span class="check">!</span><span><strong>외부 스풀 필요 SKU 4종</strong> — PET-CF / PPA-CF / PPS-CF / TPU 95A HF는 AMS 2 Pro 직접 로드 불가. 추천 시 외부 스풀 + AMS HT bypass 안내 동반.</span></li>
+      <li><span class="check">!</span><span><strong>멀티컬러는 같은 base 공유 권장</strong> — AMS 듀얼/멀티 출력 시 서로 다른 base(PLA Basic + PLA Silk 등)를 섞으면 retract 시간/온도 차이로 실패. 같은 base의 다른 색을 우선.</span></li>
+      <li><span class="check">!</span><span><strong>PA-CF는 단종 — PAHT-CF로 대체</strong>. Studio 프로파일은 남아 있지만 신규 추천에 사용 금지. PAHT-CF는 저흡습 PA12-CF로 사실상 상위 호환.</span></li>
+      <li><span class="check">!</span><span><strong>TPU 85A는 sealing/gasket 부적합</strong> — 검증된 실측 신호. 90A로 한 단계 올리는 것이 해법. 멀티컬러 필요 시 <code>TPU for AMS</code>.</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Section 16 — 미해결 / 검증 필요 ── -->
+<div class="section">
+  <div class="section-label">미해결 / 추가 검증 필요</div>
+  <p class="desc">현재 카탈로그에 반영하지 못한 항목 4가지. 다음 사이클 검증 대상.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="principle-title"><span class="num">1</span><h3>PLA Pure (Studio 2.7.0 Beta)</h3></div>
+      <p class="desc" style="margin-bottom:0">2026-05-14 Bambu Studio 2.7.0 Public Beta에 신규 프리셋. 2.6.0 stable에는 미포함이라 자동 추천/inherits 대상으로는 보류 안전. stable 승격 후 카탈로그 추가.</p>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases" target="_blank" rel="noopener">→ Bambu Studio Releases</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">2</span><h3>PA-CF 단종 (PAHT-CF로 통합)</h3></div>
+      <p class="desc" style="margin-bottom:0">PAHT-CF 스토어 페이지에 PA-CF가 discontinued라고 명시. Studio에는 base가 남아 있지만 신규 추천은 PAHT-CF로. <code>inherits</code> 대상에서 PA-CF 제외 처리.</p>
+      <a class="card-source" href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener">→ PAHT-CF SKU</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">3</span><h3>AMS 2 Pro 직접 로드 제약 (CF/PPS/PPA + TPU HF)</h3></div>
+      <p class="desc" style="margin-bottom:0">공식 표는 PLA·PETG·ABS·ASA·PET·PA·PC·PVA·BVOH·PP·POM·HIPS와 Bambu PLA-CF/PAHT-CF/PETG-CF/Support for PLA/PETG/TPU for AMS 지원. PET-CF/PPA-CF/PPS-CF/TPU 95A HF는 외부 스풀 또는 AMS HT bypass 권장.</p>
+      <a class="card-source" href="https://us.store.bambulab.com/products/ams-2-pro" target="_blank" rel="noopener">→ AMS 2 Pro 호환 목록</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">4</span><h3>챔버 값 (TDS 권장 + H2S 65°C 분류)</h3></div>
+      <p class="desc" style="margin-bottom:0">Bambu Studio H2S filament JSON은 챔버 목표값을 행별 명시하지 않는다. 카탈로그의 챔버 범위(45-60°C, 50-65°C 등)는 TDS 권장 + H2S 65°C active chamber 스펙 기반 분류로 추정값.</p>
+      <a class="card-source" href="https://us.store.bambulab.com/products/h2s" target="_blank" rel="noopener">→ H2S 공식 스펙</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 17 — 출처 ── -->
+<div class="section">
+  <div class="section-label">출처</div>
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">→</span><span>Bambu Filament Guide (PDF, 2024-12-13) — <a href="https://cdn1.bambulab.com/filament/filament-guide/241213/filament-guide-us.pdf" target="_blank" rel="noopener" style="color:var(--accent)">cdn1.bambulab.com/.../filament-guide-us.pdf</a></span></li>
+      <li><span class="check">→</span><span>Bambu Filament Store (SKU 카탈로그) — <a href="https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament" target="_blank" rel="noopener" style="color:var(--accent)">us.store.bambulab.com/collections/bambu-lab-3d-printer-filament</a></span></li>
+      <li><span class="check">→</span><span>AMS 2 Pro 공식 — <a href="https://us.store.bambulab.com/products/ams-2-pro" target="_blank" rel="noopener" style="color:var(--accent)">us.store.bambulab.com/products/ams-2-pro</a></span></li>
+      <li><span class="check">→</span><span>H2S 공식 — <a href="https://us.store.bambulab.com/products/h2s" target="_blank" rel="noopener" style="color:var(--accent)">us.store.bambulab.com/products/h2s</a></span></li>
+      <li><span class="check">→</span><span>H2/P2S Hotend Compatibility — <a href="https://us.store.bambulab.com/en/products/bambu-hotend-h2-p2s" target="_blank" rel="noopener" style="color:var(--accent)">us.store.bambulab.com/en/products/bambu-hotend-h2-p2s</a></span></li>
+      <li><span class="check">→</span><span>Bambu Studio Releases — <a href="https://github.com/bambulab/BambuStudio/releases" target="_blank" rel="noopener" style="color:var(--accent)">github.com/bambulab/BambuStudio/releases</a></span></li>
+      <li><span class="check">→</span><span>로컬 Bambu Studio <code>02.06.00.51</code> 시스템 프로파일 + Codex research run <code>aeb457c7603a420db</code> (점수 23/25)</span></li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

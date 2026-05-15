@@ -1,74 +1,86 @@
 # Sprint Feedback
-Feature: reflect-kit v0.3.0 — Hybrid project_id (backward-compatible)
-Evaluated: 2026-04-17 18:20
+Feature: bambu-kit 누락 항목 풀세트 보강 (README + 카이젠 스킬 2종 + CLAUDE.md + docs-site 5페이지 + index.html)
+Evaluated: 2026-05-16 16:10
 Verdict: APPROVE
-Iteration: 2
+Iteration: 3
 
 ## Results
 
-### Skill (3/3)
-- [x] SK-01: `/reflect-digest project=<basename>` 와 `/reflect-digest project=<basename>-<hash6>` 가 동일한 스캔 대상 집합 선택 — PASS
-  - 근거: `reflect-kit/hooks/_lib-project-id.sh:100-112` `normalize_project_query()` — 두 입력 모두 `case` 분기 후 동일한 `"$base $base-[0-9a-f]{6}"` union 반환. 실행 검증: `normalize_project_query "app_kiosk"` == `normalize_project_query "app_kiosk-a3b4f9"` → `"app_kiosk app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]"` 동일 [L3]
-- [x] SK-02: 레거시 버킷 분류 섹션 제거 + 정규화 쿼리 동작 명시 — PASS
-  - 근거: `reflect-kit/skills/reflect-digest/SKILL.md` — "레거시 버킷" 문자열 없음. 정규화 쿼리 표(lines 55-58)에 두 입력 모두 동일 union으로 확장됨 명시 [L3]
-- [x] SK-03: `project=all` cross-project 집계에서 신규 basename + 기존 hash 디렉토리 모두 포함 — PASS
-  - 근거: `SKILL.md:125-126` — "두 형태가 공존하는 프로젝트는 `normalize_project_query`로 자동 병합 집계". `SKILL.md:102` — `is_internal_logs_dir`로 내부 디렉토리 제외 후 전 프로젝트 순회 [L3]
+### Skill (4/4)
+- [x] SK-01: 신규 카이젠 스킬 2종 frontmatter 필드 4종 x 2 = 8건 — PASS
+  - 근거: `rg "^name:|^description:|^argument-hint:|^user-invocable:" .claude/skills/bambu-research/SKILL.md .claude/skills/bambu-kaizen/SKILL.md | wc -l` = 8 (기준: == 8). 측정값: 8. L3 도달 — 각 frontmatter 내용 Read 확인, 두 파일 모두 완전한 4필드 구조 보유
+- [x] SK-02: 3 스킬 간 트리거 키워드 set intersection 0 + substring containment 0건 — PASS
+  - 근거: Python 스크립트로 print-profile(5개)·research(5개)·kaizen(4개) 14개 키워드 전수 검사. 교집합 = {}, containment = 0쌍. L3 도달
+- [x] SK-03: 두 신규 스킬 모두 Gotchas/Process/References 섹션 3개 존재 — PASS
+  - 근거: `grep -c "^# Gotchas\|^# Process\|^# References"` → bambu-research: 3, bambu-kaizen: 3 (기준: ≥3). L3 도달 — 섹션 실제 내용 Read 확인
+- [x] SK-04: bambu-print-profile/SKILL.md 내 `~/.claude/skills/bambu-print-profile` 경로 0건 — PASS
+  - 근거: `grep -c "~/.claude/skills/bambu-print-profile" bambu-kit/skills/bambu-print-profile/SKILL.md` = 0. L3 도달
 
-### Script (4/4)
-- [x] SC-01: 충돌 없는 경우 `compute_project_id`는 `<basename>`만 반환 — PASS
-  - 근거: `_lib-project-id.sh:57-92` — `$base_dir`/`.project-root` 없거나 stored == repo_root인 경우 `printf '%s' "$base"` (hash 없음). 실행: `compute_project_id "$PWD"` → `claude-plugins` [L3]
-- [x] SC-02: 충돌 감지 시 `<basename>-<hash6>` fallback + stderr 1회 경고 — PASS
-  - 근거: `_lib-project-id.sh:73-83` — 충돌 조건 만족 시 `_rk_warn_once`(PID 마커 기반) + `printf '%s-%s' "$base" "$h"`. 실행: `.project-root`에 다른 경로 기록 후 호출 → `claude-plugins-701489` + stderr 경고 출력 [L3]
-- [x] SC-03: `--scan` 결과에서 `_cron`, `.*`, `_*` 디렉토리 제외 — PASS
-  - 근거: `legacy-id-migrate.sh:82` `scan_legacy()` — `is_internal_logs_dir "$pid" && continue`. `_lib-project-id.sh:37-44` `is_internal_logs_dir()` — `.*`, `_*` 모두 return 0(필터). 실행: `_cron`, `.hidden`, `_internal` 모두 FILTERED [L3, enumerated]
-- [x] SC-04: cross-project 스캔에서 동일 필터 적용 — PASS
-  - 근거: `SKILL.md:102` — `project=all` 순회 시 `is_internal_logs_dir`로 `_cron`, `.*`, `_*` 제외 명시. `SKILL.md:125` — "내부 디렉토리 제외" 글로벌 순회 규칙 [L3, enumerated]
+### Script (1/1)
+- [x] SC-00: N/A — release.sh 비트리거 + marketplace.json 이전 세션 완료 확인 — PASS
+  - 근거: 조건 자체가 N/A로 명시됨
 
-### Error (3/3)
-- [x] ER-01: git 미설치/비-repo 환경에서 cwd basename 반환 + 기존 fallback 유지 — PASS
-  - 근거: `_lib-project-id.sh:62-63` — `git ... 2>/dev/null` 실패 시 `repo_root="$cwd"` fallback. 실행: `/tmp` 전달 시 `"tmp"` 반환 [L3]
-- [x] ER-02: `log-*.sh` 쓰기 경로가 `compute_project_id` 결과 그대로 사용 — PASS
-  - 근거: `log-prompt.sh:26-27`, `log-tool-failure.sh:27-28` — `project_id=$(compute_project_id "$cwd")` → `log_dir="$HOME/.claude/logs/$project_id"`. SC-02에서 충돌 시 hash fallback이 반환되므로 기존 `<basename>/` 덮어쓰기 없음 [L3]
-- [x] ER-03: glob 매칭 0개 시 "no matching buckets" stderr 출력 — PASS
-  - 근거: `SKILL.md:62,104` — 두 군데서 `no matching buckets for project=<query>` stderr 출력 후 종료 명시 [L3, structural — LLM-driven skill]
+### Error (2/2)
+- [x] ER-01: bambu-research SKILL.md 외부 소스 실패 fallback 체인 명시 — PASS
+  - 근거: `grep -nE "Cloudflare|codex-rescue|retry"` = 2건 (기준: ≥2). 측정값: 2. 라인 17("MakerWorld는 Cloudflare 차단 빈번 → codex-rescue 위임, 무한 retry 금지"), 라인 41("실패 시 → codex-rescue 에이전트 위임"). L3 도달 — fallback 체인 3단계 구조 의미 확인
+- [x] ER-02: bambu-kaizen SKILL.md 사용자 정책 보호 규칙 + silent skip 체크리스트 7항목 — PASS
+  - 근거: `grep -c "nozzle_temperature\|wipe_on_loops\|silent skip"` = 6 (기준: ≥3). 7항목 체크리스트 bambu-print-profile/SKILL.md:156-163에 존재 확인. bambu-kaizen SKILL.md:65에 "silent skip 체크리스트 7항목 보존 (Gotcha 5)" 명시. L3 도달
 
-### Architecture (4/4)
-- [x] AR-01: glob union으로 기존 hash 디렉토리 read — 마이그레이션 불필요 — PASS
-  - 근거: `SKILL.md:45,102` — backward-compat glob union 보증. `DESIGN.md:231-236` — 마이그레이션 스크립트 불필요 명시 [L3]
-- [x] AR-02: plugin.json version=0.3.0, marketplace.json description `[v0.3.0 · 2026-04-17]` 접두사 — PASS
-  - 근거: `reflect-kit/.claude-plugin/plugin.json:4` `"version": "0.3.0"`. `marketplace.json:51` description starts with `[v0.3.0 · 2026-04-17]` — Python 검증 `True` [exact]
-- [x] AR-03: DESIGN.md "결정 #3 Hybrid 전환" 섹션 + 독립 리뷰 근거 + backward-compat 보증 — PASS
-  - 근거: `DESIGN.md:210-248` — `## 결정 #3 상세 — Hybrid project_id (v0.3.0 전환)` 섹션. A/B/C안 비교(lines 217-220), backward-compat 표(lines 224-229), 보증 목록(lines 231-236) [L3]
-- [x] AR-04: README.md v0.3.0 변경 요약(Hybrid 전환 + 정규화 쿼리 + 내부 디렉토리 제외) — PASS
-  - 근거: `README.md:9-15` — `## v0.3.0 변경 요약` 섹션에 Hybrid project_id, 정규화 쿼리, 내부 디렉토리 제외 세 항목 모두 명시 [L3]
+### Architecture (6/6)
+- [x] AR-01: bambu-kit 폴더 구조 전 경로 존재 — PASS
+  - 근거: 5개 경로 전수 확인 (BACKLOG.md 존재 확인: exit 0, TODO.md 부재 확인: exit non-zero). 측정값: 5/5 PASS. L3 도달
+    - `bambu-kit/.claude-plugin/plugin.json` — EXISTS
+    - `bambu-kit/README.md` — EXISTS
+    - `bambu-kit/skills/bambu-print-profile/SKILL.md` — EXISTS
+    - `bambu-kit/skills/bambu-print-profile/BACKLOG.md` — EXISTS (iter 2에서 TODO.md → git mv)
+    - `bambu-kit/skills/bambu-print-profile/references/` — EXISTS
+- [x] AR-02: 카이젠 스킬 2종이 .claude/skills/에만 존재, bambu-kit/ 내 0건 — PASS
+  - 근거: `find bambu-kit -type d \( -name 'bambu-research' -o -name 'bambu-kaizen' \) | wc -l` = 0. `ls .claude/skills/bambu-research/SKILL.md .claude/skills/bambu-kaizen/SKILL.md` 각 exit 0. L3 도달
+- [x] AR-03: docs/bambu-kit/ 5개 HTML 존재 + 각 ≥400줄 — PASS
+  - 근거: `wc -l docs/bambu-kit/*.html` → bambu-fields-baseline: 572, bambu-print-profile: 587, kaizen-sources: 826, materials: 694, seam-recipes: 708 (기준: 모두 ≥400). 최소값 572 > 400. L3 도달
+- [x] AR-04: docs/index.html에 bambu- 5 ID 등록 + getIcon() 5 SVG 매핑 — PASS
+  - 근거: `grep -c "id: 'bambu-" docs/index.html` = 5. 5개 ID 확인: bambu-print-profile, bambu-fields-baseline, bambu-materials, bambu-seam-recipes, bambu-kaizen-sources. `grep -cP "'bambu-[^']+'\s*:\s*'<svg" docs/index.html` = 5 (lines 685-689). L3 도달
+    - 주의: 계약 grep 패턴 `"'bambu-.*':\s*'<svg"` 은 ERE에서 0 반환 (공백이 여러 개). Perl regex로 재확인 결과 5 확인. 기능적으로 PASS
+- [x] AR-05: CLAUDE.md bambu-kit 섹션 + .claude/skills 표에 /bambu-kaizen, /bambu-research 행 — PASS
+  - 근거: `grep -c "bambu-kit" CLAUDE.md` = 3 (기준: ≥3). `/bambu-kaizen` at line 272, `/bambu-research` at line 273 각 ≥1. L3 도달
+- [x] AR-06: 5 HTML 모두 standalone (외부 CDN 0건) + `--accent:#14B8A6` 일관 적용 — PASS
+  - 근거: 외부 CSS link 파일 수 = 0, 외부 JS script 파일 수 = 0, `--accent:#14B8A6` 누락 파일 수 = 0. L3 도달
 
 ### Anti-patterns (2/2)
-- [x] AP-01: 버전 하드코딩 없음 — PASS
-  - 근거: `grep -rn 'hardcoded.*version'` → no match [L2]
-- [x] AP-03: bare code fence 없음 — PASS
-  - 근거: `grep -Pn '^```\s*$'` on SKILL.md, DESIGN.md, README.md → no match [L2]
+- [x] AP-03: bambu-kit V6 code-fence PASS + .claude/skills 2종 여는 fence hint 0위반 — PASS
+  - 근거: `python3 scripts/validate-plugin.py bambu-kit --check=code-fence` exit 0 ("V6 code-fence 0 bare — OK"). Python 페어링 추적으로 bambu-research: violations NONE, bambu-kaizen: violations NONE. L3 도달
+- [x] AP-04: 신규 SKILL.md 2종 frontmatter name 필드 존재 — PASS
+  - 근거: `head -10 .claude/skills/bambu-research/SKILL.md | grep -c "^name:"` = 1, `head -10 .claude/skills/bambu-kaizen/SKILL.md | grep -c "^name:"` = 1. L3 도달
 
 ### Reusability (2/2)
-- [x] RE-01: 재사용 가능한 컴포넌트 private 처리 없음 — PASS
-  - 근거: `_lib-project-id.sh`의 `normalize_project_query`, `compute_project_id`, `is_internal_logs_dir` 모두 `source`로 공유. `legacy-id-migrate.sh`에서 재사용 확인 [L3]
-- [x] RE-02: 중복 컴포넌트 없음 — PASS
-  - 근거: hash 계산은 `_rk_hash6()` 단일 함수로 중앙화. 필터는 `is_internal_logs_dir()` 단일 함수. 중복 구현 없음 [L3]
+- [x] RE-01: 두 신규 카이젠 스킬이 rust-kaizen 골격(Gotchas/Process/References) 구조 준수 — PASS
+  - 근거: `grep "^# " .claude/skills/rust-kaizen/SKILL.md` = [Gotchas, Process, References]. `grep "^# " .claude/skills/bambu-kaizen/SKILL.md` = [Gotchas, Process, References]. 동일 prefix 셋. L3 도달
+- [x] RE-02: docs/bambu-kit/ 5 HTML 모두 --bg:#0d0d14 공유 — PASS
+  - 근거: `grep -L "\-\-bg:#0d0d14" docs/bambu-kit/*.html | wc -l` = 0 (누락 파일 없음). L3 도달
 
-### Diagnostics (4/4)
-- [x] DG-01: `bash -n` 문법 검사 워닝 0개 — PASS
-  - 근거: `bash -n` on `_lib-project-id.sh`, `legacy-id-migrate.sh`, `log-prompt.sh`, `log-tool-failure.sh`, `log-reflection.sh` 모두 OK [L2]
-- [x] DG-02: IDE diagnostics 워닝 0개 — PASS [정적]
-  - ⚠️ 런타임 검증 미수행 — MCP 서버 미설정
-- [x] DG-03: `scripts/release.sh` 리허설 에러 0개 — PASS
-  - 근거: `bash -n scripts/release.sh` → OK [L2]
-- [x] DG-04: 충돌 시뮬레이션 — basename 반환 + hash fallback + 1회 경고 — PASS
-  - 근거: SC-02 실행 검증 결과와 동일. `.project-root`에 다른 경로 기록 후 `compute_project_id` 호출 → `claude-plugins-701489` + stderr 경고 1회 출력. `_rk_warn_once` PID 마커(`${TMPDIR:-/tmp}/.reflect-kit-warn-<basename>-<PID>`) 확인 [L3]
+### Diagnostics (3/3 + 1 N/A)
+- [x] DG-01: `bash -n scripts/release.sh` exit 0 — PASS
+  - 근거: 실행 결과 "Exit: 0". .sh 변경 0건이라 회귀 없음 확인. L3 도달
+- [x] DG-02: 신규 워닝 0건 — PASS [정적] [미검증]
+  - 근거: 신규 파일들(SKILL.md 2종, HTML 5종)에 IDE-detectable 패턴 없음. cSpell 예외(bambu/Bambu/kaizen) CLAUDE.md 규칙 적용. 정적 검증으로 판단, IDE 패널 직접 확인 불가 (MCP 서버 미설정)
+  - 미검증 사유: MCP_server=null. 정적 분석으로 대체
+- [x] DG-03: N/A — release.sh 비트리거
+- [x] DG-04: 5 HTML 모두 DOCTYPE html + </html> 마감 — PASS
+  - 근거: `head -1` 전수 확인 → 5파일 모두 `<!DOCTYPE html>`. `tail -2` 전수 확인 → 5파일 모두 `</body></html>`. L3 도달
 
 ## Summary
-- Total: 20/20 conditions passed
-- Anti-patterns: 2/2 PASS
-- Reusability: 2/2 PASS
-- Diagnostics: 4/4 PASS
-- Verdict: APPROVE
+- Total: 16/16 conditions passed (SC-00, DG-03 N/A 포함 논리적 전건)
+- 실질 검증 조건: 14 PASS (SK 4 + ER 2 + AR 6 + AP 2 + RE 2) + 2 N/A + DG 3 PASS
+- Unverifiable: [미검증] 1건 (DG-02 IDE panel) — 1건 이하 허용 기준 충족
+- Verdict: **APPROVE**
 
-⚠️ 런타임 검증 미수행 — MCP 서버 미설정. 모든 판정은 정적/실행 검증 기반.
+## Unverifiable Summary
+- DG-02 [미검증]: IDE 패널 신규 워닝 확인. MCP_server=null로 정적 검증으로 대체. 신규 추가 파일의 IDE-detectable 워닝(cSpell 제외) 없음으로 판단.
+
+## Sprint Feedback Contract Notes
+- AR-04: 계약의 `grep -c "'bambu-.*':\s*'<svg" docs/index.html == 5` 측정 명령이 ERE에서 0을 반환함 (실제 파일에 여러 공백 존재). Perl regex(`-cP`)로 대체 시 5 확인. 차기 계약 작성 시 측정 명령을 `grep -cP "'bambu-[^']+'\s*:\s*'<svg"` 로 수정 권장.
+
+## Iteration Notes
+- Iter 1 REJECT: AP-03 false-positive (grep이 닫는 fence 카운트)
+- Iter 2 REJECT: AR-01 계약이 TODO.md를 명시했으나 실제 파일은 BACKLOG.md (git mv)
+- Iter 3 APPROVE: AR-01 계약 수정(BACKLOG.md로 정정), 구현 변경 없음 → 전 조건 PASS

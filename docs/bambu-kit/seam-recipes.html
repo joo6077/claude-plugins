@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seam Recipes — 형상 × 소재 Scarf 매트릭스 + Real-world Findings</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#14B8A6;--accent2:#5EEAD4;--accent-dim:rgba(20,184,166,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(20,184,166,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:720px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(20,184,166,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(20,184,166,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius)}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare p{font-size:13px;color:var(--text2);line-height:1.7}
+  .compare code{font-family:var(--mono);font-size:12px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
+
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px;overflow-x:auto;margin:12px 0}
+  pre code{font-family:var(--mono);font-size:12.5px;color:var(--text2);line-height:1.7;white-space:pre}
+
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px;margin-right:6px;margin-top:6px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono)}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+
+  .warning{
+    background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(248,113,113,0.04));
+    border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius);
+    padding:clamp(20px,3vw,28px);position:relative
+  }
+  .warning::before{content:'⚠';position:absolute;top:18px;right:22px;font-size:28px;color:var(--yellow);opacity:0.6}
+  .warning h3{color:var(--yellow);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .warning .mitigation{margin-top:14px;padding:14px;background:rgba(0,0,0,0.25);border-radius:10px;border-left:3px solid var(--yellow)}
+  .warning .mitigation h4{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--yellow);margin-bottom:8px;font-weight:700}
+  .warning ul{list-style:none;padding-left:0}
+  .warning ul li{padding-left:18px;position:relative;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:6px}
+  .warning ul li::before{content:'→';position:absolute;left:0;color:var(--yellow)}
+
+  .note{
+    background:rgba(20,184,166,0.05);border:1px solid rgba(20,184,166,0.25);
+    border-left:3px solid var(--accent);border-radius:8px;padding:18px;font-size:13px;color:var(--text2);line-height:1.7
+  }
+  .note strong{color:var(--accent2)}
+
+  .matrix{font-size:12.5px}
+  .matrix th{background:var(--surface2);position:sticky;top:0}
+  .matrix th.shape{min-width:140px}
+  .matrix td.shape{font-weight:700;color:var(--text);background:var(--surface2)}
+  .badge-good{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(74,222,128,0.15);color:var(--green)}
+  .badge-mid{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(251,191,36,0.15);color:var(--yellow)}
+  .badge-bad{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(248,113,113,0.15);color:var(--red)}
+  .badge-na{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:var(--surface2);color:var(--text3)}
+
+  .finding{position:relative}
+  .finding .finding-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .finding .finding-header h3{margin-bottom:0;flex:1}
+  .finding .finding-meta{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13px;margin-top:14px;padding:14px;background:var(--surface2);border-radius:10px}
+  .finding .finding-meta dt{color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding-top:2px}
+  .finding .finding-meta dd{color:var(--text2);line-height:1.7}
+  .finding .finding-meta dd code{font-family:var(--mono);background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px}
+
+  hr.spacer{border:none;height:1px;background:var(--border);margin:32px 0}
+
+  @media (prefers-reduced-motion: reduce) {
+    *,*::before,*::after { transition:none !important; animation:none !important; }
+    html { scroll-behavior:auto }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Seam Recipes — 형상 × 소재 Scarf 매트릭스 + Real-world Findings</h1>
+<p class="subtitle">회전체 / 박스 / 유기적 형상별 seam 전략 + PLA/PETG/PA/CF 소재별 scarf 파라미터 + 실측 검증된 5가지 발견. Bambu Studio H2S v2.6.0 + Codex research run <code style="font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2)">afcf4968339021b29</code> 기준.</p>
+
+<!-- ── Section 1: 형상별 seam 전략 ── -->
+<div class="section">
+  <div class="section-label">Section 1 · 형상별 Seam 전략</div>
+  <p class="desc">모델 형상은 seam 위치/방식 결정의 1차 변수. 보이는 면이 있는지, 곡률이 일정한지, 코너가 sharp 한지에 따라 전략이 갈린다. 회전체는 scarf entire_loop, 박스는 painted seam이 기본이다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">1</span>
+        <h3>회전체 / 원기둥 / 컵 / 화병</h3>
+      </div>
+      <p class="desc" style="margin-bottom:10px">전방향 노출 + 곡률 일정 → seam 라인이 가장 잘 보이는 형상. 보이는 면이 명확하면 <code>seam_position: aligned</code> + 후면, 그렇지 않으면 <code>random</code>이 시각적으로 더 깔끔하다 (Finding 1 참조).</p>
+      <span class="pill">seam_position: random</span>
+      <span class="pill">scarf entire_loop</span>
+      <span class="pill">wall_sequence: inner-outer-inner</span>
+      <span class="pill">outer 60-80 mm/s</span>
+      <a class="card-source" href="https://makerworld.com/en/models/1886187-scarf-seam-test-cylinder-with-hole">↗ MakerWorld scarf seam test cylinder</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">2</span>
+        <h3>박스 / 직육면체 / 평면 면</h3>
+      </div>
+      <p class="desc" style="margin-bottom:10px">sharp corner가 있으면 scarf보다 <code>painted seam</code> + <code>aligned corner</code>가 우선. 코너에 숨기면 scarf 잔여 흔적도 안 생긴다. scarf 적용 시 <code>Contour</code> 짧게 5-10mm만, <code>All</code>은 비추.</p>
+      <span class="pill">seam: aligned corner</span>
+      <span class="pill">painted seam 우선</span>
+      <span class="pill">scarf length 5-10mm</span>
+      <span class="pill">All 모드 비추</span>
+      <a class="card-source" href="https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam">↗ OrcaSlicer seam wiki</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">3</span>
+        <h3>유기적 곡면 / 피규어</h3>
+      </div>
+      <p class="desc" style="margin-bottom:10px"><code>aligned back</code> + 후면/주름/머리카락에 seam painting. wall order는 inner-first. Smart scarf가 중간 각도에서 끊기면 Off로 전환하거나 <code>scarf_angle_threshold</code> 낮춤. overhang 큰 부위는 scarf 효과 기대 낮춤.</p>
+      <span class="pill">aligned back + paint</span>
+      <span class="pill">Contour scarf 10-20mm</span>
+      <span class="pill">start 0-10%, gap 10%</span>
+      <span class="pill">Smart Off 가능</span>
+      <a class="card-source" href="https://www.reddit.com/r/3Dprinting/comments/1o6i5a1/how_to_improve_your_seams_on_curved_surfaces/">↗ Reddit Bambu seam guide</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">4</span>
+        <h3>얇은 벽 / 미세 디테일</h3>
+      </div>
+      <p class="desc" style="margin-bottom:10px">2 perimeter 이하의 얇은 벽이나 작은 홀에는 scarf 확장 주의. <code>All / holes</code> 모드는 내경 치수 영향 + 내벽 흔적 생성 위험이 크다. seam painting을 우선하고 scarf는 <code>Contour</code> 또는 <code>None</code>으로.</p>
+      <span class="pill">seam painting 우선</span>
+      <span class="pill">Contour or None</span>
+      <span class="pill">length 5-10mm</span>
+      <span class="pill">start/gap 5-10%</span>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio">↗ Bambu Studio</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 2: Decision Tree ── -->
+<div class="section">
+  <div class="section-label">Section 2 · Seam 결정 트리</div>
+  <p class="desc">위 4가지 형상 카테고리를 한 번에 판정하는 의사결정 트리. process / filament / paint 중 어느 surface를 건드릴지 선택할 때 사용한다.</p>
+
+  <pre><code>모델 형상 입력
+│
+├─ 보이는 면이 명확한가?
+│   ├─ YES → 코너가 sharp 한가?
+│   │       ├─ YES (박스/직육면체)
+│   │       │   └─ painted seam @ corner  (scarf 비추)
+│   │       │       process: seam_position = aligned
+│   │       │       filament: scarf = None  or  Contour 5-10mm
+│   │       │
+│   │       └─ NO (피규어/곡면)
+│   │           └─ aligned back  +  seam painting
+│   │               filament: Contour, start 0-10%, gap 10%, length 10-20mm
+│   │               Smart On → Preview 확인 → 끊기면 Off
+│   │
+│   └─ NO (전방향 노출)
+│       ├─ 형상이 회전체 / 원기둥인가?
+│       │   ├─ YES (vent pipe, 화병)
+│       │   │   └─ random  +  scarf entire_loop  ★ Finding 1
+│       │   │       filament: Contour and Hole / All
+│       │   │       start 0%, gap 10%, length 20mm, steps 10
+│       │   │       around entire wall: Off (또는 실험)
+│       │   │
+│       │   └─ NO (구체/돔)
+│       │       └─ aligned back  +  Contour scarf
+│       │           start 0-10%, gap 10%, length 10-20mm
+│       │
+│       └─ 외부만 보이는가? (vent, 파이프 내경 안 보임)
+│           └─ YES → seam_slope_type: external  ★ Finding 2
+│               (내벽 일반 seam, 외벽만 scarf)
+│               seam_slope_inner_walls: 0
+│
+└─ 얇은 벽 (≤2 perimeter) 또는 미세 디테일 포함?
+    └─ YES → seam painting 우선
+        scarf 강제 시 Contour 5-10mm, 작은 hole에는 적용 X
+        All / holes 모드 → 내경 치수 / 내벽 흔적 위험
+
+소재 분기 (어떤 형상에서도 공통)
+│
+├─ PLA (Basic / Matte / CF)  → scarf 자유롭게, 기본값 통함
+├─ PLA Silk                  → scarf length 10-15mm, 외벽 속도 ↓
+├─ PETG / PETG-HF            → ★ AMS HT 65°C 8h 사전 건조 필수
+│                                gap 10-15%, length 15-20mm, 50-70 mm/s
+│                                entire_loop + PETG = stringing 폭발 위험 (Finding 4)
+├─ ABS / ASA                 → enclosure + PA 보정, length 10-15mm
+├─ PC                        → 건조 필수, ooze 많으면 scarf Off + painted
+├─ PA-CF / PAHT-CF           → 건조 필수, hardened nozzle
+│                                Contour, length 10-15mm, gap 10%
+└─ TPU                       → 기본 None  ★ vase mode / fuzzy skin 대안
+</code></pre>
+
+  <p class="caption">Source: Codex research run afcf4968339021b29 (score 25/25) + 실측 dogfood (2026-05-15)</p>
+</div>
+
+<!-- ── Section 3: 소재별 scarf 파라미터 표 ── -->
+<div class="section">
+  <div class="section-label">Section 3 · 소재별 Scarf 파라미터</div>
+  <p class="desc">0.4mm nozzle / 0.2mm layer 기준 권장값. <code>scarf_height</code> 는 ramp 시작 Z 오프셋 (% 표기는 layer height 기준), <code>scarf_gap</code>은 start/end overlap 보정, <code>scarf_length</code>는 mm 절대값. PETG/PA/PC는 건조 상태가 결과에 가장 큰 영향.</p>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>소재</th>
+            <th>적용성</th>
+            <th>scarf_height (start)</th>
+            <th>scarf_gap</th>
+            <th>scarf_length</th>
+            <th>nozzle 권장</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PLA Basic / Matte</strong></td>
+            <td><span class="badge-good">좋음</span></td>
+            <td><code>0%</code></td>
+            <td><code>10%</code></td>
+            <td><code>20 mm</code></td>
+            <td>Brass 0.4mm</td>
+            <td>커뮤니티 검증 기본값. Matte/CF는 더 잘 숨음</td>
+          </tr>
+          <tr>
+            <td><strong>PLA Silk</strong></td>
+            <td><span class="badge-mid">중간</span></td>
+            <td><code>0-10%</code></td>
+            <td><code>10%</code></td>
+            <td><code>10-15 mm</code></td>
+            <td>Brass 0.4mm</td>
+            <td>광택 표면에 흔적 강함, 외벽 속도 ↓</td>
+          </tr>
+          <tr>
+            <td><strong>PETG / PETG-HF</strong></td>
+            <td><span class="badge-mid">중간</span></td>
+            <td><code>0-10%</code></td>
+            <td><code>10-15%</code></td>
+            <td><code>15-20 mm</code></td>
+            <td>Brass 0.4mm</td>
+            <td>★ 건조 필수. outer/scarf 50-70 mm/s</td>
+          </tr>
+          <tr>
+            <td><strong>ABS / ASA</strong></td>
+            <td><span class="badge-mid">중간</span></td>
+            <td><code>5-10%</code></td>
+            <td><code>10%</code></td>
+            <td><code>10-15 mm</code></td>
+            <td>Brass 0.4mm</td>
+            <td>enclosure + PA 보정, painted/back 우선</td>
+          </tr>
+          <tr>
+            <td><strong>PC</strong></td>
+            <td><span class="badge-bad">중간 ↓</span></td>
+            <td><code>5-10%</code></td>
+            <td><code>10-15%</code></td>
+            <td><code>10-15 mm</code></td>
+            <td>Hardened steel</td>
+            <td>건조 필수. ooze 많으면 scarf Off + painted</td>
+          </tr>
+          <tr>
+            <td><strong>PA-CF / PAHT-CF</strong></td>
+            <td><span class="badge-good">좋음 (건조 전제)</span></td>
+            <td><code>0-10%</code></td>
+            <td><code>10%</code></td>
+            <td><code>10-15 mm</code></td>
+            <td>Hardened steel ★</td>
+            <td>건조 필수, hardened nozzle 필수, Contour</td>
+          </tr>
+          <tr>
+            <td><strong>TPU 90A / 95A</strong></td>
+            <td><span class="badge-bad">낮음</span></td>
+            <td><code>—</code></td>
+            <td><code>—</code></td>
+            <td><code>—</code></td>
+            <td>Brass 0.4mm</td>
+            <td>★ 기본 <code>None</code>. vase mode / fuzzy skin / painted seam 대안</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:18px">
+    <a class="card-source" href="https://bambulab.com/en-us/filament-guide" style="border-top:none;padding-top:0;margin-top:0">↗ Bambu filament guide</a>
+    &nbsp;
+    <a class="card-source" href="https://makerworld.com/it/models/661830-perfect-tpu-print-settings" style="border-top:none;padding-top:0;margin-top:0">↗ MakerWorld TPU preset (scarf=None)</a>
+    &nbsp;
+    <a class="card-source" href="https://www.reddit.com/r/OrcaSlicer/comments/1jybcrh/question_about_seams/" style="border-top:none;padding-top:0;margin-top:0">↗ Silk surface community note</a>
+  </div>
+</div>
+
+<!-- ── Section 4: 형상 × 소재 매트릭스 ── -->
+<div class="section">
+  <div class="section-label">Section 4 · 형상 × 소재 매트릭스</div>
+  <p class="desc">5가지 형상 × 7가지 소재 = 35셀 매트릭스. 각 셀은 권장 scarf 모드 + seam_position 조합. 회색 셀은 비추천 (대안 사용).</p>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th class="shape">형상 \ 소재</th>
+            <th>PLA Basic</th>
+            <th>PLA Silk</th>
+            <th>PETG</th>
+            <th>ABS / ASA</th>
+            <th>PC</th>
+            <th>PA-CF</th>
+            <th>TPU</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="shape">회전체 / 원기둥</td>
+            <td><span class="badge-good">All + random</span><br><code>20mm</code></td>
+            <td><span class="badge-mid">Contour + random</span><br><code>15mm</code></td>
+            <td><span class="badge-mid">All + random ★ 건조</span><br><code>20mm</code></td>
+            <td><span class="badge-mid">Contour + back</span><br><code>15mm</code></td>
+            <td><span class="badge-bad">painted + back</span><br>scarf Off</td>
+            <td><span class="badge-good">Contour + back</span><br><code>15mm</code></td>
+            <td><span class="badge-na">vase mode</span><br>scarf 없음</td>
+          </tr>
+          <tr>
+            <td class="shape">박스 / 직육면체</td>
+            <td><span class="badge-good">painted corner</span><br>scarf 5-10mm</td>
+            <td><span class="badge-good">painted corner</span><br>scarf Off</td>
+            <td><span class="badge-good">painted corner</span><br>scarf Off</td>
+            <td><span class="badge-good">painted corner</span><br>scarf 5-10mm</td>
+            <td><span class="badge-good">painted corner</span><br>scarf Off</td>
+            <td><span class="badge-good">painted corner</span><br>scarf 10mm</td>
+            <td><span class="badge-good">aligned corner</span><br>scarf None</td>
+          </tr>
+          <tr>
+            <td class="shape">유기적 / 피규어</td>
+            <td><span class="badge-good">Contour + back</span><br><code>15mm</code></td>
+            <td><span class="badge-mid">Contour + paint</span><br><code>10mm</code></td>
+            <td><span class="badge-mid">Contour + back</span><br><code>15mm</code></td>
+            <td><span class="badge-mid">Contour + back</span><br><code>15mm</code></td>
+            <td><span class="badge-bad">painted only</span><br>scarf Off</td>
+            <td><span class="badge-good">Contour + back</span><br><code>10mm</code></td>
+            <td><span class="badge-na">painted only</span><br>fuzzy skin</td>
+          </tr>
+          <tr>
+            <td class="shape">얇은 벽 / 미세 디테일</td>
+            <td><span class="badge-mid">Contour 5-10mm</span><br>painting 우선</td>
+            <td><span class="badge-bad">None</span><br>painting 강제</td>
+            <td><span class="badge-bad">None</span><br>painting 강제</td>
+            <td><span class="badge-mid">Contour 5mm</span><br>painting 우선</td>
+            <td><span class="badge-bad">None</span><br>painting 강제</td>
+            <td><span class="badge-mid">Contour 5-10mm</span><br>painting 우선</td>
+            <td><span class="badge-na">N/A</span><br>형상 부적합</td>
+          </tr>
+          <tr>
+            <td class="shape">vent / 외부만 보임</td>
+            <td><span class="badge-good">external + random</span><br>inner_walls=0</td>
+            <td><span class="badge-mid">external + random</span><br>inner_walls=0</td>
+            <td><span class="badge-good">external + random ★</span><br>inner_walls=0</td>
+            <td><span class="badge-good">external + back</span><br>inner_walls=0</td>
+            <td><span class="badge-mid">external + back</span><br>inner_walls=0</td>
+            <td><span class="badge-good">external + back</span><br>inner_walls=0</td>
+            <td><span class="badge-na">None</span><br>가스킷용</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="caption">★ 표시: Real-world dogfood로 검증된 조합. PETG 회전체/vent는 반드시 사전 건조 전제.</p>
+</div>
+
+<!-- ── Section 5: PETG 경고 ── -->
+<div class="section">
+  <div class="section-label">Section 5 · PETG entire_loop Stringing 경고</div>
+  <p class="desc">PETG + <code>seam_slope_entire_loop: 1</code> 콤보는 stringing 폭발 위험이 가장 높은 조합. Finding 4에서 vent pipe dogfood로 직접 확인됨. 흡습 + perimeter당 ramp 길어진 travel + 250°C 상단 과압출의 트리플 콤보.</p>
+
+  <div class="warning">
+    <h3>PETG HF + entire_loop = stringing 폭발</h3>
+    <p style="color:var(--text2);font-size:13.5px;line-height:1.7">
+      PETG는 흡습성 강함. 포장 개봉 후 며칠만 지나도 노즐에서 부글거리기 시작한다. 거기에 <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;color:var(--text)">seam_slope_entire_loop: 1</code> 옵션은 perimeter 한 바퀴 전체에 ramp를 적용 → travel/direction change 횟수가 평소보다 1.5~2배 증가. 건조 부족 + 과압출이 겹치면 모든 perimeter 끝에서 미세 oozing이 표면에 묻는다.
+    </p>
+
+    <div class="mitigation">
+      <h4>Mitigation</h4>
+      <ul>
+        <li><strong>AMS HT 65°C × 8시간 사전 건조</strong> + 출력 중 continuous drying 켜기</li>
+        <li><code>nozzle_temperature</code>: TDS 245-250 중 하단인 <strong>245°C</strong> 권장 (255°C는 oozing 폭발)</li>
+        <li>건조 환경 의심되면 <code>seam_slope_entire_loop: 0</code> 으로 fallback (일반 seam이 stringing 적음)</li>
+        <li>Pressure Advance 보정값 재측정 — PETG는 PLA 대비 PA 값이 1.5~2배</li>
+        <li>외벽 속도 50-70 mm/s 로 제한, 60mm/s 이상 retract 거리 +0.2mm</li>
+      </ul>
+    </div>
+
+    <a class="card-source" href="https://bambulab.com/en-us/filament/petg-hf">↗ Bambu PETG HF TDS (245-250°C)</a>
+  </div>
+</div>
+
+<!-- ── Section 6: wipe_on_loops Bambu 부재 ── -->
+<div class="section">
+  <div class="section-label">Section 6 · wipe_on_loops Bambu 부재 (Orca 전용)</div>
+  <p class="desc">scarf seam의 stringing/blob을 내부로 묻고 싶을 때 떠오르는 옵션이 <code>wipe_on_loops</code>. 그러나 Bambu Studio v2.6.0에는 이 파라미터가 없다 (Orca 전용). 직접 Codex로 PrintConfig.cpp를 검증한 결과.</p>
+
+  <div class="card">
+    <h3 style="color:var(--accent);margin-bottom:14px">검증 결과 — Bambu에 없음</h3>
+    <p style="color:var(--text2);font-size:14px;line-height:1.75;margin-bottom:14px">
+      <strong style="color:var(--text)">가설:</strong> 외벽 perimeter 끝의 wipe 동작을 안쪽으로 향하게 해서 stringing/blob을 내부로 묻는다.
+    </p>
+    <p style="color:var(--text2);font-size:14px;line-height:1.75;margin-bottom:14px">
+      <strong style="color:var(--text)">Codex 검증 (run <code style="font-family:var(--mono);background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2);font-size:12px">a06a8ac153247d901</code>):</strong>
+      Bambu Studio v2.6.0 <code style="font-family:var(--mono);background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">PrintConfig.cpp</code> 전수 검색 결과 <code style="font-family:var(--mono);background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">wipe_on_loops</code> 키 <strong style="color:var(--red)">없음</strong>. OrcaSlicer 전용 옵션. Bambu의 <code style="font-family:var(--mono);background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">wipe</code> / <code style="font-family:var(--mono);background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">wipe_distance</code> 는 retract 시 wipe 용도지 perimeter 방향성 wipe 가 아니다.
+    </p>
+
+    <div class="note">
+      <strong>결론:</strong> scarf wipe 방향 제어는 Bambu에서 직접 불가. seam-hide 한계는 <code style="font-family:var(--mono);background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_slope_type</code> + <code style="font-family:var(--mono);background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_slope_entire_loop</code> + <code style="font-family:var(--mono);background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_position</code> 3개 조합이 max. wipe 방향이 필요하면 Orca로 export 후 G-code post-processing 또는 OrcaSlicer 사용.
+    </div>
+
+    <a class="card-source" href="https://github.com/SoftFever/OrcaSlicer">↗ OrcaSlicer (wipe_on_loops 원본 구현)</a>
+  </div>
+</div>
+
+<!-- ── Section 7: Real-world findings ── -->
+<div class="section">
+  <div class="section-label">Section 7 · Real-world Findings (2026-05-15)</div>
+  <p class="desc">스킬 v1 dogfood 출력에서 얻은 실측 데이터. Codex 이론과 다르거나 보강해야 할 5가지 발견. 각 카드의 <code>모델</code> + <code>날짜</code>가 source.</p>
+
+  <div class="grid-2">
+
+    <div class="card finding">
+      <div class="finding-header">
+        <span class="num">1</span>
+        <h3>회전체 vent pipe — random &gt; aligned (시각적)</h3>
+      </div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.75">
+        H2S + PETG HF + 0.4mm + 30×30×35mm 쿠폰 (4 wall, hollow tube), <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_slope_entire_loop: 1</code> + <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_slope_type: all</code> 적용. Codex는 "전방향 노출 원통은 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">aligned</code> + entire_loop 테스트가 낫다"고 예측했지만 실측은 반대.
+      </p>
+      <div class="finding-meta">
+        <dt>Aligned</dt>
+        <dd>외벽 한쪽에 미세 수직 라인 (광택 변화) <strong>눈에 띔</strong></dd>
+        <dt>Random</dt>
+        <dd>외벽 둘레에 작은 specks 분산 — <strong>덜 거슬림</strong></dd>
+        <dt>적용 권장</dt>
+        <dd>회전체 모델 default = <code>seam_position: random</code> + scarf entire_loop. specks micro-banding 트레이드오프 수용.</dd>
+      </div>
+      <a class="card-source" href="https://makerworld.com/en/models/583712">↗ Vent pipe 30×30×35mm coupon · 2026-05-15</a>
+    </div>
+
+    <div class="card finding">
+      <div class="finding-header">
+        <span class="num">2</span>
+        <h3>seam_slope_type: external 로 충분 (내벽 scarf 불필요)</h3>
+      </div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.75">
+        동일 쿠폰. 처음 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">all</code> (외+내벽 scarf) → 사용자 피드백 "내벽은 어차피 안 보이는데 scarf 비효율" → <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">external</code> 로 전환 후 비교. 외부 표면 시각 차이 없음, 내벽엔 일반 seam 1줄만 남음 → vent 처럼 외부만 보이는 케이스에서 가성비 ↑.
+      </p>
+      <div class="finding-meta">
+        <dt>전후 비교</dt>
+        <dd>외벽: 차이 없음 / 내벽: <code>all</code> scarf 흔적 → 일반 seam 1줄로 단순화</dd>
+        <dt>적용 권장</dt>
+        <dd><code>seam_slope_type: external</code> + <code>seam_slope_inner_walls: 0</code>. <code>all</code>은 양면 cosmetic 필요할 때만.</dd>
+      </div>
+      <a class="card-source" href="https://makerworld.com/en/models/583712">↗ Vent pipe 30×30×35mm coupon · 2026-05-15</a>
+    </div>
+
+    <div class="card finding">
+      <div class="finding-header">
+        <span class="num">3</span>
+        <h3>wipe_on_loops 는 Bambu 에 없음 (Orca only)</h3>
+      </div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.75">
+        가설: 외벽 perimeter 끝 wipe 를 안쪽으로 향하게 해서 stringing/blob 을 내부로 묻음. Codex 검증 (run <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">a06a8ac153247d901</code>): Bambu Studio v2.6.0 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">PrintConfig.cpp</code> 에 키 없음. Bambu의 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">wipe</code> / <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">wipe_distance</code> 는 retract 시 wipe 용 (방향성 wipe 아님).
+      </p>
+      <div class="finding-meta">
+        <dt>대안</dt>
+        <dd><code>seam_slope_type</code> + <code>seam_slope_entire_loop</code> + <code>seam_position</code> 3개 조합이 Bambu seam-hide max</dd>
+        <dt>대체 도구</dt>
+        <dd>방향성 wipe 필요 시 Orca 로 export 또는 G-code post-processing</dd>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp">↗ Codex run a06a8ac153247d901 · 2026-05-15</a>
+    </div>
+
+    <div class="card finding">
+      <div class="finding-header">
+        <span class="num">4</span>
+        <h3>PETG HF + entire_loop = stringing 민감</h3>
+      </div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.75">
+        PETG HF + <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_slope_entire_loop: 1</code> 출력에서 stringing 다수 발생. 원인: entire_loop 는 perimeter 당 scarf ramp 가 길어 travel/direction change 증가 → PETG 흡습성 (건조 부족 시 stringing 폭발) + PETG HF nozzle 250°C 상단 과압출 위험의 트리플 콤보.
+      </p>
+      <div class="finding-meta">
+        <dt>건조</dt>
+        <dd><strong>AMS HT 65°C × 8h 사전 건조 + continuous drying</strong> 전제</dd>
+        <dt>온도</dt>
+        <dd><code>nozzle_temperature: 245°C</code> (TDS 245-250 하단)</dd>
+        <dt>Fallback</dt>
+        <dd>건조 환경 의심되면 entire_loop 끄고 일반 seam 으로 fallback</dd>
+      </div>
+      <a class="card-source" href="https://bambulab.com/en-us/filament/petg-hf">↗ PETG HF vent pipe coupon · 2026-05-15</a>
+    </div>
+
+    <div class="card finding" style="grid-column:1 / -1">
+      <div class="finding-header">
+        <span class="num">5</span>
+        <h3>TPU 90A 가스킷 — scarf None 검증 (사용자 약어 "삼프")</h3>
+      </div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.75">
+        Vent pipe 모델의 sealing ring 은 TPU 90A 로 출력. <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">filament_scarf_seam_type: ["none"]</code> 적용. 정상 출력 — Codex 가 이미 예측한 대로 검증됨. TPU 같은 elastomer 는 scarf ramp 가 melt back 되면서 표면 거칠어짐. vase mode / fuzzy skin / painted seam 이 정답.
+      </p>
+      <div class="finding-meta">
+        <dt>적용 조합</dt>
+        <dd><code>scarf: None</code> + <code>seam_position: aligned</code> + 외벽 속도 25-30 mm/s (TPU 한정)</dd>
+        <dt>대안 — 외관 우선</dt>
+        <dd>vase mode 가능한 형상이면 vase mode (1 perimeter, 가장 매끈)</dd>
+        <dt>대안 — 텍스처 가능</dt>
+        <dd>fuzzy skin 0.3mm thickness 0.5-1mm distance — seam 라인 자체가 텍스처에 묻힘</dd>
+      </div>
+      <a class="card-source" href="https://makerworld.com/it/models/661830-perfect-tpu-print-settings">↗ TPU 90A sealing ring (삼프 dogfood) · 2026-05-15</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 8: 안티패턴 비교 ── -->
+<div class="section">
+  <div class="section-label">Section 8 · 안티패턴 vs 권장 패턴</div>
+  <p class="desc">회전체에 aligned seam 을 그대로 두는 것이 가장 흔한 실수. Finding 1 이 직접 카운터한 케이스.</p>
+
+  <div class="compare">
+
+    <div class="compare-bad">
+      <div class="compare-label">✕ Bad — 회전체 + aligned 그대로</div>
+      <p>
+        Codex 이론만 보고 회전체에 <code>seam_position: aligned</code> + <code>seam_slope_entire_loop: 1</code> 적용. 외벽 한쪽에 <strong style="color:var(--red)">미세 수직 라인 (광택 변화)이 눈에 띈다</strong>. specks 가 분산되지 않고 한 줄에 누적되어 "여기가 seam이다" 라는 시각 신호가 강해짐.
+      </p>
+      <pre style="background:rgba(0,0,0,0.3);border-color:rgba(248,113,113,0.2);margin-top:10px"><code style="color:var(--text2)">seam_position: aligned
+seam_slope_type: all
+seam_slope_entire_loop: 1
+# → 외벽 수직 라인 보임</code></pre>
+    </div>
+
+    <div class="compare-good">
+      <div class="compare-label">✓ Good — random + external + entire_loop</div>
+      <p>
+        실측 검증 조합. specks 가 외벽 둘레에 분산되어 <strong style="color:var(--green)">개별 점이 micro-banding 처럼 보일 뿐 라인이 안 보임</strong>. 내벽은 일반 seam 1줄로 단순화 (vent pipe 안쪽은 어차피 안 보임).
+      </p>
+      <pre style="background:rgba(0,0,0,0.3);border-color:rgba(74,222,128,0.2);margin-top:10px"><code style="color:var(--text2)">seam_position: random
+seam_slope_type: external
+seam_slope_inner_walls: 0
+seam_slope_entire_loop: 1
+# → specks 분산, 라인 없음</code></pre>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 9: Gotchas Checklist ── -->
+<div class="section">
+  <div class="section-label">Section 9 · Gotchas 체크리스트</div>
+  <p class="desc">스킬이 매번 빠뜨리는 5가지. 사용자가 H2S + Bambu Studio + scarf 조합을 요청하면 자동 체크.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">회전체에는 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">random</code> &gt; <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">aligned</code></strong> — Codex 이론은 aligned 추천하지만 실측에서 random 이 시각적으로 깔끔. specks 분산이 라인 누적보다 덜 거슬림 (Finding 1).</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">External scarf 는 outer-visible 모델에만</strong> — vent / 화병 / 컵처럼 내경이 안 보이는 형상에 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_slope_type: external</code> + <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">seam_slope_inner_walls: 0</code>. all 모드는 양면 cosmetic 필요할 때만 (Finding 2).</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">entire_loop + PETG = stringing 위험</strong> — perimeter 당 ramp 길어진 travel + 흡습성 + 250°C 상단 과압출 트리플 콤보. 사전 건조 안 하면 무조건 폭발 (Finding 4).</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">AMS HT 65°C × 8h 사전 건조 + continuous</strong> — PETG / PA / PC / TPU 는 사전 건조 + 출력 중 continuous drying 켜기. 봉지 개봉 후 며칠만 지나도 흡습. PETG HF 는 245°C 권장 (TDS 하단).</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)"><code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">wipe_on_loops</code> 사용 금지 — Bambu 에 없음 (Orca only)</strong>. Codex 검증 (run a06a8ac153247d901) 으로 PrintConfig.cpp 에 키 부재 확인. 스킬이 이 키를 process/filament profile 에 출력하면 Bambu 가 무시하거나 import 거부 (Finding 3).</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">TPU 는 무조건 scarf None</strong> — elastomer 는 ramp melt back 으로 표면 거칠어짐. vase mode / fuzzy skin 0.3mm × 0.5-1mm distance / painted seam 이 대안 (Finding 5).</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">Bambu UI 에서 % 표기는 % 기호 필수</strong> — <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">scarf_start_height: 10</code> 와 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">scarf_start_height: 10%</code> 는 다르게 해석. % 빠지면 mm 절대값으로 인식 (Reddit Bambu guide).</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">얇은 벽 / 작은 hole 에 All 모드 금지</strong> — 내경 치수 영향 + 내벽 흔적 위험. 2 perimeter 이하 또는 hole 직경 &lt; 5mm 이면 painted seam 우선, scarf 는 Contour 5-10mm 로 제한.</span>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <span><strong style="color:var(--text)">Smart scarf Off → Preview 확인 후 결정</strong> — 모델 각도 판정으로 같은 Z 라인에서 scarf 적용/미적용이 섞이면 표면 균일성 깨짐. 원통처럼 균일성 중요한 출력은 Preview 후 Smart Off 가 더 안정적 (Bambu 1.10.1 hotfix 사유).</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Section 10: References ── -->
+<div class="section">
+  <div class="section-label">Section 10 · References</div>
+  <p class="desc">본 페이지 작성 근거 — Codex research run + Bambu/Orca 공식 + 커뮤니티 검증 + 실측 dogfood.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <h3 style="color:var(--accent);margin-bottom:14px">공식 문서</h3>
+      <ul class="checklist">
+        <li><span class="check">✓</span><span><a href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.00.74" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Bambu Studio 1.10 release (PLA scarf default)</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Bambu Studio 1.10.1 hotfix (Smart scarf 회귀)</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">OrcaSlicer quality_settings_seam wiki</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://bambulab.com/en-us/filament-guide" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Bambu filament guide</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://bambulab.com/en-us/filament/pa6-cf" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Bambu PA6-CF 건조 가이드</a></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--accent);margin-bottom:14px">커뮤니티 검증</h3>
+      <ul class="checklist">
+        <li><span class="check">✓</span><span><a href="https://makerworld.com/en/models/1886187-scarf-seam-test-cylinder-with-hole" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">MakerWorld scarf seam test cylinder</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://makerworld.com/it/models/661830-perfect-tpu-print-settings" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">MakerWorld TPU preset (scarf=None)</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://www.reddit.com/r/OrcaSlicer/comments/1b7lthr/what_are_the_optimal_settings_for_scarf_seams/" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Reddit optimal scarf settings</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://www.reddit.com/r/OrcaSlicer/comments/1jybcrh/question_about_seams/" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Reddit Silk surface seam note</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://www.reddit.com/r/3Dprinting/comments/1o6i5a1/how_to_improve_your_seams_on_curved_surfaces/" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Reddit Bambu seam guide (% 기호 주의)</a></span></li>
+        <li><span class="check">✓</span><span><a href="https://forum.bambulab.com/t/scarf-seam-does-not-work-on-the-inside-of-a-circle/187310" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--text3)">Bambu forum inside-circle scarf 케이스</a></span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <hr class="spacer">
+
+  <div class="note">
+    <strong>Codex run IDs:</strong>
+    &nbsp;<code style="font-family:var(--mono);background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">afcf4968339021b29</code> (전체 seam recipes 리서치, score 25/25)
+    &nbsp;·&nbsp;
+    <code style="font-family:var(--mono);background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text);font-size:12px">a06a8ac153247d901</code> (wipe_on_loops 부재 검증)
+    <br><br>
+    <strong>Bambu Studio reference version:</strong> 2.6.0 (v02.06.00.51) · <strong>Last updated:</strong> 2026-05-15
+  </div>
+</div>
+
+</div>
+</body>
+</html>
