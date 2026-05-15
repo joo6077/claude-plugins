@@ -1,0 +1,3 @@
+# Python dependencies for CI Plugin Validation + sync-docs/sync-evals scripts.
+# Keep minimal — only direct imports from scripts/.
+pyyaml>=6.0
