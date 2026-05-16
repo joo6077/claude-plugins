@@ -1,86 +1,99 @@
 # Sprint Feedback
-Feature: bambu-kit 누락 항목 풀세트 보강 (README + 카이젠 스킬 2종 + CLAUDE.md + docs-site 5페이지 + index.html)
-Evaluated: 2026-05-16 16:10
+Feature: bambu-kit Surface-first 정책 풀 적용
+Evaluated: 2026-05-16 22:00
 Verdict: APPROVE
 Iteration: 3
 
 ## Results
 
-### Skill (4/4)
-- [x] SK-01: 신규 카이젠 스킬 2종 frontmatter 필드 4종 x 2 = 8건 — PASS
-  - 근거: `rg "^name:|^description:|^argument-hint:|^user-invocable:" .claude/skills/bambu-research/SKILL.md .claude/skills/bambu-kaizen/SKILL.md | wc -l` = 8 (기준: == 8). 측정값: 8. L3 도달 — 각 frontmatter 내용 Read 확인, 두 파일 모두 완전한 4필드 구조 보유
-- [x] SK-02: 3 스킬 간 트리거 키워드 set intersection 0 + substring containment 0건 — PASS
-  - 근거: Python 스크립트로 print-profile(5개)·research(5개)·kaizen(4개) 14개 키워드 전수 검사. 교집합 = {}, containment = 0쌍. L3 도달
-- [x] SK-03: 두 신규 스킬 모두 Gotchas/Process/References 섹션 3개 존재 — PASS
-  - 근거: `grep -c "^# Gotchas\|^# Process\|^# References"` → bambu-research: 3, bambu-kaizen: 3 (기준: ≥3). L3 도달 — 섹션 실제 내용 Read 확인
-- [x] SK-04: bambu-print-profile/SKILL.md 내 `~/.claude/skills/bambu-print-profile` 경로 0건 — PASS
-  - 근거: `grep -c "~/.claude/skills/bambu-print-profile" bambu-kit/skills/bambu-print-profile/SKILL.md` = 0. L3 도달
+### Skill (3/3)
 
-### Script (1/1)
-- [x] SC-00: N/A — release.sh 비트리거 + marketplace.json 이전 세션 완료 확인 — PASS
-  - 근거: 조건 자체가 N/A로 명시됨
+- [x] SK-01: Surface-first 헤더 + 회전체 Auto-select 결정 트리 3단계 — PASS
+  - 근거: `SKILL.md:110` — "Surface-first 모드 (default ON...)" 헤더 존재
+  - 근거: `SKILL.md:114-128` — `text` fenced 코드 블록으로 3단계 트리 명시
+  - 근거: `SKILL.md:117` — "(1) spiral_mode", `SKILL.md:120` — "(2) painted seam", `SKILL.md:125-126` — "(3) FALLBACK → random" 순서 확인
+  - L3: Phase 3 섹션 내 위치, 순서 (spiral→painted→random) 계약 일치. 변경 없음, 이전 PASS 유지.
+
+- [x] SK-02: 형상별 결정 트리 6개 enumerate — PASS
+  - 근거 (전수): 회전체 SKILL.md:132, 박스 :133, 유기적 :134, 얇은 벽 :135, 평면 top :136, spiral vase :137
+  - L3: 6개 모두 Phase 3 형상별 결정 트리 항목으로 번호 목록화됨. 변경 없음, 이전 PASS 유지.
+
+- [x] SK-03: ironing 형상×소재 결정 트리 8소재 — PASS
+  - 근거: `surface-recipes.md:139-150` — §5.1 표에 8개 소재 전부 행으로 존재
+  - L3: PLA Basic(143), PLA Matte(144), PLA Silk(145), PETG HF(146), PA-CF/PAHT-CF(147), PC(148), ABS/ASA(149), TPU(150). 변경 없음.
+
+### Reference (3/3)
+
+- [x] RF-01: bambu-fields-baseline.md §8 — 19개 surface 필드 4종 정보 완비 — PASS
+  - **이전 FAIL 사유 해소:** §8.5 3개 필드 default 컬럼에 실제 값 추가됨
+  - §8.1~8.4 16개 필드: 이전 PASS 유지
+  - §8.5 3개 필드 4-tuple 검증 (`bambu-fields-baseline.md:216-218`):
+    - `seam_slope_steps`: (a) 키 존재, (b) `int (min 1)`, (c) `10` [실제 숫자값], (d) `references/seam-recipes.md §2; source: src/libslic3r/PrintConfig.cpp` — 4종 완비
+    - `seam_slope_entire_loop`: (a) 키 존재, (b) `0 / 1 (bool)`, (c) `0` [실제 bool값], (d) `references/seam-recipes.md §2; source: src/libslic3r/PrintConfig.cpp` — 4종 완비
+    - `seam_slope_inner_walls`: (a) 키 존재, (b) `0 / 1 (bool)`, (c) `0` [실제 bool값], (d) `references/seam-recipes.md Finding 2; source: src/libslic3r/PrintConfig.cpp` — 4종 완비
+  - "BACKLOG (b) 검증" 괄호 주석은 신뢰도 메모이며 default 값을 대체하지 않음. `10`, `0`, `0`이 (c)를 충족.
+  - L3: 출처 포맷 — `source:` 접두 레이블 형식으로 계약 허용 포맷 3종 중 하나 충족.
+
+- [x] RF-02: seam-recipes.md Auto-select 결정 트리 전환 + Finding 1 보존 — PASS
+  - 근거: seam-recipes.md:18 "Auto-select 결정 트리", :23-34 3단계, :149 Finding 1 보존. 변경 없음.
+
+- [x] RF-03: surface-recipes.md 6개 섹션 헤더 — PASS
+  - 근거: lines 10, 30, 92, 122, 135, 163. 변경 없음.
+
+### Architecture (2/2)
+
+- [x] AR-01: SKILL.md references 5종 등록 — PASS (변경 없음)
+- [x] AR-02: Codex run id 양쪽 파일 명시 — PASS (변경 없음)
 
 ### Error (2/2)
-- [x] ER-01: bambu-research SKILL.md 외부 소스 실패 fallback 체인 명시 — PASS
-  - 근거: `grep -nE "Cloudflare|codex-rescue|retry"` = 2건 (기준: ≥2). 측정값: 2. 라인 17("MakerWorld는 Cloudflare 차단 빈번 → codex-rescue 위임, 무한 retry 금지"), 라인 41("실패 시 → codex-rescue 에이전트 위임"). L3 도달 — fallback 체인 3단계 구조 의미 확인
-- [x] ER-02: bambu-kaizen SKILL.md 사용자 정책 보호 규칙 + silent skip 체크리스트 7항목 — PASS
-  - 근거: `grep -c "nozzle_temperature\|wipe_on_loops\|silent skip"` = 6 (기준: ≥3). 7항목 체크리스트 bambu-print-profile/SKILL.md:156-163에 존재 확인. bambu-kaizen SKILL.md:65에 "silent skip 체크리스트 7항목 보존 (Gotcha 5)" 명시. L3 도달
 
-### Architecture (6/6)
-- [x] AR-01: bambu-kit 폴더 구조 전 경로 존재 — PASS
-  - 근거: 5개 경로 전수 확인 (BACKLOG.md 존재 확인: exit 0, TODO.md 부재 확인: exit non-zero). 측정값: 5/5 PASS. L3 도달
-    - `bambu-kit/.claude-plugin/plugin.json` — EXISTS
-    - `bambu-kit/README.md` — EXISTS
-    - `bambu-kit/skills/bambu-print-profile/SKILL.md` — EXISTS
-    - `bambu-kit/skills/bambu-print-profile/BACKLOG.md` — EXISTS (iter 2에서 TODO.md → git mv)
-    - `bambu-kit/skills/bambu-print-profile/references/` — EXISTS
-- [x] AR-02: 카이젠 스킬 2종이 .claude/skills/에만 존재, bambu-kit/ 내 0건 — PASS
-  - 근거: `find bambu-kit -type d \( -name 'bambu-research' -o -name 'bambu-kaizen' \) | wc -l` = 0. `ls .claude/skills/bambu-research/SKILL.md .claude/skills/bambu-kaizen/SKILL.md` 각 exit 0. L3 도달
-- [x] AR-03: docs/bambu-kit/ 5개 HTML 존재 + 각 ≥400줄 — PASS
-  - 근거: `wc -l docs/bambu-kit/*.html` → bambu-fields-baseline: 572, bambu-print-profile: 587, kaizen-sources: 826, materials: 694, seam-recipes: 708 (기준: 모두 ≥400). 최소값 572 > 400. L3 도달
-- [x] AR-04: docs/index.html에 bambu- 5 ID 등록 + getIcon() 5 SVG 매핑 — PASS
-  - 근거: `grep -c "id: 'bambu-" docs/index.html` = 5. 5개 ID 확인: bambu-print-profile, bambu-fields-baseline, bambu-materials, bambu-seam-recipes, bambu-kaizen-sources. `grep -cP "'bambu-[^']+'\s*:\s*'<svg" docs/index.html` = 5 (lines 685-689). L3 도달
-    - 주의: 계약 grep 패턴 `"'bambu-.*':\s*'<svg"` 은 ERE에서 0 반환 (공백이 여러 개). Perl regex로 재확인 결과 5 확인. 기능적으로 PASS
-- [x] AR-05: CLAUDE.md bambu-kit 섹션 + .claude/skills 표에 /bambu-kaizen, /bambu-research 행 — PASS
-  - 근거: `grep -c "bambu-kit" CLAUDE.md` = 3 (기준: ≥3). `/bambu-kaizen` at line 272, `/bambu-research` at line 273 각 ≥1. L3 도달
-- [x] AR-06: 5 HTML 모두 standalone (외부 CDN 0건) + `--accent:#14B8A6` 일관 적용 — PASS
-  - 근거: 외부 CSS link 파일 수 = 0, 외부 JS script 파일 수 = 0, `--accent:#14B8A6` 누락 파일 수 = 0. L3 도달
+- [x] ER-01: BACKLOG.md Surface-first 후속 검증 4항목 — PASS
+  - BACKLOG.md:87 섹션 헤더, :91 precise z-seam, :101 seam_slope, :121-126 소재 5종, :130-136 PETG HF lot. 변경 없음.
+
+- [x] ER-02: PETG HF 건조 경고 3 키워드 — PASS (변경 없음)
+
+### Script (N/A)
+
+- [x] SC-00: N/A — release.sh / marketplace.json / plugin.json 변경 없음
 
 ### Anti-patterns (2/2)
-- [x] AP-03: bambu-kit V6 code-fence PASS + .claude/skills 2종 여는 fence hint 0위반 — PASS
-  - 근거: `python3 scripts/validate-plugin.py bambu-kit --check=code-fence` exit 0 ("V6 code-fence 0 bare — OK"). Python 페어링 추적으로 bambu-research: violations NONE, bambu-kaizen: violations NONE. L3 도달
-- [x] AP-04: 신규 SKILL.md 2종 frontmatter name 필드 존재 — PASS
-  - 근거: `head -10 .claude/skills/bambu-research/SKILL.md | grep -c "^name:"` = 1, `head -10 .claude/skills/bambu-kaizen/SKILL.md | grep -c "^name:"` = 1. L3 도달
+
+- [x] AP-03: bare code fence — PASS
+  - `python3 scripts/validate-plugin.py bambu-kit` V6 code-fence: 0 bare, Exit 0
+  - bambu-fields-baseline.md 변경 라인 216-218은 표 행(| | | | |) 포맷으로 code fence 없음
+
+- [x] AP-04: frontmatter name 보존 — PASS (변경 없음, SKILL.md:2)
 
 ### Reusability (2/2)
-- [x] RE-01: 두 신규 카이젠 스킬이 rust-kaizen 골격(Gotchas/Process/References) 구조 준수 — PASS
-  - 근거: `grep "^# " .claude/skills/rust-kaizen/SKILL.md` = [Gotchas, Process, References]. `grep "^# " .claude/skills/bambu-kaizen/SKILL.md` = [Gotchas, Process, References]. 동일 prefix 셋. L3 도달
-- [x] RE-02: docs/bambu-kit/ 5 HTML 모두 --bg:#0d0d14 공유 — PASS
-  - 근거: `grep -L "\-\-bg:#0d0d14" docs/bambu-kit/*.html | wc -l` = 0 (누락 파일 없음). L3 도달
 
-### Diagnostics (3/3 + 1 N/A)
-- [x] DG-01: `bash -n scripts/release.sh` exit 0 — PASS
-  - 근거: 실행 결과 "Exit: 0". .sh 변경 0건이라 회귀 없음 확인. L3 도달
-- [x] DG-02: 신규 워닝 0건 — PASS [정적] [미검증]
-  - 근거: 신규 파일들(SKILL.md 2종, HTML 5종)에 IDE-detectable 패턴 없음. cSpell 예외(bambu/Bambu/kaizen) CLAUDE.md 규칙 적용. 정적 검증으로 판단, IDE 패널 직접 확인 불가 (MCP 서버 미설정)
-  - 미검증 사유: MCP_server=null. 정적 분석으로 대체
-- [x] DG-03: N/A — release.sh 비트리거
-- [x] DG-04: 5 HTML 모두 DOCTYPE html + </html> 마감 — PASS
-  - 근거: `head -1` 전수 확인 → 5파일 모두 `<!DOCTYPE html>`. `tail -2` 전수 확인 → 5파일 모두 `</body></html>`. L3 도달
+- [x] RE-01: surface-recipes.md references/ 경로 위치 — PASS (변경 없음)
+- [x] RE-02: SKILL.md ironing ≤10건 + surface-recipes 참조 ≥1건 — PASS (변경 없음)
+
+### Diagnostics (PASS)
+
+- [x] DG-01: N/A — 셸 스크립트 변경 없음
+- [x] DG-02: N/A — markdownlint 미적용
+- [x] DG-03: `python3 scripts/validate-plugin.py bambu-kit` — PASS (Exit 0, V1/V6 OK)
+- [x] DG-04: N/A — 스킬 문서 변경
 
 ## Summary
-- Total: 16/16 conditions passed (SC-00, DG-03 N/A 포함 논리적 전건)
-- 실질 검증 조건: 14 PASS (SK 4 + ER 2 + AR 6 + AP 2 + RE 2) + 2 N/A + DG 3 PASS
-- Unverifiable: [미검증] 1건 (DG-02 IDE panel) — 1건 이하 허용 기준 충족
+
+| 카테고리 | PASS/TOTAL |
+|---------|-----------|
+| Skill | 3/3 |
+| Reference | 3/3 |
+| Architecture | 2/2 |
+| Error | 2/2 |
+| Script | N/A |
+| Anti-patterns | 2/2 |
+| Reusability | 2/2 |
+| Diagnostics | N/A (관련 1개 PASS) |
+
+- Total: 14/14 conditions PASS
 - Verdict: **APPROVE**
 
 ## Unverifiable Summary
-- DG-02 [미검증]: IDE 패널 신규 워닝 확인. MCP_server=null로 정적 검증으로 대체. 신규 추가 파일의 IDE-detectable 워닝(cSpell 제외) 없음으로 판단.
 
-## Sprint Feedback Contract Notes
-- AR-04: 계약의 `grep -c "'bambu-.*':\s*'<svg" docs/index.html == 5` 측정 명령이 ERE에서 0을 반환함 (실제 파일에 여러 공백 존재). Perl regex(`-cP`)로 대체 시 5 확인. 차기 계약 작성 시 측정 명령을 `grep -cP "'bambu-[^']+'\s*:\s*'<svg"` 로 수정 권장.
+미검증 조건: 0건
 
-## Iteration Notes
-- Iter 1 REJECT: AP-03 false-positive (grep이 닫는 fence 카운트)
-- Iter 2 REJECT: AR-01 계약이 TODO.md를 명시했으나 실제 파일은 BACKLOG.md (git mv)
-- Iter 3 APPROVE: AR-01 계약 수정(BACKLOG.md로 정정), 구현 변경 없음 → 전 조건 PASS
+Note: MCP 서버 미설정으로 런타임 검증 미수행 — 정적 검증만으로 판정.

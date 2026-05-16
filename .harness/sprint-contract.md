@@ -1,50 +1,138 @@
 ---
-feature: "bambu-kit 누락 항목 풀세트 보강 (README + 카이젠 스킬 2종 + CLAUDE.md + docs-site 5페이지 + index.html)"
-created: "2026-05-16 01:15"
-complexity: "복잡"
-conditions: 16
-branch: "feat/bambu-kit-supplements"
-scope_note: "bambu-kit는 도구형 1스킬 킷이라 reviewer 에이전트/audit 스킬은 적용 외 (rust-kit/react-kit 같은 다종 스킬 패턴 비적용). plugin.json 버전은 v0.1.0 유지(이전 세션 7742bb6에서 marketplace 등록 완료)이라 release.sh 트리거 X."
+feature: "bambu-kit Surface-first 정책 풀 적용"
+created: "2026-05-16 19:30"
+revised: "2026-05-16 19:40 — qa-evaluator REJECT_WITH_REVISIONS 12건 반영 (v2)"
+complexity: "중간"
+conditions: 14
+research_basis: "Codex run a25261e23b21252b2 (score 24/25)"
+target_files:
+  - "bambu-kit/skills/bambu-print-profile/SKILL.md"
+  - "bambu-kit/skills/bambu-print-profile/references/seam-recipes.md"
+  - "bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md"
+  - "bambu-kit/skills/bambu-print-profile/references/surface-recipes.md (신규)"
+  - "bambu-kit/skills/bambu-print-profile/BACKLOG.md"
+language_policy: "조건 키워드는 한국어 우선. 영어 동의어 허용 시 측정식에 한·영 alternation 명시."
 ---
 
 ## Skill
 
-- [ ] SK-01: 신규 카이젠 스킬 2종(`.claude/skills/bambu-research/SKILL.md`, `.claude/skills/bambu-kaizen/SKILL.md`) 모두 frontmatter에 `name`, `description`, `argument-hint`, `user-invocable` 필드 존재 [exact, enumerated] (측정: `rg "^name:|^description:|^argument-hint:|^user-invocable:" .claude/skills/bambu-research/SKILL.md .claude/skills/bambu-kaizen/SKILL.md | wc -l == 8`)
-- [ ] SK-02: bambu-kit 트리거 키워드 3 스킬(bambu-print-profile, bambu-research, bambu-kaizen) 간 (a) set intersection 공집합 (b) 키워드 쌍 substring containment 0건 [exact, enumerated] (측정: 14개 키워드 enumerate 후 Python/bash로 set intersection + substring pair 0건 확인 — 위에서 수동 검증 완료)
-- [ ] SK-03: 두 신규 카이젠 스킬 모두 `# Gotchas`, `# Process`, `# References` 3개 섹션 모두 존재 [structural, enumerated] (측정: `grep -c "^# Gotchas\|^# Process\|^# References" .claude/skills/bambu-research/SKILL.md` ≥ 3 그리고 동일하게 bambu-kaizen)
-- [ ] SK-04: `bambu-kit/skills/bambu-print-profile/SKILL.md` 본문에서 옛 절대경로 `~/.claude/skills/bambu-print-profile`가 0건 (모두 `bambu-kit/skills/bambu-print-profile` 또는 plugin cache 경로로 갱신됨) [exact] (측정: `grep -c "~/.claude/skills/bambu-print-profile" bambu-kit/skills/bambu-print-profile/SKILL.md == 0`)
+- [ ] SK-01: `SKILL.md` Phase 3에 "Surface-first" 헤더가 존재하고, 회전체 default 결정 트리가 (1) spiral_mode 적용 가능성 체크 → (2) aligned/back + painted seam → (3) random fallback 의 3단계 순서로 명시. 결정 트리 포맷은 **번호 목록(1./2./3.), 표, 또는 코드 블록 다이어그램(예: `text` fenced) 중 하나**로 작성한다 [structural]
+  - 측정:
+    - `rg -n "Surface-first" bambu-kit/skills/bambu-print-profile/SKILL.md` ≥1건
+    - `rg -n "spiral" SKILL.md` 동일 Phase 3 섹션 내 ≥1건
+    - `rg -n "painted|aligned.*back|back.*aligned" SKILL.md` Phase 3 내 ≥1건
+    - `rg -n "fallback|random" SKILL.md` Phase 3 내 ≥1건 (순서상 spiral 다음에 위치)
+  - FAIL: "Surface-first" 헤더 없음, 또는 random이 회전체 1순위, 또는 결정 트리가 산문 한 문장으로만 기술
 
-## Script
+- [ ] SK-02: `SKILL.md` Phase 3에 형상별 결정 트리 6개가 모두 enumerate. 한국어 라벨 우선, 영어 동의어 허용 [exact, enumerated]
+  - 6개 형상 (라벨 alternation):
+    1. `회전체` (또는 `rotational|cylinder`)
+    2. `박스|직육면체` (또는 `box|rectangular`)
+    3. `유기적|곡면` (또는 `organic|curved`)
+    4. `얇은 벽` (또는 `thin wall|thin-wall`)
+    5. `평면.*top|top.*평면` (또는 `flat top`)
+    6. `spiral vase|spiral mode` (영어 허용 — 슬라이서 용어)
+  - 측정: 6개 패턴 각각 `rg -ni` SKILL.md 내 ≥1건
+  - FAIL: 6개 중 하나라도 매칭 0건
 
-- [ ] SC-00: N/A — 이번 작업은 release.sh / 버전 bump를 트리거하지 않으며 marketplace.json 등록은 이전 세션 커밋 7742bb6에서 완료됨. plugin.json 버전 v0.1.0 유지 (이번 PR은 보강만 하고 버전 bump 안 함).
+- [ ] SK-03: `SKILL.md` Phase 3 또는 `surface-recipes.md`에 ironing 형상×소재 결정 트리 또는 표(table)가 존재하며, 8개 소재 각각이 동일한 표 또는 동일한 `###` 헤더 블록 내에서 ironing 적용/비적용 판정을 가진다 [structural, enumerated]
+  - 8개 소재 (각 패턴):
+    1. `PLA Basic`
+    2. `PLA Matte`
+    3. `PLA Silk`
+    4. `PETG HF`
+    5. `PA-?CF|PAHT-?CF` (PA-CF 또는 PAHT-CF)
+    6. `\bPC\b` (workaround: word boundary)
+    7. `ABS|ASA` (둘 다 또는 한 항목 묶음 허용)
+    8. `\bTPU\b`
+  - 측정: 8개 패턴 각각 `rg -ni` PASS + 같은 표 또는 같은 `### Ironing` (또는 동등) 블록 내에 모두 등장
+  - FAIL: 8개 소재 중 하나의 ironing 판정 누락
 
-## Error
+## Reference
 
-- [ ] ER-01: bambu-research SKILL.md에 외부 소스 폴링 실패 시 fallback 체인 명시 (Cloudflare/403 → codex-rescue 위임 → 무한 retry 금지) [structural] (측정: `grep -E "Cloudflare|codex-rescue|retry" .claude/skills/bambu-research/SKILL.md` ≥ 2 매치)
-- [ ] ER-02: bambu-kaizen SKILL.md에 사용자 명시 정책 보호 규칙 명시 (`nozzle_temperature` 안 건드림 + `wipe_on_loops` Bambu 부재 + silent skip 체크리스트 7항목 보존) [structural] (측정: `grep -c "nozzle_temperature\|wipe_on_loops\|silent skip" .claude/skills/bambu-kaizen/SKILL.md` ≥ 3)
+- [ ] RF-01: `references/bambu-fields-baseline.md`에 19개 surface 관련 필드가 추가되어 각 필드 라인 또는 표 행(table row) 또는 **3줄 이내 인접 라인**에 (a) 키 이름 (b) enum 또는 단위 (c) default 값 (d) 출처가 모두 명시. 출처는 **URL(`https://`로 시작) 또는 `file:line` 형식(`PrintConfig.cpp:N` / `*.json:N`) 또는 `source:` 접두 레이블 중 하나** [exact, enumerated]
+  - 필드 19종: `ironing_type`, `ironing_flow`, `ironing_spacing`, `ironing_speed`, `ironing_inset`, `top_surface_pattern`, `top_surface_speed`, `top_surface_acceleration`, `top_solid_infill_flow_ratio`, `bridge_flow`, `bridge_speed`, `reduce_crossing_wall`, `avoid_crossing_wall_includes_support`, `resolution`, `spiral_mode`, `seam_placement_away_from_overhangs`, `seam_slope_steps`, `seam_slope_entire_loop`, `seam_slope_inner_walls`
+  - 측정: 19개 키 각각 `rg -n "<키>" references/bambu-fields-baseline.md` PASS, 매칭 라인의 ±3줄 윈도우 내에 `mm|%|°C|true|false|0|1|"[a-z]"|배열` 단위/default 토큰 + URL/file:line/source 출처 토큰 동시 존재
+  - FAIL: 19개 중 하나라도 4종 정보 (키/단위/default/출처) 불완비
+
+- [ ] RF-02: `references/seam-recipes.md`의 회전체 default 정책이 **Auto-select 결정 트리 (spiral → painted → random fallback)** 로 전환되었고, 기존 Finding 1의 "random > aligned" 컨텍스트는 보존 (삭제 금지) [structural]
+  - 측정 (4개 grep 모두 PASS):
+    - `rg -n "Auto-select|결정 트리" seam-recipes.md` ≥1건
+    - `rg -n "spiral" seam-recipes.md` 회전체 섹션 내 ≥1건
+    - `rg -n "painted" seam-recipes.md` 회전체 섹션 내 ≥1건
+    - `rg -n "fallback|분산" seam-recipes.md` ≥1건
+    - `rg -n "Finding 1" seam-recipes.md` PASS (보존 확인)
+  - FAIL: 기존 default 그대로, 또는 Finding 1 헤더 삭제
+
+- [ ] RF-03: 신규 파일 `references/surface-recipes.md`가 존재하고, 6개 섹션 헤더가 각각 다음 키워드 패턴으로 매칭 [structural, enumerated]
+  - 6개 섹션 (헤더 expected 키워드):
+    1. `^## .*(Surface-first|개요|모드 소개)`
+    2. `^## .*(형상별|결정 트리|Shape)`
+    3. `^## .*(외벽|outer wall|매끈)`
+    4. `^## .*(Top|Bottom|상·하)`
+    5. `^## .*(Ironing|이로닝|아이러닝)`
+    6. `^## .*(트레이드오프|Trade-?off|주의사항)`
+  - 측정: 파일 존재 + 6개 패턴 각각 `rg -ni` PASS
+  - FAIL: 파일은 존재하나 Ironing 또는 트레이드오프 섹션 누락
 
 ## Architecture
 
-- [ ] AR-01: bambu-kit 폴더 구조 일관성 — `bambu-kit/.claude-plugin/plugin.json`, `bambu-kit/README.md`, `bambu-kit/skills/bambu-print-profile/{SKILL.md,BACKLOG.md,references/}` 모두 존재 [exact, enumerated] (측정: `ls` 각 경로 0 exit code. `BACKLOG.md`는 V5 placeholder 회피를 위해 2026-05-16 iteration 2에서 `TODO.md`에서 git mv로 rename됨)
-- [ ] AR-02: 카이젠 스킬 2종(`bambu-research`, `bambu-kaizen`)은 `.claude/skills/`에만 위치하고 `bambu-kit/` 안에 없음 (외부 사용자 노출 방지 — Gotcha 6의 정합성) [exact, enumerated] (측정: `find bambu-kit -type d \( -name 'bambu-research' -o -name 'bambu-kaizen' \) | wc -l == 0` 그리고 `ls .claude/skills/bambu-research/SKILL.md .claude/skills/bambu-kaizen/SKILL.md` 둘 다 0 exit code)
-- [ ] AR-03: `docs/bambu-kit/` 5개 HTML(`bambu-print-profile.html`, `bambu-fields-baseline.html`, `materials.html`, `seam-recipes.html`, `kaizen-sources.html`) 모두 존재 + 각 ≥ 400줄 [exact, enumerated] (측정: `wc -l docs/bambu-kit/*.html` 각 ≥ 400)
-- [ ] AR-04: `docs/index.html`의 categories 배열에 Bambu Kit 카테고리 + 5개 페이지 ID(`bambu-print-profile`, `bambu-fields-baseline`, `bambu-materials`, `bambu-seam-recipes`, `bambu-kaizen-sources`) 모두 등록 + getIcon() 함수에 동일 5 ID SVG 매핑 [exact, enumerated] (측정: `grep -c "id: 'bambu-" docs/index.html == 5` 그리고 `grep -c "'bambu-.*':\s*'<svg" docs/index.html == 5`)
-- [ ] AR-05: `CLAUDE.md` Skills Reference에 (a) bambu-kit 섹션 (b) `.claude/skills` 표에 `/bambu-kaizen`, `/bambu-research` 행 모두 존재 [exact, enumerated] (측정: `grep -c "bambu-kit" CLAUDE.md` ≥ 3 그리고 `grep "/bambu-kaizen\|/bambu-research" CLAUDE.md` 각 ≥ 1)
-- [ ] AR-06: `docs/bambu-kit/` 5 HTML 모두 (a) standalone (외부 CSS/JS/font CDN 로드 0건, anchor href 본문 인용은 OK) (b) `--accent:#14B8A6` 토큰 일관 적용 [exact, enumerated] (측정: `grep -lE "<link[^>]+href=[\"']https?://" docs/bambu-kit/*.html | wc -l == 0` 그리고 `grep -lE "<script[^>]+src=[\"']https?://" docs/bambu-kit/*.html | wc -l == 0`; `grep -L "\-\-accent:#14B8A6" docs/bambu-kit/*.html | wc -l == 0`)
+- [ ] AR-01: `SKILL.md`의 "작업 디렉토리 / 파일 구조" 섹션에 신규 `surface-recipes.md`가 등록되어 references는 4종 → 5종으로 갱신, 기존 4파일 모두 보존 [structural, enumerated]
+  - 측정 (5개 grep 모두 PASS, SKILL.md 한 파일 내):
+    - `rg -n "surface-recipes.md" SKILL.md` ≥1건 (신규)
+    - `rg -n "bambu-fields-baseline.md" SKILL.md` ≥1건
+    - `rg -n "materials.md" SKILL.md` ≥1건
+    - `rg -n "seam-recipes.md" SKILL.md` ≥1건
+    - `rg -n "kaizen-sources.md" SKILL.md` ≥1건
+  - FAIL: 5파일 중 하나라도 SKILL.md 구조 트리에 미등록
+
+- [ ] AR-02: Codex 리서치 run id `a25261e23b21252b2` 가 `surface-recipes.md` 또는 `seam-recipes.md` 새 섹션 헤더 또는 frontmatter에 명시 [exact]
+  - 측정: `rg -n "a25261e23b21252b2" bambu-kit/skills/bambu-print-profile/references/surface-recipes.md bambu-kit/skills/bambu-print-profile/references/seam-recipes.md` ≥1건
+  - FAIL: 두 파일 모두에서 매칭 0건
+
+## Error
+
+- [ ] ER-01: `BACKLOG.md`에 "Surface-first 후속 검증" 섹션이 추가, 최소 4개 항목 enumerate [structural, enumerated]
+  - 4개 항목 (각각 별도 grep):
+    1. `rg -n "precise z-seam" BACKLOG.md` ≥1건
+    2. `rg -n "seam_slope" BACKLOG.md` ≥1건 (entire_loop / steps / inner_walls 중 하나 이상)
+    3. `rg -ni "PLA Matte|PLA Silk|ASA|PAHT-?CF|TPU" BACKLOG.md` ≥3건 (소재 3종 이상 enumerate)
+    4. `rg -ni "PETG.*HF" BACKLOG.md` ≥1건 + `rg -ni "lot|습도|건조 의존" BACKLOG.md` ≥1건
+  - 측정: 4개 패턴 모두 PASS + 동일 `## Surface-first` (또는 동등) 섹션 헤더 내 등장
+  - FAIL: 4개 중 하나라도 누락
+
+- [ ] ER-02: `SKILL.md` Phase 3 또는 Phase 5에 PETG HF 건조 경고가 명시. **"AMS HT", "건조", "PETG"** 3 키워드가 모두 같은 단락(paragraph) 또는 같은 callout/blockquote/경고 블록 내에 등장 [structural]
+  - 측정:
+    - 동일 5줄 윈도우 내 3 키워드 모두 매칭: `rg -nU --multiline-dotall '(?s)PETG.{0,500}AMS HT.{0,500}건조|건조.{0,500}AMS HT.{0,500}PETG|AMS HT.{0,500}PETG.{0,500}건조' SKILL.md` ≥1건 (정규식 순서 alternation)
+    - 또는 단순 fallback: `rg -n -B2 -A2 "PETG" SKILL.md | rg "AMS HT"` + `rg -n -B2 -A2 "PETG" SKILL.md | rg "건조"` 둘 다 PASS
+  - FAIL: 3 키워드 중 하나가 다른 단락에만 존재, 또는 다른 소재(PA-CF)로 잘못 매핑
+
+## Script
+
+- [ ] SC-00: N/A — release.sh / marketplace.json / plugin.json 변경 없음. 본 스프린트는 문서 정책 변경 한정.
 
 ## Anti-patterns
 
-- [ ] AP-03: bambu-kit 플러그인 V6(code-fence) 게이트 PASS — 여는 fence에 언어 힌트 누락 0건. 닫는 fence(``` 단독)는 markdown 표준상 정상이므로 V6는 페어링 추적으로 제외함 (validate-plugin.py V6 로직 기준). `.claude/skills/bambu-{research,kaizen}/SKILL.md`는 validate-plugin.py 검사 범위 외(.claude/skills/는 plugin 외부)이지만 good-practice 차원에서 동일하게 모든 여는 fence에 hint 추가 [exact, enumerated] (측정: (1) `python3 scripts/validate-plugin.py bambu-kit --check=code-fence` exit 0 (2) `.claude/skills/bambu-research/SKILL.md`와 `.claude/skills/bambu-kaizen/SKILL.md`의 모든 fence pair에서 여는 라인이 ` ```text ` 등 hint 포함 — Python 스크립트로 페어링 검증)
-- [ ] AP-04: 신규 SKILL.md 2종 모두 frontmatter에 `name` 필드 존재 — validate-plugin V1 PASS [exact, enumerated] (측정: SK-01과 부분 중복이지만 별도 lint 게이트, `head -10 .claude/skills/bambu-research/SKILL.md | grep -c "^name:" == 1` 그리고 동일하게 bambu-kaizen)
+- [ ] AP-03: bare code fence 금지 — 신규 surface-recipes.md 및 변경 파일의 모든 code fence에 언어 힌트 명시 [exact]
+  - 측정: `rg -n '^[[:space:]]*```[[:space:]]*$' bambu-kit/skills/bambu-print-profile/` → 0건
+- [ ] AP-04: SKILL.md frontmatter `name: bambu-print-profile` 필드 보존 [exact]
+  - 측정: `head -10 bambu-kit/skills/bambu-print-profile/SKILL.md | grep -c "^name: bambu-print-profile"` = 1
 
 ## Reusability
 
-- [ ] RE-01: 두 신규 카이젠 스킬은 다른 카이젠 스킬에서 재사용 가능한 패턴(rust-research/rust-kaizen 골격)을 따랐다 — Gotchas/Process/References 섹션 동일 구조 [structural] (측정: 섹션 헤더 비교 — `grep "^# " .claude/skills/{rust-kaizen,bambu-kaizen}/SKILL.md`가 동일 prefix 셋 보유)
-- [ ] RE-02: 기존 docs-site 페이지 패턴(rust-kit/react-kit) + page-template.html을 재사용 — 5 HTML이 동일한 base CSS 토큰(`--bg`/`--surface`/`--text`)을 공유하고 accent만 plugin별로 분리 [structural] (측정: `grep -L "\-\-bg:#0d0d14" docs/bambu-kit/*.html | wc -l == 0`)
+- [ ] RE-01: 신규 `surface-recipes.md`가 `bambu-kit/skills/bambu-print-profile/references/` 디렉토리에 위치하며, private/internal/_hidden 같은 격리 경로에 두지 않았다 [exact]
+  - 측정: `test -f bambu-kit/skills/bambu-print-profile/references/surface-recipes.md` PASS + `find bambu-kit/skills/bambu-print-profile -path "*private*" -o -path "*_internal*" -o -path "*_hidden*" -name "surface-recipes.md"` = 0건
+  - FAIL: 격리 경로 또는 references 외 위치에 생성
+
+- [ ] RE-02: `SKILL.md`가 ironing 정책 본문을 인라인으로 박지 않고 `surface-recipes.md`를 참조하는 링크 또는 명시적 위임 문구를 포함 [structural]
+  - 측정:
+    - `rg -c "ironing" bambu-kit/skills/bambu-print-profile/SKILL.md` ≤ 10건 (인라인 본문 박지 않음)
+    - `rg -n "surface-recipes" bambu-kit/skills/bambu-print-profile/SKILL.md` ≥1건 (위임/참조)
+  - FAIL: SKILL.md 내 ironing 정책 표가 10줄 이상 인라인 박힘, 또는 surface-recipes.md 참조 0건
 
 ## Diagnostics
 
-- [ ] DG-01: `bash -n scripts/release.sh` 워닝 0개 — 이번 작업이 .sh 변경 0건이라 회귀 없음 (측정: `bash -n scripts/release.sh` exit 0)
-- [ ] DG-02: IDE diagnostics 워닝 — 이번 추가/수정 행에서 새로 발생한 워닝 0개. 예외: (a) cSpell "Unknown word" (bambu/Bambu/kaizen 등) — CLAUDE.md 명시 규칙대로 무시 (b) MD036/MD060/MD031 — 이번 추가 전부터 다른 모든 kit 섹션에 동일 패턴 존재하는 기존 워닝, 본 작업 범위 밖 (측정: 사용자 IDE 패널에서 본 작업 범위 신규 워닝 0건 확인)
-- [ ] DG-03: N/A — release.sh 실행 트리거 X. (이번 작업은 plugin.json 버전 변경 안 함)
-- [ ] DG-04: docs site 정적 검증 — 5 HTML 모두 `<!DOCTYPE html>` 시작 + `</html>` 종료 + iframe 로드 시 정상 표시 가능 [structural, enumerated] (측정: `head -1 docs/bambu-kit/*.html` 모두 `<!DOCTYPE html>`로 시작; `tail -1 docs/bambu-kit/*.html` 모두 `</html>` 또는 직전 빈 줄)
+- [ ] DG-01: `bash -n scripts/release.sh` — N/A, 셸 스크립트 변경 없음
+- [ ] DG-02: N/A — markdownlint 미적용 프로젝트, V6 코드펜스 검사는 DG-03(validate-plugin)로 흡수
+- [ ] DG-03: `python3 scripts/validate-plugin.py bambu-kit` PASS (V1 frontmatter, V6 code-fence 포함)
+- [ ] DG-04: 실제 앱 구동 검증 — N/A, 스킬 문서 변경

@@ -1,10 +1,45 @@
 # Seam / Scarf Seam 레시피 (Bambu Studio H2S)
 
-> Last updated: 2026-05-15
-> Source: Codex research run `afcf4968339021b29` (score 25/25)
+> Last updated: 2026-05-16 (v2 — surface-first 정책 추가)
+> Source: Codex research run `afcf4968339021b29` (score 25/25, v1 기반) + run `a25261e23b21252b2` (score 24/25, v2 surface-first 정책)
 > Bambu Studio reference version: 2.6.0 (v02.06.00.51)
 
 스킬이 모델 형상 + 선택된 소재에 맞춰 process 측 `seam_*` / `seam_slope_*` + filament 측 `filament_scarf_*` 권장 조합을 도출할 때 참조.
+
+## 0. Surface-first 모드 — 회전체 default 정책 (2026-05-16 v2)
+
+> Codex run `a25261e23b21252b2`. 자세한 결정 트리는 [`surface-recipes.md`](./surface-recipes.md) §2.1 참조.
+
+### 정책 변경
+
+기존 v1 default (회전체):
+- `seam_position: random + seam_slope_type: external + seam_slope_entire_loop: 1` (분산 전략)
+
+v2 surface-first default (회전체) — **Auto-select 결정 트리**:
+
+```text
+회전체 모델 감지
+  │
+  ├─ (1) spiral_mode 적용 가능? (단일 외벽, top 없음, infill 불필요, 단일 색상)
+  │      YES → spiral_mode = 1 (진짜 무 seam, Z축 연속 나선)
+  │
+  ├─ (2) painted seam 가능한 숨김 면 존재? (뒷면, 내부 홈, 손잡이 그늘, 텍스처)
+  │      YES → seam_position = aligned (또는 back)
+  │             + Studio UI에서 seam paint tool로 숨김 영역 페인팅
+  │             + scarf external, length 15-20mm, gap 5-10%, height 0-10%
+  │
+  └─ (3) 위 둘 다 불가 (완전 노출 전방향 원통)
+         FALLBACK → seam_position = random + seam_slope_entire_loop = 1
+                   ※ 이는 "분산 전략" — 은닉이 아니라 specks 분산으로 덜 거슬리게
+                   ※ Real-world Finding 1 (§Real-world findings) 컨텍스트 적용
+```
+
+### 분산 vs 은닉
+
+- **분산** (v1 default): seam을 random 또는 entire_loop으로 외벽 전체에 흩뿌려 한 줄 라인을 specks로 변환. Codex run `afcf4968339021b29` + Real-world Finding 1.
+- **은닉** (v2 default): seam을 spiral_mode 또는 painted seam으로 시각적으로 안 보이는 면(뒷면/내부 홈/그늘)에 숨김. Codex run `a25261e23b21252b2`.
+
+surface-first 모드에서는 **은닉을 1순위**로, painted 불가 시에만 분산 fallback. 자세한 비교/판정 로직은 surface-recipes.md.
 
 ## 1. Scarf seam 메커니즘 — Contour vs All
 
@@ -111,7 +146,9 @@
 
 스킬 v1 테스트 출력에서 얻은 실측 데이터 — Codex 이론과 다르거나 보강할 점.
 
-### Finding 1: 회전체 vent pipe에서 random > aligned (시각적)
+### Finding 1: 회전체 vent pipe에서 random > aligned (시각적) — 분산 전략 fallback
+
+> v2 surface-first 정책 (§0)에서 이 Finding은 **(3) FALLBACK 단계의 컨텍스트**로 적용된다. 즉, spiral_mode 불가 + painted seam 가능한 숨김 면 없는 완전 노출 원통에서만 random 분산을 쓴다. painted 가능하면 §0의 (2)가 우선.
 
 **상황**: H2S + PETG HF + 0.4mm + 30×30×35mm 쿠폰 (4 wall, hollow tube), `seam_slope_entire_loop: 1` + `seam_slope_type: all` 적용.
 

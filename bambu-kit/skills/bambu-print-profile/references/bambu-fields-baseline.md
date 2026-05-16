@@ -92,7 +92,8 @@
 `inherits`는 부모 프리셋명. 저장 시 부모와 다른 키만 JSON에 저장되고, 로딩 시 부모 config 적용 후 child config가 apply된다.
 
 ### Process 체인
-```
+
+```text
 사용자 preset
   → 0.20mm Standard @BBL H2S
     → fdm_process_single_0.20
@@ -101,7 +102,8 @@
 ```
 
 ### Filament 체인 (PLA Basic 예시)
-```
+
+```text
 사용자 preset
   → Bambu PLA Basic @BBL H2S
     → Bambu PLA Basic @base
@@ -164,7 +166,64 @@
 - 장점: 생성 당시 동작 고정, 독립 실행형 프리셋.
 - 단점: v2.x schema 변화, H2S variant 배열, AMS HT/AMS 2 Pro 관련 필드 변화를 직접 추적해야 함. outdated 키 섞일 위험.
 
-## 8. 미해결 / 검증 필요
+## 8. Surface Quality 관련 필드 (2026-05-16 v2 확장)
+
+> Source: Codex research run `a25261e23b21252b2` (score 24/25)
+> 추가 배경: surface-first 정책 풀 적용 (seam 은닉 + 표면 매끈 + 속도 무시). 자세한 정책 결정 트리는 `references/surface-recipes.md` 참조.
+
+### 8.1. Ironing 필드 (top surface 마감)
+
+| 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
+|----|-------------|---------|--------------------------|
+| `ironing_type` | enum: `no ironing` (default 표기), `top_surfaces`, `topmost_only`, `all_solid` | `"no ironing"` | fdm_process_common.json:57-61; Orca wiki https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html |
+| `ironing_flow` | `%` (line flow 대비) | `10%` (H2S 0.20 override `15%`) | fdm_process_common.json:57; 0.20mm Standard @BBL H2S.json:41 |
+| `ironing_spacing` | `mm` (line spacing) | `0.15` mm | fdm_process_common.json:59 |
+| `ironing_speed` | `mm/s` | `30` mm/s | fdm_process_common.json:60 |
+| `ironing_inset` | `mm` (외벽에서 들여서 시작하는 거리) | `0.21` mm | fdm_process_common.json:58; https://github.com/bambulab/BambuStudio/releases/tag/v01.10.00.74 (lines 213-215) |
+
+### 8.2. Top / Bottom Surface 필드
+
+| 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
+|----|-------------|---------|--------------------------|
+| `top_surface_pattern` | enum: `monotonic`, `monotonicline`, `concentric`, `archimedean`, `hilbert` | `monotonicline` | fdm_process_common.json:167 |
+| `top_surface_speed` | `mm/s` | common `30`; H2S 0.20 Standard `200`; 0.12 HQ `150` | fdm_process_common.json:169-170; 0.20mm Standard @BBL H2S.json; 0.12mm High Quality @BBL H2S.json |
+| `top_surface_acceleration` | `mm/s²` | H2S default `2000` | 0.20mm Standard @BBL H2S.json:165-167; 0.12mm High Quality @BBL H2S.json:146-168 |
+| `top_solid_infill_flow_ratio` | float (1.0 = 100%) | `1` | fdm_process_common.json:172-174 |
+| `bridge_flow` | float | common `0.95`; single 0.12/0.20 override `1` | fdm_process_common.json:12; fdm_process_single_0.12.json:9 |
+| `bridge_speed` | `mm/s` | common `25`; H2S profiles `50` | fdm_process_common.json:14-16; 0.20mm Standard @BBL H2S.json:9-12 |
+
+### 8.3. Wall / Travel / Resolution 필드
+
+| 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
+|----|-------------|---------|--------------------------|
+| `reduce_crossing_wall` | `0` / `1` (bool) | `0` (surface-first에서는 `1` 권장) | fdm_process_common.json:100; source: src/libslic3r/PrintConfig.cpp |
+| `avoid_crossing_wall_includes_support` | `0` / `1` (bool) | `0` | fdm_process_common.json:76; source: src/libslic3r/PrintConfig.cpp |
+| `resolution` | `mm` (gcode arc/segment resolution) | 로컬 default `0.012`; source default `0.01`; normalize min `0.001` | fdm_process_common.json:103; source: src/libslic3r/PrintConfig.cpp:188-189, 278-282 |
+
+### 8.4. Spiral / Seam Placement 필드
+
+| 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
+|----|-------------|---------|--------------------------|
+| `spiral_mode` | `0` / `1` (bool) | `0`; `1`로 켜면 normalize가 `wall_loops=1`, `top_shell_layers=0`, `sparse_infill_density=0` 강제 | fdm_process_common.json:123; source: src/libslic3r/PrintConfig.cpp:277-282 |
+| `seam_placement_away_from_overhangs` | `0` / `1` (bool) | `0` | fdm_process_common.json:106; source: src/libslic3r/PrintConfig.cpp |
+
+### 8.5. Seam Slope (scarf) 추가 필드 — 검증 필요
+
+§3 표에 키 자체는 enumerate되어 있으나, 로컬 `fdm_process_common.json` 기본값이 누락된 항목. PrintConfig.cpp 또는 exported preset 재확인 (BACKLOG `Surface-first 후속 검증` 항목 (b) 참조).
+
+| 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
+|----|-------------|---------|--------------------------|
+| `seam_slope_steps` | int (min `1`) | `10` (커뮤니티/Orca wiki 권장 기본; 로컬 fdm_process_common 미확인 — BACKLOG (b) 검증) | references/seam-recipes.md §2 표 `Scarf steps`; source: src/libslic3r/PrintConfig.cpp |
+| `seam_slope_entire_loop` | `0` / `1` (bool) | `0` (Off — Bambu 공식 권장; 로컬 fdm_process_common 미확인 — BACKLOG (b) 검증) | references/seam-recipes.md §2 표 `Scarf around entire wall`; source: src/libslic3r/PrintConfig.cpp |
+| `seam_slope_inner_walls` | `0` / `1` (bool) | `0` (외벽 한정 권장 — vent pipe Finding 2 실측; 로컬 fdm_process_common 미확인 — BACKLOG (b) 검증) | references/seam-recipes.md Finding 2; source: src/libslic3r/PrintConfig.cpp |
+
+### 8.6. surface-first 모드 변경 핵심 요약
+
+- 회전체 default: `seam_position: random + seam_slope_entire_loop: 1` (분산) → **Auto-select 결정 트리 (spiral_mode → painted seam → random fallback)** (은닉). 자세한 결정 트리는 `surface-recipes.md` 참조.
+- Ironing 정책 신규 추가: PLA Basic/Matte/PLA Silk + flat top 한정. PETG/PC/TPU/CF류는 비추.
+- 외벽 매끈함 공통값: `layer_height 0.08-0.12`, `wall_loops 3-4`, `outer_wall_speed 20-40 mm/s`, `reduce_crossing_wall 1`, `resolution 0.006-0.010`.
+
+## 9. 미해결 / 검증 필요
 
 - `master`는 2.6.0 이후 142 commits 진행 중 → 2.6.0 설치 번들 내장 JSON과 완전 동일 보장 아님. 안정판 tag/asset 내부 프로파일 직접 추출하여 diff 권장.
 - 공식 문서가 "process에서 scarf override 시 filament 충돌 우선순위"를 명시하지 않음. 소스/UI 명칭상 `override_filament_scarf_seam_setting=1`이면 process의 `seam_slope_*`가 제어한다고 보는 것이 합리적.

@@ -133,6 +133,10 @@
 <h1>Seam Recipes — 형상 × 소재 Scarf 매트릭스 + Real-world Findings</h1>
 <p class="subtitle">회전체 / 박스 / 유기적 형상별 seam 전략 + PLA/PETG/PA/CF 소재별 scarf 파라미터 + 실측 검증된 5가지 발견. Bambu Studio H2S v2.6.0 + Codex research run <code style="font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2)">afcf4968339021b29</code> 기준.</p>
 
+<div style="border-left:3px solid #14B8A6;background:rgba(20,184,166,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:32px">
+  <strong style="color:#14B8A6">v2 정책 전환 (2026-05-16):</strong> 회전체 default가 <code>random + entire_loop</code>(분산 전략)에서 <strong>Auto-select 결정 트리</strong>(<code>spiral_mode</code> → painted seam → random fallback)로 전환. 분산이 아닌 <strong>은닉</strong>을 1순위로. Real-world Finding 1의 "random > aligned" 컨텍스트는 (3) FALLBACK 단계 컨텍스트로 보존. 자세한 정책 → <a href="surface-recipes.html" style="color:#5EEAD4;text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code>.
+</div>
+
 <!-- ── Section 1: 형상별 seam 전략 ── -->
 <div class="section">
   <div class="section-label">Section 1 · 형상별 Seam 전략</div>

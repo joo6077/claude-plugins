@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surface-first Recipes — Bambu Studio H2S</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#14B8A6;--accent2:#5EEAD4;--accent-dim:rgba(20,184,166,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(20,184,166,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px;letter-spacing:0.2px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(20,184,166,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(20,184,166,0.03)}
+  td code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
+  .checklist code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .compare li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:16px;position:relative}
+  .compare-good li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:700}
+  .compare-bad li::before{content:'×';position:absolute;left:0;color:var(--red);font-weight:700}
+  .compare li code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  pre.tree{font-size:13px;line-height:1.85;color:var(--text)}
+  pre .kw{color:var(--accent2);font-weight:600}
+  pre .ok{color:var(--green)}
+  pre .bad{color:var(--red)}
+  pre .cm{color:var(--text3)}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono)}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+  .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
+  .badge-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .badge-info{background:var(--accent-dim);color:var(--accent)}
+  .badge-bad{background:rgba(248,113,113,0.12);color:var(--red)}
+
+  .phase-tag{font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+
+  .callout{border-left:3px solid var(--yellow);background:rgba(251,191,36,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin:14px 0}
+  .callout strong{color:var(--yellow)}
+  .callout.info{border-left-color:var(--accent);background:rgba(20,184,166,0.05)}
+  .callout.info strong{color:var(--accent)}
+
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Bambu Kit</a>
+
+<h1>Surface-first Recipes — 완벽한 표면 + 안 보이는 seam</h1>
+<p class="subtitle">Bambu Lab H2S + Bambu Studio v2.6.0+ 에서 표면 품질을 최우선으로 두고 seam을 분산이 아닌 <strong>은닉</strong>으로 처리하는 정책. 회전체 default를 <code>random + entire_loop</code>(분산)에서 <strong>Auto-select 결정 트리</strong>(spiral_mode → painted seam → random fallback)로 전환한다. Codex research run <code>a25261e23b21252b2</code> (score 24/25, 2026-05-16) 기반.</p>
+
+<!-- ── Section 1: 모드 개요 ── -->
+<div class="section">
+  <div class="section-label">Section 1 — 모드 개요</div>
+  <p class="desc">Surface-first 모드는 사용자가 표면 품질을 명시적으로 우선하는 경우 ON. 속도와 시간은 무시하지만, 너무 느린 PETG/PC/ABS에서 열 축적 → warping/광택 불균일 같은 부작용은 별도 관리한다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="rule-number">Rule 01</div>
+      <h3>트리거 조건</h3>
+      <div class="card-body">
+        "표면 매끈하게", "심 안 보이게", "완벽한 표면", "퀄리티 우선", "속도 신경 안 씀" 같은 명시 표현. 모델이 외관 prototype / 피규어 / 장식품 / 케이스 외관 / 회전체 화병·컵이면 자동 ON 제안.
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">Bambu Studio v2.6.0 Release</a>
+    </div>
+
+    <div class="card">
+      <div class="rule-number">Rule 02</div>
+      <h3>우선순위</h3>
+      <div class="card-body">
+        seam 은닉 ≥ 외벽 매끈 &gt; top 마감 &gt; 강도/치수 &gt; 시간. 속도는 무시하되 PETG/PC/ABS의 열 축적 부작용은 별도 관리. 안전성(PETG 건조, CF hardened nozzle)은 항상 우선.
+      </div>
+      <a class="card-source" href="https://bambulab.com/en-us/filament/petg-hf">Bambu PETG HF Guide</a>
+    </div>
+
+    <div class="card">
+      <div class="rule-number">Rule 03</div>
+      <h3>출력 시간 예상</h3>
+      <div class="card-body">
+        일반 <code>0.20mm Standard</code> 대비 약 <strong>2~4배</strong> 증가. 예: 4시간 → 12시간. 0.12mm layer + outer 30mm/s + wall 3 + ironing의 누적 결과. 사용자에게 시간 추정치 사전 고지.
+      </div>
+      <a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">OrcaSlicer Ironing Wiki</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 2: 형상별 결정 트리 ── -->
+<div class="section">
+  <div class="section-label">Section 2 — 형상별 결정 트리 (Auto-select)</div>
+  <p class="desc">스킬이 모델 형상을 분석한 뒤 다음 순서로 자동 판정. 모호하면 사용자에게 옵션 제시. 회전체 default가 v1의 random 분산에서 v2의 Auto-select 은닉으로 전환된다.</p>
+
+  <h3 style="margin-bottom:14px">2.1. 회전체 / 원기둥 / 컵 / 화병 — Auto-select 3단계</h3>
+<pre class="tree">회전체 모델 감지
+  │
+  ├─ <span class="kw">1.</span> spiral_mode 적용 가능? <span class="cm">(단일 외벽, top 없음, infill 불필요, 단일 색상)</span>
+  │      <span class="ok">YES → spiral_mode = 1</span> (진짜 무 seam, Z축 연속 나선)
+  │
+  ├─ <span class="kw">2.</span> painted seam 가능한 숨김 면 존재? <span class="cm">(뒷면, 내부 홈, 손잡이 그늘, 텍스처)</span>
+  │      <span class="ok">YES → seam_position = aligned (또는 back)</span>
+  │             + scarf external (length 15-20mm, gap 5-10%, height 0-10%, steps 10)
+  │             + 사용자가 Studio UI seam paint tool 로 숨김 영역 페인팅
+  │
+  └─ <span class="kw">3.</span> 위 둘 다 불가 <span class="cm">(완전 노출 전방향 원통)</span>
+         <span class="bad">FALLBACK → seam_position = random + seam_slope_entire_loop = 1</span>
+         <span class="cm">※ "은닉"이 아니라 specks 분산 — Real-world Finding 1 컨텍스트</span>
+</pre>
+
+  <div class="callout">
+    <strong>정책 변경 핵심:</strong> v1의 random 분산은 "보이지 않게"가 아니라 "흩뿌려 덜 거슬리게"였다. v2는 spiral_mode 또는 painted seam으로 실제 시각적 비노출 면에 숨긴다. 분산 fallback은 painted 적용 불가한 완전 노출 원통 한정.
+  </div>
+
+  <h3 style="margin:32px 0 14px">2.2 ~ 2.6. 박스 · 유기적 · 얇은 벽 · 평면 top · spiral vase</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2.2</span>
+        <div>
+          <div class="phase-tag">박스 / 직육면체</div>
+          <h3>back 또는 aligned + corner painted</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        Sharp corner에 seam 숨김 + 필요 시 painted seam으로 코너 강조. scarf는 일반적으로 off 또는 length 5-8mm (corner sharpness 보존). <strong>random 금지</strong> — 평평한 면에 specks 분산되면 외관 ↓.
+      </div>
+      <a class="card-source" href="https://www.reddit.com/r/3Dprinting/comments/1o6i5a1/how_to_improve_your_seams_on_curved_surfaces/">Reddit Bambu Seam Guide</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2.3</span>
+        <div>
+          <div class="phase-tag">유기적 곡면 / 피규어</div>
+          <h3>aligned (back 우선) + 텍스처 painted</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        Studio UI seam paint로 후면, 주름, 접합부, 머리카락 텍스처에 페인팅. scarf: Contour (외벽만), length 10-15mm, gap 5-10%, height 0-10%, steps 10. Smart scarf 각도 판정 흔들리면 Off 고려.
+      </div>
+      <a class="card-source" href="https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam">Orca Seam Wiki</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2.4</span>
+        <div>
+          <div class="phase-tag">얇은 벽 / 미세 디테일</div>
+          <h3>scarf 짧게 또는 off</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        seam_position aligned + scarf length 5-10mm 또는 off (scarf ramp가 얇은 벽 형상 침범). wall_loops 1-2 + Arachne wall generator 검토. 작은 홀에 <code>Contour and Hole</code> 비추 — 내경 치수 영향.
+      </div>
+      <a class="card-source" href="https://forum.bambulab.com/t/scarf-seam-does-not-work-on-the-inside-of-a-circle/187310">Bambu Forum — Inside Hole Case</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2.5</span>
+        <div>
+          <div class="phase-tag">평면 top 강조 (도구 · 케이스 lid · 박스 top)</div>
+          <h3>top 품질 우선 + ironing 적극</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        seam은 후면/코너에 숨김. <strong>Top surface 품질이 외벽보다 더 중요</strong> — outer 속도보다 top 속도/flow에 집중. Ironing 적극 적용 (§5). top_surface_pattern은 monotonicline 또는 원형이면 concentric 실험.
+      </div>
+      <a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">OrcaSlicer Ironing Wiki</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2.6</span>
+        <div>
+          <div class="phase-tag">Spiral vase 가능 모델</div>
+          <h3>spiral_mode = 1 (다른 설정 무의미)</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        조건: 단일 외벽 · top 없음 · infill 없음 · 멀티컬러 아님. <code>spiral_mode = 1</code> 켜면 normalize가 <code>wall_loops=1</code>, <code>top_shell_layers=0</code>, <code>sparse_infill_density=0</code> 강제. 단점: 강도 ↓ (외벽 1겹), top 없음 (밀폐 불가), 멀티컬러 불가.
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp">PrintConfig.cpp:277-282</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 3: 외벽 표면 권장값 ── -->
+<div class="section">
+  <div class="section-label">Section 3 — 외벽 표면 권장값 (공통 + 소재별)</div>
+  <p class="desc">H2S 0.4 hardened nozzle 기준. 모든 단위 명시. 공통 baseline은 fdm_process_common.json + H2S profile 변수. PA · flow ratio 캘리브레이션 전제.</p>
+
+  <h3 style="margin-bottom:14px">3.1. 공통 process 기본값</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>Surface-first 값</th><th>기본 baseline</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td><code>layer_height</code></td><td>회전체/유기적 <code>0.08</code> mm · 박스/도구 <code>0.12</code> · 큰 평면 <code>0.12-0.16</code></td><td>H2S 0.20 Standard</td><td>0.12 HQ profile (outer 60mm/s)</td></tr>
+        <tr><td><code>wall_loops</code></td><td><code>3</code> (표면 우선) ~ <code>4</code> (강도 + 표면)</td><td><code>2</code></td><td>fdm_process_common.json</td></tr>
+        <tr><td><code>outer_wall_speed</code></td><td>PLA/PETG <code>20-40</code> · Silk <code>15-25</code> · PA/PC/ABS <code>20-30</code> · TPU <code>10-20</code> mm/s</td><td>H2S 0.12 HQ <code>60</code></td><td>0.12mm High Quality @BBL H2S.json</td></tr>
+        <tr><td><code>inner_wall_speed</code></td><td>outer의 <code>2-3배</code> 이하 (예: 30 → 60-90)</td><td>H2S 0.12 HQ <code>90</code></td><td>동일</td></tr>
+        <tr><td><code>wall_sequence</code></td><td><code>inner-outer-inner wall</code> 기본 · sharp box 치수만 <code>inner / outer</code></td><td><code>inner / outer</code></td><td>fdm_process_common.json:58</td></tr>
+        <tr><td><code>reduce_crossing_wall</code></td><td><code>1</code></td><td><code>0</code></td><td>fdm_process_common.json:100</td></tr>
+        <tr><td><code>enable_arc_fitting</code></td><td><code>1</code> (유지)</td><td><code>1</code></td><td>fdm_process_common.json:29</td></tr>
+        <tr><td><code>resolution</code></td><td><code>0.006-0.010</code> mm</td><td><code>0.012</code></td><td>fdm_process_common.json:103</td></tr>
+        <tr><td>flow ratio</td><td>소재/색상별 calibration 후 (PLA Basic 기본 <code>0.98</code>)</td><td>동일</td><td>Bambu PLA Basic @BBL H2S.json</td></tr>
+        <tr><td>Pressure Advance</td><td>소재/노즐/건조 후 PA profile 저장 필수</td><td>—</td><td>Bambu 공식 calibration 가이드</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:32px 0 14px">3.2. 소재별 외벽 보정 매트릭스</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>소재</th><th>outer wall (mm/s)</th><th>layer (mm)</th><th>추가 보정</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PLA Basic</strong></td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>가장 예측 가능. ironing 적극.</td></tr>
+        <tr><td><strong>PLA Matte</strong></td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>layer line 가장 잘 숨음. 표면 매끈 최강.</td></tr>
+        <tr><td><strong>PLA Silk</strong></td><td><code>15-25</code></td><td><code>0.10-0.12</code></td><td>광택 보존 위해 더 느림. ironing은 topmost_only만 (광택 죽음 주의).</td></tr>
+        <tr><td><strong>PETG HF</strong></td><td><code>20-35</code></td><td><code>0.12</code></td><td><strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>. fan 20-50%.</td></tr>
+        <tr><td><strong>PA-CF / PAHT-CF</strong></td><td><code>20-30</code></td><td><code>0.12</code></td><td>fiber 질감으로 완전 매끈 한계. AMS HT 80°C 8h + hardened nozzle 필수.</td></tr>
+        <tr><td><strong>PC</strong></td><td><code>20-30</code></td><td><code>0.12</code></td><td>건조 필수 (chamber 60°C). ooze 많으면 외벽 first wipe.</td></tr>
+        <tr><td><strong>ABS / ASA</strong></td><td><code>25-35</code></td><td><code>0.12</code></td><td>enclosure + brim. vapor smoothing 후가공 가능.</td></tr>
+        <tr><td><strong>TPU</strong></td><td><code>10-20</code></td><td><code>0.16-0.20</code></td><td>scarf/ironing 비추. layer 두껍게 가도 됨 (유연성 우선).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 4: Top/Bottom 표면 ── -->
+<div class="section">
+  <div class="section-label">Section 4 — Top · Bottom 표면 권장값</div>
+  <p class="desc">Ironing 외 top/bottom 자체 품질 파라미터. top_shell_layers를 늘려 underfill / pinhole 방지, top_surface_speed 감속으로 광택 균일성 확보.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>Surface-first 값</th><th>기본 baseline</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td><code>top_shell_layers</code></td><td>0.12mm: <code>7-9</code> · 0.16mm: <code>6</code> · 0.20mm: <code>5-6</code></td><td>common <code>3</code>, single 0.12 <code>5</code></td><td>fdm_process_common.json:7-16</td></tr>
+        <tr><td><code>bottom_shell_layers</code></td><td><code>4-6</code></td><td>common <code>3</code></td><td>fdm_process_common.json</td></tr>
+        <tr><td><code>top_surface_pattern</code></td><td>기본 <code>monotonicline</code> · 원형 top은 <code>concentric</code> 실험 · 장식은 의도시만 <code>archimedean</code>/<code>hilbert</code></td><td><code>monotonicline</code></td><td>fdm_process_common.json:167</td></tr>
+        <tr><td><code>top_surface_speed</code></td><td>PLA <code>20-40</code> · PETG <code>15-30</code> · PA/PC/ABS <code>20-30</code> · TPU <code>10-20</code> mm/s</td><td>H2S 0.20 <code>200</code>, 0.12 HQ <code>150</code></td><td>0.12mm HQ:146-168</td></tr>
+        <tr><td><code>top_surface_acceleration</code></td><td><code>500-1000</code> mm/s²</td><td>H2S <code>2000</code></td><td>0.20mm Standard:165-167</td></tr>
+        <tr><td><code>top_solid_infill_flow_ratio</code></td><td>calibration 후 <code>1.00</code> 기본 · gap 시 <code>+0.02</code> · ridge 시 <code>-0.02</code></td><td><code>1</code></td><td>fdm_process_common.json:172-174</td></tr>
+        <tr><td><code>bridge_flow</code></td><td><code>1.0</code> 유지 · 외관 노출 bridge는 <code>0.95-1.0</code></td><td>common <code>0.95</code>, override <code>1</code></td><td>fdm_process_common.json:12</td></tr>
+        <tr><td><code>bridge_speed</code></td><td><code>20-30</code> mm/s</td><td>common <code>25</code>, H2S <code>50</code></td><td>fdm_process_common.json:14-16</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 5: Ironing 매트릭스 ── -->
+<div class="section">
+  <div class="section-label">Section 5 — Ironing 형상 × 소재 매트릭스</div>
+  <p class="desc"><code>ironing_type</code> enum: <code>no ironing</code>, <code>top_surfaces</code>, <code>topmost_only</code>, <code>all_solid</code>. surface-first는 대부분 <code>topmost_only</code> (외벽 주변 과다 ironing 회피). 1.10.0에서 ironing_inset이 추가된 이유와 동일.</p>
+
+  <h3 style="margin-bottom:14px">5.1. 소재별 ironing 정책</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>소재</th><th>ironing_type</th><th>speed (mm/s)</th><th>flow (%)</th><th>spacing (mm)</th><th>inset (mm)</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PLA Basic</strong></td><td><code>topmost_only</code> 또는 <code>top_surfaces</code></td><td><code>15-20</code></td><td><code>10-15</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge badge-ok">적극 권장</span></td></tr>
+        <tr><td><strong>PLA Matte</strong></td><td><code>topmost_only</code></td><td><code>15-20</code></td><td><code>8-12</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge badge-ok">권장</span> chalky 주의</td></tr>
+        <tr><td><strong>PLA Silk</strong></td><td><code>topmost_only</code> only</td><td><code>10-15</code></td><td><code>5-10</code></td><td><code>0.10-0.15</code></td><td><code>0.3-0.5</code></td><td><span class="badge badge-warn">신중</span> 광택 죽음</td></tr>
+        <tr><td><strong>PETG HF</strong></td><td>원칙 off · 평면 장식만 <code>topmost_only</code></td><td><code>10-15</code></td><td><code>5-8</code></td><td><code>0.15-0.20</code></td><td><code>0.4-0.6</code></td><td><span class="badge badge-bad">비추</span> blob</td></tr>
+        <tr><td><strong>PA-CF / PAHT-CF</strong></td><td><code>no ironing</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-bad">비추</span> fiber</td></tr>
+        <tr><td><strong>PC</strong></td><td><code>no ironing</code> 또는 소형 <code>topmost_only</code> 실험</td><td><code>10-15</code></td><td><code>5-8</code></td><td><code>0.15-0.20</code></td><td><code>0.4</code></td><td><span class="badge badge-warn">실험</span> ooze</td></tr>
+        <tr><td><strong>ABS / ASA</strong></td><td><code>topmost_only</code> 실험 가능</td><td><code>15-20</code></td><td><code>8-12</code></td><td><code>0.12-0.18</code></td><td><code>0.3-0.5</code></td><td><span class="badge badge-warn">실험</span> 후가공 가능</td></tr>
+        <tr><td><strong>TPU</strong></td><td><code>no ironing</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-bad">불가</span> drag</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:32px 0 14px">5.2. 형상별 ironing 적용성</h3>
+  <div class="grid-3">
+    <div class="card">
+      <h3>회전체 / 원기둥</h3>
+      <div class="card-body"><span class="badge badge-bad">무의미</span><br><br>top이 없음 (cylinder 위쪽 평면 X). spiral vase면 더더욱 무의미 (top_shell_layers=0 강제).</div>
+    </div>
+    <div class="card">
+      <h3>박스 / 직육면체 (top 있음)</h3>
+      <div class="card-body"><span class="badge badge-ok">강함</span><br><br>평면 top에 가장 효과적. surface-first의 핵심 영역. topmost_only로 외벽 주변 unevenness 회피.</div>
+    </div>
+    <div class="card">
+      <h3>유기적 곡면</h3>
+      <div class="card-body"><span class="badge badge-warn">부분</span><br><br>작은 수평 island top만 <code>topmost_only</code>. 곡면 자체는 ironing pass 어려움.</div>
+    </div>
+    <div class="card">
+      <h3>얇은 벽 / 미세 디테일</h3>
+      <div class="card-body"><span class="badge badge-bad">거의 off</span><br><br>표면 면적 부족, ironing pass가 detail 침범.</div>
+    </div>
+    <div class="card">
+      <h3>평면 top 강조</h3>
+      <div class="card-body"><span class="badge badge-ok">필수</span><br><br>도구 / 케이스 lid / 박스 top 등. surface-first 모드의 효용 최대.</div>
+    </div>
+    <div class="card">
+      <h3>Spiral vase</h3>
+      <div class="card-body"><span class="badge badge-bad">무의미</span><br><br>normalize에서 top_shell_layers=0 강제. ironing 적용 대상 자체가 없음.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 6: 트레이드오프 ── -->
+<div class="section">
+  <div class="section-label">Section 6 — 트레이드오프</div>
+  <p class="desc">Surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사전 고지 필수. 속도 무시는 명시 요구지만 너무 느린 PETG/PC/ABS의 부작용은 별도 관리.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="rule-number">6.1 표면 vs 치수</div>
+      <h3>코너 sharpness · 홀 내경 영향</h3>
+      <div class="card-body">
+        낮은 outer speed + scarf + ironing + flow 조정은 외관 ↑하지만 sharp corner / edge sharpness 흐려짐, 작은 hole 내경 영향 (<code>Contour and Hole</code> 켜면 더 심함). 얇은 벽에서 wall 3-4겹 적용 시 형상 깨짐.
+      </div>
+    </div>
+    <div class="card">
+      <div class="rule-number">6.2 표면 vs 강도</div>
+      <h3>벽 접합 · overhang 안정성 변화</h3>
+      <div class="card-body">
+        <code>inner-outer-inner</code> wall sequence는 외관 ↑하지만 일부 형상에서 벽 접합/overhang 안정성 변화. scarf ramp 구간은 layer 강도 미세 변화. 낮은 cooling fan은 광택 ↑하지만 PLA 층간 접착 ↓ 가능.
+      </div>
+    </div>
+    <div class="card">
+      <div class="rule-number">6.3 표면 vs 실패 확률</div>
+      <h3>blob · drag · clog · heat creep</h3>
+      <div class="card-body">
+        <strong>PETG / PC / TPU ironing은 blob, drag mark, clog / heat creep 위험 ↑.</strong> Smart scarf가 angle/overhang에서 끊기면 표면 불균일 — Off 또는 threshold 낮춤 필요. PA-CF / PAHT-CF의 0.4mm hardened nozzle은 0.6mm 권장 소재에서 막힘 위험.
+      </div>
+    </div>
+    <div class="card">
+      <div class="rule-number">6.4 표면 vs 시간 / 소재</div>
+      <h3>2~4배 시간 + wall/shell ↑</h3>
+      <div class="card-body">
+        출력 시간 <strong>2~4배</strong> (예: 4시간 → 12시간). top_shell 7-9 layers, wall 3-4, calibration coupons → 소재 소모 ↑. 사용자가 시간/소재 비용을 수용하는지 사전 확인.
+      </div>
+    </div>
+    <div class="card">
+      <div class="rule-number">6.5 속도 무시 시 부작용</div>
+      <h3>열 축적 · warping · stringing 누적</h3>
+      <div class="card-body">
+        너무 느린 <strong>PETG / PC / ABS</strong>: 열 축적 → warping, 광택 불균일, stringing 누적 시간 ↑. 외벽 50mm/s 미만에서 chamber 온도 관리 필수 (특히 ABS/ASA enclosure). 0.04mm 같은 극단적 fine layer는 nozzle ooze 누적 → blob 위험 ↑.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 7: 매끈 표면 TOP 3 소재 ── -->
+<div class="section">
+  <div class="section-label">Section 7 — 매끈 표면 TOP 3 소재</div>
+  <p class="desc">Codex run a25261e23b21252b2 의 표면 비교 결과. PLA Matte가 layer line 은폐 최강. PETG/PA-CF/TPU는 매끈함 목표 한정으로 비추.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <div class="phase-tag">TOP 1</div>
+          <h3>PLA Matte</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        layer line 은폐 최강. 강도/층간 접착은 PLA Basic보다 보수적이나 외관 prototype/장식품에 최고. surface-first 모드의 default 추천 소재.
+      </div>
+      <a class="card-source" href="https://bambulab.com/en-us/filament/pla-matte">Bambu PLA Matte</a>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <div class="phase-tag">TOP 2</div>
+          <h3>PLA Basic</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        calibration, ironing, 낮은 outer speed 가장 예측 가능. 색상 선택 폭 넓음. dual-color 같은 멀티컬러도 쉬움. 가장 안전한 표면 기준선.
+      </div>
+      <a class="card-source" href="https://bambulab.com/en-us/filament/pla-basic">Bambu PLA Basic</a>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <div class="phase-tag">TOP 3</div>
+          <h3>ABS / ASA</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        출력 난도 ↑, 단 vapor smoothing 같은 후가공 가능. H2S chamber / 환기 / 수축 관리 필요. 굳이 매끈함 목표면 PLA Matte보다 어렵지만 내열/내후성 트레이드오프.
+      </div>
+      <a class="card-source" href="https://bambulab.com/en-us/filament/asa">Bambu ASA</a>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>비추 (매끈함 목표 한정):</strong> PETG HF (stringing/blob 의존성), PA-CF/PAHT-CF (fiber 질감으로 완전 매끈 부적합, 다만 고급 무광 텍스처로는 매력), TPU (scarf/ironing 한계).
+  </div>
+</div>
+
+<!-- ── Section 8: Gotchas + 출처 ── -->
+<div class="section">
+  <div class="section-label">Section 8 — Gotchas + 출처</div>
+  <p class="desc">surface-first 모드 적용 시 자주 빠지는 함정 + 정책 근거 출처. 모든 권장값은 primary source (Bambu 공식 / OrcaSlicer wiki / GitHub release) 우선.</p>
+
+  <h3 style="margin-bottom:14px">Gotchas 체크리스트</h3>
+  <ul class="checklist">
+    <li><span class="check">✓</span>회전체 default가 v2 surface-first 모드에서 random(분산)에서 Auto-select(은닉)로 전환되었는지 확인. random fallback은 painted 불가한 완전 노출 원통 한정.</li>
+    <li><span class="check">✓</span>PETG HF + entire_loop 콤보 사용 시 <strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>. 건조 부족 + 낮은 outer speed는 stringing/blob 폭발.</li>
+    <li><span class="check">✓</span>Ironing은 PLA Basic/Matte + 평면 top 한정 적극 권장. PETG/PC/CF류/TPU는 blob/clog/drag 위험으로 비추.</li>
+    <li><span class="check">✓</span>spiral_mode 적용 시 normalize가 <code>wall_loops=1</code>, <code>top_shell_layers=0</code>, <code>sparse_infill_density=0</code>를 강제. 다중 외벽/top/infill 필요 모델은 spiral 불가.</li>
+    <li><span class="check">✓</span>Smart scarf가 angle 임계에서 끊겨 표면 불균일 발생 시 <code>scarf_angle_threshold</code> ↓ 또는 Smart Off (1.10.1 hotfix 이력 참조).</li>
+    <li><span class="check">✓</span>출력 시간 일반 대비 2~4배 증가 — 사용자 사전 고지 필수.</li>
+    <li><span class="check">✓</span>매끈한 표면 TOP 3 소재 (PLA Matte / Basic / ABS·ASA) 우선 권장. PA-CF는 fiber 질감으로 매끈 부적합.</li>
+  </ul>
+
+  <h3 style="margin:32px 0 14px">출처</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="rule-number">Codex Research</div>
+      <h3>run <code>a25261e23b21252b2</code></h3>
+      <div class="card-body">
+        score 24/25 (2026-05-16). 6 Axis 망라: Seam invisibility / 외벽 표면 / Ironing / Top·Bottom / 소재별 한계 / 2.6+·H2S·AMS HT. 형상 × 소재 매트릭스 + Trade-off + 검증 필요 항목.
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">Bambu Studio v02.06.00.51</a>
+    </div>
+    <div class="card">
+      <div class="rule-number">Scarf seam 회귀 이력</div>
+      <h3>1.10.0 → 1.10.1 hotfix</h3>
+      <div class="card-body">
+        1.10.0에서 PLA Basic/Matte/Silk scarf 기본 활성화 → 1.10.1에서 비활성화. contour angle detection 적용/미적용 혼재로 표면 불균일. 권장: <code>scarf_angle_threshold</code> ↓ 또는 Smart scarf Off.
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50">v01.10.01.50 release</a>
+    </div>
+    <div class="card">
+      <div class="rule-number">Filament guide</div>
+      <h3>PETG HF · PAHT-CF · ABS · TPU</h3>
+      <div class="card-body">
+        Bambu 공식 filament 가이드. 건조 온도/시간, nozzle range, fan range, MVS, 사용 전 권장 절차. PETG HF 65°C 8h, PAHT-CF 80°C 8h, ABS/ASA 80°C 8h, TPU 70°C 8h.
+      </div>
+      <a class="card-source" href="https://bambulab.com/en-us/filament-guide">Bambu Filament Guide</a>
+    </div>
+    <div class="card">
+      <div class="rule-number">Orca Slicer wiki</div>
+      <h3>Ironing settings reference</h3>
+      <div class="card-body">
+        ironing_type enum, flow/speed/spacing/inset 정의, heat creep/clog 위험. Bambu Studio는 Orca와 enum 동일하나 default 표기 ("no ironing")만 다름.
+      </div>
+      <a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">Orca Ironing Wiki</a>
+    </div>
+    <div class="card">
+      <div class="rule-number">AMS HT 문서</div>
+      <h3>건조 + Continuous Drying</h3>
+      <div class="card-body">
+        PETG/ABS/ASA/PET/PA/PC/PVA/BVOH drying 지원. PETG 65°C drying이 stringing/blob 감소에 직접 기여. surface-first 모드에서 entire_loop + 낮은 speed 적용 시 사전 + continuous 둘 다 필수.
+      </div>
+      <a class="card-source" href="https://cdn1.bambulab.com/documentation/h2d/en/AMS_HT_20250109.pdf">AMS HT PDF</a>
+    </div>
+    <div class="card">
+      <div class="rule-number">PrintConfig.cpp</div>
+      <h3>spiral_mode normalize · seam enum</h3>
+      <div class="card-body">
+        <code>spiral_mode = 1</code> 시 wall_loops/top_shell/infill 강제 normalize 로직 (lines 277-282). seam_position enum (nearest/aligned/back/random). resolution min 0.001 (line 188-189).
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp">PrintConfig.cpp</a>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <strong>후속 검증 (BACKLOG Surface-first 후속 검증 섹션):</strong> precise z-seam JSON 키 매핑 / seam_slope_steps · entire_loop · inner_walls 누락 default 재확인 / Coupon 부족 소재 (PLA Matte · Silk · PC · ASA · PAHT-CF · TPU) / PETG HF lot · 습도 의존성 비교 coupon.
+  </div>
+</div>
+
+</div>
+</body>
+</html>

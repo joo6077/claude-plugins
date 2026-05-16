@@ -31,9 +31,10 @@ bambu-kit/skills/bambu-print-profile/
 ├── SKILL.md                          # 이 파일
 ├── BACKLOG.md                        # v2 카이젠/자동 capture 백로그
 └── references/
-    ├── bambu-fields-baseline.md      # Bambu Studio JSON schema (필수 필드, 키 이름)
+    ├── bambu-fields-baseline.md      # Bambu Studio JSON schema (필수 필드, 키 이름) + §8 Surface 필드 19종
     ├── materials.md                  # 40+ 필라멘트 카탈로그 + 용도 매핑
-    ├── seam-recipes.md               # 형상×소재 scarf 매트릭스 + Real-world findings
+    ├── seam-recipes.md               # 형상×소재 scarf 매트릭스 + Real-world findings + §0 Surface-first 회전체 default v2
+    ├── surface-recipes.md            # Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프)
     └── kaizen-sources.md             # 주 1회 갱신용 데이터 소스 (카이젠 스킬용)
 ```
 
@@ -106,21 +107,56 @@ bambu-kit/skills/bambu-print-profile/
 - ❌ **`nozzle_temperature`, `nozzle_temperature_initial_layer` 안 건드림** — 사용자가 .3mf의 creator 튜닝 값이나 base profile 기본값을 유지하길 원함 (사용자 명시 요청 2026-05-16)
 - ❌ retraction/fan/cooling 안 건드림 — base에 위임
 
-**Seam 전략 결정 트리 (seam-recipes.md + Real-world findings 활용):**
+**Surface-first 모드 (default ON — 사용자 요구가 "표면 매끈 / 심 안 보임 / 속도 무시"일 때):**
+
+상세 정책은 `references/surface-recipes.md` 참조. SKILL은 결정 트리 분기와 형상 enumerate만 인라인으로 가진다.
 
 ```text
-회전체/원기둥 (전방향 노출)?
-  YES → seam_position: random + seam_slope_type: external + seam_slope_entire_loop: 1
-        + seam_slope_inner_walls: 0 (내벽 scarf 불필요 — 안 보이는 곳)
-        + wall_sequence: inner-outer-inner wall
-        + 소재별 scarf 파라미터 (PETG는 gap 8%/length 12, PLA는 gap 10%/length 20)
-  NO → 형상 분기:
-       박스/직육면체 → seam_position: back + 일반 seam (scarf 짧게 또는 none)
-       유기적/피규어 → seam_position: aligned + painted seam 가이드 (Studio UI)
-       얇은 벽/미세 → seam_position: aligned + scarf length 짧게 (5-10mm)
+회전체 default — Auto-select 결정 트리 (surface-recipes.md §2.1)
+  │
+  ├─ 1. spiral_mode 적용 가능? (단일 외벽, top 없음, infill 불필요, 단일 색상)
+  │      YES → spiral_mode = 1 (진짜 무 seam, Z축 연속 나선)
+  │
+  ├─ 2. painted seam 가능한 숨김 면 존재? (뒷면, 내부 홈, 손잡이 그늘, 텍스처)
+  │      YES → seam_position: aligned (또는 back)
+  │             + scarf external (length 15-20mm, gap 5-10%, height 0-10%, steps 10)
+  │             + 사용자가 Studio UI seam paint tool로 숨김 영역 페인팅 (가이드 제공)
+  │
+  └─ 3. 위 둘 다 불가 (완전 노출 전방향 원통)
+         FALLBACK → seam_position: random + seam_slope_entire_loop: 1 (분산 전략)
+         ※ "은닉"이 아니라 specks 분산. seam-recipes.md Real-world Finding 1 컨텍스트 적용
 ```
 
-⚠️ **PETG HF + entire_loop 콤보는 stringing 민감** — `seam-recipes.md` Finding 4 참조. 사용자에게 **AMS HT 65°C 8h 사전 건조 + continuous drying 필수** 강조.
+**형상별 결정 트리 (6개 enumerate — surface-recipes.md §2 참조):**
+
+1. **회전체 / 원기둥 / 컵 / 화병** (rotational / cylinder): 위 Auto-select 트리
+2. **박스 / 직육면체** (box / rectangular): `seam_position: back` (또는 aligned) + corner painted seam + scarf off 또는 length 5-8mm. random 금지 (평평한 면에 specks 분산 시 외관 ↓)
+3. **유기적 곡면 / 피규어** (organic / curved): `seam_position: aligned` (back 우선) + painted seam (주름/접합부/머리카락 텍스처) + scarf external length 10-15mm
+4. **얇은 벽 / 미세 디테일** (thin wall): `seam_position: aligned` + scarf length 짧게 (5-10mm) 또는 off. `Contour and Hole` 비추 (내경 치수 영향). `wall_loops` 1-2 + Arachne 검토
+5. **평면 top 강조** (flat top — 도구/케이스 lid/박스 top): seam은 후면/코너 + **Top surface 품질이 외벽보다 우선** + ironing 적극 적용 (surface-recipes.md §5)
+6. **spiral vase 가능 모델** (spiral mode applicable): 단일 외벽 + top X + infill X + 단일 색상 → `spiral_mode = 1`. 다른 설정 (seam_position, scarf, ironing) 무의미
+
+**Ironing 정책 (surface-recipes.md §5 위임):**
+
+8개 소재 적용 판정 요약 — 자세한 `ironing_type` / `ironing_speed` / `ironing_flow` / `ironing_spacing` / `ironing_inset` 값은 `references/surface-recipes.md` §5.1 매트릭스 참조.
+
+| 소재 | 판정 |
+|------|------|
+| PLA Basic / PLA Matte | `topmost_only` 적극 권장 |
+| PLA Silk | `topmost_only` only — 광택 죽음 주의 |
+| PETG HF | 원칙 off, 평면 장식만 `topmost_only` (blob/scar 위험) |
+| PA-CF / PAHT-CF | off (fiber 질감, 노즐 마모) |
+| PC | off 또는 소형 `topmost_only` 실험 (heat creep / ooze) |
+| ABS / ASA | `topmost_only` 실험 가능 (후가공 가능 시 의존 낮춤) |
+| TPU | off (불가 — 유연성으로 표면 drag) |
+
+형상별 ironing 적용성: 회전체/spiral vase는 무의미(top 없음), 박스/평면 top은 강함, 유기적 곡면은 부분, 얇은 벽은 거의 off. surface-recipes.md §5.2 참조.
+
+**외벽 표면 공통 (surface-recipes.md §3):**
+
+`layer_height` 0.08-0.12mm / `wall_loops` 3-4 / `outer_wall_speed` 20-40 mm/s / `wall_sequence` `inner-outer-inner wall` / `reduce_crossing_wall: 1` / `resolution` 0.006-0.010mm / PA · flow calibration 전제. 소재별 보정은 surface-recipes.md §3 표 참조.
+
+⚠️ **PETG HF 안전 경고 — surface-first 모드 적용 시 PETG HF는 AMS HT 65°C 8h 사전 건조 + continuous drying 필수**. 건조 부족 + 낮은 outer speed 조합은 stringing/blob 폭발. seam-recipes.md Finding 4 + surface-recipes.md §6.5 참조.
 
 ### Phase 4 — Bundle + Verify
 
