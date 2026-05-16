@@ -45,7 +45,7 @@ bambu-kit/skills/bambu-print-profile/
 
 **입력 분기:**
 
-1. **MakerWorld URL** → WebFetch가 Cloudflare 차단으로 실패할 가능성 100%. 바로 `codex-rescue` 에이전트에 위임 (research mode). 추출할 정보: 모델명/제작자/부품 구성/회전체 부품/권장 프로파일/사용자 댓글에서 소재 후기.
+1. **MakerWorld URL** → **Playwright MCP 1차** (`mcp__playwright__browser_navigate` → `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`). MakerWorld Cloudflare 차단을 우회하고 JS-rendered 모델 상세/댓글/사진까지 추출 가능. 추출 정보: 모델명/제작자/부품 구성/회전체 부품/권장 프로파일/사용자 댓글에서 소재 후기. Playwright 미사용 환경이면 `codex-rescue` 에이전트에 위임 (research mode), 둘 다 실패 시 사용자에게 직접 입력 요청.
 2. **로컬 .3mf 파일** → `unzip -p <path> Metadata/project_settings.config` 등으로 embedded 설정 직접 읽기. 부품별 dimension은 Bambu Studio에서 확인 권장.
 3. **STL 파일** → bounding box + 부품 수 정도만 셸로 추출 (`du -h`, file inspection). 회전체 식별은 사용자 설명 의존.
 4. **이미 정보가 채팅에 있음** → 그대로 사용.
@@ -165,11 +165,14 @@ coupon-process.json도 함께 생성 (lean: top/bottom_shell 0, infill 0%, 같�
 - ☐ filament JSON의 scarf 필드는 모두 **배열** (`["..."]`)
 - ☐ `nozzle_temperature` 등 사용자 영역 필드 안 건드렸는지
 
-## MakerWorld URL fallback 체인
+## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
-WebFetch (보통 Cloudflare 차단)
-→ `codex-rescue` 에이전트에 research 위임 (캐시 검색 결과 활용 가능)
-→ 사용자에게 직접 정보 요청 ("이 모델 어떤 부품 구성이고 어떤 소재 권장돼?")
+1. **Playwright MCP** (1차, 권장) — `mcp__playwright__browser_navigate` + `mcp__playwright__browser_snapshot` 조합. JS 렌더링 페이지 정상 처리, Cloudflare bot challenge 우회. 이미지 캡처가 필요하면 `mcp__playwright__browser_take_screenshot` 추가. **개인 환경에 Playwright MCP가 설치되어 있을 때 가장 정확**.
+2. **`codex-rescue` 에이전트** (Playwright 미설치 환경) — research mode 위임. Codex 측 캐시/웹검색 결과 활용 가능. 단 MakerWorld 본문은 못 가져올 수 있음 (캐시된 페이지 또는 우회 정보만).
+3. **WebFetch** (마지막 대안) — 보통 Cloudflare 차단으로 실패. 트래픽 패턴이 가벼운 시간대에만 간헐적 성공.
+4. **사용자 직접 입력** — 위 모두 실패 시 "이 모델 어떤 부품 구성이고 어떤 소재 권장돼?" 질문으로 핵심 정보만 받기.
+
+> ⚠️ **WebFetch만 단독 시도 금지** — Cloudflare 차단이 default이므로 무한 retry 시 토큰 낭비. 1번부터 4번 순서로 시도하고 명시적으로 fallback 보고.
 
 ## v2 백로그 (수동으로 진행)
 

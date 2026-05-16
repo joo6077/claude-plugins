@@ -14,7 +14,7 @@ user-invocable: true
 # Gotchas
 
 1. **출처 없는 갱신 금지** — 추가/변경한 모든 사실에 출처(URL + 접근 일자)를 명시한다. references는 Codex run 출처를 그대로 보존하고 있으므로 동일 포맷 유지.
-2. **MakerWorld는 Cloudflare 차단 빈번** — WebFetch 1차 시도 후 실패하면 즉시 `codex-rescue` 에이전트에 위임 (research mode). 무한 retry 금지.
+2. **MakerWorld는 Cloudflare 차단 빈번** — 갱신된 fallback (2026-05-16): **Playwright MCP** (`mcp__playwright__browser_navigate` + `browser_snapshot`) 1차 → `codex-rescue` 에이전트 위임 (Playwright 미설치 환경) → WebFetch (마지막 대안) → 사용자 수동. **WebFetch만 단독 시도 금지** — 무한 retry로 토큰 낭비. Cloudflare 차단을 만나면 즉시 다음 단계로 이동.
 3. **버전 명시 필수** — Bambu Studio 버전, 필라멘트 SKU, OrcaSlicer 버전을 언급할 때 검증한 버전을 `[product@version]` 형태로 적는다. 버전 없는 추천은 6개월 후 outdated 된다.
 4. **Reddit/YouTube는 보조 신호** — 공식 GitHub release / Bambu Blog / Discourse forum이 1순위. Reddit/YouTube는 "반복 출현 + 공식 소스 교차확인" 조건 시에만 references에 반영.
 5. **카테고리별 단일 갱신** — 한 번에 4개 references를 모두 갱신하지 마라. category 인자로 1개씩 처리해야 회귀 추적이 쉽다. 미지정 시 사용자에게 확인.
@@ -36,10 +36,18 @@ user-invocable: true
 
 `bambu-kit/skills/bambu-print-profile/references/kaizen-sources.md`의 해당 카테고리 소스 표를 로드한다.
 
-각 소스에 대해:
-1. WebFetch 1차 시도 (RSS/JSON/HTML)
+각 소스에 대해 fallback 체인 (소스 유형별 분기):
+
+**A. RSS/JSON/API 소스** (GitHub releases, Discourse forum, Reddit RSS, Bambu Blog RSS):
+1. WebFetch 1차 시도 (Cloudflare 차단 없는 정적 endpoint라 보통 성공)
 2. 실패 시 → `codex-rescue` 에이전트 위임 (research mode, `--read-only`, `MODE=research`)
-3. 응답 200 + 콘텐츠 변경 감지 (ETag 또는 last commit hash 비교)
+
+**B. MakerWorld / Bambu Studio Wiki / Bambu Store** (Cloudflare 또는 JS-rendered):
+1. **Playwright MCP** 1차 — `mcp__playwright__browser_navigate` + `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`. Cloudflare bot challenge 우회 + JS 렌더 콘텐츠 추출.
+2. 실패 시 → `codex-rescue` 위임 (캐시 활용 가능)
+3. 둘 다 실패 시 → WebFetch (간헐적 성공) → 사용자 수동
+
+응답 200 + 콘텐츠 변경 감지: ETag 또는 last commit hash 비교.
 
 GitHub API는 unauth 60/h 한도 내에서 ETag/`If-None-Match` 사용으로 변동분만 가져온다.
 
