@@ -74,6 +74,9 @@ claude plugin update backend-kit@joo6077-plugins
 claude plugin update infra-kit@joo6077-plugins
 claude plugin update rust-kit@joo6077-plugins
 claude plugin update react-kit@joo6077-plugins
+claude plugin update planning-kit@joo6077-plugins
+claude plugin update reflect-kit@joo6077-plugins
+claude plugin update bambu-kit@joo6077-plugins
 ```
 
 ### 삭제
@@ -86,6 +89,9 @@ claude plugin uninstall backend-kit@joo6077-plugins
 claude plugin uninstall infra-kit@joo6077-plugins
 claude plugin uninstall rust-kit@joo6077-plugins
 claude plugin uninstall react-kit@joo6077-plugins
+claude plugin uninstall planning-kit@joo6077-plugins
+claude plugin uninstall reflect-kit@joo6077-plugins
+claude plugin uninstall bambu-kit@joo6077-plugins
 ```
 
 ### 릴리스 (관리자)
@@ -99,6 +105,9 @@ bash scripts/release.sh backend-kit patch
 bash scripts/release.sh infra-kit patch
 bash scripts/release.sh rust-kit patch
 bash scripts/release.sh react-kit patch
+bash scripts/release.sh planning-kit patch
+bash scripts/release.sh reflect-kit patch
+bash scripts/release.sh bambu-kit patch
 ```
 
 ---
@@ -190,6 +199,39 @@ React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 21종 + 3 에이전트
 
 > 자세한 내용은 [react-kit/README.md](./react-kit/README.md) 참조.
 
+### planning-kit
+
+스택 무관 제품 기획 플러그인. 아이디어를 Sprint Contract로 넘어갈 수 있는 수준의 기획 산출물로 변환한다.
+
+- harness 파이프라인의 **0번 단계** ("기획 → 계약 → 구현 → QA" 흐름)
+- PRD, 우선순위(RICE/Kano/WSJF), 리스크, 개념 데이터 모델(Mermaid erDiagram/flowchart/sequenceDiagram)
+- GitHub Projects v2 동기화, Shape Up · DDD Event Storming · JTBD · PR-FAQ 등 방법론
+- `docs/planning/` 리서치 문서 기반
+
+> 자세한 내용은 [planning-kit/README.md](./planning-kit/README.md) 참조.
+
+### reflect-kit
+
+개인 Claude Code 사용자의 대화 피드백 → 학습 → 재주입 파이프라인. Reflexion 방법론을 개인 레벨에 적용.
+
+- 3 훅 수집(UserPromptSubmit / PostToolUseFailure / Stop) → 구조화 로그
+- `/reflect-digest` 집계 → `/reflect-promote` 승격(CLAUDE.md / memory / skill / hook + ledger) → `/reflect-kaizen` 30d 재발률 calibration
+- Hybrid project_id (basename 기본 + 충돌 시 hash fallback, backward-compatible)
+- codex 실패 시 Claude CLI fallback, install-scheduler/legacy-id-migrate 유틸
+
+> 자세한 내용은 [reflect-kit/README.md](./reflect-kit/README.md) 참조.
+
+### bambu-kit
+
+Bambu Lab H2S 자동 process+filament JSON 생성. 도구형 1스킬 킷 (guide/audit/system 3종 패턴 비적용).
+
+- H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정
+- MakerWorld URL/로컬 모델 → 모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 zip 번들
+- references 4종 (bambu-fields-baseline / materials / seam-recipes / kaizen-sources) SSOT
+- 카이젠 스킬 (`bambu-research`, `bambu-kaizen`)은 `.claude/skills/`에 분리 (plugin 외부)
+
+> 자세한 내용은 [bambu-kit/README.md](./bambu-kit/README.md) 참조.
+
 ---
 
 ## 구조
@@ -239,9 +281,32 @@ claude-plugins/
 │   ├── skills/                  # 개발 워크플로우 스킬 21종
 │   ├── agents/                  # 3 에이전트
 │   └── references/
-├── docs/                        # 설계 가이드, 리서치, 카이젠 로그
+├── planning-kit/                # 제품 기획 (harness 0번 단계)
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── agents/
+│   └── references/
+├── reflect-kit/                 # 대화 피드백 → 학습 → 재주입 (Reflexion)
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/                  # reflect-digest / reflect-promote / reflect-kaizen
+│   ├── hooks/                   # 3 훅 (UserPromptSubmit / PostToolUseFailure / Stop)
+│   └── scripts/
+├── bambu-kit/                   # Bambu Lab H2S 프린트 프로파일 (도구형 1스킬)
+│   ├── .claude-plugin/plugin.json
+│   ├── README.md
+│   └── skills/bambu-print-profile/
+│       ├── SKILL.md
+│       ├── BACKLOG.md           # v2 카이젠/capture daemon 백로그
+│       └── references/          # 4종 (fields-baseline/materials/seam-recipes/kaizen-sources)
+├── docs/                        # 설계 가이드, 리서치, HTML 시각 문서, 카이젠 로그
 ├── scripts/
-│   └── release.sh               # 플러그인 릴리스 자동화
+│   ├── release.sh               # 플러그인 버전 bump + tag + push 자동화
+│   ├── sync-docs.py             # README/CLAUDE.md AUTO 마커 자동 동기화
+│   ├── sync-evals.py            # 스킬 ↔ evals.json 정합성 동기화
+│   ├── run-evals.py             # 플러그인별 assertion 실행
+│   └── validate-plugin.py       # 7-카테고리 플러그인 검증 (V1~V7)
+├── .harness/                    # 이 레포 자체의 harness 설정 (project.yaml + sprint-contract)
+├── .claude/                     # 이 레포 개발용 스킬 (research/kaizen, plugin 외부)
 └── README.md
 ```
 
