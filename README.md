@@ -66,6 +66,7 @@ claude plugin install harness@joo6077-plugins --scope project
 
 개별 플러그인 업데이트:
 
+<!-- AUTO:update-cmd -->
 ```bash
 claude plugin update harness@joo6077-plugins
 claude plugin update flutter-toolkit@joo6077-plugins
@@ -78,9 +79,11 @@ claude plugin update planning-kit@joo6077-plugins
 claude plugin update reflect-kit@joo6077-plugins
 claude plugin update bambu-kit@joo6077-plugins
 ```
+<!-- /AUTO:update-cmd -->
 
 ### 삭제
 
+<!-- AUTO:uninstall-cmd -->
 ```bash
 claude plugin uninstall harness@joo6077-plugins
 claude plugin uninstall flutter-toolkit@joo6077-plugins
@@ -93,9 +96,11 @@ claude plugin uninstall planning-kit@joo6077-plugins
 claude plugin uninstall reflect-kit@joo6077-plugins
 claude plugin uninstall bambu-kit@joo6077-plugins
 ```
+<!-- /AUTO:uninstall-cmd -->
 
 ### 릴리스 (관리자)
 
+<!-- AUTO:release-cmd -->
 ```bash
 # 플러그인별 버전 bump + git tag + push
 bash scripts/release.sh harness patch
@@ -109,6 +114,7 @@ bash scripts/release.sh planning-kit patch
 bash scripts/release.sh reflect-kit patch
 bash scripts/release.sh bambu-kit patch
 ```
+<!-- /AUTO:release-cmd -->
 
 ---
 

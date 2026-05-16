@@ -284,6 +284,36 @@ def render_plugins_table() -> str:
     return "\n".join(lines) + "\n"
 
 
+def render_update_commands() -> str:
+    """루트 README용 plugin update 명령 (marketplace.json 순서)."""
+    mp = load_marketplace()
+    lines = ["```bash"]
+    for p in mp.get("plugins", []):
+        lines.append(f"claude plugin update {p['name']}@joo6077-plugins")
+    lines.append("```")
+    return "\n".join(lines) + "\n"
+
+
+def render_uninstall_commands() -> str:
+    """루트 README용 plugin uninstall 명령."""
+    mp = load_marketplace()
+    lines = ["```bash"]
+    for p in mp.get("plugins", []):
+        lines.append(f"claude plugin uninstall {p['name']}@joo6077-plugins")
+    lines.append("```")
+    return "\n".join(lines) + "\n"
+
+
+def render_release_commands() -> str:
+    """루트 README용 release.sh 명령."""
+    mp = load_marketplace()
+    lines = ["```bash", "# 플러그인별 버전 bump + git tag + push"]
+    for p in mp.get("plugins", []):
+        lines.append(f"bash scripts/release.sh {p['name']} patch")
+    lines.append("```")
+    return "\n".join(lines) + "\n"
+
+
 def render_summary_list() -> str:
     """CLAUDE.md용 플러그인 요약 리스트."""
     desc_map = {
@@ -404,9 +434,14 @@ def sync_plugin(plugin_name: str, *, dry_run: bool, check_only: bool) -> bool:
 # ── Task 4: 루트 README + CLAUDE.md ─────────────────────────────────
 
 def sync_root(*, dry_run: bool, check_only: bool) -> bool:
-    """루트 README.md의 AUTO:plugins 마커를 갱신한다."""
+    """루트 README.md의 AUTO 마커들을 갱신한다 (plugins / update-cmd / uninstall-cmd / release-cmd)."""
     print("\n[root README]")
-    replacements = {"plugins": render_plugins_table()}
+    replacements = {
+        "plugins": render_plugins_table(),
+        "update-cmd": render_update_commands(),
+        "uninstall-cmd": render_uninstall_commands(),
+        "release-cmd": render_release_commands(),
+    }
     return process_readme(
         ROOT / "README.md", replacements, dry_run=dry_run, check_only=check_only
     )
