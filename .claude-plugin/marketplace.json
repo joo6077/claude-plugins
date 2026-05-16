@@ -53,7 +53,7 @@
     {
       "name": "bambu-kit",
       "source": "./bambu-kit",
-      "description": "[v0.1.1 · 2026-05-16] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들 (Codex 8회 리서치 + 실측 dogfood 2건 검증)"
+      "description": "[v0.2.0 · 2026-05-16] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들 (Codex 8회 리서치 + 실측 dogfood 2건 검증)"
     }
   ]
 }
