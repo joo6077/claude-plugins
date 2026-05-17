@@ -6,40 +6,57 @@
 
 스킬이 모델 형상 + 선택된 소재에 맞춰 process 측 `seam_*` / `seam_slope_*` + filament 측 `filament_scarf_*` 권장 조합을 도출할 때 참조.
 
-## 0. Surface-first 모드 — 회전체 default 정책 (2026-05-16 v2)
+## 0. Surface-first 모드 — 회전체 default 정책 (2026-05-17 v3)
 
-> Codex run `a25261e23b21252b2`. 자세한 결정 트리는 [`surface-recipes.md`](./surface-recipes.md) §2.1 참조.
+> Codex run `a25261e23b21252b2` (v2 기반). v3 자동화 우선 원칙은 dogfood 피드백 (페리스 휠 케이스 2026-05-17)에서 도출. 자세한 결정 트리는 [`surface-recipes.md`](./surface-recipes.md) §2.1 참조.
 
-### 정책 변경
+### 정책 변경 이력
 
-기존 v1 default (회전체):
-- `seam_position: random + seam_slope_type: external + seam_slope_entire_loop: 1` (분산 전략)
+**v1 default (회전체):** `random + seam_slope_entire_loop: 1` (분산 전략)
 
-v2 surface-first default (회전체) — **Auto-select 결정 트리**:
+**v2 default (회전체) — surface-first 은닉 우선:** spiral → painted → random fallback
+- 문제: painted는 사용자가 Studio UI에서 페인팅 작업(5-10분)을 추가로 해야 완성. 자동으로 default top에 두면 사용자가 페인팅을 안 하면 visible 면에 한 줄 라인 그대로 노출됨.
+
+**v3 default (회전체) — 자동화 우선 + 사용자 OPT-IN:**
 
 ```text
 회전체 모델 감지
+  ※ 우선순위 원칙: 사용자 추가 작업이 없는 옵션이 default top.
   │
   ├─ (1) spiral_mode 적용 가능? (단일 외벽, top 없음, infill 불필요, 단일 색상)
   │      YES → spiral_mode = 1 (진짜 무 seam, Z축 연속 나선)
+  │             사용자 작업: 없음
   │
-  ├─ (2) painted seam 가능한 숨김 면 존재? (뒷면, 내부 홈, 손잡이 그늘, 텍스처)
-  │      YES → seam_position = aligned (또는 back)
-  │             + Studio UI에서 seam paint tool로 숨김 영역 페인팅
-  │             + scarf external, length 15-20mm, gap 5-10%, height 0-10%
+  ├─ (2) DEFAULT — random 분산 전략 (사용자 작업 X)
+  │      seam_position = random + seam_slope_entire_loop = 1
+  │      + scarf external, length 15-20mm, gap 5-10%, height 0-10%
+  │      → wheel/원통 둘레 전체에 ramp 분산, 한 줄 라인 없이 specks
+  │      → spoke/텍스처 구조에 자연 위장
+  │      트레이드오프: micro-banding (specks)
+  │      사용자 작업: 없음
   │
-  └─ (3) 위 둘 다 불가 (완전 노출 전방향 원통)
-         FALLBACK → seam_position = random + seam_slope_entire_loop = 1
-                   ※ 이는 "분산 전략" — 은닉이 아니라 specks 분산으로 덜 거슬리게
-                   ※ Real-world Finding 1 (§Real-world findings) 컨텍스트 적용
+  └─ (3) 사용자가 명시적으로 "specks도 싫고 완벽한 클린 면" 요청 시에만 OPT-IN
+         → seam_position = aligned (또는 back)
+         + 사용자가 Studio UI에서 seam paint tool로 숨김 영역 페인팅 필수
+         + scarf external, length 15-20mm, gap 5-10%, height 0-10%
+         ※ painted 안 하면 visible 면에 한 줄 라인 그대로 남음 (위험)
+         사용자 작업: 필수 (Studio UI 페인팅 5-10분)
 ```
 
-### 분산 vs 은닉
+### 분산 vs 은닉 (v3 관점)
 
-- **분산** (v1 default): seam을 random 또는 entire_loop으로 외벽 전체에 흩뿌려 한 줄 라인을 specks로 변환. Codex run `afcf4968339021b29` + Real-world Finding 1.
-- **은닉** (v2 default): seam을 spiral_mode 또는 painted seam으로 시각적으로 안 보이는 면(뒷면/내부 홈/그늘)에 숨김. Codex run `a25261e23b21252b2`.
+- **분산** (v3 default): random + entire_loop으로 perimeter에 ramp 분산. 한 줄 라인 → specks 변환. 사용자 작업 X. spoke/텍스처 모델에 자연 위장.
+- **은닉** (v3 OPT-IN): painted seam으로 시각적 비노출 면(뒷면/내부 홈/그늘)에 한 줄로 숨김. 완성도는 분산보다 높지만 사용자 페인팅 작업이 전제. 명시적 요청 시에만.
 
-surface-first 모드에서는 **은닉을 1순위**로, painted 불가 시에만 분산 fallback. 자세한 비교/판정 로직은 surface-recipes.md.
+자동화 우선 원칙: 사용자 작업이 필요한 옵션을 자동으로 default top에 두지 않는다. spiral 불가 회전체는 random fallback이 default.
+
+### dogfood 피드백 (2026-05-17)
+
+페리스 휠(MakerWorld 1186414, 608ZZ variant) 케이스에서 v2 정책 적용 결과:
+- 페리스 휠 spoke 그늘 = (2) painted 트리거 조건 만족
+- 자동으로 aligned + painted 선택됨
+- 사용자 반응: "한쪽에 몰아넣는거 말고 차라리 랜덤", "내가 뭘 페인팅해야 한다는 거"
+- 결론: painted를 자동 default로 두는 게 사용자 직관 위배. v3 자동화 우선 원칙으로 변경.
 
 ## 1. Scarf seam 메커니즘 — Contour vs All
 

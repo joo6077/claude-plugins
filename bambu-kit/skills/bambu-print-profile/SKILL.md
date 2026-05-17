@@ -113,19 +113,28 @@ bambu-kit/skills/bambu-print-profile/
 
 ```text
 회전체 default — Auto-select 결정 트리 (surface-recipes.md §2.1)
+  ※ 우선순위 원칙: 사용자 추가 작업이 없는 옵션이 default top.
   │
   ├─ 1. spiral_mode 적용 가능? (단일 외벽, top 없음, infill 불필요, 단일 색상)
   │      YES → spiral_mode = 1 (진짜 무 seam, Z축 연속 나선)
+  │             사용자 작업: 없음
   │
-  ├─ 2. painted seam 가능한 숨김 면 존재? (뒷면, 내부 홈, 손잡이 그늘, 텍스처)
-  │      YES → seam_position: aligned (또는 back)
-  │             + scarf external (length 15-20mm, gap 5-10%, height 0-10%, steps 10)
-  │             + 사용자가 Studio UI seam paint tool로 숨김 영역 페인팅 (가이드 제공)
+  ├─ 2. DEFAULT — random 분산 전략 (사용자 작업 X)
+  │      seam_position: random + seam_slope_entire_loop: 1
+  │      + scarf external (length 15-20mm, gap 5-10%, height 0-10%, steps 10)
+  │      → wheel/원통 둘레 전체에 ramp 분산, 한 줄 라인 없이 specks
+  │      → spoke/텍스처 구조에 자연 위장
+  │      트레이드오프: micro-banding (specks). seam-recipes.md Real-world Finding 1
+  │      사용자 작업: 없음
   │
-  └─ 3. 위 둘 다 불가 (완전 노출 전방향 원통)
-         FALLBACK → seam_position: random + seam_slope_entire_loop: 1 (분산 전략)
-         ※ "은닉"이 아니라 specks 분산. seam-recipes.md Real-world Finding 1 컨텍스트 적용
+  └─ 3. 사용자가 명시적으로 "specks도 싫고 완벽한 클린 면" 요청 시에만 OPT-IN
+         → seam_position: aligned (또는 back) + scarf external
+         + 사용자가 Studio UI seam paint tool로 숨김 영역 페인팅 필수 (5-10분)
+         ※ painted 안 하면 visible 면에 한 줄 라인 그대로 남음
+         사용자 작업: 필수 (Studio UI 페인팅)
 ```
+
+⚠️ **자동화 우선 원칙**: spiral 불가 회전체는 (2) random fallback이 default. (3) painted는 사용자가 명시적으로 "specks 분산도 거슬린다, 한 줄로 완벽히 숨기고 싶다"고 요청할 때만 OPT-IN으로 전환. 사용자 작업이 필요한 옵션을 자동으로 default top에 두지 않는다.
 
 **형상별 결정 트리 (6개 enumerate — surface-recipes.md §2 참조):**
 

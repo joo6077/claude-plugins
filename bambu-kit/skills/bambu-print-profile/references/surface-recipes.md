@@ -31,28 +31,37 @@
 
 스킬이 모델 형상을 분석한 후 다음 순서로 자동 판정. 모호하면 사용자에게 옵션 제시.
 
-### 2.1. 회전체 / 원기둥 / 컵 / 화병
+### 2.1. 회전체 / 원기둥 / 컵 / 화병 (v3 — 자동화 우선)
 
 ```text
 회전체 모델 감지
+  ※ 우선순위 원칙: 사용자 추가 작업이 없는 옵션이 default top.
   │
   ├─ (1) spiral_mode 적용 가능한가?
   │      조건: 단일 외벽, top 없음, infill 불필요, 멀티컬러 아님
   │      YES → spiral_mode = 1
   │             (wall_loops=1, top_shell_layers=0, sparse_infill_density=0 자동 강제)
   │             seam: 없음 (Z축 연속 나선이라 진짜 무 seam)
+  │             사용자 작업: 없음
   │
-  ├─ (2) painted seam 가능한 숨김 면이 있는가?
-  │      조건: 뒷면, 내부 홈, 손잡이 그늘, 텍스처/주름 등 시각적 비노출 영역 존재
-  │      YES → seam_position = aligned (또는 back)
-  │             + Studio UI에서 사용자가 seam paint tool로 숨김 영역 페인팅
-  │             + scarf external + length 15-20mm, gap 5-10%, height 0-10%, steps 10
+  ├─ (2) DEFAULT — random 분산 전략 (자동, 사용자 작업 X)
+  │      seam_position = random + seam_slope_entire_loop = 1
+  │      + scarf external + length 15-20mm, gap 5-10%, height 0-10%, steps 10
+  │      → wheel/원통 둘레 전체에 ramp 분산, 한 줄 라인 없이 specks
+  │      → spoke/텍스처 구조에 자연 위장
+  │      트레이드오프: micro-banding (specks)
+  │      seam-recipes.md Real-world Finding 1 (vent pipe에서 random > aligned 검증) 적용
+  │      사용자 작업: 없음
   │
-  └─ (3) 위 둘 다 불가 (완전 노출 전방향 원통, painted 불가)
-         FALLBACK → seam_position = random + seam_slope_entire_loop = 1
-                   (분산 전략 — seam-recipes.md Real-world Finding 1 참조)
-                   ※ 이는 "은닉"이 아니라 "분산으로 덜 거슬리게" 전략
+  └─ (3) 사용자가 명시적으로 "specks도 싫고 완벽한 클린 면" 요청 시에만 OPT-IN
+         → seam_position = aligned (또는 back)
+         + 사용자가 Studio UI에서 seam paint tool로 숨김 영역 페인팅 필수
+         + scarf external + length 15-20mm, gap 5-10%, height 0-10%, steps 10
+         ※ painted 안 하면 visible 면에 한 줄 라인 그대로 남음 (위험)
+         사용자 작업: 필수 (Studio UI 페인팅 5-10분)
 ```
+
+v3 변경 사유: v2에서는 painted를 default top에 두었으나 (페리스 휠 dogfood 케이스에서) 사용자가 페인팅 부담을 직관에 위배된다고 피드백 → 자동화 우선 원칙으로 painted는 명시적 요청 시에만 OPT-IN.
 
 ### 2.2. 박스 / 직육면체
 
