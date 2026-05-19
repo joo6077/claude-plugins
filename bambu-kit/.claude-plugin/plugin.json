@@ -1,7 +1,7 @@
 {
   "name": "bambu-kit",
   "description": "Bambu Lab H2S용 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": {
     "name": "Jackson Kim"
   },
