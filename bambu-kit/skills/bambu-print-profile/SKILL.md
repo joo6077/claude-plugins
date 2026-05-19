@@ -40,7 +40,9 @@ bambu-kit/skills/bambu-print-profile/
 
 출력 경로: **`/Users/jackson/Hub/60_3D Print/Settings/<모델명>/`**
 
-## 워크플로우 (3단계)
+## 워크플로우 (5단계 + Coupon)
+
+> **v0.3.0 변경**: Phase 1.5 (Attached Resources Analysis) 신규 추가. Phase 4 notes.md 5섹션 표준화. Phase 5 coupon 자동 생성. dogfood 출처: 2026-05-19 Stealth Press 1S 케이스 — 웹 BOM만 봤다가 PDF 매뉴얼에서 헷갈리는 인서트 5군데, 희생 부품, 부싱 접착, 실제 인서트 수 등을 놓침.
 
 ### Phase 1 — 모델 컨텍스트 추출
 
@@ -51,7 +53,83 @@ bambu-kit/skills/bambu-print-profile/
 3. **STL 파일** → bounding box + 부품 수 정도만 셸로 추출 (`du -h`, file inspection). 회전체 식별은 사용자 설명 의존.
 4. **이미 정보가 채팅에 있음** → 그대로 사용.
 
-추출 후 사용자에게 짧게 보고: 모델명, 부품 수, 회전체 여부, 권장 소재 후기 (있다면).
+**Attached Resources Inventory (필수, MakerWorld URL 케이스 한정):**
+
+페이지 스냅샷에서 외부 링크를 enumerate하여 분류:
+
+```bash
+grep -oE 'https?://[^"]+\.pdf' <snapshot-yml>     # assembly manual
+grep -oE 'https?://youtu\.be/[^"]+|youtube\.com/watch[^"]+' <snapshot-yml>  # 영상
+grep -oE 'https?://github\.com/[^/"]+/[^/"]+' <snapshot-yml>  # 레포
+grep -oE 'https?://(printables|thangs|cults3d)\.com/[^"]+' <snapshot-yml>  # 외부 호스팅
+```
+
+결과를 4개 카테고리로 분류해서 사용자에게 짧게 보고:
+- **assembly_manual_pdf**: 0개 이상
+- **video_build_guide**: 0개 이상
+- **github_repo**: 0개 이상
+- **external_bom_or_alt**: 0개 이상
+
+추출 후 사용자에게 짧게 보고: 모델명, 부품 수, 회전체 여부, 권장 소재 후기, **첨부 자료 카운트** (있다면).
+
+### Phase 1.5 — Attached Resources Analysis (v0.3.0 신규)
+
+**조건부 실행** — Phase 1에서 첨부 자료를 찾았을 때만. 없으면 skip하고 Phase 2로.
+
+#### 1.5.1 PDF Assembly Manual 분석 (있으면 필수)
+
+```bash
+mkdir -p "/Users/jackson/Hub/60_3D Print/Settings/<모델명>/"
+curl -L -o "/Users/jackson/Hub/60_3D Print/Settings/<모델명>/assembly-manual.pdf" "<pdf-url>"
+
+# 페이지 수 확인 (10p 이상이면 분할 Read)
+mdls -name kMDItemNumberOfPages "/Users/jackson/Hub/60_3D Print/Settings/<모델명>/assembly-manual.pdf"
+```
+
+Read 도구로 분석 (10p 이상이면 `pages: "1-10"`, `pages: "11-20"` 형식으로 분할):
+
+추출 항목 (체크리스트):
+- ☐ Bill of Materials — PDF가 웹 BOM보다 정확할 가능성 높음. **수량/규격이 다르면 PDF 우선**.
+- ☐ 조립 단계 enumerate — 1~N 단계 순서
+- ☐ **숨은 부품 위치** — "Insert on other side!", "Do not forget", "Fit from the back!" 같은 표시 검색
+- ☐ **안전 주의사항** 🔥/⚠️ — "Do not over-tighten", "Prevent X at all cost", "fix A before B" 등 순서 의존성
+- ☐ **인서트/볼트 실제 카운트** — 매뉴얼의 번호를 카운트하면 웹 BOM과 다를 수 있음
+- ☐ **별도 소모품** — 접착제, RTV 실리콘, shim, 필라멘트 조각, 출력 외 부품
+- ☐ **도구/부품 분기** — 인두 타입별 mount STL, 변형 부품
+- ☐ **인서트 압입 온도** 명시 여부
+
+#### 1.5.2 YouTube 영상 (있으면 시도)
+
+1차: `codex-rescue` 에이전트에 transcript 추출 위임 (`MODE=research`, `--write` X). 출력 계약:
+- 핵심 손기술 팁 5-10개
+- 자주 보고되는 실수 패턴
+- 비디오 timestamp + 설명
+
+실패 시 fail-soft — notes.md §5에 영상 URL만 첨부. 토큰 낭비 금지.
+
+#### 1.5.3 GitHub README (있으면)
+
+```bash
+# raw.githubusercontent.com 변환
+curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /tmp/readme.md
+# 또는 master 브랜치
+```
+
+추출 항목:
+- CHANGELOG / Releases — 리비전 차이 (R1 vs R1S 같은 케이스)
+- 추가 STL 위치
+- 라이센스 (LICENSE 파일도 확인)
+
+#### 1.5.4 Cross-check 보고
+
+웹 BOM과 PDF 매뉴얼의 차이가 있으면 **사용자에게 명시 보고**:
+
+```text
+⚠️ Cross-check 결과
+- 웹 BOM: 인서트 30개 / PDF 매뉴얼 카운트: 34개 → 35-40개 권장
+- 웹 BOM: M3x25 / R1S 매뉴얼: M3x20 (사이즈 다름)
+- PDF에만 있음: bushing 접착제, 0.5-1mm shim, 인두 타입별 mount STL 선택
+```
 
 ### Phase 2 — 소재 추천 (2-3개 + 사용자 픽)
 
@@ -167,9 +245,10 @@ bambu-kit/skills/bambu-print-profile/
 
 ⚠️ **PETG HF 안전 경고 — surface-first 모드 적용 시 PETG HF는 AMS HT 65°C 8h 사전 건조 + continuous drying 필수**. 건조 부족 + 낮은 outer speed 조합은 stringing/blob 폭발. seam-recipes.md Finding 4 + surface-recipes.md §6.5 참조.
 
-### Phase 4 — Bundle + Verify
+### Phase 4 — Bundle + notes.md + Verify
 
-zip 구조 (Bambu Studio Import Configs 호환):
+#### 4.1 zip 번들 (Bambu Studio Import Configs 호환)
+
 ```text
 <modelname>.zip
 ├── process/
@@ -178,6 +257,94 @@ zip 구조 (Bambu Studio Import Configs 호환):
     ├── <filament 1>.json
     └── <filament 2>.json   (멀티 소재인 경우)
 ```
+
+#### 4.2 notes.md 5섹션 표준 템플릿 (v0.3.0 신규)
+
+`/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 반드시 5섹션 구조로 작성. Phase 1.5에서 추출한 PDF/영상/GitHub 정보를 통합.
+
+```markdown
+# <모델명> — Print Profile + Build Guide
+
+**Source:** <MakerWorld URL>
+**Author:** <creator>
+**License:** <GPL/CC/etc>
+**Generated:** <date>
+
+## 모델 개요
+<2-3 sentence: 모델 목적 + 핵심 기능 + 사용 부품 종류>
+
+---
+
+# 1. 필라멘트 요구사항
+
+## 1.1 추천 소재 (Creator 명시)
+| 등급 | 소재 |  ← 권장 / 가능 / ⚠️ 위험 3등급
+## 1.2 출력 설정 (Creator 가이드)
+| 항목 | 값 |  ← 레이어/벽/인필/패턴/top·bottom
+## 1.3 소재별 사전 준비
+- 건조 조건, 챔버 온도, 환기, 베드 처리
+## 1.4 파일명 컨벤션
+- prefix/suffix 규칙 + accent color
+## 1.5 부품별 STL 선택 (해당 시)
+- 인두/모터/규격별 분기 STL 안내
+
+---
+
+# 2. 알리/아마존 부품 리스트
+
+## 2.1 볼트/너트 (링크 + 사이즈 옵션 주의)
+| # | 부품 | 규격 | 수량 | 비고 | 알리 |
+## 2.2 베어링 + 인서트 (수량 ⚠️ + 사이즈)
+> ⚠️ PDF 카운트 vs 웹 BOM 차이 명시
+## 2.3 레일/모터/특수 부품 (해당 시)
+## 2.4 도구 본체 + 어댑터 (택1 매칭)
+## 2.5 추가 소모품 (별도 구입 필요)
+- 접착제, RTV, shim, 필라멘트 조각 등
+## 2.6 선택 부품 (KEY-BAK 등)
+## 2.7 완성 키트 (출력+조립 패스)
+
+---
+
+# 3. 조립 워크플로우 (PDF 매뉴얼 요약)
+
+## 3.1 단계 순서
+1. ... 14. ... (PDF 매뉴얼에서 추출한 enumerate)
+## 3.2 핵심 절차 (인서트 압입 등)
+## 3.3 숨은 부품 위치 주의 ⚠️
+- "Insert on other side!" 같은 항목 enumerate
+## 3.4 결정적 안전 주의사항 🔥
+- "Do not over-tighten", "fix A before B" 등 순서 의존성
+## 3.5 권장 QoL 개선 (선택)
+
+---
+
+# 4. 임포트 + 출력 절차 (Bambu Studio)
+1. Import Configs → zip
+2. 드롭다운 확인
+3. Plate별 process 적용
+4. AMS 슬롯 매핑
+5. 인두/도구 분기 STL 선택
+6. Slice + send
+
+---
+
+# 5. License + Credits
+
+- License 명시
+- Special thanks
+- 참고 오픈소스
+- 영상 빌드 가이드 (URL + transcript 요약)
+- 첨부 파일 목록 (PDF, JSON, zip)
+```
+
+**구조 원칙:**
+- PDF가 없는 케이스: §3은 "Creator 페이지의 조립 가이드" 요약 또는 "조립 매뉴얼 없음 — 사용자 자체 판단" 명시
+- 영상이 없는 케이스: §5에서 "영상 가이드 없음" 명시
+- §2.5 추가 소모품은 PDF에서 자주 발견되는 항목 — 반드시 cross-check
+
+**dogfood 레퍼런스 케이스:** `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/notes.md` 참조. 이번 케이스에서 PDF 분석으로 §2.5 (super glue + shim + 필라멘트 조각), §3.3 (숨은 인서트 5군데), §3.4 (KEY-BAK strain → arm 순서) 모두 발견됨.
+
+#### 4.3 Verify (Import 후 사용자 확인)
 
 생성 후 사용자에게 안내:
 1. `File → Import → Import Configs...` → `<modelname>.zip` 선택
@@ -189,14 +356,70 @@ zip 구조 (Bambu Studio Import Configs 호환):
    ```
    `.json` + `.info` 페어 확인.
 
-### Phase 5 — Coupon Test (선택, 강력 권장)
+### Phase 5 — Coupon Test (v0.3.0 자동 생성)
 
-다음 케이스에 coupon test 가이드 제공:
-- 출력 시간 > 4시간
-- 회전체 + seam-critical
-- 새 소재 또는 새 scarf 조합 첫 시도
+**자동 트리거 (이전: 사용자 명시 요청 시):**
 
-coupon-process.json도 함께 생성 (lean: top/bottom_shell 0, infill 0%, 같은 scarf settings). 사용자가 Studio에서 cylinder primitive 추가 (30x30x9mm 등) → coupon process 적용 → 짧게 출력 → 결과 평가 후 본 출력 결정.
+다음 케이스 중 **하나라도 해당되면 자동으로 coupon process JSON 생성**해서 zip 번들에 함께 포함:
+
+- ☐ 본 출력 예상 시간 > **4시간**
+- ☐ 회전체 + seam-critical (surface-first 모드 ON)
+- ☐ 새 소재 또는 새 scarf 조합 **첫 시도** (memory에 해당 소재 사용 이력 없음)
+- ☐ PETG / PC / PA-CF / ASA-CF / PPS-CF 등 **건조/챔버 민감 소재**
+- ☐ Multi-color 5+ filament (멀티컬러 복잡도)
+
+해당 안 되는 단순 케이스는 skip.
+
+**자동 생성 산출물 — zip 번들에 추가:**
+
+```text
+<modelname>.zip
+├── process/
+│   ├── <main process>.json
+│   └── <main process> - COUPON.json   ← v0.3.0 자동 추가
+├── filament/
+│   └── ...
+└── coupon-stl/                          ← v0.3.0 자동 추가
+    └── README.md                        (cylinder primitive 추가 안내)
+```
+
+**coupon process JSON 정책 (lean variant):**
+
+본 process JSON에서 다음만 변경:
+- `top_shell_layers`: `"0"` → top 무시 (얇은 쿠폰)
+- `bottom_shell_layers`: `"1"` → 첫 레이어 안착만
+- `sparse_infill_density`: `"0%"` → 외벽만 평가
+- `wall_loops`: 본 process와 동일 (seam/scarf 평가가 목적)
+- `seam_*`, `scarf_*`, `wall_sequence`, `outer_wall_speed`: **본 process와 100% 동일** (이게 평가 대상)
+- `name`: `"<원본> - COUPON"` 명시
+- `print_settings_id`: 동일 패턴 + " - COUPON"
+
+**사용자 안내 (zip + coupon-stl/README.md에 포함):**
+
+```text
+COUPON 테스트 절차
+
+1. Bambu Studio에서 빈 plate에 cylinder primitive 추가:
+   - Add → Primitive → Cylinder
+   - 회전체 모델: 30mm × 30mm × 35mm
+   - 박스 모델: 30mm × 30mm × 30mm box
+   - 평면 top 모델: 50mm × 50mm × 5mm flat plate
+2. Process: "<원본 process> - COUPON" 선택
+3. Filament: 본 출력과 동일 슬롯
+4. Slice → 출력 (~15-30분 예상)
+5. 평가 항목:
+   - Seam line 가시성
+   - Scarf ramp 매끄러움
+   - Stringing 유무 (PETG/PC/ASA 특히)
+   - 외벽 광택/표면 균일도
+6. 통과 → 본 출력. 실패 → seam_position/scarf_length/외벽 속도 보정 후 재시도.
+```
+
+**왜 coupon STL 직접 생성 안 하는가:**
+
+STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도입 비용 > Studio primitive 한 번 클릭 비용. 안내만으로 충분.
+
+→ 추후 v0.4+: cylinder.stl + box.stl 사전 출력본 첨부 검토 (BACKLOG).
 
 ## Gotcha 체크리스트 (생성 직후 자기 검증)
 
@@ -226,18 +449,41 @@ coupon-process.json도 함께 생성 (lean: top/bottom_shell 0, infill 0%, 같�
 - 카이젠 스킬은 이 레포의 `.claude/skills/bambu-research` + `.claude/skills/bambu-kaizen`에 분리됨 (자동 주기 폴링 + SKILL 격차 분석). bambu-kit 플러그인에는 포함되지 않는다.
 - 실측 피드백을 references에 자동 환류 (v1은 손으로 함)
 
-## 매 실행 시 권장 사전 절차
+## 매 실행 시 필수 사전 절차 (v0.3.0 강화)
 
-1. **현재 Bambu Studio 버전 cross-check** (memory 또는 셸로):
-   ```bash
-   defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVersionString
-   ```
-   `02.06.00.xx`이면 references baseline 그대로. major 버전이 다르면 references 업데이트 권장.
+스킬 시작 즉시 아래 3개를 **반드시** 실행. 건너뛰면 schema mismatch / silent skip 위험.
 
-2. **memory 자동 로드:**
-   - `3d_printing_setup.md` — 하드웨어 환경 확인
-   - `bambu_studio_json_import.md` — silent skip 회피 규칙
-   - `bambu_print_profile_skill.md` — v1 학습 환류
+### 1. Bambu Studio 버전 cross-check
+
+```bash
+defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVersionString
+```
+
+| 결과 | 처리 |
+|------|------|
+| `02.06.00.xx` (현재 baseline) | references 그대로 사용. 정상. |
+| `02.06.01.xx` (1패치 위) | references 그대로 — 마이너 패치는 호환 가능성 높음. 단, scarf 필드 mismatch 의심되면 cross-check. |
+| `02.07.x.xx` 이상 (Public Beta 이상) | ⚠️ **bambu-kaizen 트리거 권장** — fields baseline 갱신 필요할 수 있음. 사용자에게 보고 후 진행. |
+| `02.05.x.xx` 이하 (구버전) | ⚠️ JSON `"version": "2.6.0.2"`이 reject될 수 있음. 사용자에게 업그레이드 권장. |
+| 명령 실패 (`not installed`) | Studio 미설치. JSON은 만들되 import 검증 셸 명령 부분 skip. |
+
+### 2. Memory 자동 로드
+
+다음 3개 파일을 Read로 자동 로드 (사용자 명시 요청 없어도):
+- `~/.claude/projects/-Users-jackson/memory/3d_printing_setup.md` — 하드웨어 환경 (H2S + AMS 구성, 노즐)
+- `~/.claude/projects/-Users-jackson/memory/bambu_studio_json_import.md` — silent skip 회피 4개 필수 필드
+- `~/.claude/projects/-Users-jackson/memory/bambu_print_profile_skill.md` — v1 학습 환류 (회전체 random > aligned 등)
+
+### 3. 시스템 base 프리셋 존재 확인
+
+생성할 `inherits` 값이 실제 파일로 존재하는지 사전 확인:
+
+```bash
+ls ~/Library/Application\ Support/BambuStudio/system/BBL/process/ | grep -i "h2s\|0.20mm"
+ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<material>"
+```
+
+이 확인 없이 JSON 생성하면 inherits 매칭 실패로 silent skip 위험. 매번 셸로 검증.
 
 ## 검증된 실측 사례
 
@@ -245,6 +491,7 @@ coupon-process.json도 함께 생성 (lean: top/bottom_shell 0, infill 0%, 같�
 |------|------|------|
 | Box opener knife (583712) | PLA Basic dual-color | ✅ 정상 출력 검증. 회전체 손잡이 seam은 random + external 처리 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing 발생 (필라멘트 건조 부족 의심). seam은 random + external + entire_loop |
+| Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 워크플로우 dogfood. 5섹션 notes.md 표준 템플릿 확립. 웹 BOM 30개 vs PDF 매뉴얼 카운트 34개 mismatch 발견 → Phase 1.5 신규. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
 
@@ -252,5 +499,6 @@ coupon-process.json도 함께 생성 (lean: top/bottom_shell 0, infill 0%, 같�
 
 - 4개 Codex research run으로 references 빌드 (`a5afcf864d05cf3b7`, `aeb457c7603a420db`, `afcf4968339021b29`, `ab679b7fbc81fa7b6`)
 - 추가 검증: `aab7cad186e9523af` (멀티컬러 필드), `a2a01770a87626167` (JSON import gate), `a06a8ac153247d901` (wipe_on_loops Bambu 부재 확인)
-- 실측 피드백: 2026-05-15 ~ 2026-05-16 박스 오프너 + vent pipe 테스트
+- 실측 피드백: 2026-05-15 ~ 2026-05-19 박스 오프너 + vent pipe + Stealth Press 1S 테스트
+- v0.3.0 dogfood: 2026-05-19 Stealth Press 1S — PDF 23p / 영상 / GitHub 첨부 자료 분석 누락 → Phase 1.5 신규 + notes.md 5섹션 표준화 + 버전 cross-check 필수화 + Phase 5 coupon 자동 생성
 - 전체 로그: `~/.claude/codex-research-log/2026-05.md`

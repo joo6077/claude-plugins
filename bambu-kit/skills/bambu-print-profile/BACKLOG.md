@@ -1,5 +1,37 @@
 # TODO — bambu-print-profile 스킬
 
+## ✅ 구현 완료 (v0.3.0, 2026-05-19) — 첨부 자료 통합 분석 워크플로우
+
+> 출처: dogfood 피드백 2026-05-19 (Stealth Press 1S 케이스). 사용자 피드백:
+> "키트에 이런거 처럼 구매 필요한 리스트나 링크 주는것도 있었으면 좋겠는데 그리고 너 지금 웹만보는데 웹안에 있는 파일 pdf? 기타 등등도 분석했으면 하는데 주의사항이나 필요한 리스트 조립, 필라멘트 기타등등 요구사항을 숙지해야지"
+
+### 해결한 문제
+
+v0.2.x SKILL Phase 1은 MakerWorld 웹페이지 텍스트/스크린샷만 읽음 → 다음 정보 누락:
+
+- 공식 PDF assembly manual의 정확한 BOM, 숨은 부품, 안전 주의사항
+- YouTube 빌드 영상의 손기술 팁
+- GitHub 레포의 변경 이력 (R1 vs R1S 같은 리비전 차이)
+
+Stealth Press 1S 케이스에서 v0.2.x로는 놓쳤을 항목:
+1. Heat-set 인서트 VORON 표준 M3x5x4 명시
+2. 숨은 인서트 5군데 ("Insert on other side!" 표시)
+3. 희생 부품 break out + 부싱 super glue 3방울
+4. 0.5-1mm shim, 인두 타입별 mount STL 선택, 인서트 압입 온도
+5. 인서트 실제 수량 34개 (웹 BOM 30개와 mismatch)
+
+### v0.3.0에서 추가된 워크플로우 단계
+
+- **Phase 1 Attached Resources Inventory** — 페이지 외부 링크를 4개 카테고리로 enumerate
+- **Phase 1.5 신규 — PDF/YouTube/GitHub 분석** — 첨부 자료 자동 분석 + cross-check 보고
+- **Phase 4 notes.md 5섹션 표준화** — 필라멘트/부품/조립/임포트/라이센스
+- **매 실행 시 필수 사전 절차** — Bambu Studio 버전 + memory + 시스템 base 프리셋 cross-check
+- **Phase 5 Coupon test 자동 생성** — 트리거 조건 충족 시 zip 번들에 lean process JSON 자동 포함
+
+reference notes.md: `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/notes.md`
+
+---
+
 ## v2 — 홈서버 자동 print outcome capture daemon
 
 **목표:** H2S print 결과를 홈서버에서 자동 수집 → JSONL 로그 → 카이젠 스킬이 주 1회 읽어 references default 값 보정.
