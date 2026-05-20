@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Strategy — 최신 정보 수집 우선순위</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#5B6CFF;--accent2:#7C8AFF;--accent-dim:rgba(91,108,255,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(91,108,255,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(91,108,255,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(91,108,255,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:15px;font-weight:800;flex-shrink:0}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);padding-bottom:2px}
+  .card-source:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(91,108,255,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
+  .checklist code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:22px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .compare li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:16px;position:relative}
+  .compare-good li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:700}
+  .compare-bad li::before{content:'×';position:absolute;left:0;color:var(--red);font-weight:700}
+  .compare li code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+  .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
+  .badge-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .badge-info{background:var(--accent-dim);color:var(--accent)}
+  .badge-red{background:rgba(248,113,113,0.12);color:var(--red)}
+
+  .callout{border-left:3px solid var(--yellow);background:rgba(251,191,36,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin:14px 0}
+  .callout strong{color:var(--yellow)}
+  .callout-accent{border-left-color:var(--accent);background:rgba(91,108,255,0.05)}
+  .callout-accent strong{color:var(--accent)}
+  .callout-red{border-left-color:var(--red);background:rgba(248,113,113,0.05)}
+  .callout-red strong{color:var(--red)}
+
+  /* Priority ladder */
+  .priority-ladder{display:flex;flex-direction:column;gap:0}
+  .priority-rung{display:flex;align-items:stretch;gap:0;position:relative}
+  .priority-rung:not(:last-child)::after{content:'↓';position:absolute;left:19px;bottom:-22px;font-size:16px;color:var(--accent);font-weight:700;z-index:2}
+  .priority-num{width:40px;display:flex;flex-direction:column;align-items:center;padding-top:4px;flex-shrink:0}
+  .priority-num-badge{width:38px;height:38px;border-radius:10px;background:var(--accent-dim);color:var(--accent);font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid rgba(91,108,255,0.3)}
+  .priority-body{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-left:16px;margin-bottom:28px;transition:border-color var(--transition)}
+  .priority-body:hover{border-color:rgba(91,108,255,0.25)}
+  .priority-tool{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px}
+  .priority-when{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+  .priority-desc{font-size:13px;color:var(--text2);line-height:1.65}
+
+  /* Domain pill */
+  .domain-pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:11px;color:var(--text2);margin:2px 2px 2px 0}
+
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; } html { scroll-behavior:auto } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Onboarding Kit</a>
+
+<h1>Search Strategy — 최신 정보 수집 우선순위</h1>
+<p class="subtitle">WebFetch → Context7 → Codex → WebSearch 순서로 1차 출처를 수집한다. 학습 데이터 추측은 금지. 각 도구는 역할이 다르며, 순서를 지키지 않으면 deprecated 정보가 가이드에 포함될 위험이 있다.</p>
+
+<!-- ── Section 1: 4단계 우선순위 래더 ── -->
+<div class="section">
+  <div class="section-label">4단계 우선순위 래더</div>
+  <p class="desc">각 도구는 잘하는 영역이 다르다. WebFetch는 콘솔 UI 경로에 가장 빠르고, Context7은 SDK API 시그니처에 가장 정확하다. 역할을 혼동하면 불필요하게 Codex에 위임하거나, 단순 fetch로 해결될 것을 복잡하게 만든다.</p>
+
+  <div class="priority-ladder">
+
+    <div class="priority-rung">
+      <div class="priority-num">
+        <div class="priority-num-badge">1</div>
+      </div>
+      <div class="priority-body">
+        <div class="priority-tool">WebFetch</div>
+        <div class="priority-when">콘솔 UI / 공식 help 페이지 — 가장 빠르고 정확</div>
+        <div class="priority-desc">
+          콘솔 클릭 경로, 메뉴 라벨, + 버튼 옵션 리스트는 매번 직접 fetch한다. 학습 데이터로 답하면 사용자가 화면에서 버튼을 못 찾는다.<br><br>
+          <strong style="color:var(--text)">주요 fetch 대상:</strong><br>
+          <span class="domain-pill">developer.apple.com/help/account/</span>
+          <span class="domain-pill">firebase.google.com/docs/</span>
+          <span class="domain-pill">cloud.google.com/docs/</span>
+          <span class="domain-pill">docs.aws.amazon.com/</span>
+          <span class="domain-pill">stripe.com/docs/</span>
+          <span class="domain-pill">docs.sentry.io/</span><br><br>
+          <strong style="color:var(--text)">WebFetch 프롬프트 예시:</strong><br>
+          "Apple Developer Portal에서 새 App ID를 등록하는 정확한 클릭 경로를 step-by-step으로 추출해줘. 좌측 메뉴 위치, + 버튼 이후 옵션, Capabilities 체크리스트 위치, 최종 등록 버튼 라벨까지. 한국어로 정리."
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-rung">
+      <div class="priority-num">
+        <div class="priority-num-badge">2</div>
+      </div>
+      <div class="priority-body">
+        <div class="priority-tool">Context7</div>
+        <div class="priority-when">SDK API 문서 — 메서드 시그니처, 초기화 코드, 마이그레이션 가이드</div>
+        <div class="priority-desc">
+          라이브러리/SDK의 메서드 시그니처, 초기화 패턴, 버전 마이그레이션 가이드는 Context7이 가장 정확하다. 학습 데이터의 API 정보는 deprecated됐을 가능성이 높다.<br><br>
+          <strong style="color:var(--text)">Context7 흐름:</strong><br>
+          1. <code>mcp__context7__resolve-library-id</code> — 라이브러리 ID 검색<br>
+          2. <code>mcp__context7__query-docs</code> — 구체 API 질의<br><br>
+          <strong style="color:var(--text)">대상 라이브러리:</strong> firebase-ios-sdk, FlutterFire (firebase_messaging, firebase_core), AWS SDK, Stripe SDK, Sentry SDK 등.
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-rung">
+      <div class="priority-num">
+        <div class="priority-num-badge">3</div>
+      </div>
+      <div class="priority-body">
+        <div class="priority-tool">Codex 위임</div>
+        <div class="priority-when">정책 검증 / 교차검증 / 깊은 분석 — codex-rescue 에이전트, MODE=research</div>
+        <div class="priority-desc">
+          단순 페이지 fetch(WebFetch가 더 빠름)나 API 시그니처(Context7이 더 정확)에는 쓰지 않는다. Codex는 여러 출처를 종합해 판단해야 할 때 투입한다.<br><br>
+          <strong style="color:var(--text)">Codex 투입 기준:</strong>
+          <ul style="list-style:none;margin-top:6px;display:flex;flex-direction:column;gap:4px">
+            <li style="display:flex;gap:6px;font-size:13px"><span style="color:var(--green)">+</span> 정책 사실 검증 (예: Apple Bundle ID 변경 정책, FCM 전송 한도)</li>
+            <li style="display:flex;gap:6px;font-size:13px"><span style="color:var(--green)">+</span> 여러 출처 교차검증 필요</li>
+            <li style="display:flex;gap:6px;font-size:13px"><span style="color:var(--green)">+</span> WebFetch 한 페이지로 답이 안 나올 때</li>
+            <li style="display:flex;gap:6px;font-size:13px"><span style="color:var(--red)">×</span> 단순 페이지 fetch 목적 → WebFetch 사용</li>
+            <li style="display:flex;gap:6px;font-size:13px"><span style="color:var(--red)">×</span> API 시그니처 목적 → Context7 사용</li>
+          </ul>
+          <br>
+          <code>~/.claude/codex-prompt-template.md</code> 템플릿 필수. <code>--write</code> 없이 research mode.
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-rung">
+      <div class="priority-num">
+        <div class="priority-num-badge" style="background:var(--surface2);border-color:var(--border);color:var(--text3)">4</div>
+      </div>
+      <div class="priority-body" style="border-color:rgba(122,111,100,0.3)">
+        <div class="priority-tool" style="color:var(--text2)">WebSearch — fallback</div>
+        <div class="priority-when" style="color:var(--text3)">위 세 가지로 안 잡힐 때만. 반드시 현재 연도 포함</div>
+        <div class="priority-desc">
+          위 세 가지 도구로 해결되지 않을 때만 사용한다. 검색어에 <strong style="color:var(--text)">현재 연도 필수</strong>. 연도 없이 검색하면 deprecated 결과가 상위 노출된다.<br><br>
+          <strong style="color:var(--text)">검색어 패턴:</strong><br>
+          <code>"2026 Firebase FCM iOS setup"</code><br>
+          <code>"2026 Apple APNs authentication key"</code><br>
+          연도를 앞에 붙이면 검색엔진이 날짜 기준으로 필터링한다.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 2: 도구별 역할 비교 ── -->
+<div class="section">
+  <div class="section-label">도구별 역할 비교 매트릭스</div>
+  <p class="desc">어떤 정보를 어느 도구로 수집할지 명확히 구분한다. 역할 혼동이 토큰 낭비와 품질 저하의 주원인이다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>수집 대상 정보</th>
+          <th>WebFetch</th>
+          <th>Context7</th>
+          <th>Codex</th>
+          <th>WebSearch</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>콘솔 UI 클릭 경로</td>
+          <td><span class="badge badge-ok">1순위</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>메뉴 라벨 / 버튼 이름</td>
+          <td><span class="badge badge-ok">1순위</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>SDK 메서드 시그니처</td>
+          <td>—</td>
+          <td><span class="badge badge-ok">1순위</span></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>SDK 초기화 코드 패턴</td>
+          <td>—</td>
+          <td><span class="badge badge-ok">1순위</span></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>SDK 버전 마이그레이션</td>
+          <td>—</td>
+          <td><span class="badge badge-ok">1순위</span></td>
+          <td>보조</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>정책 사실 검증 (Bundle ID 변경 불가 등)</td>
+          <td>보조</td>
+          <td>—</td>
+          <td><span class="badge badge-ok">1순위</span></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>여러 출처 교차검증</td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-ok">1순위</span></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>최신 버전 번호 확인</td>
+          <td>보조</td>
+          <td>보조</td>
+          <td>—</td>
+          <td><span class="badge badge-warn">fallback</span></td>
+        </tr>
+        <tr>
+          <td>비공식 커뮤니티 해결법</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-warn">fallback</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">1순위 도구가 실패하거나 정보가 없을 때만 다음 순위 도구로 내려간다</p>
+</div>
+
+<!-- ── Section 3: Deprecated 감지 규칙 ── -->
+<div class="section">
+  <div class="section-label">Deprecated 감지 규칙</div>
+  <p class="desc">수집한 정보가 최신인지 검증하는 규칙. 하나라도 해당하면 가이드에 ❌/✅ 박스를 삽입하고 현재 권장 방법을 병기한다. 조용한 생략은 사용자가 deprecated 방법을 따르게 만든다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">자동 감지 신호</div>
+          <h3>4가지 Deprecated 시그널</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+          <li style="display:flex;gap:10px;align-items:flex-start">
+            <span class="badge badge-red" style="flex-shrink:0;margin-top:2px">날짜</span>
+            <span style="font-size:13px;color:var(--text2)">문서의 마지막 업데이트가 <strong style="color:var(--text)">2년 이상</strong> 지남 — 자동 ⚠️ 경고 박스</span>
+          </li>
+          <li style="display:flex;gap:10px;align-items:flex-start">
+            <span class="badge badge-red" style="flex-shrink:0;margin-top:2px">키워드</span>
+            <span style="font-size:13px;color:var(--text2)">본문에 <code>deprecated</code>, <code>legacy</code>, <code>old method</code>, <code>will be removed</code>, <code>removed in</code> 발견</span>
+          </li>
+          <li style="display:flex;gap:10px;align-items:flex-start">
+            <span class="badge badge-red" style="flex-shrink:0;margin-top:2px">버전</span>
+            <span style="font-size:13px;color:var(--text2)">API/SDK 메이저 버전 변경 안내 포함 — 마이그레이션 가이드 별도 링크</span>
+          </li>
+          <li style="display:flex;gap:10px;align-items:flex-start">
+            <span class="badge badge-red" style="flex-shrink:0;margin-top:2px">대체</span>
+            <span style="font-size:13px;color:var(--text2)">"use X instead", "prefer X" 같은 대체 권장 표현 발견</span>
+          </li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/certs" target="_blank">↗ Firebase — APNs 인증서 deprecated 안내</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">처리 방법</div>
+          <h3>감지 후 가이드에 삽입</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>감지 즉시 가이드 해당 Step 상단에 박스 삽입:</p>
+        <pre style="margin-top:8px;font-size:11.5px">&gt; **❌ Deprecated:** &lt;옛 방법&gt;
+&gt; &lt;비추천 이유&gt;
+&gt;
+&gt; **✅ 현재 권장:** &lt;새 방법&gt;
+&gt; &lt;장점&gt;</pre>
+        <p style="margin-top:10px">실제 사용 예:</p>
+        <pre style="font-size:11.5px">&gt; **❌ Deprecated:** APNs Certificate (.p12)
+&gt; 매년 갱신, 환경별 분리, 2020년 이후 비권장
+&gt;
+&gt; **✅ 현재 권장:** APNs Key (.p8)
+&gt; 갱신 불필요, dev/prod 모두 커버</pre>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/keys/create-a-private-key/" target="_blank">↗ Apple — Authentication Key (.p8)</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 4: 1차 출처 화이트리스트 ── -->
+<div class="section">
+  <div class="section-label">1차 출처 도메인 화이트리스트</div>
+  <p class="desc">가이드에 포함되는 모든 외부 링크는 아래 도메인 목록에 속해야 한다. 비공식 블로그, Medium, Qiita, StackOverflow는 정보 참조는 가능하지만 가이드 링크로 직접 포함하지 않는다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>서비스</th>
+          <th>허용 도메인</th>
+          <th>비허용 예시</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--text)">Apple</strong></td>
+          <td><code>developer.apple.com</code>, <code>developer.apple.com/help/account/</code></td>
+          <td>NSHipster.com, medium.com/@xxx/apple-setup</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Firebase</strong></td>
+          <td><code>firebase.google.com/docs/</code>, <code>firebase.flutter.dev/docs/</code></td>
+          <td>medium.com, dev.to, qiita.com</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">FlutterFire</strong></td>
+          <td><code>firebase.flutter.dev</code>, <code>pub.dev/packages/firebase_messaging</code></td>
+          <td>블로그, 개인 GitHub Pages</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Google Cloud</strong></td>
+          <td><code>cloud.google.com/docs/</code></td>
+          <td>codelabs.developers.google.com (참조는 가능)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">AWS</strong></td>
+          <td><code>docs.aws.amazon.com/</code></td>
+          <td>aws.amazon.com/blogs/ (참조는 가능)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Stripe</strong></td>
+          <td><code>stripe.com/docs/</code></td>
+          <td>stripe.com/blog/ (참조는 가능)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Sentry</strong></td>
+          <td><code>docs.sentry.io/</code></td>
+          <td>blog.sentry.io (참조는 가능)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">GitHub (공식 SDK)</strong></td>
+          <td><code>github.com/firebase/flutterfire</code>, <code>github.com/firebase/firebase-ios-sdk</code></td>
+          <td>개인 fork, 비공식 wrapper 레포</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">가이드 Phase 4 검증 단계에서 모든 링크 도메인을 이 목록 기준으로 재확인한다</p>
+</div>
+
+<!-- ── Section 5: 안티패턴 비교 ── -->
+<div class="section">
+  <div class="section-label">안티패턴 — 잘못된 정보 수집</div>
+  <p class="desc">정보 수집 단계에서 발생하는 실수 패턴과 올바른 처리를 대비한다. 이 실수들은 실제로 deprecated 정보가 가이드에 포함된 사례에서 수집되었다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">잘못된 수집 — deprecated 위험</div>
+      <ul>
+        <li>학습 데이터로 콘솔 클릭 경로 답변 — "Firebase Console에서 설정 페이지로 가세요"</li>
+        <li>연도 없이 WebSearch — "Firebase FCM iOS setup"으로 검색 → 2021년 결과 상위</li>
+        <li>SDK 메서드를 Context7 없이 학습 데이터로 작성 — deprecated API 사용</li>
+        <li>Codex를 단순 페이지 fetch에 사용 — WebFetch보다 느리고 비쌈</li>
+        <li>Stack Overflow 답변을 1차 출처로 가이드에 링크 — 오래된 정보 가능성</li>
+        <li>검색 결과 첫 페이지를 교차검증 없이 신뢰</li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 수집 — 최신 정보 보장</div>
+      <ul>
+        <li>WebFetch로 <code>developer.apple.com/help/account/</code> 직접 fetch → 현재 UI 경로 추출</li>
+        <li>연도 포함 검색: <code>"2026 Firebase FCM iOS setup"</code></li>
+        <li>Context7 <code>resolve-library-id</code> → <code>query-docs</code>로 현재 API 시그니처 조회</li>
+        <li>정책 검증에만 Codex 투입 — 단순 fetch는 WebFetch</li>
+        <li>공식 도메인 (firebase.google.com, developer.apple.com) 링크만 가이드에 포함</li>
+        <li>여러 페이지 교차검증 후 최신 정보 확정</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 6: 검색 결과 검증 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">검색 결과 검증 체크리스트</div>
+  <p class="desc">Phase 2에서 수집한 정보를 가이드에 포함하기 전에 아래 체크리스트를 실행한다. 한 페이지의 정보를 절대적으로 신뢰하지 않고 교차검증한다.</p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">공식 도메인 확인</strong> — 수집한 URL이 developer.apple.com, firebase.google.com, cloud.google.com, docs.aws.amazon.com 등 화이트리스트 도메인에 속하는가
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">문서 날짜 추출</strong> — 페이지의 마지막 업데이트 날짜를 확인. 없으면 "날짜 미확인 — 교차검증 필요" 메모. 2년+ 이면 ⚠️ 경고 박스 삽입
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">Deprecated 키워드 grep</strong> — 본문에 "deprecated", "legacy", "old method", "will be removed", "removed in", "use X instead" 중 하나라도 있는가
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">교차검증</strong> — 최소 2개 이상의 공식 페이지에서 같은 정보를 확인했는가. 한 페이지만 보고 판단하지 않는다
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">버전 매칭</strong> — 수집한 SDK 코드 예시의 버전이 현재 프로젝트의 버전과 호환되는가. 메이저 버전 차이가 있으면 마이그레이션 가이드 별도 확인
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">스택 매칭</strong> — 수집한 코드 예시가 확정된 프로젝트 스택(Flutter / 네이티브 iOS / Node 등)과 일치하는가. 다른 스택 코드를 혼용하지 않는다
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">WebSearch 사용 시 연도 확인</strong> — WebSearch를 fallback으로 사용한 경우 검색어에 현재 연도가 포함됐는가. 결과의 날짜가 최근 1~2년 이내인가
+      </div>
+    </li>
+  </ul>
+
+  <div class="callout callout-accent" style="margin-top:24px">
+    <strong>WebFetch 실패 대응:</strong> WebFetch가 페이지 fetch에 실패하거나 접근 차단될 경우 Context7 → Codex → WebSearch 순서로 바로 내려간다. 실패한 도구에서 재시도를 반복하면 토큰 낭비다.
+  </div>
+</div>
+
+<!-- ── Section 7: Codex 위임 조건 상세 ── -->
+<div class="section">
+  <div class="section-label">Codex 위임 조건 상세</div>
+  <p class="desc">Codex는 강력하지만 단순 fetch나 API 조회에 투입하면 과잉이다. 아래 조건에 해당할 때만 <code>codex-rescue</code> 에이전트에 위임한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">위임 O — Codex 투입</div>
+          <h3>적합한 Codex 태스크</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">+</span>Apple Bundle ID 변경 불가 정책이 현재도 유효한지 검증</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">+</span>Firebase 무료 한도가 현재 기준으로 정확한지 교차검증</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">+</span>APNs .p8 vs .p12 정책 비교 — 공식 문서 여러 페이지 종합</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">+</span>FCM 전송 제한 정책의 최신 상태 (변경 이력 포함)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">+</span>여러 SDK 버전 간 호환성 매트릭스 분석</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase FCM — 정책 검증 대상</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">위임 X — 다른 도구 사용</div>
+          <h3>Codex 과잉 투입 패턴</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>"Firebase Console 클릭 경로 알려줘" → WebFetch 사용</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>"firebase_messaging 초기화 코드" → Context7 사용</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>단순 공식 문서 페이지 fetch → WebFetch 사용</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>이미 Context7에서 확인된 API 시그니처 재확인 → 중복 투입</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>"Stripe 대시보드 경로" → WebFetch로 stripe.com/docs/ fetch</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — Context7 대상 API</a>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:20px">
+    <strong>Codex 위임 필수 준수 사항:</strong> <code>~/.claude/codex-prompt-template.md</code> 템플릿을 채워서 보낸다. <code>MODE=research</code>, <code>--write</code> 없이. 위임 전 사용자에게 보고 필수. 위임 후 <code>~/.claude/codex-research-log/YYYY-MM.md</code>에 로그 append.
+  </div>
+</div>
+
+</div>
+</body>
+</html>

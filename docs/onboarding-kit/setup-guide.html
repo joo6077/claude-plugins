@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup Guide — 외부 서비스 셋업 가이드 자동 생성</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#5B6CFF;--accent2:#7C8AFF;--accent-dim:rgba(91,108,255,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(91,108,255,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(91,108,255,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* Typography */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px;letter-spacing:0.2px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(91,108,255,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  /* Card internals */
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
+  .phase-tag{font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+
+  /* Source link */
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);padding-bottom:2px}
+  .card-source:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(91,108,255,0.03)}
+  td code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+
+  /* Checklist */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
+  .checklist code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  /* Compare panels */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .compare li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:16px;position:relative}
+  .compare-good li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:700}
+  .compare-bad li::before{content:'×';position:absolute;left:0;color:var(--red);font-weight:700}
+  .compare li code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  /* Pre/code */
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  /* Nav */
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+
+  /* Status badges */
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+  .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
+  .badge-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .badge-info{background:var(--accent-dim);color:var(--accent)}
+
+  /* Callout */
+  .callout{border-left:3px solid var(--yellow);background:rgba(251,191,36,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin:14px 0}
+  .callout strong{color:var(--yellow)}
+  .callout-accent{border-left-color:var(--accent);background:rgba(91,108,255,0.05)}
+  .callout-accent strong{color:var(--accent)}
+
+  /* Step block */
+  .step-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:12px}
+  .step-where{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+  .step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:10px}
+
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Onboarding Kit</a>
+
+<h1>Setup Guide — 외부 서비스 셋업 가이드 자동 생성</h1>
+<p class="subtitle">Firebase, GCP, AWS, FCM, OAuth, Stripe 등 외부 서비스의 step-by-step 설정 가이드를 그 시점 최신 정보 기반으로 자동 생성한다. WebFetch → Context7 → Codex 우선순위로 deprecated 정보를 회피하고, 11개 표준 섹션으로 누락 없는 가이드를 만든다.</p>
+
+<!-- ── Section 1: 핵심 원칙 ── -->
+<div class="section">
+  <div class="section-label">핵심 원칙 (Core Principles)</div>
+  <p class="desc">이 스킬의 존재 이유는 deprecated된 정보로 사용자가 헤매지 않도록 하는 것이다. 학습 데이터의 콘솔 UI 정보는 자주 outdated되어, 매번 1차 출처를 직접 fetch해야 정확한 안내가 가능하다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <div class="rule-number">Freshness First</div>
+          <h3>매번 1차 출처 fetch</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>콘솔 UI 클릭 경로, 메뉴 라벨, 버튼 이름은 수시로 바뀐다. 학습 데이터로 답하면 사용자가 화면에서 못 찾는다. Apple Developer Portal, Firebase Console, AWS 콘솔 — 어느 플랫폼이든 매번 WebFetch로 현재 상태를 직접 확인한다.</p>
+        <p style="margin-top:8px">검색 시 반드시 <strong style="color:var(--text)">현재 연도</strong> 포함 — 연도 없이 검색하면 2~3년 전 deprecated 결과가 상위 노출된다.</p>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ firebase.google.com/docs/cloud-messaging</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <div class="rule-number">Stack First</div>
+          <h3>스택 확정 전 가이드 작성 금지</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Flutter / 네이티브 iOS / React Native / Node 백엔드는 같은 서비스라도 SDK 설치 명령, 초기화 코드, CLI 자동화 도구가 완전히 다르다. 스택 확정 없이 작성을 시작하면 사용자가 잘못된 코드를 복사·붙여넣기 하게 된다.</p>
+        <p style="margin-top:8px">탐지 실패 시 → 명시적으로 질문: "Flutter iOS 기준? 네이티브 Swift 기준?"</p>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ firebase.flutter.dev (FlutterFire)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <div class="rule-number">Specificity</div>
+          <h3>버전·경로·명령어 구체화</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>버전 번호, CLI 명령어, 콘솔 UI 경로는 <strong style="color:var(--text)">구체적으로</strong> 기술한다. "Firebase 설정 페이지에 가세요"가 아니라 "Firebase Console → 프로젝트 설정 ⚙️ → 클라우드 메시징 탭 → Apple 앱 구성 섹션"까지 드릴다운한다.</p>
+        <p style="margin-top:8px">모호한 안내는 콘솔 UI 변경 시마다 사용자가 헤맨다.</p>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple Developer — App ID 등록</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <div class="rule-number">Deprecated Surfacing</div>
+          <h3>Deprecated 발견 시 명시 경고</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>deprecated 정보를 조용히 넘어가지 않는다. 가이드 안에 명시적 경고 박스를 삽입한다:</p>
+        <pre style="margin-top:8px;font-size:11px">❌ Deprecated: APNs Certificate (.p12)
+   매년 갱신 필요, 2020년 이후 비권장
+✅ 현재 권장: APNs Key (.p8)
+   갱신 불필요, dev/prod 모두 커버</pre>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/certs" target="_blank">↗ Firebase — APNs 인증서 vs 키</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 2: 트리거 조건 ── -->
+<div class="section">
+  <div class="section-label">트리거 조건 (Triggers)</div>
+  <p class="desc">설정/세팅/연동/가이드 키워드와 외부 서비스명이 함께 나오면 반드시 트리거된다. 아래 표는 트리거되는 케이스와 트리거되지 않는 케이스를 구분한다.</p>
+
+  <div class="compare">
+    <div class="compare-good">
+      <div class="compare-label">트리거 — setup-guide 실행</div>
+      <ul>
+        <li>"FCM 설정해야 해", "Firebase 어떻게 연동해?"</li>
+        <li>"GCP 설정 가이드 만들어줘"</li>
+        <li>"OAuth 설정", "서드파티 연동 방법"</li>
+        <li>"Stripe 연동 가이드", "push notification 세팅"</li>
+        <li>"외부 서비스 설정", "셋업 가이드 만들어줘"</li>
+        <li>설정 키워드 + 서비스명 동시 언급</li>
+      </ul>
+    </div>
+    <div class="compare-bad">
+      <div class="compare-label">비트리거 — 다른 접근 필요</div>
+      <ul>
+        <li>외부 서비스 언급 없는 일반 코드 질문</li>
+        <li>이미 완성된 가이드의 코드 수정 요청</li>
+        <li>서비스 기능 설명만 요청 ("FCM이 뭐야?")</li>
+        <li>이미 설정 완료된 서비스의 디버깅 요청</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-accent">
+    <strong>인자 사용법:</strong> <code>/setup-guide firebase</code> — 특정 서비스 집중. <code>/setup-guide fcm ios</code> — 서비스 + 플랫폼 지정. <code>/setup-guide</code> — 빈 인자로 프로젝트 전체 스캔 후 탐지한 서비스 목록을 사용자에게 제시하고 선택받는다.
+  </div>
+</div>
+
+<!-- ── Section 3: 4단계 프로세스 ── -->
+<div class="section">
+  <div class="section-label">4단계 프로세스 (Phases)</div>
+  <p class="desc">스킬은 4개 Phase로 실행된다. Phase 1에서 스택과 서비스를 확정하지 않으면 Phase 3에서 잘못된 가이드가 생성된다 — 건너뛰기 금지.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <div class="phase-tag">Phase 1</div>
+          <h3>스택 + 외부 서비스 탐지</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>의존성 파일 글로브 탐색으로 스택을 확정한다. <code>pubspec.yaml</code> → Flutter, <code>Cargo.toml</code> → Rust, <code>package.json</code> → Node/JS. 멀티스택 모노레포라면 하위 디렉토리별로 재스캔한다.</p>
+        <p style="margin-top:8px">외부 서비스 탐지는 3가지 소스를 종합한다: 의존성 파일, <code>.env*</code> 환경변수, 코드 grep (<code>firebase_core</code>, <code>Sentry.init</code>, <code>stripe.api_key</code> 등).</p>
+        <p style="margin-top:8px">탐지 결과 0건이면 사용자에게 명시적 질문 — 추측 금지.</p>
+      </div>
+      <a class="card-source" href="https://pub.dev/packages/firebase_messaging" target="_blank">↗ pub.dev — firebase_messaging</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <div class="phase-tag">Phase 2</div>
+          <h3>최신 정보 수집</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>WebFetch → Context7 → Codex → WebSearch 우선순위로 수집한다. 각 도구의 역할이 다르다: WebFetch는 콘솔 UI 경로, Context7는 SDK API 시그니처, Codex는 정책 교차검증, WebSearch는 최후 fallback.</p>
+        <p style="margin-top:8px">deprecated 감지: 문서 마지막 업데이트 2년+, "deprecated/legacy/will be removed" 키워드, 메이저 버전 변경 안내 중 하나라도 발견하면 가이드에 경고 박스 삽입.</p>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase — FCM iOS 공식 가이드</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <div class="phase-tag">Phase 3</div>
+          <h3>가이드 MD 생성</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>references/format-checklist.md</code>의 11개 섹션을 순서대로 채운다. 섹션 순서는 사용자가 따라가는 흐름 — 헤더 → 사전 요구사항 → 설정 단계 → 프로젝트 코드 변경 → 권한/IAM → 비용 → 환경 분기 → Rollback → 보안 → 검증 → 트러블슈팅.</p>
+        <p style="margin-top:8px">저장 위치 기본값: <code>docs/setup/&lt;서비스명&gt;/&lt;기능명&gt;.md</code>. 여러 하위 기능(Firebase → FCM, Analytics, Crashlytics)이면 각각 별도 파일로 분리.</p>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — Messaging 사용법</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <div class="phase-tag">Phase 4</div>
+          <h3>검증 + 완료 안내</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>생성된 가이드의 모든 외부 URL이 공식 도메인인지 검증한다 (developer.apple.com, firebase.google.com 등). 11개 섹션 누락 여부를 체크한다.</p>
+        <p style="margin-top:8px">사용자에게 파일 경로와 "막히는 부분 알려주세요" 안내를 함께 전달. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음도 안내한다.</p>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple — App ID 등록 가이드</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 4: Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas — 반복 실수 방지</div>
+  <p class="desc">아래 6가지는 가이드 생성 시 반복되는 실수 패턴이다. 각 Gotcha는 실제 사용자가 겪는 문제에서 수집되었다.</p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check">!</span>
+      <div>
+        <strong style="color:var(--text)">Gotcha 1 — 스택 확정 없이 가이드 작성 금지.</strong>
+        Flutter / 네이티브 iOS / React Native / Node 백엔드는 같은 서비스라도 SDK, 코드, CLI가 완전히 다르다. 탐지 실패 시 추측하지 말고 사용자에게 묻는다.
+      </div>
+    </li>
+    <li>
+      <span class="check">!</span>
+      <div>
+        <strong style="color:var(--text)">Gotcha 2 — 콘솔 UI 클릭 경로는 학습 데이터 추측 금지.</strong>
+        Apple Developer Portal, Firebase Console 등의 버튼 옵션, 메뉴 라벨, 화면 순서는 자주 바뀐다. <strong>WebFetch 우선</strong> — Codex 위임보다 빠르고 정확하다.
+      </div>
+    </li>
+    <li>
+      <span class="check">!</span>
+      <div>
+        <strong style="color:var(--text)">Gotcha 3 — Apple 사이트 혼동 주의.</strong>
+        <strong>Apple Developer Portal</strong> (<code>developer.apple.com/account</code>) — App ID·인증서·키 발급. 셋업의 99%가 여기. <strong>App Store Connect</strong> (<code>appstoreconnect.apple.com</code>) — 앱 출시·심사용, 셋업 단계엔 거의 안 들어감. 가이드 사전 요구사항 섹션에 두 사이트 차이 표 필수.
+      </div>
+    </li>
+    <li>
+      <span class="check">!</span>
+      <div>
+        <strong style="color:var(--text)">Gotcha 4 — 글로벌 유니크 식별자 충돌.</strong>
+        Bundle ID (Apple), Package Name (Android), Project ID (GCP/Firebase)는 <strong>전 세계 모든 계정에 걸쳐 유니크</strong>해야 한다. 흔한 조합(<code>com.fitpal.app</code>)은 선점됐을 확률이 높다. 가이드 트러블슈팅에 "not available" 에러 케이스 자동 포함.
+      </div>
+    </li>
+    <li>
+      <span class="check">!</span>
+      <div>
+        <strong style="color:var(--text)">Gotcha 5 — 등록 ≠ 활성화.</strong>
+        App ID 등록과 Provisioning Profile 생성은 별개. Firebase 프로젝트 생성과 APNs Key 업로드는 별개. 단계별 분리 명시 — 연결 없이 나열하면 사용자가 놓친다.
+      </div>
+    </li>
+    <li>
+      <span class="check">!</span>
+      <div>
+        <strong style="color:var(--text)">Gotcha 6 — 출시 후 변경 불가 정책.</strong>
+        Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 후 변경 불가. 가이드 사전 요구사항 섹션 맨 위에 경고. 한 번 실수하면 신규 ID로 전체 재구성이 필요하다.
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- ── Section 5: 서비스별 매핑 ── -->
+<div class="section">
+  <div class="section-label">서비스별 1차 출처 매핑</div>
+  <p class="desc">가이드 생성 시 각 서비스의 공식 도메인을 반드시 사용해야 한다. 비공식 블로그, StackOverflow, 중간 인용 페이지는 1차 출처로 인정하지 않는다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>서비스</th>
+          <th>1차 출처 도메인</th>
+          <th>WebFetch 주요 경로</th>
+          <th>Context7 라이브러리</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--text)">Apple / APNs</strong></td>
+          <td><code>developer.apple.com/help/account/</code></td>
+          <td>identifiers, keys, devices, profiles 하위</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Firebase / FCM</strong></td>
+          <td><code>firebase.google.com/docs/</code></td>
+          <td>cloud-messaging, ios/client, ios/certs</td>
+          <td>firebase-ios-sdk, FlutterFire</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Google Cloud (GCP)</strong></td>
+          <td><code>cloud.google.com/docs/</code></td>
+          <td>IAM, service-accounts, resource-manager</td>
+          <td>google-cloud-* SDK</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">AWS</strong></td>
+          <td><code>docs.aws.amazon.com/</code></td>
+          <td>IAM, S3, SNS, SES 각 서비스 하위</td>
+          <td>@aws-sdk/, boto3</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Stripe</strong></td>
+          <td><code>stripe.com/docs/</code></td>
+          <td>payments, api, webhooks</td>
+          <td>stripe SDK (각 언어별)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Sentry</strong></td>
+          <td><code>docs.sentry.io/</code></td>
+          <td>platforms, product, api</td>
+          <td>sentry-sdk</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">OAuth 2.0</strong></td>
+          <td><code>oauth.net/2/</code> + 각 provider 공식 docs</td>
+          <td>provider별 developer console</td>
+          <td>next-auth, passport-*</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">비공식 출처에서 얻은 정보는 반드시 위 1차 도메인 교차검증 후 사용</p>
+</div>
+
+<!-- ── Section 6: 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴 비교</div>
+  <p class="desc">아래는 잘못된 가이드 생성 패턴과 올바른 패턴의 대비다. 나쁜 패턴은 실제로 사용자가 헤맨 케이스에서 수집되었다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">잘못된 패턴 — 사용자 혼란 유발</div>
+      <ul>
+        <li>"Firebase 콘솔에서 설정하세요" — 경로 미명시</li>
+        <li>APNs Certificate (.p12) 방식 그대로 안내 — 2020년 이후 deprecated</li>
+        <li>스택 미확정 상태로 Flutter + Swift 코드 혼용</li>
+        <li>Bundle ID를 <code>com.example.app</code>으로 안내 — 충돌 위험</li>
+        <li>App Store Connect와 Apple Developer Portal 혼용</li>
+        <li>보안 체크리스트 없이 .p8 파일 저장 방법 미언급</li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 패턴 — 막힘 없는 가이드</div>
+      <ul>
+        <li>"Firebase Console → 프로젝트 설정 ⚙️ → 클라우드 메시징 탭 → Apple 앱 구성" 드릴다운</li>
+        <li>❌ Deprecated: .p12 / ✅ 현재 권장: .p8 박스 삽입</li>
+        <li>스택 확정 후 Flutter 전용 코드만 제공</li>
+        <li>조직 reverse prefix 강조 + 충돌 트러블슈팅 포함</li>
+        <li>사이트 혼동 주의 표 삽입 (Developer Portal vs App Store Connect)</li>
+        <li>보안 체크리스트 섹션에 .p8 안전 저장, .gitignore 추가 명시</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 7: 검증 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">생성 완료 검증 체크리스트</div>
+  <p class="desc">Phase 4에서 생성된 가이드를 제출하기 전에 아래 항목을 체크한다. 하나라도 FAIL이면 수정 후 재검증한다.</p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check">✓</span>
+      <div>11개 섹션이 순서대로 모두 포함됨 — 헤더, 사전 요구사항, 설정 단계, 프로젝트 코드 변경, 권한/IAM, 비용, 환경 분기, Rollback, 보안, 검증, 트러블슈팅</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>모든 외부 URL이 공식 도메인 (developer.apple.com, firebase.google.com 등) — bare URL이 아닌 마크다운 링크 형식</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>각 Step이 3단 구조: <strong>어디서</strong> (URL 또는 터미널 위치) + <strong>무엇을</strong> (클릭 경로 또는 명령어) + <strong>확인 방법</strong></div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>deprecated 정보 발견 시 ❌/✅ 박스로 명시 — 조용한 생략 금지</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>글로벌 유니크 식별자(Bundle ID, Package Name, Project ID) 관련 경고 및 트러블슈팅 포함</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>헤더에 <code>작성일</code>, <code>기준 버전</code>, <code>공식 문서 URL</code> 세 가지 모두 기재</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>사전 요구사항 섹션에 사이트 혼동 주의 표 포함 (Apple/Google 가이드는 필수)</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>보안 체크리스트: 비밀 키 안전 저장, .gitignore 패턴, 클라이언트 노출 가능 vs 서버 전용 키 구분</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>환경 분기 섹션: dev / staging / prod 분리 패턴 및 Build Configuration 별 차이 안내</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>트러블슈팅: 증상 + 원인 + 해결 3단 구조로 최소 3개 에러 케이스 포함</div>
+    </li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

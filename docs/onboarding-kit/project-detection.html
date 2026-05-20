@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Detection — 스택 무관 탐지 패턴</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#5B6CFF;--accent2:#7C8AFF;--accent-dim:rgba(91,108,255,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(91,108,255,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(91,108,255,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(91,108,255,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);padding-bottom:2px}
+  .card-source:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(91,108,255,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
+  .checklist code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:22px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .compare li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:16px;position:relative}
+  .compare-good li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:700}
+  .compare-bad li::before{content:'×';position:absolute;left:0;color:var(--red);font-weight:700}
+  .compare li code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+  .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
+  .badge-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .badge-info{background:var(--accent-dim);color:var(--accent)}
+
+  .callout{border-left:3px solid var(--yellow);background:rgba(251,191,36,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin:14px 0}
+  .callout strong{color:var(--yellow)}
+  .callout-accent{border-left-color:var(--accent);background:rgba(91,108,255,0.05)}
+  .callout-accent strong{color:var(--accent)}
+
+  /* Stack pill */
+  .stack-pill{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;font-family:var(--mono);color:var(--text);margin:3px 3px 3px 0}
+  .stack-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+  /* File scan list */
+  .file-scan{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .file-scan-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;font-size:12px}
+  .file-scan-item code{background:transparent;padding:0;font-size:12px;color:var(--accent2)}
+  .file-scan-arrow{color:var(--text3);font-size:11px;margin:0 4px}
+  .file-scan-stack{color:var(--text2)}
+
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; } html { scroll-behavior:auto } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Onboarding Kit</a>
+
+<h1>Project Detection — 스택 무관 탐지 패턴</h1>
+<p class="subtitle">의존성 파일 글로브 탐색, 코드 grep, 인프라 파일 스캔을 종합하여 프로젝트 스택과 외부 서비스 의존성을 자동 탐지한다. 단일 스택 프로젝트부터 멀티스택 모노레포까지 커버한다. 탐지 실패 시 추측 금지 — 사용자에게 명시적으로 묻는다.</p>
+
+<!-- ── Section 1: 탐지 3단계 ── -->
+<div class="section">
+  <div class="section-label">탐지 3단계 흐름</div>
+  <p class="desc">스택 탐지는 3가지 소스를 순서대로 종합한다. 하나의 소스만으로 판단하면 모노레포나 레거시 프로젝트에서 오탐이 발생한다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <div class="rule-number">Layer 1</div>
+          <h3>의존성 파일 스캔</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>루트에서 글로브 탐색으로 의존성 파일을 찾는다. 파일 존재 여부와 내부 키 패턴으로 스택을 매핑한다.</p>
+        <div class="file-scan">
+          <div class="file-scan-item"><code>pubspec.yaml</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">Flutter / Dart</span></div>
+          <div class="file-scan-item"><code>Cargo.toml</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">Rust</span></div>
+          <div class="file-scan-item"><code>package.json</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">Node.js / JS</span></div>
+          <div class="file-scan-item"><code>go.mod</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">Go</span></div>
+        </div>
+      </div>
+      <a class="card-source" href="https://pub.dev/packages/firebase_messaging" target="_blank">↗ pub.dev — pubspec.yaml 구조</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <div class="rule-number">Layer 2</div>
+          <h3>코드 grep — SDK 패턴</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>의존성 파일만으로 탐지되지 않는 활성 서비스는 코드 내 SDK 초기화 패턴을 grep해서 찾는다.</p>
+        <div class="file-scan">
+          <div class="file-scan-item"><code>firebase_core</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">Firebase</span></div>
+          <div class="file-scan-item"><code>Sentry.init</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">Sentry</span></div>
+          <div class="file-scan-item"><code>stripe.api_key</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">Stripe</span></div>
+          <div class="file-scan-item"><code>passport-</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">OAuth</span></div>
+        </div>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase — SDK 초기화 패턴</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <div class="rule-number">Layer 3</div>
+          <h3>인프라 파일 스캔</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>환경변수, Docker, IaC 파일에서 외부 서비스 키 패턴을 확인한다.</p>
+        <div class="file-scan">
+          <div class="file-scan-item"><code>.env*</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">환경변수 키</span></div>
+          <div class="file-scan-item"><code>docker-compose*.yml</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">컨테이너 의존성</span></div>
+          <div class="file-scan-item"><code>terraform/*.tf</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">IaC 리소스</span></div>
+          <div class="file-scan-item"><code>k8s/*.yaml</code><span class="file-scan-arrow">→</span><span class="file-scan-stack">K8s 매니페스트</span></div>
+        </div>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — Firebase 환경 설정</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 2: 의존성 파일 → 스택 매핑 전체 표 ── -->
+<div class="section">
+  <div class="section-label">의존성 파일 → 스택 매핑 전체</div>
+  <p class="desc">글로브 탐색에서 찾은 파일 이름과 내부 키 패턴의 조합으로 스택을 확정한다. 파일이 존재해도 내부 키 패턴이 없으면 보조 힌트로만 처리한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>파일 (글로브)</th>
+          <th>스택 확정</th>
+          <th>세분화 조건</th>
+          <th>우선순위 주의사항</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>pubspec.yaml</code></td>
+          <td><strong style="color:var(--text)">Flutter / Dart</strong></td>
+          <td><code>flutter:</code> 키 존재 시 Flutter 확정. 없으면 순수 Dart 패키지</td>
+          <td>Flutter 프로젝트는 <code>ios/Podfile</code>도 보유 — Podfile 단독으로 iOS 네이티브로 판단하면 오탐</td>
+        </tr>
+        <tr>
+          <td><code>Cargo.toml</code></td>
+          <td><strong style="color:var(--text)">Rust</strong></td>
+          <td><code>[workspace]</code> 있으면 Rust 워크스페이스 모노레포</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><code>package.json</code></td>
+          <td><strong style="color:var(--text)">Node.js / JS</strong></td>
+          <td><code>dependencies</code> 안의 <code>react</code>, <code>next</code>, <code>vue</code>, <code>express</code> 등으로 세분</td>
+          <td>프론트엔드 vs 백엔드 구분 필수 — SDK 설치 명령과 초기화 코드가 다름</td>
+        </tr>
+        <tr>
+          <td><code>requirements.txt</code> / <code>pyproject.toml</code></td>
+          <td><strong style="color:var(--text)">Python</strong></td>
+          <td>poetry, pip, uv 중 어느 패키지 매니저 사용 여부 확인</td>
+          <td>Django / FastAPI / Flask 세분화로 SDK 초기화 방식 결정</td>
+        </tr>
+        <tr>
+          <td><code>go.mod</code></td>
+          <td><strong style="color:var(--text)">Go</strong></td>
+          <td>모듈 이름으로 주요 프레임워크(Gin, Echo, Fiber) 추론 가능</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><code>Gemfile</code></td>
+          <td><strong style="color:var(--text)">Ruby</strong></td>
+          <td><code>rails</code> gem 포함 여부로 Rails 확정</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><code>composer.json</code></td>
+          <td><strong style="color:var(--text)">PHP</strong></td>
+          <td>Laravel 여부 별도 확인 (<code>laravel/framework</code> 키)</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><code>build.gradle</code> / <code>build.gradle.kts</code></td>
+          <td><strong style="color:var(--text)">JVM (Android / Kotlin / Java)</strong></td>
+          <td><code>com.android.application</code> 플러그인 존재 시 Android 확정</td>
+          <td>Flutter 프로젝트도 <code>android/build.gradle</code> 보유 — pubspec.yaml 우선</td>
+        </tr>
+        <tr>
+          <td><code>Podfile</code></td>
+          <td><strong style="color:var(--text)">iOS 네이티브 (Swift/Obj-C)</strong></td>
+          <td>—</td>
+          <td>우선순위 낮음 — Flutter도 <code>ios/Podfile</code> 보유하므로 pubspec.yaml 먼저 확인</td>
+        </tr>
+        <tr>
+          <td><code>*.xcodeproj</code> / <code>*.xcworkspace</code></td>
+          <td><strong style="color:var(--text)">iOS 네이티브</strong></td>
+          <td>—</td>
+          <td>마찬가지로 Flutter 프로젝트에도 존재 — pubspec.yaml 우선</td>
+        </tr>
+        <tr>
+          <td><code>.csproj</code> / <code>.sln</code></td>
+          <td><strong style="color:var(--text)">.NET</strong></td>
+          <td>ASP.NET Core vs MAUI vs Blazor 세분</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">Flutter 프로젝트는 pubspec.yaml + ios/Podfile + android/build.gradle을 동시에 보유하므로 pubspec.yaml을 최우선으로 처리한다</p>
+</div>
+
+<!-- ── Section 3: 외부 서비스 grep 패턴 ── -->
+<div class="section">
+  <div class="section-label">외부 서비스 의존성 grep 패턴</div>
+  <p class="desc">코드 안의 SDK 사용 흔적을 찾아 활성 서비스 목록을 도출한다. 의존성 파일에서 패키지가 선언되어 있어도 실제 코드에서 초기화 패턴이 없으면 사용 여부 불명확으로 처리한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>서비스</th>
+          <th>grep 패턴 (코드 내)</th>
+          <th>환경변수 패턴 (.env*)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--text)">Firebase</strong></td>
+          <td><code>firebase_core</code>, <code>firebase_messaging</code>, <code>FirebaseApp.configure</code>, <code>initializeApp</code></td>
+          <td><code>FIREBASE_*</code>, <code>GOOGLE_APPLICATION_CREDENTIALS</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">GCP</strong></td>
+          <td><code>google-cloud-</code>, <code>from google.cloud</code>, <code>GOOGLE_APPLICATION_CREDENTIALS</code></td>
+          <td><code>GOOGLE_CLOUD_PROJECT</code>, <code>GCP_PROJECT_ID</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">AWS</strong></td>
+          <td><code>boto3</code>, <code>aws-sdk</code>, <code>@aws-sdk/</code>, <code>import software.amazon.awssdk</code></td>
+          <td><code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code>, <code>AWS_REGION</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Stripe</strong></td>
+          <td><code>stripe.api_key</code>, <code>import Stripe from "stripe"</code>, <code>stripe.Client(</code></td>
+          <td><code>STRIPE_SECRET_KEY</code>, <code>STRIPE_PUBLISHABLE_KEY</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">Sentry</strong></td>
+          <td><code>Sentry.init</code>, <code>sentry-sdk</code>, <code>sentry_dsn</code></td>
+          <td><code>SENTRY_DSN</code>, <code>SENTRY_AUTH_TOKEN</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text)">OAuth</strong></td>
+          <td><code>oauth2</code>, <code>passport-</code>, <code>next-auth</code>, <code>Sign in with</code></td>
+          <td><code>OAUTH_CLIENT_ID</code>, <code>NEXTAUTH_SECRET</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 4: 멀티스택 모노레포 ── -->
+<div class="section">
+  <div class="section-label">멀티스택 모노레포 처리</div>
+  <p class="desc">루트에 의존성 파일이 여러 개 있거나 하위 디렉토리에 별도 스택이 있으면 모노레포로 판단하고 디렉토리별로 재스캔한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="num">A</span>
+        <div>
+          <div class="rule-number">탐지 로직</div>
+          <h3>모노레포 판단 조건</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>루트에 위 의존성 파일 2개 이상이 존재하면 모노레포로 판단한다. 하위 디렉토리(예: <code>app/</code>, <code>server/</code>, <code>web/</code>)별로 재귀 스캔을 실행한다.</p>
+        <p style="margin-top:10px">전형적인 패턴:</p>
+        <pre style="margin-top:8px">myproject/
+├── app/          # pubspec.yaml → Flutter
+├── server/       # package.json → Node.js
+└── infra/        # terraform/*.tf → GCP/AWS</pre>
+        <p style="margin-top:8px">이 경우 어느 스택의 가이드를 만들지 <strong style="color:var(--text)">사용자에게 명시적 확인</strong>이 필수다.</p>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire 멀티플랫폼 설정</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">B</span>
+        <div>
+          <div class="rule-number">공통 충돌</div>
+          <h3>Flutter 프로젝트 오탐 방지</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Flutter 프로젝트는 아래 파일들을 <strong style="color:var(--text)">동시에</strong> 보유한다:</p>
+        <ul style="list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:6px">
+          <li><span class="stack-pill"><span class="dot"></span>pubspec.yaml</span> — Flutter 확정</li>
+          <li><span class="stack-pill"><span class="dot"></span>ios/Podfile</span> — Flutter가 생성, iOS 네이티브 아님</li>
+          <li><span class="stack-pill"><span class="dot"></span>android/build.gradle</span> — Flutter가 생성, Android 네이티브 아님</li>
+          <li><span class="stack-pill"><span class="dot"></span>ios/Runner.xcworkspace</span> — Flutter가 생성</li>
+        </ul>
+        <p style="margin-top:10px">따라서 <code>pubspec.yaml</code>이 있으면 나머지 파일의 스택 시그널을 무시하고 Flutter로 확정한다.</p>
+      </div>
+      <a class="card-source" href="https://pub.dev/packages/firebase_messaging" target="_blank">↗ pub.dev — flutter 프로젝트 구조</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 5: 탐지 실패 케이스 ── -->
+<div class="section">
+  <div class="section-label">탐지 결과 0건 처리</div>
+  <p class="desc">의존성 파일과 grep 패턴이 모두 매칭되지 않을 때의 처리 방침. 추측해서 잘못된 가이드를 작성하는 것보다 사용자에게 묻는 것이 훨씬 낫다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">잘못된 처리 — 추측 기반 작성</div>
+      <ul>
+        <li>파일이 없어도 "Flutter일 것 같으니" 그냥 Flutter 가이드 작성</li>
+        <li>사용자가 서비스 이름만 언급했다고 임의 스택 가정</li>
+        <li>이전 대화의 스택을 새 프로젝트에 그대로 적용</li>
+        <li>탐지 없이 "일반적인" 가이드 작성 — 어느 스택에도 정확히 안 맞음</li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">올바른 처리 — 명시적 확인</div>
+      <ul>
+        <li>탐지 실패 시 즉시 사용자에게 질문: "어떤 환경에서 진행하시나요?"</li>
+        <li>선택지 제시: Flutter / 네이티브 iOS (Swift) / React Native / Node 백엔드 / 기타</li>
+        <li>사용자 답변 후 해당 스택에 맞는 가이드만 작성</li>
+        <li>멀티스택 모노레포라면 어느 하위 스택의 가이드인지 재확인</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>탐지 실패 질문 템플릿:</strong> "프로젝트 스택이 자동 감지되지 않습니다. 어떤 환경에서 진행하시나요? (Flutter / 네이티브 iOS / React Native / Node 백엔드 / 기타)" — 이 문장을 그대로 사용하면 된다.
+  </div>
+</div>
+
+<!-- ── Section 6: 인프라 파일 상세 ── -->
+<div class="section">
+  <div class="section-label">인프라 / 환경 파일 스캔 상세</div>
+  <p class="desc">코드와 의존성 파일에서 서비스 사용이 탐지되지 않더라도 인프라 파일은 별도로 스캔한다. 팀에서 외부 서비스를 사용하고 있지만 클라이언트 코드에 아직 연동하지 않은 경우를 커버한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>파일 패턴</th>
+          <th>탐지 대상</th>
+          <th>핵심 패턴</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.env</code>, <code>.env.local</code>, <code>.env.production</code></td>
+          <td>환경변수에서 외부 서비스 키 흔적</td>
+          <td><code>FIREBASE_*</code>, <code>AWS_*</code>, <code>STRIPE_*</code>, <code>GOOGLE_*</code></td>
+        </tr>
+        <tr>
+          <td><code>docker-compose*.yml</code>, <code>Dockerfile</code></td>
+          <td>컨테이너 의존성 서비스</td>
+          <td>서비스 이름, 이미지 이름에서 외부 서비스 추론</td>
+        </tr>
+        <tr>
+          <td><code>terraform/*.tf</code>, <code>terraform/**/*.tf</code></td>
+          <td>IaC로 프로비저닝되는 외부 서비스 리소스</td>
+          <td><code>google_firebase_project</code>, <code>aws_s3_bucket</code>, <code>aws_sns_topic</code></td>
+        </tr>
+        <tr>
+          <td><code>k8s/*.yaml</code>, <code>helm/**</code></td>
+          <td>Kubernetes 환경의 서비스 의존성</td>
+          <td>ConfigMap, Secret 이름 패턴</td>
+        </tr>
+        <tr>
+          <td><code>firebase.json</code>, <code>.firebaserc</code></td>
+          <td>Firebase CLI 구성 — Firebase 사용 강력한 신호</td>
+          <td>파일 존재 자체로 Firebase 확정</td>
+        </tr>
+        <tr>
+          <td><code>GoogleService-Info.plist</code></td>
+          <td>Firebase iOS 구성 — Firebase + iOS 조합 확정</td>
+          <td>파일 존재 자체로 Firebase + iOS 확정</td>
+        </tr>
+        <tr>
+          <td><code>google-services.json</code></td>
+          <td>Firebase Android 구성 — Firebase + Android 확정</td>
+          <td>파일 존재 자체로 Firebase + Android 확정</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 7: 검증 체크리스트 ── -->
+<div class="section">
+  <div class="section-label">탐지 완료 검증 체크리스트</div>
+  <p class="desc">Phase 1에서 스택과 서비스 탐지를 완료한 후 가이드 작성을 시작하기 전에 아래 체크리스트를 실행한다.</p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">스택 단일 확정</strong> — 여러 스택 파일이 탐지됐다면 우선순위 규칙(pubspec.yaml 최우선 등)으로 하나로 좁혔는가, 또는 멀티스택임을 사용자에게 확인했는가
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">서비스 목록 확정</strong> — 의존성 파일 + 코드 grep + 인프라 파일 세 소스를 모두 스캔했는가. 빈 인자 실행이라면 탐지된 서비스 목록을 사용자에게 제시하고 선택을 받았는가
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">Flutter 오탐 방지</strong> — <code>ios/Podfile</code> 또는 <code>android/build.gradle</code>만 보고 네이티브 스택으로 분류하지 않았는가. <code>pubspec.yaml</code> 존재 여부를 먼저 확인했는가
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">멀티스택 확인</strong> — 루트에 의존성 파일이 2개 이상이라면 하위 디렉토리별로 재스캔했는가. 어느 스택의 가이드인지 사용자에게 명시적으로 확인했는가
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">추측 없음</strong> — 탐지 결과 0건일 때 임의로 스택을 가정하지 않았는가. 사용자에게 선택지를 제시하고 답변을 기다렸는가
+      </div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>
+        <strong style="color:var(--text)">Firebase 구성 파일 확인</strong> — <code>GoogleService-Info.plist</code>, <code>google-services.json</code>, <code>firebase.json</code> 존재 여부를 별도 체크했는가. 이 파일들은 Firebase 사용의 강력한 시그널이다
+      </div>
+    </li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

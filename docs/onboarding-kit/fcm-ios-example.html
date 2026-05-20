@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Example — FCM iOS (Flutter) Dogfood</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#5B6CFF;--accent2:#7C8AFF;--accent-dim:rgba(91,108,255,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(91,108,255,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(91,108,255,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(91,108,255,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+  .phase-tag{font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);padding-bottom:2px}
+  .card-source:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(91,108,255,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
+
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  pre .kw{color:var(--accent2);font-weight:600}
+  pre .cm{color:var(--text3)}
+  pre .ok{color:var(--green)}
+  pre .bad{color:var(--red)}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+  .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
+  .badge-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .badge-info{background:var(--accent-dim);color:var(--accent)}
+
+  .callout{border-left:3px solid var(--yellow);background:rgba(251,191,36,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin:14px 0}
+  .callout strong{color:var(--yellow)}
+  .callout-accent{border-left-color:var(--accent);background:rgba(91,108,255,0.05)}
+  .callout-accent strong{color:var(--accent)}
+  .callout-green{border-left-color:var(--green);background:rgba(74,222,128,0.05)}
+  .callout-green strong{color:var(--green)}
+  .callout-red{border-left-color:var(--red);background:rgba(248,113,113,0.05)}
+  .callout-red strong{color:var(--red)}
+
+  /* Step block */
+  .step-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;transition:border-color var(--transition)}
+  .step-block:hover{border-color:rgba(91,108,255,0.2)}
+  .step-where{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  .step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:800;flex-shrink:0}
+  .step-confirm{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--green);margin-top:12px}
+  .step-confirm strong{color:var(--green)}
+
+  /* Section annotation */
+  .section-ann{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-bottom:12px}
+
+  /* Deprecated / Current */
+  .dep-box{border-radius:10px;padding:14px 18px;margin:12px 0;font-size:13px;line-height:1.65}
+  .dep-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .dep-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .dep-label{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px}
+  .dep-bad .dep-label{color:var(--red)}
+  .dep-good .dep-label{color:var(--green)}
+  .dep-box p{color:var(--text2)}
+
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; } html { scroll-behavior:auto } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Onboarding Kit</a>
+
+<h1>Example — FCM iOS (Flutter) Dogfood</h1>
+<p class="subtitle">onboarding-kit의 <code>/setup-guide fcm ios</code>로 생성한 실제 산출물. Firebase iOS SDK 11.x · Flutter · Xcode 16+ 기준 (작성일 2026-05-18). 11개 표준 섹션이 어떻게 채워지는지, WebFetch와 Context7으로 수집한 최신 정보가 어디에 반영됐는지 시각화한다.</p>
+
+<!-- ── 헤더 섹션 (섹션 1) ── -->
+<div class="section">
+  <div class="section-label">섹션 1 — 헤더</div>
+  <div class="section-ann">format-checklist 섹션 1 적용</div>
+  <p class="desc">제목, 작성일, 기준 버전, 공식 문서 URL — 4가지 메타데이터가 가이드 상단에 위치한다. 이 정보로 독자가 가이드의 신선도를 즉시 판단할 수 있다.</p>
+
+  <div class="card">
+    <div class="card-body">
+      <pre># FCM iOS (Apple) 푸시 알림 설정 가이드
+
+&gt; 작성일: 2026-05-18
+&gt; 기준: Firebase iOS SDK 11.x · Xcode 16+ · iOS 14+ · Apple Developer Program 가입 필요
+&gt; 공식 문서: https://firebase.google.com/docs/cloud-messaging/ios/client</pre>
+    </div>
+    <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase — FCM iOS 공식 문서 (1차 출처)</a>
+  </div>
+</div>
+
+<!-- ── 사전 요구사항 (섹션 2) ── -->
+<div class="section">
+  <div class="section-label">섹션 2 — 사전 요구사항</div>
+  <div class="section-ann">format-checklist 섹션 2 + Gotcha 3 적용</div>
+  <p class="desc">사이트 혼동 주의 박스가 맨 위에 위치한다. Apple Developer Portal과 App Store Connect를 혼동하면 필요한 버튼 자체가 없어서 막히게 된다.</p>
+
+  <div class="callout callout-red" style="margin-bottom:20px">
+    <strong>⚠️ 사이트 혼동 주의 (Gotcha 3):</strong> FCM 셋업의 Apple 쪽 작업은 <strong>Apple Developer Portal</strong> (<code>developer.apple.com/account</code>)에서 한다. <strong>App Store Connect</strong> (<code>appstoreconnect.apple.com</code>)는 앱 출시·심사용으로 완전히 다른 사이트. 셋업 단계에서는 거의 들어가지 않는다.
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+          <li style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text2)">
+            <span style="color:var(--accent);font-weight:700;flex-shrink:0">□</span>
+            <span><strong style="color:var(--text)">Apple Developer Program 가입</strong> (연 $99) — Account Holder 또는 Admin 권한 필요</span>
+          </li>
+          <li style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text2)">
+            <span style="color:var(--accent);font-weight:700;flex-shrink:0">□</span>
+            <span><strong style="color:var(--text)">Firebase 프로젝트</strong> 존재 — Editor 이상 권한</span>
+          </li>
+          <li style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text2)">
+            <span style="color:var(--accent);font-weight:700;flex-shrink:0">□</span>
+            <span><strong style="color:var(--text)">Xcode 16+</strong> 설치 — <code>xcodebuild -version</code>으로 확인</span>
+          </li>
+          <li style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text2)">
+            <span style="color:var(--accent);font-weight:700;flex-shrink:0">□</span>
+            <span><strong style="color:var(--text)">앱 Bundle ID 확정</strong> — 예: <code>com.yourorg.fitpal</code>. <span style="color:var(--red);font-weight:700">등록 후 변경 불가 (Gotcha 6)</span></span>
+          </li>
+          <li style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text2)">
+            <span style="color:var(--accent);font-weight:700;flex-shrink:0">□</span>
+            <span><strong style="color:var(--text)">실기기</strong> — FCM 시뮬레이터도 토큰 수신은 가능하나 발송 테스트는 실기기 필요 (iOS 16+는 시뮬레이터 일부 지원)</span>
+          </li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple Developer — App ID 등록 가이드</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h4 style="margin-top:0">사이트 구분 표</h4>
+        <table style="margin-top:8px">
+          <thead>
+            <tr>
+              <th>사이트</th>
+              <th>용도</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>developer.apple.com/account</code></td>
+              <td style="color:var(--green)">App ID · 인증서 · 키 발급 — 여기서 작업</td>
+            </tr>
+            <tr>
+              <td><code>appstoreconnect.apple.com</code></td>
+              <td style="color:var(--text3)">앱 출시 · 심사 — 셋업 단계에서 안 들어감</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple Developer Portal</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Step 1~2 (섹션 3) ── -->
+<div class="section">
+  <div class="section-label">섹션 3 — 설정 단계 Step 1~8</div>
+  <div class="section-ann">format-checklist 섹션 3 + Gotcha 2·4·5 적용</div>
+  <p class="desc">각 Step은 어디서 + 무엇을 + 확인 방법 3단 구조를 따른다. Step 2에는 deprecated 방식 경고 박스가 포함된다.</p>
+
+  <div class="step-block">
+    <div class="step-where">어디서: https://developer.apple.com/account → Certificates, Identifiers &amp; Profiles → Identifiers</div>
+    <div class="step-title"><span class="step-num">1</span>Apple Developer에서 App ID에 Push 활성화</div>
+    <ol style="list-style:none;display:flex;flex-direction:column;gap:6px;padding-left:0">
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">1.</span>Identifiers 페이지 상단 <strong style="color:var(--text)">+</strong> 버튼 클릭</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">2.</span>식별자 유형 선택 → <strong style="color:var(--text)">App IDs</strong> 선택 → Continue</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">3.</span>App ID Type → <strong style="color:var(--text)">Explicit</strong> 선택 (Wildcard는 Push 불가) → Continue</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">4.</span>Description 입력 + Bundle ID 입력 (예: <code>com.yourorg.fitpal</code>)</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">5.</span>Capabilities 섹션 → <strong style="color:var(--text)">Push Notifications</strong> 체크박스 활성화</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">6.</span>Continue → 검토 → <strong style="color:var(--text)">Register</strong></li>
+    </ol>
+    <div class="callout" style="margin:12px 0 0">
+      <strong>⚠️ Bundle ID 변경 불가 (Gotcha 6):</strong> App Store Connect에 빌드를 한 번이라도 업로드하면 Bundle ID 변경 불가. 변경 필요 시 신규 ID로 전체 재구성 필요.
+    </div>
+    <div class="step-confirm"><strong>확인 방법:</strong> Identifiers 목록에 새 App ID 표시 + 상세 화면 Capabilities 섹션에 Push Notifications 활성화 표시</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-where">어디서: https://developer.apple.com/account → Keys</div>
+    <div class="step-title"><span class="step-num">2</span>APNs Authentication Key (.p8) 발급</div>
+
+    <div class="dep-box dep-bad" style="margin-bottom:8px">
+      <div class="dep-label">❌ Deprecated — 사용하지 마세요</div>
+      <p>APNs Certificate (.p12) 방식 — 매년 갱신 필요, 환경별 분리, 2020년 이후 비권장. WebFetch 결과: apple.com/help/account/ 현재 페이지에서 Key 방식만 권장.</p>
+    </div>
+    <div class="dep-box dep-good" style="margin-bottom:12px">
+      <div class="dep-label">✅ 현재 권장 — APNs Authentication Key (.p8)</div>
+      <p>갱신 불필요, dev/prod 모두 커버, Team 전체 앱 공유 가능. 단 한 번만 다운로드 가능 — 분실 시 revoke 후 재발급 필요.</p>
+    </div>
+
+    <ol style="list-style:none;display:flex;flex-direction:column;gap:6px;padding-left:0">
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">1.</span>Keys 페이지 → <strong style="color:var(--text)">+</strong> 버튼 클릭</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">2.</span>Key Name 입력 (예: "FCM APNs Key")</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">3.</span><strong style="color:var(--text)">Apple Push Notification service</strong> 체크 → Configure</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">4.</span>Key Restriction → <strong style="color:var(--text)">Team Scoped (All Topics)</strong> 권장</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">5.</span>Save → Continue → Register → <strong style="color:var(--text)">Download</strong> (.p8 파일)</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">6.</span><strong style="color:var(--text)">Key ID</strong> (10자리) 메모 + <strong style="color:var(--text)">Team ID</strong> (Membership Details에서 확인)</li>
+    </ol>
+    <div class="callout callout-red" style="margin-top:12px">
+      <strong>🔒 보안 경고:</strong> .p8 파일은 단 한 번만 다운로드 가능. 1Password / GCP Secret Manager / AWS Secrets Manager에 즉시 저장. git 커밋 절대 금지.
+    </div>
+    <div class="step-confirm"><strong>확인 방법:</strong> Keys 목록에 Key Name 표시 + Key ID 확인. .p8 파일이 다운로드 폴더에 존재.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-where">어디서: Xcode → 프로젝트 → 앱 타겟 → Signing &amp; Capabilities 탭</div>
+    <div class="step-title"><span class="step-num">3</span>Xcode Capability 추가</div>
+    <ol style="list-style:none;display:flex;flex-direction:column;gap:6px;padding-left:0">
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">1.</span><strong style="color:var(--text)">+ Capability</strong> → Push Notifications 검색 → 더블클릭 추가</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">2.</span>+ Capability → <strong style="color:var(--text)">Background Modes</strong> 추가</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">3.</span>Background Modes → <strong style="color:var(--text)">Remote notifications</strong> 체크</li>
+    </ol>
+    <div class="step-confirm"><strong>확인 방법:</strong> Signing &amp; Capabilities 탭에 Push Notifications + Background Modes 섹션 모두 보임. 빌드 시 <code>aps-environment entitlement</code> 에러 없음.</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-where">어디서: 프로젝트 루트 터미널 (pubspec.yaml이 있는 디렉토리)</div>
+    <div class="step-title"><span class="step-num">4</span>FlutterFire CLI로 Firebase 자동 구성</div>
+    <div class="callout callout-accent" style="margin-bottom:12px">
+      <strong>Flutter 전용 흐름:</strong> 콘솔에서 수동 등록·.plist 드래그 불필요. <code>flutterfire configure</code>가 iOS 앱 콘솔 등록, GoogleService-Info.plist 배치, firebase_options.dart 생성까지 한 번에 자동 처리.
+    </div>
+    <pre><span class="cm"># FlutterFire CLI 전역 설치 (최초 1회)</span>
+<span class="kw">dart</span> pub global activate flutterfire_cli
+
+<span class="cm"># Firebase CLI 로그인 (안 한 경우)</span>
+<span class="kw">firebase</span> login
+
+<span class="cm"># 프로젝트 루트에서 구성 실행</span>
+<span class="kw">flutterfire</span> configure</pre>
+    <p style="font-size:13px;color:var(--text2);margin-top:8px">대화형 프롬프트에서: Firebase 프로젝트 선택 → <code>ios</code> 플랫폼 체크 → Bundle ID 입력 (Xcode의 Bundle Identifier와 정확히 일치 필요).</p>
+    <div class="step-confirm"><strong>확인 방법:</strong> <code>ls ios/Runner/GoogleService-Info.plist</code> 파일 존재 + <code>ls lib/firebase_options.dart</code> 존재 + Firebase Console에 iOS 앱 표시</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-where">어디서: Firebase Console → 프로젝트 설정 ⚙️ → 클라우드 메시징 탭 → Apple 앱 구성 섹션</div>
+    <div class="step-title"><span class="step-num">5</span>Firebase 콘솔에 APNs Key 업로드</div>
+    <ol style="list-style:none;display:flex;flex-direction:column;gap:6px;padding-left:0">
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">1.</span>iOS 앱 카드 → APNs 인증 키 (APNs authentication key) → <strong style="color:var(--text)">업로드 (Upload)</strong></li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">2.</span>.p8 파일 선택 (Step 2에서 받은 파일)</li>
+      <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--accent);font-weight:700;min-width:20px">3.</span><strong style="color:var(--text)">Key ID</strong> 입력 + <strong style="color:var(--text)">Team ID</strong> 입력 → 업로드 (Upload) 클릭</li>
+    </ol>
+    <div class="step-confirm"><strong>확인 방법:</strong> APNs 인증 키 항목에 Key ID 표시 + 상태 "등록됨" 표시</div>
+  </div>
+
+  <div class="step-block">
+    <div class="step-where">어디서: 프로젝트의 pubspec.yaml</div>
+    <div class="step-title"><span class="step-num">6</span>firebase_core + firebase_messaging 패키지 추가</div>
+    <pre><span class="cm"># pubspec.yaml dependencies 섹션에 추가</span>
+dependencies:
+  firebase_core: ^3.6.0       <span class="cm"># 최신 안정 버전 — pub.dev에서 확인</span>
+  firebase_messaging: ^15.1.0  <span class="cm"># 호환 매트릭스 확인 필수</span></pre>
+    <pre><span class="kw">flutter</span> pub get</pre>
+    <div class="callout" style="margin-top:12px">
+      <strong>⚠️ 버전 호환:</strong> <code>firebase_core</code>와 <code>firebase_messaging</code>의 메이저 버전은 <a href="https://firebase.flutter.dev/docs/overview/#compatibility-matrix" target="_blank" style="color:var(--accent2)">호환 매트릭스</a>를 따라야 함. 다른 <code>firebase_*</code> 패키지도 같은 메이저로 맞출 것.
+    </div>
+    <div class="step-confirm"><strong>확인 방법:</strong> pubspec.lock에 firebase_core, firebase_messaging 항목 존재. <code>ls ios/Podfile.lock</code> 후 grep Firebase/Messaging 확인.</div>
+  </div>
+</div>
+
+<!-- ── 코드 변경 (섹션 4) ── -->
+<div class="section">
+  <div class="section-label">섹션 4 — 프로젝트 코드 변경</div>
+  <div class="section-ann">format-checklist 섹션 4 + Context7 조회 적용</div>
+  <p class="desc">스택별 코드 변경 — Flutter 기준. 파일 경로를 명시하고 언어 라벨을 붙인 코드 블록을 제공한다. Context7로 FlutterFire API 시그니처를 조회하여 최신 코드임을 보증한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">파일: ios/Runner/AppDelegate.swift</div>
+          <h3>AppDelegate — 최소 변경</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <pre><span class="kw">import</span> UIKit
+<span class="kw">import</span> Flutter
+<span class="kw">import</span> FirebaseCore   <span class="cm">// 추가</span>
+
+<span class="kw">@main</span>
+<span class="kw">@objc class</span> AppDelegate: FlutterAppDelegate {
+  <span class="kw">override func</span> application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions ...
+  ) -> Bool {
+    FirebaseApp.configure()  <span class="cm">// 이 한 줄만 추가</span>
+    GeneratedPluginRegistrant.register(with: self)
+    <span class="kw">return</span> super.application(...)
+  }
+}</pre>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px">Flutter에서 FCM 토큰·권한·메시지 수신은 모두 Dart에서 처리. Swift는 Firebase 초기화 한 줄만.</p>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase — AppDelegate 설정</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">파일: lib/main.dart</div>
+          <h3>Dart 초기화 + 백그라운드 핸들러</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <pre><span class="cm">// 백그라운드 핸들러: top-level + @pragma 필수</span>
+<span class="kw">@pragma</span>('vm:entry-point')
+<span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; _bgHandler(RemoteMessage msg) <span class="kw">async</span> {
+  <span class="kw">await</span> Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+}
+
+<span class="kw">void</span> main() <span class="kw">async</span> {
+  WidgetsFlutterBinding.ensureInitialized();
+  <span class="kw">await</span> Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(_bgHandler);
+  runApp(<span class="kw">const</span> MyApp());
+}</pre>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px"><code>@pragma('vm:entry-point')</code> 없으면 릴리스 빌드에서 트리 쉐이킹으로 제거됨.</p>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — Messaging 초기화</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="card-header">
+      <div>
+        <div class="rule-number">파일: lib/fcm_service.dart (또는 initState)</div>
+        <h3>권한 요청 + 토큰 획득 + 메시지 리스너</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre><span class="kw">Future</span>&lt;<span class="kw">void</span>&gt; setupFcm() <span class="kw">async</span> {
+  <span class="kw">final</span> messaging = FirebaseMessaging.instance;
+
+  <span class="cm">// iOS: 명시적 권한 요청 필수</span>
+  <span class="kw">final</span> settings = <span class="kw">await</span> messaging.requestPermission(
+    alert: <span class="kw">true</span>, badge: <span class="kw">true</span>, sound: <span class="kw">true</span>,
+  );
+
+  <span class="kw">if</span> (settings.authorizationStatus == AuthorizationStatus.authorized ||
+      settings.authorizationStatus == AuthorizationStatus.provisional) {
+    <span class="kw">final</span> token = <span class="kw">await</span> messaging.getToken();
+    <span class="cm">// TODO: 서버에 token 저장 (사용자별 격리)</span>
+
+    messaging.onTokenRefresh.listen((newToken) {
+      <span class="cm">// TODO: 서버에 새 토큰 업데이트</span>
+    });
+  }
+
+  <span class="cm">// iOS 포그라운드 알림 배너·사운드 표시</span>
+  <span class="kw">await</span> messaging.setForegroundNotificationPresentationOptions(
+    alert: <span class="kw">true</span>, badge: <span class="kw">true</span>, sound: <span class="kw">true</span>,
+  );
+
+  <span class="cm">// 포그라운드 메시지 수신</span>
+  FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
+    print('Foreground: ${msg.notification?.title}');
+  });
+}</pre>
+    </div>
+    <a class="card-source" href="https://pub.dev/packages/firebase_messaging" target="_blank">↗ pub.dev — firebase_messaging API</a>
+  </div>
+</div>
+
+<!-- ── 권한/IAM + 비용 (섹션 5, 6) ── -->
+<div class="section">
+  <div class="section-label">섹션 5·6 — 권한 / IAM + 비용</div>
+  <div class="section-ann">format-checklist 섹션 5·6 적용</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:14px">권한 / IAM</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>시스템</th><th>필요 권한</th><th>대상</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Apple Developer</td>
+              <td>Account Holder 또는 Admin</td>
+              <td>Step 1·2 수행자</td>
+            </tr>
+            <tr>
+              <td>Firebase Console</td>
+              <td>Editor 이상</td>
+              <td>Step 4·5 수행자</td>
+            </tr>
+            <tr>
+              <td>운영 단계</td>
+              <td>Firebase Editor 최소화 권장</td>
+              <td>일상 운영자</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase — 권한 구조</a>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px">비용</h3>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:13px">
+          <span class="badge badge-ok" style="flex-shrink:0;margin-top:2px">무료</span>
+          <span style="color:var(--text2)">FCM: 전송량 제한 없음 무료 (2026년 5월 기준)</span>
+        </li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:13px">
+          <span class="badge badge-warn" style="flex-shrink:0;margin-top:2px">유료</span>
+          <span style="color:var(--text2)">Firebase 다른 서비스(Firestore, Analytics 등) 추가 사용 시 별도 한도 확인 필요</span>
+        </li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:13px">
+          <span class="badge badge-info" style="flex-shrink:0;margin-top:2px">고정</span>
+          <span style="color:var(--text2)">Apple Developer Program: 연 $99 (이미 가입 시 추가 비용 없음)</span>
+        </li>
+      </ul>
+      <a class="card-source" href="https://firebase.google.com/pricing" target="_blank">↗ Firebase 요금제</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 환경 분기 + Rollback + 보안 (섹션 7·8·9) ── -->
+<div class="section">
+  <div class="section-label">섹션 7·8·9 — 환경 분기, Rollback, 보안</div>
+  <div class="section-ann">format-checklist 섹션 7·8·9 적용</div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">섹션 7</div>
+          <h3>환경 분기</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)">
+          <li><strong style="color:var(--text)">APNs Key</strong>: 하나로 dev/prod 모두 처리 가능 — 환경별로 따로 만들 필요 없음</li>
+          <li><strong style="color:var(--text)">Firebase 프로젝트</strong>: dev/staging/prod 각각 별도 프로젝트 권장 + 별도 GoogleService-Info.plist</li>
+          <li>Xcode Build Phases → Run Script로 환경별 .plist 자동 교체</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — 환경 설정</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">섹션 8</div>
+          <h3>Rollback / 정리</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)">
+          <li><strong style="color:var(--text)">APNs Key revoke</strong>: Apple Developer → Keys → Revoke. 즉시 무효화. 해당 키로 발송 중인 push 모두 실패 — 신중히</li>
+          <li><strong style="color:var(--text)">Firebase APNs Key 교체</strong>: Console → 프로젝트 설정 → 클라우드 메시징 → 휴지통 아이콘 → 새 키 업로드</li>
+          <li><strong style="color:var(--text)">사용 중단</strong>: Xcode Push Notifications capability 제거 + firebase_messaging 의존성 제거 + 앱 재배포</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/keys/create-a-private-key/" target="_blank">↗ Apple — Key Revoke 절차</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="rule-number">섹션 9</div>
+          <h3>보안 체크리스트</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)">
+          <li style="display:flex;gap:6px"><span style="color:var(--accent);flex-shrink:0">□</span>.p8 파일 → 1Password / GCP Secret Manager 보관</li>
+          <li style="display:flex;gap:6px"><span style="color:var(--accent);flex-shrink:0">□</span>.gitignore에 <code>*.p8</code> 추가</li>
+          <li style="display:flex;gap:6px"><span style="color:var(--accent);flex-shrink:0">□</span>GoogleService-Info.plist — git 커밋 가능 (공개 식별자만 포함)</li>
+          <li style="display:flex;gap:6px"><span style="color:var(--accent);flex-shrink:0">□</span>FCM 등록 토큰 → 서버 저장 시 사용자별 격리</li>
+          <li style="display:flex;gap:6px"><span style="color:var(--accent);flex-shrink:0">□</span>Firebase Admin SDK 서비스 계정 JSON → 서버에만 (앱 번들 포함 절대 금지)</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/certs" target="_blank">↗ Firebase — APNs 보안 가이드</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 검증 체크리스트 (섹션 10) ── -->
+<div class="section">
+  <div class="section-label">섹션 10 — 검증 체크리스트</div>
+  <div class="section-ann">format-checklist 섹션 10 적용</div>
+  <p class="desc">6개 체크박스로 설정 완료 여부를 순서대로 검증한다. 실기기에서의 end-to-end 검증까지 포함한다.</p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check">✓</span>
+      <div>실기기에서 앱 실행 → iOS 권한 다이얼로그 표시 → 허용</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>Xcode 콘솔(또는 <code>flutter logs</code>)에 <code>FCM token: &lt;긴 문자열&gt;</code> 출력됨</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>Firebase Console → Messaging → 새 캠페인 → 테스트 메시지 보내기 → FCM 토큰 붙여넣기 → 테스트 → 실기기에 알림 도착</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>앱을 백그라운드로 보낸 상태에서도 푸시 도착 (Background Modes → Remote notifications 필요)</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>앱이 죽은 상태(force quit)에서도 푸시 도착 — 페이로드에 <code>notification</code> 객체 포함 필수</div>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <div>다른 환경(staging/prod) Firebase 프로젝트로 전환했을 때도 동일 동작</div>
+    </li>
+  </ul>
+</div>
+
+<!-- ── 트러블슈팅 (섹션 11) ── -->
+<div class="section">
+  <div class="section-label">섹션 11 — 트러블슈팅</div>
+  <div class="section-ann">format-checklist 섹션 11 + Gotcha 4·5 반영</div>
+  <p class="desc">5개의 실제 에러 케이스. 각각 증상 + 원인 + 해결 3단 구조를 따른다. 글로벌 유니크 식별자 충돌(Gotcha 4)과 등록/활성화 혼동(Gotcha 5) 케이스 포함.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px">트러블슈팅 케이스 1</div>
+        <p><strong style="color:var(--text)">증상:</strong> Xcode 콘솔에 <code>FCM token: nil</code>이 계속 출력</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">원인:</strong> APNs 토큰이 먼저 와야 FCM 토큰이 생성됨. APNs 등록 실패가 원인.</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">해결:</strong><br>
+        1. <code>didFailToRegisterForRemoteNotificationsWithError</code> 콜백 에러 메시지 확인<br>
+        2. Provisioning Profile에 <code>aps-environment</code> entitlement 포함 확인<br>
+        3. 실기기인지 확인 (iOS 16 이전 시뮬레이터는 APNs 불가)</p>
+      </div>
+      <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — FCM 토큰 취득</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px">트러블슈팅 케이스 2</div>
+        <p><strong style="color:var(--text)">증상:</strong> Firebase Console 테스트 발송 성공인데 디바이스에 알림 안 옴</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">원인:</strong> APNs Key 업로드 시 Key ID 또는 Team ID 불일치.</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">해결:</strong> Firebase Console → 프로젝트 설정 → 클라우드 메시징 → APNs 인증 키 행의 Key ID와 Apple Developer Keys 페이지 ID 비교. 다르면 삭제 후 재업로드.</p>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase — APNs Key 업로드</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px">트러블슈팅 케이스 3 — Gotcha 4</div>
+        <p><strong style="color:var(--text)">증상:</strong> App ID 등록 시 "An App ID with Identifier 'com.example.app' is not available"</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">원인:</strong> Apple은 Bundle ID를 전 세계 Developer 계정에 걸쳐 유니크하게 관리. 흔한 조합은 이미 선점됨.</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">해결:</strong><br>
+        1. 조직/핸들 prefix 강화: <code>com.&lt;github핸들&gt;.appname</code><br>
+        2. 환경 suffix 추가: <code>.dev</code>, <code>.staging</code>, <code>.prod</code><br>
+        3. 본인 계정에 이미 같은 ID가 있다면 Identifiers에서 재사용 가능</p>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple — Bundle ID 유니크 정책</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px">트러블슈팅 케이스 4 — Gotcha 5</div>
+        <p><strong style="color:var(--text)">증상:</strong> Xcode Signing &amp; Capabilities에서 Push Notifications가 안 보이거나 회색</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">원인:</strong> Apple Developer Portal의 App ID에 Push Notifications capability 미활성. 또는 무료 개인 계정 Team 사용 (Push 불가).</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">해결:</strong><br>
+        1. Identifiers 페이지 → App ID → Capabilities → Push Notifications 체크 → Save<br>
+        2. Xcode Team이 유료 Apple Developer 계정인지 확인 (<code>Free</code> 표기면 Push 불가)<br>
+        3. Xcode 재시작 후 자동 동기화 대기</p>
+      </div>
+      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple — Push Notifications Capability</a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-body">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px">트러블슈팅 케이스 5</div>
+      <p><strong style="color:var(--text)">증상:</strong> 앱이 죽은 상태(force quit)에서 푸시가 안 옴</p>
+      <p style="margin-top:6px"><strong style="color:var(--text)">원인:</strong> 사용자가 Settings에서 푸시 권한을 끔, 또는 silent push(data-only 메시지)만 발송 중.</p>
+      <p style="margin-top:6px"><strong style="color:var(--text)">해결:</strong> 알림 페이로드에 <code>notification</code> 객체(title/body) 포함 확인. <code>data</code>만 있으면 silent push로 분류되어 죽은 앱은 깨우지 않음. FCM Console의 테스트 메시지는 notification + data 모두 포함하므로 서버 발송 코드에서 페이로드 구조 확인.</p>
+    </div>
+    <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — 백그라운드 메시지 처리</a>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
