@@ -165,6 +165,21 @@ planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks,
 | 11 | [Lean Stack — Lean Canvas / RAT](https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure) | community (1차) | plan-prioritize 의 riskiest assumption 접근 | WebFetch |
 | 12 | `docs/planning/*.md` (레포 내 누적 리서치 9 편) | 내부 | 각 스킬이 인용한 1차 URL 풀 | 파일 Read |
 
+## Phase 13 — onboarding-kit
+
+### 필수 소스 (3 건 이상)
+
+onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 `onboarding-kit/skills/onboarding-kaizen/references/research-sources.md` 에 등록된 1차 출처를 재사용한다.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Firebase iOS / FlutterFire docs](https://firebase.google.com/docs/cloud-messaging/ios/client) | 공식 | FCM 셋업 절차 변경, APNs 키 형식 변경 | WebFetch |
+| 2 | [FlutterFire GitHub Releases](https://github.com/firebase/flutterfire/releases) | 공식 | 호환 매트릭스 변경, breaking change 감지 | WebFetch |
+| 3 | [Apple Developer Account Help](https://developer.apple.com/help/account/) | 공식 | Bundle ID 정책, 인증서/provisioning 절차 변경 | WebFetch |
+| 4 | [Stripe iOS / Web docs](https://stripe.com/docs/) | 공식 | Stripe SDK 최신 셋업 절차 | WebFetch |
+| 5 | [Google Cloud Console docs](https://cloud.google.com/docs/) | 공식 | GCP 서비스 계정/OAuth 셋업 변경 | WebFetch |
+| 6 | 사용자 피드백 메모리 (`~/.claude/projects/.../memory/feedback_setup_guide_*.md`) | 내부 | 실사용 막힘 패턴 → Gotchas 개선 | 파일 Read |
+
 ## 사용 규칙
 
 1. **리서치 로그 저장** — 각 Phase 종료 시 `docs/<kit>/research-log.md` (또는 `docs/kaizen/research-log.md`) 에 조회한 소스를 "2026-MM-DD" 엔트리로 기록.

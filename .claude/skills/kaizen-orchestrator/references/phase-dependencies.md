@@ -55,6 +55,10 @@ Phase 11: Planning-kit 카이젠 (planning-kaizen)
   planning-kit/agents/planning-reviewer.md
   planning-kit/references/
   docs/planning/ (리서치 문서)
+      ↓ 제품 기획 완료 후 Onboarding-kit으로
+Phase 13: Onboarding-kit 카이젠 (onboarding-kaizen)
+  onboarding-kit/skills/*/SKILL.md
+  onboarding-kit/references/
 ```
 
 ## Phase 간 의존성 상세
@@ -74,6 +78,7 @@ Phase 11: Planning-kit 카이젠 (planning-kaizen)
 | docs/rust/ | rust-kit 전 스킬 | Rust 백엔드 리서치 원칙 (Axum/SQLx/tonic) |
 | docs/react/ | react-kit 전 스킬 | React + Vite + Tauri + WASM 리서치 원칙 (21 스킬 + 3 에이전트) |
 | docs/planning/ | planning-kit 전 스킬 | 제품 기획 리서치 원칙 (Discovery / PRD / Prioritization / Risks / Stories / Flows / Data Model / GitHub) |
+| skill-design-guide.md | onboarding-kit /setup-guide | Gotchas 패턴, 아키타입 분류, 트리거 조건 원칙 (Phase 1 결과만 반영) |
 
 ## Phase 스킵 시 전파 규칙
 
@@ -87,10 +92,11 @@ Phase 11: Planning-kit 카이젠 (planning-kaizen)
 - Phase 8 스킵 → Phase 9 진행에 영향 없음 (독립 스택)
 - Phase 9 스킵 → Phase 10 진행에 영향 없음 (독립 스택)
 - Phase 10 스킵 → Phase 11 진행에 영향 없음 (독립 스택)
-- Phase 7/8/9/10/11 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning}/ 기준 점진 개선)
+- Phase 11 스킵 → Phase 13 진행에 영향 없음 (독립 스택)
+- Phase 7/8/9/10/11/13 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning}/ 기준 점진 개선)
 
 ## QA 실패 시 롤백 범위
 
 - Phase N QA REJECT → Phase N 변경만 수정 (이전 Phase 건드리지 않음)
 - Final QA REJECT → 해당 Phase로 돌아가 수정 (다른 Phase 건드리지 않음)
-- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7/8/9/10/11도 동일 규칙 적용)
+- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7/8/9/10/11/13도 동일 규칙 적용)

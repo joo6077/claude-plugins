@@ -17,6 +17,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **planning-kit** — 스택 무관 제품 기획 플러그인 — 소크라테스식 질문, PRD, 우선순위, 리스크, 개념 데이터 모델(Mermaid), GitHub 프로젝트 동기화
 - **reflect-kit** — 개인 Claude Code 사용자의 대화 피드백 → 학습 → 재주입 파이프라인 kit. Reflexion 방법론을 개인 레벨에 적용하여 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고 빈도·위험도·절차성 기준으로 CLAUDE.md / memory / skill / hook에 승격한다.
 - **bambu-kit** — Bambu Lab H2S용 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들
+- **onboarding-kit** — 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보 기반 step-by-step 가이드 (Firebase, GCP, AWS, FCM, OAuth, Stripe 등)
 <!-- /AUTO:summary -->
 
 ## Commands
@@ -257,6 +258,12 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 
 도구형 1스킬 킷 (guide/audit/system 3종 패턴 비적용). H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 한정.
 
+**onboarding-kit — 외부 서비스 셋업 가이드**
+
+| 스킬 | 용도 |
+|------|------|
+| `/setup-guide` | 그 시점 최신 정보 기준 외부 서비스 셋업 가이드 step-by-step MD 자동 생성 |
+
 **이 레포 전용 스킬 (.claude/skills/)**
 
 | 스킬 | 용도 |
@@ -272,6 +279,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/rust-research` | Rust 레퍼런스 크롤링 → docs/rust/ 문서 갱신 |
 | `/bambu-kaizen` | bambu-kit 스킬 개선 (references + 실측 dogfood 기반) |
 | `/bambu-research` | Bambu/MakerWorld/scarf seam 외부 소스 폴링 → bambu-kit references 갱신 |
+| `/onboarding-kaizen` | onboarding-kit 스킬 개선 |
 | `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
 | `/create-kit` | 새 플러그인 킷 생성 오케스트레이션 |
 

@@ -1,0 +1,65 @@
+{
+  "skill": "setup-guide",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "flutter-fcm-ios",
+      "description": "Flutter 프로젝트에서 FCM iOS 가이드 생성. flutterfire CLI 흐름이 정확히 포함되어야 함",
+      "prompt": "FCM iOS 설정해줘",
+      "setup": {
+        "project_files": ["pubspec.yaml", "ios/Podfile", "lib/main.dart"],
+        "pubspec_contains": ["flutter:", "dependencies:"]
+      },
+      "assertions": [
+        "stack_detected == 'flutter'",
+        "guide_includes('flutterfire configure')",
+        "guide_includes('firebase_messaging')",
+        "guide_includes('FirebaseApp.configure()')",
+        "guide_does_not_include('Swift Package Manager 검색창에 firebase-ios-sdk') — Flutter는 SPM 흐름 아님",
+        "guide_includes('App Store Connect vs Apple Developer Portal 사이트 차이')",
+        "guide_includes_section('보안 체크리스트')",
+        "guide_includes_section('환경 분기')"
+      ]
+    },
+    {
+      "id": "stack-not-detected",
+      "description": "스택 탐지 0건 → 사용자에게 명시적 확인 요청",
+      "prompt": "Firebase 설정 가이드 만들어줘",
+      "setup": {
+        "project_files": []
+      },
+      "assertions": [
+        "asks_user_for_stack_confirmation == true",
+        "does_not_generate_guide_before_confirmation == true"
+      ]
+    },
+    {
+      "id": "apple-site-distinction",
+      "description": "Apple 관련 가이드는 사전 요구사항에 App Store Connect vs Developer Portal 차이 표 포함",
+      "prompt": "iOS Sign in with Apple 설정 가이드",
+      "setup": {
+        "project_files": ["ios/Runner.xcodeproj"]
+      },
+      "assertions": [
+        "guide_includes_section('사전 요구사항')",
+        "guide_includes('appstoreconnect.apple.com')",
+        "guide_includes('developer.apple.com/account')",
+        "guide_includes('사이트 혼동 주의')"
+      ]
+    },
+    {
+      "id": "deprecated-api-warning",
+      "description": "검색 결과에 deprecated API가 있으면 ❌ Deprecated / ✅ 현재 권장 박스 자동 삽입",
+      "prompt": "Firebase Cloud Messaging APNs 인증 설정",
+      "setup": {
+        "expected_deprecated_keywords": ["APNs Certificate (.p12)"]
+      },
+      "assertions": [
+        "guide_includes('❌ Deprecated')",
+        "guide_includes('✅ 현재 권장')",
+        "guide_includes('.p8')",
+        "guide_includes_recommended_alternative == true"
+      ]
+    }
+  ]
+}
