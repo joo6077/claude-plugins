@@ -35,23 +35,37 @@ bambu-kit/skills/bambu-print-profile/
     ├── materials.md                  # 40+ 필라멘트 카탈로그 + 용도 매핑
     ├── seam-recipes.md               # 형상×소재 scarf 매트릭스 + Real-world findings + §0 Surface-first 회전체 default v2
     ├── surface-recipes.md            # Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프)
+    ├── comment-analysis.md           # v0.4.0 신규 — 댓글 4 카테고리 추출 매뉴얼 + 한/영/중 키워드 사전 + Designer Constraint Override Rule
     └── kaizen-sources.md             # 주 1회 갱신용 데이터 소스 (카이젠 스킬용)
 ```
 
 출력 경로: **`/Users/jackson/Hub/60_3D Print/Settings/<모델명>/`**
 
-## 워크플로우 (5단계 + Coupon)
+## 워크플로우 (6단계 + Coupon)
 
+> **v0.4.0 변경**: Phase 1.6 (Comment Analysis) 신규 + Designer Constraint Override Rule 정책 신규 + Phase 1 전체 크롤링 강화(다국어/페이지네이션/스크롤). dogfood 출처: 2026-05-23 9mm Craft Knife Elite 케이스 — 디자이너 댓글 "No supports needed, please do not modify the print profile" 무시하고 surface-first 모드 자동 적용한 회귀. 사용자 피드백 "넌 서포트 넣엇더라 + 댓글이나 피드백 참고 안 하더라".
+>
 > **v0.3.0 변경**: Phase 1.5 (Attached Resources Analysis) 신규 추가. Phase 4 notes.md 5섹션 표준화. Phase 5 coupon 자동 생성. dogfood 출처: 2026-05-19 Stealth Press 1S 케이스 — 웹 BOM만 봤다가 PDF 매뉴얼에서 헷갈리는 인서트 5군데, 희생 부품, 부싱 접착, 실제 인서트 수 등을 놓침.
 
-### Phase 1 — 모델 컨텍스트 추출
+### Phase 1 — 모델 컨텍스트 추출 (전체 크롤링)
 
 **입력 분기:**
 
-1. **MakerWorld URL** → **Playwright MCP 1차** (`mcp__playwright__browser_navigate` → `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`). MakerWorld Cloudflare 차단을 우회하고 JS-rendered 모델 상세/댓글/사진까지 추출 가능. 추출 정보: 모델명/제작자/부품 구성/회전체 부품/권장 프로파일/사용자 댓글에서 소재 후기. Playwright 미사용 환경이면 `codex-rescue` 에이전트에 위임 (research mode), 둘 다 실패 시 사용자에게 직접 입력 요청.
+1. **MakerWorld URL** → **Playwright MCP 1차** (`mcp__playwright__browser_navigate` → `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`). MakerWorld Cloudflare 차단을 우회하고 JS-rendered 모델 상세/댓글/사진까지 추출 가능. 추출 정보: 모델명/제작자/부품 구성/회전체 부품/권장 프로파일/사용자 댓글 전체. Playwright 미사용 환경이면 `codex-rescue` 에이전트에 위임 (research mode), 둘 다 실패 시 사용자에게 직접 입력 요청.
 2. **로컬 .3mf 파일** → `unzip -p <path> Metadata/project_settings.config` 등으로 embedded 설정 직접 읽기. 부품별 dimension은 Bambu Studio에서 확인 권장.
 3. **STL 파일** → bounding box + 부품 수 정도만 셸로 추출 (`du -h`, file inspection). 회전체 식별은 사용자 설명 의존.
 4. **이미 정보가 채팅에 있음** → 그대로 사용.
+
+**전체 크롤링 원칙 (v0.4.0 강화):**
+
+페이지 상단(제목/제작자/Description)만 보고 끝내지 말고 **전체 페이지 + 전체 댓글 + 댓글 안 첨부 이미지/링크/언급 리소스**를 single pass로 enumerate한다.
+
+- **댓글 카운트 확인**: 스냅샷에서 `heading "Comment & Rating (N)"` 형식으로 N 파싱.
+- **20개 이하**: 단일 스냅샷에 모두 포함됨. 그대로 분석.
+- **20-50개**: Playwright `browser_evaluate`로 페이지 스크롤(`window.scrollBy`) 3-5회 후 재스냅샷.
+- **50+ 댓글**: 정렬 변경 (`Top` / `Most Likes` / `Newest First`)으로 sampling. designer_reply는 100% 추출, 나머지는 평점 분포 + 텍스트 30+ 댓글 추출. `references/comment-analysis.md` §4.1 참조.
+- **다국어 댓글**: MakerWorld는 중/영/한 혼재. 번역된 본문 + "Show original" 클릭한 원문 둘 다 캡처. 다국어 키워드 사전은 `references/comment-analysis.md` §3 참조.
+- **페이지네이션**: 댓글 영역의 "Load more" 또는 페이지 번호 UI가 있으면 `browser_click`으로 진행.
 
 **Attached Resources Inventory (필수, MakerWorld URL 케이스 한정):**
 
@@ -131,7 +145,117 @@ curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /t
 - PDF에만 있음: bushing 접착제, 0.5-1mm shim, 인두 타입별 mount STL 선택
 ```
 
+### Phase 1.6 — Comment Analysis (v0.4.0 신규)
+
+**필수 실행** — MakerWorld URL 케이스 한정. 댓글 0개라도 명시 "댓글 없음" 보고. 상세 매뉴얼은 `references/comment-analysis.md` 참조.
+
+Phase 1에서 전체 크롤링한 댓글을 4 카테고리로 분류하고 디자이너 명시 권장사항을 추출한다. **이 phase가 완료되지 않으면 Phase 2로 진입 금지** (Designer Constraints Gate).
+
+#### 1.6.1 4 카테고리 추출
+
+`references/comment-analysis.md` §2를 로드하여 각 댓글을 분류:
+
+- **designer_reply** — 디자이너(@creator)가 작성한 댓글/답변. 최우선 추출 대상.
+- **user_success** — 출력 성공 보고 (사진 + 4-5점 평점).
+- **user_failure** — 출력 실패/문제 보고 (warping, stringing, mechanism, 1-3점 평점).
+- **user_variant** — 사이즈/소재/구조 변형 보고.
+
+각 카테고리에 추출된 항목을 카운트하여 보고:
+```text
+댓글 분석 결과
+- designer_reply: X개 (핵심 권장 N건 추출)
+- user_success: Y개
+- user_failure: Z개
+- user_variant: W개
+```
+
+#### 1.6.2 Designer Constraints 키워드 추출
+
+`references/comment-analysis.md` §3의 한/영/중 키워드 사전을 사용하여 designer_reply에서 명시 권장사항을 추출:
+
+```bash
+# 영어
+grep -iE "no supports?|do not modify|must|recommend|required|never" <comments>
+# 한국어
+grep -E "권장|금지|필수|반드시|꼭|쓰면 안" <comments>
+# 중국어
+grep -E "请不要|需要|必须|建议|不要修改|禁止" <comments>
+```
+
+추출 결과를 구조화:
+
+```yaml
+designer_constraints:
+  - source: "@<creator> [2025-07-22 11:11]"
+    raw_quote: "No supports needed, please do not modify the print profile."
+    parsed:
+      - constraint_type: "forbid_support"
+        target_field: "enable_support"
+        target_value: "0"
+        priority: "strong"
+      - constraint_type: "forbid_profile_modification"
+        target_field: "*"
+        priority: "strong"
+        note: "surface-first/auto-tuning 적용 전 사용자 confirm 필수"
+```
+
+#### 1.6.3 comments-raw.md 아카이브
+
+추출 결과를 `<output_dir>/comments-raw.md`로 raw 저장. MakerWorld 페이지가 미래에 수정/삭제될 수 있어 reproducibility 확보. 포맷은 `references/comment-analysis.md` §6 참조.
+
+```bash
+mkdir -p "/Users/jackson/Hub/60_3D Print/Settings/<모델명>/"
+# comments-raw.md 작성 (designer_reply 100% quote, 나머지 카테고리는 sample)
+```
+
+#### 1.6.4 Further Research 분기 (조건부)
+
+댓글에서 **외부 URL/추가 리소스 언급**이 발견되면 진입. 0개면 skip.
+
+대상 패턴:
+- printables.com / thingiverse / cults3d — 같은 모델의 다른 호스팅
+- GitHub repo — fork/remix
+- YouTube/Bilibili — 빌드 가이드 영상
+
+처리:
+1. 같은 모델의 다른 호스팅: WebFetch 또는 Codex 위임으로 매뉴얼/추가 STL 확인
+2. GitHub: `curl -sL raw.githubusercontent.com/...README.md` fetch
+3. 영상: `codex-rescue` 에이전트에 transcript 위임 (research mode), fail-soft
+
+skip:
+- SNS, URL shortener, affiliate 링크 — `references/comment-analysis.md` §4.2 참조.
+
+#### 1.6.5 Cross-check 보고 (디자이너 권장 vs 자동화 모드)
+
+추출된 designer_constraints가 자동화 모드(특히 surface-first)와 충돌하면 **사용자에게 명시 보고**하고 confirm 요청:
+
+```text
+⚠️ Designer Constraint vs Auto-mode Cross-check
+
+디자이너 명시 권장:
+  - "No supports needed" (강)
+  - "Please do not modify the print profile" (강)
+
+자동화 모드 충돌 항목:
+  - surface-first 모드 자동 적용 시: layer 0.1→0.12, walls 2→3, infill 15→18, ironing 추가
+  - 이는 "do not modify profile" 위배
+
+선택:
+  [A] 디자이너 권장 준수 (Creator 기본 프로파일 그대로) ← Default
+  [B] 사용자 명시 동의 하에 surface-first 적용 (디자이너 권장 무시)
+```
+
+또한 .3mf creator profile metadata와도 cross-check:
+- 댓글은 support OFF 권장 vs .3mf print profile은 support ON → 사용자에게 보고
+- 댓글의 권장 layer vs .3mf의 layer 값 불일치 → 사용자에게 보고
+
+#### Designer Constraints Gate (Phase 2 진입 조건)
+
+위 1.6.1~1.6.5 완료 + 사용자 confirm(또는 댓글 0개로 빈 designer_constraints 확정)이 끝나야 Phase 2로 진입.
+
 ### Phase 2 — 소재 추천 (2-3개 + 사용자 픽)
+
+**진입 조건**: Phase 1.6 완료 + designer_constraints 추출 완료 (빈 배열도 명시적 완료).
 
 `references/materials.md`를 로드. 모델 용도/형상/사용자 요구에 매칭:
 
@@ -155,6 +279,29 @@ curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /t
 ### Phase 3 — 프로파일 JSON 생성
 
 `references/bambu-fields-baseline.md` + `references/seam-recipes.md` 로드.
+
+**Designer-stated Constraint Override Rule (v0.4.0 신규 — 최상위 우선):**
+
+Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-first 포함)와 형상-기반 자동 결정보다 **상위 우선순위**다. 충돌 시 디자이너 권장이 이긴다.
+
+처리 규칙:
+
+1. **자동 카이젠/surface-first 자동 적용 차단**:
+   - 디자이너가 "do not modify profile" 또는 "프로파일 수정 X" 권장한 경우, surface-first 모드를 자동 적용하지 **않는다**. Phase 1.6.5의 사용자 confirm 분기에서 사용자가 명시적으로 "B" (surface-first 적용)을 선택한 경우에만 surface-first 진입.
+   - 디자이너 명시 권장이 surface-first 모드와 일관(예: "0.1mm layer + 2 walls + ironing 적극")이면 충돌 없음, 그대로 surface-first 적용.
+
+2. **디자이너 명시 값을 process JSON에 강제 키로 반영 (inherits 위임 금지)**:
+   - 디자이너가 "support 사용 금지" 명시 → `"enable_support": "0"` 반드시 명시 키로 추가
+   - 디자이너가 "0.1mm layer" 명시 → `"layer_height": "0.1"` 명시
+   - 디자이너가 "2 walls" 명시 → `"wall_loops": "2"` 명시
+   - 디자이너가 "15% infill" 명시 → `"sparse_infill_density": "15%"` 명시
+   - 디자이너가 특정 소재 지정 → Phase 2 후보를 그 소재 하나로 좁히고 사용자에게 보고
+   - **inherits에 의존하지 마라** — base preset 기본값이 미래에 변경될 수 있음. 디자이너 의도는 명시 키로 freeze.
+
+3. **디자이너 권장 + 자동 형상 결정 병행 가능 영역**:
+   - 디자이너가 명시 안 한 필드(seam_position, scarf 등)는 자동 형상 결정에 위임. 단, "do not modify profile" 강 제약이 있으면 seam/scarf도 baseline 그대로 둔다 (override_filament_scarf_seam_setting=0).
+
+**필수 메타필드 (silent skip 회피 — Codex run `a2a01770a87626167` 검증):**
 
 **필수 메타필드 (silent skip 회피 — Codex run `a2a01770a87626167` 검증):**
 
@@ -277,10 +424,16 @@ curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /t
 
 # 1. 필라멘트 요구사항
 
-## 1.1 추천 소재 (Creator 명시)
-| 등급 | 소재 |  ← 권장 / 가능 / ⚠️ 위험 3등급
+## 1.0 디자이너 명시 권장사항 (Designer Constraints, v0.4.0 신규)
+- Phase 1.6에서 추출한 designer_constraints 전체 enumerate
+- 각 항목: 원문 quote + 적용 위치 (process JSON 키 / Phase 우선순위)
+- "수정 금지" 항목은 ⚠️ 강조
+- 댓글 0개 또는 designer_reply 0개면 "디자이너 명시 권장사항 없음 — 자동 결정 모드" 명시
+
+## 1.1 추천 소재 (Creator 명시 우선)
+| 등급 | 소재 |  ← Designer Constraint > Creator 추천 > 자동 매칭 순으로 우선순위
 ## 1.2 출력 설정 (Creator 가이드)
-| 항목 | 값 |  ← 레이어/벽/인필/패턴/top·bottom
+| 항목 | 값 |  ← 레이어/벽/인필/패턴/top·bottom. 디자이너 명시 값은 "[Creator 명시 — 수정 X]" 주석
 ## 1.3 소재별 사전 준비
 - 건조 조건, 챔버 온도, 환기, 베드 처리
 ## 1.4 파일명 컨벤션
@@ -307,6 +460,10 @@ curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /t
 
 # 3. 조립 워크플로우 (PDF 매뉴얼 요약)
 
+## 3.0 디자이너 명시 권장/금지 사항 재인용 (v0.4.0 신규)
+- §1.0과 중복이지만 조립/출력 직전 reminder 차원에서 재인용
+- "No supports needed", "Do not modify the print profile" 등 명시 권장
+- 사용자가 출력 직전 마지막으로 확인할 수 있도록 박스 표시
 ## 3.1 단계 순서
 1. ... 14. ... (PDF 매뉴얼에서 추출한 enumerate)
 ## 3.2 핵심 절차 (인서트 압입 등)
@@ -314,6 +471,7 @@ curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /t
 - "Insert on other side!" 같은 항목 enumerate
 ## 3.4 결정적 안전 주의사항 🔥
 - "Do not over-tighten", "fix A before B" 등 순서 의존성
+- 사용자 안전 우려 (user_failure 카테고리에서 추출) — 디자이너 답변과 함께 enumerate
 ## 3.5 권장 QoL 개선 (선택)
 
 ---
@@ -341,6 +499,8 @@ curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /t
 - PDF가 없는 케이스: §3은 "Creator 페이지의 조립 가이드" 요약 또는 "조립 매뉴얼 없음 — 사용자 자체 판단" 명시
 - 영상이 없는 케이스: §5에서 "영상 가이드 없음" 명시
 - §2.5 추가 소모품은 PDF에서 자주 발견되는 항목 — 반드시 cross-check
+- **댓글 분석 (v0.4.0)**: §1.0/§3.0의 디자이너 권장사항은 Phase 1.6 추출 결과를 그대로 옮긴다. 빈 권장이면 "댓글 없음 또는 디자이너 권장 없음" 명시 (생략 X).
+- **comments-raw.md 아카이브 (v0.4.0)**: `<output_dir>/comments-raw.md`에 댓글 원본 보존. notes.md §5 License + Credits에서 "댓글 분석 출처: comments-raw.md" 명시.
 
 **dogfood 레퍼런스 케이스:** `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/notes.md` 참조. 이번 케이스에서 PDF 분석으로 §2.5 (super glue + shim + 필라멘트 조각), §3.3 (숨은 인서트 5군데), §3.4 (KEY-BAK strain → arm 순서) 모두 발견됨.
 
@@ -423,7 +583,7 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 
 ## Gotcha 체크리스트 (생성 직후 자기 검증)
 
-생성한 JSON이 silent skip 안 되도록:
+생성한 JSON이 silent skip 안 되도록 + 디자이너 명시 권장이 반영되도록:
 
 - ☐ `version`이 `"2.6.0.2"` (또는 현재 Bambu Studio 버전 매칭)
 - ☐ `from`이 `"User"` (대문자)
@@ -432,6 +592,10 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ `compatible_printers`에 H2S 명시
 - ☐ filament JSON의 scarf 필드는 모두 **배열** (`["..."]`)
 - ☐ `nozzle_temperature` 등 사용자 영역 필드 안 건드렸는지
+- ☐ **(v0.4.0 신규) 디자이너 권장사항이 process JSON에 명시 키로 강제 반영**되었는지 (`enable_support`, `layer_height`, `wall_loops` 등). inherits 위임 X.
+- ☐ **(v0.4.0 신규) 디자이너 권장이 notes.md §1.0 + §3.0 두 곳에 모두 인용**되었는지.
+- ☐ **(v0.4.0 신규) comments-raw.md가 `<output_dir>/`에 생성**되었는지 (댓글 0개여도 빈 메타블록으로 생성).
+- ☐ **(v0.4.0 신규) "do not modify profile" 강 제약이 있으면 surface-first 모드가 자동 적용되지 않았는지** — Phase 1.6.5의 사용자 confirm 결과 반영 확인.
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
@@ -492,8 +656,13 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | Box opener knife (583712) | PLA Basic dual-color | ✅ 정상 출력 검증. 회전체 손잡이 seam은 random + external 처리 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing 발생 (필라멘트 건조 부족 의심). seam은 random + external + entire_loop |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 워크플로우 dogfood. 5섹션 notes.md 표준 템플릿 확립. 웹 BOM 30개 vs PDF 매뉴얼 카운트 34개 mismatch 발견 → Phase 1.5 신규. |
+| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
+
+## 회귀 호환성 (v0.4.0)
+
+기존 검증 케이스(box-opener-knife, h2d-vent-pipe, stealth-press-1s)는 v0.4.0 워크플로우 재실행 시 designer_constraints가 빈 배열로 graceful fallback되어 기존 결과와 동일하게 동작한다. comments-raw.md 아카이브가 신규로 생성되지만 process/filament JSON 결정은 영향 받지 않는다.
 
 ## 출처
 
@@ -501,4 +670,5 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 - 추가 검증: `aab7cad186e9523af` (멀티컬러 필드), `a2a01770a87626167` (JSON import gate), `a06a8ac153247d901` (wipe_on_loops Bambu 부재 확인)
 - 실측 피드백: 2026-05-15 ~ 2026-05-19 박스 오프너 + vent pipe + Stealth Press 1S 테스트
 - v0.3.0 dogfood: 2026-05-19 Stealth Press 1S — PDF 23p / 영상 / GitHub 첨부 자료 분석 누락 → Phase 1.5 신규 + notes.md 5섹션 표준화 + 버전 cross-check 필수화 + Phase 5 coupon 자동 생성
+- v0.4.0 dogfood: 2026-05-23 9mm Craft Knife Elite — 디자이너 댓글 "No supports needed, please do not modify the print profile" 무시한 회귀 → Phase 1.6 (Comment Analysis) 신규 + Designer Constraint Override Rule + comments-raw.md 아카이브 + 전체 크롤링 강화 (다국어/페이지네이션/스크롤) + Phase 3 디자이너 권장 명시 키 강제 + notes.md §1.0/§3.0 디자이너 권장 섹션 + Gotcha 4개 신규
 - 전체 로그: `~/.claude/codex-research-log/2026-05.md`
