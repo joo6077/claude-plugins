@@ -175,7 +175,88 @@ MakerWorld 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" �
 3. **OCR 불필요** — 시각 패턴만 보면 됨. 텍스트 댓글이 별도로 추출되므로.
 4. **fail-soft**: 이미지 로딩 실패 시 skip, notes.md §5에 "댓글 사진 일부 미확인" 명시.
 
-## 5. notes.md 통합 매뉴얼
+## 5. 권장 강도별 적용 범위 (v0.4.1 신규)
+
+디자이너 권장은 강도에 따라 process JSON 반영 방식이 다르다. v0.4.0의 보수적 해석(전체 profile freeze)을 v0.4.1에서 좁힘 — Creator가 같은 페이지/댓글에서 명시한 필드만 강제.
+
+### 5.1 strong constraint with explicit value
+
+특정 필드와 값이 명시된 강 제약. JSON 키로 즉시 강제.
+
+**패턴:**
+- "No supports needed" → `enable_support: "0"` (값 명시: support OFF)
+- "Use only PETG" → Phase 2 후보를 PETG로 좁힘 (값 명시: 특정 소재)
+- "Layer must be 0.2mm" → `layer_height: "0.2"` (값 명시: 0.2mm)
+- "0.1mm layer / 2 walls / 15% infill" (Creator profile 라벨) → 3개 필드 모두 강제
+
+**처리:**
+- 항상 process JSON 명시 키로 freeze
+- inherits 위임 금지
+- 다른 자동화 모드와 충돌 시 디자이너 권장이 이김
+
+**예시 (9mm Craft Knife):**
+- `enable_support: "0"` ← "No supports needed / 并不需要支撑"
+- `layer_height: "0.1"`, `wall_loops: "2"`, `sparse_infill_density: "15%"` ← Creator profile 라벨 "0.1mm layer, 2 walls, 15% infill"
+
+### 5.2 directive without explicit field set
+
+수정/사용 행위 자체를 금지하나, 어떤 필드인지 명시 안 함. **Creator가 같은 페이지/댓글에서 명시한 필드에만 적용**. Creator 미명시 영역은 자동 결정에 위임.
+
+**패턴:**
+- "do not modify the print profile" / "请不要修改打印配置" — profile 수정 행위 금지
+- "Don't change settings" — 설정 변경 금지
+- "Stick with defaults" — default 유지 요청
+
+**처리:**
+- Creator가 같은 페이지의 Print Profile 라벨이나 댓글에서 명시한 필드 (예: layer/walls/infill) → freeze
+- Creator가 명시 안 한 영역 (예: ironing / scarf / outer_wall_speed / wall_sequence / seam_position) → 자동 결정 가능 (surface-first 등)
+- Phase 1.6.5 옵션 [C] (병행)이 이 케이스의 default 처리. Creator 명시 필드 freeze + 미명시 영역 surface-first 적용.
+
+**예시 (9mm Craft Knife):**
+- "please do not modify the print profile" (directive)
+- Creator 명시 필드 = layer 0.1 / walls 2 / infill 15 → freeze
+- 미명시 영역 = ironing / scarf / outer_speed / wall_sequence → [C] 옵션에서 surface-first 자동 적용 OK
+
+**예외:**
+- 사용자가 Phase 1.6.5에서 "이 directive는 전체 profile 수정 X 의미"라고 명시하면 [A] 옵션으로 전환. 그때만 ironing/scarf 등 미명시 영역도 freeze.
+
+### 5.3 intent / info
+
+JSON 동작 변경 의도가 없는 사용성/안전 정보. JSON에 직접 반영 안 함.
+
+**패턴:**
+- "Push-lock means it must be held down" / "按压锁定的意思是必须要按住" — 사용성 정보
+- "Hold for 5 seconds before releasing" — 사용 절차
+- "Designed for left-handed use" — 디자인 의도
+
+**처리:**
+- process/filament JSON 무관
+- notes.md §3.2 (사용성/안전) 섹션에 raw quote 인용
+- 사용자에게 출력 후 사용 절차로 안내
+
+**예시 (9mm Craft Knife):**
+- "Push-lock means it must be held down / 按压锁定的意思是必须要按住" → notes.md §3.2에 quote, JSON 변경 X
+
+### 5.4 분류 결정 트리
+
+```text
+디자이너 권장 추출됨
+  │
+  ├─ 특정 필드 + 값 명시? (예: "support OFF", "0.1mm", "PETG only")
+  │      YES → 강도 1 (strong constraint with value)
+  │             → process JSON 명시 키로 freeze
+  │
+  ├─ 행위 금지 but 필드 미명시? (예: "do not modify", "stick with defaults")
+  │      YES → 강도 2 (directive)
+  │             → Creator 같은 페이지/댓글의 명시 필드만 freeze, 미명시 영역은 자동 결정 가능
+  │             → Phase 1.6.5 [C] 옵션이 default
+  │
+  └─ JSON 동작 무관 (사용성/안전/디자인 의도)?
+         YES → 강도 3 (intent/info)
+                → JSON 변경 X, notes.md §3.2 인용
+```
+
+## 6. notes.md 통합 매뉴얼
 
 추출 결과를 notes.md 5섹션 표준 템플릿에 어떻게 통합하는지:
 
@@ -197,7 +278,7 @@ MakerWorld 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" �
 - 핵심 designer_reply quote (1-3줄)
 - 평점 분포 요약 (5점 N개 / 4점 N개 / ... / 1점 N개)
 
-## 6. comments-raw.md 아카이브 포맷
+## 7. comments-raw.md 아카이브 포맷
 
 원본 보존용. MakerWorld 페이지가 미래에 수정/삭제될 수 있어 reproducibility 확보.
 
@@ -230,7 +311,7 @@ MakerWorld 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" �
 ...
 ```
 
-## 7. Fail-soft 정책
+## 8. Fail-soft 정책
 
 다음 케이스는 fail-soft (skip + 보고 + 진행):
 
@@ -239,7 +320,7 @@ MakerWorld 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" �
 - 다국어 번역 결과 부정확 → 원문 quote 함께 보존
 - 외부 링크 follow 실패 → notes.md §5에 URL만 적고 진행
 
-## 8. v0.4.0 도입 동기 (dogfood)
+## 9. v0.4.0 / v0.4.1 도입 동기 (dogfood)
 
 2026-05-23 9mm Craft Knife Elite 케이스에서 발견된 회귀:
 - 디자이너 댓글에 "No supports needed, please do not modify the print profile" 명시
@@ -249,7 +330,7 @@ MakerWorld 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" �
 
 → Phase 1.6 + Designer Constraint Override Rule + comments-raw.md 아카이브 신규 도입.
 
-## 9. 미해결 / 검증 필요
+## 10. 미해결 / 검증 필요
 
 - MakerWorld API endpoint (있다면) 직접 호출로 댓글 전체를 단일 호출에 받을 수 있는지 검증 (v2 BACKLOG)
 - 다국어 자동 번역 품질 — Show original 클릭 자동화 검증 필요

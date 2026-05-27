@@ -53,10 +53,11 @@ bambu-kit는 자체 카이젠 스킬을 플러그인 외부 `.claude/skills/`에
 | Box opener knife (MakerWorld 583712) | PLA Basic dual-color | ✅ 정상 출력 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing (필라멘트 건조 부족 의심) |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 dogfood — v0.3.0 |
-| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ 디자이너 권장 무시 회귀 → v0.4.0 Phase 1.6 신규 |
+| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀 → v0.4.0 Phase 1.6. v0.4.1 directive 좁힘 + [C] 병행 default. |
 
 ## 변경 이력
 
+- **v0.4.1** (2026-05-27) — Override Rule 적용 범위 좁힘 (Creator 명시 필드만 freeze, 미명시 영역은 자동 결정), Phase 1.6.5 4-옵션 재설계([A]속도/[B]top만/[C]병행 default/[D]풀), comment-analysis.md §5 권장 강도별 분류 (strong with value / directive / intent), 9mm v2 dogfood.
 - **v0.4.0** (2026-05-23) — Phase 1.6 Comment Analysis 신규, Designer Constraint Override Rule 정책, comments-raw.md 아카이브, 전체 크롤링 강화(다국어/페이지네이션/스크롤), references/comment-analysis.md 추가. 9mm Craft Knife Elite 회귀 dogfood.
 - **v0.3.0** (2026-05-19) — Phase 1.5 Attached Resources Analysis (PDF/영상/GitHub), notes.md 5섹션 표준화, Phase 5 coupon 자동 생성. Stealth Press 1S dogfood.
 

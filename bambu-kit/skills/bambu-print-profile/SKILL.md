@@ -227,27 +227,48 @@ skip:
 
 #### 1.6.5 Cross-check 보고 (디자이너 권장 vs 자동화 모드)
 
-추출된 designer_constraints가 자동화 모드(특히 surface-first)와 충돌하면 **사용자에게 명시 보고**하고 confirm 요청:
+추출된 designer_constraints가 자동화 모드(특히 surface-first)와 충돌하면 **사용자에게 명시 보고**하고 4-옵션 confirm 요청:
 
 ```text
 ⚠️ Designer Constraint vs Auto-mode Cross-check
 
-디자이너 명시 권장:
-  - "No supports needed" (강)
-  - "Please do not modify the print profile" (강)
+디자이너 명시 권장 (강도 enumerate):
+  - "No supports needed" (strong constraint with value: enable_support=0)
+  - "Please do not modify the print profile" (directive — Creator 명시 필드만 적용)
+  - "Push-lock means it must be held down" (intent — JSON 무관, §3.2 사용성)
 
-자동화 모드 충돌 항목:
-  - surface-first 모드 자동 적용 시: layer 0.1→0.12, walls 2→3, infill 15→18, ironing 추가
-  - 이는 "do not modify profile" 위배
+Creator 명시 필드 (page profile label):
+  - layer_height = 0.1mm, wall_loops = 2, sparse_infill_density = 15%
 
-선택:
-  [A] 디자이너 권장 준수 (Creator 기본 프로파일 그대로) ← Default
-  [B] 사용자 명시 동의 하에 surface-first 적용 (디자이너 권장 무시)
+자동화 모드 충돌 분석:
+  - surface-first의 layer/wall/infill 변경 → Creator 명시 필드와 충돌
+  - surface-first의 ironing/scarf/outer_speed/wall_sequence → Creator 미명시 → 자동 결정 가능
+
+옵션 (v0.4.1 4-option, [C]가 default Recommended):
+  [C] "모든 면 매끈 — 디자이너 권장 ∧ surface-first 병행" (Recommended, ~3배 시간)
+      Creator 명시 4필드 freeze (layer/walls/infill/support) +
+      surface-first 4필드 추가 (ironing topmost_only / scarf external 6mm /
+      outer_wall_speed 30 / wall_sequence inner-outer-inner). 외벽·top·seam 전부 매끈.
+  [A] "속도 우선 / 외관 후순위" (~1.2배 baseline)
+      Creator 명시 4필드만 freeze. ironing/scarf/외벽 매끈 처리 모두 OFF.
+      사용자가 "디자이너 권장 = 전체 profile 수정 X 의미"라고 명시할 때만 선택.
+  [B] "평면 top만 매끈 (ironing only)" (~1.5배)
+      Creator 명시 4필드 freeze + ironing topmost_only만 추가. 외벽/seam은 baseline.
+      박스 형상에서 top 평면이 visible할 때.
+  [D] "Surface-first 풀 — Creator 명시값 무시" (~3.5배)
+      Creator 명시 4필드도 surface-first 값으로 덮어씀 (layer 0.12, walls 3, infill 18).
+      디자이너 권장 명시 무시 동의 필요. 가장 매끈하지만 의도 위배.
 ```
 
 또한 .3mf creator profile metadata와도 cross-check:
 - 댓글은 support OFF 권장 vs .3mf print profile은 support ON → 사용자에게 보고
 - 댓글의 권장 layer vs .3mf의 layer 값 불일치 → 사용자에게 보고
+
+**Phase 3 처리 분기 (옵션별):**
+- [A] 강도 1 (strong with value) 모두 freeze + 강도 2 (directive) 영역도 freeze. Creator 미명시 영역 default 유지
+- [B] [A] + ironing topmost_only 한 항목만 추가
+- [C] (default) 강도 1 + Creator 명시 필드 freeze. Creator 미명시 영역(ironing/scarf/외벽 매끈)은 surface-first 자동 적용
+- [D] 강도 1만 freeze (support 등 안전 사항). 다른 모든 영역은 surface-first 값으로 덮어씀
 
 #### Designer Constraints Gate (Phase 2 진입 조건)
 
@@ -280,26 +301,38 @@ skip:
 
 `references/bambu-fields-baseline.md` + `references/seam-recipes.md` 로드.
 
-**Designer-stated Constraint Override Rule (v0.4.0 신규 — 최상위 우선):**
+**Designer-stated Constraint Override Rule (v0.4.0 신규, v0.4.1 범위 좁힘):**
 
-Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-first 포함)와 형상-기반 자동 결정보다 **상위 우선순위**다. 충돌 시 디자이너 권장이 이긴다.
+Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-first 포함)와 형상-기반 자동 결정보다 **명시 필드 한정 상위 우선순위**다. 충돌 시 명시 필드는 디자이너 권장이 이긴다.
 
-처리 규칙:
+### Designer-stated Constraint Override Rule 적용 범위 (v0.4.1 좁힘 정책)
 
-1. **자동 카이젠/surface-first 자동 적용 차단**:
-   - 디자이너가 "do not modify profile" 또는 "프로파일 수정 X" 권장한 경우, surface-first 모드를 자동 적용하지 **않는다**. Phase 1.6.5의 사용자 confirm 분기에서 사용자가 명시적으로 "B" (surface-first 적용)을 선택한 경우에만 surface-first 진입.
-   - 디자이너 명시 권장이 surface-first 모드와 일관(예: "0.1mm layer + 2 walls + ironing 적극")이면 충돌 없음, 그대로 surface-first 적용.
+권장 강도 3 카테고리별로 적용 범위가 다르다. 자세한 분류와 예시는 `references/comment-analysis.md` §5 참조.
 
-2. **디자이너 명시 값을 process JSON에 강제 키로 반영 (inherits 위임 금지)**:
-   - 디자이너가 "support 사용 금지" 명시 → `"enable_support": "0"` 반드시 명시 키로 추가
-   - 디자이너가 "0.1mm layer" 명시 → `"layer_height": "0.1"` 명시
-   - 디자이너가 "2 walls" 명시 → `"wall_loops": "2"` 명시
-   - 디자이너가 "15% infill" 명시 → `"sparse_infill_density": "15%"` 명시
-   - 디자이너가 특정 소재 지정 → Phase 2 후보를 그 소재 하나로 좁히고 사용자에게 보고
-   - **inherits에 의존하지 마라** — base preset 기본값이 미래에 변경될 수 있음. 디자이너 의도는 명시 키로 freeze.
+| 강도 | 예시 (영/중) | 적용 범위 | JSON 처리 |
+|------|-------------|----------|----------|
+| (1) **strong constraint with explicit value** | "No supports needed" / "并不需要支撑" (값: support=off) | **명시 키로 강제** | `enable_support: "0"` 같이 명시 |
+| (2) **directive without explicit field set** | "do not modify profile" / "请不要修改打印配置" | **Creator가 같은 페이지/댓글에서 명시한 필드만 강제**. Creator 미명시 영역은 **자동 결정에 위임 가능** | Creator profile 라벨에 적힌 layer/walls/infill만 강제. ironing/scarf/outer_wall_speed/wall_sequence/seam_position 등 미명시 영역은 자동 결정 |
+| (3) **intent / info** | "Push-lock means it must be held down" | JSON 무관 | notes.md §3.2 사용성 참조용 |
 
-3. **디자이너 권장 + 자동 형상 결정 병행 가능 영역**:
-   - 디자이너가 명시 안 한 필드(seam_position, scarf 등)는 자동 형상 결정에 위임. 단, "do not modify profile" 강 제약이 있으면 seam/scarf도 baseline 그대로 둔다 (override_filament_scarf_seam_setting=0).
+**핵심 변경 (v0.4.1):**
+
+- v0.4.0은 (2) directive 권장을 "전체 profile 수정 금지"로 보수 해석 → ironing/scarf 등 표면 마감을 자동 OFF 처리
+- v0.4.1은 (2) directive 권장은 **Creator가 같은 댓글/페이지에서 명시한 필드(layer/walls/infill)에만 적용**. Creator가 명시 안 한 ironing/scarf/외벽 매끈 영역은 surface-first 자동 결정에 위임 가능
+- 예외: 사용자가 Phase 1.6.5에서 "전체 profile 수정 X 의미"라고 명시 답변 시 [A] 옵션(속도 우선)으로 전환
+
+### 적용 절차
+
+1. **strong constraint with value (강도 1)**: 항상 process JSON 명시 키로 강제 (inherits 위임 금지)
+   - `enable_support: "0"`, 디자이너가 명시한 layer/walls/infill 등
+   - base preset 기본값이 미래에 변경될 수 있으므로 freeze
+   - 디자이너가 특정 소재 지정 시 Phase 2 후보를 그 소재 하나로 좁힘
+
+2. **directive (강도 2)**: Creator 명시 필드만 freeze, 미명시 영역은 Phase 1.6.5 사용자 옵션에 위임
+   - Phase 1.6.5 옵션 [C] "디자이너 권장 ∧ surface-first 병행" (default)이 이 케이스 처리
+   - Creator 명시 4 필드(layer/walls/infill/support) + surface-first 4 필드(ironing/scarf/outer_speed/wall_sequence) **두 그룹이 같은 process JSON에 공존**
+
+3. **intent / info (강도 3)**: JSON에 직접 반영 안 함. notes.md §3.2 사용성/안전 섹션에 quote.
 
 **필수 메타필드 (silent skip 회피 — Codex run `a2a01770a87626167` 검증):**
 
@@ -424,11 +457,12 @@ Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-fir
 
 # 1. 필라멘트 요구사항
 
-## 1.0 디자이너 명시 권장사항 (Designer Constraints, v0.4.0 신규)
-- Phase 1.6에서 추출한 designer_constraints 전체 enumerate
-- 각 항목: 원문 quote + 적용 위치 (process JSON 키 / Phase 우선순위)
-- "수정 금지" 항목은 ⚠️ 강조
+## 1.0 디자이너 명시 권장사항 (Designer Constraints, v0.4.0 신규, v0.4.1 보강)
+- Phase 1.6에서 추출한 designer_constraints 전체 enumerate, 강도별 분류 (strong/directive/intent)
+- 각 항목: 원문 quote + 강도 + 적용 위치 (process JSON 키 / Phase 우선순위)
 - 댓글 0개 또는 designer_reply 0개면 "디자이너 명시 권장사항 없음 — 자동 결정 모드" 명시
+- **선택된 옵션 명시 (v0.4.1 신규)**: Phase 1.6.5에서 사용자가 선택한 옵션 라벨([A]/[B]/[C]/[D]) + 출력 시간 배수(1.2배/1.5배/3배/3.5배) + 적용된 surface 마감 영역 enumerate (ironing/scarf/외벽 매끈 중 켜진 것)
+- [C] 병행 옵션 선택 시: Creator 명시 4필드 freeze + surface-first 4필드 추가가 같은 process JSON에 공존함을 명시
 
 ## 1.1 추천 소재 (Creator 명시 우선)
 | 등급 | 소재 |  ← Designer Constraint > Creator 추천 > 자동 매칭 순으로 우선순위
@@ -596,6 +630,7 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(v0.4.0 신규) 디자이너 권장이 notes.md §1.0 + §3.0 두 곳에 모두 인용**되었는지.
 - ☐ **(v0.4.0 신규) comments-raw.md가 `<output_dir>/`에 생성**되었는지 (댓글 0개여도 빈 메타블록으로 생성).
 - ☐ **(v0.4.0 신규) "do not modify profile" 강 제약이 있으면 surface-first 모드가 자동 적용되지 않았는지** — Phase 1.6.5의 사용자 confirm 결과 반영 확인.
+- ☐ **(v0.4.1 신규) [C] 병행 옵션 선택 시 Creator 명시 필드(layer/walls/infill/support) + surface-first 필드(ironing/scarf/outer_speed/wall_sequence) 두 그룹이 같은 process JSON에 모두 명시**되었는지. directive 권장을 전체 freeze로 보수 해석하여 ironing 등 미명시 영역이 빠지지 않았는지 (9mm v2 회귀 재발 방지).
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
@@ -656,7 +691,7 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | Box opener knife (583712) | PLA Basic dual-color | ✅ 정상 출력 검증. 회전체 손잡이 seam은 random + external 처리 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing 발생 (필라멘트 건조 부족 의심). seam은 random + external + entire_loop |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 워크플로우 dogfood. 5섹션 notes.md 표준 템플릿 확립. 웹 BOM 30개 vs PDF 매뉴얼 카운트 34개 mismatch 발견 → Phase 1.5 신규. |
-| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. |
+| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. v0.4.1 dogfood: directive 권장을 보수 해석하여 ironing/scarf 빠진 [A] 결과 → 사용자 의도("모든 면 매끈") 미반영. → v0.4.1 범위 좁힘 정책 + [C] 병행 옵션 default. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
 
@@ -671,4 +706,5 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 - 실측 피드백: 2026-05-15 ~ 2026-05-19 박스 오프너 + vent pipe + Stealth Press 1S 테스트
 - v0.3.0 dogfood: 2026-05-19 Stealth Press 1S — PDF 23p / 영상 / GitHub 첨부 자료 분석 누락 → Phase 1.5 신규 + notes.md 5섹션 표준화 + 버전 cross-check 필수화 + Phase 5 coupon 자동 생성
 - v0.4.0 dogfood: 2026-05-23 9mm Craft Knife Elite — 디자이너 댓글 "No supports needed, please do not modify the print profile" 무시한 회귀 → Phase 1.6 (Comment Analysis) 신규 + Designer Constraint Override Rule + comments-raw.md 아카이브 + 전체 크롤링 강화 (다국어/페이지네이션/스크롤) + Phase 3 디자이너 권장 명시 키 강제 + notes.md §1.0/§3.0 디자이너 권장 섹션 + Gotcha 4개 신규
+- v0.4.1 dogfood: 2026-05-27 9mm Craft Knife Elite v2 — directive 권장 "do not modify profile"을 전체 profile 수정 금지로 보수 해석한 회귀 (ironing 누락) → Phase 3 Override Rule 적용 범위 좁힘 (Creator 명시 필드만 freeze, 미명시 영역은 자동 결정 위임) + Phase 1.6.5 4-옵션 재설계 (속도 / top만 / 병행 default / 풀) + comment-analysis.md §5 권장 강도별 적용 범위 (strong with value / directive / intent) + Gotcha 1개 신규
 - 전체 로그: `~/.claude/codex-research-log/2026-05.md`
