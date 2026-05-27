@@ -53,7 +53,7 @@
     {
       "name": "bambu-kit",
       "source": "./bambu-kit",
-      "description": "[v0.4.0 · 2026-05-23] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant 4 카테고리) → Override Rule v0.4.1 범위 좁힘(Creator 명시 필드만 freeze, 미명시 영역은 자동 결정) → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → 소재 추천 → seam 전략 → Bambu Studio import 번들 (Codex 8회 리서치 + 실측 dogfood 4건 검증)"
+      "description": "[v0.4.1 · 2026-05-27] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant 4 카테고리) → Override Rule v0.4.1 범위 좁힘(Creator 명시 필드만 freeze, 미명시 영역은 자동 결정) → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → 소재 추천 → seam 전략 → Bambu Studio import 번들 (Codex 8회 리서치 + 실측 dogfood 4건 검증)"
     },
     {
       "name": "onboarding-kit",
