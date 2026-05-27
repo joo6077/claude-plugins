@@ -27,6 +27,7 @@ H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. MakerWorld URL이
 | `seam-recipes.md` | 형상×소재 scarf 매트릭스 + Real-world findings (회전체 random vs aligned, PETG entire_loop stringing 등) |
 | `surface-recipes.md` | Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프) |
 | `comment-analysis.md` | v0.4.0 신규 — 댓글 4 카테고리 추출 매뉴얼 + 한/영/중 키워드 사전 + Designer Constraint Override Rule |
+| `tolerance.md` | v0.4.2 신규 — Bambu 공차 키 (elefant_foot/xy_hole/xy_contour) + 소재별 수축률 + fit-critical 결정 트리 + calibration coupon 가이드 |
 | `kaizen-sources.md` | 주 1회 갱신용 데이터 소스 Top 10 (GitHub releases / Bambu Blog / Discourse forum / Reddit / OrcaSlicer wiki) |
 
 ## 카이젠
@@ -53,10 +54,12 @@ bambu-kit는 자체 카이젠 스킬을 플러그인 외부 `.claude/skills/`에
 | Box opener knife (MakerWorld 583712) | PLA Basic dual-color | ✅ 정상 출력 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing (필라멘트 건조 부족 의심) |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 dogfood — v0.3.0 |
-| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀 → v0.4.0 Phase 1.6. v0.4.1 directive 좁힘 + [C] 병행 default. |
+| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0/v0.4.1 회귀 → v0.4.2 blade slide-fit 공차 추가. |
+| Ferris Wheel (1186414, 608ZZ) | PLA Basic | ⚠️ 베어링 fit 안 맞음 → v0.4.2 Phase 1.7 + xy_hole/contour_compensation. |
 
 ## 변경 이력
 
+- **v0.4.2** (2026-05-27) — Phase 1.7 Tolerance & Fit Analysis 신규, Phase 3 공차 보정 키 정책 (`elefant_foot_compensation` 오타 발견 — silent skip 방지), references/tolerance.md 신규 (Bambu 키 + 수축률 + fit-critical 결정 트리 + calibration coupon), materials.md 수축률 컬럼 14 소재 보강, Phase 5 fit coupon 자동 트리거. 페리스 휠 + 9mm sheath dogfood.
 - **v0.4.1** (2026-05-27) — Override Rule 적용 범위 좁힘 (Creator 명시 필드만 freeze, 미명시 영역은 자동 결정), Phase 1.6.5 4-옵션 재설계([A]속도/[B]top만/[C]병행 default/[D]풀), comment-analysis.md §5 권장 강도별 분류 (strong with value / directive / intent), 9mm v2 dogfood.
 - **v0.4.0** (2026-05-23) — Phase 1.6 Comment Analysis 신규, Designer Constraint Override Rule 정책, comments-raw.md 아카이브, 전체 크롤링 강화(다국어/페이지네이션/스크롤), references/comment-analysis.md 추가. 9mm Craft Knife Elite 회귀 dogfood.
 - **v0.3.0** (2026-05-19) — Phase 1.5 Attached Resources Analysis (PDF/영상/GitHub), notes.md 5섹션 표준화, Phase 5 coupon 자동 생성. Stealth Press 1S dogfood.

@@ -103,7 +103,35 @@
 - TPU 95A HF: 더 TPU답고 빠름, 외부 스풀 전제
 - TPU for AMS: 멀티컬러/AMS 워크플로 우선
 
-## 4. 미해결 / 검증 필요
+## 4. 소재별 수축률 (v0.4.2 신규 — fit-critical 부품 공차 보정용)
+
+3D 출력 후 cooling 단계에서 발생하는 dimensional 수축률. PLA 계열이 가장 안정, ASA/ABS가 가장 큰 수축. fit-critical 부품(베어링/볼트/인서트/슬라이드 fit)의 process JSON 공차 보정값(`xy_hole_compensation`, `xy_contour_compensation`, `elefant_foot_compensation`)을 결정할 때 참조.
+
+| 소재 | 평균 수축률 | 권장 `xy_hole_compensation` | 권장 `xy_contour_compensation` | 비고 |
+|------|-----------|-----------------------------|-------------------------------|------|
+| **PLA Basic** | 0.2-0.3% | `+0.05` mm | `-0.05` mm | 가장 예측 가능, fit-critical 기본 |
+| **PLA Matte** | 0.2-0.3% | `+0.05` mm | `-0.05` mm | PLA Basic과 동일 |
+| **PLA Tough+** | 0.25-0.35% | `+0.075` mm | `-0.05` mm | 약간 더 크게 보정 |
+| **PLA-CF** | 0.15-0.20% | `+0.05` mm | `-0.05` mm | CF가 수축 억제 |
+| **PETG Basic** | 0.3-0.5% | `+0.075` mm | `-0.075` mm | 건조 필수 |
+| **PETG HF** | 0.3-0.5% | `+0.075` mm | `-0.075` mm | 건조 필수 |
+| **PETG-CF** | 0.2-0.3% | `+0.05` mm | `-0.05` mm | CF로 수축 억제, 건조 필수 |
+| **ASA** | 0.5-0.8% | `+0.10` mm | `-0.10` mm | 챔버 + 환기 필수 |
+| **ABS** | 0.5-0.8% | `+0.10` mm | `-0.10` mm | 챔버 + 환기 필수 |
+| **PC** | 0.6-0.7% | `+0.10` mm | `-0.10` mm | 건조 필수, 수축 큼 |
+| **PAHT-CF** | 0.4-0.6% | `+0.075` mm | `-0.075` mm | 어닐링 후 추가 수축 |
+| **PA6-CF** | 0.4-0.6% | `+0.075` mm | `-0.075` mm | 흡습 영향 큼 |
+| **TPU 90A** | 1.0-1.5% | `+0.15` mm | `-0.10` mm | 유연 — contour는 squeezable |
+| **TPU 95A** | 1.0-1.5% | `+0.15` mm | `-0.10` mm | 유연 — contour는 squeezable |
+
+⚠️ **권장값은 0.4mm nozzle + Bambu default flow ratio + flow calibration 완료 기준**. 다음 변수가 추가 영향:
+- Flow calibration 미수행 시 ±0.05 추가 필요
+- Pressure Advance 미수행 시 외벽 거친 영역 ±0.05
+- AMS HT 건조 미수행 흡습 소재(PETG/PA/PC)는 +0.05 추가
+
+자세한 공차 정책 + fit-critical 부품 분류 + calibration coupon 가이드는 `references/tolerance.md` 참조.
+
+## 5. 미해결 / 검증 필요
 
 1. **PLA Pure** — 2026-05-14 Bambu Studio 2.7.0 Public Beta에 신규 프리셋 추가됨. 2.6.0 stable에는 미포함이라 자동 추천/inherits 대상으로는 보류 안전.
 2. **PA-CF 단종** — PAHT-CF 스토어 페이지에 PA-CF가 discontinued라고 명시. Studio에는 base가 남아 있지만 신규 추천은 PAHT-CF로.

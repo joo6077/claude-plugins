@@ -36,13 +36,16 @@ bambu-kit/skills/bambu-print-profile/
     ├── seam-recipes.md               # 형상×소재 scarf 매트릭스 + Real-world findings + §0 Surface-first 회전체 default v2
     ├── surface-recipes.md            # Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프)
     ├── comment-analysis.md           # v0.4.0 신규 — 댓글 4 카테고리 추출 매뉴얼 + 한/영/중 키워드 사전 + Designer Constraint Override Rule
+    ├── tolerance.md                   # v0.4.2 신규 — 공차 보정 키 (elefant_foot/xy_hole/xy_contour) + 소재별 수축률 + fit-critical 결정 트리 + calibration coupon
     └── kaizen-sources.md             # 주 1회 갱신용 데이터 소스 (카이젠 스킬용)
 ```
 
 출력 경로: **`/Users/jackson/Hub/60_3D Print/Settings/<모델명>/`**
 
-## 워크플로우 (6단계 + Coupon)
+## 워크플로우 (7단계 + Coupon)
 
+> **v0.4.2 변경**: Phase 1.7 (Tolerance & Fit Analysis) 신규 + Phase 3 공차 보정 키 정책 + Phase 5 fit calibration coupon 자동 트리거 + references/tolerance.md 신규 + materials.md 수축률 컬럼 보강. dogfood: 페리스 휠(MakerWorld 1186414) 608ZZ 베어링이 중심부와 안 맞은 사용자 보고(2026-05-27) + 9mm sheath blade slide-fit 가능성. fit-critical 부품 식별 → 공차 보정 자동화.
+>
 > **v0.4.0 변경**: Phase 1.6 (Comment Analysis) 신규 + Designer Constraint Override Rule 정책 신규 + Phase 1 전체 크롤링 강화(다국어/페이지네이션/스크롤). dogfood 출처: 2026-05-23 9mm Craft Knife Elite 케이스 — 디자이너 댓글 "No supports needed, please do not modify the print profile" 무시하고 surface-first 모드 자동 적용한 회귀. 사용자 피드백 "넌 서포트 넣엇더라 + 댓글이나 피드백 참고 안 하더라".
 >
 > **v0.3.0 변경**: Phase 1.5 (Attached Resources Analysis) 신규 추가. Phase 4 notes.md 5섹션 표준화. Phase 5 coupon 자동 생성. dogfood 출처: 2026-05-19 Stealth Press 1S 케이스 — 웹 BOM만 봤다가 PDF 매뉴얼에서 헷갈리는 인서트 5군데, 희생 부품, 부싱 접착, 실제 인서트 수 등을 놓침.
@@ -270,13 +273,79 @@ Creator 명시 필드 (page profile label):
 - [C] (default) 강도 1 + Creator 명시 필드 freeze. Creator 미명시 영역(ironing/scarf/외벽 매끈)은 surface-first 자동 적용
 - [D] 강도 1만 freeze (support 등 안전 사항). 다른 모든 영역은 surface-first 값으로 덮어씀
 
-#### Designer Constraints Gate (Phase 2 진입 조건)
+#### Designer Constraints Gate (Phase 1.7 진입 조건)
 
-위 1.6.1~1.6.5 완료 + 사용자 confirm(또는 댓글 0개로 빈 designer_constraints 확정)이 끝나야 Phase 2로 진입.
+위 1.6.1~1.6.5 완료 + 사용자 confirm(또는 댓글 0개로 빈 designer_constraints 확정)이 끝나야 Phase 1.7로 진입.
+
+### Phase 1.7 — Tolerance & Fit Analysis (v0.4.2 신규)
+
+**필수 실행** — 모든 MakerWorld URL/로컬 파일 케이스. fit-critical 부품 없으면 "fit-critical 부품 없음 — 일반 공차 처리만" 명시. 상세 정책은 `references/tolerance.md` 참조.
+
+Phase 1 크롤링 + Phase 1.5 첨부 자료 + Phase 1.6 댓글에서 fit-critical 부품 4 카테고리 enumerate. 결과는 Phase 2 소재 선택(수축률 영향) + Phase 3 공차 보정 키 결정에 직접 입력.
+
+#### 1.7.1 Fit-critical 부품 4 카테고리 식별
+
+**(a) Bearing (베어링 압입)**
+
+식별 패턴 (Phase 1 본문 + 댓글 + 부품 라벨에서 grep):
+- ISO 베어링 번호: "608", "608ZZ", "609", "688", "688ZZ", "625", "625ZZ", "MR105", "MR84"
+- 키워드: "bearing", "베어링", "轴承"
+- 모델 카테고리: "ferris wheel", "spinner", "fidget", "회전체", "스피너", "fan", "wheel"
+
+**(b) Bolt / Screw**
+
+식별 패턴:
+- 메트릭 표준: "M3", "M4", "M5", "M6", "M8"
+- 키워드: "bolt", "screw", "self-tapping", "wood screw", "machine screw"
+- BOM 표 또는 댓글에서 "x M3" 같은 카운트
+
+**(c) Heat-set Insert (열 인서트)**
+
+식별 패턴:
+- 키워드: "heat-set insert", "brass insert", "M3 insert", "soldering iron + insert"
+- 어셈블리 가이드의 "press insert at X mm hole" 표시
+
+**(d) Slide-fit / Push-lock / Snap-fit**
+
+식별 패턴:
+- 키워드: "push lock", "push button", "slide fit", "snap fit"
+- 모델: knife sheath, pen holder, drawer, sliding mechanism, linear motion 부품
+
+#### 1.7.2 카테고리별 카운트 보고
+
+```text
+Tolerance Analysis 결과
+- bearing: X개 (구체 spec: 608ZZ × 2, MR105 × 4 등)
+- bolt: Y개 (M3 × N, M4 × N)
+- insert: Z개 (M3 heat-set × N)
+- slide-fit: W개 (knife sheath slide × 1, drawer slide × N)
+
+없으면 "fit-critical 부품 없음 — 일반 공차 처리만 (공차 보정 키 default 유지)"
+```
+
+#### 1.7.3 부품 카테고리 → 공차 보정 키 매핑 사전
+
+`references/tolerance.md` §3 결정 트리 + §4 standard fastener/bearing 사이즈 사전 참조하여 다음을 결정:
+
+| 카테고리 | Bambu JSON 키 | 권장 보정 방향 |
+|---------|--------------|---------------|
+| bearing OD (압입) | `xy_hole_compensation` | + (소재별 표 §2 참조) |
+| bearing ID (축 fit) | `xy_contour_compensation` | − (소재별 표) |
+| bolt pass hole | `xy_hole_compensation` | + 0.05 추가 (clearance) |
+| heat-set insert hole | hole 명시 (M3=4.0mm) | `xy_hole_compensation` 표 그대로 |
+| slide-fit hole | `xy_hole_compensation` | + (loose 권장) |
+| slide-fit 외경 | `xy_contour_compensation` | − (loose 권장) |
+| 첫 레이어 squish 영향 | `elefant_foot_compensation` | 0.10-0.20 (PLA 0.15 default) |
+
+⚠️ **Bambu 키 이름 오타 주의**: `elefant_foot_compensation` (e 빠짐 — Bambu 의도적 오타). `elephant_foot_compensation`으로 쓰면 silent skip.
+
+#### Tolerance Gate (Phase 2 진입 조건)
+
+Phase 1.7.1~1.7.3 완료 (또는 fit-critical 0건 확정)가 끝나야 Phase 2로 진입.
 
 ### Phase 2 — 소재 추천 (2-3개 + 사용자 픽)
 
-**진입 조건**: Phase 1.6 완료 + designer_constraints 추출 완료 (빈 배열도 명시적 완료).
+**진입 조건**: Phase 1.6 completed (designer_constraints 추출) **+ Phase 1.7 completed (tolerance fit-critical 분석)**. Phase 1.7 fit-critical 결과는 Phase 2 소재 추천에 직접 영향 — 소재별 수축률 차이가 fit 정확도와 직결 (PLA 0.2-0.3% < PETG 0.3-0.5% < ASA 0.5-0.8%). `references/materials.md` §4 수축률 표 참조.
 
 `references/materials.md`를 로드. 모델 용도/형상/사용자 요구에 매칭:
 
@@ -333,6 +402,57 @@ Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-fir
    - Creator 명시 4 필드(layer/walls/infill/support) + surface-first 4 필드(ironing/scarf/outer_speed/wall_sequence) **두 그룹이 같은 process JSON에 공존**
 
 3. **intent / info (강도 3)**: JSON에 직접 반영 안 함. notes.md §3.2 사용성/안전 섹션에 quote.
+
+### 공차 보정 키 적용 정책 (v0.4.2 신규)
+
+Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영. 자세한 키 dictionary + 소재별 수축률 + 결정 트리는 `references/tolerance.md` 참조.
+
+**Bambu Studio v2.6.0 검증된 공차 키 4개:**
+
+| 키 (정확한 Bambu JSON 이름) | default | 용도 |
+|----------------------------|---------|------|
+| `elefant_foot_compensation` ⚠️ | `"0"` | 첫 레이어 squish 보정 (오타 "elefant" — "elephant"로 쓰면 silent skip) |
+| `xy_hole_compensation` | `"0"` | 홀 직경 보정 (양수 = 더 넓게) |
+| `xy_contour_compensation` | `"0"` | 외경 보정 (음수 = 더 좁게) |
+| `circle_compensation_manual_offset` | `"0"` | 원형 수동 보정 오프셋 (옵션) |
+
+**카테고리별 공차 키 매트릭스:**
+
+| Fit-critical 카테고리 | Bambu 키 | 권장 보정 |
+|---------------------|----------|----------|
+| **베어링 외경 압입** (608ZZ 22mm 등) | `xy_hole_compensation` | + (PLA `0.05`, PETG `0.075`, ASA `0.10`) |
+| **베어링 내경 축 fit** (608ZZ 8mm 등) | `xy_contour_compensation` | − (PLA `-0.05`, PETG `-0.075`, ASA `-0.10`) |
+| **볼트 통과 hole** (M3 → 최종 hole 3.2-3.4mm, M4 → 4.3mm) | `xy_hole_compensation` | 소재 수축률 표 + clearance 추가. 최종 권장 hole 사이즈 + 표준 offset 매핑은 `references/tolerance.md` §4 fastener 사전 참조 |
+| **heat-set 인서트 hole** (M3 4.0mm 등) | hole 명시 + `xy_hole_compensation` 표 그대로 | 표 §2 |
+| **slide-fit / push-lock** (knife sheath 등) | `xy_contour_compensation` (외경) + `xy_hole_compensation` (hole) | 둘 다 loose 권장 |
+| **모든 부품 첫 레이어 squish** | `elefant_foot_compensation` | `0.10-0.20` (PLA `0.15` default) |
+
+**소재별 수축률 반영 정책:**
+
+수축률 높은 소재일수록 hole_compensation 값 ↑. `references/materials.md` §4 표 그대로 적용:
+- **PLA** (Basic/Matte/Tough+/CF): 0.2-0.3% → `xy_hole +0.05`, `xy_contour -0.05`
+- **PETG** (Basic/HF): 0.3-0.5% → `xy_hole +0.075`, `xy_contour -0.075`
+- **ASA / ABS**: 0.5-0.8% → `xy_hole +0.10`, `xy_contour -0.10`
+- **PC**: 0.6-0.7% → ASA와 동일
+- **PAHT-CF / PA6-CF**: 0.4-0.6% → PETG와 동일
+- **TPU 90A/95A**: 1.0-1.5% (유연소재) → `xy_hole +0.15`, `xy_contour -0.10`
+
+**디자이너 권장 ([C] 병행 옵션) + 공차 보정 충돌 없음:**
+
+공차 보정 키(`elefant_foot_compensation` / `xy_hole_compensation` / `xy_contour_compensation`)는 Creator profile 라벨에 명시되는 일이 거의 없음 → **Creator 미명시 영역**. v0.4.1 Override Rule 좁힘 정책에 따라 [C] 병행 시 자동 추가 가능. Designer constraint와 충돌하지 않음.
+
+**적용 절차:**
+
+1. Phase 1.7 fit-critical 카테고리 + 카운트 확인
+2. Phase 2에서 사용자 선택한 소재의 수축률 확인 (`materials.md` §4)
+3. 카테고리별 공차 키 매트릭스 × 소재 수축률 = 최종 보정값 도출
+4. process JSON에 해당 키들 명시 (default `"0"` 덮어쓰기)
+5. fit-critical 1개 이상이면 Phase 5 fit calibration coupon 자동 트리거
+
+**fit-critical 0건 케이스:**
+
+`elefant_foot_compensation`만 default 0.15 (PLA 안전 마진)로 추가. `xy_hole/xy_contour`는 default `"0"` 유지.
+
 
 **필수 메타필드 (silent skip 회피 — Codex run `a2a01770a87626167` 검증):**
 
@@ -474,6 +594,11 @@ Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-fir
 - prefix/suffix 규칙 + accent color
 ## 1.5 부품별 STL 선택 (해당 시)
 - 인두/모터/규격별 분기 STL 안내
+## 1.6 공차 보정 적용 영역 (v0.4.2 신규 — fit-critical 부품 있을 때만)
+- Phase 1.7에서 식별된 fit-critical 부품 카테고리 enumerate (bearing/bolt/insert/slide-fit + 구체 spec)
+- 적용된 공차 보정 키 + 값 표 (`elefant_foot_compensation`, `xy_hole_compensation`, `xy_contour_compensation` 등) — 정확한 Bambu 키 이름 사용 (silent skip 방지)
+- 소재별 수축률 근거 1줄
+- fit calibration coupon 실행 여부 + 결과 통과/실패
 
 ---
 
@@ -561,6 +686,7 @@ Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-fir
 - ☐ 새 소재 또는 새 scarf 조합 **첫 시도** (memory에 해당 소재 사용 이력 없음)
 - ☐ PETG / PC / PA-CF / ASA-CF / PPS-CF 등 **건조/챔버 민감 소재**
 - ☐ Multi-color 5+ filament (멀티컬러 복잡도)
+- ☐ **(v0.4.2 신규) fit-critical 부품 1개 이상** (베어링/볼트/heat-set 인서트/슬라이드 fit) — Phase 1.7에서 식별됨. 본 출력 전 fit calibration coupon (peg-and-hole)으로 공차 검증 필수. standard sizes 권장: **M3 (3.2mm hole / 4.0mm insert)**, **M4 (4.3mm hole / 5.5mm insert)**, **608ZZ (22.10mm OD / 7.90mm shaft)** 등. 자세한 가이드는 `references/tolerance.md` §5 참조
 
 해당 안 되는 단순 케이스는 skip.
 
@@ -631,6 +757,8 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(v0.4.0 신규) comments-raw.md가 `<output_dir>/`에 생성**되었는지 (댓글 0개여도 빈 메타블록으로 생성).
 - ☐ **(v0.4.0 신규) "do not modify profile" 강 제약이 있으면 surface-first 모드가 자동 적용되지 않았는지** — Phase 1.6.5의 사용자 confirm 결과 반영 확인.
 - ☐ **(v0.4.1 신규) [C] 병행 옵션 선택 시 Creator 명시 필드(layer/walls/infill/support) + surface-first 필드(ironing/scarf/outer_speed/wall_sequence) 두 그룹이 같은 process JSON에 모두 명시**되었는지. directive 권장을 전체 freeze로 보수 해석하여 ironing 등 미명시 영역이 빠지지 않았는지 (9mm v2 회귀 재발 방지).
+- ☐ **(v0.4.2 신규) fit-critical 부품(베어링/볼트/heat-set 인서트/슬라이드 fit)이 식별됐다면 공차 보정 키가 process JSON에 반영**되었는지. 키 이름 **`elefant_foot_compensation`** (오타 e 빠짐 — `elephant_foot_compensation`은 silent skip). 페리스 휠 608ZZ 회귀 재발 방지.
+- ☐ **(v0.4.2 신규) 소재별 수축률 반영** — PLA 보정값을 PETG/ASA에 그대로 쓰지 않았는지. `xy_hole_compensation` 값이 소재 수축률에 비례하는지 (PLA `+0.05` < PETG `+0.075` < ASA `+0.10`).
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
@@ -691,7 +819,8 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | Box opener knife (583712) | PLA Basic dual-color | ✅ 정상 출력 검증. 회전체 손잡이 seam은 random + external 처리 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing 발생 (필라멘트 건조 부족 의심). seam은 random + external + entire_loop |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 워크플로우 dogfood. 5섹션 notes.md 표준 템플릿 확립. 웹 BOM 30개 vs PDF 매뉴얼 카운트 34개 mismatch 발견 → Phase 1.5 신규. |
-| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. v0.4.1 dogfood: directive 권장을 보수 해석하여 ironing/scarf 빠진 [A] 결과 → 사용자 의도("모든 면 매끈") 미반영. → v0.4.1 범위 좁힘 정책 + [C] 병행 옵션 default. |
+| 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. v0.4.1 dogfood: directive 권장을 보수 해석하여 ironing/scarf 빠진 [A] 결과 → 사용자 의도("모든 면 매끈") 미반영. → v0.4.1 범위 좁힘 정책 + [C] 병행 옵션 default. v0.4.2 dogfood: blade slide-fit 공차 누락 식별 → Phase 1.7 + `elefant_foot_compensation` 추가. |
+| Ferris Wheel (1186414, 608ZZ variant) | PLA Basic | ⚠️ v0.4.x 이전 회귀: 608ZZ 베어링 외경(22mm)/내경(8mm) fit 안 맞음 (사용자 보고 2026-05-27). → v0.4.2 Phase 1.7 fit-critical 분석 + `xy_hole_compensation +0.075` (압입) + `xy_contour_compensation -0.075` (축 fit) + tolerance.md §3.1 bearing 결정 트리 신규. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
 
@@ -707,4 +836,5 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 - v0.3.0 dogfood: 2026-05-19 Stealth Press 1S — PDF 23p / 영상 / GitHub 첨부 자료 분석 누락 → Phase 1.5 신규 + notes.md 5섹션 표준화 + 버전 cross-check 필수화 + Phase 5 coupon 자동 생성
 - v0.4.0 dogfood: 2026-05-23 9mm Craft Knife Elite — 디자이너 댓글 "No supports needed, please do not modify the print profile" 무시한 회귀 → Phase 1.6 (Comment Analysis) 신규 + Designer Constraint Override Rule + comments-raw.md 아카이브 + 전체 크롤링 강화 (다국어/페이지네이션/스크롤) + Phase 3 디자이너 권장 명시 키 강제 + notes.md §1.0/§3.0 디자이너 권장 섹션 + Gotcha 4개 신규
 - v0.4.1 dogfood: 2026-05-27 9mm Craft Knife Elite v2 — directive 권장 "do not modify profile"을 전체 profile 수정 금지로 보수 해석한 회귀 (ironing 누락) → Phase 3 Override Rule 적용 범위 좁힘 (Creator 명시 필드만 freeze, 미명시 영역은 자동 결정 위임) + Phase 1.6.5 4-옵션 재설계 (속도 / top만 / 병행 default / 풀) + comment-analysis.md §5 권장 강도별 적용 범위 (strong with value / directive / intent) + Gotcha 1개 신규
+- v0.4.2 dogfood: 2026-05-27 페리스 휠 (1186414, 608ZZ variant) 베어링 fit 안 맞은 사용자 보고 + 9mm sheath blade slide-fit 가능성 → Phase 1.7 (Tolerance & Fit Analysis) 신규 + Phase 3 공차 보정 키 정책 (`elefant_foot_compensation` 오타 발견 — Bambu 의도적) + Phase 5 fit calibration coupon 자동 트리거 + references/tolerance.md 신규 (4 섹션: Bambu 키 / 소재 수축률 / fit-critical 결정 트리 / coupon) + materials.md §4 수축률 컬럼 14 소재 보강 + Gotcha 2개 신규
 - 전체 로그: `~/.claude/codex-research-log/2026-05.md`
