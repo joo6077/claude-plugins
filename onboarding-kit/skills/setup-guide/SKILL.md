@@ -66,6 +66,18 @@ App ID 등록과 Provisioning Profile 생성은 별개. Firebase 프로젝트 �
 
 Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 후 변경 불가. 가이드 사전 요구사항에 경고.
 
+### Gotcha 7: 요청한 서비스·범위만 가이드 — 임의 확장 금지
+
+(insights-report #1·#3 "스코프 임의 확장·과잉설계" 대응) 사용자가 요청한 **그 서비스, 그 기능 하나**만 가이드한다. 요청하지 않은 인접 서비스·단계를 "있으면 좋으니까" 끼워넣지 않는다.
+
+- ❌ "FCM 가이드"를 요청했는데 같은 Firebase 우산 아래 Analytics·Crashlytics·Remote Config까지 묶어서 생성
+- ❌ "Stripe 연동"에 요청 안 한 webhook·refund·subscription 흐름까지 자동 추가
+- ❌ 단순 셋업에 요청 안 한 CI/CD·모니터링·IaC 단계 덧붙임
+
+인접 서비스가 **셋업의 필수 선행 조건**이면(예: APNs Key 없이는 FCM iOS 불가) 그 의존만 사전 요구사항에 명시하고, 본문은 요청 서비스에 국한한다. 추가로 다룰 가치가 있어 보이면 가이드 생성이 아니라 **마지막에 한 줄로 제안**만 한다 ("Analytics도 필요하면 `/setup-guide firebase analytics`").
+
+11개 섹션(`references/format-checklist.md`)은 **포맷 표준이지 채우기 할당량이 아니다**. 요청 서비스에 해당 없는 섹션(예: 클라이언트 전용 SDK에 IAM, 단발 셋업에 환경 분기)은 "해당 없음" 한 줄로 닫거나 생략한다 — 억지로 내용을 만들어 부피를 늘리지 않는다.
+
 ## Process
 
 ### Phase 1: 스택 + 외부 서비스 탐지
