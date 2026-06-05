@@ -5,7 +5,15 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-05-07 (Phase 2 kaizen · v3.1)** — `/insights` 30 일 세션
+> **최근 갱신: 2026-06-05 (Phase 2 kaizen · v3.2)** — global feedback REJECT 패턴
+> 분석. LG-07 (gitignore 의도에 `test ! -f` oracle 불일치) · AR-01 (커밋 전
+> `git diff` 상태 전제 누락) 두 REJECT 를 근거로 "측정 명령 타당성 · 상태 전제
+> (Measurement Validity & Precondition)" 서브섹션 신설 (§검증 수단 명시 의무 하위).
+> 기존 "측정 방법을 명시하라" 원칙이 oracle 의 **존재** 만 다루고 oracle 의 **의미·
+> 전제 타당성** 은 다루지 않던 공백을 메움. 안티패턴 테이블 1 행 추가. parity item
+> 신설 없음 (계약 작성자 고유 의무 — Verification Method 절의 하위 보강).
+>
+> 이전: 2026-05-07 (Phase 2 kaizen · v3.1) — `/insights` 30 일 세션
 > 분석 흡수. Friction #1 (proactive quality gap) 은 본 문서의 "다수 대상 인라인
 > enumerate" + "Sibling Consistency" 절이 이미 강제하고 있어 신규 절 없음.
 > Friction #2 (false-dichotomy) 은 Phase 1 신규 skill-design-guide §3.6
@@ -357,6 +365,49 @@ MCP 서버, 외부 API, 로컬 실행 환경에 의존하는 조건은 다음 3 
 > 규칙으로 REJECT. 계약이 3 단계 fallback 을 기술했다면 정적 대체 검증으로
 > PASS 가능했던 케이스.
 
+#### 측정 명령 타당성 · 상태 전제 (Measurement Validity & Precondition)
+
+검증 수단을 명시하는 것만으로는 부족하다. 명시된 측정 명령 자체가 곧 **test
+oracle** 이므로, oracle 이 조건의 의도와 다른 것을 측정하면 false REJECT / false
+PASS 가 발생한다 ([Test Oracle 정의](https://testrigor.com/blog/what-is-test-oracle-in-software-testing/)).
+계약 작성자는 측정 명령을 적은 뒤, 다음 두 가지를 추가로 자체 점검한다.
+
+**(1) 의미 일치 (semantic match)** — 측정 명령이 조건이 의도하는 **대상** 을
+정확히 측정하는가? 동일 결과를 내는 듯 보이는 명령도 의미가 다르면 경계 사례에서
+엇갈린다.
+
+| 조건 의도 | 잘못된 oracle | 의미 일치 oracle |
+| ----------- | -------------- | ----------------- |
+| "파일이 git 추적 대상이 아니다 (gitignore 됨)" | `test ! -f <path>` (물리적 부재만 검사 — gitignored 인데 파일은 존재하면 FAIL) | `git ls-files --error-unmatch <path>` 가 비어 있음 (추적 여부를 직접 측정) |
+| "변경된 N 개 파일이 모두 머지 대상에 포함됨" | `git diff main...HEAD` (커밋 안 된 변경은 보이지 않음) | "커밋 완료 후 `git diff main...HEAD` 실행" — 전제를 조건에 명시 |
+
+**(2) 상태 전제 (precondition)** — 측정 명령이 특정 **상태** (커밋 완료, 빌드 산출물
+생성, 서버 기동) 위에서만 올바른 값을 내는 경우, 그 전제를 조건에 인라인으로
+명시한다. Given-When-Then 의 **Given** 절이 이 전제를 담는다 — 전제 없이 명령만
+적으면 평가자가 다른 상태에서 실행하여 판정이 엇갈린다.
+
+```text
+- [ ] AR-01: Sprint B 변경 6 개 파일이 머지 대상에 모두 포함된다
+      (Given: Sprint B 커밋 완료 후 / 측정: `git diff --name-only main...HEAD`
+       결과에 6 개 파일이 모두 등장) [exact, enumerated]
+```
+
+**규칙:**
+
+- 측정 명령을 적은 직후 "이 명령이 조건 의도를 측정하는가?" 를 자문하라.
+  `test`/`grep`/`git diff` 처럼 **존재·부재·차이** 를 보는 명령은 의도(추적 여부 ·
+  커밋 포함 여부 등)와 어긋나기 쉽다
+- 명령이 상태 의존적이면 `Given:` 또는 "(... 완료 후)" 로 전제를 조건에 박는다
+- 의미 일치 oracle 이 명확하지 않으면 조건을 재설계하거나 측정 가능한 다른
+  관찰점으로 바꾼다
+
+> **실제 발생 사례 (fit-pal LG-07 / AR-01, 2026-05-29)**: LG-07 은 "`.dart_defines.json`
+> 이 gitignore 됨" 의도였으나 측정이 `test ! -f` (물리적 부재) 로 작성되어, gitignore
+> 등록은 됐지만 파일이 존재하는 상태에서 REJECT. AR-01 은 `git diff main...HEAD` 가
+> 커밋 전 상태로 실행되어 6 개 중 2 개만 보여 REJECT. 두 건 모두 oracle 의 의미·전제를
+> 조건에 명시했다면 사전에 해소 가능했던 케이스 (Improvement Suggestion: "측정을
+> `git ls-files` 로 변경", "커밋 완료 전제 명시").
+
 ### 형제 스킬 일관성 (Sibling Consistency)
 
 동일 플러그인 내 여러 스킬이 **공통 원칙** 을 요구할 때 (예: 헥사고날 패턴, 에러
@@ -488,6 +539,7 @@ rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검
 | 포맷 세분화 수준 미명시 | "일관된 포맷" 요구에 파일/섹션/필드 중 어느 수준인지 불명확 → 부분 불일치를 간과하거나 과잉 REJECT | 최소 section-level 까지 명시, 핵심 필드는 field-level 로 열거 |
 | 스코프 범위어 미명시 | "주요", "모든", "대부분" 같은 범위어가 인라인 enumerate 없이 등장 → 평가자가 범위를 자체 해석하여 PASS/REJECT 엇갈림 | 범위 포함/제외 목록을 조건 내부에 괄호 또는 "예외: ..." 형태로 명시 (SK-02 재발 방지) |
 | 검증 수단 미명시 | 조건이 어떤 명령·도구·관찰로 판정되는지 기술 없음 → 평가자가 도구를 임의 선택 (특히 MCP `null` 시 미검증 급증) | 측정 명령/도구/관찰 대상을 조건에 인라인 기술, 외부 도구 의존 시 3 단계 fallback 명시 |
+| 측정 oracle 의미·전제 불일치 | 측정 명령은 적었으나 그 명령이 조건 의도와 다른 것을 측정하거나(예: gitignore 의도에 `test ! -f`) 상태 전제 누락(커밋 전 `git diff`) → false REJECT/PASS | 의미 일치 oracle 선택 + 상태 의존 시 `Given:` 전제를 조건에 인라인 명시 (LG-07/AR-01 재발 방지) |
 | Sibling 스킬 커버리지 누락 | 공통 원칙이 plugin 내 여러 스킬에 적용돼야 하지만 계약이 단일 스킬만 점검 → 일부 스킬에만 적용된 상태 통과 | `[exact, enumerated]` + 스킬 숫자/이름 전부 열거로 sibling 전수 요구 (rust-kit H-01/H-03 재발 방지) |
 | 정성적 수식어 사용 | "충분히", "상당한", "적절히", "대부분" 등 binary 판정 불가 수식어 | 구체 수치/기준값으로 대체 또는 조건 분리 (Binary Decidability Pre-Check 실패 1 순위) |
 

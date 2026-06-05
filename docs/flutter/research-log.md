@@ -1,9 +1,16 @@
 ---
 version: 1.0.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 # Flutter Kit Research Log
+
+## [2026-06-05] — Phase 5 kaizen
+
+flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2026-06-04 Friction #3). flutter-extract/provider 1차 승격분 중복 회피, stack-agnostic 유지.
+
+출처: `.claude/kaizen-input/insights-report.md` Friction #3.
+
 
 > Flutter 관련 리서치 로그. `docs/kaizen/flutter-research-log.md` 와 동일 내용을 per-kit view 로 보관한다.
 > kaizen-orchestrator 의 per-kit research-log 정책 (Step 12) 에 따라 생성됨.

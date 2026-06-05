@@ -1,10 +1,15 @@
 ---
 title: Flutter Kaizen Changelog
 version: 1.2.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 # Flutter Kaizen Changelog
+
+## [2026-06-05] — Phase 5 kaizen
+
+flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가(요청 범위 넘는 레이어/provider/state 임의 스캐폴딩 금지, Friction #3).
+
 
 > flutter-kaizen에 의한 flutter-toolkit 변경 이력을 기록한다.
 

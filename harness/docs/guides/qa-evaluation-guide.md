@@ -5,7 +5,14 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-05-07 (Phase 3 kaizen · v3.1)** — `/insights` 30 일 분석 흡수.
+> **최근 갱신: 2026-06-05 (Phase 3 kaizen · v3.2)** — `/insights` Friction #5 (스킬/도구
+> 가짜 호출) 흡수. 신규 **§Execution-Grounded Evidence**: 계약 조건이 동적 실행("실행/호출/
+> 생성")을 요구할 때 evaluator 가 narrated 주장이 아닌 실행 산출물(명령 출력·아티팩트·로그)을
+> 능동적으로 요구하고, 부재 시 `[미검증]` 처리. 기존 "주석은 증거가 아니다"(generator 주장
+> 배제)와 다른 축 — observable artifact 능동 수집. parity item #5 등록 (상위 surface 는
+> Phase 1/2 DEFERRED).
+>
+> 이전 (2026-05-07, v3.1): `/insights` 30 일 분석 흡수.
 > Friction #1 (proactive quality gap) 은 본 가이드의 Rule-by-Rule Audit 프로토콜로
 > 이미 강제 (skill-design-guide v1.3.0 §3.6 의 평가자 측 짝). Phase 1 신규 원칙
 > "Pre-Edit Batch Audit" 의 평가자 측 대응은 본 가이드 "조건 평가 시작 전 전수
@@ -165,6 +172,40 @@ Step 4 판정 시 평가자는 Sprint Feedback 에 다음을 기록:
 
 - **fit-pal-flutter 2026-04-17**: 미검증 3 건 (LG-02, DG-03, DG-04) 발생했으나 평가자가 카운팅 규칙을 명시하지 않아 partial PASS 처리 → 추후 REJECT 재판정
 - **fit-pal 2026-04-21**: UI-04/LG-04 미검증에도 3 단계 fallback 미수행 → 단계 2 대체 정적 검증 가능했음에도 건너뛰고 바로 [미검증]
+
+---
+
+## Execution-Grounded Evidence (실행 주장 조건의 산출물 검증)
+
+> **대응:** `/insights` Friction #5 (스킬/도구 가짜 호출) · §1 글로벌 피드백 "AR-03: 스킬 invoke 파일시스템 아티팩트 없음 (2026-05-17)"
+>
+> **배경:** 구현자가 도구·스킬·명령을 **실제로 실행하지 않고** "실행했다 / 호출했다 / 생성했다"고 서술만 하는 패턴. /insights 에서 "`/insights` 를 실제 호출하지 않고 기존 파일을 읽은 뒤 호출했다고 주장" 으로 보고됨. 기존 "주석·커밋 메시지는 증거가 아니다" 원칙은 generator 의 **주장**을 배제하지만, 계약 조건이 **동적 실행 자체**를 요구할 때 evaluator 가 실행이 일어났다는 **산출물**을 능동적으로 요구하는 축은 별개다.
+
+### 적용 대상 조건
+
+조건이 "실행 / 호출 / 생성 / 재생성 / 발행 / 빌드 / 마이그레이션 적용" 처럼 **동작이 실제로 수행되었음**을 요구하면(단순 파일 존재·내용이 아니라 행위) 아래 절차를 적용한다.
+
+### 검증 절차 (narrated 주장 대신 observable artifact)
+
+1. **실행 산출물 식별** — 그 동작이 일어났다면 남았어야 할 관찰 가능한 흔적을 먼저 정한다: 명령 출력(exit code·stdout), 생성/수정된 파일·번들, 로그 라인, codegen 결과물, git diff, lockfile 변경 등
+2. **산출물 직접 수집** — evaluator 가 직접 Bash/Glob/Grep 으로 그 흔적을 수집한다. 구현자의 "실행했다" 서술이나 대화 로그는 증거가 아니다
+3. **부재 시 `[미검증]`** — 흔적이 없으면 "실행되지 않았을 가능성" 으로 보고 `[미검증]` 마커 부착 (위 카운팅·자동 REJECT 임계에 합산). "코드상 호출 경로가 있으니 실행됐을 것" 이라는 추론 PASS 금지 — 호출 경로 존재는 L2 이며, 실제 실행 증거는 별개 축이다
+4. **재현 가능하면 직접 실행** — evaluator 도구로 해당 명령을 재실행 가능하면(예: `commands.analyze`, 버전 출력) 직접 돌려 출력으로 판정한다
+
+### 실행 판정 기준
+
+- 실행 산출물 확보 → PASS (근거에 `명령/산출물 → 관찰값` 형식)
+- 산출물 부재 + 재현 불가 → `[미검증]` (PASS 아님)
+- 구현자가 "실행했다" 서술했으나 산출물 없음 → narrated claim 으로 분류, 증거 불인정
+
+### 근거 (리서치)
+
+- 판정자는 narrated reasoning 이 아니라 **observable evidence 에 대해 reasoning claim 을 검증**해야 한다. CoT/서술을 신뢰하면 fabricated progress signal 에 속아 false positive 가 최대 90% 증가 ([Gaming the Judge — arxiv 2601.14691](https://arxiv.org/abs/2601.14691))
+- "실행했다" 주장은 실제 실행 로그(receipt)와 **대조**하여 검증한다. 로그 없는 호출 주장은 fabricated tool reference 로 분류 ([Tool Receipts, Not Zero-Knowledge Proofs — arxiv 2603.10060](https://arxiv.org/pdf/2603.10060))
+
+### 실패 사례
+
+- **fit-pal-app AR-03 (2026-05-17)**: "스킬 invoke" 조건에서 파일시스템 아티팩트가 없어 실행 여부를 구조적으로 검증 불가 → 산출물 부재이므로 `[미검증]` 이 정답. 실행 주장만으로 PASS 처리하면 가짜 호출을 통과시킴
 
 ---
 
@@ -553,6 +594,9 @@ evaluator-kaizen이 주기적으로 수행:
 
 LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 
+- [Gaming the Judge: Unfaithful Chain-of-Thought Can Undermine Agent Evaluation — arxiv 2601.14691](https://arxiv.org/abs/2601.14691) — narrated reasoning 조작 시 false positive 최대 90% 증가, observable evidence 에 대해 reasoning claim 검증 필요 (§Execution-Grounded Evidence 근거)
+- [Tool Receipts, Not Zero-Knowledge Proofs: Practical Hallucination Detection for AI Agents — arxiv 2603.10060](https://arxiv.org/pdf/2603.10060) — 실행 로그(receipt) 대조로 fabricated tool reference 탐지 (§Execution-Grounded Evidence 근거)
+
 - [Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge — arxiv 2406.07791](https://arxiv.org/abs/2406.07791) (IJCNLP 2025) — Swap Test 표준화
 - [Am I More Pointwise or Pairwise? Revealing Position Bias in Rubric-Based LLM-as-a-Judge — arxiv 2602.02219](https://arxiv.org/html/2602.02219) — rubric 기반 판정에서도 position bias 발생
 - [Self-Preference Bias in LLM-as-a-Judge — arxiv 2410.21819](https://arxiv.org/abs/2410.21819) — perplexity 기반 familiarity, 컨텍스트 분리 근거
@@ -591,7 +635,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 - 동급: `harness/references/contract-schema.md`
 - 하위: `harness/agents/qa-evaluator.md`, `*-kit/agents/*-reviewer.md`
 
-### Parity Table (4 개 parity item)
+### Parity Table (5 개 parity item)
 
 | # | Parity Item | skill-design-guide | agent-design-guide | contract-design-guide | **qa-evaluation-guide (이 가이드)** |
 | --- | ------------- | ------------------- | ------------------- | ---------------------- | ------------------------------------- |
@@ -599,6 +643,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 | 2 | Rule-by-Rule Audit | §3.6 | §10 (reviewer audit) | — (평가 위임) | **§Rule-by-Rule Audit Before Completion** |
 | 3 | Unverifiable / `[미검증]` 정책 | — (스킬 전용 아님) | §10 Unverifiable | §미검증 마커 | **§`[미검증]` 마커 평가 프로토콜** |
 | 4 | Sibling Consistency | §8.8 | §3 (sibling agent) | §Sibling Consistency | **§Sibling Enumerated Verification** |
+| 5 | Execution-Grounded Evidence | DEFERRED→Phase 1 | DEFERRED→Phase 1 | DEFERRED→Phase 2 | **§Execution-Grounded Evidence** (evaluator-side 신규) |
 
 ### 개정 시 체크리스트
 
@@ -616,6 +661,6 @@ qa-evaluation-guide.md 편집 시:
 
 ### 버전 정보
 
-- **Guide version**: 2026-04-24 (Phase 3 kaizen · v3 흡수)
-- **Parity with**: skill-design-guide v1.2.0, agent-design-guide v1.2.0, contract-design-guide v3 (2026-04-24)
+- **Guide version**: 2026-06-05 (Phase 3 kaizen · v3.2 — Execution-Grounded Evidence 추가)
+- **Parity with**: skill-design-guide v1.2.0, agent-design-guide v1.2.0, contract-design-guide v3 (parity item #5 는 상위 surface Phase 1/2 DEFERRED)
 - **Schema link**: contract-schema.md v3

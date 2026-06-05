@@ -24,6 +24,7 @@ user-invocable: true
 10. **Shape Up 의 appetite 는 scope 약속이 아니다** — appetite 는 "이 문제에 쓸 의향이 있는 시간" 이며 scope 는 그 안에서 유동. shaping 역량이 약하면 지나치게 모호해져서 성공 기준이 흐려진다. 출처: [Basecamp Shape Up §Chapter 6](https://basecamp.com/shapeup/1.5-chapter-06), [§Chapter 9](https://basecamp.com/shapeup/2.3-chapter-09).
 11. **Linear-style 경량 spec 은 전략 문맥을 흘릴 수 있다** — issue/project template 중심 구조는 planning-execution 통합에 강하지만, 복잡한 전략 배경/의사결정 근거는 별도 허브 문서(Notion 등)로 보완 필요. 출처: [Linear Issue Templates](https://linear.app/docs/issue-templates), [Project Templates](https://linear.app/docs/project-templates).
 12. **공개 문서형 spec (Stripe 패턴) 은 PRD 대체재가 아니다** — integration contract 로 쓰일 수는 있으나 내부 의사결정 근거, trade-off, 비범위는 반드시 별도 PRD 에 남겨야 한다. 출처: [Stripe Docs — Products & Prices](https://docs.stripe.com/products-prices/how-products-and-prices-work).
+13. **요청한 범위만 — 임의 섹션·기능 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 PRD 의 특정 섹션(예: Problem + Success Metric)만 요청하면 그 범위만 작성한다. "PRD 니까 완결돼야 한다"는 이유로 요청하지 않은 기능·릴리스 계획·KPI·로드맵을 임의로 끼워 넣지 마라. Shape Up 의 appetite 는 "fixed time, variable scope" — appetite 를 넘는 scope 확장은 그 자체가 규율 위반이다. 표준상 빠지면 안 되는 섹션(Non-goals, Open Questions) 이 있으면 추가 **여부를 먼저 알리고** 확인한다. discovery 산출물이 비면 PRD 단계로 임의 진주하지 말고 plan-discover 로 되돌린다 (insights-report #1 excessive_changes / over-engineering 대응 — 53 wrong_approach + 38 misunderstood). 출처: [Basecamp Shape Up §Chapter 6 — Set the Appetite](https://basecamp.com/shapeup/1.5-chapter-06).
 
 # Process
 

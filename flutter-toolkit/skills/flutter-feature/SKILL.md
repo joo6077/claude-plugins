@@ -17,6 +17,7 @@ disable-model-invocation: true
 - 새 feature 디렉토리 생성 후 반드시 codegen 실행 — Freezed/Retrofit 어노테이션이 있으면 `.g.dart`/`.freezed.dart` 없어서 컴파일 에러
 - import는 반드시 `package:app/features/<feature>/...` 절대 경로 — 상대 import 사용하면 preflight에서 FAIL
 - **Enumerate-before-Act (low-freedom 영역 · skill-design-guide §5.5)** — 새 feature 모듈 생성 전에 (a) `ls lib/features/` 로 기존 feature 이름을 **전수 나열** 하여 중복·유사명을 방지하고, (b) 해당 프로젝트의 기존 feature 중 하나를 샘플로 읽어 레이어별 파일 naming 관례(`*_page.dart` vs `*_screen.dart`, `*_repository.dart` vs `*_repo.dart`)를 파악한 뒤 생성한다. 근사치 추정으로 feature 명·naming 을 결정하면 기존 컨벤션과 드리프트가 생겨 전체 feature 재명명 iteration 이 발생 (insights-report #2 Wrong approach 대응)
+- **요청 범위를 넘는 레이어를 임의 스캐폴딩하지 마라 — 최소 구현 우선 (insights-report #3 과잉설계 대응).** "화면 하나"·"버튼 하나" 요청에 datasource·repository·usecase 풀 스택을 깔지 마라. 사용자가 명시한 레이어(또는 명백히 필요한 레이어)만 생성하고, 더 큰 구조(전 레이어 스캐폴딩)가 필요해 보이면 생성 **전에 어느 레이어를 만들지 1..N 으로 제시하고 합의** 를 받아라. ARCH=clean 이라고 해서 매번 6개 디렉토리를 채울 필요는 없다 — 빈 레이어를 미리 깔면 죽은 스캐폴딩이 남는다
 
 프로젝트의 아키텍처 패턴에 맞게 새 feature 모듈을 생성한다.
 

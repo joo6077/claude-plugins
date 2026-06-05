@@ -1,7 +1,7 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.3.0
-last_updated: 2026-05-07
+version: 1.4.0
+last_updated: 2026-06-05
 ---
 
 # Claude Code 에이전트 설계 가이드
@@ -411,6 +411,35 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 - 결과가 즉시 필요하지 않은 작업
 - `Ctrl+B`로 실행 중인 에이전트를 백그라운드로 전환 가능
 
+### Fan-out 상한 · Exploration Budget — 과탐색 stall 과 비용 폭주 방지
+
+> **출처:** [Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228](https://arxiv.org/html/2604.14228v1) · [Claude Code Agents 2026 — CloudZero](https://www.cloudzero.com/blog/claude-code-agents/) · `/insights` 30일 세션 분석 (Friction Point #6: 과탐색 stall — Figma metadata spelunking, 크롤링 중 구현 전 중단)
+
+§10 Gotcha "과도한 병렬화는 토큰 낭비" 를 정량 규칙으로 승격한다. 비용·시간이 폭주하는 두 축은 **fan-out 폭(병렬 spawn 수)** 과 **exploration 깊이(구현 전 탐색 turn 수)** 다. 2026 사례: 단일 슬래시 커맨드가 49 서브에이전트를 2.5시간 병렬 spawn 하여 $8K~15K 추정 (CloudZero). `/insights` 에서는 같은 사용자가 Figma 노드 과탐색·웹 크롤링으로 구현 전 세션이 stall 되어 직접 중단하는 패턴이 반복됐다.
+
+**원칙:**
+
+1. **Fan-out 상한** — 1 회 디스패치당 병렬 서브에이전트 **기본 5개 이하**. 6+ 개가 필요하면 batch 로 쪼개 순차 처리하거나 사용자에게 비용/시간 trade-off 를 먼저 보고하고 승인받는다. 단순 작업에 fan-out 하지 않는다 (§10 Gotcha 와 동일 정신).
+2. **토큰 vs 시간 trade-off 명시** — 토큰 예산이 빡빡하면 **순차** 탐색, 시간 예산이 빡빡하면 **병렬** 탐색 (각 서브에이전트가 독립 context window 를 차지하므로 병렬은 latency 와 토큰을 동시에 키운다). 디스패치 결정 시 어느 축을 우선하는지 한 줄로 명시.
+3. **Exploration budget** — 구현·산출 전 "탐색만" 하는 단계에 상한을 둔다. read-only 탐색이 의미 있는 진전 없이 누적되면(예: 같은 디렉토리를 반복 Glob, 동일 노드 메타데이터 재조회) 중단하고 현재까지 발견을 요약한 뒤 진행 방향을 사용자에게 확인한다. "조금만 더 보면 알 것 같다" 는 stall 의 가장 흔한 진입점이다.
+4. **Summary-only 반환** — 서브에이전트는 raw 출력 전체가 아닌 **요약(findings)만** 메인 컨텍스트로 반환한다 (§10 Gotcha "에이전트 결과가 메인 컨텍스트를 채운다" 의 실행 규칙). grep sweep·로그 trawl 같은 noisy 탐색일수록 필수.
+
+**Bad:**
+
+```text
+오케스트레이터 → 20+ 서브에이전트 동시 spawn → 각자 raw 출력 전체 반환 → 메인 컨텍스트 폭주 + 비용 급증
+탐색 에이전트 → 구현 전 Figma 노드 50회 재조회 → 진전 없이 stall → 사용자 중단
+```
+
+**Good:**
+
+```text
+오케스트레이터 → 5개 batch spawn (시간 우선 명시) → 각자 findings 요약만 반환 → 다음 batch
+탐색 에이전트 → exploration budget 도달 → 현재 발견 요약 + 진행 방향 사용자 확인 후 구현
+```
+
+**Cross-Surface Parity:** 본 원칙은 skill-design-guide §9 "Long-Running Skills — 중첩 스킬 호출 간 반환 데이터 최소화" 와 짝 (스킬 측은 checkpoint·반환 최소화, 에이전트 측은 fan-out 상한·exploration budget).
+
 ---
 
 ## 8. 호출 품질이 성패를 가른다
@@ -500,7 +529,7 @@ memory: project   # user | project | local
   - fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
   - 원인: 미검증 마커 없이 PASS 부여 → 계약 해석 레벨에서 이슈 불가시
 
-- **Self-Evaluator Rule-by-Rule Audit — 서브에이전트 중첩 불가의 공식 우회법.** 서브에이전트가 다른 서브에이전트를 spawn 할 수 없으므로, 카이젠 Phase 처럼 **서브에이전트 내부에서 QA 를 돌려야 하는 경우** Phase subagent 가 **자기 산출물을 자기 규칙 리스트로** 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 1회 iteration APPROVE 를 달성한 핵심 기법으로 `.harness/.meta/orchestrator-audit-log.md` 에 기록되어 있다. **자기 평가는 외부 평가의 대체가 아니다** — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수.
+- **Self-Evaluator Rule-by-Rule Audit — 서브에이전트 중첩 불가의 공식 우회법.** 서브에이전트가 다른 서브에이전트를 spawn 할 수 없으므로, 카이젠 Phase 처럼 **서브에이전트 내부에서 QA 를 돌려야 하는 경우** Phase subagent 가 **자기 산출물을 자기 규칙 리스트로** 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 1회 iteration APPROVE 를 달성한 핵심 기법으로 `.harness/.meta/orchestrator-audit-log.md` 에 기록되어 있다. **자기 평가는 외부 평가의 대체가 아니다** — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수. self-audit 시 **최종 산출물뿐 아니라 중간 결정·도구 상태까지 규칙에 대조** 한다 — LLM 은 유창하지만 제약을 위반하는 추론을 내기 쉽고 최종 성공만으로는 위반이 가려지기 때문이다 ([Verify Before You Commit — arxiv:2604.08401](https://arxiv.org/pdf/2604.08401)).
 
 ---
 
@@ -560,8 +589,9 @@ harness/agents/
 | 3 | 검증 가능한 성공 기준 / L3 커버리지 | §10 Reviewer/Evaluator Gotchas (L3) | §3.6 (Give a way to verify) |
 | 4 | Rule-by-rule audit before completion | §10 Reviewer 전수 대조 | §3.6 (Rule-by-Rule Audit) |
 | 5 | Unverifiable / degraded-mode 정책 | §10 Unverifiable 조건 정책 | — (에이전트 전용) |
+| 6 | Fan-out 상한 / Exploration Budget ↔ 반환 데이터 최소화 | §7 (Fan-out 상한 · Exploration Budget) | §9 (Long-Running Skills — 반환 데이터 최소화) |
 
-Item 5 는 평가자 행동에만 관련되므로 skill-design-guide 에는 존재하지 않는 것이 정상. 다른 4 개는 양쪽 존재.
+Item 5 는 평가자 행동에만 관련되므로 skill-design-guide 에는 존재하지 않는 것이 정상. Item 6 은 에이전트 측 fan-out/exploration 통제와 스킬 측 반환 최소화가 토큰 경제라는 동일 목적의 짝 원칙으로 양쪽 존재. 나머지 4 개도 양쪽 존재.
 
 ### 개정 시 체크리스트
 
@@ -604,6 +634,7 @@ agent-design-guide.md 를 편집할 때:
 | 중첩 불가 | 서브에이전트는 다른 서브에이전트를 spawn 할 수 없음 |
 | 영속 메모리 | 대화를 넘어서 학습시켜라 |
 | 6가지 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행 중 선택 |
+| **Fan-out 상한 / Exploration Budget** | §7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환 |
 | **Binary Decidability** | §3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격) |
 | **Unverifiable 정책** | `[미검증]` 마커 · 2건 누적 REJECT · 조용한 PASS 금지 |
 | **Cross-Surface Parity** | agent/skill/contract/eval 가이드의 원칙 전수 검토 (§12) |
@@ -622,3 +653,6 @@ agent-design-guide.md 를 편집할 때:
 - [Designing LLM-based MAS for SE — arxiv:2511.08475](https://arxiv.org/abs/2511.08475)
 - [LLM Agent Evaluation Survey — arxiv:2503.16416](https://arxiv.org/abs/2503.16416)
 - [agentic-code Quality Gates Framework](https://github.com/shinpr/agentic-code)
+- [Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228](https://arxiv.org/html/2604.14228v1) (2026-06)
+- [Claude Code Agents 2026 — CloudZero](https://www.cloudzero.com/blog/claude-code-agents/) (2026-06)
+- [Verify Before You Commit: Faithful Reasoning via Self-Auditing — arxiv:2604.08401](https://arxiv.org/pdf/2604.08401) (2026-06)

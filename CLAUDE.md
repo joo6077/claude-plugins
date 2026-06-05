@@ -174,7 +174,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 
 | 스킬/에이전트 | 용도 |
 |---------------|------|
-| `/backend-guide` | 백엔드 코드/설계에 대�� 원칙 기반 가이드 (가벼운 리뷰) |
+| `/backend-guide` | 백엔드 코드/설계에 대한 원칙 기반 가이드 (가벼운 리뷰) |
 | `/backend-audit` | 백엔드 코드를 10개 카테고리별 PASS/FAIL로 체계적 감사 |
 | `/backend-system` | 프로젝트 백엔드 아키텍처 기반 세팅 (API 규격, 에러 처리 등) |
 | `/backend-test` | 백엔드 테스트 코드 자동 생성 (pytest/jest/JUnit/go test 등 스택 무관) |

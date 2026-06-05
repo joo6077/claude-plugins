@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>에이전트 설계 가이드 v1.3.0 — Harness</title>
+<title>에이전트 설계 가이드 v1.4.0 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -93,16 +93,16 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · 에이전트 설계 가이드</div>
-  <span class="badge">v1.3.0 · 2026-05-07</span>
+  <span class="badge">v1.4.0 · 2026-06-05</span>
 </div>
 
 <div class="hero">
   <h1>에이전트 설계 가이드</h1>
   <p class="subtitle">Claude Code 공식 sub-agent 문서(2026-04) + Anthropic Building Effective Agents + Phase 1~2 카이젠. <code>use proactively</code> 키워드, <code>Agent(agent_type)</code> 화이트리스트, Binary Decidability Pre-Check, Cross-Surface Parity Checklist까지 한 페이지에 정리했다.</p>
   <div class="meta">
-    <span>Phase 1+2 Kaizen</span>
-    <span>v1.3.0</span>
-    <span>최근 갱신 2026-05-07</span>
+    <span>Phase 1+2+3 Kaizen</span>
+    <span>v1.4.0</span>
+    <span>최근 갱신 2026-06-05</span>
     <span>출처 12건</span>
   </div>
 </div>
@@ -339,6 +339,54 @@ src/lib/auth.ts 참조."</code>
   </div>
 </div>
 
+<!-- SECTION 6.5: FAN-OUT 상한 · EXPLORATION BUDGET (NET-NEW v1.4.0) -->
+<div class="section">
+  <div class="section-label">Fan-out &amp; Budget</div>
+  <div class="section-title">§7 Fan-out 상한 · Exploration Budget — 과탐색 stall · 비용 폭주 방지</div>
+  <p class="section-desc">§10 Gotcha "과도한 병렬화는 토큰 낭비"를 <strong>정량 규칙</strong>으로 승격한다. 비용·시간이 폭주하는 두 축은 <strong>fan-out 폭(병렬 spawn 수)</strong>과 <strong>exploration 깊이(구현 전 탐색 turn 수)</strong>다. 2026 사례: 단일 슬래시 커맨드가 49 서브에이전트를 2.5시간 병렬 spawn하여 $8K~15K 추정(CloudZero).</p>
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>① Fan-out 상한 — 기본 5개 이하</div>
+      <p>1회 디스패치당 병렬 서브에이전트 <strong>기본 5개 이하</strong>. 6+ 개가 필요하면 batch로 쪼개 순차 처리하거나 사용자에게 비용/시간 trade-off를 먼저 보고하고 승인받는다. 단순 작업에 fan-out하지 않는다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>② 토큰 vs 시간 trade-off 명시</div>
+      <p>토큰 예산이 빡빡하면 <strong>순차</strong> 탐색, 시간 예산이 빡빡하면 <strong>병렬</strong> 탐색. 각 서브에이전트가 독립 context window를 차지하므로 병렬은 latency와 토큰을 동시에 키운다. 어느 축을 우선하는지 한 줄로 명시.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>③ Exploration budget</div>
+      <p>구현·산출 전 "탐색만" 하는 단계에 상한을 둔다. read-only 탐색이 진전 없이 누적되면(같은 디렉토리 반복 Glob, 동일 노드 메타데이터 재조회) 중단하고 발견을 요약한 뒤 진행 방향을 사용자에게 확인한다. "조금만 더 보면 알 것 같다"가 stall의 가장 흔한 진입점.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>④ Summary-only 반환</div>
+      <p>서브에이전트는 raw 출력 전체가 아닌 <strong>요약(findings)만</strong> 메인 컨텍스트로 반환한다. grep sweep·로그 trawl 같은 noisy 탐색일수록 필수.</p>
+    </div>
+  </div>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <code class="code-block">오케스트레이터 → 20+ 서브에이전트
+동시 spawn → 각자 raw 출력 전체 반환
+→ 메인 컨텍스트 폭주 + 비용 급증
+탐색 에이전트 → Figma 노드 50회 재조회
+→ 진전 없이 stall → 사용자 중단</code>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <code class="code-block">오케스트레이터 → 5개 batch spawn
+(시간 우선 명시) → findings 요약만
+반환 → 다음 batch
+탐색 에이전트 → exploration budget 도달
+→ 발견 요약 + 진행 방향 확인 후 구현</code>
+    </div>
+  </div>
+  <div class="parity-box">
+    <div class="parity-box-title">Cross-Surface Parity</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7">본 원칙은 skill-design-guide §9 "Long-Running Skills — 중첩 스킬 호출 간 반환 데이터 최소화"와 짝이다. 스킬 측은 checkpoint·반환 최소화, 에이전트 측은 fan-out 상한·exploration budget으로 동일한 토큰 경제 목적을 공유한다.</p>
+  </div>
+  <a class="card-source" href="https://arxiv.org/html/2604.14228v1">Dive into Claude Code — arxiv:2604.14228</a>
+</div>
+
 <!-- SECTION 7: GOTCHAS -->
 <div class="section">
   <div class="section-label">Gotchas</div>
@@ -364,6 +412,7 @@ L3: 실제 내용·실행 결과가
     <li><span class="check">!</span>과도한 병렬화는 토큰 낭비다. 관련 작업을 묶어라</li>
     <li><span class="check">!</span>백그라운드 에이전트는 사용자에게 질문할 수 없다 — 권한은 미리 승인해야 한다</li>
     <li><span class="check">!</span>cross-kit 키워드 중복은 단순 Grep으로 탐지되지 않는다 — set intersection + substring containment 검사 필요</li>
+    <li><span class="check">!</span>Self-evaluator self-audit 시 <strong>최종 산출물뿐 아니라 중간 결정·도구 상태까지 규칙에 대조</strong>하라 — LLM은 유창하지만 제약을 위반하는 추론을 내기 쉽고 최종 성공만으로는 위반이 가려진다 (faithful-reasoning, arxiv:2604.08401). 자기 평가는 외부 평가의 대체가 아니다 — Final 단계 독립 evaluator는 여전히 필수</li>
   </ul>
 </div>
 
@@ -381,6 +430,7 @@ L3: 실제 내용·실행 결과가
         <tr><td>3</td><td>L3 커버리지</td><td>§10 Reviewer Gotchas</td><td>§3.6 Give a way to verify</td></tr>
         <tr><td>4</td><td>Rule-by-Rule Audit</td><td>§10 Reviewer 전수 대조</td><td>§3.6 Rule-by-Rule Audit</td></tr>
         <tr><td>5</td><td>Unverifiable 정책</td><td>§10 Unverifiable (에이전트 전용)</td><td>— (에이전트 전용)</td></tr>
+        <tr><td>6</td><td>Fan-out 상한 / Exploration Budget</td><td>§7 Fan-out 상한 · Exploration Budget</td><td>§9 Long-Running Skills — 반환 데이터 최소화</td></tr>
       </tbody>
     </table>
   </div>
@@ -411,6 +461,7 @@ L3: 실제 내용·실행 결과가
         <tr><td>모델 최적화</td><td>작업 복잡도에 맞는 모델 선택</td></tr>
         <tr><td>Binary Decidability</td><td>§3.5 — 평가 시작 전 이진 판정 가능성 전수 점검</td></tr>
         <tr><td>Unverifiable 정책</td><td><code>[미검증]</code> 마커 · 2건 누적 REJECT · 조용한 PASS 금지</td></tr>
+        <tr><td>Fan-out 상한 / Exploration Budget</td><td>§7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환</td></tr>
         <tr><td>Cross-Surface Parity</td><td>agent/skill/contract/eval 가이드 원칙 전수 검토 (§12)</td></tr>
       </tbody>
     </table>
@@ -427,7 +478,7 @@ L3: 실제 내용·실행 결과가
     <li><a href="https://arxiv.org/abs/2511.08475">Designing LLM-based MAS for SE — arxiv:2511.08475</a></li>
     <li><a href="https://arxiv.org/abs/2503.16416">LLM Agent Evaluation Survey — arxiv:2503.16416</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/agent-design-guide.md · v1.3.0 · 2026-05-07</p>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/agent-design-guide.md · v1.4.0 · 2026-06-05</p>
 </div>
 
 </div>

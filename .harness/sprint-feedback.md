@@ -1,99 +1,72 @@
 # Sprint Feedback
-Feature: bambu-kit Surface-first 정책 풀 적용
-Evaluated: 2026-05-16 22:00
+Feature: 인사이트 마찰 패턴 → durable rule 승격
+Evaluated: 2026-06-05 11:00
 Verdict: APPROVE
-Iteration: 3
+Iteration: 1
 
 ## Results
 
 ### Skill (3/3)
+- [x] SK-01: flutter-extract Gotcha에 "추상화 레벨" 추가 — PASS
+  - 근거: `flutter-toolkit/skills/flutter-extract/SKILL.md:20` — "추출 전 추상화 레벨(평함수 vs 위젯 vs provider)을 먼저 확정하고 사용자 합의를 받아라. 단순 로직(파일 경로 변환, 포맷팅 등)을 자동으로 위젯으로 감싸지 마라" (측정값: 1, 기준: ≥1) [L3]
+- [x] SK-02: flutter-provider Gotcha에 "최소 구현" 추가 — PASS
+  - 근거: `flutter-toolkit/skills/flutter-provider/SKILL.md:15` — "요청 범위를 넘는 캐시/추상화/스캐폴딩을 임의 추가하지 마라 — 최소 구현 우선." (측정값: 1, 기준: ≥1) [L3]
+- [x] SK-03: 두 SKILL.md에 "ValueNotifier" 0건 — PASS
+  - 근거: flutter-extract:0, flutter-provider:0. 프로젝트-특정 금지어는 kit Gotcha에 포함되지 않고 guardrails.md §1에만 정의됨. 설계 의도(stack-agnostic vs project-specific 분리) 충족 [L3]
 
-- [x] SK-01: Surface-first 헤더 + 회전체 Auto-select 결정 트리 3단계 — PASS
-  - 근거: `SKILL.md:110` — "Surface-first 모드 (default ON...)" 헤더 존재
-  - 근거: `SKILL.md:114-128` — `text` fenced 코드 블록으로 3단계 트리 명시
-  - 근거: `SKILL.md:117` — "(1) spiral_mode", `SKILL.md:120` — "(2) painted seam", `SKILL.md:125-126` — "(3) FALLBACK → random" 순서 확인
-  - L3: Phase 3 섹션 내 위치, 순서 (spiral→painted→random) 계약 일치. 변경 없음, 이전 PASS 유지.
-
-- [x] SK-02: 형상별 결정 트리 6개 enumerate — PASS
-  - 근거 (전수): 회전체 SKILL.md:132, 박스 :133, 유기적 :134, 얇은 벽 :135, 평면 top :136, spiral vase :137
-  - L3: 6개 모두 Phase 3 형상별 결정 트리 항목으로 번호 목록화됨. 변경 없음, 이전 PASS 유지.
-
-- [x] SK-03: ironing 형상×소재 결정 트리 8소재 — PASS
-  - 근거: `surface-recipes.md:139-150` — §5.1 표에 8개 소재 전부 행으로 존재
-  - L3: PLA Basic(143), PLA Matte(144), PLA Silk(145), PETG HF(146), PA-CF/PAHT-CF(147), PC(148), ABS/ASA(149), TPU(150). 변경 없음.
-
-### Reference (3/3)
-
-- [x] RF-01: bambu-fields-baseline.md §8 — 19개 surface 필드 4종 정보 완비 — PASS
-  - **이전 FAIL 사유 해소:** §8.5 3개 필드 default 컬럼에 실제 값 추가됨
-  - §8.1~8.4 16개 필드: 이전 PASS 유지
-  - §8.5 3개 필드 4-tuple 검증 (`bambu-fields-baseline.md:216-218`):
-    - `seam_slope_steps`: (a) 키 존재, (b) `int (min 1)`, (c) `10` [실제 숫자값], (d) `references/seam-recipes.md §2; source: src/libslic3r/PrintConfig.cpp` — 4종 완비
-    - `seam_slope_entire_loop`: (a) 키 존재, (b) `0 / 1 (bool)`, (c) `0` [실제 bool값], (d) `references/seam-recipes.md §2; source: src/libslic3r/PrintConfig.cpp` — 4종 완비
-    - `seam_slope_inner_walls`: (a) 키 존재, (b) `0 / 1 (bool)`, (c) `0` [실제 bool값], (d) `references/seam-recipes.md Finding 2; source: src/libslic3r/PrintConfig.cpp` — 4종 완비
-  - "BACKLOG (b) 검증" 괄호 주석은 신뢰도 메모이며 default 값을 대체하지 않음. `10`, `0`, `0`이 (c)를 충족.
-  - L3: 출처 포맷 — `source:` 접두 레이블 형식으로 계약 허용 포맷 3종 중 하나 충족.
-
-- [x] RF-02: seam-recipes.md Auto-select 결정 트리 전환 + Finding 1 보존 — PASS
-  - 근거: seam-recipes.md:18 "Auto-select 결정 트리", :23-34 3단계, :149 Finding 1 보존. 변경 없음.
-
-- [x] RF-03: surface-recipes.md 6개 섹션 헤더 — PASS
-  - 근거: lines 10, 30, 92, 122, 135, 163. 변경 없음.
-
-### Architecture (2/2)
-
-- [x] AR-01: SKILL.md references 5종 등록 — PASS (변경 없음)
-- [x] AR-02: Codex run id 양쪽 파일 명시 — PASS (변경 없음)
+### Script (2/2)
+- [x] SC-01: MEMORY.md에 신규 2파일 포인터 2줄 대응 — PASS
+  - 근거: `MEMORY.md:15-16` — feedback_skill_invocation_evidence.md(15번) + feedback_minimal_change_no_overeng.md(16번) 1:1 매핑 확인 (측정값: 신규 파일 2개 == 포인터 2줄) [L3]
+- [x] SC-02: CLAUDE.md 추가 섹션 ≤5줄 — PASS
+  - 근거: `~/.claude/CLAUDE.md:3-5` — 헤더 1줄 + 본문 1줄 + 빈 줄 포함 측정값 5줄 (기준: ≤5). 실제 룰은 `architecture-guardrails.md`에 위임, 포인터 구조 설계 의도 충족 [L3]
 
 ### Error (2/2)
+- [x] ER-01: CLAUDE.md에 ValueNotifier 0건, "스킬 호출" 1건 — PASS
+  - 근거: `grep -c "ValueNotifier" ~/.claude/CLAUDE.md` = 0; `grep -c "스킬 호출" ~/.claude/CLAUDE.md` = 1 (Capabilities 섹션 내 단 1회, 룰 파일 참조 문맥) [L3]
+- [x] ER-02: 신규 슬러그 2개 기존 파일 목록과 미중복 — PASS
+  - 근거: 기존 14개 파일 목록에 feedback_skill_invocation_evidence.md / feedback_minimal_change_no_overeng.md 없음. 신규 생성 후 총 16파일(MEMORY.md 포함 17개). [L3, enumerated]
 
-- [x] ER-01: BACKLOG.md Surface-first 후속 검증 4항목 — PASS
-  - BACKLOG.md:87 섹션 헤더, :91 precise z-seam, :101 seam_slope, :121-126 소재 5종, :130-136 PETG HF lot. 변경 없음.
-
-- [x] ER-02: PETG HF 건조 경고 3 키워드 — PASS (변경 없음)
-
-### Script (N/A)
-
-- [x] SC-00: N/A — release.sh / marketplace.json / plugin.json 변경 없음
+### Architecture (3/3)
+- [x] AR-01: guardrails.md 정의 + CLAUDE.md 포인터 구조 — PASS
+  - 근거: `~/.claude/rules/architecture-guardrails.md` 존재 (4섹션: 상태관리/최소변경/리팩토링위치/스킬호출증거). CLAUDE.md:4에 경로 `~/.claude/rules/architecture-guardrails.md` 리터럴 참조 1건. on-demand 조회 포인터 설계 충족 [L3]
+- [x] AR-02: 프로젝트 메타 교훈이 memory type:feedback로 위치 — PASS
+  - 근거: feedback_skill_invocation_evidence.md:6 `type: feedback`, feedback_minimal_change_no_overeng.md:6 `type: feedback`. 위치: `/Users/jackson/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/memory/` [L3]
+- [x] AR-03: 신규 memory frontmatter에 name/description/metadata.type 3필드 모두 보유 — PASS
+  - 근거 (enumerated 전수):
+    - feedback_skill_invocation_evidence.md: name:2 `feedback-skill-invocation-evidence`, description:3 존재, metadata.type:7 `feedback`
+    - feedback_minimal_change_no_overeng.md: name:2 `feedback-minimal-change-no-overeng`, description:3 존재, metadata.type:7 `feedback` [L3, enumerated]
 
 ### Anti-patterns (2/2)
-
-- [x] AP-03: bare code fence — PASS
-  - `python3 scripts/validate-plugin.py bambu-kit` V6 code-fence: 0 bare, Exit 0
-  - bambu-fields-baseline.md 변경 라인 216-218은 표 행(| | | | |) 포맷으로 code fence 없음
-
-- [x] AP-04: frontmatter name 보존 — PASS (변경 없음, SKILL.md:2)
+- [x] AP-03: flutter-toolkit validate-plugin code-fence V6 OK — PASS
+  - 근거: `python3 scripts/validate-plugin.py flutter-toolkit --check=code-fence` → "V6 code-fence 0 bare — OK" [L3]
+- [x] AP-04: 두 SKILL.md frontmatter name 필드 유지 — PASS
+  - 근거: flutter-extract/SKILL.md:3 `name: flutter-extract`, flutter-provider/SKILL.md:3 `name: flutter-provider` [L3, enumerated]
 
 ### Reusability (2/2)
+- [x] RE-01: 신규 컴포넌트 없음 (N/A) — PASS
+  - 근거: 룰/문서 승격 작업으로 코드 컴포넌트 미생성. 적용 면제 [L1]
+- [x] RE-02: kit Gotcha 비중복 확인 — PASS
+  - 근거: flutter-extract Gotcha 기존 4줄(L16~19)은 import/재사용성 관련. 신규 L20은 추상화 레벨/위치 확정으로 신규 주제. flutter-provider 기존 Gotchas는 Riverpod 라이프사이클 관련. 신규 L15는 최소구현으로 비중복 [L3]
 
-- [x] RE-01: surface-recipes.md references/ 경로 위치 — PASS (변경 없음)
-- [x] RE-02: SKILL.md ironing ≤10건 + surface-recipes 참조 ≥1건 — PASS (변경 없음)
+### Diagnostics (4/4)
+- [x] DG-01: validate-plugin flutter-toolkit 워닝 0개 — PASS
+  - 근거: `python3 scripts/validate-plugin.py flutter-toolkit` → V1~V7 전체 OK, Exit:0 [L3]
+- [x] DG-02: IDE diagnostics N/A — PASS
+  - 근거: 변경 대상이 .md 파일(SKILL.md/memory/rules/CLAUDE.md). Dart/Flutter 코드 변경 없음 [L1]
+- [x] DG-03: 측정 명령 에러 0개 — PASS
+  - 근거: SK-01/SK-02/SK-03/ER-01/AP-03 측정 명령 전부 Exit:0 [L3]
+- [x] DG-04: 런타임 구동 없는 문서/룰 승격 (N/A) — PASS
+  - 근거: 계약에 명시된 N/A [L1]
 
-### Diagnostics (PASS)
+⚠️ 런타임 검증 미수행 — MCP 서버 미설정 (정적 검증만으로 전 조건 판정)
 
-- [x] DG-01: N/A — 셸 스크립트 변경 없음
-- [x] DG-02: N/A — markdownlint 미적용
-- [x] DG-03: `python3 scripts/validate-plugin.py bambu-kit` — PASS (Exit 0, V1/V6 OK)
-- [x] DG-04: N/A — 스킬 문서 변경
+## Design Intent Verification (평가 관점 3항목)
+
+1. **stack-agnostic 분리**: kit Gotcha에 ValueNotifier 0건(SK-03 PASS). 일반화 가능분("추상화 레벨 확정", "최소 구현 우선")만 kit에 반영하고 Flutter-특정 패턴 금지는 guardrails.md §1에만 위치. 분리 의도 충족.
+2. **토큰 비용 최적화**: CLAUDE.md 추가 5줄(포인터만). 실제 4섹션 규칙은 별도 파일 on-demand 조회. 설계 의도 충족.
+3. **인사이트 정합성**: wrong_approach 53건/misunderstood_request 38건 → 최소변경(§2)/리팩토링위치(§3). 스킬 가짜 호출 → 스킬호출증거(§4). ValueNotifier 재도입 → 상태관리(§1). 과잉설계 → 최소변경(§2). 추출 추상화 오판 → 리팩토링위치(§3). 5개 마찰 패턴 전부 커버.
 
 ## Summary
-
-| 카테고리 | PASS/TOTAL |
-|---------|-----------|
-| Skill | 3/3 |
-| Reference | 3/3 |
-| Architecture | 2/2 |
-| Error | 2/2 |
-| Script | N/A |
-| Anti-patterns | 2/2 |
-| Reusability | 2/2 |
-| Diagnostics | N/A (관련 1개 PASS) |
-
-- Total: 14/14 conditions PASS
-- Verdict: **APPROVE**
-
-## Unverifiable Summary
-
-미검증 조건: 0건
-
-Note: MCP 서버 미설정으로 런타임 검증 미수행 — 정적 검증만으로 판정.
+- Total: 11/11 conditions passed
+- Verdict: APPROVE
+- 미검증 조건: 0건

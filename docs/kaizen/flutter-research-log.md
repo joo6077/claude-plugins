@@ -1,10 +1,15 @@
 ---
 title: Flutter Kaizen Research Log
 version: 1.1.0
-last_updated: 2026-04-11
+last_updated: 2026-06-05
 ---
 
 # Flutter Kaizen Research Log
+
+## [2026-06-05] — Phase 5
+
+insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응. flutter-feature 는 clean arch 풀스택을 까는 스킬이라 과잉설계 취약 → 최소 구현 우선 Gotcha.
+
 
 > flutter-kaizen 스킬 실행 시 연구 결과를 누적 기록한다.
 > 형식: `flutter-toolkit/skills/flutter-kaizen/templates/research-log-entry.md`

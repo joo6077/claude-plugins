@@ -50,6 +50,7 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - **sibling 스킬 공통 원칙은 반드시 `[exact, enumerated]` 또는 `[structural, enumerated]` aggregation mode 로 작성하라.** 대상 스킬을 숫자로 명시 + 이름 전부 열거. "rust-api 에 적용" ✗ → "rust-init, rust-feature, rust-service, rust-api 4 스킬 모두에 적용" ✓ (rust-kit H-01/H-03 재발 방지)
 - **조건의 FAIL 상태를 1 문장으로 기술 가능해야 한다.** FAIL 이미지가 떠오르지 않으면 그 조건은 모호하므로 재작성하라. 이는 Binary Decidability Pre-Check 사전 점검이다 (contract-design-guide §계약 작성자 의무 참조)
 - **계약 작성 자체에 Pre-Edit Batch Audit 원칙을 적용하라.** 계약 초안 (DRAFT) 을 사용자에게 제시하기 전에, 대상 코드/파일을 read-only 로 audit 하여 (a) 어떤 위반/갭이 이미 존재하는지 enumerate (b) 후보 옵션 (예: Stack vs Column, widget extend vs new) 을 옵션 표로 제시 (c) 사용자 합의 후 조건 확정. skill-design-guide v1.3.0 §3.6 "Pre-Edit Batch Audit" 의 계약-시점 적용 (Friction #2 false-dichotomy 의 reframe). 이는 sprint-contract Process 의 "DRAFT 작성 → 사용자 합의" 단계에 직접 매핑된다
+- **측정 명령을 적은 뒤 그 명령이 조건 의도를 실제로 측정하는지 + 어떤 상태 전제에서 실행되는지 확인하라.** 측정 명령이 곧 test oracle 이므로, oracle 이 의도와 어긋나면 측정 방법을 명시하고도 false REJECT 가 난다. (a) **의미 일치**: `test ! -f` 는 물리적 부재를, gitignore 의도는 추적 여부를 측정 — 다르다. 추적 여부는 `git ls-files --error-unmatch` 로 측정하라. (b) **상태 전제**: `git diff main...HEAD` 는 커밋 전 변경을 못 본다 — 커밋 완료 같은 전제가 있으면 조건에 `Given:` 또는 "(... 완료 후)" 로 인라인 명시하라. contract-design-guide §검증 수단 명시 의무 > "측정 명령 타당성 · 상태 전제" 참조 (LG-07/AR-01 재발 방지)
 
 ## 설정 로드
 

@@ -27,6 +27,7 @@ user-invocable: true
 5. **rule_id 발급은 UUID(`uuidgen`)로 한다**. 시간 정렬이 필요하면 ledger append 순서로 충분하다. ULID 라이브러리 의존성을 추가하지 마라.
 6. **target_path는 절대경로로 기록**. 상대경로로 기록하면 세션 cwd 변경 시 rollback이 깨진다.
 7. **skill 승격은 진정 새 절차가 필요한 경우만**. 기존 스킬에 Gotchas 한 항목 추가로 해결 가능하면 "기존 스킬 Gotchas 추가"로 분류하라 (별도 skill 신설은 보수적으로).
+8. **`user_stated_constraint == true` 후보는 freq 2/3회를 기다리지 말고 매-세션 자동 로드 surface로 보낸다** (precedence rule #0). 사용자가 명시적으로 금지한 제약의 재위반은 memory(on-demand 로드)나 관망으로 강등하면 재주입이 약해 매 세션 재프롬프트가 반복된다 (insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응). 재주입 강도 순서: **hook(강제) > CLAUDE.md(매 세션 자동 로드) > path-scoped rule(해당 glob 편집 시 로드) > memory(on-demand)**. fast-track 대상은 memory 아래로 내리지 마라. 단 fast-track이어도 surface write 전 사용자 승인은 필수다 (Gotchas #1).
 
 ## 입력
 
@@ -49,6 +50,7 @@ user-invocable: true
    - digest가 제안한 surface를 **그대로 믿지 말고** 다음 4축 + 빈도로 재판정:
      | # | 조건 | 승격 surface |
      |---|---|---|
+     | 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** — `scope==global`이면 global CLAUDE.md, 아니면 project CLAUDE.md (200줄 초과 시 path-scoped rule). hard_gate면 hook 후보 병기. memory/관망으로 강등 금지 |
      | 1 | `enforcement_need == hard_gate` | **hook 검토** |
      | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** |
      | 3 | `scope == global` AND 복수 프로젝트 freq ≥ 3 | risk=high → **global CLAUDE.md** / 나머지 → **global memory** |

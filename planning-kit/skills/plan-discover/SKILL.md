@@ -25,6 +25,7 @@ user-invocable: true
 11. **5 Whys 단독 사용 금지 (다변량 문제)** — 숫자 5 가 아니라 countermeasure 수준까지 인과 사슬을 추적한다. 유도 질문/정치적 방어가 개입되면 가짜 원인을 강화한다. 사람 탓으로 끝내지 말고 시스템/프로세스 원인까지 내려갈 것. 출처: [Lean Enterprise Institute — 5 Whys](https://www.lean.org/lexicon-terms/5-whys/).
 12. **RAT 가 comfort test 로 전락하지 않게** — "쉽게 검증 가능한 가정"만 고르면 RAT 가 아니다. desirability / viability / feasibility 중 실패 시 전체가 무너지는 가정을 고르고, kill criteria 를 미리 정해라. 출처: [Leanstack RAT 가이드](https://leanstack.com/articles/the-lean-canvas-diagnostic---part-3-of-7-identify-riskiest-assumptions).
 13. **편향 완화는 개인 의지가 아니라 장치로** — 확증편향/매몰비용/계획오류는 pre-mortem, kill criteria, reference class forecasting, red team review 같은 운영 장치로만 억제된다. "반대 의견도 들었다"만으로는 부족 — decision memo 에 pro/con 명시 구조를 강제하라. 출처: [The Decision Lab — Confirmation Bias](https://thedecisionlab.com/biases/confirmation-bias), [Commitment Bias](https://thedecisionlab.com/biases/commitment-bias).
+14. **discovery 단계 범위 유지 — 다음 단계로 임의 진주 금지 (skill-design-guide §5.5 Scope-Bound)** — discovery 의 산출물은 Problem/User/Job/Success Metric/Riskiest Assumption 이다. 사용자가 discovery 만 요청했는데 PRD·솔루션·스토리·우선순위를 임의로 작성해 진행하지 마라 (Gotcha 1 의 "해결책 점프 금지" 와 짝). 다음 단계로 넘어갈 준비가 됐으면 plan-prd 인계 여부를 **먼저 묻고** 진행한다. 요청하지 않은 추가 인터뷰 질문 라운드도 임의 확장이다 (insights-report #1 excessive_changes / over-exploration 대응). 출처: [Teresa Torres — Continuous Discovery](https://www.producttalk.org/glossary-discovery-continuous-discovery/).
 
 # Process
 

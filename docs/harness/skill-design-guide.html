@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>스킬 설계 가이드 v1.3.0 — Harness</title>
+<title>스킬 설계 가이드 v1.3.1 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -98,7 +98,7 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · 스킬 설계 가이드</div>
-  <span class="badge">v1.3.0 · 2026-05-07</span>
+  <span class="badge">v1.3.1 · 2026-06-05</span>
 </div>
 
 <div class="hero">
@@ -106,7 +106,7 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
   <p class="subtitle">Anthropic 공식 문서(2026-04) + 내부 스킬 분석 + 커뮤니티 실전 경험. Gotchas 섹션, Progressive Disclosure, Evaluation-Driven Development, Sibling-Skill Consistency, Long-Running Skills 원칙까지 한 페이지에 정리했다.</p>
   <div class="meta">
     <span>Phase 1+2 Kaizen</span>
-    <span>v1.3.0</span>
+    <span>v1.3.1</span>
     <span>최근 갱신 2026-05-07</span>
   </div>
 </div>
@@ -407,6 +407,7 @@ rust-init:    ["Composition Root", "domain event"]</code>
             <tr><td>2</td><td>트리거 키워드 배타성</td><td>§4 set intersection + substring</td></tr>
             <tr><td>3</td><td>L3 커버리지</td><td>§3.6 Give a way to verify</td></tr>
             <tr><td>4</td><td>Rule-by-Rule Audit</td><td>§3.6 Rule-by-Rule Audit</td></tr>
+            <tr><td>10</td><td>반환 데이터 최소화 ↔ Fan-out 상한 / Exploration Budget</td><td>§9 반환 데이터 최소화 ↔ agent §7</td></tr>
           </tbody>
         </table>
       </div>
@@ -423,7 +424,7 @@ rust-init:    ["Composition Root", "domain event"]</code>
     <li><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Equipping Agents for the Real World — Anthropic Engineering</a></li>
     <li><a href="https://developers.openai.com/codex/skills">Codex CLI Agent Skills</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/skill-design-guide.md · v1.3.0 · 2026-05-07</p>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/skill-design-guide.md · v1.3.1 · 2026-06-05</p>
 </div>
 
 </div>

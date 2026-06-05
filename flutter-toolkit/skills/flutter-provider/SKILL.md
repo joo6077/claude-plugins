@@ -12,6 +12,7 @@ user-invocable: true
 
 ## Gotchas
 
+- **요청 범위를 넘는 캐시/추상화/스캐폴딩을 임의 추가하지 마라 — 최소 구현 우선.** "상태 하나 추가"에 캐시 레이어·중간 provider·새 추상화를 끼워 넣지 말고, 요청한 provider만 만들어라. 더 큰 구조가 필요해 보이면 구현 전에 먼저 물어라
 - keepAlive provider는 keepAlive provider만 참조해야 한다 — 비keepAlive를 참조하면 stale state 발생
 - `ref.watch(provider)`로 전체 객체를 감시하면 불필요한 리빌드 — `ref.watch(provider.select((s) => s.isLoading))`으로 필요한 필드만 선택
 - `Result<T>.when(success:, failure:)` 양쪽 분기를 반드시 처리 — 한쪽만 처리하면 unhandled state. 단 **프로젝트 Result 타입이 Freezed sealed class 기반이면 `.when` 대신 Dart pattern matching (switch expression) 사용** — Freezed 3.0부터 `.when`/`.map` 메서드가 제거되었다 (출처: <https://pub.dev/packages/freezed/changelog>). 프로젝트가 자체 정의한 Result 에 수동 `when` 메서드가 있는 경우에만 `.when(...)` 유지

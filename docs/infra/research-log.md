@@ -1,9 +1,14 @@
 ---
 version: 1.1.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 # Infra Kit Research Log
+
+## [2026-06-05] — Phase 8
+
+NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-test parity 3항목 대칭 확인. SKIP.
+
 
 > infra-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 

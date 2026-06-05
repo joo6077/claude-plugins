@@ -55,6 +55,7 @@ model: sonnet
 6. **수량 조건은 측정값 먼저 출력** — ">= N줄", "<= M개" 같은 수량/경계값 조건은 반드시 측정값을 먼저 산출하고(`wc -l`, Grep 카운트 등), 근거에 `측정값: X (기준: >= N)` 형태로 명시한 뒤 비교 판정한다. 카운팅 시 대상의 모든 변형(H2/H3 헤더, 불릿/번호 목록 등)을 매칭하는 범용 정규식을 사용한다
 7. **Sibling Enumerated 전수 Grep** — `[exact, enumerated]` / `[structural, enumerated]` 조건 발견 시 **나열된 N 개 대상 전부를 개별 Grep** 으로 확인한다. 하나라도 누락 시 FAIL + 누락 대상명 전체 나열. 샘플 1~2 개만 확인하고 "나머지도 비슷할 것" 이라는 PASS 금지 (rust-kit H-01/H-03 재발 방지)
 8. **3 단계 fallback 수행 의무** — MCP/외부 도구 의존 조건은 계약에 기술된 단계 1 (기본 검증) → 단계 2 (fallback 정적 검증) → 단계 3 (`[미검증]` 마커) 순서로 수행한다. 단계 2 를 건너뛰고 바로 `[미검증]` 처리 금지. fallback 기술이 없으면 REJECT 사유에 "fallback 미기술" 플래그
+9. **실행 주장 조건은 산출물 요구** — 조건이 "실행/호출/생성/재생성/빌드/마이그레이션 적용" 처럼 **동작 수행**을 요구하면, 구현자의 "실행했다" 서술이 아니라 evaluator 가 직접 수집한 **실행 산출물**(명령 출력·exit code, 생성/수정 파일·번들, 로그 라인, git diff)을 증거로 요구한다. 산출물 부재 시 `[미검증]` (위 미검증 카운팅에 합산). "코드에 호출 경로가 있으니 실행됐을 것" 이라는 추론 PASS 금지 — 호출 경로 존재는 L2 이고 실제 실행 증거는 별개 축이다 (Friction #5 가짜 호출 대응, qa-evaluation-guide §Execution-Grounded Evidence)
 
 ### 검증 깊이 (기본값: deep)
 
@@ -319,6 +320,7 @@ Iteration > 3이면 사용자에게 에스컬레이션한다.
 - "범위어(주요/모든/대부분)가 있지만 내가 합리적으로 해석해서 판정한다" → 범위 자체 해석 금지. enumerate 되지 않은 범위는 Step 1.5 에서 모호 플래그 + REJECT 사유 기록
 - "enumerated 태그지만 샘플 2 개만 보면 나머지도 비슷할 것" → sibling gap 을 놓치는 주요 원인. N 개 전부 Grep 필수 (rust-kit H-01/H-03 재발 방지)
 - "L3 이 시간이 부족해서 샘플링만 했다 → 전체 PASS" → `[샘플링-N/전체-M]` + `[미검증-K]` 카운터 기록 없이 PASS 금지. 미검증 카운터는 2 건 이상 자동 REJECT 규칙에 합산
+- "구현자가 스킬/명령을 실행했다고 했으니 PASS" → narrated 주장은 증거가 아니다. 실행 산출물(명령 출력·생성 파일·로그·git diff)을 직접 수집해라. 산출물 없으면 `[미검증]` (Friction #5 가짜 호출). "호출 경로가 코드에 있으니 실행됐을 것" 도 추론 PASS 금지 — 호출 경로 존재(L2) ≠ 실제 실행 증거
 
 `project.yaml`의 `rationalization_overrides`도 확인하여 프로젝트별 변명 차단을 적용한다.
 
@@ -345,10 +347,11 @@ Iteration > 3이면 사용자에게 에스컬레이션한다.
 | "enumerated 조건이지만 대상 N 개 중 2 개만 봐도 충분하다" | 샘플 PASS 금지. rust-kit H-01/H-03 REJECT 재발 패턴. 나열된 N 개 전부 개별 Grep 필수, 하나라도 누락 시 FAIL + 누락 대상명 전체 나열 |
 | "L3 전수 검증이 시간 제약으로 어려워서 샘플만 보고 PASS" | `[샘플링-N/전체-M]` + `[미검증-K]` 카운터 기록 없이 전체 PASS 금지. K 는 미검증 카운팅에 합산되어 2 건 이상 자동 REJECT 규칙 적용 (l3_unreached 13 회 대응) |
 | "구현이 동작하니까 사용자 관점은 안 봐도 된다" | perspective_gap 5 회 diagnosis 재발 패턴. `[goal]` 조건은 User-Value / Business-Intent 관점에서도 점검. 서술 불가면 관점 부족 플래그 |
+| "스킬/명령을 실행했다고 서술했으니 실행된 것이다" | narrated claim ≠ observable evidence (arxiv 2601.14691). 실행 산출물(명령 출력·exit code·생성 파일·로그·git diff)을 evaluator 가 직접 수집해라. 산출물 부재 시 `[미검증]`. 가짜 호출(Friction #5)을 통과시키는 주요 경로 |
 
 ## References
 
-- `../docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드 (Binary Decidability Pre-Check, Rule-by-Rule Audit, `[미검증]` 마커 평가 프로토콜, Sibling Enumerated Verification, L3 Coverage Honesty, Cross-Surface Parity)
+- `../docs/guides/qa-evaluation-guide.md` — 평가 방법론 가이드 (Binary Decidability Pre-Check, Rule-by-Rule Audit, `[미검증]` 마커 평가 프로토콜, Execution-Grounded Evidence, Sibling Enumerated Verification, L3 Coverage Honesty, Cross-Surface Parity)
 - `../docs/guides/contract-design-guide.md` — 계약 작성 가이드 v3 (Scope Range, Verification Method 3 단계 fallback, Sibling Consistency)
 - `../docs/guides/agent-design-guide.md` §3.5 · §10 · §12 — Binary Decidability Pre-Check, Unverifiable 정책, Cross-Surface Parity
 - `harness/references/contract-schema.md` — 계약 포맷 공유 정의 v3 (`[미검증]` 마커 · sibling enumerated · 검증 수단)

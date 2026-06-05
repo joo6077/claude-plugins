@@ -113,6 +113,7 @@ scope: session | project | global      # 이 규칙이 어느 범위에 적용�
 risk_class: low | medium | high        # 위반 시 피해 정도
 procedurality: single_rule | multi_step_procedure  # 단일 규칙 vs 절차/체크리스트
 enforcement_need: soft_reminder | hard_gate        # 안내로 충분 vs 차단 필요
+user_stated_constraint: true | false   # 사용자가 이전에 명시적으로 금지/지시한 제약을 Claude가 다시 위반했는가 (예: "ValueNotifier 쓰지 마", "이 파일 건드리지 마"). true면 omission-constraint-decay 신호 — 승격기가 fast-track 처리
 evidence_turns: <교정이 드러난 턴 수, 정수>
 tools_used:
   skills: [<invoke된 slash command 이름들, 없으면 빈 배열>]
@@ -126,6 +127,7 @@ approach_note: <시도한 접근법 1줄 — 나중에 "이상한가" 판정 소
 - 최대 5개 지점.
 - tools_used는 transcript의 tool 호출 기록에서 추출. 없으면 빈 배열.
 - \`surface_candidate\` 같은 단일 필드는 쓰지 마라 — 위 4축으로만 표현한다.
+- \`user_stated_constraint\`: 사용자가 **이전 턴/세션에서 명시적으로 금지하거나 지시한 제약**을 Claude가 다시 어긴 정황이 transcript에 있으면 true. 단순 실수(처음 한 것)는 false. 이 신호가 true면 omission-constraint-decay 사례로, 빈도가 낮아도 durable rule 승격 후보가 된다.
 - 마크다운 외 설명/사과/주석 출력 금지. YAML 블록 또는 'no issues'만.
 
 <transcript>
