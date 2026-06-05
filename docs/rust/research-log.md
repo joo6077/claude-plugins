@@ -1,9 +1,16 @@
 ---
 version: 1.1.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 # Rust Kit Research Log
+
+## [2026-06-05] — Phase 9 kaizen
+
+rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스킬은 보유했으나 rust-model 만 누락된 sibling drift 차단. fit-pal Rust server(SeaORM) 실측 정합 확인.
+
+출처: skill-design-guide §5.5, fit-pal server/CLAUDE.md.
+
 
 > rust-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 

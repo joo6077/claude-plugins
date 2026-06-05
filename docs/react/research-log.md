@@ -1,9 +1,16 @@
 ---
 version: 1.1.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 # React Kit Research Log
+
+## [2026-06-05] — Phase 10 kaizen
+
+생성형 9스킬에 §5.5 Enumerate-before-Act + scope 가드 전수 보강(0/9→9/9). U+FFFD 4곳 복구. Library Policy 완화 0건.
+
+출처: skill-design-guide §5.5, insights 2026-06-04 Friction #1·#3.
+
 
 > react-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 

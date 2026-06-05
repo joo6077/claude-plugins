@@ -1,10 +1,37 @@
 ---
 title: Kaizen Changelog
 version: 1.2.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 ## [2026-05-07b] — fresh /insights followup kaizen (Gap 1~6 흡수)
+
+## [2026-06-05] — /insights 2026-06-04 마찰 패턴 카이젠 (13 Phase)
+
+### 트리거
+
+사용자가 `/insights` 리포트(2026-06-04, 168 세션) 기반 오케스트레이션 요청. §0 fresh 주입 후 13 Phase 전수 실행. 선행으로 인사이트 마찰 패턴을 1차 승격(글로벌 가드레일 + flutter-extract/provider Gotcha + 프로젝트 memory, QA APPROVE 11/11).
+
+### Phase 결과 (11 CHANGED / 2 NO_CHANGE)
+
+- **Phase 1** 설계가이드: agent-design-guide v1.4.0 Fan-out 상한·Exploration Budget(Friction #6) + faithful-reasoning self-audit.
+- **Phase 2** Contract: 측정 명령 oracle 타당성(semantic match + precondition) 원칙(LG-07/AR-01 방지).
+- **Phase 3** Evaluator: Execution-Grounded Evidence — 실행 주장 조건의 산출물 능동 요구(Friction #5).
+- **Phase 4** Harness: tool-call-evidence-verification 절차 신설(Friction #5 운영).
+- **Phase 5** flutter: flutter-feature/screen 과잉설계 방지 Gotcha(Friction #3).
+- **Phase 6** design: design-system/component 스코프 명시 Gotcha.
+- **Phase 7** backend: NO_CHANGE(가드 포화).
+- **Phase 8** infra: NO_CHANGE(가드 포화 + parity 확인).
+- **Phase 9** rust: rust-model Enumerate-before-Act 가드 누락(sibling drift) 차단.
+- **Phase 10** react: 생성형 9스킬 §5.5 가드 전수 보강(0/9→9/9) + U+FFFD 4곳 복구, Library Policy 완화 0.
+- **Phase 11** planning: 생성형 8스킬 scope-discipline 가드.
+- **Phase 12** reflect: user_stated_constraint fast-track 승격(rule #0) — Friction #2 근본 대응.
+- **Phase 13** onboarding: setup-guide 스코프 가드 Gotcha 7.
+
+### 공통 원칙
+
+프로젝트-특정 금지(no ValueNotifier/useState)는 글로벌 가드레일에만, kit에는 stack-agnostic 일반화분만 반영. 1차 승격분 중복 금지 전 Phase 준수.
+
 
 ### 트리거
 

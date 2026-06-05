@@ -1,7 +1,7 @@
 # Kaizen Phase failure counter
 # Regression PASS → reset to 0
 # Regression FAIL → +1; if >= 2, pause phase + escalate
-last_updated: "2026-05-07"
+last_updated: "2026-06-05"
 phases:
   phase_1: 0  # design-guide v1.3.0 (APPROVE iter1, /insights 3 friction 흡수)
   phase_2: 0  # contract-kaizen v3.1 (APPROVE iter1, Pre-Edit Batch Audit cross-ref)
@@ -15,3 +15,4 @@ phases:
   phase_10: 0  # react-kit (APPROVE iter1, Library Policy 보존)
   phase_11: 0  # planning-kit (APPROVE iter1)
   phase_12: 0  # reflect-kit (신규 추가 2026-05-07, 첫 사이클)
+  phase_13: 0  # onboarding-kit (2026-06-05 사이클 추가, CHANGED Gotcha7)

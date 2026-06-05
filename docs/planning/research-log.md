@@ -1,10 +1,17 @@
 ---
 title: Planning Kaizen Research Log
 version: 1.0.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 # Planning Kaizen Research Log
+
+## [2026-06-05] — Phase 11 kaizen
+
+생성형 8스킬에 scope-discipline 가드 추가(요청 안 한 섹션/스토리/엔티티 임의 추가 금지). plan-sync-github 는 기존 보유로 SKIP.
+
+출처: basecamp.com/shapeup Ch.6, agilealliance.org/glossary/invest, skill-design-guide §5.5.
+
 
 planning-kit 카이젠 사이클별 리서치 인용 + Phase 별 변경 근거 기록.
 

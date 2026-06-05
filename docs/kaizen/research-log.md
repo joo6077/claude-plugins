@@ -1,10 +1,27 @@
 ---
 title: Kaizen Research Log
 version: 1.2.0
-last_updated: 2026-05-07
+last_updated: 2026-06-05
 ---
 
 # Kaizen Research Log
+
+## [2026-06-05] — Phase 1~13 (/insights 2026-06-04 마찰 패턴)
+
+### 데이터 소스 (Step 0)
+
+- `/insights`: `~/.claude/usage-data/report.html` VERY FRESH(14.4h), 168 세션. §0 최우선 주입.
+- 글로벌 evaluator 피드백 184건(REJECT 80, APPROVE 103), Hub 외부 4 프로젝트, validate 11 OK.
+
+### 외부 리서치 출처 (Phase별)
+
+- Phase 1: arxiv 2604.14228, cloudzero.com/blog/claude-code-agents, arxiv 2604.08401.
+- Phase 2: testrigor.com test-oracle, nextgenanalysts acceptance-criteria.
+- Phase 3: arxiv 2601.14691 (Gaming the Judge), arxiv 2603.10060 (Tool Receipts).
+- Phase 6: report.zeroheight.com (Design Systems Report 2026).
+- Phase 11: basecamp.com/shapeup Ch.6, agilealliance.org/glossary/invest.
+- Phase 12: arxiv 2604.20911 (Omission Constraints Decay), arxiv 2509.03990, arxiv 2605.06445.
+
 
 ## [2026-05-07] — Phase 1~4 (harness 도메인) + /insights 산출물 자동 통합 파이프라인
 

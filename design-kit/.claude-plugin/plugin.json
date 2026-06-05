@@ -1,7 +1,7 @@
 {
   "name": "design-kit",
   "description": "스택 무관 UI/UX 디자인 시스템 세팅, 실시간 가이드, 디자인 감사 플러그인",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "author": {
     "name": "Jackson Kim"
   },
