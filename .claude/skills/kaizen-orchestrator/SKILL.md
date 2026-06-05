@@ -129,6 +129,22 @@ user-invocable: true
 
 > 플러그인 설명: [v0.3.1 · 2026-05-07] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸
 
+### Step 13: Phase 13 — bambu-kit 카이젠
+
+**범위:** `bambu-kit/skills/*/SKILL.md`, `bambu-kit/references/`
+
+공통 실행 패턴에 따라 `/bambu-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 bambu-kit 전 스킬을 전수 감사한다. bambu-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.4.2 · 2026-05-27] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (Codex 8회 리서치 + 실측 dogfood 5건 검증)
+
+### Step 14: Phase 14 — onboarding-kit 카이젠
+
+**범위:** `onboarding-kit/skills/*/SKILL.md`, `onboarding-kit/references/`
+
+공통 실행 패턴에 따라 `/onboarding-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 onboarding-kit 전 스킬을 전수 감사한다. onboarding-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.1.0 · 2026-05-18] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (Firebase/GCP/AWS/FCM/OAuth/Stripe, 11개 섹션 표준 포맷)
+
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->` 마커 영역을 직접 편집하지 마라.** 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 킷 추가/수정/삭제 시 marketplace.json 을 고친 뒤 `python3 scripts/sync-orchestrator.py` 를 실행하면 이 섹션이 동기화된다. 직접 편집 시 다음 실행에서 덮어써진다.
 - **Step 0.5 Orchestrator Self-Audit 는 건너뛰기 금지.** 이전 사이클의 수동 개입 이력 (`.harness/.meta/orchestrator-audit-log.md`) 과 `sync-orchestrator.py --check-only` drift 를 먼저 확인해야 Phase 1 로 진입한다.

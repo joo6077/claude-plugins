@@ -1,6 +1,6 @@
 # Kaizen Data Pool
 
-Generated: 2026-05-07T23:10:48
+Generated: 2026-06-05T10:43:06
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
@@ -8,7 +8,7 @@ Generator: `scripts/collect-kaizen-data.py`
 ## 0. `/insights` Report (외부 도구 산출물)
 
 - 경로: `/Users/jackson/.claude/usage-data/report.html` · HTML 추출 텍스트
-- 최근 갱신: 2026-05-07T22:55:55 ✓ VERY FRESH (0.2시간 전)
+- 최근 갱신: 2026-06-04T20:18:49 ✓ VERY FRESH (14.4시간 전)
 - 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions / 이번 사이클 신규 워크플로우 제안)
 
 <details><summary>insights report 본문 (auto-extracted)</summary>
@@ -25,7 +25,7 @@ Claude Code Insights
 Claude Code Insights
 
  
-2,391 messages across 130 sessions (827 total) | 2026-04-14 to 2026-05-07
+1,855 messages across 168 sessions (681 total) | 2026-04-25 to 2026-06-04
 
  
  
@@ -36,16 +36,16 @@ At a Glance
  
 
  
- What's working: You run a remarkably disciplined operation: contract → QA → push sprint cycles driven by terse confirmations, with explicit session handoff documents that let you sustain multi-phase efforts across days. When Claude misses something, you don't just patch in place—you codify the lesson into rule files, skills, and even hook-based enforcement, turning each friction point into permanent leverage. Impressive Things You Did → 
+ What's working: You run a disciplined, contract-driven workflow—structuring feature work around Sprint Contracts with QA gates and full test suites before committing. You also push past surface fixes to root causes, tracing things like an autoDispose race in a search provider and an enum/int mismatch in Bluetooth scan range, then validating with real scenarios before shipping. You're not just coding either; you extend your own infrastructure by building and releasing MCP tooling and verifying features on real devices. Impressive Things You Did → 
 
  
- What's hindering you: On Claude's side: over-eager scope expansion (unauthorized deletions, unrequested design choices) and a tendency to skip the proactive-improvement checklist on rule-based refactors, forcing you to escalate the same issues repeatedly. On your side: long sessions get derailed by output token limits, MCP/agent hangs, and parallel-automation conflicts that you could catch earlier with a quick pre-flight branch/process check before kicking off sprint work. Where Things Go Wrong → 
+ What's hindering you: On Claude's side, the recurring issue is misreading the abstraction level or scope of your requests—defaulting to more complex solutions, reintroducing patterns you'd explicitly banned (like ValueNotifier/useState), and occasionally over-exploring before acting. On your side, requests sometimes leave the desired pattern or target location implicit, so Claude guesses at architecture and gets corrected mid-flight; tooling capabilities (like simulator tap support) also weren't verified early, leading to stalls and handoffs. Where Things Go Wrong → 
 
  
- Quick wins to try: Promote your sprint workflow into a /sprint Skill so you stop re-prompting the contract-QA-push loop, and pair it with a /refactor-widget skill that loads your anti-AI-tone checklist before any edits. A PreToolUse Hook that blocks edits when the branch has diverged from origin or stale MCP processes are detected would prevent the duplicated-work and connection-failure patterns that keep eating sessions. Features to Try → 
+ Quick wins to try: Pin your hard architectural rules—no ValueNotifier, plain functions over widgets, useMemoized over useState, full-path-vs-filename separation—into a persistent CLAUDE.md or skill so Claude honors them without re-prompting. Lean on your custom skills for repeat workflows, but require Claude to show evidence it actually invoked a skill rather than trusting its claim. For larger refactors, have Claude propose the target file and abstraction and get your sign-off before it writes anything. Features to Try → 
 
  
- Ambitious workflows: As models get stronger, your contract-driven cycles should run unattended for hours—drafting contracts, executing TDD, recovering from rebases, and resuming across context boundaries via durable state files. The Flutter-vs-Figma parity work that burned 5+ hours is the highest-leverage target: a self-verifying visual loop that screenshots, diffs against Figma, and iterates FigmaDecoration parameters until SSIM converges would turn your most painful sessions into measurable optimization problems. On the Horizon → 
+ Ambitious workflows: The simulator verification gap that keeps forcing handoffs is the clearest target: as models improve, expect an agent that launches the app, drives the UI via MCP, diffs against expected states, and only commits once end-to-end behavior passes—turning your 'mostly achieved' sprints into fully autonomous green-to-commit cycles. Your accumulated feedback could also become a self-enforcing guardrail layer that loads prior corrections and self-audits diffs against your rules before showing you anything. And your print-profile pipeline could shift to parallel agents that batch-crawl, run tolerance loops, and assemble bundles at once, so a slow crawl never blocks you. On the Horizon → 
 
  
 
@@ -68,31 +68,31 @@ At a Glance
 
  
 
-2,391
+1,855
 
 Messages
 
  
 
-+92,817/-11,678
++59,287/-7,260
 
 Lines
 
  
 
-1047
+979
 
 Files
 
  
 
-18
+24
 
 Days
 
  
 
-132.8
+77.3
 
 Msgs/Day
 
@@ -109,12 +109,40 @@ What You Work On
 
  
 
- Schedule-Vote Backend (Rust) 
+ Flutter Kiosk App Development 
+ ~28 sessions 
+ 
+
+ 
+Extensive work on a Flutter-based kiosk application including preset screens, video/language card sections, OLKP import/export logic, firmware path handling, and Bluetooth scan range fixes. Claude implemented features following existing project patterns with contract-driven workflows, codegen, and analyzer validation. Recurring friction arose from Claude introducing unwanted ValueNotifier/useState patterns and misreading desired abstraction levels during refactors.
+
+ 
+
+ 
+ 
+
+ 
+
+ MCP Server & Flutter Tooling Integration 
+ ~10 sessions 
+ 
+
+ 
+Development and release of a flutter-playwright MCP server, including DTD-based VM service discovery, hot-restart reconnection fixes, and wrapper script debugging. Claude researched via Codex, implemented solutions with full QA, and shipped multiple releases (v0.7.3, v0.8.0). Tooling limitations like lack of tap support and lost VM connections blocked end-to-end simulator verification, requiring handoffs.
+
+ 
+
+ 
+ 
+
+ 
+
+ Schedule-Vote & Group Features (Server + App) 
  ~12 sessions 
  
 
  
-Multi-sprint backend development for a friends-only fitness scheduling MVP, executing Tasks 1-22 via contract-driven TDD with subagent orchestration. Claude handled QA cycles, Sentry integration, ReminderJob/ResolutionJob implementation, integration test fixes, and managed git rebases with multiple commits pushed to dev branch.
+Sprint-based development of schedule-voting features, group-invite buttons, and inline search functionality across server and app layers using contract-driven TDD. Claude completed entities, models, datasources, and automated tests with QA approval and clean commits. Work involved diagnosing autoDispose race conditions and redesigning toward unified multi-group schedule endpoints.
 
  
 
@@ -123,12 +151,12 @@ Multi-sprint backend development for a friends-only fitness scheduling MVP, exec
 
  
 
- Flutter UI Refactoring & Anti-AI-Tone Rules 
- ~15 sessions 
+ 3D Print Profile Generation 
+ ~10 sessions 
  
 
  
-Systematic refactoring of admin widgets, messagebox components, and carousel/toolbar widgets following project style rules with i18n locale key extraction. Heavy iterative work with Edit tool where Claude often required user corrections on Stack vs Column choices, TextStyle migrations, and over-engineering, leading to documented rule additions in feedback logs.
+Using a custom skill to generate Bambu print profiles from MakerWorld model URLs, including crawling models, clarifying material choices, and tuning tolerance values like xy_hole_compensation for bearing fits. Several sessions were interrupted during the web-crawling step before completion. Successful sessions produced validated, importable profile bundles.
 
  
 
@@ -137,40 +165,12 @@ Systematic refactoring of admin widgets, messagebox components, and carousel/too
 
  
 
- Figma-Flutter Design Parity 
+ Canvas/UI Layout & Visualization Refinement 
  ~8 sessions 
  
 
  
-Pixel-perfect alignment between Figma designs and Flutter implementations, including Aqua button gradients, FigmaDecoration per-side borders, and skeuomorphic CSS matching. Created a figma-flutter-kit suite of 5 skills with QA validation, though sessions frequently hit friction with MCP device configuration and visual mismatches requiring multi-hour iteration.
-
- 
-
- 
- 
-
- 
-
- Flutter MCP Redesign & Animation Engine 
- ~7 sessions 
- 
-
- 
-Multi-phase redesign of Flutter MCP server toward Observer-only architecture with persistent connection indicators, plus Sprint 5 force-layout algorithm benchmarking (d3-main adapter selected). Used Codex for parallel research/review, though several research agents hung or returned inaccurate claims requiring user correction.
-
- 
-
- 
- 
-
- 
-
- Worldbuilding IDE & Group-Invite Planning 
- ~6 sessions 
- 
-
- 
-Strategic planning sessions producing design specs, sprint contracts, and 13-task implementation plans for new features like group-invite with ID search and the worldbuilding IDE pivot. Claude delivered comprehensive QA-reviewed plans with handoff documentation, occasionally over-applying formal discovery process when user wanted faster iteration.
+Iterative refinement of carousel cards, anchor ports, card spacing, hover animations, and center-grow behaviors per Figma designs. Claude handled multi-file changes with passing test suites but encountered regressions from center-anchored sprite refactors that required multi-commit reverts. Overflow and token-axis issues were caught and fixed within sessions.
 
  
 
@@ -189,12 +189,12 @@ What You Wanted
  
 
  
-Code Refactoring
+Feature Implementation
 
  
 
  
-46
+37
 
  
 
@@ -204,47 +204,47 @@ Code Explanation
  
 
  
-22
-
- 
-
- 
-Feature Implementation
-
- 
-
- 
 20
 
  
 
  
-Session Handoff
+Bug Fix
 
  
 
  
-15
+17
 
  
 
  
-Refactoring
+Debugging
 
  
 
  
-12
+14
 
  
 
  
-Documentation Update
+Code Modification
 
  
 
  
-12
+13
+
+ 
+
+ 
+Generate Print Profile
+
+ 
+
+ 
+10
 
  
 
@@ -263,17 +263,7 @@ Bash
  
 
  
-4686
-
- 
-
- 
-Edit
-
- 
-
- 
-2447
+5028
 
  
 
@@ -283,17 +273,17 @@ Read
  
 
  
-2375
+2311
 
  
 
  
-Grep
+Edit
 
  
 
  
-636
+2167
 
  
 
@@ -303,7 +293,7 @@ Write
  
 
  
-628
+485
 
  
 
@@ -313,7 +303,17 @@ TodoWrite
  
 
  
-443
+410
+
+ 
+
+ 
+AskUserQuestion
+
+ 
+
+ 
+275
 
  
 
@@ -336,17 +336,7 @@ Markdown
  
 
  
-1315
-
- 
-
- 
-TypeScript
-
- 
-
- 
-712
+931
 
  
 
@@ -356,7 +346,7 @@ Rust
  
 
  
-373
+468
 
  
 
@@ -366,7 +356,17 @@ JSON
  
 
  
-173
+210
+
+ 
+
+ 
+TypeScript
+
+ 
+
+ 
+194
 
  
 
@@ -376,17 +376,17 @@ YAML
  
 
  
-131
+134
 
  
 
  
-HTML
+Python
 
  
 
  
-122
+19
 
  
 
@@ -405,17 +405,7 @@ Multi Task
  
 
  
-41
-
- 
-
- 
-Iterative Refinement
-
- 
-
- 
-28
+29
 
  
 
@@ -425,7 +415,17 @@ Single Task
  
 
  
-11
+26
+
+ 
+
+ 
+Iterative Refinement
+
+ 
+
+ 
+24
 
  
 
@@ -445,7 +445,17 @@ Exploration
  
 
  
-2
+1
+
+ 
+
+ 
+Undefined
+
+ 
+
+ 
+1
 
  
 
@@ -460,14 +470,14 @@ How You Use Claude Code
  
 
  
-You operate as a high-throughput technical director running long, multi-phase engineering campaigns. Your sessions are marathon-length (averaging ~11 hours each across 130 sessions, with 168 commits) and structured around formal artifacts: Sprint Contracts, Phase checkpoints, QA APPROVE cycles, and explicit handoff prompts for the next session. You delegate aggressively—using subagents, Codex research tasks, and parallel automation—and expect Claude to drive contract→implement→QA→push cycles autonomously. Your confirmations are often terse ('ㄱㄱ' / 'go'), signaling you've front-loaded the specification and now want execution without hand-holding.
+You operate primarily as an autonomous-execution driver who hands Claude substantial multi-step tasks and expects them carried through end-to-end—sprint validation pipelines, contract-driven TDD workflows, full MCP release cycles, and multi-file refactors. Your tooling profile reflects this: an enormous Bash count (5028) alongside heavy Read/Edit usage shows you let Claude run real verification loops (tests, QA, codegen, commits) rather than just generating snippets. You frequently invoke custom skills and structured workflows (Sprint Contracts, work-summary skills, print-profile generation), indicating you've invested in scaffolding repeatable processes and expect Claude to respect their rules precisely. When Claude claims work it didn't actually do—like saying it invoked /insights when it only read a file, or outputting markdown when a skill forbade it—you catch and correct it immediately.
 
-Despite the autonomous framing, you interrupt and correct sharply when Claude drifts . Multiple sessions show frustration spikes when Claude misses obvious improvements (legacy `bodyMSemiBold` migration, unneeded null branches, hardcoded values), uses Stack where Column suffices, or invents Figma text style names without verification. Your reactions escalate—'다음 세션에 내가 뭐라고 말할지 말해야지!!!!'—and you frequently codify the correction into permanent project rules rather than just fixing the instance. This rule-as-output pattern (anti-AI-tone refactoring sweeps, feedback logs, PreToolUse hooks enforcing skill usage) shows you treat each friction point as a systemic gap to close, not a one-off.
+Despite the autonomy you grant, you're a hands-on course-corrector who interrupts decisively when Claude drifts. The friction data is telling: 53 'wrong_approach' and 38 'misunderstood_request' incidents, plus repeated interruptions during exploration phases (Figma metadata spelunking, drawn-out web crawling for print profiles). You don't tolerate over-engineering—your most frustrated moments (including profanity) came when Claude repeatedly reintroduced ValueNotifier/useState patterns you'd explicitly banned, or extracted code as a widget when you wanted plain functions. You have strong, specific architectural opinions and reject proposed file locations and abstraction levels until they match your intent (the toolbar refactor went through multiple rejected location proposals before settling on 'option C').
 
-You tolerate iteration on hard problems (5+ hours on a Flutter/HTML button match, 3 contract revisions for Parity/Consolidation) but lose patience with process violations : unauthorized edits, over-commenting, over-engineering, and Claude moving ahead without explicit direction. You also push back on false dichotomies and formal-discovery overhead when you want momentum. The infrastructure-heavy tool usage (4,686 Bash calls, 443 TodoWrite, 381 Agent invocations) confirms you're orchestrating Claude as a managed workforce rather than pair-programming with it.
+Your iteration style is tight and feedback-driven rather than spec-heavy upfront: you'll launch a task, watch Claude work, then redirect with terse corrections ('니가 띄워야지') and let it retry. You expect Claude to enforce your prior feedback as durable rules , not re-litigate them each session—frustration spiked when earlier-stated constraints weren't auto-applied. Outcomes skew strongly positive (66 of 84 fully or mostly achieved), and you're most satisfied when Claude self-diagnoses root causes (the autoDispose race, enum/int mismatch) and ships with passing QA, but recurring friction comes from Claude's tendency to over-complicate simple requests and the hard ceiling of simulator/MCP tooling limits that repeatedly forced manual handoffs.
 
  
- Key pattern: You run Claude as an autonomous sprint executor with formal contracts and QA gates, but sharply correct drift by promoting one-off mistakes into permanent project rules.
+ Key pattern: You delegate large autonomous workflows but interrupt decisively the moment Claude over-engineers or strays from your explicit architectural rules.
 
  
 
@@ -487,7 +497,7 @@ User Response Time Distribution
  
 
  
-103
+95
 
  
 
@@ -497,7 +507,7 @@ User Response Time Distribution
  
 
  
-315
+185
 
  
 
@@ -507,7 +517,7 @@ User Response Time Distribution
  
 
  
-362
+195
 
  
 
@@ -517,7 +527,7 @@ User Response Time Distribution
  
 
  
-403
+203
 
  
 
@@ -527,7 +537,7 @@ User Response Time Distribution
  
 
  
-379
+226
 
  
 
@@ -537,7 +547,7 @@ User Response Time Distribution
  
 
  
-187
+183
 
  
 
@@ -547,13 +557,13 @@ User Response Time Distribution
  
 
  
-102
+128
 
  
 
  
 
- Median: 77.3s • Average: 229.6s
+ Median: 96.0s • Average: 334.9s
  
 
  
@@ -570,7 +580,7 @@ Multi-Clauding (Parallel Sessions)
  
 
  
-191
+148
 
  
 Overlap Events
@@ -580,7 +590,7 @@ Overlap Events
  
 
  
-116
+123
 
  
 Sessions Involved
@@ -590,7 +600,7 @@ Sessions Involved
  
 
  
-56%
+39%
 
  
 Of Messages
@@ -637,7 +647,7 @@ Morning (6-12)
  
 
  
-416
+308
 
  
 
@@ -649,7 +659,7 @@ Afternoon (12-18)
  
 
  
-1250
+886
 
  
 
@@ -661,7 +671,7 @@ Evening (18-24)
  
 
  
-647
+629
 
  
 
@@ -673,7 +683,7 @@ Night (0-6)
  
 
  
-78
+32
 
  
 
@@ -692,17 +702,7 @@ Other
  
 
  
-308
-
- 
-
- 
-Command Failed
-
- 
-
- 
-135
+258
 
  
 
@@ -712,17 +712,17 @@ User Rejected
  
 
  
-38
+113
 
  
 
  
-File Not Found
+Command Failed
 
  
 
  
-20
+95
 
  
 
@@ -732,7 +732,17 @@ File Changed
  
 
  
-19
+26
+
+ 
+
+ 
+File Not Found
+
+ 
+
+ 
+14
 
  
 
@@ -742,7 +752,7 @@ Edit Failed
  
 
  
-8
+9
 
  
 
@@ -755,7 +765,7 @@ Edit Failed
 Impressive Things You Did
 
  
-Across 130 sessions spanning Flutter, Rust backend, and design-systems work, you run a highly disciplined contract-driven development practice with strong handoff hygiene.
+Over 40 days, you've driven 168 sessions across a Flutter kiosk app, a Rust MCP server, and 3D print profile generation, completing 128 commits with strong autonomous, contract-driven workflows.
 
  
 
@@ -763,21 +773,10 @@ Across 130 sessions spanning Flutter, Rust backend, and design-systems work, you
  
 
  
-Contract-QA-Push Sprint Cycles
+Contract-Driven TDD Sprints
 
  
-You consistently drive multi-task sprints through a rigorous Contract → Implementation → QA APPROVE → Commit/Push loop, often landing 13+ tasks across multiple sprints with full QA approval (e.g., Backend Tasks 1-13 schedule-vote MVP, Sprint 5 Tasks 4-9 via terse 'ㄱㄱ' confirmations). You even installed a PreToolUse hook to enforce skill usage, showing you treat process compliance as a first-class engineering concern.
-
- 
-
- 
- 
-
- 
-Disciplined Session Handoffs
-
- 
-With 15 explicit session_handoff goals captured, you treat context continuity as a deliverable — demanding next-session prompt templates, comprehensive handoff docs, and clean commit boundaries before ending. This lets you sustain long-running multi-phase efforts (Phase A→B→C MCP redesign, multi-sprint backend work) without losing momentum between sessions.
+You consistently structure feature work around Sprint Contracts with QA gates, running automated test suites (476 + 193 vitest, tsc clean) before committing. This discipline let you deliver multi-task sprints like Schedule-Vote Tasks 1-3 with QA APPROVE on every task plus a server-alignment fix.
 
  
 
@@ -785,10 +784,21 @@ With 15 explicit session_handoff goals captured, you treat context continuity as
  
 
  
-Codified Feedback Into Rules
+Root-Cause Debugging on Hard Bugs
 
  
-When Claude misses refactoring opportunities or misinterprets style rules, you don't just correct in-place — you push the lessons into project documentation, anti-AI-tone rule files, and skill upgrades (e.g., method-vs-class extraction rule added to three docs, list-building patterns codified after iteration). This turns every friction point into permanent leverage for future sessions.
+You don't settle for surface fixes — you traced an autoDispose race in a search provider, an enum vs int type mismatch in Bluetooth scan range, and an MCP hot-restart reconnect bug down to their roots. You then validated each fix with real scenarios (5/5 reconnect cycles, QA 20/20) before shipping releases like server-v0.7.3.
+
+ 
+
+ 
+ 
+
+ 
+End-to-End MCP & Device Tooling
+
+ 
+You push your own infrastructure forward, building DTD-based Flutter VM service discovery for your MCP server and shipping v0.8.0 with full QA. You combine this with practical device work — pushing 660MB OLKP files to physical devices and debugging emulator connections — to verify features in real environments.
 
  
 
@@ -807,12 +817,12 @@ What Helped Most (Claude's Capabilities)
  
 
  
-Multi-file Changes
+Good Debugging
 
  
 
  
-40
+20
 
  
 
@@ -822,17 +832,17 @@ Correct Code Edits
  
 
  
-13
+18
 
  
 
  
-Good Debugging
+Multi-file Changes
 
  
 
  
-13
+16
 
  
 
@@ -842,7 +852,7 @@ Good Explanations
  
 
  
-9
+12
 
  
 
@@ -852,7 +862,7 @@ Proactive Help
  
 
  
-4
+8
 
  
 
@@ -862,7 +872,7 @@ Fast/Accurate Search
  
 
  
-2
+4
 
  
 
@@ -881,7 +891,7 @@ Not Achieved
  
 
  
-2
+6
 
  
 
@@ -891,7 +901,7 @@ Partially Achieved
  
 
  
-11
+10
 
  
 
@@ -911,7 +921,7 @@ Fully Achieved
  
 
  
-33
+30
 
  
 
@@ -921,7 +931,7 @@ Unclear
  
 
  
-3
+2
 
  
 
@@ -934,7 +944,7 @@ Unclear
 Where Things Go Wrong
 
  
-Your sessions show strong overall delivery but recurring friction stems from Claude making changes you didn't ask for, missing rule-based refactoring opportunities until you escalate, and infrastructure/tooling failures that derail multi-hour workflows.
+Your friction clusters around Claude misreading the intent of your requests, ignoring patterns and rules you've already established, and getting blocked or stalled by tooling and over-exploration.
 
  
 
@@ -942,31 +952,15 @@ Your sessions show strong overall delivery but recurring friction stems from Cla
  
 
  
-Unauthorized or over-eager scope expansion
+Misunderstood intent and wrong approach
 
  
-Claude frequently makes deletions, edits, or design choices you didn't sanction, forcing you to course-correct or restore work. Being more conservative — confirming before destructive or scope-expanding actions — would prevent these reversals.
+Claude frequently misreads the abstraction level or scope of your requests, defaulting to more complex solutions than you asked for. You can reduce this by stating the desired pattern and 'do the minimal change' up front before Claude starts proposing approaches.
 
  
-Claude deleted locator_entries action tools (tap/enter_text/scroll/swipe) thinking they were redundant, then had to restore them after you clarified only locate_widget was the target
+On refactoring data transfer into olkpProvider, Claude inlined logic in callers, then extracted code as a widget instead of plain functions, requiring multiple corrections.
 
-Claude proceeded with refactors and rule reinterpretations without explicit direction across multiple anti-ai-tone sessions, requiring you to roll back unauthorized changes
- 
- 
-
- 
- 
-
- 
-Missed rule-based improvements requiring escalation
-
- 
-Claude repeatedly fails to apply documented refactoring rules autonomously, making you point out the same categories of issues with mounting frustration. Front-loading a rule-checklist pass before declaring work done would catch these.
-
- 
-You had to escalate angrily ('다음 세션에 내가 뭐라고 말할지 말해야지!!!!') when Claude skipped legacy bodyMSemiBold migration despite rule R1 explicitly requiring it
-
-Claude missed TextStyle migrations, unnecessary local variables, unneeded null branches, and manual SizedBox gaps across S6 list widget refactors, leading you to add new rules to the feedback log just to enforce baseline attention
+You asked to remove the alreadyDownloaded check entirely but Claude proposed a lib directory check plus provider cache, forcing you to clarify the simpler intent.
  
  
 
@@ -974,15 +968,31 @@ Claude missed TextStyle migrations, unnecessary local variables, unneeded null b
  
 
  
-Tool and infrastructure failures derailing long sessions
+Ignored established rules and patterns
 
  
-Multi-hour workflows repeatedly hit output token limits, MCP connection issues, and orphaned background agents that waste your time and leave work unfinished. Detecting these early and falling back faster, plus chunking output proactively, would reduce lost progress.
+Claude repeatedly violated conventions you'd already set—reintroducing forbidden patterns and skipping required skill triggers—leading to rejected work and frustration. Pinning these rules in a persistent CLAUDE.md or skill reminder may help Claude honor them without re-prompting.
 
  
-Several sessions are unanalyzable because Claude's responses exceeded the 500 output token maximum and the transcript is just API errors, meaning entire sessions of your work produced no recoverable outcome
+Despite your existing rule against ValueNotifier and complex providers, Claude kept introducing ValueNotifier/useState patterns during firmware filename work, causing you to interrupt multiple times with profanity.
 
-Two of three Codex background research tasks (R2 Play Console, R3 Sentry) hung indefinitely, flutter-playwright MCP failed due to 45+ stale processes, and golden parity tests hung on toImage — each requiring manual diagnosis before you could proceed
+Claude output the work summary in markdown-rendered format even though your custom skill explicitly forbade it, and also missed the minimum-items-per-category rule.
+ 
+ 
+
+ 
+ 
+
+ 
+Tooling blocks and over-exploration
+
+ 
+Sessions stalled when Claude over-explored before acting or hit tooling limits like MCP connection drops and missing simulator interaction support. Setting a hard exploration budget and verifying tool capabilities early could keep these moving.
+
+ 
+Claude spent excessive time exploring Figma metadata and parent nodes instead of implementing, leading you to interrupt before any code changes were made.
+
+End-to-end simulator UI testing was repeatedly blocked by flutter-playwright MCP lacking tap/interact support and losing the VM service connection, frustrating you and forcing handoffs.
  
  
 
@@ -1006,7 +1016,7 @@ Wrong Approach
  
 
  
-77
+53
 
  
 
@@ -1016,22 +1026,22 @@ Misunderstood Request
  
 
  
-50
-
- 
-
- 
-Buggy Code
-
- 
-
- 
-34
+38
 
  
 
  
 User Rejected Action
+
+ 
+
+ 
+30
+
+ 
+
+ 
+Buggy Code
 
  
 
@@ -1046,17 +1056,17 @@ Excessive Changes
  
 
  
-17
+12
 
  
 
  
-Tool Failure
+Mcp Tool Failure
 
  
 
  
-6
+4
 
  
 
@@ -1075,7 +1085,7 @@ Frustrated
  
 
  
-23
+12
 
  
 
@@ -1085,7 +1095,7 @@ Dissatisfied
  
 
  
-80
+55
 
  
 
@@ -1095,7 +1105,7 @@ Likely Satisfied
  
 
  
-297
+200
 
  
 
@@ -1105,7 +1115,7 @@ Satisfied
  
 
  
-36
+8
 
  
 
@@ -1136,15 +1146,11 @@ Just copy this into Claude Code to add it to your CLAUDE.md.
 
  
  
- ## Anti-AI-Tone Refactoring Rules
-- Always check for legacy text style migrations (e.g., bodyMSemiBold) per rule R1 - migrate ALL occurrences, not just obvious ones
-- Proactively identify these refactoring opportunities WITHOUT being asked: TextStyle migration, unnecessary local variables, unneeded null branches, hardcoded values, manual SizedBox gaps
-- Verify exact Figma text style token names before applying - do NOT guess
-- Prefer Column over Stack when children don't actually overlap 
+ Never use ValueNotifier or useState/useEffect patterns; prefer simpler Riverpod providers and useMemoized for derived state. 
  Copy 
  
  
-These exact issues recurred across 8+ refactoring sessions with increasing user frustration ('다음 세션에 내가 뭐라고 말할지 말해야지!!!!') - user repeatedly had to point out the same missed improvements.
+The user pushed back multiple times (with frustration) over Claude reintroducing ValueNotifier and useState patterns in refactors despite prior rules.
 
  
 
@@ -1153,12 +1159,11 @@ These exact issues recurred across 8+ refactoring sessions with increasing user 
 
  
  
- ## Session Handoffs
-When a session is wrapping up or hitting context limits, ALWAYS produce a next-session prompt template (not just a summary) that the user can paste verbatim to resume work. Include: current branch state, last commit, next concrete action, and any blocking context. 
+ When producing work summaries via the work-summary skill, output PLAIN TEXT only (no markdown rendering) and describe work by file/feature units as the skill specifies. 
  Copy 
  
  
-session_handoff appeared 15 times as a top goal, and the user explicitly demanded this format with frustration when Claude only produced a summary instead of a paste-ready prompt.
+Across at least three sessions Claude violated the plain-text rule and summarized by feature description instead of the requested units, requiring re-requests.
 
  
 
@@ -1167,15 +1172,37 @@ session_handoff appeared 15 times as a top goal, and the user explicitly demande
 
  
  
- ## Sprint/Contract Workflow
-- Do NOT start implementation without an approved Sprint Contract
-- Before working on any task, check if parallel automation or another session has already completed/started it (git log, branch status)
-- After QA REJECT, re-read the contract verbatim before fixing - watch for exact string matches (f32 vs f64, parameter names, Default impls)
-- Run rebase BEFORE push, and verify push actually succeeded (don't assume) 
+ Place extracted/refactored helper functions per the project's established architecture — do not invent new folders or inline into callers; confirm location before implementing if unclear. 
  Copy 
  
  
-Multiple sessions show duplicated work with parallel automation, contract string-matching failures on QA re-evaluation, and unpushed rebase chains - these are repeated process failures.
+Multiple refactoring sessions stalled because Claude proposed wrong locations (messagebox file, new flows folder) and misread the desired abstraction level.
+
+ 
+
+ 
+ 
+
+ 
+ 
+ Prefer the simplest change that satisfies the request; do not add cache checks, provider scaffolding, or extra abstractions unless explicitly asked. 
+ Copy 
+ 
+ 
+Claude repeatedly over-engineered simple requests (e.g., adding lib-directory + provider cache when the user just wanted a check removed), causing interruptions.
+
+ 
+
+ 
+ 
+
+ 
+ 
+ For all Flutter/Dart edits, run codegen and dart analyze and ensure they pass before declaring work complete; for Rust/TS changes ensure tsc and the test suites pass. 
+ Copy 
+ 
+ 
+Successful sessions consistently ended with passing analyze/codegen/tests, while friction arose when verification was skipped.
 
  
 
@@ -1196,27 +1223,19 @@ Just copy this into Claude Code and it'll set it up for you.
 Custom Skills
 
  
-Define reusable markdown prompts callable via /command
+Reusable single-command workflows defined as markdown files.
 
  
- Why for you: You already created /insights and figma-flutter-kit skills successfully. Given 46 refactoring + 15 handoff + 12 doc-update sessions, codify /handoff (next-session prompt template), /sprint-contract (contract draft+QA loop), and /anti-ai-refactor (the rule checklist) to stop re-explaining the same workflow.
+ Why for you: You already rely on skills (work-summary, feedback-record, print-profile) — codifying your contract-driven sprint + QA + commit pipeline as a skill would standardize the autonomous flows you run repeatedly.
 
  
- 
-
  
 
  
 
- mkdir -p .claude/skills/handoff && cat > .claude/skills/handoff/SKILL.md <<'EOF'
-# Handoff Skill
-Produce a paste-ready next-session prompt with:
-1. Current branch + last commit SHA
-2. What was completed this session (bullets)
-3. Next concrete action (1-2 sentences)
-4. Any blocking context (open PRs, failing tests, MCP issues)
-Format as a code block the user can copy verbatim.
-EOF 
+ 
+
+ Create .claude/skills/sprint/SKILL.md with: 'Run preflight, write a Sprint Contract, implement with TDD, run codegen+analyze+tests, request QA APPROVE, then commit. Never use ValueNotifier or useState.' 
  Copy 
  
 
@@ -1234,10 +1253,10 @@ EOF
 Hooks
 
  
-Auto-run shell commands at lifecycle events
+Shell commands that auto-run at lifecycle events.
 
  
- Why for you: You had 4 output-token-limit errors, MCP stale-process issues (45+ orphaned processes), and unpushed commits. A PreToolUse hook for git push verification and a SessionStart hook to clean stale flutter-playwright processes would prevent these recurring blockers. You already deployed a PreToolUse hook for skill enforcement - extend the pattern.
+ Why for you: Many friction points came from skipped verification; a PostToolUse hook running dart analyze / codegen after edits would catch issues before you do.
 
  
  
@@ -1249,8 +1268,7 @@ Auto-run shell commands at lifecycle events
  // .claude/settings.json
 {
  "hooks": {
- "SessionStart": [{"command": "pkill -f flutter-playwright || true"}],
- "PostToolUse": [{"matcher": "Bash", "command": "git status --porcelain | grep -q . && echo 'WARN: uncommitted changes'"}]
+ "PostToolUse": [{"matcher": "Edit|Write", "command": "dart analyze 2>&1 | tail -20"}]
  }
 } 
  Copy 
@@ -1267,23 +1285,22 @@ Auto-run shell commands at lifecycle events
  
 
  
-Task Agents
+MCP Servers
 
  
-Spawn focused sub-agents for parallel/exploratory work
+Connect Claude to external tools and devices via Model Context Protocol.
 
  
- Why for you: Your subagent-driven sprints (Tasks 1-13, 13-task group-invite) succeeded, but Codex delegation hung 2/3 times on R2/R3 research. Use Claude's built-in Task agents instead of external Codex for research-bounded tasks - they're more reliable and don't orphan. Reserve Codex for true second-opinion review.
+ Why for you: You use flutter-playwright MCP heavily but hit reconnect/port/tap-support failures; pinning a stable server config and documenting the wrapper path would reduce the recurring simulator-verification friction.
 
  
- 
-
  
 
  
 
- // In your prompt:
-"Use a Task agent to research Sentry 0.47 Rust integration patterns and return a 1-page summary with code examples. Run in parallel with another Task agent researching Play Console review timelines." 
+ 
+
+ claude mcp add flutter-playwright -- /path/to/correct/wrapper.sh --vm-discovery dtd 
  Copy 
  
 
@@ -1311,13 +1328,13 @@ Just copy this into Claude Code and it'll walk you through it.
  
 
  
-Codify the Sprint Contract → QA → Push loop as a skill
+Stop reintroducing forbidden state patterns
 
  
-You execute the same contract-driven workflow across dozens of sprints. Make it a /sprint skill instead of re-prompting each time.
+Lock in the no-ValueNotifier / no-useState rule so refactors don't regress.
 
  
-Sessions show a consistent pattern: draft contract → implement → QA evaluator → fix REJECTs → commit → push. You hit friction with contract string-matching (f32/f64, Default impls), unpushed rebases, and duplicated parallel work. A /sprint skill that enforces 'check git log for parallel work first, draft contract, get user approval, implement, run QA, verify push succeeded' would eliminate 4-5 recurring friction points per sprint.
+Several refactoring sessions reached frustration (including profanity) because Claude kept adding ValueNotifier and useState+useEffect against your standing rules. These rules existed but weren't consistently applied across sessions. Putting them in CLAUDE.md and referencing them at refactor start prevents the back-and-forth.
 
  
  
@@ -1327,7 +1344,7 @@ Paste into Claude Code:
 
  
 
- Create a .claude/skills/sprint/SKILL.md that enforces our contract-driven workflow: (1) check git log + dev branch for parallel work, (2) draft sprint contract and wait for user approval, (3) implement via TDD, (4) run QA evaluator and fix exact contract strings on REJECT, (5) commit logical chunks, (6) rebase + push + VERIFY push succeeded. Include checklist gates. 
+ Before you edit, confirm: this refactor will use Riverpod providers and useMemoized only — NO ValueNotifier, NO useState/useEffect. State the abstraction level and target file, and wait for my OK before implementing. 
  Copy 
  
 
@@ -1340,13 +1357,13 @@ Paste into Claude Code:
  
 
  
-Stop re-explaining anti-AI-tone refactoring rules
+Confirm scope and location before large refactors
 
  
-Promote the proactive-improvement checklist to CLAUDE.md and reference it from a /refactor-widget skill.
+Have Claude propose the target file/abstraction and get approval before writing.
 
  
-8+ sessions show user catching Claude missing the SAME issues: legacy TextStyle migration, unnecessary local variables, hardcoded values, Stack-vs-Column, manual SizedBox gaps. User explicitly added rules to feedback logs multiple times. Move this from per-session correction into a persistent skill+CLAUDE.md combo so Claude self-checks before claiming a refactor is done.
+Refactor sessions repeatedly stalled on wrong placement (inlining in callers, new flows folder, messagebox file) and wrong abstraction level. The successful ones used a Sprint Contract first. Front-loading a one-line plan saves multiple rejected attempts.
 
  
  
@@ -1356,7 +1373,7 @@ Paste into Claude Code:
 
  
 
- Read all my anti-AI-tone refactoring feedback logs and consolidate them into (1) a CLAUDE.md section with the top 10 proactive-check rules, and (2) a .claude/skills/refactor-widget/SKILL.md that runs through each rule as a self-review checklist before declaring a file done. 
+ Don't implement yet. Give me a 3-line plan: (1) which functions get extracted, (2) exactly which file they go in, (3) the abstraction (plain functions vs widget vs provider). I'll approve before you code. 
  Copy 
  
 
@@ -1369,13 +1386,13 @@ Paste into Claude Code:
  
 
  
-Pre-flight check before sprint work to avoid duplicated effort
+Don't over-engineer simple requests
 
  
-Add a mandatory git/branch reconnaissance step before starting any task that parallel automation might have touched.
+Ask for the minimal change before adding abstractions.
 
  
-Tasks 20/21 and others show Claude working on items that automation had already completed or was concurrently modifying, forcing reconciliation commits. Given you run multi-agent automation and Codex in parallel, a 30-second 'git fetch + log review + open-PR scan' at task start would prevent the desync entirely.
+When you asked to simply remove an alreadyDownloaded check, Claude proposed lib-directory checks plus provider caching. Multiple sessions show this tendency to expand scope. Telling Claude to default to the smallest viable edit reduces excessive_changes friction.
 
  
  
@@ -1385,7 +1402,36 @@ Paste into Claude Code:
 
  
 
- Before starting Task X, run git fetch, then show me: (1) commits on dev since my last local sync, (2) any commits matching this task's keywords, (3) any open PRs touching the files you plan to modify. Wait for my go-ahead before implementing. 
+ Make the smallest possible change to do exactly this and nothing more — no extra caching, providers, or abstractions. If you think more is needed, ask first. 
+ Copy 
+ 
+
+ 
+
+ 
+ 
+
+ 
+ 
+
+ 
+Verify claims about skill/tool execution
+
+ 
+Require Claude to show evidence it actually invoked a skill or tool.
+
+ 
+Claude once claimed to use the /insights skill but had only read an existing file, requiring correction and doc fixes. Asking for proof of actual invocation prevents false-completion claims, especially in your autonomous pipelines.
+
+ 
+ 
+
+ 
+Paste into Claude Code:
+
+ 
+
+ Confirm you actually invoked the skill/tool by showing the command and its output — do not claim completion based on reading a pre-existing file. 
  Copy 
  
 
@@ -1405,7 +1451,7 @@ Paste into Claude Code:
 On the Horizon
 
  
-With 949 hours across 130 sessions and 168 commits, your workflow is shifting from co-pilot to autonomous orchestrator—the next leap is letting Claude drive entire sprints, parallel investigations, and self-verification loops without manual nudging.
+AI-assisted development is shifting from single-file edits toward autonomous, contract-driven workflows where agents implement, test, and verify entire sprints end-to-end with minimal human correction.
 
  
 
@@ -1413,37 +1459,18 @@ With 949 hours across 130 sessions and 168 commits, your workflow is shifting fr
  
 
  
-Fully Autonomous Sprint Contract Loops
+Self-Verifying Sprint Pipelines With Simulator Loops
 
  
-Your data shows strong success with contract-QA-push cycles (Sprints 5-13 reached APPROVE with 13+ commits), but sessions like the Phase D resume and kaizen orchestration died mid-flight from context limits and token caps. Imagine kicking off a multi-task sprint and walking away while Claude drafts the contract, implements via TDD, runs QA, fixes rejections, commits, and pushes—self-recovering from rebase conflicts and resuming across context boundaries via durable state files.
+Your contract-driven TDD workflows already chain implementation, QA approval, and commits across Flutter/Rust kiosk and Schedule-Vote apps. The next leap is closing the simulator verification gap that repeatedly forced handoffs—an agent that launches the app itself, drives the UI via MCP tap/interact, captures screenshots, diffs against expected states, and only commits once end-to-end behavior passes. This turns 'mostly_achieved' sprint validations into fully autonomous green-to-commit cycles.
 
  
- Getting started: Combine Claude Code's headless mode (`claude -p` with `--resume`), persistent sprint-state JSON files, and PreToolUse hooks (which you already deployed for skill enforcement) to enforce contract verification gates between tasks.
-
- 
-
-Paste into Claude Code:
- Set up an autonomous sprint runner for my next backend sprint. Create a `sprint-state.json` schema tracking {current_task, contract_status, qa_iterations, commits_pushed, blockers}. Then write a wrapper script that: (1) reads the sprint plan, (2) drafts a contract per task, (3) implements via TDD, (4) runs the QA evaluator subagent, (5) auto-fixes rejections up to 3 iterations, (6) commits and pushes, (7) updates sprint-state.json, and (8) resumes the next task—all without my input. Add PreToolUse hooks that block commits if contract verification fails. Test it on a 3-task sprint and report which steps required human escalation. Copy 
-
- 
-
- 
- 
-
- 
-Parallel Agents With Reconciliation Guardrails
-
- 
-You hit real friction (Tasks 20/21) where parallel automation duplicated Claude's work, requiring reconciliation commits, and Codex research agents orphaned mid-run on R2/R3. A mature parallel-agent setup would shard work by file ownership, share a live task ledger, detect concurrent edits before writing, and fall back gracefully when one agent hangs—turning your 4-6 hour sequential sweeps into 30-minute parallel bursts.
-
- 
- Getting started: Use Claude Code's Agent tool with explicit ownership manifests, a shared `agent-ledger.md` file polled before each Edit, and timeout-based fallback to WebSearch/Context7 when delegated research stalls (a pattern you already discovered manually).
+ Getting started: Upgrade flutter-playwright MCP to a build with tap/interact support and stable VM-service reconnect, then wrap your preflight→tests→QA→simulator→commit steps into a single slash-command skill that refuses to commit on simulator failure.
 
  
 
 Paste into Claude Code:
- Design a parallel-agent orchestrator for my anti-AI-tone refactoring sweeps. Spawn 4 subagents concurrently, each owning a non-overlapping file shard from the S6 widget list. Before any Edit, each agent must (1) acquire a lock in `agent-ledger.md`, (2) verify no other agent has staged changes to that file, and (3) re-read the file to detect external modifications. Add a 5-minute timeout per agent with automatic fallback to a synchronous WebSearch path if a Codex delegation hangs. After all agents finish, run a reconciliation pass that diffs against the original and flags any rule violations (TextStyle migration, unnecessary SizedBox, hardcoded values) before committing. Show me the orchestration code and run it on the next 8 widget files. Copy 
+ Run the full sprint validation pipeline autonomously: execute preflight, run all unit/vitest tests, then YOU launch the Flutter app yourself and use the flutter-playwright MCP to drive the actual UI for each acceptance criterion in the sprint contract. Capture a screenshot per step, verify the rendered state matches expected, and report any AABB/overflow regressions. Only commit and push once tests AND simulator UI verification both pass. If the MCP loses its VM service connection, retry with watch+retry before failing—do not hand off to me unless the tool genuinely cannot interact. Copy 
 
  
 
@@ -1451,18 +1478,37 @@ Paste into Claude Code:
  
 
  
-Self-Verifying Visual Parity Test Loops
+Persistent Project Rules As Enforced Guardrails
 
  
-The Flutter-vs-HTML button matching session burned 5+ hours and ended in frustration with the mismatch unresolved, and Aqua button gradient/border alignment took multiple sessions. Picture an autonomous visual-parity loop where Claude generates a screenshot, diffs it pixel-by-pixel against the Figma reference, mutates the FigmaDecoration parameters via gradient descent, and iterates until SSIM crosses a threshold—turning subjective 'does this match?' into a measurable convergence problem.
+Your biggest friction—wrong_approach (53) and misunderstood_request (38)—stems from Claude reintroducing banned ValueNotifier patterns, over-engineering providers, and misreading abstraction intent despite prior corrections. Imagine a self-enforcing rules layer: an agent that loads your accumulated architectural feedback before every task, auto-triggers feedback-record on each correction, and self-audits its own diffs against your rules (plain functions not widgets, useMemoized not useState, full-path-vs-filename separation) before showing you anything. Corrections compound into prevention rather than repeating.
 
  
- Getting started: Wire flutter-playwright MCP screenshot capture to a Python image-diff harness (PIL/SSIM), have Claude write a parameter-search loop that adjusts border, gradient stops, and shadow sigma, and gate the loop with a numeric pass criterion instead of human judgment.
+ Getting started: Build a CLAUDE.md-backed 'rules-gate' skill that reads your project conventions and runs a pre-output self-review diff check, and wire the feedback-record skill to fire automatically whenever you reject an approach.
 
  
 
 Paste into Claude Code:
- Build an autonomous visual-parity convergence loop for my Figma-to-Flutter button matching. Steps: (1) capture the Figma reference as a PNG via the Figma MCP, (2) render the Flutter widget via flutter-playwright MCP and screenshot it, (3) compute SSIM + per-channel pixel diff, (4) if SSIM < 0.98, identify the worst-diff region, hypothesize which FigmaDecoration parameter is responsible (border width, gradient stop, shadow sigma, color), mutate it, and re-render, (5) repeat up to 20 iterations or until convergence. Log every iteration's parameter delta and SSIM score to `parity-log.md`. Before starting, verify the MCP environment is clean (no stale processes—check for the 45+ orphan issue we hit before). Run it on the Aqua Press Me button and the HTML mockup button that failed last session. Copy 
+ Before implementing anything in this repo, load all recorded architectural feedback and project rules (no ValueNotifier, prefer plain functions over widgets for extraction, use useMemoized not useState+useEffect, separate display filename from full-path data, keep providers simple). After drafting your implementation, run a self-audit: diff your proposed changes against each rule and list any violations BEFORE presenting code. If I correct an approach during the session, immediately invoke the feedback-record skill to persist it across all relevant locations so it never recurs. Confirm which rules you loaded before starting. Copy 
+
+ 
+
+ 
+ 
+
+ 
+Parallel Print-Profile Generation Agents
+
+ 
+Your MakerWorld→Bambu profile workflow repeatedly stalls during the crawling step, causing four not_achieved interruptions. Picture a fleet of parallel agents: one batch-crawls multiple MakerWorld URLs and caches metadata, another runs tolerance-test-coupon iterations (like your Ferris Wheel xy_hole_compensation loop) and converges on validated values, and a third assembles importable profile bundles—all dispatched at once so a slow crawl never blocks the human. The full catalog of models becomes a single overnight batch job with validated, ready-to-import output.
+
+ 
+ Getting started: Use the Task tool to spawn parallel subagents per model URL behind your print-profile skill, with a resilient crawler that times out gracefully and caches partial progress so interruptions resume instead of restart.
+
+ 
+
+Paste into Claude Code:
+ I have several MakerWorld model URLs that each need a validated, importable Bambu print profile. Spawn parallel subagents—one per URL—that each crawl the model, cache the metadata locally (so a crawl timeout resumes rather than restarts), ask me material clarifications in a single batched question across all models, then generate and validate each profile bundle. For any model needing a tolerance fit (like bearing/hole fits), iterate test-coupon compensation values automatically and report the dialed-in xy_hole_compensation. Give me one consolidated summary of all completed profiles and any that need my input, rather than blocking on the slowest crawl. Copy 
 
  
 
@@ -1475,80 +1521,84 @@ Paste into Claude Code:
  
 
  
-"User snaps in Korean: '다음 세션에 내가 뭐라고 말할지 말해야지!!!!' after Claude forgets the next-session prompt"
+"User dropped profanity after Claude kept forcing ValueNotifier patterns it had been explicitly told not to use — repeatedly over-engineering a simple request until the user interrupted in frustration"
 
  
-During a session handoff, Claude delivered a landing summary but skipped the requested next-session prompt template, prompting an exasperated all-caps Korean outburst (roughly: 'You have to tell me what to SAY next session!!!!').
+During a Flutter kiosk refactoring session, the user just wanted a simple firmware path change, but Claude kept reintroducing ValueNotifier/useState patterns against the user's standing rules, escalating frustration to the point of profanity (and an earlier '니가 띄워야지' — 'YOU need to launch it' — when Claude wouldn't run the app itself)
 
 </details>
 
 ## 1. 글로벌 Evaluator Feedback
 
 - 경로: `/Users/jackson/.harness/feedback/evaluator`
-- 총 파일: **150**
+- 총 파일: **184**
 
 ### Verdict 분포
 
-- **APPROVE**: 85
-- **REJECT**: 64
+- **APPROVE**: 103
+- **REJECT**: 80
 - **UNKNOWN**: 1
 
 ### Skill 분포
 
-- `qa-evaluator`: 150
+- `qa-evaluator`: 184
 
 ### Project 분포
 
-- `claude-plugins`: 109
-- `fit-pal`: 27
-- `fit-pal-server`: 4
-- `fit-pal-app`: 3
+- `claude-plugins`: 115
+- `fit-pal`: 36
+- `fit-pal-app`: 15
+- `fit-pal-server`: 6
 - `flutter_playwright`: 3
+- `fit-pal/app`: 2
 - `fit-pal-flutter`: 1
+- `bambu-kit-v0.4.0-9mm-craft-knife`: 1
 - `fitpal-server`: 1
 - `iyaki-zip-dev`: 1
 - `claude-plugins / react-kit phase10-research kaizen`: 1
+- `bambu-kit/bambu-print-profile v0.4.1`: 1
+- `bambu-kit/bambu-print-profile`: 1
 
 ### 최근 REJECT 사유 (Top 20)
 
-- [2026-04-28] **fit-pal**: 미검증 4건 (LG-03, ER-01, DG-02, DG-04) — 자동 REJECT 임계 2건 초과
-- [2026-04-27] **fit-pal-app**: LG-02: rg ref.read(castVoteUseCaseProvider) 0매치 (기준 1매치). dart format 줄바꿈으로 단일행 패턴 매칭 실패. 계약 측정 결함.
-- [2026-04-27] **fit-pal**: AR-01: working tree에 Aqua 3D Button 스프린트 미커밋 파일 4건(action_samples.dart, if_button.dart, aqua_button_decorations.dart, aqua_press_box.dart)이 계약 exclusion list에 없어 범위 초과 판정
-- [2026-04-23] **flutter_playwright**: AR-02: toolkit evaluate 단독 동사 네이밍
-- [2026-04-23] **flutter_playwright**: AR-01: 도구 수 49개, 허용 범위 45~47 초과
-- [2026-04-22] **fit-pal-server**: API-02: traces_sample_rate 필드 타입 f64 (계약 요구 f32). #[derive(Default)] 잔존 + 수동 impl Default 없음. 계약 패치 후 코드 미업데이트.
-- [2026-04-21] **fit-pal-server**: LG-04: ScheduleNotification enum 에 group_id 필드 없어 payload 에 group_id 미포함. 계약 명시 payload(group_id/slot_id/outcome?) 불충족.
-- [2026-04-21] **fit-pal-server**: LG-02: list_member_ids 가 GroupPort::list_members(Uuid::nil(), ...) 호출 → find_active_member 에서 항상 Forbidden 반환. 내부 컨텍스트 동작 불가.
-- [2026-04-21] **fit-pal**: UI-04: [미검증] MCP Figma read-back 불가 (mcp_server=null)
-- [2026-04-21] **fit-pal**: RE-02: ensure_slots_exist 시그니처 impl ConnectionTrait + Send (계약 명시: + Send + Sync)
-- [2026-04-21] **fit-pal**: LG-04: [미검증] Figma 노드 read-back 불가 (mcp_server=null)
-- [2026-04-21] **fit-pal**: AP-02: lazy_generation.rs:85 .expect() 프로덕션 경로 — 계약 허용 예외 목록(unwrap_or/and_hms_opt known-valid) 미포함
-- [2026-04-20] **fit-pal**: LG-04: fitpal-routine 크레이트 미구현 — 7개 DTO 없음 (Task 2~3 미완료)
-- [2026-04-20] **fit-pal**: LG-03: fitpal-routine 크레이트 미구현 — SkipPolicyMode 없음 (Task 2~3 미완료)
-- [2026-04-20] **fit-pal**: DG-03: cargo test --workspace에서 fitpal-message 통합 테스트 3건 FAIL (pre-existing, sprint scope_out). DG-03 계약이 --workspace를 literal 명시하므로 FAIL 처리.
-- [2026-04-19] **fit-pal**: DG-02: SKILL.md References 섹션에 docs/design/figma-decoration-session-log.md 의 §9/§10 링크 누락 (현재 §2.1, §3.1, §8만 있음)
-- [2026-04-17] **fit-pal-flutter**: 미검증 항목 3개 (LG-02, DG-03, DG-04) — 미검증 2개 이상 REJECT 규칙 적용
-- [2026-04-17] **fit-pal-flutter**: LG-02: 시각적 Figma 대조 불가 (mcp_server: null)
-- [2026-04-17] **claude-plugins**: SK-06: reflect-digest/SKILL.md에 Gotchas 섹션과 Process 섹션 미존재
-- [2026-04-17] **claude-plugins**: SK-04: docs/harness/plugin-validation.html card-source 2개 — 최소 3개 조건 미달
+- [2026-06-02] **fit-pal**: [미검증] 3건 누적 (LG-04, DG-02, DG-04) — 자동 REJECT
+- [2026-06-02] **fit-pal**: ER-03 FAIL: Duplicate GlobalKey / _dependents.isEmpty 예외 비결정적 발생. 계약 미충족.
+- [2026-05-29] **fit-pal**: LG-07: app/.dart_defines.json 파일 물리적 존재 (test ! -f = FAIL). gitignore 등록됐으나 파일시스템 레벨 존재.
+- [2026-05-29] **fit-pal**: AR-01: Sprint B 변경 6개 필수 파일 미커밋 (git diff main...HEAD = 2파일만). 추가로 bootstrap.dart + locale_provider.dart scope 외 변경 사용자 승인 없음.
+- [2026-05-27] **bambu-kit/bambu-print-profile v0.4.1**: VR-02: marketplace.json description still shows [v0.4.0 · 2026-05-23], not updated to v0.4.1
+- [2026-05-27] **bambu-kit/bambu-print-profile**: VR-03: plugin.json version 0.4.1 (0.4.2 미bump) + marketplace.json [v0.4.1] 미갱신
+- [2026-05-27] **bambu-kit/bambu-print-profile**: PL-01: 볼트 통과 hole 보정값 불일치 — 계약 xy_hole +0.2~0.3 vs 구현 +0.05 추가
+- [2026-05-23] **fit-pal-app**: LG-01: swatch 탭 시 optimistic 업데이트 없음. handlePaletteSelected가 await 전 localGroups 미업데이트 (group_preferences_body.dart:36-60)
+- [2026-05-23] **fit-pal-app**: AR-03: schedule_collapsible_calendar.dart:276-277 Radius.circular(26) AppRadii 토큰 미사용. 기존 코드이나 변경된 파일이므로 계약 범위 포함.
+- [2026-05-19] **fit-pal**: UI-02: 자동 스크롤 미구현 (highlight pulse만 구현됨)
+- [2026-05-19] **fit-pal**: UI-02: slot 자동 스크롤 + 1.5초 highlight pulse 미구현
+- [2026-05-19] **fit-pal**: UI-01: 알림 카드 본문에 scheduled_at_short 누락
+- [2026-05-19] **fit-pal**: UI-01: actor handle 대신 display name 사용, 영어 등가 미구현
+- [2026-05-19] **fit-pal**: RE-01: notification_list_page._navigateByType vote_cast 케이스가 PushDeepLinker.navigate 재사용 없이 중복 구현
+- [2026-05-17] **fit-pal-app**: 미검증 2건 (AR-03, DG-04) — 2건 이상 자동 REJECT 규칙 적용
+- [2026-05-17] **fit-pal-app**: DG-02: cargo test -p fitpal-routine --lib compile error 4건 (service.rs 테스트 구조체 리터럴에 icon 필드 누락)
+- [2026-05-17] **fit-pal-app**: DG-02: cargo clippy doc_markdown 에러 1건 (routine.rs:17 backtick 미적용)
+- [2026-05-17] **fit-pal-app**: AR-03: 스킬 invoke 파일시스템 아티팩트 없음 (구조적 검증 불가)
+- [2026-05-16] **fit-pal-app**: UI-04 FAIL: _buildMetalCard gradient alignment/stops 변경, FigmaDropShadow→FigmaInnerShadow 교체 — 계약 '시각 변경 0' 위반
+- [2026-05-16] **fit-pal-app**: AR-02 FAIL: metalCard() borderRadius override 경로 strokeWeight/strokeAlign 추가, _buildMetalCard 내부 변경 — 계약 '구현 변경 없다' 위반
 
 ### 최근 Improvement Suggestions (Top 15)
 
-- [2026-05-06] **fit-pal**: 미검증 2건 구조적 한계 해소를 위한 flutter-playwright MCP 설정 추진
-- [2026-05-06] **fit-pal**: DG-03/DG-04 런타임 검증을 위해 project.yaml mcp_server 활성화 권장
-- [2026-05-05] **fit-pal-app**: DG-04 런타임 검증을 위해 MCP 서버 설정 권장
-- [2026-04-28] **fit-pal**: 런타임 의존 조건(LG-03/ER-01/DG-04)을 시뮬레이터 진입 후 재검증
-- [2026-04-28] **fit-pal**: DG-02는 DG-01 flutter analyze 결과로 사실상 커버됨 — 계약에서 IDE diagnostics와 analyze를 동치로 명시 고려
-- [2026-04-27] **fit-pal-app**: LG-02 측정식에 dart format 줄바꿈 허용 carve-out 추가 (LG-05와 동일 처리)
-- [2026-04-27] **fit-pal**: DG-04 런타임 검증을 위해 MCP 서버 설정 권장
-- [2026-04-27] **fit-pal**: DG-04 pre-existing 잔류(group_create_page.dart line-length 등) 별도 백로그 티켓으로 분리 처리 권장
-- [2026-04-27] **fit-pal**: DG-04 exit 0 요구를 '변경/생성 파일 범위 내 이슈 0건'으로 명확화
-- [2026-04-27] **fit-pal**: DG-01/DG-04 exit 0 요구를 변경 파일 범위 내 이슈 0건으로 명확화 권장
-- [2026-04-27] **fit-pal**: AR-05 계약 측정 기준: 향후 git diff <base>..HEAD 커밋 기준으로 명시하면 working tree 잔류 파일 혼입 방지 가능
-- [2026-04-27] **fit-pal**: AR-01 exclusion list에 타 스프린트 working tree dirt 포괄 제외 절 추가 권장
-- [2026-04-27] **fit-pal**: AR-01 exclusion list에 다른 스프린트의 미커밋 working tree 변경을 포괄하는 절 추가 또는 Aqua 파일 4건 명시 추가
-- [2026-04-24] **flutter_playwright**: project.yaml 설정 시 MCP 런타임 검증 활성화로 LG-D4 정적 판정을 런타임 검증으로 승격 가능
-- [2026-04-23] **flutter_playwright**: evaluate → evaluate_expression 1줄 수정으로 AR-05/ER-03/AR-01/AR-02 연쇄 해결
+- [2026-06-02] **fit-pal**: MCP 서버 연결 후 LG-04/DG-04 재검증
+- [2026-06-02] **fit-pal**: ER-03 계약에 pre-existing 이슈 제외 조항 추가
+- [2026-06-01] **fit-pal-server**: ER-01/ER-03: 향후 통합테스트에서 응답 JSON body도 파싱해 에러 메시지/코드 필드를 검증하면 계약 신뢰도 향상
+- [2026-06-01] **fit-pal-app**: icon_picker_sheet/color_picker_row/icon_name_row가 group feature 내부에만 있으나 다른 feature에서 재사용 가능성이 있으면 shared/로 이동 검토
+- [2026-06-01] **fit-pal-app**: DG-04 런타임 검증을 위해 MCP 서버(mcp_server) 설정 권장
+- [2026-05-30] **fit-pal-app**: DG-04 런타임 검증: MCP 서버 설정 후 실기 확인 권장 (현재 mcp_server: null).
+- [2026-05-30] **fit-pal-app**: AP-02 grep 패턴 정교화 권장: 현재 'catch \(e\)' 패턴이 'on Exception catch (e)' substring을 false positive로 매칭. '^ *} catch \(e\)' 또는 '(?<!on \w+ )catch \(e\)' 형태로 변경 권장.
+- [2026-05-29] **fit-pal**: LG-07 측정을 test ! -f 에서 git ls-files 결과 empty 로 변경 권장 (gitignored 파일의 물리적 존재 허용 여부 명확화)
+- [2026-05-29] **fit-pal**: AR-01 측정 명령에 커밋 완료 전제 명시 권장: 'Sprint B 커밋 완료 후 git diff main...HEAD 실행'
+- [2026-05-28] **fit-pal-server**: DA-02: 두 번 실행 후 timestamp 동일성 assertion 추가
+- [2026-05-28] **fit-pal-server**: DA-01/DA-02: integration test 추가 권장 — SeaORM MockDatabase 또는 PostgreSQL 테스트 DB로 멱등성 runtime 검증
+- [2026-05-28] **fit-pal-app**: on Object 블록 내 Sentry captureException 추가 권장 (심각한 Error 계열 무음 흡수 방지)
+- [2026-05-28] **fit-pal-app**: Failure.storage를 그룹 A(폐기)에서 그룹 B(유지)로 이동하는 계약 개정 검토
+- [2026-05-28] **fit-pal-app**: ER-01 테스트 시나리오에 AssertionError/Error 계열 throw 케이스 추가하면 on Object 포획 범위 의도를 명시적으로 커버 가능
+- [2026-05-28] **fit-pal-app**: DG-04 실기 검증을 위해 MCP 서버 설정 고려 (project.yaml mcp_server 활성화)
 
 ## 2. 외부 프로젝트 (`Hub/10_Dev`) 피드백
 
@@ -1558,38 +1608,38 @@ During a session handoff, Claude delivered a landing summary but skipped the req
 ### `apps`
 
 - 경로: `/Users/jackson/Hub/10_Dev/apps`
-- sprint-feedback.md: 90 lines
-- history sprint-contracts: 36
+- sprint-feedback.md: 77 lines
+- history sprint-contracts: 44
 - 최근 contracts:
-  - 20260430-1435-sprint-contract.md
-  - 20260430-1514-sprint-contract.md
-  - 20260430-1531-sprint-contract.md
-  - 20260430-1905-sprint-contract.md
-  - 20260504-1920-sprint-contract.md
+  - 20260526-1050-sprint-contract.md
+  - 20260601-2230-sprint-contract.md
+  - 20260602-1200-sprint-contract.md
+  - 20260604-1106-sprint-contract.md
+  - 20260604-1658-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
 ```markdown
 # Sprint Feedback
-Feature: 공연 다운로드 플로우
-Evaluated: 2026-05-07 14:00
-Verdict: REJECT
+Feature: 초기화(reset) 시 프리로드 캐시 정리
+Evaluated: 2026-06-04 12:00
+Verdict: APPROVE
 Iteration: 1
+
+---
 
 ## Results
 
-### UI (5/5)
-- [x] UI-01: import 화면에서 다운로드 버튼 클릭 시 진행 다이얼로그가 표시되고 progress(0~1)가 실시간 업데이트된다 — PASS [L2]
-  - 근거: `apps/app_kiosk/lib/features/admin/event/adm_event_import_screen.dart:547-577` — `progressNotifier` + `unawaited(showDialog)` + `onProgress` 콜백 연결
-- [x] UI-02: 다운로드 완료 시 다이얼로그가 isCompleted 상태로 전환되고 1.5초 후 자동 닫힌다 — PASS [L2]
-  - 근거: `apps/app_kiosk/lib/features/admin/event/adm_event_import_screen.dart:583-586` — `completedNotifier.value = true` → `Future.delayed(1500ms)` → `context.pop()`
-- [x] UI-03: 이미 다운로드된 공연은 검색 결과에서 "다운로드 완료" 텍스트 + dimmed 처리로 표시된다 — PASS [L2]
-  - 근거: `apps/app_kiosk/lib/features/admin/event/adm_event_import_screen.dart:353-381` — `alreadyDownloaded` 플래그 → `dimmed: true` + `download_done` 텍스트
-- [x] UI-04: 공연 데이터 관리 목록에서 저장된 포스터 이미지가 썸네일로 표시된다 (경로가 없으면 placeholder) — PASS [L2]
-  - 근거: `apps/app_kiosk/lib/features/admin/event/adm_event_list_screen.dart:210-217` — `posterPath` null 체크 → `FileImage` 또는 null 전달 → `AdmImageViewWidget`이 null일 때 placeholder 처리
-- [x] UI-05: 공연 상세 화면에서 좌석 다운로드 버튼 클릭 시 진행 다이얼로그가 표시되고 완료 후 자동 닫힌다 — PASS [L3]
-  - 근거: `apps/app_kiosk/lib/features/admin/event/adm_event_details_screen.dart:228-274` — `unawaited(showDialog)` + `AdmDualProgressMessageBoxWidget` + `isCompleted: true` → 1500ms delay → `context.pop()`
+### Logic (4/4)
 
+- [x] LG-01: event 도메인 선택 시 포스터 preload 캐시가 events state 비우기 이전에 정리됨 — PASS [L3]
+  - 근거: `olkp_provider.dart:846` `clearPreloadEventResource()` → `olkp_provider.dart:847` `clearEvents()` 순서 확인. `clearPreloadEventResource`는 `_getEventPosterImages()`(events state의 poster_image_path)를 순회하므로 events가 null이 되기 전에 실행되어야 하는 전제가 코드로 충족됨.
+
+- [x] LG-02: common preset 도메인 선택 시 스킨 가이드 애니메이션 preload 캐시가 setCommonPreset 이전에 정리됨 — PASS [L3]
+  - 근거: `olkp_provider.dart:872` `clearPreloadSkinResource()` → `olkp_provider.dart:873` `_deleteDirSafe(...)` → `olkp_provider.dart:876` `setCommonPreset(OlkpCommonPreset.newCommonPreset())` 순서 확인.
+
+- [x] LG-03: 선택되지 않은 도메인의 preload 캐시는 보존됨 — PASS [L3]
+  - 근거: `olkp_provider.dart:844` `if (selection.includeEvent)` 블록 내에서만 `clearPreloadEventResource` 호출, `olkp_provider.dart:867` `if (selection.includePresetCommon)` 블록 내에서만 `clearPreloadSkinResource` 호출. import 경로의 `loadMetadata`(라인 341~350)와 동일한 도메인별 조건 분기 구조. 선택되지 않은 도메인은 해당 if 블록 자체에 진입하지 않으므로 preload 캐시 보존 확인됨.
 ```
 
 </details>
@@ -1597,38 +1647,38 @@ Iteration: 1
 ### `fit-pal`
 
 - 경로: `/Users/jackson/Hub/10_Dev/fit-pal`
-- sprint-feedback.md: 104 lines
-- history sprint-contracts: 9
+- sprint-feedback.md: 71 lines
+- history sprint-contracts: 20
 - 최근 contracts:
-  - 20260421-1113-sprint-contract.md
-  - 20260421-1137-sprint-contract.md
-  - 20260421-1254-sprint-contract.md
-  - 20260421-1320-sprint-contract.md
-  - 20260507-1256-sprint-contract.md
+  - 20260529-1813-migration-sprint-contract.md
+  - 20260530-1530-sprint-contract.md
+  - 20260602-1135-sprint-contract.md
+  - 20260603-1520-sprint-contract.md
+  - 20260603-server-plan1-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
 ```markdown
 # Sprint Feedback
-Feature: 검색 결과 사용자 행에 그룹 초대 버튼 + 바텀시트/확인 다이얼로그
-Evaluated: 2026-05-07 14:30
-Verdict: APPROVE_WITH_BLOCKED
-Iteration: 1
+Feature: 일정형 dot-grid 앱 구현 (Plan 2/2) — schedule-routines data layer + dot-grid 상세 + 편집 페이지
+Evaluated: 2026-06-04 11:30
+Verdict: APPROVE
+Iteration: 3
 
 ## Results
 
-### UI (3/5 — 코드 검증 PASS, 시뮬 3건 BLOCKED)
-- [x] UI-01: invite 버튼 노출 조건 + self-filter — PASS (코드), BLOCKED (시뮬)
-  - 근거: `home_search_results.dart:149` `if (invitableGroups.isNotEmpty)` 조건 확인. `home_search_provider.dart:144-148` viewer.id == user.id 제외 후처리 확인. 시뮬 3 시나리오는 BLOCKED.
-  - [L3, 정적]
-- [x] UI-02: IFButton "초대" 배치 + raw Color/EdgeInsets.all 0건 — PASS
-  - 근거: `home_search_results.dart:211` `IFButton(onTap: onTap, ...)` + `Text('초대')`. `rg 'Color\(0x|EdgeInsets\.all\(\d'` 변경/생성 파일 전체 0건.
-  - [L3, 정적]
-- [x] UI-03: 단일→AlertDialog / 다중→showSheet 분기 — PASS (코드), BLOCKED (시뮬)
-  - 근거: `home_search_results.dart:170-199` `groups.length == 1` → `InviteConfirmDialog.show`, `>= 2` → `InviteToGroupSheet.show`. `invite_to_group_sheet.dart:28` `showSheet<void>` 래퍼 사용 확인.
-  - [L3, 정적]
-- [x] UI-04: InviteStatus enum 정확히 3값 + 사유 텍스트/disabled 분기 — PASS (코드), BLOCKED (시뮬)
-  - 근거: `invite_status.dart:6-13` `invitable|alreadyMember|alreadyInvited` 3값만. `invite_to_group_sheet.dart:93-105` 사유 텍스트 + `onTap: g.status == InviteStatus.invitable ? ... : null` disabled 처리.
+### UI (4/4)
+- [x] UI-01: 일정형 그룹 상세에 등록된 일정-루틴들이 dot-grid로 표시된다 — PASS [정적]
+  - 근거: `group_schedule_dot_grid_section.dart:143-147` — `DotGridTable(routines: routines, onRowTap: ...)` 렌더
+- [x] UI-02: dot-grid 헤더 "루틴"/"시간" 라벨 + 행 시간열 formatDurationKo 표시 — PASS [정적]
+  - 근거: `dot_grid_table.dart:50` `group.routine`, `:72` `group.time`; `duration_format.dart:4-11` formatDurationKo 구현
+- [x] UI-03: 섹션 헤더 "추가" 버튼 + 루틴 행 탭 시 편집 진입 — PASS [정적]
+  - 근거: `group_schedule_dot_grid_section.dart:137-139` `_AddButton`, `dot_grid_table.dart:190-193` `Pressable(onTap: () => tap(routine))`
+- [x] UI-04: 편집 화면에 이름·아이콘·색·요일선택·시작/종료시간·skip정책 + N개 추가/삭제/재정렬 — PASS
+  - 근거: `schedule_routine_edit_page.dart:219-233` IFTextField(iconController) + IFTextField(nameController); `:252-255` `ColorPickerRow(selectedColorValue: routine.colorValue, onColorSelected: ...)` — e465cd2 수정 추가됨; `:260-263` DayTileGrid; `:267-283` TimeSection; `:287-300` _SkipPolicySelector; 추가=`notifier.addRoutine`(:125), 삭제=`notifier.removeAt`(:236), 재정렬=`onReorder: notifier.reorder`(:116)
+
+### Logic (4/4)
+- [x] LG-01: 저장 후 상세 반영 — PASS [정적]
 ```
 
 </details>
@@ -1718,9 +1768,6 @@ Iteration: 2
 
 ## 4. 현재 레포 최근 Sprint Contracts
 
-- `.harness/history/20260412-2146-sprint-contract.md`
-- `.harness/history/20260417-1037-sprint-contract.md`
-- `.harness/history/20260417-1042-sprint-contract.md`
 - `.harness/history/20260417-1717-sprint-contract.md`
 - `.harness/history/20260424-kaizen-phase10-react-kit-sprint-contract.md`
 - `.harness/history/20260424-kaizen-phase4-harness-sprint-contract.md`
@@ -1728,29 +1775,14 @@ Iteration: 2
 - `.harness/history/20260424-phase1-design-guides-sprint-contract.md`
 - `.harness/history/20260424-phase6-design-kit-sprint-contract.md`
 - `.harness/history/20260424-phase8-sprint-contract.md`
+- `.harness/history/20260516-0111-sprint-contract.md`
+- `.harness/history/20260516-1943-sprint-contract.md`
+- `.harness/history/20260605-1036-sprint-contract.md`
 
 ## 5. Validate-Plugin 최근 실행 스냅샷
 
 ```text
 ... (이전 출력 생략)
-  V3 refs            0 links — OK
-  V4 triggers        36 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.4.2 matches marketplace — OK
-
-=== flutter-toolkit ===
-  V1 frontmatter     18 skills + 1 agent — OK
-  V2 templates       0 files — SKIP (no templates/)
-  V3 refs            0 links — OK
-  V4 triggers        141 keywords — OK
-  V5 placeholders    0 found — OK
-  V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.5.3 matches marketplace — OK
-
-=== design-kit ===
-  V1 frontmatter     8 skills + 1 agent — OK
-  V2 templates       8 skipped (ts/js) — OK
   V3 refs            0 links — OK
   V4 triggers        46 keywords — OK
   V5 placeholders    0 found — OK
@@ -1811,7 +1843,25 @@ Iteration: 2
   V6 code-fence      0 bare — OK
   V7 plugin-json     v0.3.1 matches marketplace — OK
 
-Total: 9 plugins, 9 OK
+=== bambu-kit ===
+  V1 frontmatter     1 skill — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        5 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.4.2 matches marketplace — OK
+
+=== onboarding-kit ===
+  V1 frontmatter     1 skill — OK
+  V2 templates       0 files — SKIP (no templates/)
+  V3 refs            0 links — OK
+  V4 triggers        8 keywords — OK
+  V5 placeholders    0 found — OK
+  V6 code-fence      0 bare — OK
+  V7 plugin-json     v0.1.0 matches marketplace — OK
+
+Total: 11 plugins, 11 OK
 Exit: 0
 ```
 
