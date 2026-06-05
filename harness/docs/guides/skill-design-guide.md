@@ -1,7 +1,7 @@
 ---
 title: Claude Code 스킬 설계 가이드
-version: 1.3.0
-last_updated: 2026-05-07
+version: 1.3.1
+last_updated: 2026-06-05
 ---
 
 # Claude Code 스킬 설계 가이드
@@ -858,8 +858,9 @@ sprint-contract/
 | 7 | Pre-Sprint Sync Check | §9 (Pre-Sprint Sync Check) | — (멀티세션 sprint orchestrator 한정 · 단일 평가자 에이전트는 해당 없음) |
 | 8 | Hook-Triggered Auto-Correction | — (스킬은 훅을 직접 spawn 하지 않음 · 패턴은 agent 가이드 전용) | §6 패턴 7 |
 | 9 | Scope-Bound Edits ↔ Scope-Bound Evaluation | §3.6 (Scope-Bound Edits) | §10 (Reviewer 평가 범위 확장 금지) |
+| 10 | 반환 데이터 최소화 ↔ Fan-out 상한 / Exploration Budget | §9 (Long-Running Skills — 반환 데이터 최소화) | §7 (Fan-out 상한 · Exploration Budget) |
 
-Item 5 와 7 은 에이전트(평가자) 또는 멀티세션 orchestrator 행동에만 관련되어 skill-design-guide 에 존재하지 않는다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. 이 예외들은 모두 문서화되었고 나머지 5 개 (1~4, 6) 는 **양쪽 모두 존재** 한다.
+Item 5 와 7 은 에이전트(평가자) 또는 멀티세션 orchestrator 행동에만 관련되어 skill-design-guide 에 존재하지 않는다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 10 은 토큰 경제 목적의 짝 원칙 — 스킬 측은 중첩 호출 반환 최소화, 에이전트 측은 fan-out 상한·exploration budget 으로 양쪽 존재. 이 예외들은 모두 문서화되었고 나머지 6 개 (1~4, 6, 10) 는 **양쪽 모두 존재** 한다.
 
 ### 개정 시 체크리스트
 
