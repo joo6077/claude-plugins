@@ -76,6 +76,10 @@ user-invocable: true
     })
     ```
 
+13. **Enumerate-before-Act (skill-design-guide §5.5)** — 쿼리 훅을 생성하기 전에 기존 `src/presentation/features/*/hooks/use*.ts` 와 queryKey 팩토리를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 훅 명, (b) 같은 엔드포인트를 이미 구독하는 기존 훅, (c) 중복되는 queryKey prefix 를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. queryKey 가 중복되면 invalidation 이 의도치 않은 쿼리까지 무효화한다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+
+14. **요청한 쿼리만 — 임의 mutation·prefetch 확장 금지** — "조회 훅 추가" 요청에 mutation·optimistic update·prefetch·infinite query 를 요청 없이 임의로 덧붙이지 마라. 관련 mutation 이 필요해 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
+
 # Process
 
 ## 1. 프로젝트 환경 감지

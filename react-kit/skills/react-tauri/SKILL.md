@@ -27,6 +27,8 @@ user-invocable: true
 14. **Stronghold 보안 저장소 기본값** — 민감 데이터(토큰, API 키, 자격 증명) 저장은 `@tauri-apps/plugin-stronghold` 를 기본으로 사용한다. `tauri add stronghold` 로 설치하고 JS guest binding (`@tauri-apps/plugin-stronghold`) + Argon2 helper 를 활용한다. `localStorage` 에 민감 데이터 저장 금지.
 15. **Updater 플러그인 — 서명 아티팩트 자동 생성** — v2 updater plugin 은 `bundle.createUpdaterArtifacts` 설정 시 플랫폼별 서명 번들(AppImage/macOS archive/MSI/NSIS) 을 자동 생성한다. 배포 파이프라인에 서명/업데이트 아티팩트 단계를 포함시킨다.
 16. **Deep Link + Single Instance 조합 필수** — deep-link plugin 의 `onOpenUrl` 은 Windows/Linux 에서 single-instance plugin 없이 동작이 제한된다. OAuth callback 등 deep-link 활용 시 반드시 `single-instance` + `deep-link` 두 플러그인을 함께 설정한다. macOS/Android/iOS 는 런타임 동적 등록 불가 — config 기반 등록이 필요하다.
+17. **Enumerate-before-Act (skill-design-guide §5.5)** — Tauri command 를 생성하기 전에 기존 `src-tauri/src/` 의 `#[tauri::command]` 핸들러와 `src/infrastructure/tauri/*` 래퍼를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 command 명, (b) 이미 등록된 `invoke_handler` 항목, (c) capabilities 에 이미 허용된 permission 을 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 command 등록은 `generate_handler!` 에서 빌드 에러를 내고, 과잉 permission 은 보안 표면을 넓힌다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+18. **요청한 command·permission 만 — 임의 capability 확장 금지** — 사용자가 요청한 command 와 그에 필요한 최소 permission 만 capabilities 에 추가한다. "파일 읽기 command" 요청에 쓰기·삭제·shell·dialog permission 을 요청 없이 임의로 덧붙이지 마라. least-privilege 가 원칙이며, 추가 권한이 필요해 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
 
 # Process
 

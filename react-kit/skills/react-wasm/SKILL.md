@@ -26,6 +26,8 @@ user-invocable: true
 13. **`Transferable` 활용** — `ArrayBuffer`를 Worker로 전달할 때 Transferable로 zero-copy 이동 가능. 원본 보존이 필요한 경우만 복사한다(복사 비용 ~1~3 ms / MB).
 14. **rustwasm org 아카이빙 (2025-09)** — wasm-pack, gloo, twiggy, walrus 등 rustwasm GitHub org 프로젝트가 아카이빙됐다. **wasm-bindgen 만 독립 org (`github.com/wasm-bindgen/wasm-bindgen`) 로 이전**. wasm-pack 은 여전히 동작하지만 신규 메인테이너 활동이 제한적이다. 대안으로 `wasm-bindgen-cli` + `wasm-opt` + 빌드 스크립트 직접 조합이 커스텀 cargo profile, 병렬 빌드 등에서 유리하다. react-kit 기본은 wasm-pack 유지하되, 빌드 커스터마이징이 필요하면 대안 경로를 안내한다.
 15. **WASM SIMD 128-bit 전 브라우저 지원** — 2025 초 기준 모든 주요 브라우저에서 128-bit SIMD 를 지원한다. SIMD 활용 시 특정 워크로드에서 JS 대비 10-15배 성능 향상이 가능하다. 단, Gotcha #9 의 feature detection 은 여전히 필수 — SIMD opcode 미지원 환경에서 런타임 에러가 발생한다.
+16. **Enumerate-before-Act (skill-design-guide §5.5)** — WASM 모듈을 생성하기 전에 기존 `src/wasm/core/*` 와 바인딩 래퍼를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 모듈 명, (b) 이미 존재하는 export 함수, (c) 같은 워크로드를 처리하는 기존 Worker 를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. G0 카탈로그 판정(Process §3)은 이식 가부만 정하므로, 중복 모듈 방지에는 enumerate 가 별도로 필요하다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+17. **요청한 함수만 — 임의 바인딩 확장 금지** — 사용자가 요청한 export 함수만 wasm-bindgen 바인딩과 Comlink 래퍼에 노출한다. "정렬 함수 이식" 요청에 추가 알고리즘·SIMD 변형·벤치마크 하니스를 요청 없이 임의로 덧붙이지 마라. 관련 함수가 필요해 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
 
 # Process
 

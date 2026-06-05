@@ -53,6 +53,8 @@ user-invocable: true
 11. **실패 시 전체 롤백** — 복수 파일 생성 중 하나라도 실패 시 스킬 실행으로 생성된 파일을 모두 삭제하고 원상복구한다.
 12. **`export default` 금지** — named export로 통일한다 (Clean Arch 규칙).
 13. **템플릿 내 확장 포인트 주석은 미완성 마커가 아니다** — 아래 Process 템플릿에 등장하는 `// 사용자가 지정한 --variants 값들을 여기에 추가`, `// 필요한 추가 props 를 여기에 선언` 같은 주석은 스킬 사용자가 파라미터로 확장하는 **지점 안내**이지 구현 대기 미완성 마커가 아니다. 생성된 위젯 파일에 미완성 키워드(대문자 4글자 T-O-D-O / F-I-X-M-E / X-X-X) 문자열을 남기지 않는다. 스킬 산출물은 그 자리에서 컴파일 가능한 완결 코드여야 한다.
+14. **Enumerate-before-Act (skill-design-guide §5.5)** — 위젯을 생성하기 전에 기존 `src/presentation/shared/components/*` 와 shadcn `components/ui/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 정확히 같은 이름뿐 아니라 (b) 유사 역할 컴포넌트(이미 있는 `Button` 을 `PrimaryButton` 으로 재발명), (c) shadcn 기본 컴포넌트로 충족 가능한지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. shadcn 재발명·중복 컴포넌트는 widget-inspector-react 가 사후 검출하지만, enumerate 로 선(先) 방지하는 편이 비용이 낮다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+15. **요청한 위젯만 — 임의 variant·상태 확장 금지** — 사용자가 지정한 `--variants`/`--sizes` 만 생성한다. "버튼 만들어줘" 요청에 loading·disabled·icon-only·destructive 같은 variant 를 요청 없이 임의로 덧붙이지 마라. 디자인 시스템상 표준 variant 가 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
 
 # Process
 

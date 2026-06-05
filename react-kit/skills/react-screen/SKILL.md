@@ -19,9 +19,11 @@ user-invocable: true
 6. **실패 시 전체 롤백** — 라우트 파일과 화면 파일 중 하나라도 생성 실패 시 스킬 실행으로 생성한 파일을 모두 삭제하고 원상복구한다.
 7. **Strict TS 통과 필수** — 생성한 모든 TS 파일은 `tsc --noEmit`과 `eslint --max-warnings=0`을 통과해야 한다. `any`, `as` 단언, `!` non-null 단언 포함 금지.
 8. **화면 컴포넌트는 features 하위에** — 라우트 파일은 얇게 위임만 한다. 실제 컴포넌트는 `src/presentation/features/<feature>/screens/`에 배치한다.
-9. **`export default` 금지** — Clean Arch 규칙에 따라 named export로 통���한다.
+9. **`export default` 금지** — Clean Arch 규칙에 따라 named export로 통일한다.
 10. **TanStack Router flat route 기본** — 파일 기반 라우팅에서 flat route (점 표기법 `posts.$postId.edit.tsx`) 를 기본으로 사용한다. 디렉토리 기반과 혼합도 지원되지만, flat route 가 파일 탐색이 간편하고 코드 스플리팅이 자동 적용된다. 특수 규칙: `__root.tsx` (루트 레이아웃), `_` prefix (pathless layout wrapper), `$` (동적 파라미터).
 11. **React 19.2 `<Activity />` 로 탭/패널 pre-render** — `<Activity mode="visible|hidden">` 컴포넌트로 비활성 탭/패널을 낮은 우선순위로 pre-render 할 수 있다. hidden 모드에서 자식은 렌더되지만 Effect 는 mount 되지 않는다. 탭 전환 시 즉시 표시가 필요한 화면에 적합. 단, React 19.2+ 에서만 사용 가능하며 canary 채널에서 안정화 중이므로 적용 전 버전을 확인한다.
+12. **Enumerate-before-Act (skill-design-guide §5.5)** — 화면을 생성하기 전에 기존 `src/presentation/routes/*` 와 `src/presentation/features/*/screens/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 정확히 같은 경로뿐 아니라 (b) 유사 네이밍 라우트(`/user` vs `/users`)·중복 화면, (c) 같은 feature 에 이미 등록된 화면을 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 단일 경로 존재 체크(Gotcha #5)만으로는 유사 네이밍 충돌을 못 잡아 라우트 트리가 오염된다 (insights-report #2 wrong_approach 대응 — "근사치 추정" 후 재작업 차단). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+13. **요청한 화면만 생성 — 임의 스캐폴딩 금지** — "화면 1개 추가" 요청에 store·provider·API 훅·테스트·레이아웃 래퍼를 요청 없이 덧붙이지 마라. 화면이 데이터를 필요로 하면 그 사실을 **먼저 알리고** `/react-query`·`/react-api` 별도 실행 여부를 확인한다. 풀 스택 자동 생성이 필요하면 `/react-feature` 를 안내한다 (insights-report #3 excessive_changes 대응 — 최소 viable 산출물 default).
 
 # Process
 
