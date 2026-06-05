@@ -29,6 +29,7 @@ user-invocable: true
 12. **Decision Matrix 숫자는 객관성이 아니다** — 점수 합계·가중치는 잘못 고른 기준을 "수학처럼" 포장할 수 있다. 민감도 분석, 낮은 점수 이유 논의, 기준 중복 검토를 반드시 거쳐라 — 총합만 보고 우승자 뽑지 마라. 출처: `docs/planning/ideation.md` — Decision Matrix / Weighted Criteria, [Miro — Decision Matrix](https://miro.com/templates/decision-matrix/).
 13. **NUF Test 는 가벼운 1차 필터로만** — NUF(New/Useful/Feasible)는 실무에서 널리 쓰이지만 원전 계보가 약하고 표준 정의가 조금씩 다르다. 중요한 결정에는 쓰지 말고 shortlist 빠른 현실성 점검에만 사용, 2/3 통과는 "보강 포인트 찾기" 신호지 "버릴지 말지" 판단이 아니다. 출처: `docs/planning/ideation.md` — NUF Test, [pdmethods — NUF Test](https://pdmethods.com/new-useful-feasible-test/).
 14. **Double Diamond 이름만 붙이지 마라** — "지금 발산/수렴 단계" 라벨만 붙이고 실제로는 의견 강자가 방향을 고정해 버리면 아무 효과가 없다. 각 단계 **종료 조건**을 미리 정하고 퍼실리테이터 룰(발산 중 평가 금지, 수렴 중 기준 없는 인기투표 금지)을 명시하라. 출처: `docs/planning/ideation.md` — Divergent/Convergent, [Design Council — Double Diamond History](https://www.designcouncil.org.uk/our-resources/the-double-diamond/history-of-the-double-diamond/).
+15. **ideation 단계 범위 유지 — 다음 단계로 임의 진주 금지 (skill-design-guide §5.5 Scope-Bound)** — 이 스킬은 0단계(발산→정리→수렴)다. 산출물은 "탐색할 문제 영역 후보 Top 3~5" 이지 PRD/스토리/우선순위가 아니다. 사용자가 ideation 만 요청했는데 plan-discover/plan-prd 작업까지 임의로 이어가지 마라 (Gotcha 9 "discovery 로 바로 점프 금지", Gotcha 10 "솔루션 오인 금지" 와 짝). 다음 단계 준비가 됐으면 plan-discover 인계 여부를 **먼저 묻고** 진행한다. 발산은 최소 기법 수(Gotcha 5)만 충족하면 되고, 요청 없이 기법을 무한 추가하는 것도 scope 확장이다 (insights-report #1 excessive_changes / over-exploration 대응). 출처: [Design Council UK — Double Diamond](https://www.designcouncil.org.uk/our-resources/the-double-diamond/).
 
 # Process
 

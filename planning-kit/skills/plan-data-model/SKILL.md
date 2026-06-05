@@ -26,6 +26,7 @@ user-invocable: true
 10. **Event Storming 이 noisy brainstorm 으로 끝나지 않게** — 벽 스티커 목적이 아니라 deliberate collective learning. 퍼실리테이션 약하면 hotspot/unknown 이 드러나지 않는다. Big Picture → Process → Software Design 단계 구분. 출처: [Alberto Brandolini — EventStorming](https://www.eventstorming.com/), [Book](https://www.eventstorming.com/book/).
 11. **ERD 는 행위 규칙을 설명하지 못한다** — cardinality/optionality 는 보여주지만 상태 전이/시간 흐름은 별도 stateDiagram + Event 모델로 보완. 출처: [Mermaid erDiagram](https://mermaid.js.org/syntax/entityRelationshipDiagram.html).
 12. **Data Dictionary 는 ownership 없으면 썩는다** — glossary 와 schema registry 가 분리되면 중복 관리 생김. PII/retention 필수. 출처: [DDD Reference §Model](https://www.domainlanguage.com/ddd/reference/).
+13. **요청한 도메인 범위만 — 임의 엔티티·이벤트 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 특정 Bounded Context/도메인만 요청하면 그 경계 안만 모델링한다. "모델이 완결돼야 한다"는 이유로 요청하지 않은 인접 컨텍스트·엔티티·Domain Event·Data Dictionary 항목을 임의로 추가하지 마라. Aggregate 도 모든 곳에 크게 잡는 것이 over-modeling 이듯, 범위 자체를 넘어 부풀리는 것도 동일한 함정이다. 인접 컨텍스트가 필요해 보이면 그 사실을 **먼저 알리고** 확장 여부를 확인한다 (insights-report #1 excessive_changes 대응). 출처: [Eric Evans — DDD Reference (Bounded Context)](https://www.domainlanguage.com/ddd/reference/).
 
 # Process
 

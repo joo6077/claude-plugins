@@ -22,6 +22,7 @@ user-invocable: true
 8. **User Flow / Journey Map / Service Blueprint 는 대체재 아님** — 셋은 질문이 다르다. task completion 경로는 flow, 감정+맥락 포함 경험은 journey, frontstage↔backstage 운영까지는 blueprint. 하나의 도표에 셋을 섞지 마라. 출처: [NN/g — Journey Mapping 101](https://www.nngroup.com/articles/journey-mapping-101/).
 9. **IA 를 사이트맵으로만 축소 금지** — 리서치 없이 taxonomy 만들면 내부 조직도 반영 문서가 된다. 라벨은 사용자 언어여야 하고, browse vs search 영역을 구분해야 한다. 출처: [Rosenfeld/Morville — Information Architecture (4th)](https://www.oreilly.com/library/view/information-architecture-4th/9781491913529/).
 10. **Mermaid 예약어 충돌 방지** — `end` 같은 소문자 breaker 를 노드 ID 로 쓰지 마라, 노드 내용에 괄호/콜론 있으면 따옴표 필수. 출처: [Mermaid Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html).
+11. **요청한 다이어그램만 — 임의 다이어그램·플로우 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 특정 플로우(예: 결제 user flow) 하나만 요청하면 그 하나만 그린다. "완결성"을 이유로 요청하지 않은 인접 플로우·sequence·state·journey 를 임의로 추가 생성하지 마라 (Gotcha 8 "셋을 섞지 마라" 의 확장 — 종류뿐 아니라 개수도 요청 범위 내). 에러/취소 경로는 같은 플로우의 일부이므로 추가하되(Gotcha 3), 별개 기능의 플로우로 번지면 그 사실을 **먼저 알리고** 확인한다 (insights-report #1 excessive_changes 대응). 출처: [NN/g — Journey Mapping 101](https://www.nngroup.com/articles/journey-mapping-101/).
 
 # Process
 

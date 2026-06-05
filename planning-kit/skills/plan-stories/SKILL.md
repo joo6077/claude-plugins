@@ -23,6 +23,7 @@ user-invocable: true
 9. **Gherkin 을 UI step 으로 채우지 마라** — Given-When-Then 은 관찰 가능한 행동 규칙을 서술해야 하며, 버튼 위치/DB 상태 같은 구현 세부는 brittle test 를 만든다. 각 시나리오는 3~5 step 이내로 유지. 출처: [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference).
 10. **Story Map 이 워크숍 산출물로만 끝나면 가치 소실** — backbone + walking skeleton 이후 실제 backlog/roadmap 과 링크되지 않으면 유지비가 커진다. release slice 가 "작지만 완결된 경험" 이어야 함. 출처: [Jeff Patton — Story Mapping](https://jpattonassociates.com/story-mapping/).
 11. **Acceptance Criteria 가 설계 문서가 되면 협상 불가** — criteria 는 완료 판단이지 구현 명세가 아니다. 구현 힌트는 주되 강제하지 않도록, happy path + edge case (빈/에러/권한/네트워크) 를 분리 기술. 출처: [Cucumber Gherkin](https://cucumber.io/docs/gherkin/).
+12. **요청한 스토리 범위만 — 임의 스토리·AC 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 특정 기능/에픽의 스토리만 요청하면 그 범위만 분해한다. "백로그를 채운다"는 이유로 요청하지 않은 인접 기능·후속 스토리·운영(감사/권한/알림) 스토리를 임의로 추가하지 마라. INVEST 의 Negotiable 은 "스토리는 고정 계약이 아니라 대화의 시작점" — 범위는 사용자와 협상하지 미리 확정해 부풀리지 않는다. Story Map 으로 인접 슬라이스가 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #1 excessive_changes 대응). 출처: [Agile Alliance — INVEST (Negotiable/Small)](https://agilealliance.org/glossary/invest/).
 
 # Process
 

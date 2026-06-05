@@ -24,6 +24,7 @@ user-invocable: true
 11. **Kano 분류는 시간에 따라 변한다** — Delighter 는 곧 Basic expectation 이 된다. 정성/정량 조사 없이 직감 분류하면 왜곡. 세그먼트별 재분류 필요. 출처: [Qualtrics — Kano Model](https://www.qualtrics.com/fr/articles/strategy-research/modele-kano/).
 12. **WSJF 는 SAFe 문맥이 없으면 형식주의** — Job size 와 CoD 상대 추정에 정치 개입되기 쉬움. portfolio/program 수준이 아니면 RICE 가 낫다. 출처: [SAFe — WSJF](https://scaledagileframework.com/wsjf/).
 13. **Opportunity Scoring 은 research quality 에 민감** — 정성 감으로만 점수화하면 ODI 장점 사라진다. 중요도↑+만족도↓ 구간에 집중. 출처: [Strategyn ODI](https://strategyn.com/lp/outcome-driven-innovation/).
+14. **주어진 항목만 스코어링 — 임의 항목·프레임워크 추가 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 준 후보 목록만 우선순위화한다. "백로그를 보강한다"는 이유로 요청하지 않은 신규 기능 후보를 임의로 만들어 끼워 넣지 마라. 사용자가 RICE 만 요청했으면 RICE 만 적용한다 — 묻지 않은 Kano/WSJF/MoSCoW 표를 추가로 붙이는 것도 scope 확장이다 (Gotcha 1 의 "프레임워크 선택은 근거와 함께" 와 짝). 다른 프레임워크가 더 맞아 보이면 **먼저 제안하고** 교체 여부를 확인한다 (insights-report #1 excessive_changes 대응). 출처: [Intercom — RICE](https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/).
 
 # Process
 
