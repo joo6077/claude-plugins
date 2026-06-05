@@ -25,6 +25,7 @@ user-invocable: true
 9. **When to use / When not to use 누락 금지** — 모든 컴포넌트에 사용 시점과 비사용 시점을 명시하라. 유사 컴포넌트(예: Menu vs Select, Dialog vs Sheet)와의 구분 기준을 포함한다.
 10. **Compound Component 패턴 식별** — Dropdown, Select, Modal, Accordion 등 여러 파트로 구성된 컴포넌트는 Compound Component 패턴(Context API로 상태 공유 + 네임스페이스 API)과 Slot Pattern(named slot 분리)을 Anatomy 섹션에 반영하라. "prop soup"(모든 옵션을 하나의 props에 몰아넣는 것)은 안티패턴이다. 출처: research-log §G.
 11. **다크모드 토큰 매핑 필수** — 컴포넌트의 Design Tokens 섹션에 light/dark 양쪽 semantic 토큰 매핑을 포함하라. 다크모드에서 순수 블랙(`#000000`) 회피, 채도 낮추기(desaturated/muted), 표면 레이어 밝기 미세 차이로 구분하는 원칙을 적용한다. hover/focus 상태 배경 대비 3:1 이상 확보. 출처: research-log §H.
+12. **요청한 컴포넌트만 정의 — 카탈로그 임의 확장 금지** (insights-report #1 스코프 오독 · #3 과잉설계 대응) — "버튼 컴포넌트 정의해줘" 처럼 **특정 컴포넌트** 를 요청받으면 그 컴포넌트만 스펙화하라. 요청하지 않은 Input·Card·Modal 등 "함께 필요할 것 같은" 컴포넌트를 카탈로그에 임의로 덧붙이지 마라. 위 Gotcha들이 요구하는 완전성(상태·anatomy·접근성·When-to-use)은 **요청된 컴포넌트 내부의 완전성**을 의미하지, 카탈로그에 더 많은 컴포넌트를 채우라는 뜻이 아니다. 확정된 시안에서 추출하는 경우에도 사용자가 지목한 요소만 추출하라 — 시안에 존재하는 모든 UI 요소를 자동으로 카탈로그화하지 마라. 추가 컴포넌트가 필요해 보이면 산출물에 박지 말고 "Input·Card도 함께 정의할까요?" 형태의 별도 제안으로 분리한다. 범위가 모호하면 추측 확장 대신 한 줄로 확인하라. 출처: insights-report Friction #1·#3, [zeroheight Design Systems Report 2026](https://report.zeroheight.com/) (feature completeness보다 adoption 우선 — 작게 시작).
 
 # Process
 
