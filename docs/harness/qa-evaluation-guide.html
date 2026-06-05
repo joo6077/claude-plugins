@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QA Evaluation Guide v3 — Harness</title>
+<title>QA Evaluation Guide v3.2 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -99,15 +99,15 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · QA Evaluation Guide</div>
-  <span class="badge">v3 · 2026-05-07</span>
+  <span class="badge">v3.2 · 2026-06-05</span>
 </div>
 
 <div class="hero">
   <h1>QA Evaluation Guide</h1>
-  <p class="subtitle">qa-evaluator 에이전트가 참조하는 평가 방법론. Phase 3 카이젠(v3)에서 Binary Decidability Pre-Check, Rule-by-Rule Audit, [미검증] 마커 프로토콜, Sibling Enumerated Verification, L3 Coverage Honesty 규칙, User-Value/Business-Intent 관점을 흡수했다.</p>
+  <p class="subtitle">qa-evaluator 에이전트가 참조하는 평가 방법론. Phase 3 카이젠(v3)에서 Binary Decidability Pre-Check, Rule-by-Rule Audit, [미검증] 마커 프로토콜, Sibling Enumerated Verification, L3 Coverage Honesty 규칙, User-Value/Business-Intent 관점을 흡수했고, v3.2에서 Execution-Grounded Evidence(실행 산출물 능동 수집)를 추가했다.</p>
   <div class="meta">
-    <span>Phase 3 Kaizen · v3</span>
-    <span>최근 갱신 2026-05-07</span>
+    <span>Phase 3 Kaizen · v3.2</span>
+    <span>최근 갱신 2026-06-05</span>
     <span>참조: contract-schema.md v3</span>
   </div>
 </div>
@@ -230,6 +230,39 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 - 총 미검증 건수: N
 - 건 목록: [조건 ID, 사유, 시도한 fallback 단계]
 - Verdict 영향: {PASS 허용 | 자동 REJECT}</code>
+  </div>
+</div>
+
+<!-- SECTION 4.5: EXECUTION-GROUNDED EVIDENCE (NET-NEW v3.2) -->
+<div class="section">
+  <div class="section-label">Execution-Grounded Evidence</div>
+  <div class="section-title">실행 주장 조건의 산출물 능동 요구 (v3.2 신규)</div>
+  <p class="section-desc">구현자가 도구·스킬·명령을 <strong>실제로 실행하지 않고</strong> "실행했다 / 호출했다 / 생성했다"고 서술만 하는 패턴. 기존 "주석·커밋 메시지는 증거가 아니다"는 generator의 <strong>주장</strong>을 배제하지만, 계약 조건이 <strong>동적 실행 자체</strong>를 요구할 때 evaluator가 실행 <strong>산출물</strong>을 능동적으로 요구하는 축은 별개다. (/insights Friction #5 · AR-03 흡수)</p>
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-title"><span class="dot"></span>적용 대상 조건</div>
+    <p>조건이 "실행 / 호출 / 생성 / 재생성 / 발행 / 빌드 / 마이그레이션 적용"처럼 <strong>동작이 실제로 수행되었음</strong>을 요구하면(단순 파일 존재·내용이 아니라 행위) 아래 절차를 적용한다.</p>
+  </div>
+  <div class="grid-2" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>검증 절차 (observable artifact)</div>
+      <ul class="checklist" style="margin-top:10px">
+        <li><span class="check">1</span>실행 산출물 식별 — 명령 출력(exit·stdout), 생성/수정 파일·번들, 로그, codegen 결과물, git diff, lockfile 변경</li>
+        <li><span class="check">2</span>산출물 직접 수집 — evaluator가 Bash/Glob/Grep으로 흔적 수집. "실행했다" 서술·대화 로그는 증거 아님</li>
+        <li><span class="check">3</span>부재 시 <code>[미검증]</code> — "코드상 호출 경로 있으니 실행됐을 것"은 L2, 실행 증거는 별개 축. 추론 PASS 금지</li>
+        <li><span class="check">4</span>재현 가능하면 직접 실행 — <code>commands.analyze</code>·버전 출력 등은 evaluator가 직접 돌려 출력으로 판정</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>실행 판정 기준</div>
+      <p>• 실행 산출물 확보 → <strong>PASS</strong> (근거에 <code>명령/산출물 → 관찰값</code> 형식)<br>
+      • 산출물 부재 + 재현 불가 → <code>[미검증]</code> (PASS 아님, 위 카운팅에 합산)<br>
+      • 구현자가 "실행했다" 서술했으나 산출물 없음 → narrated claim으로 분류, 증거 불인정</p>
+      <p style="margin-top:12px;color:var(--text3);font-size:12px">근거: narrated reasoning 신뢰 시 fabricated progress signal로 false positive 최대 90% 증가 (arxiv:2601.14691). 호출 주장은 실제 실행 로그(receipt)와 대조 (arxiv:2603.10060).</p>
+    </div>
+  </div>
+  <div class="card" style="border-left:3px solid var(--red)">
+    <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 사례 — fit-pal-app AR-03 (2026-05-17)</div>
+    <p>"스킬 invoke" 조건에서 파일시스템 아티팩트가 없어 실행 여부를 구조적으로 검증 불가 → 산출물 부재이므로 <code>[미검증]</code>이 정답. 실행 주장만으로 PASS 처리하면 가짜 호출을 통과시킨다.</p>
   </div>
 </div>
 
@@ -372,6 +405,7 @@ color/spacing/typography
         <tr><td>2</td><td>Rule-by-Rule Audit</td><td>§3.6</td><td>§10 reviewer audit</td><td>— (평가 위임)</td><td>§Rule-by-Rule Audit Before Completion</td></tr>
         <tr><td>3</td><td>Unverifiable 정책</td><td>—</td><td>§10 Unverifiable</td><td>§미검증 마커</td><td>§[미검증] 마커 평가 프로토콜</td></tr>
         <tr><td>4</td><td>Sibling Consistency</td><td>§8.8</td><td>§3 sibling agent</td><td>§Sibling Consistency</td><td>§Sibling Enumerated Verification</td></tr>
+        <tr><td>5</td><td>Execution-Grounded Evidence</td><td>DEFERRED→Phase 1</td><td>DEFERRED→Phase 1</td><td>DEFERRED→Phase 2</td><td>§Execution-Grounded Evidence (evaluator-side 신규)</td></tr>
       </tbody>
     </table>
   </div>
@@ -397,7 +431,7 @@ color/spacing/typography
     <li><a href="https://arxiv.org/abs/2601.05542">LLM Test Oracle Generation — arxiv:2601.05542</a></li>
     <li><a href="https://www.anthropic.com/research/statistical-approach-to-model-evals">Statistical Approach to Model Evals — Anthropic</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/qa-evaluation-guide.md · v3 · 2026-05-07</p>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/qa-evaluation-guide.md · v3.2 · 2026-06-05</p>
 </div>
 
 </div>

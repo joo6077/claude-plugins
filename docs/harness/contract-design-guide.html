@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Contract Design Guide v3 — Harness</title>
+<title>Contract Design Guide v3.2 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -95,15 +95,15 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · Contract Design Guide</div>
-  <span class="badge">v3 · 2026-05-07</span>
+  <span class="badge">v3.2 · 2026-06-05</span>
 </div>
 
 <div class="hero">
   <h1>Contract Design Guide</h1>
-  <p class="subtitle">sprint-contract 스킬이 참조하는 계약 작성 원칙. Phase 2 카이젠(v3)에서 Binary Decidability 의무, Scope Range 인라인 명시, Verification Method Required, Sibling Consistency, Cross-Surface Parity 섹션을 추가했다.</p>
+  <p class="subtitle">sprint-contract 스킬이 참조하는 계약 작성 원칙. Phase 2 카이젠(v3)에서 Binary Decidability 의무, Scope Range 인라인 명시, Verification Method Required, Sibling Consistency, Cross-Surface Parity 섹션을 추가했고, v3.2에서 측정 명령 타당성(oracle semantic match + precondition)을 보강했다.</p>
   <div class="meta">
-    <span>Phase 2 Kaizen · v3</span>
-    <span>최근 갱신 2026-05-07</span>
+    <span>Phase 2 Kaizen · v3.2</span>
+    <span>최근 갱신 2026-06-05</span>
     <span>참조 스키마: contract-schema.md v3</span>
   </div>
 </div>
@@ -278,6 +278,25 @@ Then  {기대 결과}   | Assert  {관찰 1회}</code>
     <p style="margin-top:12px">MCP/외부 도구 의존 조건은 <strong>3단계 fallback</strong>을 인라인 기술. 계약에 fallback이 없으면 평가자가 임의 선택 → 판정 엇갈림.</p>
   </div>
 
+  <div class="card" style="border-left:3px solid var(--yellow)">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>측정 명령 타당성 · 상태 전제 (Measurement Validity &amp; Precondition) — v3.2 신규</div>
+    <p>검증 수단을 <strong>명시</strong>하는 것만으로는 부족하다. 명시된 측정 명령 자체가 곧 <strong>test oracle</strong>이므로, oracle이 조건 의도와 다른 것을 측정하면 false REJECT / false PASS가 발생한다 (LG-07 / AR-01 REJECT 근거).</p>
+    <div class="table-wrap" style="margin-top:14px">
+      <table>
+        <thead><tr><th>조건 의도</th><th>잘못된 oracle</th><th>의미 일치 oracle</th></tr></thead>
+        <tbody>
+          <tr><td>파일이 git 추적 대상이 아니다 (gitignore 됨)</td><td><code>test ! -f &lt;path&gt;</code> (물리적 부재만 검사 — gitignored인데 파일은 존재하면 FAIL)</td><td><code>git ls-files --error-unmatch &lt;path&gt;</code>가 비어 있음 (추적 여부 직접 측정)</td></tr>
+          <tr><td>변경된 N개 파일이 모두 머지 대상에 포함됨</td><td><code>git diff main...HEAD</code> (커밋 안 된 변경은 안 보임)</td><td>"커밋 완료 후 <code>git diff main...HEAD</code> 실행" — 전제를 조건에 명시</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px"><strong>(1) 의미 일치 (semantic match)</strong> — 측정 명령이 조건이 의도하는 <strong>대상</strong>을 정확히 측정하는가? <code>test</code>/<code>grep</code>/<code>git diff</code>처럼 존재·부재·차이를 보는 명령은 의도와 어긋나기 쉽다.</p>
+    <p style="margin-top:10px"><strong>(2) 상태 전제 (precondition)</strong> — 측정 명령이 특정 상태(커밋 완료, 빌드 산출물 생성, 서버 기동) 위에서만 올바른 값을 내면, 그 전제를 Given-When-Then의 <code>Given:</code> 절에 인라인으로 박는다.</p>
+    <code class="code-block">- [ ] AR-01: Sprint B 변경 6개 파일이 머지 대상에 모두 포함된다
+      (Given: Sprint B 커밋 완료 후 / 측정: `git diff --name-only main...HEAD`
+       결과에 6개 파일이 모두 등장) [exact, enumerated]</code>
+  </div>
+
   <div class="card" style="border-left:3px solid var(--green)">
     <div class="card-title"><span class="dot" style="background:var(--green)"></span>형제 스킬 일관성 (Sibling Consistency) — H-01/H-03 재발 방지</div>
     <p>플러그인 내 여러 스킬에 공통 원칙을 요구할 때, 계약은 <strong>모든 sibling 전부</strong>를 enumerated 형태로 명시해야 한다.</p>
@@ -318,6 +337,7 @@ Then  {기대 결과}   | Assert  {관찰 1회}</code>
         <tr><td>범위어 미명시</td><td>"주요/모든/대부분" 인라인 enumerate 없음</td><td>포함/제외 목록을 조건 내부에 명시</td></tr>
         <tr><td>검증 수단 미명시</td><td>평가자가 도구를 임의 선택</td><td>측정 명령/도구/관찰 대상 인라인 기술</td></tr>
         <tr><td>경계값 측정 방법 미명시</td><td>구현자와 평가자가 다른 방법으로 측정</td><td>임계값 + 측정 대상 + 측정 명령 세트로 명시</td></tr>
+        <tr><td>측정 oracle 의미·전제 불일치</td><td>측정 명령이 조건 의도와 다른 것을 측정(gitignore 의도에 <code>test ! -f</code>)하거나 상태 전제 누락(커밋 전 <code>git diff</code>) → false REJECT/PASS</td><td>의미 일치 oracle 선택 + 상태 의존 시 <code>Given:</code> 전제를 조건에 인라인 명시 (LG-07/AR-01 재발 방지)</td></tr>
         <tr><td>Sibling 커버리지 누락</td><td>공통 원칙이 일부 스킬에만 적용</td><td><code>[exact, enumerated]</code> + 스킬 이름 전부 열거</td></tr>
         <tr><td>정성적 수식어</td><td>"충분히", "상당한" — binary 판정 불가</td><td>구체 수치/기준값으로 대체</td></tr>
       </tbody>
@@ -380,7 +400,7 @@ Then  {기대 결과}   | Assert  {관찰 1회}</code>
     <li><a href="https://github.com/andredesousa/gherkin-best-practices">Gherkin Best Practices</a></li>
     <li><a href="harness/references/contract-schema.md">contract-schema.md v3</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/contract-design-guide.md · v3 · 2026-05-07</p>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/contract-design-guide.md · v3.2 · 2026-06-05</p>
 </div>
 
 </div>
