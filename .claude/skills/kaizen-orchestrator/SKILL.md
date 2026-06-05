@@ -32,7 +32,7 @@ user-invocable: true
 - `scripts/validate-post-kaizen.py` — Step 12 Post-Kaizen Checklist 자동 검증 (12 항목). PR 생성 전 필수 실행
 - `scripts/append-audit-log.py` — Step 11 Final 종료 시 이번 사이클 meta-issue 를 `.harness/.meta/orchestrator-audit-log.md` 에 append
 - `scripts/detect-docs-drift.py` — Step 11.5 에서 재생성 필요한 HTML 경로 manifest 생성
-- `scripts/fix-markdown-lint.py` — MD031/MD032/MD034/MD060 auto-fix (사전 실행 권장)
+- `scripts/fix-markdown-lint.py` — MD031/MD032/MD034/MD060 auto-fix. **디렉토리 인자(`docs/`)로 실행 금지** — 이번 사이클에서 변경하지 않은 100여 파일까지 일괄 수정하여 PR scope 를 오염시킨다. 반드시 **이번 사이클에 변경한 파일만** 개별 경로로 전달하라 (스크립트는 단일 path 인자만 받으므로 파일별 호출)
 - `scripts/sync-evals.py` — 각 플러그인 skills/ 와 evals/evals.json 동기화
 
 ## 관련 스킬
@@ -147,6 +147,7 @@ user-invocable: true
 
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->` 마커 영역을 직접 편집하지 마라.** 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 킷 추가/수정/삭제 시 marketplace.json 을 고친 뒤 `python3 scripts/sync-orchestrator.py` 를 실행하면 이 섹션이 동기화된다. 직접 편집 시 다음 실행에서 덮어써진다.
+
 - **Step 0.5 Orchestrator Self-Audit 는 건너뛰기 금지.** 이전 사이클의 수동 개입 이력 (`.harness/.meta/orchestrator-audit-log.md`) 과 `sync-orchestrator.py --check-only` drift 를 먼저 확인해야 Phase 1 로 진입한다.
 
 ## Phase 의존성
@@ -155,6 +156,8 @@ user-invocable: true
 Step 0:   Pre-flight — 피드백 데이터 풀 수집 (scripts/collect-kaizen-data.py)
     ↓
 Step 0.5: Orchestrator Self-Audit — 이전 사이클 meta-feedback 반영 + sync-orchestrator drift 확인
+    ↓
+Step 0.6: Phase Relevance Triage — §0 중복도 + 신호 농도로 선별 범위 제안 (전체는 사용자 선택)
     ↓
 Phase 1: 설계 가이드 카이젠
     ↓
@@ -228,6 +231,7 @@ Final: 전체 정합성 검증
 ```
 
 ### 수동
+
 - `/kaizen-orchestrator` — 전체 (Phase 1→2→3→4→5→6→7→8→9→10→11→Final)
 - `/kaizen-orchestrator phase1` — 설계 가이드만
 - `/kaizen-orchestrator phase2` — contract-kaizen만 (Phase 1 완료 전제)
@@ -267,6 +271,7 @@ Final: 전체 정합성 검증
 ### Regression 실패 카운터
 
 Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한다:
+
 - Regression PASS → 해당 Phase 카운터 0으로 리셋
 - Regression FAIL → 해당 Phase 카운터 +1
 - 카운터 >= 2 → Phase 일시 중단 + 사용자 에스컬레이션
@@ -286,21 +291,25 @@ python3 scripts/collect-kaizen-data.py
 **수집 소스 (스크립트 내장):**
 
 0. **`/insights` 외부 도구 산출물** — `<repo>/.claude/kaizen-input/insights-report.md` 또는 `~/.claude/kaizen-input/insights-report.md` (자동 탐색)
+
    - `/insights` 는 Claude Code 마켓플레이스 등록 스킬이 아니라 사용자가 외부 도구로 30일 세션 사용 데이터를 분석한 산출물 (Friction Points / Recommended Patterns / Feature Suggestions)
    - 파일이 존재하면 데이터 풀 §0 (최상위) 으로 삽입되어 **모든 Phase 가 최우선 참조**
    - 60일 초과 시 STALE 경고 표시. STALE 이면 사용자에게 `/insights` 재실행 권고
    - 파일이 없으면 §0 에 "(없음)" 안내 후 진행 — Step 0 자체는 막지 않는다
 1. **글로벌 Evaluator 피드백** — `~/.harness/feedback/evaluator/*.yaml`
+
    - verdict 분포 (APPROVE/REJECT)
    - skill/project 분포
    - 최근 REJECT 사유 Top 20
    - 최근 improvement_suggestions Top 15
 2. **외부 프로젝트 피드백** — `~/Hub/10_Dev/*/.harness/`
+
    - `sprint-feedback.md` 앞부분 (실사용 현장의 QA 리포트)
    - `history/*-sprint-contract.md` 최근 5개 (사용자가 어떤 계약을 자주 작성하는지)
 3. **followup 문서** — `docs/superpowers/followup-*.md` 최근 5개 (해결되지 않은 숙제 목록)
 4. **레포 sprint-contract 이력** — `.harness/history/*-sprint-contract.md` 최근 10개
 5. **validate-plugin 스냅샷** — `python3 scripts/validate-plugin.py` 현재 실행 결과 (7 kit 상태)
+
    - `--skip-validate` 옵션으로 생략 가능
 
 **Phase 별 참조 매핑** (데이터 풀 §6 에 테이블 포함):
@@ -308,7 +317,7 @@ python3 scripts/collect-kaizen-data.py
 §0 (`/insights`) 가 존재할 때는 **모든 Phase** 가 §0 을 최우선 참조한 뒤 자신의 도메인 섹션을 본다. 각 Phase subagent 프롬프트는 데이터 풀 §0 을 첫 번째 참조로 명시해야 한다.
 
 | Phase | 주요 참조 섹션 |
-|-------|-------------|
+| ------- | ------------- |
 | 1 설계 가이드 | §0 + §1 improvement suggestions |
 | 2 Contract | §0 + §1 reject 사유 (계약 모호성 패턴) |
 | 3 Evaluator | §0 + §1 improvement (L3 커버리지, set intersection) |
@@ -348,13 +357,16 @@ python3 scripts/collect-kaizen-data.py
 **절차:**
 
 1. `.harness/.meta/orchestrator-audit-log.md` 읽기 — 이전 사이클의 수동 개입 이력 확인
+
    - 파일이 없으면 "첫 실행" 으로 간주하고 빈 이력으로 진행
    - 이력이 있으면 각 meta-issue 가 이번 사이클에서도 반복되지 않았는지 후속 Phase subagent 프롬프트에 "지난 사이클 meta-issue 재검증" 지시 포함
 2. `python3 scripts/sync-orchestrator.py --check-only` 실행
+
    - exit 0 → drift 없음, Phase 1 로 진행
    - exit 1 → drift 있음 (marketplace.json 이 SKILL.md 와 불일치). `python3 scripts/sync-orchestrator.py` 를 먼저 실행하여 동기화 후 재시도
    - exit 2 → 구조적 에러 (마커 누락, 파일 없음). 사용자 에스컬레이션
 3. Post-Kaizen Checklist 이력 조회 — `.harness/history/` 의 최근 10개 sprint-contract archive 에서 FAIL 항목 추출
+
    - 반복 발생 항목이 있으면 해당 Step 의 Gotchas 를 강화하는 meta-fix 를 Phase 4 (harness-kaizen) subagent 에 전달
 4. `.harness/.meta/orchestrator-audit-log.md` 에 이번 사이클 엔트리 append (initial-empty — 실제 meta-issue 는 사이클 종료 시 Step 11 이후에 기록)
 
@@ -363,6 +375,25 @@ python3 scripts/collect-kaizen-data.py
 - 이 단계를 건너뛰면 오케스트레이터 자체 개선이 발생하지 않는다
 - `sync-orchestrator.py --check-only` drift 가 있는데 Phase 1 로 진행하지 마라 — AUTO 영역이 어긋난 채 Phase 가 실행되면 소스 파일과 SKILL.md 가 다른 킷 목록을 가리킨다
 - audit-log 는 append-only. 기존 엔트리를 수정/삭제하지 마라
+
+### Step 0.6: Phase Relevance Triage — 선별 (자동 — 건너뛰기 금지)
+
+**목적:** 전체 Phase 를 기본값으로 spawn 하면, 신호가 없는 Phase 도 서브에이전트 비용(리서치+분석, Phase 당 ~70k~140k 토큰)을 먼저 지불한 뒤에야 NO_CHANGE/1줄 Gotcha 를 발견한다. `/insights` 리포트는 롤링 윈도우라 직전 사이클과 크게 겹치는 경우가 많아, 이 낭비가 반복된다. Step 0.6 은 phase 를 spawn **하기 전에** 신호 농도를 평가하여 **선별 실행 범위를 사용자에게 제안**한다.
+
+**절차:**
+
+1. **§0 중복도 평가** — 데이터 풀 §0 `/insights` 리포트의 friction/suggestion 항목이 직전 사이클 audit-log(Step 0.5) 또는 직전 changelog 에서 이미 흡수됐는지 대조. 겹침이 높으면 §0 의 한계효용은 낮다 (각 Phase 프롬프트에 "직전 사이클 흡수분 중복 금지" 를 전달하는 것과 별개로, 애초에 spawn 할 Phase 를 줄인다).
+2. **Phase 별 신호 농도 산출** — 각 Phase 에 대해 (a) §1 글로벌 feedback 에 해당 kit 의 REJECT/improvement 신호가 있는가 (b) §2 외부 프로젝트에 해당 스택 사용 흔적이 있는가 (c) 직전 사이클 이후 해당 kit 소스가 변경됐는가 (d) §0 friction 이 해당 도메인에 직접 매핑되는가 — 4 신호 중 **0 개면 low-signal**.
+3. **선별 범위 제안** — low-signal Phase 가 다수면, 사용자에게 "고신호 Phase N 개만 실행 vs 전체" 를 **명시적 근거(어느 Phase 가 왜 low-signal 인지 표)와 함께 제안**한다. 사용자가 전체를 택하면 전체 실행한다 — 선별은 강제가 아니라 비용 인지 후 선택이다.
+4. 설계 가이드 Phase(1~3)는 **신호와 무관하게 항상 후보에 포함** — 하위 kit Phase 의 정합성 기준이기 때문. 단 변경 없으면 자체적으로 NO_CHANGE.
+5. 선별 결정(전체/부분 + 근거)을 audit-log 의 이번 사이클 엔트리에 기록한다.
+
+**Gotchas:**
+
+- 이 단계는 기존 "Phase 스킵 규칙"(reactive: spawn 후 0 개면 skip)의 **proactive 버전**이다 — spawn 비용 자체를 아낀다. 둘은 보완 관계이지 대체가 아니다.
+- low-signal 이라고 **자동으로** 빼지 마라 — 반드시 사용자에게 근거와 함께 제안하고 동의를 받는다. 사용자가 "전체" 를 이미 지시했으면 그 지시를 존중한다(재질문 금지, 단 비용은 1 회 고지).
+- 선별로 제외한 Phase 는 changelog/research-log 에 "이번 사이클 미실행(low-signal, 선별 제외)" 으로 1 줄 기록하여 누락과 구분한다.
+- §0 리포트가 VERY FRESH(24h)여도 내용이 직전 사이클과 겹치면 "신선함 ≠ 새 신호" 다. 타임스탬프가 아니라 **내용 델타**로 판단하라.
 
 ### Step 1: Phase 1 — 설계 가이드 카이젠
 
@@ -475,6 +506,7 @@ python3 scripts/collect-kaizen-data.py
 **범위:** Phase 1~12 전체 변경사항 (Phase 11 planning-kit + Phase 12 reflect-kit 포함 전수 체크)
 
 1. **Final Sprint Contract 생성:**
+
    - 크로스 Phase 정합성 조건:
      - Phase 1에서 업데이트된 설계 원칙이 Phase 2~12 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
@@ -484,6 +516,7 @@ python3 scripts/collect-kaizen-data.py
    - Diagnostics: 전체 `bash -n` 검증
 
 2. **QA Evaluator 실행:**
+
    - **APPROVE** → Step 11.5 로 진행
    - **REJECT** → 해당 Phase로 돌아가 수정 후 Final 재실행
 
@@ -546,6 +579,7 @@ cleanup_log:
 ### Step 12: PR 생성
 
 1. **버전 업데이트:**
+
    - harness 변경 있으면: `harness/.claude-plugin/plugin.json` 버전 bump
    - flutter-toolkit 변경 있으면: `flutter-toolkit/.claude-plugin/plugin.json` 버전 bump
    - design-kit 변경 있으면: `design-kit/.claude-plugin/plugin.json` 버전 bump
@@ -553,18 +587,23 @@ cleanup_log:
    - infra-kit 변경 있으면: `infra-kit/.claude-plugin/plugin.json` 버전 bump
    - rust-kit 변경 있으면: `rust-kit/.claude-plugin/plugin.json` 버전 bump
      (⚠ `/rust-kaizen` 스킬은 이 레포 개발용으로 rust-kit 플러그인에 포함되지 않는다 — bump 대상은 rust-kit 플러그인에 포함된 스킬뿐)
+
    - react-kit 변경 있으면: `react-kit/.claude-plugin/plugin.json` 버전 bump
      (⚠ `/react-kaizen` 스킬은 이 레포 개발용으로 react-kit 플러그인에 포함되지 않는다 — bump 대상은 react-kit 플러그인에 포함된 스킬뿐)
+
    - planning-kit 변경 있으면: `planning-kit/.claude-plugin/plugin.json` 버전 bump
      (⚠ `/planning-kaizen` 스킬은 이 레포 개발용으로 planning-kit 플러그인에 포함되지 않는다 — bump 대상은 planning-kit 플러그인에 포함된 10 개 스킬 + planning-reviewer 에이전트)
+
    - `.claude-plugin/marketplace.json` 갱신 (모든 플러그인 description 날짜/버전 동기화)
 
 2. **changelog 업데이트 (모든 Phase 변경 반영 — 건너뛰기 금지):**
+
    - `docs/kaizen/changelog.md` (harness 관련, Phase 1~4)
    - `docs/kaizen/flutter-changelog.md` (flutter 관련, Phase 5) — **이 파일이 존재하면 반드시 Phase 5 엔트리 추가**
    - 존재하지 않는 per-plugin changelog 파일은 research-log 에서 대체
 
 3. **research-log 업데이트 (per-kit 자동 생성 — "존재 시" 조문 제거):**
+
    - `docs/kaizen/research-log.md` (harness 관련, Phase 1~4)
    - `docs/kaizen/flutter-research-log.md` (flutter 관련, Phase 5) — **파일이 존재하면 반드시 Phase 5 엔트리 추가**
    - `docs/backend/research-log.md` (backend 관련, Phase 7) — **파일이 없으면 신규 생성**
@@ -576,11 +615,13 @@ cleanup_log:
    - 각 per-kit research-log 는 frontmatter (title, version, last_updated), "## [YYYY-MM-DD] - Phase N kaizen" 엔트리, 리서치 소스 URL 최소 5 건 포함.
 
 4. **evals 갱신 체크:**
+
    - 각 플러그인 `evals/evals.json` (존재 시) 의 `id` 필드와 현재 `<plugin>/skills/` 디렉토리의 스킬 목록이 일치하는지 확인
    - 스킬이 신규 추가 / 삭제 / 리네임되었으면 evals.json 도 갱신
    - 정합성 유지 확인을 `.harness/.meta/evals-audit-{YYYY-MM-DD}.md` 에 기록 (변경 없음이어도 점검 기록)
 
 5. **kaizen-failure-count.yaml 업데이트:**
+
    - `.harness/.meta/kaizen-failure-count.yaml` 에 `phase_1` ~ `phase_12` 엔트리가 모두 존재하는지 확인 (없으면 추가)
    - Regression PASS 인 Phase 는 카운터 0 으로 리셋
    - Regression FAIL 인 Phase 는 카운터 +1 → 2 이상이면 사용자 에스컬레이션
@@ -605,6 +646,7 @@ cleanup_log:
    - [ ] Phase 1~12 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다 (Phase 11 planning-kit + Phase 12 reflect-kit 포함)
 
 7. **PR 생성:**
+
    - 브랜치명: `kaizen/{날짜}`
    - PR 제목: `[kaizen] {Phase별 핵심 변경 요약}`
    - PR 본문: Phase별 변경 내역 + Final QA 결과 + Post-Kaizen Checklist 결과
