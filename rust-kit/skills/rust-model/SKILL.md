@@ -23,6 +23,8 @@ user-invocable: true
 - **마이그레이션 파일은 한 번 적용되면 수정 금지** — 이미 prod/staging에 적용된 마이그레이션을 수정하면 체크섬 불일치로 전체 마이그레이션이 실패한다. 수정이 필요하면 새 마이그레이션 파일을 추가하여 `ALTER TABLE`로 변경해라.
 - **인덱스 네이밍 컨벤션** — `idx_{table}_{columns}` 형식을 따라라(예: `idx_users_email`). 복합 인덱스는 `idx_orders_user_id_created_at`. 이름 없이 생성하면 DB가 자동 생성하는 이름이 DB 벤더마다 달라 마이그레이션 이식성이 깨진다.
 - **`DEFAULT` 값이 있는 컬럼 추가 시 `NOT NULL` 안전하게 적용** — 기존 테이블에 `NOT NULL` 컬럼을 추가하려면 반드시 `DEFAULT` 값을 함께 지정해라. `DEFAULT` 없이 `NOT NULL`을 추가하면 기존 행이 제약 위반으로 마이그레이션 자체가 실패한다.
+- **Enumerate-before-Act (skill-design-guide §5.5)** — 모델/마이그레이션을 생성하기 전에 기존 `migrations/` (또는 `migration/src/`) 와 entity/model 파일을 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 테이블이 이미 존재하는지, (b) 추가하려는 컬럼이 이미 있는지, (c) 같은 초(秒)에 충돌하는 마이그레이션 타임스탬프가 있는지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 SQL/모델을 생성한다. 선(先) 생성 후(後) 중복 발견은 이미 적용된 마이그레이션 수정 금지 규칙과 충돌하여 롤백이 불가능하다 (insights-report #1 wrong_approach·#3 excessive_changes 대응 — DB 스캐폴딩 임의 확장 차단). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+- **요청한 컬럼/테이블만 생성 — 임의 확장 금지** — "테이블 1개 추가" 요청에 `created_at`/`updated_at`/소프트삭제/감사 컬럼·연관 인덱스·캐시 레이어를 요청 없이 덧붙이지 마라. 프로젝트 컨벤션상 표준 컬럼이 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응 — "체크 제거" 요청에 캐시·디렉토리 체크를 덧붙인 패턴의 DB 버전).
 
 # DB 모델 + 마이그레이션 생성 (SQLx 또는 SeaORM)
 
