@@ -84,6 +84,7 @@ scope: session | project | global
 risk_class: low | medium | high
 procedurality: single_rule | multi_step_procedure
 enforcement_need: soft_reminder | hard_gate
+user_stated_constraint: true | false   # 사용자가 명시적으로 금지/지시한 제약의 재위반 (omission-constraint-decay 신호)
 evidence_turns: <int>
 tools_used:
   skills: []
@@ -140,6 +141,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 
 | # | 조건 (project=all 기준) | 승격 surface |
 |---|---|---|
+| 0 | 어느 프로젝트든 `user_stated_constraint == true` (global_freq ≥ 1) | **fast-track** — `project_count ≥ 2`면 글로벌 CLAUDE.md, 단일 프로젝트면 해당 project CLAUDE.md |
 | 1 | 어느 프로젝트든 `enforcement_need == hard_gate` | **hook 검토** |
 | 2 | `procedurality == multi_step_procedure` AND `global_freq ≥ 2` | **skill** |
 | 3 | `global_freq ≥ 3` AND `project_count ≥ 2` | risk=high → **글로벌 CLAUDE.md** / 나머지 → **글로벌 memory** |
@@ -187,6 +189,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 
 | # | 조건 | 승격 surface |
 |---|------|--------------|
+| 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** — `scope==global`이면 글로벌 CLAUDE.md, 아니면 project CLAUDE.md (200줄 초과 시 path-scoped rule). `enforcement_need==hard_gate`면 추가로 hook 후보 병기 |
 | 1 | `enforcement_need == hard_gate` (빈도 무관) | **hook 검토** (다른 축 무시) |
 | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** 신설/보강 |
 | 3 | `scope == global` AND 복수 프로젝트에서 freq ≥ 3 | **글로벌 CLAUDE.md** (risk_class=high) 또는 **글로벌 memory** (나머지) |
@@ -194,6 +197,8 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 | 5 | `scope == project` AND freq ≥ 2 | **project memory (feedback 타입)** |
 | 6 | `risk_class == low` AND freq == 1 | **관망** (no action, 다음 주 재평가) |
 | 7 | 그 외 | **review 후보 (수동)** |
+
+> **규칙 #0 근거 (Friction #2 — insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응)**: 사용자가 명시적으로 금지/지시한 제약(예: "ValueNotifier 쓰지 마")의 재위반은 일반 실수보다 **사용자 좌절이 크고**, 연구상 long-context에서 가장 먼저 잊히는 omission 제약이다 (Omission Constraints Decay While Commission Constraints Persist, https://arxiv.org/html/2604.20911). 따라서 freq 2/3회 누적을 기다리지 말고 **첫 재위반부터** 매-세션 자동 로드 surface(CLAUDE.md/hook)로 보낸다. memory(on-demand 로드)나 관망으로 보내면 재주입이 약해 friction이 해소되지 않는다. 단 surface 반영은 항상 `/reflect-promote`가 사용자 승인을 거쳐 수행한다 (digest는 후보 표시만).
 
 ### 임계값은 hypothesis
 

@@ -27,6 +27,7 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 4. **임계값 변경은 프롬프트/스킬 변경보다 보수적**. freq 2 → 3 로 올리면 과거에 이미 승격된 규칙들의 정당성이 흔들리고, 1 → 2 로 내리면 false positive 가 급증한다. 최소 60일 이상의 pre/post 재발률 비교 데이터가 있어야 변경 제안.
 5. **프롬프트 개선 제안은 diff 로 제시하고 자동 저장 금지**. `log-reflection.sh` 의 프롬프트 블록을 직접 수정하려면 사용자가 diff 를 읽고 승인해야 한다. kaizen 이 훅 스크립트를 자동 변경하면 드리프트 감지가 어렵다.
 6. **"no issues" 만 나오는 기간은 정상 또는 프롬프트 실패 둘 다 가능**. 연속 4주 모두 no issues 면 프롬프트가 과도하게 엄격해졌을 가능성을 의심하라 (false negative).
+7. **`user_stated_constraint == true` fast-track(precedence #0)은 별도 효과 측정 대상**. freq 임계값을 우회해 첫 재위반부터 CLAUDE.md/hook로 승격하므로, calibration 시 이 surface로 간 규칙의 post_freq 를 일반 freq 승격과 분리 집계하라. fast-track 후 post_freq 가 0 으로 잘 떨어지면 Friction #2(피드백 durable 미반영)가 완화된 증거다. 떨어지지 않으면 surface 가 약했거나(memory 로 잘못 감) 규칙 문구가 모호한 것 — 표시.
 
 ## 입력
 
