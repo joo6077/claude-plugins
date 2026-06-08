@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Codex Kaizen — Reflect Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#F43F5E;--accent2:#FDA4AF;
+  --accent-dim:rgba(244,63,94,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(244,63,94,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(244,63,94,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:760px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(244,63,94,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
+.card:hover{border-color:rgba(244,63,94,0.25);box-shadow:0 4px 20px rgba(244,63,94,0.06)}
+.card-icon{font-size:1.4rem;margin-bottom:10px}
+.card h3{font-size:0.95rem;margin-bottom:8px}
+.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
+.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
+.card-source:hover{opacity:1}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0;white-space:pre}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(244,63,94,0.03)}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.callout.warn{border-left-color:var(--yellow)}
+.callout.good{border-left-color:var(--green)}
+.flow-diagram{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:24px;font-family:var(--mono);font-size:0.82rem;line-height:1.9;color:var(--text);white-space:pre-wrap;margin:16px 0}
+.precedence-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:0.78rem}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.panel{border-radius:var(--radius);padding:20px;font-size:0.88rem;line-height:1.65}
+.panel h3{font-size:0.92rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25)}
+.panel-bad h3{color:var(--red)}
+.panel-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.25)}
+.panel-good h3{color:var(--green)}
+.panel p{color:var(--text2)}
+.checklist{list-style:none;padding:0;margin:8px 0}
+.checklist li{padding:10px 0 10px 30px;position:relative;color:var(--text2);font-size:0.9rem;border-bottom:1px solid rgba(42,42,64,0.5);line-height:1.6}
+.checklist li:last-child{border-bottom:none}
+.checklist li::before{content:"✓";position:absolute;left:0;top:10px;width:20px;height:20px;color:var(--green);font-weight:700}
+@media(max-width:680px){.compare{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="../index.html" class="logo-link">Reflect Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">Codex Kaizen</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>Codex Kaizen</h1>
+    <p class="subtitle">
+      Codex 위임 방법론과 전역 프롬프트 템플릿을, <strong>훅이 verbatim 자동수집한 위임 로그</strong>를 신호로 주 1회 점진 강화하는 카이젠 루프.
+      신호는 내가 손으로 매긴 점수가 아니라 codex 세션 rollout에서 그대로 떠온 원문이며, 모든 템플릿 반영은 사용자 승인 게이트를 거친다.
+    </p>
+    <div class="badge">reflect-kit · /codex-kaizen · 승인 게이트</div>
+  </div>
+
+  <section>
+    <div class="section-label">왜 만들었나</div>
+    <h2>수동 로깅 · 자가채점은 신뢰도가 0이다</h2>
+    <p style="color:var(--text2);margin-bottom:16px">
+      기존 프로토콜은 매 Codex 위임 후 내가 직접 로그를 쓰고, 5축 루브릭으로 0~5점 자체 채점을 매겼다. 문제는 두 가지다 —
+      (1) 내가 시킨 출력을 내가 다시 옮겨 적으면 요약·과장이 끼어든다, (2) <strong>같은 모델 계열이 자기 출력을 평가하면 self-preference 편향</strong>으로 점수가 부풀려진다.
+      실제 로그에는 거의 모든 위임이 <code>25/25</code>로 기록돼 있었다.
+    </p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🪞</div>
+        <h3>Self-preference 편향</h3>
+        <p>LLM 평가자는 자기 출력을 인간 평가자보다 높게 매긴다. 자기 출력을 인식하는 능력과 편애 강도 사이에 인과가 실증됐다.</p>
+        <a class="card-source" href="https://arxiv.org/abs/2404.13076">arXiv:2404.13076 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔁</div>
+        <h3>Self-refine가 bias 증폭</h3>
+        <p>6개 LLM(GPT-4·Gemini·LLaMA2·Mixtral 등)에서 자기 출력 재평가 기반 self-refine이 fluency는 올려도 bias를 키운다.</p>
+        <a class="card-source" href="https://arxiv.org/abs/2402.11436">arXiv:2402.11436 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📉</div>
+        <h3>채점 ≠ 신호</h3>
+        <p>자가채점은 training signal로 쓰면 drift를 강화한다. 평가는 리뷰 시점에 다른 모델 family가 독립적으로 해야 의미가 있다.</p>
+        <a class="card-source" href="https://arxiv.org/abs/2306.05685">arXiv:2306.05685 →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">정공법 — 자동 수집</div>
+    <h2>Codex가 이미 남긴 rollout을 훅이 verbatim으로 떠온다</h2>
+    <p style="color:var(--text2);margin-bottom:16px">
+      Codex CLI는 모든 위임을 <code>~/.codex/sessions/.../rollout-*.jsonl</code>에 완전 기록한다. 손으로 옮겨 적을 이유가 없다 —
+      Stop 훅이 새로 끝난 rollout을 찾아 프롬프트와 응답을 <strong>원문 그대로</strong> 월간 로그에 붙인다. 멱등(중복 방지)이고, 첫 실행 시 과거를 쏟지 않도록 시드한다.
+    </p>
+    <div class="flow-diagram">[ codex-rescue 위임 ]  →  codex가 rollout-*.jsonl 기록 (prompt + response 전부)
+                                         │
+[ turn 종료 ]  →  Stop 훅  →  harvest-codex-log.sh
+                                         │  · 새 rollout 탐지 (멱등: 이미 떠온 건 skip)
+                                         │  · task_complete 확인 (진행 중이면 다음 Stop으로 미룸)
+                                         │  · prompt / response / web_search 수 추출
+                                         ▼
+                  ~/.claude/codex-research-log/YYYY-MM.md  (verbatim, 점수 없음)</div>
+    <div class="callout good">
+      <strong>인플레이션 불가</strong> — 로그가 codex 원본에서 그대로 복사되므로 요약·과장이 끼어들 여지가 없다. 채점 칸 자체가 사라졌다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">카이젠 루프</div>
+    <h2>로그 신호 → 방법론 리서치 → diff 제안 → 승인 → 스탬프</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>단계</th><th>핵심</th></tr></thead>
+        <tbody>
+          <tr><td><span class="precedence-num">1</span></td><td>신호 수집</td><td>최근 로그에서 약점 패턴을 <strong>리뷰 시점 독립 평가</strong>로 태깅 (self-score 아님)</td></tr>
+          <tr><td><span class="precedence-num">2</span></td><td>방법론 리서치</td><td><code>references/search-sources.md</code>의 1차 출처로 gpt-5.5 prompting·평가 베스트 프랙티스 확인</td></tr>
+          <tr><td><span class="precedence-num">3</span></td><td>GAP 분석</td><td>현재 템플릿 vs (로그 약점 + 리서치)를 대조해 구체 갭 enumerate</td></tr>
+          <tr><td><span class="precedence-num">4</span></td><td>diff 제안</td><td>구체 diff + 근거 한 줄. <strong>파일 미적용 — 승인 대기</strong>. 1사이클 1실패유형 (과적합 방지)</td></tr>
+          <tr><td><span class="precedence-num">5</span></td><td>적용 + 스탬프</td><td>승인 후에만 반영 + <code>template_version</code> bump + 변경이력 1줄</td></tr>
+          <tr><td><span class="precedence-num">6</span></td><td>전수 대조</td><td>완료 선언 전 Gotchas·안티패턴 rule-by-rule audit</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>거대화 금지</strong> — 이 루프를 위해 sprint-contract·QA 에이전트·별도 가설 누적파일을 만들지 않는다. 로그가 누적 신호이고, 템플릿 상단 changelog가 곧 기록이다. 한 번 호출에 한 번 개선.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Step 1 — 실패 Taxonomy</div>
+    <h2>RAG·리서치 실패 분류 10종</h2>
+    <p style="color:var(--text2);margin-bottom:16px">
+      약점은 임의 표현이 아니라 고정 taxonomy로 태깅한다. RAG 오류 분류 연구를 통합한 10종이며, 각 약점 엔트리에 태그 + 로그 위치를 남긴다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>태그</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>unsupported_claim</code></td><td>근거 없는 주장</td></tr>
+          <tr><td><code>hallucinated_citation</code></td><td>존재하지 않거나 오매핑된 인용</td></tr>
+          <tr><td><code>retrieval_miss</code></td><td>찾았어야 할 근거를 놓침 (low recall)</td></tr>
+          <tr><td><code>low_precision_context</code></td><td>무관한 컨텍스트 혼입</td></tr>
+          <tr><td><code>incomplete_coverage</code></td><td>요청 범위 일부 누락</td></tr>
+          <tr><td><code>outdated</code></td><td>최신/현재 맥락 반영 실패</td></tr>
+          <tr><td><code>contract_noncompliance</code></td><td>요청한 출력 구조 미준수</td></tr>
+          <tr><td><code>oververbose</code></td><td>패딩·장황함</td></tr>
+          <tr><td><code>reasoning_error</code></td><td>추론 오류</td></tr>
+          <tr><td><code>tool_error</code></td><td>도구/프로세스 실패 (게이트 404·400 등)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="card-source" href="https://arxiv.org/abs/2510.13975">RAG 오류 taxonomy · arXiv:2510.13975 →</a>
+  </section>
+
+  <section>
+    <div class="section-label">근거 — 평가 · prompting</div>
+    <h2>1차 출처에 묶인 원칙</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">⚖️</div>
+        <h3>평가는 독립 모델로</h3>
+        <p>피평가 모델(codex)에게 자가채점시키지 않는다. 평가는 메인 스레드(다른 family)가 rubric으로 리뷰 시점에 수행한다.</p>
+        <a class="card-source" href="https://arxiv.org/abs/2306.05685">arXiv:2306.05685 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔀</div>
+        <h3>순서 편향 보정</h3>
+        <p>응답 순서만 바꿔도 judge 결과가 왜곡된다. 비교 평가 시 randomized/balanced order로 보정.</p>
+        <a class="card-source" href="https://arxiv.org/abs/2305.17926">arXiv:2305.17926 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3>Outcome-first 프롬프트</h3>
+        <p>gpt-5.5는 절차 나열보다 목표·성공조건·제약·증거 중심 프롬프트가 낫다. 과한 절차 지시는 overthinking·latency를 키운다.</p>
+        <a class="card-source" href="https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5">OpenAI prompt-guidance →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📐</div>
+        <h3>Structured output 강제</h3>
+        <p>codex CLI는 <code>codex exec --output-schema</code>로 JSON Schema를 강제할 수 있다. 단 스트림 중간 메시지 대비 외부 validator 1회 유지.</p>
+        <a class="card-source" href="https://developers.openai.com/codex/noninteractive">Codex noninteractive →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧪</div>
+        <h3>변경 전 held-out 평가</h3>
+        <p>로그 사례만 보고 바로 패치하지 않는다. 최적화된 prompt가 특정 입력에서 더 나빠질 수 있어 production 전 평가·수동 리뷰 게이트가 필수.</p>
+        <a class="card-source" href="https://developers.openai.com/api/docs/guides/prompt-optimizer">OpenAI prompt-optimizer →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📚</div>
+        <h3>전체 소스 목록</h3>
+        <p>OpenAI 공식 docs + 평가 방법론 arXiv 8종을 신뢰기준·미확인 격리와 함께 정리. Step 2가 이 목록만 참조한다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/skills/codex-kaizen/references/search-sources.md">search-sources.md →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">가드레일 — Gotchas</div>
+    <h2>완료 전 전수 대조 항목</h2>
+    <ul class="checklist">
+      <li>위임 시점 self-score를 부활시키지 않았다 — 평가는 리뷰 시점 독립 평가만.</li>
+      <li>전역 자산(codex-prompt-template.md · CLAUDE.md)을 승인 없이 편집하지 않았다.</li>
+      <li>codex에 <code>--model</code>을 넘기지 않았다 — gpt-5.5 게이트 실패 시 1회 재시도 → WebSearch fallback(미검증 명시).</li>
+      <li>단일 실패 1건 patch가 아니라 반복 패턴을 줄이는 generalized instruction이다.</li>
+      <li>모든 변경에 로그 또는 1차 출처 근거가 있다 — 추측 기반 강화 금지.</li>
+      <li>새 인용은 WebFetch로 제목·저자 1회 검증 후 추가했다 (codex ID 오매핑 방지).</li>
+      <li>템플릿 변경 시 <code>template_version</code> 스탬프를 올리고 변경이력 한 줄을 남겼다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label">안티패턴</div>
+    <h2>흔한 잘못 vs 정공법</h2>
+    <div class="compare">
+      <div class="panel panel-bad">
+        <h3>✕ 거대 기계</h3>
+        <p>수동 자가채점 위에 kaizen 스킬 생태계 + sprint-contract + QA + 스핀오프 세션을 얹는다. 신호는 신뢰 못 할 self-score.</p>
+      </div>
+      <div class="panel panel-good">
+        <h3>✓ 훅 + 직접 갱신</h3>
+        <p>훅이 verbatim 로그를 깨끗이 쌓고, 단일 스킬이 주 1회 그 로그를 신호로 템플릿 diff를 승인 게이트로 제안한다.</p>
+      </div>
+    </div>
+    <div class="compare">
+      <div class="panel panel-bad">
+        <h3>✕ 추측 강화</h3>
+        <p>"이러면 더 좋을 것 같다"로 템플릿을 키운다. 로그 1건에 과적합한 특수 지시를 박는다.</p>
+      </div>
+      <div class="panel panel-good">
+        <h3>✓ 근거 + 일반화</h3>
+        <p>로그 반복 패턴 또는 1차 출처 근거가 있을 때만. 반복 패턴을 줄이는 generalized instruction으로, 작은 diff로.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">도메인 경계</div>
+    <h2>reflect-kaizen과 무엇이 다른가</h2>
+    <div class="callout">
+      <strong>reflect-kaizen</strong>은 reflect 파이프라인(분류·승격 품질)을 개선하고 신호는 reflection 로그·ledger다.
+      <strong>codex-kaizen</strong>은 codex 위임 방법/템플릿을 개선하고 신호는 codex rollout 로그다. 신호원도 대상 자산도 다르므로 두 리포트를 섞지 않는다.
+    </div>
+  </section>
+</main>
+</body>
+</html>
