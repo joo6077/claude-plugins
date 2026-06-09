@@ -33,6 +33,7 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
 |------|------|
+| `codex-kaizen` | Codex 위임 방법론과 전역 프롬프트 템플릿(~/.claude/codex-prompt-template.md)을 |
 | `reflect-digest` | ~/.claude/logs/<project_id>/reflections-*.md 에 쌓인 구조화 YAML 블록을 읽어 |
 | `reflect-kaizen` | reflect-kit 파이프라인 자체의 품질을 월 1회 측정·보정한다. |
 | `reflect-promote` | /reflect-digest가 낸 승격 후보를 실제 Claude Code surface(project CLAUDE.md, project memory, |

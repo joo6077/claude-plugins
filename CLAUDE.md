@@ -248,6 +248,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/reflect-digest` | 주간/월간 reflections 로그 집계. 4축 precedence table로 승격 후보 도출 (리포트만) |
 | `/reflect-promote` | 승격 후보를 실제 surface(CLAUDE.md/memory/skill/hook/path-scoped)에 반영 + ledger 관리 + rollback |
 | `/reflect-kaizen` | LLM-as-judge 스팟체크 + 30d post_freq calibration + 임계값/프롬프트 개선 제안 |
+| `/codex-kaizen` | Codex 위임 방법/템플릿을 자동수집 로그(codex-research-log) 기반으로 주기 강화. 방법론 리서치 + 템플릿 diff 제안(승인 게이트) |
 | 훅 3종 | UserPromptSubmit(log-prompt), PostToolUseFailure(log-tool-failure), Stop(log-reflection, 백그라운드) |
 
 **bambu-kit — Bambu Lab H2S 자동 process+filament JSON 생성**
