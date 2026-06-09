@@ -1,7 +1,7 @@
 {
   "name": "reflect-kit",
   "description": "개인 Claude Code 사용자의 대화 피드백 → 학습 → 재주입 파이프라인 kit. Reflexion 방법론을 개인 레벨에 적용하여 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고 빈도·위험도·절차성 기준으로 CLAUDE.md / memory / skill / hook에 승격한다.",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "author": {
     "name": "Jackson Kim"
   },
