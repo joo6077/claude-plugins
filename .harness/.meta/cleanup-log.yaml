@@ -47,3 +47,9 @@ cleanup_log:
     over_500_truncated: 0
     deleted: 0
     notes: "no action needed (252 < 500, 0 aged); kaizen 2026-06-05 사이클"
+  - date: "2026-06-11"
+    total_before: 262
+    aged_over_6months: 0
+    over_500_truncated: 0
+    deleted: 0
+    notes: "no action needed (262 < 500, 0 aged); kaizen 2026-06-11 사이클 (hook-exec V8)"

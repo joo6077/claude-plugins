@@ -1,6 +1,6 @@
 # Kaizen Data Pool
 
-Generated: 2026-06-05T10:43:06
+Generated: 2026-06-11T15:30:25
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
@@ -8,7 +8,7 @@ Generator: `scripts/collect-kaizen-data.py`
 ## 0. `/insights` Report (외부 도구 산출물)
 
 - 경로: `/Users/jackson/.claude/usage-data/report.html` · HTML 추출 텍스트
-- 최근 갱신: 2026-06-04T20:18:49 ✓ VERY FRESH (14.4시간 전)
+- 최근 갱신: 2026-06-04T20:18:49 (6일 전)
 - 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions / 이번 사이클 신규 워크플로우 제안)
 
 <details><summary>insights report 본문 (auto-extracted)</summary>
@@ -1531,26 +1531,26 @@ During a Flutter kiosk refactoring session, the user just wanted a simple firmwa
 ## 1. 글로벌 Evaluator Feedback
 
 - 경로: `/Users/jackson/.harness/feedback/evaluator`
-- 총 파일: **184**
+- 총 파일: **190**
 
 ### Verdict 분포
 
-- **APPROVE**: 103
+- **APPROVE**: 109
 - **REJECT**: 80
 - **UNKNOWN**: 1
 
 ### Skill 분포
 
-- `qa-evaluator`: 184
+- `qa-evaluator`: 190
 
 ### Project 분포
 
-- `claude-plugins`: 115
-- `fit-pal`: 36
-- `fit-pal-app`: 15
+- `claude-plugins`: 117
+- `fit-pal`: 38
+- `fit-pal-app`: 16
 - `fit-pal-server`: 6
+- `fit-pal/app`: 3
 - `flutter_playwright`: 3
-- `fit-pal/app`: 2
 - `fit-pal-flutter`: 1
 - `bambu-kit-v0.4.0-9mm-craft-knife`: 1
 - `fitpal-server`: 1
@@ -1584,6 +1584,11 @@ During a Flutter kiosk refactoring session, the user just wanted a simple firmwa
 
 ### 최근 Improvement Suggestions (Top 15)
 
+- [2026-06-11] **fit-pal/app**: LG-01 테스트 확장: Authorization 헤더 마스킹, api_key 패턴도 테스트에 추가하면 계약이 열거한 5개 패턴 전수 커버 가능
+- [2026-06-11] **fit-pal/app**: DG-04 런타임 검증: dev 모드 앱 구동 후 네트워크 요청 시 로깅 인터셉터 에러 없음 확인 권장
+- [2026-06-11] **fit-pal**: MCP 서버 설정 시 IDE diagnostics 직접 관찰 가능
+- [2026-06-11] **fit-pal**: DG-02: MCP 서버 설정 시 IDE diagnostics 런타임 검증 추가 가능
+- [2026-06-05] **claude-plugins**: FC-07 조건에 10종 파일 경로를 명시적으로 나열하면 enumerated 검증 효율 향상
 - [2026-06-02] **fit-pal**: MCP 서버 연결 후 LG-04/DG-04 재검증
 - [2026-06-02] **fit-pal**: ER-03 계약에 pre-existing 이슈 제외 조항 추가
 - [2026-06-01] **fit-pal-server**: ER-01/ER-03: 향후 통합테스트에서 응답 JSON body도 파싱해 에러 메시지/코드 필드를 검증하면 계약 신뢰도 향상
@@ -1594,16 +1599,11 @@ During a Flutter kiosk refactoring session, the user just wanted a simple firmwa
 - [2026-05-29] **fit-pal**: LG-07 측정을 test ! -f 에서 git ls-files 결과 empty 로 변경 권장 (gitignored 파일의 물리적 존재 허용 여부 명확화)
 - [2026-05-29] **fit-pal**: AR-01 측정 명령에 커밋 완료 전제 명시 권장: 'Sprint B 커밋 완료 후 git diff main...HEAD 실행'
 - [2026-05-28] **fit-pal-server**: DA-02: 두 번 실행 후 timestamp 동일성 assertion 추가
-- [2026-05-28] **fit-pal-server**: DA-01/DA-02: integration test 추가 권장 — SeaORM MockDatabase 또는 PostgreSQL 테스트 DB로 멱등성 runtime 검증
-- [2026-05-28] **fit-pal-app**: on Object 블록 내 Sentry captureException 추가 권장 (심각한 Error 계열 무음 흡수 방지)
-- [2026-05-28] **fit-pal-app**: Failure.storage를 그룹 A(폐기)에서 그룹 B(유지)로 이동하는 계약 개정 검토
-- [2026-05-28] **fit-pal-app**: ER-01 테스트 시나리오에 AssertionError/Error 계열 throw 케이스 추가하면 on Object 포획 범위 의도를 명시적으로 커버 가능
-- [2026-05-28] **fit-pal-app**: DG-04 실기 검증을 위해 MCP 서버 설정 고려 (project.yaml mcp_server 활성화)
 
 ## 2. 외부 프로젝트 (`Hub/10_Dev`) 피드백
 
 - Hub 루트: `/Users/jackson/Hub/10_Dev`
-- 발견된 프로젝트: **4**
+- 발견된 프로젝트: **5**
 
 ### `apps`
 
@@ -1647,38 +1647,38 @@ Iteration: 1
 ### `fit-pal`
 
 - 경로: `/Users/jackson/Hub/10_Dev/fit-pal`
-- sprint-feedback.md: 71 lines
-- history sprint-contracts: 20
+- sprint-feedback.md: 55 lines
+- history sprint-contracts: 31
 - 최근 contracts:
-  - 20260529-1813-migration-sprint-contract.md
-  - 20260530-1530-sprint-contract.md
-  - 20260602-1135-sprint-contract.md
-  - 20260603-1520-sprint-contract.md
-  - 20260603-server-plan1-sprint-contract.md
+  - 20260611-0919-server-authz-sprint-contract.md
+  - 20260611-1030-app-logging-mask-sprint-contract.md
+  - 20260611-1130-server-h2-smartip-sprint-contract.md
+  - 20260611-1200-server-m3-cors-sprint-contract.md
+  - 20260611-1230-server-m4-ws-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
 ```markdown
 # Sprint Feedback
-Feature: 일정형 dot-grid 앱 구현 (Plan 2/2) — schedule-routines data layer + dot-grid 상세 + 편집 페이지
-Evaluated: 2026-06-04 11:30
+Feature: 서버 스토리지 자격증명 fail-fast (M-5 — 약한 minioadmin 기본값 부팅 차단)
+Evaluated: 2026-06-11 14:10
 Verdict: APPROVE
-Iteration: 3
+Iteration: 1
 
 ## Results
 
-### UI (4/4)
-- [x] UI-01: 일정형 그룹 상세에 등록된 일정-루틴들이 dot-grid로 표시된다 — PASS [정적]
-  - 근거: `group_schedule_dot_grid_section.dart:143-147` — `DotGridTable(routines: routines, onRowTap: ...)` 렌더
-- [x] UI-02: dot-grid 헤더 "루틴"/"시간" 라벨 + 행 시간열 formatDurationKo 표시 — PASS [정적]
-  - 근거: `dot_grid_table.dart:50` `group.routine`, `:72` `group.time`; `duration_format.dart:4-11` formatDurationKo 구현
-- [x] UI-03: 섹션 헤더 "추가" 버튼 + 루틴 행 탭 시 편집 진입 — PASS [정적]
-  - 근거: `group_schedule_dot_grid_section.dart:137-139` `_AddButton`, `dot_grid_table.dart:190-193` `Pressable(onTap: () => tap(routine))`
-- [x] UI-04: 편집 화면에 이름·아이콘·색·요일선택·시작/종료시간·skip정책 + N개 추가/삭제/재정렬 — PASS
-  - 근거: `schedule_routine_edit_page.dart:219-233` IFTextField(iconController) + IFTextField(nameController); `:252-255` `ColorPickerRow(selectedColorValue: routine.colorValue, onColorSelected: ...)` — e465cd2 수정 추가됨; `:260-263` DayTileGrid; `:267-283` TimeSection; `:287-300` _SkipPolicySelector; 추가=`notifier.addRoutine`(:125), 삭제=`notifier.removeAt`(:236), 재정렬=`onReorder: notifier.reorder`(:116)
+### Logic (2/2)
+- [x] LG-01: dev/test 환경에서 minioadmin/빈값 면제 — PASS
+  - 근거: `server/shared/config/src/lib.rs:583-585` — `if matches!(app_env, "dev" | "test") { return; }`. 테스트 `dev_allows_default_minio_credential`(line 710), `test_env_allows_default_minio_credential`(line 715) 모두 cargo test GREEN (L3)
+- [x] LG-02: prod/staging 비-dev에서 약한값/빈값 panic — PASS
+  - 근거: `lib.rs:592` — `value.is_empty() || value == DEFAULT_MINIO_CREDENTIAL`. 테스트 4케이스 전수 확인: `prod_panics_on_default_access_key`(line 727), `prod_panics_on_default_secret_key`(line 733), `prod_panics_on_empty_access_key`(line 739), `staging_panics_on_default_credential`(line 745) + 강한값 통과 `prod_allows_strong_credentials`(line 720), 19/19 GREEN (L3)
 
-### Logic (4/4)
-- [x] LG-01: 저장 후 상세 반영 — PASS [정적]
+### Error (1/1)
+- [x] ER-01: panic 메시지에 3개 anchor 포함 + tracing::error! 구조화 로그 — PASS
+  - 근거: `lib.rs:600-604` — panic! 메시지에 `SECURITY`, `APP_ENV={app_env}`, `{env_var}` 리터럴 포함. for loop (line 588-590)에서 access_key → `FITPAL__STORAGE__ACCESS_KEY`, secret_key → `FITPAL__STORAGE__SECRET_KEY` 분기. tracing::error! (line 593-599) `app_env`, `storage_key`, `env_var` 필드. 테스트 `storage_panic_message_contains_anchors`(line 750-765) assert 3개 GREEN (L3)
+
+### Architecture (2/2)
+- [x] AR-01: AppConfig::load()에서 validate_jwt_secret 다음 validate_storage_credentials 호출 — PASS
 ```
 
 </details>
@@ -1686,38 +1686,38 @@ Iteration: 3
 ### `flutter_playwright`
 
 - 경로: `/Users/jackson/Hub/10_Dev/flutter_playwright`
-- sprint-feedback.md: 117 lines
-- history sprint-contracts: 10
+- sprint-feedback.md: 178 lines
+- history sprint-contracts: 11
 - 최근 contracts:
-  - 20260417-1028-sprint-contract.md
   - 20260422-0945-sprint-contract.md
   - 20260422-phase-a-sprint-contract.md
   - 20260422-phase-b-sprint-contract.md
   - 20260507-1823-sprint-contract.md
+  - 20260610-1042-sprint-contract.md
 
 <details><summary>sprint-feedback.md 앞부분</summary>
 
 ```markdown
 # Sprint Feedback
-Feature: DTD-based VM service auto-discovery (Flutter CLI hosted DTD)
-Evaluated: 2026-05-07 20:05
-Verdict: APPROVE
-Iteration: 2
+Feature: Runtime pause auto-recovery + error visibility (A) + native permission/dialog tools (B)
+Evaluated: 2026-06-10 12:00
+Verdict: REJECT
+Iteration: 1
 
 ---
 
-## Pre-Check: Binary Decidability (Iteration 2)
+## Pre-Check: Binary Decidability (Step 1.5)
 
-**ER-DTD-4** — FAIL 상태: "파일 상태 4케이스 테스트 4건 중 1건이라도 미존재 또는 FAIL". [exact, enumerated] — 4건 전부 개별 Grep 필수.
-
-**LG-DTD-2/3/4** — 계약 frontmatter `fallback_policy` (sprint-contract.md:7)가 "3건 모두 허용"으로 명시적 revision. 새 계약 기준으로 [미검증, fallback PASS] 허용.
-
----
-
-## Results
-
-### Architecture (3/3)
-
+All conditions are binary-decidable. No range ambiguity ("주요/모든/대부분") found.
+Tag inventory:
+- AR-PAUSE-1: [goal] — idempotency by code reading (fallback allowed)
+- AR-PAUSE-2: [structural]
+- AR-PAUSE-3: [structural]
+- LG-PAUSE-1~5: [goal/structural]
+- ER-PAUSE-1: [exact] — FAIL 상태: Extension stream subscribe failure logs at debug, not warning
+- ER-PAUSE-2: [exact, enumerated] — 6 variants (5 recoverable + kPauseExit)
+- ER-PAUSE-3: [exact]
+- ER-PAUSE-4: [goal]
 ```
 
 </details>
@@ -1761,6 +1761,39 @@ Iteration: 2
 
 </details>
 
+### `purchase-bot`
+
+- 경로: `/Users/jackson/Hub/10_Dev/purchase-bot`
+- sprint-feedback.md: 97 lines
+- history sprint-contracts: 0
+
+<details><summary>sprint-feedback.md 앞부분</summary>
+
+```markdown
+---
+feature: "드라이런(observe) 모드 + 결제안전가드 + 구조/타이밍 리팩토링"
+evaluated: "2026-06-08 17:10"
+verdict: APPROVE
+iteration: 1
+---
+
+# Sprint Feedback
+Feature: 드라이런(observe) 모드 + 결제안전가드 + 구조/타이밍 리팩토링
+Evaluated: 2026-06-08 17:10
+Verdict: APPROVE
+Iteration: 1
+
+## Results
+
+### Logic (4/4)
+- [x] LG-01: observe 전체 흐름 실행 + mutating 액션 0회 — PASS
+  - 근거: `bot.py:66-70` click_any_text observe=True 분기에서 trial=True만 수행 (실 click 없음). `bot.py:253-255` run_checkout에 if observe: return early. `bot.py:258-265` try_enter_pin/confirm_payment는 return 이후 코드이므로 도달 불가. `bot.py:346-347` install_observe_network_guard가 observe=True 시 반드시 설치됨. 모든 mutating 액션이 observe 가드 뒤에 있음. [L3]
+
+- [x] LG-02: locator.click(trial=True) + "[DRY] would click ..." 로그 — PASS
+```
+
+</details>
+
 
 ## 3. Followup 문서
 
@@ -1787,7 +1820,7 @@ Iteration: 2
   V4 triggers        46 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.2.3 matches marketplace — OK
+  V7 plugin-json     v0.2.5 matches marketplace — OK
 
 === backend-kit ===
   V1 frontmatter     4 skills + 1 agent — OK
@@ -1814,7 +1847,7 @@ Iteration: 2
   V4 triggers        79 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.3 matches marketplace — OK
+  V7 plugin-json     v0.1.4 matches marketplace — OK
 
 === react-kit ===
   V1 frontmatter     21 skills + 3 agents — OK
@@ -1823,7 +1856,7 @@ Iteration: 2
   V4 triggers        157 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.3 matches marketplace — OK
+  V7 plugin-json     v0.1.4 matches marketplace — OK
 
 === planning-kit ===
   V1 frontmatter     12 skills + 1 agent — OK
@@ -1832,16 +1865,16 @@ Iteration: 2
   V4 triggers        95 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.3.1 matches marketplace — OK
+  V7 plugin-json     v0.3.2 matches marketplace — OK
 
 === reflect-kit ===
-  V1 frontmatter     3 skills — OK
+  V1 frontmatter     4 skills — OK
   V2 templates       0 files — SKIP (no templates/)
   V3 refs            0 links — OK
-  V4 triggers        20 keywords — OK
+  V4 triggers        25 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.3.1 matches marketplace — OK
+  V7 plugin-json     v0.4.0 matches marketplace — OK
 
 === bambu-kit ===
   V1 frontmatter     1 skill — OK
@@ -1859,7 +1892,7 @@ Iteration: 2
   V4 triggers        8 keywords — OK
   V5 placeholders    0 found — OK
   V6 code-fence      0 bare — OK
-  V7 plugin-json     v0.1.0 matches marketplace — OK
+  V7 plugin-json     v0.1.1 matches marketplace — OK
 
 Total: 11 plugins, 11 OK
 Exit: 0

@@ -1,13 +1,13 @@
 ---
 title: Claude Code 플러그인 검증 가이드
-version: 1.0.0
-last_updated: 2026-04-11
+version: 1.1.0
+last_updated: 2026-06-11
 scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-kit"
 ---
 
 # Claude Code 플러그인 검증 가이드
 
-> 릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하는 7-카테고리 검증 체계.
+> 릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하는 8-카테고리 검증 체계.
 
 **이 문서의 용도:** `scripts/validate-plugin.py` 의 각 체크가 무엇을, 왜, 어떻게 검증하는지 정의한다.
 새 킷을 추가하거나 기존 킷을 개선할 때 이 문서를 SSOT(Single Source of Truth)로 사용한다.
@@ -24,7 +24,7 @@ scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-
 - **placeholder 노출**: `TODO`, `TBD`, `FIXME` 가 사용자에게 그대로 보여진다.
 - **버전 불일치**: `plugin.json`의 버전과 `marketplace.json`의 description 태그가 달라 릴리스 추적이 깨진다.
 
-이 가이드는 위 문제를 자동으로 탐지하는 7가지 검증 카테고리(V1~V7)를 정의하고, 각 카테고리의 기준·방법·예외·FAIL 예시를 명시한다. 카이젠 주기마다 이 가이드를 기준으로 전체 킷을 점검하여 품질 저하를 방지한다.
+이 가이드는 위 문제를 자동으로 탐지하는 8가지 검증 카테고리(V1~V8)를 정의하고, 각 카테고리의 기준·방법·예외·FAIL 예시를 명시한다. 카이젠 주기마다 이 가이드를 기준으로 전체 킷을 점검하여 품질 저하를 방지한다.
 
 ---
 
@@ -61,7 +61,7 @@ python3 scripts/validate-plugin.py --fix
 
 ---
 
-## 3. 7가지 검증 카테고리
+## 3. 8가지 검증 카테고리
 
 ### V1 Frontmatter 무결성
 
@@ -393,6 +393,33 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 
 ---
 
+### V8 Hook 스크립트 실행 비트
+
+```python
+# V8 — see harness/docs/guides/plugin-validation-guide.md §3.8
+```
+
+**무엇을 검사하나**: `hooks/hooks.json` 이 **인터프리터 없이 직접 실행**하는 `.sh` 스크립트(`"command": "${CLAUDE_PLUGIN_ROOT}/scripts/x.sh"`)가 실행 비트(mode 0755)를 가지는지 검증한다. git 은 파일 모드를 추적하므로, 스크립트가 `100644`(비실행)로 커밋되면 marketplace clone·plugin cache 등 **모든 설치본**에서 해당 hook 이 `Permission denied` 로 실패한다.
+
+**왜 중요한가**: 2026-06 reflect 로그 30일 집계에서 hook `permission-denied` 계열이 **24개 프로젝트 957건(전체 friction 의 38%)** 으로 단일 최대 마찰원이었다. 근본원인은 `harness/scripts/{env-check,run-guard,sdk-guard}.sh` 와 `design-kit/scripts/env-check.sh` 4종이 `100644` 로 커밋되어 있던 것. SessionStart·PreToolUse hook 은 매 세션·매 Bash 호출마다 발화하므로, 비실행 스크립트 하나가 전 프로젝트에 누적 실패를 만든다.
+
+**직접 실행 vs 인터프리터 경유**: `${CLAUDE_PLUGIN_ROOT}/x.sh` 가 명령의 첫 토큰이면 직접 실행 → exec 비트 필수. `bash ${CLAUDE_PLUGIN_ROOT}/x.sh` 처럼 인터프리터(`bash`/`sh`/`source`)가 앞서면 읽기 권한만 있으면 되므로 V8 대상이 아니다 (예: reflect-kit 의 log-prompt.sh 는 `bash` 경유라 PASS).
+
+**예외**: `hooks/hooks.json` 이 없는 킷은 SKIP 상당(OK, "no hooks.json"). 직접 실행 `.sh` 참조가 0건이면 OK.
+
+**FAIL 예시** — `100644` 로 커밋된 직접 실행 스크립트:
+
+```text
+# harness/hooks/hooks.json
+{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh" }
+# 그런데 git ls-files -s 결과 100644 (비실행)
+# → FAIL: 직접 실행 hook 스크립트가 비실행 (mode 0o644 — chmod +x 필요)
+```
+
+**수정**: `chmod +x <script>` 후 커밋하면 git mode 가 `100755` 로 추적된다. 릴리스(release.sh)로 새 버전을 배포해야 기존 설치본의 cache 가 갱신된다.
+
+---
+
 ## 4. 자동화 사용법
 
 ### CLI 옵션
@@ -406,7 +433,7 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 | `--help` | 사용법 출력 | `--help` |
 
 `--check` 에 사용하는 체크 이름:
-`frontmatter`, `templates`, `refs`, `triggers`, `placeholders`, `code-fence`, `plugin-json`
+`frontmatter`, `templates`, `refs`, `triggers`, `placeholders`, `code-fence`, `plugin-json`, `hook-exec`
 
 ### 출력 포맷
 
@@ -419,6 +446,7 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
   V5 placeholders   0 found — OK
   V6 code-fence     0 bare — OK
   V7 plugin-json    v0.3.5 matches marketplace — OK
+  V8 hook-exec      3 hook 스크립트 실행 가능 — OK
 
 === react-kit ===
   V1 frontmatter    21 skills + 3 agents — OK
@@ -431,6 +459,7 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
   V5 placeholders   0 found — OK
   V6 code-fence     0 bare — OK
   V7 plugin-json    v0.1.0 matches marketplace — OK
+  V8 hook-exec      no hooks.json — OK
 
 Total: 7 plugins — 5 OK, 1 WARNING, 1 ERROR
 Exit: 2
@@ -520,7 +549,7 @@ python3 scripts/validate-plugin.py <kit-name>
 
 | 결과 | 의미 | 처리 |
 | ------ | ------ | ------ |
-| **ERROR** (FAIL) | V1~V7 중 하나 이상 실패 | 카이젠 개선 우선순위 "높음"에 자동 편입. 이 세션에서 반드시 수정 |
+| **ERROR** (FAIL) | V1~V8 중 하나 이상 실패 | 카이젠 개선 우선순위 "높음"에 자동 편입. 이 세션에서 반드시 수정 |
 | **WARNING** | V4 trigger 키워드 중복 등 | 우선순위 "중간". description 보강으로 해소 권장 |
 | **PASS** | 모든 체크 통과 | 해당 카테고리 skip. 변경으로 FAIL 이 생기지 않도록 주의 |
 
@@ -537,7 +566,7 @@ python3 scripts/validate-plugin.py <kit-name>
 
 ```markdown
 카이젠 세션 시작/종료 시 `scripts/validate-plugin.py <kit-name>` 을 실행하여
-7 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+전 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은
 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT).
@@ -550,7 +579,7 @@ python3 scripts/validate-plugin.py <kit-name>
 이 가이드는 다음 상황에서 갱신한다:
 
 - 새 킷 추가 시: §6 킷별 예외 카탈로그에 추가
-- 새 검증 카테고리 도입 시: V8~ 형식으로 §3 에 추가
+- 새 검증 카테고리 도입 시: V9~ 형식으로 §3 에 추가
 - 기존 체크 기준 변경 시: 해당 V-번호 섹션 수정 + `last_updated` 갱신
 - 통합 규칙 변경 시: §7.3 수정
 
@@ -563,8 +592,9 @@ python3 scripts/validate-plugin.py <kit-name>
 | 날짜 | 버전 | 내용 |
 | ------ | ------ | ------ |
 | 2026-04-11 | 1.0.0 | 초기 작성 — V1~V7 카테고리, 7개 킷 예외 카탈로그, scripts/validate-plugin.py 구현 |
+| 2026-06-11 | 1.1.0 | V8 hook-exec 추가 — hooks.json 직접 실행 `.sh` 의 실행 비트(0755) 검증. reflect 30일 집계상 hook permission-denied 957건(전체 friction 38%)의 회귀 방지 가드 |
 
 다음 갱신 예정:
 
-- V8: 에이전트 파라미터 스키마 검증 (tools 목록이 실제 Claude 지원 도구인지)
-- V9: README ↔ SKILL.md 스킬 목록 정합성 (README 에 언급된 스킬이 실제 존재하는지)
+- V9: 에이전트 파라미터 스키마 검증 (tools 목록이 실제 Claude 지원 도구인지)
+- V10: README ↔ SKILL.md 스킬 목록 정합성 (README 에 언급된 스킬이 실제 존재하는지)

@@ -211,3 +211,22 @@
 - `/refactor-checklist` 의 스택별 규칙 자동 로드 로직 구현 (현재는 reference 명시만)
 - HTML 추출 텍스트의 섹션 구조 보전 (마크다운 변환 라이브러리 도입 검토 — pyhtml2md 등)
 - 메타 메타 이슈 추적 — "이전 사이클이 어떤 근본 원인으로 fresh 데이터를 놓쳤는가" 를 audit-log 가 명시적으로 추적하는 스키마
+## 2026-06-11 — kaizen/2026-06-11
+
+**Cycle:** kaizen/2026-06-11  
+**Generated:** `scripts/append-audit-log.py` (auto-append)  
+**Notes:** 인사이트 주도 부분 카이젠. reflect-digest 30일 집계로 hook permission-denied 957건(38% friction) 근본원인(hooks.json 직접실행 .sh의 git mode 100644) 발견·수정·릴리스. Phase 4 validate-plugin V8 hook-exec 가드 신규(1 CHANGED). Phase 1~3,5~14 NO_CHANGE(직전 6일전 사이클 동일 데이터 윈도우, 신선함≠새신호). meta-issue: detect-docs-drift.py가 plugin-validation-guide.html 매핑하나 실제 등록 페이지는 plugin-validation.html(suffix 불일치) — 다음 사이클 매핑 보정 검토.  
+
+### Post-Kaizen Checklist failures
+
+- 없음 (모든 체크 PASS)
+
+### Orchestrator SKILL.md manual edits
+
+- 없음 (수동 개입 없이 완료)
+
+### Next-cycle watchlist
+
+- 특별 감시 대상 없음
+
+---

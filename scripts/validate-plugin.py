@@ -85,7 +85,7 @@ class CheckResult:
     """단일 체크 결과."""
 
     def __init__(self, check_id: str, label: str):
-        self.check_id = check_id          # V1~V7
+        self.check_id = check_id          # V1~V8
         self.label = label                 # 사람이 읽을 이름
         self.status = "OK"                 # OK | WARN | FAIL | SKIP
         self.summary = ""                  # 요약 (예: "7 skills + 1 agent — OK")
@@ -592,6 +592,97 @@ def check_v7_plugin_json(ctx: CheckContext) -> CheckResult:
 
 
 # ---------------------------------------------------------------------------
+# V8 Hook 스크립트 실행 비트 — hooks.json 이 직접 실행하는 .sh 는 mode 0755 여야 한다
+# V8 — see harness/docs/guides/plugin-validation-guide.md §3.8
+# ---------------------------------------------------------------------------
+
+# ${CLAUDE_PLUGIN_ROOT}/<relative>.sh 추출용. 인터프리터(bash/sh/source) 접두 여부도 함께 판정.
+HOOK_SCRIPT_PATTERN = re.compile(r'\$\{CLAUDE_PLUGIN_ROOT\}/(\S+?\.sh)')
+
+
+def _is_direct_exec(command: str, script_ref: str) -> bool:
+    """command 가 스크립트를 인터프리터 없이 직접 실행하는지 판정.
+
+    `${CLAUDE_PLUGIN_ROOT}/x.sh` 가 명령의 첫 토큰(또는 ;/&&/| 직후 첫 토큰)이면
+    직접 실행 → exec 비트 필수. `bash ${...}/x.sh` 처럼 인터프리터가 앞서면 불필요.
+    """
+    marker = "${CLAUDE_PLUGIN_ROOT}/" + script_ref
+    idx = command.find(marker)
+    if idx < 0:
+        return False
+    prefix = command[:idx]
+    # 직전 토큰 경계 추출 (마지막 셸 구분자 이후)
+    for sep in (";", "&&", "||", "|", "\n"):
+        prefix = prefix.rsplit(sep, 1)[-1]
+    return prefix.strip() == ""
+
+
+def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
+    """hooks.json 이 직접 실행하는 .sh 스크립트의 실행 비트(0755)를 검증한다.
+
+    근거: hooks.json 의 `${CLAUDE_PLUGIN_ROOT}/scripts/x.sh` 직접 실행 명령은
+    스크립트가 git mode 100644(비실행)로 커밋되면 모든 설치본에서 SessionStart·
+    PreToolUse hook 이 'Permission denied' 로 실패한다. 2026-06 reflect 집계상
+    24개 프로젝트 957건(전체 friction 38%)의 단일 근본원인이었다.
+    """
+    result = CheckResult("V8", "hook-exec")
+    hooks_json = ctx.kit_path / "hooks" / "hooks.json"
+
+    if not hooks_json.exists():
+        result.status = "OK"
+        result.summary = "no hooks.json — OK"
+        return result
+
+    try:
+        hooks_data = json.loads(ctx.read(hooks_json))
+    except json.JSONDecodeError as exc:
+        result.status = "FAIL"
+        result.summary = f"hooks.json parse error — {exc}"
+        return result
+
+    # 모든 event → matcher → hooks → command 순회하여 command 문자열 수집
+    commands: list[str] = []
+    for event_entries in hooks_data.get("hooks", {}).values():
+        if not isinstance(event_entries, list):
+            continue
+        for entry in event_entries:
+            for hook in entry.get("hooks", []):
+                cmd = hook.get("command", "")
+                if cmd:
+                    commands.append(cmd)
+
+    checked = 0
+    failures: list[str] = []
+    for cmd in commands:
+        for script_ref in HOOK_SCRIPT_PATTERN.findall(cmd):
+            if not _is_direct_exec(cmd, script_ref):
+                continue  # 인터프리터 경유 — exec 비트 불필요
+            checked += 1
+            script_path = ctx.kit_path / script_ref
+            rel = script_path.relative_to(REPO_ROOT)
+            if not script_path.exists():
+                failures.append(f"FAIL {rel}: hooks.json 참조 스크립트 없음")
+                continue
+            mode = script_path.stat().st_mode
+            if not (mode & 0o111):
+                failures.append(
+                    f"FAIL {rel}: 직접 실행 hook 스크립트가 비실행 (mode {oct(mode & 0o777)} — chmod +x 필요)"
+                )
+
+    if failures:
+        result.status = "FAIL"
+        result.summary = f"{len(failures)}개 hook 스크립트 실행 비트 누락"
+        result.details = failures
+        return result
+
+    result.status = "OK"
+    result.summary = (
+        f"{checked} hook 스크립트 실행 가능 — OK" if checked else "직접 실행 hook 스크립트 없음 — OK"
+    )
+    return result
+
+
+# ---------------------------------------------------------------------------
 # CHECK_REGISTRY + validate_kit
 # ---------------------------------------------------------------------------
 
@@ -603,6 +694,7 @@ CHECK_REGISTRY: dict[str, Callable[[CheckContext], CheckResult]] = {
     "placeholders": check_v5_placeholders,
     "code-fence": check_v6_code_fence,
     "plugin-json": check_v7_plugin_json,
+    "hook-exec": check_v8_hook_exec,
 }
 
 
@@ -665,11 +757,11 @@ def print_json_output(results: list[PluginResult]) -> None:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Claude Code 플러그인 7-카테고리 검증 도구",
+        description="Claude Code 플러그인 8-카테고리 검증 도구",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "체크 이름: frontmatter, templates, refs, triggers, "
-            "placeholders, code-fence, plugin-json\n"
+            "placeholders, code-fence, plugin-json, hook-exec\n"
             "가이드: harness/docs/guides/plugin-validation-guide.md"
         ),
     )

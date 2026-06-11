@@ -48,8 +48,8 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 # flutter-toolkit evals
 # evals.json (flutter-toolkit/evals/evals.json) 참조 — 19개 테스트 케이스
 
-# 플러그인 검증 (7-카테고리 자동 검사)
-python3 scripts/validate-plugin.py                          # 전체 7 킷
+# 플러그인 검증 (8-카테고리 자동 검사)
+python3 scripts/validate-plugin.py                          # 전체 킷
 python3 scripts/validate-plugin.py react-kit                # 특정 킷
 python3 scripts/validate-plugin.py --check=refs,placeholders # 특정 체크
 python3 scripts/validate-plugin.py --fix                    # 자동 수정 (placeholders + code-fence 만)
