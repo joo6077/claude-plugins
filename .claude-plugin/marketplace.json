@@ -18,7 +18,7 @@
     {
       "name": "design-kit",
       "source": "./design-kit",
-      "description": "[v0.2.4 · 2026-06-05] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries)"
+      "description": "[v0.2.5 · 2026-06-11] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries)"
     },
     {
       "name": "backend-kit",
