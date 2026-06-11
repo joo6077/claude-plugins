@@ -1,8 +1,30 @@
 ---
 title: Kaizen Changelog
-version: 1.2.0
-last_updated: 2026-06-05
+version: 1.3.0
+last_updated: 2026-06-11
 ---
+
+## [2026-06-11] — hook permission-denied 근본원인 + validate-plugin V8 가드 (인사이트 주도 부분 카이젠)
+
+### 트리거
+
+사용자가 "전체 인사이트 + 카이젠" 요청. reflect-digest `project=all` 30일 cross-project 집계(27 프로젝트 / 2,586 엔트리)에서 **hook permission-denied 계열이 24개 프로젝트 957건(전체 friction의 38%)으로 단일 최대 마찰원**임을 발견. 근본원인은 harness/design-kit 플러그인의 `hooks.json`이 직접 실행하는 `.sh` 4종이 git mode 100644(비실행)로 커밋된 것 — 모든 SessionStart·PreToolUse:Bash hook이 "Permission denied"로 실패하고 있었다 (오늘까지 진행 중).
+
+### 선행 조치 (main 직접 — 사용자 승인)
+
+- `harness/scripts/{env-check,run-guard,sdk-guard}.sh` + `design-kit/scripts/env-check.sh` mode 100644→100755 복원 (소스 + cache + marketplace 복사본). 음성·양성 실행 검증.
+- harness v0.4.4 + design-kit v0.2.5 릴리스로 향후 설치본에 전파.
+
+### Step 0~0.6 (Self-Audit + Triage)
+
+- 데이터 풀 재수집(insights 6d / global feedback 190 / hub 5). orchestrator↔marketplace sync drift(릴리스로 발생) 해소.
+- **Triage 판정**: 직전 풀 사이클이 6일 전(2026-06-05)이고 /insights도 동일 데이터 윈도우 → "신선함 ≠ 새 신호". validate-plugin 전 kit OK. 고신호는 hook-exec 회귀 가드뿐.
+
+### Phase 결과 (1 CHANGED / 13 NO_CHANGE)
+
+- **Phase 1~3** 설계가이드/Contract/Evaluator: NO_CHANGE — 인사이트 테마(Scope-Bound Edits, Binary Decidability, 측정 정밀도 git-ls-files/scope enumerate, 조용한 PASS 금지)가 6일 전 사이클에 이미 흡수됨(파일 라인 단위 확인).
+- **Phase 4** Harness: **validate-plugin V8 `hook-exec` 신규** — hooks.json 직접 실행 `.sh`의 exec 비트(0755) 검증. bash/sh/source 경유 제외. 음성 테스트(mode 0644→FAIL Exit 2) 통과. plugin-validation-guide §3.8 + v1.1.0. 권위 카운트 7→8 동기화, 운영 참조는 number-agnostic("전 카테고리")로 drift 방지.
+- **Phase 5~14** per-kit(flutter/design/backend/infra/rust/react/planning/reflect/bambu/onboarding): **전 10 NO_CHANGE** — 병렬 triage 에이전트가 데이터풀 귀속 신호·도메인 currency·hook-exec·설계가이드 drift 4축을 실제 파일 점검. kit별 콘텐츠 결함 0건(REJECT 80건은 전부 외부 프로젝트 실사용 QA).
 
 ## [2026-05-07b] — fresh /insights followup kaizen (Gap 1~6 흡수)
 

@@ -1,10 +1,34 @@
 ---
 title: Kaizen Research Log
-version: 1.2.0
-last_updated: 2026-06-05
+version: 1.3.0
+last_updated: 2026-06-11
 ---
 
 # Kaizen Research Log
+
+## [2026-06-11] — hook permission-denied 근본원인 + validate-plugin V8 (인사이트 주도 부분 카이젠)
+
+### 데이터 소스 (Step 0)
+
+- reflect-digest `project=all` 30일 cross-project 집계: 27 프로젝트 / 2,586 엔트리. primary: tool_failure 1537 / misunderstanding 496 / wrong_approach 415 / repeated_error 138.
+- 글로벌 evaluator 피드백 190건(REJECT 80, APPROVE 109) — 귀속은 대부분 외부 프로젝트(fit-pal 등) 실사용 QA.
+- `/insights`: `~/.claude/usage-data/report.html` (6d). 직전 2026-06-05 사이클과 동일 윈도우 → 한계효용 낮음(triage 반영).
+- validate-plugin 스냅샷: 11 plugins OK Exit 0.
+
+### 핵심 발견 (인사이트)
+
+- **hook permission-denied 957건 / 24 프로젝트 (전체 friction 38%)** — 단일 근본원인: `hooks.json`의 `${CLAUDE_PLUGIN_ROOT}/x.sh` 직접 실행 명령이 가리키는 4개 스크립트가 git mode 100644. SessionStart·PreToolUse 매 발화 실패.
+- 잔여 신호는 스킬 콘텐츠가 아니라 enforcement gap(필수 스킬 미호출, edit-before-read) — 설계 가이드에 이미 흡수.
+
+### 외부/내부 리서치 출처
+
+- Phase 4: git 파일 모드 추적(100644 vs 100755) + Claude Code plugin hooks 실행 모델(`${CLAUDE_PLUGIN_ROOT}` 직접 실행 vs 인터프리터 경유) — 레포 hooks.json 4종 + reflect 로그 실측 957건.
+- 근거 연결: reflect-digest precedence rule #1 (enforcement_need=hard_gate → hook 검토). 본 사이클은 가드를 "검출"(validate-plugin V8)로 구현.
+
+### Phase 5~14 reuse — NO_CHANGE 근거 매트릭스
+
+병렬 triage 에이전트 10기가 각 kit에 대해 4축(kit_feedback_signal / domain_currency / hook_exec_ok / design_guide_drift) 실측. 전 10 kit NO_CHANGE — 도메인 스택(Flutter 3.41·Riverpod 3 / WCAG 2.2·DTCG v1 / OAuth 2.1·FAPI 2.0 / Terraform 1.10·Gateway API v1.4 / Rust 2024·Axum 0.8 / React 19·Vite 8 / OST·Shape Up / Reflexion / Bambu H2S / 셋업 가이드)이 직전 2026-06-05 사이클에 이미 반영됨을 확인.
+
 
 ## [2026-06-05] — Phase 1~13 (/insights 2026-06-04 마찰 패턴)
 
