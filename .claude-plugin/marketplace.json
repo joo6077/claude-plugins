@@ -8,7 +8,7 @@
     {
       "name": "harness",
       "source": "./harness",
-      "description": "[v0.4.3 · 2026-06-05] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (2026 QA 자동화 트렌드 반영)"
+      "description": "[v0.4.4 · 2026-06-11] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (2026 QA 자동화 트렌드 반영)"
     },
     {
       "name": "flutter-toolkit",
