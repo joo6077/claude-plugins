@@ -22,6 +22,42 @@ user-invocable: true
 9. **`vi.mocked(...)` 로 타입 안전성 유지** — `as any` 로 모킹한 객체의 타입 우회 금지. Strict TS.
 10. **Vitest 브라우저 모드 컴포넌트 테스팅 옵션** — CSS 레이아웃, 브라우저 API 동작, 실제 이벤트 핸들링을 검증해야 할 때 `vitest-browser-react` + Playwright provider 로 실제 브라우저 환경에서 테스트할 수 있다. `page.getByRole()`, `.click()`, `.fill()`, `expect.element()` API 제공. jsdom 의 한계(CSS 미지원, 이벤트 불일치)를 넘어야 하는 경우에만 사용하고, 일반 컴포넌트 테스트는 jsdom 이 기본이다.
 
+11. **부재 단정은 양성 대조 없이 쓰지 않는다** — Testing Library 공식 문서상 `queryBy*` 는 매치가 없으면 `null` 을, `queryAllBy*` 는 빈 배열 `[]` 을 반환하고 **throw 하지 않는다**. 따라서 컴포넌트가 아예 렌더 실패해도 부재 단정은 그대로 통과한다. 부재를 주장하는 테스트에는 "무언가는 렌더됐다" 를 증명하는 단정을 **먼저** 둔다.
+
+    나쁜 예 — 렌더 자체가 실패해도 통과한다:
+
+    ```tsx
+    render(<UserList users={[]} />)
+    expect(screen.queryByRole('listitem')).toBeNull()
+    ```
+
+    좋은 예 — 양성 대조로 렌더 사실을 먼저 고정한다:
+
+    ```tsx
+    render(<UserList users={[]} />)
+    expect(screen.getByRole('list')).toBeInTheDocument()  // 양성 대조
+    expect(screen.queryByRole('listitem')).toBeNull()     // 그 위에서만 부재가 의미를 갖는다
+    ```
+
+12. **0 테스트·부분 실행 green run 을 통과 증거로 쓰지 않는다** — Vitest CLI 의 `--passWithNoTests` 는 "Pass when no tests are found" 이고 기본값은 `false` 다. 이 플래그가 npm script 에 박혀 있거나 파일 glob 이 어긋나면 **0 개 실행 = 성공** 출력이 나온다. 또 `allowOnly` 의 기본값은 `!process.env.CI` 이므로 **로컬에서는 남아 있는 `it.only` 하나만 돌고 나머지가 전부 스킵된 채 초록불**이 뜬다. 0 개 테스트는 "위반 없음" 이 아니라 "검사되지 않음" 이다.
+
+    나쁜 예 — 실행 수를 확인하지 않은 통과 보고:
+
+    ```text
+    pnpm vitest run → exit 0 → "테스트 통과, 완료"
+    ```
+
+    좋은 예 — 실행/스킵 카운트를 함께 인용한다:
+
+    ```text
+    pnpm vitest run → "Tests 14 passed | 0 skipped (14)" → 근거로 인용
+    Tests 0 passed 이거나 skipped > 0 이면 그 범위는 [미검증]
+    ```
+
+13. **스냅샷 baseline 을 사유 없이 갱신하지 않는다** — Playwright `toHaveScreenshot()` 은 baseline 이 없으면 현재 화면을 golden 파일로 기록한다. `--update-snapshots` 로 갱신하면 **깨진 화면이 정답으로 고정**되고 이후 실행은 자기 자신과 비교해 영원히 통과한다. baseline 을 만들거나 갱신했으면 (a) 갱신 사유 한 줄, (b) 그 이미지에서 지목한 구체 요소를 남긴다. 통과시킬 목적으로 `maxDiffPixels` / `maxDiffPixelRatio` 를 키우지 않는다 — 어떤 변경에도 같은 결과를 내는 측정은 oracle 이 아니다.
+
+14. **테스트를 만들 수 없는 항목은 조용히 넘기지 않는다** — 대상이 런타임·브라우저·네이티브 의존이라 이 스킬로 measurement 를 만들 수 없으면, "테스트 생성 완료" 로 보고하지 말고 그 항목에 `[미검증]` 마커와 사유를 붙인다. 상세 규약과 완료 전 체크리스트는 `react-kit/references/render-evidence-protocol.md` §3~§4 를 따르며, 임계값·마커 정의는 그 문서가 인용하는 상위 SSOT 를 따른다 (여기서 재정의하지 않는다).
+
 ## Process
 
 ### 1. 환경 감지

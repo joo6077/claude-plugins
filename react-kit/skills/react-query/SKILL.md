@@ -80,6 +80,22 @@ user-invocable: true
 
 14. **요청한 쿼리만 — 임의 mutation·prefetch 확장 금지** — "조회 훅 추가" 요청에 mutation·optimistic update·prefetch·infinite query 를 요청 없이 임의로 덧붙이지 마라. 관련 mutation 이 필요해 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
 
+15. **Counterpart Enumeration — queryKey 를 바꾸면 무효화 쪽을 편집 전에 열거한다 (skill-design-guide §5.5 · E2)** — Gotcha #13 Enumerate-before-Act 가 **새 훅을 만들기 전 중복 스캔**이라면, 이 규칙은 **기존 queryKey 팩토리를 수정할 때의 반대편 열거**다. TanStack Query 공식 문서상 `invalidateQueries` 는 **prefix 매칭이 기본**이며 `['todos']` 무효화는 `['todos', { page: 1 }]` 까지 함께 무효화한다. 따라서 key 배열의 **앞부분을 바꾸거나 세그먼트를 삽입하면** mutation 쪽 무효화 blast radius 가 타입 오류 없이 조용히 달라진다 — 너무 많이 무효화되거나(과다 refetch), 아예 매칭되지 않아 **스테일 데이터가 화면에 남는다**. 공식 문서는 팩토리 정합성 가이드를 제공하지 않으므로 이 규칙이 그 자리를 메운다.
+
+    **열거 대상 (Grep 으로 전수)**: `invalidateQueries` / `setQueryData` / `getQueryData` / `removeQueries` / `cancelQueries` 호출부 · `prefetchQuery` 지점 · `useQuery` 의 `enabled` 조건에서 같은 key 를 참조하는 곳 · `exact: true` 를 쓰는 호출부(세그먼트 추가에 가장 먼저 깨진다).
+
+    열거 결과는 **체크리스트 아티팩트로 제출**한다 — "확인했다" 는 문장으로 대체하지 않는다. 한 스프린트에서 양쪽을 다 못 바꾸면 남는 쪽을 **명시적 미완 항목**으로 보고한다.
+
+    ```text
+    Bad:  userKeys.detail(id) 의 key 를 ['user', id] → ['users', 'detail', id] 로 변경
+          → 훅 파일만 수정 → 뮤테이션의 invalidateQueries({ queryKey: ['user'] }) 가
+             더 이상 매칭되지 않아 수정 후에도 옛 데이터가 계속 표시됨
+    Good: 변경 전 Grep 'invalidateQueries|setQueryData|removeQueries' → 호출부 5 곳 열거
+          → 팩토리 1 + 호출부 5 체크리스트 합의 → 6 곳 일괄 수정
+    ```
+
+    **부적합**: 아직 아무도 참조하지 않는 신규 팩토리 추가. 이 경우 열거 단계는 noise 다.
+
 # Process
 
 ## 1. 프로젝트 환경 감지

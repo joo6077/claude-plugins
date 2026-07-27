@@ -20,6 +20,7 @@ user-invocable: true
 6. **Strict TS: `data`는 `T | undefined`** — `isPending === false`여도 TanStack Query 타입상 `data`는 `T | undefined`다. `data!.name` 강제 단언 금지, `if (!data) return <Empty />` 체크 필수.
 7. **반응형 skeleton 누락** — 실제 레이아웃이 `@container` 또는 breakpoint 반응형이면 skeleton도 동일 클래스로 변환한다. `/react-responsive`와 병용 가능.
 8. **공용 skeleton 배치 혼동** — 단일 컴포넌트용 skeleton은 같은 파일 하단 private 함수. 여러 화면/feature가 공유하는 skeleton만 `shared/components/skeletons/`로 승격한다.
+9. **"아무것도 안 보인다" 를 성공으로 읽지 마라 (E2)** — 이 스킬의 산출물은 **비어 보이는 것이 정상인 UI** 라서 검증 착오가 가장 쉽게 일어난다. 로딩 분기가 아예 렌더되지 않아 화면이 빈 것과, skeleton 이 정상 표시되어 회색 블록만 있는 것은 캡처상 구분되지 않을 수 있다. 부재 단정(`queryByTestId(...)` → `null`)은 컴포넌트가 렌더 실패했을 때도 통과하므로, **양성 대조(positive control)를 먼저 확보**한다 — pending 상태에서 skeleton 요소를 `getByRole`/`getByTestId` 로 지목하고, resolved 상태에서 실제 콘텐츠를 지목한 **두 증거를 쌍으로** 남긴다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` 의 §3 (a) 와 §4 체크리스트를 채운다. 증거를 못 얻으면 `[미검증]` 마커와 사유를 붙이고 부분 완료로 보고한다.
 
 # Process
 

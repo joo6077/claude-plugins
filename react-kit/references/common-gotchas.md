@@ -127,7 +127,15 @@ N. **[제목]**: [설명]
 
 ## G9. Context7 우선 리서치 (Phase 5 flutter-toolkit 전수)
 
-**원칙**: react-kit 스킬이 다루는 라이브러리 (React 19, TanStack Query v5, TanStack Router, Tauri 2, Tailwind v4, Zustand v5, Lingui v5, React Hook Form v7, Zod v4, Vite 6, shadcn CLI v4, Vitest, Playwright) API 를 인용할 때는 학습 데이터 대신 **Context7** `resolve-library-id` → `query-docs` 로 현재 공식 문서를 조회한다. Context7 미수록 시 `codex-rescue` 로 공식 문서 리서치 위임.
+**원칙**: react-kit 스킬이 다루는 라이브러리 (React 19, TanStack Query v5, TanStack Router, Tauri 2, Tailwind v4, Zustand v5, Lingui v5, React Hook Form v7, Zod v4, Vite 6, shadcn CLI v4, Vitest, Playwright) API 를 인용할 때는 학습 데이터 대신 현재 공식 문서를 조회한다.
+
+**조회 순서 (fallback 체인)**:
+
+1. **Context7** `resolve-library-id` → `query-docs`
+2. **WebFetch** 로 공식 문서 URL 직접 조회 — Context7 MCP 가 **OAuth 미인증**이면 도구 호출이 실패하고, 비대화형 세션에서는 인증 플로우를 실행할 수 없다. 이때는 Context7 복구를 기다리지 말고 바로 WebFetch 로 내려간다 (2026-07-27 카이젠 실측)
+3. **codex-rescue** — 위 둘로도 1차 출처를 못 찾을 때 리서치 위임
+
+조회하지 못한 항목은 **버전·기본값을 단정하지 않는다**. 학습 데이터 기반 버전 서술은 금지다.
 
 이 원칙은 카이젠 수행자(Claude)에게 적용되며, 스킬 사용자(최종 프로젝트 개발자)에게는 권장 사항이다.
 
@@ -143,6 +151,19 @@ N. **[제목]**: [설명]
 
 ---
 
+## G11. 렌더 증거 규약 — 정의는 별도 SSOT (Phase 10 2026-07-27)
+
+**원칙**: 렌더 결과가 산출물인 스킬(`react-screen` · `react-widget` · `react-skeleton` ·
+`react-responsive` · `react-animation`)과 measurement 를 만드는 `react-test` 는 완료 선언 전에
+`react-kit/references/render-evidence-protocol.md` 를 따른다. **내용을 이 파일에 복제하지 않는다**
+— 그 문서가 react-kit 의 렌더 증거 SSOT 이고, 임계값·마커·등급은 다시 상위 harness 가이드를
+인용한다.
+
+**요지**: `tsc` 통과와 Strict TS 검증은 "그려진다" 는 증거가 아니다. 증거를 못 얻으면 `[미검증]`
+마커와 사유를 붙이고 부분 완료로 보고한다. 마커 동의어(`미확인` / `unverified` 등) 신설 금지.
+
+---
+
 ## 사용 가이드
 
 이 파일은 다음 시점에 참조한다:
@@ -150,3 +171,4 @@ N. **[제목]**: [설명]
 - react-kit 카이젠 시 Gotchas 섹션 품질 검증 기준으로
 - QA Evaluator 가 react-kit 스킬을 평가할 때 체크리스트로
 - Sprint Contract 작성 시 I-02 예외 목록 참조 (G7)
+- 렌더 산출물 스킬 완료 직전 증거 규약 확인 (G11)

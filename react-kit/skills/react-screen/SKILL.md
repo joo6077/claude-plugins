@@ -24,6 +24,7 @@ user-invocable: true
 11. **React 19.2 `<Activity />` 로 탭/패널 pre-render** — `<Activity mode="visible|hidden">` 컴포넌트로 비활성 탭/패널을 낮은 우선순위로 pre-render 할 수 있다. hidden 모드에서 자식은 렌더되지만 Effect 는 mount 되지 않는다. 탭 전환 시 즉시 표시가 필요한 화면에 적합. 단, React 19.2+ 에서만 사용 가능하며 canary 채널에서 안정화 중이므로 적용 전 버전을 확인한다.
 12. **Enumerate-before-Act (skill-design-guide §5.5)** — 화면을 생성하기 전에 기존 `src/presentation/routes/*` 와 `src/presentation/features/*/screens/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 정확히 같은 경로뿐 아니라 (b) 유사 네이밍 라우트(`/user` vs `/users`)·중복 화면, (c) 같은 feature 에 이미 등록된 화면을 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 단일 경로 존재 체크(Gotcha #5)만으로는 유사 네이밍 충돌을 못 잡아 라우트 트리가 오염된다 (insights-report #2 wrong_approach 대응 — "근사치 추정" 후 재작업 차단). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
 13. **요청한 화면만 생성 — 임의 스캐폴딩 금지** — "화면 1개 추가" 요청에 store·provider·API 훅·테스트·레이아웃 래퍼를 요청 없이 덧붙이지 마라. 화면이 데이터를 필요로 하면 그 사실을 **먼저 알리고** `/react-query`·`/react-api` 별도 실행 여부를 확인한다. 풀 스택 자동 생성이 필요하면 `/react-feature` 를 안내한다 (insights-report #3 excessive_changes 대응 — 최소 viable 산출물 default).
+14. **렌더 증거 없이 완료 선언 금지 (E2)** — `tsc` 통과는 화면이 실제로 그려진다는 증거가 아니다. 라우트가 등록됐고 타입이 맞아도 빈 화면이 렌더될 수 있다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` 의 §4 체크리스트를 응답에 채운다. 증거를 얻을 수 없으면 해당 항목에 `[미검증]` 마커와 사유를 붙이고 **부분 완료로 보고**한다 — 조용히 넘기지 않는다. 임계값·마커 정의는 그 문서가 인용하는 상위 SSOT 를 따르며 여기서 재정의하지 않는다.
 
 # Process
 
