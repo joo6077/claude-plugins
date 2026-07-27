@@ -1,134 +1,83 @@
 ---
-feature: "kaizen Phase 4 — Harness 인프라 (파이프라인 스크립트 회귀 · 워크플로우 스킬 enforcement · Phase 1~3 정합화)"
-created: "2026-07-27 20:10"
+feature: "kaizen 2026-07-27 Final — 크로스 Phase 정합성 검증 (Phase 1~14 전수 CHANGED)"
+created: "2026-07-27 21:40"
 complexity: "복잡"
-conditions: 23
+conditions: 18
 ---
-
-# Sprint Contract — Phase 4 Harness 카이젠
 
 ## 배경
 
-이번 사이클의 프레이밍은 Phase 1~3 과 동일하다. `/insights` 2026-07-27 의 Friction #1·#3 은
-직전 사이클 승격분인데 세션당 비율이 줄지 않았고, 따라서 **새 soft 문장 추가가 아니라
-enforcement 등급 상향**이 기본 전략이다. 등급 어휘(E1/E2/E3)의 SSOT 는
-`skill-design-guide.md §3.7` 이며 여기서 재정의하지 않는다.
+2026-07-27 카이젠 사이클에서 Phase 1~14 가 **전부 CHANGED** 되었고 11개 플러그인이 minor bump 되었다.
+이번 사이클의 프레이밍은 "새 규칙 추가"가 아니라 **enforcement 등급 상향**(E1 문장 → E2 아티팩트 →
+E3 결정론적 게이트)이며, Phase 1 이 정의한 어휘·규약이 하위 12개 Phase 에 일관되게 전파됐는지가
+정합성의 핵심이다.
 
-Phase 4 에 배정된 신호는 네 갈래다.
-
-1. **실측 회귀 (최우선).** `scripts/finalize-phase.sh` 의 audit-log append 가 Phase 1·2·3
-   에서 연속 3 회 경고를 냈다. 재현 결과 원인은 **CLI 계약 불일치**였다 — finalize 는
-   `--phase/--result/--date` 를 넘기는데 `append-audit-log.py` 는 `--cycle-id/--notes` 만
-   받는다(argparse exit 2). 게다가 호출부가 `2>/dev/null` 로 stderr 를 삼켜 3 사이클 동안
-   원인이 보이지 않았다. 같은 스크립트에 두 번째 결함도 있다: phase 번호를 1~10 으로
-   하드코드하여 **Phase 11~14 (planning·reflect·bambu·onboarding) 는 finalize 자체가
-   exit 1** 이다.
-2. **이전 사이클 backlog 3 건.** detect-docs-drift 매핑 suffix 불일치 · `/sprint` REJECT
-   iteration 자동 카운트 · `/refactor-checklist` 스택별 규칙 자동 로드.
-3. **Friction #5 (Phase 4 배정분).** 배치 커밋이 회귀를 은폐하고, 재개 시 핸드오프 문서가
-   스테일이며, 병렬 세션이 같은 파일을 건드려 빌드가 깨진다.
-4. **Phase 1~3 정합화.** harness 스킬 일부가 구 규약을 들고 있다 (Unverifiable 3 항 · validate
-   카테고리 7 개).
+Final 단계는 **새 기능을 추가하지 않는다.** 이미 적용된 변경들 사이의 모순·누락·drift 만 검증한다.
 
 ## 리서치 소스
 
-Context7 MCP 는 이 세션에서 OAuth 미인증이라 사용 불가 → `phase-research-templates.md`
-§Phase 4 의 fallback 인 WebFetch 로 1 차 출처를 직접 조회했다 (5 건, 최소 3 건 요건 충족).
-
-- <https://code.claude.com/docs/en/hooks> — 훅 이벤트 31 종. **exit 2 만 차단**하고 exit 1 은
-  비차단 에러로 그대로 진행된다. `PostToolBatch`·`Stop`·`SubagentStop`·`TaskCompleted` 도
-  차단 가능. 실패를 조용히 흘리지 않으려면 종료 코드 규약이 명시적이어야 한다는 근거
-- <https://raw.githubusercontent.com/mgechev/skills-best-practices/main/README.md> — Phase 4
-  필수 소스. "Fragile/repetitive operations where variation is a bug" 는 스크립트로,
-  스크립트는 "highly descriptive, human-readable error messages" 를 돌려줘야 한다.
-  logic validation 은 "execution blockers" 를 찾는 것
-- <https://arxiv.org/abs/2606.27416> — Glite ARF (2026-06-25). 12 병렬 에이전트 · 273 태스크를
-  결정론적 Python verifier 로 통제. "the rules of the research process live in code that
-  **fails loudly when violated**, not in prose that agents are merely asked to follow" +
-  task isolation / immutability of completed work
-- <https://arxiv.org/abs/2605.06527> — STALE (2026-05-07). 에이전트가 자기 기억의 무효화를
-  탐지하는 능력: **최고 모델 55.2%**. Implicit Conflict (명시적 부정 없이 나중 관측이 앞선
-  기억을 무효화) 가 주 실패 모드 → 핸드오프 문서를 자기 기억으로 신뢰하면 안 되고 외부
-  상태(git)로 대조해야 한다는 근거
-- <https://arxiv.org/abs/2604.08224> — Externalization in LLM Agents (2026-04-09). harness
-  engineering 을 "the unification layer that coordinates [memory·skills·protocols] into
-  governed execution" 으로 정의. 상태 외부화가 harness 의 본질
-
-## GAP 분석
-
-| # | 현재 | 리서치/데이터 근거 | 조치 | 등급 |
-| - | ---- | ------------------ | ---- | ---- |
-| G1 | finalize→append CLI 계약 불일치 + stderr 침묵 (3 사이클 무증상) | Glite ARF "fails loudly" · mgechev "descriptive error messages" | phase 모드 신설 + 호출부 정정 + 실패 시 stderr 노출 | E3 |
-| G2 | phase-num 1~10 하드코드 → Phase 11~14 finalize 불가 | orchestrator 는 Phase 14 까지 존재 (SKILL.md Step 14) | MAX_PHASE 를 failure-count 파일에서 유도 | E3 |
-| G3 | detect-docs-drift 가 존재하지 않는 HTML 경로를 산출 (`plugin-validation-guide.html`) | 이전 사이클 audit-log meta-issue | index.html 레지스트리 대조 + 미등록은 NEW 로 표시 | E3 |
-| G4 | `/sprint` iteration 한계가 문장만 (카운터 없음) | insights Friction #3 · backlog | 응답 복사형 카운터 + 복구 근거를 sprint-feedback.md 로 | E2 |
-| G5 | 재개 시 핸드오프 문서를 그대로 신뢰 | STALE 55.2% | git 대조 재검증 단계 신설 | E2 |
-| G6 | 배치 커밋 · 병렬 세션 파일 충돌 | insights Friction #5 · Glite ARF task isolation | 검증 단위 커밋 + 소유 파일 열거 | E2 |
-| G7 | refactor-checklist 규칙 소스가 레포 상대경로 문장뿐 | digest `cwd-contract-path-drift` 계열 · Phase 3 ladder 선례 | ladder + 부재 시 `[미검증]` | E2 |
-| G8 | create-agent 가 Unverifiable "3 항" 이라 서술 | agent-design-guide §10 은 4 항 (Phase 1) | 4 항으로 정정 | E1 |
-| G9 | 5 개 harness 스킬이 validate 카테고리를 "7" 로 서술 | plugin-validation-guide 는 V1~V8 | 8 로 정정 | E1 |
-| G10 | scope-creep Gotcha 가 파일 수 기준 | digest `complexity-by-file-count` 와 동일 계열 결함 | unit 기준 + unit 별 증거 의무 | E2 |
-| G11 | 가드 우회(cwd 이동) 가 명문화 안 됨 | digest `bypass-run-guard-by-cwd` | 템플릿 rationalization_override 1 건 | E1 |
+Final 단계는 자체 리서치를 수행하지 않는다. Phase 별 리서치 출처는
+`docs/kaizen/research-log.md` 의 `[2026-07-27]` 엔트리에 전량 기록되어 있다.
 
 ## 범위 경계
 
-- 수정 대상: `scripts/{append-audit-log.py,finalize-phase.sh,detect-docs-drift.py}` ·
-  `harness/skills/{sprint,refactor-checklist,create-agent,create-skill,init,harness-kaizen,contract-kaizen,evaluator-kaizen}/SKILL.md` ·
-  `harness/templates/project.yaml`
-- 수정 금지 (다른 Phase 소관): `harness/skills/sprint-contract/**` · `harness/agents/qa-evaluator.md` ·
-  `harness/docs/guides/{skill,agent,contract}-design-guide.md` · `harness/docs/guides/qa-evaluation-guide.md` ·
-  `harness/references/contract-schema.md` · 모든 kit · `.claude/skills/kaizen-orchestrator/**` ·
-  marketplace.json · plugin.json · changelog
-- **Unit 계수 (harness-kaizen scope-creep 규칙 대비):** 신규 도입 unit 은 3 개
-  (U-C1 sprint · U-C2 refactor-checklist · U-E 템플릿). 나머지는 오케스트레이터 명시 지시
-  backlog (U-A finalize 파이프라인 · U-B docs-drift) 와 SSOT 사실 정정 (U-D) 이다. 본 계약이
-  그 계수 규칙 자체를 unit 기준으로 정정한다 (G10)
+- **측정 baseline**: `da6663c` (직전 사이클 머지 커밋). 모든 diff 조건은 `da6663c..HEAD` 기준.
+- 검증 대상은 이 사이클이 만든 커밋 전체이며, 새 소스 변경은 하지 않는다.
+- `docs/*.html` 재생성(Step 11.5)은 별도 서브에이전트 산출물이며 이 계약의 AR-04 로 검증한다.
+
+## GAP 분석
+
+Final 이 잡아야 할 drift 후보 (Phase 리포트에서 명시적으로 이관된 것):
+
+1. Phase 1 의 E1/E2/E3 와 `[미검증]` 임계 2건이 **SSOT 한 곳에서만 정의**되고 나머지는 인용인가.
+2. Phase 3 의 Canonical Unverified-Evidence Protocol 이 kit reviewer 들에 **문구 변형 없이** 복제됐는가.
+3. Counterpart Conditions 의 **evaluator 측 대응 절이 만들어지지 않았는가** (parity item 12 의도된 부재).
+4. 11킷 버전이 plugin.json ↔ marketplace.json ↔ orchestrator AUTO 블록 3곳에서 일치하는가.
+5. Phase 번호 표기(13=bambu / 14=onboarding)가 전 문서에서 일관되는가.
 
 ## 회귀 게이트
 
-- `python3 scripts/validate-plugin.py` → 11 plugins 11 OK · Exit 0
-- 수정한 스크립트 3 개는 문법 검사 + **실제 실행** 증거 필수 (자기보고 금지)
-
-## Script
-
-- [ ] SC-01: `python3 scripts/append-audit-log.py --phase 4 --result pass --date 2026-07-27 --dry-run` 이 exit 0 이고 출력에 `Phase 4` 와 `pass` 가 포함된다 (측정: 실제 실행 + 출력 인용) [exact]
-- [ ] SC-02: phase 모드에서 cycle-id 미지정 시 `.harness/.meta/kaizen-state.yaml` 의 `cycle_id` 값을 사용한다 (측정: `--dry-run` 출력에 `kaizen-2026-07-27` 포함) [exact]
-- [ ] SC-03: `scripts/finalize-phase.sh` 가 append-audit-log.py 에 넘기는 인자 집합이 argparse 정의 집합의 부분집합이다 (측정: `grep -n "append-audit-log" scripts/finalize-phase.sh` 와 `python3 scripts/append-audit-log.py --help` 대조) [exact, enumerated]
-- [ ] SC-04: finalize-phase.sh 의 **실행 라인**에 stderr 를 버리는 `2>/dev/null` 이 0 건이고, audit-log 실패 시 stderr 앞부분이 사용자에게 출력된다 (측정: `grep -n '^[^#]*2>/dev/null' scripts/finalize-phase.sh | wc -l` == 0 · 주석 라인은 규칙 설명이므로 제외) [exact]
-- [ ] SC-05: `bash scripts/finalize-phase.sh 14 pass` 가 phase 범위 에러 없이 exit 0 이다 (측정: 실제 실행 후 `echo $?`) [exact]
-- [ ] SC-06: 사이클 완료(status completed) 판정이 하드코드 `10` 이 아니라 유도된 MAX_PHASE 변수와 비교한다 (측정: `grep -n "MAX_PHASE" scripts/finalize-phase.sh`) [exact]
-- [ ] SC-07: `python3 scripts/detect-docs-drift.py` 가 `harness/docs/guides/plugin-validation-guide.md` 변경분을 `docs/harness/plugin-validation.html` 로 매핑한다 (측정: 임시 커밋 없이 `--since HEAD~N` 또는 단위 함수 직접 호출로 실행) [exact]
-- [ ] SC-08: detect-docs-drift 출력이 대상 HTML 의 등록/존재 여부를 구분 표시한다 (JSON 모드에 `exists` 필드, 텍스트 모드에 `NEW` 표기) (측정: `--json` 실행 출력) [exact]
-- [ ] SC-09: 수정한 스크립트 3 개가 문법 검증을 통과한다 — `bash -n scripts/finalize-phase.sh`, `python3 -m py_compile scripts/append-audit-log.py scripts/detect-docs-drift.py` (측정: 3 명령 각각 exit 0) [exact, enumerated]
-
-## Skill
-
-- [ ] SK-01: `harness/skills/sprint/SKILL.md` 에 재개 시 핸드오프 문서를 git 으로 재검증하는 단계가 존재하고 STALE 근거 URL 이 인용된다 [exact]
-- [ ] SK-02: 동 파일에 QA iteration 카운터가 **응답에 복사하는 형태**로 정의되고, 3 회 도달 시 중단 + 컨텍스트 리셋 시 `.harness/sprint-feedback.md` 로 복원하는 규칙이 명시된다 [exact]
-- [ ] SK-03: 동 파일에 "커밋 단위 = 검증 증거가 확보된 수정 단위" 원칙과 병렬 세션 소유 파일 열거 규칙이 존재한다 [structural]
-- [ ] SK-04: `harness/skills/refactor-checklist/SKILL.md` 에 규칙 소스 경로 해석 ladder (`${CLAUDE_PLUGIN_ROOT}` → 레포 → 마켓플레이스) 와 소스 부재 시 `[미검증]` 표기 규칙이 존재한다 [exact]
-- [ ] SK-05: `harness/skills/create-agent/SKILL.md` 의 Unverifiable 정책 항 수 표기가 agent-design-guide §10 과 일치한다 (측정: `grep -n "Unverifiable 조건 정책" harness/skills/create-agent/SKILL.md harness/docs/guides/agent-design-guide.md`) [exact]
-- [ ] SK-06: init · create-skill · harness-kaizen · contract-kaizen · evaluator-kaizen 5 개 SKILL.md 에서 validate-plugin 카테고리 수가 8 로 정정된다 (측정: `grep -rn "7 카테고리\|V1~V7" harness/skills` 0 건) [exact, enumerated]
-- [ ] SK-07: `harness/skills/harness-kaizen/SKILL.md` 의 scope-creep Gotcha 가 파일 수가 아니라 unit 기준으로 재정의되고 unit 별 독립 검증 증거 의무를 포함한다 [exact]
+`python3 scripts/validate-plugin.py` 가 11 plugins / 11 OK / Exit 0 이어야 한다. 하나라도 ERROR 면 REJECT.
 
 ## Architecture
 
-- [ ] AR-01: 금지 파일이 diff 에 없다 — sprint-contract/SKILL.md · qa-evaluator.md · skill/agent/contract-design-guide · qa-evaluation-guide · contract-schema.md · 모든 kit · kaizen-orchestrator (측정: `git diff --name-only HEAD` 전수 대조) [exact, enumerated]
-- [ ] AR-02: `harness/templates/project.yaml` 의 `rationalization_overrides` 에 가드 우회 차단 엔트리가 1 건 추가되고 기존 YAML 구조(주석 예시 포함)가 유지된다 [structural]
+- [ ] AR-01 [exact] `git diff --name-only da6663c..HEAD -- '.claude-plugin/marketplace.json'` 이 정확히 1행. marketplace.json 이 이번 사이클에 갱신되었다.
+- [ ] AR-02 [exact] 11개 `*/.claude-plugin/plugin.json` 의 version 이 각각 `harness 0.5.0 · flutter-toolkit 0.6.0 · design-kit 0.3.0 · backend-kit 0.2.0 · infra-kit 0.2.0 · rust-kit 0.2.0 · react-kit 0.2.0 · planning-kit 0.4.0 · reflect-kit 0.5.0 · bambu-kit 0.5.0 · onboarding-kit 0.2.0` 이다.
+- [ ] AR-03 [exact] Phase 번호 매핑이 13=bambu / 14=onboarding 으로 일관된다. 측정: 매핑을 **선언**하는 형태만 잡는다 — `grep -rniE "Phase 13 *(—|-|:) *onboarding" .claude/ --include='*.md'` 결과 0건, 그리고 `grep -rniE "Phase 14 *(—|-|:) *onboarding" .claude/skills/kaizen-orchestrator/SKILL.md` 결과 1건 이상. (주의: "Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정" 처럼 **정정 이력을 서술하는 문장**은 두 토큰을 한 줄에 포함하므로 위반이 아니다 — 매핑을 **선언**하는 문장만 대상.)
+- [ ] AR-04 [exact] Step 11.5 대상 9개 HTML(`docs/harness/{skill-design-guide,agent-design-guide,contract-design-guide,qa-evaluation-guide,contract-schema}.html`, `docs/flutter-toolkit/{project-detection,visual-evidence-protocol}.html`, `docs/design-kit/visual-change-protocol.html`, `docs/react-kit/render-evidence-protocol.html`)이 모두 존재하고 각각 400 라인 이상이다.
+- [ ] AR-05 [exact] `docs/` 하위에 `research-log.html` 이 0건이다 (사이트 규약상 research-log 는 게시하지 않는다 — detect-docs-drift 오탐을 따라가지 않았음을 확인).
+
+## Skill
+
+- [ ] SK-01 [exact] `harness/docs/guides/skill-design-guide.md` 에 `E1`·`E2`·`E3` 등급 정의가 존재하고, 다른 파일들은 이를 **정의하지 않고 인용만** 한다 — `grep -rln "E3.*결정론적 게이트" harness/ */skills/ */agents/ .claude/skills/` 결과에서 정의문을 가진 파일이 skill-design-guide.md 하나다.
+- [ ] SK-02 [exact] Canonical 조항 1 의 **정본 문장**이 정본(`harness/docs/guides/qa-evaluation-guide.md`)과 복제본 7곳(design/infra/rust/planning/react/backend reviewer + `flutter-toolkit/skills/flutter-audit/SKILL.md`)에서 문자 단위로 동일하고, 동의어가 백틱으로 표기되어 있다. 측정: 각 파일에서 `마커는 ... 만들지 않는다.` 까지를 잘라 비교했을 때 고유 문자열 1종. (`design-reviewer` 가 그 뒤에 붙인 `[정적]` 보조 태그 설명은 canonical 을 **대체하지 않고 보강**하는 추가 문장이므로 위반이 아니다.)
+- [ ] SK-03 [exact] reviewer 6종(design/backend/infra/rust/react/planning)이 전부 `[미검증]` 임계를 자체 재정의하지 않는다 — 각 파일에 "2건 이상" 을 **자기 규칙으로 선언하는** 문장이 없고 canonical 앵커 인용만 존재한다.
+- [ ] SK-04 [exact] **kit reviewer 6종**(`design-kit`/`backend-kit`/`infra-kit`/`rust-kit`/`react-kit`/`planning-kit` 의 `agents/*-reviewer.md`)에 Counterpart 전용 평가 절이 없다 — 해당 6파일 대상 `grep -l "Counterpart"` 결과 0건. (`harness/agents/qa-evaluator.md` 가 참조 목록에서 contract-design-guide 의 목차 항목으로 이 단어를 언급하는 것은 평가 절이 아니므로 대상 밖.)
+- [ ] SK-05 [goal] `.claude/skills/*-kaizen/SKILL.md` 중 validate-plugin 카테고리 수를 언급하는 파일이 전부 8(V1~V8)로 기술한다. 측정: `grep -rn "7 카테고리" .claude/skills/` 결과 0건.
+- [ ] SK-06 [goal] Phase 1 이 정정한 "서브에이전트 중첩 가능(기본 3층)" 이 `agent-design-guide.md` 에 반영되어 있고, 같은 레포 안에 "중첩 불가"로 단언하는 문장이 남아 있지 않다.
+
+## Script
+
+- [ ] SC-01 [exact] `python3 scripts/validate-plugin.py` 가 `11 plugins, 11 OK` 를 출력하고 Exit 0 이다.
+- [ ] SC-02 [exact] `python3 scripts/sync-docs.py --check-only` 가 "모든 README가 동기화 상태입니다" 를 반환한다.
+- [ ] SC-03 [exact] `python3 scripts/sync-orchestrator.py --check-only` 가 Exit 0 이다.
+- [ ] SC-04 [exact] V5 백틱 인식 회귀 가드: 백틱 밖 `TODO` 는 여전히 검출된다(음성 테스트 PASS), 그리고 `--fix` 실행이 백틱 안 토큰을 변조하지 않는다(대상 파일 해시 불변).
+- [ ] SC-05 [exact] `.harness/.meta/kaizen-failure-count.yaml` 이 `yaml.safe_load` 로 파싱되고, 최상위 키가 `last_updated` 와 `phases` 둘뿐이며(중복 키 없음), `phases` 하위에 `phase_1`~`phase_14` 가 존재한다.
 
 ## Error
 
-- [ ] ER-01: `python3 scripts/append-audit-log.py --phase 4 --result maybe` 가 사람이 읽을 수 있는 에러 메시지와 non-zero exit 을 반환한다 (측정: 실제 실행 + `echo $?`) [exact]
-
-## Anti-patterns
-
-- [ ] AP-01: bare code fence 0 건 (측정: `python3 scripts/validate-plugin.py harness --check=code-fence`)
-- [ ] AP-02: 변경 파일에 하드코드 버전 문자열을 새로 추가하지 않는다 (측정: `git diff` 육안 + grep)
+- [ ] ER-01 [exact] `.harness/.meta/cleanup-log.yaml` 에 `2026-07-27` 엔트리가 존재한다 (Step 11.6 실행 증거, 삭제 0건이어도 기록).
+- [ ] ER-02 [exact] `.harness/.meta/evals-audit-2026-07-27.md` 가 존재한다.
 
 ## Reusability
 
-- [ ] RE-01: Phase 3 가 정한 경로 해석 ladder 형식을 재사용하고 새 동의어를 만들지 않는다 (측정: refactor-checklist 의 ladder 와 qa-evaluator.md Step 8 ladder 용어 대조)
+- [ ] RU-01 [goal] 이번 사이클에 신설된 SSOT 3종(`flutter-toolkit/references/visual-evidence-protocol.md`, `design-kit/references/visual-change-protocol.md`, `react-kit/references/render-evidence-protocol.md`)이 각각 상위 SSOT(skill-design-guide §3.7 / qa-evaluation-guide canonical)를 **인용**하고 임계·등급을 재정의하지 않는다.
+
+## Anti-patterns
+
+- [ ] AP-01 [exact] AP-03(bare code fence) 위반 0건 — validate-plugin V6 가 전 킷에서 `0 bare` 를 보고한다.
 
 ## Diagnostics
 
-- [ ] DG-01: `python3 scripts/validate-plugin.py` 가 11 plugins 11 OK · Exit 0 이다 (측정: 실제 실행 + 출력 인용)
+- [ ] DG-01 [exact] `bash -n scripts/release.sh` 가 Exit 0 이다.
+- [ ] DG-02 [exact] 이번 사이클에 수정한 셸/파이썬 스크립트가 문법 검증을 통과한다 — `bash -n scripts/finalize-phase.sh` 와 `python3 -m py_compile scripts/validate-plugin.py scripts/append-audit-log.py scripts/detect-docs-drift.py` 가 각각 Exit 0.
