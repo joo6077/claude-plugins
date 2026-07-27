@@ -1,6 +1,6 @@
 # Backend Audit Criteria
 
-섹션 순서가 `backend-reviewer` 에이전트의 평가 카테고리 순서와 일치한다. 2026-04 기준 최신 표준·BCP·커뮤니티 모범 사례를 반영한다.
+섹션 순서가 `backend-reviewer` 에이전트의 평가 카테고리 순서와 일치한다. 2026-07 기준 최신 표준·BCP·커뮤니티 모범 사례를 반영한다.
 
 ## 1. Architecture
 
@@ -22,6 +22,10 @@
 | OpenAPI 3.1 JSON Schema 호환 | 스펙이 OpenAPI 3.1.x 이상이고 JSON Schema draft와 호환되며 실제 응답과 일치 | [OpenAPI Spec 3.1](https://swagger.io/specification/) |
 | 하이브리드 API 경계 선택 | REST/GraphQL/gRPC 선택이 boundary별 설명되어 있다 (단일 프로토콜 강요 금지, public=REST / 다중 클라이언트=GraphQL / internal=gRPC) | [GraphQL vs REST vs gRPC 2026](https://www.javacodegeeks.com/2026/02/graphql-vs-rest-vs-grpc-the-2026-api-architecture-decision.html), [Fordel Studios 2026](https://fordelstudios.com/research/graphql-rest-grpc-2026-decision-framework) |
 | API Versioning 전략 | REST: URL path(/v1/) 기본, Header(Accept-Version + Sunset RFC 8594) 보조. GraphQL: 버전 없는 진화(@deprecated + additive changes). Contract-First 스키마 진화 원칙 존재 | [Moesif API Versioning](https://www.moesif.com/blog/technical/api-design/Best-Practices-for-Versioning-REST-and-GraphQL-APIs/), [Dan Vega GraphQL Evolution](https://www.danvega.dev/blog/2025/09/30/api-versioning-with-graphql) |
+| 빈 상태 상태코드 일관성 | 원소 0 개인 컬렉션에 200(빈 배열) 또는 204 를 반환한다. 404 는 "대상 리소스의 현재 표현을 찾지 못했거나 존재를 밝히지 않겠다" 는 뜻이므로 **존재하는 빈 컬렉션에 쓰면 FAIL**. 같은 리소스군 안에서 빈 상태 처리가 엔드포인트마다 갈리는 것도 FAIL | [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html) |
+| Timestamp 직렬화 규칙 | 모든 timestamp 응답 필드가 RFC 3339 문자열이며 타임존 표기가 스펙과 코드에서 일치한다. `Z` / `+00:00`(UTC 가 선호 기준점)과 `-00:00`(UTC 시각은 알지만 로컬 오프셋 미상)은 **의미가 다르므로** 혼용 시 FAIL. OpenAPI 3.1 은 `format` 을 JSON Schema 2020-12 에 위임하고 기본적으로 비검증 애노테이션으로 취급하므로 `format: date-time` 선언만으로 PASS 처리 금지 — 직렬화 코드까지 확인 | [RFC 3339 §4.3](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html) |
+| 비멱등 write path idempotency | POST/PATCH 등 비멱등 연산에 재시도 안전 경로가 있다 (Idempotency-Key 헤더 또는 동등한 업서트/자연키 dedupe). 헤더 방식 채택 시: 동일 키 재요청은 원 결과를 반환, 원 요청 처리 중이면 409, 같은 키에 다른 페이로드면 422, 필수인데 헤더 누락이면 400. **IETF `draft-ietf-httpapi-idempotency-key-header-07` 는 만료(expired)된 Internet-Draft 이므로 "표준" 으로 서술하면 FAIL** — 사실상 관행으로만 인용한다 | [draft-07 (expired)](https://www.ietf.org/archive/id/draft-ietf-httpapi-idempotency-key-header-07.html), [IETF datatracker](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) |
+| 소비면 정합성 (provider verification) | 응답 형태·상태코드·직렬화가 바뀐 흔적이 있으면 그 응답을 역직렬화하는 소비면 코드가 같은 변경을 반영했는지 확인한다. 소비면이 **같은 저장소 안에 있으면 열거해서 대조**(안 봤으면 감사 누락), 접근 불가한 별도 저장소면 `[미검증]` + 사유. 열거 범위는 파일 경로와 외부 관찰 가능한 동작까지이며 소비면 내부 구현은 판정 대상이 아니다(over-specified contract 방지). 이벤트 계열은 AsyncAPI 가 "수신자 문서를 발신자 문서에서 파생하는 것은 권장되지 않는다" 고 명시하므로 양면 문서 존재 여부로 본다 | [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for), [PactFlow BDCT](https://pactflow.io/bi-directional-contract-testing/), [AsyncAPI 3.0.0](https://www.asyncapi.com/docs/reference/specification/v3.0.0) |
 
 ## 3. Database
 
@@ -31,6 +35,8 @@
 | 인덱스 존재 | WHERE/JOIN 컬럼에 적절한 인덱스 | PostgreSQL indexes |
 | Connection pooling | 풀링 설정 존재 (HikariCP/PgBouncer) | HikariCP docs |
 | Migration 안전성 | expand-contract 패턴 준수 | Martin Fowler |
+
+**정적 대체 판정 규약 (글로벌 개선제안 DA-01/DA-02 흡수)** — 라이브 DB 접속이 불가능한 환경에서 스키마·FK action·인덱스·제약 조건을 판정할 때는 **마이그레이션 파일(DDL) 정적 확인으로 대체 판정할 수 있다.** 이때 근거 열에 `[정적]` 보조 태그와 확인한 마이그레이션 파일 경로를 함께 남긴다. `[정적]` 은 `[미검증]` 을 대체하지 않는 보조 태그이며, 마이그레이션 파일 확인조차 불가능하면 그때 `[미검증]` + 사유를 쓴다. 마이그레이션 파일과 실제 DB 상태가 다를 수 있다는 한계는 리포트에 1 줄로 명시한다.
 
 ## 4. Authentication & Authorization
 
@@ -95,6 +101,8 @@
 | DB 테스트 | 실제 DB (Testcontainers 등) | Testcontainers |
 | Contract test (Pact v4+) | consumer-driven contract, Pact v4 + Testcontainers 기반, GraphQL/async 메시지 지원. AI-assisted contract testing(PactFlow MCP Server) 도입 시 생성/유지보수 60% 가속화 가능 | [prgrmmng Pact+Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact), [PactFlow MCP Server](https://pactflow.io/blog/pactflow-mcp-server/) |
 | Mock 정합성 | mock이 실제 API와 drift 없음 (Pact provider verification) | [Microsoft ISE Pact](https://devblogs.microsoft.com/ise/pact-contract-testing-because-not-everything-needs-full-integration-tests/) |
+| 통합 테스트 실체 확인 | `tests/integration/` 에 있거나 이름이 integration 인 테스트가 **실제 의존성**(Testcontainers/실 DB/실 브로커)을 쓴다. MockDatabase·인메모리 대체물만 쓰는 테스트를 통합 테스트로 계상하면 FAIL — "인메모리 서비스는 프로덕션 서비스의 모든 기능을 갖지 못하고 동작이 조금씩 다르다"(Testcontainers). 실측 근거: 글로벌 REJECT `API-01` (user 통합 테스트 미존재 — MockDatabase 단위 테스트만 있음) | [Testcontainers](https://testcontainers.com/getting-started/) |
+| 마이그레이션 적용 선행 | 통합 테스트 fixture 가 DB 기동 후 마이그레이션을 실행한다 (컨테이너 재사용 시에도 스키마 최신화 경로 존재). 미적용 시 `column ... does not exist` 로 실패한다. 실측 근거: 글로벌 REJECT `DG-03` (로컬 DB 에 마이그레이션 미적용으로 통합 테스트 2 건 실패) | [Testcontainers](https://testcontainers.com/getting-started/) |
 
 ## 10. Observability
 

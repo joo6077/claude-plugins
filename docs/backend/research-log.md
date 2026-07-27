@@ -1,9 +1,47 @@
 ---
-version: 1.1.0
-last_updated: 2026-06-05
+version: 1.2.0
+last_updated: 2026-07-27
 ---
 
 # Backend Kit Research Log
+
+## [2026-07-27] - Phase 7 kaizen
+
+판정: **CHANGED**. 이번 사이클 최우선 신호는 insights §0 **Friction #4 (풀스택 변경에서 클라이언트 누락 · 반복)** 이었고, backend-kit 4 스킬 + 에이전트 전수 grep 결과 Counterpart 관련 문장이 **0 건**이었다. 신규 문장 규칙 남발이 아니라 Phase 1 §5.5 가 요구하는 **E2(체크리스트 아티팩트) 등급**으로 도메인 일반화하여 도입했다.
+
+### 데이터 소스
+
+- `.claude/kaizen-input/insights-report.md` §0 — Friction #4, on_the_horizon 2(풀스택 슬라이스), Phase 7 적용 힌트
+- `.claude/kaizen-input/reflect-digest-2026-07-27.md` — `stack-inappropriate-rust-antipatterns`
+- `.harness/.meta/kaizen-data-pool.md` §1 — 글로벌 REJECT `API-01`(mock-only 를 통합 테스트로 주장) · `DG-03`(마이그레이션 미적용으로 통합 테스트 2 건 실패) · 개선제안 `DA-01/DA-02`(마이그레이션 파일 정적 확인 대체 가능 여부 명시)
+- Phase 1~3 산출물 — skill-design-guide §3.7 / §5.5, contract-design-guide §Counterpart Conditions, qa-evaluation-guide §Canonical Unverified-Evidence Protocol
+
+### 외부 리서치 (WebFetch · Context7 는 OAuth 미인증으로 사용 불가)
+
+1. **Pact — What is Pact good for** (<https://docs.pact.io/getting_started/what_is_pact_good_for> [official]) — 적용 조건을 "consumer 와 provider 양쪽 개발을 통제할 때" 로 못 박고, "provider 의 기능 테스트는 Pact 의 역할이 아니다 — Pact 는 요청/응답의 내용과 형식을 확인한다" 고 선을 긋는다. Counterpart 열거 범위를 **파일 경로 + 외부 관찰 가능한 동작**까지로 제한하는 근거로 채택 (소비면 내부 구현 조건화 금지).
+2. **PactFlow Bi-Directional Contract Testing** (<https://pactflow.io/bi-directional-contract-testing/> [vendor]) — provider 측 OpenAPI 스펙과 consumer 측 계약(Wiremock/MSW/Cypress 산출물)을 교차 검증하는 방식. 다만 BDCT 는 **PactFlow 전용이며 오픈소스 Pact Broker 에는 없다**고 명시 — audit 기준에서 "BDCT 를 필수" 로 요구하지 않고 소비면 정합성 확인 방법 중 하나로만 인용.
+3. **RFC 9110 §15 (HTTP Semantics)** (<https://www.rfc-editor.org/rfc/rfc9110.html> [standard]) — 404 는 "origin server 가 대상 리소스의 현재 표현을 찾지 못했거나 존재를 밝히지 않겠다" 는 뜻. 원소 0 개 컬렉션은 유효한 빈 표현을 가진 존재하는 리소스이므로 200/204 가 의미상 맞다. **다만 RFC 는 빈 컬렉션 처리를 명시적으로 규정하지 않고 서버 구현 선택에 맡긴다** — 그래서 "계약에 못 박아라" 가 처방이 된다. 404→200 empty-body 변경 사고의 1 차 출처.
+4. **RFC 3339 §4.2/§4.3/§5.6** (<https://www.rfc-editor.org/rfc/rfc3339> [standard]) — `Z` / `+00:00` 은 "UTC 가 선호 기준점", `-00:00` 은 "UTC 시각은 알지만 로컬 오프셋 미상" 으로 **의미가 다르다**. 생성 측은 대문자 `T`/`Z` 를 SHOULD. UTC 직렬화 버그가 e2e 에서만 표면화된 사례의 기준 근거.
+5. **OpenAPI 3.1.1** (<https://spec.openapis.org/oas/v3.1.1.html> [official] [dated: 2024-10-24]) — 타입은 JSON Schema Validation Draft 2020-12 기반이며 **`format` 은 기본적으로 비검증 애노테이션(non-validating annotation)** 이라 구현마다 검증 여부가 다르다. Responses Object 는 "이 연산을 실행했을 때 반환되는 가능한 응답 목록" 이라는 표현이라 **전 상태코드 문서화를 강제하지 않는다**. → 스펙에 `format: date-time` 만 있으면 PASS 처리 금지, 빈 상태 상태코드는 계약에 별도 명시 필요.
+6. **Idempotency-Key HTTP 헤더 draft** (<https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/> [ietf], 본문 <https://www.ietf.org/archive/id/draft-ietf-httpapi-idempotency-key-header-07.html>) — 조회 결과 **만료(expired & archived) Internet-Draft**, 최신 리비전 07 (2025-10-15), httpapi WG. 정규 요구: 동일 키 + 동일 fingerprint 재요청은 원 결과 반환, 원 요청 처리 중이면 **409**, 같은 키에 다른 페이로드면 **422**, 필수인데 헤더 누락이면 **400**. fingerprint 는 옵션(체크섬/필드 매칭/요청 다이제스트). → "표준" 으로 서술하면 FAIL 로 audit 기준에 명시.
+7. **AsyncAPI 3.0.0** (<https://www.asyncapi.com/docs/reference/specification/v3.0.0> [official]) — 문서는 애플리케이션 관점(`send`/`receive`)을 기술하며 **"수신자 AsyncAPI 문서를 발신자 문서에서 파생하거나 그 역은 권장되지 않는다(NOT RECOMMENDED)"** 고 명시. 이벤트 계열에서도 양면이 각자 문서를 가져야 한다는 Counterpart 근거로 채택.
+8. **Testcontainers Getting Started** (<https://testcontainers.com/getting-started/> [official]) — "인메모리 서비스는 프로덕션 서비스의 모든 기능을 갖지 못하고 동작이 조금씩 다를 수 있다", "mock 이나 인메모리 서비스 없이 프로덕션과 같은 서비스에 의존하는 테스트를 작성한다". 글로벌 REJECT `API-01`(MockDatabase 단위 테스트를 통합 테스트로 주장) 대응 기준의 출처.
+
+### Phase 7 변경 요약
+
+| 파일 | 변경 |
+| ---- | ---- |
+| `backend-kit/skills/backend-system/SKILL.md` | Gotcha 12~15 신설 (Counterpart E2 · 계약 아티팩트 6 항목 · 빈 상태 상태코드 · timestamp 타임존) + Step 2 카테고리 표에 `계약 아티팩트` 행 + Step 3 양면 체크리스트 출력 |
+| `backend-kit/skills/backend-guide/SKILL.md` | Gotcha 14~16 신설 (Counterpart E2 + over-specified 금지 · timestamp 표기 · 빈 상태 404 지적) + Step 1 표에 `contract-counterpart` 카테고리 |
+| `backend-kit/skills/backend-audit/SKILL.md` | Gotcha 12~13 신설 (소비면 미확인은 감사 누락 · 스택 정합성) + **Step 0 스택 감지 신설** + Step 3 표 rule 6 건 추가(20→26) |
+| `backend-kit/skills/backend-audit/references/audit-criteria.md` | §2 rule 4 건 · §3 정적 대체 판정 규약 · §9 rule 2 건 추가 |
+| `backend-kit/skills/backend-test/SKILL.md` | Gotcha 13~15 신설 (mock-only 명명 금지 + 증거 · 마이그레이션 선행 · 계약 변경 양면) + Step 5 증거 규칙 |
+| `backend-kit/agents/backend-reviewer.md` | §8 을 canonical 5 조항 **문구 변형 없이** 복제로 교체 + 로컬 임계 재정의 제거 + 핵심 규칙 8 스택 정합성 pre-check |
+| `backend-kit/skills/backend-guide/references/principle-index.md` | `Contract Counterpart` 매핑 행 추가 |
+
+### 폐기 사유
+
+없음. 직전 사이클 승격분(Enumerate-before-Act · 최소변경 · 스킬 호출 증거)은 이미 포화 상태이므로 재추가하지 않았다 (insights "중복 금지" 준수).
 
 ## [2026-06-05] — Phase 7
 

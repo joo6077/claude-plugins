@@ -8,6 +8,7 @@
 |----------|-----------|
 | Architecture (Hexagonal / Clean / DDD) | ../../../../docs/backend/fundamentals/api-design.md (TBD — `/backend-research` Phase에서 `docs/backend/patterns/architecture.md` 신설 예정) |
 | API Design | ../../../../docs/backend/fundamentals/api-design.md |
+| Contract Counterpart (빈 상태 상태코드 · timestamp 직렬화 · 소비면 열거) | ../../../../docs/backend/fundamentals/api-design.md + ../../../../docs/backend/fundamentals/testing.md (Pact provider verification) |
 | Database | ../../../../docs/backend/fundamentals/database.md |
 | Authentication & Authorization | ../../../../docs/backend/fundamentals/auth.md |
 | Error Handling | ../../../../docs/backend/fundamentals/error-handling.md |

@@ -25,6 +25,9 @@ user-invocable: true
 10. **ORM 쿼리 테스트 시 N+1 검증 포함** — 리스트 조회 API 테스트에서 쿼리 수를 assert하라. Django: `assertNumQueries`, SQLAlchemy: `connection.execute` 카운트, JPA: Hibernate statistics
 11. **Pact v4 + Testcontainers 계약 테스트 (Phase 7 리서치)** — 외부 서비스 연동 코드에는 consumer-driven contract 를 권장. Pact v4 는 REST 외 gRPC / async messaging(Kafka · RabbitMQ) / GraphQL 지원. Pact Broker 는 Testcontainer 로 CI 에서 격리 실행 가능. 출처: [Pact + Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact).
 12. **Sibling Consistency (Phase 8 infra-test parity)** — Step 0 스택 감지 독립 단계 + 기존 테스트 패턴 탐색 + 외부 실환경 강제 금지 세 항목은 backend-test / infra-test 공통으로 유지해야 한다. 한쪽만 변경하면 sibling drift 로 평가 불일치 발생.
+13. **mock-only 테스트를 integration 으로 명명하거나 보고하지 마라** — MockDatabase·인메모리 대체물만 쓰는 테스트는 단위 테스트다. 파일 경로(`tests/integration/`), 테스트 이름, 완료 보고 세 곳 모두 실제 수준에 맞춰 표기하라. 실측: 글로벌 REJECT `API-01` — "user 통합 테스트(실제 PostgreSQL) 미존재 — MockDatabase 단위 테스트만 있음 `[미검증]`". 근거는 "인메모리 서비스는 프로덕션 서비스의 모든 기능을 갖지 못하고 동작이 조금씩 다르다" 는 Testcontainers 의 문제 정의다. 또한 **테스트 실행 출력 없이 "통과했다" 고 보고하지 마라** — 실행 명령과 출력을 증거로 인용하고, 실행 자체가 불가능하면 `[미검증]` + 사유를 명시한다 (SSOT: `harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate). 출처: [Testcontainers](https://testcontainers.com/getting-started/).
+14. **통합 테스트 실행 전 마이그레이션 적용을 확인하라** — 로컬/CI DB 에 마이그레이션이 안 걸린 상태로 통합 테스트를 돌리면 `column "..." of relation "..." does not exist` 로 깨진다. 실측: 글로벌 REJECT `DG-03` (마이그레이션 미적용으로 통합 테스트 2 건 실패). fixture/conftest 에서 컨테이너 기동 → 마이그레이션 실행 → 시드 순서를 보장하고, 컨테이너를 재사용하는 설정이면 스키마 최신화 경로를 별도로 둔다.
+15. **계약 변경 테스트는 양면이다** — 응답 형태·상태코드·직렬화가 바뀌면 provider 테스트만 고치지 말고 consumer 계약 테스트(픽스처 포함)도 같은 스프린트에서 갱신하라. Pact 는 "consumer 와 provider 양쪽 개발을 통제할 때" 를 적용 조건으로 명시하며, provider 의 기능 테스트가 아니라 요청/응답의 **내용과 형식** 일치를 확인하는 도구다. 소비면 코드가 별도 저장소면 그 저장소명과 갱신 필요 파일을 보고에 남긴다 — 조용한 반쪽 완료 금지. 출처: [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for), [PactFlow BDCT](https://pactflow.io/bi-directional-contract-testing/).
 
 ## Process
 
@@ -240,6 +243,8 @@ API 핸들러가 감지되면:
 | Elixir | `mix test {test_file}` |
 
 실패 시 원인 분석 후 수정한다. 의존성 미설치(testcontainers, supertest 등)는 설치 안내를 제시한다.
+
+**증거 규칙 (Gotcha 13)**: 실행한 명령과 그 출력(통과/실패 건수 포함)을 보고에 인용한다. Docker 미설치·DB 접속 불가 등으로 실행이 불가능하면 조용히 넘기지 말고 `[미검증] <사유>` 를 해당 테스트 항목에 붙이고 **부분 완료**로 보고한다.
 
 ### Step 6: 결과 보고
 
