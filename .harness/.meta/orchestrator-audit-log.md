@@ -265,3 +265,40 @@
     다만 깊이 3층 한계에서 위임이 조용히 접히는 점은 주의해야 한다.
   → 이 정정은 원문 줄을 수정하지 않는다 (audit-log append-only). 과거 엔트리를 읽을 때
     반드시 이 정정을 함께 참조하라.
+
+### 2026-07-27 사이클 meta-issue (다음 사이클 감시 대상)
+
+1. **`scripts/validate-post-kaizen.py` 가 `datetime.date.today()` 기준이라 자정을 넘긴 사이클이
+   자기 게이트에 걸린다.** 이번 사이클은 2026-07-27 자로 진행(브랜치 `kaizen/2026-07-27`,
+   계약 파일명 `20260727-*`, 전 커밋)됐는데 체크 시점이 07-28 로 넘어가 changelog / research-log /
+   cleanup-log / failure-count 4건이 **false negative FAIL**. 실제 엔트리는 전부 07-27 자로 존재
+   (changelog 4회 · research-log 3회 · cleanup-log 1회 · `last_updated: "2026-07-27"`).
+   → 수정 방향: 사이클 날짜를 `kaizen-state.yaml` 의 `cycle_id` 또는 브랜치명에서 유도하거나,
+     `--cycle-date` 인자를 받도록. "오늘" 가정은 장시간 사이클에서 항상 깨진다.
+
+2. **`.harness/project.yaml` AP-04 정규식이 구조적으로 항상 매치된다** (Final QA 평가자 발견).
+   `^---\s*\n(?![^-]*name:)` 가 frontmatter **닫는** `---` 에도 매치되어, 이번 사이클 변경 파일
+   74개 전부(74/74) 히트했다. 즉 vacuous anti-pattern 으로 검사 가치가 0 이다.
+   → Phase 4(harness-kaizen) 소관. 여는 `---` 만 겨냥하도록 수정 필요.
+   → 이번 사이클 계약의 Anti-patterns 카테고리는 AP-01(bare fence) 만 포함했으므로 verdict 무영향.
+
+3. **`scripts/detect-docs-drift.py` 가 research-log `.md` 를 HTML 필요로 오탐한다.**
+   변경된 모든 `.md` 를 HTML 로 매핑하는데, `docs/` 어디에도 `research-log.html` 이 없다
+   (사이트가 게시하지 않는 규약). 이번엔 5건 오탐 → Step 11.5 에서 수동 배제했다.
+   → 매핑에서 `research-log.md` 를 제외하거나, `docs/index.html` 등록 여부로 필터링.
+
+4. **harness docs 페이지 accent 가 스펙과 불일치.** `docs/harness/*.html` 5개가
+   `#0ea5e9`/`#14b8a6` 를 쓰는데 `references/css-tokens.md` 와 `docs/index.html` 의 Harness dot 은
+   `#D97757` 이다. 선재 불일치이며 "기존 관례 유지" 최소 변경으로 두었다.
+   → 재테마링은 별도 작업으로 판단.
+
+### 이번 사이클 방법론 관찰 (다음 사이클에 유용)
+
+- Phase 1~4 직렬 → Phase 5~14 병렬(웨이브 분할)이 유효했다. 단 **동시 5개는 API 529 를 유발**해
+  4개가 중단됐고 `SendMessage` 로 컨텍스트 보존 재개했다. 이후 웨이브를 2~3개로 낮춰 재발 없음.
+- 병렬 서브에이전트에게 **git 쓰기 금지 + 계약 파일 Phase 별 경로 분리**를 지시하고 커밋을
+  오케스트레이터가 직렬 처리한 것이 index.lock 충돌을 0 으로 만들었다. 다음 사이클도 이 방식 권장.
+- 각 Phase self-audit 이 **자기 날조를 스스로 검출**한 사례가 다수였다 (Pact 미사용 용어 인용,
+  논문 수치 과대 인용, 검증 없이 단정한 콘솔 라벨). Phase 1 의 Evidence Gate 가 의도대로 작동.
+- Final QA iter1 이 REJECT 하며 **오케스트레이터의 측정 oracle 오탐 3건**을 잡았다.
+  자체 측정만으로 APPROVE 했다면 놓쳤을 것 — 독립 평가자 spawn 의 가치가 실증됐다.
