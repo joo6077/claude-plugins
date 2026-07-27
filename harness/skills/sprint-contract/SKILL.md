@@ -30,8 +30,8 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 ## Gotchas
 
 - verify-feedback.sh가 PASS를 반환하지 않으면 절대 완료를 선언하지 마라. 이것은 선택이 아니다.
-- 복잡도 판단에서 "단순"으로 과소평가하는 경향이 있다. 파일 수가 아니라 **영향 범위**(레이어 수, 공개 API 변경 여부)로 판단해라
-- `project.yaml`의 `contract_categories`를 무시하고 하드코딩된 카테고리(UI/Logic/Error)를 쓰면 안 된다. 반드시 config에서 읽어라
+- 복잡도 판단에서 "단순"으로 과소평가하는 경향이 있다. **Process Step 1 의 4 축 표를 채우기 전에는 복잡도를 말하지 마라** — 파일 수는 판정 근거가 아니다 (E2 승급, `complexity-by-file-count` 재발)
+- `project.yaml`의 값은 **리터럴 그대로** 쓴다. 카테고리를 하드코딩(UI/Logic/Error)하지 않는 것은 물론, `commands.analyze` 가 `fvm.bat flutter analyze` 면 계약에도 `fvm.bat flutter analyze` 라고 적어라. **Process Step 1.2 대조표를 출력하기 전에 DRAFT 를 제시하지 마라** (E2 승급, `config-command-mismatch` 재발)
 - 조건을 "~가 잘 동작한다", "~를 적절히 처리한다"로 쓰면 QA Evaluator가 판정 불가능하다. 반드시 PASS/FAIL 이진 판정 가능한 문장으로 써라
 - 안티패턴을 0개로 두면 안 된다. `project.yaml`에 정의된 패턴 중 해당 기능에서 위반 가능성이 높은 것을 최소 2개 선별해라
 - 사용자가 "계약 필요없어"라고 해도 **생략할 수 없다**. 간소화된 계약(단순 복잡도, 최소 조건)을 제안해라
@@ -49,13 +49,24 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - **검증 수단이 없는 조건은 작성하지 마라.** 조건마다 "어떤 명령/도구/관찰로 PASS/FAIL 판정하는지" 를 인라인으로 적어라 (예: "측정: `wc -l`", "측정: MCP Figma read-back"). 외부 도구 의존 시 3 단계 fallback 을 명시 — 기본 / fallback / `[미검증]` 수용 임계 (1 건까지)
 - **sibling 스킬 공통 원칙은 반드시 `[exact, enumerated]` 또는 `[structural, enumerated]` aggregation mode 로 작성하라.** 대상 스킬을 숫자로 명시 + 이름 전부 열거. "rust-api 에 적용" ✗ → "rust-init, rust-feature, rust-service, rust-api 4 스킬 모두에 적용" ✓ (rust-kit H-01/H-03 재발 방지)
 - **조건의 FAIL 상태를 1 문장으로 기술 가능해야 한다.** FAIL 이미지가 떠오르지 않으면 그 조건은 모호하므로 재작성하라. 이는 Binary Decidability Pre-Check 사전 점검이다 (contract-design-guide §계약 작성자 의무 참조)
-- **계약 작성 자체에 Pre-Edit Batch Audit 원칙을 적용하라.** 계약 초안 (DRAFT) 을 사용자에게 제시하기 전에, 대상 코드/파일을 read-only 로 audit 하여 (a) 어떤 위반/갭이 이미 존재하는지 enumerate (b) 후보 옵션 (예: Stack vs Column, widget extend vs new) 을 옵션 표로 제시 (c) 사용자 합의 후 조건 확정. skill-design-guide v1.3.0 §3.6 "Pre-Edit Batch Audit" 의 계약-시점 적용 (Friction #2 false-dichotomy 의 reframe). 이는 sprint-contract Process 의 "DRAFT 작성 → 사용자 합의" 단계에 직접 매핑된다
+- **Pre-Edit Audit 은 Gotcha 가 아니라 Process Step 1.4 다.** `project.yaml` 만 읽고 "Pre-Edit 감사 결과" 를 제시하는 것은 감사가 아니다 — 대상 파일을 실제로 Read 하고 `파일:라인` 증거를 표에 남겨라. 증거 열이 빈 행은 감사되지 않은 것이다 (E2 승급, `skipped-pre-edit-audit` 재발)
 - **측정 명령을 적은 뒤 그 명령이 조건 의도를 실제로 측정하는지 + 어떤 상태 전제에서 실행되는지 확인하라.** 측정 명령이 곧 test oracle 이므로, oracle 이 의도와 어긋나면 측정 방법을 명시하고도 false REJECT 가 난다. (a) **의미 일치**: `test ! -f` 는 물리적 부재를, gitignore 의도는 추적 여부를 측정 — 다르다. 추적 여부는 `git ls-files --error-unmatch` 로 측정하라. (b) **상태 전제**: `git diff main...HEAD` 는 커밋 전 변경을 못 본다 — 커밋 완료 같은 전제가 있으면 조건에 `Given:` 또는 "(... 완료 후)" 로 인라인 명시하라. contract-design-guide §검증 수단 명시 의무 > "측정 명령 타당성 · 상태 전제" 참조 (LG-07/AR-01 재발 방지)
+- **변경 범위(scope) 조건에 `git diff` 를 자유 서술로 적지 마라 — 표준형 4 요소를 다 채워라.** (1) `Given:` 상태 전제 (2) 경로 한정 pathspec (3) 생성물 제외 pathspec (`':(exclude)*.g.dart'` 등) (4) "정확히 일치" 인지 "포함" 인지. 그리고 **계약 작성 시점에 그 명령을 1 회 실행해 baseline 을 서술 섹션에 남겨라.** 미커밋 codegen 산출물이 diff 에 섞여 scope 조건이 깨진 것이 AR-01 재발 3 회의 직접 원인이다 (E3 승급). contract-design-guide §Diff-Scope Oracle 표준형 참조
+- **계약 서두의 설계 의도와 조건이 어긋나면 구현자는 조용히 한쪽만 따른다.** DRAFT 제시 전에 서술↔조건 방향을 대조하고, 조건이 기존 식별자(함수·클래스·파일명)를 literal 로 열거한다면 **그 이름이 지금 코드에 존재하는지 grep 으로 확인**하라. 의미(단방향/양방향 등)까지 설계 의도와 맞는지 본다 (RE-02 재발 방지)
+- **`[exact]` 조건에 테스트·문서 같은 부산출물을 적으면 그것도 이번 스프린트 제출 대상이다.** 낼 생각이 없으면 `[goal]` 로 낮추거나 산출물 문구를 빼라. 그대로 두면 REJECT 가 예정된 것이다 (UI-07 재발 방지)
+- **승인 기록·합의 로그처럼 사람이 남겨야 생기는 증거에 의존하는 조건은 그 기록물의 경로를 조건에 적어라.** 경로를 적을 수 없으면 그 조건을 만들지 마라 — 평가 시점에 읽을 대상이 없으면 판정 불가다 (UI-06 재발 방지)
+- **계약·직렬화·공유 모델을 바꾸는 스프린트에서 producer 조건만 쓰면 절반짜리 계약이다.** consumer 면(클라이언트·호출자·생성 코드) 파일을 grep 으로 찾아 **별도 조건**으로 `[exact, enumerated]` 열거하라. 이 원칙은 qa-evaluator 쪽에 대응 규칙이 없어서 **계약에 안 넣으면 아무도 안 잡는다** (insights Friction #4 — "당연히 그러면 클라까지 바꿔야지"). Process Step 2.5 참조
+- **계약 저장은 Step 6.5 게이트 통과 전까지 끝난 게 아니다.** 헤더 목록과 조건 배치를 grep/awk 로 실제 검사하고 출력을 인용하라. 허용되지 않은 `## Notes` 같은 헤더를 추가하면 평가자 파서가 오작동한다 (E3 승급, `parser-incompatible-contract-section` 재발)
 
 ## 설정 로드
 
 `.harness/project.yaml`을 읽어 프로젝트 설정을 로드한다.
 파일이 없으면 기본값(범용)으로 동작한다.
+
+**`CONTRACT_ROOT` 를 먼저 확정한다** — `project.yaml` 을 실제로 발견한 디렉토리의 **절대경로**다.
+계약 파일 · history · 피드백 경로는 전부 이 값 기준으로 해석한다. 세션 도중 cwd 가 바뀌어도
+`CONTRACT_ROOT` 는 바뀌지 않는다. 루트 `.harness/` 와 하위 앱의 `app/.harness/` 를 혼용하면
+계약이 엉뚱한 곳에 저장된다 (`cwd-contract-path-drift` 실제 발생).
 
 설정에서 사용하는 항목:
 - `contract_categories` — 계약 카테고리 (UI/Logic/Error/Architecture 등)
@@ -83,12 +94,66 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 
 ## Process
 
+> Step 0 · 1.2 · 1.4 · 6.5 는 **E2/E3 게이트**다 (등급 정의: `../../docs/guides/skill-design-guide.md` §3.7,
+> 계약 레이어 등급표: `../../docs/guides/contract-design-guide.md` §원칙별 Enforcement 등급).
+> 각 게이트의 산출물을 실제로 출력하기 전에는 다음 단계로 넘어가지 않는다.
+
+### 0. CONTRACT_ROOT 확정 (E2)
+
+`.harness/project.yaml` 을 찾은 뒤 그 디렉토리의 절대경로를 `CONTRACT_ROOT` 로 고정하고 **한 줄로
+출력**한다. 이후 모든 계약 경로(`{CONTRACT_ROOT}/.harness/sprint-contract.md`,
+`{CONTRACT_ROOT}/.harness/history/`)를 이 값 기준 절대경로로 쓴다. 상대경로 금지.
+
 ### 1. 요구사항 분석
 
 `$ARGUMENTS`를 분석하여:
 - 어떤 feature인지 (신규 vs 기존 확장)
 - 영향 범위 (레이어, 파일 수)
 - 복잡도 판단 (단순/중간/복잡)
+
+**복잡도는 파일 수로 판정하지 않는다 (E2).** 아래 4 축을 표로 채운 뒤 판정하고, 그 표를 사용자에게
+제시한다. 표 없이 "2 파일이라 단순" 으로 넘어가는 것이 `complexity-by-file-count` 실제 발생 형태다.
+
+| 축 | 물음 | 값 |
+| -- | ---- | -- |
+| 레이어 수 | 몇 개 계층을 관통하는가 (UI / 상태 / 데이터 / 인프라) | |
+| 공개 API·계약 변경 | 외부에 노출된 시그니처 · 응답 형태 · 스키마가 바뀌는가 | |
+| 소비면 존재 | 이 변경을 소비하는 반대편(클라이언트 · 호출자 · 생성 코드)이 있는가 | |
+| 회귀 위험 | 기존 동작이 깨질 수 있는 경로가 있는가 | |
+
+4 축 중 **2 축 이상이 "예"** 면 파일 수와 무관하게 최소 "중간" 이다.
+"공개 API·계약 변경 = 예" 이면서 "소비면 존재 = 예" 면 **"복잡"** 이고 Step 2.5 가 필수다.
+
+### 1.2. 설정 리터럴 대조표 (E2)
+
+`project.yaml` 에서 읽은 값은 **리터럴 그대로** 계약에 전사한다. 기억이나 관례로 바꿔 쓰지 마라 —
+`fvm.bat flutter analyze` 를 `fvm flutter analyze` 로 적는 것이 `config-command-mismatch` 실제
+발생 형태다. DRAFT 를 제시하기 **전에** 아래 표를 출력한다.
+
+| config key | project.yaml 에서 읽은 값 | 계약에 쓴 값 |
+| ---------- | ------------------------- | ------------ |
+| `commands.analyze` | | |
+| `commands.test` | | |
+| `diagnostics.ide_exclude` | | |
+| `contract_categories[].id` / `prefix` | | |
+| `anti_patterns[].id` / `message` | | |
+
+두 열이 다르면 계약을 고친다. 설정에 값이 없으면 `null` 이라고 적고, 없는 명령을 지어내지 않는다.
+
+### 1.4. Pre-Edit Audit (E2)
+
+계약 초안을 제시하기 전에 **대상 코드/파일을 read-only 로 실제 열어본다.** `project.yaml` 만 읽고
+계약을 쓰는 것은 감사가 아니다 (`skipped-pre-edit-audit` 실제 발생 형태 — 대상 화면 파일을 한 번도
+열지 않은 채 "Pre-Edit 감사 결과" 를 제시했다).
+
+아래 표를 채워 출력한다. **증거 열이 비어 있으면 그 행은 감사되지 않은 것이다.**
+
+| 대상 파일 | 실제 Read 증거 (`파일:라인`) | 발견한 기존 갭·위반 | 계약 조건화 여부 |
+| --------- | ---------------------------- | ------------------- | ---------------- |
+| | | | |
+
+이어서 구현 **후보 옵션**이 2 개 이상이면 옵션 표(선택지 · 장단점 · 영향 파일)를 제시하고 사용자
+합의를 받은 뒤 조건을 확정한다 (`skill-design-guide` §3.6 Pre-Edit Batch Audit 의 계약-시점 적용).
 
 ### 1.5. 트리거 키워드 중복 검사 (스킬/에이전트 생성 계약 시)
 
@@ -150,6 +215,24 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - 중간 (4-8 파일): 카테고리당 2-3개, 총 8-12개
 - 복잡 (9+ 파일): 카테고리당 3-5개, 총 12-20개
 
+### 2.5. Counterpart 조건 삽입 (E2)
+
+Step 1 의 "공개 API·계약 변경" 또는 "소비면 존재" 가 "예" 면 **Counterpart 조건을 반드시 넣는다.**
+이 원칙은 평가자 가이드에 대응 규칙이 없다 — **계약에 조건으로 넣지 않으면 아무도 잡지 않는다.**
+
+적용 대상: API 계약 · 엔드포인트 시그니처 · 상태 코드 · 직렬화 포맷(날짜/타임존/enum/null) ·
+공유 모델 · 생성 코드 · 공개 함수 시그니처 · 이벤트 페이로드 · DB 스키마.
+
+1. producer 면과 consumer 면 파일을 **grep 으로 실제 탐색**해 경로를 확보한다
+2. **양면을 별도 조건 2 개**로 쓴다 (한 조건에 묶으면 복합 조건 — 부분 통과가 PASS 로 샌다)
+3. 각 조건은 파일 경로를 `[exact, enumerated]` 로 열거한다 (`collective` 금지)
+4. consumer 를 못 찾으면 "소비자 없음" 을 근거와 함께 조건에 적는다 — 추측으로 생략 금지
+5. 소비면의 **내부 구현**은 조건화하지 않는다 (과잉 계약)
+6. 이번 스프린트에 양면을 다 못 바꾸면 남는 쪽을 **명시적 미완 조건**으로 남긴다.
+   `[미검증]` 을 쓰지 마라 — 그 마커는 검증 도구 부재 전용이다
+
+상세 규칙과 예시: `../../docs/guides/contract-design-guide.md` §양면 조건 — Counterpart Conditions.
+
 ### 3. 안티패턴 체크리스트
 
 `project.yaml`의 `anti_patterns`에서 읽어 해당 기능에서 위반 가능성이 높은 것만 선별한다.
@@ -182,13 +265,34 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 
 ### 6. 계약 저장
 
-사용자 승인 후 `.harness/sprint-contract.md`에 저장한다.
+사용자 승인 후 `{CONTRACT_ROOT}/.harness/sprint-contract.md`에 저장한다.
 
 **포맷 규칙 (QA Evaluator 파싱 호환):**
 - YAML frontmatter로 메타데이터
-- 섹션 헤더는 `project.yaml`의 카테고리 ID + `Anti-patterns`, `Reusability`, `Diagnostics` (괄호 부연 금지)
+- **섹션 헤더는 2 계층만 허용한다** (`harness/references/contract-schema.md` §허용 섹션 헤더):
+  - **조건 섹션 (parsed)** — `project.yaml` 카테고리 ID + `Anti-patterns` + `Reusability` +
+    `Diagnostics`. 정확히 일치해야 하며 괄호 부연 금지. `- [ ] {PREFIX}-{NN}:` 조건은 **여기에만**
+  - **서술 섹션 (non-parsed)** — `배경` · `리서치 소스` · `GAP 분석` · `범위 경계` · `회귀 게이트`.
+    접두 일치면 되고 뒤에 부연을 붙여도 된다. **조건 체크박스 금지** (일반 불릿만)
+  - 두 목록 밖의 헤더(`Notes`, `Appendix`, `메모` 등)는 금지 — 평가자 파서가 오작동한다
 - 모든 체크박스는 unchecked `- [ ]` 상태로 저장
 - 모든 카테고리에 최소 1개 조건 필수. 해당 없으면 `- [ ] XX-00: N/A`
+
+### 6.5. 저장 검사 게이트 (E3)
+
+저장 직후 아래 두 명령을 **실행하고 출력을 인용**한다. LLM 판단이 아니라 명령 출력으로 판정한다.
+
+```bash
+# (1) 헤더 목록 — 허용 2 계층 밖 헤더가 있으면 위반
+grep -n '^## ' "$CONTRACT_ROOT/.harness/sprint-contract.md"
+
+# (2) 조건 체크박스가 어느 섹션에 있는지 — 서술 섹션에 있으면 위반
+awk '/^## /{s=$0} /^- \[ \]/{print FNR": "s" -> "$0}' \
+  "$CONTRACT_ROOT/.harness/sprint-contract.md"
+```
+
+위반이 1 건이라도 있으면 계약을 수정하고 재실행한다. **통과 전에는 Step 7 로 진행하지 않는다.**
+(`parser-incompatible-contract-section` 실제 발생 — 허용되지 않은 `## Notes` 섹션 추가)
 
 ```markdown
 ---
@@ -211,7 +315,7 @@ conditions: {N}
 ...
 ```
 
-기존 계약이 있으면 `.harness/history/{YYYYMMDD-HHmm}-sprint-contract.md`로 이동한다.
+기존 계약이 있으면 `{CONTRACT_ROOT}/.harness/history/{YYYYMMDD-HHmm}-sprint-contract.md`로 이동한다.
 
 ### 7. 자기진단
 
@@ -225,6 +329,11 @@ conditions: {N}
    - `nfr_coverage`: 해당 기능의 비기능 요구사항이 조건에 반영되었는가?
    - `boundary_without_measurement`: 경계값(>=, <=, ==) 조건에 측정 방법이 누락되었는가?
    - `format_granularity_missing`: 포맷 일관성 조건에 적용 수준(file/section/field)이 명시되었는가?
+   - `counterpart_missing`: 계약·직렬화·공유 모델 변경인데 consumer 면 조건이 누락되었는가?
+   - `preamble_condition_conflict`: 서술 절의 설계 의도와 조건이 서로 다른 것을 요구하는가?
+   - `diff_oracle_nonstandard`: 변경 범위 조건이 표준형 4 요소(상태 전제/경로 한정/생성물 제외/기대 집합)를 다 채웠는가?
+   - `evidence_artifact_missing`: `[goal]` 조건이 참조하는 증거 기록물의 경로가 조건에 명시되었는가?
+   - `section_header_unclassified`: Step 6.5 게이트가 위반 0 건으로 통과했는가?
 2. 각 항목에 대해 true/false 판정
 
 ### 8. 교차 진단

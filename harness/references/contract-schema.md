@@ -3,13 +3,38 @@
 > sprint-contract 와 qa-evaluator 가 공유하는 계약 포맷 정의.
 > contract-kaizen 이 변경 제안 가능, evaluator-kaizen 이 읽어서 평가 루브릭에 반영.
 >
-> **최근 갱신: 2026-04-24 (Phase 2 kaizen · v3)** — 검증 수단 명시 의무, 스코프 범위 인라인 명시, sibling consistency enumerated 필수, `[미검증]` 마커 표기 규칙 추가. 상세 작성법은 `harness/docs/guides/contract-design-guide.md` 참조.
+> **최근 갱신: 2026-07-27 (Phase 2 kaizen · v4)** — 허용 섹션 헤더 2 계층 분류 (조건 섹션 / 서술 섹션), Counterpart 조건 패턴 (producer/consumer 분리 필수), Diff-Scope Oracle 표준형 4 요소, 증거 아티팩트 경로 명시 의무 추가. 상세 작성법은 `harness/docs/guides/contract-design-guide.md` 참조.
+>
+> 이전: 2026-04-24 (v3) — 검증 수단 명시 의무, 스코프 범위 인라인 명시, sibling consistency enumerated 필수, `[미검증]` 마커 표기 규칙 추가.
 >
 > 이전: 2026-04-11 (v2) — 조건 태그 (Specificity Tag) 서브섹션 신설, aggregation mode 개념 추가.
 
 ## 계약 파일
 
-**경로**: `.harness/sprint-contract.md`
+**경로**: `{CONTRACT_ROOT}/.harness/sprint-contract.md`
+
+`CONTRACT_ROOT` 는 `.harness/project.yaml` 을 발견한 디렉토리의 **절대경로**다. 세션 도중 cwd 가
+바뀌어도 이 값을 기준으로 경로를 해석한다 (v4 추가 — `cwd-contract-path-drift` 재발 방지).
+
+## 허용 섹션 헤더 (v4 추가)
+
+계약 파일의 2 단계(`##`) 헤더는 아래 두 계층 중 하나여야 한다. 밖의 헤더는 금지다.
+
+| 계층 | 허용 헤더 | 헤더 매칭 | 조건 체크박스 |
+| ------ | ------ | ------ | ------ |
+| **조건 섹션 (parsed)** | `project.yaml.contract_categories` 의 각 `id` + `Anti-patterns` + `Reusability` + `Diagnostics` | 정확히 일치 (괄호 부연 금지) | `- [ ] {PREFIX}-{NN}:` 형태로 **여기에만** 존재 |
+| **서술 섹션 (non-parsed)** | `배경` · `리서치 소스` · `GAP 분석` · `범위 경계` · `회귀 게이트` | 접두 일치 (뒤에 부연 허용) | 조건 체크박스 **금지** — 일반 불릿만 |
+
+**결정론적 검사 (E3)** — 계약 저장 직후 실행하고 위반 0 건을 확인한 뒤 다음 단계로 넘어간다:
+
+```bash
+# (1) 헤더 목록 — 허용 목록 밖 헤더가 있으면 위반
+grep -n '^## ' "$CONTRACT_ROOT/.harness/sprint-contract.md"
+
+# (2) 서술 섹션에 조건 체크박스가 섞였는지 — 조건 섹션 밖의 '- [ ]' 는 위반
+awk '/^## /{s=$0} /^- \[ \]/{print FILENAME":"FNR": "s" -> "$0}' \
+  "$CONTRACT_ROOT/.harness/sprint-contract.md"
+```
 
 ## 메타데이터 (YAML frontmatter)
 
@@ -120,6 +145,53 @@ conditions: {총 조건 수}
       rust-api 4 개 스킬 Gotchas 에 모두 존재한다 [exact, enumerated]
 ```
 
+#### Counterpart 조건 (v4 추가)
+
+계약 · 직렬화 포맷 · 공유 모델 · 공개 시그니처 · DB 스키마를 변경하는 스프린트는
+**producer 면과 consumer 면을 각각 별도 조건**으로 담아야 한다. 한 조건에 양면을 묶는 것은
+복합 조건이므로 금지다. 각 조건은 해당 면의 파일 경로를 `[exact, enumerated]` 로 열거한다
+(`collective` 금지). consumer 가 없으면 "소비자 없음" 을 근거와 함께 조건에 명시한다.
+
+```markdown
+- [ ] AR-04: 응답 필드 rename 이 producer 면 파일 `server/src/handler/schedule.rs` 에
+      반영된다 [exact, enumerated] (측정: 신규 필드명 존재 · 구 필드명 0 건)
+- [ ] AR-05: 같은 rename 이 consumer 면 파일 `app/lib/data/model/schedule_model.dart`,
+      `app/lib/data/model/schedule_model.g.dart` 2 개에 반영된다 [exact, enumerated]
+      (측정: 신규 필드명 존재 · 구 필드명 0 건)
+```
+
+소비면의 **내부 구현**은 조건화하지 않는다 (과잉 계약). 한 스프린트에서 양면을 다 못 바꾸면
+남는 쪽은 `[미검증]` 이 아니라 **명시적 미완 조건**으로 남긴다 — `[미검증]` 은 검증 도구 부재
+전용 마커다.
+
+#### Diff-Scope Oracle 표준형 (v4 추가)
+
+"변경 범위" 를 조건으로 쓸 때 `git diff` 자유 서술을 금지한다. 아래 4 요소를 모두 채운다:
+**(1) 상태 전제** (`Given: 커밋 직전 working tree` 또는 `Given: 스테이징 완료 후`) ·
+**(2) 경로 한정 pathspec** · **(3) 생성물 제외 pathspec** · **(4) 기대 집합**("정확히 일치" 인지
+"포함" 인지).
+
+```markdown
+- [ ] AR-01: 변경이 변환 헬퍼 2 개 파일로 한정된다 [exact, enumerated]
+      (Given: 커밋 직전 working tree ·
+       측정: `git diff --name-only HEAD -- app/lib ':(exclude)*.g.dart'` 결과가
+       `app/lib/data/mapper/schedule_mapper.dart`,
+       `app/lib/data/mapper/group_mapper.dart` 2 행과 정확히 일치)
+```
+
+계약 작성 시점에 그 명령을 1 회 실행하고 현재 출력(baseline)을 서술 섹션에 남긴다.
+
+#### 증거 아티팩트 경로 (v4 추가)
+
+조건이 참조하는 증거가 코드 · 파일 · 명령 출력이 아니라 **기록물**(승인 로그, 합의 기록, 실측
+수치)이면, 그 기록물이 평가 시점에 존재할 **경로**를 조건에 적는다. 경로를 적을 수 없으면 그
+조건을 만들지 않는다.
+
+```markdown
+- [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approval.md` 에 기록되어 있다
+      [structural] (측정: 파일 존재 + 시안 ID 1 건 이상)
+```
+
 ### 2. Anti-patterns
 
 ```markdown
@@ -158,10 +230,11 @@ conditions: {총 조건 수}
 
 ## 스키마 버전
 
-현재: **v3** (2026-04-24)
+현재: **v4** (2026-07-27)
 
 변경 이력:
 
+- **v4 (2026-07-27)** — 허용 섹션 헤더 2 계층 분류 (조건 섹션 parsed / 서술 섹션 non-parsed) 와 저장 직후 결정론적 검사, `CONTRACT_ROOT` 기준 경로 해석, Counterpart 조건 (producer/consumer 분리 · `[exact, enumerated]` 필수), Diff-Scope Oracle 표준형 4 요소, 증거 아티팩트 경로 명시 의무. Phase 1 §3.7 enforcement 등급 사다리를 계약 레이어에 적용하여 재발 규칙 4 건을 승급.
 - **v3 (2026-04-24)** — 검증 수단 인라인 명시 필수, MCP/외부 도구 의존 조건의 3 단계 fallback 규칙, `[미검증]` 마커 및 수용 임계 (1 건 허용 / 2 건 이상 REJECT) 명문화, Sibling Consistency 조건 enumerated 필수. Phase 1 (skill/agent-design-guide) Cross-Surface Parity 원칙을 계약 레이어에 전수.
 - **v2 (2026-04-11)** — 조건 구체성 태그 (`[exact]` / `[structural]` / `[goal]`) 와 aggregation mode (`enumerated` / `collective`) 필수화. 숫자 레벨 태그 금지 명시.
 - **v1** — 초기 스키마.
