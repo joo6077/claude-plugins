@@ -169,7 +169,7 @@ planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks,
 
 ### 필수 소스 (3 건 이상)
 
-onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 `onboarding-kit/skills/onboarding-kaizen/references/research-sources.md` 에 등록된 1차 출처를 재사용한다.
+onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 `.claude/skills/onboarding-kaizen/references/research-sources.md` 에 등록된 1차 출처를 재사용한다.
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |

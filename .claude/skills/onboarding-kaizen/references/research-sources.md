@@ -12,7 +12,7 @@
 | FlutterFire docs | https://github.com/firebase/flutterfire/tree/main/docs | 월 1회 |
 | Google Cloud Console help | https://cloud.google.com/docs/ | 분기 1회 |
 | AWS Console help | https://docs.aws.amazon.com/ | 분기 1회 |
-| Stripe iOS / Web docs | https://stripe.com/docs/ | 월 1회 |
+| Stripe iOS / Web docs | https://docs.stripe.com/ | 월 1회 |
 | Sentry SDK docs | https://docs.sentry.io/ | 분기 1회 |
 
 ## 2차 출처 (커뮤니티 / 변경 시그널)
