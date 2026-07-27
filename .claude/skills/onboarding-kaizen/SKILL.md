@@ -9,7 +9,7 @@ onboarding-kit의 `/setup-guide` SKILL.md, references/ 3종, evals/evals.json을
 
 ## 트리거
 
-- 주 1회 cron 자동 실행 (kaizen-orchestrator Phase 13)
+- 주 1회 cron 자동 실행 (kaizen-orchestrator Phase 14)
 - 수동 호출: `/onboarding-kaizen`
 - 이벤트: `feedback_setup_guide_*` 메모리가 3개 이상 누적되면 자동 트리거 후보
 - 이벤트: setup-guide 호출 결과의 사용자 부정 피드백 누적

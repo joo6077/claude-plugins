@@ -487,7 +487,7 @@ python3 scripts/collect-kaizen-data.py
 
 > 플러그인 설명: 스택 무관 제품 기획 플러그인 — 소크라테스식 질문, PRD, 우선순위, 리스크, 개념 데이터 모델(Mermaid), GitHub 프로젝트 동기화
 
-### Step 10.95: Phase 13 — onboarding-kit 카이젠
+### Step 10.95: Phase 14 — onboarding-kit 카이젠
 
 **범위:** `onboarding-kit/skills/*/SKILL.md`, `onboarding-kit/references/`
 
@@ -495,7 +495,7 @@ python3 scripts/collect-kaizen-data.py
 
 **역할:** /onboarding-kaizen 호출. onboarding-kit /setup-guide SKILL.md, references/ 3종, evals/evals.json을 외부 docs/help 변경 + 사용자 피드백 메모리 + marketplace 트렌드 기반으로 개선.
 
-**필수 리서치 소스:** `references/phase-research-templates.md` 의 Phase 13 테이블 (Firebase/GCP/AWS/FCM/OAuth/Stripe 공식 문서 + FlutterFire GitHub Releases) 최소 3 건 이상 조회.
+**필수 리서치 소스:** `references/phase-research-templates.md` 의 **Phase 14** 테이블 (Firebase iOS/Flutter setup, Apple Developer, Stripe, GCP, 패키지 레지스트리) 최소 3 건 이상 조회.
 
 **의존성:** Phase 1 (skill-design-guide) 결과 반영. 다른 Phase 결과에는 영향받지 않음 (독립 스택).
 
