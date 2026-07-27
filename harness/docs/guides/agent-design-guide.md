@@ -1,7 +1,7 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.4.0
-last_updated: 2026-06-05
+version: 1.5.0
+last_updated: 2026-07-27
 ---
 
 # Claude Code 에이전트 설계 가이드
@@ -69,22 +69,22 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 
 | 필드 | 필수 | 설명 |
 | ------ | ------ | ------ |
-| `name` | 예 | 고유 식별자 (소문자, 하이픈) |
+| `name` | 예 | 고유 식별자 (소문자, 하이픈). 훅이 이 값을 `agent_type` 으로 받는다. **파일명과 일치할 필요는 없다** |
 | `description` | 예 | 언제 위임할지 Claude가 판단하는 기준 |
-| `tools` | 아니오 | 허용 도구 목록. 생략 시 전체 상속 |
-| `disallowedTools` | 아니오 | 차단 도구 목록 |
-| `model` | 아니오 | `sonnet`, `opus`, `haiku`, 풀 model ID(예: `claude-opus-4-6`), `inherit` (기본값) |
-| `permissionMode` | 아니오 | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+| `tools` | 아니오 | 허용 도구 목록. 생략 시 전체 상속. 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 **launch 자체에 실패**한다. 스킬을 컨텍스트에 미리 넣으려면 여기에 `Skill` 을 적지 말고 `skills` 필드를 써라 |
+| `disallowedTools` | 아니오 | 차단 도구 목록 (상속·지정 목록에서 제거) |
+| `model` | 아니오 | `sonnet`, `opus`, `haiku`, `fable`, 풀 model ID(예: `claude-opus-5`), `inherit` (기본값) |
+| `permissionMode` | 아니오 | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, `manual`(= `default` 의 별칭) |
 | `maxTurns` | 아니오 | 최대 에이전트 턴 수 |
 | `skills` | 아니오 | 시작 시 주입할 스킬 목록 (전체 내용이 context 에 inject 됨, 스킬 invoke 가능성만 주어지는 게 아님) |
-| `mcpServers` | 아니오 | 이 에이전트 전용 MCP 서버 (parent 세션에서 숨기고 싶을 때 inline 정의) |
+| `mcpServers` | 아니오 | 이 에이전트 전용 MCP 서버 (이미 설정된 서버명 참조 또는 inline 정의) |
 | `hooks` | 아니오 | 라이프사이클 훅 (`PreToolUse`, `PostToolUse`, `Stop` → 런타임에 `SubagentStop` 으로 변환) |
 | `memory` | 아니오 | 영속 메모리: `user`, `project`, `local` |
-| `background` | 아니오 | `true`면 백그라운드 실행 |
-| `effort` | 아니오 | `low`, `medium`, `high`, `max` |
-| `isolation` | 아니오 | `worktree`면 격리된 git worktree에서 실행 |
-| `initialPrompt` | 아니오 | 에이전트 시작 시 자동으로 주입되는 초기 사용자 메시지 |
-| `color` | 아니오 | 터미널 UI 에 표시되는 에이전트 색상 (시각 구분용) |
+| `background` | 아니오 | `true` 면 결과가 즉시 필요할 때도 **항상** 백그라운드 실행. 미지정이면 Claude 가 판단하며, 최신 버전은 기본적으로 백그라운드로 돌린다 |
+| `effort` | 아니오 | `low`, `medium`, `high`, `xhigh`, `max` (모델별 가용 레벨 상이). 세션 effort 를 override |
+| `isolation` | 아니오 | `worktree`면 격리된 git worktree에서 실행 (변경이 없으면 자동 정리) |
+| `initialPrompt` | 아니오 | `--agent` 등으로 **메인 세션 에이전트**로 돌 때 첫 user turn 으로 자동 제출 |
+| `color` | 아니오 | 터미널 UI 에 표시되는 에이전트 색상 (`red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`) |
 
 **플러그인 에이전트 제약:** `hooks`, `mcpServers`, `permissionMode` 필드는 플러그인으로 배포된 에이전트에서는 **무시된다**. 이 필드가 필요하면 `.claude/agents/` 로 복사해라.
 
@@ -221,11 +221,21 @@ hooks:
           command: "./scripts/validate-readonly-query.sh"
 ```
 
-### Agent(agent_type) — 스폰 가능 서브에이전트 제한
+### 서브에이전트 중첩 (nesting) — 기본 3 층까지 허용된다
 
-> **출처:** [Create custom subagents — Allow only specific subagents to spawn others](https://code.claude.com/docs/en/sub-agents) (2026-04)
+> **출처:** [Create custom subagents — Let subagents spawn their own subagents](https://code.claude.com/docs/en/sub-agents) (2026-07 확인)
 
-메인 스레드 에이전트(`claude --agent` 로 실행)는 `Agent` 도구로 다른 서브에이전트를 스폰할 수 있다. 스폰 가능한 서브에이전트를 **화이트리스트로 제한** 하려면 `tools` 필드에 `Agent(agent_type)` 문법을 사용한다.
+**중요 정정 (2026-07):** 과거 이 가이드는 서브에이전트의 하위 위임을 금지된 것으로 기술했으나, 현재 공식 동작은 다르다. **서브에이전트는 기본적으로 자기 아래로 서브에이전트를 스폰할 수 있으며, 메인 대화 기준 3 층까지 중첩된다.** 깊이 한계에 도달하면 Claude Code 가 해당 서브에이전트에서 `Agent` 도구를 회수하므로, 그 에이전트는 위임 없이 직접 일하고 요약 하나만 반환한다.
+
+- 깊이 조정: `settings.json` 의 `env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (`1` 로 두면 중첩 비활성)
+- 중첩된 서브에이전트도 top-level 과 동일하게 설정·해석된다. 중간 산출물은 메인 대화에 도달하지 않고 **최상위 서브에이전트의 요약만** 올라온다
+- 특정 에이전트만 스폰을 막으려면 (예: read-only 를 유지해야 하는 리뷰어) 그 에이전트의 `tools` 에서 `Agent` 를 빼거나 `disallowedTools` 에 추가한다
+
+**설계 함의:** "리뷰어가 발견 항목마다 검증자를 띄우는" 형태처럼 위임된 작업이 다시 병렬로 쪼개지는 구조가 이제 정상 설계 선택지다. 다만 §7 의 fan-out 상한과 exploration budget 은 중첩 층에도 그대로 적용된다 — 층이 깊어질수록 비용은 곱으로 늘어난다.
+
+### Agent(agent_type) — 스폰 가능 서브에이전트 화이트리스트
+
+`Agent` 도구로 스폰할 수 있는 서브에이전트를 **화이트리스트로 제한** 하려면 `tools` 필드에 `Agent(agent_type)` 문법을 사용한다.
 
 ```yaml
 ---
@@ -242,7 +252,7 @@ tools: Agent(worker, researcher), Read, Bash
 - `Agent(...)` 로 명시하면 **화이트리스트** 방식 (나열된 것만 허용)
 - `Agent` 만 쓰면 **전체 허용**
 - `Agent` 자체를 생략하면 **모든 서브에이전트 스폰 불가**
-- 서브에이전트 자체는 다른 서브에이전트를 스폰할 수 없으므로 `Agent(agent_type)` 은 **메인 스레드 에이전트에만** 적용된다
+- 중첩이 허용되므로 이 문법은 메인 스레드 에이전트뿐 아니라 **중첩 서브에이전트에도 유효**하다
 
 ---
 
@@ -367,6 +377,8 @@ Edit/Write 후 `PostToolUse` 훅이 결정론적 정적 검증(`cargo fmt --chec
 
 **구현 형태:** 훅은 `.claude/settings.json` 의 `hooks.PostToolUse` 에 matcher (`Edit|Write`) + command 로 등록. 명령이 비-zero exit 이면 메인 Claude 가 결과를 받아 후속 조치를 결정. 에이전트 spawn 은 메인 Claude 가 결정 (훅이 직접 spawn 하지 않음 — 훅은 stateless).
 
+**Enforcement 등급 관점:** 훅은 skill-design-guide §3.7 의 **E3 (결정론적 게이트)** 를 에이전트 측에서 구현하는 형태다 — LLM 판단 없이 매 실행마다 같은 판정을 내리므로 문장 규칙(E1)·체크리스트(E2) 와 달리 per-run 보장을 제공한다. 같은 위반이 반복되는데 프롬프트 문구만 계속 다듬고 있다면 그 규칙은 E3 로 올릴 후보다.
+
 **보완 패턴 — PreToolUse 가드 (사후 수정이 아닌 사전 차단):**
 
 > **출처:** `/insights` 2026-05-07 fresh report (130 sessions): "브랜치가 origin에서 벗어났거나 좀비 MCP 프로세스가 있을 때 편집을 차단하는 PreToolUse 훅으로 세션을 잡아먹는 패턴을 막을 수 있습니다."
@@ -416,6 +428,8 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 > **출처:** [Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228](https://arxiv.org/html/2604.14228v1) · [Claude Code Agents 2026 — CloudZero](https://www.cloudzero.com/blog/claude-code-agents/) · `/insights` 30일 세션 분석 (Friction Point #6: 과탐색 stall — Figma metadata spelunking, 크롤링 중 구현 전 중단)
 
 §10 Gotcha "과도한 병렬화는 토큰 낭비" 를 정량 규칙으로 승격한다. 비용·시간이 폭주하는 두 축은 **fan-out 폭(병렬 spawn 수)** 과 **exploration 깊이(구현 전 탐색 turn 수)** 다. 2026 사례: 단일 슬래시 커맨드가 49 서브에이전트를 2.5시간 병렬 spawn 하여 $8K~15K 추정 (CloudZero). `/insights` 에서는 같은 사용자가 Figma 노드 과탐색·웹 크롤링으로 구현 전 세션이 stall 되어 직접 중단하는 패턴이 반복됐다.
+
+**플랫폼 하드 리밋 (자체 예산과 구분하라):** Claude Code 자체가 강제하는 상한이 3 종 있다 — **동시 실행 20 개**(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`), **세션 누적 200 개**(`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`), **중첩 깊이 3 층**(`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`). 초과하면 `Agent` 도구가 각각 `Concurrent subagent limit reached` / `Subagent spawn limit reached` 로 실패한다. 아래 "기본 5 개" 는 이 하드 리밋과 별개인 **자체 비용 예산**이며 항상 하드 리밋보다 작게 잡는다 — 하드 리밋은 사고를 막는 최후 방어선이지 설계 목표가 아니다.
 
 **원칙:**
 
@@ -497,7 +511,7 @@ memory: project   # user | project | local
 
 > **출처:** 종합 (공식 문서 + 커뮤니티 경험)
 
-- **서브에이전트는 다른 서브에이전트를 생성할 수 없다.** 중첩 위임이 필요하면 메인 대화에서 체이닝하거나 스킬을 사용해라
+- **중첩은 깊이 제한이 있다 (금지가 아니다).** 서브에이전트도 자기 아래로 위임할 수 있으나 기본 3 층에서 끊긴다 (§4 참조). 한계 층의 에이전트는 `Agent` 도구를 잃고 직접 일하므로, 4 층째 위임을 전제한 설계는 조용히 단층으로 접힌다 — 깊이를 설계 가정으로 삼지 마라
 - **플러그인 에이전트는 `hooks`, `mcpServers`, `permissionMode`를 지원하지 않는다.** 필요하면 `.claude/agents/`로 복사해라
 - **과도한 병렬화는 토큰 낭비다.** 10개 에이전트를 단순 작업에 띄우지 마라. 관련 작업을 묶어라
 - **컨텍스트 핸드오프 실패.** 순차 체이닝에서 이전 에이전트의 결과를 다음 에이전트에 전달하지 않으면 의존성 체인이 깨진다
@@ -508,7 +522,7 @@ memory: project   # user | project | local
 
 - **정적 Grep만으로 PASS를 주지 마라.** 파일 존재 여부나 키워드 포함 여부를 확인하는 것은 L1/L2 수준이다. Reviewer/Evaluator 에이전트는 반드시 **L3 커버리지** — `Read`로 파일 내용을 실제로 읽거나, `Bash`로 명령을 실행하여 결과를 확인 — 까지 수행해야 한다.
 
-  ```
+  ```text
   L1: 파일이 존재하는가? (Glob/Grep)
   L2: 파일에 특정 키워드가 있는가? (Grep)
   L3: 파일의 실제 내용이 조건을 충족하는가? (Read) 또는
@@ -519,17 +533,20 @@ memory: project   # user | project | local
 
 - **계약 모호성 방지 — 평가 이전에 조건의 이진 판정 가능성을 확인하라.** 본 원칙은 최상위 §3.5 "Binary Decidability Pre-Check" 로 승격되었다. 평가 시작 전 §3.5 체크리스트를 필수 수행한다
 
-- **Unverifiable 조건 정책 — 인프라 부재로 검증 불가한 조건의 일관 처리.** MCP 서버 미설정(예: `mcp_server: null` 로 인해 Figma read-back 불가), 런타임 미실행, 도구 미설치 등의 이유로 **실제 검증이 불가능한 조건** 이 있을 때는 아래 3 항 필수:
+- **Unverifiable 조건 정책 — 인프라 부재로 검증 불가한 조건의 일관 처리.** MCP 서버 미설정(예: `mcp_server: null` 로 인해 Figma read-back 불가), 런타임 미실행, 도구 미설치 등의 이유로 **실제 검증이 불가능한 조건** 이 있을 때는 아래 4 항 필수:
   1. **명시적 마커 표기** — 해당 조건 결과에 `[정적]` 또는 `[미검증]` 마커를 붙이고, 무엇 때문에 검증이 불가한지 한 줄로 기재 (예: `[미검증] mcp_server: null — Figma 시각 대조 불가`)
   2. **2건 이상 누적 시 REJECT** — 한 sprint 에 미검증 항목이 2건 이상이면 verdict 는 REJECT 로 귀결한다 (harness 전역 관습). 부분 L2 만 검증된 조건도 미검증 집계 대상
   3. **조용한 PASS 금지** — 검증을 건너뛰고 정적 증거만으로 PASS 를 주는 것은 엄격히 금지. 검증 불가면 FAIL 또는 `[미검증]` 중 하나로 표기하되 PASS 처리 금지
+  4. **생성자의 완료 주장을 증거로 취급 금지** — 구현자가 "동작 확인함" 이라고 쓴 문장은 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가 코딩 에이전트 궤적(AppWorld)에서 **실패의 75.8% 가 false success**(실패했는데 성공했다고 단언) 였고, 판정에 쓰인 신호는 검증된 상태 변화가 아니라 "자신 있는 마무리 문장" 같은 표면 프록시였다 ([arxiv:2606.09863](https://arxiv.org/abs/2606.09863)). 같은 연구에서 LLM 판정자는 AUROC 0.54~0.65 에 그쳤다 — 평가자는 주장이 아니라 **도구 출력·상태 변화**를 근거로 삼아야 한다
+
+  **Cross-Surface Parity:** 본 정책의 생성(스킬) 측 짝은 skill-design-guide §3.7 "Completion Evidence Gate" 다. 마커 표기법과 2 건 임계값은 양쪽이 동일 규약을 쓴다 — 한쪽만 표기하면 미검증이 평가 시점에야 드러나 iteration 이 낭비된다.
 
   **실패 사례 (이 정책 없이 발생):**
 
   - fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
   - 원인: 미검증 마커 없이 PASS 부여 → 계약 해석 레벨에서 이슈 불가시
 
-- **Self-Evaluator Rule-by-Rule Audit — 서브에이전트 중첩 불가의 공식 우회법.** 서브에이전트가 다른 서브에이전트를 spawn 할 수 없으므로, 카이젠 Phase 처럼 **서브에이전트 내부에서 QA 를 돌려야 하는 경우** Phase subagent 가 **자기 산출물을 자기 규칙 리스트로** 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 1회 iteration APPROVE 를 달성한 핵심 기법으로 `.harness/.meta/orchestrator-audit-log.md` 에 기록되어 있다. **자기 평가는 외부 평가의 대체가 아니다** — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수. self-audit 시 **최종 산출물뿐 아니라 중간 결정·도구 상태까지 규칙에 대조** 한다 — LLM 은 유창하지만 제약을 위반하는 추론을 내기 쉽고 최종 성공만으로는 위반이 가려지기 때문이다 ([Verify Before You Commit — arxiv:2604.08401](https://arxiv.org/pdf/2604.08401)).
+- **Self-Evaluator Rule-by-Rule Audit — 위임 없이 자기 규칙으로 전수 대조하는 패스.** (2026-07 근거 정정: 과거 이 항목은 하위 위임이 막혀 있다는 전제 위에 서술됐으나 중첩은 이제 허용된다 — §4. 이 기법이 여전히 유효한 근거는 중첩 제약이 아니라 **비용·지연 대비 효과**와 **깊이 한계에서 위임이 조용히 접히는 위험**이다. 중첩 QA 가 필요하면 스폰해도 되지만, 자기 규칙 대조는 스폰 없이도 대부분의 위반을 잡는다.) 카이젠 Phase 처럼 **서브에이전트 내부에서 QA 를 돌려야 하는 경우** Phase subagent 가 **자기 산출물을 자기 규칙 리스트로** 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 1회 iteration APPROVE 를 달성한 핵심 기법으로 `.harness/.meta/orchestrator-audit-log.md` 에 기록되어 있다. **자기 평가는 외부 평가의 대체가 아니다** — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수. self-audit 시 **최종 산출물뿐 아니라 중간 결정·도구 상태까지 규칙에 대조** 한다 — LLM 은 유창하지만 제약을 위반하는 추론을 내기 쉽고 최종 성공만으로는 위반이 가려지기 때문이다 ([Verify Before You Commit — arxiv:2604.08401](https://arxiv.org/pdf/2604.08401)).
 
 ---
 
@@ -588,10 +605,11 @@ harness/agents/
 | 2 | 트리거 키워드 배타성 (substring 포함) | §3 "Sibling Agent 트리거 키워드 배타성" | §4 (트리거 키워드 중복 방지) |
 | 3 | 검증 가능한 성공 기준 / L3 커버리지 | §10 Reviewer/Evaluator Gotchas (L3) | §3.6 (Give a way to verify) |
 | 4 | Rule-by-rule audit before completion | §10 Reviewer 전수 대조 | §3.6 (Rule-by-Rule Audit) |
-| 5 | Unverifiable / degraded-mode 정책 | §10 Unverifiable 조건 정책 | — (에이전트 전용) |
+| 5 | Unverifiable / degraded-mode 정책 | §10 Unverifiable 조건 정책 | §3.7 (Completion Evidence Gate) |
 | 6 | Fan-out 상한 / Exploration Budget ↔ 반환 데이터 최소화 | §7 (Fan-out 상한 · Exploration Budget) | §9 (Long-Running Skills — 반환 데이터 최소화) |
+| 7 | Enforcement 등급 (E1/E2/E3) | §6 패턴 7 (훅 = E3 결정론적 게이트의 구현체) | §3.7 (Enforcement 3 등급 · 승급 규칙) |
 
-Item 5 는 평가자 행동에만 관련되므로 skill-design-guide 에는 존재하지 않는 것이 정상. Item 6 은 에이전트 측 fan-out/exploration 통제와 스킬 측 반환 최소화가 토큰 경제라는 동일 목적의 짝 원칙으로 양쪽 존재. 나머지 4 개도 양쪽 존재.
+**Item 5 는 2026-07 사이클에서 양면으로 전환되었다** — 과거에는 "평가자 전용" 이었으나, 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비된다. 마커 표기법과 2 건 임계값은 양쪽이 동일 규약을 쓴다. Item 6 은 에이전트 측 fan-out/exploration 통제와 스킬 측 반환 최소화가 토큰 경제라는 동일 목적의 짝 원칙. Item 7 은 "원칙을 어떤 강도로 강제할지" 를 판정하는 공통 틀로, 에이전트 측에서는 훅(PostToolUse/PreToolUse)이 E3 게이트의 구현 형태다. 나머지 1~4 도 양쪽 존재.
 
 ### 개정 시 체크리스트
 
@@ -631,12 +649,13 @@ agent-design-guide.md 를 편집할 때:
 | 모델 최적화 | 작업 복잡도에 맞는 모델 선택 |
 | 호출 품질 | 컨텍스트·범위·파일참조·성공기준 4요소 |
 | 독립 컨텍스트 | 생성과 평가는 분리 |
-| 중첩 불가 | 서브에이전트는 다른 서브에이전트를 spawn 할 수 없음 |
+| **중첩 3 층** | 서브에이전트도 위임 가능하나 기본 3 층에서 끊김 · 깊이를 설계 가정으로 삼지 마라 (§4) |
+| **하드 리밋** | 동시 20 · 세션 200 · 깊이 3 — 자체 예산은 항상 이보다 작게 (§7) |
 | 영속 메모리 | 대화를 넘어서 학습시켜라 |
 | 6가지 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행 중 선택 |
 | **Fan-out 상한 / Exploration Budget** | §7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환 |
 | **Binary Decidability** | §3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격) |
-| **Unverifiable 정책** | `[미검증]` 마커 · 2건 누적 REJECT · 조용한 PASS 금지 |
+| **Unverifiable 정책** | `[미검증]` 마커 · 2건 누적 REJECT · 조용한 PASS 금지 · 생성자의 완료 주장은 증거 아님 |
 | **Cross-Surface Parity** | agent/skill/contract/eval 가이드의 원칙 전수 검토 (§12) |
 
 ---
@@ -656,3 +675,6 @@ agent-design-guide.md 를 편집할 때:
 - [Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228](https://arxiv.org/html/2604.14228v1) (2026-06)
 - [Claude Code Agents 2026 — CloudZero](https://www.cloudzero.com/blog/claude-code-agents/) (2026-06)
 - [Verify Before You Commit: Faithful Reasoning via Self-Auditing — arxiv:2604.08401](https://arxiv.org/pdf/2604.08401) (2026-06)
+- [From Confident Closing to Silent Failure: Characterizing False Success in LLM Agents — arxiv:2606.09863](https://arxiv.org/abs/2606.09863) (2026-06)
+- [Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405](https://arxiv.org/html/2607.07405v1) (2026-07)
+- [How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442](https://arxiv.org/abs/2605.29442) (2026-05)
