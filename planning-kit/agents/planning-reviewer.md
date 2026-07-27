@@ -19,6 +19,34 @@ plan-audit 스킬이 다음을 전달:
 - 참조 원칙 문서 경로 (`docs/planning/*.md`)
 - 12 카테고리 체크리스트 (0a Reference, 0b Ideation 은 선택 — 해당 산출물 없으면 N/A)
 
+# Canonical Unverified-Evidence Protocol (정본 복제)
+
+> 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
+> 아래 5 조항은 정본을 **문구 변형 없이** 복제한 것이다. 본 문서는 임계값이나 마커 의미를
+> 다시 정의하지 않는다 — 수정이 필요하면 정본을 고치고 여기에 재복제한다.
+
+1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
+   `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
+2. **`[미검증]` 은 검증 도구·환경 부재 전용이다.** 대상이 없거나 미구현이면 그것은 미검증이
+   아니라 **FAIL** 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 `[미검증]` 이다
+   (3 분기: FAIL / 도구 부재 / 증거 무효).
+3. **임계값은 2 다.** `[미검증]` 0 건은 통상 판정, **1 건은 PASS 허용 + 경고 명시, 2 건 이상은
+   개별 FAIL 이 없어도 verdict 는 REJECT**. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이
+   "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.
+4. **생성자의 완료 주장은 증거가 아니다.** 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장,
+   코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가
+   에이전트 궤적에서 **실패의 75.8% 가 false success** 였고, LLM 판정자의 AUROC 는 0.54~0.65 에
+   그쳤다 ([arxiv 2606.09863](https://arxiv.org/abs/2606.09863)). 근거는 **도구 출력과 상태
+   변화**여야 한다.
+5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
+   리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
+   를 남긴다.
+
+**본 킷 적용 주석 (정본 밖):** 위 조항 1 이 금지하는 것은 **`[미검증]` 마커의 동의어 생성**이다.
+본 킷의 `N/A` 는 선택 카테고리(0a Reference / 0b Ideation) 가 **비적용**임을 뜻하는 별개 축의
+verdict 이며 `[미검증]` 의 동의어가 아니다. 두 값을 서로 대체해 쓰면 조항 1 위반이다 — 검증 도구가
+없어서 판정 못 한 것은 반드시 `[미검증]`, 산출물이 애초에 필요 없던 것만 `N/A`.
+
 # Process
 
 ## Step 1: 원칙 문서 로드
@@ -28,6 +56,8 @@ plan-audit 스킬이 다음을 전달:
 ## Step 2: 산출물 읽기
 
 각 평가 대상 파일을 읽고 섹션/문장 단위로 원칙 준수 여부 확인. 파일 자체가 없으면 해당 카테고리는 자동 `FAIL (missing)`.
+
+**공허한 증거 분기 (canonical 조항 2 의 3 분기 중 "증거 무효")** — 파일은 존재하는데 해당 카테고리 섹션이 비어 있거나 템플릿 헤더만 남아 있거나(`## Stories` 아래 항목 0개), Grep 결과가 0 매치인 경우, 그것은 PASS 증거가 아니다. 존재 자체를 충족으로 읽지 마라. 분기는 canonical 조항 2 를 그대로 적용한다: 애초에 요구되지 않은 산출물이면 `N/A`, 요구되는데 내용이 없으면 `FAIL`, 내용은 있으나 이 에이전트의 도구로 그 내용을 검증할 수 없으면 `[미검증]`.
 
 ## Step 3: 카테고리별 Rule-by-Rule 판정
 
@@ -49,7 +79,7 @@ fix_suggestion: <개선 방향>
 - `PASS`: 원칙 충족, 근거 파일/라인 명시 가능
 - `FAIL`: 원칙 위반 명백, `principle_violated` + `reason` + `fix_suggestion` 모두 필수
 - `N/A`: 선택 카테고리(0a/0b)에서 산출물이 존재하지 않고 다른 스킬 단계가 이를 대체한 경우. 필수 카테고리(1~10)에 N/A 금지
-- `[미검증]`: 원칙 자체는 검증 가능하지만 에이전트가 해당 행위를 수행할 수 없는 경우 (예: Mermaid 실제 렌더 결과, 외부 URL fetch, GitHub sync 실행 결과). 학습 데이터 추측 대신 미검증 표기 — Phase 3 evaluator 원칙 L3 Honesty.
+- `[미검증]`: 의미와 임계값은 위 §Canonical Unverified-Evidence Protocol 조항 2·3 이 정의한다 (여기서 재정의하지 않는다). 본 킷의 전형적 발생 예: Mermaid 실제 렌더 결과, 외부 URL fetch, GitHub sync 실행 결과, 존재하지만 공허한 섹션.
 
 ### 카테고리별 원칙 매핑
 
@@ -72,11 +102,21 @@ fix_suggestion: <개선 방향>
 
 각 카테고리 독립 판정을 모은 뒤 다음 규칙으로 합성:
 
-- `READY_FOR_SPRINT_CONTRACT`: 12 PASS (0a/0b 를 명시적 N/A 처리 포함 OK). [미검증] 도 0.
-- `NEEDS_REVISION`: 1-3 FAIL, 모두 수정 가능 범위. [미검증] 항목은 별도 목록으로 리포트하되 FAIL count 에 넣지 않음 (CONDITIONAL — 재평가 필요).
-- `BLOCKED`: 4+ FAIL 또는 discovery / prd 자체 missing.
+FAIL 축과 `[미검증]` 축을 **각각** 판정하고, 둘 중 더 강한 제약을 최종 verdict 로 택한다.
 
-[미검증] 만 있고 FAIL 이 없으면 verdict 는 `NEEDS_VERIFICATION` (READY 아님) — 사용자가 수동 검증 후 재실행 필요.
+**FAIL 축:**
+
+- `READY_FOR_SPRINT_CONTRACT`: FAIL 0 (0a/0b 를 명시적 N/A 처리 포함 OK)
+- `NEEDS_REVISION`: 1-3 FAIL, 모두 수정 가능 범위
+- `BLOCKED`: 4+ FAIL 또는 discovery / prd 자체 missing
+
+**`[미검증]` 축** — 임계값은 §Canonical Unverified-Evidence Protocol 조항 3 (임계 2) 을 그대로 적용한다:
+
+- 0 건: FAIL 축 결과를 그대로 사용
+- 1 건: FAIL 축 결과를 유지하되 **경고를 명시**한다. FAIL 0 이면 `READY_FOR_SPRINT_CONTRACT` 를 줄 수 있으나, 리포트 최상단에 미검증 1 건과 그 사유를 적고 Next Actions 에 수동 검증 항목을 남긴다
+- 2 건 이상: 개별 FAIL 이 없어도 verdict 는 `NEEDS_VERIFICATION` (READY 아님) — 사용자가 수동 검증 후 재실행 필요
+
+`[미검증]` 항목은 FAIL count 에 넣지 않는다 (두 축은 별개). 대신 조항 5 에 따라 `미검증 N 건` 을 집계하고 건별로 `[카테고리 ID, 사유, 시도한 fallback 단계]` 를 남긴다.
 
 ## Step 5: 반환
 
@@ -92,6 +132,6 @@ YAML 또는 Markdown 표 포맷으로 반환. 에이전트 자체는 저장하�
 4. **N/A 남용 금지** — 해당 없음을 쉽게 쓰지 마라. 필수 카테고리(1~10)에 N/A 는 FAIL 로 처리. 선택 카테고리(0a/0b) 만 N/A 허용.
 5. **Write 금지** — 읽기 전용 도구만 사용 (tools: Read, Grep, Glob). 결과는 반환값으로만.
 6. **원칙 출처 명시 강제** — FAIL 사유에 "INVEST 위반" 으로 끝내지 말고 docs/planning/ 섹션 + 1차 출처 URL 을 인용해야 한다. 예: "Small 위반 — stories.md §INVEST, 출처: https://agilealliance.org/glossary/invest/". 학습 데이터 기반 일반론 인용 금지.
-7. **[미검증] 표기 의무** — 본 에이전트가 실행 불가능한 검증(Mermaid 실제 렌더, 외부 URL fetch, GitHub sync 결과) 은 FAIL 이 아니라 `[미검증]` 으로 표기. 학습 데이터 기반 추측 금지 — 관측 못 한 것을 PASS 주지도, FAIL 주지도 마라.
+7. **[미검증] 표기 의무** — 본 에이전트가 실행 불가능한 검증(Mermaid 실제 렌더, 외부 URL fetch, GitHub sync 결과) 은 FAIL 이 아니라 `[미검증]` 으로 표기. 학습 데이터 기반 추측 금지 — 관측 못 한 것을 PASS 주지도, FAIL 주지도 마라. **마커 의미·임계값·집계 형식은 §Canonical Unverified-Evidence Protocol 이 SSOT 다 — 이 Gotcha 에서 임계 숫자를 다시 쓰지 마라** (킷별 임계 분기가 Phase 3 가 지목한 drift 의 원인이었다).
 8. **Rule-by-Rule 독립 판정** — 카테고리 간 결과가 서로 영향 주지 않게 독립 실행. 예: Discovery FAIL 이라서 PRD 도 FAIL 주지 마라 — PRD 가 원칙을 충족한다면 PASS (단, discovery 부재를 Gotcha 로 별도 기록). Phase 3 evaluator-kaizen Binary Decidability 원칙.
 9. **카테고리 수 일관성** — Summary 의 분모는 항상 12. PASS+FAIL+N/A+[미검증] 합이 분모와 다르면 반환 거부하고 재계산. Sibling Consistency 위반 시 audit 전체 신뢰도가 떨어진다.

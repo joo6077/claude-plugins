@@ -24,6 +24,7 @@ user-invocable: true
 10. **Story Map 이 워크숍 산출물로만 끝나면 가치 소실** — backbone + walking skeleton 이후 실제 backlog/roadmap 과 링크되지 않으면 유지비가 커진다. release slice 가 "작지만 완결된 경험" 이어야 함. 출처: [Jeff Patton — Story Mapping](https://jpattonassociates.com/story-mapping/).
 11. **Acceptance Criteria 가 설계 문서가 되면 협상 불가** — criteria 는 완료 판단이지 구현 명세가 아니다. 구현 힌트는 주되 강제하지 않도록, happy path + edge case (빈/에러/권한/네트워크) 를 분리 기술. 출처: [Cucumber Gherkin](https://cucumber.io/docs/gherkin/).
 12. **요청한 스토리 범위만 — 임의 스토리·AC 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 특정 기능/에픽의 스토리만 요청하면 그 범위만 분해한다. "백로그를 채운다"는 이유로 요청하지 않은 인접 기능·후속 스토리·운영(감사/권한/알림) 스토리를 임의로 추가하지 마라. INVEST 의 Negotiable 은 "스토리는 고정 계약이 아니라 대화의 시작점" — 범위는 사용자와 협상하지 미리 확정해 부풀리지 않는다. Story Map 으로 인접 슬라이스가 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #1 excessive_changes 대응). 출처: [Agile Alliance — INVEST (Negotiable/Small)](https://agilealliance.org/glossary/invest/).
+13. **계약 경계를 넘는 스토리는 양면(two-sided) 으로 열거한다 (skill-design-guide §5.5 Counterpart Enumeration)** — 스토리가 API 응답 형태, 직렬화 포맷(날짜·타임존·enum·null), 공유 모델, 이벤트 페이로드, DB 스키마 중 하나라도 건드리면 **producer 면과 consumer 면을 둘 다** Step 6 산출물의 `## Surfaces` 섹션에 적는다. 한쪽만 적힌 스토리는 Independent 처럼 보이지만 실제로는 반쪽이며, 구현 스프린트에서 "서버만 바꾸고 클라 누락" 으로 재현된다 (insights-report Friction #4). Gherkin 의 `Then` 은 "system 밖으로 나오는 관찰 가능한 출력" 을 대상으로 하므로, 그 출력을 **누가 관측하는지**를 이름으로 적지 않으면 AC 자체가 검증면을 특정하지 못한다. 양면을 한 스토리에 담기 부담스러우면 소비면을 **별도 스토리로 분리**하되, 스토리를 실제로 추가하기 전에 Gotcha 12 에 따라 사용자에게 먼저 알리고 확인받는다 (열거는 의무, 스토리 추가는 합의 사항). 열거 자체를 조용히 빠뜨리지 마라. 소비자가 존재할 수 없는 순수 내부 변경이면 "소비면 없음" 을 근거와 함께 적는다 (추측으로 생략 금지). 출처: [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference), skill-design-guide §5.5.
 
 # Process
 
@@ -82,7 +83,9 @@ And <추가 기대>
 | V | 사용자/비즈니스 가치가 명확한가 | so that 절 재작성 |
 | E | 엔지니어가 규모 추정 가능한가 | 모호한 부분 질문 |
 | S | 1 스프린트 내 완료 가능한가 | Epic 으로 승격 후 재분해 |
-| T | AC 로 완료를 검증 가능한가 | AC 보강 |
+| T | AC 로 완료를 검증 가능한가 — **그리고 "이 AC 가 충족되지 않았음" 을 보여줄 관측을 한 줄로 쓸 수 있는가** | 반증 관측을 못 쓰면 AC 보강 |
+
+**Testable 은 반증가능성(falsifiability) 기준이다.** INVEST 의 T 는 "Testable — in principle, even if there isn't a test for it yet" 이다. 즉 지금 테스트가 없어도 되지만 **원리적으로 실패를 관측할 수 있어야** 한다. 판정 절차: 각 AC 의 `Then` 을 읽고 "무엇을 보면 이게 틀렸다고 말할 수 있나" 에 답한다. 답이 "코드를 봐야 안다" / "느낌상 개선됐는지" 라면 반증 불가능한 AC 이므로 관찰 가능한 출력으로 다시 쓴다 — Gherkin 의 `Then` 은 actual 결과와 expected 결과를 비교하는 단계이고, 그 대상은 "system 밖으로 나오는 것(리포트·UI·메시지)" 이어야 한다. 출처: [Agile Alliance — INVEST](https://agilealliance.org/glossary/invest/), [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference).
 
 ## Step 5: Story Map (스토리 3개 이상 시)
 
@@ -122,9 +125,18 @@ Jeff Patton — Backbone 을 가로로, 우선순위(slice) 를 세로로.
 
 ## Story Map (Mermaid)
 
+## Surfaces (양면 열거 — Gotcha 13)
+계약 경계를 넘는 스토리만 기재. 순수 내부 변경이면 "소비면 없음 + 근거" 한 줄.
+
+| 스토리 | producer 면 | consumer 면 | 같은 스프린트 처리 |
+|--------|-------------|-------------|-------------------|
+| US-001 | (예: 주문 조회 API 응답) | (예: 주문 목록 화면) | 예 / 아니오 → 분리 스토리 US-00N |
+
 ## Technical Tasks (스토리 아님)
 - T-001: ...
 ```
+
+`## Surfaces` 는 문장 다짐이 아니라 **파일에 남는 열거 아티팩트**다 (skill-design-guide §3.7 등급 기준 E2). 표가 비어 있고 근거 한 줄도 없으면 열거를 안 한 것이므로 저장 전에 채운다.
 
 ## Step 7: 다음 단계
 
