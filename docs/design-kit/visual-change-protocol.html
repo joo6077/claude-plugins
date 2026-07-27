@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual Change Protocol — Design Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(232,150,90,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(232,150,90,0.03) 0%,transparent 50%);
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+.hero{padding:60px 0 48px;text-align:center}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+h1{font-size:clamp(2.1rem,4vw+1rem,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.subtitle{font-size:1.08rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
+.hero-meta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero-meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);
+  min-height:24px;display:inline-flex;align-items:center}
+
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.45rem,2.5vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:790px;line-height:1.75;margin-bottom:32px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:26px;transition:var(--transition);margin-bottom:16px}
+.card:hover{border-color:rgba(232,150,90,0.32)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.card p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;
+  color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;
+  min-height:24px;transition:var(--transition)}
+.card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.card-source::before{content:'↗';font-weight:800}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(232,150,90,0.05)}
+
+code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent2)}
+.code-block{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:10px 0}
+
+/* PRECEDENCE LADDER */
+.prec{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+.prec-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:18px;align-items:center;padding:18px 20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
+@media(max-width:760px){.prec-row{grid-template-columns:44px 1fr;gap:12px}.prec-ex{grid-column:2}}
+.prec-row:hover{border-color:rgba(232,150,90,0.32)}
+.prec-rank{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;
+  background:var(--accent-dim);color:var(--accent);font-weight:800;font-size:15px}
+.prec-row:nth-child(1) .prec-rank{background:rgba(232,150,90,0.24)}
+.prec-name{font-size:0.94rem;font-weight:700;color:var(--text)}
+.prec-ex{font-size:0.84rem;color:var(--text3);line-height:1.6}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:870px;margin-top:14px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:0.9rem;color:var(--text2);line-height:1.7;
+  padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
+.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
+
+.danger{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.danger-title{font-size:13px;font-weight:800;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.danger p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.warn{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.warn-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.warn p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+
+.footer{margin-top:60px;padding:32px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.footer a:hover{color:var(--accent2)}
+.footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+</style>
+  <!-- kaizen-cycle: 2026-07-27 (신규 SSOT — 시각 진실 우선순위 · 부분 변경 격리 · 증거 블록 · 승인 기록) -->
+</head>
+<body>
+<div class="page">
+
+<div class="hero">
+  <div class="hero-badge">Design Kit · SSOT</div>
+  <h1>Visual Change Protocol</h1>
+  <p class="subtitle">design-kit 내 <strong>시각 산출물을 만들거나 바꾸는 스킬</strong>(design-mockup · design-system · design-guide · design-audit · design-test)이 공유하는 SSOT. 각 스킬은 이 문서를 Gotcha 한 줄로 인용하며, 여기 정의된 임계값·용어를 자기 문서에서 다시 정의하지 않는다.</p>
+  <div class="hero-meta">
+    <span>2026-07-27 신설</span>
+    <span>4 개 절 · 시각 작업 공통 규약</span>
+  </div>
+</div>
+
+<!-- SCOPE -->
+<div class="section">
+  <div class="section-label">Scope</div>
+  <div class="section-title">적용 대상 스킬 5 종 · 4 개 절</div>
+  <p class="section-desc">design-kit 내 시각 산출물을 만들거나 바꾸는 스킬이 이 문서를 공유한다. 각 스킬은 <strong>Gotcha 한 줄로 이 문서를 인용</strong>하고, 임계값·용어를 자기 문서에서 다시 정의하지 않는다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-mockup</code></div>
+      <p>하이파이 HTML 시안 생성 — §1 승인 시안 값, §4 승인 기록의 주 생산자다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-system</code></div>
+      <p>디자인 토큰 체계 세팅 — §1 순위 3·4 충돌이 가장 자주 발생한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-guide</code></div>
+      <p>UI 코드 가이드 — 부분 변경 요청을 §2 로 처리한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-audit</code></div>
+      <p>카테고리별 PASS/FAIL 감사 — §2 의 "의도 외 변경" 을 FAIL 로 판정한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-test</code></div>
+      <p>디자인 품질 테스트 생성 — §3 증거 유효성 4 검사의 측정 수단을 만든다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>4 개 절 구성</div>
+      <p>§1 무엇이 진실인가 · §2 무엇을 건드리지 않는가 · §3 무엇을 증거로 삼는가 · §4 승인을 어떻게 남기는가.</p>
+    </div>
+  </div>
+</div>
+
+<!-- BACKGROUND -->
+<div class="section">
+  <div class="section-label">Background</div>
+  <div class="section-title">왜 필요한가 — 실측 3 건</div>
+  <p class="section-desc">2026-06~07 사용 데이터에서 시각 작업 관련 반복 마찰이 <strong>최상위 신호</strong>로 올라왔다. 아래 세 사례가 각각 별개 세션에서 발생했다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>승인 시안 무시</div>
+      <p>승인된 시안 색상을 무시하고 프로젝트 토큰을 적용했다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>범위 초과 변경</div>
+      <p>보더만 요청받고 배경까지 바꿨다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>빈 캡처를 근거로 주장</div>
+      <p>빈 화면 캡처를 "정상 렌더링" 근거로 반복 주장해 사용자 신뢰가 손상됐다.</p>
+    </div>
+  </div>
+  <div class="danger">
+    <div class="danger-title">공통 원인</div>
+    <p><strong>무엇을 진실로 삼을지</strong>와 <strong>무엇을 건드리지 않을지</strong>가 규정되지 않았다는 것. 이 문서의 §1 과 §2 가 각각 그 공백을 메운다.</p>
+  </div>
+</div>
+
+<!-- 1. PRECEDENCE -->
+<div class="section">
+  <div class="section-label">§1</div>
+  <div class="section-title">Visual Source of Truth Precedence — 무엇이 진실인가</div>
+  <p class="section-desc">시각 값(색상·간격·타이포·형태)이 충돌할 때 아래 <strong>우선순위를 위에서 아래로</strong> 따른다. <strong>상위 근거가 존재하면 하위 근거로 덮어쓰지 않는다.</strong></p>
+  <div class="prec">
+    <div class="prec-row">
+      <div class="prec-rank">1</div>
+      <div class="prec-name">사용자가 이번 대화에서 직접 지정한 값</div>
+      <div class="prec-ex">"이 헥스로 해줘", "지금 색이 맞다"</div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">2</div>
+      <div class="prec-name">사용자가 승인한 시각 결과물</div>
+      <div class="prec-ex">브라우저로 띄워 확인한 시안, 확정된 mockup HTML, 승인 기록 아티팩트</div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">3</div>
+      <div class="prec-name">프로젝트에 이미 존재하는 값</div>
+      <div class="prec-ex">기존 앱의 색상 체계, 현재 테마 파일, 실제 사용 중인 토큰</div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">4</div>
+      <div class="prec-name">프로젝트 디자인 토큰 명세</div>
+      <div class="prec-ex"><code>design-tokens.md</code>, <code>.design/concept.md</code> 방향</div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">5</div>
+      <div class="prec-name">일반 원칙·기본 팔레트</div>
+      <div class="prec-ex">WCAG 권장, 프레임워크 기본값</div>
+    </div>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">1</span><strong>승인된 시안이 있으면 그 시안의 실제 값을 그대로 쓴다.</strong> 팔레트 토큰으로 "정규화" 하거나 단일 tint 로 치환하지 마라. 토큰화가 필요하다고 판단되면 <strong>값을 바꾸지 말고 토큰을 그 값으로 정의</strong>하라</li>
+    <li><span class="check">2</span><strong>기존 앱에 이미 색상 체계가 있으면 새 팔레트를 도입하지 마라.</strong> 먼저 기존 값을 열거해 제시하고, 교체가 필요하다면 이유와 함께 사용자 승인을 받는다</li>
+    <li><span class="check">3</span>순위 1~3 의 근거를 찾지 못했다고 <strong>가정하지 마라</strong> — 찾을 수 없으면 "찾지 못했다" 고 말하고 확인한다</li>
+  </ul>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <code class="code-block">승인된 시안의 #E8965A
+→ 프로젝트 accent 토큰(단일 tint)으로 치환
+→ "토큰 체계에 맞췄습니다"
+
+기존 앱 배경색을 읽지 않고 새 뉴트럴 팔레트 생성
+→ "배경색이 아직도 이상함"</code>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <code class="code-block">승인 시안 값을 그대로 적용
++ "이 값을 `color.accent.brand` 토큰으로
+   등록할까요?" 별도 제안</code>
+    </div>
+  </div>
+</div>
+
+<!-- 2. ISOLATION -->
+<div class="section">
+  <div class="section-label">§2</div>
+  <div class="section-title">Partial Visual Change Isolation — 무엇을 건드리지 않는가</div>
+  <p class="section-desc">"보더만", "색만", "간격만" 처럼 <strong>속성 하나를 지목한 요청</strong>은 그 속성만 바꾸라는 뜻이다.</p>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>편집 전 — Change Manifest</div>
+    <p>편집을 시작하기 전에 두 목록을 명시한다. <strong>문장 다짐이 아니라 응답에 남는 목록이어야 한다.</strong></p>
+    <code class="code-block">## Change Manifest
+- 변경: [속성 — 대상 — 현재값 → 목표값]
+- 보존: [같은 요소/영역의 나머지 시각 속성 열거 —
+        background, fill, radius, shadow, spacing, typography 중 해당분]</code>
+    <p style="margin-top:12px">보존 목록에 올린 속성은 편집 후에도 값이 같아야 한다. <strong>리팩토링·정리·"김에 개선" 을 이유로 바꾸지 않는다.</strong></p>
+  </div>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 범위 초과</div>
+      <code class="code-block">"보더만 바꿔줘"
+→ 보더 변경 + 배경도 어둡게 조정
+→ "김에 개선했습니다"</code>
+      <p>보더만 요청했는데 배경이 어두워졌다면 그것은 성공이 아니다. 감사 맥락에서는 FAIL 이다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — Manifest 후 격리 편집</div>
+      <code class="code-block">## Change Manifest
+- 변경: [border-color — .card — #2A2A40 → #E8965A]
+- 보존: [background, fill, radius, shadow,
+        spacing, typography]
+
+→ border-color 만 편집 → 보존 목록 값 동일 확인</code>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>편집 후 — 판정</div>
+      <p><strong>의도 외 영역이 변했으면 그 변경은 실패로 간주한다.</strong> 되돌린 뒤 요청 속성만 다시 적용한다. (예: 보더만 요청했는데 배경이 어두워짐 → 성공 아님, self-reject 후 재시도)</p>
+      <p style="margin-top:10px">감사·평가 맥락에서는 이것이 <strong>FAIL</strong> 이다. "개선이니까 괜찮다" 는 근거가 되지 못한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>부분 롤백 요청</div>
+      <p>"색은 지금이 맞는데 그라디언트는 이전이 낫다" 같은 <strong>부분 롤백</strong>은 두 축을 분리한 지시다. <strong>지목된 축만 이전 상태로 되돌리고 나머지는 유지</strong>한다. 새 접근을 고수하거나 전체를 되돌리지 마라.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3. EVIDENCE -->
+<div class="section">
+  <div class="section-label">§3</div>
+  <div class="section-title">Before/After Evidence Block — 무엇을 증거로 삼는가</div>
+  <p class="section-desc">시각 산출물을 만들거나 바꾼 뒤에는 완료 보고를 <strong>EVIDENCE 블록</strong>으로 닫는다. <strong>서술만으로 완료를 선언하지 않는다.</strong></p>
+  <code class="code-block">## EVIDENCE
+- before: [캡처 경로 / 명령+출력 / 파일:라인]
+- after:  [캡처 경로 / 명령+출력 / 파일:라인]
+- proof:  [이 변경이 의도대로 됐음을 보이는 테스트·쿼리·diff 결과]
+- 의도 외 영역: [변화 없음 확인 근거 / 또는 변한 항목과 처리]</code>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>필드</th><th>무엇을 적는가</th></tr></thead>
+      <tbody>
+        <tr><td><code>before</code></td><td>변경 전 상태 — 캡처 경로 / 명령+출력 / <code>파일:라인</code></td></tr>
+        <tr><td><code>after</code></td><td>변경 후 상태 — 같은 형식으로</td></tr>
+        <tr><td><code>proof</code></td><td>이 변경이 의도대로 됐음을 보이는 테스트·쿼리·diff 결과</td></tr>
+        <tr><td><code>의도 외 영역</code></td><td>변화 없음 확인 근거, 또는 변한 항목과 그 처리 (§2 보존 목록과 대응)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-title" style="font-size:1.1rem;margin-top:34px;margin-bottom:8px">증거 유효성 4 검사</div>
+  <p class="section-desc">증거를 제출하기 전에 아래를 통과해야 한다. 하나라도 실패하면 그 증거는 무효이며 결과는 PASS 가 아니라 <code>[미검증]</code> 이다. 정본은 <code>harness/docs/guides/qa-evaluation-guide.md §Evidence Validity Gate</code> 다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>검사</th><th>실패 예</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>비공백</strong> — 출력·캡처가 실제 내용을 담았는가</td><td>0 바이트 파일, 에러 메시지만 담긴 로그</td></tr>
+        <tr><td>2</td><td><strong>활성화</strong> — 측정이 검사 대상을 실제로 한 번이라도 통과했는가</td><td>0 개 테스트 실행, 스킵된 스위트, 매치 0 건 grep</td></tr>
+        <tr><td>3</td><td><strong>반증 가능성</strong> — 위반 상태였다면 이 측정이 다른 결과를 냈겠는가</td><td>어떤 입력에도 같은 출력을 내는 측정</td></tr>
+        <tr><td>4</td><td><strong>출처</strong> — 증거를 직접 수집했는가</td><td>구현자 서술·주석·커밋 메시지 인용</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="danger">
+    <div class="danger-title">렌더 산출물 특칙</div>
+    <p>· <strong>빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 검증 실패 신호다.</strong> "요소가 안 보이니 문제도 없다" 는 잘못된 부재 추론이다.<br>· 캡처에서 <strong>구체 요소를 지목</strong>해 근거에 쓴다 (<code>헤더 "내 그룹" + 목록 3 행 확인</code>). 지목할 수 없으면 그 캡처는 무효 증거다.<br>· 캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 <code>[미검증]</code> 이지 PASS 가 아니다.</p>
+  </div>
+  <a class="card-source" href="../harness/qa-evaluation-guide.html">Evidence Validity Gate 정본 — qa-evaluation-guide</a>
+</div>
+
+<!-- 4. APPROVAL RECORD -->
+<div class="section">
+  <div class="section-label">§4</div>
+  <div class="section-title">Design Approval Record — 승인을 어떻게 남기는가</div>
+  <p class="section-desc">사용자가 시안·컨셉을 확정하면 <strong>파일 아티팩트로 기록</strong>한다. 대화 로그만으로는 이후 평가에서 "승인 근거 확인 불가" 가 되어 REJECT 된다 — 2026-07-13 글로벌 REJECT <code>UI-06</code> 의 직접 사유다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>경로</div>
+      <code class="code-block">.design/approvals/{YYYYMMDD}-{대상}.md</code>
+      <p style="margin-top:12px">프로젝트에 <code>.harness/</code> 가 있으면 같은 파일을 <code>.harness/</code> 기준 상대 경로로 참조 가능하게 남긴다 — <strong>QA evaluator 가 증거로 읽는 위치</strong>다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>최소 필드</div>
+      <code class="code-block"># 승인 기록 — {대상}
+
+- 승인일: {YYYY-MM-DD}
+- 승인 주체: {사용자 직접 확정 | 자율 모드 (근거 명시)}
+- 대상 산출물: {파일 경로}
+- 선택된 안: {시안 이름/ID}
+- 확정된 시각 값: {승인 시점에 고정된 색상·타이포·간격}
+- 미확정/후속: {합의되지 않아 남긴 항목}
+- 원문 근거: {사용자 발화 인용 또는 자율 모드 판단 근거}</code>
+    </div>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">1</span><strong>자율 모드에서 승인을 대행한 경우에도 기록을 남긴다.</strong> 이때 승인 주체를 "자율 모드" 로 명시하고 판단 근거를 적는다. 기록 없이 진행하면 측정 근거 부재로 평가에서 REJECT 된다</li>
+    <li><span class="check">2</span>승인 기록의 "확정된 시각 값" 은 <strong>§1 우선순위 2 의 실체</strong>다. 이후 세션에서 토큰·팔레트와 충돌하면 <strong>승인 기록이 이긴다</strong></li>
+    <li><span class="check">3</span>승인 후 시안을 수정하면 기록을 갱신한다. <strong>스테일 승인 기록은 없는 것보다 나쁘다</strong></li>
+  </ul>
+  <div class="warn">
+    <div class="warn-title">§1 과 §4 의 연결</div>
+    <p>§1 우선순위 2 "사용자가 승인한 시각 결과물" 이 실제로 작동하려면 <strong>그 승인이 파일로 남아 있어야 한다</strong>. §4 는 §1 을 집행 가능하게 만드는 장치다 — 기록이 없으면 다음 세션의 Claude 는 순위 2 를 찾지 못하고 순위 4(토큰 명세)로 내려가 값을 덮어쓴다.</p>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="section">
+  <div class="section-label">Summary</div>
+  <div class="section-title">규약 요약 — 4 개 절이 서로를 지탱한다</div>
+  <p class="section-desc">§1 은 값의 출처를, §2 는 변경의 경계를, §3 은 완료의 근거를, §4 는 §1 순위 2 의 실체를 규정한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>절</th><th>질문</th><th>산출물</th><th>실패 시</th></tr></thead>
+      <tbody>
+        <tr><td><strong>§1</strong> Precedence</td><td>무엇이 진실인가</td><td>순위 1~5 중 채택한 근거 명시</td><td>승인 시안 값이 토큰으로 덮어써짐</td></tr>
+        <tr><td><strong>§2</strong> Isolation</td><td>무엇을 건드리지 않는가</td><td>Change Manifest (변경 목록 + 보존 목록)</td><td>의도 외 영역 변경 → self-reject / 감사에서 FAIL</td></tr>
+        <tr><td><strong>§3</strong> Evidence</td><td>무엇을 증거로 삼는가</td><td>EVIDENCE 블록 (before / after / proof / 의도 외 영역)</td><td>무효 증거 → PASS 아닌 <code>[미검증]</code></td></tr>
+        <tr><td><strong>§4</strong> Approval Record</td><td>승인을 어떻게 남기는가</td><td><code>.design/approvals/{YYYYMMDD}-{대상}.md</code></td><td>승인 근거 확인 불가 → REJECT (UI-06)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">✓</span>시각 값을 정할 때 순위 1~3 근거를 <strong>실제로 찾아봤는가</strong>? 못 찾았으면 "찾지 못했다" 고 말했는가?</li>
+    <li><span class="check">✓</span>편집 전에 Change Manifest 를 <strong>응답에 남겼는가</strong>? (문장 다짐이 아니라 목록)</li>
+    <li><span class="check">✓</span>보존 목록의 값이 편집 후에도 동일한지 확인했는가?</li>
+    <li><span class="check">✓</span>EVIDENCE 블록의 4 필드를 채웠고, 증거가 유효성 4 검사를 통과했는가?</li>
+    <li><span class="check">✓</span>시안·컨셉이 확정됐으면 승인 기록 파일을 남기고 <strong>확정된 시각 값</strong>을 기록했는가?</li>
+  </ul>
+</div>
+
+<div class="footer">
+  <h3>관련 문서</h3>
+  <ul>
+    <li><a href="../harness/qa-evaluation-guide.html">harness/docs/guides/qa-evaluation-guide.md §Evidence Validity Gate — 증거 유효성 4 검사 정본</a></li>
+    <li><a href="../harness/skill-design-guide.html">harness/docs/guides/skill-design-guide.md §3.7 Completion Evidence Gate — 등급 SSOT</a></li>
+    <li><a href="../harness/contract-design-guide.html">harness/docs/guides/contract-design-guide.md §증거 아티팩트 존재 의무 — UI-06 계약 측 대응</a></li>
+  </ul>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: design-kit/references/visual-change-protocol.md · 2026-07-27</p>
+</div>
+
+</div>
+</body>
+</html>

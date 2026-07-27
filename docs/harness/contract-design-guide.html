@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Contract Design Guide v3.2 — Harness</title>
+<title>Contract Design Guide v4.0 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -33,21 +33,22 @@ body{
 .hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
   background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
-.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:790px;margin:0 auto 18px;line-height:1.7}
 .hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
 .hero .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);min-height:24px;display:inline-flex;align-items:center}
 .section{padding:56px 0;border-top:1px solid var(--border)}
 .section-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
 .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 70%)}
 .section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em}
-.section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
+.section-desc{font-size:0.96rem;color:var(--text2);max-width:800px;line-height:1.75;margin-bottom:32px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative;margin-bottom:16px}
 .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
-.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
-.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.7}
 .card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition)}
 .card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 .card-source::before{content:'↗';font-weight:800}
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -71,15 +72,29 @@ td code{font-family:var(--mono);font-size:12px;background:var(--surface2);paddin
 .compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
 code,.code-block{font-family:var(--mono);font-size:12.5px}
 .code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:8px 0}
-.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:760px}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:860px}
 .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
 .checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
-.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--mono)}
-.tag-exact{background:rgba(14,165,233,0.15);color:var(--accent)}
-.tag-structural{background:rgba(20,184,166,0.15);color:var(--accent2)}
-.tag-goal{background:rgba(251,191,36,0.15);color:var(--yellow)}
+.grade{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+@media(max-width:920px){.grade{grid-template-columns:1fr}}
+.grade-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.grade-item::before{content:'';position:absolute;top:0;bottom:0;left:0;width:3px}
+.grade-e1::before{background:var(--text3)}
+.grade-e2::before{background:var(--yellow)}
+.grade-e3::before{background:var(--green)}
+.grade-tag{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.grade-e1 .grade-tag{color:var(--text3)}
+.grade-e2 .grade-tag{color:var(--yellow)}
+.grade-e3 .grade-tag{color:var(--green)}
+.grade-item p{font-size:12.5px;color:var(--text2);line-height:1.65}
 .parity-box{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
 .parity-box-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.parity-box p{font-size:13px;color:var(--text2);line-height:1.7}
+.case-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.case-box-title{font-size:13px;font-weight:800;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.case-box p{font-size:13px;color:var(--text2);line-height:1.7}
+.tag-pill{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--accent-dim);color:var(--accent)}
+.up{color:var(--green);font-weight:800}
 .footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
 .footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
 .footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
@@ -87,320 +102,714 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 .footer ul li{font-size:12.5px;color:var(--text3)}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
+.footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 </style>
+  <!-- kaizen-cycle: 2026-07-27 (Enforcement 등급표 + Counterpart Conditions + Diff-Scope Oracle 표준형 + 헤더 2계층) -->
 </head>
 <body>
 <div class="page">
 
 <div class="topbar">
-  <div class="brand"><span class="brand-dot"></span>HARNESS · Contract Design Guide</div>
-  <span class="badge">v3.2 · 2026-06-05</span>
+  <div class="brand"><span class="brand-dot"></span>HARNESS · 계약 설계 가이드</div>
+  <span class="badge">v4.0 · 2026-07-27</span>
 </div>
 
 <div class="hero">
   <h1>Contract Design Guide</h1>
-  <p class="subtitle">sprint-contract 스킬이 참조하는 계약 작성 원칙. Phase 2 카이젠(v3)에서 Binary Decidability 의무, Scope Range 인라인 명시, Verification Method Required, Sibling Consistency, Cross-Surface Parity 섹션을 추가했고, v3.2에서 측정 명령 타당성(oracle semantic match + precondition)을 보강했다.</p>
+  <p class="subtitle">sprint-contract 스킬이 참조하는 계약 작성 원칙. 이번 사이클의 방침은 <strong>새 문장 추가가 아니라 enforcement 등급 승급</strong>이다 — <code>/insights</code> 2026-07-27(51 세션) Friction #4 + reflect-digest 760 엔트리 + 글로벌 REJECT 89 건 분석에 기반한다.</p>
   <div class="meta">
-    <span>Phase 2 Kaizen · v3.2</span>
-    <span>최근 갱신 2026-06-05</span>
-    <span>참조 스키마: contract-schema.md v3</span>
+    <span>Guide v4.0</span>
+    <span>Schema v4</span>
+    <span>Parity: skill v1.4.0 · agent v1.5.0</span>
   </div>
 </div>
 
-<!-- SECTION 1: CORE PRINCIPLES -->
+<!-- WHAT CHANGED -->
+<div class="section">
+  <div class="section-label">What's New in v4.0</div>
+  <div class="section-title">이번 사이클 변경 6 건</div>
+  <p class="section-desc">스키마도 v3 → v4 로 bump 되었다 (헤더 2 계층 분류 · Counterpart 조건 패턴).</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>(a) Counterpart Conditions</div>
+      <p>skill-design-guide §5.5 Counterpart Enumeration 을 계약 조건으로 흡수 — parity item 12 의 계약 측 착지점.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>(b) Diff-Scope Oracle 표준형</div>
+      <p>AR-01 <strong>3 회 재발</strong>로 <span class="up">E1 → E3 승급</span>. 자유 서술 금지, 4 요소 표준형 강제.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>(c) Preamble–Condition Consistency</div>
+      <p>계약 서두 서술과 조건이 어긋나면 구현자가 조용히 한쪽을 고른다 (RE-02).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>(d) 증거 아티팩트 존재 의무</div>
+      <p>측정이 읽을 대상이 세상에 없으면 조건은 판정 불가다 (UI-06).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>(e) <code>[exact]</code> 산출물 동반 제출</div>
+      <p><code>[exact]</code> 조건에 테스트·문서가 등장하면 그 산출물도 같은 스프린트에 낸다는 뜻이다 (UI-07).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>(f) 원칙별 Enforcement 등급표</div>
+      <p>재발 규칙 4 건 승급 기록. 같은 결함이 다시 나오면 문구를 다듬지 말고 등급을 올린다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CORE PRINCIPLES -->
 <div class="section">
   <div class="section-label">Core Principles</div>
-  <div class="section-title">핵심 3원칙 — 검증 가능성 · 단일 해석 · 측정 가능성</div>
-  <p class="section-desc">모든 조건은 제3자가 코드만 보고 PASS/FAIL을 판정할 수 있어야 한다. 주관적 언어("잘 동작한다", "적절히", "충분히")는 금지.</p>
+  <div class="section-title">핵심 원칙 — 검증 가능성 · 단일 해석 · 측정 가능성</div>
+  <p class="section-desc">모든 조건은 제3자가 코드만 보고 PASS/FAIL 을 판정할 수 있어야 한다. 이는 INVEST 원칙의 <strong>Testable</strong> 과 동일한 요구다 — "제3자가 objectively 확인 가능해야 하며, 측정 가능한 값과 구체 행동으로 기술한다."</p>
   <div class="grid-3">
     <div class="card">
       <div class="card-title"><span class="dot"></span>검증 가능성 (Verifiability)</div>
-      <p>INVEST 원칙 중 Testable과 동일 요구. 제3자가 objectively 확인 가능해야 하며 측정 가능한 값과 구체 행동으로 기술한다.</p>
+      <p>주관적 언어("잘 동작한다", "적절히", "충분히")는 금지.</p>
+      <p style="margin-top:8px"><strong>좋은 예</strong>: "로그인 실패 시 HTTP 401을 반환한다"<br><strong>나쁜 예</strong>: "로그인이 적절히 처리된다"</p>
       <a class="card-source" href="https://www.agilealliance.org/glossary/invest/">Agile Alliance INVEST</a>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>단일 해석 (Unambiguity)</div>
-      <p>조건은 단 하나의 해석만 가능해야 한다. IEEE 29148 기준: 능동태, 단일 조건, 모호 형용사 금지("빠르게", "적절히" → 구체 수치).</p>
+      <p>IEEE 29148 기반 품질 기준:</p>
+      <p style="margin-top:8px">· 능동태 사용 ("시스템이 반환한다" not "반환되어야 한다")<br>· 단일 조건 ("A이고 B이다" → 조건 2개로 분리)<br>· 모호 형용사 금지 ("빠르게", "적절히", "충분히" → 구체 수치)</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>측정 가능성 (Measurability)</div>
-      <p>조건의 충족 여부를 파일, 코드, 실행 결과로 증명할 수 있어야 한다. 측정 명령을 조건에 인라인으로 명시하라.</p>
+      <p>조건의 충족 여부를 파일, 코드, 실행 결과로 증명할 수 있어야 한다.</p>
     </div>
   </div>
+  <div class="parity-box">
+    <div class="parity-box-title">LLM-as-Judge 연구 보강</div>
+    <p>평가 criteria 의 <strong>극단값(PASS/FAIL 양끝)</strong> 정의가 중간값 설명보다 judge alignment 에 더 큰 영향을 준다. 즉 "이 조건이 PASS 인 상태" 와 "FAIL 인 상태" 를 각각 한 문장으로 구체화하는 것이 중간 정도 서술을 풍부하게 하는 것보다 중요하다. <strong>계약 작성 시 각 조건의 FAIL 이미지를 먼저 떠올리고 그 부정으로 PASS 를 기술하면 이진 판정 가능성이 올라간다.</strong></p>
+  </div>
+  <a class="card-source" href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge 신뢰성 연구 — arxiv:2506.13639</a>
+</div>
 
-  <div class="card" style="border-left:3px solid var(--accent)">
-    <div class="card-title"><span class="dot"></span>LLM-as-Judge 연구 보강</div>
-    <p>평가 criteria의 <strong>극단값(PASS/FAIL 양끝)</strong> 정의가 중간값 설명보다 judge alignment에 더 큰 영향을 준다. 각 조건의 FAIL 이미지를 먼저 떠올리고 그 부정으로 PASS를 기술하면 이진 판정 가능성이 올라간다.</p>
-    <a class="card-source" href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge Empirical Study — arxiv:2506.13639</a>
+<!-- ENFORCEMENT GRADES -->
+<div class="section">
+  <div class="section-label">New in v4.0</div>
+  <div class="section-title">원칙별 Enforcement 등급 (E1 / E2 / E3)</div>
+  <p class="section-desc">계약 원칙도 "문장으로 적었으니 지켜지겠지" 가 통하지 않는다. 실측(reflect-digest 760 엔트리)에서 <code>skipped-pre-edit-audit</code> · <code>config-command-mismatch</code> · <code>complexity-by-file-count</code> · <code>parser-incompatible-contract-section</code> 은 <strong>모두 이미 문장 규칙이 존재하는데도 재위반</strong>했고, 전부 <code>user_stated_constraint=true</code>(사용자가 명시한 규칙을 다시 어김)로 분류됐다.</p>
+  <div class="grade">
+    <div class="grade-item grade-e1">
+      <div class="grade-tag">E1</div>
+      <p>contract-design-guide 의 서술 원칙 · SKILL.md Gotcha 한 줄</p>
+    </div>
+    <div class="grade-item grade-e2">
+      <div class="grade-tag">E2</div>
+      <p>계약 파일에 남는 아티팩트 — 조건 그 자체, 인라인 <code>측정:</code> 절, DRAFT 제시 전 출력하는 대조표</p>
+    </div>
+    <div class="grade-item grade-e3">
+      <div class="grade-tag">E3</div>
+      <p>LLM 판단 없이 실행되는 결정론적 검사 — 표준형 측정 명령, 저장 직후 헤더 검사</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>원칙</th><th>등급</th><th>근거 · 승급 이력</th></tr></thead>
+      <tbody>
+        <tr><td>이진 판정 가능성 (Binary Decidability)</td><td>E1</td><td>작성자 체크리스트 — 재발 이력 없음</td></tr>
+        <tr><td>조건 구체성 태그 · aggregation mode</td><td>E2</td><td>태그가 계약 본문에 남는 아티팩트</td></tr>
+        <tr><td>검증 수단 인라인 명시</td><td>E2</td><td><code>측정:</code> 절이 계약에 남음</td></tr>
+        <tr><td><strong>Pre-Edit Audit (계약 시점)</strong></td><td><span class="up">E1 → E2</span></td><td>digest <code>skipped-pre-edit-audit</code> (usc) — Gotcha 문장만 있어 재위반. 감사 결과 표를 DRAFT 전 산출물로 요구</td></tr>
+        <tr><td><strong>설정 리터럴 전사 (project.yaml)</strong></td><td><span class="up">E1 → E2</span></td><td>digest <code>config-command-mismatch</code> + <code>ignored-project-commands</code> (2 건) — 대조표를 DRAFT 전 산출물로 요구</td></tr>
+        <tr><td><strong>복잡도 판정 (영향 범위)</strong></td><td><span class="up">E1 → E2</span></td><td>digest <code>complexity-by-file-count</code> (usc) — Gotcha + 안티패턴 2 곳이 다 E1 이었음. 4 축 판정 표를 요구</td></tr>
+        <tr><td><strong>Diff-Scope Oracle</strong></td><td><span class="up">E1 → E3</span></td><td>REJECT AR-01 2026-06-11 · AR-01 2026-06-29 · Improvement 2026-07-21 — <strong>3 회 재발</strong>. 표준형 명령 + 작성 시점 baseline 실행</td></tr>
+        <tr><td><strong>허용 섹션 헤더</strong></td><td><span class="up">E1 → E3</span></td><td>digest <code>parser-incompatible-contract-section</code> (usc) — 저장 직후 결정론적 헤더 검사</td></tr>
+        <tr><td><code>CONTRACT_ROOT</code> 경로 고정</td><td>E2 (신규)</td><td>digest <code>cwd-contract-path-drift</code> — 확정한 절대경로를 출력해 남김</td></tr>
+        <tr><td>Counterpart Conditions</td><td>E2 (신규)</td><td>insights Friction #4 — 조건 2 개로 계약에 박힘</td></tr>
+        <tr><td>Preamble–Condition Consistency</td><td>E2 (신규)</td><td>REJECT RE-02 — DRAFT 자가 대조</td></tr>
+        <tr><td>증거 아티팩트 존재 의무</td><td>E2 (신규)</td><td>REJECT UI-06 — 증거 경로가 조건에 남음</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="parity-box">
+    <div class="parity-box-title">개정 규칙</div>
+    <p>같은 결함이 다시 관측되면 이 표의 문구를 다듬지 말고 <strong>등급을 한 칸 올려라.</strong> 등급을 올릴 수 없으면(이미 E3) 조건 설계 자체가 잘못된 것이므로 원칙을 재작성한다. 등급 정의와 승급 규칙의 SSOT 는 skill-design-guide §3.7 이며, 여기서 용어를 재정의하거나 동의어를 만들지 마라.</p>
   </div>
 </div>
 
-<!-- SECTION 2: CONDITION WRITING -->
+<!-- WRITING CONDITIONS -->
 <div class="section">
-  <div class="section-label">Condition Writing</div>
-  <div class="section-title">조건 작성법 — Binary Decidability · GWT · 외부 관찰</div>
-  <p class="section-desc">계약 <strong>작성자</strong>는 조건을 제출하기 전, 각 조건이 PASS 또는 FAIL 중 정확히 하나로 귀결 가능한지 자체 점검한다.</p>
-
-  <div class="card" style="margin-bottom:20px">
-    <div class="card-title"><span class="dot"></span>작성자 체크리스트 (조건 제출 전)</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">□</span>이 조건에 정성적 수식어(충분히 / 상당한 / 적절히 / 대부분)가 없는가?</li>
-      <li><span class="check">□</span>이 조건의 FAIL 상태가 1문장으로 기술 가능한가? 불가능하면 조건이 모호하다</li>
-      <li><span class="check">□</span>이 조건의 태그(<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>)가 부여되어 있는가?</li>
-      <li><span class="check">□</span>이 조건을 읽고 2명의 평가자가 서로 다른 판정에 도달할 가능성이 있는가?</li>
-    </ul>
-  </div>
-
+  <div class="section-label">Writing Conditions</div>
+  <div class="section-title">조건 작성법 — NASA · Design by Contract · GWT/AAA</div>
+  <p class="section-desc">각 조건은 하나의 "shall"(또는 한국어 "~한다")만 포함하고, 부정보다 긍정 조건을 선호하며, "and/or" 사용을 금지한다.</p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Given-When-Then / AAA 구조화</div>
-      <code class="code-block">Given {전제 조건}   | Arrange {사전 세팅}
-When  {동작}        | Act     {행동 1회}
-Then  {기대 결과}   | Assert  {관찰 1회}</code>
-      <p>복잡도 "중간" 이상: 모든 핵심 조건에 GWT/AAA 구조 <strong>필수</strong>. Gherkin one When-Then pair 규칙: 한 조건에 When-Then 쌍은 1개만.</p>
+      <div class="card-title"><span class="dot"></span>Precondition / Postcondition / Invariant</div>
+      <p>Design by Contract (Meyer, 1992) 구조를 참고한다.</p>
+      <p style="margin-top:8px"><strong>Precondition</strong>: 구현 시작 전 충족되어야 하는 조건 (환경, 의존성)<br><strong>Postcondition</strong>: 구현 완료 후 반드시 참이어야 하는 조건 (핵심 기능)<br><strong>Invariant</strong>: 구현 전후로 변하지 않아야 하는 조건 (기존 기능 보전)</p>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>외부 관찰 가능성만 기술</div>
-      <p>조건은 시스템이 <strong>무엇을</strong> 하는지만 기술. <strong>어떻게</strong> 하는지(내부 구현)는 기술 금지.</p>
-      <div class="compare" style="margin-top:12px">
-        <div class="compare-bad" style="padding:12px">
-          <div class="compare-label">Bad</div>
-          <code style="font-size:11px">UserService.userRepository가
-비어있을 때 ...</code>
-        </div>
-        <div class="compare-good" style="padding:12px">
-          <div class="compare-label">Good</div>
-          <code style="font-size:11px">등록된 사용자가 없을 때 ...</code>
-        </div>
+      <div class="card-title"><span class="dot"></span>Given-When-Then / Arrange-Act-Assert</div>
+      <code class="code-block">Given {전제 조건}   |  Arrange {사전 세팅}
+When  {동작}        |  Act     {행동 1회}
+Then  {기대 결과}   |  Assert  {관찰 1회}</code>
+      <p style="margin-top:12px">복잡도 "중간" 이상이면 모든 핵심 조건에 GWT 또는 AAA 구조 <strong>필수</strong>, "단순" 이면 선택이나 권장. <strong>Gherkin one When-Then pair 규칙</strong>: 한 조건에 When-Then 쌍은 1 개만 — 2 개 이상이면 복합 조건이므로 분리한다.</p>
+      <a class="card-source" href="https://github.com/andredesousa/gherkin-best-practices">Gherkin Best Practices</a>
+      <a class="card-source" href="https://arxiv.org/html/2510.24358v1" style="margin-left:8px">AAA blueprint — arxiv:2510.24358</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>외부 관찰 가능성 (External Observables Only)</div>
+    <p>조건은 시스템이 <strong>무엇을</strong> 하는지(외부 행동)만 기술한다. <strong>어떻게</strong> 하는지(내부 구현)는 기술하지 않는다. 금지 요소: 클래스명·메서드명·함수명, DB 테이블·컬럼·API 엔드포인트 경로, 프레임워크 용어(controller, service, repository, provider, notifier), 내부 상태 변수·플래그.</p>
+    <div class="compare" style="margin-top:14px">
+      <div class="compare-bad">
+        <div class="compare-label">Bad — 구현 누수</div>
+        <code class="code-block">"UserService의 userRepository가 비어있을 때"
+"POST /api/users 호출 시 201을 반환한다"</code>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Good — 외부 관찰</div>
+        <code class="code-block">"등록된 사용자가 없을 때"
+"신규 사용자 등록 요청 시 성공 응답을 반환한다"</code>
       </div>
     </div>
+    <p>이 규칙을 위반하면 "구현 누수(implementation leakage)" 라 한다. 구현이 변경되면 조건도 깨지므로 조건의 수명이 짧아진다.</p>
   </div>
 </div>
 
-<!-- SECTION 3: SPECIFICITY TAGS -->
+<!-- COUNTERPART CONDITIONS -->
+<div class="section">
+  <div class="section-label">New in v4.0</div>
+  <div class="section-title">양면 조건 — Counterpart Conditions</div>
+  <p class="section-desc">계약·직렬화·공유 모델을 바꾸는 스프린트는 본질적으로 <strong>양면 작업</strong>이다. 서버 응답 형태를 바꾸고 클라이언트를 다음 스프린트로 미루면, 그 스프린트는 계약상 완료가 아니라 <strong>절반 완료</strong>다. 실측에서 사용자가 "당연히 그러면 클라까지 바꿔야지" 로 매번 개입해야 했고, UTC 직렬화 버그도 같은 계열이다.</p>
+  <div class="parity-box">
+    <div class="parity-box-title">설계 결정 — 이 원칙의 유일한 강제 지점은 계약 작성자다</div>
+    <p>Counterpart Enumeration 은 qa-evaluation-guide 에 대응 절을 두지 않는다. 평가자는 <strong>계약에 박힌 조건</strong>으로 이 원칙을 수용한다 (parity item 12). 따라서 이 원칙이 실제로 작동하려면 <strong>계약 작성자가 조건을 넣어야만 한다</strong> — 안 넣으면 아무도 안 잡는다. 계약 테스트의 표준 관점도 동일하다: consumer 측 검증만 하면 provider 가 예고 없이 바뀌고, provider 측만 검증하면 consumer 가 잘못된 요청을 보낸다.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>적용 대상 (하나라도 건드리면 필수)</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">·</span>API 계약 · 엔드포인트 시그니처 · 상태 코드 (빈 상태 204/200/404 포함)</li>
+        <li><span class="check">·</span>직렬화 포맷 — JSON 스키마, 날짜·타임존 표현, enum 값, null 허용 여부</li>
+        <li><span class="check">·</span>공유 모델 · 공용 타입 · 생성 코드 (OpenAPI, protobuf, codegen 산출물)</li>
+        <li><span class="check">·</span>공개 함수 시그니처 · 이벤트 페이로드 · DB 스키마</li>
+      </ul>
+      <a class="card-source" href="https://docs.pact.io/consumer/contract_tests_not_functional_tests">Pact — Contract tests are not functional tests</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>작성 규칙 5 항</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">1</span><strong>producer 면과 consumer 면을 각각 별도 조건으로 쓴다.</strong> 한 조건에 양면을 묶으면 복합 조건이라 부분 통과가 PASS 로 새어 나간다</li>
+        <li><span class="check">2</span>각 조건은 해당 면의 <strong>파일 경로를 enumerate</strong> 한다 — <span class="tag-pill">[exact, enumerated]</span> 필수. <code>collective</code> 금지 (한쪽만 바뀌어도 PASS)</li>
+        <li><span class="check">3</span>consumer 면을 찾지 못하면 grep 으로 탐색하고, 그래도 없으면 <strong>"소비자 없음" 을 근거와 함께 조건에 명시</strong>. 추측으로 생략하지 않는다</li>
+        <li><span class="check">4</span><strong>소비면의 내부 구현을 조건화하지 마라.</strong> Pact 가 경고하는 과잉 계약이 된다 — 열거 대상은 파일 경로와 외부 관찰 가능한 동작까지다</li>
+        <li><span class="check">5</span>한 스프린트에서 양면을 다 못 바꾸면, 남는 쪽은 <code>[미검증]</code> 이 아니라 <strong>명시적 미완 조건</strong>으로 남긴다 (<code>[미검증]</code> 은 검증 도구 부재에만 쓰는 마커다)</li>
+      </ul>
+      <a class="card-source" href="https://docs.pact.io/getting_started/what_is_pact_good_for">Pact — What is Pact good for</a>
+    </div>
+  </div>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 복합 + collective</div>
+      <code class="code-block">- [ ] AR-04: 필드 rename 이 서버와
+      클라이언트에 반영된다 [goal]</code>
+      <p>서버만 바뀌어도 판정이 갈린다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — producer 1 + consumer 1, 각각 enumerated</div>
+      <code class="code-block">- [ ] AR-04: 응답 필드 rename 이 producer 면 파일
+      `server/src/handler/schedule.rs` 에 반영된다
+      [exact, enumerated] (측정: 해당 파일에 신규
+      필드명 존재 · 구 필드명 0 건)
+- [ ] AR-05: 같은 rename 이 consumer 면 파일
+      `app/lib/data/model/schedule_model.dart`,
+      `app/lib/data/model/schedule_model.g.dart`
+      2 개에 반영된다 [exact, enumerated]</code>
+    </div>
+  </div>
+  <p class="section-desc"><strong>부적합:</strong> 소비자가 존재할 수 없는 순수 내부 리팩터링(private 함수 본문, 로컬 변수명). 이 경우 Counterpart 조건은 noise 다.</p>
+</div>
+
+<!-- PREAMBLE CONSISTENCY -->
+<div class="section">
+  <div class="section-label">New in v4.0</div>
+  <div class="section-title">계약 서두–조건 정합성 (Preamble–Condition Consistency)</div>
+  <p class="section-desc">계약에 배경·설계 의도 서술(preamble)이 있으면, 그것은 장식이 아니라 <strong>구현자가 읽는 지시</strong>다. 서술과 조건이 어긋나면 에이전트는 물어보지 않고 <strong>조용히 한쪽을 골라</strong> 구현한다 — "agents resolve the conflict silently by picking one instruction over the other".</p>
+  <div class="case-box">
+    <div class="case-box-title">실제 발생 사례 — RE-02 (fit-pal, 2026-07-22)</div>
+    <p>계약 preamble 은 <strong>단방향</strong> 차단 조회를 설계 의도로 서술했는데, 조건 RE-02 는 <strong>양방향</strong> 함수 <code>batch_blocked_among</code> 의 재사용을 literal 로 열거했다. 구현자는 preamble 을 따라 단방향 <code>batch_blocking_out</code> 을 새로 만들었고, 평가자는 조건의 literal enumeration 미충족으로 REJECT. <strong>어느 쪽도 틀리지 않았고 계약이 자기모순이었다.</strong></p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>작성자 점검 (DRAFT 제시 전, E2)</div>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">✓</span>서술 절에 쓴 설계 의도와 각 조건이 같은 방향을 가리키는가? 어긋나면 <strong>조건을 고칠지 서술을 고칠지 먼저 정하고 사용자에게 알린다</strong></li>
+      <li><span class="check">✓</span>조건이 <strong>기존 식별자</strong>(함수·클래스·파일명)를 literal 로 열거한다면, 그 식별자가 지금 코드에 실제 존재하는지 grep 으로 확인했는가? 존재하지 않는 이름을 열거하면 자동 REJECT 다</li>
+      <li><span class="check">✓</span>열거한 식별자의 <strong>의미</strong>(단방향/양방향, 동기/비동기, 단수/복수)가 설계 의도와 일치하는가?</li>
+      <li><span class="check">✓</span>재사용을 요구하는 조건이라면 "이 이름이어야만 하는가"(<span class="tag-pill">[exact]</span>)인지 "같은 목적을 달성하면 되는가"(<span class="tag-pill">[goal]</span>)인지 태그로 구분했는가?</li>
+    </ul>
+    <a class="card-source" href="https://www.augmentcode.com/guides/ai-spec-template">AI Spec Template — Augment Code</a>
+  </div>
+</div>
+
+<!-- TAGS -->
 <div class="section">
   <div class="section-label">Specificity Tags</div>
-  <div class="section-title">조건 구체성 태그 — [exact] · [structural] · [goal]</div>
-  <p class="section-desc">계약 작성 시 각 조건이 어느 수준으로 판정될지를 명시한다. <strong>숫자 레벨 태그(L1/L2/L3)는 QA 평가 깊이 전용으로 예약</strong>되어 있다 — 계약 조건에 재사용 금지.</p>
+  <div class="section-title">조건 구체성 태그 + Aggregation Mode</div>
+  <p class="section-desc">계약 작성 시 각 조건이 어느 수준으로 판정될지를 명시한다. 수준이 불명확하면 QA Evaluator 가 해석을 달리하여 판정이 엇갈린다.</p>
+  <div class="parity-box">
+    <div class="parity-box-title">네이밍 규칙 — 숫자 레벨 금지</div>
+    <p>숫자 레벨(L-one, L-two, L-three)은 <strong>QA 평가 깊이 전용</strong>으로 예약되어 있다. 계약의 조건 태그는 반드시 <strong>문자 태그</strong>(<code>[exact]</code>, <code>[structural]</code>, <code>[goal]</code>)만 사용하고, 숫자 레벨을 계약 조건에 재사용하지 마라. 혼용하면 QA 깊이와 조건 구체성이 구분되지 않아 판정이 엇갈린다.</p>
+  </div>
   <div class="table-wrap">
     <table>
       <thead><tr><th>태그</th><th>정의</th><th>판정 기준</th><th>적합한 상황</th></tr></thead>
       <tbody>
-        <tr>
-          <td><span class="tag tag-exact">[exact]</span></td>
-          <td>이름/값/구조를 문자 그대로 매칭</td>
-          <td>해당 식별자가 코드에 존재하는지 직접 검색</td>
-          <td>함수명 계약, 파일명 계약, 특정 클래스 구조</td>
-        </tr>
-        <tr>
-          <td><span class="tag tag-structural">[structural]</span></td>
-          <td>섹션/필드/파일의 존재 여부 (기본값)</td>
-          <td>지정된 섹션·필드가 존재하는지 확인</td>
-          <td>"X 섹션을 포함한다", "Y 필드가 있다"</td>
-        </tr>
-        <tr>
-          <td><span class="tag tag-goal">[goal]</span></td>
-          <td>수단 무관, 목표 달성 여부만 판정</td>
-          <td>기능이 의도한 결과를 산출하는지 확인</td>
-          <td>"SSOT 달성", "회귀 없음", "파싱 성공"</td>
-        </tr>
+        <tr><td><code>[exact]</code></td><td>특정 이름/값/구조를 문자 그대로 매칭</td><td>해당 식별자가 코드에 존재하는지 직접 검색</td><td>함수명 계약, 파일명 계약, 특정 클래스 구조</td></tr>
+        <tr><td><code>[structural]</code></td><td>섹션/필드/파일의 존재 여부 및 필수 서브구조</td><td>지정된 섹션·필드가 존재하는지 확인</td><td>"X 섹션을 포함한다", "Y 필드가 있다"</td></tr>
+        <tr><td><code>[goal]</code></td><td>수단 무관, 목표 달성 여부만 판정</td><td>기능이 의도한 결과를 산출하는지 확인</td><td>"SSOT 달성", "회귀 없음", "파싱 성공"</td></tr>
       </tbody>
     </table>
   </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>태그 선택 기준</div>
+      <p><strong><code>[exact]</code></strong>: 이름·값·구조가 <strong>그것이어야만</strong> 의미가 있을 때. "이름이 달라지면 계약 실패" 가 성립하면 <code>[exact]</code>.<br><strong><code>[structural]</code></strong>: "해당 구조가 존재한다" 만 검증하고 싶을 때.<br><strong><code>[goal]</code></strong>: 구현 방법은 자유이고 <strong>결과만</strong> 보고 싶을 때.</p>
+      <p style="margin-top:10px"><strong>경험칙:</strong> 판정 시 "구현이 X 라서 REJECT 할 것인가?" 라고 자문했을 때 REJECT 가 부당하다고 느끼면 태그가 <code>[exact]</code> 일 가능성이 높다 — <code>[goal]</code> 로 완화하라. 태그 미명시 시 기본값은 <code>[structural]</code>.</p>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실제 사례 — PU-04 REJECT</div>
+        <p>계약이 "pyyaml 기반 파싱 함수 사용" 을 요구했으나 exact/goal 어느 수준인지 불명확해, 같은 목표를 달성한 구현이 "함수명 불일치" 로 REJECT 됨. <code>[goal]</code> 을 명시했다면 PASS 처리 가능했던 케이스.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Aggregation Mode — 다수 대상 조건</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>모드</th><th>의미</th><th>판정 방법</th></tr></thead>
+          <tbody>
+            <tr><td><strong>enumerated</strong></td><td>각 대상을 하나씩 이름으로 명시해야 PASS</td><td>모든 개별 이름이 문서에 직접 등장하는지 확인</td></tr>
+            <tr><td><strong>collective</strong></td><td>포괄 경로/패턴 하나로 지정해도 PASS</td><td>경로·디렉토리 지정이 전체를 커버하는지 확인</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>모드는 태그 뒤에 콤마로 이어 쓴다: <span class="tag-pill">[exact, enumerated]</span> <span class="tag-pill">[structural, collective]</span>. 미명시 기본값은 <code>collective</code>(더 관대한 해석)이며, <code>[goal]</code> 에는 aggregation 개념이 적용되지 않는다.</p>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실제 사례 — KZ-04 REJECT</div>
+        <p>"react-kaizen References 섹션에 <code>docs/react/kit-design/</code> 7 개 그룹 문서가 명시된다" 로 작성되었는데, 구현자는 포괄 경로 하나로 처리했고 QA 는 개별 명시를 요구해 REJECT.</p>
+      </div>
+    </div>
+  </div>
 
   <div class="card">
-    <div class="card-title"><span class="dot"></span>Aggregation Mode — 다수 대상 조건 형식</div>
-    <div class="table-wrap" style="margin-top:12px">
+    <div class="card-title"><span class="dot"></span>산출물 동반 제출 규칙 — <code>[exact]</code> 는 "그 산출물도 이번에 낸다" 는 뜻이다</div>
+    <p>조건 문장에 <strong>테스트·문서·스크린샷 같은 부산출물</strong>이 등장하고 태그가 <code>[exact]</code> 이면, 그 산출물은 구현과 <strong>같은 스프린트에 제출해야 하는 대상</strong>이 된다. 평가자는 "구현은 됐지만 테스트가 없다" 를 조건 미충족으로 읽는다.</p>
+    <div class="compare" style="margin-top:14px">
+      <div class="compare-bad">
+        <div class="compare-label">Bad</div>
+        <code class="code-block">- [ ] UI-07: 설정 화면에서 차단 목록 화면으로
+      이동한다 (widget test 포함) [exact]</code>
+        <p>테스트를 안 내면 REJECT. 낼 생각이 없었다면 조건이 틀린 것.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Good</div>
+        <code class="code-block">- [ ] UI-07: 설정 화면에서 차단 목록 화면으로
+      이동한다 [goal]
+- [ ] UI-08: 위 이동을 검증하는 widget test 가
+      `test/settings/blocks_nav_test.dart` 에
+      존재하고 통과한다 [exact]
+      (측정: `flutter test test/settings/blocks_nav_test.dart`)</code>
+      </div>
+    </div>
+    <p>산출물까지 이번에 낼 생각이면 <code>[exact]</code> 로 두고 산출물 경로까지 조건에 적는다. 구현만 이번에 내고 산출물은 다음 스프린트면 <strong>조건을 <code>[goal]</code> 로 낮추거나 산출물 문구를 조건에서 뺀다.</strong> 둘 다 안 하고 그대로 두면 REJECT 가 예정된 것이다.</p>
+  </div>
+</div>
+
+<!-- MEASUREMENT / ORACLE -->
+<div class="section">
+  <div class="section-label">Verification Method</div>
+  <div class="section-title">검증 수단 명시 의무 + 측정 oracle 타당성</div>
+  <p class="section-desc">모든 조건은 <strong>어떻게 판정할지</strong>를 인라인으로 명시해야 한다. 측정 명령(<code>wc -l</code>, <code>grep</code>, <code>cargo build</code>), 도구(MCP Figma, Playwright, IDE Problems 패널), 관찰 대상(파일 경로 · 섹션명 · 상태 코드) 중 하나 이상을 조건에 적어라.</p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 검증 수단 없음</div>
+      <code class="code-block">- [ ] DG-04: 런타임 에러가 없다 [goal]</code>
+      <p>누가 어떻게 판정하는지 불명확. 앱을 구동해야 하는지, 로그를 읽어야 하는지, MCP 서버가 필요한지 아무도 모른다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 측정 도구 명시</div>
+      <code class="code-block">- [ ] DG-04: 앱 구동 시 console 에 ERROR 레벨
+      로그 0 건 (측정: MCP Figma read-back 또는
+      `flutter run` 직접 실행 후 stdout 확인) [goal]</code>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>MCP / 외부 도구 의존 조건의 3 단계 fallback</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>단계</th><th>의미</th><th>작성 방식</th></tr></thead>
+          <tbody>
+            <tr><td>1. 기본 검증</td><td>선호하는 도구·명령</td><td>"측정: MCP Figma read-back"</td></tr>
+            <tr><td>2. Fallback</td><td>기본 도구 미가용 시 대체 정적 검증</td><td>"미가용 시: 파일 내 CSS 변수 값 Grep 으로 대조"</td></tr>
+            <tr><td>3. 미검증 수용</td><td>둘 다 불가능 시</td><td>"<code>[미검증]</code> 마커 허용 (계약 전체에서 1 건까지)"</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>계약 작성 단계에서 <code>[미검증]</code> 허용 건수가 2 건 이상 예상되면 조건을 재설계하라.</strong> qa-evaluation-guide 의 "미검증 2 건 이상 REJECT" 정책과 맞물려 작성 단계에서 REJECT 가 예측 가능하다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>측정 명령 타당성 · 상태 전제</div>
+      <p>명시된 측정 명령 자체가 곧 <strong>test oracle</strong> 이므로, oracle 이 조건의 의도와 다른 것을 측정하면 false REJECT / false PASS 가 발생한다.</p>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>조건 의도</th><th>잘못된 oracle</th><th>의미 일치 oracle</th></tr></thead>
+          <tbody>
+            <tr><td>"파일이 git 추적 대상이 아니다"</td><td><code>test ! -f &lt;path&gt;</code> (물리적 부재만 검사)</td><td><code>git ls-files --error-unmatch &lt;path&gt;</code> 가 비어 있음</td></tr>
+            <tr><td>"변경된 N 개 파일이 모두 머지 대상에 포함됨"</td><td><code>git diff main...HEAD</code> (커밋 안 된 변경은 안 보임)</td><td>"커밋 완료 후 <code>git diff main...HEAD</code> 실행" — 전제를 조건에 명시</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <code class="code-block">- [ ] AR-01: Sprint B 변경 6 개 파일이 머지 대상에 모두 포함된다
+      (Given: Sprint B 커밋 완료 후 /
+       측정: `git diff --name-only main...HEAD` 결과에
+       6 개 파일이 모두 등장) [exact, enumerated]</code>
+      <a class="card-source" href="https://testrigor.com/blog/what-is-test-oracle-in-software-testing/">What is a Test Oracle — testRigor</a>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--green)">
+    <div class="card-title"><span class="dot" style="background:var(--green)"></span>Diff-Scope Oracle 표준형 <span class="badge" style="margin-left:auto">E3 — 자유 서술 금지</span></div>
+    <p><strong>승급 사유:</strong> 같은 결함이 <strong>3 회 재발</strong>했다. AR-01(fit-pal-app 2026-06-11, 계약이 <code>lib/</code> 단일 파일을 요구했는데 <code>git diff --stat HEAD</code> 에 다른 파일이 잡힘) · AR-01(2026-06-29, 미커밋 codegen 산출물 <code>realtime_connection_controller.g.dart</code> 가 diff 에 섞여 "변환 헬퍼만 변경" 조건 불충족) · Improvement(2026-07-21, "unstaged working tree 에서 측정이 모호 — <code>git diff --cached</code> 기준 권고"). E1 문장을 세 번 다듬었으므로 <strong>표준형을 강제</strong>한다.</p>
+    <div class="table-wrap" style="margin-top:14px">
       <table>
-        <thead><tr><th>모드</th><th>의미</th><th>예시</th></tr></thead>
+        <thead><tr><th>#</th><th>요소</th><th>이유</th></tr></thead>
         <tbody>
-          <tr><td><code>enumerated</code></td><td>각 대상을 이름으로 개별 명시해야 PASS</td><td><code>[exact, enumerated]</code> — g1, g2, g3 파일 각각 명시</td></tr>
-          <tr><td><code>collective</code></td><td>포괄 경로/패턴 하나로 지정 가능 (기본값)</td><td><code>[structural, collective]</code> — 경로 1건으로 커버</td></tr>
+          <tr><td>1</td><td><strong>상태 전제</strong> — <code>Given: 커밋 직전 working tree</code> 또는 <code>Given: 스테이징 완료 후</code></td><td><code>HEAD</code> / <code>--cached</code> / <code>main...HEAD</code> 는 서로 다른 집합을 본다. 평가자가 다른 상태에서 실행하면 판정이 뒤집힌다</td></tr>
+          <tr><td>2</td><td><strong>경로 한정 pathspec</strong> — <code>-- &lt;path&gt;</code> 로 대상 디렉토리를 좁힌다</td><td>병렬 세션·무관 변경이 섞여 들어온다</td></tr>
+          <tr><td>3</td><td><strong>생성물 제외</strong> — <code>':(exclude)*.g.dart'</code> 처럼 codegen·락파일·빌드 산출물을 pathspec 으로 뺀다</td><td>미커밋 codegen 이 scope 조건을 깨뜨린 것이 2026-06-29 REJECT 의 직접 원인</td></tr>
+          <tr><td>4</td><td><strong>기대 집합</strong> — 결과가 "정확히 N 행" 인지 "이 목록과 일치" 인지 명시</td><td>"포함한다" 와 "일치한다" 는 다른 판정이다</td></tr>
         </tbody>
       </table>
     </div>
-    <p>모드 미명시 시 기본값은 <code>collective</code>. <code>[goal]</code> 태그에는 aggregation 개념이 적용되지 않음.</p>
+    <div class="compare" style="margin-top:14px">
+      <div class="compare-bad">
+        <div class="compare-label">Bad</div>
+        <code class="code-block">- [ ] AR-01: lib/ 단일 파일만 변경된다
+      (측정: `git diff --stat HEAD`) [exact]</code>
+        <p>상태 전제 없음 · 경로 한정 없음 · 생성물 제외 없음 · "일치/포함" 불명확.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Good — 4 요소 전부</div>
+        <code class="code-block">- [ ] AR-01: 이번 스프린트 변경이 변환 헬퍼 2 개
+      파일로 한정된다 [exact, enumerated]
+      (Given: 커밋 직전 working tree ·
+       측정: `git diff --name-only HEAD -- app/lib
+       ':(exclude)*.g.dart' ':(exclude)*.freezed.dart'`
+       결과가
+       `app/lib/data/mapper/schedule_mapper.dart`,
+       `app/lib/data/mapper/group_mapper.dart`
+       2 행과 정확히 일치)</code>
+      </div>
+    </div>
+    <ul class="checklist">
+      <li><span class="check">·</span>계약 작성 시점에 <strong>그 명령을 실제로 1 회 실행</strong>하고 현재 출력(baseline)을 계약 서술 절에 붙인다. 실행해보지 않은 측정 명령은 oracle 이 아니라 추측이다</li>
+      <li><span class="check">·</span>커밋 후 판정이 전제라면 <code>Given: 스테이징 완료 후</code> + <code>--cached</code>. 구현 중 자가 확인이 목적이면 <code>HEAD</code> 기준 working tree 를 쓰되 전제를 그렇게 적는다</li>
+      <li><span class="check">·</span>브랜치 비교(<code>main...HEAD</code>)는 <strong>커밋이 끝난 뒤</strong>에만 유효하다</li>
+    </ul>
   </div>
 
-  <div class="compare" style="margin-top:20px">
-    <div class="compare-bad">
-      <div class="compare-label">Bad — 태그 미명시</div>
-      <code class="code-block">- [ ] PU-04: pyyaml 기반 파싱
-  함수를 사용한다</code>
-      <p>exact인지 goal인지 불명확. 함수명 불일치로 REJECT될 수 있음.</p>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">Good — 태그 명시</div>
-      <code class="code-block">- [ ] PU-04: pyyaml 기반 파싱이
-  동작한다 [goal]</code>
-      <p>구현 방법은 자유이고 결과만 보면 됨이 명확.</p>
+  <div class="card" style="border-left:3px solid var(--yellow)">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>증거 아티팩트 존재 의무 (Evidence Artifact Availability)</div>
+    <p>측정 방법을 적었는데 <strong>그 측정이 읽을 대상이 세상에 없으면</strong> 조건은 판정 불가다. 특히 승인 기록, 합의 로그, 실측 수치처럼 <strong>사람이 남겨야만 생기는 증거</strong>에 의존하는 <code>[goal]</code> 조건이 위험하다. 이 절은 skill-design-guide §3.7 Completion Evidence Gate 의 계약 측 짝이다.</p>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">1</span>조건이 참조하는 증거가 코드·파일·명령 출력이 아니라 <strong>기록물</strong>이면, 그 기록물이 평가 시점에 존재할 <strong>경로를 조건에 적는다</strong>. 경로를 적을 수 없으면 그 조건을 만들지 마라</li>
+      <li><span class="check">2</span>기록물은 계약과 같은 곳(<code>.harness/</code> 하위) 또는 소스 주석에 남긴다 — <strong>대화 로그는 증거가 아니다</strong></li>
+      <li><span class="check">3</span>"사용자가 승인했다" 를 조건으로 쓰고 싶으면, 승인 <strong>행위</strong>가 아니라 승인 <strong>기록 파일의 존재</strong>를 조건으로 쓴다</li>
+    </ul>
+    <div class="compare" style="margin-top:14px">
+      <div class="compare-bad">
+        <div class="compare-label">Bad</div>
+        <code class="code-block">- [ ] UI-06: 최종 시안이 사용자 승인을 받았다 [goal]</code>
+        <p>평가 시점에 확인할 대상이 없음 → 판정 불가 → REJECT.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">Good</div>
+        <code class="code-block">- [ ] UI-06: 채택 시안 ID 와 승인 일시가
+      `.harness/design-approval.md` 에 기록되어 있다
+      [structural] (측정: 해당 파일 존재 + 시안 ID 1 건 이상)</code>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- SECTION 4: V3 ADDITIONS -->
+<!-- SCOPE / BOUNDARY / SIBLING -->
 <div class="section">
-  <div class="section-label">v3 추가사항</div>
-  <div class="section-title">v3 신규 — Scope Range · Verification Method · Sibling Consistency</div>
-  <p class="section-desc">Phase 2 카이젠(2026-05-07)에서 실제 REJECT 사례에서 귀납한 3가지 원칙을 추가했다.</p>
+  <div class="section-label">Scope &amp; Boundary</div>
+  <div class="section-title">경계값 · 스코프 세분화 · 범위 인라인 · Sibling Consistency</div>
+  <p class="section-desc">수량·길이·크기 등 임계값을 포함하는 조건은 측정 방법을 함께 명시한다. 측정 방법이 없으면 QA Evaluator 가 다른 도구·기준으로 측정하여 판정이 엇갈린다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>경계값 조건 — 3 요소 필수</div>
+      <p>① <strong>임계값</strong>: 구체적 숫자 (<code>&gt;= 1500</code>, <code>== 0</code>, <code>&lt;= 3</code>)<br>② <strong>측정 대상</strong>: 무엇을 세는가 (줄 수, 파일 수, 바이트 수, 항목 수)<br>③ <strong>측정 방법</strong>: 어떻게 세는가 (명령어, 도구, 계산식)</p>
+      <code class="code-block" style="margin-top:12px">Good:
+- [ ] AR-03: docs/flutter/ 하위 .md 파일의
+      총 줄 수가 1500 이상이다
+      (측정: `wc -l docs/flutter/*.md | tail -1`) [exact]
 
-  <div class="card" style="border-left:3px solid var(--yellow)">
-    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>스코프 범위 인라인 명시 (Scope Range) — SK-02 재발 방지</div>
-    <p>"주요", "모든", "대부분" 같은 <strong>범위어</strong>가 등장하면 포함/제외 목록을 <strong>조건 내부에 인라인 enumerate</strong>해야 한다.</p>
-    <div class="compare" style="margin-top:16px">
+Bad:
+- [ ] AR-03: docs/flutter/ 문서가 1500줄 이상이다 [exact]
+      ← 측정 방법 미명시: wc -l vs grep -c vs 에디터 줄 수?</code>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실제 사례 — AR-03 REJECT</div>
+        <p>계약이 "&gt;= 1500줄" 을 요구했으나 측정 방법을 명시하지 않아, 구현이 1498줄(2줄 부족)로 REJECT. 측정 명령이 사전에 합의되었다면 구현 중 즉시 확인이 가능했던 케이스.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>스코프 세분화 (Scope Granularity)</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>수준</th><th>의미</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td><strong>file-level</strong></td><td>파일 전체가 동일 포맷</td><td>"모든 .md 파일이 YAML frontmatter 를 포함한다"</td></tr>
+            <tr><td><strong>section-level</strong></td><td>특정 섹션 내부 구조 통일</td><td>"각 섹션의 소스 테이블이 동일 컬럼 구성이다"</td></tr>
+            <tr><td><strong>field-level</strong></td><td>개별 필드/컬럼까지 명시</td><td>"소스 테이블에 <code>번호</code>, <code>제목</code>, <code>URL</code>, <code>태그</code> 4개 컬럼이 존재한다"</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>포맷 일관성을 요구하는 조건은 <strong>최소 section-level</strong> 까지 명시한다. "일관된 포맷" 단독 사용 금지 — 어떤 수준에서 일관적인지 반드시 부연한다.</p>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실제 사례 — ER-02 / AR-03 REJECT</div>
+        <p>"6개 파일의 일관된 포맷" 을 요구했으나 컬럼 구성까지 명시하지 않아, 한 파일만 태그 컬럼이 누락된 채 통과하려 했고 QA 가 REJECT.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>스코프 범위 인라인 명시 (Scope Range)</div>
+    <p>조건에 "주요", "모든", "대부분", "핵심" 같은 <strong>범위어</strong>가 등장하면 그 범위가 무엇을 포함하고 무엇을 제외하는지 <strong>조건 내부에 인라인 enumerate</strong> 해야 한다.</p>
+    <div class="compare" style="margin-top:14px">
       <div class="compare-bad">
         <div class="compare-label">Bad — 범위 모호</div>
-        <code class="code-block">- [ ] UI-02: 주요 interactive
-  element의 box-shadow
-  offset이 >= 4px [exact]</code>
-        <p>badge/decoration 포함 여부 해석이 갈림 → SK-02 REJECT.</p>
+        <code class="code-block">- [ ] UI-02: 주요 interactive element 의
+      box-shadow offset 이 >= 4px 이다 [exact]</code>
+        <p>"주요 interactive element" 가 버튼·카드·입력만인지, badge 와 decoration 까지인지 불명확.</p>
       </div>
       <div class="compare-good">
         <div class="compare-label">Good — 범위 인라인 명시</div>
         <code class="code-block">- [ ] UI-02: 버튼·카드·입력 요소의
-  box-shadow offset >= 4px
-  (badge, decoration 제외)
-  [exact, enumerated]</code>
+      box-shadow offset 이 >= 4px 이다
+      (badge, decoration, 장식용 icon 은 범위 외)
+      [exact, enumerated]</code>
       </div>
     </div>
-  </div>
-
-  <div class="card" style="border-left:3px solid var(--accent)">
-    <div class="card-title"><span class="dot"></span>검증 수단 명시 의무 (Verification Method Required)</div>
-    <p>모든 조건은 <strong>어떻게 판정할지</strong>를 인라인으로 명시해야 한다. 측정 명령, 도구, 관찰 대상 중 하나 이상을 조건에 기술하라.</p>
-    <code class="code-block">- [ ] AR-03: docs/flutter/ 총 줄 수 >= 1500
-      (측정: `wc -l docs/flutter/*.md | tail -1`) [exact]
-
-- [ ] LG-02: 모달 close 클릭 시 overlay dismiss
-      (측정: 1차 MCP Figma · 2차 fallback: CSS display 확인
-       · 3차 불가 시 [미검증] 허용) [goal]</code>
-    <p style="margin-top:12px">MCP/외부 도구 의존 조건은 <strong>3단계 fallback</strong>을 인라인 기술. 계약에 fallback이 없으면 평가자가 임의 선택 → 판정 엇갈림.</p>
-  </div>
-
-  <div class="card" style="border-left:3px solid var(--yellow)">
-    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>측정 명령 타당성 · 상태 전제 (Measurement Validity &amp; Precondition) — v3.2 신규</div>
-    <p>검증 수단을 <strong>명시</strong>하는 것만으로는 부족하다. 명시된 측정 명령 자체가 곧 <strong>test oracle</strong>이므로, oracle이 조건 의도와 다른 것을 측정하면 false REJECT / false PASS가 발생한다 (LG-07 / AR-01 REJECT 근거).</p>
-    <div class="table-wrap" style="margin-top:14px">
-      <table>
-        <thead><tr><th>조건 의도</th><th>잘못된 oracle</th><th>의미 일치 oracle</th></tr></thead>
-        <tbody>
-          <tr><td>파일이 git 추적 대상이 아니다 (gitignore 됨)</td><td><code>test ! -f &lt;path&gt;</code> (물리적 부재만 검사 — gitignored인데 파일은 존재하면 FAIL)</td><td><code>git ls-files --error-unmatch &lt;path&gt;</code>가 비어 있음 (추적 여부 직접 측정)</td></tr>
-          <tr><td>변경된 N개 파일이 모두 머지 대상에 포함됨</td><td><code>git diff main...HEAD</code> (커밋 안 된 변경은 안 보임)</td><td>"커밋 완료 후 <code>git diff main...HEAD</code> 실행" — 전제를 조건에 명시</td></tr>
-        </tbody>
-      </table>
+    <p>범위가 5 개 이상이면 <code>applies_to: &lt;pattern&gt;</code> 로 대체한다. "주요 / 모든 / 대부분" 단독 사용 금지 — 작성자가 직접 열거 책임을 진다.</p>
+    <div class="case-box">
+      <div class="case-box-title">실제 사례 — SK-02 REJECT (harness, 2026-04)</div>
+      <p>"Neubrutalism 모달의 <code>.ms-card-action</code> box-shadow offset 3px, <code>.ms-badge</code> offset 2px" 로 구현되었으나 계약이 "주요 interactive element" 로만 서술되어 badge/decoration 이 범위에 포함되는지 해석이 갈려 REJECT.</p>
     </div>
-    <p style="margin-top:14px"><strong>(1) 의미 일치 (semantic match)</strong> — 측정 명령이 조건이 의도하는 <strong>대상</strong>을 정확히 측정하는가? <code>test</code>/<code>grep</code>/<code>git diff</code>처럼 존재·부재·차이를 보는 명령은 의도와 어긋나기 쉽다.</p>
-    <p style="margin-top:10px"><strong>(2) 상태 전제 (precondition)</strong> — 측정 명령이 특정 상태(커밋 완료, 빌드 산출물 생성, 서버 기동) 위에서만 올바른 값을 내면, 그 전제를 Given-When-Then의 <code>Given:</code> 절에 인라인으로 박는다.</p>
-    <code class="code-block">- [ ] AR-01: Sprint B 변경 6개 파일이 머지 대상에 모두 포함된다
-      (Given: Sprint B 커밋 완료 후 / 측정: `git diff --name-only main...HEAD`
-       결과에 6개 파일이 모두 등장) [exact, enumerated]</code>
   </div>
 
-  <div class="card" style="border-left:3px solid var(--green)">
-    <div class="card-title"><span class="dot" style="background:var(--green)"></span>형제 스킬 일관성 (Sibling Consistency) — H-01/H-03 재발 방지</div>
-    <p>플러그인 내 여러 스킬에 공통 원칙을 요구할 때, 계약은 <strong>모든 sibling 전부</strong>를 enumerated 형태로 명시해야 한다.</p>
-    <div class="compare" style="margin-top:12px">
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>형제 스킬 일관성 (Sibling Consistency)</div>
+    <p>동일 플러그인 내 여러 스킬이 <strong>공통 원칙</strong>을 요구할 때(헥사고날 패턴, 에러 처리 규칙, 코드 생성 템플릿 등), 계약은 "이 원칙이 sibling 스킬 <strong>전부</strong>에 적용되어 있다" 를 <strong>enumerated</strong> 형태로 명시해야 한다.</p>
+    <div class="compare" style="margin-top:14px">
       <div class="compare-bad">
-        <div class="compare-label">Bad — 단일 스킬만 점검</div>
-        <code class="code-block">- [ ] SK-03: rust-api가 domain
-  event + outbox 원칙을
-  따른다 [structural]</code>
+        <div class="compare-label">Bad — sibling cross-check 누락</div>
+        <code class="code-block">- [ ] SK-03: rust-api 핸들러 예시가
+      domain event + outbox 원칙을 따른다 [structural]</code>
+        <p>rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검하게 됨.</p>
       </div>
       <div class="compare-good">
-        <div class="compare-label">Good — sibling 전수 요구</div>
-        <code class="code-block">- [ ] SK-03: domain event + outbox
-  원칙이 rust-init, rust-feature,
-  rust-service, rust-api 4개
-  스킬 Gotchas 전부에 있다
-  [exact, enumerated]</code>
+        <div class="compare-label">Good — sibling enumerated</div>
+        <code class="code-block">- [ ] SK-03: domain event + outbox 원칙이
+      rust-init, rust-feature, rust-service, rust-api
+      4 개 스킬의 Gotchas 섹션 전부에 적용되어 있다
+      [exact, enumerated]</code>
       </div>
     </div>
+    <p>공통 원칙 조건은 반드시 <code>[exact, enumerated]</code> 또는 <code>[structural, enumerated]</code> 를 사용한다 (<code>collective</code> 금지 — 한 개만 통과하면 PASS 되므로). sibling 스킬 개수를 조건에 <strong>숫자로</strong> 명시하고 대상 스킬을 빠짐없이 열거한다.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>예외 조항 포맷 (Exception Clause) · Property vs Example</div>
+    <p>조건이 특정 파일·상황·타입에는 적용되지 않을 경우, 조건 내부에 인라인으로 예외를 명시한다. 별도 문서로 분리하거나 구두로 합의하면 QA 시점에 예외가 반영되지 않는다.</p>
+    <code class="code-block" style="margin-top:12px">- [ ] CD-02: 모든 docs 페이지에 compare-bad/compare-good 비교 블록이 2쌍 이상 존재한다.
+      예외: (a) integration.html — Final 통합 페이지로 개별 비교보다 전체 조합을 다루므로 제외,
+            (b) index.html — 목록 페이지로 콘텐츠 조건 비적용</code>
+    <p style="margin-top:12px">예외는 "왜 제외하는가" 를 한 줄로 설명한다(이유 없는 예외 금지). 예외 항목이 3개를 초과하면 조건 자체를 범위 한정(<code>applies_to</code>)으로 재작성한다. 예외 없이 작성된 조건은 해당 카테고리의 <strong>모든</strong> 파일에 적용된다고 간주한다.</p>
+    <p style="margin-top:10px"><strong>Property 기반 vs Example 기반:</strong> Example 기반("입력 'abc'에 대해 'ABC'를 반환한다")은 구체적이지만 범위가 좁고, Property 기반("모든 입력에 대해 출력 길이가 입력 길이와 같다")은 범위가 넓다. 단순 기능은 Example, 복잡한 로직은 Property 를 혼용한다.</p>
   </div>
 </div>
 
-<!-- SECTION 5: ANTIPATTERNS -->
+<!-- CATEGORY DESIGN + HEADERS -->
+<div class="section">
+  <div class="section-label">Category Design</div>
+  <div class="section-title">GQM · 계약 파일 헤더 2 계층 · Consumer-Driven</div>
+  <p class="section-desc">카테고리는 Goal 에서 도출한다 — ① <strong>Goal</strong>: 이 기능이 달성하려는 목표는 무엇인가? ② <strong>Question</strong>: 목표 달성을 어떻게 확인하는가? ③ <strong>Metric</strong>: 어떤 구체적 지표로 측정하는가? <code>project.yaml</code> 의 <code>contract_categories</code> 가 이미 정의되어 있으면 그것을 따른다.</p>
+  <div class="parity-box">
+    <div class="parity-box-title">v4.0 신설 — 규칙이 실사용과 어긋나 있었다</div>
+    <p>기존 규칙은 "허용 헤더는 카테고리 + Anti-patterns / Reusability / Diagnostics 뿐" 이었는데, 실제 계약(특히 카이젠 계약)은 배경·리서치 소스·GAP 분석·범위 경계를 상시 사용해 왔다. <strong>규칙이 실사용과 어긋나 있었기 때문에</strong> 재위반이 반복됐다. 그래서 규칙을 강화하는 대신 <strong>헤더를 두 계층으로 분류</strong>한다.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>계층</th><th>허용 헤더</th><th>조건 체크박스</th></tr></thead>
+      <tbody>
+        <tr><td><strong>조건 섹션 (parsed)</strong></td><td><code>project.yaml.contract_categories</code> 의 각 <code>id</code> + <code>Anti-patterns</code> + <code>Reusability</code> + <code>Diagnostics</code></td><td><strong>여기에만</strong> <code>- [ ] {PREFIX}-{NN}:</code> 형태로 존재</td></tr>
+        <tr><td><strong>서술 섹션 (non-parsed)</strong></td><td><code>배경</code> · <code>리서치 소스</code> · <code>GAP 분석</code> · <code>범위 경계</code> · <code>회귀 게이트</code></td><td>조건 체크박스 <strong>금지</strong> (일반 불릿만)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">·</span><strong>조건 섹션 헤더는 정확히 일치</strong>해야 한다(괄호 부연 금지). <strong>서술 섹션 헤더는 위 5 개 중 하나로 시작</strong>하면 되고 뒤에 부연을 붙일 수 있다 (<code>## GAP 분석 (리서치 vs 현재 가이드)</code> 허용)</li>
+    <li><span class="check">·</span>위 두 목록 밖의 헤더(<code>Notes</code>, <code>Appendix</code>, <code>메모</code> 등)는 <strong>금지</strong>다 — 평가자 파서가 조건 섹션인지 서술인지 판정할 수 없다</li>
+    <li><span class="check">·</span>서술 섹션에 <code>- [ ]</code> 를 쓰면 평가자가 조건으로 오인해 존재하지 않는 조건을 판정하려 든다</li>
+    <li><span class="check">·</span>이 규칙은 <strong>E3</strong> 다 — sprint-contract 는 저장 직후 결정론적 헤더 검사를 실행한다</li>
+  </ul>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Consumer-Driven 원칙</div>
+    <p>계약의 "소비자" 는 qa-evaluator 다. 평가자가 독립적으로 검증할 수 없는 조건은 나쁜 조건이다. 자기 점검: <strong>"이 조건을 코드와 실행 결과만으로 PASS/FAIL 판정할 수 있는가?"</strong> — YES 면 유효한 조건, NO 면 재작성 필요.</p>
+    <p style="margin-top:10px">LLM-as-Judge 연구는 "Evaluation criteria are critical for reliability... CoT reasoning offers minimal gains when clear evaluation criteria are present" 라고 보고한다 — 즉 <strong>criteria 품질이 평가 품질을 결정</strong>하며, 추가 CoT 로 모호한 criteria 를 보완하는 것은 한계가 있다. 관련 survey 는 unit test 가 "a detailed, executable specification that provides a formal contract" 역할을 한다고 보고한다. <strong>계약 조건은 실행 가능한 테스트에 최대한 가깝게 작성하라.</strong></p>
+    <a class="card-source" href="https://arxiv.org/html/2510.09721v3">LLM agent SE 벤치마크 survey — arxiv:2510.09721</a>
+  </div>
+</div>
+
+<!-- ANTI-PATTERNS -->
 <div class="section">
   <div class="section-label">Anti-patterns</div>
-  <div class="section-title">안티패턴 전체 목록</div>
-  <p class="section-desc">계약 작성 시 아래 안티패턴 중 하나라도 해당되면 재작성하라.</p>
+  <div class="section-title">안티패턴 카탈로그 (22 종)</div>
+  <p class="section-desc">각 행은 실제 REJECT 에서 귀납되었다. 마지막 6 행이 v4.0 에서 추가되었다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>안티패턴</th><th>문제</th><th>수정 방법</th></tr></thead>
       <tbody>
         <tr><td>모호한 조건</td><td>"적절히 처리한다" → 해석이 여러 개</td><td>구체적 행동과 결과로 재작성</td></tr>
+        <tr><td>단일 카테고리 편중</td><td>모든 조건이 UI에만 집중</td><td>GQM 으로 카테고리 균형 확인</td></tr>
         <tr><td>복합 조건</td><td>"A이고 B이며 C이다"</td><td>각각 독립 조건으로 분리</td></tr>
+        <tr><td>과소 안티패턴</td><td>0-1개 안티패턴</td><td>최소 2개 필수</td></tr>
+        <tr><td>테스트 불가 조건</td><td>"사용자 경험이 좋다"</td><td>측정 가능한 지표로 변환</td></tr>
+        <tr><td>복잡도 과소평가</td><td>파일 수로만 판단</td><td>영향 범위(레이어, 공개 API)로 판단</td></tr>
         <tr><td>구현 누수</td><td>조건에 클래스명/메서드명/DB명 포함</td><td>외부 관찰 가능한 행동으로 재작성</td></tr>
-        <tr><td>태그 미명시</td><td>판정 기준 범주 불명확</td><td><code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code> 중 하나 명시</td></tr>
-        <tr><td>숫자 레벨 혼용</td><td>계약 조건에 L1/L2/L3 재사용</td><td>문자 태그만 사용 (숫자는 QA 평가 깊이 전용)</td></tr>
-        <tr><td>Aggregation mode 미명시</td><td>개별 명시 vs 포괄 경로 해석 엇갈림</td><td><code>enumerated</code> 또는 <code>collective</code> 명시</td></tr>
-        <tr><td>범위어 미명시</td><td>"주요/모든/대부분" 인라인 enumerate 없음</td><td>포함/제외 목록을 조건 내부에 명시</td></tr>
-        <tr><td>검증 수단 미명시</td><td>평가자가 도구를 임의 선택</td><td>측정 명령/도구/관찰 대상 인라인 기술</td></tr>
-        <tr><td>경계값 측정 방법 미명시</td><td>구현자와 평가자가 다른 방법으로 측정</td><td>임계값 + 측정 대상 + 측정 명령 세트로 명시</td></tr>
-        <tr><td>측정 oracle 의미·전제 불일치</td><td>측정 명령이 조건 의도와 다른 것을 측정(gitignore 의도에 <code>test ! -f</code>)하거나 상태 전제 누락(커밋 전 <code>git diff</code>) → false REJECT/PASS</td><td>의미 일치 oracle 선택 + 상태 의존 시 <code>Given:</code> 전제를 조건에 인라인 명시 (LG-07/AR-01 재발 방지)</td></tr>
-        <tr><td>Sibling 커버리지 누락</td><td>공통 원칙이 일부 스킬에만 적용</td><td><code>[exact, enumerated]</code> + 스킬 이름 전부 열거</td></tr>
-        <tr><td>정성적 수식어</td><td>"충분히", "상당한" — binary 판정 불가</td><td>구체 수치/기준값으로 대체</td></tr>
+        <tr><td>NFR 누락</td><td>기능 조건만 있고 비기능 조건 없음</td><td>성능/보안/접근성 중 해당 항목 추가</td></tr>
+        <tr><td>판정 기준 범주 미명시</td><td>exact 요구인지 goal 허용인지 불명확 → QA 해석 엇갈림</td><td>조건 끝에 <code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code> 태그 명시</td></tr>
+        <tr><td>예외 없는 전체 적용</td><td>특정 파일 타입에 부적합한데 예외 없이 전 범위 적용</td><td>예외 조항 인라인 명시 또는 <code>applies_to</code> 범위 한정</td></tr>
+        <tr><td>Aggregation mode 미명시</td><td>개별 명시 vs 포괄 경로 중 무엇을 요구하는지 불명확</td><td><code>[exact, enumerated]</code> 또는 <code>[structural, collective]</code> 명시</td></tr>
+        <tr><td>한·영 표현 변형 비통일</td><td>"Layout shift" vs "레이아웃 shift" 혼재 → 키워드 매칭 불일치</td><td>한·영 병기 또는 한쪽으로 통일 선언을 조건 내부에 명시</td></tr>
+        <tr><td>숫자 레벨 태그 혼용</td><td>계약 조건 태그에 QA 평가 깊이용 숫자 레벨 재사용</td><td>반드시 문자 태그만 사용</td></tr>
+        <tr><td>경계값 측정 방법 미명시</td><td>"&gt;= N" 조건에 측정 명령/도구 없음</td><td>임계값 + 측정 대상 + 측정 방법을 인라인 명시</td></tr>
+        <tr><td>포맷 세분화 수준 미명시</td><td>"일관된 포맷" 요구에 file/section/field 중 어느 수준인지 불명확</td><td>최소 section-level 까지 명시, 핵심 필드는 field-level</td></tr>
+        <tr><td>스코프 범위어 미명시</td><td>"주요/모든/대부분" 이 인라인 enumerate 없이 등장</td><td>범위 포함/제외 목록을 조건 내부에 명시 (SK-02 재발 방지)</td></tr>
+        <tr><td>검증 수단 미명시</td><td>어떤 명령·도구·관찰로 판정되는지 기술 없음</td><td>측정 수단 인라인 기술, 외부 도구 의존 시 3 단계 fallback 명시</td></tr>
+        <tr><td>측정 oracle 의미·전제 불일치</td><td>명령이 조건 의도와 다른 것을 측정하거나 상태 전제 누락</td><td>의미 일치 oracle 선택 + <code>Given:</code> 전제 인라인 명시 (LG-07/AR-01)</td></tr>
+        <tr><td>Sibling 스킬 커버리지 누락</td><td>공통 원칙이 여러 스킬에 적용돼야 하는데 단일 스킬만 점검</td><td><code>[exact, enumerated]</code> + 스킬 숫자/이름 전부 열거 (H-01/H-03)</td></tr>
+        <tr><td>정성적 수식어 사용</td><td>"충분히", "상당한", "적절히", "대부분" 등 binary 판정 불가</td><td>구체 수치/기준값으로 대체 또는 조건 분리</td></tr>
+        <tr><td><strong>한쪽 면만 계약</strong></td><td>producer 조건만 있고 consumer 조건이 없음 → 클라이언트가 다음 스프린트로 밀림</td><td>producer/consumer 를 <strong>별도 조건 2 개</strong>로 분리하고 각 면의 파일 경로를 enumerated (Friction #4)</td></tr>
+        <tr><td><strong>preamble–조건 모순</strong></td><td>서두 설계 의도와 조건이 서로 다른 것을 요구</td><td>DRAFT 제시 전 서술↔조건 방향 대조 + 열거 식별자 grep 확인 (RE-02)</td></tr>
+        <tr><td><strong>diff-scope oracle 자유 서술</strong></td><td>상태 전제·경로 한정·생성물 제외·기대 집합 없이 <code>git diff</code> 사용</td><td>표준형 4 요소 전부 + 작성 시점 baseline 실행 (AR-01 3 회 재발)</td></tr>
+        <tr><td><strong><code>[exact]</code> 산출물 오분류</strong></td><td>조건에 테스트·문서 산출물이 등장하는데 이번 스프린트에 낼 생각이 없음</td><td>낼 것이면 경로까지 조건화, 아니면 <code>[goal]</code> 로 낮추거나 문구 제거 (UI-07)</td></tr>
+        <tr><td><strong>증거 없는 goal 조건</strong></td><td>사람이 남겨야 생기는 증거에 의존하는데 그 기록물이 없음</td><td>증거 기록물의 <strong>경로</strong>를 조건에 명시, 못 적으면 조건을 만들지 않음 (UI-06)</td></tr>
+        <tr><td><strong>미분류 섹션 헤더</strong></td><td><code>Notes</code> 등 미분류 헤더 추가, 또는 서술 섹션에 <code>- [ ]</code> 배치</td><td>헤더 2 계층 허용 목록만 사용 + 저장 직후 결정론적 헤더 검사</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- SECTION 6: SELF-IMPROVEMENT -->
+<!-- SELF-IMPROVEMENT + PARITY -->
 <div class="section">
-  <div class="section-label">Self-Improvement</div>
-  <div class="section-title">자기개선 메커니즘 — 진단 체크리스트 + 교차 진단</div>
-  <p class="section-desc">sprint-contract 실행 완료 후 다음 항목을 자가 점검한다.</p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>항목</th><th>점검 내용</th></tr></thead>
-      <tbody>
-        <tr><td>ambiguous_conditions</td><td>모호한 표현이 포함된 조건이 있는가?</td></tr>
-        <tr><td>missing_error_paths</td><td>에러/예외 경로에 대한 조건이 누락되었는가?</td></tr>
-        <tr><td>untestable_conditions</td><td>코드만으로 검증 불가능한 조건이 있는가?</td></tr>
-        <tr><td>category_coverage_gap</td><td>project.yaml 카테고리 중 커버하지 못한 것이 있는가?</td></tr>
-        <tr><td>implementation_leakage</td><td>조건에 내부 구현 용어(클래스명, 메서드명, DB명)가 포함되었는가?</td></tr>
-        <tr><td>boundary_without_measurement</td><td>경계값 조건에 측정 방법이 누락되었는가?</td></tr>
-        <tr><td>format_granularity_missing</td><td>포맷 일관성 조건에 적용 수준(file/section/field)이 명시되었는가?</td></tr>
-      </tbody>
-    </table>
+  <div class="section-label">Self-Improvement &amp; Parity</div>
+  <div class="section-title">구조화 진단 체크리스트 · Cross-Surface Parity</div>
+  <p class="section-desc">sprint-contract 실행 완료 후 아래 항목을 자가 점검한다. 마지막 5 항목이 v4.0 에서 추가되었다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>진단 항목 14 종</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>항목</th><th>점검 내용</th></tr></thead>
+          <tbody>
+            <tr><td><code>ambiguous_conditions</code></td><td>모호한 표현이 포함된 조건이 있는가?</td></tr>
+            <tr><td><code>missing_error_paths</code></td><td>에러/예외 경로 조건이 누락되었는가?</td></tr>
+            <tr><td><code>untestable_conditions</code></td><td>코드만으로 검증 불가능한 조건이 있는가?</td></tr>
+            <tr><td><code>category_coverage_gap</code></td><td>커버하지 못한 카테고리가 있는가?</td></tr>
+            <tr><td><code>complexity_underestimate</code></td><td>복잡도 과소평가로 조건 수가 부족한가?</td></tr>
+            <tr><td><code>implementation_leakage</code></td><td>내부 구현 용어가 포함되었는가?</td></tr>
+            <tr><td><code>nfr_coverage</code></td><td>비기능 요구사항이 조건에 반영되었는가?</td></tr>
+            <tr><td><code>boundary_without_measurement</code></td><td>경계값 조건에 측정 방법이 누락되었는가?</td></tr>
+            <tr><td><code>format_granularity_missing</code></td><td>포맷 일관성 조건에 적용 수준이 명시되었는가?</td></tr>
+            <tr><td><code>counterpart_missing</code></td><td>계약·직렬화 변경인데 consumer 면 조건이 누락되었는가?</td></tr>
+            <tr><td><code>preamble_condition_conflict</code></td><td>서술 절의 설계 의도와 조건이 다른 것을 요구하는가?</td></tr>
+            <tr><td><code>diff_oracle_nonstandard</code></td><td>변경 범위 조건이 표준형 4 요소를 다 채웠는가?</td></tr>
+            <tr><td><code>evidence_artifact_missing</code></td><td><code>[goal]</code> 조건의 증거 기록물 경로가 명시되었는가?</td></tr>
+            <tr><td><code>section_header_unclassified</code></td><td>미분류 헤더가 있거나 서술 섹션에 조건이 들어갔는가?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>모호성 분류 (Ambiguity Taxonomy)</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>유형</th><th>예시</th><th>수정</th></tr></thead>
+          <tbody>
+            <tr><td>어휘적 (Lexical)</td><td>"처리한다", "관리한다"</td><td>구체 동사로 대체 ("반환한다", "저장한다")</td></tr>
+            <tr><td>구문적 (Syntactic)</td><td>"A와 B를 포함하는 C"</td><td>분리하여 각각 명시</td></tr>
+            <tr><td>의미적 (Semantic)</td><td>"적절한 응답"</td><td>구체적 상태 코드/값으로 명시</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:12px"><strong>교차 진단 프로토콜:</strong> sprint-contract 실행 후 Agent tool 로 qa-evaluator 서브에이전트를 호출한다. 전달 내용은 <strong>생성된 계약 조건(출력만)</strong>이고, 의사결정 과정과 사용자 대화 내용은 전달하지 않는다. 핵심 질문은 "이 조건을 독립적으로 검증할 수 있는가?" 이며 결과는 피드백 YAML 의 <code>cross_diagnosis</code> 필드에 기록한다.</p>
+      <p style="margin-top:10px"><strong>피드백 수집 지표:</strong> <code>condition_count</code>, <code>category_count</code>, <code>category_coverage</code>, <code>anti_pattern_count</code>, <code>complexity</code>.</p>
+    </div>
   </div>
-</div>
 
-<!-- SECTION 7: CROSS-SURFACE PARITY -->
-<div class="section">
-  <div class="section-label">Cross-Surface Parity</div>
-  <div class="section-title">원칙 전수성 — 가이드 개정 시 파생 surface 동기화</div>
-  <p class="section-desc">계약 설계 가이드가 개정되면 상위 skill/agent-design-guide와 하위 qa-evaluation-guide · sprint-contract SKILL.md에 대응 원칙이 있는지 체크한다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>#</th><th>Parity Item</th><th>skill-design-guide</th><th>agent-design-guide</th><th>contract-design-guide (이 가이드)</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>Binary Decidability</td><td>§3.5 QA 계약과 1:1</td><td>§3.5 Pre-Check</td><td>§조건 작성자 의무</td></tr>
-        <tr><td>2</td><td>트리거 키워드 배타성</td><td>§4 set intersection</td><td>§3 Sibling Agent</td><td>§sprint-contract 키워드 검사</td></tr>
-        <tr><td>3</td><td>미검증 항목 정책</td><td>—</td><td>§10 Unverifiable</td><td>§검증 수단 명시 의무</td></tr>
+        <tr><td>1</td><td>계약 모호성 방지 / Binary Decidability</td><td>§3.5</td><td>§3.5</td><td><strong>계약 작성자 의무 — 이진 판정 가능성</strong></td></tr>
+        <tr><td>2</td><td>트리거 키워드 배타성 (substring 포함)</td><td>§4</td><td>§3 + §10</td><td><strong>sprint-contract SKILL.md Process Step</strong></td></tr>
+        <tr><td>3</td><td>미검증 항목 정책</td><td>—</td><td>§10 Unverifiable</td><td><strong>검증 수단 명시 의무 (3 단계 fallback)</strong></td></tr>
+        <tr><td>11</td><td>Enforcement 등급 (E1/E2/E3)</td><td>§3.7 (SSOT)</td><td>§6 패턴 7 (훅 = E3)</td><td><strong>원칙별 Enforcement 등급표</strong></td></tr>
+        <tr><td>12</td><td>Counterpart Enumeration</td><td>§5.5</td><td>— (계약 조건으로 수용)</td><td><strong>양면 조건 — Counterpart Conditions</strong></td></tr>
       </tbody>
     </table>
   </div>
   <div class="parity-box">
-    <div class="parity-box-title">개정 시 체크리스트</div>
-    <ul class="checklist">
-      <li><span class="check">□</span>새 원칙을 추가했는가? → skill-design-guide §11 / agent-design-guide §12 Parity Table에 contract 대응 위치 컬럼 갱신</li>
-      <li><span class="check">□</span>조건 태그/필드를 변경했는가? → contract-schema.md 스키마 버전 bump 필수</li>
-      <li><span class="check">□</span>Bad/Good 예시를 추가했는가? → 해당 원칙이 있는 skill/agent 가이드에도 동일 구조 예시 확인</li>
-    </ul>
+    <div class="parity-box-title">착지 구조</div>
+    <p><strong>item 12:</strong> skill-design-guide §5.5 는 생성 측(편집 전 열거)을, 본 가이드는 계약 측(조건화)을 담당한다. qa-evaluation-guide 에는 대응 절을 두지 <strong>않는다</strong> — 평가자는 계약에 박힌 Counterpart 조건을 일반 조건으로 판정하면 되고, 별도 평가 규칙을 두면 계약에 없는 요구를 평가자가 만들어내게 된다.<br><strong>item 11:</strong> 등급 정의·승급 규칙은 skill-design-guide §3.7 이 SSOT 이고, 본 가이드는 계약 원칙의 <strong>현재 등급 목록</strong>만 유지한다.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>개정 시 체크리스트</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">✓</span>새 원칙을 추가했는가? → skill-design-guide §11 / agent-design-guide §12 Parity Table 의 contract 대응 위치 컬럼 갱신</li>
+        <li><span class="check">✓</span>원칙 네이밍을 변경했는가? → sprint-contract SKILL.md · qa-evaluator.md · qa-evaluation-guide Grep 하여 동기화</li>
+        <li><span class="check">✓</span>Bad/Good 예시를 추가했는가? → 해당 원칙이 있는 skill/agent 가이드에도 동일 구조의 예시 존재 확인</li>
+        <li><span class="check">✓</span>contract-schema.md 스키마 버전을 bump 해야 하는가? → 조건 태그/필드 변경 시 필수</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Downstream 전파 범위</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">·</span><code>harness/skills/sprint-contract/SKILL.md</code> — Process Step, Gotchas</li>
+        <li><span class="check">·</span><code>harness/references/contract-schema.md</code> — 스키마 버전 및 필드</li>
+        <li><span class="check">·</span><code>harness/docs/guides/qa-evaluation-guide.md</code> — 평가 방법론 (대응 원칙)</li>
+        <li><span class="check">·</span><code>harness/agents/qa-evaluator.md</code> — 평가 절차</li>
+      </ul>
+    </div>
+  </div>
+  <div class="case-box">
+    <div class="case-box-title">실패 패턴 — 이 원칙 없이 발생한 실제 REJECT</div>
+    <p><strong>SK-02 (harness, 2026-04)</strong>: 범위어 "주요 interactive element" 미 enumerate → 범위 명시 원칙 신설로 해소.<br><strong>미검증 2 건 REJECT (fit-pal, fit-pal-flutter)</strong>: <code>mcp_server=null</code> 상태에서 시각 검증 불가 조건 2 건 이상 → fallback 사전 기술 원칙으로 해소.<br><strong>H-01/H-03 (rust-kit)</strong>: sibling 커버리지 조건 미 enumerate → Sibling Consistency 로 해소.<br><strong>RE-02 (fit-pal, 2026-07-22)</strong>: preamble 단방향 vs 조건 양방향 → v4 Preamble–Condition Consistency 로 해소.<br><strong>AR-01 (fit-pal-app, 2026-06-11 / 06-29 / 07-21)</strong>: diff oracle 3 회 REJECT → v4 Diff-Scope Oracle 표준형 · E1 → E3 승급으로 해소.<br><strong>UI-06 / UI-07 (fit-pal-app, 2026-07-13)</strong>: goal 조건 증거 부재 / <code>[exact]</code> widget test 미제출 → v4 증거 아티팩트 존재 의무 · 산출물 동반 제출 규칙으로 해소.</p>
   </div>
 </div>
 
 <div class="footer">
   <h3>출처</h3>
   <ul>
-    <li><a href="https://www.agilealliance.org/glossary/invest/">Agile Alliance INVEST — Testable 원칙</a></li>
-    <li><a href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge Empirical Study — arxiv:2506.13639</a></li>
-    <li><a href="https://arxiv.org/html/2510.24358v1">AAA Blueprint for LLM Code Agents — arxiv:2510.24358</a></li>
-    <li><a href="https://github.com/andredesousa/gherkin-best-practices">Gherkin Best Practices</a></li>
-    <li><a href="harness/references/contract-schema.md">contract-schema.md v3</a></li>
+    <li><a href="https://www.agilealliance.org/glossary/invest/">Agile Alliance — INVEST (Testable)</a></li>
+    <li><a href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge 신뢰성 연구 — arxiv:2506.13639</a></li>
+    <li><a href="https://arxiv.org/html/2510.24358v1">AAA blueprint · LLM 코드 에이전트 벤치마크 — arxiv:2510.24358</a></li>
+    <li><a href="https://arxiv.org/html/2510.09721v3">LLM agent SE 벤치마크 survey — arxiv:2510.09721</a></li>
+    <li><a href="https://github.com/andredesousa/gherkin-best-practices">Gherkin Best Practices — one When-Then pair</a></li>
+    <li><a href="https://docs.pact.io/consumer/contract_tests_not_functional_tests">Pact — Contract tests are not functional tests</a></li>
+    <li><a href="https://docs.pact.io/getting_started/what_is_pact_good_for">Pact — What is Pact good for</a></li>
+    <li><a href="https://www.augmentcode.com/guides/ai-spec-template">AI Spec Template — Augment Code</a></li>
+    <li><a href="https://testrigor.com/blog/what-is-test-oracle-in-software-testing/">What is a Test Oracle in Software Testing — testRigor</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/contract-design-guide.md · v3.2 · 2026-06-05</p>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/contract-design-guide.md · Guide v4.0 · Schema v4 · 2026-07-27</p>
 </div>
 
 </div>

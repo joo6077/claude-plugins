@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QA Evaluation Guide v3.2 — Harness</title>
+<title>QA Evaluation Guide v4.0 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -33,21 +33,22 @@ body{
 .hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
   background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
-.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:790px;margin:0 auto 18px;line-height:1.7}
 .hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
 .hero .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);min-height:24px;display:inline-flex;align-items:center}
 .section{padding:56px 0;border-top:1px solid var(--border)}
 .section-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
 .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 70%)}
 .section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em}
-.section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
+.section-desc{font-size:0.96rem;color:var(--text2);max-width:820px;line-height:1.75;margin-bottom:32px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative;margin-bottom:16px}
 .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
-.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
-.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.7}
 .card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition)}
 .card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 .card-source::before{content:'↗';font-weight:800}
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -71,310 +72,552 @@ td code{font-family:var(--mono);font-size:12px;background:var(--surface2);paddin
 .compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
 code,.code-block{font-family:var(--mono);font-size:12.5px}
 .code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:8px 0}
-.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:760px}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:860px}
 .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
 .checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
-.level-box{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
-.level-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
-.level-num{font-size:22px;font-weight:800;color:var(--accent);margin-bottom:6px}
-.level-name{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px}
-.level-desc{font-size:11px;color:var(--text3);line-height:1.5}
-.unverified-table{background:rgba(248,113,113,0.04);border:1px solid rgba(248,113,113,0.2);border-radius:12px;overflow:hidden;margin:16px 0}
-.unverified-table table thead{background:rgba(248,113,113,0.1)}
-.unverified-table table th{color:var(--red)}
+.triage{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+@media(max-width:920px){.triage{grid-template-columns:1fr}}
+.tri{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.tri::before{content:'';position:absolute;top:0;bottom:0;left:0;width:3px}
+.tri-a::before{background:var(--red)}
+.tri-b::before{background:var(--yellow)}
+.tri-c::before{background:var(--yellow)}
+.tri-tag{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.tri-a .tri-tag{color:var(--red)}
+.tri-b .tri-tag,.tri-c .tri-tag{color:var(--yellow)}
+.tri h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.tri p{font-size:12.5px;color:var(--text2);line-height:1.65}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+@media(max-width:760px){.stat-row{grid-template-columns:1fr}}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.stat-num{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:800;letter-spacing:-0.02em;color:var(--accent);line-height:1.1}
+.stat-label{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.55}
 .parity-box{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
 .parity-box-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.parity-box p{font-size:13px;color:var(--text2);line-height:1.7}
+.case-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.case-box-title{font-size:13px;font-weight:800;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.case-box p{font-size:13px;color:var(--text2);line-height:1.7}
+.canon{background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.28);border-radius:12px;padding:26px;margin:18px 0}
+.canon-title{font-size:13px;font-weight:800;color:var(--green);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px}
+.canon ol{margin-left:18px;display:flex;flex-direction:column;gap:12px}
+.canon li{font-size:13.5px;color:var(--text2);line-height:1.7}
+.up{color:var(--green);font-weight:800}
 .footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
-.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;margin-top:22px}
+.footer h3:first-child{margin-top:0}
 .footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
 .footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
 .footer ul li{font-size:12.5px;color:var(--text3)}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
+.footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 </style>
+  <!-- kaizen-cycle: 2026-07-27 (Evidence Validity Gate + 증거 분류 triage + Canonical Protocol + Recurring Improvement Escalation) -->
 </head>
 <body>
 <div class="page">
 
 <div class="topbar">
-  <div class="brand"><span class="brand-dot"></span>HARNESS · QA Evaluation Guide</div>
-  <span class="badge">v3.2 · 2026-06-05</span>
+  <div class="brand"><span class="brand-dot"></span>HARNESS · QA 평가 방법론</div>
+  <span class="badge">v4.0 · 2026-07-27</span>
 </div>
 
 <div class="hero">
   <h1>QA Evaluation Guide</h1>
-  <p class="subtitle">qa-evaluator 에이전트가 참조하는 평가 방법론. Phase 3 카이젠(v3)에서 Binary Decidability Pre-Check, Rule-by-Rule Audit, [미검증] 마커 프로토콜, Sibling Enumerated Verification, L3 Coverage Honesty 규칙, User-Value/Business-Intent 관점을 흡수했고, v3.2에서 Execution-Grounded Evidence(실행 산출물 능동 수집)를 추가했다.</p>
+  <p class="subtitle">qa-evaluator 에이전트가 참조하는 평가 방법론. 이번 사이클의 전략은 새 문장 추가가 아니라 <strong>enforcement 등급 상향</strong>이다 — <code>/insights</code> Friction #2(시각·런타임 검증 신뢰 불가)를 흡수해 <strong>Evidence Validity Gate</strong>를 신설했다.</p>
   <div class="meta">
-    <span>Phase 3 Kaizen · v3.2</span>
-    <span>최근 갱신 2026-06-05</span>
-    <span>참조: contract-schema.md v3</span>
+    <span>Guide v4.0</span>
+    <span>Schema link: contract-schema v4</span>
+    <span>Parity: skill v1.4.0 · agent v1.5.0 · contract v4.0</span>
   </div>
 </div>
 
-<!-- SECTION 1: CORE PRINCIPLES -->
+<!-- WHAT'S NEW -->
 <div class="section">
-  <div class="section-label">Core Principles</div>
-  <div class="section-title">핵심 원칙 — Test Oracle · IV&amp;V 독립성 · 편향 완화</div>
-  <p class="section-desc">qa-evaluator는 "정답을 아는 존재"(test oracle)로서 계약 조건 대비 구현을 판정한다. 계약이 oracle specification이며, evaluator는 이를 기계적으로 적용한다.</p>
-
+  <div class="section-label">What's New in v4.0</div>
+  <div class="section-title">신규 6 절 — 증거의 존재가 아니라 유효성</div>
+  <p class="section-desc">기존 §Execution-Grounded Evidence 가 증거의 <em>존재</em>를 요구했다면, v4.0 은 증거의 <em>유효성</em>을 요구한다.</p>
   <div class="grid-3">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Test Oracle 역할</div>
-      <p>계약에 없는 기준으로 판단하지 않는다. 조건의 "의도"가 아닌 "문자 그대로"를 적용한다. "아마 이런 뜻일 것이다"는 해석 금지.</p>
+      <div class="card-title"><span class="dot"></span>§Evidence Validity Gate</div>
+      <p>빈 스냅샷 · 0 매치 grep · 0 개 테스트 실행처럼 <strong>아무것도 검사하지 않고 통과한 증거(vacuous pass)</strong>를 PASS 로 인정하지 않는다.</p>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>IV&amp;V 독립성</div>
-      <p>evaluator는 generator의 의도나 과정을 알지 않는다. 계약과 산출물만으로 판정한다. "커밋 메시지에 완료라고 썼다" ≠ 증거.</p>
+      <div class="card-title"><span class="dot"></span>§증거 분류 triage</div>
+      <p><code>[미검증]</code> 을 <strong>검증 도구·환경 부재 전용</strong>으로 축소. 미구현·부재를 미검증으로 적어 FAIL 을 "1 건 허용" 구간으로 세탁하는 경로를 차단.</p>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Specification-First</div>
-      <p>먼저 Sprint Contract를 읽고 "기대 행동"을 확립한다. 그 다음 코드를 검증한다. 코드를 먼저 읽으면 구현 추종 편향에 빠진다.</p>
-      <a class="card-source" href="https://arxiv.org/abs/2601.05542">LLM Test Oracle Generation</a>
+      <div class="card-title"><span class="dot"></span>§계약 파싱 범위</div>
+      <p>contract-schema v4 의 허용 섹션 헤더 2 계층을 평가자 측에서 소비한다.</p>
     </div>
-  </div>
-
-  <div class="card" style="margin-top:4px">
-    <div class="card-title"><span class="dot"></span>LLM-as-Judge 편향 완화 전략</div>
-    <div class="table-wrap" style="margin-top:12px">
-      <table>
-        <thead><tr><th>편향</th><th>설명</th><th>완화 전략</th></tr></thead>
-        <tbody>
-          <tr><td>위치 편향</td><td>먼저 본 항목에 호의적</td><td>Swap Test: (A,B), (B,A) 순서로 2회 평가, 불일치 시 <code>[low-confidence]</code></td></tr>
-          <tr><td>자기 선호 편향</td><td>자기와 친숙한 출력에 호의적</td><td>generator와 evaluator 컨텍스트 물리적 분리 (별도 서브에이전트)</td></tr>
-          <tr><td>장황함 편향</td><td>긴 코드/설명에 호의적</td><td>조건 충족 여부만 판단, 코드 양 무시</td></tr>
-          <tr><td>점수 분포 편향</td><td>중간값에 판정이 몰림</td><td>이진 PASS/FAIL만 사용, Likert 스케일 금지</td></tr>
-          <tr><td>구현 추종 편향</td><td>실제 구현을 "정답"으로 간주</td><td>계약 조건을 먼저 읽고, 코드는 증거 수집용으로만 사용</td></tr>
-        </tbody>
-      </table>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>§Canonical Unverified-Evidence Protocol</div>
+      <p>각 kit reviewer 6 종이 그대로 복제할 <strong>정본</strong> 블록. 현재 임계값이 킷마다 2/3/0 으로 갈라져 있어 원본을 한 곳에 고정.</p>
     </div>
-    <a class="card-source" href="https://arxiv.org/html/2411.15594v6">Survey on LLM-as-a-Judge — arxiv:2411.15594</a>
-  </div>
-</div>
-
-<!-- SECTION 2: BINARY DECIDABILITY PRE-CHECK -->
-<div class="section">
-  <div class="section-label">Binary Decidability</div>
-  <div class="section-title">평가 시작 전 필수 — Binary Decidability Pre-Check</div>
-  <p class="section-desc">Sprint Contract의 각 조건에 대해 Step 2(조건별 검증)를 시작하기 <strong>전</strong>에 아래 체크리스트를 전수 실행한다. 모호 조건은 <code>[미검증]</code> 또는 REJECT 사유로 명시하고, 평가자가 해석 여지를 임의로 메우지 않는다.</p>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>사전 체크리스트 (5항목)</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span>FAIL 상태 1문장 테스트 — "이 조건이 FAIL인 상태를 1문장으로 기술 가능한가?" 불가능하면 조건 모호</li>
-      <li><span class="check">2</span>구체성 태그 확인 — <code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code> 태그 존재 여부. 미명시면 <code>[structural]</code>로 간주하되 REJECT 사유에 "태그 누락" 플래그</li>
-      <li><span class="check">3</span>범위어 enumerate 확인 — "주요/모든/대부분/핵심" 같은 범위어가 있으면 포함/제외 목록이 인라인 enumerate되었는지 확인. 없으면 REJECT 사유에 "범위 미명시"</li>
-      <li><span class="check">4</span>검증 수단 존재 확인 — "측정: ...", 도구명, 관찰 대상 중 하나가 명시되었는가? 없으면 기본 fallback 적용 + REJECT 사유에 "검증 수단 미명시"</li>
-      <li><span class="check">5</span>enumerated 대상 목록 확인 — 태그가 enumerated이면 나열된 대상 N개가 계약에 실제로 쓰여 있는지 확인. N이 애매하면 REJECT 사유에 "enumerated 대상 수 불분명"</li>
-    </ul>
-  </div>
-
-  <div class="grid-2" style="margin-top:4px">
-    <div class="card" style="border-left:3px solid var(--red)">
-      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 사례 — PH-01</div>
-      <p>평가자가 모호 조건을 자체 해석 → 해석 충돌 → REJECT 반복. 사전 체크리스트 없이 평가를 시작한 결과.</p>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>§Recurring Improvement Escalation</div>
+      <p>같은 개선 제안이 반복되면 산문 권고가 아니라 <strong>계약 결함</strong>으로 승급한다.</p>
     </div>
-    <div class="card" style="border-left:3px solid var(--red)">
-      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 사례 — SK-02</div>
-      <p>"주요 interactive element" 범위어가 enumerate되지 않아 badge/decoration 포함 여부를 평가자가 자체 판단 → REJECT.</p>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>§원칙별 Enforcement 등급 · 안티패턴 스택 정합성</div>
+      <p>평가자 원칙의 현재 등급표 + 대상 스택에 부적합한 안티패턴 조건 걸러내기.</p>
     </div>
   </div>
 </div>
 
-<!-- SECTION 3: RULE-BY-RULE AUDIT -->
+<!-- CORE PRINCIPLES -->
 <div class="section">
-  <div class="section-label">Rule-by-Rule Audit</div>
-  <div class="section-title">판정 완료 전 필수 — Rule-by-Rule Audit Before Completion</div>
-  <p class="section-desc">Step 4(판정) 직전에 <strong>모든 계약 조건을 1회 더 전수 스캔</strong>한다. "자명하다"고 넘긴 조건이라도 판정 직전 체크리스트 형식으로 되돌아온다.</p>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>전수 점검 절차</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span>Sprint Contract의 모든 조건 ID를 번호순으로 나열한다</li>
-      <li><span class="check">2</span>각 조건 ID에 대해: 증거(파일:라인)가 기록되어 있는가? 검증 깊이(L1/L2/L3)가 명시되어 있는가?</li>
-      <li><span class="check">3</span>구체성 태그에 맞는 검증 방식을 적용했는가? enumerated 조건이면 N개 대상 전부 개별 증거를 수집했는가?</li>
-      <li><span class="check">4</span>하나라도 결여되어 있으면 해당 조건을 재검증한다. "비슷한 조건이 PASS했으니 이것도 PASS"는 금지</li>
-    </ul>
-  </div>
-</div>
-
-<!-- SECTION 4: UNVERIFIED MARKER -->
-<div class="section">
-  <div class="section-label">[미검증] 마커</div>
-  <div class="section-title">[미검증] 마커 평가 프로토콜 — 카운팅 + 자동 REJECT 임계</div>
-  <p class="section-desc">MCP null, 런타임 미실행, 외부 도구 미가용 등으로 정적 검증이 불가능한 조건의 일관된 처리. fit-pal LG-02/DG-04 REJECT의 근본 원인이었다.</p>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title"><span class="dot"></span>마커 부착 절차 (3단계)</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span>단계 1(기본 검증) 시도 — 계약에 기술된 1차 검증 도구 실행</li>
-      <li><span class="check">2</span>단계 1 실패 시 단계 2(Fallback 정적 검증) 시도 — 파일 Grep, CSS 변수 대조, log tail 등</li>
-      <li><span class="check">3</span>단계 2도 실패 시 단계 3(<code>[미검증]</code> 마커) 부착 — 근거 블록에 "검증 불가 사유 한 줄 + 사용한 단계 기록"</li>
-    </ul>
-  </div>
-
-  <div class="unverified-table">
+  <div class="section-label">Core Principles</div>
+  <div class="section-title">Test Oracle · LLM-as-a-Judge 편향 완화 · IV&amp;V 독립성</div>
+  <p class="section-desc">qa-evaluator 는 "정답을 아는 존재"(test oracle)로서 계약 조건 대비 구현을 판정한다. 계약이 oracle specification 이며, evaluator 는 이를 기계적으로 적용한다 — 계약에 없는 기준으로 판단하지 않고, 조건의 "의도" 가 아닌 "문자 그대로" 를 적용하며, "아마 이런 뜻일 것이다" 는 해석을 하지 않는다.</p>
+  <div class="table-wrap">
     <table>
-      <thead><tr><th>미검증 건수</th><th>평가 결과</th></tr></thead>
+      <thead><tr><th>편향</th><th>설명</th><th>완화 전략</th></tr></thead>
       <tbody>
-        <tr><td>0건</td><td>통상 판정</td></tr>
-        <tr><td>1건</td><td>PASS 허용 (단, Sprint Feedback에 "미검증 1건" 경고 명시)</td></tr>
-        <tr><td style="color:var(--red);font-weight:700">2건 이상</td><td style="color:var(--red);font-weight:700">자동 REJECT — 개별 조건 FAIL 없어도 전체 verdict REJECT</td></tr>
+        <tr><td>위치 편향 (Position bias)</td><td>먼저 본 항목에 호의적 — IJCNLP 2025 연구에서 Response A 가 68% 선호</td><td><strong>Swap Test</strong>: <code>(A, B)</code> 1 회 + <code>(B, A)</code> 1 회 총 2 회 평가, 두 결과 일치 시에만 판정 확정. 불일치 시 <code>[low-confidence]</code> 강등 + 재검증</td></tr>
+        <tr><td>자기 선호 편향 (Self-preference)</td><td>LLM 이 자기와 "친숙한"(낮은 perplexity) 출력에 호의적</td><td>generator 와 evaluator 컨텍스트를 <strong>물리적으로 분리</strong>(별도 서브에이전트) + 구현자가 쓴 주석·커밋 메시지는 증거에서 제외</td></tr>
+        <tr><td>장황함 편향 (Verbosity)</td><td>긴 코드/설명에 호의적</td><td>조건 충족 여부만 판단, 코드 양 무시</td></tr>
+        <tr><td>점수 분포 편향 (Scoring)</td><td>특정 점수대(중간값)에 판정이 몰림</td><td>이진 PASS/FAIL 만 사용 — Likert 스케일 금지. 서브체크 단위로 분해</td></tr>
+        <tr><td>구체성 편향 (Concreteness)</td><td>구체적 코드에 추상적 코드보다 호의적</td><td>계약 조건 충족만 판단, 구현 스타일 무시</td></tr>
+        <tr><td>구현 추종 편향 (Implementation-following)</td><td>실제 구현을 "정답" 으로 간주</td><td>계약 조건(specification)을 먼저 읽고, 코드는 증거 수집용으로만 사용</td></tr>
+        <tr><td>지시 해석 불일치</td><td>평가 기준을 일관되지 않게 해석</td><td>조건별 boolean 체크리스트 분해로 해석 여지 최소화</td></tr>
       </tbody>
     </table>
   </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>집계 의무 — Sprint Feedback 기록 형식</div>
-    <code class="code-block">## Unverifiable Summary
-- 총 미검증 건수: N
-- 건 목록: [조건 ID, 사유, 시도한 fallback 단계]
-- Verdict 영향: {PASS 허용 | 자동 REJECT}</code>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>구현 추종 편향 경고</div>
+      <p>LLM 은 코드를 읽을 때 구현된 로직을 "의도된 행동" 으로 추종하는 경향이 있다. qa-evaluator 는 <strong>반드시 계약 조건을 먼저 읽고 "기대 행동" 을 확립한 뒤</strong> 코드를 검증해야 한다. 코드를 먼저 읽으면 구현이 곧 정답이라는 착각에 빠진다.</p>
+      <a class="card-source" href="https://arxiv.org/abs/2601.05542">Understanding LLM-Driven Test Oracle Generation — arxiv:2601.05542</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>IV&amp;V 독립성 보장</div>
+      <p>Independent Verification &amp; Validation 원칙: evaluator 는 generator 의 의도나 과정을 알지 않고 <strong>계약과 산출물만으로</strong> 판정한다.</p>
+      <p style="margin-top:10px">· "커밋 메시지에 완료라고 썼다" ≠ 증거<br>· "TODO: 추후 수정" ≠ 현재 PASS</p>
+      <a class="card-source" href="https://arxiv.org/html/2411.15594v6">A Survey on LLM-as-a-Judge — arxiv:2411.15594</a>
+    </div>
   </div>
 </div>
 
-<!-- SECTION 4.5: EXECUTION-GROUNDED EVIDENCE (NET-NEW v3.2) -->
+<!-- ENFORCEMENT GRADES -->
 <div class="section">
-  <div class="section-label">Execution-Grounded Evidence</div>
-  <div class="section-title">실행 주장 조건의 산출물 능동 요구 (v3.2 신규)</div>
-  <p class="section-desc">구현자가 도구·스킬·명령을 <strong>실제로 실행하지 않고</strong> "실행했다 / 호출했다 / 생성했다"고 서술만 하는 패턴. 기존 "주석·커밋 메시지는 증거가 아니다"는 generator의 <strong>주장</strong>을 배제하지만, 계약 조건이 <strong>동적 실행 자체</strong>를 요구할 때 evaluator가 실행 <strong>산출물</strong>을 능동적으로 요구하는 축은 별개다. (/insights Friction #5 · AR-03 흡수)</p>
-  <div class="card" style="margin-bottom:18px">
-    <div class="card-title"><span class="dot"></span>적용 대상 조건</div>
-    <p>조건이 "실행 / 호출 / 생성 / 재생성 / 발행 / 빌드 / 마이그레이션 적용"처럼 <strong>동작이 실제로 수행되었음</strong>을 요구하면(단순 파일 존재·내용이 아니라 행위) 아래 절차를 적용한다.</p>
+  <div class="section-label">Enforcement</div>
+  <div class="section-title">원칙별 Enforcement 등급 (E1 / E2 / E3)</div>
+  <p class="section-desc">등급 정의 SSOT 는 <code>skill-design-guide.md §3.7</code> 이다. 등급 어휘를 여기서 재정의하거나 동의어(예: "약한 규칙 / 강한 규칙")를 만들지 마라 — 본 절은 <strong>평가자 원칙의 현재 등급 목록</strong>만 유지한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>평가자 원칙</th><th>등급</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td><code>[미검증]</code> 2 건 자동 REJECT</td><td>E3 (기존)</td><td>임계 비교는 LLM 판단이 개입하지 않는 산술 판정</td></tr>
+        <tr><td>Rule-by-Rule Audit</td><td>E2 (기존)</td><td>verdict 직전 전수 체크리스트 아티팩트</td></tr>
+        <tr><td>Execution-Grounded Evidence</td><td>E2 (기존)</td><td>실행 산출물 수집 후 근거란에 기록</td></tr>
+        <tr><td><strong>Evidence Validity Gate</strong></td><td><span class="up">E2 (신규)</span></td><td>Friction #2 — 증거 존재만 확인하던 축에 유효성 축 추가. 무효 증거는 산술적으로 미검증 카운터에 합산되므로 임계 판정(E3)에 연결됨</td></tr>
+        <tr><td><strong>증거 분류 triage (FAIL / 미검증 / 무효)</strong></td><td><span class="up">E2 (신규)</span></td><td>contract-schema v4 마커 의미 축소 정합</td></tr>
+        <tr><td><strong>계약 파싱 범위 2 계층</strong></td><td><span class="up">E3 (신규)</span></td><td>저장된 계약 파일에 대해 <code>awk</code> 로 결정론적 판정 가능</td></tr>
+        <tr><td><strong>피드백 저장 경로 해석 ladder</strong></td><td><span class="up">E3 (신규)</span></td><td>digest <code>feedback-script-location-mismatch</code> — 경로 존재 여부는 <code>test -f</code> 로 결정론적</td></tr>
+        <tr><td>Recurring Improvement Escalation</td><td>E1 (신규)</td><td>최초 도입 — 반복 관측되면 E2 로 올린다</td></tr>
+      </tbody>
+    </table>
   </div>
-  <div class="grid-2" style="margin-bottom:18px">
+  <div class="parity-box">
+    <div class="parity-box-title">승급 규칙</div>
+    <p>같은 결함이 다시 관측되면 이 표의 문구를 다듬지 말고 <strong>등급을 한 칸 올려라.</strong> 이미 E3 인데도 재발하면 원칙 자체가 잘못 설계된 것이므로 재작성한다.</p>
+  </div>
+</div>
+
+<!-- CONTRACT PARSING -->
+<div class="section">
+  <div class="section-label">New in v4.0</div>
+  <div class="section-title">계약 파싱 범위 — 조건 섹션 / 서술 섹션</div>
+  <p class="section-desc">계약 v4 부터 계약 파일의 <code>##</code> 헤더는 <strong>조건 섹션(parsed)</strong> 과 <strong>서술 섹션(non-parsed)</strong> 2 계층으로 나뉜다. 평가자가 서술 불릿을 조건으로 오파싱하면 <strong>계약에 없는 요구를 스스로 만들어내고</strong>, 반대로 조건 섹션을 놓치면 커버리지 구멍이 생긴다.</p>
+  <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>검증 절차 (observable artifact)</div>
-      <ul class="checklist" style="margin-top:10px">
-        <li><span class="check">1</span>실행 산출물 식별 — 명령 출력(exit·stdout), 생성/수정 파일·번들, 로그, codegen 결과물, git diff, lockfile 변경</li>
-        <li><span class="check">2</span>산출물 직접 수집 — evaluator가 Bash/Glob/Grep으로 흔적 수집. "실행했다" 서술·대화 로그는 증거 아님</li>
-        <li><span class="check">3</span>부재 시 <code>[미검증]</code> — "코드상 호출 경로 있으니 실행됐을 것"은 L2, 실행 증거는 별개 축. 추론 PASS 금지</li>
-        <li><span class="check">4</span>재현 가능하면 직접 실행 — <code>commands.analyze</code>·버전 출력 등은 evaluator가 직접 돌려 출력으로 판정</li>
+      <div class="card-title"><span class="dot"></span>파싱 규칙 4 항</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">1</span><strong>조건은 조건 섹션에서만 읽는다.</strong> 조건 섹션 헤더는 <code>project.yaml.contract_categories</code> 의 각 <code>id</code> + <code>Anti-patterns</code> + <code>Reusability</code> + <code>Diagnostics</code> 이며 <strong>정확히 일치</strong>해야 한다</li>
+        <li><span class="check">2</span><strong>서술 섹션은 컨텍스트로만 읽는다.</strong> <code>배경</code>·<code>리서치 소스</code>·<code>GAP 분석</code>·<code>범위 경계</code>·<code>회귀 게이트</code> 는 접두 일치로 식별하며 여기의 불릿은 <strong>조건이 아니다</strong></li>
+        <li><span class="check">3</span><strong>조건 수를 frontmatter 와 대조한다.</strong> 파싱한 <code>- [ ] {PREFIX}-{NN}</code> 개수가 <code>conditions:</code> 값과 다르면 평가를 시작하지 말고 <strong>BLOCKED</strong> 로 보고한다 — 조건을 놓친 채 내린 verdict 는 무효다</li>
+        <li><span class="check">4</span><strong>허용 목록 밖 헤더 발견 시</strong> 그 섹션의 조건은 평가하되, Sprint Feedback 에 "계약 헤더 규약 위반" 을 계약 결함으로 기록한다. 평가자가 헤더를 임의로 재분류하지 않는다</li>
       </ul>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>실행 판정 기준</div>
-      <p>• 실행 산출물 확보 → <strong>PASS</strong> (근거에 <code>명령/산출물 → 관찰값</code> 형식)<br>
-      • 산출물 부재 + 재현 불가 → <code>[미검증]</code> (PASS 아님, 위 카운팅에 합산)<br>
-      • 구현자가 "실행했다" 서술했으나 산출물 없음 → narrated claim으로 분류, 증거 불인정</p>
-      <p style="margin-top:12px;color:var(--text3);font-size:12px">근거: narrated reasoning 신뢰 시 fabricated progress signal로 false positive 최대 90% 증가 (arxiv:2601.14691). 호출 주장은 실제 실행 로그(receipt)와 대조 (arxiv:2603.10060).</p>
+      <div class="card-title"><span class="dot"></span>결정론적 확인 (E3) — 평가 시작 전 1 회</div>
+      <code class="code-block"># (1) 헤더 2 계층 확인 — 허용 목록 밖 헤더가 있으면 계약 결함
+grep -n '^## ' "$CONTRACT"
+
+# (2) 조건 섹션 밖 체크박스 — 출력이 있으면 서술 섹션에 조건이 섞인 것
+awk '/^## /{s=$0} /^- \[ \]/{print FNR": "s}' "$CONTRACT"
+
+# (3) 조건 수 대조 — 두 값이 달라야 할 이유는 없다
+grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CONTRACT"
+grep -E '^conditions:' "$CONTRACT"</code>
+      <p style="margin-top:12px"><code>$CONTRACT</code> 는 <code>{CONTRACT_ROOT}/.harness/sprint-contract.md</code> 이며, <code>CONTRACT_ROOT</code> 는 <code>.harness/project.yaml</code> 을 발견한 디렉토리의 절대경로다. 세션 중 cwd 가 바뀌어도 이 값을 기준으로 해석한다.</p>
     </div>
-  </div>
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 사례 — fit-pal-app AR-03 (2026-05-17)</div>
-    <p>"스킬 invoke" 조건에서 파일시스템 아티팩트가 없어 실행 여부를 구조적으로 검증 불가 → 산출물 부재이므로 <code>[미검증]</code>이 정답. 실행 주장만으로 PASS 처리하면 가짜 호출을 통과시킨다.</p>
   </div>
 </div>
 
-<!-- SECTION 5: 3-LEVEL VERIFICATION -->
+<!-- BINARY DECIDABILITY + RULE-BY-RULE -->
 <div class="section">
-  <div class="section-label">Verification Methodology</div>
-  <div class="section-title">3-Level 검증 — L1 구조 · L2 내용 · L3 의미 (L3 필수)</div>
-  <p class="section-desc"><strong>모든 조건은 L3까지 도달해야 한다.</strong> L1/L2에서 PASS해도 L3에서 FAIL이면 전체 FAIL. 단순 Grep 매칭은 L2에서 멈추는 함정이다.</p>
-
-  <div class="level-box">
-    <div class="level-item">
-      <div class="level-num">L1</div>
-      <div class="level-name">구조 확인</div>
-      <div class="level-desc">파일/디렉토리 존재 확인. 도구: Glob, ls. "산출물이 있는가?"</div>
+  <div class="section-label">Pre-Check &amp; Audit</div>
+  <div class="section-title">Binary Decidability Pre-Check · Rule-by-Rule Audit</div>
+  <p class="section-desc">Sprint Contract 의 각 조건에 대해 조건별 정적 검증을 시작하기 <strong>전</strong>에 체크리스트를 전수 실행한다. 모호 조건은 <code>[미검증]</code> 또는 REJECT 사유로 명시하고, <strong>평가자가 해석 여지를 임의로 메우지 않는다</strong> (contract_misinterpret: 7회 진단).</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>사전 체크리스트 6 항</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">1</span><strong>FAIL 상태 1 문장 테스트</strong> — 기술 불가면 조건 모호. "로그인이 잘 동작한다" → 불가 → 모호. "로그인 실패 시 HTTP 401 반환" → FAIL: "401 이 아닌 응답" 명확</li>
+        <li><span class="check">2</span><strong>구체성 태그 확인</strong> — 미명시면 <code>[structural]</code> 로 간주하되 REJECT 사유에 "태그 누락" 플래그</li>
+        <li><span class="check">3</span><strong>범위어 enumerate 확인</strong> — "주요 / 모든 / 대부분 / 핵심 / 일부" 가 있으면 포함·제외 목록이 인라인 enumerate 되어 있는지 확인. 없으면 자체 해석하지 말고 "범위 미명시" 명시</li>
+        <li><span class="check">4</span><strong>검증 수단 존재 확인</strong> — "측정: ...", 도구명, 관찰 대상 중 하나가 명시되었는가?</li>
+        <li><span class="check">5</span><strong>enumerated 대상 목록 확인</strong> — 나열된 대상 N 개가 계약에 실제로 쓰여 있는지 확인</li>
+        <li><span class="check">6</span><strong>상태 의존 측정 명령의 전제 확인</strong> — <code>git diff</code>/<code>git status</code>/빌드 산출물처럼 실행 시점 상태에 따라 결과가 달라지면 <strong>평가자가 상태를 임의로 고르지 마라.</strong> "상태 전제 미명시" 플래그 + 실제 사용한 상태를 근거란에 기록 (<code>측정 상태: HEAD 대비 working tree</code>)</li>
+      </ul>
+      <p style="margin-top:12px">위 6 항 중 하나라도 미충족이면 해당 조건은 <strong>FAIL 쪽으로 기운 엄격 해석</strong> + Sprint Feedback 의 <code>contract_ambiguity_notes</code> 에 "조건 ID — 모호 유형 — 제안 구체화" 를 기록한다.</p>
+      <a class="card-source" href="https://arxiv.org/abs/2511.10865">one-time rubric refinement — arxiv:2511.10865</a>
     </div>
-    <div class="level-item">
-      <div class="level-num">L2</div>
-      <div class="level-name">내용 확인</div>
-      <div class="level-desc">파일 내용에 기대 요소 존재. 도구: Read, Grep. "코드가 작성되었는가?"</div>
-    </div>
-    <div class="level-item" style="border-color:var(--accent)">
-      <div class="level-num" style="color:var(--green)">L3</div>
-      <div class="level-name" style="color:var(--green)">의미 검증</div>
-      <div class="level-desc">코드 경로 추적, 행동 검증. 도구: Read + 논리 추적. "의도대로 동작하는가?"</div>
-    </div>
-  </div>
-
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">L2에서 멈춤 (Bad)</div>
-      <code class="code-block">Grep으로 'design-tokens.md'
-언급 확인 → PASS</code>
-      <p>파일 존재만 확인. 내용이 요구 조건을 충족하는지 미검증.</p>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">L3 도달 (Good)</div>
-      <code class="code-block">Read로 design-tokens.md
-전체 내용 확인 → 토큰 구조가
-color/spacing/typography
-카테고리를 모두 포함하는지
-의미 매칭</code>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Rule-by-Rule Audit Before Completion</div>
+      <p>평가자가 조건 일부만 검증하고 "나머지는 비슷하니까 PASS" 로 뭉뚱그리는 패턴을 구조적으로 차단한다. 판정 직전에 <strong>모든 계약 조건을 1 회 더 전수 스캔</strong>한다.</p>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">1</span>모든 조건 ID 를 번호순으로 나열</li>
+        <li><span class="check">2</span>각 조건에 대해 — 증거(파일:라인)가 기록되어 있는가? 검증 깊이(L1/L2/L3)가 명시되어 있는가? 구체성 태그에 맞는 검증 방식을 적용했는가? enumerated 조건이면 N 개 대상 전부 개별 증거를 수집했는가?</li>
+        <li><span class="check">3</span>하나라도 결여되어 있으면 재검증. <strong>"비슷한 조건이 PASS 했으니 이것도 PASS" 는 금지</strong></li>
+      </ul>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실패 사례</div>
+        <p><strong>PH-01 (design-kit, 2026-04)</strong>: 평가자가 모호 조건을 자체 해석 → 해석 충돌 → REJECT 반복.<br><strong>SK-02 (harness, 2026-04)</strong>: "주요 interactive element" 범위어가 enumerate 되지 않아 평가자가 badge/decoration 포함 여부를 자체 판단 → 구현과 해석 불일치.</p>
+      </div>
     </div>
   </div>
+</div>
 
+<!-- TRIAGE -->
+<div class="section">
+  <div class="section-label">New in v4.0</div>
+  <div class="section-title">증거 분류 triage — <code>[미검증]</code> 은 도구 부재 전용이다</div>
+  <p class="section-desc">계약 v4 부터 <code>[미검증]</code> 의 의미가 <strong>검증 도구·환경 부재 전용</strong>으로 축소되었다. 평가자가 이 구분을 놓치면 심각한 누수가 생긴다 — <strong>미구현을 미검증으로 분류하면 FAIL 이어야 할 조건이 "1 건까지 PASS 허용" 구간으로 세탁된다.</strong></p>
+  <div class="triage">
+    <div class="tri tri-a">
+      <div class="tri-tag">분기 A — FAIL</div>
+      <h4>대상 부재 / 미구현</h4>
+      <p>검증 대상 자체가 없거나, 있어도 조건을 충족하지 않음. 조건이 지목한 파일·함수·필드가 없음 · consumer 면이 이번 스프린트에 반영되지 않음 · 계약이 경로를 명시한 기록물이 그 경로에 없음.</p>
+    </div>
+    <div class="tri tri-b">
+      <div class="tri-tag">분기 B — <code>[미검증]</code></div>
+      <h4>도구·환경 부재</h4>
+      <p>대상은 존재하나 확인할 수단이 없음. <code>mcp_server: null</code> 로 시각 대조 불가 · 런타임 미기동 · SDK 미설치 · 라이브 DB 접근 불가.</p>
+    </div>
+    <div class="tri tri-c">
+      <div class="tri-tag">분기 C — <code>[미검증]</code></div>
+      <h4>증거 무효 (vacuous)</h4>
+      <p>검증은 실행됐으나 그 출력이 아무것도 입증하지 못함. 빈 스냅샷 · 0 매치 grep 을 "위반 없음" 으로 해석 · 0 개 테스트가 실행된 테스트 통과.</p>
+    </div>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">!</span><strong>A 를 B 로 적지 마라.</strong> "구현이 안 돼서 확인할 게 없다" 는 미검증이 아니라 FAIL 이다. 이것이 v4 에서 마커 의미를 축소한 이유다</li>
+    <li><span class="check">·</span>B 와 C 만 <code>[미검증]</code> 카운터에 합산된다. <strong>A 는 FAIL 이므로 1 건으로도 즉시 REJECT</strong></li>
+    <li><span class="check">·</span>분기 판정이 애매하면 <strong>A(FAIL) 쪽으로 기운 엄격 해석</strong>을 적용하고 <code>contract_ambiguity_notes</code> 에 사유를 남긴다</li>
+  </ul>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>마커 부착 절차 (3 단계 fallback)</div>
+      <p>① <strong>단계 1(기본 검증)</strong> — 계약에 기술된 1차 검증 도구 실행<br>② 실패 시 <strong>단계 2(Fallback 정적 검증)</strong> — 계약에 명시된 대체 정적 검증 (파일 Grep, CSS 변수 대조, log tail)<br>③ 단계 2 도 실패 시 <strong>단계 3(<code>[미검증]</code> 마커)</strong> — "검증 불가 사유 한 줄 + 사용한 단계 기록"<br>④ 계약에 fallback 기술이 없으면 <strong>계약 작성자가 누락</strong>한 것이므로 REJECT 사유에 "fallback 미기술" 플래그</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>카운팅 및 자동 REJECT 임계</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>미검증 건수</th><th>평가 결과</th></tr></thead>
+          <tbody>
+            <tr><td>0 건</td><td>통상 판정</td></tr>
+            <tr><td>1 건</td><td>PASS 허용 (단, "미검증 1 건" 경고 명시)</td></tr>
+            <tr><td>2 건 이상</td><td><strong>자동 REJECT</strong> — 개별 조건은 FAIL 이 없어도 전체 verdict 는 REJECT</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <code class="code-block">## Unverifiable Summary
+- 총 미검증 건수: N
+- 건 목록: [조건 ID, 사유, 시도한 fallback 단계]
+- Verdict 영향: {PASS 허용 | 자동 REJECT}</code>
+    </div>
+  </div>
+  <div class="case-box">
+    <div class="case-box-title">실패 사례 (이 프로토콜 없이 발생)</div>
+    <p><strong>fit-pal-flutter 2026-04-17</strong>: 미검증 3 건(LG-02, DG-03, DG-04) 발생했으나 평가자가 카운팅 규칙을 명시하지 않아 partial PASS 처리 → 추후 REJECT 재판정.<br><strong>fit-pal 2026-04-21</strong>: UI-04/LG-04 미검증에도 3 단계 fallback 미수행 → 단계 2 대체 정적 검증이 가능했음에도 건너뛰고 바로 <code>[미검증]</code>.</p>
+  </div>
+</div>
+
+<!-- EXECUTION-GROUNDED + VALIDITY GATE -->
+<div class="section">
+  <div class="section-label">Evidence</div>
+  <div class="section-title">Execution-Grounded Evidence — 실행 주장 조건의 산출물 검증</div>
+  <p class="section-desc">구현자가 도구·스킬·명령을 <strong>실제로 실행하지 않고</strong> "실행했다 / 호출했다 / 생성했다" 고 서술만 하는 패턴. 조건이 "실행 / 호출 / 생성 / 재생성 / 발행 / 빌드 / 마이그레이션 적용" 처럼 <strong>동작이 실제로 수행되었음</strong>을 요구하면(단순 파일 존재·내용이 아니라 행위) 아래 절차를 적용한다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>검증 절차 — narrated 주장 대신 observable artifact</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">1</span><strong>실행 산출물 식별</strong> — 그 동작이 일어났다면 남았어야 할 흔적을 먼저 정한다: 명령 출력(exit code·stdout), 생성/수정된 파일·번들, 로그 라인, codegen 결과물, git diff, lockfile 변경</li>
+        <li><span class="check">2</span><strong>산출물 직접 수집</strong> — evaluator 가 직접 Bash/Glob/Grep 으로 수집한다. 구현자의 "실행했다" 서술이나 대화 로그는 증거가 아니다</li>
+        <li><span class="check">3</span><strong>부재 시 <code>[미검증]</code></strong> — "코드상 호출 경로가 있으니 실행됐을 것" 이라는 추론 PASS 금지. 호출 경로 존재는 L2 이며, 실제 실행 증거는 별개 축이다</li>
+        <li><span class="check">4</span><strong>재현 가능하면 직접 실행</strong> — <code>commands.analyze</code>, 버전 출력 등은 직접 돌려 출력으로 판정한다</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>실행 판정 기준 &amp; 연구 근거</div>
+      <p>· 실행 산출물 확보 → PASS (근거에 <code>명령/산출물 → 관찰값</code> 형식)<br>· 산출물 부재 + 재현 불가 → <code>[미검증]</code> (PASS 아님)<br>· 구현자가 "실행했다" 서술했으나 산출물 없음 → <strong>narrated claim</strong> 으로 분류, 증거 불인정</p>
+      <p style="margin-top:12px">판정자는 narrated reasoning 이 아니라 <strong>observable evidence 에 대해 reasoning claim 을 검증</strong>해야 한다. CoT/서술을 신뢰하면 fabricated progress signal 에 속아 false positive 가 최대 90% 증가한다.</p>
+      <a class="card-source" href="https://arxiv.org/abs/2601.14691">Gaming the Judge — arxiv:2601.14691</a>
+      <a class="card-source" href="https://arxiv.org/pdf/2603.10060" style="margin-left:8px">Tool Receipts — arxiv:2603.10060</a>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실패 사례 — fit-pal-app AR-03 (2026-05-17)</div>
+        <p>"스킬 invoke" 조건에서 파일시스템 아티팩트가 없어 실행 여부를 구조적으로 검증 불가 → 산출물 부재이므로 <code>[미검증]</code> 이 정답. 실행 주장만으로 PASS 처리하면 가짜 호출을 통과시킨다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">New in v4.0 · Friction #2</div>
+  <div class="section-title">Evidence Validity Gate — 공허한 증거(vacuous pass) 차단</div>
+  <p class="section-desc">앞의 §Execution-Grounded Evidence 는 증거가 <strong>존재하는지</strong>를 요구한다. 실측에서 반복된 사고는 그 다음 단계였다 — <strong>증거는 있는데 그 증거가 아무것도 입증하지 않는 경우</strong>. 빈 카탈로그 화면의 MCP 스냅샷을 근거로 "정상 렌더링" 을 반복 주장했고, 실제로는 unbounded-height ListView 가 collapse 한 상태였다. 사용자 신뢰가 손상되어 욕설로 끝난 세션이 2 건 발생했고, 사용자가 이 재발 습관 교정만을 위한 전용 세션을 열었다.</p>
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-num">0.90 / 0.85</div>
+      <div class="stat-label">프런티어 판정자 2 종이 필요한 아티팩트를 <strong>한 번도 가져오지 않은</strong> 답변에 준 점수 — 추론이 "tight and well-structured" 라고 칭찬까지 했다</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">0.000</div>
+      <div class="stat-label">같은 답변을 실행 trace 로 결정론적 대조했을 때의 점수. 판정자는 <strong>타당성이 아니라 그럴듯함</strong>을 채점한다</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3 축</div>
+      <div class="stat-label">형식 검증의 vacuity 판별 — trigger coverage · antecedent activation · mutation(negative control)</div>
+    </div>
+  </div>
   <div class="card">
-    <div class="card-title"><span class="dot"></span>L3 Coverage Honesty — 샘플링 시 미검증 명시 의무</div>
-    <p>시간 제약으로 L3 전수 검증이 불가능하면 <strong>샘플링 대상과 미검증 대상을 분리하여 보고</strong>한다. "20개 중 2개만 확인 + 나머지는 비슷하니까 PASS"는 금지.</p>
-    <code class="code-block" style="margin-top:12px">- [x] AR-01: ... — PASS [L3, 샘플링-3/전체-20]
-  - 근거: rust-api (파일:라인), rust-service (파일:라인)
-  - [미검증-17] rust-init/-feature/-model 등 17개: 시간 제약으로 L3 미도달</code>
+    <div class="card-title"><span class="dot"></span>왜 별도 축인가</div>
+    <p>같은 연구의 실패 분류 중 <strong>invalid absence</strong> — "충분히 탐색하지 않고 없다고 단언" — 이 Friction #2 의 정확한 형태다. 빈 스냅샷을 "문제 없음" 으로 읽는 것이 곧 invalid absence 다. 또한 최종 상태만 보는 outcome-only 평가는 절차 위반을 통과시켜 성능을 과대평가하므로, 중간 상태와 행위 시퀀스를 함께 대조해야 한다.</p>
+    <a class="card-source" href="https://arxiv.org/html/2606.22737v2">GroundEval — arxiv:2606.22737</a>
+    <a class="card-source" href="https://arxiv.org/pdf/2603.03116" style="margin-left:8px">Corrupt Success — arxiv:2603.03116</a>
+    <a class="card-source" href="https://arxiv.org/pdf/2606.21451" style="margin-left:8px">Vacuity in LLM-Generated Assertions — arxiv:2606.21451</a>
   </div>
-</div>
-
-<!-- SECTION 6: SIBLING ENUMERATED -->
-<div class="section">
-  <div class="section-label">Sibling Verification</div>
-  <div class="section-title">Sibling Enumerated Verification — 전수 Grep 절차</div>
-  <p class="section-desc">플러그인 내 여러 스킬에 공통 원칙을 요구하는 조건(<code>[*, enumerated]</code>)에서 1~2개 샘플만 확인하고 PASS 처리하는 패턴 방지. rust-kit H-01/H-03 REJECT의 직접 원인.</p>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>절차 (4단계)</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span>대상 목록 파싱 — 조건 문장에서 나열된 sibling 스킬/파일 이름을 모두 추출. N개 정확히 센다</li>
-      <li><span class="check">2</span>N개 전수 Grep — 각 대상에 대해 개별 Grep 수행. 한 대상당 한 줄 증거(파일:라인 매칭 문자열) 기록</li>
-      <li><span class="check">3</span>누락 대상명 나열 — 하나라도 Grep 증거가 없으면 해당 조건은 FAIL. 누락된 대상명을 모두 나열</li>
-      <li><span class="check">4</span>카운트 보고 — Sprint Feedback에 "N개 중 M개 충족 (누락: X, Y, Z)" 형태로 집계</li>
-    </ul>
-  </div>
-
-  <div class="grid-2" style="margin-top:4px">
-    <div class="card" style="border-left:3px solid var(--red)">
-      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 — rust-kit H-01/H-03</div>
-      <p>"domain event + outbox 원칙이 rust-init, rust-feature, rust-service, rust-api 4개 스킬 Gotchas에 있다" 조건에서 rust-service만 확인하고 PASS. 실제로 3개 누락 → REJECT.</p>
-    </div>
-    <div class="card" style="border-left:3px solid var(--red)">
-      <div class="card-title"><span class="dot" style="background:var(--red)"></span>실패 — react-kit KZ-04</div>
-      <p>References에 7개 그룹 문서(g1~g6, g5b) 개별 명시 요구였는데 포괄 경로로 처리 → REJECT. enumerated 태그를 collective로 처리한 사례.</p>
-    </div>
-  </div>
-</div>
-
-<!-- SECTION 7: SPECIFICITY TAG CONSUMPTION -->
-<div class="section">
-  <div class="section-label">Tag Consumption</div>
-  <div class="section-title">Specificity Tag 소비 규칙 + 용어 충돌 주의</div>
-  <p class="section-desc">이 가이드의 L1/L2/L3는 <strong>evaluator 검증 깊이</strong>를 의미한다. sprint-contract 계약서의 <code>[L1]</code>/<code>[L2]</code>/<code>[L3]</code> 태그는 <strong>조건 구체성 레벨</strong>로 동일 기호지만 의미가 다르다.</p>
-
   <div class="table-wrap">
     <table>
-      <thead><tr><th>태그</th><th>evaluator 검증 방식</th><th>증거 형식</th></tr></thead>
+      <thead><tr><th>#</th><th>검사</th><th>질문</th><th>실패 시</th></tr></thead>
       <tbody>
-        <tr>
-          <td><code>[exact]</code></td>
-          <td>Grep으로 literal 매칭 → Read로 맥락 확인</td>
-          <td><code>파일:라인</code> + 매칭된 literal 문자열 인용</td>
-        </tr>
-        <tr>
-          <td><code>[structural]</code></td>
-          <td>Glob/Grep으로 섹션·필드 존재 확인 → Read로 구조 검증</td>
-          <td><code>파일:라인</code> + 섹션 헤더 또는 필드명</td>
-        </tr>
-        <tr>
-          <td><code>[goal]</code></td>
-          <td>Read로 코드 경로 전체 추적 → 의미 분석 + 다관점 평가 (최소 2개)</td>
-          <td><code>파일:라인</code> + 목표 달성 논증</td>
-        </tr>
+        <tr><td>1</td><td><strong>비공백 (non-empty)</strong></td><td>출력·스냅샷·파일이 실제로 내용을 담고 있는가? 0 바이트·공백만·에러 메시지만 아닌가?</td><td>증거 무효 → <code>[미검증]</code></td></tr>
+        <tr><td>2</td><td><strong>활성화 (trigger coverage)</strong></td><td>그 측정이 검사 대상을 <strong>실제로 한 번이라도 통과</strong>했는가? 테스트 0 개 실행 · 스킵된 스위트 · 매치 0 건 grep 은 "위반 없음" 이 아니라 "검사되지 않음" 이다</td><td>증거 무효 → <code>[미검증]</code></td></tr>
+        <tr><td>3</td><td><strong>반증 가능성 (negative control)</strong></td><td>조건이 위반된 상태였다면 <strong>이 측정이 다른 결과를 냈을 것인가?</strong> 어떤 입력에도 같은 출력을 내는 측정은 oracle 이 아니다</td><td>증거 무효 → <code>[미검증]</code> + 측정 수단 재설계 권장</td></tr>
+        <tr><td>4</td><td><strong>출처 (provenance)</strong></td><td>그 증거를 <strong>평가자가 직접 수집</strong>했는가? 구현자의 서술·주석·커밋 메시지·대화 로그를 인용한 것이 아닌가?</td><td>증거 불인정 → 직접 수집 후 재판정</td></tr>
       </tbody>
     </table>
   </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>0 매치 판정 규칙 — "없음" 은 두 가지다</div>
+      <p><strong>의도된 0</strong> — 조건이 "위반 0 건" 을 요구하고, 그 grep 이 <strong>다른 파일에서는 매치를 낸다는 것을 확인</strong>한 경우에만 PASS. 즉 패턴이 살아 있다는 증거(positive control)를 같이 수집한다.<br><strong>공허한 0</strong> — 대상 경로가 틀렸거나, 파일이 비었거나, 패턴이 절대 매치되지 않는 경우. 이것은 PASS 증거가 아니라 <strong>측정 실패</strong>다 → <code>[미검증]</code>.</p>
+      <div class="compare" style="margin-top:14px">
+        <div class="compare-bad">
+          <div class="compare-label">Bad</div>
+          <code class="code-block">grep -c 'unwrap()' src/ → 0
+→ "안티패턴 없음, PASS"</code>
+          <p>src/ 에 .rs 파일이 0 개였다면 이 0 은 아무것도 입증하지 않는다.</p>
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">Good</div>
+          <code class="code-block">(a) 대상 파일 목록을 먼저 센다 (예: 42 개)
+(b) 패턴이 유효함을 알려진 위치에서 1 회 확인
+(c) 그 위에서 0 매치 → PASS
+근거: "대상 42 파일 · 패턴 유효성 확인 · 매치 0"</code>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>렌더 산출물 특칙 (Friction #2 직결)</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">·</span><strong>빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 검증 실패 신호</strong>다. "요소가 안 보이니 문제도 없다" 는 invalid absence 다</li>
+        <li><span class="check">·</span>캡처에서 조건이 요구하는 <strong>구체 요소를 지목</strong>해 근거에 쓴다 (<code>스냅샷에 항목 3 행 · 헤더 텍스트 "내 그룹" 확인</code>). 요소를 지목할 수 없으면 그 캡처는 무효 증거다</li>
+        <li><span class="check">·</span>캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 <strong>분기 B</strong>(<code>[미검증]</code>)이지 PASS 가 아니다</li>
+      </ul>
+      <code class="code-block" style="margin-top:12px">## Evidence Validity
+- 검사 대상 증거: N 건
+- 무효 판정: K 건 [조건 ID — 실패한 검사 번호 — 사유]
+- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)</code>
+    </div>
+  </div>
+  <div class="case-box">
+    <div class="case-box-title">실패 사례 — 무효 증거로 통과한 판정</div>
+    <p><strong>fit-pal 2026-06~07 (Friction #2)</strong>: 빈 카탈로그를 MCP 스냅샷 근거로 "정상 렌더링" 반복 주장. 실제로는 unbounded-height ListView collapse. 검사 1(비공백)·검사 2(활성화) 어느 쪽도 통과하지 못하는 증거였다.<br><strong>GroundEval 사례</strong>: 판정자 0.85~0.90 vs trace 대조 0.000. 검사 4(출처)가 없으면 판정자는 그럴듯한 서술을 증거로 착각한다.</p>
+  </div>
+</div>
 
+<!-- CANONICAL PROTOCOL -->
+<div class="section">
+  <div class="section-label">New in v4.0 · SSOT</div>
+  <div class="section-title">Canonical Unverified-Evidence Protocol (각 kit reviewer 복제용 정본)</div>
+  <p class="section-desc"><strong>이 절이 정본(SSOT)이다.</strong> <code>*-kit/agents/*-reviewer.md</code> 는 아래 5 조항을 <strong>문구 변형 없이</strong> 복제하고, 자기 문서에서 임계값이나 마커 의미를 다시 정의하지 않는다. 각 kit 의 카이젠 Phase 는 이 절을 인용 앵커로 삼는다.</p>
+  <div class="case-box">
+    <div class="case-box-title">현재 drift (2026-07-27 실측 · 각 kit Phase 가 해소할 것)</div>
+    <p><code>design-reviewer</code> 는 임계 <strong>3 건</strong>("미검증 3항 프로토콜"), <code>backend-reviewer</code> · <code>infra-reviewer</code> · <code>rust-reviewer</code> 는 2 건 + CONDITIONAL APPROVE, <code>planning-reviewer</code> 는 미검증 0 건 요구, <code>react-reviewer</code> 는 조항 없음. <strong>킷마다 다른 임계는 같은 상태를 다른 verdict 로 바꾼다.</strong></p>
+  </div>
+  <div class="canon">
+    <div class="canon-title">정본 5 조항</div>
+    <ol>
+      <li><strong>마커는 <code>[미검증]</code> 하나로 통일한다.</strong> 동의어(<code>미확인</code>, <code>N/A</code>, <code>TBD</code>, <code>unverified</code>)를 만들지 않는다. <code>[정적]</code> 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 <code>[미검증]</code> 을 대체하지 않는다.</li>
+      <li><strong><code>[미검증]</code> 은 검증 도구·환경 부재 전용이다.</strong> 대상이 없거나 미구현이면 그것은 미검증이 아니라 <strong>FAIL</strong> 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 <code>[미검증]</code> 이다 (3 분기: FAIL / 도구 부재 / 증거 무효).</li>
+      <li><strong>임계값은 2 다.</strong> <code>[미검증]</code> 0 건은 통상 판정, <strong>1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT</strong>. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.</li>
+      <li><strong>생성자의 완료 주장은 증거가 아니다.</strong> 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장, 코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가 에이전트 궤적에서 <strong>실패의 75.8% 가 false success</strong> 였고, LLM 판정자의 AUROC 는 0.54~0.65 에 그쳤다. 근거는 <strong>도구 출력과 상태 변화</strong>여야 한다.</li>
+      <li><strong>조용한 PASS 금지 + 집계 의무.</strong> 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다. 리포트에 <code>미검증 N 건</code> 을 반드시 집계하고, 건별로 <code>[조건/항목 ID, 사유, 시도한 fallback 단계]</code> 를 남긴다.</li>
+    </ol>
+  </div>
+  <a class="card-source" href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a>
+</div>
+
+<!-- VERIFICATION METHODOLOGY -->
+<div class="section">
+  <div class="section-label">Methodology</div>
+  <div class="section-title">3-Level 검증 · L3 Coverage Honesty · Sibling Enumerated</div>
+  <p class="section-desc"><strong>모든 조건은 L3 까지 도달해야 한다.</strong> L1/L2 에서 PASS 해도 L3 에서 FAIL 이면 전체 FAIL. 3계층 모델은 industry code review 의 lint → semantic → AI 모델과 대응한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Level</th><th>검증 방법</th><th>도구</th><th>목적</th></tr></thead>
+      <tbody>
+        <tr><td>L1: 구조</td><td>파일/디렉토리 존재 확인</td><td>Glob, ls</td><td>산출물이 있는가?</td></tr>
+        <tr><td>L2: 내용</td><td>파일 내용에 기대 요소 존재</td><td>Read, Grep</td><td>코드가 작성되었는가?</td></tr>
+        <tr><td>L3: 의미</td><td>코드 경로 추적, 행동 검증</td><td>Read + 논리 추적</td><td>코드가 의도대로 동작하는가?</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>L3 도달 절차 — 단순 Grep 은 L2 에서 멈추는 함정</div>
+      <code class="code-block"># ❌ L2에서 멈춤
+Grep 으로 'design-tokens.md' 언급 확인 → PASS
+
+# ✅ L3 도달
+Read 로 design-tokens.md 전체 내용 확인
+→ 토큰 구조가 조건이 요구하는 카테고리
+  (color/spacing/typography)를 모두 포함하는지 의미 매칭</code>
+      <p style="margin-top:12px"><strong>Markdown 전수 검사 조건(CD-02, DG-02 계열):</strong> ① Glob 으로 대상 파일 목록 수집 ② 각 파일을 Read 또는 Grep 으로 위반 패턴 카운트 ③ FAIL 파일명:라인 <strong>모두</strong> 나열(샘플만 기재 금지) ④ "N 개 파일 중 M 개 위반" 형태로 전체 카운트 보고.</p>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실패 사례 — DG-02 REJECT (2026-04-10)</div>
+        <p>react-run(2 개), react-build(3 개), react-preflight(3 개), react-audit(4 개+), react-reviewer(6 개+) 등 5 개 파일에서 언어 힌트 누락. evaluator 가 1 개 파일만 샘플 확인하고 PASS 처리 → 전수 검사로 전환 시 FAIL 로 재판정.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>L3 Coverage Honesty — 샘플링 시 미검증 명시 의무</div>
+      <p><code>l3_unreached</code> 진단이 13 회 누적되었다. 시간 제약으로 대상이 많을 때 평가자가 샘플링으로 끝내고 전체 PASS 로 뭉뚱그리는 패턴 — <strong>부분 검증을 감추면 다음 세션의 평가자가 구멍을 찾지 못한다.</strong></p>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">·</span>L3 전수 검증이 불가능하면 <strong>샘플링 대상</strong>과 <strong>미검증 대상</strong>을 명시적으로 분리 보고</li>
+        <li><span class="check">·</span>샘플링 검증 조건은 <code>[샘플링-N개/전체-M개]</code> 태그를 증거에 붙인다</li>
+        <li><span class="check">·</span>미검증 대상은 <code>[미검증]</code> 마커 집계에 합산된다</li>
+        <li><span class="check">·</span>"20 개 중 2 개만 확인 + 나머지는 비슷하니까 PASS" 는 <strong>금지</strong> — 나머지 18 개는 미검증으로 분류</li>
+      </ul>
+      <code class="code-block" style="margin-top:12px">- [x] AR-01: ... — PASS [L3, 샘플링-3/전체-20]
+  - 근거: rust-api (파일:라인), rust-service (파일:라인),
+          rust-middleware (파일:라인) — 3 개 L3 확인
+  - [미검증-17] rust-init/-feature/-model/-auth 등 17 개:
+          시간 제약으로 L3 미도달 → 미검증 카운터 +17</code>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Sibling Enumerated Verification (전수 Grep 절차)</div>
+    <p><code>[*, enumerated]</code> 태그 발견 시: ① <strong>대상 목록 파싱</strong> — 조건 문장에서 나열된 sibling 스킬/파일 이름을 모두 추출하고 N 개를 정확히 센다 ② <strong>N 개 전수 Grep</strong> — 한 대상당 한 줄 증거(<code>파일:라인 매칭 문자열</code>) 기록 ③ <strong>누락 대상명 나열</strong> — 하나라도 증거가 없으면 FAIL, 누락 대상명을 모두 나열(샘플 한두 개만 기재 금지) ④ <strong>카운트 보고</strong> — "N 개 중 M 개 충족 (누락: X, Y, Z)".</p>
+    <div class="case-box" style="margin-top:14px">
+      <div class="case-box-title">실패 사례</div>
+      <p><strong>rust-kit H-01/H-03 (2026-04)</strong>: "domain event + outbox 원칙이 rust-init, rust-feature, rust-service, rust-api 4 개 스킬 Gotchas 에 있다" 조건에서 rust-service 만 확인하고 PASS → 실제로 3 개 누락 → REJECT.<br><strong>react-kit KZ-04 (2026-04)</strong>: References 에 <code>docs/react/kit-design/</code> 7 개 그룹 문서(g1~g6, g5b) 개별 명시 요구였는데 포괄 경로로 처리 → REJECT.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TAG CONSUMPTION -->
+<div class="section">
+  <div class="section-label">Tag Consumption</div>
+  <div class="section-title">용어 구분 · Specificity Tag / Aggregation Mode 소비 규칙</div>
+  <p class="section-desc">이 가이드의 <strong>L1/L2/L3</strong> 는 <strong>evaluator 검증 깊이</strong>를 의미한다. sprint-contract 계약서의 <code>[L1]/[L2]/[L3]</code> 태그는 <strong>조건 구체성 레벨</strong>로, 동일 기호지만 의미가 다르다.</p>
+  <div class="parity-box">
+    <div class="parity-box-title">혼동 방지 규칙</div>
+    <p>· 계약서의 <code>[L1]</code> 태그를 보고 "존재 확인(Glob)만 하면 된다" 고 해석하지 않는다. 계약의 <code>[L1]</code> 은 exact 이름 매칭 요구이지 evaluator 검증 깊이 L1 과 무관하다.<br>· evaluator 검증 깊이 L1~L3 는 계약 조건의 구체성 레벨과 무관하게 <strong>항상 L3 까지 도달</strong>해야 한다.<br>· contract-schema v2 부터 계약 조건은 문자 태그를 사용한다. legacy 매핑: <code>[L1]</code> ≡ <code>[exact]</code>, <code>[L2]</code> ≡ <code>[structural]</code>, <code>[L3]</code> ≡ <code>[goal]</code>.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>태그</th><th>의미</th><th>evaluator 검증 방식</th><th>증거 형식</th></tr></thead>
+      <tbody>
+        <tr><td><code>[exact]</code></td><td>이름/값/구조 문자 그대로 매칭</td><td>Grep 으로 literal 매칭 → Read 로 맥락 확인</td><td><code>파일:라인</code> + 매칭된 literal 문자열 인용</td></tr>
+        <tr><td><code>[structural]</code></td><td>섹션/필드/파일 존재 확인</td><td>Glob/Grep 으로 존재 확인 → Read 로 구조 검증 (필드 타입, 하위 항목 수)</td><td><code>파일:라인</code> + 섹션 헤더 또는 필드명</td></tr>
+        <tr><td><code>[goal]</code></td><td>목표 달성 여부만 판정, 수단 무관</td><td>Read 로 코드 경로 전체 추적 → 의미 분석 + <strong>다관점 평가</strong> 필수 (기능/엣지/성능/보안 중 최소 2 개)</td><td><code>파일:라인</code> + 목표 달성 논증</td></tr>
+        <tr><td><code>[enumerated]</code></td><td>각 대상을 개별 이름으로 명시 요구</td><td>대상 목록 파싱 → 각 대상별 개별 Grep/Read → 개별 증거 수집</td><td>모든 대상에 증거 확보 시 PASS. 하나라도 누락 시 FAIL + 누락 대상명 나열</td></tr>
+        <tr><td><code>[collective]</code></td><td>포괄 경로/패턴 하나로 지정 가능 (기본값)</td><td>포괄 경로·패턴 1 건을 Grep/Glob 으로 확인</td><td>포괄 매칭 1 건 증거로 PASS</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Rubric 기반 분해 (CheckEval) + Recursive Rubric Decomposition</div>
+    <p>각 계약 조건을 boolean 서브체크로 분해한다. CheckEval 은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도를 <strong>0.45 향상</strong>시켰다 (EMNLP 2025). 3단계 프로토콜: ① <strong>Aspect Selection</strong> — 검증할 핵심 측면 식별 ② <strong>Checklist Generation</strong> — Yes/No 로 답할 수 있는 boolean 질문으로 변환(질문당 하나의 검증 포인트) ③ <strong>Boolean Evaluation</strong> — 각 질문에 L1/L2/L3 레벨로 답한다. PASS 비율이 아닌 <strong>전체 PASS</strong> 가 조건 충족 기준이다.</p>
+    <code class="code-block" style="margin-top:12px">조건: "대시보드에서 실시간 알림을 표시한다"
+├── Aspect A: 알림 데이터 수신
+│   ├── A-1: WebSocket/SSE 연결 코드가 존재하는가?          (L1)
+│   ├── A-2: 서버 메시지를 파싱하는 로직이 있는가?          (L2)
+│   └── A-3: 파싱된 데이터가 UI 상태로 전달되는 경로가 있는가? (L3)
+└── Aspect B: UI 표시
+    ├── B-1: 알림을 렌더링하는 컴포넌트가 존재하는가?        (L1)
+    ├── B-2: 알림 데이터가 해당 컴포넌트에 바인딩되어 있는가? (L2)
+    └── B-3: 새 알림 수신 시 UI 가 자동 갱신되는가?          (L3)</code>
+    <p style="margin-top:12px"><strong>RRD:</strong> 고수준 루브릭 항목이 여전히 모호하면 한 번 더 서브포인트로 재귀 분해한다. 한 번 분해했는데도 서브체크 1 개가 10+ 라인을 Read 해야 판정 가능하면 재귀 분해 신호다. <strong>CoT 효용 한계:</strong> 루브릭이 잘 정의되어 있으면 CoT 가 판정 신뢰도에 주는 이득은 미미하다 — 장황한 reasoning 대신 <strong>증거(파일:라인) + 서브체크 boolean 결과</strong>에 집중하라.</p>
+    <a class="card-source" href="https://arxiv.org/abs/2403.18771">CheckEval — arxiv:2403.18771</a>
+    <a class="card-source" href="https://arxiv.org/html/2602.05125v1/" style="margin-left:8px">RRD — arxiv:2602.05125</a>
+  </div>
+</div>
+
+<!-- QUANTITATIVE / KEYWORD / STACK / PERSPECTIVE -->
+<div class="section">
+  <div class="section-label">Specialized Protocols</div>
+  <div class="section-title">수량 검증 · 키워드 배타성 · 안티패턴 스택 정합성 · 다관점 평가</div>
+  <p class="section-desc">수량이나 경계값이 포함된 조건("&gt;= N줄", "&lt;= M개", "정확히 K건")은 <strong>측정 → 즉시 출력 → 비교 판정</strong> 3단계를 반드시 수행한다. "대략 맞는 것 같다" 는 L2 에서 멈추는 함정이다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>수량/경계값 조건 검증</div>
+      <p>① <strong>측정</strong> — 줄 수는 <code>wc -l</code>, 항목 수는 Grep 카운트, 파일 수는 Glob 결과 카운트<br>② <strong>즉시 출력</strong> — 측정값을 근거에 명시 (<code>측정값: 1498줄 (기준: &gt;= 1500)</code>)<br>③ <strong>비교 판정</strong> — 경계값 미달은 무조건 FAIL</p>
+      <p style="margin-top:10px"><strong>카운팅 패턴 주의:</strong> Markdown 헤더는 <code>##</code> 뿐 아니라 <code>###</code>·<code>####</code> 도 고려, 번호 매기기는 <code>1.</code> 과 <code>- </code> 불릿 모두 고려, Gotchas 항목은 H3 또는 불릿 형태를 모두 매칭하는 범용 정규식 사용.</p>
+      <div class="case-box" style="margin-top:14px">
+        <div class="case-box-title">실제 사례 — AR-03 REJECT (2026-04-12)</div>
+        <p><code>docs/flutter/</code> 총 줄 수가 1498줄로 기준 1500줄에 2줄 부족. <strong>경계값 미달을 "거의 충족" 으로 PASS 처리하지 않고 FAIL 로 정확히 판정</strong>한 사례.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>스킬 트리거 키워드 배타성 (Set Intersection)</div>
+      <p>① 대상 SKILL.md 의 <code>description</code> frontmatter 에서 키워드 추출 ② 같은 플러그인 내 모든 SKILL.md 를 Glob 으로 수집 ③ Set Intersection 비교 ④ <strong>부분 문자열 포함 관계도 배타성 위반으로 판정</strong>.</p>
+      <div class="compare" style="margin-top:12px">
+        <div class="compare-bad">
+          <div class="compare-label">위반</div>
+          <code class="code-block">스킬 A: "API 연동"
+스킬 B: "API 연동 화면"
+→ 부분 문자열 → 배타성 위반 FAIL</code>
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">비위반</div>
+          <code class="code-block">스킬 A: "컴포넌트 추출"
+스킬 B: "화면 추출"
+→ 부분 문자열 관계 없음 → PASS</code>
+        </div>
+      </div>
+      <p>완전 일치 키워드는 FAIL, 부분 포함 관계도 FAIL, 비슷한 의미의 다른 단어는 문맥 분석 후 판정(불확실하면 <code>[medium-confidence]</code>).</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>안티패턴 스택 정합성 (Stack Applicability)</div>
+    <p>digest <code>stack-inappropriate-rust-antipatterns</code> — 셸/compose 작업 계약에 Rust 전용 조건(<code>unwrap()</code>, <code>println!</code>)이 그대로 들어갔고 평가자가 그대로 판정했다. 계약 생성 측 결함이지만 <strong>평가자도 걸러낼 수 있다.</strong></p>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">·</span>불일치하면 그 패턴은 <code>N/A (스택 불일치: 패턴=Rust · 대상=shell/yaml)</code> 로 기록한다. <strong>매치 0 건을 PASS 로 적지 마라</strong> — 애초에 매치될 수 없는 패턴의 0 은 공허한 0 이다</li>
+      <li><span class="check">·</span>동시에 Sprint Feedback 에 "계약 결함: 대상 스택에 부적합한 안티패턴 조건" 을 기록한다. 조건 삭제·교체는 사용자 권한이므로 평가자는 권장만 한다</li>
+      <li><span class="check">·</span>대상 파일이 여러 스택에 걸쳐 있으면 스택별로 나누어 판정하고 각각의 대상 파일 수를 기록한다</li>
+    </ul>
+  </div>
   <div class="card">
     <div class="card-title"><span class="dot"></span>다관점 평가 (Perspective-Based Reading)</div>
+    <p>각 조건을 <strong>최소 2개 관점</strong>에서 평가한다. 구현자 시점만으로 평가하면 사용자 가치나 비즈니스 의도가 누락된다 (perspective_gap: 5회 diagnosis).</p>
     <div class="table-wrap" style="margin-top:12px">
       <table>
         <thead><tr><th>관점</th><th>초점</th><th>예시 질문</th></tr></thead>
@@ -383,55 +626,142 @@ color/spacing/typography
           <tr><td>엣지 케이스</td><td>경계 조건에서 올바른가?</td><td>"빈 입력, null, 최대 길이에서?"</td></tr>
           <tr><td>성능</td><td>비효율이나 병목이 있는가?</td><td>"N+1 쿼리, 불필요한 리렌더링?"</td></tr>
           <tr><td>보안</td><td>취약점이 있는가?</td><td>"SQL 인젝션, XSS 가능성?"</td></tr>
-          <tr><td><strong>User-Value</strong></td><td>사용자가 이 동작으로 무엇을 얻는가?</td><td>"에러 메시지가 실제로 도움이 되는가?"</td></tr>
-          <tr><td><strong>Business-Intent</strong></td><td>계약의 상위 의도에 부합하는가?</td><td>"규제 준수·데이터 일관성·SLA 달성?"</td></tr>
+          <tr><td><strong>User-Value</strong></td><td>사용자가 이 동작으로 무엇을 얻는가?</td><td>"에러 메시지가 사용자에게 실제로 도움이 되는가?"</td></tr>
+          <tr><td><strong>Business-Intent</strong></td><td>계약의 상위 의도에 부합하는가?</td><td>"규제 준수·데이터 일관성·SLA 달성 측면에서 의도를 실현하는가?"</td></tr>
         </tbody>
       </table>
     </div>
-    <p>구현자 관점만으로 평가 금지. <code>[goal]</code> 조건에서 다관점 평가는 필수.</p>
+    <p><strong>구현자 관점만으로 평가 금지.</strong> "코드가 동작한다" 만 확인하고 끝내지 마라. 조건이 사용자/비즈니스 의도를 어떻게 실현하는지 한 문장으로 서술 가능해야 한다.</p>
   </div>
 </div>
 
-<!-- SECTION 8: CROSS-SURFACE PARITY -->
+<!-- VERDICT + CONFIDENCE -->
+<div class="section">
+  <div class="section-label">Verdict &amp; Confidence</div>
+  <div class="section-title">Evidence-Based 판정 · 판정 신뢰도 · Specification-First</div>
+  <p class="section-desc">모든 PASS/FAIL 에는 증거가 필요하다 — PASS 증거는 <code>{파일}:{라인}</code> 과 그 코드가 조건을 충족하는 이유, FAIL 증거는 충족하지 않는 이유 또는 코드 부재. <strong>"확인했다", "문제 없다" 같은 self-assertion 은 증거가 아니다.</strong></p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>조건별 판정 확신도</div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>확신도</th><th>기준</th><th>태그</th></tr></thead>
+          <tbody>
+            <tr><td>높음</td><td>L3 검증 완료 + 명확한 증거(파일:라인)</td><td>—</td></tr>
+            <tr><td>중간</td><td>L2 까지 검증 + 정황 증거</td><td><code>[medium-confidence]</code></td></tr>
+            <tr><td>낮음</td><td>L1 만 검증 또는 정적 분석 한계</td><td><code>[low-confidence]</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">·</span>낮은 확신도 PASS 는 <code>[미검증]</code> 과 동일 취급한다</li>
+        <li><span class="check">·</span>낮은 확신도 조건이 3개 이상이면 "⚠️ 낮은 확신도 조건 다수" 경고를 명시</li>
+        <li><span class="check">·</span>확신도는 판정을 뒤집지 않는다 — <strong>FAIL 은 확신도와 무관하게 FAIL</strong></li>
+        <li><span class="check">·</span><strong>Swap Test 불안정 강등 규칙</strong>: <code>(A, B)</code> 와 <code>(B, A)</code> 결과가 다르면 자동 <code>[low-confidence]</code>. 2 회 재검증해도 불일치면 <code>[미검증]</code> + position bias 의심 명시</li>
+      </ul>
+      <a class="card-source" href="https://www.anthropic.com/research/statistical-approach-to-model-evals">A Statistical Approach to Model Evaluations — Anthropic</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>검증 순서 원칙 (Specification-First) · Metamorphic Testing</div>
+      <p>① <strong>먼저</strong> Sprint Contract 를 읽고 각 조건의 "기대 행동" 을 확립한다 ② <strong>그 다음</strong> 코드를 검증한다 — 코드는 증거 수집 대상이지 기대 행동의 출처가 아니다 ③ 코드를 먼저 읽으면 구현 추종 편향에 빠진다.</p>
+      <p style="margin-top:12px"><strong>Metamorphic Testing:</strong> 절대 정답을 모를 때 관계 기반으로 검증한다 — "입력을 2배로 하면 출력도 2배인가?"(비례), "같은 입력을 2번 넣으면 같은 결과인가?"(멱등성), "A를 추가해도 B에 영향 없는가?"(독립성). 계약 조건으로 직접 판정 가능한 경우 metamorphic testing 은 불필요하다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SELF-IMPROVEMENT -->
+<div class="section">
+  <div class="section-label">Self-Improvement</div>
+  <div class="section-title">구조화 진단 · 교차 진단 · Recurring Improvement Escalation</div>
+  <p class="section-desc">qa-evaluator 실행 완료 후 <code>l3_unreached</code> · <code>bias_detected</code> · <code>evidence_missing</code> · <code>contract_misinterpret</code> · <code>perspective_gap</code> 5 항목을 자가 점검한다. 교차 진단은 Agent tool 로 sprint-contract 서브에이전트를 호출하되 <strong>판정 결과(출력만)</strong> 를 전달하고 평가 과정의 추론·중간 메모는 전달하지 않는다.</p>
+  <div class="card" style="border-left:3px solid var(--yellow)">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>Recurring Improvement Escalation — 같은 제안을 반복하면 그것은 권고가 아니라 결함이다</div>
+    <p>글로벌 evaluator 피드백 240 건의 improvement suggestion 을 집계하면 <strong>같은 제안이 여러 스프린트에 걸쳐 반복</strong>된다. 예: "AR-01/AR-02 는 unstaged working tree 에서 측정이 모호 — <code>git diff --cached</code> 기준 권고"(3 회 이상), "<code>[exact]</code> 조건에 widget test 를 명시하면 구현과 함께 테스트도 제출해야 함", "DG-02 IDE diagnostics 는 analyze 와 실질 중복". <strong>매번 산문 권고로만 남기면 아무도 처리하지 않고 다음 사이클에 같은 문장이 다시 생성된다.</strong></p>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">1</span>개선 제안을 쓸 때 <strong>대상 조건 ID + 결함 유형</strong>을 함께 적는다 (자유 산문 금지). 유형 예: <code>측정-상태-모호</code> · <code>태그-산출물-불일치</code> · <code>측정-중복</code> · <code>범위-미명시</code> · <code>증거-경로-부재</code></li>
+      <li><span class="check">2</span>같은 프로젝트에서 <strong>같은 유형의 제안이 2 회째</strong>면 그것은 권고가 아니라 <strong>계약 결함</strong>이다. <code>contract_ambiguity_notes</code> 로 승격하고 REJECT 사유 후보에 올린다</li>
+      <li><span class="check">3</span><strong>3 회째면 조건 자체를 신뢰하지 않는다.</strong> <code>[low-confidence]</code> 로 강등하고 "이 조건은 현 형태로 반복 판정 불가 — 계약 수정 없이는 다음 iteration 도 같은 결과" 를 피드백 최상단에 명시</li>
+      <li><span class="check">4</span>평가자는 계약을 <strong>직접 수정하지 않는다</strong>(사용자 권한). 대신 제안을 구체 대체 문구로 적는다 — "모호하다" 가 아니라 "<code>Given: 스테이징 완료 후</code> 를 붙이고 <code>--cached</code> 를 쓸 것"</li>
+    </ul>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Mutation Testing (테스터를 테스트)</div>
+      <p>evaluator-kaizen 이 주기적으로 수행: ① 기존 fixture 에 의도적 결함 삽입 ② qa-evaluator 실행 ③ 결함을 잡으면 PASS, 놓치면 evaluator 에 약점 존재 ④ 약점을 Gotchas 나 검증 로직에 반영.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>피드백 수집 지표</div>
+      <p><code>verdict</code> (APPROVE/REJECT/BLOCKED) · <code>conditions_total</code> · <code>conditions_passed</code> · <code>l3_coverage</code> (L3 검증 도달 비율) · <code>reject_reasons</code>.</p>
+      <p style="margin-top:10px">계약 조건의 해석 차이가 발견되면 evaluator 는 <strong>계약 수정 권장</strong>을 Sprint Feedback 에 명시한다 — 단, 실제 수정은 사용자 권한이다. evaluator 가 계약을 무단으로 재해석하거나 "의도를 미루어" PASS 처리하지 않는다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PARITY -->
 <div class="section">
   <div class="section-label">Cross-Surface Parity</div>
-  <div class="section-title">원칙 전수성 — Phase 3에서 평가자 레이어에 흡수</div>
-  <p class="section-desc">qa-evaluation-guide가 개정되면 상위 skill/agent/contract 가이드와 하위 qa-evaluator.md에 대응 원칙이 있는지 체크한다.</p>
+  <div class="section-title">Parity Table (7 개 item)</div>
+  <p class="section-desc">qa-evaluation-guide 가 개정되면 상위(<code>skill-design-guide</code>, <code>agent-design-guide</code>, <code>contract-design-guide</code>) · 동급(<code>contract-schema.md</code>) · 하위(<code>qa-evaluator.md</code>, <code>*-kit/agents/*-reviewer.md</code>)에 대응 원칙이 존재하는지 자동 체크한다.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>#</th><th>Parity Item</th><th>skill-design-guide</th><th>agent-design-guide</th><th>contract-design-guide</th><th>qa-evaluation-guide (이 가이드)</th></tr></thead>
+      <thead><tr><th>#</th><th>Parity Item</th><th>skill</th><th>agent</th><th>contract</th><th>qa-evaluation (이 가이드)</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>Binary Decidability</td><td>§3.5</td><td>§3.5 Pre-Check</td><td>§Binary Decidability</td><td>§Binary Decidability Pre-Check</td></tr>
-        <tr><td>2</td><td>Rule-by-Rule Audit</td><td>§3.6</td><td>§10 reviewer audit</td><td>— (평가 위임)</td><td>§Rule-by-Rule Audit Before Completion</td></tr>
-        <tr><td>3</td><td>Unverifiable 정책</td><td>—</td><td>§10 Unverifiable</td><td>§미검증 마커</td><td>§[미검증] 마커 평가 프로토콜</td></tr>
-        <tr><td>4</td><td>Sibling Consistency</td><td>§8.8</td><td>§3 sibling agent</td><td>§Sibling Consistency</td><td>§Sibling Enumerated Verification</td></tr>
-        <tr><td>5</td><td>Execution-Grounded Evidence</td><td>DEFERRED→Phase 1</td><td>DEFERRED→Phase 1</td><td>DEFERRED→Phase 2</td><td>§Execution-Grounded Evidence (evaluator-side 신규)</td></tr>
+        <tr><td>1</td><td>Binary Decidability</td><td>§3.5</td><td>§3.5</td><td>§Binary Decidability</td><td><strong>§Binary Decidability Pre-Check</strong></td></tr>
+        <tr><td>2</td><td>Rule-by-Rule Audit</td><td>§3.6</td><td>§10</td><td>— (평가 위임)</td><td><strong>§Rule-by-Rule Audit Before Completion</strong></td></tr>
+        <tr><td>3</td><td>Unverifiable / <code>[미검증]</code> 정책</td><td>§3.7</td><td>§10 (4 항)</td><td>§미검증 마커</td><td><strong>§마커 평가 프로토콜 + §증거 분류 triage + §Canonical Protocol</strong></td></tr>
+        <tr><td>4</td><td>Sibling Consistency</td><td>§8.8</td><td>§3</td><td>§Sibling Consistency</td><td><strong>§Sibling Enumerated Verification</strong></td></tr>
+        <tr><td>5</td><td>Execution-Grounded / Completion Evidence Gate</td><td>§3.7</td><td>§10 4 항</td><td>§증거 아티팩트 존재 의무</td><td><strong>§Execution-Grounded Evidence + §Evidence Validity Gate</strong></td></tr>
+        <tr><td>11</td><td>Enforcement 등급 (E1/E2/E3)</td><td>§3.7 (<strong>SSOT</strong>)</td><td>§6 패턴 7</td><td>§원칙별 등급</td><td><strong>§원칙별 Enforcement 등급</strong></td></tr>
+        <tr><td>12</td><td>Counterpart Enumeration</td><td>§5.5</td><td>—</td><td>§양면 조건</td><td><strong>대응 절 없음 (의도된 설계)</strong></td></tr>
       </tbody>
     </table>
   </div>
   <div class="parity-box">
-    <div class="parity-box-title">개정 시 체크리스트</div>
-    <ul class="checklist">
-      <li><span class="check">□</span>새 평가 원칙을 추가했는가? → 상위 skill/agent/contract 가이드에 원천 원칙이 있는지 Grep 확인</li>
-      <li><span class="check">□</span>원칙 네이밍을 변경했는가? → qa-evaluator.md · contract-schema.md에서 동일 네이밍 사용 중인지 Grep</li>
-      <li><span class="check">□</span>parity table의 컬럼을 추가/삭제했는가? → 상위 3개 가이드의 parity table도 동일하게 갱신</li>
+    <div class="parity-box-title">설계 결정 명문화</div>
+    <p><strong>item 12 — 평가자 대응 절을 만들지 않는다.</strong> 평가자는 계약에 박힌 Counterpart 조건을 <strong>일반 조건으로 판정</strong>하면 된다. 별도 평가 규칙을 두면 계약에 없는 요구를 평가자가 만들어내게 된다. 후속 카이젠 Phase 가 이 절을 "누락" 으로 오인하고 추가하지 않도록 여기에 명문화한다.<br><strong>item 11 — 등급 어휘는 skill-design-guide §3.7 이 SSOT.</strong><br><strong>item 5 — 2026-07 사이클에서 양면(생성/평가)으로 전환.</strong> 생성 측이 <code>[미검증]</code> 을 표기하지 않으면 평가 시점에야 드러나 iteration 이 낭비된다. 마커 표기법과 <strong>2 건 임계</strong>는 양쪽이 동일 규약을 쓴다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>개정 시 체크리스트</div>
+    <ul class="checklist" style="margin-top:12px">
+      <li><span class="check">✓</span>새 평가 원칙을 추가했는가? → 상위 skill/agent/contract 가이드에 원천 원칙이 있는지 Grep 확인</li>
+      <li><span class="check">✓</span>원칙 네이밍(섹션명, 용어)을 변경했는가? → <code>qa-evaluator.md</code> · <code>contract-schema.md</code> Grep 하여 동기화</li>
+      <li><span class="check">✓</span>실패 사례를 추가했는가? → 해당 REJECT 가 발생한 프로젝트의 feedback YAML 에 연결 링크 포함</li>
+      <li><span class="check">✓</span>parity table 컬럼을 추가/삭제했는가? → 상위 3 개 가이드의 parity table 도 동일하게 갱신</li>
+      <li><span class="check">✓</span>§Canonical Unverified-Evidence Protocol 을 수정했는가? → <code>*-kit/agents/*-reviewer.md</code> 6 종이 복제 중이므로 각 kit 카이젠 Phase 에 전파 지시를 남긴다 (여기서 직접 수정하지 않는다)</li>
+      <li><span class="check">✓</span>새 원칙에 Enforcement 등급을 부여했는가? → §원칙별 Enforcement 등급 표에 행 추가</li>
     </ul>
+    <p style="margin-top:12px"><strong>하위 전파 대기:</strong> <code>*-kit/agents/*-reviewer.md</code> 6 종(design · backend · infra · rust · react · planning) — §Canonical Unverified-Evidence Protocol 복제. 각 kit 카이젠 Phase 소관이며 본 Phase 는 수정하지 않았다.</p>
   </div>
 </div>
 
 <div class="footer">
-  <h3>LLM-as-Judge 2026 최신 연구</h3>
+  <h3>LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용)</h3>
   <ul>
-    <li><a href="https://arxiv.org/abs/2406.07791">Position Bias in LLM-as-a-Judge — arxiv:2406.07791 (IJCNLP 2025)</a></li>
-    <li><a href="https://arxiv.org/html/2602.02219">Rubric-Based LLM-as-a-Judge Position Bias — arxiv:2602.02219</a></li>
-    <li><a href="https://arxiv.org/abs/2410.21819">Self-Preference Bias — arxiv:2410.21819</a></li>
-    <li><a href="https://arxiv.org/html/2506.13639v1">LLM-as-Judge Empirical Study — arxiv:2506.13639</a></li>
-    <li><a href="https://arxiv.org/html/2602.05125v1/">Recursive Rubric Decomposition (RRD) — arxiv:2602.05125</a></li>
-    <li><a href="https://arxiv.org/abs/2403.18771">CheckEval (Boolean 서브체크) — arxiv:2403.18771</a></li>
-    <li><a href="https://arxiv.org/abs/2601.05542">LLM Test Oracle Generation — arxiv:2601.05542</a></li>
-    <li><a href="https://www.anthropic.com/research/statistical-approach-to-model-evals">Statistical Approach to Model Evals — Anthropic</a></li>
+    <li><a href="https://arxiv.org/html/2606.22737v2">GroundEval: A Deterministic Replacement for LLM-as-Judge in Stateful Agent Evaluation — arxiv:2606.22737</a></li>
+    <li><a href="https://arxiv.org/pdf/2603.03116">Beyond Task Completion: Revealing Corrupt Success through Procedure-Aware Evaluation — arxiv:2603.03116</a></li>
+    <li><a href="https://arxiv.org/pdf/2606.21451">Closing the Loop on LLM-Generated RTL Assertions with Quality-Aware Formal Verification — arxiv:2606.21451</a></li>
+    <li><a href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a></li>
+    <li><a href="https://arxiv.org/abs/2601.14691">Gaming the Judge: Unfaithful Chain-of-Thought Can Undermine Agent Evaluation — arxiv:2601.14691</a></li>
+    <li><a href="https://arxiv.org/pdf/2603.10060">Tool Receipts, Not Zero-Knowledge Proofs — arxiv:2603.10060</a></li>
+    <li><a href="https://arxiv.org/abs/2406.07791">Judging the Judges: Position Bias in LLM-as-a-Judge — arxiv:2406.07791 (IJCNLP 2025)</a></li>
+    <li><a href="https://arxiv.org/html/2602.02219">Am I More Pointwise or Pairwise? — arxiv:2602.02219</a></li>
+    <li><a href="https://arxiv.org/abs/2410.21819">Self-Preference Bias in LLM-as-a-Judge — arxiv:2410.21819</a></li>
+    <li><a href="https://arxiv.org/html/2410.02736v1">Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge — arxiv:2410.02736</a></li>
+    <li><a href="https://arxiv.org/html/2506.22316v1">Evaluating Scoring Bias in LLM-as-a-Judge — arxiv:2506.22316</a></li>
+    <li><a href="https://arxiv.org/html/2506.13639v1">An Empirical Study of LLM-as-a-Judge: How Design Choices Impact Evaluation Reliability — arxiv:2506.13639</a></li>
+    <li><a href="https://arxiv.org/html/2602.05125v1/">Rethinking Rubric Generation — RRD — arxiv:2602.05125</a></li>
+    <li><a href="https://arxiv.org/html/2411.15594v6">A Survey on LLM-as-a-Judge — arxiv:2411.15594</a></li>
+    <li><a href="https://arxiv.org/abs/2511.10865">Towards a Human-in-the-Loop Framework for Reliable Patch Evaluation — arxiv:2511.10865</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/qa-evaluation-guide.md · v3.2 · 2026-06-05</p>
+  <h3>기존 참조 (Phase 1 이전)</h3>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2601.05542">Understanding LLM-Driven Test Oracle Generation — arxiv:2601.05542</a></li>
+    <li><a href="https://www.anthropic.com/research/statistical-approach-to-model-evals">A Statistical Approach to Model Evaluations — Anthropic</a></li>
+    <li><a href="https://arxiv.org/abs/2403.18771">CheckEval — arxiv:2403.18771</a></li>
+    <li><a href="https://arxiv.org/abs/2302.05527">CodeBERTScore — arxiv:2302.05527</a></li>
+    <li><a href="https://code.claude.com/docs/en/plugins-reference">Claude Code — Plugins reference (<code>${CLAUDE_PLUGIN_ROOT}</code>)</a></li>
+  </ul>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/qa-evaluation-guide.md · Guide v4.0 · 2026-07-27 · Parity: skill v1.4.0 · agent v1.5.0 · contract v4.0</p>
 </div>
 
 </div>
