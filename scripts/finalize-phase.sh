@@ -101,17 +101,23 @@ path = Path(path)
 text = path.read_text(encoding="utf-8")
 key = f"phase_{phase_num}"
 
-# Match `phase_N: <value>` possibly followed by `# comment`
-pattern = re.compile(rf"^({re.escape(key)}:\s*)(\d+)([^\n]*)$", re.MULTILINE)
+# Match `phase_N: <value>` possibly followed by `# comment`.
+# 선행 공백을 그룹에 포함시켜야 한다 — 이 파일의 카운터는 `phases:` 매핑 하위에
+# 2칸 들여쓰기로 존재한다. `^phase_N:` (열 0 고정) 으로 찾으면 항상 실패하여
+# 최상위에 중복 키를 새로 만들고, 중첩된 실제 값은 갱신되지 않는다.
+pattern = re.compile(rf"^([ \t]*{re.escape(key)}:[ \t]*)(\d+)([^\n]*)$", re.MULTILINE)
 
 m = pattern.search(text)
 if not m:
-    # Add the key before `last_updated`
-    new_entry = f"{key}: 0\n"
-    if "last_updated:" in text:
-        text = text.replace("last_updated:", new_entry + "last_updated:")
+    # 키가 진짜 없으면 `phases:` 매핑 안에 같은 들여쓰기로 추가한다.
+    phases_m = re.search(r"(?m)^phases:[ \t]*$", text)
+    if phases_m:
+        insert_at = phases_m.end() + 1  # skip the newline after `phases:`
+        text = text[:insert_at] + f"  {key}: 0\n" + text[insert_at:]
+    elif "last_updated:" in text:
+        text = text.replace("last_updated:", f"{key}: 0\n" + "last_updated:")
     else:
-        text += "\n" + new_entry
+        text += f"\n{key}: 0\n"
     m = pattern.search(text)
 
 if not m:
