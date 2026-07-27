@@ -22,12 +22,13 @@ user-invocable: true
 
 1. **자동 write 금지 — 각 승격 건별로 사용자 승인 필수**. 특히 `CLAUDE.md`와 `hook` surface는 영향 범위가 커서 내용 초안을 보여주고 yes/no를 받아야 한다. 일괄 승인 옵션이 있더라도 hook 승격은 항상 개별 승인.
 2. **CLAUDE.md 200줄 한도 체크**. 현재 라인 수 + 추가할 규칙 라인 수가 200을 넘으면 `path_scoped_rule`(`.claude/rules/<tag>.md`)로 자동 fallback 한다. 사용자에게 사유 보고 필수.
-3. **중복 승격 금지**. `promotions-ledger.md`에서 같은 `mistake_tag`가 `status: active`로 존재하면 신규 엔트리 append 하지 말고 "기존 규칙 강화" 제안만 한다 (본 ledger 엔트리의 initial_freq는 덮어쓰지 않는다).
+3. **중복 승격 금지 — 재발은 "강화"가 아니라 "등급 상향"이다**. `promotions-ledger.md`에서 같은 `canonical_tag`(또는 그 `aliases` 중 하나)가 `status: active`로 존재하면 신규 엔트리를 append 하지 마라. 대신 아래 §재발 — Enforcement 등급 상향 절차를 따른다. 같은 surface 에서 문구만 다시 다듬는 것은 이미 실패한 처방의 반복이다. (본 ledger 엔트리의 `initial_freq`는 덮어쓰지 않는다.)
 4. **rollback은 ledger 엔트리 삭제가 아니다**. `status: removed` 또는 `demoted`로 업데이트하고 `demotion_reason` 기록. 실제 파일에서도 해당 규칙 블록을 제거해야 완결. ledger 자체는 이력 보존용.
 5. **rule_id 발급은 UUID(`uuidgen`)로 한다**. 시간 정렬이 필요하면 ledger append 순서로 충분하다. ULID 라이브러리 의존성을 추가하지 마라.
 6. **target_path는 절대경로로 기록**. 상대경로로 기록하면 세션 cwd 변경 시 rollback이 깨진다.
 7. **skill 승격은 진정 새 절차가 필요한 경우만**. 기존 스킬에 Gotchas 한 항목 추가로 해결 가능하면 "기존 스킬 Gotchas 추가"로 분류하라 (별도 skill 신설은 보수적으로).
-8. **`user_stated_constraint == true` 후보는 freq 2/3회를 기다리지 말고 매-세션 자동 로드 surface로 보낸다** (precedence rule #0). 사용자가 명시적으로 금지한 제약의 재위반은 memory(on-demand 로드)나 관망으로 강등하면 재주입이 약해 매 세션 재프롬프트가 반복된다 (insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응). 재주입 강도 순서: **hook(강제) > CLAUDE.md(매 세션 자동 로드) > path-scoped rule(해당 glob 편집 시 로드) > memory(on-demand)**. fast-track 대상은 memory 아래로 내리지 마라. 단 fast-track이어도 surface write 전 사용자 승인은 필수다 (Gotchas #1).
+8. **`actionability: user_environment` 후보는 어떤 surface 로도 승격하지 마라.** 없는 훅 스크립트 참조, 실행 권한 없음, CLI 미설치 같은 사건은 사용자 환경 작업이지 Claude 행동 결함이 아니다. ledger 에 넣지 말고 결과 리포트의 "환경 액션 아이템" 으로만 사용자에게 전달한다. 이걸 CLAUDE.md 에 넣으면 고칠 수 없는 지시가 매 세션 컨텍스트를 먹고, 실제 환경은 고쳐지지 않는다.
+9. **`user_stated_constraint == true` 후보는 freq 2/3회를 기다리지 말고 매-세션 자동 로드 surface로 보낸다** (precedence rule #0). 사용자가 명시적으로 금지한 제약의 재위반은 memory(on-demand 로드)나 관망으로 강등하면 재주입이 약해 매 세션 재프롬프트가 반복된다 (insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응). 재주입 강도 순서: **hook(강제) > CLAUDE.md(매 세션 자동 로드) > path-scoped rule(해당 glob 편집 시 로드) > memory(on-demand)**. fast-track 대상은 memory 아래로 내리지 마라. 단 fast-track이어도 surface write 전 사용자 승인은 필수다 (Gotchas #1).
 
 ## 입력
 
@@ -47,6 +48,7 @@ user-invocable: true
    - `promotions-ledger.md` 경로: `~/.claude/logs/<project_id>/promotions-ledger.md`. 없으면 생성.
 
 2. **Precedence Table 재판정**
+   - **진입 전제**: `actionability == user_environment` 후보는 표를 적용하지 않고 즉시 제외한다 (Gotchas #8). `freq` 는 항상 digest 의 `cluster_freq`(canonical + aliases 합산)다 — 원시 태그 빈도로 임계를 판정하면 파편화된 최상위 이슈가 통째로 누락된다.
    - digest가 제안한 surface를 **그대로 믿지 말고** 다음 4축 + 빈도로 재판정:
      | # | 조건 | 승격 surface |
      |---|---|---|
@@ -62,9 +64,10 @@ user-invocable: true
      | 7 | 그 외 | **review 후보 (수동)** |
    - digest 제안과 다를 경우 사용자에게 차이를 보고하고 결정 받는다.
 
-3. **중복 체크**
-   - `promotions-ledger.md`를 grep하여 같은 `mistake_tag`가 `status: active`로 존재하는지 확인.
-   - 존재 시 신규 엔트리 append 하지 않고 "기존 규칙 강화" 제안 (target_path의 해당 블록에 severity 근거 한 줄 추가 또는 초안만 제시).
+3. **중복 체크 → 재발이면 등급 상향 경로로 분기**
+   - `promotions-ledger.md`를 grep하여 같은 `canonical_tag` **또는 그 `aliases` 중 하나**가 `status: active`로 존재하는지 확인. alias 를 빠뜨리면 같은 규칙이 다른 이름으로 이중 승격된다.
+   - 존재하지 않으면 4단계(신규 승격)로.
+   - 존재하면 신규 엔트리를 append 하지 말고 **아래 §재발 — Enforcement 등급 상향** 으로 간다.
 
 4. **surface별 파일 수정 절차**
 
@@ -105,8 +108,10 @@ user-invocable: true
    - `promotions-ledger.md`에 아래 YAML 블록 append:
      ```yaml
      - rule_id: <uuid>
-       mistake_tag: <tag>
+       mistake_tag: <canonical_tag>
+       aliases: [<같은 근본원인의 다른 표기들>]
        promoted_to: <surface>
+       enforcement_level: E1 | E2 | E3
        target_path: <절대경로>
        promoted_at: <ISO8601+TZ>
        source_evidence:
@@ -117,12 +122,39 @@ user-invocable: true
        post_freq: null
        status: active
      ```
-   - `post_freq: null` 로 둔다. `/reflect-kaizen`이 30일 뒤 숫자로 채운다.
+   - `post_freq: null` 로 둔다. `/reflect-kaizen`이 30일 뒤 숫자로 채운다 (`aliases` 포함 합산).
+   - `aliases` 는 digest 클러스터의 멤버 태그 전체. **비워두면 `post_freq` 가 구조적으로 과소집계되어 효과 없는 규칙이 "효과 있음" 으로 오판정된다.**
+   - `enforcement_level` 은 신규 승격이면 아래 매핑표에서 surface 에 대응하는 값을 적는다.
 
 6. **결과 리포트**
    - 승격된 rule_id 리스트 + 수정된 파일 경로 + skip된 후보 사유.
+   - 등급 상향한 rule_id 는 `E1 → E2` 형태로 before/after 를 명시.
+   - **환경 액션 아이템** (`actionability: user_environment`) 은 승격하지 않았음을 명시하고 필요한 사용자 조치만 나열.
 
-### B. Rollback 경로
+### B. 재발 — Enforcement 등급 상향
+
+> **SSOT**: `harness/docs/guides/skill-design-guide.md` §3.7 "Enforcement 3 등급".
+> E1/E2/E3 의 정의·승급 임계는 그 문서가 정본이다. **여기서 재정의하거나 동의어를 만들지 마라.**
+
+승격했는데도 같은 규칙이 재발했다는 것은 문구가 부족한 게 아니라 **강제 수준이 부족한** 것이다.
+`/insights` 2026-07-27 §0 은 직전 사이클 승격분(Friction #1·#3)의 세션당 발생 비율이 줄지 않았음을,
+digest 는 PreToolUse 훅이 경고를 띄웠는데도 `skipped-required-api-doc-check` 가 9회 재발했음을 보여준다.
+
+1. **재발량 확정** — ledger 엔트리의 `post_freq` 를 digest 최신값(`canonical_tag` + `aliases` 합산)으로 갱신한다. `promoted_at + calibration_window_days` 미도달이면 상향하지 말고 관망한다.
+2. **승급 판정** — SSOT §3.7 의 승급 규칙을 그대로 적용한다: **재발 2회 이상 → E1 → E2**, **3회 이상이거나 비가역 변경·사용자 신뢰 손상이 걸리면 → E2 → E3**. `post_freq == 1` 이면 상향하지 않고 문구 명확화 + 다음 주기 재측정.
+3. **surface 재배치** — 등급이 올라가면 그에 맞는 surface 로 옮긴다.
+
+   | §3.7 등급 | reflect-kit surface | 형태 |
+   |---|---|---|
+   | E1 | project/global memory, CLAUDE.md 한 줄 | 서술문 (on-demand 또는 매 세션 로드) |
+   | E2 | path_scoped_rule, skill 의 Process 체크리스트 | 편집 시 로드되는 규칙 / 채워야 하는 아티팩트 |
+   | E3 | hook (PreToolUse 등), 검증 스크립트 | LLM 호출 없이 행위 직전 차단 |
+
+   E3 는 여전히 Gotchas #1 대로 **초안만 제시하고 hooks.json 수정은 사용자가** 한다.
+4. **ledger 갱신** — 기존 엔트리를 새 엔트리로 대체하지 마라. 기존 엔트리의 `status` 를 `demoted` + `demotion_reason: escalated-to-E<N> (rule_id: <새 uuid>)` 로 바꾸고, 새 등급의 엔트리를 append 한다. `source_evidence` 에 재발 근거 앵커를 추가하고 `initial_freq` 는 재발 시점의 `post_freq` 로 둔다. 이렇게 해야 "E1 에서 실패 → E2 로 올림" 이력이 남는다.
+5. **사용자 승인** — 등급 상향도 surface write 이므로 Gotchas #1 이 그대로 적용된다. 특히 E3(hook) 은 개별 승인 필수.
+
+### C. Rollback 경로
 
 1. `rule_id` 또는 `tag` 로 ledger 엔트리 조회.
 2. `target_path` 파일 읽기.
@@ -141,6 +173,10 @@ user-invocable: true
 - rollback 시 ledger 엔트리를 `rm`이나 `sed -i` 로 삭제하지 마라 — 이력 유실. `status` 필드 업데이트로만.
 - project_memory 후보를 global_memory로 자의 확대 마라. scope 축은 digest에서 결정된 값을 그대로 쓴다.
 - CLAUDE.md 200줄 한도 초과를 무시하고 append 하지 마라. 공식 권고 위반 + context window 낭비.
+- **재발한 규칙을 같은 surface·같은 등급에서 문구만 다듬지 마라.** 등급을 올리거나(§B), 왜 올리지 않는지 근거를 대라.
+- **E1/E2/E3 를 이 문서에서 재정의하지 마라.** 정의·승급 임계는 `harness/docs/guides/skill-design-guide.md` §3.7 이 정본이다. 동의어(`레벨1`, `soft/hard` 등)를 만들지 마라.
+- **`aliases` 를 비운 채 ledger 에 append 하지 마라** — post_freq 과소집계로 효과 없는 규칙이 살아남는다.
+- **환경 오설정(`user_environment`)을 규칙으로 승격하지 마라** — 사용자 조치 안내로만.
 
 ## 예시 사용
 

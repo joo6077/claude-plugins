@@ -26,6 +26,9 @@ user-invocable: true
 4. **단일 `surface_candidate` 필드를 재도입하지 마라**. scope × risk × procedurality × enforcement 4축 precedence 로만 계산한다. digest 가 편의상 단일 필드를 만들면 promote 단계가 precedence 를 재판정하지 않고 그대로 믿어 surface 판정 품질이 떨어진다.
 5. **CLAUDE.md 200줄 한도 계산을 누락하지 마라**. 규칙 #4(project CLAUDE.md 승격) 후보로 판정한 경우, 현재 CLAUDE.md 라인 수를 측정하고 180줄 이상이면 리포트에 **path_scoped_rule 로 fallback 검토 필요** 플래그를 달아라.
 6. **harness-kaizen 의 이슈를 이 리포트에 섞지 마라** — 도메인 다름. `.harness/feedback-draft.yaml`, sprint-contract 결과 등은 digest 입력이 아니다.
+7. **`actionability: user_environment` 엔트리를 승격 파이프라인에 넣지 마라.** 사용자 환경/설정만 고치면 해소되는 사건(없는 훅 스크립트 참조, 실행 권한 없음, CLI 미설치, 포트 점유)은 **Claude 행동 개선 대상이 아니다.** precedence table 에 넣지 말고 별도 `## 환경 액션 아이템` 섹션으로 라우팅하라. 2026-07 실측: 760 엔트리 중 351건(40%)이 단일 환경 오설정의 반복 로깅이었고, 이것이 `tool_failure` 로 집계되어 진짜 행동 신호를 삼켰다.
+8. **원시 `mistake_tag` 빈도로 precedence 를 적용하지 마라 — 반드시 클러스터링 먼저.** 분석기가 같은 근본원인에 다른 태그를 붙이면 개별 빈도가 임계 미달로 떨어져 **최상위 이슈가 아무것도 승격되지 않는다.** 2026-07 실측: 동일 사건 1건이 54 태그로 파편화. 행동 신호도 같은 문제를 겪었다 — API 문서 조회 스킵 계열이 `skipped-required-api-doc-check`(9) · `missing-official-doc-lookup-for-external-api`(2) · `ignored-required-api-doc-lookup`(1) · `external-api-doc-lookup-skipped`(1) · `ignored-docs-research-requirement`(1) · `research-before-edit-ignored`(1) 6 태그로 쪼개져 합산 15건인데 각각은 임계 미달이었다.
+9. **파싱 실패를 조용히 넘기지 마라.** YAML 블록 파싱 실패 건수를 리포트 헤더에 반드시 노출한다 (0 이어도 `0` 으로 명시). 2026-07-27 실측 실행에서 760 엔트리 중 6 블록이 파싱 실패했는데 리포트에 드러나지 않으면 집계 신뢰도를 판단할 수 없다.
 
 ## 입력
 
@@ -65,7 +68,8 @@ Matching 디렉토리 0개이면 stderr 에 `no matching buckets for project=<qu
 
 - `~/.claude/logs/<project_id>/YYYY-MM.md` — raw 프롬프트 / tool-failure 로그
 - `~/.claude/logs/<project_id>/reflections-YYYY-MM.md` — Stop 훅 분석 결과 (구조화 YAML)
-- `~/.claude/logs/<project_id>/.errors.log` — 훅 자체 실패 로그 (CLI 미설치 / timeout 등)
+- `~/.claude/logs/<project_id>/.errors.log` — 훅 자체 실패 로그 (CLI 미설치 / timeout 등) + `env-dedup:` / `skip:env-dedup-all` 억제 기록
+- `~/.claude/logs/<project_id>/.env-issues.tsv` — 환경 오설정 롤업. `tag <TAB> first_seen <TAB> last_seen <TAB> count` (epoch 초). Stop 훅의 dedup 게이트가 억제한 사건이 여기 누적되므로, **reflections 본문의 빈도만 보면 환경 이슈의 실제 규모를 과소평가한다.** `## 환경 액션 아이템` 섹션은 이 파일을 근거로 쓴다.
 
 ## YAML 스키마 (reflection 엔트리)
 
@@ -79,6 +83,7 @@ trigger: <str>
 undesired_behavior: <str>
 desired_behavior: <str>
 severity: low | medium | high
+actionability: claude_behavior | user_environment   # Claude 행동으로 막을 수 있었나 / 사용자 환경 작업이어야 하나
 # Surface 결정 4축 (precedence table로 최종 surface 계산)
 scope: session | project | global
 risk_class: low | medium | high
@@ -105,15 +110,27 @@ approach_note: <str>
 2. **로그 디렉토리 매칭**: 확장된 glob 패턴으로 `~/.claude/logs/` 하위 매칭. 0개이면 `no matching buckets for project=<query>` 를 stderr 에 출력하고 종료.
 3. **로그 파일 나열**: 매칭된 각 디렉토리의 `reflections-*.md` 전부 (union)
 4. **엔트리 파싱**: 타임스탬프 헤더 기준 분할 → `yaml` 코드블록 추출 → period 범위 밖 제외
-5. **집계**
-   - `mistake_tag`별 count
+   - 파싱 실패 블록은 **버리지 말고 센다**. `파싱 실패: N 블록` 을 리포트 헤더에 출력 (Gotcha #9).
+   - `actionability` 필드가 없는 레거시 엔트리는 `claude_behavior` 로 간주한다 (fail-open — 행동 신호 유실 방지).
+5. **actionability 분리** — 파싱된 엔트리를 두 갈래로 나눈다.
+   - `claude_behavior` → 6단계 클러스터링 → precedence 대상
+   - `user_environment` → precedence 에서 **제외**. `.env-issues.tsv` 와 합쳐 `## 환경 액션 아이템` 섹션에만 보고 (Gotcha #7)
+6. **태그 클러스터링 (canonical_tag + aliases)** — 원시 태그 빈도로 곧장 집계하지 않는다 (Gotcha #8).
+   - **묶는 기준은 근본원인이다.** `undesired_behavior` / `desired_behavior` 가 같은 사건을 가리키면 표기가 달라도 한 클러스터다. 표기 유사도(문자열 거리)만으로 묶지 마라 — `edit-before-read` 와 `edited-wrong-file` 은 철자가 비슷해도 다른 원인이다.
+   - 각 클러스터에서 **최다 빈도 멤버를 `canonical_tag`** 로, 나머지를 `aliases` 로 둔다. 동률이면 가장 최근에 등장한 태그.
+   - **감사 흔적 필수** — 클러스터마다 멤버 태그 전체와 개별 freq 를 리포트에 나열한다. 묶은 근거 없이 합산 숫자만 제시하면 승격 판단을 검증할 수 없다.
+   - **과잉 병합 금지.** 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 `## 병합 보류` 로 남겨라. (Sentry fingerprint 규칙도 자주 바뀌는 값으로 그룹핑하면 "really bad groups" 가 된다고 경고한다 — https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/)
+   - 클러스터가 3개 이상 멤버를 가지면 `## ⚠️ 태그 파편화` 섹션에 별도 보고하고, 그 `canonical_tag` 를 Stop 훅 어휘 수렴 대상으로 표시한다.
+7. **집계** (5·6 단계 결과 기준)
+   - **클러스터별 `cluster_freq`** (= canonical + aliases 합산). 원시 `mistake_tag`별 count 도 함께 보관 (감사용)
    - `primary_category`별 count (+ `also_applies` 가중치 0.5 반영)
    - `severity` 분포
    - `tools_used.skills / agents / mcp_servers` 교차 빈도 (특정 스킬 호출 시 반복되는 실수)
    - 4축별 분포 (`scope`, `risk_class`, `procedurality`, `enforcement_need`)
-6. **승격 후보 계산 (아래 Precedence Table)**
-7. **리포트 출력**
-8. **결과 저장 (옵션)**: `~/.claude/logs/<project_id>/digest-YYYY-MM-DD.md` — `project` 인자로 쓴 id 그대로 사용. 반영 자체는 후속 `/reflect-promote` 가 맡음.
+   - **파편화 지표**: `원시 태그 수 / 클러스터 수`. 1.5(**hypothesis** — `/reflect-kaizen` calibration 대상) 초과면 Stop 훅 어휘 주입이 작동하지 않는다는 신호 → `/reflect-kaizen` 대상으로 표시
+8. **승격 후보 계산 (아래 Precedence Table)** — **`freq` 는 항상 `cluster_freq`** 다. 원시 태그 빈도로 임계를 판정하지 마라.
+9. **리포트 출력**
+10. **결과 저장 (옵션)**: `~/.claude/logs/<project_id>/digest-YYYY-MM-DD.md` — `project` 인자로 쓴 id 그대로 사용. 반영 자체는 후속 `/reflect-promote` 가 맡음.
 
 ## Cross-project 집계 (v0.2.0: `project=all`)
 
@@ -129,15 +146,26 @@ Precedence Table #3 (`scope == global` AND 복수 프로젝트 freq ≥ 3) 판�
 
 ### 2. 이중 freq 계산 (프로젝트별 + 글로벌)
 
-- `mistake_tag` 별로 두 가지 빈도를 동시에 계산:
-  - `per_project_freq[tag][pid]` — 각 프로젝트 안에서의 빈도
-  - `global_freq[tag]` — 모든 프로젝트 합산 빈도
-  - `project_count[tag]` — 이 tag가 등장한 **서로 다른 프로젝트 수**
-- Precedence #3 판정: `global_freq[tag] ≥ 3 AND project_count[tag] ≥ 2` 일 때 global 승격 후보
+- 계산 단위는 **클러스터** 다 (`canonical_tag`). 원시 태그가 아니다:
+  - `per_project_freq[canonical][pid]` — 각 프로젝트 안에서의 클러스터 빈도
+  - `global_freq[canonical]` — 모든 프로젝트 합산 빈도
+  - `project_count[canonical]` — 이 클러스터가 등장한 **서로 다른 프로젝트 수**
+- Precedence #3 판정: `global_freq[canonical] ≥ 3 AND project_count[canonical] ≥ 2` 일 때 global 승격 후보
+
+### 2-1. 단일 프로젝트 편중 경고 (필수)
+
+한 프로젝트가 전체 엔트리를 지배하면 cross-project 집계가 사실상 single-project 집계가 되고,
+`scope == global` 판정(rule #3)이 그 프로젝트의 국소 습관을 전역 규칙으로 승격시킨다.
+
+- 프로젝트별 엔트리 점유율을 계산하고 **최대 점유율 ≥ 60%** 이면 리포트 헤더에 경고 라인을 **반드시** 출력한다:
+  `⚠️ 편중: <pid> 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음`
+- 경고가 떴을 때 rule #3 후보는 **지배 프로젝트를 제외한 잔여 freq 로 재확인**한다. 잔여 `project_count ≥ 2` 가 유지되지 않으면 global 이 아니라 rule #4/#5(해당 프로젝트 국소)로 재할당하라.
+- 60% 는 hypothesis 다 — `/reflect-kaizen` calibration 대상.
+- 2026-07-27 실측: `fit-pal` 747 / `purchase-bot` 13 (총 760) → 98% 편중이었는데 리포트에 경고가 없었다.
 
 ### 3. Precedence Table 재적용
 
-single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
+single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. **진입 전제 3가지(`user_environment` 제외 · `cluster_freq` 사용 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.** 아래 `global_freq` / `project_count` 는 모두 클러스터 단위다.
 
 | # | 조건 (project=all 기준) | 승격 surface |
 |---|---|---|
@@ -159,10 +187,14 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
   # Reflect Digest — project=all (30d)
   대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
   집계 실패 프로젝트: K개 (project_id 리스트)
+  파싱 실패: P 블록
+  원시 태그 J개 → 클러스터 C개 (파편화 지표 J/C)
+  ⚠️ 편중: <pid> 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음
   ```
 - `basename B개` = hash suffix 없는 Hybrid 기본 포맷 bucket 수
 - `hash-fallback H개` = `<basename>-<6자 hex>` 충돌 fallback + v0.2.0 레거시 bucket 수
-- `집계 실패 프로젝트` 블록이 0개여도 라인 자체는 생략하지 않고 `0개` 로 명시한다 (검증 용이성).
+- `집계 실패 프로젝트` / `파싱 실패` / 파편화 지표 라인은 값이 0 이어도 생략하지 않고 `0` 으로 명시한다 (검증 용이성).
+- 편중 경고 라인은 최대 점유율 < 60% 일 때만 생략한다.
 
 ### 5. 출력 포맷 예시 (cross-project)
 
@@ -184,6 +216,12 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 ```
 
 ## Surface Precedence Table
+
+**진입 전제 3가지 (여기서 걸러진 후보는 아래 표를 적용하지 않는다):**
+
+1. `actionability == user_environment` → precedence 대상 아님. `## 환경 액션 아이템` 으로만 보고 (Gotcha #7).
+2. `freq` 는 **`cluster_freq`** 다 (canonical + aliases 합산). 원시 태그 빈도로 임계를 판정하지 마라 (Gotcha #8).
+3. 같은 `canonical_tag`(또는 그 alias)가 `promotions-ledger.md` 에 `status: active` 로 이미 있으면 **재발**이다. 표를 다시 적용해 같은 surface 로 재승격하지 말고 `## 재발 — 등급 상향 후보` 섹션으로 라우팅한다. digest 는 라우팅과 `post_freq` 제시까지만 하고, **실제 등급 상향 판정(재발 2회 이상 E2 / 3회 이상 E3)과 반영은 `/reflect-promote` §B 가 수행한다.**
 
 아래 규칙을 **위에서 아래로** 적용. 먼저 맞는 규칙 하나만 선택.
 
@@ -214,37 +252,65 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 
 ## 출력 포맷
 
+아래 섹션은 **전부 필수**다. 해당 건수가 0이어도 섹션과 숫자를 생략하지 않는다.
+
 ```markdown
 # Reflect Digest — <project_id> (<period>)
 
 ## 요약
-- 총 엔트리: N개 / 세션: M개
+- 총 엔트리: N개 / 세션: M개 / 파싱 실패: P 블록
+- 원시 태그 J개 → 클러스터 C개 (파편화 지표 J/C)
+- actionability: claude_behavior A개 / user_environment B개
 - primary_category: misunderstanding X / repeated_error Y / wrong_approach Z / tool_failure W
 - severity: low L / medium M / high H
 - 4축 분포: scope(session S / project P / global G), risk_class(...), procedurality(...), enforcement_need(...)
 
-## 상위 반복 패턴 (태그별)
-| count | primary | also_applies | mistake_tag | severity | scope | risk | proc | enforce |
-|------:|---------|--------------|-------------|----------|-------|------|------|---------|
+## ⚠️ 태그 파편화 (멤버 3개 이상 클러스터)
+| cluster_freq | canonical_tag | aliases (개별 freq) |
+|------------:|---------------|---------------------|
+| 15 | skipped-required-api-doc-check (freq 9 — 최다 멤버) | missing-official-doc-lookup-for-external-api(2), ignored-required-api-doc-lookup(1), external-api-doc-lookup-skipped(1), ignored-docs-research-requirement(1), research-before-edit-ignored(1) |
+
+## 상위 반복 패턴 (클러스터별)
+| cluster_freq | primary | also_applies | canonical_tag | severity | scope | risk | proc | enforce |
+|------------:|---------|--------------|---------------|----------|-------|------|------|---------|
 | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-## 승격 후보 (precedence 적용)
-### 1. `<mistake_tag>` → `project CLAUDE.md` (규칙 #4)
-- 빈도: 3회 (세션 2개)
+## 재발 — 등급 상향 후보 (ledger `status: active` 인데 재발)
+판정·반영은 `/reflect-promote` §B. digest 는 라우팅 + 수치 제시까지만 한다.
+
+| rule_id | canonical_tag | 현재 surface | enforcement_level | post_freq | 제안 |
+|---------|---------------|--------------|-------------------|----------:|------|
+| a1b2c3d4 | skipped-required-api-doc-check | project CLAUDE.md | E1 | 9 | E3 상향 검토 (재발 3회 이상) |
+
+## 승격 후보 (precedence 적용 — freq 는 cluster_freq)
+### 1. `<canonical_tag>` → `project CLAUDE.md` (규칙 #4)
+- 빈도: 3회 (세션 2개) / aliases: [...]
 - 4축: scope=project, risk=medium, proc=single, enforce=soft
 - 근거: undesired_behavior / desired_behavior 요약
 - 초안 규칙: "..."
 
-### 2. `<tag>` → `skill 신설` (규칙 #2)
+### 2. `<canonical_tag>` → `skill 신설` (규칙 #2)
 - ...
 
+## 환경 액션 아이템 (승격 대상 아님 — 사용자 환경 작업)
+`.env-issues.tsv` + `actionability: user_environment` 엔트리 기준. Claude 행동 개선이 아니므로
+precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한다.
+
+| count | tag | first_seen | last_seen | 필요한 사용자 조치 |
+|------:|-----|------------|-----------|--------------------|
+| 351 | missing-hook-scripts | 2026-06-27 | 2026-07-27 | `.claude/settings.json` 이 참조하는 스크립트 생성 또는 훅 선언 제거 |
+
 ## 스킬/에이전트 교차 분석
-- `/<skill-name>` 호출 시 "<tag>" 실수가 N회 → 해당 스킬에 가드 추가 검토
+- `/<skill-name>` 호출 시 "<canonical_tag>" 실수가 N회 → 해당 스킬에 가드 추가 검토
 
 ## 훅 실패 요약 (.errors.log)
 - skip:cli-missing: X건
 - fail:codex-exit-N: Y건
+- env-dedup (억제): Z건
 - ...
+
+## 병합 보류 (근본원인 확신 부족)
+- `<tag-a>` / `<tag-b>` — 표기는 유사하나 원인이 같은지 불확실. 다음 주기 재평가
 
 ## 미분류 원시 엔트리 (n건)
 - ...
@@ -258,16 +324,18 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 
 ```yaml
 - rule_id: <uuid>                     # 고유 ID (uuidgen)
-  mistake_tag: <tag>
+  mistake_tag: <canonical_tag>        # 클러스터의 대표 태그
+  aliases: []                         # 같은 근본원인의 다른 표기들. post_freq 는 canonical + aliases 합산
   promoted_to: project_claude_md | project_memory | global_claude_md | global_memory | skill | path_scoped_rule | hook
+  enforcement_level: E1 | E2 | E3     # skill-design-guide §3.7 등급. 재발 시 상향
   target_path: <실제 수정된 파일 경로>
   promoted_at: <ISO8601 with TZ>
   source_evidence:                    # 이 규칙을 만든 로그 근거
     - path: ~/.claude/logs/<id>/reflections-YYYY-MM.md
       anchor: <타임스탬프 헤더>
-  initial_freq: <int>                 # 승격 시점 빈도
+  initial_freq: <int>                 # 승격 시점 빈도 (cluster_freq)
   calibration_window_days: 30
-  post_freq: <int>                    # 30일 뒤 digest가 자동 업데이트
+  post_freq: <int>                    # 30일 뒤 digest가 자동 업데이트 (aliases 포함 합산)
   status: active | demoted | removed
   demotion_reason: <str>              # 강등된 경우만
 ```
@@ -282,6 +350,12 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다:
 - 내부 디렉토리(`_cron`, dot/underscore-prefix)를 project bucket 으로 집계하지 마라 — `is_internal_logs_dir` 필터 필수.
 - 단일 `surface_candidate` 필드를 재도입하지 마라 — 4축 precedence로만 계산.
 - period 범위 밖 엔트리를 섞지 마라.
+- **원시 `mistake_tag` 빈도를 그대로 precedence 임계에 넣지 마라** — 반드시 클러스터링 후 `cluster_freq`.
+- **`actionability: user_environment` 를 승격 후보로 올리지 마라.** "훅 스크립트를 만들어야 했다" 는 Claude 의 행동 개선이 아니다. 이 항목을 CLAUDE.md/memory 로 승격하면 사용자 환경 작업 지시가 매 세션 컨텍스트를 먹는다.
+- **파싱 실패 블록을 조용히 버리지 마라** — 건수를 헤더에 노출.
+- **단일 프로젝트 편중을 경고 없이 글로벌 판정에 쓰지 마라** — 점유율 ≥ 60% 면 rule #3 을 잔여 freq 로 재확인.
+- **클러스터를 합산 숫자만으로 제시하지 마라** — 멤버 태그와 개별 freq 감사 흔적 필수.
+- 이미 `status: active` 인 규칙이 재발했는데 **같은 surface 로 재승격 후보를 만들지 마라** — 등급 상향 후보로 표시.
 
 ## 예시 사용
 
