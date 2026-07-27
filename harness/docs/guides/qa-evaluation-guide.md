@@ -3,9 +3,26 @@
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
 > evaluator-kaizen이 리서치 기반으로 이 문서를 갱신한다.
 >
-> **참조 스키마**: `harness/references/contract-schema.md`
+> **참조 스키마**: `harness/references/contract-schema.md` (v4)
 >
-> **최근 갱신: 2026-06-05 (Phase 3 kaizen · v3.2)** — `/insights` Friction #5 (스킬/도구
+> **최근 갱신: 2026-07-27 (Phase 3 kaizen · v4.0)** — `/insights` Friction #2 (시각·런타임
+> 검증 신뢰 불가) 흡수 + Phase 1·2 정합화. 이번 사이클의 전략은 새 문장 추가가 아니라
+> **enforcement 등급 상향**이다 (등급 SSOT: `skill-design-guide.md §3.7`).
+>
+> - 신규 **§Evidence Validity Gate** — 기존 §Execution-Grounded Evidence 가 증거의 *존재*를
+>   요구했다면, 본 절은 증거의 *유효성*을 요구한다. 빈 스냅샷·0 매치 grep·0 개 테스트 실행처럼
+>   **아무것도 검사하지 않고 통과한 증거(vacuous pass)** 를 PASS 로 인정하지 않는다
+> - 신규 **§증거 분류 triage** — `[미검증]` 은 **검증 도구·환경 부재 전용**으로 축소
+>   (contract-schema v4 정합). 미구현·부재를 미검증으로 적어 FAIL 을 1 건 허용 구간으로
+>   세탁하는 경로를 차단
+> - 신규 **§계약 파싱 범위** — contract-schema v4 의 허용 섹션 헤더 2 계층을 평가자 측에서 소비
+> - 신규 **§Canonical Unverified-Evidence Protocol** — 각 kit reviewer 6 종이 그대로 복제할
+>   정본 블록. 현재 임계값이 킷마다 2/3/0 으로 갈라져 있어 원본을 한 곳에 고정
+> - 신규 **§Recurring Improvement Escalation** — 같은 개선 제안이 반복되면 산문 권고가 아니라
+>   계약 결함으로 승급
+> - 신규 **§원칙별 Enforcement 등급** 표 · **§안티패턴 스택 정합성** 규칙
+>
+> 이전 (2026-06-05, v3.2): `/insights` Friction #5 (스킬/도구
 > 가짜 호출) 흡수. 신규 **§Execution-Grounded Evidence**: 계약 조건이 동적 실행("실행/호출/
 > 생성")을 요구할 때 evaluator 가 narrated 주장이 아닌 실행 산출물(명령 출력·아티팩트·로그)을
 > 능동적으로 요구하고, 부재 시 `[미검증]` 처리. 기존 "주석은 증거가 아니다"(generator 주장
@@ -71,6 +88,75 @@ Independent Verification & Validation (IV&V) 원칙:
 
 ---
 
+## 원칙별 Enforcement 등급 (E1 / E2 / E3)
+
+> **등급 정의 SSOT:** [`skill-design-guide.md §3.7`](skill-design-guide.md). 등급 어휘를 여기서
+> 재정의하거나 동의어(예: "약한 규칙 / 강한 규칙")를 만들지 마라. 본 절은 **평가자 원칙의 현재
+> 등급 목록**만 유지한다 (contract-design-guide §원칙별 Enforcement 등급 과 같은 착지 구조).
+
+같은 결함이 다시 관측되면 이 표의 문구를 다듬지 말고 **등급을 한 칸 올려라.** 이미 E3 인데도
+재발하면 원칙 자체가 잘못 설계된 것이므로 재작성한다.
+
+| 평가자 원칙 | 등급 | 근거 |
+| ---- | ---- | ---- |
+| `[미검증]` 2 건 자동 REJECT | E3 (기존) | 임계 비교는 LLM 판단이 개입하지 않는 산술 판정 |
+| Rule-by-Rule Audit | E2 (기존) | verdict 직전 전수 체크리스트 아티팩트 |
+| Execution-Grounded Evidence | E2 (기존) | 실행 산출물 수집 후 근거란에 기록 |
+| **Evidence Validity Gate** | **E2 (신규)** | Friction #2 — 증거 존재만 확인하던 축에 유효성 축 추가. 무효 증거는 산술적으로 미검증 카운터에 합산되므로 임계 판정(E3)에 연결됨 |
+| **증거 분류 triage (FAIL / 미검증 / 무효)** | **E2 (신규)** | contract-schema v4 마커 의미 축소 정합 |
+| **계약 파싱 범위 2 계층** | **E3 (신규)** | 저장된 계약 파일에 대해 `awk` 로 결정론적 판정 가능 |
+| **피드백 저장 경로 해석 ladder** | **E3 (신규)** | digest `feedback-script-location-mismatch` — 경로 존재 여부는 `test -f` 로 결정론적 |
+| Recurring Improvement Escalation | E1 (신규) | 최초 도입 — 반복 관측되면 E2 로 올린다 |
+
+---
+
+## 계약 파싱 범위 — 조건 섹션 / 서술 섹션
+
+> **대응:** `contract-schema.md v4 §허용 섹션 헤더` · Phase 2 kaizen (2026-07-27) ·
+> digest `parser-incompatible-contract-section`
+>
+> **배경:** 계약 v4 부터 계약 파일의 `##` 헤더는 **조건 섹션(parsed)** 과 **서술 섹션
+> (non-parsed)** 2 계층으로 나뉜다. 서술 섹션(`배경`·`리서치 소스`·`GAP 분석`·`범위 경계`·
+> `회귀 게이트`)에는 설명용 불릿이 자유롭게 들어간다. 평가자가 이 불릿을 조건으로 오파싱하면
+> **계약에 없는 요구를 스스로 만들어내고**, 반대로 조건 섹션을 놓치면 커버리지 구멍이 생긴다.
+
+### 파싱 규칙
+
+1. **조건은 조건 섹션에서만 읽는다.** 조건 섹션 헤더는 `project.yaml.contract_categories` 의
+   각 `id` + `Anti-patterns` + `Reusability` + `Diagnostics` 이며 **정확히 일치**해야 한다
+   (괄호 부연이 붙어 있으면 계약 결함 — 아래 4 항)
+2. **서술 섹션은 컨텍스트로만 읽는다.** `배경`·`리서치 소스`·`GAP 분석`·`범위 경계`·
+   `회귀 게이트` 는 접두 일치(뒤에 부연 허용)로 식별하며, 여기의 불릿은 **조건이 아니다**.
+   설계 의도 파악에는 쓰되 PASS/FAIL 판정 대상으로 삼지 않는다
+3. **조건 수를 frontmatter 와 대조한다.** 파싱한 `- [ ] {PREFIX}-{NN}` 개수가 frontmatter 의
+   `conditions:` 값과 다르면 평가를 시작하지 말고 BLOCKED 로 보고한다 — 조건을 놓친 채 내린
+   verdict 는 무효다
+4. **허용 목록 밖 헤더 발견 시** 그 섹션의 조건은 평가하되, Sprint Feedback 에 "계약 헤더 규약
+   위반 — contract-schema v4 §허용 섹션 헤더" 를 계약 결함으로 기록한다. 평가자가 헤더를
+   임의로 재분류하지 않는다
+
+### 결정론적 확인 (E3)
+
+평가 시작 전 1 회 실행하고 출력을 근거에 남긴다:
+
+```bash
+# (1) 헤더 2 계층 확인 — 허용 목록 밖 헤더가 있으면 계약 결함
+grep -n '^## ' "$CONTRACT"
+
+# (2) 조건 섹션 밖 체크박스 — 출력이 있으면 서술 섹션에 조건이 섞인 것
+awk '/^## /{s=$0} /^- \[ \]/{print FNR": "s}' "$CONTRACT"
+
+# (3) 조건 수 대조 — 두 값이 달라야 할 이유는 없다
+grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CONTRACT"
+grep -E '^conditions:' "$CONTRACT"
+```
+
+`$CONTRACT` 는 `{CONTRACT_ROOT}/.harness/sprint-contract.md` 이며, `CONTRACT_ROOT` 는
+`.harness/project.yaml` 을 발견한 디렉토리의 절대경로다 (contract-schema v4). 세션 중 cwd 가
+바뀌어도 이 값을 기준으로 해석한다.
+
+---
+
 ## Binary Decidability Pre-Check (평가 시작 전 필수)
 
 > **대응:** `agent-design-guide.md §3.5` · `contract-design-guide.md §Binary Decidability` · `skill-design-guide.md §3.5`
@@ -90,6 +176,13 @@ Sprint Contract 의 각 조건에 대해 Step 2 (조건별 정적 검증) 을 �
 3. **범위어 enumerate 확인** — 조건에 "주요 / 모든 / 대부분 / 핵심 / 일부" 같은 **범위어**가 있으면 포함/제외 목록이 인라인 enumerate 되어 있는지 확인한다. 없으면 평가자가 범위를 자체 해석하지 말고 REJECT 사유에 "범위 미명시" 명시 (SK-02 재발 방지)
 4. **검증 수단 존재 확인** — 조건에 "측정: ...", 도구명, 관찰 대상 중 하나가 명시되었는가? 없으면 `[structural]` 기본 fallback 적용하되 REJECT 사유에 "검증 수단 미명시" 명시
 5. **`[exact, enumerated]` / `[structural, enumerated]` 대상 목록 확인** — 태그가 enumerated 이면 나열된 대상 N 개가 계약에 실제로 쓰여 있는지 확인. N 이 애매하면 REJECT 사유에 "enumerated 대상 수 불분명"
+6. **상태 의존 측정 명령의 전제 확인** — 측정 명령이 `git diff` / `git status` / 빌드 산출물처럼
+   **실행 시점의 상태에 따라 결과가 달라지는** 것이면, 계약이 상태 전제(`Given: 커밋 직전 working
+   tree` / `Given: 스테이징 완료 후` / 브랜치 비교)를 명시했는지 확인한다. 명시되지 않았으면
+   **평가자가 상태를 임의로 고르지 마라** — Step 1.5 에서 "상태 전제 미명시" 플래그를 세우고,
+   실제 판정에 사용한 상태를 근거란에 반드시 기록한다 (`측정 상태: HEAD 대비 working tree`).
+   contract-schema v4 §Diff-Scope Oracle 표준형이 계약 측 대응이며, 표준형 4 요소(상태 전제 ·
+   경로 한정 · 생성물 제외 · 기대 집합) 중 빠진 것을 REJECT 사유에 열거한다
 
 ### 모호 조건 발견 시 대응
 
@@ -134,7 +227,7 @@ Step 4 (판정) 직전에 **모든 계약 조건을 1 회 더 전수 스캔** �
 
 ## `[미검증]` 마커 평가 프로토콜
 
-> **대응:** `contract-design-guide.md §미검증 마커` · `contract-schema.md v3 §SCH-02` · `agent-design-guide.md §10`
+> **대응:** `contract-design-guide.md §미검증 마커` · `contract-schema.md v4 §SCH-02` · `agent-design-guide.md §10`
 >
 > **배경:** mcp_server=null, 런타임 미실행, 외부 도구 미가용 등으로 정적 검증이 불가능한 조건의 **일관된 처리** 를 위해 도입. fit-pal LG-02/DG-04 · fit-pal-flutter 2026-04-17 REJECT 의 근본 원인이었다.
 
@@ -147,7 +240,33 @@ Step 4 (판정) 직전에 **모든 계약 조건을 1 회 더 전수 스캔** �
 3. 단계 2 도 실패 시 **단계 3 (`[미검증]` 마커)** 부착 — 근거 블록에 "검증 불가 사유 한 줄 + 사용한 단계 기록"
 4. 계약에 fallback 기술이 없으면 **계약 작성자가 누락** 한 것이므로 REJECT 사유에 "fallback 미기술" 플래그
 
-### 카운팅 및 자동 REJECT 임계 (v3 규정)
+### 증거 분류 triage — `[미검증]` 은 도구 부재 전용이다 (v4 축소)
+
+> **대응:** `contract-design-guide.md v4 §양면 조건 5 항` · `contract-schema.md v4`
+>
+> **배경:** 계약 v4 부터 `[미검증]` 의 의미가 **검증 도구·환경 부재 전용**으로 축소되었다.
+> 양면 작업에서 아직 손대지 않은 쪽은 `[미검증]` 이 아니라 **명시적 미완 조건**으로 계약에
+> 남긴다. 평가자가 이 구분을 놓치면 심각한 누수가 생긴다 — **미구현을 미검증으로 분류하면
+> FAIL 이어야 할 조건이 "1 건까지 PASS 허용" 구간으로 세탁된다.**
+
+조건을 PASS 로 확정하기 전에 아래 3 분기 중 하나로 반드시 분류한다:
+
+| 분기 | 판정 | 상태 | 예시 |
+| ---- | ---- | ---- | ---- |
+| **A. 대상 부재 / 미구현** | **FAIL** | 검증 대상 자체가 없거나, 있어도 조건을 충족하지 않음 | 조건이 지목한 파일·함수·필드가 없음 · consumer 면이 이번 스프린트에 반영되지 않음 · 계약이 경로를 명시한 기록물이 그 경로에 없음 |
+| **B. 도구·환경 부재** | `[미검증]` | 대상은 존재하나 확인할 수단이 없음 | `mcp_server: null` 로 시각 대조 불가 · 런타임 미기동 · SDK 미설치 · 라이브 DB 접근 불가 |
+| **C. 증거 무효 (vacuous)** | `[미검증]` | 검증은 실행됐으나 그 출력이 아무것도 입증하지 못함 | 빈 스냅샷 · 0 매치 grep 을 "위반 없음" 으로 해석 · 0 개 테스트가 실행된 테스트 통과 (§Evidence Validity Gate) |
+
+**분류 규칙:**
+
+- **A 를 B 로 적지 마라.** "구현이 안 돼서 확인할 게 없다" 는 미검증이 아니라 FAIL 이다.
+  이것이 v4 에서 마커 의미를 축소한 이유다
+- B 와 C 만 `[미검증]` 카운터에 합산된다 (아래 임계 규칙 적용). A 는 FAIL 이므로 1 건으로도
+  즉시 REJECT
+- 분기 판정이 애매하면 **A(FAIL) 쪽으로 기운 엄격 해석**을 적용하고, Sprint Feedback 의
+  `contract_ambiguity_notes` 에 사유를 남긴다
+
+### 카운팅 및 자동 REJECT 임계 (v3 규정 · v4 유지)
 
 `[미검증]` 건수는 평가 종료 시 집계하고 아래 규칙으로 판정:
 
@@ -206,6 +325,125 @@ Step 4 판정 시 평가자는 Sprint Feedback 에 다음을 기록:
 ### 실패 사례
 
 - **fit-pal-app AR-03 (2026-05-17)**: "스킬 invoke" 조건에서 파일시스템 아티팩트가 없어 실행 여부를 구조적으로 검증 불가 → 산출물 부재이므로 `[미검증]` 이 정답. 실행 주장만으로 PASS 처리하면 가짜 호출을 통과시킴
+
+---
+
+## Evidence Validity Gate — 공허한 증거(vacuous pass) 차단
+
+> **대응:** `skill-design-guide.md §3.7` 5 조 4 항 (생성 측 짝) · `agent-design-guide.md §10`
+> Unverifiable 정책 4 항 · `/insights` 2026-07-27 Friction #2 (최상위 신규 신호)
+>
+> **배경:** 앞의 §Execution-Grounded Evidence 는 증거가 **존재하는지**를 요구한다. 실측에서
+> 반복된 사고는 그 다음 단계였다 — **증거는 있는데 그 증거가 아무것도 입증하지 않는 경우**.
+> 빈 카탈로그 화면의 MCP 스냅샷을 근거로 "정상 렌더링" 을 반복 주장했고, 실제로는
+> unbounded-height ListView 가 collapse 한 상태였다. 사용자 신뢰가 손상되어 욕설로 끝난 세션이
+> 2 건 발생했고, 사용자가 이 재발 습관 교정만을 위한 전용 세션을 열었다.
+
+### 왜 별도 축인가
+
+- LLM 판정자는 **타당성(validity)이 아니라 그럴듯함(plausibility)** 을 채점한다. 프런티어 판정자
+  2 종이 필요한 아티팩트를 **한 번도 가져오지 않은** 답변에 0.90 / 0.85 를 주고 추론이
+  "tight and well-structured" 라고 칭찬했다. 실행 trace 를 결정론적으로 대조하자 같은 답변의
+  점수는 **0.000** 이었다 ([GroundEval — arxiv 2606.22737](https://arxiv.org/html/2606.22737v2))
+- 같은 연구의 실패 분류 중 **invalid absence** — "충분히 탐색하지 않고 없다고 단언" — 이
+  Friction #2 의 정확한 형태다. 빈 스냅샷을 "문제 없음" 으로 읽는 것이 곧 invalid absence 다
+- 최종 상태만 보는 outcome-only 평가는 절차 위반을 통과시켜 성능을 과대평가한다. 중간 상태와
+  행위 시퀀스를 함께 대조해야 한다 ([Corrupt Success — arxiv 2603.03116](https://arxiv.org/pdf/2603.03116))
+- 형식 검증 영역에서는 이 현상을 **vacuity** 로 오래 다뤄왔다. LLM 이 생성한 assertion 품질
+  연구는 trigger coverage(조건이 실제로 활성화됐는가) · antecedent activation(전제가 한 번이라도
+  참이 됐는가) · mutation/negative control(고의 결함을 실제로 잡는가) 3 축으로 "통과했지만
+  아무것도 검사하지 않은" assertion 을 걸러낸다
+  ([arxiv 2606.21451](https://arxiv.org/pdf/2606.21451))
+
+### 유효성 4 검사 (PASS 확정 전 필수)
+
+증거를 수집한 뒤, 그 증거로 PASS 를 주기 **전에** 아래 4 항을 통과해야 한다. 하나라도 실패하면
+그 증거는 무효이며 조건은 PASS 가 아니라 `[미검증]` (증거 분류 triage 분기 C) 이다.
+
+| # | 검사 | 질문 | 실패 시 |
+| - | ---- | ---- | ---- |
+| 1 | **비공백 (non-empty)** | 출력·스냅샷·파일이 실제로 내용을 담고 있는가? 0 바이트·공백만·에러 메시지만 아닌가? | 증거 무효 → `[미검증]` |
+| 2 | **활성화 (trigger coverage)** | 그 측정이 검사 대상을 **실제로 한 번이라도 통과**했는가? 테스트 0 개 실행 · 스킵된 스위트 · 매치 0 건 grep 은 "위반 없음" 이 아니라 "검사되지 않음" 이다 | 증거 무효 → `[미검증]` |
+| 3 | **반증 가능성 (negative control)** | 조건이 위반된 상태였다면 **이 측정이 다른 결과를 냈을 것인가?** 어떤 입력에도 같은 출력을 내는 측정은 oracle 이 아니다 | 증거 무효 → `[미검증]` + 계약에 측정 수단 재설계 권장 |
+| 4 | **출처 (provenance)** | 그 증거를 **평가자가 직접 수집**했는가? 구현자의 서술·주석·커밋 메시지·대화 로그를 인용한 것이 아닌가? | 증거 불인정 → 직접 수집 후 재판정 |
+
+### 0 매치 판정 규칙 — "없음" 은 두 가지다
+
+`grep` 결과 0 건, 목록 0 개, 로그 0 줄 같은 **무활동 출력**은 그 자체로는 의미가 결정되지 않는다.
+반드시 아래로 갈라 기록한다:
+
+- **의도된 0** — 조건이 "위반 0 건" 을 요구하고, 그 grep 이 **다른 파일에서는 매치를 낸다는 것을
+  확인**한 경우에만 PASS. 즉 패턴이 살아 있다는 증거(positive control)를 같이 수집한다
+- **공허한 0** — 대상 경로가 틀렸거나, 파일이 비었거나, 패턴이 절대 매치되지 않는 경우.
+  이것은 PASS 증거가 아니라 **측정 실패**다 → `[미검증]`
+
+```text
+Bad:  grep -c 'unwrap()' src/ → 0 → "안티패턴 없음, PASS"
+      ← src/ 에 .rs 파일이 0 개였다면 이 0 은 아무것도 입증하지 않는다
+Good: (a) 대상 파일 목록을 먼저 세고(예: 42 개) (b) 패턴이 유효함을 알려진 위치에서 1 회 확인
+      (c) 그 위에서 0 매치 → PASS. 근거: "대상 42 파일 · 패턴 유효성 확인 · 매치 0"
+```
+
+### 렌더 산출물 특칙 (Friction #2 직결)
+
+UI·문서·차트처럼 렌더 결과를 캡처할 수 있는 산출물은 캡처를 증거로 쓰되:
+
+- **빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 검증 실패 신호**다.
+  "요소가 안 보이니 문제도 없다" 는 invalid absence 다
+- 캡처에서 조건이 요구하는 **구체 요소를 지목**해 근거에 쓴다 (`스냅샷에 항목 3 행 · 헤더 텍스트
+  "내 그룹" 확인`). 요소를 지목할 수 없으면 그 캡처는 무효 증거다
+- 캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 분기 B(`[미검증]`) 이지 PASS 가 아니다
+
+### 보고 형식
+
+Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께 집계한다:
+
+```text
+## Evidence Validity
+- 검사 대상 증거: N 건
+- 무효 판정: K 건 [조건 ID — 실패한 검사 번호 — 사유]
+- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
+```
+
+### 실패 사례 — 무효 증거로 통과한 판정
+
+- **fit-pal 2026-06~07 (Friction #2)**: 빈 카탈로그를 MCP 스냅샷 근거로 "정상 렌더링" 반복 주장.
+  실제로는 unbounded-height ListView collapse. 검사 1(비공백)·검사 2(활성화) 어느 쪽도 통과하지
+  못하는 증거였다
+- **GroundEval 사례 (2606.22737)**: 판정자 0.85~0.90 vs trace 대조 0.000. 검사 4(출처)가 없으면
+  판정자는 그럴듯한 서술을 증거로 착각한다
+
+---
+
+## Canonical Unverified-Evidence Protocol (각 kit reviewer 복제용 정본)
+
+> **이 절이 정본(SSOT)이다.** `*-kit/agents/*-reviewer.md` 는 아래 5 조항을 **문구 변형 없이**
+> 복제하고, 자기 문서에서 임계값이나 마커 의미를 다시 정의하지 않는다. 각 kit 의 카이젠 Phase 는
+> 이 절을 인용 앵커로 삼는다: `harness/docs/guides/qa-evaluation-guide.md`
+> §Canonical Unverified-Evidence Protocol.
+>
+> **현재 drift (2026-07-27 실측 · 각 kit Phase 가 해소할 것):**
+> `design-reviewer` 는 임계 **3 건**("미검증 3항 프로토콜"), `backend-reviewer` ·
+> `infra-reviewer` · `rust-reviewer` 는 2 건 + CONDITIONAL APPROVE, `planning-reviewer` 는
+> 미검증 0 건 요구, `react-reviewer` 는 조항 없음. 킷마다 다른 임계는 같은 상태를 다른 verdict 로
+> 바꾼다.
+
+1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(미확인, N/A, TBD, unverified) 를 만들지 않는다.
+   `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
+2. **`[미검증]` 은 검증 도구·환경 부재 전용이다.** 대상이 없거나 미구현이면 그것은 미검증이
+   아니라 **FAIL** 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 `[미검증]` 이다
+   (3 분기: FAIL / 도구 부재 / 증거 무효).
+3. **임계값은 2 다.** `[미검증]` 0 건은 통상 판정, **1 건은 PASS 허용 + 경고 명시, 2 건 이상은
+   개별 FAIL 이 없어도 verdict 는 REJECT**. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이
+   "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.
+4. **생성자의 완료 주장은 증거가 아니다.** 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장,
+   코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가
+   에이전트 궤적에서 **실패의 75.8% 가 false success** 였고, LLM 판정자의 AUROC 는 0.54~0.65 에
+   그쳤다 ([arxiv 2606.09863](https://arxiv.org/abs/2606.09863)). 근거는 **도구 출력과 상태
+   변화**여야 한다.
+5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
+   리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
+   를 남긴다.
 
 ---
 
@@ -475,6 +713,22 @@ Markdown SKILL.md 파일의 fenced code block 언어 힌트 누락(DG-02) 조건
 - **HTML 파일** (`.html`): fenced code block 문법이 없으므로 DG-02 조건 **적용 제외**. 대신 `<pre><code class="language-xxx">` 형식의 언어 클래스 또는 syntax highlight 마커 사용 여부를 확인한다
 - HTML 파일에 DG-02를 적용하는 계약 조건은 범위를 `*.md` 파일로 한정했는지 확인하고, 한정하지 않았다면 HTML 파일은 PASS 처리 + 피드백에 "HTML 파일은 DG-02 적용 제외" 명시
 
+### 안티패턴 스택 정합성 (Stack Applicability)
+
+> **배경:** digest `stack-inappropriate-rust-antipatterns` — 셸/compose 작업 계약에 Rust 전용
+> 조건(`unwrap()`, `println!`)이 그대로 들어갔고 평가자가 그대로 판정했다. 계약 생성 측 결함이지만
+> 평가자도 걸러낼 수 있다.
+
+`project.yaml` 의 `anti_patterns` 나 계약의 안티패턴 조건을 Grep 하기 전에 **패턴의 스택과 대상
+파일의 스택이 일치하는지** 확인한다:
+
+- 불일치하면 그 패턴은 `N/A (스택 불일치: 패턴=Rust · 대상=shell/yaml)` 로 기록한다.
+  **매치 0 건을 PASS 로 적지 마라** — 애초에 매치될 수 없는 패턴의 0 은 공허한 0 이다
+  (§Evidence Validity Gate 검사 2·3)
+- 동시에 Sprint Feedback 에 "계약 결함: 대상 스택에 부적합한 안티패턴 조건" 을 기록한다.
+  조건 삭제·교체는 사용자 권한이므로 평가자는 권장만 한다
+- 대상 파일이 여러 스택에 걸쳐 있으면 스택별로 나누어 판정하고 각각의 대상 파일 수를 기록한다
+
 ### 다관점 평가 (Perspective-Based Reading)
 
 각 조건을 최소 2개 관점에서 평가한다. 구현자 시점만으로 평가하면 사용자 가치나 비즈니스 의도가 누락된다 (perspective_gap: 5회 diagnosis).
@@ -571,6 +825,29 @@ qa-evaluator 실행 후 Agent tool로 sprint-contract 서브에이전트를 호�
 
 > **Human-in-the-loop rubric refinement 연결**: 계약 조건의 해석 차이가 발견되면 evaluator 는 **계약 수정 권장**을 Sprint Feedback 에 명시한다 — 단, 실제 수정은 사용자 권한이다. 이는 [arxiv 2511.10865](https://arxiv.org/abs/2511.10865) 의 "one-time rubric refinement" 패턴과 동일하다: LLM 이 1 차 평가 → 해석 충돌 발견 시 rubric 개선 제안 → 사용자가 승인·수정 → 이후 평가는 refined rubric 기준. evaluator 가 계약을 무단으로 재해석하거나 "의도를 미루어" PASS 처리하지 않는다.
 
+### Recurring Improvement Escalation — 같은 제안을 반복하면 그것은 권고가 아니라 결함이다
+
+> **배경:** 글로벌 evaluator 피드백 240 건의 improvement suggestion 을 집계하면 **같은 제안이
+> 여러 스프린트에 걸쳐 반복**된다. 예: "AR-01/AR-02 는 unstaged working tree 에서 측정이
+> 모호 — `git diff --cached` 기준 권고" (3 회 이상), "`[exact]` 조건에 widget test 를 명시하면
+> 구현과 함께 테스트도 제출해야 함", "DG-02 IDE diagnostics 는 analyze 와 실질 중복". 매번 산문
+> 권고로만 남기면 아무도 처리하지 않고 다음 사이클에 같은 문장이 다시 생성된다.
+
+**규칙:**
+
+1. 개선 제안을 쓸 때 **대상 조건 ID + 결함 유형**을 함께 적는다 (자유 산문 금지).
+   유형 예: `측정-상태-모호` · `태그-산출물-불일치` · `측정-중복` · `범위-미명시` · `증거-경로-부재`
+2. 같은 프로젝트에서 **같은 유형의 제안이 2 회째**면 그것은 권고가 아니라 **계약 결함**이다.
+   Sprint Feedback 의 `contract_ambiguity_notes` 로 승격하고 REJECT 사유 후보에 올린다
+3. **3 회째면 조건 자체를 신뢰하지 않는다.** 해당 조건은 `[low-confidence]` 로 강등하고,
+   "이 조건은 현 형태로 반복 판정 불가 — 계약 수정 없이는 다음 iteration 도 같은 결과" 를
+   피드백 최상단에 명시한다
+4. 평가자는 계약을 **직접 수정하지 않는다** (사용자 권한). 대신 제안을 구체 대체 문구로 적는다 —
+   "모호하다" 가 아니라 "`Given: 스테이징 완료 후` 를 붙이고 `--cached` 를 쓸 것"
+
+> 이 승급 사다리는 one-time rubric refinement 패턴([arxiv 2511.10865](https://arxiv.org/abs/2511.10865))
+> 의 운영 형태다. 반복 관측 자체를 신호로 쓰면 rubric 개선이 사람의 기억에 의존하지 않는다.
+
 ### Mutation Testing (테스터를 테스트)
 
 evaluator-kaizen이 주기적으로 수행:
@@ -594,6 +871,10 @@ evaluator-kaizen이 주기적으로 수행:
 
 LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 
+- [GroundEval: A Deterministic Replacement for LLM-as-Judge in Stateful Agent Evaluation — arxiv 2606.22737](https://arxiv.org/html/2606.22737v2) — 판정자는 validity 가 아니라 plausibility 를 채점한다. 근거를 가져오지 않은 답변에 0.90/0.85 vs trace 대조 0.000. invalid absence / temporal leakage / permission leakage 분류 (§Evidence Validity Gate 근거)
+- [Beyond Task Completion: Revealing Corrupt Success in LLM Agents through Procedure-Aware Evaluation — arxiv 2603.03116](https://arxiv.org/pdf/2603.03116) — outcome-only 평가는 절차 위반을 통과시켜 성능을 과대평가. 중간 상태·행위 시퀀스 대조 필요 (§Evidence Validity Gate 근거)
+- [Closing the Loop on LLM-Generated RTL Assertions with Quality-Aware Formal Verification — arxiv 2606.21451](https://arxiv.org/pdf/2606.21451) — vacuity: trigger coverage · antecedent activation · mutation(negative control) 3 축으로 "통과했지만 아무것도 검사하지 않은" 검증 걸러내기 (§Evidence Validity Gate 4 검사 근거)
+- [From Confident Closing to Silent Failure — arxiv 2606.09863](https://arxiv.org/abs/2606.09863) — 실패의 75.8% 가 false success, LLM 판정자 AUROC 0.54~0.65 (§Canonical Unverified-Evidence Protocol 4 항 근거 · Phase 1 §3.7 공유 출처)
 - [Gaming the Judge: Unfaithful Chain-of-Thought Can Undermine Agent Evaluation — arxiv 2601.14691](https://arxiv.org/abs/2601.14691) — narrated reasoning 조작 시 false positive 최대 90% 증가, observable evidence 에 대해 reasoning claim 검증 필요 (§Execution-Grounded Evidence 근거)
 - [Tool Receipts, Not Zero-Knowledge Proofs: Practical Hallucination Detection for AI Agents — arxiv 2603.10060](https://arxiv.org/pdf/2603.10060) — 실행 로그(receipt) 대조로 fabricated tool reference 탐지 (§Execution-Grounded Evidence 근거)
 
@@ -614,9 +895,13 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 - [CheckEval — arxiv 2403.18771](https://arxiv.org/abs/2403.18771) — boolean 서브체크 분해
 - [CodeBERTScore — arxiv 2302.05527](https://arxiv.org/abs/2302.05527) — 코드 유사도 메트릭 (본 가이드는 계약 기반 검증이 우선이므로 보조 참고용으로만 언급)
 
+공식 문서:
+
+- [Claude Code — Plugins reference](https://code.claude.com/docs/en/plugins-reference) — `${CLAUDE_PLUGIN_ROOT}` 는 플러그인 설치 디렉토리의 절대경로이며 **skill/agent 본문 어디에서나 치환**된다. 플러그인 업데이트 시 경로가 바뀌므로 그 아래에 상태를 쓰지 않는다 (§피드백 저장 경로 해석 근거)
+
 관련 스키마:
 
-- `harness/references/contract-schema.md` — Sprint Contract v3 스키마 (specificity tag + aggregation mode + 검증 수단 + `[미검증]` 마커 + sibling enumerated)
+- `harness/references/contract-schema.md` — Sprint Contract v4 스키마 (허용 섹션 헤더 2 계층 + `CONTRACT_ROOT` + Counterpart 조건 패턴 + Diff-Scope Oracle 표준형 + specificity tag + aggregation mode + `[미검증]` 마커 + sibling enumerated)
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
 
 ---
@@ -635,15 +920,29 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 - 동급: `harness/references/contract-schema.md`
 - 하위: `harness/agents/qa-evaluator.md`, `*-kit/agents/*-reviewer.md`
 
-### Parity Table (5 개 parity item)
+### Parity Table (7 개 parity item)
 
 | # | Parity Item | skill-design-guide | agent-design-guide | contract-design-guide | **qa-evaluation-guide (이 가이드)** |
 | --- | ------------- | ------------------- | ------------------- | ---------------------- | ------------------------------------- |
 | 1 | Binary Decidability | §3.5 (계약 모호성 방지) | §3.5 (Pre-Check) | §Binary Decidability | **§Binary Decidability Pre-Check** |
 | 2 | Rule-by-Rule Audit | §3.6 | §10 (reviewer audit) | — (평가 위임) | **§Rule-by-Rule Audit Before Completion** |
-| 3 | Unverifiable / `[미검증]` 정책 | — (스킬 전용 아님) | §10 Unverifiable | §미검증 마커 | **§`[미검증]` 마커 평가 프로토콜** |
+| 3 | Unverifiable / `[미검증]` 정책 | §3.7 (생성 측 짝) | §10 Unverifiable (4 항) | §미검증 마커 (도구 부재 전용) | **§`[미검증]` 마커 평가 프로토콜 + §증거 분류 triage + §Canonical Unverified-Evidence Protocol** |
 | 4 | Sibling Consistency | §8.8 | §3 (sibling agent) | §Sibling Consistency | **§Sibling Enumerated Verification** |
-| 5 | Execution-Grounded Evidence | DEFERRED→Phase 1 | DEFERRED→Phase 1 | DEFERRED→Phase 2 | **§Execution-Grounded Evidence** (evaluator-side 신규) |
+| 5 | Execution-Grounded Evidence / Completion Evidence Gate | §3.7 (2026-07 착지) | §10 4 항 | §증거 아티팩트 존재 의무 | **§Execution-Grounded Evidence + §Evidence Validity Gate** |
+| 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (정의 · 승급 규칙 — **SSOT**) | §6 패턴 7 (훅 = E3 게이트) | §원칙별 Enforcement 등급 | **§원칙별 Enforcement 등급 (평가자 원칙 현재 등급표)** |
+| 12 | Counterpart Enumeration | §5.5 (편집 전 양면 열거) | — | §양면 조건 — Counterpart Conditions | **대응 절 없음 (의도된 설계 — 아래 참조)** |
+
+> **item 12 — 평가자 대응 절을 만들지 않는다.** 평가자는 계약에 박힌 Counterpart 조건을
+> **일반 조건으로 판정**하면 된다. 별도 평가 규칙을 두면 계약에 없는 요구를 평가자가 만들어내게
+> 된다 (contract-design-guide §Cross-Surface Parity item 12 의 설계 결정). 후속 카이젠 Phase 가
+> 이 절을 "누락" 으로 오인하고 추가하지 않도록 여기에 명문화한다.
+>
+> **item 11 — 등급 어휘는 skill-design-guide §3.7 이 SSOT.** 본 가이드는 평가자 원칙의 현재
+> 등급 목록만 유지하며 등급을 재정의하거나 동의어를 만들지 않는다.
+>
+> **item 5 — 2026-07 사이클에서 양면(생성/평가) 으로 전환.** 생성 측이 `[미검증]` 을 표기하지
+> 않으면 평가 시점에야 드러나 iteration 이 낭비된다. 마커 표기법과 **2 건 임계**는 양쪽이 동일
+> 규약을 쓴다.
 
 ### 개정 시 체크리스트
 
@@ -653,6 +952,8 @@ qa-evaluation-guide.md 편집 시:
 - [ ] 원칙 네이밍 (섹션명, 용어) 을 변경했는가? → qa-evaluator.md · contract-schema.md 에서 동일 네이밍 사용 중인지 Grep 하여 동기화
 - [ ] 실패 사례를 추가했는가? → 해당 REJECT 가 발생한 프로젝트의 feedback YAML 에 연결 링크 포함
 - [ ] parity table 의 컬럼을 추가/삭제했는가? → 상위 3 개 가이드의 parity table 도 동일하게 갱신
+- [ ] §Canonical Unverified-Evidence Protocol 을 수정했는가? → `*-kit/agents/*-reviewer.md` 6 종이 복제 중이므로 각 kit 카이젠 Phase 에 전파 지시를 남긴다 (여기서 직접 수정하지 않는다 — 각 kit Phase 소관)
+- [ ] 새 원칙에 Enforcement 등급을 부여했는가? → §원칙별 Enforcement 등급 표에 행 추가. 등급 정의는 skill-design-guide §3.7 을 인용만 한다
 
 ### 실패 사례 (이 원칙 없이 발생)
 
@@ -661,6 +962,7 @@ qa-evaluation-guide.md 편집 시:
 
 ### 버전 정보
 
-- **Guide version**: 2026-06-05 (Phase 3 kaizen · v3.2 — Execution-Grounded Evidence 추가)
-- **Parity with**: skill-design-guide v1.2.0, agent-design-guide v1.2.0, contract-design-guide v3 (parity item #5 는 상위 surface Phase 1/2 DEFERRED)
-- **Schema link**: contract-schema.md v3
+- **Guide version**: 2026-07-27 (Phase 3 kaizen · v4.0 — Evidence Validity Gate · 증거 분류 triage · 계약 파싱 범위 · Canonical Unverified-Evidence Protocol · Recurring Improvement Escalation · 원칙별 Enforcement 등급)
+- **Parity with**: skill-design-guide v1.4.0, agent-design-guide v1.5.0, contract-design-guide v4.0
+- **Schema link**: contract-schema.md v4
+- **하위 전파 대기**: `*-kit/agents/*-reviewer.md` 6 종 (design · backend · infra · rust · react · planning) — §Canonical Unverified-Evidence Protocol 복제. 각 kit 카이젠 Phase 소관이며 본 Phase 는 수정하지 않았다
