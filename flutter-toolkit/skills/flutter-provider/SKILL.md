@@ -6,6 +6,9 @@ description: >
   상태 관리 Provider를 만들 때 사용.
   "provider 만들어줘", "notifier 생성", "상태 관리", "state management",
   "riverpod provider", "notifier class" 같은 요청 시 트리거.
+  `lib/features/<feature>/` 아래에 새 provider 파일을 생성하는 전용 스킬이다.
+  이미 존재하는 컨트롤러·서비스·notifier 의 수정에는 트리거하지 않는다 (feature 디렉토리
+  밖의 core/shared 파일 포함) — 그 경우 해당 파일을 직접 읽고 수정한다.
 argument-hint: "<feature>/<provider-name>"
 user-invocable: true
 ---
@@ -23,6 +26,7 @@ user-invocable: true
 - Riverpod 3.0 에서 `.valueOrNull` 이 `.value` 로 변경됨 — 기존 코드에 `.valueOrNull` 이 있으면 마이그레이션 필요. `dart fix --apply` 로 자동 처리 가능
 - Riverpod 3.0 에서 `Ref` 의 타입 파라미터가 제거됨 — `FutureProviderRef` / `StreamProviderRef` 등 subclass 가 전부 삭제됐다. 신규 코드는 **`Ref` 를 직접** 사용한다 (출처: <https://riverpod.dev/docs/3.0_migration>)
 - Riverpod 3.0 의 offline persistence/mutations 는 아직 experimental (2026-03 기준 안정화 선언 없음) — 프로덕션에서는 수동 캐싱 패턴 유지 권장. mutations 는 폼 제출 등 사이드이펙트에 loading/success/error 상태를 자동 관리하지만 API 가 변경될 수 있다 (출처: <https://riverpod.dev/docs/whats_new>)
+- **Riverpod 3.4.1 (2026-07-27 실측 최신) deprecation** — 3.2.0 부터 `family.overrideWith` 가 deprecated 되고 `family.overrideWith2` 가 권장된다 (4.0 에서 rename 예정). 3.4.0 부터 `SyncProviderTransformerMixin` 이 deprecated. 신규 API: `Ref.onManualInvalidation()`(수동 invalidation 감지·전파), `ProviderContainer.allProviders()`, `AsyncValue.requireValue`(3.1), `CustomProviderListenable` 과 `ValueListenable` 지원(3.4). mutations / offline persistence 는 **여전히 experimental** 이며 `package:riverpod/experimental/...` 경로로만 노출된다 — 프로덕션 코드에 넣지 마라 (출처: <https://pub.dev/packages/flutter_riverpod>, <https://pub.dev/packages/flutter_riverpod/changelog>)
 - **Riverpod 3.0 Pause/Resume** — `ref.listen` 리스너를 `pause()`/`resume()` 으로 수동 일시정지/재개 가능. 화면 비가시 시 자동 일시정지도 지원한다. `Ref.isPaused` 로 상태 확인 가능. 일시정지 후 resume 시 누락된 알림이 있을 수 있으므로 resume 직후 상태를 명시적으로 읽는 패턴을 권장 (출처: <https://pub.dev/packages/flutter_riverpod/changelog>)
 
 Riverpod Notifier + State 클래스를 프로젝트 codegen 패턴에 맞게 생성한다.
@@ -42,9 +46,20 @@ Riverpod Notifier + State 클래스를 프로젝트 codegen 패턴에 맞게 생
 
 ## Steps
 
-### 1. 파싱 및 검증
+### 1. 적용 대상 확인 (신규 생성 전용 — 오적용 차단)
 
-`$ARGUMENTS`를 `/`로 분리하여 feature 이름과 provider 이름(snake_case)을 추출한다.
+먼저 **요청이 신규 생성인지 기존 파일 수정인지** 판정한다. 아래 중 하나라도 해당하면
+이 스킬을 **중단**하고 안내한다 (digest `mismatched-provider-skill`):
+
+- 사용자가 특정 기존 파일/클래스(예: `RealtimeController`, `SocketService`)의 동작 변경을 요청
+- 대상이 `lib/core/` · `lib/shared/` 등 feature 디렉토리 밖에 있음
+- `$ARGUMENTS` 로 지정한 경로에 이미 같은 이름의 provider 파일이 존재
+
+> "이 요청은 기존 `<파일 경로>` 수정입니다. flutter-provider 는 `lib/features/<feature>/` 아래
+> 신규 provider 생성 전용이라 feature 디렉토리 워크플로우를 전제합니다. 해당 파일을 직접 읽고
+> 수정하겠습니다."
+
+신규 생성이 맞으면 `$ARGUMENTS`를 `/`로 분리하여 feature 이름과 provider 이름(snake_case)을 추출한다.
 feature가 `lib/features/<feature>/`에 존재하는지 확인한다. 없으면 중단하고 안내:
 > "feature 디렉토리가 없습니다. `flutter-feature` 스킬로 먼저 feature를 생성해주세요."
 
@@ -162,6 +177,7 @@ bool isSomething(Ref ref) {
 
 ## Code Rules
 
+- **MUST** 기존 파일을 수정하기 전에 그 파일을 `Read` 로 먼저 읽는다 (digest `edit-before-read`) — 읽지 않은 파일에 Edit 를 시도하면 실패하거나, 더 나쁘게는 기존 구현을 덮어쓴다. Grep 결과 한 줄만 보고 편집하지 마라
 - **MUST** import는 `package:$PACKAGE/...`만 사용 (상대경로 금지). 순서: `dart:` → `package:` (그룹 사이 빈 줄, 알파벳순)
 - **MUST** State 클래스를 Notifier 위에 선언한다 — 기존 코드베이스 패턴과 일치시켜야 코드 탐색이 일관된다
 - **MUST** feature-level notifier에는 `@Riverpod(keepAlive: true)` 사용 — feature 상태가 화면 전환 시 소멸되면 사용자 데이터가 유실되고 불필요한 재요청이 발생한다

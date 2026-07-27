@@ -19,12 +19,70 @@ user-invocable: true
 - Flutter 3.41에서 테스트 매처 `containsSemantics`가 `isSemantics`로 변경됨 — 테스트 코드에 deprecated 매처가 남아 있으면 지적 대상. `matchesSemantics`(exact)와 구분 필요
 - **Impeller 플랫폼별 상태 체크리스트 (2026-04)** — iOS: 필수 (Skia 전환 불가). Android API 29+: 기본 활성 (Vulkan 없으면 OpenGL 폴백, frame drop 12%→1.5%). macOS: opt-in 플래그 기반 실험적. Web/Windows/Linux: 미지원 (canvaskit/skwasm = Skia). 감사 시 대상 플랫폼에 따라 Impeller 관련 성능 지적을 분기하라 — Web 앱에 Impeller 최적화를 요구하면 오탐 (출처: <https://docs.flutter.dev/perf/impeller>)
 - **Android AGP 9.0 마이그레이션 (pre-stable)** — Flutter 3.44 에서 Android Gradle Plugin 9.0 전환이 본격화. 플러그인 호환성이 완전하지 않으므로 `android.newDsl=false` 같은 임시 플래그가 필요할 수 있다. 감사 시 `build.gradle` 에 AGP 9 관련 설정이 있으면 호환성 경고를 포함하라 (출처: <https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9>)
-- **Binary Decidability Pre-Check (agent §3.5 대응)** — 감사 시작 **전** 체크리스트의 각 항목이 PASS/FAIL 중 하나로 귀결 가능한지 자체 검토. "적절한", "충분한", "최소한" 같은 정성적 수식어가 있으면 파일/라인/임계값을 먼저 구체화하고, 그래도 모호하면 해당 항목은 `[미검증]` 으로 표기하되 **조용한 PASS 금지**. 같은 sprint 에 `[미검증]` 이 2 건 이상이면 verdict 는 REJECT 로 귀결 (harness 전역 관습)
+- **Binary Decidability Pre-Check (agent §3.5 대응)** — 감사 시작 **전** 체크리스트의 각 항목이 PASS/FAIL 중 하나로 귀결 가능한지 자체 검토. "적절한", "충분한", "최소한" 같은 정성적 수식어가 있으면 파일/라인/임계값을 먼저 구체화하고, 그래도 모호하면 해당 항목은 `[미검증]` 으로 표기하되 **조용한 PASS 금지**. 마커 의미와 임계값은 이 문서에서 정의하지 않는다 — 아래 §Unverified-Evidence Protocol 을 따른다
 - **Rule-by-Rule Audit — 완료 선언 전 전수 대조 (skill-design-guide §3.6 대응)** — 감사 리포트 제출 직전, 본 Gotchas + Architecture/State/Widget/Design System/i18n 체크리스트를 다시 한 번 읽고 각 규칙에 대해 "확인했는가 / 근거는 파일:라인 으로 가능한가" 를 1:1 대조한 뒤 보고. "그 외에도 혹시 놓친 규칙이 있는가?" 메타 질문을 스스로 1 회 더 수행 (insights-report #1 Proactive quality gaps 대응). 사용자가 첫 피드백 루프가 되면 안 된다
 - **L3 Honesty — 정적 Grep 만으로 PASS 금지 (qa-evaluation-guide 대응)** — 파일 존재·키워드 포함은 L1/L2. PASS 를 주려면 `Read` 로 실제 내용을 읽거나 `Bash` 로 analyze/test 명령을 실행해 결과를 확인(L3). L3 수행이 불가능한 항목은 `[미검증]` 마커를 리포트에 붙이고 사유(예: "dart test 환경 미구성") 를 기재
 - **감사 범위 Scope Range 선언 (contract-design-guide 대응)** — 리포트 서두에 "감사 대상: <glob 패턴 or 파일 목록>" 을 명시하여 평가자·사용자가 범위를 재해석하지 않도록 한다. `quick` 모드는 `git diff --name-only` 결과, `deep` 모드는 `lib/` 전체 (또는 `$ARGUMENTS` 의 path) 가 기본 Scope Range
 
 Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감지하여 적합한 규칙으로 검사한다.
+
+## Unverified-Evidence Protocol
+
+> **정본(SSOT):** `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
+> 아래 5 조항은 정본을 **문구 변형 없이** 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
+> 정의하지 않는다.
+
+1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
+   `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
+2. **`[미검증]` 은 검증 도구·환경 부재 전용이다.** 대상이 없거나 미구현이면 그것은 미검증이
+   아니라 **FAIL** 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 `[미검증]` 이다
+   (3 분기: FAIL / 도구 부재 / 증거 무효).
+3. **임계값은 2 다.** `[미검증]` 0 건은 통상 판정, **1 건은 PASS 허용 + 경고 명시, 2 건 이상은
+   개별 FAIL 이 없어도 verdict 는 REJECT**. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이
+   "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.
+4. **생성자의 완료 주장은 증거가 아니다.** 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장,
+   코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가
+   에이전트 궤적에서 **실패의 75.8% 가 false success** 였고, LLM 판정자의 AUROC 는 0.54~0.65 에
+   그쳤다 ([arxiv 2606.09863](https://arxiv.org/abs/2606.09863)). 근거는 **도구 출력과 상태
+   변화**여야 한다.
+5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
+   리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
+   를 남긴다.
+
+## Evidence Validity Gate — 공허한 증거 차단
+
+> **정본:** `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate.
+> Flutter 감사에서 이 게이트가 필요한 이유: 빈 카탈로그 스냅샷을 근거로 "정상 렌더링" 을 반복
+> 주장한 사고(`/insights` 2026-07-27 Friction #2)가 정확히 "증거는 있는데 아무것도 입증하지
+> 않는" 형태였다.
+
+PASS 를 확정하기 **전에** 아래 4 검사를 통과해야 한다. 하나라도 실패하면 그 항목은 PASS 가 아니라 `[미검증]`.
+
+| # | 검사 | Flutter 감사에서의 형태 |
+| - | ---- | ---------------------- |
+| 1 | **비공백** | `$FLUTTER analyze` 출력이 비었거나 에러 메시지만 있는가? 스냅샷이 빈 화면인가? |
+| 2 | **활성화** | 그 측정이 대상을 한 번이라도 통과했는가? **테스트 0 개 실행 · 매치 0 건 grep 은 "위반 없음" 이 아니라 "검사되지 않음"** 이다 |
+| 3 | **반증 가능성** | 규칙이 위반된 상태였다면 이 측정이 다른 결과를 냈을 것인가? 어떤 입력에도 같은 출력을 내는 측정은 oracle 이 아니다 |
+| 4 | **출처** | 그 증거를 감사자가 직접 수집했는가? 구현자의 서술·주석·커밋 메시지를 인용한 것이 아닌가? |
+
+**0 매치 판정 규칙** — `grep -r "GestureDetector" lib/` 가 0 건이라도 두 가지 의미가 있다.
+
+- **의도된 0**: 대상 파일 목록을 먼저 세고(예: 42 개 `.dart`), 그 패턴이 알려진 위치에서 매치된다는
+  것을 1 회 확인한 뒤의 0 → PASS. 근거에 "대상 42 파일 · 패턴 유효성 확인 · 매치 0" 을 적는다
+- **공허한 0**: 경로가 틀렸거나 대상 파일이 0 개이거나 패턴이 절대 매치되지 않는 경우 → **측정 실패**,
+  `[미검증]`
+
+**렌더 산출물 특칙** — 감사 대상에 UI 변경이 포함되면 빈 화면·빈 목록 캡처는 PASS 증거가 아니라
+검증 실패 신호다. 절차는 `references/visual-evidence-protocol.md`.
+
+**보고 의무** — 리포트 하단에 아래 블록을 반드시 포함한다.
+
+```text
+## Evidence Validity
+- 검사 대상 증거: N 건
+- 무효 판정: K 건 [항목 — 실패한 검사 번호 — 사유]
+- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
+```
 
 ## 0. 프로젝트 감지
 
@@ -292,8 +350,16 @@ Reusability
   candidates: N
   [추출 후보 목록]
 
+Evidence Validity
+  검사 대상 증거: N | 무효: K
+  [항목 — 실패한 검사 번호 — 사유]
+
+Unverifiable
+  미검증: N 건
+  [항목 ID — 사유 — 시도한 fallback 단계]
+
 ----------------------------------------------------
-Total: N errors, N warnings
+Total: N errors, N warnings | 미검증 N 건
 ```
 
 감사 결과만 보고한다. 코드를 직접 수정하지 않는다.
@@ -306,3 +372,5 @@ Total: N errors, N warnings
 - **MUST** 감사 결과만 보고하고 코드를 직접 수정하지 않는다 -- 감사와 수정을 분리해야 사용자가 변경 사항을 통제할 수 있다
 - **MUST** `$PACKAGE` 변수를 import 규칙에 사용한다 -- 패키지명을 하드코딩하면 다른 프로젝트에서 오탐이 발생한다
 - **MUST** 위반 보고 시 파일:라인, 규칙, 심각도, 수정 제안을 모두 포함한다 -- 위치 없는 위반 보고는 수정 작업을 지연시킨다
+- **MUST** PASS 확정 전에 Evidence Validity Gate 4 검사를 통과시킨다 -- 0 매치 grep, 0 개 테스트, 빈 캡처를 "위반 없음" 으로 읽으면 감사가 통과 도장 기계가 된다
+- **MUST** 리포트에 `Evidence Validity` + `Unverifiable` 블록을 포함한다 -- 집계하지 않으면 미검증 누계 임계(2 건) 판정이 성립하지 않는다

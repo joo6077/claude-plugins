@@ -61,7 +61,10 @@
         {"text": "기존 위젯 파일을 읽어 프로젝트 패턴을 파악한다", "type": "behavior"},
         {"text": "HAS_DS 여부에 따라 디자인 토큰 적용을 분기한다", "type": "behavior"},
         {"text": "_widget 접미사를 사용하지 않는다", "type": "output"},
-        {"text": "variant/size 패턴이 필요한 경우 프로젝트 기존 패턴을 따른다", "type": "behavior"}
+        {"text": "variant/size 패턴이 필요한 경우 프로젝트 기존 패턴을 따른다", "type": "behavior"},
+        {"text": "완료 보고 전 references/visual-evidence-protocol.md 를 실행하고 Visual Evidence Block 을 채운다", "type": "behavior"},
+        {"text": "시각 검증 채널이 없으면 [미검증] 마커와 사유를 남기고 부분 완료로 보고한다", "type": "behavior"},
+        {"text": "기존 위젯 수정 요청이면 Flutter 기본 위젯으로 교체하지 않고 유지할 속성을 먼저 열거한다", "type": "behavior"}
       ]
     },
     {
@@ -98,7 +101,9 @@
         {"text": "HAS_DS=false이면 Design System 검사를 스킵한다", "type": "behavior"},
         {"text": "보고서에 파일:라인, 규칙, 심각도, 수정 제안이 포함된다", "type": "output"},
         {"text": "quick 모드에서 Reusability 체크리스트를 포함한다", "type": "behavior"},
-        {"text": "deep 모드에서 Widget Inspector 에이전트를 병렬 실행한다", "type": "behavior"}
+        {"text": "deep 모드에서 Widget Inspector 에이전트를 병렬 실행한다", "type": "behavior"},
+        {"text": "0 매치 grep 을 '위반 없음' 으로 단정하지 않고 대상 파일 수와 패턴 유효성을 먼저 확인한다", "type": "behavior"},
+        {"text": "리포트에 Evidence Validity 와 Unverifiable 블록을 포함한다", "type": "output"}
       ]
     },
     {
@@ -142,7 +147,9 @@
       "assertions": [
         {"text": "shimmer 패키지 존재 여부를 확인한다", "type": "behavior"},
         {"text": "고정 UI vs shimmer 구분 원칙을 적용한다", "type": "output"},
-        {"text": "shimmer height = fontSize 규칙을 따른다", "type": "output"}
+        {"text": "shimmer height = fontSize 규칙을 따른다", "type": "output"},
+        {"text": "loading / loaded 두 상태를 캡처해 대조한다 (한쪽만 보고 완료 선언하지 않는다)", "type": "behavior"},
+        {"text": "shimmer 블록이 0개 렌더된 빈 캡처를 PASS 증거로 쓰지 않는다", "type": "behavior"}
       ]
     },
     {
@@ -192,7 +199,8 @@
         {"text": "private 위젯 중 범용 UI 패턴을 감지한다", "type": "behavior"},
         {"text": "build 메서드 크기와 분리 가능 서브트리를 측정한다", "type": "behavior"},
         {"text": "발견된 후보마다 파일:라인 근거를 포함한다", "type": "output"},
-        {"text": "코드를 수정하지 않고 리포팅만 수행한다", "type": "behavior"}
+        {"text": "코드를 수정하지 않고 리포팅만 수행한다", "type": "behavior"},
+        {"text": "리포트 서두에 스캔 대상 파일 수를 명시하고, 0개면 Clean 대신 [미검증] 으로 보고한다", "type": "behavior"}
       ]
     },
     {
@@ -230,6 +238,18 @@
         {"text": "Sprint Contract를 생성하여 완료 조건을 정의한다", "type": "behavior"},
         {"text": "변경 DRAFT를 먼저 작성하고, QA 통과 후 적용한다", "type": "behavior"},
         {"text": "kaizen-failure-count.yaml에 실패 카운트를 기록한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 20,
+      "skill": "flutter-provider",
+      "prompt": "lib/core/realtime/realtime_controller.dart 의 재연결 로직 고쳐줘",
+      "expected_output": "신규 provider 생성이 아니라 기존 파일 수정임을 판정하고 스킬을 중단한 뒤, 해당 파일을 Read 로 읽고 직접 수정하겠다고 안내",
+      "assertions": [
+        {"text": "대상이 feature 디렉토리 밖(lib/core/)의 기존 파일임을 감지한다", "type": "behavior"},
+        {"text": "flutter-provider 의 신규 생성 워크플로우를 진행하지 않고 중단한다", "type": "behavior"},
+        {"text": "새 provider 파일이나 State 클래스를 생성하지 않는다", "type": "output"},
+        {"text": "수정 전에 대상 파일을 Read 로 먼저 읽는다 (edit-before-read 방지)", "type": "behavior"}
       ]
     }
   ]

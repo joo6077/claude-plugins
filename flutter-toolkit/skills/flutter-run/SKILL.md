@@ -17,6 +17,7 @@ user-invocable: true
 - Windows에서 `fvm.bat` 사용 — `fvm` 직접 호출은 PATH 이슈 발생
 - partial codegen `--build-filter="lib/features/auth/**"`는 필터 밖 의존성을 재생성하지 않는다 — 새 import/타입 추가 시 full codegen 사용
 - `dart fix --apply` 후 반드시 `analyze` 실행 — fix가 새 워닝을 만들 수 있다
+- **codegen 후 변경 보고 시 `.g.dart` / `.freezed.dart` 를 수기 변경과 섞지 마라** — 산출물 수십 개가 `git diff --stat` 에 섞이면 "변환 헬퍼만 변경" 같은 스코프 조건이 위반으로 판정된다 (글로벌 REJECT `AR-01` 실제 사례). codegen 서브커맨드 섹션의 exclude pathspec 명령을 사용해 두 목록을 나눠 보고하라
 - Makefile 기반 monorepo(fit-pal 등)에서는 `fvm flutter run` 직접 호출 대신 `make app-run` 사용 — dart-define, observatory-port, launch.json 설정이 Makefile에 집중 관리된다. 직접 호출하면 dart-define 환경변수 누락으로 앱이 다른 환경으로 기동됨
 
 Flutter 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정한다.
@@ -46,6 +47,18 @@ $DART run build_runner build --delete-conflicting-outputs --build-filter="lib/fe
 
 ```bash
 $DART run build_runner build --delete-conflicting-outputs
+```
+
+**codegen 산출물과 수기 변경을 분리해 보고한다** (글로벌 REJECT `AR-01` 대응). codegen 은
+`.g.dart` / `.freezed.dart` / `.gr.dart` 를 대량 갱신하므로, 이후 "무엇을 바꿨는지" 를 보고할 때
+`git diff --stat` 을 그대로 붙이면 "변환 헬퍼만 변경" 같은 스코프 주장이 산출물 때문에 깨진다.
+codegen 실행 후에는 두 목록을 나눠서 제시한다:
+
+```bash
+# 수기 변경 (스코프 판정의 기준)
+git diff --stat -- . ':(exclude)*.g.dart' ':(exclude)*.freezed.dart' ':(exclude)*.gr.dart'
+# codegen 산출물 (건수만 보고)
+git diff --stat -- '*.g.dart' '*.freezed.dart' '*.gr.dart'
 ```
 
 ### analyze
