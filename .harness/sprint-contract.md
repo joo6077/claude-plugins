@@ -1,155 +1,134 @@
 ---
-feature: "kaizen Phase 3 — Evaluator (qa-evaluation-guide · qa-evaluator) 증거 유효성 게이트 + Phase 1·2 정합화"
-created: "2026-07-27 19:30"
+feature: "kaizen Phase 4 — Harness 인프라 (파이프라인 스크립트 회귀 · 워크플로우 스킬 enforcement · Phase 1~3 정합화)"
+created: "2026-07-27 20:10"
 complexity: "복잡"
-conditions: 17
+conditions: 23
 ---
 
-# Sprint Contract — Phase 3 Evaluator 카이젠
+# Sprint Contract — Phase 4 Harness 카이젠
 
-## 배경 · 이번 사이클 프레이밍
+## 배경
 
-`/insights` 2026-07-27 의 Friction #1·#3 은 직전 사이클 승격분인데 세션당 비율이 줄지 않았다.
-Phase 1·2 와 동일하게 **새 soft 문장 추가가 아니라 enforcement 등급 상향**이 이번 Phase 의
-기본 전략이다. 등급 어휘(E1/E2/E3)의 SSOT 는 `skill-design-guide.md §3.7` 이며 여기서
-재정의하거나 동의어를 만들지 않는다.
+이번 사이클의 프레이밍은 Phase 1~3 과 동일하다. `/insights` 2026-07-27 의 Friction #1·#3 은
+직전 사이클 승격분인데 세션당 비율이 줄지 않았고, 따라서 **새 soft 문장 추가가 아니라
+enforcement 등급 상향**이 기본 전략이다. 등급 어휘(E1/E2/E3)의 SSOT 는
+`skill-design-guide.md §3.7` 이며 여기서 재정의하지 않는다.
 
-흡수 대상은 네 갈래로 한정한다:
+Phase 4 에 배정된 신호는 네 갈래다.
 
-1. **Friction #2 (신규 최상위)** — 평가자는 이미 증거의 *존재*를 요구한다(§Execution-Grounded
-   Evidence). 못 잡는 것은 **증거가 있는데 그 증거가 무의미한 경우**다 (빈 스냅샷, 0 매치 grep,
-   0 개 테스트 실행). 이번 Phase 는 증거의 *유효성* 축을 신설한다.
-2. **Phase 1 이 넘긴 숙제** — agent-design-guide §10 Unverifiable 정책 4 항("생성자의 완료
-   주장은 증거가 아니다")을 평가자 레이어에 착지시키고, 각 kit reviewer 6 종이 복제할
-   **정본(canonical) 블록**을 한 곳에 고정한다.
-3. **Phase 2 가 넘긴 정합화 6 지점** — 스키마 v4, 허용 섹션 헤더 2 계층 파싱, Counterpart 대응
-   절 **비**신설, E 등급 SSOT, `[미검증]` 마커 의미 축소, feedback 스크립트 fallback.
-4. **글로벌 evaluator 피드백 240 건의 반복 개선 제안** — 같은 제안이 반복된다는 것은 구조적
-   미해결이라는 뜻이므로 "반복 제안 승급" 메커니즘으로 흡수한다.
+1. **실측 회귀 (최우선).** `scripts/finalize-phase.sh` 의 audit-log append 가 Phase 1·2·3
+   에서 연속 3 회 경고를 냈다. 재현 결과 원인은 **CLI 계약 불일치**였다 — finalize 는
+   `--phase/--result/--date` 를 넘기는데 `append-audit-log.py` 는 `--cycle-id/--notes` 만
+   받는다(argparse exit 2). 게다가 호출부가 `2>/dev/null` 로 stderr 를 삼켜 3 사이클 동안
+   원인이 보이지 않았다. 같은 스크립트에 두 번째 결함도 있다: phase 번호를 1~10 으로
+   하드코드하여 **Phase 11~14 (planning·reflect·bambu·onboarding) 는 finalize 자체가
+   exit 1** 이다.
+2. **이전 사이클 backlog 3 건.** detect-docs-drift 매핑 suffix 불일치 · `/sprint` REJECT
+   iteration 자동 카운트 · `/refactor-checklist` 스택별 규칙 자동 로드.
+3. **Friction #5 (Phase 4 배정분).** 배치 커밋이 회귀를 은폐하고, 재개 시 핸드오프 문서가
+   스테일이며, 병렬 세션이 같은 파일을 건드려 빌드가 깨진다.
+4. **Phase 1~3 정합화.** harness 스킬 일부가 구 규약을 들고 있다 (Unverifiable 3 항 · validate
+   카테고리 7 개).
 
-## 리서치 소스 (필수 3+ 건 · 실제 4 건 조회)
+## 리서치 소스
 
 Context7 MCP 는 이 세션에서 OAuth 미인증이라 사용 불가 → `phase-research-templates.md`
-§Phase 3 의 fallback 인 WebFetch/WebSearch 로 1 차 출처를 직접 조회했다. 템플릿에 열거된 6 건은
-이미 현행 가이드에 인용되어 있으므로, 이번 사이클 신규 신호(증거 유효성)에 맞는 소스를 조회했다.
+§Phase 4 의 fallback 인 WebFetch 로 1 차 출처를 직접 조회했다 (5 건, 최소 3 건 요건 충족).
 
-- <https://arxiv.org/html/2606.22737v2> — GroundEval. 프런티어 LLM 판정자 2 종이 근거를 전혀
-  가져오지 않은 답변에 0.90 / 0.85 를 부여("plausibility, not validity"). 결정론적 trace 대조
-  시 answer score 0.000. 실패 분류: invalid absence / temporal leakage / permission leakage /
-  invalid causality
-- <https://arxiv.org/pdf/2603.03116> — Corrupt Success. 최종 상태만 보는 outcome-only 평가는
-  절차 위반을 통과시켜 성능을 과대평가. 중간 상태·행위 시퀀스 대조 필요
-- <https://arxiv.org/pdf/2606.21451> — LLM 생성 assertion 의 vacuity. trigger coverage /
-  antecedent activation / mutation(negative control) 3 축으로 "통과했지만 아무것도 검사하지
-  않은" assertion 을 걸러냄
-- <https://code.claude.com/docs/en/plugins-reference> — `${CLAUDE_PLUGIN_ROOT}` 는 플러그인
-  설치 디렉토리의 절대경로이며 **skill/agent 본문 어디에서나 치환**된다. 플러그인 업데이트 시
-  경로가 바뀌므로 상태를 그 아래 쓰지 말 것
+- <https://code.claude.com/docs/en/hooks> — 훅 이벤트 31 종. **exit 2 만 차단**하고 exit 1 은
+  비차단 에러로 그대로 진행된다. `PostToolBatch`·`Stop`·`SubagentStop`·`TaskCompleted` 도
+  차단 가능. 실패를 조용히 흘리지 않으려면 종료 코드 규약이 명시적이어야 한다는 근거
+- <https://raw.githubusercontent.com/mgechev/skills-best-practices/main/README.md> — Phase 4
+  필수 소스. "Fragile/repetitive operations where variation is a bug" 는 스크립트로,
+  스크립트는 "highly descriptive, human-readable error messages" 를 돌려줘야 한다.
+  logic validation 은 "execution blockers" 를 찾는 것
+- <https://arxiv.org/abs/2606.27416> — Glite ARF (2026-06-25). 12 병렬 에이전트 · 273 태스크를
+  결정론적 Python verifier 로 통제. "the rules of the research process live in code that
+  **fails loudly when violated**, not in prose that agents are merely asked to follow" +
+  task isolation / immutability of completed work
+- <https://arxiv.org/abs/2605.06527> — STALE (2026-05-07). 에이전트가 자기 기억의 무효화를
+  탐지하는 능력: **최고 모델 55.2%**. Implicit Conflict (명시적 부정 없이 나중 관측이 앞선
+  기억을 무효화) 가 주 실패 모드 → 핸드오프 문서를 자기 기억으로 신뢰하면 안 되고 외부
+  상태(git)로 대조해야 한다는 근거
+- <https://arxiv.org/abs/2604.08224> — Externalization in LLM Agents (2026-04-09). harness
+  engineering 을 "the unification layer that coordinates [memory·skills·protocols] into
+  governed execution" 으로 정의. 상태 외부화가 harness 의 본질
 
 ## GAP 분석
 
-| # | 신호 (출처) | 현재 상태 | 갭 | 조치 |
-| - | ---- | ---- | ---- | ---- |
-| 1 | Friction #2 — 빈 스냅샷을 근거로 "정상 렌더링" 반복 주장 | §Execution-Grounded Evidence 는 산출물 **존재**만 요구 | 산출물이 있으나 **내용이 공허**한 경우 규칙 없음 | §Evidence Validity Gate 신설 (E2) |
-| 2 | Phase 1 §10 4 항 | 평가자에 "주석은 증거가 아니다" 는 있으나 근거·명칭 없음 | 생성자 완료 주장 배제가 명시 정책으로 없음 | Evidence Validity Gate 4 번 항목 + canonical 블록 |
-| 3 | Phase 1 drift 경고 — reviewer 6 종이 미검증 프로토콜 복제 중 | design 3 건 / backend·infra·rust 2 건 / planning 0 건 으로 임계 불일치 | 복제 원본이 없어 각자 변형 | canonical 블록을 고정 앵커로 신설 |
-| 4 | Phase 2 #2 — 허용 섹션 헤더 2 계층 | 평가자는 계약 전체를 무구분 읽음 | 서술 섹션의 불릿을 조건으로 오파싱 가능 | Step 1.2 파싱 범위 확정 (E3 결정론적 명령) |
-| 5 | Phase 2 #5 — `[미검증]` 의미 축소 | 미검증 = 모든 확인 불가 | **미완/부재를 미검증으로 세탁**하면 FAIL 이 1 건 허용 구간으로 샘 | 3-way triage 규칙 |
-| 6 | digest — feedback-script-location-mismatch (3~4 건) | `bash harness/scripts/save-feedback.sh` 레포 상대경로 고정 | 타 프로젝트에서 항상 부재 → BLOCKED 또는 임의 경로 저장 | 경로 해석 ladder + degraded 저장 규약 |
-| 7 | §1 Top 15 — 같은 개선 제안 반복 (측정 시점 / exact-goal / 중복 진단) | 매번 산문 권고로만 남김 | 반복이 축적돼도 승급 경로 없음 | Recurring Improvement Escalation |
-| 8 | digest — stack-inappropriate-rust-antipatterns | anti_patterns 를 무조건 Grep | 스택 불일치 패턴을 그대로 판정 | 안티패턴 스택 정합성 규칙 |
-| 9 | Phase 2 #1 — 스키마 v3 → v4 | 두 파일이 v3 를 참조 | 버전 drift | 참조 갱신 |
-| 10 | Phase 2 #3 — Counterpart | 평가자 대응 절 없음(의도됨) | 후속 Phase 가 실수로 만들 위험 | parity 표에 "대응 절 없음" 명문화 |
+| # | 현재 | 리서치/데이터 근거 | 조치 | 등급 |
+| - | ---- | ------------------ | ---- | ---- |
+| G1 | finalize→append CLI 계약 불일치 + stderr 침묵 (3 사이클 무증상) | Glite ARF "fails loudly" · mgechev "descriptive error messages" | phase 모드 신설 + 호출부 정정 + 실패 시 stderr 노출 | E3 |
+| G2 | phase-num 1~10 하드코드 → Phase 11~14 finalize 불가 | orchestrator 는 Phase 14 까지 존재 (SKILL.md Step 14) | MAX_PHASE 를 failure-count 파일에서 유도 | E3 |
+| G3 | detect-docs-drift 가 존재하지 않는 HTML 경로를 산출 (`plugin-validation-guide.html`) | 이전 사이클 audit-log meta-issue | index.html 레지스트리 대조 + 미등록은 NEW 로 표시 | E3 |
+| G4 | `/sprint` iteration 한계가 문장만 (카운터 없음) | insights Friction #3 · backlog | 응답 복사형 카운터 + 복구 근거를 sprint-feedback.md 로 | E2 |
+| G5 | 재개 시 핸드오프 문서를 그대로 신뢰 | STALE 55.2% | git 대조 재검증 단계 신설 | E2 |
+| G6 | 배치 커밋 · 병렬 세션 파일 충돌 | insights Friction #5 · Glite ARF task isolation | 검증 단위 커밋 + 소유 파일 열거 | E2 |
+| G7 | refactor-checklist 규칙 소스가 레포 상대경로 문장뿐 | digest `cwd-contract-path-drift` 계열 · Phase 3 ladder 선례 | ladder + 부재 시 `[미검증]` | E2 |
+| G8 | create-agent 가 Unverifiable "3 항" 이라 서술 | agent-design-guide §10 은 4 항 (Phase 1) | 4 항으로 정정 | E1 |
+| G9 | 5 개 harness 스킬이 validate 카테고리를 "7" 로 서술 | plugin-validation-guide 는 V1~V8 | 8 로 정정 | E1 |
+| G10 | scope-creep Gotcha 가 파일 수 기준 | digest `complexity-by-file-count` 와 동일 계열 결함 | unit 기준 + unit 별 증거 의무 | E2 |
+| G11 | 가드 우회(cwd 이동) 가 명문화 안 됨 | digest `bypass-run-guard-by-cwd` | 템플릿 rationalization_override 1 건 | E1 |
 
 ## 범위 경계
 
-- **변경 허용**: `harness/docs/guides/qa-evaluation-guide.md`, `harness/agents/qa-evaluator.md`
-  두 파일 + 본 계약 파일 + `.harness/history/` 아카이브
-- **변경 금지**: Phase 1·2 산출물 5 종(`skill-design-guide.md`, `agent-design-guide.md`,
-  `contract-design-guide.md`, `sprint-contract/SKILL.md`, `contract-schema.md`) 및 각 kit
-  reviewer 6 종 — 후속 Phase 소관
-- 브랜치 생성·push·PR 금지. 커밋까지만
+- 수정 대상: `scripts/{append-audit-log.py,finalize-phase.sh,detect-docs-drift.py}` ·
+  `harness/skills/{sprint,refactor-checklist,create-agent,create-skill,init,harness-kaizen,contract-kaizen,evaluator-kaizen}/SKILL.md` ·
+  `harness/templates/project.yaml`
+- 수정 금지 (다른 Phase 소관): `harness/skills/sprint-contract/**` · `harness/agents/qa-evaluator.md` ·
+  `harness/docs/guides/{skill,agent,contract}-design-guide.md` · `harness/docs/guides/qa-evaluation-guide.md` ·
+  `harness/references/contract-schema.md` · 모든 kit · `.claude/skills/kaizen-orchestrator/**` ·
+  marketplace.json · plugin.json · changelog
+- **Unit 계수 (harness-kaizen scope-creep 규칙 대비):** 신규 도입 unit 은 3 개
+  (U-C1 sprint · U-C2 refactor-checklist · U-E 템플릿). 나머지는 오케스트레이터 명시 지시
+  backlog (U-A finalize 파이프라인 · U-B docs-drift) 와 SSOT 사실 정정 (U-D) 이다. 본 계약이
+  그 계수 규칙 자체를 unit 기준으로 정정한다 (G10)
 
 ## 회귀 게이트
 
-- `python3 scripts/validate-plugin.py` 전 kit OK · Exit 0
-- Diff-Scope Oracle baseline (계약 작성 시점 실행):
-  `git diff --name-only HEAD -- harness/ ':(exclude)*.json'` → 0 행
-
-## Skill
-
-- [ ] SK-01: `harness/docs/guides/qa-evaluation-guide.md` 에 증거 **유효성**(존재가 아니라 내용)
-      을 판정하는 신규 절이 있고, 최소 4 개의 유효성 검사 항목을 표 또는 번호 목록으로 열거한다
-      [structural] (측정: 해당 절 Read 후 검사 항목 수 >= 4)
-- [ ] SK-02: 신규 리서치 URL 3 건이 같은 파일 References 절에 **각각** 명시된다
-      [exact, enumerated] (측정: `arxiv.org/html/2606.22737`, `arxiv.org/pdf/2603.03116`,
-      `arxiv.org/pdf/2606.21451` 3 개 문자열 각각 grep 1 건 이상)
-- [ ] SK-03: `[미검증]` 마커 절에 **FAIL / `[미검증]` / 증거무효** 를 가르는 triage 규칙이
-      있고, "`[미검증]` 은 검증 도구·환경 부재 전용" 이라는 취지의 문장이 존재한다
-      [structural] (측정: 해당 절에 3 분기 표 또는 목록 + 도구 부재 전용 문장 Read 확인)
-- [ ] SK-04: 계약 파싱 범위를 **조건 섹션 / 서술 섹션** 2 계층으로 구분하는 절이 있고,
-      서술 섹션을 조건 파싱 대상에서 제외한다는 규칙과 결정론적 확인 명령이 포함된다
-      [structural] (측정: 절 존재 + `awk` 또는 `grep` 명령 블록 1 개 이상)
-- [ ] SK-05: 동일 개선 제안이 반복될 때 이를 승급 처리하는 절이 있다 [structural]
-      (측정: 절 존재 + 승급 조건(반복 횟수 등) 1 개 이상 명시)
-- [ ] SK-06: 각 kit reviewer 가 복제할 **정본 블록**이 고정된 제목의 독립 절로 존재하고,
-      미검증 임계값이 `2` 로 명시된다 [exact] (측정: 절 제목 grep + 블록 내 "2 건" 문자열 확인)
-- [ ] SK-07: 평가자 원칙의 Enforcement 등급 표가 있고, 등급 정의의 SSOT 가
-      `skill-design-guide` §3.7 임을 명시하며 재정의 금지 취지 문장을 포함한다 [structural]
-      (측정: 표 존재 + `skill-design-guide` 문자열 grep + 금지 문장 Read 확인)
+- `python3 scripts/validate-plugin.py` → 11 plugins 11 OK · Exit 0
+- 수정한 스크립트 3 개는 문법 검사 + **실제 실행** 증거 필수 (자기보고 금지)
 
 ## Script
 
-- [ ] SC-01: `harness/agents/qa-evaluator.md` Process 에 계약 파싱 범위를 확정하는 단계가
-      Step 1 과 Step 1.5 사이에 존재한다 [structural] (측정: Step 헤더 순서 Read 확인)
-- [ ] SC-02: 같은 파일 피드백 저장 단계에 `${CLAUDE_PLUGIN_ROOT}/scripts/save-feedback.sh`
-      literal 이 포함된다 [exact] (측정: 해당 문자열 grep 1 건 이상)
-- [ ] SC-03: 스크립트 부재 시의 degraded 절차가 있고, (a) 임의 경로 저장 금지 (b) 저장 실패가
-      verdict 를 무효화하지 않음 두 취지가 모두 서술된다 [structural]
-      (측정: 두 취지 문장 각각 Read 확인)
-- [ ] SC-04: 기본 엄격도 규칙에 (a) 증거 유효성/공허한 증거 (b) 미검증-FAIL 구분 두 규칙이
-      각각 신규 번호 항목으로 추가된다 [structural] (측정: 규칙 번호 항목 2 개 Read 확인)
+- [ ] SC-01: `python3 scripts/append-audit-log.py --phase 4 --result pass --date 2026-07-27 --dry-run` 이 exit 0 이고 출력에 `Phase 4` 와 `pass` 가 포함된다 (측정: 실제 실행 + 출력 인용) [exact]
+- [ ] SC-02: phase 모드에서 cycle-id 미지정 시 `.harness/.meta/kaizen-state.yaml` 의 `cycle_id` 값을 사용한다 (측정: `--dry-run` 출력에 `kaizen-2026-07-27` 포함) [exact]
+- [ ] SC-03: `scripts/finalize-phase.sh` 가 append-audit-log.py 에 넘기는 인자 집합이 argparse 정의 집합의 부분집합이다 (측정: `grep -n "append-audit-log" scripts/finalize-phase.sh` 와 `python3 scripts/append-audit-log.py --help` 대조) [exact, enumerated]
+- [ ] SC-04: finalize-phase.sh 의 **실행 라인**에 stderr 를 버리는 `2>/dev/null` 이 0 건이고, audit-log 실패 시 stderr 앞부분이 사용자에게 출력된다 (측정: `grep -n '^[^#]*2>/dev/null' scripts/finalize-phase.sh | wc -l` == 0 · 주석 라인은 규칙 설명이므로 제외) [exact]
+- [ ] SC-05: `bash scripts/finalize-phase.sh 14 pass` 가 phase 범위 에러 없이 exit 0 이다 (측정: 실제 실행 후 `echo $?`) [exact]
+- [ ] SC-06: 사이클 완료(status completed) 판정이 하드코드 `10` 이 아니라 유도된 MAX_PHASE 변수와 비교한다 (측정: `grep -n "MAX_PHASE" scripts/finalize-phase.sh`) [exact]
+- [ ] SC-07: `python3 scripts/detect-docs-drift.py` 가 `harness/docs/guides/plugin-validation-guide.md` 변경분을 `docs/harness/plugin-validation.html` 로 매핑한다 (측정: 임시 커밋 없이 `--since HEAD~N` 또는 단위 함수 직접 호출로 실행) [exact]
+- [ ] SC-08: detect-docs-drift 출력이 대상 HTML 의 등록/존재 여부를 구분 표시한다 (JSON 모드에 `exists` 필드, 텍스트 모드에 `NEW` 표기) (측정: `--json` 실행 출력) [exact]
+- [ ] SC-09: 수정한 스크립트 3 개가 문법 검증을 통과한다 — `bash -n scripts/finalize-phase.sh`, `python3 -m py_compile scripts/append-audit-log.py scripts/detect-docs-drift.py` (측정: 3 명령 각각 exit 0) [exact, enumerated]
 
-## Error
+## Skill
 
-- [ ] ER-01: 안티패턴 검증에서 **대상 스택과 무관한 패턴**을 그대로 판정하지 않는 규칙이
-      두 파일 중 최소 1 곳에 존재한다 [structural] (측정: 스택 불일치 처리 문장 grep)
-- [ ] ER-02: `qa-evaluator.md` Binary Decidability Pre-Check 체크 항목에 **상태 전제**
-      (working tree / staged / 브랜치 비교) 확인 항목이 추가된다 [structural]
-      (측정: Step 1.5 항목 수 증가 + 상태 전제 문구 Read 확인)
+- [ ] SK-01: `harness/skills/sprint/SKILL.md` 에 재개 시 핸드오프 문서를 git 으로 재검증하는 단계가 존재하고 STALE 근거 URL 이 인용된다 [exact]
+- [ ] SK-02: 동 파일에 QA iteration 카운터가 **응답에 복사하는 형태**로 정의되고, 3 회 도달 시 중단 + 컨텍스트 리셋 시 `.harness/sprint-feedback.md` 로 복원하는 규칙이 명시된다 [exact]
+- [ ] SK-03: 동 파일에 "커밋 단위 = 검증 증거가 확보된 수정 단위" 원칙과 병렬 세션 소유 파일 열거 규칙이 존재한다 [structural]
+- [ ] SK-04: `harness/skills/refactor-checklist/SKILL.md` 에 규칙 소스 경로 해석 ladder (`${CLAUDE_PLUGIN_ROOT}` → 레포 → 마켓플레이스) 와 소스 부재 시 `[미검증]` 표기 규칙이 존재한다 [exact]
+- [ ] SK-05: `harness/skills/create-agent/SKILL.md` 의 Unverifiable 정책 항 수 표기가 agent-design-guide §10 과 일치한다 (측정: `grep -n "Unverifiable 조건 정책" harness/skills/create-agent/SKILL.md harness/docs/guides/agent-design-guide.md`) [exact]
+- [ ] SK-06: init · create-skill · harness-kaizen · contract-kaizen · evaluator-kaizen 5 개 SKILL.md 에서 validate-plugin 카테고리 수가 8 로 정정된다 (측정: `grep -rn "7 카테고리\|V1~V7" harness/skills` 0 건) [exact, enumerated]
+- [ ] SK-07: `harness/skills/harness-kaizen/SKILL.md` 의 scope-creep Gotcha 가 파일 수가 아니라 unit 기준으로 재정의되고 unit 별 독립 검증 증거 의무를 포함한다 [exact]
 
 ## Architecture
 
-- [ ] AR-01: 이번 스프린트의 `harness/` 하위 변경이 2 개 파일로 한정된다
-      [exact, enumerated] (Given: 커밋 직전 working tree ·
-      측정: `git diff --name-only HEAD -- harness/ ':(exclude)*.json'` 결과가
-      `harness/agents/qa-evaluator.md`, `harness/docs/guides/qa-evaluation-guide.md`
-      2 행과 정확히 일치 · 작성 시점 baseline = 0 행)
-- [ ] AR-02: 두 파일의 스키마 참조가 v4 로 갱신된다 [exact, enumerated]
-      (측정: `qa-evaluation-guide.md` 와 `qa-evaluator.md` 각각에서 `contract-schema` 를 포함한
-      행에 `v3` 가 0 건이고 `v4` 가 1 건 이상)
-- [ ] AR-03: Counterpart Conditions 의 평가자 대응 절을 **만들지 않았고**, parity 표에 그
-      설계 결정이 기록된다 [structural] (측정: `qa-evaluation-guide.md` 에 Counterpart 제목의
-      독립 절이 0 건 + parity 표 item 12 행에 대응 절 부재 취지 명시)
-- [ ] AR-04: Phase 1·2 소관 5 파일이 변경되지 않는다 [exact, enumerated]
-      (Given: 커밋 직전 working tree · 측정:
-      `git diff --name-only HEAD -- harness/docs/guides/skill-design-guide.md harness/docs/guides/agent-design-guide.md harness/docs/guides/contract-design-guide.md harness/skills/sprint-contract/SKILL.md harness/references/contract-schema.md`
-      결과가 0 행)
+- [ ] AR-01: 금지 파일이 diff 에 없다 — sprint-contract/SKILL.md · qa-evaluator.md · skill/agent/contract-design-guide · qa-evaluation-guide · contract-schema.md · 모든 kit · kaizen-orchestrator (측정: `git diff --name-only HEAD` 전수 대조) [exact, enumerated]
+- [ ] AR-02: `harness/templates/project.yaml` 의 `rationalization_overrides` 에 가드 우회 차단 엔트리가 1 건 추가되고 기존 YAML 구조(주석 예시 포함)가 유지된다 [structural]
+
+## Error
+
+- [ ] ER-01: `python3 scripts/append-audit-log.py --phase 4 --result maybe` 가 사람이 읽을 수 있는 에러 메시지와 non-zero exit 을 반환한다 (측정: 실제 실행 + `echo $?`) [exact]
 
 ## Anti-patterns
 
-- [ ] AP-01: 변경 파일에 bare code fence (` ``` ` 단독) 가 0 건이다 [exact]
-      (측정: `grep -c '^```$'` 두 파일 각각 0)
-- [ ] AP-02: 등급 어휘 E1/E2/E3 를 재정의하거나 동의어를 신설하지 않는다 [structural]
-      (측정: 변경 파일에서 등급 정의 표가 SSOT 를 가리키는지 Read 확인)
+- [ ] AP-01: bare code fence 0 건 (측정: `python3 scripts/validate-plugin.py harness --check=code-fence`)
+- [ ] AP-02: 변경 파일에 하드코드 버전 문자열을 새로 추가하지 않는다 (측정: `git diff` 육안 + grep)
 
 ## Reusability
 
-- [ ] RU-01: reviewer 6 종이 복제할 내용이 canonical 블록 1 곳에 모여 있고, 같은 내용이 두 파일
-      안에서 중복 정의되지 않는다 [structural] (측정: 정본 블록 1 개 + `qa-evaluator.md` 는
-      해당 블록을 참조만)
+- [ ] RE-01: Phase 3 가 정한 경로 해석 ladder 형식을 재사용하고 새 동의어를 만들지 않는다 (측정: refactor-checklist 의 ladder 와 qa-evaluator.md Step 8 ladder 용어 대조)
 
 ## Diagnostics
 
-- [ ] DG-01: `python3 scripts/validate-plugin.py` 가 전 kit OK 이고 Exit 0 이다 [exact]
-      (측정: 명령 실행 출력 + `echo $?`)
+- [ ] DG-01: `python3 scripts/validate-plugin.py` 가 11 plugins 11 OK · Exit 0 이다 (측정: 실제 실행 + 출력 인용)

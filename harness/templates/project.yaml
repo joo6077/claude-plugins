@@ -64,6 +64,10 @@ verification:
   procedures_dir: ".harness/procedures/"
 
 # ── 프로젝트별 변명 차단 (선택) ──
-rationalization_overrides: []
+rationalization_overrides:
+  # 가드 우회 금지 — 실측 사례(digest `bypass-run-guard-by-cwd`): 가드가 막자
+  # cwd 를 다른 디렉토리로 옮겨 다른 .harness/env.sh 를 소싱해 통과시킨 일이 있었다.
+  - excuse: "가드가 막아서 cwd 를 옮기거나 다른 설정을 소싱해 통과시켰다"
+    reality: "가드 조건을 충족시키거나 사용자에게 보고하라. 우회로 얻은 통과는 미검증이다"
   # - excuse: "변명"
   #   reality: "현실"

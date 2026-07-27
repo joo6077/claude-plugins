@@ -145,11 +145,11 @@ arXiv preprint은 `[preprint]`, 비공식 블로그는 `[blog]`, 6개월 이상�
 
 ## Step 9: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `scripts/validate-plugin.py harness` 를 실행하여 7 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py harness` 를 실행하여 8 카테고리 (V1~V8) 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
 ## References
 
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 7 카테고리 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 8 카테고리 (V1~V8) 기준 (SSOT)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구

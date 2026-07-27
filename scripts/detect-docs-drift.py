@@ -43,13 +43,71 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
 ]
 
 
+# docs-site 페이지는 소스 basename 과 1:1 이 아니다.
+# 예: harness/docs/guides/plugin-validation-guide.md → docs/harness/plugin-validation.html
+# (등록 페이지에는 `-guide` suffix 가 없다). 파일명 규칙을 추측하지 말고
+# `docs/index.html` 의 페이지 레지스트리를 SSOT 로 삼아 대조한다.
+INDEX_HTML = REPO_ROOT / "docs/index.html"
+REGISTRY_FILE_RE = re.compile(r"file:\s*'([^']+\.html)'")
+
+# 후보 target 이 레지스트리에 없을 때 시도할 stem 변형 (앞에서부터 순서대로)
+STEM_VARIANTS: list[tuple[str, str]] = [
+    ("-guide", ""),   # plugin-validation-guide → plugin-validation
+    ("", "-guide"),   # skill-design → skill-design-guide
+]
+
+
 @dataclass
 class DriftEntry:
     source: str
     target: str
+    registered: bool = False
+    exists: bool = False
 
     def to_dict(self) -> dict:
-        return {"source": self.source, "target": self.target}
+        return {
+            "source": self.source,
+            "target": self.target,
+            "registered": self.registered,
+            "exists": self.exists,
+        }
+
+
+def load_registry() -> set[str]:
+    """docs/index.html 에 등록된 HTML 경로 집합 (docs/ 기준 상대경로 → repo 상대경로)."""
+    if not INDEX_HTML.exists():
+        return set()
+    text = INDEX_HTML.read_text(encoding="utf-8")
+    return {f"docs/{m}" for m in REGISTRY_FILE_RE.findall(text)}
+
+
+def resolve_target(candidate: str, registry: set[str]) -> tuple[str, bool, bool]:
+    """후보 경로를 레지스트리/파일시스템과 대조해 실제 target 을 결정한다.
+
+    Returns (target, registered, exists).
+    """
+    def probe(path: str) -> tuple[bool, bool]:
+        return path in registry, (REPO_ROOT / path).is_file()
+
+    registered, exists = probe(candidate)
+    if registered or exists:
+        return candidate, registered, exists
+
+    directory, _, filename = candidate.rpartition("/")
+    stem = filename[: -len(".html")]
+    for old, new in STEM_VARIANTS:
+        if old and not stem.endswith(old):
+            continue
+        variant_stem = (stem[: -len(old)] if old else stem) + new
+        if variant_stem == stem:
+            continue
+        variant = f"{directory}/{variant_stem}.html"
+        v_registered, v_exists = probe(variant)
+        if v_registered or v_exists:
+            return variant, v_registered, v_exists
+
+    # 대응 페이지가 아직 없다 — 신규 생성 대상
+    return candidate, False, False
 
 
 def run_git(args: list[str]) -> str:
@@ -94,17 +152,23 @@ def map_source_to_html(source: str) -> str | None:
 
 def detect_drift(since: str) -> list[DriftEntry]:
     sources = changed_files(since)
+    registry = load_registry()
     entries: list[DriftEntry] = []
     seen: set[tuple[str, str]] = set()
     for src in sources:
-        target = map_source_to_html(src)
-        if target is None:
+        candidate = map_source_to_html(src)
+        if candidate is None:
             continue
+        target, registered, exists = resolve_target(candidate, registry)
         key = (src, target)
         if key in seen:
             continue
         seen.add(key)
-        entries.append(DriftEntry(source=src, target=target))
+        entries.append(
+            DriftEntry(
+                source=src, target=target, registered=registered, exists=exists
+            )
+        )
     return entries
 
 
@@ -134,9 +198,17 @@ def main() -> int:
             print(f"no docs drift since {args.since}")
         else:
             for e in entries:
-                print(f"{e.source} → {e.target}")
+                if not e.exists:
+                    mark = "  [NEW — 대응 HTML 없음, 신규 생성 + index.html 등록 필요]"
+                elif not e.registered:
+                    mark = "  [UNREGISTERED — 파일은 있으나 index.html 미등록]"
+                else:
+                    mark = ""
+                print(f"{e.source} → {e.target}{mark}")
             if args.verbose:
-                print(f"\nTotal: {len(entries)} HTML pages need regeneration")
+                new_count = sum(1 for e in entries if not e.exists)
+                print(f"\nTotal: {len(entries)} HTML pages need regeneration"
+                      f" ({new_count} new)")
 
     return 0
 
