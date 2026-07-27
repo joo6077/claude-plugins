@@ -253,3 +253,15 @@
 - Phase 13 — pass · kaizen-2026-07-27 · 2026-07-27
 - Phase 10 — pass · kaizen-2026-07-27 · 2026-07-27
 - Phase 12 — pass · kaizen-2026-07-27 · 2026-07-27
+
+### 과거 엔트리 정정 (append-only 규칙상 원문은 수정하지 않고 여기에 기록)
+
+- **2026-04-24 엔트리의 "서브에이전트 중첩 불가" 는 사실이 아니었다.**
+  해당 엔트리("각 Phase QA를 self-evaluator rule-by-rule audit 으로 한 이유 (서브에이전트 중첩 불가) 를
+  orchestrator SKILL Gotchas 에 명시")는 **잘못된 전제** 위에 세워졌다.
+  2026-07-27 Phase 1 이 공식 문서(https://code.claude.com/docs/en/sub-agents)를 조회해 확인한 결과
+  **서브에이전트 중첩은 기본 3층까지 허용**된다. `agent-design-guide.md` v1.5.0 에서 정정 완료.
+  → 따라서 "Phase subagent 가 qa-evaluator 를 직접 spawn" 하는 구조는 이제 유효한 선택지다.
+    다만 깊이 3층 한계에서 위임이 조용히 접히는 점은 주의해야 한다.
+  → 이 정정은 원문 줄을 수정하지 않는다 (audit-log append-only). 과거 엔트리를 읽을 때
+    반드시 이 정정을 함께 참조하라.

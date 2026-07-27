@@ -2,7 +2,7 @@
 feature: "kaizen 2026-07-27 Final — 크로스 Phase 정합성 검증 (Phase 1~14 전수 CHANGED)"
 created: "2026-07-27 21:40"
 complexity: "복잡"
-conditions: 18
+conditions: 22
 ---
 
 ## 배경
@@ -43,7 +43,8 @@ Final 이 잡아야 할 drift 후보 (Phase 리포트에서 명시적으로 이�
 
 - [ ] AR-01 [exact] `git diff --name-only da6663c..HEAD -- '.claude-plugin/marketplace.json'` 이 정확히 1행. marketplace.json 이 이번 사이클에 갱신되었다.
 - [ ] AR-02 [exact] 11개 `*/.claude-plugin/plugin.json` 의 version 이 각각 `harness 0.5.0 · flutter-toolkit 0.6.0 · design-kit 0.3.0 · backend-kit 0.2.0 · infra-kit 0.2.0 · rust-kit 0.2.0 · react-kit 0.2.0 · planning-kit 0.4.0 · reflect-kit 0.5.0 · bambu-kit 0.5.0 · onboarding-kit 0.2.0` 이다.
-- [ ] AR-03 [exact] Phase 번호 매핑이 13=bambu / 14=onboarding 으로 일관된다. 측정: 매핑을 **선언**하는 형태만 잡는다 — `grep -rniE "Phase 13 *(—|-|:) *onboarding" .claude/ --include='*.md'` 결과 0건, 그리고 `grep -rniE "Phase 14 *(—|-|:) *onboarding" .claude/skills/kaizen-orchestrator/SKILL.md` 결과 1건 이상. (주의: "Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정" 처럼 **정정 이력을 서술하는 문장**은 두 토큰을 한 줄에 포함하므로 위반이 아니다 — 매핑을 **선언**하는 문장만 대상.)
+- [ ] AR-03 [exact] Phase 번호 매핑이 13=bambu / 14=onboarding 으로 일관된다. 측정: 매핑을 **선언**하는 형태만, **살아있는 지침 문서**에서 잡는다 — `grep -rniE "Phase 13 *(—|-|:) *onboarding" .claude/ --include='*.md'` 결과 0건, 그리고 `grep -rniE "Phase 14 *(—|-|:) *onboarding" .claude/skills/kaizen-orchestrator/SKILL.md` 결과 1건 이상.
+  측정 범위에서 제외: SK-06 과 동일하게 **날짜가 박힌 계획 스냅샷**(`docs/*/plan-YYYY-MM-DD.md`, 예: `docs/onboarding-kit/plan-2026-05-18.md`)과 **append-only 이력 파일**. 그 시점 계획·이력의 기록물이지 현재 지침이 아니다. (주의: "Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정" 처럼 **정정 이력을 서술하는 문장**은 두 토큰을 한 줄에 포함하므로 위반이 아니다 — 매핑을 **선언**하는 문장만 대상.)
 - [ ] AR-04 [exact] Step 11.5 대상 9개 HTML(`docs/harness/{skill-design-guide,agent-design-guide,contract-design-guide,qa-evaluation-guide,contract-schema}.html`, `docs/flutter-toolkit/{project-detection,visual-evidence-protocol}.html`, `docs/design-kit/visual-change-protocol.html`, `docs/react-kit/render-evidence-protocol.html`)이 모두 존재하고 각각 400 라인 이상이다.
 - [ ] AR-05 [exact] `docs/` 하위에 `research-log.html` 이 0건이다 (사이트 규약상 research-log 는 게시하지 않는다 — detect-docs-drift 오탐을 따라가지 않았음을 확인).
 
@@ -54,7 +55,9 @@ Final 이 잡아야 할 drift 후보 (Phase 리포트에서 명시적으로 이�
 - [ ] SK-03 [exact] reviewer 6종(design/backend/infra/rust/react/planning)이 전부 `[미검증]` 임계를 자체 재정의하지 않는다 — 각 파일에 "2건 이상" 을 **자기 규칙으로 선언하는** 문장이 없고 canonical 앵커 인용만 존재한다.
 - [ ] SK-04 [exact] **kit reviewer 6종**(`design-kit`/`backend-kit`/`infra-kit`/`rust-kit`/`react-kit`/`planning-kit` 의 `agents/*-reviewer.md`)에 Counterpart 전용 평가 절이 없다 — 해당 6파일 대상 `grep -l "Counterpart"` 결과 0건. (`harness/agents/qa-evaluator.md` 가 참조 목록에서 contract-design-guide 의 목차 항목으로 이 단어를 언급하는 것은 평가 절이 아니므로 대상 밖.)
 - [ ] SK-05 [goal] `.claude/skills/*-kaizen/SKILL.md` 중 validate-plugin 카테고리 수를 언급하는 파일이 전부 8(V1~V8)로 기술한다. 측정: `grep -rn "7 카테고리" .claude/skills/` 결과 0건.
-- [ ] SK-06 [goal] Phase 1 이 정정한 "서브에이전트 중첩 가능(기본 3층)" 이 `agent-design-guide.md` 에 반영되어 있고, 같은 레포 안에 "중첩 불가"로 단언하는 문장이 남아 있지 않다.
+- [ ] SK-06 [goal] Phase 1 이 정정한 "서브에이전트 중첩 가능(기본 3층)" 이 `agent-design-guide.md` 에 반영되어 있고, **살아있는 지침 문서**(`harness/docs/guides/`, `*/skills/**/SKILL.md`, `*/agents/*.md`, `.claude/skills/**`)에 "중첩 불가"로 단언하는 문장이 남아 있지 않다.
+  측정 범위에서 제외: (a) **append-only 이력 파일**(`.harness/.meta/orchestrator-audit-log.md`) — 오케스트레이터 규칙(SKILL.md "audit-log 는 append-only. 기존 엔트리를 수정/삭제하지 마라")상 과거 엔트리를 고쳐 쓸 수 없다. 대신 **정정을 append 하는 것**이 규약이며, 이번 사이클에 "과거 엔트리 정정" 절을 추가해 2026-04-24 엔트리의 잘못된 전제를 명시했다. (b) **날짜가 박힌 계획 스냅샷**(`docs/*/plan-YYYY-MM-DD.md`) — 그 시점 계획의 기록물이지 현재 지침이 아니다.
+  근거: 이 조건의 의도는 "지금 Claude 가 읽고 따르는 문서가 틀린 사실을 말하지 않는 것"이다. 이력 아카이브를 소급 수정하면 오히려 감사 추적이 깨진다.
 
 ## Script
 
