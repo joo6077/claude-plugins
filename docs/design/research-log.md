@@ -1,6 +1,6 @@
 ---
-version: 1.1.0
-last_updated: 2026-04-12
+version: 1.2.0
+last_updated: 2026-07-27
 ---
 
 # Design Kit Research Log
@@ -302,3 +302,55 @@ Parent (상태 관리)
 
 - 기존 로그에 이미 있는 내용: DTCG 2025.10 안정 버전 자체, Style Dictionary v4 존재 자체, Figma variables 일반론, OKLCH 기본 개념.
 - 이번 추가 조사는 위 항목의 **최신 운영 상태 / 세부 migration / 채택 지표 / 브라우저 지원 수치 / 공식 제품 변화**만 보강했다.
+
+---
+
+## [2026-07-27] - Phase 6 kaizen
+
+**트리거:** kaizen-orchestrator Phase 6 (design-kit). `/insights` 2026-07-27 Friction #2(시각·런타임 검증 신뢰 불가, 신규 최상위) + 글로벌 REJECT `UI-06`(시안 승인 기록 artifact 부재) + reflect-digest 색상 재위반 3종을 신호로 삼았다.
+
+### 조사한 소스 (Phase 6 — 2026-07-27)
+
+| # | 제목 | URL | 유형 | 결과 |
+| - | ---- | --- | ---- | ---- |
+| 1 | WCAG 2.2 Understanding SC 2.5.8 Target Size (Minimum) | <https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html> | official | 재확인 — 변경 없음 |
+| 2 | DTCG Design Tokens Format Module — Final CG Report 2025-10-28 | <https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/> | spec | 채택 (alias 표기 정정 근거) |
+| 3 | DTCG Design Tokens Format Module — drafts | <https://www.designtokens.org/TR/drafts/format/> | spec | 채택 (2 확인) |
+| 4 | MDN — CSS Container Queries | <https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries> | official | 참조 |
+| 5 | MDN — `prefers-reduced-motion` | <https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion> | official | 채택 (reduced-motion 테스트 의미 정정) |
+| 6 | Playwright — Visual Comparisons | <https://playwright.dev/docs/test-snapshots> | official | 채택 (baseline vacuous pass 근거) |
+| 7 | MDN — `oklch()` | <https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch> | official | 재확인 — 변경 없음 |
+
+### 확인된 사실
+
+#### N. DTCG alias 는 중괄호 참조다 (기존 스킬 기재 오류)
+
+- 스펙의 토큰 참조 문법은 **`{group.token}` 중괄호 문자열**이다. 맨몸 dot-notation(`"color.background.surface"`)은 참조가 아니라 일반 문자열 값으로 해석된다.
+- 중괄호 참조는 **`$value` 를 가진 완전한 토큰만** 가리킬 수 있다. 토큰 값 내부의 개별 속성을 참조하려면 JSON Pointer(RFC 6901) 형식의 `$ref`(`#/path/to/target`)를 쓴다.
+- color 토큰 값은 `colorSpace` / `components` / `hex`(선택) / `alpha`(선택) 객체 구조다. hex 문자열 단독 형식은 스펙에 없다.
+- 그룹은 `$extends` 로 다른 그룹을 상속하며 deep merge, 동일 경로에서는 로컬 속성이 우선한다.
+- → `design-system` Gotcha 14, `design-component` Gotcha 3 의 "dot notation 권장" 기재를 정정했다. 기존 문구대로 산출하면 Style Dictionary / Tokens Studio 에서 alias 가 해석되지 않는다.
+
+#### O. Playwright 시각 회귀 첫 실행은 아무것도 검증하지 않는다
+
+- 스냅샷이 없으면 Playwright 는 실제 화면을 baseline 으로 자동 기록하고 그 실행을 통과 처리한다 (`A snapshot doesn't exist at ... writing actual`).
+- 따라서 `--update-snapshots` 직후의 green 은 증거가 아니다 — 비교 대상이 없었기 때문이다. Evidence Validity Gate 검사 2(활성화)·3(반증 가능성) 실패에 해당한다.
+- 렌더가 실패해 빈 화면이 캡처돼도 baseline 과 동일하면 통과한다. Friction #2 의 unbounded-height collapse 사고와 같은 구조다.
+- → `design-test` 에 negative control 4 단계 루프(baseline → 의도적 변형으로 실패 확인 → revert 후 통과 → 두 출력 인용)와 콘텐츠 존재 assertion 을 추가했다.
+
+#### P. `prefers-reduced-motion: reduce` 는 "애니메이션 제거" 가 아니다
+
+- 이 설정은 vestibular trigger(scale·pan 등 이동감을 주는 모션)를 **더 온건한 대안으로 교체**하라는 의미다. MDN 예시도 pulse(scale) → dissolve(opacity) 교체를 보여준다.
+- Baseline 2020-01 로 널리 지원된다.
+- → "애니메이션 개수 0" 으로 assert 하는 테스트는 잘못된 기준이다. `design-test` Gotcha 13 으로 반영했다.
+
+#### Q. WCAG SC 2.5.8 / oklch / Container Queries — 재확인, 변경 없음
+
+- SC 2.5.8 은 AA 24×24 CSS px, 예외 5 종(Spacing / Equivalent / Inline / User Agent Control / Essential). 페이지 갱신일 2026-05-11. 킷의 기존 기재와 일치하므로 수정하지 않았다.
+- `oklch()` 는 2023-05 부터 widely available. L 0–1, C 0–0.4, H 0–360(red ≈ 41°). 모던 브라우저는 fallback 불필요, 레거시 대응 시에만 필요. 킷 기재와 일치.
+- Container queries 는 baseline 안정. `container-type: size | inline-size | normal`, 단위 `cqw/cqh/cqi/cqb/cqmin/cqmax`. 킷은 `cqw/cqi` 만 언급하나 축소 기재일 뿐 오류가 아니므로 변경하지 않았다.
+
+### 중복 검토 메모 (Phase 6 — 2026-07-27)
+
+- Friction #1(의도 확인 전 편집)·#3(스코프 드리프트)은 직전 사이클에 이미 승격됐고 design-kit 은 관련 Gotcha 를 보유 중이다. 문장을 다시 다듬지 않고 **enforcement 등급 상향**으로만 대응했다.
+- 이번 사이클 신규분은 (1) canonical 미검증 임계 정합, (2) Evidence Validity Gate, (3) 시각 변경 프로토콜 SSOT 신설, (4) 승인 기록 아티팩트, (5) DTCG alias 사실 정정 — 5 unit 이다.

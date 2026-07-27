@@ -16,7 +16,7 @@ user-invocable: true
 
 1. **구현 코드 생성 금지** — 이 스킬은 디자인 스펙만 출력한다. Flutter/React/CSS 컴포넌트 코드를 직접 생성하지 마라. 해당 toolkit 플러그인에 위임하라.
 2. **상태 누락 금지** — 모든 인터랙티브 컴포넌트에 default, hover, active, disabled 상태를 정의하라. loading 상태가 필요한 경우(버튼, 카드) 포함한다. 상태가 1-2개만 정의된 컴포넌트는 불완전하다.
-3. **토큰 매핑 누락 금지** — 디자인 토큰이 존재하면 모든 컴포넌트의 컬러, 타이포, 간격, 라디우스를 토큰에 매핑하라. 하드코딩 값은 토큰 체계를 무력화한다. 토큰 alias는 **DTCG v1 (2025-10-28 stable) dot notation** 권장 — 예: `color.background.surface`, `space.md`, `font.body.md`. legacy `value`/`type` 키(prefix 없음)나 커스텀 `$` prefix는 Tokens Studio / Style Dictionary 호환성을 해친다. 출처: [W3C DTCG v1 announcement](https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/).
+3. **토큰 매핑 누락 금지** — 디자인 토큰이 존재하면 모든 컴포넌트의 컬러, 타이포, 간격, 라디우스를 토큰에 매핑하라. 하드코딩 값은 토큰 체계를 무력화한다. 토큰 alias는 **DTCG v1 (2025-10-28 stable) 중괄호 참조** 를 쓴다 — 예: `{color.background.surface}`, `{space.md}`, `{font.body.md}`. 중괄호 없는 맨몸 dot-notation(`"color.background.surface"`)은 참조가 아니라 문자열 값으로 해석되므로 alias 로 쓰지 마라. legacy `value`/`type` 키(prefix 없음)나 커스텀 `$` prefix도 Tokens Studio / Style Dictionary 호환성을 해친다. 출처: [W3C DTCG v1 announcement](https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/), [DTCG Format Module (drafts)](https://www.designtokens.org/TR/drafts/format/).
 4. **시안 ID 무시 금지** — 확정된 시안에서 컴포넌트를 추출할 때, 해당 컴포넌트의 시안 ID(`{컴포넌트명}-{해시}`)를 카탈로그에 기록하라. 출처 추적에 필요하다.
 5. **커스터마이징 옵션 누락 금지** — 모든 컴포넌트에 개발자가 통계적으로 가장 많이 조정하는 옵션을 기본 고려하라. 해당 컴포넌트에 불필요한 옵션은 제외하되, 필요한 옵션을 빠뜨리면 실사용성이 떨어진다.
 6. **API Doc 헤더 필수** — 모든 컴포넌트 산출물 상단에 프로그래밍 언어 API 문서 형식의 헤더를 포함하라. 컴포넌트 설명, 각 옵션의 이름/타입/허용값/기본값/의미를 명시한다. 헤더 없는 컴포넌트 스펙은 불완전하다.

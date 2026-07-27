@@ -22,6 +22,10 @@ user-invocable: true
 7. **다크 모드 테스트 누락 금지** — 디자인 토큰에 다크 모드 매핑이 있으면 반드시 양쪽 모드에서 테스트한다. `prefers-color-scheme: dark` 미디어 쿼리 또는 토큰 클래스 전환
 8. **Storybook 의존 여부 확인** — 시각 회귀 테스트에 Storybook을 전제하지 마라. Storybook이 없으면 Playwright의 페이지 스크린샷으로 대체한다
 9. **APCA 대비 알고리즘은 informational** — WCAG 2.2 AA(4.5:1 WCAG2 공식)가 법적 기준. APCA Lc는 추가 정보 제공용으로만 포함하고 PASS/FAIL 판정 기준으로 쓰지 마라. 출처: design-guide Gotcha #10
+10. **첫 실행 baseline 생성을 "테스트 통과"로 보고 금지 (negative control 필수)** — Playwright 는 스냅샷이 없으면 실제 화면을 baseline 으로 **자동 기록하고 그 실행을 통과 처리**한다. 따라서 `--update-snapshots` 직후의 green 은 아무것도 입증하지 않는다 — 무엇과도 비교되지 않았기 때문이다(증거 유효성 검사 2 활성화 실패). baseline 을 만든 뒤에는 반드시 **negative control** 을 1 회 수행하라: 대상 요소에 의도적 변형(예: 배경색 1 단계 변경)을 준 상태로 테스트를 돌려 **실패하는 것을 확인**하고, 되돌린 뒤 통과를 확인한다. 이 두 실행의 출력을 증거로 인용하기 전에는 시각 회귀 테스트가 동작한다고 보고하지 마라. 출처: [Playwright Visual Comparisons](https://playwright.dev/docs/test-snapshots) (첫 실행 시 "A snapshot doesn't exist ... writing actual"), `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate 검사 2·3.
+11. **빈 스냅샷/빈 페이지는 PASS 증거가 아니다** — 렌더가 실패해 빈 화면이 캡처돼도 시각 회귀 테스트는 baseline 과 동일하면 통과한다. 시각 테스트에는 **콘텐츠 존재 assertion 을 함께 생성**하라 (핵심 요소 visible, 목록 항목 수 ≥ 1, 컨테이너 높이 > 0). 스냅샷 비교만 있는 테스트 파일은 unbounded-height collapse 같은 결함을 통과시킨다 — 실제 사고 사례다. 상세: `../../references/visual-change-protocol.md` §3.
+12. **부분 변경 검증은 scoped 스냅샷으로 — 의도 외 영역 변화 감지** — "보더만 바꿨다" 를 검증할 때 전체 페이지 스냅샷 하나만 쓰면 배경까지 변한 것을 구분하지 못한다. 변경 대상 요소의 **locator 단위 스냅샷**과 **주변 영역 스냅샷**을 분리 생성하여, 대상은 변하고 주변은 변하지 않았음을 각각 판정하라. 주변 영역 스냅샷이 실패하면 그것은 회귀다. 상세: `../../references/visual-change-protocol.md` §2.
+13. **`prefers-reduced-motion: reduce` 는 "애니메이션 제거" 가 아니다** — 이 설정은 vestibular trigger(scale·pan 등 이동감을 주는 모션)를 **더 온건한 대안으로 교체**하라는 의미이며 모든 전환을 없애라는 뜻이 아니다. 따라서 reduced-motion 테스트를 "애니메이션 개수 0" 으로 assert 하지 마라. `transform: scale/translate` 기반 모션이 사라지거나 opacity/dissolve 로 대체되었는지를 검증하라. 출처: [MDN prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) (Baseline 2020-01).
 
 ## Process
 
@@ -218,6 +222,14 @@ for (const vp of viewports) {
       await page.setViewportSize({ width: vp.width, height: vp.height })
       await page.goto(pg.path)
       await page.waitForLoadState('networkidle')
+
+      // Gotcha 11 — 빈 렌더가 baseline 과 일치해 통과하는 것을 막는 콘텐츠 존재 assertion.
+      // 스냅샷 비교 "전에" 실행해야 빈 화면이 baseline 으로 굳는 것도 함께 막는다.
+      const main = page.locator('main, [role="main"]').first()
+      await expect(main).toBeVisible()
+      const box = await main.boundingBox()
+      expect(box?.height ?? 0).toBeGreaterThan(0)
+
       await expect(page).toHaveScreenshot(
         `${pg.name}-${vp.name}.png`,
         { maxDiffPixelRatio: 0.01 }
@@ -228,6 +240,30 @@ for (const vp of viewports) {
 
 // Storybook이 있을 때 — 컴포넌트별 시각 테스트
 // Storybook 감지 시에만 이 섹션 생성
+```
+
+**부분 변경(scoped) 검증** — 특정 요소의 특정 속성만 바꾼 변경을 검증할 때는 대상과 주변을 분리한다
+(Gotcha 12). 주변 스냅샷이 실패하면 의도 외 영역이 변한 것이므로 회귀로 처리한다.
+
+```typescript
+// tests/design/scoped-change.test.ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Scoped visual change — 대상만 변하고 주변은 불변', () => {
+  test('대상 요소 스냅샷 (변경 허용)', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByTestId('target-card'))
+      .toHaveScreenshot('target-card.png', { maxDiffPixelRatio: 0.01 })
+  })
+
+  // 주변 영역은 "변하지 않아야" 하므로 대상보다 엄격한 threshold 를 쓴다.
+  // 단 Gotcha 4 대로 0 은 쓰지 마라 — anti-aliasing·폰트 렌더링 차이로 상시 실패한다.
+  test('주변 영역 스냅샷 (변경 금지 — 실패 시 회귀)', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByTestId('surrounding-panel'))
+      .toHaveScreenshot('surrounding-panel.png', { maxDiffPixelRatio: 0.001 })
+  })
+})
 ```
 
 ### Step 6: 반응형 레이아웃 테스트 생성
@@ -290,7 +326,6 @@ test.describe('Responsive Layout', () => {
 | 시각 회귀 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` (첫 실행) |
 | 반응형 | `npx playwright test tests/design/responsive.test.ts` |
 
-첫 실행 시 시각 회귀 테스트는 `--update-snapshots`로 기준 스냅샷을 생성한다.
 도구 미설치 시 설치 안내를 제시한다:
 
 ```bash
@@ -298,12 +333,45 @@ npm install -D @playwright/test @axe-core/playwright
 npx playwright install chromium
 ```
 
+**시각 회귀 baseline 검증 루프 (필수 — 건너뛰지 마라)**
+
+첫 실행은 baseline 을 기록할 뿐 아무것도 비교하지 않는다. 아래 4 단계를 모두 마치기 전에는
+"시각 회귀 테스트 통과" 라고 보고하지 않는다 (Gotcha 10).
+
+| 단계 | 명령 | 기대 결과 |
+|------|------|----------|
+| 1. baseline 기록 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` | 스냅샷 파일 생성 — **통과는 증거가 아님** |
+| 2. negative control | 대상에 의도적 변형을 준 뒤 `npx playwright test tests/design/visual-regression.test.ts` | **실패해야 한다.** 통과하면 테스트가 아무것도 검사하지 않는 것이므로 locator/threshold 를 고쳐라 |
+| 3. 되돌리기 | 변형 revert 후 동일 명령 | 통과 |
+| 4. 증거 인용 | 2 와 3 의 출력을 그대로 보고에 첨부 | — |
+
+2 단계가 실패하지 않으면 비교 기준이 너무 관대한 것이다. 두 축을 각각 확인하라 — 둘은 다른 것이다:
+
+- **`maxDiffPixelRatio`** — 달라도 되는 픽셀의 **비율** (0~1, 기본 unset). 크게 잡으면 국소 변경이 묻힌다.
+- **`threshold`** — 같은 좌표 픽셀 간 허용 **색차** (YIQ 색공간, 0=엄격 ~ 1=관대, **기본 0.2**).
+  기본값이 이미 관대한 편이라 **미묘한 색상 변화는 픽셀 비율과 무관하게 통과**할 수 있다.
+  색상 회귀를 잡으려면 `threshold` 를 낮춰야 하며, `maxDiffPixelRatio` 만 조정해서는 잡히지 않는다.
+
+출처: [Playwright — toHaveScreenshot options](https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-have-screenshot-1).
+
 ### Step 8: 결과 보고
 
 생성된 파일 목록, 테스트 케이스 수, 실행 결과를 사용자에게 제시한다.
 CI 파이프라인에 통합하는 방법을 안내한다 (접근성 게이트, 시각 회귀 PR 리뷰 등).
 
+보고는 EVIDENCE 블록으로 닫는다. 실행하지 못한 테스트는 통과로 적지 말고 `[미검증]` 과 사유를 남긴다.
+
+```text
+## EVIDENCE
+- 실행 명령: [명령어]
+- 출력: [통과/실패 수, 실패 항목]
+- negative control: [Step 7 2단계 실패 확인 출력 — 미수행 시 "[미검증] 사유"]
+- 미검증: [실행 불가 테스트와 사유]
+```
+
 ## References
 
 - `../design-guide/references/principle-index.md` — 디자인 원칙 인덱스 (접근성 카테고리 포함)
 - `../design-system/references/token-principles.md` — 토큰 설계 원칙
+- `../../references/visual-change-protocol.md` — 부분 변경 격리 · before/after 증거 블록 (SSOT)
+- [Playwright Visual Comparisons](https://playwright.dev/docs/test-snapshots) — baseline 생성·갱신 동작

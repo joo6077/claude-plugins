@@ -26,6 +26,8 @@ user-invocable: true
 12. **Compound Component 패턴 인식** — 컴포넌트 구조 관련 질문 시 Compound Components(Context API로 상태 공유) + Slot Pattern(named slot 분리) 패턴을 인지하고 안내하라. "prop soup" 문제가 보이면 compound 패턴을 제안한다. 출처: research-log §G.
 13. **가이드형 스킬도 Process Step 순서 고정 (탐색→진단→처방)** — 본 스킬은 원칙 안내형이지만 적용 시 3-Step 순서를 반드시 따른다. (1) **탐색:** 사용자가 제시한 코드/설명에서 관련 카테고리·디자인 토큰·기존 컴포넌트·출처를 Grep/Read 로 전수 파악 (Step 1). (2) **진단:** 위반 항목을 파일:라인 + 위반 원칙 + 우선순위(Critical/Important/Minor) 로 목록화 (Step 2~3). (3) **처방:** 각 진단에 대해 권장 방향을 "하나의 가능성" 으로 제시하고 근거·출처를 첨부 (Step 3 포맷). 진단 단계를 생략하고 바로 "이렇게 바꾸세요" 로 넘어가면 Gotcha #6 의 "해법만 강요" 안티패턴이 된다. flutter-error · flutter-hooks 가이드 스킬 sibling parity 와 동일 원칙 (Phase 5 원칙 2).
 14. **Enumerate-before-Act — 리뷰 대상 전수 나열 우선** — 여러 파일/위젯에 걸친 리뷰 요청(예: "이 디렉토리 UI 다 봐줘")에서는 편집/피드백 전에 대상 파일 목록 + 카테고리별 후보 위반 개수를 **먼저 리스트업** 하고 사용자 승인 후 진단으로 넘어간다. 부분 피드백 → 재지적 → 추가 피드백 루프를 방지한다 (insights-report #1 마찰점 대응).
+15. **승인된 시각 결과물이 토큰보다 우선한다 (Visual Source of Truth Precedence)** — "이 색이 토큰과 다르다" 를 무조건 일관성 위반으로 지적하지 마라. Gotcha #9(디자인 시스템 우회 지적)를 적용하기 전에 그 값이 **사용자가 승인한 시안이나 기존 앱에서 실제 사용 중인 값**인지 확인한다. 승인 기록(`.design/approvals/`)이나 기존 테마 파일에 근거가 있으면 그것이 토큰 명세보다 상위 근거이며, 이때 권장 방향은 "토큰에 맞춰 값을 바꿔라" 가 아니라 "이 값을 토큰으로 등록해 체계에 편입하라" 다. 우선순위 표: `../../references/visual-change-protocol.md` §1.
+16. **부분 변경 요청에는 그 축만 진단 — 나머지는 보존 대상으로 명시** — 사용자가 특정 시각 속성 하나를 지목해 물으면(보더만·색만·간격만) 진단도 그 축에 한정하고, 같은 요소의 나머지 시각 속성은 **"보존 대상"** 으로 명시하라. "이왕이면 배경도" 식 제안은 Gotcha #3(카테고리 과잉) 위반이며, 실제로 보더 요청에 배경까지 바뀐 재발 사례의 출발점이다. 부분 롤백 요청("색은 맞는데 그라디언트만 이전이 나았다")은 지목된 축만 되돌리도록 진단한다. 상세: `../../references/visual-change-protocol.md` §2.
 
 # Process
 
@@ -77,3 +79,4 @@ references/principle-index.md에서 해당 카테고리의 원칙 문서 경로�
 # References
 
 - `references/principle-index.md` — 카테고리별 원칙 문서 인덱스
+- `../../references/visual-change-protocol.md` — 시각 우선순위 · 부분 변경 격리 (SSOT)

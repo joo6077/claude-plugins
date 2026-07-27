@@ -54,7 +54,7 @@ user-invocable: true
 7. **컬러 방향은 역할 기반으로 정의** — "예쁜 5색" 조합이 아니라 Primary/Secondary/Accent/Neutral/Semantic 역할로 나눠야 한다. 컨셉 단계에서도 "어떤 역할의 컬러가 어떤 톤인지"를 명시해야 design-system 단계에서 토큰 체계로 이어진다.
 8. **접근성 대비율을 컬러 방향 단계에서 언급** — 컨셉 단계에서 "고대비/저대비 무드"를 결정할 때 WCAG AA 기준(일반 텍스트 4.5:1, 큰 텍스트 3:1)을 제약으로 고려하라. 나중에 토큰 단계에서 브랜드색이 접근성을 통과 못해 방향을 바꾸는 일이 생긴다. 추가로 APCA Lc 임계값(본문 Lc 75~90, 비본문 Lc 60)도 참고하면 폰트 크기+굵기별 대비 가이드가 더 정밀해진다.
 9. **OKLCH 색상 공간 인식** — 컬러 방향 서술 시, OKLCH(Lightness-Chroma-Hue) 축으로 사고하면 지각적으로 균일한 팔레트 방향을 잡기 쉽다. "밝기 L=0.6~0.7 범위, 낮은 채도 C<0.1" 같은 서술이 "파스텔 톤"보다 design-system 단계로 이어질 때 정밀하다. hex 값은 여전히 concept 단계에서 기재 금지이며 서술형만 허용. 출처: research-log §D.
-9. **무드보드 HTML의 필수 섹션 누락 금지** — Step 5에서 생성하는 무드보드 HTML은 **7개 필수 섹션**을 모두 포함해야 한다. 섹션이 빠지면 무드보드가 시각 자료 모음에 그친다.
+10. **무드보드 HTML의 필수 섹션 누락 금지** — Step 5에서 생성하는 무드보드 HTML은 **7개 필수 섹션**을 모두 포함해야 한다. 섹션이 빠지면 무드보드가 시각 자료 모음에 그친다.
 
    **필수 섹션 ↔ 템플릿 매핑** (`design-kit/templates/moodboard.html` 기준):
 
@@ -82,6 +82,8 @@ user-invocable: true
    하나라도 어긋나면 즉시 템플릿 치환을 재실행하고 누락 placeholder를 채워라.
 
    **주의:** 과거 템플릿에 Tone & Manner 섹션(`section.tone`)이 있었고 Texture/Layout/DoDont가 없었다. Phase B 드라이런에서 이 불일치 때문에 REJECT를 받았다. 7개 필수 섹션과 Tone & Manner(선택)는 별개다.
+
+11. **컨셉 확정 = 승인 기록 파일 생성** — 사용자가 컨셉을 확정하면 Step 7 에서 `.design/approvals/{YYYYMMDD}-concept.md` 를 생성한다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(승인 기록) 확인 불가" 로 REJECT 된다 (2026-07-13 글로벌 REJECT `UI-06`). **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 컨셉 단계에서는 hex 확정값이 없으므로 "확정된 시각 값" 필드에는 **확정된 방향 서술**(무드 키워드, 역할별 톤 계열, 레이아웃 방향)을 적는다 — Gotcha #3 의 hex 금지 규칙은 승인 기록에도 그대로 적용된다. 규격: `../../references/visual-change-protocol.md` §4.
 
 # Process
 
@@ -191,15 +193,37 @@ templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)�
 
 브라우저에서 바로 열어 확인 가능한 standalone HTML로 생성한다.
 
-**생성 직후 반드시 Gotcha #9의 3개 검증 명령을 실행하라.** 미치환 placeholder 0개, 7개 섹션 매치, disclaimer 배너 1개 — 하나라도 어긋나면 재생성.
+**생성 직후 반드시 Gotcha #10의 3개 검증 명령을 실행하라.** 미치환 placeholder 0개, 7개 섹션 매치, disclaimer 배너 1개 — 하나라도 어긋나면 재생성.
 
 ## Step 6: 사용자 피드백
 
 - 컨셉 문서와 무드보드를 사용자에게 제시
 - 피드백을 받아 수정 반복
-- 사용자가 확정하면 다음 단계 안내
+- 사용자가 확정하면 Step 7 로 진행
 
-## Step 7: 다음 단계 안내
+## Step 7: 승인 기록 생성 (확정 시 필수)
+
+컨셉이 확정되면 `.design/approvals/{YYYYMMDD}-concept.md` 를 생성한다 (Gotcha #11 · 글로벌 `UI-06`).
+
+```markdown
+# 승인 기록 — 디자인 컨셉
+
+- 승인일: {YYYY-MM-DD}
+- 승인 주체: {사용자 직접 확정 | 자율 모드 (판단 근거 명시)}
+- 대상 산출물: .design/concept.md · .design/moodboard.html
+- 확정된 방향: {무드 키워드 · 역할별 컬러 톤 계열 · 타이포 방향 · 레이아웃 방향 — 서술형}
+- 미확정/후속: {design-system 단계로 넘긴 항목 — 예 hex 확정, 대비 수치 계산}
+- 원문 근거: {사용자 발화 인용}
+```
+
+생성 직후 확인한다. 컨셉 단계 hex 금지(Gotcha #3)는 승인 기록에도 적용된다:
+
+```bash
+ls .design/approvals/                                        # 파일 존재
+grep -cE '#[0-9a-fA-F]{3,8}\b' .design/approvals/{YYYYMMDD}-concept.md   # → 0
+```
+
+## Step 8: 다음 단계 안내
 
 > "컨셉이 확정되었습니다. 다음 단계로 `/design-system`을 사용하여 이 컨셉 기반의 디자인 토큰을 정의할 수 있습니다."
 
@@ -208,3 +232,4 @@ templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)�
 - `references/concept-criteria.md` — 컨셉 도출 기준 상세
 - `templates/concept.md` — 컨셉 문서 출력 포맷
 - `../../templates/moodboard.html` — 비주얼 무드보드 출력 포맷 (공유 템플릿)
+- `../../references/visual-change-protocol.md` — 승인 기록 규격 (SSOT)
