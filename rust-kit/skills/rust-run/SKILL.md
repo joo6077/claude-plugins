@@ -23,6 +23,14 @@ user-invocable: true
    - `APP_ENV=dev cargo test --workspace`
    - `DATABASE_URL=postgres://fitpal:fitpal@localhost:5432/fitpal cargo run -p fitpal-migration`
 8. **`.PHONY` 타겟 누락 금지** — Makefile 기반 프로젝트에서 새 타겟 추가 시 반드시 `.PHONY:` 선언에도 추가한다. 누락 시 동일 이름 파일/디렉토리와 충돌. fit-pal REJECT 히스토리에서 `server-fmt-fix`, `server-preflight`가 누락되어 REJECT → 재수정 사례 존재.
+9. **타깃 필터는 `PKG_TARGETS` 확인 후에만 붙인다** — 바이너리 전용 패키지에 `--lib` 을 붙이면 실행할 테스트가 0 개이거나 에러다. `references/project-detection.md` Step 3a 로 각 패키지의 타깃 kind 를 먼저 열거하고, `lib` 이 없으면 `--bins`(또는 `--bin <name>` · `--tests` · `--all-targets`) 를 쓴다. 좁힐 이유가 없으면 **필터를 아예 붙이지 않는 것이 기본값**이다 — `cargo test` 는 필터가 없을 때 lib/bin 단위 테스트 + 통합 테스트 + doctest 를 모두 돈다 ([cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html)). 출처: 2026-07 실측 `cargo-test-wrong-target` (`cargo test -p fitpal-api --lib healthcheck` 가 bin-only 크레이트에서 실패).
+10. **파이프라인 종료 코드 캡처 규약 (E2 — 3 회 재발 승급)** — `unreliable-exit-status-capture` · `unreliable-piped-exit-code-capture` · `broken-pipeline-exit-capture` 가 2026-07 한 달에 3 회 재발했다. 문장 다짐이 아니라 **명령 형태를 고정**한다:
+    - 파이프를 쓰는 순간 **`set -o pipefail` 을 같은 명령 안에서 켠다.** bash 기본값은 "파이프라인의 종료 상태 = 마지막 명령의 종료 상태" 이므로 `cargo test ... | tee log` 는 cargo 가 실패해도 0 을 돌려준다. `pipefail` 이 켜지면 "0 이 아닌 상태로 끝난 가장 오른쪽 명령의 값" 이 파이프라인 상태가 된다 ([Bash Reference Manual — Pipelines](https://www.gnu.org/software/bash/manual/html_node/Pipelines.html)).
+    - **정식 형태 (쉘 무관, 이것을 기본으로 쓴다):** `set -o pipefail; cargo clippy ... 2>&1 | tee /tmp/clippy.log; rc=$?` — `rc` 를 리포트에 그대로 적는다. `pipefail` + 파이프라인 **직후** 의 `$?` 조합은 bash·zsh 양쪽에서 동작한다.
+    - 개별 단계 상태까지 필요하면 배열을 **파이프라인 직후 한 번에** 복사한다. **배열 이름이 쉘마다 다르다** — bash 는 `st=("${PIPESTATUS[@]}")`, zsh 는 `st=("${pipestatus[@]}")` (zsh 에서 대문자 `PIPESTATUS` 는 정의되지 않는다). 쉘을 모르면 배열에 의존하지 말고 위 정식 형태를 쓴다. 중간에 다른 명령을 끼우면 배열이 덮어써진다.
+    - **금지:** `$?` 를 여러 명령 뒤에 읽기 · `if cmd | grep -q ...` 결과를 cmd 의 성공으로 해석 · exit code 를 출력 텍스트("error" 문자열 유무)로 추정하기.
+11. **실행 가드를 cwd 로 우회하지 마라** — `.harness/env.sh` 같은 실행 가드가 `APP_ENV`/`DATABASE_URL` 을 요구하며 `cargo run` 을 막으면, 상위 디렉토리로 옮겨 다른 `.harness` 를 소싱해 통과시키지 마라. (a) 가드가 요구하는 환경변수를 실제로 주입하거나 (b) 가드가 잘못됐다고 판단되면 **우회 대신 사용자에게 명시 보고**한다. 모든 명령은 `references/project-detection.md` Step 1a 에서 확정한 `$CARGO_ROOT` 기준으로 실행한다. 출처: 2026-07 실측 `bypass-run-guard-by-cwd`.
+12. **비-Rust 산출물에 Rust 기준 적용 금지** — 이 스킬이 셸 스크립트·compose·CI YAML 을 다루게 되면 `unwrap()`/`println!` 같은 Rust 안티패턴 기준을 그대로 옮기지 마라. 스택별 대응 기준은 `references/project-detection.md` Step 0 표를 따른다.
 
 # Process
 
@@ -44,7 +52,10 @@ user-invocable: true
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 프로젝트 환경을 파악한다.
-이후 단계에서 감지 결과(`$CARGO`, `IS_WORKSPACE`, `HAS_NEXTEST`) 를 사용한다.
+이후 단계에서 감지 결과(`$CARGO_ROOT`, `$CARGO`, `IS_WORKSPACE`, `PKG_TARGETS`, `HAS_NEXTEST`) 를 사용한다.
+
+`test` 서브커맨드에 `-p`/`--lib`/`--bin` 같은 필터를 붙일 예정이면 **Step 3a(패키지 타깃 구조 감지)를
+건너뛰지 않는다** — `PKG_TARGETS` 없이 타깃 필터를 붙이는 것은 추측이다 (Gotcha 9).
 
 ## 1. 서브커맨드 파싱
 
@@ -61,15 +72,26 @@ user-invocable: true
 
 추가 args가 있으면 커맨드 끝에 전달한다.
 
+> **타깃 필터 주의 (Gotcha 9):** `test`/`build`/`check` 에 `--lib` 을 붙이려면 `PKG_TARGETS` 에서 해당
+> 패키지가 `lib` 타깃을 가지는지 먼저 확인한다. `bin` 만 있으면 `--lib` 대신 `--bins` 를 쓴다.
+
 ## 2. 실행 + 결과 출력
 
-실행 결과를 아래 포맷으로 출력한다:
+파이프를 쓰는 경우 Gotcha 10 의 정식 형태(`set -o pipefail` + `rc=$?`)로 실행한다. 실행 결과를 아래
+포맷으로 출력하며, **종료 코드 칸은 비워 두지 않는다** (자기보고가 아닌 도구 출력 아티팩트 —
+`skill-design-guide.md` §3.7 Completion Evidence Gate):
 
 ### rust-run {서브커맨드} 결과
 
 **커맨드:** `{실행된 전체 커맨드}`
+**종료 코드:** `{rc}` (파이프 사용 시 `PIPESTATUS=({...})` 병기)
 **상태:** PASS / FAIL
 **상세:** {에러 메시지 또는 요약}
+
+- 종료 코드를 확보하지 못했으면 상태를 PASS 로 적지 말고 `[미검증] 종료 코드 캡처 실패 — 재실행 필요`
+  로 보고한다. 출력 텍스트만 보고 성공을 추정하지 않는다.
+- `test` 결과는 **실행된 테스트 수**를 함께 적는다. `0 passed` 는 통과가 아니라 타깃 필터가 틀렸다는
+  신호다 (Gotcha 9).
 
 # References
 

@@ -22,6 +22,16 @@ user-invocable: true
 - **Extractor 순서 의존성** — Axum에서 body를 소비하는 extractor(`Json`, `Form`, `Multipart`)는 반드시 마지막 인자여야 한다. `Path`, `Query`, `State`는 body를 소비하지 않으므로 앞에 둔다. 순서가 틀리면 런타임에 "Missing request body" 에러가 발생한다.
 - **핸들러 state 에 인프라 타입 직접 주입 금지 (SK-03 회귀 방지)** — `State<PgPool>` · `State<sqlx::PgPool>` · `State<sea_orm::DatabaseConnection>` 같이 핸들러 시그니처에 DB pool/connection 구체 타입을 직접 받으면 Composition Root 단일화가 깨지고 mock 주입이 불가능해진다. 항상 `State<Arc<dyn UserService>>` trait object 형태만 허용하고, 인프라 타입(`PgPool` 등)은 `infra/adapters/*_impl.rs` 어댑터 레이어에만 등장해야 한다. Grep 체크: `grep -n "State<PgPool>\|State<sqlx::\|State(pool)" src/api/handlers/` 결과 0 건이어야 한다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 3번 + Axum 0.8 docs `with_state` 패턴(https://docs.rs/axum/latest/axum/struct.Router.html#method.with_state).
 - **Enumerate-before-Act (skill-design-guide §5.5)** — 엔드포인트를 추가하기 전, 기존 핸들러 파일을 `Grep`/`Glob` 으로 전수 스캔하여 (a) 중복 라우트, (b) 유사 네이밍 충돌, (c) 기존 `ApiDoc` 등록 경로를 먼저 열거한다. 열거 결과를 간단 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 선(先) 작성 후(後) 중복 발견은 롤백 비용이 크다.
+- **Counterpart Enumeration (skill-design-guide §5.5) — API 계약 변경은 양면 작업이다** — 엔드포인트 시그니처 · 상태 코드 · 응답 DTO 필드/타입/nullable · enum 값 · 날짜·타임존 표현 중 **하나라도** 바꾸면, 편집 착수 **전에** producer 와 consumer 를 각각 **파일 경로로 열거**한다.
+  - **producer**: 핸들러 · 응답 DTO · `#[utoipa::path]` · `ApiDoc` 등록부 · 라우터 조립부
+  - **consumer**: 같은 DTO 를 쓰는 다른 서비스/워커 · 계약(통합) 테스트 · 생성된 OpenAPI 산출물(`openapi.json`) 과 그 소비처 · **클라이언트 앱 코드**(Flutter/React 등 별도 리포지토리 포함) · SDK/목 서버
+  - 소비면을 못 찾으면 `grep` 으로 찾고, 그래도 없으면 "소비자 없음" 을 근거(검색한 경로·패턴)와 함께 명시한다. 추측으로 넘어가지 않는다.
+  - 열거 결과는 **체크리스트 아티팩트로 남긴다** (계약 조건 `[exact, enumerated]` 또는 응답 내 체크리스트). 문장 다짐(E1)으로 처리하지 마라 — §3.7 등급 기준 **E2 이상**.
+  - 한 스프린트에서 양쪽을 다 못 바꾸면 남는 쪽을 `[미검증]` 이 아니라 **명시적 미완 항목**으로 보고한다 (조용한 반쪽 완료 금지).
+  - 순수 내부 리팩터링(핸들러 내부 변수명·private 헬퍼)에는 적용하지 않는다.
+  - 출처: `/insights` 2026-07-27 Friction #4 — 서버 응답만 바꾸고 클라이언트를 같은 스프린트에 반영하지 않아 사용자가 매번 "당연히 클라까지 바꿔야지" 로 개입.
+- **외부 크레이트 API 는 문서 조회 후 작성 (usc 재위반 — E2)** — axum/utoipa/tower 등 외부 크레이트의 API 를 쓰거나 버전을 올릴 때, **편집 전에** Context7 또는 공식 문서/CHANGELOG 를 조회하고 응답에 `크레이트 · 사용 중 버전 · 조회한 URL` 3 항목을 기록한다. in-repo 에 비슷한 코드가 있다는 이유로 문서 조회를 건너뛰지 마라 — 그 코드가 구버전일 수 있다. 2026-07 실측: `research-before-edit-ignored`(usc=true) · reqwest-middleware API 를 먼저 편집하고 **컴파일 실패 후에야** 로컬 registry 를 뒤진 사례.
+- **편집 전 Read 필수** — 수정 대상 핸들러/라우터 파일을 열지 않고 Edit 하지 마라 (`edit-before-read`). 라인 번호 기반 수정은 반드시 현재 파일 내용을 다시 읽어 앵커를 확인한 뒤 적용한다.
 - **Sibling Consistency (skill-design-guide §8.8)** — `rust-api` 는 `rust-service` · `rust-model` · `rust-middleware` · `rust-auth` 와 함께 Hexagonal 레이어 세트를 구성한다. 핸들러에서 "포트에서 인프라 타입 제거" 원칙을 강조할 때 sibling 스킬의 동일 원칙 문구 (rust-service Gotcha "포트에서 인프라 타입 제거") 와 네이밍·출처를 일치시킨다. 드리프트가 발생하면 동일 표현으로 복제.
 
 # Axum 핸들러/라우터 생성
@@ -44,7 +54,7 @@ user-invocable: true
 |------|------|
 | feature 이름 | `users` |
 | HTTP 메서드 | `GET`, `POST`, `PUT`, `DELETE`, `PATCH` |
-| 경로 | `/users/:id` |
+| 경로 | `/users/{id}` (Axum 0.8 중괄호 문법 — `:id` 금지) |
 | Request 스키마 | 필드 목록 또는 "없음" |
 | Response 스키마 | 필드 목록 |
 | 에러 반환 방식 | 기존 `AppError` 타입 탐색 후 확인 |

@@ -1,9 +1,62 @@
 ---
-version: 1.1.0
-last_updated: 2026-06-05
+version: 1.2.0
+last_updated: 2026-07-27
 ---
 
 # Rust Kit Research Log
+
+## [2026-07-27] - Phase 9 kaizen
+
+Context7 는 OAuth 미인증으로 사용 불가 → 전 소스를 WebFetch 로 1 차 출처 직접 조회. 아래 사실 서술은
+전부 조회 결과 기준이며 학습 데이터 추정은 포함하지 않는다.
+
+### 조회한 소스 (URL 전부)
+
+| # | URL | 조회 목적 | 채택 |
+| - | --- | --------- | ---- |
+| 1 | [cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html) | `--lib`/`--bins`/`--tests`/`--all-targets` 의미 · 무필터 기본 동작 | ✅ |
+| 2 | [cargo-metadata](https://doc.rust-lang.org/cargo/commands/cargo-metadata.html) | `packages[].targets[].kind` 로 lib/bin 타깃 판별 | ✅ |
+| 3 | [cargo-locate-project](https://doc.rust-lang.org/cargo/commands/cargo-locate-project.html) | 워크스페이스 루트 결정론적 확정 (`--workspace --message-format plain`) | ✅ |
+| 4 | [sqlx::test 매크로](https://docs.rs/sqlx/latest/sqlx/attr.test.html) | 테스트별 DB 생성 · 마이그레이션 자동 적용 여부 | ✅ |
+| 5 | [sqlx-cli README](https://github.com/launchbadge/sqlx/blob/main/sqlx-cli/README.md) | `migrate run` pending 처리 · `prepare --check` CI 용도 · `DATABASE_URL` 요구 | ✅ |
+| 6 | [SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) | mock feature · append_query_results · **실 DB SQL 정합성 미검증 한계** | ✅ |
+| 7 | [Bash Reference Manual — Pipelines](https://www.gnu.org/software/bash/manual/html_node/Pipelines.html) | 파이프라인 종료 상태 규칙 · `pipefail` 동작 | ✅ |
+| 8 | [RustSec Advisory Database](https://rustsec.org/) | cargo-audit / cargo-deny 가 소비하는 advisory DB · CI 액션 | ✅ |
+| 9 | [Clippy lint index](https://rust-lang.github.io/rust-clippy/master/index.html) | lint 그룹 9 종 확인 (개별 lint 목록은 부분 응답) | 부분 |
+| 10 | [axum CHANGELOG](https://raw.githubusercontent.com/tokio-rs/axum/main/axum/CHANGELOG.md) | 0.8 path 문법 breaking change 재확인 | ✅(문법만) |
+
+### 조회로 확정한 사실
+
+- **`cargo test` 무필터 기본 동작**: lib 단위 테스트 + bin 단위 테스트 + 통합 테스트 + lib doctest 를
+  모두 빌드/실행한다. 타깃 선택 플래그는 매니페스트의 `test` 플래그를 무시하고 해당 타깃을 강제하므로,
+  없는 타깃을 지정하면 실행 테스트 0 개 또는 에러가 된다. → `cargo-test-wrong-target` 의 근본 대응.
+- **타깃 판별**: `cargo metadata` 의 `targets[].kind` 배열 어디에도 `lib` 이 없으면 바이너리 전용
+  패키지다. 값 도메인은 `lib`/`bin`/`example`/`test`/`bench`/`custom-build`.
+- **`#[sqlx::test]`**: 함수마다 새 테스트 DB 를 만들고 `CARGO_MANIFEST_DIR` 의 `migrations` 폴더를
+  **자동 적용**한다(`migrations = false` 로 해제 가능). 즉 공유 DB 를 직접 쓰는 `#[tokio::test]` +
+  `serial_test` 계열만 마이그레이션 수동 선적용이 필요하다 → DG-03 대응의 정확한 경계.
+- **`sqlx migrate run`**: `migrations/` 와 DB 이력을 대조해 **pending 스크립트만** 실행.
+  `cargo sqlx prepare --check` 는 `.sqlx` 가 현재 스키마/쿼리와 어긋나면 non-zero 로 종료(CI 용).
+- **SeaORM MockDatabase 한계 (공식 명시)**: mock 에는 실제 데이터가 없고 반환값을 직접 정의하므로
+  **실 DB 기준 SQL 정합성을 검증하지 못한다** — 문법상 유효하나 의미상 틀린 쿼리가 mock 을 통과한다.
+  → API-01("MockDatabase 단위 테스트만 있음" REJECT) 의 1 차 출처 근거.
+- **Bash 파이프라인 종료 상태**: 기본값은 "마지막 명령의 종료 상태". `pipefail` 이 켜져야 "0 이 아닌
+  상태로 끝난 가장 오른쪽 명령의 값" 이 된다 → exit-code 캡처 결함 3 종의 결정론적 처방.
+- **RustSec**: cargo-audit(Cargo.lock 스캔)와 cargo-deny(취약점+라이선스+중복+소스)가 소비하며,
+  GitHub Action(`rust-audit-check`)으로 CI 자동화 가능. OSV 포맷으로도 export 된다.
+- **axum**: 0.8 에서 path 문법이 `/:single`·`/*many` → `/{single}`·`/{*many}` 로 바뀐 breaking change
+  재확인. (릴리스 날짜는 CHANGELOG 응답이 불명확해 인용하지 않음 — 스킬 본문에도 날짜를 새로 넣지 않았다.)
+
+### 반영 (변경 unit 4 개)
+
+1. **명령 실행 규약** (`project-detection.md` Step 1a/3a · `rust-run` · `rust-preflight` · `rust-test`) —
+   타깃 구조 감지 · pipefail/PIPESTATUS 종료 코드 캡처(E2 승급, 3 회 재발) · 가드 우회 금지 · 루트 고정.
+2. **증거 유효성** (`rust-audit` · `audit-criteria.md` · `rust-reviewer`) — Evidence Validity Gate
+   4 검사 · 0 매치/0 테스트 vacuous pass 차단 · Canonical Unverified-Evidence Protocol 5 조항 정본 복제.
+3. **Counterpart Enumeration** (`rust-api` · `rust-model`) — 계약·스키마 변경의 producer/consumer 양면
+   열거 + 체크리스트 아티팩트(E2). Friction #4 대응.
+4. **스택 경계 + 문서 조회 게이트** (`project-detection.md` Step 0 · `rust-audit` · `rust-reviewer` ·
+   `rust-service` · `rust-api`) — Rust 기준의 비-Rust 산출물 누출 차단 · 외부 크레이트 문서 조회 기록.
 
 ## [2026-06-05] — Phase 9 kaizen
 

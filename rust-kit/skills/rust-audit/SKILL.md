@@ -13,7 +13,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **Rust 이외 도메인 평가 금지** — UI 디자인, 인프라 설정은 평가 대상이 아니다.
+1. **Rust 이외 도메인 평가 금지 + Rust 기준의 역방향 누출 금지** — UI 디자인, 인프라 설정은 평가 대상이 아니다. 반대로 **셸 스크립트·docker-compose·CI YAML 에 Rust 안티패턴 기준(`unwrap()` 금지 · `println!` 금지 · `?` 전파)을 적용하지 마라.** 그 스택에는 해당 결함이 존재할 수 없어 체크가 항상 공허하게 통과한다(증거 무효 — Gotcha 16). 비-Rust 산출물이 감사 범위에 섞여 들어오면 `references/project-detection.md` Step 0 표의 대응 기준(셸: `set -euo pipefail` · 실패 전파 · 시크릿 하드코딩 금지)으로 갈아끼우거나, 해당 파일을 감사 범위에서 제외하고 그 사실을 리포트에 적는다. 출처: 2026-07 실측 `stack-inappropriate-rust-antipatterns`.
 2. **추측성 FAIL 금지** — 실제 코드를 확인한 후 판정한다. "아마 문제가 있을 것"으로 FAIL하지 않는다.
 3. **보안 카테고리 생략 금지** — 항상 Security 카테고리를 포함한다 (`unsafe_code = "forbid"` 준수, 시크릿 하드코딩, 민감정보 로깅 필수 체크).
 4. **deep 모드에서만 에이전트 호출** — quick 모드는 직접 검사한다.
@@ -27,7 +27,14 @@ user-invocable: true
 12. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 코드에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "더 나을 것 같다"처럼 주관 해석 여지가 남는 기준은 카테고리 평가 시작 시점에 근거 제약(파일:라인 + 출처 URL) 을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "API Design 이 깔끔한지" → "핸들러 state 가 `Arc<dyn Port>` 인지 (파일:라인 + fit-pal §아키텍처 3번)".
 13. **Rule-by-Rule Audit 프로토콜 (skill-design-guide §3.6 대응)** — `references/audit-criteria.md` 7 카테고리 × N 체크항목을 한 번에 묶어 "대체로 PASS/FAIL" 로 리포트하지 말고, 각 체크항목 단위로 개별 판정과 근거를 생성하라. 묶음 판정은 PASS 세부가 가려지고 FAIL 누락 추적이 불가능해진다. 리포트 표(Step 4) 각 row 는 한 체크항목에 대응한다.
 14. **미검증 항목 마커 프로토콜 (evaluator v3 대응)** — 런타임 환경/외부 시스템 접근 불가(예: production DB pool 설정·실제 Redis 연결·OAuth provider 응답)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 이유를 기술하라 (예: `[미검증] production DB 접근 불가 — pool 설정 파일 정적 리뷰만 수행`). 미검증 2 건 이상은 CONDITIONAL APPROVE 규칙을 적용한다 (Step 4 참조).
-15. **Sibling Consistency (skill-design-guide §8.8) — rust-audit ↔ backend-audit** — 동일 개념의 Rule-by-Rule 표 / CONDITIONAL APPROVE 판정 규칙 / 출처 URL 포맷을 backend-audit Step 3 와 parity 있게 유지한다. Rust 고유 카테고리(Ownership & Borrowing · unsafe 블록 · async Send+Sync · SQLx offline) 은 독립 row 로 추가하되, RFC 9457 / OWASP 같이 스택 공통인 원칙은 backend-audit 와 동일 문구로 인용한다.
+15. **Evidence Validity Gate — 0 매치 / 0 테스트를 PASS 로 쓰지 마라 (qa-evaluation-guide §Evidence Validity Gate)** — 증거의 *존재*와 *유효성*은 다른 축이다. row 를 PASS 로 확정하기 전에 4 검사를 통과시킨다: (1) **비공백** — 출력이 실제 내용을 담는가 (2) **활성화** — 그 측정이 검사 대상을 한 번이라도 통과했는가 (3) **반증 가능성** — 조건이 위반됐다면 다른 결과가 나왔을 측정인가 (4) **출처** — 감사자가 직접 수집했는가. 하나라도 실패하면 PASS 가 아니라 `[미검증]` 이다.
+
+    **0 매치 판정 (Rust 감사에서 가장 잦은 vacuous pass):**
+    - `grep -c '.unwrap()' src/` → 0 을 "안티패턴 없음 PASS" 로 쓰려면 **(a) 대상 `.rs` 파일 수를 먼저 세고 (b) 패턴이 알려진 위치에서 실제로 매치된다는 positive control 을 1 회 확인**한 뒤 (c) 그 위에서 0 매치여야 한다. 근거 문장에 `대상 N 파일 · 패턴 유효성 확인 · 매치 0` 을 적는다. 경로 오타·빈 디렉토리로 인한 0 은 PASS 증거가 아니라 측정 실패다.
+    - `cargo test` 가 `0 passed` 로 끝난 것은 "테스트 통과" 가 아니라 "타깃 필터/필터 문자열이 틀렸다" 는 신호다 (rust-run Gotcha 9).
+    - `cargo clippy` 를 실행하지 않고 `Cargo.toml` 의 lint 선언만 보고 "위반 0 건" 으로 적지 마라 — 선언은 설정이지 측정 결과가 아니다.
+16. **파이프라인 종료 코드로만 도구 결과를 판정한다** — `cargo clippy ... | tee` 처럼 파이프를 쓰면 bash 기본 규칙상 마지막 명령의 상태가 반환되어 clippy 실패가 은폐된다. rust-run Gotcha 10 의 정식 형태(`set -o pipefail` + 파이프라인 직후 `rc=$?`)를 쓰고, 종료 코드를 확보하지 못했으면 그 row 는 `[미검증]` 이다.
+17. **Sibling Consistency (skill-design-guide §8.8) — rust-audit ↔ backend-audit** — 동일 개념의 Rule-by-Rule 표 / CONDITIONAL APPROVE 판정 규칙 / 출처 URL 포맷을 backend-audit Step 3 와 parity 있게 유지한다. Rust 고유 카테고리(Ownership & Borrowing · unsafe 블록 · async Send+Sync · SQLx offline) 은 독립 row 로 추가하되, RFC 9457 / OWASP 같이 스택 공통인 원칙은 backend-audit 와 동일 문구로 인용한다.
 
 # Process
 
@@ -90,7 +97,7 @@ prompt: |
 | 1 | Ownership & Borrowing | 불필요 `.clone()` 부재 | PASS/FAIL | `src/service/user.rs:42` Copy 타입에 clone 호출 0 건 | [Rust Book Ownership](https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html) |
 | 2 | Ownership & Borrowing | `needless_pass_by_value` 위반 0 건 | PASS/FAIL | clippy 출력 해당 lint 0 건 | [Clippy needless_pass_by_value](https://rust-lang.github.io/rust-clippy/master/#needless_pass_by_value) |
 | 3 | Error Handling | `?` 연산자 + `From` 구현 패턴 | PASS/FAIL | `src/domain/error.rs:1-40` thiserror 2 derive 사용 | [thiserror docs](https://docs.rs/thiserror/latest/thiserror/) |
-| 4 | Error Handling | 프로덕션 경로 `.unwrap()/.expect()` 부재 | PASS/FAIL | `grep -rn "\.unwrap()\|\.expect(" src/ --include='*.rs' \| grep -v "#\[cfg(test)\]"` 결과 0 건 | fit-pal `server/CLAUDE.md` §에러 처리 |
+| 4 | Error Handling | 프로덕션 경로 `.unwrap()/.expect()` 부재 | PASS/FAIL | `grep -rn "\.unwrap()\|\.expect(" src/ --include='*.rs' \| grep -v "#\[cfg(test)\]"` 결과 0 건 **+ 대상 `.rs` 파일 수 N 명시 + 패턴 positive control 1 건** (Gotcha 15) | fit-pal `server/CLAUDE.md` §에러 처리 |
 | 5 | Async | `#[tokio::test(flavor = "multi_thread")]` 명시 (필요 시) | PASS/FAIL | `tests/integration/*.rs` Axum TestServer 케이스 확인 | [Tokio test attribute](https://docs.rs/tokio/latest/tokio/attr.test.html) |
 | 6 | Async | blocking I/O 부재 (`std::fs::read` 등) | PASS/FAIL | async 함수 내 `std::thread::sleep`/`std::fs` 호출 0 건 | [Tokio spawn_blocking](https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html) |
 | 7 | Async | trait 시그니처에 `Send + Sync` 일관 | PASS/FAIL | `src/domain/ports/*.rs` trait `Send + Sync` 선언 존재 | fit-pal `server/CLAUDE.md` §아키텍처 |
@@ -99,18 +106,32 @@ prompt: |
 | 10 | Security | SQL injection 방어 (SQLx `query!`/`query_as!` 매크로 + bind 파라미터) | PASS/FAIL | `src/infra/db/*.rs` raw `format!("SELECT ...")` 0 건 | [SQLx query macro](https://docs.rs/sqlx/latest/sqlx/macro.query.html) |
 | 11 | Performance | `large_futures` deny + `redundant_clone` deny workspace lint | PASS/FAIL | `Cargo.toml` `[workspace.lints.clippy]` 해당 lint 포함 | [Clippy lint index](https://rust-lang.github.io/rust-clippy/master/) |
 | 12 | Performance | SQLx offline cache (`.sqlx/`) 존재 + CI 에서 `cargo sqlx prepare --check` 실행 | PASS/FAIL | `.sqlx/` 디렉토리 + CI workflow step 확인 | [SQLx prepare --check](https://github.com/launchbadge/sqlx/blob/main/sqlx-cli/README.md) |
-| 13 | Testing | `#[sqlx::test]` 또는 `MockDatabase` 사용 (Docker 없는 단위 테스트 가능) | PASS/FAIL | `tests/*.rs` 각 테스트 어노테이션 확인 | [SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) |
-| 14 | API Design | 핸들러 state 는 `Arc<dyn Port>` trait object (SK-03) | PASS/FAIL | `grep -n "State<PgPool>\|State<sqlx::" src/api/handlers/` 결과 0 건 | fit-pal `server/CLAUDE.md` §아키텍처 3번 |
+| 13 | Testing | **단위** — Docker 없이 격리 실행 가능 (`MockDatabase` 또는 mockall `#[automock]`) | PASS/FAIL | `tests/*.rs`·`#[cfg(test)]` 어노테이션 확인 | [SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) |
+| 14 | Testing | **통합** — 실제 DB 엔진 대상 테스트 존재 (`#[sqlx::test]` 또는 testcontainers). mock 만 있으면 FAIL | PASS/FAIL | 실 DB 테스트 파일:라인 + 실행된 테스트 수. mock 은 실 DB SQL 정합성을 검증하지 못한다 (API-01) | [sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html) · [SeaORM mock 한계](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) |
+| 15 | Testing | 테스트가 **실제로 실행됐는지** — `running N tests` 의 N > 0 + 종료 코드 확보 | PASS/FAIL | 실행 명령 + 실행 수 + exit code. N=0 은 PASS 가 아니라 측정 실패 (Gotcha 15) | [cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html) |
+| 16 | Security | 의존성 취약점 — `cargo audit` 또는 `cargo deny check advisories` 실행 결과 | PASS/FAIL | 실행 출력 + advisory 건수 (RustSec advisory DB 소비 도구) | [RustSec](https://rustsec.org/) |
+| 17 | API Design | 핸들러 state 는 `Arc<dyn Port>` trait object (SK-03) | PASS/FAIL | `grep -n "State<PgPool>\|State<sqlx::" src/api/handlers/` 결과 0 건 + 대상 핸들러 파일 수 명시 | fit-pal `server/CLAUDE.md` §아키텍처 3번 |
 
 위 표는 대표 rule 예시이며, 실제 리포트는 `references/audit-criteria.md` 의 모든 기준 rule 을 빠짐없이 열거해야 한다 (Rule-by-Rule Audit · Gotcha 13).
 
 ## 5. 최종 판정
 
-판정 분류는 세 가지다:
+임계값과 마커 의미는 `harness/docs/guides/qa-evaluation-guide.md`
+§Canonical Unverified-Evidence Protocol 이 정본이다 — 여기서 다시 정의하지 않는다. 판정 분류는 세 가지다:
 
 - **APPROVE** — 전 row PASS + 미검증 태그 0 건.
 - **CONDITIONAL APPROVE** — 전 row PASS 이지만 `[미검증]` 태그 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · MCP server 설정) 후 재검증 권고. 2 건 이상은 REJECT.
 - **REJECT** — 1 건 이상 FAIL 또는 `[미검증]` 2 건 이상. 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 함께 제시한다.
+
+**무효 증거는 미검증에 합산한다** (Gotcha 15) — 4 검사 중 하나라도 실패한 근거는 PASS 로 세지 않고
+`[미검증]` 카운터에 더한다. 리포트 말미에 집계를 남긴다:
+
+```text
+## Evidence Validity
+- 검사 대상 증거: N 건
+- 무효 판정: K 건 [row 번호 — 실패한 검사 번호 — 사유]
+- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
+```
 
 # References
 
