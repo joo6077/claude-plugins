@@ -1,10 +1,24 @@
 ---
 title: Flutter Kaizen Changelog
-version: 1.2.0
-last_updated: 2026-06-05
+version: 1.3.0
+last_updated: 2026-07-27
 ---
 
 # Flutter Kaizen Changelog
+
+## [2026-07-27] — Phase 5 kaizen
+
+시각 증거 규약(E2)을 UI 생성 스킬 5종(widget/screen/skeleton/transition/responsive)에 전수 도입하고
+`references/visual-evidence-protocol.md` 를 SSOT 로 신설했다. 인사이트 Friction #2(시각·런타임 검증
+불신)가 이번 사이클 신규 최상위 신호이고 flutter 가 진앙이었다 — 빈 화면을 스냅샷 근거로 "정상
+렌더링"이라 반복 주장한 사고. MCP 도구명은 하드코딩하지 않고 project-detection Step 8 의 감지
+ladder 로 일반화했다. flutter-audit 에 canonical 5조항 + Evidence Validity Gate 복제,
+widget-inspector 의 "Clean — 추출 후보 없음" vacuous pass 차단.
+
+실측 버그 3건 수정: flutter-test 의 `$DART test` 는 widget test 를 실행할 수 없음 ·
+무출처 Gotcha("출처: community 2025-12")를 실측 URL 로 교체 · flutter-provider 를 신규생성
+전용으로 명시(digest `mismatched-provider-skill` 대응). flutter-run 은 codegen 산출물과 수기
+변경을 분리 보고하도록 했다(글로벌 REJECT AR-01).
 
 ## [2026-06-05] — Phase 5 kaizen
 

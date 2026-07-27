@@ -1,8 +1,97 @@
 ---
 title: Kaizen Changelog
-version: 1.3.0
-last_updated: 2026-06-11
+version: 1.4.0
+last_updated: 2026-07-27
 ---
+
+## [2026-07-27] — enforcement 등급화 전면 도입 + 크로스 Phase 회귀 4건 수정 (14/14 CHANGED)
+
+### 트리거
+
+사용자가 "인사이트 돌려서 카이젠 진행" 요청. `/insights` 재실행(2026-07-27, 51세션·187커밋·53일)
++ `/reflect-digest` 30일 집계(760 엔트리) 를 §0 으로 주입. Step 0.6 선별에서 low-signal 4킷
+(infra/react/planning/onboarding) 제외를 제안했으나 사용자가 **전체 14 Phase** 를 선택.
+
+### 이번 사이클의 핵심 판단
+
+인사이트 Friction #1(의도 확인 전 편집)·#3(스코프 드리프트)은 **직전 사이클에 이미 승격된 주제**인데
+세션당 발생 비율이 줄지 않았다. 따라서 "규칙 문장을 또 추가"가 아니라 **enforcement 방식 전환**을
+사이클 전체의 프레이밍으로 잡았다 — soft reminder → 구조적 게이트.
+
+### Phase 결과 (14/14 CHANGED)
+
+- **Phase 1 설계 가이드** — **Enforcement 3등급(E1 문장 / E2 아티팩트 / E3 결정론적 게이트)** 신설.
+  승급 규칙: 재발 2회→E2, 3회 또는 비가역·신뢰손상→E3. §3.7 **Completion Evidence Gate**
+  ("빈 스냅샷은 PASS 증거가 아니라 검증 실패 신호"), §5.5 **Counterpart Enumeration**.
+  **사실 오류 정정**: 가이드 4곳이 "서브에이전트 중첩 불가"로 단언했으나 공식은 기본 3층 허용.
+- **Phase 2 Contract** — digest 결함 5종을 전부 등급 상향으로 처리(E1→E2/E3).
+  `## Notes` 금지 규칙이 실사용(카이젠 계약의 배경·GAP 섹션)과 어긋나 있던 것이 재위반의
+  근본원인이었음을 발견 → 2계층 헤더로 재정의 + 결정론적 검사. contract-schema v3→v4.
+- **Phase 3 Evaluator** — **Evidence Validity Gate** 신설. 증거의 *존재*가 아니라 *유효성* 판정
+  (빈 캡처/0매치/0테스트/출처). `[미검증]` 3분기 triage 로 "미구현을 미검증으로 세탁"하는 경로 차단.
+  각 kit reviewer 가 복제할 **Canonical Unverified-Evidence Protocol** 정본 고정.
+  피드백 저장 경로 ladder + degraded 저장(저장 실패가 verdict 를 무효화하지 않음).
+- **Phase 4 Harness** — **회귀 규명**: `finalize-phase.sh` 가 없는 CLI 인자를 넘겨 argparse exit 2 로
+  **3 사이클간 무증상 실패**했고 `2>/dev/null` 이 은폐. MAX_PHASE 하드코딩 10 이라 Phase 11~14 는
+  아예 거부. 둘 다 수정. `/sprint` 핸드오프 git 재검증 + iteration 3회 escalation(E2).
+- **Phase 5 flutter** — 시각 증거 규약(E2)을 UI 5종에 전수 적용 + `visual-evidence-protocol.md` SSOT.
+  MCP 도구명 하드코딩 대신 project-detection 감지 ladder 로 일반화.
+  실측 버그: `$DART test` 는 widget test 실행 불가 · 무출처 주장 → 실측 URL 교체.
+- **Phase 6 design** — `visual-change-protocol.md` SSOT 신설. 승인 시안 값이 프로젝트 토큰보다
+  상위(§1), **의도 외 영역 변화 = 실패**(§2), 승인기록 artifact 규격(§4, 글로벌 REJECT UI-06 대응).
+  design-reviewer 미검증 임계 3항 → canonical 2건 정합.
+- **Phase 7 backend** — Counterpart Enumeration 도메인 일반화(E2). 빈 상태 상태코드(RFC 9110),
+  timestamp 타임존(RFC 3339), write-path idempotency, mock-only 통합테스트 주장 차단,
+  backend-audit Step 0 스택 감지(Rust 는 rust-audit 리다이렉트).
+- **Phase 8 infra** — 문서가 아니라 **실제 버그 3건 수정**. infra-test 가 생성해주는 CI 검증
+  스크립트에서 grep 앵커 누락(미핀닝 3건 중 1건만 검출) · WARN 후 exit 0(게이트 무력화) ·
+  빈 glob 오보. fixture 재현 → 수정 → 3 fixture 재검증. 도구 부재를 위반 0 으로 집계 금지.
+- **Phase 9 rust** — 명령 실행·증거 규약 신설. `cargo metadata` 타깃 감지(bin-only 에 `--lib` 금지),
+  pipefail 규약 E2 승급, 가드 우회 금지, 마이그레이션 선적용(`#[sqlx::test]` 는 불필요함을 공식
+  문서로 구분). rust-api 예시의 axum path 문법 오류 수정.
+- **Phase 10 react** — reviewer 6종 중 react 만 canonical 조항이 0건이었음 → 신설.
+  `render-evidence-protocol.md` SSOT. **0매치 판정 규칙** — react-reviewer 는 도구가
+  Read/Grep/Glob 뿐이라 "스코프가 없어서 0" 과 "위반이 없어서 0" 이 구분되지 않던 구조적 공백.
+  **Library Policy 완화 0건을 3중 검증**(금지 12항목 언급 수 전후 대조 포함).
+- **Phase 11 planning** — planning-reviewer 의 "미검증 0" 요구가 canonical 1건 허용과 충돌 → 해소.
+  `plan-audit` 분모 규칙이 셋(Step 4 / 템플릿 / reviewer)이 서로 모순이던 것도 정정.
+  INVEST T 를 **반증가능성** 판정으로 강화 + `## Surfaces` 양면 열거 템플릿.
+- **Phase 12 reflect** — 이번 사이클 최고신호. 훅 실패 351건(40%)이 54종 태그로 파편화.
+  **hook(예방)+digest(복구)+ledger(측정) 3점 수정.** digest 단독 해결을 기각한 근거: ledger 의
+  `post_freq` 가 `mistake_tag` 를 키로 재발을 세므로, 파편화는 **효과 측정을 구조적으로 과소집계**하여
+  실패한 규칙이 "효과 있음"으로 살아남게 만든다. 닫힌 라벨 집합은 label collapse 연구 근거로 기각.
+  `actionability` 1필드 + LLM 미호출 결정론적 dedup(fail-open, 억제분은 `.env-issues.tsv` 에 누적).
+- **Phase 13 bambu** — **SSOT 자체가 틀려 있었음**을 규명. `xy_hole_compensation` 은 경계 오프셋이라
+  지름 변화가 2× 인데 SSOT 가 이를 명시하지 않아 계약(지름)과 구현(오프셋)이 갈렸다(REJECT PL-01).
+  더 중요하게 §7 의 예시 수치 자체가 틀렸고 **그 값이 실제 출력한 프로파일에 박혀** 사용자 실측
+  보고("베어링이 안 맞음")와 수치가 일치. 3MF 파싱 견고화 + 생성물 E3 게이트(주입 결함 4종 검출 확인).
+- **Phase 14 onboarding** — **evals 가 사용자 피드백 메모리와 정면 모순**하던 상태 수정
+  (Flutter FCM 가이드 테스트가 Flutter 에 존재하지 않는 네이티브 Swift 호출을 요구).
+  출처 원장(Step별 URL+조회일, E2) + 경로·파일명 날조 금지(E2) 신설.
+
+### 크로스 Phase 회귀 4건 (오케스트레이터 직접 수정)
+
+1. **validate-plugin V5 백틱 오탐** — canonical 조항이 금지 동의어로 열거한 `TBD` 를 미완성
+   placeholder 로 오탐해 3킷 Exit 2. 더 위험한 것은 `--fix` 가 그 문구를 조용히 변조하는 것.
+   검사·치환 양쪽에서 인라인 코드 스팬 제외("인용은 백틱"). 음성 테스트 + `--fix` 불변성 검증.
+2. **finalize-phase 중첩 키 미갱신** — 정규식이 열 0 을 요구해 `phases:` 하위 카운터를 못 찾고
+   최상위에 중복 키를 생성. Phase 4 가 무증상 실패를 고치자 드러난 선재 버그.
+3. **orchestrator 참조 drift** — onboarding research-sources 경로가 존재하지 않는 위치를 가리킴 ·
+   Stripe 구 호스트(크로스호스트 리다이렉트라 fetch 실패).
+4. **Phase 번호 자기모순** — AUTO 블록은 Step 13=bambu/14=onboarding 인데 수기 본문은
+   "Phase 13 — onboarding". 템플릿에는 **Phase 12·13 섹션이 아예 없었다** → 신설 + 번호 정정.
+
+### 버전
+
+11킷 전부 minor bump (14/14 CHANGED). harness 0.5.0 · flutter-toolkit 0.6.0 · design-kit 0.3.0 ·
+backend-kit 0.2.0 · infra-kit 0.2.0 · rust-kit 0.2.0 · react-kit 0.2.0 · planning-kit 0.4.0 ·
+reflect-kit 0.5.0 · bambu-kit 0.5.0 · onboarding-kit 0.2.0
+
+### 부산물
+
+`.claude/kaizen-input/fit-pal-hook-diagnosis-2026-07-27.md` — digest 노이즈 40% 의 근본원인을
+fit-pal 레포에서 실측 진단(리포트만, 해당 레포 무수정). 원인이 2종이며 상대경로 훅이
+서브디렉토리 cwd 에서 해석 실패하는 쪽이 145건/41% 로 더 크다.
 
 ## [2026-06-11] — hook permission-denied 근본원인 + validate-plugin V8 가드 (인사이트 주도 부분 카이젠)
 

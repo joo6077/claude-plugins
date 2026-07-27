@@ -1,10 +1,23 @@
 ---
 title: Flutter Kaizen Research Log
-version: 1.1.0
-last_updated: 2026-06-05
+version: 1.2.0
+last_updated: 2026-07-27
 ---
 
 # Flutter Kaizen Research Log
+
+## [2026-07-27] — Phase 5
+
+Context7 OAuth 미인증으로 전부 WebFetch 직접 조회. 조회 결과 기준으로만 서술(학습 데이터 미사용):
+docs.flutter.dev release-notes (stable **3.44.7**, 페이지 갱신 2026-07-10) ·
+pub.dev flutter_riverpod **3.4.1** · go_router **17.3.0** · flutter_hooks **0.21.3+1** ·
+api.flutter.dev matchesGoldenFile · pub.dev alchemist **0.14.0**(유지보수 중) ·
+golden_toolkit(**discontinued**, 3년 전).
+
+골든 테스트 선택지 조사 결과 golden_toolkit 은 discontinued 이고 alchemist 가 현행 유지보수
+대상이라, 시각 증거 규약은 특정 패키지에 종속시키지 않고 감지 ladder(golden → integration_test →
+설정의 mcpServers → none)로 설계했다. E3(훅)을 선택하지 않은 이유는 시각 채널 유무가 프로젝트마다
+달라 §3.7 의 E3 정의(LLM 미호출 순수 함수)를 만족시킬 수 없기 때문이다.
 
 ## [2026-06-05] — Phase 5
 
