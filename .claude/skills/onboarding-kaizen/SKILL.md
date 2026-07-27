@@ -32,9 +32,13 @@ onboarding-kit의 `/setup-guide` SKILL.md, references/ 3종, evals/evals.json을
 
 `harness/skills/sprint-contract`로 완료 조건 정의 후 구현. 단순 텍스트 수정에서 큰 구조 변경까지 모두 contract 기반.
 
-### Phase 4: QA Evaluator
+### Phase 4: QA Evaluator + Plugin Validation
 
 `harness/agents/qa-evaluator`로 APPROVE/REJECT 판정. REJECT 시 수정 후 재평가.
+
+**validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 시작/종료 시 `python3 scripts/validate-plugin.py onboarding-kit` 을 실행한다. **8 카테고리 (V1~V8: frontmatter / templates / refs / triggers / placeholders / code-fence / plugin-json / hook-exec)** 중 하나라도 FAIL 이면 수정 후 재검증한다. 실행 출력을 인용하지 않은 "검증 통과" 보고는 증거가 아니다.
+
+실행 패턴, 우선순위 매핑, 통합 규칙은 `harness/docs/guides/plugin-validation-guide.md §7` 이 정의한다 (SSOT) — 해당 섹션을 그대로 따른다. 등급 근거는 `harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate (E1/E2/E3 SSOT).
 
 ### Phase 5: 커밋 + 릴리스
 
@@ -43,3 +47,7 @@ onboarding-kit의 `/setup-guide` SKILL.md, references/ 3종, evals/evals.json을
 ## References
 
 - `references/research-sources.md` — 외부 출처 목록 + 폴링 빈도
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 8 카테고리 (V1~V8) 기준 (SSOT)
+- `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구
+- `harness/docs/guides/skill-design-guide.md` — §3.7 Completion Evidence Gate · Enforcement 등급 E1/E2/E3 (SSOT)
+- `harness/docs/guides/qa-evaluation-guide.md` — §Canonical Unverified-Evidence Protocol (`[미검증]` 마커 · 임계 2 정본)
