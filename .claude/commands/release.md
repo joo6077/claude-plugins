@@ -33,17 +33,51 @@ bash scripts/release.sh <plugin-name> <bump-type>
 ```
 
 이 스크립트가 수행하는 것:
+
 - `<plugin>/.claude-plugin/plugin.json`의 version 필드 업데이트
 - `.claude-plugin/marketplace.json`의 description에서 `[vX.Y.Z · YYYY-MM-DD]` 패턴 갱신
+- `release/<plugin>-v<new-version>` 브랜치 생성
 - `git commit -m "release: <plugin> v<new-version>"`
 - `git tag -a <plugin>/v<new-version>`
-- `git push origin HEAD --follow-tags`
+- 릴리스 브랜치 + 태그 push (`git push -u origin <branch> --follow-tags`)
+- `gh pr create --base main` — **PR 생성까지가 스크립트의 끝이다**
+
+**main 에 직접 push 하지 않는다.** main 은 branch protection 으로 보호되며
+`enforce_admins: true` 이므로 소유자의 직접 push 도 거부된다. 릴리스도 CI 3 체크
+(`Plugin Validation` / `Playwright Visual Tests` / `Harness Integration Tests`)를
+통과해야 main 에 들어간다. 이 레포는 Playwright 잡이 32 회 연속 red 인 채로 릴리스가
+계속 나간 이력이 있어 이렇게 바꿨다.
+
+태그는 branch protection 대상이 아니므로 즉시 push 된다.
+
+**PR 을 머지하지 않고 버리면 태그가 main 에서 도달 불가능해진다.** 그 경우 태그도 지운다:
+
+```bash
+git push origin :refs/tags/<plugin>/v<version> && git tag -d <plugin>/v<version>
+```
+
+### 미리보기
+
+실제 동작 없이 계산 결과만 보려면:
+
+```bash
+bash scripts/release.sh <plugin-name> <bump-type> --dry-run
+```
+
+버전 파일은 수정되므로 `git checkout -- <파일>` 로 되돌린다.
+
+### 머지
+
+```bash
+gh pr checks <PR-URL>
+gh pr merge <PR-URL> --merge --delete-branch
+```
 
 ## 실행 전 확인
 
 스크립트를 실행하기 **전에** 사용자에게 요약을 보여주고 확인을 받는다:
 
-```
+```text
 릴리스 요약:
   플러그인: harness
   현재 버전: 0.1.1
