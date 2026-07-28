@@ -1,8 +1,78 @@
 ---
 title: Kaizen Changelog
-version: 1.4.0
-last_updated: 2026-07-27
+version: 1.5.0
+last_updated: 2026-07-28
 ---
+
+## [2026-07-28] — 병렬 스프린트 안전성 (harness v0.6.0, 카이젠 후속 스프린트)
+
+### 트리거
+
+사용자 지적 — "스프린트를 병렬로 처리가 안 되는 거 같은데? 세션을 병렬로 돌리면 같은 플젝 내에서
+이거 수정이 필요할 거 같은데." 2026-07-27 카이젠에서 Phase 5~14 를 병렬로 돌릴 때 서브에이전트마다
+"고정 경로 쓰지 말고 phase 별 경로에 써라" 를 손으로 프롬프트에 박아야 했던 것이 증거였다.
+
+### 근본원인 3 종
+
+1. 계약·QA 산출물이 단일 고정 경로(`sprint-contract.md` / `sprint-feedback.md`)라 병렬 세션이 충돌.
+   `scripts/spawn-kaizen-phase.sh` 가 모든 서브에이전트에 그 고정 경로를 **적극 주입**하고 있었다.
+2. 글로벌 피드백 identity 를 LLM 이 생성 + fallback 이 `pwd` 기반 →
+   `claude-plugins` 하나에 `project_hash` 43 종, `ea3aeacd` 하나가 3 개 프로젝트에 공유, `a1b2c3d4` 같은 날조값.
+3. 계약이 write-once 라 실행 중 사용자 교정을 담을 자리가 없음 (digest usc=true 재위반 12 건,
+   그중 계약 본문을 코드에 맞춰 넓혀 위반을 소거한 사례 1 건).
+
+### 설계 — 접두형이 아니라 접미형
+
+배포본 fit-pal 3 곳에 `sprint-contract-<slug>.md` 40 개 · `sprint-feedback-<slug>.md` 7 개가
+이미 있었고 계약↔피드백이 슬러그로 짝지어져 있었다 (최종 수정 2026-07-27). **사용자가 이미 손으로
+쓰던 관행**이라 접두형은 이 40 개를 고아로 만든다. 설계 패널(3 안 × 9 심사)이 이 근거로 초기
+접두형 안을 기각했고, Codex diagnose 3 회로 교차 검증했다.
+
+### 확정 규약
+
+- 경로 `sprint-contract-<slug>.md` / `sprint-feedback-<slug>.md` / `sprint-amendments-<slug>.md`.
+  슬러그 없으면 plain 계속 유효 (마이그레이션 강제 없음)
+- frontmatter `slug` / `status: active|done` / `owner_session`
+- **`status: active` 명시분만 active. 필드 없으면 레거시로 제외** — 배포본 40 개가 전부 status 가
+  없어서 파일 개수를 세면 fit-pal 이 후보 27 개로 영구 BLOCKED 된다
+- ladder: 1 명시경로 / 2 세션소유 유일 / 3 active 유일 / **3.5-a 레거시 plain 우선** /
+  **3.5-b plain 없고 레거시 유일** / 4 BLOCKED. TOCTOU 는 `경로+sha256+status` 지문 고정으로 방지
+- CONTRACT_ROOT 를 **"처음 만나는 `.harness/` 에서 멈춤"** 으로 개정 (v5.1 의 `project.yaml` 기준이
+  조용한 오귀속을 만들었다)
+- `status: done` 전환 주체 = qa-evaluator (APPROVE 직후)
+- amendment 는 **사이드카** (계약 본문에 `##` 추가 금지 — schema 허용 헤더 위반 방지)
+- User Correction Audit — 읽기 전용·보고 전용, 로그 부재 시 degrade
+
+### 이 스프린트가 남긴 가장 큰 교훈
+
+**1 차 구현은 계약 25 조건이 전부 PASS 인데 기능이 동작하지 않았다.** 계약 oracle 이 죄다
+"문서에 서술이 N 건 이상 존재하는가" 라 런타임 파손을 재지 못했다. 이번 카이젠이 Phase 3 에 도입한
+Evidence Validity Gate 가 막으려던 함정에 계약 자신이 빠진 것이다.
+→ 검증을 "**실행 결과만이 증거**" 로 바꾸자 blocking 7 건이 드러났다 (zsh nomatch 로 glob 이 명령을
+통째로 죽임 · 따옴표 불일치로 ladder 2 영구 불성립 · status done 전환 주체 부재 · 0-active BLOCKED
+회귀 · 조용한 오귀속 · ladder 1 존재검사 누락 · 파서 range 재점화).
+→ Evidence Validity Gate 를 4 → **5 검사**로 확장 (신규: 실행 가능성 — 셸 이식성 포함).
+
+### QA 3 회전
+
+- iter1 REJECT — CONTRACT_ROOT 규칙을 읽기 측만 고치고 쓰기 측(`sprint-contract/SKILL.md`) 누락
+- iter2 REJECT — **같은 결함의 세 번째 표면** (`save-feedback.sh resolve_contract_root()`)
+- iter3 **APPROVE 25/25** — 한 곳씩 고치는 대신 전수 조사로 전환. 4 표면 × 16 디렉토리 × 2 셸 =
+  32 run, SAME=32 / DIFF=0
+
+### 검증 (전부 실행 기반)
+
+배포본 `.harness` **13 곳 × zsh·bash = 26 run → BLOCKED 0** (project.yaml 없이 계약만 있던 4 곳도
+자기 계약을 찾는다 — 9 곳에서 13 곳으로 확대) · 조용한 오귀속 소멸(app_kiosk sha256 일치) ·
+셸 스니펫 32 개 × 2 셸 = 64 run nomatch 사망 0 · 외부 배포본 무수정(접미형 계약 40 개 불변)
+
+### 부수
+
+- eval 픽스처 5 종 + 실행 절차를 새 ladder 에서 실행 가능하도록 갱신
+- `sprint/SKILL.md` iteration 카운터가 슬러그 대응 피드백을 세도록 — 방치하면 매 라운드 N=1 로
+  리셋되어 REJECT 3 회 에스컬레이션 가드가 영구 무력화된다
+- sprint-contract 에 `conditions:` **계산** 단계 추가 — 이 세션에 계약 작성자가 조건 수를 3 회
+  연속 틀렸다 (18→22, 19→27, 22→25). 사람이 타이핑하게 두면 안 되는 값이다
 
 ## [2026-07-27] — enforcement 등급화 전면 도입 + 크로스 Phase 회귀 4건 수정 (14/14 CHANGED)
 

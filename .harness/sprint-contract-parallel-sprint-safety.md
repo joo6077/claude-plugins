@@ -4,7 +4,7 @@ created: "2026-07-28 03:40"
 complexity: "복잡"
 conditions: 25
 slug: parallel-sprint-safety
-status: active
+status: done
 owner_session: 8a9c2ebc-8d41-48fb-9586-496555a22b30
 ---
 
@@ -76,7 +76,7 @@ harness 는 계약을 단일 고정 경로 `{CONTRACT_ROOT}/.harness/sprint-cont
 ## Skill
 
 - [ ] SK-01: `harness/skills/sprint-contract/SKILL.md` 가 (a) 슬러그 도출 규칙 (b) 슬러그 경로 저장 (c) **같은 슬러그를 두 세션이 동시에 생성해도 덮어쓰기가 발생하지 않는 선점 절차** 3 항목을 기술한다. 구현 수단(락 방식)은 지정하지 않는다. 측정: 세 항목에 대응하는 서술이 각 1 건 이상 존재하고, (c) 는 "덮어쓰기 없음" 이라는 결과가 명시된다. [structural, enumerated]
-- [ ] SK-02: `harness/agents/qa-evaluator.md` 가 계약 선택 ladder 4 단계를 순서대로 기술한다 — (1) 명시 경로 (2) 현재 세션 소유 active 계약이 유일 (3) active 계약 전체가 유일 (4) 그 외 BLOCKED. 판정 근거는 파일 개수가 아니라 frontmatter `status` 다. 측정: 4 단계가 번호 순서대로 존재하고, `status` 를 읽는다는 서술이 1 건 이상 있으며, 4 단계에 BLOCKED 가 명시된다. [structural, enumerated]
+- [ ] SK-02: `harness/agents/qa-evaluator.md` 가 계약 선택 ladder 를 순서대로 기술한다 — (1) 명시 경로 (2) 현재 세션 소유 active 계약이 유일 (3) active 계약 전체가 유일 (3.5) 레거시 브릿지 (4) 그 외 BLOCKED. (구현 중 3.5 레거시 브릿지가 추가되어 실제 5 단계다 — 배포본 전량이 `status` 없는 레거시라 3.5 없이는 0-active BLOCKED 회귀가 났다.) 판정 근거는 파일 개수가 아니라 frontmatter `status` 다. 측정: 4 단계가 번호 순서대로 존재하고, `status` 를 읽는다는 서술이 1 건 이상 있으며, 4 단계에 BLOCKED 가 명시된다. [structural, enumerated]
 - [ ] SK-03: qa-evaluator 가 선택한 계약을 `경로 + 내용 해시 + status` 로 고정하고 verdict 저장 직전 재확인하여 달라졌으면 BLOCKED 하는 절차를 기술한다. 측정: 세 요소(경로·해시·status)와 "저장 직전 재확인" 이 모두 서술된다. [structural, enumerated]
 - [ ] SK-04: qa-evaluator 에 User Correction Audit 단계가 있고 (a) 읽기 전용 (b) 자동 REJECT 를 유발하지 않음 (c) 출력에 `unreflected_corrections` 노출 (d) 로그 부재 시 `correction_log_status: unavailable` 로 degrade 4 항목을 기술한다. 측정: 네 항목 서술이 각 1 건 이상. [structural, enumerated]
 - [ ] SK-05: qa-evaluator 의 로그 조회 경로가 **읽기 전용이어서 새 로그 버킷이나 `.project-root` 마커를 생성하지 않는다**. 측정(결과 기준 — 특정 함수명 금지/허용을 문자열로 세지 않는다): 문서에 기술된 조회 절차를 따랐을 때 `~/.claude/logs/` 하위에 디렉토리·파일이 새로 생기지 않음이 절차상 보장되고, 그 취지가 문장으로 명시된다. [structural]

@@ -7,7 +7,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 <!-- AUTO:plugins -->
 | 플러그인 | 버전 | 스택 | 설명 |
 |----------|------|------|------|
-| [`harness`](./harness/) | v0.5.0 | 범용 | [v0.5.0 · 2026-07-27] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (validate-plugin V8 hook-exec 가드 + 2026 QA 자동화 트렌드) |
+| [`harness`](./harness/) | v0.6.0 | 범용 | [v0.6.0 · 2026-07-28] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (validate-plugin V8 hook-exec 가드 + 2026 QA 자동화 트렌드) |
 | [`flutter-toolkit`](./flutter-toolkit/) | v0.6.0 | Flutter | [v0.6.0 · 2026-07-27] Flutter 개발 워크플로우 스킬 모음 (Riverpod 3.0 / Freezed 3.0 / go_router StatefulShellRoute) |
 | [`design-kit`](./design-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-07-27] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries) |
 | [`backend-kit`](./backend-kit/) | v0.2.0 | 범용 | [v0.2.0 · 2026-07-27] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (Hexagonal/Clean/DDD + OAuth 2.1 + Outbox + Pact) |
