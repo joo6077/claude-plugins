@@ -94,6 +94,10 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 | 거터 규칙성 | 열 간격(gutter)이 일관된 값을 사용함 | EightShapes Grid |
 | 반응형 전략 | 주요 breakpoint에서 레이아웃이 적절히 변환됨 | Apple HIG Layout |
 | Container Queries | 컴포넌트 수준 반응형은 `container-type: inline-size` + `@container` 사용. 글로벌 레이아웃/OS 선호(reduced-motion, color-scheme)는 media query 유지. `block-size`/`size` 쿼리 금지(layout loop). 2026 Baseline: Chrome 105+/Firefox 110+/Safari 16+ | [MDN CSS Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries), [web.dev container queries](https://web.dev/blog/how-to-use-container-queries-now), [LogRocket container queries 2026](https://blog.logrocket.com/container-queries-2026/) |
+| 가로 오버플로 | 최소 지원 뷰포트(375px)에서 `document.documentElement.scrollWidth - clientWidth <= 2`. 문서 본체가 가로로 스크롤되면 FAIL | [WCAG 2.2 SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) |
+| grid/flex 자식 min-width | grid·flex 컨테이너의 자식에 `min-width: 0` 이 적용됨. 기본값 `auto`(= min-content)는 긴 코드·표·안 끊기는 토큰의 최소폭을 트랙 폭으로 전파시켜 문서를 밀어낸다 | [MDN minimum size auto](https://developer.mozilla.org/en-US/docs/Web/CSS/min-width#values), [CSS Grid Sizing §6.6](https://www.w3.org/TR/css-grid-1/#min-size-auto) |
+| 넓은 콘텐츠 스크롤 | 표·코드블록 등 축소 불가 콘텐츠는 `overflow-x: auto` 컨테이너로 감싸 **끝까지 스크롤 도달 가능**해야 함. `overflow: hidden`/`display: none` 으로 잘라서 오버플로를 없애면 FAIL (내용 손실) | [WCAG 2.2 SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) |
+| 테마 영속화 | 테마 토글을 제공하면 선택이 `localStorage` 에 저장되고 로드 시 복원됨. 저장값이 없으면 `prefers-color-scheme` 을 따름 | [MDN prefers-color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) |
 
 ## Ethical Design
 

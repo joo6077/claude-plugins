@@ -40,7 +40,24 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     ("docs/flutter/", "docs/flutter-toolkit/"),
     ("flutter-toolkit/references/", "docs/flutter-toolkit/"),
     ("design-kit/docs/design/", "docs/design-kit/"),
+    # 아래 4 종은 kaizen-orchestrator SKILL.md 가 매핑 대상으로 명시하는데도 누락되어
+    # `.md` 20 개가 조용히 drift 감지 밖에 있었다 (rust-kit 1 · react-kit 7 · docs/planning 12).
+    ("rust-kit/references/", "docs/rust-kit/"),
+    ("react-kit/references/", "docs/react-kit/"),
+    ("planning-kit/references/", "docs/planning-kit/"),
+    ("docs/planning/", "docs/planning-kit/"),
 ]
+
+
+# 소스 stem 에서 출력 이름을 유도할 수 없는 매핑 (1:N 허용).
+# 규칙으로 추측하면 조용히 틀리므로 여기에 명시한다.
+SOURCE_OVERRIDES: dict[str, list[str]] = {
+    # 한 소스가 두 페이지로 갈라진다 — stem 규칙으로는 표현 불가
+    "design-kit/docs/design/foundations/spacing-layout.md": [
+        "docs/design-kit/spacing-system.html",
+        "docs/design-kit/grid-alignment.html",
+    ],
+}
 
 
 # docs-site 페이지는 소스 basename 과 1:1 이 아니다.
@@ -106,6 +123,18 @@ def resolve_target(candidate: str, registry: set[str]) -> tuple[str, bool, bool]
         if v_registered or v_exists:
             return variant, v_registered, v_exists
 
+    # 소스 stem 과 출력 stem 이 다른 경우 (color.md → color-palette.html,
+    # typography.md → typography-scale.html). 레지스트리(SSOT)에서 같은 디렉토리의
+    # `<stem>-*` 항목을 찾는다. 후보가 정확히 1 개일 때만 채택한다 — 2 개 이상이면
+    # 추측이 되므로 신규 생성으로 남겨 사람이 판단하게 한다.
+    prefix_matches = sorted(
+        p for p in registry
+        if p.startswith(f"{directory}/{stem}-") and p.endswith(".html")
+    )
+    if len(prefix_matches) == 1:
+        target = prefix_matches[0]
+        return target, True, (REPO_ROOT / target).is_file()
+
     # 대응 페이지가 아직 없다 — 신규 생성 대상
     return candidate, False, False
 
@@ -142,10 +171,10 @@ def map_source_to_html(source: str) -> str | None:
             rel = source[len(prefix):]
             # Convert name.md → name.html (strip all extensions)
             name = re.sub(r"\.(md|yaml|yml)$", "", Path(rel).name)
-            # Preserve subdirectories only for design-kit (many subfolders)
-            if prefix == "design-kit/docs/design/":
-                subdir = str(Path(rel).parent) + "/" if Path(rel).parent != Path(".") else ""
-                return f"{html_dir}{subdir}{name}.html"
+            # docs-site 출력은 **전부 flat** 이다 — 소스의 subdir 을 보존하면 안 된다.
+            # (과거 design-kit 만 subdir 을 보존해 26/26 전부 존재하지 않는 경로를 가리켰고,
+            #  그 결과 모든 design-kit 소스 변경이 `[NEW — 신규 생성 필요]` 로 오보되어
+            #  재생성 시 기존 HTML 수정이 통째로 날아갔다.)
             return f"{html_dir}{name}.html"
     return None
 
@@ -156,19 +185,25 @@ def detect_drift(since: str) -> list[DriftEntry]:
     entries: list[DriftEntry] = []
     seen: set[tuple[str, str]] = set()
     for src in sources:
-        candidate = map_source_to_html(src)
-        if candidate is None:
-            continue
-        target, registered, exists = resolve_target(candidate, registry)
-        key = (src, target)
-        if key in seen:
-            continue
-        seen.add(key)
-        entries.append(
-            DriftEntry(
-                source=src, target=target, registered=registered, exists=exists
+        override = SOURCE_OVERRIDES.get(src)
+        if override is not None:
+            candidates = list(override)
+        else:
+            candidate = map_source_to_html(src)
+            if candidate is None:
+                continue
+            candidates = [candidate]
+        for candidate in candidates:
+            target, registered, exists = resolve_target(candidate, registry)
+            key = (src, target)
+            if key in seen:
+                continue
+            seen.add(key)
+            entries.append(
+                DriftEntry(
+                    source=src, target=target, registered=registered, exists=exists
+                )
             )
-        )
     return entries
 
 

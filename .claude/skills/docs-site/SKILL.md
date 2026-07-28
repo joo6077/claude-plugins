@@ -22,6 +22,14 @@ user-invocable: true
 7. **1 문서 = 1 페이지 원칙** — 리서치 문서 N개가 있으면 HTML 페이지 N개를 만든다. 여러 문서를 하나로 묶거나 overview 하나로 통합하지 마라. design-kit(22개 주제 → 22개 페이지)이 유일한 기준이다.
 8. **최소 콘텐츠 밀도 400줄** — 각 HTML 페이지는 최소 400줄 이상이어야 한다. 167줄짜리 overview는 리서치 문서 내용을 충분히 시각화하지 못한 것이다. hero + 원칙 카드(출처 URL 포함) + 수치 테이블 + 안티패턴 bad/good 비교 + Gotchas 체크리스트는 필수 섹션이다.
 9. **원칙 카드에 출처 URL 누락 금지** — 모든 원칙 카드 하단에 `<a class="card-source" href="URL">출처명</a>` 링크 필수. 리서치 문서의 `> **출처:**` 인용을 HTML로 옮겨라. QA가 가장 자주 REJECT하는 항목이다.
+10. **가로 오버플로 4 규칙은 하드 제약** — Step 4 에서 페이지별 CSS 를 직접 쓸 때도 아래를 **반드시** 포함한다. 이 규칙이 없어 146 페이지 중 66 개가 375px 에서 오버플로했다. 템플릿을 골격으로만 쓰고 bespoke CSS 를 쓰는 구조라, 템플릿에 있다는 것만으로는 전파되지 않는다.
+    - **grid/flex 자식에 `min-width:0`** — 기본값 `auto`(= min-content)가 긴 코드·표·안 끊기는 토큰의 최소폭을 트랙 폭으로 전파시킨다. 그 페이지의 **실제 그리드 클래스명**에 적용하라 (`.grid-2` 가 아니라 `.cards` 일 수 있다).
+    - **표는 `<div class="table-wrap">` 로 감싸라** — `.table-wrap{overflow-x:auto;max-width:100%}` + `.table-wrap>table{min-width:max-content}`.
+    - **`pre{overflow-x:auto;max-width:100%}`** — `white-space:pre` 의 내용폭이 전파되지 않게 한다.
+    - **좁은 뷰포트 단일 컬럼 스택** — `@media(max-width:600px){ <그리드클래스>{grid-template-columns:1fr} }`.
+11. **오버플로를 잘라서 없애지 마라** — `overflow:hidden` / `overflow-x:hidden` / `display:none` 으로 억제하는 것은 내용 손실이므로 FAIL 이다. 특히 `body`/`html` 에 `overflow-x:hidden` 을 걸면 증상만 가려지고 원인이 남는다. 표·코드는 **끝까지 스크롤 도달 가능**해야 한다.
+12. **경계값 튜닝 금지** — 페이지별 고유 하드코딩 폭(`width:340px` 류)으로 맞추지 마라. CI(Linux)가 로컬(macOS)보다 나쁘게 렌더된다 (실측: 오버플로 CI 11 / 로컬 7). **0px 를 목표로** 하라.
+13. **테마 토글을 넣으면 영속화까지** — `localStorage` 키는 `dk-theme` 로 통일하고 로드 시 복원 IIFE 를 넣는다. 저장값이 없으면 `prefers-color-scheme` 을 따른다. 키를 새로 만들지 마라 (현재 레포에 `dk-theme`/`theme`/`vs-theme`/`cp-theme` 4 종이 갈려 있다).
 
 # Process
 
@@ -98,6 +106,35 @@ Sprint Contract 전에 다음을 확인한다:
 2. Read `docs/index.html` → categories 배열에 해당 `id` 항목이 추가되었는지 확인
 3. Read `docs/index.html` → `getIcon()` 함수에 해당 `id` 키가 존재하는지 확인
 4. Grep `:root` → 생성된 HTML의 `--accent` 값이 `references/css-tokens.md`의 플러그인 매핑과 일치하는지 확인
+5. **가로 오버플로 실측 (Gotcha 10~12 검증 — 코드에 CSS 가 있다는 것은 증거가 아니다)**
+
+   생성한 페이지를 브라우저로 열어 실제 값을 측정한다. `375px` 에서 `> 2` 면 FAIL:
+
+   ```bash
+   node -e '
+   const { chromium } = require(process.cwd() + "/node_modules/playwright-core");
+   const files = process.argv.slice(1);
+   (async () => {
+     const b = await chromium.launch();
+     for (const f of files) {
+       const ctx = await b.newContext({ viewport: { width: 375, height: 812 } });
+       const p = await ctx.newPage();
+       const errs = [];
+       p.on("console", m => m.type() === "error" && errs.push(m.text()));
+       p.on("pageerror", e => errs.push(String(e)));
+       await p.goto("file://" + require("path").resolve(f));
+       const o375 = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+       await p.setViewportSize({ width: 768, height: 1024 });
+       const o768 = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+       console.log(`${o375 <= 2 && o768 <= 2 && !errs.length ? "OK  " : "FAIL"} ${f}  375=${o375}px 768=${o768}px errors=${errs.length}`);
+       await ctx.close();
+     }
+     await b.close();
+   })();
+   ' docs/{plugin-name}/{page-name}.html
+   ```
+
+   FAIL 이면 Gotcha 10 의 4 규칙 중 빠진 것을 찾아 넣는다. **`overflow:hidden` 으로 덮지 마라** (Gotcha 11).
 
 하나라도 실패하면 수정 후 재검증한다.
 

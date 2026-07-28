@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,6 +13,11 @@
     --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  /* Light theme — dark-first 팔레트의 오버라이드. 키/폴백은 design-kit/templates/base.html 규약을 따른다 */
+  [data-theme="light"]{
+    --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--border:#e0dcd4;
+    --text:#1a1a24;--text2:#5a5248;--text3:#8a8078;
   }
   html{font-size:16px;scroll-behavior:smooth}
   body{
@@ -74,10 +79,46 @@
   /* Number badge */
   .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
     background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+
+  /* ════════════════════════════════════════════════════════════════════
+     가로 오버플로 방지 — 아래 4 블록은 제거·완화 금지 (하드 제약)
+     근거: 146 페이지 중 66 개가 375px 에서 오버플로했고 원인이 아래로 수렴했다.
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다.
+     ════════════════════════════════════════════════════════════════════ */
+
+  /* (1) grid/flex 자식의 기본 min-width 는 auto(= min-content) 다.
+         긴 코드·표·안 끊기는 토큰의 최소폭이 트랙 폭으로 그대로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
+
+  /* (2) 표는 컬럼 폭 합계가 그대로 전파된다. 자르지 말고 가로 스크롤 컨테이너로 감싼다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+
+  /* (4) 터치 타겟 — WCAG 2.2 SC 2.5.5 (AAA) 44×44 CSS px */
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+
+  /* 좁은 뷰포트에서 다중 컬럼은 단일 컬럼으로 스택한다 (.compare 는 위 640px 규칙 참조) */
+  @media(max-width:600px){
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  }
+
+  /* Theme toggle */
+  .theme-toggle{position:absolute;top:clamp(20px,4vw,56px);right:clamp(20px,4vw,56px);
+    background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 14px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent)}
 </style>
 </head>
 <body>
-<div class="page">
+<div class="page" style="position:relative">
+
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="테마 전환">&#127769; Dark</button>
 
 <h1>{{PAGE_TITLE}}</h1>
 <p class="subtitle">{{PAGE_SUBTITLE}}</p>
@@ -90,5 +131,25 @@
 </div>
 
 </div>
+
+<script>
+// Theme toggle — 키(dk-theme)와 prefers-color-scheme 폴백은 design-kit/templates/base.html 규약.
+// 이 페이지 계열은 dark-first 이므로 저장값이 없으면 시스템 설정을 따르고, 그것도 없으면 dark.
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = t === 'dark' ? '\u{1F319} Dark' : '☀️ Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('dk-theme', next);
+  applyTheme(next);
+}
+(function initTheme(){
+  const saved = localStorage.getItem('dk-theme')
+    ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  applyTheme(saved);
+})()
+</script>
 </body>
 </html>

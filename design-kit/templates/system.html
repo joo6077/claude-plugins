@@ -23,7 +23,13 @@
     .type-sample { padding: var(--space-unit); border-left: 3px solid var(--color-primary); }
     .spacing-demo { display: flex; gap: var(--space-unit); align-items: end; }
     .spacing-block { background: var(--color-primary); opacity: 0.3; }
-  </style>
+  
+    /* 가로 오버플로 방지 (하드 제약 — 제거 금지)
+       grid 자식의 기본 min-width 는 auto(= min-content) 라, 긴 코드·표·안 끊기는
+       토큰의 최소폭이 트랙 폭으로 전파되어 문서 전체를 밀어낸다.
+       내용을 자르지(overflow:hidden) 말고 min-width:0 으로 트랙을 풀어준다. */
+    .swatch-grid > * { min-width: 0; }
+</style>
 </head>
 <body>
   <h1>{{project_name}} Design System</h1>
