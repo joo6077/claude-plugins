@@ -63,7 +63,10 @@
   .list-thumb{width:48px;height:48px;border-radius:10px;flex-shrink:0}
   .list-info{flex:1;min-width:0}
   .list-info h4{font-size:14px;font-weight:600;margin-bottom:2px}
-  .list-info p{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* 375~480px 에서 설명문이 잘렸다. 이 설명은 그리드 뷰에 없어(그리드는 날짜만)
+     잘리면 페이지 어디에서도 읽을 수 없다. h4 는 이미 줄바꿈하므로 p 도 줄바꿈시킨다
+     — 폭이 충분한 600px+ 에서는 기존과 동일하게 한 줄로 렌더된다. */
+  .list-info p{font-size:12px;color:var(--text3);word-break:keep-all;overflow-wrap:anywhere}
   .list-meta{font-size:12px;color:var(--text3);font-family:var(--mono);flex-shrink:0}
 
   .grid-item{border-radius:12px;overflow:hidden;background:var(--surface2);transition:transform var(--transition)}
