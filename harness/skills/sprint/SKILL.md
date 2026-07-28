@@ -91,7 +91,15 @@ QA Iteration: N/3 · 직전 판정: APPROVE|REJECT
 - 이번 라운드에서 고친 것: <조건 ID 나열>
 ```
 
-- 카운터는 기억이 아니라 **파일에서 복원**한다. 컨텍스트가 끊겼거나 세션이 바뀌었으면 `{CONTRACT_ROOT}/.harness/sprint-feedback.md` 의 기존 판정 기록 수를 세어 N 을 정한다 (`grep -c "판정" .harness/sprint-feedback.md` 수준의 결정론적 확인). 기록이 없으면 N=1 로 시작한다.
+- 카운터는 기억이 아니라 **파일에서 복원**한다. 컨텍스트가 끊겼거나 세션이 바뀌었으면 **이번 스프린트의 피드백 파일 하나**를 대상으로 기존 판정 기록 수를 세어 N 을 정한다. 대상 파일은 Contract frontmatter 의 `slug` 로 결정한다 — 슬러그가 있으면 `{CONTRACT_ROOT}/.harness/sprint-feedback-<slug>.md`, 슬러그가 없는 plain 모드면 `{CONTRACT_ROOT}/.harness/sprint-feedback.md` 다.
+
+```bash
+# SLUG = Contract frontmatter 의 slug 값. plain 모드면 빈 문자열.
+FB="${CONTRACT_ROOT}/.harness/sprint-feedback${SLUG:+-${SLUG}}.md"
+[ -f "$FB" ] && grep -c "판정" "$FB" || echo 0
+```
+
+- **대상 파일을 잘못 고르면 N=3 에스컬레이션 가드가 통째로 무력화된다.** 슬러그 스프린트인데 plain 고정 경로만 세면 그 파일에는 이번 스프린트 기록이 없어 매 라운드 N=1 로 리셋되고, 루프가 3 회를 넘겨도 멈추지 않는다. 반대로 `sprint-feedback-*.md` 를 와일드카드로 묶어 합산하면 병렬 스프린트의 판정까지 딸려 들어와 N 이 부풀고 멀쩡한 루프가 조기 중단된다. 세는 파일은 항상 **정확히 하나**다. 기록이 없으면 N=1 로 시작한다.
 - **N=3 에서 REJECT 면 루프를 중단**하고 사용자에게 에스컬레이션한다. 남은 REJECT 조건, 지금까지 시도한 수정, 막힌 지점을 그대로 보고하고 자율 재시도를 이어가지 마라. 3 회를 넘겨 계속 도는 것은 스코프 드리프트의 전형이다 (`/insights` Friction #3).
 
 ### Step 5: Commit

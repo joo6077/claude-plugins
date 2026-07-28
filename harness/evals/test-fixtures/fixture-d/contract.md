@@ -3,6 +3,7 @@ feature: "에러 표시"
 created: "2026-01-01 00:00"
 complexity: "단순"
 conditions: 3
+slug: "qaa-d"
 ---
 
 ## UI

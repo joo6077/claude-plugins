@@ -5,7 +5,31 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md` (v4)
 >
-> **최근 갱신: 2026-07-27 (Phase 3 kaizen · v4.0)** — `/insights` Friction #2 (시각·런타임
+> **최근 갱신: 2026-07-28 (병렬 스프린트 안전성 · v4.1)** — 같은 프로젝트에서 세션을 병렬로
+> 돌릴 때 A 의 평가자가 B 의 계약을 채점하던 경로를 차단한다 (2026-07-27 카이젠 실측).
+>
+> - 신규 **§계약 선택 ladder** — 평가 대상 계약을 5 단계 순서로 결정론적으로 특정한다
+>   (3.5 레거시 브릿지 포함 — 레거시 전용 프로젝트를 BLOCKED 로 회귀시키지 않는다).
+>   판정 근거는 파일 개수가 아니라 frontmatter `status` 이며, `status` 없는 레거시 계약은
+>   active 후보에서 제외한다. 모호하면 후보를 나열하고 BLOCKED — 조용한 선택 fallback 없음
+> - 신규 **§계약 지문과 TOCTOU** — 선택 시점의 `경로 + sha256 + status` 를 고정하고 verdict
+>   저장 직전 재확인. 달라졌으면 verdict 폐기
+> - 신규 **§Amendment 소비 규칙** — 스프린트 도중 조건 변경은 계약 본문이 아니라 사이드카에
+>   쌓인다. `relaxing`/`unknown` 은 PASS 근거로 쓸 수 없다
+> - 신규 **§User Correction Audit** — 반영되지 않은 사용자 교정을 읽기 전용으로 대조해
+>   `unreflected_corrections` 로 표면화만 한다 (자동 REJECT 없음)
+> - 개정 **§CONTRACT_ROOT** — 조상 체인에서 **먼저 만나는 `.harness` 에서 멈춘다.**
+>   `project.yaml` 만 찾으며 올라가면 계약을 실제로 가진 디렉토리를 지나쳐 **조상의 다른 계약을
+>   경고 없이 채점**한다 (실측: `apps/apps/app_kiosk`). `project.yaml` 이 없으면
+>   `contract_root_unconfigured: true` 경고 + `/harness init` 안내로 처리하고 평가는 계속한다.
+>   `CONTRACT_ROOT` 가 끝내 비면 `/.harness` 를 뒤지지 말고 전용 BLOCKED
+> - 개정 **§ladder 1** — `HARNESS_CONTRACT` 는 `test -f` 로 존재까지 확인한다. 없는 경로는
+>   아래 단계로 흘려보내지 말고 전용 BLOCKED (TOCTOU 오진 차단). 후보 0 건도 `4 BLOCKED` 가
+>   아니라 별도 "부재" 사유다
+> - 경로·슬러그 규약은 `harness/references/contract-schema.md` §산출물 경로가 SSOT 이며
+>   본 가이드는 인용만 한다
+>
+> 이전 (2026-07-27, v4.0): `/insights` Friction #2 (시각·런타임
 > 검증 신뢰 불가) 흡수 + Phase 1·2 정합화. 이번 사이클의 전략은 새 문장 추가가 아니라
 > **enforcement 등급 상향**이다 (등급 SSOT: `skill-design-guide.md §3.7`).
 >
@@ -106,7 +130,320 @@ Independent Verification & Validation (IV&V) 원칙:
 | **증거 분류 triage (FAIL / 미검증 / 무효)** | **E2 (신규)** | contract-schema v4 마커 의미 축소 정합 |
 | **계약 파싱 범위 2 계층** | **E3 (신규)** | 저장된 계약 파일에 대해 `awk` 로 결정론적 판정 가능 |
 | **피드백 저장 경로 해석 ladder** | **E3 (신규)** | digest `feedback-script-location-mismatch` — 경로 존재 여부는 `test -f` 로 결정론적 |
-| Recurring Improvement Escalation | E1 (신규) | 최초 도입 — 반복 관측되면 E2 로 올린다 |
+| Recurring Improvement Escalation | E1 (2026-07-27) | 최초 도입 — 반복 관측되면 E2 로 올린다 |
+| **계약 선택 ladder 5 단계** | **E3 (신규)** | 후보 열거(`find`)와 `status` 판독(`awk`+따옴표 제거)이 결정론적. 유일성 판정은 산술 비교 |
+| **계약 `status` → `done` 전환 (APPROVE 시)** | **E2 (신규)** | 전환 자체는 결정론적이나, 실패해도 verdict 를 무효화하지 않으므로 E3 가 아니다 |
+| **계약 지문 재확인 (TOCTOU)** | **E3 (신규)** | `sha256` 문자열 동일성 비교 — LLM 판단이 개입하지 않는다 |
+| **Amendment 유형별 취급 (relaxing/unknown PASS 불가)** | **E2 (신규)** | 사이드카 파싱 후 유형 분류가 필요하나 취급 규칙 자체는 고정 |
+| **User Correction Audit** | **E1 (신규)** | 최초 도입 · 표면화 전용(자동 REJECT 없음). 재발 관측 시 E2 로 올린다 |
+
+---
+
+## 계약 선택 ladder — 병렬 세션에서 "어떤 계약을 평가하는가"
+
+> **대응:** `harness/references/contract-schema.md` §산출물 경로 · `harness/agents/qa-evaluator.md`
+> Step 1 · 2026-07-28 병렬 스프린트 안전성 스프린트
+>
+> **배경:** 계약이 단일 고정 경로 하나였을 때는 "평가 대상 선택" 이라는 문제가 없었다. 같은
+> 프로젝트에서 세션을 병렬로 돌리면 세션 A 의 계약을 세션 B 가 덮어쓰고, A 의 평가자가 B 의 계약을
+> 채점한다. 2026-07-27 카이젠에서 실제로 발생했고, 그때는 각 서브에이전트 프롬프트에 경로를
+> 손으로 박아 우회했다.
+>
+> **경로·슬러그·frontmatter 필드 규약은 contract-schema §산출물 경로가 SSOT 다.** 본 절은 그
+> 규약 위에서 **평가자가 대상을 고르는 절차**만 정의한다.
+
+### 판정 근거는 파일 개수가 아니라 `status` 다
+
+후보는 `{CONTRACT_ROOT}/.harness/` 의 plain `sprint-contract.md` + 접미형
+`sprint-contract-<slug>.md` 전부다. 여기서 **active 후보**를 가르는 기준:
+
+| frontmatter 상태 | 해석 | active 후보 |
+| ------ | ------ | ------ |
+| `status: active` 명시 | 진행 중 | **포함** |
+| `status: done` | 종료 | 제외 |
+| `status:` 필드 없음 | 레거시 | **제외** |
+| frontmatter 자체가 없음 | 레거시 | **제외** (파싱 실패로 중단하지 않는다) |
+
+> **레거시 제외는 선택이 아니라 필수다.** 실측 배포본(fit-pal 3 개 `.harness`)의 접미형 계약
+> **40 개는 전부 `status` 가 없다.** 이들을 active 로 세면 후보가 27 개가 되어 정상 프로젝트의
+> QA 가 영구 BLOCKED 된다. 디렉토리의 파일 수를 세는 구현은 이 지점에서 반드시 깨진다.
+
+### ladder 5 단계 (순서 고정)
+
+성립하는 첫 단계에서 확정하고 아래를 보지 않는다.
+
+| 단계 | 조건 | 결과 |
+| ------ | ------ | ------ |
+| 1 | 호출 인자 또는 `HARNESS_CONTRACT` 로 경로를 받았고 **`test -f` 통과** | 그 경로를 쓴다 |
+| 1x | 경로를 받았는데 **파일이 없다** | **BLOCKED** — 아래 단계로 흘려보내지 않는다 |
+| 0 | 후보가 **0 건** | **BLOCKED (부재)** — 모호와 사유가 다르다 |
+| 2 | `status: active` + `owner_session == $CLAUDE_CODE_SESSION_ID` 인 계약이 **정확히 1 개** | 그것을 쓴다 |
+| 3 | `status: active` 인 계약이 전체에서 **정확히 1 개** | 그것을 쓴다 |
+| 3.5-a | active **0 개** + 레거시 중 plain `sprint-contract.md` 가 있다 | 그것을 쓴다 + `legacy_contract_used: true` |
+| 3.5-b | active **0 개** + plain 없음 + 레거시가 **정확히 1 개** | 그것을 쓴다 + `legacy_contract_used: true` |
+| 4 | 그 외 (active 2 개 이상 · 브릿지 불성립) | **BLOCKED** — 후보 나열 + 복구 방법 |
+
+- **1 단계는 `[ -n "$HARNESS_CONTRACT" ] && [ -f "$HARNESS_CONTRACT" ]` 로 존재까지 본다.**
+  `-n` 만 보면 오타·stale 경로가 빈 해시로 굴러가다 저장 직전 지문 재확인에서 "평가 도중 계약이
+  변경되었습니다 (TOCTOU)" 로 **오진**한다 — 애초에 없던 파일이지 바뀐 파일이 아니다. 그리고
+  없는 경로를 아래 단계로 흘려보내면 "명시했는데 다른 계약이 채점되는" 오귀속이 된다. 없으면
+  **전용 BLOCKED**("지정한 계약 경로가 존재하지 않습니다: `<경로>`")다. Step 8 의 경로 해석
+  ladder 가 이미 `test -f` 를 결정론적 관용구로 쓰고 있다
+- **`CLAUDE_CODE_SESSION_ID` 가 없으면 2 단계를 건너뛰고 3 으로 내려간다.** 식별자 부재는 그
+  자체로 중단 사유가 아니다. 3 단계에서 유일 active 로 결정되면 정상 평가다
+- **후보 0 건은 `4 BLOCKED` 가 아니다.** 4 단계 문구는 "결정론적으로 특정할 수 없습니다" 이며
+  후보 목록을 나열하는데, 0 건이면 빈 목록을 출력하고 사용자는 있지도 않은 계약의 `status` 를
+  정리하려 든다. 부재(`/sprint-contract`)와 모호(`status` 정리)는 복구책이 다르므로 분기한다
+- **모호할 때 조용히 하나를 고르는 fallback 을 두지 않는다.** mtime 최신순 정렬로 고르거나
+  후보 중 그럴듯한 것을 골라 진행하면, 잘못 고른 계약의 verdict 가 다른 세션의 작업을 오판하고
+  글로벌 피드백 저장소(`~/.harness/feedback/`)까지 오염시킨다. 오염된 피드백은 이후 카이젠
+  사이클의 입력이 되므로 손실이 누적된다
+- BLOCKED 보고에는 **후보 목록(경로 · status · owner)** 과 레거시 제외 건수, 그리고 복구 방법
+  2 가지(`HARNESS_CONTRACT=<절대경로>` 명시 / 평가 대상에 `status: active` 추가 + 종료 계약을
+  `status: done` 으로 전환)를 함께 적는다. **사유만 적은 BLOCKED 는 사용자를 막다른 길에
+  세우는 것이다**
+
+### 3.5 레거시 브릿지 — active 0 개를 BLOCKED 로 만들면 회귀다
+
+`status` 필드는 이 스프린트에서 도입됐다. 그 이전 계약은 전부 레거시(= `status` 없음)이며 active
+후보에서 빠지므로, 규칙을 그대로 적용하면 **기존 프로젝트 전부가 active 0 개 → BLOCKED** 가 된다.
+변경 전 평가자는 plain `sprint-contract.md` 를 조건 없이 읽었으므로 이것은 명백한 회귀다.
+
+**실측 (2026-07-28, `~/Hub/10_Dev` 하위 `CONTRACT_ROOT` 13 개 — 1-a 규칙 개정으로
+`project.yaml` 없는 4 개가 후보에 합류했다):**
+
+| CONTRACT_ROOT | `project.yaml` | plain | 접미형 레거시 | active | ladder 결과 |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| `claude-plugins` | 있음 | 없음 | 1 | 1 | 2 세션소유 (세션 ID 없으면 3) |
+| `fit-pal/app` | 있음 | 있음 | 27 | 0 | 3.5-a |
+| `fit-pal/server` | 있음 | 있음 | 12 | 0 | 3.5-a |
+| `fit-pal` | 있음 | 있음 | 1 | 0 | 3.5-a |
+| `apps` · `iyaki-zip-dev` · `fit-pal-wt` · `fit-pal-wt/app` · `fit-pal-wt/server` | 있음 | 있음 | 0 | 0 | 3.5-a |
+| `apps/apps/app_kiosk` · `flutter_playwright` · `purchase-bot` · `_sandbox/flutter_colorpicker` | **없음** | 있음 | 0 | 0 | 3.5-a + `contract_root_unconfigured` |
+
+**레거시 전용 12 개가 전부 plain 을 갖고 있다.** 그래서 브릿지 조건을 "레거시가 정확히 1 개일
+때만" 으로 두면 `fit-pal/app`(28) · `fit-pal/server`(13) · `fit-pal`(2) 3 개가 여전히 BLOCKED 로
+남아 회귀가 해소되지 않는다. **plain 우선(3.5-a)이 곧 변경 전 동작이므로 회귀가 0 이다.**
+
+**실행 검증 결과 (zsh · bash 각 13 개): OK 13 / BLOCKED 0.** 두 셸의 선택 결과가 경로·sha256
+까지 동일했다. `apps/apps/app_kiosk` 는 자기 계약(`e1a45c8b…`)을 고르며, 조상 `apps/` 의
+계약(`ac9cd299…`)을 채점하지 않는다.
+
+브릿지로 선택했으면 verdict 에 경고를 노출한다 — 조용히 레거시를 집으면 병렬 세션에서 대상이
+어긋나도 사용자가 알 수 없다:
+
+```text
+⚠️ legacy_contract_used: true — `status` 필드가 없어 레거시 브릿지(ladder 3.5)로 선택했습니다.
+   권장: 계약 frontmatter 에 `status: active` 추가 또는 HARNESS_CONTRACT 로 고정.
+```
+
+### 계약 `status` 수명주기 — `done` 전환 주체는 평가자다
+
+`active` 를 `done` 으로 되돌리는 주체가 없으면 스프린트마다 active 가 **단조 증가**한다. 두 번째
+스프린트부터 active 2 개가 되어 ladder 3 이 무너지고, 세션 ID 없는 호출은 곧장 4 단계 BLOCKED 다.
+계약이 종료되는 시점은 **APPROVE 가 나온 순간**이므로 그 판정을 낸 평가자가 전환한다.
+
+- **APPROVE 일 때만 전환한다.** REJECT 는 수정 후 재평가해야 하므로 `active` 유지
+- **`status: active` 가 명시된 계약만 전환한다.** 레거시는 이미 active 후보가 아니고, 레거시에
+  `status: done` 을 박으면 다음 호출에서 후보가 0 개가 되어 새 BLOCKED 를 만든다
+- **Step 5 지문 재확인이 OK 인 뒤에** 전환한다. 재확인 전에 파일을 바꾸면 평가자가 스스로
+  TOCTOU 를 유발한다
+- **전환 실패는 verdict 를 무효화하지 않는다** — 경고만 남기고 완료한다. 이 단계는 E2 다
+
+### 계약 지문과 TOCTOU
+
+선택 시점과 verdict 저장 시점 사이에 다른 세션이 같은 파일을 쓸 수 있다. 선택 시점에
+**경로 + 내용 sha256 + status** 3 요소를 고정하고, **저장 직전 다시 계산해 대조**한다.
+
+- 3 요소 중 하나라도 다르거나 파일이 사라졌으면 **verdict 를 저장하지 않고 BLOCKED** 다.
+  이미 산출한 판정은 다른 계약에 대한 것이므로 무효다
+- 지문은 Sprint Feedback 의 `Contract Fingerprint` 블록에 그대로 남긴다. 지문이 없는 피드백은
+  "어떤 계약을 채점했는지" 를 사후에 증명할 수 없다
+- 이 검사는 E3 다 — 해시 문자열 동일성 비교라 LLM 판단이 개입하지 않는다
+
+### CONTRACT_ROOT — 먼저 만나는 `.harness` 에서 멈춘다
+
+조상 체인을 올라가며 **처음 만나는 `.harness/` 디렉토리에서 멈춘다.** 규칙은 이것 하나뿐이다.
+그 디렉토리가 `project.yaml` 을 가지면 정상 `CONTRACT_ROOT` 이고, 조상 체인에 `project.yaml` 이
+여러 개 있어도 가장 깊은 것을 골라 그대로 진행한다.
+
+실측상 정상 중첩 배포본이 4 개(`fit-pal/app`, `fit-pal/server`, `fit-pal-wt/app`,
+`fit-pal-wt/server` — 각자 `project.yaml` 을 가지면서 조상에도 있음) 존재한다. 중첩 자체를
+검출해 평가를 막는 규칙을 넣으면 이 배포본들이 전부 깨진다.
+
+#### `.harness` 는 있고 `project.yaml` 은 없을 때 — 건너뛰면 조용한 오귀속이다
+
+**`project.yaml` 만 찾으며 올라가는 구현은 `.harness/sprint-contract.md` 를 실제로 가진
+디렉토리를 지나쳐 조상의 다른 계약을 경고 없이 채점한다.** BLOCKED 는 사용자가 알아채고 고칠 수
+있지만, 이 오귀속은 아무 신호도 남기지 않고 **틀린 계약에 대한 verdict 를 글로벌 피드백
+저장소에 적재**한다. BLOCKED 보다 나쁘다.
+
+**실측 (2026-07-28, `~/Hub/10_Dev` 하위 `.harness` 13 개):**
+
+| `.harness` 경로 | `project.yaml` | 계약 | 옛 규칙 결과 | 새 규칙 결과 |
+| ------ | ------ | ------ | ------ | ------ |
+| `apps/apps/app_kiosk` | 없음 | 있음 (`e1a45c8b…`) | 조상 `apps/` 계약(`ac9cd299…`) 채점 — **오귀속** | 자기 계약 (`unconfigured`) |
+| `flutter_playwright` | 없음 | 있음 | BLOCKED — **회귀** | 자기 계약 (`unconfigured`) |
+| `purchase-bot` | 없음 | 있음 | BLOCKED — **회귀** | 자기 계약 (`unconfigured`) |
+| `_sandbox/flutter_colorpicker` | 없음 | 있음 | BLOCKED — **회귀** | 자기 계약 (`unconfigured`) |
+| 나머지 9 개 | 있음 | 있음 | 정상 | 정상 (동일) |
+
+`flutter_playwright` 와 `purchase-bot` 은 `sprint-feedback.md` 와 `history/` 를 갖고 있다 —
+**실제로 QA 가 돌던 배포본**이다. 이들을 BLOCKED 로 떨어뜨리는 것은 회귀이며, 그 BLOCKED 사유가
+"Sprint Contract 가 존재하지 않습니다" 인 것은 **오진**이다. 계약은 존재하고, 실제 원인은
+`/harness init` 미실행(= `project.yaml` 부재)이다.
+
+규칙:
+
+- `.harness/` 는 있는데 `project.yaml` 이 없으면 **그 디렉토리를 `CONTRACT_ROOT` 로 채택**하고
+  `contract_root_unconfigured: true` 를 `Contract Fingerprint` 블록과 verdict 본문에 노출한다.
+  복구책은 `/harness init`. **경고이지 실패가 아니다** — 평가는 정상 진행하고, `commands` /
+  `anti_patterns` / `contract_categories` 는 범용 기본값을 쓴다
+- **조상의 `project.yaml` 을 대신 읽지 마라.** 그 프로젝트의 설정이 아니다
+- `CONTRACT_ROOT` 가 **끝내 비면** `HDIR="$CONTRACT_ROOT/.harness"` 가 `/.harness` 로 접혀
+  루트를 뒤진다. 그 상태로 1-b 에 진입하지 말고 즉시 전용 BLOCKED("CONTRACT_ROOT 미확정 —
+  `.harness` 를 찾지 못함", 복구책 `/harness init`)를 낸다
+
+```bash
+# cwd 가 ~/Hub/10_Dev/fit-pal/app          → ~/Hub/10_Dev/fit-pal/app        (unconfigured=false)
+# cwd 가 ~/Hub/10_Dev/apps/apps/app_kiosk  → ~/Hub/10_Dev/apps/apps/app_kiosk (unconfigured=true)
+CONTRACT_ROOT=""; CONTRACT_ROOT_UNCONFIGURED=false
+d=$PWD
+while : ; do
+  if [ -d "$d/.harness" ]; then
+    CONTRACT_ROOT="$d"
+    [ -f "$d/.harness/project.yaml" ] || CONTRACT_ROOT_UNCONFIGURED=true
+    break
+  fi
+  [ "$d" = "/" ] && break
+  d=$(dirname "$d")
+done
+printf 'CONTRACT_ROOT=%s contract_root_unconfigured=%s\n' \
+  "${CONTRACT_ROOT:-<none>}" "$CONTRACT_ROOT_UNCONFIGURED"
+```
+
+#### BLOCKED 사유를 혼동하지 마라
+
+사유가 3 가지이고 복구책이 서로 다르다. **틀린 사유를 적으면 사용자는 있지도 않은 문제를
+고치려 든다.**
+
+| 상태 | 사유 | 복구책 |
+| ------ | ------ | ------ |
+| `CONTRACT_ROOT` 가 빔 | `.harness` 를 찾지 못함 | `/harness init` |
+| `CONTRACT_ROOT` 확정 · 후보 0 건 | 계약 파일이 없음 | `/sprint-contract` |
+| `HARNESS_CONTRACT` 지정 경로 부재 | 명시 경로가 없음 | 경로 수정 또는 변수 해제 |
+
+### 산출물도 같은 슬러그를 따른다
+
+접미형 계약을 평가했으면 QA 산출물도 `sprint-feedback-<slug>.md` 에 쓴다. plain 계약을 평가했으면
+plain 이 정상 경로이며 슬러그를 지어내지 않는다. **접미형 계약을 평가하고 피드백만 plain 경로에
+쓰면 병렬 세션이 서로의 피드백을 덮어쓴다** — 계약 충돌을 고치고 피드백 충돌을 남기는 셈이다.
+`Iteration` 카운터도 같은 슬러그의 피드백만 센다.
+
+---
+
+## Amendment 소비 규칙 — 스프린트 도중 조건이 바뀌면
+
+> **대응:** `harness/references/contract-schema.md` §산출물 3 종 (사이드카 경로) ·
+> digest `contract-scope-expanded-after-edit` · usc=true 재위반 12 건
+>
+> **배경:** 계약은 write-once 라 실행 중 사용자 교정을 담을 자리가 없었다. 그 결과 실측에서
+> **계약 본문을 구현에 맞춰 넓혀 위반을 소거한 사례**가 나왔다. 계약이 코드를 따라가면 계약은
+> oracle 이기를 그만둔다.
+
+### 사이드카에만 기록된다
+
+amendment 는 `{CONTRACT_ROOT}/.harness/sprint-amendments-<slug>.md` (plain 모드면
+`sprint-amendments.md`) 에 쌓인다. **계약 본문에 새 `##` 섹션을 만들지 않는다** — contract-schema
+의 허용 섹션 헤더 위반이며, digest `parser-incompatible-contract-section` 결함이 재발한다.
+계약 본문에 그런 섹션이 있으면 그것은 amendment 가 아니라 **계약 결함**으로 기록한다.
+
+### 유형별 취급
+
+| 유형 | 의미 | 평가에서의 취급 |
+| ------ | ------ | ------ |
+| `narrowing` | 제약 강화 (범위 축소 · 기준 상향) | 원 조건 + 강화분까지 검증. 미충족이면 FAIL |
+| `relaxing` | 제약 완화 | **PASS 근거로 쓸 수 없다.** 원 조건 문자 그대로 판정 + "사용자 확인 필요" 표면화 |
+| `unknown` | 유형 미명시 · 판별 불가 · 앵커 없음 | `relaxing` 과 동일 취급 |
+
+**왜 relaxing 을 PASS 근거로 쓰지 않는가:** 완화 amendment 를 평가자가 그대로 받아들이면,
+"구현이 조건을 못 맞춤 → 조건을 완화 → PASS" 라는 자기충족 루프가 생긴다. 이것이 정확히
+`contract-scope-expanded-after-edit` 의 형태다. 완화가 정당한 경우도 있지만 그 판단은 사용자
+권한이므로, 평가자는 **원 조건으로 판정하고 완화 요청을 표면화**한다.
+
+### 기록 규약
+
+- **원 조건을 삭제하지 않는다.** amendment 는 추가만 한다. "이 조건 폐기" 라고 적혀 있어도
+  평가자는 원 조건을 계속 판정하고 폐기 요청을 사용자 확인 대상으로 올린다
+- 각 항목에 사용자 발언의 **prompt-log 앵커(timestamp · session · cwd)** 가 있어야 한다.
+  앵커 없는 항목은 출처 미상이므로 `unknown` 이다
+- 인용문은 **"redaction 거친 원문"** 이다. reflect-kit 로그는 저장 시점에 민감 패턴을 마스킹하므로
+  일부 토큰이 가려져 있어도 위조로 판단하지 않는다. "verbatim" 이라고 표기하지 마라
+- 사이드카 부재는 결함이 아니다 — `amendments: 0` 으로 기록하고 진행한다
+
+amendment 는 **verdict 를 자동으로 뒤집지 않는다.** `narrowing` 은 조건 판정에 흡수되고,
+`relaxing`/`unknown` 은 표면화만 된다.
+
+---
+
+## User Correction Audit — 반영되지 않은 사용자 교정 표면화
+
+> **대응:** `harness/agents/qa-evaluator.md` Step 3.4 · reflect-kit prompt 로그 ·
+> digest usc(user_said_correction)=true 재위반 12 건
+>
+> **배경:** 사용자가 스프린트 도중 방향을 교정했는데 그 교정이 계약에도 amendment 에도 남지 않고
+> 구현만 바뀌는 경로가 있다. 그러면 계약 기준 평가는 통과하는데 사용자가 실제로 요구한 것은
+> 빠진다. 계약만 보는 평가자는 이 구멍을 구조적으로 볼 수 없다.
+
+### 읽기 전용이 절대 조건
+
+QA 는 사용자 로그 저장소를 **변형시키면 안 된다.** 평가 행위가 관측 대상을 바꾸면 그 로그는
+이후 어떤 분석에서도 신뢰할 수 없다.
+
+- 새 로그 버킷 디렉토리, `.project-root` 마커, 인덱스 파일 등 **어떤 파일·디렉토리도 만들지
+  않는다.** `mkdir` · `touch` · 리다이렉트 쓰기 금지
+- reflect-kit 의 `compute_project_id` 는 **write-side 헬퍼**다 — 호출하면 버킷과 마커를
+  ensure 한다. **읽기 경로에서 쓰지 마라**
+- 경로는 git root basename 기준 **read-union** 으로 해석한다: `basename` 과
+  `basename-??????`(6 자 hash suffix) 두 형태를 합집합으로 조회. 어느 쪽도 없으면 로그 부재다
+
+```bash
+# 읽기 전용 — 생성 없음. read-union 도 셸 glob 이 아니라 find 로 한다.
+BASE=$(basename "$(git -C "$CONTRACT_ROOT" rev-parse --show-toplevel 2>/dev/null || echo "$CONTRACT_ROOT")")
+LOGS_ROOT="${REFLECT_KIT_LOGS_ROOT:-$HOME/.claude/logs}"
+DIRS=$(find "$LOGS_ROOT" -maxdepth 1 -type d \
+  \( -name "$BASE" -o -name "$BASE-??????" \) 2>/dev/null | sort)
+[ -n "$DIRS" ] && echo "$DIRS" || echo "correction_log_status: unavailable"
+```
+
+> **`ls -d ... "$LOGS_ROOT/$BASE"-??????` 형태를 쓰지 마라.** hash 버킷이 없는 통상 환경에서
+> zsh 는 `nomatch` 로 **ls 를 실행조차 하지 않는다** — 버킷이 실재해도 `DIRS` 가 비어
+> `unavailable` 로 상시 오판한다. 실측: `~/.claude/logs/claude-plugins` 가 존재하는데
+> zsh 는 `no matches found` 후 unavailable, bash 만 정상. `find` 는 패턴을 셸이 아니라 find 가
+> 해석하므로 두 셸에서 동일한 결과를 낸다. (exit code 가 아니라 **출력**으로 판정하는 원칙은
+> 그대로 유지된다.)
+
+### 대조 절차
+
+1. read-union 으로 나온 디렉토리의 월간 로그 `YYYY-MM.md` 를 읽는다. 항목 형식은
+   `## [prompt] {timestamp}` + `- session:` + `- cwd:` + 본문
+2. 스프린트 기간(계약 frontmatter `created` ~ 평가 시각)의 사용자 발언만 추린다
+3. 교정 성격(방향 변경 · 범위 조정 · 금지 지시 · 재작업 요구)의 발언을 골라 현재 계약 조건 +
+   amendment 목록과 대조한다
+4. 어느 쪽에도 반영되지 않은 것을 `unreflected_corrections` 로 집계하고 건별
+   `[timestamp · session · 한 줄 요약]` 을 남긴다
+
+### verdict 영향은 없다 — 표면화 전용
+
+- **자동 REJECT 를 유발하지 않는다.** `unreflected_corrections` 는 `[미검증]` 카운터에
+  **합산하지 않으며** 2 건 자동 REJECT 임계와 무관하다
+- 대조 결과가 개별 조건의 PASS/FAIL 을 바꾸지 않는다. 평가 기준은 여전히 계약 문자 그대로다
+- 로그가 없으면 `correction_log_status: unavailable` 로 기록하고 **기존 QA 를 그대로 계속한다.**
+  로그 부재는 BLOCKED 도 FAIL 도 아니다. 있으면 `available`
+
+> **왜 자동 REJECT 하지 않는가:** 사용자 발언에서 "교정" 을 식별하는 것은 LLM 판단이며
+> 오탐이 불가피하다. 오탐이 verdict 를 뒤집으면 평가 신뢰도 자체가 무너진다. 이 단계는 E1 —
+> 사람이 볼 수 있게 올려놓는 것까지가 역할이다. 재발이 관측되면 등급을 올린다.
 
 ---
 
@@ -151,9 +488,10 @@ grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CONTRACT"
 grep -E '^conditions:' "$CONTRACT"
 ```
 
-`$CONTRACT` 는 `{CONTRACT_ROOT}/.harness/sprint-contract.md` 이며, `CONTRACT_ROOT` 는
-`.harness/project.yaml` 을 발견한 디렉토리의 절대경로다 (contract-schema v4). 세션 중 cwd 가
-바뀌어도 이 값을 기준으로 해석한다.
+`$CONTRACT` 는 §계약 선택 ladder 에서 **선택·지문 고정된 계약의 절대경로**다 — plain
+`sprint-contract.md` 일 수도, 접미형 `sprint-contract-<slug>.md` 일 수도 있다. `CONTRACT_ROOT` 는
+`.harness/project.yaml` 을 가진 가장 가까운 조상의 절대경로이며, 세션 중 cwd 가 바뀌어도 이 값을
+기준으로 해석한다 (contract-schema §산출물 경로).
 
 ---
 
@@ -355,9 +693,9 @@ Step 4 판정 시 평가자는 Sprint Feedback 에 다음을 기록:
   아무것도 검사하지 않은" assertion 을 걸러낸다
   ([arxiv 2606.21451](https://arxiv.org/pdf/2606.21451))
 
-### 유효성 4 검사 (PASS 확정 전 필수)
+### 유효성 5 검사 (PASS 확정 전 필수)
 
-증거를 수집한 뒤, 그 증거로 PASS 를 주기 **전에** 아래 4 항을 통과해야 한다. 하나라도 실패하면
+증거를 수집한 뒤, 그 증거로 PASS 를 주기 **전에** 아래 5 항을 통과해야 한다. 하나라도 실패하면
 그 증거는 무효이며 조건은 PASS 가 아니라 `[미검증]` (증거 분류 triage 분기 C) 이다.
 
 | # | 검사 | 질문 | 실패 시 |
@@ -366,6 +704,29 @@ Step 4 판정 시 평가자는 Sprint Feedback 에 다음을 기록:
 | 2 | **활성화 (trigger coverage)** | 그 측정이 검사 대상을 **실제로 한 번이라도 통과**했는가? 테스트 0 개 실행 · 스킵된 스위트 · 매치 0 건 grep 은 "위반 없음" 이 아니라 "검사되지 않음" 이다 | 증거 무효 → `[미검증]` |
 | 3 | **반증 가능성 (negative control)** | 조건이 위반된 상태였다면 **이 측정이 다른 결과를 냈을 것인가?** 어떤 입력에도 같은 출력을 내는 측정은 oracle 이 아니다 | 증거 무효 → `[미검증]` + 계약에 측정 수단 재설계 권장 |
 | 4 | **출처 (provenance)** | 그 증거를 **평가자가 직접 수집**했는가? 구현자의 서술·주석·커밋 메시지·대화 로그를 인용한 것이 아닌가? | 증거 불인정 → 직접 수집 후 재판정 |
+| 5 | **실행 가능성 (executability)** | 산출물이 **셸 스니펫·명령·스크립트를 담은 문서**라면, 그것이 문서에 적혀 있다는 사실이 아니라 **평가자가 직접 실행한 출력**을 근거로 삼았는가? 그리고 **사용자 셸(zsh)과 bash 양쪽**에서 실행했는가? | 증거 무효 → `[미검증]` |
+
+### 검사 5 특칙 — 서술은 실행이 아니다 (셸 이식성 포함)
+
+문서가 제시하는 셸 스니펫은 **실행 가능해야 하며, 평가자는 서술의 존재가 아니라 실행 결과로
+판정한다.** 스니펫이 조건이 요구하는 문구를 정확히 담고 있어도, 그 스니펫이 런타임에 깨지면
+조건은 충족되지 않은 것이다.
+
+- **zsh·bash 양쪽에서 실행한다.** 사용자 셸이 zsh 인 환경에서 bash 전용 코드는 배포 시점에
+  파손이다. 대표적으로 zsh 는 기본 `nomatch` 라 **매치 없는 glob 이 명령을 통째로 죽인다** —
+  `for f in a.md b-*.md` 는 `b-*.md` 가 없으면 루프에 진입조차 못 하고, `[ -f "$f" ] || continue`
+  가드도 무력하다. `ls -d dir/x dir/x-??????` 도 같은 이유로 zsh 에서 실행되지 않는다.
+  셸 무관 열거는 `find ... \( -name A -o -name B \)` 로 쓴다
+- **의도한 출력이 나오는지까지 본다.** exit 0 은 통과 기준이 아니다. 스니펫이 뽑아낸 값이
+  비교 대상과 실제로 일치하는지 확인한다 (예: frontmatter reader 가 따옴표를 벗기지 않으면
+  `owner_session: "abc"` 는 `abc` 와 영원히 불일치한다 — 출력은 나오지만 로직은 죽어 있다)
+- 실행 결과를 근거에 붙인다. `셸: zsh/bash · 출력: …` 형태로 남긴다
+
+> **이 특칙이 없어서 놓친 실제 사고 (2026-07-28 병렬 스프린트 안전성):** 적대적 검증에서
+> **25/25 조건이 문언상 PASS** 였는데 런타임은 깨져 있었다. 후보 열거 루프가 zsh nomatch 로
+> 죽어 상시 오탐 BLOCKED 였고, reader 가 따옴표를 안 벗겨 ladder 2 단계가 영구 불성립이었으며,
+> correction audit 의 read-union 은 zsh 에서 항상 `unavailable` 이었다. **오라클이 문서 서술만
+> 검사했기 때문에 세 결함 모두 PASS 로 통과했다.**
 
 ### 0 매치 판정 규칙 — "없음" 은 두 가지다
 
@@ -401,7 +762,8 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
 ```text
 ## Evidence Validity
 - 검사 대상 증거: N 건
-- 무효 판정: K 건 [조건 ID — 실패한 검사 번호 — 사유]
+- 무효 판정: K 건 [조건 ID — 실패한 검사 번호(1~5) — 사유]
+- 셸 스니펫 실행 검증: 실행 N 건 · zsh/bash 양쪽 확인 M 건 · 미실행 K 건 (검사 5)
 - 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
 ```
 
@@ -873,7 +1235,7 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 
 - [GroundEval: A Deterministic Replacement for LLM-as-Judge in Stateful Agent Evaluation — arxiv 2606.22737](https://arxiv.org/html/2606.22737v2) — 판정자는 validity 가 아니라 plausibility 를 채점한다. 근거를 가져오지 않은 답변에 0.90/0.85 vs trace 대조 0.000. invalid absence / temporal leakage / permission leakage 분류 (§Evidence Validity Gate 근거)
 - [Beyond Task Completion: Revealing Corrupt Success in LLM Agents through Procedure-Aware Evaluation — arxiv 2603.03116](https://arxiv.org/pdf/2603.03116) — outcome-only 평가는 절차 위반을 통과시켜 성능을 과대평가. 중간 상태·행위 시퀀스 대조 필요 (§Evidence Validity Gate 근거)
-- [Closing the Loop on LLM-Generated RTL Assertions with Quality-Aware Formal Verification — arxiv 2606.21451](https://arxiv.org/pdf/2606.21451) — vacuity: trigger coverage · antecedent activation · mutation(negative control) 3 축으로 "통과했지만 아무것도 검사하지 않은" 검증 걸러내기 (§Evidence Validity Gate 4 검사 근거)
+- [Closing the Loop on LLM-Generated RTL Assertions with Quality-Aware Formal Verification — arxiv 2606.21451](https://arxiv.org/pdf/2606.21451) — vacuity: trigger coverage · antecedent activation · mutation(negative control) 3 축으로 "통과했지만 아무것도 검사하지 않은" 검증 걸러내기 (§Evidence Validity Gate 5 검사 중 1~3 근거)
 - [From Confident Closing to Silent Failure — arxiv 2606.09863](https://arxiv.org/abs/2606.09863) — 실패의 75.8% 가 false success, LLM 판정자 AUROC 0.54~0.65 (§Canonical Unverified-Evidence Protocol 4 항 근거 · Phase 1 §3.7 공유 출처)
 - [Gaming the Judge: Unfaithful Chain-of-Thought Can Undermine Agent Evaluation — arxiv 2601.14691](https://arxiv.org/abs/2601.14691) — narrated reasoning 조작 시 false positive 최대 90% 증가, observable evidence 에 대해 reasoning claim 검증 필요 (§Execution-Grounded Evidence 근거)
 - [Tool Receipts, Not Zero-Knowledge Proofs: Practical Hallucination Detection for AI Agents — arxiv 2603.10060](https://arxiv.org/pdf/2603.10060) — 실행 로그(receipt) 대조로 fabricated tool reference 탐지 (§Execution-Grounded Evidence 근거)
@@ -962,7 +1324,8 @@ qa-evaluation-guide.md 편집 시:
 
 ### 버전 정보
 
-- **Guide version**: 2026-07-27 (Phase 3 kaizen · v4.0 — Evidence Validity Gate · 증거 분류 triage · 계약 파싱 범위 · Canonical Unverified-Evidence Protocol · Recurring Improvement Escalation · 원칙별 Enforcement 등급)
+- **Guide version**: 2026-07-28 (병렬 스프린트 안전성 · v4.3 — 계약 선택 ladder 5 단계 + 3.5 레거시 브릿지 · **CONTRACT_ROOT 는 먼저 만나는 `.harness` 에서 멈춤 + `contract_root_unconfigured` 경고** · **ladder 1 `test -f` 존재 검사 + 부재/모호 BLOCKED 사유 분리** · 계약 `status` 수명주기 · 계약 지문 TOCTOU · Amendment 소비 규칙 · User Correction Audit · Evidence Validity 검사 5 실행가능성)
+- 이전: 2026-07-27 (Phase 3 kaizen · v4.0 — Evidence Validity Gate · 증거 분류 triage · 계약 파싱 범위 · Canonical Unverified-Evidence Protocol · Recurring Improvement Escalation · 원칙별 Enforcement 등급)
 - **Parity with**: skill-design-guide v1.4.0, agent-design-guide v1.5.0, contract-design-guide v4.0
-- **Schema link**: contract-schema.md v4
+- **Schema link**: contract-schema.md §산출물 경로 (경로·슬러그·frontmatter SSOT — 본 가이드는 인용만 한다)
 - **하위 전파 대기**: `*-kit/agents/*-reviewer.md` 6 종 (design · backend · infra · rust · react · planning) — §Canonical Unverified-Evidence Protocol 복제. 각 kit 카이젠 Phase 소관이며 본 Phase 는 수정하지 않았다
