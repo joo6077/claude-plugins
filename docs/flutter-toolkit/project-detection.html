@@ -151,6 +151,13 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+/* OVERFLOW GUARDS — grid/flex 자식 min-width:auto 차단, 표·코드는 자르지 않고 스크롤 */
+.grid-2>*,.grid-3>*,.compare>*,.rung>*,.checklist>li>*{min-width:0}
+.table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+.table-wrap>table{min-width:max-content}
+.code-block{max-width:100%}
+:not(pre)>code{overflow-wrap:anywhere}
+
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 </style>
   <!-- kaizen-cycle: 2026-07-27 (Step 8 VISUAL_CHANNEL / HAS_VISUAL_CHANNEL 시각 채널 감지 ladder 신설) -->
@@ -243,9 +250,9 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
     <div class="card">
       <div class="card-title"><span class="dot"></span>감지 절차</div>
       <ul class="checklist">
-        <li><span class="check">1</span>프로젝트 루트에서 <code>Makefile</code> 존재 확인</li>
-        <li><span class="check">2</span>본문에 다음 타겟 중 하나 이상 존재하면 <code>HAS_MAKEFILE = true</code> — <code>app-run</code>, <code>app-run-staging</code>, <code>app-run-prod</code>, <code>app-run-profile</code>, <code>app-test</code>, <code>app-analyze</code>, <code>app-fix</code>, <code>app-clean</code>, <code>app-codegen</code>, <code>app-codegen-filter</code>, <code>app-build</code>, <code>app-preflight</code></li>
-        <li><span class="check">3</span><code>$MAKE = make</code> 변수를 제공 (Windows 에서는 <code>gmake</code> 또는 프로젝트 관습 우선)</li>
+        <li><span class="check">1</span><div>프로젝트 루트에서 <code>Makefile</code> 존재 확인</div></li>
+        <li><span class="check">2</span><div>본문에 다음 타겟 중 하나 이상 존재하면 <code>HAS_MAKEFILE = true</code> — <code>app-run</code>, <code>app-run-staging</code>, <code>app-run-prod</code>, <code>app-run-profile</code>, <code>app-test</code>, <code>app-analyze</code>, <code>app-fix</code>, <code>app-clean</code>, <code>app-codegen</code>, <code>app-codegen-filter</code>, <code>app-build</code>, <code>app-preflight</code></div></li>
+        <li><span class="check">3</span><div><code>$MAKE = make</code> 변수를 제공 (Windows 에서는 <code>gmake</code> 또는 프로젝트 관습 우선)</div></li>
       </ul>
     </div>
     <div class="card">
@@ -461,10 +468,10 @@ Visual Channel: {golden|integration_test|mcp:&lt;서버명&gt;|none}  # HAS_VISU
 이후 단계에서 감지 결과($FLUTTER, $DART, ARCH, HAS_* 등)를 사용한다.</code>
   </div>
   <ul class="checklist">
-    <li><span class="check">✓</span>명령을 실행하기 전에 <code>$FLUTTER</code>/<code>$DART</code>/<code>$MAKE</code> 를 확정했는가?</li>
-    <li><span class="check">✓</span>필요한 <code>HAS_*</code> 플래그가 false 면 안내 메시지를 출력하고 중단했는가?</li>
-    <li><span class="check">✓</span>생성 코드가 감지된 <code>ARCH</code> 와 코드 컨벤션을 따르는가?</li>
-    <li><span class="check">✓</span>UI 스킬이면 <code>VISUAL_CHANNEL</code> 을 확정했는가? <code>none</code> 이면 부분 완료 + <code>[미검증]</code> 으로 보고했는가?</li>
+    <li><span class="check">✓</span><div>명령을 실행하기 전에 <code>$FLUTTER</code>/<code>$DART</code>/<code>$MAKE</code> 를 확정했는가?</div></li>
+    <li><span class="check">✓</span><div>필요한 <code>HAS_*</code> 플래그가 false 면 안내 메시지를 출력하고 중단했는가?</div></li>
+    <li><span class="check">✓</span><div>생성 코드가 감지된 <code>ARCH</code> 와 코드 컨벤션을 따르는가?</div></li>
+    <li><span class="check">✓</span><div>UI 스킬이면 <code>VISUAL_CHANNEL</code> 을 확정했는가? <code>none</code> 이면 부분 완료 + <code>[미검증]</code> 으로 보고했는가?</div></li>
   </ul>
 </div>
 

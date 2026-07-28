@@ -108,6 +108,10 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 .timeline-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;white-space:nowrap;padding:0 6px}
 
 /* Trigger table */
+/* 표는 컬럼 폭 합계가 문서 폭으로 전파된다. 자르지 말고 가로 스크롤 컨테이너로 감싼다.
+   마크업: <div class="table-wrap"><table>…</table></div> */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.table-wrap>table{min-width:max-content}
 .trigger-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
 .trigger-table th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
 .trigger-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
@@ -174,6 +178,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
   <div class="section-label">트리거 스케줄</div>
   <h2>무엇이 언제 실행되는가</h2>
   <div class="card">
+    <div class="table-wrap">
     <table class="trigger-table">
       <thead><tr><th>시점</th><th>스킬</th><th>트리거</th><th>범위</th></tr></thead>
       <tbody>
@@ -190,6 +195,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
         <tr><td>구현 후</td><td>qa-evaluator</td><td>/develop Step 5</td><td>계약 기반 검증</td></tr>
       </tbody>
     </table>
+    </div>
   </div>
 </div>
 
@@ -497,7 +503,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
       <div class="timeline-seg" style="flex:15;background:rgba(134,239,172,0.6)">Final 15m</div>
       <div class="timeline-seg" style="flex:15;background:rgba(74,222,128,0.6)">PR 15m</div>
     </div>
-    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3)">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3)">
       <span>T+0m</span><span>T+15m</span><span>T+30m</span><span>T+45m</span><span>T+70m</span><span>T+100m</span><span>T+120m</span><span>T+135m</span><span>T+150m</span>
     </div>
   </div>

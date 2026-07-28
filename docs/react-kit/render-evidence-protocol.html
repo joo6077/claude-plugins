@@ -129,6 +129,17 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+
+/* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ──────────────────
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
+.grid-2>*,.grid-3>*,.grade>*,.compare>*{min-width:0}
+/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너로 감싼다 */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.table-wrap>table{min-width:max-content}
+/* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
+.code-block{overflow-x:auto;max-width:100%;white-space:pre}
+:not(pre)>code:not(.code-block){overflow-wrap:anywhere}
 </style>
   <!-- kaizen-cycle: 2026-07-27 (신규 SSOT — 렌더 증거 등급 R1/R2/R3 + 공허한 증거 4 유형) -->
 </head>

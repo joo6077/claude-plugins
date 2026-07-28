@@ -291,6 +291,32 @@
     font-size:13px;
   }
 
+  /* OVERFLOW GUARDS — 표는 자르지 않고 가로 스크롤, grid 자식 min-width:auto 차단 */
+  .table-wrap{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
+  }
+
+  .table-wrap>table{
+    min-width:max-content;
+  }
+
+  .cards>*,
+  .compare>*,
+  .checklist>*{
+    min-width:0;
+  }
+
+  :not(pre)>code{
+    overflow-wrap:anywhere;
+  }
+
+  .card-source{
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+
   /* ─── Anti-pattern compare ─── */
   .compare{
     display:grid;
@@ -529,6 +555,7 @@
       2026-04 기준 최신 안정 버전과 실전 한계 수치. 의존성 업그레이드 시 이 표를 기준선으로 삼는다.
     </p>
 
+    <div class="table-wrap">
     <table class="metrics-table">
       <thead>
         <tr>
@@ -565,6 +592,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
   </section>
 
   <!-- ═══════════ 안티패턴 ═══════════ -->

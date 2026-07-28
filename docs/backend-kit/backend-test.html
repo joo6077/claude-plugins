@@ -127,7 +127,8 @@ body{
 
 /* --- TABLE --- */
 .table-wrap{
-  overflow-x:auto;border-radius:var(--radius);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;
+  border-radius:var(--radius);
   border:1px solid var(--border);background:var(--surface);
 }
 table{width:100%;border-collapse:collapse;font-size:14px}
@@ -225,6 +226,22 @@ td code{
 }
 .footer a{color:var(--accent2);text-decoration:none}
 .footer a:hover{color:var(--accent)}
+
+/* ════════════════════════════════════════════════════════════════════
+   가로 오버플로 방지 — docs-site page-template 정본 규칙. 완화·제거 금지.
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 다.
+       긴 코드·표·안 끊기는 토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+.grid-2>*,.grid-3>*,.compare-grid>*{min-width:0}
+
+/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다. */
+.table-wrap>table{min-width:max-content}
+
+/* (3) white-space:pre 인 코드 블록(.code-block)도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+.code-block{max-width:100%}
+:not(.code-block)>code{overflow-wrap:anywhere}
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{

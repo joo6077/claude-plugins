@@ -66,6 +66,20 @@
   .bp-range{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px}
   .bp-name{font-size:13px;font-weight:700;margin-top:4px;color:var(--text)}
   .bp-desc{font-size:11px;color:var(--text3);margin-top:4px}
+
+  /* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. 긴 코드·표·안 끊기는
+         토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -109,14 +123,16 @@
 @media (min-width: 1024px) { <span style="color:var(--accent)">/* desktop */</span> }
 @media (min-width: 1536px) { <span style="color:var(--accent)">/* wide */</span> }</pre>
 
-  <table style="margin-top:20px">
-    <thead><tr><th>프레임워크</th><th>sm</th><th>md</th><th>lg</th><th>xl</th><th>2xl</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Tailwind v4</strong></td><td>640</td><td>768</td><td>1024</td><td>1280</td><td>1536</td></tr>
-      <tr><td><strong>Bootstrap 5</strong></td><td>576</td><td>768</td><td>992</td><td>1200</td><td>1400</td></tr>
-      <tr><td><strong>design-kit 권장</strong></td><td>640</td><td>—</td><td>1024</td><td>—</td><td>1536</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap" style="margin-top:20px">
+    <table>
+      <thead><tr><th>프레임워크</th><th>sm</th><th>md</th><th>lg</th><th>xl</th><th>2xl</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tailwind v4</strong></td><td>640</td><td>768</td><td>1024</td><td>1280</td><td>1536</td></tr>
+        <tr><td><strong>Bootstrap 5</strong></td><td>576</td><td>768</td><td>992</td><td>1200</td><td>1400</td></tr>
+        <tr><td><strong>design-kit 권장</strong></td><td>640</td><td>—</td><td>1024</td><td>—</td><td>1536</td></tr>
+      </tbody>
+    </table>
+  </div>
   <a class="card-source" href="https://tailwindcss.com/docs/responsive-design">Tailwind CSS · Responsive Design</a>
 </div>
 
@@ -253,19 +269,21 @@ p {
   <div class="section-label">6 · 핵심 수치 기준</div>
   <p class="desc">반응형 디자인에서 반복되는 상수들. 브레이크포인트 · 최대 행 길이 · 최소 터치 타겟 등.</p>
 
-  <table>
-    <thead><tr><th>항목</th><th>값</th><th>근거</th></tr></thead>
-    <tbody>
-      <tr><td>모바일 퍼스트 시작</td><td><code>0px</code></td><td>접두사 없는 CSS 가 모바일</td></tr>
-      <tr><td>태블릿 breakpoint</td><td><code>640px</code></td><td>Tailwind sm</td></tr>
-      <tr><td>데스크톱 breakpoint</td><td><code>1024px</code></td><td>Tailwind lg</td></tr>
-      <tr><td>와이드 breakpoint</td><td><code>1536px</code></td><td>Tailwind 2xl</td></tr>
-      <tr><td>최소 터치 타겟</td><td><code>44×44pt</code> / <code>48×48dp</code></td><td>Apple HIG / Material</td></tr>
-      <tr><td>본문 최대 행 길이</td><td><code>65ch</code></td><td>가독성 연구 50~75ch</td></tr>
-      <tr><td>CJK 최대 행</td><td><code>40ch</code></td><td>W3C 권고</td></tr>
-      <tr><td>viewport meta</td><td><code>width=device-width, initial-scale=1</code></td><td>iOS 확대 차단은 접근성 문제</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>값</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>모바일 퍼스트 시작</td><td><code>0px</code></td><td>접두사 없는 CSS 가 모바일</td></tr>
+        <tr><td>태블릿 breakpoint</td><td><code>640px</code></td><td>Tailwind sm</td></tr>
+        <tr><td>데스크톱 breakpoint</td><td><code>1024px</code></td><td>Tailwind lg</td></tr>
+        <tr><td>와이드 breakpoint</td><td><code>1536px</code></td><td>Tailwind 2xl</td></tr>
+        <tr><td>최소 터치 타겟</td><td><code>44×44pt</code> / <code>48×48dp</code></td><td>Apple HIG / Material</td></tr>
+        <tr><td>본문 최대 행 길이</td><td><code>65ch</code></td><td>가독성 연구 50~75ch</td></tr>
+        <tr><td>CJK 최대 행</td><td><code>40ch</code></td><td>W3C 권고</td></tr>
+        <tr><td>viewport meta</td><td><code>width=device-width, initial-scale=1</code></td><td>iOS 확대 차단은 접근성 문제</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- ── 7. 안티패턴 vs 올바른 패턴 ── -->

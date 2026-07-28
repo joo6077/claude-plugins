@@ -64,6 +64,12 @@
   .priority-list li{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text2)}
   .priority-list li::before{counter-increment:pri;content:counter(pri);width:28px;height:28px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
   .priority-list code{font-family:var(--mono);color:var(--accent);background:var(--surface2);padding:2px 6px;border-radius:4px}
+
+  /* OVERFLOW GUARDS — grid/flex 자식 min-width:auto 차단, 코드는 자르지 않고 스크롤 */
+  .grid-2>*,.grid-3>*,.compare>*,.checklist>li>*,.priority-list>li>*{min-width:0}
+  pre{max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -112,11 +118,11 @@
   <p class="desc">서드파티 패키지 없을 때. 프로젝트에 Riverpod/Bloc 이 이미 있으면 해당 패턴을 따른다.</p>
 
   <ol class="priority-list">
-    <li><code>ValueNotifier</code> + <code>ValueListenableBuilder</code> — 단일 값</li>
-    <li><code>Stream</code> + <code>StreamBuilder</code> — 비동기 이벤트 시퀀스</li>
-    <li><code>Future</code> + <code>FutureBuilder</code> — 일회성 비동기</li>
-    <li><code>ChangeNotifier</code> + <code>ListenableBuilder</code> — 복합/다중 위젯 상태</li>
-    <li>MVVM 패턴 — 복잡한 앱</li>
+    <li><div><code>ValueNotifier</code> + <code>ValueListenableBuilder</code> — 단일 값</div></li>
+    <li><div><code>Stream</code> + <code>StreamBuilder</code> — 비동기 이벤트 시퀀스</div></li>
+    <li><div><code>Future</code> + <code>FutureBuilder</code> — 일회성 비동기</div></li>
+    <li><div><code>ChangeNotifier</code> + <code>ListenableBuilder</code> — 복합/다중 위젯 상태</div></li>
+    <li><div>MVVM 패턴 — 복잡한 앱</div></li>
   </ol>
 </div>
 

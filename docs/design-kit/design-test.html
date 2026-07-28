@@ -170,6 +170,17 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
   .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
   .flow{flex-direction:column}.flow-arrow{transform:rotate(90deg)}
 }
+
+/* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+/* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. .code-block(white-space:pre)
+       의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+.grid-2>*,.grid-3>*,.grid-4>*,.ap-grid>*{min-width:0}
+/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다. */
+.table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+.table-wrap>table{min-width:max-content}
+/* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤, 인라인 코드는 어디서든 줄바꿈. */
+:not(.code-block)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>

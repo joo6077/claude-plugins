@@ -76,6 +76,20 @@
   .demo-btn{display:inline-block;margin-top:12px;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700}
   .demo-light .demo-btn{background:#1a73e8;color:white}
   .demo-dark .demo-btn{background:#82b4ff;color:#0d0d14}
+
+  /* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. 긴 코드·표·안 끊기는
+         토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.compare>*,.demo-grid>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -137,19 +151,21 @@
   <div class="section-label">3 · CSS 변수 토큰 체계</div>
   <p class="desc">MD3 + Apple HIG 기반. 단순 반전이 아닌 역할(role)별 독립 값 정의. <code>--color-bg</code> 는 <code>#fff ↔ #121212</code>, <code>--color-accent</code> 는 <code>#1a73e8 ↔ #82b4ff</code>.</p>
 
-  <table>
-    <thead><tr><th>역할</th><th>라이트</th><th>다크</th><th>비고</th></tr></thead>
-    <tbody>
-      <tr><td>bg</td><td><span class="swatch"><span class="swatch-chip" style="background:#ffffff"></span>#ffffff</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#121212"></span>#121212</span></td><td><strong>#000 금지</strong> (할레이션)</td></tr>
-      <tr><td>surface</td><td><span class="swatch"><span class="swatch-chip" style="background:#f5f5f5"></span>#f5f5f5</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#1e1e1e"></span>#1e1e1e</span></td><td>카드 · 패널 배경</td></tr>
-      <tr><td>surface-high</td><td><span class="swatch"><span class="swatch-chip" style="background:#eeeeee"></span>#eeeeee</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#2a2a2a"></span>#2a2a2a</span></td><td>높은 elevation</td></tr>
-      <tr><td>text-primary</td><td><span class="swatch"><span class="swatch-chip" style="background:#1a1a1a"></span>#1a1a1a</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#e8e8e8"></span>#e8e8e8</span></td><td><strong>#fff 금지</strong></td></tr>
-      <tr><td>text-secondary</td><td><span class="swatch"><span class="swatch-chip" style="background:#666666"></span>#666666</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#aaaaaa"></span>#aaaaaa</span></td><td>보조 텍스트</td></tr>
-      <tr><td>border</td><td><span class="swatch"><span class="swatch-chip" style="background:#e0e0e0"></span>#e0e0e0</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#333333"></span>#333333</span></td><td>구분선</td></tr>
-      <tr><td>shadow</td><td><code>rgba(0,0,0,.08)</code></td><td><code>rgba(0,0,0,.4)</code></td><td>강도 증가</td></tr>
-      <tr><td>accent</td><td><span class="swatch"><span class="swatch-chip" style="background:#1a73e8"></span>#1a73e8</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#82b4ff"></span>#82b4ff</span></td><td>밝기 ↑</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>역할</th><th>라이트</th><th>다크</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>bg</td><td><span class="swatch"><span class="swatch-chip" style="background:#ffffff"></span>#ffffff</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#121212"></span>#121212</span></td><td><strong>#000 금지</strong> (할레이션)</td></tr>
+        <tr><td>surface</td><td><span class="swatch"><span class="swatch-chip" style="background:#f5f5f5"></span>#f5f5f5</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#1e1e1e"></span>#1e1e1e</span></td><td>카드 · 패널 배경</td></tr>
+        <tr><td>surface-high</td><td><span class="swatch"><span class="swatch-chip" style="background:#eeeeee"></span>#eeeeee</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#2a2a2a"></span>#2a2a2a</span></td><td>높은 elevation</td></tr>
+        <tr><td>text-primary</td><td><span class="swatch"><span class="swatch-chip" style="background:#1a1a1a"></span>#1a1a1a</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#e8e8e8"></span>#e8e8e8</span></td><td><strong>#fff 금지</strong></td></tr>
+        <tr><td>text-secondary</td><td><span class="swatch"><span class="swatch-chip" style="background:#666666"></span>#666666</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#aaaaaa"></span>#aaaaaa</span></td><td>보조 텍스트</td></tr>
+        <tr><td>border</td><td><span class="swatch"><span class="swatch-chip" style="background:#e0e0e0"></span>#e0e0e0</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#333333"></span>#333333</span></td><td>구분선</td></tr>
+        <tr><td>shadow</td><td><code>rgba(0,0,0,.08)</code></td><td><code>rgba(0,0,0,.4)</code></td><td>강도 증가</td></tr>
+        <tr><td>accent</td><td><span class="swatch"><span class="swatch-chip" style="background:#1a73e8"></span>#1a73e8</span></td><td><span class="swatch"><span class="swatch-chip" style="background:#82b4ff"></span>#82b4ff</span></td><td>밝기 ↑</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <p class="desc" style="margin-top:20px">
     다크 모드에서 <strong>elevation</strong> 은 그림자가 배경에 묻히므로, <em>tonal overlay</em>(더 밝은 surface)로 표현한다. <code>--color-surface-high</code> 가 그 역할.
@@ -249,16 +265,18 @@
   <div class="section-label">7 · 접근성 기준</div>
   <p class="desc">라이트 대비 다크에서는 색상 진동 · 대비 저하 문제가 동시에 발생할 수 있다. WCAG 2.1 기준으로 검증해야 한다.</p>
 
-  <table>
-    <thead><tr><th>항목</th><th>기준</th><th>비고</th></tr></thead>
-    <tbody>
-      <tr><td>일반 텍스트 대비</td><td><strong>4.5:1 이상</strong></td><td>WCAG AA</td></tr>
-      <tr><td>대형 텍스트 (18px+)</td><td><strong>3:1 이상</strong></td><td>WCAG AA Large</td></tr>
-      <tr><td>포커스 링</td><td><strong>3:1 이상 vs 배경</strong></td><td><code>outline:2px solid var(--color-accent)</code></td></tr>
-      <tr><td>상태 색상</td><td>색상 단독 사용 금지</td><td>아이콘 · 텍스트 병행</td></tr>
-      <tr><td>비텍스트 UI 대비</td><td><strong>3:1 이상</strong></td><td>버튼 보더 · 체크박스 · 슬라이더 트랙</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>기준</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>일반 텍스트 대비</td><td><strong>4.5:1 이상</strong></td><td>WCAG AA</td></tr>
+        <tr><td>대형 텍스트 (18px+)</td><td><strong>3:1 이상</strong></td><td>WCAG AA Large</td></tr>
+        <tr><td>포커스 링</td><td><strong>3:1 이상 vs 배경</strong></td><td><code>outline:2px solid var(--color-accent)</code></td></tr>
+        <tr><td>상태 색상</td><td>색상 단독 사용 금지</td><td>아이콘 · 텍스트 병행</td></tr>
+        <tr><td>비텍스트 UI 대비</td><td><strong>3:1 이상</strong></td><td>버튼 보더 · 체크박스 · 슬라이더 트랙</td></tr>
+      </tbody>
+    </table>
+  </div>
   <a class="card-source" href="https://www.w3.org/TR/WCAG21/">W3C · WCAG 2.1</a>
 </div>
 

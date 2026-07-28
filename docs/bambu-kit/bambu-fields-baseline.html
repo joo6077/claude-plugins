@@ -125,6 +125,20 @@
   footer a{color:var(--accent);text-decoration:none}
   footer a:hover{text-decoration:underline}
 
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
+     내용을 자르지(overflow:hidden) 말고 스크롤/줄바꿈으로 해소한다. */
+  /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.field-group>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
+  .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+  /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
+  pre{max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.callout,.note,.checklist li,.chain,.hero-note{overflow-wrap:anywhere}
+
   @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
 </style>
 </head>
@@ -134,7 +148,7 @@
 <h1>Bambu Fields Baseline</h1>
 <p class="subtitle">Bambu Studio v2.6.0+ process / filament JSON 핵심 키, silent skip 회피 규칙, system preset 검색 절차. inherits 기반 자동 생성 시 매번 cross-check 권장.</p>
 
-<div style="border-left:3px solid #14B8A6;background:rgba(20,184,166,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:32px">
+<div class="hero-note" style="border-left:3px solid #14B8A6;background:rgba(20,184,166,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:32px">
   <strong style="color:#14B8A6">v2 확장 (2026-05-16):</strong> §8 Surface Quality 필드 <strong>19종</strong> 추가 — ironing 5종 (type/flow/spacing/speed/inset), top·bottom 6종 (pattern/speed/accel/flow/bridge_flow/bridge_speed), wall·resolution 3종, spiral·seam 2종, seam_slope 3종 (steps/entire_loop/inner_walls). 정책 결정 트리 → <a href="surface-recipes.html" style="color:#5EEAD4;text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code>.
 </div>
 

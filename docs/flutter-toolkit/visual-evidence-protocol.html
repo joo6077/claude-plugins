@@ -114,6 +114,13 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+/* OVERFLOW GUARDS — grid/flex 자식 min-width:auto 차단, 표·코드는 자르지 않고 스크롤 */
+.grid-2>*,.grid-3>*,.compare>*,.step>*,.checklist>li>*{min-width:0}
+.table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+.table-wrap>table{min-width:max-content}
+.code-block{max-width:100%}
+:not(pre)>code{overflow-wrap:anywhere}
+
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 </style>
   <!-- kaizen-cycle: 2026-07-27 (신규 SSOT — Friction #2 대응) -->
@@ -195,9 +202,9 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
   <div class="section-title">왜 필요한가 — Friction #2</div>
   <p class="section-desc"><code>/insights</code> 2026-07-27 (53 일 · 51 세션) 에서 <strong>Friction #2 "시각·런타임 검증을 신뢰할 수 없음"</strong> 이 신규 최상위 마찰로 올라왔고, <strong>관측된 사례가 전부 Flutter</strong> 였다.</p>
   <ul class="checklist">
-    <li><span class="check">!</span>빈 카탈로그 화면의 스냅샷을 근거로 "정상 렌더링" 을 <strong>반복 주장</strong>. 실제 원인은 unbounded-height <code>ListView</code> collapse 였다. <strong>사용자 신뢰가 손상되어 욕설로 끝난 세션이 2 건</strong> 발생했다</li>
-    <li><span class="check">!</span>AOT 빌드 + multi-VM vmservice race 로 런타임 검증 자체가 실패 → 검증 부담이 전부 사용자에게 전가</li>
-    <li><span class="check">!</span>사용자가 "MCP 를 UI/e2e 검증에 쓰지 않는 재발 습관을 영구히 고쳐달라" 는 <strong>전용 세션을 개설</strong></li>
+    <li><span class="check">!</span><div>빈 카탈로그 화면의 스냅샷을 근거로 "정상 렌더링" 을 <strong>반복 주장</strong>. 실제 원인은 unbounded-height <code>ListView</code> collapse 였다. <strong>사용자 신뢰가 손상되어 욕설로 끝난 세션이 2 건</strong> 발생했다</div></li>
+    <li><span class="check">!</span><div>AOT 빌드 + multi-VM vmservice race 로 런타임 검증 자체가 실패 → 검증 부담이 전부 사용자에게 전가</div></li>
+    <li><span class="check">!</span><div>사용자가 "MCP 를 UI/e2e 검증에 쓰지 않는 재발 습관을 영구히 고쳐달라" 는 <strong>전용 세션을 개설</strong></div></li>
   </ul>
   <div class="danger">
     <div class="danger-title">사고의 실제 형태</div>
@@ -306,9 +313,9 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
   <div class="section-title">증거 유효성 (PASS 확정 전 필수)</div>
   <p class="section-desc"><strong>캡처를 얻었다는 것만으로 PASS 가 아니다.</strong> <code>qa-evaluation-guide.md §Evidence Validity Gate</code> 4 검사를 그대로 적용한다. 시각 산출물에서 특히 자주 깨지는 것은 <strong>검사 1(비공백)·2(활성화)</strong> 다.</p>
   <ul class="checklist">
-    <li><span class="check">!</span><strong>빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 검증 실패 신호다.</strong> "요소가 안 보이니 문제도 없다" 는 invalid absence 이며, Friction #2 의 실제 사고 형태였다</li>
-    <li><span class="check">·</span>캡처에서 조건이 요구하는 <strong>구체 요소를 지목</strong>해 근거에 쓴다. 지목할 수 없으면 그 캡처는 무효 증거다</li>
-    <li><span class="check">·</span>캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 PASS 가 아니라 <code>[미검증]</code> 이다</li>
+    <li><span class="check">!</span><div><strong>빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 검증 실패 신호다.</strong> "요소가 안 보이니 문제도 없다" 는 invalid absence 이며, Friction #2 의 실제 사고 형태였다</div></li>
+    <li><span class="check">·</span><div>캡처에서 조건이 요구하는 <strong>구체 요소를 지목</strong>해 근거에 쓴다. 지목할 수 없으면 그 캡처는 무효 증거다</div></li>
+    <li><span class="check">·</span><div>캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 PASS 가 아니라 <code>[미검증]</code> 이다</div></li>
   </ul>
 </div>
 
@@ -405,11 +412,11 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
     </table>
   </div>
   <ul class="checklist">
-    <li><span class="check">✓</span>Step 0 의 "바꾸지 않을 것" 목록과 Step 2 의 대조 결과가 서로를 참조하는가?</li>
-    <li><span class="check">✓</span>캡처 서술이 "정상" 같은 판정이 아니라 <strong>본 요소를 지목</strong>하고 있는가?</li>
-    <li><span class="check">✓</span>MCP 서버명을 설정 파일에서 확인했는가? (추측한 이름을 쓰지 않았는가)</li>
-    <li><span class="check">✓</span>Visual Evidence Block 의 7 개 필드를 모두 채웠는가?</li>
-    <li><span class="check">✓</span><code>[미검증]</code> 이 2 건 이상이면 완료가 아니라 <strong>부분 완료</strong>로 보고했는가?</li>
+    <li><span class="check">✓</span><div>Step 0 의 "바꾸지 않을 것" 목록과 Step 2 의 대조 결과가 서로를 참조하는가?</div></li>
+    <li><span class="check">✓</span><div>캡처 서술이 "정상" 같은 판정이 아니라 <strong>본 요소를 지목</strong>하고 있는가?</div></li>
+    <li><span class="check">✓</span><div>MCP 서버명을 설정 파일에서 확인했는가? (추측한 이름을 쓰지 않았는가)</div></li>
+    <li><span class="check">✓</span><div>Visual Evidence Block 의 7 개 필드를 모두 채웠는가?</div></li>
+    <li><span class="check">✓</span><div><code>[미검증]</code> 이 2 건 이상이면 완료가 아니라 <strong>부분 완료</strong>로 보고했는가?</div></li>
   </ul>
 </div>
 

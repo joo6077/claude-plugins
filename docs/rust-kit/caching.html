@@ -73,6 +73,19 @@
   .tier-db .tier-label{color:var(--yellow)}
   .tier-desc{font-size:11px;color:var(--text3)}
   .tier-arrow{color:var(--text3);font-size:18px;font-weight:300}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.compare>*,.tier-row>*,.checklist li>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -235,19 +248,21 @@ impl TieredCache {
   <div class="section-label">수치 기준</div>
   <p class="desc">캐시 설정 시 지켜야 할 정량 기준값.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>moka 버전</td><td><code>0.12.x</code></td><td>future feature 필요</td></tr>
-        <tr><td>deadpool-redis 버전</td><td><code>0.23.x</code></td><td>rt_tokio_1 feature 필요</td></tr>
-        <tr><td>moka max_capacity</td><td>엔티티당 1만~10만</td><td>메모리 사용량 모니터링</td></tr>
-        <tr><td>Redis TTL — 세션</td><td>30분</td><td>갱신 시 TTL 연장</td></tr>
-        <tr><td>Redis TTL — 사용자 프로필</td><td>5분</td><td>데이터 성격에 따라 조정</td></tr>
-        <tr><td>Redis 연결 풀 크기</td><td>기본값</td><td>deadpool 기본값 = CPU 코어 수 기반</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>moka 버전</td><td><code>0.12.x</code></td><td>future feature 필요</td></tr>
+          <tr><td>deadpool-redis 버전</td><td><code>0.23.x</code></td><td>rt_tokio_1 feature 필요</td></tr>
+          <tr><td>moka max_capacity</td><td>엔티티당 1만~10만</td><td>메모리 사용량 모니터링</td></tr>
+          <tr><td>Redis TTL — 세션</td><td>30분</td><td>갱신 시 TTL 연장</td></tr>
+          <tr><td>Redis TTL — 사용자 프로필</td><td>5분</td><td>데이터 성격에 따라 조정</td></tr>
+          <tr><td>Redis 연결 풀 크기</td><td>기본값</td><td>deadpool 기본값 = CPU 코어 수 기반</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

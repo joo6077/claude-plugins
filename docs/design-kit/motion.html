@@ -201,6 +201,24 @@
   .anim-parallax{animation:parallax-bg 3s ease-in-out infinite}
   .anim-spin{animation:spin 1.2s linear infinite}
   .anim-shake{animation:shake 0.5s ease-in-out infinite}
+
+  /* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. 긴 코드·표·안 끊기는
+         토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.playground>*,.gpu-row>*,.rm-demo-area>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트 단일 컬럼 스택 — 위 480px 2 컬럼 규칙보다 뒤에 와야 한다. */
+  @media(max-width:600px){
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
@@ -469,14 +487,16 @@
   <!-- Device correction table -->
   <div class="card" style="margin-top:20px">
     <div style="font-size:14px;font-weight:700;margin-bottom:12px">디바이스별 듀레이션 보정</div>
-    <table>
-      <thead><tr><th>디바이스</th><th>보정</th><th>결과 범위</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--text)">모바일</td><td>기준</td><td class="mono">200~300ms</td></tr>
-        <tr><td style="color:var(--text)">태블릿</td><td>+30%</td><td class="mono">260~400ms</td></tr>
-        <tr><td style="color:var(--text)">웨어러블</td><td>-30%</td><td class="mono">150~200ms</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>디바이스</th><th>보정</th><th>결과 범위</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">모바일</td><td>기준</td><td class="mono">200~300ms</td></tr>
+          <tr><td style="color:var(--text)">태블릿</td><td>+30%</td><td class="mono">260~400ms</td></tr>
+          <tr><td style="color:var(--text)">웨어러블</td><td>-30%</td><td class="mono">150~200ms</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -505,15 +525,17 @@
   <div class="grid-2">
     <div class="card">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px">프레임 레이트 기준</div>
-      <table>
-        <thead><tr><th>기준</th><th>ms/frame</th><th>사용자 인식</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--green);font-weight:700">60fps</td><td class="mono">16.67ms</td><td>부드러움, 표준</td></tr>
-          <tr><td style="color:var(--accent);font-weight:700">120fps</td><td class="mono">8.33ms</td><td>ProMotion 디바이스</td></tr>
-          <tr><td style="color:var(--yellow);font-weight:700">30fps</td><td class="mono">33.33ms</td><td>버벅임 인지됨</td></tr>
-          <tr><td style="color:var(--red);font-weight:700">&lt;24fps</td><td class="mono">—</td><td>"고장남"으로 인식</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>기준</th><th>ms/frame</th><th>사용자 인식</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--green);font-weight:700">60fps</td><td class="mono">16.67ms</td><td>부드러움, 표준</td></tr>
+            <tr><td style="color:var(--accent);font-weight:700">120fps</td><td class="mono">8.33ms</td><td>ProMotion 디바이스</td></tr>
+            <tr><td style="color:var(--yellow);font-weight:700">30fps</td><td class="mono">33.33ms</td><td>버벅임 인지됨</td></tr>
+            <tr><td style="color:var(--red);font-weight:700">&lt;24fps</td><td class="mono">—</td><td>"고장남"으로 인식</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div class="card">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px">Flutter 성능 체크리스트</div>
@@ -659,17 +681,19 @@
   <!-- Sensitivity table -->
   <div class="card" style="margin-top:20px">
     <div style="font-size:14px;font-weight:700;margin-bottom:12px">모션 감수성 트리거 유형</div>
-    <table>
-      <thead><tr><th>트리거</th><th>위험도</th><th>예시</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--text)">시차 스크롤</td><td><span class="gpu-badge gpu-no">높음</span></td><td>배경과 전경이 다른 속도로 이동</td></tr>
-        <tr><td style="color:var(--text)">대규모 줌</td><td><span class="gpu-badge gpu-no">높음</span></td><td>지도 줌인/아웃, 카드 풀스크린 확대</td></tr>
-        <tr><td style="color:var(--text)">회전/스핀</td><td><span class="gpu-badge gpu-no">높음</span></td><td>로딩 스피너(큰 크기), 3D 회전</td></tr>
-        <tr><td style="color:var(--text)">진동/흔들림</td><td><span style="background:rgba(251,191,36,0.12);color:var(--yellow);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700">중간</span></td><td>에러 시 인풋 흔들기</td></tr>
-        <tr><td style="color:var(--text)">부드러운 스크롤</td><td><span class="gpu-badge gpu-yes">낮음</span></td><td>앵커 링크 스무스 스크롤</td></tr>
-        <tr><td style="color:var(--text)">마이크로 페이드</td><td><span class="gpu-badge gpu-yes">매우 낮음</span></td><td>150ms 이하의 opacity 전환</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>트리거</th><th>위험도</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">시차 스크롤</td><td><span class="gpu-badge gpu-no">높음</span></td><td>배경과 전경이 다른 속도로 이동</td></tr>
+          <tr><td style="color:var(--text)">대규모 줌</td><td><span class="gpu-badge gpu-no">높음</span></td><td>지도 줌인/아웃, 카드 풀스크린 확대</td></tr>
+          <tr><td style="color:var(--text)">회전/스핀</td><td><span class="gpu-badge gpu-no">높음</span></td><td>로딩 스피너(큰 크기), 3D 회전</td></tr>
+          <tr><td style="color:var(--text)">진동/흔들림</td><td><span style="background:rgba(251,191,36,0.12);color:var(--yellow);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700">중간</span></td><td>에러 시 인풋 흔들기</td></tr>
+          <tr><td style="color:var(--text)">부드러운 스크롤</td><td><span class="gpu-badge gpu-yes">낮음</span></td><td>앵커 링크 스무스 스크롤</td></tr>
+          <tr><td style="color:var(--text)">마이크로 페이드</td><td><span class="gpu-badge gpu-yes">매우 낮음</span></td><td>150ms 이하의 opacity 전환</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Platform settings -->
@@ -733,15 +757,17 @@
   <div class="section-label">Flutter 구현 참고</div>
   <h2>M3 트랜지션 Flutter 위젯 매핑</h2>
   <div class="card">
-    <table>
-      <thead><tr><th>패턴</th><th>Flutter 위젯</th><th>패키지</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--text)">Container Transform</td><td class="mono" style="color:var(--accent)">OpenContainer</td><td class="mono">animations</td></tr>
-        <tr><td style="color:var(--text)">Shared Axis</td><td class="mono" style="color:var(--accent)">SharedAxisTransition</td><td class="mono">animations</td></tr>
-        <tr><td style="color:var(--text)">Fade Through</td><td class="mono" style="color:var(--accent)">FadeThroughTransition</td><td class="mono">animations</td></tr>
-        <tr><td style="color:var(--text)">Fade</td><td class="mono" style="color:var(--accent)">FadeScaleTransition</td><td class="mono">animations</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>패턴</th><th>Flutter 위젯</th><th>패키지</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">Container Transform</td><td class="mono" style="color:var(--accent)">OpenContainer</td><td class="mono">animations</td></tr>
+          <tr><td style="color:var(--text)">Shared Axis</td><td class="mono" style="color:var(--accent)">SharedAxisTransition</td><td class="mono">animations</td></tr>
+          <tr><td style="color:var(--text)">Fade Through</td><td class="mono" style="color:var(--accent)">FadeThroughTransition</td><td class="mono">animations</td></tr>
+          <tr><td style="color:var(--text)">Fade</td><td class="mono" style="color:var(--accent)">FadeScaleTransition</td><td class="mono">animations</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 

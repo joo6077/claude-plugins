@@ -63,6 +63,19 @@
   .flow-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
   .flow-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px;color:var(--text2)}
   .arrow{color:var(--accent);font-weight:700;font-size:14px}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.compare>*,.checklist li>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -217,16 +230,18 @@ doc.merge(PostsApiDoc::openapi());</code></pre>
   <div class="section-label">수치 기준</div>
   <p class="desc">utoipa 설정 시 지켜야 할 정량 기준값.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>utoipa 버전</td><td><code>5.4.x</code></td><td>axum_extras feature 필요</td></tr>
-        <tr><td>utoipa-swagger-ui 버전</td><td><code>9.0.x</code></td><td>axum feature 필요</td></tr>
-        <tr><td>Swagger UI 경로</td><td><code>/swagger-ui</code></td><td>프로덕션에서 환경변수로 조건부 비활성화</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>utoipa 버전</td><td><code>5.4.x</code></td><td>axum_extras feature 필요</td></tr>
+          <tr><td>utoipa-swagger-ui 버전</td><td><code>9.0.x</code></td><td>axum feature 필요</td></tr>
+          <tr><td>Swagger UI 경로</td><td><code>/swagger-ui</code></td><td>프로덕션에서 환경변수로 조건부 비활성화</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

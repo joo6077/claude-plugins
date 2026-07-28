@@ -68,6 +68,23 @@
   .exit-0{background:rgba(74,222,128,0.12);color:var(--green)}
   .exit-1{background:rgba(251,191,36,0.12);color:var(--yellow)}
   .exit-2{background:rgba(248,113,113,0.12);color:var(--red)}
+
+  /* ═══ 가로 오버플로 방지 (docs-site 정본 규칙) — 내용을 자르지 말고 스크롤시킨다 ═══ */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 라, 긴 코드·표·안 끊기는 토큰의
+         최소폭이 그대로 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.compare>*,.exit-grid>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) .checklist li 가 flex 라 인라인 <code>/<strong> 이 각각 별도 flex 아이템이 되어
+         줄바꿈 없이 한 줄에 나열된다. 인라인 흐름으로 되돌려 자연 줄바꿈시킨다. */
+  .checklist li{display:block}
+  .checklist .check{display:inline-flex;vertical-align:-4px;margin-right:10px}
 </style>
 </head>
 <body>
@@ -217,6 +234,7 @@ python3 scripts/validate-plugin.py --fix</pre>
 <div class="section">
   <div class="section-label">4 · CLI 옵션 · Exit Code</div>
 
+  <div class="table-wrap">
   <table>
     <thead><tr><th>옵션</th><th>설명</th><th>예시</th></tr></thead>
     <tbody>
@@ -227,6 +245,7 @@ python3 scripts/validate-plugin.py --fix</pre>
       <tr><td><code>--help</code></td><td>사용법 출력</td><td><code>--help</code></td></tr>
     </tbody>
   </table>
+  </div>
 
   <p class="desc" style="margin-top:20px"><code>--check</code> 값: <code>frontmatter</code> · <code>templates</code> · <code>refs</code> · <code>triggers</code> · <code>placeholders</code> · <code>code-fence</code> · <code>plugin-json</code> · <code>hook-exec</code></p>
 
@@ -423,6 +442,7 @@ chmod +x scripts/run-guard.sh
   <div class="grid-2">
     <div class="card">
       <h3>자동 수정 (<code>--fix</code>)</h3>
+      <div class="table-wrap">
       <table style="background:transparent;border:0">
         <thead style="background:transparent"><tr><th style="background:transparent;padding:6px 0">체크</th><th style="background:transparent;padding:6px 0">동작</th></tr></thead>
         <tbody>
@@ -432,6 +452,7 @@ chmod +x scripts/run-guard.sh
           <tr><td style="padding:6px 0"><strong>V6</strong></td><td style="padding:6px 0">빈 <code>```</code> → <code>```text</code></td></tr>
         </tbody>
       </table>
+      </div>
     </div>
     <div class="card">
       <h3>수동 수정</h3>
@@ -475,6 +496,7 @@ python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
     </div>
     <div class="card">
       <h3>우선순위 매핑</h3>
+      <div class="table-wrap">
       <table style="background:transparent;border:0">
         <thead style="background:transparent"><tr><th style="background:transparent;padding:6px 0">결과</th><th style="background:transparent;padding:6px 0">처리</th></tr></thead>
         <tbody>
@@ -483,6 +505,7 @@ python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
           <tr><td style="padding:6px 0"><strong style="color:var(--green)">PASS</strong></td><td style="padding:6px 0">skip. 변경으로 FAIL 생기지 않도록 주의</td></tr>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 </div>
@@ -492,6 +515,7 @@ python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
   <div class="section-label">9 · 킷별 예외 카탈로그</div>
   <p class="desc"><code>templates/</code> 없는 킷은 V2 전체 SKIP. TS/JS 파일은 외부 도구(tsc) 의존으로 V2 SKIP.</p>
 
+  <div class="table-wrap">
   <table>
     <thead><tr><th>킷</th><th>V2 templates</th><th>비고</th></tr></thead>
     <tbody>
@@ -504,6 +528,7 @@ python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
       <tr><td>react-kit</td><td><code>templates/</code> 9 파일 — TS 4개 SKIP, 5개 파싱</td><td><code>.ts/.js</code> 4개 SKIP, <code>Cargo.toml.template</code> 등 5개 파싱</td></tr>
     </tbody>
   </table>
+  </div>
 </div>
 
 <!-- ── 10. Gotchas 체크리스트 ── -->
@@ -531,13 +556,15 @@ python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
 <div class="section">
   <div class="section-label">11 · 변경 이력 · 출처</div>
 
-  <table style="margin-bottom:20px">
+  <div class="table-wrap" style="margin-bottom:20px">
+  <table>
     <thead><tr><th>날짜</th><th>버전</th><th>내용</th></tr></thead>
     <tbody>
       <tr><td>2026-04-11</td><td>1.0.0</td><td>초기 작성 — V1~V7 카테고리, 7개 킷 예외 카탈로그, <code>scripts/validate-plugin.py</code> 구현</td></tr>
       <tr><td>2026-06-11</td><td>1.1.0</td><td>V8 hook-exec 추가 — <code>hooks.json</code> 직접 실행 <code>.sh</code> 의 실행 비트(0755) 검증. reflect 30일 집계상 hook permission-denied 957건(전체 friction 38%)의 회귀 방지 가드</td></tr>
     </tbody>
   </table>
+  </div>
 
   <p class="desc">다음 갱신 예정:</p>
   <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">

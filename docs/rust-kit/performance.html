@@ -69,6 +69,19 @@
   .profile-item{background:var(--surface2);border-radius:8px;padding:12px}
   .profile-key{font-family:var(--mono);font-size:11px;color:var(--accent2);margin-bottom:4px}
   .profile-val{font-size:12px;color:var(--text3)}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.compare>*,.profile-grid>*,.checklist li>*,.card-header>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -238,19 +251,21 @@ codegen-units = 1   <span style="color:#fbbf24"># 최적화 향상, 병렬 빌�
   <div class="section-label">수치 기준</div>
   <p class="desc">주요 작업의 실측 비용. 최적화 우선순위 판단의 기준으로 활용한다.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>작업</th><th>비용</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>힙 할당 (<code>malloc</code>)</td><td>~50ns</td><td>OS/할당자에 따라 다름. jemalloc으로 개선 가능</td></tr>
-        <tr><td><code>Vec</code> 재할당</td><td>O(n) 복사</td><td><code>with_capacity</code>로 완전 방지 가능</td></tr>
-        <tr><td>Iterator <code>map/filter</code> (지연)</td><td>~0ns 추가</td><td>collect 시점에만 실행</td></tr>
-        <tr><td><code>String::new()</code> + <code>push_str</code> vs <code>format!</code></td><td><code>format!</code>이 ~2× 느림</td><td>루프 내 문자열 조합은 버퍼 재사용</td></tr>
-        <tr><td>debug vs release 빌드 속도 차이</td><td>10~100×</td><td>최적화 수준 차이. 성능 측정은 반드시 release</td></tr>
-        <tr><td>LTO 효과</td><td>5~20% 성능 향상</td><td>링크 시간 증가와 트레이드오프</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>작업</th><th>비용</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>힙 할당 (<code>malloc</code>)</td><td>~50ns</td><td>OS/할당자에 따라 다름. jemalloc으로 개선 가능</td></tr>
+          <tr><td><code>Vec</code> 재할당</td><td>O(n) 복사</td><td><code>with_capacity</code>로 완전 방지 가능</td></tr>
+          <tr><td>Iterator <code>map/filter</code> (지연)</td><td>~0ns 추가</td><td>collect 시점에만 실행</td></tr>
+          <tr><td><code>String::new()</code> + <code>push_str</code> vs <code>format!</code></td><td><code>format!</code>이 ~2× 느림</td><td>루프 내 문자열 조합은 버퍼 재사용</td></tr>
+          <tr><td>debug vs release 빌드 속도 차이</td><td>10~100×</td><td>최적화 수준 차이. 성능 측정은 반드시 release</td></tr>
+          <tr><td>LTO 효과</td><td>5~20% 성능 향상</td><td>링크 시간 증가와 트레이드오프</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

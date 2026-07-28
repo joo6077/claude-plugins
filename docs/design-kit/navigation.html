@@ -189,6 +189,24 @@
     .grid-4{grid-template-columns:1fr 1fr}
     .screen-toggle{flex-wrap:wrap}
   }
+
+  /* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. 긴 코드·표·안 끊기는
+         토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.pros-cons>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트 단일 컬럼 스택 — 위 480px 2 컬럼 규칙보다 뒤에 와야 한다. */
+  @media(max-width:600px){
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
@@ -248,15 +266,17 @@
   </div>
 
   <div class="card">
-    <table>
-      <thead><tr><th>비교</th><th>Flat</th><th>Deep</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--text)">목적지 수</td><td>3~5개</td><td>5개 이상</td></tr>
-        <tr><td style="color:var(--text)">전환 속도</td><td style="color:var(--green)">빠름 (1탭)</td><td>느림 (2~3탭)</td></tr>
-        <tr><td style="color:var(--text)">발견율</td><td style="color:var(--green)">높음</td><td>낮음 (숨겨진 항목)</td></tr>
-        <tr><td style="color:var(--text)">적합한 앱</td><td>SNS, 유틸리티</td><td>이커머스, 뉴스</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>비교</th><th>Flat</th><th>Deep</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">목적지 수</td><td>3~5개</td><td>5개 이상</td></tr>
+          <tr><td style="color:var(--text)">전환 속도</td><td style="color:var(--green)">빠름 (1탭)</td><td>느림 (2~3탭)</td></tr>
+          <tr><td style="color:var(--text)">발견율</td><td style="color:var(--green)">높음</td><td>낮음 (숨겨진 항목)</td></tr>
+          <tr><td style="color:var(--text)">적합한 앱</td><td>SNS, 유틸리티</td><td>이커머스, 뉴스</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -348,27 +368,29 @@
   <!-- Selection guide -->
   <div class="card">
     <h3 style="margin-bottom:12px">선택 가이드</h3>
-    <table>
-      <thead><tr><th>목적지 수</th><th>Mobile (compact)</th><th>Tablet (medium)</th><th>Desktop (expanded)</th></tr></thead>
-      <tbody>
-        <tr>
-          <td style="color:var(--text);font-weight:600">&le; 5</td>
-          <td><span style="color:var(--green)">Navigation Bar</span></td>
-          <td><span style="color:var(--accent2)">Navigation Rail</span></td>
-          <td><span style="color:var(--accent2)">Rail / Drawer</span></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text);font-weight:600">&gt; 5</td>
-          <td><span style="color:var(--yellow)">Drawer (overlay)</span></td>
-          <td><span style="color:var(--accent2)">Navigation Rail</span></td>
-          <td><span style="color:var(--accent2)">Drawer (permanent)</span></td>
-        </tr>
-        <tr>
-          <td style="color:var(--text);font-weight:600">콘텐츠 내</td>
-          <td>Tabs</td><td>Tabs</td><td>Tabs</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>목적지 수</th><th>Mobile (compact)</th><th>Tablet (medium)</th><th>Desktop (expanded)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text);font-weight:600">&le; 5</td>
+            <td><span style="color:var(--green)">Navigation Bar</span></td>
+            <td><span style="color:var(--accent2)">Navigation Rail</span></td>
+            <td><span style="color:var(--accent2)">Rail / Drawer</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600">&gt; 5</td>
+            <td><span style="color:var(--yellow)">Drawer (overlay)</span></td>
+            <td><span style="color:var(--accent2)">Navigation Rail</span></td>
+            <td><span style="color:var(--accent2)">Drawer (permanent)</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600">콘텐츠 내</td>
+            <td>Tabs</td><td>Tabs</td><td>Tabs</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -676,16 +698,18 @@
   <!-- Mega menu guidelines table -->
   <div class="card">
     <h3 style="margin-bottom:12px">메가 메뉴 핵심 가이드라인</h3>
-    <table>
-      <thead><tr><th>규칙</th><th>설명</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--text);font-weight:600">단일 패널, 2단계까지</td><td>3단계 이상 중첩은 마우스 경로 이탈 위험</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">카테고리 헤더 구분</td><td>굵은 텍스트 또는 구분선으로 그룹 경계 명확히</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">닫기 딜레이 300~500ms</td><td>마우스가 벗어나도 즉시 닫지 않음 (실수 방지)</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">모바일 대응</td><td>전체화면 오버레이 또는 아코디언으로 변환</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">키보드 접근성</td><td>Tab으로 모든 링크 접근, Escape로 닫기</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>규칙</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text);font-weight:600">단일 패널, 2단계까지</td><td>3단계 이상 중첩은 마우스 경로 이탈 위험</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">카테고리 헤더 구분</td><td>굵은 텍스트 또는 구분선으로 그룹 경계 명확히</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">닫기 딜레이 300~500ms</td><td>마우스가 벗어나도 즉시 닫지 않음 (실수 방지)</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">모바일 대응</td><td>전체화면 오버레이 또는 아코디언으로 변환</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">키보드 접근성</td><td>Tab으로 모든 링크 접근, Escape로 닫기</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 

@@ -71,7 +71,7 @@
   .card-source::before{content:"↗";font-size:14px}
 
   /* TABLE */
-  .metrics-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .metrics-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
   table{width:100%;border-collapse:collapse}
   th,td{text-align:left;padding:16px 22px;border-bottom:1px solid var(--border)}
   th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
@@ -133,6 +133,14 @@
   /* FOOTER */
   footer{margin-top:120px;padding-top:40px;border-top:1px solid var(--border);color:var(--text3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
   footer a{color:var(--text2)}
+
+  /* OVERFLOW GUARDS — grid/flex 자식 min-width:auto 차단, 표·코드는 자르지 않고 스크롤 */
+  .cards>*,.compare>*,.gotchas>*,.budget>*{min-width:0}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  .code-block{max-width:100%}
+  .metrics-wrap>table{min-width:max-content}
+  :not(pre)>code{overflow-wrap:anywhere}
 
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
@@ -257,21 +265,21 @@
       <div class="compare-col bad">
         <span class="compare-label">Avoid</span>
         <ul>
-          <li>크고 정적인 리스트를 <code>ListView(children: [...])</code>로 한 번에 전개</li>
-          <li>애니메이션 진행 중 <code>Opacity</code>, <code>ClipRect</code>, <code>ShaderMask</code>, <code>saveLayer</code> 남용</li>
-          <li>모든 탭·모든 리스트 아이템에 <code>AutomaticKeepAlive</code> 일괄 적용</li>
-          <li>Profiler로 원인을 확인하지 않은 채 <code>RepaintBoundary</code>와 isolate를 뿌림</li>
-          <li>큰 이미지를 원본 해상도 그대로 <code>Image.network</code>로 띄움</li>
+          <li><span>크고 정적인 리스트를 <code>ListView(children: [...])</code>로 한 번에 전개</span></li>
+          <li><span>애니메이션 진행 중 <code>Opacity</code>, <code>ClipRect</code>, <code>ShaderMask</code>, <code>saveLayer</code> 남용</span></li>
+          <li><span>모든 탭·모든 리스트 아이템에 <code>AutomaticKeepAlive</code> 일괄 적용</span></li>
+          <li><span>Profiler로 원인을 확인하지 않은 채 <code>RepaintBoundary</code>와 isolate를 뿌림</span></li>
+          <li><span>큰 이미지를 원본 해상도 그대로 <code>Image.network</code>로 띄움</span></li>
         </ul>
       </div>
       <div class="compare-col good">
         <span class="compare-label">Prefer</span>
         <ul>
-          <li><code>ListView.builder</code>로 lazy 렌더 — 보이는 아이템만 빌드</li>
-          <li>애니메이션 중에는 <code>AnimatedOpacity</code>나 fade-in transition의 최적화 패스 활용</li>
-          <li>상태 유지가 필요한 아이템에만 선별적으로 keep-alive</li>
-          <li>DevTools로 병목 확인 후 hotspot에만 <code>RepaintBoundary</code> 배치</li>
-          <li><code>cacheWidth</code> / <code>cacheHeight</code>로 디코딩 비용 축소</li>
+          <li><span><code>ListView.builder</code>로 lazy 렌더 — 보이는 아이템만 빌드</span></li>
+          <li><span>애니메이션 중에는 <code>AnimatedOpacity</code>나 fade-in transition의 최적화 패스 활용</span></li>
+          <li><span>상태 유지가 필요한 아이템에만 선별적으로 keep-alive</span></li>
+          <li><span>DevTools로 병목 확인 후 hotspot에만 <code>RepaintBoundary</code> 배치</span></li>
+          <li><span><code>cacheWidth</code> / <code>cacheHeight</code>로 디코딩 비용 축소</span></li>
         </ul>
       </div>
     </div>
