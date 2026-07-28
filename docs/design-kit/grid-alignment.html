@@ -60,6 +60,9 @@ td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(
 
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+/* 그리드 아이템 기본 min-width:auto(=min-content)가 white-space:pre 코드블록 때문에
+   트랙을 뷰포트보다 넓게 밀어낸다. 0으로 눌러 트랙이 컨테이너 안에서 접히게 한다. */
+.grid-2>*,.grid-3>*{min-width:0}
 @media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
 
 .anti-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
