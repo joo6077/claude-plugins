@@ -302,3 +302,65 @@
   논문 수치 과대 인용, 검증 없이 단정한 콘솔 라벨). Phase 1 의 Evidence Gate 가 의도대로 작동.
 - Final QA iter1 이 REJECT 하며 **오케스트레이터의 측정 oracle 오탐 3건**을 잡았다.
   자체 측정만으로 APPROVE 했다면 놓쳤을 것 — 독립 평가자 spawn 의 가치가 실증됐다.
+
+## 2026-07-28 — CI 게이트 강화 (ci-gate-hardening, 카이젠 사이클 밖 후속 스프린트)
+
+계약 `.harness/sprint-contract-ci-gate-hardening.md` 25/25 완료. PR #17 + #18.
+
+### 무엇이 드러났나
+
+직전 카이젠(PR #15)과 PR #16 이 main 을 처음 green 으로 만들었지만, **그 green 이 유지될
+구조가 없었다**. 머지 전 독립 5 축 반증 검증에서 실측으로 드러난 것:
+
+- `branches/main/protection` 404 · `rulesets` `[]` — main 계보 317 커밋 중 303(95.6%)이
+  직접 푸시. Playwright 잡은 37 런 중 32 failure / **success 0**. 기록 시작(2026-04-12)부터
+  한 번도 green 이 아니었다. (커밋·계약에 "2026-06-09 부터 5 회 연속" 으로 적었는데 **거짓**이었다 —
+  최근 몇 런만 보고 쓴 오류. PR #16 본문에 정정을 박았다.)
+- `docs/*.html` 은 생성물인데 4 개 규칙이 `.claude/skills/docs-site/` 어디에도 없었다.
+- **회귀 메커니즘이 특정됐다**: `scripts/detect-docs-drift.py` 가 design-kit 매핑에서만 소스
+  subdir 을 보존하는데 실제 출력은 flat 이라 26/26 전부 MISS → 전부 `[NEW]` 로 오보 →
+  재생성 에이전트가 템플릿에서 새로 만들며 기존 수정을 날린다. 누락 prefix 4 종도 `.md` 20 개를
+  감지 밖에 두고 있었다.
+- 오버플로는 design-kit 4 페이지가 아니라 **146 중 66 페이지** 전역 결함이었다.
+
+### 다음 사이클이 반복하지 말아야 할 것
+
+- **"고쳤다" 와 "고친 것이 유지된다" 는 다르다.** 생성물만 고치면 다음 재생성에서 되돌아간다.
+  docs/ 를 손대는 작업은 반드시 생성기(`docs-site/`)와 drift 감지기까지 함께 봐야 한다.
+- **오라클이 의도를 재는지 매번 확인하라.** 이번에 세 번 틀렸다:
+  (1) `el.scrollLeft=99999` 로 "스크롤 도달 가능" 을 쟀는데, `overflow:hidden` 은 프로그래밍
+  스크롤만 되고 **사용자에겐 스크롤 수단이 없다**. 올바른 판정은
+  `overflowX==='hidden' && scrollWidth>clientWidth`.
+  (2) `grep 'width: *[0-9]{3,}px'` 가 `min-width`/`max-width` 를 substring 으로 잡아 매직넘버
+  24 건을 오탐했다 (실제 0 건).
+  (3) 단일행 `sed 's|/\*.*\*/||'` 가 **여러 줄 주석**을 못 걸러 `overflow:hidden` 재도입을
+  1 건 오탐했다 (실제 0 건).
+- **테스트를 통과한다 ≠ 결함이 없다.** 오버플로 0 을 달성한 뒤에도 29 페이지가
+  `overflow:hidden` 으로 **잘라서** 통과하고 있었다. 그중 16 페이지는 진짜 내용 손실
+  (표 오른쪽 열 최대 192px · `spacing-system` 은 1280px 에서도 104px, 11 행 중 5 행의 용도
+  설명이 한 글자도 안 보였다). 나머지 12 페이지는 잘리는 것이 곧 전시물이라 고치면 안 됐다 —
+  **분류 없이 일괄 수정했다면 디자인을 파괴했을 것이다.**
+- **순서가 안전을 만든다.** `enforce_admins:true` 를 `release.sh` PR 전환보다 먼저 켰다면
+  자기 수정을 push 하지 못하는 자물쇠 사고가 났다. A→B→C→D→머지→E 순서를 계약에 명시했다.
+
+### 검증에서 효과가 컸던 것
+
+- **독립 반증 워크플로**(5 축 × 적대적 verify)가 머지 전에 사실 오류 1 건을 잡았고 blocking 0 을
+  확인했다. 자체 측정만으로 넘어갔다면 거짓 주장이 커밋·계약·PR 세 곳에 남았다.
+- **QA evaluator 가 Linux 컨테이너**(`mcr.microsoft.com/playwright:v1.58.2-jammy`)로 146 페이지를
+  재측정해 macOS 전용 측정의 플랫폼 드리프트 우려를 닫았다. 구현자가 못 한 검증을 평가자가 했다.
+- **킷별 수정 + 킷별 독립 검증** 쌍이 66 페이지 / 29 페이지 두 작업 모두에서 위반 0 을 만들었다.
+  특히 클리핑 작업은 검증자가 A/B 분류에 **29/29 동의**해야 통과하도록 설계한 것이 핵심이었다.
+- **격리 클론 + 가짜 origin** 에서 `release.sh` 를 실제 실행해, 문법 검사만으로는 못 잡을
+  버그를 찾았다 — `git tag -a` 가 기존 태그에 `fatal` 로 죽고 `set -e` 가 스크립트를 중단시켜
+  **브랜치 push 와 PR 생성이 조용히 건너뛰어진다**.
+
+### 남긴 부채
+
+터치타겟 332 중 249 가 44px 미만(진짜 WCAG AA 위반 24: checkbox 20×20 이 19, button 4, li 1) ·
+테마 키 파편화 4 종(`dk-theme` 12 / `theme` 3 / `vs-theme` 2 / `cp-theme` 2) · dependabot 부재 ·
+액션 SHA 핀닝 · `visuals.spec.js` 위생(테스트명 `>=44px` 인데 단정 28/34/38, 44 단정 0 건 ·
+146 중 13 페이지만 커버 · `KNOWN_OVERFLOW_PAGES` 80px 관용) · `validate-plugin.py` 가
+`docs/*.html` 을 전혀 검사하지 않음 · `qa-evaluator.md` Step 5 가 파일 저장을 지시하나
+frontmatter 에 Write 권한 없음 · protection 설정이 config-as-code 로 커밋돼 있지 않음
+(`.harness/branch-protection-runbook.md` 가 SSOT 역할).

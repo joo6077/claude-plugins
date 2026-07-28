@@ -67,14 +67,25 @@ tbody tr:hover{background:var(--accent-glow)}
 @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
 
 /* SPACING BAR */
-.space-bar-row{display:flex;align-items:center;gap:16px;padding:8px 0;border-bottom:1px solid var(--border)}
+/* flex 였을 때 .space-bar 의 width:X% 가 행 전체 폭 기준이라 큰 토큰(space-6~10)은
+   막대가 행을 다 먹고 용도 텍스트가 0px 로 눌렸다 — 1280px 에서도 104px 잘림.
+   용도 설명은 페이지 어디에도 중복되지 않는 정보라 반드시 보여야 한다.
+   grid 로 바꿔 막대에 전용 트랙(1fr)을, 용도에 전용 열을 준다.
+   막대 %가 이제 그 트랙 기준이라 모든 행이 같은 비율로 축소돼 상대 비율은 그대로다. */
+.space-bar-row{display:grid;grid-template-columns:80px 48px minmax(0,1fr) minmax(0,180px);
+  align-items:center;gap:16px;padding:8px 0;border-bottom:1px solid var(--border)}
 .space-bar-row:last-child{border-bottom:none}
-.space-bar-label{flex:0 0 80px;font-size:12px;font-weight:600;color:var(--accent);font-family:monospace}
-.space-bar-val{flex:0 0 48px;font-size:12px;color:var(--text3);text-align:right}
+.space-bar-label{font-size:12px;font-weight:600;color:var(--accent);font-family:monospace}
+.space-bar-val{font-size:12px;color:var(--text3);text-align:right}
 .space-bar{height:24px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0.7;
   transition:var(--transition);min-width:2px}
 .space-bar-row:hover .space-bar{opacity:1}
-.space-bar-use{flex:1;font-size:12px;color:var(--text3);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.space-bar-use{font-size:12px;color:var(--text3);min-width:0;word-break:keep-all}
+/* 좁은 폭에서는 용도 전용 열(180px)이 안 나오므로 아래 줄 전체를 쓰게 한다. */
+@media(max-width:640px){
+  .space-bar-row{grid-template-columns:80px 48px minmax(0,1fr);row-gap:4px}
+  .space-bar-use{grid-column:1/-1}
+}
 
 /* GRID OVERLAY */
 .grid-demo-area{
