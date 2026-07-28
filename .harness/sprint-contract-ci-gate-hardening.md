@@ -4,7 +4,7 @@ created: "2026-07-28 17:30"
 complexity: "복잡"
 conditions: 25
 slug: ci-gate-hardening
-status: active
+status: done
 owner_session: 8a9c2ebc-8d41-48fb-9586-496555a22b30
 ---
 
@@ -106,46 +106,46 @@ CI 3 잡 전부 pass.
 
 ## Architecture
 
-- [ ] AR-01: 375px 뷰포트에서 문서 오버플로가 **2px 이하**인 페이지가 146 개 중 **146 개**다. 측정: `docs/**/*.html` 전수를 375×812 에서 `document.documentElement.scrollWidth - clientWidth` 로 측정하여 `> 2` 인 페이지 수가 **0** (현재 66). 기준을 완화하거나 대상을 표본으로 줄이지 않는다. [exact, collective]
-- [ ] AR-02: 오버플로 해소가 **내용을 잘라내는 방식이 아니다.** 측정: 추가된 CSS 에 `overflow:hidden`/`overflow-x:hidden`/`display:none` 을 오버플로 억제 목적으로 쓴 건수 **0**. 코드블록·표는 `overflow-x:auto` 로 **끝까지 스크롤 도달 가능**해야 한다 (대표 3 페이지에서 `scrollLeft` 를 최대로 밀어 `scrollLeft + clientWidth >= scrollWidth - 1` 확인). [exact, enumerated]
-- [ ] AR-03: 768px 뷰포트 오버플로도 악화되지 않는다. 측정: 768×1024 에서 `> 2` 인 페이지 수가 작업 전(26 건) **이하**. [exact]
-- [ ] AR-04: 4 개 규칙이 `.claude/skills/docs-site/references/page-template.html` 에 존재한다: (a) grid/flex 자식 `min-width:0` (b) 인터랙티브 요소 최소 높이 (c) 좁은 뷰포트 단일 컬럼 스택 (d) 테마 토글 + `localStorage` 영속화 + 로드 시 복원. 측정: 각 규칙에 대응하는 셀렉터/코드가 파일에 존재 (현재 4 개 전부 0 매치). 테마 키는 레포 지배 패턴 `dk-theme` 를 쓰고 `prefers-color-scheme` 폴백을 포함한다. [structural, enumerated]
-- [ ] AR-05: `design-kit/templates/*.html` 8 개 전부에 grid/flex 자식 `min-width:0` 규칙이 있다. 측정: 8 개 파일 개별 확인 (현재 `component.html` 1 개만 보유). [structural, enumerated]
+- [x] AR-01: 375px 뷰포트에서 문서 오버플로가 **2px 이하**인 페이지가 146 개 중 **146 개**다. 측정: `docs/**/*.html` 전수를 375×812 에서 `document.documentElement.scrollWidth - clientWidth` 로 측정하여 `> 2` 인 페이지 수가 **0** (현재 66). 기준을 완화하거나 대상을 표본으로 줄이지 않는다. [exact, collective]
+- [x] AR-02: 오버플로 해소가 **내용을 잘라내는 방식이 아니다.** 측정: 추가된 CSS 에 `overflow:hidden`/`overflow-x:hidden`/`display:none` 을 오버플로 억제 목적으로 쓴 건수 **0**. 코드블록·표는 `overflow-x:auto` 로 **끝까지 스크롤 도달 가능**해야 한다 (대표 3 페이지에서 `scrollLeft` 를 최대로 밀어 `scrollLeft + clientWidth >= scrollWidth - 1` 확인). [exact, enumerated]
+- [x] AR-03: 768px 뷰포트 오버플로도 악화되지 않는다. 측정: 768×1024 에서 `> 2` 인 페이지 수가 작업 전(26 건) **이하**. [exact]
+- [x] AR-04: 4 개 규칙이 `.claude/skills/docs-site/references/page-template.html` 에 존재한다: (a) grid/flex 자식 `min-width:0` (b) 인터랙티브 요소 최소 높이 (c) 좁은 뷰포트 단일 컬럼 스택 (d) 테마 토글 + `localStorage` 영속화 + 로드 시 복원. 측정: 각 규칙에 대응하는 셀렉터/코드가 파일에 존재 (현재 4 개 전부 0 매치). 테마 키는 레포 지배 패턴 `dk-theme` 를 쓰고 `prefers-color-scheme` 폴백을 포함한다. [structural, enumerated]
+- [x] AR-05: `design-kit/templates/*.html` 8 개 전부에 grid/flex 자식 `min-width:0` 규칙이 있다. 측정: 8 개 파일 개별 확인 (현재 `component.html` 1 개만 보유). [structural, enumerated]
 
 ## Skill
 
-- [ ] SK-01: `.claude/skills/docs-site/SKILL.md` 가 페이지별 bespoke CSS 를 작성할 때도 4 개 규칙을 **하드 제약**으로 강제한다. 측정: Gotchas 에 4 개 규칙이 명시되고, 자가검증 단계에 "생성 후 375px 오버플로 ≤ 2px 확인" 이 **실행 가능한 명령과 함께** 포함된다 (E2 — 문장만이 아니라 검증 절차). [structural]
-- [ ] SK-02: `design-kit/skills/design-audit/references/audit-criteria.md` 에 오버플로·그리드 기준이 추가된다. 측정: `min-width` / 가로 오버플로 관련 기준 항목이 존재하고 근거 출처가 병기된다 (현재 `min-width` 0 매치 · `overflow` 0 매치). 기존 터치타겟 기준(WCAG 2.2 SC 2.5.8 AA 24px / SC 2.5.5 AAA 44px)의 **수치를 낮추지 않는다**. [structural]
-- [ ] SK-03: `.claude/commands/release.md` 가 `scripts/release.sh` 의 새 PR 경유 동작과 일치한다. 측정: 문서에 `git push origin HEAD --follow-tags` 직접 푸시 서술이 남아 있지 않고, PR 경유 절차가 기술된다. [exact]
+- [x] SK-01: `.claude/skills/docs-site/SKILL.md` 가 페이지별 bespoke CSS 를 작성할 때도 4 개 규칙을 **하드 제약**으로 강제한다. 측정: Gotchas 에 4 개 규칙이 명시되고, 자가검증 단계에 "생성 후 375px 오버플로 ≤ 2px 확인" 이 **실행 가능한 명령과 함께** 포함된다 (E2 — 문장만이 아니라 검증 절차). [structural]
+- [x] SK-02: `design-kit/skills/design-audit/references/audit-criteria.md` 에 오버플로·그리드 기준이 추가된다. 측정: `min-width` / 가로 오버플로 관련 기준 항목이 존재하고 근거 출처가 병기된다 (현재 `min-width` 0 매치 · `overflow` 0 매치). 기존 터치타겟 기준(WCAG 2.2 SC 2.5.8 AA 24px / SC 2.5.5 AAA 44px)의 **수치를 낮추지 않는다**. [structural]
+- [x] SK-03: `.claude/commands/release.md` 가 `scripts/release.sh` 의 새 PR 경유 동작과 일치한다. 측정: 문서에 `git push origin HEAD --follow-tags` 직접 푸시 서술이 남아 있지 않고, PR 경유 절차가 기술된다. [exact]
 
 ## Script
 
-- [ ] SC-01: `scripts/detect-docs-drift.py` 의 design-kit 매핑이 실제 출력 경로를 가리킨다. 측정: 26 개 design-kit 소스를 전수 매핑하여 **존재하지 않는 경로가 0 건** (현재 26/26 MISS). [exact, enumerated]
-- [ ] SC-02: `detect-docs-drift.py` 의 `SOURCE_TO_HTML` 이 오케스트레이터가 매핑한다고 명시한 prefix 를 누락하지 않는다. 측정: `rust-kit/references/`, `react-kit/references/`, `planning-kit/references/`, `docs/planning/` 4 개 prefix 가 등록되고, 현재 미커버 20 개 `.md` 가 0 건이 된다. [exact, enumerated]
-- [ ] SC-03: `.github/workflows/ci.yml` 의 액션 6 건이 전부 `@v7` 이다. 측정: `grep -c 'actions/[a-z-]*@v7'` = 6 이고 `@v4`/`@v5` 잔여 0. `with:` 블록은 한 줄도 변경하지 않는다 (전 input 이 v7 에서 유효). [exact, enumerated]
-- [ ] SC-04: 배포되는 템플릿의 액션 버전도 갱신된다. 측정: `docs/rust/ops/ci-cd.md` 4 건 + `infra-kit/skills/infra-init/SKILL.md` 1 건 = 5 건이 최신 메이저를 가리킨다. **`.harness/history/` 의 1 건은 이력 기록물이므로 수정하지 않는다.** [exact, enumerated]
-- [ ] SC-05: `scripts/release.sh` 가 main 에 직접 push 하지 않는다. 측정: `git push origin HEAD` 계열 직접 푸시가 0 건이고, 브랜치 생성 → push → PR 생성 경로로 바뀐다. 태그는 branch protection 대상이 아니므로 태그 푸시 동작은 유지한다. [exact]
-- [ ] SC-06: `release.sh` 가 문법적으로 유효하고 파괴적 동작이 없다. 측정: `bash -n scripts/release.sh` Exit 0, 그리고 **dry-run 또는 임시 브랜치에서 실제 실행**하여 main 에 커밋·푸시가 발생하지 않음을 확인한다 (실행 증거 필수 — 서술 불가). [exact]
+- [x] SC-01: `scripts/detect-docs-drift.py` 의 design-kit 매핑이 실제 출력 경로를 가리킨다. 측정: 26 개 design-kit 소스를 전수 매핑하여 **존재하지 않는 경로가 0 건** (현재 26/26 MISS). [exact, enumerated]
+- [x] SC-02: `detect-docs-drift.py` 의 `SOURCE_TO_HTML` 이 오케스트레이터가 매핑한다고 명시한 prefix 를 누락하지 않는다. 측정: `rust-kit/references/`, `react-kit/references/`, `planning-kit/references/`, `docs/planning/` 4 개 prefix 가 등록되고, 현재 미커버 20 개 `.md` 가 0 건이 된다. [exact, enumerated]
+- [x] SC-03: `.github/workflows/ci.yml` 의 액션 6 건이 전부 `@v7` 이다. 측정: `grep -c 'actions/[a-z-]*@v7'` = 6 이고 `@v4`/`@v5` 잔여 0. `with:` 블록은 한 줄도 변경하지 않는다 (전 input 이 v7 에서 유효). [exact, enumerated]
+- [x] SC-04: 배포되는 템플릿의 액션 버전도 갱신된다. 측정: `docs/rust/ops/ci-cd.md` 4 건 + `infra-kit/skills/infra-init/SKILL.md` 1 건 = 5 건이 최신 메이저를 가리킨다. **`.harness/history/` 의 1 건은 이력 기록물이므로 수정하지 않는다.** [exact, enumerated]
+- [x] SC-05: `scripts/release.sh` 가 main 에 직접 push 하지 않는다. 측정: `git push origin HEAD` 계열 직접 푸시가 0 건이고, 브랜치 생성 → push → PR 생성 경로로 바뀐다. 태그는 branch protection 대상이 아니므로 태그 푸시 동작은 유지한다. [exact]
+- [x] SC-06: `release.sh` 가 문법적으로 유효하고 파괴적 동작이 없다. 측정: `bash -n scripts/release.sh` Exit 0, 그리고 **dry-run 또는 임시 브랜치에서 실제 실행**하여 main 에 커밋·푸시가 발생하지 않음을 확인한다 (실행 증거 필수 — 서술 불가). [exact]
 
 ## Error
 
-- [ ] ER-01: 수정한 페이지의 브라우저 콘솔 에러가 0 건이다. 측정: 이번에 변경한 모든 HTML 을 로드하여 `console` error + `pageerror` 0 건 (변경 페이지 전수). [exact, collective]
-- [ ] ER-02: protection 적용 실패 시 되돌리는 경로가 문서화된다. 측정: 전체 해제 / 체크만 해제 / admin 강제 해제 3 개 명령이 계약 또는 레포 문서에 기재된다. [structural]
+- [x] ER-01: 수정한 페이지의 브라우저 콘솔 에러가 0 건이다. 측정: 이번에 변경한 모든 HTML 을 로드하여 `console` error + `pageerror` 0 건 (변경 페이지 전수). [exact, collective]
+- [x] ER-02: protection 적용 실패 시 되돌리는 경로가 문서화된다. 측정: 전체 해제 / 체크만 해제 / admin 강제 해제 3 개 명령이 계약 또는 레포 문서에 기재된다. [structural]
 
 ## Anti-patterns
 
-- [ ] AP-02: force push 를 사용하지 않는다. 측정: 셸 이력에 `git push --force` / `-f` 0 건. [exact]
-- [ ] AP-03: bare code fence 0 건. 측정: `validate-plugin.py` V6 가 전 킷에서 `0 bare` 보고. [exact]
+- [x] AP-02: force push 를 사용하지 않는다. 측정: 셸 이력에 `git push --force` / `-f` 0 건. [exact]
+- [x] AP-03: bare code fence 0 건. 측정: `validate-plugin.py` V6 가 전 킷에서 `0 bare` 보고. [exact]
 
 ## Reusability
 
-- [ ] RE-01: 오버플로 수정이 **페이지별 매직넘버 튜닝이 아니라 재사용 가능한 규칙**이다. 측정: 66 건 중 군집 G1(22)·G2(19)·G3(15)·G4(4) = 60 건이 **동일 규칙 패턴**으로 해소되고, 페이지별 고유 하드코딩 폭(`width: 340px` 류)을 새로 도입한 건수 0. G5(6 건)만 개별 진단을 허용한다. [structural, collective]
-- [ ] RE-02: 이미 존재하는 패턴을 재발명하지 않는다. 측정: 테마 토글은 `design-kit/templates/base.html` 의 기존 구현(`dk-theme` + `prefers-color-scheme` 폴백)을 따르고, 표 스크롤 래퍼는 레포에 이미 있는 패턴이 있으면 그것을 쓴다. [structural]
+- [x] RE-01: 오버플로 수정이 **페이지별 매직넘버 튜닝이 아니라 재사용 가능한 규칙**이다. 측정: 66 건 중 군집 G1(22)·G2(19)·G3(15)·G4(4) = 60 건이 **동일 규칙 패턴**으로 해소되고, 페이지별 고유 하드코딩 폭(`width: 340px` 류)을 새로 도입한 건수 0. G5(6 건)만 개별 진단을 허용한다. [structural, collective]
+- [x] RE-02: 이미 존재하는 패턴을 재발명하지 않는다. 측정: 테마 토글은 `design-kit/templates/base.html` 의 기존 구현(`dk-theme` + `prefers-color-scheme` 폴백)을 따르고, 표 스크롤 래퍼는 레포에 이미 있는 패턴이 있으면 그것을 쓴다. [structural]
 
 ## Diagnostics
 
-- [ ] DG-01: 레포 게이트 통과. 측정: `python3 scripts/validate-plugin.py` = `11 plugins, 11 OK` + Exit 0, `bash -n scripts/release.sh` Exit 0. [exact]
-- [ ] DG-02: Playwright 스위트 0 failed. 측정: `playwright test design-kit/evals/visuals.spec.js --project=chromium` 의 failed 카운트 0. [exact]
-- [ ] DG-03: main branch protection 이 정확한 3 개 context 로 적용된다. 측정: `gh api .../branches/main/protection` 조회 결과 `checks` 가 정확히 `Plugin Validation`, `Playwright Visual Tests`, `Harness Integration Tests` 3 개이고 오타·잉여(`build`/`deploy`/`report-build-status`) 0 건, `enforce_admins.enabled = true`, `required_pull_request_reviews = null`, `required_linear_history.enabled = false`, `allow_force_pushes.enabled = false`. [exact, enumerated]
-- [ ] DG-04: protection 적용 **후** 실제로 PR 이 머지 가능한 상태가 된다. 측정: protection 적용 뒤 `gh pr view <PR> --json mergeStateStatus` 가 `BLOCKED` 로 영구 고착되지 않음을 확인한다 (context 오타 시 발생하는 증상). 확인 불가하면 즉시 되돌린다. [exact]
-- [ ] DG-05: CI 3 잡이 전부 pass 한다. 측정: PR 의 `gh pr checks` 3/3 pass 이고, Playwright 잡 로그에 `Running 143 tests` → `143 passed` 가 실제로 찍힌다 (수집 0 후 green 배제). [exact]
+- [x] DG-01: 레포 게이트 통과. 측정: `python3 scripts/validate-plugin.py` = `11 plugins, 11 OK` + Exit 0, `bash -n scripts/release.sh` Exit 0. [exact]
+- [x] DG-02: Playwright 스위트 0 failed. 측정: `playwright test design-kit/evals/visuals.spec.js --project=chromium` 의 failed 카운트 0. [exact]
+- [x] DG-03: main branch protection 이 정확한 3 개 context 로 적용된다. 측정: `gh api .../branches/main/protection` 조회 결과 `checks` 가 정확히 `Plugin Validation`, `Playwright Visual Tests`, `Harness Integration Tests` 3 개이고 오타·잉여(`build`/`deploy`/`report-build-status`) 0 건, `enforce_admins.enabled = true`, `required_pull_request_reviews = null`, `required_linear_history.enabled = false`, `allow_force_pushes.enabled = false`. [exact, enumerated]
+- [x] DG-04: protection 적용 **후** 실제로 PR 이 머지 가능한 상태가 된다. 측정: protection 적용 뒤 `gh pr view <PR> --json mergeStateStatus` 가 `BLOCKED` 로 영구 고착되지 않음을 확인한다 (context 오타 시 발생하는 증상). 확인 불가하면 즉시 되돌린다. [exact]
+- [x] DG-05: CI 3 잡이 전부 pass 한다. 측정: PR 의 `gh pr checks` 3/3 pass 이고, Playwright 잡 로그에 `Running 143 tests` → `143 passed` 가 실제로 찍힌다 (수집 0 후 green 배제). [exact]
