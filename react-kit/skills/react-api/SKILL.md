@@ -24,6 +24,20 @@ user-invocable: true
 10. **`@tauri-apps/*` 직접 import 금지** — datasource에서 Tauri API를 직접 import하면 레이어 경계 위반. 반드시 `src/infrastructure/tauri/`를 경유한다.
 11. **Enumerate-before-Act (skill-design-guide §5.5)** — API 레이어를 생성하기 전에 기존 `src/data/datasources/*`, `src/data/repositories/*`, `src/domain/usecases/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일 엔드포인트/유사 네이밍 datasource, (b) 재사용 가능한 기존 repository·usecase, (c) 같은 DTO/Schema 가 이미 있는지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 repository 는 도메인 의존 그래프를 분산시킨다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
 12. **요청한 엔드포인트만 — 임의 CRUD 확장 금지** — "조회 API 추가" 요청에 생성·수정·삭제·페이지네이션·캐싱 레이어를 요청 없이 임의로 덧붙이지 마라. feature 4계층 풀스택이 필요하면 `/react-feature` 를 안내한다. 프로젝트 컨벤션상 표준으로 끼는 항목이 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
+13. **Counterpart Enumeration — 소비면을 편집 전에 열거한다 (skill-design-guide §5.5 · E2)** — Gotcha #11 Enumerate-before-Act 는 **내가 만들 레이어 안**을 훑는다. 이 규칙은 **반대 방향**이다. 기존 Zod 스키마·DTO·`Result` 에러 `kind`·usecase 시그니처를 **수정**할 때는 그 변경을 소비하는 파일을 편집 **전에** 경로로 열거한다. 필드 rename 이나 nullable 변경은 producer 만 고치면 타입 오류 없이 통과하고 런타임에서 깨진다 (insights-report Friction #4 — "풀스택 변경에서 클라이언트 누락").
+
+    **열거 대상 (Grep 으로 전수)**: `src/presentation/**/hooks/use*.ts` 쿼리·뮤테이션 훅 · `src/presentation/**/*.tsx` 렌더 지점 · React Hook Form 의 Zod resolver 스키마 · `tests/**` 의 MSW 핸들러 응답 픽스처.
+
+    열거 결과는 **체크리스트 아티팩트로 제출**한다 — "확인했다" 는 문장으로 대체하지 않는다. 소비자를 못 찾으면 "소비자 없음" 을 grep 근거와 함께 명시한다. 한 스프린트에서 양쪽을 다 못 바꾸면 남는 쪽을 `[미검증]` 이 아니라 **명시적 미완 항목**으로 보고한다 (조용한 반쪽 완료 금지).
+
+    ```text
+    Bad:  User 스키마의 email_address → email rename → data 레이어만 수정 → "완료"
+          → MSW 픽스처와 폼 resolver 가 옛 필드명을 유지해 런타임에서 파싱 실패
+    Good: rename 전 Grep 'email_address' → producer 2 파일 + consumer 4 파일 열거
+          → 체크리스트 합의 → 6 파일 일괄 수정
+    ```
+
+    **부적합**: 소비자가 존재할 수 없는 순수 신규 생성(아무도 아직 import 하지 않는 파일). 이 경우 열거 단계는 noise 다.
 
 # Process
 

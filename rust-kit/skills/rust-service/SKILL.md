@@ -23,6 +23,14 @@ user-invocable: true
 - **에러 변환은 서비스 레이어에서** — Repository가 반환하는 infra error(`sqlx::Error`, `reqwest::Error`)를 그대로 상위에 전파하지 마라. 서비스 메서드에서 도메인 에러로 변환(`map_err`)하여 핸들러가 infra 타입에 의존하지 않게 한다.
 - **async closure 활용 (Rust 1.85+)** — `async || {}` 문법이 안정화되어 `AsyncFn`/`AsyncFnMut`/`AsyncFnOnce` trait을 사용할 수 있다. 기존 `|| async {}` (매 호출마다 새 future 생성)와 달리 환경 변수 캡처가 가능하여 미들웨어 팩토리, 재시도 래퍼 등 고차 함수 시그니처가 자연스러워진다.
 - **cancellation safety 주의** — Tokio runtime에서 future가 도중에 drop되면 트랜잭션이 절반만 실행될 수 있다. `tokio::select!` 분기나 timeout 래핑 시 cancellation-safe한 메서드(`recv()`, `read()`)와 unsafe한 메서드(`read_exact()`)를 구분하라. TokioConf 2026에서도 주요 토픽으로 강조되었다.
+- **외부 크레이트 API 는 조회 기록 후 작성 (usc 재위반 — E2)** — `sea_orm` · `chrono` · `tokio` · `tracing` · `reqwest`/`reqwest-middleware` 같은 외부 크레이트의 API 를 서비스 코드에 쓰기 **전에** Context7 또는 공식 문서/`docs.rs`/CHANGELOG 를 조회하고, 응답에 아래 3 항목을 그대로 적는다:
+
+  ```text
+  문서 조회: <crate> <Cargo.toml 기준 버전> — <조회한 URL>
+  ```
+
+  "in-repo 에 같은 크레이트를 쓰는 코드가 있다" 는 조회 면제 사유가 아니다 — 기존 코드가 구버전 API 를 쓰고 있을 수 있다. 조회 기록이 없는 상태로 외부 API 를 편집하는 것은 규칙 위반이며, 이 항목은 2026-07 한 달에 usc=true 로 3 회(`external-api-doc-lookup-skipped` · `missing-official-doc-lookup-for-external-api` · `research-before-edit-ignored`) 재발했다. 실측 사례: reqwest-middleware API 를 먼저 편집하고 **컴파일 실패 후에야** 로컬 cargo registry 를 뒤짐.
+- **편집 전 Read 필수** — 수정 대상 서비스 파일을 열지 않고 Edit 하지 마라 (`edit-before-read`, 2026-07 실측). 기존 트랜잭션 경계·포트 시그니처를 모르는 상태의 편집은 계층 규칙을 깬다.
 - **Sibling Consistency (skill-design-guide §8.8) — rust-service ↔ backend-system** — backend-system 이 다루는 백엔드 공통 원칙(Transactional Outbox · Circuit Breaker + Rate Limiter 조합 · OAuth 2.1 Authorization Code + PKCE · RFC 9457 problem+json) 중 Rust 서비스 레이어에서 적용 가능한 항목은 동일 참조로 기재한다. 예: Outbox 는 이미 Gotcha 에 반영됨; Circuit Breaker 는 `tower::Layer` 로 service 외부에서 감싸고 service 내부 구현으로 넣지 마라 (resilience 는 infra 관심사). 출처: [Azure Circuit Breaker 패턴](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker) · [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html).
 - **Enumerate-before-Act (skill-design-guide §5.5)** — 서비스 메서드를 추가하기 전에 기존 `src/domain/services/*` 또는 `modules/*/service.rs` 를 전수 스캔하여 중복 유즈케이스·유사 네이밍을 먼저 열거한다. 동일 도메인 로직이 두 서비스에 분산되면 트랜잭션 경계가 혼란스러워진다.
 

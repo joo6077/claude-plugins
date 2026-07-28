@@ -275,6 +275,10 @@ shared 컴포넌트 경로: src/presentation/components/
 1. `<file>:<line>` — <설명> (<카테고리>)
 ...
 
+### 🔍 미검증 (<N>)
+1. `<규칙 ID>` (<카테고리>) — <사유> / 시도한 fallback: <단계>
+...
+
 ### ✅ 통과 카테고리
 - <카테고리명>: <간단한 이유>
 ...
@@ -284,6 +288,10 @@ shared 컴포넌트 경로: src/presentation/components/
 ```
 
 이슈가 없는 카테고리는 "통과 카테고리" 에만 표시한다. 감사 결과만 보고한다. 코드를 직접 수정하지 않는다.
+
+`🔍 미검증` 섹션은 **0 건이어도 생략하지 않는다** — 생략은 조용한 PASS 와 구분되지 않는다.
+react-reviewer 가 돌려준 `unverified` 항목을 그대로 옮기고, quick 모드(에이전트 미사용)에서도
+이 스킬이 직접 판정하지 못한 규칙을 같은 형식으로 집계한다.
 
 ## Rules
 
@@ -296,6 +304,10 @@ shared 컴포넌트 경로: src/presentation/components/
 - **MUST NOT** 카테고리별 독립 리포트 외에 "overview" / "종합 요약" 섹션을 생성한다 — 카테고리 경계를 흐리면 FAIL 심각도가 희석된다 (Phase 8 infra-kit 전수 원칙)
 - **MUST NOT** 판정 사유에 "대체로", "거의", "대부분", "충분히" 같은 모호 표현을 사용한다 — `파일:라인`·`건수`·`규칙 ID` 로 서술 (Phase 2 contract-design-guide 정합)
 - **MUST** Library Policy 금지 목록 확장 시 `react-kit/references/common-gotchas.md` G2 동기화 필수. 삭제는 빌드 게이트 훼손으로 금지 (Phase 10 LP-01)
+- **MUST** grep 0 매치를 PASS 근거로 쓰기 전에 **스코프 대상 파일 수를 먼저 센다**. `Glob` 결과가 0 파일이면 그 규칙은 PASS 가 아니라 `[미검증]` 이다 — 대상이 없어서 안 걸린 것과 위반이 없어서 안 걸린 것은 다른 상태다 (qa-evaluation-guide §Evidence Validity Gate 검사 2)
+- **MUST** 판정하지 못한 규칙을 `🔍 미검증` 에 집계한다. 마커는 `[미검증]` 하나만 쓰고 동의어를 만들지 않는다
+- **MUST** `[미검증]` **2 건 이상이면 실패 0 건이어도 판정을 REJECT** 로 낸다. 임계값·마커 정의는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 정본을 따르며 이 스킬에서 재정의하지 않는다
+- **MUST NOT** `[미검증]` 을 카테고리로 승격한다 — 6 카테고리 구성은 고정이고 미검증은 리포트 축이다
 
 ## References
 
@@ -305,3 +317,5 @@ shared 컴포넌트 경로: src/presentation/components/
 - `docs/react/wasm-catalog.md` — Performance WASM 카탈로그 위반 판정 기준
 - `react-kit/agents/react-reviewer.md` — quick 모드 단일 에이전트
 - `react-kit/agents/widget-inspector-react.md` — deep 모드 재사용 패턴 에이전트
+- `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol — `[미검증]` 마커·임계값 정본 (SSOT)
+- `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate — 0 매치·공허 증거 판정 정본 (SSOT)

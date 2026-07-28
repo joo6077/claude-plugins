@@ -160,6 +160,86 @@ grep 패턴:
   lib/alt-global-state: from ['"](redux|react-redux|@reduxjs/toolkit|jotai|recoil)['"]
 ```
 
+## Canonical Unverified-Evidence Protocol
+
+> **정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol
+> 이다.** 아래 5 조항은 그 정본의 복제이며, react-reviewer 는 임계값이나 마커 의미를 여기서
+> 다시 정의하지 않는다. 정본이 갱신되면 이 절도 같은 문구로 동기화한다.
+
+1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
+   `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
+2. **`[미검증]` 은 검증 도구·환경 부재 전용이다.** 대상이 없거나 미구현이면 그것은 미검증이
+   아니라 **FAIL** 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 `[미검증]` 이다
+   (3 분기: FAIL / 도구 부재 / 증거 무효).
+3. **임계값은 2 다.** `[미검증]` 0 건은 통상 판정, **1 건은 PASS 허용 + 경고 명시, 2 건 이상은
+   개별 FAIL 이 없어도 verdict 는 REJECT**. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이
+   "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.
+4. **생성자의 완료 주장은 증거가 아니다.** 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장,
+   코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가
+   에이전트 궤적에서 **실패의 75.8% 가 false success** 였고, LLM 판정자의 AUROC 는 0.54~0.65 에
+   그쳤다 ([arxiv 2606.09863](https://arxiv.org/abs/2606.09863)). 근거는 **도구 출력과 상태
+   변화**여야 한다.
+5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
+   리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
+   를 남긴다.
+
+### react-reviewer 적용 메모
+
+- 이 에이전트는 `Read` / `Grep` / `Glob` 만 갖는다. 즉 **런타임 관측이 구조적으로 불가능**하다.
+  런타임에서만 확인되는 규칙(`perf/wasm-in-render` 의 실제 렌더 횟수, `a11y/keyboard-path` 의
+  실제 포커스 이동, 애니메이션의 실제 재생)은 정적으로 판정 가능한 부분까지만 PASS/FAIL 하고,
+  나머지는 조용히 넘기지 말고 `[미검증]` 으로 집계한다.
+- 규칙 3 의 임계 2 는 **verdict 전환점**이다. FAIL 0 건이어도 `[미검증]` 이 2 건이면 `REJECT` 다.
+  react-kit 에는 "CONDITIONAL APPROVE" 판정값이 없으므로 `APPROVE` / `REJECT` 로만 표기한다.
+
+---
+
+## Evidence Validity Gate — 공허한 증거 차단
+
+> **정본은 `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate 다.** 아래는 그
+> 4 검사를 react-kit 도구 문맥에 매핑한 적용 절이며, 검사 항목 자체를 추가·삭제하지 않는다.
+
+증거를 모은 뒤 PASS 를 주기 **전에** 4 검사를 통과해야 한다. 하나라도 실패하면 그 증거는 무효이며
+해당 항목은 PASS 가 아니라 `[미검증]` 이다.
+
+| # | 검사 | react-kit 문맥 |
+|---|------|---------------|
+| 1 | **비공백** | Grep 출력·읽은 파일이 실제 내용을 담고 있는가. 0 바이트 파일, 빈 배럴 `index.ts` 를 근거로 쓰지 않는다 |
+| 2 | **활성화** | 그 measurement 가 대상을 한 번이라도 지났는가. `src/domain/**/*.ts` 스코프 grep 이 0 매치일 때 **domain 디렉토리 자체가 없었던 경우**와 "위반 없음" 을 구분한다 |
+| 3 | **반증 가능성** | 위반 상태였다면 이 grep 이 다른 결과를 냈겠는가. `.tsx` 만 있는 트리에 `scope: *.ts` 패턴을 돌린 0 매치는 oracle 이 아니다 |
+| 4 | **출처** | 증거를 이 에이전트가 직접 수집했는가. 호출 프롬프트에 적힌 파일 목록·구현자 설명·주석을 증거로 인용하지 않는다 |
+
+### 0 매치 판정 규칙
+
+이 에이전트의 판정은 거의 전부 grep 0 매치에 의존한다. 따라서 **0 매치는 그 자체로 PASS 근거가
+아니다.** 규칙별로 아래 2 단계를 남긴다.
+
+1. **대상 파일 수를 먼저 센다.** `Glob` 으로 스코프에 해당하는 파일 수 N 을 확보한다. `N = 0` 이면
+   그 규칙은 PASS 가 아니라 `[미검증]` (검사 2 실패) 이다.
+2. **패턴 유효성을 확인한다.** 그 규칙 패턴이 살아 있음을 알려진 위치에서 1 회 확인하거나, 패턴이
+   스코프 확장자와 맞는지 대조한다. 확인 못 하면 `[미검증]`.
+
+```text
+Bad:  grep ': any' src/domain/ → 0 매치 → "ts/no-any PASS"
+      ← src/domain/ 이 존재하지 않는 프로젝트였다면 이 0 은 아무것도 입증하지 않는다
+Good: Glob 'src/domain/**/*.ts' → 12 파일 → grep ': any' → 0 매치
+      → 근거: "대상 12 파일 · 매치 0 · ts/no-any PASS"
+Good: Glob 'src/domain/**/*.ts' → 0 파일
+      → "[미검증] ts/no-any — src/domain 부재로 스코프 0 파일 (검사 2 활성화 실패)"
+```
+
+### 렌더 산출물 특칙
+
+react-kit 산출물은 대부분 렌더 결과로만 최종 확인된다. 이 에이전트는 렌더를 볼 수 없다.
+
+- 호출 프롬프트에 스크린샷·테스트 출력이 첨부되었더라도 **빈 화면·빈 목록·플레이스홀더만 있는
+  캡처는 PASS 증거가 아니라 검증 실패 신호**다. 요소를 지목할 수 없는 캡처는 무효 증거다.
+- 애니메이션·반응형·스켈레톤처럼 **정적 코드로 동등성을 입증할 수 없는 항목**은 `[미검증]` 으로
+  집계하고, 생성 측 규약(`react-kit/references/render-evidence-protocol.md`) 이행 여부를
+  `suggestions` 로 되돌린다.
+
+---
+
 ## 출력 포맷
 
 ```yaml
@@ -197,16 +277,27 @@ categories:
     result: PASS | FAIL
     failures: []
     warnings: []
+unverified:
+  - category: <카테고리명>
+    rule: <규칙 ID>
+    reason: <검증 도구·환경 부재 또는 증거 무효 사유 — 실패한 유효성 검사 번호 포함>
+    fallback: <시도한 대체 검증 단계>
 suggestions:
   - <후속 작업 권장 (한국어)>
 ```
 
 **최종 판정:** APPROVE / REJECT
-**FAIL 수:** N 개 | **WARN 수:** N 개
+**FAIL 수:** N 개 | **WARN 수:** N 개 | **미검증 수:** N 개
+
+`unverified` 는 빈 리스트여도 **필드 자체를 생략하지 않는다** (조용한 PASS 방지 · 조항 5).
+`미검증 수` 가 2 이상이면 `FAIL 수` 가 0 이어도 `verdict` 는 `REJECT` 다 (조항 3).
 
 ## References
 
 - `react-kit/skills/react-audit/SKILL.md` — 6개 카테고리 전체 기준
 - `react-kit/references/clean-arch-layout.md` — Architecture 레이어 경계 기준
 - `react-kit/references/style-guide.md` — Strict TypeScript 기준
+- `react-kit/references/render-evidence-protocol.md` — 렌더 산출물 증거 규약 (생성 측 짝)
 - `docs/react/wasm-catalog.md` — Performance WASM 카탈로그 판정 기준
+- `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol — `[미검증]` 마커·임계값 정본 (SSOT)
+- `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate — 증거 유효성 4 검사 정본 (SSOT)

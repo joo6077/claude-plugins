@@ -23,9 +23,12 @@ user-invocable: true
 - **Flutter 3.41 신규 위젯** — `RepeatingAnimationBuilder` (반복 애니메이션 간편 생성), `DeviceOrientationBuilder` (기기 방향에 반응하는 위젯), `CarouselView.builder` (lazy 캐러셀), `Navigator.popUntilWithResult` (결과 전달 + 다중 pop). 새 위젯 생성 시 이 빌트인 위젯이 요구사항을 충족하는지 먼저 확인하라 — 이미 제공되는 기능을 재구현하면 유지보수 부담만 늘어난다 (출처: <https://blog.flutter.dev/whats-new-in-flutter-3-41-302ec140e632>)
 - **content-sized Flutter views (3.41)** — 하이브리드 앱에서 Flutter view 가 콘텐츠 크기에 맞게 자동 리사이즈됨. 고정 치수 요구가 제거됐으므로, 하이브리드 앱 내 위젯을 만들 때 `SizedBox` 로 강제 크기를 지정하지 않아도 된다 (출처: <https://docs.flutter.dev/release/release-notes/release-notes-3.41.0>)
 - **Enumerate-before-Act (low-freedom 영역 · skill-design-guide §5.5)** — 새 위젯 제작이나 기존 위젯 리팩터링 전에 (a) 프로젝트의 기존 디자인 토큰(컬러 · 타이포 · 스페이싱 · 라디우스)을 **Grep 으로 전수 나열** 하고, (b) 같은 카테고리의 기존 위젯을 `grep -r "extends.*Widget" lib/shared/ lib/features/*/presentation/widgets/` 로 전수 파악하고, (c) 재사용 후보가 있으면 "새로 만들까 / 기존을 확장할까" 선택지를 **1..N 인덱스** 로 명시해 사용자 또는 자기 자신에게 지목시킨다. 근사치 추정 · "아마 이 토큰이 맞을 것" 은 3+ iteration 재작업의 주범 (insights-report #2 Wrong approach & false dichotomies 대응)
+- **신규 enum / 카탈로그 / 공용 헬퍼는 만들기 전에 기존 것을 Grep 하라 (`/insights` 2026-07-27 Friction #3)** — 화면 목록·모드·타입을 나열하는 enum 이나 카탈로그 위젯을 새로 만들기 전에 `grep -rn "^enum \|enum .* {" lib/` 로 기존 enum 을 전수 확인한다. 같은 항목 집합을 정의하는 enum 이 이미 있으면 **그것을 재사용**하고, 새로 만들어야 하는 이유를 한 줄로 근거화한다. 실측 사례: 동일한 14 개 화면을 정의하는 `UserModeScreen` enum 이 이미 있는데 `_SkinScreen` 중복 카탈로그를 생성 → 전면 되돌림
+- **기존 위젯 수정이 기본값이다 — 교체는 사전 승인 사항 (`/insights` 2026-07-27 Friction #1 · digest `preserve-original-colors`)** — 시각 변경 요청을 받으면 편집 전에 세 줄을 남긴다: (1) 대상 위젯을 `파일:라인` 으로 지목, (2) **유지할 속성**(색상 체계 · 크기 · 모션 · 레이아웃) 을 열거, (3) 기존 위젯을 Flutter 기본 위젯(`CircularProgressIndicator` 등)이나 다른 컴포넌트로 **교체**하려면 승인을 먼저 받는다. 실측 사례: "play 아이콘이 회전했으면 좋겠다" 에 Material `CircularProgressIndicator` 를 새로 만들어 전면 재작업 / "보더만" 요청에 배경까지 어둡게 변경. 요청하지 않은 색상·배경 변경은 그 자체로 회귀다. 절차 전문: `references/visual-evidence-protocol.md` Step 0
 - **TextStyle / 레거시 타이포 토큰 마이그레이션 전수 체크 (insights #1 대응)** — 프로젝트에 타이포 토큰 마이그레이션 규칙(예: `bodyMSemiBold` → 신규 `bodyM + FontWeight.w600`)이 있으면, 위젯 수정 전에 `grep -rn "bodyMSemiBold\|<마이그레이션 대상 토큰>" lib/` 로 대상 줄을 **전수 나열 후 체크리스트** 로 만들고, 완료 선언 전에 같은 Grep 을 재실행해 0 건 확인. "몇 개 고쳤다" 같은 서술로 끝내면 나머지 잔존분이 남아 반복 지적을 유발 (`/insights` 30d Friction Point #1 "legacy bodyMSemiBold 미처리" 실제 사례 기반)
 - **Stack vs Column 선택 근거 명시 (insights #2 대응)** — 자식 위젯이 수직·수평 나열 외 **겹치거나 Positioned 로 절대 배치해야 할 때만** `Stack` 을 사용. 단순 나열에 Stack 을 쓰면 레이아웃 디버깅 비용이 커지고 피그마 대조에서 드리프트 발생. 의사결정 트리: (1) 자식이 겹치지 않고 동일 axis 면 Row/Column, (2) `Expanded`/`Flexible` 로 비율 조정이 필요하면 Flex 계열, (3) 하나가 다른 자식 위에 오버레이(배지, 플로팅 버튼, Gradient 오버레이)되어야 할 때만 Stack. Stack 사용 시 선택 근거를 **코드 주석 한 줄** 로 기록(`// Stack: 좋아요 배지가 카드 우측 상단에 오버레이`)
-- **Riverpod 3 (2026-04 최신, /rrousselgit/riverpod v3.0.2)** — `(Async)Notifier` 에는 `mounted` 프로퍼티가 **없다**. async gap 후 `ref` 재사용 시 `context.mounted` 로 가드하거나 `CancelToken` · `Completer` 로 작업 자체를 취소하라. `ref.state` · `ref.listenSelf` · `ref.future` 는 Notifier 내부에서는 `state` / `listenSelf` / `future` (prefix 없음) 로 접근한다 (출처: Context7 /rrousselgit/riverpod/riverpod-v3.0.2 migration docs)
+- **Flutter 3.44 (2026-07 stable = 3.44.7) 위젯 변경** — 새 위젯을 만들기 전에 빌트인이 요구를 충족하는지 먼저 확인하라. 신규: `CarouselView` 무한 스크롤 + `CarouselView.onItemChanged` + `CarouselController.leadingIndex`, `AnimatedCrossFade.onEnd`, `Hero` 애니메이션 curve 커스터마이징, `RoundedSuperellipseInputBorder`, `Overlay.alwaysSizeToContent`, `ScrollCacheExtent`(PageView 등 캐시 범위). Deprecated: `ReorderableListView.onReorder` → `onReorderStart` / `onReorderEnd`. 제거: `ExtendSelectionByPageIntent` (출처: <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>, <https://docs.flutter.dev/release/release-notes>)
+- **Riverpod 3.4.1 (2026-07-27 실측 최신, pub.dev)** — `(Async)Notifier` 에는 `mounted` 프로퍼티가 **없다**. async gap 후 `ref` 재사용 시 `context.mounted` 로 가드하거나 `CancelToken` · `Completer` 로 작업 자체를 취소하라. `ref.state` · `ref.listenSelf` · `ref.future` 는 Notifier 내부에서는 `state` / `listenSelf` / `future` (prefix 없음) 로 접근한다. 3.2.0 부터 `family.overrideWith` 가 deprecated (→ `family.overrideWith2`, 4.0 에서 rename 예정), 3.4.0 부터 `SyncProviderTransformerMixin` deprecated (출처: <https://pub.dev/packages/flutter_riverpod>, <https://pub.dev/packages/flutter_riverpod/changelog>)
 
 프로젝트의 스타일 가이드와 컨벤션에 맞는 새 위젯을 생성한다.
 
@@ -249,6 +252,12 @@ Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지�
 ## Post-Creation: Widget Inspector
 
 생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 추출 후보가 있으면 리포팅하고, 없으면 조용히 넘어간다.
+
+## Post-Creation: Visual Evidence (완료 선언 전 필수)
+
+`references/visual-evidence-protocol.md` 를 실행하고 **Visual Evidence Block 을 응답에 채워서 보고**한다.
+시각 검증 채널이 없거나 캡처가 실패하면 `[미검증]` 마커와 사유를 남기고 **부분 완료**로 보고한다 —
+"정상 렌더링됩니다" 같은 서술로 완료를 대체하지 않는다. 빈 캡처는 PASS 증거가 아니라 검증 실패 신호다.
 
 ## Related Skills
 

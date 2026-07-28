@@ -13,6 +13,7 @@ user-invocable: true
 ## Gotchas
 
 - breakpoint 값을 하드코딩하지 마라 — 프로젝트에 이미 정의된 breakpoint 상수가 있는지 먼저 확인
+- **breakpoint 양쪽을 각각 캡처해 대조하기 전에는 완료가 아니다 (`/insights` 2026-07-27 Friction #2)** — 넓은 화면만 보고 완료를 선언하면 기존 모바일 레이아웃 회귀를 놓친다. 절차: `references/visual-evidence-protocol.md`. 검증 채널이 없으면 `[미검증]` 을 명시하고 멈춰서 말하라 — 추측 금지
 - LayoutBuilder 안에서 Provider를 watch하면 레이아웃 변경마다 불필요한 리빌드 발생 — Provider는 LayoutBuilder 밖에서 watch
 - **Flutter Web WASM 빌드 시 반응형 폴백** — `flutter build web --wasm` 으로 빌드하면 WasmGC 미지원 브라우저(iOS WebKit 전면, Firefox/Safari 일부)에서 자동으로 JS 렌더러로 폴백한다. 반응형 breakpoint 테스트 시 WASM 과 JS 모드 양쪽에서 레이아웃이 동일한지 확인하라 — 렌더러 차이로 미세한 레이아웃 차이가 발생할 수 있다 (출처: <https://docs.flutter.dev/platform-integration/web/wasm>)
 - **Web Stateful Hot Reload (Flutter 3.38+)** — Web 에서도 Stateful Hot Reload 가 기본 활성화됐다. 반응형 레이아웃 조정 시 브라우저 리사이즈 + hot reload 로 빠른 피드백 루프 가능. `web_dev_config.yaml` 로 CORS 프록시/로컬 SSL 설정도 가능 (출처: <https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228>)
@@ -147,3 +148,4 @@ int crossAxisCount(double width) {
 - **MUST** 로컬 반응형에는 `MediaQuery`보다 `LayoutBuilder`를 우선 사용한다 -- `LayoutBuilder`는 부모 위젯의 실제 가용 공간을 기준으로 하므로, 전체 화면 크기가 아닌 해당 위젯의 공간에 맞게 반응한다
 - **MUST** 600px 미만에서는 단일 컬럼을 유지한다 -- 좁은 화면에서 다중 컬럼을 강제하면 콘텐츠가 읽기 어려울 정도로 좁아진다
 - **MUST** `$FLUTTER` / `$DART` 변수를 사용한다. 하드코딩된 명령 prefix 금지
+- **MUST** 완료 선언 전에 `references/visual-evidence-protocol.md` 를 실행하고 **Visual Evidence Block** 을 응답에 채운다 -- 반응형은 **breakpoint 양쪽(좁은 폭 / 넓은 폭)을 각각 캡처해 대조**해야 검증이 성립한다. 한쪽만 확인하고 "반응형 적용 완료" 라고 쓰면 반대쪽 회귀를 놓친다. 캡처 불가 시 `[미검증]` + 사유를 남기고 부분 완료로 보고한다 (`/insights` 2026-07-27 Friction #2)

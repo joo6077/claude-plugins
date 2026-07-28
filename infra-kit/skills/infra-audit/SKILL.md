@@ -22,7 +22,9 @@ user-invocable: true
 8. **이미지 태그 `latest` 사용 FAIL** — 프로덕션 Dockerfile/compose에서 `FROM node:latest`, `image: postgres:latest`처럼 `latest` 태그를 사용하면 재현 불가능한 빌드가 된다. 반드시 구체적 버전 태그(`postgres:16-alpine`)를 사용하라.
 9. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 설정 파일에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "보안이 충분해 보인다"처럼 주관 해석 여지가 남는 기준은 **카테고리 평가 시작 시점에** 근거 제약(파일:라인 + 출처 URL)을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "K8s 네임스페이스 보안이 좋은지"가 아니라 "네임스페이스에 `pod-security.kubernetes.io/enforce=baseline` 라벨이 있는지 (Kubernetes PSA)"로 좁힌다.
 10. **Rule-by-Rule Audit 프로토콜 (skill-design-guide §3.6 대응)** — `audit-criteria.md` 10 카테고리 × N 체크항목을 한 번에 묶어 "대체로 PASS/FAIL" 로 리포트하지 말고, 각 체크항목 단위로 개별 판정과 근거를 생성하라. 묶음 판정은 PASS 세부가 가려지고 FAIL 누락 추적이 불가능해진다. 리포트 표의 각 row 는 한 체크항목에 대응한다.
-11. **미검증 항목 마커 프로토콜 (evaluator v3 · agent-design-guide §10 대응)** — 런타임 환경/외부 시스템 접근 불가(예: production K8s 클러스터 kubectl 접근 · 실제 Cosign 서명 검증 · terraform state 파일 열람)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 이유를 기술하라 (예: `[미검증] production cluster kubectl 접근 불가 — manifest 정적 리뷰만 수행`). 미검증 2건 이상은 CONDITIONAL APPROVE 규칙을 적용한다 (Step 4 참조).
+11. **미검증 항목 마커 프로토콜** — 런타임 환경/외부 시스템 접근 불가(예: production K8s 클러스터 kubectl 접근 · 실제 Cosign 서명 검증 · terraform state 파일 열람)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 이유를 기술하라 (예: `[미검증] production cluster kubectl 접근 불가 — manifest 정적 리뷰만 수행`). 마커 의미·임계값·CONDITIONAL APPROVE 유효 조건은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 이며, `infra-kit/agents/infra-reviewer.md` §9 가 그 복제본이다. **이 스킬에서 임계값을 다시 정의하지 마라.**
+
+12. **도구·규칙 소스 부재를 "위반 0" 으로 집계하지 마라** — 인프라 감사는 검사 도구가 없는 환경이 흔하다(`hadolint` · `actionlint` · `kubeconform` · `conftest` · `cosign` · `trivy` 미설치, kubectl/레지스트리 접근 불가). **검사하지 못한 것과 검사해서 위반이 없는 것은 다르다.** 도구가 없어 돌리지 못한 rule 은 PASS 도 N/A 도 아니고 `[미검증]` 이다. 같은 원칙이 규칙 소스에도 적용된다 — `references/audit-criteria.md` 를 읽지 못했다면 그 카테고리는 검사하지 않은 것이므로 `[미검증] audit-criteria.md — 소스 부재로 미검사` 로 명시하고 위반 0 으로 보고하지 마라. 빈 결과를 통과로 읽는 것이 이 마찰의 실제 사고 형태다. Step 3 머리말에 **로드된 소스 / `[미검증]` 소스 / 사용 가능한 도구 / 미설치 도구를 각각 이름으로 나열** 하여 감사 범위를 먼저 고정한다.
 
 # Process
 
@@ -38,6 +40,19 @@ user-invocable: true
 - prompt: "다음 파일을 인프라 원칙 기준으로 평가하라: [대상 파일 목록]"
 
 ## Step 3: 리포트 생성 (Rule-by-Rule 표)
+
+### Step 3a: 감사 범위 머리말 (표보다 먼저 · Gotcha 12)
+
+표를 쓰기 전에 아래 4 줄을 그대로 출력한다. 도구 유무는 추측하지 말고 `command -v <tool>` 로 확인한 결과만 적는다. 이 머리말이 없으면 리포트의 "위반 0" 은 해석 불가다.
+
+```text
+로드된 규칙 소스: <실제로 읽은 파일 절대경로 나열>
+[미검증] 규칙 소스: <읽지 못한 소스 나열 — 없으면 "없음">
+사용 가능한 검사 도구: <command -v 로 확인된 도구 나열 — 없으면 "없음">
+미설치 검사 도구: <확인 실패한 도구 나열 — 해당 rule 은 전부 [미검증]>
+```
+
+### Step 3b: Rule-by-Rule 표
 
 카테고리 순서는 `references/audit-criteria.md` 섹션 순서와 일치시킨다 (총 10 카테고리). 각 row 는 **하나의 체크항목(rule)** 에 대응하며, 카테고리 단위로 묶지 않고 개별 판정·근거·출처를 생성한다 (Gotcha 10 참조). 표 자리표시자(`...`) 금지.
 
@@ -68,11 +83,13 @@ user-invocable: true
 
 ## Step 4: 최종 판정
 
-판정 분류는 세 가지다:
+판정은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 조항 3 의 임계값을 그대로 적용한다 (임계값 재정의 금지 · Gotcha 11).
 
-- **APPROVE** — 전 카테고리 PASS (또는 N/A) + 미검증 태그 0 건.
-- **CONDITIONAL APPROVE** — 전 카테고리 PASS 이지만 `[미검증]` 태그 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production K8s kubectl 접근권한 · Cosign keyring 설정) 후 재검증 권고. 2 건 이상은 REJECT.
-- **REJECT** — 1 건 이상 FAIL 또는 `[미검증]` 2 건 이상. 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 함께 제시한다.
+- **APPROVE** — 전 카테고리 PASS (또는 카테고리 미해당 N/A) + `[미검증]` 0 건.
+- **CONDITIONAL APPROVE** — FAIL 0 건 + `[미검증]` **정확히 1 건**. 이 조합에서만 유효하다. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: `kubeconform` 설치 · production K8s kubectl 접근권한 · Cosign keyring 설정) 후 재검증을 권고한다.
+- **REJECT** — FAIL 1 건 이상, 또는 `[미검증]` 2 건 이상 (FAIL 이 0 건이어도 REJECT). 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 함께 제시한다.
+
+리포트 말미에 `미검증 N 건` 을 집계하고, 건별로 `[체크항목 ID, 사유, 시도한 fallback 단계]` 를 남긴다 (canonical 조항 5).
 
 # References
 

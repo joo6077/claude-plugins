@@ -34,7 +34,7 @@ user-invocable: true
 - `release.sh` 는 interactive prompt 가 있다 (dirty check). 카이젠 브랜치에서는 커밋 후 실행해야 한다
 - **피드백 0 건이면 triage 에서 SKIP 하지 마라** — contract-kaizen / evaluator-kaizen 과 동일하게 **리서치 전용 모드** 로 진행한다 (패턴 분석 생략, `references/search-sources.md` 우선순위 상위 3 개 도메인만 리서치). 피드백 누적이 없어도 2026 트렌드 리서치 기반 예방적 개선은 항상 가능하다 (리서치 근거: GrowthBook "Feedback Loops are the Next Breakthrough in Agentic Coding", Martin Fowler "Humans and Agents in Software Engineering Loops")
 - 피드백 패턴 분석 시 동일 `diagnosis.checklist` 시그니처가 **최근 10 건 중 3 회 이상** 반복되면 해당 영역을 최우선 개선 대상으로 승격시켜라. 이는 contract-kaizen / evaluator-kaizen 의 임계치와 일치시켜 일관성을 유지한다
-- **Scope Creep 방지** — 한 카이젠 사이클에서 개선하는 파일은 최대 3개로 제한해라. 4개 이상을 한 번에 수정하면 Regression Smoke Test에서 원인 특정이 불가능해지고 revert 범위가 넓어진다. 큰 개선은 여러 사이클로 분할한다.
+- **Scope Creep 방지 (파일 수가 아니라 unit 수로 센다)** — 한 카이젠 사이클에서 **새로 도입하는 개선 unit(관심사)** 은 3 개 이하로 제한해라. unit 은 회귀 원인 추적 단위다 — 스크립트 1 개와 그 호출부 1 개를 함께 고치는 것은 1 unit 이고, 서로 무관한 스킬 2 개에 규칙을 넣는 것은 2 unit 이다. 파일 수를 기준으로 세면 영향 범위를 잘못 재게 된다 (digest `complexity-by-file-count` 와 같은 계열의 결함 — Phase 2 가 계약 레이어에서 이미 정정했다). 아래는 unit 계수에서 제외한다: (a) SSOT 와 어긋난 **사실 정정** (버전·카테고리 수·항 수 등 기계적 동기화), (b) 오케스트레이터가 **명시 지시한 backlog** 처리. 다만 **모든 unit 은 각각 독립 검증 증거(실행 명령 + 출력)를 남겨야** 한다 — 증거 없는 unit 은 계수와 무관하게 금지다 (skill-design-guide §3.7). 큰 개선은 여러 사이클로 분할한다.
 - **Cross-Phase 오염 금지 (scope_out 명시 리스트)** — harness-kaizen Phase 에서 아래 파일은 **어떤 이유로도** 직접 수정하지 마라. 이들은 각 전담 Phase 의 책임 영역이다:
   - `harness/skills/sprint-contract/**` — Phase 2 (contract-kaizen) 전담
   - `harness/agents/qa-evaluator.md` — Phase 3 (evaluator-kaizen) 전담
@@ -236,11 +236,11 @@ user-invocable: true
 
 ## Step 6: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `scripts/validate-plugin.py harness` 를 실행하여 7 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py harness` 를 실행하여 8 카테고리 (V1~V8) 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
 ## References
 
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 7 카테고리 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 8 카테고리 (V1~V8) 기준 (SSOT)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구

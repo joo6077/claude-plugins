@@ -18,6 +18,9 @@ user-invocable: true
 4. **clippy 또는 test 실패 시 즉시 중단** — 이후 단계를 실행하지 않는다.
 5. **Makefile 환경에서는 `make server-preflight` 사용** — `APP_ENV`, `DATABASE_URL`, `RUST_LOG` 등 환경변수가 Makefile에 정의된 경우 직접 `cargo` 호출 시 누락된다. migration이 포함된 프로젝트(fit-pal 패턴: `DATABASE_URL=postgres://fitpal:fitpal@localhost:5432/fitpal`)는 preflight 전에 DB가 올라와 있어야 한다. fit-pal `server-preflight` 타겟 = `server-fmt` → `server-lint` → `server-test` 체인.
 6. **DB 의존 테스트가 있으면 `infra-up`을 선행** — `sqlx::test` 또는 `serial_test` 통합 테스트는 실제 Postgres를 요구한다. fit-pal 패턴은 `make infra-up` (docker compose up -d) → `make server-migrate` → `make server-preflight` 순서. preflight 단독 실행은 DB가 이미 기동된 상태를 가정한다.
+7. **마이그레이션 미적용 상태에서 test 를 돌리지 마라 (DG-03 회귀 방지)** — 공유 로컬 DB 를 쓰는 통합 테스트는 스키마가 뒤처지면 `column "..." of relation "..." does not exist` 로 실패한다. 이건 코드 결함이 아니라 **환경 미준비**이므로 test 실패로 보고하기 전에 Step 2.5 의 마이그레이션 확인을 먼저 통과시킨다. 2026-06 실측: `cargo test --workspace` 통합 테스트 2 건이 `is_admin` 컬럼 부재로 REJECT → `cargo run -p fitpal-migration` 후 통과.
+8. **각 단계의 종료 코드를 기록한다 (E2)** — rust-run Gotcha 10 의 파이프라인 규약(`set -o pipefail` + 파이프라인 직후 `rc=$?`)을 그대로 쓰고, Step 5 리포트 표의 `Exit` 칸을 반드시 채운다. 종료 코드 없는 PASS 는 자기보고이지 증거가 아니다 (`skill-design-guide.md` §3.7).
+9. **타깃 필터를 임의로 좁히지 마라** — preflight 의 test 단계는 워크스페이스 전체가 기본이다. 특정 패키지/타깃으로 좁힐 때는 `references/project-detection.md` Step 3a 의 `PKG_TARGETS` 를 확인한다 (바이너리 전용 패키지 `--lib` 금지 — rust-run Gotcha 9).
 
 # Process
 
@@ -52,11 +55,32 @@ rust-run clippy를 실행한다.
 - PASS → Step 3로
 - FAIL → 에러 출력 후 중단. 이후 단계 skip.
 
+## 2.5. 마이그레이션 적용 상태 확인 (DB 의존 테스트가 있을 때만)
+
+`HAS_SQLX` 또는 `HAS_SEAORM` 이고 실제 DB 를 쓰는 통합 테스트가 존재하면, test 단계 **이전에** 스키마가
+최신인지 확인한다. 확인 없이 test 로 넘어가면 환경 문제를 코드 결함으로 오진한다 (Gotcha 7).
+
+| 스택 | 확인 명령 | 미적용 시 적용 명령 |
+| ---- | --------- | ------------------- |
+| SQLx (sqlx-cli 설치) | `sqlx migrate info` — `migrations/` 와 DB 이력을 대조해 pending 목록 표시 | `sqlx migrate run` (pending 스크립트만 실행) |
+| SeaORM / 전용 migration 크레이트 | 마이그레이션 크레이트를 `PKG_TARGETS` 에서 확인 | `cargo run -p <migration-crate>` (fit-pal: `cargo run -p fitpal-migration`) |
+| Makefile 보유 | — | `make server-migrate` (환경변수 주입 포함) |
+
+- `DATABASE_URL` 은 `--database-url` 플래그 또는 환경변수/`.env` 로 주어져야 한다
+  ([sqlx-cli README](https://github.com/launchbadge/sqlx/blob/main/sqlx-cli/README.md)).
+- **`#[sqlx::test]` 만 쓰는 테스트에는 이 단계가 불필요하다** — 이 매크로는 테스트마다 새 DB 를 만들고
+  `CARGO_MANIFEST_DIR` 의 `migrations` 폴더를 자동 적용한다
+  ([sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html)). 공유 DB 를 직접 쓰는
+  `#[tokio::test]` + `serial_test` 계열만 수동 선적용이 필요하다.
+- DB 가 아예 없어 확인이 불가능하면 test 단계를 조용히 통과시키지 말고 `[미검증] DB 미기동 — 통합 테스트
+  미실행` 으로 리포트에 남긴다.
+
 ## 3. test 실행
 
 rust-run test를 실행한다.
 - PASS → Step 4로
 - FAIL → 에러 출력 후 중단. 이후 단계 skip.
+- 실행된 테스트 수가 0 이면 PASS 가 아니라 **타깃 필터/환경 오류**로 처리한다 (Gotcha 9).
 
 ## 4. audit 검사
 
@@ -68,14 +92,18 @@ rust-run audit를 실행한다.
 
 ## Preflight Report
 
-| Step | Status | Details |
-|------|--------|---------|
-| fmt | {PASS/FAIL/FIXED} | {상세} |
-| clippy | {PASS/FAIL/SKIP} | {상세} |
-| test | {PASS/FAIL/SKIP} | {N tests passed / failed} |
-| audit | {PASS/WARN/SKIP} | {N advisories} |
+| Step | Exit | Status | Details |
+| ---- | ---- | ------ | ------- |
+| fmt | {rc} | {PASS/FAIL/FIXED} | {상세} |
+| clippy | {rc} | {PASS/FAIL/SKIP} | {상세} |
+| migration | {rc} | {PASS/SKIP/[미검증]} | {pending N 건 / 적용 완료 / DB 미기동} |
+| test | {rc} | {PASS/FAIL/SKIP} | {N tests passed / failed — N=0 이면 FAIL 처리} |
+| audit | {rc} | {PASS/WARN/SKIP} | {N advisories} |
 
 **Result:** {PASS / PASS (with warnings) / FAIL}
+
+`Exit` 칸은 실제 종료 코드다 (Gotcha 8). 캡처하지 못한 단계는 `-` 가 아니라 `[미검증]` 으로 적고
+사유를 Details 에 남긴다.
 
 # References
 

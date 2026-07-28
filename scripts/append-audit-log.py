@@ -8,11 +8,23 @@ append-audit-log.py — orchestrator-audit-log.md 자동 append
 
 다음 사이클 Step 0.5 Orchestrator Self-Audit 이 이 파일을 읽어 재발 감시한다.
 
+두 가지 모드가 있다:
+
+- **cycle 모드 (기본)** — 사이클 종료 시 전체 엔트리(헤딩 + 3 개 하위 섹션) 를 append.
+- **phase 모드 (`--phase`)** — Phase 종료 시 `scripts/finalize-phase.sh` 가 호출한다.
+  한 줄짜리 phase 결과 레코드만 append 하므로 사이클당 14 개 헤딩이 쌓이지 않는다.
+
 사용법:
     python3 scripts/append-audit-log.py --cycle-id <id> [옵션]
+    python3 scripts/append-audit-log.py --phase <N> --result <pass|fail> [--date YYYY-MM-DD]
 
 옵션:
-    --cycle-id <id>          사이클 식별자 (예: kaizen/2026-04-11-research)
+    --cycle-id <id>          사이클 식별자 (예: kaizen/2026-04-11-research).
+                             생략 시 .harness/.meta/kaizen-state.yaml 의 cycle_id →
+                             git 브랜치명 → "unknown-cycle" 순으로 해석한다
+    --phase <N>              phase 모드. Phase 번호 (1 이상 정수)
+    --result <pass|fail>     phase 모드 필수. Regression 결과
+    --date <YYYY-MM-DD>      phase 모드 기록 날짜 (기본: 오늘)
     --failures <file>        Post-Kaizen Checklist 실패 항목 JSON 파일 경로
     --manual-edits <file>    수동으로 edit 된 orchestrator SKILL.md 라인 정보 JSON
     --notes <text>           자유 기술 (1 줄)
@@ -35,11 +47,68 @@ append-audit-log.py — orchestrator-audit-log.md 자동 append
 import argparse
 import datetime
 import json
+import re
+import subprocess
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AUDIT_LOG = REPO_ROOT / ".harness/.meta/orchestrator-audit-log.md"
+STATE_FILE = REPO_ROOT / ".harness/.meta/kaizen-state.yaml"
+
+
+def resolve_cycle_id(explicit: str | None) -> str:
+    """cycle-id 해석 ladder: 명시값 → kaizen-state.yaml → git 브랜치 → unknown-cycle."""
+    if explicit:
+        return explicit
+    if STATE_FILE.exists():
+        m = re.search(
+            r'(?m)^cycle_id:\s*"?([^"\n]+)"?\s*$',
+            STATE_FILE.read_text(encoding="utf-8"),
+        )
+        if m and m.group(1).strip():
+            return m.group(1).strip()
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
+    except OSError:
+        pass
+    return "unknown-cycle"
+
+
+def render_phase_record(cycle_id: str, phase: int, result: str, date: str) -> str:
+    """Phase 종료 1 줄 레코드. 라인 자체가 cycle_id 를 담아 self-describing 하다."""
+    return f"- Phase {phase} — {result} · {cycle_id} · {date}\n"
+
+
+def append_phase_record(
+    cycle_id: str, phase: int, result: str, date: str, dry_run: bool
+) -> int:
+    header = f"### Phase log — {cycle_id}"
+    record = render_phase_record(cycle_id, phase, result, date)
+    current = AUDIT_LOG.read_text(encoding="utf-8")
+    block = "" if header in current else f"\n{header}\n\n"
+
+    if dry_run:
+        print("=== DRY RUN (append 안 됨) ===")
+        print(f"{block}{record}", end="")
+        return 0
+
+    if not current.endswith("\n"):
+        current += "\n"
+    AUDIT_LOG.write_text(current + block + record, encoding="utf-8")
+    print(
+        f"append-audit-log: {AUDIT_LOG.relative_to(REPO_ROOT)} 에 Phase {phase} "
+        f"{result} 레코드 append (cycle={cycle_id})"
+    )
+    return 0
 
 
 def load_json(path: Path | None) -> list[dict]:
@@ -119,7 +188,24 @@ def main() -> int:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--cycle-id", required=False, default="unknown-cycle")
+    parser.add_argument("--cycle-id", required=False, default=None)
+    parser.add_argument(
+        "--phase",
+        type=int,
+        default=None,
+        help="phase 모드 — Phase 번호 (1 이상)",
+    )
+    parser.add_argument(
+        "--result",
+        choices=("pass", "fail"),
+        default=None,
+        help="phase 모드 필수 — Regression 결과",
+    )
+    parser.add_argument(
+        "--date",
+        default=None,
+        help="phase 모드 기록 날짜 (기본: 오늘)",
+    )
     parser.add_argument(
         "--failures", type=Path, default=None, help="Post-Kaizen 실패 JSON 파일"
     )
@@ -141,10 +227,38 @@ def main() -> int:
         print(f"ERROR: {AUDIT_LOG} 없음. 먼저 파일을 생성하세요.", file=sys.stderr)
         return 2
 
+    cycle_id = resolve_cycle_id(args.cycle_id)
+
+    # phase 모드 — finalize-phase.sh 가 Phase 종료마다 호출한다
+    if args.phase is not None or args.result is not None:
+        if args.phase is None or args.result is None:
+            print(
+                "ERROR: phase 모드는 --phase 와 --result 를 함께 요구한다 "
+                "(예: --phase 4 --result pass)",
+                file=sys.stderr,
+            )
+            return 2
+        if args.phase < 1:
+            print(
+                f"ERROR: --phase 는 1 이상의 정수 (받은 값: {args.phase})",
+                file=sys.stderr,
+            )
+            return 2
+        date = args.date or datetime.date.today().isoformat()
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+            print(
+                f"ERROR: --date 는 YYYY-MM-DD 형식 (받은 값: {date})",
+                file=sys.stderr,
+            )
+            return 2
+        return append_phase_record(
+            cycle_id, args.phase, args.result, date, args.dry_run
+        )
+
     failures = load_json(args.failures)
     manual_edits = load_json(args.manual_edits)
 
-    entry = render_entry(args.cycle_id, failures, manual_edits, args.notes)
+    entry = render_entry(cycle_id, failures, manual_edits, args.notes)
 
     if args.dry_run:
         print("=== DRY RUN (append 안 됨) ===")

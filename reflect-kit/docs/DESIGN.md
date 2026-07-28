@@ -26,11 +26,12 @@
 ```yaml
 primary_category: misunderstanding | repeated_error | wrong_approach | tool_failure
 also_applies: []                      # multi-label: 추가로 해당하는 카테고리
-mistake_tag: <kebab-case 영문 태그>   # 같은 패턴이면 같은 태그 (집계 키)
+mistake_tag: <kebab-case 영문 태그>   # 근본원인 1개 = 태그 1개 (집계 키 + ledger 재발 측정 키)
 trigger: <str>                        # 사용자 프롬프트/상황 스니펫 1줄
 undesired_behavior: <str>             # Claude가 한 잘못 1줄
 desired_behavior: <str>               # 사용자가 원한 것 1줄
 severity: low | medium | high
+actionability: claude_behavior | user_environment   # Claude 행동으로 막을 수 있었나
 # Surface 결정 4축 (단일 surface_candidate 필드는 쓰지 않음)
 scope: session | project | global
 risk_class: low | medium | high
@@ -62,12 +63,23 @@ approach_note: <str>                  # 시도한 접근법 1줄
 
 승격기(`/reflect-promote`)는 이 4축과 빈도를 precedence table에 넣어 최종 surface 계산.
 
+### actionability
+
+`claude_behavior`(기본) / `user_environment` 2값. 사용자 환경·설정만 고치면 해소되는 사건은
+Claude 행동 개선 대상이 아니므로 precedence 에서 제외하고 환경 액션 아이템으로만 보고한다.
+Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.env-issues.tsv` 에 누적된다.
+상세는 `SCHEMA.md` §actionability / §3-1.
+
 ## Surface Precedence Table
+
+진입 전제: `actionability == user_environment` 제외 · `freq` 는 `cluster_freq`(canonical + aliases 합산)
+· ledger active + `post_freq ≥ 2` 는 재승격이 아니라 enforcement 등급 상향.
 
 위에서 아래로 적용. 먼저 맞는 규칙 하나만 선택.
 
 | # | 조건 | 승격 surface |
 |---|---|---|
+| 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** (`scope==global` → 글로벌 CLAUDE.md, 아니면 project CLAUDE.md) |
 | 1 | `enforcement_need == hard_gate` (빈도 무관) | **hook 검토** (다른 축 무시) |
 | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** 신설/보강 |
 | 3 | `scope == global` AND 복수 프로젝트 freq ≥ 3 | `risk_class=high` → **글로벌 CLAUDE.md** / 나머지 → **글로벌 memory** |
@@ -98,8 +110,10 @@ approach_note: <str>                  # 시도한 접근법 1줄
 
 ```yaml
 - rule_id: <UUID>                       # 고유 ID (uuidgen, 예: a1b2c3d4-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
-  mistake_tag: <tag>
+  mistake_tag: <canonical_tag>
+  aliases: []                           # 같은 근본원인의 다른 표기 (post_freq 합산 대상)
   promoted_to: project_claude_md | project_memory | global_claude_md | global_memory | skill | path_scoped_rule | hook
+  enforcement_level: E1 | E2 | E3       # skill-design-guide §3.7 등급 (정의는 그 문서가 SSOT)
   target_path: <실제 수정된 파일 경로>
   promoted_at: <ISO8601 with TZ>
   source_evidence:
@@ -107,16 +121,18 @@ approach_note: <str>                  # 시도한 접근법 1줄
       anchor: <타임스탬프 헤더>
   initial_freq: <int>
   calibration_window_days: 30
-  post_freq: <int>                      # 30일 뒤 업데이트
+  post_freq: <int>                      # 30일 뒤 업데이트 (canonical + aliases 합산)
   status: active | demoted | removed
-  demotion_reason: <str>                # 강등 시만
+  demotion_reason: <str>                # 강등 시만. 등급 상향이면 escalated-to-E<N> (rule_id: <새 uuid>)
 ```
 
 ### Regression 측정 규칙
-- `promoted_at + calibration_window_days` 시점에서 같은 `mistake_tag` 재발 횟수를 `post_freq`에 기록.
+
+- `promoted_at + calibration_window_days` 시점에서 `mistake_tag` + `aliases` 전체의 재발 횟수를 `post_freq`에 기록. canonical 단독 count 는 파편화 상황에서 구조적 과소집계다.
 - `post_freq == 0` AND `risk_class == low` → `status: demoted` 후보 표시 (과잉제약일 수 있음).
-- `post_freq >= initial_freq` → 규칙이 효과 없음 → 프롬프트 재작성 또는 surface 변경 후보.
-- `post_freq < initial_freq` → 효과 있음, 유지.
+- `post_freq == 1` → 문구 명확화 후보. 등급 유지.
+- `post_freq >= 2` → 규칙이 효과 없음 → **enforcement 등급 상향** (`skill-design-guide` §3.7 승급 규칙: 2회 이상 E2, 3회 이상 또는 비가역·신뢰 손상이면 E3). 같은 등급에서 문구만 다듬지 않는다.
+- `post_freq < initial_freq` AND `post_freq <= 1` → 효과 있음, 유지.
 
 ## 분류 품질 자동화 (reflect-kaizen 계획)
 
@@ -163,6 +179,9 @@ approach_note: <str>                  # 시도한 접근법 1줄
 - `skip:transcript-empty-after-tail` — tail 결과 빈 값
 - `fail:codex-exit-<N> session=<>` — codex exec 비정상 종료
 - `fail:codex-empty-output session=<>` — codex 빈 응답
+- `env-dedup:kept=<N> dropped=<M> drop=<tag>... session=<>` — 환경 오설정 블록 억제
+- `skip:env-dedup-all <요약> session=<>` — 전 블록 억제로 append 생략
+- `warn:env-dedup-failed exit=<N> session=<>` — dedup 게이트 실패 → fail-open
 
 `/reflect-digest`가 `.errors.log`를 읽어 훅 실패 요약도 리포트에 포함.
 

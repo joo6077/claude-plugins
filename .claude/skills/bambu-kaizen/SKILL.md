@@ -1,7 +1,7 @@
 ---
 name: bambu-kaizen
 description: >
-  bambu-kit 스킬(bambu-print-profile) 품질을 references/ 4종과 실측 dogfood 결과 기준으로
+  bambu-kit 스킬(bambu-print-profile) 품질을 references/ 7종과 실측 dogfood 결과 기준으로
   주기적으로 개선한다. 이 레포 개발용 스킬이며, bambu-kit 플러그인에 포함되지 않는다.
   harness-kaizen, flutter-kaizen, rust-kaizen과 동일한 패턴 (단, 도구형 1스킬 킷이라 단순화).
   "/bambu-kaizen", "Bambu 카이젠", "bambu-kit 개선", "삼프 스킬 개선" 같은 요청 시 트리거.
@@ -23,12 +23,15 @@ user-invocable: true
 
 ## Step 1: 현재 상태 읽기
 
-대상 surface (단일 스킬 + references):
+대상 surface (단일 스킬 + references 7종):
 - `bambu-kit/skills/bambu-print-profile/SKILL.md`
-- `bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md`
-- `bambu-kit/skills/bambu-print-profile/references/materials.md`
-- `bambu-kit/skills/bambu-print-profile/references/seam-recipes.md`
-- `bambu-kit/skills/bambu-print-profile/references/kaizen-sources.md`
+- `bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md` — JSON schema / 필수 필드
+- `bambu-kit/skills/bambu-print-profile/references/materials.md` — 필라멘트 카탈로그 + 수축률
+- `bambu-kit/skills/bambu-print-profile/references/seam-recipes.md` — 형상×소재 scarf 매트릭스
+- `bambu-kit/skills/bambu-print-profile/references/surface-recipes.md` — surface-first 정책 / ironing 매트릭스
+- `bambu-kit/skills/bambu-print-profile/references/comment-analysis.md` — 댓글 4 카테고리 + Designer Constraint
+- `bambu-kit/skills/bambu-print-profile/references/tolerance.md` — 공차 보정 (§1.1 오프셋 2× 규칙이 SSOT)
+- `bambu-kit/skills/bambu-print-profile/references/kaizen-sources.md` — 폴링 소스 매핑
 - `bambu-kit/skills/bambu-print-profile/BACKLOG.md` (v2 큐)
 
 추가 입력:
@@ -57,14 +60,19 @@ user-invocable: true
 - Phase 표/결정 트리 갱신
 - v2 TODO에 새 큐 추가 (구현은 별도 사이클)
 
-**한 번에 1~2개 surface만 수정.** 단일 스킬이라 변경 폭이 작지만 references 4종까지 합치면 5 surface — 한 사이클에 3개 이상 건드리지 마라.
+**한 번에 1~2개 surface만 수정.** 단일 스킬 + references 7종 = 8 surface — 한 사이클에 3개 이상 건드리지 마라. 단, 오케스트레이터가 특정 결함 목록을 지정한 사이클은 그 범위를 우선한다.
+
+**scope-creep 판정은 파일 수가 아니라 unit(관심사) 수 기준이다.** 한 관심사가 여러 파일에 걸치는 것은 creep 이 아니고, 한 파일에 무관한 관심사 3개를 넣는 것이 creep 이다.
 
 ## Step 4: 검증
 
 - description 트리거 조건 유지 확인 (Gotcha 4)
-- silent skip 체크리스트 7항목 보존 (Gotcha 5)
+- silent skip 체크리스트 항목 보존 — **추가는 OK, 삭제 금지** (Gotcha 5)
 - references ↔ SKILL 경로 정합성 (`bambu-kit/skills/bambu-print-profile/references/...`)
 - 사용자 정책 (nozzle_temperature 등) 미수정 확인 (Gotcha 3)
+- **회귀 검증 (필수)**: `python3 scripts/validate-plugin.py bambu-kit` — **8 카테고리 (V1~V8)** 전부 OK 여야 한다
+  (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec)
+- **수치를 바꿨으면 출처 URL 을 함께 기록했는지** — references 는 SSOT 다. 근거 없는 수치 변경 금지
 
 ## Step 5: 검증 출력
 
@@ -99,7 +107,7 @@ chore(bambu-kaizen-cycle<N>): [개선 내용 요약]
 # References
 
 - `bambu-kit/skills/bambu-print-profile/SKILL.md` — 개선 대상 단일 스킬
-- `bambu-kit/skills/bambu-print-profile/references/` — references 4종 (SSOT)
+- `bambu-kit/skills/bambu-print-profile/references/` — references 7종 (SSOT)
 - `bambu-kit/skills/bambu-print-profile/BACKLOG.md` — v2 큐
 - `~/Hub/60_3D Print/Settings/` — 실측 dogfood 케이스
 - `~/.claude/codex-research-log/2026-05.md` — 초기 8 runs 로그

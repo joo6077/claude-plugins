@@ -1,21 +1,25 @@
 {
   "skill": "setup-guide",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "cases": [
     {
       "id": "flutter-fcm-ios",
-      "description": "Flutter 프로젝트에서 FCM iOS 가이드 생성. flutterfire CLI 흐름이 정확히 포함되어야 함",
+      "description": "Flutter 프로젝트에서 FCM iOS 가이드 생성. flutterfire CLI + Dart 초기화 흐름이 정확해야 하고, 네이티브 Swift 흐름이 섞이면 안 됨 (Gotcha 1 stack-first)",
       "prompt": "FCM iOS 설정해줘",
+      "source": "https://firebase.google.com/docs/flutter/setup (2026-07-27 조회 · Last updated 2026-07-20 UTC) — Flutter 는 dart pub global activate flutterfire_cli → flutterfire configure → Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform). AppDelegate 의 FirebaseApp.configure() 는 Flutter 셋업 절차에 등장하지 않는다",
       "setup": {
         "project_files": ["pubspec.yaml", "ios/Podfile", "lib/main.dart"],
         "pubspec_contains": ["flutter:", "dependencies:"]
       },
       "assertions": [
         "stack_detected == 'flutter'",
+        "guide_includes('dart pub global activate flutterfire_cli')",
         "guide_includes('flutterfire configure')",
         "guide_includes('firebase_messaging')",
-        "guide_includes('FirebaseApp.configure()')",
+        "guide_includes('Firebase.initializeApp')",
+        "guide_includes('DefaultFirebaseOptions.currentPlatform')",
         "guide_does_not_include('Swift Package Manager 검색창에 firebase-ios-sdk') — Flutter는 SPM 흐름 아님",
+        "guide_does_not_require_appdelegate_call('FirebaseApp.configure()') — 네이티브 Swift 초기화를 Flutter 가이드에 넣지 않는다 (firebase_core 플러그인이 처리)",
         "guide_includes('App Store Connect vs Apple Developer Portal 사이트 차이')",
         "guide_includes_section('보안 체크리스트')",
         "guide_includes_section('환경 분기')"
@@ -44,21 +48,61 @@
         "guide_includes_section('사전 요구사항')",
         "guide_includes('appstoreconnect.apple.com')",
         "guide_includes('developer.apple.com/account')",
-        "guide_includes('사이트 혼동 주의')"
+        "guide_includes('사이트 혼동 주의')",
+        "guide_uses_verified_apple_section_names(['Identifiers', 'Keys', 'Certificates', 'Provisioning Profiles'])"
       ]
     },
     {
-      "id": "deprecated-api-warning",
-      "description": "검색 결과에 deprecated API가 있으면 ❌ Deprecated / ✅ 현재 권장 박스 자동 삽입",
+      "id": "deprecation-claim-fidelity",
+      "description": "deprecated 박스는 1차 출처가 실제로 deprecated라 말할 때만 삽입한다. 출처가 '권장'만 한 것을 'deprecated'로 승격하면 실패 (날조 방지)",
       "prompt": "Firebase Cloud Messaging APNs 인증 설정",
+      "source": "https://firebase.google.com/docs/cloud-messaging/ios/client (2026-07-27 조회 · Last updated 2026-07-20 UTC) — .p8 APNs 인증 키를 권장하지만 .p12 인증서를 deprecated로 표기하지 않는다. 이 문서가 deprecated로 명시한 것은 Instance ID API",
       "setup": {
-        "expected_deprecated_keywords": ["APNs Certificate (.p12)"]
+        "fetched_source_states": {
+          "apns_auth_key_p8": "recommended",
+          "apns_certificate_p12": "not_marked_deprecated",
+          "instance_id_api": "deprecated"
+        }
       },
       "assertions": [
-        "guide_includes('❌ Deprecated')",
-        "guide_includes('✅ 현재 권장')",
         "guide_includes('.p8')",
-        "guide_includes_recommended_alternative == true"
+        "guide_recommends('APNs 인증 키(.p8)') == true",
+        "guide_does_not_claim_deprecated('.p12') — 출처에 없는 deprecation 날조 금지",
+        "deprecated_box_inserted_only_when_source_says_deprecated == true",
+        "if guide_includes('❌ Deprecated') then cited_source_contains_deprecation_keyword == true"
+      ]
+    },
+    {
+      "id": "source-ledger-per-step",
+      "description": "모든 Step에 출처 URL + 조회일이 있어야 한다. fetch 실패 항목은 [미검증] 표기, 2건 이상이면 부분 완료 보고 (Friction #2 / E2 아티팩트)",
+      "prompt": "Stripe 결제 연동 셋업 가이드 만들어줘",
+      "setup": {
+        "project_files": ["package.json"]
+      },
+      "assertions": [
+        "every_step_has_field('출처') == true",
+        "every_source_field_has_url_and_fetch_date == true",
+        "header_official_doc_url_does_not_substitute_per_step_source == true",
+        "unfetchable_steps_marked('[미검증]') == true",
+        "if count_of_marker('[미검증]') >= 2 then reported_as_partial_completion == true",
+        "guide_uses_current_doc_host('docs.stripe.com') — 구 호스트 stripe.com/docs 로만 인용하지 않는다"
+      ]
+    },
+    {
+      "id": "no-invented-paths",
+      "description": "프로젝트 내부 경로/env 키는 Glob·Grep 실측 근거가 있어야 한다. 관례적 이름 추측 금지 (insights §0 Friction #3 FCM credentials 날조 실측 대응)",
+      "prompt": "FCM 서버 키 설정 가이드 만들어줘",
+      "setup": {
+        "project_files": [".env", "lib/main.dart"],
+        "env_contains": ["FCM_CREDENTIALS_PATH=secrets/fcm-sa.json"],
+        "note": "기존 config 가 이미 존재하는 상태 — 새 파일명을 만들어내면 실패"
+      },
+      "assertions": [
+        "guide_cites_existing_env_key('FCM_CREDENTIALS_PATH') == true",
+        "guide_does_not_invent_env_key() — 실제 .env 에 없는 키 이름을 안내하지 않는다",
+        "guide_does_not_invent_credential_filename() — Glob 결과에 없는 파일명을 단정하지 않는다",
+        "path_claims_backed_by_glob_or_grep_evidence == true",
+        "if repo_scan_returns_zero_matches then guide_states_new_file_creation_or_asks_user == true"
       ]
     }
   ]

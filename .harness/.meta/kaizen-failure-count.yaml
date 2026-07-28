@@ -1,18 +1,19 @@
 # Kaizen Phase failure counter
 # Regression PASS → reset to 0
 # Regression FAIL → +1; if >= 2, pause phase + escalate
-last_updated: "2026-06-11"
+last_updated: "2026-07-27"
 phases:
-  phase_1: 0  # 2026-06-11 NO_CHANGE (Scope-Bound Edits 등 인사이트 흡수분 포화)
-  phase_2: 0  # 2026-06-11 NO_CHANGE (측정 정밀도 git-ls-files/scope enumerate 기수록)
-  phase_3: 0  # 2026-06-11 NO_CHANGE ([미검증] 프로토콜·L3 honesty 완비)
-  phase_4: 0  # 2026-06-11 CHANGED — validate-plugin V8 hook-exec 가드 (음성테스트 통과)
-  phase_5: 0  # 2026-06-11 NO_CHANGE (flutter triage, domain currency 포화)
-  phase_6: 0  # 2026-06-11 NO_CHANGE (design triage, feedback 귀속 0)
-  phase_7: 0  # 2026-06-11 NO_CHANGE (backend triage, OAuth2.1/FAPI2.0 기반영)
-  phase_8: 0  # 2026-06-11 NO_CHANGE (infra triage, Terraform/Gateway API 기반영)
-  phase_9: 0  # 2026-06-11 NO_CHANGE (rust triage, Rust2024/Axum0.8 기반영)
-  phase_10: 0  # 2026-06-11 NO_CHANGE (react triage, Library Policy 보존)
-  phase_11: 0  # 2026-06-11 NO_CHANGE (planning triage, OST/Shape Up 안정)
-  phase_12: 0  # 2026-06-11 NO_CHANGE (reflect, 직전 v0.4.0 릴리스 직후)
-  phase_13: 0  # 2026-06-11 NO_CHANGE (bambu/onboarding triage)
+  phase_14: 0  # reset on pass (2026-07-27)
+  phase_1: 0  # reset on pass (2026-07-27)
+  phase_2: 0  # reset on pass (2026-07-27)
+  phase_3: 0  # reset on pass (2026-07-27)
+  phase_4: 0  # reset on pass (2026-07-27)
+  phase_5: 0  # reset on pass (2026-07-27)
+  phase_6: 0  # reset on pass (2026-07-27)
+  phase_7: 0  # reset on pass (2026-07-27)
+  phase_8: 0  # reset on pass (2026-07-27)
+  phase_9: 0  # reset on pass (2026-07-27)
+  phase_10: 0  # reset on pass (2026-07-27)
+  phase_11: 0  # reset on pass (2026-07-27)
+  phase_12: 0  # reset on pass (2026-07-27)
+  phase_13: 0  # reset on pass (2026-07-27)

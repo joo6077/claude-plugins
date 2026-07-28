@@ -55,6 +55,7 @@ user-invocable: true
 13. **템플릿 내 확장 포인트 주석은 미완성 마커가 아니다** — 아래 Process 템플릿에 등장하는 `// 사용자가 지정한 --variants 값들을 여기에 추가`, `// 필요한 추가 props 를 여기에 선언` 같은 주석은 스킬 사용자가 파라미터로 확장하는 **지점 안내**이지 구현 대기 미완성 마커가 아니다. 생성된 위젯 파일에 미완성 키워드(대문자 4글자 T-O-D-O / F-I-X-M-E / X-X-X) 문자열을 남기지 않는다. 스킬 산출물은 그 자리에서 컴파일 가능한 완결 코드여야 한다.
 14. **Enumerate-before-Act (skill-design-guide §5.5)** — 위젯을 생성하기 전에 기존 `src/presentation/shared/components/*` 와 shadcn `components/ui/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 정확히 같은 이름뿐 아니라 (b) 유사 역할 컴포넌트(이미 있는 `Button` 을 `PrimaryButton` 으로 재발명), (c) shadcn 기본 컴포넌트로 충족 가능한지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. shadcn 재발명·중복 컴포넌트는 widget-inspector-react 가 사후 검출하지만, enumerate 로 선(先) 방지하는 편이 비용이 낮다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
 15. **요청한 위젯만 — 임의 variant·상태 확장 금지** — 사용자가 지정한 `--variants`/`--sizes` 만 생성한다. "버튼 만들어줘" 요청에 loading·disabled·icon-only·destructive 같은 variant 를 요청 없이 임의로 덧붙이지 마라. 디자인 시스템상 표준 variant 가 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
+16. **렌더 증거 없이 완료 선언 금지 (E2)** — cva variant 를 선언했다는 것과 그 variant 가 실제로 다르게 보인다는 것은 다른 사실이다. Tailwind 클래스 오타·Merge 충돌·토큰 미정의는 타입 검사를 전부 통과한다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` 의 §4 체크리스트를 응답에 채운다. 증거를 얻을 수 없으면 해당 항목에 `[미검증]` 마커와 사유를 붙이고 **부분 완료로 보고**한다. 임계값·마커 정의는 그 문서가 인용하는 상위 SSOT 를 따르며 여기서 재정의하지 않는다.
 
 # Process
 

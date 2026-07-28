@@ -31,10 +31,14 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 | 아티팩트 보존 | 빌드 산출물 저장 설정 + SBOM/provenance 동시 보존 | 없음 |
 | Actions SHA 핀닝 | 서드파티 액션을 SHA 해시로 고정 (`uses: actions/checkout@<sha>`) — 조직 정책으로 뮤터블 태그 차단 | 뮤터블 태그(`@v4`)만 사용, SHA 미고정 |
 | Immutable Releases | GitHub Actions 2026 Immutable Releases 적용 — 발행 후 에셋/태그 변경 불가 + `dependencies:` 섹션으로 직접+전이 의존성 SHA 잠금 | 릴리스 에셋 변조 가능 상태 |
+| 셸 실패 전파 | 파이프를 쓰는 `run` 스텝에 `shell: bash` 명시(= `bash --noprofile --norc -eo pipefail {0}`), 또는 스크립트 첫 줄 `set -euo pipefail` | 기본 셸(`bash -e {0}`, pipefail 없음)에서 파이프 사용 — 중간 명령 실패가 통과로 집계됨 |
+| 검증 스텝 exit code | 게이트 역할 스텝/스크립트가 결함 발견 시 비영 exit 로 종료 | 결함을 `echo WARN` 만 하고 exit 0 — 파이프라인이 항상 통과 |
 
 참조:
 
 - `docs/infra/platform/cicd.md`
+- 출처: [GitHub Actions workflow syntax — default shell](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
+- 출처: [Docker best practices — pipefail](https://docs.docker.com/build/building/best-practices/)
 - 출처: [SLSA Spec](https://slsa.dev/spec)
 - 출처: [GitHub Actions OIDC](https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
 - 출처: [PyPI Trusted Publishers](https://docs.pypi.org/trusted-publishers/)

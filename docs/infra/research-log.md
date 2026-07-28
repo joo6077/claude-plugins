@@ -1,9 +1,55 @@
 ---
-version: 1.1.0
-last_updated: 2026-06-05
+version: 1.2.0
+last_updated: 2026-07-27
 ---
 
 # Infra Kit Research Log
+
+## [2026-07-27] - Phase 8 kaizen
+
+CHANGED. Step 0.6 에서 infra-kit 은 LOW signal 이었으나, (a) Phase 3 이 `infra-reviewer` 를
+canonical drift 대상으로 실명 지목했고 (b) digest 의 exit-code 캡처 3 회 반복 신호가 infra-test
+샘플 스크립트의 실제 결함으로 재현되어 변경했다.
+
+### 조회한 외부 소스 (Context7 은 OAuth 미인증 — 전부 WebFetch 직접 조회)
+
+| # | 소스 | 조회 결과 | 채택 |
+| --- | ---- | --------- | ---- |
+| 1 | [Kubernetes PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/) | PSA `v1.25 [stable]`. 라벨 `pod-security.kubernetes.io/<MODE>: <LEVEL>`, MODE=enforce/audit/warn, LEVEL=privileged/baseline/restricted, `-version` 라벨은 선택 | 현행 기준과 일치 — 변경 없음 |
+| 2 | [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral) | ephemeral 블록 · write-only 인수 · `ephemeral = true` 변수. state·plan 양쪽에서 완전 누락, `locals` 참조 시 재귀 적용. 문서 최신 표기 v1.15.x | 현행 기준과 일치 — 변경 없음 |
+| 3 | [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/) | key provider 6 종(PBKDF2 · AWS KMS · GCP KMS · Azure Vault · OpenBao · External(experimental)). 프로덕션 method 는 AES-GCM 만. PBKDF2 기본 600,000 iteration(최소 200,000) | 현행 기준과 일치 — 변경 없음 |
+| 4 | [SLSA provenance](https://slsa.dev/provenance) | 스펙 v1.2 Approved. build provenance / source provenance 2 종 분리 | 현행 기준과 일치 — 변경 없음 |
+| 5 | [Sigstore Cosign attestation](https://docs.sigstore.dev/cosign/verifying/attestation/) | `cosign verify-attestation` + CUE/Rego `--policy`. 검증 대상은 predicate 부분 | **v3 전용 플래그 근거 없음** → audit-criteria 의 Cosign 서술 강화하지 않음 (추측 금지) |
+| 6 | [OpenTelemetry spec status](https://opentelemetry.io/docs/specs/status/) | traces API/SDK/protocol Stable · logs bridge API/SDK/protocol Stable · metrics API·protocol Stable / SDK Mixed · profiles protocol Development | "3 신호 stable" 서술 유지 가능 — 변경 없음 |
+| 7 | [GitHub Actions workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax) | 비-Windows 기본 셸은 `bash -e {0}` 로 **pipefail 없음**. `shell: bash` 명시 시에만 `bash --noprofile --norc -eo pipefail {0}` | **채택** — audit-criteria CI/CD 신규 rule 2 행, infra-test Gotcha 11, infra-init Gotcha 12 |
+| 8 | [Docker build best practices](https://docs.docker.com/build/building/best-practices/) | 파이프는 마지막 명령 exit code 만 평가 → `set -o pipefail &&` 선행 필요. digest 핀닝은 `FROM alpine:3.21@sha256:...` 권장하되 수동 유지보수·자동 보안패치 포기 트레이드오프 명시 | pipefail **채택**. digest 는 트레이드오프 근거로 "고정 태그 **또는** digest" 현행 표현 유지 |
+
+### 실행 증거 — infra-test Step 5 샘플 스크립트 결함 3 건 (재현 완료)
+
+기존 `tests/ci-validation.sh` 원문을 fixture 로 실행한 결과:
+
+- 서드파티 SHA 핀닝 검사가 `grep -v "actions/"` 앵커 부재로 `aws-actions/*` · `google-github-actions/*` 를 제외 → 미핀닝 3 건 중 1 건만 검출.
+- WARN 출력 후에도 최종 `exit 0` → CI 게이트 무력화.
+- 매칭 없는 glob 이 리터럴 1 회로 순회 → 워크플로 없는 프로젝트에서 "YAML syntax error" 오보 + `exit 1`.
+- 반증: `set -e` 가 `A && { ... }` 에서 A 실패 시 스크립트를 종료시킨다는 가설은 **거짓**으로 확인(`EXIT=0`). 해당 가설 기반 수정은 하지 않았다.
+
+수정본은 3 fixture(미핀닝 3 건 / 전부 핀닝 / 워크플로 없음)로 재검증하여 각각 `exit 1` · `exit 0` · `SKIP exit 0` 를 확인했다.
+
+### 변경 내역
+
+- `agents/infra-reviewer.md` — §9 를 qa-evaluation-guide §Canonical Unverified-Evidence Protocol 5 조항 정본 복제로 교체. 핵심규칙 5 의 임계값 중복 서술 제거. 인프라 도메인 적용 노트(FAIL / N/A / `[미검증]` 3 분기 매핑) 추가.
+- `skills/infra-audit/SKILL.md` — Gotcha 11 을 SSOT 위임형으로 정정, Gotcha 12 신설(도구·규칙 소스 부재를 "위반 0" 으로 집계 금지). Step 3a 감사 범위 머리말 4 줄 신설. Step 4 를 canonical 조항 3 임계값으로 정합.
+- `skills/infra-test/SKILL.md` — Gotcha 11(셸 실패 전파 4 항목) · Gotcha 12(도구 미설치 = `[미검증]`, 증거 블록 의무) 신설. Step 5 샘플 스크립트 3 결함 수정 + "빼면 안 되는 것" 표. Step 7 도구 존재 확인 선행, Step 8 증거 블록 3 종 의무화.
+- `skills/infra-init/SKILL.md` — Gotcha 12 신설(반복 셸 명령을 스크립트/Makefile 로 코드화 + `set -euo pipefail` + `shell: bash` 병기).
+- `references/audit-criteria.md` — CI/CD 에 "셸 실패 전파" · "검증 스텝 exit code" rule 2 행 + 출처 2 건 추가.
+- `.claude/skills/infra-kaizen/SKILL.md` — validate-plugin "7 카테고리" → 8(V1~V8) 3 곳 정정. scope-creep 을 파일 수 → unit(관심사) 기준으로 재정의. Gotcha 7 에 `.harness/history/` 병렬 예외 추가. Gotcha 8 에 §3.7 / E1~E3 / Counterpart Enumeration + SSOT 인용 표 추가.
+
+### 다음 사이클 후보 (이번에 미반영)
+
+- `distroless-builder-glibc-mismatch` — builder 와 distroless 런타임의 glibc/ABI 불일치. 실재하는 결함 클래스이나 이번 사이클에 1 차 출처를 확보하지 못해 추측 서술을 피하고 보류. distroless 공식 저장소의 base variant 매트릭스를 확보한 뒤 `audit-criteria.md` Container 의 "베이스 이미지 거버넌스" 행에 붙일 것.
+- `port-already-in-use`, `wrong-infra-path-assumption` — 단발 태그이고 infra-kit 산출물과 인과가 연결되지 않아 미반영.
+
+---
 
 ## [2026-06-05] — Phase 8
 

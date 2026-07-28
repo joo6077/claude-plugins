@@ -81,10 +81,15 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 ~/.claude/logs/<project_id>/
 ├── YYYY-MM.md                  # raw prompt + tool-failure
 ├── reflections-YYYY-MM.md      # Stop 훅 구조화 YAML
-├── .errors.log                 # 훅 실패 메타 로그
+├── .errors.log                 # 훅 실패 메타 로그 + 환경 오설정 억제 기록
+├── .env-issues.tsv             # 환경 오설정 롤업 (tag / first_seen / last_seen / count)
 ├── digest-YYYY-MM-DD.md        # /reflect-digest 리포트 (옵션 저장)
 └── promotions-ledger.md        # /reflect-promote 승격 이력
 ```
+
+`.env-issues.tsv` 는 Stop 훅의 dedup 게이트가 억제한 `actionability: user_environment` 사건의
+**유일한 누적 근거**다. 억제된 사건은 `reflections-*.md` 본문에 없으므로 이 파일을 지우면 규모를
+알 수 없게 된다. 억제 창은 `REFLECT_ENV_REPEAT_DAYS` (기본 7일) 로 조정한다.
 
 `project_id` = `<basename(git-root)>` (Hybrid 기본, v0.3.0+) / 충돌 시 `<basename>-<6자 md5 hex>` fallback. 헬퍼: `hooks/_lib-project-id.sh` — `compute_project_id` (쓰기용), `normalize_project_query` (읽기용 glob 확장).
 

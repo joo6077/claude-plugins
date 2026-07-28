@@ -7,6 +7,13 @@ source: /insights 2026-05-07 fresh report (130 sessions, "5시간 이상을 태�
 
 # Flutter-Figma Parity 자가검증 루프 패턴
 
+> **상위 규약:** `visual-evidence-protocol.md`. 본 문서는 그 규약의 **Figma 대조 특화 확장**이다.
+> 역할 경계 — 상위 규약은 "시각 산출물의 완료를 증거 없이 선언하지 않는다"(모든 UI 스킬 공통,
+> E2), 본 문서는 "Figma 시안과의 차이를 SSIM 수치로 수렴시킨다"(Figma 작업 한정). 상위 규약의
+> Step 1(채널 감지) · Step 3(증거 유효성) · Step 4(degraded 모드) 를 먼저 통과한 뒤 아래 루프로
+> 이어간다. **빈 캡처는 SSIM 을 계산할 대상이 아니라 검증 실패 신호**이며, 마커·임계값은 상위
+> 규약이 인용하는 canonical 정의를 따른다 (여기서 재정의하지 않는다).
+
 ## 배경
 
 `/insights` 2026-05-07 fresh report 에서 가장 큰 마찰 지점으로 명시된 항목:

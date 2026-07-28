@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Render Evidence Protocol — React Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+.hero{padding:60px 0 48px;text-align:center}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+h1{font-size:clamp(2.1rem,4vw+1rem,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.subtitle{font-size:1.08rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
+.hero-meta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero-meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);
+  min-height:24px;display:inline-flex;align-items:center}
+
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.45rem,2.5vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:790px;line-height:1.75;margin-bottom:32px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:26px;transition:var(--transition);margin-bottom:16px}
+.card:hover{border-color:rgba(56,189,248,0.32)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.card p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;
+  color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;
+  min-height:24px;transition:var(--transition)}
+.card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.card-source::before{content:'↗';font-weight:800}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(56,189,248,0.05)}
+
+code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent2)}
+.code-block{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:10px 0}
+
+/* GRADE */
+.grade{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+@media(max-width:900px){.grade{grid-template-columns:1fr}}
+.grade-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.grade-item::before{content:'';position:absolute;top:0;bottom:0;left:0;width:3px}
+.grade-r1::before{background:var(--green)}
+.grade-r2::before{background:var(--accent)}
+.grade-r3::before{background:var(--yellow)}
+.grade-tag{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.grade-r1 .grade-tag{color:var(--green)}
+.grade-r2 .grade-tag{color:var(--accent)}
+.grade-r3 .grade-tag{color:var(--yellow)}
+.grade-item h4{font-size:0.95rem;font-weight:700;margin-bottom:8px}
+.grade-item p{font-size:0.84rem;color:var(--text2);line-height:1.65}
+
+/* VACUOUS */
+.vac{display:flex;flex-direction:column;gap:16px;margin:20px 0}
+.vac-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition)}
+.vac-item:hover{border-color:rgba(56,189,248,0.32)}
+.vac-tag{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 9px;
+  border-radius:9px;background:rgba(248,113,113,0.14);color:var(--red);font-weight:800;font-size:13px;margin-bottom:10px}
+.vac-item h3{font-size:1rem;font-weight:700;margin-bottom:10px}
+.vac-item p{font-size:0.89rem;color:var(--text2);line-height:1.75}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:870px;margin-top:14px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:0.9rem;color:var(--text2);line-height:1.7;
+  padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
+.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
+
+.danger{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.danger-title{font-size:13px;font-weight:800;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.danger p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.warn{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.warn-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.warn p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+
+.footer{margin-top:60px;padding:32px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.footer a:hover{color:var(--accent2)}
+.footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+</style>
+  <!-- kaizen-cycle: 2026-07-27 (신규 SSOT — 렌더 증거 등급 R1/R2/R3 + 공허한 증거 4 유형) -->
+</head>
+<body>
+<div class="page">
+
+<div class="hero">
+  <div class="hero-badge">React Kit · SSOT · E2</div>
+  <h1>Render Evidence Protocol</h1>
+  <p class="subtitle">렌더 결과가 산출물인 react-kit 스킬(<code>react-screen</code> · <code>react-widget</code> · <code>react-skeleton</code> · <code>react-responsive</code> · <code>react-animation</code>)이 <strong>완료를 선언하기 직전</strong>에 실행하는 증거 규약이다. <code>react-test</code> 는 이 규약이 요구하는 measurement 를 <strong>만드는</strong> 쪽이므로 §4 를 따른다.</p>
+  <div class="hero-meta">
+    <span>v1.0.0</span>
+    <span>2026-07-27</span>
+    <span>enforcement: E2 (체크리스트 아티팩트)</span>
+  </div>
+</div>
+
+<!-- SCOPE -->
+<div class="section">
+  <div class="section-label">Scope</div>
+  <div class="section-title">적용 대상 스킬 5 종 + react-test</div>
+  <p class="section-desc">렌더 결과가 산출물인 스킬은 완료 직전에 이 규약을 통과한다. <code>react-test</code> 는 증거를 <strong>제출하는</strong> 쪽이 아니라 이 규약이 요구하는 measurement 를 <strong>만드는</strong> 쪽이다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>react-screen</code></div>
+      <p>TanStack Router 파일 기반 화면/라우트 추가.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>react-widget</code></div>
+      <p>shadcn 기반 cva variant 컴포넌트 — 교체 vs 수정 판단(§1 3항)이 자주 걸린다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>react-skeleton</code></div>
+      <p>Skeleton + isPending 분기 — §3(a) 부재 단정 함정의 주 무대다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>react-responsive</code></div>
+      <p>breakpoints + Container Queries — 유지할 속성에 breakpoint 를 반드시 포함한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>react-animation</code></div>
+      <p>3-Tier 애니메이션 — 검증을 이유로 금지 라이브러리를 들이지 않는다(§5).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>react-test</code> — measurement 생산자</div>
+      <p>이 규약이 요구하는 측정을 만드는 쪽이므로 <strong>§4 체크리스트</strong>를 따른다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SSOT -->
+<div class="section">
+  <div class="section-label">Upstream SSOT</div>
+  <div class="section-title">임계값·마커 의미·등급을 여기서 재정의하지 않는다</div>
+  <p class="section-desc">이 문서는 상위 정의를 인용만 한다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>마커 · 임계값</div>
+      <p><code>qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol</p>
+      <a class="card-source" href="../harness/qa-evaluation-guide.html">Canonical Protocol</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>증거 유효성</div>
+      <p>같은 문서 §Evidence Validity Gate</p>
+      <a class="card-source" href="../harness/qa-evaluation-guide.html">Evidence Validity Gate</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>등급 (E1/E2/E3)</div>
+      <p><code>skill-design-guide.md</code> §3.7 Completion Evidence Gate</p>
+      <a class="card-source" href="../harness/skill-design-guide.html">Skill Design Guide §3.7</a>
+    </div>
+  </div>
+</div>
+
+<!-- WHY -->
+<div class="section">
+  <div class="section-label">Background</div>
+  <div class="section-title">왜 필요한가 — 관측 사례가 없어도 구조가 같다</div>
+  <p class="section-desc"><code>/insights</code> 2026-07-27 (53 일 · 51 세션) 에서 <strong>Friction #2 "시각·런타임 검증을 신뢰할 수 없음"</strong> 이 신규 최상위 마찰로 올라왔다. 사고의 형태는 "증거가 없다" 가 아니라 <strong>"증거가 있는데 그 증거가 아무것도 입증하지 않는다"</strong> 였다 — 빈 카탈로그 화면의 스냅샷을 근거로 "정상 렌더링" 을 반복 주장했고 실제 원인은 unbounded-height 리스트 collapse 였다. 사용자 신뢰가 손상되어 욕설로 끝난 세션이 2 건 발생했다.</p>
+  <div class="danger">
+    <div class="danger-title">react-kit 에는 관측 사례가 없다 — 그런데도 필요한 이유</div>
+    <p><strong>구조적으로 같은 사고가 가능한 도구 기본값</strong>을 갖고 있고(§3), UI 스킬 5 종의 검증 섹션이 <code>Strict TS 검증</code> 하나뿐이었다. <strong>타입이 통과한 컴포넌트는 여전히 빈 화면을 렌더할 수 있다.</strong></p>
+  </div>
+</div>
+
+<!-- STEP 0 -->
+<div class="section">
+  <div class="section-label">§1</div>
+  <div class="section-title">Step 0 — 무엇을 바꾸는지 먼저 확정한다</div>
+  <p class="section-desc">편집 전에 다음 3 줄을 응답에 남긴다. <strong>시각 작업에서 말은 의도를 충분히 규정하지 못한다.</strong></p>
+  <ul class="checklist">
+    <li><span class="check">1</span><strong>대상</strong>: 바꿀 컴포넌트를 <code>파일:라인</code> 으로 지목한다 (신규면 "신규" 라고 쓴다)</li>
+    <li><span class="check">2</span><strong>바꿀 것 / 바꾸지 않을 것</strong>: 색·간격·모션·레이아웃·breakpoint 중 <strong>유지할 속성을 열거</strong>한다</li>
+    <li><span class="check">3</span><strong>교체 여부</strong>: 기존 컴포넌트를 shadcn 프리미티브나 다른 컴포넌트로 <strong>교체</strong>하려면 편집 전에 승인을 받는다. <strong>기본값은 기존 컴포넌트 수정</strong>이다</li>
+  </ul>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <code class="code-block">"아이콘이 돌면 좋겠다"
+→ 기존 아이콘 대신 새 스피너 컴포넌트를
+   만들어 교체 → 전면 재작업</code>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <code class="code-block">"아이콘이 돌면 좋겠다"
+→ 대상: icon-button.tsx:24
+  바꿀 것: transform 회전만
+  바꾸지 않을 것: 색·크기·aria-label
+  교체 없음
+→ 편집</code>
+    </div>
+  </div>
+</div>
+
+<!-- GRADES -->
+<div class="section">
+  <div class="section-label">§2</div>
+  <div class="section-title">증거 등급 — 무엇을 제출할 수 있는가</div>
+  <p class="section-desc">렌더 증거는 아래 순서로 시도한다. <strong>상위 단계가 가능한데 하위로 내려가지 않는다.</strong></p>
+  <div class="grade">
+    <div class="grade-item grade-r1">
+      <div class="grade-tag">R1</div>
+      <h4>실제 렌더 캡처</h4>
+      <p>Playwright <code>toHaveScreenshot()</code> 또는 브라우저 MCP 스냅샷</p>
+    </div>
+    <div class="grade-item grade-r2">
+      <div class="grade-tag">R2</div>
+      <h4>렌더된 DOM 단정</h4>
+      <p>Testing Library <code>getByRole</code> / <code>findByText</code> 통과 출력</p>
+    </div>
+    <div class="grade-item grade-r3">
+      <div class="grade-tag">R3</div>
+      <h4>정적 확인</h4>
+      <p>클래스·토큰·props 를 <code>파일:라인</code> 으로 지목 — <strong>보조 태그 <code>[정적]</code></strong></p>
+    </div>
+  </div>
+  <div class="warn">
+    <div class="warn-title">R3 만 확보된 항목은 완료가 아니다</div>
+    <p><code>[정적]</code> 은 <code>[미검증]</code> 을 대체하지 않는다 (정본 조항 1). R1·R2 가 환경상 불가하면 그 항목에 <code>[미검증]</code> 마커와 사유 한 줄을 붙이고 <strong>부분 완료로 보고</strong>한다.</p>
+  </div>
+  <a class="card-source" href="https://playwright.dev/docs/test-assertions">Playwright — Assertions (auto-retrying assertion 권장 · expect.poll / expect.toPass)</a>
+</div>
+
+<!-- VACUOUS 4 -->
+<div class="section">
+  <div class="section-label">§3</div>
+  <div class="section-title">공허한 증거 4 유형 — react 도구 기본값이 만드는 자기충족 통과</div>
+  <p class="section-desc">아래 4 개는 "초록불" 을 만들지만 아무것도 입증하지 않는다. <strong>증거 제출 전에 전부 배제한다.</strong> 각 항목은 조회한 공식 문서의 실제 동작에 근거한다.</p>
+  <div class="vac">
+    <div class="vac-item">
+      <div class="vac-tag">a</div>
+      <h3>부재 단정이 렌더 실패를 가린다</h3>
+      <p>Testing Library <code>queryBy*</code> 는 매치가 없으면 <code>null</code> 을, <code>queryAllBy*</code> 는 빈 배열 <code>[]</code> 을 반환하고 <strong>throw 하지 않는다</strong>. 공식 문서는 <code>queryBy</code> 를 "asserting an element that is not present" 용도로 권장한다. 문제는 컴포넌트가 <strong>아예 렌더되지 않았을 때도 동일하게 통과</strong>한다는 점이다. 이것이 빈 화면을 "문제 없음" 으로 읽는 것과 같은 형태다.</p>
+      <div class="compare" style="margin-top:14px;margin-bottom:0">
+        <div class="compare-bad">
+          <div class="compare-label">Bad</div>
+          <code class="code-block">// 컴포넌트가 throw 해서 아무것도 안 붙어도 통과한다
+render(&lt;Skeleton loading={false} /&gt;)
+expect(screen.queryByTestId('skeleton')).toBeNull()</code>
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">Good — 양성 대조를 앞에 둔다</div>
+          <code class="code-block">render(&lt;Skeleton loading={false} /&gt;)
+// 양성 대조: 실제 콘텐츠 존재
+expect(screen.getByRole('list')).toBeInTheDocument()
+// 그 위에서만 부재가 의미를 갖는다
+expect(screen.queryByTestId('skeleton')).toBeNull()</code>
+        </div>
+      </div>
+      <a class="card-source" href="https://testing-library.com/docs/queries/about/">Testing Library — About Queries</a>
+    </div>
+
+    <div class="vac-item">
+      <div class="vac-tag">b</div>
+      <h3>0 테스트 green run</h3>
+      <p>Vitest <code>passWithNoTests</code> 는 Type <code>boolean</code> · Default <code>false</code> 이며 문서 설명은 "Vitest will not fail, if no tests will be found." 다. 이 플래그가 npm script 에 박혀 있거나 파일 glob 이 어긋나면 <strong>0 개 테스트 실행 = 성공</strong> 출력이 나온다. <strong>0 개 테스트는 "위반 없음" 이 아니라 "검사되지 않음"</strong> 이다 (유효성 검사 2 — 활성화).</p>
+      <p style="margin-top:10px">증거에는 반드시 <strong>실행된 테스트 수</strong>를 함께 인용한다. <code>Tests 0 passed</code> 는 증거가 아니다.</p>
+      <a class="card-source" href="https://vitest.dev/config/passwithnotests">Vitest — passWithNoTests</a>
+    </div>
+
+    <div class="vac-item">
+      <div class="vac-tag">c</div>
+      <h3><code>.only</code> 로 좁혀진 green run</h3>
+      <p>Vitest <code>allowOnly</code> 의 기본값은 <code>!process.env.CI</code> 다 — 즉 <strong>로컬에서는 <code>.only</code> 가 허용</strong>된다. 디버깅 중 남은 <code>it.only</code> 하나만 돌고 나머지 전 스위트가 스킵된 상태에서 초록불이 뜬다.</p>
+      <p style="margin-top:10px">증거 인용 시 <code>skipped</code> 카운트를 함께 남긴다. <strong>스킵된 스위트가 있으면 그 범위는 <code>[미검증]</code></strong> 이다.</p>
+      <a class="card-source" href="https://vitest.dev/config/allowonly">Vitest — allowOnly</a>
+      <a class="card-source" href="https://vitest.dev/guide/cli.html" style="margin-left:8px">Vitest CLI</a>
+    </div>
+
+    <div class="vac-item">
+      <div class="vac-tag">d</div>
+      <h3>빈 화면이 baseline 으로 굳는다</h3>
+      <p>Playwright <code>toHaveScreenshot()</code> 은 baseline 이 없을 때 실제 화면을 golden 파일로 기록한다. 그 뒤 <code>--update-snapshots</code> 로 갱신하면 <strong>깨진 화면이 정답으로 고정</strong>되고, 이후 모든 실행이 자기 자신과 비교해 통과한다.</p>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">·</span>새 baseline 을 기록·갱신했으면 그 이미지에서 <strong>조건이 요구하는 구체 요소를 지목</strong>해 근거에 쓴다 (<code>baseline 에 목록 3 행 · 헤더 "내 그룹" 확인</code>). 지목할 수 없으면 무효 증거다</li>
+        <li><span class="check">·</span><code>maxDiffPixels</code> / <code>maxDiffPixelRatio</code> 를 <strong>통과 목적으로 키우지 않는다</strong>. 임계를 올린 diff 통과는 유효성 검사 3(반증 가능성) 실패다 — 어떤 변경에도 같은 결과를 내는 측정은 oracle 이 아니다</li>
+        <li><span class="check">·</span>갱신 사유를 한 줄로 남긴다. <strong>사유 없는 <code>--update-snapshots</code> 는 증거가 아니라 증거 삭제다</strong></li>
+      </ul>
+      <a class="card-source" href="https://playwright.dev/docs/test-snapshots">Playwright — Visual comparisons</a>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="section">
+  <div class="section-label">§4 · Artifact (E2)</div>
+  <div class="section-title">완료 전 체크리스트 — 응답에 복사해 채운다</div>
+  <p class="section-desc">이 블록이 이 규약의 E2 아티팩트다.</p>
+  <code class="code-block">## Render Evidence
+- 대상: &lt;파일:라인 또는 "신규"&gt;
+- 유지할 속성: &lt;열거&gt;
+- 증거 등급: R1 | R2 | R3
+- 증거: &lt;실행 명령 + 출력 인용 / 캡처에서 지목한 구체 요소&gt;
+- 실행/스킵 카운트: &lt;passed N · skipped M · 0 이면 사유&gt;
+- 공허 증거 배제: (a) 양성대조 O/N.A · (b) 테스트 수 N · (c) skipped M · (d) baseline 지목 O/N.A
+- [미검증]: &lt;항목 + 사유 + 시도한 fallback&gt; (없으면 "0 건")</code>
+  <ul class="checklist">
+    <li><span class="check">!</span>미검증 <strong>2 건 이상이면 완료가 아니라 부분 완료</strong>로 보고한다 (정본 조항 3 · §3.7 5 조 3 항)</li>
+    <li><span class="check">!</span>체크리스트를 채우지 못한 항목이 있으면 <strong>그 상태로 완료를 선언하지 않는다</strong></li>
+  </ul>
+</div>
+
+<!-- NOT DOING -->
+<div class="section">
+  <div class="section-label">§5</div>
+  <div class="section-title">하지 않는 것</div>
+  <p class="section-desc">이 규약이 명시적으로 <strong>넘지 않는 경계</strong>다. 증거를 확보하려다 범위를 벗어나는 것이 더 큰 문제다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>정의를 중복하지 않는다</div>
+      <p>임계값(2 건)·마커(<code>[미검증]</code>)·등급(E1/E2/E3)을 이 문서에서 다시 정의하지 않는다. <strong>상위 SSOT 인용만 한다.</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>도구를 새로 추가하지 않는다</div>
+      <p>증거 확보를 위해 <strong>테스트 러너나 스냅샷 도구를 프로젝트에 새로 추가하지 않는다</strong>. 미설치면 <code>/react-init</code> 안내 후 해당 항목을 <code>[미검증]</code> 으로 남긴다 (요청 밖 의존성 추가 금지 — 가드레일 §2).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Library Policy 를 우회하지 않는다</div>
+      <p>애니메이션 검증을 위해 금지 라이브러리를 도입하지 않는다. <strong>Library Policy 는 이 규약보다 상위</strong>다 (<code>common-gotchas.md</code> G2 / G10).</p>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="section">
+  <div class="section-label">Summary</div>
+  <div class="section-title">공허한 증거 4 유형 요약</div>
+  <p class="section-desc">각 유형은 도구의 <strong>기본 동작</strong>에서 나온다 — 버그가 아니라 설계된 동작이므로 규약으로 막아야 한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>유형</th><th>도구 기본값</th><th>왜 통과하는가</th><th>배제 방법</th></tr></thead>
+      <tbody>
+        <tr><td><strong>(a)</strong> 부재 단정</td><td>Testing Library <code>queryBy*</code> → <code>null</code>, <code>queryAllBy*</code> → <code>[]</code> (throw 안 함)</td><td>컴포넌트가 아예 렌더되지 않아도 동일하게 통과</td><td>부재 단정 앞에 <strong>양성 대조</strong>(<code>getByRole</code>)를 둔다</td></tr>
+        <tr><td><strong>(b)</strong> 0 테스트 green</td><td>Vitest <code>passWithNoTests</code> — boolean · default <code>false</code></td><td>플래그가 script 에 박히거나 glob 이 어긋나면 0 개 실행 = 성공</td><td>증거에 <strong>실행된 테스트 수</strong>를 함께 인용</td></tr>
+        <tr><td><strong>(c)</strong> <code>.only</code> green</td><td>Vitest <code>allowOnly</code> — default <code>!process.env.CI</code></td><td>로컬에서 <code>.only</code> 허용 → 나머지 전 스위트 스킵 후 초록불</td><td><code>skipped</code> 카운트를 남기고, 스킵 범위는 <code>[미검증]</code></td></tr>
+        <tr><td><strong>(d)</strong> 빈 baseline</td><td>Playwright <code>toHaveScreenshot()</code> — baseline 없으면 현재 화면을 golden 으로 기록</td><td>깨진 화면이 정답으로 고정 → 이후 자기 자신과 비교해 통과</td><td>baseline 에서 <strong>구체 요소 지목</strong> · 임계값 상향 금지 · 갱신 사유 기록</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">✓</span>증거 등급이 R1/R2 인가? R3 만 있으면 완료가 아니다</li>
+    <li><span class="check">✓</span>부재 단정을 썼다면 그 앞에 양성 대조가 있는가?</li>
+    <li><span class="check">✓</span><code>passed N</code> · <code>skipped M</code> 을 증거에 인용했는가? N 이 0 이면 사유를 적었는가?</li>
+    <li><span class="check">✓</span>스냅샷을 갱신했다면 사유 한 줄과 지목한 구체 요소가 있는가?</li>
+    <li><span class="check">✓</span><code>[미검증]</code> 이 2 건 이상이면 <strong>부분 완료</strong>로 보고했는가?</li>
+  </ul>
+</div>
+
+<div class="footer">
+  <h3>References</h3>
+  <ul>
+    <li><a href="../harness/qa-evaluation-guide.html">harness/docs/guides/qa-evaluation-guide.md §Canonical Unverified-Evidence Protocol — 마커·임계값 SSOT</a></li>
+    <li><a href="../harness/qa-evaluation-guide.html">harness/docs/guides/qa-evaluation-guide.md §Evidence Validity Gate — 유효성 4 검사 SSOT</a></li>
+    <li><a href="../harness/skill-design-guide.html">harness/docs/guides/skill-design-guide.md §3.7 Completion Evidence Gate — 등급·5 조항 SSOT</a></li>
+    <li>react-kit/agents/react-reviewer.md §Evidence Validity Gate — 평가 측 짝</li>
+    <li>react-kit/references/common-gotchas.md G11 — 킷 인덱스 포인터</li>
+    <li><a href="https://testing-library.com/docs/queries/about/">Testing Library — About Queries (<code>queryBy</code> null / <code>queryAllBy</code> [] 반환 · §3a)</a></li>
+    <li><a href="https://vitest.dev/guide/cli.html">Vitest CLI — 플래그 목록 (§3b, c)</a></li>
+    <li><a href="https://vitest.dev/config/passwithnotests">Vitest — passWithNoTests (Type boolean · Default false · §3b)</a></li>
+    <li><a href="https://vitest.dev/config/allowonly">Vitest — allowOnly (Type boolean · Default !process.env.CI · §3c)</a></li>
+    <li><a href="https://playwright.dev/docs/test-snapshots">Playwright — Visual comparisons (toHaveScreenshot baseline 기록 · --update-snapshots · maxDiffPixels · §3d)</a></li>
+    <li><a href="https://playwright.dev/docs/test-assertions">Playwright — Assertions (auto-retrying assertion 권장 · §2 R1)</a></li>
+  </ul>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: react-kit/references/render-evidence-protocol.md · v1.0.0 · 2026-07-27</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 ---
 name: bambu-print-profile
-description: Bambu Lab H2S 환경에서 MakerWorld URL이나 로컬 모델 파일을 받아 process+filament JSON 프로파일을 자동 생성하여 import용 zip 번들로 떨궈주는 스킬. references/ 4종을 토대로 모델 형상 분석 → 소재 추천 → seam 전략 결정 → Bambu Studio용 JSON 생성까지 수행한다. "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력" 같은 요청 시 트리거. 단순 색상/온도/한 값 변경에는 트리거 X. 다른 프린터(X1/P1/A1 등)나 다른 슬라이서(OrcaSlicer/PrusaSlicer)에는 트리거 X — H2S + Bambu Studio 고정.
+description: Bambu Lab H2S 환경에서 MakerWorld URL이나 로컬 모델 파일을 받아 process+filament JSON 프로파일을 자동 생성하여 import용 zip 번들로 떨궈주는 스킬. references/ 7종을 토대로 모델 형상 분석 → 소재 추천 → seam 전략 결정 → Bambu Studio용 JSON 생성까지 수행한다. "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력" 같은 요청 시 트리거. 단순 색상/온도/한 값 변경에는 트리거 X. 다른 프린터(X1/P1/A1 등)나 다른 슬라이서(OrcaSlicer/PrusaSlicer)에는 트리거 X — H2S + Bambu Studio 고정.
 user-invocable: true
 ---
 
@@ -42,8 +42,10 @@ bambu-kit/skills/bambu-print-profile/
 
 출력 경로: **`/Users/jackson/Hub/60_3D Print/Settings/<모델명>/`**
 
-## 워크플로우 (7단계 + Coupon)
+## 워크플로우 (Phase 1~5 · 진입 게이트 3종 + Coupon)
 
+> **2026-07-27 카이젠 변경**: Phase 1.0 (로컬 모델 견고 파싱) 신규 — `sed` 태그 매칭 금지 + `3D/Objects/*.model` 처리 + 빈 출력 = 검증 실패. Phase 1.8 (Surface Intent Gate) 신규 — 표면 의도 확인이 MakerWorld 전용 경로에만 있어 로컬 파일 케이스에서 ironing 이 누락되던 구조적 구멍을 막음. Phase 4.3 (Completion Evidence Gate) 신규 — 생성 JSON 을 실제 파싱해 검증하는 결정론적 명령(E3). 공차는 **경계 오프셋(지름 = 2×)** 임을 `tolerance.md` §1.1 에 SSOT 로 고정하고 `PL-01` 불일치 해소. 공차 무효화 3조건(color-paint / fuzzy-skin / raft) 신규 발견 반영.
+>
 > **v0.4.2 변경**: Phase 1.7 (Tolerance & Fit Analysis) 신규 + Phase 3 공차 보정 키 정책 + Phase 5 fit calibration coupon 자동 트리거 + references/tolerance.md 신규 + materials.md 수축률 컬럼 보강. dogfood: 페리스 휠(MakerWorld 1186414) 608ZZ 베어링이 중심부와 안 맞은 사용자 보고(2026-05-27) + 9mm sheath blade slide-fit 가능성. fit-critical 부품 식별 → 공차 보정 자동화.
 >
 > **v0.4.0 변경**: Phase 1.6 (Comment Analysis) 신규 + Designer Constraint Override Rule 정책 신규 + Phase 1 전체 크롤링 강화(다국어/페이지네이션/스크롤). dogfood 출처: 2026-05-23 9mm Craft Knife Elite 케이스 — 디자이너 댓글 "No supports needed, please do not modify the print profile" 무시하고 surface-first 모드 자동 적용한 회귀. 사용자 피드백 "넌 서포트 넣엇더라 + 댓글이나 피드백 참고 안 하더라".
@@ -55,9 +57,79 @@ bambu-kit/skills/bambu-print-profile/
 **입력 분기:**
 
 1. **MakerWorld URL** → **Playwright MCP 1차** (`mcp__playwright__browser_navigate` → `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`). MakerWorld Cloudflare 차단을 우회하고 JS-rendered 모델 상세/댓글/사진까지 추출 가능. 추출 정보: 모델명/제작자/부품 구성/회전체 부품/권장 프로파일/사용자 댓글 전체. Playwright 미사용 환경이면 `codex-rescue` 에이전트에 위임 (research mode), 둘 다 실패 시 사용자에게 직접 입력 요청.
-2. **로컬 .3mf 파일** → `unzip -p <path> Metadata/project_settings.config` 등으로 embedded 설정 직접 읽기. 부품별 dimension은 Bambu Studio에서 확인 권장.
-3. **STL 파일** → bounding box + 부품 수 정도만 셸로 추출 (`du -h`, file inspection). 회전체 식별은 사용자 설명 의존.
+2. **로컬 .3mf 파일** → embedded 설정(`Metadata/project_settings.config`, **JSON**) + 지오메트리를 **아래 Phase 1.0 절차로** 추출. 부품별 dimension을 "Bambu Studio에서 확인" 으로 사용자에게 넘기지 마라 — 파싱으로 얻을 수 있다.
+3. **STL 파일** → **아래 Phase 1.0** bounding box 파서 사용. `du -h` 같은 파일 크기는 형상 정보가 아니다. 회전체 판정은 bbox 종횡비 + 사용자 설명 조합.
 4. **이미 정보가 채팅에 있음** → 그대로 사용.
+
+#### Phase 1.0 — 로컬 모델 지오메트리 추출 (견고 파싱 · 2026-07-27 신규)
+
+⚠️ **안티패턴 — 태그 범위 셸 매칭 금지.** 3MF 내부는 XML 이고 **거의 모든 태그가 속성을 가진다.** 실측 확인:
+
+```text
+<build p:UUID="2c7c17d8-22b5-4d84-8835-1976022ea369">
+<item objectid="2" p:UUID="00000002-…" transform="1 0 0 …" printable="1"/>
+```
+
+따라서 `sed -n '/<build>/,/<\/build>/p'` 는 **0 줄**을 돌려준다 (실측 재현됨). `<build>` 는 3MF Core Spec 상 `@anyAttribute` 를 허용하므로 이건 예외가 아니라 정상 형태다. `grep '<build>'` / `sed` 태그 범위 매칭 **금지** — 반드시 정식 XML 파서(`xml.etree.ElementTree`)를 써라.
+
+⚠️ **지오메트리는 `3D/3dmodel.model` 에 없을 수 있다.** Bambu Studio 는 production extension 을 써서 오브젝트를 `3D/Objects/object_N.model` 로 분리한다. 실측 예: root `3dmodel.model` 은 1.9KB / **vertex 0개**, 실제 메시는 `3D/Objects/object_1.model` (514 verts). root 만 보고 "메시 없음" 으로 결론내지 마라. 네임스페이스도 필수 (`xmlns` core + `p` production).
+
+**3MF 추출 (검증된 명령 — 실측 통과):**
+
+```bash
+python3 - "<model.3mf>" <<'PY'
+import sys, zipfile, xml.etree.ElementTree as ET
+NS={'c':'http://schemas.microsoft.com/3dmanufacturing/core/2015/02',
+    'p':'http://schemas.microsoft.com/3dmanufacturing/production/2015/06'}
+z=zipfile.ZipFile(sys.argv[1]); names=z.namelist()
+root=next((n for n in names if n.lower()=='3d/3dmodel.model'),None)
+assert root, f"FAIL: 3dmodel.model 없음. 실제 목록={names[:20]}"
+items=ET.fromstring(z.read(root)).findall('.//c:build/c:item',NS)
+print("build items:",len(items),"objectids:",[i.get('objectid') for i in items])
+n=0
+for part in sorted(p for p in names if p.lower().startswith('3d/') and p.lower().endswith('.model')):
+    for obj in ET.fromstring(z.read(part)).findall('.//c:resources/c:object',NS):
+        vs=obj.findall('.//c:mesh/c:vertices/c:vertex',NS)
+        if not vs: continue
+        xs=[float(v.get('x')) for v in vs]; ys=[float(v.get('y')) for v in vs]; zs=[float(v.get('z')) for v in vs]
+        n+=1
+        print(f"  {part} id={obj.get('id')}: {len(vs)} verts "
+              f"bbox={max(xs)-min(xs):.2f} x {max(ys)-min(ys):.2f} x {max(zs)-min(zs):.2f} mm")
+assert n>0, "FAIL: 메시 0개 파싱 — 빈 결과는 PASS 아님"
+print("meshes parsed:",n)
+PY
+```
+
+임베드 프로파일은 JSON 이므로 그대로 파싱한다 (grep 금지):
+
+```bash
+unzip -p "<model.3mf>" Metadata/project_settings.config \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ['layer_height','wall_loops','sparse_infill_density','enable_support','ironing_type','seam_position','xy_hole_compensation','xy_contour_compensation','elefant_foot_compensation','raft_layers']})"
+```
+
+**STL 추출 (검증된 명령 — ASCII/바이너리 양쪽, 실측 통과):**
+
+```bash
+python3 - "<model.stl>" <<'PY'
+import sys, struct
+d=open(sys.argv[1],'rb').read(); pts=[]
+if d[:5].lower().lstrip()[:5]==b'solid' and b'facet' in d[:2048]:
+    for ln in d.decode('utf8','replace').splitlines():
+        w=ln.split()
+        if len(w)==4 and w[0]=='vertex': pts.append(tuple(map(float,w[1:])))
+else:
+    n=struct.unpack('<I',d[80:84])[0]
+    assert len(d)>=84+50*n, f"FAIL: STL 잘림 (선언 tris={n})"
+    for i in range(n):
+        o=84+50*i+12
+        for j in range(3): pts.append(struct.unpack('<3f',d[o+12*j:o+12*j+12]))
+assert pts, "FAIL: vertex 0개 — 빈 결과는 PASS 아님"
+xs,ys,zs=zip(*pts)
+print(f"tris={len(pts)//3} bbox={max(xs)-min(xs):.2f} x {max(ys)-min(ys):.2f} x {max(zs)-min(zs):.2f} mm")
+PY
+```
+
+⚠️ **빈 출력은 PASS 증거가 아니라 검증 실패 신호다** (`harness/docs/guides/skill-design-guide.md` §3.7). 위 명령들은 그래서 `assert` 로 non-zero exit 한다. 0 줄/0 vertex/빈 dict 가 나오면 **형상 정보 없음으로 진행하지 말고** 파싱 경로를 고치거나, 못 고치면 사용자에게 dimension 을 물어라. 추측한 치수로 공차를 계산하면 Phase 1.7 전체가 무의미해진다.
 
 **전체 크롤링 원칙 (v0.4.0 강화):**
 
@@ -331,7 +403,7 @@ Tolerance Analysis 결과
 |---------|--------------|---------------|
 | bearing OD (압입) | `xy_hole_compensation` | + (소재별 표 §2 참조) |
 | bearing ID (축 fit) | `xy_contour_compensation` | − (소재별 표) |
-| bolt pass hole | `xy_hole_compensation` | + 0.05 추가 (clearance) |
+| bolt pass hole | `xy_hole_compensation` | + · **`tolerance.md` §3.2 규칙을 따른다** (모델이 이미 3.2-3.4mm 면 수축 보정만, 명목 3.0mm 면 오프셋 `+0.10~+0.20`) |
 | heat-set insert hole | hole 명시 (M3=4.0mm) | `xy_hole_compensation` 표 그대로 |
 | slide-fit hole | `xy_hole_compensation` | + (loose 권장) |
 | slide-fit 외경 | `xy_contour_compensation` | − (loose 권장) |
@@ -339,9 +411,63 @@ Tolerance Analysis 결과
 
 ⚠️ **Bambu 키 이름 오타 주의**: `elefant_foot_compensation` (e 빠짐 — Bambu 의도적 오타). `elephant_foot_compensation`으로 쓰면 silent skip.
 
+⚠️ **보정값은 경계 오프셋 — 지름 변화는 2배다.** `보정값 = (목표 지름 − 모델 지름) / 2`. 정본은 `references/tolerance.md` **§1.1**. 이 변환을 건너뛰고 §4 의 "최종 지름" 을 보정값 칸에 그대로 넣는 것이 평가자 REJECT `PL-01` 의 원인이었다. 계약서에 지름으로 적혀 있어도 JSON 에는 **오프셋**으로 환산해 넣어라.
+
 #### Tolerance Gate (Phase 2 진입 조건)
 
 Phase 1.7.1~1.7.3 완료 (또는 fit-critical 0건 확정)가 끝나야 Phase 2로 진입.
+
+### Phase 1.8 — Surface Intent Gate (2026-07-27 신규)
+
+**필수 실행 — 모든 입력 분기 (MakerWorld / 로컬 .3mf / STL / 채팅 정보).**
+
+> **왜 신규인가 (실측 회귀):** 사용자가 표면 품질을 원했는데 기능성 프로파일만 생성해 **ironing 없이 완료 보고**한 회귀가 발생했다. 사용자가 "표면 매끈해야하는데.. 한거 맞음?" → "아이어닝해야지" 로 **두 번** 지적해야 했다. 원인은 표면 의도 확인이 **Phase 1.6.5 (MakerWorld URL 전용)** 안에만 있었다는 구조적 누락이다 — 로컬 파일이나 댓글 0개 케이스에서는 표면 품질을 **아무도 묻지 않는 경로**가 존재했다. 실측 확인: 페리스 휠 생성물의 임베드 config 가 `ironing_type: "no ironing"`.
+
+#### 1.8.1 이미 결정됐으면 재질문 금지
+
+Phase 1.6.5 에서 사용자가 옵션 `[A]`/`[B]`/`[C]`/`[D]` 를 이미 선택했으면 **그것을 그대로 승계**하고 1.8.2 를 skip 한다. 같은 질문을 두 번 하지 마라.
+
+#### 1.8.2 표면 의도 확인 (위 승계가 없을 때 필수)
+
+사용자 요청에서 표면 의도 키워드를 먼저 grep 한다:
+
+```bash
+# 표면 우선 신호
+grep -iE "매끈|매끄럽|반들|광택|표면|외관|심 안 보|seam 안|이쁘게|smooth|shiny|surface|cosmetic|아이어닝|ironing"
+# 기능 우선 신호
+grep -iE "기능|튼튼|빨리|속도|시간|prototype|functional|strong|fast|test"
+```
+
+판정:
+
+| 상황 | 처리 |
+|------|------|
+| 표면 신호 **있음** | surface-first ON. `ironing_type` 결정 트리(Phase 3) 필수 통과. |
+| 기능 신호만 있음 | surface-first OFF. **notes.md 에 "표면 마감 미적용" 명시** (조용히 빠뜨리지 말 것). |
+| **둘 다 없음 / 모호** | **사용자에게 1줄로 물어라** — 추측 금지. |
+
+모호할 때 질문 형식:
+
+```text
+표면 마감 방향을 정해야 합니다 (출력 시간에 직접 영향):
+  [S] 표면 우선 — 평면 top ironing + 외벽 저속 + scarf seam (~1.5-3배 시간)
+  [F] 기능 우선 — baseline 속도, ironing/scarf 없음 (~1.0-1.2배)
+기본 권장: 눈에 보이는 곳에 쓰는 부품이면 [S], 내부 지그/기능 부품이면 [F].
+```
+
+#### 1.8.3 형상 × 소재 적용성 교차 확인
+
+표면 우선이라도 **무의미하거나 해로운 조합**은 적용하지 않고 그 사유를 보고한다:
+
+- 회전체 / spiral vase → top 이 없어 ironing 무의미 (seam 전략으로 처리)
+- TPU / PA-CF → ironing 불가 또는 역효과 (Phase 3 소재 판정표)
+- PETG HF → 건조 미충족 시 stringing 위험 (surface-recipes.md §6.5 경고 준수)
+
+#### Surface Intent Gate (Phase 2 진입 조건)
+
+1.8.1 승계 **또는** 1.8.2 판정 완료가 끝나야 Phase 2 로 진입한다. **표면 의도가 미확정인 상태로 Phase 3 JSON 생성에 진입 금지.**
+
+⚠️ 표면 우선으로 판정됐는데 최종 process JSON 의 `ironing_type` 이 `"no ironing"` 이면 그것은 **게이트 실패**다 — Phase 4 검증 명령이 이를 잡는다.
 
 ### Phase 2 — 소재 추천 (2-3개 + 사용자 픽)
 
@@ -422,7 +548,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 |---------------------|----------|----------|
 | **베어링 외경 압입** (608ZZ 22mm 등) | `xy_hole_compensation` | + (PLA `0.05`, PETG `0.075`, ASA `0.10`) |
 | **베어링 내경 축 fit** (608ZZ 8mm 등) | `xy_contour_compensation` | − (PLA `-0.05`, PETG `-0.075`, ASA `-0.10`) |
-| **볼트 통과 hole** (M3 → 최종 hole 3.2-3.4mm, M4 → 4.3mm) | `xy_hole_compensation` | 소재 수축률 표 + clearance 추가. 최종 권장 hole 사이즈 + 표준 offset 매핑은 `references/tolerance.md` §4 fastener 사전 참조 |
+| **볼트 통과 hole** (M3 → **최종 지름** 3.2-3.4mm, M4 → 4.3mm) | `xy_hole_compensation` | **§1.1 변환식 필수**: 모델이 이미 목표 지름이면 수축 보정만(PLA `+0.05`), 명목 3.0mm 면 오프셋 `+0.10~+0.20`. 표의 지름을 보정값으로 직접 쓰지 마라 (`PL-01`) |
 | **heat-set 인서트 hole** (M3 4.0mm 등) | hole 명시 + `xy_hole_compensation` 표 그대로 | 표 §2 |
 | **slide-fit / push-lock** (knife sheath 등) | `xy_contour_compensation` (외경) + `xy_hole_compensation` (hole) | 둘 다 loose 권장 |
 | **모든 부품 첫 레이어 squish** | `elefant_foot_compensation` | `0.10-0.20` (PLA `0.15` default) |
@@ -441,20 +567,31 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 
 공차 보정 키(`elefant_foot_compensation` / `xy_hole_compensation` / `xy_contour_compensation`)는 Creator profile 라벨에 명시되는 일이 거의 없음 → **Creator 미명시 영역**. v0.4.1 Override Rule 좁힘 정책에 따라 [C] 병행 시 자동 추가 가능. Designer constraint와 충돌하지 않음.
 
+**⚠️ 공차 키가 조용히 무효화되는 3 조건 (소스 검증 — `tolerance.md` §1.2):**
+
+| 조건 | 무효화 | 대응 |
+|------|--------|------|
+| 오브젝트가 **multi-material / color-paint** 됨 | `xy_hole` · `xy_contour` → 강제 `0` | 공차 보정 불가. **모델 지오메트리로 해결**해야 함을 사용자에게 보고 |
+| 오브젝트가 **fuzzy skin paint** 됨 | `xy_hole` · `xy_contour` → 강제 `0` | 동일 |
+| **`raft_layers != 0`** | `elefant_foot_compensation` → `0` | 둘을 동시에 지정하지 마라 |
+
+이 스킬은 멀티컬러를 정식 지원하고 dogfood 케이스에 dual-color 가 많다 (box-opener-knife, stealth-press-1s). **fit-critical 부품 + color-paint 조합이면 공차 보정이 전부 무의미**하므로 Phase 1.7 결과 보고 시 반드시 함께 경고하라.
+
+**단일 값 제약:** process JSON 은 `xy_hole_compensation` 을 **1개만** 표현한다. 한 모델에 베어링 압입(빡빡)과 볼트 통과(헐거움)가 공존하면 하나로 둘 다 만족시킬 수 없다 → 가장 fit-critical 한 카테고리 기준으로 잡고, 나머지는 notes.md §1.6 에 "Studio 오브젝트별 오버라이드 필요" 로 명시.
+
 **적용 절차:**
 
 1. Phase 1.7 fit-critical 카테고리 + 카운트 확인
 2. Phase 2에서 사용자 선택한 소재의 수축률 확인 (`materials.md` §4)
-3. 카테고리별 공차 키 매트릭스 × 소재 수축률 = 최종 보정값 도출
-4. process JSON에 해당 키들 명시 (default `"0"` 덮어쓰기)
-5. fit-critical 1개 이상이면 Phase 5 fit calibration coupon 자동 트리거
+3. 카테고리별 공차 키 매트릭스 × 소재 수축률 = **오프셋** 도출 → **§1.1 변환식으로 지름 효과(2×) 검산**
+4. 위 무효화 3조건 해당 여부 확인 (해당 시 사용자 보고)
+5. process JSON에 해당 키들 명시 (default `"0"` 덮어쓰기). `elefant_foot_compensation` 은 **음수 불가**
+6. fit-critical 1개 이상이면 Phase 5 fit calibration coupon 자동 트리거
 
 **fit-critical 0건 케이스:**
 
 `elefant_foot_compensation`만 default 0.15 (PLA 안전 마진)로 추가. `xy_hole/xy_contour`는 default `"0"` 유지.
 
-
-**필수 메타필드 (silent skip 회피 — Codex run `a2a01770a87626167` 검증):**
 
 **필수 메타필드 (silent skip 회피 — Codex run `a2a01770a87626167` 검증):**
 
@@ -485,7 +622,9 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ❌ **`nozzle_temperature`, `nozzle_temperature_initial_layer` 안 건드림** — 사용자가 .3mf의 creator 튜닝 값이나 base profile 기본값을 유지하길 원함 (사용자 명시 요청 2026-05-16)
 - ❌ retraction/fan/cooling 안 건드림 — base에 위임
 
-**Surface-first 모드 (default ON — 사용자 요구가 "표면 매끈 / 심 안 보임 / 속도 무시"일 때):**
+**Surface-first 모드 (적용 여부는 Phase 1.8 Surface Intent Gate 판정을 따른다 — 여기서 다시 추측하지 마라):**
+
+> 이전 판의 "default ON" 표기는 "사용자 요구가 …일 때" 라는 조건과 서로 모순이어서, 실제로는 아무도 켜지 않는 경로가 생겼다 (ironing 누락 회귀). 판정은 **Phase 1.8 단일 지점**에서만 한다.
 
 상세 정책은 `references/surface-recipes.md` 참조. SKILL은 결정 트리 분기와 형상 enumerate만 인라인으로 가진다.
 
@@ -663,7 +802,69 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 
 **dogfood 레퍼런스 케이스:** `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/notes.md` 참조. 이번 케이스에서 PDF 분석으로 §2.5 (super glue + shim + 필라멘트 조각), §3.3 (숨은 인서트 5군데), §3.4 (KEY-BAK strain → arm 순서) 모두 발견됨.
 
-#### 4.3 Verify (Import 후 사용자 확인)
+#### 4.3 Completion Evidence Gate — 생성물 실제 파싱 검증 (2026-07-27 신규 · 필수)
+
+> **왜 E3 로 올렸나:** silent skip 회귀가 v0.4.0 / v0.4.1 / v0.4.2 에 걸쳐 **3 회 이상 재발**했고, import 실패는 사용자가 뒤늦게 발견하는 신뢰 손상 영역이다. `skill-design-guide.md` §3.7 승급 규칙(3 회 이상 → E2 → **E3 결정론적 게이트**)에 따라, 아래 체크리스트(자기보고)만으로는 부족하고 **LLM 을 호출하지 않는 순수 판정 명령**을 통과해야 한다.
+
+zip 을 만들기 **전에** 생성한 JSON 전부에 대해 아래를 실행하고, **출력 원문을 응답에 붙여라.**
+
+```bash
+python3 - <output_dir>/process/*.json <output_dir>/filament/*.json <<'PY'
+import sys, json, pathlib
+allok=True
+for p in sys.argv[1:]:
+    f=pathlib.Path(p).name; errs=[]
+    try: d=json.loads(pathlib.Path(p).read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"FAIL {f}: JSON 파싱 실패 {e}"); allok=False; continue
+    t=d.get("type")
+    if t not in ("process","filament"): errs.append(f"type={t!r} (process|filament 아님)")
+    for k in ("name","version","inherits"):
+        if not d.get(k): errs.append(f"{k} 누락")
+    if d.get("from")!="User": errs.append(f'from={d.get("from")!r} — 반드시 "User" (대문자)')
+    idk="print_settings_id" if t=="process" else "filament_settings_id"
+    if idk not in d: errs.append(f"{idk} 누락 → 'Preset type is unknown'")
+    if t=="filament" and not isinstance(d.get(idk),list): errs.append(f"{idk} 는 배열이어야 함")
+    if t=="process":
+        cp=d.get("compatible_printers")
+        if not (isinstance(cp,list) and any("H2S" in str(x) for x in cp)):
+            errs.append(f"compatible_printers 에 H2S 없음: {cp!r}")
+        if "elephant_foot_compensation" in d:
+            errs.append("오타 키 elephant_foot_compensation (정답: elefant_foot_compensation)")
+        eff=d.get("elefant_foot_compensation")
+        if eff is not None:
+            try:
+                if float(eff)<0: errs.append(f"elefant_foot_compensation={eff!r} 음수 불가 (min=0)")
+            except (TypeError,ValueError):
+                errs.append(f"elefant_foot_compensation={eff!r} 숫자 문자열 아님")
+            if str(d.get("raft_layers","0")) not in ("0",""):
+                errs.append(f"raft_layers={d.get('raft_layers')} 이면 elefant_foot 무효화됨")
+    for k,v in d.items():
+        if isinstance(v,(int,float,bool)): errs.append(f"{k} 가 문자열이 아님 ({v!r})")
+    if errs:
+        allok=False
+        for e in errs: print(f"FAIL {f}: {e}")
+    else:
+        print(f"OK   {f}: type={t} from={d.get('from')} keys={len(d)} "
+              f"ironing={d.get('ironing_type','-')} xy_hole={d.get('xy_hole_compensation','-')}")
+print("RESULT:","PASS" if allok else "FAIL")
+sys.exit(0 if allok else 1)
+PY
+```
+
+**통과 규칙:**
+
+- `RESULT: PASS` **이면서 exit 0** 이어야 다음 단계(zip 번들링 · 완료 보고)로 진행한다. `FAIL` 이면 JSON 을 고치고 재실행하라 — 사용자에게 넘기지 마라.
+- **출력이 비어 있으면 PASS 가 아니다.** 파일 glob 이 아무것도 매칭 못 한 것이므로 경로부터 고쳐라 (`skill-design-guide.md` §3.7).
+- 위 명령을 실행하지 않았거나 실행할 수 없었다면 완료를 선언하지 말고 `[미검증]` 으로 명시하라. 마커는 `[미검증]` 하나로 통일하며 동의어(`미확인`, `N/A`, `TBD`, `unverified`)를 새로 만들지 않는다 — 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
+
+**추가 의미 검증 (스크립트가 못 잡는 항목 — 위 출력값을 눈으로 대조):**
+
+- Phase 1.8 이 **표면 우선**으로 판정했는데 출력의 `ironing=no ironing` 이면 → 게이트 실패, Phase 3 재작업
+- Phase 1.7 이 **fit-critical ≥ 1** 인데 출력의 `xy_hole=-` (키 부재) 이면 → 공차 반영 누락
+- 오브젝트를 color-paint 할 예정이면 `xy_hole` / `xy_contour` 는 슬라이서가 버린다 (§1.2) — 사용자에게 경고했는지 확인
+
+#### 4.4 Verify (Import 후 사용자 확인)
 
 생성 후 사용자에게 안내:
 1. `File → Import → Import Configs...` → `<modelname>.zip` 선택
@@ -759,6 +960,11 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(v0.4.1 신규) [C] 병행 옵션 선택 시 Creator 명시 필드(layer/walls/infill/support) + surface-first 필드(ironing/scarf/outer_speed/wall_sequence) 두 그룹이 같은 process JSON에 모두 명시**되었는지. directive 권장을 전체 freeze로 보수 해석하여 ironing 등 미명시 영역이 빠지지 않았는지 (9mm v2 회귀 재발 방지).
 - ☐ **(v0.4.2 신규) fit-critical 부품(베어링/볼트/heat-set 인서트/슬라이드 fit)이 식별됐다면 공차 보정 키가 process JSON에 반영**되었는지. 키 이름 **`elefant_foot_compensation`** (오타 e 빠짐 — `elephant_foot_compensation`은 silent skip). 페리스 휠 608ZZ 회귀 재발 방지.
 - ☐ **(v0.4.2 신규) 소재별 수축률 반영** — PLA 보정값을 PETG/ASA에 그대로 쓰지 않았는지. `xy_hole_compensation` 값이 소재 수축률에 비례하는지 (PLA `+0.05` < PETG `+0.075` < ASA `+0.10`).
+- ☐ **(2026-07-27 신규) 공차 보정값을 지름이 아닌 오프셋으로 넣었는지** — `보정값 = (목표지름 − 모델지름) / 2`. `tolerance.md` §4 의 "최종 지름"(예: 3.2mm, 22.10mm)을 보정값 칸에 그대로 복사하지 않았는지. **`PL-01` 재발 방지.**
+- ☐ **(2026-07-27 신규) 공차 무효화 3조건 확인** — 오브젝트가 multi-material color-paint 또는 fuzzy-skin paint 되면 `xy_hole`/`xy_contour` 가 **강제 0**, `raft_layers != 0` 이면 `elefant_foot_compensation` 이 **무효**. 해당하면 사용자에게 보고했는지 (`tolerance.md` §1.2).
+- ☐ **(2026-07-27 신규) Phase 1.8 Surface Intent Gate 통과** — 표면 우선 판정인데 `ironing_type` 이 `"no ironing"` 으로 남아있지 않은지. 기능 우선 판정이면 notes.md 에 "표면 마감 미적용" 을 명시했는지 (조용히 생략 금지).
+- ☐ **(2026-07-27 신규) Phase 4.3 검증 명령을 실제로 실행하고 출력을 응답에 붙였는지** — 체크리스트를 눈으로 훑은 것은 실행이 아니다. `RESULT: PASS` + exit 0 없이 완료 선언 금지.
+- ☐ **(2026-07-27 신규) 로컬 모델 형상을 태그 매칭이 아닌 XML 파서로 추출했는지** — `sed`/`grep` 태그 범위 매칭 금지, 지오메트리가 `3D/Objects/*.model` 에 있을 수 있음, **빈 출력은 PASS 아님** (Phase 1.0).
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
@@ -788,11 +994,14 @@ defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVer
 
 | 결과 | 처리 |
 |------|------|
-| `02.06.00.xx` (현재 baseline) | references 그대로 사용. 정상. |
+| `02.06.00.xx` (references baseline · 2026-07-27 기준 로컬 설치본) | references 그대로 사용. 정상. |
 | `02.06.01.xx` (1패치 위) | references 그대로 — 마이너 패치는 호환 가능성 높음. 단, scarf 필드 mismatch 의심되면 cross-check. |
-| `02.07.x.xx` 이상 (Public Beta 이상) | ⚠️ **bambu-kaizen 트리거 권장** — fields baseline 갱신 필요할 수 있음. 사용자에게 보고 후 진행. |
+| `02.07.x.xx` / `02.08.x.xx` | ⚠️ **bambu-kaizen 트리거 권장** — references 는 `02.06.00.51` 기준이라 fields baseline 갱신이 필요할 수 있음. 사용자에게 보고 후 진행. |
+| `02.09.x.xx` 이상 (미확인 신버전) | ⚠️ **`/bambu-research` 먼저** — 스키마 변경 가능성. 확인 없이 생성 금지. |
 | `02.05.x.xx` 이하 (구버전) | ⚠️ JSON `"version": "2.6.0.2"`이 reject될 수 있음. 사용자에게 업그레이드 권장. |
 | 명령 실패 (`not installed`) | Studio 미설치. JSON은 만들되 import 검증 셸 명령 부분 skip. |
+
+> **릴리스 현황 (2026-07-27 조회):** 최신은 **2.8.1** (`v02.08.01.55`, 2026-07-14 · Public Beta), 최신 정식 릴리스는 **2.7.1** (`v02.07.01.62`, 2026-06-16). 로컬 설치본은 `02.06.00.51` 로 references baseline 과 일치한다. 출처: <https://api.github.com/repos/bambulab/BambuStudio/releases>. references 를 2.7/2.8 기준으로 올리는 것은 `/bambu-research` 소관이다.
 
 ### 2. Memory 자동 로드
 
@@ -820,7 +1029,7 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing 발생 (필라멘트 건조 부족 의심). seam은 random + external + entire_loop |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 워크플로우 dogfood. 5섹션 notes.md 표준 템플릿 확립. 웹 BOM 30개 vs PDF 매뉴얼 카운트 34개 mismatch 발견 → Phase 1.5 신규. |
 | 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. v0.4.1 dogfood: directive 권장을 보수 해석하여 ironing/scarf 빠진 [A] 결과 → 사용자 의도("모든 면 매끈") 미반영. → v0.4.1 범위 좁힘 정책 + [C] 병행 옵션 default. v0.4.2 dogfood: blade slide-fit 공차 누락 식별 → Phase 1.7 + `elefant_foot_compensation` 추가. |
-| Ferris Wheel (1186414, 608ZZ variant) | PLA Basic | ⚠️ v0.4.x 이전 회귀: 608ZZ 베어링 외경(22mm)/내경(8mm) fit 안 맞음 (사용자 보고 2026-05-27). → v0.4.2 Phase 1.7 fit-critical 분석 + `xy_hole_compensation +0.075` (압입) + `xy_contour_compensation -0.075` (축 fit) + tolerance.md §3.1 bearing 결정 트리 신규. |
+| Ferris Wheel (1186414, 608ZZ variant) | PLA Basic | ⚠️ v0.4.x 이전 회귀: 608ZZ 베어링 외경(22mm)/내경(8mm) fit 안 맞음 (사용자 보고 2026-05-27). → v0.4.2 Phase 1.7 fit-critical 분석 + tolerance.md §3.1 bearing 결정 트리 신규. **2026-07-27 정정**: v0.4.2 가 넣은 `+0.075`/`-0.075` 는 2× 규칙상 22.15mm/7.85mm 로 목표(22.10/7.90) 초과 — 축 fit 에 0.10mm 유격이 생겨 사용자 보고와 일치. 정정값 `+0.05`/`-0.05` (tolerance.md §7). 재출력 검증 대기. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
 

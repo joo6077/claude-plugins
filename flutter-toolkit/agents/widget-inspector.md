@@ -150,11 +150,22 @@ Props Bundling Violation (HAS_FREEZED + HAS_HOOKS)
 Total: N extraction candidates
 ```
 
-후보가 0건이면:
+후보가 0건이면 — **"Clean" 은 스캔이 실제로 수행됐을 때만 쓸 수 있다.**
+
+리포트 서두에 **스캔 대상 파일 수**를 먼저 적는다. 대상이 0 개면 그것은 "중복 없음" 이 아니라
+"검사되지 않음" 이다 (Evidence Validity Gate 검사 2 — 활성화).
 
 ```text
 -- Widget Inspector Report ([quick|deep]) --
+스캔 대상: N개 파일 (<glob 또는 경로>)
 Clean — 추출 후보 없음
+```
+
+```text
+-- Widget Inspector Report ([quick|deep]) --
+스캔 대상: 0개 파일 (<경로>)
+[미검증] 스캔 대상 파일이 0개 — 경로가 잘못됐거나 프로젝트 구조가 예상과 다름.
+확인한 경로: <시도한 경로 목록>
 ```
 
 ## Gotchas
@@ -165,6 +176,9 @@ Clean — 추출 후보 없음
 - 리포트에 파일:라인 근거 없이 "중복인 것 같다"는 금지 — 증거 없는 판단은 노이즈다
 - **Binary Decidability (agent-design-guide §3.5 대응)** — 본 에이전트는 판정 에이전트가 아니라 리포팅 에이전트이지만, 각 감지 결과가 "**추출 후보** / non-후보" 중 **이진** 으로 귀결 가능해야 한다. "애매하게 중복일 수도 있음" 같은 결과는 허용하지 않는다. 판정 경계가 모호하면 "약한 후보(리포트 끝에 별도 섹션)" 로 분류하되, 같은 기준을 **동일 리포트 내 모든 항목에 일관** 적용. 이진 판정이 불가능한 경우 해당 항목을 `[미검증]` 마커와 함께 리포트에 포함하되 PASS (확정 후보) 로 격상 금지
 - **L3 Honesty — 정적 Grep 만으로 후보 확정 금지 (qa-evaluation-guide 대응)** — `Grep` 으로 클래스 정의나 구조 패턴을 수집하는 것은 L1/L2. 후보로 **확정**하기 전에 반드시 `Read` 로 build 메서드 본문을 읽고 (a) 실제 구조적 중복인지, (b) feature 특화 로직이 없는지, (c) 생성자 파라미터가 범용 타입인지 확인. Read 생략 상태의 "정적 추측 후보" 는 `[미검증]` 으로 마킹하여 리포트에 포함하되 확정 후보 수에서 제외
+- **`[미검증]` 마커 규약은 여기서 정의하지 않는다** — 마커 이름·의미·임계값의 정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이다. 동의어(`미확인` · `N/A` · `TBD` · `unverified` 등)를 만들지 말고, 본 에이전트 안에서 별도 임계값을 세우지 마라
+- **"Clean" 은 vacuous pass 의 대표 형태다 (Evidence Validity Gate 검사 2 — 활성화)** — Grep 매치 0 건 · 스캔 대상 0 파일은 "추출 후보 없음" 이 아니라 **"검사되지 않음"** 이다. 리포트에 항상 **스캔 대상 파일 수**를 먼저 적고, 0 개면 Clean 대신 `[미검증]` + 확인한 경로 목록을 남긴다. 경로 오타·잘못된 glob·아키텍처 가정 불일치가 실제로 이 경로로 조용히 통과한다
+- **증거 출처는 직접 수집이어야 한다 (Evidence Validity Gate 검사 4)** — 호출한 스킬의 서술이나 구현자의 주석("이 위젯은 재사용 안 됨")을 근거로 후보를 제외하지 마라. 제외 판단도 `Read` 로 직접 확인한 근거가 있어야 한다
 
 ## Rules
 
@@ -175,3 +189,4 @@ Clean — 추출 후보 없음
 - **MUST NOT** feature 특화 로직이 있는 private 위젯을 추출 대상으로 잡지 않는다
 - **MUST** 정적 Grep 만으로 후보를 확정하지 않는다 — 각 후보에 대해 `Read` 로 대상 파일 본문을 확인한 뒤 최종 리포팅 (L3 Honesty)
 - **MUST** 판정 경계가 모호한 항목은 `[미검증]` 마커와 함께 리포트에 포함하되 확정 후보 집계에서 제외한다 (Binary Decidability)
+- **MUST** 리포트 서두에 스캔 대상 파일 수를 명시한다 — 0 개면 "Clean" 이 아니라 `[미검증]` 으로 보고한다 (Evidence Validity Gate 검사 2)

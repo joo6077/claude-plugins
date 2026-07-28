@@ -108,7 +108,7 @@ user-invocable: true
 - [ ] **Cross-Surface Parity 5 개 item 확인** (skill-design-guide §11): Binary Decidability / 트리거 배타성 (substring 포함) / 검증 가능한 성공 기준 / Rule-by-rule audit / Unverifiable 정책 (에이전트 전용, 해당 시) — 새 Gotcha 가 이 중 하나에 해당하면 형제 surface 로의 전파 필요성을 사용자에게 보고
 - [ ] **Sibling Enumerated 비교**: 형제 스킬이 있으면 `grep -n "^- " <sibling>/SKILL.md` 로 기존 Gotchas 목록 나열 후 공통 원칙 누락 여부 대조
 - [ ] **Code Examples 품질** (§8.7): 모든 fenced block 에 언어 힌트 존재 + 미완성 마커(V5 placeholder 3종) 0 건
-- [ ] **validate-plugin 연동**: `python3 scripts/validate-plugin.py <plugin-name>` 실행하여 아래 7 카테고리 중 V1/V4/V5/V6 최소 4 개가 OK 인지 확인. 기준은 `harness/docs/guides/plugin-validation-guide.md §3` 참조.
+- [ ] **validate-plugin 연동**: `python3 scripts/validate-plugin.py <plugin-name>` 실행하여 8 카테고리 (V1~V8) 중 V1/V4/V5/V6 최소 4 개가 OK 인지 확인. 기준은 `harness/docs/guides/plugin-validation-guide.md §3` 참조 (카테고리 수의 SSOT 는 이 가이드다).
   - V1 frontmatter — 필수 필드 (name/description/user-invocable) 모두 존재
   - V4 triggers — description 키워드가 기존 스킬과 중복되지 않음 (substring containment 도 금지)
   - V5 placeholders — 미완성 마커 (할일/보류/수정요망 세 종류) 0 건

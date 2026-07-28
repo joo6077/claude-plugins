@@ -53,3 +53,9 @@ cleanup_log:
     over_500_truncated: 0
     deleted: 0
     notes: "no action needed (262 < 500, 0 aged); kaizen 2026-06-11 사이클 (hook-exec V8)"
+  - date: "2026-07-27"
+    total_before: 243
+    aged_over_6months: 0
+    over_500_truncated: 0
+    deleted: 0
+    notes: "no action needed — 180일 초과 0건, 500개 한도 미달(243). 14/14 Phase 카이젠 사이클 Step 11.6."

@@ -1,9 +1,49 @@
 ---
-version: 1.0.0
-last_updated: 2026-06-05
+title: Flutter Kit Research Log
+version: 1.1.0
+last_updated: 2026-07-27
 ---
 
 # Flutter Kit Research Log
+
+## [2026-07-27] - Phase 5 kaizen
+
+**주제:** Friction #2(시각·런타임 검증 신뢰 불가) enforcement 승급 + Flutter 3.44 / Riverpod 3.4 정합화
+
+### 리서치 소스 (전부 WebFetch 실측 · Context7 은 OAuth 미인증으로 사용 불가)
+
+| # | URL | 확인한 사실 |
+|---|-----|------------|
+| 1 | <https://docs.flutter.dev/release/release-notes> | stable **3.44.7** (페이지 갱신 2026-07-10). 스킬들이 기준으로 삼던 3.41 은 구버전 |
+| 2 | <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0> | `TestWidgetsApp`(WidgetTester 기본 앱 표준화) · `TestTextField` 추가, `WidgetTesterCallback` 파라미터명 `widgetTester`→`tester`, flutter_test false-positive 히트테스트 수정. `ReorderableListView.onReorder` deprecated, `ExtendSelectionByPageIntent` 제거. `AnimatedCrossFade.onEnd` · Hero curve 커스터마이징 · `CupertinoSheetRoute` · 무한 `CarouselView` · `CarouselView.onItemChanged` · `RoundedSuperellipseInputBorder` · `Overlay.alwaysSizeToContent` · `ScrollCacheExtent` 추가. Impeller SDF 렌더링 |
+| 3 | <https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html> | `expectLater` + await 필수, `--update-goldens` 로 마스터 갱신. 커스텀 폰트는 플랫폼·Flutter 버전별로 다르게 렌더 → CI 실패 원인 4 종(OS 차이 / 버전 차이 / 폰트 로드 실패 / 실제 UI 변경) |
+| 4 | <https://pub.dev/packages/golden_toolkit> | **discontinued**. 최신 0.15.0, 마지막 업데이트 3 년 전 |
+| 5 | <https://pub.dev/packages/alchemist> | 0.14.0, 4 개월 전 갱신, 유지보수 중 (Very Good Ventures / Betterment). 로컬·CI 테스트 분리, 자동 리사이즈, 테마·텍스트 스케일 조정 |
+| 6 | <https://pub.dev/packages/flutter_riverpod> | 최신 **3.4.1** (조회 시점 기준 17 시간 전 릴리스) |
+| 7 | <https://pub.dev/packages/flutter_riverpod/changelog> | 3.2.0 `family.overrideWith` deprecated → `overrideWith2`(4.0 rename 예정), 3.4.0 `SyncProviderTransformerMixin` deprecated. 신규: `Ref.onManualInvalidation()` · `ProviderContainer.allProviders()` · `AsyncValue.requireValue`(3.1) · `CustomProviderListenable`/`ValueListenable`(3.4). **mutations/offline 은 여전히 experimental** |
+| 8 | <https://pub.dev/packages/go_router/changelog> | 최신 **17.3.0**. 17.0 `ShellRoute` observer 알림 기본화(`notifyRootObserver`), 15.0 URL 대소문자 구분(`caseSensitive`) |
+| 9 | <https://pub.dev/packages/flutter_hooks> | 최신 0.21.3+1. 훅 3 원칙(이름 `use` prefix · 무조건 호출 · 조건부 호출 금지) 재확인 |
+
+### 내부 데이터 소스
+
+- `.claude/kaizen-input/insights-report.md` (2026-07-27, 53 일 · 51 세션) — Friction #2 가 신규 최상위, 진앙이 Flutter
+- `.claude/kaizen-input/reflect-digest-2026-07-27.md` — `mismatched-provider-skill` · `edit-before-read` · `preserve-original-colors` · `false-positive-static-verification` · `scan-animation-direction-mismatch`
+- `.harness/.meta/kaizen-data-pool.md` §1 글로벌 REJECT (`AR-01` codegen 산출물 혼입 · `UI-07` widget test 0 건 · `UI-03` alignment 불일치) / §2 외부 프로젝트 (fit-pal · apps · flutter_playwright)
+
+### 반영 (enforcement 등급 승급 중심 — 새 규칙 추가 최소화)
+
+- **신규** `flutter-toolkit/references/visual-evidence-protocol.md` (E2) — 시각 산출물 완료 증거 SSOT.
+  채널 감지는 **프로젝트 감지 기반**(MCP 도구명 하드코딩 금지), baseline→변경→재캡처→대조 루프,
+  "빈 캡처는 PASS 증거가 아니라 검증 실패 신호", degraded 모드 `[미검증]`, Visual Evidence Block 체크리스트
+- UI 스킬 5 종(widget · screen · skeleton · transition · responsive)에 Gotcha + 완료 단계 양쪽 연결
+- `project-detection.md` Step 8 `VISUAL_CHANNEL` / `HAS_VISUAL_CHANNEL` 감지 추가
+- `flutter-audit` — 자체 `[미검증]` 임계 재정의 삭제 → qa-evaluation-guide §Canonical Unverified-Evidence Protocol 5 조항 문구 변형 없이 복제 + Evidence Validity Gate 4 검사 도입
+- `widget-inspector` — "Clean" vacuous pass 차단(스캔 대상 파일 수 선보고, 0 개면 `[미검증]`)
+- `flutter-provider` — 신규 생성 전용임을 description·Step 1 에 명시(`mismatched-provider-skill`), Read-before-Edit MUST
+- `flutter-hooks` — 3-Step → 4-Step(검증) 확장, 정적 확인을 동작 확인으로 주장 금지
+- `flutter-run` — codegen 산출물/수기 변경 분리 보고 (`AR-01`)
+- `flutter-test` — `$DART test` → `$FLUTTER test` 버그 수정, 무출처 주장(`community 2025-12`) 을 실측 URL 로 교체, 3.44 테스트 헬퍼 추가
+- `flutter-kaizen` — validate-plugin 7 → 8 카테고리(V1~V8), scope-creep 은 unit 수 기준, NO_CHANGE 허용 명시
 
 ## [2026-06-05] — Phase 5 kaizen
 

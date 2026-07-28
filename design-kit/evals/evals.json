@@ -428,6 +428,158 @@
           "type": "behavior"
         }
       ]
+    },
+    {
+      "id": 21,
+      "skill": "design-audit",
+      "prompt": "이 컴포넌트 감사해줘 (렌더 캡처는 빈 화면이고 grep 결과는 0건)",
+      "expected_output": "빈 캡처와 0매치를 PASS 근거로 쓰지 않고 [미검증]으로 분류한 리포트",
+      "assertions": [
+        {
+          "text": "빈 캡처를 '문제 없음' 근거로 사용하지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "0매치 grep을 '의도된 0'과 '공허한 0'으로 구분한다",
+          "type": "behavior"
+        },
+        {
+          "text": "무효 증거 항목을 [미검증]으로 표기하고 Evidence Validity 집계를 포함한다",
+          "type": "output"
+        },
+        {
+          "text": "미검증 2건 이상이면 FAIL 0이어도 REJECT로 판정한다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "skill": "design-audit",
+      "prompt": "보더 색만 바꿔달라고 했는데 배경까지 바뀐 변경분 감사해줘",
+      "expected_output": "의도 외 영역 변화를 Major FAIL로 판정하고 EVIDENCE 블록으로 리포트를 닫는다",
+      "assertions": [
+        {
+          "text": "요청 범위와 실제 변경 범위를 대조한다",
+          "type": "behavior"
+        },
+        {
+          "text": "요청하지 않은 배경 변경을 FAIL로 판정한다",
+          "type": "output"
+        },
+        {
+          "text": "before / after / proof / 의도 외 영역을 포함한 EVIDENCE 블록을 출력한다",
+          "type": "output"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "skill": "design-system",
+      "prompt": "기존 앱에 색상이 이미 있는데 디자인 토큰 세팅해줘",
+      "expected_output": "기존 사용 중인 색상값을 전수 추출해 제시하고 그 값을 토큰으로 감싸는 안을 기본으로 제안",
+      "assertions": [
+        {
+          "text": "기존에 실제 사용 중인 색상값을 먼저 전수 추출해 제시한다",
+          "type": "behavior"
+        },
+        {
+          "text": "새 팔레트를 임의로 생성해 기존 색을 대체하지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "승인된 시안 색상이 있으면 프로젝트 팔레트보다 우선 적용한다",
+          "type": "behavior"
+        },
+        {
+          "text": "값 변경이 필요하면 별도 제안으로 분리하고 승인을 요청한다",
+          "type": "output"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "skill": "design-system",
+      "prompt": "semantic 토큰이 primitive를 참조하도록 DTCG 포맷으로 정의해줘",
+      "expected_output": "DTCG v1 중괄호 alias 표기를 사용한 토큰 명세",
+      "assertions": [
+        {
+          "text": "alias를 {group.token} 중괄호 형식으로 표기한다",
+          "type": "output"
+        },
+        {
+          "text": "중괄호 없는 맨몸 dot-notation 문자열을 alias로 쓰지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "$value / $type prefix를 사용하고 legacy value/type 키를 쓰지 않는다",
+          "type": "output"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "skill": "design-mockup",
+      "prompt": "3번 시안으로 확정할게",
+      "expected_output": ".design/approvals/ 에 승인 기록 파일 생성",
+      "assertions": [
+        {
+          "text": ".design/approvals/{YYYYMMDD}-{화면명}.md 승인 기록 파일을 생성한다",
+          "type": "behavior"
+        },
+        {
+          "text": "승인 기록에 확정된 시각 값과 원문 근거를 포함한다",
+          "type": "output"
+        },
+        {
+          "text": "대화 확인만으로 종료하지 않는다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "skill": "design-mockup",
+      "prompt": "card-product-a3f2 보더만 더 진하게 해줘",
+      "expected_output": "보더만 변경하고 나머지 시각 속성은 보존, Change Manifest 명시",
+      "assertions": [
+        {
+          "text": "편집 전 변경/보존 두 목록(Change Manifest)을 남긴다",
+          "type": "output"
+        },
+        {
+          "text": "배경·fill·radius·shadow 등 지목되지 않은 속성을 변경하지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "수정 후 보존 목록의 값이 그대로인지 확인한다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "skill": "design-test",
+      "prompt": "시각 회귀 테스트 만들고 통과했는지 확인해줘",
+      "expected_output": "baseline 생성 후 negative control까지 수행한 뒤에만 통과 보고",
+      "assertions": [
+        {
+          "text": "--update-snapshots 직후의 통과를 증거로 보고하지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "의도적 변형으로 테스트가 실패하는지 확인하는 negative control을 수행한다",
+          "type": "behavior"
+        },
+        {
+          "text": "빈 렌더를 통과시키지 않도록 콘텐츠 존재 assertion을 함께 생성한다",
+          "type": "output"
+        },
+        {
+          "text": "EVIDENCE 블록으로 결과를 보고하고 미실행 항목은 [미검증]으로 남긴다",
+          "type": "output"
+        }
+      ]
     }
   ]
 }

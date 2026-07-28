@@ -16,7 +16,8 @@ user-invocable: true
 - fit-pal에서는 커스텀 페이지 전환이 금지되어 있다 (`buildPage` 대신 `build`로 위젯만 반환) — 프로젝트 규칙을 먼저 확인해라
 - 예외: 탭 전환 시 `buildNoTransition`만 허용되는 프로젝트가 있다 — 프로젝트의 CLAUDE.md 또는 라우터 설정 확인
 - **auto_route 11.0 breaking changes** — `redirect` 가 `redirectUntil` 로 리네이밍됐고, `navigateNamed` / `pushNamed` 등 deprecated named navigation 메서드가 제거됐다. `.named` 생성자로 codegen 없이 shorthand named route 를 사용할 수 있다. 기존 코드에 `redirect` 가 남아 있으면 컴파일 에러 발생 (출처: <https://pub.dev/packages/auto_route/changelog>)
-- **Flutter 3.44 page transition builders 재구성 (pre-stable)** — 3.44 에서 page transition builders 가 재구성될 예정. 커스텀 전환 코드가 있으면 3.44 업그레이드 시 호환성 확인 필요 (출처: <https://docs.flutter.dev/release/breaking-changes>)
+- **Flutter 3.44 는 2026-07 기준 stable (3.44.7)** — page transition builders 재구성이 실제로 반영됐다. 커스텀 전환 코드가 있으면 업그레이드 시 호환성을 확인하라. 관련 신규/변경: `Hero` 애니메이션 curve 커스터마이징 지원, `CupertinoSheetRoute`(스크롤·드래그 지원) 추가, `showCupertinoSheet` 가 `RouteSettings` 를 받는다 (출처: <https://docs.flutter.dev/release/release-notes>, <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>)
+- **전환 애니메이션은 코드 리딩으로 검증되지 않는다 (`/insights` 2026-07-27 Friction #2)** — 방향·타이밍·커브는 실행해서 봐야 확정된다. 완료 보고 전에 `references/visual-evidence-protocol.md` 를 실행하고, 검증 채널이 없으면 `[미검증]` 을 명시하라. "부드럽게 전환됩니다" 같은 서술은 증거가 아니다
 
 GoRouter, auto_route, Navigator 기반 커스텀 페이지 전환 애니메이션을 적용한다.
 
@@ -310,3 +311,4 @@ $DART run build_runner build --delete-conflicting-outputs
 - **MUST** 일반 네비게이션에는 `fade-slide`, 모달성 페이지에는 `scale-fade`를 사용한다 -- 사용자가 "앞으로 가기"와 "팝업"을 시각적으로 구분할 수 있어야 내비게이션 맥락이 명확해진다
 - **MUST** `$FLUTTER` / `$DART` / `$PACKAGE` 변수를 사용한다. 하드코딩된 명령 prefix 및 패키지명 금지
 - **MUST NOT** 플랫폼 기본 전환을 사용한다 -- 앱 전체에서 일관된 전환 경험을 제공해야 한다
+- **MUST** 완료 선언 전에 `references/visual-evidence-protocol.md` 를 실행하고 **Visual Evidence Block** 을 응답에 채운다 -- 전환 애니메이션은 정지 화면 캡처로 검증되지 않는다. 방향(좌→우 vs 우→좌)·타이밍은 코드 리딩만으로 확정할 수 없으므로, 검증 채널이 없으면 `[미검증]` 마커와 사유를 남기고 부분 완료로 보고한다 (`/insights` 2026-07-27 Friction #2 · digest `scan-animation-direction-mismatch`)

@@ -129,6 +129,28 @@ MVVM 감지 시 레이어별 규칙 적용 ([Flutter 공식 아키텍처 가이�
 | `context.colors.` 패턴이 기존 코드에 있음 | Semantic Token 사용 |
 | 없음 | `HAS_DS = false`, 디자인 시스템 규칙 스킵 |
 
+### Step 8. 시각 검증 채널 감지 (UI 스킬 전용)
+
+UI 를 만들거나 고치는 스킬(`flutter-widget` · `flutter-screen` · `flutter-skeleton` ·
+`flutter-transition` · `flutter-responsive`)은 완료 선언 전에 렌더 결과를 대조해야 한다
+(`references/visual-evidence-protocol.md`). 사용 가능한 채널을 아래 순서로 감지한다.
+
+| 우선 | 채널 | 감지 방법 | 결과 |
+|------|------|----------|------|
+| 1 | golden test | `grep -rl "matchesGoldenFile" test/` 또는 `test/**/*golden*` 존재 | `VISUAL_CHANNEL = golden` |
+| 2 | integration_test 스크린샷 | `integration_test/` 디렉토리 존재 | `VISUAL_CHANNEL = integration_test` |
+| 3 | 프로젝트 등록 MCP | `.mcp.json` · `.claude/settings.json` · `.claude/settings.local.json` 의 `mcpServers` 키를 **읽어서** 서버명을 확인 | `VISUAL_CHANNEL = mcp:<서버명>` |
+| 4 | 없음 | 위 3 개 모두 부재 | `VISUAL_CHANNEL = none` (degraded 모드) |
+
+`HAS_VISUAL_CHANNEL` = `VISUAL_CHANNEL != none`.
+
+**MCP 도구 이름을 추측하지 마라.** 프로젝트마다 등록된 서버와 도구 이름이 다르다. 설정 파일을
+읽어 확인된 이름만 사용하고, 확인되지 않으면 그 채널은 없는 것으로 취급한다 — 존재하지 않는
+도구를 호출한 뒤 실패를 "검증 완료" 로 넘기는 것이 `/insights` 2026-07-27 Friction #2 의 실제
+사고 경로였다.
+
+`HAS_VISUAL_CHANNEL = false` 이면 UI 스킬은 완료가 아니라 **부분 완료 + `[미검증]`** 으로 보고한다.
+
 ## 감지 결과 요약 템플릿
 
 스킬이 내부적으로 사용하는 감지 결과 형식:
@@ -146,6 +168,7 @@ Widget Base: {HookWidget|StatelessWidget|ConsumerWidget}
 State Management: {riverpod_codegen|riverpod_legacy|bloc|provider}
 Router: {go_router_builder|go_router|auto_route|none}
 i18n: {slang|easy_localization|intl|none}
+Visual Channel: {golden|integration_test|mcp:<서버명>|none}  # HAS_VISUAL_CHANNEL — UI 스킬 전용
 ```
 
 ## 스킬에서 참조하는 방법

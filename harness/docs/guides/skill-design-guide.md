@@ -1,7 +1,7 @@
 ---
 title: Claude Code 스킬 설계 가이드
-version: 1.3.1
-last_updated: 2026-06-05
+version: 1.4.0
+last_updated: 2026-07-27
 ---
 
 # Claude Code 스킬 설계 가이드
@@ -219,6 +219,53 @@ Good: 사용자 "X 함수 수정해" → Claude X 만 수정 → 인접 개선�
 ```
 
 **Cross-Surface Parity:** 본 원칙은 §11 parity 표 9 번째 항목 — agent-design-guide 의 평가자 행동 (허락 없는 평가 범위 확장 금지) 과 짝.
+
+---
+
+## 3.7. Completion Evidence Gate — 증거 없는 완료 주장 금지
+
+> **출처:** [From Confident Closing to Silent Failure — arxiv:2606.09863](https://arxiv.org/abs/2606.09863) · [Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405](https://arxiv.org/html/2607.07405v1) · [How Coding Agents Fail Their Users (20,574 세션) — arxiv:2605.29442](https://arxiv.org/abs/2605.29442) · [Skill Authoring Best Practices — Implement feedback loops / Create verifiable intermediate outputs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) · `/insights` 2026-07-27 Friction #2
+
+§3.6 이 "검증 기준을 **제공**하라" 였다면 본 섹션은 "증거 없이는 완료를 **선언하지 못하게** 하라" 다. 두 요구는 다르다 — 기준이 있어도 실행 증거 없이 완료가 선언되면 사용자가 유일한 검증자가 된다.
+
+### 왜 문장 규칙만으로는 안 되는가
+
+- 명시적 완료 주장을 포함한 자기평가 코딩 에이전트 궤적(AppWorld)에서 **실패의 75.8% 가 false success** — 실제로는 실패했는데 성공했다고 단언한 경우 — 였다 (arxiv 2606.09863). 판정에 쓰인 신호는 검증된 상태 변화가 아니라 "자신 있는 마무리 문장" 같은 표면 프록시였다.
+- 같은 연구에서 LLM 판정자는 5 개 모델 × 5 개 프롬프트 전략에서 **AUROC 0.54~0.65** 에 그쳤다 — 자기점검·LLM 재확인은 게이트가 아니다.
+- 실사용 20,574 세션 관측에서 전체 misalignment 비율은 내려가는데 **부정확한 자기보고(inaccurate self-reporting) 의 비중은 오히려 늘었고**, 가시적 해소의 91.49% 가 사용자의 명시적 교정을 필요로 했다 (arxiv 2605.29442).
+
+### Enforcement 3 등급 — 원칙을 "어떤 강도로" 구현할지 판정하라
+
+새 원칙을 스킬에 넣을 때는 문장으로 적을지, 아티팩트를 요구할지, 결정론적으로 막을지를 **먼저 정한다.**
+
+| 등급 | 형태 | 보장 수준 | 적합 |
+| ---- | ---- | --------- | ---- |
+| **E1 문장 규칙** | Gotchas/Process 의 서술문 | 통계적 개선만 | 최초 도입, 위반 이력 없음 |
+| **E2 체크리스트 아티팩트** | Claude 가 응답에 복사해 채우는 체크리스트, 또는 검증 전 생성하는 계획 파일 | 흔적이 남아 사후 대조 가능 (여전히 자기보고) | 다단계 워크플로우, 위반 1~2 회 재발 |
+| **E3 결정론적 게이트** | 스크립트/훅/CI — LLM 호출 없는 순수 판정 후 통과 전 진행 차단 | **per-run 보장** | 비가역·신뢰 손상 영역, 3 회 이상 재발 |
+
+**등급 승급 규칙:** 같은 위반이 **2 회 이상 재발하면 E1 → E2**, **3 회 이상이거나 비가역 변경·사용자 신뢰 손상이 걸리면 E2 → E3** 로 올린다. 재발했는데 같은 등급에서 문장만 다시 다듬는 것은 개선이 아니다.
+
+**E3 게이트의 정의 (arxiv 2607.07405):** `g(입력, 현재상태) → {통과, 거부}` 인 순수 함수. (a) 상태를 읽기만 하고 바꾸지 않는다 (b) LLM 을 호출하지 않는다 (c) 행위 **직전**에 실행된다 (d) 거부 시 구조화된 사유를 돌려준다. 이 논문에서 4 개 게이트 도입만으로 벤치마크 성공률이 29.6% → 42.0% (+12.4pp) 로 올랐고, k=5 반복 신뢰도(pass_k)는 8.0% → 26.0% 로 개선됐다. 프롬프트는 확률을 올릴 뿐이고 게이트는 **매 실행마다** 금지된 전이를 막는다.
+
+스킬에서 E3 는 보통 `scripts/validate_*.sh` + "검증 통과 전 다음 단계 진행 금지" 문구, 또는 `PreToolUse`/`PostToolUse` 훅으로 구현한다.
+
+### 스킬이 지켜야 할 5 조항
+
+1. **증거 블록 의무.** 산출물을 만드는 스킬은 완료 보고에 실행한 **명령과 그 출력**(또는 `파일:라인`) 을 포함한다. "동작한다", "정상 렌더링된다" 같은 서술만으로 완료를 선언하지 않는다.
+2. **증거는 자기보고가 아니라 도구 출력이어야 한다.** 스스로 "확인했다" 고 쓰는 문장은 증거가 아니다 (위 AUROC 0.54~0.65).
+3. **검증 불가 시 `[미검증]` 명시.** 인프라 부재·도구 미설치·런타임 미실행으로 검증이 불가하면 조용히 넘기지 말고 해당 항목에 `[미검증]` 마커와 사유 한 줄을 붙인다. **미검증 2 건 이상이면 완료가 아니라 부분 완료로 보고**한다. 마커·임계값은 agent-design-guide §10 "Unverifiable 조건 정책" 과 동일 규약을 쓴다 (용어 분기 금지).
+4. **렌더 가능한 산출물은 렌더 결과를 증거로 쓴다.** UI·문서·차트처럼 이미지로 만들 수 있는 산출물은 렌더 → 캡처 → 대조까지 수행한다 (공식 best practices "Use visual analysis"). 단 **스냅샷/캡처가 비어 있으면 그것은 PASS 증거가 아니라 검증 실패 신호**다 — 빈 결과를 "문제 없음" 으로 읽는 것이 Friction #2 의 실제 사고 형태였다 (빈 카탈로그를 MCP 스냅샷 근거로 "정상 렌더링" 이라 반복 주장).
+5. **피드백 루프를 닫는다.** 검증 스크립트가 있으면 `실행 → 실패 시 수정 → 재실행` 을 반복하고, 스킬 본문에 **"검증을 통과하기 전에는 다음 단계로 진행하지 않는다"** 를 명시한다 (공식 문서의 feedback loop 패턴).
+
+```text
+Bad:  구현 → "정상 동작 확인했습니다" (도구 출력 없음) → 사용자가 실제로는 깨져 있음을 발견
+Bad:  스냅샷 빈 화면 반환 → "렌더링 정상" 으로 해석 → 반복 주장 → 신뢰 손상
+Good: 구현 → 검증 명령 실행 → 출력 인용 → 실패분 수정 → 재실행 → 통과 후 완료 선언
+Good: 검증 불가 → "[미검증] MCP 미설정 — 시각 대조 불가" 명시 → 부분 완료로 보고
+```
+
+**Cross-Surface Parity:** 본 원칙은 §11 parity 표 5 번째 항목 — agent-design-guide §10 "Unverifiable 조건 정책" 의 스킬(생성) 측 짝이다. 평가자만 미검증을 표기하고 생성자는 표기하지 않으면, 평가 시점에야 미검증이 드러나 iteration 이 낭비된다.
 
 ---
 
@@ -493,6 +540,32 @@ Here's the actual information...
 **실패 사례 (insights-report 인용):** "Claude often commits to an approach (widget choice, contract wording, solution framing) without verifying against Figma tokens, existing code, or your actual intent, leading to rework cycles."
 
 Low-freedom 영역에서 "근사치로 추정" 또는 "아마도 이게 맞을 것 같다" 는 3+ iteration 재작업의 가장 큰 원인이다. 한 번의 enumerate 로 N 번의 왕복이 방지된다.
+
+### Counterpart Enumeration — 변경의 반대편을 열거하라
+
+> **출처:** `/insights` 2026-07-27 Friction #4 (풀스택 변경에서 클라이언트 누락) · [Skill Authoring Best Practices — Create verifiable intermediate outputs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
+
+Enumerate-before-Act 와 Pre-Edit Batch Audit (§3.6) 는 둘 다 **변경 대상 파일 안**을 훑는다. 그런데 반복 관찰된 실패는 대상 파일이 아니라 **그 변경을 소비하는 반대편**에서 났다 — 서버 API 계약을 바꾸고 클라이언트를 같은 스프린트에 반영하지 않는 형태다. UTC 직렬화 버그도 같은 계열이며, 사용자가 "당연히 클라까지 바꿔야지" 로 매번 개입해야 했다.
+
+**적용 대상 (아래 중 하나라도 건드리면 필수):**
+
+- API 계약 / 엔드포인트 시그니처 / 상태 코드
+- 직렬화 포맷 — JSON 스키마, 날짜·타임존 표현, enum 값, null 허용 여부
+- 공유 모델 · 공용 타입 · 생성 코드(OpenAPI, protobuf, codegen 산출물)
+- 공개 함수 시그니처 · 이벤트 페이로드 · DB 스키마
+
+**절차:**
+
+1. 편집 착수 **전**, 변경면(producer) 과 소비면(consumer) 파일을 **양쪽 다 경로로 열거**한다. 소비면을 못 찾겠으면 grep 으로 찾고, 그래도 없으면 "소비자 없음" 을 근거와 함께 명시한다 — 추측으로 넘어가지 않는다.
+2. 열거 결과를 계획 아티팩트(체크리스트 또는 계약 조건)로 남긴다. §3.7 등급 기준 **E2 이상** — 문장 다짐으로 처리하지 않는다.
+3. 한 스프린트에서 양쪽을 다 못 바꾸면, 남는 쪽을 `[미검증]` 이 아니라 **명시적 미완 항목**으로 보고한다 (조용한 반쪽 완료 금지).
+
+```text
+Bad:  서버 응답 필드 rename → 서버 코드만 수정 → "완료" → 클라이언트 런타임 파싱 실패
+Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경로 열거 → 체크리스트 합의 → 4 파일 일괄 수정
+```
+
+**부적합:** 소비자가 존재할 수 없는 순수 내부 리팩터링(private 함수 본문, 로컬 변수명). 이 경우 열거 단계는 noise 다.
 
 ---
 
@@ -853,14 +926,16 @@ sprint-contract/
 | 2 | 트리거 키워드 배타성 (substring 포함) | §4 (트리거 키워드 중복 방지) | §3 description 트리거 + §10 sibling agent 검사 |
 | 3 | 검증 가능한 성공 기준 | §3.6 (Give a way to verify) | §10 Reviewer L3 커버리지 |
 | 4 | Rule-by-rule audit before completion | §3.6 (Rule-by-Rule Audit) | §10 Reviewer 전수 대조 |
-| 5 | Unverifiable / degraded-mode 정책 | — (해당 없음 · 에이전트 전용) | §10 Unverifiable 조건 정책 |
+| 5 | Unverifiable / degraded-mode 정책 | §3.7 (Completion Evidence Gate — `[미검증]` 마커 · 2 건 임계) | §10 Unverifiable 조건 정책 |
 | 6 | Pre-Edit Batch Audit ↔ Self-Evaluator Rule-by-Rule | §3.6 (Pre-Edit Batch Audit) | §10 (Self-Evaluator Rule-by-Rule Audit) |
 | 7 | Pre-Sprint Sync Check | §9 (Pre-Sprint Sync Check) | — (멀티세션 sprint orchestrator 한정 · 단일 평가자 에이전트는 해당 없음) |
 | 8 | Hook-Triggered Auto-Correction | — (스킬은 훅을 직접 spawn 하지 않음 · 패턴은 agent 가이드 전용) | §6 패턴 7 |
 | 9 | Scope-Bound Edits ↔ Scope-Bound Evaluation | §3.6 (Scope-Bound Edits) | §10 (Reviewer 평가 범위 확장 금지) |
 | 10 | 반환 데이터 최소화 ↔ Fan-out 상한 / Exploration Budget | §9 (Long-Running Skills — 반환 데이터 최소화) | §7 (Fan-out 상한 · Exploration Budget) |
+| 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (Enforcement 3 등급 · 승급 규칙) | §6 패턴 7 (훅 = E3 게이트의 에이전트 측 구현체) |
+| 12 | Counterpart Enumeration | §5.5 (변경의 반대편 열거) | — (생성 측 전용 · 평가자는 계약 조건으로 수용) |
 
-Item 5 와 7 은 에이전트(평가자) 또는 멀티세션 orchestrator 행동에만 관련되어 skill-design-guide 에 존재하지 않는다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 10 은 토큰 경제 목적의 짝 원칙 — 스킬 측은 중첩 호출 반환 최소화, 에이전트 측은 fan-out 상한·exploration budget 으로 양쪽 존재. 이 예외들은 모두 문서화되었고 나머지 6 개 (1~4, 6, 10) 는 **양쪽 모두 존재** 한다.
+Item 7 은 멀티세션 orchestrator 행동에만 관련되어 agent-design-guide 에 대응이 없다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 12 는 코드를 생성·수정하는 측의 규율이라 평가자 가이드에 대응 섹션을 두지 않고, 대신 계약 조건으로 흡수한다. Item 10 은 토큰 경제 목적의 짝 원칙 — 스킬 측은 중첩 호출 반환 최소화, 에이전트 측은 fan-out 상한·exploration budget 으로 양쪽 존재. **Item 5 는 2026-07 사이클에서 "에이전트 전용" 에서 양면으로 전환되었다** — 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비되기 때문이다. 이 예외들(7, 8, 12)을 제외한 나머지 (1~6, 9~11) 는 **양쪽 모두 존재** 한다.
 
 ### 개정 시 체크리스트
 
@@ -891,7 +966,10 @@ skill-design-guide.md 를 편집할 때:
 | Reference 1-level deep | 참조 파일에서 또 참조하지 마라 |
 | 자유도 매칭 | high/medium/low freedom 을 태스크 취약성에 맞춰라 |
 | **Enumerate-before-Act** | low-freedom 영역은 선(先) 목록화 · 후(後) 편집 |
+| **Counterpart Enumeration** | 계약·직렬화·공유 모델 변경은 소비자 파일까지 양면 열거 |
 | **Rule-by-rule audit** | 완료 선언 전 규칙 전수 대조 패스 의무 |
+| **Completion Evidence Gate** | 도구 출력 증거 없는 완료 선언 금지 · 검증 불가 시 `[미검증]` 명시 |
+| **Enforcement 등급** | E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 등급을 올려라 |
 | Eval 먼저 | 최소 3개 평가를 문서보다 먼저 작성 |
 | MCP 도구 풀네임 | `ServerName:tool_name` 필수 |
 | **Substring 배타성** | 키워드 set intersection + substring containment 모두 공집합 |
@@ -917,3 +995,6 @@ skill-design-guide.md 를 편집할 때:
 - [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices)
 - [Codex CLI Agent Skills](https://developers.openai.com/codex/skills)
 - [skills.sh](https://skills.sh)
+- [From Confident Closing to Silent Failure: Characterizing False Success in LLM Agents — arxiv:2606.09863](https://arxiv.org/abs/2606.09863) (2026-06)
+- [Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405](https://arxiv.org/html/2607.07405v1) (2026-07)
+- [How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442](https://arxiv.org/abs/2605.29442) (2026-05)

@@ -48,6 +48,11 @@ PLACEHOLDER_GLOBS = ["skills/*/SKILL.md", "agents/*.md", "README.md", "reference
 # V5 단어 경계 패턴
 PLACEHOLDER_PATTERN = re.compile(r'\b(TODO|TBD|FIXME)\b', re.IGNORECASE)
 
+# V5 인라인 코드 스팬 (백틱). 금지 토큰을 **인용**하는 문장 —
+# 예: 동의어(`미확인`, `N/A`, `TBD`) 를 만들지 않는다 — 은 미완성 placeholder 가 아니다.
+# 따라서 백틱 안의 토큰은 검사·치환 양쪽에서 제외한다. ("인용은 백틱" 규약)
+INLINE_CODE_PATTERN = re.compile(r'`[^`]*`')
+
 # V4 키워드 추출 패턴 (3자 이상)
 KEYWORD_PATTERN = re.compile(r'["\']([^"\']{3,})["\']')
 
@@ -429,8 +434,32 @@ def check_v4_triggers(ctx: CheckContext) -> CheckResult:
 # V5 — see harness/docs/guides/plugin-validation-guide.md §3.5
 # ---------------------------------------------------------------------------
 
+def _strip_inline_code(line: str) -> str:
+    """인라인 코드 스팬을 같은 길이의 공백으로 치환한다 (컬럼 위치 보존)."""
+    return INLINE_CODE_PATTERN.sub(lambda m: " " * len(m.group(0)), line)
+
+
+def _sub_outside_inline_code(line: str, pattern: re.Pattern, replacement: str) -> str:
+    """인라인 코드 스팬 **바깥**에만 치환을 적용한다.
+
+    --fix 가 인용된 금지 토큰(백틱 안)을 변조하면 canonical 규약 문구가
+    조용히 깨진다. 그것을 막기 위해 코드 스팬은 원문 그대로 보존한다.
+    """
+    out: list[str] = []
+    pos = 0
+    for m in INLINE_CODE_PATTERN.finditer(line):
+        out.append(pattern.sub(replacement, line[pos:m.start()]))
+        out.append(m.group(0))
+        pos = m.end()
+    out.append(pattern.sub(replacement, line[pos:]))
+    return "".join(out)
+
+
 def check_v5_placeholders(ctx: CheckContext) -> CheckResult:
-    """SKILL.md, agents, README, references 에 TODO/TBD/FIXME 가 없는지 검증한다."""
+    """SKILL.md, agents, README, references 에 TODO/TBD/FIXME 가 없는지 검증한다.
+
+    백틱으로 인용된 토큰은 미완성 표식이 아니라 "쓰지 마라"는 규약 서술이므로 제외한다.
+    """
     result = CheckResult("V5", "placeholders")
     failures: list[str] = []
     checked_files: list[Path] = []
@@ -443,7 +472,7 @@ def check_v5_placeholders(ctx: CheckContext) -> CheckResult:
         lines = text.splitlines()
         file_hits: list[tuple[int, str]] = []
         for lineno, line in enumerate(lines, start=1):
-            if PLACEHOLDER_PATTERN.search(line):
+            if PLACEHOLDER_PATTERN.search(_strip_inline_code(line)):
                 file_hits.append((lineno, line.strip()))
 
         if file_hits:
@@ -453,7 +482,7 @@ def check_v5_placeholders(ctx: CheckContext) -> CheckResult:
                 for line in lines:
                     new_line = line
                     for pat, replacement in FIX_PLACEHOLDER_RULES:
-                        new_line = pat.sub(replacement, new_line)
+                        new_line = _sub_outside_inline_code(new_line, pat, replacement)
                     new_lines.append(new_line)
                 path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
                 ctx.invalidate(path)

@@ -3,6 +3,7 @@ feature: "설정 페이지 테마 선택"
 created: "2026-01-01 00:00"
 complexity: "단순"
 conditions: 5
+slug: "qaa-a"
 ---
 
 ## UI

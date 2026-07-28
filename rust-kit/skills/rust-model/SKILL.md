@@ -24,6 +24,12 @@ user-invocable: true
 - **인덱스 네이밍 컨벤션** — `idx_{table}_{columns}` 형식을 따라라(예: `idx_users_email`). 복합 인덱스는 `idx_orders_user_id_created_at`. 이름 없이 생성하면 DB가 자동 생성하는 이름이 DB 벤더마다 달라 마이그레이션 이식성이 깨진다.
 - **`DEFAULT` 값이 있는 컬럼 추가 시 `NOT NULL` 안전하게 적용** — 기존 테이블에 `NOT NULL` 컬럼을 추가하려면 반드시 `DEFAULT` 값을 함께 지정해라. `DEFAULT` 없이 `NOT NULL`을 추가하면 기존 행이 제약 위반으로 마이그레이션 자체가 실패한다.
 - **Enumerate-before-Act (skill-design-guide §5.5)** — 모델/마이그레이션을 생성하기 전에 기존 `migrations/` (또는 `migration/src/`) 와 entity/model 파일을 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 테이블이 이미 존재하는지, (b) 추가하려는 컬럼이 이미 있는지, (c) 같은 초(秒)에 충돌하는 마이그레이션 타임스탬프가 있는지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 SQL/모델을 생성한다. 선(先) 생성 후(後) 중복 발견은 이미 적용된 마이그레이션 수정 금지 규칙과 충돌하여 롤백이 불가능하다 (insights-report #1 wrong_approach·#3 excessive_changes 대응 — DB 스캐폴딩 임의 확장 차단). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+- **Counterpart Enumeration (skill-design-guide §5.5) — 스키마 변경의 소비면을 열거하라** — 컬럼 rename · 타입 변경 · nullable 변경 · enum variant 추가/삭제 · 테이블 rename 은 모델 파일 하나로 끝나지 않는다. 편집 착수 **전에** 아래를 경로로 열거하고 체크리스트 아티팩트(E2)로 남긴다:
+  - **producer**: 마이그레이션 SQL · entity/model 구조체 · repository 어댑터 쿼리
+  - **consumer**: 해당 컬럼을 읽는 모든 쿼리(`grep` 컬럼명) · 포트 trait 시그니처와 DTO · 직렬화 필드명(`#[serde(rename)]` 포함) · OpenAPI 스키마 · `.sqlx/` 오프라인 캐시(쿼리 변경 시 `cargo sqlx prepare` 재실행 필요) · 픽스처/시드 데이터 · **클라이언트 앱 모델**
+  - 소비자를 못 찾으면 grep 근거와 함께 "소비자 없음" 을 명시한다. 한 스프린트에서 다 못 바꾸면 남는 쪽을 **명시적 미완 항목**으로 보고한다 (조용한 반쪽 완료 금지). 출처: `/insights` 2026-07-27 Friction #4.
+- **라이브 DB 조회 불가 시 정적 대체 경로를 명시하라 (DA-01 대응)** — FK 액션(`ON DELETE CASCADE` 등) · 인덱스 · 제약 조건을 실제 DB 에 붙어 확인할 수 없을 때, 조용히 넘기지 말고 **마이그레이션 파일 정적 확인으로 대체**하고 `[정적]` 을 붙여 보고한다 (예: `[정적] migrations/20260709_chat_rooms.sql:12 — ON DELETE CASCADE 선언 확인 · 라이브 DB 미조회`). `[정적]` 은 보조 태그이며 `[미검증]` 을 대체하지 않는다 — 마이그레이션 파일조차 확인할 수 없으면 그건 `[미검증]` 이다. 2026-07 실측: "chat_rooms FK action 라이브 DB 조회 미수행 [미검증]" REJECT + 개선 제안 "마이그레이션 파일 코드 확인으로 대체 가능 여부 명시".
+- **편집 전 Read + 앵커 재확인** — 기존 모델/마이그레이션 파일을 수정할 때 파일을 열지 않고 Edit 하지 마라(`edit-before-read`). 특히 doc 주석(`///`)은 **바로 아래 항목에 붙는다** — 라인 번호만 보고 고치면 엉뚱한 필드의 문서를 바꾼다. 수정 대상 필드명과 그 위 주석 블록을 함께 읽어 대응 관계를 확인한 뒤 적용한다. 출처: 2026-07 실측 `wrong-line-doc-comment-fix`.
 - **요청한 컬럼/테이블만 생성 — 임의 확장 금지** — "테이블 1개 추가" 요청에 `created_at`/`updated_at`/소프트삭제/감사 컬럼·연관 인덱스·캐시 레이어를 요청 없이 덧붙이지 마라. 프로젝트 컨벤션상 표준 컬럼이 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응 — "체크 제거" 요청에 캐시·디렉토리 체크를 덧붙인 패턴의 DB 버전).
 
 # DB 모델 + 마이그레이션 생성 (SQLx 또는 SeaORM)

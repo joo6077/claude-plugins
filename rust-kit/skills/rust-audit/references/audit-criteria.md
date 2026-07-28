@@ -2,6 +2,15 @@
 
 rust-reviewer 에이전트가 사용하는 유일한 감사 기준. 카테고리별 PASS/FAIL 조건을 정의한다. 2026-04 갱신 — Rust 2024 Edition, Axum 0.8, SeaORM 1.1, Clippy pedantic 2026 lint 세트 (fit-pal workspace.lints 실무 기준).
 
+**적용 범위:** 아래 기준은 **cargo 가 관리하는 `.rs` 소스**에만 적용된다. 셸 스크립트 · compose ·
+CI YAML · 클라이언트 코드에는 적용하지 마라 (`unwrap()`/`println!` 같은 기준이 그 스택에는 존재할 수
+없어 항상 공허하게 통과한다). 스택별 대응 기준은 `rust-kit/references/project-detection.md` Step 0 표를
+따른다.
+
+**증거 유효성:** 각 기준을 PASS 로 확정하기 전에 `qa-evaluation-guide.md` §Evidence Validity Gate 의
+4 검사(비공백 · 활성화 · 반증 가능성 · 출처)를 통과시킨다. **0 매치 grep · 0 개 실행 테스트는 PASS
+근거가 아니다** — 대상 파일 수와 패턴 positive control 을 함께 기록해야 한다.
+
 ---
 
 ## 1. Ownership & Borrowing
@@ -42,7 +51,8 @@ rust-reviewer 에이전트가 사용하는 유일한 감사 기준. 카테고리
 | SQL injection | 문자열 보간 대신 파라미터 바인딩 사용 (`sqlx::query!` / `$1`, SeaORM `ColumnTrait::eq`) | SQLx docs + SeaORM docs |
 | 입력 검증 | 외부 입력(HTTP body, query param)에 `validator::Validate` 또는 명시적 길이/형식 검증이 있다 | fit-pal §API 설계 |
 | 민감정보 로깅 | 패스워드, 토큰, 개인정보가 `tracing` 필드에 그대로 기록되지 않는다 (마스킹 또는 redact) | fit-pal `CLAUDE.md` §12 준수 |
-| `println!` 금지 | 라이브러리 코드에 `println!`/`eprintln!`/`dbg!` 없다 — `tracing::info!`/`warn!`/`error!` 사용 | fit-pal `CLAUDE.md` §금지 사항 |
+| `println!` 금지 | 라이브러리 코드에 `println!`/`eprintln!`/`dbg!` 없다 — `tracing::info!`/`warn!`/`error!` 사용. **`.rs` 파일 한정 기준** (셸/CI 산출물에 적용 금지) | fit-pal `CLAUDE.md` §금지 사항 |
+| 의존성 취약점 | `cargo audit` 또는 `cargo deny check advisories` 를 **실행**하여 advisory 0 건. 실행 없이 `deny.toml` 존재만으로 PASS 처리 금지 | [RustSec Advisory DB](https://rustsec.org/) |
 
 ## 5. Performance
 
@@ -63,6 +73,9 @@ rust-reviewer 에이전트가 사용하는 유일한 감사 기준. 카테고리
 | 테스트 격리 | 테스트 간 상태 공유가 없다. 통합 테스트는 `serial_test` + TRUNCATE로 격리 | fit-pal `CLAUDE.md` §테스트 가능성 |
 | Mock 주입 가능성 | 라우터 상태가 `Arc<dyn Port>` 형태 trait object. 테스트 시 mock 교체 가능 | fit-pal `CLAUDE.md` §테스트 가능성 |
 | SeaORM MockDatabase | `HAS_SEAORM`이면 Docker 없는 단위 테스트에 `MockDatabase`를 활용하고 있다 | SeaORM 1.1 mock docs |
+| 실 DB 통합 테스트 존재 | mock 단위 테스트와 **별도로** 실제 엔진 대상 테스트가 있다 (`#[sqlx::test]` 또는 testcontainers). mock 은 SQL 정합성을 검증하지 못하므로 mock-only 는 FAIL | [SeaORM mock 한계](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) · [sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html) |
+| 테스트 실행 증거 | 감사 시 실행한 명령 · `running N tests` 의 N(>0) · 종료 코드가 근거에 기록돼 있다. N=0 은 PASS 가 아니라 타깃 필터/환경 오류 | [cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html) |
+| 마이그레이션 선적용 | 공유 DB 대상 통합 테스트가 있으면 스키마가 최신임을 확인했다 (`sqlx migrate info` pending 0 또는 마이그레이션 크레이트 실행). 컬럼 부재 실패를 코드 결함으로 오진하지 않는다 | [sqlx-cli](https://github.com/launchbadge/sqlx/blob/main/sqlx-cli/README.md) |
 
 ## 7. API Design
 

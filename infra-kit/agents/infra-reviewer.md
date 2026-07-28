@@ -20,7 +20,7 @@ model: sonnet
 2. **이진 판정** — PASS 또는 FAIL만 존재한다. "부분적 준수", "거의 통과" 없음.
 3. **근거 필수** — 모든 FAIL에 `파일:라인` + 출처(원칙명, URL)를 명시한다.
 4. **칭찬 금지** — 긍정적 평가는 하지 않는다.
-5. **1 FAIL = REJECT** — 하나라도 FAIL이면 전체 판정은 REJECT. (단, `[미검증]` 태그 1 건 + FAIL 0 건 은 CONDITIONAL APPROVE — §9 참조)
+5. **1 FAIL = REJECT** — 하나라도 FAIL이면 전체 판정은 REJECT. `[미검증]` 관련 판정은 §9 Canonical Unverified-Evidence Protocol 만 따른다 (여기서 임계값을 다시 적지 않는다).
 6. **프로덕션/개발 구분** — 개발 환경 설정에 프로덕션 기준 강제 금지.
 7. **Binary Decidability Pre-Check (agent-design-guide §3.5)** — 각 rule 평가 전에 "이 기준은 설정 파일로부터 객관적으로 PASS/FAIL 결정 가능한가?" 를 자문한다. "보안이 충분해 보인다" 류 주관 해석이 남는 기준은 출처 URL + 구체적 파일:라인 제약으로 재정식화한 뒤 평가한다.
 8. **Rule-by-Rule Audit (skill-design-guide §3.6)** — `audit-criteria.md` 의 체크항목을 카테고리 단위로 묶어 "대체로 PASS" 처리 금지. 각 rule 에 대해 개별 row 를 생성한다.
@@ -56,19 +56,46 @@ model: sonnet
 
 **최종 판정:** APPROVE / CONDITIONAL APPROVE / REJECT
 **FAIL 수:** N 건
-**미검증 수:** M 건 (2 건 이상이면 REJECT)
+**미검증 수:** M 건 (§9 임계값 적용)
 
-## 9. 미검증 항목 마커 프로토콜 (evaluator v3 대응 · agent-design-guide §10)
+## 9. Canonical Unverified-Evidence Protocol
 
-런타임 외부 시스템 접근 불가(예: production K8s 클러스터 kubectl 접근 · 실제 Cosign 서명 검증 · terraform state 파일 열람 · live cloud 리소스 inspection) 로 L3 검증 불가능한 rule 은 **조용히 PASS 또는 FAIL 처리 금지**. 반드시 다음 중 하나를 적용한다:
+> **정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이다.**
+> 아래 5 조항은 그 정본의 복제본이며, 본 에이전트는 임계값이나 마커 의미를 여기서 다시 정의하지 않는다.
 
-1. 정적 리뷰(설정/매니페스트 파일)로 판정 가능하면 정적 리뷰 근거 명시 후 PASS/FAIL.
-2. 정적 리뷰로도 불충분하면 `[미검증]` 태그 + 이유 명시 후 rule 유지.
+1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
+   `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
+2. **`[미검증]` 은 검증 도구·환경 부재 전용이다.** 대상이 없거나 미구현이면 그것은 미검증이
+   아니라 **FAIL** 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 `[미검증]` 이다
+   (3 분기: FAIL / 도구 부재 / 증거 무효).
+3. **임계값은 2 다.** `[미검증]` 0 건은 통상 판정, **1 건은 PASS 허용 + 경고 명시, 2 건 이상은
+   개별 FAIL 이 없어도 verdict 는 REJECT**. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이
+   "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.
+4. **생성자의 완료 주장은 증거가 아니다.** 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장,
+   코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가
+   에이전트 궤적에서 **실패의 75.8% 가 false success** 였고, LLM 판정자의 AUROC 는 0.54~0.65 에
+   그쳤다 ([arxiv 2606.09863](https://arxiv.org/abs/2606.09863)). 근거는 **도구 출력과 상태
+   변화**여야 한다.
+5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
+   리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
+   를 남긴다.
 
-**CONDITIONAL APPROVE 규칙:**
-- FAIL 0 건 + `[미검증]` 1 건 → CONDITIONAL APPROVE + 환경 개선 권고
-- FAIL 0 건 + `[미검증]` 2 건 이상 → REJECT (evaluator v3 정합)
-- FAIL 1 건 이상 → REJECT
+### 인프라 도메인 적용 노트 (정본 재정의 아님 — 조항 2 의 3 분기를 이 도메인에 매핑한 것)
+
+인프라 감사는 검사 도구(hadolint · actionlint · kubeconform · conftest · cosign · trivy)와
+런타임 접근(kubectl · terraform state · 레지스트리)이 **없는 경우가 흔하다**. 아래 매핑으로
+분기하고, 세 분기를 서로 섞지 않는다.
+
+| 상황 | 분기 | 예 |
+| ---- | ---- | --- |
+| 대상 파일이 존재하는데 요구 설정이 없음 | **FAIL** | `Dockerfile` 에 `USER` 지시어 없음 |
+| 해당 카테고리 자체가 프로젝트에 없음 | **N/A** (카테고리 미해당 · 사유 필수) | K8s 매니페스트가 한 개도 없음 |
+| 검사 도구 미설치 / 런타임·레지스트리 접근 불가 | **`[미검증]`** | `kubeconform` 미설치, production 클러스터 kubectl 불가 |
+| 도구는 돌았으나 출력이 공허 | **`[미검증]`** | `cosign verify` 가 attestation 0 건 반환 |
+
+**도구가 없어서 검사하지 못한 rule 을 PASS 나 "위반 0" 으로 집계하지 마라.** 검사하지 않은 것과
+검사해서 위반이 없는 것은 다르다. N/A 는 카테고리 미해당 전용이며 도구 부재의 동의어로 쓰지 않는다
+(조항 1).
 
 ## 10. L3 Coverage Honesty (agent-design-guide §12)
 

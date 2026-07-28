@@ -3,7 +3,9 @@
 
 수집 소스:
   1. 글로벌 feedback: ~/.harness/feedback/evaluator/*.yaml
-  2. Hub/10_Dev 내 .harness 디렉토리 보유 프로젝트들의 sprint-feedback + history
+     (레거시 project_name 은 명시 allowlist 로만 canonical 병합 — raw 분포도 함께 출력)
+  2. Hub/10_Dev 내 .harness 보유 프로젝트(2단계 깊이)의 sprint-feedback + history
+     plain `sprint-feedback.md` 와 접미형 `sprint-feedback-<slug>.md` 를 모두 수집
   3. docs/superpowers/followup-*.md 최근 파일
   4. 레포 자체의 .harness/history 최근 sprint-contract
   5. scripts/validate-plugin.py 최근 실행 결과 (옵션)
@@ -42,6 +44,100 @@ GLOBAL_FEEDBACK_DIR = Path.home() / ".harness" / "feedback" / "evaluator"
 INSIGHTS_PATH = Path.home() / ".claude" / "usage-data" / "report.html"
 INSIGHTS_FRESH_DAYS = 60  # 60일 초과 시 stale 경고
 INSIGHTS_VERY_FRESH_HOURS = 24  # 24시간 이내 = "방금 실행됨" 표시
+
+# canonical 기준 = **writer 쪽 identity**.
+#
+# `harness/scripts/save-feedback.sh` 가 앞으로 쓰는 project_name 은 CONTRACT_ROOT 의
+# **git root basename** 이다 (reflect-kit project-id 와 동일 규약). 집계 쪽이 이와 다른
+# 방향으로 정규화하면 같은 프로젝트가 "앞으로 쌓이는 버킷" 과 "이미 쌓인 버킷" 으로 영구
+# 분열한다. 그래서 이 allowlist 는 writer 가 산출할 이름으로 수렴시킨다.
+#
+# **명시 allowlist 전용이다. 이름 유사도/fuzzy 매칭을 도입하지 마라** —
+# 다른 프로젝트를 잘못 합칠 위험이 있다. 새 항목을 추가할 때는 아래 세 근거 중
+# 하나를 실측으로 확인하고 주석에 남긴다:
+#   (a) 동일 project_hash 를 canonical 이름과 공유한다
+#   (b) raw 이름이 canonical 이름을 리터럴 경로 성분으로 포함한다
+#   (c) raw 이름의 project_hash 가 sha256(실재 경로)[:8] 로 역산되고, 그 경로의
+#       git root basename 이 canonical 이름과 같다 (= writer 가 산출할 이름)
+#
+# 실측(2026-07-27, 글로벌 피드백 244건): project_hash 는 그 자체로 identity 가 아니다.
+#   - ea3aeacd 하나가 fit-pal / fit-pal-app / fit-pal-server 3개 이름에 걸침
+#   - claude-plugins 이름 하나에 해시 43종
+# 따라서 병합은 "해시가 같으니 같은 프로젝트" 가 아니라 (c) 처럼 **해시를 실재 경로로
+# 역산해 git root 를 확인**하거나 (a)/(b) 리터럴 근거가 있을 때만 한다.
+PROJECT_NAME_ALIASES: dict[str, str] = {
+    # (c) 실측 2026-07-28 — 세 이름의 해시가 전부 실재 경로로 역산되고, 그 경로들의
+    #     git root 가 모두 `/Users/jackson/Hub/10_Dev/fit-pal` 하나다
+    #     (app/ server/ 에 .git 없음 → `git rev-parse --show-toplevel` 이 fit-pal 반환):
+    #       sha256("…/fit-pal")[:8]        = ea3aeacd  → raw "fit-pal"
+    #       sha256("…/fit-pal/app")[:8]    = 19f8fc56  → raw "fit-pal-app", "fit-pal/app"
+    #       sha256("…/fit-pal/server")[:8] = 9d23407f  → raw "fit-pal-server",
+    #                                                     "fit-pal/server", "fitpal-server"
+    #     즉 save-feedback.sh 는 이 셋 모두에 대해 "fit-pal" 을 쓴다. 여기서도 fit-pal 로
+    #     모아야 신·구 데이터가 한 버킷에 남는다. 서브프로젝트 구분은 아래 canonical
+    #     그룹 멤버 내역 + raw 분포로 그대로 보존된다 (병합이 원본을 감추지 않는다).
+    "fit-pal/app": "fit-pal",
+    "fit-pal-app": "fit-pal",
+    "fit-pal/server": "fit-pal",
+    "fit-pal-server": "fit-pal",
+    "fitpal-server": "fit-pal",
+    # (b) 자유 서술형 project_name 이나 "claude-plugins" 를 리터럴 접두로 포함
+    "claude-plugins / react-kit phase10-research kaizen": "claude-plugins",
+    # (b) bambu-kit 은 claude-plugins 레포 내부 플러그인이다 (별도 레포 없음 — 실측).
+    "bambu-kit/bambu-print-profile": "claude-plugins",
+    "bambu-kit/bambu-print-profile v0.4.1": "claude-plugins",
+    "bambu-kit-v0.4.0-9mm-craft-knife": "claude-plugins",
+    # 의도적 미포함: "fit-pal-flutter" — 해시(13d29f62)가 실재 경로로 역산되지 않고
+    #   (`~/Hub/10_Dev/fit-pal-flutter` 부재 — 실측 2026-07-28), fit-pal 과 해시 공유도
+    #   경로 성분 관계도 없다. 이름만 비슷해서 합치는 것은 금지된 fuzzy 매칭이다.
+    #   raw 분포에 독립 그룹으로 그대로 남긴다.
+}
+
+# 결정론적 identity(save-feedback.sh 가 CONTRACT_ROOT 기준으로 계산) 도입 이후에만
+# 존재하는 필드들. 하나라도 있으면 신형 세대로 분류한다.
+DETERMINISTIC_IDENTITY_FIELDS = (
+    "draft_project_name",
+    "draft_project_hash",
+    "sprint_slug",
+    "contract_path",
+)
+
+
+def normalize_schema_version(raw: object) -> str:
+    """schema_version 을 비교 가능한 문자열로 정규화한다.
+
+    실측상 `1`(int) · `"1"` · `"1.0"` 세 표기가 섞여 있다. 셋 다 "1" 로 모은다.
+    """
+    if raw is None:
+        return "(없음)"
+    s = str(raw).strip()
+    if not s:
+        return "(없음)"
+    # "1.0" → "1" (trailing zero-only 소수부 제거)
+    if "." in s:
+        head, _, tail = s.partition(".")
+        if head.isdigit() and tail.strip("0") == "":
+            return head
+    return s
+
+
+def canonical_project_name(raw: str) -> tuple[str, bool]:
+    """raw project_name 을 canonical 이름으로 매핑한다.
+
+    Returns: (canonical, alias 적용 여부). allowlist 에 없으면 raw 를 그대로 돌려준다.
+    """
+    canon = PROJECT_NAME_ALIASES.get(raw)
+    if canon is None:
+        return raw, False
+    return canon, True
+
+
+def feedback_generation(data: dict) -> str:
+    """schema_version + 결정론적 identity 필드 유무로 피드백 세대를 구분한다."""
+    sv = normalize_schema_version(data.get("schema_version"))
+    if any(k in data for k in DETERMINISTIC_IDENTITY_FIELDS):
+        return f"v{sv} · deterministic-identity"
+    return f"v{sv} · legacy-identity"
 
 
 def _extract_html_text(html: str) -> str:
@@ -92,9 +188,19 @@ def collect_global_feedback() -> dict:
     """글로벌 evaluator 피드백 통계와 샘플을 수집한다."""
     result = {
         "total": 0,
+        "parse_failed": 0,
         "by_verdict": Counter(),
         "by_skill": Counter(),
-        "by_project": Counter(),
+        "by_project": Counter(),  # canonical (allowlist 병합 후)
+        "by_project_raw": Counter(),  # 원본 project_name (병합 전)
+        "canonical_members": defaultdict(Counter),  # canonical -> raw -> count
+        "by_schema_version": Counter(),  # 정규화된 schema_version
+        "by_schema_version_raw": Counter(),  # 원본 표기
+        "by_generation": Counter(),
+        "alias_hits": Counter(),  # 실제로 적용된 allowlist 항목
+        # save-feedback.sh 가 contract_path 를 추측한 건수 (true/false/미보유).
+        # 추론 귀속이 조용히 누적되면 피드백이 stale 계약에 붙는다 — 표면화한다.
+        "contract_path_inferred": Counter(),
         "reject_samples": [],
         "improvement_samples": [],
     }
@@ -108,18 +214,40 @@ def collect_global_feedback() -> dict:
         try:
             data = yaml.safe_load(f.read_text(encoding="utf-8"))
         except Exception:
+            result["parse_failed"] += 1
             continue
         if not isinstance(data, dict):
+            result["parse_failed"] += 1
             continue
 
         ev = data.get("evaluation", {}) or {}
         verdict = ev.get("verdict", "UNKNOWN")
         result["by_verdict"][verdict] += 1
         result["by_skill"][data.get("skill", "unknown")] += 1
-        result["by_project"][data.get("project_name", "unknown")] += 1
+
+        raw_name = str(data.get("project_name", "unknown"))
+        canon_name, aliased = canonical_project_name(raw_name)
+        result["by_project"][canon_name] += 1
+        result["by_project_raw"][raw_name] += 1
+        result["canonical_members"][canon_name][raw_name] += 1
+        if aliased:
+            result["alias_hits"][raw_name] += 1
+
+        if "contract_path" in data:
+            inferred = data.get("contract_path_inferred")
+            result["contract_path_inferred"][
+                "inferred(추측)" if inferred is True
+                else "explicit(명시)" if inferred is False
+                else "unknown(필드 없음 — 구버전)"
+            ] += 1
+
+        result["by_schema_version"][normalize_schema_version(data.get("schema_version"))] += 1
+        result["by_schema_version_raw"][repr(data.get("schema_version"))] += 1
+        result["by_generation"][feedback_generation(data)] += 1
 
         ts = str(data.get("timestamp", ""))[:10]
-        project = data.get("project_name", "?")
+        # 샘플은 원본 이름을 그대로 보존한다 (병합으로 출처를 감추지 않는다).
+        project = raw_name
 
         if verdict == "REJECT":
             for r in (ev.get("reject_reasons") or [])[:2]:
@@ -135,26 +263,89 @@ def collect_global_feedback() -> dict:
     return result
 
 
+FEEDBACK_DETAIL_LIMIT = 5  # details 블록으로 본문을 실어줄 최대 파일 수 (mtime 최신순)
+
+
+def collect_sprint_feedback(harness_dir: Path) -> list[dict]:
+    """`.harness` 안의 sprint-feedback 파일들을 수집한다.
+
+    병렬 스프린트 규약(SSOT §1)상 계약/피드백은 접미형이다:
+      - plain  : sprint-feedback.md          (슬러그 없는 스프린트 — 계속 유효)
+      - 접미형 : sprint-feedback-<slug>.md   (슬러그별 병렬 스프린트)
+    둘 다 수집한다. plain 을 먼저, 접미형은 mtime 최신순으로 이어붙인다.
+    """
+    found: list[dict] = []
+    if not harness_dir.is_dir():
+        return found
+
+    plain = harness_dir / "sprint-feedback.md"
+    suffixed = sorted(
+        (p for p in harness_dir.glob("sprint-feedback-*.md") if p.is_file()),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    ordered = ([plain] if plain.is_file() else []) + suffixed
+
+    for path in ordered:
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        lines = text.splitlines()
+        slug = path.stem[len("sprint-feedback-"):] if path.name != "sprint-feedback.md" else None
+        found.append(
+            {
+                "file": path.name,
+                "slug": slug,
+                "lines": len(lines),
+                "head": "\n".join(lines[:20]),
+                "mtime": datetime.datetime.fromtimestamp(path.stat().st_mtime).isoformat(
+                    timespec="seconds"
+                ),
+            }
+        )
+    return found
+
+
 def collect_hub_projects(hub_dir: Path) -> list[dict]:
-    """Hub/10_Dev 내 .harness 디렉토리 보유 프로젝트 정보를 수집한다."""
+    """Hub/10_Dev 내 .harness 디렉토리 보유 프로젝트 정보를 수집한다.
+
+    중첩 배포본(`fit-pal/app`, `fit-pal/server` 등)도 독립 CONTRACT_ROOT 이므로
+    2단계 깊이까지 스캔한다 (SSOT §CONTRACT_ROOT 해석 v5.2).
+
+    판정 기준은 `.harness/` 디렉토리 존재 자체다 — `project.yaml` 유무가 아니다.
+    `project.yaml` 이 없는 배포본(실측: purchase-bot · flutter_playwright ·
+    apps/apps/app_kiosk)도 계약·피드백을 갖고 있으므로 제외하면 집계에서 통째로 누락된다.
+    """
     projects: list[dict] = []
     if not hub_dir.exists():
         return projects
 
-    for harness_dir in sorted(hub_dir.glob("*/.harness")):
+    seen: set[Path] = set()
+    candidates = sorted(set(hub_dir.glob("*/.harness")) | set(hub_dir.glob("*/*/.harness")))
+    for harness_dir in candidates:
+        if not harness_dir.is_dir():
+            continue
         project_path = harness_dir.parent
-        name = project_path.name
-        if name == REPO_ROOT.name:
+        resolved = project_path.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        if resolved == REPO_ROOT.resolve() or project_path.name == REPO_ROOT.name:
             continue  # 현재 레포 자신은 별도 처리
+
+        try:
+            name = str(project_path.relative_to(hub_dir))
+        except ValueError:
+            name = project_path.name
 
         entry = {"name": name, "path": str(project_path)}
 
-        sf = harness_dir / "sprint-feedback.md"
-        if sf.exists():
-            text = sf.read_text(encoding="utf-8", errors="replace")
-            lines = text.splitlines()
-            entry["sprint_feedback_lines"] = len(lines)
-            entry["sprint_feedback_head"] = "\n".join(lines[:20])
+        feedbacks = collect_sprint_feedback(harness_dir)
+        entry["feedback_files"] = feedbacks
+        entry["feedback_count"] = len(feedbacks)
+        entry["feedback_slugs"] = [f["slug"] for f in feedbacks if f["slug"]]
+        entry["sprint_feedback_lines"] = sum(f["lines"] for f in feedbacks)
 
         history = harness_dir / "history"
         if history.exists():
@@ -280,11 +471,92 @@ def render_data_pool(
         lines.append(f"- `{s}`: {c}")
     lines += [
         "",
-        "### Project 분포",
+        "### Project 분포 (canonical — allowlist 병합 후)",
+        "",
+        "canonical 기준은 **writer 쪽 identity** 다 — `harness/scripts/save-feedback.sh` 가 "
+        "CONTRACT_ROOT 의 git root basename 으로 계산하는 이름. 집계가 다른 방향으로 정규화하면 "
+        "같은 프로젝트가 신·구 버킷으로 영구 분열하므로 writer 에 맞춘다 "
+        "(예: `fit-pal/app`·`fit-pal/server` 는 .git 이 없어 git root 가 `fit-pal` 하나다).",
+        "",
+        "병합은 `PROJECT_NAME_ALIASES` **명시 allowlist** 로만 한다. 이름 유사도/fuzzy 매칭은 "
+        "쓰지 않는다. 병합된 그룹은 서브프로젝트 구분이 사라지지 않도록 원본 이름 내역을 "
+        "`←` 뒤에 함께 보여준다.",
         "",
     ]
+    members_map = global_fb.get("canonical_members", {})
     for p, c in global_fb["by_project"].most_common():
-        lines.append(f"- `{p}`: {c}")
+        members = members_map.get(p, Counter())
+        if len(members) > 1:
+            detail = ", ".join(f"`{m}` {n}" for m, n in members.most_common())
+            lines.append(f"- `{p}`: {c}  ← {detail}")
+        else:
+            lines.append(f"- `{p}`: {c}")
+
+    lines += [
+        "",
+        "### Project 분포 (raw `project_name` — 병합 전 원본)",
+        "",
+        "병합이 원본을 감추지 않도록 그대로 남긴다. "
+        "canonical 과 raw 개수가 다르면 그 차이가 곧 레거시 표기 흔들림의 규모다.",
+        "",
+    ]
+    for p, c in global_fb["by_project_raw"].most_common():
+        alias_of, aliased = canonical_project_name(p)
+        suffix = f"  → merged into `{alias_of}`" if aliased else ""
+        lines.append(f"- `{p}`: {c}{suffix}")
+
+    raw_names = len(global_fb["by_project_raw"])
+    canon_names = len(global_fb["by_project"])
+    lines += [
+        "",
+        f"- raw 이름 종류: **{raw_names}** → canonical 그룹: **{canon_names}** "
+        f"(allowlist 적용 파일 {sum(global_fb['alias_hits'].values())}건)",
+    ]
+    unused_aliases = [k for k in PROJECT_NAME_ALIASES if k not in global_fb["by_project_raw"]]
+    if unused_aliases:
+        lines.append(
+            "- ⚠ 미적중 allowlist 항목 (데이터에 없음 — 정리 후보): "
+            + ", ".join(f"`{k}`" for k in unused_aliases)
+        )
+
+    lines += [
+        "",
+        "### schema_version / 세대 분포",
+        "",
+        "`schema_version` 과 결정론적 identity 필드"
+        f"({', '.join('`' + f + '`' for f in DETERMINISTIC_IDENTITY_FIELDS)}) 유무로 신·구 피드백을 구분한다. "
+        "`legacy-identity` 는 `project_name`/`project_hash` 가 cwd 기준으로 계산되던 시기의 기록이라 "
+        "위 raw 분포의 표기 흔들림 원인이 된다.",
+        "",
+    ]
+    for sv, c in global_fb["by_schema_version"].most_common():
+        lines.append(f"- schema_version `{sv}`: {c}")
+    raw_sv = global_fb.get("by_schema_version_raw", Counter())
+    if len(raw_sv) > 1:
+        lines.append(
+            "  - 정규화 전 원본 표기: "
+            + ", ".join(f"`{sv}` {c}" for sv, c in raw_sv.most_common())
+        )
+    lines.append("")
+    for gen, c in global_fb["by_generation"].most_common():
+        lines.append(f"- {gen}: {c}")
+
+    cpi = global_fb.get("contract_path_inferred", Counter())
+    if cpi:
+        lines += [
+            "",
+            "#### `contract_path` 귀속 근거",
+            "",
+            "`save-feedback.sh` 는 `HARNESS_CONTRACT` / draft 값이 없으면 계약 경로를 **추측**하고 "
+            "`contract_path_inferred: true` 를 남긴다. `inferred` 비율이 높으면 피드백이 stale 한 "
+            "plain 계약에 오귀속되고 있을 수 있다.",
+            "",
+        ]
+        for kind, c in cpi.most_common():
+            lines.append(f"- {kind}: {c}")
+
+    if global_fb.get("parse_failed"):
+        lines.append(f"- ⚠ 파싱 실패(집계 제외): {global_fb['parse_failed']}")
 
     lines += ["", "### 최근 REJECT 사유 (Top 20)", ""]
     for ts, proj, reason in global_fb["reject_samples"]:
@@ -302,22 +574,53 @@ def render_data_pool(
         f"- 발견된 프로젝트: **{len(hub_projects)}**",
         "",
     ]
+    total_feedback_files = sum(p.get("feedback_count", 0) for p in hub_projects)
+    total_slugged = sum(len(p.get("feedback_slugs", [])) for p in hub_projects)
+    lines += [
+        f"- 수집된 sprint-feedback 파일: **{total_feedback_files}** "
+        f"(그중 접미형 `sprint-feedback-<slug>.md`: **{total_slugged}**)",
+        "",
+    ]
     for proj in hub_projects:
+        feedbacks = proj.get("feedback_files", [])
         lines += [
             f"### `{proj['name']}`",
             "",
             f"- 경로: `{proj['path']}`",
-            f"- sprint-feedback.md: {proj.get('sprint_feedback_lines', 0)} lines",
+            f"- sprint-feedback 파일: {len(feedbacks)}개 "
+            f"(총 {proj.get('sprint_feedback_lines', 0)} lines)",
             f"- history sprint-contracts: {proj.get('history_count', 0)}",
         ]
+        if proj.get("feedback_slugs"):
+            lines.append("- 접미형 슬러그: " + ", ".join(f"`{s}`" for s in proj["feedback_slugs"]))
         if proj.get("recent_contracts"):
             lines.append("- 최근 contracts:")
             for c in proj["recent_contracts"]:
                 lines.append(f"  - {c}")
-        if proj.get("sprint_feedback_head"):
-            lines += ["", "<details><summary>sprint-feedback.md 앞부분</summary>", "", "```markdown"]
-            lines.append(proj["sprint_feedback_head"])
-            lines += ["```", "", "</details>", ""]
+        if feedbacks:
+            lines.append("- 파일별 내역:")
+            for fb in feedbacks:
+                tag = f"slug=`{fb['slug']}`" if fb["slug"] else "plain (슬러그 없음)"
+                lines.append(f"  - `{fb['file']}` — {tag}, {fb['lines']} lines, mtime {fb['mtime']}")
+        for fb in feedbacks[:FEEDBACK_DETAIL_LIMIT]:
+            if not fb["head"].strip():
+                continue
+            lines += [
+                "",
+                f"<details><summary>{fb['file']} 앞부분</summary>",
+                "",
+                "```markdown",
+                fb["head"],
+                "```",
+                "",
+                "</details>",
+            ]
+        if len(feedbacks) > FEEDBACK_DETAIL_LIMIT:
+            lines.append(
+                f"- (본문 미리보기는 최신 {FEEDBACK_DETAIL_LIMIT}개만 표시 — "
+                f"나머지 {len(feedbacks) - FEEDBACK_DETAIL_LIMIT}개는 위 파일별 내역 참조)"
+            )
+        lines.append("")
 
     lines += [
         "",
@@ -460,7 +763,19 @@ def main() -> None:
         f"APPROVE {global_fb['by_verdict'].get('APPROVE', 0)})",
         file=sys.stderr,
     )
-    print(f"  - hub projects: {len(hub_projects)}개", file=sys.stderr)
+    print(
+        f"  - project_name: raw {len(global_fb['by_project_raw'])}종"
+        f" → canonical {len(global_fb['by_project'])}종"
+        f" (allowlist 적용 {sum(global_fb['alias_hits'].values())}건)",
+        file=sys.stderr,
+    )
+    fb_total = sum(p.get("feedback_count", 0) for p in hub_projects)
+    fb_slugged = sum(len(p.get("feedback_slugs", [])) for p in hub_projects)
+    print(
+        f"  - hub projects: {len(hub_projects)}개"
+        f" · sprint-feedback {fb_total}개 (접미형 {fb_slugged}개)",
+        file=sys.stderr,
+    )
     print(f"  - followups: {len(followups)}개", file=sys.stderr)
     print(f"  - local contracts: {len(local_contracts)}개", file=sys.stderr)
 

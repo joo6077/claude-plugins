@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual Evidence Protocol — Flutter Toolkit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(34,211,238,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(34,211,238,0.03) 0%,transparent 50%);
+}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+.hero{padding:60px 0 48px;text-align:center}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
+  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
+h1{font-size:clamp(2.1rem,4vw+1rem,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.subtitle{font-size:1.08rem;color:var(--text2);max-width:740px;margin:0 auto 18px;line-height:1.7}
+.hero-meta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero-meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);
+  min-height:24px;display:inline-flex;align-items:center}
+
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.45rem,2.5vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:780px;line-height:1.75;margin-bottom:32px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:26px;transition:var(--transition);margin-bottom:16px}
+.card:hover{border-color:rgba(34,211,238,0.3)}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.card p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;
+  color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;
+  min-height:24px;transition:var(--transition)}
+.card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.card-source::before{content:'↗';font-weight:800}
+
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--surface2)}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
+  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(34,211,238,0.04)}
+
+code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent2)}
+.code-block{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:10px 0}
+
+.steps{display:flex;flex-direction:column;gap:14px;margin:20px 0}
+.step{display:grid;grid-template-columns:52px 1fr;gap:18px;padding:22px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
+.step:hover{border-color:rgba(34,211,238,0.3)}
+.step-num{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:11px;
+  background:var(--accent-dim);color:var(--accent);font-weight:800;font-size:15px}
+.step-degraded .step-num{background:rgba(248,113,113,0.14);color:var(--red)}
+.step h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+.step p{font-size:0.89rem;color:var(--text2);line-height:1.75}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:860px;margin-top:14px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:0.9rem;color:var(--text2);line-height:1.7;
+  padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
+.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
+
+.danger{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.danger-title{font-size:13px;font-weight:800;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.danger p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.warn{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.warn-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.warn p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+
+.footer{margin-top:60px;padding:32px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.footer a:hover{color:var(--accent2)}
+.footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+</style>
+  <!-- kaizen-cycle: 2026-07-27 (신규 SSOT — Friction #2 대응) -->
+</head>
+<body>
+<div class="page">
+
+<div class="hero">
+  <div class="hero-badge">Flutter Toolkit · SSOT · E2</div>
+  <h1>Visual Evidence Protocol</h1>
+  <p class="subtitle">UI 를 만들거나 고치는 flutter-toolkit 스킬(<code>flutter-widget</code> · <code>flutter-screen</code> · <code>flutter-skeleton</code> · <code>flutter-transition</code> · <code>flutter-responsive</code>)이 <strong>완료를 선언하기 직전</strong>에 실행하는 증거 규약이다.</p>
+  <div class="hero-meta">
+    <span>v1.0.0</span>
+    <span>2026-07-27</span>
+    <span>enforcement: E2 (체크리스트 아티팩트)</span>
+  </div>
+</div>
+
+<!-- SCOPE -->
+<div class="section">
+  <div class="section-label">Scope</div>
+  <div class="section-title">적용 대상 스킬 5 종</div>
+  <p class="section-desc">UI 를 만들거나 고치는 flutter-toolkit 스킬이 대상이다. 이 스킬들은 완료 선언 전에 반드시 아래 Step 0~4 를 통과하고 Visual Evidence Block 을 채운다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>flutter-widget</code></div>
+      <p>커스텀 위젯 생성 — 신규 위젯도 렌더 결과를 대조한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>flutter-screen</code></div>
+      <p>Screen/Page 위젯 생성 + 라우터 등록.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>flutter-skeleton</code></div>
+      <p>스켈레톤 shimmer 로딩 UI — 빈 화면과 스켈레톤을 혼동하기 가장 쉬운 스킬이다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>flutter-transition</code></div>
+      <p>커스텀 페이지 전환 애니메이션.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>flutter-responsive</code></div>
+      <p>반응형 레이아웃 적용 — breakpoint 별 캡처가 필요하다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>실행 시점</div>
+      <p><strong>완료를 선언하기 직전.</strong> 편집 중이 아니라 보고 직전에 이 규약을 통과해야 한다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SSOT -->
+<div class="section">
+  <div class="section-label">Upstream SSOT</div>
+  <div class="section-title">여기서 임계값이나 마커 의미를 재정의하지 않는다</div>
+  <p class="section-desc">이 문서는 상위 정의를 인용해서 쓰는 실행 규약이다. 마커·임계값·등급의 정의는 harness 가이드가 SSOT 다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>마커 · 임계값</div>
+      <p><code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol</p>
+      <a class="card-source" href="../harness/qa-evaluation-guide.html">QA Evaluation Guide</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>증거 유효성</div>
+      <p>같은 문서 §Evidence Validity Gate — 유효성 4 검사(비공백 · 활성화 · 반증 가능성 · 출처)</p>
+      <a class="card-source" href="../harness/qa-evaluation-guide.html">Evidence Validity Gate</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>등급 (E1/E2/E3)</div>
+      <p><code>harness/docs/guides/skill-design-guide.md</code> §3.7 Completion Evidence Gate</p>
+      <a class="card-source" href="../harness/skill-design-guide.html">Skill Design Guide §3.7</a>
+    </div>
+  </div>
+</div>
+
+<!-- WHY -->
+<div class="section">
+  <div class="section-label">Background</div>
+  <div class="section-title">왜 필요한가 — Friction #2</div>
+  <p class="section-desc"><code>/insights</code> 2026-07-27 (53 일 · 51 세션) 에서 <strong>Friction #2 "시각·런타임 검증을 신뢰할 수 없음"</strong> 이 신규 최상위 마찰로 올라왔고, <strong>관측된 사례가 전부 Flutter</strong> 였다.</p>
+  <ul class="checklist">
+    <li><span class="check">!</span>빈 카탈로그 화면의 스냅샷을 근거로 "정상 렌더링" 을 <strong>반복 주장</strong>. 실제 원인은 unbounded-height <code>ListView</code> collapse 였다. <strong>사용자 신뢰가 손상되어 욕설로 끝난 세션이 2 건</strong> 발생했다</li>
+    <li><span class="check">!</span>AOT 빌드 + multi-VM vmservice race 로 런타임 검증 자체가 실패 → 검증 부담이 전부 사용자에게 전가</li>
+    <li><span class="check">!</span>사용자가 "MCP 를 UI/e2e 검증에 쓰지 않는 재발 습관을 영구히 고쳐달라" 는 <strong>전용 세션을 개설</strong></li>
+  </ul>
+  <div class="danger">
+    <div class="danger-title">사고의 실제 형태</div>
+    <p>문제는 "증거가 없다" 가 아니라 <strong>"증거가 있는데 아무것도 입증하지 않는다"</strong> 였다. <strong>빈 캡처를 "문제 없음" 으로 읽는 것</strong>이 사고의 실제 형태다.</p>
+  </div>
+</div>
+
+<!-- STEP 0 -->
+<div class="section">
+  <div class="section-label">Step 0</div>
+  <div class="section-title">무엇을 바꾸는지 먼저 확정한다</div>
+  <p class="section-desc">편집을 시작하기 전에 다음 3 줄을 응답에 남긴다. <strong>시각 작업은 말이 의도를 충분히 규정하지 못한다.</strong></p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h3>대상</h3>
+        <p>바꿀 위젯을 <code>파일:라인</code> 으로 지목한다 (신규 생성이면 "신규" 라고 명시).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>바꿀 것 / 바꾸지 않을 것</h3>
+        <p>색상·크기·모션·레이아웃 중 <strong>유지할 속성을 열거</strong>한다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>교체 여부</h3>
+        <p>기존 위젯을 Flutter 기본 위젯이나 다른 컴포넌트로 <strong>교체</strong>하려면 편집 전에 승인을 받는다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="warn">
+    <div class="warn-title">기본값은 기존 위젯 수정이다</div>
+    <p>"아이콘이 회전했으면 좋겠다" 는 <strong>그 아이콘을 회전시키라는 뜻</strong>이지 <code>CircularProgressIndicator</code> 를 새로 만들라는 뜻이 아니다.</p>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="section">
+  <div class="section-label">Step 1</div>
+  <div class="section-title">시각 검증 채널 결정 (프로젝트 감지 기반)</div>
+  <p class="section-desc"><strong>특정 MCP 서버 이름이나 도구 이름을 가정하지 마라. 프로젝트마다 다르다.</strong> <code>references/project-detection.md</code> 실행 후 아래 순서로 <strong>실제로 존재하는 채널</strong>을 고른다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>우선</th><th>채널</th><th>감지 방법</th><th>산출 증거</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>golden test</td><td><code>test/</code> 에 <code>matchesGoldenFile</code> 사용처가 있거나 <code>test/**/*golden*</code> 존재</td><td><code>$FLUTTER test</code> 출력 + 실패 시 생성되는 diff 이미지</td></tr>
+        <tr><td>2</td><td>integration_test 스크린샷</td><td><code>integration_test/</code> 디렉토리 존재</td><td><code>takeScreenshot</code> 산출 PNG</td></tr>
+        <tr><td>3</td><td>프로젝트 등록 MCP</td><td><code>.mcp.json</code> · <code>.claude/settings.json</code> · <code>.claude/settings.local.json</code> 의 <code>mcpServers</code> 키를 <strong>읽어서</strong> 사용 가능한 서버명을 확인</td><td>스냅샷/스크린샷</td></tr>
+        <tr><td>4</td><td>없음</td><td>위 3 개 모두 부재</td><td><strong>degraded 모드</strong> — Step 4 로</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><code>HAS_VISUAL_CHANNEL</code></div>
+    <code class="code-block">HAS_VISUAL_CHANNEL = (1~3 중 하나라도 사용 가능)</code>
+    <a class="card-source" href="project-detection.html">project-detection.md Step 8 — 채널 감지의 전제 절차</a>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="section">
+  <div class="section-label">Step 2</div>
+  <div class="section-title">baseline → 변경 → 재캡처 → 대조</div>
+  <p class="section-desc"><code>HAS_VISUAL_CHANNEL = true</code> 일 때만 수행한다.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h3>baseline 캡처</h3>
+        <p>캡처한 것을 한 문장으로 <strong>서술</strong>한다 — 본 것을 적는다. "정상" 같은 판정이 아니라 <strong>"카드 3 행 · 헤더 텍스트 '내 그룹' · 하단 여백 있음"</strong> 처럼 요소를 지목한다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>한 번에 하나의 의도만 편집</h3>
+        <p>여러 변경을 묶으면 재캡처 차이가 무엇 때문인지 <strong>귀속되지 않는다</strong>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>재캡처</h3>
+        <p>변경 후 같은 채널로 다시 캡처한다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <h3>대조</h3>
+        <p>Step 0 에서 "바꾸지 않을 것" 으로 열거한 속성이 그대로인지 확인한다. <strong>의도 외 영역이 변했으면 self-reject 하고 되돌린 뒤 다시 시도</strong>한다 (최대 3 회, 이후 사용자 에스컬레이션).</p>
+      </div>
+    </div>
+  </div>
+  <p class="section-desc" style="margin-bottom:0">Figma 시안 대조처럼 수치 수렴이 필요한 작업은 이 규약을 만족한 뒤 <code>references/figma-parity-self-verify.md</code> 의 SSIM 루프로 이어간다.</p>
+</div>
+
+<!-- STEP 3 -->
+<div class="section">
+  <div class="section-label">Step 3</div>
+  <div class="section-title">증거 유효성 (PASS 확정 전 필수)</div>
+  <p class="section-desc"><strong>캡처를 얻었다는 것만으로 PASS 가 아니다.</strong> <code>qa-evaluation-guide.md §Evidence Validity Gate</code> 4 검사를 그대로 적용한다. 시각 산출물에서 특히 자주 깨지는 것은 <strong>검사 1(비공백)·2(활성화)</strong> 다.</p>
+  <ul class="checklist">
+    <li><span class="check">!</span><strong>빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 검증 실패 신호다.</strong> "요소가 안 보이니 문제도 없다" 는 invalid absence 이며, Friction #2 의 실제 사고 형태였다</li>
+    <li><span class="check">·</span>캡처에서 조건이 요구하는 <strong>구체 요소를 지목</strong>해 근거에 쓴다. 지목할 수 없으면 그 캡처는 무효 증거다</li>
+    <li><span class="check">·</span>캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 PASS 가 아니라 <code>[미검증]</code> 이다</li>
+  </ul>
+</div>
+
+<!-- STEP 4 -->
+<div class="section">
+  <div class="section-label">Step 4</div>
+  <div class="section-title">degraded 모드 — 멈추고 말하라, 추측하지 마라</div>
+  <p class="section-desc"><code>HAS_VISUAL_CHANNEL = false</code> 이거나 캡처가 실패한 경우의 절차다.</p>
+  <div class="steps">
+    <div class="step step-degraded">
+      <div class="step-num">1</div>
+      <div>
+        <h3><code>[미검증]</code> 마커 + 사유 한 줄</h3>
+        <p>예: <code>[미검증] 시각 검증 채널 없음 — golden/integration_test/MCP 모두 부재</code></p>
+      </div>
+    </div>
+    <div class="step step-degraded">
+      <div class="step-num">2</div>
+      <div>
+        <h3>시도한 fallback 단계를 남긴다</h3>
+        <p>어떤 채널을 어떤 순서로 확인했는지 기록한다.</p>
+      </div>
+    </div>
+    <div class="step step-degraded">
+      <div class="step-num">3</div>
+      <div>
+        <h3>서술로 완료를 대체하지 않는다</h3>
+        <p>"정상 동작합니다" / "정상 렌더링됩니다" 같은 문장은 증거가 아니다.</p>
+      </div>
+    </div>
+    <div class="step step-degraded">
+      <div class="step-num">4</div>
+      <div>
+        <h3>확인 요청을 1~3 개로 좁혀 제시</h3>
+        <p>사용자에게 확인이 필요한 지점을 구체적으로 제시한다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="warn">
+    <div class="warn-title">임계값은 canonical 을 따른다</div>
+    <p><code>[미검증]</code> <strong>1 건은 경고 명시 후 진행 가능</strong>, <strong>2 건 이상이면 완료가 아니라 부분 완료</strong>로 보고한다.</p>
+  </div>
+</div>
+
+<!-- EVIDENCE BLOCK -->
+<div class="section">
+  <div class="section-label">Artifact (E2)</div>
+  <div class="section-title">Visual Evidence Block — 완료 보고에 복사해 채운다</div>
+  <p class="section-desc">이 블록이 이 규약의 E2 아티팩트다. 채우지 못한 항목이 있으면 그 상태로 완료를 선언하지 않는다.</p>
+  <code class="code-block">## Visual Evidence
+- 대상: &lt;파일:라인 또는 "신규"&gt;
+- 유지할 속성: &lt;색상/크기/모션/레이아웃 중 열거&gt;
+- 채널: &lt;golden | integration_test | mcp:&lt;서버명&gt; | none&gt;
+- baseline: &lt;본 것을 요소 단위로 서술 | [미검증] 사유&gt;
+- 재캡처: &lt;본 것을 요소 단위로 서술 | [미검증] 사유&gt;
+- 대조 결과: &lt;의도한 변경만 발생 | 의도 외 변경 발견 → self-reject N회&gt;
+- 미검증: N 건 [항목 — 사유 — 시도한 fallback]</code>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <code class="code-block">위젯 수정 → "다크 모드에서도 정상적으로
+보입니다" (캡처 없음)
+
+스냅샷이 빈 화면 반환 → "렌더링 정상" 으로
+해석 → 반복 주장 → 신뢰 손상</code>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <code class="code-block">baseline 캡처("카드 3행·헤더 '내 그룹'")
+→ 보더만 변경 → 재캡처
+→ 배경색 동일 확인 → 완료
+
+채널 없음 → "[미검증] 시각 검증 채널 부재"
+명시 → 부분 완료로 보고 + 확인 요청 2건 제시</code>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="section">
+  <div class="section-label">Summary</div>
+  <div class="section-title">규약 요약 — Step 0 ~ 4</div>
+  <p class="section-desc">한 화면에서 확인하는 실행 순서다. 각 Step 의 산출물이 다음 Step 의 입력이 된다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Step</th><th>무엇을 하는가</th><th>산출물</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0</strong></td><td>대상 · 유지할 속성 · 교체 여부 3 줄을 응답에 남긴다</td><td>편집 범위 선언 (기본값: 기존 위젯 수정)</td></tr>
+        <tr><td><strong>1</strong></td><td>golden → integration_test → 프로젝트 등록 MCP 순으로 실제 존재하는 채널을 고른다</td><td><code>VISUAL_CHANNEL</code> · <code>HAS_VISUAL_CHANNEL</code></td></tr>
+        <tr><td><strong>2</strong></td><td>baseline 캡처 → 한 번에 하나의 의도만 편집 → 재캡처 → 대조</td><td>요소 단위 서술 2 건 + 대조 결과 (self-reject 최대 3 회)</td></tr>
+        <tr><td><strong>3</strong></td><td>Evidence Validity Gate 4 검사 적용 (특히 비공백·활성화)</td><td>유효 증거 또는 무효 판정 → <code>[미검증]</code></td></tr>
+        <tr><td><strong>4</strong></td><td>채널 부재·캡처 실패 시 degraded 모드 — 멈추고 말한다</td><td><code>[미검증]</code> 마커 + 사유 + fallback 기록 + 확인 요청 1~3 개</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">✓</span>Step 0 의 "바꾸지 않을 것" 목록과 Step 2 의 대조 결과가 서로를 참조하는가?</li>
+    <li><span class="check">✓</span>캡처 서술이 "정상" 같은 판정이 아니라 <strong>본 요소를 지목</strong>하고 있는가?</li>
+    <li><span class="check">✓</span>MCP 서버명을 설정 파일에서 확인했는가? (추측한 이름을 쓰지 않았는가)</li>
+    <li><span class="check">✓</span>Visual Evidence Block 의 7 개 필드를 모두 채웠는가?</li>
+    <li><span class="check">✓</span><code>[미검증]</code> 이 2 건 이상이면 완료가 아니라 <strong>부분 완료</strong>로 보고했는가?</li>
+  </ul>
+</div>
+
+<div class="footer">
+  <h3>참조</h3>
+  <ul>
+    <li><a href="../harness/skill-design-guide.html">harness/docs/guides/skill-design-guide.md §3.7 Completion Evidence Gate — 등급·5 조항 SSOT</a></li>
+    <li><a href="../harness/qa-evaluation-guide.html">harness/docs/guides/qa-evaluation-guide.md §Evidence Validity Gate · §Canonical Unverified-Evidence Protocol</a></li>
+    <li>flutter-toolkit/references/figma-parity-self-verify.md — 본 규약 통과 후 수행하는 Figma SSIM 수렴 루프</li>
+    <li><a href="project-detection.html">flutter-toolkit/references/project-detection.md — 채널 감지의 전제 절차</a></li>
+    <li><a href="https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html">golden 매처 공식 문서 — 폰트·플랫폼·Flutter 버전이 다르면 같은 코드도 diff 가 난다 (CI 와 로컬의 OS/버전을 맞춰야 한다)</a></li>
+  </ul>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: flutter-toolkit/references/visual-evidence-protocol.md · v1.0.0 · 2026-07-27</p>
+</div>
+
+</div>
+</body>
+</html>

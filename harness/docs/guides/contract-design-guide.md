@@ -5,7 +5,20 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-06-05 (Phase 2 kaizen · v3.2)** — global feedback REJECT 패턴
+> **최근 갱신: 2026-07-27 (Phase 2 kaizen · v4.0)** — `/insights` 2026-07-27 (51 세션)
+> Friction #4 + reflect-digest 760 엔트리 + 글로벌 REJECT 89 건 분석. 이번 사이클의
+> 방침은 **새 문장 추가가 아니라 enforcement 등급 승급** 이다 (Phase 1
+> skill-design-guide §3.7 등급 사다리 준용). 주요 변경:
+> (a) **Counterpart Conditions** 신설 — Phase 1 §5.5 Counterpart Enumeration 을
+> 계약 조건으로 흡수 (parity item 12 의 계약 측 착지점).
+> (b) **Diff-Scope Oracle 표준형** — AR-01 3 회 재발로 E1 → E3 승급.
+> (c) **Preamble–Condition Consistency** 신설 (RE-02).
+> (d) **증거 아티팩트 존재 의무** 신설 (UI-06).
+> (e) `[exact]` 산출물 동반 제출 규칙 (UI-07).
+> (f) **§원칙별 Enforcement 등급** 표 신설 — 재발 규칙 4 건 승급 기록.
+> 스키마 v3 → v4 (헤더 2 계층 분류 · Counterpart 조건 패턴).
+>
+> 이전: 2026-06-05 (Phase 2 kaizen · v3.2) — global feedback REJECT 패턴
 > 분석. LG-07 (gitignore 의도에 `test ! -f` oracle 불일치) · AR-01 (커밋 전
 > `git diff` 상태 전제 누락) 두 REJECT 를 근거로 "측정 명령 타당성 · 상태 전제
 > (Measurement Validity & Precondition)" 서브섹션 신설 (§검증 수단 명시 의무 하위).
@@ -67,6 +80,45 @@ objectively 확인 가능해야 하며, 측정 가능한 값과 구체 행동으
 
 ---
 
+## 원칙별 Enforcement 등급 (E1 / E2 / E3)
+
+> **규약 출처:** [`skill-design-guide.md §3.7`](skill-design-guide.md) — 등급 정의와 승급 규칙은
+> 그쪽이 SSOT 다. 본 절은 **계약 레이어 원칙이 현재 어느 등급에 있는지**만 기록한다.
+> 용어를 재정의하거나 동의어를 만들지 마라.
+
+계약 원칙도 "문장으로 적었으니 지켜지겠지" 가 통하지 않는다. 실측(reflect-digest 760 엔트리)에서
+`skipped-pre-edit-audit` · `config-command-mismatch` · `complexity-by-file-count` ·
+`parser-incompatible-contract-section` 은 **모두 이미 문장 규칙이 존재하는데도 재위반**했고,
+전부 `user_stated_constraint=true`(사용자가 명시한 규칙을 다시 어김) 로 분류됐다.
+
+| 등급 | 계약 레이어에서의 형태 |
+| ---- | ---------------------- |
+| **E1** | contract-design-guide 의 서술 원칙 · SKILL.md Gotcha 한 줄 |
+| **E2** | 계약 파일에 남는 아티팩트 — 조건 그 자체, 인라인 `측정:` 절, DRAFT 제시 전 출력하는 대조표 |
+| **E3** | LLM 판단 없이 실행되는 결정론적 검사 — 표준형 측정 명령, 저장 직후 헤더 검사 |
+
+### 현재 등급표 (2026-07-27 기준)
+
+| 원칙 | 등급 | 근거 · 승급 이력 |
+| ---- | ---- | ---------------- |
+| 이진 판정 가능성 (Binary Decidability) | E1 | 작성자 체크리스트 — 재발 이력 없음 |
+| 조건 구체성 태그 · aggregation mode | E2 | 태그가 계약 본문에 남는 아티팩트 |
+| 검증 수단 인라인 명시 | E2 | `측정:` 절이 계약에 남음 |
+| **Pre-Edit Audit (계약 시점)** | **E1 → E2 승급** | digest `skipped-pre-edit-audit` (usc) — Gotcha 문장만 있어 재위반. 감사 결과 표를 DRAFT 전 산출물로 요구 |
+| **설정 리터럴 전사 (project.yaml)** | **E1 → E2 승급** | digest `config-command-mismatch` + `ignored-project-commands` (2 건) — 대조표를 DRAFT 전 산출물로 요구 |
+| **복잡도 판정 (영향 범위)** | **E1 → E2 승급** | digest `complexity-by-file-count` (usc) — Gotcha + 안티패턴 2 곳이 다 E1 이었음. 4 축 판정 표를 요구 |
+| **Diff-Scope Oracle** | **E1 → E3 승급** | REJECT AR-01 2026-06-11 · AR-01 2026-06-29 · Improvement 2026-07-21 — **3 회 재발**. 표준형 명령 + 작성 시점 baseline 실행 |
+| **허용 섹션 헤더** | **E1 → E3 승급** | digest `parser-incompatible-contract-section` (usc) — 저장 직후 결정론적 헤더 검사 |
+| `CONTRACT_ROOT` 경로 고정 | E2 (신규) | digest `cwd-contract-path-drift` — 확정한 절대경로를 출력해 남김 |
+| Counterpart Conditions | E2 (신규) | insights Friction #4 — 조건 2 개로 계약에 박힘 |
+| Preamble–Condition Consistency | E2 (신규) | REJECT RE-02 — DRAFT 자가 대조 |
+| 증거 아티팩트 존재 의무 | E2 (신규) | REJECT UI-06 — 증거 경로가 조건에 남음 |
+
+**개정 규칙:** 같은 결함이 다시 관측되면 이 표의 문구를 다듬지 말고 **등급을 한 칸 올려라.**
+등급을 올릴 수 없으면(이미 E3) 조건 설계 자체가 잘못된 것이므로 원칙을 재작성한다.
+
+---
+
 ## 조건 작성법
 
 ### NASA Requirements Writing Standards 기반
@@ -121,6 +173,89 @@ Then  {기대 결과}      |  Assert  {관찰 1회}
 **좋은 예**: "신규 사용자 등록 요청 시 성공 응답을 반환한다"
 
 이 규칙을 위반하면 "구현 누수(implementation leakage)"라 한다. 구현이 변경되면 조건도 깨지므로, 조건의 수명이 짧아진다.
+
+### 양면 조건 — Counterpart Conditions
+
+> **출처:** `/insights` 2026-07-27 Friction #4 (풀스택 변경에서 클라이언트 누락) ·
+> [Pact — Contract tests are not functional tests](https://docs.pact.io/consumer/contract_tests_not_functional_tests) ·
+> [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for) ·
+> 대응: [`skill-design-guide.md §5.5 Counterpart Enumeration`](skill-design-guide.md) (생성 측)
+>
+> **설계 결정:** Counterpart Enumeration 은 qa-evaluation-guide 에 대응 절을 두지 않는다.
+> 평가자는 **계약에 박힌 조건**으로 이 원칙을 수용한다 (parity item 12). 따라서 이 원칙이
+> 실제로 작동하려면 **계약 작성자가 조건을 넣어야만 한다** — 안 넣으면 아무도 안 잡는다.
+
+계약·직렬화·공유 모델을 바꾸는 스프린트는 본질적으로 **양면 작업**이다. 서버 응답 형태를 바꾸고
+클라이언트를 다음 스프린트로 미루면, 그 스프린트는 계약상 완료가 아니라 **절반 완료**다. 실측에서
+사용자가 "당연히 그러면 클라까지 바꿔야지" 로 매번 개입해야 했고, UTC 직렬화 버그도 같은 계열이다.
+
+계약 테스트의 표준 관점도 동일하다 — consumer 측 검증만 하면 provider 가 예고 없이 바뀌고,
+provider 측만 검증하면 consumer 가 잘못된 요청을 보낸다. **양쪽을 다 검증해야 통합 실패가 잡힌다**
+(소스: Pact).
+
+**적용 대상 (아래 중 하나라도 건드리면 Counterpart 조건 필수):**
+
+- API 계약 · 엔드포인트 시그니처 · 상태 코드 (빈 상태 204/200/404 포함)
+- 직렬화 포맷 — JSON 스키마, 날짜·타임존 표현, enum 값, null 허용 여부
+- 공유 모델 · 공용 타입 · 생성 코드 (OpenAPI, protobuf, codegen 산출물)
+- 공개 함수 시그니처 · 이벤트 페이로드 · DB 스키마
+
+**작성 규칙:**
+
+1. **producer 면과 consumer 면을 각각 별도 조건으로 쓴다.** 한 조건에 양면을 묶으면 복합 조건이라
+   부분 통과가 PASS 로 새어 나간다 (Gherkin one When-Then pair 규칙과 동일 이유).
+2. 각 조건은 해당 면의 **파일 경로를 enumerate** 한다 — `[exact, enumerated]` 필수.
+   `collective` 금지 (한쪽만 바뀌어도 PASS 되므로).
+3. consumer 면을 찾지 못하면 grep 으로 탐색하고, 그래도 없으면 **"소비자 없음" 을 근거와 함께
+   조건에 명시**한다. 추측으로 생략하지 않는다.
+4. **소비면의 내부 구현을 조건화하지 마라.** Pact 가 경고하는 과잉 계약(over-specified contract)
+   이 된다 — 열거 대상은 파일 경로와 외부 관찰 가능한 동작까지다. "클라이언트가 어떤 함수로
+   파싱하는가" 는 조건이 아니다.
+5. 한 스프린트에서 양면을 다 못 바꾸면, 남는 쪽은 `[미검증]` 이 아니라 **명시적 미완 조건**으로
+   남긴다 (`[미검증]` 은 검증 도구 부재에만 쓰는 마커다 — 의미를 섞지 마라).
+
+**조건 패턴:**
+
+```text
+- [ ] AR-04: 응답 필드 rename 이 producer 면 파일 `server/src/handler/schedule.rs` 에 반영된다
+      [exact, enumerated] (측정: 해당 파일에 신규 필드명 존재 · 구 필드명 0 건)
+- [ ] AR-05: 같은 rename 이 consumer 면 파일 `app/lib/data/model/schedule_model.dart`,
+      `app/lib/data/model/schedule_model.g.dart` 2 개에 반영된다 [exact, enumerated]
+      (측정: 두 파일에 신규 필드명 존재 · 구 필드명 0 건)
+```
+
+```text
+Bad:  - [ ] AR-04: 필드 rename 이 서버와 클라이언트에 반영된다 [goal]
+      ← 복합 조건 + collective. 서버만 바뀌어도 판정이 갈린다
+Good: producer 조건 1 개 + consumer 조건 1 개, 각각 파일 경로 enumerated
+```
+
+**부적합:** 소비자가 존재할 수 없는 순수 내부 리팩터링(private 함수 본문, 로컬 변수명).
+이 경우 Counterpart 조건은 noise 다.
+
+### 계약 서두–조건 정합성 (Preamble–Condition Consistency)
+
+> **출처:** 글로벌 REJECT RE-02 (fit-pal, 2026-07-22) ·
+> [AI Spec Template](https://www.augmentcode.com/guides/ai-spec-template)
+
+계약에 배경·설계 의도 서술(preamble)이 있으면, 그것은 장식이 아니라 **구현자가 읽는 지시**다.
+서술과 조건이 어긋나면 에이전트는 물어보지 않고 **조용히 한쪽을 골라** 구현한다
+("agents resolve the conflict silently by picking one instruction over the other" — 소스 5).
+
+**실제 발생 사례 (RE-02, 2026-07-22)**: 계약 preamble 은 **단방향** 차단 조회를 설계 의도로
+서술했는데, 조건 RE-02 는 **양방향** 함수 `batch_blocked_among` 의 재사용을 literal 로 열거했다.
+구현자는 preamble 을 따라 단방향 `batch_blocking_out` 을 새로 만들었고, 평가자는 조건의 literal
+enumeration 미충족으로 REJECT. 어느 쪽도 틀리지 않았고 **계약이 자기모순**이었다.
+
+**작성자 점검 (DRAFT 제시 전, E2):**
+
+- [ ] 서술 절에 쓴 설계 의도와 각 조건이 같은 방향을 가리키는가? 어긋나면 **조건이 아니라
+      서술을 고칠지, 서술이 아니라 조건을 고칠지 먼저 정하고 사용자에게 알린다**
+- [ ] 조건이 **기존 식별자**(함수·클래스·파일명)를 literal 로 열거한다면, 그 식별자가 지금 코드에
+      실제 존재하는지 grep 으로 확인했는가? 존재하지 않는 이름을 열거하면 자동 REJECT 다
+- [ ] 열거한 식별자의 **의미**(단방향/양방향, 동기/비동기, 단수/복수)가 설계 의도와 일치하는가?
+- [ ] 재사용을 요구하는 조건이라면 "이 이름이어야만 하는가"(`[exact]`) 인지 "같은 목적을 달성하면
+      되는가"(`[goal]`) 인지 태그로 구분했는가?
 
 ### 계약 작성자 의무 — 이진 판정 가능성 (Binary Decidability)
 
@@ -187,6 +322,29 @@ Then  {기대 결과}      |  Assert  {관찰 1회}
 > 효과가 최소화되며, criteria 품질이 곧 평가 품질" 이라고 보고한다
 > ([arxiv 2506.13639](https://arxiv.org/html/2506.13639v1)). 태그는 criteria
 > 명확화의 핵심 수단이다.
+
+##### 산출물 동반 제출 규칙 — `[exact]` 는 "그 산출물도 이번에 낸다" 는 뜻이다
+
+조건 문장에 **테스트·문서·스크린샷 같은 부산출물**이 등장하고 태그가 `[exact]` 이면, 그 산출물은
+구현과 **같은 스프린트에 제출해야 하는 대상**이 된다. 평가자는 "구현은 됐지만 테스트가 없다" 를
+조건 미충족으로 읽는다.
+
+- 산출물까지 이번에 낼 생각이면 → `[exact]` 로 두고 산출물 경로까지 조건에 적는다
+- 구현만 이번에 내고 산출물은 다음 스프린트면 → **조건을 `[goal]` 로 낮추거나 산출물 문구를
+  조건에서 뺀다**. 둘 다 안 하고 그대로 두면 REJECT 가 예정된 것이다
+
+```text
+Bad:  - [ ] UI-07: 설정 화면에서 차단 목록 화면으로 이동한다 (widget test 포함) [exact]
+      ← 테스트를 안 내면 REJECT. 낼 생각이 없었다면 조건이 틀린 것
+Good: - [ ] UI-07: 설정 화면에서 차단 목록 화면으로 이동한다 [goal]
+      - [ ] UI-08: 위 이동을 검증하는 widget test 가 `test/settings/blocks_nav_test.dart` 에
+            존재하고 통과한다 [exact] (측정: `flutter test test/settings/blocks_nav_test.dart`)
+```
+
+> **실제 발생 사례 (UI-07 REJECT, fit-pal-app 2026-07-13)**: `[exact]` 조건에 widget test 가
+> 명시됐는데 테스트 0 건으로 제출되어 REJECT. 평가자 Improvement 도 "`[exact]` 에 test 를 명시하면
+> 구현과 함께 테스트도 제출해야 함 — 테스트 우선 작성 권장" / "조건을 `[goal]` 로 변경 권장" 두 갈래로
+> 나왔다. 둘 중 무엇을 원하는지는 **작성 시점에** 정해야 한다.
 
 #### Aggregation Mode — 다수 대상 조건의 형식
 
@@ -408,6 +566,69 @@ PASS 가 발생한다 ([Test Oracle 정의](https://testrigor.com/blog/what-is-t
 > 조건에 명시했다면 사전에 해소 가능했던 케이스 (Improvement Suggestion: "측정을
 > `git ls-files` 로 변경", "커밋 완료 전제 명시").
 
+##### Diff-Scope Oracle 표준형 (E3 — 자유 서술 금지)
+
+> **승급 사유:** 같은 결함이 **3 회 재발**했다. AR-01 (fit-pal-app 2026-06-11, 계약이 `lib/` 단일
+> 파일을 요구했는데 `git diff --stat HEAD` 에 다른 파일이 잡힘) · AR-01 (2026-06-29, 미커밋 codegen
+> 산출물 `realtime_connection_controller.g.dart` 가 diff 에 섞여 "변환 헬퍼만 변경" 조건 불충족) ·
+> Improvement (2026-07-21, "AR-01/AR-02 는 unstaged working tree 에서 측정이 모호 — `git diff --cached`
+> 기준 권고"). E1 문장을 세 번 다듬었으므로 **표준형을 강제**한다 (skill-design-guide §3.7 승급 규칙).
+
+"변경 범위" 를 조건으로 쓸 때 `git diff` 를 자유 서술로 적지 마라. 아래 **4 요소를 모두 채운
+표준형**만 허용한다. 하나라도 빠지면 조건을 다시 써라.
+
+| # | 요소 | 이유 |
+| - | ---- | ---- |
+| 1 | **상태 전제** — `Given: 커밋 직전 working tree` 또는 `Given: 스테이징 완료 후` 중 하나를 명시 | `HEAD` / `--cached` / `main...HEAD` 는 서로 다른 집합을 본다. 평가자가 다른 상태에서 실행하면 판정이 뒤집힌다 |
+| 2 | **경로 한정 pathspec** — `-- <path>` 로 대상 디렉토리를 좁힌다 | 병렬 세션·무관 변경이 섞여 들어온다 |
+| 3 | **생성물 제외** — `':(exclude)*.g.dart'` 처럼 codegen·락파일·빌드 산출물을 pathspec 으로 뺀다 | 미커밋 codegen 이 scope 조건을 깨뜨린 것이 2026-06-29 REJECT 의 직접 원인 |
+| 4 | **기대 집합** — 결과가 "정확히 N 행" 인지 "이 목록과 일치" 인지 명시 | "포함한다" 와 "일치한다" 는 다른 판정이다 |
+
+```text
+Good:
+- [ ] AR-01: 이번 스프린트 변경이 변환 헬퍼 2 개 파일로 한정된다 [exact, enumerated]
+      (Given: 커밋 직전 working tree ·
+       측정: `git diff --name-only HEAD -- app/lib ':(exclude)*.g.dart' ':(exclude)*.freezed.dart'`
+       결과가 `app/lib/data/mapper/schedule_mapper.dart`,
+       `app/lib/data/mapper/group_mapper.dart` 2 행과 정확히 일치)
+
+Bad:
+- [ ] AR-01: lib/ 단일 파일만 변경된다 (측정: `git diff --stat HEAD`) [exact]
+      ← 상태 전제 없음 · 경로 한정 없음 · 생성물 제외 없음 · "일치/포함" 불명확
+```
+
+**추가 규칙:**
+
+- 계약 작성 시점에 **그 명령을 실제로 1 회 실행**하고 현재 출력(baseline)을 계약 서술 절에 붙인다.
+  실행해보지 않은 측정 명령은 oracle 이 아니라 추측이다
+- 커밋 후 판정이 전제라면 조건에 `Given: 스테이징 완료 후` 를 쓰고 `--cached` 를 사용한다.
+  구현 중 자가 확인이 목적이면 `HEAD` 기준 working tree 를 쓰되 전제를 그렇게 적는다
+- 브랜치 비교(`main...HEAD`) 는 **커밋이 끝난 뒤**에만 유효하다 (LG-07/AR-01 절 참조)
+
+##### 증거 아티팩트 존재 의무 (Evidence Artifact Availability)
+
+> **출처:** 글로벌 REJECT UI-06 (fit-pal-app 2026-07-13 — "시안 승인 기록 artifact 부재 — goal
+> 조건의 측정 근거 확인 불가") · 대응: [`skill-design-guide.md §3.7`](skill-design-guide.md)
+> Completion Evidence Gate 의 계약 측 짝
+
+측정 방법을 적었는데 **그 측정이 읽을 대상이 세상에 없으면** 조건은 판정 불가다. 특히 승인 기록,
+합의 로그, 실측 수치처럼 **사람이 남겨야만 생기는 증거**에 의존하는 `[goal]` 조건이 위험하다.
+
+**규칙:**
+
+- 조건이 참조하는 증거가 코드·파일·명령 출력이 아니라 **기록물**이면, 그 기록물이 평가 시점에
+  존재할 **경로를 조건에 적는다**. 경로를 적을 수 없으면 그 조건을 만들지 마라
+- 기록물은 계약과 같은 곳(`.harness/` 하위) 또는 소스 주석에 남긴다 — 대화 로그는 증거가 아니다
+- "사용자가 승인했다" 를 조건으로 쓰고 싶으면, 승인 **행위**가 아니라 승인 **기록 파일의 존재**를
+  조건으로 쓴다
+
+```text
+Bad:  - [ ] UI-06: 최종 시안이 사용자 승인을 받았다 [goal]
+      ← 평가 시점에 확인할 대상이 없음 → 판정 불가 → REJECT
+Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approval.md` 에 기록되어 있다
+            [structural] (측정: 해당 파일 존재 + 시안 ID 1 건 이상)
+```
+
 ### 형제 스킬 일관성 (Sibling Consistency)
 
 동일 플러그인 내 여러 스킬이 **공통 원칙** 을 요구할 때 (예: 헥사고날 패턴, 에러
@@ -494,6 +715,28 @@ rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검
 
 카테고리는 Goal에서 도출한다. project.yaml의 `contract_categories`가 이미 정의되어 있으면 그것을 따른다.
 
+### 계약 파일 헤더 2 계층 — 조건 섹션 / 서술 섹션
+
+> **출처:** reflect-digest `parser-incompatible-contract-section` (usc=true) ·
+> 스키마 정의: [`contract-schema.md §허용 섹션 헤더`](../../references/contract-schema.md)
+
+기존 규칙은 "허용 헤더는 카테고리 + Anti-patterns / Reusability / Diagnostics 뿐" 이었는데,
+실제 계약(특히 카이젠 계약)은 배경·리서치 소스·GAP 분석·범위 경계를 상시 사용해 왔다.
+**규칙이 실사용과 어긋나 있었기 때문에** 재위반이 반복됐다. 그래서 규칙을 강화하는 대신
+**헤더를 두 계층으로 분류**한다.
+
+| 계층 | 허용 헤더 | 조건 체크박스 |
+| ---- | --------- | ------------- |
+| **조건 섹션 (parsed)** | `project.yaml.contract_categories` 의 각 `id` + `Anti-patterns` + `Reusability` + `Diagnostics` | **여기에만** `- [ ] {PREFIX}-{NN}:` 형태로 존재 |
+| **서술 섹션 (non-parsed)** | `배경` · `리서치 소스` · `GAP 분석` · `범위 경계` · `회귀 게이트` | 조건 체크박스 **금지** (일반 불릿만) |
+
+- **조건 섹션 헤더는 정확히 일치**해야 한다 (괄호 부연 금지). **서술 섹션 헤더는 위 5 개 중
+  하나로 시작**하면 되고 뒤에 부연을 붙일 수 있다 (`## GAP 분석 (리서치 vs 현재 가이드)` 허용)
+- 위 두 목록 밖의 헤더(`Notes`, `Appendix`, `메모` 등)는 **금지**다 — 평가자 파서가 조건 섹션인지
+  서술인지 판정할 수 없다
+- 서술 섹션에 `- [ ]` 를 쓰면 평가자가 조건으로 오인해 존재하지 않는 조건을 판정하려 든다
+- 이 규칙은 E3 다 — sprint-contract 는 저장 직후 결정론적 헤더 검사를 실행한다
+
 ### Consumer-Driven 원칙
 
 계약의 "소비자" 는 qa-evaluator 이다. 평가자가 독립적으로 검증할 수 없는 조건은 나쁜 조건이다.
@@ -542,6 +785,12 @@ rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검
 | 측정 oracle 의미·전제 불일치 | 측정 명령은 적었으나 그 명령이 조건 의도와 다른 것을 측정하거나(예: gitignore 의도에 `test ! -f`) 상태 전제 누락(커밋 전 `git diff`) → false REJECT/PASS | 의미 일치 oracle 선택 + 상태 의존 시 `Given:` 전제를 조건에 인라인 명시 (LG-07/AR-01 재발 방지) |
 | Sibling 스킬 커버리지 누락 | 공통 원칙이 plugin 내 여러 스킬에 적용돼야 하지만 계약이 단일 스킬만 점검 → 일부 스킬에만 적용된 상태 통과 | `[exact, enumerated]` + 스킬 숫자/이름 전부 열거로 sibling 전수 요구 (rust-kit H-01/H-03 재발 방지) |
 | 정성적 수식어 사용 | "충분히", "상당한", "적절히", "대부분" 등 binary 판정 불가 수식어 | 구체 수치/기준값으로 대체 또는 조건 분리 (Binary Decidability Pre-Check 실패 1 순위) |
+| 한쪽 면만 계약 | 계약·직렬화·공유 모델을 바꾸는데 producer 조건만 있고 consumer 조건이 없음 → 서버만 고치고 클라이언트는 다음 스프린트로 밀림 | producer/consumer 를 **별도 조건 2 개**로 분리하고 각 면의 파일 경로를 `[exact, enumerated]` 로 열거 (insights Friction #4 재발 방지) |
+| preamble–조건 모순 | 계약 서두의 설계 의도와 조건이 서로 다른 것을 요구 → 구현자가 조용히 한쪽만 따르고 평가자는 다른 쪽으로 판정 | DRAFT 제시 전 서술↔조건 방향 대조 + 열거한 기존 식별자 grep 존재 확인 (RE-02 재발 방지) |
+| diff-scope oracle 자유 서술 | `git diff` 를 상태 전제·경로 한정·생성물 제외·기대 집합 없이 적음 → 미커밋 codegen 혼입, working tree/staged 해석 차이로 판정 뒤집힘 | Diff-Scope Oracle **표준형 4 요소**를 전부 채우고 작성 시점에 명령을 1 회 실행해 baseline 첨부 (AR-01 3 회 재발 방지) |
+| `[exact]` 산출물 오분류 | 조건 문장에 테스트·문서 산출물이 등장하는데 이번 스프린트에 낼 생각이 없음 | 낼 것이면 산출물 경로까지 조건화, 아니면 `[goal]` 로 낮추거나 산출물 문구 제거 (UI-07 재발 방지) |
+| 증거 없는 goal 조건 | 승인 기록·합의 로그처럼 사람이 남겨야 생기는 증거에 의존하는데 그 기록물이 존재하지 않음 → 판정 불가 | 증거 기록물의 **경로**를 조건에 명시하고, 경로를 못 적으면 조건을 만들지 않음 (UI-06 재발 방지) |
+| 미분류 섹션 헤더 | 조건 섹션도 서술 섹션도 아닌 헤더(`Notes` 등) 추가, 또는 서술 섹션에 `- [ ]` 조건 배치 → 평가자 파서 오작동 | 헤더 2 계층 허용 목록만 사용 + 저장 직후 결정론적 헤더 검사 (`parser-incompatible-contract-section` 재발 방지) |
 
 ---
 
@@ -562,6 +811,11 @@ sprint-contract 실행 완료 후 다음 항목을 자가 점검한다:
 | nfr_coverage | 해당 기능의 비기능 요구사항(성능/보안/접근성)이 조건에 반영되었는가? |
 | boundary_without_measurement | 경계값(>=, <=, ==) 조건에 측정 방법이 누락되었는가? |
 | format_granularity_missing | 포맷 일관성 조건에 적용 수준(file/section/field)이 명시되었는가? |
+| counterpart_missing | 계약·직렬화·공유 모델 변경인데 consumer 면 조건이 누락되었는가? |
+| preamble_condition_conflict | 서술 절의 설계 의도와 조건이 서로 다른 것을 요구하는가? |
+| diff_oracle_nonstandard | 변경 범위 조건이 Diff-Scope Oracle 표준형 4 요소(상태 전제/경로 한정/생성물 제외/기대 집합)를 다 채웠는가? |
+| evidence_artifact_missing | `[goal]` 조건이 참조하는 증거 기록물의 경로가 조건에 명시되었는가? |
+| section_header_unclassified | 조건 섹션도 서술 섹션도 아닌 헤더가 있거나, 서술 섹션에 `- [ ]` 조건이 들어갔는가? |
 
 ### 모호성 분류 (Ambiguity Taxonomy)
 
@@ -607,16 +861,27 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 하위 **qa-evaluation-guide · sprint-contract SKILL.md · qa-evaluator 에이전트** 에
 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
 
-### 계약 설계에 전수된 parity items (3 개)
+### 계약 설계에 전수된 parity items (5 개)
 
 | # | Parity Item | skill-design-guide 위치 | agent-design-guide 위치 | **contract-design-guide 대응 위치 (이 가이드)** |
 | --- | ------------- | ------------------------ | ------------------------ | ------------------------------------------------ |
 | 1 | 계약 모호성 방지 / Binary Decidability | §3.5 (QA 계약과 1:1 매칭) | §3.5 (Binary Decidability Pre-Check) | **§조건 작성법 > "계약 작성자 의무 — 이진 판정 가능성"** |
 | 2 | 트리거 키워드 배타성 (substring 포함) | §4 (set intersection + substring) | §3 + §10 (sibling agent 검사) | **§sprint-contract SKILL.md Process Step (키워드 검사 의무)** |
 | 3 | 미검증 항목 정책 | — (스킬 전용 아님) | §10 Unverifiable 조건 정책 | **§조건 작성법 > "검증 수단 명시 의무" (3 단계 fallback)** |
+| 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (등급 정의 · 승급 규칙 — SSOT) | §6 패턴 7 (훅 = E3 게이트) | **§원칙별 Enforcement 등급 (계약 원칙 현재 등급표)** |
+| 12 | Counterpart Enumeration | §5.5 (변경의 반대편 열거) | — (평가자는 계약 조건으로 수용) | **§조건 작성법 > "양면 조건 — Counterpart Conditions"** |
 
 > 두 가이드의 item 1 · item 4 (rule-by-rule audit) 는 contract 가이드에
 > 해당 위치 없이 qa-evaluation-guide 로 위임된다 (중복 배제).
+>
+> **item 12 의 착지 구조**: skill-design-guide §5.5 는 생성 측(편집 전 열거)을, 본 가이드는
+> 계약 측(조건화)을 담당한다. qa-evaluation-guide 에는 대응 절을 두지 **않는다** — 평가자는
+> 계약에 박힌 Counterpart 조건을 일반 조건으로 판정하면 되고, 별도 평가 규칙을 두면 계약에
+> 없는 요구를 평가자가 만들어내게 된다. 따라서 이 원칙의 유일한 강제 지점은 **계약 작성자**다.
+>
+> **item 11 의 착지 구조**: 등급 정의·승급 규칙은 skill-design-guide §3.7 이 SSOT 이고, 본
+> 가이드는 계약 원칙의 **현재 등급 목록**만 유지한다. 등급 어휘(E1/E2/E3)를 재정의하거나
+> 동의어를 만들지 마라.
 
 ### 개정 시 체크리스트
 
@@ -632,6 +897,9 @@ contract-design-guide.md 를 편집할 때:
 - **SK-02 (harness, 2026-04)**: 범위어 "주요 interactive element" 가 인라인 enumerate 되지 않아 badge/decoration 해석 엇갈림 → 범위 명시 원칙이 contract-design-guide 에 없어 계약 작성자가 원칙을 몰랐음 (현 사이클에서 SR 섹션 신설로 해소)
 - **미검증 항목 2 건 REJECT (fit-pal, fit-pal-flutter)**: mcp_server=null 상태에서 시각 검증 불가 조건이 2 건 이상 → 계약이 fallback 을 사전 기술하지 않아 REJECT (현 사이클 UV 섹션 신설로 해소)
 - **H-01/H-03 (rust-kit)**: sibling 스킬 커버리지 조건이 계약에 enumerate 되지 않아 일부 스킬만 적용된 상태가 PASS (현 사이클 SC 섹션 신설로 해소)
+- **RE-02 (fit-pal, 2026-07-22)**: 계약 preamble 이 단방향 설계를 서술했는데 조건은 양방향 함수를 literal 로 열거 → 구현은 preamble 을, 평가는 조건을 따라 REJECT (v4 Preamble–Condition Consistency 로 해소)
+- **AR-01 (fit-pal-app, 2026-06-11 / 2026-06-29 / 2026-07-21)**: 변경 범위 조건의 `git diff` oracle 이 상태 전제·경로 한정·생성물 제외 없이 작성되어 3 회 REJECT/재확인 권고 (v4 Diff-Scope Oracle 표준형으로 해소 · E1 → E3 승급)
+- **UI-06 / UI-07 (fit-pal-app, 2026-07-13)**: goal 조건의 증거 기록물이 존재하지 않아 판정 불가 / `[exact]` 조건에 명시된 widget test 미제출 (v4 증거 아티팩트 존재 의무 · 산출물 동반 제출 규칙으로 해소)
 
 ### Downstream 전파 범위
 
@@ -644,6 +912,6 @@ contract-design-guide.md 를 편집할 때:
 
 ### 버전 정보
 
-- **Guide version**: 2026-04-24 (Phase 2 kaizen · v3)
-- **Schema version**: v3 (contract-schema.md)
-- **Parity with**: skill-design-guide v1.2.0, agent-design-guide v1.2.0
+- **Guide version**: 2026-07-27 (Phase 2 kaizen · v4.0)
+- **Schema version**: v4 (contract-schema.md)
+- **Parity with**: skill-design-guide v1.4.0, agent-design-guide v1.5.0

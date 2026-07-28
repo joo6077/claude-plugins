@@ -25,6 +25,9 @@ user-invocable: true
 11. **마이크로서비스 무조건 권장 금지** — 팀 규모 10명 미만이면 Modular Monolith First 를 기본으로 제안하라. 마이크로서비스는 인프라 비용 3.75-6x, 디버깅 시간 35% 증가. Amazon Prime Video 가 마이크로서비스→모놀리스 전환으로 인프라 비용 90% 절감한 사례를 참고. 출처: [ByteIota 2026](https://byteiota.com/modular-monolith-42-ditch-microservices-in-2026/)
 12. **Enumerate-before-Act (skill-design-guide §5.5 대응)** — 가이드 제공 전에 해당 코드/설명에서 **관련 원칙 위반 후보를 전부 나열** 한 뒤 한 번에 제시하라. "하나 고치면 다음에 또 지적"의 round-trip 을 차단한다 (/insights 마찰점 #1). 예: auth 코드를 보면 Implicit grant / PKCE 미사용 / JWT localStorage 저장 / CORS wildcard 를 한 번에 모두 나열하고 사용자 승인을 기다린다.
 13. **3-Step Process (Phase 5 flutter-error/flutter-hooks parity)** — 가이드형 스킬은 반드시 탐색(코드/설명 맥락 파악) → 진단(원칙 위반 rule-by-rule 열거) → 처방(우선순위 + 트레이드오프 + 출처) 3단계를 **순서 고정**으로 따른다. 맥락 없이 바로 처방을 내지 말 것.
+14. **Counterpart Enumeration — producer 면만 짚고 끝내지 마라 (enforcement 등급 E2)** — 사용자가 가져온 코드가 API 계약 · 상태코드 · 직렬화 포맷 · 공유 모델/생성 코드 · 이벤트 페이로드 · DB 스키마에 걸쳐 있으면, 서버 쪽 개선안만 제시하는 것은 **절반짜리 가이드**다. 같은 응답 안에서 그 응답을 역직렬화하는 소비면 파일(클라이언트 모델 · 리포지토리 · 테스트 픽스처 · 생성 코드)을 grep 으로 찾아 **경로로 열거**하라. 저장소 안에 소비면이 없으면 "이 저장소에 소비자 없음 — 별도 앱 저장소 확인 필요" 처럼 근거와 함께 말하고, 추측으로 넘어가지 마라. 절차 SSOT 는 `harness/docs/guides/skill-design-guide.md` §5.5, 등급 SSOT 는 같은 문서 §3.7 이다. **단, 소비면의 내부 구현은 지적 대상이 아니다** — 열거 범위는 파일 경로와 외부에서 관찰 가능한 동작까지다. "클라이언트가 어떤 함수로 파싱하는지" 까지 규정하면 과잉 명세(over-specified contract)가 된다. Pact 도 계약의 범위를 이렇게 한정한다 — "provider 의 기능 테스트는 provider 자신의 테스트가 할 일이다. Pact 는 요청과 응답의 내용과 형식을 확인하는 것" 이며 "요청 실행의 부수효과는 테스트하지 않는다". 출처: [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for).
+15. **timestamp 가이드는 타임존 표기 규칙까지 내려가라** — "UTC 로 통일하라" 는 처방은 버그를 못 막는다. 직렬화 문자열 규칙까지 짚어야 한다. RFC 3339 에서 `Z` / `+00:00` 은 "UTC 가 선호 기준점", `-00:00` 은 "UTC 시각은 알지만 로컬 오프셋 미상" 으로 **의미가 다르다**. OpenAPI 3.1 은 `format` 을 JSON Schema 2020-12 에 위임하고 기본적으로 비검증 애노테이션으로 취급하므로 스펙에 `format: date-time` 을 적어둬도 런타임 강제는 없다 — 그래서 타임존 불일치가 단위 테스트를 통과하고 e2e 에서만 터진다. 이 계열은 Gotcha 14 의 필수 적용 대상이다. 출처: [RFC 3339 §4.3](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html).
+16. **빈 상태를 404 로 답하는 설계를 발견하면 지적하라** — RFC 9110 의 404 는 "대상 리소스의 현재 표현을 찾지 못했다" 는 뜻이며, 원소 0 개인 컬렉션은 유효한 빈 표현을 가진 존재하는 리소스다. 200(빈 배열)/204 가 의미상 맞다. 이미 404 로 배포된 API 를 200 으로 바꾸는 것은 **계약 변경**이므로 Gotcha 14 를 함께 적용해 소비면을 열거하라. 출처: [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html).
 
 # Process (3-Step · 탐색 → 진단 → 처방)
 
@@ -43,7 +46,8 @@ user-invocable: true
 | security | 보안, injection, XSS, SSRF, OWASP, 헤더 |
 | caching | 캐시, Redis, TTL, stampede, 무효화 |
 | event-driven | 메시지 큐, Kafka, outbox, CQRS, saga, DLQ, idempotency, AsyncAPI, CDC, Debezium, RabbitMQ |
-| api-lifecycle | 버저닝, deprecation, rate limiting, idempotency key, Sunset header |
+| api-lifecycle | 버저닝, deprecation, rate limiting, idempotency key, Idempotency-Key 헤더, 재시도, Sunset header |
+| contract-counterpart | 계약 변경, 응답 형태 변경, 필드 rename, 상태코드 변경, 빈 상태, empty state, 404 vs 200, 직렬화, timestamp, 타임존, UTC, RFC 3339, 클라이언트 반영, 소비자, codegen 산출물 |
 | graphql | GraphQL, 스키마, resolver, DataLoader, federation, Apollo Federation |
 | grpc | gRPC, proto, streaming, deadline, metadata |
 | realtime | WebSocket, SSE, 실시간, 구독, heartbeat |

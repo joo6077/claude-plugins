@@ -1,9 +1,64 @@
 ---
-version: 1.1.0
-last_updated: 2026-06-05
+version: 1.2.0
+last_updated: 2026-07-27
 ---
 
 # React Kit Research Log
+
+## [2026-07-27] - Phase 10 kaizen
+
+신호 농도 **LOW** (사용자 외부 프로젝트 React/Tauri 사용 흔적 0건). 억지 개선 대신 **상위 Phase 가
+남긴 하위 전파 지시 3 건 + Phase 4 정정 1 건**만 이행했다.
+
+### 조회한 1차 출처
+
+Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문서 직접 조회.
+
+| # | URL | 확인한 사실 | 반영 위치 |
+|---|-----|------------|----------|
+| 1 | <https://testing-library.com/docs/queries/about/> | `queryBy*` 는 매치 없을 때 `null`, `queryAllBy*` 는 빈 배열 `[]` 반환하고 throw 하지 않음. 문서가 `queryBy` 를 "asserting an element that is not present" 용도로 권장 | `render-evidence-protocol.md` §3 (a) · `react-test` Gotcha 11 · `react-skeleton` Gotcha 9 |
+| 2 | <https://vitest.dev/guide/cli.html> | `--passWithNoTests` = "Pass when no tests are found", 기본 `false`. `allowOnly` 기본값 `!process.env.CI`. `bail` 기본 `0` | `render-evidence-protocol.md` §3 (b)(c) · `react-test` Gotcha 12 |
+| 3a | <https://vitest.dev/config/passwithnotests> | `passWithNoTests` — Type `boolean` · **Default `false`** · CLI `--passWithNoTests` · "Vitest will not fail, if no tests will be found." | 위와 동일 (기본값 1차 확인) |
+| 3b | <https://vitest.dev/config/allowonly> | `allowOnly` — Type `boolean` · **Default `!process.env.CI`** · "in local development environments, Vitest allows these tests to run" | 위와 동일 (기본값 1차 확인) |
+| 4 | <https://playwright.dev/docs/test-snapshots> | `toHaveScreenshot()` 은 baseline 부재 시 실제 화면을 golden 으로 기록. `--update-snapshots` 로 갱신. `maxDiffPixels` / `stylePath` 옵션 | `render-evidence-protocol.md` §3 (d) · `react-test` Gotcha 13 · `react-animation` Gotcha 13 |
+| 5 | <https://playwright.dev/docs/test-assertions> | auto-retrying assertion 권장, 복잡한 경우 `expect.poll` / `expect.toPass`. non-retrying assertion 은 flaky 유발 | `render-evidence-protocol.md` §2 증거 등급 R1 |
+| 6 | <https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation> | `invalidateQueries` 는 **prefix 매칭이 기본** — `['todos']` 무효화가 `['todos', { page: 1 }]` 까지 포함. `exact: true` / predicate 로 좁힘. **queryKey 팩토리 정합성 가이드는 공식 문서에 없음** | `react-query` Gotcha 15 (Counterpart Enumeration) |
+
+### 반영 내역
+
+- **CP (Canonical Protocol 전파)** — Phase 3 `qa-evaluation-guide.md` v4.0 이 남긴 하위 전파 지시.
+  실측상 `grep -rn "미검증" react-kit/` 이 **0 hit** 이었다 (reviewer 6 종 중 react 만 미이행).
+  `react-reviewer` 에 §Canonical Unverified-Evidence Protocol 5 조항을 문구 변형 없이 복제하고,
+  §Evidence Validity Gate 4 검사를 react 도구 문맥(0 매치 판정·스코프 파일 수)으로 매핑했다.
+  출력 포맷에 `unverified` 집계 필드 추가, `react-audit` 에 수신면(`🔍 미검증` 섹션 + 임계 2 건 규칙) 추가.
+- **EV (렌더 증거 규약)** — Phase 3 이 "UI 를 다루는 design/react/flutter 계열이 가장 직접
+  매핑된다" 고 지정. react-kit UI 스킬 5 종의 검증 섹션이 `Strict TS 검증` 하나뿐이었다.
+  `react-kit/references/render-evidence-protocol.md` 신설(E2) 후 `react-screen` · `react-widget` ·
+  `react-skeleton` · `react-responsive` · `react-animation` 5 종 전수 + `react-test` 에 연결.
+  Phase 5 flutter `visual-evidence-protocol.md` · Phase 6 design `visual-change-protocol.md` 와
+  동일 계열이며 임계값·마커·등급을 재정의하지 않고 상위 SSOT 를 인용만 한다.
+- **CE (Counterpart Enumeration)** — Phase 1 `skill-design-guide.md` §5.5. 실측상
+  `grep -rn "Counterpart\|양면" react-kit/` 이 **0 hit**. 기존 Enumerate-before-Act 9 스킬은
+  producer 자기 레이어 스캔이라 반대 방향을 못 덮는다. `react-api`(스키마·DTO·에러 kind 소비면)와
+  `react-query`(queryKey 팩토리 → invalidation 호출부)에 E2 로 추가.
+- **KZ** — `.claude/skills/react-kaizen/SKILL.md` 의 "7 카테고리" → 8 (V1~V8) 정정 + 체크 표 추가,
+  계약 경로를 병렬 안전한 `.harness/history/` 로 변경, Context7 실패 시 WebFetch fallback 명문화,
+  범위 기준을 파일 수 → unit(관심사) 수로 교정.
+
+### Library Policy
+
+**완화 0 건.** 금지 라이브러리 12 항목 언급 수가 작업 전 baseline 이상을 유지하고,
+`❌ FAIL` → `⚠️ WARN` 재분류 0 건. `react-animation` Gotcha 13 에는 "증거 확보를 위해
+애니메이션 라이브러리를 도입하지 않는다 — Library Policy 가 이 규약보다 상위" 를 명시해
+새 규약이 우회 통로가 되지 않도록 막았다.
+
+### 하지 않은 것
+
+- Counterpart Conditions 의 evaluator 측 대응 절 — Phase 3 parity item 12 의 **의도된 부재**.
+- 새 스킬/에이전트 신설, `react-audit` 카테고리 7 개 확장 (미검증은 카테고리가 아니라 리포트 축).
+- 기존 Enumerate-before-Act 9 스킬 가드 재작성 (직전 사이클 승격분 · 중복 금지).
+
+---
 
 ## [2026-06-05] — Phase 10 kaizen
 

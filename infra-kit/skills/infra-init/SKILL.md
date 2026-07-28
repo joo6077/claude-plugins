@@ -25,6 +25,13 @@ user-invocable: true
 10. **OIDC + SHA 핀닝 동시 명시 (Phase 8 리서치)** — CI 세팅 시 OIDC 인증(장기 키 제거) 과 서드파티 Actions SHA 핀닝을 **둘 다** 기본 권장에 포함하라. 둘 중 하나만 제안하면 공급망 공격 창구가 남는다. 출처: [GitHub Actions OIDC](https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect) · [SHA Pinning Policy](https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/).
 11. **IaC 시크릿은 Ephemeral 또는 참조만 (Phase 8 리서치)** — Terraform/OpenTofu 세팅 시 시크릿을 state 에 평문 저장하지 말고 `ephemeral` 블록(Terraform 1.10+) 또는 write-only 인수, OpenTofu 1.7+ native state encryption 을 권장 규격에 포함한다. `sensitive` 마킹만으로는 state 평문 저장이 유지된다. 출처: [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral) · [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/).
 
+12. **반복 셸 명령은 YAML 인라인이 아니라 스크립트/Makefile 로 코드화하라** — CI 스텝에 긴 인라인 셸을 박으면 로컬에서 그대로 재현할 수 없고, 파이프 실패·따옴표 파손·exit code 유실이 워크플로 안에 숨는다. 초기 세팅 시 `Makefile` 또는 `scripts/*.sh` 타겟으로 빼고 워크플로는 그 타겟만 호출하게 하라. 코드화할 때 아래 둘은 **함께** 넣어야 의미가 있다.
+
+    - 스크립트 첫 줄에 `set -euo pipefail` — 파이프는 마지막 명령의 exit code 만 평가한다. 출처: [Docker best practices](https://docs.docker.com/build/building/best-practices/) (`RUN` 파이프에 `set -o pipefail &&` 선행 권고).
+    - 워크플로 `run` 스텝에 `shell: bash` **명시** — 비-Windows 기본 셸은 `bash -e {0}` 라 pipefail 이 없고, 명시했을 때만 `bash --noprofile --norc -eo pipefail {0}` 가 된다. 출처: [GitHub Actions workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax).
+
+    트레이드오프: 파일이 늘고 CI YAML 이 얇아진다. 대신 같은 검증을 로컬에서 한 명령으로 재현할 수 있다.
+
 # Process (3-Step · 탐색 → 진단 → 처방)
 
 ## Step 1: 탐색 — 프로젝트 인프라 감지

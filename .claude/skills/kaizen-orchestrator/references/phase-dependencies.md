@@ -55,8 +55,17 @@ Phase 11: Planning-kit 카이젠 (planning-kaizen)
   planning-kit/agents/planning-reviewer.md
   planning-kit/references/
   docs/planning/ (리서치 문서)
-      ↓ 제품 기획 완료 후 Onboarding-kit으로
-Phase 13: Onboarding-kit 카이젠 (onboarding-kaizen)
+      ↓ 제품 기획 완료 후 Reflect-kit으로
+Phase 12: Reflect-kit 카이젠 (reflect-kaizen)
+  reflect-kit/skills/*/SKILL.md
+  reflect-kit/hooks/
+  reflect-kit/docs/ (SCHEMA.md ↔ DESIGN.md 동시 갱신 규칙)
+      ↓ 피드백 파이프라인 완료 후 Bambu-kit으로
+Phase 13: Bambu-kit 카이젠 (bambu-kaizen)
+  bambu-kit/skills/bambu-print-profile/SKILL.md
+  bambu-kit/skills/bambu-print-profile/references/ (SSOT)
+      ↓ 프로파일 생성 완료 후 Onboarding-kit으로
+Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
   onboarding-kit/skills/*/SKILL.md
   onboarding-kit/references/
 ```
@@ -92,11 +101,13 @@ Phase 13: Onboarding-kit 카이젠 (onboarding-kaizen)
 - Phase 8 스킵 → Phase 9 진행에 영향 없음 (독립 스택)
 - Phase 9 스킵 → Phase 10 진행에 영향 없음 (독립 스택)
 - Phase 10 스킵 → Phase 11 진행에 영향 없음 (독립 스택)
-- Phase 11 스킵 → Phase 13 진행에 영향 없음 (독립 스택)
-- Phase 7/8/9/10/11/13 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning}/ 기준 점진 개선)
+- Phase 11 스킵 → Phase 12~14 진행에 영향 없음 (독립 스택)
+- Phase 12 스킵 → Phase 13~14 진행에 영향 없음 (독립 스택)
+- Phase 13 스킵 → Phase 14 진행에 영향 없음 (독립 스택)
+- Phase 7~14 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning}/ 또는 각 킷 references/ 기준 점진 개선)
 
 ## QA 실패 시 롤백 범위
 
 - Phase N QA REJECT → Phase N 변경만 수정 (이전 Phase 건드리지 않음)
 - Final QA REJECT → 해당 Phase로 돌아가 수정 (다른 Phase 건드리지 않음)
-- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7/8/9/10/11/13도 동일 규칙 적용)
+- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7~14도 동일 규칙 적용)

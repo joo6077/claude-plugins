@@ -38,6 +38,8 @@ user-invocable: true
     </button>
     ```
 
+10. **breakpoint 별 렌더 증거 없이 완료 선언 금지 (E2)** — Tailwind 클래스는 문자열이라 타입 검사를 통과해도 오타(`md:felx`)·Merge 충돌·존재하지 않는 breakpoint 접두사가 그대로 남는다. 즉 "코드에 `md:` 가 있다" 는 정적 확인(R3)일 뿐이고, 그 breakpoint 에서 레이아웃이 실제로 바뀐다는 증거가 아니다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` §4 체크리스트를 채우되, **적용한 breakpoint 마다 최소 1 개씩** 증거를 남긴다 (한 폭에서만 확인하고 나머지를 추정하지 않는다). 증거를 못 얻는 폭은 `[미검증]` 마커와 사유를 붙이고 부분 완료로 보고한다.
+
 # Process
 
 ## 1. 프로젝트 환경 감지

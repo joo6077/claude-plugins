@@ -25,6 +25,11 @@ user-invocable: true
 - **testcontainers로 실제 인프라 통합 테스트** — `testcontainers 0.27` (2026-03)은 Docker 기반으로 PostgreSQL, Redis, Kafka 등 실제 인스턴스를 테스트 격리 환경에서 구동한다. CI에서 `--test-threads=1`과 조합하라.
 - **cargo-mutants로 테스트 품질 검증** — coverage가 아니라 "테스트가 동작 차이를 감지하는지"를 본다. `--iterate`로 missed mutant 개선 루프를 줄이고, baseline test로 원본 트리가 통과하는지 먼저 검증한다. flaky test가 있으면 의미가 무너진다.
 - **Miri로 unsafe UB 검증** — `cargo +nightly miri test`는 out-of-bounds, use-after-free, data race, aliasing 위반 등을 잡는다. unsafe 코드가 있거나 low-level crate를 만들면 CI에 Miri 레인을 별도로 두되, "Miri 통과 = soundness 보장"은 아님을 인지하라.
+- **`MockDatabase` 단위 테스트를 통합 테스트로 주장하지 마라 (API-01 회귀 방지)** — SeaORM 공식 문서는 mock DB 에 실제 데이터가 없고 반환값을 직접 정의하는 방식이므로 **실 DB 기준 SQL 정합성을 검증하지 못한다**고 명시한다 — 문법상 유효하지만 의미상 틀린 쿼리가 mock 에서는 통과하고 프로덕션에서 깨진다 ([SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/)). 계약이 "통합 테스트" 를 요구하면 `#[sqlx::test]` 또는 testcontainers 로 **실제 엔진**을 태워야 한다. 2026-07 실측: "user 통합 테스트(실제 PostgreSQL) 미존재 — MockDatabase 단위 테스트만 있음" 으로 REJECT. 리포트에는 항상 계층을 명시한다: `단위(mock) N 건 / 통합(실 DB) M 건`.
+- **공유 DB 를 쓰는 테스트는 마이그레이션 선적용 필요 (DG-03)** — `#[sqlx::test]` 는 함수마다 새 테스트 DB 를 만들고 `CARGO_MANIFEST_DIR` 의 `migrations` 폴더를 **자동 적용**한다 (`migrations = false` 로 끌 수 있음) ([sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html)). 반면 `#[tokio::test]` + `serial_test` 로 **공유 로컬 DB** 를 직접 쓰는 통합 테스트는 자동 적용이 없으므로 `sqlx migrate run` 또는 마이그레이션 크레이트 실행이 선행돼야 한다. 컬럼 부재 에러(`column "..." does not exist`)를 코드 결함으로 오진하지 마라 — 먼저 스키마 상태를 확인한다.
+- **테스트 서버는 포트 0 으로 바인딩** — 통합 테스트에서 고정 포트(`127.0.0.1:8080`)를 쓰면 병렬 실행·이전 프로세스 잔존 시 `Address already in use` 로 간헐 실패한다. `TcpListener::bind("127.0.0.1:0")` 로 커널이 빈 포트를 할당하게 하고 `listener.local_addr()?` 로 실주소를 읽어 클라이언트 base URL 을 구성한다. 출처: 2026-07 실측 `port-already-in-use`.
+- **타깃 필터 전 `PKG_TARGETS` 확인** — 생성한 테스트를 실행해 보일 때 `--lib` 을 반사적으로 붙이지 마라. 바이너리 전용 패키지에는 `lib` 타깃이 없어 테스트 0 개로 끝난다. `references/project-detection.md` Step 3a 로 타깃 kind 를 먼저 열거하고 `--bins`/`--tests`/무필터 중 맞는 것을 고른다 ([cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html)). 출처: 2026-07 실측 `cargo-test-wrong-target`.
+- **"테스트 0 개 통과" 는 증거가 아니다** — 생성한 테스트가 실제로 실행됐는지 **실행 수**로 확인한다 (`running N tests`). 필터 오타·`#[ignore]`·타깃 오지정으로 0 개가 실행됐는데 exit 0 이면 그건 통과가 아니라 측정 실패다 (`qa-evaluation-guide.md` §Evidence Validity Gate 검사 2). 완료 보고에는 실행 수와 종료 코드를 함께 적는다.
 - **Sibling Consistency (skill-design-guide §8.8) — rust-test ↔ backend-test** — backend-test 가 강제하는 3 계층 패턴(단위 / 통합 / 컨트랙트) 과 동일 구조를 유지한다: (1) **단위** = SeaORM `MockDatabase::new(DatabaseBackend::Postgres)` 또는 mockall `#[automock]` (Docker 불필요), (2) **통합** = `#[sqlx::test]` 트랜잭션 격리 또는 `testcontainers` 실제 DB, (3) **컨트랙트** = Pact v4 consumer-driven contract (존재 시). Step 0 에서 스택 감지 (`HAS_SQLX` / `HAS_SEAORM` / `HAS_MOCKALL`) 를 독립 단계로 분리하여 테스트 패턴 자동 선택. 외부 실환경(production DB) 강제 금지 — CI 에서 재현 불가.
 
 # Rust 테스트 코드 생성
@@ -32,7 +37,9 @@ user-invocable: true
 ## 0. 프로젝트 감지
 
 `references/project-detection.md`의 절차를 실행하여 프로젝트 환경을 파악한다.
-이후 단계에서 `$CARGO`, `ARCH`, `IS_WORKSPACE`, `HAS_SQLX`, `HAS_TOKIO`를 사용한다.
+이후 단계에서 `$CARGO`, `ARCH`, `IS_WORKSPACE`, `PKG_TARGETS`, `HAS_SQLX`, `HAS_SEAORM`, `HAS_TOKIO`를 사용한다.
+Step 3a(패키지 타깃 구조 감지)는 **필수**다 — 생성한 테스트의 실행 명령을 안내할 때 `--lib`/`--bins` 선택
+근거가 된다.
 
 `dev-dependencies`에 `mockall`이 있는지 확인한다. 없으면 mock 생성 시 추가를 제안한다.
 `cargo nextest`가 설치되어 있는지 확인한다 (`cargo nextest --version`).
@@ -314,19 +321,22 @@ async fn test_create_user_persists_to_db() {
 
 ## 8. 실행 안내
 
-생성 완료 후 실행 명령을 안내한다:
+생성 완료 후 실행 명령을 안내한다. **타깃 필터는 Step 0 에서 얻은 `PKG_TARGETS` 에 맞춰 고른다**:
 
 ```bash
-# cargo-nextest (권장 — 빠른 병렬 실행)
-cargo nextest run
+# 무필터가 기본 — lib/bin 단위 테스트 + 통합 테스트 + doctest 를 모두 실행
+cargo test --workspace
 
-# 특정 테스트만 실행
-cargo nextest run test_create_user
+# lib 타깃이 있는 패키지만 좁힐 때
+cargo test -p my-lib --lib
 
-# 기본 cargo test (nextest 미설치 시)
-cargo test
+# 바이너리 전용 패키지 (PKG_TARGETS 에 lib 없음) — --lib 금지, --bins 사용
+cargo test -p my-api --bins
 
-# workspace 전체
+# 통합 테스트(tests/ 디렉토리)만
+cargo test -p my-api --tests
+
+# cargo-nextest (설치돼 있으면 권장 — 빠른 병렬 실행)
 cargo nextest run --workspace
 ```
 
@@ -334,7 +344,12 @@ cargo nextest run --workspace
 
 1. 생성/수정된 파일 목록 출력.
 2. mock을 위해 trait에 `#[automock]`을 추가한 경우, 원본 파일 변경을 명시한다.
-3. `#[sqlx::test]`를 사용하는 경우 `DATABASE_URL` 환경변수 설정 필요 여부를 안내한다.
-4. 다음 단계 안내:
+3. `#[sqlx::test]`를 사용하는 경우 `DATABASE_URL` 환경변수 설정 필요 여부를 안내한다. 공유 DB 를 쓰는
+   `serial_test` 계열이면 마이그레이션 선적용(`sqlx migrate run` 또는 마이그레이션 크레이트 실행)도 함께 안내한다.
+4. **테스트 계층을 명시 집계한다** — `단위(mock) N 건 / 통합(실 DB) M 건 / 프로퍼티 K 건`. mock 만
+   만들었으면 "통합 테스트 0 건" 을 숨기지 말고 그대로 적는다 (API-01 회귀 방지).
+5. 실행 증거를 남긴다 — 실행한 명령 · **실행된 테스트 수** · 종료 코드. 실행하지 않았으면
+   `[미검증] 테스트 미실행` 으로 명시하고 통과를 주장하지 않는다.
+6. 다음 단계 안내:
    - 빌드와 clippy도 확인하려면 `rust-build` 스킬을 사용하세요.
    - Pre-commit 전체 gate를 실행하려면 `rust-preflight` 스킬을 사용하세요.

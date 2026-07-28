@@ -15,15 +15,35 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# MAX_PHASE — orchestrator 의 마지막 Phase 번호.
+# sync-orchestrator.py 와 동일한 규칙으로 유도한다: harness 메타 Phase 1~4 +
+# marketplace.json 의 harness 제외 플러그인 수 (FIRST_PLUGIN_PHASE = 5).
+# 킷이 늘어나면 자동으로 따라간다 — 하드코드 금지 (Phase 11~14 거부 회귀 재발 방지).
+MAX_PHASE_ERR="$(mktemp)"
+MAX_PHASE="$(python3 - 2>"$MAX_PHASE_ERR" <<'MAXPY'
+import json
+from pathlib import Path
+data = json.loads(Path(".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
+kits = [p for p in data.get("plugins", []) if p.get("name") != "harness"]
+print(4 + len(kits))
+MAXPY
+)" || true   # set -e 하에서도 fallback 으로 넘어가야 한다 (실패 시 아래에서 처리)
+if ! [[ "$MAX_PHASE" =~ ^[0-9]+$ ]]; then
+    echo "⚠ MAX_PHASE 유도 실패 — 기본값 14 사용. 원인:" >&2
+    head -2 "$MAX_PHASE_ERR" >&2
+    MAX_PHASE=14
+fi
+rm -f "$MAX_PHASE_ERR"
+
 usage() {
-    cat <<'EOF'
+    cat <<EOF
 finalize-phase.sh — Phase 종료 처리
 
 사용법:
   bash scripts/finalize-phase.sh <phase-num> <pass|fail> [--revert]
 
 인자:
-  <phase-num>     1 ~ 10
+  <phase-num>     1 ~ ${MAX_PHASE} (marketplace.json 기준 자동 유도)
   <pass|fail>     Regression 결과
   --revert        fail 일 때 kaizen-phase-N-pre tag 로 되돌리는 git 명령 출력 (실행은 수동)
 
@@ -50,8 +70,9 @@ PHASE_NUM="$1"
 RESULT="$2"
 REVERT_FLAG="${3:-}"
 
-if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]] || [[ "$PHASE_NUM" -lt 1 ]] || [[ "$PHASE_NUM" -gt 10 ]]; then
-    echo "ERROR: phase-num 은 1~10 (받은 값: $PHASE_NUM)" >&2
+if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]] || [[ "$PHASE_NUM" -lt 1 ]] || [[ "$PHASE_NUM" -gt "$MAX_PHASE" ]]; then
+    echo "ERROR: phase-num 은 1~$MAX_PHASE (받은 값: $PHASE_NUM)" >&2
+    echo "       MAX_PHASE 는 marketplace.json 의 harness 제외 킷 수 + 4 로 유도된다." >&2
     exit 1
 fi
 
@@ -80,17 +101,23 @@ path = Path(path)
 text = path.read_text(encoding="utf-8")
 key = f"phase_{phase_num}"
 
-# Match `phase_N: <value>` possibly followed by `# comment`
-pattern = re.compile(rf"^({re.escape(key)}:\s*)(\d+)([^\n]*)$", re.MULTILINE)
+# Match `phase_N: <value>` possibly followed by `# comment`.
+# 선행 공백을 그룹에 포함시켜야 한다 — 이 파일의 카운터는 `phases:` 매핑 하위에
+# 2칸 들여쓰기로 존재한다. `^phase_N:` (열 0 고정) 으로 찾으면 항상 실패하여
+# 최상위에 중복 키를 새로 만들고, 중첩된 실제 값은 갱신되지 않는다.
+pattern = re.compile(rf"^([ \t]*{re.escape(key)}:[ \t]*)(\d+)([^\n]*)$", re.MULTILINE)
 
 m = pattern.search(text)
 if not m:
-    # Add the key before `last_updated`
-    new_entry = f"{key}: 0\n"
-    if "last_updated:" in text:
-        text = text.replace("last_updated:", new_entry + "last_updated:")
+    # 키가 진짜 없으면 `phases:` 매핑 안에 같은 들여쓰기로 추가한다.
+    phases_m = re.search(r"(?m)^phases:[ \t]*$", text)
+    if phases_m:
+        insert_at = phases_m.end() + 1  # skip the newline after `phases:`
+        text = text[:insert_at] + f"  {key}: 0\n" + text[insert_at:]
+    elif "last_updated:" in text:
+        text = text.replace("last_updated:", f"{key}: 0\n" + "last_updated:")
     else:
-        text += "\n" + new_entry
+        text += f"\n{key}: 0\n"
     m = pattern.search(text)
 
 if not m:
@@ -131,8 +158,8 @@ STATE_FILE=".harness/.meta/kaizen-state.yaml"
 if [[ -f "$STATE_FILE" ]]; then
     TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     if [[ "$RESULT" == "pass" ]]; then
-        # Phase 10 pass = 전체 사이클 완료
-        if [[ "$PHASE_NUM" -eq 10 ]]; then
+        # 마지막 Phase pass = 전체 사이클 완료 (하드코드 금지 — MAX_PHASE 유도값 사용)
+        if [[ "$PHASE_NUM" -eq "$MAX_PHASE" ]]; then
             NEW_STATUS="completed"
         else
             NEW_STATUS="running"
@@ -192,11 +219,20 @@ if [[ "$RESULT" == "fail" ]]; then
 fi
 
 # audit-log 자동 append (스크립트가 존재할 때만)
+# 실패를 조용히 삼키지 마라 — 이 호출은 CLI 계약 불일치로 3 사이클 동안 무증상 실패했고,
+# `2>/dev/null` 이 원인 진단을 막았다. 실패하면 stderr 를 그대로 노출한다
+# (근거: Glite ARF — "rules ... fail loudly when violated" arxiv 2606.27416).
 AUDIT_SCRIPT="$REPO_ROOT/scripts/append-audit-log.py"
 if [[ -f "$AUDIT_SCRIPT" ]]; then
-    python3 "$AUDIT_SCRIPT" --phase "$PHASE_NUM" --result "$RESULT" --date "$TODAY" 2>/dev/null && \
-        echo "✓ audit-log 엔트리 추가됨" || \
-        echo "⚠ audit-log append 실패 (무시)" >&2
+    AUDIT_ERR="$(mktemp)"
+    if python3 "$AUDIT_SCRIPT" --phase "$PHASE_NUM" --result "$RESULT" --date "$TODAY" 2>"$AUDIT_ERR"; then
+        echo "✓ audit-log 엔트리 추가됨"
+    else
+        echo "⚠ audit-log append 실패 — 원인:" >&2
+        head -3 "$AUDIT_ERR" >&2
+        echo "   (Phase 결과는 $FAILURE_FILE 에 기록됨. 위 원인을 고치기 전까지 audit-log 는 비어 있다)" >&2
+    fi
+    rm -f "$AUDIT_ERR"
 fi
 
 # changelog 알림

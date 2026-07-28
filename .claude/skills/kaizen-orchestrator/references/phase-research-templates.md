@@ -1,7 +1,7 @@
 ---
 title: Phase Research Templates
-version: 1.0.0
-last_updated: 2026-04-12
+version: 1.1.0
+last_updated: 2026-07-27
 ---
 
 # Phase Research Templates
@@ -165,20 +165,55 @@ planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks,
 | 11 | [Lean Stack — Lean Canvas / RAT](https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure) | community (1차) | plan-prioritize 의 riskiest assumption 접근 | WebFetch |
 | 12 | `docs/planning/*.md` (레포 내 누적 리서치 9 편) | 내부 | 각 스킬이 인용한 1차 URL 풀 | 파일 Read |
 
-## Phase 13 — onboarding-kit
+## Phase 12 — reflect-kit
 
 ### 필수 소스 (3 건 이상)
 
-onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 `onboarding-kit/skills/onboarding-kaizen/references/research-sources.md` 에 등록된 1차 출처를 재사용한다.
+reflect-kit 은 대화 피드백 → 학습 → 재주입 파이프라인(Reflexion 방법론)을 다룬다. 훅 계약과
+라벨링 품질이 핵심이므로 공식 훅 문서 + 라벨 일관성 연구 + 이벤트 그룹핑 선행 사례를 조회한다.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Claude Code Hooks](https://code.claude.com/docs/en/hooks) | 공식 | Stop/PostToolUse 훅 입력 필드·exit code 의미·timeout·`${CLAUDE_PROJECT_DIR}` 계약 | WebFetch |
+| 2 | [Reflexion (arXiv 2303.11366)](https://arxiv.org/abs/2303.11366) | 논문 | 이 킷의 방법론 원전. episodic memory buffer 재주입 근거 | WebFetch |
+| 3 | [닫힌 라벨 집합의 label collapse (arXiv 2605.06940)](https://arxiv.org/abs/2605.06940) | 논문 | `mistake_tag` 를 닫힌 집합으로 강제할 때의 소수 카테고리 미탐지·agreement illusion 위험 | WebFetch |
+| 4 | [라벨링 일관성 / 스펙 상세도 (arXiv 2605.24247)](https://arxiv.org/abs/2605.24247) | 논문 | 태그 작성 규칙의 상세도 조절 (단순 정의 부족 vs 과잉 상세 drift) | WebFetch |
+| 5 | [Sentry fingerprint rules](https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/) | 공식 | 동일 근본원인 이벤트 canonicalize 선행 사례, 과잉 병합("really bad groups") 경고 | WebFetch |
+| 6 | [Prometheus Alertmanager 설정](https://prometheus.io/docs/alerting/latest/configuration/) | 공식 | `group_by` + `repeat_interval` 재알림 억제 구조 (환경 오설정 반복 로깅 억제 설계) | WebFetch |
+| 7 | `~/.claude/logs/*/reflections-*.md` + `.env-issues.tsv` | 내부 | 실제 태그 분포·파편화 지표 실측 (읽기 전용, 수정·삭제 금지) | 파일 Read |
+
+## Phase 13 — bambu-kit
+
+### 필수 소스 (3 건 이상)
+
+bambu-kit 은 Bambu Studio 프로파일 JSON 을 생성하므로 **필드명·기본값·계산 의미를 추측하면
+import 가 조용히 실패하거나 실물 출력이 어긋난다.** 슬라이서 소스 코드가 1차 출처다.
+(references 대량 갱신은 `/bambu-research` 소관 — 이 Phase 는 스킬 품질 개선에 집중한다.)
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [BambuStudio `PrintConfig.cpp`](https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp) | 공식(소스) | 필드명·기본값·단위의 정본. 태그본과 대조하여 버전 밴드 확인 | curl |
+| 2 | [BambuStudio `PrintObjectSlice.cpp`](https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp) | 공식(소스) | 보정값이 **경계 오프셋인지 지름인지** 등 계산 의미 확인 (2026-07-27 PL-01 근본원인) | curl |
+| 3 | [BambuStudio Releases API](https://api.github.com/repos/bambulab/BambuStudio/releases) | 공식 | references baseline 버전 밴드가 현행과 얼마나 벌어졌는지 | WebFetch |
+| 4 | [OrcaSlicer quality settings 위키](https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision) | community(1차) | 정밀도/공차 파라미터 해설 교차 검증 | WebFetch |
+| 5 | [3MF Core Spec](https://github.com/3MFConsortium/spec_core) | 공식 | 모델 파싱 시 구조 전제(지오메트리 위치, 속성 포함 태그) 확인 | WebFetch |
+| 6 | `bambu-kit/skills/bambu-print-profile/references/*` (SSOT 7종) + 실측 dogfood 산출물 | 내부 | SSOT 수치와 실제 생성 프로파일의 정합성 전수 대조 | 파일 Read |
+
+## Phase 14 — onboarding-kit
+
+### 필수 소스 (3 건 이상)
+
+onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 `.claude/skills/onboarding-kaizen/references/research-sources.md` 에 등록된 1차 출처를 재사용한다.
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
 | 1 | [Firebase iOS / FlutterFire docs](https://firebase.google.com/docs/cloud-messaging/ios/client) | 공식 | FCM 셋업 절차 변경, APNs 키 형식 변경 | WebFetch |
-| 2 | [FlutterFire GitHub Releases](https://github.com/firebase/flutterfire/releases) | 공식 | 호환 매트릭스 변경, breaking change 감지 | WebFetch |
-| 3 | [Apple Developer Account Help](https://developer.apple.com/help/account/) | 공식 | Bundle ID 정책, 인증서/provisioning 절차 변경 | WebFetch |
-| 4 | [Stripe iOS / Web docs](https://stripe.com/docs/) | 공식 | Stripe SDK 최신 셋업 절차 | WebFetch |
+| 2 | [Firebase Flutter setup](https://firebase.google.com/docs/flutter/setup) | 공식 | 스택별 초기화 절차 (Flutter 는 네이티브 절차와 다르다 — 혼동이 실사고로 이어졌음) | WebFetch |
+| 3 | [Apple Developer Account Help](https://developer.apple.com/help/account/) | 공식 | Bundle ID 정책, 인증서/provisioning 절차, 실측 섹션명 | WebFetch |
+| 4 | [Stripe docs](https://docs.stripe.com/) | 공식 | Stripe SDK 최신 셋업 절차. **구 호스트 `stripe.com/docs/` 는 크로스호스트 리다이렉트라 fetch 실패** | WebFetch |
 | 5 | [Google Cloud Console docs](https://cloud.google.com/docs/) | 공식 | GCP 서비스 계정/OAuth 셋업 변경 | WebFetch |
-| 6 | 사용자 피드백 메모리 (`~/.claude/projects/.../memory/feedback_setup_guide_*.md`) | 내부 | 실사용 막힘 패턴 → Gotchas 개선 | 파일 Read |
+| 6 | 패키지 레지스트리 (예: [pub.dev/packages/firebase_messaging](https://pub.dev/packages/firebase_messaging)) | 공식 | 버전 확인은 레지스트리 우선 — GitHub Releases fetch 는 구 프리릴리스만 반환하는 사례 확인됨 | WebFetch |
+| 7 | 사용자 피드백 메모리 (`~/.claude/projects/.../memory/feedback_setup_guide_*.md`) | 내부 | 실사용 막힘 패턴 → Gotchas 개선 (읽기 전용) | 파일 Read |
 
 ## 사용 규칙
 

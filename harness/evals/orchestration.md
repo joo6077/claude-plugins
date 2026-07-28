@@ -16,7 +16,8 @@ Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프�
 #### HO-CAP-02: REJECT → 재작업 루프
 - Task: QA Evaluator가 REJECT했을 때 Generator가 피드백을 반영하여 수정
 - Success Criteria:
-  - [ ] Generator가 `.harness/sprint-feedback.md` 읽음
+  - [ ] Generator가 **평가된 계약과 같은 슬러그**의 QA 산출물을 읽음
+        (`.harness/sprint-feedback-<slug>.md`, plain 모드면 `.harness/sprint-feedback.md`)
   - [ ] FAIL 항목에 대해서만 수정 (PASS 항목 건드리지 않음)
   - [ ] 수정 후 QA Evaluator 재실행
   - [ ] 최대 3회 루프 후에도 REJECT이면 사용자에게 에스컬레이션
@@ -31,10 +32,14 @@ Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프�
 
 #### HO-CAP-04: .harness/ 파일 관리
 - Task: 하네스 산출물이 체계적으로 관리되는지
+- 경로 규약 SSOT: `harness/references/contract-schema.md` §산출물 3 종
 - Success Criteria:
-  - [ ] `.harness/sprint-contract.md` — 계약서
-  - [ ] `.harness/sprint-feedback.md` — QA 피드백 (APPROVE 시 최종 결과 포함)
-  - [ ] 이전 하네스 결과는 `.harness/history/{YYYYMMDD-HHmm}-sprint-contract.md`로 보관
+  - [ ] `.harness/sprint-contract-<slug>.md` — 계약서 (plain 모드면 `sprint-contract.md`)
+  - [ ] `.harness/sprint-feedback-<slug>.md` — QA 피드백 (APPROVE 시 최종 결과 포함)
+  - [ ] `.harness/sprint-amendments-<slug>.md` — 스프린트 중 합의 변경 (발생했을 때만)
+  - [ ] 3 종의 슬러그가 서로 일치 (계약은 접미형인데 피드백만 plain 이면 FAIL)
+  - [ ] 계약 frontmatter 에 `slug` / `status` 가 있고, 스프린트 종료 시 `status: done` 으로 전환
+  - [ ] 이전 하네스 결과는 `.harness/history/{YYYYMMDD-HHmm}-sprint-contract-<slug>.md`로 보관
 
 ### Regression Evals
 
@@ -43,14 +48,16 @@ Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프�
   - develop-without-harness-still-works: PASS/FAIL (단순 수정엔 하네스 불필요)
   - audit-independent-of-qa: PASS/FAIL
   - preflight-unaffected: PASS/FAIL
+  - legacy-plain-contract-still-evaluated: PASS/FAIL
+    (`status` 없는 레거시 계약도 `HARNESS_CONTRACT` 명시 경로로 판정이 나온다 — BLOCKED 금지)
 
 ### End-to-End Test Scenario
 
-```
+```text
 Input: "운동 기록을 날짜별로 그룹핑해서 보여주는 화면 만들어줘"
 
 Expected Flow:
-1. Sprint Contract 생성
+1. Sprint Contract 생성 (.harness/sprint-contract-<slug>.md · status: active)
    - UI: 날짜별 그룹 헤더 + 기록 리스트 표시
    - Logic: Repository에서 날짜별 그룹핑 처리
    - Error: 데이터 없을 때 빈 상태 화면 표시
@@ -61,12 +68,12 @@ Expected Flow:
    → 코드 생성
 
 3. QA Evaluator (별도 컨텍스트)
-   → sprint-contract.md 파싱
-   → 코드 읽기 + 조건 대조
-   → 판정: APPROVE or REJECT
+   → ladder 로 계약 특정 (명시 경로 > 세션 소유 active 유일 > active 유일 > BLOCKED)
+   → 계약 파싱 + 코드 읽기 + 조건 대조
+   → 판정: APPROVE or REJECT → sprint-feedback-<slug>.md 저장
 
-4a. REJECT → Generator 수정 → QA 재실행
-4b. APPROVE → 빌드/감사/검증 진행
+4a. REJECT → Generator 가 같은 슬러그의 feedback 을 읽고 수정 → QA 재실행
+4b. APPROVE → 빌드/감사/검증 진행 → 계약 status: done
 ```
 
 ### Success Metrics

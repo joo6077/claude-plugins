@@ -21,7 +21,8 @@ user-invocable: true
 6. **평가 카테고리 생략 금지** — 아래 **12 카테고리 (0a/0b + 1~10)** 모두 평가. 해당 없으면 "N/A (reason)" 명시. 카테고리 수가 요약표와 본문에서 다르면 Sibling Consistency 위반 — verdict 신뢰 붕괴.
 7. **원칙 위반 기록 시 출처 인용 필수** — FAIL 판정 시 `principle_violated` 필드에 docs/planning/*.md 섹션 + 1차 출처 URL 둘 다 명시. 예: "INVEST §Small (출처: [Agile Alliance](https://agilealliance.org/glossary/invest/))".
 8. **Enumerate-before-Act** — Step 2 에서 reviewer 호출 전, Step 1 에서 **존재하는 모든 .planning/ 파일을 인벤토리로 나열**하고 사용자에게 보여준다. 비인벤토리 상태에서 reviewer 를 spawn 하면 누락 파일이 FAIL 로 잡히지 않는다.
-9. **[미검증] 표기 의무** — reviewer 가 자체 검증 불가능한 항목(예: Mermaid 렌더 결과, 외부 URL 유효성, GitHub sync 실제 결과)은 FAIL 이 아니라 `[미검증]` 으로 표기하고 사용자에게 수동 확인 요청. 관측 못 한 것을 FAIL 처리하면 평가 의미 상실.
+9. **[미검증] 표기 의무** — reviewer 가 자체 검증 불가능한 항목(예: Mermaid 렌더 결과, 외부 URL 유효성, GitHub sync 실제 결과)은 FAIL 이 아니라 `[미검증]` 으로 표기하고 사용자에게 수동 확인 요청. 관측 못 한 것을 FAIL 처리하면 평가 의미 상실. **마커 의미·임계값·집계 형식의 SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이며 `planning-reviewer` 가 이를 복제 보유한다 — 본 스킬에서 임계 숫자를 재정의하지 마라.**
+10. **산출물이 있어도 공허하면 PASS 금지** — 파일이 존재하는데 해당 섹션이 비어 있거나 템플릿 헤더만 남은 경우(항목 0개), 존재 자체를 충족으로 읽지 마라. canonical 조항 2 의 3 분기(FAIL / 도구 부재 / 증거 무효)를 적용한다. 빈 결과를 "문제 없음" 으로 읽는 것이 skill-design-guide §3.7 조항 4 가 지적한 실제 사고 형태다.
 
 # Process
 
@@ -79,7 +80,7 @@ Agent 도구로 `planning-reviewer` 서브에이전트 spawn. 프롬프트에 �
 
 ## Step 4: 리포트 생성
 
-분모는 **평가된 카테고리 수** (0a/0b 를 포함하면 12, 둘 다 N/A 처리면 10). Summary 의 X+Y+Z 합이 분모와 일치해야 한다 (Sibling Consistency).
+분모는 **항상 12** 다. 0a/0b 를 N/A 로 처리해도 카테고리는 사라지지 않고 `N/A` 라는 판정을 받은 채 남는다 — 분모를 10 으로 줄이면 `planning-reviewer` Gotcha 9(분모 항상 12) 와 어긋나고 아래 템플릿의 `/ 12` 표기와도 모순된다. **PASS + FAIL + N/A + [미검증] 합이 12 와 일치**해야 한다 (Sibling Consistency). 합이 12 가 아니면 리포트를 쓰지 말고 reviewer 에 재산정을 요구한다.
 
 ```markdown
 # Plan Audit: <프로젝트>
@@ -91,8 +92,9 @@ Auditor: planning-reviewer agent
 - PASS: X / 12
 - FAIL: Y / 12
 - N/A: Z / 12
-- [미검증]: W (해당 시)
-- Verdict: **READY_FOR_SPRINT_CONTRACT** | **NEEDS_REVISION** | **BLOCKED**
+- [미검증]: W 건
+  - <카테고리 ID> — 사유: ... / 시도한 fallback: ...
+- Verdict: **READY_FOR_SPRINT_CONTRACT** | **NEEDS_REVISION** | **NEEDS_VERIFICATION** | **BLOCKED**
 
 ## Findings
 ### 1. Discovery — PASS
@@ -116,11 +118,21 @@ Auditor: planning-reviewer agent
 
 ## Step 5: Verdict 결정
 
-- **READY_FOR_SPRINT_CONTRACT**: 12 카테고리 모두 PASS 또는 명시적 N/A (0a/0b 포함). → sprint-contract 진행 가능
+reviewer 가 FAIL 축과 `[미검증]` 축을 각각 판정해서 돌려준다. 본 스킬은 그 결과를 그대로 옮기고, 두 축 중 더 강한 제약을 최종 verdict 로 기록한다.
+
+**FAIL 축:**
+
+- **READY_FOR_SPRINT_CONTRACT**: FAIL 0 (12 카테고리 모두 PASS 또는 명시적 N/A). → sprint-contract 진행 가능
 - **NEEDS_REVISION**: 1-3 FAIL, 모두 수정 가능 범위. → 보완 후 재감사. (CONDITIONAL — 기획 기반 자체는 유효하지만 일부 산출물 품질 부족)
 - **BLOCKED**: 4+ FAIL 또는 discovery / prd 자체 누락. → plan-discover 부터 재시작
 
-[미검증] 항목은 FAIL 로 counting 하지 않되, verdict 결정 시 "검증 후 재평가" 를 Next Actions 에 반드시 포함.
+**`[미검증]` 축** — 임계값을 여기서 다시 정의하지 않는다. SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 조항 3 (임계 2) 이고, `planning-reviewer` 가 그것을 복제 보유한다:
+
+- 0 건 → FAIL 축 결과 그대로
+- 1 건 → FAIL 축 결과 유지 + 리포트 최상단 경고 명시 (FAIL 0 이면 READY 가능)
+- 2 건 이상 → **NEEDS_VERIFICATION** (READY 아님). FAIL 0 이어도 sprint-contract 진행 차단
+
+[미검증] 항목은 FAIL 로 counting 하지 않되(두 축 별개), 조항 5 에 따라 `미검증 N 건` 을 반드시 집계하고 건별로 `[카테고리 ID, 사유, 시도한 fallback 단계]` 를 기록한다. Next Actions 에 "검증 후 재평가" 를 반드시 포함.
 
 ## Step 6: 저장 + 안내
 

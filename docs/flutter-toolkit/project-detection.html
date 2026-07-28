@@ -35,20 +35,27 @@ body{
 h1{font-size:clamp(2.2rem,4vw+1rem,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
   background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
-.subtitle{font-size:1.1rem;color:var(--text2);max-width:600px;margin:0 auto;line-height:1.7}
+.subtitle{font-size:1.1rem;color:var(--text2);max-width:720px;margin:0 auto;line-height:1.7}
 
 /* SECTION */
 .section{padding:48px 0;border-top:1px solid var(--border)}
 .section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
 .section-title{font-size:clamp(1.5rem,2.5vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
-.section-desc{font-size:0.95rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:32px}
+.section-desc{font-size:0.95rem;color:var(--text2);max-width:760px;line-height:1.7;margin-bottom:32px}
 
 /* CARD */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:28px;transition:var(--transition)}
+  padding:28px;transition:var(--transition);margin-bottom:16px}
 .card:hover{border-color:rgba(34,211,238,0.3)}
-.card-title{font-size:1.05rem;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card-title{font-size:1.05rem;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.card p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;
+  color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;
+  min-height:24px;transition:var(--transition)}
+.card-source:hover{background:var(--accent);color:var(--bg)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.card-source::before{content:'↗';font-weight:800}
 
 /* GRID */
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
@@ -61,7 +68,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 thead{background:var(--surface2)}
 th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
   letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:rgba(34,211,238,0.04)}
 
@@ -71,231 +78,405 @@ tbody tr:hover{background:rgba(34,211,238,0.04)}
 
 /* FLOW DIAGRAM */
 .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
-.flow-step{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 24px;
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);min-width:160px;text-align:center;transition:var(--transition)}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);min-width:150px;text-align:center;transition:var(--transition)}
 .flow-step:hover{border-color:var(--accent);transform:translateY(-2px)}
 .flow-step .num{margin-bottom:4px}
-.flow-step strong{font-size:0.9rem}
-.flow-step span{font-size:0.78rem;color:var(--text3)}
-.flow-arrow{font-size:1.4rem;color:var(--accent);padding:0 8px;flex-shrink:0}
+.flow-step strong{font-size:0.88rem}
+.flow-step span{font-size:0.76rem;color:var(--text3)}
+.flow-arrow{font-size:1.3rem;color:var(--accent);padding:0 6px;flex-shrink:0}
 @media(max-width:600px){.flow{flex-direction:column}.flow-arrow{transform:rotate(90deg)}}
 
 /* CODE */
 code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent2)}
+.code-block{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:10px 0}
 .var-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;font-family:var(--mono);font-size:14px;line-height:1.6}
 .var-block .label{color:var(--text3);font-size:12px;margin-bottom:8px;font-family:inherit;display:block}
 .var-block .val{color:var(--accent)}
 
 /* DECISION TREE */
-.decision{display:flex;flex-direction:column;gap:16px}
-.decision-row{display:flex;align-items:center;gap:16px;padding:16px 20px;
+.decision{display:flex;flex-direction:column;gap:14px}
+.decision-row{display:flex;align-items:center;gap:16px;padding:16px 20px;flex-wrap:wrap;
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
 .decision-row:hover{border-color:rgba(34,211,238,0.3)}
-.decision-file{font-family:var(--mono);font-size:0.85rem;color:var(--accent2);min-width:220px}
+.decision-file{font-family:var(--mono);font-size:0.85rem;color:var(--accent2);min-width:230px}
 .decision-result{font-size:0.9rem;color:var(--text)}
 .decision-cmd{font-family:var(--mono);font-size:0.82rem;color:var(--green);margin-left:auto;white-space:nowrap}
 
-/* CHECKLIST */
-.checklist{margin-top:24px}
-.checklist-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start}
-.checklist-item:last-child{border-bottom:none}
-.checklist-box{width:20px;height:20px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition)}
-.checklist-box.checked{background:var(--green);border-color:var(--green)}
-.checklist-box.checked::after{content:'';width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
-.checklist-text{font-size:0.88rem;color:var(--text);line-height:1.5;flex:1}
+/* LADDER */
+.ladder{display:flex;flex-direction:column;gap:12px;margin:20px 0}
+.rung{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:18px 20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
+.rung:hover{border-color:rgba(34,211,238,0.3)}
+.rung-num{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;
+  background:var(--accent-dim);color:var(--accent);font-weight:800;font-size:14px}
+.rung-none .rung-num{background:rgba(248,113,113,0.14);color:var(--red)}
+.rung h4{font-size:0.95rem;font-weight:700;margin-bottom:6px}
+.rung p{font-size:0.85rem;color:var(--text2);line-height:1.7}
+.rung .out{font-family:var(--mono);font-size:12px;color:var(--green);display:inline-block;margin-top:8px}
+.rung-none .out{color:var(--red)}
 
-.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600}
-.tag-cyan{background:rgba(34,211,238,0.12);color:var(--accent)}
-.tag-green{background:rgba(74,222,128,0.12);color:var(--green)}
-.tag-yellow{background:rgba(251,191,36,0.12);color:var(--yellow)}
-.tag-red{background:rgba(248,113,113,0.12);color:var(--red)}
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
+
+/* CHECKLIST */
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:840px;margin-top:16px}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:0.9rem;color:var(--text2);line-height:1.7;
+  padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
+.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
+
+/* WARN BOX */
+.warn{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.warn-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.warn p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.danger{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25);border-radius:12px;padding:22px;margin:18px 0}
+.danger-title{font-size:13px;font-weight:800;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.danger p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+
+/* FOOTER */
+.footer{margin-top:60px;padding:32px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+.footer a:hover{color:var(--accent2)}
+.footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 </style>
+  <!-- kaizen-cycle: 2026-07-27 (Step 8 VISUAL_CHANNEL / HAS_VISUAL_CHANNEL 시각 채널 감지 ladder 신설) -->
 </head>
 <body>
 <div class="page">
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-badge">Flutter Toolkit</div>
-    <h1>프로젝트 감지</h1>
-    <p class="subtitle">Flutter 환경 자동 감지 — FVM, 아키텍처, 의존성</p>
+<div class="hero">
+  <div class="hero-badge">Flutter Toolkit · SSOT</div>
+  <h1>프로젝트 감지</h1>
+  <p class="subtitle">모든 flutter-toolkit 스킬은 코드 생성/명령 실행 전에 이 문서의 절차로 프로젝트 환경을 감지하고, 감지 결과를 기반으로 동작을 분기한다. 2026-07 사이클에서 <strong>Step 8 시각 검증 채널 감지</strong>가 신설되었다.</p>
+</div>
+
+<!-- FLOW -->
+<div class="section">
+  <div class="section-label">Overview</div>
+  <div class="section-title">감지 절차 8 단계</div>
+  <p class="section-desc">스킬 실행 시 아래 순서로 프로젝트 환경을 파악한다. Step 8 은 UI 를 만들거나 고치는 스킬에만 적용된다.</p>
+  <div class="flow">
+    <div class="flow-step"><span class="num">1</span><strong>Flutter 확인</strong><span>pubspec.yaml</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="num">2</span><strong>SDK 매니저</strong><span>fvm / asdf / system</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="num">3</span><strong>의존성</strong><span>HAS_* 플래그</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="num">4</span><strong>아키텍처</strong><span>clean / mvvm / …</span></div>
   </div>
-
-  <!-- FLOW DIAGRAM -->
-  <div class="section">
-    <div class="section-label">Detection Pipeline</div>
-    <div class="section-title">감지 흐름</div>
-    <div class="section-desc">모든 flutter-toolkit 스킬은 코드 생성 전에 이 파이프라인을 실행하여 프로젝트 환경을 자동으로 파악한다.</div>
-
-    <div class="flow">
-      <div class="flow-step"><div class="num">1</div><strong>Flutter 확인</strong><span>pubspec.yaml</span></div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step"><div class="num">2</div><strong>SDK 매니저</strong><span>FVM / asdf / system</span></div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step"><div class="num">3</div><strong>의존성 감지</strong><span>dependencies 분석</span></div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step"><div class="num">4</div><strong>아키텍처</strong><span>lib/ 구조 분석</span></div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step"><div class="num">5</div><strong>컨벤션</strong><span>코드 패턴 감지</span></div>
-    </div>
+  <div class="flow">
+    <div class="flow-step"><span class="num">5</span><strong>코드 컨벤션</strong><span>import · 위젯 베이스</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="num">6</span><strong>분석 도구</strong><span>analysis_options</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="num">7</span><strong>디자인 시스템</strong><span>HAS_DS</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="num">8</span><strong>시각 채널</strong><span>VISUAL_CHANNEL</span></div>
   </div>
+</div>
 
-  <!-- STEP 1 -->
-  <div class="section">
-    <div class="section-label">Step 1</div>
-    <div class="section-title">Flutter 프로젝트 확인</div>
-    <div class="section-desc"><code>pubspec.yaml</code>을 찾아 패키지명과 SDK 버전을 추출한다. 없으면 에러를 출력하고 중단한다.</div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title"><span class="dot"></span>추출 항목</div>
-        <div class="checklist">
-          <div class="checklist-item" onclick="toggle(this)">
-            <div class="checklist-box"></div>
-            <div class="checklist-text"><code>name</code> &rarr; 패키지명 (<code>package:{name}/...</code> import 경로)</div>
-          </div>
-          <div class="checklist-item" onclick="toggle(this)">
-            <div class="checklist-box"></div>
-            <div class="checklist-text"><code>environment.sdk</code> &rarr; Dart SDK 버전 제약</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="dot" style="background:var(--red)"></span>미감지 시 에러</div>
-        <div style="padding:16px;background:rgba(248,113,113,0.06);border-radius:10px;border:1px solid rgba(248,113,113,0.15);font-size:0.88rem;color:var(--red);font-family:var(--mono)">
-          "Flutter 프로젝트가 아닙니다. pubspec.yaml이 있는 디렉토리에서 실행해주세요."
-        </div>
-      </div>
+<!-- STEP 1-2 -->
+<div class="section">
+  <div class="section-label">Step 1 · 2</div>
+  <div class="section-title">Flutter 프로젝트 확인 · SDK 매니저 감지</div>
+  <p class="section-desc"><code>pubspec.yaml</code> 을 찾는다. 없으면 에러로 중단한다 — "Flutter 프로젝트가 아닙니다. pubspec.yaml이 있는 디렉토리에서 실행해주세요."</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Step 1 — pubspec.yaml 에서 추출</div>
+      <p>· <code>name</code> → <strong>패키지명</strong> (import 경로에 사용: <code>package:{name}/...</code>)<br>· <code>environment.sdk</code> → Dart SDK 버전</p>
     </div>
-  </div>
-
-  <!-- STEP 2 -->
-  <div class="section">
-    <div class="section-label">Step 2</div>
-    <div class="section-title">SDK 매니저 감지</div>
-    <div class="section-desc">프로젝트 루트의 설정 파일로 SDK 매니저를 판별하고 명령 prefix를 결정한다.</div>
-
-    <div class="decision">
-      <div class="decision-row">
-        <div class="decision-file"><code>.fvmrc</code> 또는 <code>.fvm/fvm_config.json</code></div>
-        <div class="decision-result"><span class="tag tag-cyan">FVM</span></div>
-        <div class="decision-cmd">fvm flutter / fvm dart</div>
-      </div>
-      <div class="decision-row">
-        <div class="decision-file"><code>.tool-versions</code> (asdf flutter 항목)</div>
-        <div class="decision-result"><span class="tag tag-yellow">asdf</span></div>
-        <div class="decision-cmd">flutter / dart</div>
-      </div>
-      <div class="decision-row">
-        <div class="decision-file">설정 파일 없음</div>
-        <div class="decision-result"><span class="tag tag-green">System</span></div>
-        <div class="decision-cmd">flutter / dart</div>
-      </div>
-    </div>
-
-    <div style="margin-top:28px">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Step 2 — 명령 prefix 변수</div>
       <div class="var-block">
-        <span class="label">감지 결과 변수</span>
-        FVM &rarr; <span class="val">$FLUTTER = fvm flutter</span> &nbsp; <span class="val">$DART = fvm dart</span><br>
-        기타 &rarr; <span class="val">$FLUTTER = flutter</span> &nbsp;&nbsp;&nbsp; <span class="val">$DART = dart</span>
+        <span class="label">FVM 프로젝트</span>
+        $FLUTTER = <span class="val">fvm flutter</span><br>
+        $DART = <span class="val">fvm dart</span>
+        <span class="label" style="margin-top:14px">기타 (asdf · 시스템)</span>
+        $FLUTTER = <span class="val">flutter</span><br>
+        $DART = <span class="val">dart</span>
       </div>
     </div>
   </div>
-
-  <!-- STEP 3 -->
-  <div class="section">
-    <div class="section-label">Step 3</div>
-    <div class="section-title">의존성 감지</div>
-    <div class="section-desc"><code>pubspec.yaml</code>의 <code>dependencies</code> + <code>dev_dependencies</code>에서 패키지를 감지하고 플래그를 설정한다.</div>
-
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>패키지</th><th>감지 플래그</th><th>영향받는 스킬</th></tr></thead>
-        <tbody>
-          <tr><td><code>flutter_riverpod</code> / <code>hooks_riverpod</code></td><td><span class="tag tag-cyan">HAS_RIVERPOD</span></td><td>flutter-provider</td></tr>
-          <tr><td><code>go_router</code></td><td><span class="tag tag-cyan">HAS_GO_ROUTER</span></td><td>flutter-screen, flutter-transition</td></tr>
-          <tr><td><code>go_router_builder</code></td><td><span class="tag tag-cyan">HAS_GO_ROUTER_BUILDER</span></td><td>flutter-screen (TypedGoRoute)</td></tr>
-          <tr><td><code>freezed</code></td><td><span class="tag tag-cyan">HAS_FREEZED</span></td><td>flutter-api, flutter-feature</td></tr>
-          <tr><td><code>retrofit</code></td><td><span class="tag tag-cyan">HAS_RETROFIT</span></td><td>flutter-api</td></tr>
-          <tr><td><code>build_runner</code></td><td><span class="tag tag-yellow">HAS_BUILD_RUNNER</span></td><td>flutter-run (codegen)</td></tr>
-          <tr><td><code>slang</code> / <code>slang_flutter</code></td><td><span class="tag tag-green">HAS_SLANG</span></td><td>flutter-l10n</td></tr>
-          <tr><td><code>easy_localization</code></td><td><span class="tag tag-green">HAS_EASY_L10N</span></td><td>flutter-l10n</td></tr>
-          <tr><td><code>flutter_hooks</code> / <code>hooks_riverpod</code></td><td><span class="tag tag-cyan">HAS_HOOKS</span></td><td>flutter-hooks, flutter-widget</td></tr>
-          <tr><td><code>custom_lint</code></td><td><span class="tag tag-yellow">HAS_CUSTOM_LINT</span></td><td>flutter-audit</td></tr>
-          <tr><td><code>auto_route</code></td><td><span class="tag tag-cyan">HAS_AUTO_ROUTE</span></td><td>flutter-screen, flutter-transition</td></tr>
-          <tr><td><code>flutter_bloc</code> / <code>bloc</code></td><td><span class="tag tag-cyan">HAS_BLOC</span></td><td>flutter-provider, flutter-audit</td></tr>
-          <tr><td><code>dio</code></td><td><span class="tag tag-yellow">HAS_DIO</span></td><td>flutter-api</td></tr>
-        </tbody>
-      </table>
+  <div class="decision">
+    <div class="decision-row">
+      <span class="decision-file">.fvmrc / .fvm/fvm_config.json</span>
+      <span class="decision-result">FVM</span>
+      <span class="decision-cmd">fvm flutter · fvm dart</span>
     </div>
-    <div class="card" style="border-color:rgba(251,191,36,0.25)">
-      <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>미설치 패키지 안내</div>
-      <div style="font-size:0.88rem;color:var(--text2);font-family:var(--mono)">
-        "{패키지}가 pubspec.yaml에 없습니다. 이 기능을 사용하려면 먼저 설치해주세요:<br>
-        <span style="color:var(--accent)">$FLUTTER pub add {패키지}</span>"
+    <div class="decision-row">
+      <span class="decision-file">.tool-versions (asdf flutter 항목)</span>
+      <span class="decision-result">asdf</span>
+      <span class="decision-cmd">flutter · dart</span>
+    </div>
+    <div class="decision-row">
+      <span class="decision-file">(없음)</span>
+      <span class="decision-result">시스템</span>
+      <span class="decision-cmd">flutter · dart</span>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2b -->
+<div class="section">
+  <div class="section-label">Step 2b</div>
+  <div class="section-title">Makefile 기반 monorepo 감지</div>
+  <p class="section-desc">프로젝트 루트에 <code>Makefile</code> 이 존재하고 Flutter 관련 타겟이 정의되어 있으면 <code>HAS_MAKEFILE = true</code>. 이 경우 flutter-preflight / flutter-run 스킬은 <code>$FLUTTER</code> 직접 호출 대신 <code>make &lt;target&gt;</code> 을 우선 사용한다.</p>
+  <div class="warn">
+    <div class="warn-title">왜 Makefile 을 우선하는가</div>
+    <p>Makefile 기반 monorepo 는 <code>dart-define-from-file=.dart_defines.json</code>, <code>--observatory-port=8181</code>, launch.json/tasks.json 연동 설정을 <strong>Makefile 타겟 한 곳에 집중 관리</strong>한다. <code>fvm flutter run</code> 을 직접 호출하면 이 설정들이 누락되어 앱이 다른 환경으로 기동되거나 디버거가 연결되지 않는다 (fit-pal sprint-feedback iter 2 AC-6 기반).</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>감지 절차</div>
+      <ul class="checklist">
+        <li><span class="check">1</span>프로젝트 루트에서 <code>Makefile</code> 존재 확인</li>
+        <li><span class="check">2</span>본문에 다음 타겟 중 하나 이상 존재하면 <code>HAS_MAKEFILE = true</code> — <code>app-run</code>, <code>app-run-staging</code>, <code>app-run-prod</code>, <code>app-run-profile</code>, <code>app-test</code>, <code>app-analyze</code>, <code>app-fix</code>, <code>app-clean</code>, <code>app-codegen</code>, <code>app-codegen-filter</code>, <code>app-build</code>, <code>app-preflight</code></li>
+        <li><span class="check">3</span><code>$MAKE = make</code> 변수를 제공 (Windows 에서는 <code>gmake</code> 또는 프로젝트 관습 우선)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>HAS_MAKEFILE = true</code> 일 때 스킬 매핑</div>
+      <div class="table-wrap" style="margin-top:12px;margin-bottom:0">
+        <table>
+          <thead><tr><th>스킬</th><th>기본 동작</th><th>Makefile 우선</th></tr></thead>
+          <tbody>
+            <tr><td>flutter-run codegen</td><td><code>$DART run build_runner build --delete-conflicting-outputs</code></td><td><code>$MAKE app-codegen</code></td></tr>
+            <tr><td>flutter-run analyze</td><td><code>$FLUTTER analyze</code></td><td><code>$MAKE app-analyze</code></td></tr>
+            <tr><td>flutter-run fix</td><td><code>$DART fix --apply lib/ &amp;&amp; $DART format lib/</code></td><td><code>$MAKE app-fix</code></td></tr>
+            <tr><td>flutter-run test</td><td><code>$FLUTTER test</code></td><td><code>$MAKE app-test</code></td></tr>
+            <tr><td>flutter-preflight</td><td>fix → codegen → analyze → test</td><td><code>$MAKE app-preflight</code></td></tr>
+            <tr><td>flutter-build</td><td>codegen → analyze</td><td><code>$MAKE app-build</code></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- STEP 4: ARCHITECTURE -->
-  <div class="section">
-    <div class="section-label">Step 4</div>
-    <div class="section-title">아키텍처 패턴 감지</div>
-    <div class="section-desc"><code>lib/</code> 디렉토리 구조를 분석하여 프로젝트 아키텍처를 판별한다.</div>
+<!-- STEP 3 -->
+<div class="section">
+  <div class="section-label">Step 3</div>
+  <div class="section-title">의존성 감지 — <code>HAS_*</code> 플래그</div>
+  <p class="section-desc"><code>pubspec.yaml</code> 의 <code>dependencies</code> + <code>dev_dependencies</code> 에서 감지한다. 의존성이 없는 기능을 요청하면 안내 메시지를 출력한다 — "{패키지}가 pubspec.yaml에 없습니다. 이 기능을 사용하려면 먼저 설치해주세요: <code>$FLUTTER pub add {패키지}</code>"</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>패키지</th><th>감지 키</th><th>영향받는 스킬</th></tr></thead>
+      <tbody>
+        <tr><td><code>flutter_riverpod</code> 또는 <code>hooks_riverpod</code></td><td><code>HAS_RIVERPOD</code></td><td>flutter-provider</td></tr>
+        <tr><td><code>go_router</code></td><td><code>HAS_GO_ROUTER</code></td><td>flutter-screen, flutter-transition</td></tr>
+        <tr><td><code>go_router_builder</code></td><td><code>HAS_GO_ROUTER_BUILDER</code></td><td>flutter-screen (TypedGoRoute codegen)</td></tr>
+        <tr><td><code>freezed</code></td><td><code>HAS_FREEZED</code></td><td>flutter-api, flutter-feature</td></tr>
+        <tr><td><code>retrofit</code></td><td><code>HAS_RETROFIT</code></td><td>flutter-api</td></tr>
+        <tr><td><code>build_runner</code></td><td><code>HAS_BUILD_RUNNER</code></td><td>flutter-run (codegen)</td></tr>
+        <tr><td><code>slang</code> 또는 <code>slang_flutter</code></td><td><code>HAS_SLANG</code></td><td>flutter-l10n</td></tr>
+        <tr><td><code>easy_localization</code></td><td><code>HAS_EASY_L10N</code></td><td>flutter-l10n</td></tr>
+        <tr><td><code>flutter_hooks</code> 또는 <code>hooks_riverpod</code></td><td><code>HAS_HOOKS</code></td><td>flutter-hooks, flutter-widget</td></tr>
+        <tr><td><code>custom_lint</code></td><td><code>HAS_CUSTOM_LINT</code></td><td>flutter-audit</td></tr>
+        <tr><td><code>auto_route</code></td><td><code>HAS_AUTO_ROUTE</code></td><td>flutter-screen, flutter-transition</td></tr>
+        <tr><td><code>auto_route_generator</code></td><td>(auto_route 와 같이 감지)</td><td>flutter-screen</td></tr>
+        <tr><td><code>flutter_bloc</code> 또는 <code>bloc</code></td><td><code>HAS_BLOC</code></td><td>flutter-provider, flutter-audit</td></tr>
+        <tr><td><code>dio</code></td><td><code>HAS_DIO</code></td><td>flutter-api</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title"><span class="tag tag-cyan">ARCH = clean</span></div>
-        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
-          lib/features/*/data/<br>lib/features/*/domain/<br>lib/features/*/presentation/
-        </div>
-        <div style="margin-top:12px;font-size:0.82rem;color:var(--text3)">domain &rarr; data, presentation import 금지<br>Repository: interface(domain) + impl(data) 분리</div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="tag tag-green">ARCH = mvvm</span></div>
-        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
-          lib/features/*/ui/<br>lib/features/*/view_models/<br>lib/*/views/, lib/*/view_models/
-        </div>
-        <div style="margin-top:12px;font-size:0.82rem;color:var(--text3)">View &harr; ViewModel 1:1 관계<br>Repository &rarr; Service 레이어 분리</div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="tag tag-yellow">ARCH = feature_first</span></div>
-        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
-          lib/features/*/<br>(data/domain/presentation 없음)
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="tag tag-red">ARCH = flat</span></div>
-        <div style="font-size:0.85rem;color:var(--text2);font-family:var(--mono);line-height:1.6">
-          lib/src/<br>또는 flat 구조
-        </div>
+<!-- STEP 4 -->
+<div class="section">
+  <div class="section-label">Step 4</div>
+  <div class="section-title">아키텍처 패턴 감지 — <code>ARCH</code></div>
+  <p class="section-desc"><code>lib/</code> 디렉토리 구조를 분석하여 아키텍처를 판정하고, 판정 결과에 따라 레이어별 규칙을 적용한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>패턴</th><th>감지 결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>lib/features/*/data/</code>, <code>lib/features/*/domain/</code>, <code>lib/features/*/presentation/</code></td><td><code>ARCH = clean</code> (Clean Architecture)</td></tr>
+        <tr><td><code>lib/features/*/ui/</code>, <code>lib/features/*/view_models/</code> 또는 <code>lib/*/views/</code>, <code>lib/*/view_models/</code></td><td><code>ARCH = mvvm</code> (MVVM — Flutter 공식 권장)</td></tr>
+        <tr><td><code>lib/features/*/</code> (data/domain/presentation 없음)</td><td><code>ARCH = feature_first</code></td></tr>
+        <tr><td><code>lib/src/</code> 또는 flat 구조</td><td><code>ARCH = flat</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Clean Architecture 감지 시</div>
+      <p>· <code>domain/</code> → <code>data/</code>, <code>presentation/</code> import 금지<br>· <code>data/</code> → <code>presentation/</code> import 금지<br>· Repository: interface(domain) + impl(data) 분리</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>MVVM 감지 시</div>
+      <p>· <strong>View</strong> ↔ <strong>ViewModel</strong> 1:1 관계<br>· ViewModel: Repository 에서 데이터를 받아 UI 상태로 변환, Command 패턴으로 액션 노출<br>· <strong>Repository</strong>: 도메인 모델 제공, 캐싱/에러처리/재시도 담당<br>· <strong>Service</strong>: 최하위 레이어, 외부 데이터 소스 래핑 (API, 파일, 플랫폼 코드)</p>
+      <a class="card-source" href="https://docs.flutter.dev/app-architecture/guide">Flutter 공식 아키텍처 가이드</a>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 5-7 -->
+<div class="section">
+  <div class="section-label">Step 5 · 6 · 7</div>
+  <div class="section-title">코드 컨벤션 · 분석 도구 · 디자인 시스템</div>
+  <p class="section-desc">기존 코드에서 패턴을 읽어 생성 코드에 적용한다. 프로젝트가 이미 쓰고 있는 방식을 따르는 것이 새 관습을 도입하는 것보다 항상 우선한다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>감지 방법</th><th>기본값</th></tr></thead>
+      <tbody>
+        <tr><td>Import 스타일</td><td>기존 <code>.dart</code> 파일의 import 패턴</td><td><code>package:{name}/...</code> (절대경로)</td></tr>
+        <tr><td>위젯 베이스</td><td><code>HookWidget</code> vs <code>StatelessWidget</code> 사용 비율</td><td><code>StatelessWidget</code></td></tr>
+        <tr><td>State 관리</td><td><code>@riverpod</code> vs <code>StateNotifierProvider</code> 사용</td><td>codegen(<code>@riverpod</code>)</td></tr>
+        <tr><td>네이밍</td><td><code>Screen</code> vs <code>Page</code> vs <code>View</code> 접미사 관행</td><td><code>Screen</code>/<code>Page</code></td></tr>
+        <tr><td>라우트 패턴</td><td><code>TypedGoRoute</code> vs <code>GoRoute()</code></td><td>프로젝트에서 감지</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Step 6 — 분석 도구 감지</div>
+      <p><code>analysis_options.yaml</code> 에서:<br>· <code>include:</code> → 린트 패키지 (very_good_analysis, flutter_lints, 커스텀)<br>· <code>analyzer.plugins:</code> → custom_lint 사용 여부</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Step 7 — 디자인 시스템 감지</div>
+      <div class="table-wrap" style="margin-top:12px;margin-bottom:0">
+        <table>
+          <thead><tr><th>패턴</th><th>감지 결과</th></tr></thead>
+          <tbody>
+            <tr><td><code>lib/*/design_system/</code> 또는 <code>lib/*/theme/</code> 또는 <code>lib/*/tokens/</code></td><td><code>HAS_DS = true</code>, 경로 기록</td></tr>
+            <tr><td><code>context.colors.</code> 패턴이 기존 코드에 있음</td><td>Semantic Token 사용</td></tr>
+            <tr><td>없음</td><td><code>HAS_DS = false</code>, 디자인 시스템 규칙 스킵</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- OUTPUT TEMPLATE -->
-  <div class="section">
-    <div class="section-label">Output</div>
-    <div class="section-title">감지 결과 요약</div>
-    <div class="section-desc">스킬이 내부적으로 참조하는 최종 감지 결과 형식.</div>
-    <div class="var-block" style="line-height:1.6">
-      <span class="label">Detection Summary Template</span>
-      Package: <span class="val">my_app</span><br>
-      SDK Manager: <span class="val">fvm</span><br>
-      Flutter: <span class="val">fvm flutter</span> &nbsp; Dart: <span class="val">fvm dart</span><br>
-      Architecture: <span class="val">clean</span><br>
-      Dependencies: <span class="val">riverpod, go_router, freezed, retrofit</span><br>
-      Design System: <span class="val">true</span><br>
-      Widget Base: <span class="val">HookWidget</span><br>
-      State Management: <span class="val">riverpod_codegen</span><br>
-      Router: <span class="val">go_router_builder</span><br>
-      i18n: <span class="val">slang</span>
+<!-- STEP 8 — NEW -->
+<div class="section">
+  <div class="section-label">Step 8 · New</div>
+  <div class="section-title">시각 검증 채널 감지 (UI 스킬 전용)</div>
+  <p class="section-desc">UI 를 만들거나 고치는 스킬(<code>flutter-widget</code> · <code>flutter-screen</code> · <code>flutter-skeleton</code> · <code>flutter-transition</code> · <code>flutter-responsive</code>)은 완료 선언 전에 <strong>렌더 결과를 대조</strong>해야 한다. 사용 가능한 채널을 아래 순서로 감지한다.</p>
+  <div class="ladder">
+    <div class="rung">
+      <div class="rung-num">1</div>
+      <div>
+        <h4>golden test</h4>
+        <p>감지 방법: <code>grep -rl "matchesGoldenFile" test/</code> 또는 <code>test/**/*golden*</code> 존재</p>
+        <span class="out">VISUAL_CHANNEL = golden</span>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="rung-num">2</div>
+      <div>
+        <h4>integration_test 스크린샷</h4>
+        <p>감지 방법: <code>integration_test/</code> 디렉토리 존재</p>
+        <span class="out">VISUAL_CHANNEL = integration_test</span>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="rung-num">3</div>
+      <div>
+        <h4>프로젝트 등록 MCP</h4>
+        <p>감지 방법: <code>.mcp.json</code> · <code>.claude/settings.json</code> · <code>.claude/settings.local.json</code> 의 <code>mcpServers</code> 키를 <strong>읽어서</strong> 서버명을 확인</p>
+        <span class="out">VISUAL_CHANNEL = mcp:&lt;서버명&gt;</span>
+      </div>
+    </div>
+    <div class="rung rung-none">
+      <div class="rung-num">4</div>
+      <div>
+        <h4>없음 — degraded 모드</h4>
+        <p>위 3 개 모두 부재</p>
+        <span class="out">VISUAL_CHANNEL = none</span>
+      </div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span><code>HAS_VISUAL_CHANNEL</code></div>
+    <code class="code-block">HAS_VISUAL_CHANNEL = (VISUAL_CHANNEL != none)</code>
+    <p style="margin-top:12px"><code>HAS_VISUAL_CHANNEL = false</code> 이면 UI 스킬은 완료가 아니라 <strong>부분 완료 + <code>[미검증]</code></strong> 으로 보고한다.</p>
+  </div>
+  <div class="danger">
+    <div class="danger-title">MCP 도구 이름을 추측하지 마라</div>
+    <p>프로젝트마다 등록된 서버와 도구 이름이 다르다. <strong>설정 파일을 읽어 확인된 이름만 사용</strong>하고, 확인되지 않으면 그 채널은 없는 것으로 취급한다 — 존재하지 않는 도구를 호출한 뒤 실패를 "검증 완료" 로 넘기는 것이 <code>/insights</code> 2026-07-27 Friction #2 의 실제 사고 경로였다.</p>
+  </div>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 도구 이름 추측</div>
+      <code class="code-block">추정한 MCP 도구 호출 → 실패
+→ "검증 완료" 로 보고</code>
+      <p>존재하지 않는 도구의 실패를 성공으로 넘기면 렌더 결함이 그대로 통과한다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 설정 파일에서 확인</div>
+      <code class="code-block">.mcp.json / .claude/settings.json 의 mcpServers 읽기
+→ 확인된 서버명만 사용
+→ 없으면 VISUAL_CHANNEL = none
+→ 부분 완료 + [미검증] 보고</code>
+    </div>
+  </div>
+  <p class="section-desc" style="margin-bottom:0">렌더 대조의 구체 절차는 <code>references/visual-evidence-protocol.md</code> 를 따른다.</p>
+</div>
+
+<!-- SUMMARY TEMPLATE -->
+<div class="section">
+  <div class="section-label">Output</div>
+  <div class="section-title">감지 결과 요약 템플릿</div>
+  <p class="section-desc">스킬이 내부적으로 사용하는 감지 결과 형식이다. UI 스킬은 마지막 <code>Visual Channel</code> 행까지 채워야 한다.</p>
+  <code class="code-block">Package: {name}
+SDK Manager: {fvm|asdf|system}
+Flutter: {$FLUTTER}
+Dart: {$DART}
+Makefile: {true|false}  # HAS_MAKEFILE — true 면 $MAKE &lt;target&gt; 우선
+Architecture: {clean|feature_first|flat|mvvm}
+Dependencies: {감지된 패키지 목록}
+Design System: {true|false}
+Widget Base: {HookWidget|StatelessWidget|ConsumerWidget}
+State Management: {riverpod_codegen|riverpod_legacy|bloc|provider}
+Router: {go_router_builder|go_router|auto_route|none}
+i18n: {slang|easy_localization|intl|none}
+Visual Channel: {golden|integration_test|mcp:&lt;서버명&gt;|none}  # HAS_VISUAL_CHANNEL — UI 스킬 전용</code>
+</div>
+
+<!-- USAGE -->
+<div class="section">
+  <div class="section-label">Usage</div>
+  <div class="section-title">스킬에서 참조하는 방법</div>
+  <p class="section-desc">각 스킬의 첫 번째 단계에 아래 블록을 둔다. 의존성이 필요한 스킬은 해당 <code>HAS_*</code> 플래그를 확인하고, 없으면 안내 메시지를 출력한다.</p>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>스킬 Process Step 0</div>
+    <code class="code-block">### 0. 프로젝트 감지
+
+`references/project-detection.md`의 절차를 실행하여 프로젝트 환경을 파악한다.
+이후 단계에서 감지 결과($FLUTTER, $DART, ARCH, HAS_* 등)를 사용한다.</code>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">✓</span>명령을 실행하기 전에 <code>$FLUTTER</code>/<code>$DART</code>/<code>$MAKE</code> 를 확정했는가?</li>
+    <li><span class="check">✓</span>필요한 <code>HAS_*</code> 플래그가 false 면 안내 메시지를 출력하고 중단했는가?</li>
+    <li><span class="check">✓</span>생성 코드가 감지된 <code>ARCH</code> 와 코드 컨벤션을 따르는가?</li>
+    <li><span class="check">✓</span>UI 스킬이면 <code>VISUAL_CHANNEL</code> 을 확정했는가? <code>none</code> 이면 부분 완료 + <code>[미검증]</code> 으로 보고했는가?</li>
+  </ul>
+</div>
+
+<div class="footer">
+  <h3>관련 문서</h3>
+  <ul>
+    <li><a href="visual-evidence-protocol.html">flutter-toolkit/references/visual-evidence-protocol.md — UI 스킬 렌더 증거 프로토콜</a></li>
+    <li><a href="https://docs.flutter.dev/app-architecture/guide">Flutter 공식 아키텍처 가이드 (MVVM 레이어 규칙)</a></li>
+  </ul>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: flutter-toolkit/references/project-detection.md · 2026-07-27</p>
+</div>
 
 </div>
-<script>
-function toggle(item){item.querySelector('.checklist-box').classList.toggle('checked')}
-</script>
 </body>
 </html>

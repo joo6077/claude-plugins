@@ -23,6 +23,14 @@ user-invocable: true
 - 버전 번호, CLI 명령어, 콘솔 UI 경로는 **구체적으로** — 모호한 안내는 콘솔 UI 변경 시마다 사용자가 헤맴
 - deprecated 발견 시 **명시적 경고** + 현재 권장 방법
 
+### 출처 원장 (Source Ledger) — 문장 규칙이 아니라 아티팩트
+
+"그 시점 최신 정보 기준" 이라는 주장은 **조회 흔적 없이는 성립하지 않는다.** 각 Step 을 쓰기 **전에** 그 Step 의 1차 출처를 fetch 하고, Step 본문에 **출처 URL + 조회일**을 남긴다 (`references/format-checklist.md` §3 의 `**출처:**` 줄). **fetch 하지 않은 Step 은 쓰지 않는다** — 학습 데이터로 채운 뒤 헤더의 대표 URL 하나로 전체를 정당화하는 것이 이 스킬의 대표 실패 형태다.
+
+fetch 가 끝까지 실패한 항목은 조용히 넘기지 말고 `[미검증]` + 사유 한 줄을 붙인다. **`[미검증]` 이 2 건 이상이면 완료가 아니라 부분 완료로 보고**하고 사용자에게 확인을 요청한다.
+
+마커 표기와 임계값은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 정본이다 — 이 킷에서 재정의하거나 동의어(`미확인`, `N/A`, `unverified`) 를 만들지 않는다. 등급 근거는 `harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate (같은 위반 2 회 재발 시 E1 문장 규칙 → E2 아티팩트).
+
 ## Gotchas (반복 실수 방지)
 
 ### Gotcha 1: 스택 확정 없이 가이드 작성 금지
@@ -78,6 +86,22 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 
 11개 섹션(`references/format-checklist.md`)은 **포맷 표준이지 채우기 할당량이 아니다**. 요청 서비스에 해당 없는 섹션(예: 클라이언트 전용 SDK에 IAM, 단발 셋업에 환경 분기)은 "해당 없음" 한 줄로 닫거나 생략한다 — 억지로 내용을 만들어 부피를 늘리지 않는다.
 
+### Gotcha 8: 프로젝트 내부 경로·파일명·env 키는 날조 대상이 아니다 — 레포를 먼저 읽어라
+
+(insights-report #3 실측: 기존 config 가 이미 있는데도 **존재하지 않는 FCM credentials 파일명을 날조**했다.)
+
+콘솔 쪽 절차는 1차 출처 fetch 로 확인하고, **레포 쪽 산출물은 실제로 읽어서** 확인한다. 이 스킬은 파일 경로·환경변수 키를 대량 생성하므로 날조 리스크가 구조적으로 가장 크다.
+
+가이드 본문에 프로젝트 파일 경로나 env 키를 쓰기 전에:
+
+1. **패턴으로 탐색한다** — Glob/Grep 으로 실제 파일을 찾는다 (`**/GoogleService-Info.plist`, `.env*`, `**/firebase_options.dart`, `**/*.p8`). **이름을 가정한 단일 경로 확인은 탐색이 아니다** — flavor·모듈별로 경로가 갈린다.
+2. **찾은 것을 `파일:라인` 으로 열거한다** — 이 열거가 아티팩트다 (E2). 기존 env 키는 실제 키 이름을 그대로 인용한다.
+3. **없으면 "이 단계에서 새로 만든다/내려받는다" 를 명시하거나 사용자에게 묻는다.** 있을 것 같은 이름을 적지 않는다. 확인 자체가 불가하면 `[미검증]` 을 붙인다.
+
+- ❌ 기존 `.env` 에 다른 이름의 키가 있는데 확인 없이 관례적인 이름(`FIREBASE_SERVER_KEY` 등)으로 안내
+- ❌ 실측 없이 `ios/Runner/GoogleService-Info.plist` 를 단정 — flavor 별 디렉토리로 갈리는 프로젝트에서 즉시 틀림
+- ✅ Glob 결과를 인용한 뒤 그 경로로 안내 / 결과 0 건이면 "이 Step 에서 새로 생성" 임을 명시
+
 ## Process
 
 ### Phase 1: 스택 + 외부 서비스 탐지
@@ -97,7 +121,9 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 3. **Codex 위임** — 정책 검증, 교차검증, 깊은 분석 필요 시
 4. **WebSearch** — fallback, 검색어에 현재 연도 필수
 
-**Deprecated 감지**: 문서 마지막 업데이트 2년+, "deprecated/legacy/will be removed" 키워드, 메이저 버전 변경 안내 → 가이드에 ❌/✅ 박스로 명시.
+**Deprecated 감지**: 문서 마지막 업데이트 2년+, "deprecated/legacy/will be removed" 키워드, 메이저 버전 변경 안내 → 가이드에 ❌/✅ 박스로 명시. 반대로 **1차 출처가 deprecated 라고 하지 않은 것을 deprecated 로 쓰지 않는다** — "권장하지 않음(not recommended)" 과 "deprecated" 는 다른 주장이고, 출처가 말하지 않은 강도를 올리는 것도 날조다.
+
+**출처 URL 은 그 시점 canonical host 로 기록한다.** 문서 호스트는 이전된다. WebFetch 는 크로스 호스트 리다이렉트를 따라가지 않고 리다이렉트 URL 을 되돌려주므로, 그것을 받으면 새 URL 로 다시 fetch 하고 **원장에는 최종 URL** 을 남긴다 (`references/search-strategy.md` 참조).
 
 ### Phase 3: 가이드 MD 생성
 
@@ -109,9 +135,12 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 
 ### Phase 4: 검증 + 완료 안내
 
-1. 생성된 가이드의 모든 외부 URL이 공식 도메인인지 확인 (`references/search-strategy.md`)
-2. 11개 섹션 누락 확인
-3. 사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내.
+1. **출처 원장 대조** — 모든 Step 에 `**출처:**` 줄이 있는지 확인한다. 없는 Step 이 있으면 그 Step 은 fetch 없이 쓰였다는 뜻이므로, 지금 fetch 하거나 `[미검증]` 을 붙인다.
+2. **레포 근거 대조** — 가이드에 등장하는 프로젝트 내부 경로·env 키가 전부 Glob/Grep 실측 근거를 갖는지 확인 (Gotcha 8). 근거 없는 항목은 제거하거나 "새로 생성" 으로 고친다.
+3. 생성된 가이드의 모든 외부 URL이 공식 도메인인지 확인 (`references/search-strategy.md`)
+4. 11개 섹션 누락 확인
+5. **`[미검증]` 집계** — 건수를 세어 보고에 그대로 쓴다. 0 건이면 완료, 1 건이면 완료 + 경고 명시, **2 건 이상이면 부분 완료**로 보고하고 사용자 확인을 요청한다.
+6. 사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내.
 
 ## References
 

@@ -42,7 +42,10 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
   | flutter-hooks · flutter-error | 가이드형 스킬 Process Step 순서 고정 (탐색→진단→처방) |
   | flutter-l10n · flutter-responsive · flutter-skeleton · flutter-transition | 프로젝트 감지 참조 · HAS_DS 분기 일관성 |
   | flutter-api · flutter-provider | Riverpod codegen · ref.mounted vs context.mounted |
+  | flutter-widget · flutter-screen · flutter-skeleton · flutter-transition · flutter-responsive | **Visual Evidence Protocol 참조** (`references/visual-evidence-protocol.md`) — 5 종 전부에 Gotcha + 완료 단계 양쪽에 걸려 있어야 한다. `grep -c "visual-evidence-protocol"` 로 5/5 확인 |
 
+- **scope-creep 판정은 파일 수가 아니라 unit(관심사) 수로 한다** — "N 파일 이상이면 과도" 같은 기준을 쓰지 마라. 같은 원칙을 5 개 sibling 스킬에 전파하는 것은 파일 5 개지만 **unit 1 개**이고, 서로 무관한 개선 2 개를 한 번에 하면 파일 2 개라도 **unit 2 개**다. 카이젠 한 세션에서 다루는 unit 수를 세어 보고하고, 무관한 unit 은 다음 사이클로 미룬다 (Phase 4 2026-07-27 전달 · digest `complexity-by-file-count`)
+- **개선 포인트가 없으면 억지 변경 금지 — NO_CHANGE 로 보고하라** — 직전 사이클에 이미 승격된 원칙을 같은 등급(E1 문장)으로 다시 추가하는 것은 개선이 아니라 노이즈다. 재발한 원칙은 문장을 다듬지 말고 **등급을 올려라**: E1 문장 → E2 체크리스트 아티팩트 → E3 결정론적 게이트 (`harness/docs/guides/skill-design-guide.md` §3.7 승급 규칙 — 2 회 재발 시 E1→E2, 3 회 이상이거나 신뢰 손상 시 E2→E3)
 - **Phase 1~4 신규 원칙 감사 (kaizen 시작 시 전수 확인)** — skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / §5.5 Enumerate-before-Act / §8.7 Code Examples / §8.8 Sibling Consistency / §11 Cross-Surface Parity · agent §3.5 Binary Decidability / §10 Unverifiable / §12 Parity 전수 확인. 각 원칙에 대해 반영 스킬 목록을 리포트에 명시
 
 ## 핵심 제약: 할루시네이션 절대 불가
@@ -242,11 +245,11 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 
 ## Step 6: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `scripts/validate-plugin.py flutter-toolkit` 을 실행하여 7 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py flutter-toolkit` 을 실행하여 8 카테고리(V1~V8) 상태를 확인하고 결과를 개선 우선순위에 반영한다. V8 은 hook-exec 회귀 가드다 (hooks.json 이 없으면 SKIP).
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
 ## References
 
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 7 카테고리 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 8 카테고리(V1~V8) 기준 (SSOT)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구

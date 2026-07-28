@@ -1,10 +1,91 @@
 ---
 title: Kaizen Research Log
-version: 1.3.0
-last_updated: 2026-06-11
+version: 1.4.0
+last_updated: 2026-07-27
 ---
 
 # Kaizen Research Log
+
+## [2026-07-27] — enforcement 등급화 전면 도입 (14/14 CHANGED)
+
+### 데이터 소스 (Step 0)
+
+- **`/insights` 2026-07-27** (`~/.claude/usage-data/report-2026-07-27-182904.html`) — 53일 / 56 세션 중
+  51 분석 / 1,092 메시지 / 187 커밋. VERY FRESH(0.1h) 로 인식됨.
+  friction: wrong_approach 21 · misunderstood_request 8 · fully achieved 10/50 vs partial 18.
+- **`/reflect-digest` 30일** — 760 엔트리 (fit-pal 747 / purchase-bot 13, claude-plugins reflection 0).
+  primary: tool_failure 479 / misunderstanding 133 / wrong_approach 109 / repeated_error 39.
+  4축: scope(project 479 / session 261 / global 20) · enforce(hard_gate 205 / soft 555).
+- **글로벌 evaluator 피드백 240건** (REJECT 89 / APPROVE 149). 귀속은 claude-plugins 118,
+  fit-pal 계열 104, 기타 18.
+- validate-plugin 스냅샷: 11 plugins OK Exit 0 (사이클 시작 시점).
+
+### 핵심 발견
+
+- **직전 승격분의 빈도가 줄지 않았다.** Friction #1·#3 은 2026-06 사이클에 이미
+  `~/.claude/rules/architecture-guardrails.md` 등으로 승격됐는데 세션당 비율은 오히려 상승
+  (wrong_approach 53건/168세션 → 21건/51세션). → **새 규칙 추가가 아니라 enforcement 등급 상향**을
+  사이클 전체 프레이밍으로 채택.
+- **신규 최상위 신호 = 시각·런타임 검증 불신(Friction #2).** 빈 화면을 MCP 스냅샷 근거로
+  "정상 렌더링"이라 반복 주장 → 실제로는 unbounded-height ListView collapse. 욕설로 끝난 세션 2건,
+  사용자가 "MCP 를 UI 검증에 쓰지 않는 재발 습관을 영구히 고쳐달라"는 전용 세션 개설.
+- **digest 40%(351건)가 훅 실패이고 54종 태그로 파편화** — 개별 빈도가 승격 임계 미달.
+  근본원인은 Claude 행동이 아니라 fit-pal 환경 오설정 2종(스크립트 3종 부재 + 상대경로 훅이
+  서브디렉토리 cwd 에서 해석 실패, 후자가 145건/41%). `${CLAUDE_PROJECT_DIR}` 권고를 공식 문서로 확인.
+
+### 외부 리서치 출처 (Phase 별 — Context7 OAuth 미인증이라 전 Phase WebFetch fallback)
+
+- **Phase 1**: platform.claude.com Agent Skills best practices · code.claude.com sub-agents ·
+  anthropics/skills skill-creator · arXiv 2606.09863(False Success in LLM Agents) ·
+  arXiv 2607.07405(Deterministic Gates) · arXiv 2605.29442(20,574 세션 developer-agent misalignment)
+- **Phase 2**: arXiv 2412.05579(LLMs-as-Judges Survey) · gherkin-best-practices ·
+  docs.pact.io contract_tests_not_functional_tests · augmentcode AI spec template
+- **Phase 3**: arXiv 2606.22737(GroundEval — 판정자는 validity 가 아니라 plausibility 를 채점) ·
+  arXiv 2603.03116(Corrupt Success) · arXiv 2606.21451(assertion vacuity) · plugins-reference
+- **Phase 4**: code.claude.com/docs/en/hooks · mgechev/skills-best-practices ·
+  arXiv 2606.27416(Glite ARF) · arXiv 2605.06527(STALE) · arXiv 2604.08224(harness engineering)
+- **Phase 5**: docs.flutter.dev release-notes(stable 3.44.7) · flutter_riverpod 3.4.1 ·
+  go_router 17.3.0 · flutter_hooks 0.21.3+1 · matchesGoldenFile · alchemist 0.14.0 ·
+  golden_toolkit(discontinued)
+- **Phase 6**: W3C WCAG 2.2 target-size · DTCG CG-FINAL-20251028 · MDN oklch ·
+  MDN container queries · MDN prefers-reduced-motion · Playwright test-snapshots·assertions
+- **Phase 7**: RFC 9110 · RFC 3339 · OpenAPI 3.1.1 · Pact · PactFlow bi-directional ·
+  Idempotency-Key draft-07(만료 상태 명시) · AsyncAPI 3.0 · Testcontainers
+- **Phase 8**: K8s Pod Security Admission · Terraform ephemeral · OpenTofu state encryption ·
+  SLSA provenance · Sigstore cosign · OTel spec status · GitHub Actions workflow-syntax ·
+  Docker build best-practices (템플릿 필수 6종은 "현행 일치, 변경 불필요"로 확인)
+- **Phase 9**: cargo-test / cargo-metadata / cargo-locate-project · sqlx::test · SeaORM mock ·
+  GNU bash Pipelines · RustSec · Clippy lint index
+- **Phase 10**: Testing Library queries · Vitest CLI·passWithNoTests·allowOnly ·
+  Playwright test-snapshots·assertions · TanStack Query invalidation
+- **Phase 11**: Cucumber Gherkin · Agile Alliance INVEST · Basecamp Shape Up ch6 ·
+  GitHub Projects best practices · SVPG four-big-risks · Product Talk OST
+- **Phase 12**: code.claude.com hooks · arXiv 2303.11366(Reflexion) · arXiv 2605.06940(label
+  collapse — 닫힌 라벨 집합 강제 시 소수 카테고리 79% 미탐지, Fleiss κ≈-0.001) ·
+  arXiv 2605.24247(라벨링 일관성) · Sentry fingerprint rules · Prometheus Alertmanager
+- **Phase 13**: BambuStudio PrintConfig.cpp/.hpp · PrintObjectSlice.cpp(보정값 = 경계 오프셋 근거) ·
+  BambuStudio Releases API · OrcaSlicer quality_settings_precision · 3MF Core Spec
+- **Phase 14**: Firebase cloud-messaging/ios/client · Firebase flutter/setup ·
+  Apple Developer Account Help · docs.stripe.com/keys · pub.dev firebase_messaging
+
+### 조회로 **정정된** 사실 (학습 데이터 추측이었다면 틀렸을 것)
+
+- 서브에이전트 중첩은 "불가"가 아니라 기본 3층 허용 (가이드 4곳 정정).
+- Flutter FCM 절차에 네이티브 `FirebaseApp.configure()` 는 존재하지 않는다 (evals 가 이를 요구하고 있었음).
+- Firebase 문서는 `.p8` 을 권장할 뿐 `.p12` 를 deprecated 로 표기하지 않는다 (eval 이 날조 주장).
+- `xy_hole_compensation` 은 경계 오프셋 → 지름 변화 2× (SSOT 수치 오류의 근본원인).
+- zsh 에서 `PIPESTATUS` 는 unset (`pipestatus` 가 소문자) — 실행으로 직접 확인 후 쉘 분기 명시.
+- Stripe 현행 호스트는 `docs.stripe.com`, GitHub Releases fetch 는 구 프리릴리스만 반환.
+
+### 방법론 메모
+
+- Phase 1~4 는 직렬(각 단계가 다음의 기준), Phase 5~14 는 문서상 독립 스택이라 병렬 실행.
+  병렬 git 충돌을 막기 위해 서브에이전트는 **git 쓰기 금지**, 계약 파일은 Phase 별 경로로 분리,
+  커밋·finalize 는 오케스트레이터가 직렬 처리했다.
+- 병렬 5개 동시 실행 시 API 529 로 4개가 중단 → `SendMessage` 로 컨텍스트 보존 재개.
+  이후 웨이브는 2~3개로 낮춰 재발 방지.
+- 각 Phase 의 self-audit 이 **자기 날조를 스스로 검출**한 사례가 다수 (Pact 미사용 용어 인용,
+  논문 수치 과대 인용, 검증 없이 단정한 콘솔 라벨). Evidence Gate 의 의도된 작동.
 
 ## [2026-06-11] — hook permission-denied 근본원인 + validate-plugin V8 (인사이트 주도 부분 카이젠)
 

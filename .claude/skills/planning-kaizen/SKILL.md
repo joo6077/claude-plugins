@@ -18,7 +18,7 @@ user-invocable: true
 4. **한 번에 전체 수정 금지** — 12개 스킬 + 에이전트 일괄 수정 시 품질 저하. 1-2개씩 개선.
 5. **validate-plugin.py 실행 없이 완료 선언 금지** — 세션 종료 시 `scripts/validate-plugin.py planning-kit` 실행 필수.
 6. **Mermaid 문법 예제 붙여넣기만 하지 마라** — 예제 추가 시 실제 mermaid.live 또는 로컬 mermaid-cli 로 렌더 가능 여부 확인.
-7. **Sibling Consistency 검증** — plan-audit 의 카테고리 수(12), planning-reviewer 의 카테고리 수, 두 문서의 Summary 분모가 모두 일치해야 한다. 어느 하나만 10/12 로 바꾸면 verdict 신뢰 붕괴.
+7. **Sibling Consistency 검증** — plan-audit 의 카테고리 수(12), planning-reviewer 의 카테고리 수, 두 문서의 Summary 분모가 모두 일치해야 한다. 어느 하나만 10/12 로 바꾸면 verdict 신뢰 붕괴. **`[미검증]` 임계값도 같은 축이다 — 임계 숫자는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 이고 planning-reviewer 가 5 조항을 문구 변형 없이 복제 보유한다. 카이젠 중 planning-kit 문서에서 임계값을 새로 쓰거나 조항 문구를 손보지 마라 — 정본을 고치고 재복제하는 것이 유일한 경로다** (2026-07-27 Phase 3 가 "planning-reviewer 미검증 0 요구" drift 를 지목한 원인).
 8. **Step 0 자동 로드 독립 단계 유지** — plan-audit/plan-guide/plan-prd/plan-stories 등의 Step 0 은 "원칙 문서 + 이전 단계 산출물 자동 로드" 전용이다. 여기에 작성 로직 섞으면 Phase 7~10 누적 원칙 위반. 수정 시 Step 0 이 자료 수집만 하는지 재확인.
 9. **카테고리 수 인벤토리** — 스킬 12개 (plan-ideate + plan-reference 포함). 카이젠 시 10개로 착각하면 두 스킬이 누락된다. 현재 스킬 목록:
    - 필수 워크플로우(1~10): plan-discover, plan-prd, plan-stories, plan-prioritize, plan-flow, plan-data-model, plan-risks, plan-sync-github, plan-guide, plan-audit
@@ -60,7 +60,7 @@ kaizen(planning-kit): [개선 내용 요약]
 
 ## Step 6: Plugin Validation 결과 반영
 
-세션 시작/종료 시 `scripts/validate-plugin.py planning-kit` 실행하여 7 카테고리 확인. 실행 패턴·우선순위는 `harness/docs/guides/plugin-validation-guide.md §7` SSOT.
+세션 시작/종료 시 `scripts/validate-plugin.py planning-kit` 실행하여 **8 카테고리 (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec)** 확인. 실행 패턴·우선순위는 `harness/docs/guides/plugin-validation-guide.md §7` SSOT.
 
 # References
 
