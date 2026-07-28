@@ -71,11 +71,19 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 `.harness/project.yaml`을 읽어 프로젝트 설정을 로드한다.
 파일이 없으면 기본값(범용)으로 동작한다.
 
-**`CONTRACT_ROOT` 를 먼저 확정한다** — cwd 에서 위로 올라가며 `.harness/project.yaml` 을 가진
-**가장 가까운(깊은) 조상** 디렉토리의 **절대경로**다 (정의: `harness/references/contract-schema.md`
-§계약 파일 — 산출물 경로 > CONTRACT_ROOT 해석). 조상에도 `.harness/` 가 있는 중첩 배포본은
-정상이므로, 후보가 여럿이라는 이유로
-중단하지 마라 — 가장 가까운 것을 그대로 채택한다.
+**`CONTRACT_ROOT` 를 먼저 확정한다.** 규칙은 여기서 재정의하지 않는다 — 정의는
+`harness/references/contract-schema.md` §CONTRACT_ROOT 해석 (v5.2) 이 SSOT 다. 요지만 옮기면:
+cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에서 멈춘다. 판정 기준은
+`project.yaml` 이 아니라 **`.harness/` 디렉토리 자체**다. `project.yaml` 이 없으면 그 디렉토리를
+그대로 쓰되 `contract_root_unconfigured: true` 를 함께 출력하고 `/harness init` 을 안내한다.
+
+조상에도 `.harness/` 가 있는 중첩 배포본은 정상이므로, 후보가 여럿이라는 이유로 중단하지 마라 —
+**가장 가까운 것을 채택한다.**
+
+> **왜 `project.yaml` 기준이 아닌가** — v5.1 까지는 `project.yaml` 을 기준으로 삼아, 그것이 없는
+> `.harness/` 를 지나쳐 상위로 올라갔다. 그 결과 **자기 계약을 가진 디렉토리를 건너뛰고 남의 계약을
+> 채점·덮어쓰는** 사고가 났다 (실측: `apps/app_kiosk`). 읽기 측(qa-evaluator)만 고치고 이 쓰기 측을
+> 두면 **엉뚱한 곳에 새 계약을 쓰는** 경로가 남는다.
 
 계약 파일 · history · 피드백 경로는 전부 이 값 기준으로 해석한다. 세션 도중 cwd 가 바뀌어도
 `CONTRACT_ROOT` 는 바뀌지 않는다. 루트 `.harness/` 와 하위 앱의 `app/.harness/` 를 혼용하면
@@ -113,10 +121,35 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 
 ### 0. CONTRACT_ROOT 확정 (E2)
 
-`.harness/project.yaml` 을 가진 **가장 가까운 조상**을 찾아 그 디렉토리의 절대경로를
-`CONTRACT_ROOT` 로 고정하고 **한 줄로 출력**한다. 이후 모든 계약 경로
+조상 체인에서 **처음 만나는 `.harness/` 디렉토리**를 찾아 그 절대경로를 `CONTRACT_ROOT` 로
+고정하고 **한 줄로 출력**한다. 이후 모든 계약 경로
 (`{CONTRACT_ROOT}/.harness/sprint-contract-<slug>.md`, `{CONTRACT_ROOT}/.harness/history/`)를
 이 값 기준 절대경로로 쓴다. 상대경로 금지.
+
+아래 스니펫은 `harness/agents/qa-evaluator.md` Step 1-a 와 **동일한 알고리즘**이다 (읽기·쓰기가
+갈라지면 조용한 오귀속이 재발한다). 글로빙을 쓰지 않으므로 zsh·bash 양쪽에서 동작한다.
+
+```bash
+# 조상 체인을 올라가며 '처음 만나는 .harness' 에서 멈춘다. project.yaml 유무는 그 다음 문제다.
+CONTRACT_ROOT=""; CONTRACT_ROOT_UNCONFIGURED=false
+d=$PWD
+while : ; do
+  if [ -d "$d/.harness" ]; then
+    CONTRACT_ROOT="$d"
+    [ -f "$d/.harness/project.yaml" ] || CONTRACT_ROOT_UNCONFIGURED=true
+    break
+  fi
+  [ "$d" = "/" ] && break
+  d=$(dirname "$d")
+done
+
+printf 'CONTRACT_ROOT=%s contract_root_unconfigured=%s\n' \
+  "${CONTRACT_ROOT:-<none>}" "$CONTRACT_ROOT_UNCONFIGURED"
+```
+
+`CONTRACT_ROOT` 가 비면(`<none>`) 계약을 쓸 위치를 정할 수 없다. 임의로 cwd 에 만들지 말고
+**중단하고 `/harness init` 을 안내**하라. `contract_root_unconfigured=true` 면 계약은 그 디렉토리에
+쓰되 출력에 그 사실과 `/harness init` 안내를 함께 남긴다.
 
 ### 0.5. 슬러그 확정 · 경로 선점 (E2)
 
