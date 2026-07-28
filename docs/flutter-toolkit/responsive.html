@@ -55,7 +55,7 @@ section{padding:72px 0;border-top:1px solid var(--border)}
 h2{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-.8px;line-height:1.15;margin-bottom:16px}
 .section-desc{font-size:16px;color:var(--text2);line-height:1.7}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:22px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
   padding:30px;transition:var(--transition);position:relative;overflow:hidden}
 .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
@@ -74,7 +74,9 @@ h2{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-.8px;line-heig
 .card-source::after{content:"→";transition:var(--transition)}
 .card-source:hover::after{transform:translateX(2px)}
 
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.table-wrap>table{min-width:max-content}
 table{width:100%;border-collapse:collapse}
 thead{background:var(--surface2)}
 th{text-align:left;padding:18px 24px;font-size:12px;font-weight:600;text-transform:uppercase;
@@ -115,6 +117,10 @@ code{font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;font-size:.88em;
 
 footer{padding:64px 0 48px;border-top:1px solid var(--border);text-align:center;color:var(--text3);font-size:13px}
 footer p{margin-bottom:6px}
+
+/* OVERFLOW GUARDS — grid 자식 min-width:auto 차단, 인라인 코드 토큰 줄바꿈 허용 */
+.cards>*,.compare>*,.checklist>*{min-width:0}
+:not(pre)>code{overflow-wrap:anywhere}
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;

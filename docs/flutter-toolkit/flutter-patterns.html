@@ -110,6 +110,13 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 .checklist-box.checked{background:var(--green);border-color:var(--green)}
 .checklist-box.checked::after{content:'';width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
 .checklist-text{font-size:0.88rem;color:var(--text);line-height:1.5;flex:1}
+
+/* OVERFLOW GUARDS — grid/flex 자식 min-width:auto 차단, 표는 자르지 않고 스크롤 */
+.grid-2>*,.grid-3>*,.compare>*{min-width:0}
+.priority-item{flex-wrap:wrap}
+.table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+.table-wrap>table{min-width:max-content}
+:not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -228,23 +235,23 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
       <div class="compare-good">
         <div class="compare-header"><span style="font-size:1.2rem">&#10003;</span> Do's</div>
         <ul class="compare-list">
-          <li><span class="icon">&#10003;</span> <code>go_router</code> 네비게이션 (딥링크, 웹 지원)</li>
-          <li><span class="icon">&#10003;</span> SOLID 원칙 준수</li>
-          <li><span class="icon">&#10003;</span> <code>dart:developer.log</code> 사용</li>
-          <li><span class="icon">&#10003;</span> <code>compute()</code>로 비용 큰 연산을 Isolate에서 실행</li>
-          <li><span class="icon">&#10003;</span> 모든 public API에 <code>///</code> 문서화</li>
-          <li><span class="icon">&#10003;</span> <code>dart format</code>, <code>dart fix</code> 도구 활용</li>
-          <li><span class="icon">&#10003;</span> 다양한 화면 크기 테스트</li>
+          <li><span class="icon">&#10003;</span><span><code>go_router</code> 네비게이션 (딥링크, 웹 지원)</span></li>
+          <li><span class="icon">&#10003;</span><span>SOLID 원칙 준수</span></li>
+          <li><span class="icon">&#10003;</span><span><code>dart:developer.log</code> 사용</span></li>
+          <li><span class="icon">&#10003;</span><span><code>compute()</code>로 비용 큰 연산을 Isolate에서 실행</span></li>
+          <li><span class="icon">&#10003;</span><span>모든 public API에 <code>///</code> 문서화</span></li>
+          <li><span class="icon">&#10003;</span><span><code>dart format</code>, <code>dart fix</code> 도구 활용</span></li>
+          <li><span class="icon">&#10003;</span><span>다양한 화면 크기 테스트</span></li>
         </ul>
       </div>
       <div class="compare-bad">
         <div class="compare-header"><span style="font-size:1.2rem">&#10007;</span> Don'ts</div>
         <ul class="compare-list">
-          <li><span class="icon">&#10007;</span> <code>print()</code> 사용 금지</li>
-          <li><span class="icon">&#10007;</span> <code>build()</code> 내 네트워크 호출 금지</li>
-          <li><span class="icon">&#10007;</span> 같은 Row/Column에 <code>Flexible</code> + <code>Expanded</code> 혼용 금지</li>
-          <li><span class="icon">&#10007;</span> <code>!</code> 연산자 남용 금지 (non-null 보장된 경우만)</li>
-          <li><span class="icon">&#10007;</span> 깊은 위젯 트리 중첩 금지 (합성으로 분해)</li>
+          <li><span class="icon">&#10007;</span><span><code>print()</code> 사용 금지</span></li>
+          <li><span class="icon">&#10007;</span><span><code>build()</code> 내 네트워크 호출 금지</span></li>
+          <li><span class="icon">&#10007;</span><span>같은 Row/Column에 <code>Flexible</code> + <code>Expanded</code> 혼용 금지</span></li>
+          <li><span class="icon">&#10007;</span><span><code>!</code> 연산자 남용 금지 (non-null 보장된 경우만)</span></li>
+          <li><span class="icon">&#10007;</span><span>깊은 위젯 트리 중첩 금지 (합성으로 분해)</span></li>
         </ul>
       </div>
     </div>

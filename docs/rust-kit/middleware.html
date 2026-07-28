@@ -68,6 +68,19 @@
     border-radius:8px;padding:6px 12px;font-size:12px;font-family:var(--mono);color:var(--text2)}
   .layer-flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
   .arrow{color:var(--accent);font-size:14px;font-weight:700}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.grid-3>*,.compare>*,.checklist li>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -149,19 +162,21 @@ let app = Router::new()
         <h3>tower-http 레이어 선택 가이드</h3>
       </div>
       <p class="desc" style="margin-bottom:12px">상황에 맞는 tower-http 레이어를 선택한다. 불필요한 레이어를 추가하면 요청당 오버헤드가 쌓인다.</p>
-      <table>
-        <thead><tr><th>레이어</th><th>용도</th></tr></thead>
-        <tbody>
-          <tr><td><code>TraceLayer</code></td><td>요청/응답 구조화 로깅</td></tr>
-          <tr><td><code>CorsLayer</code></td><td>CORS 헤더 처리</td></tr>
-          <tr><td><code>CompressionLayer</code></td><td>gzip/brotli 응답 압축</td></tr>
-          <tr><td><code>TimeoutLayer</code></td><td>요청 타임아웃</td></tr>
-          <tr><td><code>SetRequestIdLayer</code></td><td>요청 ID 생성 및 전파</td></tr>
-          <tr><td><code>RequestBodyLimitLayer</code></td><td>요청 바디 크기 제한</td></tr>
-          <tr><td><code>CatchPanicLayer</code></td><td>핸들러 패닉 500 변환</td></tr>
-          <tr><td><code>NormalizePathLayer</code></td><td>후행 슬래시 정규화</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>레이어</th><th>용도</th></tr></thead>
+          <tbody>
+            <tr><td><code>TraceLayer</code></td><td>요청/응답 구조화 로깅</td></tr>
+            <tr><td><code>CorsLayer</code></td><td>CORS 헤더 처리</td></tr>
+            <tr><td><code>CompressionLayer</code></td><td>gzip/brotli 응답 압축</td></tr>
+            <tr><td><code>TimeoutLayer</code></td><td>요청 타임아웃</td></tr>
+            <tr><td><code>SetRequestIdLayer</code></td><td>요청 ID 생성 및 전파</td></tr>
+            <tr><td><code>RequestBodyLimitLayer</code></td><td>요청 바디 크기 제한</td></tr>
+            <tr><td><code>CatchPanicLayer</code></td><td>핸들러 패닉 500 변환</td></tr>
+            <tr><td><code>NormalizePathLayer</code></td><td>후행 슬래시 정규화</td></tr>
+          </tbody>
+        </table>
+      </div>
       <span class="pill" style="margin-top:12px;display:inline-block">docs.rs/tower-http</span>
     </div>
 
@@ -196,17 +211,19 @@ let app = Router::new()
   <div class="section-label">수치 기준</div>
   <p class="desc">tower 미들웨어 설정 시 지켜야 할 정량 기준값.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>tower 버전</td><td><code>0.5.x</code></td><td>axum 0.8과 호환</td></tr>
-        <tr><td>tower-http 버전</td><td><code>0.6.x</code></td><td>axum 0.8과 호환</td></tr>
-        <tr><td>권장 레이어 순서</td><td>request-id → trace → cors → compression → timeout</td><td>요청 기준 처리 순서</td></tr>
-        <tr><td>from_fn vs Service</td><td>간단한 로직은 <code>from_fn</code></td><td>복잡한 상태/스트리밍은 직접 구현</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>tower 버전</td><td><code>0.5.x</code></td><td>axum 0.8과 호환</td></tr>
+          <tr><td>tower-http 버전</td><td><code>0.6.x</code></td><td>axum 0.8과 호환</td></tr>
+          <tr><td>권장 레이어 순서</td><td>request-id → trace → cors → compression → timeout</td><td>요청 기준 처리 순서</td></tr>
+          <tr><td>from_fn vs Service</td><td>간단한 로직은 <code>from_fn</code></td><td>복잡한 상태/스트리밍은 직접 구현</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

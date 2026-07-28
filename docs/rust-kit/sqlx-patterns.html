@@ -63,6 +63,19 @@
   .feature-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .feature-chip{background:var(--accent-dim);color:var(--accent2);font-size:11px;font-family:var(--mono);
     padding:3px 10px;border-radius:20px;border:1px solid rgba(232,93,74,0.2)}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.compare>*,.checklist li>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -214,18 +227,20 @@ pub struct UserRow {
   <div class="section-label">수치 기준</div>
   <p class="desc">SQLx 프로젝트 설정 시 지켜야 할 정량 기준값.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>sqlx 버전</td><td><code>0.8.6</code></td><td>PostgreSQL + tokio</td></tr>
-        <tr><td>풀 max_connections</td><td>10~20</td><td>DB 서버 max_connections의 1/5 이하</td></tr>
-        <tr><td>acquire_timeout</td><td>5초</td><td>초과 시 즉시 에러 반환</td></tr>
-        <tr><td>오프라인 모드 디렉토리</td><td><code>.sqlx/</code></td><td><code>cargo sqlx prepare</code>로 생성, git 커밋</td></tr>
-        <tr><td>CI 검증 명령</td><td><code>cargo sqlx prepare --check</code></td><td>스펙 드리프트 감지</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>sqlx 버전</td><td><code>0.8.6</code></td><td>PostgreSQL + tokio</td></tr>
+          <tr><td>풀 max_connections</td><td>10~20</td><td>DB 서버 max_connections의 1/5 이하</td></tr>
+          <tr><td>acquire_timeout</td><td>5초</td><td>초과 시 즉시 에러 반환</td></tr>
+          <tr><td>오프라인 모드 디렉토리</td><td><code>.sqlx/</code></td><td><code>cargo sqlx prepare</code>로 생성, git 커밋</td></tr>
+          <tr><td>CI 검증 명령</td><td><code>cargo sqlx prepare --check</code></td><td>스펙 드리프트 감지</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

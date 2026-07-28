@@ -81,6 +81,19 @@
   .disp-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
   .disp-pro{color:var(--green);font-size:12px}
   .disp-con{color:var(--red);font-size:12px}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.disp-compare>*,.checklist li>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -313,18 +326,20 @@ pub struct UserService {
   <div class="section-label">수치 기준</div>
   <p class="desc">아키텍처 선택에 관한 실측 기준과 트레이드오프.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>Box&lt;dyn Port&gt;</code> vs 제네릭 전환 기준</td><td>포트 3개 이상</td><td>제네릭 폭발 방지</td></tr>
-        <tr><td>async_trait 오버헤드</td><td>~5ns/call</td><td>vtable + Box&lt;Future&gt; 할당. hot path 회피</td></tr>
-        <tr><td><code>Arc&lt;dyn Port&gt;</code> clone 비용</td><td>~2ns/clone</td><td>atomic ref count. 대부분 무시 가능</td></tr>
-        <tr><td>포트당 메서드 수 권장</td><td>3~7개</td><td>그 이상이면 포트 분리 검토</td></tr>
-        <tr><td>어댑터당 크레이트 기준</td><td>인프라 기술 1개</td><td>S3 + GCS를 하나의 어댑터 크레이트에 묶어도 무방</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Box&lt;dyn Port&gt;</code> vs 제네릭 전환 기준</td><td>포트 3개 이상</td><td>제네릭 폭발 방지</td></tr>
+          <tr><td>async_trait 오버헤드</td><td>~5ns/call</td><td>vtable + Box&lt;Future&gt; 할당. hot path 회피</td></tr>
+          <tr><td><code>Arc&lt;dyn Port&gt;</code> clone 비용</td><td>~2ns/clone</td><td>atomic ref count. 대부분 무시 가능</td></tr>
+          <tr><td>포트당 메서드 수 권장</td><td>3~7개</td><td>그 이상이면 포트 분리 검토</td></tr>
+          <tr><td>어댑터당 크레이트 기준</td><td>인프라 기술 1개</td><td>S3 + GCS를 하나의 어댑터 크레이트에 묶어도 무방</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

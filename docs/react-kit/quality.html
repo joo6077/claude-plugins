@@ -75,6 +75,17 @@
   .flow-step{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
   .flow-step:last-child{border-bottom:none}
   .flow-num{width:28px;height:28px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ──────────────────
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+/* (1) grid/flex 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
+.grid-2>*,.grid-3>*,.compare>*{min-width:0}
+/* flex li 안의 익명 텍스트 아이템은 min-width 를 줄 수 없으므로 줄바꿈 기회를 넓힌다 */
+.checklist li{overflow-wrap:anywhere}
+/* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
+pre{overflow-x:auto;max-width:100%}
+pre code{white-space:pre}
+:not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>

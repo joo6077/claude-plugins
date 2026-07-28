@@ -70,6 +70,20 @@
   .pill-sm{background:rgba(74,222,128,0.12);color:var(--green)}
   .pill-md{background:rgba(251,191,36,0.12);color:var(--yellow)}
   .pill-lg{background:rgba(248,113,113,0.12);color:var(--red)}
+
+  /* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. 긴 코드·표·안 끊기는
+         토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -124,17 +138,19 @@ import * as Dialog from '@radix-ui/react-dialog';
   <div class="section-label">2 · Shadcn/ui — 복사형 컴포넌트</div>
   <p class="desc">"이것은 컴포넌트 라이브러리가 아니다. 당신이 컴포넌트 라이브러리를 만드는 방법이다." npm 패키지가 아닌 <strong>소스 코드 직접 복사</strong>로 배포한다. Radix(구조) + Tailwind(스타일) 조합.</p>
 
-  <table>
-    <thead><tr><th>관점</th><th>전통 라이브러리</th><th>Shadcn/ui</th></tr></thead>
-    <tbody>
-      <tr><td>설치</td><td>npm install</td><td>CLI 로 소스 복사</td></tr>
-      <tr><td>커스터마이징</td><td>스타일 오버라이드 · 래핑</td><td><strong>소스 직접 편집</strong></td></tr>
-      <tr><td>소유권</td><td>외부 유지보수자</td><td>내 코드베이스</td></tr>
-      <tr><td>버전 관리</td><td>시맨틱 버전 (npm)</td><td>Git 히스토리</td></tr>
-      <tr><td>AI 통합</td><td>블랙박스</td><td><strong>투명 · 읽기 쉬움</strong></td></tr>
-      <tr><td>의존성</td><td>node_modules 비대</td><td>소스 직접 포함</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>관점</th><th>전통 라이브러리</th><th>Shadcn/ui</th></tr></thead>
+      <tbody>
+        <tr><td>설치</td><td>npm install</td><td>CLI 로 소스 복사</td></tr>
+        <tr><td>커스터마이징</td><td>스타일 오버라이드 · 래핑</td><td><strong>소스 직접 편집</strong></td></tr>
+        <tr><td>소유권</td><td>외부 유지보수자</td><td>내 코드베이스</td></tr>
+        <tr><td>버전 관리</td><td>시맨틱 버전 (npm)</td><td>Git 히스토리</td></tr>
+        <tr><td>AI 통합</td><td>블랙박스</td><td><strong>투명 · 읽기 쉬움</strong></td></tr>
+        <tr><td>의존성</td><td>node_modules 비대</td><td>소스 직접 포함</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="grid-2" style="margin-top:24px">
     <div class="card">
@@ -170,28 +186,32 @@ npx shadcn-ui@latest add dialog</span></pre>
     </div>
     <div class="card">
       <h3>vs 인라인 스타일</h3>
-      <table style="background:transparent;border:0">
-        <thead style="background:transparent"><tr><th style="background:transparent;padding:8px 0">측면</th><th style="background:transparent;padding:8px 0">인라인</th><th style="background:transparent;padding:8px 0">유틸</th></tr></thead>
-        <tbody>
-          <tr><td style="padding:6px 0">디자인 제약</td><td style="padding:6px 0">임의 값</td><td style="padding:6px 0">토큰</td></tr>
-          <tr><td style="padding:6px 0">Hover/Focus</td><td style="padding:6px 0">불가</td><td style="padding:6px 0"><code>hover:bg-*</code></td></tr>
-          <tr><td style="padding:6px 0">미디어 쿼리</td><td style="padding:6px 0">불가</td><td style="padding:6px 0"><code>sm:grid-*</code></td></tr>
-          <tr><td style="padding:6px 0">전역 변경</td><td style="padding:6px 0">개별</td><td style="padding:6px 0">설정 1회</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table style="background:transparent;border:0">
+          <thead style="background:transparent"><tr><th style="background:transparent;padding:8px 0">측면</th><th style="background:transparent;padding:8px 0">인라인</th><th style="background:transparent;padding:8px 0">유틸</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:6px 0">디자인 제약</td><td style="padding:6px 0">임의 값</td><td style="padding:6px 0">토큰</td></tr>
+            <tr><td style="padding:6px 0">Hover/Focus</td><td style="padding:6px 0">불가</td><td style="padding:6px 0"><code>hover:bg-*</code></td></tr>
+            <tr><td style="padding:6px 0">미디어 쿼리</td><td style="padding:6px 0">불가</td><td style="padding:6px 0"><code>sm:grid-*</code></td></tr>
+            <tr><td style="padding:6px 0">전역 변경</td><td style="padding:6px 0">개별</td><td style="padding:6px 0">설정 1회</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <table style="margin-top:24px">
-    <thead><tr><th>접두사</th><th>최소 너비</th><th>CSS</th></tr></thead>
-    <tbody>
-      <tr><td><code>sm</code></td><td>640px</td><td><code>@media (min-width: 640px)</code></td></tr>
-      <tr><td><code>md</code></td><td>768px</td><td><code>@media (min-width: 768px)</code></td></tr>
-      <tr><td><code>lg</code></td><td>1024px</td><td><code>@media (min-width: 1024px)</code></td></tr>
-      <tr><td><code>xl</code></td><td>1280px</td><td><code>@media (min-width: 1280px)</code></td></tr>
-      <tr><td><code>2xl</code></td><td>1536px</td><td><code>@media (min-width: 1536px)</code></td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap" style="margin-top:24px">
+    <table>
+      <thead><tr><th>접두사</th><th>최소 너비</th><th>CSS</th></tr></thead>
+      <tbody>
+        <tr><td><code>sm</code></td><td>640px</td><td><code>@media (min-width: 640px)</code></td></tr>
+        <tr><td><code>md</code></td><td>768px</td><td><code>@media (min-width: 768px)</code></td></tr>
+        <tr><td><code>lg</code></td><td>1024px</td><td><code>@media (min-width: 1024px)</code></td></tr>
+        <tr><td><code>xl</code></td><td>1280px</td><td><code>@media (min-width: 1280px)</code></td></tr>
+        <tr><td><code>2xl</code></td><td>1536px</td><td><code>@media (min-width: 1536px)</code></td></tr>
+      </tbody>
+    </table>
+  </div>
   <a class="card-source" href="https://tailwindcss.com/docs/utility-first">tailwindcss.com/docs/utility-first</a>
 </div>
 
@@ -230,18 +250,20 @@ npx shadcn-ui@latest add dialog</span></pre>
   <div class="section-label">5 · 6종 비교 매트릭스</div>
   <p class="desc">유형 · 스타일링 · 접근성 · 번들 크기 · 적합 프로젝트 축으로 본 전체 비교.</p>
 
-  <table>
-    <thead>
-      <tr><th>기준</th><th>Radix</th><th>Shadcn</th><th>Tailwind</th><th>Ant</th><th>Chakra</th><th>Mantine</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><strong>유형</strong></td><td>헤드리스</td><td>복사형</td><td>CSS FW</td><td>풀 UI</td><td>Props UI</td><td>풀스택</td></tr>
-      <tr><td><strong>스타일링</strong></td><td>없음</td><td>Tailwind</td><td>유틸</td><td>CSS-in-JS</td><td>Emotion</td><td>CSS Modules</td></tr>
-      <tr><td><strong>접근성</strong></td><td>완전</td><td>Radix 상속</td><td>없음</td><td>부분</td><td>내장</td><td>부분</td></tr>
-      <tr><td><strong>번들</strong></td><td>매우 작음</td><td>0 (복사)</td><td>작음</td><td>큼</td><td>중</td><td>중</td></tr>
-      <tr><td><strong>적합</strong></td><td>커스텀 DS</td><td>AI 친화</td><td>모든 앱</td><td>관리자</td><td>SaaS</td><td>풀스택</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>기준</th><th>Radix</th><th>Shadcn</th><th>Tailwind</th><th>Ant</th><th>Chakra</th><th>Mantine</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>유형</strong></td><td>헤드리스</td><td>복사형</td><td>CSS FW</td><td>풀 UI</td><td>Props UI</td><td>풀스택</td></tr>
+        <tr><td><strong>스타일링</strong></td><td>없음</td><td>Tailwind</td><td>유틸</td><td>CSS-in-JS</td><td>Emotion</td><td>CSS Modules</td></tr>
+        <tr><td><strong>접근성</strong></td><td>완전</td><td>Radix 상속</td><td>없음</td><td>부분</td><td>내장</td><td>부분</td></tr>
+        <tr><td><strong>번들</strong></td><td>매우 작음</td><td>0 (복사)</td><td>작음</td><td>큼</td><td>중</td><td>중</td></tr>
+        <tr><td><strong>적합</strong></td><td>커스텀 DS</td><td>AI 친화</td><td>모든 앱</td><td>관리자</td><td>SaaS</td><td>풀스택</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- ── 6. 선택 가이드 ── -->

@@ -69,6 +69,15 @@
   .layer-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-family:var(--mono);font-size:12px;color:var(--text2);margin:4px 0}
   .layer-box.domain{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
   .arrow{color:var(--accent);font-weight:700;text-align:center;padding:4px 0}
+
+/* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ──────────────────
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
+.grid-2>*,.grid-3>*,.compare>*{min-width:0}
+/* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
+pre{overflow-x:auto;max-width:100%}
+pre code{white-space:pre}
+:not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>

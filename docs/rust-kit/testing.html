@@ -68,6 +68,19 @@
   .tier-unit{background:rgba(74,222,128,0.12);color:var(--green)}
   .tier-int{background:rgba(251,191,36,0.12);color:var(--yellow)}
   .tier-e2e{background:rgba(232,93,74,0.12);color:var(--accent2)}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.compare>*,.checklist li>*,.card-header>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -218,38 +231,40 @@ VALUES (1, 'test@example.com');</pre>
   <div class="section-label">수치 기준</div>
   <p class="desc">테스트 계층별 목표 실행 시간과 도구별 오버헤드.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>cargo-nextest vs cargo test 속도</td>
-          <td>2~3× 빠름</td>
-          <td>프로세스 격리 + 병렬 실행</td>
-        </tr>
-        <tr>
-          <td>mockall 모킹 오버헤드</td>
-          <td>무시 가능</td>
-          <td>테스트 전용 코드. 프로덕션 바이너리 미포함</td>
-        </tr>
-        <tr>
-          <td>sqlx::test 트랜잭션 롤백</td>
-          <td>~5ms</td>
-          <td>실제 DB 연결 필요. 통합 테스트 전용</td>
-        </tr>
-        <tr>
-          <td><span class="tier-badge tier-unit">단위</span> 실행 목표</td>
-          <td>&lt; 1ms / 테스트</td>
-          <td>외부 I/O 없을 때 달성 가능</td>
-        </tr>
-        <tr>
-          <td><span class="tier-badge tier-int">통합</span> 실행 목표</td>
-          <td>&lt; 100ms / 테스트</td>
-          <td>DB, 네트워크 포함</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>cargo-nextest vs cargo test 속도</td>
+            <td>2~3× 빠름</td>
+            <td>프로세스 격리 + 병렬 실행</td>
+          </tr>
+          <tr>
+            <td>mockall 모킹 오버헤드</td>
+            <td>무시 가능</td>
+            <td>테스트 전용 코드. 프로덕션 바이너리 미포함</td>
+          </tr>
+          <tr>
+            <td>sqlx::test 트랜잭션 롤백</td>
+            <td>~5ms</td>
+            <td>실제 DB 연결 필요. 통합 테스트 전용</td>
+          </tr>
+          <tr>
+            <td><span class="tier-badge tier-unit">단위</span> 실행 목표</td>
+            <td>&lt; 1ms / 테스트</td>
+            <td>외부 I/O 없을 때 달성 가능</td>
+          </tr>
+          <tr>
+            <td><span class="tier-badge tier-int">통합</span> 실행 목표</td>
+            <td>&lt; 100ms / 테스트</td>
+            <td>DB, 네트워크 포함</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

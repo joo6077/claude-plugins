@@ -70,6 +70,19 @@
   .channel-table th{text-align:left;padding:8px 12px;color:var(--text3);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
   .channel-table td{padding:8px 12px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);font-size:12px}
   .channel-table td:first-child{font-family:var(--mono);color:var(--accent2)}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.grid-3>*,.compare>*,.checklist li>*,.card-header>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -148,15 +161,17 @@ let guard = shared.lock().await; // 스레드 블로킹 없이 대기
       </div>
       <div class="card-body">
         <p>공유 상태 대신 메시지 전달이 데이터 경쟁을 구조적으로 방지한다. Tokio는 용도별 채널을 제공한다.</p>
-        <table class="channel-table">
-          <thead><tr><th>채널</th><th>용도</th><th>비고</th></tr></thead>
-          <tbody>
-            <tr><td>mpsc</td><td>단방향 다대일</td><td>가장 일반적. 작업 큐, 이벤트 수집</td></tr>
-            <tr><td>oneshot</td><td>단발 응답</td><td>요청-응답 패턴</td></tr>
-            <tr><td>broadcast</td><td>일대다 방송</td><td>이벤트 팬아웃</td></tr>
-            <tr><td>watch</td><td>상태 관찰</td><td>최신 값만 필요한 경우</td></tr>
-          </tbody>
-        </table>
+        <div class="table-wrap">
+          <table class="channel-table">
+            <thead><tr><th>채널</th><th>용도</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>mpsc</td><td>단방향 다대일</td><td>가장 일반적. 작업 큐, 이벤트 수집</td></tr>
+              <tr><td>oneshot</td><td>단발 응답</td><td>요청-응답 패턴</td></tr>
+              <tr><td>broadcast</td><td>일대다 방송</td><td>이벤트 팬아웃</td></tr>
+              <tr><td>watch</td><td>상태 관찰</td><td>최신 값만 필요한 경우</td></tr>
+            </tbody>
+          </table>
+        </div>
         <pre><span style="color:#f08575">// mpsc — 워커 풀 패턴</span>
 let (tx, mut rx) = tokio::sync::mpsc::channel::&lt;Job&gt;(100);
 
@@ -207,18 +222,20 @@ while let Some(result) = set.join_next().await {
   <div class="section-label">수치 기준</div>
   <p class="desc">async 런타임 비용과 동기화 프리미티브 오버헤드. 비교 기준으로 활용한다.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>tokio::spawn</code> 태스크 생성</td><td>~300ns</td><td>스레드 생성(~10µs)보다 30배 저렴</td></tr>
-        <tr><td><code>tokio::sync::Mutex</code> lock (비경쟁)</td><td>~50ns</td><td><code>std::sync::Mutex</code>(~10ns)보다 느림</td></tr>
-        <tr><td><code>mpsc</code> channel send (비경쟁)</td><td>~50ns</td><td>버퍼 있는 경우</td></tr>
-        <tr><td><code>spawn_blocking</code> 스레드풀 기본 크기</td><td>512개</td><td><code>TOKIO_WORKER_THREADS</code> 환경변수로 조정</td></tr>
-        <tr><td>async fn 호출 오버헤드</td><td>~0ns</td><td>상태 머신 컴파일, 가상 호출 없음</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tokio::spawn</code> 태스크 생성</td><td>~300ns</td><td>스레드 생성(~10µs)보다 30배 저렴</td></tr>
+          <tr><td><code>tokio::sync::Mutex</code> lock (비경쟁)</td><td>~50ns</td><td><code>std::sync::Mutex</code>(~10ns)보다 느림</td></tr>
+          <tr><td><code>mpsc</code> channel send (비경쟁)</td><td>~50ns</td><td>버퍼 있는 경우</td></tr>
+          <tr><td><code>spawn_blocking</code> 스레드풀 기본 크기</td><td>512개</td><td><code>TOKIO_WORKER_THREADS</code> 환경변수로 조정</td></tr>
+          <tr><td>async fn 호출 오버헤드</td><td>~0ns</td><td>상태 머신 컴파일, 가상 호출 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

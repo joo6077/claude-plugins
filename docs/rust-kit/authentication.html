@@ -64,6 +64,19 @@
   .flow-step{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent)}
   .flow-step-num{color:var(--accent);font-weight:800;font-size:13px;flex-shrink:0}
   .flow-step-text{color:var(--text2);font-size:13px;line-height:1.5}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.compare>*,.checklist li>*,.flow-step>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -215,19 +228,21 @@ where
   <div class="section-label">수치 기준</div>
   <p class="desc">JWT 인증 구현 시 지켜야 할 정량 기준값.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>jsonwebtoken 버전</td><td><code>10.x</code></td><td>crypto backend feature 필수</td></tr>
-        <tr><td>Access token 수명</td><td>15분</td><td>짧을수록 보안 강함</td></tr>
-        <tr><td>Refresh token 수명</td><td>7~30일</td><td>앱 성격에 따라 조정</td></tr>
-        <tr><td>JWT 알고리즘</td><td>HS256 (대칭) / RS256 (비대칭)</td><td>MSA는 RS256 권장</td></tr>
-        <tr><td>jti 저장소 TTL</td><td>Redis TTL = token exp</td><td>만료된 jti 자동 삭제</td></tr>
-        <tr><td>HMAC 시크릿 최소 길이</td><td>256비트 (32바이트)</td><td><code>openssl rand -hex 32</code>로 생성</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>jsonwebtoken 버전</td><td><code>10.x</code></td><td>crypto backend feature 필수</td></tr>
+          <tr><td>Access token 수명</td><td>15분</td><td>짧을수록 보안 강함</td></tr>
+          <tr><td>Refresh token 수명</td><td>7~30일</td><td>앱 성격에 따라 조정</td></tr>
+          <tr><td>JWT 알고리즘</td><td>HS256 (대칭) / RS256 (비대칭)</td><td>MSA는 RS256 권장</td></tr>
+          <tr><td>jti 저장소 TTL</td><td>Redis TTL = token exp</td><td>만료된 jti 자동 삭제</td></tr>
+          <tr><td>HMAC 시크릿 최소 길이</td><td>256비트 (32바이트)</td><td><code>openssl rand -hex 32</code>로 생성</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

@@ -114,7 +114,7 @@
 
   .grid-2{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(380px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));
     gap:1.25rem;
   }
 
@@ -164,7 +164,9 @@
     background:var(--bg2);
     border:1px solid var(--border);
     border-radius:var(--radius-sm);
-    overflow:hidden;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
   }
   .card .mini-table table{width:100%;border-collapse:collapse}
   .card .mini-table th,.card .mini-table td{
@@ -194,7 +196,9 @@
     background:var(--surface);
     border:1px solid var(--border);
     border-radius:var(--radius);
-    overflow:hidden;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
   }
   table{width:100%;border-collapse:collapse;font-size:0.92rem}
   thead{background:var(--surface3)}
@@ -271,6 +275,23 @@
     font-size:0.82rem;
     text-align:center;
   }
+
+  /* ════════════════════════════════════════════════════════════════════
+     가로 오버플로 방지 — docs-site page-template 정본 규칙. 완화·제거 금지.
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다.
+     ════════════════════════════════════════════════════════════════════ */
+
+  /* (1) grid 자식의 기본 min-width 는 auto(= min-content) 다.
+         긴 코드·표·안 끊기는 토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.anti-grid>*{min-width:0}
+
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다. */
+  .table-wrap>table,.card .mini-table>table{min-width:max-content}
+
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
 
   @media (max-width:640px){
     .container{padding:2rem 1rem 4rem}

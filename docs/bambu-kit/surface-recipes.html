@@ -107,6 +107,20 @@
   .callout.info{border-left-color:var(--accent);background:rgba(20,184,166,0.05)}
   .callout.info strong{color:var(--accent)}
 
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
+     내용을 자르지(overflow:hidden) 말고 스크롤/줄바꿈으로 해소한다. */
+  /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
+  .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+  /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
+  pre{max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.card-body,.callout,.checklist li{overflow-wrap:anywhere}
+
   @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
 </style>
 </head>

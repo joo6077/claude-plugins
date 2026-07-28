@@ -68,6 +68,19 @@
   .flow-step{display:flex;align-items:flex-start;gap:12px;padding:8px 12px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--accent)}
   .flow-step-num{color:var(--accent);font-weight:800;font-size:13px;flex-shrink:0;min-width:16px}
   .flow-step-text{color:var(--text2);font-size:13px;line-height:1.5}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.compare>*,.checklist li>*,.flow-step>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -187,17 +200,19 @@ sqlx::migrate!(
   <div class="section-label">수치 기준</div>
   <p class="desc">sqlx 마이그레이션 설정 시 지켜야 할 정량 기준값.</p>
   <div class="card">
-    <table>
-      <thead>
-        <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>sqlx-cli 버전</td><td><code>0.8.x</code></td><td><code>cargo install sqlx-cli --no-default-features --features native-tls,postgres</code></td></tr>
-        <tr><td>타임스탬프 형식</td><td><code>YYYYMMDDHHmmss</code></td><td><code>sqlx migrate add</code>가 자동 생성</td></tr>
-        <tr><td>마이그레이션 실행 순서</td><td>타임스탬프 오름차순</td><td>숫자 정렬</td></tr>
-        <tr><td>_sqlx_migrations 테이블</td><td>자동 생성</td><td>실행 이력 + 체크섬 추적</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>sqlx-cli 버전</td><td><code>0.8.x</code></td><td><code>cargo install sqlx-cli --no-default-features --features native-tls,postgres</code></td></tr>
+          <tr><td>타임스탬프 형식</td><td><code>YYYYMMDDHHmmss</code></td><td><code>sqlx migrate add</code>가 자동 생성</td></tr>
+          <tr><td>마이그레이션 실행 순서</td><td>타임스탬프 오름차순</td><td>숫자 정렬</td></tr>
+          <tr><td>_sqlx_migrations 테이블</td><td>자동 생성</td><td>실행 이력 + 체크섬 추적</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

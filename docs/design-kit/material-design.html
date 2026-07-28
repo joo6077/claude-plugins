@@ -76,6 +76,20 @@
   .timeline-year{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px}
   .timeline-title{font-size:13px;font-weight:700;margin-top:4px;color:var(--text)}
   .timeline-desc{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5}
+
+  /* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. 긴 코드·표·안 끊기는
+         토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -149,14 +163,16 @@
   <div class="section-label">3 · 디자인 토큰 3계층</div>
   <p class="desc">Reference → System → Component 계층 구조. 각 수준이 하위 수준에서 값을 상속받아, 라이트/다크 전환 시 상위 참조만 바꾸면 전체 테마가 변경된다.</p>
 
-  <table>
-    <thead><tr><th>계층</th><th>역할</th><th>예시</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Reference Tokens</strong></td><td>원시 값 (HEX · px · 폰트)</td><td><code>md.ref.palette.primary40 = #6750A4</code></td></tr>
-      <tr><td><strong>System Tokens</strong></td><td>역할 · 의미 (테마 전환 지점)</td><td><code>md.sys.color.primary = md.ref.palette.primary40</code></td></tr>
-      <tr><td><strong>Component Tokens</strong></td><td>개별 UI 속성</td><td><code>md.comp.filled-button.container.color = md.sys.color.primary</code></td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>계층</th><th>역할</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Reference Tokens</strong></td><td>원시 값 (HEX · px · 폰트)</td><td><code>md.ref.palette.primary40 = #6750A4</code></td></tr>
+        <tr><td><strong>System Tokens</strong></td><td>역할 · 의미 (테마 전환 지점)</td><td><code>md.sys.color.primary = md.ref.palette.primary40</code></td></tr>
+        <tr><td><strong>Component Tokens</strong></td><td>개별 UI 속성</td><td><code>md.comp.filled-button.container.color = md.sys.color.primary</code></td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <pre><span class="c">// System Token 예시 — 라이트/다크 전환은 여기서 교체</span>
 md.sys.color.primary     = md.ref.palette.primary40
@@ -188,18 +204,20 @@ md.sys.shape.corner.medium  = 12dp</pre>
     </div>
   </div>
 
-  <table style="margin-top:24px">
-    <thead><tr><th>색상 역할</th><th>용도</th><th>Tone (라이트)</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Primary</strong></td><td>주요 버튼 · 활성 상태</td><td>40</td></tr>
-      <tr><td><strong>Secondary</strong></td><td>필터 칩 · 보조 컴포넌트</td><td>40</td></tr>
-      <tr><td><strong>Tertiary</strong></td><td>대비 악센트 · 강조</td><td>40</td></tr>
-      <tr><td><strong>Error</strong></td><td>오류 상태 표시</td><td>40</td></tr>
-      <tr><td><strong>Surface</strong></td><td>배경 · 카드 · 시트</td><td>99</td></tr>
-      <tr><td><strong>On-*</strong></td><td>역할 위 콘텐츠 (대비 보장)</td><td>100 / 10</td></tr>
-      <tr><td><strong>*-Container</strong></td><td>해당 역할의 컨테이너</td><td>90</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap" style="margin-top:24px">
+    <table>
+      <thead><tr><th>색상 역할</th><th>용도</th><th>Tone (라이트)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Primary</strong></td><td>주요 버튼 · 활성 상태</td><td>40</td></tr>
+        <tr><td><strong>Secondary</strong></td><td>필터 칩 · 보조 컴포넌트</td><td>40</td></tr>
+        <tr><td><strong>Tertiary</strong></td><td>대비 악센트 · 강조</td><td>40</td></tr>
+        <tr><td><strong>Error</strong></td><td>오류 상태 표시</td><td>40</td></tr>
+        <tr><td><strong>Surface</strong></td><td>배경 · 카드 · 시트</td><td>99</td></tr>
+        <tr><td><strong>On-*</strong></td><td>역할 위 콘텐츠 (대비 보장)</td><td>100 / 10</td></tr>
+        <tr><td><strong>*-Container</strong></td><td>해당 역할의 컨테이너</td><td>90</td></tr>
+      </tbody>
+    </table>
+  </div>
   <a class="card-source" href="https://m3.material.io/styles/color/roles">m3.material.io/styles/color/roles</a>
 </div>
 
@@ -237,16 +255,18 @@ md.sys.shape.corner.medium  = 12dp</pre>
   <div class="section-label">6 · M3 Expressive (2025, Android 16)</div>
   <p class="desc">M3 의 미니멀 톤에서 벗어나 과감한 색상 · 형태 · 모션을 도입. 기존 M3 와 하위 호환 — Expressive 컴포넌트를 점진적 도입 가능.</p>
 
-  <table>
-    <thead><tr><th>영역</th><th>M3 기존</th><th>M3 Expressive</th></tr></thead>
-    <tbody>
-      <tr><td>색상</td><td>5가지 키 컬러</td><td><strong>6번째 키 컬러</strong> + 고채도 변형</td></tr>
-      <tr><td>Shape</td><td>코너 4단계</td><td><strong>Squircle</strong> + 더 큰 반경</td></tr>
-      <tr><td>타이포그래피</td><td>5역할 × 3크기</td><td>가변 서체 축 강화 + Expressive 스케일</td></tr>
-      <tr><td>모션</td><td>7 이징 + 16 듀레이션</td><td><strong>스프링 물리 기반</strong></td></tr>
-      <tr><td>컴포넌트</td><td>표준 크기</td><td><strong>XL 변형</strong> 추가 (FAB XL · Button XL)</td></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>영역</th><th>M3 기존</th><th>M3 Expressive</th></tr></thead>
+      <tbody>
+        <tr><td>색상</td><td>5가지 키 컬러</td><td><strong>6번째 키 컬러</strong> + 고채도 변형</td></tr>
+        <tr><td>Shape</td><td>코너 4단계</td><td><strong>Squircle</strong> + 더 큰 반경</td></tr>
+        <tr><td>타이포그래피</td><td>5역할 × 3크기</td><td>가변 서체 축 강화 + Expressive 스케일</td></tr>
+        <tr><td>모션</td><td>7 이징 + 16 듀레이션</td><td><strong>스프링 물리 기반</strong></td></tr>
+        <tr><td>컴포넌트</td><td>표준 크기</td><td><strong>XL 변형</strong> 추가 (FAB XL · Button XL)</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="card" style="margin-top:20px">
     <h3>Squircle (스퀴클)</h3>

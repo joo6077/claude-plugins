@@ -39,7 +39,7 @@ section{margin-bottom:56px}
 .section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
 h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
 h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px;margin-bottom:24px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
 .card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 4px 20px rgba(56,189,248,0.06)}
 .card-icon{font-size:1.4rem;margin-bottom:10px}
@@ -76,6 +76,18 @@ tr:hover td{background:rgba(56,189,248,0.025)}
 .compare-bad .compare-header{color:var(--red)}
 .compare-good .compare-header{color:var(--green)}
 .compare-note{font-size:0.82rem;color:var(--text2);margin-top:10px;line-height:1.6}
+
+/* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ──────────────────
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
+.cards>*,.two-col>*,.bad-good-grid>*{min-width:0}
+/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너로 감싼다 */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.table-wrap>table{min-width:max-content}
+/* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
+pre{overflow-x:auto;max-width:100%}
+pre code{white-space:pre}
+:not(pre)>code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>

@@ -192,6 +192,24 @@
   @media(max-width:480px){
     .grid-3,.grid-4{grid-template-columns:1fr 1fr}
   }
+
+  /* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+     내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. 긴 코드·표·안 끊기는
+         토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.anti-row>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다.
+         마크업: <div class="table-wrap"><table>…</table></div> */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 인 코드 블록도 내용폭이 전파된다. 컨테이너에서 스크롤시킨다. */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트 단일 컬럼 스택 — 위 480px 2 컬럼 규칙보다 뒤에 와야 한다. */
+  @media(max-width:600px){
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
@@ -349,15 +367,17 @@
     <div>
       <div class="card">
         <div style="font-size:14px;font-weight:700;margin-bottom:12px">Pull-to-Refresh 단계</div>
-        <table>
-          <thead><tr><th>단계</th><th>동작</th><th>피드백</th></tr></thead>
-          <tbody>
-            <tr><td style="color:var(--text)">Pull 시작</td><td>아래로 당기기</td><td>인디케이터 노출</td></tr>
-            <tr><td style="color:var(--text)">임계치 도달</td><td>60-80dp 이상</td><td>haptic snap</td></tr>
-            <tr><td style="color:var(--text)">릴리즈</td><td>손 떼기</td><td>회전 로딩</td></tr>
-            <tr><td style="color:var(--text)">완료</td><td>데이터 갱신</td><td>300ms fade 사라짐</td></tr>
-          </tbody>
-        </table>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>단계</th><th>동작</th><th>피드백</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--text)">Pull 시작</td><td>아래로 당기기</td><td>인디케이터 노출</td></tr>
+              <tr><td style="color:var(--text)">임계치 도달</td><td>60-80dp 이상</td><td>haptic snap</td></tr>
+              <tr><td style="color:var(--text)">릴리즈</td><td>손 떼기</td><td>회전 로딩</td></tr>
+              <tr><td style="color:var(--text)">완료</td><td>데이터 갱신</td><td>300ms fade 사라짐</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -453,16 +473,18 @@
     </div>
     <div class="card">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px">Swipe 규격</div>
-      <table>
-        <thead><tr><th>요소</th><th>규격</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--text)">최소 스와이프 거리</td><td>너비의 25-33%</td></tr>
-          <tr><td style="color:var(--text)">속도 임계치</td><td class="mono">500dp/s</td></tr>
-          <tr><td style="color:var(--text)">삭제 배경</td><td><span style="color:var(--red)">&#9632;</span> Red</td></tr>
-          <tr><td style="color:var(--text)">보관 배경</td><td><span style="color:var(--green)">&#9632;</span> Green</td></tr>
-          <tr><td style="color:var(--text)">Undo</td><td>Snackbar 5-10초</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>요소</th><th>규격</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text)">최소 스와이프 거리</td><td>너비의 25-33%</td></tr>
+            <tr><td style="color:var(--text)">속도 임계치</td><td class="mono">500dp/s</td></tr>
+            <tr><td style="color:var(--text)">삭제 배경</td><td><span style="color:var(--red)">&#9632;</span> Red</td></tr>
+            <tr><td style="color:var(--text)">보관 배경</td><td><span style="color:var(--green)">&#9632;</span> Green</td></tr>
+            <tr><td style="color:var(--text)">Undo</td><td>Snackbar 5-10초</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </section>
@@ -613,16 +635,18 @@
   <!-- Easing guide -->
   <div class="card" style="margin-top:20px">
     <div style="font-size:14px;font-weight:700;margin-bottom:12px">이징 커브 선택 가이드</div>
-    <table>
-      <thead><tr><th>커브</th><th>용도</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--text);font-weight:600">ease-out</td><td>화면 진입 -- 빠르게 들어와서 감속</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">ease-in</td><td>화면 퇴장 -- 천천히 시작해서 가속으로 사라짐</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">ease-in-out</td><td>화면 내 요소 이동 -- 부드러운 시작과 끝</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">linear</td><td>반복 회전(스피너), 프로그레스 바</td></tr>
-        <tr><td style="color:var(--text);font-weight:600">spring</td><td>바운스 효과 -- 자연스러운 물리 시뮬레이션</td></tr>
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>커브</th><th>용도</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text);font-weight:600">ease-out</td><td>화면 진입 -- 빠르게 들어와서 감속</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">ease-in</td><td>화면 퇴장 -- 천천히 시작해서 가속으로 사라짐</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">ease-in-out</td><td>화면 내 요소 이동 -- 부드러운 시작과 끝</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">linear</td><td>반복 회전(스피너), 프로그레스 바</td></tr>
+          <tr><td style="color:var(--text);font-weight:600">spring</td><td>바운스 효과 -- 자연스러운 물리 시뮬레이션</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -634,31 +658,35 @@
   <div class="grid-2">
     <div class="card">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--accent)">사용자 발동 트리거</div>
-      <table>
-        <thead><tr><th>트리거</th><th>예시</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--text)">Tap/Click</td><td>버튼 클릭, 체크박스</td></tr>
-          <tr><td style="color:var(--text)">Long Press</td><td>컨텍스트 메뉴</td></tr>
-          <tr><td style="color:var(--text)">Swipe</td><td>카드 삭제, 페이지 전환</td></tr>
-          <tr><td style="color:var(--text)">Pull</td><td>Pull-to-refresh</td></tr>
-          <tr><td style="color:var(--text)">Pinch</td><td>줌 인/아웃</td></tr>
-          <tr><td style="color:var(--text)">Scroll</td><td>앱바 축소, FAB 숨기기</td></tr>
-          <tr><td style="color:var(--text)">Type</td><td>실시간 검색</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>트리거</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text)">Tap/Click</td><td>버튼 클릭, 체크박스</td></tr>
+            <tr><td style="color:var(--text)">Long Press</td><td>컨텍스트 메뉴</td></tr>
+            <tr><td style="color:var(--text)">Swipe</td><td>카드 삭제, 페이지 전환</td></tr>
+            <tr><td style="color:var(--text)">Pull</td><td>Pull-to-refresh</td></tr>
+            <tr><td style="color:var(--text)">Pinch</td><td>줌 인/아웃</td></tr>
+            <tr><td style="color:var(--text)">Scroll</td><td>앱바 축소, FAB 숨기기</td></tr>
+            <tr><td style="color:var(--text)">Type</td><td>실시간 검색</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div class="card">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--pink)">시스템 발동 트리거</div>
-      <table>
-        <thead><tr><th>트리거</th><th>예시</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--text)">Data Change</td><td>새 메시지 배지</td></tr>
-          <tr><td style="color:var(--text)">Time</td><td>세션 만료 경고</td></tr>
-          <tr><td style="color:var(--text)">Location</td><td>근처 매장 알림</td></tr>
-          <tr><td style="color:var(--text)">Error</td><td>네트워크 끊김 배너</td></tr>
-          <tr><td style="color:var(--text)">Threshold</td><td>배터리 20% 경고</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>트리거</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text)">Data Change</td><td>새 메시지 배지</td></tr>
+            <tr><td style="color:var(--text)">Time</td><td>세션 만료 경고</td></tr>
+            <tr><td style="color:var(--text)">Location</td><td>근처 매장 알림</td></tr>
+            <tr><td style="color:var(--text)">Error</td><td>네트워크 끊김 배너</td></tr>
+            <tr><td style="color:var(--text)">Threshold</td><td>배터리 20% 경고</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </section>

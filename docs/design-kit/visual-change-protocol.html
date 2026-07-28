@@ -117,6 +117,17 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+
+/* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
+/* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. .code-block(white-space:pre)
+       의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
+.grid-2>*,.grid-3>*,.compare>*,.prec-row>*{min-width:0}
+/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다. */
+.table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+.table-wrap>table{min-width:max-content}
+/* (3) 인라인 코드는 어디서든 줄바꿈 (.code-block 은 자체 overflow-x:auto 로 스크롤). */
+:not(.code-block)>code:not(.code-block){overflow-wrap:anywhere}
 </style>
   <!-- kaizen-cycle: 2026-07-27 (신규 SSOT — 시각 진실 우선순위 · 부분 변경 격리 · 증거 블록 · 승인 기록) -->
 </head>

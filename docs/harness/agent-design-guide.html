@@ -104,6 +104,23 @@ code,.code-block{font-family:var(--mono);font-size:12.5px}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+
+/* ═══ 가로 오버플로 방지 (docs-site 정본 규칙) — 내용을 자르지 말고 스크롤시킨다 ═══ */
+/* (1) grid 자식의 기본 min-width 는 auto(=min-content) 라, 긴 코드·표·안 끊기는 토큰의
+       최소폭이 그대로 트랙 폭으로 전파되어 문서를 밀어낸다. */
+.grid-2>*,.grid-3>*,.compare>*,.pattern-grid>*,.limit-row>*{min-width:0}
+/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다. */
+.table-wrap{-webkit-overflow-scrolling:touch;max-width:100%}
+.table-wrap>table{min-width:max-content}
+/* (3) 코드 — 블록(white-space:pre)은 컨테이너에서 스크롤, 인라인 토큰은 어디서든 줄바꿈. */
+pre{overflow-x:auto;max-width:100%}
+pre code{white-space:pre}
+.code-block{max-width:100%}
+:not(pre)>code:not(.code-block){overflow-wrap:anywhere}
+/* (4) .checklist li 가 flex 라 인라인 <code>/<strong> 이 각각 별도 flex 아이템이 되어
+       줄바꿈 없이 한 줄에 나열된다. 인라인 흐름으로 되돌려 자연 줄바꿈시킨다. */
+.checklist li{display:block}
+.checklist .check{display:inline-flex;vertical-align:-5px;margin-right:12px}
 </style>
   <!-- kaizen-cycle: 2026-07-27 (nesting 사실 정정 + 플랫폼 하드 리밋 + Unverifiable 4항 + frontmatter 스키마 갱신) -->
 </head>
