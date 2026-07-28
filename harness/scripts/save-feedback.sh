@@ -83,7 +83,14 @@ fi
 # identity 계산
 # ---------------------------------------------------------------------------
 
-# CONTRACT_ROOT: `.harness/project.yaml` 을 가진 **가장 가까운(깊은) 조상**.
+# CONTRACT_ROOT: 조상 체인에서 **처음 만나는 `.harness/` 디렉토리**. 판정 기준은
+# `project.yaml` 이 아니라 `.harness/` 자체다 (SSOT: harness/references/contract-schema.md
+# §CONTRACT_ROOT 해석 v5.2). qa-evaluator Step 1-a · sprint-contract Step 0 과 동일 알고리즘 —
+# 세 표면이 갈라지면 조용한 오귀속이 재발한다.
+#
+# v5.1 까지는 `project.yaml` 기준이라 그것이 없는 `.harness/` 를 지나쳐 상위로 올라갔고,
+# 그 결과 자기 계약을 가진 디렉토리를 건너뛰고 **남의 프로젝트로 귀속**시켰다
+# (실측: apps/apps/app_kiosk → 조상 apps 로 상승).
 # 후보가 여러 개여도 실패시키지 않는다 — 중첩 배포본(fit-pal/app 등)이 정상 케이스다.
 resolve_contract_root() {
   if [[ -n "$HARNESS_CONTRACT_ROOT" && -d "$HARNESS_CONTRACT_ROOT" ]]; then
@@ -94,7 +101,7 @@ resolve_contract_root() {
   local dir
   dir="$PWD"
   while :; do
-    if [[ -f "$dir/.harness/project.yaml" ]]; then
+    if [[ -d "$dir/.harness" ]]; then
       printf '%s' "$dir"; return 0
     fi
     if [[ -z "$dir" || "$dir" == "/" ]]; then
@@ -103,7 +110,7 @@ resolve_contract_root() {
     dir="$(dirname "$dir")"
   done
 
-  # project.yaml 이 없으면 git root, 그것도 없으면 cwd
+  # `.harness/` 자체가 조상 체인에 없으면 git root, 그것도 없으면 cwd
   local gr
   gr="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null)" || gr=""
   if [[ -n "$gr" ]]; then printf '%s' "$gr"; return 0; fi

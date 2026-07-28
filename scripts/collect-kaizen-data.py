@@ -310,8 +310,12 @@ def collect_sprint_feedback(harness_dir: Path) -> list[dict]:
 def collect_hub_projects(hub_dir: Path) -> list[dict]:
     """Hub/10_Dev 내 .harness 디렉토리 보유 프로젝트 정보를 수집한다.
 
-    중첩 배포본(`fit-pal/app`, `fit-pal/server` 등)도 각자 project.yaml 을 갖는
-    독립 CONTRACT_ROOT 이므로 2단계 깊이까지 스캔한다 (SSOT §6).
+    중첩 배포본(`fit-pal/app`, `fit-pal/server` 등)도 독립 CONTRACT_ROOT 이므로
+    2단계 깊이까지 스캔한다 (SSOT §CONTRACT_ROOT 해석 v5.2).
+
+    판정 기준은 `.harness/` 디렉토리 존재 자체다 — `project.yaml` 유무가 아니다.
+    `project.yaml` 이 없는 배포본(실측: purchase-bot · flutter_playwright ·
+    apps/apps/app_kiosk)도 계약·피드백을 갖고 있으므로 제외하면 집계에서 통째로 누락된다.
     """
     projects: list[dict] = []
     if not hub_dir.exists():
