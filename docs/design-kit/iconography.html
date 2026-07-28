@@ -151,6 +151,9 @@
   @media(max-width:480px){
     .grid-3,.grid-4{grid-template-columns:1fr 1fr}
     .style-pair{gap:12px}
+    /* Outlined/Filled 비교: 48px 아이콘 쌍(고정폭)이 2컬럼 트랙보다 넓어 가로 오버플로가 남는다.
+       좁은 화면에서만 1컬럼으로 스택해 대조 쌍 구조는 그대로 유지한다. */
+    #stylePairs{grid-template-columns:1fr}
   }
 </style>
 </head>
