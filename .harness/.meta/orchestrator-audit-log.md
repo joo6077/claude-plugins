@@ -364,3 +364,43 @@
 `docs/*.html` 을 전혀 검사하지 않음 · `qa-evaluator.md` Step 5 가 파일 저장을 지시하나
 frontmatter 에 Write 권한 없음 · protection 설정이 config-as-code 로 커밋돼 있지 않음
 (`.harness/branch-protection-runbook.md` 가 SSOT 역할).
+
+## 2026-08-13 — kaizen/2026-08-13 (cycle open)
+
+**Cycle:** kaizen-2026-08-13
+**Step 0:** `/insights` §0 = `~/.claude/usage-data/report.html` (2026-08-13T08:33:57, VERY FRESH 0.1h) ·
+글로벌 feedback 279 (REJECT 110 / APPROVE 166) · hub 14 프로젝트 · local contract 10
+**Step 0.5:** `sync-orchestrator.py --check-only` exit 0 (drift 없음, 10 plugins)
+
+### Step 0.6 선별 결정
+
+**사용자 선택: 전체 14 Phase · 전 Phase 직렬.** 신호 농도 산출 결과는 아래이며,
+LOW 4 킷을 제외한 부분 실행을 제안했으나 사용자가 전체를 택했다.
+
+- HIGH (8): 1 설계가이드 · 2 Contract · 3 Evaluator · 5 Flutter · 6 Design · 9 Rust · 12 Reflect · 13 Bambu
+- MED (2): 4 Harness · 7 Backend
+- LOW (4): 8 Infra · 10 React · 11 Planning · 14 Onboarding
+
+### 이번 사이클 프레이밍 — §0 중복도 판정
+
+`/insights` 2026-08-13 의 Friction #1~#3 은 직전 사이클(2026-07-27)에 이미 구조적으로 승격됐다
+(Enforcement 3등급 / Evidence Validity Gate / Counterpart Enumeration / visual-change-protocol).
+게다가 리포트 윈도(2026-06-12~08-12)가 그 수정 착지일(2026-07-28) **이전을 대부분 포함**한다.
+→ **재출현 = 미측정이지 무효화가 아니다. 같은 규칙 재추가 금지.**
+유효 신호는 (a) §0 신규 델타 D1~D5 (b) 2026-08-11~12 글로벌 REJECT (c) 2026-08 reflection 태그다.
+
+### 신규 메타 이슈 (Step 0 에서 발견)
+
+1. **SKILL.md Step 0 ↔ `collect-kaizen-data.py` 구현 불일치.** SKILL.md 는
+   `<repo>/.claude/kaizen-input/insights-report.md` 자동 탐색과 `--insights=PATH` 인자를 문서화하는데
+   스크립트는 **둘 다 미구현**이고 `~/.claude/usage-data/report.html` 만 고정 참조한다.
+   결과: 사람이 큐레이션한 §0 델타 분석본이 데이터 풀에 들어가지 않는다 (이번엔 각 Phase 프롬프트에
+   경로를 직접 전달하여 우회). → Phase 4 (harness-kaizen) 처리 대상.
+
+### 이전 사이클 미해소 backlog (재검증 대상)
+
+- `detect-docs-drift.py` 가 `research-log.md` → HTML 을 매핑하나 대응 페이지 없음 (5건 오탐)
+- `detect-docs-drift.py` `plugin-validation-guide.html` suffix 불일치 (2026-06-11 부터 이월)
+- `docs/harness/*.html` accent 가 `css-tokens.md` 스펙(`#D97757`)과 불일치
+- `validate-plugin.py` 가 `docs/*.html` 을 전혀 검사하지 않음
+- `qa-evaluator.md` Step 5 가 파일 저장을 지시하나 frontmatter 에 Write 권한 없음
