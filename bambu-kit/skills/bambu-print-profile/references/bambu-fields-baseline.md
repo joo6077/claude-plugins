@@ -221,10 +221,83 @@
 
 - 회전체 default: `seam_position: random + seam_slope_entire_loop: 1` (분산) → **Auto-select 결정 트리 (spiral_mode → painted seam → random fallback)** (은닉). 자세한 결정 트리는 `surface-recipes.md` 참조.
 - Ironing 정책 신규 추가: PLA Basic/Matte/PLA Silk + flat top 한정. PETG/PC/TPU/CF류는 비추.
-- 외벽 매끈함 공통값: `layer_height 0.08-0.12`, `wall_loops 3-4`, `outer_wall_speed 20-40 mm/s`, `reduce_crossing_wall 1`, `resolution 0.006-0.010`.
+- 외벽 매끈함 공통값: `layer_height` **`0.12` 1 차 권장** (계단이 핵심이고 시간을 감수할 때만 `0.08-0.12` — `0.08` 은 H2S 공식 process 프로파일 근거 `[미확인]`, §10.1), `wall_loops 3-4`, `outer_wall_speed 20-40 mm/s`, `reduce_crossing_wall 1`, `resolution 0.006-0.010` (⚠️ XY faceting 전용 — Z 계단 해결책 아님, §10.1).
 
 ## 9. 미해결 / 검증 필요
 
 - `master`는 2.6.0 이후 142 commits 진행 중 → 2.6.0 설치 번들 내장 JSON과 완전 동일 보장 아님. 안정판 tag/asset 내부 프로파일 직접 추출하여 diff 권장.
 - 공식 문서가 "process에서 scarf override 시 filament 충돌 우선순위"를 명시하지 않음. 소스/UI 명칭상 `override_filament_scarf_seam_setting=1`이면 process의 `seam_slope_*`가 제어한다고 보는 것이 합리적.
 - H2S + AMS HT + AMS 2 Pro 조합은 별도 machine preset명이 아님. 장치 동기화/AMS 구성으로 처리되며 별도 "H2S AMS HT + AMS 2 Pro" machine JSON은 공식 repo에서 미확인.
+
+## 10. 실측 실패 모드 관련 필드 (2026-08-13 v3 확장)
+
+> Source: 카이젠 Phase 13 근거 파일 `.harness/.meta/evidence/phase13.md` (Codex foreground · read-only)
+> 정책·게이트·부작용은 `references/failure-recipes.md` 가 갖는다. **이 절이 키 이름 / 단위 / default 의 정본이다.**
+> 두 문서에 같은 수치를 중복 기재하지 마라.
+
+### 10.1. L1 곡면 계단현상 — Layer height 필드
+
+| 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
+|----|-------------|---------|--------------------------|
+| `layer_height` | `mm` | source `0.2` (툴팁: 작을수록 정확도 ↑ · 시간 ↑). H2S 0.20 Standard 는 `0.2` 상속, 0.12 HQ 체인은 `fdm_process_single_0.12` 의 `0.12` | PrintConfig.cpp:796-802; fdm_process_common.json:67; fdm_process_single_0.12.json |
+| `min_layer_height` | `mm` | `0.07` — 툴팁이 adaptive layer 하한으로 설명 | src/libslic3r/PrintConfig.cpp |
+| `max_layer_height` | `mm` (nullable) | `0` = auto — 툴팁이 adaptive layer 상한으로 설명 | src/libslic3r/PrintConfig.cpp |
+| `adaptive_layer_height` | — | **process JSON 에 넣지 마라.** `fdm_process_common.json` 에 `"0"` 으로 값은 남아 있으나 PrintConfig.cpp 의 실제 option 정의가 **주석 처리**돼 있고 **legacy ignore set** 에도 포함된다 → 켜진다는 근거 없음 | fdm_process_common.json; src/libslic3r/PrintConfig.cpp |
+
+`resolution` 은 §8.3 에 이미 있다 (중복 기재 금지). ⚠️ `resolution` 은 **XY 세그먼트 해상도**이고
+**Z 계단의 주 해결책이 아니다** — 작을수록 해상도 ↑ / slicing time ↑ (Orca precision 문서와 동일 서술).
+
+### 10.2. L2 스트링잉 — Filament override 필드
+
+공통 filament profile 기본은 대체로 `"nil"` 이다 = **printer / extruder 기본에 위임**. `"nil"` 을
+"미설정" 으로 읽고 임의 숫자로 채우지 마라. 아래 underlying default 는 위임됐을 때의 실효값이다.
+
+| 키 | enum / 단위 | filament profile default | underlying default | 출처 |
+|----|-------------|-------------------------|--------------------|------|
+| `filament_retraction_length` | `mm` | `"nil"` (위임) | `0.8` | fdm_filament_common.json; src/libslic3r/PrintConfig.cpp |
+| `filament_retraction_speed` | `mm/s` | `"nil"` (위임) | `30` | 동일 |
+| `filament_retraction_minimum_travel` | `mm` | `"nil"` (위임) | `2` | 동일 |
+| `filament_wipe` | `0` / `1` (bool) | `"nil"` (위임) | `false` | 동일 |
+| `filament_wipe_distance` | `mm` | `"nil"` (위임) | `2` | 동일 |
+| `filament_z_hop` | `mm` | `"nil"` (위임) | `0.4` | 동일 |
+| `filament_z_hop_types` | enum | `"nil"` (위임) | `Spiral` | 동일 |
+
+온도 키는 §4 에 있다. common default 는 `nozzle_temperature` `200` / `nozzle_temperature_initial_layer`
+`200` / `range_low` `190` / `range_high` `240` (°C) 이며 **실제 소재 profile 이 override 한다**.
+⚠️ 이 스킬은 온도를 건드리지 않는다 (사용자 명시 요청 2026-05-16).
+
+### 10.3. L3 바닥 박리 — Brim / raft / 첫 레이어 / plate 온도 / aux fan 필드
+
+| 키 | enum / 단위 | default | 출처 |
+|----|-------------|---------|------|
+| `brim_type` | enum: `auto_brim`, `brim_ears`, `outer_only`, `inner_only`, `outer_and_inner`, `no_brim` | source `auto_brim` | src/libslic3r/PrintConfig.cpp |
+| `brim_width` | `mm` | source `0`; fdm_process_common `5` | fdm_process_common.json |
+| `brim_object_gap` | `mm` | source `0`; fdm_process_common `0.1` | fdm_process_common.json |
+| `raft_layers` | layers | source · common `0` — 툴팁이 ABS warping 회피 용도를 명시 | src/libslic3r/PrintConfig.cpp |
+| `raft_first_layer_expansion` | `mm` | `-1` = auto | src/libslic3r/PrintConfig.cpp |
+| `initial_layer_print_height` | `mm` | source `0.2` — 툴팁: 두꺼운 첫 레이어가 adhesion 개선 가능 | src/libslic3r/PrintConfig.cpp |
+| `initial_layer_line_width` | `mm` | source `0.4`; fdm_process_common `0.5` | fdm_process_common.json |
+| `initial_layer_speed` | `mm/s` | source `30`; common `20`; **H2S standard `50`** | src/libslic3r/PrintConfig.cpp; fdm_process_common.json |
+| `hot_plate_temp_initial_layer` | `°C` | 소재 profile 별 | src/libslic3r/PrintConfig.cpp |
+| `textured_plate_temp_initial_layer` | `°C` | 소재 profile 별 | src/libslic3r/PrintConfig.cpp |
+| `eng_plate_temp_initial_layer` | `°C` | 소재 profile 별 | src/libslic3r/PrintConfig.cpp |
+| `additional_cooling_fan_speed` | `%` | 소재 profile 별 | fdm_filament_common.json |
+| `close_additional_fan_first_x_layers` | layers | 소재 profile 별 | fdm_filament_common.json |
+
+### 10.4. 금지 / obsolete 키 (Phase 4.3 게이트 검사 대상)
+
+| 키 | 판정 | 대체 |
+|----|------|------|
+| `adaptive_layer_height` | option 정의 주석 처리 + legacy ignore set (§10.1) | `layer_height` 하향 + notes 명시 |
+| `bed_temperature_initial_layer` | **obsolete ignored key** | §10.3 plate-specific 키 |
+| `bed_temperature` | 같은 규칙의 대상. obsolete 여부 자체는 근거상 `bed_temperature_initial_layer` 만 확인됨 → 게이트 금지 목록으로만 취급 `[미확인]` | §10.3 plate-specific 키 |
+| `elephant_foot_compensation` | Bambu 의도적 오타 미반영 — silent skip | `elefant_foot_compensation` (`tolerance.md`) |
+
+출처 (§10 전체):
+
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp>
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/process/fdm_process_common.json>
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/process/fdm_process_single_0.12.json>
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/filament/fdm_filament_common.json>
+- UI 기능 존재 근거 (JSON 근거 아님): <https://github.com/bambulab/BambuStudio/issues/9518> ·
+  <https://forum.bambulab.com/t/set-minimum-and-maximums-for-variable-layer-height/67875>
