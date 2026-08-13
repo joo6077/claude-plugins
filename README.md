@@ -7,17 +7,17 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 <!-- AUTO:plugins -->
 | 플러그인 | 버전 | 스택 | 설명 |
 |----------|------|------|------|
-| [`harness`](./harness/) | v0.6.0 | 범용 | [v0.6.0 · 2026-07-28] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (validate-plugin V8 hook-exec 가드 + 2026 QA 자동화 트렌드) |
-| [`flutter-toolkit`](./flutter-toolkit/) | v0.6.0 | Flutter | [v0.6.0 · 2026-07-27] Flutter 개발 워크플로우 스킬 모음 (Riverpod 3.0 / Freezed 3.0 / go_router StatefulShellRoute) |
-| [`design-kit`](./design-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-07-27] 스택 무관 UI/UX 디자인 가이드 + 감사 (OKLCH / DTCG v1 / WCAG 2.2 / Container Queries) |
-| [`backend-kit`](./backend-kit/) | v0.2.0 | 범용 | [v0.2.0 · 2026-07-27] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (Hexagonal/Clean/DDD + OAuth 2.1 + Outbox + Pact) |
-| [`infra-kit`](./infra-kit/) | v0.2.0 | 범용 | [v0.2.0 · 2026-07-27] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (K8s PSA / Terraform 1.10 / SLSA / OTel) |
-| [`rust-kit`](./rust-kit/) | v0.2.0 | 범용 | [v0.2.0 · 2026-07-27] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 |
-| [`react-kit`](./react-kit/) | v0.2.0 | 범용 | [v0.2.0 · 2026-07-27] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 |
-| [`planning-kit`](./planning-kit/) | v0.4.0 | 범용 | [v0.4.0 · 2026-07-27] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 |
-| [`reflect-kit`](./reflect-kit/) | v0.5.0 | 범용 | [v0.5.0 · 2026-07-27] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸 |
-| [`bambu-kit`](./bambu-kit/) | v0.5.0 | 범용 | [v0.5.0 · 2026-07-27] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (Codex 8회 리서치 + 실측 dogfood 5건 검증) |
-| [`onboarding-kit`](./onboarding-kit/) | v0.2.0 | 범용 | [v0.2.0 · 2026-07-27] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (Firebase/GCP/AWS/FCM/OAuth/Stripe, 11개 섹션 표준 포맷) |
+| [`harness`](./harness/) | v0.7.0 | 범용 | [v0.7.0 · 2026-08-13] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (계약 봉인 E3 + 미검증 카운터 분리 + 문서-스크립트 계약 + 게이트 exit taxonomy) |
+| [`flutter-toolkit`](./flutter-toolkit/) | v0.7.0 | Flutter | [v0.7.0 · 2026-08-13] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계) |
+| [`design-kit`](./design-kit/) | v0.4.0 | 범용 | [v0.4.0 · 2026-08-13] 스택 무관 UI/UX 디자인 가이드 + 감사 (Variant Distinctiveness Gate + Decision Propagation Manifest + 증거 채널 + WCAG 24×24 정정) |
+| [`backend-kit`](./backend-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (쓰기 경로 무결성 SSOT (경합 invariant 3유형 · upsert arbiter · 통합 테스트 대상 증명)) |
+| [`infra-kit`](./infra-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (게이트 결과 상태 taxonomy 5종 + YAML 파서 액션 핀닝 + USE×RED 환경 선배제) |
+| [`rust-kit`](./rust-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT) |
+| [`react-kit`](./react-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 (템플릿 의존성 현행화 + 표준 커버리지 공백 문서화 (라이브러리 0개 원칙 유지)) |
+| [`planning-kit`](./planning-kit/) | v0.5.0 | 범용 | [v0.5.0 · 2026-08-13] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 (Projects v2 REST 지원 정정 + one-When 과잉 인용 라벨링 + HBR 절차 미확인 강등) |
+| [`reflect-kit`](./reflect-kit/) | v0.6.0 | 범용 | [v0.6.0 · 2026-08-13] 개인 Claude Code 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론) — Hybrid project_id (basename 기본 + 충돌 시 hash fallback · backward-compatible) · 정규화 쿼리 · 내부 디렉토리 자동 제외 · 3 훅 수집 · /reflect-digest 집계 (+ project=all cross-project) · /reflect-promote 승격 + ledger · /reflect-kaizen 30d calibration · codex 실패 시 Claude CLI fallback · install-scheduler/legacy-id-migrate 유틸 (태그 정규화 결정론화 + hook coverage audit 라우팅 + 파편화 게이트 calibration 무효화) |
+| [`bambu-kit`](./bambu-kit/) | v0.6.0 | 범용 | [v0.6.0 · 2026-08-13] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장) |
+| [`onboarding-kit`](./onboarding-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate) |
 <!-- /AUTO:plugins -->
 
 ---
