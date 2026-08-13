@@ -110,9 +110,12 @@ refl_files=$(find "$log_dir" -maxdepth 1 -type f -name 'reflections-*.md' 2>/dev
 if [ -n "$refl_files" ]; then
   # zsh 의 nomatch 로 글로빙이 명령을 통째로 죽인 전례가 있어 find 로 열거한다.
   # 배열 분해(셸별 word-splitting 차이)를 피하려고 원시 태그를 먼저 뽑아 stdin 으로 넘긴다.
+  # 추출 규칙(grep 패턴 + sed 정리)은 라이브러리의 tag_canon_extract 가 정본이다 —
+  # 여기에 같은 패턴을 다시 쓰면 수집면과 집계면이 조용히 갈라진다 (한쪽만 고쳐지는 순간
+  # 훅이 주입하는 어휘와 digest 가 세는 어휘가 달라져 K3 과소집계가 그대로 돌아온다).
   raw_tags=$(printf '%s\n' "$refl_files" | while IFS= read -r f; do
-    [ -n "$f" ] && grep -h '^[[:space:]]*mistake_tag:' "$f" 2>/dev/null
-  done | sed -e 's/^[[:space:]]*mistake_tag:[[:space:]]*//' -e 's/[[:space:]]*#.*$//')
+    [ -n "$f" ] && tag_canon_extract "$f"
+  done)
   printf '%s\n' "$raw_tags" | tag_canon_groups > "$canon_tsv" 2>/dev/null
   canon_rc=$?
   frag_line=$(printf '%s\n' "$raw_tags" | tag_canon_fragmentation 2>/dev/null)
@@ -284,6 +287,14 @@ trimmed=$(echo "$summary" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
 # 비정상 종료 시에는 원본을 그대로 기록한다 (fail-open — 행동 신호는 절대 잃지 않는다).
 # 억제해도 사건은 유실되지 않는다: .env-issues.tsv 가 first_seen/last_seen/count 를
 # 보존하고 /reflect-digest 가 이를 "환경 액션 아이템" 으로 보고한다.
+#
+# 알려진 한계 (2026-08-13 재검증에서 확인 · 미해결) — 이 게이트의 그룹 키는 **원시 태그**다.
+# 아래 awk 는 블록 안에서 mistake_tag 와 actionability 를 짝지어 읽어야 해서 라이브러리의
+# tag_canon_extract(플랫 목록)를 그대로 쓸 수 없고, lemma 정규화를 여기서 다시 구현하면
+# references/tag-canonicalization.md §1 의 SSOT 가 깨진다. 그 결과 같은 환경 문제가 다른
+# 표기로 오면 **다른 그룹으로 보여 억제되지 않는다** — post_freq 과소집계(§0)와 같은
+# 파편화가 이 경로에는 아직 남아 있다. 해소는 정규화 pass 를 스트림 필터로 노출하는
+# 별도 스프린트 대상이다. **여기에 norm() 을 복제해 임시로 막지 마라.**
 env_state="$log_dir/.env-issues.tsv"
 env_state_tmp=$(mktemp)
 env_report_tmp=$(mktemp)

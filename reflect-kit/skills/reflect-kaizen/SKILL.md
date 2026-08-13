@@ -49,9 +49,15 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 ```bash
 # 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
 . "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
+tag_canon_selftest      # 양성 대조 — SELFTEST_OK 가 아니면 아래 지표는 무의미하다
 tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
 # raw_distinct \t clusters \t entries \t singletons \t fold_ratio \t singleton_share \t entries_per_cluster
 ```
+
+- **`tag_canon_selftest` 가 `SELFTEST_OK` 가 아니면 `calibration_confidence: low` 를 선언한다**
+  (SSOT §6.1 규칙 6). 정규화가 죽으면 `singleton_share` 가 **거짓 정상**으로 낮게 나올 수 있고,
+  그 경우 이 게이트는 통과하는데 `post_freq` 는 과소집계 상태다 — 게이트가 있는 채로 우회된다.
+  selftest 실패는 파편화 임계 초과와 **같은 효력**을 갖는다 (demotion 산출 금지 · 임계 재평가 skip).
 
 - 판정은 **6 열 `singleton_share`** 로 한다. **5 열 `fold_ratio` 로 판정하지 마라** — 클러스터링이 아무것도 못 묶으면 1.00 이라 항상 "정상" 이다 (Gotcha #9).
 - `singleton_share > 0.70` (**hypothesis** — 2026-08-13 baseline 0.884) 이면 `calibration_confidence: low` 를 선언한다. 이 선언의 효과는 셋이다:

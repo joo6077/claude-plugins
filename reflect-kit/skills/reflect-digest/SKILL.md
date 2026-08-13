@@ -124,9 +124,16 @@ approach_note: <str>
    ```bash
    # 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
    . "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
+   tag_canon_selftest || echo "정규화 미작동 — 아래 수치를 집계 근거로 쓰지 마라"
    tag_canon_groups ~/.claude/logs/<bucket>/reflections-*.md   # cluster_freq \t canonical \t aliases
    tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
    ```
+
+   **`tag_canon_selftest` 가 `SELFTEST_OK` 가 아니면 클러스터 수치를 집계 근거로 쓰지 마라**
+   (SSOT §6.1 규칙 6). lemma map 을 못 읽으면 라이브러리는 **에러 없이** 순수 kebab 정규화로
+   fail-open 하므로, 접힘이 0 인 출력이 정상 출력과 똑같은 모양으로 나온다. 그 상태의 빈도는
+   원시 태그 빈도와 같고 — 즉 Gotcha #8 이 금지한 그 집계다. 리포트에 `SELFTEST_FAIL` 사유를
+   적고 정규화를 복구한 뒤 다시 집계한다.
    출력의 `canonical` 은 클러스터 안 **최빈 원시 표기**이고 `aliases` 는 나머지 멤버 전체다.
    손으로 멤버를 고르지 마라 — 고르는 순간 `post_freq` 가 과소집계된다. 규약: SSOT §1~§2.
 

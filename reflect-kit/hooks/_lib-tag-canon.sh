@@ -19,6 +19,7 @@
 #   tag_canon_groups <reflections 파일...>     # cluster_freq \t canonical \t aliases
 #   tag_canon_fragmentation <파일...>          # 아래 7열 TSV 1줄
 #   printf '%s\n' edited-before-read | tag_canon_keys   # 원시태그 → lemma key
+#   tag_canon_selftest                         # 양성 대조 — 회귀 게이트는 이것부터 돌린다
 #
 # tag_canon_fragmentation 출력 열 (탭 구분, 헤더 없음):
 #   1 raw_distinct  2 clusters  3 entries  4 singletons  5 fold_ratio  6 singleton_share  7 entries_per_cluster
@@ -106,7 +107,8 @@ tag_canon_extract() {
 # ── 공통 awk 프로그램 ───────────────────────────────────────────────────
 # mode=keys    → 각 입력 줄마다 "raw \t lemma_key"
 # mode=groups  → "cluster_freq \t canonical \t alias1(f1),alias2(f2),..."
-# mode=frag    → "raw_distinct \t clusters \t ratio"
+# mode=frag    → 7 열 (raw_distinct clusters entries singletons fold_ratio singleton_share
+#                      entries_per_cluster). 열 정의는 파일 상단 헤더 블록이 정본이다.
 _tag_canon_awk() {
   awk -v mapfile="$1" -v mode="$2" -v maxalias="${3:-5}" '
   function norm(s,   t, n, i, seg, out, s1) {
@@ -226,11 +228,66 @@ tag_canon_groups() {
   return $rc
 }
 
-# raw_distinct \t clusters \t ratio  — 파편화 지표 (reflect-kaizen §0 오라클)
+# 7 열 TSV 1 줄 — 파편화 지표 (reflect-kaizen §0 오라클). 판정은 6 열 singleton_share 로 한다.
+# 열 정의는 파일 상단 헤더 블록이 정본이다. **3 열은 ratio 가 아니라 entries 다** —
+# 이 주석이 예전에 3 열짜리 서술이라 `cut -f3` 을 ratio 로 읽으면 조용히 틀린 값을 얻었다.
 tag_canon_fragmentation() {
   local mp; mp="$(tag_canon_map_path)"
   local rc=0
   [ -r "$mp" ] || { mp=""; rc=3; }
   tag_canon_extract "$@" | _tag_canon_awk "$mp" frag
   return $rc
+}
+
+# ── 양성 대조 (positive control) ────────────────────────────────────────
+# 왜 필요한가: 셸·cwd 교차 회귀 게이트는 **입력이 0 매치일 때 거짓 PASS 한다.**
+#   추출이 0 건이면 모든 셸이 `0 0 0 0 0.00 0.000 0.00` 을 내므로 `sort -u` 가 1 행이 되고
+#   "전 셸 일치" 로 읽힌다. 2026-08-13 실측: fixture 를 `- mistake_tag:`(선행 하이픈)로
+#   잘못 만든 상태에서 24 회 실행이 전부 그 값이었고 게이트는 PASS 였다 — 태그를 한 건도
+#   세지 않은 채로. 일치성만 보는 오라클은 **아무것도 안 하는 구현을 통과시킨다.**
+# 그래서 회귀 게이트는 "접힘이 실제로 일어났다" 는 양성 대조로 시작한다.
+# 부수 효과로 이 환경의 `grep` 이 `^[[:space:]]*mistake_tag:` 를 처리하는지도 함께 검증한다
+# (처리하지 못하면 추출이 조용히 0 건이 되고 어휘 주입 전체가 빈다).
+# 출력: `SELFTEST_OK ...` (rc 0) 또는 `SELFTEST_FAIL <사유>` (rc 1)
+tag_canon_selftest() {
+  local fx rc n_extract frag nraw nclust grp
+  rc=0
+  fx="$(mktemp "${TMPDIR:-/tmp}/reflect-canon-selftest-XXXXXX")" || {
+    printf 'SELFTEST_FAIL mktemp\n'; return 1; }
+  cat > "$fx" <<'SELFTEST_FIXTURE'
+mistake_tag: edited-before-read
+mistake_tag: edit-before-read
+mistake_tag: ignored-required-api-doc-check
+mistake_tag: skipped-required-api-doc-check
+SELFTEST_FIXTURE
+
+  n_extract="$(tag_canon_extract "$fx" | grep -c .)"
+  frag="$(tag_canon_fragmentation "$fx")"
+  nraw="$(printf '%s' "$frag" | cut -f1)"
+  nclust="$(printf '%s' "$frag" | cut -f2)"
+  grp="$(tag_canon_groups "$fx")"
+  rm -f "$fx" 2>/dev/null
+
+  # (1) 추출이 이 환경에서 동작하는가
+  if [ "$n_extract" != "4" ]; then
+    printf 'SELFTEST_FAIL extract n=%s expected=4 — 이 환경의 grep 이 %s 를 처리하지 못한다\n' \
+      "$n_extract" '^[[:space:]]*mistake_tag:'
+    rc=1
+  fi
+  # (2) 접힘이 실제로 일어났는가 — 퇴화 입력·맵 부재의 거짓 PASS 차단
+  if [ "$nraw" != "4" ] || [ "$nclust" != "2" ]; then
+    printf 'SELFTEST_FAIL fold raw=%s clusters=%s expected=4/2 — lemma map 을 못 읽으면 4/4 가 된다\n' \
+      "$nraw" "$nclust"
+    rc=1
+  fi
+  # (3) canonical 이 최빈형인가 (verb 접힘 + alias 노출)
+  if ! printf '%s\n' "$grp" | awk -F'\t' \
+    '$1 == 2 && $2 == "edit-before-read" && $3 == "edited-before-read(1)" { f = 1 }
+     END { exit !f }'; then
+    printf 'SELFTEST_FAIL canonical — 최빈형(edit-before-read)이 canonical 로 뽑히지 않았다\n'
+    rc=1
+  fi
+
+  [ "$rc" -eq 0 ] && printf 'SELFTEST_OK raw=4 clusters=2 canonical=edit-before-read\n'
+  return "$rc"
 }

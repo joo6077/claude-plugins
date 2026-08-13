@@ -104,6 +104,9 @@ Sentry 의 fingerprint 규칙도 자주 바뀌는 값으로 그룹핑하면 나�
 ```bash
 . "<repo>/reflect-kit/hooks/_lib-tag-canon.sh"    # 또는 "${CLAUDE_PLUGIN_ROOT}/hooks/..."
 
+# 양성 대조 — 아래 측정을 신뢰하기 전에 먼저 돌린다 (§6.1 규칙 6)
+tag_canon_selftest
+
 # 단일 태그 → lemma key
 printf '%s\n' edited-before-read ignored-required-api-doc-check | tag_canon_keys
 
@@ -145,8 +148,42 @@ bash / zsh / sh 세 셸에서 동일 출력을 확인했다 (2026-08-13, cwd 4 �
   이 unbound 로 함수를 중도 이탈시키면 호출자는 빈 경로를 받아 조용히 순수 kebab 정규화로
   떨어진다 (`5 3 6 1 …` → `5 5 6 4 …`). 회귀 검증은 `set -u` 유/무 **양쪽**으로 돌린다.
 
-현재 회귀 게이트 실측: `{set -u 유·무} × {bash·zsh·sh} × {cwd 4 종}` = **24 회 실행 →
-`sort -u` 1 행** (2026-08-13).
+- **규칙 6 — 일치성 게이트는 양성 대조로 시작한다.** 24 회 실행을 `sort -u` 로 비교하는 게이트는
+  **입력이 0 매치면 거짓 PASS 한다.** 추출이 0 건이면 모든 셸이 `0 0 0 0 0.00 0.000 0.00` 을
+  내므로 `sort -u` 가 1 행이 되고 "전 셸 일치" 로 읽힌다.
+  **전례 (2026-08-13, Phase 12 재검증)**: fixture 를 `- mistake_tag:`(선행 하이픈)로 만든 상태에서
+  24 회 전부 그 값이었고 게이트는 PASS 였다 — 태그를 한 건도 세지 않은 채로. 일치성만 보는
+  오라클은 **아무것도 안 하는 구현을 통과시킨다.** 그래서 게이트는 `tag_canon_selftest` 로
+  시작한다 (접힘 4→2 + canonical 최빈형 + 추출 4 건을 함께 단정하고, 실패하면 사유를 출력한다).
+
+```bash
+. "<repo>/reflect-kit/hooks/_lib-tag-canon.sh" && tag_canon_selftest
+# SELFTEST_OK raw=4 clusters=2 canonical=edit-before-read
+
+# selftest 의 판별력을 확인할 때는 반드시 export 로 넘긴다 (아래 주의 참조)
+( export REFLECT_TAG_LEMMA_MAP=/nonexistent; . "<repo>/reflect-kit/hooks/_lib-tag-canon.sh"
+  tag_canon_selftest )   # → SELFTEST_FAIL fold raw=4 clusters=4
+```
+
+**주의 — `VAR=x . lib; func` 로 음성 대조를 돌리지 마라.** 명령 앞 변수 할당은 그 명령에만
+붙는다. `.`(source)는 특수 빌트인이라 셸에 따라 할당이 남기도 하고 남지 않기도 해서,
+**뒤이어 호출하는 함수는 그 변수를 못 볼 수 있다.** 2026-08-13 재검증에서 실제로
+`REFLECT_TAG_LEMMA_MAP=/nonexistent . lib; tag_canon_selftest` 가 `SELFTEST_OK` 를 냈고,
+"맵이 없어도 통과한다 = selftest 가 오라클이 아니다" 로 잘못 읽힐 뻔했다. `export` 로 넘기면
+같은 조건이 정상적으로 `SELFTEST_FAIL` 이다 (위 실측). 음성 대조가 통과하면 **구현을 의심하기
+전에 대조 자체가 성립했는지** 확인하라.
+
+- **규칙 7 — "0 건" 을 PASS 로 삼는 grep 오라클은 `-F` 를 쓰거나 메타문자를 이스케이프한다.**
+  substring 오탐(거짓 양성)만 조심하면 된다고 생각하기 쉬운데, 반대 방향인 **거짓 음성**이 더
+  위험하다 — "0 건" 이 곧 PASS 인 조건에서 패턴이 잘못되면 **위반이 있어도 통과**한다.
+  **전례 (2026-08-13)**: 이 환경의 `grep` 은 ugrep 7.5.0 이고 패턴 **중간의 `$` 를 앵커로
+  해석**한다. Phase 12 계약 RE-02 의 측정문이 그 경로였다 —
+  `grep -c 'source "$SCRIPT_DIR/_lib-'` 는 **0** 을 내지만 `grep -cF` 와 `grep -c '...\$...'` 는
+  **3** 을 낸다 (참값은 3). 오라클이 참인 매치를 0 으로 보고한 것이다.
+  변수 표기(`$VAR`)·`.`·`*`·`[` 를 문자 그대로 찾을 때는 `-F` 를 기본으로 쓴다.
+
+현재 회귀 게이트 실측: `tag_canon_selftest` → `SELFTEST_OK` · 이어서
+`{set -u 유·무} × {bash·zsh·sh} × {cwd 4 종}` = **24 회 실행 → `sort -u` 1 행** (2026-08-13).
 
 ## 7. 새 alias 를 추가하는 절차
 
