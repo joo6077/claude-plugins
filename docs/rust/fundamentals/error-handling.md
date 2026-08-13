@@ -44,7 +44,7 @@ fn main() -> anyhow::Result<()> {
 
 에러는 계층 경계에서 변환된다. 하위 계층의 에러 타입이 상위 계층에 노출되면 의존성 역전이 발생한다.
 
-```
+```text
 sqlx::Error → DomainError::Persistence   (Adapter 책임)
 DomainError → ApiError                   (Handler 책임)
 ApiError    → HTTP Response              (IntoResponse 책임)
@@ -114,6 +114,26 @@ tracing::error!(error = %err, "요청 처리 실패");       // Display
 tracing::error!(error = ?err, "요청 처리 실패");       // Debug (cause chain)
 ```
 
+### 5. 불가능한 상태는 타입으로 제거한다 (치환보다 설계)
+
+프로덕션 `.unwrap()`/`.expect()` 를 발견했을 때 반사적으로 `?` 로 바꾸면, "여기서는 절대 `None` 일
+리 없다" 는 자리는 그대로 남는다. 검증 결과를 버리고 넓은 타입을 계속 들고 다니면 같은 검증을
+아래층에서 다시 하게 되고 그 자리에 panic 이 생긴다
+([parse, don't validate](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/)).
+
+| 상황 | 설계 수단 |
+| ---- | --------- |
+| 생성 시점 불변식 | smart constructor (`Email::parse(s) -> Result<Email, _>`, 필드 private) |
+| 비어 있지 않은 컬렉션 전제 | `NonEmpty` ([nonempty](https://docs.rs/nonempty/latest/nonempty/)) |
+| 단계별 허용 연산이 다름 | typestate ([typestate](https://cliffle.com/blog/rust-typestate/)) |
+| 조립 중 `Option`, 완성 후 필수 | `builder` → `built` 타입 분리 (`build()` 에서 한 번 검증) |
+| 첫 관찰 시 채우고 이후 갱신 | `HashMap::entry(k).or_insert_with(...)` 누적 |
+
+강제는 `[workspace.lints.clippy]` 의 `unwrap_used` / `expect_used` / `panic` /
+`panic_in_result_fn` deny 로 한다 — 문장 규칙만으로는 재발한다 (2026-08-12 실측 `AP-05`).
+`unwrap_or_default()` 치환, "더 좋은 메시지의 `expect`", 파일 단위 `#[allow(...)]`,
+`clippy::restriction` 그룹 전체 deny 는 해법이 아니다.
+
 ---
 
 ## 수치 기준
@@ -132,7 +152,7 @@ tracing::error!(error = ?err, "요청 처리 실패");       // Debug (cause cha
 
 ### `.unwrap()` / `.expect()` 프로덕션 코드에 남기기
 
-`.unwrap()`은 테스트 코드와 불가능한 상황(`// SAFETY: ...`로 설명된)에만 허용한다. 서비스 코드에서 `.unwrap()`은 프로세스를 종료시킨다. Clippy `unwrap_used` lint를 활성화하여 감지한다.
+`.unwrap()`은 테스트 코드와 main 초기화에만 허용한다. 서비스 코드에서 `.unwrap()`은 프로세스를 종료시킨다. Clippy `unwrap_used` lint를 deny 로 켜서 감지하고, 제거는 §원칙 5(불가능한 상태는 타입으로 제거)의 판정 순서를 따른다 — "불가능한 상황이니 괜찮다" 는 주석은 그 상태가 타입에 남아 있다는 신호다.
 
 ### 모든 에러를 `String`으로 변환
 

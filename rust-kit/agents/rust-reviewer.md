@@ -66,7 +66,7 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 
 ## 평가 카테고리
 
-7 카테고리를 아래 순서대로 평가한다. 세부 rule 은 **반드시 `rust-kit/skills/rust-audit/references/audit-criteria.md` 를 읽고 그 기준만 사용한다** (존재하지 않으면 rust-audit SKILL.md Step 4 예시 17-row 표를 기준선으로 사용).
+7 카테고리를 아래 순서대로 평가한다. 세부 rule 은 **반드시 `rust-kit/skills/rust-audit/references/audit-criteria.md` 를 읽고 그 기준만 사용한다** (존재하지 않으면 rust-audit SKILL.md Step 4 예시 18-row 표를 기준선으로 사용).
 
 1. Ownership & Borrowing
 2. Error Handling
@@ -97,6 +97,7 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 | 15 | Testing | 테스트 실행 증거 — `running N tests` 의 N > 0 + 종료 코드 | PASS/FAIL | | | |
 | 16 | API Design | 핸들러 state `Arc<dyn Port>` trait object (SK-03) | PASS/FAIL | | | |
 | 17 | API Design | Axum 0.8 `{id}` 중괄호 path 문법 (0.7 `:id` 잔재 0 건) | PASS/FAIL | | | |
+| 18 | Testing | 동시성 가드 음성 대조 — positive + stale expected value negative 쌍이 실 DB 에 존재하고 가드 구현 심볼과 결합돼 있다 (`references/concurrency-guard-protocol.md`) | PASS/FAIL | | | |
 
 **미검증 항목 마커 (agent-design-guide §10)** — 런타임 환경 접근 불가로 L3 검증이 불가능한 항목은 조용히 PASS 처리하지 말고 "판정" 컬럼에 `[미검증]` 을 붙이고 "근거" 컬럼에 이유를 기술한다 (예: `[미검증] production DB 접근 불가 — pool 설정 파일 정적 리뷰만 수행`). 마커 의미·임계값은 위 §미검증 증거 프로토콜(정본 복제) 을 따른다.
 
@@ -119,9 +120,10 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 
 ## References
 
-- rust-kit/skills/rust-audit/SKILL.md §Step 4 — Rule-by-Rule 17-row 기준선
+- rust-kit/skills/rust-audit/SKILL.md §Step 4 — Rule-by-Rule 18-row 기준선
 - harness/docs/guides/qa-evaluation-guide.md §Canonical Unverified-Evidence Protocol · §Evidence Validity Gate — 미검증 마커·임계값·증거 유효성 정본(SSOT)
 - rust-kit/skills/rust-audit/references/audit-criteria.md — 카테고리별 체크리스트 SSOT (존재 시)
+- rust-kit/references/concurrency-guard-protocol.md — 동시성 가드 생성·테스트 절차 SSOT (row 18 근거)
 - backend-kit/agents/backend-reviewer.md — sibling 에이전트 ground truth
 - harness/docs/guides/agent-design-guide.md §3.5 · §10 · §12 — Binary Decidability · Unverifiable · L3 Coverage Honesty SSOT
 - harness/docs/guides/skill-design-guide.md §3.6 — Rule-by-Rule Audit SSOT

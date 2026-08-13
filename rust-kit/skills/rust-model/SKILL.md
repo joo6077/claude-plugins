@@ -13,7 +13,7 @@ user-invocable: true
 - **SQLx와 SeaORM 중 프로젝트가 이미 사용하는 ORM을 먼저 감지** — 둘을 한 프로젝트에 섞지 마라. `HAS_SEAORM`이면 SeaORM 경로, `HAS_SQLX` only면 SQLx 경로를 따른다. 둘 다 있는 "hybrid"는 fit-pal 같은 대형 프로젝트에서도 안티패턴이다.
 - **SQLx 매크로 컴파일 타임 검증** — `sqlx::query!`/`query_as!` 매크로는 컴파일 타임에 DB에 연결해 쿼리를 검증한다. `DATABASE_URL` 환경변수 또는 `.env` 파일이 없으면 컴파일 자체가 실패한다. 오프라인 CI를 위해서는 `cargo sqlx prepare`로 `.sqlx/` 디렉토리를 미리 생성해야 한다. (`sqlx-data.json`은 구버전 패턴이다 — 현재 0.8은 `.sqlx/` 디렉토리를 사용한다.)
 - **SQLx 0.8 오프라인 모드** — `SQLX_OFFLINE=true`는 `.sqlx/` 디렉토리가 존재하고 최신 상태일 때만 동작한다. 쿼리를 수정한 후에는 반드시 `cargo sqlx prepare`를 다시 실행해야 한다. runtime feature는 `runtime-tokio` + `tls-rustls` 조합을 권장 (`runtime-tokio-rustls`는 alias).
-- **SeaORM 1.1 ActiveModel/Entity 분리** — SeaORM은 `Entity`(쿼리 진입점) + `Model`(read DTO) + `ActiveModel`(insert/update용 opt field wrapper)을 분리한다. 포트 trait에는 이 타입들을 노출하지 말고 순수 도메인 모델로 DTO를 주고받아라.
+- **SeaORM ActiveModel/Entity 분리** — SeaORM은 `Entity`(쿼리 진입점) + `Model`(read DTO) + `ActiveModel`(insert/update용 opt field wrapper)을 분리한다. 포트 trait에는 이 타입들을 노출하지 말고 순수 도메인 모델로 DTO를 주고받아라.
 - **SeaORM `ConnectionTrait` 제네릭** — 트랜잭션과 일반 커넥션을 동시에 지원하려면 내부 메서드 시그니처를 `<C: ConnectionTrait>(conn: &C, ...)` 형태로 받는다. 이렇게 해야 `&DatabaseConnection`과 `&DatabaseTransaction` 모두 전달 가능하다. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
 - **SeaORM `LoaderTrait` batch loading** — `find_with_related` JOIN 결과의 중복 row 전송을 피하려면 `LoaderTrait`로 관련 엔티티를 배치 쿼리로 불러온다. one-to-many/many-to-many에서 상위 row duplication이 큰 경우 SQLx 수동 JOIN보다 유지보수성이 좋다.
 - **SeaORM nested partial model** — `DerivePartialModel` + nested select로 alias boilerplate 없이 복합 조회 결과를 중첩 struct로 매핑한다. SQLx `query_as!`는 flat row 중심이므로 3계층+ 조회(order + items + cakes)에서는 SeaORM이 모델링 편의성이 높다.
@@ -30,6 +30,7 @@ user-invocable: true
   - 소비자를 못 찾으면 grep 근거와 함께 "소비자 없음" 을 명시한다. 한 스프린트에서 다 못 바꾸면 남는 쪽을 **명시적 미완 항목**으로 보고한다 (조용한 반쪽 완료 금지). 출처: `/insights` 2026-07-27 Friction #4.
 - **라이브 DB 조회 불가 시 정적 대체 경로를 명시하라 (DA-01 대응)** — FK 액션(`ON DELETE CASCADE` 등) · 인덱스 · 제약 조건을 실제 DB 에 붙어 확인할 수 없을 때, 조용히 넘기지 말고 **마이그레이션 파일 정적 확인으로 대체**하고 `[정적]` 을 붙여 보고한다 (예: `[정적] migrations/20260709_chat_rooms.sql:12 — ON DELETE CASCADE 선언 확인 · 라이브 DB 미조회`). `[정적]` 은 보조 태그이며 `[미검증]` 을 대체하지 않는다 — 마이그레이션 파일조차 확인할 수 없으면 그건 `[미검증]` 이다. 2026-07 실측: "chat_rooms FK action 라이브 DB 조회 미수행 [미검증]" REJECT + 개선 제안 "마이그레이션 파일 코드 확인으로 대체 가능 여부 명시".
 - **편집 전 Read + 앵커 재확인** — 기존 모델/마이그레이션 파일을 수정할 때 파일을 열지 않고 Edit 하지 마라(`edit-before-read`). 특히 doc 주석(`///`)은 **바로 아래 항목에 붙는다** — 라인 번호만 보고 고치면 엉뚱한 필드의 문서를 바꾼다. 수정 대상 필드명과 그 위 주석 블록을 함께 읽어 대응 관계를 확인한 뒤 적용한다. 출처: 2026-07 실측 `wrong-line-doc-comment-fix`.
+- **read-check-then-write 경합은 SQL 술어로 막는다 (D4 · ER-02)** — "읽어서 확인하고 조건이 맞으면 갱신" 흐름을 `SELECT` → Rust `if` → `UPDATE` 로 쓰면 두 문장 사이에 다른 트랜잭션이 끼어든다. 기대 상태를 `UPDATE` 의 `WHERE` 술어(버전 컬럼·타임스탬프·값 스냅샷)로 내리고, 갱신된 행이 없으면 도메인 `Conflict` 로 올린다. `INSERT` 중복은 partial unique index + `ON CONFLICT` 로 같은 층에서 처리한다. 구현·테스트 절차는 `references/concurrency-guard-protocol.md` 가 SSOT 다 — 이 스킬에서 규칙을 재열거하지 말고 그 파일을 따르라.
 - **요청한 컬럼/테이블만 생성 — 임의 확장 금지** — "테이블 1개 추가" 요청에 `created_at`/`updated_at`/소프트삭제/감사 컬럼·연관 인덱스·캐시 레이어를 요청 없이 덧붙이지 마라. 프로젝트 컨벤션상 표준 컬럼이 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응 — "체크 제거" 요청에 캐시·디렉토리 체크를 덧붙인 패턴의 DB 버전).
 
 # DB 모델 + 마이그레이션 생성 (SQLx 또는 SeaORM)
@@ -43,18 +44,22 @@ user-invocable: true
 
 | 감지 | 경로 |
 |------|------|
-| `HAS_SEAORM` = true | **SeaORM 1.1 경로** (§5S: ActiveModel/Entity + sea-orm-migration) — fit-pal 실무 패턴 |
-| `HAS_SQLX` = true, `HAS_SEAORM` = false | **SQLx 0.8 경로** (§5X: query_as! + sqlx migrate) |
+| `HAS_SEAORM` = true | **SeaORM 경로** (§5S: ActiveModel/Entity + sea-orm-migration) — fit-pal 실무 패턴은 1.1 계열 |
+| `HAS_SQLX` = true, `HAS_SEAORM` = false | **SQLx 경로** (§5X: query_as! + sqlx migrate) — 아래 예시는 0.8 계열 기준 |
 | 둘 다 false | 사용자에게 선택 요청 후 의존성 추가 안내 |
 | 둘 다 true | 사용자에게 단일화 권고 (hybrid는 관리 부담이 크다) |
 
-**SQLx 0.8 추가 명령**:
+> **버전은 프로젝트에 고정된 것이 우선이다.** 아래 명령의 feature 조합은 SQLx 0.8 / SeaORM 1.1 계열 기준이며,
+> 상위 major 존재 여부와 feature 이름 변화는 `references/project-detection.md` **Step 2c**(버전 현행성 표)를
+> 확인한 뒤 공식 문서로 검증한다. 문서에 최신이 적혀 있다는 이유로 기존 프로젝트를 올리지 마라.
+
+**SQLx 추가 명령 (0.8 계열)**:
 
 ```bash
 cargo add sqlx --features postgres,runtime-tokio,tls-rustls,macros,migrate,uuid,chrono
 ```
 
-**SeaORM 1.1 추가 명령**:
+**SeaORM 추가 명령 (1.1 계열)**:
 
 ```bash
 cargo add sea-orm --features sqlx-postgres,runtime-tokio-rustls,macros,with-chrono,with-uuid,with-json,mock

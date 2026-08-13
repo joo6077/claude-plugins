@@ -10,19 +10,19 @@ user-invocable: true
 
 ## Gotchas
 
-- **SQLx `#[sqlx::test]`** — 테스트별 독립 DB 트랜잭션을 자동으로 제공한다. 직접 `PgPool`을 만들거나 수동으로 롤백하지 마라. `migrations = "./migrations"` 인자로 마이그레이션 자동 적용 가능.
-- **SeaORM `MockDatabase`** — SeaORM은 Docker/실제 DB 없이 **`MockDatabase::new(DatabaseBackend::Postgres)`**로 단위 테스트를 실행할 수 있다. `.append_query_results(vec![...])`로 쿼리 응답을 주입한다. `HAS_SEAORM` + `features = ["mock"]` (fit-pal 기준). `cargo test --lib`만으로 완전히 격리된 단위 테스트 가능.
+- **SQLx `#[sqlx::test]` 는 트랜잭션 롤백이 아니다 (사실 정정 2026-08-13)** — 이 매크로는 테스트 함수마다 **새 테스트 DB** 를 만들어 live connection(`PgPool`/`PgConnection`)을 인자로 주입하고, `migrations` 폴더가 있으면 **자동 적용**하며, 테스트가 **성공하면 그 DB 를 정리**한다. "테스트별 독립 트랜잭션을 열고 끝나면 롤백" 이라는 설명은 틀렸다 — 커밋된 데이터도 그대로 남았다가 DB 단위로 폐기된다. Postgres/MySQL 은 `DATABASE_URL` 이 필요하고, 자동 적용을 끄려면 `migrations = false`, 다른 경로를 쓰려면 `migrations = "./migrations"` 를 준다 ([sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html)). 직접 `PgPool` 을 만들거나 수동 롤백 코드를 넣지 마라.
+- **SeaORM `MockDatabase` — 능력 범위와 한계를 같이 적어라** — Docker/실제 DB 없이 **`MockDatabase::new(DatabaseBackend::Postgres)`** + `.append_query_results(vec![...])` 로 단위 테스트를 돌린다 (`HAS_SEAORM` + `features = ["mock"]`). **검증할 수 있는 것**: `rows_affected` 매핑, repository control flow(0 행일 때 conflict 분기·후속 호출 0 회), 생성된 statement/transaction log. **검증할 수 없는 것**: **실제 SQL predicate 의미** — 문법상 유효하지만 의미상 틀린 `WHERE` 절이 mock 에서는 그대로 통과한다 ([SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/)). 술어 의미가 걸린 조건(동시성 가드·필터링·권한 범위)은 실 DB 엔진 테스트가 있어야 한다 — `references/concurrency-guard-protocol.md` §3.
 - **통합 테스트는 `serial_test` + TRUNCATE 격리** — 실제 DB를 사용하는 통합 테스트는 `modules/{module}/tests/` 크레이트 `tests/` 디렉토리에 두고, 각 테스트를 `#[serial_test::serial]`로 직렬화한 뒤 fixture setup에서 `TRUNCATE TABLE ... RESTART IDENTITY CASCADE`로 상태 초기화한다. 병렬 실행 시 테스트간 데이터 간섭을 방지한다. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
 - **`test_support` 모듈** — `src/test_support.rs`에 `#[cfg(test)]`로 mock 구현체, fixture builder, test DB setup 헬퍼를 모아두고 `pub(crate)`로 공개한다. 각 테스트 파일에서 중복 작성 금지 (SSOT).
 - **`#[tokio::test]`는 기본이 `current_thread` flavor** — `tokio::spawn`이나 멀티스레드 동작이 필요하면 `#[tokio::test(flavor = "multi_thread")]`를 명시하라. OTel 트레이싱 subscriber, Axum TestServer 같은 case에서 필요할 수 있다.
 - **mockall `#[automock]`은 trait에만** — 구체 struct 메서드에는 사용할 수 없으니, 테스트 대상이 trait이 아니면 먼저 trait 추출을 제안하라. 외부 HTTP 클라이언트, OIDC, 이메일 등은 반드시 port trait으로 먼저 감싼다.
 - **라우터 상태는 trait object** — 통합 테스트에서 mock 서비스를 주입하려면 프로덕션 코드가 `Arc<dyn UserService>` 형태의 trait object를 `Router::with_state()`에 받아야 한다. 구체 타입 `UserServiceImpl`를 state로 넣으면 테스트에서 mock으로 교체 불가. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
-- **테스트 간 상태 격리 필수** — 테스트가 공유 리소스(DB, 파일, 환경 변수)를 사용하면 병렬 실행 시 간헐적 실패가 발생한다. 환경 변수는 `temp_env` 크레이트로 scoped 설정하고, DB는 `#[sqlx::test]` 또는 테스트별 트랜잭션 롤백으로 격리해라.
+- **테스트 간 상태 격리 필수** — 테스트가 공유 리소스(DB, 파일, 환경 변수)를 사용하면 병렬 실행 시 간헐적 실패가 발생한다. 환경 변수는 `temp_env` 크레이트로 scoped 설정하고, DB는 `#[sqlx::test]`(테스트별 새 테스트 DB) 또는 `serial_test` + TRUNCATE 로 격리해라.
 - **Fixture builder 패턴 사용** — 테스트 데이터를 매번 인라인으로 구성하면 50줄짜리 setup이 테스트 의도를 가린다. `UserFixture::builder().email("test@x.com").build()` 패턴으로 `test_support` 모듈에 builder를 두고 재사용해라.
 - **`#[tokio::test]` vs `#[sqlx::test]` 혼용 주의** — 같은 파일에서 둘을 섞으면 DB pool 초기화 충돌이 날 수 있다. DB 관련 테스트는 `#[sqlx::test]`로 통일하고, pure logic 테스트만 `#[tokio::test]`를 사용해라.
 - **proptest로 property-based testing** — `proptest 1.11` (2026-03)은 자동 shrinking 포함 property-based testing을 제공한다. 날짜 파싱, 수학 invariant, 직렬화 round-trip 검증에 효과적이다. 단위 테스트로 커버하기 어려운 경계값/조합 케이스에 활용하라.
 - **rstest로 parameterized test** — `rstest 0.26` (2025-07)의 `#[rstest]` + `#[case]`로 테이블 기반 테스트, `#[fixture]`로 setup 공유가 가능하다. 동일 로직을 여러 입력으로 반복 검증할 때 boilerplate를 줄인다.
-- **testcontainers로 실제 인프라 통합 테스트** — `testcontainers 0.27` (2026-03)은 Docker 기반으로 PostgreSQL, Redis, Kafka 등 실제 인스턴스를 테스트 격리 환경에서 구동한다. CI에서 `--test-threads=1`과 조합하라.
+- **testcontainers로 실제 인프라 통합 테스트** — Docker 기반으로 PostgreSQL, Redis, Kafka 등 실제 인스턴스를 테스트 격리 환경에서 구동한다. CI에서 `--test-threads=1`과 조합하라. 버전은 `references/project-detection.md` **Step 2c**(버전 현행성 표)를 따른다 — 프로젝트에 고정된 버전이 우선이며, 문서의 예시 버전을 근거로 업그레이드를 요구하지 마라.
 - **cargo-mutants로 테스트 품질 검증** — coverage가 아니라 "테스트가 동작 차이를 감지하는지"를 본다. `--iterate`로 missed mutant 개선 루프를 줄이고, baseline test로 원본 트리가 통과하는지 먼저 검증한다. flaky test가 있으면 의미가 무너진다.
 - **Miri로 unsafe UB 검증** — `cargo +nightly miri test`는 out-of-bounds, use-after-free, data race, aliasing 위반 등을 잡는다. unsafe 코드가 있거나 low-level crate를 만들면 CI에 Miri 레인을 별도로 두되, "Miri 통과 = soundness 보장"은 아님을 인지하라.
 - **`MockDatabase` 단위 테스트를 통합 테스트로 주장하지 마라 (API-01 회귀 방지)** — SeaORM 공식 문서는 mock DB 에 실제 데이터가 없고 반환값을 직접 정의하는 방식이므로 **실 DB 기준 SQL 정합성을 검증하지 못한다**고 명시한다 — 문법상 유효하지만 의미상 틀린 쿼리가 mock 에서는 통과하고 프로덕션에서 깨진다 ([SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/)). 계약이 "통합 테스트" 를 요구하면 `#[sqlx::test]` 또는 testcontainers 로 **실제 엔진**을 태워야 한다. 2026-07 실측: "user 통합 테스트(실제 PostgreSQL) 미존재 — MockDatabase 단위 테스트만 있음" 으로 REJECT. 리포트에는 항상 계층을 명시한다: `단위(mock) N 건 / 통합(실 DB) M 건`.
@@ -30,7 +30,8 @@ user-invocable: true
 - **테스트 서버는 포트 0 으로 바인딩** — 통합 테스트에서 고정 포트(`127.0.0.1:8080`)를 쓰면 병렬 실행·이전 프로세스 잔존 시 `Address already in use` 로 간헐 실패한다. `TcpListener::bind("127.0.0.1:0")` 로 커널이 빈 포트를 할당하게 하고 `listener.local_addr()?` 로 실주소를 읽어 클라이언트 base URL 을 구성한다. 출처: 2026-07 실측 `port-already-in-use`.
 - **타깃 필터 전 `PKG_TARGETS` 확인** — 생성한 테스트를 실행해 보일 때 `--lib` 을 반사적으로 붙이지 마라. 바이너리 전용 패키지에는 `lib` 타깃이 없어 테스트 0 개로 끝난다. `references/project-detection.md` Step 3a 로 타깃 kind 를 먼저 열거하고 `--bins`/`--tests`/무필터 중 맞는 것을 고른다 ([cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html)). 출처: 2026-07 실측 `cargo-test-wrong-target`.
 - **"테스트 0 개 통과" 는 증거가 아니다** — 생성한 테스트가 실제로 실행됐는지 **실행 수**로 확인한다 (`running N tests`). 필터 오타·`#[ignore]`·타깃 오지정으로 0 개가 실행됐는데 exit 0 이면 그건 통과가 아니라 측정 실패다 (`qa-evaluation-guide.md` §Evidence Validity Gate 검사 2). 완료 보고에는 실행 수와 종료 코드를 함께 적는다.
-- **Sibling Consistency (skill-design-guide §8.8) — rust-test ↔ backend-test** — backend-test 가 강제하는 3 계층 패턴(단위 / 통합 / 컨트랙트) 과 동일 구조를 유지한다: (1) **단위** = SeaORM `MockDatabase::new(DatabaseBackend::Postgres)` 또는 mockall `#[automock]` (Docker 불필요), (2) **통합** = `#[sqlx::test]` 트랜잭션 격리 또는 `testcontainers` 실제 DB, (3) **컨트랙트** = Pact v4 consumer-driven contract (존재 시). Step 0 에서 스택 감지 (`HAS_SQLX` / `HAS_SEAORM` / `HAS_MOCKALL`) 를 독립 단계로 분리하여 테스트 패턴 자동 선택. 외부 실환경(production DB) 강제 금지 — CI 에서 재현 불가.
+- **Sibling Consistency (skill-design-guide §8.8) — rust-test ↔ backend-test** — backend-test 가 강제하는 3 계층 패턴(단위 / 통합 / 컨트랙트) 과 동일 구조를 유지한다: (1) **단위** = SeaORM `MockDatabase::new(DatabaseBackend::Postgres)` 또는 mockall `#[automock]` (Docker 불필요), (2) **통합** = `#[sqlx::test]`(테스트별 새 테스트 DB) 또는 `testcontainers` 실제 DB, (3) **컨트랙트** = Pact v4 consumer-driven contract (존재 시). Step 0 에서 스택 감지 (`HAS_SQLX` / `HAS_SEAORM` / `HAS_MOCKALL`) 를 독립 단계로 분리하여 테스트 패턴 자동 선택. 외부 실환경(production DB) 강제 금지 — CI 에서 재현 불가.
+- **동시성 가드에는 테스트 쌍이 필수다 (ER-02 회귀 방지 · E2)** — 조건부 `UPDATE`·낙관적 락 같은 가드를 테스트할 때 positive test 만 만들면 **가드를 지워도 통과하는 측정**이 된다. 2026-08-12 실측: *"mutation test 로 확정 — 실제 코드에서 동시성 가드(`WHERE exercises = $3::jsonb`)를 완전히 삭제해도 이 테스트는 여전히 통과한다"*. 생성 절차(호출부 함수 추출 · 영향 행 수 0 → `Conflict` · positive + **stale expected value** negative 쌍 · 실 DB 실행 · 테스트가 구현 심볼을 직접 호출)는 `references/concurrency-guard-protocol.md` 가 SSOT 다. 이 스킬에서 규칙을 재열거하지 말고 그 파일을 읽어 따르라.
 
 # Rust 테스트 코드 생성
 
@@ -80,6 +81,7 @@ Step 3a(패키지 타깃 구조 감지)는 **필수**다 — 생성한 테스트
 | trait impl | mock 기반 단위 테스트 | 같은 파일 또는 `tests/unit/` |
 | Axum 핸들러 | 통합 테스트 (TestClient 또는 실제 서버) | `tests/integration/` |
 | DB 의존 함수 | `#[sqlx::test]` 통합 테스트 | `tests/integration/` |
+| 동시성 가드 (조건부 UPDATE · 낙관적 락) | positive + stale negative **쌍** (실 DB) — `references/concurrency-guard-protocol.md` | `tests/integration/` |
 | 경계값/조합 검증 | proptest property-based | 같은 파일 또는 `tests/property/` |
 | 테이블 기반 반복 검증 | rstest parameterized | 같은 파일 `#[cfg(test)] mod tests` |
 | 실제 인프라 (Docker) | testcontainers 통합 테스트 | `tests/integration/` |
@@ -207,7 +209,8 @@ async fn test_create_user_returns_201() {
 
 ### §7X — SQLx `#[sqlx::test]` 통합 테스트
 
-`HAS_SQLX`이면 `#[sqlx::test]`를 사용한다. 테스트마다 독립 트랜잭션이 제공되어 롤백이 자동으로 된다:
+`HAS_SQLX`이면 `#[sqlx::test]`를 사용한다. 테스트 함수마다 **새 테스트 DB** 가 만들어지고 `migrations`
+가 자동 적용되며, 테스트가 성공하면 그 DB 가 정리된다 (트랜잭션 롤백이 아니다 — §Gotchas 첫 항목 참조):
 
 ```rust
 // tests/integration/user_repository_test.rs
@@ -285,7 +288,11 @@ mod tests {
 }
 ```
 
-`MockDatabase`는 `cargo test --lib`만으로 완전히 격리되어 CI에서 Docker 없이 실행 가능하다. 실제 쿼리 실행 대신 사전 설정된 응답을 순서대로 반환한다.
+`MockDatabase`는 Docker 없이 CI에서 실행 가능하다 (타깃 필터를 붙일 때는 `PKG_TARGETS` 확인 — §Gotchas 타깃 필터 항목).
+실제 쿼리 실행 대신 사전 설정된 응답을 순서대로 반환하므로, **이 테스트는 단위 계층이다.**
+`rows_affected` 매핑과 control flow 는 검증되지만 **실제 SQL predicate 가 행을 걸러내는지는 검증되지
+않는다** — 술어 의미가 걸린 조건은 §7I 또는 `references/concurrency-guard-protocol.md` §3 의 실 DB
+테스트로 별도 확보한다. 리포트에 "통합 테스트" 로 표기하지 마라.
 
 ### §7I — 통합 테스트 (실제 DB, serial_test 격리)
 
