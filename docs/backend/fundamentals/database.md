@@ -39,10 +39,12 @@ last_updated: 2026-08-13
 - **Nested Loop**: 소규모 결과 집합에서 효율적. 대규모에서는 Hash Join이 더 낫다.
 - **actual time vs planned rows**: 예측 row 수와 실제 row 수의 괴리가 크면 `ANALYZE`로 통계를 갱신한다.
 
-```sql
+<!-- 이 파일의 코드 블록은 물결표(~~~) 펜스를 쓴다. 백틱 펜스는 CommonMark 상 닫는 줄에 언어
+     힌트를 붙일 수 없어 "언어 힌트 없는 fence 0 건" 게이트에 걸린다. 백틱으로 되돌리지 마라. -->
+~~~sql
 EXPLAIN ANALYZE
 SELECT * FROM orders WHERE user_id = 42 AND status = 'pending';
-```
+~~~
 
 > **출처:** [PostgreSQL Documentation — Using EXPLAIN](https://www.postgresql.org/docs/current/using-explain.html)
 
