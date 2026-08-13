@@ -1,12 +1,28 @@
-# FCM iOS (Apple) 푸시 알림 설정 가이드
+# FCM 푸시 알림 설정 가이드 — Flutter (iOS / Apple)
 
-> 작성일: 2026-05-18
-> 기준: Firebase iOS SDK 11.x · Xcode 16+ · iOS 14+ · Apple Developer Program 가입 필요
-> 공식 문서: https://firebase.google.com/docs/cloud-messaging/ios/client
+> **대상 스택: Flutter (FlutterFire).** 네이티브 Swift / Objective-C iOS 앱은 초기화 절차가 완전히 다르다 — 그 경우 이 가이드를 쓰지 말고 네이티브용 가이드를 따로 만든다.
+> 작성일: 2026-05-18 · 최종 갱신: 2026-08-13
+> 기준: Xcode 16+ · iOS 14+ · Apple Developer Program 가입 필요
+> 대표 1차 출처: [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13)
+> 이 대표 URL 은 각 Step 의 `**출처:**` 줄을 **대체하지 않는다** — Step 마다 그 Step 의 근거를 따로 적었다.
 
 ## 사전 요구사항
 
-> **⚠️ 사이트 혼동 주의:** FCM 셋업의 Apple 쪽 작업은 **Apple Developer Portal** (`developer.apple.com/account`)에서 합니다. **App Store Connect** (`appstoreconnect.apple.com`)는 앱 출시/심사용으로 완전히 다른 사이트입니다. 출시 단계에서만 그쪽으로 갑니다.
+> **⚠️ 사이트 혼동 주의 — 작업마다 사이트가 다릅니다.** "셋업은 전부 Developer Portal" 이 아닙니다. 키·식별자 발급은 Apple Developer Account, **앱이라는 레코드와 배포는 App Store Connect** 입니다.
+
+| 작업 | 사이트 | 섹션 / 흐름 |
+| --- | --- | --- |
+| Bundle ID / App ID 등록 | [Apple Developer Account](https://developer.apple.com/account) | `Certificates, Identifiers & Profiles` → `Identifiers` → App IDs |
+| APNs 키 생성 | Apple Developer Account | `Certificates, Identifiers & Profiles` → `Keys` (APNs service 선택 → `.p8` 다운로드) |
+| 인증서 | Apple Developer Account | `Certificates` |
+| Provisioning Profile | Apple Developer Account | `Profiles` / `Provisioning Profiles` |
+| 앱 레코드 생성 | [App Store Connect](https://appstoreconnect.apple.com) | `Apps` → `+` → `New App` |
+| 빌드 업로드 | App Store Connect | 앱 추가 후 Xcode / Transporter / API 로 업로드 (build 는 bundle ID + version + build string 으로 연결) |
+| TestFlight | App Store Connect | beta build 배포 · 테스터 관리 · 피드백 수집 |
+
+**이 가이드(FCM 셋업)는 위 표의 1~2 행만 씁니다.** 실기기 베타 배포로 넘어가면 App Store Connect 가 필요합니다.
+
+> **ℹ️ 콘솔 라벨 경계:** 이 가이드의 섹션명·버튼 라벨은 **로그인 없이 볼 수 있는 공식 문서**에서 확인한 것입니다. 콘솔에 로그인한 뒤의 실제 화면은 공개 문서로 검증할 수 없어 표기가 다를 수 있습니다 (A/B 롤아웃·언어 설정). 화면에서 못 찾으면 **상위 섹션명**(`Identifiers`, `Keys`, `Cloud Messaging`, `Messaging`)으로 검색하세요.
 
 - [ ] **Apple Developer Program 가입** (연 $99) — Account Holder 또는 Admin 권한
 - [ ] **Firebase 프로젝트** 존재 — Editor 이상 권한
@@ -18,7 +34,9 @@
 
 ## Step 1 — Apple Developer에서 App ID에 Push 활성화
 
-**어디서:** https://developer.apple.com/account → Certificates, Identifiers & Profiles → 좌측 사이드바 **Identifiers**
+**출처:** [Apple Developer Help — Account](https://developer.apple.com/help/account/) — 섹션 구조 조회 2026-07-27 (`references/search-strategy.md` 실측 기록) · 작업↔사이트 대응 재확인 2026-08-13. 로그인 뒤 버튼 단위 화면은 공개 문서 범위 밖이다 (위 ℹ️ 참조)
+
+**어디서:** [developer.apple.com/account](https://developer.apple.com/account) → `Certificates, Identifiers & Profiles` → 좌측 사이드바 `Identifiers`
 
 **무엇을:**
 
@@ -37,10 +55,13 @@
 
 ## Step 2 — APNs Authentication Key (.p8) 발급
 
-> **❌ Deprecated:** APNs Certificate (.p12) 방식 — 매년 갱신 필요, 환경별로 분리. 2020년 이후로 권장하지 않음.
-> **✅ 현재 권장:** APNs Authentication Key (.p8) — 갱신 불필요, 하나로 dev/prod 모두 커버, Team 전체 앱 공유 가능.
+**출처:** [Apple Developer Help — Account](https://developer.apple.com/help/account/) (`Keys` 섹션 · 조회 2026-07-27) + [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13 — `.p8` 파일 · key ID · Apple team ID 입력 흐름)
 
-**어디서:** https://developer.apple.com/account → Certificates, Identifiers & Profiles → 좌측 사이드바 **Keys**
+> **✅ 현행 가이드가 안내하는 방식:** APNs Authentication Key (`.p8`) — 갱신 불필요, 하나로 dev/prod 모두 커버, Team 전체 앱 공유 가능. Firebase FCM 문서는 `.p8` + Key ID + Team ID 를 입력해 저장하는 흐름을 안내한다.
+>
+> APNs Certificate (`.p12`) 방식도 여전히 존재하지만, **이 가이드는 1차 출처가 안내하는 `.p8` 흐름만 다룹니다.** 1차 출처가 `.p12` 를 어떤 강도로 평가하는지 이 가이드가 대신 판단하지 않습니다 — 출처보다 강한 주장을 쓰지 않기 위해서입니다.
+
+**어디서:** [developer.apple.com/account](https://developer.apple.com/account) → `Certificates, Identifiers & Profiles` → 좌측 사이드바 `Keys`
 
 **무엇을:**
 
@@ -54,7 +75,7 @@
 8. 검토 페이지 확인 → **Register**
 9. **Download** 버튼 클릭 — `.p8` 파일을 안전한 곳(1Password, GCP Secret Manager 등)에 저장
 10. **Key ID** (10자리 영숫자) 메모 — 예: `ABCD123XYZ`
-11. **Team ID** 확인 — Apple Developer 사이트 우측 상단 계정 메뉴 → **Membership Details**, 또는 `developer.apple.com/account` 메인 페이지 상단 (10자리)
+11. **Team ID** 확인 — Apple Developer 사이트 계정 메뉴의 Membership 정보에서 확인 (10자리)
 
 > **🔒 보안 경고:** .p8 파일은 **단 한 번만** 다운로드 가능. 분실 시 Key를 revoke하고 새로 발급해야 함. **절대 git에 커밋하지 말 것**.
 
@@ -62,7 +83,11 @@
 
 ---
 
-## Step 3 — Xcode에서 Capability 추가
+## Step 3 — Xcode 프로젝트에 Capability 추가
+
+**출처:** [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13) — Flutter 앱의 iOS 쪽 요구사항으로 Xcode Capability 설정과 APNs 인증 키 업로드를 명시한다
+
+> **Flutter 라도 이 단계는 건너뛸 수 없다.** "Flutter 는 네이티브 코드를 수정하지 않는다" 는 말은 **Swift 소스를 안 건드린다**는 뜻이지, **Xcode 프로젝트 설정도 안 한다**는 뜻이 아니다. Capability 와 Background Modes 는 소스가 아니라 iOS 프로젝트 설정이며 Flutter 앱에서도 필요하다.
 
 **어디서:** Xcode → 프로젝트 네비게이터 → 앱 타겟 선택 → **Signing & Capabilities** 탭
 
@@ -80,6 +105,8 @@
 ---
 
 ## Step 4 — FlutterFire CLI로 Firebase 자동 구성
+
+**출처:** [FlutterFire — Flutter 설치/구성](https://firebase.google.com/docs/flutter/setup) (조회 2026-07-27 · 킷 evals `flutter-fcm-ios` 케이스에 기록된 실측) + [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13). 현행 Flutter 절차는 `flutterfire configure` → Dart 초기화이며, **네이티브 초기화 호출은 이 절차에 등장하지 않는다**
 
 > **Flutter 프로젝트는 콘솔에서 수동 등록·.plist 드래그를 하지 않습니다.** `flutterfire configure` 명령어가 iOS 앱 콘솔 등록, `GoogleService-Info.plist` 배치, `lib/firebase_options.dart` 생성까지 한 번에 자동 처리합니다.
 
@@ -108,96 +135,85 @@
 4. 대화형 프롬프트:
    - **Firebase 프로젝트 선택** — 이미 콘솔에 만들어둔 프로젝트 선택
    - **빌드할 플랫폼 선택** — 최소 `ios` 체크 (필요시 `android` 동시)
-   - **iOS Bundle ID** — Xcode `Signing & Capabilities` 탭의 Bundle Identifier와 정확히 일치해야 함 (예: `com.fitpal.test`)
+   - **iOS Bundle ID** — Xcode `Signing & Capabilities` 탭의 Bundle Identifier와 정확히 일치해야 함
 
 5. 명령 완료 시 자동 생성/배치:
    - `ios/Runner/GoogleService-Info.plist` (Xcode 프로젝트에 자동 추가)
    - `lib/firebase_options.dart` (`DefaultFirebaseOptions.currentPlatform` 제공)
    - Firebase 콘솔에 iOS 앱 자동 등록
 
-> **⚠️ 주의:** Bundle ID 오타로 잘못된 ID로 등록됐다면 Firebase 콘솔 → 프로젝트 설정 → iOS 앱 카드에서 삭제 후 `flutterfire configure` 재실행.
+> **⚠️ 주의:** 생성 경로는 프로젝트 구조(flavor·모듈 분리)에 따라 달라질 수 있습니다. 위 두 경로는 명령 출력에 찍히는 실제 경로로 대조하세요 — 이름을 가정하지 말 것.
+>
+> Bundle ID 오타로 잘못된 ID로 등록됐다면 Firebase 콘솔의 프로젝트 설정에서 해당 iOS 앱을 삭제한 뒤 `flutterfire configure` 를 재실행합니다.
 
 **확인 방법:**
-- `ls ios/Runner/GoogleService-Info.plist` → 파일 존재
-- `ls lib/firebase_options.dart` → 파일 존재
-- Firebase Console → 프로젝트 개요에 iOS 앱이 표시됨
+
+```bash
+ls ios/Runner/GoogleService-Info.plist lib/firebase_options.dart
+```
+
+두 파일이 모두 출력되고, Firebase Console 프로젝트 개요에 iOS 앱이 표시됨.
 
 ---
 
 ## Step 5 — Firebase 콘솔에 APNs Key 업로드
 
-**어디서:** Firebase Console → 프로젝트 설정 ⚙️ → **클라우드 메시징 (Cloud Messaging)** 탭 → **Apple 앱 구성 (Apple app configuration)** 섹션
+**출처:** [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13) — 문서에서 확인되는 라벨: `Settings` · `General` · `Cloud Messaging` 탭 · `iOS app configuration` · `APNs authentication key` · `Upload` / `Save`
+
+**어디서:** Firebase Console → `Settings` (설정 ⚙️) → `General` (일반) → `Cloud Messaging` (클라우드 메시징) 탭 → `iOS app configuration` (iOS 앱 구성) 섹션
 
 **무엇을:**
 
-1. iOS 앱 카드에서 **APNs 인증 키 (APNs authentication key)** 항목의 **업로드 (Upload)** 버튼 클릭
-2. `.p8` 파일 선택 (Step 2에서 받은 파일) → **Open**
+1. iOS 앱 카드에서 `APNs authentication key` (APNs 인증 키) 항목의 `Upload` (업로드) 클릭
+2. `.p8` 파일 선택 (Step 2에서 받은 파일)
 3. **Key ID** 입력 (Step 2에서 메모한 10자리 값)
-4. **Team ID** 입력 — 공식 문서상 Key ID만 명시되어 있지만 실제 콘솔 폼에는 Team ID 필드도 표시되므로 함께 입력 (Step 2에서 확인한 10자리 값)
-5. **업로드 (Upload)** 클릭
+4. **Team ID** 입력 (Step 2에서 확인한 10자리 값)
+5. `Upload` / `Save` 클릭
 
-**확인 방법:** APNs 인증 키 항목에 Key ID가 표시되고, 상태 표시(체크 또는 "등록됨")가 보임.
+> **ℹ️ 라벨 경계:** 위 클릭 경로는 공개 문서에 적힌 영문 라벨을 정본으로 하고 한국어를 괄호에 넣었습니다. 콘솔 언어 설정에 따라 한국어 표기가 다를 수 있으니 **영문 라벨 기준으로 찾으세요**.
+
+**확인 방법:** `APNs authentication key` 항목에 Key ID가 표시되고 등록 상태 표시가 보임.
 
 ---
 
 ## Step 6 — firebase_core + firebase_messaging 패키지 추가
 
-**어디서:** 프로젝트의 `pubspec.yaml`
+**출처:** [pub.dev — firebase_messaging](https://pub.dev/packages/firebase_messaging) · [pub.dev — firebase_core](https://pub.dev/packages/firebase_core) — **버전은 설치 시점에 레지스트리에서 직접 조회한다.** 이 가이드는 버전을 고정하지 않는다 (`references/search-strategy.md` §버전 확인은 패키지 레지스트리 우선 · 2026-07-27 실측: GitHub Releases 는 최신 버전 확인에 쓸 수 없었다)
+
+**어디서:** 프로젝트 루트 터미널
 
 **무엇을:**
 
-`dependencies` 섹션에 아래 두 패키지를 추가:
-
-```yaml
-dependencies:
-  firebase_core: ^3.6.0       # 최신 안정 버전 (pub.dev에서 확인)
-  firebase_messaging: ^15.1.0
-```
-
-터미널에서:
-
 ```bash
-flutter pub get
+flutter pub add firebase_core firebase_messaging
 ```
+
+이 명령이 그 시점 최신 호환 제약을 `pubspec.yaml` 에 직접 써 줍니다.
+
+> **⚠️ 버전 번호를 가이드에 박지 마세요.** 문서에 고정한 버전은 몇 달 뒤 반드시 틀립니다 — 이 문서의 이전 판이 그랬습니다. 여러 `firebase_*` 패키지를 함께 쓸 때는 각 패키지의 pub.dev 페이지에서 `firebase_core` 제약을 확인해 메이저를 맞춥니다.
 
 iOS 쪽 CocoaPods는 다음 `flutter run` 또는 `flutter build ios` 시 자동으로 `pod install`이 실행되어 firebase-ios-sdk가 설치됩니다.
 
-> **⚠️ 주의:** 버전은 [pub.dev/packages/firebase_messaging](https://pub.dev/packages/firebase_messaging)에서 매번 최신 확인. `firebase_core`와 `firebase_messaging`의 메이저 버전은 [호환 매트릭스](https://firebase.flutter.dev/docs/overview/#compatibility-matrix)를 따라야 함 (다른 firebase_* 패키지도 같은 메이저로 맞출 것).
-
 **확인 방법:**
-- `pubspec.lock`에 `firebase_core`, `firebase_messaging` 항목 존재
-- VSCode에서 `import 'package:firebase_messaging/firebase_messaging.dart';` 자동완성됨
-- `ls ios/Podfile.lock` 후 grep으로 `Firebase/Messaging` 확인
+
+```bash
+grep -n 'firebase_core\|firebase_messaging' pubspec.lock
+grep -n 'Firebase/Messaging' ios/Podfile.lock
+```
+
+두 명령 모두 결과 행을 출력하면 성공.
 
 ---
 
-## Step 7 — AppDelegate.swift (최소) + Dart 초기화/권한/토큰 코드
+## Step 7 — Dart 초기화 · 권한 요청 · 토큰 획득
 
-> Flutter에서는 FCM 토큰·권한·메시지 수신을 모두 **Dart에서** 처리합니다. `AppDelegate.swift`는 Firebase 초기화 한 줄만 담당.
+**출처:** [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13) + [FlutterFire — Flutter 설치/구성](https://firebase.google.com/docs/flutter/setup) (조회 2026-07-27). Flutter 절차는 `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` 로 끝나며, 문서에 **네이티브 초기화 단계가 없다**
 
-### 7-1. iOS AppDelegate.swift
+> **네이티브 소스를 건드리지 않습니다.** Flutter 에서 FCM 초기화·권한·토큰·메시지 수신은 **전부 Dart** 에서 처리하고, 네이티브 쪽 초기화는 `firebase_core` 플러그인이 담당합니다. `flutterfire configure` 가 이미 구성을 심어 뒀으므로 iOS 네이티브 소스 파일을 열 일이 없습니다.
+>
+> (Xcode **프로젝트 설정**은 Step 3 에서 이미 했습니다 — 그건 소스 수정이 아닙니다.)
 
-**파일:** `ios/Runner/AppDelegate.swift`
-
-```swift
-import UIKit
-import Flutter
-import FirebaseCore
-
-@main
-@objc class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    FirebaseApp.configure()  // 이 한 줄만 추가
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-}
-```
-
-### 7-2. Dart 초기화 (main.dart)
+### 7-1. Dart 초기화 (main.dart)
 
 **파일:** `lib/main.dart`
 
@@ -213,7 +229,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  print('Background message: ${message.messageId}');
+  debugPrint('Background message: ${message.messageId}');
 }
 
 void main() async {
@@ -230,7 +246,7 @@ void main() async {
 }
 ```
 
-### 7-3. 권한 요청 + 토큰 획득 + 메시지 리스너
+### 7-2. 권한 요청 + 토큰 획득 + 메시지 리스너
 
 앱 초기 진입(첫 화면 `initState` 또는 시작 액션) 시점에:
 
@@ -251,7 +267,7 @@ Future<void> setupFcm() async {
       settings.authorizationStatus == AuthorizationStatus.provisional) {
     // FCM 토큰 — 서버에 사용자별로 저장
     final token = await messaging.getToken();
-    print('FCM token: $token');
+    debugPrint('FCM token: $token');
     // TODO: 서버에 token 저장
 
     // 토큰 갱신 리스너
@@ -269,29 +285,32 @@ Future<void> setupFcm() async {
 
   // 포그라운드 메시지 수신
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Foreground: ${message.notification?.title} - ${message.notification?.body}');
+    debugPrint('Foreground: ${message.notification?.title}');
   });
 
   // 알림 탭하여 앱이 열렸을 때
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print('App opened from notification: ${message.data}');
+    debugPrint('App opened from notification: ${message.data}');
   });
 }
 ```
 
-**확인 방법:** 실기기/시뮬레이터에서 앱 실행 → iOS 권한 다이얼로그 표시 → 허용 → Dart 콘솔(`flutter logs` 또는 VSCode Debug Console)에 `FCM token: <긴 문자열>` 출력.
+**확인 방법:** 실기기에서 앱 실행 → iOS 권한 다이얼로그 표시 → 허용 → Dart 콘솔(`flutter logs` 또는 IDE Debug Console)에 `FCM token: <긴 문자열>` 출력.
 
 ---
 
 ## Step 8 — 테스트 메시지 발송
 
-**어디서:** Firebase Console → 좌측 메뉴 **Messaging** → **새 캠페인** → **알림**
+**출처:** [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13) — 문서에서 확인되는 라벨: `DevOps & Engagement` → `Messaging` · `New campaign` · `Notifications` · `Send test message` · `Add an FCM registration token` · `Test`
+
+**어디서:** Firebase Console → `DevOps & Engagement` → `Messaging`
 
 **무엇을:**
 
-1. 알림 제목/본문 입력 → **테스트 메시지 보내기** 버튼
-2. Step 7 콘솔에서 출력된 FCM 토큰을 붙여넣기 → `+` → **테스트**
-3. 디바이스에 푸시 도착 확인
+1. `New campaign` (새 캠페인) → `Notifications` (알림) 선택
+2. 알림 제목/본문 입력 → `Send test message` (테스트 메시지 보내기) 클릭
+3. Step 7 콘솔에서 출력된 FCM 토큰을 `Add an FCM registration token` 필드에 붙여넣고 추가
+4. `Test` 클릭 → 디바이스에 푸시 도착 확인
 
 **확인 방법:** 실기기 잠금 화면 또는 배너에 알림 표시됨.
 
@@ -300,28 +319,28 @@ Future<void> setupFcm() async {
 ## 권한 / IAM
 
 | 시스템 | 필요한 권한 | 누구에게 |
-|--------|------------|----------|
+| --- | --- | --- |
 | Apple Developer | Account Holder 또는 Admin | Step 1·2 수행자 |
 | Firebase Console | Editor 이상 | Step 4·5 수행자 |
 | 운영 단계 | Apple Developer는 Admin/Developer, Firebase는 Editor로 최소화 권장 | 일상 운영 |
 
 ## 비용
 
-- **FCM**: 무료 (전송량 제한 없음, 2026년 5월 기준)
+- **FCM**: 무료 (전송량 제한 없음, 2026년 5월 확인 — 과금 정책은 Firebase 요금 페이지에서 재확인)
 - **Apple Developer Program**: 연 $99 (이미 가입했다면 추가 비용 없음)
 - Firebase 다른 서비스(Analytics 등) 추가 사용 시 별도 한도 확인
 
 ## 환경 분기 (dev / staging / prod)
 
-- **APNs Key**: 하나로 dev/prod 모두 처리 가능 (Apple 정책). 환경별로 따로 만들 필요 없음
+- **APNs Key**: 하나로 dev/prod 모두 처리 가능 (Sandbox & Production 환경으로 발급한 경우). 환경별로 따로 만들 필요 없음
 - **Firebase 프로젝트**: **환경별로 분리 권장** — dev/staging/prod 각각 별도 프로젝트 + 별도 `GoogleService-Info.plist`
 - Xcode에서 Build Configuration 별로 다른 .plist를 번들링: Build Phases → Run Script로 `cp GoogleService-Info-${CONFIGURATION}.plist ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist`
 
 ## Rollback / 정리
 
-- **APNs Key revoke**: Apple Developer → Keys → 해당 키 선택 → `Revoke`. 즉시 무효화되고 해당 키로 발송된 push가 모두 실패. **신중하게**
-- **Firebase에서 APNs Key 제거**: Firebase Console → 프로젝트 설정 → 클라우드 메시징 → APNs 인증 키 → 휴지통 아이콘. 새 키로 교체할 때만 사용
-- **사용 중단**: Push Notifications capability를 Xcode에서 제거 + Firebase Messaging SDK 의존성 제거 + 앱 재배포
+- **APNs Key revoke**: Apple Developer → `Keys` → 해당 키 선택 → `Revoke`. 즉시 무효화되고 해당 키로 발송된 push가 모두 실패. **신중하게**
+- **Firebase에서 APNs Key 제거**: Firebase Console → `Settings` → `Cloud Messaging` → `APNs authentication key` 항목에서 삭제. 새 키로 교체할 때만 사용
+- **사용 중단**: Push Notifications capability를 Xcode에서 제거 + `firebase_messaging` 의존성 제거 + 앱 재배포
 
 ## 보안 체크리스트
 
@@ -334,25 +353,25 @@ Future<void> setupFcm() async {
 ## 검증 체크리스트
 
 - [ ] 실기기에서 앱 실행 → Push 권한 허용 다이얼로그가 뜸
-- [ ] Xcode 콘솔에 `FCM token: ...` 출력됨
-- [ ] Firebase Console **테스트 메시지 보내기** 성공 → 실기기에 알림 도착
+- [ ] Dart 콘솔(`flutter logs`)에 `FCM token: ...` 출력됨
+- [ ] Firebase Console `Send test message` 성공 → 실기기에 알림 도착
 - [ ] 앱을 백그라운드로 보낸 상태에서도 푸시 도착
 - [ ] 앱이 죽은 상태(force quit)에서도 푸시 도착
 - [ ] 다른 환경(staging/prod) Firebase 프로젝트로 전환했을 때도 동일 동작
 
 ## 트러블슈팅
 
-**증상:** Xcode 콘솔에 `FCM token: nil`이 계속 출력됨
+**증상:** Dart 콘솔에 `FCM token: null`이 계속 출력됨
 **원인:** APNs 토큰이 먼저 와야 FCM 토큰이 생성됨. APNs 등록 실패가 원인일 가능성
 **해결:**
 
-1. `didFailToRegisterForRemoteNotificationsWithError` 콜백 구현 후 에러 메시지 확인
-2. Provisioning Profile에 `aps-environment` entitlement 포함 확인 (Xcode → Signing & Capabilities → Push Notifications 추가됐는지)
+1. Provisioning Profile에 `aps-environment` entitlement 포함 확인 (Xcode → Signing & Capabilities → Push Notifications 추가됐는지)
+2. Firebase Console 에 APNs 인증 키가 실제로 업로드돼 있는지 확인 (Step 5)
 3. 실기기인지 확인 (iOS 16 이전 시뮬레이터는 APNs 불가)
 
 **증상:** Firebase Console 테스트 발송은 성공인데 디바이스에 알림 안 옴
 **원인:** APNs Key 업로드 시 Key ID/Team ID 불일치
-**해결:** Firebase Console → 프로젝트 설정 → 클라우드 메시징 → APNs 인증 키 행의 Key ID와 Apple Developer Keys 페이지의 ID 비교. 다르면 삭제 후 재업로드
+**해결:** Firebase Console `Settings` → `Cloud Messaging` → `APNs authentication key` 행의 Key ID와 Apple Developer `Keys` 페이지의 ID 비교. 다르면 삭제 후 재업로드
 
 **증상:** 앱이 죽은 상태에서 푸시가 안 옴
 **원인:** 사용자가 Settings에서 푸시 권한을 끔, 또는 silent push만 보내고 있음
@@ -374,7 +393,7 @@ Future<void> setupFcm() async {
 - **실기기 등록** — iPhone을 Mac에 USB 연결 → Xcode 좌측 상단에서 그 디바이스 선택하면 자동으로 Apple Developer Devices에 등록됨 → Signing 화면에서 **Try Again** 클릭
 
 **증상:** Xcode `+ Capability`에서 Push Notifications가 안 보이거나 회색으로 비활성화
-**원인:** Apple Developer Portal의 App ID에 Push Notifications capability가 활성화 안 됨, 또는 Team을 무료 개인 계정으로 선택함 (개인 계정은 Push 사용 불가)
+**원인:** Apple Developer 의 App ID에 Push Notifications capability가 활성화 안 됨, 또는 Team을 무료 개인 계정으로 선택함 (개인 계정은 Push 사용 불가)
 **해결:**
 
 1. [Identifiers 페이지](https://developer.apple.com/account/resources/identifiers/list)에서 해당 App ID 클릭 → Capabilities 섹션 → Push Notifications 체크 확인. 미체크면 활성화 후 Save

@@ -17,7 +17,9 @@
 - 설치해야 할 CLI 도구 (버전 포함)
 - 프로젝트 전제조건
 
-> **사이트 혼동 주의 박스** (Apple/Google/AWS 가이드는 필수): 진입할 사이트 URL과 다른 비슷한 사이트의 차이를 표로 명시.
+> **사이트 혼동 주의 박스** (Apple/Google/AWS 가이드는 필수): 진입할 사이트 URL과 다른 비슷한 사이트의 차이를 **작업별 표**로 명시. "셋업은 전부 A 사이트" 같은 뭉뚱그린 안내는 금지 — 작업마다 사이트가 갈린다 (SKILL.md Gotcha 3 의 Apple 7 행 표가 형식 예시다).
+>
+> **콘솔 라벨 경계 한 줄** (로그인이 필요한 콘솔을 다루는 가이드는 필수): "이 가이드의 섹션명·버튼 라벨은 공개 문서 기준이며, 로그인 뒤 실제 화면과 다를 수 있다" 를 적고, 못 찾을 때 쓸 상위 섹션명 검색어를 함께 준다 (SKILL.md Gotcha 2).
 
 ### 3. 설정 단계 (Step 1~N)
 
@@ -37,21 +39,26 @@
 ```
 
 - 여러 Step 이 같은 문서를 근거로 하면 같은 URL 을 반복해도 된다 — 생략하지 않는다
-- fetch 가 끝까지 실패했으면 `**출처:** [미검증] — <사유>` 로 남긴다. 이 표기가 2 건 이상이면 가이드는 완료가 아니라 부분 완료다
+- fetch 가 끝까지 실패했으면 `**출처:** [미검증:ENV] — <시도·실패 출력·통제 불가 사유·재검증 명령>` 으로 남긴다. 접미 없는 `[미검증]` 은 쓰지 않는다 (정본에서 `INVALID` 로 해석된다). 분류·임계는 SKILL.md §출처 원장 을 따르고, 그 정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이다 — 여기서 숫자를 재정의하지 않는다
 - 헤더(§1)의 대표 `공식 문서:` URL 은 Step 별 출처를 **대체하지 않는다**
+- **Step 헤더 수와 `**출처:**` 줄 수가 같아야 한다.** 이것은 권고가 아니라 기계 판정이다 — `guide_gate` G1 이 두 값을 세어 비교한다 (SKILL.md §Guide Conformance Gate)
 
 각 Step에 필요시:
 
 - ⚠️ 주의 박스 — 흔한 실수
-- ❌ Deprecated / ✅ 현재 권장 박스 — 더 이상 안 쓰는 방법
+- ❌ Deprecated / ✅ 현재 권장 박스 — **1차 출처가 실제로 deprecated 라고 말한 경우에만.** 이 박스를 쓰면 그 Step 의 `**출처:**` 줄에 "출처가 deprecated 라고 명시" 라는 근거를 함께 적는다. 근거 없는 박스는 `guide_gate` G4 가 잡는다. "권장하지 않음" · "새 방식이 권장됨" 을 deprecation 으로 승격하지 마라
 
 ### 4. 프로젝트 코드 변경
 
-스택별로 변경할 파일과 코드를 구체적으로:
+**확정한 그 스택의 파일만** 쓴다. 스택별로 변경할 파일과 코드를 구체적으로:
 
-- 파일 경로 명시 (예: `lib/main.dart`, `ios/Runner/AppDelegate.swift`)
+- 파일 경로 명시 — 스택에 실제로 존재하는 것만 (Flutter 면 `lib/main.dart` · `pubspec.yaml`, 네이티브 iOS 면 `ios/Runner/AppDelegate.swift` · `Info.plist`)
 - 추가/변경할 코드 블록 (언어 라벨 필수)
 - 설정 파일 변경 (예: `pubspec.yaml`, `.env`)
+
+> **스택 혼용 금지 (Gotcha 1).** 한 스택의 절차에 다른 스택의 파일·코드를 섞지 마라. 대표 사고 형태는 **Flutter 가이드에 네이티브 Swift 초기화를 최소 필수처럼 넣는 것**이다 — Flutter 는 FlutterFire CLI + Dart 초기화가 현행 절차이고, 네이티브 초기화 호출은 그 절차에 등장하지 않는다. `guide_gate` G3 이 Flutter 가이드의 Swift 코드블록을 기계적으로 잡는다.
+>
+> **반대 방향 오해도 막아라 — "네이티브 코드 수정 없음" 이 "Xcode 프로젝트 설정도 없음" 은 아니다.** Capability 추가, Background Modes 같은 **Xcode 프로젝트 설정**은 Flutter 앱에서도 여전히 필요한 iOS 프로젝트 작업이다. 코드 변경 섹션과 프로젝트 설정 Step 을 분리해서 쓴다.
 
 ### 5. 권한 / IAM
 
