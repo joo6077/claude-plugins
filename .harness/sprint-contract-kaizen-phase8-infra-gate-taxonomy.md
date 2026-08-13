@@ -4,7 +4,7 @@ created: "2026-08-13 14:35"
 complexity: "복잡"
 conditions: 23
 slug: kaizen-phase8-infra-gate-taxonomy
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:31e7986a1a812bca
 locked_at: "2026-08-13 14:35"

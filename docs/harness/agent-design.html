@@ -376,7 +376,7 @@ tools: Agent(worker, researcher),
     <li><span class="check">✓</span> 도구는 최소 권한으로 — 읽기 전용 리뷰어는 <code>Read, Grep, Glob</code> 만</li>
     <li><span class="check">✓</span> 메인 스레드 에이전트의 spawn 권한은 <code>Agent(agent_type)</code> 화이트리스트로 제한</li>
     <li><span class="check">✓</span> 모델 선택 근거를 코멘트로 남김 (왜 sonnet 인지, 왜 opus 인지)</li>
-    <li><span class="check">✓</span> 서브에이전트는 다른 서브에이전트를 spawn 할 수 없음 — 중첩 위임 필요 시 메인 대화로 복귀</li>
+    <li><span class="check">✓</span> 서브에이전트는 기본적으로 <strong>메인 대화 아래 3 층까지</strong> 다른 서브에이전트를 spawn 할 수 있음 (<code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1</code> 로 차단 가능, 깊이 한도 도달 시 <code>Agent</code> 도구가 제거됨) — 깊이 예산을 설계에 반영</li>
     <li><span class="check">✓</span> 플러그인 에이전트는 <code>hooks</code>/<code>mcpServers</code>/<code>permissionMode</code> 무시 — 필요 시 <code>.claude/agents/</code> 로 복사</li>
     <li><span class="check">✓</span> Reviewer 에이전트는 L3 (Read/Bash) 까지 도달 — Glob/Grep 만으로 PASS 금지</li>
     <li><span class="check">✓</span> 트리거 키워드 cross-kit 중복은 set intersection 으로 정확히 비교 (단순 Grep 부분 매칭 금지)</li>

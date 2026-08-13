@@ -370,6 +370,11 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 - [Self-Preference Bias in LLM-as-a-Judge — arxiv 2410.21819](https://arxiv.org/abs/2410.21819) — 채택
 - [Justice or Prejudice — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1) — 채택 (12 편향 분류)
 - [Evaluating Scoring Bias — arxiv 2506.22316](https://arxiv.org/html/2506.22316v1) — 채택 (binary PASS/FAIL)
+  **[정정 2026-08-13]** 이 논문은 binary PASS/FAIL 을 주장하지 않는다. 원문은 score rubric order ·
+  score IDs · reference answer score 3 종 scoring bias 를 정의하고 scoring prompt perturbation 이
+  judge robustness 를 흔든다고 보인다. **binary/decomposed 의 직접 근거는 CheckEval**
+  ([arxiv 2403.18771](https://arxiv.org/abs/2403.18771) — decomposed binary Q 로 evaluator
+  agreement 평균 +0.45) 다.
 - [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6) — 채택
 - [CheckEval — arxiv 2403.18771](https://arxiv.org/abs/2403.18771) — 채택 (boolean 분해)
 - [Recursive Rubric Decomposition — arxiv 2602.05125](https://arxiv.org/html/2602.05125v1/) — 채택 (RRD for [goal] tag)

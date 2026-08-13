@@ -4,7 +4,7 @@ created: "2026-08-13 16:05"
 complexity: "복잡"
 conditions: 25
 slug: kaizen-phase6-variant-decision-gates
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:a2dc871865f09e39
 locked_at: "2026-08-13 16:05"

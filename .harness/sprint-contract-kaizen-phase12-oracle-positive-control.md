@@ -4,7 +4,7 @@ created: "2026-08-13 18:20"
 complexity: "중간"
 conditions: 14
 slug: kaizen-phase12-oracle-positive-control
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:87763986f7bc35b4
 locked_at: "2026-08-13 18:20"

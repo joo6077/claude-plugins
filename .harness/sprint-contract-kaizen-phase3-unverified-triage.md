@@ -5,7 +5,7 @@ rewritten: "2026-08-13 (v2 — AR-01/AR-02 상호배타로 원 계약 폐기)"
 complexity: "복잡"
 conditions: 25
 slug: kaizen-phase3-unverified-triage
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 supersedes_digest: sha256:67cd3b5df77a1acd
 supersedes_commit: c3f9595

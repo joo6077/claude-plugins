@@ -4,7 +4,7 @@ created: "2026-08-13 18:27"
 complexity: "복잡"
 conditions: 16
 slug: kaizen-phase13-failure-modes
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:27d4a8c7b52f668d
 locked_at: "2026-08-13 18:27"

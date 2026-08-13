@@ -4,7 +4,7 @@ created: "2026-08-13 16:10"
 complexity: "복잡"
 conditions: 26
 slug: kaizen-phase7-write-path-integrity
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:574230c5bfad3499
 locked_at: "2026-08-13 16:10"

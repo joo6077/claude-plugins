@@ -49,3 +49,22 @@ M3. Apple 사이트 구분은 여전히 유효하지만, “셋업의 99%가 Dev
 - `docs/onboarding-kit/*.html`을 배포 문서이자 템플릿처럼 관리하는지, 아니면 소스 MD만 정본인지 확인 필요.
 - FCM Flutter 예제는 즉시 수정 대상인지, 과거 dogfood 산출물로 보존할지 결정 필요.
 - 로그인 뒤 실제 Firebase/Apple UI 라벨 검증이 필요하면 계정 접근 가능한 별도 수동 검증이 필요합니다.
+
+---
+
+## 부록 — Step F1 시점 추가 등재 (2026-08-13)
+
+**이 항목은 Phase 14 실행 이후 Step F1 Final QA 의 지적(ER-01)으로 추가됐다.** 원 근거 수집분이 아니다.
+투명성을 위해 별도 절로 분리해 표기한다.
+
+- <https://pub.dev/packages/firebase_core> — **실재 확인** (codex foreground, 2026-08-13).
+  publisher `firebase.google.com`, 확인 시점 stable **4.13.0**.
+  FlutterFire 의 Core API Flutter 플러그인으로 여러 Firebase app 연결을 담당한다.
+
+**경위**: `docs/onboarding-kit/examples/fcm-ios-setup-guide.md:181` 이 `firebase_messaging` 과
+`firebase_core` 를 sibling 으로 함께 인용하는데, 원 근거 수집 시 `firebase_messaging` 만 등재되어
+`firebase_core` 가 "근거 파일에 없는 URL" 로 남았다. F1 QA 가 이를 미추적 URL 1 건으로 검출했다.
+**등재 전에 실재를 확인했고, 확인 없이 채우지 않았다.**
+
+**개선 제안 (다음 사이클)**: 근거 파일에 URL 을 등재할 때 같은 패턴의 sibling 리소스
+(`firebase_core` ↔ `firebase_messaging` 류)를 함께 등재하는 체크리스트가 필요하다.

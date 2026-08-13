@@ -4,7 +4,7 @@ created: "2026-08-13 15:20"
 complexity: "복잡"
 conditions: 29
 slug: kaizen-phase12-tag-canonicalization
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:d85f4d7e5644ea3a
 locked_at: "2026-08-13 15:20"

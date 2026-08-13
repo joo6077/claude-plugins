@@ -4,7 +4,7 @@ created: "2026-08-13 14:10"
 complexity: "복잡"
 conditions: 23
 slug: kaizen-phase5-flutter-gates
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:5853e8a469993a57
 locked_at: "2026-08-13 14:10"

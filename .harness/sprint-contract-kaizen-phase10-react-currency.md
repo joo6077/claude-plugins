@@ -4,7 +4,7 @@ created: "2026-08-13 14:16"
 complexity: "복잡"
 conditions: 24
 slug: kaizen-phase10-react-currency
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:8bdf38c0e40e4ca8
 locked_at: "2026-08-13 14:16"
