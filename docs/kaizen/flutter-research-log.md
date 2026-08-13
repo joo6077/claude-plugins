@@ -1,10 +1,65 @@
 ---
 title: Flutter Kaizen Research Log
-version: 1.2.0
-last_updated: 2026-07-27
+version: 1.3.0
+last_updated: 2026-08-13
 ---
 
 # Flutter Kaizen Research Log
+
+## [2026-08-13] — Phase 5
+
+**외부 조회 0 회.** 이 Phase 의 유일한 외부 근거는 `.harness/.meta/evidence/phase5.md` 다.
+오케스트레이터가 codex 를 foreground 로 호출해 근거를 파일로 고정한 뒤 Phase 서브에이전트가 그
+파일만 읽는 방식이었다 (백그라운드 실행 중 네트워크 조회 금지). 아래 URL 은 전부 그 파일이 인용한
+것이고, evidence 에 없는 출처는 쓰지 않았다.
+
+| # | URL | 확인한 사실 |
+|---|-----|------------|
+| 1 | <https://pub.dev/packages/freezed/changelog> | 최신 stable **3.2.5**. `.when`/`.map` 제거는 **3.0** 의 breaking 이고 **3.1.0 에서 재추가** — "3 부터 제거" 를 절대 규칙으로 쓰면 낡은 조항 |
+| 2 | <https://docs.flutter.dev/release/release-notes> | stable 목록 최상단 **3.47.0** |
+| 3 | <https://flutter.dev/blog/whats-new-in-flutter-3-47> | Android 의존성 매트릭스 — Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1 |
+| 4 | <https://docs.flutter.dev/perf/impeller> | iOS 는 Skia 전환 불가 · Android API 29+ 기본 · Web 은 Skia · **macOS/Linux/Windows 는 3.47 부터 Impeller 기본** |
+| 5 | <https://docs.flutter.dev/perf/ui-performance> | 성능 디버깅은 물리 기기 + profile mode. debug/simulator 는 release 동작을 대표하지 않음 |
+| 6 | <https://docs.flutter.dev/testing/build-modes> | profile mode 는 emulator/simulator 에서 **비활성** |
+| 7 | <https://riverpod.dev/docs/concepts2/refs> | `watch` 는 선언형 구독 / `listen` 은 side effect / `invalidate` 는 다음 read 때 재평가 / `refresh` 는 invalidate + read sugar |
+| 8 | <https://riverpod.dev/docs/concepts2/auto_dispose> | listener 0 이 된 뒤 **한 프레임 후** dispose · recompute 시 autoDispose 무관하게 state 파괴 · family 는 autoDispose 권장 |
+| 9 | <https://riverpod.dev/docs/how_to/testing> | unit 은 `ProviderContainer.test()`(공유 금지, autoDispose 는 `listen` 으로 붙잡기) · widget 은 `ProviderScope` 루트 + `tester.container()` |
+| 10 | <https://pub.dev/packages/flutter_riverpod/changelog> | 3.4.x 에서 scoped override 환경의 `invalidate`/`refresh` 미탐지 버그 수정 + `Ref.onManualInvalidation()` 추가 → 버전 가드 필요 |
+| 11 | <https://github.com/flutter/agent-plugins> | 공식 Agent Plugins 는 "skills/rules 로 반복 워크플로우를 주입" 을 agent mistake 감축의 1 차 기법으로 제시 — 즉 기존 컴포넌트 재사용은 API 문제가 아니라 강제 절차 문제 |
+
+### 내부 데이터 소스
+
+- `.harness/.meta/kaizen-data-pool.md` §1 — `RE-02`(기본 `Divider` 사용, `IFDivider` 미재사용) ·
+  `LG-02`(팔레트 변경 시 provider invalidate 누락) · `LG-01`(16종 매핑 중 2종만 검증)
+- `.claude/kaizen-input/insights-report.md` — 신규 델타 **D5**(18 일 누수된 시뮬레이터 render host 가
+  swap 을 포화시킨 것을 앱 최적화 전에 규명한 성공 사례) · **D3**(사용자 관측 vs 자기 증거 충돌)
+
+### 채택한 인사이트
+
+- 1~4 는 **사실 정정**으로 소비했다. 우리 문서가 틀렸던 쪽이라 새 조항을 얹은 게 아니라 기존 서술을
+  교체했다 (Freezed 10 줄 → 0, Flutter stable 3 줄, Impeller 5 줄).
+- 11 + `RE-02` → G1 Primitive Substitution Gate. 프레임워크 API 가 아니라 절차 문제라는 진단을 받아
+  **E1 → E2 승급**(대체 후보 표 아티팩트)으로 처리했고, 정의는 references SSOT 1 곳에만 뒀다.
+- 7 · 8 · 10 + `LG-02` → G2 invalidate 경계. `onManualInvalidation` 은 3.4.x 하한 가드를 달았다 —
+  evidence 의 열린 질문("Riverpod 최소 버전이 3.4.x 이상으로 고정되어 있는가")이 미해결이기 때문이다.
+- 9 + `LG-01` → G3 위젯 테스트 하네스 + 매핑 전수 coverage 조항.
+- 5 · 6 · 4 + D5 → G4 Environment Exclusion Checklist 8 항, "simulator/emulator/debug 단독 결과는
+  `[미검증]`" 판정 규칙.
+
+### 넣지 않은 것 (evidence §2 "넣지 말 것" + §4 열린 질문)
+
+- **"모든 기본 위젯 금지"** — layout primitive 까지 막으면 게이트가 우회된다. 면제 목록을 명시했다.
+- **"모든 mutation 후 전체 family invalidate"** — stale 은 줄지만 네트워크 재요청과 UX 흔들림이 커진다.
+- **"widget test 에서 `ProviderContainer` 단독 사용"** — 화면 렌더링 검증에는 `ProviderScope` 루트가 필요하다.
+- **"iOS simulator jank = 앱 버그"** — 공식 문서 기준 대표성이 없다.
+- **`IF*` allowlist 하드코딩** — evidence 열린 질문 1 번(fit-pal DS 네이밍이 `IF*` 로 안정적인가)이
+  미확인이고, 특정 프로젝트 네이밍을 스택 무관 게이트에 박으면 다른 프로젝트에서 노이즈가 된다.
+  게이트는 대체물을 "프로젝트 구분선/버튼 컴포넌트" 처럼 일반명으로만 적었다.
+
+### 산출물
+
+kit 레벨 리서치 로그(`docs/flutter/research-log.md`)에도 같은 근거를 기록했고, 그쪽에는 과거
+서술의 인라인 정정 주석까지 달았다 — 과거 기록을 지우지 않고 정정만 덧붙이는 방식이다.
 
 ## [2026-07-27] — Phase 5
 

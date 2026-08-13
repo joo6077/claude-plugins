@@ -1,6 +1,6 @@
 ---
-version: 1.2.0
-last_updated: 2026-07-27
+version: 1.3.0
+last_updated: 2026-08-13
 ---
 
 # Design Kit Research Log
@@ -354,3 +354,139 @@ Parent (상태 관리)
 
 - Friction #1(의도 확인 전 편집)·#3(스코프 드리프트)은 직전 사이클에 이미 승격됐고 design-kit 은 관련 Gotcha 를 보유 중이다. 문장을 다시 다듬지 않고 **enforcement 등급 상향**으로만 대응했다.
 - 이번 사이클 신규분은 (1) canonical 미검증 임계 정합, (2) Evidence Validity Gate, (3) 시각 변경 프로토콜 SSOT 신설, (4) 승인 기록 아티팩트, (5) DTCG alias 사실 정정 — 5 unit 이다.
+
+---
+
+## [2026-08-13] - Phase 6 kaizen
+
+**트리거:** kaizen-orchestrator Phase 6 (design-kit). Step 0.6 선별에서 design-kit 은 low-signal 제외
+후보였으나 사용자가 전체 14 Phase 를 선택했다. 신호는 글로벌 REJECT `UI-04`(계약이 4 축을 **이미 명시**
+했는데 두 안이 전 축 동일값)와 §0 신규 델타다. 외부 근거는 codex 를 foreground 로 호출해
+`.harness/.meta/evidence/phase6.md` 에 파일로 고정한 뒤 그 파일만 읽고 작업했다 (백그라운드 실행 중
+네트워크 조회 금지). 커밋 `965af48` — 13 파일. sync-docs 자동 동기화는 `450e553`.
+
+### 조사한 소스 (Phase 6 — 2026-08-13)
+
+| # | 제목 | URL | 유형 | 결과 |
+| - | ---- | --- | ---- | ---- |
+| 69 | Morphological Charts — Cambridge IfM DMG | <https://www.ifm.eng.cam.ac.uk/research/dmg/tools-and-techniques/morphological-charts/> | official | 채택 (축 → 값 → 조합 구조의 근거) |
+| 70 | Morphological chart 조합 폭발 — Clemson thesis | <https://open.clemson.edu/all_theses/274/> | paper | 참조 |
+| 71 | 생성 디자인 거리 기반 sampling — Strathprints | <https://strathprints.strath.ac.uk/70009/> | paper | 참조 (구조 feature vector 우선, perceptual diff 는 보조) |
+| 72 | Playwright — Visual Comparisons | <https://playwright.dev/docs/test-snapshots> | official | 채택 (골든 단독은 증거가 아님) |
+| 73 | Playwright — Actionability | <https://playwright.dev/docs/actionability> | official | 채택 (visible locator) |
+| 74 | Playwright — Assertions | <https://playwright.dev/docs/test-assertions> | official | 채택 (count/height assertion) |
+| 75 | Chromatic — Visual tests | <https://www.chromatic.com/docs/visual/> | official | 참조 — decision → surface → golden 을 native 로 강제하는 개념 미확인 |
+| 76 | Percy — How it works | <https://percy.io/how-it-works> | official | 참조 (75 와 동일 결론) |
+| 77 | BackstopJS | <https://github.com/garris/BackstopJS> | official | 참조 (75 와 동일 결론) |
+| 78 | W3C ACT Rules Format | <https://www.w3.org/TR/act-rules-format/> | spec | 채택 (manifest 를 요구사항–테스트 traceability 로 정당화) |
+| 79 | WCAG 2.2 Specification | <https://www.w3.org/TR/WCAG22/> | spec | 채택 (터치 타겟 레벨 귀속 정정) |
+| 80 | Tailwind CSS v4 | <https://tailwindcss.com/blog/tailwindcss-v4> | official | 참조 — OKLCH 를 승인값 위에 두지 않음 |
+| 81 | DTCG Format Module — Final CG Report 2025-10-28 | <https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/> | spec | 재확인 — 변경 없음 |
+| 82 | DTCG — 첫 stable 버전 발표 | <https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/> | official | 재확인 — 변경 없음 |
+| 83 | MDN — Container Queries (Guides/Containment) | <https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries> | official | 재확인 — 변경 없음 |
+| 84 | Expressive Material Design — Google Research | <https://design.google/library/expressive-material-design-google-research?pubDate=20250521> | official | 참조 — 기존 승인값보다 상위로 두지 않음 |
+| 85 | Apple — Adopting Liquid Glass | <https://developer.apple.com/tutorials/data/documentation/technologyoverviews/adopting-liquid-glass.md> | official | 참조 (84 와 동일 결론) |
+
+### 확인된 사실
+
+#### R. 변형 구별성은 "확립된 UI 표준" 이 아니라 설계 탐색 방법의 이식이다
+
+- Morphological chart 는 기능/축별 가능한 수단을 나열하고 조합해 design space 를 만드는 방법이며,
+  조합 폭발과 비실용 해를 제한해야 한다고 설명한다. UI 변형도 `축 → 값 → 조합` 으로 다루면 동일
+  feature vector 를 가진 두 안을 **기계적으로** 잡을 수 있다.
+- 생성 디자인 연구에는 거리 기반 sampling·clustering·psychophysical distance 로 "서로 다르게 지각되는
+  대안" 을 만드는 접근이 있다. 다만 design-kit 에는 **구조 feature vector / Hamming distance 를 먼저**
+  두고 렌더 후 perceptual diff 는 보조 신호로만 두는 편이 맞다 — 큰 pixel diff 가 구조 중복을 면제하지 않는다.
+- → `visual-change-protocol.md` §5 Variant Contract Matrix + Distinctiveness Gate 로 반영했다.
+
+#### S. 시각 회귀 도구는 "결정이 모든 표면에 갔는가" 를 강제하지 않는다
+
+- Playwright · Chromatic · Percy · BackstopJS 는 baseline snapshot, diff, threshold, ignore/delay/
+  selector/scenario 를 제공한다. 그러나 확인한 공식 문서 범위에서
+  `decision → required surface → golden coverage` 를 native 개념으로 강제하는 패턴은 **미확인**이다.
+- 즉 이것은 도구의 기본 기능이 아니라 그 위에 얹는 **manifest 기반 traceability gate** 다. W3C ACT
+  Rules Format 이 테스트 규칙에 requirement mapping · applicability · expectations · outcome mapping 을
+  요구하는 구조가 같은 형태의 선례다.
+- → §6 Decision Propagation Manifest 로 반영했다.
+
+#### T. "스크린샷 파일이 있다" 는 "사용자가 보는 상태를 측정했다" 가 아니다
+
+- Playwright 의 visual comparison 은 첫 실행에서 reference 를 만들고 다음 실행부터 비교하며, rendering
+  은 OS·브라우저·폰트·하드웨어에 따라 달라질 수 있다고 경고한다. 실제 관측에는 locator visibility,
+  non-empty bounding box, count/text/in-viewport 같은 assertion 이 필요하다.
+- → §7 Evidence Channels 4 종과 PASS 문장 5 요소로 반영했다. 이 항목은 2026-07-27 의 O(첫 실행 vacuous
+  pass)와 같은 뿌리이지만, 그때는 `design-test` 안의 negative control 루프였고 이번에는 **증거 강도를
+  이름으로 구분하는 채널 규약**으로 승격한 것이다.
+
+#### U. 44×44 는 AA 가 아니다 (킷 기재 오류)
+
+- WCAG 2.2 에서 AA 하한은 **SC 2.5.8 의 24×24 CSS px** 이고, **44×44 는 SC 2.5.5 AAA** 다. Apple HIG 의
+  44pt 는 플랫폼 권장치로 그와 별개다.
+- 킷 문서 **6 줄**이 44 를 레벨 귀속 없이 터치 타겟 기준으로 제시하고 있었다 (`design-guide` 의 예시
+  문장 포함). 5 파일에서 "AA 24×24 / AAA·Apple HIG 44×44" 로 귀속 표기했고 범위 안 잔존은 0 건이다.
+- 음성 대조로 판별력을 확인했다 — 귀속 낱말 1 개를 제거하니 다시 1 건이 검출됐다.
+- 직전 사이클(2026-07-27)은 같은 SC 를 "킷 기재와 일치 — 수정하지 않았다" 로 기록했다. 이번에
+  `docs/design/**` 산문까지 범위를 넓히자 6 줄이 나왔다.
+
+### 변경 내역
+
+- `references/visual-change-protocol.md` — §5~§7 을 **append-only** 로 신설 (§1~§4 삭제 0 줄).
+  - **§5 Variant Contract Matrix + Distinctiveness Gate** — variant 필수 4 필드(`variant_id` ·
+    `strategy_label` · `axis_vector` · `intended_user_scenario`), 산출 **전** 합의하는 6 열 매트릭스,
+    pairwise 판정식(지정 축 3 개 이상이면 Hamming ≥ 2, 2 개 이하면 ≥ 1). 색상·토큰 값·카피·아이콘은
+    축으로 세지 않는다. 실행 가능한 게이트가 `UI-04` 를 hamming=0 으로 재현하고 exit 1 을 낸다.
+    개수 상한·부대 산출물 금지는 재정의하지 않고 `harness/docs/guides/skill-design-guide.md` §5.6
+    Variant Budget 을 인용했으며, design-kit 추가분은 "사용자 지정 N 은 정확히 N · 승인 상한 5" 2 조뿐이다.
+  - **§6 Decision Propagation Manifest** — `decisions.yaml` 스키마(`decision_id` → `required_surfaces[]`
+    → `golden` + `assertions`, `excluded_surfaces` 는 이유 필수) + coverage rule 4 조. 핵심은
+    **골든만 있고 visible / count / height assertion 이 없으면 FAIL** 이라는 것 — 빈 화면도 baseline 과
+    같으면 통과하기 때문이다. 체커는 manifest 부재를 통과로 접지 않고 `NO_MANIFEST` + exit 3 을 낸다.
+  - **§7 Evidence Channels** — `artifact_snapshot` / `dom_snapshot` / `browser_user_visible` /
+    `device_user_visible` 4 채널 + PASS 문장 5 요소(viewport · route/state · visible locator ·
+    count/height · screenshot/golden id). 사용자 보고 규약은 재서술하지 않고 skill-design-guide §3.8 ·
+    agent-design-guide §10 을 경로+절 번호로 참조했다.
+- `skills/design-mockup/SKILL.md` — 고정 "시안 5개" 3 곳 제거 → 개수 계약(미지정 3 · 사용자 지정 N 은
+  정확히 N · 승인 상한 5). Step 3 을 3-a(개수·축 합의) / 3-b(합의된 개수만큼 생성)로 분리. 전략 레이블
+  5 종을 "전부 내라" 는 목록에서 **후보 풀**로 재규정. Gotcha 1 재작성 + 16(매트릭스 선합의) ·
+  17(시안 캡처는 `artifact_snapshot`) 신설.
+- `skills/design-concept/SKILL.md` — Gotcha 6 을 "구별성은 계산해서 확인한다" 로 재작성하고 §5 게이트에 연결.
+- `skills/design-test/SKILL.md` — Gotcha 14 · 15 신설, Step 5-b(결정 전파 테스트 생성) 신설. manifest
+  부재는 "해당 없음" 이 아니라 "manifest 부재" 로 보고한다.
+- `skills/design-audit/SKILL.md` — Gotcha 14 · 15 신설. Decision Propagation Coverage 를 10 카테고리
+  **앞의 전제 조건 검사**로 두고 `N/10` 과 L3 커버리지 계산에는 넣지 않는다. FAIL 1 건 이상이면 REJECT.
+- `skills/design-guide/SKILL.md` — Gotcha 1 예시 문장의 44pt 를 24×24 로 교체.
+- `agents/design-reviewer.md` — 규칙 12(Decision Propagation Coverage) · 13(증거 채널) 신설 +
+  안티패턴 3 줄 + REJECT 조건 1 줄.
+- `docs/design/` 5 파일 — 터치 타겟 레벨 귀속 정정 (`accessibility/accessibility.md` ·
+  `foundations/ratio-proportion.md` · `foundations/visual-hierarchy.md` · `interaction/navigation.md` ·
+  `systems/apple-hig.md`).
+
+검증: 25 조건 · 하위 검사 47 건을 zsh · bash 양쪽에서 실행해 출력 동일을 확인했다. 게이트 2 종은
+문서에서 그대로 추출해 음성 대조까지 돌렸다.
+
+### 경계 준수 — 넣지 않은 것
+
+- **특정 시각 회귀 도구를 표준으로 강제하지 않았다.** Playwright · Chromatic · Percy · BackstopJS 중
+  어느 것도 design-kit 전체 표준으로 지정하지 않았고, §6 은 도구 중립 manifest 계층으로만 얹었다.
+- **OKLCH · M3 Expressive · Liquid Glass 를 기존 승인값보다 상위 규칙으로 두지 않았다.** "승인 기록이
+  이긴다" 는 §1 우선순위는 그대로다.
+- 모든 화면·상태에 골든을 무차별 생성하도록 만들지 않았다 — manifest 가 대상 표면을 좁힌다.
+- perceptual / pixel diff 만으로 "서로 다른 시안" 이라고 판정하지 않는다 — 구조 feature vector 가 먼저고
+  렌더 diff 는 보조다.
+
+### 중복 검토 메모 (Phase 6 — 2026-08-13)
+
+- 직전 사이클(2026-07-27)의 Evidence Validity Gate · 시각 변경 프로토콜 SSOT · 승인 기록 아티팩트는
+  **다시 손대지 않았다.** 이번 §5~§7 은 그 위에 얹은 신규 절이며 §1~§4 삭제는 0 줄이다.
+- 직전 사이클이 "재확인 — 변경 없음" 으로 남긴 DTCG · container queries 는 이번에도 변경 사항이 없었다.
+- `design-kit/README.md` 는 Phase 6 범위 밖이라 손대지 않았고, `design-mockup` description 1 줄 변경으로
+  생긴 드리프트 1 건은 DG-04 로 측정해 Final 단계에 넘겼다 (`450e553` 에서 해소).
+
+### 다음 사이클 후보 (이번에 미반영)
+
+- `Hamming ≥ 2` 를 전역 기본으로 둘지, 지정 축 4 개 이상일 때만 둘지.
+- `decisions.yaml` 위치를 `.design/decisions.yaml` 로 고정할지, toolkit 별 manifest 를 허용할지.
+- golden 을 repo 에 커밋할지, CI artifact / 외부 baseline 으로 둘지.
+- surface registry 를 수동 작성하게 할지, 라우트 · 스토리북 · 화면 목록에서 자동 생성하게 할지.
+- Distinctiveness Gate 의 현재 등급은 **E1**(문장 규약 + 매트릭스 아티팩트)이다. 축 값이 겹치는
+  variant 가 다시 관측되면 문장을 다듬지 말고 판정식을 CI 게이트로 승급할 것.
