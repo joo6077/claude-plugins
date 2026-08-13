@@ -277,7 +277,7 @@ description: Coordinates work
 tools: Agent(worker, researcher),
        Read, Bash
 ---</code>
-      <p><code>worker</code> 와 <code>researcher</code> 만 spawn 가능. 메인 스레드 에이전트 전용 — 서브에이전트 자체는 다른 서브에이전트를 spawn 할 수 없다.</p>
+      <p><code>worker</code> 와 <code>researcher</code> 만 spawn 가능. 서브에이전트도 기본적으로 <strong>메인 대화 아래 3 층까지</strong> 다른 서브에이전트를 spawn 할 수 있다 — 깊이 한도에 도달하면 <code>Agent</code> 도구가 제거되고, <code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1</code> 로 중첩을 끌 수 있다.</p>
       <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Sub-agents Spawn Restrictions</a>
     </div>
     <div class="card">
