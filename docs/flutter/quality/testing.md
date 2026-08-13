@@ -4,6 +4,10 @@ version: 0.2.0
 last_updated: 2026-08-13
 ---
 
+<!-- 코드 펜스 규약: 이 문서의 fenced code block 은 백틱 4 개로 연다/닫는다.
+     닫는 펜스를 백틱 3 개 단독 줄로 되돌리지 마라 — bare-fence 검사 오라클이
+     닫는 펜스를 언어 힌트 없는 여는 펜스로 오탐한다 (Phase 5 AP-03). -->
+
 # 테스트
 
 ## 요약
@@ -71,7 +75,7 @@ Golden(스크린샷) 테스트는 UI 회귀 방지에 강력하지만 theme, fon
 
 ### Widget Test 기본 구조
 
-```dart
+````dart
 testWidgets('로그인 버튼 클릭 시 provider에 로그인 요청', (tester) async {
   final mockAuth = MockAuthRepository();
   when(() => mockAuth.login(any(), any())).thenAnswer((_) async => Right(user));
@@ -90,7 +94,7 @@ testWidgets('로그인 버튼 클릭 시 provider에 로그인 요청', (tester)
 
   verify(() => mockAuth.login('test@test.com', 'pass123')).called(1);
 });
-```
+````
 
 - 출처: https://docs.flutter.dev/cookbook/testing/widget/tap-drag
 
@@ -99,7 +103,7 @@ testWidgets('로그인 버튼 클릭 시 provider에 로그인 요청', (tester)
 unit test 는 provider 값만 본다. **화면이 그 값을 반영하는지**는 `ProviderScope` 루트로 띄운
 widget test 로만 잡힌다. provider 접근은 별도 컨테이너를 만들지 말고 `tester.container()` 를 쓴다.
 
-```dart
+````dart
 testWidgets('설정 변경이 상세 화면에 반영된다', (tester) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -116,7 +120,7 @@ testWidgets('설정 변경이 상세 화면에 반영된다', (tester) async {
   expect(container.read(groupDetailDataProvider('g1')).value?.palette, newPalette);
   expect(find.text(newPalette.label), findsOneWidget);   // 렌더 결과도 함께 본다
 });
-```
+````
 
 - **unit test 는 `ProviderContainer.test()`** 를 쓰고 컨테이너를 테스트 간 공유하지 않는다.
   `autoDispose` provider 는 `container.read` 만 하면 도중에 dispose 될 수 있으므로
@@ -137,7 +141,7 @@ testWidgets('설정 변경이 상세 화면에 반영된다', (tester) async {
 
 ### Golden Test 실전
 
-```dart
+````dart
 testWidgets('ProductCard golden', (tester) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -150,7 +154,7 @@ testWidgets('ProductCard golden', (tester) async {
     matchesGoldenFile('goldens/product_card_light.png'),
   );
 });
-```
+````
 
 CI에서 golden update: `flutter test --update-goldens`
 
@@ -172,7 +176,7 @@ CI에서 golden update: `flutter test --update-goldens`
 
 ### 비동기 테스트 패턴
 
-```dart
+````dart
 testWidgets('AsyncNotifier loading → data 전이', (tester) async {
   await tester.pumpWidget(testApp);
   // loading 상태
@@ -182,4 +186,4 @@ testWidgets('AsyncNotifier loading → data 전이', (tester) async {
   await tester.pump(); // FutureBuilder 갱신
   expect(find.text('Product Name'), findsOneWidget);
 });
-```
+````

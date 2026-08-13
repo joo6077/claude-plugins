@@ -4,6 +4,10 @@ version: 0.2.0
 last_updated: 2026-08-13
 ---
 
+<!-- 코드 펜스 규약: 이 문서의 fenced code block 은 백틱 4 개로 연다/닫는다.
+     닫는 펜스를 백틱 3 개 단독 줄로 되돌리지 마라 — bare-fence 검사 오라클이
+     닫는 펜스를 언어 힌트 없는 여는 펜스로 오탐한다 (Phase 5 AP-03). -->
+
 # 상태 관리
 
 ## 요약
@@ -45,7 +49,7 @@ Riverpod / Bloc / Provider 비교와 선택 기준. Notifier·AsyncNotifier, `re
 
 ### AsyncNotifier 기본 구조
 
-```dart
+````dart
 @riverpod
 class ProductList extends _$ProductList {
   @override
@@ -72,7 +76,7 @@ class ProductList extends _$ProductList {
     );
   }
 }
-```
+````
 
 - 출처: https://docs-v2.riverpod.dev/docs/providers/notifier_provider
 

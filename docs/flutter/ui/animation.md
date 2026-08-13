@@ -4,6 +4,10 @@ version: 0.2.0
 last_updated: 2026-08-13
 ---
 
+<!-- 코드 펜스 규약: 이 문서의 fenced code block 은 백틱 4 개로 연다/닫는다.
+     닫는 펜스를 백틱 3 개 단독 줄로 되돌리지 마라 — bare-fence 검사 오라클이
+     닫는 펜스를 언어 힌트 없는 여는 펜스로 오탐한다 (Phase 5 AP-03). -->
+
 # 애니메이션
 
 AnimationController, Tween, Hero, implicit vs explicit, Curves, Rive/Lottie, CustomPainter의 shouldRepaint를 다룬다.
@@ -40,12 +44,12 @@ AnimationController, Tween, Hero, implicit vs explicit, Curves, Rive/Lottie, Cus
 
 여러 위젯이 순차적으로 등장하는 패턴. `Interval`로 각 요소의 시작/끝 시점을 배분한다.
 
-```dart
+````dart
 // Interval(0.0, 0.5) → 전체 duration의 전반부에서 실행
 // Interval(0.3, 0.8) → 30%~80% 구간에서 실행
 final slideAnim = Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero)
     .animate(CurvedAnimation(parent: controller, curve: Interval(0.0, 0.6, curve: Curves.easeOut)));
-```
+````
 
 - 출처: https://docs.flutter.dev/ui/animations/staggered-animations
 
