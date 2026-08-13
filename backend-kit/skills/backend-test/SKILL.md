@@ -28,6 +28,8 @@ user-invocable: true
 13. **mock-only 테스트를 integration 으로 명명하거나 보고하지 마라** — MockDatabase·인메모리 대체물만 쓰는 테스트는 단위 테스트다. 파일 경로(`tests/integration/`), 테스트 이름, 완료 보고 세 곳 모두 실제 수준에 맞춰 표기하라. 실측: 글로벌 REJECT `API-01` — "user 통합 테스트(실제 PostgreSQL) 미존재 — MockDatabase 단위 테스트만 있음 `[미검증]`". 근거는 "인메모리 서비스는 프로덕션 서비스의 모든 기능을 갖지 못하고 동작이 조금씩 다르다" 는 Testcontainers 의 문제 정의다. 또한 **테스트 실행 출력 없이 "통과했다" 고 보고하지 마라** — 실행 명령과 출력을 증거로 인용하고, 실행 자체가 불가능하면 `[미검증]` + 사유를 명시한다 (SSOT: `harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate). 출처: [Testcontainers](https://testcontainers.com/getting-started/).
 14. **통합 테스트 실행 전 마이그레이션 적용을 확인하라** — 로컬/CI DB 에 마이그레이션이 안 걸린 상태로 통합 테스트를 돌리면 `column "..." of relation "..." does not exist` 로 깨진다. 실측: 글로벌 REJECT `DG-03` (마이그레이션 미적용으로 통합 테스트 2 건 실패). fixture/conftest 에서 컨테이너 기동 → 마이그레이션 실행 → 시드 순서를 보장하고, 컨테이너를 재사용하는 설정이면 스키마 최신화 경로를 별도로 둔다.
 15. **계약 변경 테스트는 양면이다** — 응답 형태·상태코드·직렬화가 바뀌면 provider 테스트만 고치지 말고 consumer 계약 테스트(픽스처 포함)도 같은 스프린트에서 갱신하라. Pact 는 "consumer 와 provider 양쪽 개발을 통제할 때" 를 적용 조건으로 명시하며, provider 의 기능 테스트가 아니라 요청/응답의 **내용과 형식** 일치를 확인하는 도구다. 소비면 코드가 별도 저장소면 그 저장소명과 갱신 필요 파일을 보고에 남긴다 — 조용한 반쪽 완료 금지. 출처: [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for), [PactFlow BDCT](https://pactflow.io/bi-directional-contract-testing/).
+16. **통합 테스트는 production 코드 경로를 통과해야 한다 (결합 확인)** — 실 DB/실 브로커를 썼다는 것만으로 통합 테스트가 되지 않는다. 테스트가 검증 대상 로직(SQL 술어 · 가드 분기 · 핸들러 파이프라인)을 **독립적으로 재작성**하면 결합이 0 이라 구현을 지워도 통과한다. 실측: 2026-08-12 글로벌 REJECT `ER-02` — *"신규 통합 테스트가 실제 바이너리를 호출하지 않고 독립적으로 재작성한 SQL 로 … 동시성 가드를 완전히 삭제해도 이 테스트는 여전히 통과한다."* 생성한 테스트는 production 심볼(함수 · 리포지토리 · 핸들러) 또는 실제 실행 바이너리/로컬 기동 provider 를 호출해야 하며, 보고에 `결합: {테스트 파일:라인} → {구현 심볼}` 을 남긴다. Gotcha 13(mock-only 명명 금지)과는 **다른 축**이다 — 13 은 의존성이 진짜인지, 16 은 대상이 진짜인지 본다. 절차 SSOT: `backend-kit/references/write-path-integrity-protocol.md` §5a.
+17. **핵심 guard 에는 negative test 를 쌍으로 만들어라** — 동시성 가드 · 인증/인가 guard · 멱등 arbiter 세 가지는 positive 경로만 테스트하면 판별력이 없다. 가드 지점을 무력화한 상태에서 **FAIL 하는** 테스트가 함께 있어야 한다 (예: 낙관적 갱신은 읽은 뒤 다른 경로로 행을 변형해 stale 상태를 만들고 영향 행 0 · conflict 를 관찰). 실행하지 못했으면 `[미검증]` 이 아니라 "guard proof 없음" 으로 **미완 보고**한다. 적용 범위는 위 3 종에 한정하며 **모든 테스트에 요구하지 마라** — Testcontainers/계약 테스트 도구 전면 강제도 금지다 (단위 테스트에는 과하고 CI 시간·Docker 의존성 비용이 실재한다). 판정 절차의 정본은 `harness/docs/guides/qa-evaluation-guide.md` §Discriminating Evidence Gate 이며 여기서 재정의하지 않는다. 출처: [PIT Mutation testing](https://pitest.org/).
 
 ## Process
 
@@ -224,6 +226,13 @@ DB 의존 코드가 감지되면:
 1. Testcontainers 설정 안내 (Python: `testcontainers`, Node: `testcontainers`, Java: `org.testcontainers`, Go: `testcontainers-go`)
 2. 마이그레이션 자동 실행 포함
 3. 트랜잭션 롤백 또는 테이블 truncate 격리
+4. **테스트가 production 심볼을 호출하도록 배선** (Gotcha 16). SQL/로직 재작성 금지
+5. **핵심 guard 가 있으면 positive + negative 쌍으로 생성** (Gotcha 17)
+
+| # | 테스트 | 준비 | 기대 |
+|---|--------|------|------|
+| P | positive | 기대 상태가 저장소 현재 값과 일치 | 1 행 영향 · 성공 |
+| N | negative (stale/충돌) | 읽은 뒤 다른 경로로 행을 변형해 기대값을 낡게 만든다 | 0 행 영향 · conflict 로 승격 · 상태 미변경 |
 
 API 핸들러가 감지되면:
 1. 프레임워크 test client 사용
@@ -255,3 +264,4 @@ API 핸들러가 감지되면:
 
 - `../backend-guide/references/principle-index.md` — 백엔드 원칙 인덱스 (testing 카테고리)
 - `../backend-system/references/system-principles.md` — 테스트 전략 원칙 (Pact v4 + Testcontainers)
+- `../../references/write-path-integrity-protocol.md` — §5 Integration Target Proof · 핵심 guard 음성 대조 (Gotcha 16·17 SSOT)

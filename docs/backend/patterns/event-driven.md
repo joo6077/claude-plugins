@@ -1,7 +1,7 @@
 ---
 title: 이벤트 기반 아키텍처
-version: 0.1.0
-last_updated: 2026-04-04
+version: 0.2.0
+last_updated: 2026-08-13
 ---
 
 # 이벤트 기반 아키텍처
@@ -44,9 +44,9 @@ DB 저장과 메시지 발행을 별도로 수행하면 하나만 성공하는 �
 
 ### 6. Idempotency key로 중복 처리를 방지한다
 
-at-least-once 환경에서 같은 메시지가 2번 이상 도착할 수 있다. 각 메시지에 고유한 idempotency key를 부여하고, 처리 전 이미 처리된 key인지 확인한다. Stripe API가 대표적 구현 — 클라이언트가 `Idempotency-Key` 헤더를 전송하면 서버가 24시간 동안 동일 key에 대해 같은 응답을 반환한다.
+at-least-once 환경에서 같은 메시지가 2번 이상 도착할 수 있다. 각 메시지에 고유한 idempotency key를 부여하고, 처리 전 이미 처리된 key인지 확인한다. **키만으로는 부족하다** — 같은 키에 다른 페이로드가 온 경우를 구분해야 하므로 payload fingerprint 를 함께 저장한다. Stripe API가 대표적 구현 — 클라이언트가 `Idempotency-Key` 헤더를 전송하면 서버가 결과를 저장했다가 재요청 시 재생하고, **요청 페이로드를 비교**하며, 키 레코드는 24시간 후 정리(pruning)된다. 즉 24시간은 "응답 보장 기간" 이 아니라 **키 보관 기간**이며, 만료 후 같은 키가 오면 새 요청으로 처리된다. [정정 2026-08-13] 이전 서술은 payload 비교와 만료 시맨틱을 빠뜨린 채 24시간을 "응답 보장 기간" 처럼 읽히게 해 오해를 유발했다.
 
-> **출처:** [Stripe — Idempotent Requests](https://stripe.com/docs/api/idempotent_requests)
+> **출처:** [Stripe — Idempotent requests](https://docs.stripe.com/api/idempotent_requests)
 
 ### 7. CQRS로 읽기/쓰기 모델을 분리한다
 
