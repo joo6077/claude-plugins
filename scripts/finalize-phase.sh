@@ -45,7 +45,7 @@ fi
 
 # --- 여기부터 환경 의존 ------------------------------------------------------
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$REPO_ROOT"
+cd "${REPO_ROOT}"
 
 # MAX_PHASE — orchestrator 의 마지막 Phase 번호.
 # sync-orchestrator.py 와 동일한 규칙으로 유도한다: harness 메타 Phase 1~4 +
@@ -63,9 +63,9 @@ kits = [p for p in data.get("plugins", []) if p.get("name") != "harness"]
 print(4 + len(kits))
 MAXPY
 )"
-if ! [[ "$MAX_PHASE" =~ ^[0-9]+$ ]]; then
+if ! [[ "${MAX_PHASE}" =~ ^[0-9]+$ ]]; then
     echo "⚠ MAX_PHASE 유도 실패 — 기본값 14 사용. 원인:" >&2
-    printf '%s\n' "$MAX_PHASE" | head -2 >&2
+    printf '%s\n' "${MAX_PHASE}" | head -2 >&2
     MAX_PHASE=14
 fi
 
@@ -79,27 +79,27 @@ PHASE_NUM="$1"
 RESULT="$2"
 REVERT_FLAG="${3:-}"
 
-if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]] || [[ "$PHASE_NUM" -lt 1 ]] || [[ "$PHASE_NUM" -gt "$MAX_PHASE" ]]; then
-    echo "ERROR: phase-num 은 1~$MAX_PHASE (받은 값: $PHASE_NUM)" >&2
+if ! [[ "${PHASE_NUM}" =~ ^[0-9]+$ ]] || [[ "${PHASE_NUM}" -lt 1 ]] || [[ "${PHASE_NUM}" -gt "${MAX_PHASE}" ]]; then
+    echo "ERROR: phase-num 은 1~${MAX_PHASE} (받은 값: ${PHASE_NUM})" >&2
     echo "       MAX_PHASE 는 marketplace.json 의 harness 제외 킷 수 + 4 로 유도된다." >&2
     exit 1
 fi
 
-if [[ "$RESULT" != "pass" ]] && [[ "$RESULT" != "fail" ]]; then
-    echo "ERROR: result 는 'pass' 또는 'fail' (받은 값: $RESULT)" >&2
+if [[ "${RESULT}" != "pass" ]] && [[ "${RESULT}" != "fail" ]]; then
+    echo "ERROR: result 는 'pass' 또는 'fail' (받은 값: ${RESULT})" >&2
     exit 1
 fi
 
 FAILURE_FILE=".harness/.meta/kaizen-failure-count.yaml"
-if [[ ! -f "$FAILURE_FILE" ]]; then
-    echo "ERROR: $FAILURE_FILE 없음" >&2
+if [[ ! -f "${FAILURE_FILE}" ]]; then
+    echo "ERROR: ${FAILURE_FILE} 없음" >&2
     exit 2
 fi
 
 TODAY="$(date +%Y-%m-%d)"
 
 # Python 으로 YAML 수정 (최소 yaml 처리 — 단순 key: value 형식)
-python3 - "$FAILURE_FILE" "$PHASE_NUM" "$RESULT" "$TODAY" <<'PYEOF'
+python3 - "${FAILURE_FILE}" "${PHASE_NUM}" "${RESULT}" "${TODAY}" <<'PYEOF'
 import sys
 import re
 from pathlib import Path
@@ -164,16 +164,16 @@ PYEOF
 
 # kaizen-state.yaml 자동 갱신
 STATE_FILE=".harness/.meta/kaizen-state.yaml"
-if [[ -f "$STATE_FILE" ]]; then
+if [[ -f "${STATE_FILE}" ]]; then
     TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    if [[ "$RESULT" == "pass" ]]; then
+    if [[ "${RESULT}" == "pass" ]]; then
         # 마지막 Phase pass = 전체 사이클 완료 (하드코드 금지 — MAX_PHASE 유도값 사용)
-        if [[ "$PHASE_NUM" -eq "$MAX_PHASE" ]]; then
+        if [[ "${PHASE_NUM}" -eq "${MAX_PHASE}" ]]; then
             NEW_STATUS="completed"
         else
             NEW_STATUS="running"
         fi
-        python3 - "$STATE_FILE" "$PHASE_NUM" "$TIMESTAMP" "$NEW_STATUS" <<'STATE_PY'
+        python3 - "${STATE_FILE}" "${PHASE_NUM}" "${TIMESTAMP}" "${NEW_STATUS}" <<'STATE_PY'
 import sys, re
 from pathlib import Path
 path, phase, ts, status = Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
@@ -183,7 +183,7 @@ text = re.sub(r'(?m)^status:.*$', f'status: {status}', text)
 path.write_text(text, encoding="utf-8")
 STATE_PY
     else
-        python3 - "$STATE_FILE" "$TIMESTAMP" <<'STATE_PY'
+        python3 - "${STATE_FILE}" "${TIMESTAMP}" <<'STATE_PY'
 import sys, re
 from pathlib import Path
 path, ts = Path(sys.argv[1]), sys.argv[2]
@@ -193,37 +193,37 @@ text = re.sub(r'(?m)^status:.*$', 'status: running', text)
 path.write_text(text, encoding="utf-8")
 STATE_PY
     fi
-    echo "✓ kaizen-state.yaml 업데이트 (result=$RESULT)" >&2
+    echo "✓ kaizen-state.yaml 업데이트 (result=${RESULT})" >&2
 fi
 
 # --revert / --auto-revert 처리
 TAG="kaizen-phase-${PHASE_NUM}-pre"
-if [[ "$RESULT" == "fail" ]]; then
-    if [[ "$REVERT_FLAG" == "--auto-revert" ]]; then
-        if git rev-parse --verify "$TAG" >/dev/null 2>&1; then
+if [[ "${RESULT}" == "fail" ]]; then
+    if [[ "${REVERT_FLAG}" == "--auto-revert" ]]; then
+        if git rev-parse --verify "${TAG}" >/dev/null 2>&1; then
             echo
-            echo "🔄 Auto-revert 실행: git revert --no-edit $TAG..HEAD"
-            git revert --no-edit "$TAG..HEAD" && \
+            echo "🔄 Auto-revert 실행: git revert --no-edit ${TAG}..HEAD"
+            git revert --no-edit "${TAG}..HEAD" && \
                 echo "✓ Auto-revert 완료" || \
                 echo "✗ Auto-revert 실패 — 수동 확인 필요" >&2
         else
-            echo "⚠ tag $TAG 없음 — auto-revert 불가" >&2
+            echo "⚠ tag ${TAG} 없음 — auto-revert 불가" >&2
         fi
-    elif [[ "$REVERT_FLAG" == "--revert" ]]; then
-        if git rev-parse --verify "$TAG" >/dev/null 2>&1; then
+    elif [[ "${REVERT_FLAG}" == "--revert" ]]; then
+        if git rev-parse --verify "${TAG}" >/dev/null 2>&1; then
             echo
             echo "📝 revert 명령 (수동 실행):"
-            echo "   git revert --no-edit $TAG..HEAD"
+            echo "   git revert --no-edit ${TAG}..HEAD"
             echo
             echo "⚠ 이 명령은 자동 실행되지 않습니다."
-            echo "   자동 revert 를 원하면: bash scripts/finalize-phase.sh $PHASE_NUM fail --auto-revert"
+            echo "   자동 revert 를 원하면: bash scripts/finalize-phase.sh ${PHASE_NUM} fail --auto-revert"
         else
-            echo "⚠ tag $TAG 없음 — revert 불가" >&2
+            echo "⚠ tag ${TAG} 없음 — revert 불가" >&2
         fi
     else
         echo
-        echo "💡 revert 하려면: bash scripts/finalize-phase.sh $PHASE_NUM fail --revert"
-        echo "   자동 revert: bash scripts/finalize-phase.sh $PHASE_NUM fail --auto-revert"
+        echo "💡 revert 하려면: bash scripts/finalize-phase.sh ${PHASE_NUM} fail --revert"
+        echo "   자동 revert: bash scripts/finalize-phase.sh ${PHASE_NUM} fail --auto-revert"
     fi
 fi
 
@@ -231,21 +231,21 @@ fi
 # 실패를 조용히 삼키지 마라 — 이 호출은 CLI 계약 불일치로 3 사이클 동안 무증상 실패했고,
 # `2>/dev/null` 이 원인 진단을 막았다. 실패하면 stderr 를 그대로 노출한다
 # (근거: Glite ARF — "rules ... fail loudly when violated" arxiv 2606.27416).
-AUDIT_SCRIPT="$REPO_ROOT/scripts/append-audit-log.py"
-if [[ -f "$AUDIT_SCRIPT" ]]; then
+AUDIT_SCRIPT="${REPO_ROOT}/scripts/append-audit-log.py"
+if [[ -f "${AUDIT_SCRIPT}" ]]; then
     AUDIT_ERR="$(mktemp)"
-    if python3 "$AUDIT_SCRIPT" --phase "$PHASE_NUM" --result "$RESULT" --date "$TODAY" 2>"$AUDIT_ERR"; then
+    if python3 "${AUDIT_SCRIPT}" --phase "${PHASE_NUM}" --result "${RESULT}" --date "${TODAY}" 2>"${AUDIT_ERR}"; then
         echo "✓ audit-log 엔트리 추가됨"
     else
         echo "⚠ audit-log append 실패 — 원인:" >&2
-        head -3 "$AUDIT_ERR" >&2
-        echo "   (Phase 결과는 $FAILURE_FILE 에 기록됨. 위 원인을 고치기 전까지 audit-log 는 비어 있다)" >&2
+        head -3 "${AUDIT_ERR}" >&2
+        echo "   (Phase 결과는 ${FAILURE_FILE} 에 기록됨. 위 원인을 고치기 전까지 audit-log 는 비어 있다)" >&2
     fi
-    rm -f "$AUDIT_ERR"
+    rm -f "${AUDIT_ERR}"
 fi
 
 # changelog 알림
 echo
-echo "📝 changelog 업데이트 필요: docs/kaizen/changelog.md 에 오늘($TODAY) 엔트리 추가"
+echo "📝 changelog 업데이트 필요: docs/kaizen/changelog.md 에 오늘(${TODAY}) 엔트리 추가"
 echo
-echo "$FAILURE_FILE 업데이트 완료 (last_updated: $TODAY)"
+echo "${FAILURE_FILE} 업데이트 완료 (last_updated: ${TODAY})"

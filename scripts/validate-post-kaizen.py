@@ -18,6 +18,26 @@ validate-post-kaizen.py — Post-Kaizen Checklist 자동 검증 스크립트
 diff 기반 검사 전부가 "변경 없음 → 위반 없음" 으로 **조용히 통과**했고, `check_scope_isolation`
 은 `git log` 실패를 `SKIP` 으로 처리했는데 `SKIP` 은 종료 코드를 바꾸지 않았다.
 
+## 사이클 단계 인지 (2026-08-13 신설)
+
+이 게이트는 오케스트레이터 **Step F4** — 사이클 종료 후 PR 생성 직전 — 에 도는 것이 정상 사용이다.
+검사 중 다섯 건(`changelog-entry` · `research-log` · `cleanup-log` · `failure-count` ·
+`evals-audit`)은 Phase 구현이 아니라 **종료 단계(Step F1~F4)가 생산하는 산출물**을 본다.
+그 다섯을 "오늘 날짜 엔트리가 있는가" 로 무조건 검사하던 구판은 두 방향으로 다 틀렸다.
+
+- **거짓 위반** — 사이클이 진행 중이면 산출물이 아직 없는 게 정상인데 `FAIL` 로 셌다.
+  자정을 넘긴 사이클도 같은 이유로 깨졌다 (실측 2026-07-27 사이클: 엔트리는 전부 07-27 자로
+  존재하는데 체크가 07-28 에 돌아 4 건 false negative FAIL —
+  `.harness/.meta/orchestrator-audit-log.md` §2026-07-27 사이클 meta-issue 1).
+- **거짓 통과** — `evals-audit` 는 "이번 달 아무 파일" 이면 통과였다. 8/31 사이클이 8/1 감사
+  파일로 green 이 된다.
+
+그래서 오라클을 **사이클** 기준으로 바꿨다. 단계 도래 여부는 `.harness/.meta/kaizen-state.yaml`
+의 `status` 로 판정하고(`completed` 만 도래), 날짜는 `cycle_id` 에서 유도한 사이클 날짜와 오늘을
+함께 인정한다. **판정 자체가 불가능하면**(상태 파일 부재 · 파싱 실패 · 미지의 status)
+건너뛰지 않고 `ERROR` 다 — 규칙은 `harness/evals/gate-exit-codes.md` §규칙 을 따른다.
+`status: completed` 인 정상 사용 시점에는 다섯 검사가 **전부 구판 그대로 강제**된다.
+
 사용법:
     python3 scripts/validate-post-kaizen.py [--since <ref>]
 
@@ -30,6 +50,7 @@ diff 기반 검사 전부가 "변경 없음 → 위반 없음" 으로 **조용�
 import argparse
 import datetime
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -37,6 +58,12 @@ from pathlib import Path
 from typing import Callable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+
+# 사이클 단계·날짜의 SSOT. spawn-kaizen-phase.sh / finalize-phase.sh 가 쓰고 이 게이트가 읽는다.
+KAIZEN_STATE_PATH = REPO_ROOT / ".harness/.meta/kaizen-state.yaml"
+# 위 두 스크립트가 실제로 기록하는 값만 인정한다. 모르는 값이면 판정 불가 → ERROR.
+KNOWN_CYCLE_STATUSES = ("running", "completed")
+CYCLE_FINALIZED_STATUS = "completed"
 
 
 class GateInfraError(RuntimeError):
@@ -50,6 +77,7 @@ class CheckResult:
     summary: str
     evidence: list[str] = field(default_factory=list)
     hint: str = ""  # 수정 방법 안내 (FAIL 시 출력)
+    deferred: bool = False  # SKIP 사유가 "종료 단계 미도래" 인가 (요약에 따로 센다)
 
 
 # FAIL 수정 힌트 매핑
@@ -120,13 +148,89 @@ def today() -> str:
     return datetime.date.today().isoformat()
 
 
+@dataclass(frozen=True)
+class CycleState:
+    cycle_id: str
+    status: str
+    dates: tuple[str, ...]  # 이 사이클의 산출물이 달 수 있는 날짜 (사이클 날짜 + 오늘)
+
+    @property
+    def finalized(self) -> bool:
+        return self.status == CYCLE_FINALIZED_STATUS
+
+
+_CYCLE_STATE: CycleState | None = None
+
+
+def cycle_state() -> CycleState:
+    """`.harness/.meta/kaizen-state.yaml` 에서 사이클 단계·날짜를 읽는다.
+
+    읽지 못하면 **추측하지 않는다.** `GateInfraError` → `ERROR` → exit 2 다.
+    "상태를 모르니 일단 건너뛴다" 는 도구 부재를 통과로 집계하던 구판과 같은 실패 모드다
+    (`harness/evals/gate-exit-codes.md` §규칙).
+    """
+    global _CYCLE_STATE
+    if _CYCLE_STATE is not None:
+        return _CYCLE_STATE
+    if not KAIZEN_STATE_PATH.exists():
+        raise GateInfraError(
+            f"{KAIZEN_STATE_PATH.relative_to(REPO_ROOT)} 없음 — 사이클 단계를 판정할 수 없다"
+        )
+    try:
+        text = KAIZEN_STATE_PATH.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise GateInfraError(f"kaizen-state.yaml 을 읽지 못했다: {exc}") from exc
+
+    def field_value(key: str) -> str:
+        m = re.search(rf'(?m)^{re.escape(key)}:\s*"?([^"\n#]*?)"?\s*$', text)
+        return m.group(1).strip() if m else ""
+
+    status = field_value("status")
+    cycle_id = field_value("cycle_id")
+    if not status:
+        raise GateInfraError("kaizen-state.yaml 에 status 필드가 없다 — 단계 판정 불가")
+    if status not in KNOWN_CYCLE_STATUSES:
+        raise GateInfraError(
+            f"kaizen-state.yaml status='{status}' 는 미지의 값이다 "
+            f"(아는 값: {', '.join(KNOWN_CYCLE_STATUSES)}) — 단계 판정 불가"
+        )
+    dates = tuple(dict.fromkeys(re.findall(r"\d{4}-\d{2}-\d{2}", cycle_id) + [today()]))
+    _CYCLE_STATE = CycleState(cycle_id=cycle_id or "(unknown)", status=status, dates=dates)
+    return _CYCLE_STATE
+
+
+def defer_until_finalized(name: str) -> CheckResult | None:
+    """종료 단계 산출물 검사의 적용 가능 여부. 아직 도래하지 않았으면 SKIP 을 돌려준다.
+
+    도래 여부는 상태 파일이 판정한다 — 사람의 선언이 아니다. `finalize-phase.sh` 가 마지막
+    Phase pass 에서 `status: completed` 를 쓰는 순간 이 유예는 자동으로 닫히고 아래 검사들이
+    구판 그대로 강제된다.
+    """
+    st = cycle_state()
+    if st.finalized:
+        return None
+    return CheckResult(
+        name,
+        "SKIP",
+        f"종료 단계 미도래 — cycle={st.cycle_id} status={st.status} (Step F1~F4 산출물)",
+        deferred=True,
+    )
+
+
+def has_cycle_date(text: str) -> bool:
+    """사이클 날짜 중 하나라도 본문에 있으면 이번 사이클 엔트리로 인정한다.
+
+    "오늘" 만 인정하면 자정을 넘긴 사이클이 자기 게이트에 걸린다 (실측 2026-07-27).
+    """
+    return any(d in text for d in cycle_state().dates)
+
+
 # --- Checks ---------------------------------------------------------------
 
 
 def check_validate_plugin() -> CheckResult:
     code, out, err = run(["python3", "scripts/validate-plugin.py"])
     # plugin count is dynamic — match "Total: N plugins, N OK" pattern with N >= 7
-    import re
     m = re.search(r"Total:\s+(\d+)\s+plugins,\s+(\d+)\s+OK", out)
     if code == 0 and m and m.group(1) == m.group(2) and int(m.group(1)) >= 7:
         n = m.group(1)
@@ -211,33 +315,39 @@ def check_marketplace_sync(since: str) -> CheckResult:
 
 
 def check_changelog_entry(since: str) -> CheckResult:
+    deferred = defer_until_finalized("changelog-entry")
+    if deferred:
+        return deferred
     changelog = REPO_ROOT / "docs/kaizen/changelog.md"
     if not changelog.exists():
         return CheckResult("changelog-entry", "FAIL", "docs/kaizen/changelog.md missing")
     text = changelog.read_text(encoding="utf-8")
-    t = today()
-    # Check either today's date or within last 7 days
-    if t in text:
+    dates = cycle_state().dates
+    if has_cycle_date(text):
         return CheckResult(
-            "changelog-entry", "PASS", f"entry for {t} present"
+            "changelog-entry", "PASS", f"entry for cycle date ({' | '.join(dates)}) present"
         )
     return CheckResult(
         "changelog-entry",
         "FAIL",
-        f"no entry for {t} in docs/kaizen/changelog.md",
+        f"no entry for {' | '.join(dates)} in docs/kaizen/changelog.md",
     )
 
 
 def check_research_log() -> CheckResult:
+    deferred = defer_until_finalized("research-log")
+    if deferred:
+        return deferred
     rl = REPO_ROOT / "docs/kaizen/research-log.md"
     if not rl.exists():
         return CheckResult("research-log", "FAIL", "docs/kaizen/research-log.md missing")
-    if today() in rl.read_text(encoding="utf-8"):
-        return CheckResult("research-log", "PASS", f"entry for {today()}")
+    dates = cycle_state().dates
+    if has_cycle_date(rl.read_text(encoding="utf-8")):
+        return CheckResult("research-log", "PASS", f"entry for {' | '.join(dates)}")
     return CheckResult(
         "research-log",
         "FAIL",
-        f"no entry for {today()} in docs/kaizen/research-log.md",
+        f"no entry for {' | '.join(dates)} in docs/kaizen/research-log.md",
     )
 
 
@@ -297,50 +407,56 @@ def check_docs_site_regen(since: str) -> CheckResult:
 
 
 def check_cleanup_log() -> CheckResult:
+    deferred = defer_until_finalized("cleanup-log")
+    if deferred:
+        return deferred
     path = REPO_ROOT / ".harness/.meta/cleanup-log.yaml"
     if not path.exists():
         return CheckResult("cleanup-log", "FAIL", "cleanup-log.yaml missing")
-    if today() in path.read_text(encoding="utf-8"):
-        return CheckResult("cleanup-log", "PASS", f"entry for {today()}")
+    dates = cycle_state().dates
+    if has_cycle_date(path.read_text(encoding="utf-8")):
+        return CheckResult("cleanup-log", "PASS", f"entry for {' | '.join(dates)}")
     return CheckResult(
         "cleanup-log",
         "FAIL",
-        f"no entry for {today()} in cleanup-log.yaml",
+        f"no entry for {' | '.join(dates)} in cleanup-log.yaml",
     )
 
 
 def check_failure_count() -> CheckResult:
+    deferred = defer_until_finalized("failure-count")
+    if deferred:
+        return deferred
     path = REPO_ROOT / ".harness/.meta/kaizen-failure-count.yaml"
     if not path.exists():
         return CheckResult("failure-count", "FAIL", "kaizen-failure-count.yaml missing")
-    text = path.read_text(encoding="utf-8")
-    if today() in text:
-        return CheckResult("failure-count", "PASS", f"last_updated includes {today()}")
+    dates = cycle_state().dates
+    if has_cycle_date(path.read_text(encoding="utf-8")):
+        return CheckResult(
+            "failure-count", "PASS", f"last_updated includes {' | '.join(dates)}"
+        )
     return CheckResult(
         "failure-count",
         "FAIL",
-        f"last_updated not {today()}",
+        f"last_updated not in {' | '.join(dates)}",
     )
 
 
 def check_evals_audit() -> CheckResult:
-    path = REPO_ROOT / f".harness/.meta/evals-audit-{today()}.md"
-    if path.exists():
-        return CheckResult("evals-audit", "PASS", f"file for {today()} exists")
-    # Accept any evals-audit-*.md from this week as fallback
-    meta_dir = REPO_ROOT / ".harness/.meta"
-    if meta_dir.exists():
-        found = list(meta_dir.glob(f"evals-audit-{today()[:7]}*.md"))
-        if found:
-            return CheckResult(
-                "evals-audit",
-                "PASS",
-                f"recent audit file: {found[-1].name}",
-            )
+    deferred = defer_until_finalized("evals-audit")
+    if deferred:
+        return deferred
+    # 사이클 날짜로만 인정한다. 구판의 "이번 달 아무 파일" fallback 은 8/31 사이클을 8/1 감사
+    # 파일로 통과시켰다 — 오래된 감사가 새 사이클을 green 으로 만들면 안 된다.
+    dates = cycle_state().dates
+    for d in dates:
+        path = REPO_ROOT / f".harness/.meta/evals-audit-{d}.md"
+        if path.exists():
+            return CheckResult("evals-audit", "PASS", f"file for {d} exists")
     return CheckResult(
         "evals-audit",
         "FAIL",
-        f"no evals-audit-{today()}.md or this-month file",
+        f"no evals-audit-<{' | '.join(dates)}>.md",
     )
 
 
@@ -475,15 +591,30 @@ def main() -> int:
     n_fail = sum(1 for r in results if r.status == "FAIL")
     n_error = sum(1 for r in results if r.status == "ERROR")
     n_skip = sum(1 for r in results if r.status == "SKIP")
+    n_deferred = sum(1 for r in results if r.deferred)
     print()
     print(
         f"Total: {len(results)} checks — "
         f"{n_pass} PASS / {n_fail} FAIL / {n_error} ERROR / {n_skip} SKIP"
+        + (f" (그중 {n_deferred} 건은 종료 단계 미도래로 유예)" if n_deferred else "")
     )
+
+    # 유예를 조용히 넘기지 않는다 — green 을 post-cycle 판정으로 오독하면 이 게이트도
+    # "아무것도 검증하지 않고 통과를 보고" 하는 축에 든다.
+    if n_deferred:
+        st = cycle_state()
+        sys.stdout.flush()  # 파이프에서 stderr 가 stdout 앞으로 튀어나오지 않도록
+        print(
+            f"→ 종료 단계 산출물 {n_deferred} 건 유예 (cycle={st.cycle_id} status={st.status}). "
+            f"이 실행은 **post-cycle 판정이 아니다** — Step F4 에서 다시 돌려라. "
+            f"유예는 finalize-phase.sh 가 status=completed 를 쓰는 순간 자동으로 닫힌다.",
+            file=sys.stderr,
+        )
 
     # 종료 코드 의미는 harness/evals/gate-exit-codes.md 가 SSOT.
     # 불완전한 실행(ERROR)이 있으면 결과 집합을 완전한 분석으로 보고하지 않는다 → 2 가 우선.
     if n_error:
+        sys.stdout.flush()
         print(
             "→ exit 2 (usage_or_infra_error): 일부 검사를 수행하지 못했다. "
             "FAIL 카운트를 완전한 결과로 읽지 마라.",
