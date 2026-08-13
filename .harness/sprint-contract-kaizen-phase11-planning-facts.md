@@ -4,7 +4,7 @@ created: "2026-08-13 14:55"
 complexity: "복잡"
 conditions: 15
 slug: kaizen-phase11-planning-facts
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 conditions_digest: sha256:700f616435f0075f
 locked_at: "2026-08-13 14:55"
