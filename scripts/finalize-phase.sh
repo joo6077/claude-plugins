@@ -12,38 +12,21 @@
 
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$REPO_ROOT"
-
-# MAX_PHASE — orchestrator 의 마지막 Phase 번호.
-# sync-orchestrator.py 와 동일한 규칙으로 유도한다: harness 메타 Phase 1~4 +
-# marketplace.json 의 harness 제외 플러그인 수 (FIRST_PLUGIN_PHASE = 5).
-# 킷이 늘어나면 자동으로 따라간다 — 하드코드 금지 (Phase 11~14 거부 회귀 재발 방지).
-MAX_PHASE_ERR="$(mktemp)"
-MAX_PHASE="$(python3 - 2>"$MAX_PHASE_ERR" <<'MAXPY'
-import json
-from pathlib import Path
-data = json.loads(Path(".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
-kits = [p for p in data.get("plugins", []) if p.get("name") != "harness"]
-print(4 + len(kits))
-MAXPY
-)" || true   # set -e 하에서도 fallback 으로 넘어가야 한다 (실패 시 아래에서 처리)
-if ! [[ "$MAX_PHASE" =~ ^[0-9]+$ ]]; then
-    echo "⚠ MAX_PHASE 유도 실패 — 기본값 14 사용. 원인:" >&2
-    head -2 "$MAX_PHASE_ERR" >&2
-    MAX_PHASE=14
-fi
-rm -f "$MAX_PHASE_ERR"
-
+# --- help path (side-effect free) ------------------------------------------
+# `--help` 는 인자 처리 최상단에서 즉시 끝낸다. mktemp · cd · marketplace.json 읽기 같은
+# 환경 의존은 전부 이 아래로 내린다 (harness/evals/gate-exit-codes.md §규칙).
+# 실측 (2026-08-13): 쓰기 불가 환경에서 `mktemp` 가 먼저 돌아 `--help` 가 usage 를 한 줄도
+# 내지 못하고 exit 1 했다. help 가 환경에 따라 죽으면 docs-as-code 검증 대상이 될 수 없다.
 usage() {
-    cat <<EOF
+    cat <<'EOF'
 finalize-phase.sh — Phase 종료 처리
 
 사용법:
   bash scripts/finalize-phase.sh <phase-num> <pass|fail> [--revert]
 
 인자:
-  <phase-num>     1 ~ ${MAX_PHASE} (marketplace.json 기준 자동 유도)
+  <phase-num>     1 ~ MAX_PHASE. MAX_PHASE 는 .claude-plugin/marketplace.json 의
+                  harness 제외 킷 수 + 4 로 자동 유도된다 (하드코드하지 않는다)
   <pass|fail>     Regression 결과
   --revert        fail 일 때 kaizen-phase-N-pre tag 로 되돌리는 git 명령 출력 (실행은 수동)
 
@@ -58,6 +41,32 @@ EOF
 if [[ $# -eq 0 ]] || [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
     usage
     exit 0
+fi
+
+# --- 여기부터 환경 의존 ------------------------------------------------------
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+# MAX_PHASE — orchestrator 의 마지막 Phase 번호.
+# sync-orchestrator.py 와 동일한 규칙으로 유도한다: harness 메타 Phase 1~4 +
+# marketplace.json 의 harness 제외 플러그인 수 (FIRST_PLUGIN_PHASE = 5).
+# 킷이 늘어나면 자동으로 따라간다 — 하드코드 금지 (Phase 11~14 거부 회귀 재발 방지).
+# 진단 출력은 임시 파일 대신 **변수**로 캡처한다 — 쓰기 가능한 TMP 에 의존하지 않기 위해서다
+# (구판은 `mktemp` 를 썼고, 그것이 read-only 환경에서 `--help` 까지 죽였다).
+# stdout+stderr 를 함께 받아 숫자가 아니면 그 내용을 그대로 원인으로 보여준다 —
+# `2>/dev/null` 로 원인을 지우지 않는다 (harness/evals/gate-exit-codes.md §규칙).
+MAX_PHASE="$(python3 - 2>&1 <<'MAXPY' || true
+import json
+from pathlib import Path
+data = json.loads(Path(".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
+kits = [p for p in data.get("plugins", []) if p.get("name") != "harness"]
+print(4 + len(kits))
+MAXPY
+)"
+if ! [[ "$MAX_PHASE" =~ ^[0-9]+$ ]]; then
+    echo "⚠ MAX_PHASE 유도 실패 — 기본값 14 사용. 원인:" >&2
+    printf '%s\n' "$MAX_PHASE" | head -2 >&2
+    MAX_PHASE=14
 fi
 
 if [[ $# -lt 2 ]]; then

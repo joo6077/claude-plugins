@@ -124,17 +124,41 @@ def infer_research_docs_dir(plugin_name: str) -> str | None:
     return mapping.get(plugin_name)
 
 
+def _marker_lines(content: str, marker: str) -> list[int]:
+    """마커가 **그 줄 전체**인 행 번호(0-base)를 모두 돌려준다.
+
+    substring 검색을 쓰지 않는 이유 (실측 2026-08-13): Gotchas 절의 산문 불릿이 설명을 위해
+    마커 문자열을 리터럴로 품고 있었고, `str.find()` 가 그 첫 등장을 잡아 **자동 생성 블록이
+    산문 불릿 안으로 주입**됐다. 진짜 Process 위치는 갱신되지 않은 채 남아 Phase 12·13 의
+    `### Step` 절이 통째로 사라졌는데도 `--check-only` 는 exit 0 을 보고했다.
+    """
+    return [i for i, line in enumerate(content.splitlines()) if line.strip() == marker]
+
+
 def replace_auto_section(content: str, new_section: str) -> str:
-    begin_idx = content.find(BEGIN_MARKER)
-    end_idx = content.find(END_MARKER)
-    if begin_idx == -1 or end_idx == -1:
+    begins = _marker_lines(content, BEGIN_MARKER)
+    ends = _marker_lines(content, END_MARKER)
+
+    # 0 개도 2 개 이상도 "정상 아님" 이다. 조용히 첫 번째를 고르지 않는다 —
+    # 그 관용이 문서를 조용히 망가뜨렸다. 종료 코드 의미: harness/evals/gate-exit-codes.md
+    if len(begins) != 1 or len(ends) != 1:
         raise RuntimeError(
-            f"AUTO markers not found in {ORCHESTRATOR_SKILL}. "
-            "Add `{BEGIN_MARKER}` and `{END_MARKER}` first."
+            f"AUTO marker 개수 이상 in {ORCHESTRATOR_SKILL}: "
+            f"begin {len(begins)} 개 (행 {[i + 1 for i in begins]}) · "
+            f"end {len(ends)} 개 (행 {[i + 1 for i in ends]}). "
+            "정확히 1 쌍이어야 한다. 마커를 산문에서 설명할 때는 HTML 주석 형태로 쓰지 말고 "
+            "`AUTO:plugin_phases` 처럼 마커가 되지 않는 표기를 써라."
         )
-    before = content[: begin_idx + len(BEGIN_MARKER)]
-    after = content[end_idx:]
-    return before + "\n" + new_section + "\n" + after
+    if begins[0] >= ends[0]:
+        raise RuntimeError(
+            f"AUTO marker 순서 이상 in {ORCHESTRATOR_SKILL}: "
+            f"begin 행 {begins[0] + 1} 이 end 행 {ends[0] + 1} 뒤에 있다."
+        )
+
+    lines = content.splitlines(keepends=True)
+    before = "".join(lines[: begins[0] + 1])
+    after = "".join(lines[ends[0] :])
+    return before + new_section + "\n" + after
 
 
 def main() -> int:

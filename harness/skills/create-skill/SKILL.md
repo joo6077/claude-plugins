@@ -23,7 +23,8 @@ user-invocable: true
 - Gotchas 없이 스킬을 만들면 안 된다 — 최소 1 개, "처음엔 모르더라도 빈 Gotchas 섹션은 만들어 둬라"
 - 메인 SKILL.md 에 모든 내용을 넣으면 컨텍스트 과부하 — 100 줄 넘으면 references/ 분리 검토. 전체 SKILL.md 본문 1500-2000 words 타깃 (Anthropic best practices 기준).
 - 뻔한 내용(일반 코딩 지식)을 넣으면 가치 없다 — Claude 가 추론만으로 절대 알 수 없는 정보만 넣어라
-- 스킬 생성 직후 반드시 `python3 scripts/validate-plugin.py <plugin-name>` 으로 V1 frontmatter / V4 trigger 중복 / V5 placeholder / V6 bare code fence 검증을 돌려라. 생성만 하고 검증 안 하면 frontmatter drift 로 스킬이 Claude 에게 invisible 처리된다.
+- 스킬 생성 직후 반드시 `python3 scripts/validate-plugin.py <plugin-name>` 으로 V1 frontmatter / V4 trigger 중복 / V5 placeholder / V6 bare code fence 검증을 돌려라. 생성만 하고 검증 안 하면 frontmatter drift 를 다음 사이클까지 못 잡는다.
+- **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** SKILL.md frontmatter 의 **공식 필수는 `name` 과 `description` 2 종**이다 (`../../docs/guides/skill-design-guide.md` §frontmatter 규칙). `argument-hint` · `user-invocable` 은 Claude Code 전용 선택 필드로 다른 플랫폼에서는 무시된다. 다만 **이 레포는 `user-invocable` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 skills 에 대해 `name`/`description`/`user-invocable` 3 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다.
 - **아키타입 미선정 상태로 구조 작성 금지** — skill-design-guide의 9가지 아키타입(Generator, Guide, Runner 등) 중 하나를 먼저 확정하고 그에 맞는 Process 구조를 따라라. 아키타입 없이 자유 형식으로 쓰면 Process 단계 순서가 비논리적이 되고 QA Evaluator가 재현 불가 판정한다.
 - **argument-hint 누락은 discovery 실패** — user-invocable 스킬이면서 인자를 받는 경우 `argument-hint`를 반드시 작성해라. 빈 문자열이면 Claude가 인자 전달 가능성 자체를 인지하지 못해 사용자가 매번 수동으로 입력해야 한다.
 - **스킬 이름에 프레임워크/언어 접두사 필수** — 범용(harness, design-kit)이 아닌 스택 종속 스킬은 반드시 `flutter-`, `rust-`, `react-` 같은 접두사를 붙여라. 접두사 없으면 다른 킷의 동명 스킬과 충돌하거나 트리거 우선순위가 모호해진다.
@@ -99,7 +100,7 @@ user-invocable: true
 
 ### 5. 검증
 
-- [ ] frontmatter 4 개 필드 존재 (name, description, argument-hint, user-invocable)
+- [ ] frontmatter 필드 존재 — **공식 필수는 `name` · `description` 2 종**, 이 레포 정책(`scripts/validate-plugin.py` V1)은 `user-invocable` 을 더해 **3 종**을 요구한다. `argument-hint` 는 인자를 받는 user-invocable 스킬에 권장(레포 관례)이다 — 셋을 구분해서 보고해라
 - [ ] description 에 트리거 키워드 + negative trigger (비트리거 조건) 포함
 - [ ] description 관점 일관성 (3 인칭 또는 명령형 통일, 혼용 금지)
 - [ ] Gotchas 섹션 존재 (최소 1 개)
@@ -109,7 +110,7 @@ user-invocable: true
 - [ ] **Sibling Enumerated 비교**: 형제 스킬이 있으면 `grep -n "^- " <sibling>/SKILL.md` 로 기존 Gotchas 목록 나열 후 공통 원칙 누락 여부 대조
 - [ ] **Code Examples 품질** (§8.7): 모든 fenced block 에 언어 힌트 존재 + 미완성 마커(V5 placeholder 3종) 0 건
 - [ ] **validate-plugin 연동**: `python3 scripts/validate-plugin.py <plugin-name>` 실행하여 8 카테고리 (V1~V8) 중 V1/V4/V5/V6 최소 4 개가 OK 인지 확인. 기준은 `harness/docs/guides/plugin-validation-guide.md §3` 참조 (카테고리 수의 SSOT 는 이 가이드다).
-  - V1 frontmatter — 필수 필드 (name/description/user-invocable) 모두 존재
+  - V1 frontmatter — **레포 정책** 필드 (name/description/user-invocable) 모두 존재 (공식 스펙의 필수는 앞의 2 종뿐이다 — V1 은 그보다 엄격한 레포 규약이다)
   - V4 triggers — description 키워드가 기존 스킬과 중복되지 않음 (substring containment 도 금지)
   - V5 placeholders — 미완성 마커 (할일/보류/수정요망 세 종류) 0 건
   - V6 code-fence — bare fence 0 건 (언어 힌트 필수)

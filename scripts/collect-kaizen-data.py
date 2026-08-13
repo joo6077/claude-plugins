@@ -18,6 +18,13 @@ Usage:
   python3 scripts/collect-kaizen-data.py
   python3 scripts/collect-kaizen-data.py --output /tmp/kaizen-data.md
   python3 scripts/collect-kaizen-data.py --hub-dir ~/Hub/10_Dev
+  python3 scripts/collect-kaizen-data.py --insights .claude/kaizen-input/insights-report.md
+
+문서-스크립트 계약:
+  이 스크립트의 인터페이스(옵션 집합 · /insights 입력 후보 · 종료 코드)는
+  .claude/skills/kaizen-orchestrator/SKILL.md 의 `docs-contract` 블록에 선언돼 있고
+  scripts/validate-doc-contracts.py 가 argparse 실체와 대조한다.
+  선언과 실체 중 **실체가 SSOT** 다 — 옵션을 바꾸면 문서 블록도 같이 고쳐야 검사를 통과한다.
 """
 from __future__ import annotations
 
@@ -39,11 +46,63 @@ DEFAULT_OUTPUT = REPO_ROOT / ".harness" / ".meta" / "kaizen-data-pool.md"
 DEFAULT_HUB = Path.home() / "Hub" / "10_Dev"
 GLOBAL_FEEDBACK_DIR = Path.home() / ".harness" / "feedback" / "evaluator"
 
-# `/insights` Claude Code CLI 슬래시 커맨드의 산출물 경로.
-# 사용자가 `/insights` 를 실행하면 `~/.claude/usage-data/report.html` 가 생성된다.
-INSIGHTS_PATH = Path.home() / ".claude" / "usage-data" / "report.html"
+# `/insights` 산출물 입력 후보 — **우선순위 순서**다.
+#
+# 1) 레포 안의 사람이 정리한 델타 분석본 (`.claude/kaizen-input/insights-report.md`)
+# 2) 홈의 같은 이름 (여러 레포가 공유할 때)
+# 3) `/insights` 원본 산출물 (`~/.claude/usage-data/report.html`)
+#
+# 2026-08-13 이전에는 3) 하나만 봤다. 그런데 오케스트레이터 SKILL.md Step 0 은 1)·2) 자동
+# 탐색과 `--insights=PATH` 를 이미 주장하고 있었다 — 문서가 없는 인터페이스를 약속한 상태였고,
+# 그 결과 **사람이 정리한 §0 델타 분석본이 데이터 풀에 들어가지 못했다.**
+# 하위호환: 1)·2) 가 없으면 종전대로 3) 을 쓰고, 셋 다 없으면 §0 에 "(없음)" 을 쓰고 진행한다.
+INSIGHTS_CANDIDATES: tuple[Path, ...] = (
+    REPO_ROOT / ".claude" / "kaizen-input" / "insights-report.md",
+    Path.home() / ".claude" / "kaizen-input" / "insights-report.md",
+    Path.home() / ".claude" / "usage-data" / "report.html",
+)
+# 하위호환 별칭 — 기존 코드/문서가 참조하던 이름. 후보 3 번과 같은 값이다.
+INSIGHTS_PATH = INSIGHTS_CANDIDATES[-1]
 INSIGHTS_FRESH_DAYS = 60  # 60일 초과 시 stale 경고
 INSIGHTS_VERY_FRESH_HOURS = 24  # 24시간 이내 = "방금 실행됨" 표시
+
+# 종료 코드 — harness/evals/gate-exit-codes.md 가 SSOT 다 (여기서 의미를 재정의하지 않는다).
+DOC_CONTRACT_EXIT_CODES: tuple[int, ...] = (0, 2)
+
+
+def display_path(path: Path) -> str:
+    """머신 독립적인 표기로 접는다 — 레포 상대경로 우선, 그다음 `~` 상대경로.
+
+    레포를 어디에 클론했든 같은 문자열이 나와야 `docs-contract` 선언과 대조할 수 있다.
+    """
+    resolved = Path(path)
+    for base, prefix in ((REPO_ROOT.resolve(), ""), (Path.home(), "~/")):
+        try:
+            return prefix + str(resolved.resolve().relative_to(base))
+        except ValueError:
+            continue
+    return str(resolved)
+
+
+def doc_contract() -> dict:
+    """문서가 선언한 인터페이스와 대조할 **실체** 를 돌려준다.
+
+    scripts/validate-doc-contracts.py 가 이 함수를 호출한다. 값은 전부 살아 있는 객체에서
+    유도한다 — 여기에 리터럴을 손으로 적으면 drift 검사가 자기 자신을 속이게 된다.
+    """
+    parser = build_arg_parser()
+    options: list[str] = []
+    for action in parser._actions:  # noqa: SLF001 — argparse 의 공식 introspection 경로다
+        for opt in action.option_strings:
+            if opt in ("-h", "--help"):
+                continue
+            options.append(opt)
+    return {
+        "script": display_path(Path(__file__)),
+        "options": sorted(options),
+        "input_candidates": [display_path(p) for p in INSIGHTS_CANDIDATES],
+        "exit_codes": sorted(DOC_CONTRACT_EXIT_CODES),
+    }
 
 # canonical 기준 = **writer 쪽 identity**.
 #
@@ -154,20 +213,52 @@ def _extract_html_text(html: str) -> str:
     return txt.strip()
 
 
-def collect_insights_report() -> dict | None:
-    """`/insights` 산출물(report.html)을 로드한다.
+def resolve_insights_path(explicit: Path | None = None) -> tuple[Path | None, list[str]]:
+    """`/insights` 입력 파일을 우선순위대로 고른다.
 
-    파일이 없으면 None 반환. 있으면 경로/mtime/content 를 dict 로 반환한다.
-    카이젠 오케스트레이터 Step 0 에서 데이터 풀에 §0 (최상위) 으로 삽입된다.
+    반환: (선택된 경로 또는 None, 후보별 상태 문자열 목록).
+    상태 문자열은 stderr 에 그대로 찍어 "무엇을 봤고 무엇을 골랐는지" 를 남긴다 —
+    조용히 고르면 이번 D1 같은 drift 를 다시 발견하지 못한다.
     """
-    path = INSIGHTS_PATH
-    if not path.is_file():
+    trace: list[str] = []
+    chosen: Path | None = None
+
+    if explicit is not None:
+        exists = explicit.is_file()
+        trace.append(f"{'✓ 선택' if exists else '✗ 없음'}  --insights  {explicit}")
+        if not exists:
+            trace.append("  ⚠ --insights 로 지정한 경로가 없다 — 자동 탐색으로 넘어가지 않는다")
+            return None, trace
+        return explicit, trace
+
+    for cand in INSIGHTS_CANDIDATES:
+        if chosen is None and cand.is_file():
+            chosen = cand
+            trace.append(f"✓ 선택  {display_path(cand)}")
+        elif cand.is_file():
+            trace.append(f"· 후순위 {display_path(cand)} (존재하지만 우선순위 낮음)")
+        else:
+            trace.append(f"✗ 없음  {display_path(cand)}")
+    return chosen, trace
+
+
+def collect_insights_report(path: Path | None) -> dict | None:
+    """`/insights` 산출물을 로드한다.
+
+    경로가 None 이거나 읽을 수 없으면 None 반환. 있으면 경로/mtime/content 를 dict 로 반환한다.
+    카이젠 오케스트레이터 Step 0 에서 데이터 풀에 §0 (최상위) 으로 삽입된다.
+    `.md` 는 그대로, `.html` 은 태그를 벗겨서 싣는다.
+    """
+    if path is None or not path.is_file():
         return None
     try:
         raw = path.read_text(encoding="utf-8")
-    except Exception:
+    except OSError as exc:
+        print(f"WARNING: /insights 후보를 읽지 못했다 — {path}: {exc}", file=sys.stderr)
         return None
-    content = _extract_html_text(raw)
+    is_html = path.suffix.lower() in (".html", ".htm")
+    content = _extract_html_text(raw) if is_html else raw
+    fmt = "html-extracted" if is_html else "markdown"
     mtime = datetime.datetime.fromtimestamp(path.stat().st_mtime)
     age_seconds = (datetime.datetime.now() - mtime).total_seconds()
     age_days = age_seconds / 86400
@@ -180,7 +271,7 @@ def collect_insights_report() -> dict | None:
         "very_fresh": very_fresh,
         "stale": age_days > INSIGHTS_FRESH_DAYS,
         "content": content,
-        "format": "html-extracted",
+        "format": fmt,
     }
 
 
@@ -708,14 +799,36 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="validate-plugin.py 실행을 생략",
     )
+    parser.add_argument(
+        "--insights",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "/insights 산출물 경로를 명시 지정 (자동 탐색보다 우선). "
+            "생략하면 후보를 우선순위대로 탐색: "
+            + " → ".join(display_path(p) for p in INSIGHTS_CANDIDATES)
+        ),
+    )
     return parser
 
 
-def main() -> None:
+def main() -> int:
     args = build_arg_parser().parse_args()
 
-    print("[1/6] /insights 리포트 자동 탐색 중...", file=sys.stderr)
-    insights = collect_insights_report()
+    print("[1/6] /insights 리포트 탐색 중...", file=sys.stderr)
+    insights_path, insights_trace = resolve_insights_path(args.insights)
+    for line in insights_trace:
+        print(f"       {line}", file=sys.stderr)
+    if args.insights is not None and insights_path is None:
+        # 사용자가 명시한 경로가 없으면 조용히 다른 후보로 대체하지 않는다 —
+        # "지정한 리포트로 돌렸다" 는 착각이 그대로 데이터 풀에 남기 때문이다.
+        print(
+            f"ERROR: --insights 로 지정한 파일이 없다: {args.insights}",
+            file=sys.stderr,
+        )
+        return 2
+    insights = collect_insights_report(insights_path)
 
     print("[2/6] 글로벌 feedback 수집 중...", file=sys.stderr)
     global_fb = collect_global_feedback()
@@ -756,7 +869,8 @@ def main() -> None:
             file=sys.stderr,
         )
     else:
-        print(f"  - /insights 산출물: 없음 ({INSIGHTS_PATH} 미존재)", file=sys.stderr)
+        cands = " · ".join(display_path(p) for p in INSIGHTS_CANDIDATES)
+        print(f"  - /insights 산출물: 없음 (후보 전부 미존재 — {cands})", file=sys.stderr)
     print(
         f"  - global feedback: {global_fb['total']}개",
         f"(REJECT {global_fb['by_verdict'].get('REJECT', 0)}, "
@@ -778,7 +892,8 @@ def main() -> None:
     )
     print(f"  - followups: {len(followups)}개", file=sys.stderr)
     print(f"  - local contracts: {len(local_contracts)}개", file=sys.stderr)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
