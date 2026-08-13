@@ -20,6 +20,7 @@
 #   tag_canon_fragmentation <파일...>          # 아래 7열 TSV 1줄
 #   printf '%s\n' edited-before-read | tag_canon_keys   # 원시태그 → lemma key
 #   tag_canon_selftest                         # 양성 대조 — 회귀 게이트는 이것부터 돌린다
+#   tag_canon_field / tag_canon_line_re / tag_canon_awk_re   # 필드 이름·줄 패턴 (아래 SSOT)
 #
 # tag_canon_fragmentation 출력 열 (탭 구분, 헤더 없음):
 #   1 raw_distinct  2 clusters  3 entries  4 singletons  5 fold_ratio  6 singleton_share  7 entries_per_cluster
@@ -90,6 +91,33 @@ tag_canon_map_path() {
   return 1
 }
 
+# ── 필드 이름 SSOT ─────────────────────────────────────────────────────
+# 이 필드 이름은 **수집면과 집계면의 유일한 접점**이다: 훅 프롬프트가 분석기에게 "이 키로
+# 출력하라" 고 지시하는 문자열과, 추출기·환경 dedup 게이트가 파싱하는 문자열이 같아야만
+# 파이프라인이 성립한다. 파일마다 문자열을 따로 박아 두면 한쪽만 바뀌는 순간 추출이 0 건이
+# 되고 어휘 주입이 통째로 비는데 **에러는 한 줄도 나지 않는다** — §6.1 이 말하는 무증상
+# 실패와 같은 형태다. 그래서 이름과 줄 패턴을 여기서만 정의하고, 훅은 아래 접근자로만
+# 참조한다 (규약: ../references/tag-canonicalization.md §1 · §6.1 규칙 8).
+#
+# 이 이름은 이미 기록된 로그의 **wire format** 이기도 하다. 바꾸면 과거 reflections 가 통째로
+# 안 읽히므로, 변경에는 로그 마이그레이션이 함께 와야 한다.
+_REFLECT_TAG_FIELD="mistake_tag"
+
+# 필드 이름 그 자체 — 프롬프트 스키마·문구 생성용
+tag_canon_field() { printf '%s' "$_REFLECT_TAG_FIELD"; }
+
+# grep/sed 용 POSIX BRE — 블록 안 `<들여쓰기><필드>:` 줄
+tag_canon_line_re() { printf '^[[:space:]]*%s:' "$_REFLECT_TAG_FIELD"; }
+
+# awk 동적 정규식용 — 브래킷 안에 **실제 탭 문자**를 담아 돌려준다.
+# 왜 `\t` 를 문자열 그대로 넘기지 않는가: POSIX 는 `-v` 값의 이스케이프 처리를 규정하고 이
+# 환경의 awk(BWK 20200816)도 실제로 푼다 — `awk -v s='a\tb'` → `length(s)` **3** (2026-08-13
+# 실측). 즉 지금은 두 표기의 결과가 같고, 여기서 고친 버그는 없다. 미리 풀어서 넘기는 이유는
+# **의존을 하나 지우기 위해서**다: 이렇게 하면 정규식이 `-v` 의 이스케이프 처리 여부와 무관하게
+# 셸이 만든 문자열 그대로가 된다. 실제로 매치되는지는 tag_canon_selftest 단정 (4) 가 매 실행
+# 확인하므로, 이 선택이 틀렸다면 문서가 아니라 셀프테스트가 먼저 알려준다.
+tag_canon_awk_re() { printf '^[ \t]*%s:' "$_REFLECT_TAG_FIELD"; }
+
 # ── reflections 파일들에서 원시 mistake_tag 를 시간순으로 추출 ─────────
 # 파일 인자가 없으면 stdin 을 "이미 추출된 원시 태그 목록" 으로 간주한다.
 tag_canon_extract() {
@@ -97,11 +125,12 @@ tag_canon_extract() {
     cat
     return 0
   fi
-  local f
+  local f re
+  re="$(tag_canon_line_re)"
   for f in "$@"; do
     [ -f "$f" ] || continue
-    grep -h '^[[:space:]]*mistake_tag:' "$f" 2>/dev/null
-  done | sed -e 's/^[[:space:]]*mistake_tag:[[:space:]]*//' -e 's/[[:space:]]*#.*$//'
+    grep -h "$re" "$f" 2>/dev/null
+  done | sed -e "s/${re}[[:space:]]*//" -e 's/[[:space:]]*#.*$//'
 }
 
 # ── 공통 awk 프로그램 ───────────────────────────────────────────────────
@@ -250,7 +279,7 @@ tag_canon_fragmentation() {
 # (처리하지 못하면 추출이 조용히 0 건이 되고 어휘 주입 전체가 빈다).
 # 출력: `SELFTEST_OK ...` (rc 0) 또는 `SELFTEST_FAIL <사유>` (rc 1)
 tag_canon_selftest() {
-  local fx rc n_extract frag nraw nclust grp
+  local fx rc n_extract frag nraw nclust grp n_awk
   rc=0
   fx="$(mktemp "${TMPDIR:-/tmp}/reflect-canon-selftest-XXXXXX")" || {
     printf 'SELFTEST_FAIL mktemp\n'; return 1; }
@@ -271,7 +300,7 @@ SELFTEST_FIXTURE
   # (1) 추출이 이 환경에서 동작하는가
   if [ "$n_extract" != "4" ]; then
     printf 'SELFTEST_FAIL extract n=%s expected=4 — 이 환경의 grep 이 %s 를 처리하지 못한다\n' \
-      "$n_extract" '^[[:space:]]*mistake_tag:'
+      "$n_extract" "$(tag_canon_line_re)"
     rc=1
   fi
   # (2) 접힘이 실제로 일어났는가 — 퇴화 입력·맵 부재의 거짓 PASS 차단
@@ -285,6 +314,18 @@ SELFTEST_FIXTURE
     '$1 == 2 && $2 == "edit-before-read" && $3 == "edited-before-read(1)" { f = 1 }
      END { exit !f }'; then
     printf 'SELFTEST_FAIL canonical — 최빈형(edit-before-read)이 canonical 로 뽑히지 않았다\n'
+    rc=1
+  fi
+
+  # (4) awk 동적 정규식이 이 환경에서 실제로 매치되는가 — 훅의 환경 dedup 게이트가 이
+  #     패턴을 `-v` 로 받아 쓴다. 매치되지 않으면 그 블록을 그냥 못 보고 지나가므로
+  #     **억제가 조용히 멈춘다** (에러도, 로그도 없다). 들여쓰기 없음·공백·탭 세 형태를
+  #     함께 단정해서 필드 이름 SSOT 가 실제로 배선돼 있는지까지 같이 확인한다.
+  n_awk="$(printf 'mistake_tag: a\n  mistake_tag: b\n\tmistake_tag: c\nother: d\n' \
+    | awk -v re="$(tag_canon_awk_re)" '$0 ~ re { n++ } END { print n + 0 }' 2>/dev/null)"
+  if [ "$n_awk" != "3" ]; then
+    printf 'SELFTEST_FAIL awkre n=%s expected=3 — 이 환경의 awk 가 %s 를 동적 정규식으로 처리하지 못한다\n' \
+      "$n_awk" "$(tag_canon_awk_re)"
     rc=1
   fi
 

@@ -90,6 +90,21 @@ transcript_content=$(redact_sensitive "$transcript_content")
 
 out_file="$log_dir/reflections-$(date '+%Y-%m').md"
 
+# 태그 필드 이름은 라이브러리가 정본이다 (_lib-tag-canon.sh 「필드 이름 SSOT」).
+# 프롬프트가 분석기에게 지시하는 키와 추출기·dedup 게이트가 파싱하는 키는 **같은 상수**에서
+# 나와야 한다. 각자 문자열로 박아 두면 한쪽만 바뀌는 순간 수집이 조용히 0 건이 된다.
+#
+# 리터럴을 상수로 바꾼 대가로 **새 실패 경로**가 생긴다: 라이브러리 source 가 실패하면
+# 이 확장이 빈 문자열이 되고, 그대로 진행하면 (1) 프롬프트 스키마의 키 이름이 사라져
+# 분석기가 필드 없는 블록을 쓰고, (2) 아래 dedup awk 의 `tagre` 가 빈 정규식이 되어
+# **모든 줄에 매치**한다. 둘 다 에러 없이 로그만 오염시킨다 — 이 훅이 없애려는 바로 그
+# 무증상 실패다. 그래서 여기서 끊고 사유를 남긴다 (bg 경로라 stderr 는 버려진다).
+tag_field="$(tag_canon_field 2>/dev/null)"
+if [ -z "$tag_field" ]; then
+  log_hook_error "$log_dir" "$HOOK_NAME" "fail:tag-field-unresolved session=$session_id"
+  exit 0
+fi
+
 # ── 기존 태그 어휘 수집 (canonicalization 용 episodic memory) ──────────────
 # 분석기는 세션마다 stateless 라 과거에 쓴 mistake_tag 를 모른다. 그래서 같은
 # 근본원인이 매번 다른 태그로 쪼개진다. ledger 의 post_freq 가 태그를 키로 재발을
@@ -138,12 +153,12 @@ known_tags_block=$(awk -F'\t' '$1 >= 2 {
 rm -f "$canon_tsv" 2>/dev/null
 
 if [ -n "$known_tags_block" ]; then
-  known_tags_block="## 이 프로젝트의 canonical mistake_tag 어휘 (canonical → 과거 표기들)
+  known_tags_block="## 이 프로젝트의 canonical ${tag_field} 어휘 (canonical → 과거 표기들)
 의미가 같은 사건이면 **canonical 철자를 글자 그대로** 재사용하라. \`←\` 뒤 표기들은 같은
 근본원인의 과거 변형이므로 **다시 쓰지 마라** — canonical 쪽으로 쓴다.
 $known_tags_block"
 else
-  known_tags_block="## 이 프로젝트의 canonical mistake_tag 어휘 (canonical → 과거 표기들)
+  known_tags_block="## 이 프로젝트의 canonical ${tag_field} 어휘 (canonical → 과거 표기들)
 (없음 — 첫 수집)"
 fi
 
@@ -162,7 +177,7 @@ prompt=$(cat <<PROMPT_EOF
 \`\`\`yaml
 primary_category: misunderstanding | repeated_error | wrong_approach | tool_failure
 also_applies: [<추가 해당 카테고리들, 없으면 빈 배열>]
-mistake_tag: <kebab-case 영문 태그. 아래 "mistake_tag 작성 규칙" 을 반드시 따른다>
+${tag_field}: <kebab-case 영문 태그. 아래 "${tag_field} 작성 규칙" 을 반드시 따른다>
 new_tag_reason: <아래 canonical 어휘에 **없는** 새 태그를 만들었을 때만 이 줄을 넣는다. 기존 canonical 중 어느 것과도 근본원인이 다른 이유 1줄. canonical 을 재사용했으면 이 줄 자체를 생략한다>
 trigger: <사용자 프롬프트/상황 스니펫 1줄>
 undesired_behavior: <Claude가 한 잘못 1줄>
@@ -192,7 +207,7 @@ approach_note: <시도한 접근법 1줄 — 나중에 "이상한가" 판정 소
 - \`user_stated_constraint\`: 사용자가 **이전 턴/세션에서 명시적으로 금지하거나 지시한 제약**을 Claude가 다시 어긴 정황이 transcript에 있으면 true. 단순 실수(처음 한 것)는 false. 이 신호가 true면 omission-constraint-decay 사례로, 빈도가 낮아도 durable rule 승격 후보가 된다.
 - 마크다운 외 설명/사과/주석 출력 금지. YAML 블록 또는 'no issues'만.
 
-## mistake_tag 작성 규칙 (집계 키다 — 파편화되면 승격이 불가능해진다)
+## ${tag_field} 작성 규칙 (집계 키다 — 파편화되면 승격이 불가능해진다)
 
 1. **근본원인 1개 = 태그 1개.** 증상·파일명·도구명·발생 횟수를 태그에 넣지 마라. 같은 원인이 5개 파일/5번 툴콜에서 터졌으면 태그는 1개다.
 2. **같은 근본원인은 이 세션에서 블록 1개로만 보고하라.** 반복 횟수는 \`evidence_turns\` 에 넣는다. 같은 원인을 여러 블록으로 쪼개지 마라.
@@ -288,13 +303,17 @@ trimmed=$(echo "$summary" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
 # 억제해도 사건은 유실되지 않는다: .env-issues.tsv 가 first_seen/last_seen/count 를
 # 보존하고 /reflect-digest 가 이를 "환경 액션 아이템" 으로 보고한다.
 #
+# 줄 패턴은 라이브러리의 tag_canon_awk_re 가 정본이다 — 이 awk 는 블록 안에서 태그와
+# actionability 를 **짝지어** 읽어야 해서 tag_canon_extract(플랫 목록)를 그대로 쓸 수는 없지만,
+# 그렇다고 필드 패턴까지 여기 박아 두면 추출기와 조용히 갈라진다. 패턴은 넘겨받고 짝짓기만
+# 여기서 한다.
+#
 # 알려진 한계 (2026-08-13 재검증에서 확인 · 미해결) — 이 게이트의 그룹 키는 **원시 태그**다.
-# 아래 awk 는 블록 안에서 mistake_tag 와 actionability 를 짝지어 읽어야 해서 라이브러리의
-# tag_canon_extract(플랫 목록)를 그대로 쓸 수 없고, lemma 정규화를 여기서 다시 구현하면
-# references/tag-canonicalization.md §1 의 SSOT 가 깨진다. 그 결과 같은 환경 문제가 다른
-# 표기로 오면 **다른 그룹으로 보여 억제되지 않는다** — post_freq 과소집계(§0)와 같은
-# 파편화가 이 경로에는 아직 남아 있다. 해소는 정규화 pass 를 스트림 필터로 노출하는
-# 별도 스프린트 대상이다. **여기에 norm() 을 복제해 임시로 막지 마라.**
+# lemma 정규화를 여기서 다시 구현하면 references/tag-canonicalization.md §1 의 SSOT 가 깨지므로
+# 하지 않았다. 그 결과 같은 환경 문제가 다른 표기로 오면 **다른 그룹으로 보여 억제되지
+# 않는다** — post_freq 과소집계(§0)와 같은 파편화가 이 경로에는 아직 남아 있다. 해소는 정규화
+# pass 를 스트림 필터로 노출하는 별도 스프린트 대상이다.
+# **여기에 norm() 을 복제해 임시로 막지 마라.**
 env_state="$log_dir/.env-issues.tsv"
 env_state_tmp=$(mktemp)
 env_report_tmp=$(mktemp)
@@ -304,6 +323,7 @@ filtered=$(printf '%s\n' "$summary" | awk \
   -v state_out="$env_state_tmp" \
   -v report="$env_report_tmp" \
   -v now="$(date '+%s')" \
+  -v tagre="$(tag_canon_awk_re)" \
   -v days="${REFLECT_ENV_REPEAT_DAYS:-7}" '
 BEGIN {
   win = days * 86400
@@ -321,9 +341,9 @@ inblock == 0 && $0 ~ /^[ \t]*```yaml[ \t]*$/ {
 }
 inblock == 1 {
   nb++; buf[nb] = $0
-  if ($0 ~ /^[ \t]*mistake_tag:/) {
+  if ($0 ~ tagre) {
     tag = $0
-    sub(/^[ \t]*mistake_tag:[ \t]*/, "", tag)
+    sub(tagre "[ \t]*", "", tag)
     sub(/[ \t]*#.*$/, "", tag)
     gsub(/"/, "", tag); gsub(sq, "", tag); gsub(/[ \t]+$/, "", tag)
   }
