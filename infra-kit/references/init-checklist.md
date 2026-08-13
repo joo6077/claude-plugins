@@ -38,8 +38,10 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 - [ ] **이미지 서명** (Sigstore Cosign keyless + OIDC, 저장 후 `cosign verify` 배포 게이트)
 - [ ] **SLSA provenance** (in-toto attestation 생성 → 레지스트리에 첨부 → 배포 전 `verify-attestation`)
 - [ ] deploy (환경별 분기)
-- [ ] **Actions SHA 핀닝** — 서드파티 액션은 SHA 해시로 고정, 조직 정책으로 뮤터블 태그 차단
+- [ ] **원격 `uses:` SHA 핀닝** — 로컬 `./` 외 모든 원격 참조를 40 자 커밋 SHA 로 고정. `jobs.<id>.uses`(재사용 워크플로)와 `jobs.<id>.steps[].uses`(스텝 액션)를 **둘 다** 대상으로 한다. 같은 줄 주석으로 원 태그 병기(`@<sha> # v5.0.0`) — 업데이트 운영성 회복. GitHub-owned `actions/*` 면제 여부는 **팀이 명시적으로 결정**하고 기록한다 (조용한 기본 면제 금지)
+- [ ] **`.github/dependabot.yml`** — `version: 2` + `github-actions` `/` 는 워크플로가 있으면 항상. 나머지 생태계는 **실제 lockfile/manifest 가 탐지될 때만** 추가한다 (`package-lock.json`/`yarn.lock` → `npm`, `Dockerfile` → `docker`, `requirements.txt`/`poetry.lock` → `pip`, `Cargo.lock` → `cargo`, `go.sum` → `gomod`). 없는 생태계를 등록하면 매 실행 실패가 쌓여 진짜 알림까지 무시된다
 - [ ] **Arm runner 검토** — GitHub Actions `ubuntu-24.04-arm` / `windows-11-arm` 러너로 멀티아키텍처 CI 표준화 (2026 가격 최대 39% 인하)
+- [ ] **게이트 스텝의 결과 상태 분리** — 검증 스텝은 `PASS` / `VIOLATION` / `SKIP_NO_TARGET` / `[미검증] TOOL_OR_ENV_MISSING` / `EXECUTION_ERROR` 를 구분해 exit code 로 전파한다. 도구 미설치를 "위반 0" 으로 세지 마라 (SSOT: `infra-kit/references/gate-result-taxonomy.md`)
 
 시크릿: 소스코드 직접 포함 금지. **secretless CI 우선** — 클라우드/레지스트리 인증은 OIDC short-lived federation, 공개 패키지 배포는 PyPI Trusted Publishers / npm provenance. reusable workflow + environment protection으로 신뢰 경계 고정.
 
@@ -71,7 +73,7 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 - [ ] 헬스체크 엔드포인트 (`/health`, `/readyz`)
 - [ ] 메트릭 노출 (`/metrics` 또는 사이드카 에이전트)
 - [ ] 기본 알림 규칙 (에러율, 응답 시간 임계값)
-- [ ] **OpenTelemetry Collector + OTLP** — 3 신호(메트릭/로그/트레이스)를 OTel Collector로 통합 export, `service.name` 등 semantic conventions 준수 (Logs spec 2025 stable)
+- [ ] **OpenTelemetry Collector + OTLP** — 메트릭·로그·트레이스를 OTel Collector로 export, `service.name` 등 semantic conventions 준수. **signal 별로 스펙 성숙도가 다르므로 한 문장으로 "전부 stable" 이라 적지 마라** — 도입 시점의 [spec status](https://opentelemetry.io/docs/specs/status/) 를 signal/component 단위로 확인하고, 성숙도가 낮은 signal(예: profiles)은 선택 도입으로 둔다
 - [ ] **Grafana Alloy 마이그레이션** — Grafana Agent/Operator 2025-11 EOL → Alloy(120+ 컴포넌트, Prometheus 파이프라인 내장) 또는 vanilla OTel Collector로 전환
 - [ ] **연속 프로파일링 (권장)** — eBPF 기반 `pyroscope.ebpf` 또는 동등 도구로 CPU/메모리 핫스팟 상시 수집
 

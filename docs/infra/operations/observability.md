@@ -1,12 +1,12 @@
 ---
 title: 관측성
-version: 0.1.0
-last_updated: 2026-04-04
+version: 0.2.0
+last_updated: 2026-08-13
 ---
 
 # 관측성
 
-메트릭·로그·트레이스 상호연결, Prometheus 타입 선택, 대시보드 설계, 구조화 로깅, SLI/SLO, 알림 전략, 카디널리티 관리를 다룬다.
+메트릭·로그·트레이스 상호연결, Prometheus 타입 선택, 대시보드 설계, 구조화 로깅, SLI/SLO, 알림 전략, 카디널리티 관리, 성능 조사 시 환경 요인 선배제(USE × RED)를 다룬다.
 
 ---
 
@@ -54,6 +54,29 @@ pod_name, user_id, request_id 같은 고유값을 메트릭 라벨에 넣으면 
 
 > **출처:** [Grafana Loki — Modify Default Labels](https://grafana.com/docs/loki/latest/get-started/labels/modify-default-labels/)
 
+### 8. 성능 조사는 환경 요인을 먼저 배제한다 (USE × RED)
+
+느리다는 신고를 받았을 때 앱 코드부터 뜯으면, 원인이 호스트/런타임 포화였을 때 시간을 통째로 버린다. 두 절차를 **동시에** 돌리되 역할을 나눈다.
+
+- **RED — 사용자 영향 확인.** 서비스 단위로 request **R**ate, **E**rror rate, **D**uration 을 본다. "무엇이 얼마나 나빠졌는가" 를 확정하는 층이다.
+- **USE — 환경 병목 배제.** 모든 리소스에 대해 **U**tilization, **S**aturation, **E**rrors 를 확인한다. saturation·error 는 utilization 이 낮아 보여도 병목을 드러내므로 특히 중요하다.
+
+USE 로 확인할 최소 지표:
+
+| 리소스 | saturation / error 지표 |
+| ------ | ------ |
+| CPU | run queue 길이, steal time |
+| 메모리 | paging/swap 활동, OOM kill 횟수 |
+| 디스크 | I/O queue 깊이, I/O error |
+| 네트워크 | drop, retransmit, 인터페이스 error |
+| 런타임/프로세스 | GC pause, thread pool 포화, event-loop lag |
+
+**호스트 또는 런타임에 saturation 증거가 있으면 앱 코드를 원인으로 단정하지 마라.** 그 증거를 먼저 해소하거나 격리한 뒤 다시 측정한다. 반대로 USE 가 전부 깨끗한데 RED 만 나쁘면 그때 앱·쿼리·의존 서비스로 좁힌다.
+
+> **출처:** [USE Method — Brendan Gregg](https://www.brendangregg.com/usemethod.html)
+>
+> RED Method 는 서비스 단위 rate/error/duration 을 보는 대응 절차로 함께 쓰지만, **1차 출처를 이번 갱신 범위에서 확인하지 못했다** — 인용이 필요하면 출처를 먼저 확정하라.
+
 ---
 
 ## 수치/기준값
@@ -77,6 +100,7 @@ pod_name, user_id, request_id 같은 고유값을 메트릭 라벨에 넣으면 
 
 ## Gotchas
 
+- **OpenTelemetry 를 "3 신호 모두 stable" 한 덩어리로 취급하지 마라.** OTel 은 signal 별로 개발되며 성숙도가 다르다 — tracing(traces) 은 stable, metrics 는 API/protocol 이 stable 이나 SDK 는 언어별로 혼재(mixed), logging(logs) 은 stable, profiles 는 protocol 이 development 단계다. 도입 판단과 감사 기준은 **signal/component 단위**로 세우고, 성숙도가 낮은 signal 은 필수가 아니라 선택으로 둔다. 반대로 낡은 문서의 "아직 experimental" 서술도 그대로 믿지 말고 매번 spec status 를 확인하라 (출처: [OpenTelemetry spec status](https://opentelemetry.io/docs/specs/status/))
 - OTel SDK를 도입하는 것만으로 표준화가 되지 않는다. semantic conventions를 팀 규칙으로 정의하고 리뷰해야 일관성이 유지된다
 - summary는 멀티 인스턴스 SLO 계산에 부적합하다 — histogram으로 서버 측에서 집계해야 정확한 전역 percentile을 얻는다
 - 로그 샘플링은 비용 절감에 효과적이지만 보안 로그, 감사(audit) 로그에는 적용 금지 — 규정 준수 위반 위험

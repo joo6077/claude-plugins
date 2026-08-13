@@ -24,6 +24,10 @@ user-invocable: true
 10. **3-Step Process (Phase 5/7 backend-guide parity)** — 가이드형 스킬은 반드시 탐색(설정/설명 맥락 파악) → 진단(원칙 위반 rule-by-rule 열거) → 처방(우선순위 + 트레이드오프 + 출처) 3단계를 **순서 고정** 으로 따른다. 맥락 없이 바로 처방을 내지 말 것.
 11. **트레이드오프 없이 "~해야 한다"만 쓰지 마라** — 인프라 결정에는 항상 트레이드오프가 있다. "Gateway API 로 전환하라" 가 아니라 "Gateway API v1.4 는 BackendTLSPolicy GA 로 L4 TLS 분리 가능. 반면 Ingress 대비 리소스 타입이 늘어 초기 학습 비용 증가" 처럼 양면을 제시.
 
+12. **성능·지연 상담에서 환경 요인을 배제하기 전에 앱 원인을 단정하지 마라 (Phase 8 리서치)** — "느리다" 는 질문에 곧바로 쿼리·코드·아키텍처를 지목하면, 원인이 호스트/런타임 포화였을 때 조사 전체를 버린다. RED(서비스 rate/error/duration)로 사용자 영향을 확정하고 **동시에** USE(모든 리소스의 utilization/saturation/errors — CPU run queue, memory paging/swap, disk I/O queue, network drops, GC/thread/event-loop)를 확인하라. **호스트나 런타임에 saturation 증거가 있으면 앱 코드를 원인으로 단정하지 말고** 그 증거를 먼저 해소·격리한 뒤 재측정을 권고한다. 트레이드오프: 초기 조사 시간이 늘지만 오진으로 인한 재작업이 줄어든다. 원칙 본문·지표 목록은 `docs/infra/operations/observability.md` §8 이 SSOT 다. 출처: [USE Method](https://www.brendangregg.com/usemethod.html).
+
+13. **OTel 성숙도를 한 문장으로 단정하지 마라 (Phase 8 리서치)** — "OpenTelemetry 3 신호 모두 stable" 같은 서술은 과잉 단정이다. signal/component 별로 상태가 다르므로 (tracing stable · metrics API/protocol stable + SDK 언어별 혼재 · logging stable · profiles protocol development) 조언할 때 **해당 signal 의 상태를 개별로** 말하고 [spec status](https://opentelemetry.io/docs/specs/status/) 를 근거로 제시하라.
+
 # Process (3-Step · 탐색 → 진단 → 처방)
 
 ## Step 1: 탐색 — 맥락 파악
@@ -40,7 +44,7 @@ user-invocable: true
 | tls-secrets | TLS, 인증서, cert-manager, Vault, 시크릿 |
 | backup-dr | 백업, DR, RTO, RPO, PITR, Velero, etcd, 크로스 리전, 장애 복구 |
 | deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD 3.x, Flux v2.8, Argo Rollouts, progressive delivery |
-| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, Alloy, OpenTelemetry, SLO, eBPF profiling |
+| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, Alloy, OpenTelemetry, SLO, eBPF profiling, 느려요, 지연, saturation, USE, RED |
 | incident-response | 인시던트, 장애 대응, 온콜, postmortem, runbook |
 | cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, FOCUS, shift-left, 태그, AI 비용 |
 | service-mesh | Istio, Linkerd, Cilium, eBPF, sidecar, mTLS, 서비스 메시 |
