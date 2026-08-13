@@ -22,11 +22,13 @@ Pre-mortem, Inversion, Failure Modes(FMEA 계열), Marty Cagan의 4-risks는 서
 **핵심 질문/포맷/체크리스트**:
 - 6~12개월 뒤 이 제품이 실패했다면 가장 그럴듯한 이유는 무엇인가?
 - 고객, 시장, UX, 기술, 운영, 법무, go-to-market 중 어디서 무너졌는가?
-- 개인별로 먼저 쓰고, 그 다음 공유하는 구조인가?
+- 개인별로 먼저 쓰고, 그 다음 공유하는 구조인가? (절차 세부는 [미확인] — 아래 주의사항 참조)
 - 나온 원인 중 조기 경보 지표를 정의할 수 있는가?
 
 **적용 시점**: 큰 bets 착수 전, roadmap lock 직전, exec sign-off 전.
 **한계/주의사항**: 원인 나열만 하고 대응 실험/지표로 연결하지 않으면 효과가 적다. 위계가 센 조직에서는 퍼실리테이션이 특히 중요하다.
+
+**[미확인] (2026-08-13 확인)**: "개별 기록 → 공유" 같은 절차 세부는 접근 가능한 HBR 본문에서 확인되지 않았다. HBR 로 확인되는 것은 premortem 기법과 저자·발행 시점(Gary Klein · 2007-09)까지이며, 절차 세부는 planning-kit 내부 운영 팁으로 취급한다.
 **출처**:
 - https://hbr.org/2007/09/performing-a-project-premortem [dated: 2007-09]
 - https://store.hbr.org/product/performing-a-project-premortem/F0709A [dated: 2007-09]

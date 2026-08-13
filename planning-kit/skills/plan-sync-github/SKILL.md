@@ -15,7 +15,7 @@ user-invocable: true
 1. **확인 없이 생성 금지** — Issues/Milestones 는 외부에 보이는 리소스다. 생성 목록 미리 보여주고 사용자 승인 후 실행. dry-run 먼저.
 2. **중복 생성 방지** — 같은 title 이 이미 있으면 새로 만들지 말고 update 하거나 skip. `gh issue list --search` 로 사전 확인.
 3. **gh CLI 인증 확인 우선** — `gh auth status` 로 로그인 여부 확인. 미인증이면 사용자에게 `gh auth login` 안내하고 중단.
-4. **Projects v2 는 GraphQL** — classic Projects 가 아니다. `gh project` 서브커맨드 또는 `gh api graphql` 사용. CLI 명령 버전은 실행 시점에 `gh --version` 확인하고 필요 시 Codex 로 최신 문법 재확인.
+4. **Projects v2 는 `gh project` · GraphQL · REST 세 경로를 모두 지원 — 금지 대상은 classic Projects 다** — "Projects v2 = GraphQL only" 는 사실이 아니다 (2026-08-13 정정). 기본 실행 경로는 `gh project` 서브커맨드로 두고, CLI 로 안 되는 조작만 `gh api graphql` 또는 REST (`/orgs/{org}/projectsV2`, `/projectsV2/{project_number}/items`, `/fields`) 로 내려간다. **classic Projects API 는 쓰지 마라** — GitHub.com classic projects 는 2024-08-23, classic REST API 는 2025-04-01 sunset 을 이미 지났다. CLI 명령 버전은 실행 시점에 `gh --version` 으로 확인한다. 출처: [GitHub REST — Projects items](https://docs.github.com/en/rest/projects/items?apiVersion=2022-11-28).
 5. **라벨 난립 금지** — 스토리 규모, 리스크 레벨, 우선순위 라벨을 미리 정의하고 일관되게 사용. 매번 새 라벨 만들지 마라.
 6. **Body 마크다운 링크 상대경로 금지** — `.planning/prd.md` 같은 상대 경로는 GitHub 에서 열리지 않는다. 저장소 blob URL 로 변환하거나 본문에 인라인 붙여넣기.
 7. **Milestone due date 현실성 체크** — Appetite(Shape Up) 또는 Sprint 길이에서 벗어난 due date 면 경고.
@@ -87,7 +87,7 @@ git remote get-url origin # 레포 추론
 3. **Epic Issue** — `gh issue create --label epic --milestone ...`
 4. **Child Issues** — body 에 `Part of #<epic-number>` 포함
 5. **Project v2 추가** — `gh project item-add <project-number> --owner <owner> --url <issue-url>`
-6. **Custom field 업데이트** — GraphQL 또는 `gh project item-edit`
+6. **Custom field 업데이트** — `gh project item-edit` (기본) · `gh api graphql` 의 `updateProjectV2ItemFieldValue` · REST `/fields` 계열 중 택 1 (Gotcha 4)
 
 각 단계 실패 시 즉시 중단하고 이미 생성된 리소스 목록 보고. 자동 롤백 금지 (destructive).
 
@@ -167,4 +167,6 @@ so that <benefit>.
 - [GitHub Docs — About Milestones](https://docs.github.com/en/enterprise-cloud@latest/issues/using-labels-and-milestones-to-track-work/about-milestones)
 - [gh CLI — gh issue](https://cli.github.com/manual/gh_issue)
 - [gh CLI — gh project](https://cli.github.com/manual/gh_project)
+- [gh CLI — gh project item-add](https://cli.github.com/manual/gh_project_item-add)
+- [GitHub REST — Projects items](https://docs.github.com/en/rest/projects/items?apiVersion=2022-11-28)
 - [Linear — GitHub Integration](https://linear.app/docs/github-integration)
