@@ -1,14 +1,47 @@
 ---
 feature: "카이젠 Phase 3 — 미검증 triage 정밀화(Q1) + 판별력 게이트(Q2) + 사용자 오라클(Q3) + 계약 봉인·amendment 소비면"
 created: "2026-08-13 11:20"
+rewritten: "2026-08-13 (v2 — AR-01/AR-02 상호배타로 원 계약 폐기)"
 complexity: "복잡"
 conditions: 25
 slug: kaizen-phase3-unverified-triage
 status: active
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
-conditions_digest: sha256:67cd3b5df77a1acd
-locked_at: "2026-08-13 11:20"
+supersedes_digest: sha256:67cd3b5df77a1acd
+supersedes_commit: c3f9595
+conditions_digest: sha256:80086c24f5c4e7f6
+locked_at: "2026-08-13 (v2)"
 ---
+
+## 폐기·재작성 (v2) — 앵커 있는 교체
+
+**원 계약(`c3f9595`, `conditions_digest: sha256:67cd3b5df77a1acd`)은 폐기됐다.** 원문은 git 이력에 보존된다.
+
+### 폐기 사유 — AR-01 과 AR-02 가 상호배타였다
+
+QA 3 라운드(iter1 22/25 · iter2 23/25 · iter3 24/25)에서 증명된 계약 결함이다.
+
+1. **AR-02 는 원문 그대로 만족 불가능했다.** `contract-design-guide.md` 는 파일 생성 이래
+   YAML frontmatter 가 **존재한 적이 없다** (`git log --follow` 전수 확인). 따라서 "Parity with 의
+   값이 그 파일 frontmatter `version` 과 일치" 라는 측정문의 PASS 집합은 **공집합**이었다.
+2. **근본 해소는 AR-01 을 위반해야만 가능했다.** frontmatter 를 신설하려면 Phase 3 scope(2 경로)
+   밖인 `contract-design-guide.md` 를 건드려야 한다. 구현자는 이를 `relaxing · unanchored` 로
+   자기신고했고 — 규칙대로 **PASS 근거가 되지 못했다**. 자기신고가 자기면책이 되지 않은 것은
+   봉인·2 축 amendment 가 의도대로 작동한 결과다.
+3. **부수 결함**: 원 계약의 열거 경로 집합에 **amendment 사이드카 경로 자체가 없었다.** 교정을
+   기록하는 행위가 곧 계약 위반이 되는 자기모순이다. → Phase 4 (harness) 에서 `scope_allowlist` 에
+   사이드카·피드백 산출물 경로를 기본 포함하도록 구조 수정한다.
+4. **AR-01 의 오라클도 결함이었다.** `git status --porcelain` 행 수를 재는데, 커밋 이후에는 항상 0 이라
+   재현 불가능했다. 스프린트 base 대비 누적 diff 로 교체한다.
+
+### 앵커 (relaxing → anchored 전환 근거)
+
+- **승인 주체**: 사용자. 2026-08-13, 오케스트레이터가 3 개 선택지(사용자 앵커 amendment /
+  계약 폐기 후 재작성 / 범위 복원 후 이월)를 근거와 함께 제시했고 **"계약 폐기 후 재작성"** 을 택했다.
+- **재작성 주체**: 오케스트레이터. **구현 서브에이전트가 아니다.** 구현자가 자기 산출물을 허용하려
+  본문을 고치는 것(2026-08-11 실측 위반)과 구분된다.
+- 변경 범위는 AR-01(경로 집합·오라클) 과 §범위 경계 두 곳뿐이다. **나머지 23 조건은 문구 무수정**이며
+  이미 검증된 판정이 그대로 유효하다.
 
 ## 배경
 
@@ -72,9 +105,13 @@ FAIL(도구 부재 아님, 의도적 미실행)`. 따라서 이번 변경은 **�
 
 ## 범위 경계
 
-- 수정 허용 2 경로: `harness/docs/guides/qa-evaluation-guide.md` ·
-  `harness/agents/qa-evaluator.md`. 계약 파일
-  `.harness/sprint-contract-kaizen-phase3-unverified-triage.md` 만 예외.
+- **수정 허용 3 경로**: `harness/docs/guides/qa-evaluation-guide.md` ·
+  `harness/agents/qa-evaluator.md` · `harness/docs/guides/contract-design-guide.md`
+  (세 번째는 v2 에서 추가 — AR-02 의 frontmatter 원본을 신설해야 만족 가능해지기 때문. 앵커는 §폐기·재작성).
+- **harness 산출물 2 경로**는 구현 변경과 분리해 열거한다:
+  `.harness/sprint-contract-kaizen-phase3-unverified-triage.md` ·
+  `.harness/sprint-amendments-kaizen-phase3-unverified-triage.md`.
+  교정 기록 행위가 계약 위반이 되지 않도록 사이드카를 명시 포함한다 (원 계약의 자기모순 해소).
 - **각 kit reviewer 6 종(`*-kit/agents/*-reviewer.md`)은 이번 scope 밖**이다. Canonical 절 2 종
   (`Unverified-Evidence` · 신규 `User-Reported Failure`)의 복제는 각 kit 카이젠 Phase 소관이며,
   본 스프린트는 전파 지시만 남긴다 — `[미검증]` 이 아니라 명시적 미완 항목이다.
@@ -110,12 +147,16 @@ FAIL(도구 부재 아님, 의도적 미실행)`. 따라서 이번 변경은 **�
 
 ## Architecture
 
-- [ ] AR-01: 스프린트 변경이 정확히 3 경로로 한정된다 [exact, enumerated]
-      (Given: 커밋 직전 working tree ·
-       측정: `git status --porcelain` 출력 행 수가 3 이고 경로 집합이
-       `harness/docs/guides/qa-evaluation-guide.md`,
+- [ ] AR-01: 스프린트 누적 변경이 정확히 5 경로로 한정된다 [exact, enumerated]
+      (Given: 스프린트 base = `b9e911f` (Phase 2 종료 커밋) ·
+       측정: `git diff --name-only b9e911f..HEAD` 출력을 정렬한 집합이 아래 5 경로와
+       `comm -3` 양방향 차집합 0 건 —
        `harness/agents/qa-evaluator.md`,
-       `.harness/sprint-contract-kaizen-phase3-unverified-triage.md` 와 정확히 일치)
+       `harness/docs/guides/contract-design-guide.md`,
+       `harness/docs/guides/qa-evaluation-guide.md`,
+       `.harness/sprint-amendments-kaizen-phase3-unverified-triage.md`,
+       `.harness/sprint-contract-kaizen-phase3-unverified-triage.md`.
+       `git status --porcelain` 은 커밋 이후 항상 0 행이라 재현 불가능하므로 오라클로 쓰지 않는다)
 - [ ] AR-02: `harness/docs/guides/qa-evaluation-guide.md` 의 버전 정보 3 행이 실제 값과 일치한다
       [exact, enumerated]
       (측정: Schema link 가 `harness/references/contract-schema.md` 의 현재 스키마 버전과 동일하고,
