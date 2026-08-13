@@ -99,8 +99,10 @@ Sentry 의 fingerprint 규칙도 자주 바뀌는 값으로 그룹핑하면 나�
 
 ## 6. 실행 오라클 (문서에 그렇게 적혀 있다 = 증거 아님)
 
+**절대경로로 source 하라. `cd` 로 맞춰 놓고 `. ./_lib-...` 하지 마라** — 아래 §6.1 참조.
+
 ```bash
-cd reflect-kit/hooks && . ./_lib-tag-canon.sh
+. "<repo>/reflect-kit/hooks/_lib-tag-canon.sh"    # 또는 "${CLAUDE_PLUGIN_ROOT}/hooks/..."
 
 # 단일 태그 → lemma key
 printf '%s\n' edited-before-read ignored-required-api-doc-check | tag_canon_keys
@@ -112,9 +114,39 @@ tag_canon_groups ~/.claude/logs/*/reflections-*.md | head
 tag_canon_fragmentation ~/.claude/logs/*/reflections-*.md
 ```
 
-bash / zsh / sh 세 셸에서 동일 출력을 확인했다 (2026-08-13). 로그가 없는 환경에서는
-`REFLECT_TAG_LEMMA_MAP` 로 맵 경로를 바꿔 fixture 로 검증할 수 있고, 맵이 없으면
-`tag_canon_*` 이 **rc=3 + 순수 kebab 정규화** 로 fail-open 한다 (신호를 잃지 않는다).
+bash / zsh / sh 세 셸에서 동일 출력을 확인했다 (2026-08-13, cwd 4 종 × 셸 3 종 = 12 회 실행
+→ `sort -u` 1 행). 로그가 없는 환경에서는 `REFLECT_TAG_LEMMA_MAP` 로 맵 경로를 바꿔 fixture 로
+검증할 수 있고, 맵이 없으면 `tag_canon_*` 이 **rc=3 + 순수 kebab 정규화** 로 fail-open 한다
+(신호를 잃지 않는다).
+
+### 6.1 셸·cwd 무관성은 검증 대상이다 (무증상 실패 전례)
+
+정규화 라이브러리가 자기 위치를 **cwd 로 추측하면**, 같은 입력이 셸·작업 디렉토리 조합마다
+다른 답을 낸다. 에러가 나지 않고 숫자만 달라지므로 눈으로는 잡히지 않는다.
+
+- **전례 (2026-08-13, Phase 12 QA)**: `tag_canon_map_path()` 가 `${BASH_SOURCE[0]}` 에 의존했는데
+  **zsh 는 이 배열을 채우지 않는다.** `dirname ""` → `.` → cwd 로 떨어져, cwd 가 `hooks/` 가 아닌
+  모든 호출에서 맵을 못 읽고 조용히 순수 kebab 정규화로 전환됐다.
+  동일 fixture: bash `5 3 6 1 1.67 0.333 2.00` vs zsh `5 5 6 4 1.00 0.800 1.20`.
+  당시 문서·스킬이 모두 `cd .../hooks && . ./_lib-tag-canon.sh` 관용구를 쓰고 있어서
+  **우연히 cwd 가 맞을 때만 통과**했고, 3 셸 검증이 그 사실을 가렸다.
+- **규칙 1** — 라이브러리는 `REFLECT_TAG_LEMMA_MAP` → 자기 위치(bash `BASH_SOURCE` /
+  zsh `%x`) → `CLAUDE_PLUGIN_ROOT` 순으로 해석하고, **어느 단계에서도 cwd 를 쓰지 않는다.**
+  전부 실패하면 조용히 넘어가지 않고 stderr 에 경고한 뒤 fail-open 한다.
+- **규칙 2** — 호출부는 **절대경로로 source** 한다. `cd` 로 cwd 를 맞춰 두는 관용구는
+  라이브러리의 결함을 가리므로 쓰지 않는다.
+- **규칙 3** — 3 셸 회귀 검증은 **cwd 를 바꿔 가며** 돌린다. 같은 cwd 에서 3 번 돌리면
+  cwd 의존 결함은 절대 드러나지 않는다.
+- **규칙 4** — 파일 인자에 글롭을 쓸 때 zsh 는 매치 0 건이면 `nomatch` 로 명령을 통째로
+  죽인다. 스크립트에서는 `find ... -name 'reflections-*.md'` 로 열거해 넘긴다
+  (`log-reflection.sh` 가 그렇게 한다).
+- **규칙 5** — 라이브러리 안의 외부 변수는 전부 `${VAR:-}` 로 받는다. 같은 사이클에 발견된
+  **두 번째 무증상 실패**가 이것이었다: `set -u` 를 쓰는 호출자에서 `$REFLECT_TAG_LEMMA_MAP`
+  이 unbound 로 함수를 중도 이탈시키면 호출자는 빈 경로를 받아 조용히 순수 kebab 정규화로
+  떨어진다 (`5 3 6 1 …` → `5 5 6 4 …`). 회귀 검증은 `set -u` 유/무 **양쪽**으로 돌린다.
+
+현재 회귀 게이트 실측: `{set -u 유·무} × {bash·zsh·sh} × {cwd 4 종}` = **24 회 실행 →
+`sort -u` 1 행** (2026-08-13).
 
 ## 7. 새 alias 를 추가하는 절차
 

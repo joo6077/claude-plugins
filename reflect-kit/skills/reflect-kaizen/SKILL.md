@@ -47,7 +47,8 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 이 단계는 리포팅이 아니라 **게이트**다. 여기서 `low` 가 나오면 3 단계의 demotion 산출이 금지된다.
 
 ```bash
-cd "${CLAUDE_PLUGIN_ROOT}/hooks" && . ./_lib-tag-canon.sh
+# 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
+. "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
 tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
 # raw_distinct \t clusters \t entries \t singletons \t fold_ratio \t singleton_share \t entries_per_cluster
 ```

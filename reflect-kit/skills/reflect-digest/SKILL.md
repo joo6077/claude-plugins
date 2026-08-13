@@ -122,7 +122,8 @@ approach_note: <str>
 
    **6-a. 결정론적 pass (기계)** — 이 단계에서 눈대중을 섞지 마라.
    ```bash
-   cd "${CLAUDE_PLUGIN_ROOT}/hooks" && . ./_lib-tag-canon.sh
+   # 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
+   . "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
    tag_canon_groups ~/.claude/logs/<bucket>/reflections-*.md   # cluster_freq \t canonical \t aliases
    tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
    ```

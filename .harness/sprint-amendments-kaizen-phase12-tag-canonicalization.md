@@ -42,3 +42,36 @@ widening 아님** — 조건 집합·경로 집합 변화 0. 측정 해석 기�
 `.harness/sprint-contract-kaizen-phase10-react-currency.md`,
 `.harness/sprint-feedback-kaizen-phase10-react-currency.md`. **복원하지 않았다** (Scope 밖).
 Phase 10 담당이 `git show 'stash@{0}:<path>'` 로 회수할 수 있다.
+
+## AM-03 — 측정문 결함 신고 (SC-02 가 거짓 PASS 를 허용했다 · 조건 문구 변경 없음)
+
+**대상**: SC-02 의 측정절
+**원문**: "세 셸에서 **같은 입력**으로 실행한 출력 3 개를 `sort -u` 했을 때 1 행"
+
+**문제**: "같은 입력" 이 **파일 인자**만 가리키고 **cwd 를 고정하지 않는다.** 그런데 결함 자체가
+cwd 의존이었다. 그래서 한 cwd(우연히 `reflect-kit/hooks/`) 에서 3 셸을 돌리면 3 개가 전부 같아
+**1 행이 나오고 PASS 로 관측된다.** 커밋 메시지의 "3 셸 검증 완료" 주장이 바로 이 경로로 나왔다.
+
+**실증 (수정 전 코드, 실제 설치 경로, 동일 fixture 2 파일)**
+
+| cwd | bash | zsh | sh | `sort -u` |
+| --- | --- | --- | --- | --- |
+| `reflect-kit/hooks` | `5 3 6 1 …` | `5 3 6 1 …` | `5 3 6 1 …` | **1 행 → 거짓 PASS** |
+| `/` · `$HOME` · `/tmp` | `5 3 6 1 …` | `5 5 6 4 …` | `5 3 6 1 …` | **2 행 → 진짜 FAIL** |
+
+즉 SC-02 는 셸 축만 교차하고 **cwd 축을 교차하지 않아** 결함을 통과시킬 수 있는 측정문이었다.
+QA 가 잡아낸 것은 측정문을 그대로 따라서가 아니라 절대경로 source + 다른 cwd 를 **추가로** 썼기
+때문이다.
+
+**조치**: 계약 본문은 고치지 않는다 (write-once). 대신
+1. 구현을 고쳤다 — `tag_canon_map_path()` 가 어느 단계에서도 cwd 를 쓰지 않는다.
+2. 회귀 게이트를 **셸 3 × cwd 4 = 12 회 실행 → `sort -u` 1 행** 으로 강화해 실행했다.
+3. 규약을 `reflect-kit/references/tag-canonicalization.md` **§6.1 규칙 3** 에 박았다 —
+   "3 셸 회귀 검증은 cwd 를 바꿔 가며 돌린다. 같은 cwd 에서 3 번 돌리면 cwd 의존 결함은
+   절대 드러나지 않는다."
+
+다음 사이클에 이 조건을 재사용한다면 측정문을 "**서로 다른 cwd 3 곳 이상** × 세 셸에서 절대경로로
+source 해 실행한 출력을 `sort -u` 했을 때 1 행" 으로 써야 한다.
+
+**consent**: 사용자 앵커 없음 (백그라운드 서브에이전트 실행). direction 은 **narrowing 아님 ·
+widening 아님** — 조건 집합·경로 집합 변화 0. 측정 강도 기록일 뿐이다.
