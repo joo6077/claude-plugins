@@ -1,7 +1,7 @@
 ---
 title: 애니메이션
-version: 0.1.0
-last_updated: 2026-04-05
+version: 0.2.0
+last_updated: 2026-08-13
 ---
 
 # 애니메이션
@@ -65,7 +65,7 @@ final slideAnim = Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero)
 
 - DevTools의 "Performance Overlay"에서 UI thread와 Raster thread 모두 16ms 이내인지 확인
 - `Timeline.startSync('animation_label')`로 특정 애니메이션의 비용을 측정
-- Impeller 환경(iOS 기본, Android opt-in)에서는 shader compilation jank가 사라지므로 first-frame 성능이 개선됨
+- Impeller 환경에서는 shader compilation jank가 사라지므로 first-frame 성능이 개선됨 (iOS 필수 · Android API 29+ 기본 · macOS/Linux/Windows 는 Flutter 3.47 부터 기본 · Web 은 Skia — 플랫폼별 상태는 `docs/flutter/quality/performance.md` §Impeller 성능 특성 참조)
 - 출처: https://docs.flutter.dev/perf/ui-performance
 
 ## Gotchas

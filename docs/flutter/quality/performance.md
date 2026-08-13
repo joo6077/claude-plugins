@@ -1,7 +1,7 @@
 ---
 title: 성능
-version: 0.1.0
-last_updated: 2026-04-05
+version: 0.2.0
+last_updated: 2026-08-13
 ---
 
 # 성능
@@ -12,9 +12,39 @@ Flutter 성능 최적화는 rebuild 최소화, `const` 적극 사용, `RepaintBo
 
 ## 원칙
 
+### 0. Environment-first — 환경을 배제한 뒤에 앱 코드를 의심한다
+
+성능 조사는 **앱 코드가 아니라 측정 환경**에서 시작한다. 공식 문서는 거의 모든 성능 디버깅을
+**물리 Android/iOS 기기 + profile mode** 에서 하라고 하며, debug mode 나 simulator/emulator 의
+성능은 release 동작을 대표하지 않는다고 명시한다. profile mode 자체가 **emulator/simulator 에서
+비활성**이다.
+
+실측 사례: 18일간 누수된 **시뮬레이터 render host** 가 호스트 swap 을 포화시켜 프레임이 무너진
+것을 앱 코드 최적화에 착수하기 **전에** 규명했고, 그 덕에 불필요한 리팩터가 통째로 사라졌다.
+
+#### Environment Exclusion Checklist (8 항 — 값을 모르면 "미확인" 이라고 적는다)
+
+| # | 항목 | 왜 |
+|---|------|-----|
+| 1 | **profile mode** 로 측정했는가 | debug 수치는 성능 근거가 아니다 |
+| 2 | **physical device** 인가 (모델명) | simulator/emulator 는 대표성이 없다 |
+| 3 | **simulator/emulator** 사용 여부 | 사용했으면 리포트 서두에 명시 |
+| 4 | 호스트 OS uptime / **swap** / memory pressure | render host 누수·swap 포화 배제 |
+| 5 | **DevTools trace** export 확보 (경로) | 재검증·비교의 유일한 근거 |
+| 6 | renderer 가 **Impeller** 인지 Skia 인지 | 플랫폼별 렌더러가 다르면 수치가 다르다 |
+| 7 | target **refresh rate** | frame budget 이 16ms 인지 8ms 인지 결정 |
+| 8 | **slowest target device** 기준인가 | 최고 사양 기기 기준 최적화는 무의미 |
+
+**판정 규칙** — simulator/emulator 또는 debug mode 결과만 있으면 앱 코드 병목으로 **확정하지 말고
+`[미검증]`** 으로 남긴다. "iOS simulator 에서 jank 가 보이니 앱 버그" 는 공식 문서 기준으로
+대표성이 없는 추론이다. 실기기 확보가 불가능하면 simulator 결과를 "환경 의심" 등급으로만 쓰고,
+profile trace export 와 시스템 메모리 상태를 함께 보관한다.
+
+출처: https://docs.flutter.dev/perf/ui-performance , https://docs.flutter.dev/testing/build-modes
+
 ### 1. Profiler-first — 측정 후 최적화
 
-DevTools Performance view와 "Track widget rebuilds", "Highlight repaints" 옵션으로 실제 병목을 먼저 식별한다. 직감에 기반한 최적화는 대체로 무효하거나 역효과를 낸다.
+환경을 배제한 다음, DevTools Performance view와 "Track widget rebuilds", "Highlight repaints" 옵션으로 실제 병목을 식별한다. 직감에 기반한 최적화는 대체로 무효하거나 역효과를 낸다.
 
 출처: https://docs.flutter.dev/perf/best-practices
 
@@ -57,6 +87,7 @@ DevTools Performance view와 "Track widget rebuilds", "Highlight repaints" 옵�
 - 애니메이션 진행 중 `Opacity`, `ClipRect`, `ShaderMask`, `saveLayer`를 남용한다. offscreen composite 비용이 frame budget을 쉽게 초과한다.
 - 모든 탭·모든 리스트 아이템에 `AutomaticKeepAlive`를 적용한다. 메모리가 선형으로 늘어나고, 대부분의 아이템은 유지할 필요가 없다.
 - Profiler로 jank 원인을 확인하지 않은 채 `RepaintBoundary`와 isolate를 뿌린다. 대부분 효과가 없거나 오히려 느려진다.
+- **simulator/emulator 나 debug mode 의 jank 를 앱 코드 결함으로 단정한다.** 공식 문서 기준으로 두 환경은 성능 대표성이 없다 (profile mode 자체가 emulator/simulator 에서 비활성). 환경을 배제하기 전의 최적화는 존재하지 않는 병목을 고치는 일이다.
 - 큰 이미지를 원본 해상도 그대로 `Image.network`로 띄운다. `cacheWidth` / `cacheHeight`를 지정해 디코딩 비용을 줄여야 한다.
 
 ## Gotchas
@@ -76,11 +107,18 @@ DevTools Performance view와 "Track widget rebuilds", "Highlight repaints" 옵�
 3. "Track widget rebuilds" 활성화하면 불필요한 rebuild 위젯 식별 가능
 4. 출처: https://docs.flutter.dev/tools/devtools/performance
 
-### Impeller 성능 특성
+### Impeller 성능 특성 (플랫폼 상태 — 2026-08 기준)
 
-- iOS: Flutter 3.16+에서 기본 활성화. Shader compilation jank 제거됨
-- Android: `--enable-impeller`로 opt-in (Flutter 3.22+에서 안정화 진행 중)
+| 플랫폼 | 상태 |
+|--------|------|
+| iOS | 필수. Skia 로 전환 불가 |
+| Android | API 29+ 기본 활성 |
+| macOS / Linux / Windows | **Flutter 3.47 부터 Impeller 기본** |
+| Web | Skia (canvaskit / skwasm) |
+
+- Shader compilation jank 는 Impeller 환경에서 제거된다 (AOT 셰이더 컴파일)
 - Skia 대비 first-frame이 빠르지만, 복잡한 path rendering은 아직 Skia가 빠를 수 있음
+- **renderer 를 모른 채 수치를 비교하지 마라** — 위 Environment Exclusion Checklist 6 번 항목
 - 출처: https://docs.flutter.dev/perf/impeller
 
 ### 실전 최적화 체크리스트

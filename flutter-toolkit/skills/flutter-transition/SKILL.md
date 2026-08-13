@@ -16,7 +16,7 @@ user-invocable: true
 - fit-pal에서는 커스텀 페이지 전환이 금지되어 있다 (`buildPage` 대신 `build`로 위젯만 반환) — 프로젝트 규칙을 먼저 확인해라
 - 예외: 탭 전환 시 `buildNoTransition`만 허용되는 프로젝트가 있다 — 프로젝트의 CLAUDE.md 또는 라우터 설정 확인
 - **auto_route 11.0 breaking changes** — `redirect` 가 `redirectUntil` 로 리네이밍됐고, `navigateNamed` / `pushNamed` 등 deprecated named navigation 메서드가 제거됐다. `.named` 생성자로 codegen 없이 shorthand named route 를 사용할 수 있다. 기존 코드에 `redirect` 가 남아 있으면 컴파일 에러 발생 (출처: <https://pub.dev/packages/auto_route/changelog>)
-- **Flutter 3.44 는 2026-07 기준 stable (3.44.7)** — page transition builders 재구성이 실제로 반영됐다. 커스텀 전환 코드가 있으면 업그레이드 시 호환성을 확인하라. 관련 신규/변경: `Hero` 애니메이션 curve 커스터마이징 지원, `CupertinoSheetRoute`(스크롤·드래그 지원) 추가, `showCupertinoSheet` 가 `RouteSettings` 를 받는다 (출처: <https://docs.flutter.dev/release/release-notes>, <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>)
+- **Flutter 3.44 변경 (현재 stable 은 3.47.0 — 출처: <https://docs.flutter.dev/release/release-notes>)** — page transition builders 재구성이 3.44 에서 실제로 반영됐다. 커스텀 전환 코드가 있으면 업그레이드 시 호환성을 확인하라. 관련 신규/변경: `Hero` 애니메이션 curve 커스터마이징 지원, `CupertinoSheetRoute`(스크롤·드래그 지원) 추가, `showCupertinoSheet` 가 `RouteSettings` 를 받는다 (출처: <https://docs.flutter.dev/release/release-notes>, <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>)
 - **전환 애니메이션은 코드 리딩으로 검증되지 않는다 (`/insights` 2026-07-27 Friction #2)** — 방향·타이밍·커브는 실행해서 봐야 확정된다. 완료 보고 전에 `references/visual-evidence-protocol.md` 를 실행하고, 검증 채널이 없으면 `[미검증]` 을 명시하라. "부드럽게 전환됩니다" 같은 서술은 증거가 아니다
 
 GoRouter, auto_route, Navigator 기반 커스텀 페이지 전환 애니메이션을 적용한다.
