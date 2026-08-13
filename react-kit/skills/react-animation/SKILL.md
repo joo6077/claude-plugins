@@ -34,7 +34,7 @@ user-invocable: true
 
 10. **Firefox types 파라미터 미지원**: `document.startViewTransition({ update, types: [...] })` 의 `types` 옵션은 2026년 기준 Chromium 계열에서만 안정적으로 지원된다. `withViewTransition` 래퍼에서 try/catch로 fallback을 처리한다.
 
-11. **scroll-driven animation 브라우저 지원 확인**: `animation-timeline: scroll()` / `view()` 는 Chrome 안정이지만 Firefox 는 2026-Q2 기준 플래그 필요. 브라우저 지원 범위가 충분하지 않으면 `@supports (animation-timeline: scroll())` 로 감싸고, 미지원 시 정적 스타일로 fallback 한다.
+11. **scroll-driven animation 브라우저 지원 (2026-08-13 갱신)**: `animation-timeline: scroll()` / `scroll-timeline` 은 Can I Use 기준 **전역 85.43%** — Chrome/Edge **115+**, Safari/iOS **26+**, Firefox **156+** 다. **Firefox 가 플래그 뒤에 있다는 서술은 낡았다.** 다만 MDN 기준 `view()` 는 아직 **not Baseline** 이므로, `@supports (animation-timeline: scroll())` / `@supports (animation-timeline: view())` 로 감싸고 미지원 시 정적 스타일로 fallback 하는 방침은 그대로 유지한다.
 
 12. **`view-transition-name: match-element` 활용 (Chrome 137+)**: 수십 개 요소에 수동으로 고유 이름을 부여하는 대신 `view-transition-name: match-element` CSS 값을 사용하면 브라우저가 자동으로 요소를 매칭한다. 단, 2026-Q2 기준 Chromium 전용이므로 fallback 경로를 유지한다.
 
@@ -173,7 +173,7 @@ Tailwind 유틸로 커버 안 되는 커스텀 애니메이션은 `globals.css` 
 
 ### 2.5 Scroll-driven Animations (CSS 네이티브)
 
-스크롤 위치에 연동되는 애니메이션을 JS 없이 CSS `animation-timeline` 으로 구현한다. Chrome 안정, Firefox 플래그 필요 (2026-Q2 기준). `@supports` 로 감싸 미지원 브라우저에서 graceful fallback 한다.
+스크롤 위치에 연동되는 애니메이션을 JS 없이 CSS `animation-timeline` 으로 구현한다. 2026-08-13 기준 `scroll()` / `scroll-timeline` 은 Chrome/Edge 115+, Safari/iOS 26+, Firefox 156+ 에서 지원되고 (Can I Use 전역 85.43%), `view()` 는 MDN 기준 아직 not Baseline 이다. 두 경우 모두 `@supports` 로 감싸 미지원 브라우저에서 graceful fallback 한다.
 
 **스크롤 진행 바:**
 
@@ -222,7 +222,9 @@ Tailwind 유틸로 커버 안 되는 커스텀 애니메이션은 `globals.css` 
 
 ## 3. Tier 2 — View Transitions API 구현
 
-2026-04 기준 Baseline Newly Available (Chrome/Safari/Firefox 144+). SPA 내 DOM 변경 시 자동 FLIP 애니메이션.
+**same-document** View Transitions 는 MDN 기준 **Baseline 2025**, Can I Use 기준 전역 **90.2%** — Chrome/Edge **111+**, Safari **18+**, Firefox **144+** (2026-08-13 갱신). SPA 내 DOM 변경 시 자동 FLIP 애니메이션.
+
+반면 `@view-transition` 기반 **cross-document / MPA 전환**과 일부 세부 기능은 아직 **limited availability** 다. 라우트 전환에 쓸 때는 same-document 경로를 기본으로 두고 feature detection + fallback 을 유지한다 (§6 표준 커버리지 공백 8 번).
 
 ### 3.1 withViewTransition 래퍼 생성
 
@@ -762,9 +764,35 @@ export function DragAnnouncer({ message }: { message: string }) {
 
 ### 5.4 접근성 트레이드오프 고지
 
-> 라이브러리 0개 접근은 번들 크기·커스텀·성능을 얻는 대신, 드래그앤드롭의 완전한 스크린리더 접근성 구현 책임이 사용자에게 있다. 완전한 a11y를 최우선으로 한다면 W3C APG 드래그앤드롭 패턴(https://www.w3.org/WAI/ARIA/apg/)을 직접 구현하거나, 접근성이 내장된 라이브러리 사용을 고려한다.
+> 라이브러리 0개 접근은 번들 크기·의존성·감사 표면을 줄이는 대신, 드래그앤드롭의 완전한 스크린리더 접근성이 **우리 코드와 테스트의 책임**이 된다. 완전한 a11y 가 필요하면 W3C APG 드래그앤드롭 패턴(https://www.w3.org/WAI/ARIA/apg/)을 직접 구현한다. **금지 라이브러리를 대안으로 제시하지 않는다** — 이 트레이드오프의 처리 경로는 §6 표준 커버리지 공백에 정리돼 있다.
 
-## 6. 아키텍처 배치 규칙
+## 6. 표준 커버리지 공백 — 원칙은 유지하고 직접 처리한다
+
+라이브러리 0개 원칙은 **유지된다** (Gotcha #1 · `references/common-gotchas.md` G2 · G10). 2026-08-13
+현행성 점검에서 View Transitions 와 scroll-driven 의 브라우저 지원이 이 원칙을 뒷받침한다는 것을
+확인했다.
+
+다만 **표준만으로 자동 커버되지 않는 영역**이 있다. 아래 8 종은 "라이브러리를 쓰면 공짜로 얻는"
+것이 우리 코드와 테스트의 책임으로 넘어온다는 뜻이다. **이 표는 금지 목록을 완화하는 근거가
+아니다** — 여기에 해당하는 요청이 와도 금지 라이브러리를 도입하지 않고 아래 처리 경로로 간다.
+
+| # | 공백 | 처리 경로 |
+|---|------|-----------|
+| 1 | 복잡한 physics / spring 감쇠 | **직접 구현** — `requestAnimationFrame` 루프에서 stiffness/damping 적분을 직접 계산한다. 물리 정확도가 요구사항이 아니면 CSS `cubic-bezier` 근사로 낮춘다 |
+| 2 | inertia (관성 · 플링 감속) | **직접 구현** — `pointerup` 시점 속도(px/ms)를 샘플링해 감쇠 적분한다. Tier 3 `useDrag` FSM 에 릴리스 상태를 추가한다 |
+| 3 | collision (충돌 · 겹침 판정) | **직접 구현** — `getBoundingClientRect()` AABB 교차 판정. drop 후보 계산은 `useDrop` 안에 둔다 |
+| 4 | accessible sortable DnD | **직접 구현** — 포인터 경로만 만들고 끝내지 않는다. §5.2 · §5.3 을 필수 산출물로 포함한다 |
+| 5 | keyboard reorder (키보드 재정렬) | **직접 구현** — §5.2 의 Space 집기 → 화살표 이동 → Space 놓기 대안 경로 |
+| 6 | live-region announcement | **직접 구현** — §5.3 `DragAnnouncer` 를 드래그 시작/이동/드롭/취소 4 시점에 연결한다 |
+| 7 | Lottie JSON 직접 재생 | **사전 렌더 자산** — `lottie-react` 는 금지다. 디자이너에게 WebM/APNG 또는 SVG + CSS `@keyframes` 로 **사전 렌더한 자산**을 요청한다 |
+| 8 | cross-document (MPA) shared transition | **fallback** — `@view-transition` 은 아직 limited availability 다. SPA 라우팅 안의 same-document 전환으로 설계하고, 문서 간 이동은 전환 없이 즉시 이동하는 fallback 을 기본으로 둔다 |
+
+**처리 경로는 3 종뿐이다 — 직접 구현 · fallback · 사전 렌더 자산.** 네 번째 선택지("이 경우엔
+라이브러리를 쓴다")는 없다. 공수가 과하다고 판단되면 라이브러리를 도입하는 것이 아니라 **요구
+자체를 낮추는 안**을 사용자에게 제시한다 (예: spring → CSS easing 근사, MPA shared transition →
+전환 없음).
+
+## 7. 아키텍처 배치 규칙
 
 | 산출물 | 위치 |
 |--------|------|
@@ -776,7 +804,7 @@ export function DragAnnouncer({ message }: { message: string }) {
 | feature 전용 drag 컴포넌트 | `src/presentation/features/<name>/components/` |
 | **금지** | `domain/`, `data/` 에 pointer/transition/drag-store import |
 
-## 7. 완료 후 안내
+## 8. 완료 후 안내
 
 구현 완료 후 사용자에게 다음을 안내한다:
 

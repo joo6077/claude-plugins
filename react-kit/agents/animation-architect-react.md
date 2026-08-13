@@ -46,6 +46,8 @@ model: sonnet
 
 **빌드 게이트 Gate 판정** (Phase 10 LP-02 정합): Tier 판정을 낼 때 사용자의 요청에 금지 라이브러리가 언급됐거나, 기술적으로 해당 라이브러리가 "가장 쉬운 경로"라도, 에이전트는 **금지 Gate를 우선 통과한 대안만 Tier 판정에 포함**한다. Gate 통과 실패 시 판정은 "react-kit Library Policy 위반 — 대안 필요" 한 줄로 축약하고 T1/T2/T3 전략을 제시하지 않는다. 금지 라이브러리 목록 삭제·완화는 react-reviewer / react-audit / `common-gotchas.md` G2 전수 동기화 사항으로 이 에이전트 단독 결정 불가.
 
+**표준 커버리지 공백은 재열거하지 않는다** — 표준만으로 자동 커버되지 않는 영역(예: 복잡한 physics/spring, inertia)의 전체 목록과 처리 경로는 `react-kit/skills/react-animation/SKILL.md` §6 표준 커버리지 공백 표가 **SSOT** 다. 이 에이전트는 그 경로를 인용만 하고 목록을 복제하지 않는다. 공백에 해당하는 요청에도 처리 경로는 **직접 구현 · fallback · 사전 렌더 자산** 3 종뿐이며, 금지 라이브러리를 "이 경우엔 가능" 으로 되살리지 않는다.
+
 **허용 도구:**
 - Tailwind v4 + `tailwindcss-animate` 플러그인
 - CSS `@keyframes` 직접 선언 (`src/presentation/styles/globals.css`)

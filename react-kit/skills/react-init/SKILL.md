@@ -16,7 +16,7 @@ user-invocable: true
 3. **shadcn 패키지 리네임 + CLI v4 (2026-03)** — `shadcn-ui` npm 패키지는 deprecated. 현재는 `pnpm dlx shadcn@latest init --template vite`를 사용한다. v4 CLI 는 `--dry-run`/`--diff`/`--view` 플래그로 설치 전 미리보기 가능, `components.json` 의 `tailwind.config` 필드는 **Tailwind v4 에서 공란으로 둔다** (shadcn tailwind-v4 docs).
 4. **shadcn + Tailwind v4 + React 19 조합** — 초기 설치 직후 `pnpm tsc --noEmit`으로 타입 오류 점검 필수. shadcn v4 컴포넌트는 React 19 `ref as prop` 패턴으로 생성되므로 기존 `forwardRef` 와 혼재 가능 — 둘 다 허용.
 5. **React 19 stable (2024-12) + forwardRef deprecation 예고** — 2026-04 현재 `react@19.2+` 가 production standard. **`forwardRef` 는 deprecation 예고** 상태로 경고 없이 동작하지만, **새 컴포넌트는 `ref` 를 일반 prop 으로 받는 패턴** 권장: `function Button({ ref, ...props }: Props & { ref?: Ref<HTMLButtonElement> }) { ... }`. 기존 컴포넌트는 하위호환 유지 (React v19 블로그).
-6. **Zod v4 + @hookform/resolvers TS 호환성 이슈** — 2026-04 현재 `zod@4.3.x` + `@hookform/resolvers` 의 `zodResolver` 는 Zod v4 `ZodType` 시그니처 변경과 충돌해 타입 에러 가능. **workaround**: (a) `import { z } from 'zod/v3'` (Zod v4 가 노출하는 v3 alias 사용) 또는 (b) `@hookform/resolvers` 업데이트 릴리스 확인. 감지 방법: `pnpm tsc --noEmit` 실행 시 zodResolver 호출부 타입 에러. 영향 범위는 `/react-form` 이 생성하는 컴포넌트 (hookform resolvers#813, RHF#12829).
+6. **Zod 4 는 resolver v5.1+ 에서 공식 지원 — `zod/v3` alias 는 legacy 전용 (2026-08-13 정정)** — 기본 전제는 `@hookform/resolvers@5.1.0` 이상 + `zod@^4` 다. Zod 4 지원은 `@hookform/resolvers` v5.1.0 에서 들어갔고 현행 stable 은 5.5.7 이며, npm 문서도 `zod` 또는 `zod/v4` import 예시를 제시한다. **`import { z } from 'zod/v3'` workaround 를 새 프로젝트의 기본 경로로 쓰지 마라** — 그것은 legacy resolver(v5.1.0 미만)에 묶인 프로젝트 전용이고, 과거 타입 충돌(hookform resolvers#813, RHF#12829)도 그 legacy 구간의 문제다. 감지 방법: `pnpm tsc --noEmit` 에서 zodResolver 호출부 타입 에러가 나면 **먼저 resolver 버전을 확인**한다. 영향 범위는 `/react-form` 이 생성하는 컴포넌트.
 7. **next-themes + Vite** — SSR 경고 발생 가능. client-only 모드로 사용하고 초기 테마를 `<html class="dark">`로 inline script로 설정.
 8. **TanStack Router codegen** — `routeTree.gen.ts`는 플러그인이 자동 생성하므로 수동 수정 금지. 기본적으로 `.gitignore` 제외 권장(merge conflict 최소화).
 9. **Strict TS 위반 거부** — 생성된 초기 파일에 `any`, `as`, `!`가 포함되면 생성 실패로 간주하고 롤백. `pnpm tsc --noEmit`으로 검증 필수.
@@ -154,6 +154,8 @@ pnpm add zustand @tanstack/react-query
 pnpm add react-hook-form @hookform/resolvers zod neverthrow
 ```
 
+**버전 하한**: `@hookform/resolvers` 는 **5.1.0 이상**, `zod` 는 **4 라인**을 받아야 한다 (Gotcha 6). `@latest` 설치면 자동 충족되지만, 기존 프로젝트를 이어받을 때는 `pnpm ls @hookform/resolvers zod` 로 하한을 확인한다.
+
 ### 단계 7 — i18n (Lingui v5, 매크로 패키지 split)
 
 ```bash
@@ -167,6 +169,10 @@ pnpm add -D @lingui/cli @lingui/vite-plugin @lingui/swc-plugin
 
 - JSX 매크로(`Trans`, `Plural`, `Select`, `SelectOrdinal`) → `@lingui/react/macro`
 - core 매크로(`t`, `plural`, `select`, `selectOrdinal`, `defineMessage`, `msg`) → `@lingui/core/macro`
+
+**Lingui 라인 고정 — v5 compatibility pin (2026-08-13 확인)**: 현행 stable major 는 `@lingui/core@6.6.0` 이지만 v6 는 **ESM-only** 이고 Node.js **22.19+** 를 요구한다. react-kit 템플릿은 Node floor 를 올리지 않았으므로 Lingui 는 v5 라인을 **compatibility pin** 으로 유지한다 (`templates/package.json.template` 의 `@lingui/*: ^5.0.0`). 킷 전체 Node floor 를 22.19+ 로 올릴지는 열린 질문이며 (`docs/react/research-log.md` 의 2026-08-13 라운드), 결정 전까지 v6 로 올리지 마라.
+
+**단일 엔트리 `@lingui/macro` 패키지는 설치하지 않는다**: v5 에서 분리됐고 2026-08-13 기준 **더 이상 maintained 되지 않는다**. 대체 경로가 위의 subpath 매크로이며, 이들은 `@lingui/core` / `@lingui/react` 에 포함되어 별도 설치가 필요 없다. 기존 코드는 `npx @lingui/codemods split-macro-imports <path>` 로 전환한다.
 
 `@lingui/swc-plugin` 을 Vite config 의 `react({ plugins: [...] })` 가장 앞에 등록해 SWC 가 매크로를 먼저 transpile 하도록 한다. `lingui.config.ts` 작성 — `locales: ['ko', 'en']`, `catalogs: [{ path: '<rootDir>/src/infrastructure/i18n/locales/{locale}', include: ['src'] }]` (Lingui v5 migration).
 

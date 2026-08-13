@@ -127,7 +127,7 @@ N. **[제목]**: [설명]
 
 ## G9. Context7 우선 리서치 (Phase 5 flutter-toolkit 전수)
 
-**원칙**: react-kit 스킬이 다루는 라이브러리 (React 19, TanStack Query v5, TanStack Router, Tauri 2, Tailwind v4, Zustand v5, Lingui v5, React Hook Form v7, Zod v4, Vite 6, shadcn CLI v4, Vitest, Playwright) API 를 인용할 때는 학습 데이터 대신 현재 공식 문서를 조회한다.
+**원칙**: react-kit 스킬이 다루는 라이브러리 (React 19, TanStack Query v5, TanStack Router, Tauri 2, Tailwind v4, Zustand v5, Lingui v5 (compatibility pin — v6 는 ESM-only · Node 22.19+), React Hook Form v7, Zod v4, Vite 8, shadcn CLI v4, Vitest, Playwright) API 를 인용할 때는 학습 데이터 대신 현재 공식 문서를 조회한다.
 
 **조회 순서 (fallback 체인)**:
 
