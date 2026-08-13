@@ -1038,7 +1038,7 @@ fi
 - "`HARNESS_CONTRACT` 가 설정됐으니 존재 확인 없이 그 경로를 쓴다" → 오타·stale 경로면 빈 해시로 굴러가다 Step 5 가 "평가 도중 계약이 변경되었습니다 (TOCTOU)" 로 오진한다. 애초에 없던 파일이다. `[ -n … ] && [ -f "$HARNESS_CONTRACT" ]` 로 먼저 확인하고, 없으면 아래 단계로 흘려보내지 말고 전용 BLOCKED 다 (Step 1-c-4)
 - "평가 시작할 때 읽은 계약이면 저장할 때도 같겠지" → 병렬 세션이 그 사이에 덮어쓴다. 저장 직전 sha256 과 status 를 다시 재고, 달라졌으면 verdict 를 버리고 BLOCKED (Step 5)
 - "접미형 계약을 평가했지만 피드백은 늘 쓰던 `sprint-feedback.md` 에 쓴다" → 다른 세션의 피드백을 덮어쓴다. 계약과 **같은 슬러그**의 파일에 써라 (Step 5)
-- "amendment 에 '이 조건은 완화하기로 했다' 고 적혀 있으니 PASS" → `relaxing`/`unknown` 은 PASS 근거가 될 수 없다. 원 조건 문자 그대로 판정하고 "사용자 확인 필요" 로 올려라 (Step 3.3)
+- "amendment 에 '이 조건은 완화하기로 했다' 고 적혀 있으니 PASS" → PASS 근거가 될 수 없는 조합은 `relaxing · unanchored` 와 `unknown` **전부**다. **`relaxing · anchored` 는 예외로 PASS 근거가 성립한다** (사용자 재승인). `direction` 한 축만 보고 자르지 마라 — 그것이 준수 경로를 무력화한 옛 1 축 규칙이며 Step 3.3 의 2×2 표와 정면으로 어긋난다. PASS 근거 불가 조합일 때만 원 조건 문자 그대로 판정하고 "사용자 확인 필요" 로 올려라 (Step 3.3)
 - "계약 본문에 `## 변경 이력` 을 추가해서 교정을 반영하면 되겠다" → 평가자는 계약을 수정하지 않는다. 그리고 그 헤더는 contract-schema 허용 섹션 위반이다. amendment 는 사이드카에 있다
 - "correction 로그를 보려면 project id 헬퍼를 부르면 되겠지" → `compute_project_id` 는 write-side 라 버킷과 `.project-root` 마커를 만든다. 읽기 경로에서는 `basename` + `basename-??????` glob 합집합만 써라 (Step 3.4)
 - "반영 안 된 사용자 교정이 3 건이니 REJECT" → correction audit 은 표면화 전용이다. 자동 REJECT 하지 않고 미검증 카운터에도 넣지 않는다 (Step 3.4)

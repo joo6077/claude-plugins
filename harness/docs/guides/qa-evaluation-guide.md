@@ -1085,7 +1085,9 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
 
 4. **반박 금지.** 재현 전에 "정상 동작합니다 / 테스트는 통과합니다" 를 다시 말하지 않는다.
    사용자 교정은 intent anchor 로 보존한다 — 실사용 20,574 세션 관측에서 가시적 해소의
-   **91.49% 가 사용자의 명시적 교정**을 필요로 했다 ([arxiv 2605.29442](https://arxiv.org/html/2605.29442)).
+   **91.49% 가 사용자의 명시적 교정**을 필요로 했다 — 이 수치의 출처는 Phase 1 산출물
+   `harness/docs/guides/skill-design-guide.md` §3.8 이 보유한다 (원 URL 은 그 절이 SSOT · 본 절은
+   재인용만 한다).
 5. **완료 선언 해제는 3 택 중 하나가 성립할 때만 한다.**
    - (a) 사용자 관측을 **재현**하고 수정한 뒤, 같은 조건에서 재검증한 출력을 인용한다
    - (b) 재현되지 않는 이유를 **환경 불일치로 특정**한다 (위 6 축 중 어느 축의 어떤 값이 달랐는지
@@ -1743,6 +1745,13 @@ qa-evaluation-guide.md 편집 시:
 - **Guide version**: 2026-08-13 (Phase 3 kaizen · v5.0 — **미검증 카운터 분리**(`UNVERIFIED_ENV` / `UNVERIFIED_INVALID_EVIDENCE` · 남용 방지 4 요건 · 검증 커버리지 게이트 · 연속 ENV 승급) · **§Discriminating Evidence Gate** · **§Canonical User-Reported Failure Protocol** · **§계약 봉인 검증** · Amendment `direction × consent` 2 축 · scoring bias 출처 정정)
 - 이전: 2026-07-28 (병렬 스프린트 안전성 · v4.3 — 계약 선택 ladder 5 단계 + 3.5 레거시 브릿지 · CONTRACT_ROOT 는 먼저 만나는 `.harness` 에서 멈춤 + `contract_root_unconfigured` 경고 · ladder 1 `test -f` 존재 검사 + 부재/모호 BLOCKED 사유 분리 · 계약 `status` 수명주기 · 계약 지문 TOCTOU · Amendment 소비 규칙 · User Correction Audit · Evidence Validity 검사 5 실행가능성)
 - 이전: 2026-07-27 (Phase 3 kaizen · v4.0 — Evidence Validity Gate · 증거 분류 triage · 계약 파싱 범위 · Canonical Unverified-Evidence Protocol · Recurring Improvement Escalation · 원칙별 Enforcement 등급)
-- **Parity with**: skill-design-guide v1.5.0, agent-design-guide v1.6.0, contract-design-guide v5.0
+- **Parity with**: skill-design-guide v1.5.0 · agent-design-guide v1.6.0 · contract-design-guide v5.0
+  - **원본 (값을 손으로 옮겨 적지 마라 — 세 값의 추출 명령이 서로 다르다):**
+    - `skill-design-guide.md` · `agent-design-guide.md` → 각 파일 YAML frontmatter 의 `version` 필드
+    - `contract-design-guide.md` → **이 파일에는 YAML frontmatter 가 없다.** 파일 생성 이래
+      (`git log --follow` 전체) 한 번도 존재한 적이 없으므로 `version:` 추출은 항상 빈 값이며,
+      frontmatter 를 원본으로 지정한 측정문은 이 파일에 대해 실행 불가다. 이 파일의 원본은
+      §버전 정보 표의 `Guide version` 행이다 —
+      `grep -m1 '^| Guide version |' harness/docs/guides/contract-design-guide.md`
 - **Schema link**: contract-schema.md v5.3 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
 - **하위 전파 대기**: `*-kit/agents/*-reviewer.md` 6 종 (design · backend · infra · rust · react · planning) — §Canonical Unverified-Evidence Protocol (2026-08 개정분 포함) + §Canonical User-Reported Failure Protocol 복제. 각 kit 카이젠 Phase 소관이며 본 Phase 는 수정하지 않았다
