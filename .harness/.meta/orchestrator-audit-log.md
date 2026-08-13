@@ -404,3 +404,96 @@ LOW 4 킷을 제외한 부분 실행을 제안했으나 사용자가 전체를 �
 - `docs/harness/*.html` accent 가 `css-tokens.md` 스펙(`#D97757`)과 불일치
 - `validate-plugin.py` 가 `docs/*.html` 을 전혀 검사하지 않음
 - `qa-evaluator.md` Step 5 가 파일 저장을 지시하나 frontmatter 에 Write 권한 없음
+
+### Wave 1 결과 (Phase 1~3)
+
+| Phase | 구현 | QA | 비고 |
+| --- | --- | --- | --- |
+| 1 설계가이드 | CHANGED `d8df8d6` 23조건 | **APPROVE 23/23** 미검증 0 | agent frontmatter 표를 공식 15종과 양방향 차집합 0 으로 정렬 · `initialPrompt` 행 제거 · Variant Budget(§5.6) · User-Reported Failure Gate(§3.8) · 등급 원장 8행 신설 |
+| 2 Contract | CHANGED `b9e911f` 26조건 | **APPROVE 26/26** 미검증 0 | 계약 봉인 E3(`conditions_digest`) · amendment direction×consent 2축 분리 · 측정 커버리지 검출기 · 인자 매트릭스 · 음성 대조. 스키마 v5.2→v5.3 |
+| 3 Evaluator | CHANGED `c3f9595`→`fb34894`→`e987a0e` 25조건 | iter1 22/25 · iter2 23/25 · iter3 **24/25 REJECT** → 계약 v2 재작성 후 재평가 | 4분기 triage(`UNVERIFIED_ENV` 카운터 분리 + 남용방지 4요건) · Discriminating Evidence Gate(9항 한정) · Canonical User-Reported Failure Protocol |
+
+### Phase 3 — 계약 폐기·재작성 (사용자 앵커, 커밋 `b161d80`)
+
+**이번 사이클이 도입한 봉인·2축 amendment 가 의도대로 작동한 사례이자, 계약 설계 결함을 드러낸 사례다.**
+
+원 계약(`c3f9595`, digest `sha256:67cd3b5df77a1acd`)의 **AR-01 과 AR-02 가 상호배타**였다:
+
+1. AR-02 는 `contract-design-guide.md` frontmatter `version` 과의 일치를 요구했는데,
+   그 파일은 **생성 이래 frontmatter 가 존재한 적이 없다** (`git log --follow` 전수 확인).
+   PASS 집합이 공집합 — 원문 그대로는 영원히 FAIL.
+2. 근본 해소하려면 scope 밖 파일을 수정해야 해 **AR-01 을 위반**한다.
+   구현자는 이를 `relaxing · unanchored` 로 자기신고했고 **PASS 근거가 되지 못했다** —
+   자기신고가 자기면책이 되지 않은 것이 봉인·2축 amendment 의 의도된 동작이다.
+3. **부수 결함**: 원 계약 열거 집합에 **amendment 사이드카 경로가 없어** 교정을 기록하는 행위
+   자체가 계약 위반이 되는 자기모순.
+4. **오라클 결함**: AR-01 이 `git status --porcelain` 행 수를 재는데 커밋 이후 항상 0 행이라 재현 불가.
+
+**처리**: 사용자에게 3 선택지(사용자 앵커 amendment / 계약 폐기 후 재작성 / 범위 복원 후 이월)를
+근거와 함께 제시 → **"계약 폐기 후 재작성"** 선택. 재작성 주체는 **오케스트레이터**이며
+**구현 서브에이전트가 아니다** — 2026-08-11 실측 위반(생성자가 자기 산출물 허용하려 본문 편집)과
+구분되는 지점이다. 변경은 AR-01(경로 3→5, 오라클 교체)과 §범위 경계 두 곳뿐, 나머지 23 조건 무수정.
+새 봉인 `sha256:80086c24f5c4e7f6`, bash·zsh 양쪽 SEAL_OK 확인.
+
+**구조 수정 위치**: 사용자 지정으로 **Phase 4 (harness)** 에서 처리한다. Phase 4 는 scope 밖인
+`contract-schema.md` / `sprint-contract/` 를 직접 고치지 않고 핸드오프 문서로 남긴다
+(같은 결함을 이번 사이클에서 두 번 반복하지 않기 위해).
+
+### Wave 2 · 병렬 배치 결과 (Phase 4~14)
+
+전 14 Phase CHANGED + APPROVE, 미검증 0 건. 커밋 31 개 · 154 파일 · +13525/−1562.
+
+| Phase | 커밋 | QA | 라운드 |
+| --- | --- | --- | --- |
+| 4 Harness | `598a5c3` → `da69b58` | APPROVE 23/23 | REJECT 1 회 (SC-04 · DG-02) |
+| 5 Flutter | `a35e5cc` → `a90448a` | APPROVE 23/23 | REJECT 1 회 (AP-03) |
+| 6 Design | `965af48` | APPROVE 25/25 | 1 회 통과 |
+| 7 Backend | `b17fef3` → `409c780` | APPROVE 26/26 | REJECT 1 회 (AR-03 · AP-03) |
+| 8 Infra | `73ef4e7` | APPROVE 23/23 | 1 회 통과 |
+| 9 Rust | `cbc9d32` | APPROVE 24/24 | 1 회 통과 |
+| 10 React | `e7b9508` | APPROVE 24/24 | 1 회 통과 |
+| 11 Planning | `1ba6059` | APPROVE 15/15 | 1 회 통과 |
+| 12 Reflect | `0fe357a` → `a137055` → `175ef87` → `ffc0a84` → `f62691f` | APPROVE 29/29 · 14/14 | REJECT 3 회 (SC-02 · SC-05 · SCOPE) |
+| 13 Bambu | `04641f7` | APPROVE 16/16 | 1 회 통과 |
+| 14 Onboarding | `b52c8bf` | APPROVE 23/23 | 1 회 통과 |
+
+### 이번 사이클 방법론 관찰 (다음 사이클에 유용)
+
+- **근거를 파일로 먼저 고정한 것이 가장 큰 효과였다.** codex 를 foreground 로 11 회 호출해
+  `.harness/.meta/evidence/phase1~14.md` 를 만들고, Phase 서브에이전트는 그 파일만 읽고
+  네트워크 도구를 쓰지 않게 했다. 배치 A(Phase 8·9·10)가 **QA REJECT 0 회**로 통과했고,
+  전체적으로도 REJECT 라운드가 직전 사이클보다 줄었다. 백그라운드 서브에이전트에게
+  외부 조회를 시키면 결과가 유기되는데, 그 문제를 구조적으로 없앤 셈이다.
+- **codex 는 반드시 foreground 여야 한다.** `Agent(subagent_type='codex:codex-rescue',
+  run_in_background: false)` 는 **Agent 층만** 블로킹이고 codex-rescue 가 내부에서
+  `codex-companion.mjs task --background` 로 던진다. `~/.claude/hooks/enforce-foreground-research.sh`
+  도 Agent 입력만 검사해 이 경로를 못 잡는다. **Bash 로 companion 을 `--background` 없이 직접 호출**해야 한다.
+- **병렬은 3 개까지.** 직렬 유지 시 추정 13 시간이던 것을 배치 3 병렬로 4~5 시간에 마쳤다.
+  단 Wave 2(1 개) + 배치(3 개) = 동시 4 개 구간에서 **Phase 14 가 API 529 로 죽었다.**
+  직전 사이클 기록("5 개는 529, 2~3 개는 무사고")과 일치한다. `resumeFromRunId` 로 캐시 재사용해 복구.
+- **워크플로 스크립트의 런타임 오류는 `node --check` 로 안 잡힌다.** 템플릿 리터럴 안의
+  미이스케이프 백틱이 `bambu is not defined` 런타임 오류를 냈다. 스텁으로 스크립트를 실제
+  실행해보는 드라이런(`scratchpad/dryrun.mjs`)을 만들어 이후 전부 사전 검증했다. **다음 사이클도 이걸 써라.**
+- **resume 은 스크립트를 수정하면 캐시 prefix 가 깨진다.** Phase 13 텍스트를 고쳤더니 같은
+  `parallel()` 배치의 Phase 12 가 재실행됐다. 결과적으로는 보완(오라클 양성 대조 부착)이라
+  이득이었지만, 의도한 동작은 아니었다.
+- **Phase 프롬프트에 "evidence 에 없는 URL·수치를 지어내지 마라 + 없으면 미반영으로 남겨라" 를
+  넣은 것이 작동했다.** Phase 8 이 SARIF `executionSuccessful` 을 원문 미확인이라 미반영으로 남겼고,
+  Phase 10 이 evidence 표의 "미확인" 항목을 채우지 않았다.
+
+### 신규 메타 이슈 (다음 사이클 감시 대상)
+
+1. **계약 scope 의 파일 단위 exact enumeration 이 다중 커밋 스프린트에 구조적으로 취약하다.**
+   같은 형상 결함이 3 회 재발했다 — (a) amendment 사이드카 경로 누락 (b) AR-01×AR-02 상호배타
+   (c) 오케스트레이터 부기 커밋 혼입. 독립 평가자가 이 진단을 명시했다.
+   Phase 4 가 개정안을 `.harness/.meta/phase4-handoff-to-contract.md` 에 남겼다 (Phase 2 소관이라 미적용).
+   **다음 사이클 Phase 2 의 최우선 항목이다.**
+2. **오케스트레이터 부기 커밋 시점 규약.** 감사 로그 append 는 Step F1 소관인데 사이클 도중에
+   커밋해 Phase 3 의 scope 측정을 오염시켰다. 이번엔 커밋을 되돌려 해소했고, 이후 부기를
+   사이클 종료까지 보류했다. SKILL.md 에 이 순서를 명문화할지 검토.
+3. **`[RE-02] 측정-오라클-메타언급구분불가`** — naive grep 이 "금지어를 나열한 금지 조항" 과
+   "실제 위반 용법" 을 구분하지 못한다. 2 회째 관측. 다음 계약에서 측정 정규식 구체화 권장.
+4. **훅 정규식 오탐** — `enforce-foreground-research.sh` 의 Workflow 검사가 `조사`(전수 조사) ·
+   `research-log.md`(파일명) · `research.google`(URL) 을 트리거로 잡아 정상 오케스트레이션을
+   3 회 차단했다. 어휘를 우회해 진행했으나, 훅이 **Agent 층의 codex 백그라운드 누출은 못 잡으면서
+   무해한 텍스트는 막는** 비대칭이 있다. 검사 지점 재설계 검토 대상.
