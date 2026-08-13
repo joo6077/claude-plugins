@@ -28,7 +28,9 @@ user-invocable: true
 6. **target_path는 절대경로로 기록**. 상대경로로 기록하면 세션 cwd 변경 시 rollback이 깨진다.
 7. **skill 승격은 진정 새 절차가 필요한 경우만**. 기존 스킬에 Gotchas 한 항목 추가로 해결 가능하면 "기존 스킬 Gotchas 추가"로 분류하라 (별도 skill 신설은 보수적으로).
 8. **`actionability: user_environment` 후보는 어떤 surface 로도 승격하지 마라.** 없는 훅 스크립트 참조, 실행 권한 없음, CLI 미설치 같은 사건은 사용자 환경 작업이지 Claude 행동 결함이 아니다. ledger 에 넣지 말고 결과 리포트의 "환경 액션 아이템" 으로만 사용자에게 전달한다. 이걸 CLAUDE.md 에 넣으면 고칠 수 없는 지시가 매 세션 컨텍스트를 먹고, 실제 환경은 고쳐지지 않는다.
-9. **`user_stated_constraint == true` 후보는 freq 2/3회를 기다리지 말고 매-세션 자동 로드 surface로 보낸다** (precedence rule #0). 사용자가 명시적으로 금지한 제약의 재위반은 memory(on-demand 로드)나 관망으로 강등하면 재주입이 약해 매 세션 재프롬프트가 반복된다 (insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응). 재주입 강도 순서: **hook(강제) > CLAUDE.md(매 세션 자동 로드) > path-scoped rule(해당 glob 편집 시 로드) > memory(on-demand)**. fast-track 대상은 memory 아래로 내리지 마라. 단 fast-track이어도 surface write 전 사용자 승인은 필수다 (Gotchas #1).
+9. **`aliases` 를 손으로 고르지 마라 — 결정론적 클러스터 멤버 전체다.** `tag_canon_groups`(`${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh`) 가 낸 `lemma_key` 클러스터의 멤버를 **그대로** 옮긴다. 사람이 고르면 빠지고, 빠지면 `post_freq` 가 과소집계되어 실패한 규칙이 "효과 있음" 으로 살아남는다. 2026-08-13 실측: `skipped-required-api-doc-check` 는 원시 단독 71 인데 클러스터 합산 110 이었다 — 39 건(55%)이 통째로 안 세지고 있었다. 규약: `${CLAUDE_PLUGIN_ROOT}/references/tag-canonicalization.md`.
+10. **이미 승격했는데 재발이 "늘었으면" 문구 문제가 아니라 게이트가 안 걸린 것이다.** 같은 문구를 다시 승격하거나 등급만 올리기 전에 **§B-0 hook coverage audit** 을 먼저 돌려라. 2026-08 실측: `skipped-required-api-doc-check` 가 직전 사이클 9 건 → 이번 30 건 이상으로 **악화**됐는데 사용자는 이미 PreToolUse 훅을 등록해 둔 상태였다. 훅이 있는데 위반이 는다면 1 순위 가설은 "규칙 문장이 약하다" 가 아니라 "훅이 그 경로에서 안 fire 했다" 이다.
+11. **`user_stated_constraint == true` 후보는 freq 2/3회를 기다리지 말고 매-세션 자동 로드 surface로 보낸다** (precedence rule #0). 사용자가 명시적으로 금지한 제약의 재위반은 memory(on-demand 로드)나 관망으로 강등하면 재주입이 약해 매 세션 재프롬프트가 반복된다 (insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응). 재주입 강도 순서: **hook(강제) > CLAUDE.md(매 세션 자동 로드) > path-scoped rule(해당 glob 편집 시 로드) > memory(on-demand)**. fast-track 대상은 memory 아래로 내리지 마라. 단 fast-track이어도 surface write 전 사용자 승인은 필수다 (Gotchas #1).
 
 ## 입력
 
@@ -101,15 +103,27 @@ user-invocable: true
 
    **hook**
    - 영향 범위 큼. **초안만 제시하고 실제 hooks.json 수정은 사용자가 직접** 하게 한다.
-   - 초안에는 이벤트 타입(PreToolUse / PostToolUseFailure 등), matcher, command 예시 포함.
+   - 초안에는 이벤트 타입, matcher, command, timeout 을 모두 포함한다. 아래 **이벤트 타입 사실**을 지키지 않은 초안은 예방 게이트가 아니다 (근거: https://code.claude.com/docs/en/hooks).
+
+   | 사실 | 초안에 미치는 영향 |
+   |---|---|
+   | `PreToolUse` 는 tool call **직전**에만 실행된다 | 예방 게이트는 반드시 `PreToolUse` 다 |
+   | `PreToolUse` 의 `exit 2` 가 그 tool call 을 **block** 한다 | 차단 의도면 exit code 2 를 명시하라. exit 0/1 은 막지 않는다 |
+   | `PostToolUse` 는 **이미 성공한** tool 뒤에 실행된다. 거기서의 `exit 2` 는 stderr 를 Claude 에게 보여줄 뿐 실행을 되돌리지 못한다 | **`PostToolUse` 는 예방 surface 가 아니다.** E3 게이트를 여기에 걸지 마라 — 피드백용이다 |
+   | `@` 파일 참조에는 `PreToolUse` 가 실행되지 않는다 | `@file` 경로로 우회되는 규칙은 훅으로 못 막는다. 조건에 명시하라 |
+   | timeout 난 command/http/mcp `PreToolUse` 훅은 tool call 을 **막지 않는다** | timeout 값을 초안에 반드시 적고, 무거운 검사는 게이트로 쓰지 마라 |
+
+   - **eligibility denominator 를 조건에 박아라.** "API 문서를 확인하라" 같은 서술은 게이트가 될 수 없다. "**Edit/Write/Bash 로 변경하기 직전, 이번 turn/session 에 공식 docs 조회 증거가 없으면 block**" 처럼 (a) 언제 재는지 (b) 무엇을 세는지 (c) 무엇이 통과인지가 있어야 한다.
+   - 초안에는 **관측 카운터**(fired / blocked / bypassed / timeout)를 남기는 방법도 함께 적는다. 카운터가 없으면 다음 주기에 §B-0 를 돌릴 수 없다. hard gate 는 위반을 줄이지만 false positive 가 많으면 alert fatigue 로 무력화되며 (임상 알람 연구에서 false alarm 비율 72~99% 가 desensitization·missed alarm 으로 이어진다: https://pubmed.ncbi.nlm.nih.gov/24153215/), 우회된 게이트는 없는 게이트보다 나쁘다.
 
 5. **rule_id 발급 + ledger append**
    - `rule_id=$(uuidgen)` (macOS/Linux 모두 기본 제공)
    - `promotions-ledger.md`에 아래 YAML 블록 append:
      ```yaml
      - rule_id: <uuid>
-       mistake_tag: <canonical_tag>
-       aliases: [<같은 근본원인의 다른 표기들>]
+       mistake_tag: <canonical_tag>          # lemma_key 안 최빈 원시 표기
+       lemma_key: <lemma_key>                # post_freq 집계의 실제 키
+       aliases: [<lemma_key 클러스터의 나머지 멤버 전체 — tag_canon_groups 출력 그대로>]
        promoted_to: <surface>
        enforcement_level: E1 | E2 | E3
        target_path: <절대경로>
@@ -123,7 +137,7 @@ user-invocable: true
        status: active
      ```
    - `post_freq: null` 로 둔다. `/reflect-kaizen`이 30일 뒤 숫자로 채운다 (`aliases` 포함 합산).
-   - `aliases` 는 digest 클러스터의 멤버 태그 전체. **비워두면 `post_freq` 가 구조적으로 과소집계되어 효과 없는 규칙이 "효과 있음" 으로 오판정된다.**
+   - `aliases` 는 `tag_canon_groups` 가 낸 `lemma_key` 클러스터의 멤버 **전체**를 그대로 옮긴다 (Gotchas #9). **비워두거나 손으로 추리면 `post_freq` 가 구조적으로 과소집계되어 효과 없는 규칙이 "효과 있음" 으로 오판정된다.**
    - `enforcement_level` 은 신규 승격이면 아래 매핑표에서 surface 에 대응하는 값을 적는다.
 
 6. **결과 리포트**
@@ -131,10 +145,48 @@ user-invocable: true
    - 등급 상향한 rule_id 는 `E1 → E2` 형태로 before/after 를 명시.
    - **환경 액션 아이템** (`actionability: user_environment`) 은 승격하지 않았음을 명시하고 필요한 사용자 조치만 나열.
 
+### B-0. 이미 승격했는데 `post_freq` 가 **증가**했다 → `hook_coverage_audit`
+
+§B(등급 상향)로 가기 전에 이 분기를 먼저 통과해야 한다. **진입 조건**: ledger 엔트리가
+`status: active` 이고 `promoted_to` 가 `hook` 또는 `*_claude_md` 인데, 최신 `post_freq` 가
+`initial_freq` **이상**인 경우.
+
+이 상태에서 같은 문구를 다시 쓰거나 등급만 한 칸 올리는 것은 오진이다. 실측 근거:
+`skipped-required-api-doc-check` 는 직전 사이클 9 건 → 2026-08 30 건 이상으로 **늘었고**,
+그 사이 사용자는 이미 PreToolUse 훅을 등록해 둔 상태였다. 규칙이 없어서 위반한 게 아니라
+**게이트가 그 경로에서 작동하지 않은 것**이다.
+
+**점검 9 항 — 전부 실행 결과로 답하라. "설정돼 있을 것이다" 는 답이 아니다.**
+
+| # | 점검 | 확인 방법 | FAIL 이면 |
+|---|---|---|---|
+| 1 | hook installed | 해당 훅이 실제 settings/hooks 선언에 존재하는가 | 승격이 착지하지 않았다 — 재작성 아님, 설치 |
+| 2 | event type | 예방 의도인데 `PostToolUse` 에 걸려 있지 않은가 | `PreToolUse` 로 이동 (§A step 4 hook 표) |
+| 3 | matcher | 실제로 위반이 일어난 tool 이 matcher 에 잡히는가 | matcher 확장 |
+| 4 | path normalization | 상대경로·심볼릭링크·서브디렉토리 cwd 에서도 같은 판정인가 | 경로 정규화 |
+| 5 | exit code | 차단 의도인데 `exit 2` 를 쓰는가 | exit code 수정 |
+| 6 | timeout | timeout 값이 검사 소요보다 큰가 (timeout 난 PreToolUse 는 **막지 않는다**) | 검사를 가볍게 하거나 timeout 상향 |
+| 7 | executable | 스크립트 실행 권한·shebang·인터프리터가 있는가 | 권한/의존성 수정 |
+| 8 | dependency | 훅이 쓰는 CLI/파일이 그 환경에 실재하는가 | 의존성 설치 또는 fail-open 명시 |
+| 9 | fired/blocked 카운터 | fire 는 했는데 block 을 안 한 것인가, 아예 fire 를 안 한 것인가 | 두 경우의 처방이 다르다 |
+
+**라우팅 규칙**
+
+- 1~9 중 하나라도 FAIL → **`hook_coverage_audit` 결과로 보고하고 등급 상향을 하지 않는다.**
+  ledger 엔트리는 그대로 두고 `## hook coverage` 절에 FAIL 항목과 조치를 적는다.
+  같은 문구를 다시 승격하지 마라 — 그것은 이미 실패한 처방의 반복이다.
+- 9 항 전부 PASS 인데도 재발이 늘었다 → 그때 비로소 §B 등급 상향 대상이다.
+  이 경우 근본원인 재정의(태그가 잘못 묶였는지 — SSOT §4 family 확인)를 먼저 검토한다.
+- **훅 자체가 사용자 환경(`~/.claude/settings.json`, `~/.claude/hooks/`)에 있으면 진단만 하고
+  고치지 마라.** Gotchas #1 대로 초안·점검 결과만 제시하고 반영은 사용자가 한다.
+
 ### B. 재발 — Enforcement 등급 상향
 
 > **SSOT**: `harness/docs/guides/skill-design-guide.md` §3.7 "Enforcement 3 등급".
 > E1/E2/E3 의 정의·승급 임계는 그 문서가 정본이다. **여기서 재정의하거나 동의어를 만들지 마라.**
+>
+> **진입 전제**: §B-0 를 통과했을 것. hook / CLAUDE.md 로 이미 승격한 규칙의 `post_freq` 가
+> 증가했다면 등급 상향이 아니라 `hook_coverage_audit` 이 먼저다.
 
 승격했는데도 같은 규칙이 재발했다는 것은 문구가 부족한 게 아니라 **강제 수준이 부족한** 것이다.
 `/insights` 2026-07-27 §0 은 직전 사이클 승격분(Friction #1·#3)의 세션당 발생 비율이 줄지 않았음을,
@@ -175,8 +227,11 @@ digest 는 PreToolUse 훅이 경고를 띄웠는데도 `skipped-required-api-doc
 - CLAUDE.md 200줄 한도 초과를 무시하고 append 하지 마라. 공식 권고 위반 + context window 낭비.
 - **재발한 규칙을 같은 surface·같은 등급에서 문구만 다듬지 마라.** 등급을 올리거나(§B), 왜 올리지 않는지 근거를 대라.
 - **E1/E2/E3 를 이 문서에서 재정의하지 마라.** 정의·승급 임계는 `harness/docs/guides/skill-design-guide.md` §3.7 이 정본이다. 동의어(`레벨1`, `soft/hard` 등)를 만들지 마라.
-- **`aliases` 를 비운 채 ledger 에 append 하지 마라** — post_freq 과소집계로 효과 없는 규칙이 살아남는다.
+- **`aliases` 를 비우거나 손으로 추린 채 ledger 에 append 하지 마라** — post_freq 과소집계로 효과 없는 규칙이 살아남는다. `tag_canon_groups` 출력을 그대로 옮겨라.
 - **환경 오설정(`user_environment`)을 규칙으로 승격하지 마라** — 사용자 조치 안내로만.
+- **예방 게이트를 `PostToolUse` 에 걸지 마라** — 이미 실행된 도구를 되돌리지 못한다. 예방은 `PreToolUse` + `exit 2` 다.
+- **`post_freq` 가 늘었는데 §B-0 없이 등급만 올리지 마라** — 훅이 안 걸린 것을 문구 문제로 오진하면 다음 사이클에 같은 숫자가 또 올라온다.
+- **사용자 환경(`~/.claude/settings.json`, `~/.claude/hooks/`)을 직접 고치지 마라** — 진단 결과와 초안만 제시한다.
 
 ## 예시 사용
 
@@ -186,6 +241,8 @@ digest 는 PreToolUse 훅이 경고를 띄웠는데도 `skipped-required-api-doc
 
 ## 관련 문서
 
+- `reflect-kit/references/tag-canonicalization.md` — canonical / alias / family 규약 SSOT
+- `reflect-kit/hooks/_lib-tag-canon.sh` — `tag_canon_groups` 실행 구현
 - `reflect-kit/docs/DESIGN.md` — Precedence Table 원본 정의
 - `reflect-kit/docs/SCHEMA.md` — YAML + Ledger 스키마 정본
 - `reflect-kit/skills/reflect-digest/SKILL.md` — 입력 후보를 생성하는 선행 스킬

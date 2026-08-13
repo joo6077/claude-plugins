@@ -27,11 +27,12 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 4. **임계값 변경은 프롬프트/스킬 변경보다 보수적**. freq 2 → 3 로 올리면 과거에 이미 승격된 규칙들의 정당성이 흔들리고, 1 → 2 로 내리면 false positive 가 급증한다. 최소 60일 이상의 pre/post 재발률 비교 데이터가 있어야 변경 제안.
 5. **프롬프트 개선 제안은 diff 로 제시하고 자동 저장 금지**. `log-reflection.sh` 의 프롬프트 블록을 직접 수정하려면 사용자가 diff 를 읽고 승인해야 한다. kaizen 이 훅 스크립트를 자동 변경하면 드리프트 감지가 어렵다.
 6. **"no issues" 만 나오는 기간은 정상 또는 프롬프트 실패 둘 다 가능**. 연속 4주 모두 no issues 면 프롬프트가 과도하게 엄격해졌을 가능성을 의심하라 (false negative).
-7. **`post_freq` 는 `canonical_tag` 단독이 아니라 `aliases` 를 합산해서 센다**. ledger 엔트리의 `aliases` 를 무시하면 같은 근본원인이 다른 표기로 재발했을 때 0 으로 집계되어 **효과 없는 규칙이 "효과 있음" 으로 오판정**된다. 2026-07 실측에서 동일 사건이 54 태그로 쪼개졌다 — 이 조건에서 tag 단독 count 는 의미가 없다.
+7. **`post_freq` 는 `canonical_tag` 단독이 아니라 `lemma_key` 클러스터 전체(canonical + aliases)로 센다**. ledger 엔트리의 `aliases` 를 무시하면 같은 근본원인이 다른 표기로 재발했을 때 0 으로 집계되어 **효과 없는 규칙이 "효과 있음" 으로 오판정**된다. 집계는 반드시 `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh` 의 `tag_canon_groups` 출력으로 한다 — 눈으로 세지 마라. 2026-08-13 실측: `skipped-required-api-doc-check` 원시 단독 71 vs 클러스터 110 (39 건 = 55% 누락).
 8. **LLM-as-judge 재분류 프롬프트에는 기존 태그 어휘를 주입하지 마라**. `log-reflection.sh` 는 canonicalization 을 위해 어휘를 주입하지만, judge 에 같은 어휘를 주면 judge 가 원 분류의 태그를 그대로 베껴 일치도가 인위적으로 올라간다. judge 는 **어휘 없이** 재분류해야 측정이 오염되지 않는다. 단 `mistake_tag` 일치는 원래 semantic 비교이므로 표기가 달라도 같은 의미면 일치로 센다.
-9. **태그 파편화 지표를 매 사이클 측정하라**. `원시 태그 수 / 클러스터 수` 가 1.5(**hypothesis** — 운영 데이터로 calibrate)를 넘으면 어휘 주입이 작동하지 않는다는 신호다 — 어휘 수집 쿼리(freq 임계·상위 N)나 태그 작성 규칙이 개선 대상이다. 이 지표가 나쁘면 다른 모든 측정(post_freq, 임계값 calibration)의 신뢰도가 함께 떨어지므로 **먼저** 확인한다.
+9. **파편화 판정에 `fold_ratio`(원시/클러스터)를 쓰지 마라 — `singleton_share` 를 써라**. 클러스터링이 아무것도 못 묶으면 `fold_ratio` 는 **1.00 이 되어 항상 "정상"** 이다. 2026-08-13 전량 실측이 그 상태였다: `fold_ratio 1.02` 인데 클러스터 2,578 개 중 2,279 개가 1 회짜리(`singleton_share 0.884`). `tag_canon_fragmentation` 을 매 사이클 실행하고 `singleton_share > 0.70`(**hypothesis** — baseline 0.884, 이 스킬이 calibrate)이면 어휘 수렴이 실패한 상태다. 이 지표가 나쁘면 다른 모든 측정(post_freq, 임계값 calibration)의 신뢰도가 함께 떨어지므로 **먼저** 확인한다.
 10. **`actionability: user_environment` 엔트리를 품질 측정 모수에 넣지 마라**. Stop 훅 dedup 게이트가 억제하므로 reflections 본문의 표본이 실제 발생과 다르다. judge 샘플링·재발률 집계는 `claude_behavior` 만 대상으로 한다. 환경 이슈 규모는 `.env-issues.tsv` 의 `count` 로 별도 보고.
 11. **`user_stated_constraint == true` fast-track(precedence #0)은 별도 효과 측정 대상**. freq 임계값을 우회해 첫 재위반부터 CLAUDE.md/hook로 승격하므로, calibration 시 이 surface로 간 규칙의 post_freq 를 일반 freq 승격과 분리 집계하라. fast-track 후 post_freq 가 0 으로 잘 떨어지면 Friction #2(피드백 durable 미반영)가 완화된 증거다. 떨어지지 않으면 surface 가 약했거나(memory 로 잘못 감) 규칙 문구가 모호한 것 — 표시.
+12. **파편화 임계 초과 상태에서 demotion 후보를 내지 마라.** 그 상태의 `post_freq` 는 구조적 과소집계이고, `post_freq == 0` 은 "효과 있음" 이 아니라 "못 셌음" 이다. §0 이 `calibration_confidence: low` 를 선언하면 **(2) Ledger Calibration 표의 `verdict` 에 `demote-candidate` 를 쓸 수 없다** — `blocked-low-confidence` 로 적는다. 이것은 서술 권고가 아니라 산출 금지다.
 
 ## 입력
 
@@ -41,11 +42,23 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 
 ## Process
 
-### 0. 파편화 지표 선행 확인 (다른 측정의 신뢰도 전제)
+### 0. 파편화 지표 선행 확인 — **여기서 calibration 유효성이 결정된다**
 
-- 최근 `window` 범위의 원시 `mistake_tag` 수와 `/reflect-digest` 클러스터 수를 구해 `원시/클러스터` 비를 계산한다.
-- **1.5 초과면** 어휘 주입이 작동하지 않는 상태다. 이 경우 아래 2·3 단계 수치는 **과소집계 가능성**을 리포트에 명시하고, 4단계 개선 제안의 최우선 항목을 `log-reflection.sh` 의 어휘 수집·태그 규칙으로 잡는다.
-- 어휘 주입 자체가 작동하는지 확인: `.errors.log` 에 `warn:env-dedup-failed` 가 반복되면 게이트가 fail-open 으로 무력화된 것이다.
+이 단계는 리포팅이 아니라 **게이트**다. 여기서 `low` 가 나오면 3 단계의 demotion 산출이 금지된다.
+
+```bash
+cd "${CLAUDE_PLUGIN_ROOT}/hooks" && . ./_lib-tag-canon.sh
+tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
+# raw_distinct \t clusters \t entries \t singletons \t fold_ratio \t singleton_share \t entries_per_cluster
+```
+
+- 판정은 **6 열 `singleton_share`** 로 한다. **5 열 `fold_ratio` 로 판정하지 마라** — 클러스터링이 아무것도 못 묶으면 1.00 이라 항상 "정상" 이다 (Gotcha #9).
+- `singleton_share > 0.70` (**hypothesis** — 2026-08-13 baseline 0.884) 이면 `calibration_confidence: low` 를 선언한다. 이 선언의 효과는 셋이다:
+  1. (2) Ledger Calibration 표 헤더에 `calibration_confidence: low` 를 적는다.
+  2. **`demote-candidate` verdict 를 낼 수 없다.** 해당 행은 `blocked-low-confidence` 로 적는다 (Gotcha #12). `post_freq == 0` 은 "효과 있음" 이 아니라 "못 셌음" 이다.
+  3. (3) 임계값 재평가를 **건너뛴다** — 과소집계된 재발률로 임계를 흔들면 다음 사이클 판단까지 오염된다.
+- 개선 제안(4 단계)의 최우선 항목은 `tag-lemma-map.tsv` 의 `verb-synonym` / `alias` 행 보강이다. 후보는 `/reflect-digest` 의 `## 병합 보류` 와 `new_tag_reason` 목록에서 가져온다.
+- 어휘 주입 자체가 작동하는지 확인: `.errors.log` 에 `warn:lemma-map-unreadable` 이 있으면 그 기간은 정규화가 fail-open 이었다. `warn:env-dedup-failed` 가 반복되면 환경 dedup 게이트가 무력화된 것이다.
 
 ### 1. LLM-as-judge 재분류
 
@@ -71,7 +84,8 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 - 각 엔트리에 대해:
   - `promoted_at` 이후 기간의 `reflections-*.md` 에서 **`mistake_tag` + `aliases` 전체**의 빈도를 합산 → `post_freq` 에 기록 (Gotcha #7).
   - 합산 중 ledger 의 `aliases` 에 없는 새 표기가 같은 근본원인으로 보이면, 그 태그를 `aliases` 에 **추가**하고 리포트에 "alias 추가" 로 기록한다. 근거 없이 추가하지 마라 — `undesired_behavior` 대조 근거 1줄 필수.
-  - `post_freq == 0 AND risk_class == low` → `status: demoted` 후보 표시 (실제 demote 는 `/reflect-promote action=rollback` 에서).
+  - `post_freq == 0 AND risk_class == low` → `status: demoted` 후보 표시 (실제 demote 는 `/reflect-promote action=rollback` 에서). **단 §0 이 `calibration_confidence: low` 를 선언했으면 이 후보를 내지 않는다** — `blocked-low-confidence` 로 적는다.
+  - `post_freq >= initial_freq` 이고 `promoted_to` 가 `hook` 또는 `*_claude_md` → **`hook-coverage-audit`** verdict. 등급 상향이 아니라 `/reflect-promote` §B-0 의 9 항 점검으로 라우팅한다. 이미 게이트를 걸어 뒀는데 재발이 늘었다면 1 순위 가설은 문구가 아니라 **게이트 미작동**이다.
   - `post_freq == 1` → 문구 명확화 후보(`prompt-revision`). 등급은 올리지 않는다.
   - `post_freq >= 2` → **`enforcement-escalation`** 후보. `harness/docs/guides/skill-design-guide.md` §3.7 승급 규칙에 따라 2회 이상은 E2, 3회 이상이거나 비가역·신뢰 손상이면 E3. 실제 상향은 `/reflect-promote` §B 가 수행한다. 같은 등급에서 문구만 다듬는 제안을 내지 마라.
   - `post_freq < initial_freq AND post_freq <= 1` → 효과 있음, 유지.
@@ -94,8 +108,10 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 
 ### (0) 파편화 지표
 
-- 원시 태그 J개 / 클러스터 C개 = J/C (임계 1.5)
-- 판정: `정상` 또는 `어휘 주입 미작동 — 아래 수치 과소집계 가능`
+- `tag_canon_fragmentation` 7 열 원문 (raw_distinct / clusters / entries / singletons / fold_ratio / **singleton_share** / entries_per_cluster)
+- 판정: `calibration_confidence: high` 또는 `low` (기준 `singleton_share > 0.70`, hypothesis · baseline 0.884)
+- `low` 인 경우 **(2) 의 demote-candidate 산출 금지 · (3) 임계값 재평가 skip** 을 리포트에 명시
+- `warn:lemma-map-unreadable` 건수 (0 이 아니면 그 기간 정규화가 fail-open)
 - 환경 오설정 억제 현황: `.env-issues.tsv` 상위 3건 (tag / count / last_seen)
 
 ### (1) LLM-as-judge 일치도
@@ -109,14 +125,20 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 
 ### (2) Ledger Calibration (window)
 
-`| rule_id | canonical_tag | aliases | surface | enforcement_level | initial_freq | post_freq | verdict |` 테이블.
-`verdict` 는 `demote-candidate / keep / enforcement-escalation / prompt-revision` 중 하나.
+헤더에 `calibration_confidence: high | low` 를 먼저 적는다 (§0 산출).
+
+`| rule_id | canonical_tag | lemma_key | aliases | surface | enforcement_level | initial_freq | post_freq | verdict |` 테이블.
+`verdict` 는 `demote-candidate / keep / enforcement-escalation / hook-coverage-audit / prompt-revision / blocked-low-confidence` 중 하나.
 `enforcement-escalation` 인 행은 목표 등급(`E2` / `E3`)과 그 근거(재발 횟수 · 비가역성 여부)를 함께 적는다.
+`hook-coverage-audit` 인 행은 `/reflect-promote` §B-0 9 항 중 무엇을 확인해야 하는지를 함께 적는다.
+`calibration_confidence: low` 이면 `demote-candidate` 는 **한 행도 나올 수 없다**.
 
 ### (3) 임계값 재평가 (60d 누적)
 
+- **§0 이 `low` 면 이 섹션을 `skipped (calibration_confidence: low)` 로 적고 수치를 내지 않는다.**
 - `freq==2` 로 `project_memory` 승격된 규칙들의 30일 재발률 집계
 - 하향(freq 2→1) / 상향(2→3) / 유지 중 하나를 근거와 함께 제안
+- `singleton_share` 임계 자체도 calibration 대상이다. baseline 0.884 대비 어디까지 내려갔는지를 기록하고, 2 사이클 이상 데이터가 쌓이기 전에는 임계를 바꾸지 마라
 
 ### (4) 프롬프트 개선 제안
 
@@ -144,6 +166,9 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 - LLM-as-judge 를 codex 같은 모델로 다시 돌리지 마라 (self-consistency 로 간주).
 - **judge 재분류 프롬프트에 기존 태그 어휘를 주입하지 마라** — 일치도가 인위적으로 올라간다.
 - `post_freq == 0` 하나로 demote 결정하지 마라 — `risk_class == low` 조건 필수.
+- **파편화 임계 초과 상태에서 demote 후보를 내지 마라** — 그 `post_freq == 0` 은 "효과 있음" 이 아니라 "못 셌음" 이다.
+- **`fold_ratio` 로 파편화를 판정하지 마라** — 아무것도 못 묶으면 1.00 이라 영원히 "정상" 이다.
+- **재발이 늘어난 hook/CLAUDE.md 규칙에 등급 상향을 제안하지 마라** — 먼저 `hook-coverage-audit` 이다.
 - **`post_freq` 를 `canonical_tag` 단독으로 세지 마라** — `aliases` 합산 필수. 과소집계는 효과 없는 규칙을 살려둔다.
 - **재발한 규칙에 "문구를 더 강하게 쓰자" 는 제안을 내지 마라** — 등급 상향(`enforcement-escalation`)이거나, 올리지 않는 근거를 대라.
 - **E1/E2/E3 를 이 문서에서 재정의하지 마라** — `harness/docs/guides/skill-design-guide.md` §3.7 이 정본.
@@ -163,4 +188,6 @@ reflect-kit 자체를 자기 점검하는 스킬. digest/promote 가 실수 규�
 - `reflect-kit/docs/DESIGN.md` — Precedence Table + 임계값 hypothesis 원본
 - `reflect-kit/docs/SCHEMA.md` — ledger post_freq / status 필드 의미
 - `reflect-kit/docs/RESEARCH.md` — LLM-as-judge 근거 리서치
+- `reflect-kit/references/tag-canonicalization.md` — 파편화 지표·canonical/alias/family 규약 SSOT
+- `reflect-kit/hooks/_lib-tag-canon.sh` — `tag_canon_fragmentation` / `tag_canon_groups` 실행 구현
 - `reflect-kit/hooks/log-reflection.sh` — 프롬프트 개선 대상
