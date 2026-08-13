@@ -346,7 +346,7 @@ Hero 섹션의 높이는 뷰포트 비율로 결정하는 것이 일반적이다
 |--------|----------|----------|
 | Apple (iOS) | 44×44pt | 44×44pt |
 | Material (Android) | 48×48dp | 48×48dp |
-| WCAG 2.2 | 24×24px | 44×44px |
+| WCAG 2.2 | 24×24px (SC 2.5.8 AA) | 44×44px (SC 2.5.5 AAA) |
 
 > **출처:** [Tommso Design Style Guide](https://www.tommso.com/our_service/design/style_guide)
 

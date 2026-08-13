@@ -26,6 +26,8 @@ user-invocable: true
 11. **빈 스냅샷/빈 페이지는 PASS 증거가 아니다** — 렌더가 실패해 빈 화면이 캡처돼도 시각 회귀 테스트는 baseline 과 동일하면 통과한다. 시각 테스트에는 **콘텐츠 존재 assertion 을 함께 생성**하라 (핵심 요소 visible, 목록 항목 수 ≥ 1, 컨테이너 높이 > 0). 스냅샷 비교만 있는 테스트 파일은 unbounded-height collapse 같은 결함을 통과시킨다 — 실제 사고 사례다. 상세: `../../references/visual-change-protocol.md` §3.
 12. **부분 변경 검증은 scoped 스냅샷으로 — 의도 외 영역 변화 감지** — "보더만 바꿨다" 를 검증할 때 전체 페이지 스냅샷 하나만 쓰면 배경까지 변한 것을 구분하지 못한다. 변경 대상 요소의 **locator 단위 스냅샷**과 **주변 영역 스냅샷**을 분리 생성하여, 대상은 변하고 주변은 변하지 않았음을 각각 판정하라. 주변 영역 스냅샷이 실패하면 그것은 회귀다. 상세: `../../references/visual-change-protocol.md` §2.
 13. **`prefers-reduced-motion: reduce` 는 "애니메이션 제거" 가 아니다** — 이 설정은 vestibular trigger(scale·pan 등 이동감을 주는 모션)를 **더 온건한 대안으로 교체**하라는 의미이며 모든 전환을 없애라는 뜻이 아니다. 따라서 reduced-motion 테스트를 "애니메이션 개수 0" 으로 assert 하지 마라. `transform: scale/translate` 기반 모션이 사라지거나 opacity/dissolve 로 대체되었는지를 검증하라. 출처: [MDN prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) (Baseline 2020-01).
+14. **골든만 있는 결정 전파 테스트는 FAIL — Decision Propagation Manifest Coverage** — 확정된 디자인 결정이 어느 표면에 반영돼야 하는지는 `.design/decisions.yaml` 이 열거한다 (`decision_id` → `required_surfaces[]` → golden + assertions). 이 manifest 가 있으면 커버리지 규칙 4 조를 따라 테스트를 생성하라. 핵심은 **golden 만 있고 핵심 요소의 visible / count / height assertion 이 없으면 FAIL** 이라는 것 — 빈 화면도 baseline 과 같으면 통과하므로 스냅샷 단독은 "사용자가 본다" 를 증명하지 못한다 (Gotcha 11 과 같은 뿌리). `excluded_surfaces` 에 이유 없이 빠진 표면은 검토된 것이 아니라 **커버리지 공백**이다. 스키마·규칙·실행 가능한 체커: `../../references/visual-change-protocol.md` §6 Decision Propagation Manifest.
+15. **증거에 채널 이름을 붙여라 — 스냅샷 존재는 사용자 관측이 아니다** — `artifact_snapshot` / `dom_snapshot` / `browser_user_visible` / `device_user_visible` 는 강도가 다르다. PASS 문장에는 viewport · route/state · visible locator · count/height · screenshot/golden id 5 요소가 들어가야 하며, 하나라도 없으면 `[미검증]` 이다. 채널 정의: `../../references/visual-change-protocol.md` §7 Evidence Channels. 사용자가 실패를 보고했을 때의 우선순위 규약은 `harness/docs/guides/skill-design-guide.md` §3.8 이 정본이다 — 테스트 통과를 근거로 반박하지 마라.
 
 ## Process
 
@@ -266,6 +268,43 @@ test.describe('Scoped visual change — 대상만 변하고 주변은 불변', (
 })
 ```
 
+### Step 5-b: 결정 전파 테스트 생성 (`.design/decisions.yaml` 이 있을 때만)
+
+manifest 가 없으면 이 단계를 건너뛰되 **"해당 없음" 이 아니라 "manifest 부재"** 로 보고한다
+(체커가 `NO_MANIFEST` + exit 3 을 내는 이유와 같다 — 대상 0 건과 통과는 다르다).
+
+manifest 가 있으면 `decision_id` 마다 `required_surfaces[]` 를 순회하며 surface 당 테스트 1 개를
+생성한다. 스키마와 커버리지 규칙 4 조는 `../../references/visual-change-protocol.md` §6 이 정본이며
+여기서 재정의하지 않는다. 생성 규칙은 셋이다:
+
+1. surface 의 `route_or_entry` · `state` · `viewport_or_container` 를 테스트 셋업에 그대로 옮긴다.
+2. `assertions[]` 를 **golden 비교보다 먼저** 실행한다 — 빈 렌더가 baseline 으로 굳는 것을 막는다.
+3. `selectors[]` 는 대상 locator 스냅샷에, 그 바깥은 주변 영역 스냅샷에 쓴다 (Gotcha 12 와 짝).
+
+```typescript
+// tests/design/decision-DEC-20260813-001.test.ts — manifest 에서 생성
+import { test, expect } from '@playwright/test'
+
+test('DEC-20260813-001 → dashboard.desktop.main', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })   // viewport_or_container
+  await page.goto('/dashboard')                              // route_or_entry
+  // assertions[] — golden 비교보다 먼저 (Gotcha 11·14)
+  const main = page.locator('main').first()
+  await expect(main).toBeVisible()
+  await expect(page.locator("[data-surface='group-list'] > *")).not.toHaveCount(0)
+  expect((await main.boundingBox())?.height ?? 0).toBeGreaterThan(0)
+  // golden — 위 assertion 을 통과한 뒤에만 의미가 있다
+  await expect(main).toHaveScreenshot(
+    'DEC-20260813-001/dashboard.desktop.main.png', { maxDiffPixelRatio: 0.01 }
+  )
+})
+```
+
+생성 후 커버리지 체커(§6)를 돌려 위반 0 건을 확인한다. `golden` 만 있고 `assertions` 가 빈 surface
+가 남아 있으면 그것은 FAIL 이며, 테스트 파일을 만들었다는 사실이 커버리지를 대체하지 않는다.
+
+`excluded_surfaces` 에 올라온 표면은 테스트를 만들지 않되 **보고에는 이유와 함께 열거**한다.
+
 ### Step 6: 반응형 레이아웃 테스트 생성
 
 ```typescript
@@ -324,6 +363,7 @@ test.describe('Responsive Layout', () => {
 | 토큰 검증 | `npx vitest run tests/design/tokens.test.ts` |
 | 접근성 | `npx playwright test tests/design/a11y.test.ts` |
 | 시각 회귀 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` (첫 실행) |
+| 결정 전파 | `python3 <§6 커버리지 체커> .design/decisions.yaml` → 위반 0 · 그 다음 `npx playwright test tests/design/decision-*.test.ts` |
 | 반응형 | `npx playwright test tests/design/responsive.test.ts` |
 
 도구 미설치 시 설치 안내를 제시한다:
@@ -363,9 +403,11 @@ CI 파이프라인에 통합하는 방법을 안내한다 (접근성 게이트, 
 
 ```text
 ## EVIDENCE
+- 채널: [artifact_snapshot | dom_snapshot | browser_user_visible | device_user_visible]
 - 실행 명령: [명령어]
-- 출력: [통과/실패 수, 실패 항목]
+- 출력: [통과/실패 수, 실패 항목 — viewport · route/state · visible locator · count/height · golden id 포함]
 - negative control: [Step 7 2단계 실패 확인 출력 — 미수행 시 "[미검증] 사유"]
+- 결정 전파: [커버리지 체커 출력 — manifest 부재 시 "NO_MANIFEST" 그대로]
 - 미검증: [실행 불가 테스트와 사유]
 ```
 
@@ -373,5 +415,6 @@ CI 파이프라인에 통합하는 방법을 안내한다 (접근성 게이트, 
 
 - `../design-guide/references/principle-index.md` — 디자인 원칙 인덱스 (접근성 카테고리 포함)
 - `../design-system/references/token-principles.md` — 토큰 설계 원칙
-- `../../references/visual-change-protocol.md` — 부분 변경 격리 · before/after 증거 블록 (SSOT)
+- `../../references/visual-change-protocol.md` — 부분 변경 격리 · before/after 증거 블록 · §6 Decision Propagation Manifest · §7 Evidence Channels (SSOT)
+- `harness/docs/guides/skill-design-guide.md` §3.8 User-Reported Failure Gate — 사용자 실패 보고 우선순위 규약의 정본
 - [Playwright Visual Comparisons](https://playwright.dev/docs/test-snapshots) — baseline 생성·갱신 동작
