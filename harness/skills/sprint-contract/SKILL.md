@@ -65,6 +65,10 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - **슬러그를 정규식 통과만으로 자동 채택하지 마라.** 한국어 feature 명은 조사·기호가 전부 `-` 로 치환되어 `3.16.0 마이그레이션 if 분기 정리` → `3-16-0-if` 같은 ASCII 파편이 남는데, 이게 **정규식은 통과해서** "사용자에게 물어라" 가드가 발동하지 않는다. 그렇게 만든 새 슬러그는 기존 `sprint-feedback-<slug>.md` 짝을 고아로 만들어 접미형 정식화의 목적 자체를 무너뜨린다. Step 0.5 (a) 의 `LOST`/`WORDS` 게이트를 거치고, **기존 슬러그 재사용을 `find` 로 먼저 탐색**하라
 - **`conditions:` 값을 손으로 세지 마라 — 명령으로 계산해서 채워라.** 사람이 세면 Anti-patterns / Reusability / Diagnostics 섹션을 빼먹는다. 실제로 한 세션에서 3 회 연속 틀렸다 (18→22, 19→27, 22→25). Step 6.2 의 `grep -cE` 출력을 그대로 전사하고 Step 6.5 게이트에서 재확인한다
 - **계약 저장은 Step 6.5 게이트 통과 전까지 끝난 게 아니다.** 헤더 목록과 조건 배치를 grep/awk 로 실제 검사하고 출력을 인용하라. 허용되지 않은 `## Notes` 같은 헤더를 추가하면 평가자 파서가 오작동한다 (E3 승급, `parser-incompatible-contract-section` 재발)
+- **계약은 write-once 다 — 봉인 이후 조건 줄을 고치지 마라.** Step 6.6 이 조건 체크박스 줄만 정규화 해시해 `conditions_digest` 에 기록한다. **자신이 만든 산출물을 사후에 허용하려고 조건 문구를 넓히는 것**이 실측된 위반 형태다 (2026-08-11 REJECT: "생성자가 … 계약 AR-04 조건 문구를 직접 편집(5→7 경로)"). 직전 사이클이 사이드카를 도입했는데도 재발했으므로 **E1 서술 → E3 결정론적 봉인으로 승급**했다. `SEAL_BROKEN` 을 만나면 조용히 재봉인하지 말고 `recorded`/`actual` 을 보고하라 — 재봉인은 위반을 지우는 행위다. 조건을 바꿔야 하면 `sprint-amendments-<slug>.md` 사이드카에 쓴다
+- **사이드카 amendment 의 direction 을 자기신고하지 마라 — 집합형은 계산하라.** 경로 화이트리스트·파일 열거·대상 목록은 원 집합과 개정 집합을 `comm` 으로 비교해 direction 을 산출한다. 3 경로 → 5 경로는 계산상 `relaxing` 이라 "범위 조정" 이라 부를 여지가 없다. **앵커가 없다고 `unknown` 으로 적지 마라** — direction 과 consent 는 별개 축이고, `narrowing · unanchored` 는 정상적으로 PASS 근거다. 앵커 부재를 이유로 방향까지 무효화한 것이 사이드카를 무력화해 본문 직접 편집을 유발한 구조다 (contract-schema §Amendment 사이드카)
+- **테스트 통과를 요구하는 조건에는 `음성 대조:` 절을 넣어라.** 구현을 지워도 통과하는 측정문은 oracle 이 아니다 — 실측: "mutation test 로 확정, 동시성 가드를 완전히 삭제해도 이 테스트는 여전히 통과한다" (ER-02). 측정이 구현을 **직접** 호출하는지 확인하고, 어느 지점을 무력화하면 FAIL 하는지 조건에 적어라. `[structural]` 존재 확인 조건에는 적용하지 않는다 (자명하게 실패하므로 무의미)
+- **2 개 이상 축의 곱이 조건 의미를 결정하면 인자 매트릭스를 써라 — `cases_total` 을 타이핑하지 마라.** 축·축 값·값의 출처(공유 상수/enum)를 조건에 열거하고 곱은 명령으로 산출한다 (실측: "3 visibility x 6 relation = 18 중 15 만 재현", "16 종 중 2 종만 검증"). 탐색형 스프린트는 같은 매트릭스를 variant 쪽에 써서 **동일 축 값 조합 2 개 이상이면 FAIL** 로 만든다 (실측 UI-04 — 계약이 4 축을 지정했는데도 두 variant 가 4 축 전부 동일값이었다)
 
 ## 설정 로드
 
@@ -115,7 +119,7 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
 
 ## Process
 
-> Step 0 · 0.5 · 1.2 · 1.4 · 6.2 · 6.5 는 **E2/E3 게이트**다 (등급 정의: `../../docs/guides/skill-design-guide.md` §3.7,
+> Step 0 · 0.5 · 1.2 · 1.4 · 6.2 · 6.5 · 6.6 은 **E2/E3 게이트**다 (등급 정의: `../../docs/guides/skill-design-guide.md` §3.7,
 > 계약 레이어 등급표: `../../docs/guides/contract-design-guide.md` §원칙별 Enforcement 등급).
 > 각 게이트의 산출물을 실제로 출력하기 전에는 다음 단계로 넘어가지 않는다.
 
@@ -274,6 +278,27 @@ read_fm() {   # read_fm <key> <file> — 첫 frontmatter 블록에서만 읽어 
 echo "status=[$(read_fm status "$CF")] owner=[$(read_fm owner_session "$CF")]"
 ```
 
+**분기 전에 봉인부터 검증한다 (v5.3).** 이어작업으로 기존 계약을 다시 여는 이 시점이, 지난
+스프린트에서 조건 본문이 변조됐는지 확인할 수 있는 **작성 측의 유일한 검사 지점**이다. 검증
+함수 정의는 `harness/references/contract-schema.md` §계약 봉인 이 SSOT 다 — 여기서 재정의하지
+말고 그대로 쓴다 (`sha256_16` · `contract_digest` · `verify_seal`).
+
+```bash
+REC=$(read_fm conditions_digest "$CF"); REC=${REC#sha256:}
+if [ -z "$REC" ]; then
+  echo "SEAL_ABSENT $CF (레거시 — 경고이지 실패가 아니다. 소급 봉인 금지)"
+else
+  ACT=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
+  [ "$REC" = "$ACT" ] && echo "SEAL_OK $CF" \
+    || echo "SEAL_BROKEN $CF recorded=$REC actual=$ACT"
+fi
+```
+
+- `SEAL_BROKEN` — **조용히 다시 봉인하지 마라.** 두 값을 그대로 사용자에게 보고하고, 아래 3 분기
+  중 무엇을 택할지 함께 정한다. 변경이 정당했다면 그 내용을 사이드카 amendment 로 옮겨 적는다.
+- `SEAL_ABSENT` — 레거시 계약이다. 경고만 남기고 정상 진행한다. **소급으로 봉인을 써 넣지 마라** —
+  원문이 무엇이었는지 증명할 수 없는 봉인이 된다.
+
 `read_fm` 출력으로 `TAKEN` 을 분기한다:
 
 - `owner_session` 이 현재 `$CLAUDE_CODE_SESSION_ID` 와 같다 → 내 세션의 재작성이다.
@@ -421,6 +446,26 @@ echo "status=[$(read_fm status "$CF")] owner=[$(read_fm owner_session "$CF")]"
 - 중간 (4-8 파일): 카테고리당 2-3개, 총 8-12개
 - 복잡 (9+ 파일): 카테고리당 3-5개, 총 12-20개
 
+**조건 패턴 3 종 (v5.3)** — 해당하는 조건에만 적용한다. 전 조건에 강요하면 과잉 절차다.
+포맷 정의는 `harness/references/contract-schema.md` 가 SSOT 이며 여기서 재정의하지 않는다.
+
+| 패턴 | 적용 조건 | 요구 |
+| ---- | -------- | ---- |
+| **측정 커버리지 표기** | `enumerated` 태그 조건 | 산문 측 대상과 측정 측 대상을 **같은 표기**(백틱 · 공백 없는 토큰)로 적는다. 상위 패턴으로 덮으면 **작성 시점에 1 회 실행해 확장 결과를 측정 절에 열거** |
+| **인자 매트릭스** | 2 개 이상 축의 곱이 조건 의미를 결정할 때 | 축·축 값·값의 출처(공유 상수/enum)를 열거하고 `cases_total` 은 **명령으로 산출**. 탐색형이면 variant 별 축 값 조합을 열거하고 중복 조합 = FAIL |
+| **음성 대조** | 조건이 **테스트 통과**로 판정될 때 | `음성 대조:` 절에 "어느 구현 지점을 무력화하면 이 측정이 FAIL 하는지" 를 적는다. `[structural]` 존재 조건에는 적용하지 않는다 |
+
+**직전 사이클의 amendment 확정분을 원문에 반영한다 (v5.3).** 같은 슬러그를 이어받는
+스프린트라면 사이드카를 먼저 읽고, 확정된 `narrowing` 을 **새 계약 조건의 원문에** 녹여
+넣는다. 그러지 않으면 "write-once 계약 원문이 amendment 로 대체된 채 남아있다" 상태가 누적되어
+다음 평가자가 두 문서를 겹쳐 읽어야 한다 (실측 improvement `[LG-02, LG-04]`).
+
+```bash
+# 이어작업 슬러그의 사이드카 확인 — 글로빙 금지 (§셸 이식성)
+find "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
+  \( -name 'sprint-amendments.md' -o -name "sprint-amendments-$SLUG.md" \) 2>/dev/null
+```
+
 ### 2.5. Counterpart 조건 삽입 (E2)
 
 Step 1 의 "공개 API·계약 변경" 또는 "소비면 존재" 가 "예" 면 **Counterpart 조건을 반드시 넣는다.**
@@ -493,6 +538,8 @@ complexity: "{단순|중간|복잡}"
 conditions: {Step 6.2 가 계산한 값}
 status: active
 owner_session: {$CLAUDE_CODE_SESSION_ID}
+conditions_digest: sha256:{Step 6.6 이 계산한 값}
+locked_at: "{YYYY-MM-DD HH:mm}"
 ---
 
 ## {카테고리별 조건}
@@ -515,6 +562,8 @@ owner_session: {$CLAUDE_CODE_SESSION_ID}
   이 스킬이 새로 쓰는 계약에는 **반드시 `status` 를 적는다**
 - `owner_session` — `$CLAUDE_CODE_SESSION_ID` 를 그대로 쓴다. 환경변수가 비어 있으면
   **필드 자체를 생략**한다. 빈 문자열이나 `unknown` 같은 자리표시자를 쓰지 마라
+- `conditions_digest` · `locked_at` — **Step 6.6 에서 채운다.** 본문 저장 시점에는 값을 모르므로
+  자리표시자를 넣지 말고, Step 6.6 이 계산한 값을 그때 써 넣는다
 
 **아카이브** — Step 0.5 (c) 에서 **"아카이브 후 신규" 를 선택했을 때만** 수행한다.
 같은 슬러그의 기존 계약을
@@ -565,8 +614,49 @@ N=$(grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF")
 [ "$FM" = "$N" ] && echo "OK conditions=$N" || echo "MISMATCH frontmatter=$FM actual=$N"
 ```
 
-위반이 1 건이라도 있으면 계약을 수정하고 재실행한다. **통과 전에는 Step 7 로 진행하지 않는다.**
+위반이 1 건이라도 있으면 계약을 수정하고 재실행한다. **통과 전에는 Step 6.6 으로 진행하지 않는다.**
 (`parser-incompatible-contract-section` 실제 발생 — 허용되지 않은 `## Notes` 섹션 추가)
+
+**(4) 측정 커버리지 검출기 — 이것만 blocking 이 아니다.** `enumerated` 조건에서 산문이 요구한
+대상이 측정 절에 없으면 `UNCOVERED` 를 출력한다. 검출기 스니펫은
+`harness/references/contract-schema.md` §측정 커버리지 표기 가 SSOT 다 — 그대로 실행한다.
+
+`UNCOVERED` 는 **자동 FAIL 이 아니다.** 실측 오탐률 때문이다 (계약 109 개 · `enumerated` 조건
+114 개 → 나이브 76 건 / 좁힌 형태 29 건, 상당수가 "상위 명령이 실제로 덮는" 정당 케이스).
+출력된 1 건마다 아래 둘 중 하나를 한다:
+
+1. 조건을 고친다 — 측정 절에 누락된 대상을 열거하거나, 상위 패턴을 1 회 실행해 **확장 결과**를 적는다
+2. **해소 기록**을 남긴다 — 서술 섹션(`## 범위 경계` 등)에 `커버리지 해소: {조건 ID} — {사유}`
+   한 줄. 사유 없이 넘기면 이 검출기를 도입한 의미가 없다
+
+### 6.6. 계약 봉인 (E3)
+
+Step 6.5 를 통과한 직후, 조건을 **봉인**한다. 계산·검증 함수 정의는
+`harness/references/contract-schema.md` §계약 봉인 이 SSOT 다 (`sha256_16` · `contract_digest` ·
+`verify_seal`) — 여기서 재정의하지 말고 그대로 쓴다.
+
+```bash
+# (a) digest 계산 — 조건 체크박스 줄만, 체크 상태를 정규화해서 해시
+D=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
+
+# (b) frontmatter 2 필드 기록 (없으면 추가, 있으면 치환)
+#     본문의 `conditions_digest:` 예시 줄을 건드리지 않도록 첫 frontmatter 블록만 손댄다
+printf 'conditions_digest=sha256:%s locked_at=%s\n' "$D" "$(date '+%Y-%m-%d %H:%M')"
+
+# (c) 기록 직후 자기 검증 — 출력을 인용한다
+REC=$(read_fm conditions_digest "$CF"); REC=${REC#sha256:}
+ACT=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
+[ "$REC" = "$ACT" ] && echo "SEAL_OK $CF" || echo "SEAL_BROKEN $CF recorded=$REC actual=$ACT"
+```
+
+**(d) 봉인 이후 조건 본문을 편집하지 마라.** 이 시점부터 계약은 write-once 다. 구현 중에
+조건이 틀렸다는 것을 알게 돼도 `- [ ]` 줄을 고치지 않는다 — `sprint-amendments-<slug>.md`
+사이드카에 쓴다. **자신이 만든 산출물을 사후에 허용하려고 조건 문구를 넓히는 것**이 실측된
+위반 형태이며(2026-08-11 REJECT), 그것 때문에 이 규칙이 E1 서술에서 E3 봉인으로 승급했다.
+
+- 체크박스 토글(`- [ ]` → `- [x]`)과 서술 섹션 보강은 봉인을 깨지 않는다 — 의도된 설계다.
+- 조건 **문구 변조**와 **조건 추가·삭제**는 반드시 깬다.
+- `SEAL_BROKEN` 이 뜨면 **다시 봉인하지 말고** `recorded` / `actual` 을 사용자에게 보고하라.
 
 ### 7. 자기진단
 
@@ -588,6 +678,11 @@ N=$(grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF")
    - `conditions_count_typed`: `conditions:` 값을 손으로 세지 않고 Step 6.2 명령 출력으로 채웠는가?
    - `slug_reservation_skipped`: Step 0.5 선점 없이 계약 파일을 썼는가? (선점 없이 쓰면 병렬 세션 덮어쓰기 위험)
    - `slug_adopted_without_confirm`: `SLUG_CONFIRM` 이 떴는데 사용자 확인 없이 채택했는가? 또는 (a-1) 기존 슬러그 재사용 탐색을 건너뛰었는가?
+   - `contract_seal_missing`: Step 6.6 을 실행해 `conditions_digest` / `locked_at` 을 기록하고 `SEAL_OK` 출력을 인용했는가?
+   - `measurement_coverage_gap`: Step 6.5 (4) 의 `UNCOVERED` 각 건에 조건 수정 또는 해소 기록을 남겼는가?
+   - `factor_matrix_missing`: 2 개 이상 축의 곱이 의미를 결정하는 조건에 축·축 값·`cases_total` 산출 명령이 있는가? (탐색형이면 variant 축 조합 중복 검사까지)
+   - `negative_control_missing`: 테스트 통과로 판정되는 조건에 `음성 대조:` 절이 있는가?
+   - `amendment_direction_uncomputed`: 집합형 amendment 의 direction 을 자기신고하지 않고 집합 비교로 계산했는가? 앵커 부재를 이유로 `unknown` 으로 적지 않았는가?
 2. 각 항목에 대해 true/false 판정
 
 ### 8. 교차 진단
