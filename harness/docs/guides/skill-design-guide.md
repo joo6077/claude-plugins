@@ -1,7 +1,7 @@
 ---
 title: Claude Code 스킬 설계 가이드
-version: 1.4.0
-last_updated: 2026-07-27
+version: 1.5.0
+last_updated: 2026-08-13
 ---
 
 # Claude Code 스킬 설계 가이드
@@ -59,8 +59,11 @@ Anthropic이 내부 스킬 수백 개를 분석하여 발견한 패턴. **좋은
 | 8 | **런북(Runbook)** | 장애 시 자동 조사 및 보고서 | 인시던트 대응 스킬 |
 | 9 | **인프라 운영** | 리소스 정리 및 비용 분석 | 미사용 리소스 정리 |
 | 10 | **Session Lifecycle** | 세션 종료/이어가기/요약 자동화 | handoff, work-summary, resume-prompt |
+| 11 | **탐색형 생성** | 하나의 결정을 위해 비교용 변주안 N 개를 생성 | design-mockup, 시안·후보 생성 스킬 |
 
-> 1~9 는 Anthropic 공식 분석 패턴, **10 은 본 레포 운영 경험에서 추가** (긴 세션의 toll/network/output_token 한계로 truncation 이 잦은 환경에서 lifecycle 스킬이 별도 카테고리로 식별됨, 2026-05 /insights). 이 목록을 체크리스트로 사용하여 팀에 아직 없는 스킬 유형을 점검하라.
+> 1~9 는 Anthropic 공식 분석 패턴, **10~11 은 본 레포 운영 경험에서 추가** — 10 은 긴 세션의 toll/network/output_token 한계로 truncation 이 잦은 환경에서 lifecycle 스킬이 별도 카테고리로 식별된 것(2026-05 /insights), 11 은 탐색이 발산해 산출물이 수십 개로 불어나고 변주끼리 구별되지 않는 실패가 반복 관측된 것(2026-08 /insights · 글로벌 REJECT `UI-04`)이다. 이 목록을 체크리스트로 사용하여 팀에 아직 없는 스킬 유형을 점검하라.
+>
+> **유형 11 에 속하는 스킬은 §5.6 Variant Budget 조항을 반드시 따른다.** 다른 유형과 달리 산출물 개수 자체가 실패 모드이기 때문이다.
 
 ---
 
@@ -250,6 +253,39 @@ Good: 사용자 "X 함수 수정해" → Claude X 만 수정 → 인접 개선�
 
 스킬에서 E3 는 보통 `scripts/validate_*.sh` + "검증 통과 전 다음 단계 진행 금지" 문구, 또는 `PreToolUse`/`PostToolUse` 훅으로 구현한다.
 
+#### 초기 등급 선택 기준 — 위반 이력이 없을 때 무엇으로 시작하는가
+
+승급 규칙은 "재발했을 때 어디로 올릴지" 만 정한다. **처음 도입하는 원칙의 시작 등급**은 규칙의 성격으로 고른다.
+
+| 시작 등급 | 이런 성격의 규칙 |
+| ---- | ---- |
+| **E1** | 선호·휴리스틱·저위험 규칙. 위반해도 되돌리기 쉽고, 판정에 문맥 해석이 필요하다 |
+| **E2** | 반복 누락이 예상되는 규칙, open-ended 작업, **범위·개수·증거를 남겨야 하는 규칙** |
+| **E3** | 기계 판정이 가능하고 위반 비용이 큰 규칙, 또는 E2 를 붙였는데도 반복 위반되는 규칙 |
+
+**등급을 적지 않은 원칙은 미완성이다.** 새 원칙을 이 가이드나 하위 SKILL.md 에 추가할 때 등급을 명시하지 않으면, 나중에 그 원칙이 재발했을 때 "무엇에서 무엇으로 올릴지" 를 판정할 수 없어 결국 문장만 다시 다듬게 된다 — 그것이 등급 체계를 도입한 이유를 무효화하는 실패 경로다.
+
+#### 등급 원장 — 이 가이드 원칙의 현재 등급
+
+재발 신호가 들어왔을 때 **문장을 추가하는 대신 이 표에서 해당 행을 찾아 등급을 올린다.**
+
+| 원칙 | 위치 | 현재 등급 | 승급 트리거 |
+| ---- | ---- | ---- | ---- |
+| Enumerate-before-Act | §5.5 | E1 | low-freedom 영역 추정 착수 2 회 재발 → 열거 산출물을 남기는 E2 |
+| Pre-Edit Batch Audit | §3.6 | E2 (승인받는 위반 체크리스트) | 체크리스트 없이 편집 착수 2 회 재발 → 편집 전 audit 산출물 존재를 확인하는 E3 |
+| Rule-by-Rule Audit | §3.6 | E2 (완료 전 대조 리포트) | 완료 보고에 대조 결과 누락 2 회 재발 → 규칙 리스트 자동 대조 스크립트 E3 |
+| Scope-Bound Edits | §3.6 | E1 + Hard-stop 목록만 E3 (훅) | 범위 밖 편집 2 회 재발 → 허용 경로 화이트리스트를 검사하는 E3 |
+| Completion Evidence Gate | §3.7 | E2 (`[미검증]` 마커 · 증거 블록) | 증거 없는 완료 주장 재발 → 검증 스크립트 통과 전 완료 차단 E3 |
+| Counterpart Enumeration | §5.5 | E2 (producer/consumer 열거 아티팩트) | 반대편 누락 재발 → 양면 경로 대조 E3 |
+| Variant Budget | §5.6 | E2 (Variant Matrix) | 축 값이 겹치는 variant 재발 → 축 값 비교 스크립트 E3 |
+| User-Reported Failure Gate | §3.8 | E1 | 사용자 재보고 뒤에도 완료 주장 재발 → `REOPENED` 상태를 남기는 E2 |
+
+#### E3 의 한계 — 단일 게이트는 보장이 아니다
+
+E3 는 per-run 으로 금지된 전이를 막지만 **태스크 전체의 성공을 보장하지는 않는다.** 게이트 논문 자신이 정책·모델별 audit 이 따로 필요하다고 적고 있고([arxiv:2607.07405](https://arxiv.org/html/2607.07405)), 에이전트 가드레일 구현체도 tripwire 는 실행을 끊을 뿐 옳은 결과를 만들지 않는다([OpenAI Agents SDK guardrails](https://openai.github.io/openai-agents-js/guides/guardrails/)). Anthropic 도 단일 방어선은 보장이 아니며 여러 계층이 필요하다고 본다([Trustworthy agents](https://www.anthropic.com/research/trustworthy-agents)).
+
+**트레이드오프:** 등급을 올리면 위반은 줄지만 과차단(false positive)과 게이트 유지보수 비용이 생긴다. 게이트가 정상 작업을 막기 시작하면 사람이 우회하기 시작하고, 우회된 게이트는 없는 게이트보다 나쁘다 — 통과 기록이 안전을 오해하게 만들기 때문이다. 그래서 승급은 **재발이 실제로 관측된 규칙에만** 적용하고, 원장에 승급 트리거를 미리 적어 둔다.
+
 ### 스킬이 지켜야 할 5 조항
 
 1. **증거 블록 의무.** 산출물을 만드는 스킬은 완료 보고에 실행한 **명령과 그 출력**(또는 `파일:라인`) 을 포함한다. "동작한다", "정상 렌더링된다" 같은 서술만으로 완료를 선언하지 않는다.
@@ -266,6 +302,48 @@ Good: 검증 불가 → "[미검증] MCP 미설정 — 시각 대조 불가" 명
 ```
 
 **Cross-Surface Parity:** 본 원칙은 §11 parity 표 5 번째 항목 — agent-design-guide §10 "Unverifiable 조건 정책" 의 스킬(생성) 측 짝이다. 평가자만 미검증을 표기하고 생성자는 표기하지 않으면, 평가 시점에야 미검증이 드러나 iteration 이 낭비된다.
+
+---
+
+## 3.8. User-Reported Failure Gate — 사용자 관측은 반증 대상이 아니라 재현 대상이다
+
+> **출처:** [How Coding Agents Fail Their Users — arxiv:2605.29442](https://arxiv.org/html/2605.29442) · [From Confident Closing to Silent Failure — arxiv:2606.09863](https://arxiv.org/html/2606.09863) · [OCI Agent Evaluation Framework — Oracle](https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework) · `/insights` 2026-08-13 신규 델타 D3
+>
+> **현재 등급: E1** (§3.7 등급 원장 참조)
+
+§3.7 이 다룬 것은 **자기 증거의 유효성**이다. 이 절이 다루는 것은 **자기 증거와 사용자 보고가 충돌할 때의 우선순위**로, 서로 다른 문제다. 실제 사고 형태는 사용자가 "아직 깨져 있다" 고 보고했는데 스킬이 자기 테스트·스냅샷을 근거로 **반박**하다가 신뢰가 무너지고, 결국 사용자가 지목한 결함이 사실로 드러나는 것이었다.
+
+### 규약 5 조
+
+1. **상태는 PASS 가 아니라 `REOPENED` 다.** 사용자 실패 보고가 들어오면 해당 항목의 상태어를 `REOPENED` 로 바꾼다. 이전 PASS 근거는 지우지 말고 "그때 그 오라클로는 통과했다" 는 기록으로 남긴다.
+2. **자기 테스트·스크린샷은 "내 환경에서의 관측" 이다.** 그것은 사용자 보고의 반박 근거가 아니다. 상태 검증은 에이전트의 self-report 가 아니라 **target system** 을 확인해야 한다 (Oracle 평가 프레임워크). 자기평가 궤적에서 실패의 75.8% 가 false success 였다는 관측(arxiv 2606.09863)이 여기에도 그대로 적용된다.
+3. **먼저 오라클 유효성부터 의심한다.** 사용자 보고가 틀렸을 가능성을 따지기 전에, 내 오라클이 **사용자가 보는 것을 재고 있었는지**를 확인한다. 아래 6 축을 같은 값으로 재현했는지 하나씩 대조한다:
+
+   | # | 재현 축 | 확인 질문 |
+   | --- | --- | --- |
+   | 1 | **URL / 경로** | 사용자가 연 화면과 내가 검사한 화면이 같은 라우트인가 |
+   | 2 | **브랜치 / 커밋** | 사용자가 돌린 코드가 내가 검사한 커밋과 같은가 (스테일 빌드 포함) |
+   | 3 | **viewport** | 폭·높이가 같은가. 무제한 높이로 잰 결과는 실기 화면을 재지 않는다 |
+   | 4 | **디바이스 / 플랫폼** | 실기기·시뮬레이터·브라우저 중 무엇인가 |
+   | 5 | **auth · cache** | 로그인 주체, 캐시·서비스워커·핫리로드 잔여 상태가 같은가 |
+   | 6 | **데이터 상태** | 같은 레코드·같은 빈 상태·같은 권한으로 보고 있는가 |
+
+4. **반박 금지.** 재현 전에 "정상 동작합니다" 를 다시 말하지 않는다. 사용자 교정은 intent anchor 로 보존한다 — 실사용 20,574 세션 관측에서 가시적 해소의 91.49% 가 사용자의 명시적 교정을 필요로 했다 (arxiv 2605.29442). 같은 주장을 반복하는 것은 그 교정 신호를 버리는 행동이다.
+5. **완료 선언 해제는 아래 3 택 중 하나가 성립할 때만 한다.**
+   - (a) 사용자 관측을 **재현**하고 수정한 뒤, 같은 조건에서 재검증한 출력을 인용한다
+   - (b) 재현되지 않는 이유를 **환경 불일치로 특정**한다 (위 6 축 중 어느 축이 달랐는지 값으로 제시). "환경 문제인 것 같다" 는 특정이 아니다
+   - (c) 사용자가 직접 **수정 확인**을 해준다
+
+**오독 금지:** 이 절을 "사용자 보고를 무조건 사실로 인정하라" 로 읽지 마라. 정확한 규약은 **완료 판정을 보류하고 오라클 유효성을 먼저 의심한다** 이다. 사용자 관측이 다른 원인(다른 브랜치, 캐시)일 수도 있고, 그것을 밝히는 것도 위 (b) 로 인정된다.
+
+```text
+Bad:  사용자 "아직 깨져 있음" → "테스트 통과했습니다 / 스냅샷 정상입니다" → 재주장 → 신뢰 붕괴
+Good: 사용자 "아직 깨져 있음" → 상태 REOPENED → 6 축 대조 → viewport 불일치 발견 → 같은 조건 재현 → 수정 → 재검증 출력 인용
+```
+
+**트레이드오프:** 이 게이트는 신뢰를 회복하지만 **환경 차이를 재현하는 비용**이 든다 (실기기 확보, 캐시 초기화, 데이터 세팅). 그래서 6 축 대조는 값싼 축(브랜치·URL·viewport)부터 확인하고, 비싼 축(실기기·데이터 상태)은 앞 축이 전부 일치할 때 넘어간다.
+
+**Cross-Surface Parity:** 본 원칙은 §11 parity 표 14 번째 항목 — agent-design-guide §10 "사용자 보고 우선" Gotcha 의 스킬(생성) 측 짝이다. 생성 측이 완료를 고집하고 평가 측만 REOPENED 로 다루면 두 판정이 충돌해 사용자가 중재자가 된다.
 
 ---
 
@@ -566,6 +644,61 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
 ```
 
 **부적합:** 소비자가 존재할 수 없는 순수 내부 리팩터링(private 함수 본문, 로컬 변수명). 이 경우 열거 단계는 noise 다.
+
+---
+
+## 5.6. Variant Budget — 탐색형 산출물의 개수 상한과 축 고정
+
+> **출처:** [Design of Experiments — ASQ](https://asq.org/quality-resources/design-of-experiments) (factor / level / design matrix) · [Empirically Understanding the Impact of Item Constraints on Designer Ideation](https://www.researchgate.net/publication/358854029_Empirically_Understanding_the_Impact_of_Item_Constraints_on_Designer_Ideation) · [Skill Authoring Best Practices — Set appropriate degrees of freedom](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) · 글로벌 REJECT `UI-04` (2026-08-12) · `/insights` 2026-08-13 신규 델타 D2
+>
+> **적용 대상: §2 유형 11 (탐색형 생성).** 시안·목업·후보안·네이밍 후보처럼 **하나의 결정을 위해 비교용 변주안을 여러 개 만드는** 스킬 전부.
+>
+> **현재 등급: E2** — Variant Matrix 라는 아티팩트를 남긴다 (§3.7 등급 원장 참조)
+
+### 이름 구분 (필수) — agent-design-guide §7 의 탐색 예산과 다른 개념이다
+
+두 이름이 비슷해 혼동되기 쉬우므로 **용어를 섞어 쓰지 마라.** §5.5 의 L1/L2/L3 ↔ high/medium/low freedom 충돌 처리와 같은 규약이다.
+
+| 용어 | 정의 | 위치 |
+| ---- | ---- | ---- |
+| **Exploration Budget** | 산출 **이전**의 read-only 탐색에 쓰는 turn·비용 상한 (과탐색 stall 방지) | agent-design-guide §7 |
+| **Variant Budget** | 산출 **자체**의 개수 상한과 변주 축 고정 (탐색 발산 방지) | 이 절 |
+
+### 왜 축 선언만으로는 부족한가
+
+실측: 글로벌 REJECT `UI-04` 는 **계약이 4 축(버블 컨테이너 유무 / 정렬 컬럼 수 / 메타 위치 / 묶음 단위)을 이미 명시**했는데도 variant 두 개가 4 축 전부에서 같은 값이었다. 즉 축을 선언해도 구현이 무시한다. **축 값의 상이성이 기계적으로 검사 가능해야** 조항이 작동한다.
+
+DOE 의 factor / level / design matrix 가 그 형태다 — 입력 factor 와 그 level 을 먼저 정하고, design matrix 로 조합을 제한한다. 디자인 제약 연구도 같은 방향을 지지한다: 제약은 탐색을 막는 것이 아니라 특정 방향으로 유도한다.
+
+### 조항 5 요소
+
+산출물 개수와 변주 축이 요청에 명시되지 않은 탐색형 요청에서:
+
+1. **기본 산출물 상한 3 개.** 4 개 이상은 사용자 승인이 선행되어야 한다. "많이 뽑아 놓고 고르게 하자" 는 수량으로 품질을 대체하려는 시도이며, 실제로는 사용자가 전부 지우게 만든다.
+2. **primary axis 1 개 고정, 필요하면 secondary axis 1 개까지.** 3 축 이상 동시 변주는 비교 불가능한 산출물을 만든다.
+3. **각 variant 는 축 값이 서로 달라야 하고 나머지는 constants 로 고정한다.** 같은 축 값 조합이 2 개 이상이면 그 세트는 실패다.
+4. **실행 전에 Variant Matrix 를 만들어 합의한다.** 아래 5 열을 채운다.
+5. **요청받지 않은 부대 산출물을 만들지 않는다** — 디자인 시스템, 토큰 파일, 문서, 컴포넌트 라이브러리, scaffold. 필요해 보이면 별도 제안으로 올리고 승인 후에 만든다 (§3.6 Scope-Bound Edits 와 같은 정신).
+
+### Variant Matrix (실행 전 산출 · E2 아티팩트)
+
+| id | axis | axis value | constants | 생성·수정 파일 |
+| ---- | ---- | ---- | ---- | ---- |
+| A1 | 버블 컨테이너 | 없음 | 컬럼 1 · 메타 하단 · 세션 묶음 | `mock/a1.html` |
+| A2 | 버블 컨테이너 | 카드 테두리 | 컬럼 1 · 메타 하단 · 세션 묶음 | `mock/a2.html` |
+| A3 | 버블 컨테이너 | 채움 배경 | 컬럼 1 · 메타 하단 · 세션 묶음 | `mock/a3.html` |
+
+**자가 검사 (제출 전 필수):** `axis value` 열에 **중복 값이 없는지**, `constants` 열이 **모든 행에서 동일한지** 확인한다. 두 검사 중 하나라도 깨지면 그 variant 는 비교 대상이 아니므로 다시 만든다. 이 검사가 반복 실패하면 §3.7 등급 원장에 따라 축 값 비교 스크립트(E3)로 승급한다.
+
+```text
+Bad:  "목업 몇 개" 요청 → 9~40 타일 + 토큰 파일 + 서페이스 레인 생성 → 사용자가 전부 삭제 요구
+Bad:  variant 6 개를 냈으나 B3 와 B6 가 지정된 4 축 전부에서 같은 값 → 구별 불가 → REJECT
+Good: Variant Matrix 3 행 합의 → axis value 3 종이 서로 다름 · constants 동일 → 3 파일만 생성
+```
+
+**트레이드오프:** 상한 3 개는 과잉 생성을 막지만 **탐색 폭을 줄인다.** 축 고정은 비교 가능성을 높이지만 **의외의 조합을 놓친다.** 부대 산출물 금지는 scope creep 을 막지만 **장기적으로 유용한 인프라 생성을 늦춘다.** 그래서 이 조항은 상한을 없애는 대신 **승인 경로**를 둔다 — 4 개 이상도, 3 축 변주도, 토큰 파일 생성도 사용자가 승인하면 정상 경로다. 금지되는 것은 승인 없는 확장뿐이다.
+
+**Cross-Surface Parity:** 본 원칙은 §11 parity 표 13 번째 항목 — agent-design-guide §7 과 **짝이 아니라 구분 대상**이다. 두 절은 서로를 참조하여 이름 혼동을 막는다.
 
 ---
 
@@ -916,9 +1049,9 @@ sprint-contract/
 
 스킬 설계 가이드가 개정되면, **에이전트 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 스킬 Gotchas** 에 대응 원칙이 존재하는지 **자동으로 체크** 해야 한다. 전파가 필요한 원칙인지, 스킬 전용인지 판정하고 전자라면 즉시 복제한다.
 
-### 전수 대상 parity items (5개)
+### 전수 대상 parity items (14개)
 
-두 가이드(skill-design-guide, agent-design-guide)는 아래 5개 항목을 **동일한 개념 · 동일한 용어** 로 공유한다:
+두 가이드(skill-design-guide, agent-design-guide)는 아래 14개 항목을 **동일한 개념 · 동일한 용어** 로 다룬다 (대부분은 양쪽 공유, 일부는 한쪽 전용이거나 구분 대상):
 
 | # | Parity Item | skill-design-guide 위치 | agent-design-guide 대응 위치 |
 | --- | ------------- | ------------------------ | ------------------------------ |
@@ -934,8 +1067,10 @@ sprint-contract/
 | 10 | 반환 데이터 최소화 ↔ Fan-out 상한 / Exploration Budget | §9 (Long-Running Skills — 반환 데이터 최소화) | §7 (Fan-out 상한 · Exploration Budget) |
 | 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (Enforcement 3 등급 · 승급 규칙) | §6 패턴 7 (훅 = E3 게이트의 에이전트 측 구현체) |
 | 12 | Counterpart Enumeration | §5.5 (변경의 반대편 열거) | — (생성 측 전용 · 평가자는 계약 조건으로 수용) |
+| 13 | Variant Budget ↔ Exploration Budget | §5.6 (산출물 개수·축 고정) | §7 (탐색 turn 예산) — **짝이 아니라 구분 대상** |
+| 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — 평가자 측) |
 
-Item 7 은 멀티세션 orchestrator 행동에만 관련되어 agent-design-guide 에 대응이 없다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 12 는 코드를 생성·수정하는 측의 규율이라 평가자 가이드에 대응 섹션을 두지 않고, 대신 계약 조건으로 흡수한다. Item 10 은 토큰 경제 목적의 짝 원칙 — 스킬 측은 중첩 호출 반환 최소화, 에이전트 측은 fan-out 상한·exploration budget 으로 양쪽 존재. **Item 5 는 2026-07 사이클에서 "에이전트 전용" 에서 양면으로 전환되었다** — 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비되기 때문이다. 이 예외들(7, 8, 12)을 제외한 나머지 (1~6, 9~11) 는 **양쪽 모두 존재** 한다.
+Item 7 은 멀티세션 orchestrator 행동에만 관련되어 agent-design-guide 에 대응이 없다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 12 는 코드를 생성·수정하는 측의 규율이라 평가자 가이드에 대응 섹션을 두지 않고, 대신 계약 조건으로 흡수한다. Item 10 은 토큰 경제 목적의 짝 원칙 — 스킬 측은 중첩 호출 반환 최소화, 에이전트 측은 fan-out 상한·exploration budget 으로 양쪽 존재. **Item 5 는 2026-07 사이클에서 "에이전트 전용" 에서 양면으로 전환되었다** — 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비되기 때문이다. **Item 13 은 유일하게 "동일 개념" 이 아니라 "이름이 비슷한 다른 개념" 이다** — 양쪽 절이 서로를 참조해 용어 혼동을 막는 것이 parity 의 내용이다. **Item 14 는 2026-08 사이클 신규**로, 생성 측이 완료를 고집하고 평가 측만 REOPENED 로 다루면 두 판정이 충돌해 사용자가 중재자가 된다. 이 예외들(7, 8, 12, 13)을 제외한 나머지 (1~6, 9~11, 14) 는 **양쪽 모두 존재** 한다.
 
 ### 개정 시 체크리스트
 
@@ -969,7 +1104,9 @@ skill-design-guide.md 를 편집할 때:
 | **Counterpart Enumeration** | 계약·직렬화·공유 모델 변경은 소비자 파일까지 양면 열거 |
 | **Rule-by-rule audit** | 완료 선언 전 규칙 전수 대조 패스 의무 |
 | **Completion Evidence Gate** | 도구 출력 증거 없는 완료 선언 금지 · 검증 불가 시 `[미검증]` 명시 |
-| **Enforcement 등급** | E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 등급을 올려라 |
+| **Enforcement 등급** | E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 문장을 다듬지 말고 §3.7 등급 원장에서 등급을 올려라 |
+| **Variant Budget** | 탐색형 산출물은 상한 3 · 축 1(+1) 고정 · Variant Matrix 합의 후 생성 |
+| **User-Reported Failure Gate** | 사용자 실패 보고는 `REOPENED` — 반박 금지, 오라클 유효성부터 의심 |
 | Eval 먼저 | 최소 3개 평가를 문서보다 먼저 작성 |
 | MCP 도구 풀네임 | `ServerName:tool_name` 필수 |
 | **Substring 배타성** | 키워드 set intersection + substring containment 모두 공집합 |
@@ -998,3 +1135,8 @@ skill-design-guide.md 를 편집할 때:
 - [From Confident Closing to Silent Failure: Characterizing False Success in LLM Agents — arxiv:2606.09863](https://arxiv.org/abs/2606.09863) (2026-06)
 - [Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405](https://arxiv.org/html/2607.07405v1) (2026-07)
 - [How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442](https://arxiv.org/abs/2605.29442) (2026-05)
+- [Design of Experiments — ASQ](https://asq.org/quality-resources/design-of-experiments) (§5.6 factor/level/design matrix)
+- [Empirically Understanding the Impact of Item Constraints on Designer Ideation](https://www.researchgate.net/publication/358854029_Empirically_Understanding_the_Impact_of_Item_Constraints_on_Designer_Ideation) (§5.6 제약과 탐색 유도)
+- [OCI Agent Evaluation Framework — Oracle](https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework) (§3.8 target system 검증)
+- [Guardrails — OpenAI Agents SDK](https://openai.github.io/openai-agents-js/guides/guardrails/) (§3.7 tripwire 의 한계)
+- [Building Trustworthy Agents — Anthropic](https://www.anthropic.com/research/trustworthy-agents) (§3.7 단일 방어선은 보장이 아니다)
