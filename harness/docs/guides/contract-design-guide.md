@@ -1,3 +1,9 @@
+---
+title: Contract Design Guide
+version: v5.0
+last_updated: 2026-08-13
+---
+
 # Contract Design Guide
 
 > sprint-contract 스킬이 참조하는 계약 작성 원칙.
@@ -1175,6 +1181,6 @@ verdict 에 반영되지 않는다.
 
 | 항목 | 값 | 원본 |
 | ------ | ------ | ------ |
-| Guide version | 2026-08-13 (Phase 2 kaizen · v5.0) | 이 문서 |
+| Guide version | 2026-08-13 (Phase 2 kaizen · v5.0) | 이 파일 YAML frontmatter 의 `version` (= `v5.0`) 이 SSOT — 날짜·사유만 이 행에 적는다. 상위 surface(`qa-evaluation-guide.md` §버전 정보 Parity)가 그 필드를 추출하므로 **둘을 같이 올린다** |
 | Schema version | v5.3 | `harness/references/contract-schema.md` §스키마 버전 > `현재:` |
 | Parity with | skill-design-guide 1.5.0 · agent-design-guide 1.6.0 | 두 가이드 frontmatter `version` |

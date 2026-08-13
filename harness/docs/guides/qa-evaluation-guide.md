@@ -1,3 +1,9 @@
+---
+title: QA Evaluation Guide
+version: v5.0
+last_updated: 2026-08-13
+---
+
 # QA Evaluation Guide
 
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
@@ -1734,6 +1740,7 @@ qa-evaluation-guide.md 편집 시:
 - [ ] parity table 의 컬럼을 추가/삭제했는가? → 상위 3 개 가이드의 parity table 도 동일하게 갱신
 - [ ] §Canonical Unverified-Evidence Protocol 또는 §Canonical User-Reported Failure Protocol 을 수정했는가? → `*-kit/agents/*-reviewer.md` 6 종이 복제 중이므로 각 kit 카이젠 Phase 에 전파 지시를 남긴다 (여기서 직접 수정하지 않는다 — 각 kit Phase 소관)
 - [ ] 새 원칙에 Enforcement 등급을 부여했는가? → §원칙별 Enforcement 등급 표에 행 추가. 등급 정의는 skill-design-guide §3.7 을 인용만 한다
+- [ ] 이 가이드 또는 `contract-design-guide.md` 의 version 을 올렸는가? → 두 파일은 frontmatter `version` 과 §버전 정보 본문에 **같은 값을 두 곳에** 담는다. 둘을 함께 올린 뒤 §버전 정보 의 추출 스니펫을 실행해 출력 4 줄이 본문과 문자 그대로 같은지 확인한다
 
 ### 실패 사례 (이 원칙 없이 발생)
 
@@ -1745,13 +1752,30 @@ qa-evaluation-guide.md 편집 시:
 - **Guide version**: 2026-08-13 (Phase 3 kaizen · v5.0 — **미검증 카운터 분리**(`UNVERIFIED_ENV` / `UNVERIFIED_INVALID_EVIDENCE` · 남용 방지 4 요건 · 검증 커버리지 게이트 · 연속 ENV 승급) · **§Discriminating Evidence Gate** · **§Canonical User-Reported Failure Protocol** · **§계약 봉인 검증** · Amendment `direction × consent` 2 축 · scoring bias 출처 정정)
 - 이전: 2026-07-28 (병렬 스프린트 안전성 · v4.3 — 계약 선택 ladder 5 단계 + 3.5 레거시 브릿지 · CONTRACT_ROOT 는 먼저 만나는 `.harness` 에서 멈춤 + `contract_root_unconfigured` 경고 · ladder 1 `test -f` 존재 검사 + 부재/모호 BLOCKED 사유 분리 · 계약 `status` 수명주기 · 계약 지문 TOCTOU · Amendment 소비 규칙 · User Correction Audit · Evidence Validity 검사 5 실행가능성)
 - 이전: 2026-07-27 (Phase 3 kaizen · v4.0 — Evidence Validity Gate · 증거 분류 triage · 계약 파싱 범위 · Canonical Unverified-Evidence Protocol · Recurring Improvement Escalation · 원칙별 Enforcement 등급)
-- **Parity with**: skill-design-guide v1.5.0 · agent-design-guide v1.6.0 · contract-design-guide v5.0
-  - **원본 (값을 손으로 옮겨 적지 마라 — 세 값의 추출 명령이 서로 다르다):**
-    - `skill-design-guide.md` · `agent-design-guide.md` → 각 파일 YAML frontmatter 의 `version` 필드
-    - `contract-design-guide.md` → **이 파일에는 YAML frontmatter 가 없다.** 파일 생성 이래
-      (`git log --follow` 전체) 한 번도 존재한 적이 없으므로 `version:` 추출은 항상 빈 값이며,
-      frontmatter 를 원본으로 지정한 측정문은 이 파일에 대해 실행 불가다. 이 파일의 원본은
-      §버전 정보 표의 `Guide version` 행이다 —
-      `grep -m1 '^| Guide version |' harness/docs/guides/contract-design-guide.md`
+- **Parity with**: skill-design-guide 1.5.0 · agent-design-guide 1.6.0 · contract-design-guide v5.0
+- **원본**: 세 값 전부 각 파일 **YAML frontmatter 의 `version` 필드**다. 단일 추출 경로이며
+  예외 파일은 없다 — 2026-08-13 이전에는 `contract-design-guide.md` 에만 frontmatter 가 없어
+  이 값의 추출 경로가 달랐고, 그래서 이 절이 스테일해도 아무도 재지 못했다. 그 파일에
+  frontmatter 를 신설해 세 값의 원본을 하나로 통일했다.
 - **Schema link**: contract-schema.md v5.3 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
+- **추출 (값을 손으로 옮겨 적지 마라 · zsh · bash 동일)** — 출력 4 줄이 위 `Parity with` 3 값과
+  `Schema link` 의 스키마 버전과 **문자 그대로** 같아야 한다. 한 줄이라도 다르면 이 절이 스테일한
+  것이다:
+
+  ```bash
+  for g in skill-design-guide agent-design-guide contract-design-guide; do
+    v=$(awk '/^---$/{n++; next} n==1 && /^version:/{sub(/^version:[[:space:]]*/,""); print; exit}' \
+      "harness/docs/guides/$g.md")
+    printf '%s %s\n' "$g" "$v"
+  done
+  sed -n 's/^현재: \*\*\(v[0-9.]*\)\*\*.*/contract-schema \1/p' harness/references/contract-schema.md
+  ```
+
+- **표기를 정규화하지 마라.** 세 가이드의 `version` 표기는 원본이 서로 다르다 —
+  `skill-design-guide` · `agent-design-guide` 는 `1.5.0` 형태, `contract-design-guide` 는 `v5.0`
+  형태다. 보기 좋게 `v` 를 붙이거나 떼는 순간 위 추출값과의 문자열 비교가 깨진다. 이 줄은
+  **추출 출력을 그대로 옮긴 것**이지 통일된 표기가 아니다.
+- **frontmatter 와 본문 값을 함께 올려라.** 이 가이드와 `contract-design-guide.md` 는 frontmatter
+  `version` 과 §버전 정보 본문이 **같은 값을 두 곳에 담는다.** 한쪽만 올리면 상위·하위 surface 의
+  Parity 가 조용히 스테일해진다 — 개정 체크리스트의 마지막 항목이 이것이다.
 - **하위 전파 대기**: `*-kit/agents/*-reviewer.md` 6 종 (design · backend · infra · rust · react · planning) — §Canonical Unverified-Evidence Protocol (2026-08 개정분 포함) + §Canonical User-Reported Failure Protocol 복제. 각 kit 카이젠 Phase 소관이며 본 Phase 는 수정하지 않았다
