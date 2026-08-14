@@ -4,7 +4,7 @@ slug: kaizen-memory-integration
 created: "2026-08-14 18:10"
 complexity: "복잡"
 conditions: 21
-status: active
+status: done
 owner_session: 1e76aa0b-dd42-4693-b79a-c2e2e6dfb88f
 ---
 

@@ -1,6 +1,6 @@
 # Kaizen Data Pool
 
-Generated: 2026-08-14T18:48:28
+Generated: 2026-08-14T19:01:50
 Generator: `scripts/collect-kaizen-data.py`
 
 카이젠 오케스트레이션의 Phase 별 서브에이전트가 참조할 통합 데이터 풀이다. 이 파일은 `scripts/collect-kaizen-data.py` 로 재생성된다 — 수동 수정 금지.
