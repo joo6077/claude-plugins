@@ -1,8 +1,8 @@
 # Sprint Feedback
-Feature: 카이젠 2026-08-13 Final — Phase 1~14 크로스 정합성 검증 (v2 계약)
-Evaluated: 2026-08-14 15:16
+Feature: 카이젠 2026-08-13 Final — Phase 1~14 크로스 정합성 검증 (v2)
+Evaluated: 2026-08-14 16:30
 Verdict: REJECT
-Iteration: 3
+Iteration: 4
 
 ## Contract Fingerprint
 - path: /Users/jackson/Hub/10_Dev/claude-plugins/.harness/sprint-contract-kaizen-final-2026-08-13.md
@@ -11,129 +11,120 @@ Iteration: 3
 - slug: kaizen-final-2026-08-13
 - contract_root: /Users/jackson/Hub/10_Dev/claude-plugins
 - contract_root_unconfigured: false
-- 선택 근거: ladder 3 (유일 active — `status: active`인 계약이 후보 전체에서 정확히 1개, `$CLAUDE_CODE_SESSION_ID`=1e76aa0b는 contract의 `owner_session`=df1b3e15와 불일치하여 ladder 2는 건너뜀. 사용자가 계약 경로를 태스크 인자로 명시했으므로 ladder 1(명시 경로) 동치로도 확정됨)
+- 선택 근거: ladder 3 (유일 active — 후보 21개 중 status:active 는 이 계약 1개뿐. owner_session(df1b3e15…)이 현재 세션(1e76aa0b…)과 달라 ladder 2는 불성립, ladder 3로 확정)
 - legacy_contract_used: false
-- seal: SEAL_OK (recorded=2d5170ea874584bc, actual=2d5170ea874584bc, bash·zsh 양쪽 동일). `verify_seal`을 `harness/references/contract-schema.md` §계약 봉인 그대로 구현해 `.harness/sprint-contract-kaizen-*.md` 16개 전체(Final 1개 + Phase 15개)에 bash·zsh 양쪽 실행 — SEAL_BROKEN 0건, SEAL_ABSENT 1건(phase1, 레거시 conditions_digest 필드 없음 — 실패 아님).
-- 조건 수 검증: frontmatter `conditions: 25` == `grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}'` 실측값 25 (일치, 파싱 중단 없음). Step 1.2 헤더 2계층 확인: 조건 섹션(Architecture/Skill/Script/Error/Anti-patterns/Reusability/Diagnostics) 7개 + 서술 섹션(폐기·재작성(v2)/배경/리서치 소스/GAP 분석/범위 경계/회귀 게이트) 6개 — 허용 목록과 정확히 일치.
-- 재확인(Step 5): 일치 (저장 직전 sha256 8e61e34fd666c267077398d30ba103a9f908464b346545410b87f0513835f767, status=active, 평가 시작 시점과 동일 — FINGERPRINT OK)
-- status_transition: skipped (verdict=REJECT — active 유지, 수정 후 재평가 필요)
+- 봉인(verify_seal, bash·zsh 동일): SEAL_OK (conditions_digest sha256:2d5170ea874584bc 일치)
+- 재확인(Step 5): 일치 (아래 참조)
+- status_transition: skipped (verdict=REJECT — active 유지)
 
 ## Amendments
-- amendments: 0 (`.harness/sprint-amendments-kaizen-final-2026-08-13.md` 부재)
+- amendments: 0 (.harness/sprint-amendments-kaizen-final-2026-08-13.md 없음)
 
 ## User Correction Audit
-- correction_log_status: available (`/Users/jackson/.claude/logs/claude-plugins/2026-08.md`, 스프린트 기간(계약 `created: 2026-08-13` ~ 평가 시각) 내 [prompt] 엔트리 전수 확인 — iter2 평가 이후 신규 8건 포함)
-- unreflected_corrections: 2
-  - [2026-08-13T09:17:31+0900 · df1b3e15] "에이전트는 백그라운드는 상관없는데 코덱스는 계속 자주 죽으니깐 포그라운드로 돌려야함" — codex 실행 방식(포그라운드) 운영 지시. Final 계약 조건(AR/SK/SC/ER/AP/RE/DG)의 산출물 스코프 밖(도구 호출 방식)이라 이 계약에 반영 대상이 아님. iter2에서도 동일 판정으로 표면화됨, 여전히 미반영.
-  - [2026-08-14T14:32:25+0900 · 1e76aa0b] "카이젠 오케스트레이션에 메모리에 기록된것도 참조를해야할거 같은데 그리고 몇개는 훅으로 만들고 검증같은것도 해보고" — 카이젠 오케스트레이터의 향후 개선 제안(메모리 참조 + 훅화 + 검증 강화). 이번 사이클의 완료 조건이 아니라 차기 오케스트레이션 설계에 대한 지시이므로 이 계약(Phase 1~14 크로스 정합성 검증)의 조건 스코프 밖.
-- 그 외 신규 [prompt] 6건(2026-08-14T10:43:53 "다음 세션", 11:15:36 세션 인계 요약, 11:28:01/13:00:35/13:18:35/13:50:46 task-notification, 13:10:06/14:17:20 "ㄱㄱ", 14:30:58 "아직도 멀엇음?")은 진행 재개 지시·진행 확인이며 방향 교정이 아님.
+- correction_log_status: available (~/.claude/logs/claude-plugins/2026-08.md, 2026-08-13~14 구간 36개 prompt 전수 스캔)
+- unreflected_corrections: 1
+  - [2026-08-14T14:32:25+0900 · session 1e76aa0b…] "카이젠 오케스트레이션에 메모리 기록도 참조하고 몇 개는 훅으로 만들고 검증도 해보자" — 다음 카이젠 사이클 오케스트레이터 개선 제안. 이번 Final 25조건 범위 밖(오케스트레이션 메커니즘 자체에 대한 제안)이라 이 계약에 반영 대상 아님. 다음 사이클 신호로 남김
+  - 그 외 prompt는 전부 "ㄱㄱ"/"계속해"/"진행중?"/"언제하냐" 류 진행 확인이거나 task-notification 봇 로그였음 — 실질 교정 없음
 - verdict 영향: 없음 (표면화 전용 · 미검증 카운터 비합산)
 
 ## Results
 
 ### Architecture (5/5)
-- [x] AR-01: 11킷 plugin.json 버전이 marketplace.json description과 전부 일치 — PASS. [exact, enumerated] L3
-  - 근거: `python3 scripts/validate-plugin.py` → `Total: 11 plugins, 11 OK` / `Exit: 0` (V7 11킷 전부 OK). 추가로 두 소스에서 킷별 버전을 직접 파싱해 1:1 대조 — 11/11 MATCH (harness 0.7.0, flutter-toolkit 0.7.0, design-kit 0.4.0, backend-kit 0.3.0, infra-kit 0.3.0, rust-kit 0.3.0, react-kit 0.3.0, planning-kit 0.5.0, reflect-kit 0.6.0, bambu-kit 0.6.0, onboarding-kit 0.3.0). 불일치 0건.
-- [x] AR-02: Phase간 소스 미교차 — PASS. [exact] L3
-  - 근거: `python3 scripts/validate-post-kaizen.py` → `[ PASS ] scope-isolation: no cross-phase commits (45 commits · 10 kits)`.
-- [x] AR-03: 계약 외 킷 미변경 — PASS. [structural] L3
-  - 근거: `git diff --name-only main..HEAD | awk -F/ '{print $1}' | sort -u` → `.claude .claude-plugin .harness README.md backend-kit bambu-kit design-kit docs flutter-toolkit harness infra-kit onboarding-kit planning-kit react-kit reflect-kit rust-kit scripts` (17개). 11킷 + docs + scripts + .harness + .claude + .claude-plugin + README.md = 17개 허용 목록과 정확히 일치. 목록 밖 0건.
-- [x] AR-04: 15 Phase 계약 전부 `status: done` + 독립 QA 아티팩트로 뒷받침 — PASS (재판정, iter2 blocking 해소 확인). [exact, enumerated] L3
-  - 측정 (a): `find .harness -maxdepth 1 -name 'sprint-contract-kaizen-phase*.md'` → 15개 전수 열거, frontmatter `status` 추출 — 15/15 `done`, `active` 잔존 0건 (Final 자신 제외).
-  - 측정 (b): `~/.harness/feedback/evaluator/` 를 `project_hash='1a3bcba6'` 기준 전수 grep, 15개 Phase 계약 각각에 대해 `sprint_slug` 일치 + `verdict: APPROVE` 아티팩트를 개별 확인 — **15/15 전부 존재** (phase1·2·3·4·5·6·7·8·9·10·11·12-oracle-positive-control·12-tag-canonicalization·13·14). phase6·12-tag-canonicalization·13은 1차 REJECT 후 재실행에서 APPROVE 아티팩트가 별도 파일로 생성됨을 확인(예: phase6은 `1a3bcba6-2026-08-14T105950-df1b3e15-29421.yaml`=REJECT → `1a3bcba6-2026-08-14T113256-1e76aa0b-42198.yaml`=APPROVE).
-  - 백필 여부: 15개 아티팩트 전부 `skill: qa-evaluator` 필드 보유, 세션ID가 df1b3e15/1e76aa0b 두 개로 분산(오케스트레이터 일괄 생성 아님을 시사), `cross_diagnosis_notes`에 파일별 구체적 실행 근거(라인번호·커밋해시·diff 결과) 기재 — 균일 템플릿이 아닌 개별 실행 흔적 확인. "backfill" 자기서술 0건.
-- [x] AR-05: 봉인 SEAL_BROKEN 0건 — PASS. [exact] L3
-  - 근거: `verify_seal`을 `.harness/sprint-contract-kaizen-*.md` 16개 전체(Final 포함)에 bash·zsh 양쪽 실행 — 결과 완전 동일. SEAL_BROKEN 0, SEAL_ABSENT 1(phase1, 레거시).
+- [x] AR-01: 11킷 plugin.json 버전 = marketplace.json 기술 버전 — PASS
+  - 측정값: 11/11 일치 (harness 0.7.0, flutter-toolkit 0.7.0, design-kit 0.4.0, backend-kit 0.3.0, infra-kit 0.3.0, rust-kit 0.3.0, react-kit 0.3.0, planning-kit 0.5.0, reflect-kit 0.6.0, bambu-kit 0.6.0, onboarding-kit 0.3.0)
+  - 근거: `python3 scripts/validate-plugin.py` 출력 "Total: 11 plugins, 11 OK" / "Exit: 0", V7 11건 전부 OK. [exact, enumerated] 11개 전부 개별 대조 완료
+- [x] AR-02: Phase 커밋이 다른 Phase 소스 미수정 — PASS
+  - 근거: `python3 scripts/validate-post-kaizen.py` → `[ PASS ] scope-isolation: no cross-phase commits (47 commits · 10 kits)`
+- [x] AR-03: 이번 사이클 변경이 계약 열거 범위 안 — PASS
+  - 측정값: `git diff --name-only main..HEAD | awk -F/ '{print $1}' | sort -u` = {.claude, .claude-plugin, .harness, README.md, backend-kit, bambu-kit, design-kit, docs, flutter-toolkit, harness, infra-kit, onboarding-kit, planning-kit, react-kit, reflect-kit, rust-kit, scripts} = 17개, 전부 허용 목록(11킷+docs+scripts+.harness+.claude+.claude-plugin+README.md) 안. 범위 밖 0건
+- [x] AR-04: Phase 계약 15개 전부 done + 독립 QA 아티팩트 뒷받침 — PASS
+  - (a) `find .harness -maxdepth 1 -name "sprint-contract-kaizen-phase*.md"` = 15개, frontmatter status 전부 `done` (active 잔존 0건)
+  - (b) `~/.harness/feedback/evaluator/*.yaml` 에서 15개 계약 각각 `contract_path` 참조 + `verdict: APPROVE` 아티팩트 존재 확인 — 미보유 0건 (phase1/2/3/4/5/6/7/8/9/10/11/12-tag/12-oracle/13/14 전부 확인, 파일명 예: `1a3bcba6-2026-08-14T104148-df1b3e15-68709.yaml` 등). 각 아티팩트의 `cross_diagnosis_notes`가 파일별로 상이한 독립 재실행 세부 근거(커밋 해시·grep 결과·bash/zsh 이중확인·도구 제약 정직 기록)를 담고 있어 오케스트레이터 백필이 아닌 qa-evaluator 자체 실행 산출물로 판단
+- [x] AR-05: 봉인 기록 계약 전부 SEAL_OK — PASS
+  - 측정값: `.harness/sprint-contract-kaizen-*.md` 16개 중 conditions_digest 보유 15개 전부 SEAL_OK, phase1은 SEAL_ABSENT(하위호환 경고, 실패 아님). SEAL_BROKEN 0건. bash·zsh 동일 결과 확인
 
-### Skill (6/7)
-- [x] SK-01: 스키마 버전 일치 — PASS. [exact] L3
-  - 근거: `contract-schema.md`의 "최근 갱신" 헤더에서 추출한 버전 `v5.3` == `qa-evaluation-guide.md`가 명시적으로 인용한 "**참조 스키마**: ... (v5.3)" — 동일.
-- [x] SK-02: 서브에이전트 중첩 불가 단정 잔존 0건 — PASS (iter2 blocking 해소 확인). [exact] L3
-  - 근거: `grep -rn` 으로 `harness/ *-kit/ flutter-toolkit/ docs/` 전수 검색 — "spawn 할 수 없", "위임할 수 없", "하위 에이전트를 만들 수 없" 계열 단정 0건. iter2가 지적한 `docs/harness/agent-design.html:280`(당시 "서브에이전트 자체는 다른 서브에이전트를 spawn 할 수 없다") 재확인 — Step F2 재생성본(커밋 36b3e86)에서 해당 문단이 "1. 중첩은 금지가 아니다 — 기본 3층까지 허용된다"(line 223)로 정정됨. `grep -c "spawn 할 수 없"` = 0.
-- [ ] SK-03: WCAG 터치타겟 레벨 귀속이 정확하다 — **FAIL**. [exact] L3
-  - 측정값: `grep -rn "44" design-kit/ docs/` = 44건. `grep -iE "\bAA\b"` 필터 후 24건. 그중 "AAA" 또는 "24"가 같은 줄에 없는(=반대 레벨과의 대조가 부재한) 후보만 추리면 4건 — `docs/design/research-log.md:421`(정정 로그 헤딩, 서술적 "44×44는 AA가 아니다") · `docs/design-kit/apple-hig.html:139`(정정문 "Apple HIG 필수 ≠ WCAG AA 하한") · **`docs/superpowers/plans/2026-03-30-design-kit.md:886`** · **`docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:278`**.
-  - 위 2건(research-log/apple-hig)은 Read로 맥락 확인 결과 "44≠AA"를 명시하는 정정 서술이므로 오탐 제외. 그러나 나머지 2건은 다르다:
-    - `docs/superpowers/plans/2026-03-30-design-kit.md:886`: "접근성 생략 금지 — 시각적으로 문제없어 보여도 contrast ratio(WCAG AA 4.5:1), 터치 타겟 크기(최소 44×44pt)는 반드시 검사한다."
-    - `docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:278`: "접근성 원칙 무시 금지 — 하이파이 시안이라도 WCAG AA 대비 비율(4.5:1), 최소 터치 타겟(44×44pt)을 준수하라."
-  - 두 줄 모두 "WCAG AA"를 언급한 직후, 다른 표준 병기나 24×24 대조 없이 44×44pt를 유일한 터치 타겟 수치로 제시한다. 이는 Phase 6이 design-kit/ 전역에서 명시적으로 정정한 "레벨 귀속 없이 44px를 제시한 줄"과 동일한 결함 패턴이다(Phase 6 커밋 965af48: "44px를 레벨 귀속 없이 터치 타겟 기준으로 제시한 줄 6개를 AA 24×24 / AAA·Apple HIG 44×44로 귀속 표기"). Phase 6은 `design-kit/` 안쪽만 고쳤고 `docs/superpowers/plans/`는 스코프 밖이라 손대지 않았다 — 이 계약의 배경 절이 명시한 "같은 오류가 다른 Phase의 scope에 남아 있을 수 있다"의 정확한 사례다.
-  - 두 파일은 이번 사이클에서 전혀 수정되지 않은 레거시 기획 문서(`git log`: 마지막 커밋이 각각 2026-03-30/2026-04-06, kaizen 사이클 무관)이지만, 계약의 측정 스코프는 `design-kit/ docs/` 전체이며 `docs/superpowers/plans/`도 리터럴하게 포함된다.
-  - 수정: 두 파일의 해당 줄에 "WCAG AA 하한은 24×24 CSS px, 44×44는 Apple HIG/AAA 권장"을 병기하거나, 계약이 `docs/superpowers/`(구 기획 아카이브)를 스코프에서 명시적으로 제외하도록 재작성 권장.
-
-- [x] SK-04: Freezed when/map 영구제거 단정 잔존 0건 — PASS. [exact] L3
-  - 근거: `grep -rn` 대상 `flutter-toolkit/ docs/flutter/` 10건 전부 Read 확인 — 전부 "3.1.0에서 다시 추가" 병기(9건) 또는 `[정정 2026-08-13]` 주석 동반(historical 로그 3건, 잔존으로 미카운트).
-- [x] SK-05: sqlx::test 트랜잭션 롤백 오설명 잔존 0건 — PASS. [exact] L3
-  - 측정값: `grep -rn 'sqlx::test' rust-kit docs/rust` = 33건. `| grep -E '트랜잭션|롤백' | grep -v '새 테스트 DB'` = 0행.
-- [x] SK-06: scoring bias 논문(2506.22316) binary 근거 오인용 잔존 0건 — PASS. [exact] L3
-  - 근거: `grep -rn "2506.22316" harness/ docs/` = 8건 전부 Read 확인 — 전부 "binary 채점의 근거로 인용하지 마라" 정정 disclaimer 동반 또는 순수 서지 인용(binary 주장 없음). `docs/kaizen/research-log.md:372`(iter1 FAIL 대상)는 373-377행에 "[정정 2026-08-13]" 인라인 정정 확인.
-- [x] SK-07: "Projects v2 = GraphQL only" 단정 잔존 0건 — PASS. [exact] L3
-  - 근거: `grep -rn -i "graphql" planning-kit/ docs/planning/` 전 매치 Read 확인 — 전부 REST 경로 병기 또는 "2026-08-13 정정" 마커 동반.
+### Skill (7/7)
+- [x] SK-01: Phase 2 스키마 버전 = Phase 3 evaluator 인용 버전 — PASS
+  - 근거: contract-schema.md:828 "현재: **v5.3**" == qa-evaluation-guide.md:12 "(v5.3)"
+- [x] SK-02: "서브에이전트 중첩 불가" 단정 잔존 0건 — PASS
+  - 근거: `grep -rn "중첩" harness/ *-kit/ flutter-toolkit/ docs/` 로 전수 수집 후 "불가|금지" 필터 → 매치 전부 Read로 맥락 확인. harness/agent-design-guide.md 2건 + docs/harness 미러 3건은 전부 "과거...했으나 현재는 아니다"류 정정 서술, flutter-toolkit/references/flutter-ai-rules.md:49 및 html 미러 2건은 위젯 트리 중첩(무관 주제), docs/infra-kit/networking.html:691은 VPC CIDR(무관). 위반 0건
+- [x] SK-03: WCAG 터치타겟 44×44=AA 오귀속 0건 — PASS
+  - 근거: `grep -rn "44" design-kit/ docs/` 전수(약 40여 라인)를 AA/AAA 문맥별로 Read 확인. 3건 신규 확인: design-kit/agents/design-reviewer.md:73, design-kit/skills/design-audit/SKILL.md:21·24, docs/superpowers/plans/2026-03-30-design-kit.md:966(iter3 미포착분, "AA, 24×24" 로 정정 확인) 전부 24×24=AA/44×44=AAA로 정확 귀속. 44를 AA로 단정한 줄 0건
+- [x] SK-04: Freezed when/map 영구제거 단정 잔존 0건 — PASS
+  - 근거: `grep -rn "영구\|무조건" flutter-toolkit/ docs/flutter/` 결과 전부 "영구 제거된 것은 아니다"/"무조건 마이그레이션은 틀린 지시" 형태 정정 서술. docs/flutter/research-log.md의 `[정정 2026-08-13]` 주석부는 역사적 로그로 잔존 미산정
+- [x] SK-05: sqlx::test 격리단위 오설명 잔존 0건 — PASS
+  - 측정값: `grep -rn 'sqlx::test' rust-kit docs/rust | grep -E '트랜잭션|롤백' | grep -v '새 테스트 DB'` = 0행 (grep exit 1). 비공허 확인: 필터 적용 전 3건 모두 "새 테스트 DB" 동반 정정 서술임을 별도 확인
+- [x] SK-06: scoring bias 논문(2506.22316) binary 근거 오인용 잔존 0건 — PASS
+  - 근거: `grep -rn "2506.22316" harness/ docs/` 8건 전부 Read. qa-evaluation-guide.md 2곳 + docs 미러 2곳은 정정문. docs/kaizen/research-log.md:372 "채택 (binary PASS/FAIL)"은 바로 다음 줄(373)에 `[정정 2026-08-13]` 디스클레이머가 붙어있어 잔존 미산정
+- [x] SK-07: "Projects v2 = GraphQL only" 잔존 0건 — PASS
+  - 근거: `grep -rn -i "graphql" planning-kit/ docs/planning/` 전부 확인. planning-kit/skills/plan-sync-github/SKILL.md:18 "세 경로를 모두 지원... 사실이 아니다(정정)", docs/planning/research-log.md 4곳 전부 정정 서술. REST 병기 없이 GraphQL 전용 단정 0건
 
 ### Script (5/5)
-- [x] SC-01: validate-plugin 11/11 OK exit 0 — PASS. [exact] L3
-  - 근거: `Total: 11 plugins, 11 OK` / `Exit: 0`.
-- [x] SC-02: sync-docs --check-only 동기화 — PASS. [exact] L3
-  - 근거: "모든 README가 동기화 상태입니다" + `EXIT=0`.
-- [x] SC-03: sync-orchestrator --check-only drift 0 — PASS. [exact] L3
-  - 근거: `sync-orchestrator: 이미 동기화됨 (10 plugins)` + `EXIT=0`.
-- [x] SC-04: validate-doc-contracts violation/not-verifiable 0 — PASS. [exact] L3
-  - 근거: `python3 scripts/validate-doc-contracts.py` → `doc-contracts: 1 블록 검사 · violation 0 · not-verifiable 0`. `validate-post-kaizen.py`의 `doc-contracts` 항목도 PASS 확인.
-- [x] SC-05: 변경 셸스크립트 bash·zsh 통과 — PASS. [exact, enumerated] L3
-  - 측정값: `git diff --name-only main..HEAD -- '*.sh'` = 5개(`harness/evals/kaizen/feedback-system/{aggregation,save}-test.sh`, `reflect-kit/hooks/{_lib-tag-canon,log-reflection}.sh`, `scripts/finalize-phase.sh`). 5/5 개별 `bash -n` exit 0, 5/5 개별 `zsh -n` exit 0.
+- [x] SC-01: validate-plugin.py 11킷 OK, exit 0 — PASS
+  - 근거: 실행 결과 "Total: 11 plugins, 11 OK" / "Exit: 0"
+- [x] SC-02: sync-docs.py --check-only 동기화 보고 — PASS
+  - 근거: 실행 결과 "모든 README가 동기화 상태입니다" 포함, exit 0
+- [x] SC-03: sync-orchestrator.py --check-only drift 0 — PASS
+  - 근거: "sync-orchestrator: 이미 동기화됨 (10 plugins)", `echo $?` = 0
+- [x] SC-04: validate-doc-contracts violation 0·not-verifiable 0 — PASS
+  - 근거: validate-post-kaizen.py 출력 "doc-contracts: 1 블록 검사 · violation 0 · not-verifiable 0"
+- [x] SC-05: 변경 셸 스크립트 bash·zsh 문법 통과 — PASS
+  - 측정값: `git diff --name-only main..HEAD -- '*.sh'` = 5개(harness/evals/kaizen/feedback-system/{aggregation-test,save-test}.sh, reflect-kit/hooks/{_lib-tag-canon,log-reflection}.sh, scripts/finalize-phase.sh). 5개 전부 `bash -n`·`zsh -n` OK
 
 ### Error (1/2)
-- [ ] ER-01: 이번 사이클이 도입한 외부 URL이 근거 파일 또는 기존 원본에 실재한다 — **FAIL**. [structural] L3
-  - 측정값: `git diff main..HEAD`의 추가된 줄에서 `https?://` URL 추출·중복 제거 = 399건(iter2의 209건보다 크게 증가 — Step F2 docs-site 재생성 커밋 36b3e86이 iter2 평가 시점 이후 추가되어 이번 diff에 새로 포함됨). 각 URL을 (a) `.harness/.meta/evidence/phase*.md` (b) `git show main:<전체 트리>` 원본(경로 무관 전수 grep) 두 경로로 대조. 기준(anchor `#...`)·추적 파라미터(`?utm_source=...`) 차이는 동일 문서로 간주해 정규화.
-  - 미추적 URL 4건 확인:
-    1. `https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates` (`docs/rust-kit/concurrency-guard-protocol.html:330`, CARGO_BIN_EXE_<name> 인용)
-    2. `https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section` (`docs/rust-kit/error-handling.html:345`, [lints] section 인용)
-    3. `https://docs.rs/anyhow/latest/anyhow/trait.Context.html` (`docs/rust-kit/error-handling.html:250`, anyhow Context trait 인용)
-    4. `https://docs.rs/sqlx/latest/sqlx/postgres/struct.PgQueryResult.html` (`docs/rust-kit/concurrency-guard-protocol.html:203`, PgQueryResult::rows_affected 인용)
-  - 4건 모두 `.harness/.meta/evidence/phase7.md`·`phase9.md`(rust-kit 관련 Phase)에도, `rust-kit/` 소스 트리에도, main 브랜치 전체에도 문자열이 존재하지 않는다(`git grep -F` 전수 검색 0건). `git log -S`로 도입 커밋을 추적한 결과 4건 전부 `36b3e86`(Step F2 docs-site 재생성) 단일 커밋에서 처음 등장 — 14개 Phase의 리서치·evidence 파이프라인을 거치지 않고 docs-site 생성 과정에서 직접 추가된 새 인용이다. `concurrency-guard-protocol.html`은 main에 존재하지 않던 신규 페이지(520줄 전체 추가)이고, `error-handling.html`도 main 대비 URL 4개→다수로 크게 늘었다.
-  - 대조: iter2가 인정한 `pub.dev/firebase_core` 사후 등재는 `.harness/.meta/evidence/phase14.md`에 "부록 — Step F1 시점 추가 등재" 절로 사후 추가 사실을 명시적으로 disclosure하고 독립 재검증까지 거쳤다. 이번 4건은 그런 disclosure 절이 어디에도 없다 — evidence 파일에도, docs-site 생성 커밋 메시지에도 출처 언급이 없다.
-  - 판정에서 제외한(traced로 인정한) 근접 후보: `appstoreconnect.apple.com`(main 원본에 bare-domain 코드스팬으로 이미 존재, 서식만 변경) · `postgresql.org/sql-insert.html#SQL-ON-CONFLICT`(phase7.md에 fragment 없는 동일 페이지 인용 존재, 앵커 차이만) · `docs.cloud.google.com/docs/`(phase14.md가 명시적으로 논의·확정한 리다이렉트 URL) · bambu forum/GitHub issue 2건(phase13.md에 `?utm_source=openai` 파라미터 차이만으로 동일 URL 존재) · `github.com/joo6077/claude-plugins/blob/main/reflect-kit/...` 자기참조 링크 4건(레포 내 실제 파일 4개 전부 현재 경로에 존재함을 직접 확인 — `test -f` 통과).
-  - 수정: 4개 URL을 근거 파일(`phase7.md` 또는 `phase9.md`)에 "docs-site 생성 시점 추가 등재" 절로 명시하고 출처를 disclosure하거나(iter2의 firebase_core 패턴 준용), docs-site 생성 스크립트가 인용을 추가할 때 evidence 파일과 동기화하는 절차를 도입.
-- [x] ER-02: Phase 산출물에 미해소 항목이 남아 있지 않다 — PASS (v2 자기참조 결함 해소 확인). [exact, enumerated] L3
-  - 측정값: `.harness/sprint-feedback-kaizen-phase*.md` (Final 자신 제외 glob) = 14개. 각 파일 `Verdict:` 추출 — 14/14 `APPROVE`. `총 미검증 건수` 추출 — 14/14 `0`.
-  - v2 계약의 자기참조 카브아웃(glob이 애초에 `phase*.md`로 좁혀져 `sprint-feedback-kaizen-final-*.md`를 자연스럽게 배제)이 정상 작동 확인 — iter2가 REJECT했던 자기참조 역설(Final 자신의 REJECT를 자기가 읽는 문제)이 재현되지 않음.
+- [ ] ER-01: 이번 사이클 도입 외부 URL이 근거파일/원본에 실재 — **FAIL**
+  - 측정값: `git diff main..HEAD` 추가 줄에서 URL 400개(중복제거) 추출. `.harness/.meta/evidence/phase*.md` 및 `git show main:<path>`(동일 경로 기준) 대조 결과 미추적 83건 → 79건은 별도로 "레포 전체(main tree) 어디에도 없음" 기준으로 재대조해 실질 legitimate(같은 사이클 내 다른 파일의 md 소스에 이미 존재하거나 evidence 파일에 근거 확인됨: 예 docs.cloud.google.com/docs/ ← `.harness/.meta/evidence/phase14.md`, appstoreconnect.apple.com ← Phase14 evidence "App Store Connect" 실측, reflect-kit self-link 4건 ← 실제 레포 파일 존재 확인)로 판정, 남은 **4건이 진짜 미추적**:
+    1. `https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates`
+    2. `https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section`
+    3. `https://docs.rs/anyhow/latest/anyhow/trait.Context.html`
+    4. `https://docs.rs/sqlx/latest/sqlx/postgres/struct.PgQueryResult.html`
+  - 근거: 4건 전부 `.harness/sprint-feedback-kaizen-final-2026-08-13.md`(iter3 자신의 FAIL 피드백, 87~90행)에서만 발견됨 — 그 파일은 `git show main:<path>`가 존재하지 않는(main에 없던) 신규 파일이고 evidence 파일에도 없어 오라클상 "미추적"으로 판정됨. 실제 산출물(`docs/rust-kit/concurrency-guard-protocol.html`, `docs/rust-kit/error-handling.html`)에서는 이미 제거되어 0건 확인 — 즉 **실물 결함은 이미 고쳐졌으나, ER-01 측정문이 main..HEAD 전체 diff를 대상으로 하면서 iter3 자신의 FAIL 피드백 파일(그 4개 나쁜 URL을 인용한)까지 "이번 사이클이 도입한 URL"로 재포착**한다
+  - **구조적 원인**: 이 계약 v2는 동일 문제(자기참조 오라클)를 ER-02와 DG-02에는 "Final 자신의 피드백 파일은 예외" 카브아웃으로 명시적으로 막았으나, ER-01의 측정문에는 그 카브아웃을 대칭 적용하지 않았다. ER-02 폐기 사유(§16-51)가 정확히 같은 유형의 결함이라고 서술하고 있음에도, ER-01은 이번 v2 재작성 범위에서 함께 고쳐지지 않았다
+  - 판정 근거: [exact/structural] 문자 그대로 해석 원칙(계약이 카브아웃을 명시한 형제 조건(ER-02·DG-02)과 달리 ER-01에는 카브아웃이 없다 — "계약이 아키텍처 규칙과 충돌한다" 류가 아니라 "계약 오라클 자체에 결함이 있다" 류이며, 두 경우 모두 평가자가 조용히 관대하게 봐주지 않고 FAIL + 결함 명시가 원칙). 오라클을 문자 그대로 기계적으로 실행하면 4건이 "미추적"으로 잡히고, 계약은 "미추적이 있으면 그 목록을 근거로 제시하라"고만 규정할 뿐 self-reference 예외를 허용하지 않는다
+  - 수정: v3에서 ER-01 측정문에 ER-02/DG-02와 동일한 카브아웃(`Final 자신의 sprint-feedback-kaizen-final-*.md 파일은 검색 대상에서 제외`)을 대칭 추가할 것을 권고. (`docs/superpowers/followup-kaizen-memory-integration.md`에 이미 이 갭이 다음 사이클 신호로 기록되어 있음 — 이 사실 자체를 판정 근거로 쓰지 않았고, 별도로 오라클을 직접 재실행해 동일 결론에 도달했다)
+- [x] ER-02: Phase 산출물에 미해소 항목 없음 (Final 자신 제외) — PASS
+  - 측정값: `find .harness -maxdepth 1 -name "sprint-feedback-kaizen-phase*.md"` = 14개(phase10은 로컬 피드백 파일 없음 — 글로벌 아티팩트로 AR-04에서 별도 확인됨). 14개 전부 `Verdict: APPROVE`, 각 파일의 "Unverifiable Summary → 총 미검증 건수" 합계 0. Final 자신(`sprint-feedback-kaizen-final-2026-08-13.md`, Verdict: REJECT)은 카브아웃대로 제외
 
 ### Anti-patterns (2/2)
-- [x] AP-01: bare code fence 0건 — PASS. [exact] L3
-  - 근거: `validate-post-kaizen.py`의 `bare-fence: V6 reports 0 bare fences`.
-- [x] AP-02: 계약 사후편집 위반소거 흔적 없음 — PASS. [structural] L3
-  - 근거: AR-05와 동일 verify_seal 실행 결과 SEAL_BROKEN 0건. Phase3 v2 재작성 앵커 직접 대조 — `.harness/sprint-contract-kaizen-phase3-unverified-triage.md`의 `supersedes_digest: sha256:67cd3b5df77a1acd`/`supersedes_commit: c3f9595`가 `git show c3f9595:.../sprint-contract-kaizen-phase3-unverified-triage.md`의 원본 `conditions_digest: sha256:67cd3b5df77a1acd`와 정확히 일치. Final 계약 자신의 앵커(`supersedes_digest: sha256:06c72d3b16851613`/`supersedes_commit: 107d98f`)도 `git show 107d98f:...`의 원본 `conditions_digest`와 일치 확인.
+- [x] AP-01: bare code fence 0건 — PASS
+  - 근거: validate-post-kaizen.py "[ PASS ] bare-fence: V6 reports 0 bare fences"
+- [x] AP-02: 계약 사후편집으로 위반 소거 흔적 없음 — PASS
+  - 근거: Phase 3 계약 재작성은 `supersedes_digest: sha256:67cd3b5df77a1acd` + `supersedes_commit: c3f9595` + §폐기·재작성 절로 앵커 기록됨(파일 1~20행 확인). AR-05와 동일 verify_seal 실행 결과 SEAL_BROKEN 0건(위 AR-05 참조)
 
 ### Reusability (2/2)
-- [x] RE-01: canonical 프로토콜 재정의 0건 — PASS. [exact, enumerated] L3
-  - 측정값: `find . -path '*-kit/agents/*-reviewer.md'` = 6개(backend·design·infra·planning·react·rust). 6/6 전부 Read 확인 — "정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol ... 여기서 재정의하지 않는다" 형태로 인용, 임계값(2)이 6개 파일 전부 canonical과 동일 수치. 자체 정의 0건.
-- [x] RE-02: 등급 원장 단일 SSOT — PASS. [exact] L3
-  - 근거: skill-design-guide.md §3.7 등급 원장 8개 원칙명(Enumerate-before-Act / Pre-Edit Batch Audit / Rule-by-Rule Audit / Scope-Bound Edits / Completion Evidence Gate / Counterpart Enumeration / Variant Budget / User-Reported Failure Gate) 확인. `harness/references/cross-kit-principles.md`는 "적용 매트릭스"(어느 kit에 어떻게 적용되는지)일 뿐 등급(E1/E2/E3)·승급 트리거 컬럼이 없어 등급표 복제가 아님. `contract-design-guide.md`·`qa-evaluation-guide.md`의 "현재 등급표"는 각자 다른 원칙명(예: "Pre-Edit Audit (계약 시점)" ≠ "Pre-Edit Batch Audit", "Counterpart Conditions" ≠ "Counterpart Enumeration")을 쓰며 본문에 "§3.7 등급 원장을 이 표에 복제하지 마라"를 명시 — 8개 원칙명과 정확히 겹치는 등급표 복제 0건.
+- [x] RE-01: Phase 3 canonical 프로토콜 2종이 kit reviewer에서 재정의되지 않음 — PASS
+  - 측정값: `find . -path '*-kit/agents/*-reviewer.md'` = 6개(backend/design/infra/planning/react/rust-reviewer.md). 6개 전부 Read 확인 — Unverified-Evidence Protocol은 6개 전부 "정본은 qa-evaluation-guide.md §Canonical Unverified-Evidence Protocol" 인용 + 임계값 "2"로 일관. 자체 정의(다른 임계값·다른 마커 의미 부여) 0건. User-Reported-Failure Protocol은 backend/infra/planning은 명시 인용, design은 별도 정본(agent-design-guide §10 / skill-design-guide §3.8)으로 명시 위임(재정의 아님), react/rust는 언급 자체가 없음(자체 정의도 없음) — "자체 정의 0건" 기준 충족
+- [x] RE-02: 등급 원장 단일 SSOT 유지 — PASS
+  - 측정값: skill-design-guide.md §3.7 등급표 8원칙명(Enumerate-before-Act 등)으로 전 레포 grep. 실제 등급표(E1/E2/E3 열 포함 테이블) 형태 복제는 docs/harness/skill-design-guide.html(동일 소스 docs-site 렌더 미러) 외 0건. docs/kaizen/research-log.md:287의 1건은 등급 열 없는 단순 출처 인용(복제 아님)
 
 ### Diagnostics (2/2)
-- [x] DG-01: changelog/research-log 11개 파일 "2026-08-13" 포함 — PASS. [exact, enumerated] L3
-  - 측정값: 11개 파일 전부 존재, 매치 2~11건(`changelog.md`=3, `flutter-changelog.md`=2, `research-log.md`=4, `flutter-research-log.md`=2, `backend/research-log.md`=6, `infra/research-log.md`=3, `rust/research-log.md`=6, `react/research-log.md`=7, `flutter/research-log.md`=11, `planning/research-log.md`=9, `design/research-log.md`=4). 누락 0건.
-- [x] DG-02: 작업트리 clean — PASS. [exact] L3
-  - 근거: 평가 시작 시점 `git status --porcelain` = 0행(피드백 파일 기록 전). 계약이 명시한 예외(Final 계약 파일 자신 + QA 피드백 파일)에 따라 본 피드백 저장으로 생기는 변경은 위반이 아님.
+- [x] DG-01: changelog/research-log 11파일 2026-08-13 엔트리 존재 — PASS
+  - 측정값: 11개 파일 전부 존재, `grep -c "2026-08-13"` 결과: changelog.md=3, flutter-changelog.md=2, research-log.md=4, flutter-research-log.md=2, backend=6, infra=3, rust=6, react=7, flutter=11, planning=9, design=4. 누락 0건
+- [x] DG-02: 작업트리 clean, 미추적 산출물 없음 — PASS
+  - 측정값: `git status --porcelain` = 0행
 
 ## Unverifiable Summary
-- 총 미검증 건수: 0 (25개 조건 전부 명령 실행/Read/grep으로 직접 판정, `[미검증]` 마커 사용 없음)
-- 건 목록: 없음
-- Verdict 영향: 해당 없음 (0건이므로 자동 REJECT 임계와 무관 — REJECT는 SK-03·ER-01의 실제 FAIL에 기인)
+- 총 미검증 건수: 0
+- Verdict 영향: 해당 없음 (미검증 0건 — 자동 REJECT 임계와 무관하게 ER-01 FAIL 단독으로 REJECT)
 
 ## Evidence Validity
-- 검사 대상 증거: 25건
-- 무효 판정: 0건 (SK-03·ER-01은 무효 증거가 아니라, 직접 수집한 증거가 계약 요구를 문자 그대로 충족하지 못한다는 FAIL 판정)
-- 셸 스니펫 실행 검증: SC-05(5개 파일) + verify_seal(16개 계약 파일) + fm_get/find 후보 열거 로직을 bash·zsh 양쪽에서 직접 실행해 결과 동일 확인. 네트워크 도구(curl 등)는 이번 평가 지시에 따라 사용하지 않음 — ER-01의 4개 미추적 URL은 정적 대조(evidence 파일 + main 원본 grep)만으로 판정했으며, 이는 "URL이 실재하는지"가 아니라 "URL 도입이 근거로 추적되는지"를 재는 것이므로 네트워크 미사용이 판정의 타당성을 훼손하지 않는다.
-- "0 매치 = PASS"로 처리한 모든 조건(SK-02·04·05·06·07)은 전수(raw match count)를 먼저 산출한 뒤 필터링했음을 확인 — 공허한 0이 아니라 실제 매치를 정정 여부로 필터링한 의도된 0.
+- 검사 대상 증거: 25건 (조건별 1개씩)
+- 무효 판정: 0건
+- 셸 스니펫 실행 검증: 25건 모두 직접 실행(대부분 bash), verify_seal·SC-05는 bash·zsh 양쪽 실행 확인
+- 비공백/활성화/반증가능성/출처/실행가능성 5검사 — PASS 24건 전부 실제 명령 출력을 근거로 사용, 서술 인용 없음
 
 ## Summary
-- Total: 23/25 conditions passed
+- Total: 24/25 conditions passed
 - Verdict: **REJECT**
-- FAIL 2건 — **ER-01**(docs-site 재생성 커밋 36b3e86이 도입한 4개 rust-kit 관련 doc.rs/cargo 인용 URL이 evidence 파일·main 원본 어디에도 추적되지 않음, disclosure 절차 없음) / **SK-03**(`docs/superpowers/plans/` 레거시 기획 문서 2곳에 WCAG AA와 44×44pt 터치 타겟이 레벨 귀속 없이 병기되어 있음 — Phase 6이 `design-kit/` 안쪽만 고치고 스코프 밖의 동일 결함을 놓친 sibling residue)
-- 두 FAIL 모두 "재생성/기획 아카이브처럼 14 Phase의 정식 리서치 파이프라인을 거치지 않은 산출물에 이 사이클이 잡으려던 정확히 같은 유형의 결함(미추적 URL, 레벨 미귀속 터치타겟)이 남아 있다"는 공통 패턴이다. 이는 이 Final 계약이 정확히 검증하려던 대상("Phase 간 정합성 공백")에 해당하며, 우연한 트집이 아니다.
-- iter2 대비 개선: AR-04(15/15 독립 APPROVE 아티팩트 확보) / SK-02(sibling residue 라인 정정) / ER-02(자기참조 결함 v2로 해소) 3건 모두 실제 해소 확인.
-- 수정 우선순위: ER-01(4개 URL을 evidence 파일에 disclosure 등재 — 기계적으로 빠른 수정) > SK-03(2개 파일에 레벨 귀속 문구 추가 또는 계약 스코프에서 `docs/superpowers/` 제외 결정)
+- FAIL 1건: ER-01 (URL 추적성 오라클의 자기참조 갭 — iter3에서 이미 수정된 rust-kit 4개 나쁜 URL이 iter3 자신의 FAIL 피드백 파일 안에 "재도입된 것"으로 재포착됨)
+- 수정 우선순위: ER-01 측정문에 ER-02/DG-02와 동일한 self-reference 카브아웃(Final 자신의 sprint-feedback-kaizen-final-*.md 제외)을 추가하는 v3 재작성이 유일하게 필요한 조치. 그 외 24개 조건은 전부 실측 PASS이며 재작업 불필요
 
 ## Improvement Suggestions
-- [ER-01] 산출물-근거-미동기화 — docs-site 생성/재생성(Step F2)이 Phase의 정식 evidence 파이프라인을 거치지 않고 새 외부 URL을 직접 추가할 수 있는 구조다. 다음 사이클부터 docs-site 생성 스크립트가 새 `href="https://..."` 인용을 추가하면 대응하는 evidence 파일에 자동으로 append하거나, 최소한 F2 완료 조건에 "생성 커밋이 도입한 신규 URL 목록을 diff로 뽑아 근거 유무를 자체 점검" 절차를 추가 권장.
-- [SK-03] 계약-스코프-경계-미명시 — "design-kit/ docs/"처럼 넓은 디렉토리를 grep 스코프로 지정하면 `docs/superpowers/plans/`같은 비활성 레거시 기획 아카이브까지 포함되어, 실제로 관리되는 콘텐츠(design-kit/docs/design/)가 아닌 곳의 잔존까지 조건 대상이 된다. 계약 작성 시 "현재 유지보수 대상 문서만" 스코프로 한정하거나, 반대로 레거시 아카이브도 정정 대상으로 명시적으로 포함할지 결정하고 명문화 권장.
-- [AR-04] (해소됨, 재발 방지 기록) — 오케스트레이터가 QA 서브에이전트에 structured output schema를 강제하면 피드백 저장 단계(Step 8/9)가 스킵되는 근본원인이 확인됨. 다음 사이클도 QA 서브에이전트 호출 시 schema 강제 여부를 사전 점검 권장.
+- [ER-01] 계약결함: self-reference 카브아웃 부재 — "미추적이 있으면 그 목록을 근거로 제시하라" 뒤에 "단, Final 자신의 sprint-feedback-kaizen-final-*.md 파일에 인용된 URL은 검색 대상에서 제외한다 (ER-02·DG-02 카브아웃과 대칭)"를 추가할 것
+
+## 자기진단 (Step 6)
+- l3_unreached: false (25개 전 조건 L3까지 도달 — 코드 경로 추적 + 의미 검증 완료)
+- bias_detected: false
+- evidence_missing: false
+- contract_misinterpret: false (ER-01은 계약 문언을 문자 그대로 기계적으로 실행한 결과이며 해석 오류가 아님)
+- perspective_gap: false

@@ -1,23 +1,29 @@
 ---
 feature: "카이젠 2026-08-13 Final — Phase 1~14 크로스 정합성 검증"
 created: "2026-08-13 (Step F1)"
-rewritten: "2026-08-14 (v2 — ER-02 자기참조 측정 결함 · AR-04 아티팩트 재구축)"
+rewritten: "2026-08-14 (v3 — 자기참조 카브아웃을 헤더 레벨 공통 전제로 승격)"
+previously_rewritten: "2026-08-14 (v2 — ER-02 자기참조 측정 결함 · AR-04 아티팩트 재구축)"
 complexity: "복잡"
 conditions: 25
 slug: kaizen-final-2026-08-13
 status: active
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
-supersedes_digest: sha256:06c72d3b16851613
-supersedes_commit: 107d98f
+supersedes_digest: sha256:2d5170ea874584bc
+supersedes_commit: 05ccddb
+originally_superseded_digest: sha256:06c72d3b16851613
+originally_superseded_commit: 107d98f
 conditions_digest: sha256:2d5170ea874584bc
-locked_at: "2026-08-14 (v2)"
+locked_at: "2026-08-14 (v3)"
 ---
 
-## 폐기·재작성 (v2) — 앵커 있는 교체
+
+## 배경
+
+### 폐기·재작성 이력 (v2 · v3) — 앵커 있는 교체
 
 원 계약(`107d98f`, digest `sha256:06c72d3b16851613`)은 폐기됐다. 원문은 git 이력에 보존된다.
 
-### 폐기 사유 — ER-02 가 원문 그대로 만족 불가능
+#### 폐기 사유 — ER-02 가 원문 그대로 만족 불가능
 
 **ER-02 의 산문과 측정문이 서로 다른 것을 잰다.** 산문은 "**사이클 산출물**에 미해소 항목이 없다"
 즉 Phase 피드백을 가리키는데, 측정 glob `.harness/sprint-feedback-kaizen-*.md` 가
@@ -28,7 +34,7 @@ iteration 2 이후로는 **구조적으로 통과가 불가능**해진다 (자�
 `ER-02` 에 그것을 대칭 적용하는 것을 빠뜨렸다. 이번 사이클 Phase 2 가 처리한
 **산문↔측정문 커버리지 갭(F1)** 과 정확히 같은 유형의 결함이다.
 
-### 함께 개정한 것 — AR-04
+#### 함께 개정한 것 — AR-04
 
 iteration 2 가 AR-04 를 문자 그대로는 PASS 시켰으나(15 계약 전부 `status: done`),
 **전환의 정당성 근거**를 파고들어 blocking 했다: 글로벌 피드백 풀에 독립 qa-evaluator 아티팩트가
@@ -44,13 +50,11 @@ iteration 2 가 AR-04 를 문자 그대로는 PASS 시켰으나(15 계약 전부
 **"Phase QA 재실행"** 을 택했다. schema 를 강제하지 않고 재평가하여 아티팩트를 정상 생성한다.
 AR-04 의 측정문을 **아티팩트 실재 확인**으로 명시화한다.
 
-### 앵커
+#### 앵커
 
 - **승인 주체**: 사용자. 2026-08-14, 오케스트레이터가 근거와 함께 선택지를 제시하고 승인받았다.
 - **재작성 주체**: 오케스트레이터. 구현 서브에이전트가 자기 산출물을 허용하려 고친 것이 아니다.
 - 변경은 **ER-02 와 AR-04 두 조건의 측정문**뿐이며 나머지 23 조건은 문구 무수정이다.
-
-## 배경
 
 Phase 1~14 가 전부 CHANGED + QA APPROVE 로 끝났다. 각 Phase 는 **자기 scope 안에서만** 평가됐으므로,
 Phase 간 정합성은 아직 아무도 보지 않았다. 이 계약은 그 공백을 메운다.
@@ -83,6 +87,31 @@ Phase 5~14 의 kit reviewer 들이 **인용해야 하고 재정의하면 안 된
 - Step F2(docs-site) · F3(피드백 정리) · F4(PR) 산출물은 **이 계약의 대상이 아니다.**
   `validate-post-kaizen.py` 가 그것을 "종료 단계 미도래" 로 유예하는 것과 정합한다.
 - 스프린트 base = `main`. 측정은 전부 `main..HEAD` 또는 현재 작업트리 기준이다.
+
+### 측정 공통 전제 — 자기 산출물 제외 (v3 · 모든 조건에 적용)
+
+**레포 전체를 스캔하는 모든 조건은 이 계약 자신의 산출물을 검색 대상에서 제외한다:**
+
+1. 이 Final 계약 파일 자신 — `.harness/sprint-contract-kaizen-final-*.md`
+2. 그 QA 피드백 파일 — `.harness/sprint-feedback-kaizen-final-*.md`
+3. 그 amendment 사이드카 — `.harness/sprint-amendments-kaizen-final-*.md`
+
+**근거.** 평가자가 자기 직전 라운드의 산출물을 읽으면 iteration 2 이후 구조적으로 통과가
+불가능해진다. 피드백 파일은 **위반을 신고하기 위해 위반 내용을 인용**하므로, 그 인용이 다음
+라운드에서 다시 위반 근거가 된다. 위반을 고칠수록 근거가 늘어나는 구조다.
+
+**실측 (v2 → v3 재작성 사유).** iteration 3 이 `ER-01` 로 잡은 날조 URL 4 건을 산출물에서
+전부 제거했는데, iteration 4 가 같은 4 건을 다시 FAIL 로 잡았다. 그 URL 들이 남은 유일한 곳이
+**iteration 3 의 피드백 파일**(FAIL 근거 인용)이었기 때문이다. 실체는 해소됐는데 보고서가
+위반을 재생산했다.
+
+**v2 의 결함.** v2 는 이 카브아웃을 `ER-02` 와 `DG-02` **두 조건에 개별로** 넣었고 `ER-01` 에는
+빠뜨렸다. 조건마다 반복해야 하는 전제를 조건 단위로 관리하면 반드시 하나를 빠뜨린다.
+그래서 v3 은 **헤더 레벨에서 1 회 선언**한다. 개별 조건의 카브아웃 문구는 이 선언의 인스턴스이며,
+둘이 충돌하면 이 선언이 우선한다.
+
+(같은 뿌리의 지적이 phase12a 재평가에도 있다 — *"git status/diff 기반 measure clause 들의
+상태 전제(Given)를 조건 단위가 아니라 계약 헤더 레벨에서 1 회 공통 선언하는 패턴을 권장"*.)
 
 ## 회귀 게이트
 
@@ -161,11 +190,14 @@ FAIL 이 `docs-site-regen` 1 건 이하 (그 1 건은 F2 소관).
       (측정: `git diff main..HEAD` 에서 추가된 줄의 `https?://` URL 을 추출해 중복 제거하고
        **개수를 계산**한 뒤, 각 URL 이 `.harness/.meta/evidence/phase*.md` 또는
        `git show main:<path>` 원본에 존재하는지 대조 — 미추적 URL 0 건.
+       **§범위 경계 의 「측정 공통 전제 — 자기 산출물 제외」가 이 조건에 적용된다** —
+       Final 자신의 계약·피드백·amendment 파일에 인용된 URL 은 추출 대상이 아니다.
        미추적이 있으면 그 목록을 근거로 제시하라)
 - [ ] ER-02: **Phase** 산출물에 미해소 항목이 남아 있지 않다 [exact, enumerated]
       (측정: `.harness/sprint-feedback-kaizen-phase*.md` 를 `find` 로 열거해 **개수를 계산**하고
        각 파일의 최종 verdict 를 추출 — `APPROVE` 가 아닌 것 0 건, 미검증 카운트 합 0.
-       **Final 자신의 피드백 파일(`sprint-feedback-kaizen-final-*.md`)은 제외한다** —
+       **Final 자신의 피드백 파일(`sprint-feedback-kaizen-final-*.md`)은 제외한다**
+       (§범위 경계 「측정 공통 전제」의 인스턴스) —
        평가 중인 계약이 자기 직전 라운드 verdict 를 읽으면 iteration 2 이후 구조적으로 통과 불가다.
        DG-02 의 자기참조 카브아웃과 대칭이다)
 
@@ -199,4 +231,5 @@ FAIL 이 `docs-site-regen` 1 건 이하 (그 1 건은 F2 소관).
        11 개 파일을 열거해 **개수를 계산**하고 각각 `2026-08-13` 문자열 포함 — 누락 0 건)
 - [ ] DG-02: 작업트리가 clean 하고 미추적 산출물이 없다 [exact]
       (측정: `git status --porcelain` 출력 행 수 0.
-       단 이 Final 계약 파일 자신과 그 QA 피드백 파일은 예외로 허용한다)
+       단 이 Final 계약 파일 자신과 그 QA 피드백 파일은 예외로 허용한다
+       — §범위 경계 「측정 공통 전제」의 인스턴스)
