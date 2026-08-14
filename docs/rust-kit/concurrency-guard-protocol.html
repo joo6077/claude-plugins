@@ -161,7 +161,7 @@ UPDATE sessions
         </ul>
       </div>
       <a href="https://www.postgresql.org/docs/current/transaction-iso.html" target="_blank" rel="noopener" class="card-source">&#8599; PostgreSQL — Transaction Isolation</a>
-      <a href="https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT" target="_blank" rel="noopener" class="card-source">&#8599; PostgreSQL — ON CONFLICT</a>
+      <a href="https://www.postgresql.org/docs/current/sql-insert.html" target="_blank" rel="noopener" class="card-source">&#8599; PostgreSQL — ON CONFLICT</a>
     </div>
 
     <div class="card">
@@ -200,7 +200,7 @@ UPDATE sessions
 }</pre>
         <p>스킵 건수를 카운터로 노출할 때도 <strong class="lead-strong">반환 타입에서 conflict 를 구분</strong>한다. 로그만 남기고 <code>Ok(())</code> 를 돌려주면 호출자가 재시도·보고를 결정할 수 없다. HTTP 매핑은 <code>Conflict → 409</code>(rust-error 3 계층 매핑 규칙).</p>
       </div>
-      <a href="https://docs.rs/sqlx/latest/sqlx/postgres/struct.PgQueryResult.html" target="_blank" rel="noopener" class="card-source">&#8599; sqlx — PgQueryResult::rows_affected</a>
+      <a href="https://docs.rs/sqlx/latest/sqlx/" target="_blank" rel="noopener" class="card-source">&#8599; sqlx — 공식 문서</a>
       <a href="error-handling.html" class="card-source">&#8594; 에러 처리 원칙 — 3계층 변환</a>
     </div>
 
@@ -327,7 +327,7 @@ let out = std::process::Command::new(exe)
     .expect("binary should run");
 assert_eq!(out.status.code(), Some(0));</pre>
       </div>
-      <a href="https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates" target="_blank" rel="noopener" class="card-source">&#8599; Cargo — CARGO_BIN_EXE_&lt;name&gt;</a>
+      <a href="https://doc.rust-lang.org/cargo/commands/cargo-test.html" target="_blank" rel="noopener" class="card-source">&#8599; Cargo — cargo test (통합 테스트 바이너리)</a>
     </div>
     <div class="card">
       <h4>mock 은 대체가 아니라 보완이다</h4>
