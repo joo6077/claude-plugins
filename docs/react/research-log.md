@@ -1,9 +1,64 @@
 ---
-version: 1.2.0
-last_updated: 2026-07-27
+version: 1.3.0
+last_updated: 2026-08-13
 ---
 
 # React Kit Research Log
+
+## [2026-08-13] - Phase 10 kaizen (현행성 갱신)
+
+신호 농도 **LOW**. `/insights` 2026-08-13 은 "Phase 10 React — 이번 리포트에 직접 신호 없음" 으로
+분류했고, 데이터풀 §1 의 REJECT/Improvement 도 전부 외부 Flutter·Rust 프로젝트 귀속이다.
+`validate-plugin.py react-kit` 는 V1~V8 전부 OK. 따라서 **새 규칙 0 건**, evidence 가 확인한
+stale 지점만 정정했다.
+
+외부 조회는 이번 라운드에서 직접 수행하지 않았다 — 근거는 `.harness/.meta/evidence/phase10.md`
+(수집 2026-08-13) 한 파일뿐이며, 아래 URL 은 전부 그 파일에 실재하는 것만 옮겼다.
+
+### 확인한 현행 stable
+
+| 항목 | 현행 stable | 우리 반영 | 출처 |
+|---|---|---|---|
+| Vite | `vite@8.2.0` (major 8, Rolldown 단일 번들러) | 템플릿 `vite: ^6.0.0` → `^8.0.0`. 스킬 본문의 Vite 8 서술은 이미 최신이었고 템플릿만 뒤처져 있었다 | <https://www.npmjs.com/package/vite?activeTab=versions> · <https://vite.dev/blog/announcing-vite8> |
+| @hookform/resolvers | `5.5.7` (Zod 4 지원은 v5.1.0 부터) | 템플릿 `^3.0.0` → `^5.1.0`. 구 v3 alias workaround 를 **legacy resolver 전용**으로 강등 | <https://www.npmjs.com/package/%40hookform/resolvers?activeTab=versions> · <https://github.com/react-hook-form/resolvers/releases/tag/v5.1.0> |
+| Zod | major **v4** stable (patch 번호는 evidence 에서 미확인) | 템플릿 `^3.0.0` → `^4.0.0`. 미확인 patch 는 적지 않는다 | <https://zod.dev/v4> |
+| Lingui | `@lingui/core@6.6.0` — v6 는 **ESM-only · Node 22.19+** | **v5 compatibility pin 유지.** major 상향은 킷 Node floor 결정이 선행이라 이번 라운드 대상 아님 | <https://www.npmjs.com/package/%40lingui/core> · <https://lingui.dev/releases/migration-6> |
+| @lingui/macro | 더 이상 maintained 아님 | 템플릿 devDependencies 에서 **제거**. 대체 경로는 이미 우리 스킬이 요구하던 subpath 매크로(`@lingui/core/macro` · `@lingui/react/macro`)이며 별도 설치가 필요 없다 | <https://lingui.dev/releases/migration-6> |
+| React / TanStack Query / Tauri 2 / Tailwind / Zustand | `react@19.2.8` · `@tanstack/react-query@5.101.4` · `@tauri-apps/cli v2.11.4` · `tailwindcss@4.3.3` · `zustand@5.0.14` | **변경 없음** — 기존 서술(React 19 전제, Query v5 object-form, Tauri `core:default`, Tailwind `@theme`+OKLCH, Zustand `useShallow`)이 현행과 일치 | evidence 표 8 행 |
+
+### 애니메이션 원칙 — 유지 + 공백 문서화
+
+- **same-document View Transitions**: MDN Baseline 2025, Can I Use 전역 **90.2%**, Chrome/Edge 111+,
+  Safari 18+, Firefox 144+. `@view-transition` 기반 **cross-document/MPA** 는 limited availability.
+  출처: <https://developer.mozilla.org/en-US/docs/Web/API/ViewTransition> ·
+  <https://caniuse.com/view-transitions> ·
+  <https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40view-transition>
+- **CSS scroll-driven**: `animation-timeline: scroll()` / `scroll-timeline` 전역 **85.43%**,
+  Chrome/Edge 115+, Safari/iOS 26+, Firefox 156+. MDN 의 `view()` 는 아직 not Baseline.
+  **"Firefox 는 플래그 필요" 서술은 폐기** (react-animation Gotcha 11 · §2.5 2 곳 갱신).
+  출처: <https://caniuse.com/mdn-css_properties_animation-timeline_scroll> ·
+  <https://caniuse.com/mdn-css_properties_scroll-timeline> ·
+  <https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/animation-timeline/view>
+- **라이브러리 0개 원칙은 유지된다.** 금지 목록에서 뺀 항목 0 건 (4 정전 표면 × 11 토큰 보존 확인).
+  다만 표준만으로 자동 커버되지 않는 8 종(복잡한 physics/spring · inertia · collision ·
+  accessible sortable DnD · keyboard reorder · live-region announcement · Lottie 직접 재생 ·
+  cross-document shared transition)을 `react-animation` §6 표로 문서화했다. 처리 경로는
+  **직접 구현 · fallback · 사전 렌더 자산** 3 종뿐이며 이는 원칙 완화가 아니다.
+
+### 열린 질문 (이번 라운드에서 결정하지 않음)
+
+- **킷 Node floor**: react-kit 이 Node 20.19+ 를 유지할지, Lingui v6 에 맞춰 **Node 22.19** 이상으로
+  올릴지. Vite 8 은 Node 20.19+ 도 허용하므로 Lingui 만이 상향 압력이다. 결정 전까지 Lingui 는 v5 pin.
+- **Vite 8 / Rolldown 조합 실측**: 기존 WASM 보조 플러그인(`vite-plugin-wasm` ·
+  `vite-plugin-top-level-await`)과 `@vitejs/plugin-react-swc` 의 Vite 8 호환 버전은 evidence 에
+  없다. **근거 부족으로 이번 사이클 미반영** — 실측 후 템플릿 버전을 다시 본다.
+- **Zod 최신 patch**: evidence 가 major v4 stable 만 확인했다. patch 번호를 지어내지 않는다.
+
+### 미반영 (Scope 밖)
+
+`react-kit/evals/test-fixtures/*/package.json` 3 개의 `vite: ^6.0.0` 은 Phase 10 Scope 밖이라
+이번 라운드에서 손대지 않았다. 픽스처는 "감지 대상 프로젝트" 를 흉내내는 자료이므로 현행성 요구가
+템플릿과 다르다 — 다음 사이클에서 판단한다.
 
 ## [2026-07-27] - Phase 10 kaizen
 
@@ -262,7 +317,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 #### React Hook Form + Zod 최신
 
 - **RHF v8 beta (v8.0.0-beta.1, 2026-01-11)**: breaking changes 포함. 현재 v7.71.x 안정 버전 사용 권장. 적용: react-form 버전 고정 Gotcha.
-- **@hookform/resolvers v5.2.2**: Standard Schema 지원 추가. Zod v4 타입 호환성 이슈 여전 — `import { z } from 'zod/v3'` workaround 유지. 적용: react-form Gotchas (이전 #21 보강).
+- **@hookform/resolvers v5.2.2**: Standard Schema 지원 추가. Zod v4 타입 호환성 이슈 여전 — `import { z } from 'zod/v3'` workaround 유지. 적용: react-form Gotchas (이전 #21 보강). **[정정 2026-08-13]** Zod 4 지원은 resolvers **v5.1.0** 에서 들어갔다 — `zod/v3` 는 legacy resolver 전용으로 강등됐다 (2026-08-13 라운드 참조).
 - **고급 패턴**: discriminated union으로 조건부 검증, single hook으로 create/edit 폼 통합, `setError('root.serverError')` 서버 에러 매핑. 적용: react-form 템플릿.
 
 #### React 19.2 / Compiler 보강
@@ -371,7 +426,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 | 18 | TanStack queryOptions+select type issue | <https://github.com/TanStack/query/issues/5436> | github | 중간 | 채택 (3 제네릭 명시) |
 | 19 | Lingui v5 migration | <https://lingui.dev/releases/migration-5> | 공식 | 높음 | 채택 (macro split) |
 | 20 | Lingui v5 macro reference | <https://lingui.dev/ref/macro> | 공식 | 높음 | 채택 |
-| 21 | RHF resolvers Zod v4 issue #813 | <https://github.com/react-hook-form/resolvers/issues/813> | github | 중간 | 채택 (zod/v3 workaround) |
+| 21 | RHF resolvers Zod v4 issue #813 | <https://github.com/react-hook-form/resolvers/issues/813> | github | 중간 | 채택 → **[정정 2026-08-13]** resolvers v5.1.0 에서 해소, zod/v3 는 legacy 전용 |
 | 22 | WCAG 2.2 TR | <https://www.w3.org/TR/WCAG22/> | 공식 | 높음 | 채택 (SC 2.5.8 24x24) |
 
 ### 채택한 인사이트
@@ -384,7 +439,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 - **Zustand v5 (2024-11 stable)**: React 18 최소 (use-sync-external-store shim 제거, native `useSyncExternalStore` 사용). **객체 selector trap 심각화** — selector 가 매번 새 객체 반환하면 `Maximum update depth exceeded` 로 컴포넌트 트리 unmount. **해결: `useShallow` 강제**. equality function 커스터마이징 불가 — 필요 시 `createWithEqualityFn` (from `zustand/traditional`). 적용: react-store Gotchas + 템플릿 (`useShallow` + `use<Feature>Slice` 패턴).
 - **TanStack Query v5 (2023-10 stable, 2026 현재 5.6x)**: `invalidateQueries`, `cancelQueries`, `removeQueries`, `resetQueries`, `getQueriesData`, `setQueriesData`, `ensureQueryData`, `isFetching` 모두 **`{ queryKey, ...filters }` 단일 object 인자** 강제. `queryOptions()` 유틸로 queryKey / queryFn / select 재사용 객체. `select` 타입 추론 이슈 → `useQuery<TData, TError, TSelected>` 3 제네릭 명시가 안전. 적용: react-query Gotchas + 템플릿.
 - **Lingui v5 (2024-11 stable)**: `@lingui/macro` 패키지 분리 — core 매크로 (`t`, `plural`, `select`, `selectOrdinal`, `defineMessage`, `msg`) 는 `@lingui/core/macro`, React 매크로 (`Trans`, `Plural`, `Select`, `SelectOrdinal`) 는 `@lingui/react/macro`. 기존 `@lingui/macro` deprecated. `<Trans id="custom" />` 빈 자식 패턴 behavior change → `message` prop 명시 필수. 적용: react-l10n (이미 반영) + react-audit 감지 룰 유지.
-- **React Hook Form v7.71 + Zod v4 호환성 경고**: `@hookform/resolvers` 가 Zod v4 `ZodType` 시그니처 변경과 충돌 → `zodResolver` 타입 에러. **공식 workaround: `import { z } from 'zod/v3'`**. 제네릭 래퍼 (`type FormValues<T extends z.ZodType> = z.infer<T>`) 는 Zod v4 에서 unknown 추론 회귀. 직접 `z.infer<typeof Schema>` 만 허용. 적용: react-init Zod v4 Gotcha.
+- **React Hook Form v7.71 + Zod v4 호환성 경고**: `@hookform/resolvers` 가 Zod v4 `ZodType` 시그니처 변경과 충돌 → `zodResolver` 타입 에러. **공식 workaround: `import { z } from 'zod/v3'`**. 제네릭 래퍼 (`type FormValues<T extends z.ZodType> = z.infer<T>`) 는 Zod v4 에서 unknown 추론 회귀. 직접 `z.infer<typeof Schema>` 만 허용. 적용: react-init Zod v4 Gotcha. **[정정 2026-08-13]** 이 경고는 resolvers v5.1.0 **이전** 구간 한정이다 — 현행 기본 전제는 `@hookform/resolvers@5.1.0` 이상 + `zod@^4` 이고 `zod/v3` 는 legacy 전용이다.
 - **WCAG 2.2 SC 2.5.8 (24×24 CSS px)**: Target Size Minimum AA 기준. Phase 6 design-kit 정합성. 적용: react-widget / react-responsive / react-audit.
 - **라이브러리 0개 원칙 강화**: Motion / framer-motion / dnd-kit / react-spring / react-transition-group **+ animate.css** 추가 금지. 기존 금지 목록 완화 없음. 적용: common-gotchas G2, react-audit Library Policy.
 

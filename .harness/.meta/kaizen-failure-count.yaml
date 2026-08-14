@@ -1,19 +1,19 @@
 # Kaizen Phase failure counter
 # Regression PASS → reset to 0
 # Regression FAIL → +1; if >= 2, pause phase + escalate
-last_updated: "2026-07-27"
+last_updated: "2026-08-13"
 phases:
-  phase_14: 0  # reset on pass (2026-07-27)
-  phase_1: 0  # reset on pass (2026-07-27)
-  phase_2: 0  # reset on pass (2026-07-27)
-  phase_3: 0  # reset on pass (2026-07-27)
-  phase_4: 0  # reset on pass (2026-07-27)
-  phase_5: 0  # reset on pass (2026-07-27)
-  phase_6: 0  # reset on pass (2026-07-27)
-  phase_7: 0  # reset on pass (2026-07-27)
-  phase_8: 0  # reset on pass (2026-07-27)
-  phase_9: 0  # reset on pass (2026-07-27)
-  phase_10: 0  # reset on pass (2026-07-27)
-  phase_11: 0  # reset on pass (2026-07-27)
-  phase_12: 0  # reset on pass (2026-07-27)
-  phase_13: 0  # reset on pass (2026-07-27)
+  phase_1: 0  # reset on pass (2026-08-13)
+  phase_2: 0  # reset on pass (2026-08-13)
+  phase_3: 0  # reset on pass (2026-08-13) — QA 3 라운드 후 계약 v2 재작성(사용자 앵커) 뒤 APPROVE 25/25
+  phase_4: 0  # reset on pass (2026-08-13)
+  phase_5: 0  # reset on pass (2026-08-13)
+  phase_6: 0  # reset on pass (2026-08-13)
+  phase_7: 0  # reset on pass (2026-08-13)
+  phase_8: 0  # reset on pass (2026-08-13)
+  phase_9: 0  # reset on pass (2026-08-13)
+  phase_10: 0  # reset on pass (2026-08-13)
+  phase_11: 0  # reset on pass (2026-08-13)
+  phase_12: 0  # reset on pass (2026-08-13) — QA REJECT 3 회(SC-02 · SC-05 · SCOPE) 후 APPROVE. 재검증 라운드로 오라클 양성 대조 추가
+  phase_13: 0  # reset on pass (2026-08-13)
+  phase_14: 0  # reset on pass (2026-08-13)

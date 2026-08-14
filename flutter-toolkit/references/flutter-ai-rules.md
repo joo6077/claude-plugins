@@ -83,7 +83,7 @@ Flutter 공식 rules 외에 2026 기준으로 flutter-toolkit 이 추가로 정�
 ### Freezed 3.0
 
 - `@freezed abstract class` (단일) / `@freezed sealed class` (union) 필수. factory 생성자만 있는 class 는 이제 abstract 또는 sealed 여야 한다. 출처: <https://pub.dev/packages/freezed/changelog>
-- `.when` / `.map` 메서드 제거 → Dart pattern matching (switch expression) 사용
+- union 분기는 Dart pattern matching (switch expression) 을 신규 코드에서 권장. **단 `.when` / `.map` 이 영구 제거된 것은 아니다** — 3.0 에서 제거됐다가 **3.1.0 에서 다시 추가**됐고 최신 stable 은 3.2.5 다. 기존 코드가 generated `when`/`map` 을 쓰면 일관성을 유지한다. 출처: <https://pub.dev/packages/freezed/changelog>
 - List / Map / Set 은 `UnmodifiableListView` / `UnmodifiableMapView` / `UnmodifiableSetView` 로 자동 변환됨
 - `@With` / `@Implements` 문법이 generic annotation 기반으로 변경
 
@@ -99,6 +99,8 @@ Flutter 공식 rules 외에 2026 기준으로 flutter-toolkit 이 추가로 정�
 - Flutter 3.29: 스크립트 기반 Flutter Gradle plugin 제거 (3.19 부터 deprecated 였음). 기존 Android 프로젝트 migration 필요
 - Flutter 3.27: DisplayP3 색공간 지원 추가, 일부 `Color` 메서드 deprecation
 - Impeller OpenGL ES 백엔드 확장 (3.29 기준 거의 전 디바이스 커버). 출처: <https://docs.flutter.dev/release/breaking-changes>
+- **Impeller 플랫폼 상태 (2026-08 기준)**: iOS 필수(Skia 전환 불가) · Android API 29+ 기본 · **macOS/Linux/Windows 는 Flutter 3.47 부터 Impeller 기본** · Web 은 Skia. 출처: <https://docs.flutter.dev/perf/impeller>
+- **현재 stable 은 3.47.0** (릴리스 인덱스 stable 목록 최상단). 3.47 Android 의존성 매트릭스: Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1. 출처: <https://docs.flutter.dev/release/release-notes>, <https://flutter.dev/blog/whats-new-in-flutter-3-47>
 
 ### flutter_hooks
 

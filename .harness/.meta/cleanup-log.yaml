@@ -59,3 +59,10 @@ cleanup_log:
     over_500_truncated: 0
     deleted: 0
     notes: "no action needed — 180일 초과 0건, 500개 한도 미달(243). 14/14 Phase 카이젠 사이클 Step 11.6."
+  - date: "2026-08-13"
+    cycle: "kaizen-2026-08-13"
+    total_before: 302
+    aged_over_6months: 0
+    over_500_truncated: 0
+    deleted: 0
+    notes: "no action needed — 302 건 (500 미만), 6 개월 초과 0 건. 이번 사이클에 14 Phase QA 로 신규 피드백이 다수 추가됐다 (직전 사이클 279 → 302)."

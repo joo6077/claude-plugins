@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>에이전트 설계 가이드 v1.5.0 — Harness</title>
+<title>에이전트 설계 가이드 v1.6.0 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
   --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
-  --accent:#0ea5e9;--accent2:#14b8a6;--accent-dim:rgba(14,165,233,0.12);
-  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#7dd3fc;
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
 }
@@ -18,135 +18,176 @@ html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
   background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-  background-image:radial-gradient(ellipse at 20% 0%,rgba(14,165,233,0.07) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.04) 0%,transparent 50%);
-  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(232,165,131,0.04) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;overflow-wrap:break-word;
 }
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--border)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:24px 0;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
-.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(217,119,87,0.5);flex-shrink:0}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
-.hero{padding:72px 0 56px;text-align:center}
-.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
-  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+.badge.g{background:rgba(74,222,128,0.12);color:var(--green)}
+.badge.r{background:rgba(248,113,113,0.12);color:var(--red)}
+.badge.y{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.hero{padding:72px 0 56px}
+.hero h1{font-size:clamp(2.1rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
-.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
-.hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero .subtitle{font-size:1.03rem;color:var(--text2);max-width:780px;margin-bottom:20px;line-height:1.75}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
 .hero .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);min-height:24px;display:inline-flex;align-items:center}
-.section{padding:56px 0;border-top:1px solid var(--border)}
+.section{padding:52px 0;border-top:1px solid var(--border)}
 .section-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
 .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 70%)}
-.section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em}
-.section-desc{font-size:0.96rem;color:var(--text2);max-width:800px;line-height:1.75;margin-bottom:32px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative;margin-bottom:16px}
-.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
-.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
+.section-title{font-size:clamp(1.4rem,3vw,1.95rem);font-weight:700;line-height:1.25;margin-bottom:10px;letter-spacing:-0.02em}
+.section-desc{font-size:0.96rem;color:var(--text2);max-width:830px;line-height:1.78;margin-bottom:28px}
+.section-desc + .section-desc{margin-top:-16px}
+h3.sub{font-size:1rem;font-weight:700;margin:28px 0 12px;color:var(--text);letter-spacing:-0.01em}
+h3.sub::before{content:'▸ ';color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;margin-bottom:16px}
+.card:hover{border-color:rgba(217,119,87,0.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
+.card-title{font-size:1.01rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
-.card p{font-size:13.5px;color:var(--text2);line-height:1.7}
-.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition)}
+.card p{font-size:13.5px;color:var(--text2);line-height:1.72}
+.card p + p{margin-top:10px}
+.card ul{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:7px}
+.card ul li{font-size:13px;color:var(--text2);line-height:1.65;padding-left:16px;position:relative}
+.card ul li::before{content:'·';position:absolute;left:4px;color:var(--accent);font-weight:800}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition);max-width:100%}
 .card-source:hover{background:var(--accent);color:var(--bg)}
 .card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-.card-source::before{content:'↗';font-weight:800}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-@media(max-width:920px){.grid-2,.grid-3{grid-template-columns:1fr}}
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:18px}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.card-source::before{content:'↗';font-weight:800;flex-shrink:0}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:920px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:18px;-webkit-overflow-scrolling:touch;max-width:100%}
+table{width:100%;border-collapse:collapse;font-size:13.3px}
 thead{background:var(--surface2)}
-th{padding:14px 16px;text-align:left;font-weight:700;font-size:12px;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+th{padding:13px 15px;text-align:left;font-weight:700;font-size:11.5px;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 15px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.62}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--accent-dim)}
-td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+td code,th code{font-family:var(--mono);font-size:11.5px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+td strong{color:var(--text)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
 @media(max-width:760px){.compare{grid-template-columns:1fr}}
-.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
 .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
 .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
-.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-label{font-size:11.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:11px}
 .compare-bad .compare-label{color:var(--red)}
 .compare-good .compare-label{color:var(--green)}
-.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
-code,.code-block{font-family:var(--mono);font-size:12.5px}
-.code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:8px 0}
-.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:840px}
-.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
-.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
-.pattern-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:11px;line-height:1.62}
+code,.code-block{font-family:var(--mono);font-size:12.3px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px 17px;overflow-x:auto;line-height:1.66;color:var(--text2);white-space:pre;display:block;margin:8px 0;max-width:100%}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:9px;max-width:900px}
+.checklist li{font-size:13.4px;color:var(--text2);line-height:1.7;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;display:block}
+.checklist .check{width:21px;height:21px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800;vertical-align:-5px;margin-right:11px}
+.pattern-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:16px 0}
 @media(max-width:920px){.pattern-grid{grid-template-columns:1fr}}
-.pattern{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:var(--transition)}
-.pattern:hover{border-color:var(--accent)}
-.pattern-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;margin-bottom:10px}
-.pattern h4{font-size:14px;font-weight:700;margin-bottom:10px}
-.pattern p{font-size:12.5px;color:var(--text2);line-height:1.65}
-.pattern .fit{font-size:12px;color:var(--text3);margin-top:10px}
-.parity-box{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
-.parity-box-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
-.parity-box p{font-size:13px;color:var(--text2);line-height:1.7}
-.fix-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25);border-radius:12px;padding:22px;margin:18px 0}
-.fix-box-title{font-size:13px;font-weight:800;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
-.fix-box p{font-size:13px;color:var(--text2);line-height:1.7}
-.limit-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
-@media(max-width:760px){.limit-row{grid-template-columns:1fr}}
-.limit{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
-.limit-num{font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:800;letter-spacing:-0.02em;color:var(--accent);line-height:1.1}
-.limit-label{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.55}
-.limit-label code{font-size:10.5px;color:var(--text2)}
-.footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
-.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
-.footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
+.pattern{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:19px;transition:var(--transition)}
+.pattern:hover{border-color:rgba(217,119,87,0.45)}
+.pattern-num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 8px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:11.5px;font-weight:800;margin-bottom:10px}
+.pattern h4{font-size:13.6px;font-weight:700;margin-bottom:9px;line-height:1.4}
+.pattern p{font-size:12.5px;color:var(--text2);line-height:1.66}
+.pattern .fit{font-size:12px;color:var(--text3);margin-top:9px}
+.note{border-radius:12px;padding:20px;margin:16px 0;border:1px solid var(--border);background:var(--surface)}
+.note-title{font-size:12px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:9px;color:var(--accent)}
+.note p{font-size:13.2px;color:var(--text2);line-height:1.72}
+.note p + p{margin-top:9px}
+.note ul{list-style:none;margin-top:9px;display:flex;flex-direction:column;gap:7px}
+.note ul li{font-size:13px;color:var(--text2);line-height:1.65;padding-left:15px;position:relative}
+.note ul li::before{content:'·';position:absolute;left:3px;color:var(--accent);font-weight:800}
+.note.warn{background:rgba(251,191,36,0.06);border-color:rgba(251,191,36,0.25)}
+.note.warn .note-title{color:var(--yellow)}
+.note.bad{background:rgba(248,113,113,0.06);border-color:rgba(248,113,113,0.25)}
+.note.bad .note-title{color:var(--red)}
+.note.good{background:rgba(74,222,128,0.06);border-color:rgba(74,222,128,0.25)}
+.note.good .note-title{color:var(--green)}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.stat-row{grid-template-columns:1fr}}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+.stat-num{font-size:clamp(1.5rem,3.2vw,2.05rem);font-weight:800;letter-spacing:-0.02em;color:var(--accent);line-height:1.12}
+.stat-label{font-size:11.8px;color:var(--text3);margin-top:7px;line-height:1.55}
+.stat-label code{font-size:10.5px;color:var(--text2)}
+.flow{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;margin:14px 0;overflow-x:auto;max-width:100%}
+.flow pre{font-family:var(--mono);font-size:12.2px;line-height:1.72;color:var(--text2);white-space:pre}
+.taglist{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tag{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);min-height:24px;display:inline-flex;align-items:center}
+.tag.on{border-color:var(--accent);color:var(--accent)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+@media(max-width:860px){.steps{grid-template-columns:1fr}}
+.step{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:17px}
+.step-n{font-size:11px;font-weight:800;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px}
+.step h4{font-size:13.4px;font-weight:700;margin-bottom:7px;line-height:1.4}
+.step p{font-size:12.5px;color:var(--text2);line-height:1.65}
+.footer{margin-top:60px;padding:34px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:800px}
 .footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
-.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer ul li{font-size:12.5px;color:var(--text3);line-height:1.6}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
-/* ═══ 가로 오버플로 방지 (docs-site 정본 규칙) — 내용을 자르지 말고 스크롤시킨다 ═══ */
-/* (1) grid 자식의 기본 min-width 는 auto(=min-content) 라, 긴 코드·표·안 끊기는 토큰의
-       최소폭이 그대로 트랙 폭으로 전파되어 문서를 밀어낸다. */
-.grid-2>*,.grid-3>*,.compare>*,.pattern-grid>*,.limit-row>*{min-width:0}
-/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다. */
-.table-wrap{-webkit-overflow-scrolling:touch;max-width:100%}
+/* ═══ 가로 오버플로 4 규칙 (docs-site Gotcha 10) — 자르지 말고 스크롤시킨다 ═══ */
+/* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 라 긴 토큰의 최소폭이 트랙 폭으로 전파된다 */
+.grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.pattern-grid>*,.stat-row>*,.steps>*,.topbar>*{min-width:0}
+/* (2) 표는 스크롤 컨테이너 안에서 자연폭을 유지한다 */
 .table-wrap>table{min-width:max-content}
-/* (3) 코드 — 블록(white-space:pre)은 컨테이너에서 스크롤, 인라인 토큰은 어디서든 줄바꿈. */
+/* (3) 코드 — 블록은 컨테이너에서 스크롤, 인라인 토큰은 어디서든 줄바꿈 */
 pre{overflow-x:auto;max-width:100%}
 pre code{white-space:pre}
-.code-block{max-width:100%}
 :not(pre)>code:not(.code-block){overflow-wrap:anywhere}
-/* (4) .checklist li 가 flex 라 인라인 <code>/<strong> 이 각각 별도 flex 아이템이 되어
-       줄바꿈 없이 한 줄에 나열된다. 인라인 흐름으로 되돌려 자연 줄바꿈시킨다. */
-.checklist li{display:block}
-.checklist .check{display:inline-flex;vertical-align:-5px;margin-right:12px}
+/* (4) 좁은 뷰포트 단일 컬럼 스택은 각 그리드의 @media 블록에서 처리 (위 참조) */
+
+/* ═══ 페이지 고유 스타일 ═══ */
+.depth{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+@media(max-width:860px){.depth{grid-template-columns:1fr}}
+.depth>*{min-width:0}
+.layer{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+.layer-n{font-size:11px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.layer h4{font-size:13.4px;font-weight:700;margin-bottom:7px}
+.layer p{font-size:12.3px;color:var(--text2);line-height:1.62}
+.correction{background:rgba(125,211,252,0.06);border:1px solid rgba(125,211,252,0.25);border-radius:12px;padding:20px;margin:16px 0}
+.correction .note-title{color:var(--blue)}
+.correction p{font-size:13.2px;color:var(--text2);line-height:1.72}
+.correction p + p{margin-top:9px}
+
 </style>
-  <!-- kaizen-cycle: 2026-07-27 (nesting 사실 정정 + 플랫폼 하드 리밋 + Unverifiable 4항 + frontmatter 스키마 갱신) -->
+<!-- kaizen-cycle: 2026-08-13 · source: harness/docs/guides/agent-design-guide.md -->
 </head>
 <body>
 <div class="page">
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · 에이전트 설계 가이드</div>
-  <span class="badge">v1.5.0 · 2026-07-27</span>
+  <span class="badge">v1.6.0 · 2026-08-13</span>
 </div>
 
 <div class="hero">
   <h1>에이전트 설계 가이드</h1>
-  <p class="subtitle">공식 문서(2026-04 최신), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙. 2026-07 사이클에서 <strong>서브에이전트 중첩 사실 정정</strong>(기본 3층 허용), <strong>플랫폼 하드 리밋</strong>, <strong>§10 Unverifiable 4항</strong>, <strong>frontmatter 스키마 갱신</strong>이 반영되었다.</p>
+  <p class="subtitle">공식 문서(2026-08 재확인), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙. 2026-08-13 사이클에서 <strong>frontmatter 15 종 확정</strong>(<code>prompt</code>·<code>initialPrompt</code> 오기 정정), <strong>§3.5 Binary Decidability 최상위 승격</strong>, <strong>§10 사용자 실패 보고 <code>REOPENED</code></strong>, <strong>parity item 8·9 신규</strong>가 반영됐다.</p>
   <div class="meta">
-    <span>v1.5.0</span>
-    <span>최근 갱신 2026-07-27</span>
-    <span>중첩 3층 · 하드 리밋 3종</span>
+    <span>version 1.6.0</span>
+    <span>last_updated 2026-08-13</span>
+    <span>frontmatter 15 종</span>
+    <span>중첩 기본 3 층</span>
+    <span>Parity item 9 개</span>
   </div>
 </div>
 
-<!-- SECTION 1: AGENT VS SKILL -->
+<!-- ═══ 1 ═══ -->
 <div class="section">
   <div class="section-label">Decision</div>
   <div class="section-title">§1 에이전트 vs 스킬 — 언제 무엇을 쓰는가</div>
-  <p class="section-desc">가장 먼저 판단해야 할 것: <strong>이 작업에 에이전트가 필요한가?</strong> Anthropic 의 핵심 원칙은 "복잡성은 결과가 입증될 때만 추가해라" 다. 단순한 스킬로 충분하면 에이전트를 만들지 마라.</p>
+  <p class="section-desc">가장 먼저 판단할 것은 <strong>이 작업에 에이전트가 필요한가</strong>다. Anthropic 의 핵심 원칙은 "복잡성은 결과가 입증될 때만 추가해라" 다 — 단순한 스킬로 충분하면 에이전트를 만들지 마라.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>기준</th><th>스킬 사용</th><th>에이전트 사용</th></tr></thead>
@@ -160,19 +201,19 @@ pre code{white-space:pre}
     </table>
   </div>
   <a class="card-source" href="https://www.anthropic.com/research/building-effective-agents">Building Effective Agents — Anthropic Research</a>
+  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Create custom subagents — Claude Code Docs</a>
 </div>
 
-<!-- SECTION 2: FILE STRUCTURE -->
+<!-- ═══ 2 ═══ -->
 <div class="section">
   <div class="section-label">Structure</div>
-  <div class="section-title">§2 에이전트 파일 구조 + frontmatter 전체 스키마</div>
-  <p class="section-desc">에이전트는 frontmatter + 마크다운 본문(시스템 프롬프트)으로 구성된다. 2026-04 공식 스키마 기준으로 지원 필드가 크게 늘었다.</p>
+  <div class="section-title">§2 파일 구조 — frontmatter 는 15 종, 필수는 2 개뿐</div>
   <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span>기본 골격</div>
       <code class="code-block">---
 name: my-agent              # 필수. 소문자 + 하이픈
-description: >              # 필수. 위임 판단 기준
+description: &gt;              # 필수. 위임 판단 기준
   언제 이 에이전트를 사용할지 구체적으로 명시.
 tools: Read, Grep, Glob     # 선택. 생략하면 전체 상속
 model: sonnet               # sonnet/opus/haiku/inherit
@@ -182,7 +223,7 @@ model: sonnet               # sonnet/opus/haiku/inherit
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>배치 위치 (우선순위순)</div>
-      <div class="table-wrap" style="margin-top:12px">
+      <div class="table-wrap" style="margin-top:10px">
         <table>
           <thead><tr><th>위치</th><th>범위</th><th>우선</th></tr></thead>
           <tbody>
@@ -197,41 +238,48 @@ model: sonnet               # sonnet/opus/haiku/inherit
     </div>
   </div>
 
+  <h3 class="sub">frontmatter 전체 필드 — 공식 15 종</h3>
+  <p class="section-desc">공식 frontmatter 는 <strong>15 종</strong>이고 그중 <strong>필수는 <code>name</code> 과 <code>description</code> 둘뿐</strong>이다. 아래 표가 그 15 종 전부이며, 여기에 없는 이름을 frontmatter 필드로 소개하지 마라.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>필드</th><th>필수</th><th>설명</th></tr></thead>
       <tbody>
-        <tr><td><code>name</code></td><td>예</td><td>고유 식별자(소문자, 하이픈). 훅이 이 값을 <code>agent_type</code> 으로 받는다. <strong>파일명과 일치할 필요는 없다</strong></td></tr>
+        <tr><td><code>name</code></td><td>예</td><td>고유 식별자 (소문자, 하이픈). 훅이 이 값을 <code>agent_type</code> 으로 받는다. <strong>파일명과 일치할 필요는 없다</strong></td></tr>
         <tr><td><code>description</code></td><td>예</td><td>언제 위임할지 Claude 가 판단하는 기준</td></tr>
-        <tr><td><code>tools</code></td><td>아니오</td><td>허용 도구 목록. 생략 시 전체 상속. 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 <strong>launch 자체에 실패</strong>한다. 스킬을 미리 넣으려면 <code>Skill</code> 대신 <code>skills</code> 필드를 써라</td></tr>
+        <tr><td><code>tools</code></td><td>아니오</td><td>허용 도구 목록. 생략 시 전체 상속. 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 <strong>launch 자체에 실패</strong>한다. 스킬을 미리 넣으려면 여기에 <code>Skill</code> 을 적지 말고 <code>skills</code> 필드를 써라</td></tr>
         <tr><td><code>disallowedTools</code></td><td>아니오</td><td>차단 도구 목록 (상속·지정 목록에서 제거)</td></tr>
         <tr><td><code>model</code></td><td>아니오</td><td><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code>, 풀 model ID, <code>inherit</code> (기본값)</td></tr>
         <tr><td><code>permissionMode</code></td><td>아니오</td><td><code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code>, <code>plan</code>, <code>manual</code>(= <code>default</code> 별칭)</td></tr>
         <tr><td><code>maxTurns</code></td><td>아니오</td><td>최대 에이전트 턴 수</td></tr>
-        <tr><td><code>skills</code></td><td>아니오</td><td>시작 시 주입할 스킬 목록 (전체 내용이 context 에 inject 됨 — invoke 가능성만 주어지는 게 아니다)</td></tr>
-        <tr><td><code>mcpServers</code></td><td>아니오</td><td>이 에이전트 전용 MCP 서버 (기존 서버명 참조 또는 inline 정의)</td></tr>
+        <tr><td><code>skills</code></td><td>아니오</td><td>시작 시 주입할 스킬 목록 (전체 내용이 context 에 inject 됨, invoke 가능성만 주어지는 게 아님)</td></tr>
+        <tr><td><code>mcpServers</code></td><td>아니오</td><td>이 에이전트 전용 MCP 서버 (설정된 서버명 참조 또는 inline 정의)</td></tr>
         <tr><td><code>hooks</code></td><td>아니오</td><td>라이프사이클 훅 (<code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code> → 런타임에 <code>SubagentStop</code> 으로 변환)</td></tr>
         <tr><td><code>memory</code></td><td>아니오</td><td>영속 메모리: <code>user</code>, <code>project</code>, <code>local</code></td></tr>
         <tr><td><code>background</code></td><td>아니오</td><td><code>true</code> 면 결과가 즉시 필요할 때도 <strong>항상</strong> 백그라운드 실행. 미지정이면 Claude 가 판단하며, 최신 버전은 기본적으로 백그라운드로 돌린다</td></tr>
         <tr><td><code>effort</code></td><td>아니오</td><td><code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code> (모델별 가용 레벨 상이). 세션 effort 를 override</td></tr>
         <tr><td><code>isolation</code></td><td>아니오</td><td><code>worktree</code> 면 격리된 git worktree 에서 실행 (변경이 없으면 자동 정리)</td></tr>
-        <tr><td><code>initialPrompt</code></td><td>아니오</td><td><code>--agent</code> 등으로 <strong>메인 세션 에이전트</strong>로 돌 때 첫 user turn 으로 자동 제출</td></tr>
         <tr><td><code>color</code></td><td>아니오</td><td>터미널 UI 색상 (<code>red</code>, <code>blue</code>, <code>green</code>, <code>yellow</code>, <code>purple</code>, <code>orange</code>, <code>pink</code>, <code>cyan</code>)</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="parity-box">
-    <div class="parity-box-title">플러그인 에이전트 제약</div>
+  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields">Supported frontmatter fields — Claude Code Docs (2026-08 재확인)</a>
+
+  <div class="correction">
+    <div class="note-title">표에 없는 이름들 — 혼동 방지 · 2026-08 정정</div>
+    <p><strong><code>prompt</code></strong> — 이것은 <code>--agents</code> <strong>JSON 정의</strong>에서 markdown body 에 해당하는 필드다. 파일 기반 YAML frontmatter 표에는 존재하지 않는다. <code>.md</code> 에이전트 파일의 frontmatter 에 <code>prompt:</code> 를 적지 마라.</p>
+    <p><strong><code>initialPrompt</code></strong> — 2026-07 판 이 표에 행으로 실려 있었으나 공식 15 종 목록에 없다. 근거가 다시 확보되기 전까지 공식 필드로 소개하지 않는다.</p>
+  </div>
+  <div class="note warn">
+    <div class="note-title">플러그인 에이전트 제약</div>
     <p><code>hooks</code>, <code>mcpServers</code>, <code>permissionMode</code> 필드는 플러그인으로 배포된 에이전트에서는 <strong>무시된다</strong>. 이 필드가 필요하면 <code>.claude/agents/</code> 로 복사해라.</p>
   </div>
-  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields">Supported Frontmatter Fields (2026-04)</a>
 </div>
 
-<!-- SECTION 3: DESCRIPTION -->
+<!-- ═══ 3 ═══ -->
 <div class="section">
   <div class="section-label">Delegation Trigger</div>
   <div class="section-title">§3 description 은 위임 트리거다</div>
-  <p class="section-desc">스킬의 description 과 동일한 원칙이 적용된다. description 은 사람을 위한 요약이 아니라 <strong>Claude 가 에이전트를 선택하는 트리거 조건</strong>이다.</p>
+  <p class="section-desc">공식 문서 인용: <em>"Claude automatically delegates tasks based on the task description in your request, the description field in subagent configurations, and current context. To encourage proactive delegation, include phrases like 'use proactively' in your subagent's description field."</em> description 은 사람을 위한 요약이 아니라 <strong>Claude 가 에이전트를 선택하는 트리거 조건</strong>이다.</p>
   <div class="compare">
     <div class="compare-bad">
       <div class="compare-label">Bad</div>
@@ -239,88 +287,95 @@ model: sonnet               # sonnet/opus/haiku/inherit
     </div>
     <div class="compare-good">
       <div class="compare-label">Good</div>
-      <code class="code-block">description: >
-  Sprint Contract 기반으로 구현 결과를
-  독립 평가하는 QA 에이전트.
-  구현 완료 후 APPROVE/REJECT 판정을 내린다.
+      <code class="code-block">description: &gt;
+  Sprint Contract 기반으로 구현 결과를 독립
+  평가하는 QA 에이전트. 구현 완료 후
+  APPROVE/REJECT 판정을 내린다.
   /develop Step 완료 후, 또는 사용자가
-  "QA 돌려줘"라고 요청할 때 사용.</code>
+  "QA 돌려줘" 라고 요청할 때 사용.</code>
     </div>
   </div>
+  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#understand-automatic-delegation">Understand automatic delegation — Claude Code Docs</a>
+
+  <h3 class="sub">"use proactively" — 공식 언더트리거 방지 메커니즘</h3>
+  <p class="section-desc">Claude 는 서브에이전트를 필요한 상황에서도 <strong>undertrigger</strong>(위임하지 않는) 하는 경향이 있다. Anthropic 공식 문서는 description 에 <code>use proactively</code> 또는 <code>proactively</code> 를 명시적으로 포함하라고 권장한다.</p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>"use proactively" — 공식 언더트리거 방지 메커니즘</div>
-      <p>Claude 는 서브에이전트를 필요한 상황에서도 <strong>undertrigger</strong> 하는 경향이 있다. 공식 문서는 description 에 <code>use proactively</code> 를 명시적으로 포함하라고 권장한다.</p>
-      <code class="code-block" style="margin-top:12px">description: >
-  Expert code review specialist.
-  Proactively reviews code for quality,
-  security, and maintainability.
-  Use immediately after writing
-  or modifying code.</code>
-      <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">·</span>코드 작성/수정 직후 자동 실행 리뷰어 → <code>Proactively reviews... Use immediately after...</code></li>
-        <li><span class="check">·</span>에러/실패 시 자동 개입 디버거 → <code>Use proactively when encountering...</code></li>
-        <li><span class="check">·</span>명시적 호출이 필요한 에이전트(QA) → <code>use proactively</code> 생략, 트리거 키워드만 나열</li>
-      </ul>
-      <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#understand-automatic-delegation">Understand Automatic Delegation</a>
+      <div class="card-title"><span class="dot"></span>Good — 프로액티브 위임 명시</div>
+      <code class="code-block">description: &gt;
+  Expert code review specialist. Proactively
+  reviews code for quality, security, and
+  maintainability. Use immediately after
+  writing or modifying code.</code>
+      <code class="code-block">description: &gt;
+  Debugging specialist for errors, test
+  failures, and unexpected behavior.
+  Use proactively when encountering any issues.</code>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Sibling Agent 트리거 키워드 배타성 (substring 포함)</div>
-      <p>에이전트도 스킬과 같은 규칙을 따른다 — description 의 트리거 키워드는 <strong>sibling agent 와 set intersection + substring containment 가 모두 공집합</strong>이어야 한다.</p>
-      <p style="margin-top:10px">"QA 돌려줘" 같은 키워드가 여러 에이전트 description 에 중복되거나, 한 에이전트의 키워드가 다른 에이전트 키워드의 부분문자열이면 Claude 가 어떤 에이전트로 위임할지 예측 불가하다.</p>
-      <code class="code-block" style="margin-top:12px">rg -n "description:" agents/*.md</code>
-      <p style="margin-top:10px">플러그인 내 에이전트가 2+ 개이면 편집 시 반드시 위 명령으로 확인 후 저장한다. 이 프로젝트의 <code>qa-evaluator</code> 는 사용자 명시 호출 및 <code>/sprint-contract</code> 완료 후 연계로 호출되므로 "use proactively" 를 생략한다.</p>
+      <div class="card-title"><span class="dot"></span>적용 체크리스트</div>
+      <ul>
+        <li>코드 작성/수정 직후 자동으로 돌아야 하는 리뷰어 → <code>Proactively reviews… Use immediately after…</code></li>
+        <li>에러/실패 발생 시 자동 개입해야 하는 디버거 → <code>Use proactively when encountering…</code></li>
+        <li>명시적 호출이 필요한 에이전트(예: QA) → <code>use proactively</code> 생략하고 트리거 키워드만 나열</li>
+      </ul>
+      <p>이 프로젝트의 <code>qa-evaluator</code> 는 사용자 명시 호출 및 <code>/sprint-contract</code> 완료 후 연계로 호출되므로 "use proactively" 를 생략한다.</p>
     </div>
   </div>
+
+  <h3 class="sub">Sibling Agent 트리거 키워드 배타성 (substring 포함)</h3>
+  <p class="section-desc">에이전트도 스킬과 같은 규칙을 따른다 — description 의 트리거 키워드는 <strong>sibling agent 와 set intersection + substring containment 가 모두 공집합</strong>이어야 한다. "QA 돌려줘" 같은 키워드가 여러 에이전트 description 에 중복되거나, 한 에이전트의 키워드가 다른 에이전트 키워드의 부분문자열이면 Claude 가 어떤 에이전트로 위임할지 예측 불가하다. 플러그인 내 에이전트가 2+ 개이면 편집 시 반드시 <code>rg -n "description:" agents/*.md</code> 로 확인한 뒤 저장한다.</p>
 </div>
 
-<!-- SECTION 3.5: BINARY DECIDABILITY -->
+<!-- ═══ 3.5 ═══ -->
 <div class="section">
   <div class="section-label">Binary Decidability</div>
   <div class="section-title">§3.5 계약 모호성 방지 · Binary Decidability Pre-Check</div>
-  <p class="section-desc">Reviewer / Evaluator 에이전트는 평가를 시작하기 <strong>전</strong>에 Sprint Contract 의 각 조건이 <strong>이진(PASS/FAIL) 판정 가능한지</strong> 자체 검토해야 한다. 모호한 조건은 평가 중 해석 차이로 REJECT iteration 을 낭비시킨다. 이 원칙은 지난 사이클에 §10 Gotchas 내 1 bullet 으로만 존재해 design-kit PH-01 REJECT 를 유발했고, 그 결과 <strong>독립 최상위 섹션</strong>으로 승격되었다.</p>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>수행 절차 (평가 시작 전 4단계)</div>
-      <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">1</span><strong>이진 판정 가능성 검사.</strong> "충분히", "상당한", "어느 정도" 같은 정성적 수식어가 있으면 계약 작성자에게 구체화 요청 또는 REJECT 사유로 명시</li>
-        <li><span class="check">2</span><strong>구체성 태그 존재 확인.</strong> <code>[exact]</code> / <code>[structural]</code> / <code>[goal]</code> 사용 여부 확인</li>
-        <li><span class="check">3</span><strong>경계 정의 의무.</strong> 파일 경로·함수명·라인 수가 미명시면 에이전트가 자체 경계를 정의하되 <strong>판정 근거 블록에 명시</strong></li>
-        <li><span class="check">4</span><strong>모호성 발견 시 REJECT 사유 포함.</strong> "모호성: [조건 ID] — [모호한 문구] — [제안하는 구체화]"</li>
-      </ul>
+  <div class="note bad">
+    <div class="note-title">이 절이 최상위 섹션으로 승격된 이유</div>
+    <p>지난 kaizen 사이클에서 이 원칙은 skill-design-guide 에만 존재하고 이 가이드에는 §10 Gotchas 내 <strong>1 bullet</strong> 으로만 있어 design-kit <code>PH-01</code> REJECT 가 발생했다. 본 사이클에서 <strong>독립 최상위 섹션</strong>으로 승격한다.</p>
+  </div>
+  <p class="section-desc">Reviewer / Evaluator 에이전트는 평가를 시작하기 <strong>전</strong>에 Sprint Contract 의 각 조건이 <strong>이진(PASS/FAIL) 판정 가능한지</strong> 자체 검토해야 한다. 모호한 조건은 평가 중 해석 차이로 REJECT iteration 을 낭비시킨다.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">Step 1</div>
+      <h4>이진 판정 가능성 검사</h4>
+      <p>각 조건이 "PASS" 또는 "FAIL" 중 하나로 귀결 가능한가? "충분히", "상당한", "어느 정도" 같은 정성적 수식어가 있으면 계약 작성자에게 구체화를 요청하거나 REJECT 사유로 명시한다.</p>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>구체성 태그 3종</div>
-      <div class="table-wrap" style="margin-top:12px">
-        <table>
-          <thead><tr><th>태그</th><th>판정 방식</th></tr></thead>
-          <tbody>
-            <tr><td><code>[exact]</code></td><td>문자 그대로 매칭 (정규식 · 라인번호 · 정확한 값)</td></tr>
-            <tr><td><code>[structural]</code></td><td>구조적 일치 (섹션 존재 · 카운트 · 관계)</td></tr>
-            <tr><td><code>[goal]</code></td><td>결과 상태 (빌드 성공 · 테스트 통과 · 사용자 경험)</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="fix-box" style="margin-top:16px">
-        <div class="fix-box-title">실패 사례</div>
-        <p><strong>PH-01 (design-kit):</strong> 계약 모호성 방지 원칙이 이 가이드에 누락되어 평가자가 모호 조건을 그대로 평가 → 결과 해석 충돌 → REJECT.<br><strong>SK-02 (harness, 2026-04):</strong> "Neubrutalism 모달 box-shadow offset 3px" 조건에서 "주요 interactive element" 범위가 모호 → 평가자가 badge/decoration 에도 적용 → REJECT.</p>
-      </div>
+    <div class="step">
+      <div class="step-n">Step 2</div>
+      <h4>구체성 태그 존재 확인</h4>
+      <p><code>[exact]</code> 문자 그대로 매칭 · <code>[structural]</code> 구조적 일치(섹션 존재·카운트·관계) · <code>[goal]</code> 결과 상태(빌드 성공·테스트 통과·사용자 경험).</p>
+    </div>
+    <div class="step">
+      <div class="step-n">Step 3</div>
+      <h4>경계 정의 의무</h4>
+      <p>파일 경로·함수명·라인 수가 미명시면 에이전트가 자체적으로 경계를 정의하되 <strong>판정 근거 블록에 명시</strong>한다.</p>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>평가자 자체 체크리스트 (평가 시작 직전)</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">✓</span>모든 조건에 구체성 태그(<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>)가 붙어 있는가?</li>
-      <li><span class="check">✓</span>정성적 수식어(충분히, 상당한 등)가 있는 조건은 경계 정의가 완료되었는가?</li>
-      <li><span class="check">✓</span>파일/라인 근거가 명시되지 않은 조건은 에이전트가 자체 경계 정의 후 근거 블록에 기록했는가?</li>
+  <div class="note">
+    <div class="note-title">모호성 발견 시 REJECT 사유 포맷</div>
+    <p>평가 도중 조건의 모호성이 드러나면 다음 iteration 에서 계약 작성자가 수정할 수 있도록 REJECT 사유에 <code>모호성: [조건 ID] — [모호한 문구] — [제안하는 구체화]</code> 를 포함한다.</p>
+  </div>
+  <h3 class="sub">평가자 자체 체크리스트 (평가 시작 직전)</h3>
+  <ul class="checklist">
+    <li><span class="check">✓</span>모든 조건에 구체성 태그(<code>[exact]</code>/<code>[structural]</code>/<code>[goal]</code>)가 붙어 있는가?</li>
+    <li><span class="check">✓</span>정성적 수식어(충분히, 상당한 등)가 있는 조건은 경계 정의가 완료되었는가?</li>
+    <li><span class="check">✓</span>파일/라인 근거가 명시되지 않은 조건은 에이전트가 자체 경계 정의 후 근거 블록에 기록했는가?</li>
+  </ul>
+  <div class="note bad">
+    <div class="note-title">실패 사례 (이 원칙 없이 발생)</div>
+    <ul>
+      <li><strong>PH-01 (design-kit)</strong> — "계약 모호성 방지 원칙" 이 이 가이드에 누락되어 평가자가 모호 조건을 그대로 평가 → 결과 해석 충돌 → REJECT</li>
+      <li><strong>SK-02 (harness, 2026-04)</strong> — "Neubrutalism 모달 box-shadow offset 3px" 조건에서 "주요 interactive element" 범위가 모호 → 평가자가 badge/decoration 에도 적용 → REJECT</li>
     </ul>
   </div>
 </div>
 
-<!-- SECTION 4: TOOL SCOPING + NESTING -->
+<!-- ═══ 4 ═══ -->
 <div class="section">
   <div class="section-label">Tool Scoping</div>
-  <div class="section-title">§4 최소 권한 원칙 + 서브에이전트 중첩</div>
+  <div class="section-title">§4 최소 권한 원칙 · 중첩 3 층 · <code>Agent(agent_type)</code> 화이트리스트</div>
   <p class="section-desc">에이전트에게 <strong>필요한 도구만</strong> 부여한다. 이것이 에이전트와 스킬의 핵심 차이점이다.</p>
   <div class="table-wrap">
     <table>
@@ -336,17 +391,23 @@ model: sonnet               # sonnet/opus/haiku/inherit
       </tbody>
     </table>
   </div>
+  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#available-tools">Available tools — Create custom subagents</a>
+  <a class="card-source" href="https://claudefa.st/blog/guide/agents/sub-agent-best-practices">Claude Code Sub-Agent Best Practices — claudefa.st</a>
+
   <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span>내장 서브에이전트 도구 프로파일 (참고)</div>
-      <p><strong>Explorer / Research 계열</strong>: Read-only tools (Write/Edit 거부), 모델 <code>haiku</code> 로 저지연·저비용<br><strong>Debugger 계열</strong>: All tools, 모델 <code>inherit</code> (부모 세션 수준)<br><strong>Code Reviewer 계열</strong>: Read-only, 모델 <code>inherit</code></p>
-      <p style="margin-top:10px">새 에이전트 설계 시 이 프로파일 중 어느 것에 해당하는지 먼저 판단하면 도구 리스트를 빠르게 좁힐 수 있다.</p>
-      <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#available-tools">Available Tools</a>
+      <ul>
+        <li><strong>Explorer / Research 계열</strong> — Read-only tools (Write/Edit 거부), 모델 <code>haiku</code> 로 저지연·저비용</li>
+        <li><strong>Debugger 계열</strong> — All tools, 모델 <code>inherit</code> (부모 세션 수준)</li>
+        <li><strong>Code Reviewer 계열</strong> — Read-only, 모델 <code>inherit</code></li>
+      </ul>
+      <p>새 에이전트 설계 시 이 프로파일 중 어디에 해당하는지 먼저 판단하면 도구 리스트를 빠르게 좁힐 수 있다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>조건부 제한이 필요할 때</div>
       <p>단순 도구 목록으로 부족하면 <code>PreToolUse</code> 훅으로 세밀하게 제어한다.</p>
-      <code class="code-block" style="margin-top:12px">hooks:
+      <code class="code-block">hooks:
   PreToolUse:
     - matcher: "Bash"
       hooks:
@@ -355,402 +416,471 @@ model: sonnet               # sonnet/opus/haiku/inherit
     </div>
   </div>
 
-  <div class="fix-box">
-    <div class="fix-box-title">중요 정정 (2026-07) — 서브에이전트 중첩은 기본 3 층까지 <em>허용</em>된다</div>
-    <p>과거 이 가이드는 서브에이전트의 하위 위임을 <strong>금지된 것으로 기술했으나 그 서술은 오류였다.</strong> 현재 공식 동작은 다르다 — <strong>서브에이전트는 기본적으로 자기 아래로 서브에이전트를 스폰할 수 있으며, 메인 대화 기준 3 층까지 중첩된다.</strong> 깊이 한계에 도달하면 Claude Code 가 해당 서브에이전트에서 <code>Agent</code> 도구를 회수하므로, 그 에이전트는 위임 없이 직접 일하고 요약 하나만 반환한다.</p>
+  <h3 class="sub">서브에이전트 중첩 — 기본 3 층까지 허용된다</h3>
+  <div class="correction">
+    <div class="note-title">중요 정정 (2026-07)</div>
+    <p>과거 이 가이드는 서브에이전트의 하위 위임을 금지된 것으로 기술했으나, 현재 공식 동작은 다르다. <strong>서브에이전트는 기본적으로 자기 아래로 서브에이전트를 스폰할 수 있으며, 메인 대화 기준 3 층까지 중첩된다.</strong> 깊이 한계에 도달하면 Claude Code 가 해당 서브에이전트에서 <code>Agent</code> 도구를 회수하므로, 그 에이전트는 위임 없이 직접 일하고 요약 하나만 반환한다.</p>
+    <p>깊이 조정은 <code>settings.json</code> 의 <code>env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code>(<code>1</code> 로 두면 중첩 비활성). 중첩된 서브에이전트도 top-level 과 동일하게 설정·해석되며, 중간 산출물은 메인 대화에 도달하지 않고 <strong>최상위 서브에이전트의 요약만</strong> 올라온다. 특정 에이전트만 스폰을 막으려면 그 에이전트의 <code>tools</code> 에서 <code>Agent</code> 를 빼거나 <code>disallowedTools</code> 에 추가한다.</p>
+    <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Let subagents spawn their own subagents — Claude Code Docs</a>
   </div>
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>중첩 운용 규칙</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">·</span>깊이 조정: <code>settings.json</code> 의 <code>env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code> (<code>1</code> 로 두면 중첩 비활성)</li>
-      <li><span class="check">·</span>중첩된 서브에이전트도 top-level 과 동일하게 설정·해석된다. 중간 산출물은 메인 대화에 도달하지 않고 <strong>최상위 서브에이전트의 요약만</strong> 올라온다</li>
-      <li><span class="check">·</span>특정 에이전트만 스폰을 막으려면(예: read-only 를 유지해야 하는 리뷰어) 그 에이전트의 <code>tools</code> 에서 <code>Agent</code> 를 빼거나 <code>disallowedTools</code> 에 추가한다</li>
-    </ul>
-    <p style="margin-top:12px"><strong>설계 함의:</strong> "리뷰어가 발견 항목마다 검증자를 띄우는" 형태처럼 위임된 작업이 다시 병렬로 쪼개지는 구조가 이제 정상 설계 선택지다. 다만 §7 의 fan-out 상한과 exploration budget 은 중첩 층에도 그대로 적용된다 — 층이 깊어질수록 비용은 곱으로 늘어난다.</p>
-    <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Let subagents spawn their own subagents (2026-07 확인)</a>
-  </div>
+  <p class="section-desc"><strong>설계 함의:</strong> "리뷰어가 발견 항목마다 검증자를 띄우는" 형태처럼 위임된 작업이 다시 병렬로 쪼개지는 구조가 이제 정상 설계 선택지다. 다만 §7 의 fan-out 상한과 exploration budget 은 중첩 층에도 그대로 적용된다 — <strong>층이 깊어질수록 비용은 곱으로 늘어난다.</strong></p>
 
-  <div class="card">
-    <div class="card-title"><span class="dot"></span><code>Agent(agent_type)</code> — 스폰 가능 서브에이전트 화이트리스트</div>
-    <code class="code-block">---
+  <h3 class="sub"><code>Agent(agent_type)</code> — 스폰 가능 서브에이전트 화이트리스트</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>문법</div>
+      <code class="code-block">---
 name: coordinator
 description: Coordinates work across specialized agents
 tools: Agent(worker, researcher), Read, Bash
 ---</code>
-    <p style="margin-top:12px">이 예시에서는 <code>worker</code> 와 <code>researcher</code> 서브에이전트만 스폰 가능하다. 그 외를 호출하면 요청이 실패하며, 에이전트는 허용된 타입만 프롬프트에서 볼 수 있다.</p>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">·</span><code>Agent(...)</code> 로 명시하면 <strong>화이트리스트</strong> 방식 (나열된 것만 허용)</li>
-      <li><span class="check">·</span><code>Agent</code> 만 쓰면 <strong>전체 허용</strong></li>
-      <li><span class="check">·</span><code>Agent</code> 자체를 생략하면 <strong>모든 서브에이전트 스폰 불가</strong></li>
-      <li><span class="check">·</span>중첩이 허용되므로 이 문법은 메인 스레드 에이전트뿐 아니라 <strong>중첩 서브에이전트에도 유효</strong>하다</li>
-    </ul>
+      <p>이 예시에서는 <code>worker</code> 와 <code>researcher</code> 서브에이전트만 스폰 가능하다. 그 외를 호출하면 요청이 실패하며, 에이전트는 허용된 타입만 프롬프트에서 볼 수 있다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>규칙</div>
+      <ul>
+        <li><code>Agent(...)</code> 로 명시하면 <strong>화이트리스트</strong> 방식 (나열된 것만 허용)</li>
+        <li><code>Agent</code> 만 쓰면 <strong>전체 허용</strong></li>
+        <li><code>Agent</code> 자체를 생략하면 <strong>모든 서브에이전트 스폰 불가</strong></li>
+        <li>중첩이 허용되므로 이 문법은 메인 스레드 에이전트뿐 아니라 <strong>중첩 서브에이전트에도 유효</strong>하다</li>
+      </ul>
+    </div>
   </div>
 </div>
 
-<!-- SECTION 5: MODEL -->
+<!-- ═══ 5 ═══ -->
 <div class="section">
-  <div class="section-label">Model Strategy</div>
-  <div class="section-title">§5 모델 선택 전략 + Model Routing</div>
-  <p class="section-desc"><strong>작업 복잡도에 맞는 모델을 선택</strong>하여 비용을 최적화한다. 추천 패턴: 메인 세션은 Opus, 서브에이전트는 Sonnet — 집중된 작업에서는 Sonnet 이면 충분하다.</p>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>작업 유형별 모델</div>
-      <div class="table-wrap" style="margin-top:12px">
-        <table>
-          <thead><tr><th>작업 유형</th><th>모델</th><th>이유</th></tr></thead>
-          <tbody>
-            <tr><td>코드베이스 탐색, 파일 검색</td><td><strong>haiku</strong></td><td>빠르고 저렴. 읽기 전용</td></tr>
-            <tr><td>코드 리뷰, 테스트 작성, 구현</td><td><strong>sonnet</strong></td><td>능력과 속도의 균형</td></tr>
-            <tr><td>아키텍처 판단, 복잡한 평가</td><td><strong>opus</strong></td><td>최고 추론 능력</td></tr>
-            <tr><td>메인 대화와 동일 수준 필요</td><td><strong>inherit</strong></td><td>부모 모델 상속</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Model Routing — 작업별 자동 모델 선택</div>
-      <p>수동으로 모델을 고정하는 대신, 작업 유형에 따라 <strong>자동으로 모델을 라우팅</strong>하는 패턴이 등장하고 있다. 오케스트레이터가 작업을 분류하고 적합한 모델로 위임한다.</p>
-      <code class="code-block" style="margin-top:12px">요청 → 분류기 → 탐색 작업     → haiku
+  <div class="section-label">Model Selection</div>
+  <div class="section-title">§5 작업 복잡도에 맞는 모델을 골라라</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>작업 유형</th><th>모델</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td>코드베이스 탐색, 파일 검색</td><td><strong>haiku</strong></td><td>빠르고 저렴. 읽기 전용</td></tr>
+        <tr><td>코드 리뷰, 테스트 작성, 구현</td><td><strong>sonnet</strong></td><td>능력과 속도의 균형</td></tr>
+        <tr><td>아키텍처 판단, 복잡한 평가</td><td><strong>opus</strong></td><td>최고 추론 능력</td></tr>
+        <tr><td>메인 대화와 동일 수준 필요</td><td><strong>inherit</strong></td><td>부모 모델 상속</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc"><strong>추천 패턴:</strong> 메인 세션은 Opus, 서브에이전트는 Sonnet. 집중된 작업에서는 Sonnet 이면 충분하다.</p>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Model Routing — 작업별 자동 모델 선택</div>
+    <p>수동으로 모델을 고정하는 대신 작업 유형에 따라 <strong>자동으로 모델을 라우팅</strong>하는 패턴이 등장하고 있다. 오케스트레이터가 작업을 분류하고 적합한 모델로 위임한다.</p>
+    <div class="flow"><pre>요청 → 분류기 → 탐색 작업     → haiku
                 → 코드 리뷰     → sonnet
-                → 아키텍처 판단 → opus</code>
-      <p style="margin-top:12px"><strong>현재 적용:</strong> Claude Code 의 <code>model</code> 필드는 에이전트 단위 고정이므로, 이 패턴을 적용하려면 라우팅 에이전트가 작업별로 다른 모델의 서브에이전트를 호출하는 구조를 사용한다.</p>
-      <a class="card-source" href="https://arxiv.org/abs/2603.05344">Building AI Coding Agents for the Terminal — arxiv:2603.05344</a>
-    </div>
+                → 아키텍처 판단 → opus</pre></div>
+    <p><strong>현재 적용:</strong> Claude Code 의 <code>model</code> 필드는 에이전트 단위 고정이므로, 이 패턴을 적용하려면 라우팅 에이전트가 작업별로 다른 모델의 서브에이전트를 호출하는 구조를 사용한다.</p>
+    <a class="card-source" href="https://arxiv.org/abs/2603.05344">Building AI Coding Agents for the Terminal — arxiv:2603.05344</a>
   </div>
 </div>
 
-<!-- SECTION 6: PATTERNS -->
+<!-- ═══ 6 ═══ -->
 <div class="section">
   <div class="section-label">Design Patterns</div>
   <div class="section-title">§6 일곱 가지 에이전트 디자인 패턴</div>
-  <p class="section-desc">Anthropic 이 식별한 핵심 패턴(1~5) + 계획-실행 분리(6) + 훅 기반 자동 교정(7). 에이전트를 설계할 때 이 중 하나를 기반으로 한다.</p>
+  <p class="section-desc">Anthropic 이 식별한 5 패턴에 계획-실행 분리(패턴 6)와 Hook-Triggered Auto-Correction(패턴 7)을 더한다. 에이전트를 설계할 때 이 중 하나를 기반으로 삼는다.</p>
   <div class="pattern-grid">
     <div class="pattern">
       <div class="pattern-num">1</div>
       <h4>프롬프트 체이닝 (Prompt Chaining)</h4>
-      <code class="code-block">LLM 호출 A → 게이트 검증 → LLM 호출 B → 게이트 검증 → 결과</code>
-      <p>순차적 단계로 분해. 중간에 프로그래밍적 검증 게이트를 넣는다.</p>
-      <p class="fit"><strong>적합:</strong> 정확도가 중요하고 단계가 명확한 작업.</p>
+      <div class="flow"><pre>LLM A → 게이트 검증 → LLM B → 게이트 검증 → 결과</pre></div>
+      <p>순차적 단계로 분해하고 중간에 프로그래밍적 검증 게이트를 넣는다.</p>
+      <div class="fit"><strong>적합:</strong> 정확도가 중요하고 단계가 명확한 작업</div>
     </div>
     <div class="pattern">
       <div class="pattern-num">2</div>
       <h4>라우팅 (Routing)</h4>
-      <code class="code-block">입력 → 분류기 → 전문가 A / 전문가 B / 전문가 C</code>
+      <div class="flow"><pre>입력 → 분류기 → 전문가 A / B / C</pre></div>
       <p>입력을 분류하여 전문 핸들러로 보낸다.</p>
-      <p class="fit"><strong>적합:</strong> 이질적인 요청 유형을 처리하는 경우.</p>
+      <div class="fit"><strong>적합:</strong> 이질적인 요청 유형을 처리하는 경우</div>
     </div>
     <div class="pattern">
       <div class="pattern-num">3</div>
       <h4>병렬화 (Parallelization)</h4>
-      <code class="code-block">        ┌→ 작업 A ─┐
+      <div class="flow"><pre>        ┌→ 작업 A ─┐
 입력 ───┼→ 작업 B ──┼→ 합성
-        └→ 작업 C ─┘</code>
-      <p>독립적인 하위 작업을 동시 실행.</p>
-      <p class="fit"><strong>적합:</strong> 자연스럽게 분할되는 작업, 또는 다양한 관점이 필요한 경우.</p>
+        └→ 작업 C ─┘</pre></div>
+      <p>독립적인 하위 작업을 동시 실행한다.</p>
+      <div class="fit"><strong>적합:</strong> 자연스럽게 분할되는 작업, 다양한 관점이 필요한 경우</div>
     </div>
     <div class="pattern">
       <div class="pattern-num">4</div>
       <h4>오케스트레이터-워커</h4>
-      <code class="code-block">오케스트레이터 LLM → 동적 하위 작업 분해 → 워커들 → 합성</code>
+      <div class="flow"><pre>오케스트레이터 LLM → 동적 하위 작업 분해 → 워커들 → 합성</pre></div>
       <p>병렬화와 달리 하위 작업이 <strong>사전 정의되지 않고 동적으로 결정</strong>된다.</p>
-      <p class="fit"><strong>적합:</strong> 어떤 파일을 수정할지 미리 알 수 없는 코딩 작업.</p>
+      <div class="fit"><strong>적합:</strong> 어떤 파일을 수정할지 미리 알 수 없는 코딩 작업</div>
     </div>
     <div class="pattern">
       <div class="pattern-num">5</div>
       <h4>평가자-최적화자 (Evaluator-Optimizer)</h4>
-      <code class="code-block">생성 LLM ←→ 평가 LLM (반복 피드백 루프)</code>
-      <p>하나가 생성하고 다른 하나가 평가하여 반복 개선. 이 프로젝트의 <code>qa-evaluator</code> 가 이 패턴이다 — Generator(메인 Claude)가 코드를 생성하고, QA Evaluator 가 Sprint Contract 기준으로 평가하며, REJECT 시 Generator 가 피드백을 반영해 재구현한다.</p>
-      <p class="fit"><strong>적합:</strong> 명확한 평가 기준이 있고, 반복으로 품질이 향상되는 경우.</p>
+      <div class="flow"><pre>생성 LLM ←→ 평가 LLM (반복 피드백 루프)</pre></div>
+      <p>하나가 생성하고 다른 하나가 평가하여 반복 개선한다. 이 프로젝트의 <code>qa-evaluator</code> 가 이 패턴이다.</p>
+      <div class="fit"><strong>적합:</strong> 명확한 평가 기준이 있고 반복으로 품질이 향상되는 경우</div>
     </div>
     <div class="pattern">
       <div class="pattern-num">6</div>
       <h4>계획-실행 분리 (Plan-Execute)</h4>
-      <code class="code-block">요청 → 계획 에이전트(추론) → 실행 계획 → 실행 에이전트(도구 호출) → 결과</code>
-      <p>계획 에이전트에는 <code>Read, Grep, Glob</code> 만 부여하고 <code>Edit, Write</code> 는 실행 에이전트에만 부여하여 안전성을 높인다. 오케스트레이터-워커가 동적으로 하위 작업을 분배하는 것과 달리, 계획 자체를 별도 에이전트가 전담한다.</p>
-      <p class="fit"><strong>적합:</strong> 계획 오류와 실행 오류를 독립적으로 디버깅해야 하는 복잡한 멀티스텝 작업.</p>
+      <div class="flow"><pre>요청 → 계획 에이전트(추론) → 실행 계획 → 실행 에이전트(도구 호출) → 결과</pre></div>
+      <p>오케스트레이터-워커가 동적으로 하위 작업을 분배한다면, 이 패턴은 <strong>계획 자체를 별도 에이전트가 전담</strong>한다. 계획 에이전트에는 <code>Read, Grep, Glob</code> 만 부여하고 <code>Edit, Write</code> 는 실행 에이전트에만 부여해 안전성을 높인다.</p>
+      <div class="fit"><strong>적합:</strong> 계획 오류와 실행 오류를 독립적으로 디버깅해야 하는 멀티스텝 작업</div>
     </div>
   </div>
+  <a class="card-source" href="https://www.anthropic.com/research/building-effective-agents">Building Effective Agents — Anthropic Research (패턴 1~5)</a>
+  <a class="card-source" href="https://arxiv.org/abs/2603.05344">Building AI Coding Agents for the Terminal — arxiv:2603.05344 (패턴 6)</a>
 
-  <div class="card" style="border-left:3px solid var(--accent)">
-    <div class="card-title"><span class="dot"></span>패턴 7: Hook-Triggered Auto-Correction (PostToolUse + Agent)</div>
-    <code class="code-block">Edit/Write 발생 → PostToolUse 훅 → 정적 검증 (format/clippy/analyze)
-→ 위반 발견 시 read-only 리뷰어 에이전트 spawn → 수정 제안서</code>
-    <p style="margin-top:12px">Edit/Write 후 <code>PostToolUse</code> 훅이 결정론적 정적 검증(<code>cargo fmt --check</code>, <code>dart format --set-exit-if-changed</code>, <code>eslint --max-warnings=0</code>)을 자동 실행한다. 위반이 검출되면 read-only 리뷰어 에이전트를 spawn 하여 fix 제안서를 만들고, 메인 Claude 가 그 제안을 토대로 Edit 한다. 사용자가 매번 "포맷 돌려" 라고 prompt 할 필요 없이 lifecycle event 가 quality gate 를 자동으로 닫는다.</p>
-    <div class="compare" style="margin-top:16px">
-      <div class="compare-good">
-        <div class="compare-label">적합</div>
-        <p style="color:var(--text2)">결정론적 자동 수정 가능한 규칙(<code>cargo fmt</code>, <code>dart format</code>, <code>eslint --fix</code>, <code>prettier --write</code>) · 실패 시 fix 가 단일 명령으로 끝나는 영역(포맷팅, import 정렬, 단순 lint) · 대량 편집 후 일관성 enforce</p>
-      </div>
-      <div class="compare-bad">
-        <div class="compare-label">부적합</div>
-        <p style="color:var(--text2)">의미적 판단이 필요한 리뷰(architecture decision, domain logic, naming) · 훅 실행이 1초 이상 소요되는 무거운 검증(전체 빌드, 풀 테스트) · 비결정론적 수정이 필요한 영역</p>
-      </div>
+  <h3 class="sub">패턴 7 · Hook-Triggered Auto-Correction (PostToolUse + Agent)</h3>
+  <div class="flow"><pre>Edit/Write 발생 → PostToolUse 훅 → 정적 검증(format/clippy/analyze)
+  → 위반 발견 시 read-only 리뷰어 에이전트 spawn → 수정 제안서</pre></div>
+  <p class="section-desc">Edit/Write 후 <code>PostToolUse</code> 훅이 결정론적 정적 검증(<code>cargo fmt --check</code>, <code>dart format --set-exit-if-changed</code>, <code>eslint --max-warnings=0</code>)을 자동 실행한다. 위반이 검출되면 read-only 리뷰어 에이전트(<code>Read, Grep, Glob</code> 만)를 spawn 하여 fix 제안서를 만들고, 메인 Claude 가 그 제안을 토대로 Edit 한다. 사용자가 매번 "포맷 돌려" 라고 prompt 할 필요 없이 lifecycle event 가 quality gate 를 자동으로 닫는다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>적합</div>
+      <ul>
+        <li>결정론적 자동 수정 가능한 규칙 — <code>cargo fmt</code>, <code>dart format</code>, <code>eslint --fix</code>, <code>prettier --write</code></li>
+        <li>실패 발견 시 fix 가 단일 명령으로 끝나는 영역 (포맷팅, import 정렬, 단순 lint)</li>
+        <li>대량 편집(refactor) 후 일관성 enforce 가 필요한 경우</li>
+      </ul>
     </div>
-    <p><strong>구현 형태:</strong> 훅은 <code>.claude/settings.json</code> 의 <code>hooks.PostToolUse</code> 에 matcher(<code>Edit|Write</code>) + command 로 등록. 명령이 비-zero exit 이면 메인 Claude 가 결과를 받아 후속 조치를 결정한다. 에이전트 spawn 은 메인 Claude 가 결정하며 훅이 직접 spawn 하지 않는다 — 훅은 stateless 다.</p>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>부적합</div>
+      <ul>
+        <li>의미적 판단이 필요한 리뷰 (architecture decision, domain logic, naming)</li>
+        <li>훅 실행이 1 초 이상 소요되는 무거운 검증 (전체 빌드, 풀 테스트)</li>
+        <li>비결정론적 수정이 필요한 영역 (코드 리팩토링 제안)</li>
+      </ul>
+    </div>
   </div>
-
-  <div class="parity-box">
-    <div class="parity-box-title">Enforcement 등급 관점</div>
-    <p>훅은 skill-design-guide §3.7 의 <strong>E3 (결정론적 게이트)</strong> 를 에이전트 측에서 구현하는 형태다 — LLM 판단 없이 매 실행마다 같은 판정을 내리므로 문장 규칙(E1)·체크리스트(E2)와 달리 per-run 보장을 제공한다. <strong>같은 위반이 반복되는데 프롬프트 문구만 계속 다듬고 있다면 그 규칙은 E3 로 올릴 후보다.</strong></p>
+  <div class="note">
+    <div class="note-title">Enforcement 등급 관점</div>
+    <p>훅은 skill-design-guide §3.7 의 <strong>E3(결정론적 게이트)</strong> 를 에이전트 측에서 구현하는 형태다 — LLM 판단 없이 매 실행마다 같은 판정을 내리므로 문장 규칙(E1)·체크리스트(E2)와 달리 per-run 보장을 제공한다. <strong>같은 위반이 반복되는데 프롬프트 문구만 계속 다듬고 있다면 그 규칙은 E3 로 올릴 후보다.</strong></p>
   </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>보완 패턴 — PreToolUse 가드 (사후 수정이 아닌 사전 차단)</div>
-    <p>PostToolUse 가 <em>편집 후</em>의 quality gate 라면 PreToolUse 는 <em>편집 전</em>의 risk gate 다. 다음 3 영역에서 효과적이다.</p>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span><strong>Origin Sync 가드</strong> — <code>git rev-list --left-right --count HEAD...@{u}</code> 결과로 upstream 보다 N 커밋 뒤지면 stderr 경고. 병렬 자동화 충돌을 자동 발견</li>
-      <li><span class="check">2</span><strong>좀비 프로세스 가드</strong> — <code>ps aux | grep mcp_server</code> 결과 5건 초과면 정리 권고. "45+ stale 프로세스 사고" 재발 방지</li>
-      <li><span class="check">3</span><strong>보호 브랜치 가드</strong> — <code>git rev-parse --abbrev-ref HEAD</code> 결과가 main/master/dev 면 stderr 경고. Scope-Bound Edits Hard-stop 자동 enforcement</li>
-    </ul>
-    <p style="margin-top:12px"><strong>graceful degradation 원칙:</strong> PreToolUse 훅은 <code>exit 0</code> 으로 편집 자체를 막지 않는다(stderr 경고만). 강한 차단이 필요하면 사용자가 settings 에서 enable 한다. false-positive(예: 의도된 main 직접 편집) 시 워크플로우 마비를 막기 위함이다. 이 레포의 <code>.claude/settings.json</code> 에 3 훅 모두 등록 완료.</p>
+  <h3 class="sub">보완 패턴 — PreToolUse 가드 (사후 수정이 아닌 사전 차단)</h3>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>1. Origin Sync 가드</div>
+      <p><code>git rev-list --left-right --count HEAD...@{u}</code> 결과로 upstream 보다 N 커밋 뒤지면 stderr 경고. 병렬 자동화 충돌을 자동 발견한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>2. 좀비 프로세스 가드</div>
+      <p><code>ps aux | grep mcp_server</code> 결과 5 건 초과면 정리 권고. "45+ stale 프로세스 사고" 재발 방지.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>3. 보호 브랜치 가드</div>
+      <p><code>git rev-parse --abbrev-ref HEAD</code> 결과가 main/master/dev 면 stderr 경고. Scope-Bound Edits Hard-stop 자동 enforcement.</p>
+    </div>
+  </div>
+  <div class="note good">
+    <div class="note-title">graceful degradation 원칙</div>
+    <p>PreToolUse 훅은 <code>exit 0</code> 으로 편집 자체를 막지 않는다 (stderr 경고만). 강한 차단이 필요하면 사용자가 settings 에서 enable 한다. 이는 false-positive(의도된 main 직접 편집) 시 워크플로우 마비를 막기 위함이다. 이 레포의 <code>.claude/settings.json</code> 에 3 훅 모두 등록 완료.</p>
   </div>
 </div>
 
-<!-- SECTION 7: EXECUTION PATTERNS -->
+<!-- ═══ 7 ═══ -->
 <div class="section">
-  <div class="section-label">Execution &amp; Budget</div>
-  <div class="section-title">§7 병렬 vs 순차 vs 백그라운드 + Fan-out 상한</div>
-  <p class="section-desc">비용·시간이 폭주하는 두 축은 <strong>fan-out 폭(병렬 spawn 수)</strong> 과 <strong>exploration 깊이(구현 전 탐색 turn 수)</strong> 다. 2026 사례: 단일 슬래시 커맨드가 49 서브에이전트를 2.5시간 병렬 spawn 하여 $8K~15K 로 추정되었다.</p>
+  <div class="section-label">Execution</div>
+  <div class="section-title">§7 병렬 vs 순차 · Fan-out 상한 · Exploration Budget</div>
   <div class="grid-3">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>병렬 디스패치 (3가지 모두 충족 시)</div>
-      <p>· 3개 이상의 독립적 작업<br>· 작업 간 공유 상태 없음<br>· 파일 경계가 명확하여 겹치지 않음</p>
+      <div class="card-title"><span class="dot"></span>병렬 디스패치 (3 가지 모두 충족 시)</div>
+      <ul>
+        <li>3 개 이상의 독립적 작업</li>
+        <li>작업 간 공유 상태 없음</li>
+        <li>파일 경계가 명확하여 겹치지 않음</li>
+      </ul>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>순차 디스패치가 필수인 경우</div>
-      <p>· 작업 간 의존성 있음 (A의 출력이 B의 입력)<br>· 공유 파일로 충돌 위험<br>· 범위가 불명확하여 이해 후 진행 필요</p>
+      <ul>
+        <li>작업 간 의존성 있음 (A 의 출력이 B 의 입력)</li>
+        <li>공유 파일로 충돌 위험</li>
+        <li>범위가 불명확하여 이해 후 진행 필요</li>
+      </ul>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>백그라운드 디스패치</div>
-      <p>· 연구, 문서 조회, 보안 감사 등<br>· 결과가 즉시 필요하지 않은 작업<br>· <code>Ctrl+B</code> 로 실행 중인 에이전트를 백그라운드로 전환 가능</p>
+      <ul>
+        <li>연구, 문서 조회, 보안 감사 등</li>
+        <li>결과가 즉시 필요하지 않은 작업</li>
+        <li><code>Ctrl+B</code> 로 실행 중인 에이전트를 백그라운드로 전환 가능</li>
+      </ul>
     </div>
   </div>
 
-  <div class="section-title" style="font-size:1.15rem;margin-top:36px;margin-bottom:8px">플랫폼 하드 리밋 — 자체 예산과 구분하라</div>
-  <p class="section-desc">Claude Code 자체가 강제하는 상한이 3 종 있다. 초과하면 <code>Agent</code> 도구가 각각 <code>Concurrent subagent limit reached</code> / <code>Subagent spawn limit reached</code> 로 실패한다.</p>
-  <div class="limit-row">
-    <div class="limit">
-      <div class="limit-num">20</div>
-      <div class="limit-label">동시 실행<br><code>CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS</code></div>
-    </div>
-    <div class="limit">
-      <div class="limit-num">200</div>
-      <div class="limit-label">세션 누적<br><code>CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION</code></div>
-    </div>
-    <div class="limit">
-      <div class="limit-num">3</div>
-      <div class="limit-label">중첩 깊이 (층)<br><code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code></div>
-    </div>
+  <h3 class="sub">플랫폼 하드 리밋 3 종 — 자체 예산과 구분하라</h3>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">20</div><div class="stat-label">동시 실행 상한<br><code>CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS</code></div></div>
+    <div class="stat"><div class="stat-num">200</div><div class="stat-label">세션 누적 상한<br><code>CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION</code></div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">중첩 깊이<br><code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code></div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">자체 fan-out 예산 (기본)<br>하드 리밋보다 항상 작게</div></div>
   </div>
-  <div class="parity-box">
-    <div class="parity-box-title">하드 리밋 ≠ 설계 목표</div>
-    <p>아래 "기본 5 개" 는 위 하드 리밋과 별개인 <strong>자체 비용 예산</strong>이며 항상 하드 리밋보다 작게 잡는다 — 하드 리밋은 사고를 막는 최후 방어선이지 설계 목표가 아니다.</p>
+  <p class="section-desc">초과하면 <code>Agent</code> 도구가 각각 <code>Concurrent subagent limit reached</code> / <code>Subagent spawn limit reached</code> 로 실패한다. <strong>"기본 5 개" 는 이 하드 리밋과 별개인 자체 비용 예산</strong>이며 항상 하드 리밋보다 작게 잡는다 — 하드 리밋은 사고를 막는 최후 방어선이지 설계 목표가 아니다.</p>
+  <div class="note bad">
+    <div class="note-title">비용 폭주 실측</div>
+    <p>2026 사례: 단일 슬래시 커맨드가 <strong>49 서브에이전트를 2.5 시간 병렬 spawn 하여 $8K~15K 추정</strong>(CloudZero). <code>/insights</code> 에서는 같은 사용자가 Figma 노드 과탐색·웹 크롤링으로 구현 전 세션이 stall 되어 직접 중단하는 패턴이 반복됐다.</p>
+    <a class="card-source" href="https://www.cloudzero.com/blog/claude-code-agents/">Claude Code Agents 2026 — CloudZero</a>
+    <a class="card-source" href="https://arxiv.org/html/2604.14228v1">Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228</a>
   </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Fan-out 상한 · Exploration Budget — 4 원칙</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span><strong>Fan-out 상한</strong> — 1 회 디스패치당 병렬 서브에이전트 <strong>기본 5개 이하</strong>. 6+ 개가 필요하면 batch 로 쪼개 순차 처리하거나 사용자에게 비용/시간 trade-off 를 먼저 보고하고 승인받는다</li>
-      <li><span class="check">2</span><strong>토큰 vs 시간 trade-off 명시</strong> — 토큰 예산이 빡빡하면 <strong>순차</strong>, 시간 예산이 빡빡하면 <strong>병렬</strong>. 각 서브에이전트가 독립 context window 를 차지하므로 병렬은 latency 와 토큰을 동시에 키운다</li>
-      <li><span class="check">3</span><strong>Exploration budget</strong> — 구현·산출 전 "탐색만" 하는 단계에 상한을 둔다. 의미 있는 진전 없이 누적되면(같은 디렉토리 반복 Glob, 동일 노드 메타데이터 재조회) 중단하고 현재까지 발견을 요약한 뒤 방향을 확인한다. "조금만 더 보면 알 것 같다" 는 stall 의 가장 흔한 진입점이다</li>
-      <li><span class="check">4</span><strong>Summary-only 반환</strong> — 서브에이전트는 raw 출력 전체가 아닌 <strong>요약(findings)만</strong> 메인 컨텍스트로 반환한다. grep sweep · 로그 trawl 같은 noisy 탐색일수록 필수</li>
-    </ul>
+  <h3 class="sub">원칙 4 가지</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>1. Fan-out 상한</div>
+      <p>1 회 디스패치당 병렬 서브에이전트 <strong>기본 5 개 이하</strong>. 6+ 개가 필요하면 batch 로 쪼개 순차 처리하거나 사용자에게 비용/시간 trade-off 를 먼저 보고하고 승인받는다. 단순 작업에 fan-out 하지 않는다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>2. 토큰 vs 시간 trade-off 명시</div>
+      <p>토큰 예산이 빡빡하면 <strong>순차</strong> 탐색, 시간 예산이 빡빡하면 <strong>병렬</strong> 탐색. 각 서브에이전트가 독립 context window 를 차지하므로 병렬은 latency 와 토큰을 동시에 키운다. 디스패치 결정 시 어느 축을 우선하는지 한 줄로 명시한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>3. Exploration budget</div>
+      <p>구현·산출 전 "탐색만" 하는 단계에 상한을 둔다. read-only 탐색이 의미 있는 진전 없이 누적되면(같은 디렉토리 반복 Glob, 동일 노드 메타데이터 재조회) 중단하고 현재까지 발견을 요약한 뒤 진행 방향을 사용자에게 확인한다. <strong>"조금만 더 보면 알 것 같다" 는 stall 의 가장 흔한 진입점이다.</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>4. Summary-only 반환</div>
+      <p>서브에이전트는 raw 출력 전체가 아닌 <strong>요약(findings)만</strong> 메인 컨텍스트로 반환한다. grep sweep·로그 trawl 같은 noisy 탐색일수록 필수다.</p>
+    </div>
   </div>
   <div class="compare">
     <div class="compare-bad">
       <div class="compare-label">Bad</div>
       <code class="code-block">오케스트레이터 → 20+ 서브에이전트 동시 spawn
-→ 각자 raw 출력 전체 반환
-→ 메인 컨텍스트 폭주 + 비용 급증
+  → 각자 raw 출력 전체 반환
+  → 메인 컨텍스트 폭주 + 비용 급증
 
-탐색 에이전트 → 구현 전 Figma 노드 50회 재조회
-→ 진전 없이 stall → 사용자 중단</code>
+탐색 에이전트 → 구현 전 Figma 노드 50 회 재조회
+  → 진전 없이 stall → 사용자 중단</code>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good</div>
-      <code class="code-block">오케스트레이터 → 5개 batch spawn (시간 우선 명시)
-→ 각자 findings 요약만 반환 → 다음 batch
+      <code class="code-block">오케스트레이터 → 5 개 batch spawn (시간 우선 명시)
+  → 각자 findings 요약만 반환 → 다음 batch
 
 탐색 에이전트 → exploration budget 도달
-→ 현재 발견 요약 + 진행 방향 확인 후 구현</code>
+  → 현재 발견 요약 + 진행 방향 사용자 확인 후 구현</code>
     </div>
   </div>
-  <p class="section-desc"><strong>Cross-Surface Parity:</strong> 본 원칙은 skill-design-guide §9 "Long-Running Skills — 중첩 스킬 호출 간 반환 데이터 최소화" 와 짝이다 (스킬 측은 checkpoint·반환 최소화, 에이전트 측은 fan-out 상한·exploration budget).</p>
-  <a class="card-source" href="https://arxiv.org/html/2604.14228v1">Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228</a>
-  <a class="card-source" href="https://www.cloudzero.com/blog/claude-code-agents/" style="margin-left:8px">Claude Code Agents 2026 — CloudZero</a>
+  <div class="note warn">
+    <div class="note-title">이름 구분 (필수)</div>
+    <p>이 절의 <strong>Exploration Budget</strong> 은 <em>산출 이전</em>의 read-only 탐색에 쓰는 turn·비용 상한이다. skill-design-guide §5.6 의 <strong>Variant Budget</strong> 은 <em>산출물 자체</em>의 개수 상한과 변주 축 고정으로 <strong>다른 개념</strong>이다. 이름이 비슷해 혼동되므로 두 용어를 섞어 쓰지 마라 — §12 parity item 9 는 "동일 개념 공유" 가 아니라 <strong>"구분 유지"</strong> 가 내용이다.</p>
+  </div>
 </div>
 
-<!-- SECTION 8-9: INVOCATION + MEMORY -->
+<!-- ═══ 8~9 ═══ -->
 <div class="section">
   <div class="section-label">Invocation &amp; Memory</div>
-  <div class="section-title">§8 호출 품질이 성패를 가른다 · §9 영속 메모리</div>
-  <p class="section-desc">에이전트 실패의 대부분은 <strong>실행이 아니라 호출 품질</strong> 문제다 — "Most sub-agent failures stem from poor invocation, not execution failures."</p>
+  <div class="section-title">§8~9 호출 품질이 성패를 가른다 · 영속 메모리</div>
+  <p class="section-desc">공식 인용: <em>"Most sub-agent failures stem from poor invocation, not execution failures."</em> 에이전트 실패의 대부분은 실행이 아니라 <strong>호출 품질</strong> 문제다.</p>
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">Bad — 호출 정보 부족</div>
+      <div class="compare-label">Bad</div>
       <code class="code-block">"인증 고쳐줘"</code>
     </div>
     <div class="compare-good">
-      <div class="compare-label">Good — 4요소 포함</div>
+      <div class="compare-label">Good</div>
       <code class="code-block">"OAuth 리다이렉트 루프를 수정해라.
 로그인 성공 후 /dashboard 대신
 /login 으로 리다이렉트되는 문제.
 src/lib/auth.ts 의 auth 미들웨어 참조."</code>
     </div>
   </div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>좋은 호출의 4요소</div>
-      <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">1</span><strong>컨텍스트 밀도</strong> — 관련 배경 정보</li>
-        <li><span class="check">2</span><strong>구체적 범위</strong> — 어떤 파일, 어떤 기능</li>
-        <li><span class="check">3</span><strong>파일 참조</strong> — 정확한 경로</li>
-        <li><span class="check">4</span><strong>성공 기준</strong> — 무엇이 "완료" 인지</li>
-      </ul>
-      <a class="card-source" href="https://claudefa.st/blog/guide/agents/sub-agent-best-practices">Claude Code Sub-Agent Best Practices</a>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>영속 메모리 — 대화를 넘어서는 학습</div>
-      <code class="code-block">memory: project   # user | project | local</code>
-      <div class="table-wrap" style="margin-top:12px">
-        <table>
-          <thead><tr><th>범위</th><th>위치</th><th>사용 시기</th></tr></thead>
-          <tbody>
-            <tr><td><code>user</code></td><td><code>~/.claude/agent-memory/{name}/</code></td><td>모든 프로젝트에 걸친 학습</td></tr>
-            <tr><td><code>project</code></td><td><code>.claude/agent-memory/{name}/</code></td><td>프로젝트별 지식 (git 공유 가능)</td></tr>
-            <tr><td><code>local</code></td><td><code>.claude/agent-memory-local/{name}/</code></td><td>프로젝트별, git 미포함</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>메모리 활성화 시 에이전트의 시스템 프롬프트에 메모리 디렉토리 읽기/쓰기 지침이 자동 추가된다. 작업 시작 전 "메모리를 확인하고 이전에 발견한 패턴을 참고해라", 완료 후 "배운 것을 메모리에 저장해라" 를 지시하면 시간이 지날수록 더 효과적인 에이전트가 된다.</p>
-    </div>
+  <div class="grid-4">
+    <div class="card"><div class="card-title"><span class="dot"></span>컨텍스트 밀도</div><p>관련 배경 정보</p></div>
+    <div class="card"><div class="card-title"><span class="dot"></span>구체적 범위</div><p>어떤 파일, 어떤 기능</p></div>
+    <div class="card"><div class="card-title"><span class="dot"></span>파일 참조</div><p>정확한 경로</p></div>
+    <div class="card"><div class="card-title"><span class="dot"></span>성공 기준</div><p>무엇이 "완료" 인지</p></div>
   </div>
+  <a class="card-source" href="https://claudefa.st/blog/guide/agents/sub-agent-best-practices">Claude Code Sub-Agent Best Practices — claudefa.st</a>
+
+  <h3 class="sub">§9 영속 메모리 — 대화를 넘어서는 학습</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>범위</th><th>위치</th><th>사용 시기</th></tr></thead>
+      <tbody>
+        <tr><td><code>user</code></td><td><code>~/.claude/agent-memory/{name}/</code></td><td>모든 프로젝트에 걸친 학습</td></tr>
+        <tr><td><code>project</code></td><td><code>.claude/agent-memory/{name}/</code></td><td>프로젝트별 지식 (git 공유 가능)</td></tr>
+        <tr><td><code>local</code></td><td><code>.claude/agent-memory-local/{name}/</code></td><td>프로젝트별, git 미포함</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc">메모리 활성화 시 에이전트의 시스템 프롬프트에 메모리 디렉토리 읽기/쓰기 지침이 자동 추가된다. <strong>팁</strong> — 작업 시작 전 "메모리를 확인하고 이전에 발견한 패턴을 참고해라", 작업 완료 후 "배운 것을 메모리에 저장해라". 시간이 지나면 점점 더 효과적인 에이전트가 된다.</p>
 </div>
 
-<!-- SECTION 10: GOTCHAS -->
+<!-- ═══ 10 ═══ -->
 <div class="section">
   <div class="section-label">Gotchas</div>
   <div class="section-title">§10 에이전트에서 반복되는 실수</div>
-  <p class="section-desc">공식 문서 + 커뮤니티 경험 종합. 특히 Reviewer/Evaluator 전용 Gotchas 는 harness 전역 관습으로 굳어져 있다.</p>
   <ul class="checklist">
-    <li><span class="check">!</span><strong>중첩은 깊이 제한이 있다 (금지가 아니다).</strong> 서브에이전트도 자기 아래로 위임할 수 있으나 기본 3 층에서 끊긴다(§4). 한계 층의 에이전트는 <code>Agent</code> 도구를 잃고 직접 일하므로, 4 층째 위임을 전제한 설계는 조용히 단층으로 접힌다 — 깊이를 설계 가정으로 삼지 마라</li>
+    <li><span class="check">!</span><strong>중첩은 깊이 제한이 있다 (금지가 아니다).</strong> 서브에이전트도 자기 아래로 위임할 수 있으나 기본 3 층에서 끊긴다. 한계 층의 에이전트는 <code>Agent</code> 도구를 잃고 직접 일하므로, 4 층째 위임을 전제한 설계는 조용히 단층으로 접힌다 — 깊이를 설계 가정으로 삼지 마라</li>
     <li><span class="check">!</span><strong>플러그인 에이전트는 <code>hooks</code>, <code>mcpServers</code>, <code>permissionMode</code> 를 지원하지 않는다.</strong> 필요하면 <code>.claude/agents/</code> 로 복사해라</li>
-    <li><span class="check">!</span><strong>과도한 병렬화는 토큰 낭비다.</strong> 10개 에이전트를 단순 작업에 띄우지 마라. 관련 작업을 묶어라</li>
+    <li><span class="check">!</span><strong>과도한 병렬화는 토큰 낭비다.</strong> 10 개 에이전트를 단순 작업에 띄우지 마라. 관련 작업을 묶어라</li>
     <li><span class="check">!</span><strong>컨텍스트 핸드오프 실패.</strong> 순차 체이닝에서 이전 에이전트의 결과를 다음 에이전트에 전달하지 않으면 의존성 체인이 깨진다</li>
     <li><span class="check">!</span><strong>백그라운드 에이전트는 사용자에게 질문할 수 없다.</strong> <code>AskUserQuestion</code> 호출이 실패한다. 권한은 미리 승인해야 한다</li>
     <li><span class="check">!</span><strong>에이전트 결과가 메인 컨텍스트를 채운다.</strong> 많은 에이전트가 상세한 결과를 반환하면 메인 컨텍스트가 빠르게 소진된다</li>
   </ul>
 
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Reviewer/Evaluator 전용 — L3 커버리지</div>
-    <p><strong>정적 Grep 만으로 PASS 를 주지 마라.</strong> 파일 존재 여부나 키워드 포함 여부를 확인하는 것은 L1/L2 수준이다.</p>
-    <code class="code-block" style="margin-top:12px">L1: 파일이 존재하는가?                      (Glob/Grep)
-L2: 파일에 특정 키워드가 있는가?            (Grep)
-L3: 파일의 실제 내용이 조건을 충족하는가?   (Read) 또는
-    명령 실행 결과가 기대값과 일치하는가?   (Bash)  ← 여기까지 해야 PASS</code>
-    <p style="margin-top:12px"><strong>cross-kit 키워드 중복은 Grep 만으로 탐지되지 않는다.</strong> 두 스킬의 description 에서 트리거 키워드를 정규식으로 추출한 뒤 set intersection 으로 정확히 비교해야 한다. 단순히 "같은 단어가 있는지" Grep 하면 부분 문자열 매칭 오탐이 발생한다.</p>
+  <h3 class="sub">Reviewer / Evaluator 에이전트 전용 Gotchas</h3>
+  <div class="depth">
+    <div class="layer"><div class="layer-n">L1</div><h4>파일이 존재하는가?</h4><p>Glob / Grep</p></div>
+    <div class="layer"><div class="layer-n">L2</div><h4>특정 키워드가 있는가?</h4><p>Grep</p></div>
+    <div class="layer" style="border-color:var(--accent)"><div class="layer-n">L3 — 여기까지 해야 PASS</div><h4>실제 내용이 조건을 충족하는가?</h4><p>Read, 또는 Bash 로 명령 실행 결과 확인</p></div>
   </div>
+  <p class="section-desc"><strong>정적 Grep 만으로 PASS 를 주지 마라.</strong> 파일 존재나 키워드 포함 확인은 L1/L2 수준이다. Reviewer/Evaluator 는 반드시 <strong>L3 커버리지</strong>까지 수행해야 한다. 또한 <strong>cross-kit 키워드 중복은 Grep 만으로 탐지되지 않는다</strong> — 두 스킬의 description 에서 트리거 키워드를 정규식으로 추출한 뒤 set intersection 으로 정확히 비교해야 한다. 단순히 "같은 단어가 있는지" Grep 하면 부분 문자열 매칭 오탐이 발생한다.</p>
 
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title"><span class="dot" style="background:var(--red)"></span>Unverifiable 조건 정책 — 4 항 필수</div>
-    <p>MCP 서버 미설정(예: <code>mcp_server: null</code> 로 인해 Figma read-back 불가), 런타임 미실행, 도구 미설치 등의 이유로 <strong>실제 검증이 불가능한 조건</strong>이 있을 때는 아래 4 항이 필수다.</p>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span><strong>명시적 마커 표기</strong> — 해당 조건 결과에 <code>[정적]</code> 또는 <code>[미검증]</code> 마커를 붙이고, 무엇 때문에 검증이 불가한지 한 줄로 기재 (예: <code>[미검증] mcp_server: null — Figma 시각 대조 불가</code>)</li>
-      <li><span class="check">2</span><strong>2건 이상 누적 시 REJECT</strong> — 한 sprint 에 미검증 항목이 2건 이상이면 verdict 는 REJECT 로 귀결한다 (harness 전역 관습). 부분 L2 만 검증된 조건도 미검증 집계 대상</li>
-      <li><span class="check">3</span><strong>조용한 PASS 금지</strong> — 검증을 건너뛰고 정적 증거만으로 PASS 를 주는 것은 엄격히 금지. 검증 불가면 FAIL 또는 <code>[미검증]</code> 중 하나로 표기하되 PASS 처리 금지</li>
-      <li><span class="check">4</span><strong>생성자의 완료 주장을 증거로 취급 금지</strong> — 구현자가 "동작 확인함" 이라고 쓴 문장은 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가 궤적(AppWorld)에서 <strong>실패의 75.8% 가 false success</strong> 였고, 판정에 쓰인 신호는 검증된 상태 변화가 아니라 "자신 있는 마무리 문장" 같은 표면 프록시였다. 같은 연구에서 LLM 판정자는 <strong>AUROC 0.54~0.65</strong> 에 그쳤다 — 평가자는 주장이 아니라 <strong>도구 출력·상태 변화</strong>를 근거로 삼아야 한다</li>
-    </ul>
-    <p style="margin-top:12px"><strong>Cross-Surface Parity:</strong> 본 정책의 생성(스킬) 측 짝은 skill-design-guide §3.7 "Completion Evidence Gate" 다. 마커 표기법과 2 건 임계값은 양쪽이 동일 규약을 쓴다 — 한쪽만 표기하면 미검증이 평가 시점에야 드러나 iteration 이 낭비된다.</p>
-    <div class="fix-box" style="margin-top:16px">
-      <div class="fix-box-title">실패 사례 (이 정책 없이 발생)</div>
-      <p>fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업. 원인은 미검증 마커 없이 PASS 를 부여해 계약 해석 레벨에서 이슈가 보이지 않은 것이다.</p>
-    </div>
-    <a class="card-source" href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Self-Evaluator Rule-by-Rule Audit</div>
-    <p><strong>2026-07 근거 정정:</strong> 과거 이 항목은 하위 위임이 막혀 있다는 전제 위에 서술됐으나 중첩은 이제 허용된다(§4). 이 기법이 여전히 유효한 근거는 중첩 제약이 아니라 <strong>비용·지연 대비 효과</strong>와 <strong>깊이 한계에서 위임이 조용히 접히는 위험</strong>이다. 중첩 QA 가 필요하면 스폰해도 되지만, 자기 규칙 대조는 스폰 없이도 대부분의 위반을 잡는다.</p>
-    <p style="margin-top:10px">카이젠 Phase 처럼 <strong>서브에이전트 내부에서 QA 를 돌려야 하는 경우</strong> Phase subagent 가 <strong>자기 산출물을 자기 규칙 리스트로</strong> 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 을 1회 iteration APPROVE 로 달성한 핵심 기법이다.</p>
-    <p style="margin-top:10px"><strong>자기 평가는 외부 평가의 대체가 아니다</strong> — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수다. self-audit 시 <strong>최종 산출물뿐 아니라 중간 결정·도구 상태까지 규칙에 대조</strong>한다 — LLM 은 유창하지만 제약을 위반하는 추론을 내기 쉽고 최종 성공만으로는 위반이 가려지기 때문이다.</p>
-    <a class="card-source" href="https://arxiv.org/pdf/2604.08401">Verify Before You Commit: Faithful Reasoning via Self-Auditing — arxiv:2604.08401</a>
-  </div>
-</div>
-
-<!-- SECTION 11-12: CASE STUDY + PARITY -->
-<div class="section">
-  <div class="section-label">Case Study &amp; Parity</div>
-  <div class="section-title">§11 적용 사례 · §12 Cross-Surface Parity Checklist</div>
-  <p class="section-desc">이 프로젝트의 <code>qa-evaluator</code> 를 가이드 원칙과 대조하고, 가이드 개정이 파생 산출물로 자동 전파되지 않는 구조적 공백을 메우는 체크리스트를 둔다.</p>
+  <h3 class="sub">Unverifiable 조건 정책 — 4 항 필수</h3>
+  <p class="section-desc">MCP 서버 미설정(<code>mcp_server: null</code> 로 Figma read-back 불가), 런타임 미실행, 도구 미설치 등으로 <strong>실제 검증이 불가능한 조건</strong>이 있을 때는 아래 4 항이 전부 필요하다.</p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>qa-evaluator — 잘 된 점</div>
-      <p><strong>독립 컨텍스트에서 실행.</strong> Generator 와 별도 컨텍스트에서 실행되어 같은 컨텍스트에서 생성+검증의 편향을 방지한다 — Anthropic 의 평가자-최적화자 패턴과 정확히 일치.</p>
-      <p style="margin-top:8px"><strong>역할이 명확하다.</strong> "문제를 찾는 것이 유일한 역할" — 역할 혼합 없이 단일 책임.</p>
-      <p style="margin-top:8px"><strong>설정 기반.</strong> <code>project.yaml</code> 에서 카테고리·안티패턴·검증 절차를 읽는다.</p>
-      <p style="margin-top:8px"><strong>도구가 적절히 제한.</strong> <code>tools: Read, Grep, Glob, Bash</code> — Edit/Write 불가.</p>
+      <div class="card-title"><span class="dot"></span>1. 명시적 마커 표기</div>
+      <p>해당 조건 결과에 <code>[정적]</code> 또는 <code>[미검증]</code> 마커를 붙이고, 무엇 때문에 검증이 불가한지 한 줄로 기재한다. 예: <code>[미검증] mcp_server: null — Figma 시각 대조 불가</code></p>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>qa-evaluator — 개선 기회 &amp; 성장 경로</div>
-      <p><strong>모델 선택 근거가 없다.</strong> <code>model: sonnet</code> 이 왜 sonnet 인지 문서화되지 않았다.<br><strong>영속 메모리가 없다.</strong> 반복 발견 패턴을 기억하면 점점 정확해진다.<br><strong>description 에 비트리거 조건이 없다.</strong></p>
-      <div class="table-wrap" style="margin-top:12px">
-        <table>
-          <thead><tr><th>현재</th><th>다음 단계</th><th>트리거</th></tr></thead>
-          <tbody>
-            <tr><td>단일 에이전트</td><td>역할별 분리</td><td>유형이 3개 이상 필요할 때</td></tr>
-            <tr><td>메모리 없음</td><td><code>memory: project</code></td><td>같은 실패 패턴 반복 관찰 시</td></tr>
-            <tr><td>모델 고정</td><td>복잡도별 모델 분기</td><td>비용 최적화 필요 시</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="card-title"><span class="dot"></span>2. 2 건 이상 누적 시 REJECT</div>
+      <p>한 sprint 에 미검증 항목이 2 건 이상이면 verdict 는 REJECT 로 귀결한다 (harness 전역 관습). 부분 L2 만 검증된 조건도 미검증 집계 대상이다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>3. 조용한 PASS 금지</div>
+      <p>검증을 건너뛰고 정적 증거만으로 PASS 를 주는 것은 엄격히 금지. 검증 불가면 FAIL 또는 <code>[미검증]</code> 중 하나로 표기하되 PASS 처리 금지.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>4. 생성자의 완료 주장은 증거가 아니다</div>
+      <p>구현자가 "동작 확인함" 이라고 쓴 문장은 상태 검증이 아니다. 자기평가 코딩 에이전트 궤적(AppWorld)에서 <strong>실패의 75.8% 가 false success</strong> 였고, 판정에 쓰인 신호는 "자신 있는 마무리 문장" 같은 표면 프록시였다. 같은 연구에서 LLM 판정자는 <strong>AUROC 0.54~0.65</strong> 에 그쳤다.</p>
+      <a class="card-source" href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a>
     </div>
   </div>
+  <div class="note bad">
+    <div class="note-title">실패 사례 (이 정책 없이 발생)</div>
+    <p><strong>fit-pal 2026-04-21</strong> — UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업. 원인은 미검증 마커 없이 PASS 를 부여해 계약 해석 레벨에서 이슈가 불가시화된 것이다.</p>
+  </div>
 
+  <h3 class="sub">사용자 실패 보고 우선 — 반박하지 말고 <code>REOPENED</code> 로 되돌려라</h3>
+  <p class="section-desc">평가자가 PASS 를 준 항목에 대해 사용자가 "아직 깨져 있다" 고 보고하면, 그 항목의 상태는 PASS 가 아니라 <strong><code>REOPENED</code></strong> 다. 에이전트의 테스트·스냅샷은 "내 환경에서의 관측" 일 뿐이며 사용자 관측의 반박 근거가 아니다.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">1</div>
+      <h4>오라클 유효성부터 의심한다</h4>
+      <p>내 판정이 사용자가 보는 것을 재고 있었는지 6 축(URL·경로 / 브랜치·커밋 / viewport / 디바이스·플랫폼 / auth·cache / 데이터 상태)으로 대조한다. <strong>값싼 축부터</strong> 확인하고 비싼 축은 앞 축이 전부 일치할 때 넘어간다.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <h4>재판정한다</h4>
+      <p>재현되면 원 PASS 를 취소하고 FAIL 로 바꾸되, 이전 근거는 지우지 말고 "그때 그 오라클로는 통과했다" 로 남긴다 — 오라클 결함 자체가 다음 계약의 개선 제안이다.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <h4>완료 복귀 조건은 3 택뿐</h4>
+      <p>(a) 재현·수정 후 같은 조건에서 재검증한 출력 인용 (b) 재현되지 않는 이유를 6 축 중 어느 축의 값 차이인지로 특정 (c) 사용자가 직접 수정 확인.</p>
+    </div>
+  </div>
+  <div class="note warn">
+    <div class="note-title">오독 금지 · 트레이드오프</div>
+    <p>이것은 "사용자 보고를 무조건 사실로 인정하라" 는 규칙이 <strong>아니다.</strong> 정확한 규약은 <strong>완료 판정을 보류하고 오라클 유효성을 먼저 의심한다</strong> 이며, 원인이 사용자 환경(스테일 빌드, 캐시)으로 밝혀지는 것도 (b) 로 정상 종결이다. 신뢰는 회복되지만 환경 재현 비용이 든다 — 그래서 재현 불가 시에도 "환경 문제 같다" 는 서술이 아니라 <strong>어느 축의 어떤 값이 달랐는지</strong>를 요구한다.</p>
+    <a class="card-source" href="https://arxiv.org/html/2605.29442">How Coding Agents Fail Their Users — arxiv:2605.29442 (91.49% 가 사용자 교정 필요)</a>
+    <a class="card-source" href="https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework">OCI Agent Evaluation Framework — Oracle</a>
+  </div>
+
+  <h3 class="sub">Self-Evaluator Rule-by-Rule Audit — 위임 없이 자기 규칙으로 전수 대조</h3>
+  <div class="correction">
+    <div class="note-title">2026-07 근거 정정</div>
+    <p>과거 이 항목은 하위 위임이 막혀 있다는 전제 위에 서술됐으나 중첩은 이제 허용된다(§4). 이 기법이 여전히 유효한 근거는 중첩 제약이 아니라 <strong>비용·지연 대비 효과</strong>와 <strong>깊이 한계에서 위임이 조용히 접히는 위험</strong>이다. 중첩 QA 가 필요하면 스폰해도 되지만, 자기 규칙 대조는 스폰 없이도 대부분의 위반을 잡는다.</p>
+  </div>
+  <p class="section-desc">카이젠 Phase 처럼 <strong>서브에이전트 내부에서 QA 를 돌려야 하는 경우</strong> Phase subagent 가 자기 산출물을 자기 규칙 리스트로 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 <strong>1 회 iteration APPROVE</strong> 를 달성한 핵심 기법으로 <code>.harness/.meta/orchestrator-audit-log.md</code> 에 기록되어 있다. <strong>자기 평가는 외부 평가의 대체가 아니다</strong> — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수다. self-audit 시 최종 산출물뿐 아니라 <strong>중간 결정·도구 상태까지</strong> 규칙에 대조한다 — LLM 은 유창하지만 제약을 위반하는 추론을 내기 쉽고 최종 성공만으로는 위반이 가려지기 때문이다.</p>
+  <a class="card-source" href="https://arxiv.org/pdf/2604.08401">Verify Before You Commit: Faithful Reasoning via Self-Auditing — arxiv:2604.08401</a>
+</div>
+
+<!-- ═══ 11 ═══ -->
+<div class="section">
+  <div class="section-label">Case Study</div>
+  <div class="section-title">§11 이 프로젝트의 에이전트 분석 — <code>qa-evaluator</code></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>잘 된 점</div>
+      <ul>
+        <li><strong>독립 컨텍스트에서 실행</strong> — Generator 와 별도 컨텍스트라 생성+검증의 편향을 방지한다. Anthropic 의 평가자-최적화자 패턴과 정확히 일치</li>
+        <li><strong>역할이 명확하다</strong> — "문제를 찾는 것이 유일한 역할" 로 역할 혼합이 없다</li>
+        <li><strong>설정 기반</strong> — <code>project.yaml</code> 에서 카테고리·안티패턴·검증 절차를 읽는다. 에이전트에 프로젝트별 지식을 하드코딩하지 않는다</li>
+        <li><strong>도구가 적절히 제한</strong> — <code>tools: Read, Grep, Glob, Bash</code> 로 Edit/Write 불가</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>개선 기회</div>
+      <ul>
+        <li><strong>모델 선택 근거가 없다</strong> — <code>model: sonnet</code> 이 설정되어 있지만 왜 sonnet 인지 문서화되지 않았다</li>
+        <li><strong>영속 메모리가 없다</strong> — 반복 발견 패턴("이 프로젝트에서 자주 실패하는 조건 유형")을 기억하면 점점 더 정확한 평가가 가능하다</li>
+        <li><strong>description 에 비트리거 조건이 없다</strong> — "단순 텍스트 수정이나 설정 변경에는 사용하지 않는다" 같은 조건이 필요하다</li>
+      </ul>
+    </div>
+  </div>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>#</th><th>Parity Item</th><th>agent-design-guide 위치</th><th>skill-design-guide 대응</th></tr></thead>
+      <thead><tr><th>현재 상태</th><th>다음 단계</th><th>트리거</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>Binary Decidability / 계약 모호성 방지</td><td>§3.5 Binary Decidability Pre-Check</td><td>§3.5 QA 계약과 1:1 매칭</td></tr>
-        <tr><td>2</td><td>트리거 키워드 배타성 (substring 포함)</td><td>§3 Sibling Agent 트리거 키워드 배타성</td><td>§4 트리거 키워드 중복 방지</td></tr>
-        <tr><td>3</td><td>검증 가능한 성공 기준 / L3 커버리지</td><td>§10 Reviewer/Evaluator Gotchas (L3)</td><td>§3.6 Give a way to verify</td></tr>
-        <tr><td>4</td><td>Rule-by-rule audit before completion</td><td>§10 Reviewer 전수 대조</td><td>§3.6 Rule-by-Rule Audit</td></tr>
-        <tr><td>5</td><td>Unverifiable / degraded-mode 정책</td><td>§10 Unverifiable 조건 정책 (4 항)</td><td>§3.7 Completion Evidence Gate</td></tr>
-        <tr><td>6</td><td>Fan-out 상한 / Exploration Budget ↔ 반환 데이터 최소화</td><td>§7 Fan-out 상한 · Exploration Budget</td><td>§9 Long-Running Skills</td></tr>
-        <tr><td>7</td><td>Enforcement 등급 (E1/E2/E3)</td><td>§6 패턴 7 (훅 = E3 구현체)</td><td>§3.7 Enforcement 3 등급 · 승급 규칙</td></tr>
+        <tr><td>단일 에이전트</td><td>역할별 에이전트 분리 (리뷰어, 테스터 등)</td><td>에이전트 유형이 3 개 이상 필요할 때</td></tr>
+        <tr><td>메모리 없음</td><td><code>memory: project</code> 추가</td><td>같은 실패 패턴이 반복 관찰될 때</td></tr>
+        <tr><td>모델 고정</td><td>작업 복잡도별 모델 분기</td><td>비용 최적화 필요 시</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="parity-box">
-    <div class="parity-box-title">2026-07 변경 요지</div>
-    <p><strong>Item 5 는 이번 사이클에서 양면으로 전환되었다</strong> — 과거에는 "평가자 전용" 이었으나, 생성 측이 <code>[미검증]</code> 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비된다. 마커 표기법과 2 건 임계값은 양쪽이 동일 규약을 쓴다. Item 6 은 에이전트 측 fan-out/exploration 통제와 스킬 측 반환 최소화가 토큰 경제라는 동일 목적의 짝 원칙이다. Item 7 은 "원칙을 어떤 강도로 강제할지" 를 판정하는 공통 틀로, 에이전트 측에서는 훅(PostToolUse/PreToolUse)이 E3 게이트의 구현 형태다.</p>
+</div>
+
+<!-- ═══ 12 ═══ -->
+<div class="section">
+  <div class="section-label">Cross-Surface Parity</div>
+  <div class="section-title">§12 원칙 전수성 — parity items 9 개</div>
+  <p class="section-desc">에이전트 설계 가이드가 개정되면 <strong>skill-design-guide · contract-design-guide · qa-evaluation-guide · 하위 에이전트(.md)</strong> 에 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Parity Item</th><th>agent-design-guide 위치</th><th>skill-design-guide 대응 위치</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Binary Decidability / 계약 모호성 방지</td><td>§3.5 (Binary Decidability Pre-Check)</td><td>§3.5 (QA 계약과 1:1 매칭)</td></tr>
+        <tr><td>2</td><td>트리거 키워드 배타성 (substring 포함)</td><td>§3 "Sibling Agent 트리거 키워드 배타성"</td><td>§4 (트리거 키워드 중복 방지)</td></tr>
+        <tr><td>3</td><td>검증 가능한 성공 기준 / L3 커버리지</td><td>§10 Reviewer/Evaluator Gotchas (L3)</td><td>§3.6 (Give a way to verify)</td></tr>
+        <tr><td>4</td><td>Rule-by-rule audit before completion</td><td>§10 Reviewer 전수 대조</td><td>§3.6 (Rule-by-Rule Audit)</td></tr>
+        <tr><td>5</td><td>Unverifiable / degraded-mode 정책</td><td>§10 Unverifiable 조건 정책</td><td>§3.7 (Completion Evidence Gate)</td></tr>
+        <tr><td>6</td><td>Fan-out 상한 / Exploration Budget ↔ 반환 데이터 최소화</td><td>§7 (Fan-out 상한 · Exploration Budget)</td><td>§9 (Long-Running Skills — 반환 데이터 최소화)</td></tr>
+        <tr><td>7</td><td>Enforcement 등급 (E1/E2/E3)</td><td>§6 패턴 7 (훅 = E3 결정론적 게이트의 구현체)</td><td>§3.7 (등급 정의 · 승급 규칙 · <strong>등급 원장</strong>)</td></tr>
+        <tr><td>8</td><td>User-Reported Failure Gate</td><td>§10 (사용자 실패 보고 우선 — <code>REOPENED</code>)</td><td>§3.8 (사용자 관측은 재현 대상)</td></tr>
+        <tr><td>9</td><td>Exploration Budget ↔ Variant Budget</td><td>§7 (탐색 turn 예산)</td><td>§5.6 (산출물 개수·축 고정) — <strong>짝이 아니라 구분 대상</strong></td></tr>
+      </tbody>
+    </table>
   </div>
+  <div class="note">
+    <div class="note-title">Item 8·9 는 2026-08 사이클 신규</div>
+    <p>Item 8 은 생성 측이 완료를 고집하고 평가 측만 <code>REOPENED</code> 로 다루면 두 판정이 충돌해 사용자가 중재자가 되기 때문에 양면으로 둔다. <strong>Item 9 만 성격이 다르다</strong> — 동일 개념을 공유하는 것이 아니라 <strong>이름이 비슷한 다른 개념</strong>이라, 양쪽 절이 서로를 참조해 용어 혼동을 막는 것이 parity 의 내용이다. Item 7 의 등급 원장은 skill-design-guide 측에만 두고 이 가이드는 참조만 한다 — 원장이 둘로 갈리면 같은 원칙이 두 등급을 갖게 된다. <strong>Item 5 는 2026-07 사이클에서 양면으로 전환</strong>되었다.</p>
+  </div>
+  <h3 class="sub">개정 시 체크리스트 · Downstream 전파 범위</h3>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>개정 시 체크리스트</div>
-      <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">✓</span>새 원칙을 추가했는가? → skill-design-guide 에 대응 항목이 필요한지 판정</li>
-        <li><span class="check">✓</span>원칙 네이밍을 변경했는가? → qa-evaluation-guide · qa-evaluator.md · 하위 리뷰어 에이전트를 Grep 하여 동기화</li>
-        <li><span class="check">✓</span>Bad/Good 예시 또는 실패 사례를 추가했는가? → 대응 원칙이 있는 다른 가이드도 동일 형태로 업데이트</li>
-        <li><span class="check">✓</span>frontmatter <code>version</code> 을 bump 했는가? → 대응 파일들도 같은 방향으로 bump</li>
+      <div class="card-title"><span class="dot"></span>agent-design-guide.md 편집 시</div>
+      <ul>
+        <li>새 원칙을 추가했는가? → skill-design-guide 에 대응 항목이 필요한지 판정</li>
+        <li>원칙 네이밍을 변경했는가? → qa-evaluation-guide · qa-evaluator.md · 하위 리뷰어 에이전트를 Grep 하여 동기화</li>
+        <li>Bad/Good 예시 또는 실패 사례를 추가했는가? → 대응 원칙이 있는 다른 가이드도 동일 형태의 예시 포함</li>
+        <li>frontmatter <code>version</code> 을 bump 했는가? → 대응 파일들도 같은 방향으로 bump</li>
       </ul>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Downstream 파일 전파 범위</div>
-      <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">·</span><code>harness/agents/qa-evaluator.md</code> — reviewer 전용 Gotcha 변경 시</li>
-        <li><span class="check">·</span><code>harness/docs/guides/qa-evaluation-guide.md</code> — 평가 방법론 원칙 변경 시</li>
-        <li><span class="check">·</span><code>harness/docs/guides/contract-design-guide.md</code> — 계약 모호성 · 태그 · 키워드 배타성 변경 시</li>
-        <li><span class="check">·</span><code>*-kit/agents/*-reviewer.md</code> (design-reviewer, backend-reviewer, infra-reviewer, widget-inspector, widget-inspector-react, animation-architect-react, rust-reviewer, react-reviewer) — 공통 Gotcha 또는 도구 스코핑 변경 시</li>
+      <div class="card-title"><span class="dot"></span>영향받는 하위 surface</div>
+      <ul>
+        <li><code>harness/agents/qa-evaluator.md</code> — reviewer 전용 Gotcha 변경 시</li>
+        <li><code>harness/docs/guides/qa-evaluation-guide.md</code> — 평가 방법론 원칙 변경 시</li>
+        <li><code>harness/docs/guides/contract-design-guide.md</code> — 계약 모호성·태그·키워드 배타성 변경 시</li>
+        <li><code>*-kit/agents/*-reviewer.md</code> (design / backend / infra / rust / react reviewer, widget-inspector 계열, animation-architect-react) — 공통 Gotcha 또는 도구 스코핑 변경 시</li>
       </ul>
     </div>
+  </div>
+  <div class="note bad">
+    <div class="note-title">실패 패턴 (이 원칙 없이 발생한 실제 REJECT)</div>
+    <ul>
+      <li><strong>PH-01 (design-kit, 2026-04)</strong> — skill-design-guide §3.5 가 이 가이드에 누락 → 계약 작성자는 원칙을 알지만 평가자는 원칙 불명 → 평가 결과 해석 충돌 → REJECT</li>
+      <li><strong>SK-13 (backend-kit, infra-kit)</strong> — References 섹션이 skill-design-guide 는 요구하지만 하위 스킬 SKILL.md 에 누락 → 상위 guide 의 원칙이 하위 surface 로 전파되지 않음</li>
+    </ul>
   </div>
 </div>
 
-<!-- SUMMARY -->
+<!-- ═══ 요약 ═══ -->
 <div class="section">
   <div class="section-label">Summary</div>
-  <div class="section-title">원칙 요약표</div>
-  <p class="section-desc">v1.5.0 에서 굵게 표시된 항목이 2026-07 카이젠 사이클에 신설·정정되었다.</p>
+  <div class="section-title">한 장 요약</div>
   <div class="table-wrap">
     <table>
       <thead><tr><th>원칙</th><th>핵심</th></tr></thead>
@@ -762,15 +892,17 @@ L3: 파일의 실제 내용이 조건을 충족하는가?   (Read) 또는
         <tr><td>최소 권한</td><td>필요한 도구만 부여</td></tr>
         <tr><td>Agent 스코핑</td><td><code>Agent(agent_type)</code> 로 스폰 가능 서브에이전트 화이트리스트</td></tr>
         <tr><td>모델 최적화</td><td>작업 복잡도에 맞는 모델 선택</td></tr>
-        <tr><td>호출 품질</td><td>컨텍스트·범위·파일참조·성공기준 4요소</td></tr>
+        <tr><td>호출 품질</td><td>컨텍스트·범위·파일참조·성공기준 4 요소</td></tr>
         <tr><td>독립 컨텍스트</td><td>생성과 평가는 분리</td></tr>
         <tr><td><strong>중첩 3 층</strong></td><td>서브에이전트도 위임 가능하나 기본 3 층에서 끊김 · 깊이를 설계 가정으로 삼지 마라 (§4)</td></tr>
         <tr><td><strong>하드 리밋</strong></td><td>동시 20 · 세션 200 · 깊이 3 — 자체 예산은 항상 이보다 작게 (§7)</td></tr>
         <tr><td>영속 메모리</td><td>대화를 넘어서 학습시켜라</td></tr>
-        <tr><td>7가지 패턴</td><td>체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅-자동교정 중 선택</td></tr>
-        <tr><td><strong>Fan-out 상한 / Exploration Budget</strong></td><td>§7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환</td></tr>
+        <tr><td>7 가지 패턴</td><td>체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅 트리거 중 선택</td></tr>
+        <tr><td><strong>Fan-out / Exploration Budget</strong></td><td>§7 — 병렬 spawn 기본 5 개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환</td></tr>
         <tr><td><strong>Binary Decidability</strong></td><td>§3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격)</td></tr>
-        <tr><td><strong>Unverifiable 정책</strong></td><td><code>[미검증]</code> 마커 · 2건 누적 REJECT · 조용한 PASS 금지 · <strong>생성자의 완료 주장은 증거가 아님</strong></td></tr>
+        <tr><td><strong>Unverifiable 정책</strong></td><td><code>[미검증]</code> 마커 · 2 건 누적 REJECT · 조용한 PASS 금지 · 생성자의 완료 주장은 증거 아님</td></tr>
+        <tr><td><strong>사용자 보고 우선</strong></td><td>§10 — 사용자 실패 보고는 <code>REOPENED</code>. 반박 금지 · 오라클 6 축부터 대조</td></tr>
+        <tr><td><strong>Variant Budget 구분</strong></td><td>§7 Exploration Budget(탐색 turn)과 skill §5.6 Variant Budget(산출물 수·축)은 다른 개념</td></tr>
         <tr><td><strong>Cross-Surface Parity</strong></td><td>agent/skill/contract/eval 가이드의 원칙 전수 검토 (§12)</td></tr>
       </tbody>
     </table>
@@ -779,9 +911,10 @@ L3: 파일의 실제 내용이 조건을 충족하는가?   (Read) 또는
 
 <div class="footer">
   <h3>출처</h3>
+  <p>이 페이지는 <code>harness/docs/guides/agent-design-guide.md</code> (v1.6.0 · 2026-08-13) 를 시각화한 것이다. 원문이 정본이며, 수치·인용·귀속은 모두 원문에서 옮겼다.</p>
   <ul>
-    <li><a href="https://code.claude.com/docs/en/sub-agents">Create custom subagents — Claude Code Docs (2026-04 최신)</a></li>
-    <li><a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Skill Authoring Best Practices — Claude API Docs (2026-04 최신)</a></li>
+    <li><a href="https://code.claude.com/docs/en/sub-agents">Create custom subagents — Claude Code Docs</a> (2026-08 재확인 — frontmatter 15 종 · 중첩 기본 3 층)</li>
+    <li><a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Skill Authoring Best Practices — Claude API Docs</a></li>
     <li><a href="https://www.anthropic.com/research/building-effective-agents">Building Effective Agents — Anthropic Research</a></li>
     <li><a href="https://claudefa.st/blog/guide/agents/sub-agent-best-practices">Claude Code Sub-Agent Best Practices — claudefa.st</a></li>
     <li><a href="https://www.pubnub.com/blog/best-practices-for-claude-code-sub-agents/">Best Practices for Claude Code subagents — PubNub</a></li>
@@ -790,14 +923,14 @@ L3: 파일의 실제 내용이 조건을 충족하는가?   (Read) 또는
     <li><a href="https://arxiv.org/abs/2511.08475">Designing LLM-based MAS for SE — arxiv:2511.08475</a></li>
     <li><a href="https://arxiv.org/abs/2503.16416">LLM Agent Evaluation Survey — arxiv:2503.16416</a></li>
     <li><a href="https://github.com/shinpr/agentic-code">agentic-code Quality Gates Framework</a></li>
-    <li><a href="https://arxiv.org/html/2604.14228v1">Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228 (2026-06)</a></li>
-    <li><a href="https://www.cloudzero.com/blog/claude-code-agents/">Claude Code Agents 2026 — CloudZero (2026-06)</a></li>
-    <li><a href="https://arxiv.org/pdf/2604.08401">Verify Before You Commit: Faithful Reasoning via Self-Auditing — arxiv:2604.08401 (2026-06)</a></li>
-    <li><a href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863 (2026-06)</a></li>
-    <li><a href="https://arxiv.org/html/2607.07405v1">Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405 (2026-07)</a></li>
-    <li><a href="https://arxiv.org/abs/2605.29442">How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442 (2026-05)</a></li>
+    <li><a href="https://arxiv.org/html/2604.14228v1">Dive into Claude Code: Design Space of AI Agent Systems — arxiv:2604.14228</a> (2026-06)</li>
+    <li><a href="https://www.cloudzero.com/blog/claude-code-agents/">Claude Code Agents 2026 — CloudZero</a> (2026-06)</li>
+    <li><a href="https://arxiv.org/pdf/2604.08401">Verify Before You Commit: Faithful Reasoning via Self-Auditing — arxiv:2604.08401</a> (2026-06)</li>
+    <li><a href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a> (2026-06)</li>
+    <li><a href="https://arxiv.org/html/2607.07405v1">Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405</a> (2026-07)</li>
+    <li><a href="https://arxiv.org/abs/2605.29442">How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442</a> (2026-05)</li>
+    <li><a href="https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework">OCI Agent Evaluation Framework — Oracle</a> (§10 target system 검증)</li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/agent-design-guide.md · v1.5.0 · 2026-07-27</p>
 </div>
 
 </div>

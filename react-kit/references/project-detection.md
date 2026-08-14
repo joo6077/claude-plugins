@@ -25,7 +25,7 @@ A detection result is a JSON object shaped like:
   "node": "22.14.1",
   "pnpm": "9.15.0",
   "react": "19.0.0",
-  "vite": "6.0.1",
+  "vite": "8.2.0",
   "tailwind": "4.0.0",
   "shadcn": true,
   "tanstackRouter": true,

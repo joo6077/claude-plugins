@@ -237,9 +237,34 @@ tbody tr:hover{background:var(--accent-glow)}
 code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9em;
   background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
 
+/* SOURCE LINK — 모든 원칙 카드/수치 표 하단에 1차 출처를 남긴다 */
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;margin-right:8px;font-size:11px;font-weight:600;
+  color:var(--accent);text-decoration:none;border:1px solid rgba(232,150,90,0.45);border-radius:999px;padding:6px 12px;
+  min-height:24px;transition:var(--transition);font-family:'Cascadia Code','Fira Code','Consolas',monospace}
+.card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.card-source::before{content:'↗';font-weight:800}
+.source-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.note{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:var(--radius);padding:20px 22px;margin:20px 0}
+.note-title{font-size:12px;font-weight:800;color:var(--warn);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px}
+.note p{font-size:14px;color:var(--text2);line-height:1.75}
+.note ul{margin:10px 0 0 18px;font-size:13px;color:var(--text2);line-height:1.8}
+
 @media(max-width:600px){
   .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
 }
+
+/* ── 가로 오버플로 방지 4 규칙 (자르지 말고 스크롤시킨다) ────────────── */
+/* (1) grid 자식의 기본 min-width 는 auto(=min-content) — 긴 코드·표가 트랙 폭을 밀어낸다. */
+.grid-2>*,.grid-3>*,.grid-4>*,.ap-grid>*,.motion-demo-container>*{min-width:0}
+/* (2) 표는 래퍼(.table-wrap)에서 가로 스크롤. overflow:hidden 으로 자르지 않는다. */
+.table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+.table-wrap>table{min-width:max-content}
+/* (3) 코드 블록은 자체 스크롤. */
+pre{overflow-x:auto;max-width:100%}
+:not(pre)>code{overflow-wrap:anywhere}
+/* (4) 좁은 뷰포트 단일 컬럼 스택. */
+@media(max-width:600px){.grid-2,.grid-3,.grid-4,.ap-grid,.motion-demo-container{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -312,6 +337,9 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
       <style>.pour-card:nth-child(4) ul li::before{background:#F0B088}</style>
     </div>
   </div>
+  <div class="source-row">
+    <a class="card-source" href="https://www.w3.org/WAI/WCAG22/quickref/">W3C — WCAG 2.2 Quick Reference</a>
+  </div>
 </section>
 
 <!-- ─── 색상 대비 ─── -->
@@ -363,8 +391,25 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
             </tbody>
           </table>
         </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:4px">
+          큰 텍스트 기준은 <strong>18pt 이상 또는 14pt 이상 볼드</strong>다. 비텍스트 대비(SC 1.4.11)는 버튼 테두리·입력 필드 같은 UI 컴포넌트와 의미 있는 그래픽에 적용된다.
+        </p>
+        <div class="source-row">
+          <a class="card-source" href="https://www.w3.org/TR/WCAG22/#contrast-minimum">SC 1.4.3 Contrast (Minimum)</a>
+          <a class="card-source" href="https://www.w3.org/TR/WCAG22/#contrast-enhanced">SC 1.4.6 Contrast (Enhanced)</a>
+          <a class="card-source" href="https://www.w3.org/TR/WCAG22/#non-text-contrast">SC 1.4.11 Non-text Contrast</a>
+        </div>
       </div>
     </div>
+  </div>
+  <div class="note">
+    <div class="note-title">실무 권장사항</div>
+    <ul>
+      <li>디자인 단계에서 대비 검증 도구를 쓴다 (WebAIM Contrast Checker, Stark 등)</li>
+      <li>브랜드 컬러가 기준을 충족하지 않으면 <strong>대체 팔레트를 준비</strong>한다</li>
+      <li>다크 모드 / 라이트 모드를 <strong>각각 별도로</strong> 검증한다</li>
+      <li>색상만으로 정보를 전달하지 않는다 — 패턴 · 아이콘 · 텍스트 레이블을 병행한다</li>
+    </ul>
   </div>
 </section>
 
@@ -372,7 +417,7 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
 <section id="touch">
   <div class="section-label">Touch Targets</div>
   <div class="section-title">터치 타겟 크기</div>
-  <p class="section-desc">44pt 미만의 버튼은 탭 오류율이 25% 이상 증가합니다. 아래 버튼을 직접 눌러 크기 차이를 체감해 보세요.</p>
+  <p class="section-desc"><strong>Apple HIG 권장치인 44pt</strong> 미만의 버튼은 탭 오류율이 25% 이상 증가한다는 연구 결과가 있습니다. 다만 <strong>WCAG 2.2 의 AA 하한은 24×24 CSS px</strong>(SC 2.5.8)이며 <strong>44×44 는 AAA</strong>(SC 2.5.5)입니다 — 두 기준을 섞어 인용하지 마세요. 아래 버튼을 직접 눌러 크기 차이를 체감해 보세요.</p>
 
   <div class="card mb-32">
     <div class="card-title"><span class="dot"></span>크기 비교 데모</div>
@@ -431,6 +476,33 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
         </tr>
       </tbody>
     </table>
+  </div>
+  <div class="source-row mb-32">
+    <a class="card-source" href="https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html">W3C — Understanding SC 2.5.8</a>
+    <a class="card-source" href="https://www.w3.org/TR/WCAG22/#target-size-minimum">WCAG 2.2 — SC 2.5.8 Target Size (Minimum)</a>
+    <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/accessibility">Apple HIG — Accessibility</a>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>SC 2.5.8 의 4 가지 예외 (Level AA)</div>
+      <ul style="margin-left:18px;font-size:14px;color:var(--text2);line-height:1.8">
+        <li><strong>간격 예외</strong> — 24px 미만이어도 각 타겟 중심에 그린 24px 직경 원이 인접 타겟과 겹치지 않으면 허용</li>
+        <li><strong>인라인 예외</strong> — 문장 내부 인라인 링크는 줄 높이가 크기를 결정하므로 예외</li>
+        <li><strong>동등 대안</strong> — 같은 기능의 다른 컨트롤이 기준을 충족하면 예외</li>
+        <li><strong>사용자 에이전트 결정</strong> — 저자가 수정하지 않은 브라우저 기본 컨트롤은 예외</li>
+      </ul>
+      <a class="card-source" href="https://www.w3.org/TR/WCAG22/#target-size-minimum">WCAG 2.2 — SC 2.5.8</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>실무 권장사항</div>
+      <ul style="margin-left:18px;font-size:14px;color:var(--text2);line-height:1.8">
+        <li>시각적으로 작은 요소도 <strong>padding 을 포함한 히트 영역</strong>이 최소 크기를 충족해야 한다</li>
+        <li>인접 타겟 간 <strong>최소 8px 간격</strong>을 권장한다</li>
+        <li>터치 디바이스에서는 <strong>Apple HIG 의 44pt 를 기본 기준</strong>으로 삼는 것이 안전하다</li>
+      </ul>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/accessibility">Apple HIG — Accessibility</a>
+    </div>
   </div>
 </section>
 
@@ -505,6 +577,21 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
       </div>
     </div>
   </div>
+  <div class="note">
+    <div class="note-title">포커스 관리 5 조</div>
+    <ul>
+      <li>모달/다이얼로그가 열리면 <strong>포커스를 내부로 이동</strong>한다</li>
+      <li>모달이 닫히면 <strong>포커스를 트리거 요소로 복원</strong>한다</li>
+      <li>포커스 트랩으로 모달 외부로 포커스가 나가지 않게 한다</li>
+      <li>동적으로 추가된 콘텐츠에 적절히 포커스를 이동한다</li>
+      <li><code>tabindex="-1"</code> 로 프로그래밍 방식 포커스 대상을 만든다</li>
+    </ul>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://developer.mozilla.org/en-US/blog/aria-accessibility-html-landmark-roles/">MDN — HTML landmark roles</a>
+    <a class="card-source" href="https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA11">W3C ARIA11 — Landmarks</a>
+    <a class="card-source" href="https://www.w3.org/TR/WCAG20-TECHS/aria">W3C — ARIA Techniques</a>
+  </div>
 </section>
 
 <!-- ─── 키보드 네비게이션 ─── -->
@@ -546,6 +633,13 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
         <tr><td>드롭다운</td><td><code>Arrow Up/Down</code> -- 옵션 이동, <code>Enter</code> -- 선택, <code>Escape</code> -- 닫기</td></tr>
       </tbody>
     </table>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://www.w3.org/TR/WCAG22/#focus-order">SC 2.4.3 Focus Order</a>
+    <a class="card-source" href="https://www.w3.org/TR/WCAG22/#focus-visible">SC 2.4.7 Focus Visible</a>
+    <a class="card-source" href="https://www.w3.org/TR/WCAG22/#no-keyboard-trap">SC 2.1.2 No Keyboard Trap</a>
+    <a class="card-source" href="https://www.w3.org/TR/WCAG22/#bypass-blocks">SC 2.4.1 Bypass Blocks</a>
+    <a class="card-source" href="https://www.w3.org/WAI/ARIA/apg/">W3C WAI-ARIA Authoring Practices Guide</a>
   </div>
 </section>
 
@@ -607,6 +701,18 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
         <div class="ap-label">패스키 / 생체 인증</div>
         <p style="font-size:13px;color:var(--text2);line-height:1.7">지문, 얼굴 인식, 보안 키로 인증. 기억할 내용 없음. 피싱 방지 효과도 있음.</p>
       </div>
+      <div class="ap-card bad">
+        <div class="ap-label">컨텍스트 없는 아이콘</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">라벨 없는 아이콘은 학습 장애 사용자에게 특히 어렵다. 의미를 기억에 의존하게 만든다.</p>
+      </div>
+      <div class="ap-card good">
+        <div class="ap-label">아이콘 + 텍스트 레이블</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">아이콘 옆에 항상 짧은 레이블을 둔다. "저장됨" 같은 피드백은 <strong>최소 3 초</strong> 유지해 놓치지 않게 한다.</p>
+      </div>
+    </div>
+    <div class="source-row">
+      <a class="card-source" href="https://www.w3.org/TR/coga-usable/">W3C — Making Content Usable (COGA)</a>
+      <a class="card-source" href="https://www.w3.org/WAI/GL/task-forces/coga/">W3C — COGA Task Force</a>
     </div>
   </div>
 </section>
@@ -665,6 +771,54 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
     <span style="color:var(--warn)">scroll-behavior</span>: auto !important;
   }
 }</pre>
+    <div class="source-row">
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion">MDN — prefers-reduced-motion</a>
+      <a class="card-source" href="https://www.a11yproject.com/posts/understanding-vestibular-disorders/">A11y Project — Vestibular Disorders</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 투명도 감소 ─── -->
+<section id="transparency">
+  <div class="section-label">Reduced Transparency</div>
+  <div class="section-title">투명도 감소</div>
+  <p class="section-desc">시력이 약하거나 광과민성이 있는 사용자는 반투명 배경 위의 텍스트를 읽기 어렵습니다. iOS "투명도 줄이기" · macOS "투명도 줄이기" 설정이 <code>prefers-reduced-transparency</code> 를 트리거합니다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>기본 vs 감소 — 시각 비교</div>
+      <div style="position:relative;border-radius:var(--radius);overflow:hidden;margin-top:8px">
+        <div style="background:linear-gradient(135deg,var(--accent),var(--info));padding:26px 20px">
+          <div style="background:rgba(0,0,0,0.5);border-radius:var(--radius-sm);padding:14px 16px;color:#fff;font-size:14px;font-weight:600">
+            반투명 오버레이 — <code style="color:#fff;background:rgba(255,255,255,0.18)">rgba(0,0,0,0.5)</code>
+          </div>
+          <div style="height:12px"></div>
+          <div style="background:rgb(30,30,30);border-radius:var(--radius-sm);padding:14px 16px;color:#fff;font-size:14px;font-weight:600">
+            불투명 전환 — <code style="color:#fff;background:rgba(255,255,255,0.18)">rgb(30,30,30)</code>
+          </div>
+        </div>
+      </div>
+      <p class="fig-caption">배경 대비가 확보되어 텍스트 판독성이 안정된다</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>prefers-reduced-transparency CSS</div>
+      <pre style="background:var(--surface2);padding:20px;border-radius:var(--radius);font-size:13px;line-height:1.7;overflow-x:auto;max-width:100%;color:var(--text2);font-family:'Cascadia Code','Fira Code','Consolas',monospace"><span style="color:var(--text3)">/* 기본: 반투명 배경 */</span>
+.overlay {
+  <span style="color:var(--warn)">background</span>: rgba(0, 0, 0, 0.5);
+}
+
+<span style="color:var(--text3)">/* 투명도 감소: 불투명 배경 */</span>
+<span style="color:#F0B088">@media</span> (<span style="color:var(--accent)">prefers-reduced-transparency: reduce</span>) {
+  .overlay {
+    <span style="color:var(--warn)">background</span>: rgb(30, 30, 30);
+  }
+}</pre>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:12px">Apple 은 다크 모드에서 사이드바·시트 배경에 반투명을 기본 적용하지만, "투명도 줄이기" 활성 시 <strong>불투명 배경으로 자동 전환</strong>한다.</p>
+      <div class="source-row">
+        <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-transparency">MDN — prefers-reduced-transparency</a>
+        <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/accessibility">Apple HIG — Accessibility</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -747,6 +901,22 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
         <label for="chk9">Tab 순서가 시각적 순서와 일치하는가?</label>
       </div>
     </div>
+  </div>
+
+  <div class="note">
+    <div class="note-title">자동화 도구의 한계 — 수동 테스트로만 잡히는 것</div>
+    <p>axe · Lighthouse · WAVE 같은 자동화 도구는 전체 접근성 문제의 약 <strong>30~40% 만 검출</strong>한다 (Deque 자체 연구). 나머지 60~70% 는 수동 테스트로만 발견된다. 최소 테스트 조합은 <strong>iOS VoiceOver + Safari · Windows NVDA + Chrome</strong>(전체의 약 65% 커버)이다.</p>
+    <ul>
+      <li>의미적으로 잘못된 alt 텍스트 — 기술적으로 존재하지만 내용이 부적절</li>
+      <li>논리적이지 않은 탭 순서</li>
+      <li>시각적 포커스 표시는 있으나 대비가 부족한 경우</li>
+      <li>모달 내 포커스 트랩이 불완전한 경우</li>
+      <li>동적 콘텐츠의 <code>aria-live</code> 누락</li>
+    </ul>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://webaim.org/projects/screenreadersurvey10/">WebAIM — Screen Reader User Survey #10</a>
+    <a class="card-source" href="https://www.deque.com/blog/automated-testing-study-identifies-57-percent-of-digital-accessibility-issues/">Deque — Automated Accessibility Testing</a>
   </div>
 </section>
 

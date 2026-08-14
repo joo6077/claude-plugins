@@ -6,389 +6,226 @@
 <title>Reference &amp; Competitive Analysis — Planning Kit</title>
 <style>
 :root {
-  --bg: #0d0d14;
-  --bg2: #12121c;
-  --surface: #181825;
-  --surface2: #1e1e30;
-  --surface3: #282845;
-  --border: #2a2a40;
-  --border2: #3a3a55;
-  --text: #F5F0E8;
-  --text2: #A89A8F;
-  --text3: #7A6F64;
-  --accent: #EC4899;
-  --accent2: #F9A8D4;
-  --accent-dim: rgba(236, 72, 153, 0.12);
-  --accent-glow: rgba(236, 72, 153, 0.06);
-  --error: #f87171;
-  --success: #4ade80;
-  --warn: #fbbf24;
-  --radius: 14px;
-  --radius-sm: 8px;
-  --radius-lg: 20px;
+  --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
+  --border: #2a2a40; --border2: #3a3a55;
+  --text: #F5F0E8; --text2: #A89A8F; --text3: #7A6F64;
+  --accent: #EC4899; --accent2: #F9A8D4;
+  --accent-dim: rgba(236, 72, 153, 0.12); --accent-glow: rgba(236, 72, 153, 0.06);
+  --error: #f87171; --success: #4ade80; --warn: #fbbf24;
+  --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
   --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+  --mono: "SF Mono", Menlo, Consolas, monospace;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
   background-image:
     radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
     radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
 }
-
 .container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
 
-.hero {
-  padding: 72px 0 56px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 64px;
-}
+/* ---------- hero ---------- */
+.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
 .badge {
-  display: inline-block;
-  padding: 6px 16px;
-  background: var(--accent-dim);
-  color: var(--accent2);
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 28px;
+  display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
+  border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px;
 }
 .hero h1 {
-  font-size: clamp(40px, 6vw, 72px);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  margin-bottom: 24px;
+  font-size: clamp(36px, 5.4vw, 66px); font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 24px;
   background: linear-gradient(135deg, var(--text), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.hero .subtitle {
-  font-size: 18px;
-  color: var(--text2);
-  max-width: 780px;
-  margin: 0 auto;
-  line-height: 1.7;
-}
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 780px; margin: 0 auto; line-height: 1.7; }
 
+/* ---------- section ---------- */
 section { margin-bottom: 72px; }
-.section-header {
-  margin-bottom: 36px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
+.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 .section-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 8px;
+  display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
 }
-.section-header h2 {
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-.section-header p {
-  margin-top: 10px;
-  color: var(--text2);
-  font-size: 15px;
-}
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
 
-.flow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: stretch;
-  margin-bottom: 40px;
-}
+/* ---------- workflow flow ---------- */
+.flow { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; margin-bottom: 28px; }
 .flow-step {
-  flex: 1 1 180px;
-  padding: 16px 18px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--accent);
-  border-radius: var(--radius-sm);
-  position: relative;
-}
-.flow-step .n {
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  font-weight: 700;
-  color: var(--accent);
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 4px;
-}
-.flow-step h4 { font-size: 14.5px; color: var(--text); margin-bottom: 4px; }
-.flow-step p { color: var(--text2); font-size: 13px; line-height: 1.6; }
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 20px;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
+  flex: 1 1 190px; min-width: 0; background: var(--surface); border: 1px solid var(--border);
+  border-top: 3px solid var(--accent); border-radius: var(--radius-sm); padding: 18px 20px;
   transition: var(--transition);
-  position: relative;
-  display: flex;
-  flex-direction: column;
 }
-.card:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12);
+.flow-step:hover { border-color: var(--border2); border-top-color: var(--accent2); transform: translateY(-2px); }
+.flow-step .n { display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 6px; }
+.flow-step h4 { font-size: 15px; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
+.flow-step p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+/* ---------- cards ---------- */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.grid-2 > * { min-width: 0; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; transition: var(--transition); display: flex; flex-direction: column; min-width: 0;
 }
+.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
 .card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .card-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--accent-dim);
-  color: var(--accent2);
-  font-weight: 700;
-  font-size: 14px;
-  margin-bottom: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
+  color: var(--accent2); font-weight: 700; font-size: 14px; flex-shrink: 0;
 }
 .card-phase {
-  display: inline-block;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: var(--surface3);
-  color: var(--accent2);
-  text-transform: uppercase;
-  margin-left: 8px;
-  vertical-align: middle;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 3px 10px;
+  border-radius: 999px; background: var(--surface3); color: var(--text2); white-space: nowrap;
 }
-.card h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 14px;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-}
-.card p {
-  color: var(--text2);
-  font-size: 14.5px;
-  line-height: 1.75;
-  margin-bottom: 12px;
-}
-.card ul {
-  padding-left: 18px;
-  color: var(--text2);
-  font-size: 14px;
-  line-height: 1.8;
-  margin-bottom: 12px;
-}
+.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.4; letter-spacing: -0.01em; }
+.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
+.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
 .card ul li { margin-bottom: 4px; }
-.card code {
-  background: var(--surface3);
-  color: var(--accent2);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 13px;
+.card code, .inline-code {
+  background: var(--surface3); color: var(--accent2); padding: 2px 6px;
+  border-radius: 4px; font-family: var(--mono); font-size: 13px;
 }
+.card-limit { font-size: 13px; color: var(--text3); border-left: 2px solid var(--border2); padding-left: 12px; margin-bottom: 14px; line-height: 1.65; }
 .card-source {
-  display: inline-block;
-  margin-top: auto;
-  padding-top: 16px;
-  color: var(--accent);
-  font-size: 12px;
-  text-decoration: none;
-  border-top: 1px dashed var(--border2);
-  transition: var(--transition);
+  display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
+  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2);
+  transition: var(--transition); overflow-wrap: anywhere;
 }
 .card-source::before { content: "↳ 출처: "; color: var(--text3); }
 .card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
 
-.table-wrap {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  overflow-x: auto;
+/* ---------- pills ---------- */
+.pill-my, .pill-no, .pill-like {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+  padding: 2px 8px; border-radius: 999px; margin-right: 6px; white-space: nowrap;
 }
-table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 720px; }
+.pill-my { background: rgba(74, 222, 128, 0.12); color: var(--success); border: 1px solid rgba(74, 222, 128, 0.35); }
+.pill-no { background: rgba(248, 113, 113, 0.12); color: var(--error); border: 1px solid rgba(248, 113, 113, 0.35); }
+.pill-like { background: rgba(251, 191, 36, 0.12); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.35); }
+.flag {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 2px 8px; border-radius: 999px; margin-right: 6px; white-space: nowrap;
+  background: rgba(251, 191, 36, 0.14); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+/* ---------- tables ---------- */
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch;
+}
+.table-wrap > table { min-width: max-content; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 thead { background: var(--surface2); }
 th {
-  text-align: left;
-  padding: 16px 20px;
-  font-weight: 600;
-  color: var(--accent2);
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid var(--border2);
+  text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2);
 }
-td {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text2);
-  vertical-align: top;
-}
+td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: var(--accent-glow); }
 td strong, td b { color: var(--text); }
-td code {
-  background: var(--surface3);
-  color: var(--accent2);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12.5px;
-}
-.pill-my { color: var(--success); font-weight: 700; }
-.pill-no { color: var(--error); font-weight: 700; }
-.pill-like { color: var(--warn); font-weight: 700; }
+td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: 12.5px; }
 
-.compare-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 16px;
-}
+/* ---------- compare ---------- */
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.compare-grid > * { min-width: 0; }
 .compare {
-  border-radius: var(--radius);
-  padding: 22px 24px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  line-height: 1.7;
+  border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
+  background: var(--surface); line-height: 1.7; min-width: 0;
 }
 .compare.bad { border-left: 3px solid var(--error); }
 .compare.good { border-left: 3px solid var(--success); }
 .compare .tag {
-  display: inline-block;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-weight: 700;
-  margin-bottom: 12px;
+  display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px;
 }
-.compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
-.compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
+.compare.bad .tag { background: rgba(248, 113, 113, 0.12); color: var(--error); }
+.compare.good .tag { background: rgba(74, 222, 128, 0.12); color: var(--success); }
 .compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
 .compare p { color: var(--text2); font-size: 14px; }
 
+/* ---------- checklist ---------- */
 .checklist { display: flex; flex-direction: column; gap: 14px; }
 .checklist-item {
-  display: flex;
-  gap: 16px;
-  padding: 20px 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
+  display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); transition: var(--transition); min-width: 0;
 }
-.checklist-item:hover {
-  border-color: var(--border2);
-  border-left-color: var(--accent2);
-  transform: translateX(2px);
-}
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
 .checklist-icon {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: var(--accent-dim);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 2px;
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px;
 }
-.checklist-body strong {
-  color: var(--text);
-  font-size: 15px;
-  display: block;
-  margin-bottom: 6px;
-}
+.checklist-body { min-width: 0; }
+.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
 .checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
 
-.refs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+/* ---------- callout / code ---------- */
+.callout {
+  border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
+  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 24px;
 }
-.refs a {
-  padding: 10px 16px;
-  border: 1px solid var(--border2);
-  border-radius: 999px;
-  color: var(--accent2);
-  text-decoration: none;
-  font-size: 13px;
-  transition: var(--transition);
-}
-.refs a:hover, .refs a:focus {
-  background: var(--accent-dim);
-  border-color: var(--accent);
-  outline: none;
+.callout strong { color: var(--text); }
+.callout.warn { border-left-color: var(--warn); background: rgba(251, 191, 36, 0.05); }
+.callout.warn strong { color: var(--warn); }
+.snippet { margin-bottom: 28px; }
+.snippet h4 { font-size: 15px; color: var(--text); margin-bottom: 8px; }
+.snippet > p { font-size: 13.5px; color: var(--text2); margin-bottom: 8px; }
+pre, .code-block {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin: 12px 0; font-family: var(--mono);
+  font-size: 13px; line-height: 1.6; color: var(--text);
+  overflow-x: auto; max-width: 100%; white-space: pre;
 }
 
-footer {
-  margin-top: 96px;
-  padding-top: 32px;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  color: var(--text3);
-  font-size: 13px;
+/* ---------- refs / sources / footer ---------- */
+.refs { display: flex; flex-wrap: wrap; gap: 10px; }
+.refs a {
+  padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition);
+  overflow-wrap: anywhere;
 }
-footer a { color: var(--accent); text-decoration: none; }
+.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+.srclist { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+.srclist > * { min-width: 0; }
+.srclist li { font-size: 13.5px; color: var(--text2); overflow-wrap: anywhere; }
+.srclist a { color: var(--accent2); text-decoration: none; }
+.srclist a:hover, .srclist a:focus { text-decoration: underline; outline: none; }
+footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border); text-align: center; color: var(--text3); font-size: 13px; }
+footer code { font-family: var(--mono); color: var(--text2); }
 
 @media (max-width: 720px) {
   .container { padding: 24px 18px 64px; }
   .hero { padding: 48px 0 36px; }
-  .grid-2, .compare-grid { grid-template-columns: 1fr; }
   .card { padding: 22px; }
   th, td { padding: 12px 14px; font-size: 13px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
+@media (max-width: 600px) {
+  .grid-2, .compare-grid, .srclist { grid-template-columns: 1fr; }
+  .flow-step { flex: 1 1 100%; }
 }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 <div class="container">
 
   <header class="hero">
-    <span class="badge">Planning Kit v0.1 · Reference</span>
+    <span class="badge">Planning Kit · Reference</span>
     <h1>Reference &amp; Competitive Analysis</h1>
     <p class="subtitle">
-      "X 같은 앱 만들어 줘" 요청에서 곧바로 기능 목록을 쓰기 전 단계.
-      Lightning Demos · Competitive Teardown · Feature Matrix · JTBD · Positioning · Blue Ocean ·
-      Red Route · Kano · Flywheel · MY/NO/LIKE까지 16가지 렌즈를 묶어
-      <strong>feature parity trap</strong>을 피하고 차별화 여지를 찾는다.
+      "X 같은 앱을 만들고 싶다"에서 곧바로 기능 목록을 쓰지 않는다.
+      Lightning Demos · Teardown · Feature Matrix · JTBD · Positioning · Blue Ocean ·
+      Red Route · Kano · Flywheel · MY/NO/LIKE까지 16가지 렌즈로 기존 제품을 분해하고
+      경쟁 구도를 재정의해 <strong>feature parity trap</strong>을 피한다.
     </p>
   </header>
 
@@ -396,16 +233,21 @@ footer a { color: var(--accent); text-decoration: none; }
     <div class="section-header">
       <span class="section-label">00 · Workflow</span>
       <h2>적용 순서</h2>
-      <p>수집 → 해부 → 비교 → 재정의 → 차별화 → 우선순위 → 편향 점검.</p>
+      <p>수집 → 해부 → 비교 → 재정의 → 차별화 → 우선순위 → 편향 점검. 한 방법론에 과신하지 않고 서로의 맹점을 보완한다.</p>
     </div>
     <div class="flow">
-      <div class="flow-step"><span class="n">Step 1</span><h4>Lightning Demos</h4><p>직접+인접 6~10개를 3분씩 훑는다.</p></div>
-      <div class="flow-step"><span class="n">Step 2</span><h4>Competitive Teardown</h4><p>상위 2~4개를 깊게 분해.</p></div>
-      <div class="flow-step"><span class="n">Step 3</span><h4>Feature Matrix</h4><p>완성도·제약까지 기록.</p></div>
-      <div class="flow-step"><span class="n">Step 4</span><h4>JTBD 재정의</h4><p>non-consumption 포함.</p></div>
-      <div class="flow-step"><span class="n">Step 5</span><h4>Positioning / Blue Ocean</h4><p>차별화 문장 도출.</p></div>
-      <div class="flow-step"><span class="n">Step 6</span><h4>Red Route / Kano</h4><p>MVP 우선순위 축약.</p></div>
-      <div class="flow-step"><span class="n">Step 7</span><h4>Bias Check</h4><p>Parity Trap · Survivorship.</p></div>
+      <div class="flow-step"><span class="n">Step 1</span><h4>Lightning Demos</h4><p>직접 + 인접 레퍼런스를 6~10개 수집한다.</p></div>
+      <div class="flow-step"><span class="n">Step 2</span><h4>Competitive Teardown</h4><p>상위 2~4개 제품을 깊게 분해한다.</p></div>
+      <div class="flow-step"><span class="n">Step 3</span><h4>Feature Matrix</h4><p>checkbox가 아니라 완성도 · 제약까지 적는다.</p></div>
+      <div class="flow-step"><span class="n">Step 4</span><h4>JTBD 재정의</h4><p>경쟁 집합을 다시 정의하고 non-consumption 포함.</p></div>
+      <div class="flow-step"><span class="n">Step 5</span><h4>Positioning / Blue Ocean</h4><p>차별화 문장을 만든다.</p></div>
+      <div class="flow-step"><span class="n">Step 6</span><h4>Red Route / Kano</h4><p>실제 MVP 우선순위를 줄인다.</p></div>
+      <div class="flow-step"><span class="n">Step 7</span><h4>Bias Check</h4><p>Parity Trap · Survivorship Bias로 결론을 교정.</p></div>
+    </div>
+    <div class="callout">
+      <strong>ComfyUI 같은 노드 편집기, Notion 같은 지식도구, Figma 같은 협업 캔버스</strong>처럼
+      이미 강한 기준 제품이 있는 카테고리에서는, 사용자가 실제로 무엇을 "고용(hire)"하는지 구조적으로 보지 않으면
+      곧바로 feature parity trap에 빠진다.
     </div>
   </section>
 
@@ -413,201 +255,279 @@ footer a { color: var(--accent); text-decoration: none; }
     <div class="section-header">
       <span class="section-label">01 · Methods</span>
       <h2>16가지 렌즈</h2>
-      <p>수집·분석·전략·우선순위·편향 점검을 한 흐름으로.</p>
+      <p>수집 · 분석 · 전략 · 우선순위 · 편향 점검을 한 흐름으로 묶는다.</p>
     </div>
 
     <div class="grid-2">
 
       <div class="card">
-        <span class="card-number">1</span><span class="card-phase">수집</span>
-        <h3>Lightning Demos (GV Sprint)</h3>
-        <p>짧은 시간에 경쟁·인접 제품을 훑어 팀의 공통 참조면(reference surface)을 만든다. 제품당 3분 — <strong>깊게 평가가 아니라 빠르게 수집</strong>이 목적.</p>
+        <div class="card-head"><span class="card-number">1</span><span class="card-phase">수집</span></div>
+        <h3>Lightning Demos (GV Sprint · Jake Knapp)</h3>
+        <p>
+          짧은 시간에 경쟁 제품과 인접 카테고리 모범 사례를 훑어 팀의 공통 참조면(reference surface)을 만든다.
+          제품당 3분 — <strong>깊게 평가가 아니라 빠르게 수집하고 시각적으로 공유</strong>가 목적이다.
+        </p>
         <ul>
-          <li>직접 3~5 + 인접 3~5를 섞는다</li>
-          <li>"의도 단위"로 캡처</li>
-          <li>우열 판단 금지, 패턴 수집만</li>
+          <li>1분 배경 · 1분 핵심 플로우 · 1분 캡처할 아이디어</li>
+          <li>직접 경쟁 3~5 + 인접 레퍼런스 3~5를 섞는다</li>
+          <li>캡처는 화면보다 "의도" 단위로 남긴다</li>
+          <li>이 단계에서는 우열 판단 금지, 패턴 수집만</li>
         </ul>
-        <a class="card-source" href="https://www.thesprintbook.com/" target="_blank" rel="noopener">Sprint Book — Jake Knapp</a>
+        <p class="card-limit">얕게 보면 "보기 좋은 화면 수집"으로 전락한다. 비즈니스 모델 · 제약 · 기술 부채는 보이지 않는다.</p>
+        <a class="card-source" href="https://www.gv.com/sprint/" target="_blank" rel="noopener">GV Sprint — Lightning Demos</a>
       </div>
 
       <div class="card">
-        <span class="card-number">2</span><span class="card-phase">수집</span>
+        <div class="card-head"><span class="card-number">2</span><span class="card-phase">수집</span></div>
         <h3>Competitive Teardown (IDEO · NN/g)</h3>
-        <p>사용자 흐름 · IA · 인터랙션 · 카피 · 가격 · 신뢰 장치 · 성장 루프까지 분해한다. breadth의 Lightning Demos와 달리 <strong>depth 중심</strong>.</p>
+        <p>
+          사용자 흐름 · 정보구조 · 인터랙션 · 카피 · 가격 · 신뢰 장치 · 성장 루프까지 분해해
+          "무엇이 어떻게 작동하는가"를 분석한다. Lightning Demos가 breadth라면 teardown은 <strong>depth</strong>다.
+        </p>
         <ul>
-          <li>로그인 전후를 분리해 본다</li>
-          <li>empty · error · share state 필수</li>
-          <li>"기능 있음/없음"이 아닌 "언제 어떤 비용으로 드러나는가"</li>
+          <li>로그인 전후 경험을 분리해 본다</li>
+          <li>empty state · error state · export/share state 필수</li>
+          <li>가격 · 플랜 벽이 어디서 등장하는지 기록</li>
+          <li>"있음/없음"이 아니라 "언제 어떤 비용으로 드러나는가"</li>
         </ul>
-        <a class="card-source" href="https://www.designkit.org/methods/analogous-inspiration.html" target="_blank" rel="noopener">IDEO Design Kit — Teardown 맥락</a>
+        <p class="card-limit">"왜 이렇게 설계했는가"는 추론일 뿐이다. 사실과 추론을 분리해 적어야 한다.</p>
+        <a class="card-source" href="https://www.designkit.org/methods/analogous-inspiration.html" target="_blank" rel="noopener">IDEO Design Kit — Analogous Inspiration</a>
       </div>
 
       <div class="card">
-        <span class="card-number">3</span><span class="card-phase">가치</span>
+        <div class="card-head"><span class="card-number">3</span><span class="card-phase">분석</span></div>
         <h3>Value Proposition Canvas (Osterwalder)</h3>
-        <p>고객의 <code>Jobs · Pains · Gains</code>와 제품의 <code>Products · Pain Relievers · Gain Creators</code>를 맞물리게 본다. 경쟁사별 축약 캔버스로 비교.</p>
+        <p>
+          고객의 <span class="inline-code">Jobs / Pains / Gains</span>와 제품의
+          <span class="inline-code">Products &amp; Services / Pain Relievers / Gain Creators</span>를 맞물리게 본다.
+          레퍼런스 분석에 적용하면 "경쟁사가 어떤 pain을 얼마나 직접적으로 줄이는가"를 비교할 수 있다.
+        </p>
         <ul>
-          <li>기능 전에 고객 job을 먼저 적는다</li>
-          <li>pain은 빈도·심각도 분리</li>
-          <li>"좋아 보이는 기능"보다 "불편 제거" 가중</li>
+          <li>기능을 적기 전에 고객 job을 먼저 적는다</li>
+          <li>pain은 빈도와 심각도를 분리한다</li>
+          <li>"좋아 보이는 기능"보다 "불편 제거"에 점수를 높게 준다</li>
         </ul>
-        <a class="card-source" href="https://www.strategyzer.com/resources/canvas-tools-guides/the-value-proposition-canvas-instruction-manual" target="_blank" rel="noopener">Strategyzer — VPC Manual</a>
+        <p class="card-limit">인터뷰 없이 작성하면 팀의 추측을 예쁘게 정리한 문서가 된다. B2B · 멀티사이드는 세그먼트 분리 필수.</p>
+        <a class="card-source" href="https://www.strategyzer.com/resources/canvas-tools-guides/the-value-proposition-canvas-instruction-manual" target="_blank" rel="noopener">Strategyzer — VPC Instruction Manual</a>
       </div>
 
       <div class="card">
-        <span class="card-number">4</span><span class="card-phase">비교</span>
+        <div class="card-head"><span class="card-number">4</span><span class="card-phase">분석</span></div>
         <h3>Feature Matrix / Comparison Grid</h3>
-        <p>제품 간 기능·품질·제약·가격·API·학습곡선 비교표. <strong>checkbox 수집기</strong>가 되지 않도록 JTBD · Red Route · Kano와 반드시 같이 쓴다.</p>
+        <p>
+          기능 · 품질 · 제약 · 가격 · 협업성 · API · 학습곡선을 표로 비교하는 기본 도구다.
+          잘못 쓰면 checkbox 수집기가 되므로 반드시 <strong>JTBD · red route · Kano 해석과 같이</strong> 쓴다.
+        </p>
         <ul>
-          <li>존재 여부 + 완성도 + 발견 가능성 + 제약 + 가격 연동</li>
-          <li>core vs edge-case 기능 분리</li>
-          <li>"우리도 넣자"가 아니라 "왜 여기서 중요해졌나"</li>
+          <li>존재 여부 · 완성도 · 발견 가능성 · 제약 · 가격 연동 · 차별화 코멘트</li>
+          <li>코어 플로우 기능과 edge-case 기능을 분리</li>
+          <li>"우리도 넣자" 대신 "왜 여기서 중요해졌나"를 적는다</li>
         </ul>
-        <a class="card-source" href="https://www.aprildunford.com/post/an-introduction-to-positioning" target="_blank" rel="noopener">April Dunford — Positioning</a>
+        <p class="card-limit">열이 늘수록 중요한 차이가 묻힌다. 정성적 품질 차이를 한 칸으로 압축하면 오판한다.</p>
+        <a class="card-source" href="https://www.aprildunford.com/post/an-introduction-to-positioning" target="_blank" rel="noopener">April Dunford — An Introduction to Positioning (2020-05)</a>
       </div>
 
       <div class="card">
-        <span class="card-number">5</span><span class="card-phase">재정의</span>
-        <h3>JTBD 경쟁 재정의 (Christensen · Klement)</h3>
-        <p>경쟁은 같은 카테고리 제품만이 아니다. 사용자가 같은 job을 위해 <strong>고용하는 모든 대안</strong>이 경쟁 — 스크립트, 템플릿, 수작업 포함.</p>
+        <div class="card-head"><span class="card-number">5</span><span class="card-phase">재정의</span></div>
+        <h3>JTBD 경쟁 재정의</h3>
+        <p>
+          경쟁사는 같은 카테고리 제품만이 아니다. <strong>같은 job을 끝내기 위해 고용하는 모든 대안</strong>이 경쟁이다.
+          ComfyUI의 경쟁은 다른 노드 편집기만이 아니라 스크립트, 템플릿 마켓, SaaS 워크플로 도구, 수작업 프로세스일 수 있다.
+        </p>
         <ul>
-          <li>progress 경쟁으로 보면 대안 집합이 달라진다</li>
-          <li>현재 우회 수단 · switching trigger 기록</li>
-          <li>non-consumption도 포함</li>
+          <li>핵심 Job · 현재 고용 대안 · switching trigger</li>
+          <li>desired outcome · anxieties / habits</li>
+          <li>지금 쓰는 우회 수단을 반드시 포함</li>
+          <li>"왜 아직 안 바꿨는가"를 습관 · 리스크 · 학습비용으로 본다</li>
         </ul>
-        <a class="card-source" href="https://hbr.org/2016/09/know-your-customers-jobs-to-be-done" target="_blank" rel="noopener">HBR — Know Your Customers' JTBD</a>
+        <p class="card-limit">job을 너무 추상화하면 모두가 경쟁처럼 보이고, 너무 좁히면 차별화 기회가 사라진다.</p>
+        <a class="card-source" href="https://hbr.org/2016/09/know-your-customers-jobs-to-be-done" target="_blank" rel="noopener">HBR — Know Your Customers' Jobs to Be Done (2016-09)</a>
       </div>
 
       <div class="card">
-        <span class="card-number">6</span><span class="card-phase">산업</span>
-        <h3>Porter's Five Forces</h3>
-        <p>제품이 아니라 산업 구조 단위의 압력. "왜 경쟁사들이 비슷한 기능·가격·API 전략으로 수렴하는가"를 해석한다.</p>
+        <div class="card-head"><span class="card-number">6</span><span class="card-phase">전략</span></div>
+        <h3>Porter's Five Forces (간략)</h3>
+        <p>
+          제품 단위가 아니라 <strong>산업 구조 단위</strong>에서 압력을 읽는 틀이다.
+          "왜 경쟁사들이 비슷한 기능 세트를 가지게 되는가", "왜 가격 · 유통 · API 전략이 수렴하는가"를 해석하는 데 유용하다.
+        </p>
         <ul>
-          <li>신규 진입 · 대체재 · 공급자 · 구매자 · 기존 경쟁</li>
-          <li>각 force 낮음/중간/높음 + 2~3줄 근거</li>
-          <li>UX 상세 결정엔 부적합</li>
+          <li>신규 진입자 · 대체재 위협</li>
+          <li>공급자 · 구매자 교섭력</li>
+          <li>기존 경쟁 강도가 기능 · 가격 · 배포 · 데이터 중 어디서 높아지는가</li>
+          <li>각 force를 낮음/중간/높음 + 근거 2~3줄 + 설계 함의 한 줄</li>
         </ul>
-        <a class="card-source" href="https://hbr.org/2008/01/the-five-competitive-forces-that-shape-strategy" target="_blank" rel="noopener">HBR — Porter Five Forces</a>
+        <p class="card-limit">세밀한 UX 의사결정을 직접 돕지 않는다. 빠르게 변하는 소프트웨어 시장에서 정태적 분석으로 끝나기 쉽다.</p>
+        <a class="card-source" href="https://hbr.org/2008/01/the-five-competitive-forces-that-shape-strategy" target="_blank" rel="noopener">HBR — The Five Competitive Forces (2008-01)</a>
       </div>
 
       <div class="card">
-        <span class="card-number">7</span><span class="card-phase">전략</span>
+        <div class="card-head"><span class="card-number">7</span><span class="card-phase">전략</span></div>
         <h3>Blue Ocean Strategy Canvas / Four Actions</h3>
-        <p>업계 경쟁 요소와 제품별 투자 강도를 곡선으로 비교. <code>Eliminate · Reduce · Raise · Create</code>로 차별화를 강제한다.</p>
+        <p>
+          Strategy Canvas는 업계 경쟁 요소와 각 제품의 투자 강도를 한눈에 비교하게 한다.
+          Four Actions Framework는 <span class="inline-code">Eliminate / Reduce / Raise / Create</span>로 차별화 결정을 강제한다.
+        </p>
         <ul>
-          <li>축은 기능명이 아니라 구매 기준</li>
-          <li>Create보다 Eliminate/Reduce를 먼저</li>
-          <li>differentiation for its own sake는 가치 파괴</li>
+          <li>축은 기능명이 아니라 <strong>구매 기준</strong>으로 잡는다</li>
+          <li>곡선 차이를 설명할 수 있어야 한다</li>
+          <li>Create보다 Eliminate / Reduce를 먼저 검토한다</li>
         </ul>
-        <a class="card-source" href="https://www.blueoceanstrategy.com/tools/strategy-canvas/" target="_blank" rel="noopener">Blue Ocean — Strategy Canvas</a>
+        <p class="card-limit">예쁜 곡선 그리기에 빠지면 실행 가능성이 사라진다. 차별화를 위한 차별화는 가치 파괴다.</p>
+        <a class="card-source" href="https://www.blueoceanstrategy.com/tools/strategy-canvas/" target="_blank" rel="noopener">Blue Ocean Strategy — Strategy Canvas</a>
       </div>
 
       <div class="card">
-        <span class="card-number">8</span><span class="card-phase">우선순위</span>
+        <div class="card-head"><span class="card-number">8</span><span class="card-phase">우선순위</span></div>
         <h3>Red Route Analysis</h3>
-        <p>가장 자주·중요한 과업 경로를 먼저. GOV.UK 실무 기법 + NN/g의 top tasks와 결이 맞는다. 경쟁사 전체 기능보다 <strong>top task 2~3개</strong>를 비교한다.</p>
+        <p>
+          사용자가 가장 자주 · 가장 중요하게 수행하는 <strong>과업 경로</strong>를 식별하고 그 성공률과 마찰을 최우선으로 다룬다.
+          "경쟁사 전체 기능"보다 "가장 중요한 2~3개 경로"를 먼저 비교하게 만든다.
+        </p>
         <ul>
-          <li>Route · 빈도 · 중요도 · 단계 수 · 마찰 · 기회</li>
-          <li>empty · error · loading · collab 상태 포함</li>
-          <li>성공 정의를 route별로 확정</li>
+          <li>Route name · 사용 빈도 · 비즈니스 중요도</li>
+          <li>현재 단계 수 · 마찰 지점 · 개선 기회</li>
+          <li>top task 3개부터 선정하고 성공 정의를 정한다</li>
+          <li>empty / error / loading / collaboration 상태까지 포함</li>
         </ul>
-        <a class="card-source" href="https://media.nngroup.com/media/articles/attachments/Heuristic_Summary1_Letter-compressed.pdf" target="_blank" rel="noopener">NN/g — Heuristic Summary PDF</a>
+        <p class="card-limit">데이터 없이 팀 추정으로만 route를 고르면 정치적 우선순위 싸움이 된다.</p>
+        <a class="card-source" href="https://media.nngroup.com/media/articles/attachments/Heuristic_Summary1_Letter-compressed.pdf" target="_blank" rel="noopener">NN/g — Heuristic Summary (PDF)</a>
       </div>
 
       <div class="card">
-        <span class="card-number">9</span><span class="card-phase">전략</span>
+        <div class="card-head"><span class="card-number">9</span><span class="card-phase">전략</span></div>
         <h3>Positioning (April Dunford)</h3>
-        <p>메시지 작성이 아니라 <strong>시장 범주와 경쟁 대안 대비 우위 정의</strong>. Competitive Alternatives · Unique Capabilities · Value Themes · Best-fit Customers · Market Category.</p>
+        <p>
+          메시지 작성이 아니라 <strong>어떤 시장 범주에서 어떤 대안 대비 왜 이길 자격이 있는지</strong>를 정의하는 일이다.
+          teardown 결과를 전략 문장으로 압축한다.
+        </p>
         <ul>
-          <li>차별점은 기능명이 아니라 가치 차이</li>
-          <li>구매 시점의 실제 비교군을 반영</li>
-          <li>category choice를 제품 설명보다 먼저</li>
+          <li>Competitive alternatives · Unique capabilities</li>
+          <li>Value themes · Best-fit customers · Market category</li>
+          <li>차별점은 기능명이 아니라 "가치 차이"까지 연결</li>
+          <li>제품 설명보다 category choice를 먼저 검토</li>
         </ul>
+        <p class="card-limit">너무 이른 시점에 고정하면 제품 탐색이 경직된다. 제품 경험이 없으면 빈 약속이 된다.</p>
         <a class="card-source" href="https://www.aprildunford.com/obviously-awesome" target="_blank" rel="noopener">April Dunford — Obviously Awesome</a>
       </div>
 
       <div class="card">
-        <span class="card-number">10</span><span class="card-phase">전략</span>
+        <div class="card-head"><span class="card-number">10</span><span class="card-phase">전략</span></div>
         <h3>Flywheel / Moat Analysis</h3>
-        <p>Jim Collins의 flywheel. 사용 → 데이터 → 공유 → 네트워크 → 신뢰가 서로 강화되는 순환. moat는 <strong>모방 저항성</strong>을 본다.</p>
+        <p>
+          사용 · 데이터 축적 · 공유 · 콘텐츠 · 네트워크 · 신뢰가 서로를 강화하는 <strong>순환 구조</strong>를 찾는다.
+          moat analysis는 그 순환의 모방 저항성을 본다. 기능이 아니라 "왜 시간이 갈수록 강해지는가"를 읽는다.
+        </p>
         <ul>
-          <li>loop가 실제로 닫히는가</li>
-          <li>네트워크 효과 vs 규모의 경제 분리</li>
-          <li>반복될수록 강해지는 메커니즘만 남긴다</li>
+          <li>Trigger → Usage → Data/Content → Better outcomes → More adoption</li>
+          <li>단계별 증거와 모방 난이도 평가</li>
+          <li>네트워크 효과와 규모의 경제를 혼동하지 않는다</li>
         </ul>
-        <a class="card-source" href="https://www.jimcollins.com/books/turningtheflywheel.html" target="_blank" rel="noopener">Jim Collins — Turning the Flywheel</a>
+        <p class="card-limit">flywheel이 있다고 가정하고 억지로 선을 잇기 쉽다. 초기에는 loop보다 선형 성장 장치가 중요할 수 있다.</p>
+        <a class="card-source" href="https://www.jimcollins.com/books/turningtheflywheel.html" target="_blank" rel="noopener">Jim Collins — Turning the Flywheel (2019-01)</a>
       </div>
 
       <div class="card">
-        <span class="card-number">11</span><span class="card-phase">결정</span>
-        <h3>MY / NO / LIKE</h3>
-        <p>teardown 결과를 채택/비채택/변형 채택으로 가르는 decision lens. 공식 학술 프레임은 아니며 <strong>팀 합의된 정의</strong>를 먼저 명시해야 한다.</p>
+        <div class="card-head"><span class="card-number">11</span><span class="card-phase">의사결정</span></div>
+        <h3>MY / NO / LIKE <span class="flag">실무 shorthand</span></h3>
+        <p>
+          표준 학술 프레임워크라기보다 <strong>teardown 회의에서 쓰는 실무 shorthand</strong>로 보는 편이 정확하다.
+          여기서는 MY = 반드시 자기 것으로 삼을 것, NO = 의도적으로 하지 않을 것, LIKE = 참고하되 복제하지 않을 것으로 정의한다.
+        </p>
         <ul>
-          <li><span class="pill-my">MY</span> — 핵심 차별화·red route에 직접 기여</li>
-          <li><span class="pill-no">NO</span> — 포지셔닝을 흐리거나 복잡도만 높임</li>
-          <li><span class="pill-like">LIKE</span> — 패턴 유효, 구현 변형 필요</li>
+          <li><span class="pill-my">MY</span>핵심 차별화 또는 핵심 route에 직접 기여</li>
+          <li><span class="pill-no">NO</span>포지셔닝을 흐리거나 복잡도만 높임</li>
+          <li><span class="pill-like">LIKE</span>패턴은 유효하지만 구현은 변형 필요</li>
+          <li>항목마다 근거 한 줄 이상, <span class="inline-code">NO</span>가 충분히 많아야 한다</li>
         </ul>
-        <a class="card-source" href="https://www.blueoceanstrategy.com/tools/four-actions-framework/" target="_blank" rel="noopener">Blue Ocean — Four Actions</a>
+        <p class="card-limit">공식 정의가 고정된 방법론이 아니다. 팀 합의된 의미를 먼저 명시하지 않으면 감상평 분류로 흐른다.</p>
+        <a class="card-source" href="https://www.blueoceanstrategy.com/tools/four-actions-framework/" target="_blank" rel="noopener">Blue Ocean Strategy — Four Actions Framework</a>
       </div>
 
       <div class="card">
-        <span class="card-number">12</span><span class="card-phase">우선순위</span>
+        <div class="card-head"><span class="card-number">12</span><span class="card-phase">우선순위</span></div>
         <h3>Kano Model 재적용</h3>
-        <p>Must-be · Performance · Attractive · Indifferent · Reverse. teardown 후 다시 적용해 "경쟁사가 갖춘 기능이라도 이제는 위생요인인가"를 본다.</p>
+        <p>
+          기능을 <span class="inline-code">Must-be / Performance / Attractive / Indifferent / Reverse</span>로 분류해
+          만족과 불만족의 <strong>비대칭</strong>을 파악한다. teardown 후 다시 적용하면
+          "경쟁사가 다 갖춘 기능이라도 이제는 위생요인인가"를 판단할 수 있다.
+        </p>
         <ul>
-          <li>현재 시장 기대치 반영해 재분류</li>
-          <li>early adopter와 mainstream 분리</li>
-          <li>delighter가 red route를 해치지 않게</li>
+          <li>없으면 불만이지만 있어도 감동 없는 기능은?</li>
+          <li>경쟁사가 아직 약한 delighter는?</li>
+          <li>early adopter와 mainstream을 분리해 본다</li>
+          <li>delight 기능이 red route를 해치지 않는지 확인</li>
         </ul>
-        <a class="card-source" href="https://www.qualtrics.com/experience-management/customer/kano-analysis/" target="_blank" rel="noopener">Qualtrics — Kano Analysis</a>
+        <p class="card-limit">설문 설계가 부정확하면 분류 신뢰도가 낮다. 카테고리 성숙도에 따라 분류가 빠르게 이동한다.</p>
+        <a class="card-source" href="https://www.scirp.org/reference/referencespapers?referenceid=1217282" target="_blank" rel="noopener">Kano et al. — Attractive Quality and Must-be Quality (1984-01)</a>
       </div>
 
       <div class="card">
-        <span class="card-number">13</span><span class="card-phase">UX</span>
+        <div class="card-head"><span class="card-number">13</span><span class="card-phase">분석</span></div>
         <h3>Heuristic Evaluation (Nielsen 10)</h3>
-        <p>보편 사용성 원칙으로 경쟁사 UX를 공통 기준으로 비교한다. 취향 비평과 구분하기 위해 근거 캡처 필수.</p>
+        <p>
+          인터페이스를 보편적 사용성 원칙으로 점검하는 전문가 리뷰다.
+          teardown에 결합하면 취향 비평이 아니라 <strong>공통 기준</strong>으로 UX 품질을 비교할 수 있다.
+        </p>
         <ul>
-          <li>10개 휴리스틱을 행, 제품을 열</li>
-          <li>한 화면이 아니라 end-to-end 플로우</li>
-          <li>error message · empty state 포함</li>
+          <li>휴리스틱 10개를 행으로, 제품별 위반 사례와 심각도를 열로</li>
+          <li>aesthetic critique와 heuristic violation을 구분</li>
+          <li>한 화면이 아니라 end-to-end flow로 본다</li>
+          <li>에러 메시지와 빈 상태를 반드시 포함</li>
         </ul>
+        <p class="card-limit">도메인 특화 UX 문제는 휴리스틱만으로 안 잡힌다. 평가자 편차가 크므로 근거 캡처를 남긴다.</p>
         <a class="card-source" href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener">NN/g — 10 Usability Heuristics</a>
       </div>
 
       <div class="card">
-        <span class="card-number">14</span><span class="card-phase">UX</span>
-        <h3>UX Teardown 템플릿 (Growth.Design · UX Collective)</h3>
-        <p>behavioral design lens + case-study형 서술. Step · Screenshot · Pattern · Why · Impact · Reuse/Avoid/Differentiate.</p>
+        <div class="card-head"><span class="card-number">14</span><span class="card-phase">문서화</span></div>
+        <h3>UX Teardown 템플릿</h3>
+        <p>
+          실무 teardown 템플릿은 보통 <strong>목표 행동 · 화면 캡처 · 가설 · 인지 원리 · 개선 아이디어</strong>로 구성된다.
+          Growth.Design은 behavioral design lens를, UX Collective는 case-study형 해설 포맷을 제공한다.
+        </p>
         <ul>
-          <li>관찰과 해석을 분리해 적는다</li>
-          <li>persuasion과 dark pattern 구분</li>
-          <li>템플릿이 너무 정교하면 기록 비용 초과</li>
+          <li>Step · Screenshot · Observed pattern</li>
+          <li>Why it likely exists · User impact</li>
+          <li>Reuse / Avoid / Differentiate</li>
+          <li>관찰과 해석을 분리하고 persuasion과 dark pattern을 구분</li>
         </ul>
+        <p class="card-limit">템플릿이 너무 정교하면 기록 비용이 커진다. 심리학 해석은 과잉추론이 되기 쉽다.</p>
         <a class="card-source" href="https://growth.design/case-studies/" target="_blank" rel="noopener">Growth.Design — Case Studies</a>
       </div>
 
       <div class="card">
-        <span class="card-number">15</span><span class="card-phase">편향</span>
+        <div class="card-head"><span class="card-number">15</span><span class="card-phase">편향 점검</span></div>
         <h3>Feature Parity Trap</h3>
-        <p>경쟁사 기능 목록을 따라가다 전략이 흐려지고 복잡도만 쌓이는 함정. <strong>deal-breaker parity</strong>와 <strong>vanity parity</strong>를 분리하라.</p>
+        <p>
+          경쟁사 기능 목록을 따라가다 제품 전략이 흐려지고 복잡도만 누적되는 함정이다.
+          용어는 실무에서 널리 쓰이지만, 문제 자체는 Positioning · Blue Ocean · JTBD 문헌이 반복 경고해 온 주제다.
+        </p>
         <ul>
-          <li>없으면 판매가 막히는가, 단지 열세로 보이는가</li>
-          <li>onboarding · IA · pricing · support cost 영향</li>
-          <li>NO 결정 근거 명시</li>
+          <li>경쟁사가 있어서 넣는가, 가치 제안을 강화해서 넣는가?</li>
+          <li>없으면 판매가 막히는가, 단지 열세처럼 보이는가?</li>
+          <li><span class="inline-code">deal-breaker parity</span>와 <span class="inline-code">vanity parity</span>를 구분</li>
+          <li>NO 결정 근거를 명시한다</li>
         </ul>
-        <a class="card-source" href="https://www.aprildunford.com/post/an-introduction-to-positioning" target="_blank" rel="noopener">April Dunford — Positioning</a>
+        <p class="card-limit">parity를 무시하자는 뜻이 아니다. 위생요인조차 무시하면 시장 진입 자체가 막힌다.</p>
+        <a class="card-source" href="https://www.aprildunford.com/post/an-introduction-to-positioning" target="_blank" rel="noopener">April Dunford — An Introduction to Positioning (2020-05)</a>
       </div>
 
       <div class="card">
-        <span class="card-number">16</span><span class="card-phase">편향</span>
+        <div class="card-head"><span class="card-number">16</span><span class="card-phase">편향 점검</span></div>
         <h3>Survivorship Bias</h3>
-        <p>눈에 띄는 성공 제품만 보고 그 특징을 성공 원인으로 착각하는 편향. late entrant · shutdown 사례를 반드시 포함해 결론을 교정한다.</p>
+        <p>
+          눈에 띄는 성공 제품만 보고 그 특징을 성공 <strong>원인</strong>으로 착각하는 편향이다.
+          레퍼런스 분석은 "잘된 제품이 채택한 기능"만 모으기 쉬워 특히 위험하다.
+        </p>
         <ul>
-          <li>기능 성공 vs distribution success 분리</li>
-          <li>실패 제품의 철수 기능 복기</li>
-          <li>"지금도 유효한가"를 시장 시점으로 검토</li>
+          <li>실패한 제품, 철수한 기능은 무엇이었는가?</li>
+          <li>성공 제품의 기능 중 결과이지 원인이 아닌 것은?</li>
+          <li>winner만 보지 말고 late entrant · shutdown 사례도 본다</li>
+          <li>기능 성공과 distribution success를 분리한다</li>
         </ul>
-        <a class="card-source" href="https://www.strategyzer.com/resources" target="_blank" rel="noopener">Strategyzer — Evidence Resources</a>
+        <p class="card-limit">실패 사례는 정보 접근성이 낮다. 지나치게 회의적이면 학습 속도가 떨어진다.</p>
+        <a class="card-source" href="https://www.strategyzer.com/resources" target="_blank" rel="noopener">Strategyzer — Evidence-based Innovation Resources</a>
       </div>
 
     </div>
@@ -617,7 +537,7 @@ footer a { color: var(--accent); text-decoration: none; }
     <div class="section-header">
       <span class="section-label">02 · Feature Matrix</span>
       <h2>기능 매트릭스 포맷</h2>
-      <p>존재 여부만이 아니라 완성도·제약·차별화 해석까지 기록한다.</p>
+      <p>존재 여부만이 아니라 완성도 · 발견 가능성 · 제약 · 차별화 해석까지 기록하도록 설계했다.</p>
     </div>
     <div class="table-wrap">
       <table>
@@ -625,20 +545,121 @@ footer a { color: var(--accent); text-decoration: none; }
           <tr><th>Capability</th><th>User Job</th><th>Red Route</th><th>Product A</th><th>Product B</th><th>Product C</th><th>Our Take</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>노드 캔버스 편집</strong></td><td>복잡한 워크플로 시각 조합</td><td>Y</td><td>강함: 드래그·줌 자연스러움</td><td>중간: 대형 그래프 약함</td><td>약함: 폼 기반 우회</td><td><span class="pill-my">MY</span> 코어 경험</td></tr>
-          <tr><td><strong>템플릿 시작</strong></td><td>빠르게 시작</td><td>Y</td><td>강함: 커뮤니티 템플릿 풍부</td><td>약함: 기본 예제 적음</td><td>중간: 공식 템플릿만</td><td><span class="pill-like">LIKE</span> 초기 진입만</td></tr>
-          <tr><td><strong>실행·디버깅 로그</strong></td><td>실패 원인 파악</td><td>Y</td><td>중간: 로그는 상세하나 난해</td><td>강함: 단계별 상태 명확</td><td>약함</td><td><span class="pill-my">MY</span> 가시성 차별화</td></tr>
-          <tr><td><strong>협업 공유 링크</strong></td><td>팀 결과 공유</td><td>N</td><td>약함</td><td>강함</td><td>중간</td><td><span class="pill-no">NO</span> v1 범위 제외</td></tr>
-          <tr><td><strong>플러그인 확장</strong></td><td>전문가 확장</td><td>N</td><td>강함</td><td>중간</td><td>약함</td><td><span class="pill-like">LIKE</span> API 먼저</td></tr>
+          <tr><td><strong>노드 캔버스 편집</strong></td><td>복잡한 워크플로 시각 조합</td><td>Y</td><td>강함: 드래그 · 줌 자연스러움</td><td>중간: 대형 그래프 약함</td><td>약함: 폼 기반 우회</td><td><span class="pill-my">MY</span>코어 경험</td></tr>
+          <tr><td><strong>템플릿 시작</strong></td><td>빠르게 시작</td><td>Y</td><td>강함: 커뮤니티 템플릿 풍부</td><td>약함: 기본 예제 적음</td><td>중간: 공식 템플릿만</td><td><span class="pill-like">LIKE</span>초기 진입만 단순화</td></tr>
+          <tr><td><strong>실행 · 디버깅 로그</strong></td><td>실패 원인 파악</td><td>Y</td><td>중간: 로그 상세하나 난해</td><td>강함: 단계별 상태 명확</td><td>약함</td><td><span class="pill-my">MY</span>상태 가시성 차별화</td></tr>
+          <tr><td><strong>협업 공유 링크</strong></td><td>팀과 결과 공유</td><td>N</td><td>약함</td><td>강함</td><td>중간</td><td><span class="pill-no">NO</span>v1 범위 제외</td></tr>
+          <tr><td><strong>플러그인 확장</strong></td><td>전문 사용자 확장</td><td>N</td><td>강함</td><td>중간</td><td>약함</td><td><span class="pill-like">LIKE</span>API 먼저, 마켓은 후순위</td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="callout" style="margin-top:24px">
+      <strong>평가 기호 권장</strong> — 기본은 <span class="inline-code">강함 / 중간 / 약함</span>.
+      필요하면 <span class="inline-code">없음 / 제한적 / 유료 / 엔터프라이즈만</span>을 보조 표기로 붙인다.
+      <span class="inline-code">Our Take</span> 열은 <span class="inline-code">MY / NO / LIKE</span> 또는
+      <span class="inline-code">Must / Later / Avoid</span> 중 하나로 통일한다.
     </div>
   </section>
 
   <section>
     <div class="section-header">
-      <span class="section-label">03 · When to use</span>
-      <h2>상황별 1·2순위</h2>
+      <span class="section-label">03 · Diagram Recipes</span>
+      <h2>Mermaid 예시 3종</h2>
+      <p>teardown 산출물을 문서에 남길 때 쓰는 도식. 사용 전 렌더러가 해당 다이어그램 타입을 지원하는지 확인한다.</p>
+    </div>
+
+    <div class="snippet">
+      <h4>예시 1 · Strategy Canvas (xychart-beta)</h4>
+      <p>업계 경쟁 요소별 투자 강도를 곡선으로 비교한다.</p>
+      <pre>xychart-beta
+    title "Node Editor Strategy Canvas Example"
+    x-axis ["학습 용이성", "표현력", "디버깅 가시성", "템플릿 생태계", "협업성", "확장성"]
+    y-axis "투자 강도" 0 --&gt; 5
+    line "ComfyUI" [2, 5, 2, 4, 1, 5]
+    line "Generic SaaS Builder" [4, 2, 4, 2, 4, 2]
+    line "Our Product" [5, 4, 5, 3, 2, 3]</pre>
+    </div>
+
+    <div class="snippet">
+      <h4>예시 2 · quadrantChart</h4>
+      <p>차별화 정도와 구현 복잡도 두 축으로 후보 기능을 배치한다.</p>
+      <pre>quadrantChart
+    title Feature Prioritization by Differentiation vs Complexity
+    x-axis 낮은 차별화 --&gt; 높은 차별화
+    y-axis 낮은 구현복잡도 --&gt; 높은 구현복잡도
+    quadrant-1 즉시 채택
+    quadrant-2 전략 투자
+    quadrant-3 보류
+    quadrant-4 경쟁사 parity 검토
+    "실행 로그 가시화": [0.78, 0.42]
+    "실시간 협업": [0.83, 0.86]
+    "커뮤니티 템플릿": [0.62, 0.58]
+    "화이트라벨 테마": [0.28, 0.39]
+    "플러그인 마켓": [0.71, 0.91]</pre>
+    </div>
+
+    <div class="snippet">
+      <h4>예시 3 · teardown mindmap</h4>
+      <p>수집 → 해부 → 비교 → 차별화 → 우선순위 전체 구조를 한 장으로 정리한다.</p>
+      <pre>mindmap
+  root((Reference Analysis))
+    Lightning Demos
+      direct competitors
+      adjacent patterns
+    Teardown
+      onboarding
+      core flow
+      monetization
+      trust
+    Matrix
+      features
+      constraints
+      pricing
+    Differentiation
+      JTBD
+      positioning
+      blue ocean
+    Prioritization
+      red routes
+      kano
+      MY/NO/LIKE</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">04 · Worked Example</span>
+      <h2>Strategy Canvas 예시 해석</h2>
+      <p>곡선을 그리는 것으로 끝내지 않고 Four Actions 결정과 가치 문장까지 이어 붙인다.</p>
+    </div>
+    <div class="callout">
+      <strong>ComfyUI 같은 노드 편집기</strong>를 만든다면 업계 공통 경쟁 요소를
+      학습 용이성 · 표현력 · 디버깅 가시성 · 템플릿 생태계 · 협업성 · 확장성으로 둘 수 있다.
+      기존 강자들이 표현력과 확장성에 과투자하고 학습 용이성 · 디버깅 가시성이 낮다면, 우리 곡선은 아래처럼 결정된다.
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Action</th><th>대상</th><th>이유</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Raise</strong></td><td>학습 용이성 · 디버깅 가시성</td><td>기존 강자가 비운 축이자 red route 성공률에 직결</td></tr>
+          <tr><td><strong>Reduce</strong></td><td>범용 확장성</td><td>초기 사용자에게 비용만 발생, 마켓은 후순위</td></tr>
+          <tr><td><strong>Eliminate</strong></td><td>초기 복잡 설정</td><td>첫 성공까지의 시간을 가장 크게 갉아먹는 요소</td></tr>
+          <tr><td><strong>Create</strong></td><td>guided debug flow</td><td>실패 원인 파악을 제품 고유 경험으로 전환</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout" style="margin-top:24px">
+      <strong>차별화는 "기능이 더 많다"가 아니라 가치로 번역되어야 한다</strong> —
+      이 예시의 결론 문장은 "복잡한 워크플로를 더 빨리 성공시키게 한다"이다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">05 · When to use</span>
+      <h2>상황별 1 · 2순위</h2>
       <p>분석 목적에 따라 조합이 달라진다.</p>
     </div>
     <div class="table-wrap">
@@ -650,7 +671,7 @@ footer a { color: var(--accent); text-decoration: none; }
           <tr><td><strong>카테고리 진입 · 참조 불일치 해소</strong></td><td>Lightning Demos</td><td>UX Teardown 템플릿</td></tr>
           <tr><td><strong>경쟁사 2~4개 정밀 해부</strong></td><td>Competitive Teardown</td><td>Heuristic Evaluation</td></tr>
           <tr><td><strong>기능 비교를 가치 언어로 번역</strong></td><td>Value Proposition Canvas</td><td>JTBD 재정의</td></tr>
-          <tr><td><strong>차별화 포인트 정리</strong></td><td>Blue Ocean (4 Actions)</td><td>Positioning</td></tr>
+          <tr><td><strong>차별화 포인트 정리</strong></td><td>Blue Ocean (Four Actions)</td><td>Positioning</td></tr>
           <tr><td><strong>MVP 범위 · UX 우선순위</strong></td><td>Red Route</td><td>Kano 재적용</td></tr>
           <tr><td><strong>결론 교정 · 편향 점검</strong></td><td>Feature Parity Trap</td><td>Survivorship Bias</td></tr>
           <tr><td><strong>장기 방어력 · 네트워크 효과</strong></td><td>Flywheel / Moat</td><td>Five Forces</td></tr>
@@ -661,7 +682,7 @@ footer a { color: var(--accent); text-decoration: none; }
 
   <section>
     <div class="section-header">
-      <span class="section-label">04 · Anti-patterns</span>
+      <span class="section-label">06 · Anti-patterns</span>
       <h2>안티패턴 vs 좋은 패턴</h2>
       <p>teardown이 "스크린샷 컬렉션"으로 전락하는 실수들.</p>
     </div>
@@ -673,7 +694,7 @@ footer a { color: var(--accent); text-decoration: none; }
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>완성도·제약·가격 연동·차별화 코멘트까지</h4>
+        <h4>완성도 · 제약 · 가격 연동 · 차별화 코멘트까지</h4>
         <p>기능의 존재보다 <strong>언제 어떤 비용으로 드러나는가</strong>를 기록한다.</p>
       </div>
 
@@ -685,7 +706,7 @@ footer a { color: var(--accent); text-decoration: none; }
       <div class="compare good">
         <span class="tag">Good</span>
         <h4>JTBD로 job 기준 재정의</h4>
-        <p>스크립트·템플릿·수작업까지 포함해 switching trigger를 찾는다.</p>
+        <p>스크립트 · 템플릿 · 수작업까지 포함해 switching trigger를 찾는다.</p>
       </div>
 
       <div class="compare bad">
@@ -695,26 +716,37 @@ footer a { color: var(--accent); text-decoration: none; }
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>Eliminate/Reduce를 Create보다 먼저 검토</h4>
-        <p>축소 결정이 차별화의 핵심. 범위 축소와 포지셔닝 문장이 동시에 단단해진다.</p>
+        <h4>Eliminate / Reduce를 Create보다 먼저 검토</h4>
+        <p>축소 결정이 차별화의 핵심. 범위와 포지셔닝 문장이 동시에 단단해진다.</p>
       </div>
 
       <div class="compare bad">
         <span class="tag">Bad</span>
         <h4>성공 제품의 기능만 수집해 결론</h4>
-        <p>생존 편향 위험. 실패한 동일 기능·철수 제품을 못 본다.</p>
+        <p>생존 편향 위험. 실패한 동일 기능 · 철수 제품을 못 본다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
         <h4>late entrant · shutdown 사례 포함</h4>
         <p>기능 성공과 distribution success를 분리해 "지금도 유효한가"를 재검토한다.</p>
       </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>실무 shorthand를 표준 방법론처럼 인용</h4>
+        <p>MY/NO/LIKE에는 고정된 공식 정의가 없다. 출처가 있는 것처럼 쓰면 신뢰가 깎인다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>팀 합의 정의를 문서 첫머리에 명시</h4>
+        <p>세 라벨의 의미와 적용 조건을 적어두고 근거 한 줄씩을 강제한다.</p>
+      </div>
     </div>
   </section>
 
   <section>
     <div class="section-header">
-      <span class="section-label">05 · Gotchas</span>
+      <span class="section-label">07 · Gotchas</span>
       <h2>Gotchas</h2>
       <p>teardown 실무에서 자주 빠지는 함정.</p>
     </div>
@@ -730,7 +762,7 @@ footer a { color: var(--accent); text-decoration: none; }
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
           <strong>VPC · JTBD는 인터뷰 없이 작성하면 팀 추측 정리본이 된다</strong>
-          <p>고객 목소리가 없으면 예쁜 문서로 끝난다. B2B/멀티사이드는 세그먼트 분리 필수.</p>
+          <p>고객 목소리가 없으면 예쁜 문서로 끝난다. B2B · 멀티사이드는 세그먼트 분리가 필수다.</p>
         </div>
       </div>
       <div class="checklist-item">
@@ -758,14 +790,21 @@ footer a { color: var(--accent); text-decoration: none; }
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
           <strong>MY/NO/LIKE는 공식 정의가 없다</strong>
-          <p>팀 합의된 의미를 먼저 명시하지 않으면 감상평 분류로 흐른다. `LIKE`가 슬그머니 `MY`로 번지는 경향 주의.</p>
+          <p>팀 합의된 의미를 먼저 명시하지 않으면 감상평 분류로 흐른다. LIKE가 슬그머니 MY로 번지는 경향에 주의.</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
           <strong>Flywheel이 있다고 가정하고 억지로 선을 잇지 말 것</strong>
-          <p>초기 제품 단계에서는 loop보다 선형 성장 장치가 더 현실적이다.</p>
+          <p>loop가 실제로 닫히는지 확인하라. 초기 제품 단계에서는 선형 성장 장치가 더 현실적이다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>teardown의 "왜"는 추론이다</strong>
+          <p>화면 분해만으로는 구매 동기와 유지 이유를 알 수 없다. 사실과 추론을 문서에서 시각적으로 분리하라.</p>
         </div>
       </div>
     </div>
@@ -773,7 +812,41 @@ footer a { color: var(--accent); text-decoration: none; }
 
   <section>
     <div class="section-header">
-      <span class="section-label">06 · References</span>
+      <span class="section-label">08 · Sources</span>
+      <h2>출처 전체</h2>
+      <p>소스 문서 <code>docs/planning/reference.md</code>의 참고 링크 전량.</p>
+    </div>
+    <ul class="srclist">
+      <li><a href="https://www.gv.com/sprint/" target="_blank" rel="noopener">GV Sprint</a></li>
+      <li><a href="https://www.thesprintbook.com/" target="_blank" rel="noopener">Sprint book site (Jake Knapp)</a></li>
+      <li><a href="https://www.designkit.org/" target="_blank" rel="noopener">IDEO Design Kit</a></li>
+      <li><a href="https://www.designkit.org/methods/analogous-inspiration.html" target="_blank" rel="noopener">IDEO Design Kit — Analogous Inspiration</a></li>
+      <li><a href="https://www.strategyzer.com/resources" target="_blank" rel="noopener">Strategyzer — Resources</a></li>
+      <li><a href="https://www.strategyzer.com/resources/canvas-tools-guides/the-value-proposition-canvas-instruction-manual" target="_blank" rel="noopener">Strategyzer — VPC Instruction Manual</a></li>
+      <li><a href="https://www.strategyzer.com/library/the-value-proposition-canvas" target="_blank" rel="noopener">Strategyzer — Value Proposition Canvas</a></li>
+      <li><a href="https://www.alanklement.com/" target="_blank" rel="noopener">Alan Klement — JTBD articles</a></li>
+      <li><a href="https://hbr.org/2016/09/know-your-customers-jobs-to-be-done" target="_blank" rel="noopener">HBR — Know Your Customers' JTBD (2016-09)</a></li>
+      <li><a href="https://hbr.org/2008/01/the-five-competitive-forces-that-shape-strategy" target="_blank" rel="noopener">HBR — The Five Competitive Forces (2008-01)</a></li>
+      <li><a href="https://hbr.org/1979/03/how-competitive-forces-shape-strategy" target="_blank" rel="noopener">HBR — How Competitive Forces Shape Strategy (1979-03)</a></li>
+      <li><a href="https://www.blueoceanstrategy.com/tools/strategy-canvas/" target="_blank" rel="noopener">Blue Ocean — Strategy Canvas</a></li>
+      <li><a href="https://www.blueoceanstrategy.com/tools/four-actions-framework/" target="_blank" rel="noopener">Blue Ocean — Four Actions Framework</a></li>
+      <li><a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener">NN/g — Ten Usability Heuristics</a></li>
+      <li><a href="https://media.nngroup.com/media/articles/attachments/Heuristic_Summary1_Letter-compressed.pdf" target="_blank" rel="noopener">NN/g — Heuristics summary PDF</a></li>
+      <li><a href="https://www.aprildunford.com/post/an-introduction-to-positioning" target="_blank" rel="noopener">April Dunford — An Introduction to Positioning (2020-05)</a></li>
+      <li><a href="https://www.aprildunford.com/obviously-awesome" target="_blank" rel="noopener">April Dunford — Obviously Awesome</a></li>
+      <li><a href="https://www.jimcollins.com/books/turningtheflywheel.html" target="_blank" rel="noopener">Jim Collins — Turning the Flywheel (2019-01)</a></li>
+      <li><a href="https://a16z.com/podcast/a16z-podcast-not-all-network-effects-are-created-equal/" target="_blank" rel="noopener">a16z — Not all Network Effects Are Created Equal (2016-08)</a></li>
+      <li><a href="https://growth.design/case-studies/" target="_blank" rel="noopener">Growth.Design — Case studies</a></li>
+      <li><a href="https://uxdesign.cc/" target="_blank" rel="noopener">UX Collective</a></li>
+      <li><a href="https://www.scirp.org/reference/referencespapers?referenceid=1217282" target="_blank" rel="noopener">Kano et al. — citation record (1984-01)</a></li>
+      <li><a href="https://www.qualtrics.com/experience-management/customer/kano-analysis/" target="_blank" rel="noopener">Qualtrics — Kano Analysis explainer</a></li>
+      <li><a href="https://www.local.gov.uk/our-support/transformation/transformation-capability-framework/design-journey" target="_blank" rel="noopener">LGA — Customer / user journey mapping</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-label">09 · Related</span>
       <h2>함께 보기</h2>
       <p>Planning Kit 내 관련 페이지.</p>
     </div>
@@ -790,7 +863,7 @@ footer a { color: var(--accent); text-decoration: none; }
   </section>
 
   <footer>
-    Planning Kit v0.1 · last updated 2026-04-14 ·
+    Planning Kit · reference v0.1.0 · last updated 2026-04-14 ·
     source: <code>docs/planning/reference.md</code>
   </footer>
 

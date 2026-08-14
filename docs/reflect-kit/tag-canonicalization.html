@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tag Canonicalization — Reflect Kit</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#12121c;
+  --surface:#181825;--surface2:#1e1e30;
+  --border:#2a2a40;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#F43F5E;--accent2:#FDA4AF;
+  --accent-dim:rgba(244,63,94,0.12);
+  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,rgba(244,63,94,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(244,63,94,0.03) 0%,transparent 50%);
+  min-height:100vh;
+}
+header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px;flex-wrap:wrap}
+.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+.logo-link:hover,.logo-link:focus-visible{color:var(--accent)}
+.sep{color:var(--border)}
+.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:760px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(244,63,94,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
+section{margin-bottom:56px}
+.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text);letter-spacing:-0.01em}
+h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
+p.lead{color:var(--text2);margin-bottom:16px;font-size:0.95rem;line-height:1.75}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.cards>*{min-width:0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition);min-width:0}
+.card:hover{border-color:rgba(244,63,94,0.25);box-shadow:0 4px 20px rgba(244,63,94,0.06)}
+.card-icon{font-size:1.4rem;margin-bottom:10px}
+.card h3{font-size:0.95rem;margin-bottom:8px}
+.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
+.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition);overflow-wrap:anywhere;min-width:0}
+.card-source:hover,.card-source:focus-visible{opacity:1;text-decoration:underline}
+a:focus-visible,.checklist li:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;max-width:100%;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0;white-space:pre}
+code{font-family:var(--mono);font-size:0.85em;color:var(--accent2);overflow-wrap:anywhere}
+pre code{color:inherit;font-size:1em}
+.cmt{color:var(--text3)}
+.ok{color:var(--green)}
+.bad{color:var(--red)}
+.table-wrap{overflow-x:auto;max-width:100%;margin:16px 0;border-radius:10px}
+.table-wrap>table{min-width:max-content}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(244,63,94,0.03)}
+td strong{color:var(--text)}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.75}
+.callout.warn{border-left-color:var(--yellow)}
+.callout.good{border-left-color:var(--green)}
+.callout.danger{border-left-color:var(--red)}
+.callout strong{color:var(--text)}
+.flow-diagram{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:24px;font-family:var(--mono);font-size:0.8rem;line-height:1.9;color:var(--text);white-space:pre;overflow-x:auto;max-width:100%;margin:16px 0}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:20px 0}
+.metrics>*{min-width:0}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;min-width:0}
+.metric .val{font-size:1.7rem;font-weight:700;letter-spacing:-0.02em;color:var(--accent);line-height:1.2;font-variant-numeric:tabular-nums}
+.metric .val.neutral{color:var(--text)}
+.metric .lbl{font-size:0.78rem;color:var(--text2);margin-top:6px;line-height:1.5}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.compare>*{min-width:0}
+.panel{border-radius:var(--radius);padding:20px;font-size:0.88rem;line-height:1.65;min-width:0}
+.panel h3{font-size:0.92rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25)}
+.panel-bad h3{color:var(--red)}
+.panel-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.25)}
+.panel-good h3{color:var(--green)}
+.panel p{color:var(--text2)}
+.panel pre{margin:10px 0 0;font-size:0.76rem;padding:14px}
+.checklist{list-style:none;padding:0;margin:8px 0}
+.checklist li{padding:10px 0 10px 30px;position:relative;color:var(--text2);font-size:0.9rem;border-bottom:1px solid rgba(42,42,64,0.5);line-height:1.65}
+.checklist li:last-child{border-bottom:none}
+.checklist li::before{content:"✓";position:absolute;left:0;top:10px;width:20px;height:20px;color:var(--green);font-weight:700}
+.checklist li strong{color:var(--text)}
+.steps{list-style:none;padding:0;margin:12px 0;counter-reset:s}
+.steps li{position:relative;padding:14px 0 14px 44px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);font-size:0.9rem;line-height:1.7}
+.steps li:last-child{border-bottom:none}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:14px;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:0.78rem}
+.steps li strong{color:var(--text)}
+.rule{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;min-width:0}
+.rule .rule-no{display:inline-block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:var(--accent);background:var(--accent-dim);border-radius:6px;padding:3px 8px;margin-bottom:10px}
+.rule h3{font-size:0.93rem;margin-bottom:8px}
+.rule p{color:var(--text2);font-size:0.86rem;line-height:1.65}
+.rule .case{margin-top:10px;font-size:0.8rem;color:var(--text3);border-left:2px solid var(--border);padding-left:10px;line-height:1.6}
+.tag{display:inline-block;font-family:var(--mono);font-size:0.76rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 8px;margin:3px 4px 3px 0;color:var(--text2)}
+.tag em{font-style:normal;color:var(--accent)}
+footer{border-top:1px solid var(--border);color:var(--text3);font-size:0.8rem;padding:28px 0 0;margin-top:12px;line-height:1.8}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(max-width:680px){.compare{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .cards{grid-template-columns:1fr}
+  .metrics{grid-template-columns:1fr}
+  main{padding:32px 18px 64px}
+  .header-inner{padding:0 18px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo-link">Claude Plugins</a>
+    <span class="sep">/</span>
+    <a href="../index.html" class="logo-link">Reflect Kit</a>
+    <span class="sep">/</span>
+    <span class="page-title">Tag Canonicalization</span>
+  </div>
+</header>
+<main>
+  <div style="margin-bottom:56px">
+    <h1>mistake_tag 정규화</h1>
+    <p class="subtitle">
+      <code>log-reflection.sh</code>(수집) · <code>reflect-digest</code>(집계) · <code>reflect-promote</code>(승격) ·
+      <code>reflect-kaizen</code>(효과 측정) — 네 표면이 <strong>같은 그룹 키</strong>를 쓰기 위한 정본.
+      규약은 <code>tag-canonicalization.md</code>, 매핑 데이터는 <code>tag-lemma-map.tsv</code>,
+      실행 구현은 <code>hooks/_lib-tag-canon.sh</code> 하나뿐이다. 어느 것도 다른 곳에 복제하지 않는다.
+    </p>
+    <div class="badge">reflect-kit · 공유 SSOT · 2026-08-13 실측 반영</div>
+  </div>
+
+  <section>
+    <div class="section-label">§0 — 문제 정의</div>
+    <h2>리포팅 문제가 아니라 측정 버그다</h2>
+    <p class="lead">
+      ledger 의 <code>post_freq</code> 는 태그를 키로 재발을 센다. 같은 근본원인이 여러 표기로 갈라지면
+      <code>post_freq</code> 가 <strong>구조적으로 과소집계</strong>되고, 그 결과
+      <strong>실패한 규칙이 "효과 있음" 으로 남아 강등되지 않는다.</strong>
+      집계 키 선택 자체가 신호 품질을 결정한다.
+    </p>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="val neutral">4,691</div>
+        <div class="lbl">전체 reflection 엔트리</div>
+      </div>
+      <div class="metric">
+        <div class="val neutral">2,639</div>
+        <div class="lbl">원시 distinct 태그</div>
+      </div>
+      <div class="metric">
+        <div class="val neutral">2,578</div>
+        <div class="lbl">lemma 클러스터</div>
+      </div>
+      <div class="metric">
+        <div class="val">0.884</div>
+        <div class="lbl">singleton_share — 클러스터 2,279 개가 1 회짜리</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <caption class="lbl" style="caption-side:bottom;text-align:left;padding-top:10px;color:var(--text3)">
+          2026-08-13 실측 · <code>~/.claude/logs/*/reflections-*.md</code> 전량 · <code>_lib-tag-canon.sh</code> 로 계산
+        </caption>
+        <thead><tr><th>항목</th><th>값</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td>전체 엔트리</td><td><strong>4,691</strong></td><td>집계 모집단</td></tr>
+          <tr><td>원시 distinct 태그</td><td><strong>2,639</strong></td><td>분석기가 실제로 쓴 표기 종류</td></tr>
+          <tr><td>lemma 클러스터</td><td><strong>2,578</strong></td><td>정규화 이후 그룹 수</td></tr>
+          <tr><td>singleton 클러스터</td><td><strong>2,279</strong> (share <strong>0.884</strong>)</td><td>어휘가 거의 수렴하지 못한 상태</td></tr>
+          <tr><td><code>skipped-required-api-doc-check</code> 원시 단독</td><td>71</td><td>원시 집계가 보는 값</td></tr>
+          <tr><td>같은 lemma 클러스터 합산</td><td><strong>110</strong></td><td>+39 회수 — 원시 대비 <strong>55% 과소집계</strong>였다</td></tr>
+          <tr><td><code>edit-before-read</code> / <code>edited-before-read</code></td><td>51 / 4</td><td>클러스터 <strong>55</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🧭</div>
+        <h3>그룹 키가 곧 신호 품질</h3>
+        <p>모든 라벨로 그룹핑하면 사실상 aggregation 을 끄는 것이고, 그것은 대개 원하는 설정이 아니다 — Alertmanager <code>group_by</code> 설계가 같은 것을 말한다.</p>
+        <a class="card-source" href="https://prometheus.io/docs/alerting/latest/configuration/">Prometheus Alertmanager configuration →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📉</div>
+        <h3>과소집계 → 잘못된 생존</h3>
+        <p><code>post_freq</code> 가 낮게 잡히면 효과 없는 규칙이 강등을 면한다. 리포트를 예쁘게 고쳐도 해결되지 않는 계측 결함이다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">tag-canonicalization.md §0 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗂️</div>
+        <h3>SSOT 3 분할</h3>
+        <p>규약(문서) · 데이터(TSV) · 구현(shell lib) 을 각 1 곳으로 고정. 같은 매핑을 스킬 본문이나 훅에 다시 적지 않는다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-lemma-map.tsv">tag-lemma-map.tsv →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§1 — 파이프라인</div>
+    <h2>결정론적 정규화가 LLM 앞단에 온다</h2>
+    <p class="lead">
+      LLM 은 새 alias 후보의 <strong>근거를 설명하게만</strong> 하고, 최종 병합은 아래 결정론 규칙 + 감사표로 고정한다.
+      산출물은 <code>lemma_key</code> 이며, <strong><code>lemma_key</code> 는 집계용 그룹 키이지 표시용 태그가 아니다.</strong>
+    </p>
+
+    <div class="flow-diagram">raw_tag  (분석기가 쓴 원문 표기)
+   │
+   ├─ 0. 표기 정규화   lowercase · 따옴표/백틱 제거 · 공백 _ . : / → -
+   │                   [a-z0-9-] 외 제거 · 연속 - 축약 · 앞뒤 - 제거
+   ├─ 1. verb          선두 세그먼트 형태소   edited|editing|edits → edit
+   │                   순수 morphology — 의미 판단 없음
+   ├─ 2. verb-synonym  선두 동사 의미 동의어   ignore → skip
+   │                   의미 판단 포함 → 감사 대상 · reason 필수
+   ├─ 3. synonym       비선두 세그먼트 표기   복수형 · pretooluse → pretool
+   └─ 4. alias         전체 키 병합 · from/to 는 2~4 적용 이후 lemma key
+   │
+   ▼
+lemma_key  ──▶  post_freq 집계의 유일한 키</div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🔤</div>
+        <h3>0 · 표기 정규화</h3>
+        <p>lowercase · 따옴표/백틱 제거 · <code>공백 _ . : /</code> → <code>-</code> · <code>[a-z0-9-]</code> 외 제거 · 연속 <code>-</code> 축약 · 앞뒤 <code>-</code> 제거.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">§1 파이프라인 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔁</div>
+        <h3>1 · verb</h3>
+        <p>선두 세그먼트 형태소 정규화. <code>edited|editing|edits → edit</code>. 순수 morphology 이므로 의미 판단이 없고 감사 부담도 없다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-lemma-map.tsv">tag-lemma-map.tsv · kind=verb →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚖️</div>
+        <h3>2 · verb-synonym</h3>
+        <p>선두 동사의 <em>의미</em> 동의어. <code>ignore → skip</code>. <strong>의미 판단이 들어가므로 감사 대상</strong>이며 <code>reason</code> 에 실측 근거를 남긴다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-lemma-map.tsv">tag-lemma-map.tsv · kind=verb-synonym →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧩</div>
+        <h3>3 · synonym</h3>
+        <p>비선두 세그먼트 표기 정규화. 복수형 통일, <code>pretooluse → pretool</code> 류. 의미 판단 없음.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-lemma-map.tsv">tag-lemma-map.tsv · kind=synonym →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔗</div>
+        <h3>4 · alias</h3>
+        <p>전체 키 병합. <code>from</code>/<code>to</code> 는 반드시 <strong>2~4 적용 이후의 lemma key</strong> 로 적는다. 감사 대상.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">§7 alias 추가 절차 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>맵 구성 (실측)</h3>
+        <p>현재 <code>tag-lemma-map.tsv</code> 는 verb 48 · synonym 16 · alias 11 · verb-synonym 2 행. 의미 판단이 들어가는 두 종류(alias · verb-synonym)만 감사하면 된다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-lemma-map.tsv">tag-lemma-map.tsv →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§1 확장 — 필드 이름도 SSOT 다</div>
+    <h2>수집면과 집계면이 각자 리터럴을 박으면 조용히 0 건이 된다</h2>
+    <p class="lead">
+      필드 이름(<code>mistake_tag</code>)과 그 줄 패턴도 이 SSOT 에 포함된다. 훅 프롬프트가 분석기에게
+      "이 키로 출력하라" 고 지시하는 문자열(<strong>수집면</strong>)과, 추출기·환경 dedup 게이트가 파싱하는
+      문자열(<strong>집계면</strong>)이 각자 리터럴을 갖고 있으면 한쪽만 바뀌는 순간 추출이 0 건이 되고
+      어휘 주입이 통째로 빈다 — <strong>에러 한 줄 없이.</strong>
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>접근자</th><th>내는 값</th><th>쓰임</th></tr></thead>
+        <tbody>
+          <tr><td><code>tag_canon_field</code></td><td>필드 <strong>이름</strong></td><td>훅 프롬프트가 분석기에게 지시할 키</td></tr>
+          <tr><td><code>tag_canon_line_re</code></td><td>grep / sed <strong>BRE</strong></td><td>줄 매칭 · 추출</td></tr>
+          <tr><td><code>tag_canon_awk_re</code></td><td>awk 동적 정규식</td><td>집계 파이프라인 내부 파싱</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      정본은 <code>hooks/_lib-tag-canon.sh</code> 의 위 세 접근자이고, 훅은 <strong>접근자로만</strong> 참조한다 (§6.1 규칙 8).
+      문자열을 한 곳으로 옮기면 "1 곳에만 존재" 가 문서상의 주장이 아니라 <code>grep -F</code> 로 곧바로 확인되는 사실이 된다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§2 — 용어 분리</div>
+    <h2>raw / lemma / canonical / aliases / family</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>이름</th><th>정의</th><th>쓰임</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>raw_tag</code></td>
+            <td>분석기가 실제로 쓴 원문 표기</td>
+            <td>감사·재현용. <strong>절대 버리지 않는다</strong></td>
+          </tr>
+          <tr>
+            <td><code>lemma_key</code></td>
+            <td>§1 파이프라인 출력</td>
+            <td><strong>집계·<code>post_freq</code> 의 유일한 키</strong></td>
+          </tr>
+          <tr>
+            <td><code>canonical_tag</code></td>
+            <td>같은 <code>lemma_key</code> 안에서 <strong>최빈 raw_tag</strong> (동률이면 최근)</td>
+            <td>사람이 읽는 대표 이름 · 훅 프롬프트 주입</td>
+          </tr>
+          <tr>
+            <td><code>aliases</code></td>
+            <td>같은 <code>lemma_key</code> 의 나머지 raw_tag + 개별 freq</td>
+            <td>감사표</td>
+          </tr>
+          <tr>
+            <td><code>family</code></td>
+            <td>병합하지 않은 채 묶어 <strong>보고만</strong> 하는 상위 계열</td>
+            <td>§4</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="compare">
+      <div class="panel panel-bad">
+        <h3>✕ aliases 를 손으로 고른다</h3>
+        <p>"관련 있어 보이는 것만" 골라 ledger 에 적는다. 빠진 표기의 재발은 0 으로 집계되고, 실패한 규칙이 살아남는다.</p>
+      </div>
+      <div class="panel panel-good">
+        <h3>✓ 클러스터 멤버 전체가 곧 aliases</h3>
+        <p><code>tag_canon_groups</code> 가 낸 <code>lemma_key</code> 클러스터의 멤버를 <strong>그대로</strong> 옮긴다. 손으로 고르면 비워지고, 비면 <code>post_freq</code> 가 과소집계된다.</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      canonical 은 <strong>최빈 표기</strong>를 쓴다. 최빈이 아닌 표기를 canonical 로 강제하려면 ledger 엔트리에
+      수동 override 사유를 남긴다 — 실사용과 맞는 대신 나중에 이름을 바꾸기 어렵다는 트레이드오프가 있다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§3 — 라벨 설계</div>
+    <h2>닫힌 라벨 집합을 만들지 마라</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🚫</div>
+        <h3>hard enum 금지</h3>
+        <p>강제 closed set 은 annotator agreement 수치만 올리고 <strong>새 근본원인을 기존 라벨로 collapse</strong> 시킨다.</p>
+        <a class="card-source" href="https://aclanthology.org/J08-4004/">Artstein &amp; Poesio (2008) →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">📏</div>
+        <h3>agreement ≠ validity</h3>
+        <p>agreement 는 reliability 의 전제일 뿐 validity 를 보장하지 않고, category 수가 적으면 우연 일치가 올라간다.</p>
+        <a class="card-source" href="https://aclanthology.org/J08-4004/">Inter-Coder Agreement for CL →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">🆕</div>
+        <h3>대신 open + 사유 요구</h3>
+        <p><strong>known canonical 우선 · 새 tag 허용 · 새 tag 에는 <code>new_tag_reason</code> 필요.</strong> 운영 부담(alias 감사)은 늘지만 새 실패 모드가 보존된다 — 의도된 트레이드오프다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">tag-canonicalization.md §3 →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§4 — family</div>
+    <h2>표기가 닮았다고 합치면 안 되는 묶음</h2>
+    <p class="lead">
+      <strong>alias 조건</strong>: <code>undesired_behavior</code> 와 <code>desired_behavior</code> 가 <strong>둘 다 같을 때만</strong> alias 로 묶는다.
+      remediation 이 다르면 alias 가 아니라 <strong>family 로만 보고</strong>한다 — 합산 금지, <code>post_freq</code> 반영 금지.
+      family 판별은 결정론적 문자열 규칙이다: 태그를 <code>-</code> 로 쪼갠 세그먼트에 <code>stale</code> 이 있으면
+      <code>stale-context-reference</code> family.
+    </p>
+    <div style="margin:16px 0">
+      <span class="tag"><em>used-stale-widget-ref</em> ×4</span>
+      <span class="tag">used-stale-mcp-connection</span>
+      <span class="tag">used-stale-inspector-ref</span>
+      <span class="tag">used-stale-diagnostics-oracle</span>
+      <span class="tag">reused-stale-vm-attachment</span>
+      <span class="tag">retried-stale-vm-connection</span>
+      <span class="tag">pursued-stale-task</span>
+      <span class="tag">left-stale-references</span>
+      <span class="tag">kept-stale-widget</span>
+      <span class="tag">answered-stale-task</span>
+    </div>
+    <div class="callout danger">
+      <strong>이 10 개는 전부 remediation 이 다르다</strong> — 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 /
+      진단 오라클 재실행 / VM 재부착 / 태스크 재확인. 표기 유사성만 보고 합치면 서로 다른 6 가지 고침을
+      한 숫자에 섞게 된다. (2026-08 실측 구성원)
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>자주 바뀌는 값으로 그룹핑하지 마라</h3>
+        <p>Sentry 의 fingerprint 규칙도 같은 위험을 경고한다. matcher 가 glob 기반이라는 설명이 근거다.</p>
+        <a class="card-source" href="https://github.com/getsentry/sentry/issues/75567">getsentry/sentry#75567 →</a>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚠️</div>
+        <h3>확인 실패한 인용은 버렸다</h3>
+        <p>이전 판본이 Sentry 문서에서 직접 인용하던 한 문구는 <strong>2026-08-13 재확인에 실패</strong>했다. 확인되지 않은 직접 인용은 쓰지 않는다 — 1 차 근거는 Prometheus <code>group_by</code> 쪽으로 옮겼다.</p>
+        <a class="card-source" href="https://prometheus.io/docs/alerting/latest/configuration/">1 차 근거 · Alertmanager →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§5 — 파편화 지표</div>
+    <h2><code>fold_ratio</code> 로 판정하지 마라</h2>
+    <p class="lead">
+      <code>tag_canon_fragmentation</code> 이 내는 7 열 중 두 지표는 재는 대상이 다르다.
+      하나는 <em>정규화기의 성능</em>을, 다른 하나는 <em>어휘의 상태</em>를 잰다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>지표</th><th>정의</th><th>재는 것</th><th>2026-08-13 전량 실측</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>fold_ratio</code></td>
+            <td>raw_distinct / clusters</td>
+            <td><strong>정규화기가 얼마나 접었는가</strong></td>
+            <td>1.02</td>
+          </tr>
+          <tr>
+            <td><code>singleton_share</code></td>
+            <td>freq==1 클러스터 / 전체 클러스터</td>
+            <td><strong>어휘가 얼마나 파편화됐는가</strong></td>
+            <td><strong>0.884</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="compare">
+      <div class="panel panel-bad">
+        <h3>✕ fold_ratio 를 파편화 탐지기로</h3>
+        <p>클러스터링이 <strong>아무것도 못 묶으면 1.00</strong> 이 되어 "정상" 으로 읽힌다. 실측이 정확히 그 상태였다 — <code>fold_ratio 1.02</code> 인데 클러스터 2,578 개 중 2,279 개가 1 회짜리.</p>
+      </div>
+      <div class="panel panel-good">
+        <h3>✓ singleton_share 로 판정</h3>
+        <p>임계 <strong><code>singleton_share &gt; 0.70</code></strong>. 초과면 어휘 수렴이 실패한 상태다. 이 지표가 나쁘면 다른 모든 측정의 신뢰도가 함께 떨어지므로 <strong>먼저</strong> 확인한다.</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <strong>임계 0.70 은 hypothesis 다.</strong> 외부 연구 근거가 없다 — 2026-08-13 baseline <strong>0.884</strong> 를
+      기준점으로 <code>/reflect-kaizen</code> 이 운영 데이터로만 calibrate 한다.
+      임계 초과 상태에서 나온 <code>post_freq</code> 는 과소집계이므로, ledger calibration 을
+      <code>low-confidence</code> 로 표시하고 <strong><code>post_freq == 0</code> demotion 후보를 내지 않는다.</strong>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§6 — 실행 오라클</div>
+    <h2>"문서에 그렇게 적혀 있다" 는 증거가 아니다</h2>
+    <p class="lead">
+      <strong>절대경로로 source 하라.</strong> <code>cd</code> 로 cwd 를 맞춰 놓고 <code>. ./_lib-...</code> 하지 마라 (§6.1 규칙 2).
+    </p>
+<pre><span class="cmt"># 절대경로 source — cwd 에 의존하지 않는다</span>
+. "&lt;repo&gt;/reflect-kit/hooks/_lib-tag-canon.sh"    <span class="cmt"># 또는 "${CLAUDE_PLUGIN_ROOT}/hooks/..."</span>
+
+<span class="cmt"># 양성 대조 — 아래 측정을 신뢰하기 전에 먼저 돌린다 (§6.1 규칙 6)</span>
+tag_canon_selftest
+
+<span class="cmt"># 단일 태그 → lemma key</span>
+printf '%s\n' edited-before-read ignored-required-api-doc-check | tag_canon_keys
+
+<span class="cmt"># 클러스터 (cluster_freq \t canonical \t aliases)</span>
+tag_canon_groups ~/.claude/logs/*/reflections-*.md | head
+
+<span class="cmt"># 파편화 7 열</span>
+tag_canon_fragmentation ~/.claude/logs/*/reflections-*.md</pre>
+    <div class="callout good">
+      bash / zsh / sh 세 셸에서 동일 출력을 확인했다 (2026-08-13, cwd 4 종 × 셸 3 종 = 12 회 실행 → <code>sort -u</code> 1 행).
+      로그가 없는 환경에서는 <code>REFLECT_TAG_LEMMA_MAP</code> 으로 맵 경로를 바꿔 fixture 로 검증할 수 있고,
+      맵이 없으면 <code>tag_canon_*</code> 이 <strong>rc=3 + 순수 kebab 정규화</strong> 로 fail-open 한다 (신호를 잃지 않는다).
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§6.1 — 무증상 실패 전례</div>
+    <h2>셸·cwd 무관성은 주장이 아니라 검증 대상이다</h2>
+    <p class="lead">
+      정규화 라이브러리가 자기 위치를 <strong>cwd 로 추측하면</strong>, 같은 입력이 셸·작업 디렉토리 조합마다
+      다른 답을 낸다. <strong>에러가 나지 않고 숫자만 달라지므로 눈으로는 잡히지 않는다.</strong>
+    </p>
+    <div class="callout danger">
+      <strong>전례 (2026-08-13, Phase 12 QA)</strong> — <code>tag_canon_map_path()</code> 가 <code>${BASH_SOURCE[0]}</code> 에
+      의존했는데 <strong>zsh 는 이 배열을 채우지 않는다.</strong> <code>dirname ""</code> → <code>.</code> → cwd 로 떨어져,
+      cwd 가 <code>hooks/</code> 가 아닌 모든 호출에서 맵을 못 읽고 조용히 순수 kebab 정규화로 전환됐다.
+      당시 문서·스킬이 모두 <code>cd .../hooks &amp;&amp; . ./_lib-tag-canon.sh</code> 관용구를 쓰고 있어서
+      <strong>우연히 cwd 가 맞을 때만 통과</strong>했고, 3 셸 검증이 그 사실을 가렸다.
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>동일 fixture</th><th>raw</th><th>clusters</th><th>entries</th><th>singletons</th><th>fold_ratio</th><th>singleton_share</th><th>entries/cluster</th></tr></thead>
+        <tbody>
+          <tr><td><strong>bash</strong> (맵 로드 성공)</td><td>5</td><td>3</td><td>6</td><td>1</td><td>1.67</td><td>0.333</td><td>2.00</td></tr>
+          <tr><td><strong>zsh</strong> (맵 로드 실패 · 무증상)</td><td>5</td><td>5</td><td>6</td><td>4</td><td>1.00</td><td>0.800</td><td>1.20</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cards">
+      <div class="card rule">
+        <span class="rule-no">규칙 1</span>
+        <h3>cwd 를 해석 경로에 쓰지 않는다</h3>
+        <p>라이브러리는 <code>REFLECT_TAG_LEMMA_MAP</code> → 자기 위치(bash <code>BASH_SOURCE</code> / zsh <code>%x</code>) → <code>CLAUDE_PLUGIN_ROOT</code> 순으로 해석한다. 전부 실패하면 조용히 넘어가지 않고 stderr 에 경고한 뒤 fail-open 한다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/hooks/_lib-tag-canon.sh">_lib-tag-canon.sh · tag_canon_map_path →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 2</span>
+        <h3>호출부는 절대경로로 source</h3>
+        <p><code>cd</code> 로 cwd 를 맞춰 두는 관용구는 라이브러리의 결함을 가리므로 쓰지 않는다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">§6.1 규칙 2 →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 3</span>
+        <h3>3 셸 회귀는 cwd 를 바꿔가며</h3>
+        <p>같은 cwd 에서 3 번 돌리면 cwd 의존 결함은 절대 드러나지 않는다.</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">§6.1 규칙 3 →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 4</span>
+        <h3>zsh 글롭 nomatch 대비</h3>
+        <p>파일 인자에 글롭을 쓸 때 zsh 는 매치 0 건이면 <code>nomatch</code> 로 명령을 통째로 죽인다. 스크립트에서는 <code>find ... -name 'reflections-*.md'</code> 로 열거해 넘긴다 (<code>log-reflection.sh</code> 가 그렇게 한다).</p>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/hooks/log-reflection.sh">log-reflection.sh →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 5</span>
+        <h3>외부 변수는 전부 <code>${VAR:-}</code></h3>
+        <p>같은 사이클의 <strong>두 번째 무증상 실패</strong>다. <code>set -u</code> 를 쓰는 호출자에서 <code>$REFLECT_TAG_LEMMA_MAP</code> 이 unbound 로 함수를 중도 이탈시키면 호출자는 빈 경로를 받아 조용히 순수 kebab 정규화로 떨어진다.</p>
+        <div class="case"><code>5 3 6 1 …</code> → <code>5 5 6 4 …</code> · 회귀 검증은 <code>set -u</code> 유/무 <strong>양쪽</strong>으로 돌린다.</div>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/hooks/_lib-tag-canon.sh">_lib-tag-canon.sh →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 6</span>
+        <h3>일치성 게이트는 양성 대조로 시작</h3>
+        <p>24 회 실행을 <code>sort -u</code> 로 비교하는 게이트는 <strong>입력이 0 매치면 거짓 PASS 한다.</strong> 추출이 0 건이면 모든 셸이 <code>0 0 0 0 0.00 0.000 0.00</code> 을 내므로 1 행이 되고 "전 셸 일치" 로 읽힌다.</p>
+        <div class="case"><strong>전례</strong> — fixture 를 <code>- mistake_tag:</code>(선행 하이픈)로 만든 상태에서 24 회 전부 그 값이었고 게이트는 PASS 였다. 태그를 한 건도 세지 않은 채로. 일치성만 보는 오라클은 <strong>아무것도 안 하는 구현을 통과시킨다.</strong></div>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/hooks/_lib-tag-canon.sh">_lib-tag-canon.sh · tag_canon_selftest →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 7</span>
+        <h3>"0 건 = PASS" grep 은 <code>-F</code></h3>
+        <p>substring 오탐(거짓 양성)만 조심하면 된다고 생각하기 쉬운데, 반대 방향인 <strong>거짓 음성</strong>이 더 위험하다 — "0 건" 이 곧 PASS 인 조건에서 패턴이 잘못되면 <strong>위반이 있어도 통과</strong>한다.</p>
+        <div class="case"><strong>전례</strong> — 이 환경의 <code>grep</code> 은 ugrep 7.5.0 이고 패턴 <strong>중간의 <code>$</code> 를 앵커로 해석</strong>한다. Phase 12 계약 RE-02 의 측정문이 그 경로였다: <code>grep -c 'source "$SCRIPT_DIR/_lib-'</code> 는 <strong>0</strong>, <code>grep -cF</code> 와 <code>grep -c '...\$...'</code> 는 <strong>3</strong> (참값 3).</div>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">§6.1 규칙 7 →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 8</span>
+        <h3>"N 곳에만 존재" 는 문자열을 지워서 증명</h3>
+        <p>규칙 7 의 <code>-F</code> 는 거짓 음성만 막는다. 패턴이 너무 넓으면 <strong>거짓 양성</strong>이 나서 중복이 아닌 것을 중복으로 센다.</p>
+        <div class="case"><strong>전례</strong> — <code>grep -rlF 'mistake_tag:' reflect-kit/hooks</code> 가 2 행을 냈는데 두 번째 매치는 추출 규칙이 아니라 <strong>LLM 프롬프트 안의 YAML 스키마 예시</strong>였다. 오라클을 <code>'^[[:space:]]*mistake_tag:'</code> 로 좁히면 측정은 통과하지만 <strong>리터럴은 여전히 두 곳에 남는다.</strong> 두 방향을 한 번에 없애는 방법은 문자열 자체를 접근자(§1) 한 곳으로 옮기는 것이다.</div>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/hooks/_lib-tag-canon.sh">접근자 3 종 →</a>
+      </div>
+      <div class="card rule">
+        <span class="rule-no">규칙 9</span>
+        <h3>프로브는 실 로그 버킷을 쓰지 않는다</h3>
+        <p><code>log_hook_error</code>(<code>_lib-project-id.sh</code>)는 <strong>디렉토리가 존재하기만 하면</strong> 아무 검사 없이 <code>"$log_dir/.errors.log"</code> 에 append 한다. 프로브는 <code>mktemp -d</code> 복제 버킷에 <code>reflections-*.md</code> 를 복사해 돌리고 세션 식별자를 고정한다.</p>
+        <div class="case"><strong>전례</strong> — SC-04 프로브를 실 버킷에 대고 돌려 <code>fit-pal/.errors.log</code> 에 <code>session=probe</code> 4 행이 들어갔다. 이를 지운 뒤 <strong>그 한 버킷만 다시 보고</strong> "잔여 0 행" 이라고 적었는데, 같은 프로브가 <code>coupon-stl</code> 에도 2 행을 남기고 있었다. 한 버킷 감사를 전역 결론으로 쓴 것이 오류였다.</div>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/references/tag-canonicalization.md">§6.1 규칙 9 →</a>
+      </div>
+    </div>
+
+    <h3 style="margin-top:8px">규칙 9 의 감사·복구 절차 — 셋을 모두 만족해야 한다</h3>
+    <ol class="steps">
+      <li><strong>감사 범위를 명령으로 열거한다.</strong> <code>find ~/.claude/logs -mindepth 1 -maxdepth 1 -type d | wc -l</code> 로 버킷 수를 산출하고 <code>grep -rlF 'session=&lt;probe id&gt;' ~/.claude/logs</code> 로 전수 검색한다.</li>
+      <li><strong>오염 파일이 프로브가 생성한 것이면 비우지 말고 지운다.</strong> <code>stat -f '%SB'</code> 로 birth 가 프로브 시각과 같고 비-프로브 행이 0 이면 파일 부재가 원래 상태다.</li>
+      <li><strong>사이드카에는 "잔여 0 행" 이 아니라 감사 범위·명령·출력을 적는다.</strong> 범위를 적지 않은 완료 선언은 다음 사람이 검증할 수 없다.</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-label">양성 · 음성 대조</div>
+    <h2><code>tag_canon_selftest</code> 가 게이트의 시작점이다</h2>
+    <p class="lead">
+      selftest 는 접힘 4→2 + canonical 최빈형 + 추출 4 건을 함께 단정하고, 실패하면 사유를 출력한다.
+      이것이 통과하지 않으면 그 뒤의 모든 수치는 근거가 되지 않는다.
+    </p>
+<pre>. "&lt;repo&gt;/reflect-kit/hooks/_lib-tag-canon.sh" &amp;&amp; tag_canon_selftest
+<span class="ok">SELFTEST_OK raw=4 clusters=2 canonical=edit-before-read</span>
+
+<span class="cmt"># selftest 의 판별력을 확인할 때는 반드시 export 로 넘긴다</span>
+( export REFLECT_TAG_LEMMA_MAP=/nonexistent; . "&lt;repo&gt;/reflect-kit/hooks/_lib-tag-canon.sh"
+  tag_canon_selftest )   <span class="cmt">#</span> <span class="bad">SELFTEST_FAIL fold raw=4 clusters=4</span></pre>
+    <div class="callout danger">
+      <strong>주의 — <code>VAR=x . lib; func</code> 로 음성 대조를 돌리지 마라.</strong>
+      명령 앞 변수 할당은 그 명령에만 붙는다. <code>.</code>(source)는 특수 빌트인이라 셸에 따라 할당이
+      남기도 하고 남지 않기도 해서, <strong>뒤이어 호출하는 함수는 그 변수를 못 볼 수 있다.</strong>
+      2026-08-13 재검증에서 실제로 <code>REFLECT_TAG_LEMMA_MAP=/nonexistent . lib; tag_canon_selftest</code> 가
+      <code>SELFTEST_OK</code> 를 냈고, "맵이 없어도 통과한다 = selftest 가 오라클이 아니다" 로 잘못 읽힐 뻔했다.
+      <code>export</code> 로 넘기면 같은 조건이 정상적으로 <code>SELFTEST_FAIL</code> 이다.
+      <strong>음성 대조가 통과하면 구현을 의심하기 전에 대조 자체가 성립했는지 확인하라.</strong>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="val">24</div>
+        <div class="lbl">회귀 실행 — {set -u 유·무} × {bash·zsh·sh} × {cwd 4 종} → <code>sort -u</code> <strong>1 행</strong></div>
+      </div>
+      <div class="metric">
+        <div class="val neutral">11</div>
+        <div class="lbl">프로브 잔여물 전수 감사 버킷 수 (49 파일)</div>
+      </div>
+      <div class="metric">
+        <div class="val">0</div>
+        <div class="lbl"><code>grep -rlF 'session=probe' ~/.claude/logs</code> 매치 파일</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">§7 — 운영 절차</div>
+    <h2>새 alias 를 추가하는 5 단계</h2>
+    <ol class="steps">
+      <li><code>/reflect-digest</code> 의 <strong>## 병합 보류</strong> 또는 <strong>## 원인 계열 (family)</strong> 에서 후보를 고른다.</li>
+      <li>두 태그의 <code>undesired_behavior</code> / <code>desired_behavior</code> 를 <strong>원문 인용</strong>해 같은지 확인한다.</li>
+      <li>같으면 <code>tag-lemma-map.tsv</code> 에 <code>alias</code> 행을 추가하고 <code>reason</code> 열에 <strong>실측 근거(건수 포함)</strong>를 적는다.</li>
+      <li><code>tag_canon_groups</code> 를 재실행해 클러스터가 실제로 합쳐졌는지 <strong>출력으로</strong> 확인한다.</li>
+      <li>다르면 추가하지 말고 <strong>family 로만</strong> 남긴다.</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-label">안티패턴</div>
+    <h2>흔한 잘못 vs 정공법</h2>
+    <div class="compare">
+      <div class="panel panel-bad">
+        <h3>✕ 원시 태그 빈도로 승격 판단</h3>
+        <p>같은 근본원인이 표기별로 흩어져 개별 빈도가 임계 미달로 떨어진다. 최상위 이슈가 아무것도 승격되지 않는다.</p>
+<pre>skipped-required-api-doc-check  <span class="bad">71</span>
+<span class="cmt"># 임계 미달 → 승격 없음</span></pre>
+      </div>
+      <div class="panel panel-good">
+        <h3>✓ 클러스터 합산 후 판단</h3>
+        <p>결정론적 pass 로 먼저 묶고 나서 precedence 를 적용한다. 39 건(55%)이 되살아난다.</p>
+<pre>lemma cluster                   <span class="ok">110</span>
+<span class="cmt"># tag_canon_groups 출력 그대로</span></pre>
+      </div>
+    </div>
+    <div class="compare">
+      <div class="panel panel-bad">
+        <h3>✕ 눈대중 클러스터링</h3>
+        <p>리포트 안에서만 합치고 <code>tag-lemma-map.tsv</code> 에 남기지 않는다. 다음 주기에 같은 판단을 처음부터 다시 한다.</p>
+      </div>
+      <div class="panel panel-good">
+        <h3>✓ 맵에 기록 + 재실행 확인</h3>
+        <p>병합 판단은 TSV 에 <code>reason</code> 과 함께 남기고, <code>tag_canon_groups</code> 재실행 출력으로 합쳐졌음을 확인한다.</p>
+      </div>
+    </div>
+    <div class="compare">
+      <div class="panel panel-bad">
+        <h3>✕ <code>cd hooks &amp;&amp; . ./lib</code></h3>
+        <p>우연히 cwd 가 맞을 때만 통과한다. 라이브러리의 cwd 의존 결함을 가리고, 셸이 바뀌면 숫자가 조용히 달라진다.</p>
+      </div>
+      <div class="panel panel-good">
+        <h3>✓ 절대경로 source + selftest</h3>
+        <p><code>. "&lt;repo&gt;/reflect-kit/hooks/_lib-tag-canon.sh"</code> 후 <code>tag_canon_selftest</code> 로 양성 대조부터 통과시킨다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">가드레일</div>
+    <h2>완료 전 전수 대조 체크리스트</h2>
+    <ul class="checklist">
+      <li><strong>집계 키는 <code>lemma_key</code></strong> — <code>canonical_tag</code> 단독으로 <code>post_freq</code> 를 세지 않았다.</li>
+      <li><strong><code>aliases</code> 는 클러스터 멤버 전체</strong> — 손으로 고르거나 비워두지 않았다.</li>
+      <li><strong>파편화 판정은 <code>singleton_share</code></strong> — <code>fold_ratio</code> 로 "정상" 판정하지 않았다.</li>
+      <li><strong><code>tag_canon_selftest</code> 를 먼저 돌렸다</strong> — <code>SELFTEST_OK</code> 가 아니면 그 뒤 수치를 근거로 쓰지 않았다.</li>
+      <li><strong>음성 대조는 <code>export</code> 로</strong> — <code>VAR=x . lib; func</code> 형태로 판별력을 확인하지 않았다.</li>
+      <li><strong>절대경로 source</strong> — <code>cd</code> 로 cwd 를 맞춘 관용구를 쓰지 않았다.</li>
+      <li><strong>회귀는 <code>set -u</code> 유/무 × 3 셸 × cwd 4 종</strong> — 같은 cwd 반복으로 대체하지 않았다.</li>
+      <li><strong>"0 건 = PASS" grep 에 <code>-F</code></strong> — 메타문자를 이스케이프하지 않은 패턴으로 거짓 음성을 만들지 않았다.</li>
+      <li><strong>중복 리터럴은 접근자로 제거</strong> — 패턴을 좁혀 측정만 조용하게 만들지 않았다.</li>
+      <li><strong>프로브는 <code>mktemp -d</code> 복제 버킷</strong> — 실 로그 버킷을 <code>log_dir</code> 로 넘기지 않았다.</li>
+      <li><strong>정리 확인은 <code>~/.claude/logs</code> 전체</strong> — 한 버킷 감사를 전역 결론으로 쓰지 않았다.</li>
+      <li><strong>remediation 이 다르면 family</strong> — 표기 유사성만으로 alias 병합하지 않았다.</li>
+      <li><strong>hard enum 을 만들지 않았다</strong> — 새 tag 는 <code>new_tag_reason</code> 과 함께 허용했다.</li>
+      <li><strong>확인 실패한 직접 인용을 쓰지 않았다</strong> — 재확인 안 되는 문구는 근거에서 뺐다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-label">SSOT 경계</div>
+    <h2>무엇이 어디에 있는가</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>대상</th><th>정본 위치</th><th>복제 금지 사유</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>알고리즘 · 규약</td>
+            <td><code>references/tag-canonicalization.md</code></td>
+            <td>규칙이 갈라지면 네 표면의 그룹 키가 어긋난다</td>
+          </tr>
+          <tr>
+            <td>매핑 데이터</td>
+            <td><code>references/tag-lemma-map.tsv</code></td>
+            <td>같은 매핑을 스킬 본문에 다시 적으면 한쪽만 갱신된다</td>
+          </tr>
+          <tr>
+            <td>실행 구현</td>
+            <td><code>hooks/_lib-tag-canon.sh</code></td>
+            <td>재구현본은 셸·cwd 의존 결함을 각자 다시 갖는다</td>
+          </tr>
+          <tr>
+            <td>필드 이름 · 줄 패턴</td>
+            <td><code>tag_canon_field</code> / <code>tag_canon_line_re</code> / <code>tag_canon_awk_re</code></td>
+            <td>수집면·집계면이 각자 리터럴을 가지면 무증상 0 건이 된다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>소비 표면 4 종</strong> — <code>log-reflection.sh</code>(수집) · <code>/reflect-digest</code>(집계) ·
+      <code>/reflect-promote</code>(승격) · <code>/reflect-kaizen</code>(효과 측정). 네 곳 모두
+      <code>tag_canon_*</code> 접근자로만 이 SSOT 를 참조한다.
+    </div>
+  </section>
+
+  <footer>
+    소스: <code>reflect-kit/references/tag-canonicalization.md</code> ·
+    데이터: <code>reflect-kit/references/tag-lemma-map.tsv</code> ·
+    구현: <code>reflect-kit/hooks/_lib-tag-canon.sh</code><br>
+    모든 수치는 2026-08-13 실측이며 재현 명령은 §6 실행 오라클에 있다.
+  </footer>
+</main>
+</body>
+</html>

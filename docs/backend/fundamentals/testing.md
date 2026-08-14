@@ -1,12 +1,12 @@
 ---
 title: 테스팅
-version: 0.1.0
-last_updated: 2026-04-04
+version: 0.2.0
+last_updated: 2026-08-13
 ---
 
 # 테스팅
 
-테스트 피라미드, 테스트 유형별 비율과 전략, contract testing, 테스트 더블, DB 테스트, 부하 테스트, 커버리지 기준을 다룬다.
+테스트 피라미드, 테스트 유형별 비율과 전략, contract testing, 테스트 더블, DB 테스트, 통합 테스트의 타깃 증명, 부하 테스트, 커버리지 기준을 다룬다.
 
 ---
 
@@ -54,6 +54,23 @@ k6는 JavaScript로 시나리오를 작성하고 CLI에서 실행하는 부하 �
 
 > **출처:** [Martin Fowler — TestCoverage](https://martinfowler.com/bliki/TestCoverage.html)
 
+### 8. 통합 테스트는 "실 의존성" 과 "실 대상" 을 모두 만족해야 한다
+
+두 조건은 **다른 축**이다. 실제 DB/브로커를 띄웠더라도 테스트가 검증 대상 로직(SQL 술어 · 가드
+분기 · 핸들러 파이프라인)을 **독립적으로 재작성**했다면 구현과의 결합이 0 이라, 구현에서 그 로직을
+삭제해도 테스트는 통과한다. 통합 테스트로 계상하려면 production 심볼(함수 · 리포지토리 · 핸들러)
+또는 실제 실행 바이너리/로컬 기동 provider 를 호출해야 한다.
+
+- provider 검증 방식(요청을 로컬 기동 provider 에 재생하고 실제 응답을 비교)도 유효한 타깃
+  증명이다. 다만 요청 본문을 추출·검증하기 **전 레이어를 stub 하면 어떤 garbage body 도 통과**
+  하므로 stub 위치를 함께 확인한다.
+- 동시성 가드 · 인증/인가 guard · 멱등 arbiter 같은 핵심 guard 는 그 지점을 무력화했을 때
+  테스트가 **FAIL 해야** 의미가 있다. 결함을 주입했는데 통과하면 그 테스트는 결함을 잡지 못한다.
+- 다만 mutation/negative control 을 전 코드베이스에 적용하지 마라 — 비용이 크다. 위 핵심 guard 로
+  범위를 한정한다.
+
+> **출처:** [Pact — Provider verification](https://docs.pact.io/provider), [PIT — Mutation testing](https://pitest.org/), [Testcontainers — Getting started](https://testcontainers.com/getting-started/)
+
 ---
 
 ## 수치 기준
@@ -78,6 +95,10 @@ E2E 비율이 단위 테스트보다 높으면 테스트 스위트가 느리고,
 ### Mock 과다 (가짜 그린)
 
 모든 의존성을 mock하면 테스트가 항상 통과하지만 실제 통합 문제를 잡지 못한다. Mock은 외부 서비스 경계에만 사용하고, 내부 모듈 간에는 실제 구현을 사용한다.
+
+### 로직을 재작성한 "통합" 테스트
+
+실 DB 를 띄워놓고 테스트가 SQL 을 직접 다시 작성해 "일반적인 동작" 만 확인하면, 구현의 가드를 지워도 통과한다. 의존성은 진짜인데 대상이 가짜인 경우다. 테스트는 구현 심볼을 호출해야 한다.
 
 ### 테스트 간 상태 공유
 

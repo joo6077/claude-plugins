@@ -17,7 +17,7 @@
   --mono:'JetBrains Mono','Fira Code','SF Mono',monospace;
 }
 html{font-size:16px;scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;overflow-x:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
 
 /* === HERO === */
 .hero{
@@ -79,6 +79,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .card-title{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
 .card-title .icon{font-size:20px}
 .card-subtitle{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;margin-right:8px;font-size:11px;font-weight:600;
+  color:var(--accent);text-decoration:none;border:1px solid rgba(232,150,90,0.45);border-radius:999px;padding:6px 12px;
+  min-height:24px;transition:all var(--transition);font-family:var(--mono)}
+.card-source:hover{background:rgba(232,150,90,0.14);border-color:var(--accent)}
+.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.card-source::before{content:'↗';font-weight:800}
+.source-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 
 /* === GRID HELPERS === */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -97,8 +104,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .tab-btn:hover{border-color:var(--text3);color:var(--text)}
 .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
+/* ── 가로 오버플로 방지 4 규칙 (자르지 말고 스크롤시킨다) ── */
+.grid-2>*,.grid-3>*,.anti-grid>*{min-width:0}
+pre{overflow-x:auto;max-width:100%}
+:not(pre)>code{overflow-wrap:anywhere}
+@media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
 /* === TABLES === */
-.table-wrap{overflow-x:auto;margin:16px 0}
+.table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;margin:16px 0}
+.table-wrap>table{min-width:max-content}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{text-align:left;font-weight:700;color:var(--text2);padding:12px 16px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:1px}
 td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text)}
@@ -437,6 +451,10 @@ footer a{color:var(--accent);text-decoration:none}
       <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2)"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> NNGroup: 황금비가 "디자인 문제를 해결하는 데 거의 도움이 안 된다" — 콘텐츠 요구사항이 비율보다 우선</li>
     </ul>
   </div>
+  <div class="source-row">
+    <a class="card-source" href="https://www.nngroup.com/articles/golden-ratio-ui-design/">NN/g — Golden Ratio and UI Design</a>
+    <a class="card-source" href="https://www.figma.com/resource-library/golden-ratio/">Figma — Golden Ratio in UI Design</a>
+  </div>
 </section>
 
 <!-- ======== RULE OF THIRDS ======== -->
@@ -493,6 +511,9 @@ footer a{color:var(--accent);text-decoration:none}
 }</div>
     </div>
   </div>
+  <div class="source-row">
+    <a class="card-source" href="https://www.mockplus.com/blog/post/the-golden-ratio-in-design">Mockplus — Golden Ratio in Design</a>
+  </div>
 </section>
 
 <!-- ======== SCREEN ASPECT RATIOS ======== -->
@@ -529,6 +550,9 @@ footer a{color:var(--accent);text-decoration:none}
         <div style="font-size:12px;color:var(--text2);line-height:1.6">세로 스크롤 중심, 컨텐츠 스택 레이아웃</div>
       </div>
     </div>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio">MDN — CSS aspect-ratio</a>
   </div>
 </section>
 
@@ -631,6 +655,10 @@ B: <span class="val">190, 117, 73, 45, 28, 17...</span>
       <!-- Populated by JS -->
     </div>
   </div>
+  <div class="source-row">
+    <a class="card-source" href="https://alistapart.com/article/more-meaningful-typography/">A List Apart — More Meaningful Typography</a>
+    <a class="card-source" href="https://cieden.com/book/sub-atomic/typography/establishing-a-type-scale">Cieden — Establishing a Type Scale</a>
+  </div>
 </section>
 
 <!-- ======== COMPONENT PROPORTIONS ======== -->
@@ -708,8 +736,25 @@ B: <span class="val">190, 117, 73, 45, 28, 17...</span>
         <div class="touch-box" style="width:44px;height:44px">
           <div class="t-inner" style="width:24px;height:24px;font-size:8px">24</div>
           <div class="t-label">WCAG 2.2</div>
-          <div class="t-size">min 24, rec 44</div>
+          <div class="t-size">AA 24 · AAA 44</div>
         </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>플랫폼</th><th>최소 크기</th><th>권장 크기</th></tr></thead>
+          <tbody>
+            <tr><td>Apple (iOS)</td><td><code>44&#xD7;44pt</code></td><td><code>44&#xD7;44pt</code></td></tr>
+            <tr><td>Material (Android)</td><td><code>48&#xD7;48dp</code></td><td><code>48&#xD7;48dp</code></td></tr>
+            <tr><td>WCAG 2.2</td><td><code>24&#xD7;24px</code> (SC 2.5.8 AA)</td><td><code>44&#xD7;44px</code> (SC 2.5.5 AAA)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">
+        <strong>44 는 Apple HIG 의 필수치이자 WCAG 의 AAA 권장치</strong>다. WCAG 2.2 의 AA 하한은 <code>24&#xD7;24 CSS px</code> 이므로, 웹 구현에서 "WCAG 가 44 를 요구한다" 고 쓰면 등급을 잘못 인용한 것이다.
+      </p>
+      <div class="source-row">
+        <a class="card-source" href="https://www.tommso.com/our_service/design/style_guide">Tommso Design Style Guide</a>
+        <a class="card-source" href="https://www.w3.org/TR/WCAG22/#target-size-minimum">WCAG 2.2 — SC 2.5.8</a>
       </div>
     </div>
     <div class="card">
@@ -727,6 +772,9 @@ B: <span class="val">190, 117, 73, 45, 28, 17...</span>
         </table>
       </div>
     </div>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://www.remain.co.kr/page/designsystem/ratio-design.php">Remain Design System — 비율 디자인</a>
   </div>
 </section>
 
@@ -806,6 +854,9 @@ B: <span class="val">190, 117, 73, 45, 28, 17...</span>
 }</div>
     </div>
   </div>
+  <div class="source-row">
+    <a class="card-source" href="https://web.dev/articles/aspect-ratio">web.dev — The CSS aspect-ratio property</a>
+  </div>
 </section>
 
 <!-- ======== ANTI-PATTERNS ======== -->
@@ -875,6 +926,20 @@ B: <span class="val">190, 117, 73, 45, 28, 17...</span>
         <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">모바일 우선</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6">화면이 좁아 큰 비율은 과도함<br>&#x2192; Minor Third (1.200)</div>
       </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">&#x26A0;&#xFE0F; 주의사항 4 조</div>
+    <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px">
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2);line-height:1.7"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> 모듈러 스케일은 <strong>도구이지 마법이 아니다.</strong> 스케일에서 벗어난 값이 시각적으로 더 적합하면 그 값을 쓴다</li>
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2);line-height:1.7"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> 반응형 환경에서 황금비를 <strong>모든 뷰포트에 적용하려 하지 않는다.</strong> 브레이크포인트별로 비율을 조정한다</li>
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2);line-height:1.7"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> 8px 그리드와 모듈러 스케일 값이 충돌하면 <strong>8 의 배수로 라운딩</strong>하는 것이 실용적이다</li>
+      <li style="padding-left:20px;position:relative;font-size:14px;color:var(--text2);line-height:1.7"><span style="position:absolute;left:0;color:var(--gold)">&#x2022;</span> 디바이스 픽셀 밀도를 고려해 <strong>2x 기준(xhdpi, ~430ppi)</strong> 을 표준 작업 해상도로 채택한다</li>
+    </ul>
+    <div class="source-row">
+      <a class="card-source" href="https://www.remain.co.kr/page/designsystem/ratio-design.php">Remain Design System — 비율 디자인</a>
+      <a class="card-source" href="https://www.tommso.com/our_service/design/style_guide">Tommso Design Style Guide</a>
     </div>
   </div>
 </section>

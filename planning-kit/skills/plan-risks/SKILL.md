@@ -19,7 +19,7 @@ user-invocable: true
 5. **인지 편향 자기진단** — 기획자 자신의 확증편향/매몰비용/계획 오류를 점검. 이건 스킬이 Claude 에게 강제해야 함.
 6. **4-risks 카테고리 누락 금지** — Marty Cagan: value(원하는가) / usability(쓸 수 있는가) / feasibility(만들 수 있는가) / viability(비즈니스/법적으로 OK 인가). 4개 모두 답해야 한다.
 7. **Inversion 1회 강제** — "성공하려면 무엇을 해야 하나" 가 아니라 "실패하지 않으려면 무엇을 피해야 하나" 로 재구성. Charlie Munger 원칙. 출처: [Farnam Street — Inversion](https://fs.blog/inversion/).
-8. **Pre-mortem 은 개별 기록 → 공유 순서** — Gary Klein 의 원래 설계는 각자 먼저 쓰고 그 다음 공유. 즉석 집단 브레인스토밍은 낙관 편향/집단 순응을 못 깬다. commitment 커지기 전 (discovery 후반) 에 돌릴수록 가치 큼. 출처: [HBR — Performing a Project Premortem](https://hbr.org/2007/09/performing-a-project-premortem).
+8. **Pre-mortem 은 개별 기록 → 공유 순서 (planning-kit 내부 운영 팁 · HBR 원문 [미확인])** — 각자 먼저 쓰고 그 다음 공유. 즉석 집단 브레인스토밍은 낙관 편향/집단 순응을 못 깬다. commitment 커지기 전 (discovery 후반) 에 돌릴수록 가치 큼. **이 절차 세부는 접근 가능한 HBR 본문에서 확인되지 않았다 (2026-08-13 확인) — HBR 을 근거로 인용하지 마라.** HBR 로 인용 가능한 것은 premortem 기법 자체다 (Gary Klein · 2007-09). 출처(기법 한정): [HBR — Performing a Project Premortem](https://hbr.org/2007/09/performing-a-project-premortem).
 9. **FMEA 는 점수화보다 failure chain 이 먼저** — failure mode × effect × cause × detection × mitigation 5개를 모두 채우지 않으면 문서만 남는다. 제조업 형식 복제는 불필요. 출처: [ASQ — FMEA Overview](https://asq.org/learn-about-quality/process-analysis-tools/overview/fmea.html).
 10. **4-risks 는 taxonomy + 테스트 계획이 쌍** — value/usability/feasibility/viability 각 축에 owner 와 실험/프로토타입/분석이 없으면 빈 틀. viability 를 value 에 묻어버리면 맹점 재발. 출처: [Marty Cagan — Four Big Risks](https://www.svpg.com/four-big-risks/), [Value and Viability](https://www.svpg.com/value-and-viability/), [Product Risk Taxonomies](https://www.svpg.com/product-risk-taxonomies/).
 11. **편향 완화는 장치 기반** — 확증편향은 decision memo pro/con 강제, 매몰비용은 kill criteria 사전 정의, 계획 오류는 reference class forecasting. "반대 의견도 들었다" 로 부족. 출처: [The Decision Lab — Confirmation Bias](https://thedecisionlab.com/biases/confirmation-bias), [Commitment Bias](https://thedecisionlab.com/biases/commitment-bias), [Planning Fallacy](https://thedecisionlab.com/biases/planning-fallacy), [Availability Heuristic](https://thedecisionlab.com/biases/availability-heuristic), [Authority Bias](https://thedecisionlab.com/biases/authority-bias), [Survivorship Bias](https://thedecisionlab.com/fr-CA/biases/survivorship-bias).
@@ -33,11 +33,11 @@ user-invocable: true
 
 ## Step 1: Pre-mortem
 
-출처: [Gary Klein — HBR Pre-mortem](https://hbr.org/2007/09/performing-a-project-premortem).
+출처(기법 한정): [Gary Klein — HBR Pre-mortem](https://hbr.org/2007/09/performing-a-project-premortem).
 
 "6개월 후 이 기능이 처참히 실패했다고 상상하자. 어떤 일이 있었을 것 같은가?"
 
-답변을 브레인스토밍 (최소 10개 시나리오). **개인별로 먼저 쓰고 그 다음 공유** — 즉석 집단 논의는 순응 편향을 못 깬다. 이때 판단 보류 — 황당해 보여도 일단 적는다.
+답변을 브레인스토밍 (최소 10개 시나리오). **개인별로 먼저 쓰고 그 다음 공유** — 즉석 집단 논의는 순응 편향을 못 깬다 (내부 운영 팁 · HBR 원문 [미확인] — Gotcha 8). 이때 판단 보류 — 황당해 보여도 일단 적는다.
 
 ## Step 2: 4-Risks 분류 (Marty Cagan)
 

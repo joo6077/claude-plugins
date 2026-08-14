@@ -9,6 +9,8 @@
   3. docs/superpowers/followup-*.md 최근 파일
   4. 레포 자체의 .harness/history 최근 sprint-contract
   5. scripts/validate-plugin.py 최근 실행 결과 (옵션)
+  6. ~/.claude/projects/*/memory/*.md 의 `metadata.type: feedback` 엔트리
+     (전 프로젝트 교차 · 관련성·중요도 2 축 선별 → 데이터 풀 §0.5. 읽기 전용)
 
 출력:
   .harness/.meta/kaizen-data-pool.md (기본)
@@ -18,11 +20,19 @@ Usage:
   python3 scripts/collect-kaizen-data.py
   python3 scripts/collect-kaizen-data.py --output /tmp/kaizen-data.md
   python3 scripts/collect-kaizen-data.py --hub-dir ~/Hub/10_Dev
+  python3 scripts/collect-kaizen-data.py --insights .claude/kaizen-input/insights-report.md
+
+문서-스크립트 계약:
+  이 스크립트의 인터페이스(옵션 집합 · /insights 입력 후보 · 종료 코드)는
+  .claude/skills/kaizen-orchestrator/SKILL.md 의 `docs-contract` 블록에 선언돼 있고
+  scripts/validate-doc-contracts.py 가 argparse 실체와 대조한다.
+  선언과 실체 중 **실체가 SSOT** 다 — 옵션을 바꾸면 문서 블록도 같이 고쳐야 검사를 통과한다.
 """
 from __future__ import annotations
 
 import argparse
 import datetime
+import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -39,11 +49,63 @@ DEFAULT_OUTPUT = REPO_ROOT / ".harness" / ".meta" / "kaizen-data-pool.md"
 DEFAULT_HUB = Path.home() / "Hub" / "10_Dev"
 GLOBAL_FEEDBACK_DIR = Path.home() / ".harness" / "feedback" / "evaluator"
 
-# `/insights` Claude Code CLI 슬래시 커맨드의 산출물 경로.
-# 사용자가 `/insights` 를 실행하면 `~/.claude/usage-data/report.html` 가 생성된다.
-INSIGHTS_PATH = Path.home() / ".claude" / "usage-data" / "report.html"
+# `/insights` 산출물 입력 후보 — **우선순위 순서**다.
+#
+# 1) 레포 안의 사람이 정리한 델타 분석본 (`.claude/kaizen-input/insights-report.md`)
+# 2) 홈의 같은 이름 (여러 레포가 공유할 때)
+# 3) `/insights` 원본 산출물 (`~/.claude/usage-data/report.html`)
+#
+# 2026-08-13 이전에는 3) 하나만 봤다. 그런데 오케스트레이터 SKILL.md Step 0 은 1)·2) 자동
+# 탐색과 `--insights=PATH` 를 이미 주장하고 있었다 — 문서가 없는 인터페이스를 약속한 상태였고,
+# 그 결과 **사람이 정리한 §0 델타 분석본이 데이터 풀에 들어가지 못했다.**
+# 하위호환: 1)·2) 가 없으면 종전대로 3) 을 쓰고, 셋 다 없으면 §0 에 "(없음)" 을 쓰고 진행한다.
+INSIGHTS_CANDIDATES: tuple[Path, ...] = (
+    REPO_ROOT / ".claude" / "kaizen-input" / "insights-report.md",
+    Path.home() / ".claude" / "kaizen-input" / "insights-report.md",
+    Path.home() / ".claude" / "usage-data" / "report.html",
+)
+# 하위호환 별칭 — 기존 코드/문서가 참조하던 이름. 후보 3 번과 같은 값이다.
+INSIGHTS_PATH = INSIGHTS_CANDIDATES[-1]
 INSIGHTS_FRESH_DAYS = 60  # 60일 초과 시 stale 경고
 INSIGHTS_VERY_FRESH_HOURS = 24  # 24시간 이내 = "방금 실행됨" 표시
+
+# 종료 코드 — harness/evals/gate-exit-codes.md 가 SSOT 다 (여기서 의미를 재정의하지 않는다).
+DOC_CONTRACT_EXIT_CODES: tuple[int, ...] = (0, 2)
+
+
+def display_path(path: Path) -> str:
+    """머신 독립적인 표기로 접는다 — 레포 상대경로 우선, 그다음 `~` 상대경로.
+
+    레포를 어디에 클론했든 같은 문자열이 나와야 `docs-contract` 선언과 대조할 수 있다.
+    """
+    resolved = Path(path)
+    for base, prefix in ((REPO_ROOT.resolve(), ""), (Path.home(), "~/")):
+        try:
+            return prefix + str(resolved.resolve().relative_to(base))
+        except ValueError:
+            continue
+    return str(resolved)
+
+
+def doc_contract() -> dict:
+    """문서가 선언한 인터페이스와 대조할 **실체** 를 돌려준다.
+
+    scripts/validate-doc-contracts.py 가 이 함수를 호출한다. 값은 전부 살아 있는 객체에서
+    유도한다 — 여기에 리터럴을 손으로 적으면 drift 검사가 자기 자신을 속이게 된다.
+    """
+    parser = build_arg_parser()
+    options: list[str] = []
+    for action in parser._actions:  # noqa: SLF001 — argparse 의 공식 introspection 경로다
+        for opt in action.option_strings:
+            if opt in ("-h", "--help"):
+                continue
+            options.append(opt)
+    return {
+        "script": display_path(Path(__file__)),
+        "options": sorted(options),
+        "input_candidates": [display_path(p) for p in INSIGHTS_CANDIDATES],
+        "exit_codes": sorted(DOC_CONTRACT_EXIT_CODES),
+    }
 
 # canonical 기준 = **writer 쪽 identity**.
 #
@@ -154,20 +216,52 @@ def _extract_html_text(html: str) -> str:
     return txt.strip()
 
 
-def collect_insights_report() -> dict | None:
-    """`/insights` 산출물(report.html)을 로드한다.
+def resolve_insights_path(explicit: Path | None = None) -> tuple[Path | None, list[str]]:
+    """`/insights` 입력 파일을 우선순위대로 고른다.
 
-    파일이 없으면 None 반환. 있으면 경로/mtime/content 를 dict 로 반환한다.
-    카이젠 오케스트레이터 Step 0 에서 데이터 풀에 §0 (최상위) 으로 삽입된다.
+    반환: (선택된 경로 또는 None, 후보별 상태 문자열 목록).
+    상태 문자열은 stderr 에 그대로 찍어 "무엇을 봤고 무엇을 골랐는지" 를 남긴다 —
+    조용히 고르면 이번 D1 같은 drift 를 다시 발견하지 못한다.
     """
-    path = INSIGHTS_PATH
-    if not path.is_file():
+    trace: list[str] = []
+    chosen: Path | None = None
+
+    if explicit is not None:
+        exists = explicit.is_file()
+        trace.append(f"{'✓ 선택' if exists else '✗ 없음'}  --insights  {explicit}")
+        if not exists:
+            trace.append("  ⚠ --insights 로 지정한 경로가 없다 — 자동 탐색으로 넘어가지 않는다")
+            return None, trace
+        return explicit, trace
+
+    for cand in INSIGHTS_CANDIDATES:
+        if chosen is None and cand.is_file():
+            chosen = cand
+            trace.append(f"✓ 선택  {display_path(cand)}")
+        elif cand.is_file():
+            trace.append(f"· 후순위 {display_path(cand)} (존재하지만 우선순위 낮음)")
+        else:
+            trace.append(f"✗ 없음  {display_path(cand)}")
+    return chosen, trace
+
+
+def collect_insights_report(path: Path | None) -> dict | None:
+    """`/insights` 산출물을 로드한다.
+
+    경로가 None 이거나 읽을 수 없으면 None 반환. 있으면 경로/mtime/content 를 dict 로 반환한다.
+    카이젠 오케스트레이터 Step 0 에서 데이터 풀에 §0 (최상위) 으로 삽입된다.
+    `.md` 는 그대로, `.html` 은 태그를 벗겨서 싣는다.
+    """
+    if path is None or not path.is_file():
         return None
     try:
         raw = path.read_text(encoding="utf-8")
-    except Exception:
+    except OSError as exc:
+        print(f"WARNING: /insights 후보를 읽지 못했다 — {path}: {exc}", file=sys.stderr)
         return None
-    content = _extract_html_text(raw)
+    is_html = path.suffix.lower() in (".html", ".htm")
+    content = _extract_html_text(raw) if is_html else raw
+    fmt = "html-extracted" if is_html else "markdown"
     mtime = datetime.datetime.fromtimestamp(path.stat().st_mtime)
     age_seconds = (datetime.datetime.now() - mtime).total_seconds()
     age_days = age_seconds / 86400
@@ -180,7 +274,7 @@ def collect_insights_report() -> dict | None:
         "very_fresh": very_fresh,
         "stale": age_days > INSIGHTS_FRESH_DAYS,
         "content": content,
-        "format": "html-extracted",
+        "format": fmt,
     }
 
 
@@ -376,6 +470,613 @@ def collect_recent_local_contracts() -> list[str]:
     return [c.name for c in contracts[-10:]]
 
 
+# ---------------------------------------------------------------------------
+# §0.5 프로젝트 메모리 (`feedback` 타입) — 전 프로젝트 교차 수집
+# ---------------------------------------------------------------------------
+#
+# 소스: `~/.claude/projects/<encoded>/memory/*.md` (`MEMORY.md` 는 색인이라 제외)
+# 대상: `metadata.type == feedback` 만. 다른 타입(`project_*` 등)은 세션 진행 상태 메모라
+#       카이젠 Phase 가 규칙 근거로 삼을 대상이 아니다.
+#
+# **선별 축은 관련성 · 중요도 2 축이다. 시간 축(recency)은 쓰지 않는다.**
+# 프론트매터의 갱신 시각 필드가 실측 104 건 중 44 건에만 있어(2026-08-14) 나머지 60 건이
+# 임의 판정된다. 파일시스템 타임스탬프를 대용으로 쓰는 것도 금지다 — grounding 소급 태깅처럼
+# 전건을 한 번에 건드리는 작업이 있으면 모든 파일이 같은 값이 되어 축이 통째로 무의미해진다.
+# §1·§2 가 쓰는 시간 정렬 코드를 이 블록으로 가져오지 마라.
+MEMORY_ROOT = Path.home() / ".claude" / "projects"
+MEMORY_INDEX_FILENAME = "MEMORY.md"
+
+# reflect-kit 승격 ledger 위치. **읽기 전용이다** — 카이젠은 여기에 쓰지 않는다.
+# 병렬 쓰기 경로가 생기면 ledger 가 두 갈래로 갈라져 rollback 이 깨진다
+# (reflect-promote 가 rule_id · status 전환의 단독 소유자다).
+# 없을 수 있다 — 없으면 재발 가중치 0 으로 진행하고 죽지 않는다.
+REFLECT_LOGS_ROOT = Path.home() / ".claude" / "logs"
+PROMOTION_LEDGER_FILENAME = "promotions-ledger.md"
+
+# grounding 4 값. **의미 정의의 SSOT 는 reflect-kit/references/memory-grounding.md 다** —
+# 여기서 각 값이 무엇을 뜻하는지 서술하지 않는다. 이 목록은 ER-02(4 값 밖 제외)를 검증하기
+# 위해 값 자체만 소비하는 인용이다. 의미가 궁금하면 SSOT 를 읽어라.
+GROUNDING_VALUES: tuple[str, ...] = (
+    "user_correction",
+    "execution_evidence",
+    "mixed",
+    "self_inference",
+)
+GROUNDING_UNTAGGED = "미분류"  # 필드 자체가 아직 없는 파일 (소급 태깅 진행 중이라 정상)
+
+# 외부 검증이 없는 등급 — 주입은 하되 **계약 조건의 PASS 근거로 쓰지 못한다**.
+GROUNDING_UNVERIFIED: tuple[str, ...] = ("self_inference", GROUNDING_UNTAGGED)
+
+# 중요도 가중 (hypothesis — 학습된 값이 아니다. Generative Agents 도 수기 튜닝이었다).
+GROUNDING_WEIGHT: dict[str, int] = {
+    "user_correction": 3,
+    "execution_evidence": 3,
+    "mixed": 3,
+    "self_inference": 0,
+    GROUNDING_UNTAGGED: 1,
+}
+
+# 관련성 축 — 데이터 풀은 Phase 별로 쪼개지지 않으므로 §0.5 안에서 도메인 그룹으로 나눠
+# 각 Phase 가 자기 것을 찾게 한다. 키워드가 ASCII 토큰이면 단어 경계로, 한글이면
+# 부분 문자열로 맞춘다 ("ui" 가 "guide" 에 걸리는 식의 오탐 방지).
+MEMORY_DOMAIN_GROUPS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
+    ("harness", "harness · 계약 · QA (Phase 2·3·4)", (
+        "계약", "contract", "sprint", "스프린트", "qa", "evaluator", "평가", "판정",
+        "approve", "reject", "oracle", "조건", "amendment", "측정", "harness", "검증",
+    )),
+    ("flutter", "flutter-toolkit (Phase 5)", (
+        "flutter", "dart", "widget", "위젯", "riverpod", "hookwidget", "usestate",
+        "usememoized", "useeffect", "freezed", "build_runner", "fvm", "melos",
+        "listview", "safearea", "bottomsheet", "custompaint", "shrinkwrap",
+        "pubspec", "sliver", "provider",
+    )),
+    ("design", "design-kit (Phase 6)", (
+        "디자인", "design", "시안", "레이아웃", "layout", "아이콘", "icon", "패딩",
+        "padding", "radius", "테마", "theme", "컬러", "color", "무드", "타이포",
+        "ui", "ux", "토큰", "token", "시각",
+    )),
+    ("backend", "backend-kit (Phase 7)", (
+        "백엔드", "backend", "서버", "server", "api", "엔드포인트", "endpoint",
+        "serde", "worker", "트랜잭션", "n+1", "db", "sql", "쿼리", "마이그레이션",
+    )),
+    ("infra", "infra-kit · 훅 (Phase 8)", (
+        "인프라", "infra", "ci", "docker", "배포", "deploy", "fastlane", "훅", "hook",
+        "pretooluse", "posttooluse", "sessionstart", "시크릿", "secret", "env",
+        "파이프라인", "actions",
+    )),
+    ("rust", "rust-kit (Phase 9)", (
+        "rust", "cargo", "clippy", "axum", "sqlx", "tonic",
+    )),
+    ("react", "react-kit (Phase 10)", (
+        "react", "tauri", "wasm", "vite", "typescript", "tsx", "zustand", "tanstack",
+    )),
+    ("planning", "planning-kit (Phase 11)", (
+        "기획", "planning", "prd", "브레인스토밍", "brainstorm", "우선순위", "요구사항",
+    )),
+    ("reflect", "reflect-kit · 메모리 (Phase 12)", (
+        "메모리", "memory", "reflect", "승격", "promotion", "digest", "ledger",
+        "grounding", "학습",
+    )),
+    ("research", "리서치 위임 · codex", (
+        "codex", "리서치", "research", "websearch", "webfetch", "context7", "위임",
+    )),
+    ("bambu", "bambu-kit · 3D 프린트", (
+        "bambu", "3d", "프린트", "seam", "filament", "ironing", "makerworld",
+        "slicer", "cad", "노즐",
+    )),
+    ("onboarding", "onboarding-kit · 셋업 가이드", (
+        "셋업", "setup", "온보딩", "onboarding", "콘솔", "console", "firebase",
+        "gcp", "aws", "oauth", "app store connect", "용어",
+    )),
+    ("tooling", "구동 검증 · MCP 도구", (
+        "mcp", "playwright", "screenshot", "hot reload", "hot restart", "시뮬레이터",
+        "e2e", "실기",
+    )),
+)
+MEMORY_FALLBACK_GROUP = ("general", "공통 · 작업 절차 (도메인 키워드 미검출)")
+
+# 주입량 (hypothesis). 그룹별 상위 N 을 본문까지 싣고, 나머지는 제목만 남긴다 —
+# 전량 주입은 엔트리가 늘수록 신호를 희석하고, 전량 배제는 결정적 항목을 놓친다.
+MEMORY_INJECT_PER_GROUP = 3
+MEMORY_INJECT_CAP = 40
+MEMORY_BODY_LINES = 18
+MEMORY_DESC_CHARS = 160
+
+_MEMORY_FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---[ \t]*\n?", re.S)
+# SC-01 의 독립 계산 oracle(`grep -q '^  type: feedback'`)과 **같은 판정**을 쓴다.
+# 프론트매터 YAML 파싱이 깨져도 집계 모수가 흔들리지 않아야 N + M 산술이 성립한다.
+_MEMORY_FEEDBACK_RE = re.compile(r"^  type: feedback", re.M)
+_MEMORY_ATX_RE = re.compile(r"^(#{1,6})[ \t]+(.*)$")
+_MEMORY_SCALAR_RE = re.compile(r"^[ \t]*([A-Za-z_][A-Za-z0-9_]*):[ \t]*(.*?)[ \t]*$")
+# 재발 신호 — 본문이 스스로 "몇 번 반복됐는지" 를 말하는 경우가 많다 (ledger 가 없어도 잡힌다).
+_MEMORY_REPEAT_COUNT_RE = re.compile(r"(\d+)\s*(?:회|연속|번째)")
+MEMORY_REPEAT_MARKERS: tuple[str, ...] = (
+    "재발", "반복", "매번", "연속", "또 ", "다시 ", "again", "repeated", "recurring",
+)
+
+
+def _memory_keyword_matcher(keyword: str):
+    """키워드 1 개에 대한 매칭 함수를 만든다 (ASCII 는 단어 경계, 그 외는 부분 문자열)."""
+    if re.fullmatch(r"[a-z0-9_+. ]+", keyword):
+        pattern = re.compile(r"(?<![a-z0-9_])" + re.escape(keyword) + r"(?![a-z0-9_])")
+        return pattern.search
+    return lambda haystack, kw=keyword: kw in haystack
+
+
+_MEMORY_GROUP_MATCHERS = tuple(
+    (gid, label, tuple(_memory_keyword_matcher(k) for k in kws))
+    for gid, label, kws in MEMORY_DOMAIN_GROUPS
+)
+MEMORY_GROUP_LABELS: dict[str, str] = {
+    gid: label for gid, label, _ in MEMORY_DOMAIN_GROUPS
+}
+MEMORY_GROUP_LABELS[MEMORY_FALLBACK_GROUP[0]] = MEMORY_FALLBACK_GROUP[1]
+
+
+def _memory_flat_fields(front: object) -> dict:
+    """프론트매터를 평평한 lookup 으로 접는다 (`metadata:` 중첩을 최상위로 올린다).
+
+    최상위 스칼라가 우선이고, 중첩 값은 비어 있는 키만 채운다.
+    """
+    flat: dict[str, object] = {}
+    if not isinstance(front, dict):
+        return flat
+    for k, v in front.items():
+        if not isinstance(v, (dict, list)):
+            flat[str(k)] = v
+    for v in front.values():
+        if isinstance(v, dict):
+            for k2, v2 in v.items():
+                flat.setdefault(str(k2), v2)
+    return flat
+
+
+def _memory_split_frontmatter(text: str) -> tuple[dict, str]:
+    """(평평한 프론트매터 dict, 본문) 을 돌려준다. 파싱 실패해도 예외를 던지지 않는다."""
+    m = _MEMORY_FRONTMATTER_RE.match(text)
+    if not m:
+        return {}, text
+    raw_front, body = m.group(1), text[m.end():]
+    parsed: object = None
+    try:
+        parsed = yaml.safe_load(raw_front)
+    except Exception:
+        parsed = None
+    flat = _memory_flat_fields(parsed)
+    if flat:
+        return flat, body
+    # YAML 이 깨졌으면 줄 단위 fallback — 값 하나 때문에 엔트리를 통째로 잃지 않는다.
+    fallback: dict[str, object] = {}
+    for line in raw_front.splitlines():
+        sm = _MEMORY_SCALAR_RE.match(line)
+        if sm:
+            fallback.setdefault(sm.group(1), sm.group(2).strip().strip("\"'"))
+    return fallback, body
+
+
+def _memory_body_excerpt(body: str, limit: int = MEMORY_BODY_LINES) -> str:
+    """본문 발췌를 데이터 풀에 안전하게 실을 형태로 정규화한다.
+
+    - ATX 헤딩은 h5 이하로 강등한다. 원문에 `## 1. ...` 이 있으면 데이터 풀의 섹션 번호
+      순서(§0 → §0.5 → §1 …)를 재는 검사가 오탐한다 — 실측 104 건 중 78 건이 헤딩 보유다.
+    - 언어 힌트 없는 여는 fence 는 ```text 로 채운다.
+    - 잘린 자리가 fence 안이면 닫아 준다.
+    """
+    out: list[str] = []
+    in_fence = False
+    truncated = False
+    for raw in body.lstrip("\n").splitlines():
+        if len(out) >= limit:
+            truncated = True
+            break
+        stripped = raw.strip()
+        if stripped.startswith("```"):
+            if not in_fence:
+                indent = raw[: len(raw) - len(raw.lstrip())]
+                hint = stripped[3:].strip()
+                out.append(f"{indent}```{hint or 'text'}")
+                in_fence = True
+            else:
+                out.append(raw)
+                in_fence = False
+            continue
+        if not in_fence:
+            hm = _MEMORY_ATX_RE.match(raw)
+            if hm:
+                raw = "#" * min(6, len(hm.group(1)) + 4) + " " + hm.group(2)
+        out.append(raw)
+    if in_fence:
+        out.append("```")
+    while out and not out[-1].strip():
+        out.pop()
+    if truncated:
+        out += ["", f"… (본문 {limit} 줄까지만 — 전문은 위 경로를 직접 읽어라)"]
+    return "\n".join(out).strip()
+
+
+def _strip_id_hash_suffix(name: str) -> str:
+    """reflect-kit hybrid project_id 의 `-<hash6>` 접미를 벗긴다."""
+    if re.fullmatch(r".+-[0-9a-f]{6}", name):
+        return name[:-7]
+    return name
+
+
+def collect_promotion_ledger_freq(logs_root: Path) -> tuple[dict[str, int], list[str]]:
+    """reflect-promote 의 승격 ledger 에서 재발 빈도만 **읽어** 온다.
+
+    반환: (tag → freq, 읽은 ledger 파일 표시경로 목록).
+    `post_freq` 가 숫자면 그 값을, 아니면 `initial_freq` 를 쓴다. ledger 는 없을 수 있고
+    (실측 2026-08-14 기준 0 개) 그때는 빈 dict 로 조용히 진행한다 — 중요도 축이 하나
+    빠질 뿐 수집이 죽어서는 안 된다.
+
+    **쓰기 금지.** 승격 판정 · rule_id 발급 · status 전환은 전부 reflect-promote 소관이다.
+    """
+    freq: dict[str, int] = {}
+    files: list[str] = []
+    if not logs_root.is_dir():
+        return freq, files
+    try:
+        candidates = sorted(logs_root.glob("*/" + PROMOTION_LEDGER_FILENAME))
+    except OSError:
+        return freq, files
+    for ledger in candidates:
+        try:
+            text = ledger.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        files.append(display_path(ledger))
+        tags: list[str] = []
+        initial: int | None = None
+        post: int | None = None
+
+        def _flush() -> None:
+            value = post if post is not None else initial
+            if value is None:
+                return
+            for t in tags:
+                if value > freq.get(t, 0):
+                    freq[t] = value
+
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("- rule_id:"):
+                _flush()
+                tags, initial, post = [], None, None
+                continue
+            key, _, value = stripped.partition(":")
+            key = key.lstrip("- ").strip()
+            value = value.strip()
+            if key in ("mistake_tag", "lemma_key") and value:
+                tags.append(value.strip("\"'"))
+            elif key == "aliases" and value:
+                for alias in value.strip("[]").split(","):
+                    alias = alias.strip().strip("\"'")
+                    if alias:
+                        tags.append(alias)
+            elif key == "initial_freq" and value.isdigit():
+                initial = int(value)
+            elif key == "post_freq" and value.isdigit():
+                post = int(value)
+        _flush()
+    return freq, files
+
+
+def _memory_ledger_freq(
+    ledger_freq: dict[str, int], filename: str, name: str
+) -> int:
+    """메모리 파일 하나에 대응하는 ledger 재발 빈도를 찾는다 (정확 일치만)."""
+    if not ledger_freq:
+        return 0
+    stem = filename[:-3] if filename.endswith(".md") else filename
+    if stem.startswith("feedback_"):
+        stem = stem[len("feedback_"):]
+    keys = {
+        stem.replace("_", "-"),
+        stem,
+        str(name or "").strip(),
+        str(name or "").strip().replace("feedback-", "", 1),
+    }
+    best = 0
+    for k in keys:
+        if k and k in ledger_freq:
+            best = max(best, ledger_freq[k])
+    return best
+
+
+def _memory_domains(name: str, description: str, body: str) -> tuple[str, list[str]]:
+    """관련성 축 — (primary group, secondary groups)."""
+    head = f"{name}\n{description}".lower()
+    tail = body.lower()
+    scored: list[tuple[int, int, str]] = []
+    for idx, (gid, _label, matchers) in enumerate(_MEMORY_GROUP_MATCHERS):
+        score = 0
+        for match in matchers:
+            if match(head):
+                score += 2
+            elif match(tail):
+                score += 1
+        if score:
+            scored.append((-score, idx, gid))
+    if not scored:
+        return MEMORY_FALLBACK_GROUP[0], []
+    scored.sort()
+    return scored[0][2], [gid for _s, _i, gid in scored[1:]]
+
+
+def _memory_importance(grounding: str, body: str, ledger_hits: int) -> tuple[int, dict]:
+    """중요도 축 — grounding 등급 + 재발 신호. **시간 축은 들어가지 않는다.**"""
+    base = GROUNDING_WEIGHT.get(grounding, 0)
+    lowered = body.lower()
+    markers = sum(1 for m in MEMORY_REPEAT_MARKERS if m in lowered)
+    counts = [int(n) for n in _MEMORY_REPEAT_COUNT_RE.findall(body)]
+    counted = max(counts) if counts else 0
+    parts = {
+        "grounding": base,
+        "repeat_markers": min(markers, 4),
+        "repeat_count": min(counted, 5),
+        "ledger": min(ledger_hits, 5),
+    }
+    return sum(parts.values()), parts
+
+
+def collect_memory_feedback(
+    memory_root: Path | None = None, logs_root: Path | None = None
+) -> dict:
+    """`~/.claude/projects/*/memory/*.md` 를 전 프로젝트 순회해 feedback 타입만 모은다."""
+    root = MEMORY_ROOT if memory_root is None else memory_root
+    logs = REFLECT_LOGS_ROOT if logs_root is None else logs_root
+    result: dict = {
+        "root": root,
+        "root_exists": root.is_dir(),
+        "scanned": 0,
+        "entries": [],
+        "projects": [],
+        "by_grounding": Counter(),
+        "invalid_grounding": Counter(),
+        "invalid_count": 0,
+        "ledger_files": [],
+        "ledger_tags": 0,
+    }
+    if not root.is_dir():
+        return result
+
+    ledger_freq, ledger_files = collect_promotion_ledger_freq(logs)
+    result["ledger_files"] = ledger_files
+    result["ledger_tags"] = len(ledger_freq)
+
+    projects: set[str] = set()
+    for md in sorted(root.glob("*/memory/*.md")):
+        if md.name == MEMORY_INDEX_FILENAME or not md.is_file():
+            continue
+        result["scanned"] += 1
+        try:
+            text = md.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if not _MEMORY_FEEDBACK_RE.search(text):
+            continue
+
+        front, body = _memory_split_frontmatter(text)
+        name = str(front.get("name") or md.stem)
+        description = " ".join(str(front.get("description") or "").split())
+        raw_grounding = front.get("grounding")
+        if raw_grounding is None:
+            grounding, invalid = GROUNDING_UNTAGGED, False
+        else:
+            token = str(raw_grounding).strip().strip("\"'")
+            if token in GROUNDING_VALUES:
+                grounding, invalid = token, False
+            else:
+                grounding, invalid = token or "(빈 값)", True
+
+        project = md.parent.parent.name
+        projects.add(project)
+        primary, secondary = _memory_domains(name, description, body)
+        ledger_hits = _memory_ledger_freq(ledger_freq, md.name, name)
+        importance, parts = _memory_importance(
+            GROUNDING_UNTAGGED if invalid else grounding, body, ledger_hits
+        )
+
+        if invalid:
+            result["invalid_grounding"][grounding] += 1
+            result["invalid_count"] += 1
+        else:
+            result["by_grounding"][grounding] += 1
+
+        result["entries"].append(
+            {
+                "project": project,
+                "file": md.name,
+                "path": display_path(md),
+                "name": name,
+                "description": description,
+                "grounding": grounding,
+                "grounding_invalid": invalid,
+                "verified": (not invalid) and grounding not in GROUNDING_UNVERIFIED,
+                "primary": primary,
+                "secondary": secondary,
+                "importance": importance,
+                "importance_parts": parts,
+                "body": body,
+            }
+        )
+
+    result["projects"] = sorted(projects)
+    return result
+
+
+def select_memory_entries(entries: list[dict]) -> tuple[list[dict], list[dict]]:
+    """관련성(도메인 그룹) · 중요도 2 축 선별. **시간 축을 쓰지 않는다.**
+
+    반환: (주입 대상, 탈락 대상). 두 리스트의 합은 항상 입력 전체와 같다 —
+    탈락분은 제목 목록으로 §0.5 말미에 남으므로 어느 엔트리도 조용히 사라지지 않는다.
+    grounding 이 허용 4 값 밖인 엔트리는 집계·주입에서 제외되고 탈락 쪽으로 간다.
+    """
+    eligible = [e for e in entries if not e["grounding_invalid"]]
+    excluded = [e for e in entries if e["grounding_invalid"]]
+
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    for e in eligible:
+        grouped[e["primary"]].append(e)
+
+    def rank(entry: dict) -> tuple:
+        # 결정론적 정렬. 동점은 프로젝트·파일명 사전순으로만 가른다.
+        return (-entry["importance"], entry["project"], entry["file"])
+
+    picked: list[dict] = []
+    for gid, members in grouped.items():
+        members.sort(key=rank)
+        picked.extend(members[:MEMORY_INJECT_PER_GROUP])
+
+    picked.sort(key=rank)
+    if len(picked) > MEMORY_INJECT_CAP:
+        picked = picked[:MEMORY_INJECT_CAP]
+
+    chosen_ids = {(e["project"], e["file"]) for e in picked}
+    dropped = [
+        e for e in eligible if (e["project"], e["file"]) not in chosen_ids
+    ] + excluded
+    dropped.sort(key=lambda e: (e["primary"], -e["importance"], e["project"], e["file"]))
+    return picked, dropped
+
+
+def render_memory_section(memory: dict | None) -> list[str]:
+    """데이터 풀 §0.5 렌더. §0 과 §1 **사이**에 들어간다."""
+    lines = [
+        "## 0.5. 프로젝트 메모리 (`feedback` 타입 · 전 프로젝트 교차)",
+        "",
+    ]
+    if memory is None or not memory.get("root_exists") or not memory.get("entries"):
+        root = memory.get("root") if memory else MEMORY_ROOT
+        lines += [
+            f"- (없음) `{display_path(Path(root))}` 아래에 `metadata.type: feedback` "
+            "메모리가 없다.",
+            "- 메모리는 `/reflect-promote` 가 `project_memory` surface 로 승격할 때 생성된다.",
+            "",
+        ]
+        return lines
+
+    entries = memory["entries"]
+    picked, dropped = select_memory_entries(entries)
+    total = len(entries)
+    by_g = memory["by_grounding"]
+    dist = " · ".join(
+        f"`{g}` {by_g.get(g, 0)}" for g in GROUNDING_VALUES
+    ) + f" · `{GROUNDING_UNTAGGED}` {by_g.get(GROUNDING_UNTAGGED, 0)}"
+
+    lines += [
+        f"- 소스: `{display_path(Path(memory['root']))}/*/memory/*.md` "
+        f"(`{MEMORY_INDEX_FILENAME}` 은 색인이라 제외)",
+        f"- 집계: 프로젝트 **{len(memory['projects'])}** · `feedback` 엔트리 **{total}** "
+        f"(스캔한 메모리 파일 {memory['scanned']})",
+        f"- 주입 **{len(picked)}** · 탈락 **{len(dropped)}** "
+        f"(= {len(picked)} + {len(dropped)} = **{total}**)",
+        f"- grounding 분포: {dist}",
+    ]
+
+    invalid = memory.get("invalid_grounding", Counter())
+    if memory.get("invalid_count"):
+        detail = ", ".join(f"`{v}` {c}" for v, c in sorted(invalid.items()))
+        lines.append(
+            f"- ⚠ grounding 값이 허용 4 값 밖 → **집계 제외 {memory['invalid_count']} 건** "
+            f"({detail}). 아래 탈락 목록에 `[제외]` 로 표기했다."
+        )
+    else:
+        lines.append("- grounding 값이 허용 4 값 밖 → 집계 제외 **0** 건")
+
+    if memory.get("ledger_files"):
+        lines.append(
+            f"- 재발 신호 참조 ledger(읽기 전용): {len(memory['ledger_files'])} 개 · "
+            f"태그 {memory['ledger_tags']} 종 — "
+            + ", ".join(f"`{p}`" for p in memory["ledger_files"][:5])
+        )
+    else:
+        lines.append(
+            f"- 재발 신호 참조 ledger: 없음 (`{display_path(REFLECT_LOGS_ROOT)}/*/"
+            f"{PROMOTION_LEDGER_FILENAME}` 미존재 — 재발 가중치 0 으로 진행)"
+        )
+
+    lines += [
+        "",
+        "### 선별 축 · 읽는 법",
+        "",
+        "- 선별은 **관련성 · 중요도 2 축**이다. **시간(recency) 축은 쓰지 않는다** — "
+        "갱신 시각 필드의 보유율이 낮아(실측 104 중 44) 나머지가 임의 판정되기 때문이다.",
+        "- **관련성**: 메모리 `description`·`name`(가중 2) 과 본문(가중 1) 의 도메인 키워드 "
+        "일치. 데이터 풀은 Phase 별로 나뉘지 않으므로 아래 그룹 제목에서 자기 도메인을 찾아라.",
+        f"- **중요도**: `grounding` 등급 + 재발 신호(본문의 반복 언급 + ledger `post_freq`/"
+        f"`initial_freq`). 그룹별 상위 {MEMORY_INJECT_PER_GROUP} 건까지 본문을 싣고 "
+        f"(전체 상한 {MEMORY_INJECT_CAP}), 나머지는 말미에 제목만 남긴다.",
+        "- ⚠ **`self_inference` 와 `미분류` 는 계약 조건의 PASS 근거로 쓰지 마라.** "
+        "외부 검증(사용자 교정 · 실행 증거)이 없는 자기추론이다. 참고 신호로만 읽고, "
+        "근거가 필요하면 원 출처를 다시 확인하라.",
+        "- 이 절은 **읽기 전용**이다. 카이젠은 메모리 파일도 승격 ledger 도 직접 쓰지 않는다 — "
+        "승격은 `/reflect-promote` 소관이다.",
+        "",
+        "### 주입 — 도메인 그룹별",
+        "",
+    ]
+
+    picked_by_group: dict[str, list[dict]] = defaultdict(list)
+    for e in picked:
+        picked_by_group[e["primary"]].append(e)
+    group_total = Counter(e["primary"] for e in entries)
+
+    order = [gid for gid, _l, _k in MEMORY_DOMAIN_GROUPS] + [MEMORY_FALLBACK_GROUP[0]]
+    for gid in order:
+        members = picked_by_group.get(gid)
+        if not members:
+            continue
+        label = MEMORY_GROUP_LABELS.get(gid, gid)
+        lines += [
+            f"#### [{gid}] {label} — 전체 {group_total[gid]} 건 중 {len(members)} 건 주입",
+            "",
+        ]
+        for e in members:
+            tags = [f"grounding `{e['grounding']}`", f"중요도 {e['importance']}"]
+            if e["secondary"]:
+                tags.append("연관 " + "·".join(f"`{s}`" for s in e["secondary"]))
+            if not e["verified"]:
+                tags.append("⚠ **PASS 근거 사용 금지**")
+            desc = e["description"][:MEMORY_DESC_CHARS] or "(설명 없음)"
+            lines += [
+                f"- **{e['name']}** — {desc}",
+                f"  - `{e['path']}` · " + " · ".join(tags),
+                "",
+                f"<details><summary>{e['file']} 본문 발췌</summary>",
+                "",
+                _memory_body_excerpt(e["body"]),
+                "",
+                "</details>",
+                "",
+            ]
+
+    lines += [
+        f"### 탈락 — 제목만 ({len(dropped)} 건)",
+        "",
+        "선별에서 밀렸을 뿐 틀린 신호가 아니다. 자기 도메인 항목이 보이면 경로를 직접 읽어라.",
+        "",
+    ]
+    if not dropped:
+        lines.append("- (없음 — 전건 주입됨)")
+    for e in dropped:
+        mark = "[제외] " if e["grounding_invalid"] else ""
+        reason = (
+            f"grounding `{e['grounding']}` 가 허용 4 값 밖 — 집계 제외"
+            if e["grounding_invalid"]
+            else f"grounding `{e['grounding']}` · 중요도 {e['importance']}"
+        )
+        desc = e["description"][:MEMORY_DESC_CHARS] or "(설명 없음)"
+        # 연관 그룹까지 적는다 — primary 만 적으면 rust/react 처럼 primary 보유 엔트리가
+        # 0 인 Phase 가 자기 신호를 아예 못 찾는다.
+        groups = "".join(f"[{g}]" for g in [e["primary"], *e["secondary"]])
+        lines.append(
+            f"- {mark}**{e['name']}** {groups} — {desc}  "
+            f"(`{e['path']}` · {reason})"
+        )
+    lines.append("")
+    return lines
+
 def run_validate_plugin() -> str | None:
     """validate-plugin.py 를 실행하여 현재 상태 스냅샷을 얻는다 (옵션)."""
     script = REPO_ROOT / "scripts" / "validate-plugin.py"
@@ -401,6 +1102,7 @@ def render_data_pool(
     local_contracts: list[str],
     validate_output: str | None,
     insights: dict | None = None,
+    memory: dict | None = None,
 ) -> str:
     """수집한 데이터를 마크다운 data pool 로 렌더링한다."""
     now = datetime.datetime.now().isoformat(timespec="seconds")
@@ -450,6 +1152,10 @@ def render_data_pool(
             "- 사용자가 Claude Code CLI 에서 `/insights` 를 실행하면 자동 생성된다.",
             "",
         ]
+
+    # §0.5: 프로젝트 메모리 (feedback 타입) — **§0 과 §1 사이**에 온다.
+    # Phase 서브에이전트가 §0 다음으로 읽는 자리다.
+    lines += render_memory_section(memory)
 
     lines += [
         "## 1. 글로벌 Evaluator Feedback",
@@ -667,6 +1373,10 @@ def render_data_pool(
         "각 Phase subagent 는 아래 매핑을 참고하여 자신의 범위에 맞는 섹션을 우선 읽는다. "
         "§0 (/insights) 가 존재할 때는 **모든 Phase** 가 §0 을 최우선 참조한다.",
         "",
+        "**모든 Phase 는 §0.5 (프로젝트 메모리) 에서 자기 도메인 그룹을 함께 읽는다.** "
+        "그룹 제목의 `[gid]` 가 Phase 대상 킷에 대응한다. 단 `self_inference`·`미분류` "
+        "라벨이 붙은 항목은 계약 조건의 PASS 근거로 쓸 수 없다.",
+        "",
         "| Phase | 스킬 | 주요 참조 섹션 |",
         "|-------|------|---------------|",
         "| 1 설계 가이드 | skill-design-guide, agent-design-guide | §0 + §1 Improvement Suggestions |",
@@ -708,36 +1418,67 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="validate-plugin.py 실행을 생략",
     )
+    parser.add_argument(
+        "--insights",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "/insights 산출물 경로를 명시 지정 (자동 탐색보다 우선). "
+            "생략하면 후보를 우선순위대로 탐색: "
+            + " → ".join(display_path(p) for p in INSIGHTS_CANDIDATES)
+        ),
+    )
     return parser
 
 
-def main() -> None:
+def main() -> int:
     args = build_arg_parser().parse_args()
 
-    print("[1/6] /insights 리포트 자동 탐색 중...", file=sys.stderr)
-    insights = collect_insights_report()
+    print("[1/7] /insights 리포트 탐색 중...", file=sys.stderr)
+    insights_path, insights_trace = resolve_insights_path(args.insights)
+    for line in insights_trace:
+        print(f"       {line}", file=sys.stderr)
+    if args.insights is not None and insights_path is None:
+        # 사용자가 명시한 경로가 없으면 조용히 다른 후보로 대체하지 않는다 —
+        # "지정한 리포트로 돌렸다" 는 착각이 그대로 데이터 풀에 남기 때문이다.
+        print(
+            f"ERROR: --insights 로 지정한 파일이 없다: {args.insights}",
+            file=sys.stderr,
+        )
+        return 2
+    insights = collect_insights_report(insights_path)
 
-    print("[2/6] 글로벌 feedback 수집 중...", file=sys.stderr)
+    print("[2/7] 글로벌 feedback 수집 중...", file=sys.stderr)
     global_fb = collect_global_feedback()
 
-    print("[3/6] Hub 외부 프로젝트 수집 중...", file=sys.stderr)
+    print("[3/7] 프로젝트 메모리(feedback) 수집 중...", file=sys.stderr)
+    memory = collect_memory_feedback()
+
+    print("[4/7] Hub 외부 프로젝트 수집 중...", file=sys.stderr)
     hub_projects = collect_hub_projects(args.hub_dir)
 
-    print("[4/6] followup 문서 수집 중...", file=sys.stderr)
+    print("[5/7] followup 문서 수집 중...", file=sys.stderr)
     followups = collect_followup_docs()
 
-    print("[5/6] 현재 레포 sprint-contract 이력 수집 중...", file=sys.stderr)
+    print("[6/7] 현재 레포 sprint-contract 이력 수집 중...", file=sys.stderr)
     local_contracts = collect_recent_local_contracts()
 
     validate_output: str | None = None
     if not args.skip_validate:
-        print("[6/6] validate-plugin 스냅샷 실행 중...", file=sys.stderr)
+        print("[7/7] validate-plugin 스냅샷 실행 중...", file=sys.stderr)
         validate_output = run_validate_plugin()
     else:
-        print("[6/6] validate-plugin 스냅샷 건너뜀 (--skip-validate)", file=sys.stderr)
+        print("[7/7] validate-plugin 스냅샷 건너뜀 (--skip-validate)", file=sys.stderr)
 
     content = render_data_pool(
-        global_fb, hub_projects, followups, local_contracts, validate_output, insights
+        global_fb,
+        hub_projects,
+        followups,
+        local_contracts,
+        validate_output,
+        insights,
+        memory,
     )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -756,7 +1497,8 @@ def main() -> None:
             file=sys.stderr,
         )
     else:
-        print(f"  - /insights 산출물: 없음 ({INSIGHTS_PATH} 미존재)", file=sys.stderr)
+        cands = " · ".join(display_path(p) for p in INSIGHTS_CANDIDATES)
+        print(f"  - /insights 산출물: 없음 (후보 전부 미존재 — {cands})", file=sys.stderr)
     print(
         f"  - global feedback: {global_fb['total']}개",
         f"(REJECT {global_fb['by_verdict'].get('REJECT', 0)}, "
@@ -776,9 +1518,24 @@ def main() -> None:
         f" · sprint-feedback {fb_total}개 (접미형 {fb_slugged}개)",
         file=sys.stderr,
     )
+    if memory.get("root_exists") and memory.get("entries"):
+        picked, dropped = select_memory_entries(memory["entries"])
+        print(
+            f"  - project memory(feedback): {len(memory['entries'])}건"
+            f" / 프로젝트 {len(memory['projects'])}개"
+            f" · 주입 {len(picked)} · 탈락 {len(dropped)}"
+            f" · grounding 4값 밖 제외 {memory['invalid_count']}건",
+            file=sys.stderr,
+        )
+    else:
+        print(
+            f"  - project memory(feedback): 없음 ({display_path(Path(memory['root']))})",
+            file=sys.stderr,
+        )
     print(f"  - followups: {len(followups)}개", file=sys.stderr)
     print(f"  - local contracts: {len(local_contracts)}개", file=sys.stderr)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

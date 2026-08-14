@@ -3,7 +3,9 @@
 > sprint-contract 와 qa-evaluator 가 공유하는 계약 포맷 정의.
 > contract-kaizen 이 변경 제안 가능, evaluator-kaizen 이 읽어서 평가 루브릭에 반영.
 >
-> **최근 갱신: 2026-07-28 (Phase 2 kaizen · v5.2)** — 실행 기반 재검증 잔여 결함 봉합. `CONTRACT_ROOT` 탐색 기준을 `.harness/project.yaml` 에서 **`.harness/` 디렉토리 자체**로 바꿔 조용한 오귀속·미초기화 BLOCKED 를 동시에 제거 (`contract_root_unconfigured: true` 경고 + `/harness init` 안내), active 열거 grep 이 `status: "active"` 도 잡도록 수정 (test-fixtures README 와 패턴 일치).
+> **최근 갱신: 2026-08-13 (Phase 2 kaizen · v5.3)** — write-once 를 서술에서 **결정론적 봉인**으로 승급. frontmatter `conditions_digest` / `locked_at` 신설 (조건 체크박스 줄만 정규화 해시 — 체크박스 토글·서술 편집은 통과, 조건 문구 변조·조건 추가는 즉시 `SEAL_BROKEN`), amendment 를 **direction × consent 2 축**으로 분리 (앵커 부재가 방향 판정을 `unknown` 으로 붕괴시키던 구조 제거 · 경로 집합 amendment 의 direction 은 집합 비교로 **계산**), 조건 패턴 3 종 추가 (측정 커버리지 표기 · 인자 매트릭스 · 음성 대조).
+>
+> 이전: 2026-07-28 (v5.2) — 실행 기반 재검증 잔여 결함 봉합. `CONTRACT_ROOT` 탐색 기준을 `.harness/project.yaml` 에서 **`.harness/` 디렉토리 자체**로 바꿔 조용한 오귀속·미초기화 BLOCKED 를 동시에 제거 (`contract_root_unconfigured: true` 경고 + `/harness init` 안내), active 열거 grep 이 `status: "active"` 도 잡도록 수정 (test-fixtures README 와 패턴 일치).
 >
 > 이전: 2026-07-28 (v5.1) — v5 회귀 봉합. ladder 3.5 레거시 브릿지 (active 0 개일 때 레거시 plain 우선 → 없으면 레거시 유일 → 채택 + `legacy_contract_used` 경고), `status: done` 전환 주체 명시 (qa-evaluator, APPROVE 직후, `status: active` 명시분만), frontmatter 값 따옴표 규약 (writer 무따옴표 · reader 벗겨서 비교), 셸 이식성 규약 (zsh `nomatch` 때문에 글로빙 대신 `find`), 슬러그 재사용 우선 규칙.
 >
@@ -190,6 +192,8 @@ conditions: {총 조건 수}
 slug: {slug}                # v5 — 접미형일 때 필수, plain 모드면 생략. 따옴표 없이
 status: active              # v5 — active | done. 따옴표 없이
 owner_session: {세션 ID}    # v5 — $CLAUDE_CODE_SESSION_ID. 값이 없으면 필드 자체를 생략. 따옴표 없이
+conditions_digest: sha256:{16hex}   # v5.3 — 조건 봉인. 따옴표 없이
+locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각
 ```
 
 ### 값 따옴표 규약 (v5.1 — writer / reader 대칭)
@@ -228,6 +232,64 @@ fm_get() { # fm_get <file> <key>
 | `slug` | 슬러그 규칙을 만족하는 문자열 | 파일명 접미와 **동일**해야 한다. plain 모드면 필드 자체를 생략 |
 | `status` | `active` \| `done` | 작성 시 `active`. `done` 전환 주체·시점은 §`status: done` 전환 주체 참조 |
 | `owner_session` | `$CLAUDE_CODE_SESSION_ID` 값 | 환경변수가 비어 있으면 **필드를 쓰지 마라.** 빈 문자열·`unknown` 같은 placeholder 금지 |
+
+### 계약 봉인 — `conditions_digest` / `locked_at` (v5.3 신규 · E3)
+
+계약은 **write-once** 다. 승인 후에는 조건 문구를 고치지 않는다. v5 는 그 규칙을 amendment
+사이드카라는 **대안 경로**로만 표현했고, 위반을 재는 오라클이 없었다. 실측 결과 규칙은 지켜지지
+않았다 — 2026-08-11 REJECT: *"계약 write-once 위반 — 생성자가 자신이 만든 산출물을 사후에
+허용하려 계약 AR-04 조건 문구를 직접 편집(5→7 경로, 사이드카/사용자 승인 앵커 없음)"*.
+
+**근본원인 3 가지** (셋을 다 막아야 재발이 끊긴다):
+
+| # | 근본원인 | 대응 |
+| ------ | ------ | ------ |
+| RC1 | write-once 규칙이 **읽기 측 문서에만** 있었다 (qa-evaluator / qa-evaluation-guide). 본문을 편집하는 주체는 **생성자**인데 생성자 문서(SKILL.md · contract-design-guide)에는 0 건이었다 | 쓰기 측 3 표면에 동일 규약 착지 |
+| RC2 | 준수 경로(사이드카)의 기대 보상이 위반 경로보다 낮았다 — 앵커가 없다는 이유로 `unknown` 이 되어 아무 효력이 없었다 | §Amendment 사이드카 의 **direction × consent 2 축** 분리 |
+| RC3 | 위반을 **탐지할 수 없었다** — 저장 검사 게이트는 헤더와 조건 **개수**만 본다. 문구가 바뀌어도 개수가 같으면 통과한다 | 본 절의 봉인 (E3) |
+
+**정의** — `conditions_digest` 는 계약의 **조건 체크박스 줄만** 파일 순서대로 뽑아 체크 상태를
+`- [ ]` 로 정규화한 뒤 sha256 을 취한 값의 앞 16 자리다. 접두 `sha256:` 을 붙여 쓴다.
+
+- **정규화 대상이 조건 줄뿐인 이유**: 평가 진행에 따른 체크박스 토글(`- [ ]` → `- [x]`)과 서술
+  섹션 보강은 계약 변조가 아니다. 이 둘로 봉인이 깨지면 게이트가 정상 작업을 막고, **우회된
+  게이트는 없는 게이트보다 나쁘다.**
+- 조건 **문구 변조**와 **조건 추가·삭제**는 반드시 깨진다. 이것이 봉인의 유일한 목적이다.
+- 조건 열거 정규식은 §조건 수 계산과 **같은 것**을 쓴다 (`[A-Z]{2,}-[0-9]{2}`). 새 패턴을
+  발명하면 두 게이트가 서로 다른 집합을 세게 된다.
+
+```bash
+# 봉인 계산·검증 — zsh · bash 동일. 해시 백엔드 4 종은 같은 값을 낸다
+sha256_16() {  # stdin → sha256 앞 16 자리
+  if   command -v sha256sum >/dev/null 2>&1; then sha256sum
+  elif command -v shasum    >/dev/null 2>&1; then shasum -a 256
+  elif command -v python3   >/dev/null 2>&1; then python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())'
+  else openssl dgst -sha256 | sed 's/.*= //'
+  fi | cut -c1-16
+}
+
+contract_digest() {  # contract_digest <계약파일>
+  grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$1" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16
+}
+
+verify_seal() {  # verify_seal <계약파일> → SEAL_OK | SEAL_BROKEN | SEAL_ABSENT
+  rec=$(fm_get "$1" conditions_digest); rec=${rec#sha256:}
+  if [ -z "$rec" ]; then echo "SEAL_ABSENT $1"; return 0; fi
+  act=$(contract_digest "$1")
+  if [ "$rec" = "$act" ]; then echo "SEAL_OK $1"
+  else echo "SEAL_BROKEN $1 recorded=$rec actual=$act"; fi
+}
+```
+
+**하위호환 — 부재는 실패가 아니다.** 두 필드는 **선택 필드**다. `conditions_digest` 가 없으면
+`SEAL_ABSENT` 이며 이것은 경고이지 실패가 아니다. ladder 판정·`status` 해석·`conditions` 검사에
+전혀 영향을 주지 않는다. 실측 (2026-08-13): 이 레포와 `history/` 의 기존 계약 **109 개 전부**가
+`SEAL_ABSENT` 이고 `SEAL_BROKEN` 은 0 건이다 (zsh·bash 동일). **레거시 계약에 봉인을 소급해서
+써 넣지 마라** — 그 순간 그 계약의 원문이 무엇이었는지 증명할 수 없는 봉인이 된다.
+
+**`SEAL_BROKEN` 을 만났을 때** — 조용히 다시 봉인하지 마라. 그것은 위반을 지우는 행위다.
+사용자에게 `recorded` / `actual` 두 값과 함께 보고하고, 변경 의도가 정당하면 **사이드카
+amendment** 로 기록한다 (§Amendment 사이드카).
 
 ### status 해석 규칙 (backward-compat 의 핵심)
 
@@ -490,6 +552,158 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
       [structural] (측정: 파일 존재 + 시안 ID 1 건 이상)
 ```
 
+#### 측정 커버리지 표기 (v5.3 추가 · E2 검출기)
+
+`enumerated` 조건은 **산문이 요구한 대상 집합**과 **측정이 실제로 훑는 대상 집합**이 같아야 한다.
+실측 improvement: *"[AR-04] 계약-측정-불일치 — 조건 프로즈(화이트리스트 12항목)와 측정 필드(5개
+무관 디렉토리 grep)의 커버리지 갭"*.
+
+**표기 규약** — 두 집합을 **같은 표기**로 적어 기계가 대조할 수 있게 한다:
+
+- 대상은 **백틱으로 감싼 공백 없는 토큰**으로 적는다 (`app/lib/foo.dart`, `RE-01`, `--cached`).
+  백틱 안에 공백이 있으면 명령으로 간주해 대상 집합에서 제외한다 — `` `wc -l` `` 은 대상이 아니다.
+- 산문 측 = 조건에서 `측정` 이라는 낱말이 처음 나오기 **전**의 토큰. 측정 측 = 그 **뒤**의 토큰.
+- 상위 패턴 하나로 여러 대상을 덮을 때는 **작성 시점에 그 명령을 1 회 실행해 확장 결과를 측정 절에
+  백틱으로 열거**한다 (Diff-Scope 표준형의 baseline 규칙과 같은 방식). 실행하지 않은 커버리지
+  주장은 추측이다.
+- **경로 화이트리스트는 예외 — 목록을 두 번 적지 마라.** 같은 경로 집합을 산문과 측정 명령
+  양쪽에서 관리하면 한쪽만 고쳐지는 순간 계약이 자기모순에 빠진다 (실측 AR-04 의 배경 구조).
+  화이트리스트형 조건은 **산문에 개수만** 적고(`정확히 N 경로로 한정된다`) **열거는 §Diff-Scope
+  Oracle 표준형의 "기대 집합" 한 곳에서만** 한다. 이렇게 쓰면 산문 측 대상 토큰이 0 개라 위
+  검출기도 자연히 통과한다.
+
+```bash
+# 커버리지 검출기 — zsh · bash 동일. 경로형 토큰이 2 개 이상인 enumerated 조건만 본다
+awk -v MODE=path -v MIN=2 '
+function collect(s, arr,   n, i, parts, t, c) {
+  c = 0; n = split(s, parts, "`")
+  for (i = 2; i <= n; i += 2) {
+    t = parts[i]
+    if (t == "" || t ~ /[ \t]/) continue
+    if (MODE == "path" && t !~ /\// && t !~ /\.[A-Za-z0-9]+$/) continue
+    arr[t] = 1; c++
+  }
+  return c
+}
+function flush(   i, p, m, pos, miss, np) {
+  if (id == "") return
+  if (buf ~ /enumerated/) {
+    delete P; delete M
+    pos = index(buf, "측정")
+    if (pos > 0) { p = substr(buf, 1, pos - 1); m = substr(buf, pos) } else { p = buf; m = "" }
+    np = collect(p, P); collect(m, M)
+    if (np >= MIN) {
+      miss = ""
+      for (i in P) if (!(i in M)) miss = miss " " i
+      if (miss != "") printf "UNCOVERED %s %s:%s\n", FILENAME, id, miss
+    }
+  }
+  id = ""; buf = ""
+}
+match($0, /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/) {
+  flush(); id = substr($0, RSTART + 6, RLENGTH - 6); sub(/^[^A-Z]*/, "", id); buf = $0; next
+}
+/^## /  { flush(); next }
+/^- \[/ { flush(); next }
+{ if (id != "") buf = buf " " $0 }
+END { flush() }
+' "$CF"
+```
+
+**이것은 blocking 게이트가 아니라 검출기다.** 실측 오탐률 때문이다 (2026-08-13 · 계약 109 개 ·
+`enumerated` 조건 114 개): 백틱 토큰 전부를 대상으로 보는 나이브 형태는 **76 건**을 잡아 사실상
+전건 경보였고, 경로형 토큰 2 개 이상으로 좁혀도 **29 건**이 남았다. 표본을 확인하면 상당수가
+"상위 명령이 실제로 덮는" 정당 케이스다. 따라서 `UNCOVERED` 1 건마다 **(a) 조건을 고치거나
+(b) 서술 절에 해소 기록 한 줄을 남긴다.** 자동으로 FAIL 시키지 않는다.
+
+#### 인자 매트릭스 (Factor Matrix · v5.3 추가)
+
+축이 **2 개 이상**이고 그 곱이 조건의 의미를 결정할 때만 쓴다. 축 하나짜리 조건에 강요하면
+과잉 절차다.
+
+실측 REJECT 두 건이 같은 뿌리다 — *"3 visibility x 6 relation = 18 케이스 중 15케이스(5 relation)만
+재현. GroupMemberAndFollower 관계가 전체 누락"* · *"16종 매핑 단위 테스트 커버리지 부족 (2종만 검증)"*.
+
+**규약:**
+
+- 축과 축 값을 조건에 **열거**하고, 값의 출처를 코드의 **공유 상수/enum** 으로 지정한다.
+  개별 테스트가 값을 재입력하면 다시 어긋난다 (improvement: *"audience_matrix.rs 의 6 relation 을
+  feed_integration.rs 가 상수/enum 으로 재사용해 … 기계적으로 순회"*).
+- **`cases_total` 을 손으로 적지 마라.** 축 값 개수의 곱을 산출하는 명령을 조건에 적고 그 출력을 쓴다.
+- 기본은 **full Cartesian** 이다. pairwise 로 낮추려면 곱셈 결과와 사유를 서술 절에 적고 사용자
+  승인을 받는다. 임계 숫자를 지어내지 않는다.
+
+```markdown
+- [ ] LG-01: visibility 3 값 × relation 6 값 전 조합이 테스트로 재현된다 [exact, enumerated]
+      (축: visibility = `Public`,`Followers`,`Private` (출처 `audience.rs`) ·
+       relation = `Self`,`Follower`,`GroupMember`,`GroupMemberAndFollower`,`Stranger`,`Blocked`
+       (출처 `audience_matrix.rs`) ·
+       cases_total: 축 값 개수의 곱을 명령으로 산출한 값 ·
+       측정: 테스트가 두 상수를 import 해 순회하고 케이스 수가 cases_total 과 일치)
+```
+
+**두 번째 용법 — variant 구별성.** 탐색형 스프린트(시안·목업·변주)는 같은 매트릭스를 **variant
+쪽에** 쓴다. variant 마다 축 값 조합을 `[exact, enumerated]` 로 열거하고, **동일 조합이 2 개 이상이면
+FAIL** 이다. 실측 REJECT `UI-04`: *"B3(단일 컬럼)과 B6(조밀 로그)이 계약 지정 4축 전부에서
+동일값 — 구조 구별 요구 위반"*. 스킬 측 짝은 `skill-design-guide.md` §5.6 Variant Budget 의
+Variant Matrix 다 — 계약은 그 매트릭스를 **조건으로** 받는다.
+
+```bash
+# variant 축 조합 중복 검출 — 1 열 variant ID, 2 열부터 축 값 (탭 구분). zsh · bash 동일
+TAB=$(printf '\t')
+cut -f2- "$VARIANTS" | LC_ALL=C sort | uniq -d > "$DUPS"
+n=$(grep -c . "$DUPS" || true)
+while IFS= read -r dup; do
+  [ -n "$dup" ] || continue
+  printf 'DUP_AXIS [%s] <- variants: %s\n' "$dup" "$(grep -F "$TAB$dup" "$VARIANTS" | cut -f1 | tr '\n' ' ')"
+done < "$DUPS"
+[ "$n" -eq 0 ] && echo "VARIANT_DISTINCT_OK" || echo "VARIANT_DISTINCT_FAIL n=$n"
+```
+
+#### 음성 대조 (Negative Control · v5.3 추가)
+
+조건이 **테스트 통과**를 요구하면, 그 테스트가 실제로 구현을 훑는지까지 조건에 담는다.
+구현을 제거해도 통과하는 측정문은 오라클이 아니다.
+
+실측 REJECT `ER-02` (2026-08-12): *"신규 통합 테스트가 실제 바이너리를 호출하지 않고 독립적으로
+재작성한 SQL로 … **mutation test로 확정 — 실제 코드에서 동시성 가드(WHERE exercises = $3::jsonb)를
+완전히 삭제해도 이 테스트는 여전히 통과한다**"*. 같은 날 `LG-01` · `LG-03` 도 "측정문은 통과하는데
+구현과 결합되지 않은" 동형이다.
+
+**적용 범위 (한정)** — 조건이 **테스트·실행 산출물로 판정**될 때만 필수다. 파일·섹션 존재를 보는
+`[structural]` 조건에는 적용하지 않는다 (대상을 지우면 자명하게 실패하므로 무의미하다).
+
+**규약:**
+
+- 조건에 `음성 대조:` 절을 넣고 **어느 구현 지점을 무력화하면 그 측정이 FAIL 하는지**를 적는다.
+- 측정이 구현을 **직접** 호출하는지 확인한다. 테스트가 로직을 재작성해 검증하면 결합이 없다 —
+  바이너리·함수·쿼리를 그대로 호출하는 경로로 바꾼다.
+- 계약 작성 시점에 음성 대조를 실제로 돌릴 수 없으면 그 사실을 조건에 적는다. **"돌렸다" 고
+  적지 마라.**
+
+```markdown
+- [ ] ER-02: 낙관적 동시성 가드가 conflict 경로를 실제로 막는다 [goal]
+      (측정: 백필 대상 행을 사전 변형한 뒤 실제 바이너리를 호출해 skipped 카운터 증가 관찰 ·
+       음성 대조: 가드 술어를 제거하면 이 측정이 FAIL 해야 한다)
+```
+
+#### 조건 작성 preflight — QA 모호성 태그의 되먹임 (v5.3 추가)
+
+평가자가 improvement 에 반복해서 붙이는 태그는 **계약 작성 단계에서 미리 잡을 수 있는 결함**의
+목록이다. DRAFT 를 제시하기 전에 조건마다 6 항을 확인한다.
+
+| QA 태그 | 작성 단계 자문 |
+| ------ | ------ |
+| `측정-수단-부재` | 이 조건을 어떤 명령·도구·관찰로 판정하는지 인라인에 적었는가 |
+| `측정-방식-불일치` | 측정이 조건이 지정한 **값**(뷰포트·경로·상태)과 같은 값을 쓰는가 |
+| `측정-환경-오염` | 병렬 세션·공유 프로세스·잔여 산출물이 결과를 흔드는가 → `Given:` 에 환경 전제를 박았는가 |
+| `측정-산출물-부재` | 측정이 읽을 대상(테스트·기록물·출력)이 평가 시점에 실재하는가 |
+| `검증경로-미기재` | 1 차 도구가 없을 때의 fallback 을 적었는가 |
+| `측정-중복` | 같은 것을 두 조건이 재고 있지 않은가 (SSOT 위반) |
+
+이 표는 **검출용 자문 목록**이지 자동 판정기가 아니다. LLM 에게 "이 조건 모호한가?" 만 묻는
+게이트를 만들지 마라 — 판정 근거가 남지 않는다.
+
 ### 2. Anti-patterns
 
 ```markdown
@@ -531,17 +745,61 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
   섹션이 아니다.
 - **원 조건을 삭제·수정하지 마라. 추가만 한다.** 계약 본문의 `- [ ]` 조건은 그대로 둔다. 사이드카는
   "이 조건을 이렇게 읽어라" 를 덧붙일 뿐이다.
-- 각 amendment 는 **유형**을 반드시 하나 갖는다:
+- 각 amendment 는 **direction** 과 **consent** 두 축을 각각 갖는다 (v5.3 — 이전에는 한 축이었다):
 
-| 유형 | 의미 | QA 에서의 취급 |
+축 1 · **direction** — PASS 집합이 어느 쪽으로 움직이는지를 본다.
+
+판정 기준은 단 하나다: **이 amendment 를 적용하면 PASS 하는 구현의 집합이 줄어드는가, 늘어나는가.**
+"범위 축소" 라는 말로 판정하지 마라 — 무엇의 범위인지에 따라 정반대가 된다.
+
+| direction | 의미 | QA 에서의 취급 |
 | ------ | ------ | ------ |
-| `narrowing` | 제약 강화 (범위 축소 · 기준 상향) | PASS 근거로 사용 가능 |
-| `relaxing` | 제약 완화 (범위 축소 아님 · 기준 하향 · 조건 면제) | **PASS 근거로 쓸 수 없다.** 사용자 확인 대상으로 표면화 |
-| `unknown` | 강화인지 완화인지 판정 불가 | **PASS 근거로 쓸 수 없다.** 사용자 확인 대상으로 표면화 |
+| `narrowing` | PASS 집합이 **줄어든다** (제약 강화 · 기준 상향 · 허용 범위 축소) | PASS 근거로 사용 가능 — 완화가 불가능하므로 consent 축과 무관 |
+| `relaxing` | PASS 집합이 **늘어난다** (기준 하향 · 조건 면제 · 허용 범위 확대) | consent 가 `anchored` 일 때만 PASS 근거. `unanchored` 면 **불가** |
+| `unknown` | PASS 집합의 증감을 판정할 수 없다 | **PASS 근거로 쓸 수 없다.** 사용자 확인 대상으로 표면화 |
 
-- 사용자 발언을 인용할 때는 **reflect-kit prompt 로그 앵커**(timestamp · session · cwd)를 붙인다.
-  로그는 redaction 을 거치므로 인용문은 "verbatim" 이 아니라 **"redaction 거친 원문"** 이다 —
-  그렇게 표기하라.
+**집합형 조건의 direction 은 자기신고하지 말고 계산한다.** 경로 화이트리스트·파일 열거·대상
+목록처럼 조건이 집합을 담고 있으면 원 집합과 개정 집합을 비교해 direction 을 **계산**한다.
+실측 위반(3 경로 → 5 경로)은 이 계산에서 `relaxing added=2 removed=0` 이 나온다 — 서술로
+"범위 조정" 이라 부를 여지가 사라진다.
+
+```bash
+# 집합형 amendment 의 direction 계산 — zsh · bash 동일
+amend_direction() {  # amend_direction <원집합파일> <개정집합파일> (각 줄 1 원소)
+  added=$(comm -13 <(LC_ALL=C sort -u "$1") <(LC_ALL=C sort -u "$2") | grep -c . || true)
+  removed=$(comm -23 <(LC_ALL=C sort -u "$1") <(LC_ALL=C sort -u "$2") | grep -c . || true)
+  if   [ "$added" -eq 0 ] && [ "$removed" -gt 0 ]; then echo "narrowing added=$added removed=$removed"
+  elif [ "$added" -gt 0 ]; then echo "relaxing added=$added removed=$removed"
+  else echo "unknown added=$added removed=$removed"; fi
+}
+```
+
+축 2 · **consent** — 사용자 동의 근거가 있는지를 본다.
+
+| consent | 조건 |
+| ------ | ------ |
+| `anchored` | 사용자 발언 인용 + **reflect-kit prompt 로그 앵커**(timestamp · session · cwd) |
+| `unanchored` | 앵커를 붙일 수 없다 (로그 미설치 · 구두 합의 · 에이전트 자체 판단) |
+
+**앵커 부재가 direction 판정을 무너뜨리지 않는다 (v5.3 의 핵심 교정).** v5 는 두 축이 한
+필드에 뭉쳐 있어서, 앵커가 없다는 이유만으로 방향까지 `unknown` 이 되었다 — 실측:
+*"amendment A-01은 prompt-log 앵커 부재로 unknown 분류, PASS 근거 불가"*. 그 결과 준수 경로가
+아무 효력이 없어졌고, 다음 시도에서 **계약 본문 직접 편집**으로 우회가 일어났다. 두 축을 분리하면
+`narrowing · unanchored` 는 정상적으로 PASS 근거가 된다 (제약을 강화하는 방향이라 남용 불가).
+
+| direction \ consent | `anchored` | `unanchored` |
+| ------ | ------ | ------ |
+| `narrowing` | PASS 근거 가능 | **PASS 근거 가능** |
+| `relaxing` | PASS 근거 가능 (사용자 재승인 성립) | PASS 근거 **불가** — 표면화 |
+| `unknown` | PASS 근거 불가 — 표면화 | PASS 근거 불가 — 표면화 |
+
+- **`relaxing` 의 승인 주체는 사용자뿐이다.** reviewer 확인을 추가 요건으로 두지 않는다 —
+  평가자는 계약에 없는 요구를 만들지 않는 것이 원칙이다 (contract-design-guide §Cross-Surface
+  Parity item 12 착지 구조).
+- 사용자 발언을 인용할 때 로그는 redaction 을 거치므로 인용문은 "verbatim" 이 아니라
+  **"redaction 거친 원문"** 이다 — 그렇게 표기하라.
+- **`unanchored` 를 감추려고 앵커를 지어내지 마라.** 없으면 `unanchored` 라고 쓰는 것이
+  `narrowing` 을 살리는 유일한 길이다.
 
 ### 엔트리 포맷
 
@@ -567,10 +825,29 @@ amendment 로 인정하지 않는다 — 계약 조건과 동일하게, 평가 �
 
 ## 스키마 버전
 
-현재: **v5.2** (2026-07-28)
+현재: **v5.3** (2026-08-13)
 
 변경 이력:
 
+- **v5.3 (2026-08-13)** — write-once 를 서술에서 **결정론적 봉인(E3)** 으로 승급 + 조건 패턴 3 종 추가.
+  **계약 봉인** (`conditions_digest` · `locked_at` 선택 필드 · 조건 체크박스 줄만 정규화 해시 ·
+  체크박스 토글과 서술 편집은 `SEAL_OK` · 조건 문구 변조와 조건 추가·삭제는 `SEAL_BROKEN` ·
+  부재는 `SEAL_ABSENT` 경고이지 실패 아님) — 직전 사이클이 도입한 amendment 사이드카만으로는
+  2026-08-11 REJECT (*"계약 write-once 위반 — 생성자가 자신이 만든 산출물을 사후에 허용하려 계약
+  AR-04 조건 문구를 직접 편집(5→7 경로)"*) 를 막지 못했다. 근본원인은 3 개였다 — 규칙이 **읽기 측
+  문서에만** 존재 (쓰기 측 grep 0 건) · 준수 경로의 기대 보상이 위반 경로보다 낮음 · **위반을 재는
+  오라클 부재**. 실측 하위호환: 기존 계약 109 개 전부 `SEAL_ABSENT` · `SEAL_BROKEN` 0 (zsh·bash 동일).
+  **amendment direction × consent 2 축 분리** — v5 는 두 축이 한 필드에 뭉쳐 있어 앵커 부재만으로
+  방향 판정까지 `unknown` 으로 붕괴했고 (실측: *"amendment A-01은 prompt-log 앵커 부재로 unknown
+  분류, PASS 근거 불가"*) 그 결과 준수 경로가 무력화됐다. 이제 `narrowing · unanchored` 는 PASS
+  근거가 되고, 집합형 조건의 direction 은 `comm` 집합 비교로 **계산**한다 (3→5 경로 = `relaxing`).
+  **측정 커버리지 표기 + 검출기(E2)** — improvement *"[AR-04] 계약-측정-불일치"* 대응. blocking
+  게이트가 아니다: 실측 오탐률(계약 109 개 · enumerated 조건 114 개 · 나이브 76 건 / 좁힌 형태
+  29 건) 때문에 "검출기 + 해소 기록" 으로 착지했다. **인자 매트릭스** — 조합 케이스 수 수기 오류
+  (`3 x 6 = 18 중 15 만 재현` · `16 종 중 2 종만 검증`) 와 variant 축 값 중복 (`UI-04`) 을 같은
+  패턴으로 처리. **음성 대조** — `ER-02` 의 mutation test 확정 결함(가드를 삭제해도 테스트 통과)
+  대응. 테스트 통과를 요구하는 조건에만 적용. **조건 작성 preflight** — QA 모호성 태그 6 종을
+  작성 단계 자문 목록으로 되먹임.
 - **v5.2 (2026-07-28)** — v5.1 을 실행 기반으로 재검증해 남은 결함 봉합.
   **`CONTRACT_ROOT` 탐색 기준 개정** (조상 체인에서 **먼저 만나는 `.harness/` 에서 멈춘다** ·
   기준이 `project.yaml` 이 아니라 디렉토리 자체 · `project.yaml` 이 없으면 그 디렉토리를 쓰되

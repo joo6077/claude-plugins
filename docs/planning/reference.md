@@ -547,7 +547,7 @@ xychart-beta
     line "Our Product" [5, 4, 5, 3, 2, 3]
 ```
 
-### Mermaid 예시 2: quadrantChart (v10.6+)
+### Mermaid 예시 2: quadrantChart
 ```mermaid
 quadrantChart
     title Feature Prioritization by Differentiation vs Complexity

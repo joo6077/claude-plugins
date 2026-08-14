@@ -32,6 +32,12 @@ user-invocable: true
 
     트레이드오프: 파일이 늘고 CI YAML 이 얇아진다. 대신 같은 검증을 로컬에서 한 명령으로 재현할 수 있다.
 
+13. **Dependabot 은 탐지된 생태계만 등록하라 (Phase 8 리서치)** — `.github/dependabot.yml` 을 만들 때 존재하지 않는 생태계를 넣으면 Dependabot 이 매 실행마다 실패하고, 그 실패가 일상화되면 진짜 알림도 무시된다. `github-actions` `/` 는 워크플로가 있으면 항상 넣고, 나머지는 **Step 1 탐색에서 실제 lockfile/manifest 를 확인한 뒤에만** 추가한다 (`package-lock.json`/`yarn.lock` → `npm`, `Dockerfile` → `docker`, `requirements.txt`/`poetry.lock` → `pip`, `Cargo.lock` → `cargo`, `go.sum` → `gomod`). 로컬 액션과 `docker://` 참조는 업데이트 대상에서 제한이 있다. 출처: [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).
+
+14. **핀닝 정책을 조용히 정하지 마라 (Phase 8 리서치)** — 원격 `uses:` 는 40 자 커밋 SHA 고정이 기본이고, 여기에는 `jobs.<id>.steps[].uses`(스텝 액션)뿐 아니라 `jobs.<id>.uses`(재사용 워크플로 호출)도 포함된다. GitHub 공식 지침은 **full-length commit SHA 만 immutable release 로 취급**하며 태그는 이동·삭제 위험이 있다고 본다. GitHub-owned `actions/*` 를 예외로 둘지는 **팀이 명시적으로 결정하고 기록할 정책 질문**이다 — 검사 스크립트에 기본 면제로 숨기면 미핀닝을 통째로 놓친다. 트레이드오프: SHA 핀닝은 업데이트 운영성을 떨어뜨리므로 `@<sha> # v5.0.0` 처럼 같은 줄 주석으로 원 태그를 남기고 Dependabot 에 갱신을 맡긴다. 출처: [GitHub Actions secure use](https://docs.github.com/en/actions/reference/security/secure-use).
+
+15. **게이트 스텝은 결과 상태를 구분해 exit code 로 전파하게 세팅하라 (Phase 8 리서치)** — CI 검증 스텝이 "위반 0" 과 "검사 못 함" 을 같은 exit 0 으로 내면 그 게이트는 없는 것보다 나쁘다. 초기 세팅부터 `PASS` / `VIOLATION` / `SKIP_NO_TARGET` / `[미검증] TOOL_OR_ENV_MISSING` / `EXECUTION_ERROR` 5 상태를 쓰고 exit 를 매핑한다. 상태·exit 정의는 `../../references/gate-result-taxonomy.md` 가 SSOT 이며 여기서 재정의하지 않는다.
+
 # Process (3-Step · 탐색 → 진단 → 처방)
 
 ## Step 1: 탐색 — 프로젝트 인프라 감지
@@ -49,7 +55,7 @@ user-invocable: true
 | 카테고리 | 필수 여부 | 산출물 |
 |----------|-----------|--------|
 | Container | 필수 | Dockerfile + .dockerignore + compose (멀티스테이지 + non-root + healthcheck) |
-| CI/CD | 필수 | 파이프라인 설정 (build→test→deploy) + OIDC + SHA 핀닝 (Gotcha 10) |
+| CI/CD | 필수 | 파이프라인 설정 (build→test→deploy) + OIDC + 원격 `uses:` SHA 핀닝 (Gotcha 10·14) + `.github/dependabot.yml` (Gotcha 13) + 게이트 상태 taxonomy (Gotcha 15) |
 | 배포 전략 | 권장 | 배포 방식 선택 + 롤백 절차 + GitOps(Argo CD 3.x / Flux v2.8+) |
 | 관측성 | 권장 | 로깅 포맷 + 헬스체크 + 기본 메트릭 + OTel Collector |
 | 시크릿 | 필수 | .env 패턴 + Ephemeral values / Vault 참조 (Gotcha 11) |
@@ -78,13 +84,14 @@ user-invocable: true
 
 ### CI/CD
 
-**현재:** `.github/workflows/deploy.yml:1-50` 존재, `AWS_ACCESS_KEY_ID` 시크릿 사용, `actions/checkout@v4` 태그 참조
-**권장:** OIDC federation(`id-token: write` + `aws-actions/configure-aws-credentials`) + 서드파티 액션 SHA 핀닝 + 의존성 캐시 (출처: [GitHub Actions OIDC](https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect))
+**현재:** `.github/workflows/deploy.yml:1-50` 존재, `AWS_ACCESS_KEY_ID` 시크릿 사용, `actions/checkout@v4` 태그 참조, `.github/dependabot.yml` 부재
+**권장:** OIDC federation(`id-token: write` + `aws-actions/configure-aws-credentials`) + 원격 `uses:` SHA 핀닝 + Dependabot(탐지된 생태계만) + 의존성 캐시 (출처: [GitHub Actions OIDC](https://docs.github.com/en/actions/concepts/security/openid-connect) · [secure use](https://docs.github.com/en/actions/reference/security/secure-use) · [Dependabot options](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference))
 **개선:**
 - P0: 장기 AWS 키 제거 → OIDC 교체
-- P0: 서드파티 액션 SHA 고정 (`@v4` → `@<40-char sha>`)
+- P0: 원격 액션 SHA 고정 (`@v4` → `@<40-char sha> # v4`). `jobs.<id>.uses` 재사용 워크플로도 포함. `actions/*` 면제 여부는 팀이 결정해 기록
+- P1: `.github/dependabot.yml` 에 `github-actions` `/` 추가 (나머지 생태계는 lockfile 확인 후)
 - P1: Docker layer cache + 언어 런타임 캐시 추가
-- 트레이드오프: OIDC 초기 IAM Role 설정 필요 (키 회전 부담 제거 대가)
+- 트레이드오프: OIDC 초기 IAM Role 설정 필요 (키 회전 부담 제거 대가). SHA 핀닝은 업데이트 운영성이 떨어지므로 Dependabot 과 함께 도입해야 실효가 있다
 
 ### IaC
 
@@ -98,3 +105,4 @@ user-invocable: true
 # References
 
 - ../../references/init-checklist.md
+- ../../references/gate-result-taxonomy.md — 게이트 결과 상태 5 종 · exit 매핑 (SSOT)

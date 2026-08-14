@@ -1,7 +1,7 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.5.0
-last_updated: 2026-07-27
+version: 1.6.0
+last_updated: 2026-08-13
 ---
 
 # Claude Code 에이전트 설계 가이드
@@ -65,7 +65,10 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 
 ### frontmatter 전체 필드
 
-> **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-04)
+> **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-08 재확인)
+
+공식 frontmatter 는 **15 종**이고, 그중 **필수는 `name` 과 `description` 둘뿐**이다. 아래 표가 그
+15 종 전부이며, 여기에 없는 이름을 frontmatter 필드로 소개하지 마라 (표 아래 "표에 없는 이름들" 참조).
 
 | 필드 | 필수 | 설명 |
 | ------ | ------ | ------ |
@@ -83,8 +86,14 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 | `background` | 아니오 | `true` 면 결과가 즉시 필요할 때도 **항상** 백그라운드 실행. 미지정이면 Claude 가 판단하며, 최신 버전은 기본적으로 백그라운드로 돌린다 |
 | `effort` | 아니오 | `low`, `medium`, `high`, `xhigh`, `max` (모델별 가용 레벨 상이). 세션 effort 를 override |
 | `isolation` | 아니오 | `worktree`면 격리된 git worktree에서 실행 (변경이 없으면 자동 정리) |
-| `initialPrompt` | 아니오 | `--agent` 등으로 **메인 세션 에이전트**로 돌 때 첫 user turn 으로 자동 제출 |
 | `color` | 아니오 | 터미널 UI 에 표시되는 에이전트 색상 (`red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`) |
+
+**표에 없는 이름들 (혼동 방지 · 2026-08 정정):**
+
+- **`prompt`** — 이것은 `--agents` **JSON 정의**에서 markdown body 에 해당하는 필드다. 파일 기반
+  YAML frontmatter 표에는 존재하지 않는다. `.md` 에이전트 파일의 frontmatter 에 `prompt:` 를 적지 마라
+- **`initialPrompt`** — 2026-07 판 이 표에 행으로 실려 있었으나 공식 15 종 목록에 없다. 근거가
+  다시 확보되기 전까지 공식 필드로 소개하지 않는다
 
 **플러그인 에이전트 제약:** `hooks`, `mcpServers`, `permissionMode` 필드는 플러그인으로 배포된 에이전트에서는 **무시된다**. 이 필드가 필요하면 `.claude/agents/` 로 복사해라.
 
@@ -454,6 +463,8 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 
 **Cross-Surface Parity:** 본 원칙은 skill-design-guide §9 "Long-Running Skills — 중첩 스킬 호출 간 반환 데이터 최소화" 와 짝 (스킬 측은 checkpoint·반환 최소화, 에이전트 측은 fan-out 상한·exploration budget).
 
+**이름 구분 (필수):** 이 절의 **Exploration Budget** 은 *산출 이전*의 read-only 탐색에 쓰는 turn·비용 상한이다. skill-design-guide §5.6 의 **Variant Budget** 은 *산출물 자체*의 개수 상한과 변주 축 고정으로 **다른 개념**이다. 이름이 비슷해 혼동되므로 두 용어를 섞어 쓰지 마라 — §12 parity item 9 는 "동일 개념 공유" 가 아니라 "구분 유지" 가 내용이다.
+
 ---
 
 ## 8. 호출 품질이 성패를 가른다
@@ -546,6 +557,17 @@ memory: project   # user | project | local
   - fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
   - 원인: 미검증 마커 없이 PASS 부여 → 계약 해석 레벨에서 이슈 불가시
 
+- **사용자 실패 보고 우선 — 반박하지 말고 `REOPENED` 로 되돌려라.** 평가자가 PASS 를 준 항목에 대해 사용자가 "아직 깨져 있다" 고 보고하면, 그 항목의 상태는 PASS 가 아니라 **`REOPENED`** 다. 에이전트의 테스트·스냅샷은 "내 환경에서의 관측" 일 뿐이며 사용자 관측의 반박 근거가 아니다 — 상태 검증은 self-report 가 아니라 **target system** 을 봐야 한다 ([OCI Agent Evaluation Framework](https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework)). 실사용 20,574 세션 관측에서 가시적 해소의 91.49% 가 사용자의 명시적 교정을 필요로 했고 ([arxiv:2605.29442](https://arxiv.org/html/2605.29442)), 자기평가 궤적에서는 실패의 75.8% 가 false success 였다 ([arxiv:2606.09863](https://arxiv.org/html/2606.09863)). 절차는 3 단계다:
+  1. **오라클 유효성부터 의심한다.** 내 판정이 사용자가 보는 것을 재고 있었는지 6 축(URL·경로 / 브랜치·커밋 / viewport / 디바이스·플랫폼 / auth·cache / 데이터 상태)으로 대조한다. 값싼 축부터 확인하고 비싼 축은 앞 축이 전부 일치할 때 넘어간다
+  2. **재판정한다.** 재현되면 원 PASS 를 취소하고 FAIL 로 바꾸되, 이전 근거는 지우지 말고 "그때 그 오라클로는 통과했다" 로 남긴다 — 오라클 결함 자체가 다음 계약의 개선 제안이다
+  3. **완료로 되돌리는 조건은 3 택뿐이다** — (a) 사용자 관측을 재현하고 수정 후 같은 조건에서 재검증한 출력 인용 (b) 재현되지 않는 이유를 6 축 중 어느 축의 값 차이인지로 특정 (c) 사용자가 직접 수정 확인
+
+  **오독 금지:** 이것은 "사용자 보고를 무조건 사실로 인정하라" 는 규칙이 **아니다.** 정확한 규약은 **완료 판정을 보류하고 오라클 유효성을 먼저 의심한다** 이며, 원인이 사용자 환경(스테일 빌드, 캐시)으로 밝혀지는 것도 위 (b) 로 정상 종결이다.
+
+  **트레이드오프:** 신뢰는 회복되지만 환경 재현 비용이 든다. 그래서 6 축 대조는 값싼 축부터 하고, 재현 불가 시에도 "환경 문제 같다" 는 서술이 아니라 **어느 축의 어떤 값이 달랐는지**를 요구한다.
+
+  **Cross-Surface Parity:** 본 Gotcha 의 생성(스킬) 측 짝은 skill-design-guide §3.8 "User-Reported Failure Gate" 다 (§12 parity item 8). 생성 측이 완료를 고집하고 평가 측만 REOPENED 로 다루면 두 판정이 충돌해 사용자가 중재자가 된다.
+
 - **Self-Evaluator Rule-by-Rule Audit — 위임 없이 자기 규칙으로 전수 대조하는 패스.** (2026-07 근거 정정: 과거 이 항목은 하위 위임이 막혀 있다는 전제 위에 서술됐으나 중첩은 이제 허용된다 — §4. 이 기법이 여전히 유효한 근거는 중첩 제약이 아니라 **비용·지연 대비 효과**와 **깊이 한계에서 위임이 조용히 접히는 위험**이다. 중첩 QA 가 필요하면 스폰해도 되지만, 자기 규칙 대조는 스폰 없이도 대부분의 위반을 잡는다.) 카이젠 Phase 처럼 **서브에이전트 내부에서 QA 를 돌려야 하는 경우** Phase subagent 가 **자기 산출물을 자기 규칙 리스트로** 전수 대조하는 self-evaluator pass 를 추가한다. 2026-04-24 카이젠 사이클이 Phase 1~11 1회 iteration APPROVE 를 달성한 핵심 기법으로 `.harness/.meta/orchestrator-audit-log.md` 에 기록되어 있다. **자기 평가는 외부 평가의 대체가 아니다** — Final 단계에서는 별도 evaluator 에이전트의 독립 평가가 여전히 필수. self-audit 시 **최종 산출물뿐 아니라 중간 결정·도구 상태까지 규칙에 대조** 한다 — LLM 은 유창하지만 제약을 위반하는 추론을 내기 쉽고 최종 성공만으로는 위반이 가려지기 때문이다 ([Verify Before You Commit — arxiv:2604.08401](https://arxiv.org/pdf/2604.08401)).
 
 ---
@@ -595,9 +617,9 @@ harness/agents/
 
 에이전트 설계 가이드가 개정되면, **스킬 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 에이전트(.md)** 에 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
 
-### 전수 대상 parity items (5개)
+### 전수 대상 parity items (9개)
 
-두 가이드(agent-design-guide, skill-design-guide)는 아래 5개 항목을 **동일한 개념 · 동일한 용어** 로 공유한다:
+두 가이드(agent-design-guide, skill-design-guide)는 아래 9개 항목을 **동일한 개념 · 동일한 용어** 로 다룬다 (대부분은 양쪽 공유, item 9 는 구분 대상):
 
 | # | Parity Item | agent-design-guide 위치 | skill-design-guide 대응 위치 |
 | --- | ------------- | ------------------------ | ------------------------------ |
@@ -607,7 +629,11 @@ harness/agents/
 | 4 | Rule-by-rule audit before completion | §10 Reviewer 전수 대조 | §3.6 (Rule-by-Rule Audit) |
 | 5 | Unverifiable / degraded-mode 정책 | §10 Unverifiable 조건 정책 | §3.7 (Completion Evidence Gate) |
 | 6 | Fan-out 상한 / Exploration Budget ↔ 반환 데이터 최소화 | §7 (Fan-out 상한 · Exploration Budget) | §9 (Long-Running Skills — 반환 데이터 최소화) |
-| 7 | Enforcement 등급 (E1/E2/E3) | §6 패턴 7 (훅 = E3 결정론적 게이트의 구현체) | §3.7 (Enforcement 3 등급 · 승급 규칙) |
+| 7 | Enforcement 등급 (E1/E2/E3) | §6 패턴 7 (훅 = E3 결정론적 게이트의 구현체) | §3.7 (Enforcement 3 등급 · 승급 규칙 · 등급 원장) |
+| 8 | User-Reported Failure Gate | §10 (사용자 실패 보고 우선 — `REOPENED`) | §3.8 (사용자 관측은 재현 대상) |
+| 9 | Exploration Budget ↔ Variant Budget | §7 (탐색 turn 예산) | §5.6 (산출물 개수·축 고정) — **짝이 아니라 구분 대상** |
+
+**Item 8·9 는 2026-08 사이클 신규다.** Item 8 은 생성 측이 완료를 고집하고 평가 측만 REOPENED 로 다루면 두 판정이 충돌해 사용자가 중재자가 되기 때문에 양면으로 둔다. **Item 9 만 성격이 다르다** — 동일 개념을 공유하는 것이 아니라 **이름이 비슷한 다른 개념**이라 양쪽 절이 서로를 참조해 용어 혼동을 막는 것이 parity 의 내용이다. Item 7 의 등급 원장은 skill-design-guide 측에만 두고 이 가이드는 참조만 한다 — 원장이 둘로 갈리면 같은 원칙이 두 등급을 갖게 된다.
 
 **Item 5 는 2026-07 사이클에서 양면으로 전환되었다** — 과거에는 "평가자 전용" 이었으나, 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비된다. 마커 표기법과 2 건 임계값은 양쪽이 동일 규약을 쓴다. Item 6 은 에이전트 측 fan-out/exploration 통제와 스킬 측 반환 최소화가 토큰 경제라는 동일 목적의 짝 원칙. Item 7 은 "원칙을 어떤 강도로 강제할지" 를 판정하는 공통 틀로, 에이전트 측에서는 훅(PostToolUse/PreToolUse)이 E3 게이트의 구현 형태다. 나머지 1~4 도 양쪽 존재.
 
@@ -656,13 +682,15 @@ agent-design-guide.md 를 편집할 때:
 | **Fan-out 상한 / Exploration Budget** | §7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환 |
 | **Binary Decidability** | §3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격) |
 | **Unverifiable 정책** | `[미검증]` 마커 · 2건 누적 REJECT · 조용한 PASS 금지 · 생성자의 완료 주장은 증거 아님 |
+| **사용자 보고 우선** | §10 — 사용자 실패 보고는 `REOPENED`. 반박 금지 · 오라클 6 축부터 대조 |
+| **Variant Budget 구분** | §7 Exploration Budget(탐색 turn) 과 skill §5.6 Variant Budget(산출물 수·축) 은 다른 개념 |
 | **Cross-Surface Parity** | agent/skill/contract/eval 가이드의 원칙 전수 검토 (§12) |
 
 ---
 
 ## 출처
 
-- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-04 최신)
+- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-08 재확인 — frontmatter 15 종 · 중첩 기본 3 층)
 - [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04 최신)
 - [Building Effective Agents — Anthropic Research](https://www.anthropic.com/research/building-effective-agents)
 - [Claude Code Sub-Agent Best Practices — claudefa.st](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
@@ -678,3 +706,4 @@ agent-design-guide.md 를 편집할 때:
 - [From Confident Closing to Silent Failure: Characterizing False Success in LLM Agents — arxiv:2606.09863](https://arxiv.org/abs/2606.09863) (2026-06)
 - [Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405](https://arxiv.org/html/2607.07405v1) (2026-07)
 - [How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442](https://arxiv.org/abs/2605.29442) (2026-05)
+- [OCI Agent Evaluation Framework — Oracle](https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework) (§10 target system 검증)

@@ -1,10 +1,68 @@
 ---
 title: Flutter Kit Research Log
-version: 1.1.0
-last_updated: 2026-07-27
+version: 1.2.0
+last_updated: 2026-08-13
 ---
 
 # Flutter Kit Research Log
+
+## [2026-08-13] — Phase 5 kaizen
+
+**주제:** 버전 사실 정정 3 종 + Primitive Substitution Gate(G1) · Riverpod invalidate 경계(G2) ·
+위젯 테스트 하네스(G3) · 성능 환경 배제(G4)
+
+**외부 조회 0 회.** 이 사이클의 유일한 외부 근거는 `.harness/.meta/evidence/phase5.md` 다
+(수집 방법: codex foreground). 아래 URL 은 전부 그 파일이 인용한 것이다.
+
+### 리서치 소스 (evidence 파일 경유)
+
+| # | URL | 확인한 사실 |
+|---|-----|------------|
+| 1 | <https://pub.dev/packages/freezed/changelog> | **[정정 2026-08-13 근거]** 최신 stable **3.2.5**. `.when`/`.map` 제거는 **3.0** 의 breaking, **3.1.0 에서 재추가**. "Freezed 3 부터 제거" 를 절대 규칙으로 쓰면 낡은 조항 |
+| 2 | <https://docs.flutter.dev/release/release-notes> | stable 목록 최상단 **3.47.0** |
+| 3 | <https://flutter.dev/blog/whats-new-in-flutter-3-47> | Android 의존성 매트릭스 — Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1 |
+| 4 | <https://docs.flutter.dev/perf/impeller> | iOS Skia 전환 불가 · Android API 29+ 기본 · Web 은 Skia · **macOS/Linux/Windows 는 3.47 부터 Impeller 기본** |
+| 5 | <https://docs.flutter.dev/perf/ui-performance> | 성능 디버깅은 물리 기기 + profile mode. debug/simulator 는 release 동작을 대표하지 않음 |
+| 6 | <https://docs.flutter.dev/testing/build-modes> | profile mode 는 emulator/simulator 에서 **비활성** |
+| 7 | <https://riverpod.dev/docs/concepts2/refs> | `watch` 선언형 구독 / `listen` side effect / `invalidate` 는 다음 read 때 재평가 / `refresh` 는 invalidate + read sugar |
+| 8 | <https://riverpod.dev/docs/concepts2/auto_dispose> | listener 0 이 된 뒤 **한 프레임 후** dispose · recompute 시 autoDispose 무관하게 state 파괴 · family 는 autoDispose 권장 |
+| 9 | <https://riverpod.dev/docs/how_to/testing> | unit 은 `ProviderContainer.test()`(공유 금지, autoDispose 는 `listen` 으로 붙잡기) · widget 은 `ProviderScope` 루트 + `tester.container()` |
+| 10 | <https://pub.dev/packages/flutter_riverpod/changelog> | 3.4.x 에서 scoped override 환경의 `invalidate`/`refresh` 미탐지 버그 수정 + `Ref.onManualInvalidation()` 추가 → **버전 가드 필요** |
+| 11 | <https://github.com/flutter/agent-plugins> | 공식 Agent Plugins 는 "skills/rules 로 반복 워크플로우 주입" 을 agent mistake 감축의 1 차 기법으로 제시 |
+
+### 내부 데이터 소스
+
+- `.harness/.meta/kaizen-data-pool.md` §1 REJECT Top 20 — `RE-02`(기본 `Divider` 사용, `IFDivider`
+  미재사용) · `LG-02`(팔레트 변경 시 provider invalidate 누락) · `LG-01`(16종 매핑 중 2종만 검증)
+- `.claude/kaizen-input/insights-report.md` — 신규 델타 **D5**(성능 조사에서 환경 배제 성공 사례:
+  18일 누수된 시뮬레이터 render host 의 swap 포화), **D3**(사용자 관측 vs 자기 증거 충돌)
+
+### 사실 정정 (이 로그의 과거 서술 포함)
+
+이 문서의 historical 항목 7 줄에 `**[정정 2026-08-13]**` 주석을 인라인으로 달았다. 과거 기록을
+지우지 않고 정정만 덧붙인다.
+
+1. `when`/`map` 이 영구 삭제됐다고 단정한 4 줄 → 3.1.0 재추가 명시
+2. Impeller 플랫폼 상태 2 줄 → 3.47 desktop 기본
+3. stable 3.44.7 표기 1 줄 → 3.47.0
+
+스킬 표면 정정: `flutter-api` · `flutter-audit` · `flutter-error` · `flutter-hooks` ·
+`flutter-provider` (Freezed) · `flutter-widget` · `flutter-transition` (stable 버전) ·
+`flutter-audit` · `references/flutter-ai-rules.md` (Impeller · AGP 매트릭스).
+
+### 반영 (신규 게이트 4 종)
+
+- **G1 Primitive Substitution Gate (E2)** — `flutter-toolkit/references/primitive-substitution-gate.md`
+  SSOT 신설. `flutter-widget` · `flutter-screen` · `flutter-audit` · `widget-inspector` 4 표면이
+  인용만 한다. 기존 §Enumerate-before-Act(E1)가 있는데도 `RE-02` 가 났으므로 등급 승급으로 처리했고,
+  **layout primitive 는 면제 목록으로 명시**해 과잉 규칙화를 막았다
+- **G2 invalidate 경계** — `flutter-provider` 에 파생 provider `watch`+`select` 연결, mutation 후
+  영향 provider 열거 + `invalidate`, autoDispose 실수명, `onManualInvalidation` **3.4.x 버전 가드**.
+  "전체 family invalidate" 는 금지 조항으로 명시
+- **G3 widget test 하네스** — `flutter-test` + `quality/testing.md` 에 `ProviderScope` 루트 +
+  `tester.container()` 기본형과 전수 매핑 coverage 조항
+- **G4 성능 환경 배제** — `flutter-audit` + `quality/performance.md` 에 Environment Exclusion
+  Checklist 8 항 + "simulator/debug 단독 결과는 `[미검증]`" 판정 규칙
 
 ## [2026-07-27] - Phase 5 kaizen
 
@@ -14,7 +72,7 @@ last_updated: 2026-07-27
 
 | # | URL | 확인한 사실 |
 |---|-----|------------|
-| 1 | <https://docs.flutter.dev/release/release-notes> | stable **3.44.7** (페이지 갱신 2026-07-10). 스킬들이 기준으로 삼던 3.41 은 구버전 |
+| 1 | <https://docs.flutter.dev/release/release-notes> | stable **3.44.7** (페이지 갱신 2026-07-10). 스킬들이 기준으로 삼던 3.41 은 구버전. **[정정 2026-08-13]** 릴리스 인덱스 stable 목록 최상단은 이제 **3.47.0** 이다 |
 | 2 | <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0> | `TestWidgetsApp`(WidgetTester 기본 앱 표준화) · `TestTextField` 추가, `WidgetTesterCallback` 파라미터명 `widgetTester`→`tester`, flutter_test false-positive 히트테스트 수정. `ReorderableListView.onReorder` deprecated, `ExtendSelectionByPageIntent` 제거. `AnimatedCrossFade.onEnd` · Hero curve 커스터마이징 · `CupertinoSheetRoute` · 무한 `CarouselView` · `CarouselView.onItemChanged` · `RoundedSuperellipseInputBorder` · `Overlay.alwaysSizeToContent` · `ScrollCacheExtent` 추가. Impeller SDF 렌더링 |
 | 3 | <https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html> | `expectLater` + await 필수, `--update-goldens` 로 마스터 갱신. 커스텀 폰트는 플랫폼·Flutter 버전별로 다르게 렌더 → CI 실패 원인 4 종(OS 차이 / 버전 차이 / 폰트 로드 실패 / 실제 UI 변경) |
 | 4 | <https://pub.dev/packages/golden_toolkit> | **discontinued**. 최신 0.15.0, 마지막 업데이트 3 년 전 |
@@ -96,7 +154,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 ### 주요 인사이트 (요약)
 
 - **Riverpod 3.0 Notifier 라이프사이클**: 재생성 시 leak 방지를 위해 Notifier 내부 Timer/Controller 금지, `ref.onDispose` 로 분리
-- **Freezed 3.0 sealed + Dart 3 switch expression**: `when`/`map` 제거 마이그레이션 대응
+- **Freezed 3.0 sealed + Dart 3 switch expression**: `when`/`map` 제거 마이그레이션 대응 — **[정정 2026-08-13]** `when`/`map` 은 **3.1.0 에서 재추가**됐다. 절대 규칙이 아니다
 - **go_router StatefulShellRoute + preload: true**: 탭 네비게이션 공식 권장 패턴
 - **context.mounted vs ref.mounted**: async gap 후 context 재사용 시 필수 가드 구분
 - **Makefile monorepo 감지**: fit-pal/apps 에서 make 기반 표준 타겟 감지 → project-detection Step 2b
@@ -231,7 +289,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 
 #### D. Freezed 3.x (2025-07 → 2026-02)
 
-- **Freezed 3.2.0 (2025-07):** Mixed mode 도입 — 기존 union 문법 + 간단 class 선언 혼용 가능. `map`/`when` 메서드 제거, Dart 3 패턴 매칭으로 대체. "eject union cases" 기능 추가 [official] [dated: 2025-07]
+- **Freezed 3.2.0 (2025-07):** Mixed mode 도입 — 기존 union 문법 + 간단 class 선언 혼용 가능. `map`/`when` 메서드 제거, Dart 3 패턴 매칭으로 대체. "eject union cases" 기능 추가 [official] [dated: 2025-07] — **[정정 2026-08-13]** 제거는 **3.0** 의 breaking 이었고 **3.1.0 에서 재추가**됐다. 3.2.0 을 제거 시점으로 적은 것은 오기다
 - **Freezed 3.2.5 (2026-02):** analyzer 10.0 지원. 3.2.3~3.2.5는 analyzer/source_gen/build 의존성 호환 범위 확장 [official] [dated: 2026-02]
 - **json_serializable 호환:** Freezed 3.2.3 + json_serializable 6.11.3에서 analyzer >=9/build >=4 호환 이슈 보고됨. 버전 핀닝 주의 필요 [community] [dated: 2025-09]
 
@@ -252,7 +310,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 
 #### H. 성능 & 렌더링
 
-- **Impeller 상태 (2026-04):** iOS 필수 (Skia 전환 불가), Android API 29+ 기본 (Vulkan 없으면 OpenGL 폴백), macOS 실험적 (플래그 활성화 필요), Web/Windows/Linux 미지원. Android에서 frame drop 12% → 1.5% (Skia 대비 실측치, e-커머스 앱) [official] [dated: 2026-04]
+- **Impeller 상태 (2026-04):** iOS 필수 (Skia 전환 불가), Android API 29+ 기본 (Vulkan 없으면 OpenGL 폴백), macOS 실험적 (플래그 활성화 필요), Web/Windows/Linux 미지원. Android에서 frame drop 12% → 1.5% (Skia 대비 실측치, e-커머스 앱) [official] [dated: 2026-04] — **[정정 2026-08-13]** **macOS / Linux / Windows 는 Flutter 3.47 부터 Impeller 기본**이다. Web 만 Skia
 - **Impeller on Web (wimp):** Flutter 3.41에서 초기 구현 시작. 현재 Web은 `canvaskit`/`skwasm` 사용 [official] [dated: 2026-02]
 - **Shader compilation jank 해소:** Impeller는 AOT 셰이더 컴파일로 JIT 컴파일 잔버벅 제거. 복잡 UI에서 평균 래스터화 시간 50% 감소 [official]
 
@@ -273,7 +331,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 
 - **build_runner 2x 속도 향상:** transitive import 추적 전면 재작성. 3,000 생성 라이브러리 테스트에서 2배 속도 [blog] [dated: 2025-12]
 - **macro_kit:** build_runner 없이 즉시 코드 생성 (초기 3-5초, 이후 100ms 미만). 커뮤니티 대안, 아직 초기 단계 [community] [dated: 2025-11]
-- **Freezed 3.x + Dart 3 switch:** `when`/`map` 제거 → `switch` expression + sealed class 패턴 매칭이 표준 [official] [dated: 2025-07]
+- **Freezed 3.x + Dart 3 switch:** `when`/`map` 제거 → `switch` expression + sealed class 패턴 매칭이 표준 [official] [dated: 2025-07] — **[정정 2026-08-13]** `when`/`map` 재추가(3.1.0) 이후로는 "표준" 이 아니라 **신규 코드 권장**이다
 
 #### L. 디자인 시스템
 
@@ -301,7 +359,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 | 스킬 | 개선 영역 | 근거 소스 |
 |------|-----------|-----------|
 | flutter-provider | Riverpod 3.0 Mutations, Offline Persistence, Pause/Resume Gotchas 추가 | #7, #8 |
-| flutter-api | Freezed 3.2 Mixed mode + `when`/`map` 제거 마이그레이션 Gotchas | #10, #11 |
+| flutter-api | Freezed 3.2 Mixed mode + `when`/`map` 제거 마이그레이션 Gotchas — **[정정 2026-08-13]** 3.1.0 재추가로 제거 단정은 철회, 일관성 우선으로 개정 | #10, #11 |
 | flutter-screen | go_router 17.0 `notifyRootObserver` breaking change 경고 | #12 |
 | flutter-transition | auto_route 11.0 `redirect` → `redirectUntil` 리네이밍 경고 | #13 |
 | flutter-build | Dart 3.10 dot shorthands + build_runner 2x 속도 향상 반영 | #5, #22 |
@@ -367,7 +425,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 - **Dart build hooks 정식 문서화:** Dart 3.10부터 `hook/build.dart` 기반 build hooks가 공식 문서에 포함됐고, native assets 컴파일/다운로드 같은 빌드 단계 자동화가 정식 경로로 안내된다 [official] [dated: 2026-02]
 - **Wildcard variables 재확인:** `_` wildcard variable은 Dart 3.7+ 기능으로, Dart 3.10 신규 기능은 아니다. 따라서 "Dart 3.10+ 최신 기능" 범주에서는 dot shorthands/build hooks가 핵심이고 wildcard variables는 이미 선행 도입 기능으로 봐야 한다 [official] [dated: 2025-11]
 - **Riverpod 3.0 안정화 상태:** Offline Persistence와 Mutations는 여전히 experimental 상태이며, 2026-03의 `flutter_riverpod` 3.3.1/3.3.0 및 2026-01의 3.2.0에서도 안정화 선언은 없었다. 대신 pause/resume 후 알림 누락 수정, `Ref.isPaused`, `disposeNotifier: false` 등 후속 API/버그 수정이 진행됐다 [official] [dated: 2026-03]
-- **Impeller 진행 상황:** 2026-03 공식 문서 기준 Web은 여전히 `canvaskit`/`skwasm`가 Skia를 사용하며 "future" 상태이고, macOS는 opt-in 플래그 기반 시험 사용이다. Windows/Linux 지원 표시는 여전히 없다 [official] [dated: 2026-03]
+- **Impeller 진행 상황:** 2026-03 공식 문서 기준 Web은 여전히 `canvaskit`/`skwasm`가 Skia를 사용하며 "future" 상태이고, macOS는 opt-in 플래그 기반 시험 사용이다. Windows/Linux 지원 표시는 여전히 없다 [official] [dated: 2026-03] — **[정정 2026-08-13]** macOS/Linux/Windows 는 **Flutter 3.47 부터 Impeller 기본**으로 전환됐다
 - **GenUI beta 전환 상태:** 2026-04-12 기준 공식 문서상 `genui`는 여전히 alpha/experimental이며, beta 전환 공지는 확인되지 않았다. 다만 2026-03 기준 components/get-started 문서가 확장되어 `Conversation`, `Catalog`, `DataModel`, input-events 흐름 등 개념 문서가 보강됐다 [official] [dated: 2026-03]
 - **DevTools 최신 보강:** Flutter SDK에 번들되는 DevTools는 2025-10 문서 기준 inspector/layout/performance/cpu/network/memory/app size/deep link validation을 제공하며, DevTools extensions 문서가 별도로 정리되어 third-party package가 새 탭 형태로 DevTools에 통합되는 경로가 공식화됐다 [official] [dated: 2025-10]
 - **Casual Games Toolkit 최신 상태:** 2026-03 문서 기준 toolkit은 basic/card/endless runner 3개 템플릿과 Flame 기반 SuperDash 데모, Ads/IAP/Firebase/Game Services 연동 자료를 계속 제공한다. 새 템플릿 추가는 확인되지 않았다 [official] [dated: 2026-03]

@@ -3,6 +3,12 @@
 infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL 판정 시 참조한다.
 각 기준은 `docs/infra/` 리서치 문서에서 추출한 원칙이다.
 
+**이 파일의 `##` 섹션 순서가 리포트 카테고리 순서의 SSOT 다.** `infra-kit/agents/infra-reviewer.md`
+§평가 카테고리와 `infra-kit/skills/infra-audit/SKILL.md` Step 3b 는 이 순서를 그대로 따른다.
+
+**판정어(PASS / VIOLATION / SKIP_NO_TARGET / `[미검증]` / EXECUTION_ERROR)와 도구 부재 처리는
+`gate-result-taxonomy.md` 가 SSOT 다** — 이 파일에서 다시 정의하지 않는다.
+
 ---
 
 ## Container
@@ -29,7 +35,8 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 | SLSA provenance | 빌드 시 in-toto provenance(attestation) 생성 및 레지스트리 서명 + 배포 전 `verify-attestation` 검증 | provenance 미생성 또는 미검증 |
 | 캐싱 | 의존성 캐시 레이어 설정 | 매 실행 전체 재설치 |
 | 아티팩트 보존 | 빌드 산출물 저장 설정 + SBOM/provenance 동시 보존 | 없음 |
-| Actions SHA 핀닝 | 서드파티 액션을 SHA 해시로 고정 (`uses: actions/checkout@<sha>`) — 조직 정책으로 뮤터블 태그 차단 | 뮤터블 태그(`@v4`)만 사용, SHA 미고정 |
+| 원격 `uses:` SHA 핀닝 | **YAML 파서**로 `jobs.<id>.uses`(재사용 워크플로)와 `jobs.<id>.steps[].uses`(스텝 액션)를 **둘 다** 열거했고, 로컬 `./`·`../` 외의 원격 참조가 전부 40 자 커밋 SHA 로 고정 (`docker://` 는 `@sha256:` digest). 같은 줄 주석으로 원 태그 병기 권장 | 뮤터블 태그(`@v4`)만 사용 · grep 기반 검사로 `actions/*` 를 조용히 면제 · `jobs.<id>.uses` 미열거 |
+| Dependabot 생태계 정합 | `.github/dependabot.yml` 이 `version: 2` + `github-actions` `/` 를 포함하고, 나머지 생태계는 **실제 lockfile/manifest 가 탐지된 것만** 등록 (npm→`package-lock.json`/`yarn.lock`, docker→`Dockerfile`, pip→`requirements.txt`/`poetry.lock`, cargo→`Cargo.lock`, gomod→`go.sum`) | `dependabot.yml` 부재 · 또는 존재하지 않는 생태계를 등록해 매 실행 실패 |
 | Immutable Releases | GitHub Actions 2026 Immutable Releases 적용 — 발행 후 에셋/태그 변경 불가 + `dependencies:` 섹션으로 직접+전이 의존성 SHA 잠금 | 릴리스 에셋 변조 가능 상태 |
 | 셸 실패 전파 | 파이프를 쓰는 `run` 스텝에 `shell: bash` 명시(= `bash --noprofile --norc -eo pipefail {0}`), 또는 스크립트 첫 줄 `set -euo pipefail` | 기본 셸(`bash -e {0}`, pipefail 없음)에서 파이프 사용 — 중간 명령 실패가 통과로 집계됨 |
 | 검증 스텝 exit code | 게이트 역할 스텝/스크립트가 결함 발견 시 비영 exit 로 종료 | 결함을 `echo WARN` 만 하고 exit 0 — 파이프라인이 항상 통과 |
@@ -45,6 +52,14 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 - 출처: [Reusable workflows + OIDC](https://docs.github.com/en/actions/how-tos/security-for-github-actions/security-hardening-your-deployments/using-openid-connect-with-reusable-workflows)
 - 출처: [GitHub Actions SHA Pinning Policy](https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/)
 - 출처: [GitHub Actions 2026 Security Roadmap](https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/)
+- 출처: [GitHub Actions secure use](https://docs.github.com/en/actions/reference/security/secure-use) — full-length commit SHA 만 immutable release 로 취급하며 태그는 이동·삭제 위험이 있다
+- 출처: [GitHub Actions OIDC 개념](https://docs.github.com/en/actions/concepts/security/openid-connect) — job 마다 토큰을 만들고 클라우드가 short-lived access token 을 발급하는 모델
+- 출처: [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference) — `version: 2` · `updates` · `package-ecosystem` · `directory`/`directories` · `schedule`. GitHub Actions 도 업데이트 대상이며 로컬 액션과 `docker://` 참조는 제한이 있다
+
+**SHA 핀닝 트레이드오프** — 공급망 안전성은 오르지만 업데이트 운영성이 떨어지고 Dependabot alert
+와의 상호작용이 제한된다. 같은 줄 주석으로 원래 태그를 남기면 운영성이 회복된다. GitHub-owned
+`actions/*` 를 예외로 둘지는 **정책 질문**이며 조용한 기본 면제로 처리하지 마라 — 면제한다면 그
+사실을 검사 출력에 찍는다.
 
 ---
 
@@ -119,15 +134,17 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 | 구조화 로그 | JSON 포맷, severity/trace_id 포함 | 평문 로그 |
 | 메트릭 노출 | `/metrics` 엔드포인트 또는 사이드카 | 없음 |
 | 알림 규칙 | SLO 기반 alerting rules 정의 | 없음 또는 임계값 없는 알림 |
-| OpenTelemetry 3 신호 통합 | OTel SDK/Collector로 메트릭·로그·트레이스 수집 (Logs spec 2025 stable), `service.name`/`trace_id` semantic conventions 준수 | 트레이스만 있고 로그·메트릭과 trace_id 연결 불가, semconv 미준수 |
+| OpenTelemetry signal 별 수집 | OTel SDK/Collector로 traces·metrics·logs 를 **각각** 판정 (한 줄로 "3 신호 통합" 묶지 마라 — signal 별 스펙 성숙도가 다르다), `service.name`/`trace_id` semantic conventions 준수 | 트레이스만 있고 로그·메트릭과 trace_id 연결 불가, semconv 미준수 |
+| 환경 요인 선배제 절차 (USE · 권장) | 성능·지연 조사에 host/런타임 saturation·error 지표(CPU run queue, memory pressure/swap, disk I/O queue, network drops)를 먼저 확인하는 절차가 runbook 에 있다 | 사용자 증상만 보고 앱 코드를 원인으로 단정하는 절차 |
 | OTel Collector 마이그레이션 | Grafana Agent/Operator 2025-11 EOL → Grafana Alloy 또는 vanilla OTel Collector로 마이그레이션 완료 | EOL된 Grafana Agent/Operator 계속 사용 |
 | 연속 프로파일링 (권장) | eBPF 기반 연속 프로파일링(Grafana Alloy `pyroscope.ebpf` 또는 동등) — CPU/메모리 핫스팟 상시 수집 | 프로파일링 도구 없음 (장애 시 ad-hoc 분석만 의존) |
 
 참조:
 
-- `docs/infra/operations/observability.md`
-- 출처: [OpenTelemetry spec status (Logs stable)](https://opentelemetry.io/docs/specs/status/)
+- `docs/infra/operations/observability.md` — signal 별 status 정본 + USE 기반 환경 선배제 절차
+- 출처: [OpenTelemetry spec status](https://opentelemetry.io/docs/specs/status/) — signal/component 별로 상태가 다르다. **"3 signals 모두 stable" 같은 단일 문장으로 덮지 마라**
 - 출처: [OpenTelemetry Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/)
+- 출처: [USE Method — Brendan Gregg](https://www.brendangregg.com/usemethod.html)
 
 ---
 
@@ -214,6 +231,8 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 
 - **PASS**: 모든 기준 충족
 - **FAIL**: 하나 이상 기준 미충족 — 구체적 파일:라인과 위반 기준 명시
-- **N/A**: 해당 카테고리 인프라 미사용 (예: K8s 미사용 프로젝트의 Kubernetes, EU 비대상 제품의 CRA SBOM)
+- **N/A**: 해당 카테고리 인프라 미사용 (예: K8s 미사용 프로젝트의 Kubernetes, EU 비대상 제품의 CRA SBOM, **릴리스·배포 워크플로가 없는 레포의 Supply Chain**)
+- **`[미검증]`**: 검사 도구 미설치 · 클러스터/레지스트리/state 접근 불가. **PASS 도 N/A 도 아니다.** 분기·카운터는 `gate-result-taxonomy.md` 와 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 을 따른다 (여기서 임계값을 다시 정하지 않는다)
 - 개발 환경 설정은 프로덕션 기준 FAIL 제외 — 항목별 주석으로 환경 구분
 - **(권장)** 표시 항목은 미충족 시 WARN (FAIL 아님) — 단, 프로덕션 대규모 환경에서는 FAIL 승격 가능
+- **도입 전 단계를 FAIL 로 강제하지 마라** — SLSA provenance · Cosign 서명 · SBOM 은 릴리스 산출물이 실재할 때 게이트로 승격한다. K8s·Gateway API·service mesh·IDP·FinOps 도 해당 인프라가 없는 레포에서는 N/A 다

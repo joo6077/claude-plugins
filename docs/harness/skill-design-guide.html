@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>스킬 설계 가이드 v1.4.0 — Harness</title>
+<title>스킬 설계 가이드 v1.5.0 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
   --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
-  --accent:#0ea5e9;--accent2:#14b8a6;--accent-dim:rgba(14,165,233,0.12);
-  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#7dd3fc;
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
 }
@@ -18,510 +18,705 @@ html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
   background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-  background-image:radial-gradient(ellipse at 20% 0%,rgba(14,165,233,0.07) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.04) 0%,transparent 50%);
-  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(232,165,131,0.04) 0%,transparent 50%);
+  -webkit-font-smoothing:antialiased;overflow-wrap:break-word;
 }
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .page{max-width:1180px;margin:0 auto;padding:0 24px 96px}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--border)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:24px 0;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
-.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(217,119,87,0.5);flex-shrink:0}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
-.hero{padding:72px 0 56px;text-align:center}
-.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
-  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+.badge.g{background:rgba(74,222,128,0.12);color:var(--green)}
+.badge.r{background:rgba(248,113,113,0.12);color:var(--red)}
+.badge.y{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.hero{padding:72px 0 56px}
+.hero h1{font-size:clamp(2.1rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:18px}
-.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;margin:0 auto 18px;line-height:1.7}
-.hero .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
+.hero .subtitle{font-size:1.03rem;color:var(--text2);max-width:780px;margin-bottom:20px;line-height:1.75}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--text3)}
 .hero .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);min-height:24px;display:inline-flex;align-items:center}
-.section{padding:56px 0;border-top:1px solid var(--border)}
+.section{padding:52px 0;border-top:1px solid var(--border)}
 .section-label{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
 .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 70%)}
-.section-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-0.02em}
-.section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative;margin-bottom:16px}
-.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
-.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
+.section-title{font-size:clamp(1.4rem,3vw,1.95rem);font-weight:700;line-height:1.25;margin-bottom:10px;letter-spacing:-0.02em}
+.section-desc{font-size:0.96rem;color:var(--text2);max-width:830px;line-height:1.78;margin-bottom:28px}
+.section-desc + .section-desc{margin-top:-16px}
+h3.sub{font-size:1rem;font-weight:700;margin:28px 0 12px;color:var(--text);letter-spacing:-0.01em}
+h3.sub::before{content:'▸ ';color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;margin-bottom:16px}
+.card:hover{border-color:rgba(217,119,87,0.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
+.card-title{font-size:1.01rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
-.card p{font-size:13.5px;color:var(--text2);line-height:1.7}
-.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition)}
+.card p{font-size:13.5px;color:var(--text2);line-height:1.72}
+.card p + p{margin-top:10px}
+.card ul{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:7px}
+.card ul li{font-size:13px;color:var(--text2);line-height:1.65;padding-left:16px;position:relative}
+.card ul li::before{content:'·';position:absolute;left:4px;color:var(--accent);font-weight:800}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;min-height:24px;transition:var(--transition);max-width:100%}
 .card-source:hover{background:var(--accent);color:var(--bg)}
 .card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-.card-source::before{content:'↗';font-weight:800}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-@media(max-width:920px){.grid-2,.grid-3{grid-template-columns:1fr}}
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:18px}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.card-source::before{content:'↗';font-weight:800;flex-shrink:0}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:920px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:18px;-webkit-overflow-scrolling:touch;max-width:100%}
+table{width:100%;border-collapse:collapse;font-size:13.3px}
 thead{background:var(--surface2)}
-th{padding:14px 16px;text-align:left;font-weight:700;font-size:12px;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+th{padding:13px 15px;text-align:left;font-weight:700;font-size:11.5px;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 15px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.62}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--accent-dim)}
-td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+td code,th code{font-family:var(--mono);font-size:11.5px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+td strong{color:var(--text)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
 @media(max-width:760px){.compare{grid-template-columns:1fr}}
-.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
 .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
 .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
-.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-label{font-size:11.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:11px}
 .compare-bad .compare-label{color:var(--red)}
 .compare-good .compare-label{color:var(--green)}
-.compare p{font-size:12.5px;color:var(--text3);margin-top:12px;line-height:1.6}
-code,.code-block{font-family:var(--mono);font-size:12.5px}
-.code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:8px 0}
-.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:820px}
-.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
-.checklist .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent);font-weight:800}
-.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
-.type-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:var(--transition)}
-.type-item:hover{border-color:var(--accent)}
-.type-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:800;margin-bottom:8px}
-.type-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
-.type-desc{font-size:11.5px;color:var(--text3);line-height:1.5}
-@media(max-width:760px){.type-grid{grid-template-columns:1fr}}
-.parity-box{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
-.parity-box-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
-.parity-box p{font-size:13px;color:var(--text2);line-height:1.7}
-.grade{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
-@media(max-width:920px){.grade{grid-template-columns:1fr}}
-.grade-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;position:relative}
-.grade-item::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;border-radius:12px 0 0 12px}
-.grade-e1::before{background:var(--text3)}
-.grade-e2::before{background:var(--yellow)}
-.grade-e3::before{background:var(--green)}
-.grade-tag{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
-.grade-e1 .grade-tag{color:var(--text3)}
-.grade-e2 .grade-tag{color:var(--yellow)}
-.grade-e3 .grade-tag{color:var(--green)}
-.grade-item h4{font-size:14px;font-weight:700;margin-bottom:8px}
-.grade-item p{font-size:12.5px;color:var(--text2);line-height:1.65}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
-@media(max-width:760px){.stat-row{grid-template-columns:1fr}}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
-.stat-num{font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:800;letter-spacing:-0.02em;color:var(--accent);line-height:1.1}
-.stat-label{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.55}
-.footer{margin-top:64px;padding:36px 0 12px;border-top:1px solid var(--border)}
-.footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
-.footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:760px}
+.compare p{font-size:12.5px;color:var(--text3);margin-top:11px;line-height:1.62}
+code,.code-block{font-family:var(--mono);font-size:12.3px}
+.code-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px 17px;overflow-x:auto;line-height:1.66;color:var(--text2);white-space:pre;display:block;margin:8px 0;max-width:100%}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:9px;max-width:900px}
+.checklist li{font-size:13.4px;color:var(--text2);line-height:1.7;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;display:block}
+.checklist .check{width:21px;height:21px;border-radius:6px;border:2px solid var(--accent);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800;vertical-align:-5px;margin-right:11px}
+.pattern-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:16px 0}
+@media(max-width:920px){.pattern-grid{grid-template-columns:1fr}}
+.pattern{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:19px;transition:var(--transition)}
+.pattern:hover{border-color:rgba(217,119,87,0.45)}
+.pattern-num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 8px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:11.5px;font-weight:800;margin-bottom:10px}
+.pattern h4{font-size:13.6px;font-weight:700;margin-bottom:9px;line-height:1.4}
+.pattern p{font-size:12.5px;color:var(--text2);line-height:1.66}
+.pattern .fit{font-size:12px;color:var(--text3);margin-top:9px}
+.note{border-radius:12px;padding:20px;margin:16px 0;border:1px solid var(--border);background:var(--surface)}
+.note-title{font-size:12px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:9px;color:var(--accent)}
+.note p{font-size:13.2px;color:var(--text2);line-height:1.72}
+.note p + p{margin-top:9px}
+.note ul{list-style:none;margin-top:9px;display:flex;flex-direction:column;gap:7px}
+.note ul li{font-size:13px;color:var(--text2);line-height:1.65;padding-left:15px;position:relative}
+.note ul li::before{content:'·';position:absolute;left:3px;color:var(--accent);font-weight:800}
+.note.warn{background:rgba(251,191,36,0.06);border-color:rgba(251,191,36,0.25)}
+.note.warn .note-title{color:var(--yellow)}
+.note.bad{background:rgba(248,113,113,0.06);border-color:rgba(248,113,113,0.25)}
+.note.bad .note-title{color:var(--red)}
+.note.good{background:rgba(74,222,128,0.06);border-color:rgba(74,222,128,0.25)}
+.note.good .note-title{color:var(--green)}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.stat-row{grid-template-columns:1fr}}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+.stat-num{font-size:clamp(1.5rem,3.2vw,2.05rem);font-weight:800;letter-spacing:-0.02em;color:var(--accent);line-height:1.12}
+.stat-label{font-size:11.8px;color:var(--text3);margin-top:7px;line-height:1.55}
+.stat-label code{font-size:10.5px;color:var(--text2)}
+.flow{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;margin:14px 0;overflow-x:auto;max-width:100%}
+.flow pre{font-family:var(--mono);font-size:12.2px;line-height:1.72;color:var(--text2);white-space:pre}
+.taglist{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tag{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);min-height:24px;display:inline-flex;align-items:center}
+.tag.on{border-color:var(--accent);color:var(--accent)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+@media(max-width:860px){.steps{grid-template-columns:1fr}}
+.step{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:17px}
+.step-n{font-size:11px;font-weight:800;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px}
+.step h4{font-size:13.4px;font-weight:700;margin-bottom:7px;line-height:1.4}
+.step p{font-size:12.5px;color:var(--text2);line-height:1.65}
+.footer{margin-top:60px;padding:34px 0 12px;border-top:1px solid var(--border)}
+.footer h3{font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.footer p{font-size:13px;color:var(--text2);margin-bottom:14px;max-width:800px}
 .footer ul{list-style:none;display:flex;flex-direction:column;gap:8px}
-.footer ul li{font-size:12.5px;color:var(--text3)}
+.footer ul li{font-size:12.5px;color:var(--text3);line-height:1.6}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
-/* ═══ 가로 오버플로 방지 (docs-site 정본 규칙) — 내용을 자르지 말고 스크롤시킨다 ═══ */
-/* (1) grid 자식의 기본 min-width 는 auto(=min-content) 라, 긴 코드·표·안 끊기는 토큰의
-       최소폭이 그대로 트랙 폭으로 전파되어 문서를 밀어낸다. */
-.grid-2>*,.grid-3>*,.compare>*,.type-grid>*,.grade>*,.stat-row>*{min-width:0}
-/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다. */
-.table-wrap{-webkit-overflow-scrolling:touch;max-width:100%}
+/* ═══ 가로 오버플로 4 규칙 (docs-site Gotcha 10) — 자르지 말고 스크롤시킨다 ═══ */
+/* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 라 긴 토큰의 최소폭이 트랙 폭으로 전파된다 */
+.grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.pattern-grid>*,.stat-row>*,.steps>*,.topbar>*{min-width:0}
+/* (2) 표는 스크롤 컨테이너 안에서 자연폭을 유지한다 */
 .table-wrap>table{min-width:max-content}
-/* (3) 코드 — 블록(white-space:pre)은 컨테이너에서 스크롤, 인라인 토큰은 어디서든 줄바꿈. */
+/* (3) 코드 — 블록은 컨테이너에서 스크롤, 인라인 토큰은 어디서든 줄바꿈 */
 pre{overflow-x:auto;max-width:100%}
 pre code{white-space:pre}
-.code-block{max-width:100%}
 :not(pre)>code:not(.code-block){overflow-wrap:anywhere}
-/* (4) .checklist li 가 flex 라 인라인 <code>/<strong> 이 각각 별도 flex 아이템이 되어
-       줄바꿈 없이 한 줄에 나열된다. 인라인 흐름으로 되돌려 자연 줄바꿈시킨다. */
-.checklist li{display:block}
-.checklist .check{display:inline-flex;vertical-align:-5px;margin-right:12px}
+/* (4) 좁은 뷰포트 단일 컬럼 스택은 각 그리드의 @media 블록에서 처리 (위 참조) */
+
+/* ═══ 페이지 고유 스타일 ═══ */
+.ladder{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+@media(max-width:860px){.ladder{grid-template-columns:1fr}}
+.ladder>*{min-width:0}
+.rung{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:19px;position:relative}
+.rung.e1{border-top:3px solid var(--text3)}
+.rung.e2{border-top:3px solid var(--yellow)}
+.rung.e3{border-top:3px solid var(--green)}
+.rung-k{font-size:11px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;margin-bottom:8px;color:var(--text3)}
+.rung.e2 .rung-k{color:var(--yellow)}
+.rung.e3 .rung-k{color:var(--green)}
+.rung h4{font-size:13.5px;font-weight:700;margin-bottom:8px;line-height:1.4}
+.rung p{font-size:12.4px;color:var(--text2);line-height:1.66}
+
 </style>
-  <!-- kaizen-cycle: 2026-07-27 (Completion Evidence Gate + Enforcement E1/E2/E3 + Counterpart Enumeration) -->
+<!-- kaizen-cycle: 2026-08-13 · source: harness/docs/guides/skill-design-guide.md -->
 </head>
 <body>
 <div class="page">
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · 스킬 설계 가이드</div>
-  <span class="badge">v1.4.0 · 2026-07-27</span>
+  <span class="badge">v1.5.0 · 2026-08-13</span>
 </div>
 
 <div class="hero">
   <h1>스킬 설계 가이드</h1>
-  <p class="subtitle">Anthropic 공식 문서(2026-04) + 내부 스킬 분석 + 커뮤니티 실전 경험. 2026-07 사이클에서 <strong>§3.7 Completion Evidence Gate</strong>(Enforcement 3 등급 E1/E2/E3)와 <strong>§5.5 Counterpart Enumeration</strong>이 신설되었다.</p>
+  <p class="subtitle">Anthropic 공식 문서 + 내부 스킬 분석 + 이 레포의 실측 REJECT 코퍼스로 만든 <code>SKILL.md</code> 설계 원칙. 2026-08-13 사이클에서 <strong>스킬 유형 11 종(탐색형 생성 신설)</strong>, <strong>§5.6 Variant Budget</strong>, <strong>§3.8 User-Reported Failure Gate</strong>, <strong>Enforcement 등급 원장 8 행</strong>이 반영됐다. 이번 사이클의 방침은 새 문장 추가가 아니라 <em>등급 승급</em>이다.</p>
   <div class="meta">
-    <span>v1.4.0</span>
-    <span>최근 갱신 2026-07-27</span>
-    <span>신설 §3.7 · §5.5 Counterpart</span>
+    <span>version 1.5.0</span>
+    <span>last_updated 2026-08-13</span>
+    <span>스킬 유형 11 종</span>
+    <span>Parity item 14 개</span>
+    <span>등급 원장 8 행</span>
   </div>
 </div>
 
-<!-- SECTION 1: FOLDER DESIGN -->
+<!-- ═══ 1. 폴더로 설계 ═══ -->
 <div class="section">
-  <div class="section-label">Structure</div>
-  <div class="section-title">§1 파일이 아닌 폴더로 설계하라</div>
-  <p class="section-desc">스킬은 마크다운 파일 하나가 아니라 <strong>폴더 단위</strong>로 설계한다. 점진적 공개(Progressive Disclosure): 메인 MD에는 개요와 파일 목록만, 상세는 별도 파일로 분리한다.</p>
+  <div class="section-label">Foundation</div>
+  <div class="section-title">§1 스킬은 파일이 아니라 폴더다</div>
+  <p class="section-desc">스킬은 마크다운 파일 하나가 아니라 <strong>폴더 단위</strong>로 설계한다. Claude 는 폴더를 탐색하고 필요한 파일만 골라 읽을 수 있어서, 메인 파일에 모든 정보를 넣는 순간 컨텍스트가 과부하된다. 밀키트 비유가 정확하다 — 레시피(지시문)뿐 아니라 재료(레퍼런스)와 도구(스크립트)까지 상자에 담되, 무엇이 들었는지 목록을 겉면에 적어 둔다.</p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>폴더 구조 (밀키트 비유)</div>
+      <div class="card-title"><span class="dot"></span>폴더 레이아웃</div>
       <code class="code-block">my-skill/
-├── my-skill.md       # 개요 + 파일 목록
-├── references/       # API 문서, 코드 스니펫
+├── SKILL.md             # 메인 지시문 (개요 + 파일 목록)
+├── references/          # API 문서, 코드 스니펫
 │   └── api.md
-├── scripts/          # 헬퍼 함수, 검증 스크립트
+├── scripts/             # 헬퍼 함수, 검증 스크립트
 │   └── validate.sh
-└── templates/        # 출력 템플릿
+└── templates/           # 출력 템플릿
     └── report.md</code>
-      <p style="margin-top:12px">밀키트 비유 — 레시피(지시문)뿐 아니라 재료(레퍼런스)와 도구(스크립트)까지 제공한다. 메인 파일에 모든 정보를 넣으면 컨텍스트가 과부하된다.</p>
-      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#progressive-disclosure-patterns">Progressive Disclosure</a>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Skill Authoring Best Practices — Claude API Docs</a>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>3-레벨 로딩 시스템</div>
-      <p><strong>Level 1 — Metadata</strong> (~100단어, 항상 시스템 프롬프트에 상주): <code>name</code> + <code>description</code></p>
-      <p style="margin-top:8px"><strong>Level 2 — SKILL.md body</strong> (스킬이 트리거될 때 로드): 핵심 지침과 워크플로우. <strong>500 라인 미만</strong> 유지.</p>
-      <p style="margin-top:8px"><strong>Level 3 — Bundled resources</strong> (필요할 때만 읽음): <code>scripts/</code>, <code>references/</code>, <code>assets/</code></p>
-      <p style="margin-top:8px">메타데이터만 항상 상주하고 나머지는 on-demand 로 읽는다. 바로 이 구조가 "컨텍스트 절약"의 핵심이다.</p>
-      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#token-budgets">Token Budgets</a>
+      <div class="card-title"><span class="dot"></span>왜 폴더인가</div>
+      <ul>
+        <li>Claude 가 폴더를 탐색하고 <strong>필요한 파일만 선택적으로</strong> 읽는다</li>
+        <li>메인 파일에 다 넣으면 컨텍스트가 과부하된다</li>
+        <li>점진적 공개 — 메인 MD 에는 개요와 파일 목록만, 상세는 별도 파일로</li>
+        <li>반복되는 참조가 생기면 <code>references/</code>, 반복 로직이 생기면 <code>scripts/</code></li>
+      </ul>
+      <a class="card-source" href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Equipping Agents for the Real World — Anthropic Engineering</a>
     </div>
-  </div>
-
-  <div class="card" style="border-left:3px solid var(--yellow)">
-    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>Reference 파일은 1-level deep (필수)</div>
-    <p>Claude는 참조 파일이 다른 참조 파일에서 다시 링크되어 있을 때 <code>head -100</code>으로 일부만 미리보는 경향이 있어 정보 누락이 발생한다. 모든 reference는 SKILL.md에서 직접 링크되어야 한다. 100 라인을 넘는 reference 파일에는 상단에 Table of Contents 를 포함한다.</p>
-    <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-deeply-nested-references">Avoid Deeply Nested References</a>
   </div>
 </div>
 
-<!-- SECTION 2: SKILL ARCHETYPES -->
+<!-- ═══ 2. 11 유형 ═══ -->
 <div class="section">
   <div class="section-label">Archetypes</div>
-  <div class="section-title">§2 스킬 10가지 유형 — 하나에 명확히 속해야 한다</div>
-  <p class="section-desc">Anthropic이 내부 스킬 수백 개를 분석하여 발견한 패턴. <strong>좋은 스킬은 하나의 유형에 명확히 속하고, 나쁜 스킬은 여러 유형에 걸친다.</strong> 1~9 는 공식 분석 패턴, <strong>10 은 본 레포 운영 경험에서 추가</strong>되었다.</p>
-  <div class="type-grid">
-    <div class="type-item"><div class="type-num">1</div><div class="type-name">라이브러리 레퍼런스</div><div class="type-desc">내부 라이브러리 사용법 및 함정 정리 — 사내 SDK 가이드</div></div>
-    <div class="type-item"><div class="type-num">2</div><div class="type-name">제품 검증</div><div class="type-desc">Playwright 등 도구로 코드 자동 확인 — E2E 테스트 스킬</div></div>
-    <div class="type-item"><div class="type-num">3</div><div class="type-name">데이터 조회</div><div class="type-desc">모니터링/분석 스택 연결 — Grafana 대시보드 조회</div></div>
-    <div class="type-item"><div class="type-num">4</div><div class="type-name">비즈니스 자동화</div><div class="type-desc">반복 업무 자동화 — 스탠드업 리포트, 위클리 리캡</div></div>
-    <div class="type-item"><div class="type-num">5</div><div class="type-name">코드 스캐폴딩</div><div class="type-desc">보일러플레이트 자동 생성 — 프로젝트 초기 설정</div></div>
-    <div class="type-item"><div class="type-num">6</div><div class="type-name">코드 리뷰</div><div class="type-desc">스타일 강제 또는 자동 리뷰 — PR 리뷰 스킬</div></div>
-    <div class="type-item"><div class="type-num">7</div><div class="type-name">CI/CD</div><div class="type-desc">PR 모니터링 및 자동 롤백 — 배포 파이프라인 스킬</div></div>
-    <div class="type-item"><div class="type-num">8</div><div class="type-name">런북(Runbook)</div><div class="type-desc">장애 시 자동 조사 및 보고서 — 인시던트 대응 스킬</div></div>
-    <div class="type-item"><div class="type-num">9</div><div class="type-name">인프라 운영</div><div class="type-desc">리소스 정리 및 비용 분석 — 미사용 리소스 정리</div></div>
-    <div class="type-item" style="border-color:var(--accent)"><div class="type-num">10</div><div class="type-name">Session Lifecycle</div><div class="type-desc">세션 종료/이어가기/요약 자동화 — handoff, work-summary, resume-prompt</div></div>
+  <div class="section-title">§2 스킬 11 가지 유형 — 10·11 은 본 레포 운영 경험에서 추가됐다</div>
+  <p class="section-desc">Anthropic 이 내부 스킬 수백 개를 분석해 9 가지 유형을 식별했다. <strong>좋은 스킬은 하나의 유형에 명확히 속하고, 나쁜 스킬은 여러 유형에 걸친다.</strong> 여기에 이 레포 운영에서 관측된 2 종을 더해 11 종을 쓴다 — 10 은 긴 세션의 truncation 환경에서 lifecycle 스킬이 별도 카테고리로 식별된 것(2026-05), 11 은 탐색이 발산해 산출물이 수십 개로 불어나고 변주끼리 구별되지 않는 실패가 반복 관측된 것(2026-08 · 글로벌 REJECT <code>UI-04</code>)이다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>유형</th><th>설명</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>라이브러리 레퍼런스</strong></td><td>내부 라이브러리 사용법 및 함정 정리</td><td>사내 SDK 가이드</td></tr>
+        <tr><td>2</td><td><strong>제품 검증</strong></td><td>Playwright 등 도구로 코드 자동 확인</td><td>E2E 테스트 스킬</td></tr>
+        <tr><td>3</td><td><strong>데이터 조회</strong></td><td>모니터링/분석 스택 연결</td><td>Grafana 대시보드 조회</td></tr>
+        <tr><td>4</td><td><strong>비즈니스 자동화</strong></td><td>반복 업무 자동화</td><td>스탠드업 리포트, 위클리 리캡</td></tr>
+        <tr><td>5</td><td><strong>코드 스캐폴딩</strong></td><td>보일러플레이트 자동 생성</td><td>프로젝트 초기 설정</td></tr>
+        <tr><td>6</td><td><strong>코드 리뷰</strong></td><td>스타일 강제 또는 자동 리뷰</td><td>PR 리뷰 스킬</td></tr>
+        <tr><td>7</td><td><strong>CI/CD</strong></td><td>PR 모니터링 및 자동 롤백</td><td>배포 파이프라인 스킬</td></tr>
+        <tr><td>8</td><td><strong>런북(Runbook)</strong></td><td>장애 시 자동 조사 및 보고서</td><td>인시던트 대응 스킬</td></tr>
+        <tr><td>9</td><td><strong>인프라 운영</strong></td><td>리소스 정리 및 비용 분석</td><td>미사용 리소스 정리</td></tr>
+        <tr><td>10</td><td><strong>Session Lifecycle</strong> <span class="badge">레포 추가</span></td><td>세션 종료/이어가기/요약 자동화</td><td>handoff, work-summary, resume-prompt</td></tr>
+        <tr><td>11</td><td><strong>탐색형 생성</strong> <span class="badge">레포 추가</span></td><td>하나의 결정을 위해 비교용 변주안 N 개를 생성</td><td>design-mockup, 시안·후보 생성 스킬</td></tr>
+      </tbody>
+    </table>
   </div>
-  <p class="section-desc" style="margin-top:8px">유형 10 은 긴 세션의 toll / network / output_token 한계로 truncation 이 잦은 환경에서 lifecycle 스킬이 별도 카테고리로 식별되어 추가되었다 (2026-05 <code>/insights</code>). 이 목록을 체크리스트로 사용하여 팀에 아직 없는 스킬 유형을 점검하라.</p>
+  <div class="note warn">
+    <div class="note-title">유형 11 에는 §5.6 Variant Budget 이 필수다</div>
+    <p>다른 유형과 달리 <strong>산출물 개수 자체가 실패 모드</strong>이기 때문이다. 이 목록은 체크리스트로 써서 팀에 아직 없는 스킬 유형을 점검하는 용도이기도 하다.</p>
+  </div>
 </div>
 
-<!-- SECTION 3: GOTCHAS -->
+<!-- ═══ 3. Gotchas ═══ -->
 <div class="section">
   <div class="section-label">Gotchas</div>
-  <div class="section-title">§3 Gotchas — 스킬에서 가장 가치 있는 섹션</div>
-  <p class="section-desc">Claude는 코딩을 이미 잘 안다. 파이썬 API 호출법 같은 일반 지식은 스킬에 불필요하다. 스킬에 담아야 할 것은 <strong>Claude가 추론만으로 절대 알 수 없는 정보</strong> — 즉 반복적으로 실패하는 지점이다.</p>
+  <div class="section-title">§3 가차스가 스킬에서 가장 가치 있는 섹션이다</div>
+  <p class="section-desc">Claude 는 코딩을 이미 잘 안다. 파이썬 API 호출법 같은 일반 지식은 스킬에 불필요하다. 스킬에 담아야 할 것은 <strong>Claude 가 추론만으로 절대 알 수 없는 정보</strong> — 즉 반복적으로 실패하는 지점이다.</p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Gotchas 추가 흐름</div>
-      <code class="code-block">Claude가 실수 → 실수 패턴 식별
-→ Gotchas에 한 줄 추가
-→ 다음부터 같은 실수 방지</code>
-      <p style="margin-top:12px">대부분의 스킬은 <strong>몇 줄의 지시문 + 하나의 Gotchas</strong>로 시작하여 점진적으로 성장한다.</p>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>왜 Gotchas 인가</div>
-      <p>완벽한 지시문에도 Claude는 예상치 못한 실수를 한다. 신입 사원에게 매뉴얼보다 선배의 "이거 조심해" 조언이 더 유용한 것과 같다.</p>
-      <code class="code-block" style="margin-top:12px">## Gotchas
+      <div class="card-title"><span class="dot"></span>가차스 한 줄의 형태</div>
+      <code class="code-block">## Gotchas
 
 - 우리 빌링 립은 이 함수 호출 전에
   반드시 tenant_id 를 먼저 설정해야 한다</code>
+      <p>신입 사원에게 매뉴얼보다 선배의 "이거 조심해" 조언이 더 유용한 것과 같다. 대부분의 스킬은 <strong>몇 줄의 지시문 + 하나의 가차스</strong>로 시작해 점진적으로 성장한다.</p>
+      <a class="card-source" href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md">skill-creator SKILL.md — anthropics/skills</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>가차스 추가 흐름</div>
+      <div class="flow"><pre>Claude 가 실수
+  ↓
+실수 패턴 식별
+  ↓
+Gotchas 에 한 줄 추가
+  ↓
+다음부터 같은 실수 방지</pre></div>
+      <p>완벽한 지시문에도 Claude 는 예상치 못한 실수를 한다. 그 실수를 관찰해 한 줄씩 쌓는 것이 스킬을 키우는 유일한 방법이다.</p>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Skill Authoring Best Practices — Claude API Docs</a>
     </div>
   </div>
 </div>
 
-<!-- SECTION 3.5: QA NAME MATCHING -->
+<!-- ═══ 3.5 이름 매칭 ═══ -->
 <div class="section">
-  <div class="section-label">QA Name Matching</div>
-  <div class="section-title">§3.5 QA 계약과 1:1 매칭되는 이름을 사용하라</div>
-  <p class="section-desc">스킬이 정의하는 카테고리, 필드, 섹션 이름은 QA 계약(Sprint Contract)에서 그대로 재사용된다. 이름이 어긋나면 평가자가 해석해야 하고 해석이 엇갈리면 REJECT 또는 모호한 PASS 가 발생한다.</p>
+  <div class="section-label">Naming</div>
+  <div class="section-title">§3.5 QA 계약과 1:1 매칭되는 이름을 써라</div>
+  <p class="section-desc">스킬이 정의하는 <strong>카테고리·필드·섹션 이름</strong>은 Sprint Contract 에서 그대로 재사용된다. 이름이 어긋나면 평가자가 "이 조건이 어느 항목에 해당하는지" 해석해야 하고, 해석이 엇갈리면 REJECT 또는 모호한 PASS 가 발생한다.</p>
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">Bad — 스킬과 계약 이름이 다름</div>
-      <code class="code-block">스킬: "Anatomy 섹션 —
-  필수 파트: Header, Body, Footer"
-
-계약: "SK-05: 레이아웃 구조 확인
-  (헤더/바디/푸터 포함 여부)"</code>
-      <p>"레이아웃 구조"가 Anatomy 를 가리키는지 불명확.</p>
+      <div class="compare-label">Bad — 스킬과 계약의 이름이 다름</div>
+      <code class="code-block">스킬 본문: "Anatomy 섹션 — 필수 파트:
+           Header, Body, Footer"
+계약 조건: "SK-05: 레이아웃 구조 확인
+           (헤더/바디/푸터 포함 여부)"</code>
+      <p>평가자가 SK-05 를 검증할 때 "레이아웃 구조" 가 Anatomy 를 가리키는지 불명확하다.</p>
     </div>
     <div class="compare-good">
-      <div class="compare-label">Good — 스킬과 계약 이름이 일치</div>
-      <code class="code-block">스킬: "Anatomy 섹션 —
-  필수 파트: Header, Body, Footer"
-
-계약: "SK-05: Anatomy 섹션 확인 —
-  Header, Body, Footer
-  필수 파트 포함 여부"</code>
+      <div class="compare-label">Good — 이름이 그대로 재사용됨</div>
+      <code class="code-block">스킬 본문: "Anatomy 섹션 — 필수 파트:
+           Header, Body, Footer"
+계약 조건: "SK-05: Anatomy 섹션 확인 —
+           Header, Body, Footer 필수 파트
+           포함 여부"</code>
+      <p>스킬 본문의 필드명을 계약 작성 시 그대로 복사하여 재해석 여지를 없앤다.</p>
     </div>
   </div>
   <ul class="checklist">
-    <li><span class="check">1</span>스킬에 카테고리 ID(SK-xx, CD-xx 등)를 정의했으면, 계약 조건에도 동일 ID 를 사용</li>
-    <li><span class="check">2</span>스킬 본문의 필드명을 계약 작성 시 그대로 복사하여 재해석 여지를 없앰</li>
-    <li><span class="check">3</span>스킬을 수정할 때 이름이 바뀌면 기존 계약 템플릿도 함께 갱신</li>
+    <li><span class="check">✓</span>스킬에 카테고리 ID(<code>SK-xx</code>, <code>CD-xx</code> 등)를 정의했으면 계약 조건에도 <strong>동일 ID</strong>를 쓴다</li>
+    <li><span class="check">✓</span>스킬을 수정해 이름이 바뀌면 <strong>기존 계약 템플릿도 함께</strong> 갱신한다</li>
   </ul>
 </div>
 
-<!-- SECTION 3.6: VERIFICATION -->
+<!-- ═══ 3.6 검증 기준 ═══ -->
 <div class="section">
   <div class="section-label">Verification</div>
-  <div class="section-title">§3.6 검증 가능한 성공 기준 + 3 종 감사 패스</div>
-  <p class="section-desc">스킬이 산출물을 생성할 때 Claude가 <strong>스스로 결과를 검증할 수 있는 기준</strong>을 포함해야 한다. 검증 기준 없이 Claude는 "그럴듯해 보이지만 실제로는 동작하지 않는" 결과를 만든다. 사용자가 유일한 피드백 루프가 되면 모든 실수에 사용자의 주의가 필요하다.</p>
+  <div class="section-title">§3.6 검증 가능한 성공 기준을 제공하라</div>
+  <p class="section-desc">Anthropic 공식 문서가 "가장 레버리지가 큰 단 하나" 로 꼽는 원칙이다 — <em>Give Claude a way to verify its work.</em> 검증 기준 없이 Claude 는 "그럴듯해 보이지만 실제로는 동작하지 않는" 결과를 만든다. 사용자가 유일한 피드백 루프가 되면 모든 실수에 사용자의 주의가 필요해진다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>스킬 유형</th><th>검증 기준 예시</th></tr></thead>
+      <tbody>
+        <tr><td>코드 스캐폴딩</td><td>생성 후 <code>commands.analyze</code> 실행, 워닝 0 개 확인</td></tr>
+        <tr><td>코드 리뷰</td><td>지적 사항마다 <code>파일:라인</code> 근거 필수</td></tr>
+        <tr><td>계약 생성</td><td>모든 조건이 PASS/FAIL 이진 판정 가능한지 자가 검증</td></tr>
+        <tr><td>데이터 조회</td><td>쿼리 결과가 비어 있으면 쿼리 자체를 재검증</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a class="card-source" href="https://code.claude.com/docs/en/best-practices">Best Practices for Claude Code — "Give Claude a way to verify its work"</a>
+
+  <h3 class="sub">Rule-by-Rule Audit Before Completion — 완료 선언 전 규칙 전수 대조</h3>
+  <p class="section-desc">Claude 는 리팩터링·대량 편집 시 <strong>규칙에 이미 기재된 위반을 놓치고</strong> 사용자가 지적해야 비로소 고치는 패턴을 반복한다. 스킬이 규칙 리스트(Gotchas, anti-patterns, contract categories, style migrations)를 보유하면, 완료 선언 전에 <strong>규칙별 1:1 대조 패스</strong>를 강제한다.</p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — N 회 왕복</div>
+      <code class="code-block">Claude 편집 완료
+  → 사용자가 놓친 규칙 지적
+  → Claude 수정
+  → 사용자가 또 발견
+  → 반복…</code>
+      <p>insights 인용: "Claude fixes some issues, you point out missed ones, Claude fixes those, you find more."</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 1 review + 1 execution</div>
+      <code class="code-block">Claude 편집
+  → 규칙 체크리스트 전수 대조
+  → 위반 목록 발견
+  → 수정
+  → 완료 선언</code>
+      <p>"그 외에도 혹시 놓친 규칙이 있는가?" 를 1 회 더 스스로 묻는 meta-audit 까지 포함한다.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Pre-Edit Batch Audit — 편집 시작 전 위반 전수 enumerate</h3>
+  <p class="section-desc">Rule-by-Rule Audit 이 <strong>완료 시점</strong>의 안전망이라면, Pre-Edit Batch Audit 는 <strong>편집 시작 시점</strong>에 같은 규칙 리스트를 능동 적용한다. 두 패스가 짝을 이뤄야 N 회 round-trip 이 "1 review + 1 execution" 으로 축약된다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>적용 시점</div>
+      <p>리팩터링·대량 편집(3+ 파일, 1+ 규칙군) 시작 <strong>전</strong>, 대상 파일 전수를 읽어 모든 적용 규칙 위반을 enumerate 한 체크리스트를 사용자에게 제시하고 승인받는다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>항목당 3 요소</div>
+      <ul>
+        <li>(a) 파일/라인 근거</li>
+        <li>(b) 위반 규칙 식별자</li>
+        <li>(c) 권장 조치</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>false-dichotomy 도 대상</div>
+      <p><code>Stack vs Column</code>, <code>Service vs UseCase</code>, <code>widget extend vs new</code> 같은 아키텍처 선택도 enumerate 대상이다. 옵션 A/B/C 를 모두 보여주고 trade-off 를 명시한 뒤 선택받는다.</p>
+    </div>
+  </div>
+  <p class="section-desc">본 원칙은 high-freedom 영역(아키텍처·디자인 선택)과 low-freedom 영역(린트 규칙·토큰 마이그레이션) <strong>양쪽 모두</strong>에 적용된다 — §5.5 Enumerate-before-Act 가 low-freedom 만 다룬 것을 확장한 것이다.</p>
+
+  <h3 class="sub">Scope-Bound Edits — 허락 없는 삭제·디자인 선택 금지</h3>
+  <p class="section-desc">Pre-Edit Batch Audit 가 <em>시작 시점</em>의 enumerate 라면, 본 원칙은 <em>모든 편집 동안</em>의 boundary enforcement 다. 사용자가 X 를 요청했으면 X 만 하고, <strong>X 와 인접해 보이는 Y/Z 는 명시적 승인 없이 절대 건드리지 않는다.</strong></p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>스킬 유형별 검증 기준</div>
-      <div class="table-wrap" style="margin-top:12px">
-        <table>
-          <thead><tr><th>스킬 유형</th><th>검증 기준 예시</th></tr></thead>
-          <tbody>
-            <tr><td>코드 스캐폴딩</td><td>생성 후 <code>commands.analyze</code> 실행, 워닝 0개 확인</td></tr>
-            <tr><td>코드 리뷰</td><td>지적 사항마다 <code>파일:라인</code> 근거 필수</td></tr>
-            <tr><td>계약 생성</td><td>모든 조건이 PASS/FAIL 이진 판정 가능한지 자가 검증</td></tr>
-            <tr><td>데이터 조회</td><td>쿼리 결과가 비어 있으면 쿼리 자체를 재검증</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <a class="card-source" href="https://code.claude.com/docs/en/best-practices">Give Claude a way to verify its work</a>
+      <div class="card-title"><span class="dot"></span>가장 빈번한 위반 5 종</div>
+      <ul>
+        <li>리팩터링 중 "보기 안 좋아 보이는" 인접 코드를 silently 정리</li>
+        <li>본 작업 범위 외 파일을 "안 쓰는 듯해서" 삭제</li>
+        <li>시안이 명시되지 않은 영역에서 임의로 컬러·spacing·네이밍 결정</li>
+        <li>범위 밖 패키지를 "겸사겸사" 업그레이드·제거</li>
+        <li>main 직접 push, force push, branch 삭제</li>
+      </ul>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Rule-by-Rule Audit Before Completion</div>
-      <p>Claude는 리팩터링/대량 편집 시 <strong>규칙에 이미 기재된 위반을 놓치고</strong> 사용자가 지적해야 비로소 고치는 패턴을 반복한다. 스킬이 규칙 리스트를 보유할 경우, 완료 선언 전에 <strong>규칙별 1:1 대조 패스</strong>를 강제해야 한다. 마지막에 "그 외에도 혹시 놓친 규칙이 있는가?" 를 1 회 더 스스로 질문한다 (meta-audit).</p>
-      <div class="compare" style="margin-top:12px">
-        <div class="compare-bad" style="padding:14px">
-          <div class="compare-label">Bad</div>
-          <code style="font-size:11px">편집 완료 → 사용자가 놓친 규칙 지적 → 반복</code>
-        </div>
-        <div class="compare-good" style="padding:14px">
-          <div class="compare-label">Good</div>
-          <code style="font-size:11px">편집 → 규칙 체크리스트 전수 대조 → 위반 발견 → 수정 → 완료</code>
-        </div>
+      <div class="card-title"><span class="dot"></span>Hard-stop actions — 매번 명시 승인</div>
+      <div class="taglist">
+        <span class="tag on">file deletion</span><span class="tag on">package removal</span>
+        <span class="tag on">branch deletion</span><span class="tag on">force push</span>
+        <span class="tag on">main push</span><span class="tag on">schema migration</span>
+        <span class="tag on">secret rotation</span>
       </div>
+      <p>자동화 훅(PostToolUse 등)으로 하는 결정론적 수정(lint/format)은 OK 다. 하지만 <strong>의미적 변경은 Hard-stop 대상</strong>이다.</p>
     </div>
   </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Pre-Edit Batch Audit — 리팩터링 시작 <em>전</em> 위반 전수 enumerate</div>
-    <p>Rule-by-Rule Audit 가 <strong>완료 시점</strong>의 안전망이라면, Pre-Edit Batch Audit 는 <strong>편집 시작 시점</strong>에 같은 규칙 리스트를 능동 적용한다. 두 패스가 짝을 이뤄야 N 회 round-trip 이 "1 review + 1 execution" 으로 축약된다. 대상은 3+ 파일 · 1+ 규칙군 규모의 리팩터링이다.</p>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">a</span>항목마다 <strong>파일/라인 근거</strong>를 붙인다</li>
-      <li><span class="check">b</span>항목마다 <strong>위반 규칙 식별자</strong>를 붙인다</li>
-      <li><span class="check">c</span>항목마다 <strong>권장 조치</strong>를 붙이고, 사용자 승인 후 일괄 편집한다</li>
-    </ul>
-    <p style="margin-top:12px">아키텍처 선택(<code>Stack vs Column</code>, <code>Service vs UseCase</code>, <code>widget extend vs new</code>) 같은 false-dichotomy 영역도 enumerate 대상이다 — 옵션 A/B/C 를 모두 보여주고 trade-off 를 명시한 뒤 선택받는다. 본 원칙은 high-freedom(아키텍처·디자인)과 low-freedom(린트 규칙·토큰 마이그레이션) 양쪽에 적용된다.</p>
-  </div>
-
-  <div class="card" style="border-left:3px solid var(--red)">
-    <div class="card-title"><span class="dot" style="background:var(--red)"></span>Scope-Bound Edits — 허락 없는 삭제 / 디자인 선택 금지</div>
-    <p>사용자가 X 를 요청했을 때 X 만 수행하고, <strong>X 와 인접해 보이는 Y/Z 는 명시적 승인 없이 절대 건드리지 않는다.</strong> 빈번한 위반: 인접 코드 silently 정리, 범위 밖 파일 삭제, 임의 컬러/spacing/네이밍 결정, "겸사겸사" 패키지 업그레이드, main 직접 push.</p>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">1</span>요청 X 의 경계를 시작 전에 한 줄로 적고 사용자에게 확인</li>
-      <li><span class="check">2</span>작업 중 인접 위반 발견 시 즉시 패치하지 말고 별도 list 로 보관 → 승인 후 별도 commit</li>
-      <li><span class="check">3</span><strong>Hard-stop actions</strong> 는 매번 명시 승인: file deletion, package removal, branch deletion, force push, main push, schema migration, secret rotation</li>
-      <li><span class="check">4</span>훅으로 하는 결정론적 수정(lint/format)은 OK — 의미적 변경은 Hard-stop 대상</li>
-    </ul>
-    <code class="code-block" style="margin-top:12px">Bad:  사용자 "X 함수 수정해" → X 수정 + 옆 Y 정리 + Z 삭제 + main push
-Good: 사용자 "X 함수 수정해" → X 만 수정 → 인접 개선점은 별도 list → 승인 후 처리</code>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad</div>
+      <code class="code-block">사용자 "X 함수 수정해"
+  → Claude X 수정 + 옆 Y 도 정리
+    + Z 파일 삭제 + main push</code>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good</div>
+      <code class="code-block">사용자 "X 함수 수정해"
+  → Claude X 만 수정
+  → 인접 개선점 발견 → 별도 list
+  → 사용자 승인 후 처리</code>
+    </div>
   </div>
 </div>
 
-<!-- SECTION 3.7: COMPLETION EVIDENCE GATE (NEW v1.4.0) -->
+<!-- ═══ 3.7 Completion Evidence Gate ═══ -->
 <div class="section">
-  <div class="section-label">New in v1.4.0</div>
+  <div class="section-label">Evidence Gate</div>
   <div class="section-title">§3.7 Completion Evidence Gate — 증거 없는 완료 주장 금지</div>
-  <p class="section-desc">§3.6 이 "검증 기준을 <strong>제공</strong>하라" 였다면 본 섹션은 "증거 없이는 완료를 <strong>선언하지 못하게</strong> 하라" 다. 두 요구는 다르다 — 기준이 있어도 실행 증거 없이 완료가 선언되면 사용자가 유일한 검증자가 된다.</p>
-
+  <p class="section-desc">§3.6 이 "검증 기준을 <strong>제공</strong>하라" 였다면 본 절은 "증거 없이는 완료를 <strong>선언하지 못하게</strong> 하라" 다. 두 요구는 다르다 — 기준이 있어도 실행 증거 없이 완료가 선언되면 사용자가 유일한 검증자가 된다.</p>
   <div class="stat-row">
-    <div class="stat">
-      <div class="stat-num">75.8%</div>
-      <div class="stat-label">명시적 완료 주장을 포함한 자기평가 코딩 에이전트 궤적(AppWorld)에서 실패 중 <strong>false success</strong> 비중</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">0.54~0.65</div>
-      <div class="stat-label">LLM 판정자 AUROC (5 모델 × 5 프롬프트 전략) — 자기점검·LLM 재확인은 게이트가 아니다</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">91.49%</div>
-      <div class="stat-label">실사용 20,574 세션에서 가시적 misalignment 해소가 <strong>사용자의 명시적 교정</strong>을 필요로 한 비율</div>
-    </div>
+    <div class="stat"><div class="stat-num">75.8%</div><div class="stat-label">자기평가 코딩 에이전트 궤적(AppWorld)에서 <strong>실패 중 false success</strong> 비율</div></div>
+    <div class="stat"><div class="stat-num">0.54~0.65</div><div class="stat-label">LLM 판정자 AUROC (5 모델 × 5 프롬프트 전략) — 자기점검은 게이트가 아니다</div></div>
+    <div class="stat"><div class="stat-num">91.49%</div><div class="stat-label">실사용 20,574 세션에서 가시적 해소가 <strong>사용자의 명시적 교정</strong>을 필요로 한 비율</div></div>
+    <div class="stat"><div class="stat-num">+12.4pp</div><div class="stat-label">결정론적 게이트 4 개 도입만으로 벤치마크 성공률 29.6% → 42.0%</div></div>
   </div>
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>왜 문장 규칙만으로는 안 되는가</div>
-    <p>판정에 쓰인 신호는 검증된 상태 변화가 아니라 "자신 있는 마무리 문장" 같은 표면 프록시였다. 실사용 관측에서 전체 misalignment 비율은 내려가는데 <strong>부정확한 자기보고(inaccurate self-reporting)의 비중은 오히려 늘었다.</strong></p>
-    <a class="card-source" href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a>
-    <a class="card-source" href="https://arxiv.org/abs/2605.29442" style="margin-left:8px">How Coding Agents Fail Their Users — arxiv:2605.29442</a>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>왜 문장 규칙만으로는 안 되는가</div>
+      <p>판정에 쓰인 신호는 검증된 상태 변화가 아니라 "자신 있는 마무리 문장" 같은 <strong>표면 프록시</strong>였다. 같은 연구에서 LLM 판정자는 AUROC 0.54~0.65 에 그쳤다 — 자기점검·LLM 재확인은 게이트가 아니다.</p>
+      <a class="card-source" href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>부정확한 자기보고는 오히려 늘었다</div>
+      <p>실사용 20,574 세션 관측에서 전체 misalignment 비율은 내려가는데 <strong>부정확한 자기보고(inaccurate self-reporting)의 비중은 오히려 늘었고</strong>, 가시적 해소의 91.49% 가 사용자의 명시적 교정을 필요로 했다.</p>
+      <a class="card-source" href="https://arxiv.org/abs/2605.29442">How Coding Agents Fail Their Users: 20,574 Sessions — arxiv:2605.29442</a>
+    </div>
   </div>
 
-  <div class="section-title" style="font-size:1.15rem;margin-top:36px;margin-bottom:8px">Enforcement 3 등급 — 원칙을 "어떤 강도로" 구현할지 판정하라</div>
-  <p class="section-desc">새 원칙을 스킬에 넣을 때는 문장으로 적을지, 아티팩트를 요구할지, 결정론적으로 막을지를 <strong>먼저 정한다.</strong></p>
-  <div class="grade">
-    <div class="grade-item grade-e1">
-      <div class="grade-tag">E1 · 문장 규칙</div>
+  <h3 class="sub">Enforcement 3 등급 — 원칙을 "어떤 강도로" 구현할지 먼저 정하라</h3>
+  <div class="ladder">
+    <div class="rung e1">
+      <div class="rung-k">E1 · 문장 규칙</div>
       <h4>Gotchas / Process 의 서술문</h4>
-      <p>보장 수준: <strong>통계적 개선만</strong>. 적합: 최초 도입, 위반 이력 없음.</p>
+      <p>보장 수준은 <strong>통계적 개선만</strong>. 최초 도입이고 위반 이력이 없을 때 쓴다.</p>
     </div>
-    <div class="grade-item grade-e2">
-      <div class="grade-tag">E2 · 체크리스트 아티팩트</div>
-      <h4>응답에 복사해 채우는 체크리스트 / 검증 전 생성하는 계획 파일</h4>
-      <p>보장 수준: <strong>흔적이 남아 사후 대조 가능</strong> (여전히 자기보고). 적합: 다단계 워크플로우, 위반 1~2 회 재발.</p>
+    <div class="rung e2">
+      <div class="rung-k">E2 · 체크리스트 아티팩트</div>
+      <h4>응답에 복사해 채우는 체크리스트 · 검증 전 생성하는 계획 파일</h4>
+      <p>흔적이 남아 <strong>사후 대조 가능</strong>(여전히 자기보고). 다단계 워크플로우, 위반 1~2 회 재발.</p>
     </div>
-    <div class="grade-item grade-e3">
-      <div class="grade-tag">E3 · 결정론적 게이트</div>
+    <div class="rung e3">
+      <div class="rung-k">E3 · 결정론적 게이트</div>
       <h4>스크립트 / 훅 / CI — LLM 호출 없는 순수 판정</h4>
-      <p>보장 수준: <strong>per-run 보장</strong>. 적합: 비가역·신뢰 손상 영역, 3 회 이상 재발.</p>
+      <p><strong>per-run 보장.</strong> 비가역·신뢰 손상 영역, 3 회 이상 재발.</p>
     </div>
   </div>
-
-  <div class="parity-box">
-    <div class="parity-box-title">등급 승급 규칙</div>
+  <div class="note">
+    <div class="note-title">등급 승급 규칙</div>
     <p>같은 위반이 <strong>2 회 이상 재발하면 E1 → E2</strong>, <strong>3 회 이상이거나 비가역 변경·사용자 신뢰 손상이 걸리면 E2 → E3</strong> 로 올린다. 재발했는데 같은 등급에서 문장만 다시 다듬는 것은 개선이 아니다.</p>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>E3 게이트의 정의</div>
-    <p><code>g(입력, 현재상태) → {통과, 거부}</code> 인 순수 함수. (a) 상태를 읽기만 하고 바꾸지 않는다 (b) LLM 을 호출하지 않는다 (c) 행위 <strong>직전</strong>에 실행된다 (d) 거부 시 구조화된 사유를 돌려준다.</p>
-    <p style="margin-top:10px">해당 논문에서 4 개 게이트 도입만으로 벤치마크 성공률이 <strong>29.6% → 42.0% (+12.4pp)</strong> 로 올랐고, k=5 반복 신뢰도(pass_k)는 <strong>8.0% → 26.0%</strong> 로 개선됐다. 프롬프트는 확률을 올릴 뿐이고 게이트는 <strong>매 실행마다</strong> 금지된 전이를 막는다. 스킬에서 E3 는 보통 <code>scripts/validate_*.sh</code> + "검증 통과 전 다음 단계 진행 금지" 문구, 또는 <code>PreToolUse</code>/<code>PostToolUse</code> 훅으로 구현한다.</p>
+    <p><strong>E3 게이트의 정의:</strong> <code>g(입력, 현재상태) → {통과, 거부}</code> 인 순수 함수. (a) 상태를 읽기만 하고 바꾸지 않는다 (b) LLM 을 호출하지 않는다 (c) 행위 <strong>직전</strong>에 실행된다 (d) 거부 시 구조화된 사유를 돌려준다. 논문 실측에서 게이트 4 개 도입만으로 성공률 29.6% → 42.0%, k=5 반복 신뢰도(pass_k)는 8.0% → 26.0% 로 올랐다.</p>
     <a class="card-source" href="https://arxiv.org/html/2607.07405v1">Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405</a>
   </div>
 
-  <div class="section-title" style="font-size:1.15rem;margin-top:36px;margin-bottom:8px">스킬이 지켜야 할 5 조항</div>
-  <ul class="checklist">
-    <li><span class="check">1</span><strong>증거 블록 의무.</strong> 산출물을 만드는 스킬은 완료 보고에 실행한 <strong>명령과 그 출력</strong>(또는 <code>파일:라인</code>)을 포함한다. "동작한다", "정상 렌더링된다" 같은 서술만으로 완료를 선언하지 않는다.</li>
-    <li><span class="check">2</span><strong>증거는 자기보고가 아니라 도구 출력이어야 한다.</strong> 스스로 "확인했다" 고 쓰는 문장은 증거가 아니다 (AUROC 0.54~0.65).</li>
-    <li><span class="check">3</span><strong>검증 불가 시 <code>[미검증]</code> 명시.</strong> 인프라 부재·도구 미설치·런타임 미실행으로 검증이 불가하면 조용히 넘기지 말고 마커와 사유 한 줄을 붙인다. <strong>미검증 2 건 이상이면 완료가 아니라 부분 완료</strong>로 보고한다.</li>
-    <li><span class="check">4</span><strong>렌더 가능한 산출물은 렌더 결과를 증거로 쓴다.</strong> UI·문서·차트는 렌더 → 캡처 → 대조까지 수행한다. 단 <strong>스냅샷/캡처가 비어 있으면 그것은 PASS 증거가 아니라 검증 실패 신호</strong>다.</li>
-    <li><span class="check">5</span><strong>피드백 루프를 닫는다.</strong> 검증 스크립트가 있으면 <code>실행 → 실패 시 수정 → 재실행</code> 을 반복하고, 본문에 "검증을 통과하기 전에는 다음 단계로 진행하지 않는다" 를 명시한다.</li>
-  </ul>
+  <h3 class="sub">초기 등급 선택 기준 — 위반 이력이 없을 때 무엇으로 시작하는가</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>시작 등급</th><th>이런 성격의 규칙</th></tr></thead>
+      <tbody>
+        <tr><td><strong>E1</strong></td><td>선호·휴리스틱·저위험 규칙. 위반해도 되돌리기 쉽고, 판정에 문맥 해석이 필요하다</td></tr>
+        <tr><td><strong>E2</strong></td><td>반복 누락이 예상되는 규칙, open-ended 작업, <strong>범위·개수·증거를 남겨야 하는 규칙</strong></td></tr>
+        <tr><td><strong>E3</strong></td><td>기계 판정이 가능하고 위반 비용이 큰 규칙, 또는 E2 를 붙였는데도 반복 위반되는 규칙</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc"><strong>등급을 적지 않은 원칙은 미완성이다.</strong> 등급을 명시하지 않으면 나중에 그 원칙이 재발했을 때 "무엇에서 무엇으로 올릴지" 를 판정할 수 없어 결국 문장만 다시 다듬게 된다 — 그것이 등급 체계를 도입한 이유를 무효화하는 실패 경로다.</p>
 
-  <div class="compare" style="margin-top:20px">
-    <div class="compare-bad">
-      <div class="compare-label">Bad — 빈 결과를 "문제 없음" 으로 읽음</div>
-      <code class="code-block">구현 → "정상 동작 확인했습니다"
-(도구 출력 없음)
-→ 사용자가 실제로는 깨져 있음을 발견
+  <h3 class="sub">등급 원장 — 이 가이드 원칙의 현재 등급 (SSOT)</h3>
+  <p class="section-desc">재발 신호가 들어왔을 때 <strong>문장을 추가하는 대신 이 표에서 해당 행을 찾아 등급을 올린다.</strong> contract-design-guide · qa-evaluation-guide 는 각자 <em>레이어 고유 원칙</em>만 자기 표에 담고, 이 원장의 값을 복제하지 않는다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>원칙</th><th>위치</th><th>현재 등급</th><th>승급 트리거</th></tr></thead>
+      <tbody>
+        <tr><td>Enumerate-before-Act</td><td>§5.5</td><td>E1</td><td>low-freedom 영역 추정 착수 2 회 재발 → 열거 산출물을 남기는 E2</td></tr>
+        <tr><td>Pre-Edit Batch Audit</td><td>§3.6</td><td>E2 (승인받는 위반 체크리스트)</td><td>체크리스트 없이 편집 착수 2 회 재발 → 편집 전 audit 산출물 존재를 확인하는 E3</td></tr>
+        <tr><td>Rule-by-Rule Audit</td><td>§3.6</td><td>E2 (완료 전 대조 리포트)</td><td>완료 보고에 대조 결과 누락 2 회 재발 → 규칙 리스트 자동 대조 스크립트 E3</td></tr>
+        <tr><td>Scope-Bound Edits</td><td>§3.6</td><td>E1 + Hard-stop 목록만 E3 (훅)</td><td>범위 밖 편집 2 회 재발 → 허용 경로 화이트리스트 검사 E3</td></tr>
+        <tr><td>Completion Evidence Gate</td><td>§3.7</td><td>E2 (<code>[미검증]</code> 마커 · 증거 블록)</td><td>증거 없는 완료 주장 재발 → 검증 스크립트 통과 전 완료 차단 E3</td></tr>
+        <tr><td>Counterpart Enumeration</td><td>§5.5</td><td>E2 (producer/consumer 열거 아티팩트)</td><td>반대편 누락 재발 → 양면 경로 대조 E3</td></tr>
+        <tr><td>Variant Budget</td><td>§5.6</td><td>E2 (Variant Matrix)</td><td>축 값이 겹치는 variant 재발 → 축 값 비교 스크립트 E3</td></tr>
+        <tr><td>User-Reported Failure Gate</td><td>§3.8</td><td>E1</td><td>사용자 재보고 뒤에도 완료 주장 재발 → <code>REOPENED</code> 상태를 남기는 E2</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-스냅샷 빈 화면 반환
-→ "렌더링 정상" 으로 해석
-→ 반복 주장 → 신뢰 손상</code>
-      <p>빈 카탈로그를 MCP 스냅샷 근거로 "정상 렌더링" 이라 반복 주장한 것이 2026-07 Friction #2 의 실제 사고 형태였다.</p>
+  <div class="note bad">
+    <div class="note-title">E3 의 한계 — 단일 게이트는 보장이 아니다</div>
+    <p>E3 는 per-run 으로 금지된 전이를 막지만 <strong>태스크 전체의 성공을 보장하지 않는다.</strong> 게이트 논문 자신이 정책·모델별 audit 이 따로 필요하다고 적고 있고, 에이전트 가드레일 구현체도 tripwire 는 실행을 끊을 뿐 옳은 결과를 만들지 않는다.</p>
+    <p><strong>트레이드오프:</strong> 등급을 올리면 위반은 줄지만 과차단(false positive)과 게이트 유지보수 비용이 생긴다. 게이트가 정상 작업을 막기 시작하면 사람이 우회하고, <strong>우회된 게이트는 없는 게이트보다 나쁘다</strong> — 통과 기록이 안전을 오해하게 만들기 때문이다. 그래서 승급은 <em>재발이 실제로 관측된 규칙에만</em> 적용하고, 원장에 승급 트리거를 미리 적어 둔다.</p>
+    <a class="card-source" href="https://openai.github.io/openai-agents-js/guides/guardrails/">Guardrails — OpenAI Agents SDK (tripwire 의 한계)</a>
+    <a class="card-source" href="https://www.anthropic.com/research/trustworthy-agents">Building Trustworthy Agents — Anthropic</a>
+  </div>
+
+  <h3 class="sub">스킬이 지켜야 할 5 조항</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>1. 증거 블록 의무</div>
+      <p>산출물을 만드는 스킬은 완료 보고에 실행한 <strong>명령과 그 출력</strong>(또는 <code>파일:라인</code>)을 포함한다. "동작한다", "정상 렌더링된다" 같은 서술만으로 완료를 선언하지 않는다.</p>
     </div>
-    <div class="compare-good">
-      <div class="compare-label">Good — 도구 출력 인용 · 미검증 명시</div>
-      <code class="code-block">구현 → 검증 명령 실행 → 출력 인용
-→ 실패분 수정 → 재실행
-→ 통과 후 완료 선언
-
-검증 불가
-→ "[미검증] MCP 미설정 — 시각 대조 불가"
-→ 부분 완료로 보고</code>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>2. 증거는 자기보고가 아니라 도구 출력</div>
+      <p>스스로 "확인했다" 고 쓰는 문장은 증거가 아니다 (AUROC 0.54~0.65).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>3. 검증 불가 시 <code>[미검증]</code> 명시</div>
+      <p>인프라 부재·도구 미설치·런타임 미실행으로 검증이 불가하면 조용히 넘기지 말고 <code>[미검증]</code> 마커와 사유 한 줄을 붙인다. <strong>미검증 2 건 이상이면 완료가 아니라 부분 완료</strong>로 보고한다. 마커·임계값은 agent-design-guide §10 과 동일 규약을 쓴다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>4. 렌더 가능한 산출물은 렌더 결과를 증거로</div>
+      <p>UI·문서·차트는 렌더 → 캡처 → 대조까지 수행한다. 단 <strong>스냅샷/캡처가 비어 있으면 그것은 PASS 증거가 아니라 검증 실패 신호</strong>다 — 빈 결과를 "문제 없음" 으로 읽는 것이 실제 사고 형태였다(빈 카탈로그를 MCP 스냅샷 근거로 "정상 렌더링" 이라 반복 주장).</p>
     </div>
   </div>
-  <p class="section-desc" style="margin-top:8px"><strong>Cross-Surface Parity:</strong> 본 원칙은 §11 parity 표 5 번째 항목 — agent-design-guide §10 "Unverifiable 조건 정책" 의 스킬(생성) 측 짝이다. 평가자만 미검증을 표기하고 생성자는 표기하지 않으면, 평가 시점에야 미검증이 드러나 iteration 이 낭비된다. 마커·임계값은 두 가이드가 동일 규약을 쓴다 (용어 분기 금지).</p>
-  <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Implement feedback loops / Create verifiable intermediate outputs</a>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>5. 피드백 루프를 닫는다</div>
+    <p>검증 스크립트가 있으면 <code>실행 → 실패 시 수정 → 재실행</code>을 반복하고, 스킬 본문에 <strong>"검증을 통과하기 전에는 다음 단계로 진행하지 않는다"</strong> 를 명시한다.</p>
+    <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Skill Authoring Best Practices — Implement feedback loops</a>
+  </div>
+  <div class="flow"><pre>Bad:  구현 → "정상 동작 확인했습니다" (도구 출력 없음) → 사용자가 실제로는 깨져 있음을 발견
+Bad:  스냅샷 빈 화면 반환 → "렌더링 정상" 으로 해석 → 반복 주장 → 신뢰 손상
+Good: 구현 → 검증 명령 실행 → 출력 인용 → 실패분 수정 → 재실행 → 통과 후 완료 선언
+Good: 검증 불가 → "[미검증] MCP 미설정 — 시각 대조 불가" 명시 → 부분 완료로 보고</pre></div>
 </div>
 
-<!-- SECTION 4: DESCRIPTION -->
+<!-- ═══ 3.8 User-Reported Failure Gate ═══ -->
+<div class="section">
+  <div class="section-label">User Reports</div>
+  <div class="section-title">§3.8 User-Reported Failure Gate — 사용자 관측은 반증 대상이 아니라 재현 대상이다</div>
+  <p class="section-desc">§3.7 이 다룬 것은 <strong>자기 증거의 유효성</strong>이다. 이 절이 다루는 것은 <strong>자기 증거와 사용자 보고가 충돌할 때의 우선순위</strong>로, 서로 다른 문제다. 실제 사고 형태는 사용자가 "아직 깨져 있다" 고 보고했는데 스킬이 자기 테스트·스냅샷을 근거로 <em>반박</em>하다가 신뢰가 무너지고, 결국 사용자가 지목한 결함이 사실로 드러나는 것이었다. <strong>현재 등급: E1.</strong></p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>규약 5 조 (1~3)</div>
+      <ul>
+        <li><strong>상태는 PASS 가 아니라 <code>REOPENED</code></strong> 다. 이전 PASS 근거는 지우지 말고 "그때 그 오라클로는 통과했다" 로 남긴다</li>
+        <li><strong>자기 테스트·스크린샷은 "내 환경에서의 관측"</strong> 이다. 상태 검증은 self-report 가 아니라 <strong>target system</strong> 을 확인해야 한다</li>
+        <li><strong>먼저 오라클 유효성부터 의심한다.</strong> 사용자 보고가 틀렸을 가능성을 따지기 전에, 내 오라클이 사용자가 보는 것을 재고 있었는지 6 축으로 대조한다</li>
+      </ul>
+      <a class="card-source" href="https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework">OCI Agent Evaluation Framework — Oracle (target system 검증)</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>규약 5 조 (4~5)</div>
+      <ul>
+        <li><strong>반박 금지.</strong> 재현 전에 "정상 동작합니다" 를 다시 말하지 않는다. 같은 주장을 반복하는 것은 사용자 교정 신호를 버리는 행동이다</li>
+        <li><strong>완료 선언 해제는 3 택 중 하나</strong> — (a) 재현 후 수정하고 같은 조건에서 재검증한 출력 인용 (b) 재현되지 않는 이유를 6 축 중 어느 축의 값 차이인지로 특정 (c) 사용자가 직접 수정 확인</li>
+      </ul>
+      <a class="card-source" href="https://arxiv.org/html/2605.29442">How Coding Agents Fail Their Users — arxiv:2605.29442</a>
+    </div>
+  </div>
+  <h3 class="sub">재현 6 축 — 값싼 축부터 확인한다</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>재현 축</th><th>확인 질문</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>URL / 경로</strong></td><td>사용자가 연 화면과 내가 검사한 화면이 같은 라우트인가</td></tr>
+        <tr><td>2</td><td><strong>브랜치 / 커밋</strong></td><td>사용자가 돌린 코드가 내가 검사한 커밋과 같은가 (스테일 빌드 포함)</td></tr>
+        <tr><td>3</td><td><strong>viewport</strong></td><td>폭·높이가 같은가. 무제한 높이로 잰 결과는 실기 화면을 재지 않는다</td></tr>
+        <tr><td>4</td><td><strong>디바이스 / 플랫폼</strong></td><td>실기기·시뮬레이터·브라우저 중 무엇인가</td></tr>
+        <tr><td>5</td><td><strong>auth · cache</strong></td><td>로그인 주체, 캐시·서비스워커·핫리로드 잔여 상태가 같은가</td></tr>
+        <tr><td>6</td><td><strong>데이터 상태</strong></td><td>같은 레코드·같은 빈 상태·같은 권한으로 보고 있는가</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note warn">
+    <div class="note-title">오독 금지</div>
+    <p>이 절을 "사용자 보고를 무조건 사실로 인정하라" 로 읽지 마라. 정확한 규약은 <strong>완료 판정을 보류하고 오라클 유효성을 먼저 의심한다</strong> 이다. 원인이 사용자 환경(스테일 빌드, 캐시)으로 밝혀지는 것도 위 (b) 로 정상 종결이다.</p>
+    <p><strong>트레이드오프:</strong> 신뢰는 회복되지만 환경 재현 비용이 든다. 그래서 6 축 대조는 값싼 축(브랜치·URL·viewport)부터 하고, 비싼 축(실기기·데이터 상태)은 앞 축이 전부 일치할 때 넘어간다.</p>
+  </div>
+</div>
+
+<!-- ═══ 4. description ═══ -->
 <div class="section">
   <div class="section-label">Description</div>
-  <div class="section-title">§4 디스크립션은 트리거 조건이다 — frontmatter 규칙</div>
-  <p class="section-desc">스킬의 <code>description</code> 필드는 사람을 위한 요약이 아니라 <strong>Claude가 스킬을 선택하는 트리거 조건</strong>이다. Claude는 세션 시작 시 모든 스킬의 메타데이터를 시스템 프롬프트에 pre-load 하며, 이 값 하나로 100개 이상의 스킬 중 어느 것을 로드할지 판단한다.</p>
-
-  <div class="grid-2" style="margin-bottom:20px">
+  <div class="section-title">§4 디스크립션은 요약이 아니라 트리거 조건이다</div>
+  <p class="section-desc">Claude 는 세션 시작 시 모든 스킬의 메타데이터(<code>name</code> + <code>description</code>)를 시스템 프롬프트에 pre-load 하며, 이 값 하나로 100 개 이상의 스킬 중 어느 것을 로드할지 판단한다.</p>
+  <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>name</code> 필드 규칙</div>
-      <p>최대 64자. 소문자 + 숫자 + 하이픈만 허용. XML 태그 금지. 예약어 <code>anthropic</code>, <code>claude</code> 포함 불가. <strong>gerund form 권장</strong>: <code>processing-pdfs</code>, <code>analyzing-spreadsheets</code>, <code>testing-code</code>. 허용 대안은 명사구(<code>pdf-processing</code>) 또는 동사형(<code>process-pdfs</code>). <code>helper</code>, <code>utils</code>, <code>tools</code>, <code>documents</code> 같은 모호한 이름 금지.</p>
+      <ul>
+        <li>최대 <strong>64 자</strong></li>
+        <li>소문자 + 숫자 + 하이픈(<code>-</code>) 만 허용</li>
+        <li>XML 태그 금지 · 예약어(<code>anthropic</code>, <code>claude</code>) 포함 불가</li>
+        <li><strong>gerund form 권장</strong>: <code>processing-pdfs</code>, <code>analyzing-spreadsheets</code></li>
+        <li>허용 대안: 명사구(<code>pdf-processing</code>), 동사형(<code>process-pdfs</code>)</li>
+        <li><strong>금지</strong>: <code>helper</code>, <code>utils</code>, <code>tools</code>, <code>documents</code> 같은 모호한 이름</li>
+      </ul>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#yaml-frontmatter-requirements">YAML frontmatter requirements — Claude API Docs</a>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>description</code> 필드 규칙</div>
-      <p>최대 1024자. 비어 있을 수 없음. XML 태그 금지. <strong>반드시 3인칭으로 작성</strong> — 1인칭("I can help...") 또는 2인칭("You can use this...")은 시스템 프롬프트에 주입되었을 때 관점 불일치로 discovery 실패를 일으킨다.</p>
-      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#yaml-frontmatter-requirements">YAML Frontmatter Requirements</a>
+      <ul>
+        <li>최대 <strong>1024 자</strong> · 비어 있을 수 없음 · XML 태그 금지</li>
+        <li><strong>3 인칭으로 작성한다 (필수).</strong> 1 인칭("I can help…") 또는 2 인칭("You can use this…")은 시스템 프롬프트에 주입됐을 때 관점 불일치로 discovery 실패를 일으킨다</li>
+      </ul>
+      <code class="code-block">Bad:  "I can help you process Excel files"
+Bad:  "You can use this to process Excel files"
+Good: Processes Excel files and generates
+      reports. Use when analyzing .xlsx
+      files, pivot tables, or tabular data.</code>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#writing-effective-descriptions">Writing effective descriptions — Claude API Docs</a>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Undertrigger 경향과 "pushy" 디스크립션</div>
-    <p>Claude는 구조적으로 스킬을 <strong>undertrigger</strong>(필요한데도 안 쓰는) 하는 경향이 있다. 이를 보정하기 위해 description 은 약간 "pushy" 해야 한다 — 트리거 맥락, 파일 유형, 사용자가 말할 법한 키워드를 명시적으로 나열해라.</p>
-    <a class="card-source" href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md">skill-creator — Description Best Practices</a>
-  </div>
-
+  <h3 class="sub">Undertrigger 경향과 "pushy" 디스크립션</h3>
+  <p class="section-desc">Claude 는 구조적으로 스킬을 <strong>undertrigger</strong>(필요한데도 안 쓰는) 하는 경향이 있다. 이를 보정하려면 description 이 약간 "pushy" 해야 한다 — 트리거 맥락, 파일 유형, 사용자가 말할 법한 키워드를 명시적으로 나열해라.</p>
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">Bad — 기능만 설명</div>
-      <code class="code-block">description: 배포 관련 스킬</code>
-      <p>트리거 약함. Claude가 언제 써야 하는지 알 수 없음.</p>
+      <div class="compare-label">Bad — 무엇을 하는지만 설명</div>
+      <code class="code-block">description: How to build a simple fast
+  dashboard to display internal data.</code>
+      <p>트리거 맥락이 없어 사용자가 "대시보드" 라고 말하지 않으면 로드되지 않는다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 트리거 맥락까지 나열</div>
-      <code class="code-block">description: >
-  Deploys services to production
-  and verifies deployment status.
-  Use when the user requests
-  production deployment, PR merge
-  checks, or asks to "deploy",
-  "ship", or "roll out" a service.</code>
+      <code class="code-block">description: &gt;
+  How to build a simple fast dashboard to
+  display internal data. Use this skill
+  whenever the user mentions dashboards,
+  data visualization, internal metrics, or
+  wants to display any kind of company
+  data, even if they don't explicitly ask
+  for a "dashboard".</code>
     </div>
   </div>
+  <a class="card-source" href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md">skill-creator — Description Best Practices ("a little bit pushy")</a>
 
-  <div class="card" style="border-left:3px solid var(--yellow)">
-    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>트리거 키워드 중복 방지 — set intersection + substring 검사</div>
-    <p>플러그인이 여러 스킬을 포함할 때, description 의 트리거 키워드는 <strong>두 가지 검사를 모두 통과</strong>해야 한다: ① Set intersection 이 공집합 ② Substring containment 도 공집합. 단순 Grep 은 부분문자열 중복을 놓치므로 정규식 추출 후 두 검사를 모두 수행해야 한다.</p>
-    <div class="compare" style="margin-top:12px">
-      <div class="compare-bad" style="padding:14px">
-        <div class="compare-label">Bad — substring 위반 (RE-02 REJECT)</div>
-        <code class="code-block" style="font-size:11px">react-feature: "API 연동 화면을 한 번에 생성"
-react-api:     "API 연동 시 Clean Arch 4계층"
-→ "API 연동" 이 부분문자열 → 배타성 위반</code>
-        <p>또 다른 실제 사례(react-kit SK-05): <code>react-run</code> 의 "wasm-pack 빌드" 가 <code>react-wasm</code> 과 정확히 일치 → set intersection 위반.</p>
-      </div>
-      <div class="compare-good" style="padding:14px">
-        <div class="compare-label">Good — 키워드 완전 분리</div>
-        <code class="code-block" style="font-size:11px">react-feature: "Clean Arch 4계층 복합 생성"
-react-api: "datasource→repository 단일 레이어"</code>
-        <p><strong>예외:</strong> 동일 키워드라도 플랫폼/스택 컨텍스트로 명확히 구분되면 허용된다. 단 description 에 구분 조건을 반드시 명시해야 한다.</p>
-      </div>
+  <h3 class="sub">트리거 키워드 중복 방지 — 두 검사를 모두 통과해야 한다</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>검사 1 · Set intersection 공집합</div>
+      <p>동일 키워드가 두 스킬 description 에 동시에 등장하지 않아야 한다.</p>
+      <code class="code-block"># 실제 REJECT (react-kit SK-05)
+react-run  : "wasm-pack 빌드"
+react-wasm : "wasm-pack 빌드"
+→ 정확히 일치 → set intersection 위반</code>
     </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>검사 2 · Substring containment 공집합</div>
+      <p>어느 키워드도 다른 스킬 키워드의 <strong>부분문자열</strong>이 아니어야 한다. 단순 <code>Grep</code> 은 이 중복을 놓친다.</p>
+      <code class="code-block"># 실제 REJECT (react-kit RE-02)
+react-feature: "… API 연동 화면을 한 번에 생성 …"
+react-api    : "… API 연동 시 Clean Arch 4계층 …"
+→ "API 연동" ⊂ "API 연동 화면" → 배타성 위반</code>
+    </div>
+  </div>
+  <div class="note good">
+    <div class="note-title">예외 — 플랫폼/스택 컨텍스트로 구분되면 허용</div>
+    <p>동일 키워드라도 플랫폼·스택으로 명확히 구분되는 경우는 허용된다. 단 description 에 <strong>구분 조건을 반드시 명시</strong>해야 한다.</p>
+    <code class="code-block">description: &gt;
+  Flutter 프로젝트에서 "화면 추가" 요청에 사용.
+  React 프로젝트에서는 react-screen 스킬이 우선한다.</code>
   </div>
 </div>
 
-<!-- SECTION 5: PROGRESSIVE DISCLOSURE -->
+<!-- ═══ 5. Progressive Disclosure ═══ -->
 <div class="section">
   <div class="section-label">Progressive Disclosure</div>
-  <div class="section-title">§5 점진적 공개 — SKILL.md 500 라인 상한</div>
-  <p class="section-desc">메인 스킬 파일에 모든 정보를 넣지 않는다. 파일을 분리하고 목록만 제공한다. SKILL.md 본문은 <strong>500 라인 미만</strong>으로 유지한다 — "성능 최적화 한계"이며 강제 제약은 아니지만, 넘으면 스킬이 로드될 때 컨텍스트 사용량이 급격히 증가한다.</p>
+  <div class="section-title">§5 3-레벨 로딩 · 500 라인 상한 · 참조 1-level deep</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">Level 1</div>
+      <h4>Metadata (~100 단어)</h4>
+      <p><code>name</code> + <code>description</code>. <strong>항상</strong> 시스템 프롬프트에 상주한다.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">Level 2</div>
+      <h4>SKILL.md body</h4>
+      <p>스킬이 트리거될 때 로드된다. 핵심 지침과 워크플로우.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">Level 3</div>
+      <h4>Bundled resources</h4>
+      <p><code>scripts/</code>, <code>references/</code>, <code>assets/</code> — 필요할 때만 읽는다.</p>
+    </div>
+  </div>
+  <p class="section-desc">메타데이터만 항상 상주하고 나머지는 on-demand 로 읽는다. 바로 이 구조가 "컨텍스트 절약" 의 핵심이다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>SKILL.md 본문 500 라인 상한 (공식)</div>
+      <p>초과하면 <code>references/</code> 로 API 레퍼런스와 긴 설명을, <code>templates/</code> 로 출력 포맷 예시를, <code>scripts/</code> 로 반복 로직을 분리한다. 500 라인은 "성능 최적화 한계" 이며 강제 제약은 아니지만, 넘으면 로드 시 컨텍스트 사용량이 급격히 증가한다.</p>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#token-budgets">Token budgets — Skill Authoring Best Practices</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Reference 파일은 1-level deep (필수)</div>
+      <p>참조 파일이 <strong>다른 참조 파일에서 다시 링크</strong>되면 Claude 가 <code>head -100</code> 같은 명령으로 일부만 미리보는 경향이 있어 정보 누락이 발생한다. 모든 reference 는 SKILL.md 에서 <strong>직접</strong> 링크되어야 한다. 100 라인을 넘는 reference 파일에는 상단에 Table of Contents 를 넣는다.</p>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-deeply-nested-references">Avoid deeply nested references — Claude API Docs</a>
+    </div>
+  </div>
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">Bad — 너무 깊은 참조</div>
+      <div class="compare-label">Bad — 너무 깊음</div>
       <code class="code-block"># SKILL.md
-See advanced.md ...
+See [advanced.md](advanced.md)...
 
 # advanced.md
-See details.md ...
+See [details.md](details.md)...
 
 # details.md
-Here's the actual information ...</code>
+Here's the actual information...</code>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 1-level deep</div>
       <code class="code-block"># SKILL.md
-Basic usage: [instructions inline]
-Advanced features: advanced.md
-API reference: reference.md
-Examples: examples.md</code>
+**Basic usage**: [instructions inline]
+**Advanced features**: See [advanced.md](advanced.md)
+**API reference**: See [reference.md](reference.md)
+**Examples**: See [examples.md](examples.md)</code>
     </div>
   </div>
-  <div class="grid-3">
-    <div class="card"><div class="card-title"><span class="dot"></span>references/</div><p>API 함수 시그니처, 긴 설명을 분리한다.</p></div>
-    <div class="card"><div class="card-title"><span class="dot"></span>templates/</div><p>출력 포맷 예시를 분리한다.</p></div>
-    <div class="card"><div class="card-title"><span class="dot"></span>scripts/</div><p>반복 로직을 실행 가능한 스크립트로 분리한다.</p></div>
-  </div>
-  <p class="section-desc" style="margin-top:16px">스킬 MD 에 폴더 내 파일 목록을 명시하면 Claude 는 필요할 때만 해당 파일을 읽어 컨텍스트를 효율적으로 관리한다. 밀키트 상자에 내용물을 명시하여 요리사가 필요한 것만 꺼내 쓰는 것과 같다.</p>
-  <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#progressive-disclosure-patterns">Progressive Disclosure Patterns</a>
 </div>
 
-<!-- SECTION 5.5: DEGREES OF FREEDOM + COUNTERPART -->
+<!-- ═══ 5.5 자유도 ═══ -->
 <div class="section">
   <div class="section-label">Degrees of Freedom</div>
-  <div class="section-title">§5.5 자유도를 태스크에 맞춰라 + Counterpart Enumeration</div>
-  <p class="section-desc">스킬의 구체성 레벨은 태스크의 취약성(fragility)과 가변성(variability)에 맞춰야 한다. <strong>QA 평가 깊이 L1/L2/L3 과 이 자유도 개념을 혼동하면 안 된다</strong> — L1/L2/L3 은 QA 검증 깊이 전용 용어로 예약한다.</p>
+  <div class="section-title">§5.5 자유도를 태스크의 취약성에 맞춰라</div>
+  <p class="section-desc">스킬의 구체성 레벨은 태스크의 <strong>취약성(fragility)</strong> 과 <strong>가변성(variability)</strong> 에 맞춘다. 공식 비유가 정확하다 — Claude 를 경로를 탐색하는 로봇으로 생각하라. 양옆이 낭떠러지인 좁은 다리면 안전한 길이 하나뿐이므로 Low freedom(정확한 명령), 위험 없는 열린 들판이면 여러 길이 성공하므로 High freedom(일반 방향만 제시)이다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>자유도</th><th>형식</th><th>사용 시점</th></tr></thead>
@@ -532,257 +727,269 @@ Examples: examples.md</code>
       </tbody>
     </table>
   </div>
-  <p class="section-desc">공식 문서의 비유: Claude 를 경로를 탐색하는 로봇으로 생각하라. 양옆이 낭떠러지인 좁은 다리(안전한 길이 하나) → Low freedom. 위험 없는 열린 들판(여러 길이 성공) → High freedom.</p>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Enumerate-before-Act — Low-freedom 영역의 고정 규율</div>
-    <p>토큰 네이밍, Figma 컴포넌트 식별, 스펙 수치, 디자인 시스템 컬러, 계약 카테고리 ID 같은 low-freedom 영역은 편집 전 반드시 <strong>enumerate-before-act</strong> 를 적용한다: ① 기존에 존재하는 토큰/옵션/스펙을 전부 목록화 → ② 대상 후보를 1-N 인덱스로 나열 → ③ 지목된 항목을 확인 후 편집 시작.</p>
-    <p style="margin-top:10px">Low-freedom 영역에서 "근사치로 추정" 또는 "아마도 이게 맞을 것 같다" 는 3+ iteration 재작업의 가장 큰 원인이다. 한 번의 enumerate 로 N 번의 왕복이 방지된다.</p>
-    <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom">Set Appropriate Degrees of Freedom</a>
+  <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom">Set appropriate degrees of freedom — Claude API Docs</a>
+  <div class="note warn">
+    <div class="note-title">L1/L2/L3 네이밍 충돌 해결 (필수 준수)</div>
+    <p><strong>L1/L2/L3 = QA 평가 깊이</strong>(Glob → Grep → Read/Bash). <strong>High/Medium/Low freedom = 스킬 지침의 구체성 레벨.</strong> 스킬 지침의 구체성을 논할 때는 반드시 high/medium/low freedom 용어를 쓰고, L1/L2/L3 은 QA 검증 깊이 전용으로 예약한다.</p>
   </div>
 
-  <div class="card" style="border-left:3px solid var(--accent)">
-    <div class="card-title"><span class="dot"></span>Counterpart Enumeration — 변경의 반대편을 열거하라 <span class="badge" style="margin-left:auto">NEW v1.4.0</span></div>
-    <p>Enumerate-before-Act 와 Pre-Edit Batch Audit(§3.6)는 둘 다 <strong>변경 대상 파일 안</strong>을 훑는다. 그런데 반복 관찰된 실패는 대상 파일이 아니라 <strong>그 변경을 소비하는 반대편</strong>에서 났다 — 서버 API 계약을 바꾸고 클라이언트를 같은 스프린트에 반영하지 않는 형태다. UTC 직렬화 버그도 같은 계열이며, 사용자가 "당연히 클라까지 바꿔야지" 로 매번 개입해야 했다.</p>
-    <div class="grid-2" style="margin-top:16px">
-      <div>
-        <div class="card-title" style="font-size:13px"><span class="dot" style="background:var(--yellow)"></span>적용 대상 (하나라도 건드리면 필수)</div>
-        <ul class="checklist" style="margin-top:10px">
-          <li><span class="check">·</span>API 계약 / 엔드포인트 시그니처 / 상태 코드</li>
-          <li><span class="check">·</span>직렬화 포맷 — JSON 스키마, 날짜·타임존 표현, enum 값, null 허용 여부</li>
-          <li><span class="check">·</span>공유 모델 · 공용 타입 · 생성 코드(OpenAPI, protobuf, codegen 산출물)</li>
-          <li><span class="check">·</span>공개 함수 시그니처 · 이벤트 페이로드 · DB 스키마</li>
-        </ul>
-      </div>
-      <div>
-        <div class="card-title" style="font-size:13px"><span class="dot"></span>절차 3 단계</div>
-        <ul class="checklist" style="margin-top:10px">
-          <li><span class="check">1</span>편집 착수 <strong>전</strong>, producer 와 consumer 파일을 <strong>양쪽 다 경로로 열거</strong>. 소비면을 못 찾겠으면 grep 으로 찾고, 그래도 없으면 "소비자 없음" 을 근거와 함께 명시 — 추측으로 넘어가지 않는다.</li>
-          <li><span class="check">2</span>열거 결과를 계획 아티팩트(체크리스트 또는 계약 조건)로 남긴다. §3.7 등급 기준 <strong>E2 이상</strong> — 문장 다짐으로 처리하지 않는다.</li>
-          <li><span class="check">3</span>한 스프린트에서 양쪽을 다 못 바꾸면, 남는 쪽을 <code>[미검증]</code> 이 아니라 <strong>명시적 미완 항목</strong>으로 보고한다 (조용한 반쪽 완료 금지).</li>
-        </ul>
-      </div>
-    </div>
-    <code class="code-block" style="margin-top:16px">Bad:  서버 응답 필드 rename → 서버 코드만 수정 → "완료" → 클라이언트 런타임 파싱 실패
-Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경로 열거 → 체크리스트 합의 → 4 파일 일괄 수정</code>
-    <p style="margin-top:12px"><strong>부적합:</strong> 소비자가 존재할 수 없는 순수 내부 리팩터링(private 함수 본문, 로컬 변수명). 이 경우 열거 단계는 noise 다.</p>
-    <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Create Verifiable Intermediate Outputs</a>
+  <h3 class="sub">Enumerate-before-Act — Low-freedom 영역의 고정 규율</h3>
+  <p class="section-desc"><strong>토큰 네이밍, Figma 컴포넌트 식별, 스펙 수치, 디자인 시스템 컬러, 계약 카테고리 ID</strong> 같은 low-freedom 영역은 편집 전 반드시 enumerate-before-act 를 적용한다. Low-freedom 영역에서 "근사치로 추정" 또는 "아마도 이게 맞을 것 같다" 는 3+ iteration 재작업의 가장 큰 원인이다. <strong>한 번의 enumerate 로 N 번의 왕복이 방지된다.</strong></p>
+  <div class="steps">
+    <div class="step"><div class="step-n">Step 1</div><h4>전부 목록화</h4><p>편집 시작 전, 기존에 존재하는 토큰/옵션/스펙을 전부 목록화한다.</p></div>
+    <div class="step"><div class="step-n">Step 2</div><h4>1-N 인덱스로 나열</h4><p>대상 후보를 인덱스로 나열하여 Gen 스스로 또는 사용자가 지목하게 한다.</p></div>
+    <div class="step"><div class="step-n">Step 3</div><h4>최종 확인 후 편집</h4><p>지목된 항목을 최종 확인한 뒤 편집을 시작한다.</p></div>
   </div>
-</div>
 
-<!-- SECTION 6-7: SCRIPTS + HOOKS -->
-<div class="section">
-  <div class="section-label">Scripts &amp; Hooks</div>
-  <div class="section-title">§6 스크립트 폴더 · §7 온 디맨드 훅스</div>
-  <p class="section-desc">스킬 안에 스크립트를 넣어 Claude 에게 <strong>헬퍼 함수 라이브러리</strong>를 제공하면 보일러플레이트를 반복 작성하는 대신 조합에 집중할 수 있다. 훅은 Claude 가 도구를 쓰기 직전에 자동으로 검사하는 검문소다.</p>
+  <h3 class="sub">Counterpart Enumeration — 변경의 반대편을 열거하라</h3>
+  <p class="section-desc">Enumerate-before-Act 와 Pre-Edit Batch Audit 는 둘 다 <strong>변경 대상 파일 안</strong>을 훑는다. 그런데 반복 관찰된 실패는 대상 파일이 아니라 <strong>그 변경을 소비하는 반대편</strong>에서 났다 — 서버 API 계약을 바꾸고 클라이언트를 같은 스프린트에 반영하지 않는 형태다. UTC 직렬화 버그도 같은 계열이며, 사용자가 "당연히 클라까지 바꿔야지" 로 매번 개입해야 했다.</p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>scripts/ — 헬퍼 함수 제공</div>
-      <code class="code-block">my-skill/
-└── scripts/
-    ├── fetch_events.py    # 이벤트 조회 함수
-    ├── compare_code.sh    # 코드 비교 유틸리티
-    └── validate.sh        # 결과 검증 스크립트</code>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>모드 전환 패턴</div>
-      <code class="code-block">평소: 자유 모드 (제한 없음)
-  ↓ 위험한 작업
-프로덕션: 안전 모드 (rm -rf, DROP TABLE,
-          git push --force 차단)
-  ↓ 디버깅 필요
-디버깅: 동결 모드 (특정 폴더만 수정 가능)
-  ↓ 작업 완료
-자동 해제: 자유 모드로 복귀</code>
-      <p style="margin-top:12px">필요한 순간에만 가드레일을 올렸다 내렸다 할 수 있다.</p>
-    </div>
-  </div>
-</div>
-
-<!-- SECTION 8: SHARING + EVAL -->
-<div class="section">
-  <div class="section-label">Sharing &amp; Evaluation</div>
-  <div class="section-title">§8 공유 전략 · §8.5 Evaluation-Driven Development</div>
-  <p class="section-desc">스킬 작성의 기본 순서는 <strong>문서 먼저가 아니라 평가(eval) 먼저</strong>다. 존재하지 않는 문제를 문서화하지 않기 위함이다.</p>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>공식 권장 개발 루프 (5단계)</div>
-      <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">1</span>Gap 식별: 스킬 없이 대표 태스크를 Claude 로 실행해 실패 지점을 기록</li>
-        <li><span class="check">2</span>Eval 생성: 이 gap 을 검증할 <strong>최소 3개 시나리오</strong> 작성</li>
-        <li><span class="check">3</span>Baseline 측정: 스킬 없는 상태에서 Claude 의 성능 측정</li>
-        <li><span class="check">4</span>최소 지침 작성: gap 을 해결할 만큼의 최소한의 본문만 작성</li>
-        <li><span class="check">5</span>반복: eval 실행 → baseline 대비 → 리팩터링</li>
+      <div class="card-title"><span class="dot"></span>적용 대상 (하나라도 건드리면 필수)</div>
+      <ul>
+        <li>API 계약 / 엔드포인트 시그니처 / 상태 코드</li>
+        <li>직렬화 포맷 — JSON 스키마, 날짜·타임존 표현, enum 값, null 허용 여부</li>
+        <li>공유 모델 · 공용 타입 · 생성 코드(OpenAPI, protobuf, codegen 산출물)</li>
+        <li>공개 함수 시그니처 · 이벤트 페이로드 · DB 스키마</li>
       </ul>
-      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#build-evaluations-first">Build Evaluations First</a>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>Trigger Eval Set — 20개 쿼리</div>
-      <p>스킬이 준비되면 description 의 트리거 정확도를 측정한다. <strong>should-trigger 8~10 개 + should-not-trigger 8~10 개</strong>. 각 쿼리는 구체적·현실적(파일 경로, 회사명, URL, 오타 포함), 다양한 표현(캐주얼/포멀, 간접적 언급), near-miss(인접 도메인, 모호한 표현) 포함.</p>
-      <div class="compare" style="margin-top:12px">
-        <div class="compare-bad" style="padding:14px">
-          <div class="compare-label">Bad</div>
-          <code style="font-size:11px">"Format this data" (너무 일반적)</code>
-        </div>
-        <div class="compare-good" style="padding:14px">
-          <div class="compare-label">Good</div>
-          <code style="font-size:11px">"ok so my boss just sent me this xlsx file... revenue is in column C..."</code>
-        </div>
-      </div>
-      <p style="margin-top:10px">이 레포의 <code>flutter-toolkit/evals/evals.json</code> 이 이 패턴의 실제 구현이다.</p>
-      <a class="card-source" href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md#description-optimization-when-skill-is-ready">Description Optimization</a>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>크로스 플랫폼 호환</div>
-    <p>2026년 기준 <code>SKILL.md</code> 형식은 Claude Code, Codex CLI, Cursor, Gemini CLI, Antigravity 등에서 호환된다. frontmatter 는 <code>name</code>, <code>description</code> 을 공통으로 사용하고, <code>argument-hint</code>·<code>user-invocable</code> 같은 Claude Code 전용 필드는 다른 플랫폼에서 무시된다. 플랫폼 전용 기능(hooks, MCP 서버)은 별도 설정 파일로 분리한다.</p>
-    <a class="card-source" href="https://developers.openai.com/codex/skills">Codex CLI Agent Skills</a>
-  </div>
-</div>
-
-<!-- SECTION 8.6-8.8: ADVANCED -->
-<div class="section">
-  <div class="section-label">Advanced Patterns</div>
-  <div class="section-title">§8.6 MCP Fully-Qualified Name · §8.7 Code Examples · §8.8 Sibling Consistency</div>
-  <p class="section-desc">Code Examples 품질 규칙은 react-kit DG-01/DG-02 REJECT 에서, Sibling Consistency 는 rust-kit H-01/H-03 REJECT 에서 귀납했다.</p>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>§8.6 MCP 도구 — Fully-Qualified Name 필수</div>
-      <div class="compare" style="margin-top:10px">
-        <div class="compare-bad" style="padding:14px">
-          <div class="compare-label">Bad</div>
-          <code style="font-size:11px">Use the `bigquery_schema` tool</code>
-        </div>
-        <div class="compare-good" style="padding:14px">
-          <div class="compare-label">Good</div>
-          <code style="font-size:11px">Use the `BigQuery:bigquery_schema` tool</code>
-        </div>
-      </div>
-      <p>형식: <code>ServerName:tool_name</code>. 여러 MCP 서버가 활성화된 경우 서버 prefix 가 없으면 Claude 가 도구를 찾지 못하거나 잘못된 서버의 도구를 호출할 수 있다.</p>
-      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#mcp-tool-references">MCP Tool References</a>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>§8.7 Code Examples — 3원칙</div>
-      <p>① <strong>모든 fenced code block 에 언어 힌트 필수</strong> — bare fence 금지. 실행 가능하면 <code>bash</code>/<code>python</code>/<code>dart</code>/<code>typescript</code>/<code>yaml</code>/<code>json</code>, 설명용이면 <code>text</code> 또는 <code>pseudo</code><br>② 코드 템플릿 내부에 <code>TODO</code>/<code>FIXME</code>/미완성 placeholder 금지 — 사용자가 손으로 채울 부분은 명시적 주석으로 전환<br>③ 인용/모조 코드와 실행 코드의 구분 명확</p>
-      <p style="margin-top:10px"><strong>검증법:</strong> <code>rg -n '^```\s*$' &lt;file&gt;</code> 로 bare fence 탐지, <code>rg -n 'TODO|FIXME' &lt;file&gt;</code> 로 placeholder 잔존 탐지. 둘 다 0건이어야 한다.</p>
-    </div>
-  </div>
-
-  <div class="card" style="border-left:3px solid var(--yellow)">
-    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>§8.8 Sibling-Skill Principle Consistency — H-01/H-03 재발 방지</div>
-    <p>하나의 kit 내 동일 계열 스킬(init/feature/api/service 등)에 공통으로 적용되는 원칙은 <strong>모든 sibling SKILL.md 의 Gotchas 에 동일한 표현으로 등장해야 한다.</strong> 누락은 "일부 스킬은 원칙을 알고 있지만 다른 스킬은 모른다" 는 <strong>비대칭 지식 상태</strong>를 만들어, 사용자가 어떤 스킬로 들어오느냐에 따라 완성도가 달라진다.</p>
-    <div class="compare" style="margin-top:12px">
-      <div class="compare-bad">
-        <div class="compare-label">Bad — 비대칭 지식</div>
-        <code class="code-block" style="font-size:11px">rust-service: ["Composition Root", "domain event"]
-rust-api:     ["... (Composition Root 누락)"]
-rust-init:    ["... (domain event 누락)"]</code>
-      </div>
-      <div class="compare-good">
-        <div class="compare-label">Good — 전 sibling 동일 표현</div>
-        <code class="code-block" style="font-size:11px">rust-service: ["Composition Root", "domain event"]
-rust-api:     ["Composition Root", "domain event"]
-rust-init:    ["Composition Root", "domain event"]</code>
-      </div>
-    </div>
-    <p>운영 절차: 새 Gotcha 를 한 곳에 추가하면 전 sibling 스킬 SKILL.md 를 동시에 grep 하여 동일 표현 누락 여부 확인. kaizen Phase 에서 kit 단위 cross-check 를 필수로 수행한다.</p>
-  </div>
-</div>
-
-<!-- SECTION 9: LONG-RUNNING -->
-<div class="section">
-  <div class="section-label">Long-Running Skills</div>
-  <div class="section-title">§9 Checkpoint Commits · SESSION_LOG · Pre-Sprint Sync</div>
-  <p class="section-desc">긴 멀티페이즈 스킬(<code>kaizen-orchestrator</code>, <code>create-kit</code>, <code>/docs-site</code>, sprint-level refactor)은 output_token_limit · sandbox 차단 · 백그라운드 에이전트 행업 등으로 중단될 가능성이 구조적으로 높다. 30일 세션 로그 분석에서 평균 세션 길이가 6시간에 달하고, 5+ 세션이 output 토큰 제한으로 잘렸다.</p>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>4가지 복원(resumability) 원칙</div>
-      <ul class="checklist" style="margin-top:10px">
-        <li><span class="check">1</span><strong>Checkpoint commit</strong> — 각 페이즈 완료 직후 commit &amp; push. 마지막 한 번에 commit 금지</li>
-        <li><span class="check">2</span><strong>SESSION_LOG.md</strong> — 체크포인트마다 3-line 상태 append (무엇 완료 · 다음 할 일 · 블로커) → 다음 세션이 이 파일만 읽고 resume</li>
-        <li><span class="check">3</span><strong>응답당 300 라인 제한</strong> — 스킬 지침에 명시</li>
-        <li><span class="check">4</span><strong>중첩 스킬 호출 간 반환 데이터 최소화</strong> — 토큰 경제상 요약만 반환</li>
+      <div class="card-title"><span class="dot"></span>절차 3 단계</div>
+      <ul>
+        <li>편집 착수 <strong>전</strong>, producer 면과 consumer 면 파일을 <strong>양쪽 다 경로로 열거</strong>. 소비면을 못 찾으면 grep 으로 찾고, 그래도 없으면 "소비자 없음" 을 근거와 함께 명시한다 — 추측으로 넘어가지 않는다</li>
+        <li>열거 결과를 계획 아티팩트(체크리스트 또는 계약 조건)로 남긴다. <strong>E2 이상</strong> — 문장 다짐으로 처리하지 않는다</li>
+        <li>한 스프린트에서 양쪽을 다 못 바꾸면 남는 쪽을 <code>[미검증]</code> 이 아니라 <strong>명시적 미완 항목</strong>으로 보고한다</li>
       </ul>
-      <p style="margin-top:12px">적용 예시: <code>kaizen-orchestrator</code> 는 Phase 1~10 을 각 Phase 별 sub-agent + 각자 commit 으로 분할하여 어느 Phase 에서 중단되어도 독립적으로 재개할 수 있다.</p>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Pre-Sprint Sync Check — 병행 작업 충돌 방지</div>
-      <p>여러 세션·cron·협업자가 같은 레포에서 동시에 자동화를 돌리는 환경에서, <strong>시작 직전 병행 작업 확인을 의무화</strong>한다.</p>
-      <code class="code-block" style="margin-top:12px">git fetch --all
-git log origin/&lt;base&gt; --oneline -20</code>
-      <p style="margin-top:12px">인접 파일 동시 수정 흔적이 있으면 reconciliation commit 후 진행. orchestrator 류 스킬은 이 단계를 Step 0 (pre-flight)에 흡수한다.</p>
-      <p style="margin-top:10px"><strong>부적합:</strong> 1 파일 변경, 단순 질의, read-only 분석 — noise 가 된다. <strong>적합:</strong> kaizen, create-kit, 멀티 Phase orchestrator, sprint-level refactor.</p>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Create verifiable intermediate outputs — Claude API Docs</a>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>스킬 성장 사이클 — 처음부터 완벽하게 만들지 마라</div>
-    <code class="code-block">v0.1: 지시문 3줄 + Gotchas 1개
-  ↓ Claude가 API 호출 순서 틀림
-v0.2: Gotchas에 호출 순서 규칙 추가
+  <div class="flow"><pre>Bad:  서버 응답 필드 rename → 서버 코드만 수정 → "완료" → 클라이언트 런타임 파싱 실패
+Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경로 열거 → 체크리스트 합의 → 4 파일 일괄 수정</pre></div>
+  <p class="section-desc"><strong>부적합:</strong> 소비자가 존재할 수 없는 순수 내부 리팩터링(private 함수 본문, 로컬 변수명). 이 경우 열거 단계는 noise 다.</p>
+</div>
+
+<!-- ═══ 5.6 Variant Budget ═══ -->
+<div class="section">
+  <div class="section-label">Variant Budget</div>
+  <div class="section-title">§5.6 Variant Budget — 탐색형 산출물의 개수 상한과 축 고정</div>
+  <p class="section-desc"><strong>적용 대상: §2 유형 11(탐색형 생성).</strong> 시안·목업·후보안·네이밍 후보처럼 하나의 결정을 위해 비교용 변주안을 여러 개 만드는 스킬 전부. <strong>현재 등급: E2</strong> — Variant Matrix 라는 아티팩트를 남긴다.</p>
+  <div class="note warn">
+    <div class="note-title">이름 구분 (필수) — agent-design-guide §7 의 탐색 예산과 다른 개념이다</div>
+    <div class="table-wrap" style="margin-top:10px">
+      <table>
+        <thead><tr><th>용어</th><th>정의</th><th>위치</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Exploration Budget</strong></td><td>산출 <strong>이전</strong>의 read-only 탐색에 쓰는 turn·비용 상한 (과탐색 stall 방지)</td><td>agent-design-guide §7</td></tr>
+          <tr><td><strong>Variant Budget</strong></td><td>산출 <strong>자체</strong>의 개수 상한과 변주 축 고정 (탐색 발산 방지)</td><td>이 절 (§5.6)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>두 이름이 비슷해 혼동되기 쉬우므로 <strong>용어를 섞어 쓰지 마라.</strong> §5.5 의 L1/L2/L3 ↔ high/medium/low freedom 충돌 처리와 같은 규약이다.</p>
+  </div>
+
+  <h3 class="sub">왜 축 선언만으로는 부족한가</h3>
+  <p class="section-desc">실측: 글로벌 REJECT <code>UI-04</code> 는 <strong>계약이 4 축(버블 컨테이너 유무 / 정렬 컬럼 수 / 메타 위치 / 묶음 단위)을 이미 명시</strong>했는데도 variant 두 개가 4 축 전부에서 같은 값이었다. 즉 축을 선언해도 구현이 무시한다. <strong>축 값의 상이성이 기계적으로 검사 가능해야</strong> 조항이 작동한다. DOE 의 factor / level / design matrix 가 그 형태다 — 입력 factor 와 그 level 을 먼저 정하고, design matrix 로 조합을 제한한다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>조항 5 요소</div>
+      <ul>
+        <li><strong>기본 산출물 상한 3 개.</strong> 4 개 이상은 사용자 승인이 선행되어야 한다</li>
+        <li><strong>primary axis 1 개 고정</strong>, 필요하면 secondary axis 1 개까지. 3 축 이상 동시 변주는 비교 불가능한 산출물을 만든다</li>
+        <li>각 variant 는 <strong>축 값이 서로 달라야 하고 나머지는 constants 로 고정</strong>한다. 같은 축 값 조합이 2 개 이상이면 그 세트는 실패다</li>
+        <li>실행 전에 <strong>Variant Matrix</strong> 를 만들어 합의한다</li>
+        <li><strong>요청받지 않은 부대 산출물을 만들지 않는다</strong> — 디자인 시스템, 토큰 파일, 문서, 컴포넌트 라이브러리, scaffold</li>
+      </ul>
+      <a class="card-source" href="https://asq.org/quality-resources/design-of-experiments">Design of Experiments — ASQ (factor / level / design matrix)</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>제약은 탐색을 막지 않고 유도한다</div>
+      <p>디자인 제약 연구도 같은 방향을 지지한다 — 제약은 탐색을 막는 것이 아니라 특정 방향으로 유도한다. "많이 뽑아 놓고 고르게 하자" 는 <strong>수량으로 품질을 대체하려는 시도</strong>이며, 실제로는 사용자가 전부 지우게 만든다.</p>
+      <a class="card-source" href="https://www.researchgate.net/publication/358854029_Empirically_Understanding_the_Impact_of_Item_Constraints_on_Designer_Ideation">Item Constraints on Designer Ideation — ResearchGate</a>
+    </div>
+  </div>
+
+  <h3 class="sub">Variant Matrix (실행 전 산출 · E2 아티팩트)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>id</th><th>axis</th><th>axis value</th><th>constants</th><th>생성·수정 파일</th></tr></thead>
+      <tbody>
+        <tr><td>A1</td><td>버블 컨테이너</td><td>없음</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a1.html</code></td></tr>
+        <tr><td>A2</td><td>버블 컨테이너</td><td>카드 테두리</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a2.html</code></td></tr>
+        <tr><td>A3</td><td>버블 컨테이너</td><td>채움 배경</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a3.html</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note good">
+    <div class="note-title">자가 검사 (제출 전 필수)</div>
+    <p><code>axis value</code> 열에 <strong>중복 값이 없는지</strong>, <code>constants</code> 열이 <strong>모든 행에서 동일한지</strong> 확인한다. 두 검사 중 하나라도 깨지면 그 variant 는 비교 대상이 아니므로 다시 만든다. 이 검사가 반복 실패하면 §3.7 등급 원장에 따라 축 값 비교 스크립트(E3)로 승급한다.</p>
+  </div>
+  <div class="flow"><pre>Bad:  "목업 몇 개" 요청 → 9~40 타일 + 토큰 파일 + 서페이스 레인 생성 → 사용자가 전부 삭제 요구
+Bad:  variant 6 개를 냈으나 B3 와 B6 가 지정된 4 축 전부에서 같은 값 → 구별 불가 → REJECT
+Good: Variant Matrix 3 행 합의 → axis value 3 종이 서로 다름 · constants 동일 → 3 파일만 생성</pre></div>
+  <p class="section-desc"><strong>트레이드오프:</strong> 상한 3 개는 과잉 생성을 막지만 탐색 폭을 줄인다. 축 고정은 비교 가능성을 높이지만 의외의 조합을 놓친다. 부대 산출물 금지는 scope creep 을 막지만 장기적으로 유용한 인프라 생성을 늦춘다. 그래서 이 조항은 상한을 없애는 대신 <strong>승인 경로</strong>를 둔다 — 4 개 이상도, 3 축 변주도, 토큰 파일 생성도 사용자가 승인하면 정상 경로다. <strong>금지되는 것은 승인 없는 확장뿐이다.</strong></p>
+</div>
+
+<!-- ═══ 8.5~8.8 ═══ -->
+<div class="section">
+  <div class="section-label">Eval &amp; Quality</div>
+  <div class="section-title">§8.5~8.8 평가 먼저 · MCP 풀네임 · 코드 예시 · Sibling 일관성</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>§8.5 Evaluation-Driven Development</div>
+      <p>스킬 작성의 기본 순서는 <strong>문서 먼저가 아니라 평가(eval) 먼저</strong>다. 존재하지 않는 문제를 문서화하지 않기 위함이다.</p>
+      <ul>
+        <li><strong>Gap 식별</strong> — 스킬 없이 대표 태스크를 실행해 실패 지점 기록</li>
+        <li><strong>Eval 생성</strong> — 이 gap 을 검증할 <strong>최소 3 개 시나리오</strong></li>
+        <li><strong>Baseline 측정</strong> — 스킬 없는 상태의 성능</li>
+        <li><strong>최소 지침 작성</strong> — gap 해결에 필요한 최소 본문만</li>
+        <li><strong>반복</strong> — eval 실행 → baseline 대비 → 리팩터링</li>
+      </ul>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#build-evaluations-first">Build evaluations first — Claude API Docs</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Trigger Eval Set — 20 개 쿼리</div>
+      <p>스킬이 준비되면 description 의 트리거 정확도를 측정한다. <strong>20 개 쿼리</strong>(should-trigger 8~10 개 + should-not-trigger 8~10 개)를 작성한다.</p>
+      <ul>
+        <li>구체적이고 현실적 (파일 경로, 회사명, URL, 오타 포함)</li>
+        <li>다양한 표현 (캐주얼/포멀, 간접적 언급)</li>
+        <li>near-miss 도 포함 (인접 도메인, 모호한 표현)</li>
+      </ul>
+      <code class="code-block">Bad : "Format this data"  (너무 일반적)
+Good: "ok so my boss just sent me this xlsx
+       file... revenue is in column C..."</code>
+      <a class="card-source" href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md#description-optimization-when-skill-is-ready">skill-creator — Description Optimization</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>§8.6 MCP 도구는 Fully-Qualified Name</div>
+      <p>형식은 <code>ServerName:tool_name</code>. 여러 MCP 서버가 활성화된 경우 서버 prefix 가 없으면 Claude 가 도구를 찾지 못하거나 <strong>잘못된 서버의 도구를 호출</strong>할 수 있다.</p>
+      <code class="code-block">Good: Use the `BigQuery:bigquery_schema` tool
+Good: Use the `GitHub:create_issue` tool
+Bad : Use the `bigquery_schema` tool</code>
+      <a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#mcp-tool-references">MCP tool references — Claude API Docs</a>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>§8.7 Code Examples — Fenced Block 품질</div>
+      <ul>
+        <li><strong>모든 fenced code block 에 언어 힌트 필수.</strong> bare fence 금지. 설명용이면 <code>text</code> 또는 <code>pseudo</code></li>
+        <li>코드 템플릿 내부에 <code>TODO</code> / <code>FIXME</code> / 미완성 placeholder 금지 — 사용자가 채워야 하는 부분은 <code>// 여기에 비즈니스 로직 구현</code> 같은 <strong>명시적 주석</strong>으로 전환</li>
+        <li>인용/모조 코드와 실행 코드의 구분 명확</li>
+      </ul>
+      <p><strong>검증법:</strong> <code>rg -n '^```\s*$' &lt;file&gt;</code> 로 bare fence, <code>rg -n 'TODO|FIXME' &lt;file&gt;</code> 로 placeholder 잔존 탐지. 둘 다 0 건이어야 한다.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">§8.8 Sibling-Skill Principle Consistency — 형제 스킬 간 원칙 일관성</h3>
+  <p class="section-desc">하나의 kit 내 <strong>동일 계열 스킬</strong>(init / feature / api / service 등)에 공통 적용되는 원칙은 <strong>모든 sibling SKILL.md 의 Gotchas 에 동일한 표현으로</strong> 등장해야 한다. 누락은 "일부 스킬은 원칙을 알고 있지만 다른 스킬은 모른다" 는 <strong>비대칭 지식 상태</strong>를 만들어, 사용자가 어떤 스킬로 들어오느냐에 따라 완성도가 달라진다.</p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 원칙 비대칭 (rust-kit H-01/H-03 REJECT)</div>
+      <code class="code-block">rust-service: ["Composition Root 단일화 …",
+               "domain event + outbox …"]
+rust-api    : ["… (Composition Root 누락) …"]
+rust-init   : ["… (domain event 누락) …"]</code>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 전 sibling 에 동일 표현</div>
+      <code class="code-block">rust-service: ["Composition Root 단일화 원칙",
+               "domain event + outbox"]
+rust-api    : ["Composition Root 단일화 원칙",
+               "domain event + outbox"]
+rust-init   : ["Composition Root 단일화 원칙",
+               "domain event + outbox"]</code>
+    </div>
+  </div>
+  <p class="section-desc"><strong>운영 절차:</strong> 새 Gotcha 를 sibling 중 한 곳에 추가하면 전 sibling SKILL.md 를 동시에 grep 하여 동일 표현 누락 여부를 확인한다. kaizen Phase 에서 kit 단위 cross-check 는 필수다.</p>
+</div>
+
+<!-- ═══ 9. 실전 ═══ -->
+<div class="section">
+  <div class="section-label">Operations</div>
+  <div class="section-title">§9 실전 — 성장 사이클 · Long-Running · Pre-Sprint Sync</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>처음부터 완벽하게 만들지 마라</div>
+      <div class="flow"><pre>v0.1: 지시문 3줄 + Gotchas 1개
+  ↓ Claude 가 API 호출 순서 틀림
+v0.2: Gotchas 에 호출 순서 규칙 추가
   ↓ 같은 API 문서를 매번 설명해야 함
 v0.3: references/api.md 분리
   ↓ 반복되는 검증 로직 발생
 v0.4: scripts/validate.sh 추가
   ↓ 출력 형식이 매번 다름
-v0.5: templates/report.md 추가</code>
-    <p style="margin-top:12px">스킬은 문서가 아니라, <strong>에이전트의 실패를 관찰하며 경험치를 쌓는 살아 있는 시스템</strong>이다.</p>
+v0.5: templates/report.md 추가</pre></div>
+      <p>스킬은 문서가 아니라 <strong>에이전트의 실패를 관찰하며 경험치를 쌓는 살아 있는 시스템</strong>이다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Long-Running Skills — Checkpoint &amp; SESSION_LOG</div>
+      <p>긴 멀티페이즈 스킬(<code>kaizen-orchestrator</code>, <code>create-kit</code>, <code>/docs-site</code>, sprint-level refactor)은 output_token_limit · sandbox 차단 · 백그라운드 에이전트 행업으로 중단될 가능성이 구조적으로 높다. 30 일 세션 로그 분석에서 평균 세션 길이가 6 시간에 달했고 5+ 세션이 output 토큰 제한으로 잘렸다.</p>
+      <ul>
+        <li><strong>Checkpoint commit</strong> — 각 페이즈 완료 직후 commit &amp; push</li>
+        <li><strong>SESSION_LOG.md</strong> — 체크포인트마다 3-line 상태 append (무엇 완료 · 다음 할 일 · 블로커)</li>
+        <li><strong>응답당 300 라인 제한</strong> — 초과하면 분할</li>
+        <li><strong>중첩 스킬 호출 간 반환 데이터 최소화</strong> — 토큰 경제상 요약만 반환</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Pre-Sprint Sync Check — 병행 작업 충돌 방지</div>
+    <p>여러 세션·cron·협업자가 같은 레포에서 동시에 자동화를 돌리는 환경에서 <strong>시작 직전 병행 작업 확인을 의무화</strong>한다. 30 일 분석에서 "이미 다른 세션이 같은 작업을 완료했거나 인접 파일을 수정 중" 으로 인한 hours-level 재작업이 반복 식별되었다.</p>
+    <div class="flow"><pre>Bad:  세션 시작 → 작업 → commit → push 거부 (다른 세션이 먼저 push) → 충돌 해결로 hours 소모
+Good: 세션 시작 → git fetch --all &amp;&amp; git log origin/&lt;base&gt; --oneline -20 → 병행 흔적 확인 → reconciliation 또는 progress</pre></div>
+    <p><strong>부적합:</strong> 1 파일 변경, 단순 질의, read-only 분석 — 이 단계는 noise 가 된다. <strong>적합:</strong> kaizen, create-kit, 멀티 Phase orchestrator, sprint-level refactor.</p>
   </div>
 </div>
 
-<!-- SECTION 11: CROSS-SURFACE PARITY -->
+<!-- ═══ 11. Parity ═══ -->
 <div class="section">
   <div class="section-label">Cross-Surface Parity</div>
-  <div class="section-title">§11 원칙 전수성 — 12 항목 parity 체크리스트</div>
-  <p class="section-desc">지난 kaizen 사이클에서 <code>§3.5 계약 모호성 방지 원칙</code> 이 이 가이드에만 추가되고 agent-design-guide 에 전수되지 않아 design-kit PH-01 REJECT 가 발생했다. 가이드 레벨의 변경이 파생 산출물로 자동 전파되지 않는 구조적 공백을 메우기 위한 체크리스트다.</p>
+  <div class="section-title">§11 원칙 전수성 — parity items 14 개</div>
+  <p class="section-desc">지난 kaizen 사이클에서 §3.5 "계약 모호성 방지 원칙" 이 이 가이드에만 추가되고 agent-design-guide 에 전수되지 않아 design-kit <code>PH-01</code> REJECT 가 발생했다. 가이드 레벨의 변경이 <strong>파생 산출물로 자동 전파되지 않는 구조적 공백</strong>을 이 표가 메운다.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>#</th><th>Parity Item</th><th>skill-design-guide 위치</th><th>agent-design-guide 대응</th></tr></thead>
+      <thead><tr><th>#</th><th>Parity Item</th><th>skill-design-guide 위치</th><th>agent-design-guide 대응 위치</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>계약 모호성 방지 / Binary Decidability</td><td>§3.5 QA 계약과 1:1 매칭</td><td>§3.5 Binary Decidability Pre-Check</td></tr>
-        <tr><td>2</td><td>트리거 키워드 배타성 (substring 포함)</td><td>§4 set intersection + substring</td><td>§3 description 트리거 + §10 sibling agent 검사</td></tr>
-        <tr><td>3</td><td>검증 가능한 성공 기준</td><td>§3.6 Give a way to verify</td><td>§10 Reviewer L3 커버리지</td></tr>
-        <tr><td>4</td><td>Rule-by-rule audit before completion</td><td>§3.6 Rule-by-Rule Audit</td><td>§10 Reviewer 전수 대조</td></tr>
-        <tr><td>5</td><td>Unverifiable / degraded-mode 정책</td><td><strong>§3.7 Completion Evidence Gate</strong> (<code>[미검증]</code> 마커 · 2 건 임계)</td><td>§10 Unverifiable 조건 정책</td></tr>
-        <tr><td>6</td><td>Pre-Edit Batch Audit ↔ Self-Evaluator Rule-by-Rule</td><td>§3.6 Pre-Edit Batch Audit</td><td>§10 Self-Evaluator Rule-by-Rule Audit</td></tr>
-        <tr><td>7</td><td>Pre-Sprint Sync Check</td><td>§9 Pre-Sprint Sync Check</td><td>— (멀티세션 orchestrator 한정)</td></tr>
+        <tr><td>1</td><td>계약 모호성 방지 / Binary Decidability</td><td>§3.5 (QA 계약과 1:1 매칭)</td><td>§3.5 (Binary Decidability Pre-Check)</td></tr>
+        <tr><td>2</td><td>트리거 키워드 배타성 (substring 포함)</td><td>§4 (트리거 키워드 중복 방지)</td><td>§3 description + §10 sibling agent 검사</td></tr>
+        <tr><td>3</td><td>검증 가능한 성공 기준</td><td>§3.6 (Give a way to verify)</td><td>§10 Reviewer L3 커버리지</td></tr>
+        <tr><td>4</td><td>Rule-by-rule audit before completion</td><td>§3.6 (Rule-by-Rule Audit)</td><td>§10 Reviewer 전수 대조</td></tr>
+        <tr><td>5</td><td>Unverifiable / degraded-mode 정책</td><td>§3.7 (<code>[미검증]</code> 마커 · 2 건 임계)</td><td>§10 Unverifiable 조건 정책</td></tr>
+        <tr><td>6</td><td>Pre-Edit Batch Audit ↔ Self-Evaluator Rule-by-Rule</td><td>§3.6</td><td>§10 (Self-Evaluator Rule-by-Rule Audit)</td></tr>
+        <tr><td>7</td><td>Pre-Sprint Sync Check</td><td>§9</td><td>— (멀티세션 orchestrator 한정 · 단일 평가자 에이전트는 해당 없음)</td></tr>
         <tr><td>8</td><td>Hook-Triggered Auto-Correction</td><td>— (스킬은 훅을 직접 spawn 하지 않음)</td><td>§6 패턴 7</td></tr>
-        <tr><td>9</td><td>Scope-Bound Edits ↔ Scope-Bound Evaluation</td><td>§3.6 Scope-Bound Edits</td><td>§10 Reviewer 평가 범위 확장 금지</td></tr>
-        <tr><td>10</td><td>반환 데이터 최소화 ↔ Fan-out 상한 / Exploration Budget</td><td>§9 Long-Running Skills</td><td>§7 Fan-out 상한 · Exploration Budget</td></tr>
-        <tr><td>11</td><td><strong>Enforcement 등급 (E1/E2/E3)</strong></td><td>§3.7 Enforcement 3 등급 · 승급 규칙</td><td>§6 패턴 7 (훅 = E3 게이트의 에이전트 측 구현체)</td></tr>
-        <tr><td>12</td><td><strong>Counterpart Enumeration</strong></td><td>§5.5 변경의 반대편 열거</td><td>— (생성 측 전용 · 평가자는 계약 조건으로 수용)</td></tr>
+        <tr><td>9</td><td>Scope-Bound Edits ↔ Scope-Bound Evaluation</td><td>§3.6 (Scope-Bound Edits)</td><td>§10 (Reviewer 평가 범위 확장 금지)</td></tr>
+        <tr><td>10</td><td>반환 데이터 최소화 ↔ Fan-out / Exploration Budget</td><td>§9 (Long-Running Skills)</td><td>§7 (Fan-out 상한 · Exploration Budget)</td></tr>
+        <tr><td>11</td><td>Enforcement 등급 (E1/E2/E3)</td><td>§3.7 (정의 · 승급 규칙 · 원장 — <strong>SSOT</strong>)</td><td>§6 패턴 7 (훅 = E3 게이트의 에이전트 측 구현체)</td></tr>
+        <tr><td>12</td><td>Counterpart Enumeration</td><td>§5.5 (변경의 반대편 열거)</td><td>— (생성 측 전용 · 평가자는 계약 조건으로 수용)</td></tr>
+        <tr><td>13</td><td>Variant Budget ↔ Exploration Budget</td><td>§5.6 (산출물 개수·축 고정)</td><td>§7 (탐색 turn 예산) — <strong>짝이 아니라 구분 대상</strong></td></tr>
+        <tr><td>14</td><td>User-Reported Failure Gate</td><td>§3.8 (사용자 관측은 재현 대상)</td><td>§10 (사용자 보고 우선 — 평가자 측)</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="parity-box">
-    <div class="parity-box-title">예외 항목과 2026-07 변경</div>
-    <p>Item 7 은 멀티세션 orchestrator 행동에만 관련되어 agent-design-guide 에 대응이 없다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 12 는 코드를 생성·수정하는 측의 규율이라 평가자 가이드 대신 계약 조건으로 흡수한다. <strong>Item 5 는 2026-07 사이클에서 "에이전트 전용" 에서 양면으로 전환되었다</strong> — 생성 측이 <code>[미검증]</code> 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비되기 때문이다. 이 예외들(7, 8, 12)을 제외한 나머지(1~6, 9~11)는 양쪽 모두 존재한다.</p>
+  <div class="note">
+    <div class="note-title">예외 4 건과 그 이유</div>
+    <p>Item 7 은 멀티세션 orchestrator 행동에만 관련되어 agent 가이드에 대응이 없다. Item 8 은 hook + agent 협업 패턴으로 agent 가이드 전용. Item 12 는 코드를 생성·수정하는 측의 규율이라 평가자 가이드에 대응 섹션을 두지 않고 계약 조건으로 흡수한다. <strong>Item 13 만 성격이 다르다</strong> — 동일 개념 공유가 아니라 <strong>이름이 비슷한 다른 개념</strong>이라 양쪽 절이 서로를 참조해 용어 혼동을 막는 것이 parity 의 내용이다. <strong>Item 14 는 2026-08 사이클 신규.</strong> 나머지 (1~6, 9~11, 14) 는 양쪽 모두 존재한다.</p>
   </div>
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>개정 시 체크리스트</div>
-    <ul class="checklist" style="margin-top:12px">
-      <li><span class="check">✓</span>새 원칙을 추가했는가? → agent-design-guide 에 대응 항목이 필요한지 판정</li>
-      <li><span class="check">✓</span>원칙 네이밍(카테고리 ID, 섹션명)을 변경했는가? → agent/contract/qa-evaluation 가이드 + 하위 스킬 SKILL.md 를 Grep 하여 동기화</li>
-      <li><span class="check">✓</span>Bad/Good 예시를 추가했는가? → 대응 원칙이 있는 다른 가이드도 함께 업데이트</li>
-      <li><span class="check">✓</span>frontmatter <code>version</code> 을 bump 했는가? → 대응 파일들도 같은 방향으로 bump</li>
-    </ul>
-    <p style="margin-top:12px"><strong>실패 패턴:</strong> PH-01 (design-kit, 2026-04) — §3.5 가 agent-design-guide 에 누락되어 계약 작성자는 원칙을 알지만 평가자는 몰라 REJECT. SK-13 (backend-kit, infra-kit) — References 섹션이 상위 guide 요구사항인데 하위 kaizen 스킬 SKILL.md 에 누락.</p>
-  </div>
+  <h3 class="sub">개정 시 체크리스트</h3>
+  <ul class="checklist">
+    <li><span class="check">✓</span>새 원칙을 추가했는가? → agent-design-guide 에 대응 항목이 필요한지 판정</li>
+    <li><span class="check">✓</span>원칙 네이밍(카테고리 ID, 섹션명)을 변경했는가? → agent · contract · qa-evaluation 가이드와 하위 스킬 SKILL.md 를 Grep 하여 동기화</li>
+    <li><span class="check">✓</span>Bad/Good 예시를 추가했는가? → 대응 원칙이 있는 다른 가이드도 동일 형태의 예시를 포함하도록 업데이트</li>
+    <li><span class="check">✓</span>frontmatter <code>version</code> 을 bump 했는가? → 대응 파일들도 같은 방향으로 bump</li>
+  </ul>
 </div>
 
-<!-- SECTION: SUMMARY -->
+<!-- ═══ 요약 ═══ -->
 <div class="section">
   <div class="section-label">Summary</div>
-  <div class="section-title">원칙 요약표</div>
-  <p class="section-desc">v1.4.0 에서 굵게 표시된 항목이 2026-07 카이젠 사이클에 신설·강화되었다.</p>
+  <div class="section-title">한 장 요약 — 원칙과 핵심</div>
   <div class="table-wrap">
     <table>
       <thead><tr><th>원칙</th><th>핵심</th></tr></thead>
       <tbody>
         <tr><td>폴더로 설계</td><td>마크다운 하나가 아닌 폴더 하나를 설계한다</td></tr>
-        <tr><td>뻔한 말 금지</td><td>Claude가 이미 아는 것은 넣지 않는다</td></tr>
+        <tr><td>뻔한 말 금지</td><td>Claude 가 이미 아는 것은 넣지 않는다</td></tr>
         <tr><td>Gotchas 최우선</td><td>반복 실패 지점을 기록하는 것이 가장 높은 가치</td></tr>
-        <tr><td>frontmatter 스키마 엄수</td><td>name ≤ 64, description ≤ 1024, 3인칭, XML 금지, 예약어 금지</td></tr>
+        <tr><td>frontmatter 스키마 엄수</td><td>name ≤ 64, description ≤ 1024, 3 인칭, XML 금지, 예약어 금지</td></tr>
         <tr><td>Undertrigger 방지</td><td>description 은 "pushy" 하게 — 트리거 맥락 나열</td></tr>
         <tr><td>500 라인 상한</td><td>SKILL.md body 는 500 라인 미만</td></tr>
         <tr><td>Reference 1-level deep</td><td>참조 파일에서 또 참조하지 마라</td></tr>
@@ -791,17 +998,15 @@ v0.5: templates/report.md 추가</code>
         <tr><td><strong>Counterpart Enumeration</strong></td><td>계약·직렬화·공유 모델 변경은 소비자 파일까지 양면 열거</td></tr>
         <tr><td><strong>Rule-by-rule audit</strong></td><td>완료 선언 전 규칙 전수 대조 패스 의무</td></tr>
         <tr><td><strong>Completion Evidence Gate</strong></td><td>도구 출력 증거 없는 완료 선언 금지 · 검증 불가 시 <code>[미검증]</code> 명시</td></tr>
-        <tr><td><strong>Enforcement 등급</strong></td><td>E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 등급을 올려라</td></tr>
-        <tr><td>Eval 먼저</td><td>최소 3개 평가를 문서보다 먼저 작성</td></tr>
+        <tr><td><strong>Enforcement 등급</strong></td><td>E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 문장을 다듬지 말고 §3.7 원장에서 등급을 올려라</td></tr>
+        <tr><td><strong>Variant Budget</strong></td><td>탐색형 산출물은 상한 3 · 축 1(+1) 고정 · Variant Matrix 합의 후 생성</td></tr>
+        <tr><td><strong>User-Reported Failure Gate</strong></td><td>사용자 실패 보고는 <code>REOPENED</code> — 반박 금지, 오라클 유효성부터 의심</td></tr>
+        <tr><td>Eval 먼저</td><td>최소 3 개 평가를 문서보다 먼저 작성</td></tr>
         <tr><td>MCP 도구 풀네임</td><td><code>ServerName:tool_name</code> 필수</td></tr>
         <tr><td><strong>Substring 배타성</strong></td><td>키워드 set intersection + substring containment 모두 공집합</td></tr>
         <tr><td><strong>Code 예시 품질</strong></td><td>fenced block 언어 힌트 필수 · TODO/placeholder 금지</td></tr>
         <tr><td><strong>Sibling 일관성</strong></td><td>형제 스킬 간 공통 원칙 누락 없이 동일 표현</td></tr>
-        <tr><td><strong>Cross-Surface Parity</strong></td><td>skill/agent/contract/eval 가이드의 원칙 전수 검토</td></tr>
         <tr><td><strong>Checkpoint commits</strong></td><td>Long-running 스킬은 페이즈마다 commit + SESSION_LOG</td></tr>
-        <tr><td>트리거 조건 명시</td><td>description 은 "언제 켜라" 를 구체적으로 쓴다</td></tr>
-        <tr><td>헬퍼 제공</td><td>스크립트로 보일러플레이트를 줄인다</td></tr>
-        <tr><td>모드 부여</td><td>온 디맨드 훅스로 상황별 가드레일 설정</td></tr>
         <tr><td>점진적 발전</td><td>몇 줄로 시작해서 실패를 관찰하며 한 줄씩 추가</td></tr>
       </tbody>
     </table>
@@ -810,21 +1015,24 @@ v0.5: templates/report.md 추가</code>
 
 <div class="footer">
   <h3>출처</h3>
+  <p>이 페이지는 <code>harness/docs/guides/skill-design-guide.md</code> (v1.5.0 · 2026-08-13) 를 시각화한 것이다. 원문이 정본이며, 수치·인용·귀속은 모두 원문에서 옮겼다.</p>
   <ul>
-    <li><a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Skill Authoring Best Practices — Claude API Docs (2026-04)</a></li>
+    <li><a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices">Skill Authoring Best Practices — Claude API Docs</a></li>
     <li><a href="https://code.claude.com/docs/en/skills">Extend Claude with Skills — Claude Code Docs</a></li>
     <li><a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">Agent Skills Overview — Claude API Docs</a></li>
-    <li><a href="https://github.com/anthropics/skills">anthropics/skills — GitHub</a></li>
-    <li><a href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md">skill-creator SKILL.md</a></li>
-    <li><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Equipping Agents for the Real World — Anthropic Engineering</a></li>
+    <li><a href="https://github.com/anthropics/skills">anthropics/skills — GitHub</a> · <a href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md">skill-creator SKILL.md</a></li>
+    <li><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Equipping Agents for the Real World with Agent Skills — Anthropic Engineering</a></li>
     <li><a href="https://code.claude.com/docs/en/best-practices">Best Practices for Claude Code</a></li>
-    <li><a href="https://developers.openai.com/codex/skills">Codex CLI Agent Skills</a></li>
-    <li><a href="https://skills.sh">skills.sh</a></li>
-    <li><a href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure: Characterizing False Success in LLM Agents — arxiv:2606.09863 (2026-06)</a></li>
-    <li><a href="https://arxiv.org/html/2607.07405v1">Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405 (2026-07)</a></li>
-    <li><a href="https://arxiv.org/abs/2605.29442">How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442 (2026-05)</a></li>
+    <li><a href="https://developers.openai.com/codex/skills">Codex CLI Agent Skills</a> · <a href="https://skills.sh">skills.sh</a></li>
+    <li><a href="https://arxiv.org/abs/2606.09863">From Confident Closing to Silent Failure — arxiv:2606.09863</a> (2026-06)</li>
+    <li><a href="https://arxiv.org/html/2607.07405v1">Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405</a> (2026-07)</li>
+    <li><a href="https://arxiv.org/abs/2605.29442">How Coding Agents Fail Their Users: 20,574 Real-World Sessions — arxiv:2605.29442</a> (2026-05)</li>
+    <li><a href="https://asq.org/quality-resources/design-of-experiments">Design of Experiments — ASQ</a> (§5.6 factor/level/design matrix)</li>
+    <li><a href="https://www.researchgate.net/publication/358854029_Empirically_Understanding_the_Impact_of_Item_Constraints_on_Designer_Ideation">Item Constraints on Designer Ideation</a> (§5.6 제약과 탐색 유도)</li>
+    <li><a href="https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework">OCI Agent Evaluation Framework — Oracle</a> (§3.8 target system 검증)</li>
+    <li><a href="https://openai.github.io/openai-agents-js/guides/guardrails/">Guardrails — OpenAI Agents SDK</a> (§3.7 tripwire 의 한계)</li>
+    <li><a href="https://www.anthropic.com/research/trustworthy-agents">Building Trustworthy Agents — Anthropic</a> (§3.7 단일 방어선은 보장이 아니다)</li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: harness/docs/guides/skill-design-guide.md · v1.4.0 · 2026-07-27</p>
 </div>
 
 </div>

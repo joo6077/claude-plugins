@@ -2,8 +2,41 @@
 """
 validate-post-kaizen.py — Post-Kaizen Checklist 자동 검증 스크립트
 
-카이젠 사이클 완료 후 PR 생성 전에 반드시 실행하여 12 개 항목을 검증한다.
-하나라도 FAIL 이면 exit 1 을 반환하여 PR 생성 스크립트가 차단되도록 한다.
+카이젠 사이클 완료 후 PR 생성 전에 반드시 실행한다. 검사 항목 수는 요약 줄에 출력된다
+(여기에 숫자를 박아두면 항목이 늘 때 조용히 틀린다 — 실측: 문서는 12 인데 실제는 14 였다).
+
+## 상태와 종료 코드
+
+`harness/evals/gate-exit-codes.md` 가 SSOT 다 (여기서 의미를 재정의하지 않는다).
+
+- `PASS`  — 검사를 수행했고 위반 없음
+- `FAIL`  — 검사를 수행했고 위반 발견 → exit 1
+- `ERROR` — **검사를 수행하지 못했다** (git 실패 · 도구 부재 · 파싱 실패) → exit 2
+- `SKIP`  — 해당 사항 없음 (이번 사이클에 플러그인 bump 가 없는 등). 종료 코드에 영향 없음
+
+`ERROR` 는 2026-08-13 에 신설했다. 그전에는 `git_diff_names()` 가 실패 시 빈 목록을 돌려주어
+diff 기반 검사 전부가 "변경 없음 → 위반 없음" 으로 **조용히 통과**했고, `check_scope_isolation`
+은 `git log` 실패를 `SKIP` 으로 처리했는데 `SKIP` 은 종료 코드를 바꾸지 않았다.
+
+## 사이클 단계 인지 (2026-08-13 신설)
+
+이 게이트는 오케스트레이터 **Step F4** — 사이클 종료 후 PR 생성 직전 — 에 도는 것이 정상 사용이다.
+검사 중 다섯 건(`changelog-entry` · `research-log` · `cleanup-log` · `failure-count` ·
+`evals-audit`)은 Phase 구현이 아니라 **종료 단계(Step F1~F4)가 생산하는 산출물**을 본다.
+그 다섯을 "오늘 날짜 엔트리가 있는가" 로 무조건 검사하던 구판은 두 방향으로 다 틀렸다.
+
+- **거짓 위반** — 사이클이 진행 중이면 산출물이 아직 없는 게 정상인데 `FAIL` 로 셌다.
+  자정을 넘긴 사이클도 같은 이유로 깨졌다 (실측 2026-07-27 사이클: 엔트리는 전부 07-27 자로
+  존재하는데 체크가 07-28 에 돌아 4 건 false negative FAIL —
+  `.harness/.meta/orchestrator-audit-log.md` §2026-07-27 사이클 meta-issue 1).
+- **거짓 통과** — `evals-audit` 는 "이번 달 아무 파일" 이면 통과였다. 8/31 사이클이 8/1 감사
+  파일로 green 이 된다.
+
+그래서 오라클을 **사이클** 기준으로 바꿨다. 단계 도래 여부는 `.harness/.meta/kaizen-state.yaml`
+의 `status` 로 판정하고(`completed` 만 도래), 날짜는 `cycle_id` 에서 유도한 사이클 날짜와 오늘을
+함께 인정한다. **판정 자체가 불가능하면**(상태 파일 부재 · 파싱 실패 · 미지의 status)
+건너뛰지 않고 `ERROR` 다 — 규칙은 `harness/evals/gate-exit-codes.md` §규칙 을 따른다.
+`status: completed` 인 정상 사용 시점에는 다섯 검사가 **전부 구판 그대로 강제**된다.
 
 사용법:
     python3 scripts/validate-post-kaizen.py [--since <ref>]
@@ -17,6 +50,7 @@ validate-post-kaizen.py — Post-Kaizen Checklist 자동 검증 스크립트
 import argparse
 import datetime
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -25,14 +59,25 @@ from typing import Callable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+# 사이클 단계·날짜의 SSOT. spawn-kaizen-phase.sh / finalize-phase.sh 가 쓰고 이 게이트가 읽는다.
+KAIZEN_STATE_PATH = REPO_ROOT / ".harness/.meta/kaizen-state.yaml"
+# 위 두 스크립트가 실제로 기록하는 값만 인정한다. 모르는 값이면 판정 불가 → ERROR.
+KNOWN_CYCLE_STATUSES = ("running", "completed")
+CYCLE_FINALIZED_STATUS = "completed"
+
+
+class GateInfraError(RuntimeError):
+    """검사를 **수행하지 못했다**. 위반 0 건과 구분해야 하는 상황 전용."""
+
 
 @dataclass
 class CheckResult:
     name: str
-    status: str  # "PASS" | "FAIL" | "SKIP"
+    status: str  # "PASS" | "FAIL" | "ERROR" | "SKIP"
     summary: str
     evidence: list[str] = field(default_factory=list)
     hint: str = ""  # 수정 방법 안내 (FAIL 시 출력)
+    deferred: bool = False  # SKIP 사유가 "종료 단계 미도래" 인가 (요약에 따로 센다)
 
 
 # FAIL 수정 힌트 매핑
@@ -51,6 +96,10 @@ FAIL_HINTS: dict[str, str] = {
     "evals-audit": "evals-audit-YYYY-MM-DD.md 파일 생성 (per-kit evals.json vs skills/ 대조)",
     "scope-isolation": "cross-phase 커밋을 분리하거나 revert 후 올바른 Phase 범위로 재커밋",
     "bare-fence": "python3 scripts/validate-plugin.py --fix --check=code-fence 실행",
+    "doc-contracts": (
+        "문서의 docs-contract 선언과 스크립트 실체를 맞춰라 "
+        "(python3 scripts/validate-doc-contracts.py -v 로 불일치 확인 · 실체가 SSOT)"
+    ),
 }
 
 
@@ -63,15 +112,117 @@ def run(cmd: list[str], cwd: Path = REPO_ROOT) -> tuple[int, str, str]:
 
 
 def git_diff_names(since: str) -> list[str]:
-    """Return list of files changed since the given ref."""
-    code, out, _ = run(["git", "diff", "--name-only", f"{since}..HEAD"])
+    """Return list of files changed since the given ref.
+
+    ⚠ 실패 시 빈 목록을 돌려주지 않는다. 그렇게 하면 "diff 를 못 읽었다" 가 "변경이 없다" 로
+    둔갑해 diff 기반 검사 전부가 조용히 통과한다 (2026-08-13 실측 결함).
+    """
+    code, out, err = run(["git", "diff", "--name-only", f"{since}..HEAD"])
     if code != 0:
-        return []
+        raise GateInfraError(f"git diff 실패 (rc={code}) — since={since}: {err.strip()}")
     return [line for line in out.splitlines() if line.strip()]
+
+
+def plugin_skill_prefixes() -> list[str]:
+    """marketplace.json 에서 harness 제외 킷의 `skills/` prefix 를 유도한다.
+
+    하드코드하면 킷이 늘 때 조용히 커버리지가 빠진다 — 실측 2026-08-13: prefix 6 종만 박혀 있어
+    planning-kit · reflect-kit · bambu-kit · onboarding-kit 4 종이 scope 격리 검사 밖에 있었다.
+    """
+    path = REPO_ROOT / ".claude-plugin/marketplace.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise GateInfraError(f"marketplace.json 을 읽지 못했다: {exc}") from exc
+    names = [
+        p.get("name")
+        for p in data.get("plugins", [])
+        if p.get("name") and p.get("name") != "harness"
+    ]
+    if not names:
+        raise GateInfraError("marketplace.json 에서 harness 제외 킷을 하나도 찾지 못했다")
+    return [f"{n}/skills/" for n in names]
 
 
 def today() -> str:
     return datetime.date.today().isoformat()
+
+
+@dataclass(frozen=True)
+class CycleState:
+    cycle_id: str
+    status: str
+    dates: tuple[str, ...]  # 이 사이클의 산출물이 달 수 있는 날짜 (사이클 날짜 + 오늘)
+
+    @property
+    def finalized(self) -> bool:
+        return self.status == CYCLE_FINALIZED_STATUS
+
+
+_CYCLE_STATE: CycleState | None = None
+
+
+def cycle_state() -> CycleState:
+    """`.harness/.meta/kaizen-state.yaml` 에서 사이클 단계·날짜를 읽는다.
+
+    읽지 못하면 **추측하지 않는다.** `GateInfraError` → `ERROR` → exit 2 다.
+    "상태를 모르니 일단 건너뛴다" 는 도구 부재를 통과로 집계하던 구판과 같은 실패 모드다
+    (`harness/evals/gate-exit-codes.md` §규칙).
+    """
+    global _CYCLE_STATE
+    if _CYCLE_STATE is not None:
+        return _CYCLE_STATE
+    if not KAIZEN_STATE_PATH.exists():
+        raise GateInfraError(
+            f"{KAIZEN_STATE_PATH.relative_to(REPO_ROOT)} 없음 — 사이클 단계를 판정할 수 없다"
+        )
+    try:
+        text = KAIZEN_STATE_PATH.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise GateInfraError(f"kaizen-state.yaml 을 읽지 못했다: {exc}") from exc
+
+    def field_value(key: str) -> str:
+        m = re.search(rf'(?m)^{re.escape(key)}:\s*"?([^"\n#]*?)"?\s*$', text)
+        return m.group(1).strip() if m else ""
+
+    status = field_value("status")
+    cycle_id = field_value("cycle_id")
+    if not status:
+        raise GateInfraError("kaizen-state.yaml 에 status 필드가 없다 — 단계 판정 불가")
+    if status not in KNOWN_CYCLE_STATUSES:
+        raise GateInfraError(
+            f"kaizen-state.yaml status='{status}' 는 미지의 값이다 "
+            f"(아는 값: {', '.join(KNOWN_CYCLE_STATUSES)}) — 단계 판정 불가"
+        )
+    dates = tuple(dict.fromkeys(re.findall(r"\d{4}-\d{2}-\d{2}", cycle_id) + [today()]))
+    _CYCLE_STATE = CycleState(cycle_id=cycle_id or "(unknown)", status=status, dates=dates)
+    return _CYCLE_STATE
+
+
+def defer_until_finalized(name: str) -> CheckResult | None:
+    """종료 단계 산출물 검사의 적용 가능 여부. 아직 도래하지 않았으면 SKIP 을 돌려준다.
+
+    도래 여부는 상태 파일이 판정한다 — 사람의 선언이 아니다. `finalize-phase.sh` 가 마지막
+    Phase pass 에서 `status: completed` 를 쓰는 순간 이 유예는 자동으로 닫히고 아래 검사들이
+    구판 그대로 강제된다.
+    """
+    st = cycle_state()
+    if st.finalized:
+        return None
+    return CheckResult(
+        name,
+        "SKIP",
+        f"종료 단계 미도래 — cycle={st.cycle_id} status={st.status} (Step F1~F4 산출물)",
+        deferred=True,
+    )
+
+
+def has_cycle_date(text: str) -> bool:
+    """사이클 날짜 중 하나라도 본문에 있으면 이번 사이클 엔트리로 인정한다.
+
+    "오늘" 만 인정하면 자정을 넘긴 사이클이 자기 게이트에 걸린다 (실측 2026-07-27).
+    """
+    return any(d in text for d in cycle_state().dates)
 
 
 # --- Checks ---------------------------------------------------------------
@@ -80,7 +231,6 @@ def today() -> str:
 def check_validate_plugin() -> CheckResult:
     code, out, err = run(["python3", "scripts/validate-plugin.py"])
     # plugin count is dynamic — match "Total: N plugins, N OK" pattern with N >= 7
-    import re
     m = re.search(r"Total:\s+(\d+)\s+plugins,\s+(\d+)\s+OK", out)
     if code == 0 and m and m.group(1) == m.group(2) and int(m.group(1)) >= 7:
         n = m.group(1)
@@ -165,33 +315,39 @@ def check_marketplace_sync(since: str) -> CheckResult:
 
 
 def check_changelog_entry(since: str) -> CheckResult:
+    deferred = defer_until_finalized("changelog-entry")
+    if deferred:
+        return deferred
     changelog = REPO_ROOT / "docs/kaizen/changelog.md"
     if not changelog.exists():
         return CheckResult("changelog-entry", "FAIL", "docs/kaizen/changelog.md missing")
     text = changelog.read_text(encoding="utf-8")
-    t = today()
-    # Check either today's date or within last 7 days
-    if t in text:
+    dates = cycle_state().dates
+    if has_cycle_date(text):
         return CheckResult(
-            "changelog-entry", "PASS", f"entry for {t} present"
+            "changelog-entry", "PASS", f"entry for cycle date ({' | '.join(dates)}) present"
         )
     return CheckResult(
         "changelog-entry",
         "FAIL",
-        f"no entry for {t} in docs/kaizen/changelog.md",
+        f"no entry for {' | '.join(dates)} in docs/kaizen/changelog.md",
     )
 
 
 def check_research_log() -> CheckResult:
+    deferred = defer_until_finalized("research-log")
+    if deferred:
+        return deferred
     rl = REPO_ROOT / "docs/kaizen/research-log.md"
     if not rl.exists():
         return CheckResult("research-log", "FAIL", "docs/kaizen/research-log.md missing")
-    if today() in rl.read_text(encoding="utf-8"):
-        return CheckResult("research-log", "PASS", f"entry for {today()}")
+    dates = cycle_state().dates
+    if has_cycle_date(rl.read_text(encoding="utf-8")):
+        return CheckResult("research-log", "PASS", f"entry for {' | '.join(dates)}")
     return CheckResult(
         "research-log",
         "FAIL",
-        f"no entry for {today()} in docs/kaizen/research-log.md",
+        f"no entry for {' | '.join(dates)} in docs/kaizen/research-log.md",
     )
 
 
@@ -251,81 +407,79 @@ def check_docs_site_regen(since: str) -> CheckResult:
 
 
 def check_cleanup_log() -> CheckResult:
+    deferred = defer_until_finalized("cleanup-log")
+    if deferred:
+        return deferred
     path = REPO_ROOT / ".harness/.meta/cleanup-log.yaml"
     if not path.exists():
         return CheckResult("cleanup-log", "FAIL", "cleanup-log.yaml missing")
-    if today() in path.read_text(encoding="utf-8"):
-        return CheckResult("cleanup-log", "PASS", f"entry for {today()}")
+    dates = cycle_state().dates
+    if has_cycle_date(path.read_text(encoding="utf-8")):
+        return CheckResult("cleanup-log", "PASS", f"entry for {' | '.join(dates)}")
     return CheckResult(
         "cleanup-log",
         "FAIL",
-        f"no entry for {today()} in cleanup-log.yaml",
+        f"no entry for {' | '.join(dates)} in cleanup-log.yaml",
     )
 
 
 def check_failure_count() -> CheckResult:
+    deferred = defer_until_finalized("failure-count")
+    if deferred:
+        return deferred
     path = REPO_ROOT / ".harness/.meta/kaizen-failure-count.yaml"
     if not path.exists():
         return CheckResult("failure-count", "FAIL", "kaizen-failure-count.yaml missing")
-    text = path.read_text(encoding="utf-8")
-    if today() in text:
-        return CheckResult("failure-count", "PASS", f"last_updated includes {today()}")
+    dates = cycle_state().dates
+    if has_cycle_date(path.read_text(encoding="utf-8")):
+        return CheckResult(
+            "failure-count", "PASS", f"last_updated includes {' | '.join(dates)}"
+        )
     return CheckResult(
         "failure-count",
         "FAIL",
-        f"last_updated not {today()}",
+        f"last_updated not in {' | '.join(dates)}",
     )
 
 
 def check_evals_audit() -> CheckResult:
-    path = REPO_ROOT / f".harness/.meta/evals-audit-{today()}.md"
-    if path.exists():
-        return CheckResult("evals-audit", "PASS", f"file for {today()} exists")
-    # Accept any evals-audit-*.md from this week as fallback
-    meta_dir = REPO_ROOT / ".harness/.meta"
-    if meta_dir.exists():
-        found = list(meta_dir.glob(f"evals-audit-{today()[:7]}*.md"))
-        if found:
-            return CheckResult(
-                "evals-audit",
-                "PASS",
-                f"recent audit file: {found[-1].name}",
-            )
+    deferred = defer_until_finalized("evals-audit")
+    if deferred:
+        return deferred
+    # 사이클 날짜로만 인정한다. 구판의 "이번 달 아무 파일" fallback 은 8/31 사이클을 8/1 감사
+    # 파일로 통과시켰다 — 오래된 감사가 새 사이클을 green 으로 만들면 안 된다.
+    dates = cycle_state().dates
+    for d in dates:
+        path = REPO_ROOT / f".harness/.meta/evals-audit-{d}.md"
+        if path.exists():
+            return CheckResult("evals-audit", "PASS", f"file for {d} exists")
     return CheckResult(
         "evals-audit",
         "FAIL",
-        f"no evals-audit-{today()}.md or this-month file",
+        f"no evals-audit-<{' | '.join(dates)}>.md",
     )
 
 
 def check_scope_isolation(since: str) -> CheckResult:
-    """Check that Phase 1~10 source files do not overlap across phases.
+    """Phase 간 소스 파일이 한 커밋에 섞이지 않았는지 본다.
 
-    This is a light-weight check: ensures no single commit touches both
-    harness/skills/ and react-kit/skills/ (cross-phase boundary violation).
+    가벼운 검사다: 하나의 커밋이 `harness/skills/` 와 어떤 킷의 `skills/` 를 동시에 건드리면
+    cross-phase 경계 위반으로 본다. 킷 목록은 marketplace.json 에서 유도한다 (하드코드 금지).
     """
-    code, out, _ = run(["git", "log", f"{since}..HEAD", "--format=%H"])
+    code, out, err = run(["git", "log", f"{since}..HEAD", "--format=%H"])
     if code != 0:
-        return CheckResult("scope-isolation", "SKIP", "git log failed")
+        raise GateInfraError(f"git log 실패 (rc={code}) — since={since}: {err.strip()}")
+    prefixes = plugin_skill_prefixes()
     commits = [c for c in out.splitlines() if c.strip()]
     violations = []
     for commit in commits:
-        _, files, _ = run(
-            ["git", "show", "--name-only", "--format=", commit]
-        )
+        rc, files, ferr = run(["git", "show", "--name-only", "--format=", commit])
+        if rc != 0:
+            raise GateInfraError(f"git show 실패 (rc={rc}) — {commit[:8]}: {ferr.strip()}")
         paths = [p for p in files.splitlines() if p.strip()]
         has_harness_skill = any(p.startswith("harness/skills/") for p in paths)
         has_plugin_skill = any(
-            p.startswith(prefix)
-            for prefix in [
-                "flutter-toolkit/skills/",
-                "design-kit/skills/",
-                "backend-kit/skills/",
-                "infra-kit/skills/",
-                "rust-kit/skills/",
-                "react-kit/skills/",
-            ]
-            for p in paths
+            p.startswith(prefix) for prefix in prefixes for p in paths
         )
         if has_harness_skill and has_plugin_skill:
             violations.append(commit[:8])
@@ -339,16 +493,41 @@ def check_scope_isolation(since: str) -> CheckResult:
     return CheckResult(
         "scope-isolation",
         "PASS",
-        "no cross-phase commits",
+        f"no cross-phase commits ({len(commits)} commits · {len(prefixes)} kits)",
     )
 
 
 def check_bare_fence() -> CheckResult:
     # Delegate to validate-plugin V6 check output
-    code, out, _ = run(["python3", "scripts/validate-plugin.py"])
+    code, out, err = run(["python3", "scripts/validate-plugin.py"])
+    if not out.strip():
+        # 출력이 없으면 검사가 돌지 않은 것이다 — "bare fence 0 건" 이 아니다
+        raise GateInfraError(
+            f"validate-plugin.py 가 출력 없이 종료 (rc={code}): {err.strip()[:200]}"
+        )
     if "0 bare" in out:
         return CheckResult("bare-fence", "PASS", "V6 reports 0 bare fences")
     return CheckResult("bare-fence", "FAIL", "V6 detected bare fences")
+
+
+def check_doc_contracts() -> CheckResult:
+    """문서의 docs-contract 선언과 스크립트 실체가 일치하는지 본다.
+
+    exit 규약은 scripts/validate-doc-contracts.py 와 harness/evals/gate-exit-codes.md 를 따른다.
+    """
+    code, out, err = run(["python3", "scripts/validate-doc-contracts.py"])
+    summary = (out.strip().splitlines() or ["(출력 없음)"])[-1]
+    if code == 0:
+        return CheckResult("doc-contracts", "PASS", summary)
+    if code == 1:
+        return CheckResult(
+            "doc-contracts", "FAIL", summary, [ln for ln in out.splitlines() if ln.strip()]
+        )
+    if code == 3:
+        return CheckResult("doc-contracts", "SKIP", "docs-contract 선언 블록 없음")
+    raise GateInfraError(
+        f"validate-doc-contracts.py 를 수행하지 못했다 (rc={code}): {err.strip()[:300]}"
+    )
 
 
 # --- Runner --------------------------------------------------------------
@@ -368,50 +547,80 @@ def main() -> int:
 
     since = args.since
 
-    checks: list[Callable[[], CheckResult]] = [
-        check_validate_plugin,
-        check_sync_docs,
-        check_sync_orchestrator,
-        lambda: check_plugin_json_bumps(since),
-        lambda: check_marketplace_sync(since),
-        lambda: check_changelog_entry(since),
-        check_research_log,
-        check_per_kit_research_logs,
-        lambda: check_docs_site_regen(since),
-        check_cleanup_log,
-        check_failure_count,
-        check_evals_audit,
-        lambda: check_scope_isolation(since),
-        check_bare_fence,
+    # (표시 이름, 호출) 쌍으로 둔다 — lambda 를 그대로 넣으면 예외 시 이름이 `<lambda>` 로 찍혀
+    # 어느 검사가 죽었는지 알 수 없다 (실측 2026-08-13).
+    checks: list[tuple[str, Callable[[], CheckResult]]] = [
+        ("validate-plugin", check_validate_plugin),
+        ("sync-docs", check_sync_docs),
+        ("sync-orchestrator", check_sync_orchestrator),
+        ("plugin-json-bumps", lambda: check_plugin_json_bumps(since)),
+        ("marketplace-sync", lambda: check_marketplace_sync(since)),
+        ("changelog-entry", lambda: check_changelog_entry(since)),
+        ("research-log", check_research_log),
+        ("per-kit-research-logs", check_per_kit_research_logs),
+        ("docs-site-regen", lambda: check_docs_site_regen(since)),
+        ("cleanup-log", check_cleanup_log),
+        ("failure-count", check_failure_count),
+        ("evals-audit", check_evals_audit),
+        ("scope-isolation", lambda: check_scope_isolation(since)),
+        ("bare-fence", check_bare_fence),
+        ("doc-contracts", check_doc_contracts),
     ]
 
     results = []
-    for check in checks:
+    for name, check in checks:
         try:
             r = check()
+        except GateInfraError as exc:
+            # 검사를 수행하지 못했다 — 위반 0 건이 아니다
+            r = CheckResult(name, "ERROR", f"검사 수행 불가: {exc}")
         except Exception as exc:
-            r = CheckResult(
-                getattr(check, "__name__", "unknown"),
-                "FAIL",
-                f"exception: {exc}",
-            )
+            r = CheckResult(name, "FAIL", f"exception: {exc}")
         results.append(r)
-        status_emoji = {"PASS": "✓", "FAIL": "✗", "SKIP": "·"}[r.status]
-        print(f"[ {r.status:4s} ] {status_emoji} {r.name}: {r.summary}")
+        status_emoji = {"PASS": "✓", "FAIL": "✗", "ERROR": "!", "SKIP": "·"}[r.status]
+        print(f"[ {r.status:5s} ] {status_emoji} {r.name}: {r.summary}")
         if r.status == "FAIL":
             hint = r.hint or FAIL_HINTS.get(r.name, "")
             if hint:
-                print(f"           수정: {hint}")
+                print(f"            수정: {hint}")
         if args.verbose and r.evidence:
             for ev in r.evidence:
-                print(f"           {ev}")
+                print(f"            {ev}")
 
     n_pass = sum(1 for r in results if r.status == "PASS")
     n_fail = sum(1 for r in results if r.status == "FAIL")
+    n_error = sum(1 for r in results if r.status == "ERROR")
     n_skip = sum(1 for r in results if r.status == "SKIP")
+    n_deferred = sum(1 for r in results if r.deferred)
     print()
-    print(f"Total: {n_pass} PASS / {n_fail} FAIL / {n_skip} SKIP")
+    print(
+        f"Total: {len(results)} checks — "
+        f"{n_pass} PASS / {n_fail} FAIL / {n_error} ERROR / {n_skip} SKIP"
+        + (f" (그중 {n_deferred} 건은 종료 단계 미도래로 유예)" if n_deferred else "")
+    )
 
+    # 유예를 조용히 넘기지 않는다 — green 을 post-cycle 판정으로 오독하면 이 게이트도
+    # "아무것도 검증하지 않고 통과를 보고" 하는 축에 든다.
+    if n_deferred:
+        st = cycle_state()
+        sys.stdout.flush()  # 파이프에서 stderr 가 stdout 앞으로 튀어나오지 않도록
+        print(
+            f"→ 종료 단계 산출물 {n_deferred} 건 유예 (cycle={st.cycle_id} status={st.status}). "
+            f"이 실행은 **post-cycle 판정이 아니다** — Step F4 에서 다시 돌려라. "
+            f"유예는 finalize-phase.sh 가 status=completed 를 쓰는 순간 자동으로 닫힌다.",
+            file=sys.stderr,
+        )
+
+    # 종료 코드 의미는 harness/evals/gate-exit-codes.md 가 SSOT.
+    # 불완전한 실행(ERROR)이 있으면 결과 집합을 완전한 분석으로 보고하지 않는다 → 2 가 우선.
+    if n_error:
+        sys.stdout.flush()
+        print(
+            "→ exit 2 (usage_or_infra_error): 일부 검사를 수행하지 못했다. "
+            "FAIL 카운트를 완전한 결과로 읽지 마라.",
+            file=sys.stderr,
+        )
+        return 2
     return 1 if n_fail > 0 else 0
 
 

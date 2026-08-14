@@ -16,7 +16,7 @@ user-invocable: true
 2. **INVEST 없이 승인 금지** — 모든 스토리는 Independent/Negotiable/Valuable/Estimable/Small/Testable 6개 중 하나라도 실패하면 재작성.
 3. **기술 작업을 스토리로 포장 금지** — "As a developer, I want to refactor DB" 는 스토리가 아니라 기술 태스크다. 별도 섹션으로 분리.
 4. **Acceptance Criteria 빈약 금지** — AC 는 최소 happy path + 최소 2개 edge case. "로그인에 성공한다" 같은 단일 AC 는 불충분.
-5. **Given-When-Then 3개 섹션 모두 채우기** — Given 생략하면 전제 상태가 모호해진다. When 여러 개 섞지 마라 (트리거 1개씩 분리).
+5. **Given-When-Then 3개 섹션 모두 채우기 + 한 시나리오에 When 1 개 (planning-kit 내부 원자성 규칙)** — Given 생략하면 전제 상태가 모호해진다. When 여러 개 섞지 마라 (트리거 1개씩 분리). 다만 **이것은 Cucumber 공식 규칙이 아니다** (2026-08-13 정정) — Gherkin 원문은 "as many steps as you like" 를 허용하고 successive `Then` 예시도 싣는다. AC 의 반증 지점을 하나로 유지하기 위한 planning-kit 자체 품질 규칙으로 읽어라. Cucumber 공식 근거로 인용할 수 있는 것은 **3-5 steps 권장**과 **관찰 가능한 `Then`** 두 가지뿐이다. 출처(공식 근거 한정): [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference).
 6. **Story Mapping vs 평면 백로그** — 기능이 3개 이상 스토리로 쪼개지면 Jeff Patton Story Map 형태(backbone → walking skeleton → slices) 권고.
 7. **Estimable 판단** — 한 스프린트(1-2주) 내 완료 불가능하면 Epic 으로 승격 후 재분해.
 8. **INVEST 는 우선순위 도구가 아니다** — 품질 체크이므로 형식만 맞아도 맥락 없는 스토리일 수 있다. Negotiable 항목이 "구현 방법이 열려 있는가" 로 실제 검증되어야 한다. 출처: [Agile Alliance — INVEST](https://agilealliance.org/glossary/invest/).

@@ -28,6 +28,8 @@ user-invocable: true
 13. **계약을 커밋된 아티팩트로 먼저 확정하라 (`contracts/<feature>.md`)** — 서버 구현부터 시작하면 소비면 요구가 뒤늦게 드러난다. 규격 세팅 산출물에 다음 6 항목을 **빠짐없이** 담는다: (a) 엔드포인트 메서드/경로 (b) **빈 상태를 포함한 전 상태코드** (c) **모든 timestamp 필드의 타임존·직렬화 규칙** (d) 비멱등 write path 의 idempotency 시맨틱 (e) 소비면 파일 경로 열거 (f) 테스트 픽스처로 그대로 쓸 요청/응답 예시 6 개 이상. 계약 테스트의 표준 관점도 같다 — Pact 는 "consumer 와 provider 양쪽 개발을 통제할 때" 가 적용 조건이라고 못 박는다. 출처: [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for).
 14. **빈 상태 상태코드를 계약에 못 박아라** — RFC 9110 의 404 는 "대상 리소스의 현재 표현을 찾지 못했거나 존재를 밝히지 않겠다" 는 뜻이지 "컬렉션이 비었다" 가 아니다. 원소 0 개인 컬렉션은 유효한(빈) 표현을 가진 존재하는 리소스이므로 200(빈 배열) 또는 204 가 의미상 맞다. 이 결정을 계약에 적지 않으면 나중에 404→200 으로 바꾸게 되고, 그 순간 소비면 파싱이 깨지는 **계약 변경**이 된다 (Gotcha 12 필수 적용 대상). 출처: [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html).
 15. **timestamp 는 필드마다 타임존 규칙을 적어라** — "UTC 로 저장한다" 만으로는 부족하다. 직렬화 문자열 형태까지 규정해야 한다. RFC 3339 에서 `Z` 와 `+00:00` 은 "UTC 가 선호 기준점" 을 뜻하지만 `-00:00` 은 "UTC 시각은 알지만 로컬 오프셋을 모른다" 는 **다른 의미**다. OpenAPI 3.1 은 `format` 을 JSON Schema 2020-12 에 위임하며 기본적으로 **비검증 애노테이션**으로 취급하므로, 스펙에 `format: date-time` 만 적어두면 런타임에서 강제되지 않는다. 타임존 버그가 e2e 에서만 표면화되는 이유다. 출처: [RFC 3339 §4.3](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html).
+16. **쓰기 경로 무결성을 규격에 포함하라 (E2 아티팩트)** — 상태 전이·중복 방지·재시도 안전성이 걸린 write path 가 있으면 규격 산출물에 (a) invariant 분류 3 줄(유형 / 담당 primitive / 근거 위치) (b) 중복 방지 제약과 upsert 충돌 대상의 대조 표 (c) 멱등 계약 6 항목(key 범위 · payload fingerprint · replay response · in-flight duplicate · different-payload reuse · expiry)을 **함께** 넣는다. 규칙 본문의 SSOT 는 `backend-kit/references/write-path-integrity-protocol.md` 이며 여기서 재열거하지 않는다. Gotcha 13 의 `contracts/<feature>.md` 6 항목 중 (d) idempotency 시맨틱이 바로 이 계약이다.
+17. **outbox 를 세팅하면서 "exactly-once" 라고 쓰지 마라** — 비즈니스 갱신과 outbox insert 가 같은 트랜잭션이어도 relay 는 중복 발행할 수 있다. 전달 보장은 **at-least-once** 이며 consumer idempotency(Gotcha 16 의 6 항목)가 세트로 들어가야 규격이 완성된다. Gotcha 10 이 이미 요구하는 (a) 항목의 근거가 이것이다. 출처: [microservices.io Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html).
 
 # Process (3-Step · 탐색 → 진단 → 처방)
 
@@ -47,6 +49,7 @@ references/system-principles.md 를 참조하여 필요한 카테고리를 rule 
 | 아키텍처 패턴 | 필수 | Hexagonal / Clean / DDD 중 프로젝트 규모에 맞는 선택, 도메인-persistence 분리 규약, 의존성 방향(inward-only). 단순 CRUD는 "간소화 계층형" 선택 가능 |
 | API 규격 | 필수 | HTTP 메서드 규칙, **빈 상태 포함 상태코드 매핑**(Gotcha 14), RFC 9457 problem+json 에러 포맷, OpenAPI 3.1 스펙 파일, **timestamp 타임존·직렬화 규칙**(Gotcha 15), **비멱등 write path idempotency 시맨틱** |
 | 계약 아티팩트 | 필수 (계약을 새로 정하거나 바꿀 때) | `contracts/<feature>.md` 6 항목(Gotcha 13) + producer/consumer 양면 파일 열거 체크리스트(Gotcha 12) |
+| 쓰기 경로 무결성 | 필수 (상태 전이·중복 방지·재시도 안전성이 걸린 write path 가 있을 때) | invariant 분류 3 줄 + 제약↔upsert 대조 표 + 멱등 계약 6 항목 (Gotcha 16). outbox 를 쓰면 consumer idempotency 를 같은 규격에 포함 (Gotcha 17) |
 | 에러 처리 | 필수 | 에러 분류, 글로벌 핸들러 패턴, retry 정책 (exponential backoff + jitter) |
 | 인증/인가 | 필수 | 토큰 전략 (OAuth 2.1 Authorization Code + PKCE), 세션 관리, CORS 정책, 고보안 시 FAPI 2.0(DPoP/mTLS + PAR + JARM). Passkeys/WebAuthn 도입 계획 포함 |
 | 관측성 | 필수 | OTel 3 Signals(Traces+Metrics+Logs) 통합, 구조화 로그(JSON + trace_id/span_id), W3C Trace Context 전파, PII 마스킹 규칙 |
@@ -72,3 +75,4 @@ references/system-principles.md 를 참조하여 필요한 카테고리를 rule 
 # References
 
 - references/system-principles.md — 카테고리별 세팅 원칙
+- ../../references/write-path-integrity-protocol.md — 쓰기 경로 무결성 규격 SSOT (invariant 분류 · upsert arbiter · 멱등 계약 6 항목 · outbox 전달 보장)

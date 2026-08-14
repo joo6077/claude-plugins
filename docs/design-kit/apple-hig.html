@@ -70,6 +70,22 @@
   .stat{display:flex;flex-direction:column;gap:4px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
   .stat-value{font-size:24px;font-weight:800;color:var(--accent);font-family:var(--mono)}
   .stat-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+  .note{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:18px 20px;margin:18px 0}
+  .note-title{font-size:12px;font-weight:800;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .note p{font-size:14px;color:var(--text2);line-height:1.7}
+  .card ul{list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8}
+
+  /* ── 가로 오버플로 방지 4 규칙 (자르지 말고 스크롤시킨다) ────────────── */
+  /* (1) grid 자식의 기본 min-width 는 auto(=min-content) — 긴 코드·표가 트랙 폭을 밀어낸다. */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
+  /* (2) 표는 래퍼에서 가로 스크롤. overflow:hidden 으로 자르지 않는다. */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;margin-bottom:4px}
+  .table-wrap>table{min-width:max-content}
+  /* (3) pre/code 는 자체 스크롤. */
+  pre{overflow-x:auto;max-width:100%}
+  code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트 단일 컬럼 스택. */
+  @media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -119,7 +135,27 @@
   <div class="section-label">2 · 플랫폼별 핵심 수치</div>
   <p class="desc">각 플랫폼의 입력 방식과 맥락이 터치 타겟 · 인터랙션 시간을 결정한다. 이 수치는 <em>최소값</em>으로, 특수 맥락(운전 중 등)에서는 확장한다.</p>
 
-  <table>
+  <div class="note">
+    <div class="note-title">44 x 44 pt 의 귀속 — Apple HIG 필수 ≠ WCAG AA 하한</div>
+    <p><strong>44 x 44 pt 는 Apple HIG 의 필수 요구사항이다.</strong> WCAG 2.2 의 AA 하한은 <strong>24 x 24 CSS px</strong>(SC 2.5.8 Target Size (Minimum))이며, <strong>44 x 44 는 AAA</strong>(SC 2.5.5 Target Size (Enhanced))다. 두 기준을 섞어 "WCAG 가 44pt 를 요구한다" 고 쓰지 마라 — 감사 근거로 인용할 때 표준과 등급을 함께 적는다.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>표준</th><th>최소 크기</th><th>등급</th><th>성격</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Apple HIG</strong></td><td><code>44 x 44 pt</code></td><td>—</td><td>플랫폼 필수</td></tr>
+        <tr><td><strong>WCAG 2.2 SC 2.5.8</strong></td><td><code>24 x 24 CSS px</code></td><td>Level AA</td><td>웹 접근성 하한 (간격 예외 있음)</td></tr>
+        <tr><td><strong>WCAG 2.2 SC 2.5.5</strong></td><td><code>44 x 44 CSS px</code></td><td>Level AAA</td><td>향상된 기준</td></tr>
+        <tr><td><strong>Material Design</strong></td><td><code>48 x 48 dp</code></td><td>—</td><td>Android 권장</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a class="card-source" href="https://www.w3.org/TR/WCAG22/#target-size-minimum">W3C WCAG 2.2 — SC 2.5.8 Target Size (Minimum)</a>
+  <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/accessibility">HIG — Accessibility (44pt)</a>
+
+  <div class="table-wrap">
+<table>
     <thead>
       <tr><th>플랫폼</th><th>최소 타겟</th><th>인터랙션 시간</th><th>기본 입력</th><th>핵심 제약</th></tr>
     </thead>
@@ -132,6 +168,7 @@
       <tr><td><strong>CarPlay</strong></td><td>iOS 대비 확대</td><td><code>≤ 2 초</code></td><td>터치 · 노브 · Siri</td><td>운전 중 시야 제한</td></tr>
     </tbody>
   </table>
+</div>
 </div>
 
 <!-- ── 3. iOS 주요 컴포넌트 패턴 ── -->
@@ -172,7 +209,8 @@
   <div class="section-label">4 · macOS vs iOS 핵심 차이</div>
   <p class="desc">마우스/트랙패드 기반의 정밀 포인팅, 다중 윈도우, 메뉴 바는 iOS 에 없는 macOS 고유 요소다. 같은 앱이라도 플랫폼 간 네비게이션 패턴이 바뀐다.</p>
 
-  <table>
+  <div class="table-wrap">
+<table>
     <thead><tr><th>축</th><th>iOS</th><th>macOS</th></tr></thead>
     <tbody>
       <tr><td>최상위 탐색</td><td>탭 바 (하단)</td><td>사이드바 (좌측)</td></tr>
@@ -183,6 +221,7 @@
       <tr><td>툴바 커스터마이징</td><td>불가</td><td>사용자 재배치 가능</td></tr>
     </tbody>
   </table>
+</div>
 
   <p class="desc" style="margin-top:20px">
     <strong>메뉴 바 높이 24pt (Big Sur 이후)</strong>. 앱의 모든 명령은 메뉴 바를 통해 접근 가능해야 하며, 단축키를 메뉴 항목 우측에 표기한다.
@@ -217,6 +256,22 @@
 <div class="section">
   <div class="section-label">6 · watchOS · CarPlay</div>
   <p class="desc">둘 다 <em>짧은 주시 시간</em>이 공통 제약이다. watchOS 는 glance-and-go, CarPlay 는 운전 중 2초 이내 판독 가능해야 한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>플랫폼</th><th>항목</th><th>사양</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="4"><strong>watchOS</strong></td><td>화면 크기</td><td>40mm <code>162×197pt</code> · 45mm <code>176×215pt</code> · Ultra <code>185×223pt</code></td></tr>
+        <tr><td>인터랙션 시간</td><td>평균 <code>2~5초</code> — glance and go</td></tr>
+        <tr><td>입력 방식</td><td>탭 · 디지털 크라운 회전 · 스와이프 · Siri</td></tr>
+        <tr><td>최소 터치 타겟</td><td><code>38pt</code> — iOS 의 44pt 보다 작지만 시계 맥락에서 허용</td></tr>
+        <tr><td rowspan="4"><strong>CarPlay</strong></td><td>입력 방식</td><td>터치스크린 · 노브/버튼(비터치 차량) · Siri</td></tr>
+        <tr><td>화면 비율</td><td>차량마다 다름 (가로형 다수)</td></tr>
+        <tr><td>인터랙션 시간</td><td>최대 <code>2초</code> — 운전 중 화면 주시 시간 제한</td></tr>
+        <tr><td>앱 유형 제한</td><td>오디오 · 내비게이션 · 메시지 · 충전 · 주차만 허용</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="grid-2">
     <div class="card">
@@ -268,7 +323,8 @@
     </div>
   </div>
 
-  <table>
+  <div class="table-wrap">
+<table>
     <thead><tr><th>렌더링 모드</th><th>설명</th><th>적합한 용도</th></tr></thead>
     <tbody>
       <tr><td><strong>Monochrome</strong></td><td>단색, tintColor 따름</td><td>대부분의 UI 아이콘 (기본)</td></tr>
@@ -277,11 +333,27 @@
       <tr><td><strong>Multicolor</strong></td><td>Apple 사전 정의 고정 색</td><td>날씨 · 기기 · 자연 심볼</td></tr>
     </tbody>
   </table>
+</div>
 
-  <p class="desc" style="margin-top:20px">
-    <strong>Variable Value (SF Symbols 4+)</strong> — 0.0~1.0 연속 값으로 심볼의 채움 수준 표현. 볼륨 · 신호 강도 · 배터리 잔량 같은 상태를 하나의 심볼로 시각화.
-  </p>
-  <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/sf-symbols">HIG — SF Symbols</a>
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>Variable Value (SF Symbols 4+)</h3>
+      <p>0.0~1.0 연속 값으로 심볼의 채움 수준을 표현한다. 볼륨 · 신호 강도 · 배터리 잔량 같은 연속 상태를 하나의 심볼로 시각화.</p>
+      <pre class="code-block mono" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:10px;color:var(--text2)">Image(systemName: "wifi", variableValue: 0.67)
+// 0.0 빈 wifi · 0.33 1칸 · 0.67 2칸 · 1.0 풀</pre>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/sf-symbols">HIG — SF Symbols</a>
+    </div>
+    <div class="card">
+      <h3>커스텀 심볼 제작 · 자동 지역화</h3>
+      <ul>
+        <li>9 무게(Ultralight~Black) × 3 스케일(S/M/L) = <strong>27 변형</strong>이 이상적이나, <strong>최소 Regular-Medium 1 개</strong>만 제작하면 나머지는 자동 보간된다</li>
+        <li>레이어 구분을 올바르게 설정하면 Hierarchical / Palette / Multicolor 렌더링이 자동 적용된다</li>
+        <li>기본 심볼과 시각 무게를 맞추려면 템플릿의 <strong>캡 높이(cap height) 가이드</strong>를 준수한다</li>
+        <li>RTL(아랍어·히브리어)에서 방향이 의미를 갖는 심볼은 자동 미러링된다 (<code>chevron.right</code> → 좌측). <code>checkmark</code> 같은 방향 무관 심볼은 미러링하지 않는다</li>
+      </ul>
+      <a class="card-source" href="https://developer.apple.com/documentation/uikit/uiimage/creating_custom_symbol_images_for_your_app">Apple — Creating Custom Symbol Images</a>
+    </div>
+  </div>
 </div>
 
 <!-- ── 8. Bad vs Good ── -->
@@ -351,7 +423,7 @@
   <p class="desc">HIG 준수 구현 시 반드시 확인할 항목. design-audit 에서 FAIL 빈도가 높은 순서로 정렬.</p>
 
   <ul class="checklist">
-    <li><span class="check">✓</span><div><strong>터치 타겟 44×44pt</strong> — 아이콘 시각 크기가 작아도 터치 영역은 <code>44pt</code> 확보. 인접 타겟 간 최소 8pt 간격.</div></li>
+    <li><span class="check">✓</span><div><strong>터치 타겟 44×44pt (Apple HIG 필수)</strong> — 아이콘 시각 크기가 작아도 터치 영역은 <code>44pt</code> 확보. 인접 타겟 간 최소 8pt 간격. 웹 병행 구현이면 WCAG 2.2 AA 하한 <code>24×24 CSS px</code>(SC 2.5.8)도 함께 만족하는지 확인한다.</div></li>
     <li><span class="check">✓</span><div><strong>Safe Area 대응</strong> — 노치 · Dynamic Island · 홈 인디케이터를 피하는 레이아웃. 전체화면 콘텐츠는 Safe Area 무시 옵션 명시.</div></li>
     <li><span class="check">✓</span><div><strong>Size Classes 분기</strong> — iPhone Compact vs iPad Regular 에서 동일 앱이 레이아웃 재구성. 하드코딩된 width 금지.</div></li>
     <li><span class="check">✓</span><div><strong>Dynamic Type 지원</strong> — 시스템 타이포 스케일 사용. 고정 font size(17pt) 대신 <code>.body</code>, <code>.headline</code> 같은 스타일 토큰.</div></li>

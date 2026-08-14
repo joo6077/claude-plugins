@@ -98,6 +98,27 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 출처: flutter-hooks SKILL.md Gotchas + apps sprint-feedback iter 2 AR-01 패턴
 
+### 6. Primitive Substitution (HAS_DS · DS 컴포넌트 미재사용)
+
+프로젝트에 같은 의미의 디자인 시스템 컴포넌트가 있는데 Flutter 기본 UI 위젯을 직접 쓴 경우.
+
+**규칙 정의는 `flutter-toolkit/references/primitive-substitution-gate.md` 가 SSOT 다.** 대상
+위젯 목록 · deep 검색 명령 · **면제되는 layout primitive 목록** 을 그 파일에서 읽고 적용한다.
+이 문서에 목록을 복제하지 않는다.
+
+**탐지 방법:**
+- SSOT §deep 검색 의 명령으로 게이트 대상 직접 사용을 열거한다 (`.g.dart` 제외)
+- 각 사용처마다 SSOT §quick 검색 의 경로 우선순위로 DS 대체 후보를 찾는다
+- 후보의 소스를 `Read` 로 열어 해당 사용처의 요구(스타일·파라미터)를 표현할 수 있는지 확인한다
+
+**판단 기준:**
+- DS 후보가 실재하고 파라미터로 요구를 표현 가능 → **확정 후보**
+- DS 후보가 없음 → 후보 아님 (리포트에 올리지 않는다)
+- 후보는 있으나 요구 표현 가능 여부를 소스로 확인하지 못함 → `[미검증]` (확정 집계 제외)
+- `HAS_DS = false` → 이 감지 기준 자체를 스킵한다
+
+출처: `references/primitive-substitution-gate.md` (실측 REJECT `RE-02` 2026-08-12 기반)
+
 ## Process
 
 ### Step 1: 스캔 범위 결정
@@ -114,13 +135,14 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 ### Step 2: 감지 실행
 
-감지 기준 5가지를 순서대로 적용한다:
+감지 기준 6가지를 순서대로 적용한다:
 
 1. private 위젯 수집 (`class _.*Widget`, `class _.*State`)
 2. build 메서드 크기 측정
 3. 구조적 중복 비교 (quick: feature 내부만, deep: 전체)
 4. 패턴 반복 탐지 (deep 모드에서만 전체 비교)
 5. Props 번들링 위반 (`HAS_FREEZED` + `HAS_HOOKS` 프로젝트에서만)
+6. Primitive Substitution (`HAS_DS` 프로젝트에서만 · SSOT 파일의 검색 명령 사용)
 
 ### Step 3: 리포트 생성
 
@@ -146,6 +168,10 @@ Pattern Repetition (패턴 반복)
 Props Bundling Violation (HAS_FREEZED + HAS_HOOKS)
   [파일:클래스 — 개별 파라미터 N개 나열]
   → 제안: @freezed Props 클래스로 번들링
+
+Primitive Substitution (HAS_DS)
+  [파일:라인 — 사용한 기본 위젯 ↔ 실재하는 DS 후보 (경로)]
+  → 제안: DS 컴포넌트로 교체 / 후보 없음이면 리포트에 올리지 않음
 
 Total: N extraction candidates
 ```
@@ -190,3 +216,5 @@ Clean — 추출 후보 없음
 - **MUST** 정적 Grep 만으로 후보를 확정하지 않는다 — 각 후보에 대해 `Read` 로 대상 파일 본문을 확인한 뒤 최종 리포팅 (L3 Honesty)
 - **MUST** 판정 경계가 모호한 항목은 `[미검증]` 마커와 함께 리포트에 포함하되 확정 후보 집계에서 제외한다 (Binary Decidability)
 - **MUST** 리포트 서두에 스캔 대상 파일 수를 명시한다 — 0 개면 "Clean" 이 아니라 `[미검증]` 으로 보고한다 (Evidence Validity Gate 검사 2)
+- **MUST** Primitive Substitution 감지는 `flutter-toolkit/references/primitive-substitution-gate.md` 의 대상·면제 목록을 그대로 쓴다 — 이 문서에서 목록을 복제하거나 확장하지 않는다. 특히 면제된 layout primitive 를 후보로 올리면 노이즈이자 규칙 오적용이다
+- **MUST NOT** `HAS_DS = false` 프로젝트에서 Primitive Substitution 을 실행하지 않는다 — 대체 후보가 존재할 수 없어 전건이 오탐이 된다

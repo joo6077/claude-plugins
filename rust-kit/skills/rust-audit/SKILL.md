@@ -111,6 +111,7 @@ prompt: |
 | 15 | Testing | 테스트가 **실제로 실행됐는지** — `running N tests` 의 N > 0 + 종료 코드 확보 | PASS/FAIL | 실행 명령 + 실행 수 + exit code. N=0 은 PASS 가 아니라 측정 실패 (Gotcha 15) | [cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html) |
 | 16 | Security | 의존성 취약점 — `cargo audit` 또는 `cargo deny check advisories` 실행 결과 | PASS/FAIL | 실행 출력 + advisory 건수 (RustSec advisory DB 소비 도구) | [RustSec](https://rustsec.org/) |
 | 17 | API Design | 핸들러 state 는 `Arc<dyn Port>` trait object (SK-03) | PASS/FAIL | `grep -n "State<PgPool>\|State<sqlx::" src/api/handlers/` 결과 0 건 + 대상 핸들러 파일 수 명시 | fit-pal `server/CLAUDE.md` §아키텍처 3번 |
+| 18 | Testing | 동시성 가드 음성 대조 — 조건부 `UPDATE`/낙관적 락에 positive + **stale expected value** negative 테스트가 실 DB 에서 둘 다 존재 | PASS/FAIL | 두 테스트 파일:라인 + 테스트가 가드 구현 심볼을 직접 호출하는지(결합) 확인. 독립 재작성 SQL 은 결합 0 → FAIL | `rust-kit/references/concurrency-guard-protocol.md` · 2026-08-12 실측 `ER-02` |
 
 위 표는 대표 rule 예시이며, 실제 리포트는 `references/audit-criteria.md` 의 모든 기준 rule 을 빠짐없이 열거해야 한다 (Rule-by-Rule Audit · Gotcha 13).
 

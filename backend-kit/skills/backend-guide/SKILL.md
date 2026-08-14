@@ -28,6 +28,8 @@ user-invocable: true
 14. **Counterpart Enumeration — producer 면만 짚고 끝내지 마라 (enforcement 등급 E2)** — 사용자가 가져온 코드가 API 계약 · 상태코드 · 직렬화 포맷 · 공유 모델/생성 코드 · 이벤트 페이로드 · DB 스키마에 걸쳐 있으면, 서버 쪽 개선안만 제시하는 것은 **절반짜리 가이드**다. 같은 응답 안에서 그 응답을 역직렬화하는 소비면 파일(클라이언트 모델 · 리포지토리 · 테스트 픽스처 · 생성 코드)을 grep 으로 찾아 **경로로 열거**하라. 저장소 안에 소비면이 없으면 "이 저장소에 소비자 없음 — 별도 앱 저장소 확인 필요" 처럼 근거와 함께 말하고, 추측으로 넘어가지 마라. 절차 SSOT 는 `harness/docs/guides/skill-design-guide.md` §5.5, 등급 SSOT 는 같은 문서 §3.7 이다. **단, 소비면의 내부 구현은 지적 대상이 아니다** — 열거 범위는 파일 경로와 외부에서 관찰 가능한 동작까지다. "클라이언트가 어떤 함수로 파싱하는지" 까지 규정하면 과잉 명세(over-specified contract)가 된다. Pact 도 계약의 범위를 이렇게 한정한다 — "provider 의 기능 테스트는 provider 자신의 테스트가 할 일이다. Pact 는 요청과 응답의 내용과 형식을 확인하는 것" 이며 "요청 실행의 부수효과는 테스트하지 않는다". 출처: [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for).
 15. **timestamp 가이드는 타임존 표기 규칙까지 내려가라** — "UTC 로 통일하라" 는 처방은 버그를 못 막는다. 직렬화 문자열 규칙까지 짚어야 한다. RFC 3339 에서 `Z` / `+00:00` 은 "UTC 가 선호 기준점", `-00:00` 은 "UTC 시각은 알지만 로컬 오프셋 미상" 으로 **의미가 다르다**. OpenAPI 3.1 은 `format` 을 JSON Schema 2020-12 에 위임하고 기본적으로 비검증 애노테이션으로 취급하므로 스펙에 `format: date-time` 을 적어둬도 런타임 강제는 없다 — 그래서 타임존 불일치가 단위 테스트를 통과하고 e2e 에서만 터진다. 이 계열은 Gotcha 14 의 필수 적용 대상이다. 출처: [RFC 3339 §4.3](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html).
 16. **빈 상태를 404 로 답하는 설계를 발견하면 지적하라** — RFC 9110 의 404 는 "대상 리소스의 현재 표현을 찾지 못했다" 는 뜻이며, 원소 0 개인 컬렉션은 유효한 빈 표현을 가진 존재하는 리소스다. 200(빈 배열)/204 가 의미상 맞다. 이미 404 로 배포된 API 를 200 으로 바꾸는 것은 **계약 변경**이므로 Gotcha 14 를 함께 적용해 소비면을 열거하라. 출처: [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html).
+17. **경합 질문에 "트랜잭션으로 감싸세요" 로 답하지 마라** — 사전 조회 후 쓰기(read-check-then-write) 코드를 발견하면 **invariant 를 먼저 분류**하고 어떤 DB primitive 가 그것을 담당하는지까지 처방해야 가이드다. 세 유형(같은 row 상태 전이 / 존재·권한·가시성 predicate / cross-row·absence·aggregate)과 primitive 매핑, 그리고 금지 3 종(`Serializable` 전 write path 기본값 강제 · `SELECT FOR UPDATE` 를 모든 TOCTOU 의 해법으로 제시 · `READ COMMITTED` + 복잡한 술어를 "안전" 으로 서술)의 SSOT 는 `backend-kit/references/write-path-integrity-protocol.md` §1~§2 다 — 여기서 재열거하지 않는다. Gotcha 7(트레이드오프 양면 제시)을 함께 적용해 선택한 primitive 의 비용(blocking · deadlock · retry · abort율)을 같이 말한다.
+18. **멱등성 조언은 "Idempotency-Key 를 쓰세요" 에서 멈추지 마라** — 헤더만으로는 재시도 안전성이 성립하지 않는다. key 범위 · payload fingerprint · replay response · in-flight duplicate · different-payload reuse · expiry **6 항목**을 짚어야 처방이다 (SSOT: 위 프로토콜 §4). 또한 그 IETF 문서는 **만료된 Internet-Draft** 이므로 "표준" 으로 소개하지 마라.
 
 # Process (3-Step · 탐색 → 진단 → 처방)
 
@@ -47,6 +49,7 @@ user-invocable: true
 | caching | 캐시, Redis, TTL, stampede, 무효화 |
 | event-driven | 메시지 큐, Kafka, outbox, CQRS, saga, DLQ, idempotency, AsyncAPI, CDC, Debezium, RabbitMQ |
 | api-lifecycle | 버저닝, deprecation, rate limiting, idempotency key, Idempotency-Key 헤더, 재시도, Sunset header |
+| write-path-integrity | 동시성, 경합, race, TOCTOU, 낙관적 락, 버전 컬럼, 조건부 UPDATE, 중복 생성, upsert, ON CONFLICT, unique index, 멱등, idempotency key, 재시도 안전, 격리 수준, 트랜잭션 |
 | contract-counterpart | 계약 변경, 응답 형태 변경, 필드 rename, 상태코드 변경, 빈 상태, empty state, 404 vs 200, 직렬화, timestamp, 타임존, UTC, RFC 3339, 클라이언트 반영, 소비자, codegen 산출물 |
 | graphql | GraphQL, 스키마, resolver, DataLoader, federation, Apollo Federation |
 | grpc | gRPC, proto, streaming, deadline, metadata |
@@ -61,7 +64,7 @@ user-invocable: true
 
 ## Step 2: 진단 — 원칙 위반 Rule-by-Rule 열거
 
-references/principle-index.md 에서 해당 카테고리의 원칙 문서 경로를 찾아 읽고, 사용자 코드/설명에 적용되는 원칙 위반 후보를 **개별 row 단위로 모두 열거** 한다 (Gotcha 12 Enumerate-before-Act). 카테고리 단위 묶음 평가 금지.
+`write-path-integrity` 카테고리는 principle-index 가 아니라 `backend-kit/references/write-path-integrity-protocol.md` 를 읽는다 (그 파일이 SSOT). 그 외 카테고리는 references/principle-index.md 에서 해당 카테고리의 원칙 문서 경로를 찾아 읽고, 사용자 코드/설명에 적용되는 원칙 위반 후보를 **개별 row 단위로 모두 열거** 한다 (Gotcha 12 Enumerate-before-Act). 카테고리 단위 묶음 평가 금지.
 
 ## Step 3: 처방 — 가이드 제시 (우선순위 · 트레이드오프 · 출처)
 
@@ -78,3 +81,4 @@ references/principle-index.md 에서 해당 카테고리의 원칙 문서 경로
 # References
 
 - references/principle-index.md — 카테고리별 원칙 문서 매핑
+- ../../references/write-path-integrity-protocol.md — `write-path-integrity` 카테고리 SSOT (경합 invariant 분류 · upsert arbiter · 멱등 계약 6 항목)

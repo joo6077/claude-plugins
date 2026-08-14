@@ -1,8 +1,12 @@
 ---
 title: 테스트
-version: 0.1.0
-last_updated: 2026-04-05
+version: 0.2.0
+last_updated: 2026-08-13
 ---
+
+<!-- 코드 펜스 규약: 이 문서의 fenced code block 은 백틱 4 개로 연다/닫는다.
+     닫는 펜스를 백틱 3 개 단독 줄로 되돌리지 마라 — bare-fence 검사 오라클이
+     닫는 펜스를 언어 힌트 없는 여는 펜스로 오탐한다 (Phase 5 AP-03). -->
 
 # 테스트
 
@@ -71,7 +75,7 @@ Golden(스크린샷) 테스트는 UI 회귀 방지에 강력하지만 theme, fon
 
 ### Widget Test 기본 구조
 
-```dart
+````dart
 testWidgets('로그인 버튼 클릭 시 provider에 로그인 요청', (tester) async {
   final mockAuth = MockAuthRepository();
   when(() => mockAuth.login(any(), any())).thenAnswer((_) async => Right(user));
@@ -90,13 +94,54 @@ testWidgets('로그인 버튼 클릭 시 provider에 로그인 요청', (tester)
 
   verify(() => mockAuth.login('test@test.com', 'pass123')).called(1);
 });
-```
+````
 
 - 출처: https://docs.flutter.dev/cookbook/testing/widget/tap-drag
 
+### Riverpod widget test 하네스 — "화면이 provider 변화를 반영하는가"
+
+unit test 는 provider 값만 본다. **화면이 그 값을 반영하는지**는 `ProviderScope` 루트로 띄운
+widget test 로만 잡힌다. provider 접근은 별도 컨테이너를 만들지 말고 `tester.container()` 를 쓴다.
+
+````dart
+testWidgets('설정 변경이 상세 화면에 반영된다', (tester) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [groupRepositoryProvider.overrideWithValue(fakeRepo)],
+      child: const MaterialApp(home: GroupDetailPage(groupId: 'g1')),
+    ),
+  );
+  await tester.pump();
+
+  final container = tester.container();
+  await container.read(groupPreferencesProvider.notifier).updatePalette('g1', newPalette);
+  await tester.pump();
+
+  expect(container.read(groupDetailDataProvider('g1')).value?.palette, newPalette);
+  expect(find.text(newPalette.label), findsOneWidget);   // 렌더 결과도 함께 본다
+});
+````
+
+- **unit test 는 `ProviderContainer.test()`** 를 쓰고 컨테이너를 테스트 간 공유하지 않는다.
+  `autoDispose` provider 는 `container.read` 만 하면 도중에 dispose 될 수 있으므로
+  `container.listen` 으로 붙잡는다
+- **widget test 에서 `ProviderContainer` 단독 사용 금지** — 화면 렌더 검증에는 `ProviderScope`
+  루트가 필요하다. override 는 `ProviderScope` / `ProviderContainer` 의 `overrides` 로만 준다
+- provider state 만 assert 하고 끝내면 "값은 바뀌었는데 화면은 캐시된 상태" 를 놓친다
+- 출처: https://riverpod.dev/docs/how_to/testing
+
+### 매핑·조합 coverage — 대표 몇 종만 검증하지 않는다
+
+매핑/variant/조합이 N 종이면 대표 1~2 종 통과를 커버리지로 착각하기 쉽다. 실측 사례로
+"16종 매핑 중 2종만 검증", "3 visibility x 6 relation = 18 케이스 중 15케이스만 재현" 이 있었다.
+
+- 축 값의 출처를 **프로덕션 코드의 공유 상수/enum** 으로 고정하고 테스트가 그것을 import 해 순회
+- 케이스 수는 손으로 적지 말고 **축 값 개수의 곱**으로 산출해 실행 케이스 수와 대조
+- table-driven test 또는 generated fixture loop 로 작성 비용을 낮춘다
+
 ### Golden Test 실전
 
-```dart
+````dart
 testWidgets('ProductCard golden', (tester) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -109,7 +154,7 @@ testWidgets('ProductCard golden', (tester) async {
     matchesGoldenFile('goldens/product_card_light.png'),
   );
 });
-```
+````
 
 CI에서 golden update: `flutter test --update-goldens`
 
@@ -131,7 +176,7 @@ CI에서 golden update: `flutter test --update-goldens`
 
 ### 비동기 테스트 패턴
 
-```dart
+````dart
 testWidgets('AsyncNotifier loading → data 전이', (tester) async {
   await tester.pumpWidget(testApp);
   // loading 상태
@@ -141,4 +186,4 @@ testWidgets('AsyncNotifier loading → data 전이', (tester) async {
   await tester.pump(); // FutureBuilder 갱신
   expect(find.text('Product Name'), findsOneWidget);
 });
-```
+````

@@ -42,6 +42,22 @@
   /* Cards */
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
   .card:hover{border-color:rgba(240,176,136,0.25)}
+  .card-source{display:inline-flex;align-items:center;gap:6px;margin-top:12px;margin-right:6px;font-size:11px;font-weight:600;
+    color:var(--accent2);text-decoration:none;border:1px solid rgba(240,176,136,0.4);border-radius:999px;padding:5px 12px;
+    min-height:24px;transition:all var(--transition);font-family:var(--mono)}
+  .card-source:hover{background:rgba(240,176,136,0.14);border-color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+  .card-source::before{content:'↗';font-weight:800}
+  .principle-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;
+    background:rgba(240,176,136,0.14);color:var(--accent2);font-size:12px;font-weight:800;margin-right:10px;flex-shrink:0}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px;padding:0}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.65;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;min-height:24px}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent2);flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent2);font-weight:800}
+  .note{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:18px 20px;margin:18px 0}
+  .note-title{font-size:12px;font-weight:800;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .note p{font-size:13px;color:var(--text2);line-height:1.7}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
   .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px}
@@ -219,6 +235,36 @@
   <p class="subtitle">네비게이션 구조 설계, 모바일 패턴(탭/사이드바/드로어), 브레드크럼 뎁스 관리, 햄버거 논쟁의 실무적 결론, 메가 메뉴 가이드를 시각적으로 다룬다.</p>
 </header>
 
+<!-- 0. Principles -->
+<section class="section">
+  <div class="section-label">원칙</div>
+  <h2>네비게이션 설계 4 원칙</h2>
+  <p class="desc">모든 구조·패턴 결정은 아래 네 원칙에서 파생된다. 패턴 선택이 애매할 때 여기로 돌아온다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3><span class="principle-num">1</span>보이지 않으면 존재하지 않는다</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">네비게이션 항목을 숨기면 발견율이 급격히 떨어진다. NNGroup 은 <em>"Out of sight is out of mind"</em> 라는 표현으로 햄버거 메뉴 등 숨겨진 네비게이션이 카테고리 발견율을 크게 저하시킨다고 경고한다. <strong>큰 화면에서는 반드시 노출</strong>한다.</p>
+      <a class="card-source" href="https://www.nngroup.com/articles/menu-design/">NNGroup — Menu-Design Checklist: 17 UX Guidelines</a>
+    </div>
+    <div class="card">
+      <h3><span class="principle-num">2</span>현재 위치를 항상 알려준다</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">사용자가 "지금 어디에 있는가?" 에 즉시 답할 수 있어야 한다. 메뉴 활성 상태 · 브레드크럼 · 페이지 제목 등 <strong>복수의 시각 단서를 조합</strong>해 현재 위치를 전달한다.</p>
+      <a class="card-source" href="https://www.nngroup.com/articles/navigation-you-are-here/">NNGroup — Navigation: You Are Here</a>
+    </div>
+    <div class="card">
+      <h3><span class="principle-num">3</span>익숙한 패턴을 우선한다</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">혁신적이거나 기발한 네비게이션은 혼란을 준다. NNGroup 17 가이드라인의 마지막 항목은 <em>"사용자는 훌륭한 콘텐츠를 가진 익숙한 메뉴를 선호한다"</em> 이다. <strong>입증된 이점이 없다면 표준 패턴</strong>을 따른다.</p>
+      <a class="card-source" href="https://www.nngroup.com/articles/menu-design/">NNGroup — Menu-Design Checklist</a>
+    </div>
+    <div class="card">
+      <h3><span class="principle-num">4</span>검색은 네비게이션을 보완한다</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">NNGroup 연구에 따르면 <em>"사용자는 좋은 검색 쿼리를 만드는 데 매우 서투르다."</em> 검색이 네비게이션을 <strong>대체하지 않는다</strong> — 둘을 병행 제공해야 모든 사용자 유형을 지원한다.</p>
+      <a class="card-source" href="https://www.nngroup.com/articles/mobile-navigation-patterns/">NNGroup — Basic Patterns for Mobile Navigation</a>
+    </div>
+  </div>
+</section>
+
 <!-- 1. Navigation Structure -->
 <section class="section">
   <div class="section-label">네비게이션 구조</div>
@@ -277,6 +323,12 @@
         </tbody>
       </table>
     </div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px">
+      Flat 은 <strong>5 개를 초과하면 탭 바에 적절한 터치 타겟 크기를 유지하기 어렵다</strong>(NNGroup). Apple HIG 는 iPhone 3~5 개, iPad 는 그보다 약간 많은 탭을 권장한다.
+      Deep 은 <strong>깊이 3 단계를 초과하면 위치를 잃기 쉽고</strong>, 캐스케이딩 메뉴는 2 단계 이상에서 물리적으로 조작하기 어렵다(NNGroup 가이드라인 #14) — 메가 메뉴나 랜딩 페이지를 대안으로 쓴다.
+    </p>
+    <a class="card-source" href="https://www.nngroup.com/articles/mobile-navigation-patterns/">NNGroup — Basic Patterns for Mobile Navigation</a>
+    <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/tab-bars">Apple HIG — Tab bars</a>
   </div>
 </section>
 
@@ -391,6 +443,14 @@
         </tbody>
       </table>
     </div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px">
+      Material Design 3 의 Navigation Bar 는 compact 화면에서 <strong>최대 5 개 목적지</strong>, Navigation Rail 은 medium 화면에서 <strong>3~7 개 + 선택적 FAB</strong> 를 지원한다.
+      M3 는 <em>"compact 화면에서 5 개 미만의 목적지에는 드로어를 쓰지 말고 Navigation Bar 를 쓰라"</em> 고 명시한다. Apple HIG 는 iPadOS 앱에서 탭 바 대신 사이드바를 고려하라고 권한다.
+    </p>
+    <a class="card-source" href="https://m3.material.io/components/navigation-bar/guidelines">Material Design 3 — Navigation bar</a>
+    <a class="card-source" href="https://m3.material.io/components/navigation-rail/guidelines">Material Design 3 — Navigation rail</a>
+    <a class="card-source" href="https://m3.material.io/components/navigation-drawer/guidelines">Material Design 3 — Navigation drawer</a>
+    <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/navigation-and-search">Apple HIG — Navigation and search</a>
   </div>
 </section>
 
@@ -456,6 +516,45 @@
       <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Mobile 브레드크럼</div>
       <div class="breadcrumb" id="syncedBreadcrumbMobile"></div>
     </div>
+    <a class="card-source" href="https://www.nngroup.com/articles/breadcrumbs/">NNGroup — Breadcrumbs: 11 Design Guidelines</a>
+    <a class="card-source" href="https://www.nngroup.com/articles/breadcrumb-navigation-useful/">NNGroup — Breadcrumb Navigation Increasingly Useful</a>
+  </div>
+
+  <!-- Breadcrumb depth limits -->
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>브레드크럼 깊이 한계</h3>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>환경</th><th>표시 단계</th><th>초과 시 처리</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text);font-weight:600">데스크톱</td><td>최대 4~5 단계</td><td>중간 단계를 <code>...</code> 축약 또는 드롭다운</td></tr>
+            <tr><td style="color:var(--text);font-weight:600">모바일</td><td>마지막 1~2 단계</td><td>탭 시 전체 경로를 드롭다운으로 펼침</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:12px">
+        터치 타겟: 각 브레드크럼 항목이 최소 <strong>1cm × 1cm (약 44 × 44pt — Apple HIG 권장치)</strong>. WCAG 2.2 AA 하한은 <code>24×24 CSS px</code> 다.
+      </p>
+      <a class="card-source" href="https://www.nngroup.com/articles/breadcrumbs/">NNGroup — Breadcrumbs</a>
+    </div>
+    <div class="card">
+      <h3>뎁스 제한 권장 · SEO</h3>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>뎁스</th><th>사용자 경험</th><th>권장</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--green);font-weight:600">1~2 단계</td><td>쉽고 직관적</td><td>대부분의 앱</td></tr>
+            <tr><td style="color:var(--yellow);font-weight:600">3 단계</td><td>관리 가능하나 브레드크럼 필요</td><td>콘텐츠 앱 · 이커머스</td></tr>
+            <tr><td style="color:var(--red);font-weight:600">4 단계 이상</td><td>길 잃기 쉬움 · 포고스틱 발생</td><td>피하고 로컬 네비게이션으로 보완</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:12px">
+        브레드크럼에 <code>schema.org/BreadcrumbList</code> 구조화 데이터를 추가하면 Google 검색 결과에 경로가 표시된다. <strong>구조화 데이터 없는 브레드크럼은 Google 이 인식하지 못할 수 있다.</strong>
+      </p>
+      <a class="card-source" href="https://developers.google.com/search/docs/appearance/structured-data/breadcrumb">Google — Breadcrumb Structured Data</a>
+    </div>
   </div>
 </section>
 
@@ -480,7 +579,7 @@
         </div>
         <div class="cons-item">
           <span class="cons-icon">&#8226;</span>
-          <span>Spotify, Facebook 등 주요 앱이 <strong style="color:var(--text)">탭 바로 회귀</strong></span>
+          <span>Spotify 는 <strong style="color:var(--text)">2016 년 햄버거를 버리고 바텀 탭으로 전환</strong>, 유사한 지표 개선을 보고</span>
         </div>
         <div class="cons-item">
           <span class="cons-icon">&#8226;</span>
@@ -533,6 +632,8 @@
         <div style="font-size:12px;color:var(--text2)">드로어 허용, 단 CTA(검색,장바구니)는 항상 노출.</div>
       </div>
     </div>
+    <a class="card-source" href="https://www.nngroup.com/articles/mobile-navigation-patterns/">NNGroup — Basic Patterns for Mobile Navigation</a>
+    <a class="card-source" href="https://www.lukew.com/ff/entry.asp?1945">Luke Wroblewski — Obvious Always Wins</a>
   </div>
 </section>
 
@@ -587,7 +688,7 @@
           <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>채팅</div>
           <div class="mock-tab" style="font-size:8px"><div class="mock-tab-icon" style="width:14px;height:14px"></div>더보기</div>
         </div>
-        <p style="font-size:12px;color:var(--text2);margin-top:8px">터치 타겟 44pt 미만 &rarr; 오탭 발생</p>
+        <p style="font-size:12px;color:var(--text2);margin-top:8px">터치 타겟이 <strong>Apple HIG 권장치 44pt</strong> 미만으로 줄어들어 오탭 발생 (WCAG 2.2 AA 하한은 <code>24×24 CSS px</code>)</p>
       </div>
 
       <div class="fail-card">
@@ -612,8 +713,20 @@
         </div>
         <p style="font-size:12px;color:var(--text2);margin-top:8px">탭 바는 네비게이션 전용 &mdash; 액션은 FAB/툴바에 배치 (Apple HIG)</p>
       </div>
+
+      <div class="fail-card">
+        <div class="fail-label">Fail #4 &mdash; 스크롤 시 숨기기</div>
+        <p style="font-size:12px;color:var(--text2);margin-top:8px">콘텐츠 영역을 넓히려 하단 바를 숨기면 네비게이션 접근성이 떨어진다. <strong>Apple HIG 는 탭 바를 항상 표시하라고 명시</strong>한다.</p>
+      </div>
     </div>
   </div>
+
+  <div class="note">
+    <div class="note-title">사용성 데이터</div>
+    <p>엄지 도달 영역(thumb zone)이 화면 하단에 집중되므로 조작성이 탁월하다. Steven Hoober 의 2013 년 연구에서 <strong>스마트폰 사용의 49% 가 한 손 엄지 조작</strong>으로 관측됐다. 화면 하단 고정 영역은 인지적으로 "항상 접근 가능하다" 는 안심감을 준다.</p>
+  </div>
+  <a class="card-source" href="https://www.uxmatters.com/mt/archives/2013/02/how-do-users-really-hold-mobile-devices.php">Steven Hoober — How Do Users Really Hold Mobile Devices?</a>
+  <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/tab-bars">Apple HIG — Tab Bars</a>
 </section>
 
 <!-- 6. Mega Menu -->
@@ -710,7 +823,32 @@
         </tbody>
       </table>
     </div>
+    <a class="card-source" href="https://www.nngroup.com/articles/mega-menus-work-well/">NNGroup — Mega Menus Work Well for Site Navigation</a>
+    <a class="card-source" href="https://www.nngroup.com/articles/menu-design/">NNGroup — Menu-Design Checklist #14</a>
   </div>
+</section>
+
+<!-- 7. Gotchas -->
+<section class="section">
+  <div class="section-label">체크리스트</div>
+  <h2>구현 전 확인할 Gotchas</h2>
+  <p class="desc">design-audit 에서 네비게이션 관련 FAIL 이 자주 나오는 항목을 빈도순으로 정렬했다.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✓</span><div><strong>탭 3~5 개 (iPhone) · 최대 7 개 (iPad/태블릿)</strong> — 6 개 이상이면 터치 타겟이 Apple HIG 권장치 44pt 미만으로 줄어든다. 초과분은 "더보기" 또는 드로어로 옮긴다.</div></li>
+    <li><span class="check">✓</span><div><strong>아이콘 단독 금지</strong> — 반드시 텍스트 라벨과 함께 쓴다. NNGroup 연구에서 아이콘 단독 인식률은 <code>50~60%</code> 수준이다.</div></li>
+    <li><span class="check">✓</span><div><strong>탭 바에 액션 배치 금지</strong> — 탭 바는 네비게이션 전용이다. "공유", "촬영" 같은 액션은 FAB 또는 툴바에 둔다.</div></li>
+    <li><span class="check">✓</span><div><strong>스크롤 시 하단 바 숨기지 않기</strong> — Apple HIG 는 탭 바를 항상 표시하라고 명시한다.</div></li>
+    <li><span class="check">✓</span><div><strong>현재 위치 단서 복수 제공</strong> — 활성 탭 표시 + 페이지 제목 + (3 단계 이상이면) 브레드크럼.</div></li>
+    <li><span class="check">✓</span><div><strong>깊이 3 단계 초과 시 로컬 네비게이션 보완</strong> — 계층을 오르내리는 포고스틱 행동을 막는다 (NNGroup 가이드라인 #6).</div></li>
+    <li><span class="check">✓</span><div><strong>브레드크럼은 히스토리가 아니라 계층</strong> — 세션 히스토리를 표시하지 않는다. 현재 페이지는 마지막 항목으로 포함하되 <strong>클릭 불가</strong>로 둔다.</div></li>
+    <li><span class="check">✓</span><div><strong>실제 페이지만 링크</strong> — URL 이 없는 카테고리 라벨은 브레드크럼에서 제외한다. 계층이 1~2 단계뿐이면 브레드크럼 자체를 생략한다.</div></li>
+    <li><span class="check">✓</span><div><strong>모바일 브레드크럼은 줄바꿈 금지</strong> — 좁은 화면의 공간을 낭비한다. 마지막 1~2 단계만 표시한다.</div></li>
+    <li><span class="check">✓</span><div><strong>메가 메뉴 키보드 경로</strong> — Tab 으로 모든 링크에 도달하고 Escape 로 닫을 수 있어야 한다. 캐스케이딩 2 단계 이상은 메가 메뉴로 대체한다.</div></li>
+    <li><span class="check">✓</span><div><strong>모달의 뒤로 가기는 모달을 닫는다</strong> — 이전 페이지로 이동하면 안 된다. 다단계 플로우는 stepper 와 함께 뒤로 가기를 제공한다.</div></li>
+  </ul>
+  <a class="card-source" href="https://www.nngroup.com/articles/menu-design/">NNGroup — Menu-Design Checklist: 17 UX Guidelines</a>
+  <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/navigation-and-search">Apple HIG — Navigation and search</a>
 </section>
 
 <footer style="text-align:center;padding:40px 0;color:var(--text3);font-size:12px">

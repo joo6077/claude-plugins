@@ -44,15 +44,28 @@ validate_yaml() {
 
   # yq 또는 python으로 YAML 파싱 + 필수 필드 검증
   # 검증 대상: feedback-schema.yaml의 공통 필수 필드 + diagnosis
+  # ⚠ 두 백엔드(yq · python)는 **같은 문구**로 실패해야 한다. 백엔드에 따라 메시지가 달라지면
+  #   소비자(evals 네거티브 테스트 등)가 한쪽 문구만 assert 하게 되어 다른 환경에서만 깨진다.
+  #   실측 2026-08-14: 로컬(yq 없음)은 python 경로라 통과했는데 CI(yq 있음)는 셸 경로라
+  #   `timestamp 필드 누락` 을 내서 `누락 필드` 를 기대한 테스트가 CI 에서만 FAIL 했다.
+  #   그래서 yq 경로도 **전체 누락 목록**을 python 과 동일한 형태로 낸다.
   if command -v yq &>/dev/null; then
     local fields=("schema_version" "skill" "timestamp" "project_hash" "project_name" "skill_version" "outcome" "diagnosis")
+    local missing=()
     for field in "${fields[@]}"; do
       local val
       val=$(yq ".$field" "$file" 2>/dev/null)
       if [[ "$val" == "null" || -z "$val" ]]; then
-        echo "FAIL: $field 필드 누락" >&2; return 1
+        missing+=("'$field'")
       fi
     done
+    if (( ${#missing[@]} > 0 )); then
+      # `${arr[*]}` 는 IFS 의 **첫 글자만** 구분자로 쓴다 — `IFS=', '` 로는 `, ` 가 안 나온다.
+      # python 의 list repr 과 바이트 단위로 같게 하려고 printf 로 붙인 뒤 꼬리를 자른다.
+      local joined
+      joined=$(printf "%s, " "${missing[@]}"); joined="${joined%, }"
+      echo "FAIL: 누락 필드: [${joined}]" >&2; return 1
+    fi
 
   elif [[ -n "$PYTHON_CMD" ]]; then
     $PYTHON_CMD -c "

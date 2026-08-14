@@ -3,7 +3,9 @@
 > Last updated: 2026-05-16
 > Source: Codex research run `a25261e23b21252b2` (score 24/25)
 > Bambu Studio reference version: 2.6.0 (v02.06.00.51)
-> Sibling references: `seam-recipes.md` (seam 전용), `bambu-fields-baseline.md` §8 (필드 enum/default), `materials.md` (소재 카탈로그)
+> Sibling references: `seam-recipes.md` (seam 전용), `bambu-fields-baseline.md` §8 · §10 (필드 enum/default), `materials.md` (소재 카탈로그), `failure-recipes.md` (**실측 실패 후 사후 대응** — 이 파일은 사전 정책이다)
+>
+> **2026-08-13 정정 (카이젠 Phase 13):** `layer_height` `0.08` 의 공식 근거 표기 · `enable_arc_fitting` 성격 · `resolution` 적용 축 3 건. 근거: `.harness/.meta/evidence/phase13.md`
 
 스킬이 사용자 의도가 "완벽한 표면 + seam이 안 보임 + 속도 무시"일 때 참조. seam 분산 전략(이전 default)이 아닌 **은닉(invisible) 전략**과 외벽/Top·Bottom/Ironing 정책을 함께 다룬다.
 
@@ -104,14 +106,14 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 
 | 항목 | Surface-first 값 | 기본 baseline | 근거 |
 |----|----|----|----|
-| `layer_height` | 회전체/유기적 `0.08` mm, 박스/도구 `0.12` mm, 큰 평면 `0.12-0.16` mm | H2S 0.20 Standard | 0.12mm High Quality @BBL H2S.json (outer 60mm/s 기본) |
+| `layer_height` | **`0.12` mm 1 차 권장** (전 형상). 회전체/유기적에서 계단이 핵심이고 시간을 감수할 때만 `0.08-0.12` mm, 큰 평면 `0.12-0.16` mm | H2S 0.20 Standard | `0.12`: 0.12mm High Quality @BBL H2S.json (공식 체인 실재). **`0.08` 은 이 파일의 공식 근거가 아니다** — `min_layer_height 0.07` 하한 위라는 것만 확인되고 H2S 공식 0.08 process 프로파일 근거는 `[미확인]` (`bambu-fields-baseline.md` §10.1) |
 | `wall_loops` | `3` (표면 우선) ~ `4` (강도까지 우선) | `2` (fdm_process_common) | fdm_process_common.json |
 | `outer_wall_speed` | `20-40` mm/s (PLA/PETG), `15-25` (Silk), `20-30` (PA/PC/ABS), `10-20` (TPU) | H2S 0.12 HQ `60` mm/s | 0.12mm High Quality @BBL H2S.json |
 | `inner_wall_speed` | outer의 `2-3배` 이하 (예: outer 30 → inner 60-90) | H2S 0.12 HQ `90` mm/s | 동일 |
 | `wall_sequence` | `inner-outer-inner wall` 기본; 박스 sharp 치수 우선만 `inner wall/outer wall` | `inner wall/outer wall` | fdm_process_common.json:58 (enum) |
 | `reduce_crossing_wall` | `1` | `0` | fdm_process_common.json:100 |
-| `enable_arc_fitting` | `1` (유지) | `1` | fdm_process_common.json:29 |
-| `resolution` | `0.006-0.010` mm | `0.012` mm | fdm_process_common.json:103 |
+| `enable_arc_fitting` | `1` (**기본값 유지 — 표면 품질 카드가 아니다**) | `1` | fdm_process_common.json:29. ⚠️ 이것은 품질 개선 기능이 아니라 **G-code encoding 변경**(직선 세그먼트 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 해결책으로 제시하지 마라 — `failure-recipes.md` §1.2 |
+| `resolution` | `0.006-0.010` mm | `0.012` mm | fdm_process_common.json:103. ⚠️ **XY 세그먼트 해상도 전용** — Z 계단의 주 해결책이 아니다 (`failure-recipes.md` §1.2) |
 | flow ratio | 소재/색상별 calibration 후 적용 (PLA Basic 기본 `0.98`) | 동일 | Bambu PLA Basic @BBL H2S.json:29-42 |
 | Pressure Advance (PA) | 소재/노즐/건조 후 PA profile 저장 필수 (Bambu Studio Calibration → PA test) | — | Bambu 공식 calibration 가이드 |
 
@@ -127,6 +129,11 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 | PC | `20-30` | `0.12` | 건조 필수 (chamber 60°C). ooze 많으면 외벽 first wipe |
 | ABS / ASA | `25-35` | `0.12` | enclosure + brim. 후가공(vapor smoothing) 가능 |
 | TPU | `10-20` | `0.16-0.20` | scarf/ironing 비추. layer 두껍게 가도 됨 (유연성 우선) |
+
+⚠️ 위 표의 `layer` 열에 나오는 `0.08-0.12` 범위는 **`0.12` 를 1 차값으로 읽는다.** `0.08` 쪽 끝은
+`min_layer_height 0.07` 하한 위라는 것만 확인된 비공식 영역이고 H2S 공식 process 프로파일 근거는
+`[미확인]` 이다 (`bambu-fields-baseline.md` §10.1). 사용자에게 시간 배수(레이어 수 `기존/신규` 배)를
+고지하고 선택을 받은 뒤에만 `0.08` 로 내려라 — 자동으로 밀어넣지 마라.
 
 ## 4. Top / Bottom 표면 권장값
 

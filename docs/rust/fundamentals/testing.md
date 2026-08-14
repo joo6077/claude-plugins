@@ -36,7 +36,7 @@ mod tests {
 }
 ```
 
-```
+```text
 crates/domain/
 ├── src/
 │   └── user.rs          # 단위 테스트 포함
@@ -107,9 +107,14 @@ mod tests {
 
 > **출처:** [mockall — Getting Started](https://docs.rs/mockall/latest/mockall/)
 
-### 4. DB 테스트는 `sqlx::test`로 트랜잭션 격리한다
+### 4. DB 테스트는 `sqlx::test`로 테스트별 새 테스트 DB 를 쓴다
 
-`#[sqlx::test]`는 각 테스트마다 새 DB 트랜잭션을 시작하고 테스트 후 롤백한다. 테스트 간 DB 상태 오염이 없다.
+`#[sqlx::test]`는 테스트 함수마다 **새 테스트 DB** 를 만들어 live connection 을 주입하고, `migrations`
+폴더가 있으면 자동 적용하며, 테스트가 성공하면 그 DB 를 정리한다. 테스트 간 DB 상태 오염이 없다.
+
+> **정정 2026-08-13:** 이전 판이 "테스트마다 트랜잭션을 열고 끝나면 롤백한다" 고 적었으나 공식
+> 문서 기준 사실이 아니다. 격리 단위는 트랜잭션이 아니라 **DB** 이며, 커밋된 데이터도 남았다가
+> DB 단위로 폐기된다. Postgres/MySQL 은 `DATABASE_URL` 이 필요하다.
 
 ```rust
 // adapters/tests/user_repository.rs
@@ -136,7 +141,7 @@ INSERT INTO users (id, email) VALUES (1, 'test@example.com');
 |------|--------|------|
 | cargo-nextest vs cargo test 속도 | 2~3× 빠름 | 프로세스 격리 + 병렬 실행 |
 | mockall 모킹 오버헤드 | 무시 가능 | 테스트 전용 코드 |
-| sqlx::test 트랜잭션 롤백 | ~5ms | 실제 DB 연결 필요 |
+| sqlx::test 테스트별 새 테스트 DB 생성 + migration | 프로젝트에서 실측 | 트랜잭션 롤백이 아니라 DB 생성·정리 비용 — 환경 의존이라 고정 수치를 쓰지 마라 |
 | 단위 테스트 실행 목표 | < 1ms/테스트 | 외부 I/O 없을 때 |
 | 통합 테스트 실행 목표 | < 100ms/테스트 | DB, 네트워크 포함 |
 

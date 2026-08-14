@@ -1,6 +1,6 @@
 # Rust Audit Criteria
 
-rust-reviewer 에이전트가 사용하는 유일한 감사 기준. 카테고리별 PASS/FAIL 조건을 정의한다. 2026-04 갱신 — Rust 2024 Edition, Axum 0.8, SeaORM 1.1, Clippy pedantic 2026 lint 세트 (fit-pal workspace.lints 실무 기준).
+rust-reviewer 에이전트가 사용하는 유일한 감사 기준. 카테고리별 PASS/FAIL 조건을 정의한다. 기준선은 Rust 2024 Edition · Axum 0.8 · Clippy pedantic 2026 lint 세트 (fit-pal workspace.lints 실무 기준)이며, 크레이트 버전 값은 `rust-kit/references/project-detection.md` **Step 2c**(버전 현행성 표)를 인용한다 — 여기에 버전 표를 다시 만들지 않는다. **구버전 사용 자체를 FAIL 로 쓰지 마라**: FAIL 대상은 코드와 문법이 어긋난 경우다.
 
 **적용 범위:** 아래 기준은 **cargo 가 관리하는 `.rs` 소스**에만 적용된다. 셸 스크립트 · compose ·
 CI YAML · 클라이언트 코드에는 적용하지 마라 (`unwrap()`/`println!` 같은 기준이 그 스택에는 존재할 수
@@ -28,6 +28,8 @@ CI YAML · 클라이언트 코드에는 적용하지 마라 (`unwrap()`/`println
 | 기준 | PASS 조건 | 출처 |
 | ------ | ----------- | ------ |
 | unwrap/expect 범위 | **main 초기화와 테스트 코드 외에는** `.unwrap()` / `.expect()` 없다. `main()` 안의 `std::env::var("...").expect(...)` 같은 startup panic은 허용 | fit-pal `CLAUDE.md` §금지 사항 |
+| unwrap/expect 제거 방식 | 위반을 지적할 때 `?` 치환만 제시하지 않는다 — `None`/`Err` 가 논리상 불가능한 자리는 타입 설계로 제거하도록 지목한다 (`rust-error` §4 판정 순서). `unwrap_or_default()` 치환·"더 좋은 메시지의 expect" 는 제거로 인정하지 않는다 | rust-kit `skills/rust-error/SKILL.md` §4 |
+| panic 계열 lint 게이트 | `[workspace.lints.clippy]` 에 `unwrap_used` · `expect_used` · `panic` · `panic_in_result_fn` 이 deny 로 선언돼 있고 member crate 가 `[lints] workspace = true` 로 상속한다. 선언만 보고 위반 0 으로 적지 말 것 — `cargo clippy` 실행 결과가 근거다 | [Clippy unwrap_used](https://rust-lang.github.io/rust-clippy/master/index.html#unwrap_used) · [Cargo workspace lints](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-lints-table) |
 | 에러 타입 일관성 | 도메인 레이어는 `thiserror` 구체 enum만 사용. `anyhow::Error`는 app 최상위(main.rs, CLI)에서만 | fit-pal `CLAUDE.md` §코딩 컨벤션 |
 | From impl | 에러 변환에 수동 매핑 대신 `#[from]` 또는 `From` impl 사용 | thiserror docs |
 | 인프라 타입 누설 | 포트 trait 시그니처에 `sqlx::Error`, `DbErr`, `PgPool`, `DatabaseTransaction`, `reqwest::Error` 등 인프라 구체 타입 노출 없다 | fit-pal `CLAUDE.md` §아키텍처 2 |
@@ -72,7 +74,8 @@ CI YAML · 클라이언트 코드에는 적용하지 마라 (`unwrap()`/`println
 | 에러 경로 테스트 | 주요 에러 경로(NotFound, Conflict, Validation)에 대한 테스트 존재 | 일반 관행 |
 | 테스트 격리 | 테스트 간 상태 공유가 없다. 통합 테스트는 `serial_test` + TRUNCATE로 격리 | fit-pal `CLAUDE.md` §테스트 가능성 |
 | Mock 주입 가능성 | 라우터 상태가 `Arc<dyn Port>` 형태 trait object. 테스트 시 mock 교체 가능 | fit-pal `CLAUDE.md` §테스트 가능성 |
-| SeaORM MockDatabase | `HAS_SEAORM`이면 Docker 없는 단위 테스트에 `MockDatabase`를 활용하고 있다 | SeaORM 1.1 mock docs |
+| SeaORM MockDatabase | `HAS_SEAORM`이면 Docker 없는 단위 테스트에 `MockDatabase`를 활용하고 있다. **계층은 단위 전용** — `rows_affected` 매핑·control flow·생성된 statement 검증까지만 인정하고, 실제 **SQL predicate** 의미 검증이나 통합 테스트로 계상하지 않는다 | [SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) |
+| 동시성 가드 음성 대조 | 조건부 `UPDATE`·낙관적 락이 있으면 positive test 와 **stale expected value** negative test 가 실 DB 에서 둘 다 존재하고, 테스트가 가드 구현 심볼을 직접 호출한다 (독립 재작성 SQL 은 결합 0 → FAIL). 절차는 `rust-kit/references/concurrency-guard-protocol.md` | rust-kit `references/concurrency-guard-protocol.md` · 2026-08-12 실측 `ER-02` |
 | 실 DB 통합 테스트 존재 | mock 단위 테스트와 **별도로** 실제 엔진 대상 테스트가 있다 (`#[sqlx::test]` 또는 testcontainers). mock 은 SQL 정합성을 검증하지 못하므로 mock-only 는 FAIL | [SeaORM mock 한계](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) · [sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html) |
 | 테스트 실행 증거 | 감사 시 실행한 명령 · `running N tests` 의 N(>0) · 종료 코드가 근거에 기록돼 있다. N=0 은 PASS 가 아니라 타깃 필터/환경 오류 | [cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html) |
 | 마이그레이션 선적용 | 공유 DB 대상 통합 테스트가 있으면 스키마가 최신임을 확인했다 (`sqlx migrate info` pending 0 또는 마이그레이션 크레이트 실행). 컬럼 부재 실패를 코드 결함으로 오진하지 않는다 | [sqlx-cli](https://github.com/launchbadge/sqlx/blob/main/sqlx-cli/README.md) |

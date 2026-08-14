@@ -1,8 +1,162 @@
 ---
 title: Kaizen Changelog
-version: 1.5.0
-last_updated: 2026-07-28
+version: 1.6.0
+last_updated: 2026-08-13
 ---
+
+## [2026-08-13] — 사실 정정 사이클 (14/14 CHANGED)
+
+### 트리거
+
+사용자가 `/insights` 재실행 후 카이젠 오케스트레이션 요청. 리포트(2026-08-13, 62일 · 81 세션 중
+71 분석 · 1,551 메시지 · 241 커밋)를 §0 으로 주입. Step 0.6 선별에서 low-signal 4킷
+(infra/react/planning/onboarding) 제외를 제안했으나 사용자가 **전체 14 Phase** 를 선택.
+
+### 이번 사이클의 핵심 판단 — §0 재승격 금지
+
+`/insights` Friction #1~#3 은 **직전 사이클(2026-07-27)에 이미 구조적으로 승격된 주제**였고,
+리포트 관측 윈도(2026-06-12~08-12)가 그 수정 착지일(2026-07-28) **이전을 대부분 포함**한다.
+→ **재출현 = 미측정이지 무효화가 아니다.** 같은 규칙을 다시 추가하는 것을 사이클 하드 규칙으로
+금지하고, 유효 신호를 (a) §0 신규 델타 D1~D5 (b) 2026-08-11~12 글로벌 REJECT
+(c) 2026-08 reflection 태그 세 곳으로 한정했다.
+
+그 제약의 결과로 이번 사이클은 **새 규칙을 쓰는 대신 우리 문서가 틀렸던 것을 정정하는** 성격이 됐다.
+각 Phase 는 codex 로 확보한 외부 근거 파일 하나만 읽고 그 안의 인용으로만 사실을 뒤집었다.
+
+### Phase 결과 (14/14 CHANGED)
+
+- **Phase 1 설계 가이드** — 공식 스펙 정정: 서브에이전트 중첩은 "불가" 가 아니라 **main 아래 3층까지
+  허용**(`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` 로 차단), frontmatter 공식 15 필드에 필수는
+  `name`·`description` 둘뿐. skill-design-guide §5.6 **Variant Budget**(상한 3 · primary axis 1(+1) ·
+  Variant Matrix 5열 · 부대 산출물 금지) + 유형 11 "탐색형 생성" 아키타입 — D2 대응.
+  §3.8 **User-Reported Failure Gate**(REOPENED · 반박 금지 · 오라클 6축 대조 우선) — D3 대응.
+- **Phase 2 Contract** — 경로 화이트리스트 5회 재발을 문장 추가가 아니라 등급 상향으로 처리.
+  `conditions_digest` **봉인**(E1→E3)으로 계약 자기편집을 탐지하고, amendment 를
+  **direction × consent 2축**으로 분리해 `narrowing·unanchored` 만 PASS 근거가 되게 했다.
+  측정 커버리지 검출기 · 인자 매트릭스 · 음성 대조 추가. 기존 계약 109개 봉인 검사 회귀 0.
+- **Phase 3 Evaluator** — `[미검증]` 3분기를 4분기로 쪼개 **UNVERIFIED_ENV** 를
+  **UNVERIFIED_INVALID_EVIDENCE** 와 다른 장부에 적는다. 자동 REJECT 임계 2 는 후자에만 적용하고,
+  전자는 검증 커버리지 게이트(< 0.60 → BLOCKED)에만 쓴다 (2026-08-11~12 REJECT 4건이 전부
+  "도구 부재로 정당하나 임계 초과" 였다). **Discriminating Evidence Gate** +
+  **Canonical User-Reported Failure Protocol** 신설. 사실 정정: binary PASS/FAIL 근거로 오인용하던
+  scoring bias 논문을 **CheckEval**(decomposed binary Q → evaluator agreement 평균 +0.45)로 교체.
+- **Phase 4 Harness** — 문서가 주장하는 CLI 와 실제 구현이 갈린 것을 **`docs-contract` 선언 블록 +
+  `validate-doc-contracts.py`** 로 묶었다(실체가 SSOT). 게이트 exit **taxonomy**
+  (`harness/evals/gate-exit-codes.md` — 0 pass / 1 policy_violation / 2 usage_or_infra_error /
+  3 no_data_not_run) 신설 후 조용히 통과하던 게이트 5종을 수정(아래 별도 절).
+  Phase 번호와 충돌하던 후속 단계를 **Step 11/11.5/11.6/12 → F1~F4** 로 개명.
+- **Phase 5 flutter** — 버전 사실 정정 3종: Freezed `when`/`map` 은 3.0 에서 제거됐다가
+  **3.1.0 에서 재추가**(최신 stable 3.2.5) · Flutter stable 3.44.7 → **3.47.0**
+  (Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1) · Impeller 는 3.47 부터 **macOS/Linux/Windows 기본**.
+  **Primitive Substitution Gate** SSOT(E1→E2) · invalidate 경계 · 위젯 테스트 하네스 ·
+  성능 **Environment Exclusion Checklist**(D5 성공 사례의 절차화).
+- **Phase 6 design** — `visual-change-protocol.md` §5~§7 을 append-only 로 신설.
+  §5 **Variant Distinctiveness Gate**(축 선언만으로는 부족 — pairwise Hamming 판정식. 글로벌
+  REJECT UI-04 를 hamming=0 으로 재현해 exit 1) · §6 **Decision Propagation Manifest**
+  (`decisions.yaml` + coverage rule, manifest 부재를 통과로 접지 않고 NO_MANIFEST exit 3) ·
+  §7 **Evidence Channels** 4종. design-mockup 의 고정 "시안 5개" 를 개수 계약으로 교체.
+  WCAG 터치 타겟을 **AA 24×24(SC 2.5.8) / AAA·Apple HIG 44×44(SC 2.5.5)** 로 귀속 정정.
+- **Phase 7 backend** — `write-path-integrity-protocol.md` SSOT 신설: 경합 invariant 3유형 → DB
+  primitive 매핑 · "트랜잭션으로 감쌌다" 만으로 PASS 금지 · 제약↔upsert 대상 정합 ·
+  **멱등 쓰기 계약 6항** · Integration Target Proof(E3) · outbox at-least-once. D4(TOCTOU 를 앱이
+  아니라 SQL 술어로) 반영. 사실 정정 3종 — outbox+CDC "exactly-once 보장" → at-least-once +
+  consumer idempotency 필수 · Stripe 멱등에 payload 비교/24h pruning · backend-reviewer 의
+  canonical 블록이 "복제" 를 주장하면서 v4.0 으로 stale → v5.0 재동기화.
+- **Phase 8 infra** — "도구 부재 = 위반 0" 을 **gate-result-taxonomy.md 5상태**로 승격
+  (PASS / VIOLATION / SKIP_NO_TARGET / TOOL_OR_ENV_MISSING / EXECUTION_ERROR).
+  핀닝 검사를 grep → **YAML 파서**로 교체 — 현행 grep 오라클은 이 레포 워크플로의 미핀닝 6건을
+  전부 0건으로 보고하고 있었다. fixture 8종 전수 검증. 사실 정정 4종(카테고리 순서 드리프트 ·
+  stale 사본 참조 · OTel signal 별 status 분해 · USE×RED).
+- **Phase 9 rust** — 사실 정정: `#[sqlx::test]` 는 "독립 트랜잭션" 이 아니라 **테스트별 새 DB +
+  자동 migration + 성공 시 cleanup** · Axum 0.8 발표일 2024-12-01 → **2025-01-01** ·
+  MockDatabase 는 SQL predicate 의미를 검증하지 못함. unwrap/expect 제거를 `?` 치환에서
+  **타입 설계 우선**으로 전환하고 workspace clippy deny 5 lint 로 등급 상향(E1→E3).
+  `concurrency-guard-protocol.md` SSOT(D4).
+- **Phase 10 react** — low-signal Phase. **새 규칙 0건**, evidence 가 확인한 stale 지점만 정정.
+  템플릿 4종(vite ^6→^8 · @hookform/resolvers ^3→^5.1 · zod ^3→^4 · `@lingui/macro` 제거 —
+  unmaintained) · Zod v4 resolver workaround 를 legacy resolver 전용으로 강등 ·
+  scroll-driven/View Transitions 지원 수치 갱신 · react-animation §6 **표준 커버리지 공백 8종**
+  신설(처리 경로는 직접 구현·fallback·사전 렌더 자산 3종뿐 — 라이브러리 0개 원칙 유지).
+- **Phase 11 planning** — 사실 정정 3종. Projects v2 는 "GraphQL only" 가 아니라
+  **REST `/projectsV2` 도 제공**(금지 대상은 sunset 경과한 classic) · "한 시나리오 = one When" 은
+  Cucumber 원문에 없으므로 **planning-kit 내부 원자성 규칙으로 라벨링**(규칙 자체는 보존) ·
+  HBR premortem 의 "개별 기록 → 공유" 절차를 **[미확인]** 으로 강등하고 인용 범위를 기법 자체로 한정.
+- **Phase 12 reflect** — 태그 정규화를 LLM 부탁에서 **결정론적 5단계 pass** 로 승급(E1→E3,
+  `tag-lemma-map.tsv` + `_lib-tag-canon.sh`). 재발 증가를 문구 문제로 오진하지 않도록
+  `hook_coverage_audit` 를 등급 상향보다 먼저 돌게 라우팅. 파편화 지표를 `fold_ratio`(아무것도 못
+  묶으면 1.00 이라 영원히 "정상") → **`singleton_share`** 로 교체하고, low confidence 에서는
+  demotion 산출을 금지(E2→E3). 실측 회수: 원시 71 → 클러스터 110.
+- **Phase 13 bambu** — D1(곡면 계단현상 · voronoi 스트링잉 · 바닥 박리). 근본원인은 **사용자 자신의
+  직전 출력 실패가 다음 프로파일로 들어오는 경로 자체가 없었던 것** — 규칙 문장이 아니라
+  **Phase 1.9 Failure-Mode Detector**(L1/L2/L3) 를 신설했다. **Phase 3.0 Supportability Split** —
+  `adaptive_layer_height` 는 `PrintConfig.cpp` 에서 주석 처리 + legacy ignore set 이라 넣어도
+  무시된다 → 근사 구현 금지, notes only 로 명시 보고. E3 게이트 금지 키 4종 확장.
+- **Phase 14 onboarding** — setup-guide 는 가이드를 영속 아티팩트로 생산하는데 **이미 배포된 가이드를
+  다시 재는 경로가 없었다.** 그 결과 킷 쇼케이스 예제가 킷 자신의 evals 6 중 3을 3개월간 위반한 채
+  배포돼 있었다. **Guide Conformance Gate**(E3, LLM 미호출 4 판정) + Phase 1 Regeneration Drift 신설.
+  사실 정정: Flutter 예제의 `AppDelegate.swift`+`FirebaseApp.configure()` 필수 단계는 현행 FlutterFire
+  절차에 없다 → 제거하되 **Capability/Background Modes 는 여전히 iOS 프로젝트 작업**임을 구분 명시.
+  `.p12` deprecated 단정 제거, Apple 두 사이트 구분을 작업별 7행 표로 교체.
+
+### 우리 문서가 틀렸던 것 (Phase 횡단 요약)
+
+| 정정 | 내용 |
+| --- | --- |
+| 서브에이전트 중첩 | "불가" 단정 → 공식은 main 아래 3층까지 허용, frontmatter 15 필드 중 필수는 2개 |
+| scoring bias 논문 | binary PASS/FAIL 근거로 오인용 → 실제 근거는 CheckEval (agreement 평균 +0.45) |
+| Freezed | "3부터 `when`/`map` 영구 제거" → 3.1.0 에서 재추가 (최신 stable 3.2.5) |
+| Flutter stable | 3.44.7 → 3.47.0 (Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1) |
+| Impeller | "macOS 실험적 · 데스크톱 미지원" → macOS/Linux/Windows 는 3.47 부터 기본, Web 만 Skia |
+| WCAG 터치 타겟 | 44×44 를 AA 로 표기 → 24×24 가 AA(SC 2.5.8), 44×44 는 AAA(SC 2.5.5) |
+| `#[sqlx::test]` | "독립 트랜잭션" → 테스트별 새 DB + 자동 migration + 성공 시 cleanup |
+| Axum 0.8 발표일 | 2024-12-01 → 2025-01-01 |
+| GitHub Projects v2 | "GraphQL only" → REST `/projectsV2` 도 제공. 금지 대상은 classic |
+| Cucumber one-When | "공식 규칙" 으로 인용 → 원문에 없음. planning-kit 내부 규칙으로 라벨링 |
+| HBR premortem 절차 | 단정 인용 → [미확인] 강등, 인용 범위는 기법 자체로 한정 |
+| outbox + CDC | "exactly-once 보장" → at-least-once + consumer idempotency 필수 |
+| react-kit 템플릿 | vite ^6→^8 · @hookform/resolvers ^3→^5.1 · zod ^3→^4 · `@lingui/macro` 삭제 |
+| FlutterFire | Flutter 예제에 네이티브 `FirebaseApp.configure()` 를 필수로 둠 → 현행 절차에 없음 |
+| `adaptive_layer_height` | process JSON 키로 취급 → 주석 처리 + legacy ignore set. 넣어도 무시됨 |
+
+### 이 사이클이 잡은 실제 코드 결함
+
+전부 "조용히 통과" 계열이다 — 실패를 성공으로 보고하던 경로다.
+
+- `harness/evals/kaizen/feedback-system/aggregation-test.sh` — `yq` 부재 시 SKIP 후
+  "ALL TESTS PASSED". **이 머신에 yq 가 없어 그동안 실제로 무검증 통과 상태였다.**
+- `save-test.sh` — 네거티브 테스트가 stderr 를 버려 엉뚱한 이유의 실패도 통과로 집계.
+- `scripts/finalize-phase.sh --help` — `mktemp` 가 help 출력보다 먼저 실행돼 read-only 환경에서 실패.
+- `scripts/sync-orchestrator.py` — substring `find()` 로 마커를 찾아 Gotchas 산문 불릿 안에
+  자동생성 블록 92행을 주입해 왔고, 그 결과 **Process 절에 Phase 12·13 헤딩이 아예 없었다.**
+  그런데도 `--check-only` 는 exit 0. 행 앵커 + 유일성 강제로 교체.
+- `scripts/validate-post-kaizen.py` — `git_diff_names()` 가 실패 시 `[]` 를 돌려줘 diff 기반 검사
+  3건이 조용히 통과. ERROR 상태 신설 + scope-isolation 킷 prefix 를 marketplace.json 에서 유도
+  (누락돼 있던 4킷 커버).
+- react-kit §5.4 가 "접근성이 내장된 라이브러리 사용을 고려한다" 로 **라이브러리 0개 원칙과 자기모순**.
+
+### 프로세스 상 특기사항
+
+- **Phase 3 계약 폐기·재작성.** AR-01(scope 열거)과 AR-02(frontmatter 버전 일치)가 상호배타였다.
+  `contract-design-guide.md` 는 생성 이래 frontmatter 가 없어 AR-02 의 PASS 집합이 공집합이었고,
+  근본 해소는 scope 밖 수정을 요구해 AR-01 을 위반했다. 구현자가 `relaxing · unanchored` 로
+  자기신고했고 **규칙대로 PASS 근거가 되지 못했다** — 이번 사이클이 도입한 봉인·2축 amendment 가
+  의도대로 작동한 사례다. 사용자 승인을 앵커로 오케스트레이터가 v2 재작성.
+- **오케스트레이터 자신도 같은 게이트에 걸렸다.** 감사 로그를 Step F1 이 아닌 사이클 도중에 커밋해
+  Phase 3 의 scope 측정에 부기 커밋이 섞였다. 계약을 고치지 않고 **커밋을 되돌려** 해소했다.
+- 독립 평가자의 진단: **"파일 단위 exact enumeration 은 다중 커밋 오케스트레이션 스프린트에
+  구조적으로 취약하다."** 같은 형상의 결함이 3회 재발했다. Phase 4 가 구조 수정안을
+  `.harness/.meta/phase4-handoff-to-contract.md` 에 남겼다 (Phase 2 소관이라 직접 수정하지 않음).
+- 외부 근거는 codex 를 **foreground 11회** 호출해 확보하고 `.harness/.meta/evidence/phase1~14.md` 에
+  파일로 고정한 뒤, 각 Phase 서브에이전트가 그 파일만 읽게 했다(백그라운드 실행 중 네트워크 조회 금지).
+  이 방식으로 배치 A(Phase 8·9·10)는 QA REJECT 0회로 통과했다.
+- 14 Phase 전부 CHANGED + QA APPROVE, 미검증 0건. 14 Phase 완료 시점 기준 31 커밋 · 154 파일 ·
+  +13,525/−1,562.
+
+### 버전
+
+11킷 전부 minor bump. harness 0.7.0 · flutter-toolkit 0.7.0 · design-kit 0.4.0 · backend-kit 0.3.0 ·
+infra-kit 0.3.0 · rust-kit 0.3.0 · react-kit 0.3.0 · planning-kit 0.5.0 · reflect-kit 0.6.0 ·
+bambu-kit 0.6.0 · onboarding-kit 0.3.0
 
 ## [2026-07-28] — 병렬 스프린트 안전성 (harness v0.6.0, 카이젠 후속 스프린트)
 

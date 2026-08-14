@@ -1,10 +1,150 @@
 ---
 title: Kaizen Research Log
-version: 1.4.0
-last_updated: 2026-07-27
+version: 1.5.0
+last_updated: 2026-08-13
 ---
 
 # Kaizen Research Log
+
+## [2026-08-13] — 사실 정정 사이클 (14/14 CHANGED)
+
+### 데이터 소스 (Step 0)
+
+- **`/insights` 2026-08-13** (`~/.claude/usage-data/report.html`, 2026-08-13T08:33:57 · VERY FRESH 0.1h) —
+  62일 / 81 세션 중 71 분석 / 1,551 메시지 / 241 커밋.
+  Friction #1~#3 은 직전 사이클(2026-07-27)에 이미 승격된 주제였고, 관측 윈도(2026-06-12~08-12)가
+  그 수정 착지일(2026-07-28) 이전을 대부분 포함한다 → §0 재승격 금지 판정.
+  유효 신호는 **신규 델타 D1~D5** 로 한정: D1 3D 프린팅 실측 실패 3종(곡면 계단현상 · voronoi
+  스트링잉 · 바닥 박리) · D2 디자인 탐색의 축 미고정 + 산출물 개수 미상한 · D3 사용자 버그
+  리포트에 자기 테스트 증거로 반박 · D4 TOCTOU 를 SQL 술어로 해소 · D5 성능 조사에서 환경 먼저 배제.
+- **글로벌 evaluator 피드백 279건** (APPROVE 166 / REJECT 110 / UNKNOWN 3).
+  canonical 귀속은 fit-pal 149 · claude-plugins 122 · flutter_playwright 6 · 기타 2.
+  이 중 **2026-08-11~12 REJECT** 를 §0 다음 우선순위 신호로 썼다.
+- **2026-08 reflection 태그** — `skipped-required-api-doc-check` 30 ·
+  `edit-before-read` 27 + `edited-before-read` 4.
+- **reflections 로그 전량 실측**(Phase 12) — 4,691 엔트리 / 원시 distinct 2,639 / 클러스터 2,578 ·
+  singleton 2,279(**singleton_share 0.884**) · `fold_ratio` 1.02.
+- `sync-orchestrator.py --check-only` exit 0 (Step 0.5, drift 없음 · 10 plugins).
+- Step 0.6 신호 농도: HIGH 8(1·2·3·5·6·9·12·13) / MED 2(4·7) / LOW 4(8·10·11·14).
+  LOW 4 제외를 제안했으나 사용자가 전체 14 Phase 를 선택.
+
+### 외부 근거 확보 방식 (이번 사이클에 바뀐 것)
+
+각 Phase 서브에이전트가 실행 중에 직접 웹을 조회하던 방식을 버렸다. 오케스트레이터가 **codex 를
+foreground 로 11회** 호출해 근거를 먼저 확보하고, Phase 별로 `.harness/.meta/evidence/phase1~14.md`
+**14종**에 원문 인용과 URL 을 고정한 뒤, 서브에이전트는 **그 파일만** 읽게 했다
+(evidence frontmatter 에 "추가 외부 조회 금지 · 여기 없는 URL·수치를 지어내지 마라" 명시).
+
+이유는 두 가지다. 백그라운드로 도는 Phase 는 네트워크 조회가 불안정하고, 무엇보다 근거를 파일로
+고정해야 QA 가 "출처가 evidence 에 있는가" 를 결정론적으로 잴 수 있다. 실제로 배치 A(Phase 8·9·10)는
+QA REJECT 0회로 통과했다. Phase 13 은 외부 조회 0회로 evidence 만 읽고 사실 정정 3건을 냈다.
+
+### 외부 리서치 출처 (Phase 별 — `.harness/.meta/evidence/phase*.md`)
+
+- **Phase 1**: code.claude.com sub-agents(중첩 3층 · frontmatter 15 필드 원문) ·
+  platform.claude.com agent-skills best-practices · anthropics/skills skill-creator ·
+  anthropic.com/research/trustworthy-agents · openai-agents-js guardrails ·
+  arXiv 2606.09863 · 2607.07405 · 2605.29442 · ASQ design-of-experiments ·
+  ResearchGate 358854029(item constraints on designer ideation)
+- **Phase 2**: arXiv 2412.05579(LLMs-as-Judges) · 2506.13639 · NIST combinatorial coverage
+  measurement + ACTS FAQ · IEEE 830 · ISO/IEC/IEEE 29148 · NASA requirements verification matrix ·
+  Berry ambiguity in RS · gherkin-best-practices
+- **Phase 3**: arXiv 2403.18771(**CheckEval** — decomposed binary Q, agreement +0.45) ·
+  2506.22316(scoring bias — 오인용 정정 대상) · 2410.02736 · 2502.01534 · 2506.09038 ·
+  2404.10960 · 2406.07791 · 2410.21819 · 1705.08500 · Just et al. FSE 2014 mutation
+  effectiveness · Google mutation testing 3편(practical at scale / long-term effects /
+  industrial application) · Google human-in-the-loop LLM-as-a-judge patch evaluation
+- **Phase 4**: code.claude.com plugins-reference · platform.claude.com agent-skills
+  best-practices · mgechev/skills-best-practices · Python argparse·doctest ·
+  Google shell style guide · BashFAQ/105 · ShellCheck SC2310·SC2312 · bats-core ·
+  OASIS SARIF 2.1.0 · Sentry fingerprint rules · Segment identity resolution ·
+  stripe.com/blog/online-migrations
+- **Phase 5**: flutter.dev/blog/whats-new-in-flutter-3-47 · docs.flutter.dev release-notes ·
+  perf/impeller · perf/ui-performance · testing/build-modes · pub.dev freezed changelog
+  (3.1.0 재추가) · flutter_riverpod changelog · riverpod.dev refs·auto_dispose·testing ·
+  flutter/agent-plugins
+- **Phase 6**: W3C WCAG 2.2(SC 2.5.5 / 2.5.8) · W3C ACT Rules Format · DTCG CG-FINAL-20251028 +
+  first stable version 공지 · MDN container queries · Tailwind v4 · Playwright
+  test-snapshots·assertions·actionability · Chromatic · Percy · BackstopJS ·
+  Cambridge IfM morphological charts · design.google expressive Material research ·
+  Apple adopting-liquid-glass · 변형 다양성 논문 2편(Clemson · Strathprints)
+- **Phase 7**: PostgreSQL transaction-iso·explicit-locking·indexes-partial·sql-insert ·
+  SIGMOD Record "A Critique of ANSI SQL Isolation Levels" · RFC 9700 ·
+  draft-ietf-httpapi-idempotency-key-header · docs.stripe.com idempotent_requests ·
+  microservices.io transactional-outbox · OpenAPI 3.1.1 · AsyncAPI 3.0 · Pact provider·verifier ·
+  Testcontainers · pitest.org
+- **Phase 8**: GitHub Actions secure-use · OIDC · Dependabot options reference ·
+  K8s Pod Security Admission · Terraform ephemeral · OpenTofu state encryption ·
+  SLSA provenance · Sigstore cosign attestation · OTel spec status(signal 별) ·
+  conftest options · brendangregg.com USE method
+- **Phase 9**: docs.rs sqlx attr.test(테스트별 새 DB 원문) · sqlx macro.query ·
+  tokio.rs/blog/2025-01-01-announcing-axum-0-8-0(발표일 정정) · axum CHANGELOG ·
+  cargo-test·cargo-metadata · workspaces lints table · Rust 1.85.0 릴리스 ·
+  edition-guide 2024 cargo-resolver · clippy unwrap_used·expect_used·panic ·
+  SeaORM mock · testcontainers · nonempty · parse-don't-validate · cliffle typestate · mutants.rs
+- **Phase 10**: vite.dev announcing-vite8 + migration · npm registry(react/@lingui/core/
+  @tanstack/react-query/@hookform/resolvers 버전) · react-hook-form/resolvers v5.1.0 릴리스 ·
+  lingui migration-6 · react.dev React 19 · TanStack Query v5 migration·invalidation ·
+  Tauri 2 blog·capabilities·core-permissions·CLI 릴리스 · Tailwind v4 · MDN ViewTransition ·
+  @view-transition · animation-timeline/view · caniuse(view-transitions · scroll-timeline ·
+  animation-timeline scroll)
+- **Phase 11**: docs.github.com REST projects/items(v2 REST 존재 확인) · issues · milestones ·
+  projects best practices · cli.github.com gh project item-add·item-edit ·
+  cucumber.io gherkin reference(one-When 미기재 확인) · basecamp.com/shapeup ch.8 ·
+  hbr.org/2007/09/performing-a-project-premortem
+- **Phase 12**: code.claude.com hooks(이벤트별 차단 semantics) · arXiv 2303.11366(Reflexion) ·
+  ACL J08-4004 · PubMed 24153215(라벨 신뢰도) · Prometheus Alertmanager configuration ·
+  getsentry/sentry#75567(직접 인용 재확인 실패 → 1차 근거를 Prometheus group_by 로 이동)
+- **Phase 13**: BambuStudio `PrintConfig.cpp` 원문(`adaptive_layer_height` 주석 처리 + legacy
+  ignore set) · BBL 프로파일 원본 3종(fdm_process_common · fdm_process_single_0.12 ·
+  fdm_filament_common) · BambuStudio issues#9518 · Bambu 포럼 variable layer height 스레드
+- **Phase 14**: firebase.google.com/docs/cloud-messaging/flutter/get-started
+  (현행 절차에 네이티브 `FirebaseApp.configure()` 없음)
+
+### 조회로 정정된 사실 (학습 데이터 추측이었다면 틀렸을 것)
+
+- 서브에이전트 중첩 "불가" 는 거짓 — main 아래 3층까지 허용, frontmatter 필수는 name·description 둘뿐.
+- CheckEval 이 binary decomposition 의 실제 근거다 — 그동안 scoring bias 논문을 그 자리에 인용했다.
+- Freezed `when`/`map` 은 3.1.0 에서 재추가됐다 ("3부터 영구 제거" 는 6 스킬 표면에 박혀 있었다).
+- Flutter stable 은 3.47.0, Impeller 는 데스크톱 3종 기본 (Web 만 Skia).
+- WCAG 2.2 터치 타겟은 AA 24×24(SC 2.5.8) / AAA 44×44(SC 2.5.5) — 44 를 AA 로 적고 있었다.
+- `#[sqlx::test]` 는 테스트별 새 DB + 자동 migration + 성공 시 cleanup (트랜잭션 롤백 아님).
+- Axum 0.8 발표일은 2025-01-01.
+- GitHub Projects v2 는 REST `/projectsV2` 도 제공 — 금지 대상은 sunset 경과한 classic 이다.
+- Cucumber 원문에 "한 시나리오 = one When" 은 없다 ("as many steps as you like").
+- outbox + CDC 는 at-least-once — "exactly-once 보장" 서술은 거짓.
+- `adaptive_layer_height` 는 `PrintConfig.cpp` 에서 주석 처리 + legacy ignore set 이라 JSON 에
+  넣어도 무시된다 → 근사 구현이 아니라 "지원 불가" 로 명시해야 한다.
+- Flutter FCM 현행 절차에 `AppDelegate.swift` 수정은 없다. 단 "네이티브 코드 수정 없음" 이
+  "Xcode 프로젝트 설정 없음" 은 아니다 — Capability/Background Modes 는 그대로 남는다.
+
+### 도구 부재·오라클 결함으로 드러난 것 (실행해서 알았다)
+
+- `yq` 가 이 머신에 없어 `aggregation-test.sh` 가 3 사이클 이상 무검증 통과 상태였다.
+  "도구 부재를 통과로 접지 않는다" 는 이번 사이클에 Phase 4(exit taxonomy) · Phase 8(gate result
+  taxonomy) 양쪽에서 각각 구조로 착지했다.
+- infra 핀닝 검사의 현행 grep 오라클은 이 레포 워크플로의 미핀닝 6건을 **전부 0건**으로 보고했다
+  (`grep -vE 'uses: actions/'` 가 GitHub-owned 을 조용히 면제). YAML 파서로 교체 후 fixture 8종
+  전수 재검증.
+- `fold_ratio` 는 클러스터링이 아무것도 못 묶으면 1.00 이라 파편화를 영원히 "정상" 으로 답한다
+  (실측 1.02 vs singleton_share 0.884).
+- 나이브 오라클 오탐이 Phase 1·5·6·12 에서 반복 확인됐다 — 닫는 펜스를 세던 bare-fence grep,
+  parity 열 오독, substring 오탐(`bed_temperature` 가 `bed_temperature_initial_layer` 를 잡는 문제는
+  dict 키 정확 일치로 회피 확인), fixture 를 `- mistake_tag:` 로 잘못 만들어 24회 실행이 전부
+  거짓음성이던 사례. 이후 **음성 대조(mutation)** 를 오라클 채택 조건으로 돌렸다.
+
+### 방법론 메모
+
+- 전 14 Phase **직렬** 실행. 직전 사이클의 병렬 웨이브에서 겪은 API 529 중단과 git 충돌을 피하고,
+  Phase 1~4 의 정본 개정이 Phase 5~14 의 인용 대상이 되는 순서를 보장하기 위해서다.
+  Phase 8·9·10 만 배치로 묶었다.
+- 서브에이전트는 git 쓰기 금지 · 계약은 Phase 별 경로 · 커밋과 finalize 는 오케스트레이터가 직렬 처리.
+  그런데도 오케스트레이터가 감사 로그를 사이클 도중에 커밋해 Phase 3 의 scope 측정을 오염시켰다
+  (커밋을 되돌려 해소). 파일 단위 exact enumeration 의 구조적 취약성은
+  `.harness/.meta/phase4-handoff-to-contract.md` 로 다음 contract-kaizen 에 넘겼다.
+- 이번 사이클은 "규칙 문장을 추가하지 않는다" 를 하드 프레이밍으로 걸었다. 그 결과 대부분의 Phase 가
+  기존 조항의 **등급 상향**(E1→E2/E3) 또는 **사실 정정**으로 처리됐고, 신규 SSOT 는 근거 조항이
+  0건임을 먼저 증명한 경우에만 신설했다.
 
 ## [2026-07-27] — enforcement 등급화 전면 도입 (14/14 CHANGED)
 
@@ -230,6 +370,11 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 - [Self-Preference Bias in LLM-as-a-Judge — arxiv 2410.21819](https://arxiv.org/abs/2410.21819) — 채택
 - [Justice or Prejudice — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1) — 채택 (12 편향 분류)
 - [Evaluating Scoring Bias — arxiv 2506.22316](https://arxiv.org/html/2506.22316v1) — 채택 (binary PASS/FAIL)
+  **[정정 2026-08-13]** 이 논문은 binary PASS/FAIL 을 주장하지 않는다. 원문은 score rubric order ·
+  score IDs · reference answer score 3 종 scoring bias 를 정의하고 scoring prompt perturbation 이
+  judge robustness 를 흔든다고 보인다. **binary/decomposed 의 직접 근거는 CheckEval**
+  ([arxiv 2403.18771](https://arxiv.org/abs/2403.18771) — decomposed binary Q 로 evaluator
+  agreement 평균 +0.45) 다.
 - [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6) — 채택
 - [CheckEval — arxiv 2403.18771](https://arxiv.org/abs/2403.18771) — 채택 (boolean 분해)
 - [Recursive Rubric Decomposition — arxiv 2602.05125](https://arxiv.org/html/2602.05125v1/) — 채택 (RRD for [goal] tag)

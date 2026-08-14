@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쓰기 경로 무결성 프로토콜 — Backend Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
+  --border:#2a2a40;--border2:#3a3a55;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --accent:#A78BFA;--accent2:#C4B5FD;
+  --accent-dim:rgba(167,139,250,0.12);--accent-glow:rgba(167,139,250,0.06);
+  --error:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(167,139,250,0.06) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(167,139,250,0.06) 0%,transparent 55%);
+  -webkit-font-smoothing:antialiased;
+  overflow-wrap:break-word;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+a{color:var(--accent2);text-decoration:none;transition:color var(--transition)}
+a:hover{color:var(--accent)}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+.page{max-width:1120px;margin:0 auto;padding:0 24px 96px}
+
+/* ─── HERO ─── */
+.hero{padding:64px 0 48px}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:999px;
+  background:var(--accent-dim);border:1px solid var(--accent);
+  color:var(--accent2);font-size:12px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:22px;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.hero h1{
+  font-size:clamp(2.1rem,5.2vw,3.4rem);font-weight:800;line-height:1.12;
+  letter-spacing:-0.03em;margin-bottom:18px;
+  background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 55%,var(--accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:transparent;
+}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);max-width:760px;line-height:1.8}
+.hero-meta{display:flex;gap:18px;margin-top:24px;font-size:12px;color:var(--text3);flex-wrap:wrap}
+.hero-meta span{display:inline-flex;align-items:center;gap:6px;max-width:100%}
+.hero-meta span::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.hero-meta code{font-family:var(--mono);font-size:11px;color:var(--text2);overflow-wrap:anywhere}
+
+/* ─── STAT STRIP ─── */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));
+  gap:12px;margin-top:34px;
+}
+.stat{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px 16px;
+}
+.stat-num{font-size:1.45rem;font-weight:800;color:var(--accent2);line-height:1.2;font-family:var(--mono)}
+.stat-label{font-size:11px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;margin-top:5px}
+
+/* ─── SECTION ─── */
+.section{padding:52px 0;border-top:1px solid var(--border)}
+.section-label{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:700;line-height:1.25;margin-bottom:10px;letter-spacing:-0.02em}
+.section-desc{font-size:0.97rem;color:var(--text2);max-width:760px;line-height:1.8;margin-bottom:34px}
+h3.sub{font-size:1.02rem;font-weight:700;color:var(--text);margin:30px 0 12px;display:flex;align-items:center;gap:9px}
+h3.sub::before{content:'';width:3px;height:15px;border-radius:2px;background:var(--accent);flex-shrink:0}
+
+/* ─── GRID ─── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:16px}
+
+/* ─── CARD ─── */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:26px 24px;
+  transition:border-color var(--transition),transform var(--transition),box-shadow var(--transition);
+  display:flex;flex-direction:column;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 40px -20px var(--accent)}
+.card-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:var(--radius-sm);
+  background:var(--accent-dim);color:var(--accent);
+  font-size:13px;font-weight:700;margin-bottom:13px;
+  border:1px solid var(--accent);flex-shrink:0;font-family:var(--mono);
+}
+.card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;line-height:1.4}
+.card-body{font-size:14px;color:var(--text2);line-height:1.78;margin-bottom:13px}
+.card-body strong{color:var(--text);font-weight:600}
+.card-body:last-of-type{margin-bottom:16px}
+.card ul{list-style:none;margin:0 0 14px}
+.card ul li{font-size:13.5px;color:var(--text2);line-height:1.7;padding:4px 0 4px 15px;position:relative}
+.card ul li::before{content:'▸';position:absolute;left:0;color:var(--accent)}
+.card ul li strong{color:var(--text)}
+code{font-family:var(--mono);font-size:0.86em;background:var(--surface3);padding:2px 6px;border-radius:4px;color:var(--accent2)}
+:not(pre)>code{overflow-wrap:anywhere}
+pre{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px 16px;margin:0 0 14px;font-size:12.5px;line-height:1.65;
+  overflow-x:auto;max-width:100%;
+}
+pre code{background:transparent;border:none;padding:0;color:var(--text2);white-space:pre;font-size:12.5px}
+.card-source{
+  display:inline-flex;align-items:center;gap:6px;margin-top:auto;align-self:flex-start;
+  font-size:11px;color:var(--text3);
+  padding:6px 10px;border-radius:var(--radius-sm);
+  background:var(--bg2);border:1px solid var(--border);
+  transition:color var(--transition),border-color var(--transition);
+  font-family:var(--mono);overflow-wrap:anywhere;max-width:100%;
+}
+.card-source:hover{color:var(--accent2);border-color:var(--accent)}
+.card-source::before{content:'↗';font-size:10px;color:var(--accent);flex-shrink:0}
+
+/* ─── TABLE ─── */
+.table-wrap{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;
+  border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);
+}
+.table-wrap+.table-note{font-size:12px;color:var(--text3);margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead{background:var(--surface2)}
+th{
+  padding:14px 18px;text-align:left;font-weight:700;
+  font-size:11px;color:var(--accent);letter-spacing:0.1em;
+  text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border);
+}
+td{padding:13px 18px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+td:first-child{color:var(--text);font-weight:500}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--accent-glow)}
+td strong{color:var(--text)}
+.table-wrap.compact{margin-bottom:14px;border-radius:var(--radius-sm);background:var(--bg2)}
+.table-wrap.compact table{font-size:12.5px}
+.table-wrap.compact th{padding:9px 12px;font-size:10px}
+.table-wrap.compact td{padding:9px 12px}
+
+/* ─── CALLOUT ─── */
+.callout{
+  background:var(--accent-glow);border:1px solid var(--border);
+  border-left:3px solid var(--accent);border-radius:var(--radius-sm);
+  padding:16px 20px;font-size:13.5px;color:var(--text2);line-height:1.75;margin-bottom:18px;
+}
+.callout strong{color:var(--text)}
+.callout .callout-tag{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:6px;font-family:var(--mono);
+}
+.callout.warn{background:rgba(251,191,36,0.05);border-left-color:var(--warn)}
+.callout.warn .callout-tag{color:var(--warn)}
+.callout.err{background:rgba(248,113,113,0.05);border-left-color:var(--error)}
+.callout.err .callout-tag{color:var(--error)}
+.callout.ok{background:rgba(74,222,128,0.05);border-left-color:var(--success)}
+.callout.ok .callout-tag{color:var(--success)}
+
+/* ─── FLOW ─── */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px;margin-bottom:8px}
+.flow-step{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;position:relative;
+}
+.flow-step .step-n{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--accent);display:block;margin-bottom:8px;
+}
+.flow-step h4{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.flow-step p{font-size:12.5px;color:var(--text2);line-height:1.7}
+
+/* ─── COMPARE ─── */
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-bottom:20px}
+.compare-bad,.compare-good{border-radius:var(--radius);padding:18px 20px;font-size:13px;line-height:1.7}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22);color:var(--text2)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22);color:var(--text2)}
+.compare-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.compare-bad .compare-label{color:var(--error)}
+.compare-good .compare-label{color:var(--success)}
+.compare-label::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.compare-bad .compare-label::before{background:var(--error)}
+.compare-good .compare-label::before{background:var(--success)}
+.compare-bad pre,.compare-good pre{background:rgba(0,0,0,0.28);margin-bottom:10px}
+.compare-bad p:last-child,.compare-good p:last-child{margin-bottom:0}
+
+/* ─── ANTI ─── */
+.anti-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;
+  border-left:3px solid var(--error);transition:border-color var(--transition);
+}
+.anti-card:hover{border-color:var(--border2);border-left-color:var(--error)}
+.anti-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:7px;display:flex;align-items:flex-start;gap:10px}
+.anti-title::before{
+  content:'✕';color:var(--error);font-weight:900;font-size:12px;flex-shrink:0;
+  width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(248,113,113,0.1);border-radius:4px;margin-top:1px;
+}
+.anti-body{font-size:13px;color:var(--text2);line-height:1.72}
+
+/* ─── CHECKLIST ─── */
+.checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+.checklist li{
+  display:flex;align-items:flex-start;gap:14px;
+  background:var(--surface);border:1px solid var(--border);
+  padding:17px 20px;border-radius:var(--radius);
+  font-size:13px;color:var(--text2);line-height:1.72;
+  transition:border-color var(--transition),transform var(--transition);
+}
+.checklist li:hover{border-color:var(--accent);transform:translateX(4px)}
+.checklist .check{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);
+  flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--accent);font-weight:900;background:var(--accent-dim);
+}
+.checklist .check::before{content:'!'}
+.checklist strong{color:var(--text);font-weight:700;display:block;margin-bottom:4px}
+.checklist .body{min-width:0}
+
+/* ─── FOOTER ─── */
+.footer{margin-top:72px;padding-top:30px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--text3)}
+.footer code{background:transparent;color:var(--text3);padding:0}
+
+/* ════════════════════════════════════════════════════════════════
+   가로 오버플로 4 규칙 (docs-site Gotcha 10) — 완화·제거 금지.
+   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙.
+   ════════════════════════════════════════════════════════════════ */
+/* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다. */
+.grid-2>*,.grid-3>*,.flow>*,.compare-grid>*,.stat-strip>*,.checklist>li,.card>*,.hero-meta>*{min-width:0}
+/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 래퍼에서 스크롤시킨다. */
+.table-wrap>table{min-width:max-content}
+/* (3) white-space:pre 코드 블록도 내용폭이 전파된다. (pre 규칙은 위 정의 참조) */
+/* (4) 좁은 뷰포트 단일 컬럼 스택. */
+@media(max-width:600px){
+  .page{padding:0 16px 72px}
+  .grid-2,.grid-3,.flow,.compare-grid{grid-template-columns:1fr}
+  .stat-strip{grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr))}
+  th,td{padding:10px 12px}
+  .card{padding:22px 18px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;scroll-behavior:auto !important;
+  }
+  .card:hover,.checklist li:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ─────────── HERO ─────────── -->
+<header class="hero">
+  <div class="badge"><span class="badge-dot"></span>Backend Kit · SSOT</div>
+  <h1>쓰기 경로 무결성 프로토콜</h1>
+  <p class="subtitle">
+    read-check-then-write 경합, 중복 방지 제약과 upsert 대상의 정합, 멱등 쓰기 계약,
+    그리고 <strong>그 가드가 실제로 동작함을 증명하는 테스트</strong>를 다룬다.
+    backend-kit 안에서 이 규칙의 본문은 이 문서 하나이며, 소비 표면은 인용만 한다.
+  </p>
+  <div class="hero-meta">
+    <span>enforcement E1 · E2 · E3</span>
+    <span>added 2026-08-13</span>
+    <span>source <code>backend-kit/references/write-path-integrity-protocol.md</code></span>
+  </div>
+  <div class="stat-strip">
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">invariant 유형</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">멱등 계약 항목</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">금지 서술</div></div>
+    <div class="stat"><div class="stat-num">9</div><div class="stat-label">안티패턴</div></div>
+  </div>
+</header>
+
+<!-- ─────────── 유래 ─────────── -->
+<section class="section">
+  <div class="section-label">Origin</div>
+  <h2 class="section-title">왜 생겼나 — 실측 REJECT <code>ER-02</code></h2>
+  <div class="callout err">
+    <span class="callout-tag">2026-08-12 실측</span>
+    "신규 통합 테스트가 실제 바이너리를 호출하지 않고 독립적으로 재작성한 SQL 로 낙관적 동시성의
+    일반 동작만 검증한다. <strong>mutation test 로 확정 — 실제 코드에서 동시성 가드를 완전히 삭제해도
+    이 테스트는 여전히 통과한다.</strong>"
+  </div>
+  <p class="section-desc">
+    가드는 구현돼 있었고 테스트도 통과했는데, 그 테스트는 가드를 재고 있지 않았다.
+    같은 기간 신호로 FCM 토큰 등록의 partial unique index 충돌(§3)과
+    feed TOCTOU 의 in-SQL 술어 해소(§1)가 함께 관측됐다.
+  </p>
+
+  <h3 class="sub">기존 기준과 겹치지 않는다</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>문서</th><th>담당 범위</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>skills/backend-audit/references/audit-criteria.md</code></td>
+          <td>10 카테고리의 기존 rule (§3 Database = N+1 · 인덱스 · pooling · migration, §9 Testing = 6 rule)</td>
+        </tr>
+        <tr>
+          <td><strong>이 프로토콜</strong></td>
+          <td>write path 무결성 rule (경합 가드 적합성 · upsert arbiter 정합 · 멱등 저장 계약 · 통합 타깃 증명 · 핵심 guard 음성 대조)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-note">두 문서의 rule 집합은 <strong>교집합이 없다.</strong> 하나의 rule 을 두 곳에 적지 마라.</p>
+</section>
+
+<!-- ─────────── §1 invariant ─────────── -->
+<section class="section">
+  <div class="section-label">§1 · E2</div>
+  <h2 class="section-title">경합을 발견하면 invariant 부터 분류한다</h2>
+  <p class="section-desc">
+    <code>SELECT</code> 로 읽고 → 애플리케이션 코드에서 판단하고 → 쓰는 흐름은 두 문장 사이에 다른
+    트랜잭션이 끼어들 수 있다. 앱 레벨 <code>if</code> 는 이 창을 좁힐 뿐 닫지 못한다.
+    이 패턴을 발견하면 <strong>FAIL 후보로 보고 먼저 invariant 를 분류</strong>한다.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>invariant 유형</th><th>담당 primitive</th><th>PASS 조건</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>같은 row 의 상태 전이<br>(승인 → 완료, 잔여 수량 차감, 낙관적 락)</td>
+          <td>조건부 <code>UPDATE ... WHERE &lt;기대 상태/버전&gt;</code> 또는 동등한 compare-and-swap</td>
+          <td>기대값이 술어에 들어 있고, <strong>영향 행 수 0 을 성공으로 흘리지 않는다</strong> (도메인 conflict 로 승격)</td>
+        </tr>
+        <tr>
+          <td><strong>B</strong></td>
+          <td>존재 · 권한 · 가시성 predicate<br>(내 리소스인가, 차단 관계인가, 공개 범위에 드는가)</td>
+          <td>쓰기 SQL 자체의 <code>WHERE EXISTS (...)</code> / 조인 술어</td>
+          <td>사전 <code>SELECT</code> 검사가 아니라 <strong>쓰기 문장의 술어</strong>로 들어가 있다</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>cross-row · absence · aggregate<br>(중복 없음, 구간 겹침 없음, 합계 상한)</td>
+          <td>unique / partial unique / exclusion 제약, 명시적 lock, 또는 <code>Serializable</code> + 직렬화 실패 재시도</td>
+          <td>셋 중 <strong>하나가 명시적으로 존재</strong>하고 어떤 것을 골랐는지 근거에 적혀 있다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">분류 산출물 (E2) — 문장 다짐으로 대체 금지</h3>
+<pre><code>invariant: &lt;A|B|C&gt; — &lt;무엇이 깨지면 안 되는가&gt;
+primitive: &lt;조건부 UPDATE | WHERE EXISTS | 제약명 | 명시적 lock | Serializable+retry&gt;
+증거: &lt;파일:라인 — 그 primitive 가 실재하는 위치&gt;</code></pre>
+
+  <h3 class="sub">유형별 주의</h3>
+  <div class="grid-3">
+    <article class="card">
+      <div class="card-num">A</div>
+      <h3 class="card-title"><code>READ COMMITTED</code> 에서도 성립한다</h3>
+      <p class="card-body">
+        PostgreSQL 의 <code>READ COMMITTED</code> 는 <code>UPDATE</code>/<code>DELETE</code>/
+        <code>SELECT FOR UPDATE</code> 가 동시 갱신자를 만나면 기다린 뒤
+        <strong>갱신된 row 에 <code>WHERE</code> 조건을 다시 평가</strong>한다.
+        그래서 기대값을 술어에 넣은 조건부 갱신이 낙관적 동시성 가드로 성립한다.
+      </p>
+      <a class="card-source" href="https://www.postgresql.org/docs/current/transaction-iso.html" target="_blank" rel="noopener">PostgreSQL — Transaction Isolation</a>
+    </article>
+    <article class="card">
+      <div class="card-num">B</div>
+      <h3 class="card-title">B 를 A 로 일반화하지 마라</h3>
+      <p class="card-body">
+        같은 문서가 <code>READ COMMITTED</code> 에서 <strong>복잡한 search condition 은 일관성 판단에
+        부적합할 수 있다</strong>고 경고한다. 조건부 <code>UPDATE</code> 하나로 cross-row predicate 까지
+        덮는다고 주장하면 FAIL 이다.
+      </p>
+      <a class="card-source" href="https://www.postgresql.org/docs/current/transaction-iso.html" target="_blank" rel="noopener">PostgreSQL — Transaction Isolation</a>
+    </article>
+    <article class="card">
+      <div class="card-num">C</div>
+      <h3 class="card-title">C 를 <code>SELECT FOR UPDATE</code> 로 덮지 마라</h3>
+      <p class="card-body">
+        이 lock 은 <strong>반환된 기존 row</strong> 를 잠근다. "존재하지 않는 row"(absence invariant)나
+        predicate 전체를 자동으로 잠그는 수단이 아니다.
+      </p>
+      <a class="card-source" href="https://www.postgresql.org/docs/current/explicit-locking.html" target="_blank" rel="noopener">PostgreSQL — Explicit Locking</a>
+    </article>
+  </div>
+</section>
+
+<!-- ─────────── §2 트랜잭션 ─────────── -->
+<section class="section">
+  <div class="section-label">§2 · E1</div>
+  <h2 class="section-title">"트랜잭션으로 감싸라" 만으로 PASS 금지</h2>
+  <p class="section-desc">
+    트랜잭션 경계는 <strong>원자성</strong>을 준다. 그것만으로 경합이 막히지는 않는다.
+    동시성 항목을 PASS 하려면 아래 두 문장이 <strong>둘 다</strong> 있어야 한다.
+  </p>
+  <div class="flow">
+    <div class="flow-step">
+      <span class="step-n">문장 1</span>
+      <h4>어떤 anomaly 를 막는가</h4>
+      <p>dirty read / nonrepeatable read / phantom read / serialization anomaly 중 무엇인가.</p>
+    </div>
+    <div class="flow-step">
+      <span class="step-n">문장 2</span>
+      <h4>어떤 primitive 가 담당하는가</h4>
+      <p>§1 표의 primitive 중 무엇인가. 둘 중 하나라도 없으면 FAIL 이다.</p>
+    </div>
+  </div>
+  <div class="callout warn">
+    <span class="callout-tag">사실</span>
+    PostgreSQL 에서 <strong><code>Serializable</code> 만 serialization anomaly 를 막는다.</strong>
+    Snapshot Isolation 은 <strong>write skew(A5B)</strong> 를 허용한다 — 두 트랜잭션이 각자 읽은 스냅샷
+    위에서 서로 다른 row 를 갱신해 합쳐진 결과가 불변식을 깨는 경우다.
+    "SI 를 쓰니 직렬화된다"는 서술은 틀렸다.
+    <br>근거: <a href="https://sigmodrecord.org/1995/06/06/a-critique-of-ansi-sql-isolation-levels/" target="_blank" rel="noopener">Berenson et al. — A Critique of ANSI SQL Isolation Levels</a>
+  </div>
+
+  <h3 class="sub">금지 3종 — 권고로도 쓰지 마라</h3>
+  <div class="anti-card">
+    <div class="anti-title"><code>Serializable</code> 을 전 write path 기본값으로 강제</div>
+    <div class="anti-body">직렬화 실패 재시도 설계와 abort율 운영 관측이 따라와야 하는 선택지다. §1-C 의 세 수단 중 하나일 뿐 기본값이 아니다.</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title"><code>SELECT FOR UPDATE</code> 를 모든 TOCTOU 의 해법으로 제시</div>
+    <div class="anti-body">반환된 기존 row 만 잠근다. absence · predicate invariant 를 덮지 못한다 (§1-C 주의).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title"><code>READ COMMITTED</code> + 복잡한 술어를 "안전"으로 서술</div>
+    <div class="anti-body">PostgreSQL 문서 자신이 이 조합은 일관성 판단에 부적합할 수 있다고 경고한다 (§1-B 주의).</div>
+  </div>
+</section>
+
+<!-- ─────────── §3 arbiter ─────────── -->
+<section class="section">
+  <div class="section-label">§3 · E2</div>
+  <h2 class="section-title">중복 방지 제약과 upsert 대상은 문자 그대로 일치해야 한다</h2>
+  <p class="section-desc">
+    <strong>스택 무관 원칙:</strong> 중복을 막는 제약이 <strong>일부 행에만 적용되는 형태</strong>(조건부 ·
+    계산식 기반)인데 upsert 문이 지목하는 충돌 대상이 그 조건까지 포함하지 않으면, 제약은 존재하지만
+    upsert 는 그것을 쓰지 못한다. 결과는 "가끔 성공하고 가끔 중복 키 오류"다.
+    제약 정의와 upsert 의 충돌 대상을 <strong>양쪽 다 열거해 대조</strong>하라 — 한쪽만 읽고 PASS 를 주지 마라.
+  </p>
+
+  <h3 class="sub">대조 산출물 (E2)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>제약명</th><th>대상 컬럼/식</th><th>적용 조건(predicate)</th><th>upsert 문 위치</th><th>upsert 충돌 대상</th><th>일치</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>uq_token_active</code></td>
+          <td><code>(user_id, token)</code></td>
+          <td><code>WHERE revoked_at IS NULL</code></td>
+          <td><code>repo/device_token.py:88</code></td>
+          <td><code>ON CONFLICT (user_id, token) WHERE revoked_at IS NULL</code></td>
+          <td>✔</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-note">위 행은 형식 예시다. 실제 감사에서는 저장소의 제약과 upsert 를 그대로 채워 넣는다.</p>
+
+  <h3 class="sub">PostgreSQL 감지 시 추가 rule</h3>
+  <p class="section-desc">
+    DB 엔진 감지는 마이그레이션 DDL · 드라이버 의존성 · 접속 문자열 중 하나로 확정한다.
+    PostgreSQL 이 아니면 이 절은 N/A 이며, 위 스택 무관 원칙만 적용한다.
+  </p>
+  <div class="grid-2">
+    <article class="card">
+      <div class="card-num">P1</div>
+      <h3 class="card-title">partial index 는 subset 에만 적용된다</h3>
+      <p class="card-body">
+        플래너가 쿼리 조건이 index predicate 를 함의한다고 인식해야 쓰인다. 공식 문서는 일반 정리
+        증명기가 없으며 많은 경우 predicate 가 쿼리 <code>WHERE</code> 와 정확히 맞아야 하고,
+        <strong>파라미터화된 절은 partial index 와 맞지 않을 수 있다</strong>고 적는다.
+      </p>
+      <a class="card-source" href="https://www.postgresql.org/docs/current/indexes-partial.html" target="_blank" rel="noopener">PostgreSQL — Partial Indexes</a>
+    </article>
+    <article class="card">
+      <div class="card-num">P2</div>
+      <h3 class="card-title"><code>ON CONFLICT</code> 의 arbiter inference</h3>
+      <p class="card-body">
+        column/expression 과 선택적 <code>index_predicate</code> 가 arbiter index 를 만족해야 한다.
+        inference 에 실패하면 에러이며, <code>DO UPDATE</code> 는 conflict target 이 <strong>필수</strong>다.
+        partial unique index 를 arbiter 로 쓰려면 <code>ON CONFLICT (cols) WHERE predicate</code> 처럼
+        predicate 까지 맞춰야 한다. column/expression/predicate 중 하나라도 어긋나면 <strong>FAIL</strong>.
+      </p>
+      <a class="card-source" href="https://www.postgresql.org/docs/current/sql-insert.html" target="_blank" rel="noopener">PostgreSQL — INSERT</a>
+    </article>
+    <article class="card">
+      <div class="card-num">P3</div>
+      <h3 class="card-title"><code>DO NOTHING</code> 의 target 생략</h3>
+      <p class="card-body">
+        conflict target 을 <strong>생략</strong>하면 "사용 가능한 모든 제약 위반을 회피"하는 의미가 된다.
+        의도한 멱등 결과(원 레코드 반환 등)를 보장하지 못하므로, 반환값을 쓰는 경로에서는
+        <strong>WARN</strong>, 멱등 계약(§4)의 근거로 삼고 있으면 <strong>FAIL</strong>.
+      </p>
+      <a class="card-source" href="https://www.postgresql.org/docs/current/sql-insert.html" target="_blank" rel="noopener">PostgreSQL — INSERT</a>
+    </article>
+  </div>
+</section>
+
+<!-- ─────────── §4 멱등 계약 ─────────── -->
+<section class="section">
+  <div class="section-label">§4 · E2</div>
+  <h2 class="section-title">Idempotent Write Contract — 6 항목</h2>
+  <p class="section-desc">
+    비멱등 write path(POST/PATCH · 메시지 소비 · 백필 잡)는 재시도 안전성을 <strong>계약에 적어야</strong> PASS 다.
+    아래 6 항목 중 <strong>하나라도 비면 FAIL</strong>.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>항목</th><th>적어야 하는 것</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>key 범위</strong></td><td>멱등 키가 무엇이고 어느 범위에서 유일한가 (전역 · 테넌트별 · 엔드포인트별 · 자연키 조합). 범위를 안 적으면 서로 다른 자원이 같은 키를 재사용한다</td></tr>
+        <tr><td>2</td><td><strong>payload fingerprint</strong></td><td>같은 키의 재요청이 같은 요청인지 무엇으로 판정하는가 (체크섬 · 필드 매칭 · 요청 다이제스트). fingerprint 없이 키만 보면 4·5 를 구분할 수 없다</td></tr>
+        <tr><td>3</td><td><strong>replay response</strong></td><td>완료된 원 요청의 결과를 어디에 저장하고 무엇을 그대로 돌려주는가</td></tr>
+        <tr><td>4</td><td><strong>in-flight duplicate</strong></td><td>원 요청이 <strong>처리 중</strong>일 때 도착한 중복을 어떻게 처리하는가</td></tr>
+        <tr><td>5</td><td><strong>different-payload reuse</strong></td><td>같은 키에 <strong>다른 페이로드</strong>가 오면 어떻게 거절하는가</td></tr>
+        <tr><td>6</td><td><strong>expiry</strong></td><td>키·결과 레코드를 언제까지 보관하고 만료 후 같은 키가 오면 어떻게 되는가</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-tag">사실 서술</span>
+    IETF <code>draft-ietf-httpapi-idempotency-key-header</code> 는 <strong>만료된 Internet-Draft</strong> 다.
+    "표준" · "RFC" 로 서술하면 FAIL 이며, 사실상 관행으로만 인용한다.
+    <br>근거: <a href="https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/" target="_blank" rel="noopener">IETF datatracker</a>
+  </div>
+  <div class="callout">
+    <span class="callout-tag">경계</span>
+    HTTP 상태코드 규약(원 결과 반환 · 처리 중 · 다른 페이로드 · 헤더 누락)의 SSOT 는
+    <code>skills/backend-audit/references/audit-criteria.md</code> §2 다.
+    <strong>여기서 상태코드를 다시 정의하지 마라.</strong> 이 절은 그 규약이 성립하려면 저장소 측에
+    무엇이 있어야 하는지만 정한다.
+    벤더 구현 참조로 Stripe 는 멱등 키, 결과 저장, <strong>페이로드 비교</strong>, 24시간 후 키
+    정리(pruning)를 문서화한다 — 6 항목 중 1 · 2 · 3 · 5 · 6 에 대응한다.
+    <br>근거: <a href="https://docs.stripe.com/api/idempotent_requests" target="_blank" rel="noopener">Stripe — Idempotent requests</a>
+  </div>
+</section>
+
+<!-- ─────────── §5 타깃 증명 ─────────── -->
+<section class="section">
+  <div class="section-label">§5 · E3</div>
+  <h2 class="section-title">Integration Target Proof 와 핵심 guard 음성 대조</h2>
+
+  <h3 class="sub">5a. 실체 확인과 타깃 증명은 다른 검사다</h3>
+  <p class="section-desc">
+    <code>audit-criteria.md</code> §9 의 통합 테스트 <strong>실체</strong> rule 은
+    <strong>의존성이 진짜인가</strong>를 본다. 이 절은 <strong>대상 코드가 진짜인가</strong>를 본다.
+    <code>ER-02</code> 는 전자를 통과하고 후자에서 걸렸다 — 실 DB 를 썼지만 테스트가 SQL 을 독립
+    재작성해서, 구현의 가드를 지워도 통과했다.
+  </p>
+  <div class="compare-grid">
+    <div class="compare-bad">
+      <div class="compare-label">integration 으로 계상 불가</div>
+      <p>독립 재작성 SQL 로 "일반적인 동작"만 확인한 테스트. <strong>query-level 보조 테스트</strong>로 재분류하고 통합 테스트 개수에 계상하지 않는다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">타깃 증명 성립</div>
+      <p>production handler / repository / 서비스 함수 / 실제 실행 바이너리 또는 로컬 기동된 provider 를 실제로 통과한다는 증거가 있다.</p>
+<pre><code>결합: {테스트 파일:라인} → {구현 심볼}</code></pre>
+    </div>
+  </div>
+  <p class="section-desc">
+    결합 확인은 정적으로 결정론적이다 — 테스트 파일이 구현 심볼을 import · 호출하는지 grep 한다.
+    로컬 기동된 provider 에 실제 요청을 재생해 응답을 비교하는 방식도 유효한 타깃 증명이다. 다만
+    요청 본문을 추출 · 검증하기 <strong>전 레이어를 stub 하면 어떤 garbage body 도 통과</strong>하므로,
+    stub 위치가 검증 지점보다 뒤에 있는지 함께 확인한다.
+  </p>
+  <p class="table-note">
+    근거: <a href="https://docs.pact.io/provider" target="_blank" rel="noopener">Pact — Provider verification</a> ·
+    <a href="https://testcontainers.com/getting-started/" target="_blank" rel="noopener">Testcontainers — Getting started</a>
+  </p>
+
+  <h3 class="sub">5b. 핵심 guard 는 음성 대조에서 실패해야 한다</h3>
+  <div class="callout ok">
+    <span class="callout-tag">PASS 조건</span>
+    <strong>동시성 가드(§1) · 인증/인가 guard · 멱등 arbiter(§3 · §4)</strong> 세 가지는 그 지점을
+    제거 · 무력화한 상태에서 테스트가 <strong>FAIL 해야</strong> PASS 다. 코드에 결함을 주입했는데
+    테스트가 통과하면 그 테스트는 결함을 잡지 못한다는 신호다.
+    <br>근거: <a href="https://pitest.org/" target="_blank" rel="noopener">PIT — Mutation testing</a>
+  </div>
+  <p class="section-desc">
+    실행하지 못했으면 <code>[미검증]</code> 이 <strong>아니라</strong> "guard proof 없음"으로 FAIL
+    후보다 — <code>[미검증]</code> 은 검증 도구 · 환경 부재 전용 마커다.
+    판정 절차 · 안전 조건 · 임계값은 여기서 정의하지 않고 아래 §8 표의 정본을 따른다.
+  </p>
+
+  <h3 class="sub">5c. 적용 범위 한정 — 전면 강제 금지</h3>
+  <ul class="checklist">
+    <li>
+      <span class="check"></span>
+      <div class="body">
+        <strong>Testcontainers / 계약 테스트 도구를 모든 테스트에 요구하지 마라</strong>
+        단위 테스트에는 과하고, CI 시간과 Docker 의존성 비용이 실재한다.
+        실 의존성 요구는 DB · 브로커 상호작용을 주장하는 테스트에만 적용한다.
+      </div>
+    </li>
+    <li>
+      <span class="check"></span>
+      <div class="body">
+        <strong>음성 대조 요구는 3종 guard 에만 적용한다</strong>
+        모든 조건에 요구하면 계약에 없는 비용이 된다.
+      </div>
+    </li>
+    <li>
+      <span class="check"></span>
+      <div class="body">
+        <strong>전체 저장소 mutation score 임계값을 세우지 마라</strong>
+        §8 정본의 금지 조항이다.
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- ─────────── §6 outbox ─────────── -->
+<section class="section">
+  <div class="section-label">§6 · E1</div>
+  <h2 class="section-title">Outbox 는 at-least-once 다</h2>
+  <div class="compare-grid">
+    <div class="compare-bad">
+      <div class="compare-label">FAIL — 서술 금지</div>
+      <p>outbox 단독으로, 또는 <strong>outbox + CDC 조합으로 "exactly-once 가 보장된다"</strong> 고 서술하는 것.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">PASS — 두 조건</div>
+      <p>
+        비즈니스 테이블 갱신과 outbox insert 가 <strong>같은 트랜잭션</strong>이고(이중쓰기 방어),
+        relay 의 중복 발행을 전제로 <strong>consumer 측 idempotency(§4)를 함께 요구</strong>한다.
+      </p>
+    </div>
+  </div>
+  <p class="table-note">
+    근거: <a href="https://microservices.io/patterns/data/transactional-outbox.html" target="_blank" rel="noopener">microservices.io — Transactional Outbox</a> ·
+    이벤트 측 맥락은 <a href="event-driven.html">이벤트 기반 아키텍처</a> 참조
+  </p>
+</section>
+
+<!-- ─────────── §7 안티패턴 ─────────── -->
+<section class="section">
+  <div class="section-label">§7</div>
+  <h2 class="section-title">안티패턴 9</h2>
+  <div class="anti-card">
+    <div class="anti-title">사전 <code>SELECT</code> 검사 + 앱 레벨 <code>if</code> 를 원자적 가드로 설명한다</div>
+    <div class="anti-body">두 문장 사이의 창은 닫히지 않는다 (§1).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title">경합 질문에 "트랜잭션으로 감싸세요"만 답한다</div>
+    <div class="anti-body">원자성과 경합 방어는 다른 문제다 (§2).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title">조건부 갱신 술어는 있는데 <strong>영향 행 수 0</strong> 을 성공으로 흘린다</div>
+    <div class="anti-body">가드가 있으나 마나다. 도메인 conflict 로 승격해야 한다 (§1-A).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title"><code>SELECT FOR UPDATE</code> 를 absence/predicate invariant 의 해법으로 제시한다</div>
+    <div class="anti-body">반환된 기존 row 만 잠근다 (§1-C).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title">조건부 unique 제약이 있는데 upsert 충돌 대상에 그 조건을 빼먹는다</div>
+    <div class="anti-body">arbiter inference 실패 → 간헐적 중복 키 오류 (§3).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title">멱등 키만 있고 payload fingerprint · expiry 를 계약에 안 적는다</div>
+    <div class="anti-body">6 항목 중 2 · 6 이 비면 FAIL (§4).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title">실 DB 를 쓴다는 이유로, SQL 을 독립 재작성한 테스트를 통합 테스트로 계상한다</div>
+    <div class="anti-body">의존성은 진짜인데 대상이 가짜다 (§5a).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title">guard 의 positive 경로만 테스트하고 "동시성 검증됨"으로 보고한다</div>
+    <div class="anti-body">음성 대조 없이는 판별력이 증명되지 않는다 (§5b).</div>
+  </div>
+  <div class="anti-card">
+    <div class="anti-title">outbox 를 근거로 "exactly-once"를 주장한다</div>
+    <div class="anti-body">relay 는 중복 발행할 수 있다 (§6).</div>
+  </div>
+</section>
+
+<!-- ─────────── §8 정본 인용 ─────────── -->
+<section class="section">
+  <div class="section-label">§8</div>
+  <h2 class="section-title">정본 인용 — 재정의 금지</h2>
+  <p class="section-desc">
+    이 프로토콜은 <strong>생산 측</strong>(무엇을 만들고 무엇을 테스트할지)만 정의한다.
+    판정 절차와 임계 규칙은 아래 정본을 따르며 여기서 다시 정의하지 않는다.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>축</th><th>정본</th><th>이 프로토콜의 역할</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>측정 판별력 판정</td>
+          <td><code>harness/docs/guides/qa-evaluation-guide.md</code> §Discriminating Evidence Gate (적용 범위 1 · 2 · 3 = 동시성 가드 · auth · 멱등성)</td>
+          <td>그 게이트가 요구하는 <strong>결합</strong>과 <strong>음성 대조 지점</strong>을 코드 쪽에서 미리 만족시킨다</td>
+        </tr>
+        <tr>
+          <td>계약 문구</td>
+          <td><code>harness/references/contract-schema.md</code> §음성 대조</td>
+          <td>조건에 적을 <code>음성 대조:</code> 절의 대상 지점(§1 술어 · §3 arbiter · §4 키 판정)을 지정해 준다</td>
+        </tr>
+        <tr>
+          <td><code>[미검증]</code> 마커 의미 · 임계값</td>
+          <td><code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol</td>
+          <td>마커를 쓰지 않아야 할 경우(§5b)만 지정한다</td>
+        </tr>
+        <tr>
+          <td>enforcement 등급 정의 · 승급</td>
+          <td><code>harness/docs/guides/skill-design-guide.md</code> §3.7</td>
+          <td>아래 표는 이 프로토콜 조항의 <strong>현재 등급 기록</strong>이다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">이 프로토콜 조항의 enforcement 등급</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>조항</th><th>등급</th><th>근거 · 승급 트리거</th></tr></thead>
+      <tbody>
+        <tr><td>§1 invariant 분류</td><td><strong>E2</strong></td><td>3 줄 분류 산출물을 남긴다. 분류 없이 PASS 가 2 회 재발하면 분류표 존재를 검사하는 E3</td></tr>
+        <tr><td>§2 generic transaction advice 금지</td><td><strong>E1</strong></td><td>최초 도입 · 문맥 해석이 필요한 판정. 재발 2 회 → E2</td></tr>
+        <tr><td>§3 arbiter 대조</td><td><strong>E2</strong></td><td>제약↔upsert 대조 표 아티팩트</td></tr>
+        <tr><td>§4 멱등 계약 6 항목</td><td><strong>E2</strong></td><td>6 항목 체크리스트 아티팩트</td></tr>
+        <tr><td>§5a 결합 확인</td><td><strong>E3</strong></td><td>테스트가 구현 심볼을 호출하는지는 grep 으로 LLM 없이 판정된다. <code>ER-02</code> 는 이 검사만 있었어도 걸렸다</td></tr>
+        <tr><td>§5b 음성 대조</td><td>정본 등급을 따른다</td><td><code>qa-evaluation-guide.md</code> §원칙별 Enforcement 등급 표의 <code>Discriminating Evidence Gate</code> 행. <strong>여기서 재정의하지 않는다</strong></td></tr>
+        <tr><td>§6 outbox 전달 보장</td><td><strong>E1</strong></td><td>사실 서술 규칙</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-tag">범위</span>
+    <strong>Rust 프로젝트는 이 킷의 대상이 아니다.</strong>
+    <code>backend-audit</code> · <code>backend-test</code> 는 <code>Cargo.toml</code> 감지 시
+    rust-kit 으로 리다이렉트하며, rust-kit 에는 같은 문제의 Rust 전용 SSOT 가 따로 있다.
+  </div>
+</section>
+
+<footer class="footer">
+  Backend Kit · <code>backend-kit/references/write-path-integrity-protocol.md</code> · 2026-08-13
+</footer>
+
+</div>
+</body>
+</html>

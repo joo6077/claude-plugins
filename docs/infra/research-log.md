@@ -1,9 +1,110 @@
 ---
-version: 1.2.0
-last_updated: 2026-07-27
+version: 1.3.0
+last_updated: 2026-08-13
 ---
 
 # Infra Kit Research Log
+
+## [2026-08-13] - Phase 8 kaizen
+
+CHANGED. Step 0.6 선별에서 infra-kit 은 low-signal 제외 후보였으나 사용자가 전체 14 Phase 를 선택해 실행했다.
+외부 근거는 codex 를 foreground 로 호출해 `.harness/.meta/evidence/phase8.md` 에 파일로 고정한 뒤 그 파일만
+읽고 작업했다 (백그라운드 실행 중 네트워크 조회 금지). 커밋 `73ef4e7` — 11 파일.
+
+### 조회한 외부 소스 (근거 파일 `.harness/.meta/evidence/phase8.md`)
+
+| # | 소스 | 조회 결과 | 채택 |
+| --- | ---- | --------- | ---- |
+| 1 | [GitHub Actions secure use](https://docs.github.com/en/actions/reference/security/secure-use) | **full-length commit SHA 만 immutable release 로 취급**. 태그는 이동·삭제 위험 | **채택** — 핀닝 rule 을 grep → YAML 파서 기반으로 재작성 |
+| 2 | [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference) | `version: 2` · `updates` · `package-ecosystem` · `directory`/`directories` · `schedule`. GitHub Actions 도 업데이트 대상이며 로컬 액션과 `docker://` 참조는 제한 | **채택** — 탐지된 생태계만 등록하는 rule 을 3 표면에 신설 |
+| 3 | [GitHub Actions OIDC 개념](https://docs.github.com/en/actions/concepts/security/openid-connect) | job 마다 토큰을 만들고 클라우드가 short-lived access token 을 발급하는 모델 | **채택** — audit-criteria·infra-init 의 OIDC 링크를 현행 경로로 갱신 |
+| 4 | [USE Method — Brendan Gregg](https://www.brendangregg.com/usemethod.html) | 모든 리소스에 대해 utilization · saturation · errors 를 확인하는 초기 병목 배제 절차. CPU run queue, memory paging/swap, disk queue, network drops | **채택** — `observability.md` §8 신설 |
+| 5 | [OpenTelemetry spec status](https://opentelemetry.io/docs/specs/status/) | signal 별로 성숙도가 다르다 — traces stable / metrics API·protocol stable + SDK mixed / logs stable / profiles protocol development | **채택** — "3 신호 stable" 과잉 단정을 signal 별로 분해 |
+| 6 | [Conftest options](https://www.conftest.dev/options/) | 기본은 정책 실패 시 exit 1, `--fail-on-warn` 에서는 0=없음 / 1=경고 / 2=실패 | 참조 — 도구별 native exit 를 wrapper 가 내부 상태로 번역해야 한다는 근거 |
+| 7 | [Kubernetes PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/) | v1.25 stable, namespace 라벨로 `enforce`/`audit`/`warn` × `privileged`/`baseline`/`restricted` | 재확인 — 변경 없음. Gateway API·Karpenter·DRA 는 이 출처로 확인한 사실이 아니므로 FAIL 규칙화하지 않음 |
+| 8 | [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral) | ephemeral / write-only 값은 state·plan 양쪽에 저장되지 않음. **최소 버전 번호는 이번 조회에서 미확인** | 재확인 — 버전 서술을 추가하지 않음 |
+| 9 | [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/) | `state` · `plan` · `enforced` · `fallback` migration 문서화. **"1.7+" 도입 버전은 이번 조회에서 미확인** | **채택** — audit-criteria 의 "OpenTofu 1.7+ native encryption" 버전 단정을 제거 |
+| 10 | [SLSA provenance](https://slsa.dev/provenance) | v1.2 Approved. 모든 레포에 L3 를 즉시 FAIL 로 강제할 근거는 아님 | **채택** — 릴리스 워크플로가 실재할 때만 게이트로 승격 |
+| 11 | [Sigstore Cosign attestation](https://docs.sigstore.dev/cosign/verifying/attestation/) | `cosign attest` / `verify-attestation` + CUE/Rego predicate validation. **"v3 bundle/trusted-root" 는 이 URL 로 미확인** | 재확인 — v3 전용 서술을 강화하지 않음 (2026-07-27 판단 유지) |
+
+RED Method 1 차 출처와 SARIF `executionSuccessful` 원문은 이번 하드캡 안에서 확보하지 못해 **미확인**으로 남겼다.
+
+### 실행 증거 — 현행 핀닝 오라클이 이 레포에서 오탐 6 건
+
+기존 `grep` 기반 핀닝 검사를 이 레포 워크플로에 그대로 돌린 결과 **미핀닝 6 건을 전부 0 건으로 보고**했다.
+원인은 `grep -vE 'uses:[[:space:]]*actions/'` 가 GitHub-owned 액션을 정책 질문으로 남기지 않고 조용히
+면제하는 것이다. `jobs.<id>.uses`(재사용 워크플로 호출)는 애초에 열거되지도 않았다.
+
+새 골격을 `infra-test/SKILL.md` 에서 그대로 추출해 fixture 8 종으로 전수 검증했다:
+A 실레포(미핀닝 6)=1 · B 대상 0=3 · C 혼합=1 · D YAML 파손=2 · E 전부 핀닝=0 · F 핵심 도구 부재=2 ·
+G python3 부재=2 · H first-party 면제=0. `bash -n` 0 · `shellcheck` 0.
+
+음성 대조: 핵심 도구 사전 검사를 제거하면 `grep` 부재 환경에서 `grep -q` 가 비영 종료해
+**"checkout 스텝 없음" VIOLATION 을 오보**한다 (실제 관측한 회귀).
+
+### 변경 내역
+
+- `infra-kit/references/gate-result-taxonomy.md` **신설** — infra-kit 안에서 상태어 SSOT. 5 상태
+  (`PASS` / `VIOLATION` / `SKIP_NO_TARGET` / `TOOL_OR_ENV_MISSING` / `EXECUTION_ERROR`) + 검사 시작
+  **전** 출력하는 머리말 4 카운터(대상 수 · 규칙 소스 수 · 사용 가능 도구 수 · 미설치 도구 수) +
+  핵심 도구(`grep`·`python3`)와 선택 도구(`hadolint`·`actionlint`·`kubeconform`·`conftest`·`cosign`·`trivy`)
+  분리 + 재검증 명령 의무. exit 숫자는 `harness/evals/gate-exit-codes.md`, `[미검증]` 임계값은
+  `qa-evaluation-guide.md` 를 **인용만** 하고 재정의하지 않는다. 실행 불완전이 정책 위반을 이긴다
+  (한 run 에 둘 다 있으면 exit 2, 단 세 카운트를 모두 출력).
+- `skills/infra-test/SKILL.md` — Gotcha 11 을 taxonomy 위임형으로 정정, Gotcha 13(핵심/선택 도구 분리) ·
+  14(YAML 파서 핀닝) · 15(Dependabot 생태계 정합) 신설. Step 5 샘플 스크립트를 머리말 4 카운터 +
+  5 상태 + YAML 파서 골격으로 교체하고 first-party 면제를 `PIN_ALLOW_FIRST_PARTY_TAGS` opt-in 으로 표면화.
+- `skills/infra-audit/SKILL.md` — Gotcha 11 을 `[미검증:ENV]` / `[미검증:INVALID]` 4 분기로 정합,
+  Gotcha 12 를 taxonomy SSOT 위임으로 정정. Step 3a 머리말을 4 카운터 포맷으로 교체하고 대상 0 건은
+  표를 만들지 않고 `SKIP_NO_TARGET` 으로 종결. 예시 rule 표에 Dependabot 행 신설.
+- `skills/infra-init/SKILL.md` — Gotcha 13(Dependabot 은 탐지된 생태계만) · 14(핀닝 정책을 조용히
+  정하지 마라) · 15(게이트 스텝은 결과 상태를 구분해 exit 전파) 신설.
+- `skills/infra-guide/SKILL.md` — Gotcha 12(USE × RED 환경 선배제) · 13(OTel 성숙도를 한 문장으로
+  단정 금지) 신설. observability 라우팅 키워드에 "느려요 · 지연 · saturation · USE · RED" 추가.
+- `agents/infra-reviewer.md` — §9 를 Phase 3 canonical 2026-08-13 개정본으로 갱신 (4 분기 ·
+  `UNVERIFIED_ENV` / `UNVERIFIED_INVALID_EVIDENCE` 카운터 분리 · 남용 방지 4 요건 ·
+  `verified_coverage` 0.60 → BLOCKED · verdict 우선순위) + §9b User-Reported Failure Protocol 신설.
+- `references/audit-criteria.md` — `##` 섹션 순서가 리포트 카테고리 순서의 SSOT 임을 명시.
+  원격 `uses:` SHA 핀닝 rule 재작성 + Dependabot 생태계 정합 rule 신설. Observability 를 signal 별
+  판정으로 분해하고 USE 선배제 rule(권장) 추가. 판정 기준에 `[미검증]` 분기와 "도입 전 단계를 FAIL 로
+  강제하지 마라" 를 추가.
+- `references/init-checklist.md` · `references/principle-index.md` — 위 규칙에 맞춰 라우팅·체크리스트 정합.
+- `docs/infra/operations/observability.md` (v0.2.0) — §8 "성능 조사는 환경 요인을 먼저 배제한다
+  (USE × RED)" 신설. 리소스별 saturation/error 지표 표 포함. RED 는 1 차 출처 미확인임을 문서에 명시.
+  Gotchas 에 OTel signal 별 상태 항목 추가.
+
+### 사실 정정 4 종
+
+- **카테고리 순서 드리프트** — `infra-reviewer` 6~10 번이 `audit-criteria.md` SSOT 순서와 어긋나 있었다
+  (Supply Chain / Backup & DR / Deployment / Observability / Cost → SSOT 순서로 정렬).
+- **stale 사본 참조** — `infra-audit` 의 백틱 `references/audit-criteria.md` 2 건이 스킬 디렉토리 기준
+  상대 경로여서 Apr-04 7 카테고리 사본을 가리켰다 (SSOT 는 10 카테고리).
+- **OTel 과잉 단정** — "3 신호 통합" 단일 문장을 signal 별 status 로 분해.
+- **OpenTofu 버전 단정** — "1.7+ native encryption" 은 지정 출처로 확인되지 않아 버전 표기를 제거.
+
+### 경계 준수 — 넣지 않은 것
+
+- **K8s · Gateway API · Karpenter · DRA · service mesh · IDP · FinOps 를 신호 없는 레포의 새 FAIL
+  규칙으로 만들지 않았다.** 해당 인프라가 없으면 N/A 다.
+- **SLSA provenance · Cosign 서명 · SBOM 은 릴리스·배포 워크플로가 실재할 때만 게이트로 승격**하도록
+  두었다. 도입 전 단계를 FAIL 로 강제하지 않는다.
+- **SARIF `executionSuccessful` 은 미반영으로 남겼다** — OASIS SARIF 원문을 확보하지 못했다. 채택하려면
+  원문에서 `invocations[].executionSuccessful` 과 notification 정책을 먼저 확인해야 한다.
+- Cosign v3 전용 플래그와 Terraform ephemeral 최소 버전도 지정 출처로 확인되지 않아 서술을 강화하지 않았다.
+- `pull_request_target` 을 일반 PR 검증 기본값으로 넣지 않았다.
+
+### 다음 사이클 후보 (이번에 미반영)
+
+- **SARIF 채택 여부** — 산출 포맷으로 쓸지 결정하고, 쓴다면 OASIS SARIF 2.1.0 원문으로
+  `executionSuccessful` / notification 정책을 확정할 것.
+- **RED Method 1 차 출처 확보** — `observability.md` §8 이 현재 RED 를 출처 없이 절차 이름으로만 쓴다.
+- **docs 드리프트 게이트** — `docs/infra/` 변경 시 대응 `docs/infra-kit/` HTML 의 존재·등록·갱신을
+  검사할 것. 현재 `validate-post-kaizen.py` 의 HTML 검사는 harness 전용이라 infra 산출물 누락을 막지 못한다.
+- **열린 정책 질문 2 건** — (a) 필수 도구 부재를 즉시 exit 2 로 막을지, `[미검증]` 누적 임계로 막을지
+  (b) GitHub-owned `actions/*` 핀닝 면제를 조직 기본값으로 둘지.
+- `distroless-builder-glibc-mismatch` — 2026-07-27 부터 이월. 여전히 1 차 출처 미확보.
+
+---
 
 ## [2026-07-27] - Phase 8 kaizen
 

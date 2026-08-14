@@ -46,6 +46,9 @@ user-invocable: true
 
 13. **Before/After 대조 감사 — 의도 외 영역 변화는 FAIL** — 변경분(`git diff` 기준)을 감사할 때는 정적 상태만 보지 말고 **요청 범위와 실제 변경 범위를 대조**하라. 요청이 특정 시각 속성 하나를 지목했는데(보더만·색만·간격만) 같은 요소의 background / fill / radius / shadow / spacing / typography 가 함께 변했다면 `Major` FAIL 이다. 승인된 시안·기존 앱 색상이 있는데 프로젝트 토큰이나 기본 팔레트로 치환됐다면 `Major` FAIL 이다 (우선순위 위반). 감사 리포트는 `EVIDENCE` 블록(before / after / proof / 의도 외 영역)으로 닫는다. 상세: `../../references/visual-change-protocol.md`.
 
+14. **Decision Propagation Coverage — 확정 결정이 일부 표면에만 적용된 것은 Major FAIL** — `.design/decisions.yaml` 이 있으면 10 카테고리 감사에 **앞서** 커버리지를 판정한다 (카테고리를 늘리지 않는다 — 전제 조건 검사다). `decision_id` 마다 `required_surfaces[]` 를 순회해 (a) golden 도 user-visible assertion 도 없으면 FAIL (b) **golden 만 있고 visible/count/height assertion 이 없으면 FAIL** (c) `excluded_surfaces` 에 이유 없이 빠진 표면은 커버리지 공백이므로 FAIL 이다. 심각도는 `Major`, 접근성·윤리 결정이면 `Critical` 이다. manifest 자체가 없으면 FAIL 이 아니라 `NO_MANIFEST` 로 보고하고 감사 범위에서 제외한다 — 대상 0 건과 통과는 다르다. 스키마·규칙 4 조·실행 가능한 체커: `../../references/visual-change-protocol.md` §6 Decision Propagation Manifest.
+15. **증거 채널을 명시하라 — `artifact_snapshot` 으로 앱 화면을 판정하지 마라** — 근거로 인용하는 모든 증거에 채널 이름(`artifact_snapshot` / `dom_snapshot` / `browser_user_visible` / `device_user_visible`)을 붙인다. PASS 문장에는 viewport · route/state · visible locator · count/height · screenshot/golden id 5 요소가 있어야 하며, 하나라도 없으면 PASS 가 아니라 `[미검증]` 이다. 채널 정의: `../../references/visual-change-protocol.md` §7 Evidence Channels. 사용자 실패 보고와 자기 증거가 충돌할 때의 규약은 `harness/docs/guides/skill-design-guide.md` §3.8 · `harness/docs/guides/agent-design-guide.md` §10 이 정본이며 여기서 재정의하지 않는다 — 감사 리포트로 사용자 관측을 반박하지 마라.
+
 # Process
 
 ## Step 1: 대상 범위 및 모드 결정
@@ -110,6 +113,8 @@ Agent 도구 호출:
 ## Step 5: 최종 판정
 
 - 모든 카테고리 PASS + 미검증 0 → **APPROVE**
+- **Decision Propagation Coverage FAIL 1 개 이상 → REJECT** (10 카테고리 판정과 별개의 전제 조건 —
+  Gotcha 14. manifest 부재는 FAIL 이 아니라 `NO_MANIFEST` 보고다)
 - Critical FAIL 1개 이상 → **REJECT** (즉시)
 - Major/Minor FAIL만 있음 → **REJECT** + 우선순위별 개선 목록
 - FAIL 0 이지만 **미검증 2 건 이상** → **REJECT** (Gotcha 11 임계값)
@@ -135,5 +140,6 @@ REJECT 리포트 구조:
 
 - `references/audit-criteria.md` — 카테고리별 감사 기준 상세
 - `templates/audit-report.md` — 리포트 출력 포맷
-- `../../references/visual-change-protocol.md` — 시각 변경 우선순위 · 부분 변경 격리 · 증거 블록 (SSOT)
+- `../../references/visual-change-protocol.md` — 시각 변경 우선순위 · 부분 변경 격리 · 증거 블록 · §6 Decision Propagation Manifest · §7 Evidence Channels (SSOT)
+- `harness/docs/guides/skill-design-guide.md` §3.8 · `harness/docs/guides/agent-design-guide.md` §10 — 사용자 실패 보고 우선순위 규약의 정본
 - `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol · §Evidence Validity Gate — 미검증 임계값·유효성 4 검사 정본

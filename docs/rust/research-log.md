@@ -1,9 +1,65 @@
 ---
 version: 1.2.0
-last_updated: 2026-07-27
+last_updated: 2026-08-13
 ---
 
 # Rust Kit Research Log
+
+## [2026-08-13] — Phase 9 kaizen
+
+외부 조회 0 회. 이번 라운드의 유일한 근거는 `.harness/.meta/evidence/phase9.md` (수집 2026-08-13,
+codex foreground) 이며, 아래 서술은 전부 그 파일에 인용된 1 차 출처 기준이다. evidence 에 없는
+버전·URL 은 기록하지 않았다.
+
+### 사실 정정 (문서가 틀렸던 것)
+
+| # | 대상 | 기존 서술 | 정정 |
+| - | ---- | --------- | ---- |
+| 1 | `#[sqlx::test]` | "테스트별 독립 트랜잭션 제공 + 자동 롤백" | **테스트 함수마다 새 테스트 DB 생성 + `migrations` 자동 적용 + 성공 시 정리.** 격리 단위는 트랜잭션이 아니라 DB 다. Postgres/MySQL 은 `DATABASE_URL` 필요 ([sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html)) |
+| 2 | Axum 0.8 발표일 | `2024-12-01` (정정 2026-08-13 전 표기) | **2025-01-01** ([공식 블로그](https://tokio.rs/blog/2025-01-01-announcing-axum-0-8-0)) |
+| 3 | SeaORM `MockDatabase` 의 범위 | "SQL 정합성 검증 못 함" (한계만) | 능력/한계 양면 명시 — `rows_affected` 매핑·control flow·statement log 는 검증 가능, **실제 SQL predicate 의미는 검증 불가** ([SeaORM mock](https://www.sea-ql.org/SeaORM/docs/write-test/mock/)) |
+
+### 버전 현행성 (docs.rs latest 기준, 2026-08-13)
+
+`axum 0.8.9` · `sqlx 0.9.0` · `sea-orm 2.0.1` · `testcontainers 0.28.0`. rust-kit 예시는 각각
+0.8 / 0.8 / 1.1 / 0.27 계열을 전제한다. **강제 업그레이드로 쓰지 않는다** — 표와 해석 규칙을
+`rust-kit/references/project-detection.md` Step 2c 에 SSOT 로 두고, "프로젝트에 고정된 버전이 우선"
+을 명문화했다. `rust-kit/templates/rust-init.toml.template` 은 이번 Phase 의 scope 밖이라
+`sqlx = "0.8"` / `sea-orm = "1.1"` 이 남아 있다 (후속 처리 대상).
+
+### 채택한 인사이트
+
+- **J1 — 프로덕션 `.unwrap()`/`.expect()` 는 `?` 치환이 아니라 타입 설계로 제거한다.** 실측 REJECT
+  `AP-05` (2026-08-12, `personal_records.rs:139,142`) 는 `Option` 이 논리상 불가능한데 타입에 남아
+  생긴 결함이었고, 같은 날 improvement 도 재설계를 권고했다. 수단 5 종(smart constructor ·
+  `NonEmpty` · typestate · `builder` → `built` 분리 · `HashMap::entry` 누적) 을 정리하고
+  ([parse, don't validate](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) ·
+  [nonempty](https://docs.rs/nonempty/latest/nonempty/) · [typestate](https://cliffle.com/blog/rust-typestate/)),
+  강제는 문장이 아니라 `[workspace.lints.clippy]` deny(E3)로 올렸다 — `unwrap_used` ·
+  `expect_used` · `panic` · `panic_in_result_fn` ·
+  [Cargo workspace lints](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-lints-table).
+  **넣지 않은 것**: `unwrap_or_default` 치환 · "더 좋은 메시지의 expect" · broad `#[allow]` ·
+  `clippy::restriction` 그룹 전체 deny. 적용: rust-error §4, rust-init §4a, audit-criteria §2.
+- **J2/D4 — 동시성 가드는 SQL 술어로 막고 음성 대조로 증명한다.** 실측 REJECT `ER-02` 는
+  "가드를 삭제해도 테스트가 통과" 였다. read-check-then-write 를 `UPDATE ... WHERE <기대상태>` 로
+  내리고, 호출부를 함수로 추출해 영향 행 수 0 을 `Conflict` 로 올리며, positive + **stale expected
+  value** negative 쌍을 실 DB(`#[sqlx::test]` / [testcontainers](https://docs.rs/testcontainers/latest/testcontainers/))
+  에서 돌린다. 판정 절차는 재정의하지 않고 `qa-evaluation-guide.md` §Discriminating Evidence Gate 와
+  `contract-schema.md` §음성 대조 를 인용한다. [cargo-mutants](https://mutants.rs/) 는 보조 확인
+  수단이며 결정론적 negative test 를 대체하지 않는다. 적용: 신규 SSOT
+  `rust-kit/references/concurrency-guard-protocol.md` + 5 소비 표면.
+- **J3 — 테스트 타깃 조항은 유지.** `cargo metadata` 타깃 열거(Step 3a) · 무필터 `cargo test --workspace`
+  기본 · 필터 시 `running N tests` 의 N > 0 요구가 직전 사이클에 이미 착지해 있어 신규 문장을
+  추가하지 않고 guard 프로토콜에서 재사용만 했다
+  ([cargo-metadata](https://doc.rust-lang.org/cargo/commands/cargo-metadata.html) ·
+  [cargo-test](https://doc.rust-lang.org/cargo/commands/cargo-test.html)).
+
+### 폐기 사유
+
+- 백그라운드 실행이라 네트워크 도구를 쓰지 않았다. Context7 · WebFetch · WebSearch 0 회.
+- evidence 열린 질문 4 항(템플릿 즉시 업그레이드 여부 · main 초기화 예외 전면 폐지 여부 ·
+  CI 의 Postgres superuser 접근 · cargo-mutants 게이트 범위)은 근거가 부족해 이번 사이클에
+  반영하지 않았다.
 
 ## [2026-07-27] - Phase 9 kaizen
 
@@ -262,7 +318,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 | - | ---- | --- | ---- | ------ | ---- |
 | 1 | Rust Edition 2024 Guide | <https://doc.rust-lang.org/edition-guide/> | 공식 | 높음 | 채택 (기본 edition) |
 | 2 | Rust 1.85/1.88 release blog | <https://blog.rust-lang.org/> | 공식 | 높음 | 채택 |
-| 3 | Axum 0.8 announcement | <https://tokio.rs/blog/2024-12-01-announcing-axum-0-8-0> | 공식 | 높음 | 채택 |
+| 3 | Axum 0.8 announcement | <https://tokio.rs/blog/2025-01-01-announcing-axum-0-8-0> | 공식 | 높음 | 채택 [정정 2026-08-13: 당시 기록한 `2024-12-01-...` URL 은 오기 — 공식 발표는 2025-01-01] |
 | 4 | Axum 0.8 CHANGELOG | <https://github.com/tokio-rs/axum/blob/main/axum/CHANGELOG.md> | 공식 | 높음 | 채택 |
 | 5 | SQLx 0.8 CHANGELOG | <https://github.com/launchbadge/sqlx/blob/main/CHANGELOG.md> | 공식 | 높음 | 채택 |
 | 6 | SeaORM 1.1 docs | <https://www.sea-ql.org/SeaORM/> | 공식 | 높음 | 채택 (MockDatabase) |

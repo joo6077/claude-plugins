@@ -13,7 +13,7 @@ infra-guide 스킬이 카테고리별 원칙 문서 경로를 찾을 때 참조�
 | tls-secrets | TLS, 인증서, cert-manager, Vault, 시크릿 | `docs/infra/security/tls-secrets.md` |
 | backup-dr | 백업, DR, RTO, RPO, PITR, Velero, 장애 복구, etcd | `docs/infra/operations/backup-dr.md` |
 | deployment-strategies | 배포, rolling, blue-green, canary, GitOps, ArgoCD, Flux, Argo Rollouts | `docs/infra/operations/deployment-strategies.md` |
-| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, Alloy, OpenTelemetry, SLO, eBPF profiling | `docs/infra/operations/observability.md` |
+| observability | 모니터링, 로그, 메트릭, 트레이스, Prometheus, Grafana, Alloy, OpenTelemetry, SLO, eBPF profiling, 느려요, 지연, saturation, USE, RED | `docs/infra/operations/observability.md` |
 | incident-response | 인시던트, 장애 대응, 온콜, postmortem, runbook | `docs/infra/operations/incident-response.md` |
 | cost-optimization | 비용, rightsizing, Spot, Reserved, FinOps, FOCUS, shift-left, 태그 | `docs/infra/operations/cost-optimization.md` |
 | service-mesh | Istio, Linkerd, Cilium, eBPF, sidecar, mTLS, 서비스 메시 | `docs/infra/operations/service-mesh.md` |

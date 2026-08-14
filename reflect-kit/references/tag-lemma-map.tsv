@@ -1,0 +1,109 @@
+# reflect-kit — mistake_tag 결정론적 정규화 맵 (실행 SSOT)
+#
+# 이 파일이 정규화 데이터의 유일한 정본이다. 같은 매핑을 스킬 본문이나 훅 스크립트에
+# 다시 적지 마라 — 알고리즘 설명은 references/tag-canonicalization.md, 데이터는 여기다.
+#
+# 형식: kind <TAB> from <TAB> to <TAB> reason
+#   kind=verb          선두 동사 형태소 정규화 (순수 morphology — 의미 판단 없음)
+#   kind=verb-synonym  선두 동사 의미 동의어 (의미 판단 있음 — reason 필수, 실측 근거 요구)
+#   kind=synonym       비선두 세그먼트 표기 정규화 (복수형/철자 변형 — 의미 판단 없음)
+#   kind=alias         전체 태그 키 병합 (감사 대상 — reason 에 실측 근거 필수)
+#
+# 적용 순서: lowercase/kebab 정규화 → verb → verb-synonym → synonym → alias
+# alias 의 from/to 는 **verb/synonym 적용 이후의 lemma key** 로 적는다.
+#
+# 금지: `stale` 계열을 alias 로 묶지 마라. undesired_behavior 와 desired_behavior 가
+#       동일할 때만 alias 이며, remediation 이 다르면 family 로만 보고한다
+#       (references/tag-canonicalization.md §4).
+
+# ── verb: 형태소 정규화 ────────────────────────────────────────────────
+verb	edited	edit	과거형
+verb	editing	edit	진행형
+verb	edits	edit	3인칭
+verb	skipped	skip	과거형
+verb	skipping	skip	진행형
+verb	skips	skip	3인칭
+verb	used	use	과거형
+verb	using	use	진행형
+verb	uses	use	3인칭
+verb	ignored	ignore	과거형
+verb	ignoring	ignore	진행형
+verb	assumed	assume	과거형
+verb	assuming	assume	진행형
+verb	reused	reuse	과거형
+verb	retried	retry	과거형
+verb	retrying	retry	진행형
+verb	called	call	과거형
+verb	calling	call	진행형
+verb	bypassed	bypass	과거형
+verb	masked	mask	과거형
+verb	omitted	omit	과거형
+verb	trusted	trust	과거형
+verb	failed	fail	과거형
+verb	misreading	misread	진행형
+verb	mishandled	mishandle	과거형
+verb	backgrounded	background	과거형
+verb	pursued	pursue	과거형
+verb	answered	answer	과거형
+verb	violated	violate	과거형
+verb	broke	break	과거형
+verb	broken	break	과거분사
+verb	breaking	break	진행형
+verb	kept	keep	과거형
+verb	left	leave	과거형
+verb	created	create	과거형
+verb	deleted	delete	과거형
+verb	added	add	과거형
+verb	applied	apply	과거형
+verb	changed	change	과거형
+verb	chose	choose	과거형
+verb	ran	run	과거형
+verb	wrote	write	과거형
+verb	guessed	guess	과거형
+verb	forgot	forget	과거형
+verb	reported	report	과거형
+verb	claimed	claim	과거형
+verb	patched	patch	과거형
+verb	overwrote	overwrite	과거형
+
+# ── verb-synonym: 의미 동의어 (감사 대상) ──────────────────────────────
+# 근거: 2026-08-13 실측 — api-doc 확인 누락 근본원인 1개가 skipped-/ignored- 두 선두
+# 동사로 갈라져 있었다 (skipped-required-api-doc-check 71 / ignored-required-api-doc-check 7
+# / ignored-external-api-doc-check 4 / ignored-required-api-doc-lookup 2 / ignored-doc-lookup-hook 2).
+# "요구된 절차를 하지 않았다" 는 같은 행동이므로 skip 으로 수렴한다.
+verb-synonym	ignore	skip	요구 절차 미수행 — skipped-/ignored- 실측 분산 15건
+verb-synonym	omit	skip	요구 절차 미수행 — 누락 서술형
+
+# ── synonym: 비선두 세그먼트 표기 정규화 ───────────────────────────────
+synonym	scripts	script	복수형
+synonym	refs	ref	복수형
+synonym	references	ref	복수형+장형
+synonym	reference	ref	장형
+synonym	docs	doc	복수형
+synonym	tests	test	복수형
+synonym	files	file	복수형
+synonym	paths	path	복수형
+synonym	lookups	lookup	복수형
+synonym	checks	check	복수형
+synonym	widgets	widget	복수형
+synonym	subagents	subagent	복수형
+synonym	agents	agent	복수형
+synonym	hooks	hook	복수형
+synonym	pretooluse	pretool	훅 이벤트 표기 변형
+synonym	posttooluse	posttool	훅 이벤트 표기 변형
+
+# ── alias: 전체 키 병합 (감사 대상 — from/to 는 lemma key) ─────────────
+# 근거: 2026-07-27 digest 실측(6 태그 15건) + 2026-08-13 재측정. 전부
+# "외부 API/라이브러리 공식 문서를 확인하지 않고 코드를 썼다" 는 동일 근본원인이고
+# remediation 도 동일(편집 전 docs 조회 증거 확보)이라 alias 조건을 만족한다.
+alias	skip-required-api-doc-lookup	skip-required-api-doc-check	동일 원인 — check/lookup 표기 차이
+alias	skip-external-api-doc-check	skip-required-api-doc-check	동일 원인 — required/external 수식어 차이
+alias	skip-api-doc-check	skip-required-api-doc-check	동일 원인 — 수식어 생략형
+alias	skip-required-doc-lookup	skip-required-api-doc-check	동일 원인 — api 생략형
+alias	skip-required-api-research	skip-required-api-doc-check	동일 원인 — research/doc-check 표기 차이
+alias	skip-doc-lookup-hook	skip-required-api-doc-check	동일 원인 — 훅 경고 무시도 doc 조회 누락
+alias	skip-api-doc-lookup-hook	skip-required-api-doc-check	동일 원인 — 훅 경고 무시도 doc 조회 누락
+alias	missing-official-doc-lookup-for-external-api	skip-required-api-doc-check	동일 원인 — 상태 서술형 표기
+alias	external-api-doc-lookup-skipped	skip-required-api-doc-check	동일 원인 — 어순 도치형
+alias	skip-docs-research-requirement	skip-required-api-doc-check	동일 원인 — 요구사항 서술형
+alias	research-before-edit-ignored	skip-required-api-doc-check	동일 원인 — 어순 도치형

@@ -1,9 +1,123 @@
 ---
-version: 1.2.0
-last_updated: 2026-07-27
+version: 1.3.0
+last_updated: 2026-08-13
 ---
 
 # Backend Kit Research Log
+
+## [2026-08-13] — Phase 7 kaizen
+
+판정: **CHANGED**. 외부 조회 **0 회** — `.harness/.meta/evidence/phase7.md` 가 이번 Phase 의 유일한
+외부 근거이며, 그 파일에 없는 URL·수치는 쓰지 않았다.
+
+이번 신호는 `/insights` 신규 델타 **D4**(read-check-then-write 경합을 앱 레벨이 아닌 SQL 술어로
+해소) 와 2026-08-12 글로벌 REJECT `ER-02` 다. 직전 사이클(2026-07-27) 흡수분(Counterpart
+Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통합테스트 주장 차단)과는 **다른
+축**이라 재승격이 아니다.
+
+### 사전 측정 (실행 결과)
+
+`backend-kit/` + `docs/backend/` 전체 grep 기준:
+
+| 축 | 사전 건수 |
+| ------ | ------ |
+| TOCTOU · read-check-then-write · 조건부 UPDATE · `WHERE EXISTS` · compare-and-swap | **0** |
+| 격리 수준 · `Serializable` · write skew · phantom | **0** |
+| upsert arbiter · partial unique index · `ON CONFLICT` 대조 | **0** (업서트 언급 2 건은 다른 맥락) |
+| 통합 테스트 타깃 증명(결합 · 독립 재작성) | **0** |
+| 핵심 guard 음성 대조 · 판별력 | **0** |
+| 멱등 저장 계약의 key 범위 · payload fingerprint · expiry | **0** (킷 스킬 기준) |
+
+### 데이터 소스
+
+- `.harness/.meta/evidence/phase7.md` — 관찰 사실 3 축(H1/H2/H3) · 권장안 7 항 · **넣지 말 것**
+  6 항 · 트레이드오프 · 열린 질문 4 항
+- `.harness/.meta/kaizen-data-pool.md` §1 — REJECT Top 20 의 `ER-02`(동시성 가드를 삭제해도 통합
+  테스트 통과 · mutation 으로 확정) · `LG-03`(SQL grep 은 되나 증명 테스트 부재),
+  Improvement Top 15 의 "UPDATE 호출부를 별도 함수로 추출"
+- `.claude/kaizen-input/insights-report.md` — 직전 사이클 흡수분 표(재승격 금지) · 신규 델타 **D4**
+  (Phase 7/9 직접 신호). §0 서사에 FCM 토큰 partial unique index 충돌 · feed TOCTOU 의 in-SQL
+  `EXISTS` 해소가 실측 사례로 기록됨
+- Phase 1 산출물 `harness/docs/guides/skill-design-guide.md` §3.7 — Enforcement 3 등급 · 승급 규칙
+- Phase 3 산출물 `harness/docs/guides/qa-evaluation-guide.md` §Discriminating Evidence Gate —
+  판별력 판정 정본 (인용 전용, 재정의 금지)
+- Phase 2 산출물 `harness/references/contract-schema.md` v5.3 §음성 대조 — 계약 측 짝
+
+### 외부 리서치 (evidence 파일 한정)
+
+1. **PostgreSQL — Transaction Isolation** (<https://www.postgresql.org/docs/current/transaction-iso.html> [official]) —
+   `READ COMMITTED` 에서 `UPDATE`/`DELETE`/`SELECT FOR UPDATE` 는 동시 갱신자를 만나면 대기 후
+   **갱신된 row 에 `WHERE` 를 재평가**한다 → 조건부 갱신이 낙관적 가드로 성립하는 근거. 같은 문서가
+   `READ COMMITTED` 에서 복잡한 search condition 은 일관성 판단에 부적합할 수 있다고 경고 →
+   cross-row predicate 를 조건부 UPDATE 로 일반화 금지의 근거. 격리 수준 4 anomaly 분류와
+   "`Serializable` 만 serialization anomaly 를 막는다" 도 여기서 채택.
+2. **PostgreSQL — Explicit Locking** (<https://www.postgresql.org/docs/current/explicit-locking.html> [official]) —
+   `SELECT FOR UPDATE` 는 **반환된 기존 row** 를 잠근다. absence invariant / predicate 전체를 잠그는
+   수단이 아니다 → "모든 TOCTOU 를 `FOR UPDATE` 로" 금지의 근거.
+3. **Berenson et al., A Critique of ANSI SQL Isolation Levels** (<https://sigmodrecord.org/1995/06/06/a-critique-of-ansi-sql-isolation-levels/> [paper]) —
+   Snapshot Isolation 에서 **write skew(A5B)** 가 가능하다는 분류. "SI 면 직렬화된다" 서술 차단.
+4. **PostgreSQL — Partial Indexes** (<https://www.postgresql.org/docs/current/indexes-partial.html> [official]) —
+   partial index 는 predicate 만족 subset 에만 적용되고 플래너가 함의를 인식해야 쓰인다. 일반 정리
+   증명기가 없어 predicate 가 쿼리 `WHERE` 와 정확히 맞아야 하는 경우가 많고 파라미터화된 절은
+   맞지 않을 수 있다.
+5. **PostgreSQL — INSERT** (<https://www.postgresql.org/docs/current/sql-insert.html> [official]) —
+   `ON CONFLICT` unique index inference 는 column/expression + 선택적 `index_predicate` 가 arbiter
+   index 를 만족해야 하며 실패는 에러. `DO UPDATE` 는 conflict target 필수. partial unique index 는
+   `ON CONFLICT (cols) WHERE predicate` 로 맞춰야 한다. `DO NOTHING` 의 target 생략은 "모든 usable
+   constraint 회피" 라 멱등 결과를 보장하지 않는다.
+6. **Idempotency-Key 헤더 draft** (<https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/> [ietf]) —
+   **2026-04-18 만료된 Internet-Draft**. 상태코드 규약 근거로만 쓰고 "표준" 으로 서술 금지 —
+   직전 사이클에 이미 착지한 조항이라 이번엔 재서술하지 않고 유지.
+7. **Stripe — Idempotent requests** (<https://docs.stripe.com/api/idempotent_requests> [vendor]) —
+   멱등 키 · 결과 저장 · **payload 비교** · **24h pruning** 을 문서화. 멱등 계약 6 항목 중
+   key 범위 / fingerprint / replay / different-payload / expiry 의 실무 레퍼런스.
+8. **Testcontainers — Getting started** (<https://testcontainers.com/getting-started/> [official]) —
+   "mock 이나 인메모리 서비스 없이 프로덕션과 같은 실제 서비스에 의존하는 테스트" 설계 원칙.
+   인메모리는 프로덕션 기능을 전부 갖지 못하고 동작이 다르다.
+9. **Pact — Provider verification** (<https://docs.pact.io/provider> [official]) —
+   pact 요청을 **로컬 기동 provider 에 replay** 하고 실제 응답을 비교한다. request body 를
+   추출·검증하기 **전 레이어를 stub 하면 어떤 garbage body 도 통과**한다는 경고가 타깃 증명의
+   stub 위치 규칙 근거. (`pact-verifier` CLI: <https://docs.pact.io/implementation_guides/cli/pact-verifier>)
+10. **PIT — Mutation testing** (<https://pitest.org/> [official]) —
+    fault 를 주입했는데 테스트가 통과하면 mutation 이 살아남은 것이며 테스트가 결함을 잡지 못한다는
+    신호. 핵심 guard 음성 대조의 근거.
+11. **microservices.io — Transactional Outbox** (<https://microservices.io/patterns/data/transactional-outbox.html> [official]) —
+    DB update 와 outbox insert 는 같은 트랜잭션이어야 하고, relay 중복 발행 가능성 때문에 consumer
+    idempotency 가 함께 필요하다 → 아래 사실 정정 2 건의 근거.
+
+### 사실 정정
+
+| 위치 | 이전 서술 | 정정 |
+| ------ | ------ | ------ |
+| `backend-kit/agents/backend-reviewer.md` §Canonical [정정 2026-08-13] | "정본을 **문구 변형 없이 복제**한 것" 이라 선언하면서 v4.0 의 3 분기 · 단일 임계 서술을 유지 | 정본 v5.0(카운터 2 분리 · 임계 2 는 `INVALID` 에만 · `env_gaps` 커버리지 게이트 · 남용 방지 4 요건)으로 재동기화. 조항 1~3 문자 단위 일치 확인 |
+| `docs/backend/research-log.md:151` [정정 2026-08-13] | "Outbox + CDC 조합 … **exactly-once 보장**" | 이중쓰기는 막지만 전달 보장은 **at-least-once**. relay 중복 발행 → consumer idempotency 필수. 같은 킷의 `patterns/event-driven.md` 원칙 4 와 자기모순이었다 |
+| `docs/backend/patterns/event-driven.md:47` | "서버가 **24시간 동안 동일 key 에 대해 같은 응답을 반환**한다" | Stripe 는 결과 저장 + **payload 비교** + **24h pruning** 을 문서화한다. 24 시간은 응답 보장 기간이 아니라 **키 보관 기간**이며, 만료 후 같은 키는 새 요청으로 처리된다 |
+
+### Phase 7 변경 요약
+
+| 파일 | 변경 |
+| ---- | ---- |
+| `backend-kit/references/write-path-integrity-protocol.md` | **신설 SSOT** — §1 invariant 분류 3 유형 · §2 generic transaction advice 금지 + 금지 3 종 · §3 upsert arbiter(스택 무관 + PostgreSQL annex) · §4 멱등 계약 6 항목 · §5 Integration Target Proof + 음성 대조(정본 인용) · §6 outbox at-least-once · §7 안티패턴 · §8 정본 인용 + 등급표 |
+| `backend-kit/skills/backend-audit/SKILL.md` | Gotcha 14~16 신설 (2 SSOT 합집합 · generic transaction 금지 · audit-criteria §8 exactly-once 무효화) + Step 0 DB 엔진 감지 + Step 3 rule 5 건 추가 (26 → 31) + Gotcha 11 · Step 4 판정 규칙을 canonical v5.0 두 카운터 체계로 정렬(`BLOCKED` 추가) |
+| `backend-kit/agents/backend-reviewer.md` | 핵심 규칙 9~11 신설 + rule SSOT 2 파일 명시 + Database/Testing 카테고리 갱신 + 섹션 번호 헤더 → 이름 앵커 (핵심 규칙 번호 충돌 제거) + **Canonical 블록 정본 재동기화** (v4.0 3 분기 → v5.0 `UNVERIFIED_ENV`/`UNVERIFIED_INVALID_EVIDENCE` 4 분기 · 남용 방지 4 요건 복제 · 두 카운터 분리 집계) |
+| `backend-kit/skills/backend-guide/SKILL.md` | Gotcha 17~18 신설 + `write-path-integrity` 카테고리 + Step 2 문서 매핑 예외 |
+| `backend-kit/skills/backend-system/SKILL.md` | Gotcha 16~17 신설 + Step 2 `쓰기 경로 무결성` 규격 카테고리 |
+| `backend-kit/skills/backend-test/SKILL.md` | Gotcha 16~17 신설 (타깃 증명 · guard 쌍 테스트, 전면 강제 금지 포함) + Step 4 positive/negative 표 |
+| `docs/backend/fundamentals/database.md` | 원칙 8·9 신설 (쓰기 경합 invariant 분류 · upsert arbiter) + 안티패턴 3 · Gotcha 2 |
+| `docs/backend/fundamentals/testing.md` | 원칙 8 신설 (실 의존성 ≠ 실 대상) + 안티패턴 1 |
+| `docs/backend/patterns/event-driven.md` | Stripe 멱등 서술 정정 |
+
+### 미반영 (근거 부족 · 범위 밖)
+
+- `backend-kit/skills/backend-audit/references/audit-criteria.md:93` 의 "Outbox+CDC 조합으로 exactly-once 보장 가능" [정정 2026-08-13 대상 · 미반영] 은
+  같은 오류이나 **Phase 7 Scope 밖 경로**라 이번에 고치지 않았다.
+  backend-audit Gotcha 16 으로 무효화 조항을 걸어 두었고, 문구 정정은 downstream 으로 넘긴다.
+- `docs/backend/fundamentals/database.md:78` 의 `ALTER TABLE ... ADD COLUMN` 재작성 조건 서술은
+  PostgreSQL 버전에 따라 달라질 수 있으나 evidence 파일에 근거가 없어 **미반영**. 다음 사이클
+  리서치 대상.
+- evidence §4 열린 질문(DB-specific annex 를 별도 문서로 뺄지)은 이번엔 "PostgreSQL 감지 시"
+  annex 형태로 처리했다 — evidence 의 "넣지 말 것"(스택 무관 본문에 PostgreSQL 전용 문법 필수화
+  금지)을 따른 결과다.
 
 ## [2026-07-27] - Phase 7 kaizen
 
@@ -148,7 +262,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 
 - **Event Sourcing**: 비즈니스 엔티티를 상태 변경 이벤트 시퀀스로 저장. 100% 감사 추적, 시간 여행 쿼리 가능. 단 학습 곡선 높고 CQRS 와 조합 필수.
 - **CDC (Change Data Capture)**: 대부분의 팀에서 실용적 시작점. Debezium 등으로 기존 DB 에서 코드 변경 없이 이벤트 스트리밍. 이후 Outbox 또는 Event Sourcing 으로 점진 이행.
-- **Outbox + CDC 조합**: 비즈니스 테이블과 outbox 테이블에 같은 트랜잭션으로 쓰기 → CDC 로 outbox 읽기 → 메시지 큐 발행. exactly-once 보장.
+- **Outbox + CDC 조합**: 비즈니스 테이블과 outbox 테이블에 같은 트랜잭션으로 쓰기 → CDC 로 outbox 읽기 → 메시지 큐 발행. 이중쓰기(dual write)는 막지만 **전달 보장은 at-least-once** 다 — relay 가 중복 발행할 수 있으므로 consumer idempotency 가 함께 있어야 한다. [정정 2026-08-13] 원문의 "exactly-once 보장" 은 오류다. 같은 문서의 `patterns/event-driven.md` 원칙 4("Exactly-once는 대부분 환상이다")와도 모순이었다. (출처: <https://microservices.io/patterns/data/transactional-outbox.html> [official])
 - **CQRS + Outbox**: 애플리케이션 DB 내 강한 일관성 + CQRS 프로젝션은 eventual consistency.
 - **2026 트렌드**: 고동시성 시스템에서 CQRS + Event Sourcing 이 기본 선택으로 자리잡는 추세.
 - **적용**: backend-system Event-Driven 섹션에 CDC 파이프라인 가이드 추가, backend-event 스킬 backlog 구체화.

@@ -10,7 +10,7 @@ user-invocable: true
 
 ## Gotchas
 
-- **Axum 0.8 path parameter 문법 breaking change** — 0.8부터 `:id` colon 문법이 **완전 제거**되고 `{id}` 중괄호 문법만 지원한다. `.route("/users/:id", ...)` 는 컴파일 에러다. 반드시 `.route("/users/{id}", ...)`로 작성한다. 와일드카드는 `{*rest}`. (Axum 0.8 announcement 2024-12-01, matchit 2.x)
+- **Axum 0.8 path parameter 문법 breaking change** — 0.8부터 `:id` colon 문법이 **완전 제거**되고 `{id}` 중괄호 문법만 지원한다. `.route("/users/:id", ...)` 는 컴파일 에러다. 반드시 `.route("/users/{id}", ...)`로 작성한다. 와일드카드는 `{*rest}`. ([Axum 0.8 announcement](https://tokio.rs/blog/2025-01-01-announcing-axum-0-8-0) — 2025-01-01, matchit 2.x)
 - **Axum 0.8 `#[async_trait]` 제거** — `FromRequest`, `FromRequestParts`, `Handler` 등 핵심 trait이 native `async fn in trait`으로 전환되었다. 사용자 extractor를 구현할 때 `#[async_trait]` 매크로를 **붙이지 말고** `async fn from_request_parts(...) -> Result<Self, Self::Rejection>`를 직접 선언한다. `axum::async_trait` 재수출은 deprecated.
 - **State는 `Router::with_state()`로 주입** — `Extension` 레이어나 글로벌 상태를 쓰지 마라. 타입 안전성이 깨진다. 테스트 시 mock trait object를 주입하려면 `State<Arc<dyn Port>>` 패턴을 사용한다.
 - **`Json<T>` 추출자는 요청 본문을 한 번만 소비** — 한 핸들러에서 `Json`과 `Bytes`를 동시에 추출하거나 두 번 추출하면 컴파일 에러가 난다.

@@ -17,7 +17,7 @@ user-invocable: true
 - 예외 → Failure 변환은 반드시 경계 계층(Repository/DataSource)에서 수행 — Presentation 레이어까지 예외가 새면 안 된다
 - 빈 catch 블록 `catch (e) {}` 금지 — 최소한 `errorProvider.notifier.show(failure)` 호출 필수
 - `catch (e) { print(e); }` 로그만 남기고 UI에 표시 안 하면 사용자는 실패를 모른다 — 반드시 UI 피드백
-- **프로젝트 Result 타입이 Freezed sealed class 기반이면 `.when(success:, failure:)` 가 아니라 Dart pattern matching (switch expression) 으로 분기**하라 — Freezed 3.0 부터 `.when`/`.map` 메서드가 제거됐다. 자체 정의한 커스텀 Result (수동 `when` 메서드 보유) 일 때만 아래 `.when` 예시를 그대로 사용할 수 있다 (출처: Context7 `/rrousselgit/freezed` 2026-04-24 기준 migration_guide.md — `.when/.map → switch expression` 공식 권장)
+- **분기 문법은 프로젝트 관습을 따르되 신규 코드는 Dart pattern matching (switch expression) 우선** — "Freezed 3 부터 `.when`/`.map` 이 제거됐으니 무조건 switch" 는 **낡은 규칙이다.** 제거는 3.0 의 breaking 이었고 **3.1.0 에서 `when`/`map` 이 다시 추가**됐다 (최신 stable 3.2.5). 따라서 (a) 프로젝트가 이미 generated `when`/`map` 을 쓰고 있으면 일관성을 유지하고, (b) 새로 쓰는 곳에서는 switch expression 을 권장하며, (c) `.when` 사용 자체를 결함으로 보고하지 마라. 진짜 결함은 **한쪽 분기 미처리**다 (출처: <https://pub.dev/packages/freezed/changelog>)
 - **가이드형 스킬도 Process Step 순서 고정 (agent §3.5 Binary Decidability 대응)** — 본 스킬은 "에러 처리 패턴 가이드" 이지만 적용 시 **탐색 → 진단 → 처방** 3-Step 순서를 지킨다. (1) 탐색: 프로젝트의 기존 Failure/Error sealed class, Result/Either 타입, 에러 notifier/listener 인프라를 `Grep` + `Read` 로 전수 파악. (2) 진단: 대상 코드의 catch 블록·예외 전파 경로·UI 피드백 누락을 파일:라인 근거로 목록화. (3) 처방: 각 진단 항목에 대해 "Repository 경계에서 Failure 변환" · "Provider 에 저장" · "UI 에서 severity 별 표시" 3 계층 중 어느 위치를 수정할지 명시한 diff 제시. 진단 없이 바로 "이렇게 하세요" 로 넘어가면 기존 인프라와 중복되는 레이어를 또 만들게 된다
 
 # Error Handling 패턴 가이드
@@ -207,7 +207,8 @@ result.when(
 ```
 
 ```dart
-// 패턴 C': Result 가 Freezed sealed class 기반 (Freezed 3.0 에서 .when 제거됨)
+// 패턴 C': Result 가 Freezed sealed class 기반 — 신규 코드 권장 형태.
+// (.when/.map 도 Freezed 3.1.0 부터 다시 쓸 수 있다. 기존 코드가 그 형태면 그대로 둔다)
 final result = await ref.read(someUseCaseProvider)(params);
 if (!mounted) return;
 

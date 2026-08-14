@@ -1,3 +1,9 @@
+---
+title: Contract Design Guide
+version: v5.0
+last_updated: 2026-08-13
+---
+
 # Contract Design Guide
 
 > sprint-contract 스킬이 참조하는 계약 작성 원칙.
@@ -5,7 +11,21 @@
 >
 > **참조 스키마**: `harness/references/contract-schema.md`
 >
-> **최근 갱신: 2026-07-27 (Phase 2 kaizen · v4.0)** — `/insights` 2026-07-27 (51 세션)
+> **최근 갱신: 2026-08-13 (Phase 2 kaizen · v5.0)** — 글로벌 REJECT/improvement
+> 2026-08-11~12 (`AR-04` 4 건 · `ER-02` · `LG-01` · `UI-04`) 를 근거로 **write-once 를
+> 서술에서 결정론적 봉인(E3)으로 승급**했다. 직전 사이클이 amendment 사이드카를 도입했는데도
+> 같은 위반이 재발했으므로, 이번에는 문장을 추가하지 않고 **근본원인 3 개**(규칙이 읽기 측
+> 문서에만 존재 · 준수 경로의 기대 보상이 위반 경로보다 낮음 · 위반을 재는 오라클 부재)를
+> 각각 막았다. 주요 변경:
+> (a) **§계약 봉인 (Write-Once Seal)** 신설 — E1 → E3 승급.
+> (b) **§Amendment 방향 판정** 신설 — direction × consent 2 축 분리 (RC2 해소).
+> (c) **§측정 커버리지** 신설 — 산문↔측정 대상 대조 검출기 (E2, 오탐률 실측 기록).
+> (d) **§인자 매트릭스** 신설 — 조합 케이스 수 수기 오류 + variant 축 중복을 한 패턴으로.
+> (e) **§음성 대조** 신설 — "구현을 지워도 통과하는 측정문" 차단.
+> (f) 조건 작성 preflight 에 QA 모호성 태그 6 종 되먹임.
+> 스키마 v5.2 → v5.3 (`conditions_digest` / `locked_at` · amendment 2 축 · 조건 패턴 3 종).
+>
+> 이전: 2026-07-27 (Phase 2 kaizen · v4.0) — `/insights` 2026-07-27 (51 세션)
 > Friction #4 + reflect-digest 760 엔트리 + 글로벌 REJECT 89 건 분석. 이번 사이클의
 > 방침은 **새 문장 추가가 아니라 enforcement 등급 승급** 이다 (Phase 1
 > skill-design-guide §3.7 등급 사다리 준용). 주요 변경:
@@ -82,9 +102,18 @@ objectively 확인 가능해야 하며, 측정 가능한 값과 구체 행동으
 
 ## 원칙별 Enforcement 등급 (E1 / E2 / E3)
 
-> **규약 출처:** [`skill-design-guide.md §3.7`](skill-design-guide.md) — 등급 정의와 승급 규칙은
-> 그쪽이 SSOT 다. 본 절은 **계약 레이어 원칙이 현재 어느 등급에 있는지**만 기록한다.
-> 용어를 재정의하거나 동의어를 만들지 마라.
+> **규약 출처:** [`skill-design-guide.md §3.7`](skill-design-guide.md) — 등급 정의, 승급 규칙,
+> 초기 등급 선택 기준, 그리고 **설계 가이드 원칙의 등급 원장**은 그쪽이 SSOT 다. 본 절은
+> **계약 레이어 고유 원칙이 현재 어느 등급에 있는지**만 기록한다. 용어를 재정의하거나 동의어를
+> 만들지 마라.
+>
+> **§3.7 등급 원장을 이 표에 복제하지 마라.** 같은 원칙이 두 곳에서 서로 다른 등급을 갖게 되는
+> 순간 승급 판정이 불가능해진다. 아래 표는 **계약 레이어 고유 원칙만** 담고, §3.7 원장에 이미
+> 있는 원칙의 등급값을 행으로 다시 적지 않는다. 원장 원칙의 계약 측 착지점은 아래 대응만 알면
+> 된다 — Pre-Edit Batch Audit → 본 표의 "Pre-Edit Audit (계약 시점)" 행, Counterpart Enumeration
+> → "Counterpart Conditions" 행, Variant Budget → §인자 매트릭스의 variant 용법,
+> User-Reported Failure Gate → 계약 측 착지 없음(평가자 소관 · Phase 3). **이 대응 관계에서
+> 등급을 정하는 쪽은 언제나 §3.7 원장이다.**
 
 계약 원칙도 "문장으로 적었으니 지켜지겠지" 가 통하지 않는다. 실측(reflect-digest 760 엔트리)에서
 `skipped-pre-edit-audit` · `config-command-mismatch` · `complexity-by-file-count` ·
@@ -97,7 +126,7 @@ objectively 확인 가능해야 하며, 측정 가능한 값과 구체 행동으
 | **E2** | 계약 파일에 남는 아티팩트 — 조건 그 자체, 인라인 `측정:` 절, DRAFT 제시 전 출력하는 대조표 |
 | **E3** | LLM 판단 없이 실행되는 결정론적 검사 — 표준형 측정 명령, 저장 직후 헤더 검사 |
 
-### 현재 등급표 (2026-07-27 기준)
+### 현재 등급표 (2026-08-13 기준)
 
 | 원칙 | 등급 | 근거 · 승급 이력 |
 | ---- | ---- | ---------------- |
@@ -113,9 +142,20 @@ objectively 확인 가능해야 하며, 측정 가능한 값과 구체 행동으
 | Counterpart Conditions | E2 (신규) | insights Friction #4 — 조건 2 개로 계약에 박힘 |
 | Preamble–Condition Consistency | E2 (신규) | REJECT RE-02 — DRAFT 자가 대조 |
 | 증거 아티팩트 존재 의무 | E2 (신규) | REJECT UI-06 — 증거 경로가 조건에 남음 |
+| **계약 봉인 (Write-Once Seal)** | **E1 → E3 승급** | REJECT AR-04 2026-08-11 (*"계약 write-once 위반 — 생성자가 자신이 만든 산출물을 사후에 허용하려 계약 AR-04 조건 문구를 직접 편집(5→7 경로)"*). 사이드카(E1 서술)를 도입한 **다음 사이클에 바로 재발**했고 위반을 재는 오라클이 없었다 → `conditions_digest` 결정론적 검사 |
+| Amendment 방향 판정 (direction × consent) | E2 (신규) | REJECT *"amendment A-01은 prompt-log 앵커 부재로 unknown 분류, PASS 근거 불가"* — 두 축이 뭉쳐 있어 준수 경로가 무력화됐다. 집합형은 direction 을 계산해 사이드카에 남김 |
+| 측정 커버리지 대조 | E2 (신규 · **검출기**) | Improvement *"[AR-04] 계약-측정-불일치 — 조건 프로즈(화이트리스트 12항목)와 측정 필드(5개 무관 디렉토리 grep)의 커버리지 갭"*. 실측 오탐률 때문에 blocking 게이트로 올리지 않는다 |
+| 인자 매트릭스 — 조합 케이스 수 산출 | E2 (신규) | REJECT LG-01 (*"3 visibility x 6 relation = 18 케이스 중 15케이스만 재현"*) · LG-01 (*"16종 매핑 … 2종만 검증"*). `cases_total` 수기 입력 금지 |
+| 음성 대조 (Negative Control) | E2 (신규) | REJECT ER-02 — *"mutation test로 확정 — 실제 코드에서 동시성 가드를 완전히 삭제해도 이 테스트는 여전히 통과한다"* |
+| 조건 작성 preflight (QA 모호성 태그) | E1 (신규) | improvement 태그 6 종 반복 (`측정-수단-부재` · `측정-방식-불일치` · `측정-환경-오염` · `측정-산출물-부재` · `검증경로-미기재` · `측정-중복`). 판정에 문맥 해석이 필요하므로 자문 목록으로 시작 |
 
 **개정 규칙:** 같은 결함이 다시 관측되면 이 표의 문구를 다듬지 말고 **등급을 한 칸 올려라.**
 등급을 올릴 수 없으면(이미 E3) 조건 설계 자체가 잘못된 것이므로 원칙을 재작성한다.
+
+**E3 로 올렸다고 끝이 아니다.** 봉인은 조건 문구의 **불변성**만 보장하고 조건이 옳았는지는
+보장하지 않는다. 게이트를 올리면 과차단 비용과 우회 유인이 함께 생기며, **우회된 게이트는 없는
+게이트보다 나쁘다** — 통과 기록이 안전을 오해하게 만들기 때문이다 (skill-design-guide §3.7
+"E3 의 한계"). 그래서 봉인은 체크박스 토글과 서술 편집을 **일부러 통과시킨다.**
 
 ---
 
@@ -604,6 +644,14 @@ Bad:
 - 커밋 후 판정이 전제라면 조건에 `Given: 스테이징 완료 후` 를 쓰고 `--cached` 를 사용한다.
   구현 중 자가 확인이 목적이면 `HEAD` 기준 working tree 를 쓰되 전제를 그렇게 적는다
 - 브랜치 비교(`main...HEAD`) 는 **커밋이 끝난 뒤**에만 유효하다 (LG-07/AR-01 절 참조)
+- **경로 목록은 "기대 집합" 한 곳에서만 관리한다.** 같은 경로 집합을 산문과 측정 명령 양쪽에
+  적으면 한쪽만 고쳐지는 순간 계약이 자기모순에 빠진다. 산문에는 **개수만** 쓰고
+  (`정확히 N 경로로 한정된다`) 열거는 요소 4 에서만 한다 (스키마 §측정 커버리지 표기 의
+  화이트리스트 예외 규정)
+- **판정 기준(working tree / staged / branch diff)을 전역으로 하나 고정하지 않는다.** 실측
+  REJECT 4 건 중 2 건은 커밋 후(`git show --name-only`), 2 건은 미커밋 상태에서 측정됐다 —
+  하나를 강제하면 반대편이 항상 어긋난다. 대신 **조건마다 요소 1(`Given:`)이 상태를 고정하고,
+  그 상태에 맞는 명령을 정확히 1 개만 둔다.**
 
 ##### 증거 아티팩트 존재 의무 (Evidence Artifact Availability)
 
@@ -627,6 +675,181 @@ Bad:  - [ ] UI-06: 최종 시안이 사용자 승인을 받았다 [goal]
       ← 평가 시점에 확인할 대상이 없음 → 판정 불가 → REJECT
 Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approval.md` 에 기록되어 있다
             [structural] (측정: 해당 파일 존재 + 시안 ID 1 건 이상)
+```
+
+### 계약 봉인 — Write-Once Seal (E3)
+
+> **출처:** 글로벌 REJECT `AR-04` 4 건 (fit-pal 2026-08-11) · improvement `[LG-02, LG-04]
+> write-once 계약 원문이 amendment 로 대체된 채 남아있다` (2026-08-12) ·
+> 포맷 정의는 [`contract-schema.md`](../../references/contract-schema.md) §계약 봉인 이 SSOT 다.
+>
+> **현재 등급: E3** (§원칙별 Enforcement 등급 참조)
+
+**계약은 write-once 다.** 사용자 승인 후에는 조건 문구를 고치지 않는다. 바꿔야 하면 사이드카에
+쓴다. 이 규칙 자체는 새 것이 아니다 — 직전 사이클(2026-07-28)이 이미 amendment 사이드카를
+도입했다. 그런데도 **다음 사이클에 바로 재발**했다.
+
+#### 재발한 이유 — 근본원인 3 개
+
+문장을 한 줄 더 추가하면 6 번째 재발이 난다. 실측으로 규명한 원인은 셋이고, **셋을 다 막아야
+끊긴다.**
+
+| # | 근본원인 | 실측 |
+| ------ | ------ | ------ |
+| RC1 | 규칙이 **읽기 측 문서에만** 있었다 | `grep -rn 'write-once'` — `qa-evaluator.md` · `qa-evaluation-guide.md` 에는 있고 **본 가이드와 `sprint-contract/SKILL.md` 에는 0 건**이었다. 본문을 편집한 주체는 REJECT 문구 그대로 "생성자" 인데, 생성자가 읽는 문서에 규칙이 없었다 |
+| RC2 | 준수 경로의 **기대 보상이 위반 경로보다 낮았다** | 같은 날 *"amendment A-01은 prompt-log 앵커 부재로 unknown 분류, PASS 근거 불가"* — 사이드카를 실제로 썼는데 효력이 0 이었다. 다음 시도에서 본문 직접 편집으로 전환됐다 |
+| RC3 | 위반이 **탐지되지 않았다** | 저장 검사 게이트는 헤더와 조건 **개수**만 본다. 문구를 바꿔도 개수가 같으면 통과한다 |
+
+RC1 은 **Cross-Surface Parity 결손**이다 — 이 레포가 이미 이름을 가진 실패 모드다. RC2 는
+§Amendment 방향 판정 이 해소한다. RC3 이 본 절의 대상이다.
+
+#### 규칙
+
+- 사용자 승인 직후 계약을 **봉인**한다: 조건 체크박스 줄만 정규화 해시해 frontmatter
+  `conditions_digest` 와 `locked_at` 에 기록한다 (계산식은 스키마 §계약 봉인).
+- **봉인 이후 조건 줄을 편집하지 마라.** 자신이 만든 산출물을 사후에 허용하려고 조건 문구를
+  넓히는 것이 실측된 위반 형태다.
+- 체크박스 토글과 서술 섹션 보강은 봉인을 깨지 않는다 — **일부러 그렇게 설계했다.** 정상 작업을
+  막는 게이트는 우회되고, 우회된 게이트는 통과 기록으로 안전을 오해하게 만든다.
+- `SEAL_BROKEN` 을 만나면 **조용히 다시 봉인하지 마라.** 그것은 위반을 지우는 행위다.
+  `recorded` / `actual` 두 값과 함께 보고하고, 변경 의도가 정당하면 사이드카로 기록한다.
+- 레거시 계약(봉인 필드 없음)은 `SEAL_ABSENT` 이며 **경고이지 실패가 아니다.** 소급 봉인 금지 —
+  원문이 무엇이었는지 증명할 수 없는 봉인은 봉인이 아니다.
+
+**트레이드오프:** 봉인은 조건 문구의 **불변성**만 보장한다. 조건이 애초에 옳았는지는 보장하지
+않으며, 계약이 실제로 잘못됐을 때 수정 비용을 사이드카 쪽으로 밀어낸다. 그 비용을 감당 가능하게
+만드는 것이 다음 절이다.
+
+### Amendment 방향 판정 — Direction × Consent
+
+> **출처:** REJECT *"amendment A-01은 prompt-log 앵커 부재로 unknown 분류, PASS 근거 불가"*
+> (fit-pal 2026-08-11) · 포맷은 [`contract-schema.md`](../../references/contract-schema.md)
+> §Amendment 사이드카 가 SSOT 다.
+>
+> **현재 등급: E2** — direction 판정 결과가 사이드카에 아티팩트로 남는다.
+
+v5 의 amendment `유형` 은 **강화/완화 방향**과 **사용자 동의 유무**를 한 축에 뭉쳐 놓았다.
+그래서 앵커가 없다는 이유만으로 방향 판정까지 `unknown` 이 되었고, 사이드카를 성실히 쓴
+스프린트가 아무 효력도 얻지 못했다. **준수 경로의 보상이 0 이면 사람은 위반 경로를 택한다** —
+이것이 RC2 다. 두 축을 분리한다.
+
+- **direction 은 PASS 집합의 증감으로 판정한다.** "범위 축소" 라는 말로 판정하지 마라 — 무엇의
+  범위인지에 따라 정반대가 된다. 허용 경로를 줄이면 PASS 집합이 줄어 `narrowing`, 요구 대상을
+  줄이면 PASS 집합이 늘어 `relaxing` 이다.
+- **집합형 조건(경로 화이트리스트 · 파일 열거 · 대상 목록)의 direction 은 자기신고하지 말고
+  계산한다.** 실측 위반(3 경로 → 5 경로)은 계산상 `relaxing added=2 removed=0` 이다 — "범위
+  조정" 이라고 부를 여지가 사라진다.
+- `narrowing` 은 consent 와 무관하게 PASS 근거가 된다. 제약을 **강화**하는 방향이라 남용이
+  구조적으로 불가능하다.
+- `relaxing` 은 사용자 앵커가 있을 때만 PASS 근거다. 승인 주체는 사용자뿐이며 reviewer 확인을
+  추가 요건으로 두지 않는다 (§Cross-Surface Parity item 12 의 착지 구조 — 평가자는 계약에 없는
+  요구를 만들지 않는다).
+- **앵커가 없으면 `unanchored` 라고 쓰는 것이 정답이다.** 앵커를 지어내면 `narrowing` 까지 함께
+  무효가 된다.
+
+**트레이드오프:** `narrowing · unanchored` 를 PASS 근거로 허용하면, 방향 판정을 잘못한
+amendment 가 통과할 여지가 생긴다. 그래서 집합형은 **계산**을 요구하고, 계산이 불가능한
+서술형 amendment 는 `unknown` 으로 남겨 표면화한다.
+
+### 측정 커버리지 — 산문이 요구한 것과 측정이 훑는 것 (E2 검출기)
+
+> **출처:** improvement *"[AR-04] 계약-측정-불일치 — 조건 프로즈(화이트리스트 12항목)와 측정
+> 필드(5개 무관 디렉토리 grep)의 커버리지 갭. 측정 필드에 화이트리스트 개별 대조를
+> 포함시켜라"* (2026-08-12). 요구사항마다 검증 접근을 식별하고 trace 가 parent requirement 를
+> "fully addresses" 하는지 **독립 평가**하라는
+> [NASA verification matrix](https://www.nasa.gov/reference/appendix-d-requirements-verification-matrix/)
+> · [NASA 요구사항 관리](https://www.nasa.gov/reference/6-2-requirements-management/) 규약과 같은 문제다.
+>
+> **현재 등급: E2 (검출기)** — 자동 FAIL 판정기가 아니다.
+
+검증 수단을 적었는지(§검증 수단 명시 의무)와 그 수단이 **조건이 요구한 대상 전부를 훑는지**는
+다른 문제다. 후자를 재지 않으면 "측정 방법을 명시하고도 엉뚱한 것을 잰" 계약이 통과한다.
+
+**규칙** — `enumerated` 조건은 산문 측 대상과 측정 측 대상을 **같은 표기**(백틱 · 공백 없는
+토큰)로 적는다. 상위 패턴 하나로 여러 대상을 덮을 때는 **작성 시점에 그 명령을 1 회 실행해
+확장 결과를 측정 절에 열거**한다. 실행하지 않은 커버리지 주장은 추측이다. 표기 규약과 검출기
+스니펫은 스키마 §측정 커버리지 표기 가 SSOT 다.
+
+**왜 blocking 게이트가 아닌가 (실측)** — 2026-08-13 에 이 레포 계약 109 개(`enumerated` 조건
+114 개)에 검출기를 걸었다.
+
+| 검출기 변형 | flagged |
+| ------ | ------ |
+| 나이브 (백틱 토큰 전부 · 1 개 이상) | **76 / 114** |
+| 경로형 토큰 · 2 개 이상 | **29 / 114** |
+
+표본을 열어 보면 상당수가 "상위 명령이 실제로 덮는" 정당 케이스이거나, 백틱 토큰이 대상이
+아니라 조건의 **주어**(대상 파일 자체)인 경우다. 오탐이 이 정도면 자동 FAIL 은 정상 계약을
+막는다. lexical ambiguity linter 를 자동 판정기가 아니라 **"검출기 + 사람의 해소 기록"** 으로
+써야 한다는 [SREE 의 접근](https://cs.uwaterloo.ca/~dberry/ambig.in.RSs.html)과 같은 결론이다 —
+lexical scope 에서 recall 을 높이고 false positive 는 사람이 판단한다.
+
+따라서 `UNCOVERED` 1 건마다 **(a) 조건을 고치거나 (b) 서술 절에 해소 기록 한 줄**을 남긴다.
+
+### 인자 매트릭스 — Factor Matrix
+
+> **출처:** REJECT `LG-01` *"3 visibility x 6 relation = 18 케이스 중 15케이스(5 relation)만
+> 재현. GroupMemberAndFollower 관계가 전체 누락"* · `LG-01` *"16종 매핑 단위 테스트 커버리지
+> 부족 (2종만 검증)"* · `UI-04` *"B3(단일 컬럼)과 B6(조밀 로그)이 계약 지정 4축 전부에서
+> 동일값"* (전부 2026-08-11~12) ·
+> [NIST Combinatorial Testing](https://csrc.nist.gov/Projects/automated-combinatorial-testing-for-software/faqs)
+> · [Combinatorial coverage measurement](https://www.nist.gov/publications/combinatorial-coverage-measurement)
+>
+> **현재 등급: E2** (조합 케이스 수 산출). variant 용법의 등급은 `skill-design-guide.md`
+> §3.7 등급 원장의 Variant Budget 행이 정한다 — 여기서 재정의하지 않는다.
+
+축이 **2 개 이상**이고 그 곱이 조건의 의미를 결정할 때만 쓴다. 축 하나짜리 조건이나 작은
+변경에 강요하면 과잉 절차다.
+
+- 축과 축 값을 조건에 열거하고, 값의 **출처를 코드의 공유 상수/enum** 으로 지정한다. 테스트가
+  값을 재입력하면 다시 어긋난다 (improvement: *"audience_matrix.rs 의 6 relation 을
+  feed_integration.rs 가 상수/enum 으로 재사용해 … 기계적으로 순회하게 만들면 수 불일치 재발
+  방지"*).
+- **`cases_total` 을 손으로 적지 마라.** 곱을 산출하는 명령을 조건에 적고 그 출력을 쓴다.
+  사람이 옮겨 적는 숫자 필드는 이 가이드가 이미 `conditions:` 에서 3 회 연속 틀린 형태다.
+- 기본은 **full Cartesian**. pairwise 로 낮추려면 곱셈 결과와 사유를 서술 절에 적고 사용자
+  승인을 받는다. 임계 숫자를 지어내지 않는다. combinatorial coverage 는 statement/branch
+  coverage 와 **다른** 정적 test-set 속성이므로, 기존 커버리지 수치로 대체할 수 없다.
+
+**두 번째 용법 — variant 구별성.** 탐색형 스프린트(시안 · 목업 · 변주)는 같은 매트릭스를
+variant 쪽에 쓴다. variant 마다 축 값 조합을 `[exact, enumerated]` 로 열거하고 **동일 조합이
+2 개 이상이면 FAIL** 이다. 축을 지정하는 것만으로는 부족하다 — `UI-04` 는 계약이 4 축을
+지정했는데도 두 variant 가 4 축 전부 동일값이었다. 스킬 측 짝은 `skill-design-guide.md`
+§5.6 Variant Budget 의 Variant Matrix 이며, 계약은 그 매트릭스를 **조건으로** 받는다.
+
+### 음성 대조 — Negative Control
+
+> **출처:** REJECT `ER-02` *"신규 통합 테스트가 실제 바이너리를 호출하지 않고 독립적으로
+> 재작성한 SQL로 낙관적 동시성의 일반 동작만 검증한다. **mutation test로 확정 — 실제 코드에서
+> 동시성 가드(WHERE exercises = $3::jsonb)를 완전히 삭제해도 이 테스트는 여전히 통과한다**"*
+> (2026-08-12) · 동형 `LG-01` · `LG-03`.
+>
+> **근거의 성격:** 이 조항의 근거는 **이 레포의 실측 REJECT 코퍼스**다. 외부 문헌 앵커는 이번
+> 사이클에 확보하지 못했으므로 인용하지 않는다.
+>
+> **현재 등급: E2** — 음성 대조 절이 조건에 아티팩트로 남는다.
+
+측정 명령이 존재하고(§검증 수단 명시 의무) 의미도 맞는데(§측정 명령 타당성) **구현과 결합되어
+있지 않은** 경우가 있다. 구현을 통째로 지워도 측정이 통과하면 그것은 oracle 이 아니다.
+
+**적용 범위 (한정)** — 조건이 **테스트·실행 산출물로 판정**될 때만 필수다. 파일·섹션 존재를
+보는 `[structural]` 조건에는 적용하지 않는다 — 대상을 지우면 자명하게 실패하므로 무의미하고,
+전 조건에 강요하면 계약 작성 비용만 오른다.
+
+**규칙:**
+
+- 조건에 `음성 대조:` 절을 넣고 **어느 구현 지점을 무력화하면 그 측정이 FAIL 하는지** 적는다.
+- 측정이 구현을 **직접** 호출하는지 확인한다. 테스트가 로직을 재작성해 검증하면 결합이 없다 —
+  바이너리·함수·쿼리를 그대로 호출하는 경로로 바꾼다 (improvement: *"UPDATE 호출부를 main()에서
+  별도 함수로 추출해 … 실제 스킵 카운터가 증가하는 것을 관찰하는 형태로 재작성하라"*).
+- 작성 시점에 음성 대조를 실제로 돌릴 수 없으면 **그 사실을 조건에 적는다.** "돌렸다" 고 적지 마라.
+
+```text
+Bad:  - [ ] ER-02: 낙관적 동시성 가드에 대한 테스트가 존재하고 통과한다 [structural]
+      ← 구현을 지워도 통과하는 테스트가 이 조건을 만족시킨다
+Good: - [ ] ER-02: 낙관적 동시성 가드가 conflict 경로를 실제로 막는다 [goal]
+            (측정: 대상 행을 사전 변형한 뒤 실제 바이너리를 호출해 skipped 카운터 증가 관찰 ·
+             음성 대조: 가드 술어를 제거하면 이 측정이 FAIL 해야 한다)
 ```
 
 ### 형제 스킬 일관성 (Sibling Consistency)
@@ -816,6 +1039,11 @@ sprint-contract 실행 완료 후 다음 항목을 자가 점검한다:
 | diff_oracle_nonstandard | 변경 범위 조건이 Diff-Scope Oracle 표준형 4 요소(상태 전제/경로 한정/생성물 제외/기대 집합)를 다 채웠는가? |
 | evidence_artifact_missing | `[goal]` 조건이 참조하는 증거 기록물의 경로가 조건에 명시되었는가? |
 | section_header_unclassified | 조건 섹션도 서술 섹션도 아닌 헤더가 있거나, 서술 섹션에 `- [ ]` 조건이 들어갔는가? |
+| contract_seal_missing | 사용자 승인 후 `conditions_digest` / `locked_at` 을 기록하고 검증 출력을 인용했는가? |
+| measurement_coverage_gap | `enumerated` 조건에서 검출기가 `UNCOVERED` 를 낸 건마다 수정 또는 해소 기록을 남겼는가? |
+| factor_matrix_missing | 2 개 이상 축의 곱이 의미를 결정하는 조건에 축·축 값·`cases_total` 산출 명령이 있는가? |
+| negative_control_missing | 테스트 통과를 요구하는 조건에 `음성 대조:` 절이 있는가? |
+| amendment_direction_uncomputed | 집합형 amendment 의 direction 을 자기신고하지 않고 집합 비교로 계산했는가? |
 
 ### 모호성 분류 (Ambiguity Taxonomy)
 
@@ -826,6 +1054,19 @@ sprint-contract 실행 완료 후 다음 항목을 자가 점검한다:
 | 어휘적 (Lexical) | 단어 자체가 여러 의미 | "처리한다", "관리한다" | 구체 동사로 대체 ("반환한다", "저장한다") |
 | 구문적 (Syntactic) | 문장 구조가 여러 해석 허용 | "A와 B를 포함하는 C" | 분리하여 각각 명시 |
 | 의미적 (Semantic) | 도메인 맥락 없이 해석 불가 | "적절한 응답" | 구체적 상태 코드/값으로 명시 |
+
+이 3 분류는 **조건 문장**의 모호성을 본다.
+[Tjong/Berry 의 lexical / syntactic / semantic 분류](https://cs.uwaterloo.ca/~dberry/FTP_SITE/tech.reports/TjongThesis.pdf)
+는 이 guiding rules 를 inspection checklist 로 쓸 수 있다고 본다. **자동 판정기로 쓰지 마라** —
+LLM 에게 "이 조건 모호한가?" 만 묻는 게이트는 판정 근거를 남기지 않는다.
+
+#### 측정 모호성 — QA 태그의 되먹임 (v5.0 추가)
+
+평가자가 improvement 에 반복해 붙이는 태그는 **작성 단계에서 미리 잡을 수 있는 결함 목록**이다.
+문장이 아니라 **측정** 쪽 모호성을 본다는 점에서 위 3 분류와 다르다. 6 항의 자문 목록과 예시는
+[`contract-schema.md`](../../references/contract-schema.md) §조건 작성 preflight 가 SSOT 다 —
+여기서 표를 복제하지 않는다. 실측 태그: `측정-수단-부재` · `측정-방식-불일치` ·
+`측정-환경-오염` · `측정-산출물-부재` · `검증경로-미기재` · `측정-중복`.
 
 ### 교차 진단 프로토콜
 
@@ -861,7 +1102,7 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 하위 **qa-evaluation-guide · sprint-contract SKILL.md · qa-evaluator 에이전트** 에
 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
 
-### 계약 설계에 전수된 parity items (5 개)
+### 계약 설계에 전수된 parity items (7 개)
 
 | # | Parity Item | skill-design-guide 위치 | agent-design-guide 위치 | **contract-design-guide 대응 위치 (이 가이드)** |
 | --- | ------------- | ------------------------ | ------------------------ | ------------------------------------------------ |
@@ -870,6 +1111,8 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 | 3 | 미검증 항목 정책 | — (스킬 전용 아님) | §10 Unverifiable 조건 정책 | **§조건 작성법 > "검증 수단 명시 의무" (3 단계 fallback)** |
 | 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (등급 정의 · 승급 규칙 — SSOT) | §6 패턴 7 (훅 = E3 게이트) | **§원칙별 Enforcement 등급 (계약 원칙 현재 등급표)** |
 | 12 | Counterpart Enumeration | §5.5 (변경의 반대편 열거) | — (평가자는 계약 조건으로 수용) | **§조건 작성법 > "양면 조건 — Counterpart Conditions"** |
+| 13 | Variant Budget ↔ Exploration Budget | §5.6 (산출물 개수·축 고정) | §7 (탐색 turn 예산) — **구분 대상** | **§조건 작성법 > "인자 매트릭스" 의 variant 용법** (축 값 조합 중복 = FAIL) |
+| 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — 평가자 측) | — (계약 측 착지 없음. 완료 판정 시점의 규약이라 **평가 레이어 소관** — Phase 3) |
 
 > 두 가이드의 item 1 · item 4 (rule-by-rule audit) 는 contract 가이드에
 > 해당 위치 없이 qa-evaluation-guide 로 위임된다 (중복 배제).
@@ -879,9 +1122,19 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 > 계약에 박힌 Counterpart 조건을 일반 조건으로 판정하면 되고, 별도 평가 규칙을 두면 계약에
 > 없는 요구를 평가자가 만들어내게 된다. 따라서 이 원칙의 유일한 강제 지점은 **계약 작성자**다.
 >
-> **item 11 의 착지 구조**: 등급 정의·승급 규칙은 skill-design-guide §3.7 이 SSOT 이고, 본
-> 가이드는 계약 원칙의 **현재 등급 목록**만 유지한다. 등급 어휘(E1/E2/E3)를 재정의하거나
-> 동의어를 만들지 마라.
+> **item 11 의 착지 구조**: 등급 정의·승급 규칙·**등급 원장**은 skill-design-guide §3.7 이
+> SSOT 이고, 본 가이드는 **계약 레이어 고유 원칙의 등급 목록**만 유지한다. 등급 어휘(E1/E2/E3)를
+> 재정의하거나 동의어를 만들지 말고, 원장에 있는 원칙의 등급값을 계약 등급표에 다시 적지 마라.
+>
+> **item 13 의 착지 구조**: skill-design-guide §5.6 은 **생성 측**(산출물 개수 상한 · 축 고정 ·
+> Variant Matrix 아티팩트)을, 본 가이드 §인자 매트릭스는 **계약 측**(축 값 조합을 조건으로 열거 ·
+> 중복 조합 FAIL)을 담당한다. agent-design-guide §7 "Exploration Budget" 은 이름만 비슷한 **다른
+> 개념**(탐색 turn 예산)이며 계약 측 대응이 없다 — 두 이름을 섞지 마라.
+>
+> **item 14 는 계약 측 착지가 없다.** `REOPENED` 는 **완료 판정 시점**의 상태어이므로 계약 작성
+> 레이어가 아니라 평가 레이어(qa-evaluator · qa-evaluation-guide)에 착지한다. 계약에
+> "사용자가 깨졌다고 하면 REOPENED" 같은 조건을 만들면, 평가 시점에 읽을 대상이 없는
+> 조건이 되어 §증거 아티팩트 존재 의무 위반이 된다.
 
 ### 개정 시 체크리스트
 
@@ -900,6 +1153,11 @@ contract-design-guide.md 를 편집할 때:
 - **RE-02 (fit-pal, 2026-07-22)**: 계약 preamble 이 단방향 설계를 서술했는데 조건은 양방향 함수를 literal 로 열거 → 구현은 preamble 을, 평가는 조건을 따라 REJECT (v4 Preamble–Condition Consistency 로 해소)
 - **AR-01 (fit-pal-app, 2026-06-11 / 2026-06-29 / 2026-07-21)**: 변경 범위 조건의 `git diff` oracle 이 상태 전제·경로 한정·생성물 제외 없이 작성되어 3 회 REJECT/재확인 권고 (v4 Diff-Scope Oracle 표준형으로 해소 · E1 → E3 승급)
 - **UI-06 / UI-07 (fit-pal-app, 2026-07-13)**: goal 조건의 증거 기록물이 존재하지 않아 판정 불가 / `[exact]` 조건에 명시된 widget test 미제출 (v4 증거 아티팩트 존재 의무 · 산출물 동반 제출 규칙으로 해소)
+- **AR-04 (fit-pal, 2026-08-11 · 4 건)**: 경로 화이트리스트 위반이 연속 발생하고, 그중 1 건은 **생성자가 계약 조건 문구를 사후 편집**(5→7 경로)해 위반을 소거하려 한 write-once 위반. 직전 사이클의 사이드카(E1 서술) 도입 **다음 사이클에 재발** (v5.0 계약 봉인 E3 로 해소 — 근본원인 3 개를 각각 차단)
+- **amendment A-01 (fit-pal, 2026-08-11)**: 사이드카를 성실히 썼는데 prompt-log 앵커가 없어 `unknown` 으로 분류되어 PASS 근거가 되지 못했다. 준수 경로의 보상이 0 이 되어 다음 시도의 본문 직접 편집을 유발 (v5.0 direction × consent 2 축 분리로 해소)
+- **LG-01 (fit-pal, 2026-08-11~12)**: `3 visibility x 6 relation = 18` 중 15 케이스만 재현 / 16 종 매핑 중 2 종만 검증 — 조합 케이스 수를 사람이 옮겨 적었다 (v5.0 인자 매트릭스로 해소)
+- **UI-04 (fit-pal, 2026-08-12)**: 계약이 4 축을 지정했는데도 두 variant 가 4 축 전부 동일값 — 축 지정만으로는 구별성이 보장되지 않는다 (v5.0 인자 매트릭스 variant 용법으로 해소)
+- **ER-02 (fit-pal, 2026-08-12)**: 측정문은 통과하는데 **구현을 완전히 삭제해도 통과**하는 테스트였다 (mutation test 로 확정). 측정 수단·의미·전제를 다 갖춰도 구현과 결합되지 않으면 oracle 이 아니다 (v5.0 음성 대조로 해소)
 
 ### Downstream 전파 범위
 
@@ -910,8 +1168,19 @@ contract-design-guide.md 를 편집할 때:
 - `harness/docs/guides/qa-evaluation-guide.md` — 평가 방법론 (대응 원칙)
 - `harness/agents/qa-evaluator.md` — 평가 절차
 
+**2026-08-13 시점 미착지 (Phase 3 소관):** 계약 봉인의 **평가 시점 검사**와 amendment 의
+**2 축 해석**은 위 두 평가자 표면에 아직 반영되지 않았다. 계약 작성 측(본 가이드 ·
+`sprint-contract/SKILL.md` · `contract-schema.md`)만 이번 사이클 scope 였다. 평가자가
+`verify_seal` 을 돌리지 않으면 봉인은 **작성·이어작업 시점에만** 검사되며, `SEAL_BROKEN` 이
+verdict 에 반영되지 않는다.
+
 ### 버전 정보
 
-- **Guide version**: 2026-07-27 (Phase 2 kaizen · v4.0)
-- **Schema version**: v4 (contract-schema.md)
-- **Parity with**: skill-design-guide v1.4.0, agent-design-guide v1.5.0
+값을 손으로 옮겨 적지 마라 — 아래 3 행은 원본 파일에서 추출해 채운다 (drift 실측: 2026-08-13
+시점에 Schema version 이 `v4` 로 남아 있었고 실제 스키마는 v5.2 였다).
+
+| 항목 | 값 | 원본 |
+| ------ | ------ | ------ |
+| Guide version | 2026-08-13 (Phase 2 kaizen · v5.0) | 이 파일 YAML frontmatter 의 `version` (= `v5.0`) 이 SSOT — 날짜·사유만 이 행에 적는다. 상위 surface(`qa-evaluation-guide.md` §버전 정보 Parity)가 그 필드를 추출하므로 **둘을 같이 올린다** |
+| Schema version | v5.3 | `harness/references/contract-schema.md` §스키마 버전 > `현재:` |
+| Parity with | skill-design-guide 1.5.0 · agent-design-guide 1.6.0 | 두 가이드 frontmatter `version` |

@@ -10,7 +10,7 @@
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
   --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
   --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
-  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#38bdf8;
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
 }
@@ -43,6 +43,7 @@ h1{font-size:clamp(2.1rem,4vw+1rem,3.6rem);font-weight:800;line-height:1.1;lette
 .section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
 .section-title{font-size:clamp(1.45rem,2.5vw,2rem);font-weight:700;line-height:1.2;margin-bottom:8px}
 .section-desc{font-size:0.95rem;color:var(--text2);max-width:790px;line-height:1.75;margin-bottom:32px}
+.sub-title{font-size:1.1rem;font-weight:700;margin:34px 0 8px}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
   padding:26px;transition:var(--transition);margin-bottom:16px}
@@ -50,7 +51,7 @@ h1{font-size:clamp(2.1rem,4vw+1rem,3.6rem);font-weight:800;line-height:1.1;lette
 .card-title{font-size:1.02rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:0.9rem;color:var(--text2);line-height:1.75}
-.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;font-weight:600;
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;margin-right:8px;font-size:11px;font-weight:600;
   color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:6px 12px;
   min-height:24px;transition:var(--transition)}
 .card-source:hover{background:var(--accent);color:var(--bg)}
@@ -72,7 +73,10 @@ tbody tr:hover{background:rgba(232,150,90,0.05)}
 
 code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent2)}
 .code-block{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;padding:16px 18px;overflow-x:auto;line-height:1.65;color:var(--text2);white-space:pre;display:block;margin:10px 0}
+  border-radius:10px;padding:16px 18px;overflow-x:auto;max-width:100%;line-height:1.65;color:var(--text2);
+  white-space:pre;display:block;margin:10px 0}
+pre{overflow-x:auto;max-width:100%}
+.code-cap{font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.04em;margin-top:2px}
 
 /* PRECEDENCE LADDER */
 .prec{display:flex;flex-direction:column;gap:10px;margin:20px 0}
@@ -94,7 +98,7 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 
 .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
 @media(max-width:760px){.compare{grid-template-columns:1fr}}
-.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative}
 .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
 .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
 .compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
@@ -108,6 +112,24 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 .warn{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:22px;margin:18px 0}
 .warn-title{font-size:13px;font-weight:800;color:var(--yellow);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
 .warn p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.note{background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.22);border-radius:12px;padding:22px;margin:18px 0}
+.note-title{font-size:13px;font-weight:800;color:var(--blue);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px}
+.note p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:0.06em;
+  padding:4px 10px;border-radius:999px;background:var(--accent-dim);color:var(--accent);text-transform:uppercase}
+.pill.e2{background:rgba(74,222,128,0.14);color:var(--green)}
+.pill.gate{background:rgba(56,189,248,0.14);color:var(--blue)}
+
+.chan{display:flex;flex-direction:column;gap:12px;margin:18px 0}
+.chan-row{display:grid;grid-template-columns:200px 1fr;gap:18px;padding:18px 20px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius)}
+.chan-row>*{min-width:0}
+@media(max-width:760px){.chan-row{grid-template-columns:1fr;gap:10px}}
+.chan-name{font-family:var(--mono);font-size:0.82rem;font-weight:700;color:var(--accent2);line-height:1.5}
+.chan-body p{font-size:0.88rem;color:var(--text2);line-height:1.7}
+.chan-body .no{color:var(--text3);margin-top:6px}
+.chan-strength{display:block;font-size:10px;color:var(--text3);margin-top:6px;letter-spacing:0.08em}
 
 .footer{margin-top:60px;padding:32px 0 12px;border-top:1px solid var(--border)}
 .footer h3{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
@@ -122,14 +144,14 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
    내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
 /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. .code-block(white-space:pre)
        의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
-.grid-2>*,.grid-3>*,.compare>*,.prec-row>*{min-width:0}
+.grid-2>*,.grid-3>*,.compare>*,.prec-row>*,.chan-row>*{min-width:0}
 /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다. */
 .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
 .table-wrap>table{min-width:max-content}
 /* (3) 인라인 코드는 어디서든 줄바꿈 (.code-block 은 자체 overflow-x:auto 로 스크롤). */
 :not(.code-block)>code:not(.code-block){overflow-wrap:anywhere}
 </style>
-  <!-- kaizen-cycle: 2026-07-27 (신규 SSOT — 시각 진실 우선순위 · 부분 변경 격리 · 증거 블록 · 승인 기록) -->
+  <!-- kaizen-cycle: 2026-08-13 (§5 Variant Contract Matrix · §6 Decision Propagation Manifest · §7 Evidence Channels 추가) -->
 </head>
 <body>
 <div class="page">
@@ -139,20 +161,25 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
   <h1>Visual Change Protocol</h1>
   <p class="subtitle">design-kit 내 <strong>시각 산출물을 만들거나 바꾸는 스킬</strong>(design-mockup · design-system · design-guide · design-audit · design-test)이 공유하는 SSOT. 각 스킬은 이 문서를 Gotcha 한 줄로 인용하며, 여기 정의된 임계값·용어를 자기 문서에서 다시 정의하지 않는다.</p>
   <div class="hero-meta">
-    <span>2026-07-27 신설</span>
-    <span>4 개 절 · 시각 작업 공통 규약</span>
+    <span>2026-07-27 신설 · 2026-08-13 확장</span>
+    <span>7 개 절 · 시각 작업 공통 규약</span>
+    <span>실행 가능한 게이트 2 종</span>
   </div>
 </div>
 
 <!-- SCOPE -->
 <div class="section">
   <div class="section-label">Scope</div>
-  <div class="section-title">적용 대상 스킬 5 종 · 4 개 절</div>
-  <p class="section-desc">design-kit 내 시각 산출물을 만들거나 바꾸는 스킬이 이 문서를 공유한다. 각 스킬은 <strong>Gotcha 한 줄로 이 문서를 인용</strong>하고, 임계값·용어를 자기 문서에서 다시 정의하지 않는다.</p>
+  <div class="section-title">적용 대상 스킬 · 7 개 절</div>
+  <p class="section-desc">design-kit 내 시각 산출물을 만들거나 바꾸는 스킬이 이 문서를 공유한다. 각 스킬은 <strong>Gotcha 한 줄로 이 문서를 인용</strong>하고, 임계값·용어를 자기 문서에서 다시 정의하지 않는다. §5 는 비교안을 만드는 스킬에만, §6 은 결정 전파를 판정하는 스킬에만 적용된다.</p>
   <div class="grid-3">
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-mockup</code></div>
-      <p>하이파이 HTML 시안 생성 — §1 승인 시안 값, §4 승인 기록의 주 생산자다.</p>
+      <p>하이파이 HTML 시안 생성 — §1 승인 시안 값, §4 승인 기록의 주 생산자다. <strong>§5 Variant Contract Matrix 적용 대상</strong>.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-concept</code></div>
+      <p>컨셉 방향 정의 — 비교용 컨셉 안을 여러 개 만든다. <strong>§5 Distinctiveness Gate 적용 대상</strong>.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-system</code></div>
@@ -163,17 +190,27 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
       <p>UI 코드 가이드 — 부분 변경 요청을 §2 로 처리한다.</p>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span><code>design-audit</code></div>
-      <p>카테고리별 PASS/FAIL 감사 — §2 의 "의도 외 변경" 을 FAIL 로 판정한다.</p>
+      <div class="card-title"><span class="dot"></span><code>design-audit</code> · <code>design-reviewer</code></div>
+      <p>카테고리별 PASS/FAIL 감사 — §2 의 "의도 외 변경" 을 FAIL 로 판정하고, <strong>§6 커버리지</strong>를 판정한다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-test</code></div>
-      <p>디자인 품질 테스트 생성 — §3 증거 유효성 4 검사의 측정 수단을 만든다.</p>
+      <p>디자인 품질 테스트 생성 — §3 증거 유효성 4 검사의 측정 수단과 <strong>§6 decisions.yaml</strong> 을 만든다.</p>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>4 개 절 구성</div>
-      <p>§1 무엇이 진실인가 · §2 무엇을 건드리지 않는가 · §3 무엇을 증거로 삼는가 · §4 승인을 어떻게 남기는가.</p>
-    </div>
+  </div>
+  <div class="table-wrap" style="margin-top:22px">
+    <table>
+      <thead><tr><th>절</th><th>질문</th><th>적용 대상</th><th>등급</th></tr></thead>
+      <tbody>
+        <tr><td><strong>§1</strong> Precedence</td><td>무엇이 진실인가</td><td>시각 스킬 전체</td><td>문장 규약</td></tr>
+        <tr><td><strong>§2</strong> Isolation</td><td>무엇을 건드리지 않는가</td><td>시각 스킬 전체</td><td>Change Manifest</td></tr>
+        <tr><td><strong>§3</strong> Evidence Block</td><td>무엇을 증거로 삼는가</td><td>시각 스킬 전체</td><td>EVIDENCE 블록</td></tr>
+        <tr><td><strong>§4</strong> Approval Record</td><td>승인을 어떻게 남기는가</td><td>mockup · concept</td><td>파일 아티팩트</td></tr>
+        <tr><td><strong>§5</strong> Variant Matrix</td><td>비교안이 실제로 서로 다른가</td><td>mockup · concept</td><td><span class="pill">E1</span></td></tr>
+        <tr><td><strong>§6</strong> Decision Manifest</td><td>결정이 모든 표면에 갔는가</td><td>test · audit · reviewer</td><td><span class="pill e2">E2</span></td></tr>
+        <tr><td><strong>§7</strong> Evidence Channels</td><td>무엇을 재는 증거인가</td><td>전 스킬·에이전트</td><td>채널 라벨</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -324,7 +361,7 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
       </tbody>
     </table>
   </div>
-  <div class="section-title" style="font-size:1.1rem;margin-top:34px;margin-bottom:8px">증거 유효성 4 검사</div>
+  <div class="sub-title">증거 유효성 4 검사</div>
   <p class="section-desc">증거를 제출하기 전에 아래를 통과해야 한다. 하나라도 실패하면 그 증거는 무효이며 결과는 PASS 가 아니라 <code>[미검증]</code> 이다. 정본은 <code>harness/docs/guides/qa-evaluation-guide.md §Evidence Validity Gate</code> 다.</p>
   <div class="table-wrap">
     <table>
@@ -379,11 +416,319 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
   </div>
 </div>
 
+<!-- 5. VARIANT CONTRACT MATRIX -->
+<div class="section">
+  <div class="section-label">§5 · 2026-08-13 신규</div>
+  <div class="section-title">Variant Contract Matrix + Distinctiveness Gate — 비교안이 실제로 서로 다른가</div>
+  <p class="section-desc">시안·컨셉 안·후보안처럼 <strong>하나의 결정을 위해 비교용 변주안을 여러 개 만드는</strong> 스킬(<code>design-mockup</code> · <code>design-concept</code>)에 적용한다. 현재 등급 <span class="pill">E1</span> — 문장 규약 + Variant Contract Matrix 아티팩트. 축 값이 겹치는 variant 가 다시 관측되면 문장을 다듬지 말고 아래 판정식을 CI 게이트로 승급한다.</p>
+
+  <div class="warn">
+    <div class="warn-title">개수 상한의 정본은 이 절이 아니다</div>
+    <p>개수 상한 · primary axis 개수 · 부대 산출물 금지의 정본은 <code>harness/docs/guides/skill-design-guide.md</code> <strong>§5.6 Variant Budget</strong> (유형 11 탐색형 생성) 이며, 여기서 그 숫자를 다시 정의하지 않는다. 이 절이 더하는 것은 <strong>구별성을 기계 판정하는 오라클</strong> 하나다.</p>
+    <a class="card-source" href="../harness/skill-design-guide.html">skill-design-guide §5.6 Variant Budget — 개수 정본</a>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>왜 축 선언만으로는 부족한가 (실측)</div>
+    <p>글로벌 REJECT <code>UI-04</code> (2026-08-12): <em>"B3(단일 컬럼)과 B6(조밀 로그)이 계약 지정 4축(버블 컨테이너 유무 / 정렬 컬럼 수 / 메타 위치 / 묶음 단위) 전부에서 동일값 — 구조 구별 요구 위반."</em></p>
+    <p style="margin-top:10px">계약이 축을 <strong>이미 명시</strong>했는데도 산출물이 그것을 무시했다. 즉 "축을 정하라" 는 문장을 한 번 더 쓰는 것은 처방이 아니다. <strong>축 값이 실제로 다른지를 계산</strong>해야 한다. 이것은 morphological chart 가 기능/축별 수단을 나열해 design space 를 만들되 조합 폭발과 비실용 해를 제한하는 방식과 같다. 생성 디자인 연구도 "서로 다르게 지각되는 대안" 을 거리 기반으로 다루지만, design-kit 은 <strong>구조 feature vector 를 1 차 신호</strong>로 두고 렌더 후 perceptual diff 는 보조로만 쓴다. <strong>큰 pixel diff 는 구조 중복을 면제하지 않는다.</strong></p>
+    <a class="card-source" href="https://www.ifm.eng.cam.ac.uk/research/dmg/tools-and-techniques/morphological-charts/">IfM Cambridge — Morphological Charts</a>
+    <a class="card-source" href="https://open.clemson.edu/all_theses/274/">Clemson Thesis 274 — Morphological Analysis</a>
+    <a class="card-source" href="https://strathprints.strath.ac.uk/70009/">Strathprints 70009 — Generative Design Diversity</a>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>개수 계약 ① 사용자가 말한 수 = 정확히 그 수</div>
+      <p>초과도 미달도 위반이다. "3 개" 요청에 5 개를 내면 <strong>사용자가 2 개를 지우는 비용</strong>을 떠안는다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>개수 계약 ② 자체 판단 상한</div>
+      <p>기본값은 §5.6 의 <strong>3</strong> 이고, 사용자 승인이 있을 때 <strong>최대 5</strong> 다. 6 개 이상이 필요해 보이면 한 번에 내지 말고 <strong>배치를 나눠 제안</strong>한다.</p>
+    </div>
+  </div>
+
+  <div class="sub-title">variant 필수 4 필드</div>
+  <p class="section-desc">각 variant 는 산출 전에 아래 4 개를 갖는다. <strong>하나라도 비면 그 variant 는 비교 대상이 아니다.</strong></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>필드</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td><code>variant_id</code></td><td>전역 유니크 식별자 (<code>A1</code>, <code>B3</code> 처럼 짧게)</td></tr>
+        <tr><td><code>strategy_label</code></td><td>이 안이 우선한 전략 (<code>전환 최적화형</code>, <code>정보 밀도형</code> — <strong>"A안/B안" 금지</strong>)</td></tr>
+        <tr><td><code>axis_vector</code></td><td><strong>지정 축 순서대로 나열한 값 벡터.</strong> 구별성 판정의 유일한 입력이다</td></tr>
+        <tr><td><code>intended_user_scenario</code></td><td>이 안이 가장 잘 맞는 사용자 시나리오 (선택 기준 토론의 근거)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-title">Variant Contract Matrix (산출 <em>전</em> 합의 · E1 아티팩트)</div>
+  <p class="section-desc"><code>skill-design-guide</code> §5.6 의 Variant Matrix 5 열에 <code>strategy_label</code> · <code>intended_user_scenario</code> 2 열을 더한 것이다. <strong>열을 빼지 마라.</strong></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>variant_id</th><th>strategy_label</th><th>axis_vector (축1/축2/축3/축4)</th><th>constants</th><th>intended_user_scenario</th><th>생성 파일</th></tr></thead>
+      <tbody>
+        <tr><td><code>A1</code></td><td>정보 밀도형</td><td>없음 / 1 / 하단 / 세션</td><td>컬러·타이포·카피</td><td>기록을 훑어보는 재방문 사용자</td><td><code>mock/a1.html</code></td></tr>
+        <tr><td><code>A2</code></td><td>탐색성 강화형</td><td>카드 / 2 / 상단 / 세션</td><td>컬러·타이포·카피</td><td>특정 기록을 찾는 사용자</td><td><code>mock/a2.html</code></td></tr>
+        <tr><td><code>A3</code></td><td>전환 최적화형</td><td>채움 / 1 / 상단 / 클러스터</td><td>컬러·타이포·카피</td><td>다음 액션을 유도받는 신규 사용자</td><td><code>mock/a3.html</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-title">Distinctiveness Gate — 판정 규칙</div>
+  <ul class="checklist">
+    <li><span class="check">1</span>지정 축 집합의 크기를 <code>k</code> 라 한다. 사용자가 축을 지정했으면 <strong>그 축이 곧 계약</strong>이며 임의로 바꾸거나 늘리지 않는다. 지정이 없으면 매트릭스에 선언한 축이 <code>k</code> 다</li>
+    <li><span class="check">2</span>두 variant 의 <code>axis_vector</code> 를 원소별로 비교해 Hamming distance <code>d</code> 를 구한다</li>
+    <li><span class="check">3</span><strong><code>k &lt;= 2</code> 이면 <code>d &gt;= 1</code>, <code>k &gt;= 3</code> 이면 <code>d &gt;= 2</code></strong> 를 <strong>모든 쌍</strong>이 만족해야 한다</li>
+    <li><span class="check">4</span>예외는 하나다 — 사용자가 <strong>"micro-variant 비교"</strong> 를 명시한 경우. 이때만 <code>d &gt;= 1</code> 로 완화하고 그 선언을 매트릭스에 기록한다. <strong>스스로 예외를 선언하지 마라</strong></li>
+    <li><span class="check">5</span><strong>구조 축이 아닌 것은 <code>axis_vector</code> 원소로 세지 않는다</strong> — 색상·토큰 값·카피 문구·아이콘 교체. 이것들만 다른 두 안은 <code>d = 0</code> 이며 FAIL 이다</li>
+    <li><span class="check">6</span>게이트 실패 세트는 <strong>제출하지 않는다.</strong> 겹치는 쪽을 다시 만든다</li>
+  </ul>
+
+  <pre class="code-block">#!/usr/bin/env python3
+"""Variant Distinctiveness Gate — 지정 축 axis_vector 의 pairwise Hamming 검사.
+입력(stdin): 각 줄 `variant_id&lt;TAB&gt;축1값&lt;TAB&gt;축2값...` — 열 순서 = 지정 축 순서, 헤더 없음.
+exit code 는 harness/evals/gate-exit-codes.md 를 따른다 (0 pass / 1 위반 / 2 입력 오류)."""
+import sys
+
+rows = [l.rstrip("\n").split("\t") for l in sys.stdin if l.strip()]
+if len(rows) &lt; 2:
+    print("USAGE_ERROR: variant 2 개 이상 필요"); sys.exit(2)
+k = len(rows[0]) - 1
+if k &lt; 1 or any(len(r) - 1 != k for r in rows):
+    print("USAGE_ERROR: 모든 행의 축 개수가 같아야 한다"); sys.exit(2)
+need = 2 if k &gt;= 3 else 1
+bad = 0
+for i in range(len(rows)):
+    for j in range(i + 1, len(rows)):
+        d = sum(1 for a, b in zip(rows[i][1:], rows[j][1:]) if a != b)
+        if d &lt; need:
+            print(f"FAIL {rows[i][0]} vs {rows[j][0]}: hamming={d} &lt; {need}")
+            bad += 1
+print(f"axes={k} required_hamming&gt;={need} pairs={len(rows)*(len(rows)-1)//2} violations={bad}")
+sys.exit(1 if bad else 0)</pre>
+  <p class="code-cap">distinct_gate.py — E1 판정식. 축 값이 겹치는 variant 가 재관측되면 CI 게이트로 승급한다.</p>
+
+  <p class="section-desc" style="margin-top:22px"><code>UI-04</code> 를 이 게이트에 넣으면 다음이 나온다 — <strong>이것이 계약이 잡았어야 했던 출력</strong>이다.</p>
+  <pre class="code-block">$ printf 'B3\tnone\t1\tbottom\tsession\nB5\tcard\t1\tbottom\tcluster\nB6\tnone\t1\tbottom\tsession\n' | python3 distinct_gate.py
+FAIL B3 vs B6: hamming=0 &lt; 2
+axes=4 required_hamming&gt;=2 pairs=3 violations=1
+exit=1</pre>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 색만 다른 3 안</div>
+      <code class="code-block">A1: 카드 / 1 / 상단 / 세션 · accent #E8965A
+A2: 카드 / 1 / 상단 / 세션 · accent #38BDF8
+A3: 카드 / 1 / 상단 / 세션 · accent #4ADE80</code>
+      <p>구조 축 4 개가 전부 동일. 색상은 <code>axis_vector</code> 원소가 아니므로 <code>d = 0</code> — 세 쌍 모두 FAIL 이다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 구조 축이 갈린 3 안</div>
+      <code class="code-block">A1: 없음 / 1 / 하단 / 세션
+A2: 카드 / 2 / 상단 / 세션
+A3: 채움 / 1 / 상단 / 클러스터</code>
+      <p><code>k = 4</code> 이므로 요구치는 <code>d &gt;= 2</code>. A1↔A2 = 3, A1↔A3 = 3, A2↔A3 = 3 — 전 쌍 통과.</p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <div class="warn-title">트레이드오프 — 게이트 통과는 품질 승인이 아니다</div>
+    <p>이 게이트는 중복을 확실히 막지만 <strong>체크박스식 변형</strong>을 유도할 수 있다 — 축 값만 바꾸고 실제로는 좋지 않은 안을 만드는 것. 그래서 게이트는 <strong>"구별되는가" 만 판정</strong>하고, <strong>"좋은가" 는 여전히 사용자 판단과 리뷰의 몫</strong>이다.</p>
+  </div>
+</div>
+
+<!-- 6. DECISION PROPAGATION MANIFEST -->
+<div class="section">
+  <div class="section-label">§6 · 2026-08-13 신규</div>
+  <div class="section-title">Decision Propagation Manifest — 확정된 결정이 모든 표면에 갔는가</div>
+  <p class="section-desc">적용 대상은 <code>design-test</code>(생성) · <code>design-audit</code> · <code>design-reviewer</code>(판정) 이며, 현재 등급은 <span class="pill e2">E2</span> — <code>decisions.yaml</code> 이라는 아티팩트를 남긴다. §4 승인 기록은 "무엇이 확정됐는가" 를 남기지만, 확정된 결정이 <strong>어느 표면들에 반영돼야 하는가</strong>는 어디에도 적히지 않았고 그 결과 <strong>"A1 에는 적용, A3 에는 누락"</strong> 이 반복됐다.</p>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>시각 회귀 도구의 기본 기능이 아니다</div>
+    <p>Playwright · Chromatic · Percy · BackstopJS 는 baseline snapshot 과 diff · threshold · ignore/selector/scenario 를 제공하지만, 확인한 공식 문서 범위에서 <code>decision_id → required surface → golden coverage</code> 를 native 로 강제하는 패턴은 없다. 따라서 manifest 는 도구 <strong>위에 얹는 traceability gate</strong> 이며, 그 구조는 W3C ACT Rules Format 이 테스트 규칙에 요구하는 requirement mapping / applicability / expectations / outcome 을 UI 결정 전파에 옮긴 것이다.</p>
+    <a class="card-source" href="https://playwright.dev/docs/test-snapshots">Playwright — Visual comparisons</a>
+    <a class="card-source" href="https://www.chromatic.com/docs/visual/">Chromatic — Visual tests</a>
+    <a class="card-source" href="https://percy.io/how-it-works">Percy — How it works</a>
+    <a class="card-source" href="https://github.com/garris/BackstopJS">BackstopJS</a>
+    <a class="card-source" href="https://www.w3.org/TR/act-rules-format/">W3C — ACT Rules Format</a>
+  </div>
+
+  <div class="note">
+    <div class="note-title">도구 중립</div>
+    <p>design-kit 은 Playwright · Chromatic · Percy · BackstopJS 중 <strong>어느 하나도 표준으로 강제하지 않는다</strong>. 프로젝트가 이미 쓰는 도구에 manifest 를 얹어라. <strong>도구를 바꾸라고 요구하지 마라.</strong></p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>위치</div>
+      <code class="code-block">.design/decisions.yaml</code>
+      <p style="margin-top:12px">toolkit 별 manifest 를 쓰는 프로젝트는 <strong>경로만 바꾸고 스키마는 같게 유지</strong>한다. 단일 경로로 고정할지는 근거가 부족해 <strong>열린 질문으로 남긴다</strong> — 정하지 않은 것을 정해진 것처럼 쓰지 마라.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>ID 와 excluded_surfaces</div>
+      <p><code>decision_id</code> 는 <code>DEC-{YYYYMMDD}-{NNN}</code> 이며 <code>source</code> 는 §4 승인 기록 파일이다. <strong>승인 기록 없는 결정은 manifest 에 올리지 않는다</strong> — 그것은 결정이 아니라 제안이다.</p>
+      <p style="margin-top:10px"><strong><code>excluded_surfaces</code> 는 선택이 아니다.</strong> 적용하지 않는 표면은 이유와 함께 명시한다. 침묵은 "검토했다" 가 아니라 <strong>커버리지 공백</strong>이다.</p>
+    </div>
+  </div>
+
+  <pre class="code-block">decisions:
+  - decision_id: DEC-20260813-001
+    source: .design/approvals/20260813-dashboard.md
+    status: approved
+    summary: "SP-G spacing and grouping"
+    required_surfaces:
+      - surface_id: dashboard.desktop.main
+        route_or_entry: /dashboard
+        state: populated
+        viewport_or_container: desktop-1440
+        selectors: ["main", "[data-surface='group-list']"]
+        golden: tests/design/goldens/DEC-20260813-001/dashboard.desktop.main.png
+        assertions: ["main visible", "group rows &gt;= 1", "container height &gt; 0"]
+    excluded_surfaces:
+      - surface_id: onboarding.mobile
+        reason: "decision does not apply to onboarding flow"</pre>
+  <p class="code-cap">.design/decisions.yaml — 스키마. 경로는 바꿔도 되지만 필드는 그대로 둔다.</p>
+
+  <div class="sub-title">Coverage rule 4 조</div>
+  <ul class="checklist">
+    <li><span class="check">1</span><code>required_surfaces</code> 의 각 surface 에 <strong>golden 또는 user-visible assertion 이 하나도 없으면 FAIL</strong> 이다</li>
+    <li><span class="check">2</span><strong>golden 만 있고 핵심 요소의 visible / count / height assertion 이 없으면 FAIL</strong> 이다. 빈 화면도 baseline 과 같으면 통과하므로 스냅샷 단독은 "사용자가 본다" 를 증명하지 못한다 (§3 렌더 산출물 특칙과 같은 이유)</li>
+    <li><span class="check">3</span>snapshot 갱신은 <code>decision_id</code> 와 대응 승인 아티팩트가 있을 때만 허용한다. 근거 없는 <code>--update-snapshots</code> 는 <strong>회귀를 baseline 으로 굳힌다</strong></li>
+    <li><span class="check">4</span>변경 대상 locator snapshot 과 주변 영역 snapshot 을 <strong>분리</strong>해 "결정 반영" 과 "의도 외 변화 없음" 을 따로 판정한다 (§2 Partial Visual Change Isolation 과 짝)</li>
+  </ul>
+
+  <pre class="code-block">#!/usr/bin/env python3
+"""Decision Propagation Coverage Gate — surface 별 증거 충족 검사.
+exit code 는 harness/evals/gate-exit-codes.md 를 따른다
+(0 pass / 1 커버리지 위반 / 2 스키마 오류 / 3 대상 0 건 = 검사 미수행)."""
+import re, sys, yaml
+
+path = sys.argv[1] if len(sys.argv) &gt; 1 else ".design/decisions.yaml"
+try:
+    doc = yaml.safe_load(open(path, encoding="utf-8")) or {}
+except FileNotFoundError:
+    print(f"NO_MANIFEST {path}"); sys.exit(3)
+except yaml.YAMLError as e:
+    print(f"SCHEMA_ERROR {e}"); sys.exit(2)
+
+decisions = doc.get("decisions") or []
+if not decisions:
+    print("NO_DECISION 대상 0 건 — 검사 미수행"); sys.exit(3)
+
+# user-visible assertion 으로 인정하는 3 종: visible / count / height
+PATTERNS = {"visible": r"\bvisible\b", "count": r"(&gt;=|&lt;=|&gt;|&lt;|==)\s*\d+|\bcount\b",
+            "height": r"\bheight\b"}
+viol = surfaces = 0
+for d in decisions:
+    did = d.get("decision_id", "&lt;no-id&gt;")
+    for s in d.get("required_surfaces") or []:
+        surfaces += 1
+        sid = s.get("surface_id", "&lt;no-surface-id&gt;")
+        asserts = " ; ".join(s.get("assertions") or [])
+        hit = [k for k, p in PATTERNS.items() if re.search(p, asserts, re.I)]
+        if not s.get("golden") and not hit:
+            print(f"FAIL {did}/{sid}: golden 도 user-visible assertion 도 없음"); viol += 1
+        elif not hit:
+            print(f"FAIL {did}/{sid}: golden 만 존재 — visible/count/height assertion 부재"); viol += 1
+print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol}")
+sys.exit(1 if viol else 0)</pre>
+  <p class="code-cap">coverage_gate.py — exit 3 은 "대상 0 건 = 검사 미수행" 이며 PASS 가 아니다.</p>
+
+  <div class="danger">
+    <div class="danger-title">골든을 무차별로 만들지 마라</div>
+    <p>골든 회귀는 유지비가 크다 — 의도된 디자인 변경마다 baseline 리뷰가 필요하고, 브라우저·OS·폰트·anti-aliasing 차이로 잡음이 생기며, threshold 를 높이면 실제 회귀를 놓친다. 대응은 넷이다: <strong>(a)</strong> manifest 로 대상 surface 를 줄인다 <strong>(b)</strong> CI 렌더 환경·폰트·브라우저를 고정한다 <strong>(c)</strong> 동적 데이터·시간·애니메이션을 고정한다 <strong>(d)</strong> <strong>high-risk 결정만</strong> 골든으로 보호하고 나머지는 assertion 으로 간다.</p>
+  </div>
+  <div class="note">
+    <div class="note-title">열린 질문 (정하지 않았다)</div>
+    <p>골든을 repo 에 커밋할지 외부 baseline 서비스에 둘지, surface registry 를 수동 작성할지 라우트 목록에서 자동 생성할지는 <strong>근거가 부족해 열린 질문으로 남긴다.</strong></p>
+  </div>
+</div>
+
+<!-- 7. EVIDENCE CHANNELS -->
+<div class="section">
+  <div class="section-label">§7 · 2026-08-13 신규</div>
+  <div class="section-title">Evidence Channels — 무엇을 재는 증거인가</div>
+  <p class="section-desc">design-kit 전 스킬·에이전트에 적용한다. §3 Before/After Evidence Block 의 증거에 <strong>채널 라벨</strong>을 붙이는 규약이다. §3 은 증거가 <strong>유효한가</strong>를 다뤘다면, 이 절은 그 증거가 <strong>무엇을 재는 증거인가</strong>를 다룬다. 둘은 다르다 — 0 바이트가 아닌 멀쩡한 스크린샷도 "사용자가 그 화면에서 그것을 본다" 를 증명하지는 않는다.</p>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>렌더링은 환경에 따라 달라진다</div>
+    <p>Playwright 공식 문서도 visual comparison 은 첫 실행에서 reference 를 만들고 다음 실행부터 비교하며, 렌더링이 OS·브라우저·폰트·하드웨어에 따라 달라질 수 있다고 경고한다. 실제 관측에는 locator visibility, 비어 있지 않은 bounding box, count/text/in-viewport 같은 assertion 이 필요하다.</p>
+    <a class="card-source" href="https://playwright.dev/docs/test-snapshots">Playwright — test-snapshots</a>
+    <a class="card-source" href="https://playwright.dev/docs/actionability">Playwright — Actionability</a>
+    <a class="card-source" href="https://playwright.dev/docs/test-assertions">Playwright — Assertions</a>
+  </div>
+
+  <div class="chan">
+    <div class="chan-row">
+      <div class="chan-name">artifact_snapshot<span class="chan-strength">채널 강도 1 / 4</span></div>
+      <div class="chan-body">
+        <p><strong>잰다:</strong> 산출물 파일(목업 HTML·스토리·골든 PNG) 자체의 상태</p>
+        <p class="no"><strong>못 잰다:</strong> 사용자가 실제 앱에서 그 화면에 도달하는지, 그 데이터로 그렇게 보이는지</p>
+      </div>
+    </div>
+    <div class="chan-row">
+      <div class="chan-name">dom_snapshot<span class="chan-strength">채널 강도 2 / 4</span></div>
+      <div class="chan-body">
+        <p><strong>잰다:</strong> 렌더된 DOM·접근성 트리의 구조와 속성</p>
+        <p class="no"><strong>못 잰다:</strong> 시각적 겹침·클리핑·가려짐, 실제 픽셀</p>
+      </div>
+    </div>
+    <div class="chan-row">
+      <div class="chan-name">browser_user_visible<span class="chan-strength">채널 강도 3 / 4</span></div>
+      <div class="chan-body">
+        <p><strong>잰다:</strong> 브라우저에서 지정 route · state · viewport 로 도달해 얻은 visible locator + count/height</p>
+        <p class="no"><strong>못 잰다:</strong> 실기기 폰트·DPI·플랫폼 위젯 차이</p>
+      </div>
+    </div>
+    <div class="chan-row">
+      <div class="chan-name">device_user_visible<span class="chan-strength">채널 강도 4 / 4</span></div>
+      <div class="chan-body">
+        <p><strong>잰다:</strong> 실기기/시뮬레이터에서 얻은 관측</p>
+        <p class="no"><strong>비고:</strong> 가장 강한 채널 — 비용이 크다</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">규칙</div>
+  <ul class="checklist">
+    <li><span class="check">1</span><strong>증거를 인용할 때 채널 이름을 함께 적는다.</strong> 채널 없는 증거는 강도를 알 수 없다</li>
+    <li><span class="check">2</span><strong><code>artifact_snapshot</code> 만으로 "사용자가 보는 화면이 정상" 이라고 말하지 못한다.</strong> 목업 HTML 이 잘 열리는 것과 앱 화면이 정상인 것은 다른 명제다</li>
+    <li><span class="check">3</span>PASS 문장에는 최소 5 요소가 들어간다 — <strong>viewport · route/state · visible locator · count/height · screenshot/golden id.</strong> 하나라도 없으면 그 PASS 는 <code>[미검증]</code> 으로 내린다</li>
+    <li><span class="check">4</span>채널 등급이 낮은 증거로 높은 주장을 하지 마라. <strong>주장의 강도를 증거 채널에 맞춰 낮추는 것이 정답</strong>이다</li>
+  </ul>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 채널 승격</div>
+      <code class="code-block">"목업 HTML 스냅샷 정상
+ → 대시보드 렌더링 문제 없음"</code>
+      <p><code>artifact_snapshot</code> 으로 앱 상태를 주장했다. 두 명제는 다르다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 채널 라벨 + 5 요소</div>
+      <code class="code-block">[browser_user_visible] /dashboard · desktop-1440
+· populated — main visible · group rows 3
+· height 812 · golden
+  DEC-20260813-001/dashboard.desktop.main.png</code>
+      <p>viewport · route/state · visible locator · count/height · golden id 가 모두 들어 있다.</p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <div class="warn-title">사용자 관측과 충돌할 때 — 정본은 여기가 아니다</div>
+    <p>이 규약을 여기서 재정의하지 않는다. 생성 측 정본은 <code>skill-design-guide.md</code> <strong>§3.8 User-Reported Failure Gate</strong> (상태를 <code>REOPENED</code> 로 · 반박 금지 · 오라클 유효성 6 축 대조 · 완료 해제 3 택), 평가 측 정본은 <code>agent-design-guide.md</code> <strong>§10 (사용자 보고 우선)</strong> 이다.</p>
+    <p style="margin-top:10px">design-kit 이 더하는 것은 재현 축의 <strong>시각 도메인 구체화</strong> 하나다 — 6 축 대조 시 route/data/viewport 에 더해 <strong>scroll 위치</strong>와 <strong>접근성 설정</strong>(<code>prefers-reduced-motion</code> · <code>prefers-color-scheme</code> · 텍스트 확대)을 같은 값으로 맞춘다. <strong>이 둘이 다르면 같은 코드가 다르게 보인다.</strong></p>
+    <a class="card-source" href="../harness/skill-design-guide.html">skill-design-guide §3.8 — 생성 측 정본</a>
+    <a class="card-source" href="../harness/agent-design-guide.html">agent-design-guide §10 — 평가 측 정본</a>
+  </div>
+</div>
+
 <!-- SUMMARY -->
 <div class="section">
   <div class="section-label">Summary</div>
-  <div class="section-title">규약 요약 — 4 개 절이 서로를 지탱한다</div>
-  <p class="section-desc">§1 은 값의 출처를, §2 는 변경의 경계를, §3 은 완료의 근거를, §4 는 §1 순위 2 의 실체를 규정한다.</p>
+  <div class="section-title">규약 요약 — 7 개 절이 서로를 지탱한다</div>
+  <p class="section-desc">§1 은 값의 출처를, §2 는 변경의 경계를, §3 은 완료의 근거를, §4 는 §1 순위 2 의 실체를, §5 는 비교안의 구별성을, §6 은 결정의 전파를, §7 은 증거의 강도를 규정한다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>절</th><th>질문</th><th>산출물</th><th>실패 시</th></tr></thead>
@@ -392,6 +737,9 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
         <tr><td><strong>§2</strong> Isolation</td><td>무엇을 건드리지 않는가</td><td>Change Manifest (변경 목록 + 보존 목록)</td><td>의도 외 영역 변경 → self-reject / 감사에서 FAIL</td></tr>
         <tr><td><strong>§3</strong> Evidence</td><td>무엇을 증거로 삼는가</td><td>EVIDENCE 블록 (before / after / proof / 의도 외 영역)</td><td>무효 증거 → PASS 아닌 <code>[미검증]</code></td></tr>
         <tr><td><strong>§4</strong> Approval Record</td><td>승인을 어떻게 남기는가</td><td><code>.design/approvals/{YYYYMMDD}-{대상}.md</code></td><td>승인 근거 확인 불가 → REJECT (UI-06)</td></tr>
+        <tr><td><strong>§5</strong> Variant Matrix</td><td>비교안이 실제로 서로 다른가</td><td>Variant Contract Matrix (7 열) + <code>distinct_gate.py</code></td><td>축 값 중복 → 구조 구별 요구 위반 REJECT (UI-04)</td></tr>
+        <tr><td><strong>§6</strong> Decision Manifest</td><td>결정이 모든 표면에 갔는가</td><td><code>.design/decisions.yaml</code> + <code>coverage_gate.py</code></td><td>surface 누락 → 커버리지 공백 FAIL</td></tr>
+        <tr><td><strong>§7</strong> Evidence Channels</td><td>무엇을 재는 증거인가</td><td>채널 라벨이 붙은 PASS 문장 (5 요소)</td><td>채널 승격 주장 → <code>[미검증]</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -401,6 +749,9 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
     <li><span class="check">✓</span>보존 목록의 값이 편집 후에도 동일한지 확인했는가?</li>
     <li><span class="check">✓</span>EVIDENCE 블록의 4 필드를 채웠고, 증거가 유효성 4 검사를 통과했는가?</li>
     <li><span class="check">✓</span>시안·컨셉이 확정됐으면 승인 기록 파일을 남기고 <strong>확정된 시각 값</strong>을 기록했는가?</li>
+    <li><span class="check">✓</span>비교안을 냈다면 <strong>Variant Contract Matrix 를 산출 전에 합의</strong>했고, 모든 쌍이 Hamming 요구치를 넘겼는가?</li>
+    <li><span class="check">✓</span>확정된 결정이 있다면 <code>decisions.yaml</code> 에 <code>required_surfaces</code> 와 <code>excluded_surfaces</code> 를 <strong>둘 다</strong> 적었는가?</li>
+    <li><span class="check">✓</span>증거를 인용할 때 <strong>채널 이름</strong>을 함께 적었고, 주장의 강도가 채널 강도를 넘지 않는가?</li>
   </ul>
 </div>
 
@@ -408,10 +759,13 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
   <h3>관련 문서</h3>
   <ul>
     <li><a href="../harness/qa-evaluation-guide.html">harness/docs/guides/qa-evaluation-guide.md §Evidence Validity Gate — 증거 유효성 4 검사 정본</a></li>
-    <li><a href="../harness/skill-design-guide.html">harness/docs/guides/skill-design-guide.md §3.7 Completion Evidence Gate — 등급 SSOT</a></li>
+    <li><a href="../harness/skill-design-guide.html">harness/docs/guides/skill-design-guide.md §5.6 Variant Budget — 개수·축 정본 / §3.7 Completion Evidence Gate — 등급 SSOT / §3.8 User-Reported Failure Gate</a></li>
+    <li><a href="../harness/agent-design-guide.html">harness/docs/guides/agent-design-guide.md §10 — 사용자 보고 우선 (평가 측 정본)</a></li>
     <li><a href="../harness/contract-design-guide.html">harness/docs/guides/contract-design-guide.md §증거 아티팩트 존재 의무 — UI-06 계약 측 대응</a></li>
+    <li><a href="https://www.w3.org/TR/act-rules-format/">W3C ACT Rules Format — requirement mapping / applicability / expectations / outcome</a></li>
+    <li><a href="https://playwright.dev/docs/test-snapshots">Playwright Visual Comparisons — baseline / threshold 한계</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: design-kit/references/visual-change-protocol.md · 2026-07-27</p>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: design-kit/references/visual-change-protocol.md · 2026-07-27 신설 · 2026-08-13 §5~§7 추가</p>
 </div>
 
 </div>

@@ -50,7 +50,7 @@ user-invocable: true
    **예외:** 무드보드 HTML(`.design/moodboard.html`)은 시각화 목적상 hex placeholder를 채울 수 있으나 **반드시 상단에 "방향 시각화용 참조값" disclaimer 배너가 렌더링되어야 한다**. 템플릿(`design-kit/templates/moodboard.html`)은 `.mb-disclaimer` 섹션과 `data-i18n="disclaimer.color"` 문구를 포함하며 생성 시 삭제 금지. 이 배너가 없으면 무드보드 hex가 "확정값"으로 오독된다 (Phase B 드라이런에서 실제 REJECT 근거였다).
 4. **기존 컨셉 무시 금지** — `.design/concept.md`가 이미 존재하면 반드시 로드하여 수정/확장 모드로 진입하라. 기존 내용을 무시하고 새로 만들면 이전 합의가 사라진다.
 5. **무드 키워드를 시각 속성으로 번역하지 않으면 의미 없음** — "미니멀", "따뜻함" 같은 키워드는 반드시 `color / type / image / shape / layout / motion` 각각에 대한 구체적 방향으로 번역해야 한다. 키워드만 나열하고 시각 규칙이 없으면 팀마다 다르게 해석되어 무드보드가 장식으로 끝난다.
-6. **컨셉 시안은 컬러 교체가 아니라 레이아웃 차별화** — 여러 컨셉 안을 제시할 때 색상만 바꾸는 것은 "스타일 옵션"이지 "컨셉 옵션"이 아니다. hero 구조, 그리드, 콘텐츠 밀도, 타이포 위계, 이미지 비중 중 최소 2개 이상이 달라야 검토 가치가 생긴다.
+6. **컨셉 시안은 컬러 교체가 아니라 레이아웃 차별화 — 구별성은 계산해서 확인한다** — 여러 컨셉 안을 제시할 때 색상만 바꾸는 것은 "스타일 옵션"이지 "컨셉 옵션"이 아니다. 축 후보는 hero 구조 · 그리드 · 콘텐츠 밀도 · 타이포 위계 · 이미지 비중이며, 색상·카피는 축으로 세지 않는다. 안을 내기 전에 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 를 채우고 pairwise 게이트를 통과시켜라 — 지정 축 3 개 이상이면 모든 쌍의 Hamming distance ≥ 2, 2 개 이하면 ≥ 1. 개수 상한과 부대 산출물 금지의 정본은 `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이다.
 7. **컬러 방향은 역할 기반으로 정의** — "예쁜 5색" 조합이 아니라 Primary/Secondary/Accent/Neutral/Semantic 역할로 나눠야 한다. 컨셉 단계에서도 "어떤 역할의 컬러가 어떤 톤인지"를 명시해야 design-system 단계에서 토큰 체계로 이어진다.
 8. **접근성 대비율을 컬러 방향 단계에서 언급** — 컨셉 단계에서 "고대비/저대비 무드"를 결정할 때 WCAG AA 기준(일반 텍스트 4.5:1, 큰 텍스트 3:1)을 제약으로 고려하라. 나중에 토큰 단계에서 브랜드색이 접근성을 통과 못해 방향을 바꾸는 일이 생긴다. 추가로 APCA Lc 임계값(본문 Lc 75~90, 비본문 Lc 60)도 참고하면 폰트 크기+굵기별 대비 가이드가 더 정밀해진다.
 9. **OKLCH 색상 공간 인식** — 컬러 방향 서술 시, OKLCH(Lightness-Chroma-Hue) 축으로 사고하면 지각적으로 균일한 팔레트 방향을 잡기 쉽다. "밝기 L=0.6~0.7 범위, 낮은 채도 C<0.1" 같은 서술이 "파스텔 톤"보다 design-system 단계로 이어질 때 정밀하다. hex 값은 여전히 concept 단계에서 기재 금지이며 서술형만 허용. 출처: research-log §D.
@@ -232,4 +232,4 @@ grep -cE '#[0-9a-fA-F]{3,8}\b' .design/approvals/{YYYYMMDD}-concept.md   # → 0
 - `references/concept-criteria.md` — 컨셉 도출 기준 상세
 - `templates/concept.md` — 컨셉 문서 출력 포맷
 - `../../templates/moodboard.html` — 비주얼 무드보드 출력 포맷 (공유 템플릿)
-- `../../references/visual-change-protocol.md` — 승인 기록 규격 (SSOT)
+- `../../references/visual-change-protocol.md` — 승인 기록 규격 · §5 Variant Contract Matrix (SSOT)

@@ -1,6 +1,6 @@
 ---
 name: bambu-print-profile
-description: Bambu Lab H2S 환경에서 MakerWorld URL이나 로컬 모델 파일을 받아 process+filament JSON 프로파일을 자동 생성하여 import용 zip 번들로 떨궈주는 스킬. references/ 7종을 토대로 모델 형상 분석 → 소재 추천 → seam 전략 결정 → Bambu Studio용 JSON 생성까지 수행한다. "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력" 같은 요청 시 트리거. 단순 색상/온도/한 값 변경에는 트리거 X. 다른 프린터(X1/P1/A1 등)나 다른 슬라이서(OrcaSlicer/PrusaSlicer)에는 트리거 X — H2S + Bambu Studio 고정.
+description: Bambu Lab H2S 환경에서 MakerWorld URL이나 로컬 모델 파일을 받아 process+filament JSON 프로파일을 자동 생성하여 import용 zip 번들로 떨궈주는 스킬. references/ 8종을 토대로 모델 형상 분석 → 실측 실패 모드 판정 → 소재 추천 → seam 전략 결정 → Bambu Studio용 JSON 생성까지 수행한다. "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력" 같은 요청 시 트리거. 단순 색상/온도/한 값 변경에는 트리거 X. 다른 프린터(X1/P1/A1 등)나 다른 슬라이서(OrcaSlicer/PrusaSlicer)에는 트리거 X — H2S + Bambu Studio 고정.
 user-invocable: true
 ---
 
@@ -34,7 +34,8 @@ bambu-kit/skills/bambu-print-profile/
     ├── bambu-fields-baseline.md      # Bambu Studio JSON schema (필수 필드, 키 이름) + §8 Surface 필드 19종
     ├── materials.md                  # 40+ 필라멘트 카탈로그 + 용도 매핑
     ├── seam-recipes.md               # 형상×소재 scarf 매트릭스 + Real-world findings + §0 Surface-first 회전체 default v2
-    ├── surface-recipes.md            # Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프)
+    ├── surface-recipes.md            # Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프) — 사전 정책
+    ├── failure-recipes.md            # 2026-08-13 신규 — 실측 실패 3종(L1 곡면 계단 / L2 스트링잉 / L3 바닥 박리) 사후 레시피 + 금지 키 사유 정본
     ├── comment-analysis.md           # v0.4.0 신규 — 댓글 4 카테고리 추출 매뉴얼 + 한/영/중 키워드 사전 + Designer Constraint Override Rule
     ├── tolerance.md                   # v0.4.2 신규 — 공차 보정 키 (elefant_foot/xy_hole/xy_contour) + 소재별 수축률 + fit-critical 결정 트리 + calibration coupon
     └── kaizen-sources.md             # 주 1회 갱신용 데이터 소스 (카이젠 스킬용)
@@ -42,8 +43,10 @@ bambu-kit/skills/bambu-print-profile/
 
 출력 경로: **`/Users/jackson/Hub/60_3D Print/Settings/<모델명>/`**
 
-## 워크플로우 (Phase 1~5 · 진입 게이트 3종 + Coupon)
+## 워크플로우 (Phase 1~5 · 진입 게이트 4종 + Coupon)
 
+> **2026-08-13 카이젠 변경 (Phase 13)**: Phase 1.9 (Failure-Mode Detector) 신규 — 사용자 실측 출력 실패 3 종(L1 곡면 계단현상 / L2 스트링잉 / L3 바닥 박리)을 프로파일 키로 되돌리는 **인테이크 경로**가 아예 없었다. Phase 1.6 은 *다른 사용자의* 댓글 실패만 모으고, *이 사용자 자신의 직전 출력 결과*가 다음 프로파일 생성에 들어오는 경로가 0 건이었다 — 그래서 v0.4.2 공차 정정도 2026-07-27 표면 의도 게이트도 전부 사용자가 불만을 말한 뒤 손으로 실린 사후 수습이었다. Phase 3.0 (Supportability Split) 신규 — JSON 으로 지원 불가능한 요구(L1 adaptive layer height)를 조용히 근사 구현하지 않고 **notes only** 로 분기한다. Phase 4.3 게이트에 **금지 키 검사 4 종** 추가 (E3 확장 — 문장 추가가 아니라 기존 결정론적 게이트의 검사 항목 확장). references/failure-recipes.md 신규 + bambu-fields-baseline.md §10 신규. 사실 정정 3 건 (`layer_height 0.08` 근거 · `enable_arc_fitting` 성격 · `resolution` 적용 축). 근거: `.harness/.meta/evidence/phase13.md`.
+>
 > **2026-07-27 카이젠 변경**: Phase 1.0 (로컬 모델 견고 파싱) 신규 — `sed` 태그 매칭 금지 + `3D/Objects/*.model` 처리 + 빈 출력 = 검증 실패. Phase 1.8 (Surface Intent Gate) 신규 — 표면 의도 확인이 MakerWorld 전용 경로에만 있어 로컬 파일 케이스에서 ironing 이 누락되던 구조적 구멍을 막음. Phase 4.3 (Completion Evidence Gate) 신규 — 생성 JSON 을 실제 파싱해 검증하는 결정론적 명령(E3). 공차는 **경계 오프셋(지름 = 2×)** 임을 `tolerance.md` §1.1 에 SSOT 로 고정하고 `PL-01` 불일치 해소. 공차 무효화 3조건(color-paint / fuzzy-skin / raft) 신규 발견 반영.
 >
 > **v0.4.2 변경**: Phase 1.7 (Tolerance & Fit Analysis) 신규 + Phase 3 공차 보정 키 정책 + Phase 5 fit calibration coupon 자동 트리거 + references/tolerance.md 신규 + materials.md 수축률 컬럼 보강. dogfood: 페리스 휠(MakerWorld 1186414) 608ZZ 베어링이 중심부와 안 맞은 사용자 보고(2026-05-27) + 9mm sheath blade slide-fit 가능성. fit-critical 부품 식별 → 공차 보정 자동화.
@@ -469,9 +472,75 @@ grep -iE "기능|튼튼|빨리|속도|시간|prototype|functional|strong|fast|te
 
 ⚠️ 표면 우선으로 판정됐는데 최종 process JSON 의 `ironing_type` 이 `"no ironing"` 이면 그것은 **게이트 실패**다 — Phase 4 검증 명령이 이를 잡는다.
 
+### Phase 1.9 — Failure-Mode Detector (2026-08-13 신규)
+
+**필수 실행 — 모든 입력 분기.** 상세 레시피는 `references/failure-recipes.md` 참조.
+
+> **왜 신규인가 (근본원인):** 이 스킬에는 **사용자 자신의 직전 출력 실패가 다음 프로파일 생성으로 들어오는 경로가 아예 없었다.** Phase 1.6 은 MakerWorld *댓글의 남의 실패*만 모으고, Phase 1.7/1.8 은 사전 형상·의도만 본다. 그래서 `/insights` 2026-08-13 관측(shower-box + holster 5 세션 · 곡면 계단현상 · voronoi stringing · 바닥 박리 반복 · "partially successful")에 해당하는 신호가 매번 대화 밖으로 흘렀고, 대응은 사용자가 불만을 말한 뒤의 손 수습이었다. 인테이크 자체가 없던 것이 원인이므로 규칙 문장을 하나 더 쓰는 것으로는 안 걸린다.
+
+#### 1.9.1 실패 신호 추출
+
+사용자 요청 · 채팅 컨텍스트 · Phase 1.6 의 `user_failure` 카테고리 세 곳을 대상으로 grep 한다.
+Phase 1.6 이 skip 된 경로(로컬 파일)에서도 앞의 두 곳은 항상 존재한다.
+
+```bash
+# L1 — 곡면 계단현상 (curved surface stair-stepping)
+grep -iE "계단|층층|단계단|거칠|곡면.*(거칠|계단)|stair|step(ped|ping)|layer line|faceted|각져"
+# L2 — 스트링잉 (stringing)
+grep -iE "실|거미줄|늘어|삐져|스트링|보로노이|string|wisp|ooze|hairy|voronoi"
+# L3 — 바닥 박리 / 들림 / 워핑
+grep -iE "박리|들림|들렸|떴|안 붙|휘|뒤틀|1층|첫 ?층|peel|lift|warp|curl|adhesion|detach"
+```
+
+⚠️ **substring 오탐을 확인하라.** `실` 은 `실제`·`실행`·`확실` 을 잡고 `1층` 은 `11층` 을 잡는다.
+grep 결과를 그대로 판정으로 쓰지 말고 **매치된 문장을 읽어** 실제 출력 결과 보고인지 확인한다.
+매치 0 건이면 "실패 모드 신호 없음" 을 **명시 보고**하고 1.9.3 을 skip 한다 — 조용히 넘기지 마라.
+
+#### 1.9.2 재출력 여부 확인 (조건부)
+
+재출력 신호(`다시`, `또`, `여전히`, `재출력`, `again`, `still`, `retry`)가 있거나 같은 모델명이
+이미 `/Users/jackson/Hub/60_3D Print/Settings/<모델명>/` 에 존재하면 **1 줄로 물어라**:
+
+```text
+이 모델(또는 같은 소재·형상)로 이전에 출력한 결과가 있나요? 있으면 어디가 안 좋았는지 한 줄만 알려주세요.
+(곡면 계단 / 실 늘어짐 / 바닥 들림 중 있으면 해당 항목의 대응 레시피를 켜겠습니다.)
+```
+
+재출력 신호가 없으면 **묻지 마라** (신규 모델에 불필요한 질문 금지).
+
+#### 1.9.3 사용자 실측 보고의 취급 — 재정의 금지
+
+정본은 `harness/docs/guides/skill-design-guide.md` **§3.8 User-Reported Failure Gate** 다.
+여기서 규칙을 다시 쓰지 말고 그대로 따른다. 요지: 상태는 PASS 가 아니라 `REOPENED`,
+**반박 금지**, 재현 전에 "정상입니다" 를 다시 말하지 않는다.
+
+§3.8 재현 6 축의 3D 프린팅 치환표는 `references/failure-recipes.md` §0 에 있다 (모델 리비전 /
+적용 preset 이름 / 슬라이서 버전 / plate·chamber / 소재 lot·건조 / AMS 슬롯). **6 축 중 다른 축을
+먼저 값으로 특정**하고, 프로파일 키를 만지기 전에 사용자에게 보고한다. 건조 미충족이나 preset 미적용이
+원인인 실패에 retraction 을 올리는 것은 원인이 아닌 곳을 고치는 행위다.
+
+#### 1.9.4 판정 보고
+
+```text
+Failure-Mode 판정
+- L1 곡면 계단현상: 감지 / 없음   (근거: 사용자 문장 quote)
+- L2 스트링잉:      감지 / 없음
+- L3 바닥 박리:     감지 / 없음
+- 재현 6축 불일치:  <축 이름 + 값> 또는 "전 축 일치"
+→ 감지 0 건이면 "실패 모드 신호 없음 — 사후 레시피 미적용"
+```
+
+**L2 ∧ L3 동시 감지 시** fan 방향이 상충한다 (`failure-recipes.md` §3.3) — 어느 쪽을 우선할지
+사용자에게 명시적으로 물어라. 3 종 동시 처리 순서는 `failure-recipes.md` §5 (L3 → L2 → L1).
+
+#### Failure-Mode Gate (Phase 2 진입 조건)
+
+1.9.1 판정 완료 (+ 1.9.2 해당 시 응답 수령) 가 끝나야 Phase 2 로 진입한다.
+**감지 결과 미확정 상태로 Phase 3 JSON 생성에 진입 금지.**
+
 ### Phase 2 — 소재 추천 (2-3개 + 사용자 픽)
 
-**진입 조건**: Phase 1.6 completed (designer_constraints 추출) **+ Phase 1.7 completed (tolerance fit-critical 분석)**. Phase 1.7 fit-critical 결과는 Phase 2 소재 추천에 직접 영향 — 소재별 수축률 차이가 fit 정확도와 직결 (PLA 0.2-0.3% < PETG 0.3-0.5% < ASA 0.5-0.8%). `references/materials.md` §4 수축률 표 참조.
+**진입 조건**: Phase 1.6 completed (designer_constraints 추출) **+ Phase 1.7 completed (tolerance fit-critical 분석) + Phase 1.8 completed (Surface Intent Gate) + Phase 1.9 completed (Failure-Mode Gate)**. Phase 1.9 결과는 Phase 2 소재 추천에도 영향 — L2 감지 시 건조 요구가 큰 소재(PETG/PA/PC)를 후보에 남길 때 건조 조건을 함께 제시해야 한다. Phase 1.7 fit-critical 결과는 Phase 2 소재 추천에 직접 영향 — 소재별 수축률 차이가 fit 정확도와 직결 (PLA 0.2-0.3% < PETG 0.3-0.5% < ASA 0.5-0.8%). `references/materials.md` §4 수축률 표 참조.
 
 `references/materials.md`를 로드. 모델 용도/형상/사용자 요구에 매칭:
 
@@ -495,6 +564,37 @@ grep -iE "기능|튼튼|빨리|속도|시간|prototype|functional|strong|fast|te
 ### Phase 3 — 프로파일 JSON 생성
 
 `references/bambu-fields-baseline.md` + `references/seam-recipes.md` 로드.
+**Phase 1.9 에서 실패 모드가 1 건 이상 감지됐으면 `references/failure-recipes.md` 도 로드한다.**
+
+#### Phase 3.0 — Supportability Split (2026-08-13 신규 · JSON 생성 **전** 필수)
+
+⚠️ **JSON 으로 지원 불가능한 요구를 근사 구현하지 마라.** 조용한 근사는 "했다고 보고했는데 안 되어 있음" 으로 끝난다. Phase 1.9 감지 항목 + 사용자 요구를 **지원 가능 / 불가능** 두 칸으로 갈라 적고, 불가능 칸은 `notes.md` 에 명시 보고한다.
+
+| 요구 | process/filament JSON | 처리 |
+|------|----------------------|------|
+| L1 계단 — **adaptive / variable layer height** | ❌ **불가** (`failure-recipes.md` §1.1) | **notes only.** `adaptive_layer_height` 를 JSON 에 넣지 마라 — Phase 4.3 게이트가 잡는다 |
+| L1 계단 — 고정 `layer_height` 하향 | ✅ 가능 | `0.12` 1 차, `0.08-0.12` 는 사용자 확인 후 (`failure-recipes.md` §1.2) |
+| L1 계단 — XY faceting | ✅ 가능 | `resolution` `0.006-0.010`. ⚠️ Z 계단 해결책 아님 |
+| L2 스트링잉 — 건조/소재 상태 | ❌ **불가** (물리 조건) | notes + 건조 후 재출력 권고. **건조 미충족이면 JSON 을 만지지 마라** |
+| L2 스트링잉 — wipe | ✅ 가능 (게이트 통과 시) | `filament_wipe` · `filament_wipe_distance` 2 키 한정 |
+| L2 스트링잉 — retraction 상향 | ⚠️ **coupon 후에만** | Phase 5 coupon 통과 전 본 출력 반영 금지 |
+| L3 박리 — brim / 첫 레이어 | ✅ 가능 | `failure-recipes.md` §3.1 |
+| L3 박리 — chamber preheat · plate 종류 선택 | ❌ **불가** (장비 조작) | notes only |
+| L3 박리 — plate 온도 · aux fan | ⚠️ **사용자 확인 후에만** | plate-specific 키만. `bed_temperature_initial_layer` 금지 |
+| **Studio UI 페인팅** (seam paint / color paint / fuzzy paint) | ❌ **불가** | 기존 규약 유지 — 사용자 작업으로 안내 |
+
+**불가 항목 보고 형식 (notes.md §1.2 + 완료 보고 양쪽):**
+
+```text
+⚠️ 이 프로파일로 대응 불가한 항목
+- 곡면 계단현상: Variable/Adaptive Layer Height 는 process JSON 범위 밖입니다.
+  JSON 으로는 layer_height 0.20 → 0.12 하향으로 대응했고 레이어 수가 약 1.67 배 됩니다.
+  더 줄이려면 Bambu Studio UI 에서 Variable Layer Height 를 직접 적용해야 합니다.
+```
+
+배수는 **타이핑하지 말고** `기존 layer_height / 새 layer_height` 로 계산해서 적는다.
+
+
 
 **Designer-stated Constraint Override Rule (v0.4.0 신규, v0.4.1 범위 좁힘):**
 
@@ -611,16 +711,37 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ✅ `wall_loops`, `sparse_infill_density`, `top/bottom_shell_layers`, `wall_sequence` (모델 형상 기반)
 - ✅ `seam_position`, `seam_slope_*`, `scarf_angle_threshold`, `override_filament_scarf_seam_setting` (seam 전략)
 - ✅ `outer_wall_speed`, `inner_wall_speed` (소재별)
-- ✅ `enable_arc_fitting` (원통 모델)
 - ✅ 멀티컬러: `enable_prime_tower`, `prime_tower_width/brim_width/flat_ironing`, `flush_into_*`
-- ✅ `enable_support`, `raft_layers`
+- ✅ `enable_support`
+- ✅ **(2026-08-13) L3 감지 시**: `brim_type`, `brim_width`, `brim_object_gap` · 조건부 `initial_layer_print_height`, `initial_layer_line_width`, `initial_layer_speed` (`failure-recipes.md` §3.1)
+- ⚠️ `raft_layers` — **일반 튜닝 대상이 아니다. L3 최후 수단 게이트 전용** (`1-3`). `raft_layers > 0` 이면 `elefant_foot_compensation` 이 조용히 무효화되므로 fit-critical 부품이 있는 모델에는 켜지 마라 (`tolerance.md` §1.2 · `failure-recipes.md` §3.3)
+- ⚠️ `enable_arc_fitting` — **기본값 유지. 표면 품질 튜닝 대상이 아니다.** 품질 개선 기능이 아니라 G-code encoding 변경(직선 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 대응 카드로 제시하지 마라 (`failure-recipes.md` §1.2)
+- ❌ `adaptive_layer_height` — **넣지 마라.** option 정의 주석 처리 + legacy ignore set (`bambu-fields-baseline.md` §10.1). Phase 4.3 게이트가 잔존을 FAIL 처리한다
+- ❌ `bed_temperature`, `bed_temperature_initial_layer` — obsolete/금지. plate 온도가 필요하면 plate-specific 키만 쓰고 **사용자 확인 후에만** (`bambu-fields-baseline.md` §10.3)
 
 **filament JSON 튜닝 정책 — `seam-recipes.md`에서 결정된 scarf 필드만 override:**
 
 - ✅ `filament_scarf_seam_type` (none/external/all)
 - ✅ `filament_scarf_height`, `filament_scarf_gap`, `filament_scarf_length`
-- ❌ **`nozzle_temperature`, `nozzle_temperature_initial_layer` 안 건드림** — 사용자가 .3mf의 creator 튜닝 값이나 base profile 기본값을 유지하길 원함 (사용자 명시 요청 2026-05-16)
-- ❌ retraction/fan/cooling 안 건드림 — base에 위임
+- ❌ **`nozzle_temperature`, `nozzle_temperature_initial_layer` 안 건드림** — 사용자가 .3mf의 creator 튜닝 값이나 base profile 기본값을 유지하길 원함 (사용자 명시 요청 2026-05-16). **L2 스트링잉이 감지돼도 온도를 자동 하향하지 마라** — stringing 은 줄 수 있으나 층간 접착/flow 부족을 만든다
+- ❌ fan/cooling 안 건드림 — base에 위임. L3 aux fan 조정은 **notes 안내까지만** (`failure-recipes.md` §3.2)
+- ❌ retraction 기본 안 건드림 — base(printer/extruder)에 위임. **단 아래 L2 게이트 예외 2 단계만 허용**
+
+**L2 스트링잉 게이트 예외 (2026-08-13 신규 · `failure-recipes.md` §2.1 순서를 그대로 따른다):**
+
+| 단계 | 조건 | 허용 override |
+|------|------|--------------|
+| (0) | 건조/소재 상태 미확인 또는 미충족 | **없음.** JSON 변경 없이 건조 후 재출력 권고로 종료 |
+| (1) | 건조 충족 + travel stringing 잔존 | `filament_wipe` = `"1"`, `filament_wipe_distance` = `"2"` — 이 2 키만 |
+| (2) | (1) 로도 잔존 | `filament_retraction_length` 를 `1.0`–`1.2` 까지만. **Phase 5 coupon 통과 후에만 본 출력 반영** |
+
+`filament_retraction_speed` · `filament_retraction_minimum_travel` · `filament_z_hop` ·
+`filament_z_hop_types` 는 키 사전으로만 갖는다 (`bambu-fields-baseline.md` §10.2) — 사용자가 명시
+요청할 때 정확한 키를 쓰기 위한 것이고 자동 결정 대상이 **아니다**.
+
+⚠️ **공통 filament profile 기본은 대체로 `"nil"` = printer/extruder 기본에 위임**이다. `"nil"` 을
+"미설정" 으로 읽고 임의 숫자로 채우면 프린터 기본 튜닝을 통째로 덮어쓴다. 위임 상태의 실효값은
+`bambu-fields-baseline.md` §10.2 의 underlying default 열을 본다.
 
 **Surface-first 모드 (적용 여부는 Phase 1.8 Surface Intent Gate 판정을 따른다 — 여기서 다시 추측하지 마라):**
 
@@ -727,6 +848,11 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 | 등급 | 소재 |  ← Designer Constraint > Creator 추천 > 자동 매칭 순으로 우선순위
 ## 1.2 출력 설정 (Creator 가이드)
 | 항목 | 값 |  ← 레이어/벽/인필/패턴/top·bottom. 디자이너 명시 값은 "[Creator 명시 — 수정 X]" 주석
+### 1.2.1 실패 모드 대응 + 이 프로파일 범위 밖 항목 (2026-08-13 신규)
+- Phase 1.9 판정 결과 (L1/L2/L3 감지 여부 + 근거 quote) — 감지 0 건이면 "실패 모드 신호 없음" 명시
+- Phase 3.0 Supportability Split 의 **불가 칸 전부 enumerate** — 특히 L1 Variable/Adaptive Layer Height 는
+  "Bambu Studio UI 에서 직접 적용" 을 명시. 조용히 생략 금지
+- JSON 으로 대응한 항목 + 부작용 수치 (레이어 수 배수는 `기존/신규` 로 계산해서 적는다)
 ## 1.3 소재별 사전 준비
 - 건조 조건, 챔버 온도, 환기, 베드 처리
 ## 1.4 파일명 컨벤션
@@ -825,12 +951,19 @@ for p in sys.argv[1:]:
     idk="print_settings_id" if t=="process" else "filament_settings_id"
     if idk not in d: errs.append(f"{idk} 누락 → 'Preset type is unknown'")
     if t=="filament" and not isinstance(d.get(idk),list): errs.append(f"{idk} 는 배열이어야 함")
+    # 금지 키 검사 (2026-08-13 신규 · failure-recipes.md §4) — dict 키 정확 일치, substring 아님
+    FORBIDDEN={
+        "adaptive_layer_height":"option 정의 주석 처리 + legacy ignore set — layer_height 하향 + notes 로 대응",
+        "bed_temperature":"plate-specific 키만 사용 (hot_plate_temp_initial_layer 등)",
+        "bed_temperature_initial_layer":"obsolete ignored key — plate-specific 키만 사용",
+        "elephant_foot_compensation":"오타 키 (정답: elefant_foot_compensation) — silent skip",
+    }
+    for bad,why in FORBIDDEN.items():
+        if bad in d: errs.append(f"금지 키 {bad}: {why}")
     if t=="process":
         cp=d.get("compatible_printers")
         if not (isinstance(cp,list) and any("H2S" in str(x) for x in cp)):
             errs.append(f"compatible_printers 에 H2S 없음: {cp!r}")
-        if "elephant_foot_compensation" in d:
-            errs.append("오타 키 elephant_foot_compensation (정답: elefant_foot_compensation)")
         eff=d.get("elefant_foot_compensation")
         if eff is not None:
             try:
@@ -846,7 +979,9 @@ for p in sys.argv[1:]:
         for e in errs: print(f"FAIL {f}: {e}")
     else:
         print(f"OK   {f}: type={t} from={d.get('from')} keys={len(d)} "
-              f"ironing={d.get('ironing_type','-')} xy_hole={d.get('xy_hole_compensation','-')}")
+              f"ironing={d.get('ironing_type','-')} xy_hole={d.get('xy_hole_compensation','-')} "
+              f"layer={d.get('layer_height','-')} brim={d.get('brim_type','-')} "
+              f"wipe={d.get('filament_wipe','-')}")
 print("RESULT:","PASS" if allok else "FAIL")
 sys.exit(0 if allok else 1)
 PY
@@ -863,6 +998,9 @@ PY
 - Phase 1.8 이 **표면 우선**으로 판정했는데 출력의 `ironing=no ironing` 이면 → 게이트 실패, Phase 3 재작업
 - Phase 1.7 이 **fit-critical ≥ 1** 인데 출력의 `xy_hole=-` (키 부재) 이면 → 공차 반영 누락
 - 오브젝트를 color-paint 할 예정이면 `xy_hole` / `xy_contour` 는 슬라이서가 버린다 (§1.2) — 사용자에게 경고했는지 확인
+- **(2026-08-13)** Phase 1.9 가 **L1 감지**인데 출력의 `layer=-` 또는 baseline `0.2` 그대로면 → L1 미대응. 그리고 Phase 3.0 의 "adaptive 는 범위 밖" 보고를 `notes.md` 에 실제로 썼는지 확인 (게이트는 JSON 만 본다)
+- **(2026-08-13)** Phase 1.9 가 **L3 감지**인데 출력의 `brim=-` 이면 → L3 미대응
+- **(2026-08-13)** Phase 1.9 가 **L2 감지**인데 건조 게이트 (0) 단계를 통과하지 않은 상태에서 `wipe=1` 이면 → 순서 위반. 건조 확인 없이 wipe 를 먼저 켜지 마라 (`failure-recipes.md` §2.1)
 
 #### 4.4 Verify (Import 후 사용자 확인)
 
@@ -887,6 +1025,7 @@ PY
 - ☐ 새 소재 또는 새 scarf 조합 **첫 시도** (memory에 해당 소재 사용 이력 없음)
 - ☐ PETG / PC / PA-CF / ASA-CF / PPS-CF 등 **건조/챔버 민감 소재**
 - ☐ Multi-color 5+ filament (멀티컬러 복잡도)
+- ☐ **(2026-08-13 신규) Phase 1.9 실패 모드 1 건 이상 감지** — 사후 대응값(layer 하향 / wipe / brim)이 실제로 개선하는지 본 출력 전에 확인. **L2 게이트 (2) 단계(`filament_retraction_length` 상향)는 coupon 통과가 전제 조건**이므로 이 케이스는 skip 불가 (`failure-recipes.md` §2.1)
 - ☐ **(v0.4.2 신규) fit-critical 부품 1개 이상** (베어링/볼트/heat-set 인서트/슬라이드 fit) — Phase 1.7에서 식별됨. 본 출력 전 fit calibration coupon (peg-and-hole)으로 공차 검증 필수. standard sizes 권장: **M3 (3.2mm hole / 4.0mm insert)**, **M4 (4.3mm hole / 5.5mm insert)**, **608ZZ (22.10mm OD / 7.90mm shaft)** 등. 자세한 가이드는 `references/tolerance.md` §5 참조
 
 해당 안 되는 단순 케이스는 skip.
@@ -965,6 +1104,12 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-07-27 신규) Phase 1.8 Surface Intent Gate 통과** — 표면 우선 판정인데 `ironing_type` 이 `"no ironing"` 으로 남아있지 않은지. 기능 우선 판정이면 notes.md 에 "표면 마감 미적용" 을 명시했는지 (조용히 생략 금지).
 - ☐ **(2026-07-27 신규) Phase 4.3 검증 명령을 실제로 실행하고 출력을 응답에 붙였는지** — 체크리스트를 눈으로 훑은 것은 실행이 아니다. `RESULT: PASS` + exit 0 없이 완료 선언 금지.
 - ☐ **(2026-07-27 신규) 로컬 모델 형상을 태그 매칭이 아닌 XML 파서로 추출했는지** — `sed`/`grep` 태그 범위 매칭 금지, 지오메트리가 `3D/Objects/*.model` 에 있을 수 있음, **빈 출력은 PASS 아님** (Phase 1.0).
+- ☐ **(2026-08-13 신규) Phase 1.9 Failure-Mode Gate 통과** — L1/L2/L3 3 종을 각각 감지/없음으로 판정 보고했는지. 감지 0 건이면 "실패 모드 신호 없음" 을 명시했는지 (조용히 skip 금지). grep 매치를 **문장을 읽어** 확인했는지 (`실`·`1층` substring 오탐).
+- ☐ **(2026-08-13 신규) 금지 키 4 종이 생성 JSON 에 0 건인지** — `adaptive_layer_height`, `bed_temperature`, `bed_temperature_initial_layer`, `elephant_foot_compensation`. Phase 4.3 게이트가 dict 키 정확 일치로 검사한다.
+- ☐ **(2026-08-13 신규) Phase 3.0 Supportability Split 의 불가 항목을 notes.md §1.2.1 에 명시 보고했는지** — 특히 L1 adaptive layer height. 근사 구현으로 조용히 때우지 않았는지.
+- ☐ **(2026-08-13 신규) L2 대응이 게이트 순서를 지켰는지** — 건조 확인 (0) → `filament_wipe` (1) → coupon 후 `filament_retraction_length` (2). 온도/fan 을 자동으로 건드리지 않았는지.
+- ☐ **(2026-08-13 신규) `raft_layers` 를 켰다면 fit-critical 0 건인지** — raft 는 `elefant_foot_compensation` 을 조용히 무효화한다. L3 최후 수단 외에는 켜지 않았는지.
+- ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
@@ -1029,6 +1174,7 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing 발생 (필라멘트 건조 부족 의심). seam은 random + external + entire_loop |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 워크플로우 dogfood. 5섹션 notes.md 표준 템플릿 확립. 웹 BOM 30개 vs PDF 매뉴얼 카운트 34개 mismatch 발견 → Phase 1.5 신규. |
 | 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. v0.4.1 dogfood: directive 권장을 보수 해석하여 ironing/scarf 빠진 [A] 결과 → 사용자 의도("모든 면 매끈") 미반영. → v0.4.1 범위 좁힘 정책 + [C] 병행 옵션 default. v0.4.2 dogfood: blade slide-fit 공차 누락 식별 → Phase 1.7 + `elefant_foot_compensation` 추가. |
+| Shower-box 부품 + Holster (2026-06~08 · 5 세션) | 미기록 | ⚠️ **실측 3 종 실패 반복 — "partially successful".** 곡면 계단현상 · voronoi stringing · 바닥 박리가 재출력마다 새로 노출됐고, 그 신호가 다음 프로파일 생성으로 **들어오는 경로가 없었다** (Phase 1.6 은 남의 댓글만 본다). → 2026-08-13 Phase 1.9 Failure-Mode Detector + Phase 3.0 Supportability Split + `failure-recipes.md` 신규. 출처: `/insights` 2026-08-13 (윈도 2026-06-12~08-12). 소재/plate/건조 상태는 리포트에 미기록이라 `[미확인]` — 재현 6 축 대조가 다음 케이스의 첫 단계다 |
 | Ferris Wheel (1186414, 608ZZ variant) | PLA Basic | ⚠️ v0.4.x 이전 회귀: 608ZZ 베어링 외경(22mm)/내경(8mm) fit 안 맞음 (사용자 보고 2026-05-27). → v0.4.2 Phase 1.7 fit-critical 분석 + tolerance.md §3.1 bearing 결정 트리 신규. **2026-07-27 정정**: v0.4.2 가 넣은 `+0.075`/`-0.075` 는 2× 규칙상 22.15mm/7.85mm 로 목표(22.10/7.90) 초과 — 축 fit 에 0.10mm 유격이 생겨 사용자 보고와 일치. 정정값 `+0.05`/`-0.05` (tolerance.md §7). 재출력 검증 대기. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
@@ -1046,4 +1192,5 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 - v0.4.0 dogfood: 2026-05-23 9mm Craft Knife Elite — 디자이너 댓글 "No supports needed, please do not modify the print profile" 무시한 회귀 → Phase 1.6 (Comment Analysis) 신규 + Designer Constraint Override Rule + comments-raw.md 아카이브 + 전체 크롤링 강화 (다국어/페이지네이션/스크롤) + Phase 3 디자이너 권장 명시 키 강제 + notes.md §1.0/§3.0 디자이너 권장 섹션 + Gotcha 4개 신규
 - v0.4.1 dogfood: 2026-05-27 9mm Craft Knife Elite v2 — directive 권장 "do not modify profile"을 전체 profile 수정 금지로 보수 해석한 회귀 (ironing 누락) → Phase 3 Override Rule 적용 범위 좁힘 (Creator 명시 필드만 freeze, 미명시 영역은 자동 결정 위임) + Phase 1.6.5 4-옵션 재설계 (속도 / top만 / 병행 default / 풀) + comment-analysis.md §5 권장 강도별 적용 범위 (strong with value / directive / intent) + Gotcha 1개 신규
 - v0.4.2 dogfood: 2026-05-27 페리스 휠 (1186414, 608ZZ variant) 베어링 fit 안 맞은 사용자 보고 + 9mm sheath blade slide-fit 가능성 → Phase 1.7 (Tolerance & Fit Analysis) 신규 + Phase 3 공차 보정 키 정책 (`elefant_foot_compensation` 오타 발견 — Bambu 의도적) + Phase 5 fit calibration coupon 자동 트리거 + references/tolerance.md 신규 (4 섹션: Bambu 키 / 소재 수축률 / fit-critical 결정 트리 / coupon) + materials.md §4 수축률 컬럼 14 소재 보강 + Gotcha 2개 신규
+- 2026-08-13 카이젠 Phase 13: 근거 파일 `.harness/.meta/evidence/phase13.md` (Codex foreground · read-only · 외부 조회 0 회). 슬라이서 소스 기준 키/기본값 확정 → `references/failure-recipes.md` 신규 + `bambu-fields-baseline.md` §10 신규 + Phase 1.9 / 3.0 신규 + Phase 4.3 금지 키 검사 확장. 사실 정정 3 건: `layer_height 0.08` 의 공식 프로파일 근거 부재(`[미확인]`) · `enable_arc_fitting` 은 품질 기능이 아니라 G-code encoding 변경 · `resolution` 은 XY 전용이며 Z 계단 해결책이 아님. 소스: <https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp>
 - 전체 로그: `~/.claude/codex-research-log/2026-05.md`

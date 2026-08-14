@@ -74,7 +74,12 @@ user-invocable: true
 - [ ] `tracing-opentelemetry = "0.32"` + `opentelemetry = "0.31"` + `opentelemetry-otlp = { version = "0.31", features = ["trace", "metrics", "grpc-tonic"] }` (OTel 연동, 4계층 스택: tracing → tracing-subscriber → tracing-opentelemetry → opentelemetry-otlp)
 - [ ] 개발 의존성: `mockall = "0.13"` (`#[automock]` trait mock), `serial_test = "3"` (통합 테스트 격리)
 
-> Context7 또는 공식 릴리스 노트로 상위 minor 버전이 이미 나왔는지 반드시 확인한다. 본 목록은 2026-04 기준 실무 검증 조합이며, 프로젝트 착수 시점 기준으로 재확인이 필요하다.
+> 위 버전 리터럴은 2026-04 기준 실무 검증 조합의 **스냅샷**이다. 착수 시점의 최신 major 는
+> `references/project-detection.md` **Step 2c**(버전 현행성 표)를 먼저 확인하고, 거기서 최신으로
+> 적힌 크레이트는 Context7 또는 공식 CHANGELOG 로 **feature 이름까지** 확인한 뒤 확정한다 —
+> major 가 바뀌면 feature 목록이 달라질 수 있으므로 위 문자열을 그대로 복사하지 마라.
+> 기존 프로젝트에 붙이는 경우에는 **고정된 버전이 우선**이며, 이 목록을 근거로 업그레이드를
+> 강요하지 않는다.
 
 ## 4. 구조 생성
 
@@ -210,6 +215,13 @@ redundant_clone = "deny"
 cloned_instead_of_copied = "deny"
 inefficient_to_string = "deny"
 large_futures = "deny"
+# panic 계열 게이트 (E3) — 프로덕션 unwrap/expect 재발(AP-05) 차단. 개별 지정만 하고
+# clippy::restriction 그룹 전체를 켜지 않는다. 예외는 표현식 단위 #[expect(..., reason = "...")].
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+panic_in_result_fn = "deny"
+arc_with_non_send_sync = "deny"
 
 [profile.dev]
 debug = "line-tables-only"

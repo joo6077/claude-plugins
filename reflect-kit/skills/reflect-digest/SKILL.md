@@ -27,8 +27,11 @@ user-invocable: true
 5. **CLAUDE.md 200줄 한도 계산을 누락하지 마라**. 규칙 #4(project CLAUDE.md 승격) 후보로 판정한 경우, 현재 CLAUDE.md 라인 수를 측정하고 180줄 이상이면 리포트에 **path_scoped_rule 로 fallback 검토 필요** 플래그를 달아라.
 6. **harness-kaizen 의 이슈를 이 리포트에 섞지 마라** — 도메인 다름. `.harness/feedback-draft.yaml`, sprint-contract 결과 등은 digest 입력이 아니다.
 7. **`actionability: user_environment` 엔트리를 승격 파이프라인에 넣지 마라.** 사용자 환경/설정만 고치면 해소되는 사건(없는 훅 스크립트 참조, 실행 권한 없음, CLI 미설치, 포트 점유)은 **Claude 행동 개선 대상이 아니다.** precedence table 에 넣지 말고 별도 `## 환경 액션 아이템` 섹션으로 라우팅하라. 2026-07 실측: 760 엔트리 중 351건(40%)이 단일 환경 오설정의 반복 로깅이었고, 이것이 `tool_failure` 로 집계되어 진짜 행동 신호를 삼켰다.
-8. **원시 `mistake_tag` 빈도로 precedence 를 적용하지 마라 — 반드시 클러스터링 먼저.** 분석기가 같은 근본원인에 다른 태그를 붙이면 개별 빈도가 임계 미달로 떨어져 **최상위 이슈가 아무것도 승격되지 않는다.** 2026-07 실측: 동일 사건 1건이 54 태그로 파편화. 행동 신호도 같은 문제를 겪었다 — API 문서 조회 스킵 계열이 `skipped-required-api-doc-check`(9) · `missing-official-doc-lookup-for-external-api`(2) · `ignored-required-api-doc-lookup`(1) · `external-api-doc-lookup-skipped`(1) · `ignored-docs-research-requirement`(1) · `research-before-edit-ignored`(1) 6 태그로 쪼개져 합산 15건인데 각각은 임계 미달이었다.
+8. **원시 `mistake_tag` 빈도로 precedence 를 적용하지 마라 — 반드시 클러스터링 먼저.** 분석기가 같은 근본원인에 다른 태그를 붙이면 개별 빈도가 임계 미달로 떨어져 **최상위 이슈가 아무것도 승격되지 않는다.** 클러스터링은 **눈대중이 아니라 결정론적 pass** 로 한다 — 규약은 `${CLAUDE_PLUGIN_ROOT}/references/tag-canonicalization.md`, 데이터는 `references/tag-lemma-map.tsv`, 실행은 `hooks/_lib-tag-canon.sh` 의 `tag_canon_groups` 다. 2026-08-13 실측: `skipped-required-api-doc-check` 는 원시 단독 71 건인데 같은 lemma 클러스터 합산은 **110 건** — 원시 집계는 39 건(55%)을 잃고 있었다.
 9. **파싱 실패를 조용히 넘기지 마라.** YAML 블록 파싱 실패 건수를 리포트 헤더에 반드시 노출한다 (0 이어도 `0` 으로 명시). 2026-07-27 실측 실행에서 760 엔트리 중 6 블록이 파싱 실패했는데 리포트에 드러나지 않으면 집계 신뢰도를 판단할 수 없다.
+10. **`fold_ratio`(원시/클러스터) 로 파편화를 판정하지 마라.** 클러스터링이 아무것도 못 묶으면 이 값은 **1.00 이 되어 "정상" 으로 읽힌다** — 파편화 탐지기로 쓸 수 없다. 2026-08-13 전량 실측이 정확히 그 상태였다: `fold_ratio 1.02` 인데 `singleton_share 0.884` (클러스터 2,578 개 중 2,279 개가 1 회짜리). 판정은 **`singleton_share`** 로 한다.
+11. **표기가 닮았다고 합치지 마라 — `undesired_behavior` 와 `desired_behavior` 가 둘 다 같을 때만 alias 다.** `stale ...` 계열이 대표 사례다: 대상마다 필요한 조치가 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 / 진단 오라클 재실행 / VM 재부착으로 전부 다르다. 이런 묶음은 alias 가 아니라 **family** 로만 보고하고 `cluster_freq` 에 합산하지 않는다 (SSOT §4).
+12. **메모리 엔트리의 `grounding` 을 근거 등급으로 읽어라 — 정의는 복제하지 마라.** `~/.claude/projects/*/memory/` 의 `type: feedback` 엔트리는 frontmatter 에 **`grounding` 필드**를 갖는다. 값의 정의·판정 절차·경계 사례는 `reflect-kit/references/memory-grounding.md` 가 **SSOT** 다 — 이 문서에서 값을 나열하거나 재정의하지 마라 (재정의하면 digest 와 promote 의 기준이 갈라진다). 이 중 **`grounding: self_inference`** 는 외부 검증이 없는 자기추론이므로 **승격 근거로 쓰지 마라.** `source_evidence` 에 넣지 말고 배경 참고로만 읽는다 — 인용하면 이전 라운드의 자기 산출물이 다음 라운드 승격의 근거가 되는 **자기검증 피드백 루프**가 닫힌다. `grounding` 필드가 아예 없는 엔트리는 `self_inference` 가 아니라 **미태깅**이다. 그렇게 구분해 보고하되 둘 다 근거로는 쓰지 않는다.
 
 ## 입력
 
@@ -68,7 +71,7 @@ Matching 디렉토리 0개이면 stderr 에 `no matching buckets for project=<qu
 
 - `~/.claude/logs/<project_id>/YYYY-MM.md` — raw 프롬프트 / tool-failure 로그
 - `~/.claude/logs/<project_id>/reflections-YYYY-MM.md` — Stop 훅 분석 결과 (구조화 YAML)
-- `~/.claude/logs/<project_id>/.errors.log` — 훅 자체 실패 로그 (CLI 미설치 / timeout 등) + `env-dedup:` / `skip:env-dedup-all` 억제 기록
+- `~/.claude/logs/<project_id>/.errors.log` — 훅 자체 실패 로그 (CLI 미설치 / timeout 등) + `env-dedup:` / `skip:env-dedup-all` 억제 기록 + `vocab:` 어휘 지표 (Stop 훅이 매 실행 기록: `raw_distinct/clusters/entries/singletons/fold/singleton_share/epc`) + `warn:lemma-map-unreadable` (정규화 맵을 못 읽어 fail-open 한 실행)
 - `~/.claude/logs/<project_id>/.env-issues.tsv` — 환경 오설정 롤업. `tag <TAB> first_seen <TAB> last_seen <TAB> count` (epoch 초). Stop 훅의 dedup 게이트가 억제한 사건이 여기 누적되므로, **reflections 본문의 빈도만 보면 환경 이슈의 실제 규모를 과소평가한다.** `## 환경 액션 아이템` 섹션은 이 파일을 근거로 쓴다.
 
 ## YAML 스키마 (reflection 엔트리)
@@ -79,6 +82,7 @@ Matching 디렉토리 0개이면 stderr 에 `no matching buckets for project=<qu
 primary_category: misunderstanding | repeated_error | wrong_approach | tool_failure
 also_applies: []       # 추가로 해당하는 카테고리 (multi-label)
 mistake_tag: <kebab-case>
+new_tag_reason: <str>  # 새 태그를 만든 블록에만 존재. canonical 재사용 블록에는 없음 (선택 필드)
 trigger: <str>
 undesired_behavior: <str>
 desired_behavior: <str>
@@ -115,19 +119,50 @@ approach_note: <str>
 5. **actionability 분리** — 파싱된 엔트리를 두 갈래로 나눈다.
    - `claude_behavior` → 6단계 클러스터링 → precedence 대상
    - `user_environment` → precedence 에서 **제외**. `.env-issues.tsv` 와 합쳐 `## 환경 액션 아이템` 섹션에만 보고 (Gotcha #7)
-6. **태그 클러스터링 (canonical_tag + aliases)** — 원시 태그 빈도로 곧장 집계하지 않는다 (Gotcha #8).
-   - **묶는 기준은 근본원인이다.** `undesired_behavior` / `desired_behavior` 가 같은 사건을 가리키면 표기가 달라도 한 클러스터다. 표기 유사도(문자열 거리)만으로 묶지 마라 — `edit-before-read` 와 `edited-wrong-file` 은 철자가 비슷해도 다른 원인이다.
-   - 각 클러스터에서 **최다 빈도 멤버를 `canonical_tag`** 로, 나머지를 `aliases` 로 둔다. 동률이면 가장 최근에 등장한 태그.
+6. **태그 클러스터링** — 원시 태그 빈도로 곧장 집계하지 않는다 (Gotcha #8). 순서를 지켜라: **결정론 먼저, 판단은 그다음**.
+
+   **6-a. 결정론적 pass (기계)** — 이 단계에서 눈대중을 섞지 마라.
+   ```bash
+   # 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
+   . "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
+   tag_canon_selftest || echo "정규화 미작동 — 아래 수치를 집계 근거로 쓰지 마라"
+   tag_canon_groups ~/.claude/logs/<bucket>/reflections-*.md   # cluster_freq \t canonical \t aliases
+   tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
+   ```
+
+   **`tag_canon_selftest` 가 `SELFTEST_OK` 가 아니면 클러스터 수치를 집계 근거로 쓰지 마라**
+   (SSOT §6.1 규칙 6). lemma map 을 못 읽으면 라이브러리는 **에러 없이** 순수 kebab 정규화로
+   fail-open 하므로, 접힘이 0 인 출력이 정상 출력과 똑같은 모양으로 나온다. 그 상태의 빈도는
+   원시 태그 빈도와 같고 — 즉 Gotcha #8 이 금지한 그 집계다. 리포트에 `SELFTEST_FAIL` 사유를
+   적고 정규화를 복구한 뒤 다시 집계한다.
+   출력의 `canonical` 은 클러스터 안 **최빈 원시 표기**이고 `aliases` 는 나머지 멤버 전체다.
+   손으로 멤버를 고르지 마라 — 고르는 순간 `post_freq` 가 과소집계된다. 규약: SSOT §1~§2.
+
+   **6-b. 판단 pass (LLM)** — 결정론 pass 가 **못 묶은 것만** 검토한다.
+   - **묶는 기준은 근본원인이다.** `undesired_behavior` **와** `desired_behavior` 가 **둘 다** 같을 때만 한 클러스터다. 표기 유사도(문자열 거리)만으로 묶지 마라 — `edit-before-read` 와 `edited-wrong-file` 은 철자가 비슷해도 다른 원인이다.
+   - LLM 은 **새 alias 후보와 그 근거를 제시할 뿐**이고, 최종 병합은 `tag-lemma-map.tsv` 에 `alias` 행을 추가한 뒤 6-a 를 **다시 실행해 출력으로 확인**하는 것으로 확정한다 (SSOT §7 절차). 리포트 안에서만 합산하고 맵에 남기지 않으면 다음 주기에 같은 판단을 다시 해야 한다.
    - **감사 흔적 필수** — 클러스터마다 멤버 태그 전체와 개별 freq 를 리포트에 나열한다. 묶은 근거 없이 합산 숫자만 제시하면 승격 판단을 검증할 수 없다.
-   - **과잉 병합 금지.** 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 `## 병합 보류` 로 남겨라. (Sentry fingerprint 규칙도 자주 바뀌는 값으로 그룹핑하면 "really bad groups" 가 된다고 경고한다 — https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/)
-   - 클러스터가 3개 이상 멤버를 가지면 `## ⚠️ 태그 파편화` 섹션에 별도 보고하고, 그 `canonical_tag` 를 Stop 훅 어휘 수렴 대상으로 표시한다.
-7. **집계** (5·6 단계 결과 기준)
-   - **클러스터별 `cluster_freq`** (= canonical + aliases 합산). 원시 `mistake_tag`별 count 도 함께 보관 (감사용)
+   - **과잉 병합 금지.** 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 `## 병합 보류` 로 남겨라. 집계 키를 잘못 잡으면 신호 자체가 망가진다는 점은 Alertmanager `group_by` 설계가 보여준다 (https://prometheus.io/docs/alerting/latest/configuration/). Sentry fingerprint 규칙도 같은 취지의 경고를 하지만, 2026-08-13 재확인 시 원문 직접 인용에 실패했으므로 **직접 인용 없이** 참고 링크로만 둔다 (https://github.com/getsentry/sentry/issues/75567).
+   - 클러스터가 3개 이상 멤버를 가지면 `## ⚠️ 태그 파편화` 섹션에 별도 보고한다.
+
+   **6-c. family 분리 (병합하지 않음)** — `undesired`/`desired` 중 하나라도 다르면 alias 가 아니다. 이때는 출력 포맷의 family 섹션으로만 보고하고 **`cluster_freq` 에 합산하지 않는다.** family 판별은 결정론적 문자열 규칙이다 (예: 세그먼트에 `stale` 이 있으면 `stale-context-reference`). 2026-08 실측 10 개 멤버가 전부 remediation 이 달랐다 — SSOT §4.
+7. **집계** (5·6 단계 결과 기준) — 아래 5 계층을 **분리해서** 보관한다. 하나로 뭉치면 효과 측정과 감사 중 하나가 반드시 깨진다.
+
+   | 계층 | 쓰임 |
+   |---|---|
+   | `raw_tag` | 감사·재현용. 절대 버리지 않는다 |
+   | `lemma_key` | 6-a 출력. **집계·`post_freq` 의 유일한 키** |
+   | `canonical_tag` | 클러스터 최빈 원시 표기. 사람이 읽는 대표 이름 |
+   | `aliases` | 같은 `lemma_key` 의 나머지 멤버 + 개별 freq |
+   | `family` | 병합하지 않고 보고만. **합산 금지** |
+
+   - **클러스터별 `cluster_freq`** (= `lemma_key` 단위 합산). 원시 `mistake_tag`별 count 도 함께 보관 (감사용)
    - `primary_category`별 count (+ `also_applies` 가중치 0.5 반영)
    - `severity` 분포
    - `tools_used.skills / agents / mcp_servers` 교차 빈도 (특정 스킬 호출 시 반복되는 실수)
    - 4축별 분포 (`scope`, `risk_class`, `procedurality`, `enforcement_need`)
-   - **파편화 지표**: `원시 태그 수 / 클러스터 수`. 1.5(**hypothesis** — `/reflect-kaizen` calibration 대상) 초과면 Stop 훅 어휘 주입이 작동하지 않는다는 신호 → `/reflect-kaizen` 대상으로 표시
+   - `new_tag_reason` 이 붙은 신규 태그 목록 — 어휘가 어디로 늘고 있는지의 유일한 단서다
+   - **파편화 지표**: `tag_canon_fragmentation` 7 열을 그대로 싣되 판정은 **`singleton_share`** 로 한다. `> 0.70`(**hypothesis** — 2026-08-13 baseline 0.884, `/reflect-kaizen` calibration 대상)이면 어휘 수렴이 작동하지 않는다는 신호 → 리포트 헤더에 표시하고 `/reflect-kaizen` 대상으로 넘긴다. **`fold_ratio` 로 판정하지 마라** (Gotcha #10)
 8. **승격 후보 계산 (아래 Precedence Table)** — **`freq` 는 항상 `cluster_freq`** 다. 원시 태그 빈도로 임계를 판정하지 마라.
 9. **리포트 출력**
 10. **결과 저장 (옵션)**: `~/.claude/logs/<project_id>/digest-YYYY-MM-DD.md` — `project` 인자로 쓴 id 그대로 사용. 반영 자체는 후속 `/reflect-promote` 가 맡음.
@@ -165,7 +200,7 @@ Precedence Table #3 (`scope == global` AND 복수 프로젝트 freq ≥ 3) 판�
 
 ### 3. Precedence Table 재적용
 
-single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. **진입 전제 3가지(`user_environment` 제외 · `cluster_freq` 사용 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.** 아래 `global_freq` / `project_count` 는 모두 클러스터 단위다.
+single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. **진입 전제 4가지(`user_environment` 제외 · `cluster_freq` 사용 · `grounding: self_inference` 단독 근거 제외 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.** 아래 `global_freq` / `project_count` 는 모두 클러스터 단위다.
 
 | # | 조건 (project=all 기준) | 승격 surface |
 |---|---|---|
@@ -188,7 +223,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
   대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
   집계 실패 프로젝트: K개 (project_id 리스트)
   파싱 실패: P 블록
-  원시 태그 J개 → 클러스터 C개 (파편화 지표 J/C)
+  원시 태그 J개 → 클러스터 C개 / singleton S개 (singleton_share 0.NNN · 임계 0.70) · fold_ratio F
   ⚠️ 편중: <pid> 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음
   ```
 - `basename B개` = hash suffix 없는 Hybrid 기본 포맷 bucket 수
@@ -217,11 +252,12 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 
 ## Surface Precedence Table
 
-**진입 전제 3가지 (여기서 걸러진 후보는 아래 표를 적용하지 않는다):**
+**진입 전제 4가지 (여기서 걸러진 후보는 아래 표를 적용하지 않는다):**
 
 1. `actionability == user_environment` → precedence 대상 아님. `## 환경 액션 아이템` 으로만 보고 (Gotcha #7).
 2. `freq` 는 **`cluster_freq`** 다 (canonical + aliases 합산). 원시 태그 빈도로 임계를 판정하지 마라 (Gotcha #8).
-3. 같은 `canonical_tag`(또는 그 alias)가 `promotions-ledger.md` 에 `status: active` 로 이미 있으면 **재발**이다. 표를 다시 적용해 같은 surface 로 재승격하지 말고 `## 재발 — 등급 상향 후보` 섹션으로 라우팅한다. digest 는 라우팅과 `post_freq` 제시까지만 하고, **실제 등급 상향 판정(재발 2회 이상 E2 / 3회 이상 E3)과 반영은 `/reflect-promote` §B 가 수행한다.**
+3. 근거가 `grounding: self_inference` 인 (또는 `grounding` 미보유인) 메모리 엔트리**뿐**인 후보는 표를 적용하지 않는다. 외부 신호(사용자 교정 또는 실행 증거)가 붙을 때까지 **관망**으로 보고한다 (rule #6 과 같은 취급). 판정 기준은 `reflect-kit/references/memory-grounding.md` — 여기서 재정의하지 마라.
+4. 같은 `canonical_tag`(또는 그 alias)가 `promotions-ledger.md` 에 `status: active` 로 이미 있으면 **재발**이다. 표를 다시 적용해 같은 surface 로 재승격하지 말고 `## 재발 — 등급 상향 후보` 섹션으로 라우팅한다. digest 는 라우팅과 `post_freq` 제시까지만 하고, **실제 등급 상향 판정(재발 2회 이상 E2 / 3회 이상 E3)과 반영은 `/reflect-promote` §B 가 수행한다.**
 
 아래 규칙을 **위에서 아래로** 적용. 먼저 맞는 규칙 하나만 선택.
 
@@ -259,16 +295,30 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 
 ## 요약
 - 총 엔트리: N개 / 세션: M개 / 파싱 실패: P 블록
-- 원시 태그 J개 → 클러스터 C개 (파편화 지표 J/C)
+- 원시 태그 J개 → 클러스터 C개 / singleton S개 (**singleton_share 0.NNN** · 임계 0.70) · fold_ratio F (판정 근거 아님)
 - actionability: claude_behavior A개 / user_environment B개
 - primary_category: misunderstanding X / repeated_error Y / wrong_approach Z / tool_failure W
 - severity: low L / medium M / high H
 - 4축 분포: scope(session S / project P / global G), risk_class(...), procedurality(...), enforcement_need(...)
 
 ## ⚠️ 태그 파편화 (멤버 3개 이상 클러스터)
-| cluster_freq | canonical_tag | aliases (개별 freq) |
-|------------:|---------------|---------------------|
-| 15 | skipped-required-api-doc-check (freq 9 — 최다 멤버) | missing-official-doc-lookup-for-external-api(2), ignored-required-api-doc-lookup(1), external-api-doc-lookup-skipped(1), ignored-docs-research-requirement(1), research-before-edit-ignored(1) |
+`tag_canon_groups` 출력을 그대로 옮긴다. 아래는 2026-08-13 전량 실측 1행.
+
+| cluster_freq | canonical_tag (최다 멤버 freq) | aliases (개별 freq) |
+|------------:|-------------------------------|---------------------|
+| 110 | skipped-required-api-doc-check (71) | skipped-required-api-doc-lookup(7), ignored-required-api-doc-check(7), ignored-external-api-doc-check(4), skipped-external-api-doc-check(3), skipped-api-doc-check(2), +10more |
+
+## 원인 계열 (family) — 병합하지 않음 (합산 금지)
+`undesired_behavior` / `desired_behavior` 중 하나라도 다르면 alias 가 아니다. 계열만 보고한다.
+
+| family | 멤버 (개별 freq) | 왜 합치지 않는가 |
+|--------|------------------|------------------|
+| stale-context-reference | used-stale-widget-ref(4), used-stale-mcp-connection(1), used-stale-inspector-ref(1), used-stale-diagnostics-oracle(1), reused-stale-vm-attachment(1) | remediation 이 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 / 진단 오라클 재실행 / VM 재부착으로 전부 다름 |
+
+## 새 태그 (new_tag_reason 동반)
+| raw_tag | new_tag_reason | 기존 canonical 과의 차이 |
+|---------|----------------|--------------------------|
+| ... | ... | ... |
 
 ## 상위 반복 패턴 (클러스터별)
 | cluster_freq | primary | also_applies | canonical_tag | severity | scope | risk | proc | enforce |
@@ -307,7 +357,8 @@ precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한�
 - skip:cli-missing: X건
 - fail:codex-exit-N: Y건
 - env-dedup (억제): Z건
-- ...
+- warn:lemma-map-unreadable: W건 (0 이 아니면 그 기간 어휘 주입이 fail-open 상태였다 — 파편화 지표를 그 기간에 대해 신뢰하지 마라)
+- vocab (최근 값): raw_distinct/clusters/entries/singletons/fold/singleton_share/epc
 
 ## 병합 보류 (근본원인 확신 부족)
 - `<tag-a>` / `<tag-b>` — 표기는 유사하나 원인이 같은지 불확실. 다음 주기 재평가
@@ -324,8 +375,9 @@ precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한�
 
 ```yaml
 - rule_id: <uuid>                     # 고유 ID (uuidgen)
-  mistake_tag: <canonical_tag>        # 클러스터의 대표 태그
-  aliases: []                         # 같은 근본원인의 다른 표기들. post_freq 는 canonical + aliases 합산
+  mistake_tag: <canonical_tag>        # 클러스터의 대표 태그 = lemma_key 안 최빈 원시 표기
+  lemma_key: <lemma_key>              # post_freq 집계의 실제 키 (tag_canon_groups 산출)
+  aliases: []                         # 같은 lemma_key 의 나머지 멤버 **전체**. 손으로 고르지 마라
   promoted_to: project_claude_md | project_memory | global_claude_md | global_memory | skill | path_scoped_rule | hook
   enforcement_level: E1 | E2 | E3     # skill-design-guide §3.7 등급. 재발 시 상향
   target_path: <실제 수정된 파일 경로>
@@ -340,7 +392,7 @@ precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한�
   demotion_reason: <str>              # 강등된 경우만
 ```
 
-이 ledger로 **regression 측정**이 가능하다. digest는 `promoted_at` 이후 같은 `mistake_tag` 재발 횟수를 `post_freq`에 기록하고, 30일 재발 0 + low risk 면 `status: demoted` 후보로 표시한다.
+이 ledger로 **regression 측정**이 가능하다. digest는 `promoted_at` 이후 같은 `lemma_key` 클러스터(= canonical + aliases 전체)의 재발 횟수를 `post_freq`에 기록하고, 30일 재발 0 + low risk 면 `status: demoted` 후보로 표시한다. 단 `singleton_share` 가 임계를 넘은 기간의 `post_freq` 는 과소집계이므로 그 상태에서 demotion 후보를 내지 않는다 (`/reflect-kaizen` §0).
 
 ## 안티패턴 (하지 말 것)
 
@@ -356,6 +408,12 @@ precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한�
 - **단일 프로젝트 편중을 경고 없이 글로벌 판정에 쓰지 마라** — 점유율 ≥ 60% 면 rule #3 을 잔여 freq 로 재확인.
 - **클러스터를 합산 숫자만으로 제시하지 마라** — 멤버 태그와 개별 freq 감사 흔적 필수.
 - 이미 `status: active` 인 규칙이 재발했는데 **같은 surface 로 재승격 후보를 만들지 마라** — 등급 상향 후보로 표시.
+- **클러스터를 눈대중으로 만들지 마라** — `tag_canon_groups` 출력이 1차 근거다. 리포트 안에서만 합치고 `tag-lemma-map.tsv` 에 남기지 않으면 다음 주기에 같은 판단을 처음부터 다시 하게 된다.
+- **`fold_ratio` 를 파편화 판정에 쓰지 마라** — 아무것도 못 묶으면 1.00 이라 항상 "정상" 이다. `singleton_share` 를 써라.
+- **`stale ...` 계열을 한 태그로 합치지 마라** — remediation 이 다르면 family 로만 보고. 합산하면 승격 문구가 "stale 을 조심하라" 같은 무행동 규칙이 된다.
+- **`grounding: self_inference` 인 메모리 엔트리를 승격 근거로 인용하지 마라** — 아무도 확인하지 않은 자기추론이 영속 규칙으로 증류되는 경로다. `grounding` 미보유(미태깅) 엔트리도 같다.
+- **`grounding` 값을 이 문서에서 재정의하거나 나열하지 마라** — 정본은 `reflect-kit/references/memory-grounding.md` 하나다. 정의가 두 곳에 있으면 digest 와 promote 의 판정이 갈라진다.
+- **닫힌 라벨 집합(hard enum)을 만들지 마라** — 새 근본원인이 기존 라벨로 흡수되어 일관성 수치만 오른다. known canonical 우선 + 새 tag 허용 + `new_tag_reason` 요구가 정책이다.
 
 ## 예시 사용
 

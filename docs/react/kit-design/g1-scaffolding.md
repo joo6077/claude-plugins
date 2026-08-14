@@ -47,7 +47,7 @@ Vite + Tauri 2 + React 19 + TypeScript strict + Tailwind v4 + shadcn/ui + TanSta
 
 `/react-init` 이 생성하는 모노레포 초기 구조 (ASCII 트리):
 
-```
+```text
 my-app/
 ├── package.json                    # pnpm workspace root + scripts
 ├── pnpm-workspace.yaml             # packages: src, src-tauri, crates/*
@@ -124,7 +124,7 @@ my-app/
 
 아래 순서는 **반드시 지켜야 한다**. 순서가 바뀌면 중간에 실패 누적. 각 단계 실패 시 이전 산출물을 롤백한다.
 
-```
+```text
 1. pnpm workspace 생성
    └─ mkdir -p my-app && cd my-app
    └─ pnpm init (package.json scaffold)
@@ -159,7 +159,7 @@ my-app/
 
 7. i18n (Lingui)
    └─ pnpm add @lingui/react @lingui/core
-   └─ pnpm add -D @lingui/cli @lingui/vite-plugin @lingui/macro
+   └─ pnpm add -D @lingui/cli @lingui/vite-plugin @lingui/swc-plugin
    └─ lingui.config.ts 작성
 
 8. 다크모드
@@ -320,7 +320,7 @@ TanStack Router 는 hover/focus 이벤트에 사전 로드를 지원한다. `/re
 
 의존성 방향은 Clean Architecture 기본 규칙: **presentation → domain ← data**. 생성 순서는 의존성 역순 (안쪽부터) 으로 진행해야 참조 에러가 없다.
 
-```
+```text
         ┌─────────────────────────────────┐
         │  1. domain/entities             │  (순수 TS + Zod 스키마)
         │     domain/failures             │

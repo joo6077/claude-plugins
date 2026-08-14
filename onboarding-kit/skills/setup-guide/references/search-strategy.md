@@ -10,14 +10,23 @@
 
 주요 출처 (호스트/섹션명 2026-07-27 실측):
 
-- **Apple**: `developer.apple.com/help/account/` — 실측 top-level 섹션은 Release notes / Basics / Membership / Access / **Certificates** / **Keys** / **Identifiers** / **Capabilities** / **Services** / **Service Configurations** / **Devices** / **Provisioning Profiles** / Reference. App ID 는 **Identifiers**, APNs 키 등 개인 키는 **Keys** 아래다
+- **Apple**: `developer.apple.com/help/account/` — 실측 top-level 섹션은 Release notes / Basics / Membership / Access / **Certificates** / **Keys** / **Identifiers** / **Capabilities** / **Services** / **Service Configurations** / **Devices** / **Provisioning Profiles** / Reference. App ID 는 **Identifiers**, APNs 키 등 개인 키는 **Keys** 아래다. 앱 레코드 생성·빌드 업로드·TestFlight 는 이 사이트가 아니라 **App Store Connect** 다 (SKILL.md Gotcha 3 작업별 표)
 - **Firebase**: `firebase.google.com/docs/`
-- **Google Cloud**: `cloud.google.com/docs/`
+- **Google Cloud**: `docs.cloud.google.com/docs/` — `cloud.google.com/docs/` 로 요청하면 이쪽으로 리다이렉트된다 (실측 2026-08-13). 서비스 계정 / ADC 문서도 최종 URL 이 `docs.cloud.google.com` 이다. **원장에는 최종 URL 을 남긴다**
 - **AWS**: `docs.aws.amazon.com/`
-- **Stripe**: `docs.stripe.com/` (`stripe.com/docs/` 는 구 호스트 — 아래 호스트 이전 주의 참조)
+- **Stripe**: `docs.stripe.com/` (`stripe.com/docs/` 는 구 호스트 — 아래 호스트 이전 주의 참조). 개발환경 문서는 언어별 variant URL 을 제공한다
 - **Sentry**: `docs.sentry.io/`
 
-WebFetch 프롬프트 예시: "Apple Developer Portal에서 새 App ID를 등록하는 정확한 클릭 경로를 step-by-step으로 추출해줘. 좌측 메뉴 위치, + 버튼 이후 옵션, Capabilities 체크리스트 위치, 최종 등록 버튼 라벨까지. 한국어로 정리."
+WebFetch 프롬프트 예시: "Apple Developer 공개 Help 에서 App ID 등록이 어느 섹션에 있는지, 그 페이지에 적힌 섹션명·필드명을 문서 표기 그대로 추출해줘. 문서에 없는 화면 흐름은 '문서에 없음' 이라고 답할 것."
+
+#### WebFetch 로 닿지 않는 것 — 로그인 뒤 콘솔 화면
+
+**WebFetch 가 볼 수 있는 것은 로그인 없이 접근 가능한 공개 문서뿐이다.** Firebase Console · Apple Developer Portal · App Store Connect 의 **로그인 뒤 실시간 UI 는 어떤 도구로도 확인할 수 없다** (실측 2026-08-13). 따라서:
+
+- 인용은 **공개 문서에 실제로 적힌 라벨**로 한정한다. 문서에 없는 버튼 단위 흐름을 "이렇게 생겼다" 고 단정하지 마라.
+- 확정할 수 있는 것은 대개 **상위 섹션명까지**다 (Apple: `Identifiers` / `Keys` / `Certificates` / `Provisioning Profiles` · Firebase: `Settings` → `General` → `Cloud Messaging` 탭 → `iOS app configuration`).
+- 이 한계를 **가이드 본문에 한 줄로 적는 것**까지가 절차다. 없는 확신을 파는 것보다 정직한 경계 표시가 사용자를 덜 헤매게 한다.
+- 이것은 `[미검증:ENV]` 를 붙일 사유가 **아니다** — 공개 문서로 확인한 부분은 정상 출처이고, 확인 못 한 부분은 애초에 쓰지 않는다.
 
 #### 호스트 이전 / 리다이렉트 주의
 
@@ -76,7 +85,7 @@ SDK 버전은 GitHub Releases 페이지 대신 **패키지 레지스트리**(pub
 > **✅ 현재 권장:** <새 방법 + 이유>
 ```
 
-**역방향 금지:** 1차 출처가 deprecated 라고 하지 않은 것을 deprecated 로 쓰지 않는다. "권장하지 않음(not recommended)" · "레거시" · "제거 예정" 은 서로 다른 강도의 주장이고, 출처보다 강한 주장을 쓰는 것도 날조다. 실측 2026-07-27: FCM Apple 클라이언트 문서는 APNs 인증 키(`.p8`) 를 **권장**하지만 인증서(`.p12`) 를 deprecated 로 표기하지 않는다 — 이 문서에서 deprecated 로 명시된 것은 Instance ID API 다.
+**역방향 금지:** 1차 출처가 deprecated 라고 하지 않은 것을 deprecated 로 쓰지 않는다. "권장하지 않음(not recommended)" · "레거시" · "제거 예정" 은 서로 다른 강도의 주장이고, 출처보다 강한 주장을 쓰는 것도 날조다. 실측 2026-07-27 · 재확인 2026-08-13: FCM Apple/Flutter 문서는 APNs 인증 키(`.p8`) 를 **안내**하지만 인증서(`.p12`) 를 deprecated 로 표기하지 않는다 — 이 문서에서 deprecated 로 명시된 것은 Instance ID API 다. `.p8` 을 권장한다는 사실로부터 `.p12` 의 deprecation 을 **추론하지 마라.** 이 승격은 `guide_gate` G4 가 기계적으로 잡는다 (SKILL.md §Guide Conformance Gate).
 
 ## Fetch 실패 시 fallback 사다리
 
@@ -87,7 +96,9 @@ SDK 버전은 GitHub Releases 페이지 대신 **패키지 레지스트리**(pub
 3. Context7 (SDK API 한정) → Codex 위임 (정책/교차검증)
 4. WebSearch (현재 연도 포함)
 
-네 단계 모두 실패하면 **학습 데이터로 채우지 않는다.** 해당 Step 에 `**출처:** [미검증] — <시도한 단계와 실패 사유>` 를 남긴다. `[미검증]` 이 2 건 이상이면 가이드는 부분 완료로 보고한다 (SKILL.md §출처 원장 · 정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol).
+네 단계 모두 실패하면 **학습 데이터로 채우지 않는다.** 해당 Step 에 `**출처:** [미검증:ENV] — <시도한 단계와 실패 출력 · 통제 불가 사유 · 재검증 명령>` 을 남긴다. 접미 없는 `[미검증]` 은 정본에서 `INVALID` 로 해석되므로 쓰지 않는다.
+
+**네 단계를 실제로 타지 않았으면 `:ENV` 를 쓸 수 없다.** 사다리를 건너뛴 주장은 `[미검증:INVALID]` 로 강등되고, "이번엔 안 조회하기로 했다" 는 마커가 아니라 그냥 **미완**이다. 마커 분류·카운터 분리·임계는 SKILL.md §출처 원장 을 따르며, 정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이다 — 이 문서에서 임계 숫자를 재정의하지 않는다.
 
 ## 검색 결과 검증 체크리스트
 

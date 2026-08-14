@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>상태 관리 — Flutter Toolkit</title>
 <style>
   :root{
@@ -27,643 +27,484 @@
     --radius-sm:8px;
     --radius-lg:20px;
     --transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
   }
-
-  *,
-  *::before,
-  *::after{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;font-size:16px;background:
+    radial-gradient(ellipse at top left,var(--accent-glow),transparent 50%),
+    radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 50%),
+    var(--bg);
   }
+  .container{max-width:1100px;margin:0 auto;padding:56px 24px 120px}
+  a{color:var(--accent);text-decoration:none;transition:color var(--transition)}
+  a:hover{color:var(--accent2)}
+  a:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px}
+  code{font-family:var(--mono);font-size:.9em;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
 
-  html{
-    scroll-behavior:smooth;
-    -webkit-text-size-adjust:100%;
+  /* HERO */
+  .hero{padding:56px 0 60px}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:26px}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .hero h1{font-size:clamp(38px,7vw,72px);font-weight:800;line-height:1.06;letter-spacing:-.03em;margin-bottom:20px;overflow-wrap:anywhere;background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 55%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .subtitle{font-size:18px;color:var(--text2);max-width:760px;line-height:1.7}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--text3)}
+  .hero-meta span{display:inline-flex;align-items:center;gap:6px;min-width:0}
+  .hero-meta span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:.6}
+
+  /* SECTION */
+  section{margin-top:68px}
+  .section-header{margin-bottom:28px}
+  .section-label{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
+  .section-header h2{font-size:clamp(26px,4.4vw,34px);font-weight:700;letter-spacing:-.02em;margin-bottom:10px;overflow-wrap:anywhere}
+  .section-header p{color:var(--text2);font-size:15px;max-width:680px}
+
+  /* CARDS */
+  .cards{display:grid;gap:20px}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:26px 28px;transition:border-color var(--transition),transform var(--transition);position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity var(--transition)}
+  .card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .card:hover::before{opacity:1}
+  .card-num{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 9px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:14px;margin-bottom:15px;border:1px solid var(--accent)}
+  .card h3{font-size:19px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em;overflow-wrap:anywhere}
+  .card p{color:var(--text2);font-size:15px;margin-bottom:12px}
+  .card p:last-of-type{margin-bottom:0}
+  .card ul{list-style:none;margin-top:10px;display:grid;gap:9px}
+  .card ul li{color:var(--text2);font-size:14px;padding-left:16px;position:relative}
+  .card ul li::before{content:"–";position:absolute;left:0;color:var(--accent)}
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);border-top:1px dashed var(--border2);padding-top:13px;margin-top:14px;width:100%;word-break:break-all}
+  .card-source::before{content:"↗";font-size:13px;flex-shrink:0}
+
+  /* CALLOUT */
+  .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:var(--radius-sm);padding:18px 22px;margin-top:20px;color:var(--text2);font-size:14.5px;line-height:1.7}
+  .callout strong{color:var(--text)}
+  .callout.accent{border-left-color:var(--accent)}
+
+  /* TABLE */
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{width:100%;min-width:max-content;border-collapse:collapse}
+  th,td{text-align:left;padding:14px 20px;border-bottom:1px solid var(--border);font-size:14.5px}
+  th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:var(--surface2)}
+  td.val{color:var(--accent2);font-family:var(--mono);font-size:13.5px}
+
+  /* COMPARE */
+  .compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .compare-col{border:1px solid var(--border);border-radius:var(--radius);padding:24px;background:var(--surface)}
+  .compare-col.bad{border-color:rgba(248,113,113,.35)}
+  .compare-col.good{border-color:rgba(34,211,238,.4)}
+  .compare-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;padding:5px 12px;border-radius:999px}
+  .compare-col.bad .compare-label{color:var(--error);background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.4)}
+  .compare-col.good .compare-label{color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent)}
+  .compare-col ul{list-style:none}
+  .compare-col li{padding:10px 0;color:var(--text2);font-size:14px;border-bottom:1px dashed var(--border);display:flex;gap:10px;align-items:flex-start}
+  .compare-col li:last-child{border-bottom:none}
+  .compare-col.bad li::before{content:"×";color:var(--error);font-weight:800;flex-shrink:0}
+  .compare-col.good li::before{content:"✓";color:var(--accent);font-weight:800;flex-shrink:0}
+
+  /* FLOW */
+  .flow{display:grid;gap:12px;counter-reset:step}
+  .flow-step{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;transition:border-color var(--transition)}
+  .flow-step:hover{border-color:var(--accent)}
+  .flow-num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .flow-body{min-width:0;color:var(--text2);font-size:14.5px}
+  .flow-body strong{color:var(--text)}
+
+  /* FACT LIST */
+  .facts{list-style:none;display:grid;gap:12px}
+  .facts li{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border2);border-radius:var(--radius-sm);padding:14px 18px;color:var(--text2);font-size:14.5px;transition:border-left-color var(--transition)}
+  .facts li:hover{border-left-color:var(--accent)}
+  .facts li strong{color:var(--text)}
+
+  /* GOTCHAS */
+  .gotchas{list-style:none;display:grid;gap:14px}
+  .gotcha{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 20px;display:flex;gap:14px;transition:background var(--transition),transform var(--transition)}
+  .gotcha:hover{background:var(--surface2);transform:translateX(4px)}
+  .gotcha-check{flex-shrink:0;width:24px;height:24px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:13px;background:var(--accent-dim)}
+  .gotcha-body{flex:1;min-width:0}
+  .gotcha-body strong{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
+  .gotcha-body span{color:var(--text2);font-size:14px}
+
+  /* CODE */
+  .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-top:16px;overflow-x:auto;max-width:100%;position:relative}
+  .code-block::before{content:attr(data-lang);position:absolute;top:8px;right:14px;font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700}
+  .code-block pre{font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--text2);white-space:pre;margin:0}
+  .code-block .kw{color:var(--accent2)}
+  .code-block .cm{color:var(--text3);font-style:italic}
+  .code-block .st{color:#fbbf24}
+
+  /* VERSION PILLS */
+  .pills{display:flex;flex-wrap:wrap;gap:12px}
+  .pill{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:10px 18px;font-size:13.5px;color:var(--text2);min-width:0}
+  .pill strong{color:var(--accent2);font-family:var(--mono)}
+
+  /* SUMMARY */
+  .summary-box{background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:32px 30px;margin-top:24px;position:relative;overflow:hidden}
+  .summary-box::after{content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--accent-dim);filter:blur(40px);pointer-events:none}
+  .summary-box h3{font-size:21px;margin-bottom:14px;letter-spacing:-.01em;position:relative}
+  .summary-box p{color:var(--text2);font-size:15px;line-height:1.75;position:relative}
+
+  /* FOOTER */
+  footer{margin-top:110px;padding-top:36px;border-top:1px solid var(--border);color:var(--text3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+  footer a{color:var(--text2)}
+
+  /* OVERFLOW GUARDS */
+  .cards>*,.grid-2>*,.compare>*,.facts>*,.gotchas>*,.flow>*,.pills>*{min-width:0}
+  pre{overflow-x:auto;max-width:100%}
+  :not(pre)>code{overflow-wrap:anywhere}
+  .facts a,.callout a,.card a,.gotcha-body a,.summary-box a,.tl-legend a,.step a{overflow-wrap:anywhere}
+
+  @media(max-width:600px){
+    .grid-2,.compare{grid-template-columns:1fr}
+    .container{padding:40px 18px 90px}
+    th,td{padding:12px 16px}
   }
-
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    line-height:1.65;
-    font-size:16px;
-    min-height:100vh;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, var(--accent-glow), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 100%, var(--accent-glow), transparent);
-    background-attachment:fixed;
-  }
-
-  ::selection{
-    background:var(--accent-dim);
-    color:var(--accent2);
-  }
-
-  .container{
-    max-width:1080px;
-    margin:0 auto;
-    padding:64px 32px 96px;
-  }
-
-  /* ─── Hero ─── */
-  .hero{
-    text-align:center;
-    padding:72px 24px 56px;
-    border-bottom:1px solid var(--border);
-    margin-bottom:64px;
-  }
-
-  .badge{
-    display:inline-block;
-    padding:6px 14px;
-    background:var(--accent-dim);
-    border:1px solid var(--accent);
-    border-radius:999px;
-    color:var(--accent2);
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:0.5px;
-    text-transform:uppercase;
-    margin-bottom:24px;
-  }
-
-  .hero h1{
-    font-size:clamp(40px,6vw,64px);
-    font-weight:800;
-    line-height:1.1;
-    letter-spacing:-0.02em;
-    background:linear-gradient(135deg, var(--text) 0%, var(--accent2) 60%, var(--accent) 100%);
-    -webkit-background-clip:text;
-    background-clip:text;
-    -webkit-text-fill-color:transparent;
-    margin-bottom:20px;
-  }
-
-  .hero .subtitle{
-    font-size:19px;
-    color:var(--text2);
-    max-width:680px;
-    margin:0 auto;
-    line-height:1.6;
-  }
-
-  .hero .meta{
-    margin-top:28px;
-    display:flex;
-    gap:16px;
-    justify-content:center;
-    flex-wrap:wrap;
-    font-size:13px;
-    color:var(--text3);
-  }
-
-  .hero .meta span{
-    padding:4px 12px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:999px;
-  }
-
-  /* ─── Sections ─── */
-  section{
-    margin-bottom:72px;
-  }
-
-  .section-header{
-    display:flex;
-    align-items:baseline;
-    gap:16px;
-    margin-bottom:28px;
-    padding-bottom:14px;
-    border-bottom:1px solid var(--border);
-  }
-
-  .section-header h2{
-    font-size:28px;
-    font-weight:700;
-    letter-spacing:-0.01em;
-    color:var(--text);
-  }
-
-  .section-header .tag{
-    font-size:12px;
-    font-weight:600;
-    color:var(--accent);
-    text-transform:uppercase;
-    letter-spacing:1px;
-  }
-
-  .section-intro{
-    color:var(--text2);
-    margin-bottom:24px;
-    font-size:15px;
-  }
-
-  /* ─── Principle cards ─── */
-  .cards{
-    display:grid;
-    gap:20px;
-  }
-
-  .card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:28px;
-    transition:border-color var(--transition), transform var(--transition);
-    position:relative;
-  }
-
-  .card:hover{
-    border-color:var(--border2);
-    transform:translateY(-1px);
-  }
-
-  .card-num{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:32px;
-    height:32px;
-    background:var(--accent-dim);
-    border:1px solid var(--accent);
-    border-radius:8px;
-    color:var(--accent2);
-    font-weight:700;
-    font-size:14px;
-    margin-bottom:14px;
-  }
-
-  .card h3{
-    font-size:18px;
-    font-weight:700;
-    color:var(--text);
-    margin-bottom:10px;
-    line-height:1.4;
-  }
-
-  .card p{
-    color:var(--text2);
-    font-size:14.5px;
-    margin-bottom:14px;
-  }
-
-  .card code{
-    background:var(--surface3);
-    color:var(--accent2);
-    padding:2px 7px;
-    border-radius:4px;
-    font-family:"SF Mono",Menlo,Consolas,monospace;
-    font-size:13px;
-  }
-
-  .card-source{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:6px 12px;
-    background:var(--bg2);
-    border:1px solid var(--border);
-    border-radius:var(--radius-sm);
-    color:var(--accent);
-    text-decoration:none;
-    font-size:12px;
-    font-family:"SF Mono",Menlo,Consolas,monospace;
-    transition:all var(--transition);
-    margin-right:8px;
-    margin-top:6px;
-  }
-
-  .card-source:hover{
-    background:var(--accent-dim);
-    border-color:var(--accent);
-    color:var(--accent2);
-  }
-
-  .card-source::before{
-    content:"→";
-    color:var(--accent);
-  }
-
-  /* ─── Metrics table ─── */
-  .metrics-table{
-    width:100%;
-    border-collapse:separate;
-    border-spacing:0;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    overflow:hidden;
-  }
-
-  .metrics-table th,
-  .metrics-table td{
-    padding:16px 20px;
-    text-align:left;
-    border-bottom:1px solid var(--border);
-    font-size:14.5px;
-  }
-
-  .metrics-table th{
-    background:var(--surface2);
-    color:var(--accent);
-    font-weight:600;
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:0.8px;
-  }
-
-  .metrics-table tr:last-child td{
-    border-bottom:none;
-  }
-
-  .metrics-table tr:hover td{
-    background:var(--surface2);
-  }
-
-  .metrics-table td code{
-    background:var(--surface3);
-    color:var(--accent2);
-    padding:2px 8px;
-    border-radius:4px;
-    font-family:"SF Mono",Menlo,Consolas,monospace;
-    font-size:13px;
-  }
-
-  /* OVERFLOW GUARDS — 표는 자르지 않고 가로 스크롤, grid 자식 min-width:auto 차단 */
-  .table-wrap{
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    max-width:100%;
-  }
-
-  .table-wrap>table{
-    min-width:max-content;
-  }
-
-  .cards>*,
-  .compare>*,
-  .checklist>*{
-    min-width:0;
-  }
-
-  :not(pre)>code{
-    overflow-wrap:anywhere;
-  }
-
-  .card-source{
-    max-width:100%;
-    overflow-wrap:anywhere;
-  }
-
-  /* ─── Anti-pattern compare ─── */
-  .compare{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:16px;
-  }
-
-  .compare-item{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-left:3px solid var(--error);
-    border-radius:var(--radius);
-    padding:22px 26px;
-    display:flex;
-    align-items:flex-start;
-    gap:16px;
-  }
-
-  .compare-item .icon{
-    flex-shrink:0;
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    background:rgba(248,113,113,0.12);
-    color:var(--error);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:700;
-    font-size:16px;
-    line-height:1;
-  }
-
-  .compare-item p{
-    color:var(--text);
-    font-size:14.5px;
-    line-height:1.6;
-  }
-
-  .compare-item code{
-    background:var(--surface3);
-    color:#fda4af;
-    padding:2px 7px;
-    border-radius:4px;
-    font-family:"SF Mono",Menlo,Consolas,monospace;
-    font-size:13px;
-  }
-
-  /* ─── Gotchas checklist ─── */
-  .checklist{
-    display:grid;
-    gap:14px;
-  }
-
-  .check-item{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:22px 26px;
-    display:flex;
-    gap:16px;
-    align-items:flex-start;
-    transition:border-color var(--transition);
-  }
-
-  .check-item:hover{
-    border-color:var(--accent);
-  }
-
-  .check-item .box{
-    flex-shrink:0;
-    width:22px;
-    height:22px;
-    border:2px solid var(--accent);
-    border-radius:6px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--accent);
-    font-size:14px;
-    font-weight:700;
-    margin-top:2px;
-  }
-
-  .check-item p{
-    color:var(--text2);
-    font-size:14.5px;
-    line-height:1.65;
-  }
-
-  .check-item strong{
-    color:var(--text);
-    font-weight:600;
-  }
-
-  .check-item code{
-    background:var(--surface3);
-    color:var(--accent2);
-    padding:2px 7px;
-    border-radius:4px;
-    font-family:"SF Mono",Menlo,Consolas,monospace;
-    font-size:13px;
-  }
-
-  /* ─── Footer ─── */
-  footer{
-    margin-top:96px;
-    padding-top:32px;
-    border-top:1px solid var(--border);
-    text-align:center;
-    color:var(--text3);
-    font-size:13px;
-  }
-
-  footer a{
-    color:var(--accent);
-    text-decoration:none;
-  }
-
-  /* ─── Responsive ─── */
-  @media (min-width:768px){
-    .compare{
-      grid-template-columns:1fr 1fr;
-    }
-  }
-
-  @media (max-width:640px){
-    .container{ padding:32px 20px 64px; }
-    .hero{ padding:40px 16px 32px; }
-    .hero h1{ font-size:36px; }
-    .hero .subtitle{ font-size:16px; }
-    .section-header h2{ font-size:22px; }
-    .card{ padding:22px; }
-    .metrics-table th,
-    .metrics-table td{ padding:12px 14px; font-size:13px; }
-  }
-
-  /* ─── Reduced motion ─── */
-  @media (prefers-reduced-motion:reduce){
-    *,
-    *::before,
-    *::after{
-      transition:none !important;
-      animation:none !important;
-      scroll-behavior:auto !important;
-    }
-    .card:hover{ transform:none; }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+    .card:hover,.gotcha:hover{transform:none}
   }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ═══════════ Hero ═══════════ -->
   <header class="hero">
-    <span class="badge">Flutter Toolkit v0.1</span>
+    <div class="badge">Flutter Toolkit · State</div>
     <h1>상태 관리</h1>
     <p class="subtitle">
-      Riverpod / Bloc / Provider 비교와 선택 기준. Notifier·AsyncNotifier,
-      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">ref.mounted</code>,
-      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">copyWith</code>,
-      <code style="background:var(--surface);padding:2px 8px;border-radius:4px;color:var(--accent2);font-family:'SF Mono',monospace;font-size:15px;">Result.when</code>
-      같은 핵심 패턴을 정리한다.
+      Riverpod / Bloc / Provider 비교와 선택 기준. <code>Notifier</code>·<code>AsyncNotifier</code>,
+      <code>ref.mounted</code>, <code>copyWith</code>, <code>Result.when</code> 같은 핵심 패턴과
+      watch / listen / invalidate / refresh 의 역할 분리를 정리한다.
     </p>
-    <div class="meta">
-      <span>version 0.1.0</span>
-      <span>updated 2026-04-05</span>
-      <span>flutter / dart</span>
+    <div class="hero-meta">
+      <span>버전 0.2.0</span>
+      <span>업데이트 2026-08-13</span>
+      <span>카테고리 State</span>
+      <span>원칙 5 · 안티패턴 4</span>
     </div>
   </header>
 
-  <!-- ═══════════ 원칙 ═══════════ -->
   <section>
     <div class="section-header">
-      <span class="tag">01</span>
-      <h2>원칙</h2>
+      <div class="section-label">Principles</div>
+      <h2>다섯 가지 핵심 원칙</h2>
+      <p>Provider 선택, 라이브러리 혼용 금지, 3-케이스 비동기 타입, immutable 상태, dispose 이후 접근 차단.</p>
     </div>
-    <p class="section-intro">
-      상태 관리 선택은 프로젝트 수명의 방향을 결정한다. 아래 5개 원칙은 Riverpod 공식 문서와
-      pub.dev의 maintainer 가이드에서 도출되었다.
-    </p>
-
     <div class="cards">
+
       <article class="card">
-        <span class="card-num">1</span>
-        <h3>변경 가능한 복잡 상태는 Riverpod의 <code>NotifierProvider</code> / <code>AsyncNotifierProvider</code>를 기본으로 쓴다</h3>
-        <p>단순 파생값은 <code>Provider</code>, 비동기 로딩은 <code>AsyncNotifierProvider</code>.
-          새 화면의 상태를 설계할 때 첫 선택지는 언제나 Notifier 계열이다.</p>
-        <a class="card-source" href="https://docs-v2.riverpod.dev/docs/providers/notifier_provider" target="_blank" rel="noopener">
-          docs-v2.riverpod.dev
-        </a>
+        <div class="card-num">1</div>
+        <h3>복잡 상태는 NotifierProvider / AsyncNotifierProvider</h3>
+        <p>
+          변경 가능한 복잡 상태는 Riverpod 의 <code>NotifierProvider</code> / <code>AsyncNotifierProvider</code> 를 기본으로 쓴다.
+          단순 파생값은 <code>Provider</code>, 비동기 로딩은 <code>AsyncNotifierProvider</code>.
+        </p>
+        <a class="card-source" href="https://docs-v2.riverpod.dev/docs/providers/notifier_provider" target="_blank" rel="noopener">docs-v2.riverpod.dev/docs/providers/notifier_provider</a>
       </article>
 
       <article class="card">
-        <span class="card-num">2</span>
-        <h3><code>provider</code> 패키지는 얇은 <code>InheritedWidget</code> 래퍼, <code>flutter_bloc</code>은 이벤트/상태 전이 모델이다</h3>
-        <p>팀 규모와 상태 복잡도에 맞춰 선택하고 한 프로젝트에서 혼용하지 않는다.
-          두 라이브러리가 공존하면 onboarding 비용이 두 배, 테스트 전략도 두 배가 된다.</p>
+        <div class="card-num">2</div>
+        <h3>라이브러리 성격을 알고 하나만 쓴다</h3>
+        <p>
+          <code>provider</code> 패키지는 얇은 <code>InheritedWidget</code> 래퍼, <code>flutter_bloc</code> 은 이벤트/상태 전이
+          모델이다. 팀 규모와 상태 복잡도에 맞춰 선택하고 한 프로젝트에서 혼용하지 않는다.
+        </p>
         <a class="card-source" href="https://pub.dev/packages/provider" target="_blank" rel="noopener">pub.dev/packages/provider</a>
         <a class="card-source" href="https://pub.dev/packages/flutter_bloc" target="_blank" rel="noopener">pub.dev/packages/flutter_bloc</a>
       </article>
 
       <article class="card">
-        <span class="card-num">3</span>
-        <h3>비동기 UI 상태는 <code>AsyncValue</code>처럼 loading / error / data 3 케이스 타입으로 표현한다</h3>
-        <p><code>bool isLoading</code> + nullable data 조합 금지. 3 케이스 sealed 타입은
-          UI 분기를 강제하여 "로딩 중인데 에러" 같은 불가능한 상태를 컴파일 타임에 막는다.</p>
+        <div class="card-num">3</div>
+        <h3>비동기 UI 상태는 3 케이스 타입으로</h3>
+        <p>
+          비동기 UI 상태는 <code>AsyncValue</code> 처럼 loading / error / data 3 케이스 타입으로 표현한다.
+          <code>bool isLoading</code> + nullable data 조합은 금지한다.
+        </p>
         <a class="card-source" href="https://pub.dev/packages/flutter_riverpod" target="_blank" rel="noopener">pub.dev/packages/flutter_riverpod</a>
       </article>
 
       <article class="card">
-        <span class="card-num">4</span>
-        <h3>상태 객체는 immutable + <code>copyWith</code> 기본</h3>
-        <p><code>freezed</code>로 sealed union과 <code>copyWith</code>를 자동 생성한다.
-          수작업 <code>copyWith</code>는 필드 추가 시 누락 버그의 온상이다.</p>
+        <div class="card-num">4</div>
+        <h3>상태 객체는 immutable + copyWith</h3>
+        <p>
+          상태 객체는 immutable 을 기본으로 하고 <code>copyWith</code> 를 제공한다. <code>freezed</code> 로 sealed union 과
+          <code>copyWith</code> 를 자동 생성한다.
+        </p>
         <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">pub.dev/packages/freezed</a>
       </article>
 
       <article class="card">
-        <span class="card-num">5</span>
-        <h3>Provider/Notifier 내부에서 <code>await</code> 이후 UI에 반영하기 전 <code>ref.mounted</code>를 확인한다</h3>
-        <p>dispose 이후 접근은 state 설정 예외를 발생시킨다. 화면 빠른 전환 시 실전에서
-          가장 많이 발생하는 런타임 에러 중 하나.</p>
-        <a class="card-source" href="https://pub.dev/documentation/flutter_riverpod/latest/flutter_riverpod/Ref-class.html" target="_blank" rel="noopener">flutter_riverpod Ref</a>
+        <div class="card-num">5</div>
+        <h3>await 이후에는 ref.mounted 확인</h3>
+        <p>
+          Provider/Notifier 내부에서 <code>await</code> 이후 UI 에 반영하기 전 <code>ref.mounted</code> 를 확인한다.
+          dispose 이후 접근은 state 설정 예외를 발생시킨다.
+        </p>
+        <a class="card-source" href="https://pub.dev/documentation/flutter_riverpod/latest/flutter_riverpod/Ref-class.html" target="_blank" rel="noopener">pub.dev/documentation/flutter_riverpod/latest/flutter_riverpod/Ref-class.html</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Numbers</div>
+      <h2>수치 기준</h2>
+      <p>2026-04 기준 최신 안정 버전과 경계값.</p>
+    </div>
+    <div class="pills">
+      <span class="pill">flutter_riverpod <strong>3.3.1</strong></span>
+      <span class="pill">flutter_bloc <strong>9.1.1</strong></span>
+      <span class="pill">provider <strong>6.1.5+1</strong></span>
+    </div>
+    <ul class="facts" style="margin-top:18px">
+      <li>위 버전은 <strong>2026-04 기준 최신 안정</strong>이다. 실제 프로젝트에서는 <code>pubspec.lock</code> 값을 확인하고 쓴다.</li>
+      <li>Provider 트리에 <strong>150개 이상</strong>의 <code>ChangeNotifierProvider</code> 를 쌓으면 rebuild 추적 + stack overflow 위험이 커진다.</li>
+      <li>비동기 액션은 반드시 <strong>loading / error / data 3 상태</strong>를 명시한다 — nullable bool 하나로 표현하지 않는다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Anti-patterns</div>
+      <h2>안티패턴 vs 권장</h2>
+      <p>상태 흐름을 추적 불가능하게 만드는 네 가지.</p>
+    </div>
+    <div class="compare">
+      <div class="compare-col bad">
+        <span class="compare-label">Avoid</span>
+        <ul>
+          <li><span>Notifier 바깥에서 state 의 내부 필드를 직접 mutate (<code>state.items.add(...)</code>)</span></li>
+          <li><span><code>build</code> 메서드 안에서 HTTP/DB 호출을 바로 시작</span></li>
+          <li><span><code>loading</code>/<code>error</code>/<code>data</code> 를 <code>bool isLoading</code> + nullable 값으로 표현</span></li>
+          <li><span>같은 feature 안에 Bloc / Riverpod / Provider 를 섞어 쓰는 구조</span></li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <span class="compare-label">Prefer</span>
+        <ul>
+          <li><span>Notifier 메서드 안에서 <code>copyWith</code> 로 새 state 를 대입</span></li>
+          <li><span>fetch 는 Notifier <code>build</code> 또는 repository 계층에서 수행</span></li>
+          <li><span><code>AsyncValue</code> 같은 3 케이스 sealed 타입으로 표현</span></li>
+          <li><span>feature 단위로 하나의 상태 관리 라이브러리만 사용</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Snippet</div>
+      <h2>AsyncNotifier 기본 구조</h2>
+      <p>optimistic update + rollback, 그리고 <code>await</code> 뒤 <code>ref.mounted</code> 가드.</p>
+    </div>
+    <div class="code-block" data-lang="DART">
+<pre><span class="kw">@riverpod</span>
+<span class="kw">class</span> ProductList <span class="kw">extends</span> _$ProductList {
+  <span class="kw">@override</span>
+  FutureOr&lt;List&lt;Product&gt;&gt; build() =&gt; _fetch();
+
+  Future&lt;List&lt;Product&gt;&gt; _fetch() <span class="kw">async</span> {
+    <span class="kw">final</span> repo = ref.read(productRepositoryProvider);
+    <span class="kw">return</span> repo.getAll();
+  }
+
+  Future&lt;<span class="kw">void</span>&gt; refresh() <span class="kw">async</span> {
+    state = <span class="kw">const</span> AsyncLoading();
+    state = <span class="kw">await</span> AsyncValue.guard(_fetch);
+  }
+
+  Future&lt;<span class="kw">void</span>&gt; delete(String id) <span class="kw">async</span> {
+    <span class="kw">final</span> prev = state.valueOrNull ?? [];
+    state = AsyncData(prev.where((p) =&gt; p.id != id).toList()); <span class="cm">// optimistic</span>
+    <span class="kw">final</span> result = <span class="kw">await</span> ref.read(productRepositoryProvider).delete(id);
+    <span class="kw">if</span> (!ref.mounted) <span class="kw">return</span>;
+    result.fold(
+      (failure) { state = AsyncData(prev); <span class="cm">/* rollback */</span> },
+      (_) { <span class="cm">/* success, already updated */</span> },
+    );
+  }
+}
+</pre>
+    </div>
+    <ul class="facts" style="margin-top:16px">
+      <li>출처: <a href="https://docs-v2.riverpod.dev/docs/providers/notifier_provider" target="_blank" rel="noopener">docs-v2.riverpod.dev/docs/providers/notifier_provider</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Design</div>
+      <h2>State 설계 원칙</h2>
+      <p>상태 유형별로 관리 위치를 고정하면 "어디에 두지" 논쟁이 사라진다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>상태 유형</th><th>관리 위치</th><th>예시</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>서버 데이터 (캐시)</td><td class="val">AsyncNotifierProvider</td><td>상품 목록, 사용자 프로필</td></tr>
+          <tr><td>UI 로컬 상태</td><td class="val">useState (hooks) 또는 StateProvider</td><td>탭 인덱스, 폼 입력</td></tr>
+          <tr><td>앱 전역 설정</td><td class="val">NotifierProvider</td><td>테마 모드, 로케일</td></tr>
+          <tr><td>인증 상태</td><td class="val">AsyncNotifierProvider + StreamProvider</td><td>로그인/로그아웃</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Refs</div>
+      <h2>ref 4종의 역할 분리 — watch / listen / invalidate / refresh</h2>
+      <p>네 API 는 대체재가 아니라 역할이 다르다. 섞어 쓰면 "값은 바뀌었는데 화면은 그대로" 가 발생한다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>API</th><th>역할</th><th>쓰는 곳</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="val">ref.watch</td><td><strong>선언형 구독</strong> — source 가 바뀌면 자동 재평가</td><td>build / Notifier build / 파생 provider</td></tr>
+          <tr><td class="val">ref.listen</td><td><strong>side effect</strong> — dialog, navigation, logging</td><td>build 안에서 등록, 콜백에서 부수효과</td></tr>
+          <tr><td class="val">ref.invalidate</td><td>현재 state 를 버리고 <strong>다음 read 때 재평가</strong></td><td>mutation 후 영향 provider 정리</td></tr>
+          <tr><td class="val">ref.refresh</td><td>invalidate 후 즉시 read 하는 sugar</td><td><strong>즉시 새 값이 필요할 때만</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="facts" style="margin-top:18px">
+      <li><strong>파생 값은 <code>ref.watch(source.select(...))</code> 로 연결한다.</strong> <code>ref.read</code> 로 계산해 state 에 캐시하면 source 변경이 화면에 반영되지 않는다 — 이미 렌더된 화면이 이전 값을 계속 보여준다.</li>
+      <li><strong>화면 캐시에 영향을 주는 write 후에는 영향 provider 목록을 열거해 <code>invalidate</code> 한다.</strong> 목록은 write 메서드 옆에 주석으로 남겨야 리뷰에서 누락을 잡을 수 있다.</li>
+      <li><strong><code>family</code> 전체를 통째로 invalidate 하지 마라.</strong> stale 은 줄지만 네트워크 재요청과 UX 흔들림이 커진다. 영향받는 인자 조합만 지정한다.</li>
+      <li><code>Ref.onManualInvalidation()</code> (<strong><code>flutter_riverpod</code> 3.4.x 이상 전용</strong>) 으로 source 의 수동 invalidation 을 파생 provider 에 전파할 수 있다. <code>pubspec.lock</code> 의 버전을 확인하고 쓴다.</li>
+      <li>출처: <a href="https://riverpod.dev/docs/concepts2/refs" target="_blank" rel="noopener">riverpod.dev/docs/concepts2/refs</a> · <a href="https://pub.dev/packages/flutter_riverpod/changelog" target="_blank" rel="noopener">pub.dev/packages/flutter_riverpod/changelog</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Decision</div>
+      <h2>Provider 선택 플로우차트</h2>
+      <p>위에서부터 맞는 첫 항목을 고른다. codegen 을 쓰면 아래 구분이 자동으로 결정된다.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">외부 값을 그대로 노출? → <strong><code>Provider</code></strong></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">비동기 데이터 fetch? → <strong><code>FutureProvider</code></strong> (단순) 또는 <strong><code>AsyncNotifierProvider</code></strong> (CRUD 포함)</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">스트림 구독? → <strong><code>StreamProvider</code></strong></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">동기 상태 + 로직? → <strong><code>NotifierProvider</code></strong></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-body"><code>@riverpod</code> codegen 사용 시 위 구분이 <strong>자동으로 결정</strong>된다</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Testing</div>
+      <h2>테스트 전략</h2>
+      <p>provider 값 검증과 화면 반영 검증은 서로 다른 하네스를 요구한다.</p>
+    </div>
+    <div class="grid-2">
+      <article class="card">
+        <h3>unit — 컨테이너 격리</h3>
+        <ul>
+          <li>unit test 는 <code>ProviderContainer.test()</code> 로 격리 환경 생성 — 컨테이너를 테스트 간 공유하지 않는다.</li>
+          <li><code>overrideWith</code> 로 mock repository 주입 (override 는 <code>ProviderScope</code> / <code>ProviderContainer</code> 의 <code>overrides</code> 로만).</li>
+          <li><code>container.listen</code> 으로 상태 전이 순서(loading → data) 검증. <code>autoDispose</code> provider 는 <code>read</code> 만 하면 중간에 dispose 될 수 있어 <code>listen</code> 으로 붙잡아야 한다.</li>
+        </ul>
+        <a class="card-source" href="https://riverpod.dev/docs/how_to/testing" target="_blank" rel="noopener">riverpod.dev/docs/how_to/testing</a>
+      </article>
+      <article class="card">
+        <h3>widget — 화면 반영 확인</h3>
+        <ul>
+          <li><strong>화면이 provider 변화를 반영하는지</strong>는 unit test 로 못 잡는다.</li>
+          <li><code>ProviderScope</code> 루트 + <code>tester.container()</code> 하네스가 필요하다.</li>
+          <li>상세: <a href="testing.html">테스트 문서 §Riverpod widget test 하네스</a></li>
+        </ul>
+        <a class="card-source" href="https://riverpod.dev/docs/how_to/testing" target="_blank" rel="noopener">riverpod.dev/docs/how_to/testing</a>
       </article>
     </div>
   </section>
 
-  <!-- ═══════════ 수치 기준 ═══════════ -->
   <section>
     <div class="section-header">
-      <span class="tag">02</span>
-      <h2>수치 기준</h2>
+      <div class="section-label">Gotchas</div>
+      <h2>Gotchas 체크리스트</h2>
+      <p>legacy provider, 과한 ceremony, watch 위치, autoDispose 의 실제 수명.</p>
     </div>
-    <p class="section-intro">
-      2026-04 기준 최신 안정 버전과 실전 한계 수치. 의존성 업그레이드 시 이 표를 기준선으로 삼는다.
-    </p>
-
-    <div class="table-wrap">
-    <table class="metrics-table">
-      <thead>
-        <tr>
-          <th>항목</th>
-          <th>값 / 기준</th>
-          <th>비고</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>flutter_riverpod</code></td>
-          <td>3.3.1</td>
-          <td>2026-04 기준 최신 안정</td>
-        </tr>
-        <tr>
-          <td><code>flutter_bloc</code></td>
-          <td>9.1.1</td>
-          <td>2026-04 기준 최신 안정</td>
-        </tr>
-        <tr>
-          <td><code>provider</code></td>
-          <td>6.1.5+1</td>
-          <td>2026-04 기준 최신 안정</td>
-        </tr>
-        <tr>
-          <td>Provider 트리 한계</td>
-          <td>150개 이하</td>
-          <td><code>ChangeNotifierProvider</code>를 150개 이상 쌓으면 rebuild 추적 + stack overflow 위험</td>
-        </tr>
-        <tr>
-          <td>비동기 상태 케이스 수</td>
-          <td>3 (loading / error / data)</td>
-          <td>nullable bool 하나로 표현 금지</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
+    <ul class="gotchas">
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>ChangeNotifierProvider 는 migration 용도</strong>
+          <span>Riverpod 공식 문서상 scalable app 에서는 migration 용도로만 권장된다. 새 코드는 <code>Notifier</code> / <code>AsyncNotifier</code> 를 쓰는 편이 장기적으로 안전하다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>sealed union 이 항상 이득은 아니다</strong>
+          <span>sealed union + <code>Result.when</code> 분기는 강력하지만 단순 로그인 폼처럼 상태가 3개 이하인 화면에는 과한 ceremony 가 된다. 화면당 상태 수를 보고 판단하라.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>ref.watch 는 callback 안에서 금지</strong>
+          <span><code>ref.watch</code> 를 <code>onPressed</code> callback 안에서 호출하면 안 된다 — callback 내부는 <code>ref.read</code> 만 허용된다. watch 는 build 메서드(또는 Notifier 의 build)에서만 호출하라.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>autoDispose 를 전부에 붙이지 마라</strong>
+          <span>모든 provider 에 붙이면 화면 전환 시 캐시가 사라져 불필요한 재요청이 발생한다 — keepAlive 를 조합하거나 autoDispose 없이 명시적 invalidate 를 쓰라.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>autoDispose 의 실제 수명</strong>
+          <span>listener 가 0 이 된 <strong>즉시가 아니라 한 프레임 후</strong> dispose 된다. 그리고 provider 가 recompute 되면 <strong>autoDispose 여부와 무관하게 기존 state 가 파괴</strong>된다 — "keepAlive 니까 값이 유지된다" 는 recompute 앞에서 성립하지 않는다. <code>family</code> / 파라미터 provider 는 인자 조합마다 인스턴스가 쌓이므로 autoDispose 가 권장된다. 출처: <a href="https://riverpod.dev/docs/concepts2/auto_dispose" target="_blank" rel="noopener">riverpod.dev/docs/concepts2/auto_dispose</a></span>
+        </div>
+      </li>
+    </ul>
   </section>
 
-  <!-- ═══════════ 안티패턴 ═══════════ -->
   <section>
     <div class="section-header">
-      <span class="tag">03</span>
-      <h2>안티패턴</h2>
+      <div class="section-label">Summary</div>
+      <h2>한 문장 요약</h2>
     </div>
-    <p class="section-intro">
-      코드 리뷰에서 발견되면 반드시 수정해야 하는 구조. 초기에는 동작하지만 시간이 지나면
-      버그 리포트와 성능 저하로 돌아온다.
-    </p>
-
-    <div class="compare">
-      <div class="compare-item">
-        <div class="icon">!</div>
-        <p>Notifier 바깥에서 state의 내부 필드를 직접 mutate
-          (<code>state.items.add(...)</code>).</p>
-      </div>
-      <div class="compare-item">
-        <div class="icon">!</div>
-        <p><code>build</code> 메서드 안에서 HTTP/DB 호출을 바로 시작하는 구조.</p>
-      </div>
-      <div class="compare-item">
-        <div class="icon">!</div>
-        <p><code>loading</code>/<code>error</code>/<code>data</code>를
-          <code>bool isLoading</code> + nullable 값으로 표현.</p>
-      </div>
-      <div class="compare-item">
-        <div class="icon">!</div>
-        <p>같은 feature 안에 Bloc / Riverpod / Provider를 섞어 쓰는 구조.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════ Gotchas ═══════════ -->
-  <section>
-    <div class="section-header">
-      <span class="tag">04</span>
-      <h2>Gotchas</h2>
-    </div>
-    <p class="section-intro">
-      공식 문서에 숨어 있지만 놓치기 쉬운 함정. 체크리스트로 훑어보고 설계 리뷰에 반영하라.
-    </p>
-
-    <div class="checklist">
-      <div class="check-item">
-        <div class="box">✓</div>
-        <p>
-          <strong><code>ChangeNotifierProvider</code>는 Riverpod 공식 문서상 scalable app에서는
-          migration 용도로만 권장된다.</strong>
-          새 코드는 <code>Notifier</code> / <code>AsyncNotifier</code>를 쓰는 편이 장기적으로 안전하다.
-          마이그레이션 중인 레거시 기능이 아니면 선택하지 말 것.
-        </p>
-      </div>
-      <div class="check-item">
-        <div class="box">✓</div>
-        <p>
-          <strong>sealed union + <code>Result.when</code> 분기는 강력하지만 단순 로그인 폼처럼
-          상태가 3개 이하인 화면에는 과한 ceremony가 된다.</strong>
-          화면당 상태 수를 보고 판단하라 — 2~3개의 간단한 flag라면 일반 Notifier + named constructor로 충분하다.
-        </p>
-      </div>
+    <div class="summary-box">
+      <h3>구독은 watch, 정리는 invalidate, 수명은 프레임 단위로 본다</h3>
+      <p>
+        복잡 상태는 <code>NotifierProvider</code> / <code>AsyncNotifierProvider</code> 로 표현하고, 상태 객체는 immutable +
+        <code>copyWith</code> 를 기본으로 한다. 파생 값은 <code>ref.watch(source.select(...))</code> 로 연결하고,
+        write 후에는 영향 provider 를 <strong>열거해</strong> <code>invalidate</code> 한다. <code>family</code> 전체 invalidate 는
+        피하고, <code>autoDispose</code> 는 "한 프레임 후 dispose · recompute 시 state 파괴" 라는 실제 수명을 전제로 설계한다.
+      </p>
     </div>
   </section>
 
   <footer>
-    <p>
-      Flutter Toolkit v0.1 · 상태 관리 ·
-      <a href="../flutter/state/state-management.md">source .md</a>
-    </p>
+    <div>Flutter Toolkit · 상태 관리 리서치 문서 · v0.2.0 (2026-08-13)</div>
+    <div>Source: <a href="../flutter/state/state-management.md">docs/flutter/state/state-management.md</a></div>
   </footer>
 
 </div>
