@@ -1,14 +1,76 @@
 ---
 feature: "카이젠 Phase 13 — bambu-kit 실측 실패 3종(L1 곡면 계단 / L2 스트링잉 / L3 바닥 박리) 인테이크 + 지원가능성 분기 + E3 금지 키 확장"
 created: "2026-08-13 18:27"
+rewritten: "2026-08-14 (v2 — AP-03 clause 2 측정문 결함: 닫는 fence 를 셌다)"
 complexity: "복잡"
 conditions: 16
 slug: kaizen-phase13-failure-modes
-status: done
-owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
+status: active
+owner_session: 1e76aa0b-dd42-4693-b79a-c2e2e6dfb88f
+supersedes_digest: sha256:27d4a8c7b52f668d
+supersedes_commit: 1c6216b
 conditions_digest: sha256:27d4a8c7b52f668d
-locked_at: "2026-08-13 18:27"
+locked_at: "2026-08-14 (v2)"
 ---
+
+## 폐기·재작성 (v2) — 앵커 있는 교체
+
+원 계약(`1c6216b`, digest `sha256:27d4a8c7b52f668d`)은 폐기됐다. 원문은 git 이력에 보존된다.
+
+### 폐기 사유 — AP-03 clause 2 가 원문 그대로 만족 불가능
+
+clause 2 는 `git diff -U0 -- bambu-kit | grep -c '^+```$'` 가 `0` 일 것을 요구한다.
+그런데 이 패턴 `^+```$` 는 **언어 힌트가 없는 줄**, 즉 마크다운 코드블록의 **닫는 fence** 를 센다.
+여는 fence 는 정상적으로 언어 힌트를 달면 `+```bash` 형태가 되어 이 패턴에 걸리지 않지만,
+그 블록의 **닫는 fence 는 언어 힌트를 가질 수 없다.** 따라서 코드블록을 하나라도 새로 추가하면
+clause 2 는 **항상** 0 이 아니게 된다. 조건이 재는 대상(bare 여는 fence)과 측정문이 세는 대상
+(닫는 fence)이 다르다.
+
+실측 (구현 커밋 `04641f7`, bash·zsh 동일):
+
+```text
+git diff -U0 04641f7^ 04641f7 -- bambu-kit | grep -c '^+```$'   →  5
+매치 5 건의 정체: 30:+```bash  37:+```  48:+```text  51:+```  68:+```text
+                 75:+```  110:+```text  115:+```  385:+```text  401:+```
+  → 여는 fence 5 개는 전부 언어 힌트(bash·text)를 가짐. 매치된 5 건은 전부 닫는 fence.
+python3 scripts/validate-plugin.py bambu-kit  →  V6 code-fence 0 bare — OK
+```
+
+즉 **실제 코드 품질에는 결함이 없고**(clause 1 의 권위 있는 검사 V6 가 `0 bare`), 측정문만
+구조적으로 충족 불가다. 같은 조건의 **clause 3 은 이미 올바른 방식**(여는 fence 수와 대조)을
+쓰고 있어, clause 2 는 clause 3 과 중복이면서 서로 모순된다.
+
+이번 사이클 Phase 2 가 처리한 **산문↔측정문 커버리지 갭(F1)**, Final v2 의 **ER-02 자기참조
+측정 결함**과 정확히 같은 유형이다.
+
+### 앵커
+
+- **승인 주체**: 사용자. 2026-08-14, 오케스트레이터가 재평가 REJECT 근거(독립 QA 2 회 동일 결론)와
+  함께 3 선택지(계약 v2 재작성 / amendment 무효화 / REJECT 유지)를 제시하고 **"계약 v2 재작성"** 을
+  선택받았다.
+- **재작성 주체**: 오케스트레이터. 구현 서브에이전트가 자기 산출물을 통과시키려 고친 것이 아니다.
+- 변경은 **AP-03 한 조건의 측정문**뿐이며 나머지 15 조건은 문구 무수정이다. 조건 수는 16 으로 불변.
+
+### 봉인 digest 가 v1 과 동일한 이유 — 봉인 커버리지 갭 (다음 사이클 신호)
+
+`supersedes_digest` 와 `conditions_digest` 가 둘 다 `sha256:27d4a8c7b52f668d` 로 **같다.**
+오기가 아니다. 봉인은 `^- \[[ x]\] [A-Z]{2,}-[0-9]{2}` 에 걸리는 **조건 체크박스 줄만** 해시하는데,
+이번 재작성은 AP-03 의 **들여쓴 측정문**만 바꿨고 체크박스 줄은 글자 하나 바뀌지 않았다.
+
+즉 이번 사이클 Phase 2 가 만든 봉인(E3)은 자기 규격의 목적 서술
+*"조건 문구 변조와 조건 추가·삭제는 반드시 깨진다"* 를 **측정문에 대해서는 달성하지 못한다.**
+조건의 판정력은 대부분 측정문에 있으므로, 측정문은 조용히 바뀌어도 `SEAL_OK` 가 유지된다.
+이 계약의 v1→v2 가 바로 그 실례다 (61 줄 추가 · 7 줄 삭제 · `SEAL_OK` 불변).
+
+**이것은 이 Phase 의 조건이 아니다** — 다음 사이클 Phase 2(contract-seal) 가 먹어야 할 신호로
+여기 기록만 한다. 이 계약의 판정에 사용하지 마라.
+
+### 재평가 규약
+
+status 를 `active` 로 되돌렸다. v2 로 재평가하여 APPROVE 를 받은 뒤 `done` 으로 전환한다.
+v1 에 대한 REJECT 아티팩트(`1a3bcba6-2026-08-14T112435-df1b3e15-17562.yaml`)는 삭제하지 않는다 —
+측정문 결함의 발견 근거이므로 다음 사이클 데이터 풀이 먹어야 한다.
+
 
 ## 배경
 
@@ -190,10 +252,17 @@ bambu-kit 은 에이전트 0 개인 1 스킬 킷이다.
        신규 수치 토큰 `0.07`, `0.8`, `auto_brim`, `Spiral` 이 각각
        `.harness/.meta/evidence/phase13.md` 에 매치)
 - [ ] AP-03: 이번 변경이 bare code fence 를 새로 도입하지 않는다 [exact]
-      (측정: `python3 scripts/validate-plugin.py bambu-kit` 의 V6 가 `0 bare` ·
-       `git diff -U0 -- bambu-kit | grep -c "^+$(printf '\140\140\140')$"` → `0` ·
-       신규 파일은 tracked 가 아니므로 별도 검사: `grep -c '^```$' bambu-kit/skills/bambu-print-profile/references/failure-recipes.md`
-       가 여는 fence 수와 같은지 — 여는 fence 는 전부 언어 힌트를 갖는다)
+      (측정 — 세 clause 전부. **여는 fence 만 검사 대상이다.** 닫는 fence 는 언어 힌트를 가질 수
+       없으므로 세지 않는다:
+       (1) `python3 scripts/validate-plugin.py bambu-kit` 의 V6 가 `0 bare` (권위 있는 검사)
+       (2) **도입 여부는 diff 가 아니라 파일 상태로 잰다.** diff 기반 fence 계수는 부분 변경 시
+           여는/닫는 짝이 어긋나 오탐한다 (v1 결함의 원인). 구현 커밋이 건드린 `bambu-kit` 아래
+           마크다운 파일 각각에 대해, `git show <impl>:<파일>` 과 `git show <impl>^:<파일>` 의
+           **파일 전문**을 각각 처음부터 상태추적 파싱해 (fence 를 만날 때마다 in/out 토글)
+           **언어 힌트 없는 여는 fence** 개수를 센다 — 그 개수가 부모보다 **증가한 파일이 0 건**.
+           부모에 없던 신규 파일은 부모 개수를 0 으로 본다
+       (3) 신규 파일 `bambu-kit/skills/bambu-print-profile/references/failure-recipes.md` 는
+           tracked 가 아니므로 별도 검사 — `grep -c '^```$'` 가 여는 fence 수와 같다)
 
 ## Reusability
 
