@@ -1,14 +1,69 @@
 ---
 feature: "카이젠 Phase 12 — reflect-kit 태그 정규화 결정론화(K1) + hook coverage audit 라우팅(K2) + 파편화 게이트로 calibration 무효화(K3)"
 created: "2026-08-13 15:20"
+rewritten: "2026-08-14 (v2 — SC-04 음성 대조 제거 대상에 synonym kind 누락)"
 complexity: "복잡"
 conditions: 29
 slug: kaizen-phase12-tag-canonicalization
-status: done
-owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
+status: active
+owner_session: 1e76aa0b-dd42-4693-b79a-c2e2e6dfb88f
+supersedes_digest: sha256:d85f4d7e5644ea3a
+supersedes_commit: 1c6216b
 conditions_digest: sha256:d85f4d7e5644ea3a
-locked_at: "2026-08-13 15:20"
+locked_at: "2026-08-14 (v2)"
 ---
+
+## 폐기·재작성 (v2) — 앵커 있는 교체
+
+원 계약(`1c6216b`, digest `sha256:d85f4d7e5644ea3a`)은 폐기됐다. 원문은 git 이력에 보존된다.
+
+### 폐기 사유 — SC-04 음성 대조가 원문 그대로 성립 불가능
+
+SC-04 의 **주 측정은 문제가 없다** (클러스터 합산 > 원시 단독). 결함은 음성 대조 절에 있다.
+계약은 *"`alias`/`verb-synonym` 행을 제거한 맵으로 실행하면 두 값이 같아져야 한다"* 고 쓴다.
+그런데 lemma 맵은 **4 kind** 를 갖는다 — `verb` · `verb-synonym` · `synonym` · `alias`
+(`_lib-tag-canon.sh:174-177` 의 파서가 정확히 이 넷을 읽는다). 2 종만 제거하면 남은
+`synonym docs→doc` 이 계속 병합하므로 등식이 성립할 수 없다.
+
+실측 (`~/.claude/logs/*/reflections-*.md` 전량, bash·zsh 동일):
+
+```text
+원시 단독                              89
+전체 맵                               128   → 주 측정 PASS (128 > 89)
+계약 v1 문언 (alias+verb-synonym 제거)  90   → 89 와 불일치. FAIL
+  + synonym 까지 제거                  89   → 등식 성립
+맵 전체 제거 (빈 맵)                    89   → 등식 성립
+```
+
+맵 kind 분포: `verb` 48 · `synonym` 16 · `alias` 11 · `verb-synonym` 2.
+
+즉 **구현에는 결함이 없고**(주 측정이 입증하는 결정론적 pass 의 회수 효과는 견고하다),
+음성 대조의 **제거 대상 열거가 불완전**했던 정밀도 결함이다. 구현자도
+`sprint-amendments-kaizen-phase12-tag-canonicalization.md` AM-01 에서 같은 근본원인을 자인했으나
+`direction: unknown` · 앵커 부재라 PASS 근거로 쓸 수 없었다 (§direction × consent).
+
+Phase 13 의 AP-03, Final v2 의 ER-02 와 같은 유형이다 — **산문은 옳고 측정문이 틀린** 경우.
+
+### 앵커
+
+- **승인 주체**: 사용자. 2026-08-14, 오케스트레이터가 독립 재평가 2 회의 동일 결론과 실측 표를
+  제시하고 3 선택지(계약 v2 재작성 / amendment 무효화 / REJECT 유지) 중
+  **"계약 v2 재작성"** 을 선택받았다. Phase 13 과 같은 처리다.
+- **재작성 주체**: 오케스트레이터. 구현 서브에이전트가 자기 산출물을 통과시키려 고친 것이 아니다.
+- 변경은 **SC-04 한 조건의 측정문**뿐이며 나머지 28 조건은 문구 무수정이다. 조건 수 29 불변.
+
+### 봉인 digest 가 v1 과 동일한 이유
+
+`supersedes_digest` 와 `conditions_digest` 가 둘 다 `sha256:d85f4d7e5644ea3a` 다. 오기가 아니다.
+봉인은 조건 체크박스 줄만 해시하고 들여쓴 측정문은 덮지 않는다. 같은 갭을 Phase 13 v2 도 겪었고
+그 계약에 상세를 기록했다 — **다음 사이클 Phase 2(contract-seal) 가 먹어야 할 신호**이며
+이 계약의 판정에 사용하지 마라.
+
+### 재평가 규약
+
+status 를 `active` 로 되돌렸다. v2 로 재평가해 APPROVE 를 받은 뒤 `done` 으로 전환한다.
+v1 에 대한 REJECT 아티팩트 2 건은 삭제하지 않는다 — 측정문 결함의 발견 근거다.
+
 
 ## 배경
 
@@ -132,9 +187,15 @@ locked_at: "2026-08-13 15:20"
       어휘 블록이 비어 있지 않음 · 음성 대조: 정상 경로에서는 그 경고가 0 행)
 - [ ] SC-04: 결정론적 pass 가 실제로 재발을 회수한다 — 실로그 전량에서 `skipped-required-api-doc-check`
       클러스터 합산이 원시 단독 count 보다 **크다** [goal]
-      (측정: `tag_canon_groups ~/.claude/logs/*/reflections-*.md` 의 해당 행 1 열 값과
-      원시 `grep | uniq -c` 값을 비교 · 음성 대조: `alias`/`verb-synonym` 행을 제거한 맵으로 실행하면
-      두 값이 같아져야 한다)
+      (측정 — 주 측정과 음성 대조 둘 다. 로그는 계속 자라므로 **절대값을 고정하지 마라.**
+       재는 것은 두 값의 관계다. `REFLECT_TAG_LEMMA_MAP` 으로 맵을 주입해 실행한다:
+       (주) `tag_canon_groups ~/.claude/logs/*/reflections-*.md` 의 해당 행 1 열 값이
+            원시 `grep -rhoE 'skipped-required-api-doc-check' ... | wc -l` 값보다 **크다**
+       (음성) **맵 전체를 제거한 빈 맵**(주석 행만 남긴 파일)을 주입해 재실행하면
+            두 값이 **같아진다.** 맵이 4 kind(`verb`·`verb-synonym`·`synonym`·`alias`)를 갖는데
+            일부 kind 만 제거하면 남은 kind 가 계속 병합해 등식이 성립하지 않는다 — v1 의 결함이
+            정확히 그것이었다. 부분 제거를 음성 대조로 쓰지 마라.
+       bash·zsh 양쪽에서 같은 결과)
 - [ ] SC-05: 변경·신규 셸 스크립트 2 개가 기본 `shellcheck` 에서 **0 findings** 다 [exact, enumerated]
       (측정: `shellcheck reflect-kit/hooks/_lib-tag-canon.sh reflect-kit/hooks/log-reflection.sh`
       출력 0 행 + exit 0)
