@@ -1778,4 +1778,4 @@ qa-evaluation-guide.md 편집 시:
 - **frontmatter 와 본문 값을 함께 올려라.** 이 가이드와 `contract-design-guide.md` 는 frontmatter
   `version` 과 §버전 정보 본문이 **같은 값을 두 곳에 담는다.** 한쪽만 올리면 상위·하위 surface 의
   Parity 가 조용히 스테일해진다 — 개정 체크리스트의 마지막 항목이 이것이다.
-- **하위 전파 대기**: `*-kit/agents/*-reviewer.md` 6 종 (design · backend · infra · rust · react · planning) — §Canonical Unverified-Evidence Protocol (2026-08 개정분 포함) + §Canonical User-Reported Failure Protocol 복제. 각 kit 카이젠 Phase 소관이며 본 Phase 는 수정하지 않았다
+- **하위 전파 완료 (2026-08-14 · 커밋 `6760e8d`)**: `*-kit/agents/*-reviewer.md` 6 종 (design · backend · infra · rust · react · planning) 전부 §Canonical User-Reported Failure Protocol 을 소비한다 — backend · infra · planning · react · rust 5 종은 정본 지시 + 5 조 복제 + 킷 도메인 6 축 매핑, design 1 종은 인용만 (채널 규약은 자기 references 소관). 상태어(`REOPENED` · `UNVERIFIED_ENV` · `UNVERIFIED_INVALID_EVIDENCE`)는 어느 킷에서도 재정의하지 않는다. 이후 정본을 개정하면 6 종을 함께 갱신하라

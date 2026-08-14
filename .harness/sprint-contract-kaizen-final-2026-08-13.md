@@ -6,7 +6,7 @@ previously_rewritten: "2026-08-14 (v2 — ER-02 자기참조 측정 결함 · AR
 complexity: "복잡"
 conditions: 25
 slug: kaizen-final-2026-08-13
-status: active
+status: done
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
 supersedes_digest: sha256:2d5170ea874584bc
 supersedes_commit: 05ccddb
