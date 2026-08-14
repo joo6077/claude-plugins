@@ -1,14 +1,54 @@
 ---
 feature: "카이젠 2026-08-13 Final — Phase 1~14 크로스 정합성 검증"
 created: "2026-08-13 (Step F1)"
+rewritten: "2026-08-14 (v2 — ER-02 자기참조 측정 결함 · AR-04 아티팩트 재구축)"
 complexity: "복잡"
 conditions: 25
 slug: kaizen-final-2026-08-13
 status: active
 owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
-conditions_digest: sha256:06c72d3b16851613
-locked_at: "2026-08-13 (Step F1)"
+supersedes_digest: sha256:06c72d3b16851613
+supersedes_commit: 107d98f
+conditions_digest: sha256:2d5170ea874584bc
+locked_at: "2026-08-14 (v2)"
 ---
+
+## 폐기·재작성 (v2) — 앵커 있는 교체
+
+원 계약(`107d98f`, digest `sha256:06c72d3b16851613`)은 폐기됐다. 원문은 git 이력에 보존된다.
+
+### 폐기 사유 — ER-02 가 원문 그대로 만족 불가능
+
+**ER-02 의 산문과 측정문이 서로 다른 것을 잰다.** 산문은 "**사이클 산출물**에 미해소 항목이 없다"
+즉 Phase 피드백을 가리키는데, 측정 glob `.harness/sprint-feedback-kaizen-*.md` 가
+**Final 자신의 피드백 파일까지** 잡는다. iteration 1 이 REJECT 를 그 파일에 쓰는 순간
+iteration 2 이후로는 **구조적으로 통과가 불가능**해진다 (자기 REJECT 를 자기가 읽는다).
+
+`DG-02` 에는 "Final 계약 파일 자신과 그 QA 피드백 파일은 예외" 라는 자기참조 카브아웃이 있는데
+`ER-02` 에 그것을 대칭 적용하는 것을 빠뜨렸다. 이번 사이클 Phase 2 가 처리한
+**산문↔측정문 커버리지 갭(F1)** 과 정확히 같은 유형의 결함이다.
+
+### 함께 개정한 것 — AR-04
+
+iteration 2 가 AR-04 를 문자 그대로는 PASS 시켰으나(15 계약 전부 `status: done`),
+**전환의 정당성 근거**를 파고들어 blocking 했다: 글로벌 피드백 풀에 독립 qa-evaluator 아티팩트가
+15 중 2 건(phase10 · phase11)뿐이었다.
+
+근본원인이 규명됐다 — 오케스트레이터가 QA 서브에이전트에 **structured output schema 를 강제**해서
+에이전트가 출력 계약을 만족시키고 종료했고, 그 결과 `qa-evaluator` 의 **피드백 저장 단계가
+실행되지 않았다.** 판정 자체는 실재한다 (워크플로 저널 27 건 · 에이전트 트랜스크립트 63 개).
+그러나 그것은 오케스트레이션 산물이고, **다음 사이클 데이터 풀 §1 이 먹는 것은 글로벌 풀**이다.
+저장이 안 되면 다음 카이젠이 굶는다.
+
+**처리**: 사용자가 3 선택지(저널을 아티팩트로 인정 / Phase QA 재실행 / 저널에서 백필) 중
+**"Phase QA 재실행"** 을 택했다. schema 를 강제하지 않고 재평가하여 아티팩트를 정상 생성한다.
+AR-04 의 측정문을 **아티팩트 실재 확인**으로 명시화한다.
+
+### 앵커
+
+- **승인 주체**: 사용자. 2026-08-14, 오케스트레이터가 근거와 함께 선택지를 제시하고 승인받았다.
+- **재작성 주체**: 오케스트레이터. 구현 서브에이전트가 자기 산출물을 허용하려 고친 것이 아니다.
+- 변경은 **ER-02 와 AR-04 두 조건의 측정문**뿐이며 나머지 23 조건은 문구 무수정이다.
 
 ## 배경
 
@@ -60,10 +100,14 @@ FAIL 이 `docs-site-regen` 1 건 이하 (그 1 건은 F2 소관).
       (측정: `git diff --name-only main..HEAD | awk -F/ '{print $1}' | sort -u` 결과가
        11 킷 + `docs` + `scripts` + `.harness` + `.claude` + `.claude-plugin` + `README.md` 안에 든다.
        그 밖의 최상위 경로 0 건)
-- [ ] AR-04: 14 Phase 계약 파일이 전부 존재하고 `status: done` 이다 [exact, enumerated]
-      (측정: `.harness/sprint-contract-kaizen-phase*.md` 를 `find` 로 열거해 개수를 **계산**하고,
-       각 파일의 frontmatter `status` 를 `fm_get` 으로 추출 — `active` 잔존 0 건.
-       본 Final 계약 자신은 제외한다)
+- [ ] AR-04: Phase 계약이 전부 `status: done` 이고 **독립 QA 아티팩트로 뒷받침된다** [exact, enumerated]
+      (측정 2 단계 —
+       (a) `.harness/sprint-contract-kaizen-phase*.md` 를 `find` 로 열거해 개수를 **계산**하고
+           각 frontmatter `status` 를 추출 — `active` 잔존 0 건. 본 Final 계약 자신은 제외.
+       (b) 각 계약마다 `~/.harness/feedback/evaluator/*.yaml` 에서 그 계약을 `contract_path` 로
+           참조하고 `verdict: APPROVE` 인 아티팩트가 **1 건 이상** 존재 — 미보유 계약 0 건.
+           이 아티팩트는 qa-evaluator 가 직접 쓴 것이어야 하며, 오케스트레이터가 백필한 것은 무효다.
+       (b) 가 AR-04 의 본체다. `status: done` 은 결과이고 아티팩트가 근거다)
 - [ ] AR-05: 봉인이 기록된 계약은 전부 `SEAL_OK` 다 [exact]
       (측정: `contract-schema.md` §계약 봉인 의 `verify_seal` 을 그대로 구현해
        `.harness/sprint-contract-kaizen-*.md` 전체에 실행 — `SEAL_BROKEN` 0 건.
@@ -118,9 +162,12 @@ FAIL 이 `docs-site-regen` 1 건 이하 (그 1 건은 F2 소관).
        **개수를 계산**한 뒤, 각 URL 이 `.harness/.meta/evidence/phase*.md` 또는
        `git show main:<path>` 원본에 존재하는지 대조 — 미추적 URL 0 건.
        미추적이 있으면 그 목록을 근거로 제시하라)
-- [ ] ER-02: 사이클 산출물에 `[미검증]` 미해소 항목이 남아 있지 않다 [exact]
-      (측정: `.harness/sprint-feedback-kaizen-*.md` 전체에서 최종 verdict 를 추출 —
-       `APPROVE` 가 아닌 것 0 건. 각 파일의 미검증 카운트 합이 0)
+- [ ] ER-02: **Phase** 산출물에 미해소 항목이 남아 있지 않다 [exact, enumerated]
+      (측정: `.harness/sprint-feedback-kaizen-phase*.md` 를 `find` 로 열거해 **개수를 계산**하고
+       각 파일의 최종 verdict 를 추출 — `APPROVE` 가 아닌 것 0 건, 미검증 카운트 합 0.
+       **Final 자신의 피드백 파일(`sprint-feedback-kaizen-final-*.md`)은 제외한다** —
+       평가 중인 계약이 자기 직전 라운드 verdict 를 읽으면 iteration 2 이후 구조적으로 통과 불가다.
+       DG-02 의 자기참조 카브아웃과 대칭이다)
 
 ## Anti-patterns
 
