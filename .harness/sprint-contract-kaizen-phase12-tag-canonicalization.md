@@ -5,7 +5,7 @@ rewritten: "2026-08-14 (v2 — SC-04 음성 대조 제거 대상에 synonym kind
 complexity: "복잡"
 conditions: 29
 slug: kaizen-phase12-tag-canonicalization
-status: active
+status: done
 owner_session: 1e76aa0b-dd42-4693-b79a-c2e2e6dfb88f
 supersedes_digest: sha256:d85f4d7e5644ea3a
 supersedes_commit: 1c6216b
