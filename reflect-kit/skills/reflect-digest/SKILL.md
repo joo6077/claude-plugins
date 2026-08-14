@@ -31,6 +31,7 @@ user-invocable: true
 9. **파싱 실패를 조용히 넘기지 마라.** YAML 블록 파싱 실패 건수를 리포트 헤더에 반드시 노출한다 (0 이어도 `0` 으로 명시). 2026-07-27 실측 실행에서 760 엔트리 중 6 블록이 파싱 실패했는데 리포트에 드러나지 않으면 집계 신뢰도를 판단할 수 없다.
 10. **`fold_ratio`(원시/클러스터) 로 파편화를 판정하지 마라.** 클러스터링이 아무것도 못 묶으면 이 값은 **1.00 이 되어 "정상" 으로 읽힌다** — 파편화 탐지기로 쓸 수 없다. 2026-08-13 전량 실측이 정확히 그 상태였다: `fold_ratio 1.02` 인데 `singleton_share 0.884` (클러스터 2,578 개 중 2,279 개가 1 회짜리). 판정은 **`singleton_share`** 로 한다.
 11. **표기가 닮았다고 합치지 마라 — `undesired_behavior` 와 `desired_behavior` 가 둘 다 같을 때만 alias 다.** `stale ...` 계열이 대표 사례다: 대상마다 필요한 조치가 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 / 진단 오라클 재실행 / VM 재부착으로 전부 다르다. 이런 묶음은 alias 가 아니라 **family** 로만 보고하고 `cluster_freq` 에 합산하지 않는다 (SSOT §4).
+12. **메모리 엔트리의 `grounding` 을 근거 등급으로 읽어라 — 정의는 복제하지 마라.** `~/.claude/projects/*/memory/` 의 `type: feedback` 엔트리는 frontmatter 에 **`grounding` 필드**를 갖는다. 값의 정의·판정 절차·경계 사례는 `reflect-kit/references/memory-grounding.md` 가 **SSOT** 다 — 이 문서에서 값을 나열하거나 재정의하지 마라 (재정의하면 digest 와 promote 의 기준이 갈라진다). 이 중 **`grounding: self_inference`** 는 외부 검증이 없는 자기추론이므로 **승격 근거로 쓰지 마라.** `source_evidence` 에 넣지 말고 배경 참고로만 읽는다 — 인용하면 이전 라운드의 자기 산출물이 다음 라운드 승격의 근거가 되는 **자기검증 피드백 루프**가 닫힌다. `grounding` 필드가 아예 없는 엔트리는 `self_inference` 가 아니라 **미태깅**이다. 그렇게 구분해 보고하되 둘 다 근거로는 쓰지 않는다.
 
 ## 입력
 
@@ -199,7 +200,7 @@ Precedence Table #3 (`scope == global` AND 복수 프로젝트 freq ≥ 3) 판�
 
 ### 3. Precedence Table 재적용
 
-single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. **진입 전제 3가지(`user_environment` 제외 · `cluster_freq` 사용 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.** 아래 `global_freq` / `project_count` 는 모두 클러스터 단위다.
+single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. **진입 전제 4가지(`user_environment` 제외 · `cluster_freq` 사용 · `grounding: self_inference` 단독 근거 제외 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.** 아래 `global_freq` / `project_count` 는 모두 클러스터 단위다.
 
 | # | 조건 (project=all 기준) | 승격 surface |
 |---|---|---|
@@ -251,11 +252,12 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 
 ## Surface Precedence Table
 
-**진입 전제 3가지 (여기서 걸러진 후보는 아래 표를 적용하지 않는다):**
+**진입 전제 4가지 (여기서 걸러진 후보는 아래 표를 적용하지 않는다):**
 
 1. `actionability == user_environment` → precedence 대상 아님. `## 환경 액션 아이템` 으로만 보고 (Gotcha #7).
 2. `freq` 는 **`cluster_freq`** 다 (canonical + aliases 합산). 원시 태그 빈도로 임계를 판정하지 마라 (Gotcha #8).
-3. 같은 `canonical_tag`(또는 그 alias)가 `promotions-ledger.md` 에 `status: active` 로 이미 있으면 **재발**이다. 표를 다시 적용해 같은 surface 로 재승격하지 말고 `## 재발 — 등급 상향 후보` 섹션으로 라우팅한다. digest 는 라우팅과 `post_freq` 제시까지만 하고, **실제 등급 상향 판정(재발 2회 이상 E2 / 3회 이상 E3)과 반영은 `/reflect-promote` §B 가 수행한다.**
+3. 근거가 `grounding: self_inference` 인 (또는 `grounding` 미보유인) 메모리 엔트리**뿐**인 후보는 표를 적용하지 않는다. 외부 신호(사용자 교정 또는 실행 증거)가 붙을 때까지 **관망**으로 보고한다 (rule #6 과 같은 취급). 판정 기준은 `reflect-kit/references/memory-grounding.md` — 여기서 재정의하지 마라.
+4. 같은 `canonical_tag`(또는 그 alias)가 `promotions-ledger.md` 에 `status: active` 로 이미 있으면 **재발**이다. 표를 다시 적용해 같은 surface 로 재승격하지 말고 `## 재발 — 등급 상향 후보` 섹션으로 라우팅한다. digest 는 라우팅과 `post_freq` 제시까지만 하고, **실제 등급 상향 판정(재발 2회 이상 E2 / 3회 이상 E3)과 반영은 `/reflect-promote` §B 가 수행한다.**
 
 아래 규칙을 **위에서 아래로** 적용. 먼저 맞는 규칙 하나만 선택.
 
@@ -409,6 +411,8 @@ precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한�
 - **클러스터를 눈대중으로 만들지 마라** — `tag_canon_groups` 출력이 1차 근거다. 리포트 안에서만 합치고 `tag-lemma-map.tsv` 에 남기지 않으면 다음 주기에 같은 판단을 처음부터 다시 하게 된다.
 - **`fold_ratio` 를 파편화 판정에 쓰지 마라** — 아무것도 못 묶으면 1.00 이라 항상 "정상" 이다. `singleton_share` 를 써라.
 - **`stale ...` 계열을 한 태그로 합치지 마라** — remediation 이 다르면 family 로만 보고. 합산하면 승격 문구가 "stale 을 조심하라" 같은 무행동 규칙이 된다.
+- **`grounding: self_inference` 인 메모리 엔트리를 승격 근거로 인용하지 마라** — 아무도 확인하지 않은 자기추론이 영속 규칙으로 증류되는 경로다. `grounding` 미보유(미태깅) 엔트리도 같다.
+- **`grounding` 값을 이 문서에서 재정의하거나 나열하지 마라** — 정본은 `reflect-kit/references/memory-grounding.md` 하나다. 정의가 두 곳에 있으면 digest 와 promote 의 판정이 갈라진다.
 - **닫힌 라벨 집합(hard enum)을 만들지 마라** — 새 근본원인이 기존 라벨로 흡수되어 일관성 수치만 오른다. known canonical 우선 + 새 tag 허용 + `new_tag_reason` 요구가 정책이다.
 
 ## 예시 사용

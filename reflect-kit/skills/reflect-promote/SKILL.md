@@ -31,6 +31,7 @@ user-invocable: true
 9. **`aliases` 를 손으로 고르지 마라 — 결정론적 클러스터 멤버 전체다.** `tag_canon_groups`(`${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh`) 가 낸 `lemma_key` 클러스터의 멤버를 **그대로** 옮긴다. 사람이 고르면 빠지고, 빠지면 `post_freq` 가 과소집계되어 실패한 규칙이 "효과 있음" 으로 살아남는다. 2026-08-13 실측: `skipped-required-api-doc-check` 는 원시 단독 71 인데 클러스터 합산 110 이었다 — 39 건(55%)이 통째로 안 세지고 있었다. 규약: `${CLAUDE_PLUGIN_ROOT}/references/tag-canonicalization.md`.
 10. **이미 승격했는데 재발이 "늘었으면" 문구 문제가 아니라 게이트가 안 걸린 것이다.** 같은 문구를 다시 승격하거나 등급만 올리기 전에 **§B-0 hook coverage audit** 을 먼저 돌려라. 2026-08 실측: `skipped-required-api-doc-check` 가 직전 사이클 9 건 → 이번 30 건 이상으로 **악화**됐는데 사용자는 이미 PreToolUse 훅을 등록해 둔 상태였다. 훅이 있는데 위반이 는다면 1 순위 가설은 "규칙 문장이 약하다" 가 아니라 "훅이 그 경로에서 안 fire 했다" 이다.
 11. **`user_stated_constraint == true` 후보는 freq 2/3회를 기다리지 말고 매-세션 자동 로드 surface로 보낸다** (precedence rule #0). 사용자가 명시적으로 금지한 제약의 재위반은 memory(on-demand 로드)나 관망으로 강등하면 재주입이 약해 매 세션 재프롬프트가 반복된다 (insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응). 재주입 강도 순서: **hook(강제) > CLAUDE.md(매 세션 자동 로드) > path-scoped rule(해당 glob 편집 시 로드) > memory(on-demand)**. fast-track 대상은 memory 아래로 내리지 마라. 단 fast-track이어도 surface write 전 사용자 승인은 필수다 (Gotchas #1).
+12. **메모리 엔트리는 `grounding` frontmatter 를 갖는다 — 승격 시 반드시 채우고, `self_inference` 는 승격 근거로 쓰지 마라.** `~/.claude/projects/*/memory/` 의 `type: feedback` 엔트리 frontmatter 에는 **`grounding` 필드**가 있다. 값의 정의·판정 절차는 `reflect-kit/references/memory-grounding.md` 가 **SSOT** 이며 여기서 재정의하거나 값을 나열하지 마라. 방향이 둘 다 걸린다 — **(a) 쓸 때**: `project_memory` / `global_memory` 로 승격해 새 엔트리를 만들 때 `grounding` 을 그 규칙의 근거 유형에 맞게 **반드시 기입한다.** 비우면 다음 주기 소비면이 근거 등급을 판정할 수 없고 미태깅으로 잡힌다. **(b) 읽을 때**: 근거가 `grounding: self_inference` 인 (또는 `grounding` 미보유인) 기존 메모리 엔트리**뿐**인 후보는 **승격하지 마라.** `source_evidence` 로도 쓰지 않는다. 외부 검증 없는 자기추론을 영속 규칙으로 올리면 그 규칙이 이후 자기 자신의 근거가 되는 **자기검증 피드백 루프**가 닫힌다.
 
 ## 입력
 
@@ -39,6 +40,8 @@ user-invocable: true
 - `tag` (optional, rollback 시): rule_id 대신 mistake_tag로 가장 최근 active 엔트리를 지정
 
 후보 리스트는 대화 맥락에서 최근 `/reflect-digest` 출력을 참조한다. 없으면 사용자에게 먼저 `/reflect-digest` 실행을 요청한다.
+
+**카이젠 사이클이 낸 후보 파일도 같은 자격의 입력이다** — `.harness/.meta/memory-promotion-candidates-{YYYY-MM-DD}.md` (kaizen-orchestrator Step F3.5 산출물). 이 파일은 관측 · 4축 · `source_evidence` 만 담고 surface 판정 필드는 담지 않으므로, digest 출력과 똑같이 §A-2 precedence 재판정을 처음부터 적용한다. 카이젠은 ledger 를 쓰지 않는다 — `rule_id` 발급 · 중복 판정 · 등급 상향은 전부 이 스킬이 수행한다.
 
 ## Process
 
@@ -84,7 +87,7 @@ user-invocable: true
 
    **project_memory**
    - 경로 감지: 현재 Claude Code 세션의 프로젝트 메모리 디렉토리 (예: `~/.claude/projects/<encoded>/memory/`).
-   - 새 파일 `feedback_{tag}.md` 생성 (여기서 `{tag}`는 mistake_tag의 snake_case 변환). frontmatter: `name`, `description`, `type: feedback`.
+   - 새 파일 `feedback_{tag}.md` 생성 (여기서 `{tag}`는 mistake_tag의 snake_case 변환). frontmatter: `name`, `description`, `type: feedback`, **`grounding`**. `grounding` 은 이 규칙을 뒷받침한 근거의 유형이며 판정 기준은 `reflect-kit/references/memory-grounding.md` 다 — 비운 채로 승격하지 마라 (Gotchas #12).
    - 본문: 규칙 + `**Why:**` + `**How to apply:**`.
    - `MEMORY.md`에 한 줄 포인터 append: `- [Title] → feedback_{tag}.md — one-line hook`.
 
@@ -232,6 +235,9 @@ digest 는 PreToolUse 훅이 경고를 띄웠는데도 `skipped-required-api-doc
 - **예방 게이트를 `PostToolUse` 에 걸지 마라** — 이미 실행된 도구를 되돌리지 못한다. 예방은 `PreToolUse` + `exit 2` 다.
 - **`post_freq` 가 늘었는데 §B-0 없이 등급만 올리지 마라** — 훅이 안 걸린 것을 문구 문제로 오진하면 다음 사이클에 같은 숫자가 또 올라온다.
 - **사용자 환경(`~/.claude/settings.json`, `~/.claude/hooks/`)을 직접 고치지 마라** — 진단 결과와 초안만 제시한다.
+- **`grounding: self_inference` 인 메모리 엔트리를 근거로 승격하지 마라** — 외부 검증이 없는 자기추론이다. 승격하면 자기 산출물이 자기 근거가 되는 루프가 닫힌다. `grounding` 미보유(미태깅)도 같다.
+- **memory surface 로 승격하면서 `grounding` 을 비워두지 마라** — 미태깅 엔트리는 다음 주기 소비면이 근거 등급을 판정할 수 없다.
+- **`grounding` 값을 이 문서에서 재정의하거나 나열하지 마라** — 정본은 `reflect-kit/references/memory-grounding.md` 하나다.
 
 ## 예시 사용
 
@@ -242,6 +248,8 @@ digest 는 PreToolUse 훅이 경고를 띄웠는데도 `skipped-required-api-doc
 ## 관련 문서
 
 - `reflect-kit/references/tag-canonicalization.md` — canonical / alias / family 규약 SSOT
+- `reflect-kit/references/memory-grounding.md` — 메모리 엔트리 `grounding` 축 정의 SSOT (4 값 · 판정 절차 · 소비면 취급)
+- `.claude/skills/kaizen-orchestrator/SKILL.md` Step F3.5 — 카이젠 사이클이 내는 승격 후보 파일의 산출 조문
 - `reflect-kit/hooks/_lib-tag-canon.sh` — `tag_canon_groups` 실행 구현
 - `reflect-kit/docs/DESIGN.md` — Precedence Table 원본 정의
 - `reflect-kit/docs/SCHEMA.md` — YAML + Ledger 스키마 정본

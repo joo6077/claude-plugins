@@ -190,7 +190,9 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 ### Step 0: Pre-flight — 피드백 데이터 풀 수집 (Phase 1 이전 **필수** 실행)
 
-모든 Phase 1~14 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈·`/insights` 30 일 분석을 근거로 개선하도록 보장한다.
+모든 Phase 1~14 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈·개인 메모리(`~/.claude/projects/*/memory/`)·`/insights` 30 일 분석을 근거로 개선하도록 보장한다.
+
+데이터 풀의 섹션 구성은 **§0 · §0.5 · §1 · §2 · §3 · §4 · §5 · §6** 이다. **§0.5 (개인 메모리) 는 §0 과 §1 _사이_ 에 렌더된다** — 순서가 어긋나 있으면 산문을 고치지 말고 수집 로직(`scripts/collect-kaizen-data.py`)의 결함으로 다뤄라.
 
 **실행:**
 
@@ -230,6 +232,15 @@ exit_codes: [0, 2]
    - 60일 초과 시 STALE 경고 표시. STALE 이면 사용자에게 `/insights` 재실행 권고
    - 후보가 하나도 없으면 §0 에 "(없음)" 안내 후 진행 — Step 0 자체는 막지 않는다
    - `--insights` 로 지정한 파일이 없으면 **다른 후보로 조용히 대체하지 않고 exit 2** 로 멈춘다
+
+**0.5. 개인 메모리 (전 프로젝트 교차)** — `~/.claude/projects/*/memory/` · 데이터 풀 §0.5 로 렌더
+
+- `metadata.type: feedback` 엔트리만 수집한다. 범위는 이 레포가 아니라 **전 프로젝트 교차**다 — 다른 프로젝트에서 얻은 교훈이 이 레포의 Phase 에도 그대로 걸린다.
+- 각 엔트리는 frontmatter 에 `grounding` 필드를 갖는다. **정의와 판정 절차의 SSOT 는 `reflect-kit/references/memory-grounding.md`** 다 — 이 문서에서 값을 나열하거나 재정의하지 마라.
+- 선별은 **관련성 · 중요도 2 축**이다. recency 를 쓰지 마라 — `modified` 필드 보유율이 낮아 상당수가 임의 판정이 된다.
+- 선별에서 탈락한 엔트리는 **제목 목록**이 §0.5 말미에 남는다. 그 Phase 에 결정적이라고 판단되면 원문을 직접 읽어라.
+- 메모리 디렉토리가 없거나 엔트리가 0 건이어도 Step 0 은 멈추지 않는다 (§0.5 에 `(없음)` 표기).
+
 1. **글로벌 Evaluator 피드백** — `~/.harness/feedback/evaluator/*.yaml`
 
    - verdict 분포 (APPROVE/REJECT)
@@ -249,6 +260,10 @@ exit_codes: [0, 2]
 **Phase 별 참조 매핑** (데이터 풀 §6 에 테이블 포함):
 
 §0 (`/insights`) 가 존재할 때는 **모든 Phase** 가 §0 을 최우선 참조한 뒤 자신의 도메인 섹션을 본다. 각 Phase subagent 프롬프트는 데이터 풀 §0 을 첫 번째 참조로 명시해야 한다.
+
+**§0.5 (개인 메모리) 는 §0 다음, 도메인 섹션 이전에 읽는 전 Phase 공통 참조다.** 아래 표의 "주요 참조 섹션" 열에 §0.5 를 행마다 반복 표기하지 않는 것은 생략이 아니라 **헤더 레벨 1 회 공통 선언**이다 — 조건마다 반복해서 적으면 언젠가 하나를 빠뜨린다.
+
+**§0.5 사용 제한 (전 Phase 공통 전제):** `grounding: self_inference` 로 라벨된 엔트리는 **아무도 확인하지 않은 자기추론**이다. 배경 참고까지만 쓰고 **계약 조건의 PASS 근거로 인용하지 마라** — amendment 의 `consent: unanchored` 를 PASS 근거로 쓸 수 없는 것과 정확히 같은 취급이다. 카이젠이 쓴 것을 카이젠이 다시 근거로 먹으면 자기검증 피드백 루프가 되고, 이는 Final 계약이 자기참조 카브아웃으로 막은 것과 같은 구조다. `grounding` 필드가 아예 없는 엔트리는 `self_inference` 가 아니라 **미태깅**이며, 이 역시 PASS 근거가 될 수 없다.
 
 | Phase | 주요 참조 섹션 |
 | ------- | ------------- |
@@ -272,7 +287,11 @@ exit_codes: [0, 2]
 ```text
 데이터 소스:
 - `.harness/.meta/kaizen-data-pool.md` — 카이젠 공통 데이터 풀 (Step 0 에서 생성)
-  너의 Phase 범위에 해당하는 섹션 (§N) 을 우선 참조.
+  §0 (`/insights`) → §0.5 (개인 메모리) 순으로 먼저 읽고, 그 다음 너의 Phase
+  범위에 해당하는 섹션 (§N) 을 본다.
+  §0.5 에서 `grounding: self_inference` 인 엔트리 (및 `grounding` 미보유 엔트리) 는
+  배경 참고까지만이다 — 계약 조건의 PASS 근거로 인용하지 마라.
+  4 값 정의는 `reflect-kit/references/memory-grounding.md` 가 SSOT.
 ```
 
 **Gotchas:**
@@ -285,6 +304,8 @@ exit_codes: [0, 2]
 - `/insights` 리포트가 60일 초과 STALE 이면 데이터 풀에 ⚠ 마커가 붙는다. 이 사이클은 진행하되, **사용자에게 `/insights` 재실행을 권고**하라.
 - `/insights` 가 30일 세션 분석이지만 카이젠 사이클(주 1 회)이 더 빈번하므로, 이전 사이클과 같은 리포트가 재참조될 수 있다. 매 사이클 §0 의 friction point 가 이미 해결되었는지 각 Phase QA Acceptance Criteria 에 명시한다.
 - `--insights=PATH` 인자가 명시적으로 전달되면 자동 탐색 경로보다 우선한다 (사용자가 특정 리포트 버전을 강제하고 싶을 때).
+- **§0.5 개인 메모리를 "카이젠이 쓴 것" 이라는 이유로 통째로 배제하지 마라.** 메모리의 `feedback` 엔트리는 전부 Claude 가 쓴 것이라 저자로 가르면 아무것도 끊기지 않는다. 가르는 축은 저자가 아니라 **근거**(`grounding`)다 — 외부 신호(사용자 교정 · 실행 증거)가 붙은 엔트리는 카이젠 산출이라도 유효하다. 취급을 달리할 대상은 `self_inference` 와 미태깅뿐이고, 그것도 삭제가 아니라 **PASS 근거 금지 라벨**이다.
+- **메모리는 카이젠의 입력이자 출력이다 — 같은 사이클 안에서 왕복시키지 마라.** 이번 사이클이 Step F3.5 로 낸 승격 후보는 이번 사이클 §0.5 의 근거가 될 수 없다. 후보는 `/reflect-promote` 승인을 거쳐 메모리가 된 뒤에야 **다음** 사이클 §0.5 로 들어온다.
 
 ### Step 0.5: Orchestrator Self-Audit (자동 — 건너뛰기 금지)
 
@@ -548,6 +569,56 @@ cleanup_log:
     notes: "no action needed"
 ```
 
+### Step F3.5: 메모리 승격 후보 산출 (자동 — 건너뛰기 금지)
+
+**목적:** 이번 사이클이 얻은 교훈을 다음 사이클의 §0.5 로 되돌리는 **유일한 경로**다. 이 단계가 없으면 사이클 산출물이 계약 본문과 감사 로그에만 남는다. 실측: `oracle-must-execute-not-grep` 교훈이 2026-07-28 에 기록됐는데, 2 주 반 뒤 kaizen-2026-08-13 사이클의 재평가 REJECT 3 건이 정확히 그 유형(계약 측정문 결함)이었다 — 루프가 메모리를 먹지 않아 계약 작성 단계에 전달되지 않았다.
+
+**경계 — 카이젠은 후보만 낸다. 승격하지 않는다.**
+
+- 승격 ledger (`~/.claude/logs/<project_id>/promotions-ledger.md`) 에 **쓰지 마라.** 이 파일은 `/reflect-promote` 소유다. 카이젠이 병렬 쓰기 경로를 만들면 ledger 가 두 갈래로 갈라져 rollback 이 깨진다.
+- 승격 판정 로직(precedence table · `rule_id` 발급 · `status` 전환 · enforcement 등급 상향 · 중복 판정)을 **여기서 재구현하지 마라.** 전부 `reflect-kit/skills/reflect-promote/SKILL.md` 가 정본이다. 카이젠은 그 스킬을 **참조·호출**한다.
+- 메모리 파일(`~/.claude/projects/*/memory/`)과 `MEMORY.md` 인덱스도 카이젠이 직접 쓰지 않는다.
+
+**산출물:** `.harness/.meta/memory-promotion-candidates-{YYYY-MM-DD}.md` — 사이클당 1 파일 (기존 사이클 파일에 append 하지 않는다)
+
+**포맷** — 관측과 근거만 담는다. `promoted_to` · `rule_id` · `enforcement_level` · `status` 같은 **판정 결과 필드를 넣지 마라.** 그것을 채우는 순간 승격 로직의 복제가 된다.
+
+```yaml
+# kaizen-memory-candidates
+cycle_id: kaizen-YYYY-MM-DD
+generated_at: <ISO8601+TZ>
+candidates:
+  - canonical_tag: <kebab-case>
+    grounding: <reflect-kit/references/memory-grounding.md 의 4 값 중 하나>
+    actionability: claude_behavior | user_environment
+    scope: session | project | global
+    risk_class: low | medium | high
+    procedurality: single_rule | multi_step_procedure
+    enforcement_need: soft_reminder | hard_gate
+    user_stated_constraint: true | false
+    freq: <int>
+    undesired_behavior: <str>
+    desired_behavior: <str>
+    source_evidence:
+      - path: <계약 파일 · QA 피드백 · 명령 출력 로그의 경로>
+        anchor: <조건 ID · verdict · 헤더>
+    draft_rule: "<한 줄 초안>"
+```
+
+**절차:**
+
+1. 이번 사이클의 Phase QA verdict (REJECT 사유 · iteration 사유) 와 Final 재평가 지적을 **근본원인 단위**로 묶는다. 표기가 닮았다고 합치지 마라.
+2. 각 후보의 `grounding` 을 판정한다 — 기준은 `reflect-kit/references/memory-grounding.md`. **`self_inference` 로 판정되면 후보로 내지 마라.** 카이젠 자신의 추론을 외부 확인 없이 영속 규칙으로 증류하는 경로가 정확히 이것이다. QA verdict · 명령 출력 · 실측 수치를 `source_evidence` 에 댈 수 있는 것만 후보다.
+3. `actionability: user_environment` 는 후보에서 제외한다 (Claude 행동 개선 대상이 아니다). 필요한 사용자 조치는 리포트에만 적는다.
+4. 후보 파일을 쓰고, 사용자에게 **경로와 건수를 보고한 뒤 `/reflect-promote` 호출을 제안**한다. 승격 여부 · surface · 등급은 그 스킬이 사용자 승인을 거쳐 판정한다.
+5. 후보가 0 건이어도 파일은 만든다 (`candidates: []`). 실행 증거가 남아야 다음 사이클이 "후보 없음" 과 "단계 누락" 을 구분할 수 있다.
+
+**Gotchas:**
+
+- 후보 파일을 만든 것을 "승격 완료" 로 보고하지 마라 — 승격은 `/reflect-promote` 가 ledger 에 append 했을 때 완료다.
+- 같은 교훈이 ledger 에 `status: active` 로 이미 있는지 여기서 판정하려 하지 마라 — 중복 판정도 `/reflect-promote` §A-3 소관이다. 카이젠은 후보를 그대로 내고 중복은 그쪽이 거른다.
+- 이 후보 파일은 **이번 사이클 §0.5 의 입력이 아니다.** 같은 사이클 안에서 왕복시키면 자기검증 루프다.
+
 ### Step F4: PR 생성 (구 Step 12)
 
 1. **버전 업데이트:**
@@ -613,6 +684,7 @@ cleanup_log:
    - [ ] `docs/kaizen/research-log.md` + `docs/kaizen/flutter-research-log.md` + per-kit research-log 6개 파일 (backend/infra/rust/react/flutter/planning) 이 모두 존재하고 이번 사이클 엔트리를 포함한다
    - [ ] Step F2 docs-site 재생성이 실행되었다 — 변경된 소스에 대응하는 `docs/<plugin>/*.html` 이 최신 상태다
    - [ ] Step F3 글로벌 피드백 정리가 실행되었다 — `.harness/.meta/cleanup-log.yaml` 에 이번 사이클 엔트리가 있다
+   - [ ] Step F3.5 메모리 승격 후보 산출이 실행되었다 — `.harness/.meta/memory-promotion-candidates-{YYYY-MM-DD}.md` 가 존재하고 (후보 0 건이면 `candidates: []`), 카이젠이 승격 ledger 를 직접 수정하지 않았다
    - [ ] `.harness/.meta/kaizen-failure-count.yaml` `last_updated` 필드가 이번 사이클 날짜다
    - [ ] `.harness/.meta/evals-audit-{YYYY-MM-DD}.md` 가 존재한다 (evals 점검 기록)
    - [ ] Phase 1~14 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다 (검사 대상 킷 목록은 `marketplace.json` 에서 유도된다 — 하드코드하지 않는다)
