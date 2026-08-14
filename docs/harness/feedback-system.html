@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
   --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
-  --accent:#0ea5e9;--accent2:#14b8a6;--accent-dim:rgba(14,165,233,0.12);
+  --accent:#D97757;--accent2:#E8A583;--accent-dim:rgba(217,119,87,0.12);
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
@@ -18,8 +18,8 @@ html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
   background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-  background-image:radial-gradient(ellipse at 20% 0%,rgba(14,165,233,0.07) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(20,184,166,0.04) 0%,transparent 50%);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(232,165,131,0.04) 0%,transparent 50%);
   -webkit-font-smoothing:antialiased;
 }
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
@@ -29,7 +29,7 @@ body{
 
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;letter-spacing:0.04em}
-.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(14,165,233,0.5)}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(217,119,87,0.5)}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.04em;min-height:24px}
 
 .hero{padding:72px 0 56px;text-align:center}
@@ -47,7 +47,7 @@ body{
 .section-desc{font-size:0.96rem;color:var(--text2);max-width:760px;line-height:1.75;margin-bottom:32px}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:var(--transition);position:relative}
-.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.08)}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
 .card-title{font-size:1.02rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.7}

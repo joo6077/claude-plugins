@@ -18,7 +18,7 @@
   --mono:'JetBrains Mono','Fira Code','SF Mono',monospace;
 }
 html{font-size:16px;scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;overflow-x:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
 
 .hero{position:relative;padding:clamp(60px,10vw,120px) clamp(20px,5vw,48px) clamp(40px,6vw,80px);text-align:center;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(240,176,136,0.08) 0%,rgba(232,150,90,0.04) 40%,transparent 70%);pointer-events:none}
@@ -42,13 +42,27 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .card+.card{margin-top:16px}
 .card-title{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
 .card-subtitle{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.card-source{display:inline-flex;align-items:center;gap:6px;margin-top:14px;margin-right:8px;font-size:11px;font-weight:600;
+  color:var(--accent2);text-decoration:none;border:1px solid rgba(240,176,136,0.45);border-radius:999px;padding:6px 12px;
+  min-height:24px;transition:all var(--transition);font-family:var(--mono)}
+.card-source:hover{background:rgba(240,176,136,0.14);border-color:var(--accent2)}
+.card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card-source::before{content:'↗';font-weight:800}
+.source-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 
 .tab-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .tab-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:var(--font)}
 .tab-btn:hover{border-color:var(--text3);color:var(--text)}
 .tab-btn.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
 
-.table-wrap{overflow-x:auto;margin:16px 0}
+/* ── 가로 오버플로 방지 4 규칙 (자르지 말고 스크롤시킨다) ── */
+.grid-2>*,.grid-3>*{min-width:0}
+pre{overflow-x:auto;max-width:100%}
+:not(pre)>code{overflow-wrap:anywhere}
+@media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;margin:16px 0}
+.table-wrap>table{min-width:max-content}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{text-align:left;font-weight:700;color:var(--text2);padding:12px 16px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:1px}
 td{padding:12px 16px;border-bottom:1px solid var(--border)}
@@ -211,6 +225,36 @@ footer a{color:var(--accent2);text-decoration:none}
 
 <div class="page">
 
+<!-- ======== PRINCIPLES ======== -->
+<section class="section" id="principles">
+  <div class="section-label">00</div>
+  <h2 class="section-title">계층의 4 원칙</h2>
+  <p class="section-desc">아래 네 가지가 모든 계층 도구의 근거다. 도구 선택이 애매할 때 여기로 돌아온다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">1 &middot; 크기가 가장 강력한 계층 신호다</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.75">사용자는 큰 요소를 먼저 인지한다. NNGroup 아이트래킹 연구에서 페이지를 스캔할 때 <strong>큰 텍스트와 이미지에 시선이 가장 먼저 고정</strong>되는 현상이 반복 관찰됐다. 크기만으로도 "이것이 가장 중요하다" 는 신호를 보낼 수 있다.</p>
+      <a class="card-source" href="https://www.nngroup.com/articles/text-scanning-patterns-eyetracking/">NNGroup — Text Scanning Patterns: Eyetracking Evidence</a>
+    </div>
+    <div class="card">
+      <div class="card-title">2 &middot; 대비가 시선을 끌어당긴다</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.75">배경과 전경의 명도 차이가 클수록 시각적 무게가 커진다. 낮은 대비는 요소를 배경에 녹여 "보조 정보" 로 인식하게 만든다. WCAG 는 텍스트에 최소 <strong>4.5:1</strong> 대비를 요구하지만, 계층 설계에서는 <strong>의도적으로 대비 차이를 활용</strong>해야 한다.</p>
+      <a class="card-source" href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html">WCAG 1.4.3 — Contrast (Minimum)</a>
+    </div>
+    <div class="card">
+      <div class="card-title">3 &middot; 여백이 중요도를 결정한다</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.75">주변 여백이 넓을수록 그 요소는 더 중요하게 인식된다. Apple 은 히어로 영역에서 광대한 여백으로 단일 메시지에 집중하게 만든다. 여백은 "비어 있는 공간" 이 아니라 <strong>주목을 유도하는 도구</strong>다.</p>
+      <a class="card-source" href="https://www.nngroup.com/articles/why-does-design-look-good/">NNGroup — Why Does a Design Look Good?</a>
+    </div>
+    <div class="card">
+      <div class="card-title">4 &middot; 위치는 읽기 순서를 결정한다</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.75">서구권 사용자는 좌상단에서 우하단으로 이동한다. 가장 중요한 정보를 좌상단에, 부가 정보를 우하단에 배치해야 <strong>시선 흐름과 정보 우선순위가 일치</strong>한다.</p>
+      <a class="card-source" href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/">NNGroup — F-Shaped Pattern for Reading Web Content</a>
+    </div>
+  </div>
+</section>
+
 <!-- ======== HIERARCHY TOOLS DEMO ======== -->
 <section class="section" id="tools">
   <div class="section-label">01</div>
@@ -301,6 +345,10 @@ footer a{color:var(--accent2);text-decoration:none}
         <div><div style="font-size:14px;font-weight:700">색상 차이</div><div style="font-size:12px;color:var(--text2)">주변과 다른 색상의 요소</div></div>
       </div>
     </div>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/">NNGroup — F-Shaped Pattern (2017 재검토)</a>
+    <a class="card-source" href="https://www.nngroup.com/articles/text-scanning-patterns-eyetracking/">NNGroup — Text Scanning Patterns</a>
   </div>
 </section>
 
@@ -412,6 +460,9 @@ footer a{color:var(--accent2);text-decoration:none}
       </div>
     </div>
   </div>
+  <div class="source-row">
+    <a class="card-source" href="https://typescale.com/">Type Scale — A Visual Calculator</a>
+  </div>
 </section>
 
 <!-- ======== GESTALT PROXIMITY ======== -->
@@ -461,6 +512,9 @@ footer a{color:var(--accent2);text-decoration:none}
       </div>
     </div>
   </div>
+  <div class="source-row">
+    <a class="card-source" href="https://www.nngroup.com/articles/gestalt-proximity/">NNGroup — Proximity Principle in Visual Design</a>
+  </div>
 </section>
 
 <!-- ======== COLOR & CONTRAST ======== -->
@@ -506,6 +560,10 @@ footer a{color:var(--accent2);text-decoration:none}
         </div>
       </div>
     </div>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://m3.material.io/styles/color/roles">Material Design 3 — Color Roles</a>
+    <a class="card-source" href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html">WCAG 1.4.3 — Contrast (Minimum)</a>
   </div>
 </section>
 
@@ -632,7 +690,7 @@ footer a{color:var(--accent2);text-decoration:none}
         <ul style="font-size:12px;color:var(--text2);line-height:1.7;padding-left:16px">
           <li>수직 계층에 의존</li>
           <li>크기 차이 1.2배 이상 유지</li>
-          <li>터치 타겟 최소 44pt</li>
+          <li>터치 타겟: WCAG 2.2 SC 2.5.8 AA <code>24&#xD7;24 CSS px</code> · Apple HIG <strong>44pt 권장</strong></li>
         </ul>
       </div>
       <div style="padding:20px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
@@ -661,6 +719,9 @@ footer a{color:var(--accent2);text-decoration:none}
         </ul>
       </div>
     </div>
+  </div>
+  <div class="source-row">
+    <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/layout">Apple HIG — Layout</a>
   </div>
 </section>
 

@@ -39,6 +39,8 @@
   .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
   .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
     padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+  .hero-meta .tag{font-family:var(--mono)}
 
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
   .card:hover{border-color:rgba(20,184,166,0.25)}
@@ -113,6 +115,7 @@
   .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
   /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
   .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+  .table-wrap>table{min-width:max-content}
   /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
   pre{max-width:100%}
   pre code{white-space:pre}
@@ -120,6 +123,8 @@
   /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
   th code,td code{overflow-wrap:normal}
   .desc,.subtitle,.card-body,.callout,.checklist li{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 단일 컬럼으로 스택 */
+  @media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
 
   @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
 </style>
@@ -131,6 +136,28 @@
 
 <h1>Surface-first Recipes — 완벽한 표면 + 안 보이는 seam</h1>
 <p class="subtitle">Bambu Lab H2S + Bambu Studio v2.6.0+ 에서 표면 품질을 최우선으로 두고 seam을 분산이 아닌 <strong>은닉</strong>으로 처리하는 정책. 회전체 default를 <code>random + entire_loop</code>(분산)에서 <strong>Auto-select 결정 트리</strong>(spiral_mode → painted seam → random fallback)로 전환한다. Codex research run <code>a25261e23b21252b2</code> (score 24/25, 2026-05-16) 기반.</p>
+
+<div class="hero-meta">
+  <span class="tag">Last updated 2026-05-16</span>
+  <span class="tag">2026-08-13 정정 3건</span>
+  <span class="tag">Bambu Studio 2.6.0 (v02.06.00.51)</span>
+  <span class="tag">사전 정책 (사후 대응은 Failure Recipes)</span>
+</div>
+
+<div class="callout">
+  <strong>2026-08-13 정정 (카이젠 Phase 13) — 3 건.</strong>
+  ① <code>layer_height</code> <code>0.08</code> 은 <strong>H2S 공식 process 프로파일 근거가 <code>[미확인]</code></strong> 이다 → 전 형상 <strong><code>0.12</code> 가 1 차 권장</strong>.
+  ② <code>enable_arc_fitting</code> 은 품질 개선 기능이 아니라 <strong>G-code encoding 변경</strong>이다 → 기본값 유지, 표면 품질 카드 아님.
+  ③ <code>resolution</code> 은 <strong>XY 세그먼트 해상도 전용</strong>이다 → Z 계단 해결책이 아니다.
+  근거: <code>.harness/.meta/evidence/phase13.md</code>.
+</div>
+
+<div class="callout info">
+  <strong>형제 문서:</strong> <a href="seam-recipes.html" style="color:var(--accent2)">Seam Recipes</a> (seam 전용) ·
+  <a href="bambu-fields-baseline.html" style="color:var(--accent2)">Fields Baseline §8 · §10</a> (필드 enum / default 정본) ·
+  <a href="materials.html" style="color:var(--accent2)">Materials</a> (소재 카탈로그) ·
+  <a href="failure-recipes.html" style="color:var(--accent2)">Failure Recipes</a> (<strong>실측 실패 후 사후 대응</strong> — 이 페이지는 <strong>사전</strong> 정책이다).
+</div>
 
 <!-- ── Section 1: 모드 개요 ── -->
 <div class="section">
@@ -276,14 +303,14 @@
     <table>
       <thead><tr><th>항목</th><th>Surface-first 값</th><th>기본 baseline</th><th>근거</th></tr></thead>
       <tbody>
-        <tr><td><code>layer_height</code></td><td>회전체/유기적 <code>0.08</code> mm · 박스/도구 <code>0.12</code> · 큰 평면 <code>0.12-0.16</code></td><td>H2S 0.20 Standard</td><td>0.12 HQ profile (outer 60mm/s)</td></tr>
+        <tr><td><code>layer_height</code></td><td><strong><code>0.12</code> mm 1 차 권장 (전 형상)</strong> · 회전체/유기적에서 계단이 핵심이고 시간을 감수할 때만 <code>0.08-0.12</code> · 큰 평면 <code>0.12-0.16</code></td><td>H2S 0.20 Standard</td><td><code>0.12</code>: 0.12mm High Quality @BBL H2S.json (공식 체인 실재). <strong><code>0.08</code> 은 공식 근거가 아니다</strong> — <code>min_layer_height 0.07</code> 하한 위라는 것만 확인, H2S 공식 0.08 process 프로파일 근거는 <code>[미확인]</code> (Fields Baseline §10.1)</td></tr>
         <tr><td><code>wall_loops</code></td><td><code>3</code> (표면 우선) ~ <code>4</code> (강도 + 표면)</td><td><code>2</code></td><td>fdm_process_common.json</td></tr>
         <tr><td><code>outer_wall_speed</code></td><td>PLA/PETG <code>20-40</code> · Silk <code>15-25</code> · PA/PC/ABS <code>20-30</code> · TPU <code>10-20</code> mm/s</td><td>H2S 0.12 HQ <code>60</code></td><td>0.12mm High Quality @BBL H2S.json</td></tr>
         <tr><td><code>inner_wall_speed</code></td><td>outer의 <code>2-3배</code> 이하 (예: 30 → 60-90)</td><td>H2S 0.12 HQ <code>90</code></td><td>동일</td></tr>
         <tr><td><code>wall_sequence</code></td><td><code>inner-outer-inner wall</code> 기본 · sharp box 치수만 <code>inner / outer</code></td><td><code>inner / outer</code></td><td>fdm_process_common.json:58</td></tr>
         <tr><td><code>reduce_crossing_wall</code></td><td><code>1</code></td><td><code>0</code></td><td>fdm_process_common.json:100</td></tr>
-        <tr><td><code>enable_arc_fitting</code></td><td><code>1</code> (유지)</td><td><code>1</code></td><td>fdm_process_common.json:29</td></tr>
-        <tr><td><code>resolution</code></td><td><code>0.006-0.010</code> mm</td><td><code>0.012</code></td><td>fdm_process_common.json:103</td></tr>
+        <tr><td><code>enable_arc_fitting</code></td><td><code>1</code> (<strong>기본값 유지 — 표면 품질 카드가 아니다</strong>)</td><td><code>1</code></td><td>fdm_process_common.json:29. ⚠️ 품질 개선 기능이 아니라 <strong>G-code encoding 변경</strong>(직선 세그먼트 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 해결책으로 제시하지 마라 — <a href="failure-recipes.html" style="color:var(--accent)">Failure Recipes §2.2</a></td></tr>
+        <tr><td><code>resolution</code></td><td><code>0.006-0.010</code> mm</td><td><code>0.012</code></td><td>fdm_process_common.json:103. ⚠️ <strong>XY 세그먼트 해상도 전용</strong> — Z 계단의 주 해결책이 아니다 (<a href="failure-recipes.html" style="color:var(--accent)">Failure Recipes §2.2</a>)</td></tr>
         <tr><td>flow ratio</td><td>소재/색상별 calibration 후 (PLA Basic 기본 <code>0.98</code>)</td><td>동일</td><td>Bambu PLA Basic @BBL H2S.json</td></tr>
         <tr><td>Pressure Advance</td><td>소재/노즐/건조 후 PA profile 저장 필수</td><td>—</td><td>Bambu 공식 calibration 가이드</td></tr>
       </tbody>
@@ -305,6 +332,34 @@
         <tr><td><strong>TPU</strong></td><td><code>10-20</code></td><td><code>0.16-0.20</code></td><td>scarf/ironing 비추. layer 두껍게 가도 됨 (유연성 우선).</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="callout">
+    <strong><code>0.08-0.12</code> 범위는 <code>0.12</code> 를 1 차값으로 읽는다.</strong> <code>0.08</code> 쪽 끝은 <code>min_layer_height 0.07</code> 하한 위라는 것만 확인된 <strong>비공식 영역</strong>이고 H2S 공식 process 프로파일 근거는 <code>[미확인]</code> 이다 (<a href="bambu-fields-baseline.html" style="color:var(--accent)">Fields Baseline §10.1</a>). 사용자에게 <strong>시간 배수(레이어 수 <code>기존/신규</code> 배)를 고지하고 선택을 받은 뒤에만</strong> <code>0.08</code> 로 내려라 — 자동으로 밀어넣지 마라.
+  </div>
+
+  <h3 style="margin:32px 0 14px">3.3. 사전 정책 vs 사후 대응 — 진입 조건이 다르다</h3>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">이 페이지가 다루지 <em>않는</em> 것</div>
+      <ul>
+        <li>이미 출력했고 <strong>곡면이 계단처럼 나온</strong> 결과물 (L1)</li>
+        <li>이미 출력했고 <strong>실이 늘어진</strong> 결과물 (L2)</li>
+        <li>이미 출력했고 <strong>바닥이 뜬</strong> 결과물 (L3)</li>
+        <li>재현 6 축 대조 · 금지 키 게이트 · 실패 순서 판정</li>
+      </ul>
+      <div class="note">→ <a href="failure-recipes.html" style="color:var(--accent2)">Failure Recipes</a> 로 간다. 실패 보고에 이 페이지의 사전 권장값을 그대로 다시 적용하면 원인을 건너뛰게 된다.</div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">이 페이지가 다루는 것</div>
+      <ul>
+        <li>출력 <strong>전</strong>, 사용자가 표면 품질을 명시적으로 우선할 때</li>
+        <li>형상 기반 seam 전략 자동 판정 (§2)</li>
+        <li>외벽 · Top/Bottom · Ironing 권장값 (§3~5)</li>
+        <li>surface-first 를 켰을 때의 트레이드오프 고지 (§6)</li>
+      </ul>
+      <div class="note">키 이름 · 단위 · default 의 정본은 항상 <a href="bambu-fields-baseline.html" style="color:var(--accent2)">Fields Baseline §8 · §10</a> 이다. 이 페이지의 숫자는 <strong>권장 범위</strong>이지 default 사본이 아니다.</div>
+    </div>
   </div>
 </div>
 
@@ -491,6 +546,10 @@
     <li><span class="check">✓</span>Smart scarf가 angle 임계에서 끊겨 표면 불균일 발생 시 <code>scarf_angle_threshold</code> ↓ 또는 Smart Off (1.10.1 hotfix 이력 참조).</li>
     <li><span class="check">✓</span>출력 시간 일반 대비 2~4배 증가 — 사용자 사전 고지 필수.</li>
     <li><span class="check">✓</span>매끈한 표면 TOP 3 소재 (PLA Matte / Basic / ABS·ASA) 우선 권장. PA-CF는 fiber 질감으로 매끈 부적합.</li>
+    <li><span class="check">✓</span><strong>(2026-08-13) <code>layer_height</code> 1 차값은 <code>0.12</code>.</strong> <code>0.08</code> 은 H2S 공식 process 프로파일 근거가 <code>[미확인]</code> 인 비공식 영역 — 레이어 수 배수를 고지하고 사용자 선택을 받은 뒤에만 내린다. 자동으로 밀어넣지 마라.</li>
+    <li><span class="check">✓</span><strong>(2026-08-13) <code>enable_arc_fitting</code> 은 표면 품질 카드가 아니다.</strong> G-code encoding 변경(직선 → arc)이며 firmware arc segmentation 리스크가 따라온다. 기본값을 유지하고 곡면 계단 대응으로 제시하지 마라.</li>
+    <li><span class="check">✓</span><strong>(2026-08-13) <code>resolution</code> 은 XY 세그먼트 해상도 전용이다.</strong> Z 계단(stair-stepping)의 주 해결책이 아니다 — Z 는 <code>layer_height</code> 로만 대응한다.</li>
+    <li><span class="check">✓</span><strong>실측 실패 보고가 들어오면 이 페이지가 아니라 <a href="failure-recipes.html" style="color:var(--accent)">Failure Recipes</a> 로 진입한다.</strong> 재현 6 축 대조 → L3 → L2 → L1 순서. 사전 권장값을 실패 대응으로 재적용하지 마라.</li>
   </ul>
 
   <h3 style="margin:32px 0 14px">출처</h3>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>동시성 가드 프로토콜 — Rust Kit</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(232,93,74,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(232,93,74,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:700px;margin-bottom:24px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(232,93,74,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(232,93,74,0.03)}
+  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{background:transparent;border:none;padding:0;margin:0}
+  .compare p{font-size:12.5px;color:var(--text2);line-height:1.65}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
+  .source-link,.card-source{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;margin-right:16px;opacity:0.85}
+  .source-link:hover,.card-source:hover{opacity:1;text-decoration:underline}
+  .source-link:focus-visible,.card-source:focus-visible,.nav-back:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+  .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .card-body{color:var(--text2);font-size:13px;line-height:1.7}
+  .card-body p+p{margin-top:10px}
+  .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  .nav-back:hover{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;margin-bottom:clamp(32px,5vw,56px)}
+  .badge{font-size:11px;font-family:var(--mono);color:var(--text3);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 12px}
+  .badge.hl{color:var(--accent2);border-color:rgba(232,93,74,0.3);background:var(--accent-dim)}
+  .quote{border-left:3px solid var(--red);background:rgba(248,113,113,0.07);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;font-size:13px;color:var(--text2);line-height:1.75}
+  .quote .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.5px;margin-bottom:8px}
+  .quote strong{color:var(--text)}
+  .ssot{border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;font-size:13px;color:var(--text2);line-height:1.7}
+  .ssot strong{color:var(--text)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--mono);margin-right:6px}
+  .pill-p{background:rgba(74,222,128,0.14);color:var(--green)}
+  .pill-n{background:rgba(248,113,113,0.14);color:var(--red)}
+  .antilist{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .antilist li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text2);line-height:1.65}
+  .antilist .x{color:var(--red);font-weight:800;flex-shrink:0}
+  .lead-strong{color:var(--text)}
+  .steps{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+  .step{display:flex;gap:12px;align-items:flex-start}
+  .step-n{width:22px;height:22px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .step-t{font-size:13px;color:var(--text2);line-height:1.65}
+
+  /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
+  /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
+  .grid-2>*,.grid-3>*,.compare>*,.checklist li>*,.antilist li>*,.card-header>*,.meta>*,.step>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  /* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤시킨다 */
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
+  @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="index.html" class="nav-back">&#8592; Rust Kit</a>
+
+<h1>동시성 가드 프로토콜</h1>
+<p class="subtitle">read-check-then-write 경합을 <strong class="lead-strong">SQL 술어</strong>로 해소하고, 그 가드가 실제로 동작함을 <strong class="lead-strong">판별력 있는 테스트</strong>로 증명하는 절차.</p>
+<div class="meta">
+  <span class="badge">source: rust-kit/references/concurrency-guard-protocol.md</span>
+  <span class="badge hl">SSOT — 본문은 이 파일 하나</span>
+  <span class="badge">신규 2026-08-13</span>
+</div>
+
+<div class="ssot">
+  <strong>SSOT 규칙.</strong> rust-kit 안에서 이 규칙의 본문은 <code>rust-kit/references/concurrency-guard-protocol.md</code> <strong>하나</strong>다. 소비 표면 — <code>rust-model</code> · <code>rust-test</code> · <code>rust-audit</code> · <code>rust-reviewer</code> — 은 이 경로를 <strong>인용만</strong> 하고 규칙을 재열거하지 않는다.
+</div>
+
+<div class="quote">
+  <span class="tag">왜 생겼나 — 2026-08-12 실측 REJECT (ER-02)</span><br>
+  &ldquo;신규 통합 테스트가 실제 바이너리를 호출하지 않고 독립적으로 재작성한 SQL 로 낙관적 동시성의 일반 동작만 검증한다. <strong>mutation test 로 확정 — 실제 코드에서 동시성 가드(<code>WHERE exercises = $3::jsonb</code>)를 완전히 삭제해도 이 테스트는 여전히 통과한다.</strong>&rdquo;<br><br>
+  가드는 구현돼 있었고 테스트도 통과했는데, 그 테스트는 가드를 재고 있지 않았다.
+</div>
+
+<!-- 원칙 -->
+<div class="section">
+  <div class="section-label">프로토콜 4단계</div>
+  <p class="desc">§1~§2 는 <em>생산</em>(가드를 어떻게 만드나), §3 은 <em>증명</em>(그 가드를 무엇으로 재나), §4 는 <em>판정 정본 인용</em>이다. 판정 규칙 자체는 여기서 다시 정의하지 않는다.</p>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1</span>
+        <div>
+          <h3>경합은 앱 레벨이 아니라 SQL 술어로 막는다</h3>
+          <div class="rule-number">Atomic Predicate</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>SELECT</code> 로 상태를 읽고 → Rust 코드에서 비교하고 → <code>UPDATE</code> 하는 흐름은 두 문장 사이에 다른 트랜잭션이 끼어들 수 있다(read-check-then-write). 앱 레벨 <code>if</code> 는 이 창을 닫지 못한다.</p>
+        <p>기대 상태를 <code>UPDATE</code> 의 <code>WHERE</code> 술어로 내려 <strong class="lead-strong">원자적으로</strong> 판정한다.</p>
+        <pre><span style="color:#f08575">-- 기대값(읽어온 스냅샷)을 술어에 포함시켜</span>
+<span style="color:#f08575">-- 경합 시 0 행이 갱신되게 한다</span>
+UPDATE sessions
+   SET exercises = $1, updated_at = now()
+ WHERE id = $2
+   AND exercises = $3;   <span style="color:#4ade80">-- $3 = 읽을 때 관찰한 값</span>
+                         <span style="color:#4ade80">--      stale 이면 매치되지 않는다</span></pre>
+        <ul class="antilist">
+          <li><span class="x">&#8226;</span><div>버전 컬럼(<code>version = $n</code>) · 타임스탬프 · 값 자체 스냅샷 중 무엇을 쓰든 원리는 같다.</div></li>
+          <li><span class="x">&#8226;</span><div><code>INSERT</code> 경로의 중복 방지는 partial unique index + <code>ON CONFLICT</code> 로 같은 층에서 처리한다.</div></li>
+          <li><span class="x">&#8226;</span><div>술어를 앱 코드의 사전 <code>SELECT</code> 검사로 대체하지 마라 — 그 검사는 창을 좁힐 뿐 닫지 못한다.</div></li>
+        </ul>
+      </div>
+      <a href="https://www.postgresql.org/docs/current/transaction-iso.html" target="_blank" rel="noopener" class="card-source">&#8599; PostgreSQL — Transaction Isolation</a>
+      <a href="https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT" target="_blank" rel="noopener" class="card-source">&#8599; PostgreSQL — ON CONFLICT</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2</span>
+        <div>
+          <h3>호출부를 함수로 추출하고 0 행을 <code>Conflict</code> 로 올린다</h3>
+          <div class="rule-number">Extract &amp; Surface</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p><code>main()</code> · 핸들러 본문에 인라인된 <code>UPDATE</code> 는 단위 테스트가 불가능하다. 실측 improvement: <em>&ldquo;현재 main() 내부에 인라인되어 있어 단위 테스트가 불가능하므로, 이 UPDATE 호출부를 별도 함수로 추출하라&rdquo;</em>.</p>
+        <div class="steps">
+          <div class="step"><span class="step-n">1</span><span class="step-t">가드 쿼리 호출부를 <strong class="lead-strong">이름 있는 함수</strong>로 추출한다 — 테스트가 이 심볼을 직접 호출한다.</span></div>
+          <div class="step"><span class="step-n">2</span><span class="step-t">드라이버가 돌려주는 <strong class="lead-strong">영향 행 수가 0 이면 성공으로 흘리지 말고</strong> 도메인 <code>Conflict</code> 로 변환한다.</span></div>
+        </div>
+        <pre>pub async fn apply_exercises(
+    pool: &amp;PgPool,
+    id: Uuid,
+    expected: &amp;Json&lt;Vec&lt;Exercise&gt;&gt;,
+    next: &amp;Json&lt;Vec&lt;Exercise&gt;&gt;,
+) -&gt; Result&lt;(), DomainError&gt; {
+    let res = sqlx::query!(
+        "UPDATE sessions SET exercises = $1 \
+         WHERE id = $2 AND exercises = $3",
+        next, id, expected
+    )
+    .execute(pool)
+    .await?;
+
+    if res.rows_affected() == 0 {
+        <span style="color:#4ade80">// 경합으로 스킵됨 — 조용히 Ok 로 흘리지 않는다</span>
+        return Err(DomainError::Conflict);
+    }
+    Ok(())
+}</pre>
+        <p>스킵 건수를 카운터로 노출할 때도 <strong class="lead-strong">반환 타입에서 conflict 를 구분</strong>한다. 로그만 남기고 <code>Ok(())</code> 를 돌려주면 호출자가 재시도·보고를 결정할 수 없다. HTTP 매핑은 <code>Conflict → 409</code>(rust-error 3 계층 매핑 규칙).</p>
+      </div>
+      <a href="https://docs.rs/sqlx/latest/sqlx/postgres/struct.PgQueryResult.html" target="_blank" rel="noopener" class="card-source">&#8599; sqlx — PgQueryResult::rows_affected</a>
+      <a href="error-handling.html" class="card-source">&#8594; 에러 처리 원칙 — 3계층 변환</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">3</span>
+        <div>
+          <h3>테스트 쌍 — positive 와 stale negative 를 실 DB 에서</h3>
+          <div class="rule-number">Discriminating Test</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>가드 하나당 테스트 <strong class="lead-strong">두 개</strong>를 만든다. 하나라도 없으면 판별력이 성립하지 않는다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>테스트</th><th>준비</th><th>기대</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="pill pill-p">P</span></td>
+                <td>positive</td>
+                <td>기대값이 DB 현재 값과 일치</td>
+                <td>1 행 갱신 · <code>Ok</code></td>
+              </tr>
+              <tr>
+                <td><span class="pill pill-n">N</span></td>
+                <td><strong class="lead-strong">stale expected value</strong> negative</td>
+                <td>읽은 뒤 다른 경로로 행을 변형해 기대값을 낡게 만든다</td>
+                <td>0 행 갱신 · <code>Conflict</code> · 상태 미변경</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong class="lead-strong">실행 환경은 실 DB 엔진이다.</strong> <code>#[sqlx::test]</code>(테스트 함수마다 새 테스트 DB · <code>migrations</code> 자동 적용 · 성공 시 정리) 또는 <code>testcontainers</code> 를 쓴다. 두 경로 모두 <code>DATABASE_URL</code> 또는 Docker 가 필요하다.</p>
+      </div>
+      <a href="https://docs.rs/sqlx/latest/sqlx/attr.test.html" target="_blank" rel="noopener" class="card-source">&#8599; sqlx — #[sqlx::test]</a>
+      <a href="https://docs.rs/testcontainers/latest/testcontainers/" target="_blank" rel="noopener" class="card-source">&#8599; testcontainers</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">4</span>
+        <div>
+          <h3>판정 절차는 정본을 인용한다 (재정의 금지)</h3>
+          <div class="rule-number">Cite, Don&#39;t Redefine</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>이 프로토콜은 <strong class="lead-strong">생산 측</strong>(가드를 어떻게 만들고 무엇을 테스트할지)만 정의한다. 판정 절차와 임계 규칙은 아래 정본을 따르며, 여기서 다시 정의하지 않는다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>축</th><th>정본</th><th>이 프로토콜의 역할</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>평가자 판정</td>
+                <td><code>harness/docs/guides/qa-evaluation-guide.md</code> §Discriminating Evidence Gate (적용 범위 1 번 = 동시성 가드)</td>
+                <td>그 게이트가 요구하는 <strong class="lead-strong">결합</strong>과 <strong class="lead-strong">음성 대조 지점</strong>을 코드 쪽에서 미리 만족시킨다</td>
+              </tr>
+              <tr>
+                <td>계약 문구</td>
+                <td><code>harness/references/contract-schema.md</code> §음성 대조</td>
+                <td>조건에 적을 <code>음성 대조:</code> 절의 대상 지점(= §1 의 술어)을 지정해 준다</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>계약 조건에는 &ldquo;어느 구현 지점을 무력화하면 이 측정이 FAIL 하는지&rdquo; 를 적는다. 이 프로토콜을 따랐다면 그 지점은 <strong class="lead-strong">§1 의 <code>WHERE</code> 술어</strong> 또는 <strong class="lead-strong">§2 의 0 행 → <code>Conflict</code> 분기</strong>다.</p>
+      </div>
+      <a href="../harness/qa-evaluation-guide.html" class="card-source">&#8594; qa-evaluation-guide</a>
+      <a href="../harness/contract-schema.html" class="card-source">&#8594; contract-schema</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 테스트 결합 -->
+<div class="section">
+  <div class="section-label">테스트 결합 — 무엇을 호출해야 판별력이 생기나</div>
+  <p class="desc">테스트가 SQL 을 <strong>독립 재작성</strong>하면 결합이 0 이라 가드를 지워도 통과한다. 이것이 <code>ER-02</code> 의 정확한 실패 모드였다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 테스트가 SQL 을 재작성</div>
+      <p>가드와 결합이 없다. 실제 코드의 <code>WHERE</code> 술어를 삭제해도 이 테스트는 계속 통과한다.</p>
+      <pre>#[sqlx::test]
+async fn optimistic_concurrency(pool: PgPool) {
+    // ✗ 테스트가 직접 쓴 SQL — 프로덕션 경로 미호출
+    sqlx::query!(
+        "UPDATE sessions SET exercises = $1 \
+         WHERE id = $2 AND exercises = $3", ...)
+        .execute(&amp;pool).await.unwrap();
+    // "낙관적 동시성이 일반적으로 동작함" 만 확인
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 추출한 함수 심볼을 호출</div>
+      <p>§2 에서 추출한 함수 또는 실제 바이너리를 호출한다. 가드를 지우면 N 테스트가 즉시 깨진다.</p>
+      <pre>#[sqlx::test]
+async fn stale_expected_is_conflict(pool: PgPool) {
+    let (id, snapshot) = seed(&amp;pool).await;
+    mutate_by_other_path(&amp;pool, id).await;   // 기대값을 낡게
+
+    // ✓ 프로덕션 함수 심볼을 직접 호출
+    let r = apply_exercises(&amp;pool, id, &amp;snapshot, &amp;next).await;
+
+    assert!(matches!(r, Err(DomainError::Conflict)));
+    assert_eq!(read_state(&amp;pool, id).await, mutated); // 미변경
+}</pre>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>바이너리 경로를 호출해야 할 때</h4>
+      <div class="card-body">
+        <p>가드가 CLI/배치 바이너리 안에 있으면 테스트에서 <code>env!("CARGO_BIN_EXE_&lt;name&gt;")</code> 로 실제 바이너리를 실행한다. 재구현한 SQL 로 대체하지 않는다.</p>
+        <pre>let exe = env!("CARGO_BIN_EXE_migrator");
+let out = std::process::Command::new(exe)
+    .env("DATABASE_URL", &amp;url)
+    .output()
+    .expect("binary should run");
+assert_eq!(out.status.code(), Some(0));</pre>
+      </div>
+      <a href="https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates" target="_blank" rel="noopener" class="card-source">&#8599; Cargo — CARGO_BIN_EXE_&lt;name&gt;</a>
+    </div>
+    <div class="card">
+      <h4>mock 은 대체가 아니라 보완이다</h4>
+      <div class="card-body">
+        <p><strong class="lead-strong">SeaORM <code>MockDatabase</code> 로 N 을 대체하지 마라.</strong> mock 은 <code>rows_affected</code> 매핑과 repository control flow(0 행일 때 conflict 분기 · 후속 호출 0 회)까지는 검증하지만, <strong class="lead-strong">실제 SQL 술어가 행을 걸러내는지는 검증하지 못한다.</strong></p>
+        <p>두 층은 상호 배타가 아니다 — mock 으로 control flow 를, 실 DB 로 술어 의미를 각각 검증한다.</p>
+      </div>
+      <a href="testing.html" class="card-source">&#8594; 테스팅 원칙 — sqlx::test 격리 모델</a>
+    </div>
+  </div>
+</div>
+
+<!-- 실행 증거 -->
+<div class="section">
+  <div class="section-label">실행 증거 기준</div>
+  <p class="desc">&ldquo;테스트를 추가했다&rdquo; 는 증거가 아니다. 실행된 테스트 수가 0 이면 측정이 없었던 것이다.</p>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>남길 것</th><th>형태</th><th>없으면 생기는 일</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>실행 명령</td>
+            <td><code>cargo nextest run -p adapters</code></td>
+            <td>어느 타깃이 돌았는지 재현 불가</td>
+          </tr>
+          <tr>
+            <td><strong class="lead-strong">실행된 테스트 수</strong></td>
+            <td><code>running N tests</code> 의 <code>N</code></td>
+            <td>필터가 0 건을 잡아도 &ldquo;통과&rdquo; 로 보고된다</td>
+          </tr>
+          <tr>
+            <td>종료 코드</td>
+            <td><code>exit code: 0</code></td>
+            <td>부분 실패가 요약에 묻힌다</td>
+          </tr>
+          <tr>
+            <td>타깃 필터 선행 확인</td>
+            <td><code>PKG_TARGETS</code> 확인 (project-detection Step 3a · rust-run Gotcha 9)</td>
+            <td>존재하지 않는 타깃 필터가 조용히 0 건을 만든다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h4>cargo-mutants 는 보조 확인 수단이다</h4>
+    <div class="card-body">
+      <p><code>cargo-mutants</code> 는 &ldquo;가드를 지워도 살아남는 테스트&rdquo; 를 찾는 데 쓸 수 있다. 다만 <strong class="lead-strong">결정론적 negative test 를 대체하지 않는다.</strong> 범위는 이번 변경분 파일·패키지로 한정한다.</p>
+      <pre><span style="color:#f08575"># 이번 변경분으로 범위 한정</span>
+cargo mutants --package adapters --file src/session/repo.rs</pre>
+    </div>
+    <a href="https://mutants.rs/" target="_blank" rel="noopener" class="card-source">&#8599; cargo-mutants (mutants.rs)</a>
+  </div>
+</div>
+
+<!-- 안티패턴 -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">§5 의 5 항목. 모두 &ldquo;가드가 있는 것처럼 보이지만 아무것도 막지 못하는&rdquo; 상태로 수렴한다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — rows_affected 를 버린다</div>
+      <pre>// ✗ 0 행이 성공으로 보고된다
+sqlx::query!("UPDATE ... AND exercises = $3", ...)
+    .execute(pool).await?;
+Ok(())   // 갱신 여부를 아무도 모른다</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 0 행을 Conflict 로</div>
+      <pre>// ✓ 호출자가 재시도·보고를 결정할 수 있다
+if res.rows_affected() == 0 {
+    return Err(DomainError::Conflict);
+}
+Ok(())</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — positive 만 두고 &ldquo;동시성 검증됨&rdquo;</div>
+      <pre>// ✗ 가드를 지워도 통과하는 테스트 1 개
+#[sqlx::test]
+async fn updates_ok(pool: PgPool) { ... }
+// negative 없음 → 판별력 0</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — P/N 쌍</div>
+      <pre>// ✓ N 이 가드의 존재를 증명한다
+#[sqlx::test] async fn updates_ok(...)
+#[sqlx::test] async fn stale_expected_is_conflict(...)</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 앱 레벨 SELECT → if → UPDATE 를 원자적 가드로 설명</div>
+      <pre>// ✗ 두 문장 사이에 경합 창이 열려 있다
+let cur = fetch(pool, id).await?;
+if cur == expected {
+    update(pool, id, next).await?;   // 이미 늦었다
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 술어를 UPDATE 안으로</div>
+      <pre>// ✓ 판정과 쓰기가 한 문장
+UPDATE sessions SET exercises = $1
+ WHERE id = $2 AND exercises = $3;</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>계층 표기 안티패턴</h4>
+    <div class="card-body">
+      <ul class="antilist">
+        <li><span class="x">&#10005;</span><div>mock 단위 테스트를 <strong class="lead-strong">실 DB 통합 테스트로 계층 표기</strong> — 리포트만 보면 술어가 검증된 것처럼 읽힌다.</div></li>
+        <li><span class="x">&#10005;</span><div>테스트가 SQL 을 재작성해 <strong class="lead-strong">&ldquo;일반적인 낙관적 동시성 동작&rdquo;</strong> 만 확인하고 가드 검증으로 보고.</div></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 체크리스트 -->
+<div class="section">
+  <div class="section-label">착수 전 체크리스트</div>
+  <p class="desc">동시성 가드를 포함한 변경을 제출하기 전 전부 만족해야 한다.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check">&#10003;</span>
+        <div><strong class="lead-strong">기대 상태가 <code>UPDATE</code> 의 <code>WHERE</code> 술어에 있다</strong><br>앱 레벨 사전 <code>SELECT</code> 검사로 대체하지 않았다. <code>INSERT</code> 경로는 partial unique index + <code>ON CONFLICT</code> 로 처리했다.</div>
+      </li>
+      <li>
+        <span class="check">&#10003;</span>
+        <div><strong class="lead-strong">가드 호출부가 이름 있는 함수로 추출되어 있다</strong><br><code>main()</code> · 핸들러 본문 인라인이 아니다. 테스트가 이 심볼을 직접 호출할 수 있다.</div>
+      </li>
+      <li>
+        <span class="check">&#10003;</span>
+        <div><strong class="lead-strong"><code>rows_affected() == 0</code> 이 <code>Conflict</code> 로 올라간다</strong><br>로그만 남기고 <code>Ok(())</code> 를 돌려주지 않는다. HTTP 매핑은 409.</div>
+      </li>
+      <li>
+        <span class="check">&#10003;</span>
+        <div><strong class="lead-strong">P/N 테스트 쌍이 실 DB 에서 돈다</strong><br><code>#[sqlx::test]</code> 또는 <code>testcontainers</code>. <code>DATABASE_URL</code> 또는 Docker 가 준비되어 있다.</div>
+      </li>
+      <li>
+        <span class="check">&#10003;</span>
+        <div><strong class="lead-strong">테스트가 프로덕션 심볼/바이너리를 호출한다</strong><br>SQL 독립 재작성이 아니다. 가드를 삭제하면 N 테스트가 깨지는지 확인했다.</div>
+      </li>
+      <li>
+        <span class="check">&#10003;</span>
+        <div><strong class="lead-strong">실행 증거에 명령 · 실행된 테스트 수 · 종료 코드가 있다</strong><br>타깃 필터를 붙였다면 <code>PKG_TARGETS</code> 확인이 선행되었다.</div>
+      </li>
+      <li>
+        <span class="check">&#10003;</span>
+        <div><strong class="lead-strong">계약 조건에 음성 대조 지점이 적혀 있다</strong><br>&ldquo;§1 의 <code>WHERE</code> 술어&rdquo; 또는 &ldquo;§2 의 0 행 → <code>Conflict</code> 분기&rdquo; 를 명시했다.</div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- 연관 문서 -->
+<div class="section">
+  <div class="section-label">연관 문서</div>
+  <p class="desc">이 프로토콜을 인용하는 소비 표면과 판정 정본.</p>
+  <div class="grid-3">
+    <div class="card">
+      <h4>테스팅 원칙</h4>
+      <div class="card-body"><code>#[sqlx::test]</code> 격리 단위가 트랜잭션이 아니라 DB 라는 정정. 실 DB 경합 재현이 가능한 이유.</div>
+      <a href="testing.html" class="card-source">&#8594; testing</a>
+    </div>
+    <div class="card">
+      <h4>에러 처리 원칙</h4>
+      <div class="card-body"><code>Conflict</code> 를 도메인 에러로 올리고 409 로 매핑하는 3계층 변환 규칙.</div>
+      <a href="error-handling.html" class="card-source">&#8594; error-handling</a>
+    </div>
+    <div class="card">
+      <h4>SQLx 패턴</h4>
+      <div class="card-body">쿼리 매크로, 커넥션 풀, 트랜잭션 취급 — 가드 쿼리를 실제로 쓰는 층.</div>
+      <a href="sqlx-patterns.html" class="card-source">&#8594; sqlx-patterns</a>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

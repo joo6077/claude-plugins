@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Format Checklist — 11개 표준 섹션</title>
+<title>Format Checklist — 가이드 MD 포맷 표준</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -25,7 +25,7 @@
 
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:780px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
   h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px}
@@ -35,7 +35,7 @@
     color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
   }
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
-  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:780px;margin-bottom:24px}
   .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
   .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
     padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
@@ -44,21 +44,25 @@
   .card:hover{border-color:rgba(91,108,255,0.25)}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:14px}
   .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
   .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .card-body p+p{margin-top:8px}
   .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
     background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0;min-width:28px}
   .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
 
-  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);padding-bottom:2px}
+  .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);padding-bottom:2px;overflow-wrap:anywhere}
   .card-source:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:3px}
 
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
   td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
   tr:hover td{background:rgba(91,108,255,0.03)}
   td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
-  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
 
   .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
   .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
@@ -67,7 +71,6 @@
   .checklist code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
 
   .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  @media(max-width:720px){.compare{grid-template-columns:1fr}}
   .compare-bad,.compare-good{border-radius:12px;padding:22px}
   .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
   .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
@@ -77,14 +80,17 @@
   .compare ul{list-style:none;display:flex;flex-direction:column;gap:8px}
   .compare li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:16px;position:relative}
   .compare-good li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:700}
-  .compare-bad li::before{content:'×';position:absolute;left:0;color:var(--red);font-weight:700}
+  .compare-bad li::before{content:'\00d7';position:absolute;left:0;color:var(--red);font-weight:700}
   .compare li code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
 
-  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;max-width:100%;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);margin:12px 0}
+  pre code{white-space:pre;background:none;padding:0;font-size:inherit;color:inherit}
   code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  :not(pre)>code{overflow-wrap:anywhere}
 
   .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
   .nav-back:hover{color:var(--text)}
+  .nav-back:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 
   .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
   .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
@@ -96,8 +102,9 @@
   .callout strong{color:var(--yellow)}
   .callout-accent{border-left-color:var(--accent);background:rgba(91,108,255,0.05)}
   .callout-accent strong{color:var(--accent)}
+  .callout-red{border-left-color:var(--red);background:rgba(248,113,113,0.05)}
+  .callout-red strong{color:var(--red)}
 
-  /* Section flow rail */
   .section-flow{display:flex;flex-direction:column;gap:0}
   .flow-item{display:flex;gap:20px;position:relative}
   .flow-item:not(:last-child)::before{content:'';position:absolute;left:13px;top:32px;bottom:-12px;width:2px;background:var(--border)}
@@ -108,23 +115,37 @@
   .flow-req{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--red);background:rgba(248,113,113,0.1);padding:2px 7px;border-radius:4px;margin-left:8px;vertical-align:middle}
   .flow-opt{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text3);background:var(--surface2);padding:2px 7px;border-radius:4px;margin-left:8px;vertical-align:middle}
 
-  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; } html { scroll-behavior:auto } }
+  .gate-row{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px dashed var(--border)}
+  .gate-row:last-child{border-bottom:none}
+  .gate-id{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);padding:3px 9px;border-radius:6px;flex-shrink:0}
+  .gate-text{font-size:13px;color:var(--text2);line-height:1.65;flex:1}
+
+  /* 가로 오버플로 하드 제약 — grid/flex 자식의 기본 min-width:auto 차단 */
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.flow-item>*,.checklist li>*,.gate-row>*,.card-header>*{min-width:0}
+  @media(max-width:720px){.compare{grid-template-columns:1fr}}
+  @media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+  @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none !important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 <div class="page">
 
-<a href="index.html" class="nav-back">&#8592; Onboarding Kit</a>
+<a href="../index.html" target="_top" class="nav-back">&#8592; Onboarding Kit</a>
 
-<h1>Format Checklist — 11개 표준 섹션</h1>
-<p class="subtitle">생성되는 모든 셋업 가이드 MD가 따라야 하는 11개 섹션의 순서와 각 섹션의 필수 내용. 섹션 순서는 사용자가 따라가는 흐름과 일치하도록 설계되었다. 하나라도 빠지면 사용자가 실패 지점에서 막히게 된다.</p>
+<h1>Format Checklist — 가이드 MD 포맷 표준</h1>
+<p class="subtitle"><code>/setup-guide</code>가 생산하는 모든 셋업 가이드 MD는 11개 섹션을 <strong>이 순서로</strong> 구성한다. 다만 순서는 표준이지 <strong>채우기 할당량이 아니다</strong> — 해당 없는 섹션은 "해당 없음" 한 줄로 닫거나 생략한다. 그리고 각 Step의 맨 윗줄은 <code>**출처:**</code>다. 그 줄을 채울 수 없으면 그 Step은 아직 쓸 준비가 안 된 것이다.</p>
 
 <!-- ── Section 1: 11개 섹션 순서 흐름도 ── -->
 <div class="section">
   <div class="section-label">11개 섹션 순서 흐름</div>
-  <p class="desc">섹션 순서는 임의로 바꿀 수 없다. 헤더 → 사전 요구사항 → 설정 단계 → 코드 변경 → 권한 → 비용 → 환경 분기 → Rollback → 보안 → 검증 → 트러블슈팅 순서는 사용자의 실제 진행 흐름을 반영한다.</p>
+  <p class="desc">헤더 → 사전 요구사항 → 설정 단계 → 코드 변경 → 권한 → 비용 → 환경 분기 → Rollback → 보안 → 검증 → 트러블슈팅. 이 순서는 사용자의 실제 진행 흐름을 반영하므로 임의로 재배열하지 않는다.</p>
 
-  <div class="section-flow">
+  <div class="callout callout-accent">
+    <strong>순서는 표준, 분량은 아니다.</strong> 요청 서비스에 해당 없는 섹션(클라이언트 전용 SDK의 IAM, 단발 셋업의 환경 분기 등)은 <code>해당 없음</code> 한 줄로 닫거나 생략한다. 억지 내용으로 부피를 늘리는 것은 스코프 이탈이다 (SKILL.md Gotcha 7).
+  </div>
+
+  <div class="section-flow" style="margin-top:24px">
     <div class="flow-item">
       <div class="flow-num">1</div>
       <div class="flow-content">
@@ -133,7 +154,7 @@
           <code># &lt;서비스명&gt; 설정 가이드</code> 제목.<br>
           <code>&gt; 작성일: YYYY-MM-DD</code> — 가이드 신선도 확인용.<br>
           <code>&gt; 기준 버전: &lt;SDK/CLI 버전&gt;</code> — 가능한 한 정확한 버전 명시.<br>
-          <code>&gt; 공식 문서: &lt;URL&gt;</code> — 1차 출처 링크, 절대 생략 불가.
+          <code>&gt; 공식 문서: &lt;URL&gt;</code> — 1차 출처. <strong style="color:var(--text)">단 이 대표 URL은 Step별 출처를 대체하지 않는다.</strong>
         </div>
       </div>
     </div>
@@ -142,9 +163,9 @@
       <div class="flow-content">
         <div class="flow-title">사전 요구사항 <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          필요한 계정/권한 (예: Apple Developer Program 가입, Editor 이상 Firebase 권한).<br>
-          설치해야 할 CLI 도구 (버전 포함).<br>
-          <strong style="color:var(--text)">사이트 혼동 주의 박스</strong> — Apple/Google/AWS 가이드는 필수. 진입할 사이트 URL과 다른 비슷한 사이트의 차이를 표로 명시.
+          필요한 계정/권한, 설치할 CLI 도구(버전 포함), 프로젝트 전제조건.<br>
+          <strong style="color:var(--text)">사이트 혼동 주의 박스</strong> — Apple/Google/AWS 가이드는 필수. <strong style="color:var(--text)">작업별 표</strong>로 명시한다.<br>
+          <strong style="color:var(--text)">콘솔 라벨 경계 한 줄</strong> — 로그인이 필요한 콘솔을 다루면 필수.
         </div>
       </div>
     </div>
@@ -153,8 +174,8 @@
       <div class="flow-content">
         <div class="flow-title">설정 단계 (Step 1~N) <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          각 Step은 3단 구조: <strong style="color:var(--text)">어디서</strong> (URL 또는 터미널 위치) + <strong style="color:var(--text)">무엇을</strong> (클릭 경로 또는 명령어) + <strong style="color:var(--text)">확인 방법</strong> (성공 검증).<br>
-          각 Step에 필요시 ⚠️ 주의 박스, ❌ Deprecated / ✅ 현재 권장 박스 삽입.
+          각 Step은 <strong style="color:var(--text)">4단 구조</strong>: <strong style="color:var(--text)">출처</strong> → <strong style="color:var(--text)">어디서</strong> → <strong style="color:var(--text)">무엇을</strong> → <strong style="color:var(--text)">확인 방법</strong>.<br>
+          Step 헤더 수와 <code>**출처:**</code> 줄 수가 같아야 한다 — <code>guide_gate</code> G1이 기계적으로 센다.
         </div>
       </div>
     </div>
@@ -163,18 +184,18 @@
       <div class="flow-content">
         <div class="flow-title">프로젝트 코드 변경 <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          스택별로 변경할 파일과 코드를 구체적으로. 파일 경로 명시 (예: <code>lib/main.dart</code>, <code>ios/Runner/AppDelegate.swift</code>).<br>
-          추가/변경할 코드 블록 (언어 라벨 필수). 설정 파일 변경 (<code>pubspec.yaml</code>, <code>.env</code>).
+          <strong style="color:var(--text)">확정한 그 스택의 파일만</strong> 쓴다. Flutter면 <code>lib/main.dart</code> · <code>pubspec.yaml</code>, 네이티브 iOS면 <code>ios/Runner/AppDelegate.swift</code> · <code>Info.plist</code>.<br>
+          스택 혼용 금지 — <code>guide_gate</code> G3이 Flutter 가이드의 Swift 코드블록을 잡는다.
         </div>
       </div>
     </div>
     <div class="flow-item">
       <div class="flow-num">5</div>
       <div class="flow-content">
-        <div class="flow-title">권한 / IAM <span class="flow-req">필수</span></div>
+        <div class="flow-title">권한 / IAM <span class="flow-opt">해당 시</span></div>
         <div class="flow-desc">
-          최소 권한 원칙으로 표 형식 기술. 셋업용 권한과 운영용 권한 분리 권장.<br>
-          예: Apple Developer — Account Holder 또는 Admin / Firebase Console — Editor 이상.
+          <code>| 시스템 | 필요한 권한 | 누구에게 |</code> 3열 표. 최소 권한 원칙, 셋업용/운영용 권한 분리 권장.<br>
+          클라이언트 전용 SDK처럼 IAM이 없는 서비스는 "해당 없음"으로 닫는다.
         </div>
       </div>
     </div>
@@ -183,17 +204,17 @@
       <div class="flow-content">
         <div class="flow-title">비용 <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          무료 한도 (예: FCM 전송량 제한 없음 무료). 유료 진입점 (어느 시점부터 과금). 예상 월비용 범위.
+          무료 한도 / 유료 진입점(어느 시점부터 과금) / 예상 월비용 범위 세 항목.
         </div>
       </div>
     </div>
     <div class="flow-item">
       <div class="flow-num">7</div>
       <div class="flow-content">
-        <div class="flow-title">환경 분기 (dev / staging / prod) <span class="flow-req">필수</span></div>
+        <div class="flow-title">환경 분기 (dev / staging / prod) <span class="flow-opt">해당 시</span></div>
         <div class="flow-desc">
-          환경별로 별도 프로젝트가 필요한지. 환경별 키/설정 파일 분리 패턴.<br>
-          Build Configuration 별 차이 (예: Xcode Run Script로 환경별 plist 교체).
+          환경별 별도 프로젝트 필요 여부, 키/설정 파일 분리 패턴, Build Configuration 별 차이.<br>
+          단발 셋업이면 "해당 없음" 한 줄.
         </div>
       </div>
     </div>
@@ -202,7 +223,7 @@
       <div class="flow-content">
         <div class="flow-title">Rollback / 정리 <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          잘못 설정했을 때 되돌리는 방법 (구체적 명령어 또는 콘솔 경로). 사용 안 할 때 리소스 정리 (과금 방지).
+          잘못 설정했을 때 되돌리는 구체적 명령어 또는 콘솔 경로. 사용 안 할 때 리소스 정리(과금 방지).
         </div>
       </div>
     </div>
@@ -211,8 +232,8 @@
       <div class="flow-content">
         <div class="flow-title">보안 체크리스트 <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          비밀 키 안전 저장소 보관 (.p8, JSON service account 등). .gitignore에 비밀 파일 패턴 추가.<br>
-          클라이언트 노출 가능 키와 서버 전용 키 구분. 등록 토큰/사용자 토큰의 서버 측 격리.
+          비밀 키(<code>.p8</code>, service account JSON) 안전 저장소 보관 · <code>.gitignore</code> 패턴 추가 ·
+          클라이언트 노출 가능 키와 서버 전용 키 구분 · 등록 토큰의 서버 측 격리.
         </div>
       </div>
     </div>
@@ -221,7 +242,7 @@
       <div class="flow-content">
         <div class="flow-title">검증 체크리스트 <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          최소 3~5개 체크박스 항목. 각 항목에 확인 명령어 또는 콘솔 위치를 병기. 사용자가 직접 체크 가능한 형태로.
+          체크박스 항목마다 확인 명령어 또는 콘솔 위치를 병기한다. 사용자가 직접 체크 가능한 형태로.
         </div>
       </div>
     </div>
@@ -230,186 +251,347 @@
       <div class="flow-content">
         <div class="flow-title">트러블슈팅 <span class="flow-req">필수</span></div>
         <div class="flow-desc">
-          각 항목 3단 구조: <strong style="color:var(--text)">증상</strong> (에러 메시지 또는 현상) + <strong style="color:var(--text)">원인</strong> (원인 분석) + <strong style="color:var(--text)">해결</strong> (구체적 단계). 최소 3개 케이스 포함.
+          각 항목 3단: <strong style="color:var(--text)">증상</strong>(에러 메시지/현상) + <strong style="color:var(--text)">원인</strong> + <strong style="color:var(--text)">해결</strong>(번호 매긴 구체 단계).
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── Section 2: Step 3단 구조 상세 ── -->
+<!-- ── Section 2: Step 4단 구조 ── -->
 <div class="section">
-  <div class="section-label">설정 단계 — Step 3단 구조 상세</div>
-  <p class="desc">모든 Step은 어디서 + 무엇을 + 확인 방법 3단으로 구성해야 한다. 하나라도 빠지면 사용자가 진행 중 막힌다.</p>
+  <div class="section-label">설정 단계 — Step 4단 구조</div>
+  <p class="desc">맨 위 <code>**출처:**</code> 줄이 출처 원장(SKILL.md §출처 원장)의 아티팩트다. 이 줄을 채울 수 없으면 그 Step은 fetch 없이 학습 데이터로 쓰였다는 뜻이므로, 아직 쓸 준비가 안 된 것이다.</p>
 
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">잘못된 Step 작성 — 막힘 유발</div>
-      <ul>
-        <li>"Firebase 콘솔에서 앱을 등록하세요." — 어디서, 무엇을, 확인 방법 모두 없음</li>
-        <li>URL 없이 "설정 페이지로 이동" — 사용자가 못 찾음</li>
-        <li>확인 방법 없이 단계 나열 — 성공 여부를 알 수 없음</li>
-        <li>스택별 코드 분기 없이 통합 예시 — 잘못된 코드 복붙 위험</li>
-        <li>명령어에 버전 없이 "최신 버전 설치" — 재현 불가</li>
-      </ul>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">올바른 Step 작성 — 사용자가 따라갈 수 있음</div>
-      <ul>
-        <li><strong>어디서:</strong> <code>https://developer.apple.com/account → Identifiers</code></li>
-        <li><strong>무엇을:</strong> 1. + 버튼 클릭 2. App IDs 선택 3. Bundle ID 입력 4. Push Notifications 체크 5. Register</li>
-        <li><strong>확인 방법:</strong> Identifiers 목록에 새 App ID가 보이고 Push Notifications 활성화 표시</li>
-        <li>Flutter 전용 코드 블록에 <code>dart</code> 언어 라벨 + 파일 경로 명시</li>
-        <li><code>dart pub global activate flutterfire_cli</code> — 정확한 명령어</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:20px">
+  <div class="card" style="margin-bottom:20px">
     <h4 style="margin-top:0">Step 템플릿 (마크다운)</h4>
-    <pre>## Step N — &lt;단계 제목&gt;
+    <pre><code>## Step N — &lt;단계 제목&gt;
 
-**어디서:** https://&lt;URL&gt; 또는 &lt;터미널 위치&gt;
+**출처:** &lt;이 Step 의 근거 1차 출처 URL — 조회 YYYY-MM-DD&gt;
+
+**어디서:** &lt;URL 또는 터미널 위치&gt;
 
 **무엇을:**
 
 1. &lt;구체적 액션 — 클릭 경로 또는 명령어&gt;
 2. ...
 
-&gt; ⚠️ **주의:** &lt;흔한 실수&gt;  ← 필요시만 삽입
+**확인 방법:** &lt;성공 검증 — 명령어, 콘솔 위치, 예상 출력&gt;</code></pre>
+    <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/flutter/get-started" target="_blank" rel="noopener">&#8599; Firebase — Set up FCM on Flutter (Step별 출처 인용 예시)</a>
+  </div>
 
-**확인 방법:** &lt;성공 검증 — 명령어, 콘솔 위치, 예상 출력&gt;</pre>
-    <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple Developer — App ID 등록 step 예시</a>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header"><span class="num">1</span><div><div class="rule-number">중복 허용</div><h3>같은 URL 반복 OK</h3></div></div>
+      <div class="card-body">여러 Step이 같은 문서를 근거로 하면 <strong style="color:var(--text)">같은 URL을 반복해도 된다</strong>. 중복이 보기 싫다는 이유로 생략하지 않는다 — 생략하는 순간 G1이 깨진다.</div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/flutter/get-started" target="_blank" rel="noopener">&#8599; 단일 문서가 여러 Step의 근거가 되는 실제 사례</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="num">2</span><div><div class="rule-number">대체 불가</div><h3>헤더 URL ≠ Step 출처</h3></div></div>
+      <div class="card-body">헤더(§1)의 대표 <code>공식 문서:</code> URL은 Step별 출처를 <strong style="color:var(--text)">대체하지 않는다</strong>. 대표 URL 하나로 전체를 정당화하는 것이 이 스킬의 대표 실패 형태였다.</div>
+      <a class="card-source" href="https://developer.apple.com/help/account/" target="_blank" rel="noopener">&#8599; Apple Developer Help — Account (섹션별 근거 분리 예)</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="num">3</span><div><div class="rule-number">기계 판정</div><h3>Step 수 = 출처 줄 수</h3></div></div>
+      <div class="card-body">권고가 아니라 판정이다. <code>guide_gate</code> G1이 <code>^## Step</code> 수와 <code>^**출처:**</code> 수를 세어 비교한다. 하나라도 어긋나면 <code>G1_LEDGER FAIL</code>.</div>
+      <a class="card-source" href="../harness/qa-evaluation-guide.html" target="_top">&#8599; QA Evaluation Guide — 증거 아티팩트 규약</a>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:20px">
+    <div class="compare-bad">
+      <div class="compare-label">3단 Step — fetch 흔적이 없다</div>
+      <ul>
+        <li><code>**출처:**</code> 줄 없이 <strong>어디서 / 무엇을 / 확인 방법</strong>만 씀 → 어느 문서를 근거로 썼는지 재현 불가</li>
+        <li>헤더의 대표 URL 하나로 8개 Step 전체를 정당화</li>
+        <li>"최신 정보 기준" 이라고 적었지만 조회일이 어디에도 없음</li>
+        <li>Step 8개 · 출처 0줄 → <code>G1_LEDGER FAIL steps=8 ledger=0</code></li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">4단 Step — 원장이 남는다</div>
+      <ul>
+        <li>Step 맨 위 <code>**출처:** &lt;URL&gt; (조회 2026-08-13)</code></li>
+        <li>같은 문서를 쓰는 Step은 같은 URL을 그대로 반복</li>
+        <li>fetch 실패 Step은 <code>[미검증:ENV]</code> + 4요건 근거로 남김</li>
+        <li>Step 8개 · 출처 8줄 → <code>G1_LEDGER PASS steps=8 ledger=8</code></li>
+      </ul>
+    </div>
   </div>
 </div>
 
-<!-- ── Section 3: 사이트 혼동 주의 박스 ── -->
+<!-- ── Section 3: 미검증 마커 분류 ── -->
 <div class="section">
-  <div class="section-label">사이트 혼동 주의 박스 (섹션 2 필수 요소)</div>
-  <p class="desc">Apple/Google/AWS 가이드의 사전 요구사항 섹션 맨 위에 반드시 삽입한다. 비슷한 이름의 다른 콘솔로 들어가면 버튼 자체가 없거나 UI가 완전히 달라서 사용자가 혼란을 겪는다.</p>
+  <div class="section-label">출처 원장 — 미검증 마커 분류</div>
+  <p class="desc">fetch가 끝까지 실패한 항목은 조용히 넘기지 않는다. <strong>마커는 접미로 분류한다</strong> — 접미 없는 <code>[미검증]</code>은 정본에서 <code>INVALID</code>로 해석되므로 쓰지 않는다.</p>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th>플랫폼</th>
-          <th>셋업용 사이트 (여기로)</th>
-          <th>혼동되는 사이트 (셋업 단계에서 안 감)</th>
-        </tr>
+        <tr><th>상황</th><th>마커</th><th>카운터</th><th>판정 처리</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong style="color:var(--text)">Apple</strong></td>
-          <td><code>developer.apple.com/account</code><br>App ID·인증서·키 발급. 셋업의 99%</td>
-          <td><code>appstoreconnect.apple.com</code><br>앱 출시·심사 관리. 셋업 단계엔 거의 안 들어감</td>
+          <td>1차 출처 문서에 <strong style="color:var(--text)">접근 자체가 불가</strong>했다 — 네트워크·도구 부재·크로스호스트 fetch 실패 등 통제 불가 요인</td>
+          <td><code>[미검증:ENV]</code></td>
+          <td><code>env_gaps</code></td>
+          <td>자동 REJECT 카운터에 <strong style="color:var(--text)">합산하지 않는다</strong>. 검증 커버리지로 따로 보고</td>
         </tr>
         <tr>
-          <td><strong style="color:var(--text)">Google / Firebase</strong></td>
-          <td><code>console.firebase.google.com</code><br>FCM, Auth, Firestore 설정</td>
-          <td><code>console.cloud.google.com</code><br>GCP 인프라. Firebase와 별개 콘솔. 프로젝트 연동 가능하지만 UI 다름</td>
+          <td>도구 부재라고 적었지만 fallback 사다리를 안 탔거나, 조회는 됐는데 그 출력이 아무것도 입증하지 못한다</td>
+          <td><code>[미검증:INVALID]</code></td>
+          <td>임계 카운터</td>
+          <td>건수별 판정은 <strong style="color:var(--text)">정본</strong>이 정한다 — 킷에서 숫자를 재정의하지 않는다</td>
         </tr>
         <tr>
-          <td><strong style="color:var(--text)">AWS</strong></td>
-          <td><code>console.aws.amazon.com</code><br>AWS 서비스 설정</td>
-          <td><code>aws.amazon.com/marketplace</code><br>AWS 마켓플레이스. 셋업과 무관</td>
+          <td>문서에 그 내용이 <strong style="color:var(--text)">없다</strong> / 아직 안 썼다 / 이번엔 안 돌리기로 했다</td>
+          <td>마커 아님</td>
+          <td>&mdash;</td>
+          <td><strong style="color:var(--red)">FAIL</strong> — 해당 Step을 쓰지 않거나 사용자에게 묻는다</td>
         </tr>
         <tr>
-          <td><strong style="color:var(--text)">Stripe</strong></td>
-          <td><code>dashboard.stripe.com</code><br>API 키, 웹훅, 테스트 결제 설정</td>
-          <td><code>stripe.com</code> (마케팅 사이트)<br>대시보드 접근 경로가 다름 — 직접 URL 입력</td>
+          <td>접미 없는 레거시 표기</td>
+          <td><code>[미검증]</code></td>
+          <td>&mdash;</td>
+          <td>정본에서 <code>INVALID</code>로 해석 · <code>guide_gate</code> G2가 <code>bare</code>로 세어 즉시 FAIL</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <p class="caption">사이트 혼동 주의 박스는 사전 요구사항 섹션 최상단에 위치해야 한다 — 중간에 삽입하면 사용자가 이미 잘못된 사이트에 진입한 뒤임</p>
+
+  <div class="callout callout-accent">
+    <strong>임계 숫자를 이 킷에서 다시 적지 않는다.</strong> 킷마다 임계를 따로 쓰면 같은 상태가 킷마다 다른 판정으로 갈린다 (정본이 기록한 실측 drift: 킷별 2 / 3 / 0 건). 마커 의미·분류·임계의 정본은 <code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol 이며, 동의어(<code>미확인</code>, <code>N/A</code>, <code>unverified</code>)를 새로 만들지 않는다.
+  </div>
+
+  <h3 style="margin-top:28px;margin-bottom:12px"><code>[미검증:ENV]</code> 4요건 — 하나라도 없으면 <span style="color:var(--red)">INVALID 강등</span></h3>
+  <div class="grid-4">
+    <div class="card">
+      <div class="rule-number">요건 ①</div>
+      <div class="card-body" style="margin-top:6px">1차 도구 시도 기록과 <strong style="color:var(--text)">그 출력</strong></div>
+    </div>
+    <div class="card">
+      <div class="rule-number">요건 ②</div>
+      <div class="card-body" style="margin-top:6px">fallback 사다리 <strong style="color:var(--text)">4단계를 실제로 탄 기록</strong></div>
+    </div>
+    <div class="card">
+      <div class="rule-number">요건 ③</div>
+      <div class="card-body" style="margin-top:6px">실패를 서술이 아닌 <strong style="color:var(--text)">출력</strong>으로</div>
+    </div>
+    <div class="card">
+      <div class="rule-number">요건 ④</div>
+      <div class="card-body" style="margin-top:6px">왜 통제 밖인지 한 문장 + <strong style="color:var(--text)">재검증 명령</strong></div>
+    </div>
+  </div>
+  <p class="caption">사다리를 실제로 타지 않은 <code>:ENV</code> 주장은 <code>[미검증:INVALID]</code>로 강등된다 — "이번엔 안 조회하기로 했다"는 마커가 아니라 그냥 미완이다</p>
 </div>
 
-<!-- ── Section 4: Deprecated / 현재 권장 박스 ── -->
+<!-- ── Section 4: guide_gate ── -->
 <div class="section">
-  <div class="section-label">Deprecated / 현재 권장 박스 형식</div>
-  <p class="desc">설정 단계에서 deprecated된 방법을 발견하면 조용히 생략하지 않고 명시적 박스로 대비한다. 사용자가 인터넷에서 검색하면 옛 방법이 상위에 노출되기 때문에 가이드에서 명확히 구분해줘야 헤매지 않는다.</p>
+  <div class="section-label">Guide Conformance Gate — G1~G4 기계 판정</div>
+  <p class="desc">이 규칙들은 문장(E1)이나 자기보고 체크리스트(E2)가 아니라 <strong>결정론적 게이트(E3)</strong>다. LLM을 호출하지 않는 순수 판정이며, 지금 쓰는 가이드와 <strong>이미 배포된 가이드</strong> 양쪽에 똑같이 적용된다.</p>
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="rule-number">Deprecated 박스 형식</div>
-          <h3>마크다운 템플릿</h3>
-        </div>
-      </div>
-      <div class="card-body">
-        <pre>&gt; **❌ Deprecated:** &lt;옛 방법&gt;
-&gt; &lt;비추천 이유 — 간결하게&gt;
-&gt;
-&gt; **✅ 현재 권장:** &lt;새 방법&gt;
-&gt; &lt;새 방법의 장점&gt;</pre>
-        <p style="margin-top:10px">실제 예시:</p>
-        <pre>&gt; **❌ Deprecated:** APNs Certificate (.p12)
-&gt; 매년 갱신 필요, 환경별 분리, 2020년 이후 비권장.
-&gt;
-&gt; **✅ 현재 권장:** APNs Authentication Key (.p8)
-&gt; 갱신 불필요, dev/prod 모두 커버, Team 전체 앱 공유 가능.</pre>
-      </div>
-      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/certs" target="_blank">↗ Firebase — APNs 인증 방식 비교</a>
+  <div class="callout callout-red">
+    <strong>규칙은 소급된다.</strong> 실측 2026-08-13 — 이 킷의 쇼케이스 예제가 킷 자신의 evals 6 케이스 중 3개를 <strong>3개월간 위반한 채</strong> 배포돼 있었다 (출처 원장 0/8, Flutter 가이드에 네이티브 Swift 초기화, 출처에 없는 <code>.p12</code> deprecated 단정). 규칙과 evals는 고쳤는데 <strong>이미 나간 산출물을 다시 재는 경로가 없었다.</strong>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="gate-row">
+      <span class="gate-id">G1</span>
+      <div class="gate-text"><strong style="color:var(--text)">출처 원장 완전성</strong> — <code>grep -c '^## Step '</code> 과 <code>grep -c '^\*\*출처:\*\*'</code> 두 값이 같아야 한다. 열거값은 타이핑하지 말고 계산한다. 출력: <code>G1_LEDGER PASS steps=8 ledger=8</code></div>
     </div>
+    <div class="gate-row">
+      <span class="gate-id">G2</span>
+      <div class="gate-text"><strong style="color:var(--text)">미검증 마커 분류/임계</strong> — <code>bare</code>(접미 없는 <code>[미검증]</code>)는 0건이어야 하고, <code>invalid</code>는 정본 임계 미만이어야 한다. <code>env</code>는 별도 카운터로 센다. 게이트 안의 상수는 정본을 <strong>구현</strong>한 값이지 킷이 새로 정한 값이 아니다 — 정본이 바뀌면 같이 바꾸되 <strong>여기서 먼저 바꾸지 않는다</strong>.</div>
+    </div>
+    <div class="gate-row">
+      <span class="gate-id">G3</span>
+      <div class="gate-text"><strong style="color:var(--text)">스택 혼용</strong> — 스택 인자가 <code>flutter</code> 인데 <code>```swift</code> 코드펜스가 있으면 실패. 산문으로 "Flutter는 AppDelegate를 건드리지 않는다"고 쓰는 것은 통과한다 — <strong style="color:var(--text)">코드 지시만</strong> 잡는다.</div>
+    </div>
+    <div class="gate-row">
+      <span class="gate-id">G4</span>
+      <div class="gate-text"><strong style="color:var(--text)">deprecation 주장 결합</strong> — <code>❌ Deprecated</code> 박스를 쓴 Step은 그 Step의 <code>**출처:**</code> 줄이 "출처가 실제로 deprecated 라고 말했다"는 근거를 담아야 한다. 근거 없는 박스 수를 <code>unsourced_boxes</code>로 센다.</div>
+    </div>
+    <a class="card-source" href="../harness/skill-design-guide.html" target="_top">&#8599; Skill Design Guide — §3.7 Completion Evidence Gate (E1/E2/E3 등급)</a>
+  </div>
 
+  <div class="grid-2" style="margin-top:20px">
     <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="rule-number">Deprecated 감지 기준</div>
-          <h3>언제 박스를 삽입하는가</h3>
-        </div>
-      </div>
+      <div class="card-header"><div><div class="rule-number">보고 규약</div><h3>게이트 출력을 그대로 붙여라</h3></div></div>
       <div class="card-body">
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
-          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>문서의 마지막 업데이트가 2년 이상 지남</li>
-          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>본문에 "deprecated", "legacy", "will be removed", "removed in" 키워드 발견</li>
-          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>API/SDK 메이저 버전 변경 안내 포함</li>
-          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">×</span>"use X instead" 같은 대체 권장 발견</li>
-          <li style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">+</span>하나라도 해당하면 ❌/✅ 박스 삽입 — 조용한 생략 금지</li>
-        </ul>
+        <p>"게이트 통과함"이라는 문장은 증거가 아니다 — <code>GATE_PASS</code>를 포함한 <strong style="color:var(--text)">5줄 출력</strong>이 증거다.</p>
+        <pre><code>G1_LEDGER PASS steps=8 ledger=8
+G2_MARKER PASS bare=0 invalid=0 env=0
+G3_STACKMIX PASS stack=flutter swift_fence=0
+G4_DEPRECATION PASS unsourced_boxes=0
+GATE_PASS</code></pre>
+        <p><code>GATE_FAIL</code>이면 완료 보고를 하지 말고 고친 뒤 다시 돌린다.</p>
       </div>
-      <a class="card-source" href="https://developer.apple.com/help/account/keys/create-a-private-key/" target="_blank">↗ Apple Developer — Private Key 생성</a>
+      <a class="card-source" href="fcm-ios-example.html" target="_top">&#8599; 실제 산출물에 돌린 게이트 출력 — FCM iOS 예제</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="rule-number">Regeneration Drift</div><h3>이미 있는 가이드부터 잰다</h3></div></div>
+      <div class="card-body">
+        <p>같은 서비스의 가이드가 이미 있으면 덮어쓰거나 무시하지 말고 <strong style="color:var(--text)">기존 파일에 게이트를 먼저 돌린다</strong>.</p>
+        <pre><code>find docs/setup -type f -name '*.md' 2&gt;/dev/null | while IFS= read -r f; do
+  printf '%s\n' "--- $f"; guide_gate "$f" "$STACK"
+done</code></pre>
+        <p><code>GATE_FAIL</code>이 나오면 <strong style="color:var(--text)">그것이 이번 작업의 첫 산출물</strong>이다. 글로빙 대신 <code>find</code>를 쓰는 이유: zsh는 <code>nomatch</code>가 기본이라 매치 0인 글로브가 명령을 통째로 죽인다.</p>
+      </div>
+      <a class="card-source" href="setup-guide.html" target="_top">&#8599; Setup Guide — Phase 1 Regeneration Drift 검사</a>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>게이트를 우회하거나 조건을 느슨하게 고치지 마라.</strong> 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 잡는 것은 <strong>기계로 판정 가능한 4가지</strong>뿐이며, 사실 정확성·스코프·경로 날조는 여전히 Gotchas와 Phase 4 검증의 몫이다. 단일 게이트는 보장이 아니다.
+  </div>
+</div>
+
+<!-- ── Section 5: 사전 요구사항의 두 필수 박스 ── -->
+<div class="section">
+  <div class="section-label">사전 요구사항 — 두 개의 필수 박스</div>
+  <p class="desc">섹션 2의 맨 위에는 두 가지가 들어간다. 하나는 <strong>작업별 사이트 표</strong>, 다른 하나는 <strong>콘솔 라벨 경계 한 줄</strong>이다. 둘 다 사용자가 가장 먼저 막히는 지점을 겨냥한다.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><div><div class="rule-number">박스 ① — 작업별 사이트 표</div><h3>"셋업은 전부 A 사이트"는 금지</h3></div></div>
+    <div class="card-body">
+      <p style="margin-bottom:12px">어느 사이트냐는 <strong style="color:var(--text)">작업마다 갈린다</strong>. 뭉뚱그린 안내를 쓰면 앱 레코드 생성·빌드 업로드·TestFlight 에서 사용자가 곧바로 막힌다. 아래 Apple 7행 표가 형식 예시다 (조회 2026-08-13, Apple 공개 Help 기준).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>작업</th><th>사이트</th><th>섹션 / 흐름</th></tr></thead>
+          <tbody>
+            <tr><td>Bundle ID / App ID 등록</td><td>Apple Developer Account</td><td><code>Certificates, Identifiers &amp; Profiles</code> &rarr; <code>Identifiers</code> &rarr; App IDs</td></tr>
+            <tr><td>APNs 키 생성</td><td>Apple Developer Account</td><td><code>Certificates, Identifiers &amp; Profiles</code> &rarr; <code>Keys</code></td></tr>
+            <tr><td>인증서</td><td>Apple Developer Account</td><td><code>Certificates</code></td></tr>
+            <tr><td>Provisioning Profile</td><td>Apple Developer Account</td><td><code>Profiles</code> / <code>Provisioning Profiles</code></td></tr>
+            <tr><td><strong style="color:var(--text)">앱 레코드</strong> 생성</td><td><strong style="color:var(--text)">App Store Connect</strong></td><td><code>Apps</code> &rarr; <code>+</code> &rarr; <code>New App</code></td></tr>
+            <tr><td><strong style="color:var(--text)">빌드 업로드</strong></td><td><strong style="color:var(--text)">App Store Connect</strong></td><td>Xcode / Transporter / API — bundle ID + version + build string 으로 연결</td></tr>
+            <tr><td><strong style="color:var(--text)">TestFlight</strong></td><td><strong style="color:var(--text)">App Store Connect</strong></td><td>beta build 배포 · 테스터 관리 · 피드백</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:12px">키·식별자 발급은 Developer Account, <strong style="color:var(--text)">앱이라는 레코드와 배포는 App Store Connect</strong>다. 요청받은 셋업이 어느 행인지 먼저 확정하고 <strong style="color:var(--text)">해당 행만</strong> 가이드에 넣는다.</p>
+    </div>
+    <a class="card-source" href="https://developer.apple.com/help/account/" target="_blank" rel="noopener">&#8599; Apple Developer Help — Account (top-level 섹션 실측)</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div><div class="rule-number">박스 ② — 콘솔 라벨 경계</div><h3>로그인 뒤 화면은 검증 불가다</h3></div></div>
+    <div class="card-body">
+      <p>로그인이 필요한 콘솔을 다루는 가이드라면 아래 한 줄이 필수다.</p>
+      <pre><code>&gt; **ℹ️ 콘솔 라벨 경계:** 이 가이드의 섹션명·버튼 라벨은 **로그인 없이 볼 수 있는
+&gt; 공식 문서**에서 확인한 것입니다. 로그인 뒤 실제 화면은 공개 문서로 검증할 수
+&gt; 없어 표기가 다를 수 있습니다 (A/B 롤아웃 · 언어 설정). 화면에서 못 찾으면
+&gt; **상위 섹션명**(`Identifiers`, `Keys`, `Cloud Messaging`)으로 검색하세요.</code></pre>
+      <p>못 찾을 때 쓸 <strong style="color:var(--text)">상위 섹션명 검색어</strong>를 함께 주는 것까지가 절차다. 없는 확신을 파는 것보다 정직한 경계 표시가 사용자를 덜 헤매게 한다.</p>
+    </div>
+    <a class="card-source" href="search-strategy.html" target="_top">&#8599; Search Strategy — WebFetch로 닿지 않는 것</a>
+  </div>
+</div>
+
+<!-- ── Section 6: Deprecated 박스 ── -->
+<div class="section">
+  <div class="section-label">Deprecated / 현재 권장 박스 — 출처보다 강한 주장 금지</div>
+  <p class="desc"><code>❌ Deprecated</code> 박스는 <strong>1차 출처가 실제로 deprecated 라고 말한 경우에만</strong> 쓴다. "권장하지 않음" · "새 방식이 권장됨"을 deprecation으로 승격하지 마라 — 출처보다 강한 주장을 쓰는 것도 날조다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">날조 — 실제로 3개월간 배포됐던 문장</div>
+      <ul>
+        <li><code>❌ Deprecated: APNs Certificate (.p12) — 2020년 이후 비권장</code></li>
+        <li>1차 출처(FCM Apple/Flutter 문서)는 <code>.p12</code>를 deprecated로 표기한 적이 <strong>없다</strong></li>
+        <li><code>.p8</code>을 안내한다는 사실로부터 <code>.p12</code>의 deprecation을 <strong>추론</strong>했다</li>
+        <li>박스는 있는데 그 Step의 <code>**출처:**</code> 줄에 근거가 없음 → <code>G4_DEPRECATION FAIL unsourced_boxes=1</code></li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">출처 강도 그대로 — 현행 예제 표기</div>
+      <ul>
+        <li><code>✅ 현행 가이드가 안내하는 방식: APNs Authentication Key (.p8)</code></li>
+        <li>"<code>.p12</code> 방식도 여전히 존재하지만, 이 가이드는 1차 출처가 안내하는 <code>.p8</code> 흐름만 다룬다"</li>
+        <li>"1차 출처가 <code>.p12</code>를 어떤 강도로 평가하는지 <strong>대신 판단하지 않는다</strong>"</li>
+        <li>박스 자체를 안 쓰므로 G4 대상이 아님 → <code>unsourced_boxes=0</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <div class="card-header"><div><div class="rule-number">박스를 쓸 수 있는 조건</div><h3>근거 결합 규칙</h3></div></div>
+      <div class="card-body">
+        <p>박스를 쓰면 그 Step의 <code>**출처:**</code> 줄에 <strong style="color:var(--text)">"출처가 deprecated 라고 명시"</strong>라는 근거를 함께 적는다. G4의 판정식은 "Deprecated 박스가 있는 Step의 출처 줄에 <code>deprecat</code> 문자열이 없으면 FAIL"이다.</p>
+        <pre><code>&gt; **❌ Deprecated:** &lt;옛 방법 + 출처가 밝힌 이유&gt;
+&gt; **✅ 현재 권장:** &lt;새 방법 + 이유&gt;</code></pre>
+      </div>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank" rel="noopener">&#8599; Firebase — FCM Apple 클라이언트 (실측 2026-07-27 · 재확인 2026-08-13)</a>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="rule-number">실측 기록</div><h3>이 문서에서 deprecated는 무엇인가</h3></div></div>
+      <div class="card-body">
+        <p>실측 2026-07-27 · 재확인 2026-08-13: FCM Apple/Flutter 문서는 APNs 인증 키(<code>.p8</code>)를 <strong style="color:var(--text)">안내</strong>하지만 인증서(<code>.p12</code>)를 deprecated로 표기하지 않는다.</p>
+        <p>이 문서에서 <strong style="color:var(--text)">deprecated로 명시된 것은 Instance ID API</strong>다. 강도가 다른 세 표현 — "권장하지 않음(not recommended)" · "레거시" · "제거 예정" — 을 서로 바꿔 쓰지 않는다.</p>
+      </div>
+      <a class="card-source" href="search-strategy.html" target="_top">&#8599; Search Strategy — Deprecated 감지 규칙 · 역방향 금지</a>
     </div>
   </div>
 </div>
 
-<!-- ── Section 5: 비용·IAM 표 형식 ── -->
+<!-- ── Section 7: 스택 혼용 ── -->
+<div class="section">
+  <div class="section-label">섹션 4 — 스택 혼용 금지, 그리고 반대 방향 오해</div>
+  <p class="desc">프로젝트 코드 변경 섹션에는 <strong>확정한 그 스택에 실제로 존재하는 파일만</strong> 쓴다. 한 스택의 절차에 다른 스택의 파일·코드를 섞으면 사용자는 존재하지 않는 파일을 찾게 된다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">스택 혼용 — 대표 사고 형태</div>
+      <ul>
+        <li>Flutter 가이드에 <code>ios/Runner/AppDelegate.swift</code> 초기화를 <strong>최소 필수처럼</strong> 넣음</li>
+        <li><code>```swift</code> 코드펜스로 <code>FirebaseApp.configure()</code> 호출 지시</li>
+        <li>Flutter의 현행 절차(FlutterFire CLI + Dart 초기화)에는 <strong>등장하지 않는</strong> 단계</li>
+        <li><code>G3_STACKMIX FAIL swift_fence=1</code></li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">스택 확정 후 그 스택만</div>
+      <ul>
+        <li>Flutter: <code>lib/main.dart</code> · <code>pubspec.yaml</code> · <code>lib/firebase_options.dart</code></li>
+        <li>네이티브 iOS: <code>ios/Runner/AppDelegate.swift</code> · <code>Info.plist</code></li>
+        <li>코드블록마다 언어 라벨(<code>dart</code> / <code>swift</code> / <code>bash</code>) 명시</li>
+        <li><code>G3_STACKMIX PASS stack=flutter swift_fence=0</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-accent">
+    <strong>반대 방향 오해도 막아라.</strong> "네이티브 코드 수정 없음"이 <strong>"Xcode 프로젝트 설정도 없음"</strong>은 아니다. Capability 추가, Background Modes 같은 <strong>Xcode 프로젝트 설정</strong>은 Flutter 앱에서도 여전히 필요한 iOS 프로젝트 작업이다. <strong>코드 변경 섹션과 프로젝트 설정 Step을 분리해서</strong> 쓴다.
+  </div>
+</div>
+
+<!-- ── Section 8: 권한 / 비용 ── -->
 <div class="section">
   <div class="section-label">권한 / IAM 표 + 비용 섹션 형식</div>
-  <p class="desc">권한과 비용은 가이드에서 자주 생략되지만, 셋업 후 운영 단계에서 가장 많이 문제가 되는 부분이다. 최소 권한 원칙과 무료 한도를 명확히 해야 사용자가 예상치 못한 과금을 피할 수 있다.</p>
+  <p class="desc">권한과 비용은 가이드에서 자주 생략되지만 셋업 후 운영 단계에서 가장 많이 문제가 되는 부분이다. 최소 권한 원칙과 무료 한도를 명확히 해야 예상치 못한 과금을 피할 수 있다.</p>
 
   <div class="grid-2">
     <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="rule-number">섹션 5: 권한 / IAM</div>
-          <h3>표 형식 예시</h3>
-        </div>
-      </div>
+      <div class="card-header"><div><div class="rule-number">섹션 5: 권한 / IAM</div><h3>표 형식 예시</h3></div></div>
       <div class="card-body">
-        <pre>| 시스템 | 필요한 권한 | 누구에게 |
-|--------|------------|----------|
+        <pre><code>| 시스템 | 필요한 권한 | 누구에게 |
+| --- | --- | --- |
 | Apple Developer | Account Holder / Admin | Step 1·2 수행자 |
 | Firebase Console | Editor 이상 | Step 4·5 수행자 |
-| 운영 단계 | Firebase Editor 최소화 | 일상 운영자 |</pre>
-        <p style="margin-top:10px;font-size:13px;color:var(--text2)">셋업용 권한과 운영용 권한을 행으로 분리. 최소 권한 원칙 강조.</p>
+| 운영 단계 | Firebase Editor 로 최소화 | 일상 운영자 |</code></pre>
+        <p>셋업용 권한과 운영용 권한을 행으로 분리한다. 해당 없는 서비스는 "해당 없음" 한 줄로 닫는다.</p>
       </div>
-      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank">↗ Firebase — IAM 권한 구조</a>
+      <a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/flutter/get-started" target="_blank" rel="noopener">&#8599; Firebase — FCM 설정에 필요한 콘솔 권한 맥락</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="rule-number">섹션 6: 비용</div>
-          <h3>3항목 필수 기재</h3>
-        </div>
-      </div>
+      <div class="card-header"><div><div class="rule-number">섹션 6: 비용</div><h3>3항목 필수 기재</h3></div></div>
       <div class="card-body">
         <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
           <li style="display:flex;gap:10px;font-size:13px;align-items:flex-start">
             <span class="badge badge-ok" style="flex-shrink:0;margin-top:2px">무료 한도</span>
-            <span style="color:var(--text2)">FCM: 무제한 무료. Firebase Spark plan 내 Firestore 1GB 등 — 정확한 숫자</span>
+            <span style="color:var(--text2)">확인일과 함께 적는다 — "FCM 전송량 제한 없음(2026-05 확인, 요금 페이지에서 재확인)"</span>
           </li>
           <li style="display:flex;gap:10px;font-size:13px;align-items:flex-start">
             <span class="badge badge-warn" style="flex-shrink:0;margin-top:2px">유료 진입점</span>
@@ -417,173 +599,87 @@
           </li>
           <li style="display:flex;gap:10px;font-size:13px;align-items:flex-start">
             <span class="badge badge-info" style="flex-shrink:0;margin-top:2px">예상 비용</span>
-            <span style="color:var(--text2)">예상 월비용 범위 (스타트업 규모 기준 등). Apple Developer Program 연 $99 같은 고정 비용도 명시</span>
+            <span style="color:var(--text2)">월비용 범위. Apple Developer Program 연 $99 같은 고정 비용도 명시</span>
           </li>
         </ul>
       </div>
-      <a class="card-source" href="https://firebase.google.com/pricing" target="_blank">↗ Firebase 요금제 페이지</a>
+      <a class="card-source" href="https://firebase.google.com/pricing" target="_blank" rel="noopener">&#8599; Firebase 요금제 페이지 (금액은 조회 시점에 재확인)</a>
     </div>
   </div>
 </div>
 
-<!-- ── Section 6: 톤 / 표기 규칙 ── -->
+<!-- ── Section 9: 톤 / 표기 규칙 ── -->
 <div class="section">
   <div class="section-label">톤 / 표기 규칙</div>
-  <p class="desc">가이드 전체에서 일관된 표기 규칙을 적용한다. 일관성이 없으면 사용자가 화면에서 텍스트를 매칭할 때 혼란을 겪는다.</p>
+  <p class="desc">가이드 전체에서 일관된 표기 규칙을 적용한다. 특히 클릭 경로는 <strong>중간 단계를 건너뛰지 않는다</strong> — 한 단계라도 빠지면 사용자가 화면에서 못 찾는다.</p>
 
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>항목</th>
-          <th>규칙</th>
-          <th>예시</th>
-        </tr>
-      </thead>
+      <thead><tr><th>항목</th><th>규칙</th><th>예시</th></tr></thead>
       <tbody>
         <tr>
           <td><strong style="color:var(--text)">클릭 경로</strong></td>
-          <td><code>→</code> 화살표로 연결</td>
-          <td>프로젝트 설정 ⚙️ → 클라우드 메시징 탭 → Apple 앱 구성</td>
+          <td><code>&rarr;</code> 화살표로 연결 · <strong style="color:var(--text)">중간 단계 생략 금지</strong></td>
+          <td><code>Settings ⚙️ &rarr; General &rarr; Cloud Messaging 탭 &rarr; iOS app configuration &rarr; APNs authentication key &rarr; Upload</code></td>
         </tr>
         <tr>
           <td><strong style="color:var(--text)">명령어</strong></td>
           <td>코드 블록 + 언어 라벨 필수</td>
-          <td><code>```bash</code>, <code>```swift</code>, <code>```dart</code></td>
+          <td><code>bash</code> · <code>swift</code> · <code>dart</code></td>
         </tr>
         <tr>
-          <td><strong style="color:var(--text)">한국어 / 영어 병기</strong></td>
-          <td>콘솔이 다국어 지원 시 병기</td>
-          <td>업로드 (Upload), 클라우드 메시징 (Cloud Messaging)</td>
+          <td><strong style="color:var(--text)">라벨 병기</strong></td>
+          <td><strong style="color:var(--text)">영문 라벨이 정본</strong>, 한국어는 괄호</td>
+          <td><code>Upload (업로드)</code> &mdash; 반대로 쓰면 화면에서 못 찾는다</td>
         </tr>
         <tr>
           <td><strong style="color:var(--text)">외부 도메인 링크</strong></td>
-          <td>마크다운 링크로 — bare URL 금지</td>
+          <td>마크다운 링크로 &mdash; bare URL 금지</td>
           <td><code>[Identifiers 페이지](https://developer.apple.com/...)</code></td>
         </tr>
         <tr>
           <td><strong style="color:var(--text)">어려운 용어</strong></td>
           <td>괄호 풀이 병기</td>
-          <td>Service Account (서비스 계정 — 자동화용 가상 사용자)</td>
+          <td><code>Service Account (서비스 계정 — 자동화용 가상 사용자)</code></td>
         </tr>
         <tr>
           <td><strong style="color:var(--text)">경고 박스</strong></td>
           <td>⚠️ 주의 / ❌ Deprecated / ✅ 현재 권장 / 🔒 보안 경고</td>
-          <td>아이콘으로 시각 구분, blockquote (<code>&gt;</code>) 형식</td>
+          <td>blockquote(<code>&gt;</code>) 형식 · 아이콘으로 시각 구분</td>
         </tr>
       </tbody>
     </table>
   </div>
-</div>
-
-<!-- ── Section 7: 트러블슈팅 형식 ── -->
-<div class="section">
-  <div class="section-label">트러블슈팅 섹션 (섹션 11) 형식</div>
-  <p class="desc">트러블슈팅은 실제 사용자가 막히는 지점에서 수집된 에러 케이스를 기반으로 작성한다. 최소 3개 케이스를 포함하고 각각 3단 구조를 따른다.</p>
-
-  <div class="card" style="margin-bottom:20px">
-    <h4 style="margin-top:0">트러블슈팅 항목 템플릿 (마크다운)</h4>
-    <pre>**증상:** &lt;에러 메시지 또는 사용자가 보는 현상&gt;
-**원인:** &lt;기술적 원인 분석 — 왜 이 현상이 발생하는지&gt;
-**해결:**
-
-1. &lt;구체적 해결 단계 1&gt;
-2. &lt;구체적 해결 단계 2&gt;
-3. ...</pre>
-    <a class="card-source" href="https://firebase.flutter.dev/docs/messaging/usage" target="_blank">↗ FlutterFire — FCM 트러블슈팅</a>
-  </div>
 
   <div class="callout">
-    <strong>필수 포함 케이스 유형:</strong> ① 글로벌 유니크 식별자 충돌 에러 ("not available") ② 등록과 활성화 누락 에러 ③ 플랫폼별 권한/인증 실패 에러. 이 세 가지는 모든 외부 서비스 가이드에서 공통으로 발생하는 패턴이다.
+    <strong>클릭 경로 실측 예.</strong> Firebase Console 경로는 <a class="card-source" style="margin:0;display:inline" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank" rel="noopener">FCM Apple 클라이언트 문서</a> 2026-07-27 조회 기준 문서 표기 그대로 <code>Settings ⚙️ &rarr; General &rarr; Cloud Messaging 탭 &rarr; iOS app configuration &rarr; APNs authentication key &rarr; Upload</code> 다. <strong>이전 표기는 <code>General</code> 단계가 빠져 있었다</strong> — 한 단계 누락이 곧 사용자 이탈이다.
   </div>
 
-  <div class="grid-2" style="margin-top:20px">
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="rule-number">케이스 예시 1</div>
-          <h3>App ID 충돌</h3>
-        </div>
-      </div>
-      <div class="card-body">
-        <p><strong style="color:var(--text)">증상:</strong> App ID 등록 시 "An App ID with Identifier 'com.example.app' is not available"</p>
-        <p style="margin-top:6px"><strong style="color:var(--text)">원인:</strong> Bundle ID는 전 세계 Apple Developer 계정에 걸쳐 유니크. 흔한 조합은 이미 선점됨.</p>
-        <p style="margin-top:6px"><strong style="color:var(--text)">해결:</strong> 조직/도메인 reverse prefix 강화 — <code>com.&lt;github핸들&gt;.appname</code> 또는 환경별 분리 suffix (<code>.dev</code>, <code>.staging</code>).</p>
-      </div>
-      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple — Bundle ID 정책</a>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="rule-number">케이스 예시 2</div>
-          <h3>등록 ≠ 활성화</h3>
-        </div>
-      </div>
-      <div class="card-body">
-        <p><strong style="color:var(--text)">증상:</strong> App ID는 등록했는데 Xcode Signing & Capabilities에서 Push Notifications 추가가 안 됨 또는 회색.</p>
-        <p style="margin-top:6px"><strong style="color:var(--text)">원인:</strong> Apple Developer Portal의 App ID에 Push Notifications capability가 비활성 상태. 또는 무료 개인 계정 Team 사용 (Push 불가).</p>
-        <p style="margin-top:6px"><strong style="color:var(--text)">해결:</strong> Identifiers 페이지 → 해당 App ID → Capabilities → Push Notifications 체크 → Save. Xcode 재시작.</p>
-      </div>
-      <a class="card-source" href="https://developer.apple.com/help/account/manage-identifiers/register-an-app-id/" target="_blank">↗ Apple — Push Notifications Capability</a>
-    </div>
+  <div class="callout callout-accent">
+    <strong>한국어 라벨은 번역 추정이다.</strong> 1차 출처는 대개 영문이므로 영문 라벨을 정본으로 적고 한국어를 괄호에 넣는다. 한국어를 정본으로 적으면 콘솔 언어 설정이 영어인 사용자가 화면에서 매칭하지 못한다.
   </div>
 </div>
 
-<!-- ── Section 8: 최종 검증 체크리스트 ── -->
+<!-- ── Section 10: 최종 검증 체크리스트 ── -->
 <div class="section">
   <div class="section-label">가이드 생성 완료 검증 체크리스트</div>
-  <p class="desc">Phase 4에서 생성된 가이드를 최종 제출하기 전 이 체크리스트를 실행한다. FAIL 항목이 있으면 해당 섹션으로 돌아가 수정한다.</p>
+  <p class="desc">Phase 4에서 생성된 가이드를 최종 제출하기 전 이 체크리스트를 실행한다. 1번은 기계 판정이므로 <strong>가장 먼저</strong> 돌린다. FAIL 항목이 있으면 해당 섹션으로 돌아가 수정한 뒤 재실행한다.</p>
 
   <ul class="checklist">
-    <li>
-      <span class="check">✓</span>
-      <div>헤더에 <code>작성일</code>, <code>기준 버전</code>, <code>공식 문서 URL</code> 세 항목이 모두 기재됨</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>사전 요구사항 섹션 맨 위에 사이트 혼동 주의 박스 삽입됨 (Apple/Google/AWS 가이드 필수)</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>모든 Step이 어디서 + 무엇을 + 확인 방법 3단 구조를 갖춤. 어느 하나도 생략 없음</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>deprecated 방법 발견 시 ❌/✅ 박스로 명시. 조용한 생략 없음</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>권한/IAM 표에 셋업용 권한과 운영용 권한이 분리 기재됨</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>비용 섹션에 무료 한도, 유료 진입점, 예상 월비용 범위 세 항목 모두 있음</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>환경 분기(dev/staging/prod) 섹션에 환경별 설정 파일 분리 패턴 안내됨</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>보안 체크리스트에 비밀 키 저장, .gitignore 패턴, 클라이언트/서버 전용 키 구분이 포함됨</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>검증 체크리스트에 최소 3~5개 체크박스 항목과 확인 명령어/위치가 병기됨</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>트러블슈팅 섹션에 최소 3개 에러 케이스가 증상 + 원인 + 해결 3단으로 기술됨</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>글로벌 유니크 식별자(Bundle ID, Project ID) 충돌 관련 경고 및 트러블슈팅 케이스 포함됨</div>
-    </li>
-    <li>
-      <span class="check">✓</span>
-      <div>클릭 경로는 <code>→</code> 화살표, 명령어는 코드 블록+언어 라벨, 외부 링크는 마크다운 링크 형식</div>
-    </li>
+    <li><span class="check">&#10003;</span><div><code>guide_gate &lt;가이드.md&gt; &lt;스택&gt;</code>을 실행하고 <strong style="color:var(--text)">출력 5줄을 보고에 그대로 붙였다</strong>. <code>GATE_PASS</code> 확인</div></li>
+    <li><span class="check">&#10003;</span><div>Step 헤더 수와 <code>**출처:**</code> 줄 수가 같다 (G1) — 열거값은 세지 말고 <code>grep -c</code>로 계산했다</div></li>
+    <li><span class="check">&#10003;</span><div>접미 없는 <code>[미검증]</code>이 0건이다 (G2 <code>bare=0</code>). <code>[미검증:ENV]</code>는 4요건을 모두 갖췄다</div></li>
+    <li><span class="check">&#10003;</span><div>마커 집계 세 숫자(<code>bare</code> / <code>invalid</code> / <code>env</code>)를 보고에 그대로 썼고, <strong style="color:var(--text)">임계 숫자를 킷에서 재정의하지 않았다</strong></div></li>
+    <li><span class="check">&#10003;</span><div>가이드가 다루는 스택을 확정했고, 다른 스택의 파일·코드가 섞이지 않았다 (G3)</div></li>
+    <li><span class="check">&#10003;</span><div><code>❌ Deprecated</code> 박스가 있다면 그 Step의 출처 줄에 "출처가 deprecated 라고 명시" 근거가 있다 (G4)</div></li>
+    <li><span class="check">&#10003;</span><div>헤더에 <code>작성일</code> · <code>기준 버전</code> · <code>공식 문서 URL</code> 세 항목이 모두 기재됐다</div></li>
+    <li><span class="check">&#10003;</span><div>사전 요구사항 맨 위에 <strong style="color:var(--text)">작업별 사이트 표</strong>가 있다 (Apple/Google/AWS 필수) — "전부 A 사이트" 식 뭉뚱그림 없음</div></li>
+    <li><span class="check">&#10003;</span><div>로그인 콘솔을 다룬다면 <strong style="color:var(--text)">콘솔 라벨 경계 한 줄</strong>과 상위 섹션명 검색어를 넣었다</div></li>
+    <li><span class="check">&#10003;</span><div>클릭 경로에 중간 단계가 빠지지 않았고, 영문 라벨을 정본으로 한국어를 괄호에 넣었다</div></li>
+    <li><span class="check">&#10003;</span><div>가이드의 모든 외부 URL이 공식 도메인이며 <strong style="color:var(--text)">그 시점 canonical host</strong>다 (리다이렉트 최종 URL 기록)</div></li>
+    <li><span class="check">&#10003;</span><div>프로젝트 내부 경로·env 키가 전부 Glob/Grep 실측 근거를 갖는다 — 결과 0건은 미검증이 아니라 "아직 없음"이라는 확정 사실이다</div></li>
+    <li><span class="check">&#10003;</span><div>11개 섹션 중 해당 없는 섹션은 <code>해당 없음</code>으로 닫았고, 억지 내용으로 부피를 늘리지 않았다</div></li>
+    <li><span class="check">&#10003;</span><div>트러블슈팅에 증상 + 원인 + 해결 3단 케이스가 들어갔고, 글로벌 유니크 식별자 충돌 케이스를 포함했다</div></li>
   </ul>
 </div>
 

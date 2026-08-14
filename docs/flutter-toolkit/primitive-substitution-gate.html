@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primitive Substitution Gate — Flutter Toolkit</title>
+<style>
+  :root{
+    --bg:#0d0d14;
+    --bg2:#12121c;
+    --surface:#181825;
+    --surface2:#1e1e30;
+    --surface3:#282845;
+    --border:#2a2a40;
+    --border2:#3a3a55;
+    --text:#F5F0E8;
+    --text2:#A89A8F;
+    --text3:#7A6F64;
+    --accent:#22D3EE;
+    --accent2:#67E8F9;
+    --accent-dim:rgba(34,211,238,0.12);
+    --accent-glow:rgba(34,211,238,0.06);
+    --error:#f87171;
+    --success:#4ade80;
+    --warn:#fbbf24;
+    --radius:14px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    --transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;font-size:16px;background:
+    radial-gradient(ellipse at top left,var(--accent-glow),transparent 50%),
+    radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 50%),
+    var(--bg);
+  }
+  .container{max-width:1100px;margin:0 auto;padding:56px 24px 120px}
+  a{color:var(--accent);text-decoration:none;transition:color var(--transition)}
+  a:hover{color:var(--accent2)}
+  a:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px}
+  code{font-family:var(--mono);font-size:.9em;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
+
+  /* HERO */
+  .hero{padding:56px 0 60px}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:26px}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .hero h1{font-size:clamp(32px,6vw,64px);font-weight:800;line-height:1.08;letter-spacing:-.03em;margin-bottom:20px;overflow-wrap:anywhere;background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 55%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .subtitle{font-size:18px;color:var(--text2);max-width:760px;line-height:1.7}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--text3)}
+  .hero-meta span{display:inline-flex;align-items:center;gap:6px;min-width:0}
+  .hero-meta span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:.6}
+
+  /* SECTION */
+  section{margin-top:68px}
+  .section-header{margin-bottom:28px}
+  .section-label{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
+  .section-header h2{font-size:clamp(25px,4.2vw,33px);font-weight:700;letter-spacing:-.02em;margin-bottom:10px;overflow-wrap:anywhere}
+  .section-header p{color:var(--text2);font-size:15px;max-width:700px}
+
+  /* CARDS */
+  .cards{display:grid;gap:20px}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:26px 28px;transition:border-color var(--transition),transform var(--transition);position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity var(--transition)}
+  .card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .card:hover::before{opacity:1}
+  .card-num{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 9px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:13px;margin-bottom:15px;border:1px solid var(--accent)}
+  .card h3{font-size:18px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em;overflow-wrap:anywhere}
+  .card p{color:var(--text2);font-size:14.5px;margin-bottom:10px}
+  .card p:last-of-type{margin-bottom:0}
+  .card ul{list-style:none;display:grid;gap:9px;margin-top:8px}
+  .card ul li{color:var(--text2);font-size:14px;padding-left:16px;position:relative}
+  .card ul li::before{content:"–";position:absolute;left:0;color:var(--accent)}
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);border-top:1px dashed var(--border2);padding-top:13px;margin-top:14px;width:100%;word-break:break-all}
+  .card-source::before{content:"↗";font-size:13px;flex-shrink:0}
+
+  /* QUOTE */
+  .quote{background:var(--surface2);border:1px solid rgba(248,113,113,.35);border-left:4px solid var(--error);border-radius:var(--radius-sm);padding:20px 22px;margin-top:18px}
+  .quote .q-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--error);margin-bottom:10px;display:block}
+  .quote p{color:var(--text);font-size:15px;line-height:1.7;overflow-wrap:anywhere}
+  .quote .q-meta{color:var(--text3);font-size:12.5px;margin-top:10px;font-family:var(--mono)}
+
+  /* CALLOUT */
+  .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:var(--radius-sm);padding:18px 22px;margin-top:20px;color:var(--text2);font-size:14.5px;line-height:1.7}
+  .callout strong{color:var(--text)}
+  .callout.accent{border-left-color:var(--accent)}
+  .callout.ssot{border-left-color:var(--accent);background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%)}
+
+  /* TABLE */
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{width:100%;min-width:max-content;border-collapse:collapse}
+  th,td{text-align:left;padding:14px 20px;border-bottom:1px solid var(--border);font-size:14.5px}
+  th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:var(--surface2)}
+  td.num{font-family:var(--mono);color:var(--accent);font-size:13px;text-align:center;white-space:nowrap}
+  td.val{color:var(--accent2);font-family:var(--mono);font-size:13.5px}
+
+  /* COMPARE */
+  .compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .compare-col{border:1px solid var(--border);border-radius:var(--radius);padding:24px;background:var(--surface)}
+  .compare-col.bad{border-color:rgba(248,113,113,.35)}
+  .compare-col.good{border-color:rgba(34,211,238,.4)}
+  .compare-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;padding:5px 12px;border-radius:999px}
+  .compare-col.bad .compare-label{color:var(--error);background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.4)}
+  .compare-col.good .compare-label{color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent)}
+  .compare-col ul{list-style:none}
+  .compare-col li{padding:10px 0;color:var(--text2);font-size:14px;border-bottom:1px dashed var(--border);display:flex;gap:10px;align-items:flex-start}
+  .compare-col li:last-child{border-bottom:none}
+  .compare-col.bad li::before{content:"×";color:var(--error);font-weight:800;flex-shrink:0}
+  .compare-col.good li::before{content:"✓";color:var(--accent);font-weight:800;flex-shrink:0}
+
+  /* STEPS */
+  .steps{display:grid;gap:14px}
+  .step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px}
+  .step-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+  .step-badge{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;padding:4px 12px}
+  .step-head h3{font-size:17px;font-weight:700;min-width:0;overflow-wrap:anywhere}
+  .step p{color:var(--text2);font-size:14.5px}
+
+  /* FACT LIST */
+  .facts{list-style:none;display:grid;gap:12px}
+  .facts li{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border2);border-radius:var(--radius-sm);padding:14px 18px;color:var(--text2);font-size:14.5px;transition:border-left-color var(--transition)}
+  .facts li:hover{border-left-color:var(--accent)}
+  .facts li strong{color:var(--text)}
+
+  /* GOTCHAS */
+  .gotchas{list-style:none;display:grid;gap:14px}
+  .gotcha{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 20px;display:flex;gap:14px;transition:background var(--transition),transform var(--transition)}
+  .gotcha:hover{background:var(--surface2);transform:translateX(4px)}
+  .gotcha-check{flex-shrink:0;width:24px;height:24px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:13px;background:var(--accent-dim)}
+  .gotcha-body{flex:1;min-width:0}
+  .gotcha-body strong{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
+  .gotcha-body span{color:var(--text2);font-size:14px}
+
+  /* CODE */
+  .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-top:16px;overflow-x:auto;max-width:100%;position:relative}
+  .code-block::before{content:attr(data-lang);position:absolute;top:8px;right:14px;font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700}
+  .code-block pre{font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--text2);white-space:pre;margin:0}
+  .code-block .kw{color:var(--accent2)}
+  .code-block .cm{color:var(--text3);font-style:italic}
+  .code-block .st{color:#fbbf24}
+
+  /* ENFORCEMENT LADDER */
+  .ladder{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  .rung{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:left}
+  .rung.current{border-color:var(--accent);background:linear-gradient(180deg,var(--surface2) 0%,var(--bg2) 100%)}
+  .rung h4{font-size:15px;margin-bottom:8px;color:var(--text)}
+  .rung .rung-tag{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:10px}
+  .rung.current .rung-tag{color:var(--accent)}
+  .rung p{color:var(--text2);font-size:13.5px}
+
+  /* SUMMARY */
+  .summary-box{background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:32px 30px;margin-top:24px;position:relative;overflow:hidden}
+  .summary-box::after{content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--accent-dim);filter:blur(40px);pointer-events:none}
+  .summary-box h3{font-size:21px;margin-bottom:14px;letter-spacing:-.01em;position:relative}
+  .summary-box p{color:var(--text2);font-size:15px;line-height:1.75;position:relative}
+
+  /* FOOTER */
+  footer{margin-top:110px;padding-top:36px;border-top:1px solid var(--border);color:var(--text3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+  footer a{color:var(--text2)}
+
+  /* OVERFLOW GUARDS */
+  .cards>*,.grid-2>*,.compare>*,.facts>*,.gotchas>*,.steps>*,.ladder>*{min-width:0}
+  pre{overflow-x:auto;max-width:100%}
+  :not(pre)>code{overflow-wrap:anywhere}
+  .facts a,.callout a,.card a,.gotcha-body a,.summary-box a,.tl-legend a,.step a{overflow-wrap:anywhere}
+
+  @media(max-width:820px){
+    .ladder{grid-template-columns:1fr}
+  }
+  @media(max-width:600px){
+    .grid-2,.compare{grid-template-columns:1fr}
+    .container{padding:40px 18px 90px}
+    th,td{padding:12px 16px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+    .card:hover,.gotcha:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <div class="badge">Flutter Toolkit · SSOT · Enforcement E2</div>
+    <h1>Primitive Substitution Gate</h1>
+    <p class="subtitle">
+      "Flutter 기본 위젯 대신 프로젝트 디자인 시스템 컴포넌트를 써야 하는가" 를 판정하는 게이트다.
+      기본 위젯 사용을 금지하는 규칙이 아니라 <strong>검색 없이 쓰는 것</strong>을 금지하고,
+      판정 근거를 <strong>대체 후보 표</strong>라는 아티팩트로 남기게 한다.
+    </p>
+    <div class="hero-meta">
+      <span>등급 E2 (아티팩트 강제)</span>
+      <span>적용 조건 HAS_DS = true</span>
+      <span>게이트 대상 8종</span>
+      <span>신규 2026-08-13</span>
+    </div>
+  </header>
+
+  <div class="callout ssot">
+    <strong>SSOT.</strong> 이 정의가 유일한 정본이다. <code>flutter-widget</code> · <code>flutter-screen</code> ·
+    <code>flutter-audit</code> · <code>widget-inspector</code> 는 이 문서를 <strong>인용만</strong> 하고
+    아래 목록을 자기 문서에 복제하지 않는다. 현재 등급은 <strong>E2</strong>
+    (<a href="../harness/skill-design-guide.html">skill-design-guide §3.7 Enforcement 3 등급</a>).
+  </div>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Why</div>
+      <h2>왜 이 게이트가 있는가</h2>
+      <p>문장 규칙(E1)만으로는 재발했다. 아래가 그 실측 근거다.</p>
+    </div>
+
+    <div class="quote">
+      <span class="q-label">실측 REJECT</span>
+      <p>
+        <strong>RE-02</strong>: B5(클러스터 묶음) 구분선이 Flutter 기본 <code>Divider</code> 사용,
+        기존 <code>IFDivider</code> 컴포넌트 미재사용
+      </p>
+      <div class="q-meta">2026-08-12 · fit-pal</div>
+    </div>
+
+    <div class="cards" style="margin-top:24px">
+      <article class="card">
+        <div class="card-num">규칙 사이의 빈틈</div>
+        <h3>기존 조항이 있었는데도 재발한 이유</h3>
+        <p>
+          <code>flutter-widget</code> 은 이미 §Enumerate-before-Act (디자인 <strong>토큰</strong> 전수 나열)와
+          "기존 위젯 수정이 기본값" 조항을 갖고 있었다. 그런데도 재발한 이유는 두 조항 모두
+          <strong>"프로젝트 위젯을 고칠 때"</strong> 를 전제하고,
+          <strong>"Flutter 기본 위젯을 새로 꺼내 쓸 때"</strong> 를 막지 않기 때문이다.
+          <code>Divider</code> 는 토큰이 아니고 기존 위젯 수정도 아니다 — 규칙 사이의 빈틈으로 빠져나간다.
+        </p>
+        <a class="card-source" href="../harness/skill-design-guide.html">harness · skill-design-guide §3.7 Enforcement</a>
+      </article>
+
+      <article class="card">
+        <div class="card-num">근거</div>
+        <h3>agent mistake 감축의 1차 기법은 "강제 절차"</h3>
+        <p>
+          공식 Flutter Agent Plugins 도 agent mistake 감축의 1차 기법을
+          "skills/rules 로 반복 가능한 워크플로우를 주입" 으로 제시한다.
+          즉 이것은 프레임워크 API 문제가 아니라 <strong>강제 절차</strong> 문제다.
+        </p>
+        <a class="card-source" href="https://github.com/flutter/agent-plugins" target="_blank" rel="noopener">github.com/flutter/agent-plugins</a>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Precondition</div>
+      <h2>적용 조건</h2>
+      <p>디자인 시스템이 없는 프로젝트에 이 게이트를 걸면 대체 후보가 존재하지 않아 노이즈만 생긴다.</p>
+    </div>
+    <ul class="facts">
+      <li><strong><code>HAS_DS = true</code></strong> (<a href="project-detection.html">project-detection</a> 감지 결과) 일 때만 발동한다.</li>
+      <li><code>HAS_DS = false</code> 면 게이트를 발동시키지 않는다 — 표를 채울 후보 자체가 없다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Scope</div>
+      <h2>게이트 대상 — 의미 있는 UI 위젯 8종</h2>
+      <p>아래 Flutter 기본 위젯을 <strong>새로 작성하는 코드에 넣기 전에</strong> 프로젝트 컴포넌트를 먼저 검색한다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>기본 위젯</th><th>흔한 DS 대체물</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td class="val">Divider</td><td>프로젝트 구분선 컴포넌트</td></tr>
+          <tr><td class="num">2</td><td class="val">Button 계열 (ElevatedButton · TextButton · OutlinedButton · IconButton)</td><td>프로젝트 버튼 컴포넌트</td></tr>
+          <tr><td class="num">3</td><td class="val">Chip 계열</td><td>프로젝트 태그/칩 컴포넌트</td></tr>
+          <tr><td class="num">4</td><td class="val">Card</td><td>프로젝트 카드/서피스 컴포넌트</td></tr>
+          <tr><td class="num">5</td><td class="val">ListTile</td><td>프로젝트 리스트 아이템 컴포넌트</td></tr>
+          <tr><td class="num">6</td><td class="val">Switch</td><td>프로젝트 토글 컴포넌트</td></tr>
+          <tr><td class="num">7</td><td class="val">TextField / TextFormField</td><td>프로젝트 입력 컴포넌트</td></tr>
+          <tr><td class="num">8</td><td class="val">CircularProgressIndicator / LinearProgressIndicator</td><td>프로젝트 로딩/스켈레톤 컴포넌트</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Out of scope</div>
+      <h2>게이트 대상이 아닌 layout primitive</h2>
+      <p>이들까지 금지하면 과잉 규칙이 되어 게이트가 통째로 무시된다 — <strong>우회된 게이트는 없는 게이트보다 나쁘다</strong>.</p>
+    </div>
+    <div class="compare">
+      <div class="compare-col good">
+        <span class="compare-label">게이트 대상 — 검색 필요</span>
+        <ul>
+          <li><span><code>Divider</code> · Button 계열 · Chip 계열</span></li>
+          <li><span><code>Card</code> · <code>ListTile</code> · <code>Switch</code></span></li>
+          <li><span><code>TextField</code> / <code>TextFormField</code></span></li>
+          <li><span>Progress indicator 2종</span></li>
+        </ul>
+      </div>
+      <div class="compare-col bad">
+        <span class="compare-label">대상 아님 — 금지하지 않는다</span>
+        <ul>
+          <li><span><code>Text</code> · <code>Row</code> · <code>Column</code></span></li>
+          <li><span><code>Padding</code> · <code>SizedBox</code></span></li>
+          <li><span><code>Stack</code> · <code>Expanded</code> · <code>Flexible</code></span></li>
+          <li><span><code>Align</code> · <code>Center</code> · <code>Spacer</code></span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>예외 하나</strong> — 프로젝트가 <code>Text</code> 를 감싸는 타이포 컴포넌트(예: <code>AppText</code>)를
+      <strong>이미 전면 사용 중</strong>이라 <code>Text(</code> 직접 호출이 코드베이스에 사실상 없으면, 그때만 프로젝트 관습을 따른다.
+      그 판정은 이 게이트가 아니라 <strong>기존 코드 관찰</strong>로 한다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Procedure</div>
+      <h2>절차 — quick / deep</h2>
+      <p>생성 스킬은 얕게 한 번, 감사 스킬은 변경 파일 전체를 훑는다.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-head">
+          <span class="step-badge">quick</span>
+          <h3>생성 스킬 — flutter-widget · flutter-screen</h3>
+        </div>
+        <p>생성 시간을 늘리지 않도록 대상 위젯 <strong>한 종에 대해서만</strong> 1회 검색한다.</p>
+        <div class="code-block" data-lang="BASH">
+<pre><span class="cm"># 예: Divider 를 쓰려 한다</span>
+rg -n <span class="st">"class .*Divider|Divider\("</span> lib/ --glob <span class="st">'!**/*.g.dart'</span> | head -20
+</pre>
+        </div>
+        <p style="margin-top:14px">
+          검색 경로 우선순위: <code>lib/**/design_system</code> → <code>lib/**/components</code> →
+          <code>lib/**/widgets</code> → <code>lib/**/ui</code>.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-head">
+          <span class="step-badge">deep</span>
+          <h3>flutter-audit deep 모드 · widget-inspector deep 모드</h3>
+        </div>
+        <p>
+          변경 파일 전체를 훑어 게이트 대상 8종의 직접 사용을 열거하고, 각 사용처마다 DS 대체 후보가 실재하는지 확인한다.
+        </p>
+        <div class="code-block" data-lang="BASH">
+<pre><span class="cm"># 게이트 대상 직접 사용 열거 (zsh · bash 동일)</span>
+grep -rnE <span class="st">'\b(Divider|ElevatedButton|TextButton|OutlinedButton|IconButton|Chip|Card|ListTile|Switch|TextField|TextFormField|CircularProgressIndicator|LinearProgressIndicator)\('</span> \
+  lib/ --include=<span class="st">'*.dart'</span> | grep -v <span class="st">'\.g\.dart:'</span>
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>0 매치 판정</strong> — 대상 <code>.dart</code> 파일 수를 먼저 세고(예: <code>42 개</code>), 그 패턴이 알려진 위치에서
+      최소 1회 매치한다는 것을 확인한 뒤의 0 만 "위반 없음" 이다. <strong>경로가 틀려서 나온 0 은 <code>[미검증]</code></strong> 이다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Artifact</div>
+      <h2>E2 아티팩트 — 대체 후보 표</h2>
+      <p>게이트가 발동하면 아래 표를 <strong>응답에 채워서</strong> 남긴다. 채우지 않고 진행하지 않는다.</p>
+    </div>
+    <div class="code-block" data-lang="TEXT">
+<pre>## Primitive Substitution Gate
+검색 경로: &lt;실제로 검색한 경로&gt;
+| 사용하려는 기본 위젯 | 검색 명령 | DS 후보 | 결정 |
+| --- | --- | --- | --- |
+| Divider | rg -n "Divider" lib/ | IFDivider (lib/design_system/…) | IFDivider 사용 |
+| Card    | rg -n "Card" lib/    | 없음                          | 기본 Card 사용 (근거: DS 미제공) |
+</pre>
+    </div>
+    <ul class="facts" style="margin-top:18px">
+      <li>
+        <strong>후보가 있는데 기본 위젯을 쓰려면 근거 한 줄이 필수다.</strong> "스타일이 달라서" 는 근거가 아니다 —
+        DS 컴포넌트의 파라미터로 표현 가능한지 먼저 소스를 읽는다.
+      </li>
+      <li>
+        <strong>후보가 없으면 "없음" 이라고 적고 진행한다.</strong> 게이트는 기본 위젯 사용을 금지하는 것이 아니라
+        <strong>검색 없이 쓰는 것</strong>을 금지한다.
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Enforcement</div>
+      <h2>왜 E2 인가 — 등급 근거</h2>
+      <p>같은 위반이 2회 이상 재발하면 E1 → E2 로 승급한다는 규칙의 적용 결과다.</p>
+    </div>
+    <div class="ladder">
+      <div class="rung">
+        <span class="rung-tag">E1</span>
+        <h4>문장 규칙</h4>
+        <p>"기존 위젯 수정이 기본값", "토큰을 전수 나열하라" 같은 서술 조항. <strong>RE-02 는 이 상태에서 발생했다.</strong></p>
+      </div>
+      <div class="rung current">
+        <span class="rung-tag">E2 · 현재</span>
+        <h4>아티팩트 강제</h4>
+        <p>대체 후보 표를 응답에 남기지 않으면 진행 불가. 문장을 또 다듬는 대신 <strong>남는 증거</strong>를 요구한다.</p>
+      </div>
+      <div class="rung">
+        <span class="rung-tag">E3 · 승급 조건</span>
+        <h4>스크립트 검증</h4>
+        <p>표 없이 완료 선언이 반복되면 게이트 대상 grep 을 실행하는 <strong>E3 스크립트</strong>로 승급한다.</p>
+      </div>
+    </div>
+    <div class="callout accent">
+      <strong>승급 규칙</strong> — 기존 E1 조항(§Enumerate-before-Act · "기존 위젯 수정이 기본값")이 있는 상태에서
+      <code>RE-02</code> 가 발생했으므로 문장을 또 다듬지 않고 아티팩트를 남기는 등급으로 올렸다.
+      근거: <a href="../harness/skill-design-guide.html">skill-design-guide §3.7</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Gotchas</div>
+      <h2>Gotchas 체크리스트</h2>
+      <p>게이트를 무력화시키는 네 가지 패턴.</p>
+    </div>
+    <ul class="gotchas">
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>목록을 다른 스킬 문서에 복제하지 마라</strong>
+          <span>이 문서가 SSOT 다. 복제본은 반드시 드리프트하며, 그 시점부터 어느 쪽이 정본인지 알 수 없게 된다. 인용만 하라.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>layout primitive 까지 금지하지 마라</strong>
+          <span><code>Text</code>·<code>Row</code>·<code>Column</code>·<code>Padding</code>·<code>SizedBox</code> 를 막으면 과잉 규칙이 되어 게이트 전체가 무시된다. 우회된 게이트는 없는 게이트보다 나쁘다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>"0 매치" 를 검증 없이 위반 없음으로 읽지 마라</strong>
+          <span>대상 파일 수를 세고, 알려진 위치에서 최소 1회 매치하는지 확인한 뒤의 0 만 유효하다. 경로 오타로 나온 0 은 <code>[미검증]</code> 이다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>"스타일이 달라서" 는 근거가 아니다</strong>
+          <span>DS 컴포넌트의 파라미터로 표현 가능한지 소스를 먼저 읽어라. 읽지 않고 기본 위젯으로 우회하면 RE-02 가 그대로 재발한다.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Summary</div>
+      <h2>한 문장 요약</h2>
+    </div>
+    <div class="summary-box">
+      <h3>금지하는 게이트가 아니라, 검색과 근거를 남기게 하는 게이트</h3>
+      <p>
+        <code>HAS_DS = true</code> 인 프로젝트에서 의미 있는 UI 위젯 8종을 새로 꺼내 쓰기 전에 DS 컴포넌트를 검색하고,
+        그 결과를 <strong>대체 후보 표</strong>로 남긴다. 후보가 없으면 "없음" 이라고 적고 기본 위젯을 쓰면 된다.
+        layout primitive 는 대상이 아니며, 검증되지 않은 0 매치는 "위반 없음" 이 아니라 <code>[미검증]</code> 이다.
+        표 없이 완료 선언이 반복되면 다음 사이클에 E3 스크립트로 승급한다.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div>Flutter Toolkit · Primitive Substitution Gate (SSOT · E2)</div>
+    <div>Source: <a href="../../flutter-toolkit/references/primitive-substitution-gate.md">flutter-toolkit/references/primitive-substitution-gate.md</a></div>
+  </footer>
+
+</div>
+</body>
+</html>

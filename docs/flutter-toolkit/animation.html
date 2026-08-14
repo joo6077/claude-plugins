@@ -27,63 +27,69 @@
     --radius-sm:8px;
     --radius-lg:20px;
     --transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
-  body{min-height:100vh;background:
+  body{min-height:100vh;font-size:16px;background:
     radial-gradient(ellipse at top left,var(--accent-glow),transparent 50%),
     radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 50%),
     var(--bg);
   }
-  .container{max-width:1100px;margin:0 auto;padding:64px 32px 120px}
+  .container{max-width:1100px;margin:0 auto;padding:56px 24px 120px}
   a{color:var(--accent);text-decoration:none;transition:color var(--transition)}
   a:hover{color:var(--accent2)}
-  code{font-family:"SF Mono","JetBrains Mono",Menlo,monospace;font-size:.9em;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
-  pre code{display:block;padding:16px;overflow-x:auto;line-height:1.5}
+  a:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px}
+  code{font-family:var(--mono);font-size:.9em;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
 
   /* HERO */
-  .hero{padding:80px 0 72px;text-align:left;position:relative}
-  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px}
+  .hero{padding:56px 0 60px}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:26px}
   .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
-  .hero h1{font-size:clamp(40px,7vw,76px);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 55%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .hero .subtitle{font-size:19px;color:var(--text2);max-width:680px;line-height:1.65}
-  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;font-size:13px;color:var(--text3)}
-  .hero-meta span{display:inline-flex;align-items:center;gap:6px}
+  .hero h1{font-size:clamp(38px,7vw,72px);font-weight:800;line-height:1.06;letter-spacing:-.03em;margin-bottom:20px;overflow-wrap:anywhere;background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 55%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .subtitle{font-size:18px;color:var(--text2);max-width:760px;line-height:1.7}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--text3)}
+  .hero-meta span{display:inline-flex;align-items:center;gap:6px;min-width:0}
   .hero-meta span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:.6}
 
   /* SECTION */
-  section{margin-top:72px}
-  .section-header{margin-bottom:32px}
+  section{margin-top:68px}
+  .section-header{margin-bottom:28px}
   .section-label{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px}
-  .section-header h2{font-size:34px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
-  .section-header p{color:var(--text2);font-size:15px;max-width:640px}
+  .section-header h2{font-size:clamp(26px,4.4vw,34px);font-weight:700;letter-spacing:-.02em;margin-bottom:10px;overflow-wrap:anywhere}
+  .section-header p{color:var(--text2);font-size:15px;max-width:680px}
 
   /* CARDS */
   .cards{display:grid;gap:20px}
-  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:28px 30px;transition:all var(--transition);position:relative;overflow:hidden}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:26px 28px;transition:border-color var(--transition),transform var(--transition);position:relative;overflow:hidden}
   .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity var(--transition)}
   .card:hover{border-color:var(--border2);transform:translateY(-2px)}
   .card:hover::before{opacity:1}
-  .card-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:14px;margin-bottom:16px;border:1px solid var(--accent)}
-  .card h3{font-size:20px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em}
-  .card p{color:var(--text2);font-size:15px;margin-bottom:14px}
-  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);border-top:1px dashed var(--border2);padding-top:14px;margin-top:8px;word-break:break-all}
-  .card-source::before{content:"↗";font-size:14px}
+  .card-num{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 9px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:14px;margin-bottom:15px;border:1px solid var(--accent)}
+  .card h3{font-size:19px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em;overflow-wrap:anywhere}
+  .card p{color:var(--text2);font-size:15px;margin-bottom:12px}
+  .card p:last-of-type{margin-bottom:0}
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);border-top:1px dashed var(--border2);padding-top:13px;margin-top:14px;width:100%;word-break:break-all}
+  .card-source::before{content:"↗";font-size:13px;flex-shrink:0}
+
+  /* CALLOUT */
+  .callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:var(--radius-sm);padding:18px 22px;margin-top:20px;color:var(--text2);font-size:14.5px;line-height:1.7}
+  .callout strong{color:var(--text)}
+  .callout.accent{border-left-color:var(--accent)}
 
   /* TABLE */
-  .metrics-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-  table{width:100%;border-collapse:collapse}
-  th,td{text-align:left;padding:16px 22px;border-bottom:1px solid var(--border)}
-  th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{width:100%;min-width:max-content;border-collapse:collapse}
+  th,td{text-align:left;padding:14px 20px;border-bottom:1px solid var(--border);font-size:14.5px}
+  th{background:var(--surface2);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
   tr:last-child td{border-bottom:none}
-  tr:hover td{background:var(--surface2)}
-  td:first-child{color:var(--text)}
-  td:last-child{color:var(--accent2);font-family:"SF Mono",monospace;font-size:14px}
+  tbody tr:hover td{background:var(--surface2)}
+  td.val{color:var(--accent2);font-family:var(--mono);font-size:13.5px}
 
   /* COMPARE */
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  @media(max-width:720px){.compare{grid-template-columns:1fr}}
-  .compare-col{border:1px solid var(--border);border-radius:var(--radius);padding:26px;background:var(--surface)}
+  .compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .compare-col{border:1px solid var(--border);border-radius:var(--radius);padding:24px;background:var(--surface)}
   .compare-col.bad{border-color:rgba(248,113,113,.35)}
   .compare-col.good{border-color:rgba(34,211,238,.4)}
   .compare-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;padding:5px 12px;border-radius:999px}
@@ -95,44 +101,69 @@
   .compare-col.bad li::before{content:"×";color:var(--error);font-weight:800;flex-shrink:0}
   .compare-col.good li::before{content:"✓";color:var(--accent);font-weight:800;flex-shrink:0}
 
+  /* DECISION */
+  .decision{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .decision-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;border-top:3px solid var(--accent)}
+  .decision-cell.explicit{border-top-color:var(--accent2)}
+  .decision-cell h4{font-size:16px;margin-bottom:12px;color:var(--text)}
+  .decision-cell p{color:var(--text2);font-size:14.5px}
+
+  /* TIMELINE (stagger) */
+  .timeline{display:grid;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+  .tl-row{display:grid;grid-template-columns:minmax(0,110px) minmax(0,1fr);gap:14px;align-items:center}
+  .tl-name{font-size:13px;color:var(--text2);font-family:var(--mono);min-width:0;overflow-wrap:anywhere}
+  .tl-track{height:22px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;position:relative;min-width:0;overflow:hidden}
+  .tl-fill{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:5px;opacity:.85}
+  .tl-legend{color:var(--text3);font-size:12.5px;margin-top:12px}
+
+  /* FACT LIST */
+  .facts{list-style:none;display:grid;gap:12px}
+  .facts li{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border2);border-radius:var(--radius-sm);padding:14px 18px;color:var(--text2);font-size:14.5px;transition:border-left-color var(--transition)}
+  .facts li:hover{border-left-color:var(--accent)}
+  .facts li strong{color:var(--text)}
+
   /* GOTCHAS */
   .gotchas{list-style:none;display:grid;gap:14px}
-  .gotcha{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 22px;display:flex;gap:14px;transition:all var(--transition)}
-  .gotcha:hover{background:var(--surface2);border-left-color:var(--accent2);transform:translateX(4px)}
-  .gotcha-check{flex-shrink:0;width:24px;height:24px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:14px;background:var(--accent-dim)}
-  .gotcha-body{flex:1}
+  .gotcha{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 20px;display:flex;gap:14px;transition:background var(--transition),transform var(--transition)}
+  .gotcha:hover{background:var(--surface2);transform:translateX(4px)}
+  .gotcha-check{flex-shrink:0;width:24px;height:24px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:13px;background:var(--accent-dim)}
+  .gotcha-body{flex:1;min-width:0}
   .gotcha-body strong{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
   .gotcha-body span{color:var(--text2);font-size:14px}
 
-  /* CODE BLOCKS */
-  .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-top:16px;overflow-x:auto;position:relative}
-  .code-block::before{content:"DART";position:absolute;top:8px;right:14px;font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700}
-  .code-block pre{font-family:"SF Mono","JetBrains Mono",Menlo,monospace;font-size:13px;line-height:1.6;color:var(--text2);white-space:pre;margin:0}
+  /* CODE */
+  .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-top:16px;overflow-x:auto;max-width:100%;position:relative}
+  .code-block::before{content:attr(data-lang);position:absolute;top:8px;right:14px;font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700}
+  .code-block pre{font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--text2);white-space:pre;margin:0}
   .code-block .kw{color:var(--accent2)}
   .code-block .cm{color:var(--text3);font-style:italic}
   .code-block .st{color:#fbbf24}
 
-  /* DECISION GRID */
-  .decision-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
-  @media(max-width:720px){.decision-grid{grid-template-columns:1fr}}
-  .decision-cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px}
-  .decision-cell h4{font-size:14px;color:var(--accent);margin-bottom:10px;letter-spacing:.04em;text-transform:uppercase}
-  .decision-cell p{color:var(--text2);font-size:14px;line-height:1.6}
-
   /* SUMMARY */
-  .summary-box{background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:36px 40px;margin-top:24px;position:relative;overflow:hidden}
+  .summary-box{background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:32px 30px;margin-top:24px;position:relative;overflow:hidden}
   .summary-box::after{content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--accent-dim);filter:blur(40px);pointer-events:none}
-  .summary-box h3{font-size:22px;margin-bottom:14px;letter-spacing:-.01em;position:relative}
-  .summary-box p{color:var(--text2);font-size:15px;line-height:1.7;position:relative}
+  .summary-box h3{font-size:21px;margin-bottom:14px;letter-spacing:-.01em;position:relative}
+  .summary-box p{color:var(--text2);font-size:15px;line-height:1.75;position:relative}
 
   /* FOOTER */
-  footer{margin-top:120px;padding-top:40px;border-top:1px solid var(--border);color:var(--text3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  footer{margin-top:110px;padding-top:36px;border-top:1px solid var(--border);color:var(--text3);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
   footer a{color:var(--text2)}
 
+  /* OVERFLOW GUARDS */
+  .cards>*,.grid-2>*,.compare>*,.decision>*,.facts>*,.gotchas>*,.timeline>*,.tl-row>*{min-width:0}
+  pre{overflow-x:auto;max-width:100%}
+  :not(pre)>code{overflow-wrap:anywhere}
+  .facts a,.callout a,.card a,.gotcha-body a,.summary-box a,.tl-legend a,.step a{overflow-wrap:anywhere}
+
+  @media(max-width:600px){
+    .grid-2,.compare,.decision{grid-template-columns:1fr}
+    .tl-row{grid-template-columns:minmax(0,84px) minmax(0,1fr)}
+    .container{padding:40px 18px 90px}
+    th,td{padding:12px 16px}
+  }
   @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
-    .card:hover{transform:none}
-    .gotcha:hover{transform:none}
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+    .card:hover,.gotcha:hover{transform:none}
   }
 </style>
 </head>
@@ -140,15 +171,18 @@
 <div class="container">
 
   <header class="hero">
-    <div class="badge">Flutter Toolkit v0.1</div>
+    <div class="badge">Flutter Toolkit · UI</div>
     <h1>애니메이션</h1>
     <p class="subtitle">
-      AnimationController, Tween, Hero, implicit vs explicit, Curves, Rive/Lottie, CustomPainter의 shouldRepaint까지 — Flutter 애니메이션을 프레임 예산 안에서 부드럽게 돌리기 위한 원칙과 경계값을 정리했다.
+      <code>AnimationController</code>, <code>Tween</code>, <code>Hero</code>, implicit vs explicit, <code>Curves</code>,
+      Rive/Lottie, <code>CustomPainter</code> 의 <code>shouldRepaint</code> 를 다룬다. 선택 기준은 언제나
+      "직접 컨트롤·동기화·역재생이 필요한가" 하나다.
     </p>
     <div class="hero-meta">
-      <span>버전 0.1.0</span>
-      <span>업데이트 2026-04-05</span>
+      <span>버전 0.2.0</span>
+      <span>업데이트 2026-08-13</span>
       <span>카테고리 UI</span>
+      <span>원칙 5 · 안티패턴 4</span>
     </div>
   </header>
 
@@ -156,15 +190,16 @@
     <div class="section-header">
       <div class="section-label">Principles</div>
       <h2>다섯 가지 핵심 원칙</h2>
-      <p>단순한 프로퍼티 보간부터 정밀 제어, shared element transition까지 — 상황에 맞는 도구를 선택하는 기준.</p>
+      <p>implicit/explicit 선택, vsync·dispose, Tween과 Curve 분리, Hero 용도 한정, shouldRepaint 정확성.</p>
     </div>
     <div class="cards">
 
       <article class="card">
         <div class="card-num">1</div>
-        <h3>Implicit vs Explicit — 상황 기반 선택</h3>
+        <h3>단순 property 변화는 implicit, 정밀 제어는 explicit</h3>
         <p>
-          단순 property 변화는 <code>AnimatedContainer</code> 같은 implicit 애니메이션으로 충분하다. 정밀 제어가 필요하면 <code>AnimationController</code>를 쓴다. 선택 기준은 단 하나: "직접 컨트롤, 다른 값과의 동기화, 역재생이 필요한가?"
+          단순 property 변화는 implicit(<code>AnimatedContainer</code> 등), 정밀 제어가 필요하면
+          explicit(<code>AnimationController</code>)을 쓴다. 선택 기준은 "직접 컨트롤/동기화/역재생이 필요한가"다.
         </p>
         <a class="card-source" href="https://docs.flutter.dev/ui/animations/implicit-animations" target="_blank" rel="noopener">docs.flutter.dev/ui/animations/implicit-animations</a>
         <a class="card-source" href="https://docs.flutter.dev/ui/animations/tutorial" target="_blank" rel="noopener">docs.flutter.dev/ui/animations/tutorial</a>
@@ -172,18 +207,20 @@
 
       <article class="card">
         <div class="card-num">2</div>
-        <h3>AnimationController는 vsync + dispose 필수</h3>
+        <h3>AnimationController는 vsync를 요구하고 반드시 dispose</h3>
         <p>
-          <code>AnimationController</code>는 vsync를 요구하며 반드시 <code>dispose()</code>해야 한다. <code>SingleTickerProviderStateMixin</code>을 <code>State</code>에 믹스인하거나, HookWidget의 <code>useAnimationController</code>로 생명주기를 자동 관리한다. dispose 누락은 메모리 릭과 좀비 ticker의 대표 원인.
+          <code>AnimationController</code> 는 vsync 를 요구하며 반드시 <code>dispose()</code> 해야 한다.
+          <code>SingleTickerProviderStateMixin</code> 또는 HookWidget 의 <code>useAnimationController</code> 로 자동 관리하라.
         </p>
         <a class="card-source" href="https://api.flutter.dev/flutter/animation/AnimationController-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/animation/AnimationController-class.html</a>
       </article>
 
       <article class="card">
         <div class="card-num">3</div>
-        <h3>Tween = 값, Curve = 속도 — 분리해 조합</h3>
+        <h3>Tween은 값 범위, Curve는 속도 곡선</h3>
         <p>
-          <code>Tween</code>은 값 범위(예: 0.0 → 1.0, <code>Offset</code> 보간)를 담당하고, <code>Curve</code>는 속도 곡선(ease, bounce, elastic 등)을 담당한다. 둘을 분리해 조합하면 동일 animation 객체에 서로 다른 interpolation을 여러 개 붙일 수 있다.
+          <code>Tween</code> 은 값 범위, <code>Curve</code> 는 속도 곡선을 담당한다. 둘을 분리해 조합하면 동일 animation 에
+          다양한 interpolation 을 붙일 수 있다.
         </p>
         <a class="card-source" href="https://api.flutter.dev/flutter/animation/Curves-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/animation/Curves-class.html</a>
       </article>
@@ -192,16 +229,18 @@
         <div class="card-num">4</div>
         <h3>Hero는 shared element transition 전용</h3>
         <p>
-          <code>Hero</code>는 route 간 "동일한 semantic element가 공간을 이동하는" 경우에만 쓴다. 단순 fade나 slide에는 사용하지 마라 — 적합한 경우는 상세 페이지로 이동할 때 썸네일이 확대되어 대표 이미지가 되는 상황 등이다.
+          <code>Hero</code> 는 shared element transition 전용이다. route 간 "동일한 semantic element 가 이동하는" 경우에만 쓰고,
+          단순 fade/slide 에는 쓰지 마라.
         </p>
         <a class="card-source" href="https://docs.flutter.dev/ui/animations/hero-animations" target="_blank" rel="noopener">docs.flutter.dev/ui/animations/hero-animations</a>
       </article>
 
       <article class="card">
         <div class="card-num">5</div>
-        <h3>CustomPainter는 shouldRepaint를 정확히</h3>
+        <h3>CustomPainter의 shouldRepaint를 정확히 구현</h3>
         <p>
-          <code>CustomPainter</code> 기반 애니메이션은 <code>shouldRepaint</code>를 엄밀하게 구현해야 한다. 애니메이션 값이 실제로 바뀔 때만 <code>true</code>를 반환하라. 항상 <code>true</code>를 반환하면 매 프레임 전체 repaint가 발생해 비용이 심각해진다.
+          <code>CustomPainter</code> 기반 애니메이션은 <code>shouldRepaint</code> 를 정확히 구현한다. 애니메이션 값이 바뀔 때만
+          true 를 반환해야 하며, 항상 true 는 비용이 심각하다.
         </p>
         <a class="card-source" href="https://api.flutter.dev/flutter/rendering/CustomPainter/shouldRepaint.html" target="_blank" rel="noopener">api.flutter.dev/flutter/rendering/CustomPainter/shouldRepaint.html</a>
       </article>
@@ -213,36 +252,24 @@
     <div class="section-header">
       <div class="section-label">Numbers</div>
       <h2>수치 · 경계값</h2>
-      <p>프레임 예산과 런타임 특성은 실수로부터 팀을 지켜주는 가드레일이다.</p>
+      <p>프레임 갱신 빈도와 기본 duration.</p>
     </div>
-    <div class="metrics-wrap">
+    <div class="table-wrap">
       <table>
         <thead>
           <tr><th>항목</th><th>값</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>AnimationController 값 갱신 주기</td>
-            <td>60–120 fps (초당 60–120회)</td>
-          </tr>
-          <tr>
-            <td>go_router CustomTransitionPage 기본 duration</td>
-            <td>300ms</td>
-          </tr>
-          <tr>
-            <td>Lottie authored frame rate</td>
-            <td>보통 10–30 fps</td>
-          </tr>
-          <tr>
-            <td>Lottie 디바이스 동기화 옵션</td>
-            <td>FrameRate.max (refresh rate 동기)</td>
-          </tr>
-          <tr>
-            <td>내부 작업이 비쌀 때 리스크</td>
-            <td>프레임 드롭 발생</td>
-          </tr>
+          <tr><td>AnimationController 값 갱신 빈도</td><td class="val">초당 60–120회 (60–120 fps)</td></tr>
+          <tr><td>go_router <code>CustomTransitionPage</code> 기본 transitionDuration</td><td class="val">300ms</td></tr>
+          <tr><td>Lottie authored frame rate</td><td class="val">보통 10–30 fps</td></tr>
+          <tr><td>Lottie 디바이스 refresh rate 재생</td><td class="val">FrameRate.max</td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="callout">
+      <strong>주의</strong> — <code>AnimationController</code> 는 60–120 fps 에 맞춰 초당 60–120회 값을 갱신한다.
+      내부 작업이 비싸면 그 자체가 프레임 드롭 원인이 된다.
     </div>
   </section>
 
@@ -250,27 +277,25 @@
     <div class="section-header">
       <div class="section-label">Anti-patterns</div>
       <h2>안티패턴 vs 권장</h2>
-      <p>일상적으로 반복되는 실수와 그 대체안.</p>
+      <p>과한 컨트롤러, 불필요한 rebuild, tag 충돌, 무조건 repaint.</p>
     </div>
     <div class="compare">
       <div class="compare-col bad">
         <span class="compare-label">Avoid</span>
         <ul>
-          <li>단순 색/크기 변경에 AnimationController를 직접 만든다</li>
-          <li>AnimatedBuilder 내부에서 불변 subtree까지 매 프레임 rebuild</li>
-          <li>같은 route 안에서 Hero tag가 충돌하도록 방치 — 런타임 assertion</li>
-          <li>CustomPainter의 shouldRepaint를 항상 true로 반환</li>
-          <li>Lottie/Rive를 플랫폼 테스트 없이 프로덕션에 투입</li>
+          <li><span>단순 색/크기 변경에 <code>AnimationController</code> 를 직접 생성</span></li>
+          <li><span><code>AnimatedBuilder</code> 내부에서 불변 subtree 까지 rebuild</span></li>
+          <li><span>Hero tag 충돌 방치 — route 하나에 동일 tag 가 둘 이상</span></li>
+          <li><span><code>CustomPainter</code> 의 <code>shouldRepaint</code> 를 항상 true 로 반환</span></li>
         </ul>
       </div>
       <div class="compare-col good">
         <span class="compare-label">Prefer</span>
         <ul>
-          <li>AnimatedContainer, AnimatedOpacity 등 implicit 위젯으로 대체</li>
-          <li>AnimatedBuilder의 child 파라미터로 불변 subtree를 hoisting</li>
-          <li>route 내에서 Hero tag의 유일성을 보장 (key 또는 id 기반)</li>
-          <li>shouldRepaint는 이전 instance의 animation 값과 비교해 판정</li>
-          <li>iOS/Android/Web 각 렌더러에서 QA 단계 검증 후 릴리스</li>
+          <li><span><code>AnimatedContainer</code> / <code>AnimatedOpacity</code> 로 충분</span></li>
+          <li><span><code>child</code> 파라미터로 불변 subtree 를 hoisting</span></li>
+          <li><span>route 별로 유일한 Hero tag 를 부여 (런타임 assertion 회피)</span></li>
+          <li><span>애니메이션 값이 바뀔 때만 true 를 반환</span></li>
         </ul>
       </div>
     </div>
@@ -282,17 +307,21 @@
       <h2>Implicit vs Explicit 결정표</h2>
       <p>어느 도구가 맞는지 빠르게 판단하기 위한 참고 매트릭스.</p>
     </div>
-    <div class="decision-grid">
+    <div class="decision">
       <div class="decision-cell">
-        <h4>Implicit을 선택해야 하는 상황</h4>
+        <h4>Implicit 을 선택해야 하는 상황</h4>
         <p>
-          단일 위젯의 프로퍼티 하나 또는 둘이 변화하는 경우. 예: 카드 탭 시 높이 증가, 버튼 상태 변경 시 색상 전환, 상태 플래그에 따른 정렬 변경. <code>AnimatedContainer</code>, <code>AnimatedOpacity</code>, <code>AnimatedAlign</code>, <code>AnimatedPositioned</code>, <code>TweenAnimationBuilder</code>가 기본 선택지다.
+          단일 위젯의 프로퍼티 하나 또는 둘이 변화하는 경우. 예: 카드 탭 시 높이 증가, 버튼 상태 변경 시 색상 전환,
+          상태 플래그에 따른 정렬 변경. <code>AnimatedContainer</code>, <code>AnimatedOpacity</code>,
+          <code>AnimatedAlign</code>, <code>AnimatedPositioned</code>, <code>TweenAnimationBuilder</code> 가 기본 선택지다.
         </p>
       </div>
-      <div class="decision-cell">
-        <h4>Explicit이 필요한 상황</h4>
+      <div class="decision-cell explicit">
+        <h4>Explicit 이 필요한 상황</h4>
         <p>
-          여러 위젯의 값이 동기화되어 움직이거나, 역재생/반복/시퀀싱이 필요한 경우. 제스처 입력과 연동되어 사용자가 직접 진행률을 조절해야 하는 경우. 이때 <code>AnimationController</code> + <code>Tween</code> + <code>Curve</code> 조합이 적합하다.
+          여러 위젯의 값이 동기화되어 움직이거나, 역재생/반복/시퀀싱이 필요한 경우. 제스처 입력과 연동되어 사용자가 직접
+          진행률을 조절해야 하는 경우. 이때 <code>AnimationController</code> + <code>Tween</code> + <code>Curve</code> 조합이
+          적합하다.
         </p>
       </div>
     </div>
@@ -302,9 +331,9 @@
     <div class="section-header">
       <div class="section-label">Snippet</div>
       <h2>예시 · AnimationController + Curve</h2>
-      <p>vsync, dispose, Curve 분리의 전형적 패턴.</p>
+      <p>vsync, dispose, Curve 분리, child hoisting 의 전형적 패턴.</p>
     </div>
-    <div class="code-block">
+    <div class="code-block" data-lang="DART">
 <pre><span class="kw">class</span> _FadeDemoState <span class="kw">extends</span> State&lt;FadeDemo&gt;
     <span class="kw">with</span> SingleTickerProviderStateMixin {
   <span class="kw">late final</span> AnimationController _ctrl;
@@ -342,51 +371,114 @@
 
   <section>
     <div class="section-header">
+      <div class="section-label">Pattern</div>
+      <h2>Staggered Animation</h2>
+      <p>여러 위젯이 순차적으로 등장하는 패턴. <code>Interval</code> 로 각 요소의 시작/끝 시점을 배분한다.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-name">0.0 – 0.5</div>
+        <div class="tl-track"><div class="tl-fill" style="left:0%;width:50%"></div></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-name">0.0 – 0.6</div>
+        <div class="tl-track"><div class="tl-fill" style="left:0%;width:60%"></div></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-name">0.3 – 0.8</div>
+        <div class="tl-track"><div class="tl-fill" style="left:30%;width:50%"></div></div>
+      </div>
+      <div class="tl-legend">전체 duration 을 0.0~1.0 으로 보고 각 요소가 차지하는 구간을 나눈다.</div>
+    </div>
+    <div class="code-block" data-lang="DART">
+<pre><span class="cm">// Interval(0.0, 0.5) → 전체 duration의 전반부에서 실행</span>
+<span class="cm">// Interval(0.3, 0.8) → 30%~80% 구간에서 실행</span>
+<span class="kw">final</span> slideAnim = Tween&lt;Offset&gt;(begin: Offset(<span class="st">0</span>, <span class="st">0.3</span>), end: Offset.zero)
+    .animate(CurvedAnimation(parent: controller, curve: Interval(<span class="st">0.0</span>, <span class="st">0.6</span>, curve: Curves.easeOut)));
+</pre>
+    </div>
+    <ul class="facts" style="margin-top:16px">
+      <li>출처: <a href="https://docs.flutter.dev/ui/animations/staggered-animations" target="_blank" rel="noopener">docs.flutter.dev/ui/animations/staggered-animations</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Patterns</div>
+      <h2>교체 vs 전환, 그리고 격리</h2>
+      <p>같은 위치의 위젯 교체와 route 전환은 다른 도구를 쓴다.</p>
+    </div>
+    <div class="grid-2">
+      <article class="card">
+        <h3>AnimatedSwitcher vs PageRouteBuilder</h3>
+        <p>
+          같은 위치에서 위젯을 교체할 때는 <code>AnimatedSwitcher</code>, route 전환은 <code>PageRouteBuilder</code> /
+          <code>CustomTransitionPage</code> 를 쓴다. 혼동하면 layout shift 가 발생한다.
+        </p>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/AnimatedSwitcher-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/AnimatedSwitcher-class.html</a>
+      </article>
+      <article class="card">
+        <h3>RepaintBoundary 활용</h3>
+        <p>
+          애니메이션되는 위젯을 <code>RepaintBoundary</code> 로 감싸면 해당 서브트리만 별도 레이어로 분리되어
+          나머지 UI 의 repaint 를 방지한다.
+        </p>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/RepaintBoundary-class.html</a>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">Profiling</div>
+      <h2>성능 프로파일링</h2>
+      <p>UI thread 와 Raster thread 를 함께 본다. 렌더러가 무엇인지 먼저 확정한다.</p>
+    </div>
+    <ul class="facts">
+      <li>DevTools 의 "Performance Overlay" 에서 UI thread 와 Raster thread 모두 <strong>16ms 이내</strong>인지 확인한다.</li>
+      <li><code>Timeline.startSync('animation_label')</code> 로 특정 애니메이션의 비용을 측정한다.</li>
+      <li>
+        Impeller 환경에서는 shader compilation jank 가 사라지므로 first-frame 성능이 개선된다 —
+        <strong>iOS 필수 · Android API 29+ 기본 · macOS/Linux/Windows 는 Flutter 3.47 부터 기본 · Web 은 Skia</strong>.
+        플랫폼별 상태는 <a href="performance.html">성능 문서 §Impeller 성능 특성</a> 참조.
+      </li>
+      <li>출처: <a href="https://docs.flutter.dev/perf/ui-performance" target="_blank" rel="noopener">docs.flutter.dev/perf/ui-performance</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-header">
       <div class="section-label">Gotchas</div>
       <h2>Gotchas 체크리스트</h2>
-      <p>렌더러, CPU/GPU 부담, 플랫폼 차이에서 반복되는 함정들.</p>
+      <p>Rive/Lottie 런타임 차이, hook 파라미터 변경, listener 해제.</p>
     </div>
     <ul class="gotchas">
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
-          <strong>Rive는 렌더러와 Impeller 사용 환경에 따라 다르게 보일 수 있다</strong>
-          <span>iOS/Android/Web에서 동일하게 보이는지 QA 단계에서 반드시 확인하라. Skia와 Impeller 간 blend mode/shader 차이가 있을 수 있다.</span>
+          <strong>Rive 는 렌더러 환경에 따라 동작이 다르다</strong>
+          <span>renderer 선택과 Impeller 사용 환경에 따라 차이가 있다 — iOS/Android/웹에서 동일하게 보이는지 QA 단계에서 반드시 확인하라.</span>
         </div>
       </li>
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
-          <strong>Lottie는 CPU/GPU 부담이 누적될 수 있다</strong>
-          <span>반복 재생되는 경우 <code>LottieOptions.enableMergePaths</code>, <code>renderCache</code> 옵션을 검토하라. 큰 JSON은 앱 시작 시 프리로드해 첫 재생 지연을 없앨 수 있다.</span>
+          <strong>Lottie 는 CPU/GPU 부담이 커질 수 있다</strong>
+          <span>반복 재생되는 경우 <code>LottieOptions.enableMergePaths</code>, renderCache 등 옵션을 검토하라.</span>
         </div>
       </li>
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
-          <strong>AnimationController dispose 누락</strong>
-          <span>State가 dispose될 때 controller도 함께 dispose하지 않으면 ticker 좀비가 남는다. <code>SingleTickerProviderStateMixin</code> + 명시적 <code>dispose()</code> 호출을 습관화하라.</span>
+          <strong>useAnimationController 의 duration 변경은 hot reload 로 안 잡힌다</strong>
+          <span>HookWidget 에서 <code>useAnimationController</code> 의 <code>duration</code> 파라미터 변경은 hot reload 에서 반영되지 않을 수 있다 — restart 가 필요하다.</span>
         </div>
       </li>
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
-          <strong>Hero tag 유일성</strong>
-          <span>같은 route에 동일 tag가 두 개 이상 존재하면 assertion이 터진다. 리스트 아이템에는 고유 id를 tag에 포함하라 (예: <code>'hero-$itemId'</code>).</span>
-        </div>
-      </li>
-      <li class="gotcha">
-        <div class="gotcha-check">✓</div>
-        <div class="gotcha-body">
-          <strong>AnimatedBuilder의 child 파라미터</strong>
-          <span>builder 안에서 새로 만드는 위젯은 매 프레임 재생성된다. 변하지 않는 부분은 반드시 <code>child</code>로 hoisting하여 구조를 재사용하라.</span>
-        </div>
-      </li>
-      <li class="gotcha">
-        <div class="gotcha-check">✓</div>
-        <div class="gotcha-body">
-          <strong>CustomPainter의 shouldRepaint 비교 대상</strong>
-          <span>이전 painter instance의 필드와 현재 값을 비교해야 한다. 단순히 <code>return true</code>나 <code>return false</code>로 끝내지 마라.</span>
+          <strong>addStatusListener 는 반드시 해제</strong>
+          <span>dispose 에서 제거하지 않으면 메모리 릭이 발생한다. <code>useEffect</code> 의 cleanup 에서 반드시 제거하라.</span>
         </div>
       </li>
     </ul>
@@ -398,15 +490,18 @@
       <h2>한 문장 요약</h2>
     </div>
     <div class="summary-box">
-      <h3>프레임 예산 안에서 부드럽게</h3>
+      <h3>필요한 만큼만 제어하고, 나머지는 프레임워크에 맡긴다</h3>
       <p>
-        implicit으로 해결되면 implicit으로, 제어가 필요하면 explicit으로 간다. Tween은 값, Curve는 속도 — 분리해 조합한다. Hero는 shared element에만, CustomPainter의 shouldRepaint는 정확히 구현한다. 플랫폼별 렌더러 차이(Skia/Impeller)는 QA 단계에서 반드시 확인한다. Rive/Lottie 반복 재생은 CPU/GPU 누적 비용을 계산하고 튜닝한다.
+        property 하나둘이면 implicit 으로 끝내고, 동기화·역재생·제스처 연동이 필요할 때만 <code>AnimationController</code> 를 꺼낸다.
+        <code>Tween</code> 과 <code>Curve</code> 를 분리하고, <code>child</code> hoisting 과 <code>RepaintBoundary</code> 로 rebuild·repaint
+        범위를 좁힌다. <code>Hero</code> 는 shared element 전용이며, <code>shouldRepaint</code> 는 값이 바뀔 때만 true 여야 한다.
+        프로파일링 수치를 볼 때는 렌더러(Impeller/Skia)가 무엇인지 먼저 확정한다.
       </p>
     </div>
   </section>
 
   <footer>
-    <div>Flutter Toolkit · 애니메이션 리서치 문서</div>
+    <div>Flutter Toolkit · 애니메이션 리서치 문서 · v0.2.0 (2026-08-13)</div>
     <div>Source: <a href="../flutter/ui/animation.md">docs/flutter/ui/animation.md</a></div>
   </footer>
 

@@ -24,9 +24,10 @@
   .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;max-width:720px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
   .section{margin-bottom:clamp(48px,6vw,80px)}
   .section-label{
     font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
@@ -40,7 +41,7 @@
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
   tr:hover td{background:rgba(232,93,74,0.03)}
   td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
   .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
@@ -55,14 +56,17 @@
   .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
   .compare-bad .compare-label{color:var(--red)}
   .compare-good .compare-label{color:var(--green)}
+  .compare pre{background:transparent;border:none;padding:0;margin:0}
   .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
     background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
   pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
   code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
-  .source-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8}
-  .source-link:hover{opacity:1}
+  .source-link,.card-source{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;margin-right:16px;opacity:0.85}
+  .source-link:hover,.card-source:hover{opacity:1;text-decoration:underline}
+  .source-link:focus-visible,.card-source:focus-visible,.nav-back:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
   .card-body{color:var(--text2);font-size:13px;line-height:1.7}
+  .card-body p+p{margin-top:10px}
   .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
   .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
   .nav-back:hover{color:var(--text)}
@@ -70,10 +74,19 @@
   .flow-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:12px;color:var(--text2)}
   .flow-arrow{color:var(--accent);font-weight:700;font-size:14px}
   .flow-label{font-size:11px;color:var(--text3);margin-top:4px;text-align:center}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;margin-bottom:clamp(32px,5vw,56px)}
+  .badge{font-size:11px;font-family:var(--mono);color:var(--text3);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 12px}
+  .badge.hl{color:var(--accent2);border-color:rgba(232,93,74,0.3);background:var(--accent-dim)}
+  .callout{border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;font-size:13px;color:var(--text2);line-height:1.7}
+  .callout strong{color:var(--text)}
+  .not-a-fix{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .not-a-fix li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text2);line-height:1.6}
+  .not-a-fix .x{color:var(--red);font-weight:800;flex-shrink:0;font-size:13px;line-height:1.6}
+  .lead-strong{color:var(--text)}
 
   /* ══ 가로 오버플로 방지 (docs-site 정본 규칙) — 자르지 말고 스크롤로 해소한다 ══ */
   /* (1) grid/flex 자식의 기본 min-width:auto 가 내용 최소폭을 트랙으로 전파한다 */
-  .grid-2>*,.grid-3>*,.compare>*,.checklist li>*,.card-header>*{min-width:0}
+  .grid-2>*,.grid-3>*,.compare>*,.checklist li>*,.not-a-fix li>*,.card-header>*,.flow-row>*,.meta>*{min-width:0}
   /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너로 감싼다 */
   .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
   .table-wrap>table{min-width:max-content}
@@ -83,6 +96,7 @@
   :not(pre)>code{overflow-wrap:anywhere}
   /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
   @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
 </style>
 </head>
 <body>
@@ -92,10 +106,16 @@
 
 <h1>에러 처리 원칙</h1>
 <p class="subtitle">Rust의 에러 처리는 <code>Result&lt;T, E&gt;</code>로 표현된다. panic은 복구 불가능한 프로그래밍 오류에만 사용하고, 예상 가능한 실패는 모두 <code>Result</code>로 전파한다. 라이브러리 크레이트와 애플리케이션 크레이트는 에러 전략이 다르다.</p>
+<div class="meta">
+  <span class="badge">source: docs/rust/fundamentals/error-handling.md</span>
+  <span class="badge">frontmatter v0.1.0</span>
+  <span class="badge hl">원칙 5 추가 — 불가능한 상태는 타입으로 제거</span>
+</div>
 
 <!-- 원칙 -->
 <div class="section">
   <div class="section-label">핵심 원칙</div>
+  <p class="desc">원칙 1~4는 에러를 어떻게 <em>표현하고 전파</em>할지를, 원칙 5는 애초에 에러가 될 수 없는 상태를 어떻게 <em>타입에서 지울지</em>를 다룬다.</p>
   <div class="grid-2">
 
     <div class="card">
@@ -107,7 +127,7 @@
         </div>
       </div>
       <div class="card-body">
-        <p>두 크레이트는 목적이 다르다. <strong style="color:var(--text)">thiserror</strong>는 호출자가 매칭할 수 있는 구체 에러 타입을 생성한다. <strong style="color:var(--text)">anyhow</strong>는 컨텍스트를 추가하며 빠르게 전파할 때 사용한다.</p>
+        <p>두 크레이트는 목적이 다르다. <strong class="lead-strong">thiserror</strong>는 라이브러리(domain, adapters) 전용으로, 호출자가 매칭할 수 있는 구체 에러 타입을 생성한다. <strong class="lead-strong">anyhow</strong>는 애플리케이션 바이너리(main.rs, CLI, scripts) 전용으로, 타입 정보를 버리는 대신 컨텍스트를 얹어 빠르게 전파한다.</p>
         <pre><span style="color:#f08575">// 라이브러리 — thiserror</span>
 #[derive(Debug, thiserror::Error)]
 pub enum DomainError {
@@ -126,8 +146,8 @@ fn main() -&gt; anyhow::Result&lt;()&gt; {
     run(config).await
 }</pre>
       </div>
-      <a href="https://github.com/dtolnay/thiserror" target="_blank" class="source-link">&#8599; thiserror README</a>
-      <a href="https://github.com/dtolnay/anyhow" target="_blank" class="source-link" style="margin-left:16px">&#8599; anyhow README</a>
+      <a href="https://github.com/dtolnay/thiserror" target="_blank" rel="noopener" class="card-source">&#8599; thiserror README</a>
+      <a href="https://github.com/dtolnay/anyhow" target="_blank" rel="noopener" class="card-source">&#8599; anyhow README</a>
     </div>
 
     <div class="card">
@@ -139,7 +159,7 @@ fn main() -&gt; anyhow::Result&lt;()&gt; {
         </div>
       </div>
       <div class="card-body">
-        <p>에러는 계층 경계에서 변환된다. 하위 계층의 에러 타입이 상위 계층에 노출되면 의존성 역전이 발생한다.</p>
+        <p>에러는 계층 경계에서 변환된다. 하위 계층의 에러 타입이 상위 계층에 그대로 노출되면 의존성 역전이 발생한다.</p>
         <div class="flow-row">
           <div>
             <div class="flow-box">sqlx::Error</div>
@@ -158,7 +178,7 @@ fn main() -&gt; anyhow::Result&lt;()&gt; {
           <span class="flow-arrow">→</span>
           <div>
             <div class="flow-box">HTTP Response</div>
-            <div class="flow-label">IntoResponse</div>
+            <div class="flow-label">IntoResponse 책임</div>
           </div>
         </div>
         <pre><span style="color:#f08575">// Handler: DomainError → HTTP 응답 (axum)</span>
@@ -175,7 +195,7 @@ impl IntoResponse for ApiError {
     }
 }</pre>
       </div>
-      <a href="https://docs.rs/axum/latest/axum/error_handling/index.html" target="_blank" class="source-link">&#8599; axum — Error Handling</a>
+      <a href="https://docs.rs/axum/latest/axum/error_handling/index.html" target="_blank" rel="noopener" class="card-source">&#8599; axum — Error Handling</a>
     </div>
 
     <div class="card">
@@ -187,11 +207,12 @@ impl IntoResponse for ApiError {
         </div>
       </div>
       <div class="card-body">
-        <p><code>From&lt;E1&gt; for E2</code>가 구현되면 <code>?</code>가 자동 변환한다. <code>#[from]</code> 속성(thiserror)으로 <code>From</code> impl을 자동 생성할 수 있다.</p>
+        <p><code>From&lt;E1&gt; for E2</code>가 구현되어 있으면 <code>?</code>가 자동으로 변환한다. thiserror의 <code>#[from]</code> 속성으로 <code>From</code> impl을 자동 생성할 수 있다.</p>
         <pre>#[derive(Debug, thiserror::Error)]
 pub enum DomainError {
     #[error("db error: {0}")]
     Db(#[from] sqlx::Error),   <span style="color:#4ade80">// From&lt;sqlx::Error&gt; 자동 생성</span>
+
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -205,7 +226,7 @@ async fn load_user(id: UserId, pool: &amp;PgPool)
     Ok(row.into())
 }</pre>
       </div>
-      <a href="https://docs.rs/thiserror/latest/thiserror/" target="_blank" class="source-link">&#8599; thiserror — #[from] attribute</a>
+      <a href="https://docs.rs/thiserror/latest/thiserror/" target="_blank" rel="noopener" class="card-source">&#8599; thiserror — #[from] attribute</a>
     </div>
 
     <div class="card">
@@ -217,7 +238,7 @@ async fn load_user(id: UserId, pool: &amp;PgPool)
         </div>
       </div>
       <div class="card-body">
-        <p>에러 메시지만으로는 원인 파악이 어렵다. <code>.context()</code> (anyhow) 또는 <code>#[error("... {source}")]</code> (thiserror)로 원인 체인을 유지한다.</p>
+        <p>에러 메시지만으로는 원인 파악이 어렵다. <code>.context()</code>(anyhow) 또는 <code>#[error("... {source}")]</code>(thiserror)로 원인 체인을 유지한다. 로그에 남길 때는 <code>{:?}</code>(Debug, cause chain 포함)를 사용한다.</p>
         <pre><span style="color:#f08575">// anyhow — 컨텍스트 추가</span>
 let user = repo.find(id).await
     .context(format!("user {id} 조회 실패"))?;
@@ -226,30 +247,121 @@ let user = repo.find(id).await
 tracing::error!(error = %err, "요청 처리 실패");  <span style="color:#4ade80">// Display</span>
 tracing::error!(error = ?err, "요청 처리 실패");  <span style="color:#4ade80">// Debug (cause chain)</span></pre>
       </div>
+      <a href="https://docs.rs/anyhow/latest/anyhow/trait.Context.html" target="_blank" rel="noopener" class="card-source">&#8599; anyhow — Context trait</a>
     </div>
 
+    <div class="card">
+      <div class="card-header">
+        <span class="num">5</span>
+        <div>
+          <h3>불가능한 상태는 타입으로 제거한다 (치환보다 설계)</h3>
+          <div class="rule-number">Parse, Don&#39;t Validate</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>프로덕션 <code>.unwrap()</code>/<code>.expect()</code>를 발견했을 때 반사적으로 <code>?</code>로 바꾸면, <strong class="lead-strong">&ldquo;여기서는 절대 <code>None</code>일 리 없다&rdquo;</strong>는 자리는 그대로 남는다. 검증 결과를 버리고 넓은 타입을 계속 들고 다니면 같은 검증을 아래층에서 다시 하게 되고, 그 자리에 panic이 생긴다.</p>
+        <pre><span style="color:#f87171">// ✗ 치환 — 넓은 타입이 그대로 남는다</span>
+fn send(to: &amp;str) -&gt; Result&lt;(), Error&gt; {
+    let addr = parse_email(to).ok_or(Error::BadEmail)?;  <span style="color:#f87171">// 호출부마다 반복</span>
+    ...
+}
+
+<span style="color:#4ade80">// ✓ 설계 — 한 번 파싱하면 이후 층은 검증이 필요 없다</span>
+pub struct Email(String);            <span style="color:#4ade80">// 필드 private</span>
+impl Email {
+    pub fn parse(s: &amp;str) -&gt; Result&lt;Self, ParseError&gt; { ... }
+}
+fn send(to: &amp;Email) { ... }          <span style="color:#4ade80">// 불변식이 타입에 있다</span></pre>
+      </div>
+      <a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/" target="_blank" rel="noopener" class="card-source">&#8599; parse, don&#39;t validate</a>
+      <a href="https://docs.rs/nonempty/latest/nonempty/" target="_blank" rel="noopener" class="card-source">&#8599; nonempty</a>
+      <a href="https://cliffle.com/blog/rust-typestate/" target="_blank" rel="noopener" class="card-source">&#8599; typestate</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 원칙 5 심화 -->
+<div class="section">
+  <div class="section-label">상황별 설계 수단 — 원칙 5</div>
+  <p class="desc"><code>.unwrap()</code>을 지우는 작업은 &ldquo;무엇으로 바꿀까&rdquo;가 아니라 &ldquo;이 불변식이 어느 타입에 있어야 하나&rdquo;를 먼저 정한다. 아래 표가 판정 순서다.</p>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>상황</th><th>설계 수단</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>생성 시점 불변식</td>
+            <td>smart constructor (<code>Email::parse(s) -&gt; Result&lt;Email, _&gt;</code>, 필드 private)</td>
+          </tr>
+          <tr>
+            <td>비어 있지 않은 컬렉션 전제</td>
+            <td><code>NonEmpty</code> (<a href="https://docs.rs/nonempty/latest/nonempty/" target="_blank" rel="noopener" style="color:var(--accent2)">nonempty</a>)</td>
+          </tr>
+          <tr>
+            <td>단계별 허용 연산이 다름</td>
+            <td>typestate (<a href="https://cliffle.com/blog/rust-typestate/" target="_blank" rel="noopener" style="color:var(--accent2)">typestate</a>)</td>
+          </tr>
+          <tr>
+            <td>조립 중 <code>Option</code>, 완성 후 필수</td>
+            <td><code>builder</code> → <code>built</code> 타입 분리 (<code>build()</code>에서 한 번 검증)</td>
+          </tr>
+          <tr>
+            <td>첫 관찰 시 채우고 이후 갱신</td>
+            <td><code>HashMap::entry(k).or_insert_with(...)</code> 누적</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h4>강제는 lint 로 한다 — 문장 규칙만으로는 재발한다</h4>
+      <div class="card-body">
+        <p>2026-08-12 실측(<code>AP-05</code>)에서 확인된 사항이다. 워크스페이스 lint 테이블에 deny 로 박아 빌드가 막히게 한다.</p>
+        <pre><span style="color:#f08575"># Cargo.toml (workspace root)</span>
+[workspace.lints.clippy]
+unwrap_used         = "deny"
+expect_used         = "deny"
+panic               = "deny"
+panic_in_result_fn  = "deny"</pre>
+      </div>
+      <a href="https://rust-lang.github.io/rust-clippy/master/index.html#unwrap_used" target="_blank" rel="noopener" class="card-source">&#8599; clippy — unwrap_used</a>
+    </div>
+
+    <div class="card">
+      <h4>해법이 아닌 것</h4>
+      <div class="card-body">
+        <ul class="not-a-fix">
+          <li><span class="x">&#10005;</span><div><code>unwrap_or_default()</code> 치환 — 에러가 조용히 사라진다.</div></li>
+          <li><span class="x">&#10005;</span><div>&ldquo;더 좋은 메시지의 <code>expect</code>&rdquo; — 여전히 프로세스가 죽는다.</div></li>
+          <li><span class="x">&#10005;</span><div>파일 단위 <code>#[allow(...)]</code> — 게이트를 통째로 무력화한다.</div></li>
+          <li><span class="x">&#10005;</span><div><code>clippy::restriction</code> 그룹 전체 deny — 서로 모순되는 lint 가 섞여 빌드가 못 돈다.</div></li>
+        </ul>
+      </div>
+      <a href="https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section" target="_blank" rel="noopener" class="card-source">&#8599; Cargo — [lints] section</a>
+    </div>
   </div>
 </div>
 
 <!-- 수치 기준 -->
 <div class="section">
   <div class="section-label">수치 기준</div>
-  <p class="desc">에러 처리 방식별 런타임 비용. 에러 경로는 hot path가 아니므로 성능보다 명확성이 우선이다.</p>
+  <p class="desc">에러 처리 방식별 런타임 비용. 에러 경로는 hot path 가 아니므로 성능보다 명확성이 우선이다.</p>
   <div class="card">
     <div class="table-wrap">
       <table>
         <thead>
-          <tr>
-            <th>항목</th>
-            <th>기준값</th>
-            <th>비고</th>
-          </tr>
+          <tr><th>항목</th><th>기준값</th><th>비고</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>Result&lt;T, E&gt;</code> 반환 오버헤드</td><td>~0ns</td><td>값 크기만큼 스택 이동. 인라인 최적화</td></tr>
-          <tr><td><code>Box&lt;dyn Error&gt;</code> (anyhow)</td><td>~1 힙 할당</td><td>에러 경로에서만 발생. 정상 경로 영향 없음</td></tr>
+          <tr><td><code>Result&lt;T, E&gt;</code> 반환 오버헤드</td><td>~0ns</td><td>값 크기만큼 스택 이동</td></tr>
+          <tr><td><code>Box&lt;dyn Error&gt;</code> (anyhow)</td><td>~1 힙 할당</td><td>에러 경로에서만 발생</td></tr>
           <tr><td><code>unwrap()</code> panic 비용</td><td>프로세스 종료</td><td>에러 경로에서 사용 금지</td></tr>
-          <tr><td><code>From</code> 변환 (<code>#[from]</code>)</td><td>~0ns</td><td>인라인 컴파일. 런타임 비용 없음</td></tr>
+          <tr><td><code>From</code> 변환</td><td>~0ns</td><td>인라인 컴파일</td></tr>
           <tr><td>thiserror derive 컴파일 추가 시간</td><td>~무시 가능</td><td>proc-macro, 한 번만 실행</td></tr>
         </tbody>
       </table>
@@ -260,48 +372,80 @@ tracing::error!(error = ?err, "요청 처리 실패");  <span style="color:#4ade
 <!-- 안티패턴 -->
 <div class="section">
   <div class="section-label">안티패턴</div>
-  <p class="desc">에러 처리에서 자주 범하는 실수 패턴.</p>
+  <p class="desc">에러 처리에서 자주 범하는 실수 패턴. 왼쪽이 실제로 관측된 코드, 오른쪽이 정본이다.</p>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">Bad — .unwrap() 프로덕션 코드</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 서비스 코드에서 프로세스 종료
+      <div class="compare-label">Bad — .unwrap() / .expect() 를 프로덕션에 남기기</div>
+      <pre>// ✗ 서비스 코드에서 프로세스 종료
 let user = repo.find(id).await.unwrap();
-let config = Config::load().expect("failed");</pre>
+let config = Config::load().expect("failed");
+
+// ✗ "불가능한 상황이니 괜찮다" 주석
+//    → 그 상태가 아직 타입에 남아 있다는 신호</pre>
     </div>
     <div class="compare-good">
-      <div class="compare-label">Good — ? 연산자로 전파</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 호출자에게 에러 위임
+      <div class="compare-label">Good — main 초기화만 허용 + lint deny</div>
+      <pre>// ✓ 서비스 코드는 전파
 let user = repo.find(id).await
     .context("user 조회 실패")?;
-let config = Config::load()?;</pre>
+
+// ✓ 허용 범위: 테스트 코드 + main 초기화
+// ✓ 감지: clippy unwrap_used = "deny"
+// ✓ 제거 순서: 원칙 5 판정표 → 타입 설계</pre>
     </div>
   </div>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">Bad — 에러를 String으로 변환</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 호출자가 에러 종류 매칭 불가
+      <div class="compare-label">Bad — 반사적 ? 치환으로 끝내기</div>
+      <pre>// ✗ panic 은 사라졌지만 넓은 타입은 남았다
+fn charge(card: &amp;str, amount: i64)
+    -&gt; Result&lt;(), Error&gt;
+{
+    let card = validate(card).ok_or(Error::Card)?;
+    // 아래층에서 또 검증한다
+}</pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 불변식을 타입으로 올리기</div>
+      <pre>// ✓ 경계에서 한 번 파싱, 이후 층은 무조건 유효
+pub struct CardNumber(String);
+impl CardNumber {
+    pub fn parse(s: &amp;str)
+        -&gt; Result&lt;Self, ParseError&gt; { ... }
+}
+fn charge(card: &amp;CardNumber, amount: Money) { ... }</pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 모든 에러를 String 으로 변환</div>
+      <pre>// ✗ 호출자가 에러 종류를 매칭할 수 없다
 DomainError::Persistence(e.to_string())</pre>
     </div>
     <div class="compare-good">
-      <div class="compare-label">Good — 구조체 variant 보존</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 원본 에러를 source로 유지
-DomainError::Db(#[from] sqlx::Error)
-// 또는 source 필드로 체이닝</pre>
+      <div class="compare-label">Good — 구조체 variant + source 보존</div>
+      <pre>// ✓ 원본 에러를 source 로 유지
+#[derive(Debug, thiserror::Error)]
+pub enum DomainError {
+    #[error("db error: {0}")]
+    Db(#[from] sqlx::Error),
+}</pre>
     </div>
   </div>
 
   <div class="compare">
     <div class="compare-bad">
       <div class="compare-label">Bad — 라이브러리에 anyhow 사용</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 호출자가 에러 종류를 알 수 없음
+      <pre>// ✗ 호출자가 에러 종류를 알 수 없음
 pub fn find_user(id: u32)
     -&gt; anyhow::Result&lt;User&gt; { ... }</pre>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 구체 에러 타입 노출</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 타입 정보 보존
+      <pre>// ✓ 타입 정보 보존 — 호출자가 match 가능
 pub fn find_user(id: UserId)
     -&gt; Result&lt;User, DomainError&gt; { ... }</pre>
     </div>
@@ -309,13 +453,13 @@ pub fn find_user(id: UserId)
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">Bad — 에러를 조용히 삼키기</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ❌ 에러 발생 여부를 알 수 없음
+      <div class="compare-label">Bad — 에러를 무시하고 기본값 반환</div>
+      <pre>// ✗ 에러가 발생했는지 알 수 없음
 let value = result.unwrap_or_default();</pre>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 로그에 남기거나 전파</div>
-      <pre style="background:transparent;border:none;padding:0;margin:0">// ✅ 에러를 명시적으로 처리
+      <pre>// ✓ fallback 을 쓴 사실이 관측된다
 let value = result.unwrap_or_else(|e| {
     tracing::warn!(error = ?e, "fallback 사용");
     Default::default()
@@ -334,32 +478,62 @@ let value = result.unwrap_or_else(|e| {
       <li>
         <span class="check">!</span>
         <div>
-          <strong style="color:var(--text)"><code>#[from]</code>과 수동 <code>From</code> impl이 충돌한다</strong><br>
-          thiserror <code>#[from]</code>이 있으면 동일한 <code>From&lt;E&gt;</code>를 수동으로 작성하면 "conflicting implementations" 컴파일 에러가 발생한다. 둘 중 하나만 사용한다.
+          <strong class="lead-strong"><code>#[from]</code>과 수동 <code>From</code> impl 이 충돌한다</strong><br>
+          thiserror <code>#[from]</code>은 <code>From</code> impl 을 자동 생성한다. 동일한 <code>From&lt;E&gt;</code> impl 을 수동으로 작성하면 &ldquo;conflicting implementations&rdquo; 컴파일 에러가 발생한다. <code>#[from]</code>을 쓸 때는 수동 impl 을 제거한다.
         </div>
       </li>
       <li>
         <span class="check">!</span>
         <div>
-          <strong style="color:var(--text)"><code>IntoResponse</code>에서 민감 정보 노출 주의</strong><br>
-          <code>DomainError</code>를 직접 HTTP 응답 body에 포함하면 내부 DB 쿼리, 스택 트레이스가 클라이언트에 노출된다. 반드시 별도 <code>ApiError</code>로 변환하고 추상적 메시지만 반환한다.
+          <strong class="lead-strong"><code>IntoResponse</code> impl 에서 민감 정보 노출</strong><br>
+          <code>DomainError</code>를 직접 HTTP 응답 body 에 포함하면 내부 구현(DB 쿼리, 스택 트레이스)이 클라이언트에 노출된다. API 레이어에서 별도 <code>ApiError</code>로 변환하고 사용자에게는 추상적인 메시지만 반환한다.
         </div>
       </li>
       <li>
         <span class="check">!</span>
         <div>
-          <strong style="color:var(--text)"><code>tokio::spawn</code> 내부의 <code>?</code>는 태스크 내에서 에러가 소실된다</strong><br>
-          <code>JoinHandle</code>의 반환값을 <code>.await</code>하고 에러를 명시적으로 처리해야 한다. fire-and-forget으로 두면 패닉이 조용히 사라진다.
+          <strong class="lead-strong"><code>?</code> 연산자는 <code>async</code> 클로저 안에서 주의가 필요하다</strong><br>
+          <code>tokio::spawn(async { some_result? })</code> 패턴은 에러가 spawn 된 태스크 안에서 소실될 수 있다. <code>JoinHandle</code>의 반환값을 <code>.await</code>하고 에러를 처리해야 한다.
         </div>
       </li>
       <li>
         <span class="check">!</span>
         <div>
-          <strong style="color:var(--text)">에러 타입이 <code>Send + Sync</code>를 구현하지 않으면 tokio task에서 사용 불가</strong><br>
-          <code>Arc&lt;dyn Error&gt;</code>를 tokio task 간에 전달하려면 에러가 <code>Send + Sync</code>여야 한다. <code>Box&lt;dyn Error&gt;</code> 대신 <code>Box&lt;dyn Error + Send + Sync&gt;</code>를 사용한다.
+          <strong class="lead-strong">에러 타입이 <code>Send + Sync</code>를 구현하지 않으면 tokio task 에서 사용 불가</strong><br>
+          <code>Arc&lt;dyn Error&gt;</code>를 tokio task 간에 전달하려면 에러가 <code>Send + Sync</code>여야 한다. thiserror derive 는 구현체가 <code>Send + Sync</code>이면 자동으로 만족한다. <code>Box&lt;dyn Error&gt;</code>는 기본적으로 <code>Send + Sync</code>가 아니므로 <code>Box&lt;dyn Error + Send + Sync&gt;</code>를 사용한다.
+        </div>
+      </li>
+      <li>
+        <span class="check">!</span>
+        <div>
+          <strong class="lead-strong">lint 를 켜는 것과 지키는 것은 다르다</strong><br>
+          <code>unwrap_used = "deny"</code>를 켠 뒤 파일 상단에 <code>#[allow(clippy::unwrap_used)]</code>를 붙이면 게이트가 무력화된다. 예외가 필요하면 <strong>표현식 단위</strong>로 좁히고 사유를 남긴다.
         </div>
       </li>
     </ul>
+  </div>
+</div>
+
+<!-- 연관 문서 -->
+<div class="section">
+  <div class="section-label">연관 문서</div>
+  <p class="desc">에러 처리는 데이터 접근·동시성·테스트 계층과 맞물린다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <h4>동시성 가드 프로토콜</h4>
+      <div class="card-body">0 행 갱신을 <code>Conflict</code> 로 올리는 규칙 — <code>Ok(())</code> 로 흘리면 가드가 무의미해진다.</div>
+      <a href="concurrency-guard-protocol.html" class="card-source">&#8594; concurrency-guard-protocol</a>
+    </div>
+    <div class="card">
+      <h4>테스팅 원칙</h4>
+      <div class="card-body"><code>unwrap()</code>이 허용되는 테스트 코드에서도 실패 메시지를 감추지 않는 방법.</div>
+      <a href="testing.html" class="card-source">&#8594; testing</a>
+    </div>
+    <div class="card">
+      <h4>헥사고날 아키텍처</h4>
+      <div class="card-body">Infra → Domain → API 경계가 왜 그 자리에 생기는지에 대한 구조적 근거.</div>
+      <a href="hexagonal-architecture.html" class="card-source">&#8594; hexagonal-architecture</a>
+    </div>
   </div>
 </div>
 
