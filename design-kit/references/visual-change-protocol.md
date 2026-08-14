@@ -269,7 +269,7 @@ snapshot 과 diff · threshold · ignore/selector/scenario 를 제공하지만, 
 테스트 규칙에 요구하는 requirement mapping / applicability / expectations / outcome 을 UI 결정
 전파에 옮긴 것이다 ([ACT Rules Format](https://www.w3.org/TR/act-rules-format/)).
 
-**도구 중립 — design-kit 은 위 4 종 중 어느 하나도 표준으로 강제하지 않는다.** 프로젝트가 이미 쓰는
+**도구 중립 — design-kit 은 Playwright · Chromatic · Percy · BackstopJS 중 어느 하나도 표준으로 강제하지 않는다.** 프로젝트가 이미 쓰는
 도구에 manifest 를 얹어라. 도구를 바꾸라고 요구하지 마라.
 
 ### 위치
