@@ -238,3 +238,7 @@ bool isSomething(Ref ref) {
 - codegen 실행 → `flutter-run codegen <feature>`
 - 이 provider가 호출할 UseCase/Repository가 없으면 → `flutter-feature`
 - 화면에서 에러 표시 패턴 → 프로젝트의 에러 처리 관습을 참조
+
+## Templates
+
+- `../../templates/provider-riverpod.md` — `@riverpod` notifier 골격. 파생 뷰 번들 골격은 **freezed State 컨벤션 프로젝트 한정** 이며, manual `copyWith` 컨벤션이면 위 State 규칙이 우선한다

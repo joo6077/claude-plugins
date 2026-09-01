@@ -44,6 +44,7 @@ user-invocable: true
 | design-kit | `design-kit/docs/design/` | `docs/design-kit/` |
 | backend-kit | `docs/backend/` | `docs/backend-kit/` |
 | infra-kit | `docs/infra/` | `docs/infra-kit/` |
+| tone-kit | `docs/tone/` | `docs/tone-kit/` |
 | process | (공유) | `docs/process/` |
 
 신규 킷이면 `references/css-tokens.md`의 플러그인 매핑에 새 accent를 추가한 뒤 진행한다.

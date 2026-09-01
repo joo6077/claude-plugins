@@ -46,6 +46,8 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     ("react-kit/references/", "docs/react-kit/"),
     ("planning-kit/references/", "docs/planning-kit/"),
     ("docs/planning/", "docs/planning-kit/"),
+    ("docs/tone/", "docs/tone-kit/"),
+    ("tone-kit/references/", "docs/tone-kit/"),
 ]
 
 

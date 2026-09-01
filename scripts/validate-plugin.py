@@ -80,6 +80,9 @@ KIT_CONTEXT_TOKENS: dict[str, set[str]] = {
         "react", "vite", "tauri", "shadcn", "zustand", "tanstack",
         "wasm", "wasm-pack", "tailwind v4", "react hook form",
     },
+    "tone-kit": {
+        "tone-kit", "ai톤", "톤 위반", "톤 골격", "톤 캠페인", "유지보수성",
+    },
 }
 
 # ---------------------------------------------------------------------------

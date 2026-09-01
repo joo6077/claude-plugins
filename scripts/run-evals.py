@@ -31,7 +31,7 @@ from plugin_utils import REPO_ROOT
 
 ALL_KITS = [
     "harness", "flutter-toolkit", "rust-kit", "react-kit",
-    "design-kit", "backend-kit", "infra-kit",
+    "design-kit", "backend-kit", "infra-kit", "tone-kit",
 ]
 
 PLACEHOLDER_PATTERNS = [

@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign Methodology — 파일 단위 정리 운영</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
+    --accent-ink:#D946EF;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f4f8;--bg2:#efecf3;--surface:#ffffff;--surface2:#f2eef6;--border:#ddd6e4;
+    --text:#1b1622;--text2:#5c5266;--text3:#8a7f95;
+    --accent-ink:#A21CAF;
+    --green:#15803d;--red:#b91c1c;--yellow:#a16207;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(217,70,239,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(217,70,239,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+    gap:12px;flex-wrap:wrap;padding:12px clamp(16px,4vw,48px);
+    background:var(--bg2);border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent-ink)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);font-family:inherit;
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent-ink)}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:820px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent-ink);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:820px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent-ink);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.03)}
+  td code, p code, li code, span code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent-ink)}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:640px){.compare{grid-template-columns:1fr}}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent-ink);font-size:12px;font-weight:800;flex-shrink:0}
+
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent-ink);text-decoration:none;
+    margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono);overflow-wrap:anywhere}
+  a.card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source.measured{color:var(--text3)}
+  .card-source.measured::before{content:'◆';color:var(--accent-ink)}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .pill-must{border-color:rgba(248,113,113,0.4);color:var(--red)}
+  .pill-should{border-color:rgba(251,191,36,0.4);color:var(--yellow)}
+  .pill-obs{border-color:rgba(217,70,239,0.4);color:var(--accent-ink)}
+
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.28);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+
+  .signal-card{background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.22);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
+  .signal-card h3{color:var(--green)}
+  .signal-card .num{background:rgba(74,222,128,0.16);color:var(--green)}
+
+  .spec-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px}
+  .spec-row:last-child{border-bottom:none}
+  .spec-key{color:var(--text3);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;min-width:6rem}
+  .spec-val{color:var(--text2);text-align:right;font-family:var(--mono);font-size:12px;min-width:0;overflow-wrap:anywhere}
+
+  /* ── 막대 차트 ── */
+  .bar-set{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .bar-row{display:grid;grid-template-columns:minmax(0,11rem) minmax(0,1fr) minmax(0,7rem);gap:10px;align-items:center;font-size:12px}
+  @media(max-width:640px){.bar-row{grid-template-columns:1fr;gap:4px}.bar-val{text-align:left}}
+  .bar-label{color:var(--text2);font-family:var(--mono);min-width:0;overflow-wrap:anywhere}
+  .bar-track{height:12px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)}
+  .bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));max-width:100%}
+  .bar-fill.warn{background:linear-gradient(90deg,#fbbf24,#fcd34d)}
+  .bar-fill.bad{background:linear-gradient(90deg,#f87171,#fca5a5)}
+  .bar-fill.ok{background:linear-gradient(90deg,#4ade80,#86efac)}
+  .bar-val{color:var(--text3);font-family:var(--mono);text-align:right;min-width:0;overflow-wrap:anywhere}
+
+  /* ── 순서도 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin-top:6px}
+  .flow-step{flex:1 1 9rem;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+  .flow-step .flow-n{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase}
+  .flow-step .flow-t{font-size:13px;font-weight:700;color:var(--text);overflow-wrap:anywhere}
+  .flow-step .flow-d{font-size:12px;color:var(--text2);line-height:1.55;overflow-wrap:anywhere}
+  .flow-arrow{flex:0 0 auto;align-self:center;color:var(--accent-ink);font-size:16px;font-family:var(--mono);line-height:1}
+  .flow-arrow::before{content:'\2192'}
+  @media(max-width:760px){
+    .flow{flex-direction:column}
+    .flow-step{flex:1 1 auto}
+    .flow-arrow::before{content:'\2193'}
+  }
+  .flow-step.gate{background:rgba(251,191,36,0.09);border:2px solid rgba(251,191,36,0.55);box-shadow:0 0 0 4px rgba(251,191,36,0.08)}
+  .flow-step.gate .flow-n{color:var(--yellow);font-weight:800}
+  .flow-step.gate .flow-t{color:var(--yellow)}
+  .flow-step.audit{border-color:rgba(217,70,239,0.45)}
+  .flow-step.audit .flow-n{color:var(--accent-ink)}
+
+  /* ── 타임라인 ── */
+  .tl{margin-top:8px}
+  .tl-track{display:flex;height:3.2rem;border:1px solid var(--border);border-radius:10px}
+  .tl-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    padding:0 8px;text-align:center;font-size:12px;font-family:var(--mono);min-width:0}
+  .tl-zone strong{font-size:13px}
+  .tl-zone.pre{flex:54 1 0;background:rgba(248,113,113,0.13);color:var(--red);border-radius:9px 0 0 9px}
+  .tl-zone.post{flex:33 1 0;background:rgba(74,222,128,0.13);color:var(--green);border-radius:0 9px 9px 0}
+  .tl-marks{position:relative;height:1.4rem;margin-top:4px}
+  .tl-dot{position:absolute;top:0;transform:translateX(-50%);width:0.75rem;height:0.75rem;border-radius:50%;
+    background:var(--accent);border:2px solid var(--bg)}
+  .tl-legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:8px;font-size:12px;color:var(--text2);font-family:var(--mono)}
+  .tl-legend span{display:inline-flex;align-items:center;gap:6px;min-width:0;overflow-wrap:anywhere}
+  .tl-legend i{width:0.6rem;height:0.6rem;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+  .ledger-field{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--border);font-size:13px;align-items:flex-start}
+  .ledger-field:last-child{border-bottom:none}
+  .ledger-key{flex:0 0 auto;min-width:8.5rem;font-family:var(--mono);font-size:12px;color:var(--accent-ink)}
+  .ledger-val{color:var(--text2);min-width:0;overflow-wrap:anywhere}
+
+  footer{border-top:1px solid var(--border);padding:24px clamp(20px,4vw,56px);color:var(--text3);font-size:12px;text-align:center}
+  footer a{color:var(--accent-ink)}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
+     내용을 자르지 말고 스크롤/줄바꿈으로 해소한다. */
+  /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.bar-row>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
+  .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+  /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
+  pre{max-width:100%;overflow-x:auto}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,td,li{overflow-wrap:anywhere}
+
+  @media (prefers-reduced-motion: reduce) {
+    *,*::before,*::after { transition:none !important; animation:none !important; }
+    html { scroll-behavior:auto }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">tone-kit <span>/ campaign methodology</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>Campaign Methodology — 파일 단위 정리 운영</h1>
+<p class="subtitle">수십~수백 파일을 규칙 기준으로 정리하는 장기 작업을 어떻게 굴리는가. 한 번에 한 파일, 승인 게이트, 재개 가능한 원장, 복수 착지점 피드백이 뼈대다. 이 문서의 근거는 대부분 한 프로젝트에서 2개월 반 동안 실제로 굴린 캠페인의 실측이다 — <strong>8배치 / 56파일 / 30세션 / 피드백 89 엔트리 (2026-04-16 ~ 2026-06-29)</strong>. 스택·언어에 의존하는 내용은 포함하지 않는다.</p>
+
+<!-- ── Section 1 — 원칙 ── -->
+<div class="section">
+  <div class="section-label">원칙 — 10개 코어</div>
+  <p class="desc">각 원칙에는 강도(MUST / SHOULD / 관측 컨벤션)와 근거가 붙는다. 근거의 대부분은 공개 문헌이 아니라 위 캠페인의 코퍼스 실측이며, 그런 항목은 링크 대신 실측 배지로 표기한다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">1</span>
+        <h3>한 번에 한 파일</h3>
+        <span class="pill pill-must">MUST</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">캠페인의 편집 단위는 파일 1개다. 여러 파일을 모아 한 번에 고치면 승인 게이트가 형식만 남는다 — 사용자는 diff 총량을 확인할 수 없고, 되돌릴 때도 무관한 파일까지 함께 되돌아간다.</p>
+      <p class="desc" style="margin-bottom:10px">"일괄 편집 금지, 제안 없이 선수정 금지"는 캠페인 문서에 처음부터 박아 두는 3대 금지 중 둘이다. 나머지 하나가 원장 임의 전환 금지다.</p>
+      <p class="desc" style="margin-bottom:0">파일 하나를 닫기 전에는 다음 파일을 열지 않는다. 예외는 삭제 대상 파일처럼 편집이 0줄인 경우뿐이다.</p>
+      <span class="card-source measured">실측 · 89 엔트리 / 30 세션 (2026-04-16 ~ 2026-06-29)</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">2</span>
+        <h3>배치 순서는 의존 방향을 따른다</h3>
+        <span class="pill pill-should">SHOULD</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">정리 순서는 "피참조 수가 많은 쪽 먼저"다. 공유 상수·토큰 → 기반 유틸/헬퍼 → 원자 컴포넌트 → 복합 컴포넌트 → 조립 화면.</p>
+      <p class="desc" style="margin-bottom:10px">이유는 명명 결정이 아래에서 위로 전파되기 때문이다. 토큰 이름을 나중에 확정하면 이미 정리한 상위 파일 전부가 재작업 대상이 된다. 실제 캠페인에서 최초 배치의 토큰 리네이밍 1회가 <strong>사용처 175곳 일괄 치환</strong>으로 이어졌다 — 이 순서가 아니었다면 그 175곳이 두 번 고쳐졌다.</p>
+      <p class="desc" style="margin-bottom:0">같은 카테고리 안에서는 첫 파일에서 패턴을 확정하고 나머지에 복제한다. 파일마다 감으로 다시 판단하면 배치 내부에서 불일치가 생긴다.</p>
+      <span class="card-source measured">실측 · 8단 배치 완주 기록 (공유 상수 → 기반 → 원자 → 복합 → 조립)</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">3</span>
+        <h3>파일당 루프는 5단이다</h3>
+        <span class="pill pill-must">MUST</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">한 파일의 처리는 <strong>읽기·진단 → 사용자 분기 → 편집 → diff 보고 → 원장 체크</strong> 순서로만 진행한다. 순서도는 아래 섹션에 있다.</p>
+      <p class="desc" style="margin-bottom:10px">2단을 건너뛰고 편집으로 점프하지 않는다. 사전 분석 문서에 "문제 없음" 판정이 이미 적혀 있어도 1·2단은 수행한다 — 기존 판정은 스킵 면허가 아니다.</p>
+      <p class="desc" style="margin-bottom:0">5단의 체크 전환 주체는 사용자다. 에이전트가 스스로 체크하면 원장이 진행 상태가 아니라 에이전트의 자기평가가 된다.</p>
+      <span class="card-source measured">실측 · 캠페인 문서 "작업 방법" 5단 루프 + 위반 피드백 2건 (F6, F24)</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">4</span>
+        <h3>브리핑은 산문이 아니라 표다</h3>
+        <span class="pill pill-must">MUST</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">정리 제안은 표로 낸다. 최소 4컬럼: <code>대상 | 타입 | 실제 사용값 | 판정</code>. 핵심은 3번째 컬럼이다. "호출부 N건"처럼 <strong>카운트만 적으면 사용자가 유지/제거/통일을 판단할 수 없어 되묻게 된다.</strong> 각 호출부가 실제로 넘기는 값을 코드 그대로 인용한다.</p>
+      <p class="desc" style="margin-bottom:10px">실측 사례: 한 파라미터를 "호출부 2곳"으로만 보고했더니 사용자가 "값이 똑같을 텐데?"로 되물었고, 실제로는 두 호출부의 값이 서로 달랐다. 카운트 표기가 한 번의 왕복을 통째로 만들어 낸 것이다.</p>
+      <p class="desc" style="margin-bottom:0">표에 추정값을 넣지 않는다. 확인하지 못한 칸은 비워 두고 "미확인"으로 표기한다. 데모·쇼케이스용 호출부는 판정 근거에 올리지 않는다.</p>
+      <span class="card-source measured">실측 · 브리핑 포맷 보정 2회 (카운트→실전달값, 데모 호출부 제외)</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">5</span>
+        <h3>원장은 진행 기록이 아니라 재개 장치다</h3>
+        <span class="pill pill-should">SHOULD</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">원장(ledger)의 유일한 설계 목표는 "세션이 끊겨도 원장만 읽고 이어갈 수 있는가"다. 대화 컨텍스트가 남아 있다는 전제를 깔면 원장이 아니라 메모가 된다.</p>
+      <p class="desc" style="margin-bottom:10px">진행 상태(어떤 파일이 끝났는가)는 프로젝트 소유다. 원장 <strong>포맷</strong>은 재사용 자산이지만 원장 <strong>내용</strong>은 이관 대상이 아니다.</p>
+      <p class="desc" style="margin-bottom:0">"캠페인 중 추가된 규칙" 필드가 특히 중요하다. 장기 캠페인에서는 중간에 규칙이 늘어나며, 어느 배치부터 적용인지 적어 두지 않으면 앞 배치를 다시 열어야 하는지 판단할 수 없다.</p>
+      <span class="card-source measured">실측 · 캠페인 원장 279줄 / 8배치 / 56파일 운영 기록</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">6</span>
+        <h3>완료 선언 전에 규칙을 전수 대조한다</h3>
+        <span class="pill pill-must">MUST</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">"편집했다"와 "규칙을 만족한다"는 다른 명제다. 완료를 선언하기 전에 규칙별 검색 패턴으로 잔여 위반을 직접 세고, 그 결과를 보고에 포함한다.</p>
+      <p class="desc" style="margin-bottom:10px">실측이 명확하다. 완료 전 대조를 도입하기 전에는 잔여 위반이 사용자 지적으로 발견됐고, 도입 후 배치별 잔여 위반이 <strong>2 / 3 / 2 / 3건으로 수렴</strong>했다. 편차가 사라진 것이 핵심이다 — 대조가 없으면 잔여량 자체를 알 수 없다.</p>
+      <p class="desc" style="margin-bottom:0"><strong>사용자가 첫 피드백 루프가 되면 안 된다.</strong> 읽지 못한 규칙 소스는 "위반 0"으로 보고하지 않는다. 검사해서 없는 것과 검사하지 못한 것은 다른 결과이며, 보고에 각각 파일명으로 구분해 적는다.</p>
+      <span class="card-source measured">실측 · 완료 전 대조 도입 전후 배치별 잔여 위반 추이</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">7</span>
+        <h3>피드백은 복수 착지점에 동시에 남긴다</h3>
+        <span class="pill pill-must">MUST</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">한 곳에만 기록한 규칙은 죽는다. 89개 피드백 엔트리의 착지점 분포가 그것을 그대로 보여 준다 — 아래 실측 섹션 참조.</p>
+      <p class="desc" style="margin-bottom:10px"><strong>고아 규칙은 재발한다.</strong> 코드 수정만으로 닫은 규칙 하나(섹션 라벨 금지)가 규칙 문서에 남지 않아 <strong>17 엔트리 뒤에 같은 위반으로 재발</strong>했다. 같은 사용자가 같은 지적을 두 번 한 것이다.</p>
+      <p class="desc" style="margin-bottom:0">기본 착지 범위는 4곳으로 잡는다: 글로벌 메모리 + 메모리 인덱스 + 프로젝트 지침 + 규칙 문서. 여기에 피드백 로그를 더한다. "이건 분류상 여기만 해당"이라는 판단으로 일부만 갱신하지 마라 — 의심스러우면 전부다.</p>
+      <span class="card-source measured">실측 · 89 엔트리 / 30 세션 착지 유형 분포</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">8</span>
+        <h3>착지 강제는 사람의 의지가 아니라 도구가 한다</h3>
+        <span class="pill pill-obs">관측 컨벤션</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">같은 실측이 파이프라인 성숙 시점을 정확히 찍는다. 고아 11건은 <strong>전부 54번 엔트리 이전에 몰려 있고, 55번 이후 35건은 고아가 0건이다.</strong></p>
+      <p class="desc" style="margin-bottom:10px">전환점은 둘이다. (1) "메모리만이 아니라 프로젝트 문서에도 남겨라"는 결정(44번, 2026-04-25), (2) 피드백 기록을 자동 트리거하는 도구의 도입(62번, 2026-05-07).</p>
+      <p class="desc" style="margin-bottom:0">즉 <strong>파이프라인이 성숙한 시점 = 도구가 "여러 착지점 일괄 반영"을 강제하기 시작한 시점</strong>이다. 결심이나 지침 문장만으로는 착지율이 오르지 않았다. 캠페인을 설계할 때 피드백 기록을 사람의 성실성에 맡기지 말고, "정리해 / 기록해 / 규칙으로 정해 / 다음에도 적용" 같은 표현에서 자동 트리거되는 절차로 만든다.</p>
+      <span class="card-source measured">실측 · 고아 엔트리 시계열 (F1~F54 구간 11건 / F55~F87 구간 0건)</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">9</span>
+        <h3>범위 밖은 손대지 않는다</h3>
+        <span class="pill pill-must">MUST</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">승인받은 범위 = 그 파일, 그 카테고리, 그 제안 표에 적힌 항목이다. 그 밖은 발견해도 보고만 하고 고치지 않는다.</p>
+      <p class="desc" style="margin-bottom:10px">특히 정적 분석 경고를 임의로 정리하지 마라. 미사용 필드·미사용 지역변수·긴 줄·도달 불가 코드는 의도적으로 남긴 코드일 수 있다. "에러 다 없애줘"는 error 심각도만 대상이며, info/warning은 명시 요청이 있을 때만 손댄다.</p>
+      <p class="desc" style="margin-bottom:0">자동 수정 도구를 디렉토리 전체에 거는 것도 같은 위반이다. 포매터·린트 픽서는 이번 편집 대상 파일만 개별 인자로 실행한다. 인접 파일까지 "일관성을 위해" 고치고 싶으면, 그것은 지금 하는 일이 아니라 후속 배치로 원장에 추가할 항목이다.</p>
+      <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">→ Google Engineering Practices — What to look for in a code review</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title">
+        <span class="num">10</span>
+        <h3>캠페인과 배치 일괄 편집은 다른 도구다</h3>
+        <span class="pill pill-obs">관측 컨벤션</span>
+        <span class="pill">코어</span>
+      </div>
+      <p class="desc" style="margin-bottom:10px">"체크리스트 → 승인 → 일괄 편집" 방식과 이 문서의 캠페인은 방향이 반대다. 전자는 배치 단위로 위반을 열거하고 한 번에 닫는다. 후자는 파일 단위로 점진 진행하며 파일마다 승인을 받는다.</p>
+      <p class="desc" style="margin-bottom:10px">이 킷은 <strong>둘을 근본적으로 화해시키려 하지 않는다.</strong> 선택 기준만 둔다 — 아래 경계 표를 쓴다.</p>
+      <p class="desc" style="margin-bottom:0">경계에서 헷갈리면 "이 편집을 사용자가 파일별로 되돌리고 싶어 할까"를 물어라. 그렇다면 캠페인이다.</p>
+      <span class="card-source measured">실측 · 캠페인 8배치 / 56파일 운영 + 일괄 감사 도구 병행 사용 기록</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 2 — 파일당 루프 순서도 ── -->
+<div class="section">
+  <div class="section-label">파일당 루프 — 승인 게이트가 중심축</div>
+  <p class="desc">캠페인의 실행 단위는 이 루프 1회다. 아래는 5단 루프에 완료 전 대조를 끼워 넣은 실행 순서다. 굵게 표시한 <strong>승인 대기</strong>가 이 방법론의 유일한 하중 지지점이다 — 이 칸이 비면 나머지 여섯 칸은 그냥 자동 편집기와 같아진다.</p>
+
+  <div class="card">
+    <div class="flow">
+      <div class="flow-step">
+        <span class="flow-n">1단 · 진단</span>
+        <span class="flow-t">판정</span>
+        <span class="flow-d">대상 파일을 읽고 카테고리별로 "어디를 어떻게 고칠지" 판정한다.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n">1단 · 산출</span>
+        <span class="flow-t">제안 표</span>
+        <span class="flow-d">4컬럼 브리핑 표로 낸다. 실전달값 인용, 추정값 금지.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step gate">
+        <span class="flow-n">2단 · 게이트</span>
+        <span class="flow-t">&#128274; 승인 대기</span>
+        <span class="flow-d">컨펌 / 수정 지시 / 사용자 직접 편집(에이전트는 검증만) 중 택1. 여기서 멈춘다.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n">3단 · 실행</span>
+        <span class="flow-t">편집</span>
+        <span class="flow-d">승인된 범위만. 발견한 범위 밖 항목은 보고만 한다.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n">4단 · 보고</span>
+        <span class="flow-t">차이 보고</span>
+        <span class="flow-d">변경 요약을 능동 보고한다. 사용자가 묻기 전에 낸다.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step audit">
+        <span class="flow-n">원칙 6</span>
+        <span class="flow-t">대조</span>
+        <span class="flow-d">규칙별 검색 패턴을 실제로 돌려 잔여 위반 건수를 센다. 서술로 대체 금지.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n">5단 · 원장</span>
+        <span class="flow-t">원장 갱신</span>
+        <span class="flow-d">사용자가 완료 승인을 낸 뒤에만 체크 전환. 전환 주체는 사용자다.</span>
+      </div>
+    </div>
+    <p class="caption">캠페인 문서의 정본은 5단(진단 → 분기 → 편집 → diff → 원장)이다. 위 7칸은 그 5단을 산출물 단위로 펼치고, 완료 전 대조(원칙 6)를 diff 보고와 원장 사이에 명시한 것이다.</p>
+    <span class="card-source measured">실측 · 5단 루프 정의 + 위반 피드백 2건 (F6, F24)</span>
+  </div>
+
+  <div class="warn-card" style="margin-top:20px">
+    <div class="principle-title">
+      <span class="num">!</span>
+      <h3>일괄 편집은 게이트를 무력화한다</h3>
+    </div>
+    <p class="desc" style="margin-bottom:12px">여러 파일을 모아 한 번에 편집하면 게이트가 사라지는 것이 아니라 <strong>형식만 남는다</strong> — 그래서 더 위험하다. 승인 절차는 그대로 있는데 승인의 내용이 없다.</p>
+    <ul class="checklist">
+      <li><span class="check">!</span><span>사용자가 diff 총량을 확인할 수 없다. 게이트 통과 = 실제로는 무검토 통과.</span></li>
+      <li><span class="check">!</span><span>되돌리기 단위가 파일 경계를 잃는다. 한 파일을 되돌리려면 무관한 파일까지 함께 되돌아간다.</span></li>
+      <li><span class="check">!</span><span>어느 파일에서 판단이 틀렸는지 사후 특정이 불가능해진다. 원장의 체크가 의미를 잃는다.</span></li>
+      <li><span class="check">!</span><span>예외는 편집이 0줄인 경우뿐이다 (예: 삭제 대상 파일). 그 외에는 파일 하나를 닫기 전에 다음 파일을 열지 않는다.</span></li>
+    </ul>
+    <span class="card-source measured">실측 · 3대 금지 (일괄 편집 / 선수정 / 원장 임의 전환)</span>
+  </div>
+</div>
+
+<!-- ── Section 3 — 배치 의존 순서 ── -->
+<div class="section">
+  <div class="section-label">배치 의존 순서 — 피참조가 많은 쪽부터</div>
+  <p class="desc">배치 순서는 취향이 아니라 의존 방향이다. 명명 결정은 아래에서 위로 전파되므로, 아래를 먼저 확정해야 위가 한 번만 고쳐진다.</p>
+
+  <div class="card">
+    <div class="flow">
+      <div class="flow-step audit">
+        <span class="flow-n">배치 앞</span>
+        <span class="flow-t">공유 상수 · 토큰</span>
+        <span class="flow-d">피참조 최다. 여기 이름이 바뀌면 위 전체가 흔들린다.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n"></span>
+        <span class="flow-t">기반 유틸 · 헬퍼</span>
+        <span class="flow-d">토큰에만 의존하고 UI에는 의존하지 않는 계층.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n"></span>
+        <span class="flow-t">원자 컴포넌트</span>
+        <span class="flow-d">토큰·유틸 위에서 조립되는 최소 단위.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n"></span>
+        <span class="flow-t">복합 컴포넌트</span>
+        <span class="flow-d">원자를 묶은 단위. 원자 명명이 확정된 뒤에 연다.</span>
+      </div>
+      <span class="flow-arrow" aria-hidden="true"></span>
+      <div class="flow-step">
+        <span class="flow-n">배치 뒤</span>
+        <span class="flow-t">조립 화면</span>
+        <span class="flow-d">피참조 최소. 마지막에 열어야 재작업이 0이 된다.</span>
+      </div>
+    </div>
+    <p class="caption">화살표 방향이 작업 순서이자 의존의 역방향이다 — 참조되는 쪽을 먼저 닫는다.</p>
+    <span class="card-source measured">실측 · 8단 배치 완주 기록</span>
+  </div>
+
+  <div class="compare" style="margin-top:20px">
+    <div class="compare-bad">
+      <div class="compare-label">&#10007; 역순 — 소비자부터 착수</div>
+      <h3 style="color:var(--text);margin-bottom:10px">화면 → 복합 → 원자 → 토큰</h3>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>하위 명명이 나중에 바뀌면 이미 정리한 상위가 전부 재작업 대상이 된다.</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>실측: 최초 배치의 토큰 리네이밍 1회 = 사용처 <strong>175곳</strong> 일괄 치환. 역순이었다면 그 175곳이 두 번 고쳐졌다.</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>원장의 완료 체크가 신뢰를 잃는다 — 닫은 배치를 다시 열어야 하기 때문이다.</span></li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">&#10003; 정순 — 피참조부터 착수</div>
+      <h3 style="color:var(--text);margin-bottom:10px">토큰 → 원자 → 복합 → 화면</h3>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check">&#10003;</span><span>명명 결정이 아래에서 확정된 뒤 위로 전파된다. 각 파일은 한 번만 열린다.</span></li>
+        <li><span class="check">&#10003;</span><span>같은 카테고리 안에서는 첫 파일에서 패턴을 확정하고 나머지에 복제한다.</span></li>
+        <li><span class="check">&#10003;</span><span>배치 내부 불일치가 생기지 않는다 — 파일마다 감으로 다시 판단하지 않기 때문이다.</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 4 — 피드백 착지점 실측 ── -->
+<div class="section">
+  <div class="section-label">피드백 착지점 실측 — 89 엔트리 분포</div>
+  <p class="desc">"한 곳에만 기록한 규칙은 죽는다"는 주장의 근거는 이 분포다. 89개 엔트리를 착지 유형별로 세면 절반 이상이 복수 착지이고, 12.4%는 어디에도 규칙으로 남지 않은 고아다.</p>
+
+  <div class="card">
+    <div class="bar-set">
+      <div class="bar-row">
+        <span class="bar-label">복수 착지 (2곳+)</span>
+        <div class="bar-track"><div class="bar-fill ok" style="width:56.2%"></div></div>
+        <span class="bar-val">50건 · 56.2%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">규칙 문서만</span>
+        <div class="bar-track"><div class="bar-fill" style="width:20.2%"></div></div>
+        <span class="bar-val">18건 · 20.2%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">고아 (로그/코드만)</span>
+        <div class="bar-track"><div class="bar-fill bad" style="width:12.4%"></div></div>
+        <span class="bar-val">11건 · 12.4%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">메모리만</span>
+        <div class="bar-track"><div class="bar-fill warn" style="width:7.9%"></div></div>
+        <span class="bar-val">7건 · 7.9%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">프로젝트 지침만</span>
+        <div class="bar-track"><div class="bar-fill warn" style="width:2.2%"></div></div>
+        <span class="bar-val">2건 · 2.2%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">대상 문서만</span>
+        <div class="bar-track"><div class="bar-fill warn" style="width:1.1%"></div></div>
+        <span class="bar-val">1건 · 1.1%</span>
+      </div>
+    </div>
+    <p class="caption">막대 길이는 전체 89 엔트리 대비 비율(0~100% 트랙)이다. 단일 착지 합계는 43.8% — 이 중 상당수가 다음 세션에서 읽히지 않는 표면에 남았다.</p>
+    <span class="card-source measured">실측 · 89 엔트리 / 30 세션 (2026-04-16 ~ 2026-06-29)</span>
+  </div>
+
+  <div class="table-wrap" style="margin-top:20px">
+    <table>
+      <thead>
+        <tr><th>착지 유형</th><th>건수</th><th>비율</th><th>다음 세션 재사용성</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>복수 착지 (2곳 이상)</strong></td><td>50</td><td>56.2%</td><td>어느 표면을 읽어도 규칙이 살아 있다</td></tr>
+        <tr><td>규칙 문서만</td><td>18</td><td>20.2%</td><td>그 문서를 로드하는 작업에서만 유효</td></tr>
+        <tr><td><strong>고아</strong> (로그 전용 / 코드 수정만)</td><td>11</td><td>12.4%</td><td>규칙으로 존재하지 않음 — 재발 대상</td></tr>
+        <tr><td>메모리만</td><td>7</td><td>7.9%</td><td>메모리를 조회하지 않는 세션에서 소실</td></tr>
+        <tr><td>프로젝트 지침만</td><td>2</td><td>2.2%</td><td>해당 프로젝트 밖으로 전파되지 않음</td></tr>
+        <tr><td>대상 문서만</td><td>1</td><td>1.1%</td><td>그 문서를 여는 작업에서만 유효</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">합계 89 = 번호 87 + 번호 중복 1 + 비수치 보정 1.</p>
+</div>
+
+<!-- ── Section 5 — 고아 시계열 전환점 ── -->
+<div class="section">
+  <div class="section-label">전환점 — 고아 11건이 전부 한쪽에 몰려 있다</div>
+  <p class="desc">이 문서의 핵심 근거는 고아의 <strong>총량</strong>이 아니라 <strong>위치</strong>다. 고아 11건은 전부 54번 엔트리 이전 구간에 있고, 55번 이후 35 엔트리에서는 0건이다. 착지율은 결심으로 오르지 않았고, 도구가 강제하기 시작한 시점에 계단식으로 올랐다.</p>
+
+  <div class="card">
+    <div class="tl">
+      <div class="tl-track">
+        <div class="tl-zone pre">
+          <strong>F1 ~ F54</strong>
+          <span>고아 11건</span>
+        </div>
+        <div class="tl-zone post">
+          <strong>F55 ~ F87 (35 엔트리)</strong>
+          <span>고아 0건</span>
+        </div>
+      </div>
+      <div class="tl-marks">
+        <span class="tl-dot" style="left:50.6%"></span>
+        <span class="tl-dot" style="left:71.3%"></span>
+      </div>
+      <div class="tl-legend">
+        <span><i></i>F44 (2026-04-25) — "메모리만이 아니라 프로젝트 문서에도 남겨라" 결정</span>
+        <span><i></i>F62 (2026-05-07) — 피드백 기록 자동 트리거 도구 도입</span>
+      </div>
+    </div>
+    <p class="caption">가로 축은 엔트리 번호(F1~F87)에 비례한다. 두 점의 위치는 각각 44/87, 62/87 지점이다. 구간 경계(F54/F55)는 고아가 마지막으로 관측된 지점이다.</p>
+    <span class="card-source measured">실측 · 고아 엔트리 시계열 (F1~F54 11건 / F55~F87 0건)</span>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="signal-card">
+      <div class="principle-title"><span class="num">&#9733;</span><h3>도구가 강제한 뒤 고아 0</h3></div>
+      <p class="desc" style="margin-bottom:10px">F62의 자동 트리거 도구는 "정리해 / 기록해 / 규칙으로 정해 / 다음에도 적용" 같은 표현에서 기록 절차를 자동 실행한다. 사람이 기억해서 여는 절차가 아니게 된 것이 차이다.</p>
+      <div class="spec-row"><span class="spec-key">전 구간</span><span class="spec-val">F1~F54 · 고아 11</span></div>
+      <div class="spec-row"><span class="spec-key">후 구간</span><span class="spec-val">F55~F87 · 고아 0 / 35</span></div>
+      <div class="spec-row"><span class="spec-key">결론</span><span class="spec-val">성숙 = 도구 강제 시점</span></div>
+      <span class="card-source measured">실측 · 고아 시계열</span>
+    </div>
+
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>고아는 조용히 재발한다</h3></div>
+      <p class="desc" style="margin-bottom:10px">코드 수정만으로 닫은 규칙 하나(섹션 라벨 금지)가 규칙 문서에 남지 않아 <strong>17 엔트리 뒤에 같은 위반으로 재발</strong>했다. 같은 사용자가 같은 지적을 두 번 했다는 뜻이다.</p>
+      <div class="spec-row"><span class="spec-key">사례</span><span class="spec-val">섹션 라벨 금지</span></div>
+      <div class="spec-row"><span class="spec-key">착지</span><span class="spec-val">코드 수정만 (규칙화 생략)</span></div>
+      <div class="spec-row"><span class="spec-key">재발</span><span class="spec-val">17 엔트리 뒤 동일 위반</span></div>
+      <span class="card-source measured">실측 · 고아 → 재발 간격 17 엔트리</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h4>기본 착지 범위 — 4곳 + 로그</h4>
+    <ul class="checklist">
+      <li><span class="check">1</span><span><strong>글로벌 메모리</strong> — 프로젝트를 넘어 유지되어야 하는 규칙</span></li>
+      <li><span class="check">2</span><span><strong>메모리 인덱스</strong> — 다음 세션이 그 메모리를 찾을 수 있게 하는 진입점</span></li>
+      <li><span class="check">3</span><span><strong>프로젝트 지침</strong> — 이 프로젝트에서 매 세션 로드되는 표면</span></li>
+      <li><span class="check">4</span><span><strong>규칙 문서</strong> — 캠페인 판정의 근거가 되는 정본</span></li>
+      <li><span class="check">+</span><span><strong>피드백 로그</strong> — 위 4곳에 더해 원문을 남긴다. 나중에 이런 실측 분포를 낼 수 있는 유일한 소스다</span></li>
+    </ul>
+    <p class="caption">"이건 분류상 여기만 해당"이라는 판단으로 일부만 갱신하지 마라 — 의심스러우면 전부다.</p>
+  </div>
+</div>
+
+<!-- ── Section 6 — 브리핑 표 형식 ── -->
+<div class="section">
+  <div class="section-label">브리핑 표 — 실전달값 열이 전부다</div>
+  <p class="desc">제안 표는 최소 4컬럼이다: <code>대상 | 타입 | 실제 사용값 | 판정</code>. 세 번째 열의 규칙 하나가 이 표의 존재 이유다 — <strong>실전달값 열에 추정값을 넣지 않는다.</strong> 카운트도 추정값의 일종이다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">&#10007; 카운트 표기 — 왕복을 만든다</div>
+      <div class="table-wrap" style="background:transparent;border-color:rgba(248,113,113,0.25)">
+        <table>
+          <thead><tr><th>대상</th><th>타입</th><th>실제 사용값</th><th>판정</th></tr></thead>
+          <tbody>
+            <tr><td><code>padding</code></td><td>파라미터</td><td>호출부 2곳</td><td>제거?</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="checklist" style="gap:6px;margin-top:12px">
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>사용자가 유지 / 제거 / 통일을 판단할 근거가 없다.</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>실측: "값이 똑같을 텐데?"라는 되물음이 발생했고, 실제로는 두 호출부의 값이 서로 <strong>달랐다</strong>. 왕복 1회가 표 서식 때문에 생겼다.</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>추정값과 확인값이 같은 서식으로 섞이면 표 전체의 신뢰도가 0이 된다.</span></li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">&#10003; 실전달값 인용 — 그 자리에서 판정</div>
+      <div class="table-wrap" style="background:transparent;border-color:rgba(74,222,128,0.25)">
+        <table>
+          <thead><tr><th>대상</th><th>타입</th><th>실제 사용값</th><th>판정</th></tr></thead>
+          <tbody>
+            <tr><td><code>padding</code></td><td>파라미터</td><td><code>16</code> / <code>24</code> (서로 다름)</td><td>유지</td></tr>
+            <tr><td><code>margin</code></td><td>파라미터</td><td>전 호출부 <code>0</code></td><td>제거</td></tr>
+            <tr><td><code>gap</code></td><td>파라미터</td><td>미확인</td><td>보류</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="checklist" style="gap:6px;margin-top:12px">
+        <li><span class="check">&#10003;</span><span>각 호출부가 실제로 넘기는 값을 코드 그대로 인용한다.</span></li>
+        <li><span class="check">&#10003;</span><span>확인하지 못한 칸은 비워 두고 "미확인"으로 표기한다 — 추정으로 채우지 않는다.</span></li>
+        <li><span class="check">&#10003;</span><span>데모·쇼케이스용 호출부는 판정 근거에 올리지 않는다. 실사용 판정은 실제 제품 코드만 기준이다.</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="caption">위 표의 값은 서식 규칙을 보이기 위한 예시다. 실제 브리핑에서는 대상 파일에서 읽은 값을 그대로 인용한다.</p>
+</div>
+
+<!-- ── Section 7 — 원장 구조 ── -->
+<div class="section">
+  <div class="section-label">원장 구조 — 목적은 재개 가능성 하나</div>
+  <p class="desc">원장은 진행을 기록하기 위한 문서가 아니라 <strong>세션이 끊겼을 때 원장만 읽고 이어가기 위한 장치</strong>다. 대화 컨텍스트가 남아 있다는 전제를 깔면 원장이 아니라 메모가 된다. 아래 6필드는 재개에 필요한 최소 집합이다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>최소 필드 6종</h4>
+      <div class="ledger-field"><span class="ledger-key">범위</span><span class="ledger-val">대상 경로/확장자와 총 파일 수</span></div>
+      <div class="ledger-field"><span class="ledger-key">기준</span><span class="ledger-val">어떤 규칙 문서를 근거로 판정하는가 — 파일명으로 열거</span></div>
+      <div class="ledger-field"><span class="ledger-key">순서 근거</span><span class="ledger-val">배치를 왜 이 순서로 놓았는가 (1줄씩)</span></div>
+      <div class="ledger-field"><span class="ledger-key">배치 목록</span><span class="ledger-val">배치별 파일 체크박스, 완료 시 체크 전환</span></div>
+      <div class="ledger-field"><span class="ledger-key">추가 규칙</span><span class="ledger-val">캠페인 중 확정된 규칙 — <strong>몇 번 배치부터 적용인지 명시</strong></span></div>
+      <div class="ledger-field"><span class="ledger-key">후처리</span><span class="ledger-val">전 배치 완료 후에 해야 하는 전역 작업</span></div>
+      <span class="card-source measured">실측 · 원장 279줄 / 8배치 / 56파일</span>
+    </div>
+
+    <div class="card">
+      <h4>재개 테스트 — 원장이 이걸 통과하는가</h4>
+      <ul class="checklist">
+        <li><span class="check">?</span><span>대화 로그를 전부 버리고 원장만 읽었을 때, 다음에 열 파일이 특정되는가</span></li>
+        <li><span class="check">?</span><span>지금 적용 중인 규칙 문서가 파일명으로 열거되어 있는가</span></li>
+        <li><span class="check">?</span><span>배치 순서의 근거가 적혀 있어 순서를 재확인하지 않아도 되는가</span></li>
+        <li><span class="check">?</span><span>중간에 추가된 규칙이 <strong>몇 번 배치부터</strong>인지 적혀 있어, 앞 배치 재점검 필요 여부를 판단할 수 있는가</span></li>
+        <li><span class="check">?</span><span>전 배치 완료 후 남는 전역 작업이 후처리에 모여 있는가</span></li>
+      </ul>
+      <p class="caption">하나라도 "아니오"면 원장이 아니라 메모다.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h4>소유권 — 포맷은 자산, 내용은 프로젝트 소유</h4>
+    <p class="desc" style="margin-bottom:0">진행 상태(어떤 파일이 끝났는가)는 그 프로젝트의 것이다. 원장 <strong>포맷</strong>은 다음 캠페인으로 가져가는 재사용 자산이지만, 원장 <strong>내용</strong>은 이관 대상이 아니다. 이 구분을 흐리면 남의 진행 상태를 상속한 채 새 캠페인을 시작하게 된다.</p>
+  </div>
+</div>
+
+<!-- ── Section 8 — 완료 전 대조 수렴 ── -->
+<div class="section">
+  <div class="section-label">완료 전 대조 — 편차가 사라진 것이 성과다</div>
+  <p class="desc">완료 전 대조의 효과는 "잔여 위반 0"이 아니다. 잔여 위반이 <strong>측정 가능해졌고 배치 간 편차가 사라진 것</strong>이다. 도입 전에는 잔여 위반이 사용자 지적으로 발견됐고 — 즉 잔여량 자체를 알 수 없었다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>도입 후 배치별 잔여 위반</h4>
+      <div class="bar-set">
+        <div class="bar-row">
+          <span class="bar-label">배치 A</span>
+          <div class="bar-track"><div class="bar-fill" style="width:66.7%"></div></div>
+          <span class="bar-val">2건</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">배치 B</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <span class="bar-val">3건</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">배치 C</span>
+          <div class="bar-track"><div class="bar-fill" style="width:66.7%"></div></div>
+          <span class="bar-val">2건</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">배치 D</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <span class="bar-val">3건</span>
+        </div>
+      </div>
+      <p class="caption">막대 길이는 관측 최대값(3건) 기준 상대 비율이다. 2 / 3 / 2 / 3 — 편차 1건.</p>
+      <span class="card-source measured">실측 · 완료 전 대조 도입 후 배치별 잔여 위반</span>
+    </div>
+
+    <div class="card">
+      <h4>대조를 서술로 대체하면 생기는 일</h4>
+      <ul class="checklist">
+        <li><span class="check">!</span><span>"규칙을 지켰다"는 문장은 대조가 아니다. 규칙별 검색 패턴을 <strong>실제로 돌리고</strong> 건수를 적는다.</span></li>
+        <li><span class="check">!</span><span><strong>사용자가 첫 피드백 루프가 되면 안 된다.</strong> 사용자가 잡아 주는 위반은 정의상 대조에서 놓친 위반이다.</span></li>
+        <li><span class="check">!</span><span>반복되면 사용자가 캠페인의 QA 인력이 된다 — 그 시점에 방법론이 실패한 것이다.</span></li>
+        <li><span class="check">!</span><span>읽지 못한 규칙 소스를 "위반 0"으로 보고하지 않는다. 미검사와 무위반은 다른 결론이며, 보고에 각각 파일명으로 구분해 적는다.</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 9 — 다른 방식과의 경계 ── -->
+<div class="section">
+  <div class="section-label">경계 — 캠페인 vs 배치 일괄 편집</div>
+  <p class="desc">"체크리스트 → 승인 → 일괄 편집"은 이 문서의 캠페인과 방향이 반대인 별개 도구다. 전자는 배치 단위로 위반을 열거하고 한 번에 닫고, 후자는 파일 단위로 점진 진행하며 파일마다 승인을 받는다. <strong>이 킷은 둘을 근본적으로 화해시키려 하지 않는다</strong> — 선택 기준만 둔다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>조건</th><th>적합한 방식</th><th>이유</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>대상이 3파일 이하이고 규칙이 기계적</td><td><span class="tag tag-warn">배치 일괄 편집</span></td><td>파일별 승인의 이득보다 왕복 비용이 크다</td></tr>
+        <tr><td>판정에 사용자 취향·도메인 맥락이 개입</td><td><span class="tag">캠페인</span></td><td>판정마다 사람의 분기가 필요하다</td></tr>
+        <tr><td>앞 파일의 결정이 뒤 파일의 기준을 바꿈</td><td><span class="tag">캠페인</span></td><td>일괄 열거 시점에 기준이 아직 없다</td></tr>
+        <tr><td>위반 유형이 단일하고 검색으로 완전 열거됨</td><td><span class="tag tag-warn">배치 일괄 편집</span></td><td>열거가 완전하면 게이트를 배치 단위로 둬도 된다</td></tr>
+        <tr><td>총 대상이 수십 파일이고 여러 세션에 걸침</td><td><span class="tag">캠페인</span></td><td>재개 장치(원장)가 없으면 진행이 소실된다</td></tr>
+        <tr><td>되돌리기 단위를 파일별로 유지해야 함</td><td><span class="tag">캠페인</span></td><td>일괄 편집은 되돌리기 단위가 파일 경계를 잃는다</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="principle-title"><span class="num">?</span><h3>경계에서 헷갈릴 때의 단일 질문</h3></div>
+    <p class="desc" style="margin-bottom:0">"이 편집을 사용자가 <strong>파일별로</strong> 되돌리고 싶어 할까?" — 그렇다면 캠페인이다. 아니라면 배치 일괄 편집으로 충분하다. 이 질문 하나가 위 표 여섯 줄을 대체한다.</p>
+    <span class="card-source measured">실측 · 캠페인 8배치 / 56파일 + 일괄 감사 도구 병행 사용</span>
+  </div>
+</div>
+
+<!-- ── Section 10 — 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">캠페인 설계 시 그대로 가져다 쓰는 기준값. 전 항목 출처가 프로젝트 실측이다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>출처</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>편집 단위</td><td><strong>파일 1개</strong></td><td>프로젝트 실측</td></tr>
+        <tr><td>파일당 루프 단계</td><td>5단 (제안 → 분기 → 편집 → diff → 원장)</td><td>프로젝트 실측</td></tr>
+        <tr><td>브리핑 표 최소 컬럼</td><td>4 (<code>대상 | 타입 | 실제 사용값 | 판정</code>)</td><td>프로젝트 실측</td></tr>
+        <tr><td>피드백 기본 착지점</td><td>4곳 + 로그</td><td>프로젝트 실측</td></tr>
+        <tr><td>캠페인 규모</td><td>8배치 / 56파일 / 30세션 (2026-04-16 ~ 2026-06-29)</td><td>프로젝트 실측</td></tr>
+        <tr><td>피드백 엔트리 총계</td><td>89 (번호 87 + 번호 중복 1 + 비수치 보정 1)</td><td>프로젝트 실측</td></tr>
+        <tr><td>복수 착지 비율</td><td>50건 (56.2%)</td><td>프로젝트 실측</td></tr>
+        <tr><td>고아 비율</td><td>11건 (12.4%) — 전량 54번 이전</td><td>프로젝트 실측</td></tr>
+        <tr><td>고아 → 재발까지 간격</td><td>17 엔트리</td><td>프로젝트 실측</td></tr>
+        <tr><td>완료 전 대조 도입 후 배치별 잔여 위반</td><td>2 / 3 / 2 / 3</td><td>프로젝트 실측</td></tr>
+        <tr><td>순서 위반 시 재작업 규모 (관측 최대)</td><td>1회 리네이밍 = 사용처 175곳</td><td>프로젝트 실측</td></tr>
+        <tr><td>원장 분량 (운영 실측)</td><td>279줄</td><td>프로젝트 실측</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 11 — 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">캠페인 운영에서 반복 관측된 실패 모드 13종. 대부분 "게이트를 빠르게 통과시키려는 최적화"의 부작용이다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>안티패턴</th><th>문제</th><th>위반 원칙</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>여러 파일 일괄 편집</strong></td><td>승인 게이트가 형식만 남고, 되돌리기 단위가 파일 경계를 잃는다</td><td>1</td></tr>
+        <tr><td>제안 없이 선수정</td><td>사용자 분기(컨펌/수정 지시/직접 편집)가 사라져 되돌림 왕복이 생긴다</td><td>3</td></tr>
+        <tr><td>에이전트가 원장 체크 전환</td><td>원장이 진행 상태가 아니라 에이전트 자기평가가 된다</td><td>3 · 5</td></tr>
+        <tr><td>카운트만 적은 브리핑 표</td><td>사용자가 유지/제거를 판단 못 해 되묻는다. 왕복 1회가 표 서식 때문에 생긴다</td><td>4</td></tr>
+        <tr><td>표에 추정값 기재</td><td>확인값과 같은 서식으로 섞여 표 전체의 신뢰도를 0으로 만든다</td><td>4</td></tr>
+        <tr><td>소비자부터 착수</td><td>하위 명명이 나중에 바뀌면 이미 정리한 상위가 전부 재작업 대상이 된다</td><td>2</td></tr>
+        <tr><td><strong>코드만 고치고 규칙화 생략</strong></td><td>고아 규칙이 되어 재발한다 (실측: 17 엔트리 뒤 동일 위반)</td><td>7 · 8</td></tr>
+        <tr><td>한 착지점만 갱신</td><td>다음 세션이 그 표면을 안 읽으면 규칙이 없는 것과 같다</td><td>7</td></tr>
+        <tr><td>요청 없는 경고 정리</td><td>의도적으로 남긴 코드를 지운다. 범위 밖 편집은 리뷰 불가</td><td>9</td></tr>
+        <tr><td>자동 수정기를 디렉토리 전체에 실행</td><td>이번 편집과 무관한 파일이 오염되고 diff가 읽히지 않는다</td><td>9</td></tr>
+        <tr><td>사용자 지적으로 잔여 위반 발견</td><td>완료 전 대조를 건너뛴 결과다. 사용자를 QA 인력으로 만든다</td><td>6</td></tr>
+        <tr><td>원장을 대화 컨텍스트로 대체</td><td>세션이 끊기면 재개 불가. 원장의 유일한 존재 이유가 재개다</td><td>5</td></tr>
+        <tr><td>읽지 못한 규칙 소스를 "위반 0"으로 보고</td><td>미검사와 무위반을 같은 결론으로 합친다</td><td>6</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 12 — Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas — 캠페인 중 반복되는 함정</div>
+  <p class="desc">원칙을 다 읽고도 반복해서 밟는 8가지. 대부분 캠페인 후반부, 즉 피로가 쌓이고 편집량이 줄어든 구간에서 발생한다.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">!</span><span><strong>"작은 배치니까 한 번에"</strong> — 파일 수가 적어 보일수록 일괄 편집 유혹이 크지만, 캠페인 대상은 정의상 판정에 취향이 개입하는 항목이다. 3파일 이하이고 규칙이 기계적일 때만 일괄이며, 그 판정은 경계 표로 한다.</span></li>
+      <li><span class="check">!</span><span><strong>사전 분석의 "문제 없음"을 스킵 면허로 읽음</strong> — 계획 문서에 "이 파일은 OK"라고 적혀 있어도 진단·브리핑은 수행한다. 실측에서 그 판정을 믿고 종결하려다 번복한 사례가 있다.</span></li>
+      <li><span class="check">!</span><span><strong>원장이 캠페인 후반에 뒤처짐</strong> — 후반에는 파일당 편집량이 줄어 체크 전환을 미루기 쉽다. 미루면 다음 세션에서 어디까지 했는지 코드로 역추적하게 된다. 파일 하나가 끝날 때마다 그 자리에서 전환한다.</span></li>
+      <li><span class="check">!</span><span><strong>캠페인 도중 늘어난 규칙을 앞 배치에 소급 안 함</strong> — 중간에 확정된 규칙은 "몇 번 배치부터 적용"인지 원장에 적는다. 적지 않으면 앞 배치의 재점검 필요 여부를 판단할 근거가 사라진다.</span></li>
+      <li><span class="check">!</span><span><strong>피드백 기록을 "나중에 몰아서"</strong> — 몰아서 쓰면 착지점이 줄고 문맥이 날아간다. 실측의 고아 11건이 전부 자동 트리거 도입 이전 구간이다. 기록은 그 세션 안에서, 도구로 닫는다.</span></li>
+      <li><span class="check">!</span><span><strong>범위 밖 발견을 조용히 고침</strong> — 인접 파일에서 같은 위반을 봤을 때 고치는 것이 친절해 보이지만, diff가 승인 범위를 벗어나면 리뷰가 성립하지 않는다. 발견은 보고하고 원장 후처리로 넘긴다.</span></li>
+      <li><span class="check">!</span><span><strong>완료 대조를 서술로 대체</strong> — "규칙을 지켰다"는 문장은 대조가 아니다. 규칙별 검색 패턴을 실제로 돌리고 건수를 적는다. 서술만 있는 완료 보고는 실측에서 잔여 위반을 남겼다.</span></li>
+      <li><span class="check">!</span><span><strong>첫 파일의 패턴을 배치 후반에 바꿈</strong> — 배치 내부 일관성이 깨지고, 그 배치를 참조하는 다음 배치까지 흔들린다. 패턴을 바꾸려면 그 배치를 처음부터 다시 훑는 비용을 감수하거나, 다음 배치부터 적용한다고 원장에 명시한다.</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Section 13 — 출처 ── -->
+<div class="section">
+  <div class="section-label">출처</div>
+  <p class="desc">이 문서의 근거는 두 종류다. 대부분은 아래 코퍼스의 실측이며, 외부 공개 문헌은 원칙 9 한 건에만 대응한다. 실측 항목에 외부 링크를 붙이지 않는다.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">&#9670;</span><span><strong>캠페인 운영 실측</strong> — 8배치 / 56파일 / 30세션 (2026-04-16 ~ 2026-06-29). 원장 279줄. 원칙 1·2·3·5·6·10의 근거.</span></li>
+      <li><span class="check">&#9670;</span><span><strong>피드백 로그 코퍼스</strong> — 89 엔트리 (번호 87 + 번호 중복 1 + 비수치 보정 1). 착지 유형 분포와 고아 시계열의 근거. 원칙 7·8의 근거.</span></li>
+      <li><span class="check">&#9670;</span><span><strong>브리핑 포맷 보정 기록</strong> — 카운트→실전달값 전환, 데모 호출부 제외. 원칙 4의 근거.</span></li>
+      <li><span class="check">&#9670;</span><span><strong>5단 루프 위반 피드백</strong> — F6, F24. 원칙 3의 근거.</span></li>
+      <li><span class="check">&#9670;</span><span><strong>전환점 엔트리</strong> — F44 (2026-04-25, 프로젝트 문서 병행 결정), F62 (2026-05-07, 자동 트리거 도구 도입). 원칙 8의 근거.</span></li>
+      <li><span class="check">&#8594;</span><span><strong>Google Engineering Practices — What to look for in a code review</strong> — 원칙 9(범위 밖 편집 금지)의 외부 근거. <a href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener" style="color:var(--accent-ink)">google.github.io/eng-practices/review/reviewer/looking-for.html</a></span></li>
+      <li><span class="check">&#9670;</span><span><strong>소스 문서</strong> — <code>docs/tone/campaign-methodology.md</code> v0.1.0 (2026-08-28).</span></li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<footer>
+  <p>tone-kit — 코드 정리 캠페인 운영 방법론 &middot; v0.1.0 &middot; 2026-08-28</p>
+  <p style="margin-top:8px">소스: <code>docs/tone/campaign-methodology.md</code></p>
+</footer>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch(e) {}
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if(icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if(label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch(e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

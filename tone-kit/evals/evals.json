@@ -1,0 +1,44 @@
+{
+  "skill_name": "tone-kit",
+  "evals": [
+    {
+      "id": 1,
+      "skill": "tone-guide",
+      "prompt": "이 파일 AI톤 좀 봐줘",
+      "expected_output": "코어 규칙 로드 후 규칙 ID 근거로 위반 판정 + 완료 전 전수 대조 표",
+      "assertions": [
+        {"text": "references/core-comment.md 등 코어 규칙 파일을 실제로 Read 한다", "type": "behavior"},
+        {"text": "project-detection 절차로 어댑터와 주석 언어를 먼저 판별한다", "type": "behavior"},
+        {"text": "위반을 규칙 ID와 파일:라인 근거로 제시한다", "type": "output"},
+        {"text": "완료 선언 전에 규칙 전수 대조 결과를 표로 낸다", "type": "output"},
+        {"text": "강도가 관측 컨벤션인 항목을 MUST 위반으로 단정하지 않는다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 2,
+      "skill": "tone-scaffold",
+      "prompt": "새 컴포넌트 톤 골격 만들어줘",
+      "expected_output": "파일 헤더 + 3요소 골격 생성 후 자기 감사 10항목 통과",
+      "assertions": [
+        {"text": "파일 헤더 작성자를 git config user.name 에서 읽어 채운다", "type": "behavior"},
+        {"text": "확인이 필요한 파라미터를 사용자에게 한 번에 확인받는다", "type": "behavior"},
+        {"text": "생성물에 중괄호 자리표시자가 남아 있지 않다", "type": "output"},
+        {"text": "기본값 해소 변수에 effective/resolved 접두사를 붙이지 않는다", "type": "output"},
+        {"text": "생성 후 자기 감사 10항목 결과를 보고한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 3,
+      "skill": "tone-campaign",
+      "prompt": "이 디렉토리 전체 톤 캠페인 돌려줘",
+      "expected_output": "의존순 배치화 + 원장 생성 + 파일당 제안·승인 루프",
+      "assertions": [
+        {"text": "대상을 열거하고 총 건수로 범위를 확인받는다", "type": "behavior"},
+        {"text": "토큰에서 화면 방향의 의존순으로 배치를 나눈다", "type": "output"},
+        {"text": "campaign-ledger 형식으로 원장 파일을 만든다", "type": "output"},
+        {"text": "파일 하나마다 제안 표를 내고 승인을 받은 뒤 편집한다", "type": "behavior"},
+        {"text": "여러 파일을 한 번에 일괄 편집하지 않는다", "type": "behavior"}
+      ]
+    }
+  ]
+}

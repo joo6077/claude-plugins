@@ -88,6 +88,8 @@ Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
 | docs/react/ | react-kit 전 스킬 | React + Vite + Tauri + WASM 리서치 원칙 (21 스킬 + 3 에이전트) |
 | docs/planning/ | planning-kit 전 스킬 | 제품 기획 리서치 원칙 (Discovery / PRD / Prioritization / Risks / Stories / Flows / Data Model / GitHub) |
 | skill-design-guide.md | onboarding-kit /setup-guide | Gotchas 패턴, 아키타입 분류, 트리거 조건 원칙 (Phase 1 결과만 반영) |
+| docs/tone/ | tone-kit 전 스킬 | 톤·유지보수성 리서치 원칙 (포지셔닝 / 주석 / 네이밍 / 한국어 / 추출 / 안티패턴 / 어댑터 / 캠페인) |
+| tone-kit/references/ | tone-kit 전 스킬 | 3축 운영 규칙 + 어댑터 슬롯 + grep 게이트 |
 
 ## Phase 스킵 시 전파 규칙
 
@@ -104,10 +106,11 @@ Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
 - Phase 11 스킵 → Phase 12~14 진행에 영향 없음 (독립 스택)
 - Phase 12 스킵 → Phase 13~14 진행에 영향 없음 (독립 스택)
 - Phase 13 스킵 → Phase 14 진행에 영향 없음 (독립 스택)
-- Phase 7~14 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning}/ 또는 각 킷 references/ 기준 점진 개선)
+- Phase 14 스킵 → Phase 15 진행에 영향 없음 (독립 스택)
+- Phase 7~15 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning|tone}/ 또는 각 킷 references/ 기준 점진 개선)
 
 ## QA 실패 시 롤백 범위
 
 - Phase N QA REJECT → Phase N 변경만 수정 (이전 Phase 건드리지 않음)
 - Final QA REJECT → 해당 Phase로 돌아가 수정 (다른 Phase 건드리지 않음)
-- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7~14도 동일 규칙 적용)
+- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7~15도 동일 규칙 적용)

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naming Taxonomy — 역할 기반 컴포넌트 네이밍</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#6b7280;
+    --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
+    --green:#15803d;--red:#b91c1c;--yellow:#a16207;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(217,70,239,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(217,70,239,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:820px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:840px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* 어휘 대조 — 용어군 색상 */
+  .term{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:700;
+    padding:3px 9px;border-radius:6px;margin:2px 4px 2px 0;white-space:nowrap}
+  .t-appbar{background:rgba(217,70,239,0.14);color:var(--accent);border:1px solid rgba(217,70,239,0.3)}
+  .t-toolbar{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .t-header{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+  .t-card{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .t-tile{background:rgba(248,113,113,0.14);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
+  .t-mixed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .t-unknown{background:var(--surface2);color:var(--text3);border:1px dashed var(--border)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+
+  /* 어휘 분포 막대 */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,140px) 1fr minmax(64px,84px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:860px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 우선순위 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 180px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-arrow{display:flex;align-items:center;color:var(--text3);font-size:18px;font-weight:700;flex:0 0 auto}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+  .flow-step.rank-4{opacity:0.82}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-arrow{display:none}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">tone-kit <span>/ naming taxonomy</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>Naming Taxonomy — 역할 기반 컴포넌트 네이밍</h1>
+<p class="subtitle">UI 컴포넌트 이름을 외형이 아니라 역할로 짓는 규칙. 6개 주요 디자인 시스템의 어휘를 대조해 만든 <strong>합성 taxonomy</strong> 이며, 어느 한 시스템이 표준으로 문서화한 것이 아니다. <span class="mono">v0.1.0 · 조사일 2026-08-28</span></p>
+
+<!-- ══ 경고 배너 — 가장 먼저 읽혀야 하는 블록 ══ -->
+<div class="warn-banner">
+  <h2>&#9888;&#65039; 이 taxonomy 는 업계 표준이 아니다</h2>
+  <p>Material Design 3 · Apple HIG · MUI · Fluent 2 · Ant Design · IBM Carbon 어느 곳도 <code>Item</code>/<code>Tile</code>/<code>Cell</code>/<code>Row</code> 구분이나 <code>AppBar</code>/<code>Toolbar</code>/<code>Header</code>/<code>Bar</code> 구분을 <strong>공통 taxonomy 로 문서화하지 않는다.</strong> 각 시스템은 자기 플랫폼 어휘를 쓸 뿐이고 서로 어긋난다.</p>
+  <p>또한 여섯 시스템 중 어느 곳도 <strong>소비자 앱의 커스텀 컴포넌트 명명 지침</strong>("역할로 이름 지어라")을 발행하지 않는다 (확인 실패). MUI 에 API·prop·CSS 클래스 명명 가이드가 있으나 그것은 라이브러리 내부 규약이다.</p>
+  <p>따라서 이 문서의 접미사 규칙은 전부 <span class="strength s-synth">관측 컨벤션 / 합성</span> 이며, 디자인 시스템은 <strong>어휘 원천</strong> 으로만 인용한다. <strong>권위로 인용하지 마라.</strong> "합성이고, 그래서 프로젝트가 하나를 골라 고정한다" 가 정확한 서술이다.</p>
+</div>
+
+<!-- ══ Section 1 — 근거 등급 ══ -->
+<div class="section">
+  <div class="section-label">근거 등급 — 무엇을 어디까지 인용할 수 있나</div>
+  <p class="desc">이 문서의 규칙은 세 등급으로 나뉜다. 등급을 섞어 인용하면 "표준이라며?" 라는 첫 반박에 규칙 전체의 신뢰가 무너진다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="strength s-should">SHOULD</span></div>
+      <p class="desc" style="margin-bottom:0">공식 스타일 가이드가 문법 층위에서 규정한 것. 인용 가능한 1차 출처가 있다. 원칙 1·8이 여기 속한다.</p>
+      <div class="sources">
+        <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span></div>
+      <p class="desc" style="margin-bottom:0">외부 시스템 어휘 또는 프로젝트 코퍼스 실측에서 반복 관측된 패턴. 근거는 관측 건수이지 권위가 아니다. 원칙 7·9·10이 여기 속한다.</p>
+      <span class="source-badge">프로젝트 실측 · 어휘 대조표</span>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="strength s-synth">합성</span></div>
+      <p class="desc" style="margin-bottom:0">6개 시스템 어휘를 대조해 이 문서가 <strong>만들어낸</strong> 규칙. 외부 문서화 0건. 원칙 2~6이 여기 속한다.</p>
+      <span class="source-badge">합성 규칙 — 외부 문서화 0건 (2026-08-28 확인)</span>
+    </div>
+  </div>
+
+  <div class="info-card" style="margin-top:20px">
+    <h3>M3 · Apple HIG 인용 제한</h3>
+    <p class="desc" style="margin-bottom:0">두 시스템의 컴포넌트 페이지는 본문이 JS 로만 렌더링돼 정의문을 직접 인용할 수 없다. <strong>어휘 존재 확인용으로만</strong> 인용하고 원문 인용문은 붙이지 마라. 정의문을 인용 가능한 시스템은 6개 중 4개다.</p>
+    <div class="sources">
+      <a class="card-source" href="https://m3.material.io/components" target="_blank" rel="noopener">&rarr; M3 components (어휘 존재 확인용)</a>
+      <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/components" target="_blank" rel="noopener">&rarr; Apple HIG components (어휘 존재 확인용)</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Section 2 — 어휘 대조표 (최대 자산) ══ -->
+<div class="section">
+  <div class="section-label">어휘 대조표 — 6개 시스템이 같은 것을 다르게 부른다</div>
+  <p class="desc">이 문서의 최대 자산. 화면 상단 / 리스트 한 행 / 탭 가능한 그룹 표면 세 자리에서 여섯 시스템의 어휘가 어떻게 갈리는지를 보여준다. 색이 다르면 용어군이 다르다는 뜻이고, 점선 배지는 확인 실패다.</p>
+
+  <div class="legend">
+    <span class="term t-appbar">App bar 계열</span>
+    <span class="term t-toolbar">Toolbar 계열</span>
+    <span class="term t-header">Header 계열</span>
+    <span class="term t-card">Card 계열</span>
+    <span class="term t-tile">Tile 계열</span>
+    <span class="term t-mixed">혼용 / 분리 사용</span>
+    <span class="term t-unknown">확인 실패</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>시스템</th><th>화면 상단</th><th>리스트의 한 행</th><th>탭 가능한 그룹 표면</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">Material Design 3</td>
+          <td><span class="term t-appbar">Top app bar</span><span class="term t-appbar">App bars</span></td>
+          <td><span class="term t-mixed">List item</span><span class="term t-unknown">정의문 확인 실패</span></td>
+          <td><span class="term t-card">Card</span><span class="term t-unknown">정의문 확인 실패</span></td>
+        </tr>
+        <tr>
+          <td class="sys">Apple HIG</td>
+          <td><span class="term t-toolbar">Toolbars</span><span class="term t-unknown">navigation-bars &rarr; 리다이렉트</span></td>
+          <td><span class="term t-mixed">Lists and tables</span><span class="term t-unknown">행 용어 확인 실패</span></td>
+          <td><span class="term t-unknown">독립 Cards 페이지 확인 실패</span></td>
+        </tr>
+        <tr>
+          <td class="sys">MUI</td>
+          <td><span class="term t-appbar">AppBar</span><span class="term t-toolbar">Toolbar</span><span class="term t-mixed">둘 다 export</span></td>
+          <td><span class="term t-mixed">ListItem</span><span class="term t-mixed">TableRow</span><span class="term t-mixed">TableCell</span></td>
+          <td><span class="term t-card">Card</span><span class="term t-card">CardActionArea</span></td>
+        </tr>
+        <tr>
+          <td class="sys">Fluent 2</td>
+          <td><span class="term t-toolbar">Toolbar</span><span class="term t-unknown">Header / AppBar 없음</span></td>
+          <td><span class="term t-mixed">List item</span></td>
+          <td><span class="term t-card">Card</span></td>
+        </tr>
+        <tr>
+          <td class="sys">Ant Design</td>
+          <td><span class="term t-header">Header</span><span class="term t-header">Layout.Header</span></td>
+          <td><span class="term t-mixed">row</span><span class="term t-mixed">list item</span><span class="term t-unknown">혼용</span></td>
+          <td><span class="term t-card">Card</span></td>
+        </tr>
+        <tr>
+          <td class="sys">IBM Carbon</td>
+          <td><span class="term t-header">UI shell header</span><span class="term t-header">Header</span></td>
+          <td><span class="term t-mixed">List item</span></td>
+          <td><span class="term t-tile">Tile</span><span class="term t-unknown">core 에 card 패턴 없음</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">확인일 2026-08-28. 출처: <a href="https://m3.material.io/components" target="_blank" rel="noopener" style="color:var(--accent)">M3 components</a> · <a href="https://developer.apple.com/design/human-interface-guidelines/components" target="_blank" rel="noopener" style="color:var(--accent)">Apple HIG components</a> · <a href="https://mui.com/material-ui/react-app-bar/" target="_blank" rel="noopener" style="color:var(--accent)">MUI AppBar</a> · <a href="https://fluent2.microsoft.design/components/web/react" target="_blank" rel="noopener" style="color:var(--accent)">Fluent 2 Web React</a> · <a href="https://ant.design/components/overview/" target="_blank" rel="noopener" style="color:var(--accent)">Ant Design components</a> · <a href="https://carbondesignsystem.com/components/overview/components/" target="_blank" rel="noopener" style="color:var(--accent)">Carbon components</a></p>
+
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card">
+      <h3>화면 상단 — 어휘 채택 분포</h3>
+      <p class="desc" style="margin-bottom:14px">여섯 시스템이 <strong>4가지 용어</strong>로 갈린다: <code>Top app bar</code> · <code>Toolbar</code> · <code>Header</code> · <code>UI shell header</code>. 일치하는 시스템 수는 <strong>0</strong>이다.</p>
+      <div class="dist">
+        <div class="dist-row">
+          <span class="dist-label">App bar 계열</span>
+          <div class="dist-track"><div class="dist-fill" style="width:33%"></div></div>
+          <span class="dist-val">2 / 6</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-label">Toolbar 계열</span>
+          <div class="dist-track"><div class="dist-fill f-cyan" style="width:50%"></div></div>
+          <span class="dist-val">3 / 6</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-label">Header 계열</span>
+          <div class="dist-track"><div class="dist-fill f-yellow" style="width:33%"></div></div>
+          <span class="dist-val">2 / 6</span>
+        </div>
+      </div>
+      <p class="caption">MUI 는 <code>AppBar</code> 와 <code>Toolbar</code> 를 동시에 export 하므로 두 군에 계상된다 — 그래서 합이 6을 넘는다. 그 자체가 불일치의 증거다.</p>
+    </div>
+
+    <div class="card">
+      <h3>탭 가능한 그룹 표면 — Card 가 보편이 아니다</h3>
+      <p class="desc" style="margin-bottom:14px">Carbon core 에는 card 패턴이 없고 <code>Tile</code> 이 그 자리를 대신한다. Carbon 은 "Tiles versus cards" 를 따로 비교한다 — 어휘가 시스템에 종속된다는 증거다.</p>
+      <div class="dist">
+        <div class="dist-row">
+          <span class="dist-label">Card</span>
+          <div class="dist-track"><div class="dist-fill f-green" style="width:67%"></div></div>
+          <span class="dist-val">4 / 6</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-label">Tile</span>
+          <div class="dist-track"><div class="dist-fill f-red" style="width:17%"></div></div>
+          <span class="dist-val">1 / 6</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-label">확인 실패</span>
+          <div class="dist-track"><div class="dist-fill f-mute" style="width:17%"></div></div>
+          <span class="dist-val">1 / 6</span>
+        </div>
+      </div>
+      <p class="caption">Card 4 = M3 · MUI · Fluent 2 · Ant Design. Tile 1 = IBM Carbon. 확인 실패 1 = Apple HIG.</p>
+      <div class="sources">
+        <a class="card-source" href="https://carbondesignsystem.com/components/tile/usage/" target="_blank" rel="noopener">&rarr; Carbon Tile — Tiles versus cards</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card" style="margin-top:20px">
+    <h3>불일치가 규칙이다</h3>
+    <p class="desc" style="margin-bottom:0">Material 은 <code>Top app bar</code>, Apple 은 <code>Toolbar</code>, Ant·Carbon 은 <code>Header</code>, Fluent 는 <code>Toolbar</code>, MUI 는 <code>AppBar</code> 와 <code>Toolbar</code> 를 동시에 둔다. Carbon 은 표면에 <code>Card</code> 대신 <code>Tile</code> 을 쓴다. <strong>그래서 프로젝트는 자기 taxonomy 를 한 번 정하고 그것을 SSOT 로 삼아야 한다.</strong> 외부 문서를 근거로 팀을 설득하려 들면 오히려 반대 사례를 들려주게 된다.</p>
+  </div>
+</div>
+
+<!-- ══ Section 3 — 원칙 10 ══ -->
+<div class="section">
+  <div class="section-label">원칙 — 10개, 강도 배지와 함께</div>
+  <p class="desc">각 카드의 배지가 그 규칙을 어디까지 밀어붙일 수 있는지를 말한다. <span class="strength s-should">SHOULD</span> 는 공식 가이드 인용 가능, <span class="strength s-observed">관측 컨벤션</span> 은 실측 건수가 근거, <span class="strength s-synth">합성</span> 은 이 문서가 만든 규칙이라 외부 권위가 없다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">1</span>
+          <h3>이름은 외형이 아니라 역할을 담는다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:12px"><code>BlueRoundedBox</code> 가 아니라 <code>ProfileCard</code> 다. 판단 기준은 "사용자가 이것으로 무엇을 하거나 이해하는가" 이지 "이것이 어떻게 생겼는가" 가 아니다. 색·모서리·크기는 시안이 바뀌면 따라 바뀌므로 이름에 들어가면 <strong>이름이 거짓이 된다.</strong></p>
+        <p class="desc" style="margin-bottom:0">Dart 공식 스타일 가이드는 같은 방향을 문법 층위에서 규정한다: 비-boolean 프로퍼티는 명사구, 부수효과가 있는 메서드는 명령형 동사구, 메서드 이름에 파라미터를 서술하지 않는다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">2</span>
+          <h3>레이아웃 모양어를 컴포넌트 이름에 쓰지 않는다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:12px"><code>Row</code> · <code>Bar</code> · <code>Box</code> 는 레이아웃 용어다. 한정 용법(진짜 표의 행, 확립된 바 종류)에만 허용한다.</p>
+        <p class="desc" style="margin-bottom:0">세로 리스트의 한 장을 <code>...Row</code> 로 부르면 그것이 표의 행인지 세로 목록의 항목인지 <strong>이름만으로 구분되지 않는다.</strong></p>
+      </div>
+      <span class="source-badge">합성 규칙 — 6개 시스템 중 이 금지를 문서화한 곳 0 (2026-08-28 확인)</span>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">3</span>
+          <h3>컬렉션 요소: <code>Item</code> / <code>Tile</code> / <code>Cell</code> / <code>Row</code></h3>
+        </div>
+        <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:12px"><strong>세로 리스트 요소에 <code>Row</code>/<code>Cell</code> 을 쓰지 마라. 둘은 표 전용이다.</strong> 세로 리스트 한 장은 <code>Item</code>, 단순한 행이면 <code>Tile</code>, 독립 표면이면 <code>Card</code>.</p>
+        <p class="desc" style="margin-bottom:0">각 시스템의 실제 어휘는 이 구분을 <strong>부분적으로만</strong> 지지한다. MUI 는 <code>ListItem</code>/<code>TableRow</code>/<code>TableCell</code> 로 갈라 쓰고, Fluent 와 Carbon 은 <code>List item</code> 으로 통일하며, Ant 는 <code>row</code> 와 <code>list item</code> 을 혼용한다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://mui.com/material-ui/api/list-item/" target="_blank" rel="noopener">&rarr; MUI ListItem API</a>
+        <a class="card-source" href="https://fluent2.microsoft.design/components/web/react/core/list/usage" target="_blank" rel="noopener">&rarr; Fluent 2 List — "A list is a collection of like items"</a>
+        <a class="card-source" href="https://carbondesignsystem.com/components/list/usage/" target="_blank" rel="noopener">&rarr; Carbon List — "Represents an individual entry within a list"</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">4</span>
+          <h3>상단·구획: <code>AppBar</code> / <code>Toolbar</code> / <code>Header</code> / <code>Bar</code></h3>
+        </div>
+        <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:12px"><strong>임의의 컨트롤 묶음이나 콘텐츠 상단 구획에 <code>Bar</code> 를 쓰지 마라 — <code>Header</code> 다.</strong></p>
+        <p class="desc" style="margin-bottom:0">Carbon 의 <code>Header</code> 는 최상위 내비게이션이고 Ant 의 <code>Header</code> 는 레이아웃 상단이다. <strong>같은 단어가 시스템마다 다른 층위를 가리킨다.</strong> 프로젝트가 하나를 골라 고정해야 하는 이유다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://mui.com/material-ui/react-app-bar/" target="_blank" rel="noopener">&rarr; MUI AppBar — "displays information and actions relating to the current screen"</a>
+        <a class="card-source" href="https://fluent2.microsoft.design/components/web/react/core/toolbar/usage" target="_blank" rel="noopener">&rarr; Fluent 2 Toolbar — "gives access to frequently used actions"</a>
+        <a class="card-source" href="https://ant.design/components/layout" target="_blank" rel="noopener">&rarr; Ant Design Layout — "Header: The top layout"</a>
+        <a class="card-source" href="https://carbondesignsystem.com/components/UI-shell-header/usage/" target="_blank" rel="noopener">&rarr; Carbon UI shell header — "The highest level of navigation"</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">5</span>
+          <h3>표면·구획: <code>Section</code> / <code>Panel</code> / <code>Container</code> / <code>Card</code></h3>
+        </div>
+        <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:12px"><code>Section</code> 은 의미 구획, <code>Panel</code> 은 보조 작업·설정면, <code>Container</code> 는 저수준 레이아웃 래퍼, <code>Card</code> 는 하나의 객체나 개념을 담는 독립 표면이다.</p>
+        <p class="desc" style="margin-bottom:12px"><code>Container</code> · <code>Box</code> · <code>Wrapper</code> · <code>View</code> 는 <strong>의미가 약하다.</strong> 저수준 유틸이거나 역할이 아직 확정되지 않은 내부 위젯에만 쓴다. 역할이 있으면 역할어를 쓴다.</p>
+        <p class="desc" style="margin-bottom:0">Carbon 은 이 자리에 <code>Card</code> 가 아니라 <code>Tile</code> 을 쓰고 "Tiles versus cards" 를 따로 비교한다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://carbondesignsystem.com/components/tile/usage/" target="_blank" rel="noopener">&rarr; Carbon Tile</a>
+        <a class="card-source" href="https://fluent2.microsoft.design/components/web/react/core/card/usage" target="_blank" rel="noopener">&rarr; Fluent 2 Card — "A card is a container"</a>
+        <a class="card-source" href="https://ant.design/components/card" target="_blank" rel="noopener">&rarr; Ant Design Card — "A container for displaying information"</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">6</span>
+          <h3>역할이 겹치면 우선순위로 끊는다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
+        <pre><code>실제 인터랙션  &gt;  컬렉션 요소  &gt;  화면 구획  &gt;  상단 영역</code></pre>
+        <p class="desc" style="margin-bottom:0">탭하면 <code>Button</code>, 리스트 한 칸이면 <code>Item</code>/<code>Tile</code>, 구획이면 <code>Section</code>/<code>Card</code>, 상단이면 <code>Header</code>/<code>Toolbar</code>. 판정은 <strong>"탭이 그 요소의 존재 이유인가"</strong> 로 끊는다 — 목록을 보여주는 것이 본질이고 탭이 부가면 <code>Item</code> 이다.</p>
+      </div>
+      <span class="source-badge">합성 규칙 — 6개 시스템 중 우선순위를 문서화한 곳 0 (2026-08-28 확인)</span>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">7</span>
+          <h3>fallback 접두사를 이름으로 쓰지 않는다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-observed">관측 컨벤션 — 실측 9건 / 4파일</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:12px"><code>effectiveGradient</code> · <code>resolvedChildren</code> · <code>resolvedBgColor</code> 같은 이름은 <code>??</code> 연산자가 이미 표현한 fallback 을 이름에 <strong>중복해 넣은 것</strong>이다. 도메인·역할로 바꾼다: <code>toolbarGradient</code> · <code>visibleChildren</code> · <code>disabledBackground</code>.</p>
+        <p class="desc" style="margin-bottom:0">이 접두사가 LLM 생성 코드에 통계적으로 과대표집된다는 <strong>공개 근거는 없다.</strong> 논문 각주를 붙이지 마라 — 근거는 코퍼스 실측뿐이다.</p>
+      </div>
+      <span class="source-badge">프로젝트 실측 — 9건 / 4파일 (57파일 스캔). 공개 통계 확인 실패 · 상세는 ai-code-stylometry.md 원칙 5</span>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">8</span>
+          <h3>한 글자 이름과 무역할 파일명을 피한다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:12px"><code>p</code> · <code>s</code> · <code>e</code> 같은 축약 대신 <code>props</code> · <code>state</code> · <code>event</code> 를 쓴다.</p>
+        <p class="desc" style="margin-bottom:0">파일·클래스 이름은 역할이 아니라 도메인으로 짓는다 — <code>utils.dart</code> · <code>helper.dart</code> · <code>common_widget.dart</code> 는 무엇이 들어 있는지 알려주지 않으므로 <strong>무한히 자란다.</strong></p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">9</span>
+          <h3>컴포넌트 이름과 그 데이터 타입 이름을 정렬한다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[코어]</span><span class="pill">[어댑터:dart-flutter]</span></div>
+        <p class="desc" style="margin-bottom:0">추출한 컴포넌트가 <code>...ItemWidget</code> 인데 그것이 받는 데이터가 <code>...RowViewState</code> 이면 <strong>같은 것을 두 이름으로 부르는 셈</strong>이다. 같은 도메인 용어로 맞춘다.</p>
+      </div>
+      <span class="source-badge">프로젝트 실측 — 컴포넌트/상태 타입 접미사 불일치가 리네이밍 작업의 반복 원인</span>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">10</span>
+          <h3>prefix 와 suffix 는 프로젝트 파라미터다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[코어]</span></div>
+        <pre><code>{widget_prefix} + 도메인/대상 + 역할 + {widget_suffix}
+클래스 UpperCamelCase · 파일 snake_case</code></pre>
+        <p class="desc" style="margin-bottom:12px"><code>{widget_prefix}</code>(스코프 구분자)와 <code>{widget_suffix}</code>(예: <code>Widget</code>)는 <strong>프로젝트마다 다르며 킷이 값을 정하지 않는다.</strong> 감지 규칙은 <code>project-detection</code> 이 소유한다.</p>
+        <p class="desc" style="margin-bottom:0">프로젝트가 접미사를 안 쓰기로 했다면 그것도 유효한 선택이다. 이 문서가 강제하는 것은 접미사의 존재가 아니라 <strong>taxonomy 의 일관성</strong> 이다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style (casing 규약만 해당)</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Section 4 — 접미사 결정표 ══ -->
+<div class="section">
+  <div class="section-label">접미사 taxonomy — 결정표 3종</div>
+  <p class="desc">원칙 3·4·5를 실제 판정에 쓸 수 있는 형태로 편 것. 왼쪽 열이 접미사, 가운데가 채택 조건, 오른쪽이 그 자리에서 쓰면 안 되는 경우다. <strong>세 표 모두 합성 규칙이다</strong> — 외부 표준으로 인용하지 마라.</p>
+
+  <h3 style="margin-bottom:10px">① 컬렉션 요소 — <code>Item</code> · <code>Tile</code> · <code>Cell</code> · <code>Row</code> · <code>Card</code></h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>접미사</th><th>언제 쓰나</th><th>쓰면 안 되는 경우</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="term t-mixed">Item</span></td><td>UI 형태를 특정하지 않는 일반 데이터 단위. <strong>세로 리스트 한 장의 기본값</strong></td><td>표의 교차 칸 — 그건 <code>Cell</code></td></tr>
+        <tr><td><span class="term t-tile">Tile</span></td><td>leading/trailing 을 가진 <strong>고정 높이</strong> 리스트 행</td><td>높이가 콘텐츠에 따라 늘어나는 항목</td></tr>
+        <tr><td><span class="term t-mixed">Cell</span></td><td>표·그리드의 <strong>교차 칸</strong></td><td>세로 리스트 요소 — 표 전용 어휘다</td></tr>
+        <tr><td><span class="term t-mixed">Row</span></td><td>표의 한 행. <strong>수평 구조가 의미상 본질일 때만</strong></td><td>세로 리스트 한 장 — 나중에 진짜 표가 생기면 충돌한다</td></tr>
+        <tr><td><span class="term t-card">Card</span></td><td>독립 표면으로 떠 있는 요소</td><td>Carbon 기반 프로젝트 — 그쪽은 <code>Tile</code> 이 그 자리다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 세로 리스트 한 장은 <code>Item</code> · 단순한 행이면 <code>Tile</code> · 독립 표면이면 <code>Card</code>. <code>Row</code>/<code>Cell</code> 은 표에만.</div>
+
+  <h3 style="margin:26px 0 10px">② 상단·구획 — <code>AppBar</code> · <code>Toolbar</code> · <code>Header</code> · <code>Bar</code></h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>접미사</th><th>언제 쓰나</th><th>어휘 원천 (권위 아님)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="term t-appbar">AppBar</span></td><td>화면 <strong>최상단 앱 컨테이너</strong> — 제목 · 내비게이션 · 주요 액션</td><td>MUI <code>AppBar</code> · M3 <code>Top app bar</code></td></tr>
+        <tr><td><span class="term t-toolbar">Toolbar</span></td><td><strong>현재 작업</strong>과 관련된 액션 묶음</td><td>Fluent 2 <code>Toolbar</code> · Apple HIG <code>Toolbars</code> · MUI <code>Toolbar</code></td></tr>
+        <tr><td><span class="term t-header">Header</span></td><td>콘텐츠 · 섹션 · 카드의 <strong>제목부 또는 시작부</strong></td><td>Ant <code>Layout.Header</code> · Carbon <code>UI shell header</code> — <strong>층위가 서로 다르다</strong></td></tr>
+        <tr><td><span class="term t-unknown">Bar</span></td><td>구체어가 없을 때만 쓰는 <strong>포괄 fallback</strong></td><td>대응 어휘 없음 — 합성</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 임의의 컨트롤 묶음이나 콘텐츠 상단 구획은 <code>Bar</code> 가 아니라 <code>Header</code>. <code>Bar</code> 는 마지막 수단이다.</div>
+
+  <h3 style="margin:26px 0 10px">③ 표면·구획 — <code>Section</code> · <code>Panel</code> · <code>Container</code> · <code>Card</code></h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>접미사</th><th>언제 쓰나</th><th>의미 강도</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="term t-mixed">Section</span></td><td><strong>의미 구획</strong> — 콘텐츠를 주제로 나눈 단위</td><td><span class="tag tag-ok">강함</span></td></tr>
+        <tr><td><span class="term t-mixed">Panel</span></td><td><strong>보조 작업 · 설정면</strong></td><td><span class="tag tag-ok">강함</span></td></tr>
+        <tr><td><span class="term t-card">Card</span></td><td>하나의 객체나 개념을 담는 <strong>독립 표면</strong></td><td><span class="tag tag-ok">강함</span> <span class="tag tag-warn">Carbon 은 Tile</span></td></tr>
+        <tr><td><span class="term t-unknown">Container</span></td><td><strong>저수준 레이아웃 래퍼</strong>. 역할이 아직 확정 안 된 내부 위젯에만</td><td><span class="tag tag-bad">약함</span></td></tr>
+        <tr><td><span class="term t-unknown">Box · Wrapper · View</span></td><td>같은 이유로 <strong>저수준 유틸 한정</strong></td><td><span class="tag tag-bad">약함</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 역할이 확정됐으면 역할어를 쓴다. <code>Container</code>/<code>Box</code>/<code>Wrapper</code>/<code>View</code> 는 역할이 <strong>아직 없을 때만</strong> 유효하다.</div>
+</div>
+
+<!-- ══ Section 5 — 우선순위 흐름 ══ -->
+<div class="section">
+  <div class="section-label">우선순위 — 역할이 겹칠 때 무엇이 이기나</div>
+  <p class="desc">한 요소가 여러 범주에 동시에 해당할 때 이 순서로 끊는다. 왼쪽이 셀수록 강하다.</p>
+
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">1순위 · 최강</span>
+      <span class="what">실제 인터랙션</span>
+      <span class="out">&rarr; Button</span>
+    </div>
+    <div class="flow-arrow">&gt;</div>
+    <div class="flow-step rank-2">
+      <span class="rank">2순위</span>
+      <span class="what">컬렉션 요소</span>
+      <span class="out">&rarr; Item / Tile</span>
+    </div>
+    <div class="flow-arrow">&gt;</div>
+    <div class="flow-step rank-3">
+      <span class="rank">3순위</span>
+      <span class="what">화면 구획</span>
+      <span class="out">&rarr; Section / Card</span>
+    </div>
+    <div class="flow-arrow">&gt;</div>
+    <div class="flow-step rank-4">
+      <span class="rank">4순위 · 최약</span>
+      <span class="what">상단 영역</span>
+      <span class="out">&rarr; Header / Toolbar</span>
+    </div>
+  </div>
+
+  <div class="warn-card">
+    <div class="principle-title">
+      <span class="num">!</span>
+      <h3>판정 기준은 "탭 가능한가" 가 아니다</h3>
+    </div>
+    <p class="desc" style="margin-bottom:14px">리스트 항목은 <strong>대부분 탭이 된다.</strong> 그렇다고 <code>Button</code> 이 아니다. 기준을 "탭 가능성" 으로 잡으면 목록 요소가 전부 <code>...Button</code> 이 된다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label">&#10007; 잘못된 질문</div>
+        <h4 style="margin-bottom:10px">"이거 탭 되나?"</h4>
+        <ul class="checklist" style="gap:8px">
+          <li><span class="check c-bad">&#10007;</span><span>리스트 항목 대부분이 탭 되므로 전부 <code>Button</code> 이 된다</span></li>
+          <li><span class="check c-bad">&#10007;</span><span>컬렉션 요소 접미사가 코드베이스에서 사라진다</span></li>
+          <li><span class="check c-bad">&#10007;</span><span>목록/버튼 구분이 이름으로 안 되니 검색이 무의미해진다</span></li>
+        </ul>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">&#10003; 옳은 질문</div>
+        <h4 style="margin-bottom:10px">"탭이 이 요소의 <em>존재 이유</em>인가?"</h4>
+        <ul class="checklist" style="gap:8px">
+          <li><span class="check">&#10003;</span><span>탭이 존재 이유다 &rarr; <code>Button</code></span></li>
+          <li><span class="check">&#10003;</span><span>목록을 보여주는 게 본질이고 탭은 부가다 &rarr; <code>Item</code></span></li>
+          <li><span class="check">&#10003;</span><span>독립 표면으로 떠 있고 탭은 진입 수단이다 &rarr; <code>Card</code></span></li>
+        </ul>
+      </div>
+    </div>
+    <span class="source-badge">합성 규칙 — 6개 시스템 중 우선순위를 문서화한 곳 0 (2026-08-28 확인)</span>
+  </div>
+</div>
+
+<!-- ══ Section 6 — 수치 기준 ══ -->
+<div class="section">
+  <div class="section-label">수치 기준 — 합성 판정의 근거</div>
+  <p class="desc">아래 표에서 <strong>강조된 두 값이 "이 taxonomy 는 합성이다" 라는 판정의 직접 근거</strong>다. 상단 영역 어휘가 일치하는 시스템이 0개이고, 커스텀 컴포넌트 명명 지침을 발행하는 시스템도 0개다. 인용할 권위가 애초에 존재하지 않는다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>출처</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>조사한 디자인 시스템</td><td><strong>6</strong></td><td>2026-08-28 확인</td></tr>
+        <tr style="background:rgba(251,191,36,0.06)"><td><strong>상단 영역 어휘가 일치하는 시스템 수</strong></td><td><span class="tag tag-warn">0</span> — 6개가 4가지 용어로 갈림</td><td>어휘 대조표</td></tr>
+        <tr style="background:rgba(251,191,36,0.06)"><td><strong>커스텀 컴포넌트 명명 지침을 발행하는 시스템</strong></td><td><span class="tag tag-warn">0</span></td><td>확인 실패</td></tr>
+        <tr><td>정의문을 인용 가능한 시스템</td><td><strong>4</strong> — M3 · Apple HIG 는 JS 렌더링</td><td>어휘 대조표</td></tr>
+        <tr><td>fallback 접두사 실측</td><td><strong>9건 / 4파일</strong> (57파일 스캔)</td><td>프로젝트 실측</td></tr>
+        <tr><td>컬렉션 요소 접미사 후보</td><td><strong>5</strong> — <code>Item</code>/<code>Tile</code>/<code>Cell</code>/<code>Row</code>/<code>Card</code></td><td>합성 taxonomy</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">두 개의 0이 이 문서 전체의 전제다. 표준이 있었다면 그것을 인용했을 것이고, 이 문서는 존재할 이유가 없었다.</p>
+</div>
+
+<!-- ══ Section 7 — 안티패턴 ══ -->
+<div class="section">
+  <div class="section-label">안티패턴 — 8가지</div>
+  <p class="desc">네이밍 자체의 안티패턴 5가지와 <strong>이 문서를 잘못 인용하는</strong> 안티패턴 3가지가 섞여 있다. 후자가 더 위험하다 — 규칙이 틀린 게 아니라 규칙의 근거를 왜곡하는 것이기 때문이다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>안티패턴</th><th>문제</th><th>유형</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>세로 리스트 요소를 <code>...Row</code> / <code>...Cell</code> 로 명명</td>
+          <td>표의 행·칸과 구분되지 않는다. 나중에 진짜 표가 생기면 이름이 충돌한다</td>
+          <td><span class="tag tag-bad">네이밍</span></td>
+        </tr>
+        <tr>
+          <td>임의 컨트롤 묶음에 <code>...Bar</code></td>
+          <td><code>Bar</code> 는 구체어가 없을 때의 fallback 이다. 콘텐츠 상단 구획은 <code>Header</code> 다</td>
+          <td><span class="tag tag-bad">네이밍</span></td>
+        </tr>
+        <tr>
+          <td>역할이 확정됐는데 <code>...Box</code> / <code>...View</code> / <code>...Container</code> / <code>...Wrapper</code></td>
+          <td>의미가 없는 이름은 검색도 안 되고 다음 사람이 역할을 다시 추론해야 한다</td>
+          <td><span class="tag tag-bad">네이밍</span></td>
+        </tr>
+        <tr>
+          <td>외형(색 · 모양 · 둥글기) 기반 이름</td>
+          <td>시안이 바뀌면 이름이 거짓이 된다. 리네임 비용이 시안 변경마다 발생한다</td>
+          <td><span class="tag tag-bad">네이밍</span></td>
+        </tr>
+        <tr>
+          <td>컴포넌트 접미사와 데이터 타입 접미사 불일치</td>
+          <td>같은 개념을 두 이름으로 부르게 되고, 검색이 한쪽만 잡는다</td>
+          <td><span class="tag tag-bad">네이밍</span></td>
+        </tr>
+        <tr style="background:rgba(251,191,36,0.06)">
+          <td>디자인 시스템을 taxonomy 의 <strong>권위</strong> 로 인용</td>
+          <td>6개 시스템이 서로 어긋난다. 인용은 <strong>어휘 원천까지만</strong> 유효하다</td>
+          <td><span class="tag tag-warn">인용 왜곡</span></td>
+        </tr>
+        <tr style="background:rgba(251,191,36,0.06)">
+          <td>M3 · Apple HIG 페이지 문구를 인용</td>
+          <td>본문이 JS 로만 렌더링돼 인용문을 검증할 수 없다. <strong>어휘 존재 확인용으로만</strong> 써라</td>
+          <td><span class="tag tag-warn">인용 왜곡</span></td>
+        </tr>
+        <tr style="background:rgba(251,191,36,0.06)">
+          <td><code>{widget_prefix}</code> 를 킷이 고정</td>
+          <td>prefix 는 프로젝트 소유 파라미터다. 킷이 값을 정하면 다른 프로젝트에서 <strong>전부 오탐</strong>이 된다</td>
+          <td><span class="tag tag-warn">범위 침범</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ Section 8 — Gotchas ══ -->
+<div class="section">
+  <div class="section-label">Gotchas — 이 taxonomy 를 쓸 때 반복되는 실수 6가지</div>
+  <p class="desc">규칙을 외우는 것보다 이 6가지를 피하는 게 실효가 크다. 1번은 이 문서 전체의 존재 이유이고, 6번은 매번 붙이고 싶어지는 유혹이다.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check c-warn">1</span>
+        <span><strong>taxonomy 를 "업계 표준" 이라고 소개하지 마라</strong> — 조사 결과는 정반대다. 6개 시스템이 상단 영역 하나를 4가지 용어로 부른다. 표준이라고 소개하면 첫 반박에 규칙 전체의 신뢰가 무너진다. <em>"합성이고, 그래서 프로젝트가 하나를 골라 고정한다"</em> 가 정확한 서술이다.</span>
+      </li>
+      <li>
+        <span class="check c-warn">2</span>
+        <span><strong><code>Header</code> 는 시스템마다 층위가 다르다</strong> — Carbon 에서는 최상위 내비게이션이고 Ant 에서는 레이아웃 상단이다. 외부 문서를 근거로 팀을 설득하려다 오히려 <strong>반대 사례를 들려주게 된다.</strong> 근거는 "우리 프로젝트 일관성" 이지 외부 권위가 아니다.</span>
+      </li>
+      <li>
+        <span class="check c-warn">3</span>
+        <span><strong><code>Card</code> 가 없는 시스템이 있다</strong> — Carbon core 에는 card 패턴이 없고 <code>Tile</code> 이 그 자리를 대신한다. <code>Card</code> 를 보편 어휘로 가정하면 Carbon 기반 프로젝트에서 규칙이 헛돈다.</span>
+      </li>
+      <li>
+        <span class="check c-warn">4</span>
+        <span><strong>접미사를 바꾸면 파일명 · 데이터 타입 · 테스트 경로가 같이 움직인다</strong> — 클래스만 리네임하면 <code>snake_case</code> 파일명과 대응 상태 타입이 뒤처진다. <strong>원칙 9와 10을 한 번에 적용하라.</strong></span>
+      </li>
+      <li>
+        <span class="check c-warn">5</span>
+        <span><strong>우선순위 규칙은 "탭 가능성" 이 아니라 "탭이 존재 이유인가" 로 끊는다</strong> — 리스트 항목은 대부분 탭이 되지만 그렇다고 <code>Button</code> 이 아니다. 이 구분을 놓치면 목록 요소가 전부 <code>...Button</code> 이 된다.</span>
+      </li>
+      <li>
+        <span class="check c-warn">6</span>
+        <span><strong>fallback 접두사 규칙에 논문을 붙이고 싶어진다</strong> — AI 코드 탐지 문헌이 identifier 신호를 다루긴 하지만 <strong>접두사별 통계는 없다.</strong> 각주를 붙이는 순간 검증 불가능한 주장이 된다. 실측 건수만 쓴다.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ Section 9 — 출처 ══ -->
+<div class="section">
+  <div class="section-label">출처 — 어휘 원천 (권위 아님)</div>
+  <p class="desc">아래 링크는 전부 <strong>어휘가 존재한다는 사실</strong>의 근거이지, 이 문서의 taxonomy 를 승인한 문서가 아니다. 링크 없는 항목은 인용 가능한 외부 출처가 없다는 뜻이다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>디자인 시스템 (어휘 원천)</h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">&rarr;</span><span>Material Design 3 — <a href="https://m3.material.io/components" target="_blank" rel="noopener">m3.material.io/components</a> <span class="tag tag-neutral">JS 렌더링 · 인용 불가</span></span></li>
+        <li><span class="check">&rarr;</span><span>Apple HIG — <a href="https://developer.apple.com/design/human-interface-guidelines/components" target="_blank" rel="noopener">developer.apple.com/design/human-interface-guidelines/components</a> <span class="tag tag-neutral">JS 렌더링 · 인용 불가</span></span></li>
+        <li><span class="check">&rarr;</span><span>MUI AppBar — <a href="https://mui.com/material-ui/react-app-bar/" target="_blank" rel="noopener">mui.com/material-ui/react-app-bar</a></span></li>
+        <li><span class="check">&rarr;</span><span>MUI ListItem API — <a href="https://mui.com/material-ui/api/list-item/" target="_blank" rel="noopener">mui.com/material-ui/api/list-item</a></span></li>
+        <li><span class="check">&rarr;</span><span>Fluent 2 Web React — <a href="https://fluent2.microsoft.design/components/web/react" target="_blank" rel="noopener">fluent2.microsoft.design/components/web/react</a></span></li>
+        <li><span class="check">&rarr;</span><span>Fluent 2 List — <a href="https://fluent2.microsoft.design/components/web/react/core/list/usage" target="_blank" rel="noopener">.../core/list/usage</a></span></li>
+        <li><span class="check">&rarr;</span><span>Fluent 2 Toolbar — <a href="https://fluent2.microsoft.design/components/web/react/core/toolbar/usage" target="_blank" rel="noopener">.../core/toolbar/usage</a></span></li>
+        <li><span class="check">&rarr;</span><span>Fluent 2 Card — <a href="https://fluent2.microsoft.design/components/web/react/core/card/usage" target="_blank" rel="noopener">.../core/card/usage</a></span></li>
+        <li><span class="check">&rarr;</span><span>Ant Design components — <a href="https://ant.design/components/overview/" target="_blank" rel="noopener">ant.design/components/overview</a></span></li>
+        <li><span class="check">&rarr;</span><span>Ant Design Layout — <a href="https://ant.design/components/layout" target="_blank" rel="noopener">ant.design/components/layout</a></span></li>
+        <li><span class="check">&rarr;</span><span>Ant Design Card — <a href="https://ant.design/components/card" target="_blank" rel="noopener">ant.design/components/card</a></span></li>
+        <li><span class="check">&rarr;</span><span>Carbon components — <a href="https://carbondesignsystem.com/components/overview/components/" target="_blank" rel="noopener">carbondesignsystem.com/components/overview/components</a></span></li>
+        <li><span class="check">&rarr;</span><span>Carbon List — <a href="https://carbondesignsystem.com/components/list/usage/" target="_blank" rel="noopener">carbondesignsystem.com/components/list/usage</a></span></li>
+        <li><span class="check">&rarr;</span><span>Carbon UI shell header — <a href="https://carbondesignsystem.com/components/UI-shell-header/usage/" target="_blank" rel="noopener">carbondesignsystem.com/components/UI-shell-header/usage</a></span></li>
+        <li><span class="check">&rarr;</span><span>Carbon Tile — <a href="https://carbondesignsystem.com/components/tile/usage/" target="_blank" rel="noopener">carbondesignsystem.com/components/tile/usage</a></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>공식 스타일 가이드 · 내부 근거</h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">&rarr;</span><span>Effective Dart: Style — <a href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">dart.dev/effective-dart/style</a> <span class="tag tag-ok">SHOULD 등급 유일 출처</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>합성 규칙</strong> — 원칙 2 · 6, 접미사 결정표 3종. 6개 시스템 중 문서화한 곳 0건 (2026-08-28 확인). <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>프로젝트 실측</strong> — 원칙 7 (fallback 접두사 9건 / 4파일, 57파일 스캔), 원칙 9 (컴포넌트/상태 타입 접미사 불일치). <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>확인 실패 항목</strong> — 커스텀 컴포넌트 명명 지침 발행 시스템 0개, fallback 접두사의 LLM 과대표집 공개 통계. <span class="tag tag-neutral">근거 없음 · 주장 금지</span></span></li>
+        <li><span class="check">&rarr;</span><span>연관 문서 — <code>ai-code-stylometry.md</code> 원칙 5 (fallback 접두사 상세), <code>project-detection</code> (prefix/suffix 감지 규칙 소유)</span></li>
+      </ul>
+      <p class="caption" style="margin-top:16px">문서 버전 <code>0.1.0</code> · 최종 갱신 2026-08-28 · 조사 대상 6개 시스템 · 정의문 인용 가능 4개</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

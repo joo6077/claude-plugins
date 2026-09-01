@@ -215,6 +215,27 @@ onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므�
 | 6 | 패키지 레지스트리 (예: [pub.dev/packages/firebase_messaging](https://pub.dev/packages/firebase_messaging)) | 공식 | 버전 확인은 레지스트리 우선 — GitHub Releases fetch 는 구 프리릴리스만 반환하는 사례 확인됨 | WebFetch |
 | 7 | 사용자 피드백 메모리 (`~/.claude/projects/.../memory/feedback_setup_guide_*.md`) | 내부 | 실사용 막힘 패턴 → Gotchas 개선 (읽기 전용) | 파일 Read |
 
+## Phase 15 — tone-kit
+
+tone-kit 은 코딩 톤·유지보수성 게이트를 다룬다. **규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션)이 이 킷의 핵심 자산** 이므로, 리서치의 목적은 새 원칙 추가보다 **기존 규칙의 강도가 출처 강도를 넘지 않는지 재확인** 하는 데 있다.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Droid: AI-Generated Code Detection (EMNLP 2025)](https://aclanthology.org/2025.emnlp-main.1593/) | 학술 | 코드 대상 탐지 문헌. adversarial humanizing 위험군 분류 근거 | [arXiv](https://arxiv.org/abs/2507.10583) |
+| 2 | [SemEval-2026 Task 13](https://github.com/mbzuai-nlp/SemEval-2026-Task13) | 공식 | 기계 생성 코드 탐지 벤치마크. Hybrid / Adversarial 클래스 정의 | [task list](https://semeval.github.io/SemEval2026/tasks.html) |
+| 3 | [Flutter 성능 모범 사례](https://docs.flutter.dev/perf/best-practices) | 공식 | 위젯 분리 권고 문구의 강도 확인 (`prefer` 인지 강제인지) | [architectural overview](https://docs.flutter.dev/resources/architectural-overview) |
+| 4 | [StatelessWidget API](https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html) | 공식 | 헬퍼 대신 위젯 클래스 권고의 원문 문구 | [Element.rebuild](https://api.flutter.dev/flutter/widgets/Element/rebuild.html) |
+| 5 | [Effective Dart: Style](https://dart.dev/effective-dart/style) | 공식 | 네이밍 규약 변경 여부 | [Documentation](https://dart.dev/effective-dart/documentation) |
+| 6 | [Google Engineering Practices](https://google.github.io/eng-practices/review/reviewer/looking-for.html) | 공식 | 주석 경제성 원칙 근거 | [abseil swe-book](https://abseil.io/resources/swe-book/html/ch03.html) |
+| 7 | [국립국어원 공공언어](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) | 공식 | 한국어 축 문체 근거 | [LINE 테크니컬 라이팅](https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/) |
+| 8 | 디자인 시스템 컴포넌트 인덱스 (M3 · HIG · MUI · Fluent · Ant · Carbon) | 공식 | 접미사 taxonomy 어휘 원천. **권위가 아니라 어휘 대조용** | WebFetch |
+
+**주의 3건**
+
+- 자연어 텍스트 탐지 문헌(DetectGPT · Binoculars · 텍스트 스타일로메트리)은 `tone-kit/references/sources.md` 의 제외 목록에 있다. 되살리지 마라.
+- 접미사 taxonomy 는 6개 시스템 중 어느 곳도 문서화하지 않은 **합성 규칙** 이다. 디자인 시스템을 권위로 인용하지 마라.
+- fallback 접두사(`effective*` / `resolved*`) 과대표집 통계는 공개 1차 문헌에 없다 (2026-08 확인). 논문 각주를 붙이지 마라.
+
 ## 사용 규칙
 
 1. **리서치 로그 저장** — 각 Phase 종료 시 `docs/<kit>/research-log.md` (또는 `docs/kaizen/research-log.md`) 에 조회한 소스를 "2026-MM-DD" 엔트리로 기록.
