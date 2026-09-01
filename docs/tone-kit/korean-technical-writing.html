@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Korean Technical Writing — 한국어 축 SSOT</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f7f4f9;--bg2:#efe9f3;--surface:#ffffff;--surface2:#f3edf7;--border:#e2d8ea;
+    --text:#1b1420;--text2:#5b5165;--text3:#7d7288;
+    --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
+    --green:#15803d;--red:#b91c1c;--yellow:#a16207;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(217,70,239,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(217,70,239,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:clamp(20px,3vw,32px)}
+  .topbar-brand{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+  .topbar-brand b{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text2);
+    font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
+    transition:border-color var(--transition),color var(--transition),background var(--transition);
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:820px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
+  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:820px;margin-bottom:24px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-good{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-obs{background:var(--surface2);color:var(--text3)}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:var(--accent-dim)}
+  td code,p code,li code,h3 code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:10px 0}
+  pre code{font-family:var(--mono);font-size:12.5px;line-height:1.75;color:var(--text2);background:none;padding:0;white-space:pre}
+  pre .k{color:var(--accent2)}
+  pre .bad{color:var(--red)}
+  pre .good{color:var(--green)}
+
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.65}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+
+  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono);width:100%}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .badge{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:5px;border:1px solid transparent}
+  .badge-must{background:rgba(248,113,113,0.14);color:var(--red);border-color:rgba(248,113,113,0.3)}
+  .badge-should{background:rgba(251,191,36,0.14);color:var(--yellow);border-color:rgba(251,191,36,0.3)}
+  .badge-obs{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+
+  .spec-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px}
+  .spec-row:last-child{border-bottom:none}
+  .spec-key{color:var(--text3);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;min-width:86px}
+  .spec-val{color:var(--text2);text-align:right;font-family:var(--mono);font-size:12px}
+
+  /* ── 3축 직교 다이어그램 (HTML/CSS 전용) ── */
+  .ortho{display:grid;gap:14px;grid-template-columns:1fr 1fr 1fr;
+    grid-template-areas:". stack ." "lang node proj";margin-bottom:20px}
+  .axis-card{border:1px solid var(--border);border-left:3px solid var(--axis-c,var(--accent));
+    border-radius:12px;padding:16px 18px;background:var(--surface)}
+  .axis-stack{grid-area:stack;--axis-c:var(--text3)}
+  .axis-lang{grid-area:lang;--axis-c:var(--accent)}
+  .axis-proj{grid-area:proj;--axis-c:var(--yellow)}
+  .axis-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .axis-kicker{font-size:10.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--axis-c)}
+  .axis-card h3{font-size:15px;margin-bottom:0}
+  .axis-values{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+  .axis-values span{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:20px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+  .axis-owner{font-size:12px;color:var(--text3);line-height:1.6}
+  .axis-arrow{color:var(--axis-c);font-weight:800;font-size:14px}
+  .ortho-node{grid-area:node;background:var(--surface2);border:1px dashed var(--accent);
+    border-radius:12px;padding:18px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+  .ortho-node h3{color:var(--accent);font-size:15px;text-align:center;margin-bottom:2px}
+  .ortho-node .node-sample{font-family:var(--mono);font-size:12px;text-align:center;color:var(--text);
+    background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;overflow-x:auto}
+  .ortho-node p{font-size:12px;color:var(--text2);line-height:1.6;text-align:center}
+
+  .shift{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .shift-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .shift-card h4{color:var(--accent);letter-spacing:0.3px}
+  .shift-delta{display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:12.5px}
+  .shift-delta div{display:flex;gap:8px;align-items:flex-start;color:var(--text2)}
+  .shift-delta b{flex-shrink:0;font-weight:700}
+  .delta-change b{color:var(--yellow)}
+  .delta-keep b{color:var(--green)}
+
+  /* ── 킬러 패턴 카드 ── */
+  .killer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:16px;margin-bottom:24px}
+  .killer-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;
+    border-top:3px solid var(--red);transition:border-color var(--transition)}
+  .killer-card:hover{border-color:rgba(217,70,239,0.3);border-top-color:var(--red)}
+  .killer-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .killer-idx{font-family:var(--mono);font-size:11px;color:var(--text3);font-weight:700}
+  .killer-ban{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--red);overflow-wrap:anywhere}
+  .killer-why{font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+  .killer-fix{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--text2);
+    background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:8px;padding:9px 11px}
+  .killer-fix .arrow{color:var(--green);font-weight:800;flex-shrink:0}
+  .killer-grep{margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--text3);overflow-wrap:anywhere}
+  .killer-grep b{color:var(--accent);font-weight:700}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px;margin-bottom:22px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .stat-num{font-size:clamp(20px,2.4vw,26px);font-weight:800;color:var(--accent);line-height:1.2;font-family:var(--mono)}
+  .stat-key{font-size:11.5px;color:var(--text3);margin-top:4px;letter-spacing:0.3px}
+
+  footer{border-top:1px solid var(--border);margin-top:20px;padding-top:20px;color:var(--text3);font-size:12px}
+  footer a{color:var(--accent);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
+     내용을 자르지(overflow:hidden) 말고 스크롤/줄바꿈으로 해소한다. */
+  /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
+  .grid-2>*,.grid-3>*,.compare>*,.killer-grid>*,.ortho>*,.shift>*,.stat-row>*,.checklist li>*{min-width:0}
+  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
+  .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+  /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
+  pre{max-width:100%}
+  pre code{white-space:pre}
+  :not(pre)>code{overflow-wrap:anywhere}
+  /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.killer-why,.axis-owner,p{overflow-wrap:anywhere}
+  /* (4) 좁은 뷰포트에서는 단일 컬럼으로 스택한다 */
+  @media(max-width:760px){
+    .ortho{grid-template-columns:1fr;grid-template-areas:"stack" "node" "lang" "proj"}
+  }
+  @media(max-width:600px){
+    .grid-2,.grid-3,.compare,.shift,.killer-grid{grid-template-columns:1fr}
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,*::before,*::after { transition:none !important; animation:none !important; }
+    html { scroll-behavior:auto }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <div class="topbar-brand">tone-kit · <b>한국어 축 SSOT</b></div>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">
+    <span id="theme-icon" aria-hidden="true">&#9728;&#65039;</span><span id="theme-label">라이트 모드</span>
+  </button>
+</div>
+
+<h1>Korean Technical Writing — 한국어 축 SSOT</h1>
+<p class="subtitle">한국어로 쓰는 주석·doc 의 문체 규칙을 정의한다. 번역투 제거, 종결형, 외래어 처리, 용어 번역표 작성이 대상이다. <strong>이 문서가 "한국어 의존" 축의 SSOT 다</strong> — 다른 문서는 한국어 규칙을 다시 정의하지 말고 여기를 가리킨다. 소스: <code>docs/tone/korean-technical-writing.md</code> v0.1.0 · 2026-08-28.</p>
+
+<!-- ── Section 1 — 3축 직교 ── -->
+<div class="section">
+  <div class="section-label">3축 직교 — 스택 · 언어 · 프로젝트</div>
+  <p class="desc">규칙의 의존성은 세 축으로 나뉜다. <strong>스택 축</strong>(Dart/Flutter · Rust · TypeScript), <strong>언어 축</strong>(한국어 · 영어), <strong>프로젝트 축</strong>(강도 승격 · 도메인 어휘)이다. 세 축은 서로를 결정하지 않는다. 그래서 규칙 하나를 고칠 때 어느 축을 건드리는지부터 정한다.</p>
+
+  <div class="ortho">
+    <div class="axis-card axis-stack">
+      <div class="axis-head"><span class="axis-kicker">축 1</span><h3>스택</h3></div>
+      <div class="axis-values"><span>Dart / Flutter</span><span>Rust</span><span>TypeScript</span></div>
+      <p class="axis-owner">정하는 것: 주석 문법(<code>///</code>), 링크 문법(<code>[param]</code> ↔ <code>`param`</code>).<br>소유 문서: 스택 어댑터. <span class="axis-arrow">↓</span></p>
+    </div>
+
+    <div class="axis-card axis-lang">
+      <div class="axis-head"><span class="axis-kicker">축 2</span><h3>언어</h3></div>
+      <div class="axis-values"><span>한국어</span><span>영어</span></div>
+      <p class="axis-owner">정하는 것: 라벨 문자열, 종결형, 번역투 제거, 외래어 판정.<br>소유 문서: <strong>이 문서</strong>. <span class="axis-arrow">→</span></p>
+    </div>
+
+    <div class="ortho-node">
+      <h3>규칙 1개 = 세 축의 교차점</h3>
+      <div class="node-sample">/// - 반환값: 연결되어 있으면 true</div>
+      <p>한 줄 안에 세 축이 겹쳐 있다. 축을 나눠 보면 무엇을 어디서 고쳐야 하는지가 바로 갈린다.</p>
+    </div>
+
+    <div class="axis-card axis-proj">
+      <div class="axis-head"><span class="axis-kicker">축 3</span><h3>프로젝트</h3></div>
+      <div class="axis-values"><span>강도 승격</span><span>용어 번역표</span><span>기준 코드베이스</span></div>
+      <p class="axis-owner">정하는 것: SHOULD → MUST 승격, 도메인 어휘 판정 행.<br>소유 위치: <strong>프로젝트 저장소</strong>. <span class="axis-arrow">←</span></p>
+    </div>
+  </div>
+
+  <div class="shift">
+    <div class="shift-card">
+      <h4>언어 축만 이동 (스택 = Dart 고정)</h4>
+      <pre><code>한국어 프로젝트: /// - 반환값: 연결되어 있으면 true
+영어 프로젝트:   /// - Returns: true when connected</code></pre>
+      <div class="shift-delta">
+        <div class="delta-change"><b>바뀐 것</b><span>라벨 문자열 하나.</span></div>
+        <div class="delta-keep"><b>남는 것</b><span>"파라미터와 반환값을 doc 하단에 라벨 블록으로 붙인다"는 골격, "void 는 한 가지 표기로 통일한다"는 제약, 커버리지 기준.</span></div>
+      </div>
+    </div>
+
+    <div class="shift-card">
+      <h4>스택 축만 이동 (언어 = 한국어 고정)</h4>
+      <pre><code>Dart : /// - [param]: 설명
+Rust : /// - `param`: 설명</code></pre>
+      <div class="shift-delta">
+        <div class="delta-change"><b>바뀐 것</b><span>주석 문법과 링크 문법(<code>[param]</code> → <code>`param`</code>).</span></div>
+        <div class="delta-keep"><b>남는 것</b><span>한국어 문체 규칙은 한 줄도 안 바뀐다. 그래서 어댑터 문서는 라벨 상수와 주석 문법만 정의하고, 문체는 이 문서를 참조한다.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 2 — 번역투 킬러 패턴 (최대 실용 자산) ── -->
+<div class="section">
+  <div class="section-label">★ 번역투 킬러 패턴 6종 — 치환표</div>
+  <p class="desc">아래 6개 패턴이 한국어 주석에서 AI 톤을 가장 강하게 만든다. 각각 원인이 되는 영어 구문이 있고, 대체형이 정해져 있다. <strong>종결어미만 <code>한다</code>체로 바꾸고 <code>~에 의해</code> 를 남기면 번역투는 그대로다.</strong> 6종은 종결형 규칙과 별개로 각각 잡는다.</p>
+
+  <div class="killer-grid">
+
+    <div class="killer-card">
+      <div class="killer-head"><span class="killer-idx">01</span><span class="killer-ban">~을 처리합니다 / ~을 관리합니다</span></div>
+      <p class="killer-why">동사가 비어 있어 메서드명을 한국어로 되풀이하는 데 그친다.</p>
+      <div class="killer-fix"><span class="arrow">→</span><span>실제 동작 동사: <code>길게 누르기 반복을 시작한다</code></span></div>
+      <p class="killer-grep"><b>grep</b> 처리합니다\|관리합니다</p>
+    </div>
+
+    <div class="killer-card">
+      <div class="killer-head"><span class="killer-idx">02</span><span class="killer-ban">~에 대해서 / ~에 대해</span></div>
+      <p class="killer-why"><code>about</code> / <code>for</code> 직역. 목적격 조사면 충분하다.</p>
+      <div class="killer-fix"><span class="arrow">→</span><span><code>서버 이름을 보여 준다</code></span></div>
+      <p class="killer-grep"><b>grep</b> 에 대해</p>
+    </div>
+
+    <div class="killer-card">
+      <div class="killer-head"><span class="killer-idx">03</span><span class="killer-ban">~하도록 합니다</span></div>
+      <p class="killer-why">사역 구문 직역. 주체가 사라진다.</p>
+      <div class="killer-fix"><span class="arrow">→</span><span>단정형 <code>~한다</code>: <code>키보드 입력을 이어 간다</code></span></div>
+      <p class="killer-grep"><b>grep</b> 하도록 합니다</p>
+    </div>
+
+    <div class="killer-card">
+      <div class="killer-head"><span class="killer-idx">04</span><span class="killer-ban">~에 의해</span></div>
+      <p class="killer-why"><code>by</code> 직역 수동태.</p>
+      <div class="killer-fix"><span class="arrow">→</span><span>주어를 되살린 능동형: <code>surface tint 가 배경색을 덮는다</code></span></div>
+      <p class="killer-grep"><b>grep</b> 에 의해</p>
+    </div>
+
+    <div class="killer-card">
+      <div class="killer-head"><span class="killer-idx">05</span><span class="killer-ban">~되어 있는 경우</span></div>
+      <p class="killer-why"><code>if ... is set</code> 직역. 조건 서술이 두 배로 길어진다.</p>
+      <div class="killer-fix"><span class="arrow">→</span><span><code>값이 없으면 …</code></span></div>
+      <p class="killer-grep"><b>grep</b> 되어 있는 경우</p>
+    </div>
+
+    <div class="killer-card">
+      <div class="killer-head"><span class="killer-idx">06</span><span class="killer-ban">과한 수동태</span></div>
+      <p class="killer-why">행위 주체가 사라져 원인을 추적할 수 없다. 대표형은 <code>표시됩니다</code> · <code>적용됩니다</code>.</p>
+      <div class="killer-fix"><span class="arrow">→</span><span>주체 + 능동: <code>이 위젯이 …를 그린다</code></span></div>
+      <p class="killer-grep"><b>grep</b> 표시됩니다\|적용됩니다</p>
+    </div>
+
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>금지</th><th>대체</th><th>검색 패턴</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>~을 처리합니다</code> / <code>~을 관리합니다</code></td><td>실제 동작 동사 — <code>길게 누르기 반복을 시작한다</code></td><td><code>처리합니다\|관리합니다</code></td></tr>
+        <tr><td><code>~에 대해서</code> / <code>~에 대해</code></td><td>목적격 조사 — <code>서버 이름을 보여 준다</code></td><td><code>에 대해</code></td></tr>
+        <tr><td><code>~하도록 합니다</code></td><td>단정형 <code>~한다</code> — <code>키보드 입력을 이어 간다</code></td><td><code>하도록 합니다</code></td></tr>
+        <tr><td><code>~에 의해</code></td><td>능동형 — <code>surface tint 가 배경색을 덮는다</code></td><td><code>에 의해</code></td></tr>
+        <tr><td><code>~되어 있는 경우</code></td><td>짧은 조건 — <code>값이 없으면 …</code></td><td><code>되어 있는 경우</code></td></tr>
+        <tr><td>과한 수동태 (<code>표시됩니다</code> · <code>적용됩니다</code>)</td><td>주체 + 능동 — <code>이 위젯이 …를 그린다</code></td><td><code>표시됩니다\|적용됩니다</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">검색 패턴은 6종 문자열에서 그대로 뽑은 것이다. 종결형 일괄 치환 뒤에 이 6줄을 따로 돌린다.</p>
+</div>
+
+<!-- ── Section 3 — 원칙 8개 ── -->
+<div class="section">
+  <div class="section-label">원칙 8개 — 강도 · 축 배지</div>
+  <p class="desc">강도는 3단계다. <span class="badge badge-must">MUST</span> 는 킷 구조를 결정하고, <span class="badge badge-should">SHOULD</span> 는 공개 근거가 있으며 프로젝트가 MUST 로 올릴 수 있고, <span class="badge badge-obs">관측 컨벤션</span> 은 실측 근거만 존재한다. 축 배지는 그 규칙을 어느 문서가 소유하는지 가리킨다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="principle-title"><span class="num">1</span><h3>한국어 축은 스택 축과 직교한다</h3></div>
+      <div class="badges"><span class="badge badge-must">MUST</span><span class="pill">[코어]</span><span class="pill">[한국어]</span><span class="pill">킷 구조 결정</span></div>
+      <p class="desc" style="margin-bottom:10px">dart doc 의 <code>- 반환값:</code> 라벨이 대표 사례다. 이 라벨은 Dart 의존이 아니라 한국어 의존이다. 같은 규칙을 영어 프로젝트로 옮기면 표기만 바뀌고 구조는 그대로 남는다. 어댑터 문서는 라벨 상수와 주석 문법만 정의한다.</p>
+      <a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener">→ 국립국어원 공공언어 자료</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">2</span><h3>번역투 킬러 패턴 6종을 제거한다</h3></div>
+      <div class="badges"><span class="badge badge-should">SHOULD</span><span class="pill">[한국어]</span><span class="pill">MUST 승격 가능</span></div>
+      <p class="desc" style="margin-bottom:10px">6개 패턴이 AI 톤을 가장 강하게 만든다. 각각 원인이 되는 영어 구문과 대체형이 정해져 있다. 종결형 규칙과 독립이므로 치환 뒤에 6종을 따로 잡는다.</p>
+      <a class="card-source" href="https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002178732" target="_blank" rel="noopener">→ 한국어 번역투 연구 (KCI)</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">3</span><h3>능동형·주체 직설·원인 결과 구체성으로 대체한다</h3></div>
+      <div class="badges"><span class="badge badge-should">SHOULD</span><span class="pill">[한국어]</span></div>
+      <p class="desc" style="margin-bottom:10px">패턴을 지우는 것만으로는 문장이 완성되지 않는다. 능동형으로 쓰고, 주체와 결과를 직설로 밝히고, 원인과 결과를 구체적으로 연결한다. 문장 수사보다 정보 설계가 먼저이고, 주석의 값어치는 <code>what</code> 이 아니라 <code>why</code> 에서 나온다.</p>
+      <a class="card-source" href="https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/" target="_blank" rel="noopener">→ LINE 테크니컬 라이팅</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">4</span><h3>종결형은 <code>한다</code>체 하나로 고정한다</h3></div>
+      <div class="badges"><span class="badge badge-obs">관측 컨벤션</span><span class="pill">[코어]</span><span class="pill">[한국어]</span></div>
+      <p class="desc" style="margin-bottom:10px">doc 본문 동사는 <code>한다</code>체로 고정한다. <code>만든다</code> · <code>수집한다</code> · <code>건너뛴다</code> · <code>검증한다</code> · <code>조립한다</code> 처럼 쓰고 <code>합니다</code>체와 명사형 종결을 섞지 않는다. 한 코드베이스에 두 종결형이 공존하면 grep 기준이 무너진다. 인라인 <code>//</code> 주석은 예외다 — 파편형·단문을 허용하고, 코드만 읽어도 뜻이 통하면 아예 지운다.</p>
+      <div class="spec-row"><span class="spec-key">실측</span><span class="spec-val">공용 패키지 번역투 doc 129건</span></div>
+      <div class="spec-row"><span class="spec-key">그 중</span><span class="spec-val">반환합니다 종결 125건</span></div>
+      <span class="source-badge">◆ 프로젝트 실측 (2026-08-28 전수 감사) · 공개 문헌 근거 없음</span>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">5</span><h3>외래어는 3원칙으로 가른다</h3></div>
+      <div class="badges"><span class="badge badge-should">SHOULD</span><span class="pill">[한국어]</span></div>
+      <p class="desc" style="margin-bottom:10px">공식 API 이름은 영어 원문, 일반 명사는 한국어, 음역은 금지다. 경계에 정착 외래어가 있고, 정착 여부는 팀이 판정한 뒤 결과를 용어 번역표에 적는다. 코드 식별자는 이 규칙의 대상이 아니다.</p>
+      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">→ Effective Dart documentation</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">6</span><h3>이름 번역 주석은 한국어 프로젝트 고유의 최대 덩어리다</h3></div>
+      <div class="badges"><span class="badge badge-should">SHOULD</span><span class="pill">[코어]</span><span class="pill">[한국어]</span></div>
+      <p class="desc" style="margin-bottom:10px">식별자가 영어이고 주석이 한국어라서 번역 주석이 정보를 더하는 것처럼 보인다. 실제로는 같은 내용의 반복이다. 영어 단일 언어 프로젝트라면 <code>// button text</code> 는 누구도 안 쓴다.</p>
+      <pre><code>String? text,        <span class="bad">// 버튼 텍스트</span>   ← text 가 이미 '텍스트'
+bool isChecked,      <span class="bad">// 체크 여부</span>     ← isChecked 가 이미 '체크 여부'
+double min,          <span class="bad">// 최소값</span>        ← min 이 이미 '최소값'</code></pre>
+      <p class="desc" style="margin-bottom:10px">처리 기준은 삭제다. 이름이 약해서 주석이 필요했다면 주석 대신 이름을 고친다. 남길 것은 이름·타입에서 안 읽히는 계약뿐이다 — 값의 우선순위, 무효화 조건, 허용 범위가 그것이다.</p>
+      <a class="card-source" href="https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/" target="_blank" rel="noopener">→ Microsoft Code with Engineering Playbook</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">7</span><h3>doc 라벨은 언어 의존 상수다 — 표기를 쪼개지 마라</h3></div>
+      <div class="badges"><span class="badge badge-obs">관측 컨벤션</span><span class="pill">[어댑터:dart-flutter]</span><span class="pill">[한국어]</span></div>
+      <p class="desc" style="margin-bottom:10px">파라미터·반환값 블록의 라벨은 자유 서술이 아니라 상수다. 한국어 프로젝트에서는 <code>- [param]: 설명</code> 과 <code>- 반환값: 설명</code> 두 형태로 고정한다. void 반환은 <code>- 반환값: 없음</code> 으로 쓰고 <code>N/A</code> 를 새로 도입하지 않는다. 본문은 한두 문장으로 끝낸다.</p>
+      <pre><code>/// 네트워크 연결 상태를 확인하고, 끊긴 경우 안내 다이얼로그를 띄운다.
+///
+/// - [context]: 다이얼로그 표시용 빌드 컨텍스트
+/// - [ref]: 네트워크 모니터 상태 조회용 ref
+/// - 반환값: 연결되어 있으면 true, 끊겨 있으면 false</code></pre>
+      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">→ Effective Dart documentation</a>
+    </div>
+
+    <div class="card">
+      <div class="principle-title"><span class="num">8</span><h3>용어 번역표는 프로젝트가 소유한다</h3></div>
+      <div class="badges"><span class="badge badge-obs">관측 컨벤션</span><span class="pill">[코어]</span><span class="pill">[한국어]</span></div>
+      <p class="desc" style="margin-bottom:10px">원칙 5 의 3원칙만으로는 매번 판정이 갈린다. 판정 결과를 누적하는 표가 프로젝트마다 하나 있어야 하고, 그 표는 킷이 아니라 <strong>프로젝트 저장소</strong>에 둔다. 도메인 어휘와 정착 외래어 판정은 프로젝트마다 다르고, 공용 문서로 올리면 다른 프로젝트에 잘못된 번역을 강제한다.</p>
+      <a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener">→ 국립국어원 공공언어 자료</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 4 — Before / After ── -->
+<div class="section">
+  <div class="section-label">Before / After — 주석 다시 쓰기 5쌍</div>
+  <p class="desc">원칙 3 의 대체 원칙을 문장 단위로 적용한 결과다. 세 번째 쌍은 번역투(<code>~에 의해</code>)와 음역(<code>오버레이</code>)이 함께 걸린 사례다. 한 문장이 두 규칙을 동시에 어기는 일이 흔하므로 고칠 때 둘 다 본다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span class="tag tag-bad">Bad</span> 번역투 원문</div>
+      <pre><code><span class="bad">/// 눌림 시작을 처리합니다.</span>
+
+<span class="bad">// 서버 이름에 대해 표시합니다.</span>
+
+<span class="bad">// 배경색이 오버레이에 의해 변경됩니다.</span>
+
+<span class="bad">// 포커스를 잃지 않도록 합니다.</span>
+
+<span class="bad">// 값이 설정되어 있는 경우에만 표시되도록 합니다.</span></code></pre>
+      <ul class="checklist" style="margin-top:14px;gap:6px">
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span>동사가 비어 메서드명을 되풀이한다</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span>주체가 사라져 원인을 추적할 수 없다</span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span>조건 서술이 두 배로 길어진다</span></li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span class="tag tag-good">Good</span> 능동 · 주체 직설</div>
+      <pre><code><span class="good">// 길게 누르기 반복을 시작한다.</span>
+
+<span class="good">// 선택된 서버 이름을 그대로 보여 준다.</span>
+
+<span class="good">// Material 3 surface tint 가 배경색을
+// 덮어 실제 색이 더 밝아 보인다.</span>
+
+<span class="good">// 드롭다운을 닫은 뒤에도 키보드 입력을
+// 이어 가야 한다.</span>
+
+<span class="good">// 값이 없으면 빈 영역을 만들지 않는다.</span></code></pre>
+      <ul class="checklist" style="margin-top:14px;gap:6px">
+        <li><span class="check">✓</span><span>실제 동작 동사가 들어간다</span></li>
+        <li><span class="check">✓</span><span>주어를 되살려 원인과 결과를 잇는다</span></li>
+        <li><span class="check">✓</span><span>공식 API 이름 <code>surface tint</code> 는 원문 유지</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 5 — 언어 의존 상수 ── -->
+<div class="section">
+  <div class="section-label">언어 의존 상수 — 라벨 표기</div>
+  <p class="desc">라벨을 상수로 다루는 이유는 검색성이다. 이 규모에서 표기가 둘로 갈리면 커버리지 측정과 일괄 치환이 모두 깨진다.</p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">577</div><div class="stat-key"><code>- 반환값:</code> 건수 / 80파일</div></div>
+    <div class="stat"><div class="stat-num">792</div><div class="stat-key"><code>- [param]:</code> 건수</div></div>
+    <div class="stat"><div class="stat-num">129</div><div class="stat-key">공용 패키지 번역투 doc</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-key">킬러 패턴 종수</div></div>
+  </div>
+
+  <div class="table-wrap" style="margin-bottom:20px">
+    <table>
+      <thead>
+        <tr><th>상수</th><th>고정 표기</th><th>실측 규모</th><th>금지 변형</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>파라미터 라벨</strong></td><td><code>- [param]: 설명</code></td><td>788건</td><td>자유 서술로 풀어 쓰기</td></tr>
+        <tr><td><strong>반환값 라벨</strong></td><td><code>- 반환값: 설명</code></td><td>577건 / 80파일</td><td><code>- 리턴:</code> · <code>- 결과:</code> 로 다듬기</td></tr>
+        <tr><td><strong>void 반환</strong></td><td><code>- 반환값: 없음</code></td><td>—</td><td><code>N/A</code> 신규 도입, 노이즈로 보고 삭제</td></tr>
+        <tr><td><strong>doc 본문</strong></td><td>한두 문장</td><td>—</td><td><code>정책:</code> · <code>참고:</code> · <code>주의:</code> 섹션 헤더, 알고리즘 단계 나열</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn-card">
+    <div class="principle-title"><span class="num">!</span><h3>부분 변경이 검색 게이트를 깬다</h3></div>
+    <p class="desc" style="margin-bottom:12px">라벨을 "더 자연스럽게" 다듬고 싶어지는 순간이 온다. 이것은 상수다. 표기를 바꾸려면 전수 치환을 같이 하고, <strong>부분 변경은 금지</strong>다.</p>
+    <ul class="checklist">
+      <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span><code>- 반환값:</code> 을 <code>- 리턴:</code> 이나 <code>- 결과:</code> 로 바꾸면 577건짜리 커버리지 측정이 그 자리에서 무너진다.</span></li>
+      <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span>void doc 에 <code>N/A</code> 를 새로 들이면 한 프로젝트 안에서 상수가 두 표기로 쪼개진다.</span></li>
+      <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span><code>- 반환값: 없음</code> 을 지우면 "doc 이 없는 것"과 "반환값이 없는 것"을 구분할 수 없다.</span></li>
+    </ul>
+    <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">→ Effective Dart documentation</a>
+  </div>
+</div>
+
+<!-- ── Section 6 — 외래어 3원칙 ── -->
+<div class="section">
+  <div class="section-label">외래어 3원칙</div>
+  <p class="desc">세 갈래로 가른 뒤, 경계에 걸린 단어만 용어 번역표로 넘긴다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="num">1</span><h3>공식 API 이름은 영어 원문</h3></div>
+      <p class="desc" style="margin-bottom:8px"><code>surface tint</code>, <code>BoxDecoration</code>, <code>strokeAlign</code> 을 번역하지 않는다. 문서·검색·자동완성이 전부 원문 기준으로 움직인다.</p>
+      <span class="tag">원문 유지</span>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">2</span><h3>일반 명사는 한국어</h3></div>
+      <p class="desc" style="margin-bottom:8px">배경색, 그림자, 테두리. 원문을 남길 이유가 없으면 한국어가 기본값이다.</p>
+      <span class="tag">한국어 기본값</span>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">3</span><h3>음역 금지</h3></div>
+      <p class="desc" style="margin-bottom:8px"><code>보더 라디우스</code> 는 쓰지 않는다. 한국어도 영어도 아니라 검색이 안 되고 공식 API 이름과도 어긋난다.</p>
+      <span class="tag tag-bad">금지</span>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:20px">
+    <div class="compare-good">
+      <div class="compare-label"><span class="tag tag-good">허용</span> 정착 외래어</div>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check">✓</span><span><code>다운로드</code> · <code>업로드</code></span></li>
+        <li><span class="check">✓</span><span><code>파싱</code> · <code>파일</code> · <code>폴더</code></span></li>
+        <li><span class="check">✓</span><span>이미 한국어 어휘로 굳은 말이라 그대로 쓴다</span></li>
+      </ul>
+    </div>
+    <div class="compare-bad">
+      <div class="compare-label"><span class="tag tag-bad">금지</span> 굳지 않은 음역</div>
+      <ul class="checklist" style="gap:6px">
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span><code>잡</code>(job) → <code>작업</code></span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span><code>큐</code>(queue) → <code>대기열</code></span></li>
+        <li><span class="check" style="border-color:var(--red);color:var(--red)">✗</span><span><code>보더 라디우스</code> → 공식 API 이름을 원문으로 쓴다</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>코드 식별자는 이 규칙의 대상이 아니다</h3>
+    <p class="desc" style="margin-bottom:10px">타입·함수·변수·메서드 이름은 영어를 그대로 둔다. 번역하면 doc 링크가 끊긴다. 음역 금지는 한국어 본문만 겨냥한다. 정착 여부는 팀이 판정하고 결과를 용어 번역표에 적는다(원칙 8).</p>
+    <a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener">→ 국립국어원 공공언어 자료</a>
+  </div>
+</div>
+
+<!-- ── Section 7 — 용어 번역표 작성 규칙 ── -->
+<div class="section">
+  <div class="section-label">용어 번역표 — 작성 규칙 (표 내용은 프로젝트 소유)</div>
+  <p class="desc">킷이 옮기는 것은 "표를 어떻게 만들고 유지하는가"이고, <strong>행 자체는 각 프로젝트가 자기 도메인으로 채운다.</strong> 표 내용은 이관 대상이 아니다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:12px">작성 규칙 5가지</h3>
+      <ul class="checklist">
+        <li><span class="check">1</span><span><strong>3열 고정</strong> — 용어(영어 원문) / 주석에서 쓸 표기 / 비고(판정 근거). 비고에는 <code>Material 3 API</code>, <code>일반 명사</code>, <code>음역 금지</code> 처럼 원칙 5 의 어느 갈래인지 적는다.</span></li>
+        <li><span class="check">2</span><span><strong>판정이 갈렸던 것만 올린다</strong> — 원칙 5 로 자명하게 갈리는 단어를 전부 나열하면 표가 규칙을 대체해 버린다. 초기 규모는 6행 안팎이면 충분하다.</span></li>
+        <li><span class="check">3</span><span><strong>새 케이스가 생길 때 한 행씩 늘린다</strong> — 표를 미리 채우지 않는다.</span></li>
+        <li><span class="check">4</span><span><strong>기준 코드베이스를 명시한다</strong> — 애매하면 어느 디렉토리의 네이밍을 따를지 표 하단에 적는다.</span></li>
+        <li><span class="check">5</span><span><strong>AI 톤 오염 영역은 기준으로 삼지 않는다</strong> — 오염된 표기가 표를 통해 정식 규칙으로 승격된다.</span></li>
+      </ul>
+      <a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener">→ 국립국어원 공공언어 자료</a>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px">3열 스켈레톤 (행은 프로젝트가 채운다)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>용어</th><th>주석 표기</th><th>비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>surface tint</code></td><td><code>surface tint</code></td><td>Material 3 API — 원문 유지</td></tr>
+            <tr><td><code>background color</code></td><td>배경색</td><td>일반 명사</td></tr>
+            <tr><td><code>parsing</code></td><td>파싱</td><td>정착 외래어</td></tr>
+            <tr><td><code>download</code></td><td>다운로드</td><td>정착 외래어</td></tr>
+            <tr><td><code>job</code></td><td>작업</td><td>음역 금지</td></tr>
+            <tr><td><code>queue</code></td><td>대기열</td><td>음역 금지</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">초기 규모 6행 / 3열. 위 행은 원칙 5 의 갈래를 보여 주는 예시이며, 실제 행은 각 프로젝트 도메인에서 나온다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 8 — 수치 기준 ── -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">모든 값은 원본 리서치와 2026-08-28 전수 감사 실측에서 나왔다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>출처</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>번역투 킬러 패턴</td><td><strong>6종</strong></td><td>원본 리서치 축3</td></tr>
+        <tr><td>이름 번역 주석 실측</td><td><strong>약 85건 / 48파일</strong> (전체 안티패턴의 약 30%)</td><td>원본 코드베이스 진단 (57파일 스캔)</td></tr>
+        <tr><td>코드베이스 안티패턴 총계</td><td>약 275건 / 10 카테고리</td><td>원본 코드베이스 진단</td></tr>
+        <tr><td>메서드명 반복 doc</td><td>약 7건 / 2파일</td><td>원본 코드베이스 진단</td></tr>
+        <tr><td>공용 패키지 번역투 doc</td><td><strong>129건</strong> (<code>반환합니다</code> 125건)</td><td>2026-08-28 전수 감사</td></tr>
+        <tr><td><code>- 반환값:</code> 라벨</td><td><strong>577건 / 80파일</strong></td><td>2026-08-28 전수 감사</td></tr>
+        <tr><td><code>- [param]:</code> 라벨</td><td><strong>788건</strong></td><td>2026-08-28 전수 감사</td></tr>
+        <tr><td>용어 번역표 초기 규모</td><td>6행 / 3열</td><td>2026-08 시점</td></tr>
+        <tr><td>규칙 강도 등급</td><td>3단계 (MUST / SHOULD / 관측 컨벤션)</td><td>킷 공통</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 9 — 안티패턴 ── -->
+<div class="section">
+  <div class="section-label">안티패턴 9종</div>
+  <p class="desc">아래 9가지가 반복해서 나온다. 왼쪽 표기를 발견하면 오른쪽 이유로 되돌린다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>안티패턴</th><th>문제</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="tag tag-bad">Bad</span> <code>~을 처리합니다</code> 로 doc 본문 종결</td><td>동사가 비어 메서드명을 한국어로 반복하는 데 그친다. 주석이 정보를 0 만큼 더한다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> 종결어미만 <code>한다</code>체로 바꾸고 끝내기</td><td><code>~에 의해</code> · <code>~되어 있는 경우</code> 는 종결형과 무관하다. 문장 구조가 그대로면 번역투도 그대로다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> <code>보더 라디우스</code> 같은 음역</td><td>한국어도 영어도 아니라 검색이 안 되고 공식 API 이름과도 어긋난다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> 코드 식별자를 한국어로 번역</td><td>doc 링크가 끊기고 코드와 문서가 어긋난다. 음역 금지는 본문에만 적용된다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> 이름 번역 주석 (<code>String? text, // 버튼 텍스트</code>)</td><td>타입과 이름이 이미 담은 의미의 반복. 이름이 약하면 이름을 고칠 자리다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> void doc 에 <code>N/A</code> 표기 도입</td><td>언어 의존 상수를 프로젝트 안에서 두 표기로 쪼갠다. 커버리지 측정과 일괄 치환이 깨진다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> <code>- 반환값: 없음</code> 을 노이즈로 보고 삭제</td><td>"doc 이 없는 것"과 "반환값이 없는 것"을 구분할 수 없게 된다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> 용어 번역표를 공용 킷 문서로 승격</td><td>도메인 어휘는 프로젝트 소유다. 공용화하면 다른 프로젝트에 잘못된 번역을 강제한다</td></tr>
+        <tr><td><span class="tag tag-bad">Bad</span> 한국어 규칙을 스택 어댑터 문서에 다시 정의</td><td>SSOT 가 무너져 개정 때 한쪽만 갱신된다. 어댑터는 라벨 상수와 주석 문법만 갖는다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Section 10 — Gotchas ── -->
+<div class="section">
+  <div class="section-label">Gotchas — 반복 실수 6가지</div>
+  <p class="desc">규칙을 알고도 매번 같은 자리에서 미끄러진다. 아래 6개는 그 자리를 미리 표시한 것이다.</p>
+
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">!</span><span><strong>번역투는 종결어미 문제가 아니라 문장 구조 문제다</strong> — <code>합니다</code> 를 <code>한다</code> 로 바꾸는 치환은 30초면 끝나고, 그래서 그것만 하고 완료로 보고하게 된다. 킬러 패턴 6종은 종결형과 독립이므로 치환 후에 6종을 따로 grep 한다.</span></li>
+      <li><span class="check">!</span><span><strong>라벨을 "더 자연스럽게" 다듬으면 grep 이 깨진다</strong> — <code>- 반환값:</code> 을 <code>- 리턴:</code> 이나 <code>- 결과:</code> 로 바꾸고 싶어지는 순간이 온다. 이것은 상수다. 표기를 바꾸려면 전수 치환을 같이 하고, 부분 변경은 금지다.</span></li>
+      <li><span class="check">!</span><span><strong>정착 외래어와 음역의 경계는 팀이 한 번 정하고 끝낸다</strong> — <code>파싱</code> 은 허용이고 <code>보더 라디우스</code> 는 금지라는 판정에 일반 규칙은 없다. 매번 재논쟁하지 말고 판정을 용어 번역표에 적어 다음 세션이 그것을 읽게 한다.</span></li>
+      <li><span class="check">!</span><span><strong>규칙 문서 자신이 번역투를 쓴다</strong> — 규칙을 설명하는 문장에서 번역투가 특히 잘 나온다. 문서를 다 쓴 뒤 자기 본문에 6종을 grep 하는 자기모순 검사를 한 번 돌린다.</span></li>
+      <li><span class="check">!</span><span><strong>다른 스택 어댑터가 생길 때 이 문서를 복사하지 마라</strong> — Rust 나 TypeScript 어댑터가 필요해지면 라벨 상수와 주석 문법만 그쪽에 정의하고 문체는 이 문서를 참조한다. 복사하는 순간 두 벌이 갈라지고, 갈라진 사실을 아무도 모른다.</span></li>
+      <li><span class="check">!</span><span><strong>AI 톤이 낀 영역을 번역 기준으로 삼으면 오염이 승격된다</strong> — "기존 코드가 이렇게 쓰니까" 로 표기를 정하면, 정리 대상이던 표기가 표를 통해 정식 규칙이 된다. 기준 디렉토리는 정리 이력이 없는 쪽으로 명시한다.</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Section 11 — 출처 ── -->
+<div class="section">
+  <div class="section-label">출처</div>
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">→</span><span>국립국어원 공공언어 자료 — <a href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener" style="color:var(--accent)">korean.go.kr/front/etcData/etcDataView.do?etc_seq=663</a></span></li>
+      <li><span class="check">→</span><span>한국어 번역투 연구 (KCI) — <a href="https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002178732" target="_blank" rel="noopener" style="color:var(--accent)">kci.go.kr/.../article.kci?arti_id=ART002178732</a></span></li>
+      <li><span class="check">→</span><span>LINE 테크니컬 라이팅 — <a href="https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/" target="_blank" rel="noopener" style="color:var(--accent)">engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/</a></span></li>
+      <li><span class="check">→</span><span>Google Engineering Practices — <a href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener" style="color:var(--accent)">google.github.io/eng-practices/review/reviewer/looking-for.html</a></span></li>
+      <li><span class="check">→</span><span>Effective Dart documentation — <a href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener" style="color:var(--accent)">dart.dev/effective-dart/documentation</a></span></li>
+      <li><span class="check">→</span><span>Microsoft Code with Engineering Playbook — <a href="https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/" target="_blank" rel="noopener" style="color:var(--accent)">microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/</a></span></li>
+      <li><span class="check">→</span><span>프로젝트 실측 — 2026-08-28 전수 감사 (규칙 625줄 / 39 섹션, 원본 코드베이스 57파일 스캔). 원문: <code>docs/tone/korean-technical-writing.md</code></span></li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  <p>tone-kit — 한국어 축 SSOT · <code>korean-technical-writing</code> v0.1.0 · 2026-08-28</p>
+  <p style="margin-top:6px">스택 어댑터 문서는 라벨 상수와 주석 문법만 정의하고, 문체는 이 문서를 가리킨다.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) { /* 저장 불가 환경에서도 화면은 그대로 동작한다 */ }
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

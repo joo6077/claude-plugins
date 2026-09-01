@@ -18,6 +18,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **reflect-kit** — 개인 Claude Code 사용자의 대화 피드백 → 학습 → 재주입 파이프라인 kit. Reflexion 방법론을 개인 레벨에 적용하여 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고 빈도·위험도·절차성 기준으로 CLAUDE.md / memory / skill / hook에 승격한다.
 - **bambu-kit** — Bambu Lab H2S용 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들
 - **onboarding-kit** — 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보 기반 step-by-step 가이드 (Firebase, GCP, AWS, FCM, OAuth, Stripe 등)
+- **tone-kit** — 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성, 역할 기반 네이밍, 추출 임계치, 한국어 기술 문체, 템플릿 스캐폴딩, 파일 단위 정리 캠페인
 <!-- /AUTO:summary -->
 
 ## Commands
@@ -95,7 +96,7 @@ python3 scripts/validate-plugin.py --fix                    # 자동 수정 (pla
 
 ### Kaizen Orchestration
 
-10 Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen → backend-kaizen → infra-kaizen → rust-kaizen → react-kaizen. 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다. 전체 Phase 완료 후 Final 단계에서 교차 정합성 검증을 수행한다.
+Phase 순서: 설계 가이드 → contract-kaizen → evaluator-kaizen → harness-kaizen → flutter-kaizen → design-kaizen → backend-kaizen → infra-kaizen → rust-kaizen → react-kaizen → … → tone-kaizen (Phase 15). 각 Phase는 자체 리서치를 수행하며 독립 서브에이전트로 실행한다. 전체 Phase 완료 후 Final 단계에서 교차 정합성 검증을 수행한다.
 
 가이드 문서 (`harness/docs/guides/`): `skill-design-guide.md`, `agent-design-guide.md`, `contract-design-guide.md`, `qa-evaluation-guide.md`. 공유 참조 (`harness/references/`): `contract-schema.md` (계약 포맷), `feedback-schema.yaml` (피드백 스키마). 피드백 스크립트: `harness/scripts/feedback-path.sh`, `save-feedback.sh`, `verify-feedback.sh`, `trigger-check-common.sh`.
 
@@ -265,6 +266,16 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 |------|------|
 | `/setup-guide` | 그 시점 최신 정보 기준 외부 서비스 셋업 가이드 step-by-step MD 자동 생성 |
 
+**tone-kit — 코딩 톤·유지보수성 게이트**
+
+| 스킬 | 용도 |
+|------|------|
+| `/tone-guide` | 구현 전 톤 규칙 강제 로드 + 완료 전 규칙 전수 대조 (audit 내장) |
+| `/tone-scaffold` | 파일 헤더·컴포넌트 골격·문서 주석·typedef·상태 컨테이너 생성 + 생성물 자기 감사 |
+| `/tone-campaign` | 다수 파일을 한 파일씩 순차 정리 (의존순 배치 + 원장 + 파일당 승인 게이트) |
+
+규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션) 표기. 3축 레이어(스택 / 언어 / 프로젝트). 어댑터는 위반 실측이 있는 `dart-flutter` 하나만 채운다. 리서치 문서는 `docs/tone/` 8종.
+
 **이 레포 전용 스킬 (.claude/skills/)**
 
 | 스킬 | 용도 |
@@ -281,6 +292,8 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/bambu-kaizen` | bambu-kit 스킬 개선 (references + 실측 dogfood 기반) |
 | `/bambu-research` | Bambu/MakerWorld/scarf seam 외부 소스 폴링 → bambu-kit references 갱신 |
 | `/onboarding-kaizen` | onboarding-kit 스킬 개선 |
+| `/tone-kaizen` | tone-kit 스킬·references 개선 |
+| `/tone-research` | 톤 리서치 외부 출처 폴링 → docs/tone/ 갱신 |
 | `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
 | `/create-kit` | 새 플러그인 킷 생성 오케스트레이션 |
 

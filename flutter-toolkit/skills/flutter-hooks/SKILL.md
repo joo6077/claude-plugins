@@ -295,3 +295,7 @@ class MyWidget extends HookWidget {
 - `setState` → `useState` (자동 리빌드)
 - `widget.title` → `title` (직접 참조)
 - `SingleTickerProviderStateMixin` → 불필요 (Hook이 내부 Ticker 제공)
+
+## Templates
+
+- `../../templates/widget-freezed-props.md` — freezed Props + Hook 위젯 골격 (Props 번들링 컨벤션 프로젝트용). plain 생성자 파라미터 프로젝트는 `flutter-widget` 기본 골격을 쓴다

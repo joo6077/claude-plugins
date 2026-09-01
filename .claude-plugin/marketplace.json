@@ -59,6 +59,11 @@
       "name": "onboarding-kit",
       "source": "./onboarding-kit",
       "description": "[v0.3.0 · 2026-08-13] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate)"
+    },
+    {
+      "name": "tone-kit",
+      "source": "./tone-kit",
+      "description": "[v0.1.0 · 2026-08-31] 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성·역할 네이밍·추출 임계·한국어 문체 규칙 + 템플릿 스캐폴딩 + 파일 단위 정리 캠페인 (3축 레이어: 스택/언어/프로젝트)"
     }
   ]
 }

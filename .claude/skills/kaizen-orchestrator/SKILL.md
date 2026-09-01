@@ -95,6 +95,8 @@ Phase 13: Bambu-kit 카이젠 (bambu-kaizen)
     ↓
 Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
     ↓
+Phase 15: Tone-kit 카이젠 (tone-kaizen)
+    ↓
 Final: 전체 정합성 검증
 ```
 
@@ -114,6 +116,7 @@ Final: 전체 정합성 검증
 12. Reflect-kit 카이젠 — 개인 Claude Code 피드백 → 학습 → 재주입 파이프라인 개선 (Reflexion 방법론)
 13. Bambu-kit 카이젠 — Bambu Studio 프로파일 생성 스킬 개선 (references SSOT 7종 + 실측 dogfood 기준). references 대량 갱신은 `/bambu-research` 소관
 14. Onboarding-kit 카이젠 — 외부 서비스 셋업 가이드 스킬 개선 (docs/help 변경 + 사용자 피드백 + marketplace 트렌드)
+15. Tone-kit 카이젠 — 코딩 톤·유지보수성 게이트 스킬 개선 (docs/tone/ 리서치 기준). 근거 등급 3등급(MUST / SHOULD / 관측 컨벤션)을 공개 출처 없이 승격하지 않는다
 
 ## 트리거 조건
 
@@ -143,7 +146,7 @@ Final: 전체 정합성 검증
 
 ### 수동
 
-- `/kaizen-orchestrator` — 전체 (Phase 1→2→3→4→5→6→7→8→9→10→11→Final)
+- `/kaizen-orchestrator` — 전체 (Phase 1→2→…→15→Final)
 - `/kaizen-orchestrator phase1` — 설계 가이드만
 - `/kaizen-orchestrator phase2` — contract-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase3` — evaluator-kaizen만 (Phase 2 완료 전제)
@@ -158,7 +161,8 @@ Final: 전체 정합성 검증
 - `/kaizen-orchestrator phase12` — reflect-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase13` — bambu-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase14` — onboarding-kaizen만 (Phase 1 완료 전제)
-- `/kaizen-orchestrator final` — Final QA만 (Phase 1~14 완료 전제)
+- `/kaizen-orchestrator phase15` — tone-kaizen만 (Phase 1 완료 전제)
+- `/kaizen-orchestrator final` — Final QA만 (Phase 1~15 완료 전제)
 
 ## Process
 
@@ -467,6 +471,15 @@ exit_codes: [0, 2]
 
 > 플러그인 설명: [v0.3.0 · 2026-08-13] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate)
 
+### Step 15: Phase 15 — tone-kit 카이젠
+
+**범위:** `tone-kit/skills/*/SKILL.md`, `tone-kit/references/`
+, `docs/tone/` 리서치 문서
+
+공통 실행 패턴에 따라 `/tone-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 tone-kit 전 스킬을 전수 감사한다. tone-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.1.0 · 2026-08-31] 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성·역할 네이밍·추출 임계·한국어 문체 규칙 + 템플릿 스캐폴딩 + 파일 단위 정리 캠페인 (3축 레이어: 스택/언어/프로젝트)
+
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->
 
@@ -488,6 +501,13 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
   `/planning-research` 를 먼저 호출해 `docs/planning/` 를 갱신한 뒤 진행한다. 개선 대상은
   planning-kit 플러그인의 10 개 스킬 + planning-reviewer 에이전트이며, `/planning-kaizen` 스킬
   자체는 이 레포 개발용이라 플러그인에 포함되지 않는다.
+- **Phase 15 (tone-kit) — 근거 등급 체계**: 이 킷의 모든 규칙은 `MUST` / `SHOULD` /
+  `관측 컨벤션` 3등급을 명시한다. 카이젠에서 **공개 1차 출처 없이 강도를 올리지 마라** —
+  특히 "모든 하위 위젯은 별도 파일" 과 fallback 접두사 금지는 공개 근거가 없어 `관측 컨벤션`
+  으로 고정돼 있다. 자연어 텍스트 탐지 문헌(DetectGPT · Binoculars)을 코드 규칙 근거로
+  되살리지 마라 — `tone-kit/references/sources.md` 의 제외 목록에 사유가 있다.
+  스킬 3개 상한을 유지하고 audit 을 별도 스킬로 분리하지 마라. `references/` 하위 디렉토리 금지.
+  grep 게이트를 고쳤으면 bash·zsh 양쪽 실행 + 합성 양성 케이스로 생존을 증명한다.
 - **Phase 14 (onboarding-kit) — 필수 리서치 소스 · 의존성**:
   `references/phase-research-templates.md` 의 **Phase 14** 테이블 (Firebase iOS/Flutter setup /
   Apple Developer / Stripe / GCP / 패키지 레지스트리) 최소 3 건 이상 조회.
@@ -496,14 +516,16 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 
 ### Step F1: Final — 전체 정합성 검증 (구 Step 11)
 
-**범위:** Phase 1~14 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit 포함 전수 체크)
+**범위:** Phase 1~15 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit · Phase 15 tone-kit 포함 전수 체크)
 
 1. **Final Sprint Contract 생성:**
 
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~14 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 + bambu-kit + onboarding-kit 포함)
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~15 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
-     - Phase 4 harness 변경이 Phase 5~14 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit)과 충돌하지 않는가
+     - Phase 4 harness 변경이 Phase 5~15 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit)과 충돌하지 않는가
+     - tone-kit 의 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션)이 공개 출처 없이 승격되지 않았는가
+     - tone-kit 트리거 어휘가 타 킷과 set intersection · substring containment 양쪽에서 공집합인가
      - 버전 번호가 각 플러그인에서 올바르게 업데이트되었는가 (planning-kit + reflect-kit plugin.json 포함)
      - changelog, research-log이 모든 Phase 변경을 포함하는가 (docs/planning/research-log.md 포함)
    - Diagnostics: 전체 `bash -n` 검증
