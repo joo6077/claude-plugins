@@ -523,6 +523,100 @@ try {
 
 > **출처:** 프로젝트 실측 (bare `catch (e)` 27건 vs `on Exception` 3건, 2026-06-26). 공개 1차 출처 없음
 
+### 13. 이벤트 콜백 이름은 프레임워크 어휘에서 가져온다 `[어댑터:dart-flutter]`
+
+제스처·폼 이벤트는 Flutter 가 이미 이름을 정해 뒀다. 그 이름을 그대로 쓰고, 자체 어휘를 만들지 않는다.
+
+```text
+프레임워크 공식 어휘  >  프로젝트 관례  >  새로 만든 말
+```
+
+```dart
+// before — Press 한 단어로는 tap 인지 long press 인지 이름에서 안 갈린다
+void handlePressStart(TapDownDetails details) { ... }
+void handlePressEnd(TapUpDetails details) { ... }
+
+GestureDetector(
+  onTapDown: handlePressStart,
+  onTapUp: handlePressEnd,
+  child: child,
+)
+
+// after — 핸들러 이름도 프레임워크 단계 어휘를 그대로 받는다
+void handleTapDown(TapDownDetails details) { ... }
+void handleTapUp(TapUpDetails details) { ... }
+
+GestureDetector(
+  onTapDown: handleTapDown,
+  onTapUp: handleTapUp,
+  child: child,
+)
+```
+
+길게 누르기였다면 핸들러는 `handleLongPressStart` / `handleLongPressEnd` 이고 콜백은 `onLongPressStart` / `onLongPressEnd` 다. 어느 제스처인지가 이름에서 갈린다.
+
+```dart
+// before — 같은 "선택" 개념에 두 어휘가 섞였다
+typedef {widget_prefix}DeviceSelectTap = void Function(Device device);
+
+class {widget_prefix}DeviceListWidgetProps {
+  final {widget_prefix}DeviceSelectTap onDeviceSelectTap;
+  final void Function(int index) onIndexSelected;
+}
+
+// after — 선택 이벤트 어휘를 onSelected 하나로 맞춘다
+typedef {widget_prefix}DeviceSelected = void Function(Device device);
+typedef {widget_prefix}DeviceIndexSelected = void Function(int index);
+
+class {widget_prefix}DeviceListWidgetProps {
+  final {widget_prefix}DeviceSelected onDeviceSelected;
+  final {widget_prefix}DeviceIndexSelected onIndexSelected;
+}
+```
+
+**단계 축.** 제스처가 달라도 단계 이름은 같은 순서로 붙는다.
+
+```text
+Down          →  Start        →  Update / MoveUpdate  →  End / Up   →  Cancel
+포인터 접촉       제스처 확정       진행 중 갱신             정상 종료      인식 취소
+```
+
+**제스처별 공식 콜백**
+
+| 제스처 | 콜백 |
+|---|---|
+| tap | `onTapDown` · `onTapMove` · `onTapUp` · `onTap` · `onTapCancel` |
+| double tap | `onDoubleTapDown` · `onDoubleTap` · `onDoubleTapCancel` |
+| long press | `onLongPressDown` · `onLongPressStart` · `onLongPressMoveUpdate` · `onLongPressUp` · `onLongPressEnd` · `onLongPress` · `onLongPressCancel` |
+| pan | `onPanDown` · `onPanStart` · `onPanUpdate` · `onPanEnd` · `onPanCancel` |
+| drag | `onVerticalDrag…` · `onHorizontalDrag…` (같은 단계 축) |
+| scale | `onScaleStart` · `onScaleUpdate` · `onScaleEnd` |
+| force press | `onForcePressStart` · `onForcePressPeak` · `onForcePressUpdate` · `onForcePressEnd` |
+
+`Secondary` · `Tertiary` 변형도 같은 규칙으로 존재한다(`onSecondaryTapDown` 처럼 제스처 이름 앞에 끼워 넣는다). 폼·선택 계열은 `onChanged` · `onSubmitted` · `onEditingComplete` · `onSelected` · `onPressed` · `onHover` · `onFocusChange` 다.
+
+**코퍼스 위반 실측**
+
+| 프로젝트 이름 | 실측 | 프레임워크 대응 |
+|---|---|---|
+| `handlePressStart` | 7건 | `onTapDown` 또는 `onLongPressStart` |
+| `handlePressEnd` | 8건 | `onTapUp` 또는 `onLongPressEnd` |
+| `…SelectTap` ↔ `…Selected` | 혼재 | 같은 개념에 두 어휘 |
+
+`Press` 하나로는 tap 인지 long press 인지 이름에서 안 갈린다. 프레임워크는 갈라 놨는데 프로젝트가 도로 합친 것이다.
+
+**판정 세부**
+
+- 판정식은 하나다 — **이 이벤트를 프레임워크가 이미 알고 있는가.** 알고 있으면 그 이름을 쓰고, 모르면 프로젝트가 짓는다.
+- 예외는 도메인 이벤트다. `onPairingModeEntered` · `onLightStickMounted` · `onLibraryDownloadCancel` 은 공식 어휘에 대응이 없으므로 정당하다.
+- 콜백 typedef 이름도 같은 어휘를 따른다 — `...Tap` 은 `onTap` 계열, `...Changed` 는 `onChanged` 계열, 선택 이벤트는 `...Selected` 다. typedef 소유권 규칙 자체는 원칙 7 이 가진다.
+- **코어 원칙(어휘 축)은 `core-naming.md` N-12 가 소유하고, 이 문서는 Flutter 어휘 목록을 소유한다.** 위 제스처 표가 이 원칙의 실물 근거이며, 킷 쪽 결속은 `adapter-dart-flutter.md` D-15(§3.11 이벤트 콜백 어휘)와 슬롯 `event_vocabulary` 다.
+- 로케일 축의 "공식 API 이름은 영어 원문"(`korean-technical-writing.md` 원칙 5)과 같은 원리다. 주석에서 공식 이름을 지키면서 코드에서 자체 어휘를 만드는 것은 앞뒤가 맞지 않는다.
+
+**강도:** SHOULD — 공식 문서가 "소비자 코드도 이 이름을 쓰라"고 명시하지는 않는다. 근거는 어휘가 SDK 에 실재한다는 사실이지 지침 문장이 아니므로 `MUST` 로 올리지 않는다.
+
+> **출처:** Flutter SDK 소스 실측 — `packages/flutter/lib/src/widgets/gesture_detector.dart` 콜백 58개 (3.38.4) · [Effective Dart — design](https://dart.dev/effective-dart/design) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건)
+
 ---
 
 ## 어댑터 슬롯
@@ -538,6 +632,7 @@ try {
 | `separator_pattern` | 고정 gap → `Row`/`Column` 의 `spacing:`. 리스트 separator → `ListView.separated` 의 `separatorBuilder`. `.expand().skip()` 체이닝과 수동 `SizedBox` 나열 금지 |
 | `fallback_identifier_pattern` | `\b(effective\|resolved)[A-Z]` — 금지 접두사. 처리는 삭제가 아니라 도메인·역할명으로 개명 |
 | `naming_suffix` | 위젯 클래스 `{widget_prefix}...Widget` · Props `...WidgetProps` · raw 상태 `...State` · 파생 뷰 `...ViewState` · 콜백 typedef `...Changed` / `...Tap`. 클래스 UpperCamelCase, 파일 snake_case |
+| `event_vocabulary` | 제스처·폼 콜백 이름은 Flutter 공식 어휘를 그대로 쓴다(원칙 13). 단계 축 `Down → Start → Update/MoveUpdate → End/Up → Cancel`, 폼·선택은 `onChanged` · `onSubmitted` · `onEditingComplete` · `onSelected` · `onPressed` · `onHover` · `onFocusChange`. 공식 대응이 없는 도메인 이벤트만 프로젝트가 이름 짓는다. 어휘 축 코어 규칙은 `core-naming.md` N-12 소유 |
 | `state_lib` | Riverpod(`@riverpod` Notifier + `select`) + flutter_hooks(`HookConsumerWidget`, `useState`/`useEffect`) + freezed state 클래스 |
 | `codegen_cmd` | **프로젝트 감지 — 상수 아님.** 버전 매니저 래퍼(`fvm` 등) 유무와 `dart` / `flutter` 선택이 프로젝트마다 다르다. 형태는 `<래퍼> <dart\|flutter> run build_runner build --delete-conflicting-outputs` |
 | `audit_greps` | 아래 10종. 전부 bash·zsh 양쪽에서 실행 검증했고 각각 양성 케이스 1건 이상을 실제로 잡는 것을 확인했다 |
@@ -588,6 +683,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 | bare `catch (e)` vs `on Exception` | 27건 vs 3건 | 프로젝트 실측 (2026-06-26) |
 | `useEffect` 동기화 지연 | 1프레임 (post-frame, 수용됨) | 프로젝트 실측 (2026-06-22) |
 | 공유 typedef 파일 허용 개수 | 0개 | 프로젝트 실측 (2026-06-25) |
+| Flutter 제스처 콜백 어휘 규모 | 58개 (`gesture_detector.dart`, 3.38.4) | Flutter SDK 소스 실측 |
 | doc 라벨 표기 상수 | `- [param]:` / `- 반환값:` | `korean-technical-writing.md` (한국어 축 SSOT) |
 | `audit_greps` 실행 검증 | 10종 전부, bash·zsh 양쪽 + 양성 케이스 확인 | 본 문서 |
 
@@ -612,6 +708,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 | status 별 `_notifyXxx*` 헬퍼 다발 | 조합 폭발로 헬퍼가 15개까지 늘어난다. 단일 reducer 하나로 대체된다 |
 | 다이얼로그 progress 용 `ValueNotifier` 신설 | provider state 에 있어야 할 상태가 UI 레이어에 따로 생겨 화면 간 패턴이 갈린다 |
 | Props 제거 판정에 dev 쇼케이스 포함 | 실사용이 아닌 코드가 유지 근거로 둔갑한다 |
+| `handlePressStart` 처럼 자체 이벤트 어휘 신설 | `Press` 로는 tap 인지 long press 인지 갈리지 않는다. 프레임워크가 갈라 놓은 어휘를 도로 합친 것이다 |
 | `on Exception` 으로 catch 좁히기 | 비-`Exception` throw 를 놓쳐 동작이 깨진다. 커버리지가 줄 뿐 늘지 않는다 |
 
 ---

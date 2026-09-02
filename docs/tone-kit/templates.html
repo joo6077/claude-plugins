@@ -537,7 +537,7 @@ typedef {widget_prefix}{Meaning}Of&lt;T&gt; = String Function(T item);</code></p
         <tbody>
           <tr><td><code>{widget_prefix}</code></td><td>프로젝트 컨벤션의 위젯 접두사. <strong>킷이 정하지 않는다</strong></td></tr>
           <tr><td><code>{Meaning}</code></td><td>무엇에 대한 콜백인가 (도메인 용어)</td></tr>
-          <tr><td><code>{Event}</code></td><td>무슨 일이 일어났는가 — <code>Changed</code> · <code>Tap</code> · <code>Blur</code> · <code>Submit</code></td></tr>
+          <tr><td><code>{Event}</code></td><td>무슨 일이 일어났는가. <strong>프레임워크가 이미 정한 어휘를 쓴다</strong> — <code>onChanged</code> · <code>onTapDown</code> · <code>onLongPressStart</code> · <code>onSubmitted</code>. 공식 어휘에 없는 도메인 이벤트만 프로젝트가 명명한다 (<code>N-12</code> · <code>D-15</code>)</td></tr>
           <tr><td><code>{T}</code></td><td>호출부마다 타입이 다를 때만 제네릭</td></tr>
         </tbody>
       </table>

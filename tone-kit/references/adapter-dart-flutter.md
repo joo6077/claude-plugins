@@ -25,6 +25,7 @@
 | `separator_pattern` | 고정 gap → `Row`/`Column` 의 `spacing:`. 리스트 구분자 → `ListView.separated` 의 `separatorBuilder`. `.expand().skip()` 체이닝과 수동 `SizedBox` 나열 금지 |
 | `fallback_identifier_pattern` | `\b(effective\|resolved)[A-Z]` — 금지 접두사. 처리는 삭제가 아니라 도메인·역할명으로 개명 |
 | `naming_suffix` | 위젯 `{widget_prefix}...Widget` · Props `...WidgetProps` · raw 상태 `...State` · 파생 뷰 `...ViewState` · 콜백 typedef `...Changed` / `...Tap`. 클래스 UpperCamelCase, 파일 snake_case |
+| `event_vocabulary` | Flutter 공식 제스처 어휘 `on<제스처><단계>` (§3.11). 도메인 이벤트만 프로젝트가 명명 |
 | `state_lib` | Riverpod(`@riverpod` Notifier + `select`) + flutter_hooks(`HookConsumerWidget` · `useState` · `useEffect`) + freezed state 클래스 |
 | `codegen_cmd` | **프로젝트 감지값 — 상수가 아니다.** 버전 매니저 래퍼(`fvm` 등) 유무와 `dart`/`flutter` 선택이 프로젝트마다 다르므로 `project-detection.md` 의 감지 결과를 쓴다. 형태는 `<래퍼> <dart\|flutter> run build_runner build --delete-conflicting-outputs` |
 | `audit_greps` | §4 의 10종. bash·zsh 양쪽에서 실행 검증 완료 |
@@ -47,6 +48,7 @@
 | D-12 | 위젯을 반환하는 헬퍼보다 위젯 클래스를 선호한다 | SHOULD |
 | D-13 | 큰 `build` 는 나눈다 | SHOULD |
 | D-14 | 하위 위젯을 별도 파일에 둔다 | 관측 컨벤션 |
+| D-15 | 제스처·입력 콜백은 프레임워크 공식 어휘를 쓴다. 자체 이벤트 어휘를 만들지 않는다 | SHOULD |
 
 D-12~D-14 는 강도만 이 파일이 고정하고 **판정식은 `core-structure.md` 가 소유한다.** 공식 문구가 `prefer` 이고 공식 반례(`Builder` API, 위젯을 반환하는 함수 예시)가 존재하므로 D-12 를 MUST 로 올리지 않는다. D-13 은 공식 문서에 줄 수 임계값이 없다. D-14 의 공개 근거는 "다른 위젯으로 나눈다"까지이고 "별도 파일"은 이 코퍼스의 관측 컨벤션이다.
 
@@ -164,6 +166,73 @@ hook 은 `items.isEmpty` 같은 early return **위** 에 둔다. `useEffect` 는
 | `} on SomeType catch (e) {` | 컨벤션 이탈 후보. 위반이 아니다 |
 
 목적은 Dart 의 모든 throwable(`Object` 루트)을 전부 잡아 상태나 로그로 흡수하는 것이다. 좁히면 커버리지가 줄 뿐 늘지 않는다 — 비-`Exception` 객체를 던지는 경로가 있으면 좁힌 catch 가 그 throw 를 놓쳐 동작이 깨진다. **리뷰나 QA 가 bare catch 를 지적하면 무효 판정으로 처리한다.** 이 규칙은 코퍼스 실측에 근거하며 공개 1차 출처가 없으므로, 다른 코퍼스로 옮길 때는 G-07 을 먼저 돌려 같은 비율이 관측되는지 확인한다.
+
+### 3.11 이벤트 콜백 어휘 (D-15)
+
+Flutter 는 제스처 생명주기에 `on<제스처><단계>` 어휘를 이미 정의해 뒀다. 자체 어휘를 만들면 공식 어휘가 갈라 놓은 단계를 도로 합치게 된다.
+
+**단계 축** — 프레임워크가 쓰는 순서다.
+
+```text
+Down  →  Start  →  Update / MoveUpdate  →  End / Up  →  Cancel
+```
+
+**제스처별 공식 콜백** (`gesture_detector.dart` 실측, Flutter 3.38.4 기준 **58개**)
+
+세는 기준: 제스처 접두사(`Tap` · `SecondaryTap` · `TertiaryTap` · `DoubleTap` · `LongPress` · `SecondaryLongPress` · `TertiaryLongPress` · `VerticalDrag` · `HorizontalDrag` · `Pan` · `Scale` · `ForcePress`)를 가진 `on*` 고유 이름만 센다. 재현 명령은 아래와 같다.
+
+```bash
+grep -v '^\s*///' "$FLUTTER_SDK/packages/flutter/lib/src/widgets/gesture_detector.dart" \
+  | grep -oE 'on(Tap|SecondaryTap|TertiaryTap|DoubleTap|LongPress|SecondaryLongPress|TertiaryLongPress|VerticalDrag|HorizontalDrag|Pan|Scale|ForcePress)[A-Za-z]*' \
+  | sort -u | wc -l
+```
+
+**`grep -v '^\s*///'` 가 필수다.** 주석을 포함해 세면 59 가 나오는데, 그 차이 1건은 `onForcePress` 이고 실제 API 필드가 아니라 `RawGestureDetector` doc-comment 안의 예시 위젯 필드다. force press 계열의 실제 콜백은 `onForcePressStart` · `onForcePressPeak` · `onForcePressUpdate` · `onForcePressEnd` 4개다.
+
+제스처 접두사가 없는 내부 recognizer 콜백 8종(`onDown` · `onStart` · `onUpdate` · `onEnd` · `onCancel` · `onPeak` · `onPointerDown` · `onPointerPanZoomStart`)은 제외한다. 주석까지 포함하면 67이 되는데 그것은 소비자가 이름을 따를 대상이 아니다.
+
+| 제스처 | 콜백 |
+|---|---|
+| tap | `onTapDown` · `onTapMove` · `onTapUp` · `onTap` · `onTapCancel` |
+| double tap | `onDoubleTapDown` · `onDoubleTap` · `onDoubleTapCancel` |
+| long press | `onLongPressDown` · `onLongPressStart` · `onLongPressMoveUpdate` · `onLongPressUp` · `onLongPressEnd` · `onLongPress` · `onLongPressCancel` |
+| pan | `onPanDown` · `onPanStart` · `onPanUpdate` · `onPanEnd` · `onPanCancel` |
+| vertical drag | `onVerticalDragDown` · `onVerticalDragStart` · `onVerticalDragUpdate` · `onVerticalDragEnd` · `onVerticalDragCancel` |
+| horizontal drag | `onHorizontalDrag…` (같은 단계 축) |
+| scale | `onScaleStart` · `onScaleUpdate` · `onScaleEnd` |
+| force press | `onForcePressStart` · `onForcePressPeak` · `onForcePressUpdate` · `onForcePressEnd` |
+
+`Secondary` · `Tertiary` 변형도 같은 규칙으로 존재한다 (`onSecondaryTapDown` · `onTertiaryLongPressStart` 등).
+
+**폼·선택 계열** — 위젯 API 가 쓰는 이름을 따른다: `onChanged` · `onSubmitted` · `onEditingComplete` · `onSelected` · `onPressed` · `onHover` · `onFocusChange`.
+
+**판정**
+
+```dart
+// before — Press 가 tap 인지 long press 인지 이름에서 안 갈린다
+void handlePressStart() { ... }
+void handlePressEnd() { ... }
+
+// after — 어느 제스처의 어느 단계인지 이름에 있다
+void onTapDown(TapDownDetails details) { ... }
+void onTapUp(TapUpDetails details) { ... }
+```
+
+typedef 이름도 같은 어휘를 따른다.
+
+```dart
+// before — 자체 접미사
+typedef {widget_prefix}PressableTap = void Function();
+
+// after — 공식 단계 어휘와 정렬
+typedef {widget_prefix}PressableTapDown = void Function(TapDownDetails details);
+```
+
+**예외** — 공식 어휘에 대응이 없는 도메인 이벤트는 프로젝트가 이름 짓는다. `onPairingModeEntered` · `onLightStickMounted` 는 정당하다. 판정식은 "이 이벤트를 프레임워크가 이미 알고 있는가" 다.
+
+**주의** — 같은 개념에 두 어휘를 섞지 마라. 코퍼스에 `…SelectTap` 과 `…Selected` 가 공존한 사례가 있다. 하나로 고정한다.
+
+> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 실측 — 콜백 58개). 코어 원칙은 `core-naming.md` N-12.
 
 ## 4. 완료 게이트 grep 10종
 

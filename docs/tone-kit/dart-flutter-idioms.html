@@ -55,9 +55,9 @@
   /* ── TYPO ── */
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:900px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
-  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px;line-height:1.45}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
   h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
   .section{margin-bottom:clamp(44px,6vw,76px)}
   .section-label{
@@ -68,7 +68,7 @@
   .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:900px;margin-bottom:22px}
   .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
   strong{color:var(--text);font-weight:700}
-  em{color:var(--text2)}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
 
   /* ── TAGS / BADGES ── */
   .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
@@ -81,17 +81,15 @@
   /* 강도 배지 */
   .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
     padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
-  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.35)}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
   .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
   .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
 
-  /* grep 판정 배지 */
-  .verdict{display:inline-block;font-size:10px;font-weight:800;letter-spacing:0.6px;
-    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
-  .v-violation{background:rgba(248,113,113,0.14);color:var(--red);border:1px solid rgba(248,113,113,0.32)}
-  .v-candidate{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
-  .v-over{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.32)}
-  .v-zero{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  /* 축 라벨 */
+  .axis{display:inline-block;font-size:10px;font-weight:700;font-family:var(--mono);
+    padding:2px 8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);
+    color:var(--text3);white-space:nowrap}
 
   /* ── CARDS ── */
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
@@ -100,25 +98,30 @@
   .card .card-body{flex:1}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
-  .stack{display:flex;flex-direction:column;gap:clamp(18px,2.6vw,26px)}
   .mono{font-family:var(--mono);font-size:12px}
 
   .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
-  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:1.7rem;height:1.7rem;border-radius:7px;
     background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
   .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
     font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
-  .badge-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 
   .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
     text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
   .card-source:hover{color:var(--accent2);text-decoration:underline}
   .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
   .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
   /* 링크 없는 출처 — 텍스트 배지 */
   .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
     color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
     padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
 
   /* ── TABLES ── */
   table{width:100%;border-collapse:collapse;font-size:13px}
@@ -131,11 +134,11 @@
   .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
     border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
   .table-wrap>table{min-width:max-content}
-  /* 산문 셀이 있는 표는 max-content 대신 줄바꿈 — 과도한 가로 스크롤 방지 */
-  .table-wrap.wrap>table{min-width:min(100%,560px)}
-  .table-wrap.wrap th{white-space:normal}
-  .slot{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent2);white-space:nowrap}
   .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .slot{font-family:var(--mono);font-size:12px;color:var(--accent2);font-weight:700;white-space:nowrap}
+  .verdict-yes{color:var(--red);font-weight:700;white-space:nowrap}
+  .verdict-no{color:var(--green);font-weight:700;white-space:nowrap}
+  .verdict-cond{color:var(--yellow);font-weight:700;white-space:nowrap}
 
   /* ── 경고 / 신호 카드 ── */
   .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
@@ -151,72 +154,102 @@
   .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
     border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
 
-  /* ── before / after 비교 패널 — 이 페이지의 주인공 ── */
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
-  .compare-bad,.compare-good{border-radius:12px;padding:clamp(12px,2vw,18px);min-width:0}
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
   .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
   .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
-  .compare-label{font-size:11px;font-weight:700;letter-spacing:0.6px;margin-bottom:10px;
-    display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;line-height:1.5}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .compare-bad .compare-label{color:var(--red)}
   .compare-good .compare-label{color:var(--green)}
-  .compare-label .note{color:var(--text3);font-weight:500;letter-spacing:0;font-size:11.5px}
-  .compare pre{margin-bottom:0;background:var(--surface);border-color:var(--border)}
-  .pair-cap{color:var(--text3);font-size:12px;margin:-4px 0 14px;line-height:1.6}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .compare pre + pre{margin-top:12px}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+  .detail{margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px}
+  .detail h4{color:var(--accent2);letter-spacing:0.5px;text-transform:uppercase;font-size:11px}
+  .detail ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .detail li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text2);line-height:1.7;overflow-wrap:anywhere}
+  .detail li::before{content:'\2013';color:var(--accent);flex-shrink:0;font-weight:800}
 
   /* ── 체크리스트 ── */
   .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
   .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
-  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+  .checklist .check{width:1.25rem;height:1.25rem;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
     display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
   .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
   .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
   .checklist a{color:var(--accent);overflow-wrap:anywhere}
   .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+  /* ── 단계 축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 11rem;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px;
+    font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 우선순위 사다리 ── */
+  .ladder{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:18px}
+  .ladder-step{flex:1 1 13rem;min-width:0;border-radius:12px;padding:14px 16px;border:1px solid var(--border);
+    background:var(--surface2)}
+  .ladder-step.l-1{border-color:rgba(217,70,239,0.45);background:var(--accent-dim)}
+  .ladder-step.l-3{border-style:dashed;opacity:0.75}
+  .ladder-step .lv{display:block;font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .ladder-step .lt{display:block;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+  .ladder-step .ld{font-size:12px;color:var(--text2);overflow-wrap:anywhere}
+
   /* ── 결정 규칙 박스 ── */
   .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px}
-  .rule-box:last-child{margin-bottom:0}
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;overflow-wrap:anywhere}
   .rule-box strong{color:var(--accent2)}
-  .detail{margin-top:4px}
-  .detail h4{color:var(--accent2);font-family:var(--mono);letter-spacing:0.5px;text-transform:uppercase;font-size:11px}
 
-  /* ── grep 카드 ── */
-  .grep-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    padding:clamp(14px,2.2vw,20px);display:flex;flex-direction:column;min-width:0}
-  .grep-card pre{margin-bottom:10px}
-  .grep-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-  .grep-head .what{font-size:14px;font-weight:700;color:var(--text);min-width:0;overflow-wrap:anywhere}
-  .grep-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-  .grep-note{color:var(--text2);font-size:12.5px;line-height:1.65}
-  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center}
-
-  /* ── 강도 분포 막대 ── */
+  /* ── 실측 분포 막대 ── */
   .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(64px,90px);gap:10px;align-items:center;font-size:12px}
+  .dist-row{display:grid;grid-template-columns:minmax(6rem,11rem) 1fr minmax(5rem,8rem);gap:10px;align-items:center;font-size:12px}
   .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
   .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
   .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
   .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
-  .dist-fill.f-mute{background:var(--border)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
   .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
 
   pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
     border-radius:10px;padding:14px 16px;margin-bottom:14px}
-  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0;line-height:1.6}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ── 제스처 어휘 대형 섹션 ── */
+  .hero{border:1px solid rgba(217,70,239,0.4);border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(217,70,239,0.07),transparent 55%),var(--surface);
+    padding:clamp(18px,3vw,32px)}
+  .hero .section-label{margin-bottom:12px}
+  .hero-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .hero-head h2{margin-bottom:0}
+  .gesture-name{font-family:var(--mono);font-weight:800;color:var(--accent2);white-space:nowrap}
+  .cb{font-family:var(--mono);font-size:12px;background:var(--surface2);border:1px solid var(--border);
+    color:var(--text);padding:2px 7px;border-radius:5px;display:inline-block;margin:2px 3px 2px 0;white-space:nowrap}
+  .cb-stage{border-color:rgba(217,70,239,0.35);color:var(--accent2)}
 
   /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
-  .grid-2>*,.grid-3>*,.compare>*,.stack>*,.dist-row>*{min-width:0}
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.ladder>*,.dist-row>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
   th code,td code{overflow-wrap:normal}
-  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.pair-cap,.grep-note{overflow-wrap:anywhere}
-  @media(max-width:820px){
-    .compare{grid-template-columns:1fr}
-  }
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
   @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
     .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step,.ladder-step{flex:1 1 100%}
   }
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{transition:none !important;animation:none !important}
@@ -227,7 +260,7 @@
 <body>
 
 <nav class="nav">
-  <div class="nav-logo">tone-kit <span>/ dart &middot; flutter idioms</span></div>
+  <div class="nav-logo">tone-kit <span>/ dart-flutter-idioms</span></div>
   <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
     <span id="theme-icon">&#9728;&#65039;</span>
     <span id="theme-label">라이트 모드</span>
@@ -237,25 +270,36 @@
 <div class="page">
 
 <h1>Dart / Flutter Idioms — 어댑터 슬롯과 완료 게이트</h1>
-<p class="subtitle">코어(스택 무관) 원칙을 Dart/Flutter 문법에 결속하는 <strong>이 킷의 유일한 어댑터 근거 문서</strong>. 12개 원칙 · 17쌍의 before/after · 어댑터 슬롯 10개 · 완료 게이트 grep 10종으로 구성된다. <span class="mono">v0.1.0 · 최종 갱신 2026-09-02</span></p>
+<p class="subtitle">문법이 이미 답을 가진 자리를 손으로 채운 코드, 화면 밖까지 전부 빌드하는 eager 리스트, 의미가 지워진 표면. 목표는 <strong>프레임워크가 이미 제공하는 표현을 쓰는 것</strong>이고 톤 개선은 그 부산물이다. <span class="mono">v0.1.0 · 갱신 2026-09-02 · 원칙 13 · 어댑터 슬롯 11 · 완료 게이트 grep 10</span></p>
 
-<!-- ══ 배너 — 이 문서가 잡는 것 ══ -->
-<div class="warn-banner">
-  <h2>&#9888;&#65039; 이 문서가 잡는 것</h2>
-  <p>문법이 이미 답을 가진 자리를 손으로 채운 코드 — <code>!</code> 강제 캐스트, 수동 <code>SizedBox</code> 나열, <code>.expand().skip()</code> 체이닝.</p>
-  <p>화면 밖까지 전부 빌드하는 eager 리스트와, 부모가 쥐고 있어 subtree 를 통째로 흔드는 leaf 토글 상태.</p>
-  <p>의미가 지워진 표면 — 익명 레코드 파생 뷰, 프리미티브로 뭉개진 콜백 typedef, 자명한 필드 <code>///</code>.</p>
+<!-- ══ 이 문서가 잡는 것 ══ -->
+<div class="section">
+  <div class="section-label">이 문서가 잡는 것</div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="num">1</span><h3>손으로 채운 문법</h3></div>
+      <p class="desc" style="margin-bottom:0">문법이 이미 답을 가진 자리 — <code>!</code> 강제 캐스트, 수동 <code>SizedBox</code> 나열, <code>.expand().skip()</code> 체이닝.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">2</span><h3>eager 렌더 · 흔들리는 subtree</h3></div>
+      <p class="desc" style="margin-bottom:0">화면 밖까지 전부 빌드하는 eager 리스트와, 부모가 쥐고 있어 subtree 를 통째로 흔드는 leaf 토글 상태.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">3</span><h3>의미가 지워진 표면</h3></div>
+      <p class="desc" style="margin-bottom:0">익명 레코드 파생 뷰, 프리미티브로 뭉개진 콜백 typedef, 자명한 필드 <code>///</code>, 자체 신설 이벤트 어휘.</p>
+    </div>
+  </div>
 </div>
 
-<!-- ══ Section 0 — 문을 여는 예시 ══ -->
+<!-- ══ 한 블록에 세 가지 ══ -->
 <div class="section">
-  <div class="section-label">한 블록에 세 가지가 동시에 걸린다</div>
-  <p class="desc">아래 한 덩어리에 eager 렌더(원칙 4) · 수동 간격(원칙 3) · <code>_build*</code> 헬퍼(어댑터 슬롯 <code>helper_prefix_forbidden</code>)가 함께 들어 있다. 목표는 <strong>프레임워크가 이미 제공하는 표현을 쓰는 것</strong>이고, 톤 개선은 그 부산물이다.</p>
+  <div class="section-label">한 블록에 세 가지가 걸린다</div>
+  <p class="desc">아래 한 조각에 eager 렌더(원칙 4) · 수동 간격(원칙 3) · <code>_build*</code> 헬퍼(어댑터 슬롯 <code>helper_prefix_forbidden</code>)가 동시에 들어 있다. 세 규칙이 겹치는 이유는 하나다 — 프레임워크가 이미 이름 붙여 둔 표현을 손으로 다시 만들었기 때문이다.</p>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">세 위반이 한 덩어리에</span></div>
-<pre><code>SingleChildScrollView(
+      <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">3개 동시 적발</span></div>
+      <pre><code>SingleChildScrollView(
   child: Column(
     children: [
       Row(children: [icon, SizedBox(width: {TokenClass}.w10), title]),
@@ -263,10 +307,15 @@
     ],
   ),
 )</code></pre>
+      <div class="marks">
+        <span class="tag tag-bad">eager 렌더</span>
+        <span class="tag tag-bad">수동 SizedBox</span>
+        <span class="tag tag-bad">_build* 헬퍼</span>
+      </div>
     </div>
     <div class="compare-good">
-      <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">sliver + spacing + 위젯 클래스</span></div>
-<pre><code>CustomScrollView(
+      <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">프레임워크 표현</span></div>
+      <pre><code>CustomScrollView(
   slivers: [
     SliverToBoxAdapter(
       child: Row(spacing: {TokenClass}.w10, children: [icon, title]),
@@ -278,259 +327,216 @@
     ),
   ],
 )</code></pre>
+      <div class="marks">
+        <span class="tag tag-ok">builder delegate</span>
+        <span class="tag tag-ok">spacing 파라미터</span>
+        <span class="tag tag-ok">위젯 승격</span>
+      </div>
     </div>
   </div>
-  <p class="pair-cap">이 문서가 다루는 위반은 대개 이렇게 겹쳐서 나타난다. 원칙 하나씩 세는 것이 아니라 블록 단위로 본다.</p>
+
+  <div class="info-card" style="margin-top:20px">
+    <h3>읽는 법 — 각 원칙은 결론 &rarr; before/after &rarr; 왜 &rarr; 강도·출처 순이다</h3>
+    <p class="desc" style="margin-bottom:0"><span class="strength s-must">MUST</span> <span class="strength s-should">SHOULD</span> <span class="strength s-observed">관측 컨벤션</span> 3등급의 <strong>판정 방법론은 이 문서가 소유하지 않는다</strong> — <a class="doc-link" href="ai-code-stylometry.html">ai-code-stylometry</a> 가 소유하고, 여기서는 규칙마다 맨 뒤에 붙여만 둔다. 이 페이지는 소스 규칙의 강도를 <strong>올리거나 내리지 않는다</strong>.</p>
+  </div>
 </div>
 
-<!-- ══ Section 1 — 읽는 법 / 강도 등급 ══ -->
+<!-- ══ 용어 3개 ══ -->
 <div class="section">
-  <div class="section-label">읽는 법 — 결론 → before/after → 왜 → 강도·출처</div>
-  <p class="desc"><span class="strength s-must">MUST</span> <span class="strength s-should">SHOULD</span> <span class="strength s-observed">관측 컨벤션</span> 3등급의 <strong>판정 방법론은 <code>ai-code-stylometry.md</code> 가 소유</strong>하며, 이 문서는 규칙마다 강도를 붙여만 둔다. 강도를 이 페이지에서 올리거나 내리지 마라.</p>
-
+  <div class="section-label">용어 3개 — 오해하면 강도를 잘못 읽는다</div>
   <div class="grid-3">
     <div class="card">
-      <div class="principle-title"><span class="strength s-should">SHOULD</span></div>
-      <p class="desc" style="margin-bottom:0">공식 스타일 가이드 · 프레임워크 문서가 인용 가능한 1차 출처로 존재하는 규칙. 이 문서에서는 원칙 1 · 2 · 8 · 9 가 여기 속한다.</p>
-    </div>
-    <div class="card">
       <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span></div>
-      <p class="desc" style="margin-bottom:0">공개 출처 없이 <strong>프로젝트 실측만 있는 규칙</strong>. 준수 강도가 낮다는 뜻이 아니라 근거가 국지적이라는 뜻이다. 원칙 3 · 4 · 5 · 6 · 7 · 10 · 11 · 12 가 여기 속한다.</p>
+      <p class="desc" style="margin-bottom:0">공개 출처 없이 프로젝트 실측만 있는 규칙. <strong>준수 강도가 낮다는 뜻이 아니라 근거가 국지적이라는 뜻이다.</strong></p>
     </div>
     <div class="card">
-      <div class="principle-title"><span class="pill">축 (axis)</span></div>
-      <p class="desc" style="margin-bottom:0">규칙이 속한 판정 영역. 제목 뒤 <code>[어댑터:dart-flutter]</code> · <code>[한국어]</code> 가 축 라벨이고, <strong>축이 다르면 규칙의 소유 문서가 다르다.</strong></p>
+      <div class="principle-title"><span class="axis">축</span></div>
+      <p class="desc" style="margin-bottom:0">규칙이 속한 판정 영역. 제목 뒤 <code>[어댑터:dart-flutter]</code> · <code>[한국어]</code> 가 축 라벨이고, <strong>축이 다르면 규칙의 소유 문서가 다르다</strong>.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="tag">어댑터 슬롯</span></div>
+      <p class="desc" style="margin-bottom:0"><code>tone-guide</code> 와 <code>tone-scaffold</code> 가 읽어 가는 스택별 값 칸 — 주석 기호, doc 라벨, 금지 접두사, 완료 게이트 grep.</p>
     </div>
   </div>
 
-  <div class="grid-2" style="margin-top:20px">
-    <div class="card">
-      <h3>강도 분포 — 이 문서에 MUST 는 0개다</h3>
-      <p class="desc" style="margin-bottom:14px">12개 원칙 중 인용 가능한 1차 출처를 가진 것은 4개뿐이고 나머지 8개는 실측 근거다. 이 비율 자체가 <strong>어댑터 문서의 성격</strong>이다 — 문법 층위는 공식 문서가, 코퍼스 관용구는 실측이 지탱한다.</p>
-      <div class="dist">
-        <div class="dist-row">
-          <span class="dist-label">MUST</span>
-          <div class="dist-track"><div class="dist-fill f-mute" style="width:2%"></div></div>
-          <span class="dist-val">0 / 12</span>
-        </div>
-        <div class="dist-row">
-          <span class="dist-label">SHOULD</span>
-          <div class="dist-track"><div class="dist-fill f-green" style="width:33%"></div></div>
-          <span class="dist-val">4 / 12</span>
-        </div>
-        <div class="dist-row">
-          <span class="dist-label">관측 컨벤션</span>
-          <div class="dist-track"><div class="dist-fill f-blue" style="width:67%"></div></div>
-          <span class="dist-val">8 / 12</span>
-        </div>
-      </div>
-      <p class="caption">원칙 4 는 강도 자체가 관측 컨벤션이되 성능 근거는 SHOULD 수준이라고 원문이 따로 적어 둔다.</p>
-    </div>
-
-    <div class="card">
-      <h3>이 문서가 다시 정의하지 않는 것</h3>
-      <p class="desc" style="margin-bottom:12px">어댑터는 문법 관용구와 슬롯 값만 갖는다. 아래 항목은 각각 SSOT 문서를 가리키기만 한다.</p>
-      <ul class="checklist">
-        <li><span class="check">&rarr;</span><span>추출 판단 &mdash; <code>extraction-thresholds.md</code></span></li>
-        <li><span class="check">&rarr;</span><span>한국어 문체와 doc 라벨 상수 &mdash; <code>korean-technical-writing.md</code></span></li>
-        <li><span class="check">&rarr;</span><span>A~J 위반 판정 &mdash; <code>antipattern-catalog.md</code></span></li>
-        <li><span class="check c-warn">!</span><span>다른 스택 어댑터는 <strong>만들지 않는다</strong> &mdash; 위반 실측이 없기 때문이다</span></li>
-      </ul>
-    </div>
-  </div>
+  <div class="rule-box" style="margin-top:20px">이 문서는 코어(스택 무관) 원칙을 Dart/Flutter 에 결속하는 <strong>이 킷의 유일한 어댑터 근거 문서</strong>이며, 다른 스택은 위반 실측이 없으므로 어댑터를 만들지 않는다. 추출 판단은 <a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a>, 한국어 문체와 doc 라벨 상수는 <a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a>, A~J 위반 판정은 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> 가 SSOT 이므로 여기서 다시 정의하지 않고 가리킨다.</div>
 </div>
 
-<!-- ══ Section 2 — 원칙 12개 ══ -->
+<!-- ══ 원칙 13개 — before/after 가 주인공 ══ -->
 <div class="section">
-  <div class="section-label">원칙 12개 — before / after 가 본문이다</div>
-  <p class="desc">각 카드는 결론 한 줄 → 코드 대비 → 왜 → 판정 세부 → 강도·출처 순이다. 왼쪽 붉은 패널이 <strong>고칠 코드</strong>, 오른쪽 초록 패널이 <strong>이 코퍼스의 답</strong>이다.</p>
+  <div class="section-label">원칙 13 — before / after</div>
+  <p class="desc">왼쪽이 before, 오른쪽이 after 다. 강도 배지는 소스 규칙의 값을 그대로 옮긴 것이다. <span class="axis">[어댑터:dart-flutter]</span> 는 이 문서가 소유하는 축이고, <span class="axis">[한국어]</span> 가 함께 붙은 규칙은 표기 상수를 <code>korean-technical-writing</code> 이 소유한다.</p>
 
-  <div class="stack">
-
-    <!-- 원칙 1 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">1</span>
-          <h3>null 은 <code>??</code> &middot; <code>?.</code> &middot; early return &middot; 패턴 매칭으로 다룬다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-should">SHOULD</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px"><code>!</code> 는 non-null 이 <strong>이미 증명된 경계부에만</strong> 쓴다. 흐름 중간의 <code>if (x != null) f(x!)</code> 는 패턴 매칭으로 바꾼다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">컴파일러가 아는 사실을 <code>!</code> 로 재단언</span></div>
-<pre><code>final label = props.label;
+  <!-- 1 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">1</span>
+      <h3><code>null</code> 은 <code>??</code> · <code>?.</code> · early return · 패턴 매칭으로 다룬다</h3>
+      <span class="strength s-should">SHOULD</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px"><code>!</code> 는 non-null 이 이미 증명된 경계부에만 쓴다. 흐름 중간의 <code>if (x != null) f(x!)</code> 는 패턴 매칭으로 바꾼다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">흐름 중간 <code>!</code></span></div>
+        <pre><code>final label = props.label;
 if (label != null) {
   return Text(label!);
 }
 return const SizedBox.shrink();</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">패턴 매칭으로 non-null 바인딩</span></div>
-<pre><code>if (props.label case final label?) return Text(label);
-return const SizedBox.shrink();</code></pre>
-          </div>
-        </div>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">호출부 전수가 값을 채우는데 타입만 열려 있다</span></div>
-<pre><code>class {widget_prefix}CardWidgetProps {
+        <pre><code>// 호출부 전수가 값을 채우는데 타입만 열려 있다
+class {widget_prefix}CardWidgetProps {
   const {widget_prefix}CardWidgetProps({this.title});
   final String? title;
 }
 Text(props.title!)</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">타입을 실제 계약까지 좁힌다</span></div>
-<pre><code>class {widget_prefix}CardWidgetProps {
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">패턴 바인딩 · required</span></div>
+        <pre><code>if (props.label case final label?) return Text(label);
+return const SizedBox.shrink();</code></pre>
+        <pre><code>class {widget_prefix}CardWidgetProps {
   const {widget_prefix}CardWidgetProps({required this.title});
   final String title;
 }
 Text(props.title)</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:0">기본 도구는 넷이다 &mdash; <code>??</code>, <code>?.</code>, early return, 패턴 매칭. 경계부란 <code>assert</code> 직후, JSON 파싱 직후처럼 non-null 이 이미 증명된 자리이고, 흐름 중간의 <code>!</code> 는 컴파일러가 아는 사실을 사람이 다시 단언하는 것이다. nullable 로 열어 두고 호출부 전수가 값을 채우는 상태는 <strong>타입이 실제 계약보다 넓은 것</strong>이므로 <code>required</code> 로 좁힌다.</p>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://dart.dev/null-safety" target="_blank" rel="noopener">&rarr; Dart null safety</a>
-        <a class="card-source" href="https://dart.dev/language/patterns" target="_blank" rel="noopener">&rarr; Dart patterns</a>
-        <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; design</a>
       </div>
     </div>
+    <p class="desc">기본 도구는 넷이다 — <code>??</code>, <code>?.</code>, early return, 패턴 매칭. 경계부란 <code>assert</code> 직후, JSON 파싱 직후처럼 non-null 이 이미 증명된 자리이고, 흐름 중간의 <code>!</code> 는 <strong>컴파일러가 아는 사실을 사람이 다시 단언하는 것</strong>이다. nullable 로 열어 두고 호출부 전수가 값을 채우는 상태는 타입이 실제 계약보다 넓은 것이므로 <code>required</code> 로 좁힌다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/null-safety" target="_blank" rel="noopener">&rarr; Dart null safety</a>
+      <a class="card-source" href="https://dart.dev/language/patterns" target="_blank" rel="noopener">&rarr; Dart patterns</a>
+      <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart — design</a>
+    </div>
+  </div>
 
-    <!-- 원칙 2 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">2</span>
-          <h3>nullable 삽입 문법은 위치가 정한다 &mdash; <code>?element</code> 와 <code>if case</code> 는 쓸 수 있는 자리가 다르다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-should">SHOULD</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">같은 &ldquo;null 이면 넣지 않는다&rdquo;도 문법 위치마다 답이 다르다. <strong>위치를 틀리면 컴파일이 안 되고, 그래서 <code>!</code> 로 회귀한다.</strong></p>
+  <!-- 2 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">2</span>
+      <h3>nullable 삽입 문법은 위치가 정한다 — <code>?element</code> 와 <code>if case</code> 는 쓸 수 있는 자리가 다르다</h3>
+      <span class="strength s-should">SHOULD</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">같은 "null 이면 넣지 않는다"도 문법 위치마다 답이 다르다. <strong>위치를 틀리면 컴파일이 안 되고, 그래서 <code>!</code> 로 회귀한다.</strong></p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">위치 오판 &rarr; <code>!</code> 회귀</span></div>
+        <pre><code>style: if (custom case final s?) s else defaultStyle,
+// expression 위치 — 문법 성립 안 함
 
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">위치를 틀린 세 가지</span></div>
-<pre><code>style: if (custom case final s?) s else defaultStyle,  // expression 위치 — 문법 성립 안 함
-children: [header, if (trailing != null) trailing!],   // ! 로 회귀
-final view = switch (isOn) {                           // 2분기에 switch
+children: [header, if (trailing != null) trailing!],
+// ! 로 회귀
+
+final view = switch (isOn) {   // 2분기에 switch
   true =&gt; onView,
   false =&gt; offView,
 };</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">위치마다 다른 답</span></div>
-<pre><code>style: custom ?? defaultStyle,              // expression 위치 — ?? 또는 삼항
-children: [header, ?trailing],              // 컬렉션 리터럴 — null-aware element (Dart 3.8+)
-if (label case final text?) Text(text),     // statement / collection element — non-null 바인딩
-final view = switch (state) { ... };        // 3분기 이상 — switch expression</code></pre>
-          </div>
-        </div>
-
-        <div class="table-wrap wrap" style="margin-bottom:14px">
-          <table>
-            <thead>
-              <tr><th>문법 위치</th><th>쓸 수 있는 것</th><th>쓸 수 없는 것</th></tr>
-            </thead>
-            <tbody>
-              <tr><td class="sys">expression (named parameter 자리)</td><td><code>??</code> · 삼항</td><td><code>if case</code> — 문법이 성립하지 않는다</td></tr>
-              <tr><td class="sys">컬렉션 리터럴 element</td><td><code>?element</code> (Dart 3.8+) · <code>if case final v?</code></td><td><code>!</code> 강제 캐스트</td></tr>
-              <tr><td class="sys">statement</td><td><code>if case final v?</code></td><td>&mdash;</td></tr>
-              <tr><td class="sys">2분기 조건</td><td>삼항 · <code>if</code></td><td><code>switch</code> expression — 길기만 하다</td></tr>
-              <tr><td class="sys">3분기 이상</td><td><code>switch</code> expression</td><td>&mdash;</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p class="desc" style="margin-bottom:0"><code>if case</code> 는 statement 와 collection element 위치에서만 쓸 수 있다. <strong>2분기 null 체크에 <code>switch</code> expression 을 쓰지 않는다</strong> &mdash; 삼항이 더 짧고 <code>switch</code> 는 분기 3개부터 이득이 난다. 같은 기준이 sealed class 에도 적용돼 variant 가 2개면 <code>if</code> 로 충분하다.</p>
       </div>
-      <div class="sources">
-        <a class="card-source" href="https://dart.dev/language/collections" target="_blank" rel="noopener">&rarr; Dart collections</a>
-        <a class="card-source" href="https://dart.dev/language/branches" target="_blank" rel="noopener">&rarr; Dart branches</a>
-        <a class="card-source" href="https://dart.dev/language/class-modifiers" target="_blank" rel="noopener">&rarr; Dart class modifiers</a>
-        <a class="card-source" href="https://dart.dev/tools/linter-rules/prefer_spread_collections" target="_blank" rel="noopener">&rarr; prefer_spread_collections</a>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">위치별 정답</span></div>
+        <pre><code>style: custom ?? defaultStyle,
+// expression 위치 — ?? 또는 삼항
+
+children: [header, ?trailing],
+// 컬렉션 리터럴 — null-aware element (Dart 3.8+)
+
+if (label case final text?) Text(text),
+// statement / collection element — non-null 바인딩
+
+final view = switch (state) { ... };
+// 3분기 이상 — switch expression</code></pre>
       </div>
     </div>
+    <p class="desc"><code>if case</code> 는 statement 와 collection element 위치에서만 쓸 수 있다. <strong>2분기 null 체크에 <code>switch</code> expression 을 쓰지 않는다</strong> — 삼항이 더 짧고 <code>switch</code> 는 분기 3개부터 이득이 난다. 같은 기준이 sealed class 에도 적용돼 variant 가 2개면 <code>if</code> 로 충분하다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/language/collections" target="_blank" rel="noopener">&rarr; Dart collections</a>
+      <a class="card-source" href="https://dart.dev/language/branches" target="_blank" rel="noopener">&rarr; Dart branches</a>
+      <a class="card-source" href="https://dart.dev/language/class-modifiers" target="_blank" rel="noopener">&rarr; Dart class modifiers</a>
+      <a class="card-source" href="https://dart.dev/tools/linter-rules/prefer_spread_collections" target="_blank" rel="noopener">&rarr; prefer_spread_collections</a>
+    </div>
+  </div>
 
-    <!-- 원칙 3 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">3</span>
-          <h3>간격은 <code>spacing:</code> 파라미터로 표현한다 &mdash; 수동 <code>SizedBox</code> 를 끼워 넣지 않는다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">고정 gap 은 <code>Row</code> / <code>Column</code> 의 <code>spacing:</code>, 리스트 separator 는 <code>ListView.separated</code> 의 <code>separatorBuilder</code> 가 담당한다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">파라미터의 수동 재구현</span></div>
-<pre><code>Row(
+  <!-- 3 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">3</span>
+      <h3>간격은 <code>spacing:</code> 파라미터로 표현한다 — 수동 <code>SizedBox</code> 를 끼워 넣지 않는다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">고정 gap 은 <code>Row</code> / <code>Column</code> 의 <code>spacing:</code>, 리스트 separator 는 <code>ListView.separated</code> 의 <code>separatorBuilder</code> 가 담당한다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">수동 재구현 + 트릭성 체이닝</span></div>
+        <pre><code>Row(
   children: [icon, SizedBox(width: {TokenClass}.w10), label],
 )</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">프레임워크가 가진 표현</span></div>
-<pre><code>Row(
+        <pre><code>children: sections
+    .map(_body)
+    .expand((w) =&gt; [divider, w])
+    .skip(1)
+    .toList()
+
+children: sections.indexed.expand((r) { ... }).toList()</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">기본 파라미터</span></div>
+        <pre><code>Row(
   spacing: {TokenClass}.w10,
   children: [icon, label],
 )</code></pre>
-          </div>
-        </div>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">트릭성 체이닝</span></div>
-<pre><code>children: sections.map(_body).expand((w) =&gt; [divider, w]).skip(1).toList()
-children: sections.indexed.expand((r) { ... }).toList()</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">separatorBuilder 가 의도를 말한다</span></div>
-<pre><code>ListView.separated(
+        <pre><code>ListView.separated(
   itemCount: sections.length,
   separatorBuilder: (context, index) =&gt; divider,
   itemBuilder: (context, index) =&gt; _body(sections[index]),
 )</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:0"><code>SizedBox</code> 를 children 사이에 손으로 나열하는 것은 프레임워크가 이미 가진 파라미터의 수동 재구현이고, <strong>항목이 늘 때마다 삽입 위치를 사람이 관리</strong>해야 한다. 체이닝 쪽은 의도가 코드 형태에서 읽히지 않아 인지 비용이 크다. 루프마다 동일하게 생성되는 위젯(divider 등)은 로컬 변수로 한 번 만들어 재사용한다.</p>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://dart.dev/language/collections" target="_blank" rel="noopener">&rarr; Dart collections</a>
-        <a class="card-source" href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">&rarr; Cognitive Complexity (SonarSource)</a>
-        <span class="source-badge">프로젝트 실측 &mdash; 리스트 빌딩 패턴 6종 비교 (2026-04-18)</span>
       </div>
     </div>
+    <p class="desc"><code>SizedBox</code> 를 children 사이에 손으로 나열하는 것은 프레임워크가 이미 가진 파라미터의 수동 재구현이고, <strong>항목이 늘 때마다 삽입 위치를 사람이 관리</strong>해야 한다. 체이닝 쪽은 의도가 코드 형태에서 읽히지 않아 인지 비용이 크다. 루프마다 동일하게 생성되는 위젯(divider 등)은 로컬 변수로 한 번 만들어 재사용한다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/language/collections" target="_blank" rel="noopener">&rarr; Dart collections</a>
+      <a class="card-source" href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">&rarr; Cognitive Complexity (SonarSource)</a>
+      <span class="source-badge">프로젝트 실측 — 리스트 빌딩 패턴 6종 비교, 2026-04-18</span>
+    </div>
+  </div>
 
-    <!-- 원칙 4 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">4</span>
-          <h3>반복 렌더는 builder delegate 로 &mdash; children 리스트를 즉시 채우지 않는다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">성능 근거는 SHOULD 수준</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">반복 렌더는 보이는 만큼만 만드는 delegate(<code>SliverChildBuilderDelegate</code> &middot; <code>ListView.builder</code> &middot; <code>ListView.separated</code>)로 쓴다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">화면 밖 항목까지 전부 즉시 빌드된다</span></div>
-<pre><code>SingleChildScrollView(
+  <!-- 4 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">4</span>
+      <h3>반복 렌더는 builder delegate 로 — children 리스트를 즉시 채우지 않는다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="strength s-should">성능 근거는 SHOULD 수준</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">반복 렌더는 보이는 만큼만 만드는 delegate(<code>SliverChildBuilderDelegate</code> · <code>ListView.builder</code> · <code>ListView.separated</code>)로 쓴다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">eager · shrinkWrap 오해</span></div>
+        <pre><code>// 화면 밖 항목까지 전부 즉시 빌드된다
+SingleChildScrollView(
   child: Column(
     children: [
       header,
-      for (final item in items) {widget_prefix}RowWidget(item: item),
+      for (final item in items)
+        {widget_prefix}RowWidget(item: item),
     ],
   ),
 )</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">고정 영역은 SliverToBoxAdapter, 목록은 builder sliver</span></div>
-<pre><code>CustomScrollView(
+        <pre><code>// shrinkWrap 을 lazy 수단으로 오해한 중첩
+ListView(
+  shrinkWrap: true,
+  children: items.map(_row).toList(),
+)</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">builder sliver</span></div>
+        <pre><code>// 고정 영역은 SliverToBoxAdapter, 목록은 builder sliver
+CustomScrollView(
   slivers: [
     SliverToBoxAdapter(child: header),
     SliverList.builder(
@@ -540,63 +546,50 @@ children: sections.indexed.expand((r) { ... }).toList()</code></pre>
     ),
   ],
 )</code></pre>
-          </div>
-        </div>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">shrinkWrap 을 lazy 수단으로 오해한 중첩</span></div>
-<pre><code>ListView(
-  shrinkWrap: true,
-  children: items.map(_row).toList(),
-)</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">itemBuilder 가 laziness 를 유지한다</span></div>
-<pre><code>ListView.builder(
+        <pre><code>ListView.builder(
   itemCount: items.length,
   itemBuilder: (context, index) =&gt; _row(items[index]),
 )</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:14px"><code>SingleChildScrollView</code> + <code>Column</code> 과 <code>ListView(children: [...])</code> 은 eager 다. <code>shrinkWrap: true</code> 는 lazy 가 아니라 <strong>크기 맞춤 옵션</strong>이며, <code>.builder</code> 와 같이 써도 전체 높이를 재느라 모든 아이템을 빌드해 laziness 를 깬다. <strong>화면당 스크롤 컨테이너는 하나</strong>이고 중첩 <code>shrinkWrap</code> 리스트로 쌓지 않는다.</p>
-
-        <div class="rule-box"><strong>예외는 하나다.</strong> 콘텐츠가 전부 화면에 들어와 스크롤이 실제로 불필요하면 off-screen 이 없어 lazy 이득이 0 이므로 plain <code>ListView</code> 를 쓸 수 있다. <strong>이 예외는 사람이 명시적으로 허락한 건에만 적용한다</strong> &mdash; &ldquo;다 보이니까 괜찮다&rdquo;를 스스로 판정하지 않는다.</div>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&rarr; Flutter performance best practices</a>
-        <a class="card-source" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">&rarr; Flutter architectural overview</a>
-        <span class="source-badge">프로젝트 실측 &mdash; 2026-06-09 lazy 렌더링 전면 강제</span>
       </div>
     </div>
+    <p class="desc"><code>SingleChildScrollView</code> + <code>Column</code> 과 <code>ListView(children: [...])</code> 은 eager 다. <code>shrinkWrap: true</code> 는 lazy 가 아니라 <strong>크기 맞춤 옵션</strong>이며, <code>.builder</code> 와 같이 써도 전체 높이를 재느라 모든 아이템을 빌드해 laziness 를 깬다. <strong>화면당 스크롤 컨테이너는 하나</strong>이고 중첩 <code>shrinkWrap</code> 리스트로 쌓지 않는다.</p>
+    <div class="rule-box" style="margin-top:14px">예외는 하나다 — 콘텐츠가 전부 화면에 들어와 스크롤이 실제로 불필요하면 off-screen 이 없어 lazy 이득이 0 이므로 plain <code>ListView</code> 를 쓸 수 있다. <strong>이 예외는 사람이 명시적으로 허락한 건에만 적용한다.</strong> "다 보이니까 괜찮다"를 스스로 판정하지 않는다.</div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&rarr; Flutter performance best practices</a>
+      <a class="card-source" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">&rarr; Flutter architectural overview</a>
+      <span class="source-badge">프로젝트 실측 — 2026-06-09 lazy 렌더링 전면 강제</span>
+    </div>
+  </div>
 
-    <!-- 원칙 5 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">5</span>
-          <h3>leaf 토글은 상태를 자기가 소유한다 &mdash; <code>useState</code> + <code>useEffect</code> 동기화</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">체크박스 &middot; 스위치 &middot; 슬라이더 &middot; 세그먼트 탭은 자기 값을 <code>useState</code> 로 소유하고 <code>onChanged</code> 로 부모에 통지한다. 부모의 외부 override 는 <code>useEffect</code> 로 받는다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">부모가 상태를 쥐어 토글 한 번에 subtree 가 다시 그려진다</span></div>
-<pre><code>class _ParentState extends State&lt;Parent&gt; {
+  <!-- 5 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">5</span>
+      <h3>leaf 토글은 상태를 자기가 소유한다 — <code>useState</code> + <code>useEffect</code> 동기화</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">체크박스·스위치·슬라이더·세그먼트 탭은 자기 값을 <code>useState</code> 로 소유하고 <code>onChanged</code> 로 부모에 통지한다. 부모의 외부 override 는 <code>useEffect</code> 로 받는다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">부모가 상태 소유</span></div>
+        <pre><code>// 토글 한 번에 subtree 가 다시 그려진다
+class _ParentState extends State&lt;Parent&gt; {
   bool visible = false;
 
   @override
-  Widget build(BuildContext context) =&gt; {widget_prefix}SwitchWidget(
+  Widget build(BuildContext context) =&gt;
+      {widget_prefix}SwitchWidget(
         value: visible,
         onChanged: (v) =&gt; setState(() =&gt; visible = v),
       );
 }</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">leaf 가 값을 소유하고 override 는 useEffect 로 동기화</span></div>
-<pre><code>final value = useState(props.value);
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">leaf 소유 + 동기화</span></div>
+        <pre><code>// leaf 가 값을 소유하고, override 는 useEffect 로 동기화한다
+final value = useState(props.value);
 useEffect(() {
   if (value.value != props.value) value.value = props.value;
   return null;
@@ -609,51 +602,50 @@ return {widget_prefix}SwitchWidget(
     props.onChanged(v);
   },
 );</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:16px">탭할 때 자기만 rebuild 되므로 상위 트리가 흔들리지 않는다. <code>setState</code> 는 &ldquo;possibly triggering rebuilds for the entire subtree rooted at this widget&rdquo; 이므로, <strong>상태를 상위에 둔 채 하위만 쪼개면 격리 효과가 상쇄된다.</strong> <code>useState</code> 만으로는 부모의 외부 override(전체 선택 등)가 반영되지 않는데, 초기값이 첫 build 에만 쓰이기 때문이다.</p>
-
-        <div class="detail">
-          <h4>판정 세부</h4>
-          <ul class="checklist">
-            <li><span class="check">&rarr;</span><span>hook 은 <code>items.isEmpty</code> 같은 early return <strong>위</strong>에 둔다 (rules of hooks).</span></li>
-            <li><span class="check">&rarr;</span><span><code>useEffect</code> 는 post-frame 이라 부모 override 시 <strong>한 프레임 stale 후 반영</strong>되며, 이 지연은 수용된 trade-off 다.</span></li>
-            <li><span class="check">&rarr;</span><span>그룹형 선택자(라디오)는 형제 해제에 부모 rebuild 가 필수라 격리 이득이 없으므로 controlled <code>StatelessWidget</code> 으로 남긴다. 내부 토글 상태가 없는 표시 위젯과 외부 controller 입력은 이 원칙의 대상이 아니다.</span></li>
-            <li><span class="check">&rarr;</span><span>정확성(override 반영)과 격리(perf)는 별개 축이라, 격리까지 원하면 상태를 provider 로 올리고 행 단위 <code>ref.watch(provider.select(...))</code> 로 구독을 좁힌다.</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">&rarr; State.setState</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">&rarr; Element.rebuild</a>
-        <span class="source-badge">프로젝트 실측 &mdash; 2026-06-22 <code>useValueChanged</code> &rarr; <code>useEffect</code> 번복 확정</span>
       </div>
     </div>
+    <p class="desc">탭할 때 자기만 rebuild 되므로 상위 트리가 흔들리지 않는다. <code>setState</code> 는 "possibly triggering rebuilds for the entire subtree rooted at this widget" 이므로, <strong>상태를 상위에 둔 채 하위만 쪼개면 격리 효과가 상쇄된다</strong>. <code>useState</code> 만으로는 부모의 외부 override(전체 선택 등)가 반영되지 않는데, 초기값이 첫 build 에만 쓰이기 때문이다.</p>
+    <div class="detail">
+      <h4>판정 세부</h4>
+      <ul>
+        <li>hook 은 <code>items.isEmpty</code> 같은 early return <strong>위</strong>에 둔다(rules of hooks).</li>
+        <li><code>useEffect</code> 는 post-frame 이라 부모 override 시 한 프레임 stale 후 반영되며, 이 지연은 수용된 trade-off 다.</li>
+        <li>그룹형 선택자(라디오)는 형제 해제에 부모 rebuild 가 필수라 격리 이득이 없으므로 controlled <code>StatelessWidget</code> 으로 남긴다. 내부 토글 상태가 없는 표시 위젯과 외부 controller 입력은 이 원칙의 대상이 아니다.</li>
+        <li>정확성(override 반영)과 격리(perf)는 별개 축이라, 격리까지 원하면 상태를 provider 로 올리고 행 단위 <code>ref.watch(provider.select(...))</code> 로 구독을 좁힌다.</li>
+      </ul>
+    </div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">&rarr; State.setState</a>
+      <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">&rarr; Element.rebuild</a>
+      <span class="source-badge">프로젝트 실측 — 2026-06-22 useValueChanged &rarr; useEffect 번복 확정</span>
+    </div>
+  </div>
 
-    <!-- 원칙 6 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">6</span>
-          <h3>파생 뷰 번들은 freezed state 클래스로 &mdash; 익명 Record 금지</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">provider 나 VM 이 노출하는 파생값 묶음은 <strong>이름 있는 freezed state</strong> 로 반환한다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">익명 레코드 반환</span></div>
-<pre><code>({int count, bool done, List&lt;Device&gt; items}) deviceView(Ref ref) =&gt; (
+  <!-- 6 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">6</span>
+      <h3>파생 뷰 번들은 freezed state 클래스로 — 익명 Record 금지</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">provider 나 VM 이 노출하는 파생값 묶음은 <strong>이름 있는 freezed state</strong> 로 반환한다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">익명 레코드 반환</span></div>
+        <pre><code>({int count, bool done, List&lt;Device&gt; items})
+    deviceView(Ref ref) =&gt; (
       count: ref.watch(deviceListProvider).length,
       done: ref.watch(syncProvider).isDone,
       items: ref.watch(deviceListProvider),
     );</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">파생 뷰 전용 freezed state</span></div>
-<pre><code>@freezed
-class {widget_prefix}DeviceViewState with _${widget_prefix}DeviceViewState {
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">파생 뷰 전용 freezed state</span></div>
+        <pre><code>@freezed
+class {widget_prefix}DeviceViewState
+    with _${widget_prefix}DeviceViewState {
   const factory {widget_prefix}DeviceViewState({
     required int count,
     required bool done,
@@ -664,49 +656,48 @@ class {widget_prefix}DeviceViewState with _${widget_prefix}DeviceViewState {
 // 화면에서
 final state = ref.watch(deviceViewProvider);
 final notifier = ref.read(deviceListProvider.notifier);</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:16px">타입명이 없으면 의미와 재사용성이 약하고, 프로젝트 전역이 freezed state 컨벤션이라 표기가 갈린다. 결정적으로 <strong>레코드의 <code>==</code> 는 List 필드를 identity 로 비교</strong>해 freezed 의 깊은 컬렉션 비교와 rebuild 결과가 달라진다.</p>
-
-        <div class="detail">
-          <h4>판정 세부</h4>
-          <ul class="checklist">
-            <li><span class="check">&rarr;</span><span>raw 상태와 파생 상태는 분리한다. 선택 &middot; 입력 같은 raw 는 Notifier state(<code>{widget_prefix}XxxState</code>), 그로부터 계산된 뷰 번들은 derived provider 가 반환하는 별도 freezed state(<code>{widget_prefix}XxxViewState</code>) 다.</span></li>
-            <li><span class="check">&rarr;</span><span>위젯이나 provider 표면에 노출되지 않는 <strong>함수 내부 국소 튜플은 레코드로 둬도 된다.</strong></span></li>
-            <li><span class="check">&rarr;</span><span>화면이 <code>ref.watch</code> 로 받는 로컬 변수명은 반환 타입과 무관하게 <code>state</code> 로 통일하고, notifier 를 함께 잡으면 <code>ref.read(...notifier)</code> 를 별도 변수로 분리한다.</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">&rarr; freezed</a>
-        <a class="card-source" href="https://riverpod.dev/ko/docs/concepts/about_code_generation" target="_blank" rel="noopener">&rarr; Riverpod code generation</a>
-        <span class="source-badge">프로젝트 실측 &mdash; 2026-06-23 파생 provider 레코드 반환 지적</span>
       </div>
     </div>
+    <p class="desc">타입명이 없으면 의미와 재사용성이 약하고, 프로젝트 전역이 freezed state 컨벤션이라 표기가 갈린다. 결정적으로 <strong>레코드의 <code>==</code> 는 List 필드를 identity 로 비교</strong>해 freezed 의 깊은 컬렉션 비교와 rebuild 결과가 달라진다.</p>
+    <div class="detail">
+      <h4>판정 세부</h4>
+      <ul>
+        <li>raw 상태와 파생 상태는 분리한다. 선택·입력 같은 raw 는 Notifier state(<code>{widget_prefix}XxxState</code>), 그로부터 계산된 뷰 번들은 derived provider 가 반환하는 별도 freezed state(<code>{widget_prefix}XxxViewState</code>) 다.</li>
+        <li>위젯이나 provider 표면에 노출되지 않는 함수 내부 국소 튜플은 레코드로 둬도 된다.</li>
+        <li>화면이 <code>ref.watch</code> 로 받는 로컬 변수명은 반환 타입과 무관하게 <code>state</code> 로 통일하고, notifier 를 함께 잡으면 <code>ref.read(...notifier)</code> 를 별도 변수로 분리한다.</li>
+      </ul>
+    </div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">&rarr; freezed</a>
+      <a class="card-source" href="https://riverpod.dev/ko/docs/concepts/about_code_generation" target="_blank" rel="noopener">&rarr; Riverpod code generation</a>
+      <span class="source-badge">프로젝트 실측 — 2026-06-23 파생 provider 레코드 반환 지적</span>
+    </div>
+  </div>
 
-    <!-- 원칙 7 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">7</span>
-          <h3>콜백 typedef 는 위젯별 시맨틱으로 로컬 정의한다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">각 콜백 prop 은 자기 의미를 드러내는 typedef 로 선언한다. generic 프리미티브 typedef 를 prop 타입으로 직접 재사용하지 않는다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">세 콜백이 같은 타입이라 타입에서 의미를 읽을 수 없다</span></div>
-<pre><code>class {widget_prefix}DeviceItemWidgetProps {
+  <!-- 7 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">7</span>
+      <h3>콜백 typedef 는 위젯별 시맨틱으로 로컬 정의한다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">각 콜백 prop 은 자기 의미를 드러내는 typedef 로 선언한다. generic 프리미티브 typedef 를 prop 타입으로 직접 재사용하지 않는다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">세 콜백이 같은 타입</span></div>
+        <pre><code>// 타입에서 의미를 읽을 수 없다
+class {widget_prefix}DeviceItemWidgetProps {
   final {widget_prefix}SwitchChanged onVisibleChanged;
   final {widget_prefix}SwitchChanged onFwUpdateChanged;
   final {widget_prefix}SwitchChanged onPairingChanged;
 }</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">의미 원천 위젯이 같은 파일 top-level 에 소유</span></div>
-<pre><code>typedef {widget_prefix}DeviceVisibleChanged = void Function(bool isVisible);
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">시맨틱 typedef</span></div>
+        <pre><code>// 의미 원천 위젯이 같은 파일 top-level 에 소유한다
+typedef {widget_prefix}DeviceVisibleChanged = void Function(bool isVisible);
 typedef {widget_prefix}DeviceFwUpdateChanged = void Function(bool isEnabled);
 typedef {widget_prefix}DevicePairingChanged = void Function(bool isPaired);
 
@@ -715,40 +706,38 @@ class {widget_prefix}DeviceItemWidgetProps {
   final {widget_prefix}DeviceFwUpdateChanged onFwUpdateChanged;
   final {widget_prefix}DevicePairingChanged onPairingChanged;
 }</code></pre>
-          </div>
-        </div>
-
-        <div class="rule-box"><strong>소유권 규칙은 하나다.</strong> typedef 는 그 콜백의 <strong>의미 원천 위젯</strong>이 같은 파일 top-level 에 정의하고, 상위 컴포지트와 화면은 import 해서 쓴다. 의미 원천은 그 콜백이 제어하는 실제 UI 를 그리는 위젯이며, forward 만 하는 상위는 새로 정의하지 않는다.</div>
-
-        <div class="detail">
-          <h4>판정 세부</h4>
-          <ul class="checklist">
-            <li><span class="check">&rarr;</span><span>프리미티브 위젯(switch / button / checkbox / radio / slider)은 자기 base typedef 를 계속 소유한다.</span></li>
-            <li><span class="check">&rarr;</span><span>시맨틱 typedef 는 함수 시그니처가 같아 base prop 으로 forward 할 때 구조적으로 대입된다.</span></li>
-            <li><span class="check c-bad">&#10007;</span><span>공유 typedef 파일(<code>*_typedef.dart</code> 류)은 만들지 않으며, 같은 이름 typedef 를 co-import 되는 두 파일에 각각 정의하는 것도 금지다.</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; design</a>
-        <span class="source-badge">프로젝트 실측 &mdash; 2026-06-25 개정, 프리미티브 재사용 조항 폐기</span>
       </div>
     </div>
+    <p class="desc">소유권 규칙은 하나다. <strong>typedef 는 그 콜백의 의미 원천 위젯이 같은 파일 top-level 에 정의하고, 상위 컴포지트와 화면은 import 해서 쓴다.</strong> 의미 원천은 그 콜백이 제어하는 실제 UI 를 그리는 위젯이며, forward 만 하는 상위는 새로 정의하지 않는다.</p>
+    <div class="detail">
+      <h4>판정 세부</h4>
+      <ul>
+        <li>프리미티브 위젯(switch/button/checkbox/radio/slider)은 자기 base typedef 를 계속 소유한다.</li>
+        <li>시맨틱 typedef 는 함수 시그니처가 같아 base prop 으로 forward 할 때 구조적으로 대입된다.</li>
+        <li>공유 typedef 파일(<code>*_typedef.dart</code> 류)은 만들지 않으며, 같은 이름 typedef 를 co-import 되는 두 파일에 각각 정의하는 것도 금지다.</li>
+      </ul>
+    </div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart — design</a>
+      <span class="source-badge">프로젝트 실측 — 2026-06-25 개정, 프리미티브 재사용 조항 폐기</span>
+    </div>
+  </div>
 
-    <!-- 원칙 8 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">8</span>
-          <h3><code>///</code> 는 계약이 있을 때만 &mdash; 로직 있는 메서드는 레이어 무관하게 단다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-should">SHOULD</span><span class="pill">[어댑터:dart-flutter]</span><span class="pill">[한국어]</span></div>
-        <p class="desc" style="margin-bottom:16px">주석 문법의 기본값은 <code>//</code> 다. <code>///</code> 는 public 메서드의 파라미터 &middot; 반환값 블록, 진짜 계약과 제약, 파일 헤더 관례 <strong>세 자리에만</strong> 쓴다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">이름을 옮기기만 한 필드 doc + 본문 섹션 헤더</span></div>
-<pre><code>class {widget_prefix}CardWidgetProps {
+  <!-- 8 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">8</span>
+      <h3><code>///</code> 는 계약이 있을 때만 — 로직 있는 메서드는 레이어 무관하게 단다</h3>
+      <span class="strength s-should">SHOULD</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+      <span class="axis">[한국어]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">주석 문법의 기본값은 <code>//</code> 다. <code>///</code> 는 public 메서드의 파라미터·반환값 블록, 진짜 계약과 제약, 파일 헤더 관례 <strong>세 자리에만</strong> 쓴다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">이름 번역 doc + 본문 섹션 헤더</span></div>
+        <pre><code>class {widget_prefix}CardWidgetProps {
   /// 버튼 텍스트
   final String? text;
 }
@@ -757,10 +746,10 @@ class {widget_prefix}DeviceItemWidgetProps {
 /// 정책: 200ms 마다 반복
 /// 참고: interval 이 0 이면 1회만
 void handleLongPress(Duration interval) { ... }</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">자명한 필드 doc 은 삭제, 계약은 라벨 표기로</span></div>
-<pre><code>class {widget_prefix}CardWidgetProps {
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">자명 doc 삭제 · 라벨 표기</span></div>
+        <pre><code>class {widget_prefix}CardWidgetProps {
   final String? text;
 }
 
@@ -768,43 +757,40 @@ void handleLongPress(Duration interval) { ... }</code></pre>
 /// - [interval]: 반복 간격. 0 이면 1회만 호출한다
 /// - 반환값: 없음
 void startLongPressRepeat(Duration interval) { ... }</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:16px"><code>///</code> 는 dartdoc 이 수집하는 API 문서용이라 자명한 필드에 붙으면 <strong>생성 코드까지 오염된다</strong> &mdash; freezed 는 constructor parameter 의 <code>///</code> 를 property 와 class 레벨로 전파한다. 이름을 한국어로 옮기기만 하는 필드 doc 은 금지이며 <code>antipattern-catalog.md</code> 의 A 카테고리다.</p>
-
-        <div class="detail">
-          <h4>판정 세부</h4>
-          <ul class="checklist">
-            <li><span class="check">&rarr;</span><span>커버리지 판정은 레이어가 아니라 <strong>로직 유무</strong>로 한다. provider &middot; model &middot; service &middot; repository &middot; util 뿐 아니라 화면 &middot; 뷰의 핸들러 &middot; 리스너 헬퍼도 로직이 있으면 doc 을 단다. 면제되는 것은 <code>build</code> 와 자명한 getter 뿐이고, private 도 자명하지 않으면 단다. 화면 &middot; VM 메서드 doc 을 &ldquo;화면이니까&rdquo;라는 이유로 떼는 것은 컨벤션 이탈이다.</span></li>
-            <li><span class="check">&rarr;</span><span>진짜 계약이란 <code>textStyle</code> 을 지정하면 <code>textColor</code> 가 무시되는 식의 <strong>오용 유발 규칙</strong>이다.</span></li>
-            <li><span class="check c-bad">&#10007;</span><span>본문은 한두 문장으로 끝낸다. <code>정책:</code> &middot; <code>참고:</code> &middot; <code>주의:</code> 같은 본문 내 섹션 헤더와 알고리즘 단계 나열은 doc 이 아니라 설계 문서의 몫이다.</span></li>
-            <li><span class="check">&rarr;</span><span><code>[]</code> 대괄호 링크는 파라미터 선언부에서 의무이고 본문에서는 식별자 언급이 꼭 필요할 때만 쓴다.</span></li>
-            <li><span class="check c-warn">!</span><span><strong>라벨 표기(<code>- [param]:</code> &middot; <code>- 반환값:</code> &middot; void 는 <code>없음</code>)와 본문 문체는 한국어 축이므로</strong> <code>korean-technical-writing.md</code> 를 참조한다 &mdash; 이 문서는 표기를 다시 정의하지 않는다.</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; documentation</a>
-        <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">&rarr; freezed</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener">&rarr; Material.surfaceTintColor</a>
       </div>
     </div>
+    <p class="desc"><code>///</code> 는 dartdoc 이 수집하는 API 문서용이라 자명한 필드에 붙으면 <strong>생성 코드까지 오염된다</strong> — freezed 는 constructor parameter 의 <code>///</code> 를 property 와 class 레벨로 전파한다. 이름을 한국어로 옮기기만 하는 필드 doc 은 금지이며 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> 의 A 카테고리다.</p>
+    <div class="detail">
+      <h4>판정 세부</h4>
+      <ul>
+        <li>커버리지 판정은 레이어가 아니라 <strong>로직 유무</strong>로 한다. provider · model · service · repository · util 뿐 아니라 화면·뷰의 핸들러·리스너 헬퍼도 로직이 있으면 doc 을 단다. 면제되는 것은 <code>build</code> 와 자명한 getter 뿐이고, private 도 자명하지 않으면 단다. 화면·VM 메서드 doc 을 "화면이니까"라는 이유로 떼는 것은 컨벤션 이탈이다.</li>
+        <li>진짜 계약이란 <code>textStyle</code> 을 지정하면 <code>textColor</code> 가 무시되는 식의 오용 유발 규칙이다.</li>
+        <li>본문은 한두 문장으로 끝낸다. <code>정책:</code> · <code>참고:</code> · <code>주의:</code> 같은 본문 내 섹션 헤더와 알고리즘 단계 나열은 doc 이 아니라 설계 문서의 몫이다.</li>
+        <li><code>[]</code> 대괄호 링크는 파라미터 선언부에서 의무이고 본문에서는 식별자 언급이 꼭 필요할 때만 쓴다.</li>
+        <li><strong>라벨 표기(<code>- [param]:</code> · <code>- 반환값:</code> · void 는 <code>없음</code>)와 본문 문체는 한국어 축이므로</strong> <a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a> 을 참조한다 — 이 문서는 표기를 다시 정의하지 않는다.</li>
+      </ul>
+    </div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart — documentation</a>
+      <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">&rarr; freezed</a>
+      <a class="card-source" href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener">&rarr; Material.surfaceTintColor</a>
+    </div>
+  </div>
 
-    <!-- 원칙 9 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">9</span>
-          <h3>expression body 를 기본값으로, 1회용 로컬 변수는 인라인한다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-should">SHOULD</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">단일 expression 함수는 <code>=&gt;</code> 로 쓰고, 한 곳에서만 쓰이는 로컬 변수는 사용처에 인라인한다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">block body + 1회용 로컬 변수</span></div>
-<pre><code>Widget _thumbnail() {
+  <!-- 9 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">9</span>
+      <h3>expression body 를 기본값으로, 1회용 로컬 변수는 인라인한다</h3>
+      <span class="strength s-should">SHOULD</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">단일 expression 함수는 <code>=&gt;</code> 로 쓰고, 한 곳에서만 쓰이는 로컬 변수는 사용처에 인라인한다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">block body + 1회용 변수</span></div>
+        <pre><code>Widget _thumbnail() {
   return Image.asset(props.path);
 }
 
@@ -813,39 +799,39 @@ Widget build(BuildContext context) {
   final thumbnail = _thumbnail();
   return Center(child: thumbnail);
 }</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">읽기 경로가 짧아진다</span></div>
-<pre><code>Widget _thumbnail() =&gt; Image.asset(props.path);
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">expression body</span></div>
+        <pre><code>Widget _thumbnail() =&gt; Image.asset(props.path);
 
 @override
-Widget build(BuildContext context) =&gt; Center(child: _thumbnail());</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:0">block body 는 분기가 있거나 statement 가 둘 이상일 때만이다. 로컬 변수가 한 곳에서만 쓰이면 <strong>선언 자체가 노이즈</strong>이므로, 한 번 쓰고 마는 <code>final thumbnail = _thumbnail();</code> 보다 호출을 그 자리에 두는 편이 읽기 경로가 짧다. cascade(<code>..</code>)는 같은 참조에 연속 호출할 때만 쓰고, extension 은 짧고 명확한 도메인 어휘만 붙여 formatter &middot; helper dumping ground 로 만들지 않는다.</p>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; style</a>
-        <a class="card-source" href="https://dart.dev/tools/linter-rules/cascade_invocations" target="_blank" rel="noopener">&rarr; cascade_invocations</a>
-        <a class="card-source" href="https://dart.dev/language/extension-methods" target="_blank" rel="noopener">&rarr; Dart extension methods</a>
+Widget build(BuildContext context) =&gt;
+    Center(child: _thumbnail());</code></pre>
       </div>
     </div>
+    <p class="desc">block body 는 분기가 있거나 statement 가 둘 이상일 때만이다. 로컬 변수가 한 곳에서만 쓰이면 선언 자체가 노이즈이므로, 한 번 쓰고 마는 <code>final thumbnail = _thumbnail();</code> 보다 <strong>호출을 그 자리에 두는 편이 읽기 경로가 짧다</strong>. cascade(<code>..</code>)는 같은 참조에 연속 호출할 때만 쓰고, extension 은 짧고 명확한 도메인 어휘만 붙여 formatter·helper dumping ground 로 만들지 않는다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart — style</a>
+      <a class="card-source" href="https://dart.dev/tools/linter-rules/cascade_invocations" target="_blank" rel="noopener">&rarr; cascade_invocations</a>
+      <a class="card-source" href="https://dart.dev/language/extension-methods" target="_blank" rel="noopener">&rarr; Dart extension methods</a>
+    </div>
+  </div>
 
-    <!-- 원칙 10 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">10</span>
-          <h3>Notifier 비대화를 막는다 &mdash; 상태 전이는 단일 reducer 로</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">status 별 헬퍼 다발을 만들지 않고 파라미터를 받는 reducer 하나로 통합한다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">status 5종 &times; sub-state 3종이면 헬퍼가 15개로 늘어난다</span></div>
-<pre><code>void _notifyUpdateStarted() =&gt;
+  <!-- 10 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">10</span>
+      <h3>Notifier 비대화를 막는다 — 상태 전이는 단일 reducer 로</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">status 별 헬퍼 다발을 만들지 않고 파라미터를 받는 <strong>reducer 하나</strong>로 통합한다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">조합 폭발 &rarr; 헬퍼 15개</span></div>
+        <pre><code>// status 5종 × sub-state 3종이면 헬퍼가 15개로 늘어난다
+void _notifyUpdateStarted() =&gt;
     state = state.copyWith(status: UpdateStatus.running, percent: 0);
 void _notifyUpdateProgress(double percent) =&gt;
     state = state.copyWith(percent: percent);
@@ -855,10 +841,20 @@ void _notifyUpdateFailed(String message) =&gt;
     state = state.copyWith(status: UpdateStatus.failed, message: message);
 void _notifyUpdateCancelled() =&gt;
     state = state.copyWith(status: UpdateStatus.cancelled);</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">파라미터를 받는 reducer 하나</span></div>
-<pre><code>void _setUpdateState({
+        <pre><code>// 다이얼로그 progress 용 ValueNotifier 신설
+final progress = ValueNotifier&lt;double&gt;(0);
+showDialog(
+  context: context,
+  builder: (_) =&gt; ValueListenableBuilder&lt;double&gt;(
+    valueListenable: progress,
+    builder: (_, value, __) =&gt;
+        {widget_prefix}ProgressDialogWidget(percent: value),
+  ),
+);</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">단일 reducer + ref.listen</span></div>
+        <pre><code>void _setUpdateState({
   required UpdateStatus status,
   double? percent,
   String? message,
@@ -870,154 +866,395 @@ void _notifyUpdateCancelled() =&gt;
       message: message,
       result: result,
     );</code></pre>
-          </div>
-        </div>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">다이얼로그 progress 용 ValueNotifier 신설</span></div>
-<pre><code>final progress = ValueNotifier&lt;double&gt;(0);
-showDialog(
-  context: context,
-  builder: (_) =&gt; ValueListenableBuilder&lt;double&gt;(
-    valueListenable: progress,
-    builder: (_, value, __) =&gt; {widget_prefix}ProgressDialogWidget(percent: value),
-  ),
-);</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">progress 는 provider state, push/pop 은 ref.listen</span></div>
-<pre><code>ref.listen(updateProvider, (previous, next) {
-  if (next.status == UpdateStatus.running &amp;&amp; previous?.status != next.status) {
-    showDialog(context: context, builder: (_) =&gt; const {widget_prefix}ProgressDialogWidget());
+        <pre><code>// progress 는 provider state 에 두고 ref.listen 으로 push/pop 한다
+ref.listen(updateProvider, (previous, next) {
+  if (next.status == UpdateStatus.running &amp;&amp;
+      previous?.status != next.status) {
+    showDialog(
+      context: context,
+      builder: (_) =&gt; const {widget_prefix}ProgressDialogWidget(),
+    );
   }
-  if (next.status == UpdateStatus.completed) Navigator.of(context).pop();
+  if (next.status == UpdateStatus.completed) {
+    Navigator.of(context).pop();
+  }
 });</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:16px">비대화의 실제 원인은 줄 수가 아니라 <strong>조합 폭발</strong>이다. Notifier 파일 하나에 enum + freezed 모델 + extension + Notifier 본체 + 헬퍼를 다 넣지 않고, <strong>1000줄을 넘으면</strong> state 모델 &middot; helper extension &middot; Notifier 본체(실행 흐름과 reducer 만) 세 파일로 분할한다.</p>
-
-        <div class="detail">
-          <h4>판정 세부</h4>
-          <ul class="checklist">
-            <li><span class="check c-bad">&#10007;</span><span><code>isIdle</code> &middot; <code>isRunning</code> &middot; <code>isCompleted</code> 같은 extension getter 를 sub-state 마다 양산하지 않는다. 호출부에서 enum 을 직접 비교하는 편이 명확하고, 정말 자주 쓰이는 1~2개만 추출한다.</span></li>
-            <li><span class="check c-bad">&#10007;</span><span>호출자가 쓰지 않는 저수준 메서드를 public 으로 노출하지 않고, 미래 확장을 가정한 boilerplate 도 만들지 않는다. <strong>통합 실행 흐름만 public</strong> 이고 그 안의 단계는 private 이거나 service 다.</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://riverpod.dev/ko/docs/concepts/about_code_generation" target="_blank" rel="noopener">&rarr; Riverpod code generation</a>
-        <a class="card-source" href="https://riverpod.dev/docs/whats_new" target="_blank" rel="noopener">&rarr; Riverpod &mdash; what's new</a>
-        <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">&rarr; Yagni (Fowler)</a>
-        <span class="source-badge">프로젝트 실측 &mdash; 2026-06 Notifier 분할</span>
       </div>
     </div>
+    <p class="desc">비대화의 실제 원인은 <strong>줄 수가 아니라 조합 폭발</strong>이다. Notifier 파일 하나에 enum + freezed 모델 + extension + Notifier 본체 + 헬퍼를 다 넣지 않고, 1000줄을 넘으면 state 모델 · helper extension · Notifier 본체(실행 흐름과 reducer 만) 세 파일로 분할한다.</p>
+    <div class="detail">
+      <h4>판정 세부</h4>
+      <ul>
+        <li><code>isIdle</code> · <code>isRunning</code> · <code>isCompleted</code> 같은 extension getter 를 sub-state 마다 양산하지 않는다. 호출부에서 enum 을 직접 비교하는 편이 명확하고, 정말 자주 쓰이는 1~2개만 추출한다.</li>
+        <li>호출자가 쓰지 않는 저수준 메서드를 public 으로 노출하지 않고, 미래 확장을 가정한 boilerplate 도 만들지 않는다. 통합 실행 흐름만 public 이고 그 안의 단계는 private 이거나 service 다.</li>
+      </ul>
+    </div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://riverpod.dev/ko/docs/concepts/about_code_generation" target="_blank" rel="noopener">&rarr; Riverpod code generation</a>
+      <a class="card-source" href="https://riverpod.dev/docs/whats_new" target="_blank" rel="noopener">&rarr; Riverpod — what's new</a>
+      <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">&rarr; Yagni (Fowler)</a>
+      <span class="source-badge">프로젝트 실측 — 2026-06 Notifier 분할</span>
+    </div>
+  </div>
 
-    <!-- 원칙 11 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">11</span>
-          <h3>Props 규칙은 두 벌이다 &mdash; 신규 설계와 기존 위젯 제거는 스코프가 다르다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px">신규 위젯에는 설계 기준(<code>required</code> &middot; 미사용 Props 금지)을, 기존 위젯 리팩토링에는 제거 판정 기준을 적용한다. <strong>두 규칙을 합치지 않는다.</strong></p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">(a) 항상 넘기는 필드가 nullable · 아무도 안 쓰는 Props · 추측 레이아웃</span></div>
-<pre><code>class {widget_prefix}DeviceItemWidgetProps {
+  <!-- 11 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">11</span>
+      <h3>Props 규칙은 두 벌이다 — 신규 설계와 기존 위젯 제거는 스코프가 다르다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">신규 위젯에는 설계 기준(<code>required</code> · 미사용 Props 금지)을, 기존 위젯 리팩토링에는 제거 판정 기준을 적용한다. <strong>두 규칙을 합치지 않는다.</strong></p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">nullable · 미사용 · 추측 레이아웃</span></div>
+        <pre><code>class {widget_prefix}DeviceItemWidgetProps {
   final Device? device;        // 호출부 전수가 채운다
   final bool? isDense;         // 호출자 0곳
   final Color? borderColor;    // 호출자 1곳이 매번 {TokenClass}.line 고정
   final double? width;
 }
 
-Widget build(BuildContext context) =&gt; Stack(  // 소비자 레이아웃을 추측해 미리 감쌌다
+// 소비자 레이아웃을 추측해 미리 감쌌다
+Widget build(BuildContext context) =&gt; Stack(
       children: [ClipRRect(child: props.child)],
     );</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">required 핵심 데이터 + 치수 표준 옵션만 남긴다</span></div>
-<pre><code>class {widget_prefix}DeviceItemWidgetProps {
-  const {widget_prefix}DeviceItemWidgetProps({required this.device, this.width});
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">required + 슬롯 전달</span></div>
+        <pre><code>class {widget_prefix}DeviceItemWidgetProps {
+  const {widget_prefix}DeviceItemWidgetProps({
+    required this.device,
+    this.width,
+  });
   final Device device;   // required 핵심 데이터
   final double? width;   // 치수 표준 옵션 — 호출자 0건이어도 유지
 }
 
-Widget build(BuildContext context) =&gt; props.child;  // child 슬롯은 그대로 전달
+// child 슬롯은 그대로 전달
+Widget build(BuildContext context) =&gt; props.child;
 
-// (b) 제거된 borderColor 는 build 에 인라인
-decoration: BoxDecoration(border: Border.all(color: {TokenClass}.line)),</code></pre>
-          </div>
-        </div>
-
-        <div class="rule-box"><strong>(a) 신규 위젯 Props 설계 시</strong> &mdash; 항상 넘기는 필드는 <code>required</code> 로 선언하고 nullable + <code>!</code> 강제 캐스트 조합을 만들지 않는다. 미사용 Props 는 처음부터 만들지 않으며 &ldquo;나중에 쓸 수 있으니까&rdquo;는 보존 사유가 아니다. 프로젝트에 이미 있는 장식 위젯이 있으면 Props 로 노출하지 말고 위젯 내부에서 직접 쓴다. 래퍼 위젯은 child 슬롯을 그대로 전달하고, 소비자가 어떤 레이아웃을 쓸지 추측해 <code>Stack</code> 이나 클리핑을 미리 감싸지 않는다.</div>
-
-        <div class="rule-box"><strong>(b) 기존 위젯 리팩토링 시 Props 제거 판정</strong> &mdash; 제거 후보는 실제 화면 호출자가 <strong>0곳인 스타일 Props</strong>, <strong>또는</strong> 호출자가 <strong>1곳뿐인데 매번 고정 장식값</strong>(색 &middot; radius &middot; 배경 &middot; fit)을 넘기는 Props 다. 후자는 범용성이 0이므로 build 에 값을 인라인하고 Props 에서 뺀다. 유지 대상은 치수 표준 옵션(width / height / size), slider 의 min / max, 동적값, required 핵심 데이터, 호출자 2곳 이상이며, <strong>치수는 호출자 0건에 기본값과 중복이어도 제거하지 않는다.</strong> 사용 여부 판정에 공통 위젯 pass-through 와 dev 쇼케이스를 포함하지 않는다. 보고는 카운트가 아니라 <strong>각 호출자가 실제로 넘기는 값을 코드 그대로</strong> 인용한다 &mdash; &ldquo;호출자 2곳&rdquo;만 적으면 유지 &middot; 제거 &middot; 통일 판단이 불가능해 되묻게 된다.</div>
-      </div>
-      <div class="sources">
-        <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; design</a>
-        <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">&rarr; Yagni (Fowler)</a>
-        <span class="source-badge">프로젝트 실측 &mdash; 2026-06-12 &middot; 2026-06-16 &middot; 2026-06-17 3회 보정</span>
+// 제거된 borderColor 는 build 에 인라인
+decoration: BoxDecoration(
+  border: Border.all(color: {TokenClass}.line),
+),</code></pre>
       </div>
     </div>
+    <div class="grid-2" style="margin-top:16px">
+      <div class="info-card">
+        <h3>(a) 신규 위젯 Props 설계 시</h3>
+        <p class="desc" style="margin-bottom:0">항상 넘기는 필드는 <code>required</code> 로 선언하고 nullable + <code>!</code> 강제 캐스트 조합을 만들지 않는다. 미사용 Props 는 처음부터 만들지 않으며 <strong>"나중에 쓸 수 있으니까"는 보존 사유가 아니다</strong>. 프로젝트에 이미 있는 장식 위젯이 있으면 Props 로 노출하지 말고 위젯 내부에서 직접 쓴다. 래퍼 위젯은 child 슬롯을 그대로 전달하고, 소비자가 어떤 레이아웃을 쓸지 추측해 <code>Stack</code> 이나 클리핑을 미리 감싸지 않는다.</p>
+      </div>
+      <div class="info-card">
+        <h3>(b) 기존 위젯 리팩토링 시 Props 제거 판정</h3>
+        <p class="desc" style="margin-bottom:0">제거 후보는 실제 화면 호출자가 <strong>0곳인 스타일 Props</strong>, <strong>또는</strong> 호출자가 1곳뿐인데 매번 고정 장식값(색·radius·배경·fit)을 넘기는 Props 다. 후자는 범용성이 0이므로 build 에 값을 인라인하고 Props 에서 뺀다. 유지 대상은 치수 표준 옵션(width/height/size), slider 의 min/max, 동적값, required 핵심 데이터, 호출자 2곳 이상이며, 치수는 호출자 0건에 기본값과 중복이어도 제거하지 않는다.</p>
+      </div>
+    </div>
+    <div class="rule-box" style="margin-top:16px">사용 여부 판정에 <strong>공통 위젯 pass-through 와 dev 쇼케이스를 포함하지 않는다</strong>. 보고는 카운트가 아니라 <strong>각 호출자가 실제로 넘기는 값을 코드 그대로</strong> 인용한다 — "호출자 2곳"만 적으면 유지·제거·통일 판단이 불가능해 되묻게 된다.</div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart — design</a>
+      <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">&rarr; Yagni (Fowler)</a>
+      <span class="source-badge">프로젝트 실측 — 2026-06-12 · 2026-06-16 · 2026-06-17 3회 보정</span>
+    </div>
+  </div>
 
-    <!-- 원칙 12 -->
-    <div class="card">
-      <div class="card-body">
-        <div class="principle-title">
-          <span class="num">12</span>
-          <h3>bare <code>catch (e)</code> 는 이 코퍼스의 의도된 컨벤션이다</h3>
-        </div>
-        <div class="badge-row"><span class="strength s-observed">관측 컨벤션</span><span class="pill">공개 1차 출처 없음</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:16px"><code>on</code> 절 없는 catch 는 실수가 아니라 <strong>선택</strong>이다. <code>on Exception</code> 으로 좁히지 않는다.</p>
-
-        <div class="compare">
-          <div class="compare-bad">
-            <div class="compare-label"><span class="tag tag-bad">BEFORE</span><span class="note">좁힌 catch 가 비-Exception throw 를 놓쳐 동작이 깨진다</span></div>
-<pre><code>try {
+  <!-- 12 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">12</span>
+      <h3>bare <code>catch (e)</code> 는 이 코퍼스의 의도된 컨벤션이다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px"><code>on</code> 절 없는 catch 는 실수가 아니라 <strong>선택</strong>이다. <code>on Exception</code> 으로 좁히지 않는다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">좁힌 catch — 커버리지 손실</span></div>
+        <pre><code>// 좁힌 catch 가 비-Exception throw 를 놓쳐 동작이 깨진다
+try {
   await repository.fetchDevices();
 } on Exception catch (e) {
   state = state.copyWith(error: e.toString());
 }</code></pre>
-          </div>
-          <div class="compare-good">
-            <div class="compare-label"><span class="tag tag-ok">AFTER</span><span class="note">모든 throwable 을 상태 · 로그로 흡수</span></div>
-<pre><code>try {
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">모든 throwable 흡수</span></div>
+        <pre><code>try {
   await repository.fetchDevices();
 } catch (e, st) {
   logger.e('fetchDevices 실패', error: e, stackTrace: st);
   state = state.copyWith(error: e.toString());
 }</code></pre>
-          </div>
-        </div>
-
-        <p class="desc" style="margin-bottom:16px">목적은 Dart 의 모든 throwable(<code>Object</code> 루트 &mdash; <code>Exception</code> &middot; <code>Error</code> &middot; 임의 객체)을 전부 잡아 상태나 로그로 흡수하는 것이고, provider &middot; VM 의 에러 싱크가 대표 사례다. 비-<code>Exception</code> 객체를 던지는 경로(예: 응답 에러 필드 타입이 <code>Object?</code> 인 HTTP 레이어)가 있으면 좁힌 catch 가 그 throw 를 놓친다 &mdash; <strong>커버리지가 줄 뿐 늘지 않는다.</strong></p>
-
-        <div class="warn-card">
-          <div class="principle-title">
-            <span class="num">!</span>
-            <h3>리뷰 &middot; QA 가 bare catch 를 지적하면 무효 판정으로 처리한다</h3>
-          </div>
-          <p class="desc" style="margin-bottom:0">이 규칙은 코퍼스 실측에 근거하며 <strong>공개 1차 출처가 없다.</strong> 다른 코퍼스로 옮길 때는 그 코퍼스에서 같은 비율이 관측되는지 먼저 확인하고, 확인 없이 이관하지 않는다.</p>
-        </div>
       </div>
-      <div class="sources">
-        <span class="source-badge">프로젝트 실측 &mdash; bare <code>catch (e)</code> 27건 vs <code>on Exception</code> 3건 (2026-06-26) &middot; 공개 1차 출처 없음</span>
+    </div>
+    <p class="desc">목적은 Dart 의 모든 throwable(<code>Object</code> 루트 — <code>Exception</code> · <code>Error</code> · 임의 객체)을 전부 잡아 상태나 로그로 흡수하는 것이고, provider·VM 의 에러 싱크가 대표 사례다. 비-<code>Exception</code> 객체를 던지는 경로(예: 응답 에러 필드 타입이 <code>Object?</code> 인 HTTP 레이어)가 있으면 <strong>좁힌 catch 가 그 throw 를 놓친다 — 커버리지가 줄 뿐 늘지 않는다.</strong></p>
+    <div class="dist" style="margin-top:16px">
+      <div class="dist-row">
+        <span class="dist-label">bare catch (e)</span>
+        <span class="dist-track"><span class="dist-fill" style="width:100%"></span></span>
+        <span class="dist-val">27건</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">on Exception</span>
+        <span class="dist-track"><span class="dist-fill f-blue" style="width:11%"></span></span>
+        <span class="dist-val">3건</span>
+      </div>
+    </div>
+    <div class="rule-box" style="margin-top:16px"><strong>리뷰나 QA 가 bare catch 를 지적하면 무효 판정으로 처리한다.</strong> 이 규칙은 코퍼스 실측에 근거하며 <strong>공개 1차 출처가 없다.</strong> 다른 코퍼스로 옮길 때는 그 코퍼스에서 같은 비율이 관측되는지 먼저 확인하고, 확인 없이 이관하지 않는다.</div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <span class="source-badge">프로젝트 실측 — bare catch (e) 27건 vs on Exception 3건, 2026-06-26</span>
+      <span class="source-badge">공개 1차 출처 없음 — 논문·문서 각주를 붙이지 않는다</span>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="card principle" style="border-color:rgba(217,70,239,0.42)">
+    <div class="principle-title">
+      <span class="num">13</span>
+      <h3>이벤트 콜백 이름은 프레임워크 어휘에서 가져온다</h3>
+      <span class="strength s-should">SHOULD</span>
+      <span class="axis">[어댑터:dart-flutter]</span>
+      <span class="tag">이번 개정 신설</span>
+    </div>
+    <p class="desc" style="margin-top:0;margin-bottom:16px">제스처·폼 이벤트는 <strong>Flutter 가 이미 이름을 정해 뒀다</strong>. 그 이름을 그대로 쓰고, 자체 어휘를 만들지 않는다.</p>
+
+    <div class="ladder">
+      <div class="ladder-step l-1">
+        <span class="lv">1순위</span>
+        <span class="lt">프레임워크 공식 어휘</span>
+        <span class="ld">SDK 에 실재하는 콜백 이름을 그대로 받는다</span>
+      </div>
+      <div class="ladder-step">
+        <span class="lv">2순위</span>
+        <span class="lt">프로젝트 관례</span>
+        <span class="ld">공식 대응이 없을 때만 프로젝트가 이미 쓰는 말을 쓴다</span>
+      </div>
+      <div class="ladder-step l-3">
+        <span class="lv">3순위</span>
+        <span class="lt">새로 만든 말</span>
+        <span class="ld">앞의 둘이 모두 비었을 때의 마지막 수단</span>
       </div>
     </div>
 
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">자체 어휘 신설</span></div>
+        <pre><code>// Press 한 단어로는 tap 인지 long press 인지 이름에서 안 갈린다
+void handlePressStart(TapDownDetails details) { ... }
+void handlePressEnd(TapUpDetails details) { ... }
+
+GestureDetector(
+  onTapDown: handlePressStart,
+  onTapUp: handlePressEnd,
+  child: child,
+)</code></pre>
+        <pre><code>// 같은 "선택" 개념에 두 어휘가 섞였다
+typedef {widget_prefix}DeviceSelectTap = void Function(Device device);
+
+class {widget_prefix}DeviceListWidgetProps {
+  final {widget_prefix}DeviceSelectTap onDeviceSelectTap;
+  final void Function(int index) onIndexSelected;
+}</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">프레임워크 단계 어휘</span></div>
+        <pre><code>// 핸들러 이름도 프레임워크 단계 어휘를 그대로 받는다
+void handleTapDown(TapDownDetails details) { ... }
+void handleTapUp(TapUpDetails details) { ... }
+
+GestureDetector(
+  onTapDown: handleTapDown,
+  onTapUp: handleTapUp,
+  child: child,
+)</code></pre>
+        <pre><code>// 선택 이벤트 어휘를 onSelected 하나로 맞춘다
+typedef {widget_prefix}DeviceSelected = void Function(Device device);
+typedef {widget_prefix}DeviceIndexSelected = void Function(int index);
+
+class {widget_prefix}DeviceListWidgetProps {
+  final {widget_prefix}DeviceSelected onDeviceSelected;
+  final {widget_prefix}DeviceIndexSelected onIndexSelected;
+}</code></pre>
+      </div>
+    </div>
+    <p class="desc">길게 누르기였다면 핸들러는 <code>handleLongPressStart</code> / <code>handleLongPressEnd</code> 이고 콜백은 <code>onLongPressStart</code> / <code>onLongPressEnd</code> 다. <strong>어느 제스처인지가 이름에서 갈린다.</strong> 전체 어휘 목록은 바로 아래 §3.11 절에 있다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart — design</a>
+      <span class="source-badge">Flutter SDK 소스 실측 — packages/flutter/lib/src/widgets/gesture_detector.dart 콜백 58개 (3.38.4)</span>
+      <span class="source-badge">프로젝트 실측 — handlePressStart 7건 · handlePressEnd 8건</span>
+    </div>
   </div>
 </div>
 
-<!-- ══ Section 3 — 어댑터 슬롯 ══ -->
+<!-- ══ §3.11 제스처 어휘 — 이번 개정의 핵심 자산 ══ -->
 <div class="section">
-  <div class="section-label">어댑터 슬롯 10개 &mdash; tone-guide · tone-scaffold 가 읽어 가는 값 칸</div>
-  <p class="desc">스킬은 이 표에서 값을 읽는다. 왼쪽이 슬롯 이름, 오른쪽이 dart-flutter 값이다. <strong><code>codegen_cmd</code> 만 상수가 아니라 프로젝트 감지 대상</strong>이라는 점이 이 표에서 가장 자주 잘못 쓰이는 자리다.</p>
+  <div class="hero">
+    <div class="section-label">&sect;3.11 이벤트 콜백 어휘 &mdash; 슬롯 <code>event_vocabulary</code></div>
+    <div class="hero-head">
+      <h2>제스처·폼 이벤트 어휘 표</h2>
+      <span class="strength s-should">SHOULD</span>
+      <span class="tag">킷 결속: <code>adapter-dart-flutter.md</code> D-15</span>
+    </div>
+    <p class="desc">판정식은 하나다 — <strong>이 이벤트를 프레임워크가 이미 알고 있는가.</strong> 알고 있으면 그 이름을 쓰고, 모르면 프로젝트가 짓는다. 아래 표가 원칙 13 의 <strong>실물 근거</strong>이며, 어휘 축 코어 규칙은 <code>core-naming.md</code> N-12 가 소유하고 이 문서는 <strong>Flutter 어휘 목록을 소유</strong>한다.</p>
 
-  <div class="table-wrap wrap">
+    <h3 style="margin-top:26px">단계 축 — 제스처가 달라도 단계 이름은 같은 순서로 붙는다</h3>
+    <div class="flow" style="margin-top:14px">
+      <div class="flow-step rank-1">
+        <span class="rank">단계 1</span>
+        <span class="what">Down</span>
+        <span class="out">포인터 접촉</span>
+      </div>
+      <div class="flow-step">
+        <span class="rank">단계 2</span>
+        <span class="what">Start</span>
+        <span class="out">제스처 확정</span>
+      </div>
+      <div class="flow-step">
+        <span class="rank">단계 3</span>
+        <span class="what">Update / MoveUpdate</span>
+        <span class="out">진행 중 갱신</span>
+      </div>
+      <div class="flow-step">
+        <span class="rank">단계 4</span>
+        <span class="what">End / Up</span>
+        <span class="out">정상 종료</span>
+      </div>
+      <div class="flow-step">
+        <span class="rank">단계 5</span>
+        <span class="what">Cancel</span>
+        <span class="out">인식 취소</span>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px">제스처별 공식 콜백</h3>
+    <div class="table-wrap" style="margin-top:14px">
+      <table>
+        <thead>
+          <tr><th>제스처</th><th>콜백</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="gesture-name">tap</td>
+            <td><span class="cb cb-stage">onTapDown</span><span class="cb">onTapMove</span><span class="cb cb-stage">onTapUp</span><span class="cb">onTap</span><span class="cb cb-stage">onTapCancel</span></td>
+          </tr>
+          <tr><td class="gesture-name">double tap</td><td><span class="cb cb-stage">onDoubleTapDown</span><span class="cb">onDoubleTap</span><span class="cb cb-stage">onDoubleTapCancel</span></td></tr>
+          <tr>
+            <td class="gesture-name">long press</td>
+            <td><span class="cb cb-stage">onLongPressDown</span><span class="cb cb-stage">onLongPressStart</span><span class="cb">onLongPressMoveUpdate</span><span class="cb">onLongPressUp</span><span class="cb cb-stage">onLongPressEnd</span><span class="cb">onLongPress</span><span class="cb cb-stage">onLongPressCancel</span></td>
+          </tr>
+          <tr>
+            <td class="gesture-name">pan</td>
+            <td><span class="cb cb-stage">onPanDown</span><span class="cb cb-stage">onPanStart</span><span class="cb">onPanUpdate</span><span class="cb cb-stage">onPanEnd</span><span class="cb cb-stage">onPanCancel</span></td>
+          </tr>
+          <tr>
+            <td class="gesture-name">drag</td>
+            <td><span class="cb">onVerticalDrag&hellip;</span><span class="cb">onHorizontalDrag&hellip;</span> <span class="pill">같은 단계 축</span></td>
+          </tr>
+          <tr>
+            <td class="gesture-name">scale</td>
+            <td><span class="cb cb-stage">onScaleStart</span><span class="cb">onScaleUpdate</span><span class="cb cb-stage">onScaleEnd</span></td>
+          </tr>
+          <tr>
+            <td class="gesture-name">force press</td>
+            <td><span class="cb cb-stage">onForcePressStart</span><span class="cb">onForcePressPeak</span><span class="cb">onForcePressUpdate</span><span class="cb cb-stage">onForcePressEnd</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px">
+      <div class="info-card">
+        <h3>변형도 같은 규칙으로 존재한다</h3>
+        <p class="desc" style="margin-bottom:0"><code>Secondary</code> · <code>Tertiary</code> 변형은 <strong>제스처 이름 앞에 끼워 넣는다</strong> — <code>onSecondaryTapDown</code> 처럼.</p>
+      </div>
+      <div class="info-card">
+        <h3>폼·선택 계열</h3>
+        <p class="desc" style="margin-bottom:0"><span class="cb">onChanged</span><span class="cb">onSubmitted</span><span class="cb">onEditingComplete</span><span class="cb">onSelected</span><span class="cb">onPressed</span><span class="cb">onHover</span><span class="cb">onFocusChange</span></p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px">코퍼스 위반 실측</h3>
+    <div class="table-wrap" style="margin-top:14px">
+      <table>
+        <thead>
+          <tr><th>프로젝트 이름</th><th>실측</th><th>프레임워크 대응</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="sys"><code>handlePressStart</code></td>
+            <td class="verdict-yes">7건</td>
+            <td><span class="cb">onTapDown</span> 또는 <span class="cb">onLongPressStart</span></td>
+          </tr>
+          <tr>
+            <td class="sys"><code>handlePressEnd</code></td>
+            <td class="verdict-yes">8건</td>
+            <td><span class="cb">onTapUp</span> 또는 <span class="cb">onLongPressEnd</span></td>
+          </tr>
+          <tr>
+            <td class="sys"><code>&hellip;SelectTap</code> &harr; <code>&hellip;Selected</code></td>
+            <td class="verdict-cond">혼재</td>
+            <td>같은 개념에 두 어휘</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dist" style="margin-top:18px">
+      <div class="dist-row">
+        <span class="dist-label">SDK 콜백 어휘</span>
+        <span class="dist-track"><span class="dist-fill" style="width:100%"></span></span>
+        <span class="dist-val">58개</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">handlePressEnd</span>
+        <span class="dist-track"><span class="dist-fill f-red" style="width:12%"></span></span>
+        <span class="dist-val">8건</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">handlePressStart</span>
+        <span class="dist-track"><span class="dist-fill f-red" style="width:11%"></span></span>
+        <span class="dist-val">7건</span>
+      </div>
+    </div>
+
+    <div class="rule-box" style="margin-top:18px"><code>Press</code> 하나로는 tap 인지 long press 인지 이름에서 안 갈린다. <strong>프레임워크는 갈라 놨는데 프로젝트가 도로 합친 것이다.</strong></div>
+
+    <div class="detail" style="margin-top:18px">
+      <h4>판정 세부</h4>
+      <ul>
+        <li>판정식은 하나다 — <strong>이 이벤트를 프레임워크가 이미 알고 있는가.</strong> 알고 있으면 그 이름을 쓰고, 모르면 프로젝트가 짓는다.</li>
+        <li>예외는 도메인 이벤트다. <code>onPairingModeEntered</code> · <code>onLightStickMounted</code> · <code>onLibraryDownloadCancel</code> 은 공식 어휘에 대응이 없으므로 정당하다.</li>
+        <li>콜백 typedef 이름도 같은 어휘를 따른다 — <code>...Tap</code> 은 <code>onTap</code> 계열, <code>...Changed</code> 는 <code>onChanged</code> 계열, 선택 이벤트는 <code>...Selected</code> 다. typedef 소유권 규칙 자체는 원칙 7 이 가진다.</li>
+        <li><strong>코어 원칙(어휘 축)은 <code>core-naming.md</code> N-12 가 소유하고, 이 문서는 Flutter 어휘 목록을 소유한다.</strong> 위 제스처 표가 이 원칙의 실물 근거이며, 킷 쪽 결속은 <code>adapter-dart-flutter.md</code> D-15(&sect;3.11 이벤트 콜백 어휘)와 슬롯 <code>event_vocabulary</code> 다.</li>
+        <li>로케일 축의 "공식 API 이름은 영어 원문"(<a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a> 원칙 5)과 같은 원리다. 주석에서 공식 이름을 지키면서 코드에서 자체 어휘를 만드는 것은 앞뒤가 맞지 않는다.</li>
+      </ul>
+    </div>
+
+    <div class="warn-card" style="margin-top:18px">
+      <div class="principle-title"><span class="num">!</span><h3>강도를 MUST 로 올리지 않는 이유</h3></div>
+      <p class="desc" style="margin-bottom:0">공식 문서가 <strong>"소비자 코드도 이 이름을 쓰라"고 명시하지는 않는다.</strong> 근거는 어휘가 SDK 에 실재한다는 사실이지 지침 문장이 아니므로 <code>MUST</code> 로 올리지 않는다.</p>
+    </div>
+
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart — design</a>
+      <span class="source-badge">Flutter SDK 소스 실측 — gesture_detector.dart 콜백 58개 (3.38.4)</span>
+      <span class="source-badge">프로젝트 실측 — handlePressStart 7건 · handlePressEnd 8건</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 어댑터 슬롯 11 ══ -->
+<div class="section">
+  <div class="section-label">어댑터 슬롯 11 — 스킬이 읽어 가는 값 칸</div>
+  <p class="desc"><code>tone-guide</code> 와 <code>tone-scaffold</code> 가 이 표에서 값을 읽는다. 슬롯은 <strong>규칙이 아니라 값</strong>이므로, 판정 방법이 필요한 칸은 소유 문서를 가리킨다.</p>
+
+  <div class="table-wrap">
     <table>
       <thead>
         <tr><th>슬롯</th><th>dart-flutter 값</th></tr>
@@ -1029,15 +1266,15 @@ decoration: BoxDecoration(border: Border.all(color: {TokenClass}.line)),</code><
         </tr>
         <tr>
           <td class="slot">doc_param_format</td>
-          <td><code>/// - [param]: 설명</code> &mdash; 파라미터 선언부에서 <code>[]</code> 링크 의무, 본문에서는 필요할 때만</td>
+          <td><code>/// - [param]: 설명</code> — 파라미터 선언부에서 <code>[]</code> 링크 의무, 본문에서는 필요할 때만</td>
         </tr>
         <tr>
           <td class="slot">doc_return_label</td>
-          <td><code>/// - 반환값: 설명</code>, void 는 <code>- 반환값: 없음</code> (<code>N/A</code> 신규 도입 금지). <strong>한국어 축 &mdash; 표기 상수의 소유자는 <code>korean-technical-writing.md</code> 다</strong></td>
+          <td><code>/// - 반환값: 설명</code>, void 는 <code>- 반환값: 없음</code> (<code>N/A</code> 신규 도입 금지). <strong>한국어 축 — 표기 상수의 소유자는 <a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a> 이다</strong></td>
         </tr>
         <tr>
           <td class="slot">helper_prefix_forbidden</td>
-          <td><code>_build*</code> (위젯 반환 private 헬퍼 접두사). 판정 &middot; 처리 방침은 <code>antipattern-catalog.md</code> I 카테고리, 추출 임계는 <code>extraction-thresholds.md</code></td>
+          <td><code>_build*</code> (위젯 반환 private 헬퍼 접두사). 판정·처리 방침은 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> I 카테고리, 추출 임계는 <a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a></td>
         </tr>
         <tr>
           <td class="slot">separator_pattern</td>
@@ -1045,43 +1282,38 @@ decoration: BoxDecoration(border: Border.all(color: {TokenClass}.line)),</code><
         </tr>
         <tr>
           <td class="slot">fallback_identifier_pattern</td>
-          <td><code>\b(effective|resolved)[A-Z]</code> &mdash; 금지 접두사. 처리는 삭제가 아니라 도메인 &middot; 역할명으로 개명</td>
+          <td><code>\b(effective|resolved)[A-Z]</code> — 금지 접두사. 처리는 삭제가 아니라 도메인·역할명으로 개명</td>
         </tr>
         <tr>
           <td class="slot">naming_suffix</td>
-          <td>위젯 클래스 <code>{widget_prefix}...Widget</code> &middot; Props <code>...WidgetProps</code> &middot; raw 상태 <code>...State</code> &middot; 파생 뷰 <code>...ViewState</code> &middot; 콜백 typedef <code>...Changed</code> / <code>...Tap</code>. 클래스 UpperCamelCase, 파일 snake_case</td>
+          <td>위젯 클래스 <code>{widget_prefix}...Widget</code> · Props <code>...WidgetProps</code> · raw 상태 <code>...State</code> · 파생 뷰 <code>...ViewState</code> · 콜백 typedef <code>...Changed</code> / <code>...Tap</code>. 클래스 UpperCamelCase, 파일 snake_case</td>
+        </tr>
+        <tr>
+          <td class="slot">event_vocabulary</td>
+          <td>제스처·폼 콜백 이름은 Flutter 공식 어휘를 그대로 쓴다(원칙 13). 단계 축 <code>Down &rarr; Start &rarr; Update/MoveUpdate &rarr; End/Up &rarr; Cancel</code>, 폼·선택은 <code>onChanged</code> · <code>onSubmitted</code> · <code>onEditingComplete</code> · <code>onSelected</code> · <code>onPressed</code> · <code>onHover</code> · <code>onFocusChange</code>. 공식 대응이 없는 도메인 이벤트만 프로젝트가 이름 짓는다. 어휘 축 코어 규칙은 <code>core-naming.md</code> N-12 소유</td>
         </tr>
         <tr>
           <td class="slot">state_lib</td>
           <td>Riverpod(<code>@riverpod</code> Notifier + <code>select</code>) + flutter_hooks(<code>HookConsumerWidget</code>, <code>useState</code>/<code>useEffect</code>) + freezed state 클래스</td>
         </tr>
-        <tr style="background:rgba(251,191,36,0.06)">
+        <tr>
           <td class="slot">codegen_cmd</td>
-          <td><strong>프로젝트 감지 &mdash; 상수 아님.</strong> 버전 매니저 래퍼(<code>fvm</code> 등) 유무와 <code>dart</code> / <code>flutter</code> 선택이 프로젝트마다 다르다. 형태는 <code>&lt;래퍼&gt; &lt;dart|flutter&gt; run build_runner build --delete-conflicting-outputs</code></td>
+          <td><strong>프로젝트 감지 — 상수 아님.</strong> 버전 매니저 래퍼(<code>fvm</code> 등) 유무와 <code>dart</code> / <code>flutter</code> 선택이 프로젝트마다 다르다. 형태는 <code>&lt;래퍼&gt; &lt;dart|flutter&gt; run build_runner build --delete-conflicting-outputs</code></td>
         </tr>
         <tr>
           <td class="slot">audit_greps</td>
-          <td>아래 10종. 전부 bash &middot; zsh 양쪽에서 <strong>실행</strong> 검증했고 각각 <strong>양성 케이스 1건 이상</strong>을 실제로 잡는 것을 확인했다</td>
+          <td>아래 10종. 전부 bash·zsh 양쪽에서 실행 검증했고 각각 <strong>양성 케이스 1건 이상을 실제로 잡는 것</strong>을 확인했다</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ══ Section 4 — 완료 게이트 grep ══ -->
+<!-- ══ 완료 게이트 grep 10종 ══ -->
 <div class="section">
-  <div class="section-label">완료 게이트 grep 10종 &mdash; 히트가 곧 위반인가</div>
-  <p class="desc">grep 은 <strong>수집기이지 판정기가 아니다.</strong> 10종 중 히트가 그대로 위반인 것은 2종뿐이고, 나머지는 히트마다 사람이 판정을 적어야 한다. 히트 수를 위반 건수로 보고하는 것이 이 게이트에서 가장 흔한 오용이다.</p>
+  <div class="section-label">완료 게이트 grep 10종 — 슬롯 <code>audit_greps</code></div>
+  <p class="desc">완료를 선언하기 전에 돌리는 묶음이다. 통과 기준은 <strong>"돌렸다"가 아니라 "히트마다 판정을 적었다"</strong> 다.</p>
 
-  <div class="legend">
-    <span class="verdict v-violation">위반</span>
-    <span class="verdict v-candidate">컨벤션 이탈 후보</span>
-    <span class="verdict v-over">과수집</span>
-    <span class="verdict v-zero">준수 시 0건 정상</span>
-    <span class="tag tag-neutral">위반 2 &middot; 컨벤션 이탈 후보 6 &middot; 과수집 1 &middot; 준수 시 0건 정상 1</span>
-  </div>
-
-  <h3 style="margin-bottom:10px">원문 목록 (<code>audit_greps</code>)</h3>
   <pre><code>grep -rnE 'shrinkWrap:[[:space:]]*true' --include='*.dart' &lt;src&gt;
 grep -rn  'SingleChildScrollView' --include='*.dart' &lt;src&gt;
 grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' --include='*.dart' &lt;src&gt;
@@ -1092,227 +1324,249 @@ grep -rnE '\}[[:space:]]*on[[:space:]]+[A-Z][A-Za-z0-9_]*[[:space:]]+catch' --in
 grep -rnE 'if[[:space:]]*\([[:space:]]*[A-Za-z_.]+[[:space:]]*!=[[:space:]]*null[[:space:]]*\)' --include='*.dart' &lt;src&gt;
 grep -rnE '\(\{[^)]*\}\)[[:space:]]+[a-z][A-Za-z0-9_]*[[:space:]]*\(' --include='*.dart' &lt;src&gt;
 grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' &lt;src&gt;</code></pre>
-  <p class="caption">10종 전부 bash &middot; zsh 양쪽에서 실행 검증했고 각각 양성 케이스 1건 이상을 실제로 잡는 것을 확인했다. <code>&lt;src&gt;</code> 는 대상 소스 루트로 치환한다.</p>
 
-  <div class="grid-2" style="margin-top:24px">
+  <h3 style="margin-top:26px">grep 판정표 — 히트가 곧 위반인가</h3>
+  <div class="table-wrap" style="margin-top:14px">
+    <table>
+      <thead>
+        <tr><th>#</th><th>잡는 것</th><th>히트 = 위반?</th><th>판정 방법</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">1</td>
+          <td><code>shrinkWrap: true</code></td>
+          <td class="verdict-cond">조건부</td>
+          <td>lazy 수단으로 쓴 자리는 위반이다(원칙 4). 히트마다 판정을 적는다</td>
+        </tr>
+        <tr>
+          <td class="sys">2</td>
+          <td><code>SingleChildScrollView</code></td>
+          <td class="verdict-cond">조건부</td>
+          <td>eager 다. 스크롤이 실제로 불필요한 건은 사람이 명시 허락한 경우에만 유지</td>
+        </tr>
+        <tr>
+          <td class="sys">3</td>
+          <td><code>_build*</code> 헬퍼</td>
+          <td class="verdict-no">아니다</td>
+          <td>금지 접두사이되 인라인/위젯 승격 판정은 <a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a> 와 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> I 카테고리에 있다</td>
+        </tr>
+        <tr>
+          <td class="sys">4</td>
+          <td><code>effective*</code> / <code>resolved*</code></td>
+          <td class="verdict-yes">예</td>
+          <td>삭제가 아니라 도메인·역할명으로 개명한다</td>
+        </tr>
+        <tr>
+          <td class="sys">5</td>
+          <td><code>.expand(</code></td>
+          <td class="verdict-cond">조건부</td>
+          <td>separator 체이닝이면 위반(원칙 3). 그 외 용도는 트릭성 여부를 따로 판정한다</td>
+        </tr>
+        <tr>
+          <td class="sys">6</td>
+          <td><code>ValueNotifier</code> / <code>ValueListenableBuilder</code></td>
+          <td class="verdict-cond">조건부</td>
+          <td>다이얼로그 progress 신설이면 위반(원칙 10). provider state + <code>ref.listen</code> 으로 옮긴다</td>
+        </tr>
+        <tr>
+          <td class="sys">7</td>
+          <td><code>} on Xxx catch</code></td>
+          <td class="verdict-no">아니다</td>
+          <td>위반이 아니라 원칙 12 의 컨벤션 이탈 후보다</td>
+        </tr>
+        <tr>
+          <td class="sys">8</td>
+          <td><code>if (x != null)</code></td>
+          <td class="verdict-no">아니다</td>
+          <td>과수집되므로 경계부 <code>!</code> 를 걸러 낸 뒤 판정한다</td>
+        </tr>
+        <tr>
+          <td class="sys">9</td>
+          <td>익명 레코드 반환 함수</td>
+          <td class="verdict-yes">예</td>
+          <td>준수 상태에서는 0건이 정상이다(원칙 6)</td>
+        </tr>
+        <tr>
+          <td class="sys">10</td>
+          <td><code>// =====</code> 구분선 주석</td>
+          <td class="verdict-yes">예</td>
+          <td>지운다. 카테고리 판정은 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">1</span><span class="what"><code>shrinkWrap: true</code></span></div>
-<pre><code>grep -rnE 'shrinkWrap:[[:space:]]*true' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-candidate">컨벤션 이탈 후보</span><span class="pill">원문 판정: 조건부</span></div>
-      <p class="grep-note">lazy 수단으로 쓴 자리는 위반이다(원칙 4). <strong>히트마다 판정을 적는다.</strong></p>
+  <div class="grid-2" style="margin-top:20px">
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>히트 수를 위반 수로 보고하지 마라</h3></div>
+      <p class="desc" style="margin-bottom:0">10종 중 <strong>3종은 히트가 위반이 아니고</strong>, 4종은 조건부다. 그대로 세어 보고하면 추출이 정당한 건과 컨벤션 준수 건까지 위반으로 집계된다.</p>
     </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">2</span><span class="what"><code>SingleChildScrollView</code></span></div>
-<pre><code>grep -rn  'SingleChildScrollView' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-candidate">컨벤션 이탈 후보</span><span class="pill">원문 판정: 조건부</span></div>
-      <p class="grep-note">eager 다. 스크롤이 실제로 불필요한 건은 <strong>사람이 명시 허락한 경우에만</strong> 유지.</p>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>0건은 그 자체로 통과가 아니다</h3></div>
+      <p class="desc" style="margin-bottom:0">0건은 <strong>"위반이 없는 것"과 "패턴이 죽은 것"을 구분하지 못한다.</strong> 그래서 10종 전부 bash·zsh 양쪽에서 <strong>양성 케이스 1건 이상</strong>을 실제로 잡는 것까지 확인했다.</p>
     </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">3</span><span class="what"><code>_build*</code> 헬퍼</span></div>
-<pre><code>grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-candidate">컨벤션 이탈 후보</span><span class="pill">원문 판정: 아니다</span></div>
-      <p class="grep-note">금지 접두사이되 인라인 / 위젯 승격 판정은 <code>extraction-thresholds.md</code> 와 <code>antipattern-catalog.md</code> I 카테고리에 있다. <strong>히트를 세어 그대로 보고하지 마라.</strong></p>
-    </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">4</span><span class="what"><code>effective*</code> / <code>resolved*</code></span></div>
-<pre><code>grep -rnE '\b(effective|resolved)[A-Z]' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-violation">위반</span><span class="pill">원문 판정: 예</span></div>
-      <p class="grep-note">삭제가 아니라 <strong>도메인 &middot; 역할명으로 개명</strong>한다.</p>
-    </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">5</span><span class="what"><code>.expand(</code></span></div>
-<pre><code>grep -rnE '\.expand\(' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-candidate">컨벤션 이탈 후보</span><span class="pill">원문 판정: 조건부</span></div>
-      <p class="grep-note">separator 체이닝이면 위반(원칙 3). 그 외 용도는 트릭성 여부를 따로 판정한다.</p>
-    </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">6</span><span class="what"><code>ValueNotifier</code> / <code>ValueListenableBuilder</code></span></div>
-<pre><code>grep -rnE '\b(ValueNotifier|ValueListenableBuilder)\b' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-candidate">컨벤션 이탈 후보</span><span class="pill">원문 판정: 조건부</span></div>
-      <p class="grep-note">다이얼로그 progress 신설이면 위반(원칙 10). provider state + <code>ref.listen</code> 으로 옮긴다.</p>
-    </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">7</span><span class="what"><code>} on Xxx catch</code></span></div>
-<pre><code>grep -rnE '\}[[:space:]]*on[[:space:]]+[A-Z][A-Za-z0-9_]*[[:space:]]+catch' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-candidate">컨벤션 이탈 후보</span><span class="pill">원문 판정: 아니다</span></div>
-      <p class="grep-note">위반이 아니라 <strong>원칙 12 의 컨벤션 이탈 후보</strong>다. 이 코퍼스는 bare catch 가 정본이다.</p>
-    </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">8</span><span class="what"><code>if (x != null)</code></span></div>
-<pre><code>grep -rnE 'if[[:space:]]*\([[:space:]]*[A-Za-z_.]+[[:space:]]*!=[[:space:]]*null[[:space:]]*\)' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-over">과수집</span><span class="pill">원문 판정: 아니다</span></div>
-      <p class="grep-note">과수집되므로 <strong>경계부 <code>!</code> 를 걸러 낸 뒤</strong> 판정한다.</p>
-    </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">9</span><span class="what">익명 레코드 반환 함수</span></div>
-<pre><code>grep -rnE '\(\{[^)]*\}\)[[:space:]]+[a-z][A-Za-z0-9_]*[[:space:]]*\(' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-zero">준수 시 0건 정상</span><span class="pill">원문 판정: 예</span></div>
-      <p class="grep-note">준수 상태에서는 <strong>0건이 정상</strong>이다(원칙 6).</p>
-    </div>
-
-    <div class="grep-card">
-      <div class="grep-head"><span class="num">10</span><span class="what"><code>// =====</code> 구분선 주석</span></div>
-<pre><code>grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' &lt;src&gt;</code></pre>
-      <div class="grep-meta"><span class="verdict v-violation">위반</span><span class="pill">원문 판정: 예</span></div>
-      <p class="grep-note">지운다. 카테고리 판정은 <code>antipattern-catalog.md</code>.</p>
-    </div>
-
   </div>
 </div>
 
-<!-- ══ Section 5 — 수치 기준 ══ -->
+<!-- ══ 강도 분포 ══ -->
 <div class="section">
-  <div class="section-label">수치 기준 &mdash; 판정에 쓰이는 상수</div>
-  <p class="desc">원칙 본문에 흩어진 숫자를 한 자리에 모은 것. 출처 열이 <strong>프로젝트 실측</strong>인 항목은 다른 코퍼스로 옮길 때 재측정이 필요하다.</p>
+  <div class="section-label">강도 분포 — 이 문서에 MUST 는 0개다</div>
+  <p class="desc">규칙 15개 중 인용 가능한 1차 출처를 가진 것은 7개고 나머지 8개는 실측 근거다. 이 비율 자체가 <strong>어댑터 문서의 성격</strong>이다 — 문법 층위와 프레임워크 어휘는 공식 문서가, 코퍼스 관용구는 실측이 지탱한다.</p>
 
-  <div class="table-wrap wrap">
+  <div class="grid-2">
+    <div class="card">
+      <div class="dist">
+        <div class="dist-row">
+          <span class="dist-label">MUST</span>
+          <div class="dist-track"><div class="dist-fill f-red" style="width:2%"></div></div>
+          <span class="dist-val">0 / 15</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-label">SHOULD</span>
+          <div class="dist-track"><div class="dist-fill" style="width:47%"></div></div>
+          <span class="dist-val">7 / 15</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-label">관측 컨벤션</span>
+          <div class="dist-track"><div class="dist-fill f-blue" style="width:53%"></div></div>
+          <span class="dist-val">8 / 15</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>MUST 가 없는 이유</h3>
+      <p class="desc">공식 문서가 <code>prefer</code> 수준으로 권고하는 것을 킷이 <code>MUST</code> 로 올리면, 그 승격분은 근거가 아니라 킷의 창작이 된다. 이 문서의 강도 상한은 <code>SHOULD</code> 다.</p>
+      <p class="desc" style="margin-bottom:0"><code>관측 컨벤션</code> 은 <strong>근거 출처가 프로젝트 실측뿐</strong>이라는 뜻이지 준수 강도가 낮다는 뜻이 아니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 수치 기준 ══ -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">이 문서가 들고 있는 숫자 전부다. 출처가 <strong>프로젝트 실측</strong>인 값은 다른 코퍼스로 그대로 옮기지 않는다.</p>
+
+  <div class="table-wrap">
     <table>
       <thead>
         <tr><th>항목</th><th>값</th><th>출처</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>?element</code> (null-aware element) 최소 버전</td><td><strong>Dart 3.8</strong></td><td>원본 규칙 문서 기록 (2026-04-18)</td></tr>
-        <tr><td><code>if case</code> 사용 가능 위치</td><td><strong>statement &middot; collection element</strong> 2곳</td><td>Dart patterns 문서</td></tr>
-        <tr><td><code>switch</code> expression 전환 분기 수</td><td><strong>3분기 이상</strong> (2분기는 삼항 / <code>if</code>)</td><td>프로젝트 실측</td></tr>
-        <tr><td>화면당 스크롤 컨테이너</td><td><strong>1개</strong></td><td>프로젝트 실측 (2026-06-09)</td></tr>
-        <tr><td>Notifier 파일 분할 하한</td><td><strong>1000줄</strong></td><td>프로젝트 실측 (2026-06)</td></tr>
-        <tr><td>status 헬퍼 통합 대상 규모</td><td><strong>5종 &times; 3 sub-state = 15개</strong> &rarr; reducer 1개</td><td>프로젝트 실측</td></tr>
-        <tr><td>state extension getter 허용 개수</td><td><strong>1~2개</strong></td><td>프로젝트 실측</td></tr>
-        <tr style="background:rgba(251,191,36,0.06)"><td>bare <code>catch (e)</code> vs <code>on Exception</code></td><td><span class="tag tag-warn">27건 vs 3건</span></td><td>프로젝트 실측 (2026-06-26)</td></tr>
-        <tr><td><code>useEffect</code> 동기화 지연</td><td><strong>1프레임</strong> (post-frame, 수용됨)</td><td>프로젝트 실측 (2026-06-22)</td></tr>
-        <tr><td>공유 typedef 파일 허용 개수</td><td><span class="tag tag-bad">0개</span></td><td>프로젝트 실측 (2026-06-25)</td></tr>
-        <tr><td>doc 라벨 표기 상수</td><td><code>- [param]:</code> / <code>- 반환값:</code></td><td><code>korean-technical-writing.md</code> (한국어 축 SSOT)</td></tr>
-        <tr><td><code>audit_greps</code> 실행 검증</td><td><strong>10종 전부</strong>, bash &middot; zsh 양쪽 + 양성 케이스 확인</td><td>본 문서</td></tr>
+        <tr><td><code>?element</code> (null-aware element) 최소 버전</td><td class="sys">Dart 3.8</td><td>원본 규칙 문서 기록 (2026-04-18)</td></tr>
+        <tr><td><code>if case</code> 사용 가능 위치</td><td class="sys">statement · collection element 2곳</td><td><a class="card-source" href="https://dart.dev/language/patterns" target="_blank" rel="noopener">&rarr; Dart patterns</a></td></tr>
+        <tr><td><code>switch</code> expression 전환 분기 수</td><td class="sys">3분기 이상 (2분기는 삼항 / <code>if</code>)</td><td>프로젝트 실측</td></tr>
+        <tr><td>화면당 스크롤 컨테이너</td><td class="sys">1개</td><td>프로젝트 실측 (2026-06-09)</td></tr>
+        <tr><td>Notifier 파일 분할 하한</td><td class="sys">1000줄</td><td>프로젝트 실측 (2026-06)</td></tr>
+        <tr><td>status 헬퍼 통합 대상 규모</td><td class="sys">5종 &times; 3 sub-state = 15개 &rarr; reducer 1개</td><td>프로젝트 실측</td></tr>
+        <tr><td>state extension getter 허용 개수</td><td class="sys">1~2개</td><td>프로젝트 실측</td></tr>
+        <tr><td>bare <code>catch (e)</code> vs <code>on Exception</code></td><td class="sys">27건 vs 3건</td><td>프로젝트 실측 (2026-06-26)</td></tr>
+        <tr><td><code>useEffect</code> 동기화 지연</td><td class="sys">1프레임 (post-frame, 수용됨)</td><td>프로젝트 실측 (2026-06-22)</td></tr>
+        <tr><td>공유 typedef 파일 허용 개수</td><td class="sys">0개</td><td>프로젝트 실측 (2026-06-25)</td></tr>
+        <tr><td>Flutter 제스처 콜백 어휘 규모</td><td class="sys">58개 (<code>gesture_detector.dart</code>, 3.38.4)</td><td>Flutter SDK 소스 실측</td></tr>
+        <tr><td>doc 라벨 표기 상수</td><td class="sys"><code>- [param]:</code> / <code>- 반환값:</code></td><td><a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a> (한국어 축 SSOT)</td></tr>
+        <tr><td><code>audit_greps</code> 실행 검증</td><td class="sys">10종 전부, bash·zsh 양쪽 + 양성 케이스 확인</td><td>본 문서</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ══ Section 6 — 안티패턴 ══ -->
+<!-- ══ 안티패턴 ══ -->
 <div class="section">
-  <div class="section-label">안티패턴 16가지</div>
-  <p class="desc">위 원칙들의 위반 형태를 한 표로 편 것. 오른쪽 열은 그 안티패턴을 다루는 원칙 번호다.</p>
+  <div class="section-label">안티패턴 — 17종</div>
+  <p class="desc">위 원칙들의 역상이다. 각 행의 오른쪽이 <strong>왜 문제인지</strong>이며, 카테고리 판정(A~J)은 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> 가 소유한다.</p>
 
-  <div class="table-wrap wrap">
+  <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>안티패턴</th><th>문제</th><th>원칙</th></tr>
+        <tr><th>안티패턴</th><th>문제</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>if (x != null) Widget(x!)</code></td><td>컴파일러가 이미 아는 사실을 <code>!</code> 로 재단언한다. <code>if case final v?</code> 로 바인딩하면 <code>!</code> 가 사라진다</td><td><span class="tag">1</span></td></tr>
-        <tr><td>2분기 null 체크에 <code>switch</code> expression</td><td><code>switch</code> 는 분기 3개부터 이득이 난다. 2분기에서는 삼항보다 길기만 하다</td><td><span class="tag">2</span></td></tr>
-        <tr><td>expression 위치에 <code>if case</code> 시도</td><td>named parameter 자리에서는 문법이 성립하지 않는다. 컴파일 실패 후 <code>!</code> 로 회귀한다</td><td><span class="tag">2</span></td></tr>
-        <tr><td><code>children</code> 사이 수동 <code>SizedBox</code> 나열</td><td><code>spacing:</code> 파라미터의 수동 재구현. 항목이 늘 때마다 삽입 위치를 사람이 관리해야 한다</td><td><span class="tag">3</span></td></tr>
-        <tr><td><code>.expand((w) =&gt; [div, w]).skip(1)</code></td><td>트릭성 체이닝. 의도가 코드 형태에서 읽히지 않는다</td><td><span class="tag">3</span></td></tr>
-        <tr><td><code>for-in</code> / <code>.map().toList()</code> 로 children 채우기</td><td>화면 밖 항목까지 즉시 빌드된다. 반복 렌더는 builder delegate 가 담당한다</td><td><span class="tag">4</span></td></tr>
-        <tr><td><code>shrinkWrap: true</code> 를 lazy 수단으로 사용</td><td>shrinkWrap 은 크기 맞춤이다. <code>.builder</code> 와 함께 써도 전체 높이 측정이 laziness 를 깬다</td><td><span class="tag">4</span></td></tr>
-        <tr><td>부모가 leaf 토글 상태를 소유</td><td>토글 한 번에 subtree 전체가 rebuild 된다. 상태를 leaf 로 내리는 것이 추출보다 먼저다</td><td><span class="tag">5</span></td></tr>
-        <tr><td><code>useState</code> 만 두고 <code>useEffect</code> 동기화 생략</td><td>초기값은 첫 build 에만 쓰인다. 부모의 외부 override 가 화면에 반영되지 않는다</td><td><span class="tag">5</span></td></tr>
-        <tr><td>provider 가 익명 레코드 반환</td><td>타입명이 없어 의미가 약하고, List 필드 <code>==</code> 가 identity 비교라 rebuild 동작이 freezed 와 달라진다</td><td><span class="tag">6</span></td></tr>
-        <tr><td>프리미티브 typedef 를 컴포지트 prop 타입으로 재사용</td><td>서로 다른 콜백이 같은 타입이 되어 타입에서 의미를 읽을 수 없다</td><td><span class="tag">7</span></td></tr>
-        <tr><td>자명한 필드에 <code>///</code> doc</td><td>freezed 가 property &middot; class 레벨로 전파해 생성 코드까지 오염된다. A 카테고리 위반</td><td><span class="tag">8</span></td></tr>
-        <tr><td>status 별 <code>_notifyXxx*</code> 헬퍼 다발</td><td>조합 폭발로 헬퍼가 15개까지 늘어난다. 단일 reducer 하나로 대체된다</td><td><span class="tag">10</span></td></tr>
-        <tr><td>다이얼로그 progress 용 <code>ValueNotifier</code> 신설</td><td>provider state 에 있어야 할 상태가 UI 레이어에 따로 생겨 화면 간 패턴이 갈린다</td><td><span class="tag">10</span></td></tr>
-        <tr><td>Props 제거 판정에 dev 쇼케이스 포함</td><td>실사용이 아닌 코드가 유지 근거로 둔갑한다</td><td><span class="tag">11</span></td></tr>
-        <tr style="background:rgba(251,191,36,0.06)"><td><code>on Exception</code> 으로 catch 좁히기</td><td>비-<code>Exception</code> throw 를 놓쳐 동작이 깨진다. 커버리지가 줄 뿐 늘지 않는다</td><td><span class="tag">12</span></td></tr>
+        <tr><td class="sys"><code>if (x != null) Widget(x!)</code></td><td>컴파일러가 이미 아는 사실을 <code>!</code> 로 재단언한다. <code>if case final v?</code> 로 바인딩하면 <code>!</code> 가 사라진다</td></tr>
+        <tr><td class="sys">2분기 null 체크에 <code>switch</code> expression</td><td><code>switch</code> 는 분기 3개부터 이득이 난다. 2분기에서는 삼항보다 길기만 하다</td></tr>
+        <tr><td class="sys">expression 위치에 <code>if case</code> 시도</td><td>named parameter 자리에서는 문법이 성립하지 않는다. 컴파일 실패 후 <code>!</code> 로 회귀한다</td></tr>
+        <tr><td class="sys"><code>children</code> 사이 수동 <code>SizedBox</code> 나열</td><td><code>spacing:</code> 파라미터의 수동 재구현. 항목이 늘 때마다 삽입 위치를 사람이 관리해야 한다</td></tr>
+        <tr><td class="sys"><code>.expand((w) =&gt; [div, w]).skip(1)</code></td><td>트릭성 체이닝. 의도가 코드 형태에서 읽히지 않는다</td></tr>
+        <tr><td class="sys"><code>for-in</code> / <code>.map().toList()</code> 로 children 채우기</td><td>화면 밖 항목까지 즉시 빌드된다. 반복 렌더는 builder delegate 가 담당한다</td></tr>
+        <tr><td class="sys"><code>shrinkWrap: true</code> 를 lazy 수단으로 사용</td><td>shrinkWrap 은 크기 맞춤이다. <code>.builder</code> 와 함께 써도 전체 높이 측정이 laziness 를 깬다</td></tr>
+        <tr><td class="sys">부모가 leaf 토글 상태를 소유</td><td>토글 한 번에 subtree 전체가 rebuild 된다. 상태를 leaf 로 내리는 것이 추출보다 먼저다</td></tr>
+        <tr><td class="sys"><code>useState</code> 만 두고 <code>useEffect</code> 동기화 생략</td><td>초기값은 첫 build 에만 쓰인다. 부모의 외부 override 가 화면에 반영되지 않는다</td></tr>
+        <tr><td class="sys">provider 가 익명 레코드 반환</td><td>타입명이 없어 의미가 약하고, List 필드 <code>==</code> 가 identity 비교라 rebuild 동작이 freezed 와 달라진다</td></tr>
+        <tr><td class="sys">프리미티브 typedef 를 컴포지트 prop 타입으로 재사용</td><td>서로 다른 콜백이 같은 타입이 되어 타입에서 의미를 읽을 수 없다</td></tr>
+        <tr><td class="sys">자명한 필드에 <code>///</code> doc</td><td>freezed 가 property·class 레벨로 전파해 생성 코드까지 오염된다. A 카테고리 위반</td></tr>
+        <tr><td class="sys">status 별 <code>_notifyXxx*</code> 헬퍼 다발</td><td>조합 폭발로 헬퍼가 15개까지 늘어난다. 단일 reducer 하나로 대체된다</td></tr>
+        <tr><td class="sys">다이얼로그 progress 용 <code>ValueNotifier</code> 신설</td><td>provider state 에 있어야 할 상태가 UI 레이어에 따로 생겨 화면 간 패턴이 갈린다</td></tr>
+        <tr><td class="sys">Props 제거 판정에 dev 쇼케이스 포함</td><td>실사용이 아닌 코드가 유지 근거로 둔갑한다</td></tr>
+        <tr><td class="sys"><code>handlePressStart</code> 처럼 자체 이벤트 어휘 신설</td><td><code>Press</code> 로는 tap 인지 long press 인지 갈리지 않는다. 프레임워크가 갈라 놓은 어휘를 도로 합친 것이다</td></tr>
+        <tr><td class="sys"><code>on Exception</code> 으로 catch 좁히기</td><td>비-<code>Exception</code> throw 를 놓쳐 동작이 깨진다. 커버리지가 줄 뿐 늘지 않는다</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ══ Section 7 — Gotchas ══ -->
+<!-- ══ Gotchas ══ -->
 <div class="section">
-  <div class="section-label">Gotchas &mdash; 개정 이력이 뒤집힌 자리들</div>
-  <p class="desc">이 문서에서 가장 많이 되풀이되는 사고는 <strong>폐기된 옛 조항을 다시 끌어오는 것</strong>이다. 1번과 2번이 그 두 건이고, 나머지는 근거의 범위를 넘겨 쓰는 경우다.</p>
+  <div class="section-label">Gotchas — 개정 이력이 뒤집힌 자리</div>
+  <p class="desc">이 문서에서 <strong>옛 판정을 다시 끌어오면 틀리는</strong> 지점들이다. 규칙보다 이력이 중요한 칸이라 별도로 뺐다.</p>
 
-  <div class="card">
-    <ul class="checklist">
-      <li>
-        <span class="check c-warn">1</span>
-        <span><strong>리스트 빌딩 규칙은 개정 이력이 뒤집혀 있다</strong> &mdash; 원본 규칙 세트의 리스트 빌딩 절은 <code>for-in</code> 과 <code>.indexed.map().toList()</code> 로 children 을 채우는 것을 권장했지만, 이후 lazy 렌더링 절이 이를 전면 금지했다. <strong>뒤의 것이 승</strong>이다. 옛 절에서 살아남은 것은 <code>spacing:</code> 사용과 함수형 체이닝 금지뿐이고, children 을 어떻게 만드는가는 builder delegate 가 지배한다. <em>옛 예시를 다시 끌어오지 마라.</em></span>
-      </li>
-      <li>
-        <span class="check c-warn">2</span>
-        <span><strong><code>useValueChanged</code> 인용도 폐기됐다</strong> &mdash; 상태 동기화 훅으로 <code>useValueChanged</code> 를 권고한 조항은 2026-06-22 에 <code>useEffect</code> 로 번복됐다. 근거는 성능이 아니라 <strong>프로젝트 일관성</strong>이며, 1프레임 stale 은 수용된 비용이다. 두 훅을 코퍼스에 섞어 두면 동기화 패턴이 파일마다 갈린다.</span>
-      </li>
-      <li>
-        <span class="check c-warn">3</span>
-        <span><strong><code>- 반환값: 없음</code> 을 노이즈로 보고 지우지 마라</strong> &mdash; 삭제 지시가 남아 있는 옛 문서를 보고 정리하면 &ldquo;doc 이 없는 것&rdquo;과 &ldquo;반환값이 없는 것&rdquo;을 구분할 수 없게 된다. 유지가 확정된 판정이고, 표기 규칙 자체는 <code>korean-technical-writing.md</code> 가 소유한다.</span>
-      </li>
-      <li>
-        <span class="check c-warn">4</span>
-        <span><strong><code>_build*</code> grep 히트는 위반 건수가 아니다</strong> &mdash; 이 문서는 접두사를 금지 목록에 올리지만, 인라인할지 위젯으로 승격할지의 판정식은 <code>extraction-thresholds.md</code> 와 <code>antipattern-catalog.md</code> I 카테고리에 있다. 히트를 세어 그대로 보고하면 <strong>추출이 정당한 건까지 위반으로 집계된다.</strong></span>
-      </li>
-      <li>
-        <span class="check c-warn">5</span>
-        <span><strong>위젯 클래스로 뺐다고 rebuild 가 끊기지 않는다</strong> &mdash; 격리 조건(동일 인스턴스, <code>runtimeType</code> + <code>key</code>)은 <code>extraction-thresholds.md</code> 원칙 5 에 있다. 상태 소유를 안 고친 채 파일만 늘리면 프레임 비용은 그대로다.</span>
-      </li>
-      <li>
-        <span class="check c-warn">6</span>
-        <span><strong>bare catch 컨벤션은 이 코퍼스 한정이다</strong> &mdash; 실측 비율(27 vs 3)이 근거의 전부이고 공개 1차 출처가 없다. 다른 프로젝트에 그대로 옮기면 실측 없는 규칙을 강제하는 것이 된다. 킷이 이 규칙을 켤 때는 대상 코퍼스에서 <strong>같은 grep 을 먼저 돌린다.</strong></span>
-      </li>
-      <li>
-        <span class="check c-warn">7</span>
-        <span><strong>다른 스택 어댑터를 이 문서에서 복제하지 마라</strong> &mdash; Rust 나 TypeScript 어댑터가 필요해지면 그 스택에서 <strong>위반이 실제로 관측된 뒤에</strong> 만든다. 코어 원칙은 <code>extraction-thresholds.md</code> 와 <code>antipattern-catalog.md</code> 가 이미 스택 무관으로 들고 있으므로, 어댑터는 문법 관용구와 슬롯 값만 갖는다.</span>
-      </li>
-    </ul>
+  <div class="grid-2">
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">1</span><h3>리스트 빌딩 규칙은 뒤집혀 있다</h3></div>
+      <p class="desc" style="margin-bottom:0">원본 규칙 세트의 리스트 빌딩 절은 <code>for-in</code> 과 <code>.indexed.map().toList()</code> 로 children 을 채우는 것을 권장했지만, 이후 lazy 렌더링 절이 이를 전면 금지했다. <strong>뒤의 것이 승</strong>이다. 옛 절에서 살아남은 것은 <code>spacing:</code> 사용과 함수형 체이닝 금지뿐이고, children 을 어떻게 만드는가는 builder delegate 가 지배한다. <em>옛 예시를 다시 끌어오지 마라.</em></p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">2</span><h3><code>useValueChanged</code> 인용도 폐기됐다</h3></div>
+      <p class="desc" style="margin-bottom:0">상태 동기화 훅으로 <code>useValueChanged</code> 를 권고한 조항은 2026-06-22 에 <code>useEffect</code> 로 번복됐다. 근거는 성능이 아니라 <strong>프로젝트 일관성</strong>이며, 1프레임 stale 은 수용된 비용이다. 두 훅을 코퍼스에 섞어 두면 동기화 패턴이 파일마다 갈린다.</p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">3</span><h3><code>- 반환값: 없음</code> 을 노이즈로 보고 지우지 마라</h3></div>
+      <p class="desc" style="margin-bottom:0">삭제 지시가 남아 있는 옛 문서를 보고 정리하면 <strong>"doc 이 없는 것"과 "반환값이 없는 것"을 구분할 수 없게 된다.</strong> 유지가 확정된 판정이고, 표기 규칙 자체는 <a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a> 이 소유한다.</p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">4</span><h3><code>_build*</code> grep 히트는 위반 건수가 아니다</h3></div>
+      <p class="desc" style="margin-bottom:0">이 문서는 접두사를 금지 목록에 올리지만, 인라인할지 위젯으로 승격할지의 판정식은 <a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a> 와 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> I 카테고리에 있다. 히트를 세어 그대로 보고하면 <strong>추출이 정당한 건까지 위반으로 집계된다.</strong></p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">5</span><h3>위젯 클래스로 뺐다고 rebuild 가 끊기지 않는다</h3></div>
+      <p class="desc" style="margin-bottom:0">격리 조건(동일 인스턴스, <code>runtimeType</code> + <code>key</code>)은 <a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a> 원칙 5 에 있다. <strong>상태 소유를 안 고친 채 파일만 늘리면 프레임 비용은 그대로다.</strong></p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">6</span><h3>bare catch 컨벤션은 이 코퍼스 한정이다</h3></div>
+      <p class="desc" style="margin-bottom:0">실측 비율(27 vs 3)이 근거의 전부이고 공개 1차 출처가 없다. 다른 프로젝트에 그대로 옮기면 <strong>실측 없는 규칙을 강제하는 것</strong>이 된다. 킷이 이 규칙을 켤 때는 대상 코퍼스에서 같은 grep 을 먼저 돌린다.</p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">7</span><h3>다른 스택 어댑터를 이 문서에서 복제하지 마라</h3></div>
+      <p class="desc" style="margin-bottom:0">Rust 나 TypeScript 어댑터가 필요해지면 <strong>그 스택에서 위반이 실제로 관측된 뒤에</strong> 만든다. 코어 원칙은 <a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a> 와 <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> 가 이미 스택 무관으로 들고 있으므로, 어댑터는 <strong>문법 관용구와 슬롯 값만</strong> 갖는다.</p>
+    </div>
+    <div class="info-card">
+      <div class="principle-title"><span class="num">&#8250;</span><h3>이 문서가 소유하지 않는 것</h3></div>
+      <p class="desc" style="margin-bottom:0">추출 판단 &rarr; <a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a> · 한국어 문체와 doc 라벨 상수 &rarr; <a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a> · A~J 위반 판정 &rarr; <a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a> · 강도 3등급 방법론 &rarr; <a class="doc-link" href="ai-code-stylometry.html">ai-code-stylometry</a> · 어휘 축 코어 규칙 &rarr; <code>core-naming.md</code> N-12.</p>
+    </div>
   </div>
 </div>
 
-<!-- ══ Section 8 — 출처 ══ -->
+<!-- ══ 다음에 읽을 것 ══ -->
 <div class="section">
-  <div class="section-label">출처 &mdash; 1차 문서와 실측 근거</div>
-  <p class="desc">아래 링크는 원문의 <code>&gt; 출처:</code> 줄에 적힌 것과 동일하다. <strong>링크 없는 항목은 인용 가능한 외부 출처가 없다는 뜻</strong>이며, 그런 규칙에 문헌 각주를 붙이지 마라.</p>
-
-  <div class="grid-2">
-    <div class="card">
-      <h3>Dart &middot; Flutter 공식 문서</h3>
-      <div class="sources" style="border-top:none;padding-top:4px">
-        <a class="card-source" href="https://dart.dev/null-safety" target="_blank" rel="noopener">&rarr; Dart null safety <span class="pill">원칙 1</span></a>
-        <a class="card-source" href="https://dart.dev/language/patterns" target="_blank" rel="noopener">&rarr; Dart patterns <span class="pill">원칙 1</span></a>
-        <a class="card-source" href="https://dart.dev/language/collections" target="_blank" rel="noopener">&rarr; Dart collections <span class="pill">원칙 2 &middot; 3</span></a>
-        <a class="card-source" href="https://dart.dev/language/branches" target="_blank" rel="noopener">&rarr; Dart branches <span class="pill">원칙 2</span></a>
-        <a class="card-source" href="https://dart.dev/language/class-modifiers" target="_blank" rel="noopener">&rarr; Dart class modifiers <span class="pill">원칙 2</span></a>
-        <a class="card-source" href="https://dart.dev/tools/linter-rules/prefer_spread_collections" target="_blank" rel="noopener">&rarr; prefer_spread_collections <span class="pill">원칙 2</span></a>
-        <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; design <span class="pill">원칙 1 &middot; 7 &middot; 11</span></a>
-        <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; documentation <span class="pill">원칙 8</span></a>
-        <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart &mdash; style <span class="pill">원칙 9</span></a>
-        <a class="card-source" href="https://dart.dev/tools/linter-rules/cascade_invocations" target="_blank" rel="noopener">&rarr; cascade_invocations <span class="pill">원칙 9</span></a>
-        <a class="card-source" href="https://dart.dev/language/extension-methods" target="_blank" rel="noopener">&rarr; Dart extension methods <span class="pill">원칙 9</span></a>
-        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&rarr; Flutter performance best practices <span class="pill">원칙 4</span></a>
-        <a class="card-source" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">&rarr; Flutter architectural overview <span class="pill">원칙 4</span></a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">&rarr; State.setState <span class="pill">원칙 5</span></a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">&rarr; Element.rebuild <span class="pill">원칙 5</span></a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener">&rarr; Material.surfaceTintColor <span class="pill">원칙 8</span></a>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>패키지 &middot; 외부 문헌 &middot; 실측</h3>
-      <div class="sources" style="border-top:none;padding-top:4px">
-        <a class="card-source" href="https://pub.dev/packages/freezed" target="_blank" rel="noopener">&rarr; freezed <span class="pill">원칙 6 &middot; 8</span></a>
-        <a class="card-source" href="https://riverpod.dev/ko/docs/concepts/about_code_generation" target="_blank" rel="noopener">&rarr; Riverpod code generation <span class="pill">원칙 6 &middot; 10</span></a>
-        <a class="card-source" href="https://riverpod.dev/docs/whats_new" target="_blank" rel="noopener">&rarr; Riverpod &mdash; what's new <span class="pill">원칙 10</span></a>
-        <a class="card-source" href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">&rarr; Cognitive Complexity (SonarSource) <span class="pill">원칙 3</span></a>
-        <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">&rarr; Yagni (Fowler) <span class="pill">원칙 10 &middot; 11</span></a>
-      </div>
-      <ul class="checklist" style="margin-top:16px">
-        <li><span class="check c-warn">!</span><span><strong>프로젝트 실측만 있는 규칙</strong> &mdash; 원칙 3 (리스트 빌딩 패턴 6종 비교, 2026-04-18) &middot; 원칙 4 (2026-06-09) &middot; 원칙 5 (2026-06-22) &middot; 원칙 6 (2026-06-23) &middot; 원칙 7 (2026-06-25) &middot; 원칙 10 (2026-06) &middot; 원칙 11 (2026-06-12 &middot; 16 &middot; 17). <span class="tag tag-neutral">외부 링크 없음</span></span></li>
-        <li><span class="check c-bad">!</span><span><strong>공개 1차 출처가 아예 없는 규칙</strong> &mdash; 원칙 12 (bare <code>catch (e)</code> 27건 vs <code>on Exception</code> 3건, 2026-06-26). 다른 코퍼스로 이관 전 같은 grep 을 먼저 돌린다. <span class="tag tag-neutral">근거는 실측 비율뿐</span></span></li>
-        <li><span class="check">&rarr;</span><span>연관 문서 &mdash; <code>ai-code-stylometry.md</code>(강도 판정 방법론) &middot; <code>extraction-thresholds.md</code>(추출 임계) &middot; <code>korean-technical-writing.md</code>(한국어 축 &middot; doc 라벨 상수) &middot; <code>antipattern-catalog.md</code>(A~J 위반 판정)</span></li>
-      </ul>
-      <p class="caption" style="margin-top:16px">문서 버전 <code>0.1.0</code> &middot; 최종 갱신 2026-09-02 &middot; 원칙 12개 &middot; before/after 17쌍 &middot; 어댑터 슬롯 10개 &middot; 완료 게이트 grep 10종</p>
-    </div>
+  <div class="section-label">다음에 읽을 것</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>무엇이 궁금한가</th><th>문서</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>이 킷 전체가 무엇을 잡는가</td><td><a class="doc-link" href="overview.html">overview</a></td></tr>
+        <tr><td>쪼갤지 그냥 둘지 판단이 안 선다</td><td><a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a></td></tr>
+        <tr><td>위반을 카테고리로 나누고 grep 후보를 뽑고 싶다</td><td><a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a></td></tr>
+        <tr><td>한국어 주석 문체와 doc 라벨 규칙</td><td><a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a></td></tr>
+        <tr><td>컴포넌트 이름의 접미사를 못 고르겠다</td><td><a class="doc-link" href="naming-taxonomy.html">naming-taxonomy</a></td></tr>
+        <tr><td>주석 하나를 지울지 남길지 판정하고 싶다</td><td><a class="doc-link" href="comment-economy.html">comment-economy</a></td></tr>
+        <tr><td>복붙 가능한 파일 골격이 필요하다</td><td><a class="doc-link" href="templates.html">templates</a></td></tr>
+        <tr><td>수십~수백 파일을 순차로 정리하는 운영법</td><td><a class="doc-link" href="campaign-methodology.html">campaign-methodology</a></td></tr>
+        <tr><td>근거 등급 체계 · 이 킷이 목표로 삼지 않는 것</td><td><a class="doc-link" href="ai-code-stylometry.html">ai-code-stylometry</a></td></tr>
+      </tbody>
+    </table>
   </div>
+
+  <p class="caption">문서 버전 <code>0.1.0</code> · 최종 갱신 2026-09-02 · 원칙 13 · 어댑터 슬롯 11 · 완료 게이트 grep 10 · 안티패턴 17 · 축 <code>[어댑터:dart-flutter]</code> · 부분 <code>[한국어]</code></p>
 </div>
 
 </div>
