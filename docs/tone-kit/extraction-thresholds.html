@@ -3,511 +3,959 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Extraction Thresholds — 언제 추출하고 언제 두는가</title>
+<title>Extraction Thresholds — 언제 쪼개고 언제 두는가</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
     --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
-    --text:#F5F0E8;--text2:#A89A8F;--text3:#93887C;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
     --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
-    --accent-ink:#E879F9;
-    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
   }
   [data-theme="light"]{
-    --bg:#faf6fb;--bg2:#f2ecf4;--surface:#ffffff;--surface2:#f5eff7;--border:#e3d7e9;
-    --text:#1a1420;--text2:#5c5266;--text3:#6b6076;
-    --accent-ink:#A21CAF;
-    --green:#15803d;--red:#b91c1c;--yellow:#a16207;--blue:#4f46e5;
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#6b7280;
+    --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
+    --green:#15803d;--red:#b91c1c;--yellow:#a16207;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
   }
   html{font-size:16px;scroll-behavior:smooth}
   body{
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
     background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
     background-image:radial-gradient(ellipse at 20% 0%,rgba(217,70,239,0.06) 0%,transparent 50%),
                      radial-gradient(ellipse at 80% 100%,rgba(217,70,239,0.03) 0%,transparent 50%);
-    transition:background-color var(--transition),color var(--transition);
   }
   .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
 
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:clamp(24px,4vw,40px)}
-  .topbar-id{font-family:var(--mono);font-size:12px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
-  .theme-toggle{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;
-    background:var(--surface2);border:1px solid var(--border);cursor:pointer;font:inherit;
-    font-size:12px;font-weight:700;color:var(--text2);transition:border-color var(--transition),color var(--transition)}
-  .theme-toggle:hover{border-color:var(--accent);color:var(--accent-ink)}
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+  /* ── TYPO ── */
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:820px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
-  h4{font-size:13px;font-weight:700;margin-bottom:8px}
-  .section{margin-bottom:clamp(48px,6vw,80px)}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
   .section-label{
     font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
-    color:var(--accent-ink);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
   }
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
-  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:820px;margin-bottom:24px}
-  .caption{color:var(--text3);font-size:12px;margin-top:12px}
-  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent-ink);font-size:11px;font-weight:700;
-    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px;margin-bottom:4px}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:900px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
   .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
   .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
-  .tag-core{background:rgba(129,140,248,0.14);color:var(--blue)}
-  .tag-adapter{background:rgba(74,222,128,0.12);color:var(--green)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
 
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.36)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
   .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .stack{display:flex;flex-direction:column;gap:20px}
   .mono{font-family:var(--mono);font-size:12px}
 
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
-  tr:hover td{background:rgba(217,70,239,0.03)}
-  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
-  td a,li a{color:var(--accent-ink)}
-  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
-
-  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin-top:10px}
-  pre code{font-family:var(--mono);font-size:12px;background:none;padding:0;color:var(--text2);line-height:1.65}
-
-  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
-  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
-  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
-    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent-ink)}
-
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  @media(max-width:720px){.compare{grid-template-columns:1fr}}
-  .compare-bad,.compare-good,.compare-warn{border-radius:12px;padding:20px;position:relative}
-  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
-  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
-  .compare-warn{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.24)}
-  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
-  .compare-bad .compare-label{color:var(--red)}
-  .compare-good .compare-label{color:var(--green)}
-  .compare-warn .compare-label{color:var(--yellow)}
-
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
   .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
-    background:var(--accent-dim);color:var(--accent-ink);font-size:12px;font-weight:800;flex-shrink:0}
-
-  .sources{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
-  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent-ink);text-decoration:none;font-family:var(--mono)}
-  .card-source:hover{color:var(--accent2);text-decoration:underline}
-
-  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
   .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
     font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .pill-core{border-color:rgba(34,211,238,0.35);color:var(--cyan)}
+  .pill-adapter{border-color:rgba(251,191,36,0.35);color:var(--yellow)}
 
-  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.28);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text)}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
   .warn-card h3{color:var(--yellow)}
   .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
 
-  /* ── 판정 위계 다이어그램 ── */
-  .hier{display:flex;flex-direction:column;gap:0}
-  .tier{border-radius:var(--radius);padding:clamp(16px,2.4vw,26px);border:1px solid var(--border);background:var(--surface)}
-  .tier-primary{border-color:rgba(217,70,239,0.45);background:linear-gradient(135deg,var(--accent-dim),transparent 70%),var(--surface)}
-  .tier-secondary{border-style:dashed}
-  .tier-tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
-    padding:3px 10px;border-radius:20px;margin-bottom:10px}
-  .tier-primary .tier-tag{background:var(--accent-dim);color:var(--accent-ink)}
-  .tier-secondary .tier-tag{background:var(--surface2);color:var(--text3)}
-  .tier p{font-size:13px;color:var(--text2);line-height:1.7}
-  .hier-link{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
-    padding:14px 10px;font-size:12px;color:var(--text3);font-family:var(--mono);text-align:center}
-  .hier-link span{display:inline-flex;align-items:center;gap:6px}
+  /* ── 비교 패널 — 이 페이지의 주인공 ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+  .compare-bad,.compare-good,.compare-note{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-note{background:var(--surface2);border:1px solid var(--border)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare-note .compare-label{color:var(--text3)}
+  .compare pre{margin-bottom:0;background:var(--surface);border-color:var(--border)}
+  .compare-cap{font-size:12px;color:var(--text3);margin-top:10px;line-height:1.6;overflow-wrap:anywhere}
+  .extra-panel{margin-top:2px}
 
-  /* ── 절차 순서도 ── */
-  .flow{display:flex;flex-direction:column;gap:0}
-  .flow-step{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px;align-items:stretch}
-  @media(max-width:760px){.flow-step{grid-template-columns:1fr}}
-  .flow-gate{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
-    border-radius:var(--radius);padding:clamp(14px,2vw,22px)}
-  .flow-gate.is-final{border-left-color:var(--green);background:rgba(74,222,128,0.05)}
-  .flow-gate p{font-size:13px;color:var(--text2);line-height:1.65}
-  .flow-exit{background:rgba(251,191,36,0.05);border:1px dashed rgba(251,191,36,0.35);border-radius:var(--radius);
-    padding:clamp(14px,2vw,22px);display:flex;flex-direction:column;gap:6px}
-  .flow-exit.is-final{background:rgba(74,222,128,0.06);border-color:rgba(74,222,128,0.35);border-style:solid}
-  .flow-exit-label{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--yellow)}
-  .flow-exit.is-final .flow-exit-label{color:var(--green)}
-  .flow-exit strong{font-size:14px;color:var(--text)}
-  .flow-exit p{font-size:12px;color:var(--text3);line-height:1.6}
-  .flow-arrow{padding:10px 0 10px 6px;font-family:var(--mono);font-size:12px;color:var(--text3)}
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* ── 강도 분포 막대 ── */
-  .strength-bar{display:flex;flex-direction:column;gap:12px;margin-top:4px}
-  .strength-row{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;font-size:12px}
-  .strength-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);color:var(--text2)}
-  .strength-track{height:12px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)}
-  .strength-fill{height:100%;border-radius:6px;max-width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-  .strength-fill.is-conv{background:linear-gradient(90deg,rgba(251,191,36,0.75),rgba(251,191,36,0.35))}
+  /* ── 판정 절차 흐름 ── */
+  .gate{display:flex;flex-direction:column;gap:16px}
+  .gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);border-left:3px solid var(--accent)}
+  .gate-card.gate-trigger{border-left-color:var(--yellow);background:rgba(251,191,36,0.05);border-color:rgba(251,191,36,0.25)}
+  .gate-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .gate-no{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;
+    border-radius:8px;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);
+    font-size:12px;font-weight:800;flex-shrink:0}
+  .gate-trigger .gate-no{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .gate-exit{font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:10px;
+    border-top:1px dashed var(--border);padding-top:10px;overflow-wrap:anywhere}
 
-  footer{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:12px;line-height:1.8}
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+  .rule-box + .rule-box{margin-top:12px}
 
-  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
-     내용을 자르지(overflow:hidden) 말고 스크롤/줄바꿈으로 해소한다. */
-  /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
-  .grid-2>*,.grid-3>*,.compare>*,.flow-step>*{min-width:0}
-  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
-  .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
-  /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
-  pre{max-width:100%}
-  pre code{white-space:pre}
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0;line-height:1.65}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.gate>*,.stack>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
-  /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
   th code,td code{overflow-wrap:normal}
-  .desc,.subtitle,.checklist li,.tier p,.flow-gate p,.card-source{overflow-wrap:anywhere}
-
-  @media (prefers-reduced-motion: reduce) {
-    *,*::before,*::after { transition:none !important; animation:none !important; }
-    html { scroll-behavior:auto }
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:820px){
+    .compare{grid-template-columns:1fr}
+  }
+  @media(max-width:640px){
+    .grid-2,.grid-3{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
   }
 </style>
 </head>
 <body>
+
+<nav class="nav">
+  <div class="nav-logo">tone-kit <span>/ extraction thresholds</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
 <div class="page">
 
-<div class="topbar">
-  <span class="topbar-id">tone-kit · extraction-thresholds v0.1.0 · 2026-08-28</span>
-  <button class="theme-toggle" type="button" onclick="toggleTheme()">
-    <span id="theme-icon">&#9728;</span><span id="theme-label">라이트 모드</span>
-  </button>
+<h1>Extraction Thresholds — 언제 쪼개고 언제 두는가</h1>
+<p class="subtitle">위젯·함수를 분리할지 인라인으로 둘지 정하는 판정 규칙. <strong>줄 수는 절차를 돌리라는 알람일 뿐 판정식이 아니다.</strong> 분리 여부는 관심사 · 반복 · 테스트 대상 여부로 정한다. <span class="mono">v0.1.0 · 최종 갱신 2026-09-02</span></p>
+
+<!-- ══ 이 문서가 잡는 것 ══ -->
+<div class="warn-banner">
+  <h2>&#9888;&#65039; 이 문서가 잡는 것</h2>
+  <p><strong>과잉 추출</strong> — 전달만 하는 래퍼, 헬퍼가 헬퍼를 부르는 체인, 본문보다 이름이 긴 조각.</p>
+  <p><strong>과소 추출</strong> — 표시 · 상호작용 · 데이터 접근이 한 <code>build()</code> 에 뭉친 화면.</p>
+  <p><strong>잘못된 판정 근거</strong> — "500줄 넘었으니 쪼갠다" 같은 줄 수 기반 결정.</p>
 </div>
 
-<h1>Extraction Thresholds — 언제 추출하고 언제 두는가</h1>
-<p class="subtitle">메서드 추출 · 클래스 추출 · 인라인 유지 중 무엇을 고를지의 판단 기준. 과잉 추출(pass-through 래퍼, 헬퍼 체인)과 과소 추출(비대한 단일 build) 양방향을 같은 잣대로 다룬다. 이 문서의 상위 원칙은 <strong>관심사가 다르면 분리한다</strong> 하나이고, 줄 수·헬퍼 개수는 그 원칙을 다시 묻게 만드는 트리거일 뿐이다.</p>
-
-<!-- ── Section 1 — 판정 위계 ── -->
+<!-- ══ Section 1 — 3초 판정 ══ -->
 <div class="section">
-  <div class="section-label">판정 위계 — 무엇이 판정하고 무엇이 알람인가</div>
-  <p class="desc">이 페이지를 줄 수 기준표로 읽으면 정확히 반대로 쓰게 된다. 분리 여부를 결정하는 것은 관심사 하나뿐이고, 임계치는 "이미 늦었다"를 알리는 <strong>하한 알람</strong>이다. 알람은 재점검을 요청할 수 있을 뿐 판정을 대신하지 못한다.</p>
-
-  <div class="hier">
-    <div class="tier tier-primary">
-      <span class="tier-tag">Tier 1 · 판정식</span>
-      <h3>관심사가 다른가?</h3>
-      <p>책임이 다른 것이 한 함수·클래스·파일에 섞여 있으면 분리한다. 하나면 두께와 무관하게 유지한다. Fowler 의 기준도 길이가 아니라 "의도와 구현을 분리할 수 있는가"다. <strong>분리 여부는 이 층에서만 결정된다.</strong></p>
-    </div>
-    <div class="hier-link">
-      <span>&#9650; 알람은 판정을 요청만 한다</span>
-      <span>&#183;</span>
-      <span>&#9660; 판정 권한은 아래로 내려가지 않는다</span>
-    </div>
-    <div class="tier tier-secondary">
-      <span class="tier-tag">Tier 2 · 트리거</span>
-      <h3>줄 수 · 헬퍼 개수 임계</h3>
-      <p>파일 500줄 초과, 위젯 반환 헬퍼 8개 이상 같은 값은 하한 알람이다. 넘었다는 사실 자체가 분리 사유가 되지 않으며, 넘지 않았다는 사실도 유지 사유가 되지 않는다. 알람이 울리면 Tier 1 을 다시 묻는다.</p>
-    </div>
-  </div>
-
-  <div class="table-wrap" style="margin-top:20px">
-    <table>
-      <thead>
-        <tr><th>&nbsp;</th><th>관심사가 하나</th><th>관심사가 여러 개</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>임계 미만</strong></td><td>유지 — 인라인</td><td><strong>분리</strong> — 임계 미만이어도 분리한다</td></tr>
-        <tr><td><strong>임계 초과</strong></td><td>유지 — 넘겨도 쪼개지 않는다</td><td><strong>분리</strong> — 이미 늦은 상태</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p class="caption">임계치는 오른쪽 열을 더 빨리 발견하게 해줄 뿐, 왼쪽 열의 판정을 바꾸지 않는다. 원칙 1 참조.</p>
-</div>
-
-<!-- ── Section 2 — 추출 판정 절차 순서도 ── -->
-<div class="section">
-  <div class="section-label">추출 판정 절차 — 조기 종료 순서도</div>
-  <p class="desc">위에서부터 순서대로 통과시킨다. 각 게이트는 "여기서 끝날 수 있다"는 조기 종료구를 갖는다. 중요한 것은 결론이 아니라 <strong>어느 게이트에서 멈췄는지</strong>다 — 멈춘 게이트가 곧 판정 근거이므로, 리뷰나 커밋 메시지에는 "추출함/안 함"이 아니라 멈춘 게이트를 남긴다.</p>
-
-  <div class="flow">
-
-    <div class="flow-step">
-      <div class="flow-gate">
-        <div class="principle-title"><span class="num">G0</span><h3>불필요 분기부터 지운다</h3></div>
-        <p>실사용 조합이 하나인데 null 조합 4가지를 방어하고 있다면 그 복잡도는 실제 복잡도가 아니라 가상 복잡도다. 추출로 감출 대상이 아니라 삭제 대상이다. 조합 제약은 흐름이 아니라 생성자 assert 같은 경계에서 표현한다.</p>
-      </div>
-      <div class="flow-exit">
-        <span class="flow-exit-label">여기서 멈추면</span>
-        <strong>추출 아님 — 제거</strong>
-        <p>판정 근거: 가상 복잡도. 헬퍼로 감싸면 구조화되어 영구화된다. (원칙 8)</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#8595; 남은 코드가 실제로 필요한 코드일 때만 다음 게이트</div>
-
-    <div class="flow-step">
-      <div class="flow-gate">
-        <div class="principle-title"><span class="num">G1</span><h3>관심사가 실제로 다른가</h3></div>
-        <p>책임이 섞여 있는지 묻는다. 길이는 여기서 답이 아니다. 관심사가 하나면 500줄을 넘겨도 유지하고, 관심사가 다르면 임계 미만이어도 분리한다.</p>
-      </div>
-      <div class="flow-exit">
-        <span class="flow-exit-label">여기서 멈추면</span>
-        <strong>인라인 유지</strong>
-        <p>판정 근거: 단일 관심사. 길이만으로 쪼개면 원칙 1 위반이다.</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#8595; 관심사가 둘 이상일 때만 다음 게이트</div>
-
-    <div class="flow-step">
-      <div class="flow-gate">
-        <div class="principle-title"><span class="num">G2</span><h3>이름이 본문보다 의미를 더하는가</h3></div>
-        <p>추출은 의도를 드러내는 이름을 붙일 수 있을 때만 이득이다. 이름이 본문을 읽는 것과 같은 정보만 준다면 가독성이 오른 게 아니라 읽기 비용이 호출부에서 정의부로 이동한 것이다.</p>
-      </div>
-      <div class="flow-exit">
-        <span class="flow-exit-label">여기서 멈추면</span>
-        <strong>Inline Function</strong>
-        <p>판정 근거: 이름이 정보를 더하지 않음. over-decomposition 은 실재하는 실패 모드다. (원칙 2·6)</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#8595; 이름이 의도를 드러낼 때만 다음 게이트</div>
-
-    <div class="flow-step">
-      <div class="flow-gate">
-        <div class="principle-title"><span class="num">G3</span><h3>추출물이 제 몫의 책임을 갖는가</h3></div>
-        <p>받은 것을 그대로 넘기기만 하는 래퍼인지 확인한다. "재사용 가능성" 하나만으로 1회성 로직을 승격하지 않는다. 실사용처가 1~2곳이면 인라인이 적정이고, 같은 패턴이 3곳 이상 반복될 때 추출을 검토한다.</p>
-      </div>
-      <div class="flow-exit">
-        <span class="flow-exit-label">여기서 멈추면</span>
-        <strong>Inline Class</strong>
-        <p>판정 근거: pass-through 래퍼. 추출의 유일한 실효인 rebuild 격리조차 형제가 싼 위젯이면 정당화되지 않는다. (원칙 9)</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#8595; 책임이 실재할 때만 마지막 게이트</div>
-
-    <div class="flow-step">
-      <div class="flow-gate is-final">
-        <div class="principle-title"><span class="num">G4</span><h3>추출한다 — 형태와 격리 조건을 확정</h3></div>
-        <p>헬퍼 메서드보다 위젯 클래스를 선호하되 금지는 아니다. rebuild 격리를 노렸다면 동일 인스턴스가 전달되는지, 상태 소유 위치가 이미 leaf 로 내려가 있는지까지 확인해야 격리가 실제로 발생한다. 파일 단위로 뺄지는 성능이 아니라 탐색성 근거로 결정한다.</p>
-      </div>
-      <div class="flow-exit is-final">
-        <span class="flow-exit-label">최종</span>
-        <strong>추출 — 근거 병기</strong>
-        <p>판정 근거: 관심사 분리 + (선택) rebuild 빈도. 강도를 MUST 로 올릴 때는 사유를 규칙 옆에 적는다. (원칙 3·4·5·7)</p>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── Section 3 — 강도 경고 ── -->
-<div class="section">
-  <div class="section-label">규칙 강도 — 어디까지가 공개 근거인가</div>
-  <p class="desc">이 문서의 원칙은 두 종류다. 공개 1차 출처가 지지하는 <strong>SHOULD</strong> 와, 공개 근거가 없는 <strong>관측 컨벤션</strong>. 둘을 같은 무게로 읽으면 관측 컨벤션이 표준처럼 유통된다.</p>
-
-  <div class="warn-card">
-    <div class="principle-title"><span class="num">!</span><h3>공개 문서는 권고 수준까지만 지지한다</h3></div>
-    <p class="desc" style="margin-bottom:14px">Flutter 공식 문서의 문구는 <code>prefer</code> 이고, 큰 <code>build()</code> 에 대한 공식 LOC 임계값은 존재하지 않는다. 공식 반례도 같은 문서군 안에 있다 — <code>Builder</code> 는 스스로를 클래스 정의의 인라인 대안이라고 밝히고, 공식 마이그레이션 문서에는 위젯 반환 함수 예시가 실려 있다. 따라서 단순 조건 분기나 아주 작은 local glue 까지 <code>MUST NOT</code> 으로 금지할 공개 근거는 없다.</p>
-    <div class="grid-2">
-      <div>
-        <h4 style="color:var(--text)">관측 컨벤션 — 공개 근거 없음</h4>
-        <ul class="checklist">
-          <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span><strong>"모든 하위 단위를 별도 <em>파일</em>로"</strong> — 공개 1차 출처는 "different widgets" 까지만 지지하고 "different files" 는 지지하지 않는다. 파일 분리를 성능 문서로 정당화하면 안 된다. 근거는 탐색성이다. (원칙 7)</span></li>
-          <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span><strong>헬퍼 체인 허용 깊이 0단</strong> — 체인 깊이 임계값을 명시한 공개 1차 출처는 없다. (원칙 6)</span></li>
-          <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span><strong>반복 3회 추출 임계</strong> — 원칙 9 의 본체는 공개 근거를 갖지만 3회라는 숫자 자체는 관측 컨벤션이다.</span></li>
-        </ul>
-      </div>
-      <div>
-        <h4 style="color:var(--text)">강도를 올리려면 사유를 함께 적어라</h4>
-        <ul class="checklist">
-          <li><span class="check">&#8594;</span><span>원칙 3 을 프로젝트 규칙에서 MUST 로 승격할 수 있는 범위는 <strong>성능 핫스팟이거나 자주 rebuild 되는 큰 subtree</strong> 에 한한다.</span></li>
-          <li><span class="check">&#8594;</span><span>승격하는 경우 <strong>승격 사유(프로파일링 결과 또는 rebuild 빈도)를 규칙 옆에 명시</strong>해야 한다. 사유 없는 전역 MUST 는 킷의 창작이다.</span></li>
-          <li><span class="check">&#8594;</span><span>사유 없이 MUST 로 쓰면 나중에 그 규칙이 왜 있는지 아무도 재구성하지 못하고 규칙만 남는다.</span></li>
-        </ul>
-      </div>
-    </div>
-    <div class="sources">
-      <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">Flutter performance best practices</a>
-      <a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">StatelessWidget class</a>
-      <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Builder-class.html" target="_blank" rel="noopener">Builder class</a>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:20px">
-    <h3 style="margin-bottom:14px">원칙 9개의 강도 분포</h3>
-    <div class="strength-bar">
-      <div class="strength-row">
-        <div class="strength-head"><span>SHOULD — 공개 1차 출처 지지</span><span>7 / 9 · 원칙 1·2·3·4·5·8·9</span></div>
-        <div class="strength-track"><div class="strength-fill" style="width:77.8%"></div></div>
-      </div>
-      <div class="strength-row">
-        <div class="strength-head"><span>관측 컨벤션 — 공개 1차 출처 없음</span><span>2 / 9 · 원칙 6·7</span></div>
-        <div class="strength-track"><div class="strength-fill is-conv" style="width:22.2%"></div></div>
-      </div>
-    </div>
-    <p class="caption">아래 원칙 카드의 <span class="tag">SHOULD</span><span class="tag tag-warn">관측 컨벤션</span> 배지가 이 분포에 대응한다. 축 배지는 <span class="tag tag-core">코어</span> (스택 무관) 와 <span class="tag tag-adapter">어댑터:dart-flutter</span> (Flutter 한정) 를 구분한다.</p>
-  </div>
-</div>
-
-<!-- ── Section 4 — 원칙 9개 ── -->
-<div class="section">
-  <div class="section-label">원칙 — 9개</div>
-  <p class="desc">각 카드는 강도 배지와 축 배지를 함께 갖는다. 강도는 카드 하단 출처가 지지하는 범위를 넘지 않는다.</p>
-
-  <div class="grid-2">
-
-    <div class="card">
-      <div class="principle-title"><span class="num">1</span><h3>관심사가 다르면 분리한다 — 줄 수는 트리거일 뿐 기준이 아니다</h3></div>
-      <div class="badges"><span class="tag">SHOULD</span><span class="tag tag-core">코어</span></div>
-      <p class="desc" style="margin-bottom:10px">책임이 다른 것이 한 함수·클래스·파일에 섞여 있으면 분리한다. 줄 수·헬퍼 개수 임계치는 "이미 늦었다"를 알리는 하한 알람이지 분리 여부의 판정식이 아니다. 임계치 미만이어도 관심사가 다르면 분리하고, 임계치를 넘겨도 관심사가 하나면 쪼개지 않는다.</p>
-      <p class="desc" style="margin-bottom:0">Fowler 는 함수 길이 자체를 기준으로 삼지 않는다. 기준은 "의도와 구현을 분리할 수 있는가"다. 길이는 냄새를 알아채는 신호이지 규칙이 아니다. 공개 1차 출처는 길이 기준을 명시적으로 부정하지만 대체 판정식을 기계적으로 제시하지는 않는다 — 그래서 MUST 가 아니라 SHOULD 다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://martinfowler.com/bliki/FunctionLength.html" target="_blank" rel="noopener">Function Length (Fowler)</a>
-        <a class="card-source" href="https://martinfowler.com/bliki/CodeSmell.html" target="_blank" rel="noopener">Code Smell (Fowler)</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="principle-title"><span class="num">2</span><h3>이름이 본문보다 의미를 더하지 않으면 인라인한다</h3></div>
-      <div class="badges"><span class="tag">SHOULD</span><span class="tag tag-core">코어</span></div>
-      <p class="desc" style="margin-bottom:10px">추출은 "의도를 드러내는 이름"을 붙일 수 있을 때만 이득이다. 이름이 본문을 읽는 것과 같은 수준의 정보만 준다면 가독성이 오른 게 아니라 <strong>읽기 비용이 호출부에서 정의부로 이동</strong>한 것이다. 이 경우 Inline Function 대상이다.</p>
-      <p class="desc" style="margin-bottom:0">over-decomposition 은 실재하는 실패 모드다. Clean Code 저자 본인도 공개 토론에서 이를 인정했다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://refactoring.com/catalog/inlineFunction.html" target="_blank" rel="noopener">Inline Function (Fowler)</a>
-        <a class="card-source" href="https://refactoring.com/catalog/extractMethod.html" target="_blank" rel="noopener">Extract Function (Fowler)</a>
-        <a class="card-source" href="https://github.com/johnousterhout/aposd-vs-clean-code" target="_blank" rel="noopener">aposd-vs-clean-code (Ousterhout · Martin 공개 토론)</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="principle-title"><span class="num">3</span><h3>큰 build() 는 분리한다 — 기준은 LOC 가 아니라 rebuild 빈도다</h3></div>
-      <div class="badges"><span class="tag">SHOULD</span><span class="tag tag-adapter">어댑터:dart-flutter</span><span class="tag tag-warn">조건부 MUST 승격 가능</span></div>
-      <p class="desc" style="margin-bottom:10px">Flutter 공식 성능 문서는 "Avoid overly large single widgets with a large <code>build()</code> function" 과 "Split them into different widgets" 를 권고한다. 다만 <strong>공식 문서에 LOC 임계값은 없다.</strong> 분리 기준은 줄 수가 아니라 encapsulation 과 "how they change" 다.</p>
-      <p class="desc" style="margin-bottom:0">같은 문서군의 반대편도 읽어야 한다. <code>StatefulWidget</code> 문서는 "built once then never update" 하는 위젯에 대해 "somewhat complicated and deep build methods" 를 문제 삼지 않는다. 라우트 최상단처럼 사실상 rebuild 되지 않는 위젯의 큰 build 는 공식적으로 용인되는 영역이다. 반대로 build 는 "potentially as often as once per rendered frame" 호출될 수 있으므로, 프레임마다 재실행되는 큰 subtree 는 분리 우선순위가 높다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">Flutter performance best practices</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html" target="_blank" rel="noopener">StatefulWidget class</a>
-        <a class="card-source" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">Flutter architectural overview</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="principle-title"><span class="num">4</span><h3>헬퍼 메서드보다 위젯 클래스를 선호한다 — 그러나 금지는 아니다</h3></div>
-      <div class="badges"><span class="tag">SHOULD</span><span class="tag tag-adapter">어댑터:dart-flutter</span></div>
-      <p class="desc" style="margin-bottom:10px"><code>StatelessWidget</code> 문서는 "prefer using a widget rather than a helper method" 라고 쓴다. 이유는 스타일이 아니라 메커니즘이다. 위젯으로 분리하면 프레임워크가 "short-circuit most of the rebuild work" 를 할 수 있는 지점이 생긴다. 헬퍼 메서드가 반환한 위젯은 그 지점이 없어 부모와 항상 함께 재실행된다.</p>
-      <p class="desc" style="margin-bottom:0"><strong>반대 방향도 같이 알아야 한다.</strong> Flutter 는 클래스 추출을 우회하는 공식 API 를 스스로 제공한다. <code>Builder</code> 문서는 자신을 "inline alternative to defining a <code>StatelessWidget</code> subclass" 라고 정의한다. 공식 마이그레이션 문서에는 <code>Widget _getToggleChild()</code> 같은 위젯 반환 함수 예시가 실려 있고, 프레임워크 이슈 트래커에도 "reevaluate if we are making the right trade-off here between naginess and performance" 라는 논의가 남아 있다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">StatelessWidget class</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Builder-class.html" target="_blank" rel="noopener">Builder class</a>
-        <a class="card-source" href="https://docs.flutter.dev/flutter-for/xamarin-forms-devs" target="_blank" rel="noopener">Flutter for Xamarin.Forms developers</a>
-        <a class="card-source" href="https://github.com/flutter/flutter/issues/149932" target="_blank" rel="noopener">flutter/flutter#149932</a>
-      </div>
-    </div>
-
-    <div class="card" style="grid-column:1/-1">
-      <div class="principle-title"><span class="num">5</span><h3>rebuild 격리를 노렸다면 격리 조건까지 확인하라</h3></div>
-      <div class="badges"><span class="tag">SHOULD</span><span class="tag tag-adapter">어댑터:dart-flutter</span></div>
-      <p class="desc" style="margin-bottom:10px">위젯 클래스로 뺐다는 사실만으로 rebuild 가 끊기지 않는다. Element 는 "the same instance is returned each time" 인 경우에만 "the element skips updating itself" 한다. 매 build 마다 새 인스턴스를 만들어 넘기면 타입만 늘고 격리는 0 이다. 그리고 위젯 교체 판정은 <code>runtimeType and key</code> 로 이뤄지므로, 같은 타입에 다른 인자를 넘기면 element 는 갱신된다.</p>
-      <div class="compare" style="margin-bottom:10px">
-        <div class="compare-bad">
-          <div class="compare-label">&#10007; 격리 안 됨</div>
-          <pre><code>// 부모 build 마다 새 인스턴스
-Column(children: [SectionHeader(title: title)])</code></pre>
-        </div>
-        <div class="compare-good">
-          <div class="compare-label">&#10003; 격리 됨</div>
-          <pre><code>// 동일 인스턴스 (const)
-const Column(children: [SectionHeader(title: '설정')])</code></pre>
-        </div>
-      </div>
-      <p class="desc" style="margin-bottom:0">상태 소유 위치가 추출보다 먼저다. <code>setState</code> 는 "possibly triggering rebuilds for the entire subtree rooted at this widget" 이므로, 상태를 상위에 둔 채 하위만 쪼개면 분리 효과가 상쇄된다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">Element.rebuild</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html" target="_blank" rel="noopener">Widget.canUpdate</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">State.setState</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="principle-title"><span class="num">6</span><h3>헬퍼가 헬퍼를 부르는 체인은 만들지 않는다</h3></div>
-      <div class="badges"><span class="tag tag-warn">관측 컨벤션</span><span class="tag tag-core">코어</span></div>
-      <p class="desc" style="margin-bottom:10px"><code>build() &#8594; _buildA() &#8594; _buildB()</code> 식 체인은 주 흐름을 읽기 위해 왕복 이동을 강제한다. 허용 깊이는 0 단 — 헬퍼가 다른 헬퍼를 호출하면 인라인하거나 별도 위젯으로 승격한다. 각 단계의 이름이 본문보다 의미를 더하는지 개별 판정하면, 체인 중간 단계는 대개 원칙 2 의 Inline 대상으로 떨어진다.</p>
-      <p class="desc" style="margin-bottom:0"><strong>강도 주의.</strong> 체인 깊이 임계값을 명시한 공개 1차 출처는 없다. 관측 프로젝트 규칙(2026-04-17 제정, 위젯 리팩토링 세션 피드백)이며 아래 링크는 보조 근거다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://refactoring.com/catalog/inlineFunction.html" target="_blank" rel="noopener">보조 근거 · Inline Function (Fowler)</a>
-        <a class="card-source" href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">보조 근거 · Cognitive Complexity (SonarSource)</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="principle-title"><span class="num">7</span><h3>"모든 sub-widget 은 별도 <em>파일</em>" 은 관측 컨벤션이다</h3></div>
-      <div class="badges"><span class="tag tag-warn">관측 컨벤션</span><span class="tag tag-adapter">어댑터:dart-flutter</span></div>
-      <p class="desc" style="margin-bottom:10px">관측 프로젝트는 위젯 조각을 같은 파일 인라인 클래스로도 두지 않고 예외 없이 별도 파일로 뺀다. thin wrapper 도 예외가 아니며, 파일이 private 접두사를 못 쓰므로 public 클래스 + 프로젝트 접두사(<code>{widget_prefix}</code>) 규칙과 짝을 이룬다. 이유는 성능이 아니라 탐색성이다 — 화면 파일이 길어지면 로직을 찾기 어렵다.</p>
-      <p class="desc" style="margin-bottom:0"><strong>공개 1차 출처는 "different widgets" 까지만 지지하고 "different files" 는 지지하지 않는다.</strong> 파일 분리를 성능 문서로 정당화하지 마라. 파일 단위 규칙을 쓰려면 근거를 프로젝트 탐색성으로 밝혀야 한다. 실측 범위는 Props 골격 보유 110 파일(2026-08-31 재측정)이다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">지지 범위 한정 · Flutter performance best practices</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="principle-title"><span class="num">8</span><h3>발생하지 않는 분기는 추출 대상이 아니라 제거 대상이다</h3></div>
-      <div class="badges"><span class="tag">SHOULD</span><span class="tag tag-core">코어</span></div>
-      <p class="desc" style="margin-bottom:10px">실사용 조합이 하나인데 null 조합 4가지를 방어하면, 그 복잡도는 실제 복잡도가 아니라 가상 복잡도다. "현재 요구를 이해하기 어렵게 만드는 추상화는 presumed guilty" 다. 이런 코드는 헬퍼로 빼서 감출 게 아니라 지운다.</p>
-      <p class="desc" style="margin-bottom:0">조합 제약은 흐름이 아니라 경계에서 표현한다. Flutter 자체 위젯도 build 안에서 모든 조합을 방어하지 않고 생성자 assert 로 유효 조합을 강제한다 — <code>Tab</code> 은 <code>text</code>/<code>child</code> 동시 사용을 막고, <code>Positioned</code> 는 <code>left + right + width</code> 동시 지정을 막는다. Dart 의 <code>assert</code> 는 debug 에서만 살아 있으므로 내부 호출자 대상 제약에 적합하고, 외부 입력 경계에는 명시적 검증을 쓴다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">Yagni (Fowler)</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/material/Tab/Tab.html" target="_blank" rel="noopener">Tab constructor</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Positioned/Positioned.html" target="_blank" rel="noopener">Positioned constructor</a>
-        <a class="card-source" href="https://dart.dev/language/constructors" target="_blank" rel="noopener">Dart constructors</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="principle-title"><span class="num">9</span><h3>pass-through 래퍼는 과분할이다</h3></div>
-      <div class="badges"><span class="tag">SHOULD</span><span class="tag tag-core">코어</span><span class="tag tag-warn">3회 임계는 관측 컨벤션</span></div>
-      <p class="desc" style="margin-bottom:10px">받은 것을 그대로 넘기기만 하는 래퍼 레이어는 형제 위젯 유무와 무관하게 추가 간접층이다. 클래스가 제 몫의 책임을 갖지 못하면 Inline Class 대상이다. 추출의 유일한 실효인 rebuild 격리조차, 형제가 싼 위젯이면 정당화되지 않는다.</p>
-      <p class="desc" style="margin-bottom:0">같은 이유로 "재사용 가능성" 하나만으로 1회성 로직을 클래스로 승격하지 않는다. 실사용처가 1~2곳이면 인라인이 적정이고, 같은 패턴이 3곳 이상 반복될 때 추출을 검토한다. 다만 <strong>반복 3회 임계값 자체는 관측 컨벤션</strong>이다.</p>
-      <div class="sources">
-        <a class="card-source" href="https://refactoring.com/catalog/inlineClass.html" target="_blank" rel="noopener">Inline Class (Fowler)</a>
-        <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">Yagni (Fowler)</a>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── Section 5 — 양방향 실패 모드 ── -->
-<div class="section">
-  <div class="section-label">양방향 실패 모드 — 과소 추출 vs 과대 추출</div>
-  <p class="desc">이 문서는 한 방향만 막지 않는다. 거대 단위를 방치하는 과소 추출과 pass-through 래퍼를 쌓는 과대 추출은 같은 잣대(관심사)로 판정되며, 서로 반대 방향의 실패다. 한쪽만 경계하면 반대쪽으로 넘어간다.</p>
+  <div class="section-label">3초 판정 — 관심사가 주변과 다른가</div>
+  <p class="desc">이 문서 전체가 한 질문으로 압축된다. 길이는 절차를 돌리라는 알람일 뿐이고, 분리 여부는 <strong>관심사 · 반복 · 테스트 대상 여부</strong>로 정한다. 아래가 그 차이를 가장 짧게 보여주는 쌍이다.</p>
 
   <div class="compare">
-    <div class="compare-warn">
-      <div class="compare-label">&#9888; 과소 추출 — 거대 단위</div>
-      <h3 style="color:var(--text);margin-bottom:10px">관심사가 섞였는데 그대로 둔다</h3>
-      <ul class="checklist" style="gap:6px">
-        <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span>한 <code>build()</code> 에 레이아웃·상태 해석·포맷팅이 함께 산다 (원칙 1 위반)</span></li>
-        <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span>프레임마다 재실행되는 큰 subtree 가 통째로 남아 분리 우선순위를 놓친다 (원칙 3)</span></li>
-        <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span>헬퍼 메서드로만 쪼개서 프레임워크가 rebuild 를 short-circuit 할 지점이 없다 (원칙 4)</span></li>
-        <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span>탐지 신호: 파일 500줄 초과 또는 위젯 반환 헬퍼 8개 이상 — <strong>알람이지 판정이 아니다</strong></span></li>
-      </ul>
-    </div>
     <div class="compare-bad">
-      <div class="compare-label">&#10007; 과대 추출 — pass-through 래퍼</div>
-      <h3 style="color:var(--text);margin-bottom:10px">관심사가 하나인데 쪼갠다</h3>
-      <ul class="checklist" style="gap:6px">
-        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>받은 것을 그대로 넘기는 래퍼가 책임 없이 간접층만 늘린다 (원칙 9)</span></li>
-        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>이름이 본문과 같은 수준이라 읽기 비용이 정의부로 이동만 한다 (원칙 2)</span></li>
-        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>헬퍼가 헬퍼를 불러 주 흐름을 읽는 데 왕복 이동이 강제된다 (원칙 6)</span></li>
-        <li><span class="check" style="border-color:var(--red);color:var(--red)">&#10007;</span><span>발생하지 않는 null 조합을 헬퍼로 감싸 가상 복잡도를 영구화한다 (원칙 8)</span></li>
-      </ul>
+      <div class="compare-label">&#10007; before <span class="tag tag-bad">과잉 추출</span></div>
+      <pre><code>// 이름이 본문보다 더 주는 정보가 없다.
+// 읽으려면 매번 정의부로 내려가야 한다
+Widget build(BuildContext context) =&gt;
+    Column(children: [_buildTitle(), _buildBody()]);
+
+Widget _buildTitle() =&gt;
+    Text(title, style: {TokenClass}.headline);
+Widget _buildBody() =&gt;
+    {widget_prefix}ArticleBodyWidget(article: article);</code></pre>
+      <p class="compare-cap">호출부는 짧아졌지만 주 흐름을 읽으려면 정의부 두 곳을 더 열어야 한다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">&#10003; after <span class="tag tag-ok">인라인 + 위젯</span></div>
+      <pre><code>// 한 줄짜리는 인라인,
+// 자기 책임이 있는 것만 위젯으로 남는다
+Widget build(BuildContext context) =&gt; Column(
+      children: [
+        Text(title, style: {TokenClass}.headline),
+        {widget_prefix}ArticleBodyWidget(article: article),
+      ],
+    );</code></pre>
+      <p class="compare-cap">주 흐름이 한 화면에 다 보이고, 남은 위젯은 각자 책임이 있다.</p>
     </div>
   </div>
 
-  <div class="compare-good">
-    <div class="compare-label">&#10003; 두 실패를 동시에 피하는 판정 순서</div>
-    <p class="desc" style="margin-bottom:8px">"과분할 금지"와 "관심사 분리 의무"는 충돌하지 않는다 — <strong>판정 순서가 다를 뿐이다.</strong> 먼저 "관심사가 실제로 다른가"를 묻고(원칙 1), 다르면 분리한다. 같은데 길이만 길면 쪼개지 않는다.</p>
-    <p class="desc" style="margin-bottom:0">pass-through 래퍼 금지(원칙 9)는 후자에만 적용되며, 관심사가 다른 sub-widget 추출 의무를 취소하지 않는다. 순서도의 G1 을 통과한 뒤에야 G2·G3 의 과대 추출 방지 게이트가 의미를 갖는다.</p>
+  <div class="rule-box">
+    3초 판정은 <strong>관심사가 주변과 다른가</strong>다. 길이는 절차를 돌리라는 알람일 뿐이고, 분리 여부는 관심사 · 반복 · 테스트 대상 여부로 정한다.
   </div>
 </div>
 
-<!-- ── Section 6 — 수치 기준 ── -->
+<!-- ══ Section 2 — 강도와 축 표기 ══ -->
+<div class="section" id="notation">
+  <div class="section-label">강도와 축 표기 — 배지를 어떻게 읽나</div>
+  <p class="desc">각 원칙 뒤의 <span class="pill pill-core">[코어]</span> · <span class="pill pill-adapter">[어댑터:dart-flutter]</span> 는 <strong>축</strong>(그 규칙이 어느 계층 소속인지)이고, <span class="strength s-must">MUST</span> · <span class="strength s-should">SHOULD</span> · <span class="strength s-observed">관측 컨벤션</span> 은 <strong>강도</strong>다. 강도를 섞어 인용하면 첫 반박에 규칙군 전체의 신뢰가 무너진다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="strength s-must">MUST</span></div>
+      <p class="desc" style="margin-bottom:0">프로젝트가 승격한 규칙. 승격 사유(프로파일링 결과 · 측정치 · 합의 일자)를 규칙 옆에 <strong>병기해야</strong> 한다.</p>
+      <span class="source-badge">사유 없는 전역 MUST 는 킷의 창작</span>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="strength s-should">SHOULD</span></div>
+      <p class="desc" style="margin-bottom:0">공개 1차 출처가 방향은 지지하나 <strong>기계적 판정식은 주지 않는다.</strong> 이 문서의 원칙 1·2·3·4·5·8·9 가 여기 속한다.</p>
+      <span class="source-badge">공개 URL 인용 가능</span>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span></div>
+      <p class="desc" style="margin-bottom:0">공개 1차 출처 없음. 관측 프로젝트 실측에서 승격된 규칙. <strong>준수 강도가 낮다는 뜻이 아니다.</strong> 원칙 6·7 이 여기 속한다.</p>
+      <span class="source-badge">근거는 관측 건수 — 권위가 아님</span>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="info-card">
+      <div class="principle-title"><span class="pill pill-core">[코어]</span></div>
+      <h3>스택 무관 축</h3>
+      <p class="desc" style="margin-bottom:0">언어 · 프레임워크를 바꿔도 성립한다. 원칙 1 · 2 · 6 · 8 · 9.</p>
+    </div>
+    <div class="info-card">
+      <div class="principle-title"><span class="pill pill-adapter">[어댑터:dart-flutter]</span></div>
+      <h3>스택 메커니즘 의존 축</h3>
+      <p class="desc" style="margin-bottom:0">그 스택의 메커니즘(rebuild 격리, Element 동일성, <code>const</code> 성립 조건)에 의존한다. 원칙 3 · 4 · 5 · 7.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Section 3 — 판정 절차 ══ -->
 <div class="section">
-  <div class="section-label">수치 기준 — 값과 출처</div>
-  <p class="desc">출처 열이 "관측 컨벤션"인 행은 공개 1차 출처가 없다. 그 값들을 공식 기준처럼 인용하지 마라.</p>
+  <div class="section-label">판정 절차 — 먼저 걸리는 항에서 멈춘다</div>
+  <p class="desc">블록 하나마다 위에서부터 통과시킨다. <strong>먼저 걸리는 항에서 멈춘다.</strong> 판정 근거는 "몇 번 항에서 멈췄는지"로 쓴다.</p>
+
+  <div class="gate">
+
+    <!-- 0. 트리거 -->
+    <div class="gate-card gate-trigger">
+      <div class="gate-head">
+        <span class="gate-no">0</span>
+        <h3>트리거가 울린다</h3>
+        <span class="tag tag-warn">알람 · 결론 아님</span>
+      </div>
+      <pre><code>0. 트리거가 울린다 — 파일 500줄 초과 · 위젯 반환 헬퍼 8개 이상 · 같은 패턴 3곳
+   → 절차를 돌리라는 알람이지, 쪼개라는 결론이 아니다</code></pre>
+      <p class="desc" style="margin-bottom:0">트리거는 "절차를 시작하라"는 신호일 뿐이다. 여기서 바로 분리하면 원칙 1 을 위반한 것이다.</p>
+    </div>
+
+    <!-- 1단계 -->
+    <div class="gate-card">
+      <div class="gate-head">
+        <span class="gate-no">1</span>
+        <h3>발생하지 않는 분기인가</h3>
+      </div>
+      <p class="desc">실사용 조합이 하나인데 방어 분기가 넷이면, <strong>추출 대상이 아니라 제거 대상</strong>이다.</p>
+      <div class="compare">
+        <div class="compare-bad">
+          <div class="compare-label">&#10007; before <span class="tag tag-bad">가상 복잡도 은닉</span></div>
+          <pre><code>// icon 없이 호출하는 곳이 없는데 분기만 넷.
+// 헬퍼로 감싸 은닉했다
+Widget _buildLabel() {
+  if (icon == null &amp;&amp; text == null) {
+    return const SizedBox.shrink();
+  }
+  if (icon == null) return Text(text!);
+  if (text == null) return Icon(icon);
+  return Row(children: [Icon(icon), Text(text!)]);
+}</code></pre>
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">&#10003; after <span class="tag tag-ok">경계에서 못 박음</span></div>
+          <pre><code>// 유효 조합을 생성자에서 못 박고
+// 본문은 한 갈래로 둔다
+const {widget_prefix}LabelWidget({
+  required this.icon,
+  required this.text,
+  super.key,
+});
+...
+Row(children: [Icon(icon), Text(text)])</code></pre>
+        </div>
+      </div>
+      <div class="gate-exit">여기서 걸리면 멈춘다. 2단계 이하는 보지 않는다.</div>
+    </div>
+
+    <!-- 2단계 -->
+    <div class="gate-card">
+      <div class="gate-head">
+        <span class="gate-no">2</span>
+        <h3>셋 중 하나라도 YES 인가</h3>
+        <span class="tag">실질 판정</span>
+      </div>
+      <pre><code>a. 관심사가 주변과 다른가   (표시 · 콘텐츠 · 상호작용 · 비즈니스 로직 · 데이터 접근)
+b. 같은 패턴이 3곳 이상인가
+c. 독립 테스트 대상인가
+
+하나라도 YES → 3단계 / 셋 다 NO → 인라인 유지</code></pre>
+      <div class="compare">
+        <div class="compare-note">
+          <div class="compare-label">셋 다 NO <span class="tag tag-neutral">인라인 유지</span></div>
+          <pre><code>// 본문 4줄, 한 곳, 관심사 동일.
+// 이름을 붙여도 본문보다 더 주는 정보가 없다
+Padding(
+  padding: {TokenClass}.p16,
+  child: Text(label, style: {TokenClass}.body),
+)</code></pre>
+        </div>
+        <div class="compare-note">
+          <div class="compare-label">a 가 YES <span class="tag">위젯으로 분리</span></div>
+          <pre><code>// 표시 옆에 합계 계산이라는
+// 다른 관심사가 붙었다. 위젯으로 뺀다
+class {widget_prefix}OrderSummaryWidget
+    extends StatelessWidget {
+  /* 합계 계산 + 표시 */
+}</code></pre>
+        </div>
+      </div>
+      <div class="gate-exit">셋 다 NO → 인라인 유지하고 절차를 끝낸다.</div>
+    </div>
+
+    <!-- 3단계 -->
+    <div class="gate-card">
+      <div class="gate-head">
+        <span class="gate-no">3</span>
+        <h3>이름이 본문보다 의미를 더하는가</h3>
+      </div>
+      <div class="compare">
+        <div class="compare-bad">
+          <div class="compare-label">&#10007; NO <span class="tag tag-bad">이름 = 본문</span></div>
+          <pre><code>// 이름과 본문이 같은 말을 한다.
+// 유지하거나 인라인한다
+Widget _buildPaddedText() =&gt; Padding(
+      padding: {TokenClass}.p16,
+      child: Text(label),
+    );</code></pre>
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">&#10003; YES <span class="tag tag-ok">숨은 규칙을 이름이 말함</span></div>
+          <pre><code>// 이름이 본문에 안 적힌 규칙
+// (품절이면 흐리게)을 말한다
+class {widget_prefix}StockDimmedPriceWidget
+    extends StatelessWidget { ... }</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4단계 -->
+    <div class="gate-card">
+      <div class="gate-head">
+        <span class="gate-no">4</span>
+        <h3>자기 책임이 있는가</h3>
+      </div>
+      <div class="compare">
+        <div class="compare-bad">
+          <div class="compare-label">&#10007; NO <span class="tag tag-bad">pass-through 래퍼</span></div>
+          <pre><code>// 받은 것을 그대로 넘기기만 한다
+Widget build(BuildContext context) =&gt;
+    {widget_prefix}OrderListWidget(orders: orders);</code></pre>
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">&#10003; YES <span class="tag tag-ok">자기 규칙 보유</span></div>
+          <pre><code>// 빈 목록 판단이라는 자기 규칙을 갖는다
+Widget build(BuildContext context) =&gt;
+    orders.isEmpty
+        ? const {widget_prefix}EmptyOrderWidget()
+        : {widget_prefix}OrderListWidget(orders: orders);</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5단계 -->
+    <div class="gate-card">
+      <div class="gate-head">
+        <span class="gate-no">5</span>
+        <h3>위젯으로 만들고 파일에 둔다</h3>
+      </div>
+      <div class="compare">
+        <div class="compare-bad">
+          <div class="compare-label">&#10007; 헬퍼로 두면 <span class="tag tag-bad">격리 지점 없음</span></div>
+          <pre><code>// 부모 build 마다 함께 재실행된다
+Widget _buildHeader() =&gt; Row(children: [
+      const Icon(Icons.settings),
+      Text(title),
+    ]);</code></pre>
+        </div>
+        <div class="compare-good">
+          <div class="compare-label">&#10003; 파일로 두면 <span class="tag tag-ok">rebuild 를 끊을 지점</span></div>
+          <pre><code>// 프레임워크가 rebuild 를 끊을 지점이 생긴다
+// lib/features/settings/widgets/
+//   {screen}_header_widget.dart
+class {widget_prefix}SettingsHeaderWidget
+    extends StatelessWidget { ... }</code></pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="rule-box" style="margin-top:20px">
+    판정 근거는 <strong>몇 번 항에서 멈췄는지</strong>로 쓴다. "500줄이 넘어서"는 근거가 아니고 <strong>"표시와 데이터 접근이 한 단위에 있어서"</strong>가 근거다.
+  </div>
+</div>
+
+<!-- ══ Section 4 — 원칙 9개 ══ -->
+<div class="section">
+  <div class="section-label">원칙 — 9개, 강도 배지와 함께</div>
+  <p class="desc">각 카드의 배지가 그 규칙을 어디까지 밀어붙일 수 있는지를 말한다. <span class="strength s-should">SHOULD</span> 는 공개 1차 출처 인용 가능, <span class="strength s-observed">관측 컨벤션</span> 은 관측 실측이 근거다. <strong>소스의 강도를 임의로 올리지 마라.</strong></p>
+
+  <div class="stack">
+
+    <!-- 원칙 1 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">1</span>
+          <h3>관심사가 다르면 분리한다 — 줄 수는 트리거일 뿐 기준이 아니다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill pill-core">[코어]</span></div>
+        <p class="desc">임계치 미만이어도 관심사가 다르면 분리하고, <strong>임계치를 넘겨도 관심사가 하나면 쪼개지 않는다.</strong></p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">관심사 셋이 한 build</span></div>
+            <pre><code>// 40줄이지만 관심사가 셋이다
+// (검증 · 데이터 접근 · 표시)
+class {widget_prefix}ProfileFormWidget
+    extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    if (!email.contains('@')) {
+      return const {widget_prefix}FormErrorWidget();  // 검증
+    }
+    unawaited(repository.saveDraft(profile));         // 데이터 접근
+    return Column(children: fields);                  // 표시
+  }
+}</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">표시만 남김</span></div>
+            <pre><code>// 표시만 남긴다. 검증은 Props 경계로,
+// 저장은 Notifier 로 올린다
+class {widget_prefix}ProfileFormWidget
+    extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) =&gt;
+      Column(children: fields);
+}</code></pre>
+          </div>
+        </div>
+        <p class="desc" style="margin-bottom:0">Fowler 는 함수 길이 자체를 기준으로 삼지 않는다. 기준은 <strong>"의도와 구현을 분리할 수 있는가"</strong>다. 줄 수 · 헬퍼 개수 임계치는 "이미 늦었다"를 알리는 하한 알람이지 분리 여부의 판정식이 아니다.</p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <a class="card-source" href="https://martinfowler.com/bliki/FunctionLength.html" target="_blank" rel="noopener">&rarr; Function Length (Fowler)</a>
+        <a class="card-source" href="https://martinfowler.com/bliki/CodeSmell.html" target="_blank" rel="noopener">&rarr; Code Smell (Fowler)</a>
+        <p class="caption"><strong>강도: SHOULD.</strong> 공개 1차 출처는 길이 기준을 명시적으로 부정하지만, 대체 판정식을 기계적으로 제시하지는 않는다.</p>
+      </div>
+    </div>
+
+    <!-- 원칙 2 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">2</span>
+          <h3>이름이 본문보다 의미를 더하지 않으면 인라인한다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill pill-core">[코어]</span></div>
+        <p class="desc">추출은 <strong>"의도를 드러내는 이름"을 붙일 수 있을 때만</strong> 이득이다.</p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">이름 = 본문</span></div>
+            <pre><code>// 호출부는 짧아졌지만 읽는 총비용은 늘었다
+Widget _buildDivider() =&gt; const Divider(height: 1);
+...
+children: [_buildDivider(), tile, _buildDivider()]</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">Inline Function</span></div>
+            <pre><code>children: [
+  const Divider(height: 1),
+  tile,
+  const Divider(height: 1),
+]</code></pre>
+          </div>
+        </div>
+        <p class="desc" style="margin-bottom:0">이름이 본문을 읽는 것과 같은 수준의 정보만 준다면 가독성이 오른 게 아니라 <strong>읽기 비용이 호출부에서 정의부로 이동</strong>한 것이다. 이 경우 Inline Function 대상이다. over-decomposition 은 실재하는 실패 모드이며, Clean Code 저자 본인도 공개 토론에서 이를 인정했다.</p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <a class="card-source" href="https://refactoring.com/catalog/inlineFunction.html" target="_blank" rel="noopener">&rarr; Inline Function (Fowler)</a>
+        <a class="card-source" href="https://refactoring.com/catalog/extractMethod.html" target="_blank" rel="noopener">&rarr; Extract Function (Fowler)</a>
+        <a class="card-source" href="https://github.com/johnousterhout/aposd-vs-clean-code" target="_blank" rel="noopener">&rarr; aposd-vs-clean-code (Ousterhout · Martin 공개 토론)</a>
+        <p class="caption"><strong>강도: SHOULD.</strong></p>
+      </div>
+    </div>
+
+    <!-- 원칙 3 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">3</span>
+          <h3>큰 build() 는 분리한다 — 기준은 LOC 가 아니라 rebuild 빈도다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill pill-adapter">[어댑터:dart-flutter]</span></div>
+        <p class="desc">프레임마다 재실행되는 subtree 가 분리 1순위다. <strong>라우트 최상단처럼 사실상 rebuild 되지 않는 큰 build 는 그대로 둬도 된다.</strong></p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">프레임마다 목록 재생성</span></div>
+            <pre><code>// 애니메이션 값이 바뀔 때마다
+// 목록 전체가 다시 만들어진다
+AnimatedBuilder(
+  animation: controller,
+  builder: (context, _) =&gt; Opacity(
+    opacity: controller.value,
+    child: Column(children: orders.map(_buildRow).toList()),
+  ),
+)</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">child 로 끊음</span></div>
+            <pre><code>// 프레임마다 바뀌는 부분만 builder 에 남기고
+// 나머지는 child 로 끊는다
+AnimatedBuilder(
+  animation: controller,
+  builder: (context, child) =&gt;
+      Opacity(opacity: controller.value, child: child),
+  child: const {widget_prefix}OrderListWidget(),
+)</code></pre>
+          </div>
+        </div>
+        <p class="desc">Flutter 공식 성능 문서는 "Avoid overly large single widgets with a large <code>build()</code> function" 과 "Split them into different widgets" 를 권고하지만 <strong>공식 문서에 LOC 임계값은 없다.</strong> 분리 기준은 encapsulation 과 "how they change" 다.</p>
+        <p class="desc" style="margin-bottom:0">같은 문서군의 반대편도 성립한다 — <code>StatefulWidget</code> 문서는 "built once then never update" 하는 위젯의 "somewhat complicated and deep build methods" 를 문제 삼지 않는다. 반면 build 는 <strong>"potentially as often as once per rendered frame"</strong> 호출될 수 있다.</p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&rarr; Flutter performance best practices</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html" target="_blank" rel="noopener">&rarr; StatefulWidget class</a>
+        <a class="card-source" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">&rarr; Flutter architectural overview</a>
+        <p class="caption"><strong>강도: SHOULD.</strong> 성능 핫스팟이거나 자주 rebuild 되는 큰 subtree 에 한해 프로젝트 규칙으로 MUST 승격할 수 있다. 승격하는 경우 <strong>승격 사유(프로파일링 결과 또는 rebuild 빈도)를 규칙 옆에 명시</strong>해야 한다. 사유 없는 전역 MUST 는 킷의 창작이다.</p>
+      </div>
+    </div>
+
+    <!-- 원칙 4 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">4</span>
+          <h3>헬퍼 메서드보다 위젯 클래스를 선호한다 — 그러나 금지는 아니다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill pill-adapter">[어댑터:dart-flutter]</span></div>
+        <p class="desc">위젯을 반환하는 <code>_build*</code> 헬퍼는 접두사부터 쓰지 않는다. 다만 <strong>지역 glue 까지 파일로 승격하지는 않는다.</strong></p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">위젯 반환 헬퍼</span></div>
+            <pre><code>// 부모와 항상 함께 재실행된다
+Widget _buildHeader() =&gt; Row(children: [
+      const Icon(Icons.settings),
+      Text(title),
+    ]);</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">위젯 클래스</span></div>
+            <pre><code>// 프레임워크가 rebuild 를
+// short-circuit 할 지점이 생긴다
+const {widget_prefix}SettingsHeaderWidget(title: '설정')</code></pre>
+          </div>
+        </div>
+        <div class="compare-note extra-panel">
+          <div class="compare-label">허용 <span class="tag tag-neutral">지역 glue — 파일을 만들지 않는다</span></div>
+          <pre><code>// context 하나만 필요한 지역 glue 는 공식 API 로 인라인한다
+Builder(
+  builder: (context) =&gt; Text(
+    MediaQuery.sizeOf(context).width.toStringAsFixed(0),
+  ),
+)</code></pre>
+        </div>
+        <p class="desc" style="margin-top:14px"><code>StatelessWidget</code> 문서의 "prefer using a widget rather than a helper method" 는 스타일이 아니라 <strong>메커니즘</strong> 때문이다. 위젯으로 분리하면 프레임워크가 "short-circuit most of the rebuild work" 를 할 지점이 생기고, 헬퍼가 반환한 위젯에는 그 지점이 없다.</p>
+        <p class="desc" style="margin-bottom:0"><strong>반대 방향도 공식이다</strong> — <code>Builder</code> 는 자신을 "inline alternative to defining a <code>StatelessWidget</code> subclass" 라고 정의하고, 공식 마이그레이션 문서에는 <code>Widget _getToggleChild()</code> 같은 위젯 반환 함수 예시가 실려 있으며, 이슈 트래커에도 "reevaluate if we are making the right trade-off here between naginess and performance" 논의가 남아 있다.</p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">&rarr; StatelessWidget class</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Builder-class.html" target="_blank" rel="noopener">&rarr; Builder class</a>
+        <a class="card-source" href="https://docs.flutter.dev/flutter-for/xamarin-forms-devs" target="_blank" rel="noopener">&rarr; Flutter for Xamarin.Forms developers</a>
+        <a class="card-source" href="https://github.com/flutter/flutter/issues/149932" target="_blank" rel="noopener">&rarr; flutter/flutter#149932</a>
+        <p class="caption"><strong>강도: SHOULD.</strong> 공개 문구가 <code>prefer</code> 이고 공개 반례가 존재한다. 단순 조건 분기나 아주 작은 local glue 까지 <code>MUST NOT</code> 으로 금지할 공개 근거는 없다.</p>
+      </div>
+    </div>
+
+    <!-- 원칙 5 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">5</span>
+          <h3>rebuild 격리를 노렸다면 격리 조건까지 확인하라</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill pill-adapter">[어댑터:dart-flutter]</span></div>
+        <p class="desc"><strong>위젯 클래스로 뺐다는 사실만으로 rebuild 가 끊기지 않는다.</strong></p>
+
+        <h4 style="margin-top:6px">조건 A — 동일 인스턴스여야 element 가 skip 한다</h4>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">격리 0</span></div>
+            <pre><code>// 부모 build 마다 새 인스턴스.
+// element 가 skip 하지 못해 격리 0
+Column(children: [
+  {widget_prefix}SectionHeaderWidget(title: title),
+])</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">const 로 고정</span></div>
+            <pre><code>// 동일 인스턴스(const)여야
+// element 가 갱신을 건너뛴다
+const Column(children: [
+  {widget_prefix}SectionHeaderWidget(title: '설정'),
+])</code></pre>
+          </div>
+        </div>
+
+        <h4 style="margin-top:14px">조건 B — 상태 소유 위치가 추출보다 먼저다</h4>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">상태는 위에, 조각만 아래로</span></div>
+            <pre><code>// setState 가 subtree 전체를 다시 만든다
+class _SettingsScreenState
+    extends State&lt;{widget_prefix}SettingsScreen&gt; {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) =&gt; Column(children: [
+        const {widget_prefix}SettingsHeaderWidget(),
+        {widget_prefix}SettingsBodyWidget(expanded: _expanded),
+      ]);
+}</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">leaf 가 상태를 소유</span></div>
+            <pre><code>// 상태를 쓰는 leaf 가 상태를 소유한다.
+// 부모는 const 로 남는다
+class {widget_prefix}SettingsBodyWidget
+    extends StatefulWidget {
+  /* _expanded 를 여기서 소유 */
+}</code></pre>
+          </div>
+        </div>
+
+        <p class="desc" style="margin-bottom:0">Element 는 "the same instance is returned each time" 인 경우에만 "the element skips updating itself" 한다. 위젯 교체 판정은 <code>runtimeType and key</code> 로 이뤄지므로 <strong>같은 타입에 다른 인자를 넘기면 element 는 갱신된다.</strong> 상태 소유 위치가 추출보다 먼저다 — <code>setState</code> 는 "possibly triggering rebuilds for the entire subtree rooted at this widget" 이므로 상태를 상위에 둔 채 하위만 쪼개면 분리 효과가 상쇄된다.</p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">&rarr; Element.rebuild</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html" target="_blank" rel="noopener">&rarr; Widget.canUpdate</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">&rarr; State.setState</a>
+        <p class="caption"><strong>강도: SHOULD.</strong></p>
+      </div>
+    </div>
+
+    <!-- 원칙 6 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">6</span>
+          <h3>헬퍼가 헬퍼를 부르는 체인은 만들지 않는다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span><span class="pill pill-core">[코어]</span></div>
+        <p class="desc">허용 깊이는 <strong>0단</strong>이다. 헬퍼가 다른 헬퍼를 호출하면 인라인하거나 별도 위젯으로 승격한다.</p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">3단 체인</span></div>
+            <pre><code>// 주 흐름을 읽으려면 세 번 왕복해야 한다
+Widget build(BuildContext context) =&gt; _buildBody();
+
+Widget _buildBody() =&gt;
+    Column(children: [_buildSection(), _buildFooter()]);
+
+Widget _buildSection() =&gt; Padding(
+      padding: {TokenClass}.p16,
+      child: _buildRow(),
+    );</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">중간 단계 인라인</span></div>
+            <pre><code>// 중간 단계는 인라인,
+// 자기 책임이 있는 것만 위젯으로 승격
+Widget build(BuildContext context) =&gt; Column(
+      children: [
+        Padding(
+          padding: {TokenClass}.p16,
+          child: {widget_prefix}OrderRowWidget(order: order),
+        ),
+        const {widget_prefix}OrderFooterWidget(),
+      ],
+    );</code></pre>
+          </div>
+        </div>
+        <p class="desc" style="margin-bottom:0">체인은 주 흐름을 읽기 위해 왕복 이동을 강제한다. 각 단계의 이름이 본문보다 의미를 더하는지 개별 판정하면, <strong>중간 단계는 대개 원칙 2 의 Inline 대상으로 떨어진다.</strong></p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <span class="source-badge">공개 1차 출처 없음 — 관측 프로젝트 규칙 (2026-04-17 제정, 위젯 리팩토링 세션 피드백)</span>
+        <a class="card-source" href="https://refactoring.com/catalog/inlineFunction.html" target="_blank" rel="noopener">&rarr; 보조 근거 — Inline Function (Fowler)</a>
+        <a class="card-source" href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">&rarr; 보조 근거 — Cognitive Complexity (SonarSource)</a>
+        <p class="caption"><strong>강도: 관측 컨벤션.</strong> 체인 깊이 임계값을 명시한 공개 1차 출처는 없다.</p>
+      </div>
+    </div>
+
+    <!-- 원칙 7 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">7</span>
+          <h3>하위 위젯은 별도 파일에 둔다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span><span class="pill pill-adapter">[어댑터:dart-flutter]</span></div>
+        <p class="desc">판정 절차를 통과해 추출하기로 한 하위 단위는 <strong>예외 없이</strong> 별도 파일로 뺀다. 부모 파일 안에 남기지 않는다.</p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">부모 파일 안 private 클래스</span></div>
+            <pre><code>// 파일 밖에서는 이름으로 찾히지 않는다
+// lib/features/order/screens/order_screen.dart
+class _OrderTitle extends StatelessWidget {
+  const _OrderTitle({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) =&gt;
+      Text(title, style: {TokenClass}.headline);
+}</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">파일명으로 바로 도달</span></div>
+            <pre><code>// 별도 파일 + public 클래스 + 프로젝트 접두사
+// lib/features/order/widgets/order_title_widget.dart
+class {widget_prefix}OrderTitleWidget
+    extends StatelessWidget {
+  const {widget_prefix}OrderTitleWidget({
+    required this.title,
+    super.key,
+  });
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) =&gt;
+      Text(title, style: {TokenClass}.headline);
+}</code></pre>
+          </div>
+        </div>
+        <div class="compare-note extra-panel">
+          <div class="compare-label">얇아도 예외를 두지 않는다 <span class="tag tag-neutral">본문 2줄짜리도 파일 하나</span></div>
+          <pre><code>// lib/features/order/widgets/order_price_text_widget.dart
+// — 통화 포맷 규칙이 한 곳에 모인다
+class {widget_prefix}OrderPriceTextWidget extends StatelessWidget {
+  const {widget_prefix}OrderPriceTextWidget({required this.amount, super.key});
+
+  final int amount;
+
+  @override
+  Widget build(BuildContext context) =&gt;
+      Text(NumberFormat.currency(locale: 'ko_KR').format(amount));
+}</code></pre>
+        </div>
+        <p class="desc" style="margin-top:14px">예외를 열어두면 "이번 건은 얇으니까"가 매번 성립해 배치 규칙이 사람마다 갈린다. 파일이 private 접두사를 못 쓰므로 이 규칙은 <strong>public 클래스 + 프로젝트 접두사(<code>{widget_prefix}</code>) 규칙과 짝을 이룬다.</strong></p>
+        <p class="desc" style="margin-bottom:0"><strong>공개 1차 출처는 "different widgets" 까지만 지지하고 "different files" 는 지지하지 않는다</strong> — 파일 분리를 성능 문서로 정당화하지 말고 근거를 <em>탐색성</em>으로 밝혀라.</p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <span class="source-badge">공개 1차 출처 없음 — 관측 프로젝트 실측 (Props 골격 보유 110 파일에 일관 적용 · <code>^abstract class *Props</code> 선언 파일, 코드 생성물 제외, 2026-08-31 재측정)</span>
+        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&rarr; 공식 지지 범위는 위젯 단위까지 — Flutter performance best practices</a>
+        <p class="caption"><strong>강도: 관측 컨벤션.</strong></p>
+      </div>
+    </div>
+
+    <!-- 원칙 8 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">8</span>
+          <h3>발생하지 않는 분기는 추출 대상이 아니라 제거 대상이다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill pill-core">[코어]</span></div>
+        <p class="desc">조합 제약은 <strong>흐름이 아니라 경계에서</strong> 표현한다.</p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">가상 복잡도 4분기</span></div>
+            <pre><code>// 실사용 조합은 하나인데
+// null 조합 4가지를 방어하고 헬퍼로 감췄다
+Widget _buildTab() {
+  if (text == null &amp;&amp; child == null) {
+    return const SizedBox.shrink();
+  }
+  if (text == null) return child!;
+  if (child == null) return Text(text!);
+  return Column(children: [Text(text!), child!]);
+}</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">생성자 단언</span></div>
+            <pre><code>// 유효 조합을 생성자 단언으로 못 박는다.
+// 본문은 한 갈래
+const {widget_prefix}TabWidget({
+  this.text,
+  this.child,
+  super.key,
+}) : assert(
+       text != null || child != null,
+       'text 와 child 중 하나는 있어야 한다',
+     );</code></pre>
+          </div>
+        </div>
+        <p class="desc">실사용 조합이 하나인데 null 조합 4가지를 방어하면 그 복잡도는 실제 복잡도가 아니라 <strong>가상 복잡도</strong>다. "현재 요구를 이해하기 어렵게 만드는 추상화는 presumed guilty" 다.</p>
+        <p class="desc" style="margin-bottom:0">Flutter 자체 위젯도 build 안에서 모든 조합을 방어하지 않고 생성자 assert 로 유효 조합을 강제한다 — <code>Tab</code> 은 <code>text</code>/<code>child</code> 동시 사용을 막고, <code>Positioned</code> 는 <code>left + right + width</code> 동시 지정을 막는다. Dart 의 <code>assert</code> 는 debug 에서만 살아 있으므로 <strong>내부 호출자 제약에 적합하고, 외부 입력 경계에는 명시적 검증을 쓴다.</strong></p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">&rarr; Yagni (Fowler)</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/material/Tab/Tab.html" target="_blank" rel="noopener">&rarr; Tab constructor</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Positioned/Positioned.html" target="_blank" rel="noopener">&rarr; Positioned constructor</a>
+        <a class="card-source" href="https://dart.dev/language/constructors" target="_blank" rel="noopener">&rarr; Dart constructors</a>
+        <p class="caption"><strong>강도: SHOULD.</strong></p>
+      </div>
+    </div>
+
+    <!-- 원칙 9 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">9</span>
+          <h3>pass-through 래퍼는 과분할이다</h3>
+        </div>
+        <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill pill-core">[코어]</span></div>
+        <p class="desc">받은 것을 그대로 넘기기만 하는 레이어는 <strong>형제 위젯 유무와 무관하게</strong> 추가 간접층이다.</p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label">&#10007; before <span class="tag tag-bad">인자 옮겨 적기</span></div>
+            <pre><code>// 자기 책임이 없다. 인자를 옮겨 적기만 한다
+class {widget_prefix}OrderBodyWidget
+    extends StatelessWidget {
+  const {widget_prefix}OrderBodyWidget({
+    required this.orders,
+    super.key,
+  });
+
+  final List&lt;Order&gt; orders;
+
+  @override
+  Widget build(BuildContext context) =&gt;
+      {widget_prefix}OrderListWidget(orders: orders);
+}</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label">&#10003; after <span class="tag tag-ok">호출부가 직접 호출</span></div>
+            <pre><code>{widget_prefix}OrderListWidget(orders: orders)</code></pre>
+          </div>
+        </div>
+        <div class="compare-note extra-panel">
+          <div class="compare-label">남겨도 되는 경우 <span class="tag tag-neutral">자기 규칙이 생기면 pass-through 가 아니다</span></div>
+          <pre><code>// 빈 상태 판단이라는 자기 규칙이 생기면 pass-through 가 아니다
+Widget build(BuildContext context) =&gt; orders.isEmpty
+    ? const {widget_prefix}EmptyOrderWidget()
+    : {widget_prefix}OrderListWidget(orders: orders);</code></pre>
+        </div>
+        <p class="desc" style="margin-top:14px">클래스가 제 몫의 책임을 갖지 못하면 <strong>Inline Class 대상</strong>이다. 추출의 유일한 실효인 rebuild 격리조차, 형제가 싼 위젯이면 정당화되지 않는다.</p>
+        <p class="desc" style="margin-bottom:0">같은 이유로 <strong>"재사용 가능성" 하나만으로 1회성 로직을 클래스로 승격하지 않는다</strong> — 실사용처가 1~2곳이면 인라인이 적정이고, 같은 패턴이 3곳 이상 반복될 때 추출을 검토한다.</p>
+      </div>
+      <div class="sources">
+        <div class="sources-title">출처</div>
+        <a class="card-source" href="https://refactoring.com/catalog/inlineClass.html" target="_blank" rel="noopener">&rarr; Inline Class (Fowler)</a>
+        <a class="card-source" href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">&rarr; Yagni (Fowler)</a>
+        <p class="caption"><strong>강도: SHOULD.</strong> 반복 3회 임계값 자체는 관측 컨벤션이다.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Section 5 — 수치 기준 ══ -->
+<div class="section">
+  <div class="section-label">수치 기준 — 공식 값과 관측 값을 섞지 마라</div>
+  <p class="desc">첫 네 행은 공식 문서에서 직접 확인 가능한 값이고, 나머지는 관측 컨벤션이다. <strong>맨 위 행이 이 문서 전체의 전제다</strong> — 공식 LOC 임계값이 존재했다면 이 문서는 그것을 인용했을 것이고, 판정 절차는 필요 없었다.</p>
 
   <div class="table-wrap">
     <table>
@@ -515,25 +963,66 @@ const Column(children: [SectionHeader(title: '설정')])</code></pre>
         <tr><th>항목</th><th>값</th><th>출처</th></tr>
       </thead>
       <tbody>
-        <tr><td>공식 build() LOC 임계값</td><td><strong>없음</strong></td><td><a href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">Flutter performance best practices</a></td></tr>
-        <tr><td>build() 호출 빈도 상한</td><td>렌더 프레임당 1회까지</td><td><a href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">Flutter architectural overview</a></td></tr>
-        <tr><td>위젯 교체 판정 기준</td><td><code>runtimeType</code> + <code>key</code> 2개</td><td><a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html" target="_blank" rel="noopener">Widget.canUpdate</a></td></tr>
-        <tr><td><code>setState</code> rebuild 범위</td><td>해당 위젯 루트의 subtree 전체</td><td><a href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">State.setState</a></td></tr>
-        <tr><td>인라인 유지 상한</td><td>100줄 이하 + 주 경로 1개</td><td><span class="tag tag-warn">관측 컨벤션</span></td></tr>
-        <tr><td>분할 하한 트리거</td><td>파일 500줄 초과 또는 위젯 반환 헬퍼 8개 이상</td><td><span class="tag tag-warn">관측 컨벤션</span></td></tr>
-        <tr><td>헬퍼 체인 허용 깊이</td><td>0단 (헬퍼&#8594;헬퍼 호출 금지)</td><td><span class="tag tag-warn">관측 컨벤션</span></td></tr>
-        <tr><td>추출 검토 반복 임계</td><td>같은 패턴 3곳 이상</td><td><span class="tag tag-warn">관측 컨벤션</span></td></tr>
-        <tr><td>서브폴더 그룹화 트리거</td><td>관련 파일 3쌍 이상</td><td><span class="tag tag-warn">관측 컨벤션</span></td></tr>
-        <tr><td>파일 분리 컨벤션 실측 범위</td><td>Props 골격 보유 110 파일</td><td><span class="tag tag-warn">관측 컨벤션</span> (2026-08-31 재측정)</td></tr>
+        <tr style="background:rgba(251,191,36,0.06)">
+          <td class="sys">공식 build() LOC 임계값</td>
+          <td><span class="tag tag-warn">없음</span></td>
+          <td><a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&rarr; Flutter performance best practices</a></td>
+        </tr>
+        <tr>
+          <td class="sys">build() 호출 빈도 상한</td>
+          <td><strong>렌더 프레임당 1회까지</strong></td>
+          <td><a class="card-source" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">&rarr; Flutter architectural overview</a></td>
+        </tr>
+        <tr>
+          <td class="sys">위젯 교체 판정 기준</td>
+          <td><code>runtimeType</code> + <code>key</code> <strong>2개</strong></td>
+          <td><a class="card-source" href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html" target="_blank" rel="noopener">&rarr; Widget.canUpdate</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>setState</code> rebuild 범위</td>
+          <td><strong>해당 위젯 루트의 subtree 전체</strong></td>
+          <td><a class="card-source" href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">&rarr; State.setState</a></td>
+        </tr>
+        <tr>
+          <td class="sys">인라인 유지 상한</td>
+          <td>100줄 이하 + 주 경로 1개</td>
+          <td><span class="strength s-observed">관측 컨벤션</span></td>
+        </tr>
+        <tr>
+          <td class="sys">분할 하한 트리거</td>
+          <td>파일 500줄 초과 또는 위젯 반환 헬퍼 8개 이상</td>
+          <td><span class="strength s-observed">관측 컨벤션</span></td>
+        </tr>
+        <tr>
+          <td class="sys">헬퍼 체인 허용 깊이</td>
+          <td><strong>0단</strong> (헬퍼&rarr;헬퍼 호출 금지)</td>
+          <td><span class="strength s-observed">관측 컨벤션</span></td>
+        </tr>
+        <tr>
+          <td class="sys">추출 검토 반복 임계</td>
+          <td>같은 패턴 <strong>3곳 이상</strong></td>
+          <td><span class="strength s-observed">관측 컨벤션</span></td>
+        </tr>
+        <tr>
+          <td class="sys">서브폴더 그룹화 트리거</td>
+          <td>관련 파일 <strong>3쌍 이상</strong></td>
+          <td><span class="strength s-observed">관측 컨벤션</span></td>
+        </tr>
+        <tr>
+          <td class="sys">파일 분리 컨벤션 실측 범위</td>
+          <td>Props 골격 보유 <strong>110 파일</strong></td>
+          <td><span class="strength s-observed">관측 컨벤션</span> <span class="tag tag-neutral">2026-08-31 재측정</span></td>
+        </tr>
       </tbody>
     </table>
   </div>
+  <p class="caption">공식 값 4행 · 관측 컨벤션 6행. 관측 값을 공식 출처로 인용하면 원칙 3 의 "승격분이 근거로 둔갑한다" 안티패턴에 그대로 걸린다.</p>
 </div>
 
-<!-- ── Section 7 — 안티패턴 ── -->
+<!-- ══ Section 6 — 안티패턴 ══ -->
 <div class="section">
-  <div class="section-label">안티패턴 — 9종</div>
-  <p class="desc">앞의 원칙을 뒤집었을 때 실제로 나타나는 형태. 리뷰에서 이 목록을 먼저 훑으면 판정 근거를 빨리 찾을 수 있다.</p>
+  <div class="section-label">안티패턴 — 9가지</div>
+  <p class="desc">아래는 전부 판정 절차를 건너뛰었을 때 나오는 결과다. 왼쪽이 행위, 오른쪽이 그 행위가 만드는 실제 손해다.</p>
 
   <div class="table-wrap">
     <table>
@@ -541,98 +1030,141 @@ const Column(children: [SectionHeader(title: '설정')])</code></pre>
         <tr><th>안티패턴</th><th>문제</th></tr>
       </thead>
       <tbody>
-        <tr><td>줄 수 임계치를 분리 여부의 판정식으로 사용</td><td>관심사가 하나인 긴 코드를 쪼개고 관심사가 섞인 짧은 코드는 방치한다</td></tr>
-        <tr><td>공식 문서의 <code>prefer</code> 를 전역 <code>MUST</code> 로 승격</td><td>승격분이 근거로 둔갑한다. 승격하려면 rebuild 빈도·프로파일링 사유를 병기해야 한다</td></tr>
-        <tr><td>파일 분리 규칙을 성능 문서로 정당화</td><td>공개 1차 출처는 "different widgets" 까지만 지지한다. 파일 단위 근거는 탐색성이다</td></tr>
-        <tr><td>이름이 본문과 같은 수준인 헬퍼 추출</td><td>가독성이 오르지 않고 읽기 비용이 정의부로 이동만 한다</td></tr>
-        <tr><td>헬퍼가 헬퍼를 부르는 다단 체인</td><td>주 흐름을 읽는 데 왕복 이동이 강제된다</td></tr>
-        <tr><td>발생하지 않는 null 조합을 헬퍼로 감싸 은닉</td><td>가상 복잡도를 구조화해 영구화한다. 제거 대상을 추출 대상으로 오인한 것</td></tr>
-        <tr><td>pass-through 래퍼 레이어 추가</td><td>책임 없는 간접층. rebuild 격리 효과도 형제가 싼 위젯이면 없다</td></tr>
-        <tr><td>"재사용 가능성" 만으로 1회성 로직 클래스 승격</td><td>실사용처가 1곳이면 타입 수만 늘어난다</td></tr>
-        <tr><td>위젯 추출 후 매 build 마다 새 인스턴스 전달</td><td>격리를 노린 추출인데 element 가 skip 하지 못해 효과가 0 이다</td></tr>
+        <tr><td class="sys">줄 수 임계치를 분리 여부의 판정식으로 사용</td><td>관심사가 하나인 긴 코드를 쪼개고 관심사가 섞인 짧은 코드는 방치한다</td></tr>
+        <tr><td class="sys">공식 문서의 <code>prefer</code> 를 전역 <code>MUST</code> 로 승격</td><td>승격분이 근거로 둔갑한다. 승격하려면 rebuild 빈도 · 프로파일링 사유를 병기해야 한다</td></tr>
+        <tr><td class="sys">파일 분리 규칙을 성능 문서로 정당화</td><td>공개 1차 출처는 "different widgets" 까지만 지지한다. 파일 단위 근거는 탐색성이다</td></tr>
+        <tr><td class="sys">이름이 본문과 같은 수준인 헬퍼 추출</td><td>가독성이 오르지 않고 읽기 비용이 정의부로 이동만 한다</td></tr>
+        <tr><td class="sys">헬퍼가 헬퍼를 부르는 다단 체인</td><td>주 흐름을 읽는 데 왕복 이동이 강제된다</td></tr>
+        <tr><td class="sys">발생하지 않는 null 조합을 헬퍼로 감싸 은닉</td><td>가상 복잡도를 구조화해 영구화한다. 제거 대상을 추출 대상으로 오인한 것</td></tr>
+        <tr><td class="sys">pass-through 래퍼 레이어 추가</td><td>책임 없는 간접층. rebuild 격리 효과도 형제가 싼 위젯이면 없다</td></tr>
+        <tr><td class="sys">"재사용 가능성" 만으로 1회성 로직 클래스 승격</td><td>실사용처가 1곳이면 타입 수만 늘어난다</td></tr>
+        <tr><td class="sys">위젯 추출 후 매 build 마다 새 인스턴스 전달</td><td>격리를 노린 추출인데 element 가 skip 하지 못해 효과가 0 이다</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ── Section 8 — Gotchas ── -->
+<!-- ══ Section 7 — Gotchas ══ -->
 <div class="section">
-  <div class="section-label">Gotchas — 7항목</div>
-  <p class="desc">이 규칙군을 적용할 때 반복적으로 어긋나는 지점들. 판정 전에 한 번 훑는다.</p>
-  <div class="card">
-    <ul class="checklist">
-      <li><span class="check">1</span><span><strong>위젯 클래스로 뺀다고 paint boundary 가 생기지 않는다</strong> — 리페인트 격리는 <code>RepaintBoundary</code> 라는 별도 메커니즘이고, 클래스 추출은 rebuild(위젯 재구성) 축이다. "쪼갰으니 다시 그리지 않는다"는 두 축을 섞은 오해다. 리페인트가 문제면 추출이 아니라 <code>RepaintBoundary</code> 를 검토하고, 경계 자체도 비용이 있으므로 남발하지 마라. (<a href="https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html" target="_blank" rel="noopener">RepaintBoundary</a>)</span></li>
-      <li><span class="check">2</span><span><strong>"과분할 금지"와 "관심사 분리 의무"는 충돌하지 않는다</strong> — 판정 순서가 다르다. 먼저 "관심사가 실제로 다른가"를 묻고, 다르면 분리한다(원칙 1). 같은데 길이만 길면 쪼개지 않는다. pass-through 래퍼 금지(원칙 9)는 후자에만 적용되며, 관심사가 다른 sub-widget 추출 의무를 취소하지 않는다.</span></li>
-      <li><span class="check">3</span><span><strong>분리 강도를 프로젝트 규칙으로 올릴 때 사유를 같이 적어라</strong> — 공식 근거는 SHOULD 까지다. rebuild 빈도나 프로파일링 결과 없이 MUST 로 쓰면, 나중에 그 규칙이 왜 있는지 아무도 재구성하지 못하고 규칙만 남는다.</span></li>
-      <li><span class="check">4</span><span><strong>상태 소유 위치를 안 고치고 하위만 쪼개면 격리가 없다</strong> — <code>setState</code> 는 subtree 전체를 rebuild 시킨다. 추출 전에 상태를 leaf 로 내릴 수 있는지 먼저 본다. 순서를 뒤집으면 파일만 늘고 프레임 비용은 그대로다.</span></li>
-      <li><span class="check">5</span><span><strong><code>const</code> 는 추출의 목적이 아니라 조건이다</strong> — 클래스로 빼는 이유가 <code>const</code> 라면, 실제로 <code>const</code> 로 생성되는지까지 확인해야 이득이 발생한다. 동적 인자를 받는 위젯은 <code>const</code> 가 되지 않으므로 그 경우 추출 근거를 rebuild 격리가 아닌 관심사 분리로 다시 세워야 한다.</span></li>
-      <li><span class="check">6</span><span><strong>폐기 이력</strong> — 원본 규칙 세트의 판단표와 1단 헬퍼 허용 조항은 2026-06-09 개정으로 폐기됐다. 본문은 이관하지 않는다. 아래 별도 블록 참조.</span></li>
-      <li><span class="check">7</span><span><strong>인용 금지 출처를 다시 끌어오지 마라</strong> — 이 규칙군의 원본 근거였던 비공개 사내 가이드라인 문서는 공개 킷에서 인용할 수 없다. 위 원칙 3·4 의 공개 URL 이 대체 근거이며, 규칙 강도도 그 URL 의 문구 강도를 넘지 않는다.</span></li>
-    </ul>
-  </div>
-</div>
-
-<!-- ── Section 9 — 폐기 이력 ── -->
-<div class="section">
-  <div class="section-label">폐기 이력 — 이관하지 않는 항목</div>
-  <p class="desc">아래 두 항목은 이 문서에 본문이 없다. 없는 것이 결함이 아니라 결정이다. 다음 개정에서 "빠졌다"고 판단해 되살리지 마라.</p>
+  <div class="section-label">Gotchas — 축을 섞는 순간 규칙이 무너진다</div>
+  <p class="desc">아래 여섯 항목은 규칙 자체보다 <strong>규칙을 적용하는 순서와 축</strong>에 관한 것이다. 여기서 틀리면 파일만 늘고 프레임 비용은 그대로다.</p>
 
   <div class="grid-2">
-    <div class="warn-card">
-      <div class="principle-title"><span class="num">&#10007;</span><h3>2026-06-09 개정으로 폐기</h3></div>
-      <ul class="checklist" style="margin-bottom:12px">
-        <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span>"메서드 추출 vs 클래스 추출" 판단표 (2026-04-17 제정)</span></li>
-        <li><span class="check" style="border-color:var(--yellow);color:var(--yellow)">!</span><span>"헬퍼 이름이 명확하면 1단 헬퍼 허용" 조항</span></li>
-      </ul>
-      <p class="desc" style="margin-bottom:0"><strong>본문은 이관하지 않는다.</strong> 이관 대상은 개정 후 위치인 원칙 4·6·7 뿐이다. 1단 헬퍼 허용 조항은 현재 원칙 6(체인 깊이 0단)과 원칙 2(이름 검증)로 대체되어 있으므로, 옛 조항을 근거로 헬퍼 1단을 무조건 허용하면 개정을 되돌리는 셈이 된다.</p>
-    </div>
 
     <div class="warn-card">
-      <div class="principle-title"><span class="num">&#10007;</span><h3>인용 금지 — 비공개 사내 가이드라인</h3></div>
-      <p class="desc" style="margin-bottom:12px">이 규칙군의 원본 근거였던 비공개 사내 가이드라인 문서는 공개 킷에서 인용할 수 없다. 문구를 옮겨 오는 것도, 출처만 표기하는 것도 불가다.</p>
-      <p class="desc" style="margin-bottom:0">대체 근거는 원칙 3·4 에 걸린 공개 URL 이며, <strong>규칙 강도는 그 URL 의 문구 강도를 넘지 않는다.</strong> 사내 문서가 MUST 로 썼다는 사실은 공개 킷에서 강도를 올릴 근거가 되지 못한다.</p>
+      <div class="principle-title"><span class="num">!</span><h3>위젯 클래스로 뺀다고 paint boundary 가 생기지 않는다</h3></div>
+      <p class="desc">리페인트 격리는 <code>RepaintBoundary</code> 라는 <strong>별도 메커니즘</strong>이고, 클래스 추출은 rebuild(위젯 재구성) 축이다. "쪼갰으니 다시 그리지 않는다"는 두 축을 섞은 오해다.</p>
+      <p class="desc" style="margin-bottom:0">리페인트가 문제면 추출이 아니라 <code>RepaintBoundary</code> 를 검토하고, 경계 자체도 비용이 있으므로 남발하지 마라.</p>
       <div class="sources">
-        <a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">대체 근거 · Flutter performance best practices</a>
-        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">대체 근거 · StatelessWidget class</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html" target="_blank" rel="noopener">&rarr; RepaintBoundary</a>
       </div>
     </div>
+
+    <div class="info-card">
+      <div class="principle-title"><span class="num">&#9679;</span><h3>"과분할 금지"와 "관심사 분리 의무"는 충돌하지 않는다</h3></div>
+      <p class="desc"><strong>판정 순서가 다르다.</strong> 먼저 "관심사가 실제로 다른가"를 묻고, 다르면 분리한다(원칙 1). 같은데 길이만 길면 쪼개지 않는다.</p>
+      <p class="desc" style="margin-bottom:0">pass-through 래퍼 금지(원칙 9)는 <strong>후자에만 적용되며</strong>, 관심사가 다른 sub-widget 추출 의무를 취소하지 않는다.</p>
+    </div>
+
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>분리 강도를 프로젝트 규칙으로 올릴 때 사유를 같이 적어라</h3></div>
+      <p class="desc" style="margin-bottom:0">공식 근거는 <span class="strength s-should">SHOULD</span> 까지다. rebuild 빈도나 프로파일링 결과 없이 <span class="strength s-must">MUST</span> 로 쓰면, 나중에 그 규칙이 왜 있는지 아무도 재구성하지 못하고 <strong>규칙만 남는다.</strong></p>
+    </div>
+
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>상태 소유 위치를 안 고치고 하위만 쪼개면 격리가 없다</h3></div>
+      <p class="desc" style="margin-bottom:0"><code>setState</code> 는 subtree 전체를 rebuild 시킨다. 추출 전에 <strong>상태를 leaf 로 내릴 수 있는지 먼저 본다.</strong> 순서를 뒤집으면 파일만 늘고 프레임 비용은 그대로다.</p>
+    </div>
+
+    <div class="info-card">
+      <div class="principle-title"><span class="num">&#9679;</span><h3><code>const</code> 는 추출의 목적이 아니라 조건이다</h3></div>
+      <p class="desc" style="margin-bottom:0">클래스로 빼는 이유가 <code>const</code> 라면, <strong>실제로 <code>const</code> 로 생성되는지까지 확인해야</strong> 이득이 발생한다. 동적 인자를 받는 위젯은 <code>const</code> 가 되지 않으므로 그 경우 추출 근거를 rebuild 격리가 아닌 관심사 분리로 다시 세워야 한다.</p>
+    </div>
+
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>인용 금지 출처를 다시 끌어오지 마라</h3></div>
+      <p class="desc">이 규칙군의 원본 근거였던 비공개 문서는 <strong>공개 킷에서 인용할 수 없다.</strong> 위 원칙 3 · 4 의 공개 URL 이 대체 근거이며, 규칙 강도도 그 URL 의 문구 강도를 넘지 않는다.</p>
+      <p class="desc" style="margin-bottom:0"><strong>폐기 이력</strong> — 원본 규칙 세트의 "메서드 추출 vs 클래스 추출" 판단표(2026-04-17 제정)와 "헬퍼 이름이 명확하면 1단 헬퍼 허용" 조항은 2026-06-09 개정으로 폐기됐다. 본문은 이관하지 않는다. 이관 대상은 <strong>개정 후 위치(원칙 4 · 6 · 7)뿐</strong>이다.</p>
+    </div>
+
   </div>
 </div>
 
-<!-- ── Section 10 — 출처 ── -->
+<!-- ══ Section 8 — 출처 색인 ══ -->
 <div class="section">
-  <div class="section-label">출처 전체</div>
-  <div class="card">
-    <ul class="checklist">
-      <li><span class="check">&#8594;</span><span>Function Length (Fowler) — <a href="https://martinfowler.com/bliki/FunctionLength.html" target="_blank" rel="noopener">martinfowler.com/bliki/FunctionLength.html</a></span></li>
-      <li><span class="check">&#8594;</span><span>Code Smell (Fowler) — <a href="https://martinfowler.com/bliki/CodeSmell.html" target="_blank" rel="noopener">martinfowler.com/bliki/CodeSmell.html</a></span></li>
-      <li><span class="check">&#8594;</span><span>Yagni (Fowler) — <a href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">martinfowler.com/bliki/Yagni.html</a></span></li>
-      <li><span class="check">&#8594;</span><span>Extract Function / Inline Function / Inline Class (Fowler) — <a href="https://refactoring.com/catalog/extractMethod.html" target="_blank" rel="noopener">extractMethod</a> · <a href="https://refactoring.com/catalog/inlineFunction.html" target="_blank" rel="noopener">inlineFunction</a> · <a href="https://refactoring.com/catalog/inlineClass.html" target="_blank" rel="noopener">inlineClass</a></span></li>
-      <li><span class="check">&#8594;</span><span>aposd-vs-clean-code (Ousterhout · Martin 공개 토론) — <a href="https://github.com/johnousterhout/aposd-vs-clean-code" target="_blank" rel="noopener">github.com/johnousterhout/aposd-vs-clean-code</a></span></li>
-      <li><span class="check">&#8594;</span><span>Cognitive Complexity (SonarSource) — <a href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">sonarsource.com/resources/cognitive-complexity/</a></span></li>
-      <li><span class="check">&#8594;</span><span>Flutter performance best practices — <a href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">docs.flutter.dev/perf/best-practices</a></span></li>
-      <li><span class="check">&#8594;</span><span>Flutter architectural overview — <a href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">docs.flutter.dev/resources/architectural-overview</a></span></li>
-      <li><span class="check">&#8594;</span><span>Flutter for Xamarin.Forms developers — <a href="https://docs.flutter.dev/flutter-for/xamarin-forms-devs" target="_blank" rel="noopener">docs.flutter.dev/flutter-for/xamarin-forms-devs</a></span></li>
-      <li><span class="check">&#8594;</span><span>StatelessWidget / StatefulWidget / Builder / RepaintBoundary — <a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">StatelessWidget</a> · <a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html" target="_blank" rel="noopener">StatefulWidget</a> · <a href="https://api.flutter.dev/flutter/widgets/Builder-class.html" target="_blank" rel="noopener">Builder</a> · <a href="https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html" target="_blank" rel="noopener">RepaintBoundary</a></span></li>
-      <li><span class="check">&#8594;</span><span>Element.rebuild / Widget.canUpdate / State.setState — <a href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">Element.rebuild</a> · <a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html" target="_blank" rel="noopener">Widget.canUpdate</a> · <a href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">State.setState</a></span></li>
-      <li><span class="check">&#8594;</span><span>Tab / Positioned 생성자 · Dart constructors — <a href="https://api.flutter.dev/flutter/material/Tab/Tab.html" target="_blank" rel="noopener">Tab</a> · <a href="https://api.flutter.dev/flutter/widgets/Positioned/Positioned.html" target="_blank" rel="noopener">Positioned</a> · <a href="https://dart.dev/language/constructors" target="_blank" rel="noopener">dart.dev/language/constructors</a></span></li>
-      <li><span class="check">&#8594;</span><span>flutter/flutter#149932 (헬퍼 vs 위젯 trade-off 논의) — <a href="https://github.com/flutter/flutter/issues/149932" target="_blank" rel="noopener">github.com/flutter/flutter/issues/149932</a></span></li>
-      <li><span class="check">&#8594;</span><span>관측 컨벤션 (공개 1차 출처 없음) — 원칙 6(2026-04-17 제정, 위젯 리팩토링 세션 피드백), 원칙 7(Props 골격 보유 110 파일 실측, 2026-08-31 재측정), 수치 기준표의 컨벤션 표기 행</span></li>
-    </ul>
+  <div class="section-label">출처 색인 — 무엇을 어디까지 인용할 수 있나</div>
+  <p class="desc">아래가 이 문서가 인용하는 공개 1차 출처 전부다. 목록에 없는 URL 은 이 규칙군의 근거가 아니다.</p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <h3>리팩토링 · 설계 원칙 <span class="strength s-should">SHOULD</span></h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">&rarr;</span><span>Function Length — <a href="https://martinfowler.com/bliki/FunctionLength.html" target="_blank" rel="noopener">martinfowler.com/bliki/FunctionLength.html</a> <span class="tag tag-ok">원칙 1</span></span></li>
+        <li><span class="check">&rarr;</span><span>Code Smell — <a href="https://martinfowler.com/bliki/CodeSmell.html" target="_blank" rel="noopener">martinfowler.com/bliki/CodeSmell.html</a> <span class="tag tag-ok">원칙 1</span></span></li>
+        <li><span class="check">&rarr;</span><span>Inline Function — <a href="https://refactoring.com/catalog/inlineFunction.html" target="_blank" rel="noopener">refactoring.com/catalog/inlineFunction.html</a> <span class="tag tag-ok">원칙 2 · 6</span></span></li>
+        <li><span class="check">&rarr;</span><span>Extract Function — <a href="https://refactoring.com/catalog/extractMethod.html" target="_blank" rel="noopener">refactoring.com/catalog/extractMethod.html</a> <span class="tag tag-ok">원칙 2</span></span></li>
+        <li><span class="check">&rarr;</span><span>Inline Class — <a href="https://refactoring.com/catalog/inlineClass.html" target="_blank" rel="noopener">refactoring.com/catalog/inlineClass.html</a> <span class="tag tag-ok">원칙 9</span></span></li>
+        <li><span class="check">&rarr;</span><span>Yagni — <a href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">martinfowler.com/bliki/Yagni.html</a> <span class="tag tag-ok">원칙 8 · 9</span></span></li>
+        <li><span class="check">&rarr;</span><span>aposd-vs-clean-code — <a href="https://github.com/johnousterhout/aposd-vs-clean-code" target="_blank" rel="noopener">github.com/johnousterhout/aposd-vs-clean-code</a> <span class="tag tag-ok">원칙 2</span></span></li>
+        <li><span class="check">&rarr;</span><span>Cognitive Complexity — <a href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">sonarsource.com/resources/cognitive-complexity</a> <span class="tag tag-neutral">원칙 6 보조 근거</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Flutter · Dart 공식 문서 <span class="strength s-should">SHOULD</span></h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">&rarr;</span><span>performance best practices — <a href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">docs.flutter.dev/perf/best-practices</a> <span class="tag tag-ok">원칙 3 · 7</span></span></li>
+        <li><span class="check">&rarr;</span><span>architectural overview — <a href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">docs.flutter.dev/resources/architectural-overview</a> <span class="tag tag-ok">원칙 3</span></span></li>
+        <li><span class="check">&rarr;</span><span>StatefulWidget class — <a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/StatefulWidget-class.html</a> <span class="tag tag-ok">원칙 3</span></span></li>
+        <li><span class="check">&rarr;</span><span>StatelessWidget class — <a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/StatelessWidget-class.html</a> <span class="tag tag-ok">원칙 4</span></span></li>
+        <li><span class="check">&rarr;</span><span>Builder class — <a href="https://api.flutter.dev/flutter/widgets/Builder-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/Builder-class.html</a> <span class="tag tag-ok">원칙 4 반례</span></span></li>
+        <li><span class="check">&rarr;</span><span>Flutter for Xamarin.Forms — <a href="https://docs.flutter.dev/flutter-for/xamarin-forms-devs" target="_blank" rel="noopener">docs.flutter.dev/flutter-for/xamarin-forms-devs</a> <span class="tag tag-ok">원칙 4 반례</span></span></li>
+        <li><span class="check">&rarr;</span><span>flutter/flutter#149932 — <a href="https://github.com/flutter/flutter/issues/149932" target="_blank" rel="noopener">github.com/flutter/flutter/issues/149932</a> <span class="tag tag-ok">원칙 4 반례</span></span></li>
+        <li><span class="check">&rarr;</span><span>Element.rebuild — <a href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/Element/rebuild.html</a> <span class="tag tag-ok">원칙 5</span></span></li>
+        <li><span class="check">&rarr;</span><span>Widget.canUpdate — <a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/Widget/canUpdate.html</a> <span class="tag tag-ok">원칙 5 · 수치</span></span></li>
+        <li><span class="check">&rarr;</span><span>State.setState — <a href="https://api.flutter.dev/flutter/widgets/State/setState.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/State/setState.html</a> <span class="tag tag-ok">원칙 5 · 수치</span></span></li>
+        <li><span class="check">&rarr;</span><span>RepaintBoundary — <a href="https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/RepaintBoundary-class.html</a> <span class="tag tag-ok">Gotchas</span></span></li>
+        <li><span class="check">&rarr;</span><span>Tab constructor — <a href="https://api.flutter.dev/flutter/material/Tab/Tab.html" target="_blank" rel="noopener">api.flutter.dev/flutter/material/Tab/Tab.html</a> <span class="tag tag-ok">원칙 8</span></span></li>
+        <li><span class="check">&rarr;</span><span>Positioned constructor — <a href="https://api.flutter.dev/flutter/widgets/Positioned/Positioned.html" target="_blank" rel="noopener">api.flutter.dev/flutter/widgets/Positioned/Positioned.html</a> <span class="tag tag-ok">원칙 8</span></span></li>
+        <li><span class="check">&rarr;</span><span>Dart constructors — <a href="https://dart.dev/language/constructors" target="_blank" rel="noopener">dart.dev/language/constructors</a> <span class="tag tag-ok">원칙 8</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>공개 1차 출처 없음 <span class="strength s-observed">관측 컨벤션</span></h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check c-warn">!</span><span><strong>원칙 6 — 헬퍼 체인 허용 깊이 0단.</strong> 관측 프로젝트 규칙(2026-04-17 제정, 위젯 리팩토링 세션 피드백). 체인 깊이 임계값을 명시한 공개 1차 출처는 없다. <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>원칙 7 — 하위 위젯 별도 파일.</strong> 관측 프로젝트 실측(Props 골격 보유 110 파일 일관 적용, 2026-08-31 재측정). 공식 문서 지지 범위는 위젯 단위까지. <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>수치 6항</strong> — 인라인 유지 상한 · 분할 하한 트리거 · 헬퍼 체인 깊이 · 반복 임계 · 서브폴더 그룹화 · 실측 범위. <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check c-bad">&#10007;</span><span><strong>인용 금지</strong> — 원본 근거였던 비공개 문서. 공개 킷에서 인용 불가. <span class="tag tag-bad">주장 금지</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>적용 체크리스트</h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check c-ok">&#10003;</span><span>판정 근거를 <strong>"몇 번 항에서 멈췄는지"</strong>로 적었는가 — 줄 수를 근거로 쓰지 않았는가</span></li>
+        <li><span class="check c-ok">&#10003;</span><span>추출 전에 <strong>발생하지 않는 분기</strong>부터 제거했는가 (1단계)</span></li>
+        <li><span class="check c-ok">&#10003;</span><span>추출 전에 <strong>상태를 leaf 로 내릴 수 있는지</strong> 먼저 봤는가 (원칙 5)</span></li>
+        <li><span class="check c-ok">&#10003;</span><span>rebuild 격리를 노렸다면 <strong>실제로 <code>const</code> 로 생성되는지</strong>까지 확인했는가</span></li>
+        <li><span class="check c-ok">&#10003;</span><span>남은 것이 <strong>pass-through 래퍼</strong>가 아닌가 — 자기 규칙이 있는가 (원칙 9)</span></li>
+        <li><span class="check c-warn">!</span><span>강도를 MUST 로 올렸다면 <strong>승격 사유</strong>(프로파일링 결과 · rebuild 빈도 · 합의 일자)를 규칙 옆에 병기했는가</span></li>
+        <li><span class="check c-warn">!</span><span>파일 분리 근거를 <strong>탐색성</strong>으로 밝혔는가 — 성능 문서로 정당화하지 않았는가 (원칙 7)</span></li>
+      </ul>
+      <p class="caption" style="margin-top:16px">문서 버전 <code>0.1.0</code> · 최종 갱신 2026-09-02 · 원칙 9개(SHOULD 7 · 관측 컨벤션 2) · before/after 대비 쌍 16개</p>
+    </div>
+
   </div>
 </div>
 
-<footer>
-  <p>tone-kit · <code>docs/tone/extraction-thresholds.md</code> v0.1.0 (2026-08-28) 기반 시각 문서.</p>
-  <p>상위 원칙은 관심사 분리 하나다. 줄 수는 트리거이고, 관측 컨벤션은 공개 근거가 아니다.</p>
-</footer>
-
 </div>
+
 <script>
 // ===== THEME =====
 (function(){
   var saved = null;
-  try { saved = localStorage.getItem('dk-theme'); } catch(e) {}
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
   var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   applyTheme(saved || (prefersDark ? 'dark' : 'light'));
 })();
@@ -641,9 +1173,9 @@ function applyTheme(theme){
   document.documentElement.dataset.theme = theme;
   var icon = document.getElementById('theme-icon');
   var label = document.getElementById('theme-label');
-  if(icon) icon.innerHTML = theme === 'dark' ? '&#9728;' : '&#9789;';
-  if(label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
-  try { localStorage.setItem('dk-theme', theme); } catch(e) {}
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
 }
 
 function toggleTheme(){

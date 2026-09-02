@@ -1,703 +1,685 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Code Stylometry — tone-kit 포지셔닝과 인용 경계</title>
+<title>AI Code Stylometry — 포지셔닝과 인용 경계</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
     --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
     --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
     --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
-    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
-    --green-bg:rgba(74,222,128,0.06);--green-bd:rgba(74,222,128,0.2);
-    --red-bg:rgba(248,113,113,0.06);--red-bd:rgba(248,113,113,0.2);
-    --yellow-bg:rgba(251,191,36,0.06);--yellow-bd:rgba(251,191,36,0.25);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
   }
-  :root[data-theme="light"]{
-    --bg:#FAF8F5;--bg2:#F2EEE8;--surface:#FFFFFF;--surface2:#F3EFEA;--border:#DED6CC;
-    --text:#1F1B18;--text2:#4E453D;--text3:#7A6F64;
-    --green:#15803d;--red:#b91c1c;--yellow:#a16207;
-    --green-bg:rgba(21,128,61,0.07);--green-bd:rgba(21,128,61,0.22);
-    --red-bg:rgba(185,28,28,0.06);--red-bd:rgba(185,28,28,0.22);
-    --yellow-bg:rgba(161,98,7,0.07);--yellow-bd:rgba(161,98,7,0.25);
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#6b7280;
+    --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
+    --green:#15803d;--red:#b91c1c;--yellow:#a16207;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
   }
   html{font-size:16px;scroll-behavior:smooth}
   body{
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
     background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
     background-image:radial-gradient(ellipse at 20% 0%,rgba(217,70,239,0.06) 0%,transparent 50%),
                      radial-gradient(ellipse at 80% 100%,rgba(217,70,239,0.03) 0%,transparent 50%);
   }
   .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
 
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
-    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(24px,4vw,36px);max-width:780px;line-height:1.7}
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
-  h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
-  .section{margin-bottom:clamp(48px,6vw,80px)}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
   .section-label{
     font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
     color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
   }
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
-  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:840px;margin-bottom:24px}
-  .caption{color:var(--text3);font-size:12px;margin-top:12px}
-  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
-    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px;margin-bottom:4px}
-  .tag-warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-bd)}
-  .tag-bad{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
-  .tag-good{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:920px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:italic}
 
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — 소스 md 의 강도를 그대로 옮긴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(217,70,239,0.34)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
   .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
-  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
   .mono{font-family:var(--mono);font-size:12px}
 
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
-  tr:hover td{background:rgba(217,70,239,0.03)}
-  td code, p code, li code, span code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
-  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
-
-  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
-  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
-  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
-    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
-  .check-bad{border-color:var(--red)!important;color:var(--red)!important}
-  .check-warn{border-color:var(--yellow)!important;color:var(--yellow)!important}
-  .check-good{border-color:var(--green)!important;color:var(--green)!important}
-
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  @media(max-width:640px){.compare{grid-template-columns:1fr}}
-  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
-  .compare-bad{background:var(--red-bg);border:1px solid var(--red-bd)}
-  .compare-good{background:var(--green-bg);border:1px solid var(--green-bd)}
-  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
-  .compare-bad .compare-label{color:var(--red)}
-  .compare-good .compare-label{color:var(--green)}
-
-  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
     background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
-
-  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono);overflow-wrap:anywhere}
-  .card-source:hover{color:var(--accent2);text-decoration:underline}
-  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
-  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);margin-top:14px;
-    border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono);overflow-wrap:anywhere}
-  .source-badge .badge-chip{background:var(--surface2);border:1px solid var(--border);color:var(--text2);
-    padding:2px 8px;border-radius:4px;font-weight:700;flex-shrink:0}
-
-  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
   .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
     font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
 
-  .warn-card{background:var(--yellow-bg);border:1px solid var(--yellow-bd);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  /* 링크 없는 출처 — 실측 · 합성 · 확인 실패는 텍스트 배지로만 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);font-weight:700;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
   .warn-card h3{color:var(--yellow)}
-  .warn-card .num{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-bd)}
-  .bad-card{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
-  .bad-card h3{color:var(--red)}
-  .bad-card .num{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
-  .signal-card{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
-  .signal-card h3{color:var(--green)}
-  .signal-card .num{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
 
-  .callout{background:var(--accent-dim);border:1px solid rgba(217,70,239,0.28);border-left:4px solid var(--accent);
-    border-radius:var(--radius);padding:clamp(18px,3vw,30px);margin-bottom:clamp(32px,5vw,52px)}
-  .callout-kicker{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-  .callout p{font-size:clamp(15px,1.8vw,20px);line-height:1.6;font-weight:600;color:var(--text)}
-  .callout .callout-sub{font-size:clamp(13px,1.1vw,14px);font-weight:400;color:var(--text2);margin-top:12px;line-height:1.7}
+  /* ── before / after 코드 대비 — 이 페이지의 주인공 ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--surface);flex:1}
+  .compare-note{font-size:12px;color:var(--text3);line-height:1.6;margin-top:10px;overflow-wrap:anywhere}
+  .lang{font-family:var(--mono);font-size:10px;letter-spacing:0.6px;color:var(--text3);
+    border:1px solid var(--border);border-radius:4px;padding:1px 6px;text-transform:uppercase}
 
-  .spec-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px}
-  .spec-row:last-child{border-bottom:none}
-  .spec-key{color:var(--text3);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;min-width:90px}
-  .spec-val{color:var(--text2);text-align:right;font-family:var(--mono);font-size:12px}
+  /* ── 원칙 블록 ── */
+  .principle{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.6vw,28px);margin-bottom:20px;transition:border-color var(--transition)}
+  .principle:hover{border-color:rgba(217,70,239,0.25)}
+  .principle-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .principle-head h3{margin-bottom:0;flex:1 1 260px;min-width:0}
+  .principle .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;
+    margin-bottom:16px;line-height:1.65;overflow-wrap:anywhere}
 
-  .metric-bar{display:flex;flex-direction:column;gap:12px;margin-top:10px}
-  .metric-row{display:grid;grid-template-columns:minmax(min(100%,110px),1fr) 3fr minmax(min(100%,64px),auto);gap:12px;align-items:center;font-size:12px}
-  @media(max-width:560px){.metric-row{grid-template-columns:1fr;gap:4px}}
-  .metric-label{color:var(--text2);font-family:var(--mono)}
-  .metric-track{height:14px;background:var(--surface2);border-radius:7px;overflow:hidden;position:relative;border:1px solid var(--border)}
-  .metric-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-  .metric-fill.weak{background:linear-gradient(90deg,var(--red),var(--yellow))}
-  .metric-fill.strong{background:linear-gradient(90deg,var(--green),var(--accent2))}
-  .metric-val{color:var(--text);font-family:var(--mono);text-align:right;font-weight:700}
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  .tier{border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);border:1px solid var(--border);background:var(--surface);height:100%}
-  .tier-must{background:var(--red-bg);border-color:var(--red-bd)}
-  .tier-should{background:var(--yellow-bg);border-color:var(--yellow-bd)}
-  .tier-obs{background:var(--surface);border-color:var(--border)}
-  .tier-name{font-family:var(--mono);font-size:15px;font-weight:800;letter-spacing:1px;margin-bottom:8px}
-  .tier-must .tier-name{color:var(--red)}
-  .tier-should .tier-name{color:var(--yellow)}
-  .tier-obs .tier-name{color:var(--text2)}
-  .tier-body{font-size:13px;color:var(--text2);line-height:1.65}
-  .tier-mark{display:block;margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);
-    font-family:var(--mono);font-size:11.5px;color:var(--text3);overflow-wrap:anywhere}
+  /* ── 등급 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-arrow{display:flex;align-items:center;color:var(--text3);font-size:18px;font-weight:700;flex:0 0 auto}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+  .flow-step.rank-3{opacity:0.86}
 
-  .theme-toggle{position:fixed;top:14px;right:14px;z-index:20;display:inline-flex;align-items:center;gap:8px;
-    background:var(--surface);border:1px solid var(--border);color:var(--text2);border-radius:999px;
-    padding:7px 14px;font-size:12px;font-family:inherit;cursor:pointer;transition:border-color var(--transition),color var(--transition)}
-  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
-  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-  @media(max-width:520px){.theme-toggle{padding:7px 10px}.theme-toggle .tt-label{display:none}}
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
 
-  a{color:var(--accent)}
-  a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
 
-  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
-     내용을 자르지(overflow:hidden) 말고 스크롤/줄바꿈으로 해소한다. */
-  /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
-  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.metric-row>*{min-width:0}
-  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
-  .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
-  /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
-  pre{max-width:100%;overflow-x:auto}
-  pre code{white-space:pre}
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
-  /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
   th code,td code{overflow-wrap:normal}
-  .desc,.subtitle,.checklist li,.tier-body,.callout p{overflow-wrap:anywhere}
-  @media(max-width:600px){
-    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-arrow{display:none}
+    .flow-step{flex:1 1 100%}
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    *,*::before,*::after { transition:none !important; animation:none !important; }
-    html { scroll-behavior:auto }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
   }
 </style>
 </head>
 <body>
 
-<button class="theme-toggle" id="theme-toggle" type="button" onclick="toggleTheme()" aria-label="테마 전환">
-  <span id="theme-icon" aria-hidden="true">&#127761;</span><span class="tt-label" id="theme-label">다크 모드</span>
-</button>
+<nav class="nav">
+  <div class="nav-logo">tone-kit <span>/ ai code stylometry</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
 
 <div class="page">
 
-<h1>AI Code Stylometry — tone-kit 포지셔닝과 인용 경계</h1>
-<p class="subtitle">tone-kit 이 무엇을 목표로 삼고 무엇을 목표로 삼지 않는지 정의한다. 이 킷은 <strong>maintainability / style gate</strong> 이며, 규칙의 정당화 축은 가독성·변경 용이성·리뷰 비용이다. 코드 대상 탐지 문헌은 "왜 이 방향을 목표로 삼지 않는가"를 설명할 때만 인용한다. 소스: <code>docs/tone/ai-code-stylometry.md</code> v0.1.0 · 2026-08-28.</p>
+<h1>AI Code Stylometry — 포지셔닝과 인용 경계</h1>
+<p class="subtitle">이 킷이 <strong>무엇이 아닌지</strong>를 먼저 못박는 문서. 규칙의 목적은 "읽고 고치기 쉬운 코드"이고 "AI 티 지우기"가 아니다. 탐지 문헌은 <strong>하지 않을 것을 정의할 때만</strong> 인용된다. <span class="mono">v0.1.0 · 최종 갱신 2026-09-02</span></p>
 
-<!-- ── 포지셔닝 강조 블록 ── -->
-<div class="callout">
-  <div class="callout-kicker">Positioning — 이 문서의 결론</div>
-  <p>이 킷은 AI 탐지 회피 도구가 아니다. 코드 탐지 문헌은 표면적 humanizing 을 <code>Adversarial</code> 이라는 별도 위험군으로 분류한다.</p>
-  <p class="callout-sub">
-    "AI 티를 지운다"를 목표 문장으로 삼으면, 그 목표는 학계가 <strong>위험 행위로 분류한 범주</strong> 와 정확히 겹친다.
-    목표 문장은 "읽고 고치기 쉬운 코드"여야 하고, 스타일 신호 약화는 그 부산물이다.
-    SemEval-2026 Task 13 Subtask C 는 <code>Human-written</code> / <code>Machine-generated</code> / <code>Hybrid</code> / <code>Adversarial</code> 4-way 분류를 공식 채택한다 —
-    <code>Adversarial</code> 은 개선된 코드가 아니라 <em>독립 클래스</em>다.
-  </p>
+<!-- ══ 경고 배너 — 가장 먼저 읽혀야 하는 블록 ══ -->
+<div class="warn-banner">
+  <h2>&#9888;&#65039; 이 킷은 AI 탐지 회피 도구가 아니다</h2>
+  <p>탐지 회피를 목표로 삼으면 코드는 <strong>더 인위적이 된다.</strong> 이름에서 의미가 가장 먼저 사라지기 때문이다. 목표 문장 하나가 같은 한 줄의 결과를 갈라놓는다.</p>
+  <p>이 킷은 <strong>maintainability / style gate</strong> 다. 코드 대상 탐지 연구는 오히려 표면적 humanizing 을 <strong>독립 위험군</strong>으로 분류한다 — 즉 "AI 티를 지운다"를 목표로 삼는 순간 그 목표는 학계가 위험 행위로 분류한 범주와 정확히 겹친다.</p>
+  <p>모든 규칙에는 <span class="strength s-must">MUST</span> <span class="strength s-should">SHOULD</span> <span class="strength s-observed">관측 컨벤션</span> 중 하나의 강도가 붙는다. 판정 기준은 아래 <strong>규칙 강도 등급</strong> 절에 있다.</p>
 </div>
 
-<!-- ── Section 1 — 원칙 6개 ── -->
+<!-- ══ Section 1 — 이 문서가 잡는 것 ══ -->
 <div class="section">
-  <div class="section-label">원칙 — 인용 경계와 규칙 강도</div>
-  <p class="desc">6개 원칙. 앞의 네 개는 공개 1차 문헌으로 근거가 확인된 것이고, 5번은 근거 확인에 실패한 규칙을 어떻게 다룰지, 6번은 이 킷 전체를 관통하는 강도 체계를 정의한다. 각 카드 하단의 출처는 소스 문서의 <code>&gt; **출처:**</code> 줄을 그대로 옮긴 것이며, 확인 실패 항목은 링크 대신 텍스트 배지로 표시한다.</p>
+  <div class="section-label">이 문서가 잡는 것 — 3가지</div>
+  <p class="desc">규칙 목록이 아니라 <strong>규칙을 쓸 때의 전제</strong>를 잡는 문서다. 목적 · 근거 · 적용 범위 세 축이 흔들리면 아래 원칙들이 전부 오용된다.</p>
 
-  <div class="grid-2">
-
+  <div class="grid-3">
     <div class="card">
-      <div class="principle-title">
-        <span class="num">1</span>
-        <h3>코드 탐지 연구와 텍스트 탐지 연구를 섞어 인용하지 마라</h3>
-      </div>
-      <p class="desc" style="margin-bottom:12px">AI 생성물 탐지 문헌은 자연어 텍스트 대상과 소스 코드 대상이 갈라져 있고, 신호도 방법론도 다르다. 코딩 표준의 근거로는 <strong>코드 대상 연구만</strong> 인용할 수 있다.</p>
-      <p class="desc" style="margin-bottom:12px"><code>Droid</code> 는 AI 생성 코드 탐지 전용 리소스 suite 다. 단일 탐지기가 아니라 <code>DroidCollection</code>(데이터)과 <code>DroidDetect</code>(탐지기) 로 구성된다. 수집 대상에 완전 AI 생성물뿐 아니라 인간-AI 공동 작성 코드와 탐지 회피용으로 의도 제작된 adversarial 샘플이 포함된다.</p>
-      <div class="spec-row"><span class="spec-key">대상</span><span class="spec-val">source code</span></div>
-      <div class="spec-row"><span class="spec-key">구성</span><span class="spec-val">DroidCollection + DroidDetect</span></div>
-      <div class="spec-row"><span class="spec-key">venue</span><span class="spec-val">EMNLP 2025</span></div>
-      <div style="margin-top:10px">
-        <span class="tag">인용 가능</span><span class="tag">코드 대상</span>
-      </div>
-      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">→ Droid: A Resource Suite for AI-Generated Code Detection (EMNLP 2025)</a>
-      <a class="card-source" href="https://arxiv.org/abs/2507.10583" target="_blank" rel="noopener">→ arXiv:2507.10583</a>
+      <div class="principle-title"><span class="num">1</span><h3>목표 문장</h3></div>
+      <p class="desc" style="margin-bottom:0">규칙의 목적은 <strong>"읽고 고치기 쉬운 코드"</strong>다. "AI 티 지우기"가 아니다. 목표 문장이 바뀌면 같은 규칙이 정반대 결과를 낳는다.</p>
     </div>
-
     <div class="card">
-      <div class="principle-title">
-        <span class="num">2</span>
-        <h3>표면적 humanizing 은 개선이 아니라 별도 위험군이다</h3>
-      </div>
-      <p class="desc" style="margin-bottom:12px">기계 생성 코드를 사람이 쓴 것처럼 보이게 표면만 고치는 행위는 문헌에서 독립 클래스로 다뤄진다. Droid 는 이를 <code>adversarial samples</code> · <code>adversarially humanised</code> · <code>machine-humanised code</code> 로 부르고, prompt 기반 공격과 preference-tuning 기반 공격으로 나눈다.</p>
-      <p class="desc" style="margin-bottom:12px">SemEval-2026 Task 13 은 Subtask C 의 공식 4-way 분류에 <code>Adversarial</code> 을 별도 클래스로 둔다.</p>
-      <div class="spec-row"><span class="spec-key">분류</span><span class="spec-val">Human-written</span></div>
-      <div class="spec-row"><span class="spec-key">분류</span><span class="spec-val">Machine-generated</span></div>
-      <div class="spec-row"><span class="spec-key">분류</span><span class="spec-val">Hybrid</span></div>
-      <div class="spec-row"><span class="spec-key">분류</span><span class="spec-val">Adversarial ← 위험군</span></div>
-      <div style="margin-top:10px">
-        <span class="tag tag-bad">humanizing = 위험군</span><span class="tag">4-way</span>
-      </div>
-      <a class="card-source" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">→ SemEval-2026 Task 13 공식 task page</a>
-      <a class="card-source" href="https://semeval.github.io/SemEval2026/tasks.html" target="_blank" rel="noopener">→ SemEval-2026 task list</a>
-      <a class="card-source" href="https://aclanthology.org/2026.semeval-1.445/" target="_blank" rel="noopener">→ overview paper</a>
+      <div class="principle-title"><span class="num">2</span><h3>근거</h3></div>
+      <p class="desc" style="margin-bottom:0"><strong>코드 대상 연구만</strong> 각주로 쓴다. 근거가 없으면 규칙을 지우지 말고 <strong>강도를 내린다.</strong></p>
     </div>
-
     <div class="card">
-      <div class="principle-title">
-        <span class="num">3</span>
-        <h3>탐지기는 취약하지만 그 취약성은 규칙의 근거가 아니다</h3>
-      </div>
-      <p class="desc" style="margin-bottom:12px">Droid 실측에서 기존 baseline 탐지기는 adversarial 샘플에 약했다. GPT-Zero 의 adversarial recall 은 <strong>0.10</strong> 이다. 반대로 adversarial 샘플을 명시 학습한 <code>DroidDetectCLS-Base/Large</code> 는 <strong>0.92</strong> 를 보고한다.</p>
-      <p class="desc" style="margin-bottom:12px">이 수치가 말하는 것은 "탐지를 피할 수 있다"가 아니라 <strong>provenance 탐지 자체가 불안정한 기반</strong> 이라는 것이다. 불안정한 기반 위에 코딩 표준을 세우지 마라.</p>
-      <div class="metric-bar">
-        <div class="metric-row">
-          <span class="metric-label">GPT-Zero</span>
-          <div class="metric-track"><div class="metric-fill weak" style="width:10%"></div></div>
-          <span class="metric-val">0.10</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">DroidDetectCLS</span>
-          <div class="metric-track"><div class="metric-fill strong" style="width:92%"></div></div>
-          <span class="metric-val">0.92</span>
-        </div>
-      </div>
-      <p class="caption">adversarial recall. 같은 샘플군에 대해 9배 이상 벌어진다 — 탐지 결과는 탐지기 선택에 크게 좌우된다.</p>
-      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593.pdf" target="_blank" rel="noopener">→ Droid 논문 PDF (EMNLP 2025)</a>
+      <div class="principle-title"><span class="num">3</span><h3>적용 범위</h3></div>
+      <p class="desc" style="margin-bottom:0">스택에 묶이지 않는 부분과 스택별로 갈리는 부분을 <strong>규칙 안에서</strong> 분리한다. 코어와 어댑터 축이다.</p>
     </div>
-
-    <div class="card">
-      <div class="principle-title">
-        <span class="num">4</span>
-        <h3>스타일 신호는 언어를 가로질러 존재한다 — 그래서 규칙도 스택 무관 축을 가진다</h3>
-      </div>
-      <p class="desc" style="margin-bottom:12px">다국어 코드 스타일로메트리 연구는 단일 multilingual 모델로 10개 언어에서 accuracy <code>84.1% ± 3.8%</code>, F1 <code>84.0% ± 4.0%</code> 를 보고한다.</p>
-      <p class="desc" style="margin-bottom:12px">언어를 가로질러 신호가 잡힌다는 것은 스타일 규칙의 상당 부분이 특정 스택에 묶이지 않는다는 방증이다. 이 킷이 <strong>코어(스택 무관) / 어댑터(스택 특화)</strong> 축을 나누는 근거가 여기 있다.</p>
-      <div style="margin-top:4px;margin-bottom:12px">
-        <span class="tag">C++</span><span class="tag">C</span><span class="tag">C#</span><span class="tag">Go</span><span class="tag">Java</span><span class="tag">JavaScript</span><span class="tag">Kotlin</span><span class="tag">Python</span><span class="tag">Ruby</span><span class="tag">Rust</span>
-      </div>
-      <div class="metric-bar">
-        <div class="metric-row">
-          <span class="metric-label">accuracy</span>
-          <div class="metric-track"><div class="metric-fill" style="width:84.1%"></div></div>
-          <span class="metric-val">84.1%</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">F1</span>
-          <div class="metric-track"><div class="metric-fill" style="width:84%"></div></div>
-          <span class="metric-val">84.0%</span>
-        </div>
-      </div>
-      <p class="caption">인용 시 주의 — 이 논문의 OpenReview 항목(<code>forum?id=uO8ix6tnZl</code>)은 CoRR 프리프린트 성격이므로 <strong>venue 로 표기하면 부정확하다</strong>. 정식 표기는 SANER 2025 (2025-03, Montréal) 또는 arXiv 2412.14611 이다.</p>
-      <a class="card-source" href="https://arxiv.org/abs/2412.14611" target="_blank" rel="noopener">→ Is This You, LLM? Recognizing AI-written Programs with Multilingual Code Stylometry (SANER 2025)</a>
-    </div>
-
-    <div class="card">
-      <div class="principle-title">
-        <span class="num">5</span>
-        <h3>근거 없는 규칙은 "관측 컨벤션"으로 표기하라 — 논문 인용을 붙이지 마라</h3>
-      </div>
-      <p class="desc" style="margin-bottom:12px"><code>effective*</code> / <code>resolved*</code> 접두사가 LLM 생성 코드에 통계적으로 과대표집된다는 주장은 <strong>공개 1차 문헌에서 확인되지 않는다.</strong> 확인된 코드 탐지 문헌들은 identifier length, naming convention 같은 넓은 신호는 다루지만 특정 접두사 통계는 제시하지 않는다.</p>
-      <p class="desc" style="margin-bottom:12px">이런 규칙은 버리는 것이 아니라 <strong>강도를 낮춰 표기</strong> 한다. 프로젝트 코드베이스 실측을 "관측된 관례"로 쓰는 것은 정직하다. 논문 각주를 붙이는 순간 거짓이 된다.</p>
-      <div class="spec-row"><span class="spec-key">실측 범위</span><span class="spec-val">원본 코퍼스 57파일 스캔</span></div>
-      <div class="spec-row"><span class="spec-key">적중</span><span class="spec-val">effective* / resolved* 9건</span></div>
-      <div class="spec-row"><span class="spec-key">분포</span><span class="spec-val">4파일</span></div>
-      <div class="spec-row"><span class="spec-key">공개 통계</span><span class="spec-val">없음 (확인 실패)</span></div>
-      <div style="margin-top:10px">
-        <span class="tag tag-warn">관측 컨벤션</span><span class="tag tag-bad">논문 각주 금지</span>
-      </div>
-      <span class="source-badge"><span class="badge-chip">출처 확인 실패</span> Droid · SANER 2025 · SemEval-2026 Task 13 어디에도 해당 통계 없음 (2026-08 확인)</span>
-      <span class="source-badge"><span class="badge-chip">프로젝트 실측</span> 원본 코퍼스 57파일 스캔 — 9건 / 4파일</span>
-    </div>
-
-    <div class="card">
-      <div class="principle-title">
-        <span class="num">6</span>
-        <h3>규칙 강도는 출처 강도를 넘지 못한다</h3>
-      </div>
-      <p class="desc" style="margin-bottom:12px">이 킷의 모든 규칙은 <strong>MUST / SHOULD / 관측 컨벤션</strong> 세 등급 중 하나를 명시한다. 등급은 규칙의 중요도가 아니라 <em>근거의 강도</em>에서 나온다.</p>
-      <p class="desc" style="margin-bottom:12px">공식 문서가 <code>prefer</code> 라고 쓴 것을 킷이 <code>MUST</code> 로 승격하면, 그 승격분은 킷의 창작이지 근거가 아니다. 승격하려면 승격 사유를 프로젝트 컨텍스트로 따로 밝혀야 한다.</p>
-      <div class="spec-row"><span class="spec-key">MUST</span><span class="spec-val">공식 문서/표준이 금지·강제</span></div>
-      <div class="spec-row"><span class="spec-key">SHOULD</span><span class="spec-val">공식 문서가 prefer 수준 권고</span></div>
-      <div class="spec-row"><span class="spec-key">관측</span><span class="spec-val">공개 근거 없음 · 실측만</span></div>
-      <div style="margin-top:10px">
-        <span class="tag">강도 체계</span><span class="tag tag-warn">조용한 승격 금지</span>
-      </div>
-      <span class="source-badge"><span class="badge-chip">킷 내부 규약</span> 이 원칙은 외부 문헌 인용이 아니라 tone-kit 이 스스로에게 부과하는 표기 규칙이다</span>
-    </div>
-
   </div>
 </div>
 
-<!-- ── Section 2 — 규칙 강도 3등급 ── -->
+<!-- ══ Section 2 — 목표 문장 대비 ══ -->
 <div class="section">
-  <div class="section-label">규칙 강도 3등급 — 이 킷 전체를 관통하는 체계</div>
-  <p class="desc">모든 규칙 문장은 아래 세 등급 중 하나를 <strong>반드시</strong> 달고 있어야 한다. 등급이 없는 규칙은 미완성 규칙이다. 등급은 근거의 강도에서 파생되며, 근거를 넘어서는 등급은 붙일 수 없다.</p>
+  <div class="section-label">목표 문장이 결과를 가른다 — 같은 한 줄, 다른 결말</div>
+  <p class="desc">아래 두 블록은 같은 한 줄을 다룬다. 왼쪽은 목표가 "AI 티 지우기"일 때, 오른쪽은 "읽기 쉬운 이름"일 때다. 왼쪽에서는 접두사와 함께 <strong>의미도 지워졌다.</strong></p>
 
-  <div class="grid-3" style="margin-bottom:20px">
-    <div class="tier tier-must">
-      <div class="tier-name">MUST</div>
-      <p class="tier-body"><strong>조건</strong> — 공식 문서나 표준이 해당 행위를 명시적으로 금지하거나 강제한다. 언어 스펙, 공식 스타일 가이드의 <code>must</code> / <code>never</code> 문장이 이 등급의 유일한 재료다.</p>
-      <span class="tier-mark">표기 → 규칙 문장에 근거 URL 병기</span>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; before</span><span class="lang">dart</span><span class="tag tag-bad">의미 소실</span></div>
+      <pre><code>// before — 목표가 "AI 티 지우기"일 때
+final effectiveTextStyle = textStyle ?? {TokenClass}.bodyMedium; // AI 원본
+final ts2 = textStyle ?? {TokenClass}.bodyMedium;                // 접두사는 지웠지만 의미도 같이 지워졌다</code></pre>
+      <p class="compare-note">접두사 <code>effective</code> 는 사라졌지만 <code>ts2</code> 는 이 값이 어디 쓰이는지 <strong>아무것도 말하지 않는다.</strong> 탐지 신호는 줄었을지 몰라도 읽는 사람 비용은 올라갔다.</p>
     </div>
-    <div class="tier tier-should">
-      <div class="tier-name">SHOULD</div>
-      <p class="tier-body"><strong>조건</strong> — 공식 문서가 <code>prefer</code> 수준으로 권고한다. 강제가 아니라 선호다. 이 등급을 MUST 로 올리려면 프로젝트 컨텍스트에 근거한 승격 사유를 별도로 남겨야 한다.</p>
-      <span class="tier-mark">표기 → 근거 URL + "권고" 명시</span>
-    </div>
-    <div class="tier tier-obs">
-      <div class="tier-name">관측 컨벤션</div>
-      <p class="tier-body"><strong>조건</strong> — 공개 근거가 없고 프로젝트 실측만 존재한다. 규칙을 지우지 말고 이 등급으로 내려서 살린다. 논문 각주를 붙이면 그 순간 거짓 인용이 된다.</p>
-      <span class="tier-mark">표기 → "관측 컨벤션 (실측 N건)" 라벨 필수</span>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; after</span><span class="lang">dart</span><span class="tag tag-ok">역할이 남는다</span></div>
+      <pre><code>// after — 목표가 "읽기 쉬운 이름"일 때
+final labelStyle = textStyle ?? {TokenClass}.bodyMedium;         // 이 값이 어디 쓰이는지 이름이 말한다</code></pre>
+      <p class="compare-note">이름이 <strong>값의 정체</strong>를 말한다. 스타일 신호가 약해지는 것은 목표가 아니라 <strong>가독성 개선의 부산물</strong>이다.</p>
     </div>
   </div>
+
+  <div class="info-card" style="margin-top:20px">
+    <h3>포지셔닝 한 문장</h3>
+    <p class="desc" style="margin-bottom:0">이 킷은 <strong>maintainability / style gate</strong> 이며 AI 탐지 회피 도구가 아니다. 코드 대상 탐지 연구는 표면적 humanizing 을 <strong>독립 위험군</strong>으로 분류한다.</p>
+  </div>
+</div>
+
+<!-- ══ Section 3 — 원칙 5 ══ -->
+<div class="section">
+  <div class="section-label">원칙 — 5개, 소스 순서 그대로</div>
+  <p class="desc">각 카드의 배지가 그 규칙을 어디까지 밀어붙일 수 있는지를 말한다. <span class="strength s-must">MUST</span> 는 공식 문서·표준이 금지 또는 강제, <span class="strength s-should">SHOULD</span> 는 <code>prefer</code> 수준 권고, <span class="strength s-observed">관측 컨벤션</span> 은 공개 근거 없이 프로젝트 실측만 있는 규칙이다. <strong>강도는 여기서 임의로 올리지 않는다.</strong></p>
+
+  <!-- 원칙 1 -->
+  <article class="principle">
+    <div class="principle-head">
+      <span class="num">1</span>
+      <h3>코드 규칙의 각주는 코드 대상 연구만 가리켜라</h3>
+      <span class="strength s-must">MUST</span>
+    </div>
+    <p class="lead">자연어 텍스트 탐지 연구를 코딩 표준의 근거로 인용하지 마라.</p>
+
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="lang">rule</span><span class="tag tag-bad">범위 밖 인용</span></div>
+        <pre><code># before — 규칙은 코드인데 근거는 자연어 문장 탐지 연구다
+rule: identifier_length_max
+근거: 문장 단위 perplexity 로 생성문을 가려내는 텍스트 탐지 연구
+강도: MUST</code></pre>
+        <p class="compare-note">대상이 <strong>문장</strong>인 연구를 <strong>식별자</strong> 규칙의 근거로 끌어왔다. 근거가 성립하지 않는데 강도만 최고다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="lang">rule</span><span class="tag tag-ok">근거가 버티는 만큼</span></div>
+        <pre><code># after — 코드 대상 연구만 근거로, 강도는 그 근거가 버티는 만큼만
+rule: identifier_length_max
+근거: Droid (EMNLP 2025) — AI 생성 "코드" 탐지 suite. identifier length·naming convention 신호를 다룬다
+강도: SHOULD</code></pre>
+        <p class="compare-note">근거를 코드 대상 suite 로 바꾸고, 그 근거가 지지하는 만큼만 <strong>SHOULD</strong> 로 내렸다.</p>
+      </div>
+    </div>
+
+    <p class="desc" style="margin-top:18px;margin-bottom:0">AI 생성물 탐지 문헌은 <strong>자연어 텍스트 대상</strong>과 <strong>소스 코드 대상</strong>이 갈라져 있고 신호도 방법론도 다르다. <code>Droid</code> 는 단일 탐지기가 아니라 <code>DroidCollection</code>(데이터)과 <code>DroidDetect</code>(탐지기)로 구성된 <strong>코드 전용 리소스 suite</strong> 이며, 수집 대상에 완전 AI 생성물뿐 아니라 인간-AI 공동 작성 코드와 탐지 회피용으로 의도 제작된 adversarial 샘플이 포함된다. DetectGPT(ICML 2023)와 Binoculars(ICML 2024)는 <strong>자연어 텍스트</strong> 탐지기이므로 코드 스타일 규칙의 근거로 쓰면 범위를 벗어난 인용이 된다 — <strong>이 킷은 두 논문을 인용하지 않는다.</strong></p>
+
+    <div class="sources">
+      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">&rarr; Droid: A Resource Suite for AI-Generated Code Detection (EMNLP 2025)</a>
+      <a class="card-source" href="https://arxiv.org/abs/2507.10583" target="_blank" rel="noopener">&rarr; arXiv:2507.10583</a>
+    </div>
+  </article>
+
+  <!-- 원칙 2 -->
+  <article class="principle">
+    <div class="principle-head">
+      <span class="num">2</span>
+      <h3>표면적 humanizing 을 하지 마라 — 개선이 아니라 별도 위험군이다</h3>
+      <span class="strength s-must">MUST</span>
+    </div>
+    <p class="lead">이름을 흐리거나 잡음을 넣어 "사람이 쓴 것처럼" 만들지 마라. 고칠 것은 의미다.</p>
+
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="lang">dart</span><span class="tag tag-bad">adversarial humanizing</span></div>
+        <pre><code>// before — 탐지 회피 목적으로 이름을 흐리고 상수를 도로 인라인했다
+Widget build(BuildContext context) {
+  var c1 = color ?? {TokenClass}.primary;   // 색 계산
+  final pad = EdgeInsets.all(8);            // 토큰을 매직넘버로 되돌림
+  return {widget_prefix}Badge(color: c1, padding: pad);
+}</code></pre>
+        <p class="compare-note"><code>c1</code> · <code>pad</code> 로 이름을 흐렸고, 디자인 토큰을 <strong>매직넘버로 되돌렸다.</strong> 두 변경 다 유지보수성을 깎는다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="lang">dart</span><span class="tag tag-ok">의미 유지 · 토큰 유지</span></div>
+        <pre><code>// after — 접두사만 걷어내고 의미는 남긴다. 토큰은 토큰으로 유지
+Widget build(BuildContext context) {
+  final badgeColor = color ?? {TokenClass}.primary;
+  return {widget_prefix}Badge(
+    color: badgeColor,
+    padding: {TokenClass}.spacingSm,
+  );
+}</code></pre>
+        <p class="compare-note">이름은 <strong>역할</strong>을 말하고 토큰은 토큰으로 남았다. 걷어낸 것은 접두사뿐이다.</p>
+      </div>
+    </div>
+
+    <p class="desc" style="margin-top:18px;margin-bottom:14px">기계 생성 코드를 사람이 쓴 것처럼 <strong>표면만</strong> 고치는 행위는 문헌에서 <strong>독립 클래스</strong>로 다뤄진다. Droid 는 이를 <code>adversarial samples</code> · <code>adversarially humanised</code> · <code>machine-humanised code</code> 로 부르고 prompt 기반 공격과 preference-tuning 기반 공격으로 나눈다.</p>
+
+    <div class="flow">
+      <div class="flow-step rank-1"><span class="rank">Subtask C · class 1</span><span class="what">Human-written</span><span class="out">&rarr; 사람이 쓴 코드</span></div>
+      <div class="flow-arrow">&#8226;</div>
+      <div class="flow-step"><span class="rank">class 2</span><span class="what">Machine-generated</span><span class="out">&rarr; 기계 생성</span></div>
+      <div class="flow-arrow">&#8226;</div>
+      <div class="flow-step"><span class="rank">class 3</span><span class="what">Hybrid</span><span class="out">&rarr; 인간-AI 공동</span></div>
+      <div class="flow-arrow">&#8226;</div>
+      <div class="flow-step rank-3"><span class="rank">class 4 · 위험군</span><span class="what">Adversarial</span><span class="out">&rarr; 표면적 humanizing</span></div>
+    </div>
+
+    <p class="desc" style="margin-bottom:0">SemEval-2026 Task 13 은 Subtask C 의 공식 <strong>4-way 분류</strong>에 <code>Adversarial</code> 을 별도 클래스로 둔다. 즉 "AI 티를 지운다"를 목표 문장으로 삼으면 그 목표는 <strong>학계가 위험 행위로 분류한 범주와 정확히 겹치고</strong>, 스타일 신호 약화는 목표가 아니라 <strong>가독성 개선의 부산물</strong>이어야 한다.</p>
+
+    <div class="sources">
+      <a class="card-source" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">&rarr; SemEval-2026 Task 13 공식 task page</a>
+      <a class="card-source" href="https://semeval.github.io/SemEval2026/tasks.html" target="_blank" rel="noopener">&rarr; SemEval-2026 task list</a>
+      <a class="card-source" href="https://aclanthology.org/2026.semeval-1.445/" target="_blank" rel="noopener">&rarr; overview paper</a>
+    </div>
+  </article>
+
+  <!-- 원칙 3 -->
+  <article class="principle">
+    <div class="principle-head">
+      <span class="num">3</span>
+      <h3>탐지 정확도 수치를 규칙의 근거로 쓰지 마라</h3>
+      <span class="strength s-must">MUST</span>
+    </div>
+    <p class="lead">규칙은 가독성 · 변경 용이성 · 리뷰 비용으로 정당화한다. "탐지기가 못 잡으니까"는 근거가 아니다.</p>
+
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="lang">rule</span><span class="tag tag-bad">탐지 수치 오용</span></div>
+        <pre><code># before — 탐지기 성능을 규칙 정당화에 끌어다 썼다
+rule: no_effective_prefix
+근거: GPT-Zero adversarial recall 0.10 — 탐지기가 못 잡으므로 이 규칙이 옳다
+강도: MUST</code></pre>
+        <p class="compare-note">"탐지 가능성"과 "규칙 타당성"은 <strong>다른 명제</strong>다. 탐지기 성능이 바뀌면 규칙의 근거가 통째로 흔들린다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="lang">rule</span><span class="tag tag-ok">읽는 사람 비용</span></div>
+        <pre><code># after — 근거를 읽는 사람 비용으로 되돌렸다
+rule: no_effective_prefix
+근거: 지역 변수 이름은 값의 정체를 말해야 한다. `effective` 는 정체가 아니라 유래를 말한다
+강도: 관측 컨벤션 (실측 9건 / 4파일)</code></pre>
+        <p class="compare-note">근거가 <strong>읽는 사람 비용</strong>으로 돌아왔고, 출처가 실측뿐이므로 강도도 관측 컨벤션으로 내려갔다.</p>
+      </div>
+    </div>
+
+    <p class="desc" style="margin-top:18px;margin-bottom:14px">Droid 실측에서 기존 baseline 탐지기는 adversarial 샘플에 약했다. GPT-Zero 의 adversarial recall 은 <strong>0.10</strong> 이고, adversarial 샘플을 명시 학습한 <code>DroidDetectCLS-Base/Large</code> 는 <strong>0.92</strong> 를 보고한다.</p>
+
+    <div class="rule-box"><strong>이 수치가 말하는 것:</strong> "탐지를 피할 수 있다"가 아니라 <strong>provenance 탐지 자체가 불안정한 기반</strong>이라는 것이다. 불안정한 기반 위에 코딩 표준을 세우지 말고, 탐지 문헌은 <strong>"왜 이 방향을 목표로 삼지 않는가"</strong>를 설명할 때만 써라.</div>
+
+    <div class="sources">
+      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593.pdf" target="_blank" rel="noopener">&rarr; Droid 논문 PDF (EMNLP 2025)</a>
+    </div>
+  </article>
+
+  <!-- 원칙 4 -->
+  <article class="principle">
+    <div class="principle-head">
+      <span class="num">4</span>
+      <h3>규칙 본문은 스택 무관으로 쓰고, 스택 표현은 어댑터로 빼라</h3>
+      <span class="strength s-should">SHOULD</span>
+    </div>
+    <p class="lead">한 규칙 안에서 축(규칙을 쪼개는 기준선 — 코어는 스택 무관 본문, 어댑터는 스택별 표현)을 나눠라.</p>
+
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="lang">rule</span><span class="tag tag-bad">스택 결박</span></div>
+        <pre><code># before — 규칙 본문이 Dart 문법에 묶여 다른 스택에 재사용 불가
+rule: guard_clause_first
+본문: Dart 에서 if (value == null) return; 을 함수 첫 줄에 둔다</code></pre>
+        <p class="compare-note">본문이 <strong>Dart 문법 그 자체</strong>다. Rust · TypeScript 프로젝트로 옮기는 순간 규칙이 죽는다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="lang">rule</span><span class="tag tag-ok">코어 + 어댑터</span></div>
+        <pre><code># after — 코어(스택 무관 본문) + 어댑터 슬롯(스택별 표현만 채우는 자리)
+rule: guard_clause_first
+본문: 예외 경로를 먼저 끝내고 정상 경로를 가장 바깥 들여쓰기에 남긴다
+adapters:
+  dart: if (value == null) return;
+  rust: let Some(value) = value else { return; };</code></pre>
+        <p class="compare-note">본문은 <strong>의도</strong>만 말하고, 문법은 어댑터 슬롯이 채운다. 스택이 늘어도 본문은 그대로다.</p>
+      </div>
+    </div>
+
+    <p class="desc" style="margin-top:18px;margin-bottom:14px">다국어 코드 스타일로메트리 연구는 단일 multilingual 모델로 <strong>10개 언어</strong>에서 accuracy <code>84.1% ± 3.8%</code>, F1 <code>84.0% ± 4.0%</code> 를 보고한다. 대상 언어는 C++, C, C#, Go, Java, JavaScript, Kotlin, Python, Ruby, Rust 다. 언어를 가로질러 신호가 잡힌다는 것은 스타일 규칙의 상당 부분이 <strong>특정 스택에 묶이지 않는다</strong>는 방증이고, 이 킷이 코어 / 어댑터 축을 나누는 근거가 여기 있다.</p>
+
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>인용 시 주의 — venue 표기</h3></div>
+      <p class="desc" style="margin-bottom:0">이 논문의 OpenReview 항목(<code>openreview.net/forum?id=uO8ix6tnZl</code>)은 <strong>CoRR 프리프린트 성격</strong>이므로 venue 로 표기하면 부정확하다. 정식 표기는 <strong>SANER 2025 (2025-03, Montréal)</strong> 또는 <strong>arXiv 2412.14611</strong> 이다.</p>
+    </div>
+
+    <div class="sources">
+      <a class="card-source" href="https://arxiv.org/abs/2412.14611" target="_blank" rel="noopener">&rarr; Is This You, LLM? Recognizing AI-written Programs with Multilingual Code Stylometry (SANER 2025)</a>
+    </div>
+  </article>
+
+  <!-- 원칙 5 -->
+  <article class="principle">
+    <div class="principle-head">
+      <span class="num">5</span>
+      <h3>근거가 없으면 규칙을 지우지 말고 관측 컨벤션으로 강등하라</h3>
+      <span class="strength s-observed">관측 컨벤션 — 실측 9건 / 4파일</span>
+    </div>
+    <p class="lead">관측 컨벤션(공개 출처 없이 프로젝트 실측만 있는 규칙 — 준수 강도가 낮다는 뜻이 아니라 <strong>근거의 출처가 국지적</strong>이라는 뜻이다) 라벨을 붙이고 실측 건수를 적어라.</p>
+
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="lang">rule</span><span class="tag tag-bad">각주 위장</span></div>
+        <pre><code># before — 국지 실측에 논문 각주를 붙여 강도를 부풀렸다
+rule: avoid_effective_prefix
+근거: 코드 스타일로메트리 연구에서 LLM 이 `effective*` 접두사를 과대 사용
+강도: MUST</code></pre>
+        <p class="compare-note">그런 통계는 <strong>공개 문헌에 없다.</strong> 각주를 붙이는 순간 검증 불가능한 주장이 되고, 국지 실측을 논문 근거로 위장한 것이 된다.</p>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="lang">rule</span><span class="tag tag-ok">실측 그대로</span></div>
+        <pre><code># after — 출처는 실측 그대로, 강도는 실측이 버티는 만큼만
+rule: avoid_effective_prefix
+근거: 프로젝트 코퍼스 57파일 스캔 — `effective*` / `resolved*` 9건 / 4파일
+강도: 관측 컨벤션 (실측 9건)</code></pre>
+        <p class="compare-note">규칙은 <strong>살아남았고</strong> 근거는 정직해졌다. 지우는 것도 논문을 붙이는 것도 아닌 <strong>세 번째 선택지</strong>다.</p>
+      </div>
+    </div>
+
+    <p class="desc" style="margin-top:18px;margin-bottom:0"><code>effective*</code> / <code>resolved*</code> 접두사가 LLM 생성 코드에 통계적으로 과대표집된다는 주장은 <strong>공개 1차 문헌에서 확인되지 않는다.</strong> 확인된 코드 탐지 문헌들은 identifier length, naming convention 같은 <strong>넓은 신호</strong>는 다루지만 특정 접두사 통계는 제시하지 않는다. 프로젝트 실측은 유효한 국지 근거이고 그것을 "관측된 관례"로 쓰는 것은 정직하지만, <strong>같은 규칙에 논문 각주를 붙이는 순간 거짓이 된다.</strong></p>
+
+    <span class="source-badge">확인 실패 — Droid · SANER 2025 · SemEval-2026 Task 13 어디에도 해당 통계 없음 (2026-08 확인)</span>
+    <div class="sources">
+      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">&rarr; Droid (해당 통계 없음 · 확인용)</a>
+      <a class="card-source" href="https://arxiv.org/abs/2412.14611" target="_blank" rel="noopener">&rarr; SANER 2025 (해당 통계 없음 · 확인용)</a>
+      <a class="card-source" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">&rarr; SemEval-2026 Task 13 (해당 통계 없음 · 확인용)</a>
+    </div>
+  </article>
+</div>
+
+<!-- ══ Section 4 — 규칙 강도 등급 ══ -->
+<div class="section">
+  <div class="section-label">규칙 강도 등급 — 강도는 출처 강도를 넘지 못한다</div>
+  <p class="desc">공식 문서가 <code>prefer</code> 라고 쓴 것을 킷이 <code>MUST</code> 로 승격하면 <strong>그 승격분은 킷의 창작이지 근거가 아니다.</strong> 승격하려면 프로젝트 사유를 규칙 옆에 함께 적는다.</p>
+
+  <div class="compare" style="margin-bottom:22px">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; before</span><span class="lang">rule</span><span class="tag tag-bad">조용한 승격</span></div>
+      <pre><code># before — prefer 를 MUST 로 조용히 승격했다
+rule: prefer_const_constructor
+근거: 공식 스타일 가이드 — "prefer const constructors"
+강도: MUST</code></pre>
+      <p class="compare-note">출처는 <strong>권고</strong>인데 규칙은 <strong>강제</strong>다. 그 차이만큼이 근거 없는 창작이다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; after</span><span class="lang">rule</span><span class="tag tag-ok">승격 사유 명시</span></div>
+      <pre><code># after — 출처 강도대로 두거나, 승격 사유를 프로젝트 컨텍스트로 명시한다
+rule: prefer_const_constructor
+근거: 공식 스타일 가이드 — "prefer const constructors" (권고)
+강도: SHOULD
+승격 시: 강도를 MUST 로 올리려면 "이 레포는 위젯 리빌드 비용이 지배적" 같은
+        프로젝트 사유를 규칙 옆에 함께 적는다</code></pre>
+      <p class="compare-note">출처 강도를 그대로 두거나, 올릴 거면 <strong>왜 올렸는지</strong>가 규칙 옆에 남는다.</p>
+    </div>
+  </div>
+
+  <p class="desc">이 킷의 모든 규칙은 아래 세 등급 중 하나를 명시한다.</p>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>등급</th><th>조건</th><th>표기</th><th>승격 가능 여부</th></tr>
+        <tr><th>등급</th><th>조건</th><th>표기</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong style="color:var(--red)">MUST</strong></td>
-          <td>공식 문서/표준이 금지 또는 강제</td>
+          <td><span class="strength s-must">MUST</span></td>
+          <td>공식 문서/표준이 <strong>금지 또는 강제</strong></td>
           <td>규칙 문장에 근거 URL 병기</td>
-          <td>최상위 — 더 올릴 곳이 없다</td>
         </tr>
         <tr>
-          <td><strong style="color:var(--yellow)">SHOULD</strong></td>
-          <td>공식 문서가 <code>prefer</code> 수준으로 권고</td>
+          <td><span class="strength s-should">SHOULD</span></td>
+          <td>공식 문서가 <code>prefer</code> 수준으로 <strong>권고</strong></td>
           <td>근거 URL + "권고" 명시</td>
-          <td>MUST 승격 시 <strong>승격 사유를 프로젝트 컨텍스트로 별도 명시</strong></td>
         </tr>
         <tr>
-          <td><strong>관측 컨벤션</strong></td>
-          <td>공개 근거 없음, 프로젝트 실측만 존재</td>
+          <td><span class="strength s-observed">관측 컨벤션</span></td>
+          <td>공개 근거 없음, <strong>프로젝트 실측만</strong> 존재</td>
           <td>"관측 컨벤션 (실측 N건)" 라벨 필수</td>
-          <td>공개 1차 문헌이 새로 확인될 때만 SHOULD 이상으로 이동</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <p class="caption">출처: <code>docs/tone/ai-code-stylometry.md</code> §원칙 6 — 규칙 강도는 출처 강도를 넘지 못한다.</p>
+
+  <div class="rule-box" style="margin-top:14px"><strong>이 절 자체의 강도:</strong> <span class="strength s-must">MUST</span> — 등급 명시는 선택이 아니다. 등급이 없는 규칙은 강도가 무한대로 읽힌다.</div>
+  <span class="source-badge">외부 출처 없음 — 킷 내부 등급 규약 (2026-09-02)</span>
 </div>
 
-<!-- ── Section 3 — 수치 기준 ── -->
+<!-- ══ Section 5 — 수치 기준 ══ -->
 <div class="section">
-  <div class="section-label">수치 기준 — 인용 가능한 값 6건</div>
-  <p class="desc">이 킷이 인용할 수 있는 수치는 아래 6건이 전부다. 이 표에 없는 수치를 규칙 근거로 쓰지 마라. 마지막 행은 "값이 없음"이 확인된 항목이며, 이것도 하나의 결론이다.</p>
+  <div class="section-label">수치 기준 — 인용 가능한 값과 확인 실패</div>
+  <p class="desc">아래 값들은 <strong>인용할 때 그대로 쓸 수 있는 형태</strong>로 정리한 것이다. 마지막 행이 특히 중요하다 — <strong>"없음"도 조사 결과</strong>이고, 그것을 "없다"라고 적는 것이 이 문서의 규칙이다.</p>
 
-  <div class="table-wrap" style="margin-bottom:24px">
+  <div class="table-wrap">
     <table>
       <thead>
         <tr><th>항목</th><th>값</th><th>출처</th></tr>
       </thead>
       <tbody>
-        <tr><td>GPT-Zero adversarial recall</td><td><strong>0.10</strong></td><td>Droid (EMNLP 2025)</td></tr>
-        <tr><td>DroidDetectCLS-Base/Large adversarial recall</td><td><strong>0.92</strong></td><td>Droid (EMNLP 2025)</td></tr>
-        <tr><td>다국어 코드 스타일로메트리 정확도</td><td><strong>84.1% ± 3.8%</strong> (10개 언어)</td><td>SANER 2025</td></tr>
-        <tr><td>다국어 코드 스타일로메트리 F1</td><td><strong>84.0% ± 4.0%</strong></td><td>SANER 2025</td></tr>
-        <tr><td>SemEval-2026 Task 13 Subtask C 클래스 수</td><td><strong>4</strong> (Human / Machine / Hybrid / Adversarial)</td><td>공식 task page</td></tr>
-        <tr><td><code>effective*</code>/<code>resolved*</code> 접두사 공개 통계</td><td><strong>없음</strong> (확인 실패)</td><td>2026-08 조사</td></tr>
+        <tr><td>GPT-Zero adversarial recall</td><td class="num-cell">0.10</td><td>Droid (EMNLP 2025)</td></tr>
+        <tr><td>DroidDetectCLS-Base/Large adversarial recall</td><td class="num-cell">0.92</td><td>Droid (EMNLP 2025)</td></tr>
+        <tr><td>다국어 코드 스타일로메트리 정확도</td><td class="num-cell">84.1% &plusmn; 3.8% <span class="tag tag-neutral">10개 언어</span></td><td>SANER 2025</td></tr>
+        <tr><td>다국어 코드 스타일로메트리 F1</td><td class="num-cell">84.0% &plusmn; 4.0%</td><td>SANER 2025</td></tr>
+        <tr><td>SemEval-2026 Task 13 Subtask C 클래스 수</td><td class="num-cell">4 <span class="tag tag-neutral">Human / Machine / Hybrid / Adversarial</span></td><td>공식 task page</td></tr>
+        <tr style="background:rgba(251,191,36,0.06)"><td><strong><code>effective*</code>/<code>resolved*</code> 접두사 공개 통계</strong></td><td><span class="tag tag-warn">없음 (확인 실패)</span></td><td>2026-08 조사</td></tr>
       </tbody>
     </table>
   </div>
-
-  <div class="grid-2">
-    <div class="bad-card">
-      <div class="principle-title">
-        <span class="num">↓</span>
-        <h3>adversarial 에 무너지는 탐지기</h3>
-      </div>
-      <p class="desc" style="margin-bottom:14px">GPT-Zero 의 adversarial recall <strong>0.10</strong> — 10건 중 9건을 놓친다. 이것을 "회피 가능성"의 근거로 읽으면 안 된다. 읽어야 할 결론은 <em>탐지 결과가 도구 선택에 좌우된다</em> 는 것이다.</p>
-      <div class="metric-bar">
-        <div class="metric-row">
-          <span class="metric-label">recall</span>
-          <div class="metric-track"><div class="metric-fill weak" style="width:10%"></div></div>
-          <span class="metric-val">0.10</span>
-        </div>
-      </div>
-      <div style="margin-top:12px"><span class="tag tag-bad">불안정한 기반</span></div>
-      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593.pdf" target="_blank" rel="noopener">→ Droid 논문 PDF (EMNLP 2025)</a>
-    </div>
-
-    <div class="signal-card">
-      <div class="principle-title">
-        <span class="num">↑</span>
-        <h3>adversarial 을 학습한 탐지기</h3>
-      </div>
-      <p class="desc" style="margin-bottom:14px">adversarial 샘플을 명시 학습한 <code>DroidDetectCLS-Base/Large</code> 는 <strong>0.92</strong>. 즉 표면적 humanizing 은 "학습되면 무력화되는" 종류의 회피다. 지속 가능한 전략이 아니라는 뜻이다.</p>
-      <div class="metric-bar">
-        <div class="metric-row">
-          <span class="metric-label">recall</span>
-          <div class="metric-track"><div class="metric-fill strong" style="width:92%"></div></div>
-          <span class="metric-val">0.92</span>
-        </div>
-      </div>
-      <div style="margin-top:12px"><span class="tag tag-good">명시 학습 시 회복</span></div>
-      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593.pdf" target="_blank" rel="noopener">→ Droid 논문 PDF (EMNLP 2025)</a>
-    </div>
-  </div>
+  <p class="caption">0.10 &rarr; 0.92 의 간격은 "탐지를 피할 수 있다"가 아니라 <strong>provenance 탐지 기반의 불안정성</strong>을 말한다. 이 값을 규칙 정당화에 쓰지 마라 — 원칙 3.</p>
 </div>
 
-<!-- ── Section 4 — 제외된 인용 ── -->
+<!-- ══ Section 6 — 안티패턴 ══ -->
 <div class="section">
-  <div class="section-label">제외된 인용 — 이 킷이 인용하지 않는 문헌</div>
-  <p class="desc">아래 두 논문은 AI 생성물 탐지 문헌에서 자주 인용되지만, <strong>자연어 텍스트</strong> 탐지기다. 코드 스타일 규칙의 근거로 쓰면 대상 범위를 벗어난 인용이 된다. 이 킷은 두 논문을 인용하지 않는다. 소스 문서에 URL 이 없으므로 여기에도 링크를 붙이지 않는다.</p>
-
-  <div class="bad-card" style="margin-bottom:20px">
-    <div class="principle-title">
-      <span class="num">✗</span>
-      <h3>범위 밖 인용 — 코드 규칙의 근거가 될 수 없음</h3>
-    </div>
-    <div class="grid-2" style="margin-top:14px">
-      <div>
-        <h4>DetectGPT <span class="tag tag-bad" style="margin-left:6px">인용하지 않음</span></h4>
-        <ul class="checklist">
-          <li><span class="check check-bad">✗</span><span>발표: ICML 2023</span></li>
-          <li><span class="check check-bad">✗</span><span>대상: <strong>자연어 텍스트</strong></span></li>
-          <li><span class="check check-bad">✗</span><span>코드 스타일 규칙의 근거로 쓰면 범위를 벗어난 인용</span></li>
-          <li><span class="check check-bad">✗</span><span>소스 문서에 URL 없음 — 링크 창작 금지</span></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Binoculars <span class="tag tag-bad" style="margin-left:6px">인용하지 않음</span></h4>
-        <ul class="checklist">
-          <li><span class="check check-bad">✗</span><span>발표: ICML 2024</span></li>
-          <li><span class="check check-bad">✗</span><span>대상: <strong>자연어 텍스트</strong></span></li>
-          <li><span class="check check-bad">✗</span><span>코드 스타일 규칙의 근거로 쓰면 범위를 벗어난 인용</span></li>
-          <li><span class="check check-bad">✗</span><span>소스 문서에 URL 없음 — 링크 창작 금지</span></li>
-        </ul>
-      </div>
-    </div>
-    <span class="source-badge"><span class="badge-chip">인용 경계</span> 자연어 텍스트 탐지기 → 코드 스타일 규칙 근거로 사용 불가 (원칙 1)</span>
-  </div>
-
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">✗ 범위를 벗어난 인용</div>
-      <h3 style="color:var(--text);margin-bottom:10px">텍스트 탐지 문헌 → 코드 규칙</h3>
-      <ul class="checklist" style="gap:6px">
-        <li><span class="check check-bad">✗</span><span>DetectGPT(ICML 2023) — 자연어 텍스트 대상</span></li>
-        <li><span class="check check-bad">✗</span><span>Binoculars(ICML 2024) — 자연어 텍스트 대상</span></li>
-        <li><span class="check check-bad">✗</span><span>신호도 방법론도 코드 대상 연구와 다르다</span></li>
-        <li><span class="check check-bad">✗</span><span>인용해도 규칙의 정당화가 성립하지 않는다</span></li>
-      </ul>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">✓ 인용 가능한 축</div>
-      <h3 style="color:var(--text);margin-bottom:10px">코드 대상 문헌 + 유지보수 문헌</h3>
-      <ul class="checklist" style="gap:6px">
-        <li><span class="check check-good">✓</span><span>Droid (EMNLP 2025) — 코드 대상 리소스 suite</span></li>
-        <li><span class="check check-good">✓</span><span>SANER 2025 — 다국어 코드 스타일로메트리</span></li>
-        <li><span class="check check-good">✓</span><span>SemEval-2026 Task 13 — 코드 대상 공식 task</span></li>
-        <li><span class="check check-good">✓</span><span>규칙 근거 축은 가독성·유지보수 문헌 (Ousterhout, Fowler, Beck, 공식 스타일 가이드)</span></li>
-      </ul>
-    </div>
-  </div>
-  <p class="caption">탐지 문헌은 "하지 않을 것"을 정의할 때만 쓰인다. 규칙을 <em>정당화</em>하는 축은 언제나 가독성·변경 용이성·리뷰 비용이다.</p>
-</div>
-
-<!-- ── Section 5 — 안티패턴 ── -->
-<div class="section">
-  <div class="section-label">안티패턴 — 인용·표기에서 반복되는 6가지 오류</div>
-  <p class="desc">아래 6개는 이 킷의 문서·스킬·규칙을 쓸 때 실제로 반복되는 오류 패턴이다. 각 행의 "문제"는 왜 그 서술이 성립하지 않는지를 설명한다.</p>
+  <div class="section-label">안티패턴 — 6가지</div>
+  <p class="desc">여섯 항목 모두 <strong>인용 왜곡</strong> 계열이다. 규칙이 틀린 게 아니라 <strong>규칙의 근거를 왜곡</strong>하는 실수이고, 그래서 발견하기 어렵고 신뢰를 더 크게 깎는다.</p>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>안티패턴</th><th>문제</th></tr>
+        <tr><th>안티패턴</th><th>문제</th><th>관련 원칙</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="tag tag-bad">범위 밖 인용</span><br>DetectGPT·Binoculars 를 코드 스타일 규칙 근거로 인용</td>
-          <td>둘 다 자연어 텍스트 탐지기다. 대상 범위가 달라 근거가 성립하지 않는다</td>
+          <td>DetectGPT · Binoculars 를 코드 스타일 규칙 근거로 인용</td>
+          <td>둘 다 <strong>자연어 텍스트 탐지기</strong>다. 대상 범위가 달라 근거가 성립하지 않는다</td>
+          <td><span class="tag">원칙 1</span></td>
         </tr>
         <tr>
-          <td><span class="tag tag-bad">목적 오염</span><br>"AI 탐지를 피하기 위해"를 규칙의 목적으로 서술</td>
-          <td>문헌이 adversarial humanizing 을 별도 위험군으로 분류한다. 목적 문장 자체가 위험군과 겹친다</td>
+          <td>"AI 탐지를 피하기 위해"를 규칙의 목적으로 서술</td>
+          <td>문헌이 adversarial humanizing 을 <strong>별도 위험군</strong>으로 분류한다. 목적 문장 자체가 위험군과 겹친다</td>
+          <td><span class="tag">원칙 2</span></td>
         </tr>
         <tr>
-          <td><span class="tag tag-bad">venue 오표기</span><br>OpenReview forum 링크를 venue 로 표기</td>
-          <td>SANER 2025 논문의 OpenReview 항목은 CoRR 프리프린트다. venue 는 SANER 2025</td>
+          <td>OpenReview forum 링크를 venue 로 표기</td>
+          <td>SANER 2025 논문의 OpenReview 항목은 <strong>CoRR 프리프린트</strong>다. venue 는 SANER 2025</td>
+          <td><span class="tag">원칙 4</span></td>
         </tr>
         <tr>
-          <td><span class="tag tag-bad">거짓 각주</span><br>접두사·어휘 수준 규칙에 논문 각주 붙이기</td>
-          <td>해당 통계는 공개 문헌에 없다. 국지 실측을 논문 근거로 위장하는 것이 된다</td>
+          <td>접두사 · 어휘 수준 규칙에 논문 각주 붙이기</td>
+          <td>해당 통계는 <strong>공개 문헌에 없다.</strong> 국지 실측을 논문 근거로 위장하는 것이 된다</td>
+          <td><span class="tag">원칙 5</span></td>
         </tr>
         <tr>
-          <td><span class="tag tag-bad">조용한 승격</span><br>공식 문서 <code>prefer</code> 를 킷에서 <code>MUST</code> 로 조용히 승격</td>
-          <td>승격분이 근거 없이 규칙 강도로 둔갑한다. 승격은 사유를 밝혀야 한다</td>
+          <td>공식 문서 <code>prefer</code> 를 킷에서 <code>MUST</code> 로 조용히 승격</td>
+          <td>승격분이 근거 없이 규칙 강도로 둔갑한다. <strong>승격은 사유를 밝혀야 한다</strong></td>
+          <td><span class="tag">강도 등급</span></td>
         </tr>
         <tr>
-          <td><span class="tag tag-bad">명제 혼동</span><br>탐지 정확도 수치를 "그러므로 이 규칙이 옳다"의 근거로 사용</td>
-          <td>탐지 가능성과 규칙 타당성은 다른 명제다. 규칙은 유지보수성으로 정당화한다</td>
+          <td>탐지 정확도 수치를 "그러므로 이 규칙이 옳다"의 근거로 사용</td>
+          <td>탐지 가능성과 규칙 타당성은 <strong>다른 명제</strong>다. 규칙은 유지보수성으로 정당화한다</td>
+          <td><span class="tag">원칙 3</span></td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ── Section 6 — 목적 문장 비교 ── -->
+<!-- ══ Section 7 — Gotchas ══ -->
 <div class="section">
-  <div class="section-label">목적 문장 — 킷의 한 줄이 정당성 전체를 좌우한다</div>
-  <p class="desc">킷 description, README, 스킬 트리거 어휘는 모두 "목적 문장"이다. 여기에 탐지 회피가 들어가면 킷의 정당성이 통째로 뒤집힌다. 아래는 같은 규칙을 두 가지 목적 문장으로 서술했을 때의 대비다.</p>
+  <div class="section-label">Gotchas — 반복되는 실수 5가지</div>
+  <p class="desc">1번은 이 문서 전체의 존재 이유이고, 4번은 매번 <strong>지우고 싶어지는 유혹</strong>이며, 5번은 <strong>다른 문서로 새어나가는</strong> 실수다.</p>
 
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">✗ 위험군과 겹치는 목적 문장</div>
-      <h3 style="color:var(--text);margin-bottom:10px">"AI 티를 지운다"</h3>
-      <ul class="checklist" style="gap:6px">
-        <li><span class="check check-bad">✗</span><span>Droid 가 <code>adversarially humanised</code> 로 분류하는 행위와 목표가 일치한다</span></li>
-        <li><span class="check check-bad">✗</span><span>SemEval Subtask C 의 <code>Adversarial</code> 클래스와 정확히 겹친다</span></li>
-        <li><span class="check check-bad">✗</span><span>표면만 고치므로 유지보수성은 개선되지 않는다</span></li>
-        <li><span class="check check-bad">✗</span><span>탐지기가 adversarial 을 학습하면(0.92) 효과도 사라진다</span></li>
-      </ul>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">✓ 유지보수로 정당화되는 목적 문장</div>
-      <h3 style="color:var(--text);margin-bottom:10px">"읽고 고치기 쉬운 코드"</h3>
-      <ul class="checklist" style="gap:6px">
-        <li><span class="check check-good">✓</span><span>정당화 축이 가독성·변경 용이성·리뷰 비용이다</span></li>
-        <li><span class="check check-good">✓</span><span>탐지기 성능 변동과 무관하게 규칙이 유효하다</span></li>
-        <li><span class="check check-good">✓</span><span>스타일 신호 약화는 목표가 아니라 <strong>부산물</strong>이다</span></li>
-        <li><span class="check check-good">✓</span><span>maintainability / style gate 라는 킷의 정체성과 일치한다</span></li>
-      </ul>
-    </div>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <span class="check c-warn">1</span>
+        <span><strong>"AI 티 제거"는 마케팅 문구로도 쓰지 마라</strong> — 킷 description, README, 스킬 트리거 어휘 어디에도 탐지 회피를 목표로 읽히는 표현을 두지 않는다. Droid / SemEval 이 그 범주를 <strong>위험군으로 분류</strong>하기 때문에, 목적 문장 하나가 킷 전체의 정당성을 뒤집는다.</span>
+      </li>
+      <li>
+        <span class="check c-warn">2</span>
+        <span><strong>SemEval Task 13 언어 목록은 출처 간 불일치가 있다</strong> — 공식 README(training: C++/Python/Java, unseen: Go/PHP/C#/C/JS)와 overview paper Table 1(C, C#, C++, Go, Java, JavaScript, Python)이 <strong>PHP/C 표기에서 어긋난다.</strong> 언어를 열거해야 하면 <em>"multiple languages including …"</em> 형태로 완화하거나 공식 dataset label 파일로 재확인하라.</span>
+      </li>
+      <li>
+        <span class="check c-warn">3</span>
+        <span><strong>Droid 는 탐지기 이름이 아니라 suite 이름이다</strong> — <code>DroidCollection</code>(데이터) + <code>DroidDetect</code>(탐지기) 구성. <em>"Droid 탐지기가 …"</em>라고 쓰면 부정확하다.</span>
+      </li>
+      <li>
+        <span class="check c-warn">4</span>
+        <span><strong>"근거 없음"을 발견하면 규칙을 지우지 말고 등급을 내려라</strong> — 실측이 있는 규칙은 <strong>관측 컨벤션으로 살아남는다.</strong> 지우면 프로젝트가 실제로 지키던 관례가 사라지고, 논문을 붙이면 거짓이 된다. <strong>세 번째 선택지가 정답이다.</strong></span>
+      </li>
+      <li>
+        <span class="check c-warn">5</span>
+        <span><strong>탐지 문헌은 "하지 않을 것"을 정의할 때만 인용된다</strong> — 이 문서 외의 다른 리서치 문서에서 탐지 논문을 규칙 근거로 <strong>재인용하지 마라.</strong> 나머지 문서의 근거 축은 가독성 · 유지보수 문헌(Ousterhout, Fowler, Beck, 공식 스타일 가이드)이다.</span>
+      </li>
+    </ul>
   </div>
 </div>
 
-<!-- ── Section 7 — 코어 / 어댑터 축 ── -->
+<!-- ══ Section 8 — 출처 ══ -->
 <div class="section">
-  <div class="section-label">코어 / 어댑터 — 스택 무관 축의 근거</div>
-  <p class="desc">SANER 2025 가 10개 언어를 가로질러 84% 대 성능을 보고한다는 것은, 스타일 신호의 상당 부분이 언어에 묶이지 않는다는 방증이다. 이 킷이 규칙을 코어(스택 무관)와 어댑터(스택 특화)로 나누는 근거가 여기 있다.</p>
+  <div class="section-label">출처 — 인용 가능한 링크와 링크 없는 근거</div>
+  <p class="desc">왼쪽은 이 문서가 <strong>실제로 인용한 URL 전부</strong>다. 오른쪽은 <strong>링크가 없는 근거</strong> — 프로젝트 실측과 확인 실패 항목이며, 여기에 논문 URL 을 붙이는 순간 원칙 5 위반이 된다.</p>
 
   <div class="grid-2">
     <div class="card">
-      <div class="principle-title"><span class="num">C</span><h3>코어 — 스택 무관</h3></div>
-      <p class="desc" style="margin-bottom:12px">언어를 가로질러 관측되는 스타일 축. 다국어 모델이 단일 모델로 10개 언어를 동시에 다룰 수 있었다는 실측이 이 층의 존재를 지지한다.</p>
-      <div class="spec-row"><span class="spec-key">근거</span><span class="spec-val">SANER 2025 · 10개 언어</span></div>
-      <div class="spec-row"><span class="spec-key">정확도</span><span class="spec-val">84.1% ± 3.8%</span></div>
-      <div class="spec-row"><span class="spec-key">F1</span><span class="spec-val">84.0% ± 4.0%</span></div>
-      <a class="card-source" href="https://arxiv.org/abs/2412.14611" target="_blank" rel="noopener">→ SANER 2025 (arXiv:2412.14611)</a>
+      <h3>인용 가능한 1차 출처</h3>
+      <div class="sources" style="border-top:none;padding-top:6px">
+        <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">&rarr; Droid: A Resource Suite for AI-Generated Code Detection (EMNLP 2025)</a>
+        <a class="card-source" href="https://arxiv.org/abs/2507.10583" target="_blank" rel="noopener">&rarr; arXiv:2507.10583 — Droid 프리프린트</a>
+        <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593.pdf" target="_blank" rel="noopener">&rarr; Droid 논문 PDF — recall 수치 출처</a>
+        <a class="card-source" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">&rarr; SemEval-2026 Task 13 공식 task page</a>
+        <a class="card-source" href="https://semeval.github.io/SemEval2026/tasks.html" target="_blank" rel="noopener">&rarr; SemEval-2026 task list</a>
+        <a class="card-source" href="https://aclanthology.org/2026.semeval-1.445/" target="_blank" rel="noopener">&rarr; SemEval-2026 Task 13 overview paper</a>
+        <a class="card-source" href="https://arxiv.org/abs/2412.14611" target="_blank" rel="noopener">&rarr; Is This You, LLM? Multilingual Code Stylometry (SANER 2025)</a>
+      </div>
+      <p class="caption">venue 표기는 <strong>SANER 2025 (2025-03, Montréal)</strong> 또는 <strong>arXiv 2412.14611</strong>. OpenReview 항목은 CoRR 프리프린트이므로 venue 로 쓰지 마라.</p>
     </div>
 
     <div class="card">
-      <div class="principle-title"><span class="num">A</span><h3>어댑터 — 스택 특화</h3></div>
-      <p class="desc" style="margin-bottom:12px">언어별 공식 스타일 가이드·표준이 규정하는 축. 이 층의 규칙만이 <code>MUST</code> 등급을 받을 수 있다 — 공식 문서가 금지·강제하는 문장이 존재하기 때문이다.</p>
-      <div class="spec-row"><span class="spec-key">대상 언어</span><span class="spec-val">C++ · C · C# · Go · Java</span></div>
-      <div class="spec-row"><span class="spec-key">대상 언어</span><span class="spec-val">JavaScript · Kotlin · Python</span></div>
-      <div class="spec-row"><span class="spec-key">대상 언어</span><span class="spec-val">Ruby · Rust</span></div>
-      <span class="source-badge"><span class="badge-chip">언어 목록 출처</span> SANER 2025 실험 대상 10개 언어 — 어댑터 우선순위의 참고값이지 킷의 지원 범위 선언이 아니다</span>
+      <h3>링크 없는 근거 — 실측 · 확인 실패</h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check c-warn">!</span><span><strong>프로젝트 실측</strong> — <code>effective*</code> / <code>resolved*</code> 접두사 <strong>9건 / 4파일</strong> (코퍼스 57파일 스캔). 원칙 5의 유일한 근거다. <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check c-bad">&#10007;</span><span><strong>확인 실패</strong> — 접두사의 LLM 과대표집 공개 통계는 Droid · SANER 2025 · SemEval-2026 Task 13 <strong>어디에도 없다</strong> (2026-08 확인). <span class="tag tag-neutral">근거 없음 · 주장 금지</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>인용 금지 목록</strong> — DetectGPT(ICML 2023) · Binoculars(ICML 2024)는 자연어 텍스트 탐지기다. <strong>이 킷은 두 논문을 인용하지 않는다.</strong> <span class="tag tag-neutral">범위 밖</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>등급 규약</strong> — MUST / SHOULD / 관측 컨벤션 세 등급은 킷 내부 규약이며 외부 표준이 아니다. <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check">&rarr;</span><span><strong>연관 문서</strong> — <code>naming-taxonomy</code> 원칙 7 (fallback 접두사 규칙의 적용면), <code>project-detection</code> (prefix/suffix 감지 규칙 소유)</span></li>
+      </ul>
+      <p class="caption" style="margin-top:16px">문서 버전 <code>0.1.0</code> · 최종 갱신 2026-09-02 · 원칙 5개 · before/after 코드 쌍 7개 · 인용 URL 7건 (창작 URL 0건)</p>
     </div>
-  </div>
-</div>
-
-<!-- ── Section 8 — Gotchas ── -->
-<div class="section">
-  <div class="section-label">Gotchas — 이 문서를 쓸 때 반복되는 5가지 실수</div>
-  <p class="desc">문서·스킬·README 를 작성할 때 매번 확인해야 하는 5개 항목. 특히 첫 번째 항목은 목적 문장 하나로 킷 전체의 정당성이 뒤집히는 사안이다.</p>
-
-  <div class="card" style="margin-bottom:20px">
-    <ul class="checklist">
-      <li>
-        <span class="check check-bad">!</span>
-        <span><strong>"AI 티 제거"는 마케팅 문구로도 쓰지 마라</strong> — 킷 description, README, 스킬 트리거 어휘 어디에도 탐지 회피를 목표로 읽히는 표현을 두지 않는다. Droid/SemEval 이 그 범주를 위험군으로 분류하기 때문에, 목적 문장 하나가 킷 전체의 정당성을 뒤집는다.</span>
-      </li>
-      <li>
-        <span class="check check-warn">!</span>
-        <span><strong>SemEval Task 13 언어 목록은 출처 간 불일치가 있다</strong> — 공식 README(training: C++/Python/Java, unseen: Go/PHP/C#/C/JS)와 overview paper Table 1(C, C#, C++, Go, Java, JavaScript, Python)이 PHP/C 표기에서 어긋난다. 언어를 열거해야 하면 "multiple languages including …" 형태로 완화하거나 공식 dataset label 파일로 재확인하라.</span>
-      </li>
-      <li>
-        <span class="check check-warn">!</span>
-        <span><strong>Droid 는 탐지기 이름이 아니라 suite 이름이다</strong> — <code>DroidCollection</code>(데이터) + <code>DroidDetect</code>(탐지기) 구성. "Droid 탐지기가 …"라고 쓰면 부정확하다.</span>
-      </li>
-      <li>
-        <span class="check">!</span>
-        <span><strong>"근거 없음"을 발견하면 규칙을 지우지 말고 등급을 내려라</strong> — 실측이 있는 규칙은 관측 컨벤션으로 살아남는다. 지우면 프로젝트가 실제로 지키던 관례가 사라지고, 논문을 붙이면 거짓이 된다. 세 번째 선택지가 정답이다.</span>
-      </li>
-      <li>
-        <span class="check">!</span>
-        <span><strong>탐지 문헌은 "하지 않을 것"을 정의할 때만 인용된다</strong> — 이 문서 외의 다른 리서치 문서에서 탐지 논문을 규칙 근거로 재인용하지 마라. 나머지 문서의 근거 축은 가독성·유지보수 문헌(Ousterhout, Fowler, Beck, 공식 스타일 가이드)이다.</span>
-      </li>
-    </ul>
-  </div>
-
-  <div class="warn-card">
-    <div class="principle-title">
-      <span class="num">!</span>
-      <h3>언어 목록 불일치 — 표기 안전판</h3>
-    </div>
-    <p class="desc" style="margin-bottom:14px">SemEval-2026 Task 13 의 언어 구성은 출처에 따라 다르게 서술된다. 열거가 꼭 필요하지 않다면 열거하지 말고, 필요하면 완화 표현을 쓰거나 공식 dataset label 파일로 재확인하라.</p>
-    <div class="table-wrap" style="background:transparent">
-      <table>
-        <thead>
-          <tr><th>출처</th><th>서술</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>공식 README</td><td>training: C++ / Python / Java · unseen: Go / PHP / C# / C / JS</td></tr>
-          <tr><td>overview paper Table 1</td><td>C, C#, C++, Go, Java, JavaScript, Python</td></tr>
-          <tr><td><strong>불일치 지점</strong></td><td><strong>PHP / C 표기</strong> — 두 출처가 어긋난다</td></tr>
-          <tr><td><strong>안전한 표기</strong></td><td>"multiple languages including …" 로 완화하거나 공식 dataset label 파일로 재확인</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <a class="card-source" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">→ SemEval-2026 Task 13 공식 task page (README)</a>
-    <a class="card-source" href="https://aclanthology.org/2026.semeval-1.445/" target="_blank" rel="noopener">→ overview paper (Table 1)</a>
-  </div>
-</div>
-
-<!-- ── Section 9 — 용어 정리 ── -->
-<div class="section">
-  <div class="section-label">용어 — 잘못 쓰기 쉬운 이름</div>
-  <p class="desc">문헌의 고유명사를 부정확하게 쓰면 인용 전체의 신뢰가 떨어진다. 아래 매핑을 따른다.</p>
-
-  <div class="grid-3">
-    <div class="card">
-      <h3 style="margin-bottom:10px">Droid</h3>
-      <p class="desc" style="margin-bottom:8px"><strong>suite 이름</strong>. 탐지기 이름이 아니다.</p>
-      <div class="spec-row"><span class="spec-key">데이터</span><span class="spec-val">DroidCollection</span></div>
-      <div class="spec-row"><span class="spec-key">탐지기</span><span class="spec-val">DroidDetect</span></div>
-      <div class="spec-row"><span class="spec-key">지표 대상</span><span class="spec-val">DroidDetectCLS-Base/Large</span></div>
-      <a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">→ Droid (EMNLP 2025)</a>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-bottom:10px">SANER 2025 논문</h3>
-      <p class="desc" style="margin-bottom:8px">OpenReview 항목은 <strong>CoRR 프리프린트</strong>다. venue 로 쓰지 마라.</p>
-      <div class="spec-row"><span class="spec-key">정식 venue</span><span class="spec-val">SANER 2025 (2025-03, Montréal)</span></div>
-      <div class="spec-row"><span class="spec-key">대안 표기</span><span class="spec-val">arXiv 2412.14611</span></div>
-      <div class="spec-row"><span class="spec-key">쓰지 말 것</span><span class="spec-val">forum?id=uO8ix6tnZl</span></div>
-      <a class="card-source" href="https://arxiv.org/abs/2412.14611" target="_blank" rel="noopener">→ arXiv:2412.14611 (SANER 2025)</a>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-bottom:10px">Adversarial</h3>
-      <p class="desc" style="margin-bottom:8px">개선 결과가 아니라 <strong>독립 위험 클래스</strong>다.</p>
-      <div class="spec-row"><span class="spec-key">Droid 표현</span><span class="spec-val">adversarially humanised</span></div>
-      <div class="spec-row"><span class="spec-key">Droid 표현</span><span class="spec-val">machine-humanised code</span></div>
-      <div class="spec-row"><span class="spec-key">공격 분류</span><span class="spec-val">prompt · preference-tuning</span></div>
-      <a class="card-source" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">→ SemEval-2026 Task 13 (Subtask C)</a>
-    </div>
-  </div>
-</div>
-
-<!-- ── Section 10 — 출처 ── -->
-<div class="section">
-  <div class="section-label">출처</div>
-  <p class="desc">이 페이지의 모든 링크는 소스 문서 <code>docs/tone/ai-code-stylometry.md</code> 의 <code>&gt; **출처:**</code> 줄에 있는 URL 을 그대로 옮긴 것이다. 소스에 URL 이 없는 항목(DetectGPT, Binoculars, 프로젝트 실측, 확인 실패)은 링크 대신 텍스트 배지로 표기한다.</p>
-  <div class="card">
-    <ul class="checklist">
-      <li><span class="check">→</span><span>Droid: A Resource Suite for AI-Generated Code Detection (EMNLP 2025) — <a href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">aclanthology.org/2025.emnlp-main.1593/</a></span></li>
-      <li><span class="check">→</span><span>Droid 논문 PDF — <a href="https://aclanthology.org/2025.emnlp-main.1593.pdf" target="_blank" rel="noopener">aclanthology.org/2025.emnlp-main.1593.pdf</a></span></li>
-      <li><span class="check">→</span><span>Droid arXiv 프리프린트 — <a href="https://arxiv.org/abs/2507.10583" target="_blank" rel="noopener">arxiv.org/abs/2507.10583</a></span></li>
-      <li><span class="check">→</span><span>Is This You, LLM? Recognizing AI-written Programs with Multilingual Code Stylometry (SANER 2025) — <a href="https://arxiv.org/abs/2412.14611" target="_blank" rel="noopener">arxiv.org/abs/2412.14611</a></span></li>
-      <li><span class="check">→</span><span>SemEval-2026 Task 13 공식 task page — <a href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">github.com/mbzuai-nlp/SemEval-2026-Task13</a></span></li>
-      <li><span class="check">→</span><span>SemEval-2026 task list — <a href="https://semeval.github.io/SemEval2026/tasks.html" target="_blank" rel="noopener">semeval.github.io/SemEval2026/tasks.html</a></span></li>
-      <li><span class="check">→</span><span>SemEval-2026 Task 13 overview paper — <a href="https://aclanthology.org/2026.semeval-1.445/" target="_blank" rel="noopener">aclanthology.org/2026.semeval-1.445/</a></span></li>
-      <li><span class="check check-warn">!</span><span><strong>확인 실패</strong> — <code>effective*</code>/<code>resolved*</code> 접두사 통계는 Droid · SANER 2025 · SemEval-2026 Task 13 어디에도 없음 (2026-08 확인)</span></li>
-      <li><span class="check check-warn">!</span><span><strong>프로젝트 실측</strong> — 원본 코퍼스 57파일 스캔에서 <code>effective*</code>/<code>resolved*</code> 9건 / 4파일</span></li>
-      <li><span class="check check-bad">✗</span><span><strong>인용하지 않음</strong> — DetectGPT (ICML 2023) · Binoculars (ICML 2024). 자연어 텍스트 탐지기이며 소스 문서에 URL 이 없다</span></li>
-    </ul>
   </div>
 </div>
 
@@ -708,8 +690,8 @@
 (function(){
   var saved = null;
   try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
-  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-  applyTheme(saved || (prefersLight ? 'light' : 'dark'));
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
 })();
 
 function applyTheme(theme){
@@ -718,7 +700,7 @@ function applyTheme(theme){
   var label = document.getElementById('theme-label');
   if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
   if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
-  try { localStorage.setItem('dk-theme', theme); } catch (e) { /* storage 차단 환경 무시 */ }
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
 }
 
 function toggleTheme(){
