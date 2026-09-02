@@ -10,18 +10,17 @@
     --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
     --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
     --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
-    --accent-ink:#D946EF;
-    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
-    --green-ink:#4ade80;--red-ink:#f87171;--yellow-ink:#fbbf24;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
   }
   [data-theme="light"]{
-    --bg:#f6f4f9;--bg2:#eeeaf3;--surface:#ffffff;--surface2:#f2eef7;--border:#ded5e8;
-    --text:#1b1425;--text2:#5c5470;--text3:#7d7490;
-    --accent-dim:rgba(217,70,239,0.10);
-    --accent-ink:#9D26B0;
-    --green-ink:#15803d;--red-ink:#b91c1c;--yellow-ink:#a16207;
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#6b7280;
+    --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
+    --green:#15803d;--red:#b91c1c;--yellow:#a16207;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
   }
   html{font-size:16px;scroll-behavior:smooth}
   body{
@@ -39,189 +38,215 @@
     position:sticky;top:0;z-index:100;
     display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
     padding:12px clamp(16px,4vw,48px);
-    background:var(--bg2);border-bottom:1px solid var(--border);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
   }
   .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
-  .nav-logo span{color:var(--accent-ink)}
+  .nav-logo span{color:var(--accent2)}
   .theme-toggle{
-    display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
     background:var(--surface2);border:1px solid var(--border);cursor:pointer;
-    font-size:12px;font-weight:600;color:var(--text2);font-family:inherit;
-    transition:border-color var(--transition),color var(--transition);white-space:nowrap;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
   }
-  .theme-toggle:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
   .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+  /* ── TYPO ── */
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:820px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
   h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
-  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
   .section-label{
     font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
-    color:var(--accent-ink);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
   }
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
-  .section-label.green{color:var(--green-ink)}
-  .section-label.green::after{background:linear-gradient(90deg,var(--green) 0%,transparent 80%)}
-  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:820px;margin-bottom:24px}
-  .caption{color:var(--text3);font-size:12px;margin-top:12px}
-  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent-ink);font-size:11px;font-weight:700;
-    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;margin-right:6px;margin-bottom:4px}
-  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow-ink)}
-  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red-ink)}
-  .tag-good{background:rgba(74,222,128,0.14);color:var(--green-ink)}
+  .section-label.keep{color:var(--green)}
+  .section-label.keep::after{background:linear-gradient(90deg,var(--green) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:920px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
   .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
 
+  /* 강도 배지 — 소스의 강도를 그대로 옮긴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.42)}
+  .s-should{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.34)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.32)}
+  .s-keep{background:rgba(74,222,128,0.16);color:var(--green);border:1px solid rgba(74,222,128,0.44)}
+
+  /* 처리 유형 배지 — 삭제 / 개명 / 흡수 / 보존 / 재구성 */
+  .op{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+    font-family:var(--mono);white-space:nowrap}
+  .op-del{background:rgba(248,113,113,0.13);color:var(--red)}
+  .op-rename{background:rgba(251,191,36,0.13);color:var(--yellow)}
+  .op-absorb{background:rgba(129,140,248,0.13);color:var(--blue)}
+  .op-keep{background:rgba(74,222,128,0.15);color:var(--green)}
+  .op-restr{background:rgba(34,211,238,0.13);color:var(--cyan)}
+
+  /* ── CARDS ── */
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
   .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
-  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+  .stack{display:flex;flex-direction:column;gap:20px}
   .mono{font-family:var(--mono);font-size:12px}
 
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  .table-wrap>table{min-width:max-content}
-  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
-    font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
-  tr:hover td{background:rgba(217,70,239,0.03)}
-  td code,th code,p code,li code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
-  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
-
-  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-    padding:14px 16px;overflow-x:auto;max-width:100%;margin:10px 0}
-  pre code{font-family:var(--mono);font-size:12px;line-height:1.65;color:var(--text);background:none;padding:0;white-space:pre}
-
-  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
-  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
-  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
-    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent-ink)}
-  .checklist .check.bad{border-color:var(--red);color:var(--red-ink)}
-  .checklist .check.good{border-color:var(--green);color:var(--green-ink)}
-
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  @media(max-width:640px){.compare{grid-template-columns:1fr}}
-  .compare-bad,.compare-good{border-radius:12px;padding:20px;position:relative}
-  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25)}
-  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.25)}
-  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
-  .compare-bad .compare-label{color:var(--red-ink)}
-  .compare-good .compare-label{color:var(--green-ink)}
-  .compare pre{background:var(--surface);border-color:var(--border)}
-
-  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;
-    background:var(--accent-dim);color:var(--accent-ink);font-size:12px;font-weight:800;flex-shrink:0}
-
-  .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent-ink);text-decoration:none;
-    margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono);width:100%}
-  .card-source:hover{color:var(--accent2);text-decoration:underline}
-  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .card-source.measured{color:var(--text3);text-decoration:none;cursor:default}
-  .card-source.measured .measured-badge{display:inline-block;background:var(--surface2);border:1px solid var(--border);
-    color:var(--text2);font-size:10px;font-weight:700;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;text-transform:uppercase}
-
   .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+    background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
   .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
-    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px;white-space:nowrap}
 
-  .warn-card{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
-  .warn-card h3{color:var(--yellow-ink)}
-  .warn-card .num{background:rgba(251,191,36,0.18);color:var(--yellow-ink)}
+  /* 카테고리 카드 — 위반은 경고 계열 좌측선 */
+  .cat-card{border-left:4px solid var(--border)}
+  .cat-must{border-left-color:var(--accent)}
+  .cat-should{border-left-color:var(--yellow)}
+  .cat-observed{border-left-color:var(--blue)}
 
-  .danger-card{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.3);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px)}
-  .danger-card h3{color:var(--red-ink)}
-  .danger-card .num{background:rgba(248,113,113,0.18);color:var(--red-ink)}
+  /* H 전용 — 보존 계열. 위반 9종과 시각적으로 분리된다 */
+  .keep-card{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.30);
+    border-left:5px solid var(--green);border-radius:var(--radius);padding:clamp(16px,2.5vw,26px);
+    display:flex;flex-direction:column}
+  .keep-card:hover{border-color:rgba(74,222,128,0.45)}
+  .keep-card h3{color:var(--green)}
+  .keep-card .num{background:rgba(74,222,128,0.18);color:var(--green)}
+  .keep-banner{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.34);
+    border-left:5px solid var(--green);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(28px,4vw,44px)}
+  .keep-banner h2{color:var(--green);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .keep-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .keep-banner p:last-child{margin-bottom:0}
 
-  /* ── 카테고리 카드 — 위반(경고 계열) vs 보존(그린 계열) ── */
-  .cat-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--red);
-    border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);display:flex;flex-direction:column;
-    transition:border-color var(--transition)}
-  .cat-card:hover{border-color:rgba(217,70,239,0.25);border-top-color:var(--red)}
-  .cat-card.s-should{border-top-color:var(--yellow)}
-  .cat-card.s-should:hover{border-top-color:var(--yellow)}
-  .cat-card.s-obs{border-top-color:var(--text3)}
-  .cat-card.s-obs:hover{border-top-color:var(--text3)}
-  .cat-code{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;
-    background:rgba(248,113,113,0.14);color:var(--red-ink);font-size:15px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
-  .cat-card.s-should .cat-code{background:rgba(251,191,36,0.14);color:var(--yellow-ink)}
-  .cat-card.s-obs .cat-code{background:var(--surface2);color:var(--text2)}
-  .cat-body{flex:1}
-  .cat-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px;align-items:flex-start}
-  .cat-row:last-of-type{border-bottom:none}
-  .cat-key{color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;min-width:76px;padding-top:2px}
-  .cat-val{color:var(--text2);flex:1;min-width:0}
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:16px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .keep-card .sources{border-top-color:rgba(74,222,128,0.3)}
+  .keep-card .card-source{color:var(--green)}
+  /* 링크 없는 출처 — 실측·합성 근거는 텍스트 배지로만 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
 
-  .preserve-card{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.35);
-    border-top:4px solid var(--green);border-radius:var(--radius);padding:clamp(18px,3vw,32px)}
-  .preserve-card h3{color:var(--green-ink)}
-  .preserve-card .cat-code{background:rgba(74,222,128,0.18);color:var(--green-ink);width:36px;height:36px;font-size:17px}
-  .preserve-card .num{background:rgba(74,222,128,0.18);color:var(--green-ink)}
-  .preserve-banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-    background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);border-radius:10px;
-    padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--text);font-weight:600}
-  .preserve-banner .badge-keep{background:var(--green);color:#06280f;font-size:11px;font-weight:800;
-    padding:3px 10px;border-radius:20px;letter-spacing:0.5px;text-transform:uppercase;flex-shrink:0}
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  tr.row-keep td{background:rgba(74,222,128,0.07)}
+  tr.row-keep:hover td{background:rgba(74,222,128,0.11)}
+  .cat-key{font-family:var(--mono);font-weight:800;color:var(--text);white-space:nowrap}
 
-  /* ── 강도 배지 ── */
-  .str{display:inline-block;font-size:10px;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;
-    padding:3px 9px;border-radius:5px;font-family:var(--mono);white-space:nowrap}
-  .str-must{background:rgba(248,113,113,0.16);color:var(--red-ink)}
-  .str-should{background:rgba(251,191,36,0.16);color:var(--yellow-ink)}
-  .str-obs{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
-  .str-keep{background:rgba(74,222,128,0.18);color:var(--green-ink)}
+  /* ── BEFORE / AFTER 코드 대비 — 이 페이지의 주인공 ── */
+  .ba{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px;margin-bottom:18px}
+  .ba>*{min-width:0}
+  .ba-panel{border-radius:12px;padding:14px 16px;min-width:0;display:flex;flex-direction:column}
+  .ba-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .ba-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .ba-keep{background:rgba(217,70,239,0.07);border:1px solid rgba(217,70,239,0.30)}
+  .ba-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .ba-label{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;font-family:var(--mono)}
+  .ba-bad .ba-label{color:var(--red)}
+  .ba-good .ba-label{color:var(--green)}
+  .ba-keep .ba-label{color:var(--accent)}
+  .ba-note{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6;overflow-wrap:anywhere}
+  .ba-panel pre{margin-bottom:0;background:var(--surface2)}
+  .ba-panel:last-child pre{margin-bottom:0}
 
-  /* ── 판정 순서 흐름도 ── */
-  .flow{display:flex;flex-direction:column;gap:0;margin-top:8px}
-  .flow-step{display:flex;gap:14px;align-items:flex-start;
-    background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
-  .flow-step.keep{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.35)}
-  .flow-step.cut{background:rgba(248,113,113,0.06);border-color:rgba(248,113,113,0.25)}
-  .flow-step h4{margin-bottom:4px}
-  .flow-step p{font-size:13px;color:var(--text2);line-height:1.6}
-  .flow-arrow{align-self:center;color:var(--text3);font-size:16px;line-height:1;padding:8px 0;font-family:var(--mono)}
-  .flow-order{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
-    background:var(--accent-dim);color:var(--accent-ink);font-size:12px;font-weight:800;flex-shrink:0;margin-top:2px}
-  .flow-step.keep .flow-order{background:rgba(74,222,128,0.2);color:var(--green-ink)}
-  .flow-step.cut .flow-order{background:rgba(248,113,113,0.18);color:var(--red-ink)}
+  /* ── 판정 신호 ── */
+  .signal-h{display:flex;align-items:center;gap:8px;margin-top:6px;margin-bottom:8px;
+    font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);font-family:var(--mono)}
+  .signal-h::after{content:'';flex:1;height:1px;background:var(--border)}
+  .no-grep{background:var(--surface2);border:1px dashed var(--border);border-radius:10px;
+    padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px}
 
-  /* ── 처리 형태 ── */
-  .act-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px}
-  .act-card.keep{background:rgba(74,222,128,0.07);border-color:rgba(74,222,128,0.32)}
-  .act-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;flex-wrap:wrap}
-  .act-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
-    background:var(--accent-dim);color:var(--accent-ink);font-size:13px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
-  .act-card.keep .act-icon{background:rgba(74,222,128,0.18);color:var(--green-ink)}
-  .act-card p{font-size:13px;color:var(--text2);line-height:1.6}
-  .act-cats{margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--text3)}
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(28px,4vw,44px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
 
-  footer{border-top:1px solid var(--border);padding:28px clamp(16px,4vw,48px);color:var(--text3);font-size:12px;text-align:center}
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
-     내용을 자르지(overflow:hidden) 말고 스크롤/줄바꿈으로 해소한다. */
-  /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
-  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.flow>*,.flow-step>*{min-width:0}
-  /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
-  .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
-  /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
-  pre{max-width:100%}
-  pre code{white-space:pre}
+  /* ── 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,190px) 1fr minmax(72px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+  .rule-box.keep strong{color:var(--green)}
+  .rule-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-bottom:16px}
+  .rule-grid>*{min-width:0}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+  pre code .cm{color:var(--text3)}
+  pre code .cm-keep{color:var(--green)}
+  pre code .kw{color:var(--accent2)}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.dist-row>*,.stack>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
-  /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
   th code,td code{overflow-wrap:normal}
-  .desc,.subtitle,.checklist li,.cat-val,.flow-step p,.act-card p{overflow-wrap:anywhere}
-  /* (4) 좁은 뷰포트 단일 컬럼 스택 */
-  @media(max-width:600px){
-    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
-    .cat-key{min-width:66px}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.keep-banner p,.no-grep{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.ba,.rule-grid{grid-template-columns:1fr}
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    *,*::before,*::after { transition:none !important; animation:none !important; }
-    html { scroll-behavior:auto }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
   }
 </style>
 </head>
@@ -229,7 +254,7 @@
 
 <nav class="nav">
   <div class="nav-logo">tone-kit <span>/ antipattern catalog</span></div>
-  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" aria-label="테마 전환">
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
     <span id="theme-icon">&#9728;&#65039;</span>
     <span id="theme-label">라이트 모드</span>
   </button>
@@ -238,838 +263,749 @@
 <div class="page">
 
 <h1>Antipattern Catalog — A~J 판정 카탈로그</h1>
-<p class="subtitle">
-  <code>tone-guide</code> 와 <code>tone-campaign</code> 이 위반을 판정할 때 참조하는 카탈로그 SSOT.
-  10개 카테고리 중 <strong>H 는 위반이 아니라 보존 대상</strong>이며, 나머지 9개를 지울 때 함께 지워지는 것을 막는
-  방어 카테고리다. v0.1.0 · 2026-08-28 기준. 실측 스캔 규모 57 파일 / 약 275건 (2026-04~06).
-</p>
+<p class="subtitle"><code>tone-guide</code> 와 <code>tone-campaign</code> 이 위반을 판정할 때 참조하는 카탈로그 SSOT. 코드가 이미 말한 것을 다시 말하는 주석, 계산 과정을 이름에 박은 변수, 그리고 <strong>정리하다가 함께 지워지면 안 되는 주석</strong>을 잡는다. 10개 카테고리 중 <strong>H 는 위반이 아니라 보존 대상</strong>이다. <span class="mono">v0.1.0 · 최종 갱신 2026-09-02</span></p>
 
-<!-- ── Section 1 — A~J 요약표 ── -->
+<!-- ══ H 배너 — 이 카탈로그 최대 오용 방지 ══ -->
+<div class="keep-banner">
+  <h2>&#128737;&#65039; H 만 방향이 반대다 — 위반이 아니라 보존이다</h2>
+  <p>A~G · I · J 는 after 에서 주석과 구조가 <strong>줄어드는</strong> 것이 정답이다. <strong>H 는 after 에서 주석이 남아 있는 것이 정답이다.</strong> H 를 위반 목록에 넣고 A~J 를 일괄 삭제하는 것이 이 카탈로그의 최대 오용이며, H 는 정확히 그 사고를 막기 위해 존재하는 방어 카테고리다.</p>
+  <p>이 페이지에서 <span class="strength s-keep">MUST 보존</span> 배지와 <span class="op op-keep">보존</span> 처리 배지, 그리고 초록 좌측선이 붙은 블록은 전부 H 다. 나머지 아홉은 경고 계열(마젠타 · 노랑 · 파랑) 좌측선을 쓴다.</p>
+</div>
+
+<!-- ══ Section 1 — 한 화면에 6종이 다 있는 종합 예시 ══ -->
 <div class="section">
-  <div class="section-label">A~J 카테고리 요약</div>
-  <p class="desc">
-    코드 · 이름 · 처리 · 강도 · 축 · 검색 패턴의 6열 SSOT. <strong>H 행만 보존</strong>이고 나머지 9행이 위반이다.
-    강도는 세 등급이다 — <span class="str str-must">MUST</span> 공식 문서가 금지·강제하거나 예외가 없음 ·
-    <span class="str str-should">SHOULD</span> 권고 수준, 명시 예외 존재 ·
-    <span class="str str-obs">관측 컨벤션</span> 공개 근거 없음, 실측만 존재.
-  </p>
+  <div class="section-label">종합 예시 — 6종이 한 화면에 겹쳐 있다</div>
+  <p class="desc">실제 코드에서 카테고리는 하나씩 오지 않는다. 아래 before 아홉 줄에는 <strong>F 구분선 · B 마커 · C 번역투 doc · A 이름 번역 · E 접두사</strong>가 동시에 들어 있고, 그 사이에 섞인 마지막 한 줄이 H 다. after 에서 다섯 종은 사라졌고 <strong>H 한 줄만 남았다.</strong></p>
+
+  <div class="ba">
+    <div class="ba-panel ba-bad">
+      <div class="ba-head">
+        <span class="ba-label">before</span>
+        <span class="tag tag-bad">F 구분선</span>
+        <span class="tag tag-bad">B 마커</span>
+        <span class="tag tag-bad">C 번역투 doc</span>
+        <span class="tag tag-bad">A 이름 번역</span>
+        <span class="tag tag-bad">E 접두사</span>
+      </div>
+      <p class="ba-note">다섯 종의 위반과 한 줄의 H 가 구분 없이 섞여 있다. 정규식 일괄 삭제가 위험한 이유가 여기 있다.</p>
+<pre><code><span class="cm">// ------------------------------------------------------------</span>
+<span class="cm">//위젯 구현부</span>
+<span class="cm">// ------------------------------------------------------------</span>
+<span class="cm">/// 눌림 시작 상태를 처리합니다.</span>
+void handlePressStart() {
+  final effectiveGradient = props.gradient ?? {TokenClass}.defaultGradient; <span class="cm">// 기본 그라디언트</span>
+  <span class="cm-keep">// 안 끄면 M3 tonal overlay 가 이 색 위에 덧칠돼 더 밝아진다</span>
+  _tint = Colors.transparent;
+}</code></pre>
+    </div>
+    <div class="ba-panel ba-good">
+      <div class="ba-head">
+        <span class="ba-label">after</span>
+        <span class="tag tag-ok">5종 삭제 · 1종 개명</span>
+        <span class="tag tag-ok">H 1줄 보존</span>
+      </div>
+      <p class="ba-note">배너 · 마커 · 번역투 doc · 인라인 번역 주석은 지웠고, <code>effectiveGradient</code> 는 역할명으로 개명했다. 초록 줄은 코드로 복원되지 않으므로 남는다.</p>
+<pre><code>void handlePressStart() {
+  final toolbarGradient = props.gradient ?? {TokenClass}.defaultGradient;
+  <span class="cm-keep">// 안 끄면 M3 tonal overlay 가 이 색 위에 덧칠돼 더 밝아진다</span>
+  _tint = Colors.transparent;
+}</code></pre>
+    </div>
+  </div>
+  <p class="caption">규칙마다 강도(<code>MUST</code> / <code>SHOULD</code> / <code>관측 컨벤션</code>)와 축(스택 무관 코어인지 특정 스택 전용인지 표시하는 라벨)이 붙는다. <code>관측 컨벤션</code>은 공개 출처 없이 프로젝트 실측만 있는 규칙이라는 뜻이며, 준수 강도가 낮다는 뜻이 아니다. 해당은 E 하나뿐이다.</p>
+</div>
+
+<!-- ══ Section 2 — 카테고리 한눈에 ══ -->
+<div class="section">
+  <div class="section-label">카테고리 한눈에 — 10종 · 강도 · 처리</div>
+  <p class="desc">라벨만 붙이고 처리 방침을 구분하지 않는 것이 이 카탈로그의 흔한 오용이다. <span class="op op-del">삭제</span>(B·D·F) · <span class="op op-rename">개명</span>(A·E) · <span class="op op-absorb">흡수</span>(G) · <span class="op op-keep">보존</span>(H) · <span class="op op-restr">재구성</span>(I·J)은 서로 다른 작업이다.</p>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>코드</th><th>이름</th><th>처리</th><th>강도</th><th>축</th><th>검색 패턴</th></tr>
+        <tr><th>카테고리</th><th>한 줄 결론</th><th>처리</th><th>강도</th><th>축</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>A</strong></td><td>이름 번역 주석</td><td>삭제 (또는 개명)</td>
-          <td><span class="str str-must">MUST</span></td>
-          <td><span class="pill">코어</span> <span class="pill">한국어</span></td>
-          <td><code>[a-zA-Z0-9_?],\s*//\s*[가-힣]</code></td>
+          <td class="cat-key">A 이름 번역 주석</td>
+          <td>이름이 이미 담은 의미를 되풀이하는 주석은 지운다</td>
+          <td><span class="op op-del">삭제</span> <span class="op op-rename">또는 개명</span></td>
+          <td><span class="strength s-must">MUST</span></td>
+          <td><span class="pill">[코어]</span> <span class="pill">[한국어]</span></td>
         </tr>
         <tr>
-          <td><strong>B</strong></td><td>템플릿 마커</td><td>삭제 (예외 없음)</td>
-          <td><span class="str str-must">MUST</span></td>
-          <td><span class="pill">코어</span></td>
-          <td><code>uniq -c | sort -rn</code> 전역 빈도 집계</td>
+          <td class="cat-key">B 템플릿 마커</td>
+          <td>파일마다 같은 자리에 박히는 고정 라벨은 지운다</td>
+          <td><span class="op op-del">삭제</span></td>
+          <td><span class="strength s-must">MUST</span></td>
+          <td><span class="pill">[코어]</span></td>
         </tr>
         <tr>
-          <td><strong>C</strong></td><td>메서드명 반복 doc</td><td>삭제</td>
-          <td><span class="str str-should">SHOULD</span></td>
-          <td><span class="pill">코어</span></td>
-          <td><code>^\s*///.*(합니다|됩니다|하도록)</code></td>
+          <td class="cat-key">C 메서드명 반복 doc</td>
+          <td>메서드 이름을 한국어 문장으로 푼 doc 은 지운다</td>
+          <td><span class="op op-del">삭제</span></td>
+          <td><span class="strength s-should">SHOULD</span></td>
+          <td><span class="pill">[코어]</span></td>
         </tr>
         <tr>
-          <td><strong>D</strong></td><td>프레임워크 기본 설명</td><td>삭제 (이유는 H 로 승격)</td>
-          <td><span class="str str-must">MUST</span></td>
-          <td><span class="pill">코어</span></td>
-          <td>정규식 불가 — 리뷰 판정</td>
+          <td class="cat-key">D 프레임워크 기본 설명</td>
+          <td>공식 문서 첫 문단에 있는 내용은 코드 옆에 옮겨 적지 않는다</td>
+          <td><span class="op op-del">삭제</span></td>
+          <td><span class="strength s-must">MUST</span></td>
+          <td><span class="pill">[코어]</span></td>
         </tr>
         <tr>
-          <td><strong>E</strong></td><td>접두사 fallback 변수명</td><td>개명 (호출부 전수 동반)</td>
-          <td><span class="str str-obs">관측 컨벤션</span></td>
-          <td><span class="pill">코어</span></td>
-          <td><code>\b(effective|resolved)[A-Z]</code></td>
+          <td class="cat-key">E 접두사 fallback 변수명</td>
+          <td><code>effective*</code> · <code>resolved*</code> 는 역할명으로 바꾼다</td>
+          <td><span class="op op-rename">개명</span></td>
+          <td><span class="strength s-observed">관측 컨벤션</span></td>
+          <td><span class="pill">[코어]</span></td>
         </tr>
         <tr>
-          <td><strong>F</strong></td><td>구분선 블록</td><td>삭제</td>
-          <td><span class="str str-must">MUST</span></td>
-          <td><span class="pill">코어</span></td>
-          <td><code>^\s*//\s*[-=]{5,}</code></td>
+          <td class="cat-key">F 구분선 블록</td>
+          <td><code>// ---</code> 배너는 빈 줄과 이름으로 대체한다</td>
+          <td><span class="op op-del">삭제</span></td>
+          <td><span class="strength s-must">MUST</span></td>
+          <td><span class="pill">[코어]</span></td>
         </tr>
         <tr>
-          <td><strong>G</strong></td><td>자명 구조 라벨</td><td>코드 구조로 흡수</td>
-          <td><span class="str str-should">SHOULD</span></td>
-          <td><span class="pill">코어</span> <span class="pill">한국어</span></td>
-          <td><code>^\s*//\s*[가-힣][가-힣 ]{0,8}$</code></td>
+          <td class="cat-key">G 자명 구조 라벨</td>
+          <td>바로 아래 코드가 말하는 라벨은 이름으로 흡수한 뒤 지운다</td>
+          <td><span class="op op-absorb">흡수</span></td>
+          <td><span class="strength s-should">SHOULD</span></td>
+          <td><span class="pill">[코어]</span> <span class="pill">[한국어]</span></td>
         </tr>
-        <tr style="background:rgba(74,222,128,0.06)">
-          <td><strong style="color:var(--green-ink)">H</strong></td>
-          <td><strong style="color:var(--green-ink)">좋은 주석 — 위반 아님</strong></td>
-          <td><strong style="color:var(--green-ink)">보존</strong></td>
-          <td><span class="str str-keep">MUST 보존</span></td>
-          <td><span class="pill">코어</span></td>
-          <td><code>//.*(때문|안 하면|버그|무시되|제약|하드코딩)</code> — 삭제 금지 표시용</td>
-        </tr>
-        <tr>
-          <td><strong>I</strong></td><td>과도한 빌더 분할</td><td>재구성 (인라인 또는 위젯 추출)</td>
-          <td><span class="str str-should">SHOULD</span></td>
-          <td><span class="pill">어댑터:dart-flutter</span></td>
-          <td><code>\b_build[A-Z][A-Za-z0-9]*\(</code></td>
+        <tr class="row-keep">
+          <td class="cat-key">H 좋은 주석</td>
+          <td><strong>위반이 아니다. 코드로 복원 불가능한 정보는 남긴다</strong></td>
+          <td><span class="op op-keep">보존</span></td>
+          <td><span class="strength s-keep">MUST 보존</span></td>
+          <td><span class="pill">[코어]</span></td>
         </tr>
         <tr>
-          <td><strong>J</strong></td><td>중복 구현</td><td>공통 요소로 수렴</td>
-          <td><span class="str str-should">SHOULD</span></td>
-          <td><span class="pill">코어</span> + 프로젝트 파라미터</td>
-          <td>공통 위젯 목록을 채운 뒤에만 생성 가능</td>
+          <td class="cat-key">I 과도한 빌더 분할</td>
+          <td><code>_build*</code> 호출 체인은 인라인하거나 위젯으로 뺀다</td>
+          <td><span class="op op-restr">재구성</span></td>
+          <td><span class="strength s-should">SHOULD</span></td>
+          <td><span class="pill">[어댑터:dart-flutter]</span></td>
+        </tr>
+        <tr>
+          <td class="cat-key">J 중복 구현</td>
+          <td>공통 위젯이 있는데 저수준 조합을 다시 조립하지 않는다</td>
+          <td><span class="op op-restr">수렴</span></td>
+          <td><span class="strength s-should">SHOULD</span></td>
+          <td><span class="pill">[코어]</span> <span class="pill">+ 프로젝트 파라미터</span></td>
         </tr>
       </tbody>
     </table>
   </div>
-  <p class="caption">검색 패턴은 <strong>후보 수집기</strong>이지 판정기가 아니다. grep 히트 수를 위반 건수로 보고하면 안 된다.</p>
 </div>
 
-<!-- ── Section 2 — 축 분포 ── -->
+<!-- ══ Section 3 — 원칙 A~G ══ -->
 <div class="section">
-  <div class="section-label">축 분포 — 코어 : 어댑터 = 8 : 1</div>
-  <p class="desc">
-    주석·네이밍 규칙은 언어 문법에 묶이지 않으므로 대부분 코어다. 어댑터로 내려간 것은 I 하나뿐이고,
-    J 는 규칙 자체는 코어지만 판정에 그 프로젝트의 공통 위젯 목록이 입력으로 필요하다.
-  </p>
+  <div class="section-label">원칙 A~G — 주석과 이름의 위반</div>
+  <p class="desc">일곱 카테고리 전부 before/after 쌍으로 판정한다. 왼쪽 카드가 위반이고 오른쪽이 정답이며, 각 카드 하단의 <strong>판정 신호</strong>는 후보 수집용 grep 이지 위반 건수 집계기가 아니다.</p>
 
-  <div class="grid-3">
-    <div class="card">
-      <div class="principle-title"><span class="num">8</span><h3>코어 — 스택 무관</h3></div>
-      <p class="desc" style="margin-bottom:10px">A B C D E F G H — 주석·네이밍 규칙이라 언어 문법에 묶이지 않는다.</p>
-      <div><span class="tag">A</span><span class="tag">B</span><span class="tag">C</span><span class="tag">D</span><span class="tag">E</span><span class="tag">F</span><span class="tag">G</span><span class="tag tag-good">H</span></div>
-    </div>
-    <div class="card">
-      <div class="principle-title"><span class="num">1</span><h3>어댑터:dart-flutter</h3></div>
-      <p class="desc" style="margin-bottom:10px">I — 위젯 <code>build()</code> 트리 분할은 Flutter 고유 국면이다. 다른 스택으로 옮기려면 그 스택에서 위반이 실제로 관측된 뒤에 어댑터를 추가한다.</p>
-      <div><span class="tag tag-warn">I</span></div>
-    </div>
-    <div class="card">
-      <div class="principle-title"><span class="num">J</span><h3>코어 + 프로젝트 파라미터</h3></div>
-      <p class="desc" style="margin-bottom:10px">J — 규칙은 스택 무관이나 판정에 그 프로젝트의 공통 위젯 목록이 필요하다.</p>
-      <div><span class="tag tag-warn">J</span></div>
-    </div>
-  </div>
+  <div class="stack">
 
-  <div class="card" style="margin-top:20px">
-    <h3><code>[한국어]</code> 라벨은 규칙이 아니라 신호에 붙는다</h3>
-    <p class="desc" style="margin-bottom:0">
-      A 와 G 에만 병기한다. 두 규칙 자체는 언어 무관이고, 한국어에 결속된 것은 grep 패턴뿐이다.
-      다른 언어 코퍼스에서는 패턴을 다시 만들어야 하며, 그렇다고 규칙이 적용 불가해지는 것은 아니다.
-    </p>
-  </div>
-</div>
-
-<!-- ── Section 3 — 판정 순서 흐름 ── -->
-<div class="section">
-  <div class="section-label green">판정 순서 — 보존 후보(H)를 먼저 표시한다</div>
-  <p class="desc">
-    이 순서는 임의가 아니다. A 의 grep 패턴은 형태가 같은 H 주석을 함께 잡기 때문에,
-    <strong>삭제 후보를 먼저 고르면 좋은 주석이 같은 배치에 섞여 들어온다.</strong>
-    보존 마킹을 선행시키면 교차 단계에서 걸러낼 수 있다.
-  </p>
-
-  <div class="flow">
-    <div class="flow-step">
-      <span class="flow-order">1</span>
-      <div>
-        <h4>대상 트리 고정 + 코드 생성 산출물 제외</h4>
-        <p>스캔 범위를 먼저 확정하고 <code>*.g.dart</code> · <code>*.freezed.dart</code> 류 생성 파일을 배제한다. 제외하지 않으면 B 의 빈도 집계 상위가 전부 생성기 배너로 채워진다.</p>
+    <!-- ── A ── -->
+    <div class="card cat-card cat-must" id="cat-a">
+      <div class="principle-title">
+        <span class="num">A</span>
+        <h3>이름 번역 주석</h3>
+        <span class="strength s-must">MUST 삭제</span>
+        <span class="op op-del">삭제</span><span class="op op-rename">또는 개명</span>
+        <span class="pill">[코어]</span><span class="pill">[한국어]</span>
       </div>
-    </div>
-    <div class="flow-arrow">&#9660;</div>
+      <p class="desc" style="margin-bottom:16px"><strong>식별자 이름과 타입이 이미 담고 있는 의미를 한국어로 되풀이하는 주석은 지운다.</strong></p>
 
-    <div class="flow-step keep">
-      <span class="flow-order">2</span>
-      <div>
-        <h4>H 후보를 먼저 표시한다 — 삭제 금지 마킹</h4>
-        <p>인과 접속이 들어간 주석(<code>때문</code> · <code>안 하면</code> · <code>버그</code> · <code>무시되</code> · <code>제약</code> · <code>하드코딩</code>)을 먼저 훑어 <strong>삭제 금지 후보</strong>로 마킹한다. 이 단계가 카탈로그 전체의 안전장치다.</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#9660;</div>
-
-    <div class="flow-step cut">
-      <span class="flow-order">3</span>
-      <div>
-        <h4>그다음에 삭제 후보를 고른다 — A~G · I · J</h4>
-        <p>각 카테고리의 검색 패턴으로 후보를 수집한다. 이 시점의 결과는 <strong>후보 목록</strong>이지 위반 건수가 아니다. C 패턴은 정상 doc 을, A 패턴은 H 를 함께 잡는다.</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#9660;</div>
-
-    <div class="flow-step">
-      <span class="flow-order">4</span>
-      <div>
-        <h4>2단계 마킹과 교차 — 겹치면 H 가 이긴다</h4>
-        <p>삭제 후보와 보존 마킹이 같은 줄을 가리키면 그 줄은 위반 목록에서 뺀다. D 와 H 의 경계도 여기서 갈린다 — 프레임워크 동작 서술은 D 지만, 그 동작 때문에 이렇게 쓸 수밖에 없었다는 이유는 H 다.</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#9660;</div>
-
-    <div class="flow-step">
-      <span class="flow-order">5</span>
-      <div>
-        <h4>카테고리별 처리 형태 배정</h4>
-        <p>삭제(B·D·F) / 개명(A·E) / 흡수(G) / 수렴(J) / 재구성(I) 은 서로 다른 작업이다. 라벨만 붙이고 처리 형태를 구분하지 않으면 개명 카테고리가 삭제로 처리된다.</p>
-      </div>
-    </div>
-    <div class="flow-arrow">&#9660;</div>
-
-    <div class="flow-step">
-      <span class="flow-order">6</span>
-      <div>
-        <h4>파일 단위로 사람이 한 줄씩 확인 후 적용</h4>
-        <p>grep 결과를 확인 없이 <code>sed</code> 로 일괄 치환하지 않는다. 파일 단위 확인이 캠페인 루프의 존재 이유다.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="danger-card" style="margin-top:22px">
-    <div class="principle-title"><span class="num">!</span><h3>순서를 뒤집으면 좋은 주석이 같이 지워진다</h3></div>
-    <p class="desc" style="margin-bottom:10px">
-      실행 검증에서 <code>surfaceTintColor: ..., // 안 끄면 M3가 배경색 위에 tint 덮음</code> 이 A 패턴에 그대로 걸렸다.
-      형태(선언 뒤 한국어 주석)가 동일하고 내용만 다르기 때문이다. 2단계 보존 마킹 없이 3단계부터 시작하면
-      이 줄은 A 위반으로 집계되어 삭제 배치에 들어간다.
-    </p>
-    <p class="desc" style="margin-bottom:0">
-      <strong>H 를 위반 목록에 넣고 A~J 를 일괄 삭제하는 것이 이 카탈로그의 최대 오용이다.</strong>
-      코드로 복원 불가능한 정보가 사라지며, 되돌리려면 원저자의 기억에 의존해야 한다.
-    </p>
-  </div>
-</div>
-
-<!-- ── Section 4 — 처리 형태 구분 ── -->
-<div class="section">
-  <div class="section-label">처리 형태 — 삭제 / 개명 / 흡수 / 수렴 / 보존</div>
-  <p class="desc">
-    카테고리 라벨만 붙이고 처리 방침을 구분하지 않는 것이 판정 실패 모드의 하나다.
-    다섯 형태는 작업 범위도, 컴파일 영향도, 되돌리기 비용도 전부 다르다.
-  </p>
-
-  <div class="grid-3">
-    <div class="act-card">
-      <div class="act-head"><span class="act-icon">&#215;</span><h3>삭제</h3></div>
-      <p>그 줄을 없앤다. 정보 손실이 0이라는 것이 전제다. 컴파일 영향 없음.</p>
-      <div class="act-cats">B · D · F (+ 조건부 A · C)</div>
-    </div>
-
-    <div class="act-card">
-      <div class="act-head"><span class="act-icon">&#8644;</span><h3>개명 — 호출부 전수 동반</h3></div>
-      <p>선언만 고치면 컴파일이 깨진다. 이름을 바꾸는 순간 그 심볼을 참조하는 모든 지점을 함께 바꿔야 한다. 삭제 카테고리와 작업 형태가 근본적으로 다르다.</p>
-      <div class="act-cats">E (+ 이름이 약한 A)</div>
-    </div>
-
-    <div class="act-card">
-      <div class="act-head"><span class="act-icon">&#8618;</span><h3>구조 흡수</h3></div>
-      <p>라벨이 담던 의미를 변수명이나 추출한 위젯 이름으로 옮긴 뒤 라벨을 지운다. 지우기만 하면 구획 정보가 이름으로 옮겨가지 않고 그냥 없어진다.</p>
-      <div class="act-cats">G</div>
-    </div>
-
-    <div class="act-card">
-      <div class="act-head"><span class="act-icon">&#8594;</span><h3>수렴</h3></div>
-      <p>호출부를 공통 요소에 맞춘다. <strong>방향을 뒤집지 마라</strong> — 공통 위젯에 파라미터를 6개 늘려 호출부 6곳을 수용하는 것이 아니다.</p>
-      <div class="act-cats">J</div>
-    </div>
-
-    <div class="act-card">
-      <div class="act-head"><span class="act-icon">&#8942;</span><h3>재구성</h3></div>
-      <p>무조건 인라인도, 무조건 분할도 아니다. 의미 경계 · 재사용 · 독립 테스트 세 조건으로 판정한 뒤 인라인하거나 별도 위젯으로 뺀다.</p>
-      <div class="act-cats">I</div>
-    </div>
-
-    <div class="act-card keep">
-      <div class="act-head"><span class="act-icon">&#10003;</span><h3>보존</h3></div>
-      <p>손대지 않는다. 다른 카테고리의 일괄 처리에 휩쓸리지 않도록 <strong>먼저 표시</strong>하는 것이 유일한 작업이다.</p>
-      <div class="act-cats">H</div>
-    </div>
-  </div>
-</div>
-
-<!-- ── Section 5 — 위반 카테고리 A~G ── -->
-<div class="section">
-  <div class="section-label">위반 카테고리 &#8544; — A~G (코어)</div>
-  <p class="desc">
-    카드 상단 바 색이 강도다 — 빨강 <span class="str str-must">MUST</span> ·
-    노랑 <span class="str str-should">SHOULD</span> ·
-    회색 <span class="str str-obs">관측 컨벤션</span>.
-    보존 카테고리 H 는 이 목록에 없다. 별도 섹션에 그린 계열로 분리했다.
-  </p>
-
-  <div class="grid-2">
-
-    <!-- A -->
-    <div class="cat-card">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">A</span>
-          <h3>이름 번역 주석</h3>
-          <span class="str str-must">MUST 삭제</span>
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">A 위반 · 3줄</span></div>
+<pre><code>const {widget_prefix}SliderWidget({
+  String? text,   <span class="cm">// 버튼 텍스트</span>
+  bool isChecked, <span class="cm">// 체크 여부</span>
+  double v,       <span class="cm">// 최소 눈금 값</span>
+  Color bg,       <span class="cm-keep">// 0x66 = alpha 40%</span>
+});</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span> <span class="pill">한국어</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          식별자 이름과 타입이 이미 담고 있는 의미를 주석이 한국어로 되풀이하는 것. 주석을 지워도 정보 손실이 0이다.
-        </p>
-<pre><code>String? text,      // 버튼 텍스트
-bool isChecked,    // 체크 여부
-double min,        // 최소값</code></pre>
-        <div class="cat-row">
-          <span class="cat-key">판정 신호</span>
-          <span class="cat-val">선언 뒤에 붙은 한국어 인라인 주석 — <code>^[[:space:]]*[A-Za-z_].*[a-zA-Z0-9_?],[[:space:]]*//[[:space:]]*[가-힣]</code></span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">삭제.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">예외</span>
-          <span class="cat-val">단 하나 — <strong>이름이 약해서 주석이 필요한 경우, 주석이 아니라 이름을 고친다.</strong> 주석만 지우고 이름을 그대로 두면 의미가 사라진다. hex 값의 alpha 퍼센트처럼 값에서 사람이 곧바로 읽어낼 수 없는 메타 정보는 A 가 아니다.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">강도 승격</span>
-          <span class="cat-val">Effective Dart 의 등급은 <code>AVOID</code> 이고 이 카탈로그가 <code>MUST</code> 로 승격했다. 사유는 실측 최다 빈도(48파일 전역, 약 85건)와 제거 시 손실 0.</span>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">삭제 + 개명 + 메타 유지</span></div>
+<pre><code>const {widget_prefix}SliderWidget({
+  String? text,
+  bool isChecked,
+  double minTick,
+  Color bg,       <span class="cm-keep">// 0x66 = alpha 40%</span>
+});</code></pre>
         </div>
       </div>
-      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&#8594; Effective Dart — documentation</a>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 주석을 지워도 정보 손실이 0이다. <code>v</code> 처럼 이름이 약해서 주석이 필요했던 자리는 주석이 아니라 이름을 고쳐야 하며, 주석만 지우고 이름을 그대로 두면 원래보다 나빠진다.</div>
+        <div class="rule-box"><strong>예외</strong> — hex 값의 alpha 퍼센트처럼 값에서 사람이 곧바로 읽어낼 수 없는 메타 정보는 A 가 아니다. 위 <code>0x66 = alpha 40%</code> 가 after 에서도 남은 이유다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호 — 선언 뒤에 붙은 한국어 인라인 주석</h4>
+<pre><code>grep -rnE '^[[:space:]]*[A-Za-z_].*[a-zA-Z0-9_?],[[:space:]]*//[[:space:]]*[가-힣]' --include='*.dart' .</code></pre>
+      <p class="caption" style="margin-top:0">Effective Dart 의 등급은 <code>AVOID</code> 이고 이 카탈로그는 이를 <code>MUST</code> 로 승격했다. 승격 사유는 실측 최다 빈도(48파일 전역, 약 85건)와 제거 시 손실 0 이다.</p>
+
+      <div class="sources">
+        <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart — documentation</a>
+        <span class="source-badge">프로젝트 실측 · 57 파일 / 약 85건 (2026-04~06)</span>
+      </div>
     </div>
 
-    <!-- B -->
-    <div class="cat-card">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">B</span>
-          <h3>템플릿 마커</h3>
-          <span class="str str-must">MUST 삭제</span>
+    <!-- ── B ── -->
+    <div class="card cat-card cat-must" id="cat-b">
+      <div class="principle-title">
+        <span class="num">B</span>
+        <h3>템플릿 마커</h3>
+        <span class="strength s-must">MUST 삭제</span>
+        <span class="op op-del">삭제</span>
+        <span class="pill">[코어]</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong>파일마다 같은 위치에 기계적으로 반복되는 고정 라벨은 지운다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">B 위반 · 고정 라벨 2종</span></div>
+<pre><code>class {widget_prefix}DeviceRowWidget extends StatelessWidget {
+  <span class="cm">//상태</span>
+  final {widget_prefix}DeviceRowWidgetProps props;
+
+  <span class="cm">//위젯 구현부</span>
+  @override
+  Widget build(BuildContext context) =&gt; Row(children: [...]);
+}</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          파일마다 같은 위치에 기계적으로 반복되는 고정 라벨. <code>//상태</code>, <code>//위젯 구현부</code>,
-          <code>//뷰모델</code> 류로, 그 파일이 무엇인지는 클래스 선언이 이미 말한다.
-        </p>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">선언이 스스로 말한다</span></div>
+<pre><code>class {widget_prefix}DeviceRowWidget extends StatelessWidget {
+  final {widget_prefix}DeviceRowWidgetProps props;
+
+  @override
+  Widget build(BuildContext context) =&gt; Row(children: [...]);
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 그 파일이 무엇인지는 클래스 선언이 이미 말한다. 파일 구조를 알려주는 역할이 필요하면 그것은 파일 분할이나 이름으로 해결할 문제이지 마커로 해결할 문제가 아니다.</div>
+        <div class="rule-box"><strong>예외</strong> — 없다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호 — 동일 주석 줄의 코퍼스 전역 빈도</h4>
+      <p class="caption" style="margin-top:0;margin-bottom:10px">생성 파일을 반드시 제외하고, 빈도 상위에 뜨는 짧은 라벨을 후보로 본다.</p>
 <pre><code>grep -rhoE '^[[:space:]]*//[[:space:]]*[^[:space:]/*].*$' --include='*.dart' \
   --exclude='*.g.dart' --exclude='*.freezed.dart' . \
   | sed 's/^[[:space:]]*//' | sort | uniq -c | sort -rn | head -20</code></pre>
-        <div class="cat-row">
-          <span class="cat-key">판정 신호</span>
-          <span class="cat-val">동일 주석 줄의 코퍼스 전역 빈도. 빈도 상위에 뜨는 짧은 라벨이 후보다. <strong>생성 파일을 반드시 제외한다.</strong></span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">삭제.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">예외</span>
-          <span class="cat-val"><strong>없다.</strong> 파일 구조를 알려주는 역할이 필요하면 그것은 파일 분할이나 이름으로 해결할 문제이지 마커로 해결할 문제가 아니다.</span>
-        </div>
+
+      <div class="sources">
+        <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&rarr; Google Engineering Practices — what to look for in a code review</a>
+        <span class="source-badge">프로젝트 실측 · 57 파일 / 약 90건 (2026-04~06)</span>
       </div>
-      <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&#8594; Google Engineering Practices — code review</a>
     </div>
 
-    <!-- C -->
-    <div class="cat-card s-should">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">C</span>
-          <h3>메서드명 반복 doc</h3>
-          <span class="str str-should">SHOULD 삭제</span>
+    <!-- ── C ── -->
+    <div class="card cat-card cat-should" id="cat-c">
+      <div class="principle-title">
+        <span class="num">C</span>
+        <h3>메서드명 반복 doc</h3>
+        <span class="strength s-should">SHOULD 삭제</span>
+        <span class="op op-del">삭제</span>
+        <span class="pill">[코어]</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong>메서드 이름을 한국어 문장으로 풀어 쓴 doc 주석은 지운다. 남길 이유가 있으면 이름 대신 계약을 쓴다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">C 위반 · 번역투 종결형</span></div>
+<pre><code><span class="cm">/// 눌림 시작 상태를 처리합니다.</span>
+void handlePressStart() { ... }
+
+<span class="cm">/// 값을 초기화하도록 합니다.</span>
+void reset() { ... }</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          메서드 이름을 한국어 문장으로 풀어 쓴 doc 주석. <code>handlePressStart()</code> 위의
-          <code>/// 눌림 시작 상태를 처리합니다.</code> 가 전형이다. 번역투 종결형(<code>~을 처리합니다</code>,
-          <code>~하도록 합니다</code>)이 같이 따라온다.
-        </p>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">삭제 · 그리고 계약으로 재작성</span></div>
+          <p class="ba-note">이름의 반복은 삭제한다. public API 는 doc 을 남기되 이름이 아니라 <strong>계약과 부수효과 순서</strong>를 적는다.</p>
+<pre><code>void handlePressStart() { ... }
+
+<span class="cm-keep">/// 진행 중인 반복 타이머를 취소하고 오프셋을 0 으로 되돌린다.</span>
+<span class="cm-keep">/// 취소 시점에 `onChanged` 가 마지막 값으로 한 번 더 불린다.</span>
+void reset() { ... }</code></pre>
+        </div>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 번역투 종결형(<code>~을 처리합니다</code>, <code>~하도록 합니다</code>)이 따라붙는 doc 은 이름을 두 번 읽게 만들 뿐이다. 호출자가 코드를 열지 않고 알아야 하는 것은 이름이 아니라 계약과 부수효과 순서다.</div>
+        <div class="rule-box"><strong>예외</strong> — public API 계약, 그리고 부수효과 순서가 호출자에게 중요한 경우. 파라미터·반환값 블록의 표기 형식(<code>- 반환값: 없음</code> 을 유지할지 등)은 이 카탈로그가 아니라 <strong>어댑터 슬롯</strong>(코어 규칙을 특정 스택 문법에 결속하는 값 — 주석 기호, doc 라벨 형식 등)이 정한다. 어댑터가 유지를 지시하면 C 로 판정하지 않는다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호 — 번역투 doc 후보 필터</h4>
+      <p class="caption" style="margin-top:0;margin-bottom:10px">과수집되므로 히트를 위반으로 세지 말고 후보 목록으로만 쓴다.</p>
 <pre><code>grep -rnE '^[[:space:]]*///.*(합니다|됩니다|하도록)' --include='*.dart' .</code></pre>
-        <div class="cat-row">
-          <span class="cat-key">판정 신호</span>
-          <span class="cat-val">번역투 doc 후보 필터. <strong>과수집되므로 히트를 위반으로 세지 말고 후보 목록으로만 쓴다.</strong></span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">삭제.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">예외</span>
-          <span class="cat-val"><strong>public API 계약</strong> 과 <strong>부수효과 순서가 호출자에게 중요한 경우.</strong> 이때는 doc 을 남기되 이름의 반복이 아니라 계약을 쓴다. 파라미터·반환값 블록의 표기 형식은 이 카탈로그가 아니라 어댑터의 정책 상수가 정한다 — 어댑터가 유지를 지시하면 C 로 판정하지 않는다.</span>
-        </div>
+
+      <div class="sources">
+        <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart — documentation</a>
       </div>
-      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&#8594; Effective Dart — documentation</a>
     </div>
 
-    <!-- D -->
-    <div class="cat-card">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">D</span>
-          <h3>프레임워크 기본 설명</h3>
-          <span class="str str-must">MUST 삭제</span>
+    <!-- ── D ── -->
+    <div class="card cat-card cat-must" id="cat-d">
+      <div class="principle-title">
+        <span class="num">D</span>
+        <h3>프레임워크 기본 설명</h3>
+        <span class="strength s-must">MUST 삭제</span>
+        <span class="op op-del">삭제</span>
+        <span class="pill">[코어]</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong>프레임워크 공식 문서에 이미 적힌 기본 동작을 코드 옆에 옮겨 적지 않는다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">D 위반 · 공식 문서 재서술</span></div>
+<pre><code><span class="cm">// 크기 지정</span>
+const SizedBox(height: 12),
+<span class="cm">// borderRadius 클리핑</span>
+ClipRRect(borderRadius: BorderRadius.circular(8), child: child),
+<span class="cm">// 배경색 지정</span>
+Material(color: {TokenClass}.surface, child: child),</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          프레임워크 공식 문서에 이미 적힌 기본 동작을 코드 옆에 옮겨 적은 주석.
-          <code>SizedBox</code> 앞의 <code>// 크기 지정</code>, <code>ClipRRect</code> 앞의
-          <code>// borderRadius 클리핑</code> 같은 것이다.
-        </p>
-        <div class="cat-row">
-          <span class="cat-key">판정 신호</span>
-          <span class="cat-val">정규식으로 분리되지 않는다. 판정은 리뷰로 한다 — <strong>주석이 설명하는 내용이 그 API 문서 첫 문단에 있으면 D 다.</strong></span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">삭제하되 <strong>&ldquo;왜 이 선택을 했는가&rdquo;는 남긴다.</strong> 남는 그 한 줄은 D 가 아니라 H 로 승격된다.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">근거</span>
-          <span class="cat-val">프레임워크 기본 동작 서술은 정보량이 0일 뿐 아니라 프레임워크 버전이 오르면 거짓이 되므로 <strong>유지 비용이 음수다.</strong></span>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">기본 동작 삭제 · 이유는 H 로 승격</span></div>
+<pre><code>const SizedBox(height: 12),
+ClipRRect(borderRadius: BorderRadius.circular(8), child: child),
+<span class="cm-keep">// 안 끄면 M3 tonal overlay 가 이 색 위에 덧칠돼 더 밝아진다</span>
+Material(
+  color: {TokenClass}.surface,
+  surfaceTintColor: Colors.transparent,
+  child: child,
+),</code></pre>
         </div>
       </div>
-      <a class="card-source" href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener">&#8594; Flutter — Material.surfaceTintColor</a>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 프레임워크 기본 동작 서술은 정보량이 0일 뿐 아니라 버전이 오르면 거짓이 되므로 유지 비용이 음수다.</div>
+        <div class="rule-box keep"><strong>경계</strong> — 남는 한 줄, 즉 <em>그 선택을 한 이유</em>는 D 가 아니라 <strong>H 로 승격</strong>된다. 같은 API 를 언급한다고 같은 카테고리가 아니다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호 — grep 없음</h4>
+      <div class="no-grep">정규식으로 분리되지 않는다. 판정은 리뷰로 한다: <strong>주석이 설명하는 내용이 그 API 문서 첫 문단에 있으면 D 다.</strong></div>
+
+      <div class="sources">
+        <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&rarr; Google Engineering Practices — what to look for in a code review</a>
+        <a class="card-source" href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener">&rarr; Flutter <code>Material.surfaceTintColor</code></a>
+      </div>
     </div>
 
-    <!-- E -->
-    <div class="cat-card s-obs">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">E</span>
-          <h3>접두사 fallback 변수명</h3>
-          <span class="str str-obs">관측 컨벤션</span>
+    <!-- ── E ── -->
+    <div class="card cat-card cat-observed" id="cat-e">
+      <div class="principle-title">
+        <span class="num">E</span>
+        <h3>접두사 fallback 변수명</h3>
+        <span class="strength s-observed">관측 컨벤션 — 실측 9건 / 4파일</span>
+        <span class="op op-rename">개명</span>
+        <span class="pill">[코어]</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong><code>effective*</code> / <code>resolved*</code> 접두사는 지우는 게 아니라 도메인·역할명으로 개명한다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">E 위반 · 계산 과정이 이름에</span></div>
+<pre><code>final effectiveGradient = props.gradient ?? {TokenClass}.defaultGradient;
+final resolvedChildren = props.children.isNotEmpty ? props.children : fallback;</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span> <span class="tag tag-warn">실측 9건 / 4파일</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          <code>effective*</code> / <code>resolved*</code> 접두사로 &ldquo;기본값이 적용된 값&rdquo;임을 이름에 박는 것.
-          <code>??</code> 연산자가 이미 fallback 을 표현하므로 접두사는 역할이 아니라 계산 과정을 드러낸다.
-        </p>
-<pre><code>final effectiveGradient = props.gradient ?? defaultGradient;
-final resolvedChildren  = props.children.isNotEmpty ? props.children : fallback;</code></pre>
-        <div class="cat-row">
-          <span class="cat-key">판정 신호</span>
-          <span class="cat-val"><code>\b(effective|resolved)[A-Z]</code></span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">삭제가 아니라 <strong>도메인·역할명으로 개명</strong>이다. <code>toolbarGradient</code>, <code>visibleChildren</code> 처럼 그 값이 무엇인지로 바꾼다. 개명은 선언만 고치면 끝나지 않는다 — <strong>호출부 전부를 함께 바꿔야 한다.</strong></span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">근거 등급</span>
-          <span class="cat-val"><strong>공개 통계 근거가 없다.</strong> 2026-08 조사에서 접두사별 LLM 과대표집 통계는 공개 1차 문헌 어디에도 확인되지 않았다. 강도를 <code>관측 컨벤션</code> 으로 낮춰 표기하고 <strong>각주를 붙이지 않는다.</strong> 실측은 유효한 국지 근거이므로 규칙을 지우지도 않는다.</span>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">역할명으로 개명 · 호출부 전수 동반</span></div>
+<pre><code>final toolbarGradient = props.gradient ?? {TokenClass}.defaultGradient;
+final visibleChildren = props.children.isNotEmpty ? props.children : fallback;</code></pre>
         </div>
       </div>
-      <span class="card-source measured">
-        <span class="measured-badge">실측 근거</span>
-        프로젝트 실측 57 파일 / 9건 · 4파일 (2026-04~06) — 공개 URL 없음
-      </span>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — <code>??</code> 연산자가 이미 fallback 을 표현하므로 접두사는 역할이 아니라 계산 과정을 드러낸다. 읽는 사람이 알아야 하는 것은 "기본값이 적용됐다"가 아니라 <strong>"이게 툴바 그라디언트다"</strong>다.</div>
+        <div class="rule-box"><strong>근거 한계</strong> — 이 카테고리는 <strong>공개 통계 근거가 없다.</strong> 2026-08 조사에서 접두사별 LLM 과대표집 통계는 공개 1차 문헌 어디에도 확인되지 않았다. 그래서 강도를 <code>관측 컨벤션</code> 으로 낮춰 표기하고 각주를 붙이지 않는다. 실측은 유효한 국지 근거이므로 규칙을 지우지도 않는다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호</h4>
+<pre><code>grep -rnE '\b(effective|resolved)[A-Z]' --include='*.dart' .</code></pre>
+
+      <div class="sources">
+        <span class="source-badge">프로젝트 실측 · 57 파일 / 9건 · 4파일 (2026-04~06) — 인용 가능한 외부 출처 없음</span>
+      </div>
     </div>
 
-    <!-- F -->
-    <div class="cat-card">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">F</span>
-          <h3>구분선 블록</h3>
-          <span class="str str-must">MUST 삭제</span>
+    <!-- ── F ── -->
+    <div class="card cat-card cat-must" id="cat-f">
+      <div class="principle-title">
+        <span class="num">F</span>
+        <h3>구분선 블록</h3>
+        <span class="strength s-must">MUST 삭제</span>
+        <span class="op op-del">삭제</span>
+        <span class="pill">[코어]</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong><code>// ---</code> 를 늘여 만든 시각적 구획은 지우고 빈 줄과 이름으로 대체한다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">F 위반 · 배너 2블록</span></div>
+<pre><code><span class="cm">// ------------------------------------------------------------</span>
+<span class="cm">// 빌드</span>
+<span class="cm">// ------------------------------------------------------------</span>
+@override
+Widget build(BuildContext context) =&gt; Row(children: [...]);
+
+<span class="cm">// ============================================================</span>
+<span class="cm">// 핸들러</span>
+<span class="cm">// ============================================================</span>
+void handleTap() { ... }</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          <code>// ---</code> 를 수십 칸 늘여 만든 시각적 구획. 한 파일에 14개까지 쌓이면 구분 기능 자체가 사라진다.
-        </p>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">빈 줄과 이름으로 대체</span></div>
+<pre><code>@override
+Widget build(BuildContext context) =&gt; Row(children: [...]);
+
+void handleTap() { ... }</code></pre>
+        </div>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 한 파일에 14개까지 쌓이면 구분 기능 자체가 사라진다. 구분선이 필요하다고 느껴진다면 그것은 <strong>파일이 너무 길다는 신호</strong>이지 선이 필요하다는 신호가 아니다.</div>
+        <div class="rule-box"><strong>예외</strong> — 코드 생성기가 만드는 배너. 생성 파일은 대상에서 제외한다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호</h4>
 <pre><code>grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' .</code></pre>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">삭제. 대체 수단은 빈 줄과 의미 있는 함수·클래스 이름이다.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">해석</span>
-          <span class="cat-val">구분선이 필요하다고 느껴진다면 그것은 <strong>파일이 너무 길다는 신호</strong>이지 선이 필요하다는 신호가 아니다.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">예외</span>
-          <span class="cat-val">코드 생성기가 만드는 배너 — 생성 파일은 대상에서 제외한다.</span>
-        </div>
+
+      <div class="sources">
+        <a class="card-source" href="https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/" target="_blank" rel="noopener">&rarr; Microsoft Code with Engineering Playbook — code comments</a>
+        <span class="source-badge">프로젝트 실측 · 57 파일 / 약 28건 · 4파일 (2026-04~06)</span>
       </div>
-      <a class="card-source" href="https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/" target="_blank" rel="noopener">&#8594; Microsoft Playbook — code comments</a>
     </div>
 
-    <!-- G -->
-    <div class="cat-card s-should" style="grid-column:1/-1">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">G</span>
-          <h3>자명 구조 라벨</h3>
-          <span class="str str-should">SHOULD 흡수</span>
+    <!-- ── G ── -->
+    <div class="card cat-card cat-should" id="cat-g">
+      <div class="principle-title">
+        <span class="num">G</span>
+        <h3>자명 구조 라벨</h3>
+        <span class="strength s-should">SHOULD 흡수</span>
+        <span class="op op-absorb">코드 구조로 흡수</span>
+        <span class="pill">[코어]</span><span class="pill">[한국어]</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong>바로 아래 코드가 그대로 말하는 라벨은 이름으로 흡수한 뒤 지운다. 지우기만 하면 안 된다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">G 위반 · 선언 1개짜리 라벨</span></div>
+<pre><code>Column(children: [
+  <span class="cm">// 제목</span>
+  Text(props.title, style: {TokenClass}.titleM),
+  <span class="cm">// 서버 이름</span>
+  Text(state.name),
+]),</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span> <span class="pill">한국어</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          위젯 트리나 블록 위에 붙은 짧은 한국어 라벨. <code>// 제목</code>, <code>// 서버 이름</code>,
-          <code>// 좌측: leading 또는 기본 뒤로가기</code> 처럼 바로 아래 코드가 그대로 말하는 내용이다.
-        </p>
-        <div class="grid-2">
-          <div>
-<pre><code>grep -rnE '^[[:space:]]*//[[:space:]]*[가-힣][가-힣 ]{0,8}$' \
-  --include='*.dart' .</code></pre>
-            <p class="desc" style="margin-bottom:0;font-size:13px">판정 신호 — 단독 줄의 짧은 한국어 명사구.</p>
-          </div>
-          <div>
-            <div class="cat-row">
-              <span class="cat-key">처리</span>
-              <span class="cat-val">삭제가 아니라 <strong>흡수</strong>다. 라벨이 담던 의미를 변수명(<code>serverNameText</code>)이나 추출한 위젯 이름으로 옮긴 뒤 라벨을 지운다. <strong>지우기만 하면 정보가 없어진다.</strong></span>
-            </div>
-            <div class="cat-row">
-              <span class="cat-key">예외</span>
-              <span class="cat-val">섹션 라벨의 경제성 규칙 — 라벨이 <strong>2개 이상의 선언을 묶고</strong> 그 묶음의 축을 이름으로 표현할 수 없을 때만 남긴다. 선언 1개짜리 섹션 라벨, 그리고 라벨과 변수명이 같은 뜻인 경우는 G 다.</span>
-            </div>
-          </div>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">이름으로 옮긴 뒤 라벨 삭제</span></div>
+<pre><code>Column(children: [
+  Text(props.title, style: {TokenClass}.titleM),
+  Text(serverNameText),
+]),</code></pre>
         </div>
       </div>
-      <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&#8594; Effective Dart — style</a>
+
+      <div class="ba">
+        <div class="ba-panel ba-keep">
+          <div class="ba-head"><span class="ba-label">남는 예외</span><span class="tag">섹션 라벨의 경제성</span></div>
+          <p class="ba-note">선언 <strong>2개 이상</strong>을 묶고, 그 묶음의 축을 이름으로 못 쓰는 경우에만 라벨이 남는다.</p>
+<pre><code><span class="cm-keep">// 좌측: leading 또는 기본 뒤로가기</span>
+final leading = props.leading ?? const {widget_prefix}BackButtonWidget();
+final leadingWidth = props.leadingWidth ?? 48.0;</code></pre>
+        </div>
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">여전히 G</span><span class="tag tag-bad">라벨 = 변수명</span></div>
+          <p class="ba-note">선언 1개짜리 섹션 라벨, 그리고 라벨과 변수명이 같은 뜻인 경우는 예외가 아니라 그대로 G 다.</p>
+<pre><code><span class="cm">// 좌측 위젯</span>
+final leading = props.leading ?? const {widget_prefix}BackButtonWidget();</code></pre>
+        </div>
+      </div>
+      <p class="caption" style="margin-top:0;margin-bottom:16px">오른쪽 패널은 별도 사례가 아니라 왼쪽 예외를 <strong>선언 1개로 줄여 본 것</strong>이다. 카탈로그가 규정한 경제성 규칙("2개 이상을 묶을 때만 남긴다")이 어디서 깨지는지를 보여준다.</p>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 라벨을 그냥 지우면 구획 정보가 이름으로 옮겨가지 않고 그냥 없어진다. 라벨이 담던 의미는 변수명이나 추출한 위젯 이름이 받아야 한다.</div>
+        <div class="rule-box"><strong>예외</strong> — 섹션 라벨의 경제성 규칙. 라벨이 <strong>2개 이상의 선언을 묶고</strong> 그 묶음의 축을 이름으로 표현할 수 없을 때만 남긴다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호 — 단독 줄의 짧은 한국어 명사구</h4>
+<pre><code>grep -rnE '^[[:space:]]*//[[:space:]]*[가-힣][가-힣 ]{0,8}$' --include='*.dart' .</code></pre>
+
+      <div class="sources">
+        <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart — style</a>
+        <span class="source-badge">프로젝트 실측 · 57 파일 / 약 35건 · 15파일 이상 (2026-04~06)</span>
+      </div>
     </div>
 
   </div>
 </div>
 
-<!-- ── Section 6 — H 보존 카테고리 (그린) ── -->
+<!-- ══ Section 4 — H (보존) ══ -->
 <div class="section">
-  <div class="section-label green">보존 카테고리 — H (위반 아님)</div>
+  <div class="section-label keep">H — 좋은 주석 · 위반 아님 · 보존 대상</div>
+  <p class="desc">여기서부터 방향이 뒤집힌다. A~G 는 after 에서 주석이 <strong>줄어드는</strong> 것이 정답이었지만, H 는 after 에서 주석이 <strong>남아 있는</strong> 것이 정답이다.</p>
 
-  <div class="preserve-card">
-    <div class="preserve-banner">
-      <span class="badge-keep">보존</span>
-      H 는 안티패턴이 아니다. 위반 목록에 넣지 마라 — 이 카탈로그의 최대 오용이다.
-    </div>
-
+  <div class="keep-card" id="cat-h">
     <div class="principle-title">
-      <span class="cat-code">H</span>
-      <h3>좋은 주석</h3>
-      <span class="str str-keep">MUST 보존</span>
+      <span class="num">H</span>
+      <h3>코드만 읽어서는 복원할 수 없는 정보는 남긴다</h3>
+      <span class="strength s-keep">MUST 보존</span>
+      <span class="op op-keep">보존</span>
+      <span class="pill">[코어]</span>
     </div>
-    <div style="margin-bottom:12px"><span class="pill">코어</span></div>
 
-    <p class="desc" style="margin-bottom:18px">
-      코드만 읽어서는 복원할 수 없는 정보를 담은 주석이다. 이 카탈로그에 들어 있는 이유는
-      A~G 를 일괄 삭제할 때 함께 지워지는 사고를 막기 위해서다. 실측 기준 전체 주석의 약 11% 가 H 에 해당한다.
-    </p>
+    <div class="ba">
+      <div class="ba-panel ba-bad">
+        <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">A~G 일괄 삭제 사고</span></div>
+        <p class="ba-note">컴파일은 되고 정보만 사라졌다. 세 줄이 각각 <strong>프레임워크 함정 · 제약 · 실패 모드</strong>였는데 전부 날아갔다.</p>
+<pre><code>Material(color: {TokenClass}.surface, surfaceTintColor: Colors.transparent),
+IconButton(iconSize: 24, onPressed: onTap, icon: icon),
+if (isEditing) TextField(controller: c) else Text(value),</code></pre>
+      </div>
+      <div class="ba-panel ba-keep">
+        <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">셋 다 보존이 정답</span></div>
+        <p class="ba-note">셋 다 코드로 복원되지 않는다. 남긴다.</p>
+<pre><code><span class="cm-keep">// 안 끄면 M3 tonal overlay 가 이 색 위에 덧칠돼 실제로 더 밝게 보인다</span>
+Material(color: {TokenClass}.surface, surfaceTintColor: Colors.transparent),
+<span class="cm-keep">// 위젯 내부가 아이콘 크기를 상수로 박아 외부에서 축소 불가 — 24 고정</span>
+IconButton(iconSize: 24, onPressed: onTap, icon: icon),
+<span class="cm-keep">// 삼항으로 합치면 TextField 가 재마운트돼 매 키입력마다 포커스가 날아간다</span>
+if (isEditing) TextField(controller: c) else Text(value),</code></pre>
+      </div>
+    </div>
 
-    <h4 style="margin-bottom:10px">보존 기준 3 — 하나라도 해당하면 남긴다</h4>
-    <div class="table-wrap" style="background:var(--surface)">
+    <div class="rule-box keep" style="margin-bottom:18px"><strong>왜</strong> — H 가 이 카탈로그에 들어 있는 이유는 A~G 를 일괄 삭제할 때 함께 지워지는 사고를 막기 위해서다. 위 세 줄은 각각 프레임워크 함정 · 제약 · 실패 모드에 대응한다.</div>
+
+    <h4 class="signal-h">보존 기준 — 셋 중 하나에 해당하면 남긴다</h4>
+    <div class="table-wrap" style="margin-bottom:16px">
       <table>
         <thead>
           <tr><th>기준</th><th>판정 질문</th><th>예</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>프레임워크 함정</strong></td>
-            <td>프레임워크가 문서화하지 않았거나 직관에 반하는 동작을 설명하는가</td>
-            <td>테마의 tonal overlay 가 지정한 배경색을 덧칠해 실제로 더 밝게 보인다</td>
-          </tr>
-          <tr>
-            <td><strong>제약 · trade-off</strong></td>
-            <td>대안을 못 쓴 이유, 값이 그 값인 이유를 남기는가</td>
-            <td>위젯 내부가 아이콘 크기를 상수로 박아 외부에서 축소 불가</td>
-          </tr>
-          <tr>
-            <td><strong>실패 모드</strong></td>
-            <td>이 코드를 &ldquo;단순화&rdquo; 하면 무엇이 깨지는지 알려주는가</td>
-            <td>조건에 따라 트리를 바꾸면 입력 위젯이 재마운트돼 매 키입력마다 포커스가 날아간다</td>
-          </tr>
+          <tr class="row-keep"><td class="sys">프레임워크 함정</td><td>프레임워크가 문서화하지 않았거나 직관에 반하는 동작을 설명하는가</td><td>테마의 tonal overlay 가 지정한 배경색을 덧칠해 실제로 더 밝게 보인다</td></tr>
+          <tr class="row-keep"><td class="sys">제약 · trade-off</td><td>대안을 못 쓴 이유, 값이 그 값인 이유를 남기는가</td><td>위젯 내부가 아이콘 크기를 상수로 박아 외부에서 축소 불가</td></tr>
+          <tr class="row-keep"><td class="sys">실패 모드</td><td>이 코드를 "단순화" 하면 무엇이 깨지는지 알려주는가</td><td>조건에 따라 트리를 바꾸면 입력 위젯이 재마운트돼 매 키입력마다 포커스가 날아간다</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="caption" style="margin-top:0;margin-bottom:16px">원본 규칙 문서의 "좋은 주석 기준" 절은 4줄짜리 빈 스텁이었다. 이관 시 확정된 판정은 <strong>H 판정 기준을 그 절에 흡수</strong>하는 것이고, 위 3종이 그 채워진 내용이다.</p>
 
-    <div class="grid-2" style="margin-top:20px">
-      <div>
-        <h4>판정 신호 — 삭제 금지 후보로 <em>먼저</em> 표시</h4>
-<pre><code>grep -rnE '//.*(때문|안 하면|버그|무시되|제약|하드코딩)' \
-  --include='*.dart' .</code></pre>
-        <p class="desc" style="margin-bottom:0;font-size:13px">
-          인과 접속이 들어간 주석이 히트한다. 이 패턴은 <strong>수집기가 아니라 방어막</strong>이다 —
-          판정 순서 2단계에서 실행해 마킹부터 해둔다.
-        </p>
-      </div>
-      <div>
-        <h4>스텁 흡수 이력</h4>
-        <p class="desc" style="margin-bottom:0;font-size:13px">
-          원본 규칙 문서의 &ldquo;좋은 주석 기준&rdquo; 절은 4줄짜리 빈 스텁이었다.
-          이관 시 확정된 판정은 <strong>H 판정 기준을 그 절에 흡수</strong>하는 것이고,
-          위 3종이 그 채워진 내용이다.
-        </p>
-      </div>
+    <h4 class="signal-h">판정 신호 — 삭제 금지 후보를 먼저 표시한다</h4>
+    <p class="caption" style="margin-top:0;margin-bottom:10px">인과 접속이 들어간 주석은 위반 후보가 아니라 <strong>삭제 금지 후보</strong>로 먼저 표시한다.</p>
+<pre><code>grep -rnE '//.*(때문|안 하면|버그|무시되|제약|하드코딩)' --include='*.dart' .</code></pre>
+
+    <div class="sources">
+      <a class="card-source" href="https://www.oreilly.com/library/view/tidy-first/9781098151232/ch14.html" target="_blank" rel="noopener">&rarr; Kent Beck, <em>Tidy First?</em></a>
+      <a class="card-source" href="https://api.flutter.dev/flutter/painting/Border/Border.all.html" target="_blank" rel="noopener">&rarr; Flutter <code>Border.all</code></a>
+      <span class="source-badge">프로젝트 실측 · 57 파일 / 약 30건 · 10파일 이상 (2026-04~06)</span>
     </div>
-
-    <a class="card-source" href="https://www.oreilly.com/library/view/tidy-first/9781098151232/ch14.html" target="_blank" rel="noopener">&#8594; Kent Beck, <em>Tidy First?</em> — ch.14</a>
-    <a class="card-source" href="https://api.flutter.dev/flutter/painting/Border/Border.all.html" target="_blank" rel="noopener" style="margin-top:6px;border-top:none;padding-top:0">&#8594; Flutter — Border.all</a>
   </div>
 </div>
 
-<!-- ── Section 7 — 위반 카테고리 I, J ── -->
+<!-- ══ Section 5 — I, J ══ -->
 <div class="section">
-  <div class="section-label">위반 카테고리 &#8545; — I (어댑터) · J (코어 + 파라미터)</div>
-  <p class="desc">
-    이 두 카테고리는 주석이 아니라 <strong>코드 구조</strong>를 대상으로 한다. 처리도 삭제가 아니라 재구성과 수렴이다.
-  </p>
+  <div class="section-label">원칙 I · J — 구조의 위반</div>
+  <p class="desc">앞의 여덟이 주석과 이름의 문제라면 이 둘은 <strong>코드 구조</strong>의 문제다. 처리도 삭제가 아니라 재구성과 수렴이다.</p>
 
-  <div class="grid-2">
+  <div class="stack">
 
-    <!-- I -->
-    <div class="cat-card s-should">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">I</span>
-          <h3>과도한 빌더 분할</h3>
-          <span class="str str-should">SHOULD 재구성</span>
+    <!-- ── I ── -->
+    <div class="card cat-card cat-should" id="cat-i">
+      <div class="principle-title">
+        <span class="num">I</span>
+        <h3>과도한 빌더 분할</h3>
+        <span class="strength s-should">SHOULD 재구성</span>
+        <span class="op op-restr">재구성</span>
+        <span class="pill">[어댑터:dart-flutter]</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong><code>build()</code> 가 <code>_build*</code> 다단 호출 체인으로 흩어지면 인라인하거나 별도 위젯으로 뺀다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">I 위반 · 4단 호출 체인</span></div>
+<pre><code>@override
+Widget build(BuildContext context) =&gt; _buildIconTextLayout();
+
+Widget _buildIconTextLayout() =&gt; Row(children: [_buildIcon(), _buildContent()]);
+Widget _buildIcon() =&gt; Icon(props.icon, size: 20);
+Widget _buildContent() =&gt; _buildTextBlock();
+Widget _buildTextBlock() =&gt; Text(props.label);</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">어댑터:dart-flutter</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          <code>build()</code> 가 <code>_buildIcon &#8594; _buildContent &#8594; _buildTextBlock &#8594; _buildIconTextLayout</code>
-          처럼 다단 호출 체인으로 흩어진 것. 이름이 본문보다 정보를 더 주지 못하는데 호출 단계만 늘어난다.
-        </p>
-<pre><code>grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' --include='*.dart' .</code></pre>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">&ldquo;무조건 인라인&rdquo;도 &ldquo;무조건 분할&rdquo;도 아니다. 분할이 정당한 조건은 셋 — <strong>의미 경계가 실제로 다른가 / 재사용되는가 / 독립 테스트 대상인가.</strong> 셋 다 아니면 인라인한다. 셋 중 하나라도 해당하면 헬퍼 메서드가 아니라 <strong>별도 위젯</strong>으로 뺀다.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">임계치</span>
-          <span class="cat-val">줄 수 · 헬퍼 개수 · 추출 위치는 이 카탈로그가 아니라 <strong>어댑터가 정한다.</strong></span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">확장 금지</span>
-          <span class="cat-val">코어로 올리지 않는다. 다른 스택으로 옮기려면 그 스택에서 위반이 실제로 관측된 뒤에 어댑터를 추가한다.</span>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">셋 다 아니면 인라인</span></div>
+          <p class="ba-note">의미 경계 · 재사용 · 독립 테스트 <strong>셋 다 아니면</strong> 인라인한다.</p>
+<pre><code>@override
+Widget build(BuildContext context) =&gt; Row(
+      children: [
+        Icon(props.icon, size: 20),
+        Text(props.label),
+      ],
+    );</code></pre>
         </div>
       </div>
-      <a class="card-source" href="https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/checkbox.dart" target="_blank" rel="noopener">&#8594; flutter/flutter — checkbox.dart</a>
+
+      <div class="ba">
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after · 분할이 정당할 때</span><span class="tag tag-ok">헬퍼가 아니라 위젯으로</span></div>
+          <p class="ba-note">셋 중 하나라도 해당하면 헬퍼 메서드가 아니라 <strong>별도 위젯</strong>으로 뺀다.</p>
+<pre><code>class {widget_prefix}DeviceBadgeWidget extends StatelessWidget { ... }</code></pre>
+        </div>
+        <div class="ba-panel ba-keep">
+          <div class="ba-head"><span class="ba-label">분할 정당화 3조건</span><span class="tag">둘 다 답이 아니다</span></div>
+          <p class="ba-note">"무조건 인라인" 도 "무조건 분할" 도 답이 아니다.</p>
+<pre><code>1. 의미 경계가 실제로 다른가
+2. 재사용되는가
+3. 독립 테스트 대상인가</code></pre>
+        </div>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 이름이 본문보다 정보를 더 주지 못하는데 호출 단계만 늘어난다.</div>
+        <div class="rule-box"><strong>임계치는 어댑터 소유</strong> — 구체적 임계치(줄 수, 헬퍼 개수, 추출 위치)는 이 카탈로그가 아니라 어댑터가 정한다. 이 카테고리는 <strong>코어로 올리지 않는다.</strong> 다른 스택으로 옮기려면 그 스택에서 위반이 실제로 관측된 뒤에 어댑터를 추가한다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호</h4>
+<pre><code>grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' --include='*.dart' .</code></pre>
+
+      <div class="sources">
+        <a class="card-source" href="https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/checkbox.dart" target="_blank" rel="noopener">&rarr; flutter/flutter <code>checkbox.dart</code></a>
+        <span class="source-badge">프로젝트 실측 · 57 파일 / 3파일 (2026-04~06)</span>
+      </div>
     </div>
 
-    <!-- J -->
-    <div class="cat-card s-should">
-      <div class="cat-body">
-        <div class="principle-title">
-          <span class="cat-code">J</span>
-          <h3>중복 구현</h3>
-          <span class="str str-should">SHOULD 수렴</span>
+    <!-- ── J ── -->
+    <div class="card cat-card cat-should" id="cat-j">
+      <div class="principle-title">
+        <span class="num">J</span>
+        <h3>중복 구현</h3>
+        <span class="strength s-should">SHOULD 수렴</span>
+        <span class="op op-restr">공통 요소로 수렴</span>
+        <span class="pill">[코어]</span><span class="pill">+ 프로젝트 파라미터</span>
+      </div>
+      <p class="desc" style="margin-bottom:16px"><strong>공통 컴포넌트가 이미 있는데 그것이 감싸던 저수준 조합을 호출부에서 다시 조립하지 않는다.</strong></p>
+
+      <div class="ba">
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">before</span><span class="tag tag-bad">J 위반 · 저수준 재조립</span></div>
+          <p class="ba-note">눌림 애니메이션 공통 위젯이 있는데 제스처와 스케일을 직접 엮었다.</p>
+<pre><code>GestureDetector(
+  onTapDown: (_) =&gt; _controller.forward(),
+  onTapUp: (_) =&gt; _controller.reverse(),
+  onTap: onTap,
+  child: ScaleTransition(scale: _scale, child: child),
+)</code></pre>
         </div>
-        <div style="margin-bottom:10px"><span class="pill">코어</span> <span class="pill">프로젝트 파라미터</span></div>
-        <p class="desc" style="margin-bottom:10px">
-          프로젝트에 이미 있는 공통 컴포넌트를 쓰지 않고 그것이 감싸던 저수준 조합을 호출부에서 다시 조립하는 것.
-          눌림 애니메이션 공통 위젯이 있는데 제스처 감지기와 스케일 애니메이션을 직접 엮는 식이다.
-        </p>
+        <div class="ba-panel ba-good">
+          <div class="ba-head"><span class="ba-label">after</span><span class="tag tag-ok">공통 위젯으로 수렴</span></div>
+          <p class="ba-note">호출부 6곳을 위젯에 맞춘다. 반대 방향이 아니다.</p>
+<pre><code>{widget_prefix}PressableWidget(onTap: onTap, child: child)</code></pre>
+        </div>
+      </div>
+
+      <div class="ba">
+        <div class="ba-panel ba-keep">
+          <div class="ba-head"><span class="ba-label">예외 · 의도된 divergence</span><span class="tag">이유 줄은 H 다</span></div>
+          <p class="ba-note">의도된 divergence 는 이유를 남긴다. <strong>그 줄은 H 이므로 나중에 삭제 대상이 아니다.</strong></p>
+<pre><code><span class="cm-keep">// 공통 위젯은 탭 취소 시 원복하지만 여기선 드래그 중 축소를 유지해야 한다</span>
+GestureDetector(...)</code></pre>
+        </div>
+        <div class="ba-panel ba-bad">
+          <div class="ba-head"><span class="ba-label">수렴 방향 뒤집기</span><span class="tag tag-bad">금지</span></div>
+          <p class="ba-note">공통 위젯에 파라미터를 6개 늘려 호출부를 수용하는 것이 아니다. 방향을 뒤집으면 공통 위젯이 호출부의 합집합이 된다.</p>
+<pre><code>{widget_prefix}PressableWidget(
+  onTap: onTap,
+  keepScaleOnDrag: true,   <span class="cm">// 호출부 1을 위해</span>
+  cancelOnTapOutside: false, <span class="cm">// 호출부 2를 위해</span>
+  ...
+)</code></pre>
+        </div>
+      </div>
+      <p class="caption" style="margin-top:0;margin-bottom:16px">오른쪽 패널은 카탈로그가 <strong>금지한 방향</strong>을 눈으로 보이게 옮긴 것이다. 파라미터가 호출부 수만큼 늘어나면 공통 위젯이 호출부의 합집합이 되고, 수렴이 아니라 누적이 된다.</p>
+
+      <div class="rule-grid">
+        <div class="rule-box"><strong>왜</strong> — 수렴 방향을 뒤집지 마라. 호출부 6곳을 공통 위젯에 맞추는 것이 원칙이고, 공통 위젯에 파라미터를 6개 늘려 호출부를 수용하는 것이 아니다.</div>
+        <div class="rule-box"><strong>판정에 프로젝트 파라미터가 필요하다</strong> — 공통 위젯 목록과 각 위젯이 감싸는 저수준 요소를 모른 채로는 판정할 수 없다. grep 은 그 목록을 채운 뒤에만 만들어진다.</div>
+      </div>
+
+      <h4 class="signal-h">판정 신호 — 목록을 채운 뒤에만 성립</h4>
 <pre><code>grep -rnE '{공통 위젯이 감싸는 저수준 요소}' --include='*.dart' &lt;소스 경로&gt; \
   | grep -v '{공통 위젯 파일 경로}'</code></pre>
-        <div class="cat-row">
-          <span class="cat-key">판정 전제</span>
-          <span class="cat-val"><strong>프로젝트 파라미터가 필요하다.</strong> 공통 위젯 목록과 각 위젯이 감싸는 저수준 요소를 모른 채로는 판정할 수 없다. grep 은 그 목록을 채운 뒤에만 만들어진다.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">처리</span>
-          <span class="cat-val">공통 요소로 수렴. <strong>수렴 방향을 뒤집지 마라</strong> — 호출부 6곳을 공통 위젯에 맞추는 것이 원칙이고, 공통 위젯에 파라미터를 6개 늘려 호출부를 수용하는 것이 아니다.</span>
-        </div>
-        <div class="cat-row">
-          <span class="cat-key">예외</span>
-          <span class="cat-val"><strong>의도된 divergence</strong> — 공통 위젯으로 표현할 수 없는 요구라서 갈라놓은 것이면 그 이유를 주석으로 남긴다. 그 주석은 H 이므로 나중에 삭제 대상이 되지 않는다.</span>
-        </div>
+
+      <div class="sources">
+        <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&rarr; Google Engineering Practices — what to look for in a code review</a>
+        <span class="source-badge">프로젝트 실측 · 57 파일 / 6건 · 6파일 (2026-04~06)</span>
       </div>
-      <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&#8594; Google Engineering Practices — code review</a>
     </div>
 
   </div>
 </div>
 
-<!-- ── Section 8 — E 근거 등급 주의 ── -->
+<!-- ══ Section 6 — 강도와 축 ══ -->
 <div class="section">
-  <div class="section-label">E 카테고리 주의 — 근거 등급을 격상하지 마라</div>
+  <div class="section-label">강도와 축 — 어디까지 밀어붙일 수 있나</div>
+  <p class="desc">강도는 세 등급이고, 축은 그 규칙이 스택 무관 코어인지 특정 스택 전용인지를 표시한다. 등급을 섞어 인용하면 규칙 전체의 신뢰가 무너진다.</p>
 
-  <div class="warn-card">
-    <div class="principle-title">
-      <span class="num">!</span>
-      <h3>E 는 <code>관측 컨벤션</code> 이다 — 논문 각주를 붙이면 안 된다</h3>
-    </div>
-    <p class="desc" style="margin-bottom:14px">
-      <code>effective*</code> / <code>resolved*</code> 접두사가 LLM 산출물에서 과대표집된다는 <strong>공개 통계는 존재하지 않는다.</strong>
-      2026-08 조사에서 접두사별 과대표집 통계는 공개 1차 문헌 어디에서도 확인되지 않았다.
-      여기에 문헌 각주를 붙이는 순간, 국지 실측 9건을 문헌 근거로 위장하게 된다.
-    </p>
-    <div class="grid-2">
-      <div class="compare-bad" style="margin:0">
-        <div class="compare-label">&#10007; 해서는 안 되는 것</div>
-        <ul class="checklist" style="gap:6px">
-          <li><span class="check bad">&#10007;</span><span>E 에 학술 논문·공식 문서 각주를 달아 <code>MUST</code> 로 격상</span></li>
-          <li><span class="check bad">&#10007;</span><span>&ldquo;LLM 이 이 접두사를 많이 쓴다&rdquo;를 출처 없이 단정</span></li>
-          <li><span class="check bad">&#10007;</span><span>근거가 약하다는 이유로 규칙 자체를 삭제</span></li>
-        </ul>
-      </div>
-      <div class="compare-good" style="margin:0">
-        <div class="compare-label">&#10003; 확정된 처리</div>
-        <ul class="checklist" style="gap:6px">
-          <li><span class="check good">&#10003;</span><span>강도를 <code>관측 컨벤션</code> 으로 <strong>낮춰 표기</strong>하고 각주를 붙이지 않는다</span></li>
-          <li><span class="check good">&#10003;</span><span>출처는 실측 배지로만 — 공개 URL 을 지어내지 않는다</span></li>
-          <li><span class="check good">&#10003;</span><span>실측은 유효한 국지 근거이므로 규칙은 유지한다 (9건 / 4파일)</span></li>
-        </ul>
-      </div>
-    </div>
-    <span class="card-source measured">
-      <span class="measured-badge">실측 근거</span>
-      2026-08 조사 — <code>effective*</code>/<code>resolved*</code> 공개 통계 확인 실패
-    </span>
-  </div>
-</div>
-
-<!-- ── Section 9 — before / after 코드 대비 ── -->
-<div class="section">
-  <div class="section-label">코드 대비 — 처리 형태별 before / after</div>
-  <p class="desc">
-    같은 &ldquo;위반&rdquo; 이라도 손이 닿는 범위가 다르다. A 는 이름을 볼 것, E 는 호출부를 볼 것, G 는 구조로 옮길 것.
-  </p>
-
-  <h3 style="margin-bottom:10px">A — 삭제, 단 이름이 약하면 개명</h3>
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">&#10007; before</div>
-<pre><code>String? text,      // 버튼 텍스트
-bool isChecked,    // 체크 여부
-double min,        // 최소값
-int c,             // 카드 개수</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        앞 세 줄은 이름이 이미 말하고 있어 주석이 잉여다. 마지막 줄은 <strong>이름이 약해서</strong> 주석이 짐을 지고 있다.
-      </p>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">&#10003; after</div>
-<pre><code>String? text,
-bool isChecked,
-double min,
-int cardCount,     // ← 주석 삭제가 아니라 개명</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        잉여 주석은 지운다. 약한 이름은 <strong>주석을 지우는 대신 이름을 고친다</strong> — 주석만 지우면 원래보다 나빠진다.
-      </p>
-    </div>
-  </div>
-
-  <h3 style="margin-bottom:10px;margin-top:26px">E — 개명은 호출부 전수를 동반한다</h3>
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">&#10007; before</div>
-<pre><code>final effectiveGradient =
-    props.gradient ?? defaultGradient;
-final resolvedChildren =
-    props.children.isNotEmpty
-        ? props.children
-        : fallback;
-
-// 호출부
-Container(gradient: effectiveGradient)
-Column(children: resolvedChildren)</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        접두사가 <strong>계산 과정</strong>을 드러낼 뿐 그 값이 무엇인지는 말하지 않는다. <code>??</code> 가 이미 fallback 을 표현한다.
-      </p>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">&#10003; after</div>
-<pre><code>final toolbarGradient =
-    props.gradient ?? defaultGradient;
-final visibleChildren =
-    props.children.isNotEmpty
-        ? props.children
-        : fallback;
-
-// 호출부 — 전수 동반 수정 필수
-Container(gradient: toolbarGradient)
-Column(children: visibleChildren)</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        도메인·역할명으로 바꾼다. <strong>선언만 고치면 컴파일이 깨진다</strong> — 삭제 카테고리와 작업 형태가 다르다.
-      </p>
-    </div>
-  </div>
-
-  <h3 style="margin-bottom:10px;margin-top:26px">G — 삭제가 아니라 흡수</h3>
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">&#10007; before &#8212; 그리고 잘못된 처리</div>
-<pre><code>// 서버 이름
-Text(state.name, style: t.bodyLarge)
-
-// 잘못된 처리 = 라벨만 삭제
-Text(state.name, style: t.bodyLarge)
-// ↑ 구획 정보가 어디로도 가지 않고 증발</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        G 를 삭제 카테고리로 오해하면 라벨이 담던 의미가 이름으로 옮겨가지 않고 그냥 없어진다.
-      </p>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">&#10003; after &#8212; 흡수</div>
-<pre><code>final serverNameText = Text(
-  state.name,
-  style: t.bodyLarge,
-);
-// ...
-serverNameText</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        라벨의 의미를 변수명 또는 추출한 위젯 이름으로 옮긴 뒤 라벨을 지운다.
-        섹션 라벨이 <strong>2개 이상의 선언을 묶고</strong> 그 축을 이름으로 표현할 수 없을 때만 남긴다.
-      </p>
-    </div>
-  </div>
-
-  <h3 style="margin-bottom:10px;margin-top:26px">D &#8594; H — 카테고리 경계에서의 승격</h3>
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">&#10007; D &#8212; 삭제</div>
-<pre><code>// borderRadius 로 자식을 클리핑한다
-ClipRRect(borderRadius: r, child: c)</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        API 문서 첫 문단에 있는 내용이다. 정보량 0이고, 프레임워크 버전이 오르면 거짓이 된다.
-      </p>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">&#10003; H &#8212; 보존</div>
-<pre><code>// surfaceTintColor 안 끄면 M3 가
-// 지정 배경색 위에 tint 를 덮는다
-Material(surfaceTintColor: none, ...)</code></pre>
-      <p class="desc" style="margin-bottom:0;font-size:13px">
-        같은 API 를 언급하지만 <strong>같은 카테고리가 아니다.</strong> 프레임워크 함정을 설명하므로 H 다.
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- ── Section 10 — 집계 규칙 / 코드 생성 산출물 제외 ── -->
-<div class="section">
-  <div class="section-label">집계 규칙 — 코드 생성 산출물 제외</div>
-  <p class="desc">
-    집계는 판정과 다르다. 집계 단계에서 생성 파일을 빼지 않으면 순위가 통째로 오염되고,
-    F 는 생성기 배너를 위반으로 잡는다.
-  </p>
-
-  <div class="grid-2">
-    <div class="danger-card">
-      <div class="principle-title"><span class="num">&#10007;</span><h3>제외하지 않으면</h3></div>
-      <ul class="checklist">
-        <li><span class="check bad">&#10007;</span><span><strong>B 의 빈도 상위가 전부 코드 생성기 배너로 채워진다</strong> — 실제 템플릿 마커가 순위에서 밀려 보이지 않는다.</span></li>
-        <li><span class="check bad">&#10007;</span><span><strong>F 가 생성기 배너를 구분선 위반으로 집계한다</strong> — 손댈 수 없는 파일이 위반 건수로 잡힌다.</span></li>
-        <li><span class="check bad">&#10007;</span><span>총 위반 건수가 부풀려져 캠페인 진척률이 왜곡된다.</span></li>
-      </ul>
+  <div class="grid-3" style="margin-bottom:24px">
+    <div class="card">
+      <div class="principle-title"><span class="strength s-must">MUST</span></div>
+      <p class="desc" style="margin-bottom:12px">공식 문서가 금지·강제하거나 예외가 없음.</p>
+      <p class="mono" style="color:var(--text3)">A &middot; B &middot; D &middot; F &middot; H(보존)</p>
     </div>
     <div class="card">
-      <div class="principle-title"><span class="num">&#10003;</span><h3>제외 플래그</h3></div>
-<pre><code>--exclude='*.g.dart'
---exclude='*.freezed.dart'</code></pre>
-      <p class="desc" style="margin-bottom:10px">
-        B 의 빈도 집계 명령에 이미 포함되어 있다. F 의 예외 조항(&ldquo;코드 생성기가 만드는 배너&rdquo;)도 같은 제외로 처리한다.
-      </p>
-      <p class="desc" style="margin-bottom:0">
-        <strong>스캔 대상은 사람이 쓴 파일이다.</strong> 생성 파일은 카탈로그의 처리 대상이 아니며,
-        고쳐도 다음 codegen 에서 되돌아온다.
-      </p>
+      <div class="principle-title"><span class="strength s-should">SHOULD</span></div>
+      <p class="desc" style="margin-bottom:12px">권고 수준, 명시 예외 존재.</p>
+      <p class="mono" style="color:var(--text3)">C &middot; G &middot; I &middot; J</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span></div>
+      <p class="desc" style="margin-bottom:12px">공개 근거 없음, 실측만 존재. <strong>준수 강도가 낮다는 뜻이 아니다.</strong></p>
+      <p class="mono" style="color:var(--text3)">E</p>
     </div>
   </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>축</th><th>카테고리</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="sys"><code>[코어]</code> — 스택 무관</td><td class="cat-key">A B C D E F G H</td><td>주석·네이밍 규칙이라 언어 문법에 묶이지 않는다</td></tr>
+        <tr><td class="sys"><code>[어댑터:dart-flutter]</code></td><td class="cat-key">I</td><td>위젯 <code>build()</code> 트리 분할은 Flutter 고유 국면이다</td></tr>
+        <tr><td class="sys"><code>[코어]</code> + 프로젝트 파라미터</td><td class="cat-key">J</td><td>규칙은 스택 무관이나 판정에 그 프로젝트의 공통 위젯 목록이 필요하다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption"><code>[한국어]</code> 는 코어 규칙 중 <strong>판정 신호가 한국어 주석 관행에 얹힌</strong> 경우 병기한다 (A, G). 규칙 자체는 언어 무관이고, grep 패턴만 한국어에 결속된다.</p>
 </div>
 
-<!-- ── Section 11 — 수치 기준 ── -->
+<!-- ══ Section 7 — 수치 기준 ══ -->
 <div class="section">
-  <div class="section-label">수치 기준 — 실측 스캔 결과</div>
-  <p class="desc">
-    2026-04~06 프로젝트 실측. 총 57 파일 / 약 275건. H(보존)는 전체의 약 11% 를 차지하며,
-    이 비율이 &ldquo;일괄 삭제&rdquo; 의 손실 규모를 그대로 나타낸다.
-  </p>
+  <div class="section-label">수치 기준 — 실측 분포</div>
+  <p class="desc">전체 스캔은 57 파일 / 약 275건이다. 아래 막대는 카테고리별 실측 건수의 상대 크기이며, <strong>초록 막대 H 는 위반이 아니라 보존 대상 건수</strong>다. 전체의 약 11% 가 여기 속한다.</p>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="dist">
+      <div class="dist-row"><span class="dist-label">B 템플릿 마커</span><div class="dist-track"><div class="dist-fill" style="width:100%"></div></div><span class="dist-val">약 90건</span></div>
+      <div class="dist-row"><span class="dist-label">A 이름 번역 주석</span><div class="dist-track"><div class="dist-fill" style="width:94%"></div></div><span class="dist-val">약 85건</span></div>
+      <div class="dist-row"><span class="dist-label">G 자명 구조 라벨</span><div class="dist-track"><div class="dist-fill f-yellow" style="width:39%"></div></div><span class="dist-val">약 35건</span></div>
+      <div class="dist-row"><span class="dist-label">H 좋은 주석 (보존)</span><div class="dist-track"><div class="dist-fill f-green" style="width:33%"></div></div><span class="dist-val">약 30건</span></div>
+      <div class="dist-row"><span class="dist-label">F 구분선 블록</span><div class="dist-track"><div class="dist-fill" style="width:31%"></div></div><span class="dist-val">약 28건</span></div>
+      <div class="dist-row"><span class="dist-label">D 프레임워크 기본</span><div class="dist-track"><div class="dist-fill" style="width:22%"></div></div><span class="dist-val">약 20건</span></div>
+      <div class="dist-row"><span class="dist-label">E 접두사 fallback</span><div class="dist-track"><div class="dist-fill f-blue" style="width:10%"></div></div><span class="dist-val">9건</span></div>
+      <div class="dist-row"><span class="dist-label">C 메서드명 반복 doc</span><div class="dist-track"><div class="dist-fill f-yellow" style="width:8%"></div></div><span class="dist-val">약 7건</span></div>
+      <div class="dist-row"><span class="dist-label">J 중복 구현</span><div class="dist-track"><div class="dist-fill f-cyan" style="width:7%"></div></div><span class="dist-val">6건</span></div>
+      <div class="dist-row"><span class="dist-label">I 과도한 빌더 분할</span><div class="dist-track"><div class="dist-fill f-cyan" style="width:4%"></div></div><span class="dist-val">3파일</span></div>
+    </div>
+  </div>
 
   <div class="table-wrap">
     <table>
@@ -1078,101 +1014,113 @@ Material(surfaceTintColor: none, ...)</code></pre>
       </thead>
       <tbody>
         <tr><td>스캔 규모</td><td><strong>57 파일 / 약 275건</strong></td><td>프로젝트 실측 (2026-04~06)</td></tr>
-        <tr><td>A 이름 번역 주석</td><td>약 85건 / 48파일</td><td>프로젝트 실측</td></tr>
-        <tr><td>B 템플릿 마커</td><td>약 90건 / 48파일</td><td>프로젝트 실측</td></tr>
-        <tr><td>C 메서드명 반복 doc</td><td>약 7건 / 2파일</td><td>프로젝트 실측</td></tr>
-        <tr><td>D 프레임워크 기본 설명</td><td>약 20건 / 8파일</td><td>프로젝트 실측</td></tr>
-        <tr><td>E 접두사 fallback 변수명</td><td>9건 / 4파일</td><td>프로젝트 실측 (관측 컨벤션)</td></tr>
-        <tr><td>F 구분선 블록</td><td>약 28건 / 4파일</td><td>프로젝트 실측</td></tr>
-        <tr><td>G 자명 구조 라벨</td><td>약 35건 / 15파일 이상</td><td>프로젝트 실측</td></tr>
-        <tr style="background:rgba(74,222,128,0.06)">
-          <td><strong style="color:var(--green-ink)">H 좋은 주석 (보존)</strong></td>
-          <td><strong style="color:var(--green-ink)">약 30건 / 10파일 이상 · 전체의 약 11%</strong></td>
-          <td>프로젝트 실측</td>
-        </tr>
-        <tr><td>I 과도한 빌더 분할</td><td>3파일</td><td>프로젝트 실측</td></tr>
-        <tr><td>J 중복 구현</td><td>6건 / 6파일</td><td>프로젝트 실측</td></tr>
-        <tr><td>코어 : 어댑터 분포</td><td>8 : 1 (+ J 는 코어 + 프로젝트 파라미터)</td><td>이 카탈로그</td></tr>
-        <tr><td><code>effective*</code>/<code>resolved*</code> 공개 통계</td><td><strong>없음 (확인 실패)</strong></td><td>2026-08 조사</td></tr>
-        <tr><td>본 문서 grep 패턴 실행 검증</td><td>7종 전부 실행 확인 (Dart 트리 517 파일)</td><td>2026-08-28 실행</td></tr>
+        <tr><td class="cat-key">A 이름 번역 주석</td><td>약 85건 / 48파일</td><td>프로젝트 실측</td></tr>
+        <tr><td class="cat-key">B 템플릿 마커</td><td>약 90건 / 48파일</td><td>프로젝트 실측</td></tr>
+        <tr><td class="cat-key">C 메서드명 반복 doc</td><td>약 7건 / 2파일</td><td>프로젝트 실측</td></tr>
+        <tr><td class="cat-key">D 프레임워크 기본 설명</td><td>약 20건 / 8파일</td><td>프로젝트 실측</td></tr>
+        <tr><td class="cat-key">E 접두사 fallback 변수명</td><td>9건 / 4파일</td><td>프로젝트 실측 <span class="tag tag-neutral">관측 컨벤션</span></td></tr>
+        <tr><td class="cat-key">F 구분선 블록</td><td>약 28건 / 4파일</td><td>프로젝트 실측</td></tr>
+        <tr><td class="cat-key">G 자명 구조 라벨</td><td>약 35건 / 15파일 이상</td><td>프로젝트 실측</td></tr>
+        <tr class="row-keep"><td class="cat-key">H 좋은 주석 (보존)</td><td>약 30건 / 10파일 이상 &middot; <strong>전체의 약 11%</strong></td><td>프로젝트 실측</td></tr>
+        <tr><td class="cat-key">I 과도한 빌더 분할</td><td>3파일</td><td>프로젝트 실측</td></tr>
+        <tr><td class="cat-key">J 중복 구현</td><td>6건 / 6파일</td><td>프로젝트 실측</td></tr>
+        <tr><td>코어 : 어댑터 분포</td><td><strong>8 : 1</strong> (+ J 는 코어 + 프로젝트 파라미터)</td><td>이 카탈로그</td></tr>
+        <tr style="background:rgba(251,191,36,0.06)"><td><code>effective*</code>/<code>resolved*</code> 공개 통계</td><td><span class="tag tag-warn">없음</span> — 확인 실패</td><td>2026-08 조사</td></tr>
+        <tr><td>본 문서 grep 패턴 실행 검증</td><td><strong>7종 전부 실행 확인</strong> (Dart 트리 517 파일)</td><td>2026-08-28 실행</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ── Section 12 — 판정 실패 모드 ── -->
+<!-- ══ Section 8 — 안티패턴 ══ -->
 <div class="section">
-  <div class="section-label">판정 실패 모드 — 안티패턴 9종</div>
-  <p class="desc">
-    카탈로그를 잘못 쓰는 방식들. 첫 행이 가장 비싸다 — 되돌리려면 원저자의 기억이 필요하다.
-  </p>
+  <div class="section-label">안티패턴 — 이 카탈로그를 잘못 쓰는 9가지</div>
+  <p class="desc">카탈로그 자체를 오용하는 패턴이다. 첫 줄이 가장 비싸다.</p>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th style="min-width:220px">안티패턴</th><th>문제</th></tr>
+        <tr><th>안티패턴</th><th>문제</th></tr>
       </thead>
       <tbody>
-        <tr style="background:rgba(248,113,113,0.06)">
-          <td><strong>H 를 위반 목록에 넣고 A~J 를 일괄 삭제</strong></td>
-          <td>코드로 복원 불가능한 정보가 사라진다. <strong>H 는 방어 카테고리다.</strong></td>
-        </tr>
-        <tr><td>이름은 그대로 두고 A 주석만 삭제</td><td>약한 이름 + 주석 없음이 되어 원래보다 나빠진다. A 의 처리는 &ldquo;삭제 또는 개명&rdquo;이다</td></tr>
-        <tr><td>G 라벨을 흡수 없이 삭제</td><td>구획 정보가 이름으로 옮겨가지 않고 그냥 없어진다</td></tr>
-        <tr><td>grep 히트 수를 위반 건수로 보고</td><td>A 패턴은 H 를 함께 잡고, C 패턴은 정상 doc 을 함께 잡는다. 히트는 후보지 판정이 아니다</td></tr>
-        <tr><td>grep 결과를 확인 없이 <code>sed</code> 로 일괄 치환</td><td>같은 정규식에 걸린 H 가 조용히 삭제된다. 파일 단위 확인이 캠페인 루프의 존재 이유다</td></tr>
-        <tr><td>E 에 논문 각주를 붙여 근거를 격상</td><td>접두사별 공개 통계는 존재하지 않는다. 국지 실측을 문헌 근거로 위장하게 된다</td></tr>
-        <tr><td>I 를 코어로 취급해 비-Flutter 스택에 적용</td><td>위반 실측이 없는 스택에 추측 규칙을 적용하는 것이다. 어댑터가 관측 후 추가된다</td></tr>
-        <tr><td>J 를 공통 위젯 목록 없이 판정</td><td>무엇이 중복인지 정의하는 입력이 빠져 있어 판정 자체가 성립하지 않는다</td></tr>
-        <tr><td>카테고리 라벨만 붙이고 처리 방침을 구분하지 않음</td><td>삭제(B·D·F) / 개명(A·E) / 흡수(G) / 보존(H) / 재구성(I·J)이 서로 다른 작업이다</td></tr>
+        <tr class="row-keep"><td class="sys"><span class="tag tag-bad">최대 오용</span> H 를 위반 목록에 넣고 A~J 를 일괄 삭제</td><td>코드로 복원 불가능한 정보가 사라진다. <strong>H 는 방어 카테고리다.</strong></td></tr>
+        <tr><td class="sys">이름은 그대로 두고 A 주석만 삭제</td><td>약한 이름 + 주석 없음이 되어 원래보다 나빠진다. A 의 처리는 "삭제 또는 개명"이다</td></tr>
+        <tr><td class="sys">G 라벨을 흡수 없이 삭제</td><td>구획 정보가 이름으로 옮겨가지 않고 그냥 없어진다</td></tr>
+        <tr><td class="sys">grep 히트 수를 위반 건수로 보고</td><td>A 패턴은 H 를 함께 잡고, C 패턴은 정상 doc 을 함께 잡는다. 히트는 후보지 판정이 아니다</td></tr>
+        <tr><td class="sys">grep 결과를 확인 없이 <code>sed</code> 로 일괄 치환</td><td>같은 정규식에 걸린 H 가 조용히 삭제된다. 파일 단위 확인이 캠페인 루프의 존재 이유다</td></tr>
+        <tr><td class="sys">E 에 논문 각주를 붙여 근거를 격상</td><td>접두사별 공개 통계는 존재하지 않는다. 국지 실측을 문헌 근거로 위장하게 된다</td></tr>
+        <tr><td class="sys">I 를 코어로 취급해 비-Flutter 스택에 적용</td><td>위반 실측이 없는 스택에 추측 규칙을 적용하는 것이다. 어댑터가 관측 후 추가된다</td></tr>
+        <tr><td class="sys">J 를 공통 위젯 목록 없이 판정</td><td>무엇이 중복인지 정의하는 입력이 빠져 있어 판정 자체가 성립하지 않는다</td></tr>
+        <tr><td class="sys">카테고리 라벨만 붙이고 처리 방침을 구분하지 않음</td><td><span class="op op-del">삭제</span>(B·D·F) / <span class="op op-rename">개명</span>(A·E) / <span class="op op-absorb">흡수</span>(G) / <span class="op op-keep">보존</span>(H) / <span class="op op-restr">재구성</span>(I·J)이 서로 다른 작업이다</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ── Section 13 — Gotchas ── -->
+<!-- ══ Section 9 — Gotchas ══ -->
 <div class="section">
-  <div class="section-label">Gotchas — 실행 검증에서 확인된 함정</div>
-  <p class="desc">7종 grep 패턴을 Dart 트리 517 파일에 실제로 돌려본 뒤 남은 항목들.</p>
+  <div class="section-label">Gotchas — 실행 검증에서 실제로 걸린 것들</div>
+  <p class="desc">grep 을 돌려 본 뒤에야 드러나는 함정이다. 특히 첫 항목은 <strong>실행 검증에서 실측으로 확인됐다.</strong></p>
 
-  <div class="card">
-    <ul class="checklist">
-      <li><span class="check bad">!</span><span><strong>A 의 grep 은 H 를 같이 잡는다</strong> — 실행 검증에서 <code>surfaceTintColor: ..., // 안 끄면 M3가 배경색 위에 tint 덮음</code> 이 A 패턴에 그대로 걸렸다. 형태(선언 뒤 한국어 주석)가 동일하고 내용만 다르기 때문이다. <strong>A 패턴 결과는 반드시 사람이 한 줄씩 읽는다.</strong></span></li>
-      <li><span class="check bad">!</span><span><strong>B 의 빈도 집계는 생성 파일에서 폭증한다</strong> — 제외하지 않으면 상위 전부가 코드 생성기 배너로 채워져 실제 마커가 안 보인다. <code>*.g.dart</code> · <code>*.freezed.dart</code> 류를 반드시 제외한다.</span></li>
-      <li><span class="check">!</span><span><strong>C 의 처리는 어댑터 정책 상수와 충돌할 수 있다</strong> — 파라미터·반환값 블록 표기를 유지하라고 어댑터가 정했다면 그 형식은 C 가 아니다. <strong>카탈로그가 어댑터를 이기지 않는다.</strong></span></li>
-      <li><span class="check">!</span><span><strong>E 는 선언만 고치면 컴파일이 깨진다</strong> — 개명이므로 호출부 전수를 함께 바꾼다. 삭제 카테고리와 작업 형태가 다르다.</span></li>
-      <li><span class="check">!</span><span><strong><code>[한국어]</code> 라벨은 규칙이 아니라 신호에 붙는다</strong> — A 와 G 의 규칙은 언어 무관이고, 한국어에 묶인 것은 grep 패턴뿐이다. 다른 언어 코퍼스에서는 패턴을 다시 만들어야 하며, 규칙이 적용 불가해지는 것은 아니다.</span></li>
-      <li><span class="check">!</span><span><strong>&ldquo;위반 0&rdquo; 과 &ldquo;규칙 적용 불가&rdquo; 는 다르다</strong> — 어떤 스택에서 실측이 0이라고 해서 코어 규칙이 그 스택에 안 맞는 것이 아니다. 이 카탈로그는 기존 코드 정리용이 아니라 <strong>새 코드 작성 표준</strong>이다.</span></li>
-      <li><span class="check good">!</span><span><strong>카테고리 경계에서는 D 가 H 로 승격된다</strong> — 프레임워크 기본 동작 서술은 D 지만, 그 동작 때문에 이 코드를 이렇게 쓸 수밖에 없었다는 이유는 H 다. 같은 API 를 언급한다고 같은 카테고리가 아니다.</span></li>
-    </ul>
+  <div class="grid-2">
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>A 의 grep 은 H 를 같이 잡는다</h3></div>
+      <p class="desc" style="margin-bottom:12px">실행 검증에서 아래 줄이 <strong>A 패턴에 그대로 걸렸다.</strong> 형태(선언 뒤 한국어 주석)가 동일하고 내용만 다르기 때문이다.</p>
+<pre><code>surfaceTintColor: ..., <span class="cm-keep">// 안 끄면 M3가 배경색 위에 tint 덮음</span></code></pre>
+      <p class="desc" style="margin-bottom:0"><strong>A 패턴 결과는 반드시 사람이 한 줄씩 읽는다.</strong></p>
+    </div>
+
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>B 의 빈도 집계는 생성 파일에서 폭증한다</h3></div>
+      <p class="desc" style="margin-bottom:0">제외하지 않으면 상위 전부가 코드 생성기 배너로 채워져 실제 마커가 안 보인다. <code>*.g.dart</code> · <code>*.freezed.dart</code> 류를 반드시 제외한다.</p>
+    </div>
+  </div>
+
+  <ul class="checklist" style="margin-top:20px">
+    <li><span class="check c-warn">!</span><span><strong>C 의 처리는 어댑터 정책 상수와 충돌할 수 있다</strong> — 파라미터·반환값 블록 표기를 유지하라고 어댑터가 정했다면 그 형식은 C 가 아니다. <strong>카탈로그가 어댑터를 이기지 않는다.</strong></span></li>
+    <li><span class="check c-warn">!</span><span><strong>E 는 선언만 고치면 컴파일이 깨진다</strong> — 개명이므로 호출부 전수를 함께 바꾼다. 삭제 카테고리와 작업 형태가 다르다.</span></li>
+    <li><span class="check">&rarr;</span><span><strong><code>[한국어]</code> 라벨은 규칙이 아니라 신호에 붙는다</strong> — A 와 G 의 규칙은 언어 무관이고, 한국어에 묶인 것은 grep 패턴뿐이다. 다른 언어 코퍼스에서는 패턴을 다시 만들어야 하며, 규칙이 적용 불가해지는 것은 아니다.</span></li>
+    <li><span class="check">&rarr;</span><span><strong>"위반 0" 과 "규칙 적용 불가" 는 다르다</strong> — 어떤 스택에서 실측이 0이라고 해서 코어 규칙이 그 스택에 안 맞는 것이 아니다. 이 카탈로그는 기존 코드 정리용이 아니라 <strong>새 코드 작성 표준</strong>이다.</span></li>
+    <li><span class="check c-ok">&#10003;</span><span><strong>카테고리 경계에서는 D 가 H 로 승격된다</strong> — 프레임워크 기본 동작 서술은 D 지만, 그 동작 때문에 이 코드를 이렇게 쓸 수밖에 없었다는 이유는 H 다. 같은 API 를 언급한다고 같은 카테고리가 아니다.</span></li>
+  </ul>
+</div>
+
+<!-- ══ Section 10 — 출처 ══ -->
+<div class="section">
+  <div class="section-label">출처 — 인용 가능한 것과 실측뿐인 것</div>
+  <p class="desc">아래 링크는 소스 문서가 <code>출처</code> 로 명시한 것만 옮겼다. 링크가 없는 항목은 <strong>인용 가능한 외부 출처가 존재하지 않는다</strong>는 뜻이며, 실측·합성 근거는 링크 대신 텍스트 배지로만 표기한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>공식 문서 · 1차 출처</h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check">&rarr;</span><span>Effective Dart — documentation <span class="tag tag-neutral">A · C</span><br><a href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">dart.dev/effective-dart/documentation</a></span></li>
+        <li><span class="check">&rarr;</span><span>Effective Dart — style <span class="tag tag-neutral">G</span><br><a href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">dart.dev/effective-dart/style</a></span></li>
+        <li><span class="check">&rarr;</span><span>Google Engineering Practices — what to look for in a code review <span class="tag tag-neutral">B · D · J</span><br><a href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">google.github.io/eng-practices/review/reviewer/looking-for.html</a></span></li>
+        <li><span class="check">&rarr;</span><span>Microsoft Code with Engineering Playbook — code comments <span class="tag tag-neutral">F</span><br><a href="https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/" target="_blank" rel="noopener">microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/</a></span></li>
+        <li><span class="check c-ok">&#10003;</span><span>Kent Beck, <em>Tidy First?</em> <span class="tag tag-ok">H</span><br><a href="https://www.oreilly.com/library/view/tidy-first/9781098151232/ch14.html" target="_blank" rel="noopener">oreilly.com/library/view/tidy-first/9781098151232/ch14.html</a></span></li>
+        <li><span class="check">&rarr;</span><span>Flutter <code>Material.surfaceTintColor</code> <span class="tag tag-neutral">D</span><br><a href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener">api.flutter.dev/flutter/material/Material/surfaceTintColor.html</a></span></li>
+        <li><span class="check c-ok">&#10003;</span><span>Flutter <code>Border.all</code> <span class="tag tag-ok">H</span><br><a href="https://api.flutter.dev/flutter/painting/Border/Border.all.html" target="_blank" rel="noopener">api.flutter.dev/flutter/painting/Border/Border.all.html</a></span></li>
+        <li><span class="check">&rarr;</span><span>flutter/flutter <code>checkbox.dart</code> <span class="tag tag-neutral">I</span><br><a href="https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/checkbox.dart" target="_blank" rel="noopener">github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/checkbox.dart</a></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>실측 · 링크 없는 근거</h3>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="check c-warn">!</span><span><strong>프로젝트 실측 (2026-04~06)</strong> — 57 파일 / 약 275건 스캔. A · B · E · F · G · H · I · J 의 건수 근거. <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check c-bad">&#10007;</span><span><strong>E 의 공개 통계</strong> — <code>effective*</code>/<code>resolved*</code> 접두사별 LLM 과대표집 통계는 공개 1차 문헌 어디에도 확인되지 않았다 (2026-08 조사). <span class="tag tag-bad">근거 없음 · 각주 금지</span></span></li>
+        <li><span class="check">&rarr;</span><span><strong>grep 패턴 실행 검증</strong> — 7종 전부 실행 확인, Dart 트리 517 파일 대상 (2026-08-28 실행). <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check">&rarr;</span><span><strong>어댑터 소유 항목</strong> — C 의 doc 라벨 표기 형식, I 의 분할 임계치(줄 수 · 헬퍼 개수 · 추출 위치)는 이 카탈로그가 아니라 어댑터 슬롯이 정한다.</span></li>
+        <li><span class="check">&rarr;</span><span><strong>프로젝트 파라미터 요구</strong> — J 는 공통 위젯 목록과 각 위젯이 감싸는 저수준 요소가 입력으로 주어져야 판정이 성립한다.</span></li>
+        <li><span class="check">&rarr;</span><span><strong>소비처</strong> — <code>tone-guide</code> · <code>tone-campaign</code> 이 이 카탈로그를 SSOT 로 참조한다.</span></li>
+      </ul>
+      <p class="caption" style="margin-top:16px">문서 버전 <code>0.1.0</code> · 최종 갱신 2026-09-02 · 카테고리 10종 (위반 9 + 보존 1) · 판정 신호 grep 9종 + 리뷰 판정 1종</p>
+    </div>
   </div>
 </div>
 
-<!-- ── Section 14 — 출처 ── -->
-<div class="section">
-  <div class="section-label">출처</div>
-  <div class="card">
-    <ul class="checklist">
-      <li><span class="check">&#8594;</span><span>Effective Dart — documentation (A · C) — <a href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener" style="color:var(--accent-ink)">dart.dev/effective-dart/documentation</a></span></li>
-      <li><span class="check">&#8594;</span><span>Effective Dart — style (G) — <a href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener" style="color:var(--accent-ink)">dart.dev/effective-dart/style</a></span></li>
-      <li><span class="check">&#8594;</span><span>Google Engineering Practices — what to look for in a code review (B · D · J) — <a href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener" style="color:var(--accent-ink)">google.github.io/eng-practices/review/reviewer/looking-for.html</a></span></li>
-      <li><span class="check">&#8594;</span><span>Microsoft Code with Engineering Playbook — code comments (F) — <a href="https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/" target="_blank" rel="noopener" style="color:var(--accent-ink)">microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/</a></span></li>
-      <li><span class="check">&#8594;</span><span>Kent Beck, <em>Tidy First?</em> ch.14 (H) — <a href="https://www.oreilly.com/library/view/tidy-first/9781098151232/ch14.html" target="_blank" rel="noopener" style="color:var(--accent-ink)">oreilly.com/library/view/tidy-first/9781098151232/ch14.html</a></span></li>
-      <li><span class="check">&#8594;</span><span>Flutter — <code>Material.surfaceTintColor</code> (D) — <a href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener" style="color:var(--accent-ink)">api.flutter.dev/flutter/material/Material/surfaceTintColor.html</a></span></li>
-      <li><span class="check">&#8594;</span><span>Flutter — <code>Border.all</code> (H) — <a href="https://api.flutter.dev/flutter/painting/Border/Border.all.html" target="_blank" rel="noopener" style="color:var(--accent-ink)">api.flutter.dev/flutter/painting/Border/Border.all.html</a></span></li>
-      <li><span class="check">&#8594;</span><span>flutter/flutter — <code>checkbox.dart</code> (I) — <a href="https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/checkbox.dart" target="_blank" rel="noopener" style="color:var(--accent-ink)">github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/checkbox.dart</a></span></li>
-      <li><span class="check">&#8594;</span><span><strong>실측 근거 (E · 수치 기준 전반)</strong> — 프로젝트 실측 57 파일 / 약 275건, 2026-04~06. 공개 URL 없음. E 의 접두사별 공개 통계는 2026-08 조사에서 확인 실패.</span></li>
-      <li><span class="check">&#8594;</span><span>소스 문서 — <code>docs/tone/antipattern-catalog.md</code> v0.1.0 (2026-08-28) · grep 패턴 7종 실행 검증 (Dart 트리 517 파일)</span></li>
-    </ul>
-  </div>
 </div>
-
-</div><!-- /page -->
-
-<footer>
-  <p>tone-kit — antipattern catalog &middot; v0.1.0 &middot; 2026-08-28</p>
-  <p style="margin-top:8px">소스: <code>docs/tone/antipattern-catalog.md</code> &middot; H 는 위반이 아니라 보존 대상이다</p>
-</footer>
 
 <script>
 // ===== THEME =====
@@ -1189,13 +1137,12 @@ function applyTheme(theme){
   var label = document.getElementById('theme-label');
   if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
   if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
-  try { localStorage.setItem('dk-theme', theme); } catch (e) { /* 저장 불가 환경에서도 렌더는 유지 */ }
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
 }
 
 function toggleTheme(){
   applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
 }
 </script>
-
 </body>
 </html>

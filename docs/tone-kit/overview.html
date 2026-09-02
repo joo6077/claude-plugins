@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tone Kit 개요 — 이 킷이 잡는 것</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#6b7280;
+    --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
+    --green:#15803d;--red:#b91c1c;--yellow:#a16207;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(217,70,239,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(217,70,239,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 3축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  /* ── 실측 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">tone-kit <span>/ overview</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>Tone Kit 개요 — 이 킷이 잡는 것</h1>
+<p class="subtitle">코드를 다시 읽어 준 주석, 역할이 아니라 외형과 계산 과정을 담은 이름, 번역투 한국어 doc. 목표는 <strong>읽고 고치기 쉬운 코드</strong>이고 톤 개선은 그 부산물이다. <span class="mono">v0.1.0 · 갱신 2026-09-02</span></p>
+
+<!-- ══ 이 문서가 잡는 것 ══ -->
+<div class="section">
+  <div class="section-label">이 문서가 잡는 것</div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="num">1</span><h3>다시 읽어 준 주석</h3></div>
+      <p class="desc" style="margin-bottom:0">이름 번역, 템플릿 마커, 구분선, 프레임워크 기본 설명. 코드를 한 번 더 읽어 주기만 하는 문장들이다.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">2</span><h3>역할이 아닌 이름</h3></div>
+      <p class="desc" style="margin-bottom:0">외형과 계산 과정을 담은 이름 — <code>BlueDeviceRow</code>, <code>effectiveGradient</code>, <code>BoolCallback</code>.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">3</span><h3>번역투 · 갈린 라벨</h3></div>
+      <p class="desc" style="margin-bottom:0">번역투 한국어 doc 과 표기가 둘로 갈린 doc 라벨. 규모가 커지면 커버리지 측정이 먼저 깨진다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 한 파일에서 다섯 가지 ══ -->
+<div class="section">
+  <div class="section-label">한 번에 다섯 가지가 걸린 파일</div>
+  <p class="desc">아래 한 조각에 템플릿 마커 · 구분선 · 이름 번역 주석 · fallback 접두사 · 번역투 doc 이 동시에 들어 있다. 이 킷이 다루는 범위 전체가 여기 압축돼 있다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">5개 동시 적발</span></div>
+      <pre><code>// ------------------------------------------------
+// 위젯 구현부
+class {widget_prefix}BlueDeviceRowWidget extends StatelessWidget {
+  final String? text;   // 버튼 텍스트
+  /// 눌림 시작을 처리합니다.
+  void handlePressStart() {
+    final effectiveGradient = props.gradient ?? defaultGradient;
+  }
+}</code></pre>
+      <div class="marks">
+        <span class="tag tag-bad">템플릿 마커</span>
+        <span class="tag tag-bad">구분선</span>
+        <span class="tag tag-bad">이름 번역 주석</span>
+        <span class="tag tag-bad">fallback 접두사</span>
+        <span class="tag tag-bad">번역투 doc</span>
+      </div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">역할어로 정렬</span></div>
+      <pre><code>class {widget_prefix}DeviceItemWidget extends StatelessWidget {
+  final String? text;
+  /// 길게 누르기 반복을 시작한다.
+  void startLongPressRepeat() {
+    final toolbarGradient = props.gradient ?? defaultGradient;
+  }
+}</code></pre>
+      <div class="marks">
+        <span class="tag tag-ok">외형어 제거</span>
+        <span class="tag tag-ok">능동 단문 doc</span>
+        <span class="tag tag-ok">역할 기반 지역변수</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card" style="margin-top:20px">
+    <h3>이 킷은 AI 탐지 회피 도구가 아니다</h3>
+    <p class="desc" style="margin-bottom:0">목표는 읽고 고치기 쉬운 코드이고, 톤 개선은 그 부산물이다. 규칙마다 붙는 <span class="strength s-must">MUST</span> <span class="strength s-should">SHOULD</span> <span class="strength s-observed">관측 컨벤션</span> 3등급의 <strong>판정 방법론은 이 문서가 소유하지 않는다</strong> — <a class="doc-link" href="ai-code-stylometry.html">ai-code-stylometry</a> 가 소유한다. 여기서는 각 규칙에 붙은 강도만 읽으면 된다.</p>
+  </div>
+</div>
+
+<!-- ══ 대표 before/after 10쌍 — 이 페이지의 주인공 ══ -->
+<div class="section">
+  <div class="section-label">대표 before/after 10쌍</div>
+  <p class="desc">왼쪽이 before, 오른쪽이 after 다. 강도 배지는 소스 규칙의 값을 그대로 옮긴 것이며 이 페이지가 올리거나 내리지 않는다. <span class="strength s-must">MUST</span> 는 공식 스타일 가이드가 문법 층위에서 규정한 것, <span class="strength s-should">SHOULD</span> 는 공식 문구가 권고형인 것, <span class="strength s-observed">관측 컨벤션</span> 은 공개 출처 없이 프로젝트 실측만 있는 것이다.</p>
+
+  <!-- 1 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">1</span>
+      <h3>이름을 옮기기만 한 주석은 지운다</h3>
+      <span class="strength s-must">MUST</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">이름 번역 주석</span></div>
+        <pre><code>String? text,      // 버튼 텍스트
+bool isChecked,    // 체크 여부</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span></div>
+        <pre><code>String? text,
+bool isChecked,</code></pre>
+      </div>
+    </div>
+    <p class="desc">이름과 타입이 이미 같은 말을 한다. 지워도 정보 손실이 0이다. 이름이 약해서 주석이 필요했던 경우가 유일한 예외이고, 그때는 주석이 아니라 <strong>이름을 고친다</strong>.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart: Documentation</a>
+      <span class="source-badge">실측 48파일 약 85건 — 전체 안티패턴의 30%</span>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">2</span>
+      <h3>기계가 남긴 흔적은 지운다 — 마커 · 구분선 · 디자인 툴 참조</h3>
+      <span class="strength s-must">MUST</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">구분선 + 노드 ID</span></div>
+        <pre><code>// ------------------------------------------------
+// 상태
+// 카드 배경 그라데이션 상단 (노드 12159:8715 Frame/Card)
+static const cardBevelTop = ...;</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span></div>
+        <pre><code>static const cardBevelTop = ...;</code></pre>
+      </div>
+    </div>
+    <p class="desc">파일이 무엇인지는 선언부가 이미 말하고, 구분선은 여러 개 쌓이는 순간 구분 기능을 잃는다. 코드는 디자인 소스의 참조가 아니라 <strong>구현물</strong>이므로 노드 ID · 변수 경로 · CSS 원문을 남기지 않는다. 대체 수단은 빈 줄과 의미 있는 이름이다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/" target="_blank" rel="noopener">&rarr; Microsoft Code with Engineering Playbook</a>
+      <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&rarr; Google Engineering Practices</a>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">3</span>
+      <h3>기본 동작 설명은 지우되 이유는 남긴다</h3>
+      <span class="strength s-must">삭제 MUST / 보존 MUST</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">프레임워크 기본 동작 서술</span></div>
+        <pre><code>// 프레임워크 문서 첫 문단에 이미 있는 내용
+// surfaceTintColor 는 Material 3 에서 표면에 색조를 입힌다.
+surfaceTintColor: Colors.transparent,</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">복원 불가 정보</span></div>
+        <pre><code>// 코드만 읽어서는 복원할 수 없는 정보
+// M3 surface tint 가 배경을 덮어 지정색이 밝아진다. 그래서 tint 를 끈다.
+surfaceTintColor: Colors.transparent,</code></pre>
+      </div>
+    </div>
+    <p class="desc">기본 동작 서술은 정보량이 0일 뿐 아니라 버전이 오르면 거짓이 되므로 <strong>유지 비용이 음수</strong>다. 반대로 함정 · 제약 · 실패 모드를 담은 주석은 <strong>보존 대상</strong>이고, 안티패턴 목록만 보고 일괄 삭제하면 이쪽이 함께 날아간다. <em>보존 표시가 삭제 후보 선정보다 먼저다.</em></p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html" target="_blank" rel="noopener">&rarr; Material.surfaceTintColor</a>
+      <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&rarr; Google Engineering Practices</a>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">4</span>
+      <h3>이름에 외형과 표 어휘를 넣지 않는다</h3>
+      <span class="strength s-should">외형 금지 SHOULD</span>
+      <span class="strength s-synth">표 어휘 금지 = 합성 규칙</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">색 + 표 어휘</span></div>
+        <pre><code>class {widget_prefix}BlueDeviceRowWidget ...
+class {widget_prefix}BlueDeviceRowState ...</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span></div>
+        <pre><code>class {widget_prefix}DeviceItemWidget ...
+class {widget_prefix}DeviceItemState ...</code></pre>
+      </div>
+    </div>
+    <p class="desc">색은 테마가 바뀌면 거짓이 되고, <code>Row</code> 와 <code>Cell</code> 은 표 전용 어휘라 진짜 표가 생기면 이름이 충돌한다. 세로 리스트 한 장의 기본값은 <code>Item</code> 이다. 컴포넌트와 그것이 받는 데이터 타입은 <strong>같은 역할어로 정렬</strong>한다 — 어긋나면 검색이 한쪽만 잡는다.</p>
+    <div class="rule-box" style="margin-top:14px">합성 규칙이라는 표시는 <strong>6개 디자인 시스템의 어휘를 대조해 만든 규칙</strong>이라는 뜻이다. 단일 권위가 없으므로 아래 링크는 어휘 원천으로만 인용한다.</div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style</a>
+      <a class="card-source" href="https://carbondesignsystem.com/components/tile/usage/" target="_blank" rel="noopener">&rarr; Carbon Tile</a>
+      <a class="card-source" href="https://mui.com/material-ui/api/list-item/" target="_blank" rel="noopener">&rarr; MUI ListItem</a>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">5</span>
+      <h3>fallback 접두사를 이름으로 쓰지 않는다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">계산 과정이 이름에</span></div>
+        <pre><code>final effectiveGradient = props.gradient ?? defaultGradient;
+final resolvedChildren = props.children ?? const [];</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">역할이 이름에</span></div>
+        <pre><code>final toolbarGradient = props.gradient ?? defaultGradient;
+final visibleChildren = props.children ?? const [];</code></pre>
+      </div>
+    </div>
+    <p class="desc">기본값 연산자가 이미 fallback 을 표현한다. 접두사는 역할이 아니라 <strong>계산 과정</strong>을 드러낸다. 삭제가 아니라 개명이고, 선언만 고치면 컴파일이 깨지므로 <strong>호출부 전수를 함께 바꾼다</strong>.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <span class="source-badge">프로젝트 실측만 — 9건 / 4파일</span>
+      <span class="source-badge">접두사별 공개 통계 확인 실패 — 논문 각주를 붙이지 않는다</span>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">6</span>
+      <h3>콜백 타입에는 시그니처가 아니라 의미를 붙인다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">시그니처 타입명</span></div>
+        <pre><code>typedef BoolCallback = void Function(bool value);
+final void Function(bool) onVisibleChanged;</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">시맨틱 typedef</span></div>
+        <pre><code>typedef {widget_prefix}EventVisibleChanged
+    = void Function(bool value);
+final {widget_prefix}EventVisibleChanged onVisibleChanged;</code></pre>
+      </div>
+    </div>
+    <p class="desc"><code>BoolCallback</code> 은 타입에서 의미를 읽을 수 없다. <strong>한 아이템의 콜백 세 개가 전부 같은 타입이면 그것이 증상이다.</strong> typedef 는 의미가 생겨난 위젯의 파일에 top-level 로 두고 공유 typedef 파일은 만들지 않는다 — 모아 두면 어느 컴포넌트의 계약인지 추적이 끊긴다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <span class="source-badge">프로젝트 실측 — 51선언 / 32파일</span>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">7</span>
+      <h3>위젯을 반환하는 헬퍼 대신 위젯을 만든다</h3>
+      <span class="strength s-should">SHOULD</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">_build 헬퍼</span></div>
+        <pre><code>Widget build(BuildContext context) =&gt;
+    Column(children: [_buildHeader(), _buildBody()]);
+
+Widget _buildHeader() =&gt; ...;</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">const 위젯</span></div>
+        <pre><code>Widget build(BuildContext context) =&gt; const Column(
+      children: [
+        {widget_prefix}SettingsHeaderWidget(),
+        {widget_prefix}SettingsBodyWidget(),
+      ],
+    );</code></pre>
+      </div>
+    </div>
+    <p class="desc">헬퍼는 호출 단계만 늘리고 rebuild 는 끊지 못한다. 분리 조건은 넷이다. 하나라도 성립하면 위젯으로 빼고 <strong>넷 다 아니면 인라인한다</strong>. 줄 수는 판정식이 아니라 알람이다.</p>
+    <ul class="checklist" style="margin-top:14px">
+      <li><span class="check c-ok">&#10003;</span><span>관심사가 다른가</span></li>
+      <li><span class="check c-ok">&#10003;</span><span>같은 패턴이 3곳 이상인가</span></li>
+      <li><span class="check c-ok">&#10003;</span><span>독립 테스트 대상인가</span></li>
+      <li><span class="check c-ok">&#10003;</span><span>본문이 파일 오버헤드보다 큰가</span></li>
+    </ul>
+    <div class="rule-box" style="margin-top:14px">강도가 SHOULD 인 이유 — <strong>공식 문구가 <code>prefer</code> 이고 <code>Builder</code> 라는 공식 인라인 대안이 존재한다.</strong> MUST 로 올려 인용하면 첫 반박에 무너진다.</div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">&rarr; StatelessWidget</a>
+      <a class="card-source" href="https://api.flutter.dev/flutter/widgets/Builder-class.html" target="_blank" rel="noopener">&rarr; Builder</a>
+      <a class="card-source" href="https://github.com/flutter/flutter/issues/149932" target="_blank" rel="noopener">&rarr; flutter#149932</a>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">8</span>
+      <h3>간격은 프레임워크 파라미터로 표현한다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">수동 재구현 + 체이닝</span></div>
+        <pre><code>Row(children: [icon, SizedBox(width: {TokenClass}.w10), label])
+
+children: sections
+    .map(_body)
+    .expand((w) =&gt; [divider, w])
+    .skip(1)
+    .toList()</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">기본 파라미터</span></div>
+        <pre><code>Row(spacing: {TokenClass}.w10, children: [icon, label])
+
+ListView.separated(
+  itemCount: sections.length,
+  separatorBuilder: (_, __) =&gt; divider,
+  itemBuilder: _body,
+)</code></pre>
+      </div>
+    </div>
+    <p class="desc">프레임워크가 이미 가진 파라미터를 손으로 재구현한 것이고, 항목이 늘 때마다 <strong>삽입 위치를 사람이 관리</strong>해야 한다. 체이닝은 짧아 보이지만 읽는 비용을 올린다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/language/collections" target="_blank" rel="noopener">&rarr; Dart collections</a>
+      <a class="card-source" href="https://www.sonarsource.com/resources/cognitive-complexity/" target="_blank" rel="noopener">&rarr; Cognitive Complexity (SonarSource)</a>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">9</span>
+      <h3>번역투를 능동 단문으로 바꾼다</h3>
+      <span class="strength s-should">SHOULD</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">번역투 · 피동</span></div>
+        <pre><code>/// 눌림 시작을 처리합니다.
+
+// 배경색이 오버레이에 의해 변경됩니다.</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">능동 단문</span></div>
+        <pre><code>// 길게 누르기 반복을 시작한다.
+
+// Material 3 surface tint 가 배경색을 덮어
+// 실제 색이 더 밝아 보인다.</code></pre>
+      </div>
+    </div>
+    <p class="desc">종결어미만 <code>한다</code>체로 바꿔도 문장 구조가 그대로면 번역투는 남는다. <strong>주체를 되살리고 원인과 결과를 구체로 잇는다.</strong> 둘째 줄은 번역투와 음역이 같이 걸린 사례다 — 공식 API 이름은 영어 원문(<code>surface tint</code>), 일반 명사는 한국어로 쓴다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener">&rarr; 국립국어원 공공언어 자료</a>
+      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart: Documentation</a>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">10</span>
+      <h3>doc 라벨은 자유 서술이 아니라 상수다</h3>
+      <span class="strength s-observed">관측 컨벤션</span>
+    </div>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">표기 갈림 · 축약 파라미터명</span></div>
+        <pre><code>/// 네트워크 상태를 확인합니다.
+/// - [ctx]: 컨텍스트
+/// - 리턴: N/A</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; after</span><span class="tag tag-ok">고정 라벨</span></div>
+        <pre><code>/// 네트워크가 끊겨 있으면 안내 다이얼로그를 띄운다.
+///
+/// - [context]: 다이얼로그 표시용 빌드 컨텍스트
+/// - 반환값: 없음</code></pre>
+      </div>
+    </div>
+    <p class="desc">이 규칙이 관측 컨벤션인데도 강한 이유는 <strong>규모</strong>다. 이 정도 규모에서 표기가 둘로 갈리면 커버리지 측정과 완료 게이트가 동시에 깨진다.</p>
+    <div class="dist" style="margin-top:14px">
+      <div class="dist-row">
+        <span class="dist-label">- [param]:</span>
+        <span class="dist-track"><span class="dist-fill" style="width:100%"></span></span>
+        <span class="dist-val">788건</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">- 반환값:</span>
+        <span class="dist-track"><span class="dist-fill f-blue" style="width:73%"></span></span>
+        <span class="dist-val">577건 / 80파일</span>
+      </div>
+    </div>
+    <div class="rule-box" style="margin-top:16px"><code>- 반환값: 없음</code> 을 노이즈로 보고 지우면 <strong>"doc 이 없는 것"과 "반환값이 없는 것"을 구분할 수 없다.</strong> 표기를 바꾸려면 전수 치환을 같은 커밋에서 끝낸다.</div>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart: Documentation</a>
+      <span class="source-badge">프로젝트 실측 — 2026-08-28 전수 감사</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 스킬 3종 ══ -->
+<div class="section">
+  <div class="section-label">스킬 3종 — 언제 쓰는가</div>
+  <p class="desc">세 스킬은 진입 시점이 다르다. 코드를 쓰기 직전인지, 파일을 새로 만드는지, 이미 쌓인 코드를 정리하는지로 갈린다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>스킬</th><th>쓰는 때</th><th>하는 일</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys"><code>tone-guide</code></td>
+          <td>코드를 쓰기 직전 · 리뷰할 때</td>
+          <td>규칙을 로드하고 완료 선언 전에 전수 대조한다. <strong>요청 범위 밖으로 번지지 않는다</strong></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>tone-scaffold</code></td>
+          <td>새 파일을 만들 때</td>
+          <td>파일 헤더 · doc 주석 · 시맨틱 typedef 를 프로젝트 파라미터로 채워 생성하고 자기 감사한다</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>tone-campaign</code></td>
+          <td>기존 코드 수십~수백 파일을 정리할 때</td>
+          <td>의존순 배치, 파일당 승인 게이트, 재개용 원장으로 굴린다. <strong>일괄 편집하지 않는다</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <div class="principle-title"><h3><code>tone-guide</code></h3><span class="tag">쓰기 직전</span></div>
+      <p class="desc" style="margin-bottom:0">규칙 로드 → 작성 → 완료 전 전수 대조. 리뷰 도구로도 같은 경로를 탄다.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><h3><code>tone-scaffold</code></h3><span class="tag">새 파일</span></div>
+      <p class="desc" style="margin-bottom:0">프로젝트 파라미터(<code>{widget_prefix}</code>, <code>{TokenClass}</code>)를 채워 생성하고 스스로 감사한다.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><h3><code>tone-campaign</code></h3><span class="tag">대량 정리</span></div>
+      <p class="desc" style="margin-bottom:0">의존순 배치 + 파일당 승인 게이트 + 재개용 원장. 중단해도 이어서 굴린다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 용어 3개 ══ -->
+<div class="section">
+  <div class="section-label">용어 3개</div>
+  <p class="desc">이 킷의 문서 전체에서 반복되는 단어 셋이다. 뜻을 오해하면 규칙 강도를 잘못 읽는다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span></div>
+      <p class="desc" style="margin-bottom:0">공개 출처 없이 프로젝트 실측만 있는 규칙. <strong>준수 강도가 낮다는 뜻이 아니라 근거가 국지적이라는 뜻이다.</strong> 논문 각주를 붙이지 않는다.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="tag">어댑터</span></div>
+      <p class="desc" style="margin-bottom:0">코어 규칙을 특정 스택 문법에 결속하는 파일. 주석 기호, doc 라벨 구조, 금지 접두사, 완료 게이트 grep 을 채운다. 현재 <code>dart-flutter</code> 하나뿐이다.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="tag">완료 게이트</span></div>
+      <p class="desc" style="margin-bottom:0">완료를 선언하기 전에 돌리는 grep · awk 묶음. 통과 기준은 <strong>"돌렸다"가 아니라 "히트마다 판정을 적었다"</strong> 다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3축 레이어 ══ -->
+<div class="section">
+  <div class="section-label">3축 레이어 — 규칙이 어디에 묶여 있나</div>
+  <p class="desc">규칙은 세 축이 직교한다. 한 규칙이 세 축에 동시에 걸릴 수 있다 — <code>- 반환값: 없음</code> 은 <strong>어댑터 &times; 한국어 &times; 공통</strong>이다.</p>
+
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">축 1 · 스택</span>
+      <span class="what">코어 / 어댑터</span>
+      <span class="out">구분선 주석 금지 &rarr; 코어<br>_build* 접두사 금지 &rarr; dart-flutter</span>
+    </div>
+    <div class="flow-step">
+      <span class="rank">축 2 · 언어</span>
+      <span class="what">중립 / 로케일</span>
+      <span class="out">- 반환값: &rarr; 한국어<br>영어 프로젝트 &rarr; - Returns:</span>
+    </div>
+    <div class="flow-step">
+      <span class="rank">축 3 · 프로젝트</span>
+      <span class="what">공통 / 파라미터</span>
+      <span class="out">{widget_prefix} · {TokenClass}<br>&rarr; .claude/tone-project.md</span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="info-card">
+      <h3>로케일이 바뀌어도 골격은 남는다</h3>
+      <p class="desc" style="margin-bottom:0"><code>- 반환값:</code> 라벨은 Dart 가 아니라 <strong>한국어에 묶여 있다.</strong> 영어 프로젝트에서는 <code>- Returns:</code> 가 되지만 골격과 커버리지 기준은 그대로 남는다.</p>
+    </div>
+    <div class="info-card">
+      <h3>파라미터는 킷이 정하지 않는다</h3>
+      <p class="desc" style="margin-bottom:0"><code>{widget_prefix}</code> 나 <code>{TokenClass}</code> 같은 값은 <strong>프로젝트가 소유</strong>하며, 확정값은 프로젝트의 <code>.claude/tone-project.md</code> 에 남는다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 완료 게이트 ══ -->
+<div class="section">
+  <div class="section-label">완료 게이트는 이렇게 생겼다</div>
+  <p class="desc">완료를 선언하기 전에 돌리는 묶음의 실제 모양이다. 각 패턴에는 <strong>히트가 위반인지</strong>가 병기돼 있다.</p>
+
+  <pre><code>SRC=lib; INC="--include=*.dart"                               # 프로젝트 값으로 교체
+
+grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' "$SRC" $INC   # 구분선 블록 — 히트 = 위반
+grep -rnE '\b(effective|resolved)[A-Z]' "$SRC" $INC           # fallback 접두사 — 히트 = 개명 후보
+grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' "$SRC" $INC           # 위젯 반환 헬퍼 — 히트 &ne; 위반</code></pre>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>히트가 곧 위반은 아니다</h3></div>
+      <p class="desc" style="margin-bottom:0">세 번째 패턴은 <strong>추출이 정당한 건까지 잡으므로</strong> 히트 수를 위반 수로 보고하면 근거 없는 지적이 된다. 최종 판정은 파일을 열어야 나온다.</p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>0건도 그 자체로는 통과가 아니다</h3></div>
+      <p class="desc" style="margin-bottom:0">0건은 <strong>"위반이 없는 것"과 "패턴이 죽은 것"을 구분하지 못한다.</strong> 준수 상태에서 0건이 정상인 패턴은 <strong>합성 양성 케이스</strong>로 살아 있음을 따로 증명한다.</p>
+    </div>
+  </div>
+
+  <div class="rule-box" style="margin-top:20px">통과 기준 요약 — <strong>돌렸다</strong>가 아니라 <strong>히트마다 판정을 적었다</strong>. 그리고 <strong>0건 패턴은 살아 있음을 증명했다</strong>.</div>
+</div>
+
+<!-- ══ 다음에 읽을 것 ══ -->
+<div class="section">
+  <div class="section-label">다음에 읽을 것</div>
+  <p class="desc">궁금한 것이 무엇이냐에 따라 다음 문서가 갈린다. 아래 표에서 하나만 고르면 된다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>무엇이 궁금한가</th><th>문서</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>주석 하나를 지울지 남길지 판정하고 싶다</td><td><a class="doc-link" href="comment-economy.html">comment-economy</a></td></tr>
+        <tr><td>위반을 카테고리로 나누고 grep 후보를 뽑고 싶다</td><td><a class="doc-link" href="antipattern-catalog.html">antipattern-catalog</a></td></tr>
+        <tr><td>컴포넌트 이름의 접미사를 못 고르겠다</td><td><a class="doc-link" href="naming-taxonomy.html">naming-taxonomy</a></td></tr>
+        <tr><td>쪼갤지 그냥 둘지 판단이 안 선다</td><td><a class="doc-link" href="extraction-thresholds.html">extraction-thresholds</a></td></tr>
+        <tr><td>한국어 주석 문체와 doc 라벨 규칙</td><td><a class="doc-link" href="korean-technical-writing.html">korean-technical-writing</a></td></tr>
+        <tr><td>Dart/Flutter 문법 관용구와 어댑터 슬롯 값</td><td><a class="doc-link" href="dart-flutter-idioms.html">dart-flutter-idioms</a></td></tr>
+        <tr><td>수십~수백 파일을 순차로 정리하는 운영법</td><td><a class="doc-link" href="campaign-methodology.html">campaign-methodology</a></td></tr>
+        <tr><td>이 킷이 무엇을 목표로 삼지 않는가 · 근거 등급 체계</td><td><a class="doc-link" href="ai-code-stylometry.html">ai-code-stylometry</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="info-card">
+      <h3>근거는 언제 확인했나</h3>
+      <p class="desc" style="margin-bottom:0">어떤 1차 출처를 언제 확인했는지는 <code>research-log.md</code> 에 <strong>사이클별로 쌓인다.</strong></p>
+    </div>
+    <div class="info-card">
+      <h3>리서치 문서 &ne; 런타임 규칙</h3>
+      <p class="desc" style="margin-bottom:0">스킬이 런타임에 Read 하는 운영 규칙은 이 문서들이 아니라 <code>tone-kit/references/</code> 9종이다 — <strong>리서치 문서가 근거를 갖고, references 가 판정표와 실행 가능한 게이트를 갖는다.</strong></p>
+    </div>
+  </div>
+
+  <p class="caption">문서 버전 <code>0.1.0</code> · 최종 갱신 2026-09-02 · 대표 before/after 10쌍 · 스킬 3종 · 어댑터 1종(<code>dart-flutter</code>)</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

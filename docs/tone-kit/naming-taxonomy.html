@@ -55,7 +55,7 @@
   /* ── TYPO ── */
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:820px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:840px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
   h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
@@ -68,6 +68,7 @@
   .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:840px;margin-bottom:22px}
   .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
   strong{color:var(--text);font-weight:700}
+  em{font-style:italic;color:var(--text)}
 
   /* ── TAGS / BADGES ── */
   .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
@@ -91,6 +92,7 @@
   .card .card-body{flex:1}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .stack{display:flex;flex-direction:column;gap:20px}
   .mono{font-family:var(--mono);font-size:12px}
 
   .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
@@ -98,12 +100,14 @@
     background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
   .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
     font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .pill-adapter{border-color:rgba(34,211,238,0.35);color:var(--cyan);background:rgba(34,211,238,0.08)}
 
   .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
     text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
   .card-source:hover{color:var(--accent2);text-decoration:underline}
   .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
   .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
   /* 링크 없는 출처 — 텍스트 배지 */
   .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
     color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
@@ -136,7 +140,7 @@
 
   /* 어휘 분포 막대 */
   .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-  .dist-row{display:grid;grid-template-columns:minmax(88px,140px) 1fr minmax(64px,84px);gap:10px;align-items:center;font-size:12px}
+  .dist-row{display:grid;grid-template-columns:minmax(min(40%,88px),140px) 1fr minmax(min(24%,58px),84px);gap:10px;align-items:center;font-size:12px}
   .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
   .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
   .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
@@ -152,7 +156,7 @@
     border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
     margin-bottom:clamp(36px,5vw,56px)}
   .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
-  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:860px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
   .warn-banner p:last-child{margin-bottom:0}
   .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
     border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
@@ -162,13 +166,39 @@
     border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
 
   /* ── 비교 패널 ── */
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
   .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
   .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
   .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
   .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
   .compare-bad .compare-label{color:var(--red)}
   .compare-good .compare-label{color:var(--green)}
+
+  /* ════ 코드 대비 패널 — 이 페이지의 주인공 ════ */
+  .codepair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));
+    gap:14px;margin:14px 0 4px}
+  .codepair>*{min-width:0}
+  .cp{border-radius:12px;padding:clamp(12px,1.6vw,16px);min-width:0;display:flex;flex-direction:column}
+  .cp-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .cp-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .cp-ok{background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.22)}
+  .cp-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .cp-note{font-size:12px;color:var(--text3);line-height:1.6;overflow-wrap:anywhere;margin-top:9px}
+  .cp pre{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+    padding:12px 14px;margin:0;flex:1}
+  .cp-solo{margin:14px 0 4px}
+
+  /* 코드 하이라이트 */
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0;line-height:1.75}
+  pre .c{color:var(--text3);font-style:italic}
+  pre .k{color:var(--accent2);font-weight:600}
+  pre .t{color:var(--cyan)}
+  pre .n{color:var(--blue)}
+  pre .hl{color:var(--green);font-weight:700}
+  pre .hl-bad{color:var(--red);font-weight:700;text-decoration:underline;
+    text-decoration-style:wavy;text-underline-offset:3px}
 
   /* ── 체크리스트 ── */
   .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
@@ -194,21 +224,15 @@
 
   /* ── 결정 규칙 박스 ── */
   .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;overflow-wrap:anywhere}
   .rule-box strong{color:var(--accent2)}
 
-  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
-    border-radius:10px;padding:14px 16px;margin-bottom:14px}
-  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
-
   /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
-  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*,.stack>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
   th code,td code{overflow-wrap:normal}
   .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
   @media(max-width:640px){
-    .compare{grid-template-columns:1fr}
-    .grid-2,.grid-3{grid-template-columns:1fr}
     .flow-arrow{display:none}
     .flow-step{flex:1 1 100%}
   }
@@ -231,17 +255,104 @@
 <div class="page">
 
 <h1>Naming Taxonomy — 역할 기반 컴포넌트 네이밍</h1>
-<p class="subtitle">UI 컴포넌트 이름을 외형이 아니라 역할로 짓는 규칙. 6개 주요 디자인 시스템의 어휘를 대조해 만든 <strong>합성 taxonomy</strong> 이며, 어느 한 시스템이 표준으로 문서화한 것이 아니다. <span class="mono">v0.1.0 · 조사일 2026-08-28</span></p>
+<p class="subtitle">UI 컴포넌트 이름을 외형이 아니라 역할로 짓는 규칙 10개. 6개 주요 디자인 시스템의 어휘를 대조해 만든 <strong>합성 taxonomy</strong> 이며, 어느 한 시스템이 표준으로 문서화한 것이 아니다. <span class="mono">v0.1.0 · 조사일 2026-08-28 · 갱신 2026-09-02</span></p>
 
 <!-- ══ 경고 배너 — 가장 먼저 읽혀야 하는 블록 ══ -->
 <div class="warn-banner">
-  <h2>&#9888;&#65039; 이 taxonomy 는 업계 표준이 아니다</h2>
+  <h2>&#9888;&#65039; 이 접미사 taxonomy 에는 단일 권위가 없다 — 합성 규칙이다</h2>
   <p>Material Design 3 · Apple HIG · MUI · Fluent 2 · Ant Design · IBM Carbon 어느 곳도 <code>Item</code>/<code>Tile</code>/<code>Cell</code>/<code>Row</code> 구분이나 <code>AppBar</code>/<code>Toolbar</code>/<code>Header</code>/<code>Bar</code> 구분을 <strong>공통 taxonomy 로 문서화하지 않는다.</strong> 각 시스템은 자기 플랫폼 어휘를 쓸 뿐이고 서로 어긋난다.</p>
   <p>또한 여섯 시스템 중 어느 곳도 <strong>소비자 앱의 커스텀 컴포넌트 명명 지침</strong>("역할로 이름 지어라")을 발행하지 않는다 (확인 실패). MUI 에 API·prop·CSS 클래스 명명 가이드가 있으나 그것은 라이브러리 내부 규약이다.</p>
-  <p>따라서 이 문서의 접미사 규칙은 전부 <span class="strength s-synth">관측 컨벤션 / 합성</span> 이며, 디자인 시스템은 <strong>어휘 원천</strong> 으로만 인용한다. <strong>권위로 인용하지 마라.</strong> "합성이고, 그래서 프로젝트가 하나를 골라 고정한다" 가 정확한 서술이다.</p>
+  <p>따라서 이 문서의 접미사 규칙은 전부 <span class="strength s-synth">관측 컨벤션 / 합성</span> 이며, 디자인 시스템은 <strong>어휘 원천</strong> 으로만 인용한다. <strong>권위로 인용하지 마라.</strong> 원칙 1 과 8 만 공식 스타일 가이드에 걸려 <span class="strength s-should">SHOULD</span> 다. "합성이고, 그래서 프로젝트가 하나를 골라 고정한다" 가 정확한 서술이다.</p>
 </div>
 
-<!-- ══ Section 1 — 근거 등급 ══ -->
+<!-- ══ Section 1 — 이 문서가 잡는 것 ══ -->
+<div class="section">
+  <div class="section-label">이 문서가 잡는 것 — 세 종류의 거짓말하는 이름</div>
+  <p class="desc">이름이 거짓이 되는 경로는 셋이다. 외형을 담았거나, 다른 자리의 어휘를 빌려 왔거나, 역할 대신 계산 과정을 담았거나.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="principle-title"><span class="num">A</span><h3>외형을 담은 이름</h3></div>
+      <p class="desc" style="margin-bottom:0"><code>BlueRoundedBox</code> 처럼 색·모서리·크기가 이름에 박혀 <strong>시안이 바뀌면 거짓이 되는 이름.</strong></p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">B</span><h3>빌려 온 어휘</h3></div>
+      <p class="desc" style="margin-bottom:0">표 어휘를 세로 리스트에 쓴 이름, 임의 묶음에 붙인 <code>...Bar</code> — <code>DeviceRow</code> · <code>FilterBar</code>.</p>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">C</span><h3>계산 과정을 담은 이름</h3></div>
+      <p class="desc" style="margin-bottom:0">역할이 아니라 계산 과정을 담은 이름 — <code>effectiveGradient</code> 같은 fallback 접두사.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>한 줄에 두 가지가 동시에 걸린 예</h3>
+    <div class="codepair">
+      <div class="cp cp-bad">
+        <div class="cp-head"><span class="tag tag-bad">before · 나쁜 예</span></div>
+<pre><code><span class="c">// 외형(Blue) + 표 어휘(Row) 가 한 이름에</span>
+<span class="k">class</span> <span class="t">{widget_prefix}<span class="hl-bad">Blue</span>Device<span class="hl-bad">Row</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+        <p class="cp-note">시안이 파랑에서 벗어나는 순간 <code>Blue</code> 가 거짓이 되고, 진짜 표가 생기는 순간 <code>Row</code> 가 충돌한다.</p>
+      </div>
+      <div class="cp cp-good">
+        <div class="cp-head"><span class="tag tag-ok">after · 옳은 예</span></div>
+<pre><code><span class="c">// 역할만 남긴다 — 세로 리스트 한 장의 기본값은 Item</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl">Item</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+        <p class="cp-note">이름 하나에 두 가지가 걸렸다 — 외형(<code>Blue</code>)과 표 어휘(<code>Row</code>). <strong>세로 리스트 한 장의 기본값은 <code>Item</code> 이다.</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Section 2 — 결정표 ══ -->
+<div class="section">
+  <div class="section-label">결정표 — 그래서 뭘 어떻게 지으라는 건가</div>
+  <p class="desc">왼쪽 열의 서술이 지금 만드는 요소에 맞으면 그 행의 이름을 쓴다. 여러 행에 동시에 걸리면 <strong>원칙 6의 우선순위</strong>로 끊는다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>이 요소는</th><th>이름</th><th>예</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>탭이 그 요소의 <strong>존재 이유</strong>다</td><td><span class="term t-appbar">...Button</span></td><td><code>{widget_prefix}RetryButtonWidget</code></td></tr>
+        <tr><td>세로 리스트 한 장 (형태 미특정)</td><td><span class="term t-mixed">...Item</span> <span class="tag tag-ok">기본값</span></td><td><code>{widget_prefix}DeviceItemWidget</code></td></tr>
+        <tr><td>leading/trailing 을 가진 고정 높이 행</td><td><span class="term t-tile">...Tile</span></td><td><code>{widget_prefix}NotificationTileWidget</code></td></tr>
+        <tr><td>표의 한 행 / 교차 칸</td><td><span class="term t-mixed">...Row</span> <span class="term t-mixed">...Cell</span></td><td><code>{widget_prefix}OrderTableRowWidget</code></td></tr>
+        <tr><td>하나의 객체·개념을 담는 독립 표면</td><td><span class="term t-card">...Card</span> <span class="tag tag-warn">Carbon 계열은 Tile</span></td><td><code>{widget_prefix}ProfileCardWidget</code></td></tr>
+        <tr><td>화면 최상단 앱 컨테이너</td><td><span class="term t-appbar">...AppBar</span></td><td><code>{widget_prefix}HomeAppBarWidget</code></td></tr>
+        <tr><td>현재 작업과 관련된 액션 묶음</td><td><span class="term t-toolbar">...Toolbar</span></td><td><code>{widget_prefix}EditorToolbarWidget</code></td></tr>
+        <tr><td>콘텐츠·섹션·카드의 제목부</td><td><span class="term t-header">...Header</span></td><td><code>{widget_prefix}DetailHeaderWidget</code></td></tr>
+        <tr><td>의미 구획</td><td><span class="term t-mixed">...Section</span></td><td><code>{widget_prefix}SummarySectionWidget</code></td></tr>
+        <tr><td>보조 작업·설정면</td><td><span class="term t-mixed">...Panel</span></td><td><code>{widget_prefix}SettingsPanelWidget</code></td></tr>
+        <tr><td>역할이 아직 확정 안 된 저수준 래퍼</td><td><span class="term t-unknown">...Container</span></td><td><code>{widget_prefix}ScrollContainerWidget</code></td></tr>
+        <tr><td>위 어디에도 구체어가 없다</td><td><span class="term t-unknown">...Bar</span> <span class="tag tag-bad">마지막 수단</span></td><td><code>{widget_prefix}ProgressBarWidget</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>겹칠 때:</strong> 실제 인터랙션 &gt; 컬렉션 요소 &gt; 화면 구획 &gt; 상단 영역 순으로 끊는다 (원칙 6).</div>
+</div>
+
+<!-- ══ Section 3 — 라벨 읽는 법 ══ -->
+<div class="section">
+  <div class="section-label">라벨 읽는 법 — 축과 강도는 서로 다른 것이다</div>
+  <p class="desc">각 원칙 카드에는 두 종류의 라벨이 붙는다. 하나는 규칙이 <strong>어디에 묶이는지</strong>(축), 다른 하나는 <strong>얼마나 밀어붙일 수 있는지</strong>(강도)다. 둘을 섞어 읽으면 "관측 컨벤션 = 약한 규칙" 이라는 오독이 생긴다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>축 — <span class="pill">[코어]</span> <span class="pill pill-adapter">[어댑터:dart-flutter]</span></h3>
+      <p class="desc" style="margin:10px 0 0">규칙이 어디에 묶이는지를 말한다. 스택·언어·프로젝트 세 갈래로 갈린다. <code>[코어]</code> 는 스택 무관이고, <code>[어댑터:...]</code> 는 특정 스택 문법에 묶인다.</p>
+      <p class="desc" style="margin:10px 0 0"><strong>어댑터 슬롯</strong>(코어 규칙을 특정 스택 문법에 결속하는 자리)은 현재 <code>dart-flutter</code> 하나뿐이다. 그래서 아래 코드 예시도 전부 Dart 다.</p>
+    </div>
+    <div class="card">
+      <h3>강도 — <span class="strength s-should">SHOULD</span> <span class="strength s-observed">관측 컨벤션</span> <span class="strength s-synth">합성</span></h3>
+      <p class="desc" style="margin:10px 0 0">규칙을 어디까지 밀어붙일 수 있는지를 말한다. <code>관측 컨벤션</code>(공개 출처 없이 프로젝트 실측만 있는 규칙)은 <strong>준수 강도가 낮다는 뜻이 아니다.</strong> 인용할 외부 문서가 없다는 뜻이다.</p>
+      <p class="desc" style="margin:10px 0 0">강도를 바꾸지 마라. <code>관측 컨벤션</code> 을 <code>MUST</code> 로 올려 소개하는 순간 첫 반박에 규칙 전체가 무너진다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Section 4 — 근거 등급 ══ -->
 <div class="section">
   <div class="section-label">근거 등급 — 무엇을 어디까지 인용할 수 있나</div>
   <p class="desc">이 문서의 규칙은 세 등급으로 나뉜다. 등급을 섞어 인용하면 "표준이라며?" 라는 첫 반박에 규칙 전체의 신뢰가 무너진다.</p>
@@ -249,19 +360,19 @@
   <div class="grid-3">
     <div class="card">
       <div class="principle-title"><span class="strength s-should">SHOULD</span></div>
-      <p class="desc" style="margin-bottom:0">공식 스타일 가이드가 문법 층위에서 규정한 것. 인용 가능한 1차 출처가 있다. 원칙 1·8이 여기 속한다.</p>
+      <p class="desc" style="margin-bottom:0">공식 스타일 가이드가 문법 층위에서 규정한 것. 인용 가능한 1차 출처가 있다. <strong>원칙 1 · 8</strong>이 여기 속한다.</p>
       <div class="sources">
         <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style</a>
       </div>
     </div>
     <div class="card">
       <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span></div>
-      <p class="desc" style="margin-bottom:0">외부 시스템 어휘 또는 프로젝트 코퍼스 실측에서 반복 관측된 패턴. 근거는 관측 건수이지 권위가 아니다. 원칙 7·9·10이 여기 속한다.</p>
-      <span class="source-badge">프로젝트 실측 · 어휘 대조표</span>
+      <p class="desc" style="margin-bottom:0">프로젝트 코퍼스 실측에서 반복 관측된 패턴. 근거는 <strong>관측 건수</strong>이지 권위가 아니다. <strong>원칙 7 · 9 · 10</strong>이 여기 속한다.</p>
+      <span class="source-badge">프로젝트 실측 — 외부 링크 없음</span>
     </div>
     <div class="card">
-      <div class="principle-title"><span class="strength s-synth">합성</span></div>
-      <p class="desc" style="margin-bottom:0">6개 시스템 어휘를 대조해 이 문서가 <strong>만들어낸</strong> 규칙. 외부 문서화 0건. 원칙 2~6이 여기 속한다.</p>
+      <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span></div>
+      <p class="desc" style="margin-bottom:0">6개 시스템 어휘를 대조해 이 문서가 <strong>만들어낸</strong> 규칙. 외부 문서화 0건. <strong>원칙 2~6</strong>이 여기 속한다.</p>
       <span class="source-badge">합성 규칙 — 외부 문서화 0건 (2026-08-28 확인)</span>
     </div>
   </div>
@@ -276,9 +387,9 @@
   </div>
 </div>
 
-<!-- ══ Section 2 — 어휘 대조표 (최대 자산) ══ -->
+<!-- ══ Section 5 — 어휘 대조표 ══ -->
 <div class="section">
-  <div class="section-label">어휘 대조표 — 6개 시스템이 같은 것을 다르게 부른다</div>
+  <div class="section-label">어휘 대조표 — 6개 시스템이 같은 것을 다르게 부른다 (2026-08-28 확인)</div>
   <p class="desc">이 문서의 최대 자산. 화면 상단 / 리스트 한 행 / 탭 가능한 그룹 표면 세 자리에서 여섯 시스템의 어휘가 어떻게 갈리는지를 보여준다. 색이 다르면 용어군이 다르다는 뜻이고, 점선 배지는 확인 실패다.</p>
 
   <div class="legend">
@@ -336,7 +447,16 @@
       </tbody>
     </table>
   </div>
-  <p class="caption">확인일 2026-08-28. 출처: <a href="https://m3.material.io/components" target="_blank" rel="noopener" style="color:var(--accent)">M3 components</a> · <a href="https://developer.apple.com/design/human-interface-guidelines/components" target="_blank" rel="noopener" style="color:var(--accent)">Apple HIG components</a> · <a href="https://mui.com/material-ui/react-app-bar/" target="_blank" rel="noopener" style="color:var(--accent)">MUI AppBar</a> · <a href="https://fluent2.microsoft.design/components/web/react" target="_blank" rel="noopener" style="color:var(--accent)">Fluent 2 Web React</a> · <a href="https://ant.design/components/overview/" target="_blank" rel="noopener" style="color:var(--accent)">Ant Design components</a> · <a href="https://carbondesignsystem.com/components/overview/components/" target="_blank" rel="noopener" style="color:var(--accent)">Carbon components</a></p>
+
+  <div class="sources" style="border-top:none;padding-top:14px">
+    <div class="sources-label">출처 — 어휘 원천</div>
+    <a class="card-source" href="https://m3.material.io/components" target="_blank" rel="noopener">&rarr; M3 components</a>
+    <a class="card-source" href="https://developer.apple.com/design/human-interface-guidelines/components" target="_blank" rel="noopener">&rarr; Apple HIG components</a>
+    <a class="card-source" href="https://mui.com/material-ui/react-app-bar/" target="_blank" rel="noopener">&rarr; MUI AppBar</a>
+    <a class="card-source" href="https://fluent2.microsoft.design/components/web/react" target="_blank" rel="noopener">&rarr; Fluent 2 Web React</a>
+    <a class="card-source" href="https://ant.design/components/overview/" target="_blank" rel="noopener">&rarr; Ant Design components</a>
+    <a class="card-source" href="https://carbondesignsystem.com/components/overview/components/" target="_blank" rel="noopener">&rarr; Carbon components</a>
+  </div>
 
   <div class="grid-2" style="margin-top:24px">
     <div class="card">
@@ -391,17 +511,19 @@
 
   <div class="info-card" style="margin-top:20px">
     <h3>불일치가 규칙이다</h3>
-    <p class="desc" style="margin-bottom:0">Material 은 <code>Top app bar</code>, Apple 은 <code>Toolbar</code>, Ant·Carbon 은 <code>Header</code>, Fluent 는 <code>Toolbar</code>, MUI 는 <code>AppBar</code> 와 <code>Toolbar</code> 를 동시에 둔다. Carbon 은 표면에 <code>Card</code> 대신 <code>Tile</code> 을 쓴다. <strong>그래서 프로젝트는 자기 taxonomy 를 한 번 정하고 그것을 SSOT 로 삼아야 한다.</strong> 외부 문서를 근거로 팀을 설득하려 들면 오히려 반대 사례를 들려주게 된다.</p>
+    <p class="desc" style="margin-bottom:10px">Material 은 <code>Top app bar</code>, Apple 은 <code>Toolbar</code>, Ant·Carbon 은 <code>Header</code>, Fluent 는 <code>Toolbar</code>, MUI 는 <code>AppBar</code> 와 <code>Toolbar</code> 를 동시에 둔다. Carbon 은 표면에 <code>Card</code> 대신 <code>Tile</code> 을 쓴다. <strong>그래서 프로젝트는 자기 taxonomy 를 한 번 정하고 그것을 SSOT 로 삼아야 한다.</strong></p>
+    <p class="desc" style="margin-bottom:0">M3 와 Apple HIG 페이지는 본문이 JS 로만 렌더링돼 정의문을 직접 인용할 수 없다. 두 시스템은 <strong>어휘 존재 확인용으로만</strong> 인용하고 원문 인용은 붙이지 마라.</p>
   </div>
 </div>
 
-<!-- ══ Section 3 — 원칙 10 ══ -->
+<!-- ══ Section 6 — 원칙 10개 (before/after 가 주인공) ══ -->
 <div class="section">
-  <div class="section-label">원칙 — 10개, 강도 배지와 함께</div>
-  <p class="desc">각 카드의 배지가 그 규칙을 어디까지 밀어붙일 수 있는지를 말한다. <span class="strength s-should">SHOULD</span> 는 공식 가이드 인용 가능, <span class="strength s-observed">관측 컨벤션</span> 은 실측 건수가 근거, <span class="strength s-synth">합성</span> 은 이 문서가 만든 규칙이라 외부 권위가 없다.</p>
+  <div class="section-label">원칙 10개 — before / after 로</div>
+  <p class="desc">각 카드의 배지가 그 규칙을 어디까지 밀어붙일 수 있는지를 말한다. <span class="strength s-should">SHOULD</span> 는 공식 가이드 인용 가능, <span class="strength s-observed">관측 컨벤션</span> 은 실측 건수가 근거, <span class="strength s-synth">관측 컨벤션 / 합성</span> 은 이 문서가 만든 규칙이라 외부 권위가 없다. 어댑터 슬롯이 <code>dart-flutter</code> 하나뿐이라 코드는 전부 Dart 다.</p>
 
-  <div class="grid-2">
+  <div class="stack">
 
+    <!-- ── 원칙 1 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -409,14 +531,47 @@
           <h3>이름은 외형이 아니라 역할을 담는다</h3>
         </div>
         <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill">[코어]</span></div>
-        <p class="desc" style="margin-bottom:12px"><code>BlueRoundedBox</code> 가 아니라 <code>ProfileCard</code> 다. 판단 기준은 "사용자가 이것으로 무엇을 하거나 이해하는가" 이지 "이것이 어떻게 생겼는가" 가 아니다. 색·모서리·크기는 시안이 바뀌면 따라 바뀌므로 이름에 들어가면 <strong>이름이 거짓이 된다.</strong></p>
-        <p class="desc" style="margin-bottom:0">Dart 공식 스타일 가이드는 같은 방향을 문법 층위에서 규정한다: 비-boolean 프로퍼티는 명사구, 부수효과가 있는 메서드는 명령형 동사구, 메서드 이름에 파라미터를 서술하지 않는다.</p>
+        <p class="desc" style="margin-bottom:4px">색·모서리·크기를 이름에서 빼고, <strong>사용자가 그것으로 무엇을 하거나 이해하는지</strong>를 넣는다.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">클래스 이름</span></div>
+<pre><code><span class="c">// before — 시안이 바뀌면 거짓이 되는 이름</span>
+<span class="k">class</span> <span class="t">{widget_prefix}<span class="hl-bad">BlueRounded</span>BoxWidget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}<span class="hl-bad">Gray12</span>CardWidget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">역할로 교체</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">class</span> <span class="t">{widget_prefix}<span class="hl">Profile</span>CardWidget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}<span class="hl">Notice</span>CardWidget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+        </div>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">프로퍼티 · 메서드</span></div>
+<pre><code><span class="c">// before — 프로퍼티가 동사구, 메서드가 파라미터를 서술</span>
+<span class="t">Duration</span> <span class="k">get</span> <span class="hl-bad">compute</span>AnimationDuration =&gt; ...;
+<span class="k">void</span> updateState<span class="hl-bad">WithNewIndex</span>(<span class="t">int</span> index) { ... }</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">명사구 · 명령형 동사구</span></div>
+<pre><code><span class="c">// after</span>
+<span class="t">Duration</span> <span class="k">get</span> <span class="hl">animationDuration</span> =&gt; ...;
+<span class="k">void</span> <span class="hl">selectIndex</span>(<span class="t">int</span> index) { ... }</code></pre>
+          </div>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0">판단 기준은 "사용자가 이것으로 무엇을 하거나 이해하는가" 이지 "이것이 어떻게 생겼는가" 가 아니다. 색·모서리·크기는 시안이 바뀌면 따라 바뀌므로 이름에 들어가면 <strong>이름이 거짓이 된다.</strong> Dart 공식 스타일 가이드는 같은 방향을 문법 층위에서 규정한다: 비-boolean 프로퍼티는 명사구, 부수효과가 있는 메서드는 명령형 동사구, 메서드 이름에 파라미터를 서술하지 않는다.</p>
       </div>
       <div class="sources">
+        <div class="sources-label">출처</div>
         <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style</a>
       </div>
     </div>
 
+    <!-- ── 원칙 2 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -424,12 +579,39 @@
           <h3>레이아웃 모양어를 컴포넌트 이름에 쓰지 않는다</h3>
         </div>
         <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
-        <p class="desc" style="margin-bottom:12px"><code>Row</code> · <code>Bar</code> · <code>Box</code> 는 레이아웃 용어다. 한정 용법(진짜 표의 행, 확립된 바 종류)에만 허용한다.</p>
-        <p class="desc" style="margin-bottom:0">세로 리스트의 한 장을 <code>...Row</code> 로 부르면 그것이 표의 행인지 세로 목록의 항목인지 <strong>이름만으로 구분되지 않는다.</strong></p>
+        <p class="desc" style="margin-bottom:4px"><code>Row</code> · <code>Bar</code> · <code>Box</code> 는 레이아웃 용어다. <strong>한정 용법</strong>(진짜 표의 행, 확립된 바 종류)에만 허용한다.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span></div>
+<pre><code><span class="c">// before</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl-bad">Row</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }   <span class="c">// 세로 목록 한 장</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Filter<span class="hl-bad">Bar</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }   <span class="c">// 임의 컨트롤 묶음</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Profile<span class="hl-bad">Box</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }  <span class="c">// 역할이 이미 확정됨</span></code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl">Item</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Filter<span class="hl">Header</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Profile<span class="hl">Card</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+        </div>
+
+        <div class="cp cp-ok cp-solo">
+          <div class="cp-head"><span class="tag" style="background:rgba(34,211,238,0.14);color:var(--cyan)">허용</span><span class="mono" style="color:var(--text3)">한정 용법 — 진짜 표의 행, 확립된 바 종류</span></div>
+<pre><code><span class="c">// 허용 — 진짜 표의 행, 확립된 바 종류</span>
+<span class="k">class</span> <span class="t">{widget_prefix}OrderTable<span class="hl">Row</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Home<span class="hl">AppBar</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}UploadProgress<span class="hl">Bar</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0">세로 리스트의 한 장을 <code>...Row</code> 로 부르면 그것이 표의 행인지 세로 목록의 항목인지 <strong>이름만으로 구분되지 않는다.</strong> 나중에 진짜 표가 생기면 두 이름이 같은 어휘를 놓고 충돌한다.</p>
       </div>
-      <span class="source-badge">합성 규칙 — 6개 시스템 중 이 금지를 문서화한 곳 0 (2026-08-28 확인)</span>
+      <span class="source-badge">출처: 합성 규칙 — 위 어휘 대조표의 6개 시스템 중 어느 곳도 이 금지를 문서화하지 않는다 (2026-08-28 확인)</span>
     </div>
 
+    <!-- ── 원칙 3 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -437,16 +619,53 @@
           <h3>컬렉션 요소: <code>Item</code> / <code>Tile</code> / <code>Cell</code> / <code>Row</code></h3>
         </div>
         <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
-        <p class="desc" style="margin-bottom:12px"><strong>세로 리스트 요소에 <code>Row</code>/<code>Cell</code> 을 쓰지 마라. 둘은 표 전용이다.</strong> 세로 리스트 한 장은 <code>Item</code>, 단순한 행이면 <code>Tile</code>, 독립 표면이면 <code>Card</code>.</p>
-        <p class="desc" style="margin-bottom:0">각 시스템의 실제 어휘는 이 구분을 <strong>부분적으로만</strong> 지지한다. MUI 는 <code>ListItem</code>/<code>TableRow</code>/<code>TableCell</code> 로 갈라 쓰고, Fluent 와 Carbon 은 <code>List item</code> 으로 통일하며, Ant 는 <code>row</code> 와 <code>list item</code> 을 혼용한다.</p>
+        <p class="desc" style="margin-bottom:4px"><strong>세로 리스트 요소에 <code>Row</code>/<code>Cell</code> 을 쓰지 마라. 둘은 표 전용이다.</strong> 세로 리스트 한 장은 <code>Item</code>, 단순한 행이면 <code>Tile</code>, 독립 표면이면 <code>Card</code>.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">세로 목록에 표 어휘</span></div>
+<pre><code><span class="c">// before — 세로 목록 한 장을 표 어휘로</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl-bad">Row</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Notification<span class="hl-bad">Cell</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl">Item</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }        <span class="c">// 형태 미특정 기본값</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Notification<span class="hl">Tile</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }  <span class="c">// leading/trailing 고정 높이</span></code></pre>
+          </div>
+        </div>
+
+        <div class="cp cp-ok cp-solo">
+          <div class="cp-head"><span class="tag" style="background:rgba(34,211,238,0.14);color:var(--cyan)">허용</span><span class="mono" style="color:var(--text3)">표 안이라면 원래 어휘가 맞다</span></div>
+<pre><code><span class="c">// 표 안이라면 원래 어휘가 맞다 — 여기서 Item 으로 바꾸면 반대 방향 오류다</span>
+<span class="k">class</span> <span class="t">{widget_prefix}OrderTable<span class="hl">Row</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}OrderTable<span class="hl">Cell</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+        </div>
+
+        <div class="table-wrap" style="margin-top:16px">
+          <table>
+            <thead><tr><th>접미사</th><th>언제</th></tr></thead>
+            <tbody>
+              <tr><td><span class="term t-mixed">Item</span></td><td>UI 형태를 특정하지 않는 일반 데이터 단위. <strong>세로 리스트 한 장의 기본값</strong></td></tr>
+              <tr><td><span class="term t-tile">Tile</span></td><td>leading/trailing 을 가진 <strong>고정 높이</strong> 리스트 행</td></tr>
+              <tr><td><span class="term t-mixed">Cell</span></td><td>표·그리드의 <strong>교차 칸</strong></td></tr>
+              <tr><td><span class="term t-mixed">Row</span></td><td>표의 한 행. <strong>수평 구조가 의미상 본질일 때만</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0">각 시스템의 실제 어휘는 이 구분을 <strong>부분적으로만</strong> 지지한다. MUI 는 <code>ListItem</code>/<code>TableRow</code>/<code>TableCell</code> 로 갈라 쓰고, Fluent 와 Carbon 은 <code>List item</code> 으로 통일하며, Ant 는 <code>row</code> 와 <code>list item</code> 을 혼용한다.</p>
       </div>
       <div class="sources">
+        <div class="sources-label">출처 — 어휘 원천</div>
         <a class="card-source" href="https://mui.com/material-ui/api/list-item/" target="_blank" rel="noopener">&rarr; MUI ListItem API</a>
         <a class="card-source" href="https://fluent2.microsoft.design/components/web/react/core/list/usage" target="_blank" rel="noopener">&rarr; Fluent 2 List — "A list is a collection of like items"</a>
         <a class="card-source" href="https://carbondesignsystem.com/components/list/usage/" target="_blank" rel="noopener">&rarr; Carbon List — "Represents an individual entry within a list"</a>
       </div>
     </div>
 
+    <!-- ── 원칙 4 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -454,17 +673,49 @@
           <h3>상단·구획: <code>AppBar</code> / <code>Toolbar</code> / <code>Header</code> / <code>Bar</code></h3>
         </div>
         <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
-        <p class="desc" style="margin-bottom:12px"><strong>임의의 컨트롤 묶음이나 콘텐츠 상단 구획에 <code>Bar</code> 를 쓰지 마라 — <code>Header</code> 다.</strong></p>
-        <p class="desc" style="margin-bottom:0">Carbon 의 <code>Header</code> 는 최상위 내비게이션이고 Ant 의 <code>Header</code> 는 레이아웃 상단이다. <strong>같은 단어가 시스템마다 다른 층위를 가리킨다.</strong> 프로젝트가 하나를 골라 고정해야 하는 이유다.</p>
+        <p class="desc" style="margin-bottom:4px"><strong>임의의 컨트롤 묶음이나 콘텐츠 상단 구획에 <code>Bar</code> 를 쓰지 마라 — <code>Header</code> 다.</strong> 묶음이 현재 작업의 액션이면 <code>Toolbar</code>, 화면 최상단 앱 컨테이너면 <code>AppBar</code> 다.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span></div>
+<pre><code><span class="c">// before</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Filter<span class="hl-bad">Bar</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }   <span class="c">// 콘텐츠 상단 구획</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Editor<span class="hl-bad">Bar</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }   <span class="c">// 현재 작업 액션 묶음</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Home<span class="hl-bad">Header</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }  <span class="c">// 실제로는 화면 최상단 앱 컨테이너</span></code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Filter<span class="hl">Header</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Editor<span class="hl">Toolbar</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Home<span class="hl">AppBar</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-top:16px">
+          <table>
+            <thead><tr><th>접미사</th><th>언제</th></tr></thead>
+            <tbody>
+              <tr><td><span class="term t-appbar">AppBar</span></td><td>화면 <strong>최상단 앱 컨테이너</strong> (제목·내비게이션·주요 액션)</td></tr>
+              <tr><td><span class="term t-toolbar">Toolbar</span></td><td><strong>현재 작업</strong>과 관련된 액션 묶음</td></tr>
+              <tr><td><span class="term t-header">Header</span></td><td>콘텐츠·섹션·카드의 <strong>제목부 또는 시작부</strong></td></tr>
+              <tr><td><span class="term t-unknown">Bar</span></td><td>구체어가 없을 때만 쓰는 <strong>포괄 fallback</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0">Carbon 의 <code>Header</code> 는 <strong>최상위 내비게이션</strong>이고 Ant 의 <code>Header</code> 는 <strong>레이아웃 상단</strong>이다. 같은 단어가 시스템마다 다른 층위를 가리킨다. 프로젝트가 하나를 골라 고정해야 하는 이유다.</p>
       </div>
       <div class="sources">
-        <a class="card-source" href="https://mui.com/material-ui/react-app-bar/" target="_blank" rel="noopener">&rarr; MUI AppBar — "displays information and actions relating to the current screen"</a>
-        <a class="card-source" href="https://fluent2.microsoft.design/components/web/react/core/toolbar/usage" target="_blank" rel="noopener">&rarr; Fluent 2 Toolbar — "gives access to frequently used actions"</a>
+        <div class="sources-label">출처 — 어휘 원천</div>
+        <a class="card-source" href="https://mui.com/material-ui/react-app-bar/" target="_blank" rel="noopener">&rarr; MUI AppBar — "The App Bar displays information and actions relating to the current screen."</a>
+        <a class="card-source" href="https://fluent2.microsoft.design/components/web/react/core/toolbar/usage" target="_blank" rel="noopener">&rarr; Fluent 2 Toolbar — "A toolbar gives access to frequently used actions"</a>
         <a class="card-source" href="https://ant.design/components/layout" target="_blank" rel="noopener">&rarr; Ant Design Layout — "Header: The top layout"</a>
-        <a class="card-source" href="https://carbondesignsystem.com/components/UI-shell-header/usage/" target="_blank" rel="noopener">&rarr; Carbon UI shell header — "The highest level of navigation"</a>
+        <a class="card-source" href="https://carbondesignsystem.com/components/UI-shell-header/usage/" target="_blank" rel="noopener">&rarr; Carbon UI shell header — "Header: The highest level of navigation."</a>
       </div>
     </div>
 
+    <!-- ── 원칙 5 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -472,17 +723,36 @@
           <h3>표면·구획: <code>Section</code> / <code>Panel</code> / <code>Container</code> / <code>Card</code></h3>
         </div>
         <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
-        <p class="desc" style="margin-bottom:12px"><code>Section</code> 은 의미 구획, <code>Panel</code> 은 보조 작업·설정면, <code>Container</code> 는 저수준 레이아웃 래퍼, <code>Card</code> 는 하나의 객체나 개념을 담는 독립 표면이다.</p>
-        <p class="desc" style="margin-bottom:12px"><code>Container</code> · <code>Box</code> · <code>Wrapper</code> · <code>View</code> 는 <strong>의미가 약하다.</strong> 저수준 유틸이거나 역할이 아직 확정되지 않은 내부 위젯에만 쓴다. 역할이 있으면 역할어를 쓴다.</p>
-        <p class="desc" style="margin-bottom:0">Carbon 은 이 자리에 <code>Card</code> 가 아니라 <code>Tile</code> 을 쓰고 "Tiles versus cards" 를 따로 비교한다.</p>
+        <p class="desc" style="margin-bottom:4px">역할이 확정된 표면에 <code>Container</code> · <code>Box</code> · <code>Wrapper</code> · <code>View</code> 를 쓰지 않는다.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">의미가 약한 래퍼 어휘</span></div>
+<pre><code><span class="c">// before — 의미가 약한 래퍼 어휘</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Settings<span class="hl-bad">Container</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Notice<span class="hl-bad">Wrapper</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="k">class</span> <span class="t">{widget_prefix}Summary<span class="hl-bad">View</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">역할어로 교체</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Settings<span class="hl">Panel</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }   <span class="c">// 보조 작업·설정면</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Notice<span class="hl">Card</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }      <span class="c">// 독립 표면</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Summary<span class="hl">Section</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }  <span class="c">// 의미 구획</span></code></pre>
+          </div>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0"><code>Section</code> 은 의미 구획, <code>Panel</code> 은 보조 작업·설정면, <code>Container</code> 는 저수준 레이아웃 래퍼, <code>Card</code> 는 하나의 객체나 개념을 담는 독립 표면이다. <code>Container</code> · <code>Box</code> · <code>Wrapper</code> · <code>View</code> 는 <strong>저수준 유틸이거나 역할이 아직 확정되지 않은 내부 위젯에만</strong> 쓴다. Carbon 은 이 자리에 <code>Card</code> 가 아니라 <code>Tile</code> 을 쓰고 "Tiles versus cards" 를 따로 비교한다 — 어휘가 시스템에 종속된다는 증거다.</p>
       </div>
       <div class="sources">
+        <div class="sources-label">출처 — 어휘 원천</div>
         <a class="card-source" href="https://carbondesignsystem.com/components/tile/usage/" target="_blank" rel="noopener">&rarr; Carbon Tile</a>
         <a class="card-source" href="https://fluent2.microsoft.design/components/web/react/core/card/usage" target="_blank" rel="noopener">&rarr; Fluent 2 Card — "A card is a container"</a>
-        <a class="card-source" href="https://ant.design/components/card" target="_blank" rel="noopener">&rarr; Ant Design Card — "A container for displaying information"</a>
+        <a class="card-source" href="https://ant.design/components/card" target="_blank" rel="noopener">&rarr; Ant Design Card — "A container for displaying information."</a>
       </div>
     </div>
 
+    <!-- ── 원칙 6 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -490,25 +760,62 @@
           <h3>역할이 겹치면 우선순위로 끊는다</h3>
         </div>
         <div class="principle-title"><span class="strength s-synth">관측 컨벤션 / 합성</span><span class="pill">[코어]</span></div>
-        <pre><code>실제 인터랙션  &gt;  컬렉션 요소  &gt;  화면 구획  &gt;  상단 영역</code></pre>
-        <p class="desc" style="margin-bottom:0">탭하면 <code>Button</code>, 리스트 한 칸이면 <code>Item</code>/<code>Tile</code>, 구획이면 <code>Section</code>/<code>Card</code>, 상단이면 <code>Header</code>/<code>Toolbar</code>. 판정은 <strong>"탭이 그 요소의 존재 이유인가"</strong> 로 끊는다 — 목록을 보여주는 것이 본질이고 탭이 부가면 <code>Item</code> 이다.</p>
+
+<pre style="margin-top:12px"><code>실제 인터랙션  &gt;  컬렉션 요소  &gt;  화면 구획  &gt;  상단 영역</code></pre>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">탭이 된다는 이유로 Button</span></div>
+<pre><code><span class="c">// before — 목록을 보여주는 것이 본질인데 탭이 된다는 이유로 Button</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl-bad">Button</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">존재 이유로 판정</span></div>
+<pre><code><span class="c">// after — 탭은 부가, 존재 이유는 목록 한 장</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl">Item</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="c">// 탭이 존재 이유일 때만 Button 이 이긴다</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Retry<span class="hl">Button</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }</code></pre>
+          </div>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0">탭하면 <code>Button</code>, 리스트 한 칸이면 <code>Item</code>/<code>Tile</code>, 구획이면 <code>Section</code>/<code>Card</code>, 상단이면 <code>Header</code>/<code>Toolbar</code>. 리스트 안에 있으면서 탭도 되는 요소는 <strong>"탭이 그 요소의 존재 이유인가"</strong> 로 끊는다. 목록을 보여주는 것이 본질이고 탭이 부가면 <code>Item</code> 이다.</p>
       </div>
-      <span class="source-badge">합성 규칙 — 6개 시스템 중 우선순위를 문서화한 곳 0 (2026-08-28 확인)</span>
+      <span class="source-badge">출처: 합성 규칙 — 6개 시스템 중 우선순위를 문서화한 곳 없음 (2026-08-28 확인)</span>
     </div>
 
+    <!-- ── 원칙 7 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
           <span class="num">7</span>
           <h3>fallback 접두사를 이름으로 쓰지 않는다</h3>
         </div>
-        <div class="principle-title"><span class="strength s-observed">관측 컨벤션 — 실측 9건 / 4파일</span><span class="pill">[코어]</span></div>
-        <p class="desc" style="margin-bottom:12px"><code>effectiveGradient</code> · <code>resolvedChildren</code> · <code>resolvedBgColor</code> 같은 이름은 <code>??</code> 연산자가 이미 표현한 fallback 을 이름에 <strong>중복해 넣은 것</strong>이다. 도메인·역할로 바꾼다: <code>toolbarGradient</code> · <code>visibleChildren</code> · <code>disabledBackground</code>.</p>
-        <p class="desc" style="margin-bottom:0">이 접두사가 LLM 생성 코드에 통계적으로 과대표집된다는 <strong>공개 근거는 없다.</strong> 논문 각주를 붙이지 마라 — 근거는 코퍼스 실측뿐이다.</p>
+        <div class="principle-title"><span class="strength s-observed">관측 컨벤션 · 실측 9건 / 4파일</span><span class="pill">[코어]</span></div>
+        <p class="desc" style="margin-bottom:4px"><code>effective</code> · <code>resolved</code> 접두사를 <strong>도메인·역할어</strong>로 바꾼다.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">계산 과정을 이름에</span></div>
+<pre><code><span class="c">// before — ?? 가 이미 표현한 fallback 을 이름에 중복</span>
+<span class="k">final</span> <span class="hl-bad">effective</span>Gradient = props.gradient ?? defaultGradient;
+<span class="k">final</span> <span class="hl-bad">resolved</span>Children = props.children ?? <span class="k">const</span> [];
+<span class="k">final</span> <span class="hl-bad">resolved</span>BgColor = props.background ?? <span class="t">{TokenClass}</span>.surfaceDisabled;</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">역할·도메인어로</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">final</span> <span class="hl">toolbar</span>Gradient = props.gradient ?? defaultGradient;
+<span class="k">final</span> <span class="hl">visible</span>Children = props.children ?? <span class="k">const</span> [];
+<span class="k">final</span> <span class="hl">disabled</span>Background = props.background ?? <span class="t">{TokenClass}</span>.surfaceDisabled;</code></pre>
+          </div>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0">접두사는 역할이 아니라 <strong>계산 과정</strong>을 드러낸다. 기본값 연산자가 이미 그 계산을 말하고 있으므로 이름이 같은 말을 두 번 한다. 이 접두사가 LLM 생성 코드에 통계적으로 과대표집된다는 <strong>공개 근거는 없다</strong> — 논문 각주를 붙이지 마라.</p>
       </div>
-      <span class="source-badge">프로젝트 실측 — 9건 / 4파일 (57파일 스캔). 공개 통계 확인 실패 · 상세는 ai-code-stylometry.md 원칙 5</span>
+      <span class="source-badge">출처: 프로젝트 실측 (57파일 스캔 중 9건 / 4파일). 공개 통계는 확인 실패 — 상세는 ai-code-stylometry.md 원칙 5</span>
     </div>
 
+    <!-- ── 원칙 8 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -516,26 +823,85 @@
           <h3>한 글자 이름과 무역할 파일명을 피한다</h3>
         </div>
         <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill">[코어]</span></div>
-        <p class="desc" style="margin-bottom:12px"><code>p</code> · <code>s</code> · <code>e</code> 같은 축약 대신 <code>props</code> · <code>state</code> · <code>event</code> 를 쓴다.</p>
-        <p class="desc" style="margin-bottom:0">파일·클래스 이름은 역할이 아니라 도메인으로 짓는다 — <code>utils.dart</code> · <code>helper.dart</code> · <code>common_widget.dart</code> 는 무엇이 들어 있는지 알려주지 않으므로 <strong>무한히 자란다.</strong></p>
+        <p class="desc" style="margin-bottom:4px">축약 대신 온전한 단어를, 파일명에는 역할어 대신 <strong>도메인</strong>을 쓴다.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">한 글자 지역 변수</span></div>
+<pre><code><span class="c">// before</span>
+<span class="k">void</span> onTapDown(<span class="t">TapDownDetails</span> <span class="hl-bad">e</span>) {
+  <span class="k">final</span> <span class="hl-bad">p</span> = widget.props;
+  <span class="k">final</span> <span class="hl-bad">s</span> = ref.watch(deviceProvider);
+}</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">온전한 단어</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">void</span> onTapDown(<span class="t">TapDownDetails</span> <span class="hl">event</span>) {
+  <span class="k">final</span> <span class="hl">props</span> = widget.props;
+  <span class="k">final</span> <span class="hl">state</span> = ref.watch(deviceProvider);
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">무역할 파일명</span></div>
+<pre><code><span class="c">// before — 무엇이 들어 있는지 알 수 없어 무한히 자란다</span>
+lib/features/device/<span class="hl-bad">utils</span>.dart
+lib/features/device/<span class="hl-bad">helper</span>.dart
+lib/features/device/<span class="hl-bad">common_widget</span>.dart</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">도메인 + 역할</span></div>
+<pre><code><span class="c">// after</span>
+lib/features/device/<span class="hl">device_pairing_formatter</span>.dart
+lib/features/device/<span class="hl">device_status_mapper</span>.dart
+lib/features/device/<span class="hl">device_item_widget</span>.dart</code></pre>
+          </div>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0"><code>p</code> · <code>s</code> · <code>e</code> 는 선언부에서 세 글자를 아끼고 <strong>사용부 전체에서 추론 비용을 만든다.</strong> <code>utils</code> · <code>helper</code> · <code>common</code> 은 배제 기준이 없어서 새 함수가 갈 곳이 없을 때마다 여기로 모인다.</p>
       </div>
       <div class="sources">
+        <div class="sources-label">출처</div>
         <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style</a>
       </div>
     </div>
 
+    <!-- ── 원칙 9 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
           <span class="num">9</span>
           <h3>컴포넌트 이름과 그 데이터 타입 이름을 정렬한다</h3>
         </div>
-        <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[코어]</span><span class="pill">[어댑터:dart-flutter]</span></div>
-        <p class="desc" style="margin-bottom:0">추출한 컴포넌트가 <code>...ItemWidget</code> 인데 그것이 받는 데이터가 <code>...RowViewState</code> 이면 <strong>같은 것을 두 이름으로 부르는 셈</strong>이다. 같은 도메인 용어로 맞춘다.</p>
+        <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[코어]</span><span class="pill pill-adapter">[어댑터:dart-flutter]</span></div>
+        <p class="desc" style="margin-bottom:4px">컴포넌트가 <code>...Item</code> 이면 그것이 받는 상태도 <code>...Item</code> 이다.</p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">접미사 어긋남</span></div>
+<pre><code><span class="c">// before — 같은 것을 두 이름으로 부른다</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl">Item</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> {
+  <span class="k">final</span> <span class="t">{widget_prefix}Device<span class="hl-bad">Row</span>ViewState</span> state;
+}</code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">접미사 정렬</span></div>
+<pre><code><span class="c">// after</span>
+<span class="k">class</span> <span class="t">{widget_prefix}Device<span class="hl">Item</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> {
+  <span class="k">final</span> <span class="t">{widget_prefix}Device<span class="hl">Item</span>ViewState</span> state;
+}</code></pre>
+          </div>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0">접미사가 어긋나면 <strong>검색이 한쪽만 잡고</strong>, 다음 사람이 두 이름이 같은 개념인지 매번 확인해야 한다. 클래스만 리네임하지 말고 <code>snake_case</code> 파일명까지 함께 옮긴다.</p>
       </div>
-      <span class="source-badge">프로젝트 실측 — 컴포넌트/상태 타입 접미사 불일치가 리네이밍 작업의 반복 원인</span>
+      <span class="source-badge">출처: 프로젝트 실측 — 컴포넌트/상태 타입 접미사 불일치가 리네이밍 작업의 반복 원인</span>
     </div>
 
+    <!-- ── 원칙 10 ── -->
     <div class="card">
       <div class="card-body">
         <div class="principle-title">
@@ -543,12 +909,35 @@
           <h3>prefix 와 suffix 는 프로젝트 파라미터다</h3>
         </div>
         <div class="principle-title"><span class="strength s-observed">관측 컨벤션</span><span class="pill">[코어]</span></div>
-        <pre><code>{widget_prefix} + 도메인/대상 + 역할 + {widget_suffix}
-클래스 UpperCamelCase · 파일 snake_case</code></pre>
-        <p class="desc" style="margin-bottom:12px"><code>{widget_prefix}</code>(스코프 구분자)와 <code>{widget_suffix}</code>(예: <code>Widget</code>)는 <strong>프로젝트마다 다르며 킷이 값을 정하지 않는다.</strong> 감지 규칙은 <code>project-detection</code> 이 소유한다.</p>
-        <p class="desc" style="margin-bottom:0">프로젝트가 접미사를 안 쓰기로 했다면 그것도 유효한 선택이다. 이 문서가 강제하는 것은 접미사의 존재가 아니라 <strong>taxonomy 의 일관성</strong> 이다.</p>
+        <p class="desc" style="margin-bottom:4px"><strong>조립 형식만 킷이 정하고 값은 프로젝트가 소유한다.</strong></p>
+
+        <div class="codepair">
+          <div class="cp cp-bad">
+            <div class="cp-head"><span class="tag tag-bad">before</span><span class="mono" style="color:var(--text3)">파일마다 조립 형식이 다름</span></div>
+<pre><code><span class="c">// before — 한 프로젝트 안에서 조립 형식이 파일마다 다르다</span>
+<span class="k">class</span> <span class="t">DeviceItemWidget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }        <span class="c">// 접두사 없음</span>
+<span class="k">class</span> <span class="t">{widget_prefix}<span class="hl-bad">ItemDevice</span>Widget</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }  <span class="c">// 역할이 도메인 앞</span>
+<span class="k">class</span> <span class="t">{widget_prefix}DeviceItem</span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }        <span class="c">// 접미사 없음</span></code></pre>
+          </div>
+          <div class="cp cp-good">
+            <div class="cp-head"><span class="tag tag-ok">after</span><span class="mono" style="color:var(--text3)">조립 형식 고정</span></div>
+<pre><code><span class="c">// after — 조립 형식: {widget_prefix} + 도메인/대상 + 역할 + {widget_suffix}</span>
+<span class="k">class</span> <span class="t"><span class="hl">{widget_prefix}</span>DeviceItem<span class="hl">{widget_suffix}</span></span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="c">// 파일: device_item_widget.dart — 클래스 UpperCamelCase · 파일 snake_case</span></code></pre>
+          </div>
+        </div>
+
+        <div class="cp cp-ok cp-solo">
+          <div class="cp-head"><span class="tag" style="background:rgba(34,211,238,0.14);color:var(--cyan)">허용</span><span class="mono" style="color:var(--text3)">접두사·접미사를 안 쓰기로 한 프로젝트</span></div>
+<pre><code><span class="c">// 접두사·접미사를 안 쓰기로 한 프로젝트도 유효하다. 전 파일이 같기만 하면 된다</span>
+<span class="k">class</span> <span class="t"><span class="hl">DeviceItem</span></span> <span class="k">extends</span> <span class="n">StatelessWidget</span> { ... }
+<span class="c">// 파일: device_item.dart</span></code></pre>
+        </div>
+
+        <p class="desc" style="margin:14px 0 0"><code>{widget_prefix}</code>(스코프 구분자)와 <code>{widget_suffix}</code>(예: <code>Widget</code>)는 <strong>프로젝트마다 다르며 킷이 값을 정하지 않는다.</strong> 감지 규칙은 <code>project-detection</code> 이 소유한다. 이 문서가 강제하는 것은 접미사의 존재가 아니라 <strong>taxonomy 의 일관성</strong> 이다.</p>
       </div>
       <div class="sources">
+        <div class="sources-label">출처</div>
         <a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&rarr; Effective Dart: Style (casing 규약만 해당)</a>
       </div>
     </div>
@@ -556,66 +945,10 @@
   </div>
 </div>
 
-<!-- ══ Section 4 — 접미사 결정표 ══ -->
-<div class="section">
-  <div class="section-label">접미사 taxonomy — 결정표 3종</div>
-  <p class="desc">원칙 3·4·5를 실제 판정에 쓸 수 있는 형태로 편 것. 왼쪽 열이 접미사, 가운데가 채택 조건, 오른쪽이 그 자리에서 쓰면 안 되는 경우다. <strong>세 표 모두 합성 규칙이다</strong> — 외부 표준으로 인용하지 마라.</p>
-
-  <h3 style="margin-bottom:10px">① 컬렉션 요소 — <code>Item</code> · <code>Tile</code> · <code>Cell</code> · <code>Row</code> · <code>Card</code></h3>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>접미사</th><th>언제 쓰나</th><th>쓰면 안 되는 경우</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><span class="term t-mixed">Item</span></td><td>UI 형태를 특정하지 않는 일반 데이터 단위. <strong>세로 리스트 한 장의 기본값</strong></td><td>표의 교차 칸 — 그건 <code>Cell</code></td></tr>
-        <tr><td><span class="term t-tile">Tile</span></td><td>leading/trailing 을 가진 <strong>고정 높이</strong> 리스트 행</td><td>높이가 콘텐츠에 따라 늘어나는 항목</td></tr>
-        <tr><td><span class="term t-mixed">Cell</span></td><td>표·그리드의 <strong>교차 칸</strong></td><td>세로 리스트 요소 — 표 전용 어휘다</td></tr>
-        <tr><td><span class="term t-mixed">Row</span></td><td>표의 한 행. <strong>수평 구조가 의미상 본질일 때만</strong></td><td>세로 리스트 한 장 — 나중에 진짜 표가 생기면 충돌한다</td></tr>
-        <tr><td><span class="term t-card">Card</span></td><td>독립 표면으로 떠 있는 요소</td><td>Carbon 기반 프로젝트 — 그쪽은 <code>Tile</code> 이 그 자리다</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 세로 리스트 한 장은 <code>Item</code> · 단순한 행이면 <code>Tile</code> · 독립 표면이면 <code>Card</code>. <code>Row</code>/<code>Cell</code> 은 표에만.</div>
-
-  <h3 style="margin:26px 0 10px">② 상단·구획 — <code>AppBar</code> · <code>Toolbar</code> · <code>Header</code> · <code>Bar</code></h3>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>접미사</th><th>언제 쓰나</th><th>어휘 원천 (권위 아님)</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><span class="term t-appbar">AppBar</span></td><td>화면 <strong>최상단 앱 컨테이너</strong> — 제목 · 내비게이션 · 주요 액션</td><td>MUI <code>AppBar</code> · M3 <code>Top app bar</code></td></tr>
-        <tr><td><span class="term t-toolbar">Toolbar</span></td><td><strong>현재 작업</strong>과 관련된 액션 묶음</td><td>Fluent 2 <code>Toolbar</code> · Apple HIG <code>Toolbars</code> · MUI <code>Toolbar</code></td></tr>
-        <tr><td><span class="term t-header">Header</span></td><td>콘텐츠 · 섹션 · 카드의 <strong>제목부 또는 시작부</strong></td><td>Ant <code>Layout.Header</code> · Carbon <code>UI shell header</code> — <strong>층위가 서로 다르다</strong></td></tr>
-        <tr><td><span class="term t-unknown">Bar</span></td><td>구체어가 없을 때만 쓰는 <strong>포괄 fallback</strong></td><td>대응 어휘 없음 — 합성</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 임의의 컨트롤 묶음이나 콘텐츠 상단 구획은 <code>Bar</code> 가 아니라 <code>Header</code>. <code>Bar</code> 는 마지막 수단이다.</div>
-
-  <h3 style="margin:26px 0 10px">③ 표면·구획 — <code>Section</code> · <code>Panel</code> · <code>Container</code> · <code>Card</code></h3>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>접미사</th><th>언제 쓰나</th><th>의미 강도</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><span class="term t-mixed">Section</span></td><td><strong>의미 구획</strong> — 콘텐츠를 주제로 나눈 단위</td><td><span class="tag tag-ok">강함</span></td></tr>
-        <tr><td><span class="term t-mixed">Panel</span></td><td><strong>보조 작업 · 설정면</strong></td><td><span class="tag tag-ok">강함</span></td></tr>
-        <tr><td><span class="term t-card">Card</span></td><td>하나의 객체나 개념을 담는 <strong>독립 표면</strong></td><td><span class="tag tag-ok">강함</span> <span class="tag tag-warn">Carbon 은 Tile</span></td></tr>
-        <tr><td><span class="term t-unknown">Container</span></td><td><strong>저수준 레이아웃 래퍼</strong>. 역할이 아직 확정 안 된 내부 위젯에만</td><td><span class="tag tag-bad">약함</span></td></tr>
-        <tr><td><span class="term t-unknown">Box · Wrapper · View</span></td><td>같은 이유로 <strong>저수준 유틸 한정</strong></td><td><span class="tag tag-bad">약함</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 역할이 확정됐으면 역할어를 쓴다. <code>Container</code>/<code>Box</code>/<code>Wrapper</code>/<code>View</code> 는 역할이 <strong>아직 없을 때만</strong> 유효하다.</div>
-</div>
-
-<!-- ══ Section 5 — 우선순위 흐름 ══ -->
+<!-- ══ Section 7 — 우선순위 흐름 ══ -->
 <div class="section">
   <div class="section-label">우선순위 — 역할이 겹칠 때 무엇이 이기나</div>
-  <p class="desc">한 요소가 여러 범주에 동시에 해당할 때 이 순서로 끊는다. 왼쪽이 셀수록 강하다.</p>
+  <p class="desc">한 요소가 여러 범주에 동시에 해당할 때 이 순서로 끊는다. 왼쪽일수록 강하다.</p>
 
   <div class="flow">
     <div class="flow-step rank-1">
@@ -669,11 +1002,67 @@
         </ul>
       </div>
     </div>
-    <span class="source-badge">합성 규칙 — 6개 시스템 중 우선순위를 문서화한 곳 0 (2026-08-28 확인)</span>
+    <span class="source-badge">합성 규칙 — 6개 시스템 중 우선순위를 문서화한 곳 없음 (2026-08-28 확인)</span>
   </div>
 </div>
 
-<!-- ══ Section 6 — 수치 기준 ══ -->
+<!-- ══ Section 8 — 접미사 결정표 3종 ══ -->
+<div class="section">
+  <div class="section-label">접미사 taxonomy — 결정표 3종</div>
+  <p class="desc">원칙 3·4·5를 실제 판정에 쓸 수 있는 형태로 편 것. 왼쪽 열이 접미사, 가운데가 채택 조건, 오른쪽이 그 자리에서 쓰면 안 되는 경우다. <strong>세 표 모두 합성 규칙이다</strong> — 외부 표준으로 인용하지 마라.</p>
+
+  <h3 style="margin-bottom:10px">&#9312; 컬렉션 요소 — <code>Item</code> · <code>Tile</code> · <code>Cell</code> · <code>Row</code> · <code>Card</code></h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>접미사</th><th>언제 쓰나</th><th>쓰면 안 되는 경우</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="term t-mixed">Item</span></td><td>UI 형태를 특정하지 않는 일반 데이터 단위. <strong>세로 리스트 한 장의 기본값</strong></td><td>표의 교차 칸 — 그건 <code>Cell</code></td></tr>
+        <tr><td><span class="term t-tile">Tile</span></td><td>leading/trailing 을 가진 <strong>고정 높이</strong> 리스트 행</td><td>높이가 콘텐츠에 따라 늘어나는 항목</td></tr>
+        <tr><td><span class="term t-mixed">Cell</span></td><td>표·그리드의 <strong>교차 칸</strong></td><td>세로 리스트 요소 — 표 전용 어휘다</td></tr>
+        <tr><td><span class="term t-mixed">Row</span></td><td>표의 한 행. <strong>수평 구조가 의미상 본질일 때만</strong></td><td>세로 리스트 한 장 — 나중에 진짜 표가 생기면 충돌한다</td></tr>
+        <tr><td><span class="term t-card">Card</span></td><td>독립 표면으로 떠 있는 요소</td><td>Carbon 기반 프로젝트 — 그쪽은 <code>Tile</code> 이 그 자리다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 세로 리스트 한 장은 <code>Item</code> · 단순한 행이면 <code>Tile</code> · 독립 표면이면 <code>Card</code>. <code>Row</code>/<code>Cell</code> 은 표에만.</div>
+
+  <h3 style="margin:26px 0 10px">&#9313; 상단·구획 — <code>AppBar</code> · <code>Toolbar</code> · <code>Header</code> · <code>Bar</code></h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>접미사</th><th>언제 쓰나</th><th>어휘 원천 (권위 아님)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="term t-appbar">AppBar</span></td><td>화면 <strong>최상단 앱 컨테이너</strong> — 제목 · 내비게이션 · 주요 액션</td><td>MUI <code>AppBar</code> · M3 <code>Top app bar</code></td></tr>
+        <tr><td><span class="term t-toolbar">Toolbar</span></td><td><strong>현재 작업</strong>과 관련된 액션 묶음</td><td>Fluent 2 <code>Toolbar</code> · Apple HIG <code>Toolbars</code> · MUI <code>Toolbar</code></td></tr>
+        <tr><td><span class="term t-header">Header</span></td><td>콘텐츠 · 섹션 · 카드의 <strong>제목부 또는 시작부</strong></td><td>Ant <code>Layout.Header</code> · Carbon <code>UI shell header</code> — <strong>층위가 서로 다르다</strong></td></tr>
+        <tr><td><span class="term t-unknown">Bar</span></td><td>구체어가 없을 때만 쓰는 <strong>포괄 fallback</strong></td><td>대응 어휘 없음 — 합성</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 임의의 컨트롤 묶음이나 콘텐츠 상단 구획은 <code>Bar</code> 가 아니라 <code>Header</code>. <code>Bar</code> 는 마지막 수단이다.</div>
+
+  <h3 style="margin:26px 0 10px">&#9314; 표면·구획 — <code>Section</code> · <code>Panel</code> · <code>Container</code> · <code>Card</code></h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>접미사</th><th>언제 쓰나</th><th>의미 강도</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="term t-mixed">Section</span></td><td><strong>의미 구획</strong> — 콘텐츠를 주제로 나눈 단위</td><td><span class="tag tag-ok">강함</span></td></tr>
+        <tr><td><span class="term t-mixed">Panel</span></td><td><strong>보조 작업 · 설정면</strong></td><td><span class="tag tag-ok">강함</span></td></tr>
+        <tr><td><span class="term t-card">Card</span></td><td>하나의 객체나 개념을 담는 <strong>독립 표면</strong></td><td><span class="tag tag-ok">강함</span> <span class="tag tag-warn">Carbon 은 Tile</span></td></tr>
+        <tr><td><span class="term t-unknown">Container</span></td><td><strong>저수준 레이아웃 래퍼</strong>. 역할이 아직 확정 안 된 내부 위젯에만</td><td><span class="tag tag-bad">약함</span></td></tr>
+        <tr><td><span class="term t-unknown">Box · Wrapper · View</span></td><td>같은 이유로 <strong>저수준 유틸 한정</strong></td><td><span class="tag tag-bad">약함</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>판정 한 줄:</strong> 역할이 확정됐으면 역할어를 쓴다. <code>Container</code>/<code>Box</code>/<code>Wrapper</code>/<code>View</code> 는 역할이 <strong>아직 없을 때만</strong> 유효하다.</div>
+</div>
+
+<!-- ══ Section 9 — 수치 기준 ══ -->
 <div class="section">
   <div class="section-label">수치 기준 — 합성 판정의 근거</div>
   <p class="desc">아래 표에서 <strong>강조된 두 값이 "이 taxonomy 는 합성이다" 라는 판정의 직접 근거</strong>다. 상단 영역 어휘가 일치하는 시스템이 0개이고, 커스텀 컴포넌트 명명 지침을 발행하는 시스템도 0개다. 인용할 권위가 애초에 존재하지 않는다.</p>
@@ -696,66 +1085,34 @@
   <p class="caption">두 개의 0이 이 문서 전체의 전제다. 표준이 있었다면 그것을 인용했을 것이고, 이 문서는 존재할 이유가 없었다.</p>
 </div>
 
-<!-- ══ Section 7 — 안티패턴 ══ -->
+<!-- ══ Section 10 — 안티패턴 ══ -->
 <div class="section">
   <div class="section-label">안티패턴 — 8가지</div>
-  <p class="desc">네이밍 자체의 안티패턴 5가지와 <strong>이 문서를 잘못 인용하는</strong> 안티패턴 3가지가 섞여 있다. 후자가 더 위험하다 — 규칙이 틀린 게 아니라 규칙의 근거를 왜곡하는 것이기 때문이다.</p>
+  <p class="desc">아래 이름이 코드베이스에 있으면 그 자리가 이미 고장 난 것이다. 왼쪽이 패턴, 오른쪽이 그것이 만드는 비용이다.</p>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>안티패턴</th><th>문제</th><th>유형</th></tr>
+        <tr><th>안티패턴</th><th>문제</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td>세로 리스트 요소를 <code>...Row</code> / <code>...Cell</code> 로 명명</td>
-          <td>표의 행·칸과 구분되지 않는다. 나중에 진짜 표가 생기면 이름이 충돌한다</td>
-          <td><span class="tag tag-bad">네이밍</span></td>
-        </tr>
-        <tr>
-          <td>임의 컨트롤 묶음에 <code>...Bar</code></td>
-          <td><code>Bar</code> 는 구체어가 없을 때의 fallback 이다. 콘텐츠 상단 구획은 <code>Header</code> 다</td>
-          <td><span class="tag tag-bad">네이밍</span></td>
-        </tr>
-        <tr>
-          <td>역할이 확정됐는데 <code>...Box</code> / <code>...View</code> / <code>...Container</code> / <code>...Wrapper</code></td>
-          <td>의미가 없는 이름은 검색도 안 되고 다음 사람이 역할을 다시 추론해야 한다</td>
-          <td><span class="tag tag-bad">네이밍</span></td>
-        </tr>
-        <tr>
-          <td>외형(색 · 모양 · 둥글기) 기반 이름</td>
-          <td>시안이 바뀌면 이름이 거짓이 된다. 리네임 비용이 시안 변경마다 발생한다</td>
-          <td><span class="tag tag-bad">네이밍</span></td>
-        </tr>
-        <tr>
-          <td>컴포넌트 접미사와 데이터 타입 접미사 불일치</td>
-          <td>같은 개념을 두 이름으로 부르게 되고, 검색이 한쪽만 잡는다</td>
-          <td><span class="tag tag-bad">네이밍</span></td>
-        </tr>
-        <tr style="background:rgba(251,191,36,0.06)">
-          <td>디자인 시스템을 taxonomy 의 <strong>권위</strong> 로 인용</td>
-          <td>6개 시스템이 서로 어긋난다. 인용은 <strong>어휘 원천까지만</strong> 유효하다</td>
-          <td><span class="tag tag-warn">인용 왜곡</span></td>
-        </tr>
-        <tr style="background:rgba(251,191,36,0.06)">
-          <td>M3 · Apple HIG 페이지 문구를 인용</td>
-          <td>본문이 JS 로만 렌더링돼 인용문을 검증할 수 없다. <strong>어휘 존재 확인용으로만</strong> 써라</td>
-          <td><span class="tag tag-warn">인용 왜곡</span></td>
-        </tr>
-        <tr style="background:rgba(251,191,36,0.06)">
-          <td><code>{widget_prefix}</code> 를 킷이 고정</td>
-          <td>prefix 는 프로젝트 소유 파라미터다. 킷이 값을 정하면 다른 프로젝트에서 <strong>전부 오탐</strong>이 된다</td>
-          <td><span class="tag tag-warn">범위 침범</span></td>
-        </tr>
+        <tr><td>세로 리스트 요소를 <span class="term t-mixed">...Row</span> <span class="term t-mixed">...Cell</span> 로 명명</td><td>표의 행·칸과 구분되지 않는다. 나중에 진짜 표가 생기면 이름이 충돌한다</td></tr>
+        <tr><td>임의 컨트롤 묶음에 <span class="term t-unknown">...Bar</span></td><td><code>Bar</code> 는 구체어가 없을 때의 fallback 이다. 콘텐츠 상단 구획은 <code>Header</code> 다</td></tr>
+        <tr><td>역할이 확정됐는데 <span class="term t-unknown">...Box</span> <span class="term t-unknown">...View</span> <span class="term t-unknown">...Container</span> <span class="term t-unknown">...Wrapper</span></td><td>의미가 없는 이름은 검색도 안 되고 다음 사람이 역할을 다시 추론해야 한다</td></tr>
+        <tr><td>외형(색·모양·둥글기) 기반 이름</td><td>시안이 바뀌면 이름이 거짓이 된다. <strong>리네임 비용이 시안 변경마다 발생한다</strong></td></tr>
+        <tr><td>컴포넌트 접미사와 데이터 타입 접미사 불일치</td><td>같은 개념을 두 이름으로 부르게 되고, 검색이 한쪽만 잡는다</td></tr>
+        <tr style="background:rgba(251,191,36,0.06)"><td>디자인 시스템을 taxonomy 의 <strong>권위</strong> 로 인용</td><td>6개 시스템이 서로 어긋난다. 인용은 <strong>어휘 원천까지만</strong> 유효하다</td></tr>
+        <tr style="background:rgba(251,191,36,0.06)"><td>M3 · Apple HIG 페이지 문구를 인용</td><td>본문이 JS 로만 렌더링돼 인용문을 검증할 수 없다. 어휘 존재 확인용으로만 써라</td></tr>
+        <tr><td><code>{widget_prefix}</code> 를 킷이 고정</td><td>prefix 는 프로젝트 소유 파라미터다. 킷이 값을 정하면 다른 프로젝트에서 전부 오탐이 된다</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ══ Section 8 — Gotchas ══ -->
+<!-- ══ Section 11 — Gotchas ══ -->
 <div class="section">
   <div class="section-label">Gotchas — 이 taxonomy 를 쓸 때 반복되는 실수 6가지</div>
-  <p class="desc">규칙을 외우는 것보다 이 6가지를 피하는 게 실효가 크다. 1번은 이 문서 전체의 존재 이유이고, 6번은 매번 붙이고 싶어지는 유혹이다.</p>
+  <p class="desc">전부 "규칙을 몰라서" 가 아니라 <strong>"규칙을 과하게 소개해서"</strong> 생기는 실패다.</p>
 
   <div class="card">
     <ul class="checklist">
@@ -787,7 +1144,7 @@
   </div>
 </div>
 
-<!-- ══ Section 9 — 출처 ══ -->
+<!-- ══ Section 12 — 출처 ══ -->
 <div class="section">
   <div class="section-label">출처 — 어휘 원천 (권위 아님)</div>
   <p class="desc">아래 링크는 전부 <strong>어휘가 존재한다는 사실</strong>의 근거이지, 이 문서의 taxonomy 를 승인한 문서가 아니다. 링크 없는 항목은 인용 가능한 외부 출처가 없다는 뜻이다.</p>
@@ -817,13 +1174,13 @@
     <div class="card">
       <h3>공식 스타일 가이드 · 내부 근거</h3>
       <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">&rarr;</span><span>Effective Dart: Style — <a href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">dart.dev/effective-dart/style</a> <span class="tag tag-ok">SHOULD 등급 유일 출처</span></span></li>
-        <li><span class="check c-warn">!</span><span><strong>합성 규칙</strong> — 원칙 2 · 6, 접미사 결정표 3종. 6개 시스템 중 문서화한 곳 0건 (2026-08-28 확인). <span class="tag tag-neutral">외부 링크 없음</span></span></li>
+        <li><span class="check">&rarr;</span><span>Effective Dart: Style — <a href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">dart.dev/effective-dart/style</a> <span class="tag tag-ok">SHOULD 등급 유일 출처 · 원칙 1 · 8 · 10</span></span></li>
+        <li><span class="check c-warn">!</span><span><strong>합성 규칙</strong> — 원칙 2 · 3 · 4 · 5 · 6, 접미사 결정표 3종. 6개 시스템 중 문서화한 곳 0건 (2026-08-28 확인). <span class="tag tag-neutral">외부 링크 없음</span></span></li>
         <li><span class="check c-warn">!</span><span><strong>프로젝트 실측</strong> — 원칙 7 (fallback 접두사 9건 / 4파일, 57파일 스캔), 원칙 9 (컴포넌트/상태 타입 접미사 불일치). <span class="tag tag-neutral">외부 링크 없음</span></span></li>
         <li><span class="check c-warn">!</span><span><strong>확인 실패 항목</strong> — 커스텀 컴포넌트 명명 지침 발행 시스템 0개, fallback 접두사의 LLM 과대표집 공개 통계. <span class="tag tag-neutral">근거 없음 · 주장 금지</span></span></li>
         <li><span class="check">&rarr;</span><span>연관 문서 — <code>ai-code-stylometry.md</code> 원칙 5 (fallback 접두사 상세), <code>project-detection</code> (prefix/suffix 감지 규칙 소유)</span></li>
       </ul>
-      <p class="caption" style="margin-top:16px">문서 버전 <code>0.1.0</code> · 최종 갱신 2026-08-28 · 조사 대상 6개 시스템 · 정의문 인용 가능 4개</p>
+      <p class="caption" style="margin-top:16px">문서 버전 <code>0.1.0</code> · 조사일 2026-08-28 · 최종 갱신 2026-09-02 · 조사 대상 6개 시스템 · 정의문 인용 가능 4개 · 어댑터 슬롯 <code>dart-flutter</code> 1종</p>
     </div>
   </div>
 </div>
@@ -835,7 +1192,10 @@
 (function(){
   var saved = null;
   try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
-  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var prefersDark = false;
+  try {
+    prefersDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  } catch (e) { prefersDark = false; }
   applyTheme(saved || (prefersDark ? 'dark' : 'light'));
 })();
 
