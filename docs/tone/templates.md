@@ -140,7 +140,7 @@ typedef {widget_prefix}SelectChanged<T> = void Function(T value);
 |---|---|
 | `{widget_prefix}` | 프로젝트 컨벤션의 위젯 접두사. 킷이 정하지 않는다 |
 | `{Meaning}` | 무엇에 대한 콜백인가 (도메인 용어) |
-| `{Event}` | 무슨 일이 일어났는가 — `Changed` · `Tap` · `Blur` · `Submit` |
+| `{Event}` | 무슨 일이 일어났는가. **프레임워크가 이미 정한 어휘를 쓴다** — `onChanged` · `onTapDown` · `onLongPressStart` · `onSubmitted`. 공식 어휘에 없는 도메인 이벤트만 프로젝트가 명명한다 (`N-12` · `D-15`) |
 | `{T}` | 호출부마다 타입이 다를 때만 제네릭 |
 
 **소유권** — typedef 는 **그 의미가 생겨난 위젯의 파일** 에 둔다. 공유 typedef 파일을 만들면 어느 위젯의 계약인지 추적이 끊긴다. 시그니처가 같아도 의미가 다르면 다른 typedef 이고, 의미 원천이 옮겨가면 typedef 도 같이 옮긴다.

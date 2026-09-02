@@ -1,6 +1,6 @@
 ---
 title: 역할 기반 컴포넌트 네이밍 taxonomy
-version: 0.1.0
+version: 0.2.0
 last_updated: 2026-09-02
 ---
 
@@ -11,6 +11,7 @@ last_updated: 2026-09-02
 - 외형을 담은 이름 — `BlueRoundedBox` 처럼 색·모서리·크기가 박혀 시안이 바뀌면 거짓이 되는 이름
 - 표 어휘를 세로 리스트에 쓴 이름, 임의 묶음에 붙인 `...Bar` — `DeviceRow`, `FilterBar`
 - 역할이 아니라 계산 과정을 담은 이름 — `effectiveGradient` 같은 fallback 접두사
+- 프레임워크가 이미 이름을 정해 둔 이벤트에 새로 만든 어휘 — `handlePressStart`
 
 ```dart
 // before
@@ -23,9 +24,13 @@ class {widget_prefix}DeviceItemWidget extends StatelessWidget { ... }
 
 접미사 taxonomy 는 **합성 규칙**(6개 디자인 시스템의 어휘를 대조해 만든 규칙 — 어느 한 시스템이 표준으로 문서화한 것이 아니다)이다. 각 원칙 끝의 `MUST` / `SHOULD` / `관측 컨벤션` 3등급과 그 판정 근거는 [근거 등급](#근거-등급) 절에 있다.
 
+**합성이 필요한 자리와 그렇지 않은 자리는 다르다.** 컴포넌트 접미사(`Item` / `Tile` / `Cell`)는 단일 권위가 없어서 여섯 시스템을 대조해 합성했다. 반면 **이벤트 콜백 어휘는 프레임워크가 이미 정해 뒀다** — 합성할 자리가 아니다. 정해진 자리에서는 그것을 따르고, 비어 있는 자리만 taxonomy 가 메운다. 원칙 0 이 나머지 원칙보다 앞에 있는 이유다.
+
 ---
 
 ## 결정표 — 그래서 뭘 어떻게 지으라는 건가
+
+**0단계 — 프레임워크가 이미 이름을 정했는가?** 정했으면 그 이름을 그대로 쓰고 이 표를 건너뛴다 (원칙 0). 아래 표는 프레임워크가 어휘를 정해 두지 **않은** 자리에서만 돈다.
 
 | 이 요소는 | 이름 | 예 |
 |---|---|---|
@@ -68,6 +73,58 @@ M3 와 Apple HIG 페이지는 본문이 JS 로만 렌더링돼 정의문을 직�
 ---
 
 ## 원칙
+
+### 0. 프레임워크가 이미 정한 어휘를 따른다 `[코어][어댑터:dart-flutter]`
+
+이벤트·상태 어휘를 새로 만들지 않는다. 프레임워크가 이름을 정해 둔 개념에는 그 이름을 쓴다.
+
+```text
+프레임워크 공식 어휘  >  프로젝트 관례  >  새로 만든 말
+```
+
+```dart
+// before — 자체 어휘. 어느 제스처의 어느 단계인지 이름에서 안 갈린다
+void handlePressStart() { ... }
+void handlePressEnd() { ... }
+// after — 제스처와 단계가 이름에 있다
+void onTapDown(TapDownDetails details) { ... }   // 또는 onLongPressStart
+void onTapUp(TapUpDetails details) { ... }       // 또는 onLongPressEnd
+```
+
+```dart
+// before — 같은 개념을 두 어휘로 부른다
+typedef {widget_prefix}ServerSelectTap = void Function(Server server);
+void handleServerSelectTap(Server server) { ... }
+// after — 공식 어휘 하나로 고정
+typedef {widget_prefix}ServerSelected = void Function(Server server);
+void onServerSelected(Server server) { ... }
+```
+
+Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4) 에서 콜백 58개를 확인했다. 단계 축은 `Down → Start → Update/MoveUpdate → End/Up → Cancel` 이고 제스처마다 일관되게 붙는다.
+
+| 제스처 | 콜백 |
+|---|---|
+| tap | `onTapDown` · `onTapMove` · `onTapUp` · `onTap` · `onTapCancel` |
+| double tap | `onDoubleTapDown` · `onDoubleTap` · `onDoubleTapCancel` |
+| long press | `onLongPressDown` · `onLongPressStart` · `onLongPressMoveUpdate` · `onLongPressUp` · `onLongPressEnd` · `onLongPress` · `onLongPressCancel` |
+| pan | `onPanDown` · `onPanStart` · `onPanUpdate` · `onPanEnd` · `onPanCancel` |
+| drag | `onVerticalDrag…` · `onHorizontalDrag…` (같은 단계 축) |
+| scale | `onScaleStart` · `onScaleUpdate` · `onScaleEnd` |
+| force press | `onForcePressStart` · `onForcePressPeak` · `onForcePressUpdate` · `onForcePressEnd` |
+
+`Secondary` · `Tertiary` 변형도 같은 규칙으로 존재한다. 폼·선택 계열은 `onChanged` · `onSubmitted` · `onEditingComplete` · `onSelected` · `onPressed` · `onHover` · `onFocusChange` 다.
+
+코퍼스 실측에서 `handlePressStart` 7건 · `handlePressEnd` 8건이 나왔고, 같은 개념에 `…SelectTap` 과 `…Selected` 가 공존했다. `Press` 하나로는 tap 인지 long press 인지 이름에서 안 갈린다 — 프레임워크는 갈라 놨는데 프로젝트가 도로 합친 것이다. 자동완성·검색·문서가 전부 공식 이름 기준으로 움직이므로 자체 어휘는 그 경로에서 빠진다.
+
+**예외.** 공식 어휘에 대응이 없는 **도메인 이벤트**는 프로젝트가 이름 짓는다. `onPairingModeEntered` · `onLightStickMounted` · `onLibraryDownloadCancel` 는 정당하다. 판정식은 "이 이벤트를 프레임워크가 이미 알고 있는가" 다.
+
+이 원칙은 아래 접미사 taxonomy 보다 **앞선다.** taxonomy 는 프레임워크가 어휘를 정해 두지 않은 자리를 메우는 합성 규칙이고, 공식 어휘가 있으면 그게 먼저다. 로케일 축의 "공식 API 이름은 번역하지 않는다"(`korean-technical-writing.md`)와 같은 원리다 — 주석에서는 공식 이름을 지키면서 코드에서 자체 어휘를 만드는 것은 앞뒤가 맞지 않는다.
+
+공식 문서가 "소비자 코드도 이 이름을 쓰라" 고 명시하지는 않는다. 근거는 어휘가 실재한다는 사실이지 지침 문장이 아니므로 `MUST` 로 올리지 마라.
+
+**강도:** SHOULD
+
+> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 실측 — 콜백 58개) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건, `…SelectTap`/`…Selected` 혼재). 코어 규칙 ID 는 `core-naming.md` N-12, 어댑터 판정은 `adapter-dart-flutter.md` D-15 · §3.11 (슬롯 `event_vocabulary`)
 
 ### 1. 이름은 외형이 아니라 역할을 담는다 `[코어]`
 
@@ -341,6 +398,8 @@ class DeviceItem extends StatelessWidget { ... }
 | 정의문을 인용 가능한 시스템 | 4 (M3·Apple HIG 는 JS 렌더링) | 어휘 대조표 |
 | fallback 접두사 실측 | 9건 / 4파일 (57파일 스캔) | 프로젝트 실측 |
 | 컬렉션 요소 접미사 후보 | 5 (`Item`/`Tile`/`Cell`/`Row`/`Card`) | 합성 taxonomy |
+| Flutter 제스처 콜백 | 58개 (`gesture_detector.dart` 3.38.4) | 프레임워크 실측 |
+| 자체 이벤트 어휘 실측 | 15건 (`handlePressStart` 7 · `handlePressEnd` 8) | 프로젝트 실측 |
 
 ---
 
@@ -355,6 +414,8 @@ class DeviceItem extends StatelessWidget { ... }
 | 컴포넌트 접미사와 데이터 타입 접미사 불일치 | 같은 개념을 두 이름으로 부르게 되고, 검색이 한쪽만 잡는다 |
 | 디자인 시스템을 taxonomy 의 **권위** 로 인용 | 6개 시스템이 서로 어긋난다. 인용은 어휘 원천까지만 유효하다 |
 | M3·Apple HIG 페이지 문구를 인용 | 본문이 JS 로만 렌더링돼 인용문을 검증할 수 없다. 어휘 존재 확인용으로만 써라 |
+| 프레임워크가 이미 정의한 이벤트에 자체 어휘 신설 (`handlePressStart`) | 공식 어휘가 갈라 놓은 단계를 도로 합친다. tap 인지 long press 인지 이름에서 안 갈리고, 자동완성·검색이 공식 이름 기준이라 자체 어휘는 그 경로에서 빠진다 |
+| 같은 개념에 공식 어휘와 자체 어휘를 섞어 씀 (`…SelectTap` ↔ `…Selected`) | 한 개념이 두 이름을 갖는다. 어느 쪽이 정본인지 호출부에서 판단할 수 없다 |
 | `{widget_prefix}` 를 킷이 고정 | prefix 는 프로젝트 소유 파라미터다. 킷이 값을 정하면 다른 프로젝트에서 전부 오탐이 된다 |
 
 ---
@@ -367,6 +428,8 @@ class DeviceItem extends StatelessWidget { ... }
 
 따라서 이 문서의 접미사 규칙은 전부 `관측 컨벤션 / 합성` 이며, 디자인 시스템은 **어휘 원천** 으로만 인용한다. 권위로 인용하지 마라. 원칙 1 과 8 만 공식 스타일 가이드에 걸려 `SHOULD` 다.
 
+원칙 0 도 `SHOULD` 지만 근거의 종류가 다르다. 접미사 규칙에 없는 것이 여기에는 있다 — **어휘가 프레임워크 API 표면에 실재한다.** 컴포넌트 접미사에는 단일 권위가 없어 합성이 불가피했지만, 이벤트 콜백에는 `gesture_detector.dart` 라는 대조 가능한 원본이 있다. 다만 그 원본도 "소비자 코드가 이 이름을 쓰라" 고 지시하지는 않으므로 `MUST` 가 아니다. 두 경우를 섞어 "우리 규칙에 근거가 있다" 고 뭉뚱그리지 마라.
+
 ---
 
 ## Gotchas
@@ -376,4 +439,6 @@ class DeviceItem extends StatelessWidget { ... }
 - **`Card` 가 없는 시스템이 있다** — Carbon core 에는 card 패턴이 없고 `Tile` 이 그 자리를 대신한다. `Card` 를 보편 어휘로 가정하면 Carbon 기반 프로젝트에서 규칙이 헛돈다.
 - **접미사를 바꾸면 파일명·데이터 타입·테스트 경로가 같이 움직인다** — 클래스만 리네임하면 `snake_case` 파일명과 대응 상태 타입이 뒤처진다. 원칙 9와 10을 한 번에 적용하라.
 - **우선순위 규칙은 "탭 가능성" 이 아니라 "탭이 존재 이유인가" 로 끊는다** — 리스트 항목은 대부분 탭이 되지만 그렇다고 `Button` 이 아니다. 이 구분을 놓치면 목록 요소가 전부 `...Button` 이 된다.
+- **원칙 0 을 `MUST` 로 올리지 마라** — 근거는 어휘가 실재한다는 사실이지 "이 이름을 쓰라" 는 지침 문장이 아니다. `MUST` 로 적어 두면 감사 리포트가 근거 없는 위반을 양산한다.
+- **모든 이벤트를 공식 어휘로 바꾸려 들지 마라** — 도메인 이벤트는 원칙 0 의 대상이 아니다. `onPairingModeEntered` 를 억지로 제스처 어휘에 맞추면 오히려 이름이 거짓이 된다. 판정식은 "이 이벤트를 프레임워크가 이미 알고 있는가" 하나다.
 - **fallback 접두사 규칙에 논문을 붙이고 싶어진다** — AI 코드 탐지 문헌이 identifier 신호를 다루긴 하지만 접두사별 통계는 없다. 각주를 붙이는 순간 검증 불가능한 주장이 된다. 실측 건수만 쓴다.
