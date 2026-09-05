@@ -391,9 +391,9 @@ footer a{color:var(--accent2);text-decoration:none}
 <span class="cp">│   ├── mockup.html        </span><span class="cs">← design-mockup 스킬 산출물</span>
 <span class="cp">│   └── component.html     </span><span class="cs">← design-component 스킬 산출물</span>
 <span class="cm">└── docs/design/</span>
-<span class="cm">    ├── color-theory.md</span>
-<span class="cm">    ├── typography.md</span>
-<span class="cm">    └── ...</span>
+<span class="cm">    ├── foundations/color.md</span>
+<span class="cm">    ├── foundations/typography.md</span>
+<span class="cm">    └── ...  (accessibility/ · interaction/ · systems/ 포함)</span>
     </div>
   </div>
 </section>
@@ -457,7 +457,7 @@ footer a{color:var(--accent2);text-decoration:none}
     </div>
     <div class="var-group">
       <div class="var-group-title">타이포그래피 토큰</div>
-      <div class="var-row"><div class="var-name">--text-xs ~ --text-3xl</div><div class="var-desc">clamp() 기반 6단계 폰트 사이즈 스케일</div></div>
+      <div class="var-row"><div class="var-name">--text-xs ~ --text-3xl</div><div class="var-desc">clamp() 기반 7단계 폰트 사이즈 스케일</div></div>
       <div class="var-row"><div class="var-name">--font-family</div><div class="var-desc">Pretendard Variable + 시스템 폰트 폴백</div></div>
     </div>
     <div class="var-group">
@@ -1006,25 +1006,25 @@ footer a{color:var(--accent2);text-decoration:none}
           <tr>
             <td><code>/design-concept</code></td>
             <td><code>moodboard.html</code></td>
-            <td><code>docs/design-kit/design-concept.html</code></td>
+            <td><code>.design/moodboard.html</code></td>
             <td>컨셉 방향성 정렬, 스테이크홀더 리뷰</td>
           </tr>
           <tr>
             <td><code>/design-reference</code></td>
             <td><code>catalog.html</code></td>
-            <td><code>docs/design-kit/design-reference.html</code></td>
+            <td><code>.design/reference-catalog.html</code></td>
             <td>UI 레퍼런스 수집 및 인사이트 정리</td>
           </tr>
           <tr>
             <td><code>/design-mockup</code></td>
             <td><code>mockup.html</code></td>
-            <td><code>docs/design-kit/design-mockup.html</code></td>
+            <td><code>.design/mockups/{파일명}.html</code></td>
             <td>멀티 컨셉 하이파이 시안 비교 및 피드백</td>
           </tr>
           <tr>
             <td><code>/design-component</code></td>
             <td><code>component.html</code></td>
-            <td><code>docs/design-kit/design-component.html</code></td>
+            <td><code>.design/components/catalog.md</code></td>
             <td>컴포넌트 스펙 문서화, 개발 핸드오프</td>
           </tr>
         </tbody>

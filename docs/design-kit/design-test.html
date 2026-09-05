@@ -198,7 +198,7 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
 <section>
   <div class="section-label">Process</div>
   <div class="section-title">실행 흐름</div>
-  <div class="section-desc">design-test 스킬은 8단계 프로세스로 동작합니다. 스택 감지부터 테스트 실행, 결과 보고까지 자동으로 수행합니다.</div>
+  <div class="section-desc">design-test 스킬은 9단계 프로세스로 동작합니다(Step 0~8, 조건부 Step 5-b 는 별도). 스택 감지부터 테스트 실행, 결과 보고까지 자동으로 수행합니다.</div>
 
   <div class="flow">
     <div class="flow-step"><span class="step-num">0</span>스택 감지</div>
@@ -216,6 +216,8 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
     <div class="flow-step"><span class="step-num">6</span>반응형</div>
     <span class="flow-arrow">&#8594;</span>
     <div class="flow-step"><span class="step-num">7</span>실행 검증</div>
+    <span class="flow-arrow">&#8594;</span>
+    <div class="flow-step"><span class="step-num">8</span>결과 보고</div>
   </div>
 </section>
 
