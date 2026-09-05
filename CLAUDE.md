@@ -64,7 +64,7 @@ python3 scripts/validate-plugin.py --fix                    # 자동 수정 (pla
 
 각 플러그인은 동일한 레이아웃을 따른다:
 
-```
+```text
 <plugin>/
 ├── .claude-plugin/plugin.json   # 메타데이터 (name, version, author)
 ├── skills/<name>/SKILL.md       # 스킬 정의 (frontmatter + process)

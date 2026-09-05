@@ -30,7 +30,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 
 Claude Code 세션에서 이 모노레포를 마켓플레이스로 추가한다:
 
-```
+```text
 /plugin marketplace add joo6077/claude-plugins
 ```
 
@@ -38,7 +38,7 @@ Claude Code 세션에서 이 모노레포를 마켓플레이스로 추가한다:
 
 등록된 마켓플레이스에서 원하는 플러그인을 설치한다:
 
-```
+```text
 /plugin install harness@joo6077-plugins
 /plugin install flutter-toolkit@joo6077-plugins
 /plugin install design-kit@joo6077-plugins
@@ -63,7 +63,7 @@ claude plugin install harness@joo6077-plugins --scope project
 
 ## 업데이트
 
-```
+```text
 /plugin marketplace update joo6077-plugins
 ```
 
@@ -145,7 +145,7 @@ bash scripts/release.sh bambu-kit patch
 | `create-agent` | `/create-agent` | 설계 가이드 기반 에이전트 생성 |
 
 **사용 시작:**
-```
+```text
 /harness init
 ```
 
@@ -245,7 +245,7 @@ Bambu Lab H2S 자동 process+filament JSON 생성. 도구형 1스킬 킷 (guide/
 
 ## 구조
 
-```
+```text
 claude-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json         # 플러그인 레지스트리
