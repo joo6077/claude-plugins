@@ -574,7 +574,7 @@ Failure-Mode 판정
 |------|----------------------|------|
 | L1 계단 — **adaptive / variable layer height** | ❌ **불가** (`failure-recipes.md` §1.1) | **notes only.** `adaptive_layer_height` 를 JSON 에 넣지 마라 — Phase 4.3 게이트가 잡는다 |
 | L1 계단 — 고정 `layer_height` 하향 | ✅ 가능 | `0.12` 1 차, `0.08-0.12` 는 사용자 확인 후 (`failure-recipes.md` §1.2) |
-| L1 계단 — XY faceting | ✅ 가능 | `resolution` `0.006-0.010`. ⚠️ Z 계단 해결책 아님 |
+| L1 계단 — XY faceting | ✅ 가능 (조건부) | `resolution` `0.006-0.010`. ⚠️ Z 계단 해결책 아님. **XY faceting 을 실제로 관측했을 때만** 쓴다 — 2026-09-05 실측(faceting 없는 박스)에서는 이득 근거가 없어 철회됐다. surface-first 공통값으로 넣지 마라 |
 | L2 스트링잉 — 건조/소재 상태 | ❌ **불가** (물리 조건) | notes + 건조 후 재출력 권고. **건조 미충족이면 JSON 을 만지지 마라** |
 | L2 스트링잉 — wipe | ✅ 가능 (게이트 통과 시) | `filament_wipe` · `filament_wipe_distance` 2 키 한정 |
 | L2 스트링잉 — retraction 상향 | ⚠️ **coupon 후에만** | Phase 5 coupon 통과 전 본 출력 반영 금지 |
@@ -935,29 +935,28 @@ underlying default 열은 **소재 override 가 없을 때의 값**이므로 그
 상세 정책은 `references/surface-recipes.md` 참조. SKILL은 결정 트리 분기와 형상 enumerate만 인라인으로 가진다.
 
 ```text
-회전체 default — Auto-select 결정 트리 (surface-recipes.md §2.1)
-  ※ 우선순위 원칙: 사용자 추가 작업이 없는 옵션이 default top.
+회전체 · 원통 결정 트리 (정본: seam-recipes.md §0 v4 — 여기서 재정의하지 마라)
   │
-  ├─ 1. spiral_mode 적용 가능? (단일 외벽, top 없음, infill 불필요, 단일 색상)
-  │      YES → spiral_mode = 1 (진짜 무 seam, Z축 연속 나선)
-  │             사용자 작업: 없음
+  ├─ 1. vase 가능?  → spiral_mode = 1 + spiral_mode_smooth = 1
+  │                   ★ 유일한 실질적 "해결". 사용자 작업 0.
+  │                   판정 체크리스트는 §vase 가능 판정. ⚠️ H2S 는 timelapse 를 끈다
   │
-  ├─ 2. DEFAULT — random 분산 전략 (사용자 작업 X)
-  │      seam_position: random + seam_slope_entire_loop: 1
-  │      + scarf external (length 15-20mm, gap 5-10%, height 0-10%, steps 10)
-  │      → wheel/원통 둘레 전체에 ramp 분산, 한 줄 라인 없이 specks
-  │      → spoke/텍스처 구조에 자연 위장
-  │      트레이드오프: micro-banding (specks). seam-recipes.md Real-world Finding 1
-  │      사용자 작업: 없음
+  ├─ 2. 숨길 면·방향 있음 → seam_position: aligned 또는 back
+  │                          + Studio seam paint (Enforce/Block) 로 은닉
+  │                          + scarf external, 길이는 seam-recipes.md §2.2 상한 준수, gap 0
+  │                          사용자 작업: 페인팅 5-10 분 — 사전 고지 필수
   │
-  └─ 3. 사용자가 명시적으로 "specks도 싫고 완벽한 클린 면" 요청 시에만 OPT-IN
-         → seam_position: aligned (또는 back) + scarf external
-         + 사용자가 Studio UI seam paint tool로 숨김 영역 페인팅 필수 (5-10분)
-         ※ painted 안 하면 visible 면에 한 줄 라인 그대로 남음
-         사용자 작업: 필수 (Studio UI 페인팅)
+  ├─ 3. 360° 노출 (숨길 곳 없음) → aligned/back + 짧은 scarf 로 약한 한 줄 수용
+  │                                 또는 CAD seam 은폐 feature · 소재 선택(PLA Matte/CF)
+  │
+  └─ 4. random → **fallback 전용.** 기능품·텍스처 허용 부품에만.
+                 surface-first default 로 쓰지 마라
 ```
 
-⚠️ **자동화 우선 원칙**: spiral 불가 회전체는 (2) random fallback이 default. (3) painted는 사용자가 명시적으로 "specks 분산도 거슬린다, 한 줄로 완벽히 숨기고 싶다"고 요청할 때만 OPT-IN으로 전환. 사용자 작업이 필요한 옵션을 자동으로 default top에 두지 않는다.
+⚠️ **v4 정정 (2026-09-05).** 이전 판은 (2) random 을 default top 에 뒀다. `random` 은 seam 을
+없애는 것이 아니라 **한 줄을 표면 전체의 specks 로 바꾸는 것**이며 (Prusa KB), 사용자가 그 결과를
+거부했다. "사용자 작업이 없는 옵션이 default" 라는 원칙은 유지되지만 — 그 원칙을 만족하는 최선은
+random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 
 **형상별 결정 트리 (6개 enumerate — surface-recipes.md §2 참조):**
 

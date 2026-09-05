@@ -4,7 +4,7 @@ slug: bambu-seam-policy
 created: "2026-09-05 23:03"
 complexity: "복잡"
 conditions: 27
-status: active
+status: done
 owner_session: 80e6651a-4542-4964-92cf-b2b72d8c3a42
 conditions_digest: sha256:134c147c06cb3da5
 locked_at: "2026-09-05 23:04"

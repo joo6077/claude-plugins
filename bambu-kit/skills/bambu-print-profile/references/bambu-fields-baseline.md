@@ -235,9 +235,13 @@
 
 ### 8.6. surface-first 모드 변경 핵심 요약
 
-- 회전체 default: `seam_position: random + seam_slope_entire_loop: 1` (분산) → **Auto-select 결정 트리 (spiral_mode → painted seam → random fallback)** (은닉). 자세한 결정 트리는 `surface-recipes.md` 참조.
+- 회전체 default: **v4 (2026-09-05) 기준 `spiral_mode` + `spiral_mode_smooth` 가 1 순위다.**
+  `random` 은 fallback 전용으로 내려갔다. 결정 트리 정본은 `seam-recipes.md` §0 — 여기서 재정의하지 마라.
+  (이력: v1 `random + entire_loop` 분산 → v2/v3 Auto-select → v4 vase 우선)
 - Ironing 정책 신규 추가: PLA Basic/Matte/PLA Silk + flat top 한정. PETG/PC/TPU/CF류는 비추.
-- 외벽 매끈함 공통값: `layer_height` **`0.12` 1 차 권장** (계단이 핵심이고 시간을 감수할 때만 `0.08-0.12` — `0.08` 은 H2S 공식 process 프로파일 근거 `[미확인]`, §10.1), `wall_loops 3-4`, `outer_wall_speed 20-40 mm/s`, `reduce_crossing_wall 1`, `resolution 0.006-0.010` (⚠️ XY faceting 전용 — Z 계단 해결책 아님, §10.1).
+- 외벽 매끈함 공통값: `layer_height` **`0.12` 1 차 권장**, `wall_loops 3-4`, `wall_sequence inner-outer-inner` (⚠️ `wall_loops >= 3` 전제), `reduce_crossing_wall 1`.
+  **속도는 단일 값이 아니라 유량비로 결정한다** — `surface-recipes.md` §3 표가 정본이고 `SKILL.md` §유량비 게이트가 임계를 갖는다. 여기에 수치를 복제하지 마라.
+  ⚠️ `resolution` 하향과 `enable_arc_fitting` 끄기는 **공통값이 아니다** — 2026-09-05 실측에서 이득 근거 없음으로 철회됐다 (`surface-recipes.md` §3).
 
 ## 9. 미해결 / 검증 필요
 
