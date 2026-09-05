@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>다중 샘플과 페이지네이션 변동성</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  /* Light — lime 은 흰 배경에서 대비가 안 나온다. 어두운 올리브로 내린다.
+     #4D7C0F 는 흰 배경 4.99 로 통과하지만 --surface2 위에서 4.46 이라 한 단계 더 내렸다 */
+  [data-theme="light"]{
+    --bg:#f6f7f3;--bg2:#eceee7;--surface:#ffffff;--surface2:#f1f3ec;--border:#dcdfd3;
+    --text:#181c14;--text2:#4d5348;--text3:#666D5F;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(246,247,243,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(163,230,53,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(163,230,53,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  [data-theme="light"] .nav-logo span{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:880px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — partial / pin / exact 처럼 3 단계를 표기할 때 쓴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-1{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,0.34)}
+  .s-2{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .s-3{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(163,230,53,0.3)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle{margin-bottom:clamp(18px,2.5vw,26px)}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;line-height:1.7;
+    border-left:3px solid var(--accent);padding-left:12px;margin-bottom:18px;max-width:880px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  [data-theme="light"] .card-source:hover{color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(163,230,53,0.05)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+
+  /* ── 수치 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,200px) 1fr minmax(64px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── before / after 쌍 ── */
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
+  .pair:last-child{margin-bottom:0}
+  .pane{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .pane-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .pane-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .pane-head{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .pane-what{font-size:12px;color:var(--text3);line-height:1.5;overflow-wrap:anywhere}
+  .pane pre{background:var(--surface);margin-bottom:0;flex:1}
+  .pair-caption{font-size:12px;color:var(--text3);margin:-6px 0 18px;line-height:1.6}
+
+  /* ── 비교 패널 (텍스트) ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 단계 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 220px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
+  .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
+  .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+  .rule-box strong{color:var(--accent)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+
+  /* ════ 페이지 전용 — 승격 게이트 · 검사 경로 분기 ════ */
+  .gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px;margin-top:16px}
+  .gate>*{min-width:0}
+  .gate-cell{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .gate-cell .gate-n{font-family:var(--mono);font-size:clamp(22px,3vw,30px);font-weight:800;
+    color:var(--accent);display:block;line-height:1.2}
+  .gate-cell .gate-k{font-size:12px;color:var(--text2);display:block;margin-top:8px;line-height:1.6;overflow-wrap:anywhere}
+  .gate-cell.g-warn{border-color:rgba(251,191,36,0.34)}
+  .gate-cell.g-warn .gate-n{color:var(--yellow)}
+  .lane{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;margin-top:16px}
+  .lane>*{min-width:0}
+  .lane-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .lane-box.lane-hurl{border-color:rgba(34,211,238,0.34)}
+  .lane-box.lane-post{border-color:rgba(129,140,248,0.34)}
+  .lane-box h4{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .lane-box pre{background:var(--surface);margin-bottom:0}
+  .lane-box .lane-why{font-size:12px;color:var(--text3);line-height:1.6;margin-top:10px;overflow-wrap:anywhere}
+  .mode-note{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;
+    color:var(--text2);margin-top:12px;line-height:1.6}
+  .mode-note>*{min-width:0}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">api-kit <span>/ multi-sample &amp; pagination variance</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>다중 샘플과 페이지네이션 변동성</h1>
+<p class="subtitle">
+  계약을 승격하기 전에 샘플을 몇 개, 어디까지 모아야 하는지에 대한 규칙.
+  컬렉션 응답은 한 페이지만 보면 계약이 아니라 우연을 봉인하게 된다.
+  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+</p>
+
+<div class="warn-banner">
+  <h2>먼저 읽어라 — 1 샘플은 계약이 아니라 후보다</h2>
+  <p>
+    <strong>enum 은 1 샘플에서 확정하지 않는다. 후보로 표시하고 경고만 낸다.
+    승격은 독립 샘플 3 개 이상에서만 일어난다</strong>(2026-09-04 확정).
+    사용자가 직접 확정하는 수동 경로는 별도로 둔다.
+  </p>
+  <p>
+    이유는 하나다 — 오탐 실패가 도구 신뢰를 가장 빨리 깎는다.
+    <code>status</code> 를 한 번 관측하고 <code>enum: ["active"]</code> 로 닫아버리면
+    두 번째로 등장한 정상 값 <code>shipped</code> 가 회귀로 보고된다.
+    이런 실패가 한 번 나오면 사용자는 도구를 끄고, 꺼진 도구는 회귀를 하나도 잡지 못한다.
+  </p>
+  <p>
+    컬렉션 응답은 여기서 한 단계 더 나쁘다. 첫 페이지 하나만 보면 <em>종료 envelope</em> 조차 관측하지 못한다 —
+    <code>nextLink</code> 의 부재나 <code>has_more=false</code> 는 마지막 페이지에서만 나타난다.
+    그래서 샘플 예산은 &ldquo;몇 번 호출하나&rdquo; 가 아니라 &ldquo;어떤 상태를 관측했나&rdquo; 로 센다.
+  </p>
+  <div class="sources">
+    <a class="card-source" href="../superpowers/specs/2026-09-02-api-kit-design.md" target="_blank" rel="noopener">&rarr; api-kit 설계 §12 확정된 결정 — enum 승격 기준</a>
+    <a class="card-source" href="../api/research-log.md" target="_blank" rel="noopener">&rarr; api-kit Research Log — 사용자 확정 2026-09-04</a>
+    <a class="card-source" href="https://github.com/wolverdude/GenSON" target="_blank" rel="noopener">&rarr; GenSON — seed 없이는 enum 미추론</a>
+    <a class="card-source" href="https://github.com/saasquatch/json-schema-inferrer" target="_blank" rel="noopener">&rarr; json-schema-inferrer — enum extractor 분리</a>
+  </div>
+</div>
+
+<!-- ══════════════ 1. 오리엔테이션 ══════════════ -->
+<div class="section">
+  <div class="section-label">이 문서가 결정하는 것</div>
+  <h2>수집 &rarr; 점수화 &rarr; 승격</h2>
+  <p class="desc">
+    계약 강도를 정하는 것은 추출기가 아니라 <strong>수집한 샘플</strong>이다.
+    샘플 예산을 정하지 않으면 첫 응답의 우연한 형태가 그대로 baseline 이 된다.
+  </p>
+
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">1 — 수집</span>
+      <span class="what">샘플 예산을 먼저 정한다</span>
+      <span class="out">최소 <strong>3 captures</strong>, 최대 <strong>5 pages</strong> 또는 <strong>500 items</strong>. first · next · terminal 세 종류를 구분해 남긴다.</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">2 — 점수화</span>
+      <span class="what">path 별 변동성을 잰다</span>
+      <span class="out">presence · type set · scalar churn · 배열 길이 · 순서 churn. 점수 없이 승격하면 partial 로 충분한 필드에 pin 이 붙는다.</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">3 — 승격</span>
+      <span class="what">점수가 계약 강도를 정한다</span>
+      <span class="out">변동성이 큰 path 는 <span class="strength s-1">partial</span>, 관계가 성립하는 path 는 <span class="strength s-2">pin</span>, 네 조건 모두 통과한 컬렉션만 <span class="strength s-3">exact</span>.</span>
+    </div>
+  </div>
+
+<pre><code>page 1 (first)     envelope + item 집합 + nextLink 존재
+page 2 (next)      cursor 를 그대로 재사용해 획득
+page N (terminal)  nextLink 부재 / has_more=false / hasNextPage=false
+                   ↓
+             path 별 변동성 점수
+                   ↓
+   partial ──────── pin ──────── exact
+   (형태)      (경로별 assertion)   (본문 전체 diff)</code></pre>
+
+  <div class="rule-box">
+    <strong>컬렉션의 계약은 페이지 본문이 아니라 페이지네이션 프로토콜이다.</strong>
+    envelope schema · item schema · pagination marker semantics 세 조각을 각각 따로 계약한다.
+    본문만 봉인하면 종료 조건이 바뀌는 실제 회귀를 놓친다.
+  </div>
+</div>
+
+<!-- ══════════════ 2. 샘플 예산 게이트 ══════════════ -->
+<div class="section">
+  <div class="section-label">승격 게이트</div>
+  <h2>enum 승격 — 1 샘플은 경고, 3 샘플부터 계약</h2>
+  <p class="lead">
+    관측 횟수는 계약 강도를 정하는 입력값이다. 샘플이 부족하면 강도를 낮추는 것이 아니라 <em>승격 자체를 보류</em>한다.
+  </p>
+
+  <div class="gate">
+    <div class="gate-cell g-warn">
+      <span class="gate-n">1</span>
+      <span class="gate-k">샘플 — <strong>후보 표시 + 경고</strong>. enum 확정 금지. schema 는 <code>type: string</code> 까지만.</span>
+    </div>
+    <div class="gate-cell">
+      <span class="gate-n">&ge; 3</span>
+      <span class="gate-k">독립 샘플 — 승격 하한. 다중 샘플 추론 도구들의 교집합 판정에 필요한 최소치.</span>
+    </div>
+    <div class="gate-cell">
+      <span class="gate-n">&ge; 2</span>
+      <span class="gate-k">distinct value — 값이 하나뿐이면 enum 이 아니라 <code>const</code> 후보다.</span>
+    </div>
+    <div class="gate-cell">
+      <span class="gate-n">&le; 12</span>
+      <span class="gate-k">domain 크기 — 후보 집합이 이보다 크면 열린 문자열로 둔다.</span>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:24px">
+    <div class="compare-bad">
+      <div class="compare-label">1 샘플에서 확정</div>
+<pre><code># GET /orders 를 한 번 호출하고 추출
+$.data[].status  observed: ["active"]
+
+contract:
+  status: { enum: ["active"] }
+
+# 다음 실행 — 정상 데이터인데 실패한다
+$.data[3].status = "shipped"   FAIL</code></pre>
+      <p class="pane-what">실패 하나가 계약 전체의 신뢰를 깎는다. 사용자는 회귀를 의심하지 않고 도구를 의심한다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">3 샘플에서 승격</div>
+<pre><code># 3 회 이상 독립 호출 + 페이지 샘플
+sample 1  status: active
+sample 2  status: active, shipped
+sample 3  status: shipped, cancelled
+
+contract:
+  status: { enum: [active, shipped, cancelled] }
+# samples=3 · distinct=3 · domain=3  → 승격</code></pre>
+      <p class="pane-what">승격 근거(샘플 수 · distinct · domain)를 계약에 같이 남기면 나중에 왜 닫았는지 설명된다.</p>
+    </div>
+  </div>
+
+  <div class="dist" style="margin-top:24px">
+    <div class="dist-row">
+      <span class="dist-label">일반 샘플 예산 (captures)</span>
+      <span class="dist-track"><span class="dist-fill" style="width:60%"></span></span>
+      <span class="dist-val">&ge; 3</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">최대 수집 페이지</span>
+      <span class="dist-track"><span class="dist-fill f-cyan" style="width:100%"></span></span>
+      <span class="dist-val">5 pages</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">최대 수집 item</span>
+      <span class="dist-track"><span class="dist-fill f-cyan" style="width:100%"></span></span>
+      <span class="dist-val">500 items</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">수집 중지 후보 (신규 path 없음)</span>
+      <span class="dist-track"><span class="dist-fill f-green" style="width:40%"></span></span>
+      <span class="dist-val">연속 2 페이지</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">컬렉션 exact — duplicate stable id</span>
+      <span class="dist-track"><span class="dist-fill f-mute" style="width:2%"></span></span>
+      <span class="dist-val">0</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">컬렉션 exact — ordering variance</span>
+      <span class="dist-track"><span class="dist-fill f-mute" style="width:2%"></span></span>
+      <span class="dist-val">0</span>
+    </div>
+  </div>
+  <p class="caption">막대 길이는 각 항목의 상한 대비 비율을 눈으로 비교하기 위한 것이며, 서로 다른 단위의 값을 같은 축에서 재지 않는다.</p>
+</div>
+
+<!-- ══════════════ 3. 경로 간 불변식 ══════════════ -->
+<div class="section">
+  <div class="section-label">구조</div>
+  <h2>경로 간 불변식은 Hurl 로 표현되지 않는다</h2>
+  <p class="desc">
+    페이지네이션 계약에서 가장 자주 쓰이는 assertion 이 <code>$.meta.total &ge; len($.data)</code> 인데,
+    이건 Hurl 문법으로 쓸 수 없다. Hurl 의 assert 는 <strong>경로 1 개에 predicate 1 개</strong>다
+    (<code>jsonpath "$.meta.total" &gt;= 0</code>). 두 경로를 서로 비교하는 표현이 없다.
+  </p>
+
+<pre><code># Hurl 로 쓸 수 있는 것 — 경로 1 개 : predicate 1 개
+jsonpath "$.meta.total" &gt;= 0
+jsonpath "$.data" count &gt; 0
+
+# Hurl 로 쓸 수 없는 것 — 두 경로 비교
+$.meta.total &gt;= len($.data)     ← 문법 없음</code></pre>
+
+  <div class="lane">
+    <div class="lane-box lane-hurl">
+      <h4><span class="strength s-2">pin</span> Hurl 이 직접 검사</h4>
+<pre><code>pin:
+  - path: $.data[].id
+    assert: "^ord_"
+    engine: hurl
+  - path: $.meta.total
+    assert: "&gt;= 0"
+    engine: hurl</code></pre>
+      <p class="lane-why">단일 경로 + predicate 로 환원되는 assertion. Hurl 실행 중에 바로 판정된다.</p>
+    </div>
+    <div class="lane-box lane-post">
+      <h4><span class="strength s-2">pin</span> 킷이 후처리로 검사</h4>
+<pre><code>pin:
+  - path: $.meta.total
+    assert: "&gt;= len($.data)"
+    engine: post
+  - path: $.data[].isDefault
+    assert: "true 인 항목 정확히 1개"
+    engine: post</code></pre>
+      <p class="lane-why">계약 YAML 의 <code>pin</code> 에만 기록하고, <code>/api-verify</code> 가 Hurl 실행 뒤 후처리 단계에서 검사한다.</p>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <strong>상수로 근사하지 마라.</strong> <code>$.meta.total &ge; len($.data)</code> 를
+    <code>$.meta.total &ge; 3</code> 으로 박으면 데이터가 늘어난 순간 그 assertion 은 아무것도 검사하지 않는다.
+    계약 파일은 Hurl 이 검사하는 pin 과 킷이 후처리로 검사하는 pin 을 <strong>구분해 표기</strong>한다.
+  </div>
+  <div class="sources">
+    <a class="card-source" href="../superpowers/specs/2026-09-02-api-kit-design.md" target="_blank" rel="noopener">&rarr; api-kit 설계 §9.2 — 경로 간 불변식은 Hurl assert 로 표현되지 않는다</a>
+    <a class="card-source" href="https://hurl.dev/docs/asserting-response.html" target="_blank" rel="noopener">&rarr; Hurl — Asserting Response</a>
+  </div>
+</div>
+
+<!-- ══════════════ 4. 원칙 ══════════════ -->
+<div class="section">
+  <div class="section-label">원칙</div>
+  <h2>샘플링과 페이지네이션 규칙 9 가지</h2>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">1</span>
+      <h3>단일 응답은 계약이 아니라 후보다</h3>
+      <span class="tag tag-warn">이 문서의 핵심</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        quicktype, GenSON, json-schema-inferrer 는 모두 여러 샘플을 합쳐 required, nullable, union, 공통 필드를 판단한다.
+        변동이 있는 API 는 반복 호출과 페이지 샘플을 먼저 모은 뒤에 추출한다.
+        샘플 예산을 정하지 않으면 첫 응답의 우연한 형태가 그대로 baseline 이 된다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://quicktype.io/" target="_blank" rel="noopener">&rarr; quicktype</a>
+      <a class="card-source" href="https://github.com/wolverdude/GenSON" target="_blank" rel="noopener">&rarr; GenSON</a>
+      <a class="card-source" href="https://github.com/saasquatch/json-schema-inferrer" target="_blank" rel="noopener">&rarr; json-schema-inferrer</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">2</span>
+      <h3>prod 샘플링은 safe method 로 제한한다</h3>
+      <span class="tag tag-warn">범위 미확정</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        prod 에서 반복 샘플링할 때는 서버 상태를 바꾸지 않는 method 만 쓴다.
+        HTTP 는 GET · HEAD · OPTIONS · TRACE 를 safe method 로 정의한다.
+        이 킷의 prod read-only 범위는 <strong>아직 미확정이며 기본값은 GET / HEAD / OPTIONS</strong> 다(2026-09-04 결정) —
+        확장은 사용자 명시 승인이 있을 때만.
+      </p>
+      <div class="mode-note">
+        <span class="tag tag-ok">기본 허용</span><span class="mono">GET · HEAD · OPTIONS</span>
+        <span class="tag tag-bad">승인 필요</span><span class="mono">그 외 전부</span>
+      </div>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">&rarr; RFC 9110 §9.2.1 Safe Methods</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">3</span>
+      <h3>페이지네이션 프로토콜을 먼저 식별한다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        <code>nextLink</code>, <code>@odata.nextLink</code>, GraphQL <code>edges</code>/<code>pageInfo</code>,
+        Stripe <code>data</code>/<code>has_more</code> 같은 envelope 를 먼저 찾는다.
+        컬렉션의 계약은 페이지 본문이 아니라 <strong>페이지네이션 프로토콜</strong>이다.
+        프로토콜을 모른 채 본문만 봉인하면 종료 조건 변경 같은 실제 회귀를 놓친다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://learn.microsoft.com/en-us/graph/paging" target="_blank" rel="noopener">&rarr; Microsoft Graph paging</a>
+      <a class="card-source" href="https://relay.dev/graphql/connections.htm" target="_blank" rel="noopener">&rarr; Relay Connections</a>
+      <a class="card-source" href="https://docs.stripe.com/api/pagination" target="_blank" rel="noopener">&rarr; Stripe pagination</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">4</span>
+      <h3>cursor 는 opaque 다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        cursor, <code>$skiptoken</code>, <code>nextLink</code> 는 불투명 값으로 취급한다.
+        반환된 전체 URL 또는 cursor 를 그대로 다음 요청에 쓰고, 파싱 · 수정 · 합성하지 않는다.
+        토큰 내부 구조는 계약이 아니며 사전 공지 없이 바뀐다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://learn.microsoft.com/en-us/graph/paging" target="_blank" rel="noopener">&rarr; Microsoft Graph paging</a>
+      <a class="card-source" href="https://learn.microsoft.com/en-us/azure/data-api-builder/keywords/after-rest" target="_blank" rel="noopener">&rarr; Data API builder $after</a>
+      <a class="card-source" href="https://relay.dev/graphql/connections.htm" target="_blank" rel="noopener">&rarr; Relay Connections</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">5</span>
+      <h3>안정 정렬이 있어야 순서 계약을 건다</h3>
+      <span class="strength s-3">exact</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        배열 index assertion 과 컬렉션 exact diff 는 안정 정렬이 보장될 때만 허용한다.
+        GraphQL connection 은 페이지 간 edge 순서 일관성을 요구하고,
+        Microsoft 가이드라인도 모든 페이지에 동일한 filter / sort 를 쓰라고 규정한다.
+        정렬 보장이 없으면 순서는 pin 대상이 아니라 variance 신호다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://relay.dev/graphql/connections.htm" target="_blank" rel="noopener">&rarr; Relay Connections</a>
+      <a class="card-source" href="https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md" target="_blank" rel="noopener">&rarr; Microsoft Azure API Guidelines</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">6</span>
+      <h3>승격 전에 변동성을 점수화한다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        path 별로 presence, type set, scalar 값 churn, 배열 길이, 순서 churn 을 점수화한 뒤 계약 강도를 정한다.
+        snapshot 도구들의 scrubber / redaction 관례가 같은 순서 — 비결정 출력을 먼저 안정화하고 그다음 비교 — 를 따른다.
+        점수 없이 승격하면 partial 로 충분한 필드에 pin 이 붙어 오탐이 쌓인다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://jestjs.io/docs/snapshot-testing" target="_blank" rel="noopener">&rarr; Jest Snapshot Testing</a>
+      <a class="card-source" href="https://insta.rs/docs/redactions/" target="_blank" rel="noopener">&rarr; insta redactions</a>
+      <a class="card-source" href="https://approvaltestscpp.readthedocs.io/en/latest/generated_docs/explanations/Scrubbers.html" target="_blank" rel="noopener">&rarr; ApprovalTests Scrubbers</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">7</span>
+      <h3>optionality 는 전 페이지 item 집합에서 계산한다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        item 필드의 required / optional 은 첫 페이지가 아니라 수집한 모든 페이지의 item 집합으로 판정한다.
+        Microsoft 는 snapshot 보장이 없는 paginated collection 에서 skip / duplicate 가 발생할 수 있다고 경고한다 —
+        즉 페이지마다 관측 모집단이 다르다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md" target="_blank" rel="noopener">&rarr; Microsoft Azure API Guidelines</a>
+      <a class="card-source" href="https://github.com/wolverdude/GenSON" target="_blank" rel="noopener">&rarr; GenSON</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">8</span>
+      <h3>대표 페이지를 나눠서 남긴다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        첫 페이지만 보면 종료 envelope 차이(<code>nextLink</code> 부재, <code>has_more=false</code>)를 놓친다.
+        가능한 경우 first, next 중 최소 하나, terminal 세 종류를 구분해 증거로 남긴다.
+      </p>
+<pre><code>evidence/
+  orders.page-first.json      envelope + nextLink 존재
+  orders.page-next.json       cursor 재사용 결과
+  orders.page-terminal.json   nextLink 부재 / has_more=false</code></pre>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://learn.microsoft.com/en-us/graph/paging" target="_blank" rel="noopener">&rarr; Microsoft Graph paging</a>
+      <a class="card-source" href="https://docs.stripe.com/api/pagination" target="_blank" rel="noopener">&rarr; Stripe pagination</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">9</span>
+      <h3>컬렉션 계약은 세 조각으로 분리한다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        envelope schema, item schema, pagination marker semantics 를 각각 따로 계약한다.
+        페이지 길이나 전체 item 순서는 API 가 snapshot 또는 안정 정렬을 보장할 때만 exact assertion 으로 승격한다.
+      </p>
+      <div class="mode-note">
+        <span class="pill">envelope schema</span>
+        <span class="pill">item schema</span>
+        <span class="pill">pagination marker semantics</span>
+      </div>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://docs.stripe.com/api/pagination" target="_blank" rel="noopener">&rarr; Stripe pagination</a>
+      <a class="card-source" href="https://relay.dev/graphql/connections.htm" target="_blank" rel="noopener">&rarr; Relay Connections</a>
+      <a class="card-source" href="https://github.com/microsoft/api-guidelines/blob/vNext/azure/ConsiderationsForServiceDesign.md" target="_blank" rel="noopener">&rarr; Azure Service Design Considerations</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 5. 수치 기준 ══════════════ -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <h2>관측된 기본값과 이 킷의 예산</h2>
+  <p class="desc">
+    앞의 네 행은 각 provider 가 문서로 공개한 값이고, 뒤의 네 행은 이 킷의 판정 기준이다.
+    근거가 &lsquo;추론&rsquo; 인 행은 외부 출처가 아니라 설계 결정이다.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">Stripe list <code>limit</code></td>
+          <td class="num-cell">default 10 · 허용 1..100</td>
+          <td><a class="card-source" href="https://docs.stripe.com/api/pagination" target="_blank" rel="noopener">&rarr; Stripe pagination</a></td>
+        </tr>
+        <tr>
+          <td class="sys">Microsoft Graph <code>/users</code><br>서버 기본 page size</td>
+          <td class="num-cell">100</td>
+          <td><a class="card-source" href="https://learn.microsoft.com/en-us/graph/paging" target="_blank" rel="noopener">&rarr; Microsoft Graph paging</a></td>
+        </tr>
+        <tr>
+          <td class="sys">Azure REST <code>nextLink</code> 등장 시점</td>
+          <td class="num-cell">결과가 클 때 반환<br>문서상 보통 &gt;1000 items</td>
+          <td><a class="card-source" href="https://learn.microsoft.com/en-us/rest/api/azure/" target="_blank" rel="noopener">&rarr; Azure REST API</a></td>
+        </tr>
+        <tr>
+          <td class="sys">페이지네이션 종료 신호</td>
+          <td class="num-cell"><code>nextLink</code>/<code>@odata.nextLink</code> 부재<br>Stripe <code>has_more=false</code><br>GraphQL <code>hasNextPage=false</code></td>
+          <td>
+            <a class="card-source" href="https://learn.microsoft.com/en-us/graph/paging" target="_blank" rel="noopener">&rarr; Graph</a>
+            <a class="card-source" href="https://docs.stripe.com/api/pagination" target="_blank" rel="noopener">&rarr; Stripe</a>
+            <a class="card-source" href="https://relay.dev/graphql/connections.htm" target="_blank" rel="noopener">&rarr; Relay</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="sys">일반 샘플 예산</td>
+          <td class="num-cell">최소 3 captures<br>최대 5 pages 또는 500 items</td>
+          <td>추론 — 다중 샘플 추론 도구들의 교집합 판정에 필요한 하한</td>
+        </tr>
+        <tr>
+          <td class="sys">수집 중지 후보</td>
+          <td class="num-cell">연속 2 페이지에서 신규 path/type 없음</td>
+          <td>추론 — 변동성 수렴 신호</td>
+        </tr>
+        <tr>
+          <td class="sys">컬렉션 exact 자격</td>
+          <td class="num-cell">안정 정렬/cursor 존재<br>duplicate stable id 0 · ordering variance 0<br>normalized item schema variance 0</td>
+          <td>추론 — 네 조건 중 하나만 깨져도 매 실행 실패</td>
+        </tr>
+        <tr>
+          <td class="sys">prod 샘플링 기본 method</td>
+          <td class="num-cell">GET · HEAD · OPTIONS</td>
+          <td>2026-09-04 결정 (범위 미확정) — RFC 9110 safe methods 부분집합</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ 6. 안티패턴 ══════════════ -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <h2>한 페이지만 보고 봉인하면 생기는 일</h2>
+  <p class="desc">
+    아래 두 쌍은 컬렉션 계약에서 가장 자주 나오는 실패다. 둘 다 &ldquo;계약이 틀렸다&rdquo; 가 아니라
+    &ldquo;관측이 부족했다&rdquo; 가 원인이다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head"><span class="tag tag-bad">BAD</span><span class="pane-what">첫 페이지 item 개수를 컬렉션 길이로 봉인</span></div>
+<pre><code># GET /orders 첫 페이지만 관측 (서버 page size = 100)
+contract:
+  $.data:       { length: 100 }
+  $.meta.total: { const: 100 }
+
+# 데이터가 늘어도 줄어도 첫 페이지는 늘 100 개다
+# → 컬렉션 크기 변화를 영원히 감지하지 못한다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head"><span class="tag tag-ok">GOOD</span><span class="pane-what">envelope · item · marker 를 나눠 계약</span></div>
+<pre><code>contract:
+  envelope:
+    $.data:       { type: array }
+    $.meta.total: { type: integer }
+  invariant:                       # 후처리 검사
+    - "$.meta.total &gt;= len($.data)"
+  marker:
+    terminal: "has_more == false"
+
+# page size 는 서버 정책이지 계약이 아니다</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    서버 page size 를 컬렉션 크기로 착각하는 것이 첫 페이지 봉인의 전형적 결과다.
+    길이는 계약 대상이 아니고, 길이와 total 의 <em>관계</em>가 계약 대상이다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head"><span class="tag tag-bad">BAD</span><span class="pane-what">cursor 를 파싱해 재조립 · 정렬 없는 index pin</span></div>
+<pre><code># nextLink 에서 token 만 뜯어 다른 query 에 붙임
+token = parse(nextLink).query["$skiptoken"]
+GET /orders?$skiptoken={token}&amp;$top=50
+
+# 정렬 보장이 없는 컬렉션에 index pin
+pin:
+  - path: $.data[0].id
+    assert: '= "ord_8812"'   # 순서가 바뀌면 실패</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head"><span class="tag tag-ok">GOOD</span><span class="pane-what">cursor 는 통째로 재사용 · 순서는 variance 신호로</span></div>
+<pre><code># 반환된 URL/cursor 를 그대로 다음 요청에 쓴다
+GET {nextLink}
+
+# 순서 보장이 없으면 index 대신 집합·패턴으로
+pin:
+  - path: $.data[].id
+    assert: "^ord_"
+  - path: $.data[].status
+    assert: "&isin; {active, shipped, cancelled}"</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    cursor 내부 구조는 계약이 아니며 사전 공지 없이 바뀐다.
+    정렬 보장이 없는 컬렉션에서 순서는 pin 대상이 아니라 variance 신호다.
+  </p>
+
+  <div class="table-wrap" style="margin-top:22px">
+    <table>
+      <thead>
+        <tr><th>안티패턴</th><th>문제</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">첫 페이지의 item 개수를 전체 컬렉션 길이로 봉인</td>
+          <td>서버 page size 를 컬렉션 크기로 착각한다. 데이터가 늘어도 줄어도 감지 못한다</td>
+        </tr>
+        <tr>
+          <td class="sys">offset/skip 기반 페이지를 live-changing 컬렉션의 exact diff 기준으로 사용</td>
+          <td>항목이 삽입/삭제되면 페이지 경계가 밀려 매번 diff 가 난다</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>nextLink</code> 에서 token 만 뜯어 다른 query 에 붙임</td>
+          <td>cursor 는 opaque 다. 내부 구조가 바뀌면 조용히 잘못된 페이지를 읽는다</td>
+        </tr>
+        <tr>
+          <td class="sys">정렬 보장 없는 컬렉션에 index 기반 pin 사용</td>
+          <td><code>$.data[0].id</code> 같은 assertion 이 정상 동작에도 실패한다</td>
+        </tr>
+        <tr>
+          <td class="sys">auto-pagination helper 결과만 저장하고 페이지별 raw evidence 를 버림</td>
+          <td>envelope 와 종료 marker 증거가 사라져 페이지네이션 회귀를 진단할 수 없다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ 7. Gotchas ══════════════ -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <h2>수집 실행 전 확인</h2>
+  <p class="desc">아래는 관측을 잘못 해석해 계약을 망가뜨리는 항목이다. 대부분 첫 실행에서는 조용히 통과한다.</p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong><code>nextLink: null</code> 을 표준 종료 marker 로 일반화하지 않는다</strong> — Microsoft Azure 가이드라인은 마지막 페이지에서 <code>nextLink</code> 를 아예 생략하라고 한다. 부재와 null 은 다른 신호다.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong>GraphQL backward pagination 에서 순서를 뒤집지 않는다</strong> — <code>last</code>/<code>before</code> 도 forward 와 같은 logical order 를 유지해야 한다. 역순으로 저장하면 페이지 간 비교가 깨진다.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong>skip / duplicate 는 item schema 위반이 아니다</strong> — snapshot 보장이 없는 live collection 에서는 정상 현상이며, 컬렉션 variance 신호로 분류해야 한다. schema 실패로 올리면 오탐이다.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong><code>nextLink</code> 의 absolute/relative 정책은 provider 마다 다르다</strong> — 증거에는 원문을 그대로 남기고, 계약에는 provider 별 canonical 규칙을 따로 기록한다.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong>1 샘플로 enum 을 닫지 마라</strong> — 후보 표시 + 경고까지만이다. 승격은 독립 샘플 <code>&ge;3</code>, distinct value <code>&ge;2</code>, domain <code>&le;12</code> 를 모두 만족할 때만.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong>경로 간 불변식을 Hurl assert 로 쓰려 하지 마라</strong> — Hurl 은 경로 1 개에 predicate 1 개다. <code>$.meta.total &ge; len($.data)</code> 는 계약 YAML 의 <code>pin</code> 에 기록하고 <code>/api-verify</code> 후처리에서 검사한다.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong>불변식을 상수로 근사하지 마라</strong> — <code>&ge; 3</code> 으로 박으면 데이터가 늘어난 순간 그 assertion 은 아무것도 검사하지 않는다.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&check;</span>
+      <span><strong>prod 반복 샘플링은 GET / HEAD / OPTIONS 로 시작한다</strong> — 범위 확장은 사용자 명시 승인이 있을 때만.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&check;</span>
+      <span><strong>first · next · terminal 세 종류를 각각 남겼는지 확인한다</strong> — terminal 이 없으면 종료 marker 계약은 근거가 없다.</span>
+    </li>
+    <li>
+      <span class="check">&#8250;</span>
+      <span><strong>수집을 언제 멈출지 미리 정한다</strong> — 연속 <code>2</code> 페이지에서 신규 path/type 이 없으면 변동성이 수렴한 것으로 보고 중지 후보로 올린다. 상한은 <code>5 pages</code> 또는 <code>500 items</code>.</span>
+    </li>
+  </ul>
+
+  <div class="info-card" style="margin-top:26px">
+    <h4>수집 요약</h4>
+    <p class="desc" style="margin-bottom:0">
+      샘플 <strong>3 개 이상</strong>을 모으고, first · next · terminal 을 각각 남기고,
+      path 별 변동성을 점수화한 뒤에 강도를 정한다.
+      이 순서를 지키면 <span class="strength s-1">partial</span> 로 충분한 필드에 pin 이 붙지 않고,
+      <span class="strength s-2">pin</span> 이 필요한 관계가 partial 로 새어 나가지도 않는다.
+    </p>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

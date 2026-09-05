@@ -1,7 +1,7 @@
 ---
 title: Phase Research Templates
-version: 1.1.0
-last_updated: 2026-07-27
+version: 1.2.0
+last_updated: 2026-09-05
 ---
 
 # Phase Research Templates
@@ -235,6 +235,34 @@ tone-kit 은 코딩 톤·유지보수성 게이트를 다룬다. **규칙 강도
 - 자연어 텍스트 탐지 문헌(DetectGPT · Binoculars · 텍스트 스타일로메트리)은 `tone-kit/references/sources.md` 의 제외 목록에 있다. 되살리지 마라.
 - 접미사 taxonomy 는 6개 시스템 중 어느 곳도 문서화하지 않은 **합성 규칙** 이다. 디자인 시스템을 권위로 인용하지 마라.
 - fallback 접두사(`effective*` / `resolved*`) 과대표집 통계는 공개 1차 문헌에 없다 (2026-08 확인). 논문 각주를 붙이지 마라.
+
+## Phase 16 — api-kit
+
+api-kit 은 **실제 응답을 SSOT 로 삼는** 블랙박스 계약 검증을 다룬다. 그래서 이 Phase 의 리서치는
+"공식 문서에 뭐라고 적혀 있나" 가 아니라 **"적힌 대로 동작하나"** 를 확인하는 데 목적이 있다.
+`docs/api/research-log.md` 의 **미검증 항목 표**를 먼저 읽고, 그 항목부터 대조한다.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Hurl Manual](https://hurl.dev/docs/manual.html) | 공식 | 옵션 우선순위(`env < CLI < [Options]`) · `--retry-interval` · `--max-redirs` · exit code 체계. **문서 12종 중 가장 많이 인용된 출처(36 회)** | 로컬 `hurl --help` 실측 |
+| 2 | [Hurl Templates — Secrets](https://hurl.dev/docs/templates.html#secrets) | 공식 | `--secret` 마스킹 범위. stdout 을 가리지 않는다는 기재가 킷 redaction 설계(§8.2) 전체의 근거 | 로컬 `hurl --secret` 실행 |
+| 3 | [RFC 8785 — JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785.html) | 사양 | 스냅샷 봉인·회귀 diff 의 비교 기준선. 정렬·수치 표기 규칙이 바뀌면 baseline 전체가 흔들린다 | [I-JSON (RFC 7493)](https://www.rfc-editor.org/rfc/rfc7493.html) |
+| 4 | [RFC 9110 — HTTP Semantics](https://datatracker.ietf.org/doc/html/rfc9110) | 사양 | 상태 코드·필드명 규범. 오류 계약(`error-status-contracts`) 판정 기준 | [rfc-editor](https://www.rfc-editor.org/rfc/rfc9110.html) |
+| 5 | [OpenAPI 3.1 사양](https://spec.openapis.org/oas/v3.1.0) | 공식 | 인벤토리 정규화의 path/parameter/operation 모델. 3.2 진행 여부 확인 | [swagger 문서](https://swagger.io/specification/) |
+| 6 | [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/json-schema-validation) | 공식 | 계약 추출 모드의 타입/`enum`/`const` 어휘. draft 이동 여부 확인 | [core](https://json-schema.org/draft/2020-12/json-schema-core) |
+| 7 | [Pact — Pending Pacts](https://docs.pact.io/pact_broker/advanced_topics/pending_pacts) | community(1차) | baseline 승격 거버넌스 선행 사례. 신규 계약을 곧바로 빌드 실패로 만들지 않는 구조 | WebFetch |
+| 8 | `docs/api/research-log.md` 미검증 항목 표 + `.api/` 실측 산출물 | 내부 | 문서 기재 ↔ 실측 대조. 어긋나면 **실측 채택** 후 로그 기록 | 파일 Read |
+
+**주의 3건**
+
+- **`pin` 의 의미를 되돌리지 마라.** 2026-09-04 리서치에서 '값 고정' → '경로별 명시 assertion'
+  으로 재정의됐다. 외부 도구(버전 pin · snapshot pin)의 용례를 근거로 되돌리려면 설계문서 §9.2
+  와 `/api-ui` 아이콘 어휘를 함께 고쳐야 한다.
+- **경로 간 불변식은 Hurl 로 표현할 수 없다.** `$.meta.total >= len($.data)` 류는 계약 YAML 에
+  기록하고 `/api-verify` 후처리에서 검사한다. Hurl assert 문법이 늘었다는 주장은 실측으로 확인한다.
+- **확정 결정 5 건을 리서치로 뒤집지 마라** — `exact` 는 본문만 · enum 승격 3 샘플 이상 ·
+  prod 기본 GET/HEAD/OPTIONS · 기준선 RFC 8785 JCS · 계약 실패와 환경 실패는 exit code 로 분리.
+  근거는 설계문서 §12 의 사용자 확정이다.
 
 ## 사용 규칙
 

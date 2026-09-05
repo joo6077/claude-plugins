@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스냅샷 봉인과 정규화</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  /* Light — lime 은 흰 배경에서 대비가 안 나온다. 어두운 올리브로 내린다.
+     #4D7C0F 는 흰 배경 4.99 로 통과하지만 --surface2 위에서 4.46 이라 한 단계 더 내렸다 */
+  [data-theme="light"]{
+    --bg:#f6f7f3;--bg2:#eceee7;--surface:#ffffff;--surface2:#f1f3ec;--border:#dcdfd3;
+    --text:#181c14;--text2:#4d5348;--text3:#666D5F;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(246,247,243,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(163,230,53,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(163,230,53,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  [data-theme="light"] .nav-logo span{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:880px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — partial / pin / exact 처럼 3 단계를 표기할 때 쓴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-1{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,0.34)}
+  .s-2{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .s-3{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(163,230,53,0.3)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle{margin-bottom:clamp(18px,2.5vw,26px)}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;line-height:1.7;
+    border-left:3px solid var(--accent);padding-left:12px;margin-bottom:18px;max-width:880px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  [data-theme="light"] .card-source:hover{color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(163,230,53,0.05)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+
+  /* ── 수치 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,200px) 1fr minmax(64px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── before / after 쌍 ── */
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
+  .pair:last-child{margin-bottom:0}
+  .pane{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .pane-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .pane-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .pane-head{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .pane-what{font-size:12px;color:var(--text3);line-height:1.5;overflow-wrap:anywhere}
+  .pane pre{background:var(--surface);margin-bottom:0;flex:1}
+  .pair-caption{font-size:12px;color:var(--text3);margin:-6px 0 18px;line-height:1.6}
+
+  /* ── 비교 패널 (텍스트) ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 단계 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 220px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
+  .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
+  .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+  .rule-box strong{color:var(--accent)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+
+  /* ════ 이 페이지 전용 — JCS 요구사항판 / 두 갈래 산출물 ════ */
+  /* JCS 가 요구하는 다섯 가지를 한 장에 늘어놓는다. 기준선의 정의 그 자체 */
+  .jcs-req{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px;margin-top:6px}
+  .jcs-req>*{min-width:0}
+  .req{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .req-key{font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    color:var(--cyan);display:block;margin-bottom:6px}
+  .req-what{font-size:13.5px;font-weight:700;color:var(--text);display:block;margin-bottom:6px;overflow-wrap:anywhere}
+  .req-note{font-size:12px;color:var(--text2);line-height:1.6;overflow-wrap:anywhere}
+
+  /* raw 갈래 / normalized 갈래 — 무엇이 증거이고 무엇이 기준선인지 분리해서 보여준다 */
+  .lane{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;margin-top:6px}
+  .lane>*{min-width:0}
+  .lane-col{border-radius:12px;padding:16px 18px;background:var(--surface);border:1px solid var(--border)}
+  .lane-col.l-raw{border-left:3px solid var(--blue)}
+  .lane-col.l-norm{border-left:3px solid var(--cyan)}
+  .lane-role{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    font-family:var(--mono);padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:10px}
+  .lane-col.l-raw .lane-role{background:rgba(129,140,248,0.14);color:var(--blue)}
+  .lane-col.l-norm .lane-role{background:rgba(34,211,238,0.14);color:var(--cyan)}
+  .lane-item{font-size:12.5px;color:var(--text2);line-height:1.7;padding:6px 0;
+    border-bottom:1px dashed var(--border);overflow-wrap:anywhere}
+  .lane-item:last-child{border-bottom:none}
+  .lane-item b{color:var(--text);font-weight:700}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">api-kit <span>/ snapshot sealing &amp; canonicalization</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>스냅샷 봉인과 정규화</h1>
+<p class="subtitle">
+  응답을 baseline 으로 봉인할 때 무엇을 원본 증거로 남기고 무엇을 비교 기준선으로 파생시킬지 가르는 규칙.
+  비교 기준선은 RFC 8785 JCS canonical JSON 이며, 사람이 읽는 화면 표시용 포매팅은 기준선이 아니다.
+  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+</p>
+
+<div class="warn-banner">
+  <h2>기준선은 JCS 하나다</h2>
+  <p>
+    스냅샷 비교에서 "같다 / 다르다" 를 판정하는 대상은 <strong>RFC 8785 JCS 로 정규화한 바이트</strong> 하나뿐이다.
+    pretty print 결과, 키 삽입 순서, diff UI 가 만들어 낸 문자열은 <strong>어떤 경우에도 기준선이 될 수 없다.</strong>
+    표시 포매터가 바뀌는 순간 계약이 통째로 깨지기 때문이다.
+  </p>
+  <p>
+    이 문서의 나머지 규칙은 전부 이 한 축에서 파생된다. raw 를 왜 따로 보관하는지, I-JSON 게이트를 왜 앞에 두는지,
+    헤더 정규화를 왜 JCS 밖으로 빼는지, baseline id 를 왜 응답 바이트가 아니라 매니페스트 digest 로 만드는지 —
+    전부 "기준선은 JCS 여야 한다" 를 지키기 위한 배치다.
+  </p>
+</div>
+
+<!-- ═══════════════ 1. 개념 오리엔테이션 ═══════════════ -->
+<div class="section">
+  <div class="section-label">이 문서가 결정하는 것</div>
+  <p class="desc">
+    응답 하나는 봉인될 때 두 갈래로 갈린다. 하나는 다시 열어 볼 <em>증거</em>, 다른 하나는 다음 실행과 대조할 <em>기준선</em>이다.
+    두 갈래를 섞으면 증거가 오염되거나 기준선이 흔들린다.
+  </p>
+
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">01 · 증거</span>
+      <span class="what">raw 보존</span>
+      <span class="out">상태코드, 원본 헤더 라인, wire/content 바이트, 디코딩 전후 digest. 시크릿 값만 마스킹한다.</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">02 · 기준선</span>
+      <span class="what">I-JSON 게이트 → JCS</span>
+      <span class="out">먼저 I-JSON 으로 검문하고, 통과한 것만 JCS 로 정규화한다. 실패는 정규화 대상이 아니다.</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">03 · 식별</span>
+      <span class="what">매니페스트 digest</span>
+      <span class="out">baseline id 는 응답 바이트가 아니라 매니페스트의 digest 로 만든다.</span>
+    </div>
+  </div>
+
+  <pre><code>HTTP 응답
+   │
+   ├─────────────────────────── raw lane (증거) ──────────────────────────┐
+   │   status / 원본 헤더 라인 / wire bytes / content bytes                │
+   │   시크릿 값만 마스킹 · 자리는 유지                                      │
+   │   digest: raw content, decoded representation (둘 다 기록)             │
+   │                                                                       │
+   └─── normalized lane (기준선) ────────────────────────────┐             │
+        Content-Type / Content-Encoding 해석                  │             │
+                 ↓                                            │             │
+        [ I-JSON 게이트 ]  중복 키 · 표현 불가 문자열 ·          │             │
+                          binary64 밖 숫자 · NaN/Inf ·         │             │
+                          lone surrogate  → 실패/fallback      │             │
+                 ↓ 통과                                        │             │
+        [ RFC 8785 JCS ]  공백 0 · property 재귀 정렬 ·          │             │
+                          ECMAScript primitive · UTF-8         │             │
+                 ↓                                            │             │
+        [ 변동 필드 path registry ]  timestamp / id / nonce     │             │
+                 ↓                                            │             │
+             normalized JCS digest ─────────────────┐          │             │
+                                                    ↓          ↓             ↓
+                                         ┌──────────────────────────────────────┐
+                                         │  manifest  →  digest  =  baseline id │
+                                         │  raw digest · JCS digest ·           │
+                                         │  redaction registry 버전 ·            │
+                                         │  media type · extraction mode        │
+                                         └──────────────────────────────────────┘</code></pre>
+
+  <div class="lane">
+    <div class="lane-col l-raw">
+      <span class="lane-role">raw — 증거</span>
+      <div class="lane-item"><b>보관 대상</b> 상태코드, 원본 헤더 라인, wire/content 바이트, 디코딩 전후 digest</div>
+      <div class="lane-item"><b>가공</b> 시크릿 값만 마스킹. 자리는 유지한다 (2026-09-04 결정)</div>
+      <div class="lane-item"><b>정렬·정규화</b> 하지 않는다. 손대면 증거가 아니게 된다</div>
+      <div class="lane-item"><b>용도</b> 회귀 조사 시 원본 복원. baseline 이 증거로 기능하는 근거</div>
+    </div>
+    <div class="lane-col l-norm">
+      <span class="lane-role">normalized — 기준선</span>
+      <div class="lane-item"><b>입력</b> I-JSON 게이트를 통과한 JSON representation</div>
+      <div class="lane-item"><b>형식</b> RFC 8785 JCS. 공백 0, property 재귀 정렬, UTF-8</div>
+      <div class="lane-item"><b>변동 필드</b> path registry 로 비교 직전에 안정화. raw 는 건드리지 않는다</div>
+      <div class="lane-item"><b>용도</b> 계약 비교의 유일한 입력. digest 는 매니페스트에 기록</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 2. JCS 요구사항 ═══════════════ -->
+<div class="section">
+  <div class="section-label">기준선의 정의 · RFC 8785 JCS</div>
+  <p class="lead">
+    JCS 는 "예쁘게 정리한 JSON" 이 아니라 <strong>같은 데이터가 항상 같은 바이트가 되도록 강제하는 규격</strong>이다.
+    다섯 가지 요구를 모두 만족해야 JCS 결과다.
+  </p>
+
+  <div class="jcs-req">
+    <div class="req">
+      <span class="req-key">input</span>
+      <span class="req-what">I-JSON 입력</span>
+      <p class="req-note">정규화 이전에 I-JSON 제약을 만족해야 한다. 만족하지 못하면 정규화가 아니라 실패다.</p>
+    </div>
+    <div class="req">
+      <span class="req-key">whitespace</span>
+      <span class="req-what">토큰 사이 공백 0개</span>
+      <p class="req-note">들여쓰기 · 줄바꿈 · 토큰 사이 여백이 전부 제거된다. pretty print 와 정반대 방향이다.</p>
+    </div>
+    <div class="req">
+      <span class="req-key">number</span>
+      <span class="req-what">ECMAScript primitive serialization</span>
+      <p class="req-note">숫자와 문자열의 직렬화 방식이 고정된다. 구현마다 다른 표기가 나오지 않는다.</p>
+    </div>
+    <div class="req">
+      <span class="req-key">order</span>
+      <span class="req-what">객체 property 재귀 정렬</span>
+      <p class="req-note">중첩 객체까지 property 이름 순으로 정렬한다. 배열 순서는 정렬 대상이 아니다.</p>
+    </div>
+    <div class="req">
+      <span class="req-key">encoding</span>
+      <span class="req-what">UTF-8 출력</span>
+      <p class="req-note">결과 바이트 인코딩이 UTF-8 로 고정된다. digest 를 바이트 단위로 비교할 수 있는 근거다.</p>
+    </div>
+  </div>
+
+  <div class="pair" style="margin-top:22px">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">NOT A BASELINE</span>
+        <span class="pane-what">표시용 pretty print — 포매터 설정이 곧 계약이 된다</span>
+      </div>
+      <pre><code>{
+  "b": 1,
+  "a": [3, 1, 2],
+  "n": 1.0E2
+}
+
+# 들여쓰기 2 → 4 로 바꾸면 digest 가 바뀐다
+# 키 삽입 순서가 바뀌어도 digest 가 바뀐다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">BASELINE</span>
+        <span class="pane-what">JCS 결과 — 같은 데이터면 항상 같은 바이트</span>
+      </div>
+      <pre><code>{"a":[3,1,2],"b":1,"n":100}
+
+# property 는 정렬됨 (a, b, n)
+# 배열 [3,1,2] 는 순서 보존
+# 1.0E2 → 100 (primitive serialization)
+# 토큰 사이 공백 0</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    왼쪽은 사람이 읽기 위한 산출물이고 오른쪽은 기계가 대조하기 위한 산출물이다.
+    둘 다 만들어도 되지만, digest 를 뜨는 대상은 오른쪽 하나여야 한다.
+  </p>
+</div>
+
+<!-- ═══════════════ 3. 원칙 카드 ═══════════════ -->
+<div class="section">
+  <div class="section-label">원칙 7</div>
+  <p class="lead">
+    1·6·7 은 무엇을 남길지, 2·3 은 무엇을 기준선으로 삼을지, 4·5 는 JCS 밖의 경계를 정한다.
+  </p>
+
+  <div class="grid-2">
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">1</span>
+          <h3>원본 증거 보존</h3>
+          <span class="pill">Raw Evidence Preservation</span>
+        </div>
+        <p class="desc">
+          baseline 은 raw 를 보관한다. 상태코드, 원본 헤더 라인, wire/content 바이트, 디코딩 전후 digest 를 그대로 남긴다.
+          단 <strong>시크릿 값만 마스킹한 raw</strong> 다 — 토큰 · 키 · 쿠키 값은 자리를 유지한 채 값만 가린다(2026-09-04 결정).
+          계약 비교 입력은 이 raw 에서 파생된 별도 산출물이고, JCS 역시 원본 전송 데이터와 canonical counterpart 를
+          분리하는 사용 모델을 전제한다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9530/" target="_blank" rel="noopener">&rarr; RFC 9530 Digest Fields</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">2</span>
+          <h3>JCS 정규 형식</h3>
+          <span class="pill">JCS Canonical Form</span>
+        </div>
+        <p class="desc">
+          정규화된 계약 입력의 JSON 기준선은 RFC 8785 JCS 로 고정한다.
+          JCS 는 I-JSON 입력, 토큰 사이 공백 0개, ECMAScript primitive serialization,
+          객체 property 재귀 정렬, UTF-8 출력을 요구한다.
+          따라서 pretty print 결과는 어떤 경우에도 비교 기준이 될 수 없다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">3</span>
+          <h3>정규화 전 I-JSON 게이트</h3>
+          <span class="pill">fail before canonicalize</span>
+        </div>
+        <p class="desc">
+          JCS 로 넘기기 전에 I-JSON 으로 먼저 검문한다.
+          중복 키, Unicode 로 표현 불가한 문자열, IEEE 754 binary64 로 표현 불가한 숫자, NaN/Infinity,
+          lone surrogate 는 정규화 대상이 아니라 <strong>실패 또는 fallback 대상</strong>이다.
+          게이트를 건너뛰면 파서가 조용히 값을 바꾼 뒤의 결과를 봉인하게 된다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">&rarr; RFC 7493 I-JSON</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">4</span>
+          <h3>헤더 정규화는 JCS 밖에서</h3>
+          <span class="pill">not JSON</span>
+        </div>
+        <p class="desc">
+          HTTP 헤더는 JSON 이 아니므로 JCS 에 섞지 않고 별도 규칙을 둔다.
+          field name 은 대소문자 무시, 같은 이름의 field line 결합은 그 field 가 comma-list 를 허용할 때만 가능하며
+          <code>Set-Cookie</code> 는 예외로 특별 취급한다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">&rarr; RFC 9110 HTTP Semantics</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">5</span>
+          <h3>미디어 타입 처리 경계</h3>
+          <span class="pill">representation</span>
+        </div>
+        <p class="desc">
+          JSON 파싱 여부는 <code>Content-Type</code> 과 <code>Content-Encoding</code> 을 해석한 뒤의
+          representation 의미로 판단한다. <code>application/json</code> 에는 charset parameter 가 정의되어 있지 않고,
+          네트워크로 오가는 JSON 은 UTF-8 이어야 한다.
+          따라서 charset 선언은 파싱 근거가 아니라 증거로만 남긴다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8259.html" target="_blank" rel="noopener">&rarr; RFC 8259 JSON</a>
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">&rarr; RFC 9110 HTTP Semantics</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">6</span>
+          <h3>변동 필드 레지스트리와 마스킹 경계</h3>
+          <span class="pill">path registry</span>
+        </div>
+        <p class="desc">
+          timestamp, id, nonce, token 류는 raw 를 건드리지 말고
+          <strong>normalized 단계에서 path registry</strong> 로 처리한다.
+          Jest propertyMatchers, insta redactions, ApprovalTests scrubbers 가 모두 같은 관례 —
+          비결정 값을 비교 직전에 안정화하고 원본은 그대로 둔다 — 를 제공한다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://jestjs.io/docs/snapshot-testing" target="_blank" rel="noopener">&rarr; Jest Snapshot Testing</a>
+        <a class="card-source" href="https://insta.rs/docs/redactions/" target="_blank" rel="noopener">&rarr; insta redactions</a>
+        <a class="card-source" href="https://approvaltestscpp.readthedocs.io/en/latest/generated_docs/explanations/Scrubbers.html" target="_blank" rel="noopener">&rarr; ApprovalTests Scrubbers</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">7</span>
+          <h3>매니페스트 해싱과 불변 baseline ID</h3>
+          <span class="pill">manifest digest</span>
+        </div>
+        <p class="desc">
+          baseline id 는 응답 바이트가 아니라 <strong>매니페스트의 digest</strong> 로 만든다.
+          매니페스트에는 raw digest, normalized JCS digest, redaction registry 버전, media type,
+          extraction mode 를 담는다.
+          HTTP digest fields 가 content digest 와 representation digest 를 분리하고
+          algorithm agility 를 두는 것이 이 구조의 선례다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9530/" target="_blank" rel="noopener">&rarr; RFC 9530 Digest Fields</a>
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ 4. 수치 기준 ═══════════════ -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">
+    허용치가 <code>0</code> 인 항목이 많다. 정규화는 "웬만하면 맞춰 준다" 가 아니라
+    "규격을 벗어나면 봉인하지 않는다" 는 게이트이기 때문이다.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">중복 JSON object member 허용치</td>
+          <td class="num-cell"><code>0</code></td>
+          <td>중복 이름은 I-JSON/JCS 위반 (RFC 7493)</td>
+        </tr>
+        <tr>
+          <td class="sys">안전 정수 범위</td>
+          <td class="num-cell"><code>-9007199254740991 ~ 9007199254740991</code></td>
+          <td>범위 밖 정수는 exact interchange 를 기대할 수 없음 (RFC 7493)</td>
+        </tr>
+        <tr>
+          <td class="sys">JCS 토큰 사이 추가 공백</td>
+          <td class="num-cell"><code>0 byte</code></td>
+          <td>JCS 정의 (RFC 8785)</td>
+        </tr>
+        <tr>
+          <td class="sys">lone surrogate / noncharacter 허용</td>
+          <td class="num-cell"><code>0</code></td>
+          <td>정상 surrogate pair 는 허용, 단독 surrogate 는 실패 (RFC 8785, RFC 7493)</td>
+        </tr>
+        <tr>
+          <td class="sys">manifest digest 기본 알고리즘</td>
+          <td class="num-cell"><code>sha-256</code> (옵션 <code>sha-512</code>)</td>
+          <td>추론 — RFC 9530 의 algorithm agility 와 sha-256/sha-512 사용례</td>
+        </tr>
+        <tr>
+          <td class="sys">baseline 내 시크릿 원문</td>
+          <td class="num-cell"><code>0건</code></td>
+          <td>2026-09-04 결정 — raw 보존과 시크릿 0건을 동시에 만족하기 위해 값만 마스킹</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">
+    표의 근거 열에 나오는 RFC 링크는 위 원칙 카드의 <span class="mono">&rarr;</span> 출처와 같은 문서다:
+    <span class="mono">RFC 7493 I-JSON</span> · <span class="mono">RFC 8785 JCS</span> · <span class="mono">RFC 9530 Digest Fields</span>.
+  </p>
+
+  <p class="desc" style="margin-top:26px">
+    허용치를 같은 축에 놓으면 이 문서의 성격이 드러난다. 여섯 항목 중 넷이 <code>0</code> 이다.
+  </p>
+
+  <div class="dist">
+    <div class="dist-row">
+      <span class="dist-label">중복 member</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">토큰 사이 공백</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0 byte</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">lone surrogate</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">baseline 내 시크릿</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0건</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">manifest digest 알고리즘</span>
+      <span class="dist-track"><span class="dist-fill f-cyan" style="width:50%"></span></span>
+      <span class="dist-val">1 + 옵션 1</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">안전 정수 범위</span>
+      <span class="dist-track"><span class="dist-fill" style="width:100%"></span></span>
+      <span class="dist-val">2^53&minus;1</span>
+    </div>
+  </div>
+  <p class="caption">
+    막대는 표의 허용치를 성격별로 표시한 것이다. 0 항목은 위치만 보이도록 최소 폭을 남겼고,
+    범위 항목은 상한을 100% 로 두었다.
+  </p>
+
+  <div class="rule-box">
+    <strong>게이트 위치가 중요하다:</strong> 위 허용치는 <em>파싱 이후</em> 검사가 아니라 <em>파싱 게이트</em> 에서 본다.
+    파서가 "last key wins" 로 중복 키를 삼킨 뒤에 검사하면 이미 값이 소실된 상태라 검사 자체가 의미가 없다.
+  </div>
+</div>
+
+<!-- ═══════════════ 5. 안티패턴 ═══════════════ -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">
+    다섯 가지 모두 "기준선이 JCS 하나" 라는 축을 흔든다. 흔들린 기준선은 회귀를 못 잡거나, 없는 회귀를 만들어 낸다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what">배열을 "안정화" 한다며 정렬</span>
+      </div>
+      <pre><code>입력:  {"items":[3,1,2]}
+
+"정렬해서 안정화"
+   ↓
+{"items":[1,2,3]}
+
+# 서버가 순서를 바꿔도 digest 가 같다
+# → 순서 회귀를 영원히 못 잡는다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">JCS 규칙 그대로 — object 만 정렬</span>
+      </div>
+      <pre><code>입력:  {"items":[3,1,2],"a":1}
+
+JCS
+   ↓
+{"a":1,"items":[3,1,2]}
+
+# property 는 정렬, array order 는 보존
+# 순서가 바뀌면 digest 가 바뀐다 = 회귀 검출</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    JCS 는 object property 만 정렬하고 array order 는 보존한다. 배열 정렬은 정규화가 아니라 실제 순서 회귀의 은폐다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what"><code>Set-Cookie</code> 를 comma-join 해서 정규화 입력에 투입</span>
+      </div>
+      <pre><code>Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ...
+Set-Cookie: b=2; Path=/
+
+comma-join
+   ↓
+Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ..., b=2; Path=/
+
+# Expires 안의 comma 와 구분되지 않는다
+# 쿠키가 잘못 병합된다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">예외 헤더로 특별 취급 — 라인 단위 보존</span>
+      </div>
+      <pre><code>headers:
+  set-cookie:
+    - "a=1; Path=/; Expires=Mon, 01 Sep 2026 ..."
+    - "b=2; Path=/"
+
+# field name 은 대소문자 무시
+# 결합은 comma-list 를 허용하는 field 에서만
+# Set-Cookie 는 결합하지 않는다</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    헤더 정규화는 JCS 밖의 별도 규칙이다. JSON 규칙을 헤더에 적용하려는 순간 이런 종류의 손실이 생긴다.
+  </p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 표시 산출물을 해싱</div>
+      <p class="desc">
+        pretty-print JSON, 키 삽입 순서, diff UI 문자열을 해싱해 기준선으로 쓴다.
+        표시 포매터가 바뀌면 계약이 통째로 깨진다. 서버는 아무것도 안 바뀌었는데 전 항목이 FAIL 로 뜬다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — JCS 결과만 해싱</div>
+      <p class="desc">
+        digest 대상은 JCS 바이트 하나다. 표시용 포매팅은 화면 전용 산출물로 따로 만들고,
+        기준선 경로와 섞지 않는다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:16px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 파싱 후 중복 키 검사</div>
+      <p class="desc">
+        파서가 "last key wins" 로 삼킨 뒤에 중복 키를 검사한다.
+        이미 값이 소실된 상태라 검사 자체가 무의미하다. 로그에는 "중복 없음" 이 찍힌다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 파싱 게이트에서 검문</div>
+      <p class="desc">
+        I-JSON 게이트를 JCS 앞에 두고 파싱 시점에 중복 키 · NaN/Infinity · lone surrogate 를 잡는다.
+        걸리면 정규화하지 않고 실패 또는 fallback 으로 보낸다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:16px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 마스킹 결과만 저장</div>
+      <p class="desc">
+        마스킹된 결과만 남기고 raw digest 와 원본 접근 경계를 기록하지 않는다.
+        회귀 조사 시 원본을 복원할 수 없어 baseline 이 증거로서 기능하지 못한다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 값만 가리고 자리는 남긴다</div>
+      <p class="desc">
+        시크릿은 자리를 유지한 채 값만 마스킹하고, raw digest 와 decoded representation digest 를
+        매니페스트에 나눠 기록한다. baseline 내 시크릿 원문은 0건이면서 구조는 복원 가능하다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 6. Gotchas ═══════════════ -->
+<div class="section">
+  <div class="section-label">Gotchas · 봉인 전 확인</div>
+  <p class="desc">
+    아래가 확인되지 않은 상태로 봉인하면, 나중에 나오는 diff 가 "서버 변경" 인지 "우리 정규화" 인지 구분할 수 없다.
+  </p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong>JCS property sort 는 UTF-16 code unit 순서다</strong> — unescaped property name 기준이라
+        UTF-8 byte sort 와 비ASCII 구간에서 결과가 달라진다. 자체 구현 정렬을 쓰지 말고 JCS 구현을 썼는가.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong>Unicode normalization 은 하지 않는다</strong> — NFC/NFD 가 화면상 같아 보여도 JCS digest 는 다르다.
+        "같아 보이는데 왜 다르냐" 는 대부분 이 케이스다.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong><code>Content-Encoding: gzip</code> 이면 digest 가 둘이다</strong> —
+        raw content bytes digest 와 decoded representation digest 가 다르므로 매니페스트에 둘을 구분해 기록했는가.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong>charset parameter 는 파싱 근거가 아니다</strong> —
+        <code>application/json; charset=utf-8</code> 의 charset 은 compliant recipient 에게 의미가 없지만,
+        증거에는 원문 그대로 남긴다.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>digest 를 뜬 대상이 JCS 바이트인가. pretty print 결과나 diff UI 문자열이 기준선 경로에 섞이지 않았는가.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>I-JSON 게이트가 JCS <em>앞</em> 에 있는가. 중복 키 · NaN/Infinity · binary64 밖 숫자 · lone surrogate 가
+        파싱 시점에 걸리는가.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>배열을 정렬하고 있지 않은가. JCS 는 object property 만 정렬한다 — array order 는 보존이 원칙이다.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>변동 필드(timestamp · id · nonce · token)를 raw 가 아니라 normalized 단계의 path registry 로 처리했는가.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&#10003;</span>
+      <span>헤더 정규화가 JCS 밖의 별도 규칙으로 돌아가는가. <code>Set-Cookie</code> 를 comma-join 하고 있지 않은가.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&#10003;</span>
+      <span>baseline id 가 응답 바이트가 아니라 매니페스트 digest 인가.
+        매니페스트에 raw digest · normalized JCS digest · redaction registry 버전 · media type · extraction mode 가 모두 들어 있는가.</span>
+    </li>
+  </ul>
+
+  <div class="rule-box">
+    <strong>한 줄 요약:</strong> raw 는 다시 열어 보기 위한 것이고, JCS 는 대조하기 위한 것이다.
+    둘을 한 산출물로 합치는 순간 증거도 기준선도 아니게 된다.
+  </div>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

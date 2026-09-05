@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API 인벤토리 정규화</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  /* Light — lime 은 흰 배경에서 대비가 안 나온다. 어두운 올리브로 내린다.
+     #4D7C0F 는 흰 배경 4.99 로 통과하지만 --surface2 위에서 4.46 이라 한 단계 더 내렸다 */
+  [data-theme="light"]{
+    --bg:#f6f7f3;--bg2:#eceee7;--surface:#ffffff;--surface2:#f1f3ec;--border:#dcdfd3;
+    --text:#181c14;--text2:#4d5348;--text3:#666D5F;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(246,247,243,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(163,230,53,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(163,230,53,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  [data-theme="light"] .nav-logo span{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:880px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — partial / pin / exact 처럼 3 단계를 표기할 때 쓴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-1{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,0.34)}
+  .s-2{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .s-3{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(163,230,53,0.3)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle{margin-bottom:clamp(18px,2.5vw,26px)}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;line-height:1.7;
+    border-left:3px solid var(--accent);padding-left:12px;margin-bottom:18px;max-width:880px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  [data-theme="light"] .card-source:hover{color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(163,230,53,0.05)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+
+  /* ── 수치 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,200px) 1fr minmax(64px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── before / after 쌍 ── */
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
+  .pair:last-child{margin-bottom:0}
+  .pane{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .pane-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .pane-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .pane-head{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .pane-what{font-size:12px;color:var(--text3);line-height:1.5;overflow-wrap:anywhere}
+  .pane pre{background:var(--surface);margin-bottom:0;flex:1}
+  .pair-caption{font-size:12px;color:var(--text3);margin:-6px 0 18px;line-height:1.6}
+
+  /* ── 비교 패널 (텍스트) ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 단계 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 220px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
+  .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
+  .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+  .rule-box strong{color:var(--accent)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">api-kit <span>/ inventory normalization</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>API 인벤토리 정규화</h1>
+<p class="subtitle">
+  OpenAPI 스펙, 사람이 쓴 md, curl·Talend·HAR 덤프를 하나의 operation 인벤토리로 합칠 때 적용하는 판단 규칙.
+  키 표준화, 출처 신뢰도, 충돌 처리, 커버리지 집계를 다룬다.
+  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+</p>
+
+<div class="section">
+  <div class="section-label">이 문서가 결정하는 것</div>
+  <div class="desc">
+    인벤토리는 <strong>계약 검증의 좌표계</strong>다. 어떤 operation 이 존재하고, 그 근거가 어디서 왔고,
+    스펙과 실호출이 어디서 갈라지는지를 여기서 정한다. 좌표계가 흔들리면 이후의 probe·계약·회귀 diff 가
+    전부 엉뚱한 대상에 붙는다.
+  </div>
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">step 1 · 수집</span>
+      <span class="what">서로 다른 3 종 출처</span>
+      <span class="out">OpenAPI 문서(계약 설명), curl·Talend·HAR 덤프(실제로 본 호출), 사람이 쓴 md(설명 증거).
+      형식도 완결성도 다르다.</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">step 2 · 정규화</span>
+      <span class="what">canonical key 로 접기</span>
+      <span class="out">키는 <span class="mono">METHOD + normalized path template</span>.
+      파라미터는 <span class="mono">(in, name)</span> 쌍. 모든 필드에 provenance 를 남긴다.</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">step 3 · 집계</span>
+      <span class="what">합치지 말고 나눠 센다</span>
+      <span class="out">operations / conflicts / coverage 3 축.
+      충돌은 버리지 않고 레코드로 보존한다.</span>
+    </div>
+  </div>
+  <pre><code>출처 3 종                       정규화                                  산출
+──────────────                  ──────────────────────────              ────────────────
+openapi.yaml  ─┐
+api-notes.md  ─┼──&gt;  key   = METHOD + normalized path      ──&gt;  operations[]  (canonical)
+curl-dump.sh  ─┤     param = (in, name)                          conflicts[]   (미병합 보존)
+har-export    ─┘     prov  = source + confidence                 coverage{}    (3 축 분리)
+
+                     operationId 는 별칭 컬럼에만 저장 — 키로 쓰지 않는다</code></pre>
+  <div class="rule-box">
+    <strong>한 줄 규칙.</strong> 병합은 근거가 완전히 일치할 때만 한다.
+    하나라도 어긋나면 병합이 아니라 <span class="mono">conflict</span> 다.
+    충돌을 지우는 순간 인벤토리는 계약 검증 근거로서의 자격을 잃는다.
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">원칙 9</div>
+  <p class="lead">
+    아홉 개 전부 "무엇을 같은 것으로 볼 것인가" 와 "무엇을 다르게 남길 것인가" 를 가르는 규칙이다.
+    앞의 다섯은 키와 파라미터의 동일성, 뒤의 넷은 충돌·집계의 보존 정책을 다룬다.
+  </p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">1</span>
+          <h3>Operation Key 표준화</h3>
+          <span class="pill">canonical key</span>
+        </div>
+        <div class="desc">
+          operation 의 기본 키는 <code>METHOD + normalized path template</code> 로 잡는다.
+          <code>operationId</code> 는 별칭 컬럼에만 저장하고 키로 쓰지 않는다.
+          <code>operationId</code> 는 있으면 유일해야 하지만 <strong>선택 필드이고 대소문자를 구분</strong>하므로,
+          원시 키로 삼으면 md·curl 출처와의 매칭이 깨진다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#operation-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Operation Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">2</span>
+          <h3>Source Confidence Matrix</h3>
+          <span class="pill">provenance</span>
+        </div>
+        <div class="desc">
+          출처마다 구조 신뢰도를 다르게 매기고, 모든 필드에 provenance 를 남긴다.
+          유효한 OpenAPI 는 계약 설명 형식이므로 최상위, curl·Talend·HAR 는 "실제로 본 호출" 증거,
+          사람이 쓴 md 는 설명 증거다.
+          <strong>신뢰도가 높은 출처라도 낮은 출처의 값을 자동으로 덮어쓰지 않는다</strong> — 덮어쓰면 drift 가 사라진다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#introduction" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Introduction</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">3</span>
+          <h3>Path Template Resolution</h3>
+          <span class="pill">matching order</span>
+        </div>
+        <div class="desc">
+          concrete path 는 templated path 보다 먼저 매칭한다. <code>/users/me</code> 는 <code>/users/{id}</code> 보다 우선한다.
+          같은 hierarchy 에서 <code>{id}</code> 와 <code>{name}</code> 처럼 <strong>변수명만 다른 path 는 동일 path</strong> 로 보고 무효 처리한다.
+          모호한 후보는 임의로 고르지 않고 conflict 로 남긴다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#paths-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Paths Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">4</span>
+          <h3>Parameter Location Canonicalization</h3>
+          <span class="pill">(in, name)</span>
+        </div>
+        <div class="desc">
+          파라미터 키는 <code>(in, name)</code> 쌍이다. <code>in</code> 은
+          <code>path</code> / <code>query</code> / <code>header</code> / <code>cookie</code> 넷으로 정규화하고,
+          <code>in: path</code> 는 항상 required 로 강제한다.
+          HTTP header 이름은 case-insensitive 이지만 OpenAPI 파라미터 이름 자체는 case-sensitive 이므로,
+          <strong>header 비교만 case-fold</strong> 하고 나머지는 원문 그대로 비교한다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#parameter-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Parameter Object</a>
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html#name-field-names" target="_blank" rel="noopener">&rarr; RFC 9110 Field Names</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">5</span>
+          <h3>Reserved Protocol Headers 분리</h3>
+          <span class="pill">3 헤더 예외</span>
+        </div>
+        <div class="desc">
+          <code>Accept</code>, <code>Content-Type</code>, <code>Authorization</code> 은 파라미터 테이블에 넣지 않는다.
+          OpenAPI 는 이 셋을 header parameter 로 정의해도 무시한다.
+          각각 media negotiation, requestBody media type, security requirement 에서만 파생시킨다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#parameter-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Parameter Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">6</span>
+          <h3>Media Type 우선순위</h3>
+          <span class="pill">most specific</span>
+        </div>
+        <div class="desc">
+          request/response <code>content</code> 에서 여러 media range 가 동시에 매칭되면
+          가장 구체적인 key <strong>하나만</strong> 적용한다. <code>text/plain</code> 이 <code>text/*</code> 보다 우선한다.
+          wildcard 는 fallback 후보 목록에만 남기고 기본 선택값으로 쓰지 않는다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#request-body-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Request Body Object</a>
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#response-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Response Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">7</span>
+          <h3>Auth Scope Mapping</h3>
+          <span class="pill">OR / AND</span>
+        </div>
+        <div class="desc">
+          operation-level <code>security</code> 가 있으면 top-level <code>security</code> 를 override 한다.
+          security requirement <strong>배열의 원소 간 관계는 OR</strong>,
+          <strong>한 객체 안의 여러 scheme 은 AND</strong> 다.
+          OAuth2 / OpenID Connect scheme 의 값 배열은 scope 목록이고, 그 외 scheme 은 빈 배열이어야 한다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#security-requirement-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Security Requirement Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">8</span>
+          <h3>Duplicate Collapse + Conflict Flagging</h3>
+          <span class="pill">보존 우선</span>
+        </div>
+        <div class="desc">
+          canonical key 가 같은 후보만 collapse 한다.
+          method, path template, parameter location, auth scheme, media type 중
+          <strong>하나라도 충돌하면 병합하지 않고</strong> conflict 레코드로 보존한다.
+          충돌을 버리는 순간 인벤토리는 계약 검증 근거로 쓸 수 없다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#operation-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Operation Object</a>
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#paths-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Paths Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">9</span>
+          <h3>Coverage Accounting 분리</h3>
+          <span class="pill">3 축</span>
+        </div>
+        <div class="desc">
+          커버리지는 단일 숫자로 합치지 않는다.
+          <code>OpenAPI operation</code>, <code>observed-only request</code>(스펙에 없는데 덤프에서 관측된 호출),
+          <code>generated probe</code> 세 축을 각각 센다.
+          합산하면 <strong>스펙에 없는 실호출이 커버리지에 흡수돼</strong> 블랙박스 검증의 핵심 신호가 사라진다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#paths-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Paths Object</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <div class="desc">
+    앞 네 줄은 사양이 정한 값이고, 뒤 세 줄은 이 킷의 추론값이다.
+    <span class="tag tag-neutral">근거 = 추론</span> 인 항목은 실측으로 조정할 여지가 있다.
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+          <th>근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">operation / path item 내 <code>(name, in)</code> 중복 허용치</td>
+          <td class="num-cell">0</td>
+          <td><a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#operation-object" target="_blank" rel="noopener">&rarr; OpenAPI Operation Object</a></td>
+        </tr>
+        <tr>
+          <td class="sys">같은 hierarchy 내 path template ambiguity 허용치</td>
+          <td class="num-cell">0</td>
+          <td><a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#paths-object" target="_blank" rel="noopener">&rarr; OpenAPI Paths Object</a></td>
+        </tr>
+        <tr>
+          <td class="sys">header name case 구분</td>
+          <td class="num-cell">0 (case-insensitive 비교)</td>
+          <td><a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html#name-field-names" target="_blank" rel="noopener">&rarr; RFC 9110 Field Names</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>servers</code> 누락 시 기본 server URL</td>
+          <td class="num-cell">/</td>
+          <td><a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#paths-object" target="_blank" rel="noopener">&rarr; OpenAPI Paths Object</a></td>
+        </tr>
+        <tr>
+          <td class="sys">source confidence 기본값</td>
+          <td class="num-cell">OpenAPI 1.00 / observed curl·Talend·HAR 0.80 / md 0.55 / synthetic inference 0.35</td>
+          <td><span class="tag tag-neutral">추론</span></td>
+        </tr>
+        <tr>
+          <td class="sys">auto-collapse 조건</td>
+          <td class="num-cell">method·path-template exact match <strong>그리고</strong> param-set Jaccard &gt;= 0.80</td>
+          <td><span class="tag tag-neutral">추론</span></td>
+        </tr>
+        <tr>
+          <td class="sys">conflict 판정 임계</td>
+          <td class="num-cell">top-2 후보 confidence 차이 &lt; 0.15</td>
+          <td><span class="tag tag-neutral">추론</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:26px">source confidence 기본값</h4>
+  <div class="dist">
+    <div class="dist-row">
+      <span class="dist-label">OpenAPI</span>
+      <div class="dist-track"><div class="dist-fill" style="width:100%"></div></div>
+      <span class="dist-val">1.00</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">observed curl·Talend·HAR</span>
+      <div class="dist-track"><div class="dist-fill f-cyan" style="width:80%"></div></div>
+      <span class="dist-val">0.80</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">사람이 쓴 md</span>
+      <div class="dist-track"><div class="dist-fill f-yellow" style="width:55%"></div></div>
+      <span class="dist-val">0.55</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">synthetic inference</span>
+      <div class="dist-track"><div class="dist-fill f-mute" style="width:35%"></div></div>
+      <span class="dist-val">0.35</span>
+    </div>
+  </div>
+  <p class="caption">
+    이 값은 <strong>정렬 순서</strong>이지 진실의 등급이 아니다. confidence 가 높다고 낮은 출처의 값을 덮어쓰지 않는다(원칙 2).
+    두 후보의 차이가 0.15 미만이면 승자를 뽑지 말고 conflict 로 남긴다.
+  </p>
+
+  <div class="rule-box">
+    <strong>collapse 판정 순서.</strong>
+    ① canonical key 일치 확인 → ② method·path-template exact match → ③ param-set Jaccard &gt;= 0.80 →
+    ④ auth scheme·media type 충돌 없음. 하나라도 실패하면 병합하지 않는다.
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <div class="desc">
+    아래 다섯 가지가 인벤토리를 조용히 망가뜨린다. 모두 "에러 없이 통과하지만 결과가 틀린" 부류다.
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>안티패턴</th>
+          <th>문제</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys"><code>operationId</code> 만으로 dedupe</td>
+          <td>선택 필드라 외부 덤프에는 대부분 없어 dedupe 자체가 동작하지 않는다</td>
+        </tr>
+        <tr>
+          <td class="sys">raw path 문자열만 비교</td>
+          <td><code>/users/me</code> 와 <code>/users/{id}</code> 의 우선순위를 놓쳐 잘못된 operation 에 probe 를 붙인다</td>
+        </tr>
+        <tr>
+          <td class="sys">path/query/header/cookie 를 한 namespace 에 병합</td>
+          <td>이름이 같고 위치가 다른 파라미터가 서로를 덮어써 사라진다</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>Authorization</code> 을 일반 header parameter 로 저장</td>
+          <td>auth scheme·scope 판단 경로가 끊겨 인증 요구사항을 재현할 수 없다</td>
+        </tr>
+        <tr>
+          <td class="sys">충돌 시 가장 최신 파일만 채택</td>
+          <td>스펙과 실호출의 drift 를 숨긴다 — 계약 검증 문서로서의 가치가 사라진다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:28px">① 키 산출 — raw path 비교 vs 템플릿 우선순위</h4>
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what">문자열이 다르므로 서로 다른 operation 으로 남는다</span>
+      </div>
+      <pre><code>key = "GET " + raw_url_path
+
+GET /users/me      -&gt; key "GET /users/me"
+GET /users/42      -&gt; key "GET /users/42"
+GET /users/43      -&gt; key "GET /users/43"
+
+# 결과: 사용자 수만큼 operation 이 늘어난다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">concrete 를 먼저 매칭하고, 남는 것만 세그먼트 단위로 변수화</span>
+      </div>
+      <pre><code>key = METHOD + normalized_path_template
+
+GET /users/me      -&gt; "GET /users/me"        (concrete 우선)
+GET /users/42      -&gt; "GET /users/{id}"
+GET /users/43      -&gt; "GET /users/{id}"
+
+# operationId 는 alias 컬럼에만: ["getUser", "GetUser"]</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    원칙 1 · 3. <code>/users/me</code> 를 <code>{id}</code> 로 흡수해서도 안 되고, concrete URL 마다 키를 새로 만들어서도 안 된다.
+  </p>
+
+  <h4 style="margin-top:28px">② 파라미터 — 단일 namespace vs (in, name) 쌍</h4>
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what">위치가 다른 동명 파라미터가 서로를 덮어쓴다</span>
+      </div>
+      <pre><code>params = {
+  "id": { required: true },   # path 의 id
+  "id": { required: false }   # query 의 id 가 덮어씀
+}
+
+# Authorization 까지 같은 표에 섞임
+params["Authorization"] = "Bearer ..."</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">키가 쌍이므로 충돌하지 않고, 예약 헤더는 표 밖에 있다</span>
+      </div>
+      <pre><code>params = [
+  { in: "path",  name: "id", required: true  },
+  { in: "query", name: "id", required: false }
+]
+
+# Accept / Content-Type / Authorization 은
+# media negotiation · requestBody · security 에서 파생</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">원칙 4 · 5. <code>in: path</code> 는 required 강제. header 비교만 case-fold 한다.</p>
+
+  <div class="compare" style="margin-top:28px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 충돌을 승자독식으로 해결</div>
+      <div class="desc">
+        스펙과 curl 덤프의 auth scheme 이 다르자 confidence 가 높은 OpenAPI 값으로 통일하고 덤프 쪽을 버렸다.
+        인벤토리에는 경고 하나 남지 않는다.
+      </div>
+      <div class="desc">
+        <strong>결과</strong> — 실제 서버가 스펙과 다르게 동작한다는 신호(drift)가 통째로 삭제된다.
+        회귀 diff 는 계속 PASS 를 낸다.
+      </div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 충돌을 레코드로 보존</div>
+      <div class="desc">
+        <code>conflicts[]</code> 에 두 후보를 모두 남기고 각각의 provenance 와 confidence 를 붙인다.
+        top-2 차이가 0.15 미만이면 자동 채택 자체를 하지 않는다.
+      </div>
+      <div class="desc">
+        <strong>결과</strong> — drift 가 눈에 보이고, 사람이 판단할 대상 목록이 된다.
+      </div>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:20px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 커버리지 한 숫자</div>
+      <div class="desc">
+        "커버리지 92%" 하나로 보고한다. 스펙에 없는데 덤프에서 관측된 호출 12 건이 분모·분자 어딘가에 섞여
+        수치가 올라간다.
+      </div>
+      <div class="desc"><strong>결과</strong> — 블랙박스 검증에서 가장 중요한 신호인 <em>스펙 밖 실호출</em>이 보이지 않는다.</div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 3 축 분리 집계</div>
+      <div class="desc">
+        <code>OpenAPI operation</code> / <code>observed-only request</code> / <code>generated probe</code> 를 각각 센다.
+        축끼리 더하지 않는다.
+      </div>
+      <div class="desc"><strong>결과</strong> — "스펙에 없는 호출 12 건" 이 독립 숫자로 남아 후속 작업의 입력이 된다.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Gotchas — 인벤토리 확정 전 확인</div>
+  <div class="desc">
+    아래 항목은 전부 "돌아가는 것처럼 보이는" 실패다. 인벤토리를 확정하기 전에 하나씩 대조하라.
+  </div>
+  <ul class="checklist">
+    <li>
+      <span class="check c-warn">!</span>
+      <span>
+        <strong>OpenAPI path template 변수값에는 unescaped <code>/</code>, <code>?</code>, <code>#</code> 가 들어갈 수 없다.</strong>
+        관측 덤프의 concrete URL 을 역으로 템플릿화할 때 슬래시가 포함된 세그먼트를 하나의 <code>{id}</code> 로 접으면
+        실제로는 존재하지 않는 operation 을 만든다. <strong>세그먼트 경계에서만 변수화</strong>한다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span>
+        <strong><code>GET</code> request body 는 문법상 허용되지만 의미가 정의돼 있지 않다.</strong>
+        스펙에 <code>GET</code> + requestBody 가 있어도 probe 기본값으로 body 를 생성하지 않는다.
+        서버·프록시마다 처리가 달라 실패가 계약 위반인지 전송 계층 문제인지 구분되지 않는다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span>
+        <strong>md·curl 예시는 auth·base URL·environment 를 생략하는 경우가 많다.</strong>
+        이런 출처는 "불완전한 관측치" 로 표시하고, 누락 필드를 기본값으로 채우지 말고 미상(unknown)으로 남긴다.
+        채우면 스펙과의 diff 가 가짜로 사라진다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-bad">×</span>
+      <span>
+        <strong><code>operationId</code> 는 대소문자를 구분한다.</strong>
+        <code>getUser</code> 와 <code>GetUser</code> 는 서로 다른 별칭이다.
+        별칭 매칭에서 case-fold 하면 서로 다른 operation 이 하나로 붙는다.
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        <code>Accept</code> · <code>Content-Type</code> · <code>Authorization</code> 이 파라미터 테이블에 남아 있지 않은지 확인했다(원칙 5).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        <code>in: path</code> 파라미터가 전부 required 로 강제됐고, header 비교만 case-fold 되는지 확인했다(원칙 4).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        operation-level <code>security</code> 가 top-level 을 override 했고, 배열 원소 간 OR / 객체 내 AND 관계가 유지되는지 확인했다(원칙 7).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        wildcard media range(<code>text/*</code>)가 기본 선택값이 아니라 fallback 후보로만 남아 있는지 확인했다(원칙 6).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        커버리지가 세 축으로 분리 보고되고, 어디에서도 하나의 백분율로 합산되지 않는지 확인했다(원칙 9).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        <code>conflicts[]</code> 가 비어 있다면 그것이 <strong>진짜 충돌 없음인지</strong>, 아니면 자동 채택이 충돌을 삼킨 것인지 확인했다.
+      </span>
+    </li>
+  </ul>
+</div>
+
+<div class="section">
+  <div class="section-label">출처</div>
+  <div class="desc">
+    이 페이지의 모든 규칙은 아래 1 차 사양에서 나왔다. 추론 표시가 붙은 세 개의 수치만 이 킷의 설계 결정이다.
+  </div>
+  <div class="info-card">
+    <div class="sources" style="border-top:none;padding-top:0">
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#operation-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Operation Object</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#introduction" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Introduction</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#paths-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Paths Object</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#parameter-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Parameter Object</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#request-body-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Request Body Object</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#response-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Response Object</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#security-requirement-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Security Requirement Object</a>
+      <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html#name-field-names" target="_blank" rel="noopener">&rarr; RFC 9110 Field Names</a>
+    </div>
+    <div class="source-badge">추론 3 건 — source confidence 기본값 · auto-collapse 조건 · conflict 판정 임계. 출처 없음, 이 킷의 설계 결정</div>
+  </div>
+  <p class="caption">소스 문서: <span class="mono">docs/api/discovery/api-inventory-normalization.md</span> (v0.1.0 · 2026-09-04)</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

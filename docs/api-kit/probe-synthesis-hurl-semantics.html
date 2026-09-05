@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe 합성과 Hurl 실행 의미론</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  /* Light — lime 은 흰 배경에서 대비가 안 나온다. 어두운 올리브로 내린다.
+     #4D7C0F 는 흰 배경 4.99 로 통과하지만 --surface2 위에서 4.46 이라 한 단계 더 내렸다 */
+  [data-theme="light"]{
+    --bg:#f6f7f3;--bg2:#eceee7;--surface:#ffffff;--surface2:#f1f3ec;--border:#dcdfd3;
+    --text:#181c14;--text2:#4d5348;--text3:#666D5F;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(246,247,243,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(163,230,53,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(163,230,53,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  [data-theme="light"] .nav-logo span{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:880px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — partial / pin / exact 처럼 3 단계를 표기할 때 쓴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-1{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,0.34)}
+  .s-2{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .s-3{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(163,230,53,0.3)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle{margin-bottom:clamp(18px,2.5vw,26px)}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;line-height:1.7;
+    border-left:3px solid var(--accent);padding-left:12px;margin-bottom:18px;max-width:880px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  [data-theme="light"] .card-source:hover{color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(163,230,53,0.05)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+
+  /* ── 수치 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,200px) 1fr minmax(64px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── before / after 쌍 ── */
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
+  .pair:last-child{margin-bottom:0}
+  .pane{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .pane-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .pane-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .pane-head{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .pane-what{font-size:12px;color:var(--text3);line-height:1.5;overflow-wrap:anywhere}
+  .pane pre{background:var(--surface);margin-bottom:0;flex:1}
+  .pair-caption{font-size:12px;color:var(--text3);margin:-6px 0 18px;line-height:1.6}
+
+  /* ── 비교 패널 (텍스트) ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 단계 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 220px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
+  .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
+  .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+  .rule-box strong{color:var(--accent)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">api-kit <span>/ probe synthesis</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>Probe 합성과 Hurl 실행 의미론</h1>
+<p class="subtitle">
+  인벤토리의 operation 에서 실행 가능한 <span class="mono">.hurl</span> probe 를 합성할 때의 값 생성 순서, 직렬화 규칙,
+  그리고 Hurl 8.0.1 실행 엔진의 의미론을 다룬다.
+  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+</p>
+
+<div class="warn-banner">
+  <h2>이 페이지의 Hurl 수치는 문서 기재이고, 5 건은 실측 대조 전이다</h2>
+  <p>
+    리서치 시점에 로컬에 <code>hurl</code> 바이너리가 없었다.
+    따라서 이 페이지에 적힌 Hurl 8.0.1 관련 값은 <strong>전부 공식 문서에서 옮긴 것</strong>이고,
+    실행으로 확인한 값은 <strong>하나도 없다</strong>.
+    그중 아래 5 건은 리서치 로그가 <span class="mono">/api-probe</span> 구현 시 실제 Hurl 8.0.1 로
+    대조하라고 명시적으로 남긴 항목이다.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>문서에 기재한 값</th>
+          <th>확인 상태</th>
+          <th>출처</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">옵션 우선순위</td>
+          <td class="num-cell"><code>env</code> &lt; <code>CLI</code> &lt; <code>[Options]</code></td>
+          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#configuration</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>--retry-interval</code> 기본</td>
+          <td class="num-cell">1000 ms</td>
+          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#run-options</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>--max-redirs</code> 기본</td>
+          <td class="num-cell">50 (<code>-1</code> 은 무제한)</td>
+          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#http-options</a></td>
+        </tr>
+        <tr>
+          <td class="sys">exit code</td>
+          <td class="num-cell">0 성공 / 1 CLI 파싱 / 2 입력 파싱 / 3 런타임 / 4 assert</td>
+          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#exit-codes</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>--secret</code> 마스킹 범위</td>
+          <td class="num-cell">stderr 로그·리포트만. <strong>stdout 응답과 <code>--json</code> stdout 은 가리지 않음</strong></td>
+          <td><span class="tag tag-bad">문서 기재 · 미검증 · 설계 종속</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">&rarr; hurl.dev/docs/templates.html#secrets</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:14px">
+    <strong>마지막 항목이 가장 중요하다 — api-kit 의 redaction 설계 전체가 여기 걸린다.</strong>
+    Hurl 의 <code>--secret</code> 이 stdout 을 가리지 않는다는 문서 기재가,
+    "Hurl 에 맡기지 않고 킷이 자체 scrubber 를 거친 데이터만 저장·렌더한다" 는 결정(설계문서 §8.2)의 근거다.
+    실측에서 다르게 나오면 §8.2 를 다시 봐야 한다.
+  </p>
+  <p>
+    <span class="tag tag-warn">문서 기재 · 미검증</span> 표시가 붙은 값은 공식 문서를 옮긴 것이다.
+    이 페이지 어디에도 <span class="tag tag-ok">실측</span> 표시는 없다 — 실행으로 확인한 값이 아직 없기 때문이다.
+    표시가 없는 값은 사양 문서(OpenAPI · RFC · JSON Schema)에서 온 규범이거나 이 킷의 추론이며,
+    <span class="tag tag-neutral">추론</span> 으로 따로 구분한다.
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-label">이 문서가 결정하는 것</div>
+  <div class="desc">
+    operation 하나를 실행 가능한 요청으로 바꾸려면 세 가지를 정해야 한다.
+    <strong>어떤 값을 넣을지</strong>, <strong>그 값을 어떻게 직렬화할지</strong>,
+    그리고 <strong>돌아온 실패를 어떻게 분류할지</strong>.
+    셋 중 마지막이 가장 자주 생략되고, 생략하면 회귀 diff 가 노이즈에 덮인다.
+  </div>
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">step 1 · 값</span>
+      <span class="what">example &rarr; default &rarr; enum</span>
+      <span class="out">우선순위대로 고르고, 고른 뒤 schema 검증을 한 번 더 돌린다.
+      <code>default</code> 는 annotation 이지 validation 이 아니다.</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">step 2 · 직렬화</span>
+      <span class="what">경로는 하나만</span>
+      <span class="out">query 는 URL 문자열과 <code>[Query]</code> 섹션 중 하나만.
+      <code>Accept</code>·<code>Content-Type</code>·<code>Authorization</code> 은 명시 생성.</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">step 3 · 분류</span>
+      <span class="what">exit code 로 나눈다</span>
+      <span class="out"><code>4</code> 만 계약 위반. <code>2</code> 는 probe 생성 버그,
+      <code>3</code> 은 네트워크·환경 문제다.</span>
+    </div>
+  </div>
+  <pre><code>operation                     probe 합성                          실행 / 분류
+─────────────                 ──────────────────────────          ─────────────────────
+schema        ─┐              값 = example &gt; default &gt; enum
+examples      ─┼──&gt;           query = [Query] 섹션 하나만    ──&gt;   hurl --test *.hurl
+security      ─┤              헤더 3 종 명시 생성                    │
+requestBody   ─┘              의존 흐름은 한 파일 안에               ├─ exit 4  계약 위반
+                                                                    ├─ exit 3  환경 문제
+                              파일 경계 = 격리 경계                  ├─ exit 2  probe 버그
+                              (--test 는 파일 단위 병렬)             └─ exit 0  통과</code></pre>
+  <div class="rule-box">
+    <strong>한 줄 규칙.</strong> 추론에 맡기는 순간 실패 원인이 흐려진다.
+    값도, 헤더도, 직렬화 경로도 명시적으로 만든다.
+    <span class="mono">non-zero = 실패</span> 로 뭉뚱그리지 않는다.
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">원칙 9</div>
+  <p class="lead">
+    1~3 은 요청을 만드는 규칙, 4~5 는 흐름과 격리, 6~9 는 Hurl 실행 엔진의 의미론이다.
+    6~9 의 값은 위 배너대로 <strong>문서 기재 · 미검증</strong> 이다.
+  </p>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">1</span>
+          <h3>Example-Default-Enum Precedence</h3>
+          <span class="pill">값 생성</span>
+        </div>
+        <div class="desc">
+          값 생성 우선순위는 media type 의 explicit <code>example</code> / <code>examples</code> &rarr;
+          schema <code>example</code> &rarr; JSON Schema <code>default</code> &rarr;
+          <code>const</code> / <code>enum</code> 순이다.
+          <strong><code>default</code> 는 validation 키워드가 아니라 annotation</strong> 이므로
+          그 값이 schema 를 만족한다는 보장이 없다.
+          <code>enum</code> 에서 값을 고른 뒤에도 schema 검증을 한 번 더 돌린다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#media-type-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Media Type Object</a>
+        <a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-validation" target="_blank" rel="noopener">&rarr; JSON Schema 2020-12 Validation</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">2</span>
+          <h3>Deterministic Query Serialization</h3>
+          <span class="pill">경로 하나</span>
+        </div>
+        <div class="desc">
+          query 는 URL 문자열과 <code>[Query]</code> 섹션 중 <strong>한 경로만</strong> 쓴다.
+          Hurl 은 둘 다 있으면 둘 다 전송하므로 파라미터가 중복된다.
+          기본은 <code>[Query]</code> 섹션이고,
+          OpenAPI 의 <code>style</code> / <code>explode</code> / <code>allowReserved</code> 를 반영해 직렬화한다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/request.html" target="_blank" rel="noopener">&rarr; Hurl Request</a>
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#parameter-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Parameter Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">3</span>
+          <h3>Explicit Accept / Content-Type / Authorization</h3>
+          <span class="pill">추론 금지</span>
+        </div>
+        <div class="desc">
+          이 세 헤더는 추론에 맡기지 않고 명시적으로 생성한다.
+          <code>Accept</code> 는 기대 response media type,
+          <code>Content-Type</code> 은 requestBody media type,
+          <code>Authorization</code> 은 해당 operation 에 적용되는 security requirement 에서 각각 파생시킨다.
+          생략하면 클라이언트 기본값이 끼어들어
+          <strong>실패 원인이 계약인지 전송인지 구분되지 않는다.</strong>
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html#name-accept" target="_blank" rel="noopener">&rarr; RFC 9110 Accept</a>
+        <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#parameter-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Parameter Object</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">4</span>
+          <h3>Dependency Capture</h3>
+          <span class="pill">[Captures]</span>
+        </div>
+        <div class="desc">
+          앞 entry 의 응답에서 <strong>필요한 값만</strong> <code>[Captures]</code> 로 뽑아 이후 entry 의 변수로 쓴다.
+          Hurl 은 status, header, cookie, body, jsonpath, xpath, duration 등을 capture 할 수 있다.
+          같은 이름으로 다시 capture 하면 새 값이 이전 값을 덮으므로,
+          체인 안에서 이름을 재사용하지 않는다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/capturing-response.html" target="_blank" rel="noopener">&rarr; Hurl Capturing Response</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">5</span>
+          <h3>Entry Isolation</h3>
+          <span class="pill">파일 = 경계</span>
+        </div>
+        <div class="desc">
+          상태를 공유해야 하는 흐름(로그인 &rarr; 조회 &rarr; 삭제 등)은 반드시 한 <code>.hurl</code> 파일 안에 둔다.
+          Hurl 은 같은 파일 안에서 cookie store 를 공유하고,
+          <code>--test</code> 모드는 <strong>파일 단위로 병렬 실행</strong>하므로
+          파일 간 의존은 실행 순서를 보장받지 못한다. 파일 경계 = 격리 경계다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/entry.html" target="_blank" rel="noopener">&rarr; Hurl Entry</a>
+        <a class="card-source" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">6</span>
+          <h3>Hurl Option Precedence</h3>
+          <span class="pill">env &lt; CLI &lt; [Options]</span>
+          <span class="tag tag-warn">미검증</span>
+        </div>
+        <div class="desc">
+          설정 우선순위는 environment variable &lt; command-line option &lt; per-entry <code>[Options]</code> 다.
+          뒤쪽이 앞쪽을 이긴다.
+          cli-only 옵션은 <code>[Options]</code> 로 내려쓰지 않는다 —
+          파일에 적혀 있어도 적용되지 않아 <strong>문서와 실제 실행이 어긋난다.</strong>
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual — Configuration</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">7</span>
+          <h3>Response Capture Policy</h3>
+          <span class="pill">최소 assert</span>
+        </div>
+        <div class="desc">
+          최소 assert 는 expected HTTP status 하나다.
+          body 전체 capture 는 downstream dependency 가 실제로 그 값을 쓰거나 진단 목적일 때만 켠다.
+          일반 body / query capture 는 <strong>decompressed·decoded 본문 기준</strong>이고,
+          원본 바이트가 필요하면 <code>rawbytes</code> 를 쓴다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/response.html" target="_blank" rel="noopener">&rarr; Hurl Response</a>
+        <a class="card-source" href="https://hurl.dev/docs/capturing-response.html" target="_blank" rel="noopener">&rarr; Hurl Capturing Response</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">8</span>
+          <h3>Continue-on-error Strategy</h3>
+          <span class="pill">독립 배치 전용</span>
+        </div>
+        <div class="desc">
+          기본 동작은 assert error 발생 시 해당 파일 실행 중단이다.
+          <code>--continue-on-error</code> 는 assert error 에도 파일 끝까지 진행시키지만,
+          dependency chain 에서는 <strong>오염된 변수로 후속 요청이 돌아 전이 실패</strong>를 만든다.
+          서로 독립인 probe 배치에만 켠다.
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">9</span>
+          <h3>Exit Code 기반 실패 분류</h3>
+          <span class="pill">4 만 계약</span>
+          <span class="tag tag-warn">미검증</span>
+        </div>
+        <div class="desc">
+          Hurl 종료 코드로 실패 종류를 나눈다.
+          <code>4</code>(assert)만 계약 위반이고, <code>2</code>(input parse)는 probe 생성 버그,
+          <code>3</code>(runtime)은 네트워크·환경 문제다.
+          이 구분 없이 non-zero 를 전부 계약 실패로 보고하면
+          <strong>회귀 diff 가 노이즈로 덮인다.</strong>
+        </div>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <div class="desc">
+    Hurl 관련 값은 전부 공식 문서 기재이며 실행 확인 전이다.
+    배너의 5 건과 겹치는 행에는 <span class="tag tag-warn">미검증</span> 를 다시 표시했다.
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+          <th>확인</th>
+          <th>근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">Hurl 엔진 버전</td>
+          <td class="num-cell">8.0.1 (release 2026-04-28)</td>
+          <td><span class="tag tag-neutral">문서 기재</span></td>
+          <td><a class="card-source" href="https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1" target="_blank" rel="noopener">&rarr; Hurl 8.0.1 릴리스</a></td>
+        </tr>
+        <tr>
+          <td class="sys">옵션 우선순위 랭크</td>
+          <td class="num-cell">1 env &lt; 2 CLI &lt; 3 per-entry <code>[Options]</code></td>
+          <td><span class="tag tag-warn">미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>--max-redirs</code> 기본값</td>
+          <td class="num-cell">50 (<code>-1</code> = unlimited)</td>
+          <td><span class="tag tag-warn">미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; Hurl Manual — HTTP Options</a></td>
+        </tr>
+        <tr>
+          <td class="sys">retry 기본값</td>
+          <td class="num-cell">0 = no retry, <code>-1</code> = unlimited</td>
+          <td><span class="tag tag-neutral">문서 기재</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>--retry-interval</code> 기본값</td>
+          <td class="num-cell">1000 ms</td>
+          <td><span class="tag tag-warn">미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
+        </tr>
+        <tr>
+          <td class="sys">entry 번호 시작값</td>
+          <td class="num-cell">1 (<code>--from-entry</code> / <code>--to-entry</code>)</td>
+          <td><span class="tag tag-neutral">문서 기재</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
+        </tr>
+        <tr>
+          <td class="sys"><code>--test</code> 실행 모드</td>
+          <td class="num-cell">병렬. 순차가 필요하면 <code>--jobs 1</code></td>
+          <td><span class="tag tag-neutral">문서 기재</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
+        </tr>
+        <tr>
+          <td class="sys">exit code</td>
+          <td class="num-cell">0 success / 1 CLI parse / 2 input parse / 3 runtime / 4 assert</td>
+          <td><span class="tag tag-warn">미검증</span></td>
+          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a></td>
+        </tr>
+        <tr>
+          <td class="sys">operation 당 자동 생성 probe 수</td>
+          <td class="num-cell">기본 1 (preferred media type), explicit examples 다수 시 최대 3</td>
+          <td><span class="tag tag-neutral">추론</span></td>
+          <td><span class="tag tag-neutral">추론</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:26px">exit code &rarr; 실패 분류</h4>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>code</th>
+          <th>Hurl 의 의미</th>
+          <th>api-kit 판정</th>
+          <th>다음 행동</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="num-cell"><span class="strength s-1">0</span></td>
+          <td>success</td>
+          <td><span class="tag tag-ok">PASS</span></td>
+          <td>스냅샷 갱신 후보로 넘긴다</td>
+        </tr>
+        <tr>
+          <td class="num-cell"><span class="strength s-2">1</span></td>
+          <td>CLI parse</td>
+          <td><span class="tag tag-neutral">도구 호출 오류</span></td>
+          <td>킷이 만든 명령줄을 고친다</td>
+        </tr>
+        <tr>
+          <td class="num-cell"><span class="strength s-2">2</span></td>
+          <td>input parse</td>
+          <td><span class="tag tag-warn">probe 생성 버그</span></td>
+          <td>합성기 수정. 계약 실패로 보고하지 않는다</td>
+        </tr>
+        <tr>
+          <td class="num-cell"><span class="strength s-2">3</span></td>
+          <td>runtime</td>
+          <td><span class="tag tag-warn">환경 실패</span></td>
+          <td>네트워크·인증·대상 환경 확인</td>
+        </tr>
+        <tr>
+          <td class="num-cell"><span class="strength s-3">4</span></td>
+          <td>assert</td>
+          <td><span class="tag tag-bad">계약 위반</span></td>
+          <td>회귀 diff 대상. 유일하게 계약 실패로 센다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">
+    표 전체가 <span class="tag tag-warn">문서 기재 · 미검증</span> 이다.
+    코드 번호가 실제와 다르면 <strong>계약 실패 집계 자체가 어긋나므로</strong> 구현 착수 시 가장 먼저 대조할 항목이다.
+  </p>
+
+  <div class="rule-box">
+    <strong>옵션 우선순위.</strong> environment variable &rarr; command-line option &rarr; per-entry <code>[Options]</code>.
+    뒤쪽이 이긴다. cli-only 옵션을 <code>[Options]</code> 에 적으면 무시되므로,
+    파일에 적힌 실행 의미와 실제 실행이 갈라진다.
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <div class="desc">
+    다섯 가지 모두 "실행은 되는데 결과 해석이 틀리는" 부류다. 실패가 나도 원인이 엉뚱한 곳을 가리킨다.
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>안티패턴</th>
+          <th>문제</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">URL query 와 <code>[Query]</code> 섹션을 동시에 생성</td>
+          <td>Hurl 이 둘 다 전송해 같은 파라미터가 중복된다</td>
+        </tr>
+        <tr>
+          <td class="sys">dependent flow 를 여러 <code>.hurl</code> 파일로 분할</td>
+          <td><code>--test</code> 가 파일을 병렬 실행해 순서 보장이 깨진다</td>
+        </tr>
+        <tr>
+          <td class="sys">cli-only 옵션을 <code>[Options]</code> 에 기입</td>
+          <td>무시되어 파일에 적힌 실행 의미와 실제 실행이 달라진다</td>
+        </tr>
+        <tr>
+          <td class="sys">모든 response body 를 capture</td>
+          <td>리포트가 비대해지고 토큰·시크릿이 로그에 남는다</td>
+        </tr>
+        <tr>
+          <td class="sys">auth 실패 뒤에도 continue-on-error 로 진행</td>
+          <td>이후 probe 실패가 계약 위반이 아니라 인증 전이 실패가 된다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin-top:28px">① query 직렬화 — 두 경로 동시 사용 vs 한 경로</h4>
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what">Hurl 이 둘 다 전송해 파라미터가 중복된다</span>
+      </div>
+      <pre><code>GET https://api.example.com/v1/orders?status=paid&amp;page=2
+[Query]
+status: paid
+page: 2
+
+# 실제 전송: ?status=paid&amp;page=2&amp;status=paid&amp;page=2
+# 서버가 첫 값을 쓰는지 마지막 값을 쓰는지에 결과가 좌우된다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what"><code>[Query]</code> 섹션 하나만. style/explode 를 반영</span>
+      </div>
+      <pre><code>GET https://api.example.com/v1/orders
+[Query]
+status: paid
+page: 2
+
+Accept: application/json
+Authorization: Bearer {{token}}
+
+HTTP 200</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    원칙 2 · 3. 헤더 3 종은 추론에 맡기지 않는다 — 생략하면 클라이언트 기본값이 끼어들어 실패 원인이 흐려진다.
+  </p>
+
+  <h4 style="margin-top:28px">② 의존 흐름 — 파일 분할 vs 한 파일 안 chaining</h4>
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what"><code>--test</code> 는 파일 단위 병렬 — 순서 보장 없음</span>
+      </div>
+      <pre><code># 01-login.hurl
+POST /v1/login
+HTTP 200
+[Captures]
+token: jsonpath "$.token"
+
+# 02-orders.hurl   ← 별도 파일
+GET /v1/orders
+Authorization: Bearer {{token}}
+
+# token 이 정의되지 않은 채 먼저 실행될 수 있다
+# cookie store 도 파일 간에 공유되지 않는다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">한 파일 = 한 격리 단위. capture 이름 재사용 금지</span>
+      </div>
+      <pre><code># order-flow.hurl
+POST /v1/login
+HTTP 200
+[Captures]
+login_token: jsonpath "$.token"
+
+GET /v1/orders
+Authorization: Bearer {{login_token}}
+HTTP 200
+[Captures]
+first_order_id: jsonpath "$.items[0].id"
+
+DELETE /v1/orders/{{first_order_id}}
+HTTP 204</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    원칙 4 · 5. 같은 이름으로 다시 capture 하면 새 값이 이전 값을 덮으므로 체인 안에서 이름을 재사용하지 않는다.
+  </p>
+
+  <div class="compare" style="margin-top:28px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — non-zero 를 전부 계약 실패로</div>
+      <div class="desc">
+        <code>hurl --test</code> 의 종료 코드가 0 이 아니면 전부 "계약 실패" 로 집계한다.
+        DNS 실패도, probe 파일 문법 오류도 같은 칸에 쌓인다.
+      </div>
+      <div class="desc">
+        <strong>결과</strong> — 회귀 diff 가 환경 잡음에 덮여, 진짜 <code>4</code>(assert) 한 건이 묻힌다.
+        도구를 못 믿게 되는 가장 빠른 경로다.
+      </div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 코드별로 갈라 보고</div>
+      <div class="desc">
+        <code>4</code> 만 계약 위반으로 센다. <code>2</code> 는 합성기 버그 큐로,
+        <code>3</code> 은 환경 점검 큐로 보낸다. <code>1</code> 은 킷이 만든 명령줄 문제다.
+      </div>
+      <div class="desc">
+        <strong>결과</strong> — 실패 목록이 곧 작업 분배표가 된다.
+        <span class="tag tag-warn">미검증</span> 항목이므로 코드 번호는 실측으로 먼저 확정한다.
+      </div>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:20px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 전부 capture + verbose 로그</div>
+      <div class="desc">
+        진단이 편하다는 이유로 모든 응답 body 를 capture 하고 <code>--very-verbose</code> 를 상시 켠다.
+        Hurl 의 <code>--secret</code> 이 알아서 가려줄 거라 가정한다.
+      </div>
+      <div class="desc">
+        <strong>결과</strong> — 리포트가 비대해지고 토큰·개인정보가 CI 로그에 남는다.
+        문서 기재에 따르면 <code>--secret</code> 은 <strong>stdout 응답과 <code>--json</code> stdout 을 가리지 않는다.</strong>
+      </div>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 최소 assert + 자체 scrubber</div>
+      <div class="desc">
+        최소 assert 는 expected status 하나. body capture 는 downstream 이 실제로 그 값을 쓰거나
+        진단이 필요할 때만 켠다. 바이트 계약은 <code>rawbytes</code> 로 명시한다.
+      </div>
+      <div class="desc">
+        <strong>결과</strong> — 저장·렌더되는 데이터는 킷의 scrubber 를 통과한 것뿐이다(설계문서 §8.2).
+        Hurl 의 마스킹 범위에 의존하지 않는다.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Gotchas — probe 실행 전 확인</div>
+  <div class="desc">
+    앞의 네 항목은 소스 문서의 Gotchas 이고, 뒤는 원칙에서 나온 확인 항목이다.
+    Hurl 동작에 걸린 항목은 실측 대조 전임을 표시했다.
+  </div>
+  <ul class="checklist">
+    <li>
+      <span class="check c-warn">!</span>
+      <span>
+        <strong><code>[Options]</code> 의 <code>variable</code> 만 다음 entry 로 이어진다.</strong>
+        다른 <code>[Options]</code> 항목은 그 entry 에서만 유효한데 <code>variable</code> 은 예외다.
+        entry 별로 같은 이름 변수를 다르게 주면 뒤 entry 가 앞 값을 조용히 상속하거나 덮는다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span>
+        <strong><code>rawbytes</code> 가 아닌 capture / assert 는 decoded·decompressed 본문 기준이다.</strong>
+        gzip 응답의 바이트 길이나 원본 인코딩을 검증하려 했는데 디코딩된 값이 비교돼 통과해 버린다.
+        바이트 수준 계약은 <code>rawbytes</code> 로 명시한다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span>
+        <strong>redirect follow 는 기본으로 꺼져 있다.</strong>
+        <code>3xx</code> 를 받고 assert 가 실패하면 계약 위반처럼 보이지만 실제로는 follow 미설정이다.
+        필요하면 entry 의 <code>location: true</code> 또는 <code>--location</code> 을 켠다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-bad">×</span>
+      <span>
+        <strong><code>--very-verbose</code> 는 request / response body 를 stderr 에 출력한다.</strong>
+        CI 로그에 토큰·개인정보가 그대로 남는다.
+        진단 목적으로 켤 때는 secret redaction 을 함께 적용한다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-bad">×</span>
+      <span>
+        <strong><code>--secret</code> 만 믿고 stdout 을 그대로 저장하지 않았는지 확인했다.</strong>
+        문서 기재로는 stderr 로그·리포트만 마스킹되고 stdout 응답과 <code>--json</code> stdout 은 가려지지 않는다.
+        <span class="tag tag-warn">미검증</span> — 이 항목이 킷의 redaction 설계(설계문서 §8.2) 전체의 근거다.
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        query 가 URL 문자열과 <code>[Query]</code> 섹션 중 <strong>한 경로로만</strong> 생성되는지 확인했다(원칙 2).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        <code>Accept</code> · <code>Content-Type</code> · <code>Authorization</code> 이 명시적으로 생성됐는지 확인했다(원칙 3).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        상태를 공유하는 흐름이 한 <code>.hurl</code> 파일 안에 있고, capture 이름이 체인 안에서 재사용되지 않는지 확인했다(원칙 4 · 5).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        <code>--continue-on-error</code> 가 서로 독립인 probe 배치에만 켜져 있는지 확인했다 —
+        dependency chain 에서는 전이 실패를 만든다(원칙 8).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        <code>enum</code> / <code>default</code> 에서 고른 값에 대해 schema 검증을 <strong>한 번 더</strong> 돌렸는지 확인했다 —
+        <code>default</code> 는 annotation 이라 schema 를 만족한다는 보장이 없다(원칙 1).
+      </span>
+    </li>
+  </ul>
+</div>
+
+<div class="section">
+  <div class="section-label">출처</div>
+  <div class="desc">
+    아래가 이 페이지의 전체 근거다. Hurl 문서에서 온 값은 실행 확인 전이며,
+    그중 5 건은 상단 배너에 미검증 항목으로 별도 표시했다.
+  </div>
+  <div class="info-card">
+    <div class="sources" style="border-top:none;padding-top:0">
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#media-type-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Media Type Object</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.1.0#parameter-object" target="_blank" rel="noopener">&rarr; OpenAPI 3.1.0 Parameter Object</a>
+      <a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-validation" target="_blank" rel="noopener">&rarr; JSON Schema 2020-12 Validation</a>
+      <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html#name-accept" target="_blank" rel="noopener">&rarr; RFC 9110 Accept</a>
+      <a class="card-source" href="https://hurl.dev/docs/request.html" target="_blank" rel="noopener">&rarr; Hurl Request</a>
+      <a class="card-source" href="https://hurl.dev/docs/response.html" target="_blank" rel="noopener">&rarr; Hurl Response</a>
+      <a class="card-source" href="https://hurl.dev/docs/entry.html" target="_blank" rel="noopener">&rarr; Hurl Entry</a>
+      <a class="card-source" href="https://hurl.dev/docs/capturing-response.html" target="_blank" rel="noopener">&rarr; Hurl Capturing Response</a>
+      <a class="card-source" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+      <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual — Configuration</a>
+      <a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a>
+      <a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; Hurl Manual — HTTP Options</a>
+      <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a>
+      <a class="card-source" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">&rarr; Hurl Templates — Secrets</a>
+      <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1" target="_blank" rel="noopener">&rarr; Hurl 8.0.1 릴리스</a>
+    </div>
+    <div class="source-badge">추론 1 건 — operation 당 자동 생성 probe 수(기본 1, 최대 3). 출처 없음, 이 킷의 설계 결정</div>
+    <div class="source-badge">미검증 5 건 — 옵션 우선순위 · <code>--retry-interval</code> · <code>--max-redirs</code> · exit code · <code>--secret</code> 마스킹 범위. 문서 기재이며 Hurl 8.0.1 실행으로 확인하지 않았다</div>
+  </div>
+  <p class="caption">
+    소스 문서: <span class="mono">docs/api/execution/probe-synthesis-hurl-semantics.md</span> (v0.1.0 · 2026-09-04) ·
+    미검증 항목 표 출처: <span class="mono">docs/api/research-log.md</span>
+  </p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

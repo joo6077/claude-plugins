@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계약 추출 모드 — partial · pin · exact</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  /* Light — lime 은 흰 배경에서 대비가 안 나온다. 어두운 올리브로 내린다.
+     #4D7C0F 는 흰 배경 4.99 로 통과하지만 --surface2 위에서 4.46 이라 한 단계 더 내렸다 */
+  [data-theme="light"]{
+    --bg:#f6f7f3;--bg2:#eceee7;--surface:#ffffff;--surface2:#f1f3ec;--border:#dcdfd3;
+    --text:#181c14;--text2:#4d5348;--text3:#666D5F;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(246,247,243,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(163,230,53,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(163,230,53,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  [data-theme="light"] .nav-logo span{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:880px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — partial / pin / exact 처럼 3 단계를 표기할 때 쓴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-1{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,0.34)}
+  .s-2{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .s-3{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(163,230,53,0.3)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle{margin-bottom:clamp(18px,2.5vw,26px)}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;line-height:1.7;
+    border-left:3px solid var(--accent);padding-left:12px;margin-bottom:18px;max-width:880px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  [data-theme="light"] .card-source:hover{color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(163,230,53,0.05)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+
+  /* ── 수치 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,200px) 1fr minmax(64px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── before / after 쌍 ── */
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
+  .pair:last-child{margin-bottom:0}
+  .pane{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .pane-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .pane-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .pane-head{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .pane-what{font-size:12px;color:var(--text3);line-height:1.5;overflow-wrap:anywhere}
+  .pane pre{background:var(--surface);margin-bottom:0;flex:1}
+  .pair-caption{font-size:12px;color:var(--text3);margin:-6px 0 18px;line-height:1.6}
+
+  /* ── 비교 패널 (텍스트) ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 단계 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 220px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
+  .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
+  .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+  .rule-box strong{color:var(--accent)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+  /* ════ 페이지 전용 — assertion 목록 · 모드 매트릭스 ════ */
+  .assert-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .assert-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;align-items:start}
+  .assert-row>*{min-width:0}
+  .assert-code{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface2);
+    border:1px solid var(--border);border-radius:6px;padding:7px 10px;overflow-wrap:anywhere;line-height:1.5}
+  .assert-what{font-size:12px;color:var(--text3);line-height:1.6;overflow-wrap:anywhere;padding-top:6px}
+  .mode-note{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;
+    color:var(--text2);margin-top:10px;line-height:1.6}
+  .mode-note>*{min-width:0}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">api-kit <span>/ contract extraction modes</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>계약 추출 모드 — partial · pin · exact</h1>
+<p class="subtitle">
+  봉인된 baseline 에서 어떤 강도의 계약을 뽑을지 결정하는 규칙. 강도는 3 단계이며 각 단계가 잡아내는 회귀의 종류가 다르다.
+  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+</p>
+
+<div class="warn-banner">
+  <h2>먼저 읽어라 — <span class="mono">pin</span> 은 값 고정이 아니다</h2>
+  <p>
+    <strong>pin 은 payload 를 얼리는 모드가 아니라 경로마다 assertion 하나를 명시하는 모드다.</strong>
+    값 고정(<code>const</code>)은 pin 이 표현할 수 있는 assertion 중 <em>한 종류</em>일 뿐이다.
+    <code>total</code> · <code>cursor</code> · <code>id</code> · <code>timestamp</code> 처럼 매 호출 변하는 필드에는
+    범위 · 패턴 · 불변식을 건다.
+  </p>
+  <p>
+    이 재정의는 나중에 붙인 설명이 아니라 <strong>초안을 뒤집은 결과</strong>다. 설계문서 초안은
+    &ldquo;지정 필드는 값까지 고정&rdquo; 이라고 적었는데, 픽스처에서 pin 을 건 <code>$.meta.total</code>(주문 총건수)이
+    매 호출 변하는 값이라 그 정의로는 자기모순이었다. 이어서 조사한 주류 도구 어디에서도 pin 이 그 뜻으로 쓰이지 않았다 —
+    발견된 용례는 버전 pin 과 기준 snapshot pin 뿐이다.
+  </p>
+  <p>
+    필드별 검증 강도를 실제로 표현하는 어휘는 Hurl 의 assert + predicate, Karate 의 schema marker, Pact 의 matcher,
+    JSON Schema 의 <code>const</code>/<code>enum</code> 이다. 이름은 UI 전반에 아이콘이 이미 깔려 있어
+    <code>pin</code> 으로 유지하되 <strong>의미만 &lsquo;경로별 명시 assertion&rsquo; 으로 재정의</strong>했다.
+  </p>
+  <div class="sources">
+    <a class="card-source" href="../api/research-log.md" target="_blank" rel="noopener">&rarr; api-kit Research Log — 이 사이클에서 뒤집힌 결정</a>
+    <a class="card-source" href="../superpowers/specs/2026-09-02-api-kit-design.md" target="_blank" rel="noopener">&rarr; api-kit 설계 §9.2 계약 실패 기준 — 3단계</a>
+    <a class="card-source" href="https://hurl.dev/docs/asserting-response.html" target="_blank" rel="noopener">&rarr; Hurl — Asserting Response</a>
+    <a class="card-source" href="https://docs.karatelabs.io/api-reference/syntax-reference/" target="_blank" rel="noopener">&rarr; Karate — Syntax Reference (schema marker)</a>
+    <a class="card-source" href="https://docs.pact.io/getting_started/matching" target="_blank" rel="noopener">&rarr; Pact — Matching</a>
+    <a class="card-source" href="https://json-schema.org/understanding-json-schema/reference/annotations" target="_blank" rel="noopener">&rarr; JSON Schema — const / enum</a>
+    <a class="card-source" href="https://dredd.org/en/latest/how-it-works.html" target="_blank" rel="noopener">&rarr; Dredd — How It Works (버전 pin 용례)</a>
+  </div>
+</div>
+
+<!-- ══════════════ 1. 오리엔테이션 ══════════════ -->
+<div class="section">
+  <div class="section-label">이 문서가 결정하는 것</div>
+  <h2>강도 3 단계와 각 단계가 잡는 회귀</h2>
+  <p class="desc">
+    같은 baseline 이라도 어떤 강도로 계약을 뽑느냐에 따라 잡히는 회귀가 달라진다.
+    기본은 <span class="strength s-1">partial</span> 이고, 필요한 경로만 <span class="strength s-2">pin</span> 으로 올린 뒤,
+    자격 조건을 통과한 응답에만 <span class="strength s-3">exact</span> 를 건다.
+  </p>
+
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">기본값</span>
+      <span class="what"><span class="strength s-1">partial</span></span>
+      <span class="out">존재 · 타입 · enum — <strong>형태만 본다.</strong> 객체를 닫지 않으므로 서버의 필드 추가는 통과한다.</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">옵트인</span>
+      <span class="what"><span class="strength s-2">pin</span></span>
+      <span class="out">partial + <strong>경로별 명시 assertion</strong> — 타입은 멀쩡한데 값만 망가진 회귀를 잡는다.</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">자격 필요</span>
+      <span class="what"><span class="strength s-3">exact</span></span>
+      <span class="out">정규화 후 <strong>본문 전체 diff</strong>. 변동 필드 레지스트리 적용 후 안정적일 때만 허용한다.</span>
+    </div>
+  </div>
+
+<pre><code>partial (기본)  존재 · 타입 · enum          — 형태만 본다
+pin             위 + 경로별 명시 assertion   — 타입은 멀쩡한데 값만 망가진 회귀를 잡는다
+exact           정규화 후 본문 전체 diff</code></pre>
+
+  <div class="rule-box">
+    <strong>왜 중간 단계가 필요한가.</strong> exact 를 기본으로 두면 서버가 필드 하나 추가할 때마다 깨진다.
+    partial 만 두면 조용한 회귀를 놓친다 — partial 은 <code>"Bearer"</code> &rarr; <code>"bearer"</code>,
+    <code>47</code> &rarr; <code>-1</code>, <code>"active"</code> &rarr; <code>"ACTIVE"</code> 를 전부 통과시킨다.
+    타입이 그대로이기 때문이다. 그래서 중요한 경로만 pin 으로 올리는 중간 단계를 둔다.
+  </div>
+</div>
+
+<!-- ══════════════ 2. pin assertion 종류 ══════════════ -->
+<div class="section">
+  <div class="section-label">pin 의 실제 모양</div>
+  <h2>assertion 종류 — 값 고정은 그중 하나다</h2>
+  <p class="desc">
+    pin 의 assertion 종류는 exists, type, nullable, pattern, range, enum, const, header predicate 등이다.
+    필드 성격에 따라 어떤 assertion 이 적합한지가 달라진다.
+  </p>
+
+  <div class="assert-list">
+    <div class="assert-row">
+      <div class="assert-code">$.token_type = "Bearer"</div>
+      <div class="assert-what">값 고정(<code>const</code>) — 안정값에만 쓴다. discriminator · API 버전 · 통화 코드 · 고정 status.</div>
+    </div>
+    <div class="assert-row">
+      <div class="assert-code">$.meta.total &gt;= len($.data)</div>
+      <div class="assert-what">불변식 — 매 호출 값이 변해도 관계는 유지된다.</div>
+    </div>
+    <div class="assert-row">
+      <div class="assert-code">$.data[].status &isin; {active, shipped, cancelled}</div>
+      <div class="assert-what">집합 소속 — 열거형 필드.</div>
+    </div>
+    <div class="assert-row">
+      <div class="assert-code">$.orderId ^ord_</div>
+      <div class="assert-what">패턴 — 식별자처럼 값은 변하지만 형식이 계약인 필드.</div>
+    </div>
+    <div class="assert-row">
+      <div class="assert-code">$.createdAt : string(date-time)</div>
+      <div class="assert-what">타입 + format.</div>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:20px">
+    <table>
+      <thead>
+        <tr><th>필드 성격</th><th>적합한 assertion</th><th>예</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="sys">안정값</td><td>값 고정</td><td class="num-cell">$.token_type = "Bearer"</td></tr>
+        <tr><td class="sys">열거형</td><td>집합 소속</td><td class="num-cell">$.data[].status &isin; active·shipped·cancelled</td></tr>
+        <tr><td class="sys">변동 수치</td><td>범위 · 불변식</td><td class="num-cell">$.meta.total &ge; len($.data) · $.price &gt; 0</td></tr>
+        <tr><td class="sys">식별자</td><td>패턴</td><td class="num-cell">$.orderId ^ord_</td></tr>
+        <tr><td class="sys">컬렉션</td><td>개수 불변식</td><td class="num-cell">$.data[].isDefault 가 true 인 항목 정확히 1개</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">
+    경로 간 불변식(<code>$.meta.total &ge; len($.data)</code>)은 Hurl assert 문법으로 쓸 수 없다 —
+    Hurl 의 assert 는 경로 1 개에 predicate 1 개다. 이런 assertion 은 계약 YAML 의 <code>pin</code> 에만 기록하고
+    <code>/api-verify</code> 가 Hurl 실행 뒤 후처리 단계에서 검사한다. 상수로 근사하지 마라.
+  </p>
+</div>
+
+<!-- ══════════════ 3. 원칙 ══════════════ -->
+<div class="section">
+  <div class="section-label">원칙</div>
+  <h2>추출 규칙 9 가지</h2>
+  <p class="lead">
+    모드는 &ldquo;얼마나 엄격하게&rdquo; 가 아니라 &ldquo;무엇을 계약으로 볼 것인가&rdquo; 를 정한다.
+    같은 응답도 모드에 따라 계약 대상이 달라진다.
+  </p>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">1</span>
+      <h3>partial 은 최소 계약이다</h3>
+      <span class="strength s-1">partial</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        partial 은 관측된 안정 필드에 대한 최소 계약이다. JSON Schema 에서 <code>properties</code> 는 명시된 필드만 검증하고,
+        <code>additionalProperties</code> 를 생략하면 열린 schema 로 동작한다.
+        partial 에서는 객체를 닫지 않는다 — 서버가 필드를 추가했다는 이유로 실패하면 안 된다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-core" target="_blank" rel="noopener">&rarr; JSON Schema 2020-12 Core</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">2</span>
+      <h3>pin 은 '값 고정' 이 아니라 경로별 명시 assertion 이다</h3>
+      <span class="strength s-2">pin</span>
+      <span class="tag tag-warn">이 문서의 핵심</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        pin 은 payload 를 얼리는 모드가 아니다. <strong>경로마다 하나의 assertion 을 명시</strong>하는 모드다.
+        assertion 종류는 exists, type, nullable, pattern, range, enum, const, header predicate 등이며,
+        값 고정(<code>const</code>)은 그중 한 종류일 뿐이다.
+        <code>total</code> · <code>cursor</code> · <code>id</code> · <code>timestamp</code> 처럼 매번 변하는 필드에는
+        범위 · 패턴 · 불변식을 건다.
+      </p>
+<pre><code>$.token_type = "Bearer"                        값 고정 (const)
+$.meta.total &gt;= len($.data)                    불변식
+$.data[].status &isin; {active, shipped, cancelled} 집합
+$.orderId ^ord_                                패턴
+$.createdAt : string(date-time)                타입 + format</code></pre>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-validation" target="_blank" rel="noopener">&rarr; JSON Schema 2020-12 Validation</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">3</span>
+      <h3>exact 는 자격 조건을 통과해야 쓴다</h3>
+      <span class="strength s-3">exact</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        exact 는 변동 필드 레지스트리를 적용한 뒤 JCS 정규화 payload 전체가 안정적일 때만 가능하다.
+        JCS 는 object key order 를 제거하지만 array order 와 값 변화는 그대로 계약 차이로 남긴다.
+        자격 미달인 응답에 exact 를 걸면 매 실행이 실패하고, 그 실패는 곧 무시된다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">4</span>
+      <h3>exact 는 본문만 본다</h3>
+      <span class="strength s-3">exact</span>
+      <span class="tag tag-ok">확정 결정 §12</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        exact diff 대상은 <strong>응답 본문뿐</strong>이다(2026-09-04 확정).
+        <code>Date</code> 는 응답마다 생성되는 필드이고 <code>X-Request-Id</code> 류도 매 호출 달라지므로
+        헤더를 전체 diff 에 넣으면 항상 실패한다.
+        계약에 필요한 헤더는 exact 가 아니라 <strong>pin 으로 개별 지정</strong>한다.
+      </p>
+<pre><code># 헤더는 exact 대상이 아니다 — 필요한 것만 pin
+Content-Type   ^application/json
+Cache-Control  = "no-store"</code></pre>
+      <div class="mode-note">
+        <span class="strength s-3">exact</span>
+        <span>본문 O · 헤더 <strong>0 개</strong></span>
+      </div>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">&rarr; RFC 9110 HTTP Semantics</a>
+      <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
+      <a class="card-source" href="../superpowers/specs/2026-09-02-api-kit-design.md" target="_blank" rel="noopener">&rarr; api-kit 설계 §12 확정된 결정 — exact 모드 범위</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">5</span>
+      <h3>required 와 optional 은 샘플 교집합으로 판정한다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        <code>required</code> 는 property name 의 존재 조건이지 값의 non-null 조건이 아니다.
+        GenSON 은 관측된 모든 object 에 등장한 key 의 교집합만 required 로 삼는다.
+        단일 샘플에서 본 필드를 required 로 올리는 것은 그 자체로 오탐 생성기다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-validation" target="_blank" rel="noopener">&rarr; JSON Schema 2020-12 Validation</a>
+      <a class="card-source" href="https://github.com/wolverdude/GenSON" target="_blank" rel="noopener">&rarr; GenSON</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">6</span>
+      <h3>null 과 missing 을 합치지 않는다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        <code>null</code> 은 '없는 필드' 가 아니라 하나의 JSON 값이다.
+        JSON Schema 에서는 <code>type: ["string", "null"]</code> 처럼 null type 을 명시해야 하고,
+        OpenAPI 3.0 의 <code>nullable</code> 은 같은 Schema Object 에 <code>type</code> 이 있을 때만 의미가 있다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://json-schema.org/understanding-json-schema/reference/null" target="_blank" rel="noopener">&rarr; JSON Schema — null</a>
+      <a class="card-source" href="https://spec.openapis.org/oas/v3.0.4.html" target="_blank" rel="noopener">&rarr; OpenAPI 3.0.4</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">7</span>
+      <h3>enum 은 1 샘플이면 후보로만 표시한다</h3>
+      <span class="tag tag-ok">확정 결정 §12</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        JSON Schema <code>enum</code> 은 닫힌 값 집합이고 <code>const</code> 는 단일 값 enum 과 동등하다 —
+        둘 다 관측 밖의 값을 실패시킨다.
+        그래서 <strong>1 샘플에서는 enum 을 확정하지 않고 후보로 표시하며 경고만 낸다</strong>(2026-09-04 확정).
+        3 샘플 이상에서 승격하고, 사용자가 직접 확정하는 수동 경로도 둔다.
+        오탐 실패가 도구 신뢰를 가장 빨리 깎기 때문이다.
+        GenSON 은 seed 없이는 enum 을 아예 추론하지 않고, json-schema-inferrer 는 enum extractor 를 별도 설정으로 분리한다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-validation" target="_blank" rel="noopener">&rarr; JSON Schema 2020-12 Validation</a>
+      <a class="card-source" href="https://github.com/wolverdude/GenSON" target="_blank" rel="noopener">&rarr; GenSON</a>
+      <a class="card-source" href="https://github.com/saasquatch/json-schema-inferrer" target="_blank" rel="noopener">&rarr; json-schema-inferrer</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">8</span>
+      <h3>배열 item 은 union 으로 일반화한다</h3>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        JSON array 의 원소는 같은 type 일 필요가 없다.
+        여러 샘플 · 여러 item 에서 type 이 섞이면 첫 item 기준 schema 를 쓰지 말고
+        union / <code>anyOf</code> 계열로 일반화한다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8259.html" target="_blank" rel="noopener">&rarr; RFC 8259 JSON</a>
+      <a class="card-source" href="https://github.com/saasquatch/json-schema-inferrer" target="_blank" rel="noopener">&rarr; json-schema-inferrer</a>
+    </div>
+  </div>
+
+  <div class="card principle">
+    <div class="principle-title">
+      <span class="num">9</span>
+      <h3>additionalProperties 정책은 모드가 결정한다</h3>
+      <span class="strength s-1">partial</span>
+      <span class="strength s-2">pin</span>
+      <span class="strength s-3">exact</span>
+    </div>
+    <div class="card-body">
+      <p class="desc">
+        <code>additionalProperties: false</code> 는 관측되지 않은 모든 property 를 실패시키는 strict 정책이다.
+        partial 에서는 열고, pin 에서는 명시한 path 만 검사하고, exact 에서만 전체 diff 로 닫는다.
+        모드와 무관하게 닫으면 서버의 정상적인 필드 추가가 전부 회귀로 보고된다.
+      </p>
+    </div>
+    <div class="sources">
+      <a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-core" target="_blank" rel="noopener">&rarr; JSON Schema 2020-12 Core</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 4. 수치 기준 ══════════════ -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <h2>승격 임계값과 자격 조건</h2>
+  <p class="desc">
+    아래 값은 계약 승격을 자동으로 판정하는 기준이다. 근거가 &lsquo;추론&rsquo; 인 행은 외부 출처가 아니라 이 킷의 설계 결정이다.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys"><code>required</code> 승격 조건</td>
+          <td class="num-cell">scoped sample 내 presence 100%</td>
+          <td>관측 object 전체의 key 교집합 (<a class="card-source" href="https://github.com/wolverdude/GenSON" target="_blank" rel="noopener">&rarr; GenSON</a>)</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>optional</code> 판정</td>
+          <td class="num-cell">presence &lt;100%<br>null presence 는 missing 아님</td>
+          <td>null 은 값이지 부재가 아님 (<a class="card-source" href="https://json-schema.org/understanding-json-schema/reference/null" target="_blank" rel="noopener">&rarr; JSON Schema null</a>)</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>additionalProperties: false</code><br>허용 unexpected property</td>
+          <td class="num-cell">0 — exact 또는 명시 strict 설정에서만</td>
+          <td>strict 정책 정의 (<a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-core" target="_blank" rel="noopener">&rarr; JSON Schema Core</a>)</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>const</code> 승격</td>
+          <td class="num-cell">사용자 pin 또는 공식 API spec 근거 필요<br>단일 샘플 값만으로는 금지</td>
+          <td>추론 — <code>const</code> 는 단일 허용값이라 오탐 비용이 큼</td>
+        </tr>
+        <tr>
+          <td class="sys">enum 자동 승격</td>
+          <td class="num-cell">독립 샘플 &ge;3 · distinct value &ge;2<br>최근 20 관측에서 신규 값 없음 · domain &le;12</td>
+          <td>추론 — GenSON 의 &ldquo;seed 없이는 enum 미추론&rdquo; 을 보수 기준으로 채택</td>
+        </tr>
+        <tr>
+          <td class="sys">enum 1 샘플 처리</td>
+          <td class="num-cell">확정 금지 · 후보 표시 + 경고</td>
+          <td>2026-09-04 결정 — 오탐 실패가 도구 신뢰를 가장 빨리 깎음</td>
+        </tr>
+        <tr>
+          <td class="sys">exact 자격</td>
+          <td class="num-cell">동일 request fingerprint 로 &ge;3 회 반복<br>normalized JCS digest variance 0</td>
+          <td>추론 — JCS digest 안정성 실측</td>
+        </tr>
+        <tr>
+          <td class="sys">exact diff 대상</td>
+          <td class="num-cell">응답 본문만 · 헤더 0 개</td>
+          <td>2026-09-04 결정 — <code>Date</code> · <code>X-Request-Id</code> 등 매 응답 변동. 필요한 헤더는 pin</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dist" style="margin-top:22px">
+    <div class="dist-row">
+      <span class="dist-label">enum 승격 최소 샘플</span>
+      <span class="dist-track"><span class="dist-fill" style="width:25%"></span></span>
+      <span class="dist-val">&ge; 3</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">enum domain 상한</span>
+      <span class="dist-track"><span class="dist-fill f-cyan" style="width:100%"></span></span>
+      <span class="dist-val">&le; 12</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">신규 값 없음 관측창</span>
+      <span class="dist-track"><span class="dist-fill f-cyan" style="width:100%"></span></span>
+      <span class="dist-val">20</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">exact 반복 실행</span>
+      <span class="dist-track"><span class="dist-fill f-green" style="width:25%"></span></span>
+      <span class="dist-val">&ge; 3</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">exact JCS digest variance</span>
+      <span class="dist-track"><span class="dist-fill f-mute" style="width:2%"></span></span>
+      <span class="dist-val">0</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">exact 헤더 diff 대상</span>
+      <span class="dist-track"><span class="dist-fill f-mute" style="width:2%"></span></span>
+      <span class="dist-val">0 개</span>
+    </div>
+  </div>
+  <p class="caption">막대 길이는 각 항목의 상한 대비 비율을 눈으로 비교하기 위한 것이며, 서로 다른 단위의 값을 같은 축에서 재지 않는다.</p>
+</div>
+
+<!-- ══════════════ 5. 안티패턴 ══════════════ -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <h2>이렇게 하면 계약이 매번 깨진다</h2>
+  <p class="desc">
+    아래 두 쌍은 실제로 이 킷 초안이 걸렸던 지점이다. 오탐 한 번이면 사용자는 도구를 끄고, 꺼진 도구는 회귀를 하나도 못 잡는다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head"><span class="tag tag-bad">BAD</span><span class="pane-what">pin 을 payload value freeze 로 구현</span></div>
+<pre><code># 초안 정의: "지정 필드는 값까지 고정"
+pin:
+  - path: $.meta.total
+    freeze: 47          # 주문 총건수
+  - path: $.data[0].id
+    freeze: "ord_8812"
+
+# 두 번째 실행
+$.meta.total  47 -&gt; 48   FAIL
+$.data[0].id  ord_8812 -&gt; ord_8813   FAIL</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head"><span class="tag tag-ok">GOOD</span><span class="pane-what">경로별 assertion — 변동 필드는 관계로 건다</span></div>
+<pre><code># 재정의: "경로마다 assertion 하나"
+pin:
+  - path: $.meta.total
+    assert: "&gt;= len($.data)"   # 후처리 검사
+  - path: $.data[].id
+    assert: "^ord_"            # Hurl 검사
+
+# 두 번째 실행
+$.meta.total  48 &gt;= 12   PASS
+$.data[].id   ord_8813   PASS</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    픽스처의 <code>$.meta.total</code> 이 자기모순을 드러낸 지점이다. 값 고정은 안정 필드에만 쓰고,
+    매 호출 변하는 필드에는 범위 · 패턴 · 불변식을 건다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head"><span class="tag tag-bad">BAD</span><span class="pane-what">단일 샘플 scalar 를 바로 닫힌 enum 으로 승격</span></div>
+<pre><code># 샘플 1 개에서 status = "active" 만 관측
+{ "properties": {
+    "status": { "enum": ["active"] }
+} }
+
+# 정상 값 shipped 가 등장하면
+$.data[0].status = "shipped"   FAIL (오탐)</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head"><span class="tag tag-ok">GOOD</span><span class="pane-what">1 샘플은 후보 + 경고, 3 샘플 이상에서 승격</span></div>
+<pre><code># 1 샘플 — 확정하지 않는다
+{ "properties": {
+    "status": { "type": "string" }
+} }
+# WARN  enum 후보: status = ["active"] (samples=1)
+
+# 3 샘플 이상 · distinct &gt;= 2 에서만
+{ "status": { "enum": ["active","shipped","cancelled"] } }</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    <span class="tag tag-ok">확정 결정 §12</span>
+    1 샘플은 후보 표시만(경고), 3 샘플 이상에서 승격. 수동 확정 경로는 별도로 둔다.
+  </p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">닫힌 partial</div>
+      <p class="desc" style="margin-bottom:0">
+        partial 모드에서 <code>additionalProperties: false</code> 를 기본값으로 쓰면
+        서버의 정상적 필드 추가가 전부 실패로 잡힌다. 이 실패는 회귀가 아니라 도구의 오탐이다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">모드가 정책을 정한다</div>
+      <p class="desc" style="margin-bottom:0">
+        partial 에서는 열고, pin 에서는 명시한 path 만 검사하고, exact 에서만 전체 diff 로 닫는다.
+        닫는 시점을 모드에 묶어두면 &ldquo;왜 실패했나&rdquo; 가 항상 설명된다.
+      </p>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:22px">
+    <table>
+      <thead>
+        <tr><th>안티패턴</th><th>문제</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">단일 샘플 scalar 를 바로 <code>const</code> 또는 닫힌 <code>enum</code> 으로 승격</td>
+          <td>두 번째 정상 값이 회귀로 보고된다. 오탐 한 번이면 사용자는 도구를 끈다</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>null</code> 을 missing 과 합쳐 optionality 계산</td>
+          <td>nullable 필드가 optional 로 오분류되어 필드 소실 회귀를 놓친다</td>
+        </tr>
+        <tr>
+          <td class="sys">partial 모드에서 <code>additionalProperties: false</code> 를 기본값으로 사용</td>
+          <td>서버의 정상적 필드 추가가 전부 실패로 잡힌다</td>
+        </tr>
+        <tr>
+          <td class="sys">pin 을 payload 전체 value freeze 로 구현</td>
+          <td><code>total</code> · <code>cursor</code> · <code>timestamp</code> 때문에 매번 실패한다. pin 은 경로별 assertion 이다</td>
+        </tr>
+        <tr>
+          <td class="sys">빈 배열이나 첫 item 하나로 <code>items</code> schema 확정</td>
+          <td>이후 등장하는 다른 type 원소가 전부 위반이 된다. union 으로 일반화해야 한다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ 6. Gotchas ══════════════ -->
+<div class="section">
+  <div class="section-label">Gotchas</div>
+  <h2>추출 실행 전 확인</h2>
+  <p class="desc">계약을 커밋하기 전에 아래를 하나씩 확인한다. 대부분은 조용히 통과한 뒤 나중에 오탐으로 돌아오는 항목이다.</p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong><code>required</code> 는 non-null 을 보장하지 않는다</strong> — 필드가 있어도 값이 <code>null</code> 일 수 있다. non-null 을 원하면 type 에서 <code>null</code> 을 제외해야 한다.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong><code>format</code> 은 구현마다 annotation / assertion 지원이 다르다</strong> — format 을 hard fail 조건으로 쓰려면 validator 설정에 명시적으로 묶어야 한다. 안 그러면 조용히 통과한다.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong>OpenAPI 3.0 <code>nullable: true</code> 는 다른 제약을 무력화하지 않는다</strong> — <code>enum</code> 에 <code>null</code> 이 없으면 nullable 을 켜도 null 이 실패한다.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong>composition 에서는 <code>additionalProperties</code> 보다 <code>unevaluatedProperties</code> 가 정확하다</strong> — <code>additionalProperties</code> 는 같은 schema object 의 <code>properties</code> / <code>patternProperties</code> annotation 에만 의존하기 때문이다.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong>pin 을 값 고정으로 읽지 마라</strong> — 경로별 assertion 이다. 변동 필드에 <code>const</code> 를 걸면 픽스처의 <code>$.meta.total</code> 과 같은 자기모순에 걸린다.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong>경로 간 불변식을 Hurl assert 로 쓰려 하지 마라</strong> — Hurl 은 경로 1 개에 predicate 1 개다. 계약 YAML 의 <code>pin</code> 에 기록하고 <code>/api-verify</code> 후처리에서 검사한다. 상수로 근사하면 데이터가 늘어난 순간 무의미해진다.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&check;</span>
+      <span><strong>exact 를 걸기 전에 자격 조건을 먼저 재라</strong> — 동일 request fingerprint 로 <code>&ge;3</code> 회 반복해 normalized JCS digest variance 가 <code>0</code> 인지 확인한다.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&check;</span>
+      <span><strong>exact 대상은 본문뿐이다</strong> — 헤더는 <code>0</code> 개. 필요한 헤더는 <code>Content-Type ^application/json</code> 처럼 pin 으로 개별 지정한다.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&check;</span>
+      <span><strong>enum 을 자동 승격하기 전에 샘플 수를 세라</strong> — 독립 샘플 <code>&ge;3</code>, distinct value <code>&ge;2</code>, 최근 <code>20</code> 관측에서 신규 값 없음, domain 크기 <code>&le;12</code>.</span>
+    </li>
+    <li>
+      <span class="check">&#8250;</span>
+      <span><strong>required / optional / 미확정 3 분류로 제시하고 사용자에게 확정받는다</strong> — 스냅샷이 2 개 이상이면 교집합을 required 후보로, 합집합 차분을 optional 후보로 올린다.</span>
+    </li>
+  </ul>
+
+  <div class="info-card" style="margin-top:26px">
+    <h4>모드 선택 요약</h4>
+    <p class="desc" style="margin-bottom:0">
+      <span class="strength s-1">partial</span> 로 시작한다 &rarr;
+      partial 이 통과시키는 값 회귀가 실제로 아프면 그 <em>경로만</em> <span class="strength s-2">pin</span> 으로 올린다 &rarr;
+      본문 전체가 반복 실행에서 완전히 동일함을 실측했을 때만 <span class="strength s-3">exact</span> 를 건다.
+      단계를 건너뛰면 계약이 아니라 알람 소음이 된다.
+    </p>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

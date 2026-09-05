@@ -121,6 +121,7 @@ def infer_research_docs_dir(plugin_name: str) -> str | None:
         "flutter-toolkit": "docs/flutter/",
         "design-kit": "design-kit/docs/design/",
         "tone-kit": "docs/tone/",
+        "api-kit": "docs/api/",
     }
     return mapping.get(plugin_name)
 
