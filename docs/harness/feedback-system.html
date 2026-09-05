@@ -172,7 +172,10 @@ pre code{white-space:pre}
     <div class="card">
       <div class="card-title"><span class="dot"></span>저장 위치</div>
       <code class="code-block">~/.harness/feedback/
-└── {project_hash}-{timestamp}.yaml</code>
+├── contract/
+│   └── {project_hash}-{timestamp}-{uniq}.yaml
+└── evaluator/
+    └── {project_hash}-{timestamp}-{uniq}.yaml</code>
       <p>프로젝트 경로 SHA-256 앞 8자 + ISO-8601 타임스탬프. <code>save-feedback.sh</code> 가 스키마 검증 후 저장.</p>
     </div>
     <div class="card">
@@ -401,7 +404,7 @@ user_comment: null</code>
 
   <ul class="checklist">
     <li><span class="check">✓</span> <code>save-feedback.sh</code> 가 schema_version, timestamp, project_hash 등 7 개 필수 필드를 검증</li>
-    <li><span class="check">✓</span> <code>project_hash</code> 는 프로젝트 경로 SHA-256 앞 8자 — 여러 PC 에서 동일 프로젝트면 동일 해시</li>
+    <li><span class="check">✓</span> <code>project_hash</code> 는 git root 절대경로(git 밖이면 CONTRACT_ROOT)의 SHA-256 앞 8자 — 경로가 다르면 같은 저장소라도 해시가 달라진다 (머신 간 안정적 식별자는 <code>project_name</code>)</li>
     <li><span class="check">✓</span> <code>diagnosis.checklist</code> 는 스킬별 고정 필드 (sprint-contract 5개, qa-evaluator 5개) — 임의 추가 금지</li>
     <li><span class="check">✓</span> <code>improvement_suggestions</code> 가 빈 배열이면 카이젠 입력 가치 없음 — 최소 1 개 작성</li>
     <li><span class="check">✓</span> <strong>Phase 4 누적 필드</strong> <code>repeat_count</code>/<code>first_seen_at</code>/<code>regression_link</code> 는 optional 이지만 카이젠 효율을 크게 높임</li>

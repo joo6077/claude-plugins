@@ -296,11 +296,12 @@ tools: Agent(worker, researcher), Read, Bash
 
 ---
 
-## 6. 다섯 가지 에이전트 디자인 패턴
+## 6. 일곱 가지 에이전트 디자인 패턴
 
-> **출처:** [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
+> **출처(패턴 1~5):** [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
 
-Anthropic이 식별한 핵심 패턴. 에이전트를 설계할 때 이 중 하나를 기반으로 한다.
+패턴 1~5 는 Anthropic이 식별한 핵심 패턴이고, 6~7 은 이 레포에서 덧붙인 것으로 각자 아래에 출처를 단다.
+에이전트를 설계할 때 이 중 하나를 기반으로 한다.
 
 ### 패턴 1: 프롬프트 체이닝 (Prompt Chaining)
 

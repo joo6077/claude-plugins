@@ -754,7 +754,7 @@ sys.exit(1 if viol else 0)</pre>
         <tr><td><strong>§2</strong> Isolation</td><td>무엇을 건드리지 않는가</td><td>Change Manifest (변경 목록 + 보존 목록)</td><td>의도 외 영역 변경 → self-reject / 감사에서 FAIL</td></tr>
         <tr><td><strong>§3</strong> Evidence</td><td>무엇을 증거로 삼는가</td><td>EVIDENCE 블록 (before / after / proof / 의도 외 영역)</td><td>무효 증거 → PASS 아닌 <code>[미검증]</code></td></tr>
         <tr><td><strong>§4</strong> Approval Record</td><td>승인을 어떻게 남기는가</td><td><code>.design/approvals/{YYYYMMDD}-{대상}.md</code></td><td>승인 근거 확인 불가 → REJECT (UI-06)</td></tr>
-        <tr><td><strong>§5</strong> Variant Matrix</td><td>비교안이 실제로 서로 다른가</td><td>Variant Contract Matrix (7 열) + <code>distinct_gate.py</code></td><td>축 값 중복 → 구조 구별 요구 위반 REJECT (UI-04)</td></tr>
+        <tr><td><strong>§5</strong> Variant Matrix</td><td>비교안이 실제로 서로 다른가</td><td>Variant Contract Matrix (6 열) + <code>distinct_gate.py</code></td><td>축 값 중복 → 구조 구별 요구 위반 REJECT (UI-04)</td></tr>
         <tr><td><strong>§6</strong> Decision Manifest</td><td>결정이 모든 표면에 갔는가</td><td><code>.design/decisions.yaml</code> + <code>coverage_gate.py</code></td><td>surface 누락 → 커버리지 공백 FAIL</td></tr>
         <tr><td><strong>§7</strong> Evidence Channels</td><td>무엇을 재는 증거인가</td><td>채널 라벨이 붙은 PASS 문장 (5 요소)</td><td>채널 승격 주장 → <code>[미검증]</code></td></tr>
       </tbody>

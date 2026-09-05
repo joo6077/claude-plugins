@@ -634,11 +634,11 @@ tbody tr:hover{background:var(--accent-glow)}
   <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span>대비 미리보기</div>
-      <p class="fig-note">아래 네 줄은 대비 조합을 눈으로 비교하는 <strong>표본</strong>이다. FAIL 로 표시된 두 줄은 기준 미달 상태를 그대로 보여주는 것이 목적이라 AA 를 따르지 않는다 &mdash; 색을 올리면 무엇이 문제인지 보이지 않는다. 실제 제품 화면에는 PASS 조합만 사용한다.</p>
+      <p class="fig-note">아래 네 줄은 대비 조합을 눈으로 비교하는 <strong>표본</strong>이다. FAIL 로 표시된 한 줄은 기준 미달 상태를 그대로 보여주는 것이 목적이라 AA 를 따르지 않는다 &mdash; 색을 올리면 무엇이 문제인지 보이지 않는다. 첫 줄 #757575 on #FFFFFF 는 실측 4.61:1 로 일반 텍스트 AA 를 통과하므로 실패 표본이 아니다. 실제 제품 화면에는 PASS 조합만 사용한다.</p>
       <div style="margin-top:8px">
         <div style="padding:12px 16px;background:#ffffff;border-radius:8px;margin-bottom:8px">
           <span style="color:#757575;font-size:14px">#757575 on #FFFFFF</span>
-          <span class="contrast-badge fail" style="margin-left:8px">3.5:1 FAIL</span>
+          <span class="contrast-badge pass" style="margin-left:8px">4.61:1 AA</span>
         </div>
         <div style="padding:12px 16px;background:#ffffff;border-radius:8px;margin-bottom:8px">
           <span style="color:#595959;font-size:14px">#595959 on #FFFFFF</span>
@@ -646,7 +646,7 @@ tbody tr:hover{background:var(--accent-glow)}
         </div>
         <div style="padding:12px 16px;background:#1a1a2e;border-radius:8px;margin-bottom:8px">
           <span style="color:#a0a0b8;font-size:14px">#A0A0B8 on #1A1A2E</span>
-          <span class="contrast-badge pass" style="margin-left:8px">5.2:1 AA</span>
+          <span class="contrast-badge pass" style="margin-left:8px">6.67:1 AA</span>
         </div>
         <div style="padding:12px 16px;background:#1a1a2e;border-radius:8px">
           <span data-contrast-exempt="specimen" style="color:#4a4a5e;font-size:14px">#4A4A5E on #1A1A2E</span>

@@ -113,7 +113,7 @@ pre code{white-space:pre}
     <div class="card">
       <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">1</span><h3>레이어 인식</h3></div>
       <p class="card-body">domain 순수 함수는 node 환경, presentation hook/component는 jsdom, 전체 플로우는 Playwright 브라우저. 계층별 적합한 도구 사용.</p>
-      <a class="card-source" href="docs/react/kit-design/g4-quality.md#공통-설계-원칙">출처: g4-quality.md §공통설계원칙</a>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#공통-설계-원칙">출처: g4-quality.md §공통설계원칙</a>
     </div>
     <div class="card">
       <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">2</span><h3>Result 친화</h3></div>
@@ -123,7 +123,7 @@ pre code{white-space:pre}
     <div class="card">
       <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">3</span><h3>Strict TS 유지</h3></div>
       <p class="card-body">테스트 코드도 <code>any</code> 금지. <code>vi.mocked(...)</code>로 타입 안전성 유지. <code>expect(...).toBe(...)</code>의 타입 추론 활용.</p>
-      <a class="card-source" href="docs/react/kit-design/g4-quality.md#공통-설계-원칙">출처: g4-quality.md §공통설계원칙</a>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#공통-설계-원칙">출처: g4-quality.md §공통설계원칙</a>
     </div>
     <div class="card">
       <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">4</span><h3>i18n 커버리지</h3></div>
@@ -343,7 +343,7 @@ export function severityOf(failure: UserFailure): Severity {
           </tbody>
         </table>
       </div>
-      <a class="card-source" href="docs/react/kit-design/g4-quality.md#26-step-3-ui-표시-매핑">출처: g4-quality.md §2.6</a>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#26-step-3-ui-표시-매핑">출처: g4-quality.md §2.6</a>
     </div>
   </div>
 
@@ -376,7 +376,7 @@ export class RootErrorBoundary extends React.Component&#60;Props, State&#62; {
     return this.props.children
   }
 }</code></pre>
-    <a class="card-source" href="docs/react/kit-design/g4-quality.md#27-react-error-boundary">출처: g4-quality.md §2.7</a>
+    <a class="card-source" href="../react/kit-design/g4-quality.md#27-react-error-boundary">출처: g4-quality.md §2.7</a>
   </div>
 </div>
 
@@ -524,7 +524,7 @@ export default defineConfig({
          │       (에러 경로 isErr 검증 + 번역 렌더 포함)
          ▼
 /react-preflight (G6) ← tsc + eslint + vitest + playwright</code></pre>
-    <a class="card-source" href="docs/react/kit-design/g4-quality.md#4-3개-스킬의-상호작용">출처: g4-quality.md §4 스킬 상호작용</a>
+    <a class="card-source" href="../react/kit-design/g4-quality.md#4-3개-스킬의-상호작용">출처: g4-quality.md §4 스킬 상호작용</a>
   </div>
 </div>
 

@@ -93,13 +93,13 @@
 <h1>플러그인 검증 가이드</h1>
 <p class="subtitle">
   <code>scripts/validate-plugin.py</code> 의 <strong>8-카테고리 자동 검증</strong>.
-  릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하며, 7개 킷 전체의 스킬 · 에이전트 · 템플릿 · 훅 무결성을 보장한다.
+  릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하며, 13개 킷 전체의 스킬 · 에이전트 · 템플릿 · 훅 무결성을 보장한다.
 </p>
 
 <!-- ── 1. 목적 ── -->
 <div class="section">
   <div class="section-label">1 · 목적 · 적용 범위</div>
-  <p class="desc">플러그인 모노레포는 7개 킷, 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.</p>
+  <p class="desc">플러그인 모노레포는 13개 킷, 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.</p>
 
   <div class="grid-2">
     <div class="card">
@@ -114,11 +114,14 @@
     </div>
     <div class="card">
       <h3>적용 범위</h3>
-      <p><code>.claude-plugin/plugin.json</code> 을 가진 모든 디렉토리. 현재 <strong>7개 킷</strong>:</p>
+      <p><code>.claude-plugin/plugin.json</code> 을 가진 모든 디렉토리. 현재 <strong>13개 킷</strong>:</p>
       <pre style="background:transparent;border:0;padding:8px 0;font-size:11px;color:var(--text2)">harness/          flutter-toolkit/
 design-kit/       backend-kit/
 infra-kit/        rust-kit/
-react-kit/</pre>
+react-kit/        planning-kit/
+reflect-kit/      bambu-kit/
+onboarding-kit/   tone-kit/
+api-kit/</pre>
       <p style="margin-top:4px">킷 목록은 <code>.claude-plugin/marketplace.json</code> <code>plugins</code> 배열에서 자동 읽기. 새 킷 등록 시 자동 포함.</p>
     </div>
   </div>
@@ -479,7 +482,7 @@ chmod +x scripts/run-guard.sh
 <!-- ── 8. 카이젠 연동 ── -->
 <div class="section">
   <div class="section-label">8 · 카이젠 연동 — SSOT</div>
-  <p class="desc">이 가이드 §7(원본) 은 <strong>9개 카이젠 스킬의 "Plugin Validation 결과 반영" 단계의 SSOT</strong>. 각 카이젠 스킬은 킷 특화 규칙만 로컬에 유지하고, 공통 규칙은 이 가이드를 참조한다.</p>
+  <p class="desc">이 가이드 §7(원본) 은 <strong>10개 카이젠 스킬의 "Plugin Validation 결과 반영" 단계의 SSOT</strong>. 각 카이젠 스킬은 킷 특화 규칙만 로컬에 유지하고, 공통 규칙은 이 가이드를 참조한다.</p>
 
   <div class="grid-2">
     <div class="card">
@@ -519,12 +522,12 @@ python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
   <table>
     <thead><tr><th>킷</th><th>V2 templates</th><th>비고</th></tr></thead>
     <tbody>
-      <tr><td>harness</td><td><code>templates/</code> 없음 — SKIP</td><td>QA 프레임워크. 코드 템플릿 대상 아님</td></tr>
-      <tr><td>flutter-toolkit</td><td><code>templates/</code> 없음 — SKIP</td><td>스킬 지시문 기반. 별도 템플릿 파일 없음</td></tr>
-      <tr><td>design-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>디자인 가이드 중심. 코드 템플릿 없음</td></tr>
+      <tr><td>harness</td><td><code>templates/</code> 4 항목 — 2개 파싱, 1개 SKIP</td><td><code>project.yaml</code> · <code>settings-hooks.json</code> 파싱, <code>env.sh</code> SKIP (<code>procedures/</code> 는 디렉터리라 V2 비대상)</td></tr>
+      <tr><td>flutter-toolkit</td><td><code>templates/</code> 2 파일 — 전부 SKIP</td><td><code>provider-riverpod.md</code> · <code>widget-freezed-props.md</code> (<code>.md</code> 는 V2 파서 대상 아님)</td></tr>
+      <tr><td>design-kit</td><td><code>templates/</code> 8 파일 — 전부 SKIP</td><td>base/catalog/component/guide/mockup/moodboard/reference/system<code>.html</code> — <code>.html</code> 은 V2 파서 대상 아님</td></tr>
       <tr><td>backend-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드</td></tr>
       <tr><td>infra-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드</td></tr>
-      <tr><td>rust-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스킬에서 인라인 생성. 향후 templates/ 추가 가능</td></tr>
+      <tr><td>rust-kit</td><td><code>templates/</code> 5 파일 — 1개 파싱, 4개 SKIP</td><td><code>rust-init.toml.template</code> 파싱, <code>.rs.template</code> 4개 SKIP</td></tr>
       <tr><td>react-kit</td><td><code>templates/</code> 9 파일 — TS 4개 SKIP, 5개 파싱</td><td><code>.ts/.js</code> 4개 SKIP, <code>Cargo.toml.template</code> 등 5개 파싱</td></tr>
     </tbody>
   </table>
