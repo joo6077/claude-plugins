@@ -16,7 +16,7 @@ scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-
 
 ## 1. 목적
 
-플러그인 모노레포는 7개 킷, 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.
+플러그인 모노레포는 13개 킷, 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.
 
 - **숨은 깨진 링크**: SKILL.md가 references/xxx.md 를 참조하지만 파일이 존재하지 않는다.
 - **Frontmatter 누락**: 신규 스킬에 `name` 또는 `description` 이 없어 Claude가 스킬을 인식하지 못한다.
@@ -30,7 +30,7 @@ scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-
 
 ## 2. 적용 범위
 
-`.claude-plugin/plugin.json` 을 가진 모든 디렉토리를 검증 대상으로 삼는다. 현재 7개 킷이 대상이다:
+`.claude-plugin/plugin.json` 을 가진 모든 디렉토리를 검증 대상으로 삼는다. 현재 13개 킷이 대상이다:
 
 ```
 harness/          flutter-toolkit/    design-kit/

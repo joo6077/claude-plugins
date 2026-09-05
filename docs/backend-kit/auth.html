@@ -520,7 +520,7 @@ pre code { white-space: pre; }
           </thead>
           <tbody>
             <tr><td><strong>Argon2id</strong></td><td>최우선</td><td>메모리 19MiB+, iter 2, parallel 1</td></tr>
-            <tr><td><strong>bcrypt</strong></td><td>권장</td><td>cost 최소 10 (OWASP 12)</td></tr>
+            <tr><td><strong>bcrypt</strong></td><td>권장</td><td>cost 최소 10 (OWASP: 10 이상)</td></tr>
             <tr><td><strong>scrypt</strong></td><td>허용</td><td>N=2^17, r=8, p=1</td></tr>
             <tr><td><strong>PBKDF2</strong></td><td>레거시</td><td>iter 600,000+ (SHA-256)</td></tr>
             <tr><td class="forbidden">MD5, SHA-1/256</td><td class="forbidden">금지</td><td>GPU 초당 수십억 해시</td></tr>
@@ -608,7 +608,7 @@ pre code { white-space: pre; }
           <tr><th>항목</th><th>값</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>bcrypt cost factor 최소값</strong></td><td>10 (OWASP 권장 12)</td></tr>
+          <tr><td><strong>bcrypt cost factor 최소값</strong></td><td>10 이상 (OWASP: work factor of 10 or more)</td></tr>
           <tr><td><strong>Argon2id 최소 메모리</strong></td><td>19 MiB</td></tr>
           <tr><td><strong>Argon2id iterations</strong></td><td>최소 2</td></tr>
           <tr><td><strong>JWT access token TTL</strong></td><td>15분</td></tr>

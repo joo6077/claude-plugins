@@ -141,7 +141,7 @@ CSS Grid로 3분할 구현:
 
 ### CSS aspect-ratio 속성
 
-모던 CSS에서 비율 컨테이너를 직접 선언할 수 있다 (Chrome 88+, Firefox 89+, Safari 15.4+):
+모던 CSS에서 비율 컨테이너를 직접 선언할 수 있다 (Chrome 88+, Firefox 89+, Safari 15+):
 
 ```css
 /* 16:9 비디오 컨테이너 */

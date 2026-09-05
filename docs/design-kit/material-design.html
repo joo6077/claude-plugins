@@ -284,7 +284,8 @@ md.sys.shape.corner.medium  = 12dp</pre>
     <div class="card">
       <h3>Jetpack Compose</h3>
       <pre><span class="k">MaterialTheme</span>(
-  colorScheme = <span class="k">dynamicColorScheme</span>(context),
+  colorScheme = <span class="k">if</span> (darkTheme) <span class="k">dynamicDarkColorScheme</span>(context)
+                <span class="k">else</span> <span class="k">dynamicLightColorScheme</span>(context),
   typography = Typography(
     displayLarge = TextStyle(/* ... */),
   ),
@@ -373,7 +374,7 @@ md.sys.shape.corner.medium  = 12dp</pre>
     <li><span class="check">✓</span><div><strong>ColorScheme 단일 소스</strong> — 모든 컬러 참조는 <code>colorScheme.*</code>. 직접 HEX 하드코딩 금지.</div></li>
     <li><span class="check">✓</span><div><strong>라이트/다크 토큰 분리</strong> — <code>ColorScheme.fromSeed</code> 에 <code>Brightness.light</code> / <code>Brightness.dark</code> 각각 생성.</div></li>
     <li><span class="check">✓</span><div><strong>타입스케일 15단계 준수</strong> — Display · Headline · Title · Body · Label × Large/Medium/Small. 임의 사이즈 금지.</div></li>
-    <li><span class="check">✓</span><div><strong>코너 반경 4단계</strong> — None 0 · Small 4 · Medium 12 · Large 16dp. Expressive 는 추가 XL. 임의 반경 금지.</div></li>
+    <li><span class="check">✓</span><div><strong>코너 반경은 shape scale 을 따른다</strong> — None 0 · Extra small 4 · Small 8 · Medium 12 · Large 16 · Extra large 28 · Full(50%) dp. 임의 반경 금지.</div></li>
     <li><span class="check">✓</span><div><strong>Elevation 토큰 사용</strong> — <code>md.sys.elevation.level0 ~ level5</code> 6단계만. 임의 그림자 금지.</div></li>
     <li><span class="check">✓</span><div><strong>적응형 네비게이션 분기</strong> — <code>WindowSizeClass</code> 또는 <code>MediaQuery</code> 로 Bar/Rail/Drawer 자동 전환.</div></li>
     <li><span class="check">✓</span><div><strong>On-* 대비 자동 보장</strong> — <code>colorScheme.onPrimary</code> 위에 텍스트 배치 시 대비비 자동. 수동 계산 금지.</div></li>

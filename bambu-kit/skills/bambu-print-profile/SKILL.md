@@ -574,7 +574,7 @@ Failure-Mode 판정
 |------|----------------------|------|
 | L1 계단 — **adaptive / variable layer height** | ❌ **불가** (`failure-recipes.md` §1.1) | **notes only.** `adaptive_layer_height` 를 JSON 에 넣지 마라 — Phase 4.3 게이트가 잡는다 |
 | L1 계단 — 고정 `layer_height` 하향 | ✅ 가능 | `0.12` 1 차, `0.08-0.12` 는 사용자 확인 후 (`failure-recipes.md` §1.2) |
-| L1 계단 — XY faceting | ✅ 가능 | `resolution` `0.006-0.010`. ⚠️ Z 계단 해결책 아님 |
+| L1 계단 — XY faceting | ✅ 가능 (조건부) | `resolution` `0.006-0.010`. ⚠️ Z 계단 해결책 아님. **XY faceting 을 실제로 관측했을 때만** 쓴다 — 2026-09-05 실측(faceting 없는 박스)에서는 이득 근거가 없어 철회됐다. surface-first 공통값으로 넣지 마라 |
 | L2 스트링잉 — 건조/소재 상태 | ❌ **불가** (물리 조건) | notes + 건조 후 재출력 권고. **건조 미충족이면 JSON 을 만지지 마라** |
 | L2 스트링잉 — wipe | ✅ 가능 (게이트 통과 시) | `filament_wipe` · `filament_wipe_distance` 2 키 한정 |
 | L2 스트링잉 — retraction 상향 | ⚠️ **coupon 후에만** | Phase 5 coupon 통과 전 본 출력 반영 금지 |
@@ -711,6 +711,8 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ✅ `wall_loops`, `sparse_infill_density`, `top/bottom_shell_layers`, `wall_sequence` (모델 형상 기반)
 - ✅ `seam_position`, `seam_slope_*`, `scarf_angle_threshold`, `override_filament_scarf_seam_setting` (seam 전략)
 - ✅ `outer_wall_speed`, `inner_wall_speed` (소재별)
+- ✅ **유량 인접 속도 3 키 — 외벽을 낮췄으면 반드시 함께 낮춘다**: `internal_solid_infill_speed`, `sparse_infill_speed`, `gap_infill_speed`. 이 키를 빼놓고 외벽만 낮추면 유량 계단이 생긴다 (§유량비 게이트)
+- ✅ **가속 2 키 — 속도와 같이 설계한다**: `outer_wall_acceleration`, `default_acceleration`. 속도만 내리고 가속을 두면 짧은 세그먼트에서 명령 속도에 도달하지 못한 채 유량만 출렁인다
 - ✅ 멀티컬러: `enable_prime_tower`, `prime_tower_width/brim_width/flat_ironing`, `flush_into_*`
 - ✅ `enable_support`
 - ✅ **(2026-08-13) L3 감지 시**: `brim_type`, `brim_width`, `brim_object_gap` · 조건부 `initial_layer_print_height`, `initial_layer_line_width`, `initial_layer_speed` (`failure-recipes.md` §3.1)
@@ -719,60 +721,242 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ❌ `adaptive_layer_height` — **넣지 마라.** option 정의 주석 처리 + legacy ignore set (`bambu-fields-baseline.md` §10.1). Phase 4.3 게이트가 잔존을 FAIL 처리한다
 - ❌ `bed_temperature`, `bed_temperature_initial_layer` — obsolete/금지. plate 온도가 필요하면 plate-specific 키만 쓰고 **사용자 확인 후에만** (`bambu-fields-baseline.md` §10.3)
 
+### 환경 검증 — 버전 조회 + 프리셋 온전성 (2026-09-05 신규 · Phase 3 진입 전 필수)
+
+references 의 수치는 **설치본에서 읽은 값**이다. 설치본이 낡았거나 프리셋이 손상된 상태면
+그 위에서 만든 프로파일도 틀린다. Phase 3 에 들어가기 전에 아래를 실행하고 출력을 응답에 붙여라.
+
+```bash
+python3 - <<'ENVPY'
+import json, pathlib, plistlib, sys
+APP = pathlib.Path("/Applications/BambuStudio.app")
+SYS = pathlib.Path.home()/"Library/Application Support/BambuStudio/system"
+errs, warns = [], []
+
+app = bundle = None
+try:
+    app = plistlib.load(open(APP/"Contents/Info.plist","rb"))["CFBundleShortVersionString"]
+except Exception as e:
+    errs.append(f"앱 버전 조회 실패: {e}")
+try:
+    bundle = json.loads((SYS/"BBL.json").read_text(encoding="utf-8"))["version"]
+except Exception as e:
+    errs.append(f"프로파일 번들 버전 조회 실패: {e}")
+print(f"앱 버전   : {app}")
+print(f"번들 버전 : {bundle}")
+
+SANE = {
+    "nozzle_volume":                 (80, 400,  "Bambu Lab H2S 0.4 nozzle"),
+    "filament_max_volumetric_speed": (1,  60,   "Bambu PLA Basic @BBL H2S"),
+    "filament_retraction_length":    (0,  5,    "Bambu PLA Basic @BBL H2S"),
+    "outer_wall_speed":              (1,  1000, "0.16mm High Quality @BBL H2S"),
+}
+idx = {}
+for kind in ("machine","process","filament"):
+    d = SYS/"BBL"/kind
+    if not d.is_dir():
+        errs.append(f"시스템 프로파일 경로 없음: {d}"); continue
+    for f in d.glob("*.json"):
+        try: j = json.loads(f.read_text(encoding="utf-8"))
+        except Exception: continue
+        if "name" in j: idx[j["name"]] = j
+
+def resolve(name, depth=0):
+    if depth > 12 or name not in idx: return {}
+    j = idx[name]
+    b = dict(resolve(j.get("inherits"), depth+1)) if j.get("inherits") else {}
+    b.update({k:v for k,v in j.items() if k not in ("inherits","name","from","type")})
+    return b
+
+for key,(lo,hi,prof) in SANE.items():
+    v = resolve(prof).get(key)
+    if v is None:
+        warns.append(f"{key}: {prof} 에서 못 읽음"); continue
+    v0 = v[0] if isinstance(v,list) else v
+    try: n = float(v0)
+    except (TypeError,ValueError):
+        errs.append(f"{key}={v0!r} 숫자 아님"); continue
+    ok = lo <= n <= hi
+    if not ok: errs.append(f"{key}={n} 이 상식 범위 [{lo},{hi}] 밖 — 손상 프리셋 의심 ({prof})")
+    print(f"{'OK ' if ok else '이상'} {key:32} {n:>8}  범위 [{lo},{hi}]")
+
+for w in warns: print(f"[미검증] {w}")
+for e in errs:  print(f"FAIL {e}")
+print("RESULT:", "FAIL" if errs else "PASS")
+sys.exit(1 if errs else 0)
+ENVPY
+```
+
+**ER-01 — 버전 조회에 실패하면**: 추측값을 쓰지 마라. `[미검증]` 으로 표시하고 references 의
+수치를 "확인되지 않은 기준" 으로 명시한 뒤 사용자에게 Studio 설치 상태를 확인받는다.
+설치 경로가 다르면 경로를 물어서 다시 조회한다.
+
+**ER-03 — 프리셋 온전성 검사가 FAIL 이면 프로파일 생성을 진행하지 마라.** 어느 키가 어떤 범위를
+벗어났는지 그대로 보고하고, Studio 를 최신 stable 로 갱신하거나 프로파일 번들을 다시 받도록
+안내한다. `2.8.1.55` ~ `2.8.2.60` 구간에 H2S 프리셋이 손상 배포된 전례가 있다
+(`nozzle_volume` 이 `["32","32","32"]`, 정상은 `["145","148"]`). **손상된 부모 위에서 만든 자식
+프로파일은 값이 전부 어긋난다.**
+
+⚠️ 앱 버전과 번들 버전은 **따로 움직인다.** Bambu 가 프로파일을 앱과 무관하게 네트워크로
+갱신하므로 앱을 안 올려도 번들이 앞서갈 수 있다 (실측: 앱 `02.06.00.51` / 번들 `02.06.00.05`).
+references 수치를 판단할 때 기준은 **번들 버전**이다.
+
+**vase 가능 판정 (2026-09-05 신규 · 회전체 seam 정책 1 순위):**
+
+`seam-recipes.md` §0 v4 트리의 (1) 분기다. **`spiral_mode` + `spiral_mode_smooth` 는 회전체에서
+seam 을 실제로 없애는 유일한 수단이며 사용자 수작업이 0 이다.** 켜기 전에 아래를 전부 통과해야 한다.
+
+⚠️ **조건을 어긴 레이어는 에러 없이 일반(seam 있는) 출력으로 조용히 폴백한다.** 슬라이서가
+경고하지 않으므로 생성 전에 형상을 직접 판정해야 한다 (`GCode.cpp` per-layer 게이트).
+
+1. 플레이트에 **인스턴스 1 개**, 또는 `print_sequence = "by object"` (아니면 슬라이스 에러)
+2. **단일 소재 · 단일 region** — modifier mesh 나 per-object 설정 override 가 없다 (아니면 에러)
+3. `bottom_shell_layers` 위 **모든 레이어가 닫힌 컨투어 정확히 1 개** — 관통 구멍 · 내벽 · 섬 ·
+   분기 · 손잡이가 하나라도 있으면 그 레이어는 탈락한다. Z 사다리로 잘라 루프 수를 세어 판정한다
+4. **수평 top 면이 없다** — 내부 선반·턱 포함. fill 이 생기는 region 이 있으면 그 레이어는 탈락
+5. **서포트 불필요** — 오버행이 자기지지 범위 안
+6. **watertight · manifold · 단일 연결 셸**
+7. `skirt_height <= bottom_shell_layers` 이고 draft shield 를 쓰지 않는다
+
+판정이 **불확실하면 켜지 마라.** 조용한 폴백 때문에 "켰는데 안 걸린" 상태가 사용자에게
+보이지 않는다. 애매하면 (2) painted 분기를 제안하고 사용자에게 형상 판단을 물어라.
+
+`spiral_mode = 1` 이 강제하는 값과 JSON 작성 형태는 `bambu-fields-baseline.md` §8.4 를 따른다.
+spiral 키 3 종은 **스칼라**다 — variant 배열이 아니다.
+
+⚠️ **H2S timelapse 경고 (필수 고지).** H2S 는 `corexy` + 단일 익스트루더라 슬라이서의 timelapse
+G-code 주입 조건에서 **spiral vase 예외가 적용되지 않는다** (`!m_spiral_vase` 가드가 I3 분기에만
+있다). 그 결과 매 레이어 셔터 pause 가 들어가 **없어야 할 seam 이 생긴다** —
+[issue #9166](https://github.com/bambulab/BambuStudio/issues/9166), 2025-12 제보 · **미해결**.
+
+**이것은 프로파일로 고칠 수 없다.** `timelapse_type` 에는 off 값이 없고 spiral 은 그 값이 `0`
+이기를 요구한다. 사용자에게 **전송 대화상자의 `타임랩스` 체크 해제**를 반드시 안내하라
+(프로세스 설정의 `기타 → 특수 모드 → 타임랩스` 는 모드 선택이지 off 가 아니다).
+
+`[미확인]` 2.8 에서 H2S machine 프로파일에 `farthest_point_timelapse = 1` 이 추가됐고 이 값이
+주입 조건에 부정으로 들어간다. 완화됐을 가능성이 있으나 실제 G-code 로 확인되지 않았다 —
+확인 전까지는 위 안내를 유지한다.
+
+**유량비 게이트 (2026-09-05 신규 · 외벽 속도를 낮출 때 필수):**
+
+표면 품질을 지배하는 것은 절대 속도가 아니라 **유량 `Q` 와 그 변화율**이다. 외벽만 낮추고 인접
+압출을 그대로 두면 "느린 프로파일" 이 아니라 **압력 상태를 흔드는 프로파일**이 된다.
+
+```text
+Q = line_width x layer_height x speed x flow_ratio        (mm^3/s)
+비율 = max(인접 feature 의 Q) / Q(outer_wall)
+```
+
+| 비율 | 판정 | 조치 |
+|------|------|------|
+| `<= 3x` | 통과 | 그대로 진행 |
+| `3x ~ 5x` | 경고 | notes.md 에 비율과 사유를 적고 사용자에게 고지 |
+| `> 5x` | **FAIL** | surface-first 적용 실패. 인접 속도를 낮춰 재계산한다. 조용히 통과시키지 마라 |
+
+인접 feature 는 `inner_wall` · `internal_solid_infill` · `sparse_infill` · `gap_infill` 넷이다.
+line width 는 feature 별 키(`inner_wall_line_width` 등)를 쓰고, `gap_infill` 은 전용 키가 없으므로
+`line_width` 로 폴백한다. `flow_ratio` 는 filament 부모의 `filament_flow_ratio` 를 쓴다.
+
+**권장 착지값은 `surface-recipes.md` §3 표가 정본이다** — 여기에 수치를 복제하지 마라.
+H2S 스톡값을 그대로 두면 비율이 5x 를 넘는다.
+
+근거: OrcaSlicer extrusion rate smoothing 문서가 Bambu X1C 에서 200 -> 40 mm/s(5x) 전이만으로
+압력 추종 실패 artifact 가 생긴 사례를 든다. Klipper pressure advance 문서는 PA 가 무한 보상이
+아니며 고가속 + 고 PA 에서 extruder skip 이 난다고 명시한다.
+
+⚠️ **MVS 여유**: 어느 feature 의 `Q` 도 소재의 `filament_max_volumetric_speed` 의 80 % 를 넘기지
+마라. 넘으면 슬라이서가 속도를 클램프하면서 유량이 다시 출렁인다. PLA Basic H2S 는 `25`/`40`,
+ABS H2S 는 `20`/`35` mm^3/s (Standard / High Flow).
+
 **filament JSON 튜닝 정책 — `seam-recipes.md`에서 결정된 scarf 필드만 override:**
 
 - ✅ `filament_scarf_seam_type` (none/external/all)
 - ✅ `filament_scarf_height`, `filament_scarf_gap`, `filament_scarf_length`
 - ❌ **`nozzle_temperature`, `nozzle_temperature_initial_layer` 안 건드림** — 사용자가 .3mf의 creator 튜닝 값이나 base profile 기본값을 유지하길 원함 (사용자 명시 요청 2026-05-16). **L2 스트링잉이 감지돼도 온도를 자동 하향하지 마라** — stringing 은 줄 수 있으나 층간 접착/flow 부족을 만든다
 - ❌ fan/cooling 안 건드림 — base에 위임. L3 aux fan 조정은 **notes 안내까지만** (`failure-recipes.md` §3.2)
-- ❌ retraction 기본 안 건드림 — base(printer/extruder)에 위임. **단 아래 L2 게이트 예외 2 단계만 허용**
+- ❌ retraction 기본 안 건드림 — base 에 위임. **단 아래 L2 게이트 예외 2 단계만 허용**
+- ⚠️ **override 하기 전에 소재 부모 프로파일을 실제로 조회한다.** filament 키의 기준값은 machine 기본이 아니라 **그 소재의 `@BBL H2S` 프로파일이 명시한 값**이다. 조회 절차는 §filament 부모값 조회 참조
 
-**L2 스트링잉 게이트 예외 (2026-08-13 신규 · `failure-recipes.md` §2.1 순서를 그대로 따른다):**
+**L2 스트링잉 게이트 (2026-09-05 개정 · `failure-recipes.md` §2.1 감별 트리를 따른다):**
 
-| 단계 | 조건 | 허용 override |
-|------|------|--------------|
-| (0) | 건조/소재 상태 미확인 또는 미충족 | **없음.** JSON 변경 없이 건조 후 재출력 권고로 종료 |
-| (1) | 건조 충족 + travel stringing 잔존 | `filament_wipe` = `"1"`, `filament_wipe_distance` = `"2"` — 이 2 키만 |
-| (2) | (1) 로도 잔존 | `filament_retraction_length` 를 `1.0`–`1.2` 까지만. **Phase 5 coupon 통과 후에만 본 출력 반영** |
+건조 여부를 먼저 묻지 마라. **관측 신호로 습기를 지목하거나 배제한 뒤에** 말한다.
+
+| 단계 | 관측 신호 | 판정 · 허용 override |
+|------|-----------|---------------------|
+| (a) | 압출 중 pop/crackle + 가시 증기, 압출물의 무작위 기포·공극, 결손이 경로와 무관하게 전역 랜덤 | **습기 1 순위.** 건조 후 재출력 권고 + JSON 보류 |
+| (b) | 결손이 travel 직후 **선 시작부**에 집중 | 리트랙션 재가압 · PA · seam 축. (1)(2) 로 진행 |
+| (c) | **특정 속도 구간**에서만 발생 | MVS 클램프 · 부분 막힘 · 온도 부족. JSON 은 §유량비 게이트로 |
+| (d) | **외벽에서만** 나고 인필은 멀쩡, 또는 속도 급변 **경계에서만** | 유량 계단. §유량비 게이트로 |
+| (1) | (b) 이고 travel stringing 잔존 | `filament_wipe` = `"1"`, `filament_wipe_distance` = **소재 부모값** — 이 2 키만 |
+| (2) | (1) 로도 잔존 | `filament_retraction_length` 를 **소재 부모값의 1.5 배까지만.** Phase 5 coupon 통과 후에만 본 출력 반영 |
+
+**건조 미확인은 진단 중단 사유가 아니다 — confidence cap 이다.** 건조가 검증되지 않았으면
+결론에 그 사실을 적고 신뢰도를 낮춰 보고하되, (b)(c)(d) 축의 진단과 JSON 수정은 그대로 진행한다.
+고흡습 소재(PA · PVA · TPU · PC · PETG)는 cap 을 더 강하게 둔다.
+
+`materials.md` 기준 25 °C / 55 % RH 포화 흡습률은 PLA Basic 0.43 % · PETG HF 0.40 % · ABS 0.65 % ·
+PC 0.25 % 이고 PA 계열이 그보다 한 자릿수 높다. **PLA 와 ABS 를 습기 1 순위로 두려면 (a) 신호가
+실제로 관측돼야 한다.**
 
 `filament_retraction_speed` · `filament_retraction_minimum_travel` · `filament_z_hop` ·
 `filament_z_hop_types` 는 키 사전으로만 갖는다 (`bambu-fields-baseline.md` §10.2) — 사용자가 명시
 요청할 때 정확한 키를 쓰기 위한 것이고 자동 결정 대상이 **아니다**.
 
-⚠️ **공통 filament profile 기본은 대체로 `"nil"` = printer/extruder 기본에 위임**이다. `"nil"` 을
-"미설정" 으로 읽고 임의 숫자로 채우면 프린터 기본 튜닝을 통째로 덮어쓴다. 위임 상태의 실효값은
-`bambu-fields-baseline.md` §10.2 의 underlying default 열을 본다.
+**filament 부모값 조회 (override 전 필수):**
+
+`fdm_filament_common` 의 `"nil"` 은 "미설정" 이 아니라 **위임**이다. 그리고 위임된 실효값이 곧
+machine 기본인 것도 아니다 — **소재 프로파일이 machine 값을 덮는 경우가 있다.**
+
+```bash
+# 소재 부모 프로파일의 실효값을 직접 읽는다. 추측하지 마라.
+SYS="$HOME/Library/Application Support/BambuStudio/system/BBL"
+python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1],encoding='utf-8'))
+for k in sorted(d):
+    if 'retract' in k or 'wipe' in k or 'volumetric' in k: print(f'{k:36} {d[k]}')
+" "$SYS/filament/Bambu ABS @BBL H2S.json"
+```
+
+실측 (Bambu Studio 02.06.00.51): `Bambu ABS @BBL H2S` 와 `Bambu PLA Basic @BBL H2S` 는
+`filament_retraction_length` `0.4` · `filament_wipe_distance` `1` 을 명시한다. machine
+`Bambu Lab H2S 0.4 nozzle` 의 `0.8` / `2` 와 **다르다.** `bambu-fields-baseline.md` §10.2 의
+underlying default 열은 **소재 override 가 없을 때의 값**이므로 그것을 소재값으로 쓰면 안 된다.
+
+조회에 실패하면(시스템 프로파일 경로 없음 등) **추측값을 쓰지 말고** 해당 filament 키를 아예
+생략하고 `[미검증]` 으로 보고한다 — 부모에 위임하는 쪽이 틀린 숫자보다 안전하다.
 
 **Surface-first 모드 (적용 여부는 Phase 1.8 Surface Intent Gate 판정을 따른다 — 여기서 다시 추측하지 마라):**
+
+> `references/user-preferences.md` 가 있으면 Phase 1.8 은 그 §1 을 적용하고 **사용자에게 표면 의도를 되묻지 않는다.** 그 파일은 목표(품질 우선)와 제약(시간 무제한)만 갖고 수단(구체 속도값)은 갖지 않는다 — 속도는 `surface-recipes.md` §3 이 소재별로 정한다.
 
 > 이전 판의 "default ON" 표기는 "사용자 요구가 …일 때" 라는 조건과 서로 모순이어서, 실제로는 아무도 켜지 않는 경로가 생겼다 (ironing 누락 회귀). 판정은 **Phase 1.8 단일 지점**에서만 한다.
 
 상세 정책은 `references/surface-recipes.md` 참조. SKILL은 결정 트리 분기와 형상 enumerate만 인라인으로 가진다.
 
 ```text
-회전체 default — Auto-select 결정 트리 (surface-recipes.md §2.1)
-  ※ 우선순위 원칙: 사용자 추가 작업이 없는 옵션이 default top.
+회전체 · 원통 결정 트리 (정본: seam-recipes.md §0 v4 — 여기서 재정의하지 마라)
   │
-  ├─ 1. spiral_mode 적용 가능? (단일 외벽, top 없음, infill 불필요, 단일 색상)
-  │      YES → spiral_mode = 1 (진짜 무 seam, Z축 연속 나선)
-  │             사용자 작업: 없음
+  ├─ 1. vase 가능?  → spiral_mode = 1 + spiral_mode_smooth = 1
+  │                   ★ 유일한 실질적 "해결". 사용자 작업 0.
+  │                   판정 체크리스트는 §vase 가능 판정. ⚠️ H2S 는 timelapse 를 끈다
   │
-  ├─ 2. DEFAULT — random 분산 전략 (사용자 작업 X)
-  │      seam_position: random + seam_slope_entire_loop: 1
-  │      + scarf external (length 15-20mm, gap 5-10%, height 0-10%, steps 10)
-  │      → wheel/원통 둘레 전체에 ramp 분산, 한 줄 라인 없이 specks
-  │      → spoke/텍스처 구조에 자연 위장
-  │      트레이드오프: micro-banding (specks). seam-recipes.md Real-world Finding 1
-  │      사용자 작업: 없음
+  ├─ 2. 숨길 면·방향 있음 → seam_position: aligned 또는 back
+  │                          + Studio seam paint (Enforce/Block) 로 은닉
+  │                          + scarf external, 길이는 seam-recipes.md §2.2 상한 준수, gap 0
+  │                          사용자 작업: 페인팅 5-10 분 — 사전 고지 필수
   │
-  └─ 3. 사용자가 명시적으로 "specks도 싫고 완벽한 클린 면" 요청 시에만 OPT-IN
-         → seam_position: aligned (또는 back) + scarf external
-         + 사용자가 Studio UI seam paint tool로 숨김 영역 페인팅 필수 (5-10분)
-         ※ painted 안 하면 visible 면에 한 줄 라인 그대로 남음
-         사용자 작업: 필수 (Studio UI 페인팅)
+  ├─ 3. 360° 노출 (숨길 곳 없음) → aligned/back + 짧은 scarf 로 약한 한 줄 수용
+  │                                 또는 CAD seam 은폐 feature · 소재 선택(PLA Matte/CF)
+  │
+  └─ 4. random → **fallback 전용.** 기능품·텍스처 허용 부품에만.
+                 surface-first default 로 쓰지 마라
 ```
 
-⚠️ **자동화 우선 원칙**: spiral 불가 회전체는 (2) random fallback이 default. (3) painted는 사용자가 명시적으로 "specks 분산도 거슬린다, 한 줄로 완벽히 숨기고 싶다"고 요청할 때만 OPT-IN으로 전환. 사용자 작업이 필요한 옵션을 자동으로 default top에 두지 않는다.
+⚠️ **v4 정정 (2026-09-05).** 이전 판은 (2) random 을 default top 에 뒀다. `random` 은 seam 을
+없애는 것이 아니라 **한 줄을 표면 전체의 specks 로 바꾸는 것**이며 (Prusa KB), 사용자가 그 결과를
+거부했다. "사용자 작업이 없는 옵션이 default" 라는 원칙은 유지되지만 — 그 원칙을 만족하는 최선은
+random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 
 **형상별 결정 트리 (6개 enumerate — surface-recipes.md §2 참조):**
 
@@ -801,7 +985,10 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 
 **외벽 표면 공통 (surface-recipes.md §3):**
 
-`layer_height` 0.08-0.12mm / `wall_loops` 3-4 / `outer_wall_speed` 20-40 mm/s / `wall_sequence` `inner-outer-inner wall` / `reduce_crossing_wall: 1` / `resolution` 0.006-0.010mm / PA · flow calibration 전제. 소재별 보정은 surface-recipes.md §3 표 참조.
+`layer_height` `0.12` 1 차 / `wall_loops` 3-4 / `wall_sequence` `inner-outer-inner wall` / `reduce_crossing_wall: 1` / PA · flow calibration 전제.
+속도는 단일 값이 아니라 **유량비로 결정한다** — outer 만 적는 것은 이 회귀의 원인이었다. §유량비 게이트 + surface-recipes.md §3 표 참조.
+
+⚠️ `resolution` 하향과 `enable_arc_fitting` 끄기는 **surface-first 공통값이 아니다.** 2026-09-05 실측(opus-xero)에서 `resolution 0.008` 은 이득 근거가 없어 baseline 으로 되돌렸고, `enable_arc_fitting` 은 §튜닝 정책이 기본값 유지로 못박고 있다.
 
 ⚠️ **PETG HF 안전 경고 — surface-first 모드 적용 시 PETG HF는 AMS HT 65°C 8h 사전 건조 + continuous drying 필수**. 건조 부족 + 낮은 outer speed 조합은 stringing/blob 폭발. seam-recipes.md Finding 4 + surface-recipes.md §6.5 참조.
 
@@ -937,7 +1124,38 @@ zip 을 만들기 **전에** 생성한 JSON 전부에 대해 아래를 실행하
 ```bash
 python3 - <output_dir>/process/*.json <output_dir>/filament/*.json <<'PY'
 import sys, json, pathlib
-allok=True
+allok=True; unverified=[]
+
+# 시스템 프로파일 인덱스 — 부모 체인 해석용 (유량비 · 부모값 이탈 검사)
+SYS = pathlib.Path.home()/"Library/Application Support/BambuStudio/system/BBL"
+SYSIDX = {}
+if SYS.is_dir():
+    for kind in ("process","filament"):
+        for q in (SYS/kind).glob("*.json"):
+            try: dd = json.loads(q.read_text(encoding="utf-8"))
+            except Exception: continue
+            if "name" in dd: SYSIDX[dd["name"]] = dd
+
+def resolve(name, depth=0):
+    if depth > 12 or name not in SYSIDX: return {}
+    dd = SYSIDX[name]
+    base = dict(resolve(dd.get("inherits"), depth+1)) if dd.get("inherits") else {}
+    base.update({k: v for k, v in dd.items() if k not in ("inherits","name","from","type")})
+    return base
+
+def num(v):
+    if isinstance(v, list): v = v[0] if v else None
+    try: return float(v)
+    except (TypeError, ValueError): return None
+
+# 인접 feature: (속도 키, line width 키). gap_infill 은 전용 width 가 없어 line_width 로 폴백한다.
+ADJACENT = (("inner_wall_speed","inner_wall_line_width"),
+            ("internal_solid_infill_speed","internal_solid_infill_line_width"),
+            ("sparse_infill_speed","sparse_infill_line_width"),
+            ("gap_infill_speed","line_width"))
+# 소재 부모값을 벗어나면 안 되는 filament 키. 상한은 부모값의 1.5 배 (coupon 통과 전제)
+GUARDED = ("filament_retraction_length","filament_wipe_distance",
+           "filament_retraction_speed","filament_retraction_minimum_travel","filament_z_hop")
 for p in sys.argv[1:]:
     f=pathlib.Path(p).name; errs=[]
     try: d=json.loads(pathlib.Path(p).read_text(encoding="utf-8"))
@@ -972,6 +1190,55 @@ for p in sys.argv[1:]:
                 errs.append(f"elefant_foot_compensation={eff!r} 숫자 문자열 아님")
             if str(d.get("raft_layers","0")) not in ("0",""):
                 errs.append(f"raft_layers={d.get('raft_layers')} 이면 elefant_foot 무효화됨")
+    par = resolve(d.get("inherits")) if SYSIDX else {}
+    if not SYSIDX:
+        unverified.append(f"{f}: 시스템 프로파일 경로 없음 — 유량비/부모값 검사 미실행")
+    elif not par:
+        unverified.append(f"{f}: 부모 {d.get('inherits')!r} 해석 실패 — 유량비/부모값 검사 미실행")
+    elif t=="process":
+        # 유량비 게이트 — 동일 filament 이므로 flow_ratio 는 비율에서 상쇄된다
+        eff = dict(par); eff.update(d)
+        lh = num(eff.get("layer_height"))
+        ow = num(eff.get("outer_wall_speed"))
+        oww = num(eff.get("outer_wall_line_width")) or num(eff.get("line_width"))
+        if lh and ow and oww:
+            q_out = oww*lh*ow
+            worst, who = 0.0, None
+            for sk, wk in ADJACENT:
+                sp = num(eff.get(sk)); wd = num(eff.get(wk)) or num(eff.get("line_width"))
+                if not (sp and wd): continue
+                r = (wd*lh*sp)/q_out
+                if r > worst: worst, who = r, sk
+            if who:
+                if worst > 5.0:
+                    errs.append(f"유량비 {worst:.1f}x ({who}) — 5x 초과. 인접 속도를 낮춰라")
+                elif worst > 3.0:
+                    print(f"WARN {f}: 유량비 {worst:.1f}x ({who}) — 3~5x 경고 구간. notes.md 에 사유를 적어라")
+        else:
+            unverified.append(f"{f}: layer_height/outer_wall_speed/line_width 결측 — 유량비 미계산")
+    # scarf 길이 / 루프 둘레 비율 검사 (2026-09-05 신규 · seam-recipes.md §2.2)
+    if t=="process" and str(d.get("seam_slope_type","none"))!="none":
+        L=num(d.get("seam_slope_min_length"))
+        C=num(d.get("_scarf_loop_circumference_mm"))
+        if L is None:
+            L=num(par.get("seam_slope_min_length")) if par else None
+        if C is None:
+            unverified.append(f"{f}: scarf 켜짐인데 _scarf_loop_circumference_mm 미기록 — 길이/둘레 비율 미검증")
+        elif L is not None and C>0:
+            r=L/C
+            if r>0.15:
+                errs.append(f"scarf 길이 {L}mm 가 루프 둘레 {C}mm 의 {r*100:.0f}% — 상한 15% 초과 (seam-recipes.md §2.2)")
+            elif L<3:
+                errs.append(f"scarf 길이 {L}mm 가 하한 3mm 미만 — 끄거나 3mm 이상으로")
+    elif t=="filament":
+        # 소재 부모값 이탈 검사
+        for k in GUARDED:
+            if k not in d: continue
+            cv, pv = num(d.get(k)), num(par.get(k))
+            if pv is None:
+                unverified.append(f"{f}: {k} 부모값이 위임(nil) — 이탈 판정 불가")
+            elif cv is not None and pv > 0 and cv > pv*1.5:
+                errs.append(f"{k}={cv} 가 소재 부모값 {pv} 의 1.5 배 초과 — 부모값을 쓰거나 coupon 근거를 대라")
     for k,v in d.items():
         if isinstance(v,(int,float,bool)): errs.append(f"{k} 가 문자열이 아님 ({v!r})")
     if errs:
@@ -982,6 +1249,7 @@ for p in sys.argv[1:]:
               f"ironing={d.get('ironing_type','-')} xy_hole={d.get('xy_hole_compensation','-')} "
               f"layer={d.get('layer_height','-')} brim={d.get('brim_type','-')} "
               f"wipe={d.get('filament_wipe','-')}")
+for u in unverified: print(f"[미검증] {u}")
 print("RESULT:","PASS" if allok else "FAIL")
 sys.exit(0 if allok else 1)
 PY

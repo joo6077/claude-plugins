@@ -353,7 +353,7 @@ npx shadcn@latest add dialog</span></pre>
     <li><span class="check">✓</span><div><strong>테마 토큰 매핑</strong> — 선택한 시스템의 토큰과 프로젝트 디자인 토큰 1:1 매핑 문서화. 추후 교체 가능성 대비.</div></li>
     <li><span class="check">✓</span><div><strong>커스터마이징 전략</strong> — 스타일 오버라이드(Ant) vs 복사 편집(Shadcn) vs Props(Chakra) 중 팀 컨벤션 명시.</div></li>
     <li><span class="check">✓</span><div><strong>키보드 내비게이션 테스트</strong> — Tab 순서 · Focus ring · Escape 동작. 접근성 주장 라이브러리도 커스텀 래핑으로 깨질 수 있음.</div></li>
-    <li><span class="check">✓</span><div><strong>다크 모드 지원</strong> — Radix/Shadcn 은 CSS 변수 기반 → <code>.dark</code> 클래스로 일괄 전환. Ant 는 <code>ConfigProvider theme={theme.darkAlgorithm}</code>.</div></li>
+    <li><span class="check">✓</span><div><strong>다크 모드 지원</strong> — Radix/Shadcn 은 CSS 변수 기반 → <code>.dark</code> 클래스로 일괄 전환. Ant 는 <code>ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}</code>.</div></li>
     <li><span class="check">✓</span><div><strong>국제화(i18n)</strong> — RTL 대응 · 날짜 포맷 locale · 키보드 단축키 충돌 확인. Ant/Mantine 은 locale package 제공.</div></li>
     <li><span class="check">✓</span><div><strong>Form/Table 로우코드</strong> — 복잡 폼은 Ant ProComponents, Mantine Form, React Hook Form + Zod 중 선택.</div></li>
     <li><span class="check">✓</span><div><strong>라이선스 확인</strong> — Radix/Tailwind/Shadcn/Mantine/Chakra 는 MIT. Ant Design 은 MIT. 모두 상업적 사용 가능.</div></li>

@@ -80,7 +80,7 @@ const {widget_prefix}Checkbox({
 ```
 
 공식 스타일 가이드가 중복 회피와 간결성을 함께 권고한다(`AVOID redundancy with the surrounding context`, `PREFER brevity`).
-실측 최다 카테고리가 이름 번역 주석 약 85건 / 48파일이었다.
+실측 두 번째 카테고리가 이름 번역 주석 약 85건 / 48파일이었다 (1위는 템플릿 마커 약 90건).
 
 **강도:** SHOULD
 

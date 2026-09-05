@@ -2,7 +2,11 @@
 
 > Last updated: 2026-05-16
 > Source: Codex research run `a25261e23b21252b2` (score 24/25)
-> Bambu Studio reference version: 2.6.0 (v02.06.00.51)
+> Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
+>   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+>   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+>   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+>   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 > Sibling references: `seam-recipes.md` (seam 전용), `bambu-fields-baseline.md` §8 · §10 (필드 enum/default), `materials.md` (소재 카탈로그), `failure-recipes.md` (**실측 실패 후 사후 대응** — 이 파일은 사전 정책이다)
 >
 > **2026-08-13 정정 (카이젠 Phase 13):** `layer_height` `0.08` 의 공식 근거 표기 · `enable_arc_fitting` 성격 · `resolution` 적용 축 3 건. 근거: `.harness/.meta/evidence/phase13.md`
@@ -26,44 +30,30 @@
 
 ### 출력 시간 예상
 
-- 일반 0.20mm Standard 대비 **2~4배** 늘어남 (0.12mm + outer 30mm/s + wall 3 + ironing)
+- 일반 0.20mm Standard 대비 **2~4배** 늘어남 (0.12mm + 외벽·인접 속도 하향 + wall 3 + ironing)
 - 사용자에게 시간 추정치 사전 고지
 
 ## 2. 형상별 결정 트리 (Auto-select)
 
 스킬이 모델 형상을 분석한 후 다음 순서로 자동 판정. 모호하면 사용자에게 옵션 제시.
 
-### 2.1. 회전체 / 원기둥 / 컵 / 화병 (v3 — 자동화 우선)
+### 2.1. 회전체 / 원기둥 / 컵 / 화병 (v4 — 2026-09-05)
+
+**정본은 `seam-recipes.md` §0 이다.** 여기서 트리를 재정의하지 말고 요지만 둔다.
 
 ```text
-회전체 모델 감지
-  ※ 우선순위 원칙: 사용자 추가 작업이 없는 옵션이 default top.
-  │
-  ├─ (1) spiral_mode 적용 가능한가?
-  │      조건: 단일 외벽, top 없음, infill 불필요, 멀티컬러 아님
-  │      YES → spiral_mode = 1
-  │             (wall_loops=1, top_shell_layers=0, sparse_infill_density=0 자동 강제)
-  │             seam: 없음 (Z축 연속 나선이라 진짜 무 seam)
-  │             사용자 작업: 없음
-  │
-  ├─ (2) DEFAULT — random 분산 전략 (자동, 사용자 작업 X)
-  │      seam_position = random + seam_slope_entire_loop = 1
-  │      + scarf external + length 15-20mm, gap 5-10%, height 0-10%, steps 10
-  │      → wheel/원통 둘레 전체에 ramp 분산, 한 줄 라인 없이 specks
-  │      → spoke/텍스처 구조에 자연 위장
-  │      트레이드오프: micro-banding (specks)
-  │      seam-recipes.md Real-world Finding 1 (vent pipe에서 random > aligned 검증) 적용
-  │      사용자 작업: 없음
-  │
-  └─ (3) 사용자가 명시적으로 "specks도 싫고 완벽한 클린 면" 요청 시에만 OPT-IN
-         → seam_position = aligned (또는 back)
-         + 사용자가 Studio UI에서 seam paint tool로 숨김 영역 페인팅 필수
-         + scarf external + length 15-20mm, gap 5-10%, height 0-10%, steps 10
-         ※ painted 안 하면 visible 면에 한 줄 라인 그대로 남음 (위험)
-         사용자 작업: 필수 (Studio UI 페인팅 5-10분)
+회전체 감지
+  ├─ (1) vase 가능?  → spiral_mode = 1 + spiral_mode_smooth = 1   ★ 유일한 해결, 수작업 0
+  │                     ⚠️ H2S 는 전송 시 timelapse 를 끈다
+  ├─ (2) 숨길 면 있음 → aligned/back + Studio seam paint + 짧은 scarf (gap 0)
+  ├─ (3) 360° 노출    → aligned/back + 짧은 scarf 로 약한 한 줄 수용
+  │                     또는 CAD seam 은폐 feature · 소재 선택(PLA Matte/CF)
+  └─ (4) random       → fallback 전용. surface-first default 아님
 ```
 
-v3 변경 사유: v2에서는 painted를 default top에 두었으나 (페리스 휠 dogfood 케이스에서) 사용자가 페인팅 부담을 직관에 위배된다고 피드백 → 자동화 우선 원칙으로 painted는 명시적 요청 시에만 OPT-IN.
+v4 변경 사유: `random` 은 seam 을 없애는 것이 아니라 한 줄을 표면 전체 specks 로 바꾸는 것이며
+(Prusa KB), 사용자가 그 결과를 거부했다 (2026-09-05). v3 의 "사용자 수작업이 없는 옵션이
+default" 라는 원칙은 유지된다 — 그 원칙을 만족하는 최선이 random 이 아니라 vase 였다.
 
 ### 2.2. 박스 / 직육면체
 
@@ -76,7 +66,7 @@ v3 변경 사유: v2에서는 painted를 default top에 두었으나 (페리스 
 
 - `seam_position`: aligned (back 방향 우선)
 - Studio UI seam paint로 후면, 주름, 접합부, 머리카락 텍스처에 페인팅
-- scarf: `Contour` (외벽만), length 10-15mm, gap 5-10%, height 0-10%, steps 10
+- scarf: `Contour` (외벽만), length 10-15mm, gap 0, height 0-10%, steps 10
 - Smart scarf는 각도 판정 흔들리면 Off 고려 (seam-recipes.md §1 참조)
 
 ### 2.4. 얇은 벽 / 미세 디테일
@@ -104,16 +94,28 @@ v3 변경 사유: v2에서는 painted를 default top에 두었으나 (페리스 
 
 H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 
+**이 표가 속도·가속 값의 정본(SSOT)이다.** `seam-recipes.md` 는 seam 전략만 갖고 속도는 여기를
+참조한다. 두 문서에 같은 소재의 속도 범위를 따로 적지 마라 — 2026-08 superlube 회귀가
+그 불일치에서 나왔다.
+
+⚠️ **단일 값이 아니라 유량비로 판정한다.** outer 만 낮추는 것은 surface-first 가 아니다.
+인접 feature 의 `Q` 비율이 `3x` 이하인지 확인하라 (`SKILL.md` §유량비 게이트).
+
 | 항목 | Surface-first 값 | 기본 baseline | 근거 |
 |----|----|----|----|
 | `layer_height` | **`0.12` mm 1 차 권장** (전 형상). 회전체/유기적에서 계단이 핵심이고 시간을 감수할 때만 `0.08-0.12` mm, 큰 평면 `0.12-0.16` mm | H2S 0.20 Standard | `0.12`: 0.12mm High Quality @BBL H2S.json (공식 체인 실재). **`0.08` 은 이 파일의 공식 근거가 아니다** — `min_layer_height 0.07` 하한 위라는 것만 확인되고 H2S 공식 0.08 process 프로파일 근거는 `[미확인]` (`bambu-fields-baseline.md` §10.1) |
 | `wall_loops` | `3` (표면 우선) ~ `4` (강도까지 우선) | `2` (fdm_process_common) | fdm_process_common.json |
-| `outer_wall_speed` | `20-40` mm/s (PLA/PETG), `15-25` (Silk), `20-30` (PA/PC/ABS), `10-20` (TPU) | H2S 0.12 HQ `60` mm/s | 0.12mm High Quality @BBL H2S.json |
+| `outer_wall_speed` | **소재별 매트릭스(아래)가 정본.** PLA `25-40` · Silk `15-25` · **PETG `50-70`** · PA/PC `20-30` · ABS/ASA `25-35` · TPU `10-20` mm/s | H2S 0.12 HQ `60` mm/s | 0.12mm High Quality @BBL H2S.json. ⚠️ PETG 를 PLA 와 같은 저속 그룹에 묶지 마라 — §소재별 매트릭스 참조 |
 | `inner_wall_speed` | outer의 `2-3배` 이하 (예: outer 30 → inner 60-90) | H2S 0.12 HQ `90` mm/s | 동일 |
-| `wall_sequence` | `inner-outer-inner wall` 기본; 박스 sharp 치수 우선만 `inner wall/outer wall` | `inner wall/outer wall` | fdm_process_common.json:58 (enum) |
+| `internal_solid_infill_speed` | outer 30 기준 `70-120` mm/s | H2S 0.16 HQ `200` mm/s | 0.16mm High Quality @BBL H2S.json. **스톡을 그대로 두면 유량비가 5x 를 넘는다** |
+| `sparse_infill_speed` | `internal_solid` 와 같은 창 | H2S 0.16 HQ `200` mm/s | 동일 |
+| `gap_infill_speed` | `30-70` mm/s, 최대 `80` | H2S 0.16 HQ `250` mm/s | 동일 |
+| `outer_wall_acceleration` | `1000-2000` mm/s² | H2S `2000` | 속도만 내리고 가속을 두면 짧은 세그먼트에서 유량만 출렁인다 |
+| `default_acceleration` | `2500-4000` mm/s² (유량비 5x 초과 시 2500-3000) | H2S `4000` | 동일 |
+| `wall_sequence` | `inner-outer-inner wall` 기본; 박스 sharp 치수 우선만 `inner wall/outer wall` | `inner wall/outer wall` | fdm_process_common.json:58 (enum). ⚠️ **`inner-outer-inner wall` 은 `wall_loops >= 3` 을 전제한다** — 2 겹 이하에서는 의도대로 동작하지 않으므로 쓰지 마라. Creator 가 `wall_loops` 를 2 로 고정한 모델에 이 값을 넣은 사례가 있다 (2026-08 superlube) |
 | `reduce_crossing_wall` | `1` | `0` | fdm_process_common.json:100 |
 | `enable_arc_fitting` | `1` (**기본값 유지 — 표면 품질 카드가 아니다**) | `1` | fdm_process_common.json:29. ⚠️ 이것은 품질 개선 기능이 아니라 **G-code encoding 변경**(직선 세그먼트 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 해결책으로 제시하지 마라 — `failure-recipes.md` §1.2 |
-| `resolution` | `0.006-0.010` mm | `0.012` mm | fdm_process_common.json:103. ⚠️ **XY 세그먼트 해상도 전용** — Z 계단의 주 해결책이 아니다 (`failure-recipes.md` §1.2) |
+| `resolution` | **기본값 `0.012` 유지** | `0.012` mm | fdm_process_common.json:103. ⚠️ XY 세그먼트 해상도 전용이고 Z 계단 해결책이 아니다. 2026-09-05 실측(opus-xero)에서 `0.008` 은 이득 근거가 없어 철회됐다 — 표면 품질 카드로 제시하지 마라 |
 | flow ratio | 소재/색상별 calibration 후 적용 (PLA Basic 기본 `0.98`) | 동일 | Bambu PLA Basic @BBL H2S.json:29-42 |
 | Pressure Advance (PA) | 소재/노즐/건조 후 PA profile 저장 필수 (Bambu Studio Calibration → PA test) | — | Bambu 공식 calibration 가이드 |
 
@@ -124,7 +126,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 | PLA Basic | `25-40` | `0.08-0.12` | 가장 예측 가능. ironing 적극 |
 | PLA Matte | `25-40` | `0.08-0.12` | layer line 가장 잘 숨음. 표면 매끈함 최강 |
 | PLA Silk | `15-25` | `0.10-0.12` | 광택 보존 위해 더 느림. ironing은 topmost_only만 (광택 죽음 주의) |
-| PETG HF | `20-35` | `0.12` | **AMS HT 65°C 8h 사전 건조 + continuous drying 필수**. fan 20-50% 유지 |
+| PETG HF | `50-70` | `0.12` | **AMS HT 65°C 8h 사전 건조 + continuous drying 필수**. fan 20-50% 유지. ⚠️ **PETG 는 저속에서 ooze 가 누적된다** — 2026-08-13 superlube 실측에서 outer `30` 이 표면을 망쳤고 `50` 으로 올려 해결됐다. PLA 기준 저속을 PETG 에 그대로 쓰지 마라 |
 | PA-CF / PAHT-CF | `20-30` | `0.12` | fiber 질감으로 완전 매끈함 한계. **AMS HT 80°C 8h 건조 + hardened nozzle 필수** |
 | PC | `20-30` | `0.12` | 건조 필수 (chamber 60°C). ooze 많으면 외벽 first wipe |
 | ABS / ASA | `25-35` | `0.12` | enclosure + brim. 후가공(vapor smoothing) 가능 |
