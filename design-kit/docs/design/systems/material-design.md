@@ -253,7 +253,7 @@ Android 16과 함께 발표된 M3 Expressive는 Material Design의 시각적 표
 | 영역 | M3 기존 | M3 Expressive |
 |------|---------|--------------|
 | **색상** | 5가지 키 컬러 (P/S/T/N/NV) | **6번째 키 컬러** 추가 + 더 높은 채도 변형 |
-| **Shape** | 코너 반경 4단계 (None/Small/Medium/Large) | **Squircle(스퀴클)** 형태 도입 + 더 큰 코너 반경 |
+| **Shape** | 코너 반경 shape scale (None/Extra small/Small/Medium/Large/Extra large/Full) | **Squircle(스퀴클)** 형태 도입 + 더 큰 코너 반경 |
 | **타이포그래피** | 5역할 × 3크기 = 15단계 | 가변 서체 축 활용 강화 + **Expressive 스케일** 추가 |
 | **모션** | 7 이징 + 16 듀레이션 | **스프링 기반 물리 애니메이션** 강화 |
 | **컴포넌트** | 표준 크기 | **XL 변형** 추가 (FAB XL, Button XL 등) |
@@ -317,7 +317,8 @@ Tone 값의 차이가 곧 대비비를 결정한다:
 
 ```kotlin
 MaterialTheme(
-    colorScheme = dynamicColorScheme(context),  // 다이내믹 컬러
+    colorScheme = if (darkTheme) dynamicDarkColorScheme(context)
+                  else dynamicLightColorScheme(context),  // 다이내믹 컬러 (API 31+)
     typography = Typography(
         displayLarge = TextStyle(/* ... */),
         // ... M3 타입 스케일 15단계

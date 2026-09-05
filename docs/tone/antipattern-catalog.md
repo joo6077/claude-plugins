@@ -89,7 +89,7 @@ const {widget_prefix}SliderWidget({
 grep -rnE '^[[:space:]]*[A-Za-z_].*[a-zA-Z0-9_?],[[:space:]]*//[[:space:]]*[가-힣]' --include='*.dart' .
 ```
 
-강도 `MUST` 삭제 · 축 `[코어]` `[한국어]`. Effective Dart 의 등급은 `AVOID` 이고 이 카탈로그는 이를 `MUST` 로 승격했다. 승격 사유는 실측 최다 빈도(48파일 전역, 약 85건)와 제거 시 손실 0 이다.
+강도 `MUST` 삭제 · 축 `[코어]` `[한국어]`. Effective Dart 의 등급은 `AVOID` 이고 이 카탈로그는 이를 `MUST` 로 승격했다. 승격 사유는 실측 상위 빈도(48파일 전역, 약 85건 — 템플릿 마커 약 90건 다음)와 제거 시 손실 0 이다.
 
 > **출처:** [Effective Dart — documentation](https://dart.dev/effective-dart/documentation) · 프로젝트 실측 (57 파일 / 약 85건, 2026-04~06)
 

@@ -73,7 +73,7 @@ malformed request, 인증 실패, 권한 부족, validation 실패, rate limit�
 5xx 응답 본문은 기본적으로 exact 계약에서 제외하고 status class + envelope 형태 + retry metadata만 검증한다.
 RFC 9457도 problem detail이 구현 디버깅 도구가 아니며 내부 정보 노출 위험이 있다고 경고한다 — 그런 본문을 golden으로 고정하면 안 된다.
 
-> **출처:** [RFC 9457 §4 Extension Members](https://www.rfc-editor.org/rfc/rfc9457.html#section-4) · [RFC 9457 §5 Security Considerations](https://www.rfc-editor.org/rfc/rfc9457.html#section-5)
+> **출처:** [RFC 9457 §4 Defining New Problem Types](https://www.rfc-editor.org/rfc/rfc9457.html#section-4) · [RFC 9457 §5 Security Considerations](https://www.rfc-editor.org/rfc/rfc9457.html#section-5)
 
 ---
 

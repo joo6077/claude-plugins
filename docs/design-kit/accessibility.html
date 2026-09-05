@@ -551,7 +551,7 @@ pre{overflow-x:auto;max-width:100%}
       </div>
       <div class="aria-map-row">
         <div class="aria-map-label">search</div>
-        <div class="aria-map-content"><code>&lt;search&gt;</code> -- 검색 기능 (HTML5.2+)</div>
+        <div class="aria-map-content"><code>&lt;search&gt;</code> -- 검색 기능 (HTML Living Standard, 2023-03 &middot; Chrome 118 · Safari 17 · Firefox 118+)</div>
       </div>
       <div class="aria-map-row">
         <div class="aria-map-label">contentinfo</div>
@@ -828,7 +828,7 @@ pre{overflow-x:auto;max-width:100%}
 <section id="testing">
   <div class="section-label">Assistive Technology Testing</div>
   <div class="section-title">보조 기술 테스트</div>
-  <p class="section-desc">자동화 도구는 전체 접근성 문제의 약 30~40%만 검출합니다. 실제 보조 기술 테스트가 필수입니다.</p>
+  <p class="section-desc">자동화 도구가 잡는 것은 전체 접근성 문제의 일부일 뿐입니다 (Deque 보고서 기준 57.38%). 실제 보조 기술 테스트가 필수입니다.</p>
 
   <div class="card mb-32">
     <div class="card-title"><span class="dot"></span>스크린 리더 점유율 (WebAIM 2024)</div>
@@ -907,7 +907,7 @@ pre{overflow-x:auto;max-width:100%}
 
   <div class="note">
     <div class="note-title">자동화 도구의 한계 — 수동 테스트로만 잡히는 것</div>
-    <p>axe · Lighthouse · WAVE 같은 자동화 도구는 전체 접근성 문제의 약 <strong>30~40% 만 검출</strong>한다 (Deque 자체 연구). 나머지 60~70% 는 수동 테스트로만 발견된다. 최소 테스트 조합은 <strong>iOS VoiceOver + Safari · Windows NVDA + Chrome</strong>(전체의 약 65% 커버)이다.</p>
+    <p>Deque 의 자동 검사 커버리지 보고서는 자사 자동화 테스트가 전체 이슈의 <strong>57.38% 를 검출</strong>했다고 밝힌다 (같은 보고서가 업계 통념을 "20~30%" 로 소개한다). 어느 쪽이든 <strong>나머지는 수동 테스트로만 발견된다</strong> &mdash; 자동화만으로 끝내지 마라. 최소 테스트 조합은 <strong>iOS VoiceOver + Safari · Windows NVDA + Chrome</strong>(전체의 약 65% 커버)이다.</p>
     <ul>
       <li>의미적으로 잘못된 alt 텍스트 — 기술적으로 존재하지만 내용이 부적절</li>
       <li>논리적이지 않은 탭 순서</li>

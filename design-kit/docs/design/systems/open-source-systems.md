@@ -117,12 +117,12 @@ Shadcn/ui는 전통적인 npm 패키지 방식을 거부하고, **소스 코드�
 
 ```bash
 # 프로젝트 초기화 — Tailwind, 경로 별칭 등 설정
-npx shadcn-ui@latest init
+npx shadcn@latest init
 
 # 개별 컴포넌트 추가 — 소스 코드가 프로젝트로 복사됨
-npx shadcn-ui@latest add button
-npx shadcn-ui@latest add dialog
-npx shadcn-ui@latest add form
+npx shadcn@latest add button
+npx shadcn@latest add dialog
+npx shadcn@latest add form
 ```
 
 복사된 파일은 `components/ui/` 디렉토리에 저장되며, 개발자가 자유롭게 수정한다.

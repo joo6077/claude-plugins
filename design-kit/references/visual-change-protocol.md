@@ -188,8 +188,9 @@ QA evaluator 가 증거로 읽는 위치다.
 
 ### Variant Contract Matrix (산출 **전** 합의 · E1 아티팩트)
 
-`skill-design-guide` §5.6 의 Variant Matrix 5 열에 `strategy_label` · `intended_user_scenario`
-2 열을 더한 것이다. 열을 빼지 마라.
+`skill-design-guide` §5.6 의 Variant Matrix 5 열(`id` · `axis` · `axis value` · `constants` ·
+`생성·수정 파일`)에서 `axis` 와 `axis value` 를 `axis_vector` 한 열로 합치고,
+`strategy_label` · `intended_user_scenario` 2 열을 더한 **6 열**이다. 열을 빼지 마라.
 
 | variant_id | strategy_label | axis_vector (축1/축2/축3/축4) | constants | intended_user_scenario | 생성 파일 |
 | ---- | ---- | ---- | ---- | ---- | ---- |
