@@ -787,6 +787,20 @@
     .mock-sidebar { display: none; }
     .decision-table { font-size: 0.75rem; }
   }
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
+     로컬(macOS) 375px 에서 0 이어도 CI(Linux) 에서 넘칠 수 있다. 폰트 메트릭이 넓어
+     같은 구조적 약점이 거기서만 드러난다 (실측 2026-09-05: 이 페이지가 CI 에서 20 px).
+     경계값을 맞추지 말고 구조를 고친다. */
+  [class*="grid"] > *, [class*="scale"] > *, [class*="row"] > *,
+  [class*="cols"] > *, [class*="flex"] > * { min-width: 0; }
+  table { max-width: 100%; }
+  table:not(.table-wrap table) { display: block; overflow-x: auto; }
+  pre { overflow-x: auto; max-width: 100%; }
+  :not(pre) > code, strong, em, b { overflow-wrap: anywhere; }
+  @media (max-width: 640px) {
+    [class*="grid"], [class*="scale"], [class*="cols"] { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
