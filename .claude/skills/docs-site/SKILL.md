@@ -30,6 +30,13 @@ user-invocable: true
 11. **오버플로를 잘라서 없애지 마라** — `overflow:hidden` / `overflow-x:hidden` / `display:none` 으로 억제하는 것은 내용 손실이므로 FAIL 이다. 특히 `body`/`html` 에 `overflow-x:hidden` 을 걸면 증상만 가려지고 원인이 남는다. 표·코드는 **끝까지 스크롤 도달 가능**해야 한다.
 12. **경계값 튜닝 금지** — 페이지별 고유 하드코딩 폭(`width:340px` 류)으로 맞추지 마라. CI(Linux)가 로컬(macOS)보다 나쁘게 렌더된다 (실측: 오버플로 CI 11 / 로컬 7). **0px 를 목표로** 하라.
 13. **테마 토글을 넣으면 영속화까지** — `localStorage` 키는 `dk-theme` 로 통일하고 로드 시 복원 IIFE 를 넣는다. 저장값이 없으면 `prefers-color-scheme` 을 따른다. 키를 새로 만들지 마라 (현재 레포에 `dk-theme`/`theme`/`vs-theme`/`cp-theme` 4 종이 갈려 있다).
+14. **대비는 토큰에서 터진다** — 실측 2026-09-05: 172 페이지 중 150 개가 WCAG AA 미달이었고,
+    실패 1088 건 중 836 건(77%)이 `--text3:#7A6F64` 한 토큰이었다. 다크 `--bg` 위 3.95,
+    `--surface2` 위 3.34 다. 현재 값은 `#948779`(5.55 / 4.67)이니 **내리지 마라.**
+    같은 이유로 `--border` 를 텍스트 색으로 쓰지 말고(`.sep{color:var(--border)}` 가 1.5~2.2였다),
+    스타일 없는 `<a>` 를 두지 마라(브라우저 기본 `#0000EE` 가 다크 배경에서 1.87이다).
+    저대비가 본질인 디자인 스타일 표본은 `data-contrast-exempt="specimen"` 으로 **명시 면제**하고
+    왜 면제인지 페이지에 한 줄 적어라 — 조용히 넘기는 것과 구분된다.
 
 # Process
 
@@ -107,35 +114,22 @@ Sprint Contract 전에 다음을 확인한다:
 2. Read `docs/index.html` → categories 배열에 해당 `id` 항목이 추가되었는지 확인
 3. Read `docs/index.html` → `getIcon()` 함수에 해당 `id` 키가 존재하는지 확인
 4. Grep `:root` → 생성된 HTML의 `--accent` 값이 `references/css-tokens.md`의 플러그인 매핑과 일치하는지 확인
-5. **가로 오버플로 실측 (Gotcha 10~12 검증 — 코드에 CSS 가 있다는 것은 증거가 아니다)**
-
-   생성한 페이지를 브라우저로 열어 실제 값을 측정한다. `375px` 에서 `> 2` 면 FAIL:
+5. **접근성 실측 (Gotcha 10~14 검증 — 코드에 CSS 가 있다는 것은 증거가 아니다)**
 
    ```bash
-   node -e '
-   const { chromium } = require(process.cwd() + "/node_modules/playwright-core");
-   const files = process.argv.slice(1);
-   (async () => {
-     const b = await chromium.launch();
-     for (const f of files) {
-       const ctx = await b.newContext({ viewport: { width: 375, height: 812 } });
-       const p = await ctx.newPage();
-       const errs = [];
-       p.on("console", m => m.type() === "error" && errs.push(m.text()));
-       p.on("pageerror", e => errs.push(String(e)));
-       await p.goto("file://" + require("path").resolve(f));
-       const o375 = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-       await p.setViewportSize({ width: 768, height: 1024 });
-       const o768 = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-       console.log(`${o375 <= 2 && o768 <= 2 && !errs.length ? "OK  " : "FAIL"} ${f}  375=${o375}px 768=${o768}px errors=${errs.length}`);
-       await ctx.close();
-     }
-     await b.close();
-   })();
-   ' docs/{plugin-name}/{page-name}.html
+   node scripts/check-docs-a11y.js docs/{plugin-name}/{page-name}.html
    ```
 
-   FAIL 이면 Gotcha 10 의 4 규칙 중 빠진 것을 찾아 넣는다. **`overflow:hidden` 으로 덮지 마라** (Gotcha 11).
+   이 스크립트가 재는 것: 가로 오버플로(375/768/1280px, `> 2px` 면 FAIL) · 콘솔 에러 ·
+   **직접 자식 텍스트를 가진 모든 요소**의 WCAG AA 대비 · 테마 토글 44×44.
+
+   대비를 선택자 몇 개만 재면 통과가 나온다. `.desc`/`.card-source`/`.section-label` 3 종만
+   재던 판에서는 `minContrast 4.64` 로 PASS 였는데 `.caption` 이 3.95 였다 (실측 2026-09-05).
+   그래서 이 스크립트는 전 요소를 훑고 유효 배경을 조상으로 거슬러 올라가 계산한다.
+
+   오버플로 FAIL 이면 Gotcha 10 의 4 규칙 중 빠진 것을 찾아 넣는다.
+   **`overflow:hidden` 으로 덮지 마라** (Gotcha 11).
+   대비 FAIL 이면 토큰 값을 올려라 — 대부분 페이지가 아니라 공유 토큰이 원인이다.
 
 하나라도 실패하면 수정 후 재검증한다.
 

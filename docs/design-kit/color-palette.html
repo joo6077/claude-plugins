@@ -9,20 +9,24 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
   --accent-glow:rgba(232,150,90,0.06);
   --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
+  --on-accent:#0d0d14;
   --radius:14px;--radius-sm:8px;--radius-lg:20px;
   --transition:0.25s cubic-bezier(.4,0,.2,1);
 }
 [data-theme="light"]{
   --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--surface3:#F5F0E8;
   --border:#d4d9e6;--border2:#c0c6d8;
-  --text:#181825;--text2:#606882;--text3:#A89A8F;
-  --accent:#3b6fdb;--accent2:#7c5ec9;--accent-dim:rgba(59,111,219,0.1);
+  --text:#181825;--text2:#606882;--text3:#6d6156;
+  --accent:#2b5fc4;--accent2:#6d4fbd;--accent-dim:rgba(59,111,219,0.1);
   --accent-glow:rgba(59,111,219,0.04);
-  --error:#dc2626;--success:#16a34a;--warn:#d97706;--info:#0284c7;
+  /* 라이트 배경(#f4f5f9~#ffffff) 실측: text3 5.30~6.01 · accent 5.23~5.45
+     success 5.87~6.08 · error 5.25~5.92 */
+  --error:#c02626;--success:#0f6b33;--warn:#a35a00;--info:#0369a1;
+  --on-accent:#ffffff;
 }
 html{font-size:16px;scroll-behavior:smooth}
 body{
@@ -163,8 +167,8 @@ tbody tr:hover{background:var(--accent-glow)}
 .cc-ratio{font-size:36px;font-weight:800;margin-bottom:8px}
 .cc-badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 .badge{padding:4px 14px;border-radius:100px;font-size:12px;font-weight:700}
-.badge.pass{background:rgba(74,222,128,0.15);color:#4ade80}
-.badge.fail{background:rgba(248,113,113,0.15);color:#f87171}
+.badge.pass{background:rgba(74,222,128,0.15);color:var(--success)}
+.badge.fail{background:rgba(248,113,113,0.15);color:var(--error)}
 
 /* 60-30-10 */
 .ratio-demo{display:flex;border-radius:var(--radius-lg);overflow:hidden;height:300px;border:1px solid var(--border)}
@@ -295,19 +299,19 @@ tbody tr:hover{background:var(--accent-glow)}
       <div class="tier-num">Tier 3 — Component Token</div>
       <div class="tier-name">컴포넌트 토큰</div>
       <div class="tier-example">button-primary-bg → color-action</div>
-      <p style="font-size:13px;color:var(--text3);margin-top:8px">특정 컴포넌트에 한정된 토큰. 테마별 독립 변형이 필요할 때 사용.</p>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">특정 컴포넌트에 한정된 토큰. 테마별 독립 변형이 필요할 때 사용.</p>
     </div>
     <div class="tier-box" style="background:var(--surface2)">
       <div class="tier-num">Tier 2 — Semantic Token</div>
       <div class="tier-name">시맨틱 토큰</div>
       <div class="tier-example">color-action → blue-600 (Light) / blue-400 (Dark)</div>
-      <p style="font-size:13px;color:var(--text3);margin-top:8px">용도와 맥락을 부여. 다크 모드 전환 시 이 레이어에서 매핑만 변경.</p>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">용도와 맥락을 부여. 다크 모드 전환 시 이 레이어에서 매핑만 변경.</p>
     </div>
     <div class="tier-box" style="background:var(--surface3)">
       <div class="tier-num">Tier 1 — Primitive Token (Reference)</div>
       <div class="tier-name">프리미티브 토큰</div>
       <div class="tier-example">blue-600 → #1D6AFF</div>
-      <p style="font-size:13px;color:var(--text3);margin-top:8px">원시 색상값. 직접 UI에 사용하지 않고 Semantic 토큰이 참조한다.</p>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">원시 색상값. 직접 UI에 사용하지 않고 Semantic 토큰이 참조한다.</p>
     </div>
   </div>
 
@@ -475,19 +479,19 @@ tbody tr:hover{background:var(--accent-glow)}
       <div class="card-title"><span class="dot"></span>MD3 톤 기반 고도</div>
       <p class="text-muted mb-16" style="font-size:13px">primary tint가 가미되어 고도가 높아질수록 표면이 밝아진다</p>
       <div class="elev-bar">
-        <div class="elev-step" style="height:30%;background:#0e0e12;color:var(--text3)">Lv0</div>
-        <div class="elev-step" style="height:40%;background:#181825;color:var(--text3)">Lv1</div>
-        <div class="elev-step" style="height:55%;background:#1e1e30;color:var(--text2)">Lv2</div>
-        <div class="elev-step" style="height:70%;background:#282845;color:var(--text2)">Lv3</div>
-        <div class="elev-step" style="height:85%;background:#2a2a40;color:var(--text)">Lv4</div>
-        <div class="elev-step" style="height:100%;background:#3a3a55;color:var(--text)">Lv5</div>
+        <div class="elev-step" style="height:30%;background:#0e0e12;color:#948779">Lv0</div>
+        <div class="elev-step" style="height:40%;background:#181825;color:#948779">Lv1</div>
+        <div class="elev-step" style="height:55%;background:#1e1e30;color:#A89A8F">Lv2</div>
+        <div class="elev-step" style="height:70%;background:#282845;color:#A89A8F">Lv3</div>
+        <div class="elev-step" style="height:85%;background:#2a2a40;color:#F5F0E8">Lv4</div>
+        <div class="elev-step" style="height:100%;background:#3a3a55;color:#F5F0E8">Lv5</div>
       </div>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>Apple Base / Elevated</div>
       <div style="display:flex;gap:12px;margin-top:8px">
         <div style="flex:1;padding:20px;background:#000000;border-radius:12px;text-align:center">
-          <div style="font-size:11px;color:#666;margin-bottom:8px;font-weight:600">BASE</div>
+          <div style="font-size:11px;color:#8f8f8f;margin-bottom:8px;font-weight:600">BASE</div>
           <div style="font-size:13px;color:#999">기본 화면 배경<br>더 어두움</div>
         </div>
         <div style="flex:1;padding:20px;background:#1c1c1e;border-radius:12px;text-align:center">
@@ -563,27 +567,27 @@ tbody tr:hover{background:var(--accent-glow)}
   <div class="ap-grid mt-24">
     <div class="ap-card bad">
       <div class="ap-label">Bad — Accent 과다 사용 (30%+)</div>
-      <div style="padding:16px;background:#E8965A;border-radius:8px;color:#fff;font-size:14px;margin-bottom:8px">전체 배경이 Accent</div>
-      <div style="padding:10px;background:#F0B088;border-radius:8px;color:#fff;font-size:13px;margin-bottom:8px">보조 영역도 Accent</div>
-      <div style="padding:8px 16px;background:#f87171;border-radius:8px;color:#fff;font-size:13px;display:inline-block">버튼도 강조색</div>
+      <div style="padding:16px;background:#E8965A;border-radius:8px;color:#0d0d14;font-size:14px;margin-bottom:8px">전체 배경이 Accent</div>
+      <div style="padding:10px;background:#F0B088;border-radius:8px;color:#0d0d14;font-size:13px;margin-bottom:8px">보조 영역도 Accent</div>
+      <div style="padding:8px 16px;background:#f87171;border-radius:8px;color:#0d0d14;font-size:13px;display:inline-block">버튼도 강조색</div>
     </div>
     <div class="ap-card good">
       <div class="ap-label">Good — 60-30-10 비율 준수</div>
       <div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text2);margin-bottom:8px">배경은 차분한 Surface (60%)</div>
       <div style="padding:10px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--text2);margin-bottom:8px">보조 영역은 Container (30%)</div>
-      <div style="padding:8px 16px;background:var(--accent);border-radius:8px;color:#fff;font-size:13px;display:inline-block;font-weight:600">Primary CTA (10%)</div>
+      <div style="padding:8px 16px;background:var(--accent);border-radius:8px;color:var(--on-accent);font-size:13px;display:inline-block;font-weight:600">Primary CTA (10%)</div>
     </div>
   </div>
 
   <div class="ap-grid mt-24">
     <div class="ap-card bad">
       <div class="ap-label">Bad — 색상만으로 에러 전달</div>
-      <div style="padding:12px 16px;background:rgba(248,113,113,0.1);border-radius:8px;color:#f87171;font-size:14px">입력 값이 올바르지 않습니다</div>
+      <div style="padding:12px 16px;background:rgba(248,113,113,0.1);border-radius:8px;color:var(--error);font-size:14px">입력 값이 올바르지 않습니다</div>
       <p style="font-size:12px;color:var(--text3);margin-top:8px">적록색각이상자는 빨간색을 인지 못할 수 있음</p>
     </div>
     <div class="ap-card good">
       <div class="ap-label">Good — 색상 + 아이콘 + 텍스트</div>
-      <div style="padding:12px 16px;background:rgba(248,113,113,0.1);border-radius:8px;color:#f87171;font-size:14px;display:flex;align-items:center;gap:8px">
+      <div style="padding:12px 16px;background:rgba(248,113,113,0.1);border-radius:8px;color:var(--error);font-size:14px;display:flex;align-items:center;gap:8px">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v5M8 11v1"/></svg>
         입력 값이 올바르지 않습니다 (필수 항목)
       </div>
@@ -595,15 +599,16 @@ tbody tr:hover{background:var(--accent-glow)}
     <div class="ap-card bad">
       <div class="ap-label">Bad — 밝은 placeholder 텍스트</div>
       <div style="padding:12px 16px;background:#ffffff;border:1px solid #e0e0e0;border-radius:8px">
-        <span style="color:#c0c0c0;font-size:14px">이메일을 입력하세요</span>
-        <span style="font-size:11px;color:var(--error);margin-left:8px">대비비 ~1.5:1</span>
+        <span data-contrast-exempt="specimen" style="color:#c0c0c0;font-size:14px">이메일을 입력하세요</span>
+        <span style="font-size:11px;color:#c02626;margin-left:8px">대비비 ~1.5:1</span>
       </div>
+      <p style="font-size:12px;color:var(--text2);margin-top:8px">위 placeholder 는 <strong>일부러 AA 를 어긴 표본</strong>이다. 대비를 올리면 무엇이 문제인지 보이지 않으므로 원래 값(#C0C0C0)을 그대로 둔다.</p>
     </div>
     <div class="ap-card good">
       <div class="ap-label">Good — 충분한 대비의 placeholder</div>
       <div style="padding:12px 16px;background:#ffffff;border:1px solid #e0e0e0;border-radius:8px">
         <span style="color:#767676;font-size:14px">이메일을 입력하세요</span>
-        <span style="font-size:11px;color:var(--success);margin-left:8px">대비비 4.5:1 AA</span>
+        <span style="font-size:11px;color:#0f6b33;margin-left:8px">대비비 4.5:1 AA</span>
       </div>
     </div>
   </div>
@@ -788,7 +793,7 @@ function createSwatch(name, hex, textColor, container){
     const ratio=contrastRatio(luminance(fr,fg2,fb),luminance(br,bg2,bb));
     const r=Math.round(ratio*10)/10;
     ratioEl.textContent=r+':1';
-    ratioEl.style.color=r>=4.5?'#4ade80':r>=3?'#fbbf24':'#f87171';
+    ratioEl.style.color=r>=4.5?'var(--success)':r>=3?'var(--warn)':'var(--error)';
 
     const badges=[
       {label:'AA 일반',pass:r>=4.5},{label:'AA 대형',pass:r>=3},

@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
   --accent-glow:rgba(232,150,90,0.06);
   --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
@@ -76,7 +76,7 @@ tbody tr:hover{background:var(--accent-glow)}
   white-space:pre;tab-size:2;
 }
 .code-block .kw{color:#c792ea}.code-block .fn{color:#82aaff}
-.code-block .str{color:#c3e88d}.code-block .cm{color:#546e7a;font-style:italic}
+.code-block .str{color:#c3e88d}.code-block .cm{color:#7d97a5;font-style:italic}
 .code-block .num{color:#f78c6c}.code-block .op{color:#89ddff}
 
 /* COMPARE PANELS */
@@ -134,7 +134,7 @@ tbody tr:hover{background:var(--accent-glow)}
 
 /* STEP INDICATOR */
 .step-num{display:inline-flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;
+  width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--bg);
   font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
 
 /* BADGE */
@@ -163,7 +163,7 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
 .threshold-bar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .threshold-track{flex:1;height:24px;background:var(--surface2);border-radius:var(--radius-sm);overflow:hidden;position:relative}
 .threshold-fill{height:100%;border-radius:var(--radius-sm);display:flex;align-items:center;
-  padding-left:10px;font-size:11px;font-weight:700;color:#fff}
+  padding-left:10px;font-size:11px;font-weight:700;color:var(--bg)}
 .threshold-label{font-size:13px;font-weight:500;min-width:140px;color:var(--text2)}
 
 @media(max-width:600px){

@@ -41,7 +41,7 @@
     /* Text */
     --text-primary: #F5F0E8;
     --text-secondary: #A89A8F;
-    --text-tertiary: #6B6175;
+    --text-tertiary: #9A8FA6;
     --text-disabled: #4A4358;
   }
 
@@ -787,6 +787,20 @@
     .mock-sidebar { display: none; }
     .decision-table { font-size: 0.75rem; }
   }
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
+     로컬(macOS) 375px 에서 0 이어도 CI(Linux) 에서 넘칠 수 있다. 폰트 메트릭이 넓어
+     같은 구조적 약점이 거기서만 드러난다 (실측 2026-09-05: 이 페이지가 CI 에서 20 px).
+     경계값을 맞추지 말고 구조를 고친다. */
+  [class*="grid"] > *, [class*="scale"] > *, [class*="row"] > *,
+  [class*="cols"] > *, [class*="flex"] > * { min-width: 0; }
+  table { max-width: 100%; }
+  table:not(.table-wrap table) { display: block; overflow-x: auto; }
+  pre { overflow-x: auto; max-width: 100%; }
+  :not(pre) > code, strong, em, b { overflow-wrap: anywhere; }
+  @media (max-width: 640px) {
+    [class*="grid"], [class*="scale"], [class*="cols"] { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -947,7 +961,8 @@
     <!-- Text -->
     <div class="card">
       <div class="card-label">Text Hierarchy</div>
-      <div class="text-scale">
+      <p style="color:var(--text-secondary);font-size:12px;line-height:1.6;margin-bottom:10px">아래 <strong>Aa</strong> 스와치는 각 tier 의 색 자체를 보여주는 표본이라 WCAG AA 를 따르지 않는다. Disabled tier 는 비활성 상태를 나타내려고 일부러 낮은 대비를 쓴다 — 실제 제품에서 본문에 쓰면 안 된다.</p>
+      <div class="text-scale" data-contrast-exempt="specimen">
         <div class="text-item">
           <div class="text-preview" style="color:#F5F0E8;">Aa</div>
           <div class="text-info">
@@ -965,11 +980,11 @@
           </div>
         </div>
         <div class="text-item">
-          <div class="text-preview" style="color:#6B6175;">Aa</div>
+          <div class="text-preview" style="color:#9A8FA6;">Aa</div>
           <div class="text-info">
             <div class="name">Tertiary</div>
             <div class="role">플레이스홀더, 타임스탬프</div>
-            <div class="contrast">#6B6175 · 3.2:1</div>
+            <div class="contrast">#9A8FA6 · 3.2:1</div>
           </div>
         </div>
         <div class="text-item">

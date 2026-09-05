@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;--text4:#3d4260;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;--text4:#3d4260;
   --accent:#E8965A;--accent2:#F0B088;--gold:#f0c040;--green:#34d399;--red:#f87171;--cyan:#22d3ee;
   --radius:14px;--radius-sm:8px;--radius-xs:6px;
   --transition:0.3s cubic-bezier(.4,0,.2,1);
@@ -102,7 +102,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   transition:all var(--transition);font-family:var(--font);
 }
 .tab-btn:hover{border-color:var(--text3);color:var(--text)}
-.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 
 /* ── 가로 오버플로 방지 4 규칙 (자르지 말고 스크롤시킨다) ── */
 .grid-2>*,.grid-3>*,.anti-grid>*{min-width:0}
@@ -128,7 +128,7 @@ td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(
 .code-block .kw{color:var(--accent2)}
 .code-block .prop{color:var(--cyan)}
 .code-block .val{color:var(--gold)}
-.code-block .cmt{color:var(--text4)}
+.code-block .cmt{color:#7b82a8}
 
 /* === GOLDEN RATIO DEMO === */
 .golden-canvas{
@@ -302,7 +302,7 @@ td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(
 }
 .touch-box .t-inner{
   background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;
-  font-size:10px;color:#fff;font-weight:700;
+  font-size:10px;color:var(--bg);font-weight:700;
 }
 .touch-box .t-label{font-size:11px;color:var(--text2);margin-top:10px;text-align:center;font-weight:600}
 .touch-box .t-size{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px}
@@ -329,6 +329,9 @@ footer a{color:var(--accent);text-decoration:none}
   .scale-step{flex-wrap:wrap}
   .scale-step .step-use{width:auto;text-align:left}
 }
+  /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
+  a{color:var(--accent)}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -483,7 +486,7 @@ footer a{color:var(--accent);text-decoration:none}
       <!-- Mock UI elements -->
       <div class="thirds-ui-mock" style="top:8%;left:5%;font-size:clamp(10px,1.5vw,14px);color:var(--text3);font-weight:700">LOGO</div>
       <div class="thirds-ui-mock" style="top:28%;left:28%;font-size:clamp(14px,2.5vw,28px);font-weight:800;color:var(--text);max-width:45%">핵심 메시지를 상단 1/3 교차점에</div>
-      <div class="thirds-ui-mock" style="top:62%;left:60%;background:var(--accent);color:#fff;padding:8px 24px;border-radius:8px;font-size:clamp(11px,1.2vw,14px);font-weight:700">지금 시작하기</div>
+      <div class="thirds-ui-mock" style="top:62%;left:60%;background:var(--accent);color:var(--bg);padding:8px 24px;border-radius:8px;font-size:clamp(11px,1.2vw,14px);font-weight:700">지금 시작하기</div>
     </div>
   </div>
 
