@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회귀 diff 실패 분류 정책</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  /* Light — lime 은 흰 배경에서 대비가 안 나온다. 어두운 올리브로 내린다.
+     #4D7C0F 는 흰 배경 4.99 로 통과하지만 --surface2 위에서 4.46 이라 한 단계 더 내렸다 */
+  [data-theme="light"]{
+    --bg:#f6f7f3;--bg2:#eceee7;--surface:#ffffff;--surface2:#f1f3ec;--border:#dcdfd3;
+    --text:#181c14;--text2:#4d5348;--text3:#666D5F;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(246,247,243,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(163,230,53,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(163,230,53,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  [data-theme="light"] .nav-logo span{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:880px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — partial / pin / exact 처럼 3 단계를 표기할 때 쓴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-1{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,0.34)}
+  .s-2{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .s-3{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(163,230,53,0.3)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle{margin-bottom:clamp(18px,2.5vw,26px)}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;line-height:1.7;
+    border-left:3px solid var(--accent);padding-left:12px;margin-bottom:18px;max-width:880px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  [data-theme="light"] .card-source:hover{color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(163,230,53,0.05)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+
+  /* ── 수치 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,200px) 1fr minmax(64px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── before / after 쌍 ── */
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
+  .pair:last-child{margin-bottom:0}
+  .pane{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .pane-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .pane-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .pane-head{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .pane-what{font-size:12px;color:var(--text3);line-height:1.5;overflow-wrap:anywhere}
+  .pane pre{background:var(--surface);margin-bottom:0;flex:1}
+  .pair-caption{font-size:12px;color:var(--text3);margin:-6px 0 18px;line-height:1.6}
+
+  /* ── 비교 패널 (텍스트) ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 단계 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 220px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
+  .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
+  .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+  .rule-box strong{color:var(--accent)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+
+  /* ════ 페이지 전용 — exit code 레인 ════
+     계약 실패(4)와 환경 실패(3)를 한눈에 갈라 보여주는 카드 격자.
+     새 그리드이므로 자식에 min-width:0 을 직접 건다. */
+  .lane{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px;margin-top:6px}
+  .lane>*{min-width:0}
+  .lane-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+    display:flex;flex-direction:column;gap:6px}
+  .lane-code{font-family:var(--mono);font-size:22px;font-weight:800;line-height:1;color:var(--text3)}
+  .lane-kind{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;font-family:var(--mono)}
+  .lane-what{font-size:12.5px;color:var(--text2);line-height:1.6;overflow-wrap:anywhere}
+  .lane-item.k-pass{border-color:rgba(74,222,128,0.4)}
+  .lane-item.k-pass .lane-code,.lane-item.k-pass .lane-kind{color:var(--green)}
+  .lane-item.k-tool{border-color:rgba(251,191,36,0.34)}
+  .lane-item.k-tool .lane-code,.lane-item.k-tool .lane-kind{color:var(--yellow)}
+  .lane-item.k-env{border-color:rgba(34,211,238,0.4)}
+  .lane-item.k-env .lane-code,.lane-item.k-env .lane-kind{color:var(--cyan)}
+  .lane-item.k-contract{border-color:rgba(248,113,113,0.4)}
+  .lane-item.k-contract .lane-code,.lane-item.k-contract .lane-kind{color:var(--red)}
+
+  /* 검증 상태 배지 — 문서 기재인지 실측인지 구분한다 */
+  .verif{display:inline-block;font-size:10px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;
+    font-family:var(--mono);padding:3px 8px;border-radius:4px;white-space:nowrap}
+  .v-doc{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)}
+  .v-measured{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  /* 배지 옆에 재현 방법을 한 줄로 붙인다 — 「실측」만으로는 무엇을 어떻게 했는지 남지 않는다 */
+  .how{display:block;font-family:var(--mono);font-size:11.5px;color:var(--text3);
+    line-height:1.6;margin-top:5px;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">api-kit <span>/ regression diff failure policy</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>회귀 diff 실패 분류 정책</h1>
+<p class="subtitle">baseline 과 실제 응답의 차이를 어떤 실패로 부를지 정하는 판단 규칙. 상태·스키마·값 drift 분류, 계약 실패와 환경 실패의 분리, exit code 계약, CI artifact 매핑을 다룬다. <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span></p>
+
+<div class="warn-banner">
+  <h2>이 문서의 중심축 — 계약 실패와 환경 실패를 exit code 로 가른다</h2>
+  <p><strong>서버가 죽은 것</strong>과 <strong>계약이 깨진 것</strong>은 대응이 다르다. 앞은 재시도·인프라 확인이고 뒤는 코드 리뷰다. 둘을 같은 실패로 묶으면 CI 대시보드는 원인을 집계하지 못하고, 게이트는 노이즈로 채워진다. api-kit 은 이 분리를 문장이 아니라 <strong>종료 코드</strong>로 강제한다 — 런타임 오류는 <code>3</code>, assert 실패는 <code>4</code>다.</p>
+  <p>이 분리가 가능한 이유는 실행 엔진이 고정되어 있기 때문이다. 설계문서 §12 확정 결정표는 실행 엔진을 <strong>Hurl 8.0.1</strong> 로 못박았고, <code>/api-verify</code> 는 그 종료 코드 체계를 재매핑 없이 승계한다.</p>
+  <p><strong>아래 exit code 표는 2026-09-05 에 로컬 hurl 8.0.1 로 5 종 전부 재현해 확인했다.</strong> 정상 실행으로 <code>0</code>, <code>--no-such-flag</code> 로 <code>1</code>, 깨진 <code>[Asserts</code> 블록으로 <code>2</code>, 닫힌 포트 9999 로 <code>3</code>, 틀린 jsonpath 로 <code>4</code> 를 각각 받았다. 문서 기재와 일치한다 — <span class="mono">docs/api/research-log.md</span> 「2026-09-05 — Hurl 8.0.1 실측 대조」 절이 정본이다.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">01 · 이 문서가 결정하는 것</div>
+  <p class="desc">회귀 실행 결과 하나를 놓고 세 가지를 순서대로 정한다. 무엇이 달라졌는지(분류), 그 차이가 게이트를 깨는지(심각도), 그 결과를 어떤 모양으로 CI 에 남기는지(artifact). 이 셋은 독립이 아니라 앞 단계가 뒤 단계의 입력이다.</p>
+
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">Step 1 — 분류</span>
+      <span class="what">무엇이 달라졌는가</span>
+      <span class="out">status drift · schema drift · value drift 를 각각 다른 카테고리로 센다. normalize 이후에도 남는 차이만 값 drift 로 인정한다.</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">Step 2 — 심각도</span>
+      <span class="what">게이트를 깨는가</span>
+      <span class="out">계약 실패인지 환경 실패인지 가르고, 계약이 accepted baseline 을 가졌는지(모드)로 게이트 파괴 여부를 정한다.</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">Step 3 — artifact</span>
+      <span class="what">어떻게 기록하는가</span>
+      <span class="out">JUnit XML 의 <code>failure</code> / <code>error</code> / <code>skipped</code> 중 하나로 내보낸다. 전부 <code>failure</code> 로 미는 순간 집계가 무의미해진다.</span>
+    </div>
+  </div>
+
+  <pre><code>실행 결과
+   │
+   ├─ exit 0 ─────────────────────────────► pass
+   │
+   ├─ exit 1 / 2 ── 도구·계약 파일 오류 ──► 실행 중단 (재시도 금지)
+   │
+   ├─ exit 3 ────── 환경 실패 ────────────► 계약 판정 보류 · JUnit error
+   │                (DNS · TLS · connect · timeout)
+   │
+   └─ exit 4 ────── 계약 실패 ────────────► 분류 분기
+                    │
+                    ├─ status drift  : 상태 클래스 단위로 비교
+                    ├─ schema drift  : 필드 추가·삭제·타입 변경
+                    └─ value drift   : normalize 후 남은 차이만
+                                       │
+                                       └─► 모드 판정 (observe / accepted)
+                                            → 게이트 파괴 여부 결정</code></pre>
+  <p class="caption">exit 1 과 2 는 대상 API 를 건드리지도 못한 상태다. 이 둘을 회귀 통계에 넣으면 계약 실패율이 도구 설정 실수로 오염된다.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">02 · 확정 결정 — exit code 승계</div>
+  <p class="lead">계약 실패와 환경 실패는 리포트 문구가 아니라 종료 코드로 구분한다. <code>/api-verify</code> 는 Hurl 의 코드 체계를 그대로 쓰고 임의로 재매핑하지 않는다.</p>
+
+  <div class="lane">
+    <div class="lane-item k-pass">
+      <span class="lane-code">0</span>
+      <span class="lane-kind">pass</span>
+      <span class="lane-what">전 assertion 통과. JUnit 에서는 result child 없이 testcase 만 남는다.</span>
+    </div>
+    <div class="lane-item k-tool">
+      <span class="lane-code">1</span>
+      <span class="lane-kind">tool</span>
+      <span class="lane-what">CLI 옵션 파싱 오류. 사용자가 잘못 부른 것이므로 재시도해도 같다.</span>
+    </div>
+    <div class="lane-item k-tool">
+      <span class="lane-code">2</span>
+      <span class="lane-kind">input</span>
+      <span class="lane-what">입력 <code>.hurl</code> 파싱 오류. 계약 파일 자체를 고쳐야 한다.</span>
+    </div>
+    <div class="lane-item k-env">
+      <span class="lane-code">3</span>
+      <span class="lane-kind">env</span>
+      <span class="lane-what">런타임 오류 — DNS · TLS · connect · timeout. 계약 판정을 <strong>보류</strong>한다.</span>
+    </div>
+    <div class="lane-item k-contract">
+      <span class="lane-code">4</span>
+      <span class="lane-kind">contract</span>
+      <span class="lane-what">assert 실패. 계약이 깨졌다는 뜻이며 게이트를 깬다.</span>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <strong>판정 규칙.</strong> <code>3</code> 은 "계약을 확인하지 못했다"이고 <code>4</code> 는 "계약이 어긋났다"다. <code>3</code> 을 실패율에 넣으면 인프라 사고가 계약 품질 지표를 갉아먹고, <code>4</code> 를 재시도로 넘기면 회귀가 green 으로 통과한다.
+  </div>
+
+  <p class="desc" style="margin-top:22px">근거 문서와 검증 상태를 분리해 표기한다. <span class="verif v-measured">실측</span> 은 로컬 hurl 8.0.1 을 직접 돌려 관측했다는 뜻이고, <span class="verif v-doc">설계 확정</span> 은 실행이 아니라 이 킷의 결정으로 고정된 값이라는 뜻이다. 둘은 성격이 다르므로 같은 배지를 쓰지 않는다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>검증 상태</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">Hurl exit code 체계</td>
+          <td><code>0</code> 성공 / <code>1</code> CLI 파싱 / <code>2</code> 입력 파싱 / <code>3</code> 런타임 / <code>4</code> assert</td>
+          <td><span class="verif v-measured">실측 2026-09-05</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a>
+            <span class="how">hurl 8.0.1 로 5 종 재현 — 정상 / --no-such-flag / 깨진 [Asserts / 닫힌 포트 9999 / 틀린 jsonpath</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="sys">실행 엔진 고정</td>
+          <td>Hurl 8.0.1</td>
+          <td><span class="verif v-measured">실측 2026-09-05</span></td>
+          <td>
+            <span class="mono">설계문서 §12 확정 결정표</span>
+            <span class="how">hurl --version → hurl 8.0.1 (x86_64-apple-darwin25.0) libcurl/8.7.1</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="sys">계약 실패 기준</td>
+          <td>partial 기본 + pin + exact 옵트인. <strong>pin 은 값 고정이 아니라 경로별 명시 assertion</strong></td>
+          <td><span class="verif v-doc">설계 확정</span></td>
+          <td><span class="mono">설계문서 §12 · §9.2</span></td>
+        </tr>
+        <tr>
+          <td class="sys">exact 모드 범위</td>
+          <td>본문만. 헤더는 매 호출 변하는 값이 많아 제외</td>
+          <td><span class="verif v-doc">설계 확정</span></td>
+          <td><span class="mono">설계문서 §12 (2026-09-04 확정)</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-card" style="margin-top:22px">
+    <h4>왜 검증 상태를 굳이 배지로 표시하는가</h4>
+    <p class="desc">리서치 시점에는 로컬에 <code>hurl</code> 바이너리가 없었고, 옵션 우선순위 · <code>--retry-interval</code> · <code>--max-redirs</code> · <strong>exit code 체계</strong> · <code>--secret</code> 마스킹 범위 다섯 항목이 "문서를 옮겼을 뿐 실행으로 확인하지 않은" 상태로 남아 있었다. exit code 는 이 문서 전체의 판정 축이라 그중 가장 먼저 대조해야 할 항목이었다.</p>
+    <p class="desc" style="margin-bottom:0">2026-09-05 에 hurl 8.0.1 을 로컬에 설치해 다섯 항목을 모두 대조했다. exit code 는 <strong>5 종을 각각 재현해 문서 기재와 일치</strong>함을 확인했고, <code>--secret</code> 마스킹 범위 하나만 문서보다 새는 면적이 넓어 정정됐다. 배지를 남겨 두는 이유는 지금 값이 어느 쪽인지 다음 사람이 다시 물어보지 않게 하기 위해서다.</p>
+    <span class="source-badge">&#10003; 실측 완료 — docs/api/research-log.md 「2026-09-05 — Hurl 8.0.1 실측 대조」 (5 건 중 4 건 일치 · 1 건 정정)</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">03 · 원칙</div>
+  <p class="desc">아홉 개 원칙 전부가 판정 규칙이다. 각 원칙은 "어떤 차이를 어떤 실패로 부를지"를 한 축씩 정한다.</p>
+
+  <div class="grid-2">
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">1</span><h3>Status Drift Classification</h3><span class="pill">상태</span></div>
+        <p class="desc" style="margin-bottom:10px">HTTP 상태 변화는 문자열 diff 가 아니라 상태 클래스 단위로 분류한다. <code>2xx</code>·<code>3xx</code>·<code>4xx</code>·<code>5xx</code> 는 의미가 다르므로 <code>200 -&gt; 500</code> 과 <code>200 -&gt; 404</code> 를 같은 심각도로 묶지 않는다.</p>
+        <p class="desc" style="margin-bottom:0"><code>200 -&gt; 404</code> 는 데이터 부재일 수도, 권한 은닉일 수도 있다. 단정하지 말고 후보 원인을 함께 기록한다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes" target="_blank" rel="noopener">&rarr; RFC 9110 Status Codes</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">2</span><h3>Schema Drift Classification</h3><span class="pill">구조</span></div>
+        <p class="desc" style="margin-bottom:10px">응답 본문의 구조 변화는 API 표면 변화로 본다. OpenAPI Description 은 API surface 와 semantics 를 기술하는 계약 문서다.</p>
+        <p class="desc" style="margin-bottom:0">따라서 필드 추가·삭제·타입 변경 같은 schema mismatch 는 value diff 와 <strong>별도 카테고리의 계약 실패</strong>다. 같은 통에 넣으면 "타입이 바뀐 것"과 "숫자가 바뀐 것"이 같은 줄로 보고된다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://swagger.io/specification/v3/" target="_blank" rel="noopener">&rarr; OpenAPI Specification v3</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">3</span><h3>Value Drift Classification</h3><span class="pill">값</span></div>
+        <p class="desc" style="margin-bottom:10px">상태와 스키마가 같아도 값은 달라진다. timestamp, id, 정렬 순서 같은 값 drift 는 normalize 를 먼저 적용하고, <strong>normalize 이후에도 남는 차이만</strong> assertion failure 로 판정한다.</p>
+        <p class="desc" style="margin-bottom:0">normalize 규칙 자체가 diff 결과의 일부이므로 리포트에 함께 남긴다. 규칙을 감추면 같은 실행이 다른 판정을 내도 이유를 알 수 없다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/asserting-response.html" target="_blank" rel="noopener">&rarr; Hurl Asserting Response</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">4</span><h3>Network / Auth / Data Split</h3><span class="pill">분리</span></div>
+        <p class="desc" style="margin-bottom:10px">연결 실패, 인증 실패, 데이터 부재를 하나의 regression 으로 묶지 않는다. Hurl 도 runtime error 와 assert error 를 별도 exit code 로 나눈다.</p>
+        <p class="desc" style="margin-bottom:0">OAuth Bearer 규격은 <code>invalid_token = 401</code>, <code>insufficient_scope = 403</code> 으로 구분한다. 인증 실패도 한 덩어리로 처리하지 않는다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a>
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc6750.html#section-3.1" target="_blank" rel="noopener">&rarr; RFC 6750 §3.1</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">5</span><h3>Exit Code Contract</h3><span class="strength s-3">중심축</span></div>
+        <p class="desc" style="margin-bottom:10px">CLI 종료 코드는 문서화된 계약이다. <code>4</code>(assert 실패)와 <code>3</code>(런타임 실패)이 구분되어야 CI 가 <strong>"계약이 깨졌다"</strong>와 <strong>"서버가 죽었다"</strong>를 다르게 다룰 수 있다.</p>
+        <p class="desc" style="margin-bottom:0"><code>/api-verify</code> 는 Hurl 의 코드 체계를 그대로 승계하고 임의로 재매핑하지 않는다. 재매핑하는 순간 상위 도구의 문서와 실제 동작이 어긋난다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a>
+        <span class="source-badge">&#10003; 실측 2026-09-05 — hurl 8.0.1 로 <code>0</code>~<code>4</code> 5 종을 각각 재현, 문서 기재와 일치</span>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">6</span><h3>Mode-aware Severity</h3><span class="pill">모드</span></div>
+        <p class="desc" style="margin-bottom:10px">같은 실패라도 모드에 따라 게이트 파괴 여부가 다르다. 새로 만든 계약이나 관찰(observe) 모드는 실패를 기록하되 게이트를 깨지 않는다.</p>
+        <p class="desc" style="margin-bottom:0">accepted baseline 이 존재하는 계약의 실패는 회귀로 게이트를 깬다. Pact pending pacts 의 "첫 성공 전은 pending, 성공 후 실패는 breaking" 모델을 따른다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://docs.pact.io/pact_broker/advanced_topics/pending_pacts" target="_blank" rel="noopener">&rarr; Pact Pending Pacts</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">7</span><h3>Retry Confirmation</h3><span class="pill">flaky</span></div>
+        <p class="desc" style="margin-bottom:10px">retry 로 성공한 실패를 green 으로 숨기지 않는다. 동일 커밋·동일 입력에서 pass/fail 이 뒤집히는 테스트는 flaky 다.</p>
+        <p class="desc" style="margin-bottom:0">retry 성공은 <strong>"안정"이 아니라 "불안정 신호"</strong>로 분류해 별도 카운터에 남긴다. 지우면 같은 불안정이 무한 반복된다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://testing.googleblog.com/2017/04/where-do-our-flaky-tests-come-from.html" target="_blank" rel="noopener">&rarr; Google Testing Blog — Where Do Our Flaky Tests Come From?</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">8</span><h3>CI Artifact Shape</h3><span class="pill">artifact</span></div>
+        <p class="desc" style="margin-bottom:10px">JUnit XML 로 내보낼 때 계약 assertion mismatch 는 <code>failure</code>, 실행 불능·환경 오류는 <code>error</code>, quarantine 또는 의도된 미실행은 <code>skipped</code> 로 기록한다.</p>
+        <p class="desc" style="margin-bottom:0">CI 대시보드는 이 구조로 실패 원인을 집계한다. 전부 <code>failure</code> 로 밀어 넣으면 집계가 무의미해진다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://github.com/testmoapp/junitxml" target="_blank" rel="noopener">&rarr; JUnit XML 포맷 레퍼런스</a>
+        <a class="card-source" href="https://svn.apache.org/repos/asf/ant/site/ant/production/manual-1.9.x/api/org/apache/tools/ant/taskdefs/optional/junit/XMLConstants.html" target="_blank" rel="noopener">&rarr; Ant JUnit XMLConstants</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">9</span><h3>Baseline Promotion Gate</h3><span class="pill">승격</span></div>
+        <p class="desc" style="margin-bottom:10px">diff 가 실패한 순간 baseline 을 자동 갱신하지 않는다. Jest snapshot 관례처럼 baseline 은 코드와 함께 리뷰되며, CI 는 암묵적으로 새 스냅샷을 쓰지 않는 것이 기본값이다.</p>
+        <p class="desc" style="margin-bottom:0">갱신은 별도 promote 명령의 책임이다. 자동 갱신은 회귀를 새 truth 로 승격시킨다.</p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://github.com/jestjs/jest/blob/main/docs/SnapshotTesting.md" target="_blank" rel="noopener">&rarr; Jest Snapshot Testing</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">04 · 수치 기준</div>
+
+  <h3 style="margin-bottom:12px">Hurl exit code 규약 (<code>/api-verify</code> 계약)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Exit code</th><th>의미</th><th>분류</th><th>CI 처리</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num-cell">0</td><td>성공</td><td>&mdash;</td><td><span class="tag tag-ok">pass</span></td></tr>
+        <tr><td class="num-cell">1</td><td>CLI 옵션 파싱 오류</td><td>도구 사용 오류</td><td>실행 중단, 재시도 금지</td></tr>
+        <tr><td class="num-cell">2</td><td>입력(<code>.hurl</code>) 파싱 오류</td><td>계약 파일 오류</td><td>실행 중단, 계약 파일 수정</td></tr>
+        <tr><td class="num-cell">3</td><td>런타임 오류 (DNS/TLS/connect/timeout)</td><td><span class="tag tag-warn">환경 실패</span></td><td>계약 판정 보류, <code>error</code> 로 기록</td></tr>
+        <tr><td class="num-cell">4</td><td>assert 실패</td><td><span class="tag tag-bad">계약 실패</span></td><td>게이트 파괴, <code>failure</code> 로 기록</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">근거: <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a> &nbsp;·&nbsp; 검증 상태 <span class="verif v-measured">실측 2026-09-05</span> &nbsp;·&nbsp; 재현: 정상 실행 &rarr; <code>0</code>, <code>--no-such-flag</code> &rarr; <code>1</code>, 깨진 <code>[Asserts</code> 블록 &rarr; <code>2</code>, 닫힌 포트 9999 &rarr; <code>3</code>, 틀린 jsonpath &rarr; <code>4</code></p>
+
+  <h3 style="margin:28px 0 12px">기타 임계값</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">HTTP 상태 코드 유효 범위</td>
+          <td><code>100..599</code>, 클래스는 첫 자리로 결정</td>
+          <td><a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes" target="_blank" rel="noopener">&rarr; RFC 9110 Status Codes</a></td>
+        </tr>
+        <tr>
+          <td class="sys">Bearer auth 분류</td>
+          <td>malformed <code>400</code> / invalid·expired token <code>401</code> / insufficient scope <code>403</code></td>
+          <td><a class="card-source" href="https://www.rfc-editor.org/rfc/rfc6750.html#section-3.1" target="_blank" rel="noopener">&rarr; RFC 6750 §3.1</a></td>
+        </tr>
+        <tr>
+          <td class="sys">JUnit XML 결과 매핑</td>
+          <td>통과는 result child 없음, 실패는 <code>failure</code> / <code>error</code> / <code>skipped</code> 중 하나</td>
+          <td><a class="card-source" href="https://github.com/testmoapp/junitxml" target="_blank" rel="noopener">&rarr; JUnit XML 레퍼런스</a></td>
+        </tr>
+        <tr>
+          <td class="sys">retry 확인 횟수</td>
+          <td class="num-cell">initial + 1 replay (동일 커밋·동일 입력)</td>
+          <td><span class="source-badge">출처 없음 — 이 킷의 설계 결정 (추론)</span></td>
+        </tr>
+        <tr>
+          <td class="sys">flaky 판정</td>
+          <td>재실행에서 결과가 뒤집히면 <code>flaky-confirmed</code>, 계속 실패면 원 분류 유지</td>
+          <td><span class="source-badge">출처 없음 — 이 킷의 설계 결정 (추론)</span></td>
+        </tr>
+        <tr>
+          <td class="sys">CI 에서 baseline 자동 write 허용 횟수</td>
+          <td class="num-cell">0 — 명시적 promote 명령 + 리뷰 메타데이터가 있을 때만</td>
+          <td><span class="source-badge">출처 없음 — 이 킷의 설계 결정 (추론)</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:28px 0 12px">분류별 게이트 파괴 여부</h3>
+  <div class="dist">
+    <div class="dist-row">
+      <span class="dist-label">status drift (5xx)</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:100%"></span></span>
+      <span class="dist-val">게이트 파괴</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">schema drift</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:100%"></span></span>
+      <span class="dist-val">게이트 파괴</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">value drift (accepted)</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:100%"></span></span>
+      <span class="dist-val">게이트 파괴</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">value drift (observe)</span>
+      <span class="dist-track"><span class="dist-fill f-yellow" style="width:55%"></span></span>
+      <span class="dist-val">기록만</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">exit 3 (환경)</span>
+      <span class="dist-track"><span class="dist-fill f-cyan" style="width:40%"></span></span>
+      <span class="dist-val">판정 보류</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">exit 1 / 2 (도구)</span>
+      <span class="dist-track"><span class="dist-fill f-mute" style="width:25%"></span></span>
+      <span class="dist-val">실행 중단</span>
+    </div>
+  </div>
+  <p class="caption">막대 길이는 게이트에 미치는 영향의 강도를 표시한 것이고, 측정된 발생 빈도가 아니다.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">05 · 안티패턴</div>
+  <p class="desc">아래 셋은 리포트를 만들 때 가장 자주 나오는 실수다. 왼쪽이 하지 말아야 할 형태, 오른쪽이 이 정책이 요구하는 형태다.</p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">Bad — 한 줄 요약</div>
+      <p class="desc" style="margin-bottom:10px">모든 차이를 <code>diff failed</code> 한 줄로 출력한다.</p>
+      <p class="desc" style="margin-bottom:0">상태·스키마·값 중 무엇이 깨졌는지 알 수 없어 대응 우선순위를 정하지 못한다. 결국 사람이 raw 로그를 다시 읽는다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">Good — 축별 분류</div>
+      <p class="desc" style="margin-bottom:10px">status / schema / value 세 축을 각각 카운트하고, 축마다 원인 후보를 붙인다.</p>
+      <p class="desc" style="margin-bottom:0">"5xx 1건, 필드 삭제 2건, normalize 후 잔여 값차 3건" 처럼 읽히면 대응 순서가 바로 정해진다.</p>
+    </div>
+  </div>
+
+  <div class="pair" style="margin-top:18px">
+    <div class="pane pane-bad">
+      <div class="pane-head"><span class="tag tag-bad">BAD</span><span class="pane-what">환경 오류를 계약 실패로 승격</span></div>
+      <pre><code>if [ $? -ne 0 ]; then
+  echo "API regression detected"
+  exit 1
+fi</code></pre>
+      <p class="pane-what">exit 3(타임아웃)과 exit 4(assert 실패)가 같은 문장으로 보고된다. 서버가 죽은 날 회귀 실패율이 100% 로 찍힌다.</p>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head"><span class="tag tag-ok">GOOD</span><span class="pane-what">코드별로 다르게 다룬다</span></div>
+      <pre><code>code=$?
+case "$code" in
+  0) exit 0 ;;
+  1|2) echo "tool/input error"; exit "$code" ;;
+  3) echo "env failure - verdict deferred"
+     record_junit error; exit "$code" ;;
+  4) echo "contract failure"
+     record_junit failure; exit "$code" ;;
+esac</code></pre>
+      <p class="pane-what">환경 실패는 <code>error</code>, 계약 실패는 <code>failure</code> 로 나뉘어 대시보드에서 따로 집계된다.</p>
+    </div>
+  </div>
+  <p class="pair-caption">코드는 판정 분기의 형태를 보이기 위한 예시다. 실제 <code>/api-verify</code> 구현 코드가 아니다.</p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head"><span class="tag tag-bad">BAD</span><span class="pane-what">retry 성공 시 실패 기록 삭제</span></div>
+      <pre><code>attempt 1 -> exit 4
+attempt 2 -> exit 0
+report: PASS</code></pre>
+      <p class="pane-what">flaky 신호가 사라진다. 같은 불안정이 다음 주에도, 그 다음 주에도 그대로 재현된다.</p>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head"><span class="tag tag-ok">GOOD</span><span class="pane-what">재실행 결과를 별도 카운터에</span></div>
+      <pre><code>attempt 1 -> exit 4
+attempt 2 -> exit 0
+report: PASS (flaky-confirmed: 1)</code></pre>
+      <p class="pane-what">동일 커밋·동일 입력에서 결과가 뒤집혔다는 사실이 남는다. 계속 실패하면 원 분류를 유지한다.</p>
+    </div>
+  </div>
+
+  <h3 style="margin:28px 0 12px">안티패턴 목록</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>안티패턴</th><th>문제</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="sys">모든 차이를 <code>diff failed</code> 한 줄로 출력</td><td>상태·스키마·값 중 무엇이 깨졌는지 알 수 없어 대응 우선순위를 못 정한다</td></tr>
+        <tr><td class="sys"><code>401</code>/<code>403</code>/<code>404</code> 를 무조건 API regression 으로 처리</td><td>만료된 토큰이나 정상적인 데이터 부재가 계약 위반으로 둔갑해 게이트가 노이즈로 채워진다</td></tr>
+        <tr><td class="sys">retry 성공 시 실패 기록 삭제</td><td>flaky 신호가 사라져 같은 불안정이 무한 반복된다</td></tr>
+        <tr><td class="sys">CI 실패 시 baseline 자동 갱신</td><td>회귀가 새 truth 로 승격되어 다음 실행부터 green 이 된다</td></tr>
+        <tr><td class="sys">JUnit XML 에서 런타임·인프라 오류를 <code>failure</code> 로 기록</td><td>서버 다운과 계약 파손이 같은 통계로 합쳐져 원인 분석이 불가능해진다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">06 · Gotchas 체크리스트</div>
+  <p class="desc">회귀 리포트를 만들기 전에 확인한다. 하나라도 비어 있으면 리포트의 판정을 신뢰할 수 없다.</p>
+
+  <ul class="checklist">
+    <li><span class="check c-ok">&#10003;</span><span><strong>exit code 값을 실측으로 확인했다.</strong> 2026-09-05 에 hurl 8.0.1 로 <code>0</code>~<code>4</code> 5 종을 각각 재현했고 <a href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">Hurl 공식 문서</a> 기재와 일치했다. 엔진 버전을 올리면 이 재현을 다시 돌려라 — 코드 번호가 바뀌면 계약 실패 집계 자체가 어긋난다.</span></li>
+    <li><span class="check c-warn">!</span><span><strong>exit <code>3</code> 의 subreason 을 별도 필드로 남겼는가.</strong> Hurl <code>3</code> 은 DNS·TLS·timeout·connect 를 모두 포함한다. 코드만으로는 일시적 타임아웃과 인증서 만료가 구분되지 않는다.</span></li>
+    <li><span class="check">&#10003;</span><span><strong>실행 모드를 diff 결과와 함께 기록했는가.</strong> additive field 는 tolerant 모드에서는 호환이고 exact·golden 모드에서는 실패다. 모드를 모르면 같은 diff 를 두 사람이 다르게 읽는다.</span></li>
+    <li><span class="check c-warn">!</span><span><strong><code>404</code> 에 원인 후보를 둘 다 남겼는가.</strong> 진짜 데이터 부재일 수도, 존재를 감추는 <code>403</code> 대체 정책일 수도 있다. 자동으로 한쪽으로 단정하지 마라.</span></li>
+    <li><span class="check c-bad">&#10007;</span><span><strong>redaction 을 리포트 생성 <em>전에</em> 수행했는가.</strong> 실패 artifact 에는 stdout 과 raw body 가 들어간다. 생성 후 마스킹하면 이미 파일과 CI 로그에 비밀이 남아 있다.</span></li>
+    <li><span class="check">&#10003;</span><span><strong>normalize 규칙을 리포트에 함께 실었는가.</strong> normalize 는 판정의 일부다. 규칙을 감추면 값 drift 판정을 재현할 수 없다.</span></li>
+    <li><span class="check">&#10003;</span><span><strong>JUnit 매핑이 세 갈래로 나뉘어 있는가.</strong> assertion mismatch 는 <code>failure</code>, 실행 불능은 <code>error</code>, quarantine 은 <code>skipped</code>. 전부 <code>failure</code> 면 집계가 죽는다.</span></li>
+    <li><span class="check c-ok">&#10003;</span><span><strong>accepted baseline 유무로 심각도를 갈랐는가.</strong> 첫 성공 전 계약의 실패는 기록만, accepted 이후의 실패는 회귀다. <a href="https://docs.pact.io/pact_broker/advanced_topics/pending_pacts" target="_blank" rel="noopener">Pact pending pacts</a> 모델을 따른다.</span></li>
+    <li><span class="check c-bad">&#10007;</span><span><strong>실패 시 baseline 을 자동으로 쓰지 않는가.</strong> CI 에서 baseline 자동 write 허용 횟수는 <code>0</code> 이다. 갱신은 명시적 promote 명령과 리뷰 메타데이터가 있을 때만 일어난다.</span></li>
+    <li><span class="check">&#10003;</span><span><strong>인증 실패를 <code>400</code>/<code>401</code>/<code>403</code> 으로 세분했는가.</strong> <a href="https://www.rfc-editor.org/rfc/rfc6750.html#section-3.1" target="_blank" rel="noopener">RFC 6750 §3.1</a> 은 malformed·invalid token·insufficient scope 를 각각 다른 코드로 규정한다.</span></li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

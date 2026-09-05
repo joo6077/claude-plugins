@@ -8,7 +8,7 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
     --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
-    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
     --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
     --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
@@ -17,9 +17,9 @@
   }
   [data-theme="light"]{
     --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
-    --text:#181825;--text2:#4d5568;--text3:#6b7280;
+    --text:#181825;--text2:#4d5568;--text3:#656C7A;
     --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
-    --green:#15803d;--red:#b91c1c;--yellow:#a16207;--blue:#4338ca;--cyan:#0e7490;
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
     --nav-bg:rgba(244,245,249,0.9);
   }
   html{font-size:16px;scroll-behavior:smooth}
@@ -44,7 +44,8 @@
   .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
   .nav-logo span{color:var(--accent2)}
   .theme-toggle{
-    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
     background:var(--surface2);border:1px solid var(--border);cursor:pointer;
     font-size:12px;font-weight:600;color:var(--text2);
     transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;

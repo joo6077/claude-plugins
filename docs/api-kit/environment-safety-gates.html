@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>환경 안전 게이트</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  /* Light — lime 은 흰 배경에서 대비가 안 나온다. 어두운 올리브로 내린다.
+     #4D7C0F 는 흰 배경 4.99 로 통과하지만 --surface2 위에서 4.46 이라 한 단계 더 내렸다 */
+  [data-theme="light"]{
+    --bg:#f6f7f3;--bg2:#eceee7;--surface:#ffffff;--surface2:#f1f3ec;--border:#dcdfd3;
+    --text:#181c14;--text2:#4d5348;--text3:#666D5F;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(246,247,243,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(163,230,53,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(163,230,53,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  [data-theme="light"] .nav-logo span{color:var(--accent)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:880px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent);font-style:italic}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 — partial / pin / exact 처럼 3 단계를 표기할 때 쓴다 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono)}
+  .s-1{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(163,230,53,0.34)}
+  .s-2{background:rgba(34,211,238,0.14);color:var(--cyan);border:1px solid rgba(34,211,238,0.3)}
+  .s-3{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(163,230,53,0.3)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle{margin-bottom:clamp(18px,2.5vw,26px)}
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+  .lead{color:var(--text);font-size:clamp(13px,1.15vw,15px);font-weight:600;line-height:1.7;
+    border-left:3px solid var(--accent);padding-left:12px;margin-bottom:18px;max-width:880px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  [data-theme="light"] .card-source:hover{color:var(--accent2)}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(163,230,53,0.05)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+  .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+
+  /* ── 수치 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(96px,200px) 1fr minmax(64px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+  .dist-fill.f-yellow{background:linear-gradient(90deg,var(--yellow),#fcd34d)}
+  .dist-fill.f-green{background:linear-gradient(90deg,var(--green),#86efac)}
+  .dist-fill.f-red{background:linear-gradient(90deg,var(--red),#fca5a5)}
+  .dist-fill.f-mute{background:var(--border)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  /* ── 경고 / 정보 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:900px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── before / after 쌍 ── */
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
+  .pair:last-child{margin-bottom:0}
+  .pane{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .pane-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
+  .pane-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
+  .pane-head{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .pane-what{font-size:12px;color:var(--text3);line-height:1.5;overflow-wrap:anywhere}
+  .pane pre{background:var(--surface);margin-bottom:0;flex:1}
+  .pair-caption{font-size:12px;color:var(--text3);margin:-6px 0 18px;line-height:1.6}
+
+  /* ── 비교 패널 (텍스트) ── */
+  .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:20px;min-width:0}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 단계 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 220px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px}
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
+  .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
+  .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+  .rule-box strong{color:var(--accent)}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+
+  /* ════ 이 페이지 전용 — 메서드 분류판 / 게이트 순서 ════ */
+  /* 메서드를 safe·unsafe 두 축으로 늘어놓는 칩 보드. 분류와 허용을 색으로 분리한다 */
+  .verb-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;margin-top:6px}
+  .verb-board>*{min-width:0}
+  .verb-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .verb-col h4{margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase;color:var(--text2)}
+  .verb-list{display:flex;flex-wrap:wrap;gap:8px}
+  .verb{font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 11px;border-radius:6px;
+    border:1px solid var(--border);background:var(--surface2);color:var(--text2);white-space:nowrap}
+  .verb.v-allow{border-color:rgba(163,230,53,0.4);background:var(--accent-dim);color:var(--accent)}
+  .verb.v-deny{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.08);color:var(--red)}
+  .verb.v-gated{border-color:rgba(251,191,36,0.34);background:rgba(251,191,36,0.09);color:var(--yellow)}
+  .verb-note{font-size:12px;color:var(--text3);line-height:1.6;margin-top:10px;overflow-wrap:anywhere}
+
+  /* 게이트 7 단계 세로 사다리 — 순서가 곧 규칙이라 번호를 크게 남긴다 */
+  .gate-ladder{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .gate-step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+  .gate-step>*{min-width:0}
+  .gate-no{font-family:var(--mono);font-size:12px;font-weight:800;color:var(--accent);
+    background:var(--accent-dim);border-radius:6px;text-align:center;padding:4px 0}
+  .gate-what{font-size:13px;font-weight:700;color:var(--text);display:block;margin-bottom:2px}
+  .gate-out{font-size:12px;color:var(--text2);line-height:1.6;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">api-kit <span>/ environment safety gates</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" type="button" aria-label="테마 전환">
+    <span id="theme-icon">&#9728;&#65039;</span>
+    <span id="theme-label">라이트 모드</span>
+  </button>
+</nav>
+
+<div class="page">
+
+<h1>환경 안전 게이트</h1>
+<p class="subtitle">
+  실제 API 를 호출하기 전에 무엇을 허용할지 판정하는 규칙. 메서드 분류, prod 정책,
+  재시도·리다이렉트·부하 예산을 실행 직전에 결정한다.
+  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+</p>
+
+<div class="warn-banner">
+  <h2>분류(safe)와 허용(allow)은 다른 축이다</h2>
+  <p>
+    RFC 9110 은 <code>TRACE</code> 를 safe 로 분류한다. 그런데 <code>TRACE</code> 는 요청을 그대로 loop-back 하므로
+    쿠키와 <code>Authorization</code> 헤더가 응답 본문에 실려 돌아온다. 표준 분류를 그대로 실행 허용 목록으로 옮기면
+    Cross-Site Tracing 경로가 열린다. api-kit 은 <strong>분류는 RFC 를 따르되 허용은 따로 판정한다.</strong>
+  </p>
+  <p>
+    그래서 <strong>prod 기본 허용 동사는 <code>GET</code> · <code>HEAD</code> · <code>OPTIONS</code> 세 개로 고정됐다</strong>
+    — 사용자 확정 결정(2026-09-04, 설계문서 §12 · §8.1). 이 세 개를 넘어서는 범위를 allowlist 로 넓힐지는
+    아직 판단 유보 상태이며, 여지만 남겨 두고 기본값은 건드리지 않는다.
+  </p>
+  <p>
+    prod 실행 자체를 막지 않는다는 점도 같이 기억하라. 이 게이트는 <em>차단</em>이 아니라 <em>좁히기</em>다.
+    상태 변경은 4중 키 allowlist 로 승격됐을 때만 열린다.
+  </p>
+</div>
+
+<!-- ═══════════════ 1. 개념 오리엔테이션 ═══════════════ -->
+<div class="section">
+  <div class="section-label">이 문서가 결정하는 것</div>
+  <p class="desc">
+    게이트는 요청 하나하나를 세 번 나눠 본다. 무슨 동사인가, 어느 환경인가, 총 부하가 얼마인가.
+    셋 중 하나라도 판정되지 않으면 실행하지 않는다.
+  </p>
+
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">01 · 분류</span>
+      <span class="what">메서드 클래스</span>
+      <span class="out">safe / unsafe 로 나눈다. <code>TRACE</code> 는 safe 로 분류되지만 허용에서는 빠진다.</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">02 · 정책</span>
+      <span class="what">env 와 allowlist</span>
+      <span class="out">prod 는 read-only 가 기본. unsafe 는 env + host + path + method 4중 일치로만 열린다.</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">03 · 예산</span>
+      <span class="what">부하 · 재시도 · 타임아웃</span>
+      <span class="out">파일 × 요청 × <code>--repeat</code> × <code>--jobs</code> 를 곱해 상한과 비교하고, 타임아웃을 주입한다.</span>
+    </div>
+  </div>
+
+  <p class="desc">
+    판정 순서는 고정이다. 앞 단계가 거부하면 뒤 단계는 계산하지 않는다.
+  </p>
+
+  <div class="gate-ladder">
+    <div class="gate-step">
+      <span class="gate-no">1</span>
+      <span><span class="gate-what">method class 판정</span>
+        <span class="gate-out">safe / unsafe. 동사만 보고 끝내지 않고 path 패턴도 함께 본다.</span></span>
+    </div>
+    <div class="gate-step">
+      <span class="gate-no">2</span>
+      <span><span class="gate-what">env 정책 조회</span>
+        <span class="gate-out">prod 는 read-only 기본. dev / stg 는 각자 정책을 따른다.</span></span>
+    </div>
+    <div class="gate-step">
+      <span class="gate-no">3</span>
+      <span><span class="gate-what">allowlist 조회</span>
+        <span class="gate-out">env + host + path + method 네 값이 모두 일치해야 unsafe 가 열린다.</span></span>
+    </div>
+    <div class="gate-step">
+      <span class="gate-no">4</span>
+      <span><span class="gate-what">retry 정책 판정</span>
+        <span class="gate-out">멱등이 아니면 0회. 멱등이어도 파일 전체에 거는 방식은 쓰지 않는다.</span></span>
+    </div>
+    <div class="gate-step">
+      <span class="gate-no">5</span>
+      <span><span class="gate-what">redirect 정책 판정</span>
+        <span class="gate-out">same-origin 또는 명시 allow host 만. cross-host 는 0회.</span></span>
+    </div>
+    <div class="gate-step">
+      <span class="gate-no">6</span>
+      <span><span class="gate-what">부하 예산 계산</span>
+        <span class="gate-out">파일 수 × 요청 수 × <code>--repeat</code> × <code>--jobs</code> 를 상한과 비교한다.</span></span>
+    </div>
+    <div class="gate-step">
+      <span class="gate-no">7</span>
+      <span><span class="gate-what">타임아웃 주입 확인</span>
+        <span class="gate-out"><code>connect-timeout</code> 과 <code>max-time</code> 이 둘 다 있어야 실행한다.</span></span>
+    </div>
+  </div>
+
+  <div class="verb-board">
+    <div class="verb-col">
+      <h4>기본 허용</h4>
+      <div class="verb-list">
+        <span class="verb v-allow">GET</span>
+        <span class="verb v-allow">HEAD</span>
+        <span class="verb v-allow">OPTIONS</span>
+      </div>
+      <p class="verb-note">allowlist 없이 실행되는 유일한 집합. prod 기본값도 이 세 개다.</p>
+    </div>
+    <div class="verb-col">
+      <h4>allowlist 승격 시에만</h4>
+      <div class="verb-list">
+        <span class="verb v-gated">POST</span>
+        <span class="verb v-gated">PUT</span>
+        <span class="verb v-gated">PATCH</span>
+        <span class="verb v-gated">DELETE</span>
+      </div>
+      <p class="verb-note">전부 상태 변경 메서드다. <code>PUT</code> · <code>DELETE</code> 가 멱등이라는 사실은 재시도 근거일 뿐이다.</p>
+    </div>
+    <div class="verb-col">
+      <h4>기본 제외</h4>
+      <div class="verb-list">
+        <span class="verb v-deny">TRACE</span>
+      </div>
+      <p class="verb-note">RFC 상 safe 지만 XST 위험으로 0회. 자격증명이 붙는 프로파일에서는 명시 요청도 거부한다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 2. 원칙 카드 ═══════════════ -->
+<div class="section">
+  <div class="section-label">원칙 9</div>
+  <p class="lead">
+    각 원칙은 게이트의 한 판정 축이다. 하나를 빼면 그 축의 사고가 그대로 통과한다.
+  </p>
+
+  <div class="grid-2">
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">1</span>
+          <h3>Safe 메서드 기본 허용</h3>
+          <span class="pill">RFC 9110</span>
+        </div>
+        <p class="desc">
+          기본 실행 허용 메서드는 <code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code> 세 개다.
+          나머지는 allowlist 없이 실행하지 않는다. RFC 9110 은 <code>TRACE</code> 도 safe 로 분류하지만
+          api-kit 기본값에서는 보안 예외로 뺀다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110#section-9.2.1" target="_blank" rel="noopener">&rarr; RFC 9110 §9.2.1 Safe Methods</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">2</span>
+          <h3>TRACE 기본 제외</h3>
+          <span class="pill">OWASP XST</span>
+        </div>
+        <p class="desc">
+          <code>TRACE</code> 는 요청을 그대로 loop-back 하므로 쿠키나 <code>Authorization</code> 헤더가
+          응답 본문에 실려 돌아온다. OWASP 는 이를 Cross-Site Tracing 위험으로 다룬다.
+          기본 허용 횟수는 0이며, 사용자가 명시 요청해도 자격증명이 붙는 프로파일에서는 거부한다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://owasp.org/www-community/attacks/Cross_Site_Tracing" target="_blank" rel="noopener">&rarr; OWASP Cross-Site Tracing</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">3</span>
+          <h3>prod 는 read-only 우선</h3>
+          <span class="pill">env policy</span>
+        </div>
+        <p class="desc">
+          prod 실행 자체는 허용한다. 다만 기본값은 read-only 이고, prod 에서의 상태 변경은
+          명시적 승격이 있을 때만 열린다. read-only 의 정확한 범위는 아직 확정되지 않았다 —
+          현재는 <code>GET</code> / <code>HEAD</code> / <code>OPTIONS</code> 로 두고, allowlist 로 넓힐 여지만 남긴다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110#section-9.2.1" target="_blank" rel="noopener">&rarr; RFC 9110 §9.2.1 Safe Methods</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">4</span>
+          <h3>unsafe 메서드는 4중 키 allowlist</h3>
+          <span class="pill">env+host+path+method</span>
+        </div>
+        <p class="desc">
+          <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code> 는
+          env + host + path + method 네 값이 모두 일치하는 항목이 allowlist 에 있을 때만 실행한다.
+          <code>PUT</code> / <code>DELETE</code> 가 idempotent 라는 사실은 재시도 판단 근거이지
+          실행 허용 근거가 아니다 — 둘 다 상태 변경 메서드다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110#section-9.3" target="_blank" rel="noopener">&rarr; RFC 9110 §9.3 Method Definitions</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">5</span>
+          <h3>재시도는 멱등 요청만</h3>
+          <span class="pill">retry = 0 default</span>
+        </div>
+        <p class="desc">
+          자동 재시도는 safe 메서드, <code>PUT</code>, <code>DELETE</code>, 그리고 명시적으로 idempotent
+          태깅된 요청에만 허용한다. 그 외는 0회다. Hurl <code>--retry</code> 는 HTTP 실패뿐 아니라
+          assert · capture · runtime 오류에도 재시도하므로, 파일 전체에 걸지 말고 게이트가 더 좁게 잘라야 한다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110#section-9.2.2" target="_blank" rel="noopener">&rarr; RFC 9110 §9.2.2 Idempotent Methods</a>
+        <a class="card-source" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">6</span>
+          <h3>크로스 호스트 리다이렉트 차단</h3>
+          <span class="pill">same-origin only</span>
+        </div>
+        <p class="desc">
+          리다이렉트 추종은 same-origin 이거나 명시적으로 allow 된 host 일 때만 허용한다.
+          크로스 호스트는 0회다. Hurl <code>--location-trusted</code> 는 리다이렉트된 모든 host 로
+          인증 정보를 전달하므로 기본 금지 옵션으로 취급한다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc6750#section-5.2" target="_blank" rel="noopener">&rarr; RFC 6750 §5.2 Threat Mitigation</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">7</span>
+          <h3>요청량 예산을 실행 전에 계산</h3>
+          <span class="pill">files × req × repeat × jobs</span>
+        </div>
+        <p class="desc">
+          env 별 최대 요청 수를 <code>파일 수 × 요청 수 × --repeat × --jobs</code> 기준으로 실행 전에 계산하고
+          상한과 비교한다. Hurl test mode 는 파일 단위 병렬 실행이 기본이고 <code>--jobs</code> 기본값이
+          CPU 수 기반이라, 단일 파일 감각으로 잡으면 prod 부하가 예상보다 커진다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc6585#section-4" target="_blank" rel="noopener">&rarr; RFC 6585 §4 429 Too Many Requests</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">8</span>
+          <h3>타임아웃 예산 강제</h3>
+          <span class="pill">connect + max-time</span>
+        </div>
+        <p class="desc">
+          모든 실제 호출에는 연결 타임아웃(<code>connect-timeout</code>)과 전체 실행 상한(<code>max-time</code>)이
+          둘 다 지정되어야 한다. Hurl 이 두 옵션을 제공하므로, 값이 비어 있으면 게이트가 env 기본값을 주입하고
+          그래도 없으면 실행을 막는다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title">
+          <span class="num">9</span>
+          <h3>폭발 반경 태깅</h3>
+          <span class="pill">blast radius</span>
+        </div>
+        <p class="desc">
+          실행 항목마다 env, host, auth profile, method class, retry 횟수, concurrency, 최대 요청 수를 태깅하고
+          이 태그로 게이트를 판정한다. safe 메서드도 반복 · 병렬이면 서버에 "unusual burden" 이 되므로,
+          메서드 하나가 아니라 총 부하로 판단해야 한다.
+        </p>
+      </div>
+      <div class="sources">
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110#section-9.2.1" target="_blank" rel="noopener">&rarr; RFC 9110 §9.2.1 Safe Methods</a>
+        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc6585#section-4" target="_blank" rel="noopener">&rarr; RFC 6585 §4</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ 3. prod 기본 허용 동사 확정 ═══════════════ -->
+<div class="section">
+  <div class="section-label">확정 결정 · prod 기본 허용 동사</div>
+  <p class="lead">
+    prod 에서 자동 실행되는 동사는 <code>GET</code> · <code>HEAD</code> · <code>OPTIONS</code> 세 개다. 이건 기본값이 아니라 고정값이다.
+  </p>
+  <div class="info-card">
+    <h3>무엇이 확정됐고 무엇이 열려 있는가</h3>
+    <p class="desc">
+      사용자 확정 결정(2026-09-04)으로 prod 의 기본 허용 동사 집합은 <code>GET</code> / <code>HEAD</code> / <code>OPTIONS</code>
+      로 고정됐다. 쓰기 메서드는 케이스에 <code>prodWrite: true</code> 를 명시해야 하고, 실행 시 대상 목록을 보여준 뒤
+      사용자 확인을 받는다. 목록 밖 호스트로 나가는 요청은 <code>allowHosts</code> 화이트리스트에서 무조건 차단한다 —
+      baseUrl 변수 오염으로 stg 케이스가 prod 를 때리는 사고를 막기 위해서다.
+    </p>
+    <p class="desc">
+      아직 열려 있는 것은 <strong>이 세 개를 넘어 read-only 범위를 어디까지 넓힐지</strong>다. 그 판단은 유보 상태이며
+      allowlist 로 확장할 여지만 남겨 두었다. 유보를 "아직 아무것도 안 정해졌다" 로 읽지 마라 — 기본 집합 자체는 정해졌고,
+      확장 경로만 비어 있다.
+    </p>
+    <div class="rule-box">
+      <strong>규칙:</strong> prod 실행 계획에 <code>GET</code> · <code>HEAD</code> · <code>OPTIONS</code> 밖의 동사가 하나라도 있으면,
+      그 항목은 4중 키 allowlist 항목과 사용자 확인 없이 실행 큐에 들어갈 수 없다. prod auth 프로파일과 토큰 캐시도
+      다른 환경과 분리한다.
+    </div>
+    <span class="source-badge">출처 없음 — 이 킷의 설계 결정 (설계문서 §12 확정 결정표 · §8.1 prod 가드)</span>
+  </div>
+</div>
+
+<!-- ═══════════════ 4. 수치 기준 ═══════════════ -->
+<div class="section">
+  <div class="section-label">수치 기준</div>
+  <p class="desc">
+    표준에서 온 값과 이 킷이 추론한 값을 섞지 않는다. 근거 열이 <span class="tag tag-neutral">추론</span> 이면
+    프로젝트가 조정할 수 있는 값이고, RFC · OWASP 근거면 조정 대상이 아니다.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sys">기본 safe allowlist</td>
+          <td class="num-cell"><code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code> (3개)</td>
+          <td>RFC 9110 §9.2.1 + OWASP XST</td>
+        </tr>
+        <tr>
+          <td class="sys"><code>TRACE</code> 허용</td>
+          <td class="num-cell">0회</td>
+          <td>OWASP Cross-Site Tracing</td>
+        </tr>
+        <tr>
+          <td class="sys">non-idempotent 재시도</td>
+          <td class="num-cell">0회</td>
+          <td>RFC 9110 §9.2.2</td>
+        </tr>
+        <tr>
+          <td class="sys">Hurl 재시도 간격 기본값</td>
+          <td class="num-cell">1000ms</td>
+          <td>Hurl Manual</td>
+        </tr>
+        <tr>
+          <td class="sys">prod <code>--jobs</code></td>
+          <td class="num-cell">1</td>
+          <td>추론 — 병렬 기본값이 CPU 수 기반이라 상한 고정</td>
+        </tr>
+        <tr>
+          <td class="sys">prod unsafe 요청</td>
+          <td class="num-cell">0건 (allowlist 승격 시에만)</td>
+          <td>추론 — prod read-only 기본 정책</td>
+        </tr>
+        <tr>
+          <td class="sys">cross-host 리다이렉트</td>
+          <td class="num-cell">0회</td>
+          <td>추론 — 토큰 audience 가정 붕괴</td>
+        </tr>
+        <tr>
+          <td class="sys">same-origin 리다이렉트 상한</td>
+          <td class="num-cell">3회</td>
+          <td>추론</td>
+        </tr>
+        <tr>
+          <td class="sys">prod <code>connect-timeout</code></td>
+          <td class="num-cell">5s</td>
+          <td>추론</td>
+        </tr>
+        <tr>
+          <td class="sys">prod <code>max-time</code></td>
+          <td class="num-cell">30s</td>
+          <td>추론</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="desc" style="margin-top:26px">
+    허용 <em>횟수</em> 만 같은 축에 놓고 보면 게이트의 성격이 드러난다. 대부분이 0 이고, 0 이 아닌 항목은 두 개뿐이다.
+  </p>
+
+  <div class="dist">
+    <div class="dist-row">
+      <span class="dist-label">TRACE</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0회</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">non-idempotent retry</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0회</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">cross-host redirect</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0회</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">prod unsafe 요청</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0건</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">prod --jobs</span>
+      <span class="dist-track"><span class="dist-fill f-yellow" style="width:33%"></span></span>
+      <span class="dist-val">1</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">same-origin redirect</span>
+      <span class="dist-track"><span class="dist-fill" style="width:100%"></span></span>
+      <span class="dist-val">3회</span>
+    </div>
+  </div>
+  <p class="caption">
+    막대 길이는 표의 횟수를 그대로 비율로 옮긴 것이다 (최대값 3회 = 100%). 0회 항목은 위치를 알아볼 수 있도록 최소 폭만 남겼다.
+  </p>
+
+  <div class="rule-box">
+    <strong>부하 예산:</strong> <code>총 요청 수 = 파일 수 × 파일당 요청 수 × --repeat × --jobs</code>.
+    prod 에서 <code>--jobs</code> 를 1 로 고정하는 이유가 이 곱셈에 있다. Hurl test mode 의 <code>--jobs</code> 기본값은
+    CPU 수 기반이라, 계산에서 빼면 실제 부하를 코어 수만큼 과소평가한다.
+  </div>
+</div>
+
+<!-- ═══════════════ 5. 안티패턴 ═══════════════ -->
+<div class="section">
+  <div class="section-label">안티패턴</div>
+  <p class="desc">
+    아래 다섯 가지는 전부 "게이트를 통과시켜 놓고 나중에 사고를 확인하는" 형태다.
+    실행 전에 판정하지 않으면 실행 후에 되돌릴 수 없다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what"><code>--retry</code> 를 Hurl 파일 전체에 지정</span>
+      </div>
+      <pre><code>hurl --test \
+  --retry 3 \
+  --retry-interval 1000 \
+  cases/*.hurl
+
+# cases/orders.hurl 안에는
+#   POST /orders
+#   POST /payments
+# 가 섞여 있다 → 중복 생성·중복 결제</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">게이트가 멱등 요청만 골라 재시도를 붙인다</span>
+      </div>
+      <pre><code># 1) 게이트가 요청 단위로 분류
+#    GET /orders/{id}   → idempotent  → retry 3
+#    POST /orders       → non-idem    → retry 0
+
+hurl --test --retry 0 cases/orders.hurl
+# 멱등 항목에만 [Options] 로 개별 부여
+#   [Options]
+#   retry: 3</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    Hurl <code>--retry</code> 는 HTTP 실패뿐 아니라 assert · capture · runtime 오류에도 재시도한다.
+    파일 단위로 걸면 "assert 가 한 번 틀렸다" 는 이유로 <code>POST</code> 가 세 번 더 나간다.
+  </p>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what">인증 요청에 <code>--location-trusted</code></span>
+      </div>
+      <pre><code>hurl --location-trusted \
+  --secret token=$TOKEN \
+  cases/me.hurl
+
+# 302 → https://assets.example.net/...
+# Authorization 헤더가 그대로 따라간다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">same-origin 또는 allow host 로만 추종</span>
+      </div>
+      <pre><code># 게이트 판정
+#   redirect target host == request host ? 추종
+#   allowHosts 에 있는가 ?          → 추종
+#   그 외                           → 0회, 실행 거부
+
+hurl --max-redirs 3 cases/me.hurl
+# --location-trusted 는 기본 금지 옵션</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    호스트가 바뀌면 토큰 audience 가정도 함께 깨진다. 실행이 200 으로 끝나도 검증 대상이 의도한 서버가 아닐 수 있다.
+  </p>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 목적이 면책이 된다</div>
+      <p class="desc">
+        prod 에서 <code>POST</code> / <code>DELETE</code> 를 "계약 검증이니까" 라며 기본 실행한다.
+        검증 목적은 상태 변경 면책이 아니다. 실데이터가 바뀌고, 스냅샷은 그 바뀐 상태를 baseline 으로 봉인한다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 승격을 거쳐 실행한다</div>
+      <p class="desc">
+        prod 쓰기는 <code>prodWrite: true</code> 명시 + 4중 키 allowlist + 실행 전 대상 목록 확인을 모두 통과해야 한다.
+        세 관문 중 하나라도 비어 있으면 실행 큐에 들어가지 않는다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:16px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 동사만 보고 판정</div>
+      <p class="desc">
+        <code>GET /delete?id=42</code> 를 메서드만 보고 safe 로 통과시킨다.
+        메서드는 safe 여도 서버 동작은 mutation 이다. 분류는 요청의 <em>형식</em>이지 서버의 <em>효과</em>가 아니다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — path 패턴을 함께 본다</div>
+      <p class="desc">
+        method class 판정 단계에서 path 패턴 deny 목록(<code>/delete</code>, <code>/remove</code>, <code>/purge</code> 류)을
+        같이 조회한다. 걸리면 safe 동사여도 allowlist 경로로 보낸다.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare" style="margin-top:16px">
+    <div class="compare-bad">
+      <div class="compare-label">BAD — 예산 없는 반복</div>
+      <p class="desc">
+        <code>--repeat</code> 과 test mode 병렬을 예산 계산 없이 실행한다.
+        파일 수 × jobs 배로 부하가 늘어 rate limit(429) 또는 장애를 유발한다.
+      </p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">GOOD — 곱셈을 먼저 한다</div>
+      <p class="desc">
+        실행 전에 <code>파일 × 요청 × repeat × jobs</code> 를 계산해 env 상한과 비교한다.
+        상한을 넘으면 실행하지 않고 계획을 되돌린다. safe 메서드라도 총 부하로 판단한다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 6. Gotchas ═══════════════ -->
+<div class="section">
+  <div class="section-label">Gotchas · 실행 전 확인</div>
+  <p class="desc">
+    아래 항목이 하나라도 미확인이면 실행 큐를 만들지 마라. 게이트는 실행 후에 다시 열 수 없는 판정이다.
+  </p>
+
+  <ul class="checklist">
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong><code>TRACE</code> 는 RFC 상 safe 다</strong> — 표준만 보고 기본 safe set 에 넣으면 XST 경로가 열린다.
+        분류(safe)와 허용(allow)을 분리해서 판단했는지 확인하라.</span>
+    </li>
+    <li>
+      <span class="check c-warn">!</span>
+      <span><strong>Hurl <code>--test</code> 는 파일 단위 병렬이 기본</strong> — 단일 파일 기준으로 계산한 요청 수는
+        실제 부하와 다르다. <code>--jobs</code> 를 곱해서 계산했는가.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong><code>PUT</code> / <code>DELETE</code> 는 재시도 후보이지 prod 기본 허용 후보가 아니다</strong> —
+        idempotent 와 read-only 는 다른 축이다. 둘을 같은 표에 놓고 판단하지 마라.</span>
+    </li>
+    <li>
+      <span class="check c-bad">&times;</span>
+      <span><strong>리다이렉트로 host 가 바뀌면 토큰 audience 가정도 깨진다</strong> —
+        실행이 성공해도 검증 대상이 의도한 서버가 아닐 수 있다. 최종 응답의 host 를 기록했는가.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>prod 실행 계획에 <code>GET</code> · <code>HEAD</code> · <code>OPTIONS</code> 밖의 동사가 있는가.
+        있다면 4중 키 allowlist 항목과 사용자 확인이 각각 존재하는가.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>모든 실제 호출에 <code>connect-timeout</code> 과 <code>max-time</code> 이 둘 다 지정되어 있는가.
+        비어 있으면 게이트가 env 기본값을 주입했는가.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>재시도가 붙은 항목이 전부 safe · <code>PUT</code> · <code>DELETE</code> · 명시 idempotent 태깅 중 하나인가.
+        나머지는 0회인가.</span>
+    </li>
+    <li>
+      <span class="check">&#10003;</span>
+      <span>요청량 곱셈(<code>파일 × 요청 × repeat × jobs</code>) 결과를 env 상한과 비교했는가.
+        prod 에서 <code>--jobs</code> 가 1 로 고정되어 있는가.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&#10003;</span>
+      <span>실행 항목마다 env, host, auth profile, method class, retry, concurrency, 최대 요청 수가 태깅되어 있는가.
+        태그 없는 항목은 게이트가 판정할 수 없다.</span>
+    </li>
+    <li>
+      <span class="check c-ok">&#10003;</span>
+      <span><code>allowHosts</code> 화이트리스트가 env 별로 채워져 있고, baseUrl 변수가 그 목록 안의 host 로만 해석되는가.</span>
+    </li>
+  </ul>
+
+  <div class="rule-box">
+    <strong>한 줄 요약:</strong> 메서드가 safe 라는 사실은 요청 하나가 안전하다는 뜻이지,
+    그 요청을 <code>--repeat</code> 로 수백 번 prod 에 날려도 된다는 뜻이 아니다. 게이트는 동사가 아니라 총 부하를 본다.
+  </div>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

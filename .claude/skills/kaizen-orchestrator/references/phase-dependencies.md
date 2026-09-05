@@ -2,7 +2,7 @@
 
 ## 업데이트 순서
 
-```
+```text
 Phase 1: 설계 가이드 카이젠
   harness/docs/guides/skill-design-guide.md
   harness/docs/guides/agent-design-guide.md
@@ -68,6 +68,17 @@ Phase 13: Bambu-kit 카이젠 (bambu-kaizen)
 Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
   onboarding-kit/skills/*/SKILL.md
   onboarding-kit/references/
+      ↓ 셋업 가이드 완료 후 Tone-kit으로
+Phase 15: Tone-kit 카이젠 (tone-kaizen)
+  tone-kit/skills/*/SKILL.md
+  tone-kit/references/
+  docs/tone/ (리서치 문서)
+      ↓ 톤 게이트 완료 후 Api-kit으로
+Phase 16: Api-kit 카이젠 (api-kaizen)
+  api-kit/skills/*/SKILL.md
+  api-kit/agents/api-reviewer.md
+  api-kit/references/
+  docs/api/ (리서치 문서)
 ```
 
 ## Phase 간 의존성 상세
@@ -90,6 +101,8 @@ Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
 | skill-design-guide.md | onboarding-kit /setup-guide | Gotchas 패턴, 아키타입 분류, 트리거 조건 원칙 (Phase 1 결과만 반영) |
 | docs/tone/ | tone-kit 전 스킬 | 톤·유지보수성 리서치 원칙 (포지셔닝 / 주석 / 네이밍 / 한국어 / 추출 / 안티패턴 / 어댑터 / 캠페인) |
 | tone-kit/references/ | tone-kit 전 스킬 | 3축 운영 규칙 + 어댑터 슬롯 + grep 게이트 |
+| docs/api/ | api-kit 전 스킬 | 블랙박스 API 계약 검증 리서치 원칙 (인벤토리 / Probe·Hurl 의미론 / 안전 게이트 / 인증·시크릿 / 봉인·정규화 / 추출 모드 / 다중 샘플 / 오류 계약 / 회귀 diff / 정적 뷰어 / baseline 거버넌스 / 상호운용) |
+| api-kit/references/ | api-kit 전 스킬 + api-reviewer | `pin` = 경로별 명시 assertion 정의, RFC 8785 JCS 기준선, exit code 분리 규약 |
 
 ## Phase 스킵 시 전파 규칙
 
@@ -107,10 +120,11 @@ Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
 - Phase 12 스킵 → Phase 13~14 진행에 영향 없음 (독립 스택)
 - Phase 13 스킵 → Phase 14 진행에 영향 없음 (독립 스택)
 - Phase 14 스킵 → Phase 15 진행에 영향 없음 (독립 스택)
-- Phase 7~15 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning|tone}/ 또는 각 킷 references/ 기준 점진 개선)
+- Phase 15 스킵 → Phase 16 진행에 영향 없음 (독립 스택)
+- Phase 7~16 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning|tone|api}/ 또는 각 킷 references/ 기준 점진 개선)
 
 ## QA 실패 시 롤백 범위
 
 - Phase N QA REJECT → Phase N 변경만 수정 (이전 Phase 건드리지 않음)
 - Final QA REJECT → 해당 Phase로 돌아가 수정 (다른 Phase 건드리지 않음)
-- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7~15도 동일 규칙 적용)
+- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7~16도 동일 규칙 적용)

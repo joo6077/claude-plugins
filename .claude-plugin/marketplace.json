@@ -64,6 +64,11 @@
       "name": "tone-kit",
       "source": "./tone-kit",
       "description": "[v0.1.0 · 2026-08-31] 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성·역할 네이밍·추출 임계·한국어 문체 규칙 + 템플릿 스캐폴딩 + 파일 단위 정리 캠페인 (3축 레이어: 스택/언어/프로젝트)"
+    },
+    {
+      "name": "api-kit",
+      "source": "./api-kit",
+      "description": "[v0.1.0 · 2026-09-04] 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행(/api-probe) · 스냅샷 봉인 · 계약 추출(partial/pin/exact) · 회귀 diff(/api-verify) · 의존성 0 정적 뷰어(/api-ui). Hurl 8 기반, 문서도 소스도 못 믿을 때 실측 응답으로 계약을 만든다"
     }
   ]
 }

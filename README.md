@@ -19,6 +19,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 | [`bambu-kit`](./bambu-kit/) | v0.6.0 | 범용 | [v0.6.0 · 2026-08-13] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장) |
 | [`onboarding-kit`](./onboarding-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate) |
 | [`tone-kit`](./tone-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-08-31] 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성·역할 네이밍·추출 임계·한국어 문체 규칙 + 템플릿 스캐폴딩 + 파일 단위 정리 캠페인 (3축 레이어: 스택/언어/프로젝트) |
+| [`api-kit`](./api-kit/) | v0.1.0 | 범용 | [v0.1.0 · 2026-09-04] 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행(/api-probe) · 스냅샷 봉인 · 계약 추출(partial/pin/exact) · 회귀 diff(/api-verify) · 의존성 0 정적 뷰어(/api-ui). Hurl 8 기반, 문서도 소스도 못 믿을 때 실측 응답으로 계약을 만든다 |
 <!-- /AUTO:plugins -->
 
 ---
@@ -29,7 +30,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 
 Claude Code 세션에서 이 모노레포를 마켓플레이스로 추가한다:
 
-```
+```text
 /plugin marketplace add joo6077/claude-plugins
 ```
 
@@ -37,7 +38,7 @@ Claude Code 세션에서 이 모노레포를 마켓플레이스로 추가한다:
 
 등록된 마켓플레이스에서 원하는 플러그인을 설치한다:
 
-```
+```text
 /plugin install harness@joo6077-plugins
 /plugin install flutter-toolkit@joo6077-plugins
 /plugin install design-kit@joo6077-plugins
@@ -62,7 +63,7 @@ claude plugin install harness@joo6077-plugins --scope project
 
 ## 업데이트
 
-```
+```text
 /plugin marketplace update joo6077-plugins
 ```
 
@@ -144,7 +145,7 @@ bash scripts/release.sh bambu-kit patch
 | `create-agent` | `/create-agent` | 설계 가이드 기반 에이전트 생성 |
 
 **사용 시작:**
-```
+```text
 /harness init
 ```
 
@@ -244,7 +245,7 @@ Bambu Lab H2S 자동 process+filament JSON 생성. 도구형 1스킬 킷 (guide/
 
 ## 구조
 
-```
+```text
 claude-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json         # 플러그인 레지스트리

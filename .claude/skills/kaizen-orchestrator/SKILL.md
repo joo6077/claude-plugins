@@ -97,6 +97,8 @@ Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
     ↓
 Phase 15: Tone-kit 카이젠 (tone-kaizen)
     ↓
+Phase 16: Api-kit 카이젠 (api-kaizen)
+    ↓
 Final: 전체 정합성 검증
 ```
 
@@ -117,6 +119,7 @@ Final: 전체 정합성 검증
 13. Bambu-kit 카이젠 — Bambu Studio 프로파일 생성 스킬 개선 (references SSOT 7종 + 실측 dogfood 기준). references 대량 갱신은 `/bambu-research` 소관
 14. Onboarding-kit 카이젠 — 외부 서비스 셋업 가이드 스킬 개선 (docs/help 변경 + 사용자 피드백 + marketplace 트렌드)
 15. Tone-kit 카이젠 — 코딩 톤·유지보수성 게이트 스킬 개선 (docs/tone/ 리서치 기준). 근거 등급 3등급(MUST / SHOULD / 관측 컨벤션)을 공개 출처 없이 승격하지 않는다
+16. Api-kit 카이젠 — 블랙박스 API 계약 검증 스킬 개선 (docs/api/ 리서치 기준). 문서 기재와 실측이 다르면 실측을 채택한다
 
 ## 트리거 조건
 
@@ -146,7 +149,7 @@ Final: 전체 정합성 검증
 
 ### 수동
 
-- `/kaizen-orchestrator` — 전체 (Phase 1→2→…→15→Final)
+- `/kaizen-orchestrator` — 전체 (Phase 1→2→…→16→Final)
 - `/kaizen-orchestrator phase1` — 설계 가이드만
 - `/kaizen-orchestrator phase2` — contract-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase3` — evaluator-kaizen만 (Phase 2 완료 전제)
@@ -162,7 +165,8 @@ Final: 전체 정합성 검증
 - `/kaizen-orchestrator phase13` — bambu-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase14` — onboarding-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase15` — tone-kaizen만 (Phase 1 완료 전제)
-- `/kaizen-orchestrator final` — Final QA만 (Phase 1~15 완료 전제)
+- `/kaizen-orchestrator phase16` — api-kaizen만 (Phase 1 완료 전제)
+- `/kaizen-orchestrator final` — Final QA만 (Phase 1~16 완료 전제)
 
 ## Process
 
@@ -480,6 +484,15 @@ exit_codes: [0, 2]
 
 > 플러그인 설명: [v0.1.0 · 2026-08-31] 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성·역할 네이밍·추출 임계·한국어 문체 규칙 + 템플릿 스캐폴딩 + 파일 단위 정리 캠페인 (3축 레이어: 스택/언어/프로젝트)
 
+### Step 16: Phase 16 — api-kit 카이젠
+
+**범위:** `api-kit/skills/*/SKILL.md`, `api-kit/references/`
+, `docs/api/` 리서치 문서
+
+공통 실행 패턴에 따라 `/api-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 api-kit 전 스킬을 전수 감사한다. api-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.1.0 · 2026-09-04] 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행(/api-probe) · 스냅샷 봉인 · 계약 추출(partial/pin/exact) · 회귀 diff(/api-verify) · 의존성 0 정적 뷰어(/api-ui). Hurl 8 기반, 문서도 소스도 못 믿을 때 실측 응답으로 계약을 만든다
+
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->
 
@@ -513,19 +526,35 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
   Apple Developer / Stripe / GCP / 패키지 레지스트리) 최소 3 건 이상 조회.
   개선 대상은 `/setup-guide` 1 개 스킬 + `references/` 3 종 + `evals/evals.json` 이다.
   의존성은 Phase 1 (skill-design-guide) 결과뿐이며 다른 Phase 결과에는 영향받지 않는다 (독립 스택).
+- **Phase 16 (api-kit) — 실측 우선 · `pin` 정의 고정**: 이 킷은 문서도 소스도 못 믿는 API 를
+  다루므로 **문서 기재와 실측이 어긋나면 실측을 채택하고 `docs/api/research-log.md` 에 기록한다.**
+  `docs/api/research-log.md` 의 **미검증 항목 표**(Hurl 8.0.1 옵션 우선순위 · `--retry-interval`
+  기본값 · `--max-redirs` 기본값 · exit code 체계 · `--secret` 마스킹 범위)를 먼저 읽고,
+  로컬에 `hurl` 이 있으면 대조한 뒤 진행한다. 특히 `--secret` 이 stdout 을 가리지 않는다는
+  기재는 킷의 redaction 설계(설계문서 §8.2 — 자체 scrubber 통과분만 저장·렌더) 전체가 걸린
+  항목이라, 실측이 다르면 §8.2 부터 다시 본다.
+  `pin` 은 **값 고정이 아니라 경로별 명시 assertion** 이다 (2026-09-04 재정의, 설계문서 §9.2).
+  외부 도구가 `pin` 을 다른 뜻으로 쓴다는 이유로 되돌리지 마라 — 되돌리려면 §9.2 와
+  `/api-ui` 아이콘 어휘를 함께 고쳐야 한다. 그 밖에 카이젠에서 완화하면 안 되는 확정 결정:
+  `exact` 는 **본문만** 본다(헤더는 pin 으로 개별 지정) · enum 승격은 **3 샘플 이상**
+  (1 샘플은 경고) · prod 기본 동사는 **GET/HEAD/OPTIONS** · 비교 기준선은 **RFC 8785 JCS** ·
+  계약 실패와 환경 실패는 **exit code 로 구분**한다.
+  경로 간 불변식(`$.meta.total >= len($.data)`)은 Hurl assert 로 표현할 수 없다 —
+  계약 YAML 에 기록하고 `/api-verify` 후처리에서 검사하는 구조를 유지하라.
 
 ### Step F1: Final — 전체 정합성 검증 (구 Step 11)
 
-**범위:** Phase 1~15 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit · Phase 15 tone-kit 포함 전수 체크)
+**범위:** Phase 1~16 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit · Phase 15 tone-kit · Phase 16 api-kit 포함 전수 체크)
 
 1. **Final Sprint Contract 생성:**
 
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~15 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 포함)
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~16 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 + api-kit 5 스킬 + api-reviewer 에이전트 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
-     - Phase 4 harness 변경이 Phase 5~15 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit)과 충돌하지 않는가
+     - Phase 4 harness 변경이 Phase 5~16 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit, api-kit)과 충돌하지 않는가
      - tone-kit 의 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션)이 공개 출처 없이 승격되지 않았는가
      - tone-kit 트리거 어휘가 타 킷과 set intersection · substring containment 양쪽에서 공집합인가
+     - api-kit 의 `pin` 정의(경로별 명시 assertion)와 확정 결정 5 건(exact 본문 한정 · enum 3 샘플 · prod GET/HEAD/OPTIONS · RFC 8785 JCS · exit code 분리)이 유지되는가
      - 버전 번호가 각 플러그인에서 올바르게 업데이트되었는가 (planning-kit + reflect-kit plugin.json 포함)
      - changelog, research-log이 모든 Phase 변경을 포함하는가 (docs/planning/research-log.md 포함)
    - Diagnostics: 전체 `bash -n` 검증
@@ -553,6 +582,8 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 | rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
 | react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
 | planning-kit | `planning-kit/references/`, `docs/planning/` | `docs/planning-kit/` |
+| tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
+| api-kit | `api-kit/references/`, `docs/api/` | `docs/api-kit/` |
 | process (공유) | (내부 문서) | `docs/process/` |
 
 **절차:**

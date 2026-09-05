@@ -543,6 +543,24 @@ body{
       ]
     },
     {
+      label: 'API Kit — 블랙박스 계약 검증',
+      accent: '#A3E635',
+      pages: [
+        { id: 'api-inventory',            title: 'Inventory Normalization (인벤토리 정규화)',  file: 'api-kit/api-inventory-normalization.html' },
+        { id: 'api-interop',              title: 'Artifact Interop (import / export)',        file: 'api-kit/artifact-interop-import-export.html' },
+        { id: 'api-probe-hurl',           title: 'Probe Synthesis — Hurl 의미론',              file: 'api-kit/probe-synthesis-hurl-semantics.html' },
+        { id: 'api-safety-gates',         title: 'Environment Safety Gates (환경 안전 게이트)', file: 'api-kit/environment-safety-gates.html' },
+        { id: 'api-auth-secret',          title: 'Auth &amp; Secret Lifecycle (인증·시크릿)',      file: 'api-kit/auth-secret-lifecycle.html' },
+        { id: 'api-sealing',              title: 'Snapshot Sealing (봉인 · 정규화)',           file: 'api-kit/snapshot-sealing-canonicalization.html' },
+        { id: 'api-extraction-modes',     title: 'Contract Extraction (partial · pin · exact)', file: 'api-kit/contract-extraction-modes.html' },
+        { id: 'api-multi-sample',         title: 'Multi-sample &amp; Pagination Variance',        file: 'api-kit/multi-sample-pagination-variance.html' },
+        { id: 'api-error-status',         title: 'Error &amp; Status Contracts (오류 계약)',       file: 'api-kit/error-status-contracts.html' },
+        { id: 'api-regression-diff',      title: 'Regression Diff &amp; Failure Policy',          file: 'api-kit/regression-diff-failure-policy.html' },
+        { id: 'api-viewer',               title: 'Static Evidence Viewer (의존성 0 뷰어)',     file: 'api-kit/static-evidence-viewer-contract.html' },
+        { id: 'api-baseline-governance',  title: 'Baseline Governance (승격 거버넌스)',        file: 'api-kit/baseline-governance-promotion.html' },
+      ]
+    },
+    {
       label: 'Process',
       accent: '#4ADE80',
       pages: [
@@ -593,6 +611,19 @@ body{
       'tone-antipattern':   '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>',
       'tone-adapter':       '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v6M11 3v6"/><path d="M5 9h8v4a4 4 0 0 1-4 4v4"/><circle cx="18" cy="12" r="3"/></svg>',
       'tone-campaign':      '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M4 12h10M4 18h6"/><path d="M17 7l2 2 4-4"/><path d="M17 15l2 2 4-4"/></svg>',
+      // API Kit
+      'api-inventory':      '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 4h18l-7 8v7l-4 2v-9z"/><path d="M3 20h5"/></svg>',
+      'api-interop':        '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 12l4-5 4 5"/><path d="M12 7v9"/></svg>',
+      'api-probe-hurl':     '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>',
+      'api-safety-gates':   '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l8 3.5V12c0 5-3.4 8.1-8 9-4.6-.9-8-4-8-9V6.5z"/><path d="M8 12h8"/></svg>',
+      'api-auth-secret':    '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9"/><path d="M17 12v4M20 12v3"/></svg>',
+      'api-sealing':        '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="9" r="5.5"/><path d="M9.5 9l1.8 1.8L15 7"/><path d="M8.5 13.5L7 21l5-2.2L17 21l-1.5-7.5"/></svg>',
+      'api-extraction-modes':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M6 12h12M9 18h6"/></svg>',
+      'api-multi-sample':   '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17.5l9 5 9-5"/></svg>',
+      'api-error-status':   '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3.5L21.5 20H2.5z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
+      'api-regression-diff':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="4" width="8" height="16" rx="1"/><rect x="13.5" y="4" width="8" height="16" rx="1"/><path d="M4.5 12h4"/><path d="M17.5 10v4M15.5 12h4"/></svg>',
+      'api-viewer':         '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r="0.6" fill="currentColor"/><path d="M7 13h6M7 16h9"/></svg>',
+      'api-baseline-governance':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h6M4 15h10M4 10h6"/><path d="M17 21V7"/><path d="M13.5 10.5L17 7l3.5 3.5"/></svg>',
       'bambu-failure-recipes':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
       'tag-canonicalization': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h7l4 4-4 4H3z"/><path d="M14 12h7"/><circle cx="19" cy="8" r="1.5"/><circle cx="19" cy="16" r="1.5"/></svg>',
       'gate-result-taxonomy': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v6"/><circle cx="12" cy="11" r="2"/><path d="M12 13v3M6 21v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/></svg>',
