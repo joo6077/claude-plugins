@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
   --accent-glow:rgba(232,150,90,0.06);
   --error:#f87171;--success:#4ade80;--warn:#fbbf24;
@@ -126,7 +126,7 @@ tbody tr:hover{background:var(--accent-glow)}
 }
 .tt-target .inner{
   background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:11px;font-weight:700;
+  color:var(--bg);font-size:11px;font-weight:700;
 }
 .tt-label{font-size:12px;color:var(--text2);font-weight:600}
 .tt-size{font-size:11px;color:var(--text3)}
@@ -143,7 +143,7 @@ tbody tr:hover{background:var(--accent-glow)}
 .pg-card-title{font-size:15px;font-weight:600}
 .pg-card-text{font-size:13px;color:var(--text2);line-height:1.6}
 .pg-card-btn{
-  display:inline-block;padding:8px 20px;background:var(--accent);color:#fff;
+  display:inline-block;padding:8px 20px;background:var(--accent);color:var(--bg);
   border-radius:var(--radius-sm);font-size:13px;font-weight:600;
 }
 .pg-controls{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px}
@@ -579,7 +579,7 @@ tbody tr:hover{background:var(--accent-glow)}
         </div>
         <div style="font-size:14px;color:var(--text2);line-height:1.7;padding:0 0 16px;border-bottom:1px solid var(--border)">본문 콘텐츠 영역입니다. 간격 감사 시 모든 간격 값을 추출하여 5개 이상의 서로 다른 값이 나오면 체계가 무너진 것으로 판단합니다.</div>
         <div style="display:flex;gap:8px">
-          <div style="padding:8px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600">좋아요</div>
+          <div style="padding:8px 16px;background:var(--accent);color:var(--bg);border-radius:8px;font-size:13px;font-weight:600">좋아요</div>
           <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:8px;font-size:13px">댓글</div>
           <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:8px;font-size:13px">공유</div>
         </div>

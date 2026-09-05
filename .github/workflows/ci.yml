@@ -58,6 +58,12 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test design-kit/evals/visuals.spec.js
 
+      # visuals.spec.js 는 페이지의 텍스트 대비를 재지 않는다 — color-palette.html 의
+      # 대비 체커 위젯이 렌더되는지만 본다. 그래서 CI 가 green 인 채로 172 페이지 중
+      # 150 개가 WCAG AA 미달이었다 (실측 2026-09-05). 이 스텝이 그 구멍을 막는다.
+      - name: Docs accessibility gate (contrast / overflow / touch target)
+        run: node scripts/check-docs-a11y.js
+
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v7

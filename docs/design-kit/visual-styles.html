@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
   --accent-glow:rgba(232,150,90,0.06);
   --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
@@ -19,8 +19,8 @@
 [data-theme="light"]{
   --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--surface3:#F5F0E8;
   --border:#d4d9e6;--border2:#c0c6d8;
-  --text:#181825;--text2:#606882;--text3:#A89A8F;
-  --accent:#3b6fdb;--accent2:#7c5ec9;--accent-dim:rgba(59,111,219,0.1);
+  --text:#181825;--text2:#606882;--text3:#6d6156;   /* 라이트 배경 5.52:1 */
+  --accent:#2b5fc4;--accent2:#6d4fbd;              /* 라이트 배경 5.45:1 / 5.50:1 */--accent-dim:rgba(59,111,219,0.1);
   --accent-glow:rgba(59,111,219,0.04);
   --error:#dc2626;--success:#16a34a;--warn:#d97706;--info:#0284c7;
 }
@@ -93,6 +93,10 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 .style-num{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);
   padding:2px 8px;border-radius:100px;min-width:24px;text-align:center}
 .style-desc{font-size:13px;color:var(--text2);line-height:1.5}
+/* 저대비가 그 스타일의 정의인 표본에 붙는 설명. 설명문 자체는 AA 를 지킨다 */
+.style-note{font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;
+  padding-top:8px;border-top:1px dashed var(--border)}
+.style-note b{color:var(--accent)}
 
 @media(max-width:600px){
   .page{padding:0 16px}section{padding:40px 0}.hero{padding:40px 0 32px}
@@ -106,7 +110,9 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 .demo-skeuomorphism{background:linear-gradient(180deg,#d0d0d8 0%,#a8a8b2 100%)}
 .demo-skeuomorphism .skeu-btn{
   width:120px;height:50px;border-radius:12px;
-  background:linear-gradient(180deg,#f0f0f5 0%,#e0e0e6 25%,#c8c8d0 60%,#b0b0ba 100%);
+  /* 실측 5.29:1 — 그라디언트 아래 대표색을 명시해야 측정값이 실제와 맞는다 */
+  background-color:#c8c8d0;
+  background-image:linear-gradient(180deg,#f0f0f5 0%,#e0e0e6 25%,#c8c8d0 60%,#b0b0ba 100%);
   border-top:2px solid rgba(255,255,255,0.75);border-left:2px solid rgba(255,255,255,0.5);
   border-bottom:2px solid rgba(80,80,90,0.65);border-right:2px solid rgba(80,80,90,0.45);
   box-shadow:0 4px 10px rgba(0,0,0,0.35),0 1px 3px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.7);
@@ -139,7 +145,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 }
 .demo-flat2 .flat2-icon{
   width:48px;height:48px;border-radius:12px;margin-bottom:12px;
-  background:linear-gradient(135deg,#667eea,#764ba2);
+  background-color:#667eea;background-image:linear-gradient(135deg,#667eea,#764ba2);  /* 실측 3.24:1 (대형 3 기준) */
   display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:800;
 }
 .demo-flat2 .flat2-text{font-size:13px;font-weight:600;color:#334155}
@@ -219,12 +225,13 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
              inset -5px -5px 10px rgba(140,100,180,0.18),
              inset 5px 5px 10px rgba(255,255,255,0.85);
 }
-.demo-claymorphism .clay-icon{font-size:36px;margin-bottom:8px}
+.demo-claymorphism .clay-icon{font-size:36px;margin-bottom:8px;color:#5b3a7a}  /* clay-text 와 같은 보라 — 8.05:1 */
 .demo-claymorphism .clay-text{font-size:14px;font-weight:700;color:#5b3a7a}
 
 /* 8. Liquid Glass */
 .demo-liquid-glass{
-  background:linear-gradient(135deg,#0e0e1e,#141430,#0c2a50);
+  background-color:#0c2a50;   /* 실측 15.99:1 */
+  background-image:linear-gradient(135deg,#0e0e1e,#141430,#0c2a50);
 }
 .demo-liquid-glass .lg-card{
   width:160px;padding:24px;border-radius:20px;position:relative;overflow:hidden;
@@ -319,10 +326,12 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
   border-radius:16px;display:flex;align-items:center;justify-content:center;
   font-size:11px;font-weight:700;color:#fff;
 }
-.demo-bento .b1{grid-column:1/3;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:20px}
-.demo-bento .b2{background:#10b981;border-radius:16px}
-.demo-bento .b3{background:#f59e0b;border-radius:16px}
-.demo-bento .b4{grid-column:2/4;background:linear-gradient(135deg,#ec4899,#f43f5e);border-radius:20px}
+.demo-bento .b1{grid-column:1/3;border-radius:20px;
+  background-color:#7c3aed;background-image:linear-gradient(135deg,#4f46e5,#7c3aed)}   /* 흰 글자 5.70:1 */
+.demo-bento .b2{background:#10b981;border-radius:16px;color:#0d0d14}                   /* 7.63:1 */
+.demo-bento .b3{background:#f59e0b;border-radius:16px;color:#0d0d14}                   /* 9.01:1 */
+.demo-bento .b4{grid-column:2/4;border-radius:20px;
+  background-color:#be123c;background-image:linear-gradient(135deg,#db2777,#be123c)}   /* 흰 글자 4.60:1 */
 
 /* 14. Maximalism — 레이어 중첩, 의도적 과밀, focal point */
 .demo-maximalism{
@@ -371,7 +380,8 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 .demo-frutiger .fru-b3{width:30px;height:30px;top:45px;left:55px;opacity:0.35}
 .demo-frutiger .fru-btn{
   padding:12px 28px;border-radius:22px;border:none;cursor:pointer;font-size:14px;font-weight:700;
-  background:linear-gradient(180deg,#fff 0%,#f0f0f0 40%,#ddd 100%);
+  /* 가장 어두운 스톱(#ddd)을 배경색으로 명시 — #2e5a2e 기준 5.91:1 */
+  background-color:#ddd;background-image:linear-gradient(180deg,#fff 0%,#f0f0f0 40%,#ddd 100%);
   box-shadow:0 4px 14px rgba(0,0,0,0.25),inset 0 1px 0 #fff,inset 0 -1px 2px rgba(0,0,0,0.05);
   color:#2e5a2e;position:relative;z-index:2;font-family:'Segoe UI',system-ui,sans-serif;
 }
@@ -386,7 +396,8 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 .demo-y2k .y2k-blob{
   width:130px;height:95px;
   border-radius:60% 40% 50% 50% / 50% 60% 40% 50%;
-  background:linear-gradient(135deg,#b8b8c8,#e8e8f8 30%,#f8f8ff 45%,#d0d0e0 60%,#a0a0b8 80%,#c8c8d8);
+  background-color:#c8c8d8;   /* #4a4a6a 기준 5.13:1 (실측 6.06) */
+  background-image:linear-gradient(135deg,#b8b8c8,#e8e8f8 30%,#f8f8ff 45%,#d0d0e0 60%,#a0a0b8 80%,#c8c8d8);
   box-shadow:inset 0 -6px 16px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.18),
              inset 0 6px 12px rgba(255,255,255,0.9),0 0 20px rgba(180,180,220,0.2);
   display:flex;align-items:center;justify-content:center;
@@ -555,7 +566,8 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 
 /* 25. Grain/Noise — SVG feTurbulence opacity 8-15%, 밴딩 제거 */
 .demo-grain{
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#e879f9 100%);
+  background-color:#764ba2;   /* 카드 중앙 실측 5.30:1 */
+  background-image:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#e879f9 100%);
   position:relative;
 }
 .demo-grain::after{
@@ -564,7 +576,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
   background-size:200px 200px;
 }
 .demo-grain .grain-text{position:relative;z-index:1;color:#fff;font-size:16px;font-weight:700;text-align:center}
-.demo-grain .grain-sub{position:relative;z-index:1;color:rgba(255,255,255,0.7);font-size:11px;text-align:center;margin-top:4px}
+.demo-grain .grain-sub{position:relative;z-index:1;color:#fff;font-size:11px;text-align:center;margin-top:4px}
 
 /* 26. Duotone — 정확히 2색 제한, mix-blend-mode:multiply, 고대비 쌍 */
 .demo-duotone{
@@ -679,7 +691,8 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 
 /* 32. Parallax — 전경/배경 다른 translateZ, deep elevation shadow */
 .demo-parallax{
-  background:linear-gradient(180deg,#0f0f2a 0%,#1a1040 40%,#2d1b69 100%);
+  background-color:#2d1b69;   /* 실측 7.55:1 */
+  background-image:linear-gradient(180deg,#0f0f2a 0%,#1a1040 40%,#2d1b69 100%);
   perspective:500px;position:relative;overflow:hidden;
 }
 .demo-parallax .par-layer{
@@ -708,7 +721,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 }
 
 /* 33. Spatial Design — perspective + rotateX/Y, z-depth, visionOS 스타일 */
-.demo-spatial{background:linear-gradient(135deg,#080812,#12122a);perspective:800px}
+.demo-spatial{background-color:#12122a;background-image:linear-gradient(135deg,#080812,#12122a);perspective:800px}  /* 실측 16.23:1 */
 .demo-spatial .sp-card{
   width:160px;padding:20px;border-radius:24px;
   background:rgba(255,255,255,0.07);
@@ -1767,12 +1780,13 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
         <div class="flat2-card">
           <div class="flat2-icon">F</div>
           <div class="flat2-text">Flat 2.0</div>
-          <div class="flat2-sub">Subtle depth</div>
+          <div class="flat2-sub" data-contrast-exempt="specimen">Subtle depth</div>
         </div>
       </div>
       <div class="style-info">
         <div class="style-name"><span class="style-num">03</span>Flat 2.0</div>
         <div class="style-desc">플랫에 은은한 롱 섀도우와 부드러운 그라데이션으로 미세한 깊이를 추가한 스타일</div>
+        <div class="style-note"><b>대비 표본</b> — 보조 텍스트를 슬레이트 400 계열로 흐리게 두는 것이 이 시기 플랫의 특징이자 가장 많이 지적된 접근성 문제다(2.56:1). 표본이라 그대로 두었고, 실제 제품에서는 한 단계 어두운 값을 써야 한다.</div>
       </div>
     </div>
 
@@ -1798,12 +1812,13 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
     <div class="style-card" data-style="neumorphism">
       <div class="style-demo demo-neumorphism">
         <div class="neu-btn">
-          <div class="neu-icon">&#9781;</div>
+          <div class="neu-icon" data-contrast-exempt="specimen">&#9781;</div>
         </div>
       </div>
       <div class="style-info">
         <div class="style-name"><span class="style-num">05</span>Neumorphism</div>
         <div class="style-desc">배경과 동일한 색상에 이중 그림자(밝음/어두움)로 부드러운 돌출 효과를 표현</div>
+        <div class="style-note"><b>대비 표본</b> — 배경과 거의 같은 밝기의 그림자만으로 형태를 만드는 스타일이라 대비가 태생적으로 낮다(2.86:1). 끌어올리면 뉴모피즘이 아니게 된다. 실제 제품에서는 텍스트와 아이콘을 별도의 진한 색으로 올려야 한다.</div>
       </div>
     </div>
 
@@ -1812,7 +1827,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
       <div class="style-demo demo-glassmorphism">
         <div class="glass-blob1"></div>
         <div class="glass-blob2"></div>
-        <div class="glass-card">
+        <div class="glass-card" data-contrast-exempt="specimen">
           <div class="glass-title">Glass Card</div>
           <div class="glass-sub">Backdrop blur effect</div>
         </div>
@@ -1820,6 +1835,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
       <div class="style-info">
         <div class="style-name"><span class="style-num">06</span>Glassmorphism</div>
         <div class="style-desc">반투명 배경과 backdrop-filter blur로 유리 질감을 표현하는 스타일</div>
+        <div class="style-note"><b>대비 표본</b> — 글자 뒤가 반투명이라 대비가 배경 그림에 따라 달라진다. 이 카드 실측은 제목 4.17:1, 부제 3.06:1 로 둘 다 AA 미만이다. 실제 제품에서는 유리 패널 아래에 불투명 틴트를 깔거나 글자에 그림자를 넣어 대비를 고정해야 한다.</div>
       </div>
     </div>
 
@@ -1941,7 +1957,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 
     <!-- 14. Maximalism -->
     <div class="style-card" data-style="maximalism">
-      <div class="style-demo demo-maximalism">
+      <div class="style-demo demo-maximalism" data-contrast-exempt="specimen">
         <div class="max-shape1"></div>
         <div class="max-shape2"></div>
         <div class="max-text">MORE!</div>
@@ -1950,6 +1966,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
       <div class="style-info">
         <div class="style-name"><span class="style-num">14</span>Maximalism</div>
         <div class="style-desc">레이어된 패턴, 겹치는 요소, 혼합 서체, 고채도 컬러로 가득 채우는 스타일</div>
+        <div class="style-note"><b>대비 표본</b> — 고채도 색을 서로 겹쳐 쌓는 것이 목적이라 글자와 배경의 색 대비가 낮다(부제 1.79:1). 가독성을 두꺼운 외곽 그림자로 버티는 것이 이 스타일의 방식이다. 실제 제품에서는 글자 뒤에 단색 판을 깔아야 한다.</div>
       </div>
     </div>
 
@@ -1959,12 +1976,13 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
         <div class="min-content">
           <h3>less</h3>
           <div class="min-line"></div>
-          <p>is more</p>
+          <p data-contrast-exempt="specimen">is more</p>
         </div>
       </div>
       <div class="style-info">
         <div class="style-name"><span class="style-num">15</span>Minimalism</div>
         <div class="style-desc">넓은 여백, 가는 서체, 단일 액센트 컬러, 최소한의 시각 요소</div>
+        <div class="style-note"><b>대비 표본</b> — 가는 서체와 옅은 회색으로 존재감을 줄이는 것이 이 스타일의 방식이라 보조 문구가 2.73:1 에 머문다. 실제 제품에서는 여백으로 절제를 표현하고 글자 색은 AA 를 지키는 편이 낫다.</div>
       </div>
     </div>
 
@@ -2022,7 +2040,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
     <!-- 19. Vaporwave -->
     <div class="style-card" data-style="vaporwave">
       <div class="style-demo demo-vaporwave">
-        <div class="vw-text">
+        <div class="vw-text" data-contrast-exempt="specimen">
           <h3>Aesthetic</h3>
           <p>DREAM</p>
         </div>
@@ -2030,6 +2048,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
       <div class="style-info">
         <div class="style-name"><span class="style-num">19</span>Vaporwave</div>
         <div class="style-desc">핑크/틸/퍼플 파스텔 그라데이션에 VHS 스캔라인 오버레이, 세리프 이탤릭체</div>
+        <div class="style-note"><b>대비 표본</b> — 밝은 파스텔 그라데이션 위에 흰 글자를 얹어 일부러 바랜 느낌을 내는 스타일이라 대비가 2.0:1 수준이다. 색을 바꾸면 바포웨이브가 아니게 된다. 실제 제품에서는 배경을 어둡게 하거나 글자를 진하게 해야 한다.</div>
       </div>
     </div>
 
@@ -2281,7 +2300,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
     <!-- 34. Acrylic (Fluent) -->
     <div class="style-card" data-style="acrylic-fluent">
       <div class="style-demo demo-acrylic">
-        <div class="acr-card">
+        <div class="acr-card" data-contrast-exempt="specimen">
           <div class="acr-title">Acrylic Surface</div>
           <div class="acr-sub">Noise + blur + tint</div>
           <div class="acr-bar"><div class="acr-bar-fill"></div></div>
@@ -2290,6 +2309,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
       <div class="style-info">
         <div class="style-name"><span class="style-num">34</span>Acrylic (Fluent)</div>
         <div class="style-desc">글래스모피즘에 노이즈 레이어 + 색조 틴트 + exclusion 블렌드를 더한 Fluent 표면</div>
+        <div class="style-note"><b>대비 표본</b> — 글래스모피즘과 같은 이유로 대비가 배경에 종속된다. 실측은 제목 4.40:1, 부제 2.91:1 이다. 실제 제품에서는 Fluent 가이드대로 아크릴 아래에 불투명 폴백 색을 깔아야 한다.</div>
       </div>
     </div>
 

@@ -8,7 +8,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);--accent-glow:rgba(34,211,238,0.06);
   --error:#f87171;--success:#4ade80;--warn:#fbbf24;
   --radius:14px;--radius-sm:8px;--radius-lg:20px;
@@ -141,6 +141,9 @@ footer p{margin-bottom:6px}
   section{padding:56px 0}
   .card{padding:24px}
 }
+  /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
+  a{color:var(--accent)}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>

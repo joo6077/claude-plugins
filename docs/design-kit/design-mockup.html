@@ -9,7 +9,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
   --accent-glow:rgba(232,150,90,0.06);
   --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
@@ -112,7 +112,7 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
 .mockup-header h3{font-size:18px;font-weight:700}
 .mockup-btn{padding:8px 20px;border-radius:var(--radius-sm);border:none;font-size:13px;font-weight:600;
   cursor:pointer;transition:var(--transition)}
-.mockup-btn-primary{background:var(--accent);color:#fff}
+.mockup-btn-primary{background:var(--accent);color:var(--bg)}
 .mockup-btn-primary:hover{filter:brightness(1.1)}
 .mockup-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;flex:1}
 .mockup-task-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
@@ -138,7 +138,7 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
 
 /* ID OVERLAY */
 .fab-toggle{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;
-  background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer;
+  background:var(--accent);color:var(--bg);border:none;font-size:20px;cursor:pointer;
   box-shadow:0 4px 16px rgba(232,150,90,0.3);transition:var(--transition);z-index:1000;
   display:flex;align-items:center;justify-content:center}
 .fab-toggle:hover{transform:scale(1.1)}

@@ -8,7 +8,7 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
     --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
-    --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
     --accent:#E8965A;--accent2:#F0B088;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--pink:#f472b6;
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
@@ -71,10 +71,10 @@
     border:none;cursor:pointer;position:relative;overflow:hidden;
     font-family:inherit;transition:all 0.1s ease;
   }
-  .demo-btn-default{background:var(--accent);color:#fff}
-  .demo-btn-hover{background:#F0B088;color:#fff;box-shadow:0 4px 16px rgba(232,150,90,0.3)}
-  .demo-btn-active{background:#4a7ad4;color:#fff;transform:scale(0.97)}
-  .demo-btn-focus{background:var(--accent);color:#fff;outline:2px solid #fff;outline-offset:2px}
+  .demo-btn-default{background:var(--accent);color:var(--bg)}
+  .demo-btn-hover{background:#F0B088;color:var(--bg);box-shadow:0 4px 16px rgba(232,150,90,0.3)}
+  .demo-btn-active{background:#4a7ad4;color:var(--bg);transform:scale(0.97)}
+  .demo-btn-focus{background:var(--accent);color:var(--bg);outline:2px solid #fff;outline-offset:2px}
   .demo-btn-disabled{background:var(--surface2);color:var(--text3);opacity:0.38;cursor:not-allowed}
   .demo-btn-loading{background:var(--accent);color:transparent;pointer-events:none;min-width:120px}
   .demo-btn-loading::after{
@@ -124,8 +124,8 @@
   .swipe-container{overflow:hidden;border-radius:12px}
   .swipe-item{position:relative;background:var(--surface2);overflow:hidden;margin-bottom:2px}
   .swipe-bg{position:absolute;inset:0;display:flex;align-items:center;padding:0 20px;font-size:13px;font-weight:700}
-  .swipe-bg-left{justify-content:flex-start;background:var(--red);color:#fff}
-  .swipe-bg-right{justify-content:flex-end;background:var(--green);color:#fff}
+  .swipe-bg-left{justify-content:flex-start;background:var(--red);color:var(--bg)}
+  .swipe-bg-right{justify-content:flex-end;background:var(--green);color:var(--bg)}
   .swipe-content{position:relative;background:var(--surface);padding:14px 18px;cursor:grab;
     transition:transform 0.3s ease;display:flex;align-items:center;gap:12px}
   .swipe-avatar{width:36px;height:36px;border-radius:10px;flex-shrink:0}
@@ -172,7 +172,7 @@
   .timing-label{min-width:120px;font-size:12px;font-weight:600;color:var(--text2)}
   .timing-bar-wrap{flex:1;height:24px;position:relative}
   .timing-bar{position:absolute;height:100%;border-radius:4px;display:flex;align-items:center;
-    padding-left:8px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.8)}
+    padding-left:8px;font-size:10px;font-weight:700;color:var(--bg)}
 
   /* Haptic viz */
   .haptic-line{display:flex;align-items:center;gap:2px;height:40px}
@@ -309,7 +309,7 @@
   <!-- Live interactive button -->
   <div class="card" style="margin-top:20px;text-align:center">
     <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:16px">인터랙티브 버튼 (hover, click, focus 직접 체험)</div>
-    <button id="liveBtn" style="padding:14px 48px;font-size:16px;font-weight:700;background:var(--accent);color:#fff;
+    <button id="liveBtn" style="padding:14px 48px;font-size:16px;font-weight:700;background:var(--accent);color:var(--bg);
       border:none;border-radius:12px;position:relative;overflow:hidden;transition:all 0.1s ease;outline-offset:3px"
       onmousedown="this.style.transform='scale(0.97)'"
       onmouseup="this.style.transform='scale(1)'"

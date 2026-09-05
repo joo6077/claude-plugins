@@ -11,7 +11,7 @@
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
   --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;--text4:#3d4260;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;--text4:#858cb2;
   --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
   --gold:#f0c040;--green:#34d399;--red:#f87171;--cyan:#22d3ee;--blue:#818cf8;
   --radius:14px;--radius-sm:8px;--radius-xs:6px;
@@ -22,8 +22,11 @@
 [data-theme="light"]{
   --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--surface3:#F5F0E8;
   --border:#d4d9e6;--border2:#c0c6d8;
-  --text:#181825;--text2:#606882;--text3:#A89A8F;--text4:#c5cbd8;
-  --accent:#3b6fdb;--accent2:#7c5ec9;--accent-dim:rgba(59,111,219,0.1);
+  --text:#181825;--text2:#606882;--text3:#6d6156;--text4:#5f667c;
+  --accent:#3b6fdb;--accent2:#6d4fbd;--accent-dim:rgba(59,111,219,0.1);
+  /* 라이트 배경(#f0f1f6 기준) 실측: text3 5.33 · text4 5.06 · accent2 5.31
+     green 5.50 · cyan 4.75 · blue 5.57 · gold 4.73 · red 5.02 */
+  --green:#12702f;--cyan:#0e7490;--blue:#4f46e5;--gold:#8a6410;--red:#c02626;
 }
 html{font-size:16px;scroll-behavior:smooth}
 body{
@@ -49,7 +52,8 @@ body{
 .nav-logo span{color:var(--accent2)}
 .nav-actions{display:flex;gap:10px}
 .theme-toggle{
-  display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+  min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
   background:var(--surface2);border:1px solid var(--border);cursor:pointer;
   font-size:12px;font-weight:600;color:var(--text2);
   transition:all var(--transition);white-space:nowrap;font-family:var(--font);
@@ -295,6 +299,9 @@ td code{font-family:var(--mono);font-size:12px;color:var(--cyan);background:var(
 .back-to-top:hover{background:var(--accent2);color:#fff;border-color:var(--accent2)}
 footer{padding:40px clamp(20px,4vw,48px);text-align:center;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
 footer a{color:var(--accent2);text-decoration:none}
+  /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
+  a{color:var(--accent)}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -499,8 +506,8 @@ footer a{color:var(--accent2);text-decoration:none}
   <div class="preview-strip" style="margin-bottom:32px">
     <!-- moodboard -->
     <div class="preview-thumb">
-      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#e2a877">
-        <span>MOODBOARD</span><span style="opacity:0.5">design-concept</span>
+      <div class="preview-thumb-header" style="background-color:#1a1a2e;background-image:linear-gradient(135deg,#1a1a2e,#16213e);color:#e2a877">
+        <span>MOODBOARD</span><span style="opacity:0.75">design-concept</span>
       </div>
       <div class="preview-thumb-body" style="background:#0f0f1a;padding:8px">
         <div style="display:flex;gap:4px;margin-bottom:6px">
@@ -521,8 +528,8 @@ footer a{color:var(--accent2);text-decoration:none}
     </div>
     <!-- catalog -->
     <div class="preview-thumb">
-      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a2e1a,#16301e);color:#34d399">
-        <span>CATALOG</span><span style="opacity:0.5">design-reference</span>
+      <div class="preview-thumb-header" style="background-color:#1a2e1a;background-image:linear-gradient(135deg,#1a2e1a,#16301e);color:#34d399">
+        <span>CATALOG</span><span style="opacity:0.75">design-reference</span>
       </div>
       <div class="preview-thumb-body" style="background:#0f1a0f;padding:8px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
@@ -533,16 +540,16 @@ footer a{color:var(--accent2);text-decoration:none}
         </div>
         <div style="margin-top:6px;display:flex;gap:4px">
           <div style="padding:2px 6px;background:#1a2e1a;border-radius:3px;font-size:9px;color:#34d399">ALL</div>
-          <div style="padding:2px 6px;background:#0f1a0f;border-radius:3px;font-size:9px;color:#666">Nav</div>
-          <div style="padding:2px 6px;background:#0f1a0f;border-radius:3px;font-size:9px;color:#666">Card</div>
+          <div style="padding:2px 6px;background:#0f1a0f;border-radius:3px;font-size:9px;color:#8f8f8f">Nav</div>
+          <div style="padding:2px 6px;background:#0f1a0f;border-radius:3px;font-size:9px;color:#8f8f8f">Card</div>
         </div>
       </div>
       <div class="preview-thumb-footer">레퍼런스 그리드 · 필터 · 인사이트</div>
     </div>
     <!-- mockup -->
     <div class="preview-thumb">
-      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a1a2e,#2e1a2e);color:#818cf8">
-        <span>MOCKUP</span><span style="opacity:0.5">design-mockup</span>
+      <div class="preview-thumb-header" style="background-color:#1a1a2e;background-image:linear-gradient(135deg,#1a1a2e,#2e1a2e);color:#818cf8">
+        <span>MOCKUP</span><span style="opacity:0.75">design-mockup</span>
       </div>
       <div class="preview-thumb-body" style="background:#0f0f1a;padding:8px;display:flex;gap:6px;justify-content:center">
         <div style="width:26px;height:50px;border:2px solid #3a3a55;border-radius:4px;background:#1e1e30"></div>
@@ -553,8 +560,8 @@ footer a{color:var(--accent2);text-decoration:none}
     </div>
     <!-- component -->
     <div class="preview-thumb">
-      <div class="preview-thumb-header" style="background:linear-gradient(135deg,#1a2a2e,#16282e);color:#22d3ee">
-        <span>COMPONENT</span><span style="opacity:0.5">design-component</span>
+      <div class="preview-thumb-header" style="background-color:#1a2a2e;background-image:linear-gradient(135deg,#1a2a2e,#16282e);color:#22d3ee">
+        <span>COMPONENT</span><span style="opacity:0.75">design-component</span>
       </div>
       <div class="preview-thumb-body" style="background:#0f181a;padding:8px">
         <div style="height:18px;background:#1a282e;border-radius:3px;margin-bottom:6px;width:70%"></div>
