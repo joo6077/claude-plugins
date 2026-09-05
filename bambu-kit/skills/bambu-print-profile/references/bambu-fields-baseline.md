@@ -2,7 +2,11 @@
 
 > Last updated: 2026-05-15
 > Source: Codex research run `a5afcf864d05cf3b7` (score 25/25)
-> Bambu Studio reference version: **2.6.0 / v02.06.00.51** (Public Release Hotfix, 2026-04-17)
+> Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
+>   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+>   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+>   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+>   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 > Latest beta at time of research: 2.7.0 Public Beta (2026-05-14)
 
 스킬이 process / filament JSON을 inherits 기반으로 자동 생성할 때 참조하는 baseline. 매 실행 시 kaizen 데이터 소스로 cross-check 권장.
@@ -202,9 +206,21 @@
 
 ### 8.4. Spiral / Seam Placement 필드
 
+⚠️ **프로파일 JSON 에 키가 없다고 그 키가 없는 것이 아니다.** `resources/profiles/BBL/**.json` 은
+**소스 기본값과 다른 키만** 저장한다. `seam_gap` · `wall_sequence` · `seam_slope_steps` 는
+프로파일 JSON 을 grep 하면 0 건이지만 **실재하는 BambuStudio 키다.** 실재 여부는 (a) 슬라이스된
+3mf 의 `Metadata/project_settings.config` (최종 해석값 전체) 또는 (b) 앱 바이너리 문자열로
+확인한다. 프로파일 JSON grep 을 키 존재 판정의 오라클로 쓰지 마라 — 실측에서 두 번 오판했다.
+
+
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
 |----|-------------|---------|--------------------------|
-| `spiral_mode` | `0` / `1` (bool) | `0`; `1`로 켜면 normalize가 `wall_loops=1`, `top_shell_layers=0`, `sparse_infill_density=0` 강제 | fdm_process_common.json:123; source: src/libslic3r/PrintConfig.cpp:277-282 |
+| `spiral_mode` | `0` / `1` (bool) | `0` | PrintConfig.cpp:5280-5286 (v02.08.02.61); fdm_process_common.json:123 |
+| `spiral_mode_smooth` | `0` / `1` (bool) | `0` — "Smooth Spiral". XY 이동까지 매끄럽게 해 **수직이 아닌 벽에서도** seam 을 없앤다 | PrintConfig.cpp:5288-5293 |
+| `spiral_mode_max_xy_smoothing` | mm 또는 `%` (**노즐 지름** 기준) | `200%` — H2S 0.4 에서 0.8mm. min 0 / max 1000, `max_literal` 10 (10 초과 맨숫자는 % 로 해석) | PrintConfig.cpp:5295-5304 |
+| `timelapse_type` | `"0"` = Traditional, `"1"` = Smooth | `"0"`. **off 값이 없다** — 과거 `None` 은 제거됐다 (PrintConfig.cpp:7293-7298). 녹화 자체를 끄는 것은 프로세스 설정이 아니라 전송 대화상자 체크박스(`BambuStudio.conf` 의 `print.timelapse`)다 | PrintConfig.cpp:5307-5322; PrintConfig.hpp:227-230 |
+| `farthest_point_timelapse` | `0` / `1` (bool) | H2S machine 프로파일이 **`1`** 로 명시 (2.8 신규, 2.6 엔 없었다). 스냅샷을 와이프 타워로 이동하지 않고 카메라에서 가장 먼 지점에서 촬영. 비 I3 + traditional 모드에서만 유효 | `Bambu Lab H2S 0.4 nozzle.json` (번들 02.08.00.06) |
+| `seam_gap` | mm 또는 `%` (**노즐 지름** 기준) | **`15%`** — 루프를 끊어 지정량만큼 짧게 만든다 (`seam_slope_gap` 과 다른 키, §8.4.1) | 3mf 최종 config; 바이너리 문자열 "Seam gap" |
 | `seam_placement_away_from_overhangs` | `0` / `1` (bool) | `0` | fdm_process_common.json:106; source: src/libslic3r/PrintConfig.cpp |
 
 ### 8.5. Seam Slope (scarf) 추가 필드 — 검증 필요

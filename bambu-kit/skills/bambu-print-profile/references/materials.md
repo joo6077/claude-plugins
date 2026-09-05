@@ -2,7 +2,11 @@
 
 > Last updated: 2026-05-15
 > Source: Codex research run `aeb457c7603a420db` (score 23/25)
-> Bambu Studio reference version: 2.6.0 (v02.06.00.51)
+> Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
+>   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+>   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+>   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+>   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 
 스킬이 모델 형상/용도에 맞는 필라멘트를 추천한 뒤 `inherits`로 가리키는 base 프로파일명을 조회하기 위한 카탈로그.
 

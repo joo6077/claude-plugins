@@ -2,7 +2,11 @@
 
 > Last updated: 2026-08-13
 > Source: `.harness/.meta/evidence/phase13.md` (카이젠 Phase 13 외부 근거 · Codex foreground · read-only)
-> Bambu Studio reference version: 2.6.0 (v02.06.00.51)
+> Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
+>   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+>   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+>   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+>   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 > Sibling references: `bambu-fields-baseline.md` **§10** (이 문서가 쓰는 키의 enum / 단위 / default **정본**) ·
 > `surface-recipes.md` (표면 우선 정책) · `seam-recipes.md` (seam 전략) · `tolerance.md` (공차 보정)
 
@@ -95,35 +99,55 @@ UI variable layer height 가 더 효율적이지만 §1.1 대로 범위 밖이�
 
 ## 2. L2 — 스트링잉 (voronoi 인필 / travel stringing)
 
-### 2.1 진단 게이트 — **건조가 먼저다**
+### 2.1 진단 게이트 — **관측 신호가 먼저다**
 
-⚠️ **소재 상태를 확인하기 전에 프로파일을 만지지 마라.** 커뮤니티 사례는 PETG/stringing 에서
-"retraction 기본값이면 충분, 건조가 우선" 이라는 답과, 다중 retraction 파트에서 wipe-while-retract 및
-노즐 온도 −5~−10 °C 가 도움 된다는 보고가 **같이** 존재한다. 즉 지배 변수는 프로파일이 아니라 습도다.
-
-게이트 순서 (앞 단계를 통과하지 않으면 다음으로 가지 않는다):
+⚠️ **건조 여부를 먼저 묻지 마라.** 습기를 원인으로 지목하려면 습기에 특이적인 신호를 대야 한다.
+"일단 말려라" 는 진단이 아니라 진단의 회피다 — 실측 실패 6 건 중 4 건이 근거 없이 건조로 종결됐고,
+사용자가 건조를 명시 확인한 1 건(2026-07-31 skadis-frame)에서만 실제 원인 2 개가 즉시 발견됐다.
 
 ```text
 L2 감지
   │
-  ├─ (0) 소재 상태 확인 — 이 단계에서 대부분 끝난다
-  │      · AMS HT 건조 이력 (소재별 시간/온도는 materials.md)
-  │      · 스풀 개봉 시점 / 보관 상태
-  │      · 같은 스풀로 다른 모델에서도 났는가
-  │      → 건조 미충족이면 **JSON 변경 없이** 건조 후 재출력 권고로 종료
+  ├─ (a) 습기 특이 신호가 관측되는가?
+  │      · 압출 중 pop / crackle + 가시 증기
+  │      · 압출물 표면의 무작위 기포 · 공극 (경로와 무관)
+  │      · 결손이 전역 랜덤 — 특정 feature 나 위치에 고정되지 않음
+  │      · 건조 스풀로 교체하면 사라짐
+  │      YES → 습기 1 순위. 건조 후 재출력 권고 + JSON 보류
   │
-  ├─ (1) 건조 충족인데도 travel stringing → filament wipe 만 opt-in
-  │      `filament_wipe` = 1 · `filament_wipe_distance` = 2 (기본값 §10.2)
-  │      → 이 2 키가 L2 의 유일한 무조건 허용 override 다
+  ├─ (b) 위치 · 시점 패턴이 있는가?  (습기로는 설명되지 않는다)
+  │      · travel 직후 **선 시작부**에 집중  → 리트랙션 재가압 · PA · seam
+  │      · **특정 속도 구간**에서만          → MVS 클램프 · 부분 막힘 · 온도 부족
+  │      · **외벽에서만**, 인필은 멀쩡        → 유량 계단 (SKILL.md §유량비 게이트)
+  │      · 속도 급변 **경계에서만**           → 유량 계단
+  │      YES → 해당 축을 먼저 진단한다
   │
-  └─ (2) (1) 로도 남으면 retraction 소량 상향 — **coupon 통과 후에만**
-         `filament_retraction_length` 를 기준값(§10.2)에서 `1.0`–`1.2` 까지만
-         → Phase 5 coupon 으로 검증한 뒤 본 출력에 반영
+  └─ (c) 둘 다 아님 → §1 의 6 축 재현 대조부터
 ```
 
-**공통 filament profile 기본은 대체로 `"nil"` 이다.** 즉 값이 비어 보이는 것은 0 이 아니라
-**printer / extruder 기본에 위임**된 상태다. `"nil"` 을 "설정 안 됨" 으로 읽고 임의 숫자로 채우면
-프린터 기본 튜닝을 통째로 덮어쓴다. 위임 상태의 실효값은 §10.2 의 underlying default 열을 본다.
+**건조 미확인은 진단 중단 사유가 아니라 confidence cap 이다.** 검증되지 않았으면 결론에
+그 사실을 적고 신뢰도를 낮춰 보고하되, (b) 축의 진단과 JSON 수정은 그대로 진행한다.
+고흡습 소재(PA · PVA · TPU · PC · PETG)는 cap 을 더 강하게 둔다.
+
+`materials.md` 기준 25 °C / 55 % RH 포화 흡습률: PLA Basic 0.43 % · PETG HF 0.40 % · ABS 0.65 % ·
+PC 0.25 %, PA 계열은 한 자릿수 높다. **PLA 와 ABS 를 습기 1 순위로 두려면 (a) 신호가 실제로
+관측돼야 한다.**
+
+(b) 가 리트랙션 축을 가리킬 때만 아래 2 단계를 쓴다.
+
+| 단계 | 조건 | 허용 override |
+|------|------|--------------|
+| (1) | travel stringing 잔존 | `filament_wipe` = `1` · `filament_wipe_distance` = **소재 부모값** |
+| (2) | (1) 로도 잔존 | `filament_retraction_length` 를 **소재 부모값의 1.5 배까지만.** Phase 5 coupon 통과 후에만 본 출력 반영 |
+
+**기준값은 machine 기본이 아니라 소재 부모값이다.** `fdm_filament_common` 의 `"nil"` 은 위임이지만,
+위임된 실효값이 곧 machine 값인 것은 아니다 — 소재 프로파일이 machine 을 덮는다.
+실측 (02.06.00.51): `Bambu ABS @BBL H2S` · `Bambu PLA Basic @BBL H2S` 는
+`filament_retraction_length` `0.4` · `filament_wipe_distance` `1` 을 명시하며, machine
+`Bambu Lab H2S 0.4 nozzle` 의 `0.8` / `2` 와 다르다. §10.2 의 underlying default 열은
+**소재 override 가 없을 때의 값**이므로 그것을 소재값으로 쓰면 리트랙션이 2 배가 된다.
+
+조회에 실패하면 추측값을 쓰지 말고 해당 키를 생략하고 `[미검증]` 으로 보고한다.
 
 ### 2.2 금지
 
