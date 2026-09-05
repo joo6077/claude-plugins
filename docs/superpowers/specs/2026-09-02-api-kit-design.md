@@ -190,7 +190,10 @@ prod 테스트가 허용되므로 가드는 "차단"이 아니라 "좁히기"로
 
 ### 8.2 Redaction — Hurl에 맡기면 안 되는 지점
 
-Hurl의 `--secret`은 **stderr 로그와 리포트만** exact match로 가린다. stdout의 HTTP 응답, `--include`, `--json` 출력, JSON 리포트에 저장된 원본 응답 body는 **가리지 않는다**.
+Hurl의 `--secret`이 exact match로 가리는 곳은 **stderr 로그와 JSON 리포트의 `report.json`** 둘뿐이다.
+stdout의 HTTP 응답, `--include`, `--output <file>`, `--json` stdout 전체(`curl_cmd`·요청 헤더·`captures[].value`),
+그리고 JSON 리포트가 원본 응답을 따로 떨구는 `store/*_response.json`은 **가리지 않는다**.
+`redact` capture도 마찬가지로 `--json` stdout과 그 store 파일을 못 가린다.
 
 따라서 스냅샷 저장 직전에 킷 자체 scrubber를 통과시킨다. 이건 선택이 아니라 필수 게이트다.
 
@@ -199,7 +202,11 @@ Hurl의 `--secret`은 **stderr 로그와 리포트만** exact match로 가린다
 - 도메인별 deny path 추가 가능
 - redaction 실패 시 스냅샷을 저장하지 않는다 (fail-closed)
 
-> 출처: [Hurl templates](https://hurl.dev/docs/templates.html), [Hurl captures](https://hurl.dev/docs/capturing-response.html)
+**게이트를 걸 경로는 스냅샷만이 아니다.** 2026-09-05 실측에서 유출 경로가 셋 더 드러났다 —
+`--output`으로 떨군 파일, `--report-json`의 `store/` 디렉토리, `--json` stdout을 artifact로 남기는 경우다.
+`/api-probe`가 리포트를 켜면 시크릿이 파일로 떨어진다는 뜻이므로 리포트 디렉토리도 같은 fail-closed 게이트를 지난다.
+
+> 출처: [Hurl templates](https://hurl.dev/docs/templates.html), [Hurl captures](https://hurl.dev/docs/capturing-response.html), 실측 (hurl 8.0.1, 2026-09-05 — `docs/api/research-log.md`)
 
 ### 8.3 prod 스냅샷은 커밋하지 않는다
 

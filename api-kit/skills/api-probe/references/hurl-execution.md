@@ -238,14 +238,24 @@ non-zero 를 전부 계약 실패로 보고하면 회귀 diff 가 노이즈로 �
 
 ### `--secret` 의 한계
 
+아래는 hurl 8.0.1 로 실측한 것이다 (2026-09-05). "리포트" 를 한 덩어리로 보면 틀린다 —
+JSON 리포트는 두 종류의 파일을 쓰고 그 둘의 처리가 다르다.
+
 | 가려지는 곳 | 가려지지 않는 곳 |
 |-------------|------------------|
-| stderr 로그 | 기본 stdout (HTTP 응답) |
-| Hurl 리포트 | `--include` 출력 |
-| | `--json` stdout |
-| | JSON 리포트의 raw response body |
+| stderr 로그 (`--verbose` / `--very-verbose`) | 기본 stdout (HTTP 응답) |
+| JSON 리포트의 `report.json` (`curl_cmd` · 요청 헤더) | `--include` 출력 |
+| | `--output <file>` |
+| | `--json` stdout 전체 — `curl_cmd` · 요청 헤더 · `captures[].value` |
+| | JSON 리포트의 `store/*_response.json` (원본 응답 본문) |
+
+HTML 리포트는 응답 본문을 아예 담지 않아 어느 쪽에도 없다.
 
 Hurl 은 응답 stdout 을 "unaltered output" 으로 취급한다. 따라서 응답을 파일로 남기는 경로에는 **api-kit 자체 redaction** 을 반드시 건다. `--secret` 에 위임할 수 없다.
+
+**"안 보인다" 를 마스킹으로 읽지 마라.** `--json` stdout 의 `response` 에는 `body` 필드 자체가 없고,
+`--verbose` stderr 에는 본문이 안 찍힌다. 두 곳 다 시크릿이 안 보이지만 가려서가 아니라 담기지 않아서다.
+본문이 찍히는 건 `--very-verbose` 부터이고 거기서는 실제로 `***` 가 된다.
 
 ### 등록 단위
 
@@ -268,7 +278,10 @@ scrub → I-JSON 검문 → raw 봉인 → normalized(JCS) → manifest
 
 scrub 이 하나라도 실패하면 **저장하지 않는다**. 리포트 생성 전에 스크러빙이 끝나 있어야 한다 — 리포트를 만든 뒤 마스킹하면 이미 파일과 CI 로그에 비밀이 남는다.
 
-Hurl 자체 HTML/JSON 리포트를 그대로 노출하지 마라. 원본 응답 dump 에 토큰이 남는다. CI artifact 로 저장할 경우 저장을 끄거나 후처리 scrubber 를 강제한다.
+Hurl 자체 JSON 리포트를 그대로 노출하지 마라. `store/*_response.json` 에 원본 응답이 마스킹 없이 떨어진다 (실측).
+CI artifact 로 저장할 경우 저장을 끄거나 후처리 scrubber 를 강제한다.
+리포트 디렉토리는 스냅샷과 **같은 fail-closed 게이트**를 지나야 한다 — 리포트를 켜는 순간
+시크릿이 파일로 떨어지기 때문이다.
 
 ---
 
@@ -284,7 +297,9 @@ Hurl 자체 HTML/JSON 리포트를 그대로 노출하지 마라. 원본 응답 
 | `--retry` 를 파일 전체에 지정 | non-idempotent 요청까지 재시도되어 중복 생성·중복 결제가 난다 |
 | 인증 요청에 `--location-trusted` | 리다이렉트된 임의 host 로 자격증명이 전송된다 |
 | `--repeat` + 병렬을 예산 없이 실행 | 파일 수 × jobs 배로 부하가 늘어 rate limit 또는 장애를 유발한다 |
-| `--secret` 만 믿고 `--json` stdout 을 artifact 로 보관 | stdout 은 마스킹 대상이 아니다. 평문 토큰이 그대로 저장된다 |
+| `--secret` 만 믿고 `--json` stdout 을 artifact 로 보관 | 실측에서 `curl_cmd` · 요청 헤더 · `captures[].value` 가 평문이었다 |
+| `--output <file>` 로 응답을 떨구면서 마스킹됐다고 가정 | 이 경로도 unaltered output 이다. 실측에서 평문이 남았다 |
+| `redact` capture 를 `--very-verbose` 와 함께 사용 | Hurl 8.0.1 이 `redacted secret not authorized in verbose` 로 **실행 자체를 거부**한다 |
 
 ---
 
@@ -292,6 +307,8 @@ Hurl 자체 HTML/JSON 리포트를 그대로 노출하지 마라. 원본 응답 
 
 - **`rawbytes` 가 아닌 capture/assert 는 decoded·decompressed 본문 기준이다** — gzip 응답의 바이트 길이나 원본 인코딩을 검증하려 했는데 디코딩된 값이 비교되어 조용히 통과한다. 바이트 수준 계약은 `rawbytes` 로 명시한다.
 - **entry 번호는 `1` 부터다** — `--from-entry` / `--to-entry` 로 부분 실행할 때 0-based 로 계산하면 한 칸씩 밀린다.
-- **`redact` capture 는 소급 적용되지 않는다** — 이후 로그·리포트에만 유효하고 이미 출력된 원본은 지우지 못한다.
+- **`redact` capture 는 소급 적용되지 않는다** — 이후 로그에만 유효하고 이미 출력된 원본은 지우지 못한다. 실측에서는 사정거리가 더 좁았다: 캡처값을 다음 entry 헤더로 넘기면 `--json` 의 `curl_cmd` 와 요청 헤더에 평문으로 나타나고, JSON 리포트의 원본 응답 파일도 평문이다.
+- **`redact` capture 와 `--very-verbose` 는 함께 못 쓴다** — 진단하려고 verbose 를 켜는 순간 Hurl 이 실행을 거부한다.
+- **`HURL_*` 환경변수는 옵션에만 붙고 변수에는 안 붙는다** — `HURL_INSECURE` 는 `--insecure` 가 되지만 `HURL_who` 는 `{{who}}` 가 되지 않는다 (실측: assert `actual: none`).
 - **Hurl `--curl` 은 export 전용이다** — curl 명령을 뽑는 기능이지 읽어들이는 기능이 아니다.
 - **JUnit 매핑은 `.hurl` 파일 1개 = `<testcase>` 1개다** — 이 매핑을 바꾸면 CI 대시보드가 계약 실패와 환경 실패를 구분하지 못한다. JUnit 만 저장하고 `.hurl` 을 폐기하면 실패를 재현할 수 없다.

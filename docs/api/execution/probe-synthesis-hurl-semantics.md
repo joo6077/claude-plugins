@@ -1,7 +1,7 @@
 ---
 title: Probe 합성과 Hurl 실행 의미론
-version: 0.1.0
-last_updated: 2026-09-04
+version: 0.2.0
+last_updated: 2026-09-05
 ---
 
 # Probe 합성과 Hurl 실행 의미론
@@ -46,7 +46,9 @@ query 는 URL 문자열과 `[Query]` 섹션 중 **한 경로만** 쓴다. Hurl �
 
 설정 우선순위는 environment variable < command-line option < per-entry `[Options]` 다. 뒤쪽이 앞쪽을 이긴다. cli-only 옵션은 `[Options]` 로 내려쓰지 않는다 — 파일에 적혀 있어도 적용되지 않아 문서와 실제 실행이 어긋난다.
 
-> **출처:** [Hurl Manual — Configuration](https://hurl.dev/docs/manual.html#configuration)
+이 규칙은 **옵션에만** 적용된다. `HURL_INSECURE` 가 `--insecure` 가 되는 식이고, 변수에는 해당되지 않는다 — `HURL_who` 를 걸어도 `{{who}}` 는 채워지지 않는다. 변수는 `--variable` / `--variables-file` / `--secret` / `--secrets-file` / `[Options] variable:` 로만 들어온다.
+
+> **출처:** [Hurl Manual — Configuration](https://hurl.dev/docs/manual.html#configuration) · 실측 (hurl 8.0.1, 2026-09-05)
 
 ### 7. Response Capture Policy
 
@@ -70,17 +72,21 @@ Hurl 종료 코드로 실패 종류를 나눈다. `4`(assert)만 계약 위반�
 
 ## 수치 기준
 
-| 항목 | 값 | 근거 |
-|------|-----|------|
-| Hurl 엔진 버전 | `8.0.1` (release `2026-04-28`) | [Hurl 8.0.1 릴리스](https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1) |
-| 옵션 우선순위 랭크 | `1` env < `2` CLI < `3` per-entry `[Options]` | [Hurl Manual](https://hurl.dev/docs/manual.html#configuration) |
-| `--max-redirs` 기본값 | `50` (`-1` = unlimited) | [Hurl Manual — HTTP Options](https://hurl.dev/docs/manual.html#http-options) |
-| retry 기본값 | `0` = no retry, `-1` = unlimited | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
-| `--retry-interval` 기본값 | `1000 ms` | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
-| entry 번호 시작값 | `1` (`--from-entry` / `--to-entry`) | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
-| `--test` 실행 모드 | 병렬. 순차가 필요하면 `--jobs 1` | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
-| exit code | `0` success / `1` CLI parse / `2` input parse / `3` runtime / `4` assert | [Hurl Manual — Exit Codes](https://hurl.dev/docs/manual.html#exit-codes) |
-| operation 당 자동 생성 probe 수 | 기본 `1` (preferred media type), explicit examples 다수 시 최대 `3` | 추론 |
+`확인` 열은 값의 출처가 아니라 **어떻게 확인했는지**다. `실측` 은 로컬 hurl 8.0.1 로 실행해 관측한 것,
+`문서` 는 아직 실행으로 확인하지 않은 것이다.
+
+| 항목 | 값 | 확인 | 근거 |
+|------|-----|------|------|
+| Hurl 엔진 버전 | `8.0.1` (release `2026-04-28`) | 실측 | `hurl --version` → `hurl 8.0.1 (x86_64-apple-darwin25.0) libcurl/8.7.1` |
+| 옵션 우선순위 랭크 | `1` env < `2` CLI < `3` per-entry `[Options]` | 실측 | `HURL_MAX_REDIRS=3` < `--max-redirs 5` < `[Options] max-redirs: 7` 을 `curl_cmd` 로 관측 |
+| 옵션 우선순위의 적용 대상 | **옵션만.** 변수는 `HURL_*` 로 안 들어온다 | 실측 | `HURL_who=…` → assert `actual: none` |
+| `--max-redirs` 기본값 | `50` (`-1` = unlimited) | 실측 | `hurl --help` → `[default: 50]`, man → "-1 to make it unlimited" |
+| retry 기본값 | `0` = no retry, `-1` = unlimited | 문서 | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
+| `--retry-interval` 기본값 | `1000 ms` | 실측 | `hurl --help` → `[default: 1000]` |
+| entry 번호 시작값 | `1` (`--from-entry` / `--to-entry`) | 문서 | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
+| `--test` 실행 모드 | 병렬. 순차가 필요하면 `--jobs 1` | 문서 | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
+| exit code | `0` success / `1` CLI parse / `2` input parse / `3` runtime / `4` assert | 실측 | 5 종을 각각 재현 — 정상 / `--no-such-flag` / 깨진 `[Asserts` / 닫힌 포트 / 틀린 jsonpath |
+| operation 당 자동 생성 probe 수 | 기본 `1` (preferred media type), explicit examples 다수 시 최대 `3` | 추론 | 이 킷의 설계 결정 |
 
 ---
 
@@ -101,4 +107,7 @@ Hurl 종료 코드로 실패 종류를 나눈다. `4`(assert)만 계약 위반�
 - **`[Options]` 의 `variable` 만 다음 entry 로 이어진다** — 다른 `[Options]` 항목은 그 entry 에서만 유효한데 `variable` 은 예외다. entry 별로 같은 이름 변수를 다르게 주면 뒤 entry 가 앞 값을 조용히 상속하거나 덮는다.
 - **`rawbytes` 가 아닌 capture/assert 는 decoded·decompressed 본문 기준이다** — gzip 응답의 바이트 길이나 원본 인코딩을 검증하려 했는데 디코딩된 값이 비교돼 통과해 버린다. 바이트 수준 계약은 `rawbytes` 로 명시한다.
 - **redirect follow 는 기본으로 꺼져 있다** — `3xx` 를 받고 assert 가 실패하면 계약 위반처럼 보이지만 실제로는 follow 미설정이다. 필요하면 entry 의 `location: true` 또는 `--location` 을 켠다.
-- **`--very-verbose` 는 request/response body 를 stderr 에 출력한다** — CI 로그에 토큰·개인정보가 그대로 남는다. 진단 목적으로 켤 때는 secret redaction 을 함께 적용한다.
+- **`--very-verbose` 는 request/response body 를 stderr 에 출력한다** — 다만 `--secret` 을 걸어두면 그 값은 `***` 로 바뀐다(실측). 문제는 등록하지 않은 변형본이다 — base64 본은 그대로 남는다.
+- **`--verbose` 로는 body 가 안 찍힌다** — 그래서 `--verbose` 로그에 토큰이 없다는 관측은 마스킹의 증거가 아니다. body 가 찍히는 건 `--very-verbose` 부터다.
+- **`redact` capture 와 `--very-verbose` 는 함께 못 쓴다** — Hurl 8.0.1 이 `redacted secret not authorized in verbose` 로 실행을 거부한다.
+- **exit code `1` 은 계약과 무관하다** — CLI 파싱 실패다. 오타 난 플래그 하나로 `1` 이 나오는데, 이걸 실패 통계에 넣으면 계약 회귀처럼 보인다.

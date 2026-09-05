@@ -219,6 +219,15 @@
     *,*::before,*::after{transition:none !important;animation:none !important}
     html{scroll-behavior:auto}
   }
+
+  /* ════ 이 페이지 전용 — 2026-09-05 Hurl 8.0.1 실측 반영 ════ */
+  /* 배너를 미검증 경고(노랑)에서 실측 완료 보고(초록)로 바꾼다. 기존 토큰만 조합한다 */
+  .warn-banner.b-measured{background:rgba(74,222,128,0.07);border-color:rgba(74,222,128,0.32);
+    border-left-color:var(--green)}
+  .warn-banner.b-measured h2{color:var(--green)}
+  /* 값과 「어떻게 확인했는지」를 한 칸 안에서 갈라 놓는다 */
+  .how{display:block;font-family:var(--mono);font-size:11.5px;color:var(--text3);
+    line-height:1.6;margin-top:5px;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -237,17 +246,21 @@
 <p class="subtitle">
   인벤토리의 operation 에서 실행 가능한 <span class="mono">.hurl</span> probe 를 합성할 때의 값 생성 순서, 직렬화 규칙,
   그리고 Hurl 8.0.1 실행 엔진의 의미론을 다룬다.
-  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+  <span class="mono">v0.2.0 · 최종 갱신 2026-09-05</span>
 </p>
 
-<div class="warn-banner">
-  <h2>이 페이지의 Hurl 수치는 문서 기재이고, 5 건은 실측 대조 전이다</h2>
+<div class="warn-banner b-measured">
+  <h2>이 페이지의 Hurl 값은 실측을 마쳤다 — 5 건 중 4 건 일치, 1 건 정정</h2>
   <p>
-    리서치 시점에 로컬에 <code>hurl</code> 바이너리가 없었다.
-    따라서 이 페이지에 적힌 Hurl 8.0.1 관련 값은 <strong>전부 공식 문서에서 옮긴 것</strong>이고,
-    실행으로 확인한 값은 <strong>하나도 없다</strong>.
-    그중 아래 5 건은 리서치 로그가 <span class="mono">/api-probe</span> 구현 시 실제 Hurl 8.0.1 로
-    대조하라고 명시적으로 남긴 항목이다.
+    2026-09-05 에 <code>hurl 8.0.1</code>(<span class="mono">x86_64-apple-darwin25.0</span> · libcurl/8.7.1) 을
+    로컬에 설치하고, <span class="mono">127.0.0.1:8731</span> 에 고정 JSON 을 돌려주는 픽스처 서버를 띄워 대조했다.
+    외부 호출은 없다. 픽스처 본문에는 <strong>시크릿으로 등록할 값을 일부러 넣어 뒀다</strong> —
+    마스킹 여부를 재려면 가릴 것이 먼저 있어야 한다.
+  </p>
+  <p>
+    아래 5 건은 리서치 로그가 <span class="mono">/api-probe</span> 구현 시 실제 Hurl 8.0.1 로
+    대조하라고 남겨 둔 항목이다. 결과는 <strong>4 건 일치 · 1 건 정정</strong>.
+    정정된 항목은 <code>--secret</code> 마스킹 범위로, 문서 기재보다 <strong>새는 면적이 넓었다.</strong>
   </p>
   <div class="table-wrap">
     <table>
@@ -256,54 +269,72 @@
           <th>항목</th>
           <th>문서에 기재한 값</th>
           <th>확인 상태</th>
-          <th>출처</th>
+          <th>실측 방법 · 출처</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td class="sys">옵션 우선순위</td>
           <td class="num-cell"><code>env</code> &lt; <code>CLI</code> &lt; <code>[Options]</code></td>
-          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#configuration</a></td>
+          <td><span class="tag tag-ok">실측 · 일치</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#configuration</a>
+            <span class="how">HURL_MAX_REDIRS=3 → --max-redirs 5 → [Options] max-redirs: 7 을 겹쳐 걸고 --json 의 curl_cmd 에서 3 / 5 / 7 을 순서대로 관측</span>
+          </td>
         </tr>
         <tr>
           <td class="sys"><code>--retry-interval</code> 기본</td>
           <td class="num-cell">1000 ms</td>
-          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#run-options</a></td>
+          <td><span class="tag tag-ok">실측 · 일치</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#run-options</a>
+            <span class="how">hurl --help → [default: 1000]</span>
+          </td>
         </tr>
         <tr>
           <td class="sys"><code>--max-redirs</code> 기본</td>
           <td class="num-cell">50 (<code>-1</code> 은 무제한)</td>
-          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#http-options</a></td>
+          <td><span class="tag tag-ok">실측 · 일치</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#http-options</a>
+            <span class="how">hurl --help → [default: 50] · man → "-1 to make it unlimited"</span>
+          </td>
         </tr>
         <tr>
           <td class="sys">exit code</td>
           <td class="num-cell">0 성공 / 1 CLI 파싱 / 2 입력 파싱 / 3 런타임 / 4 assert</td>
-          <td><span class="tag tag-warn">문서 기재 · 미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#exit-codes</a></td>
+          <td><span class="tag tag-ok">실측 · 일치</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#exit-codes</a>
+            <span class="how">5 종을 각각 재현 — 정상 실행 / --no-such-flag / 깨진 [Asserts 블록 / 닫힌 포트 9999 / 틀린 jsonpath</span>
+          </td>
         </tr>
         <tr>
           <td class="sys"><code>--secret</code> 마스킹 범위</td>
           <td class="num-cell">stderr 로그·리포트만. <strong>stdout 응답과 <code>--json</code> stdout 은 가리지 않음</strong></td>
-          <td><span class="tag tag-bad">문서 기재 · 미검증 · 설계 종속</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">&rarr; hurl.dev/docs/templates.html#secrets</a></td>
+          <td><span class="tag tag-bad">실측 · 정정 — 문서보다 넓게 샌다</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">&rarr; hurl.dev/docs/templates.html#secrets</a>
+            <span class="how">채널 9 종에 시크릿과 비시크릿 값을 함께 실어 보내고 각 출력을 grep — 문서에 없던 유출 경로가 --output &lt;file&gt; 과 --json stdout 둘 더 있었다</span>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
   <p style="margin-top:14px">
-    <strong>마지막 항목이 가장 중요하다 — api-kit 의 redaction 설계 전체가 여기 걸린다.</strong>
-    Hurl 의 <code>--secret</code> 이 stdout 을 가리지 않는다는 문서 기재가,
-    "Hurl 에 맡기지 않고 킷이 자체 scrubber 를 거친 데이터만 저장·렌더한다" 는 결정(설계문서 §8.2)의 근거다.
-    실측에서 다르게 나오면 §8.2 를 다시 봐야 한다.
+    <strong>정정된 마지막 항목이 설계에 가장 크게 걸린다 — 다만 결론은 뒤집히지 않고 강화됐다.</strong>
+    "Hurl 에 맡기지 않고 킷이 자체 scrubber 를 거친 데이터만 저장·렌더한다" 는 결정(설계문서 §8.2)은 그대로다.
+    바뀐 것은 scrubber 를 걸어야 할 경로 목록이다 — 문서에 없던 <code>--output &lt;file&gt;</code> 과
+    <code>--report-json</code> 의 <code>store/</code> 디렉토리가 새로 들어왔다.
+    <span class="mono">/api-probe</span> 가 리포트를 켜면 시크릿이 파일로 떨어진다는 뜻이므로,
+    리포트 디렉토리도 스냅샷과 같은 fail-closed 게이트를 지나야 한다.
   </p>
   <p>
-    <span class="tag tag-warn">문서 기재 · 미검증</span> 표시가 붙은 값은 공식 문서를 옮긴 것이다.
-    이 페이지 어디에도 <span class="tag tag-ok">실측</span> 표시는 없다 — 실행으로 확인한 값이 아직 없기 때문이다.
-    표시가 없는 값은 사양 문서(OpenAPI · RFC · JSON Schema)에서 온 규범이거나 이 킷의 추론이며,
-    <span class="tag tag-neutral">추론</span> 으로 따로 구분한다.
+    <span class="tag tag-ok">실측</span> 은 위 방법으로 로컬 hurl 8.0.1 을 돌려 관측한 값이다.
+    <span class="tag tag-neutral">문서 기재</span> 는 공식 문서를 옮겼을 뿐 <strong>아직 실행으로 확인하지 않은</strong> 값이고,
+    이 페이지에는 retry 기본값 · entry 번호 시작값 · <code>--test</code> 병렬 3 건이 그 상태로 남아 있다.
+    <span class="tag tag-neutral">추론</span> 은 사양 문서도 실행도 아닌 이 킷의 설계 결정이다.
+    셋을 섞어 읽지 마라 — 실측이 아닌 값을 실측 근거로 인용하는 것이 이 표시가 막으려는 일이다.
   </p>
 </div>
 
@@ -355,7 +386,8 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
   <div class="section-label">원칙 9</div>
   <p class="lead">
     1~3 은 요청을 만드는 규칙, 4~5 는 흐름과 격리, 6~9 는 Hurl 실행 엔진의 의미론이다.
-    6~9 의 값은 위 배너대로 <strong>문서 기재 · 미검증</strong> 이다.
+    6~9 중 <strong>6(옵션 우선순위)과 9(exit code)는 2026-09-05 에 hurl 8.0.1 로 실측</strong>해
+    문서 기재와 일치함을 확인했다. 7 · 8 은 사양 서술이라 실행 대조 대상이 아니다.
   </p>
 
   <div class="grid-2">
@@ -469,13 +501,21 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
           <span class="num">6</span>
           <h3>Hurl Option Precedence</h3>
           <span class="pill">env &lt; CLI &lt; [Options]</span>
-          <span class="tag tag-warn">미검증</span>
+          <span class="tag tag-ok">실측</span>
         </div>
         <div class="desc">
           설정 우선순위는 environment variable &lt; command-line option &lt; per-entry <code>[Options]</code> 다.
           뒤쪽이 앞쪽을 이긴다.
           cli-only 옵션은 <code>[Options]</code> 로 내려쓰지 않는다 —
           파일에 적혀 있어도 적용되지 않아 <strong>문서와 실제 실행이 어긋난다.</strong>
+        </div>
+        <div class="desc">
+          실측에서 붙은 단서가 하나 있다. <strong>이 규칙은 옵션에만 적용되고 변수에는 적용되지 않는다.</strong>
+          <code>HURL_INSECURE</code> 가 <code>--insecure</code> 로 붙는 식이지,
+          <code>HURL_who</code> 를 걸어도 <code>{{who}}</code> 는 채워지지 않는다 —
+          assert 가 <code>actual: none</code> 으로 실패한다.
+          변수는 <code>--variable</code> / <code>--variables-file</code> / <code>--secret</code> /
+          <code>--secrets-file</code> / <code>[Options] variable:</code> 로만 들어온다.
         </div>
       </div>
       <div class="sources">
@@ -528,7 +568,7 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
           <span class="num">9</span>
           <h3>Exit Code 기반 실패 분류</h3>
           <span class="pill">4 만 계약</span>
-          <span class="tag tag-warn">미검증</span>
+          <span class="tag tag-ok">실측</span>
         </div>
         <div class="desc">
           Hurl 종료 코드로 실패 종류를 나눈다.
@@ -536,6 +576,8 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
           <code>3</code>(runtime)은 네트워크·환경 문제다.
           이 구분 없이 non-zero 를 전부 계약 실패로 보고하면
           <strong>회귀 diff 가 노이즈로 덮인다.</strong>
+          5 종을 각각 재현해 코드 번호를 확정했다(2026-09-05) — 정상 실행, <code>--no-such-flag</code>,
+          깨진 <code>[Asserts</code> 블록, 닫힌 포트, 틀린 jsonpath.
         </div>
       </div>
       <div class="sources">
@@ -549,8 +591,10 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
 <div class="section">
   <div class="section-label">수치 기준</div>
   <div class="desc">
-    Hurl 관련 값은 전부 공식 문서 기재이며 실행 확인 전이다.
-    배너의 5 건과 겹치는 행에는 <span class="tag tag-warn">미검증</span> 를 다시 표시했다.
+    <code>확인</code> 열은 값의 출처가 아니라 <strong>어떻게 확인했는지</strong>다.
+    <span class="tag tag-ok">실측</span> 은 로컬 hurl 8.0.1 로 실행해 관측한 것,
+    <span class="tag tag-neutral">문서 기재</span> 는 아직 실행으로 확인하지 않은 것이다.
+    근거 칸에는 실측한 행에 한해 그 방법을 함께 적었다.
   </div>
   <div class="table-wrap">
     <table>
@@ -566,20 +610,38 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
         <tr>
           <td class="sys">Hurl 엔진 버전</td>
           <td class="num-cell">8.0.1 (release 2026-04-28)</td>
-          <td><span class="tag tag-neutral">문서 기재</span></td>
-          <td><a class="card-source" href="https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1" target="_blank" rel="noopener">&rarr; Hurl 8.0.1 릴리스</a></td>
+          <td><span class="tag tag-ok">실측</span></td>
+          <td>
+            <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1" target="_blank" rel="noopener">&rarr; Hurl 8.0.1 릴리스</a>
+            <span class="how">hurl --version → hurl 8.0.1 (x86_64-apple-darwin25.0) libcurl/8.7.1</span>
+          </td>
         </tr>
         <tr>
           <td class="sys">옵션 우선순위 랭크</td>
           <td class="num-cell">1 env &lt; 2 CLI &lt; 3 per-entry <code>[Options]</code></td>
-          <td><span class="tag tag-warn">미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual</a></td>
+          <td><span class="tag tag-ok">실측</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+            <span class="how">HURL_MAX_REDIRS=3 &lt; --max-redirs 5 &lt; [Options] max-redirs: 7 을 curl_cmd 로 관측</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="sys">옵션 우선순위의 적용 대상</td>
+          <td class="num-cell"><strong>옵션만.</strong> 변수는 <code>HURL_*</code> 로 안 들어온다</td>
+          <td><span class="tag tag-ok">실측</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+            <span class="how">HURL_who=from-env 를 걸어도 {{who}} 는 비어 assert 가 actual: none 으로 실패</span>
+          </td>
         </tr>
         <tr>
           <td class="sys"><code>--max-redirs</code> 기본값</td>
           <td class="num-cell">50 (<code>-1</code> = unlimited)</td>
-          <td><span class="tag tag-warn">미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; Hurl Manual — HTTP Options</a></td>
+          <td><span class="tag tag-ok">실측</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; Hurl Manual — HTTP Options</a>
+            <span class="how">hurl --help → [default: 50] · man → "-1 to make it unlimited"</span>
+          </td>
         </tr>
         <tr>
           <td class="sys">retry 기본값</td>
@@ -590,8 +652,11 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
         <tr>
           <td class="sys"><code>--retry-interval</code> 기본값</td>
           <td class="num-cell">1000 ms</td>
-          <td><span class="tag tag-warn">미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
+          <td><span class="tag tag-ok">실측</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a>
+            <span class="how">hurl --help → [default: 1000]</span>
+          </td>
         </tr>
         <tr>
           <td class="sys">entry 번호 시작값</td>
@@ -608,8 +673,11 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
         <tr>
           <td class="sys">exit code</td>
           <td class="num-cell">0 success / 1 CLI parse / 2 input parse / 3 runtime / 4 assert</td>
-          <td><span class="tag tag-warn">미검증</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a></td>
+          <td><span class="tag tag-ok">실측</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a>
+            <span class="how">5 종을 각각 재현 — 정상 / --no-such-flag / 깨진 [Asserts / 닫힌 포트 / 틀린 jsonpath</span>
+          </td>
         </tr>
         <tr>
           <td class="sys">operation 당 자동 생성 probe 수</td>
@@ -667,14 +735,15 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
     </table>
   </div>
   <p class="caption">
-    표 전체가 <span class="tag tag-warn">문서 기재 · 미검증</span> 이다.
-    코드 번호가 실제와 다르면 <strong>계약 실패 집계 자체가 어긋나므로</strong> 구현 착수 시 가장 먼저 대조할 항목이다.
+    표 전체가 <span class="tag tag-ok">실측</span> 이다 — 5 종을 각각 재현해 코드 번호를 확정했다(2026-09-05).
+    코드 번호가 실제와 다르면 <strong>계약 실패 집계 자체가 어긋나므로</strong> 가장 먼저 대조해야 할 항목이었다.
   </p>
 
   <div class="rule-box">
     <strong>옵션 우선순위.</strong> environment variable &rarr; command-line option &rarr; per-entry <code>[Options]</code>.
     뒤쪽이 이긴다. cli-only 옵션을 <code>[Options]</code> 에 적으면 무시되므로,
     파일에 적힌 실행 의미와 실제 실행이 갈라진다.
+    <strong>단 이 순위는 옵션 전용이다</strong> — <code>HURL_who</code> 같은 환경변수는 변수 <code>{{who}}</code> 를 채우지 않는다(실측).
   </div>
 </div>
 
@@ -817,7 +886,7 @@ HTTP 204</code></pre>
       </div>
       <div class="desc">
         <strong>결과</strong> — 실패 목록이 곧 작업 분배표가 된다.
-        <span class="tag tag-warn">미검증</span> 항목이므로 코드 번호는 실측으로 먼저 확정한다.
+        코드 번호는 <span class="tag tag-ok">실측</span> 으로 확정됐다 — 5 종을 각각 재현했다(2026-09-05).
       </div>
     </div>
   </div>
@@ -831,7 +900,8 @@ HTTP 204</code></pre>
       </div>
       <div class="desc">
         <strong>결과</strong> — 리포트가 비대해지고 토큰·개인정보가 CI 로그에 남는다.
-        문서 기재에 따르면 <code>--secret</code> 은 <strong>stdout 응답과 <code>--json</code> stdout 을 가리지 않는다.</strong>
+        실측에서 <code>--secret</code> 은 <strong>기본 stdout · <code>--include</code> · <code>--output &lt;file&gt;</code> 을 가리지 않았고,
+        <code>--json</code> stdout 의 <code>curl_cmd</code>·요청 헤더·<code>captures[].value</code> 도 평문이었다.</strong>
       </div>
     </div>
     <div class="compare-good">
@@ -851,8 +921,8 @@ HTTP 204</code></pre>
 <div class="section">
   <div class="section-label">Gotchas — probe 실행 전 확인</div>
   <div class="desc">
-    앞의 네 항목은 소스 문서의 Gotchas 이고, 뒤는 원칙에서 나온 확인 항목이다.
-    Hurl 동작에 걸린 항목은 실측 대조 전임을 표시했다.
+    앞의 여섯 항목은 소스 문서의 Gotchas 이고, 뒤는 원칙에서 나온 확인 항목이다.
+    Hurl 동작에 걸린 항목은 2026-09-05 실측 결과를 반영했다.
   </div>
   <ul class="checklist">
     <li>
@@ -880,19 +950,38 @@ HTTP 204</code></pre>
       </span>
     </li>
     <li>
-      <span class="check c-bad">×</span>
+      <span class="check c-warn">!</span>
       <span>
         <strong><code>--very-verbose</code> 는 request / response body 를 stderr 에 출력한다.</strong>
-        CI 로그에 토큰·개인정보가 그대로 남는다.
-        진단 목적으로 켤 때는 secret redaction 을 함께 적용한다.
+        다만 <code>--secret</code> 을 걸어 두면 그 값은 <code>***</code> 로 바뀐다(실측).
+        문제는 등록하지 않은 변형본이다 — 같은 값의 base64 본은 그대로 남는다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-bad">×</span>
+      <span>
+        <strong><code>--verbose</code> 로는 body 가 아예 안 찍힌다.</strong>
+        그래서 "<code>--verbose</code> 로그에 토큰이 없다" 는 관측은 <strong>마스킹의 증거가 아니다</strong> —
+        찍히지 않은 것을 가려졌다고 읽은 것뿐이다. body 가 찍히는 건 <code>--very-verbose</code> 부터다.
+      </span>
+    </li>
+    <li>
+      <span class="check c-bad">×</span>
+      <span>
+        <strong><code>redact</code> capture 와 <code>--very-verbose</code> 는 함께 못 쓴다.</strong>
+        Hurl 8.0.1 이 <code>redacted secret not authorized in verbose</code> 로 <strong>실행 자체를 거부한다.</strong>
+        진단하려고 verbose 를 켜는 순간 파일이 안 돈다.
       </span>
     </li>
     <li>
       <span class="check c-bad">×</span>
       <span>
         <strong><code>--secret</code> 만 믿고 stdout 을 그대로 저장하지 않았는지 확인했다.</strong>
-        문서 기재로는 stderr 로그·리포트만 마스킹되고 stdout 응답과 <code>--json</code> stdout 은 가려지지 않는다.
-        <span class="tag tag-warn">미검증</span> — 이 항목이 킷의 redaction 설계(설계문서 §8.2) 전체의 근거다.
+        실측에서 가려진 채널은 stderr 로그와 <code>--report-json</code> 의 <code>report.json</code> 둘뿐이었고,
+        기본 stdout · <code>--include</code> · <code>--output &lt;file&gt;</code> · <code>--json</code> stdout ·
+        리포트의 <code>store/*_response.json</code> 에는 평문이 남았다.
+        <span class="tag tag-ok">실측</span> — 이 항목이 킷의 redaction 설계(설계문서 §8.2) 전체의 근거이고,
+        실측은 그 결정을 뒤집지 않고 <strong>scrubber 를 걸 경로를 늘렸다.</strong>
       </span>
     </li>
     <li>
@@ -933,8 +1022,8 @@ HTTP 204</code></pre>
 <div class="section">
   <div class="section-label">출처</div>
   <div class="desc">
-    아래가 이 페이지의 전체 근거다. Hurl 문서에서 온 값은 실행 확인 전이며,
-    그중 5 건은 상단 배너에 미검증 항목으로 별도 표시했다.
+    아래가 이 페이지의 전체 근거다. Hurl 동작 값 중 상단 배너의 5 건은
+    2026-09-05 에 로컬 hurl 8.0.1 로 실행해 대조했고, 나머지 3 건은 아직 문서 기재 상태다.
   </div>
   <div class="info-card">
     <div class="sources" style="border-top:none;padding-top:0">
@@ -955,11 +1044,12 @@ HTTP 204</code></pre>
       <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1" target="_blank" rel="noopener">&rarr; Hurl 8.0.1 릴리스</a>
     </div>
     <div class="source-badge">추론 1 건 — operation 당 자동 생성 probe 수(기본 1, 최대 3). 출처 없음, 이 킷의 설계 결정</div>
-    <div class="source-badge">미검증 5 건 — 옵션 우선순위 · <code>--retry-interval</code> · <code>--max-redirs</code> · exit code · <code>--secret</code> 마스킹 범위. 문서 기재이며 Hurl 8.0.1 실행으로 확인하지 않았다</div>
+    <div class="source-badge">실측 5 건 (2026-09-05 · hurl 8.0.1) — 옵션 우선순위 · <code>--retry-interval</code> · <code>--max-redirs</code> · exit code 는 문서와 일치했고, <code>--secret</code> 마스킹 범위는 문서보다 새는 면적이 넓어 정정했다</div>
+    <div class="source-badge">아직 문서 기재 3 건 — retry 기본값 · entry 번호 시작값 · <code>--test</code> 병렬 실행. 이번 사이클에서 실행으로 확인하지 않았다</div>
   </div>
   <p class="caption">
-    소스 문서: <span class="mono">docs/api/execution/probe-synthesis-hurl-semantics.md</span> (v0.1.0 · 2026-09-04) ·
-    미검증 항목 표 출처: <span class="mono">docs/api/research-log.md</span>
+    소스 문서: <span class="mono">docs/api/execution/probe-synthesis-hurl-semantics.md</span> (v0.2.0 · 2026-09-05) ·
+    실측 대조 표 출처: <span class="mono">docs/api/research-log.md</span> 「2026-09-05 — Hurl 8.0.1 실측 대조」
   </p>
 </div>
 

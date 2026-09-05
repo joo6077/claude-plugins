@@ -244,6 +244,9 @@
     font-family:var(--mono);padding:3px 8px;border-radius:4px;white-space:nowrap}
   .v-doc{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)}
   .v-measured{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  /* 배지 옆에 재현 방법을 한 줄로 붙인다 — 「실측」만으로는 무엇을 어떻게 했는지 남지 않는다 */
+  .how{display:block;font-family:var(--mono);font-size:11.5px;color:var(--text3);
+    line-height:1.6;margin-top:5px;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -265,7 +268,7 @@
   <h2>이 문서의 중심축 — 계약 실패와 환경 실패를 exit code 로 가른다</h2>
   <p><strong>서버가 죽은 것</strong>과 <strong>계약이 깨진 것</strong>은 대응이 다르다. 앞은 재시도·인프라 확인이고 뒤는 코드 리뷰다. 둘을 같은 실패로 묶으면 CI 대시보드는 원인을 집계하지 못하고, 게이트는 노이즈로 채워진다. api-kit 은 이 분리를 문장이 아니라 <strong>종료 코드</strong>로 강제한다 — 런타임 오류는 <code>3</code>, assert 실패는 <code>4</code>다.</p>
   <p>이 분리가 가능한 이유는 실행 엔진이 고정되어 있기 때문이다. 설계문서 §12 확정 결정표는 실행 엔진을 <strong>Hurl 8.0.1</strong> 로 못박았고, <code>/api-verify</code> 는 그 종료 코드 체계를 재매핑 없이 승계한다.</p>
-  <p><strong>단, 아래 exit code 표는 로컬 실측이 아니라 공식 문서 기재를 옮긴 값이다.</strong> 리서치 시점에 로컬에 <code>hurl</code> 바이너리가 없었고, <span class="mono">docs/api/research-log.md</span> 의 「미검증 항목 — 구현 단계에서 실측 대조 필요」 표에 exit code 항목이 그대로 올라 있다. 구현 단계에서 실제 Hurl 8.0.1 로 대조하기 전까지 이 값을 실측 근거로 인용하지 마라.</p>
+  <p><strong>아래 exit code 표는 2026-09-05 에 로컬 hurl 8.0.1 로 5 종 전부 재현해 확인했다.</strong> 정상 실행으로 <code>0</code>, <code>--no-such-flag</code> 로 <code>1</code>, 깨진 <code>[Asserts</code> 블록으로 <code>2</code>, 닫힌 포트 9999 로 <code>3</code>, 틀린 jsonpath 로 <code>4</code> 를 각각 받았다. 문서 기재와 일치한다 — <span class="mono">docs/api/research-log.md</span> 「2026-09-05 — Hurl 8.0.1 실측 대조」 절이 정본이다.</p>
 </div>
 
 <div class="section">
@@ -346,7 +349,7 @@
     <strong>판정 규칙.</strong> <code>3</code> 은 "계약을 확인하지 못했다"이고 <code>4</code> 는 "계약이 어긋났다"다. <code>3</code> 을 실패율에 넣으면 인프라 사고가 계약 품질 지표를 갉아먹고, <code>4</code> 를 재시도로 넘기면 회귀가 green 으로 통과한다.
   </div>
 
-  <p class="desc" style="margin-top:22px">근거 문서와 검증 상태를 분리해 표기한다. 아래 표에서 <span class="verif v-doc">문서 기재</span> 는 공식 문서에서 옮겼을 뿐 로컬 실행으로 확인하지 않았다는 뜻이다.</p>
+  <p class="desc" style="margin-top:22px">근거 문서와 검증 상태를 분리해 표기한다. <span class="verif v-measured">실측</span> 은 로컬 hurl 8.0.1 을 직접 돌려 관측했다는 뜻이고, <span class="verif v-doc">설계 확정</span> 은 실행이 아니라 이 킷의 결정으로 고정된 값이라는 뜻이다. 둘은 성격이 다르므로 같은 배지를 쓰지 않는다.</p>
 
   <div class="table-wrap">
     <table>
@@ -357,14 +360,20 @@
         <tr>
           <td class="sys">Hurl exit code 체계</td>
           <td><code>0</code> 성공 / <code>1</code> CLI 파싱 / <code>2</code> 입력 파싱 / <code>3</code> 런타임 / <code>4</code> assert</td>
-          <td><span class="verif v-doc">문서 기재</span></td>
-          <td><a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a></td>
+          <td><span class="verif v-measured">실측 2026-09-05</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a>
+            <span class="how">hurl 8.0.1 로 5 종 재현 — 정상 / --no-such-flag / 깨진 [Asserts / 닫힌 포트 9999 / 틀린 jsonpath</span>
+          </td>
         </tr>
         <tr>
           <td class="sys">실행 엔진 고정</td>
           <td>Hurl 8.0.1</td>
-          <td><span class="verif v-doc">설계 확정</span></td>
-          <td><span class="mono">설계문서 §12 확정 결정표</span></td>
+          <td><span class="verif v-measured">실측 2026-09-05</span></td>
+          <td>
+            <span class="mono">설계문서 §12 확정 결정표</span>
+            <span class="how">hurl --version → hurl 8.0.1 (x86_64-apple-darwin25.0) libcurl/8.7.1</span>
+          </td>
         </tr>
         <tr>
           <td class="sys">계약 실패 기준</td>
@@ -383,9 +392,10 @@
   </div>
 
   <div class="info-card" style="margin-top:22px">
-    <h4>왜 「문서 기재」를 굳이 표시하는가</h4>
-    <p class="desc" style="margin-bottom:0">리서치 시점에 로컬에 <code>hurl</code> 바이너리가 없었다. <span class="mono">docs/api/research-log.md</span> 의 미검증 항목 표는 옵션 우선순위, <code>--retry-interval</code> 기본값, <code>--max-redirs</code> 기본값, <strong>exit code 체계</strong>, <code>--secret</code> 마스킹 범위 다섯 항목을 "공식 문서 기재를 옮긴 것이고 실행으로 확인하지 않았다"로 명시한다. 이 중 exit code 는 이 문서 전체의 판정 축이므로, 구현 단계에서 실제 Hurl 8.0.1 로 대조하기 전에는 실측 근거로 인용하지 않는다.</p>
-    <span class="source-badge">&#9888; 실측 대조 대기 — docs/api/research-log.md 「미검증 항목」 표</span>
+    <h4>왜 검증 상태를 굳이 배지로 표시하는가</h4>
+    <p class="desc">리서치 시점에는 로컬에 <code>hurl</code> 바이너리가 없었고, 옵션 우선순위 · <code>--retry-interval</code> · <code>--max-redirs</code> · <strong>exit code 체계</strong> · <code>--secret</code> 마스킹 범위 다섯 항목이 "문서를 옮겼을 뿐 실행으로 확인하지 않은" 상태로 남아 있었다. exit code 는 이 문서 전체의 판정 축이라 그중 가장 먼저 대조해야 할 항목이었다.</p>
+    <p class="desc" style="margin-bottom:0">2026-09-05 에 hurl 8.0.1 을 로컬에 설치해 다섯 항목을 모두 대조했다. exit code 는 <strong>5 종을 각각 재현해 문서 기재와 일치</strong>함을 확인했고, <code>--secret</code> 마스킹 범위 하나만 문서보다 새는 면적이 넓어 정정됐다. 배지를 남겨 두는 이유는 지금 값이 어느 쪽인지 다음 사람이 다시 물어보지 않게 하기 위해서다.</p>
+    <span class="source-badge">&#10003; 실측 완료 — docs/api/research-log.md 「2026-09-05 — Hurl 8.0.1 실측 대조」 (5 건 중 4 건 일치 · 1 건 정정)</span>
   </div>
 </div>
 
@@ -448,7 +458,7 @@
       </div>
       <div class="sources">
         <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a>
-        <span class="source-badge">&#9888; 공식 문서 기재 — 로컬 실측 미완료</span>
+        <span class="source-badge">&#10003; 실측 2026-09-05 — hurl 8.0.1 로 <code>0</code>~<code>4</code> 5 종을 각각 재현, 문서 기재와 일치</span>
       </div>
     </div>
 
@@ -518,7 +528,7 @@
       </tbody>
     </table>
   </div>
-  <p class="caption">근거: <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a> &nbsp;·&nbsp; 검증 상태 <span class="verif v-doc">문서 기재</span></p>
+  <p class="caption">근거: <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Exit Codes</a> &nbsp;·&nbsp; 검증 상태 <span class="verif v-measured">실측 2026-09-05</span> &nbsp;·&nbsp; 재현: 정상 실행 &rarr; <code>0</code>, <code>--no-such-flag</code> &rarr; <code>1</code>, 깨진 <code>[Asserts</code> 블록 &rarr; <code>2</code>, 닫힌 포트 9999 &rarr; <code>3</code>, 틀린 jsonpath &rarr; <code>4</code></p>
 
   <h3 style="margin:28px 0 12px">기타 임계값</h3>
   <div class="table-wrap">
@@ -678,7 +688,7 @@ report: PASS (flaky-confirmed: 1)</code></pre>
   <p class="desc">회귀 리포트를 만들기 전에 확인한다. 하나라도 비어 있으면 리포트의 판정을 신뢰할 수 없다.</p>
 
   <ul class="checklist">
-    <li><span class="check c-warn">!</span><span><strong>exit code 값을 실측으로 확인했는가.</strong> 현재 표는 <a href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">Hurl 공식 문서</a> 기재를 옮긴 것이고 로컬 실행 결과가 아니다. 구현 단계에서 Hurl 8.0.1 로 대조하기 전에는 "실측했다"고 보고하지 마라.</span></li>
+    <li><span class="check c-ok">&#10003;</span><span><strong>exit code 값을 실측으로 확인했다.</strong> 2026-09-05 에 hurl 8.0.1 로 <code>0</code>~<code>4</code> 5 종을 각각 재현했고 <a href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">Hurl 공식 문서</a> 기재와 일치했다. 엔진 버전을 올리면 이 재현을 다시 돌려라 — 코드 번호가 바뀌면 계약 실패 집계 자체가 어긋난다.</span></li>
     <li><span class="check c-warn">!</span><span><strong>exit <code>3</code> 의 subreason 을 별도 필드로 남겼는가.</strong> Hurl <code>3</code> 은 DNS·TLS·timeout·connect 를 모두 포함한다. 코드만으로는 일시적 타임아웃과 인증서 만료가 구분되지 않는다.</span></li>
     <li><span class="check">&#10003;</span><span><strong>실행 모드를 diff 결과와 함께 기록했는가.</strong> additive field 는 tolerant 모드에서는 호환이고 exact·golden 모드에서는 실패다. 모드를 모르면 같은 diff 를 두 사람이 다르게 읽는다.</span></li>
     <li><span class="check c-warn">!</span><span><strong><code>404</code> 에 원인 후보를 둘 다 남겼는가.</strong> 진짜 데이터 부재일 수도, 존재를 감추는 <code>403</code> 대체 정책일 수도 있다. 자동으로 한쪽으로 단정하지 마라.</span></li>
