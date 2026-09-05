@@ -1,0 +1,22 @@
+{
+  "name": "api-kit",
+  "description": "실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행, 스냅샷 봉인, 계약 추출, 회귀 diff, 정적 뷰어",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jackson Kim"
+  },
+  "repository": "https://github.com/joo6077/claude-plugins",
+  "license": "MIT",
+  "keywords": [
+    "api",
+    "contract",
+    "testing",
+    "hurl",
+    "snapshot",
+    "regression",
+    "openapi",
+    "blackbox",
+    "diff",
+    "canonical-json"
+  ]
+}

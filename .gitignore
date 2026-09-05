@@ -2,3 +2,5 @@ node_modules/
 test-results/
 playwright-report/
 scripts/__pycache__/
+.mockups/
+.playwright-mcp/

@@ -19,6 +19,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **bambu-kit** — Bambu Lab H2S용 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들
 - **onboarding-kit** — 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보 기반 step-by-step 가이드 (Firebase, GCP, AWS, FCM, OAuth, Stripe 등)
 - **tone-kit** — 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성, 역할 기반 네이밍, 추출 임계치, 한국어 기술 문체, 템플릿 스캐폴딩, 파일 단위 정리 캠페인
+- **api-kit** — 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행, 스냅샷 봉인, 계약 추출, 회귀 diff, 정적 뷰어
 <!-- /AUTO:summary -->
 
 ## Commands
@@ -266,6 +267,19 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 |------|------|
 | `/setup-guide` | 그 시점 최신 정보 기준 외부 서비스 셋업 가이드 step-by-step MD 자동 생성 |
 
+**api-kit — 블랙박스 API 계약 검증 (5종 + 1 에이전트)**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/api-init` | 스펙·문서·curl 덤프에서 인벤토리 생성 (`project.yaml` `auth.yaml` `inventory.yaml`) |
+| `/api-probe` | 엔드포인트 탐색 실행 → 마크다운 리포트 + 스냅샷 봉인 |
+| `/api-contract` | 스냅샷에서 계약 추출 (partial / pin / exact 3단계) |
+| `/api-verify` | 회귀 검증 → PASS/FAIL + canonical diff. exit code로 계약 실패와 환경 실패 구분 |
+| `/api-ui` | `.api/` 전체를 의존성 0 단일 `ui.html`로 생성 후 열기 |
+| `api-reviewer` (에이전트) | 추출된 계약이 적절한지 독립 평가. 단독 실행하지 않는다 |
+
+`pin`은 **값 고정이 아니라 경로별 명시 assertion**이다 — 타입은 멀쩡한데 값만 망가진 회귀를 잡는다. 비교 기준선은 RFC 8785 JCS. 리서치 문서는 `docs/api/` 12종.
+
 **tone-kit — 코딩 톤·유지보수성 게이트**
 
 | 스킬 | 용도 |
@@ -292,6 +306,8 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/bambu-kaizen` | bambu-kit 스킬 개선 (references + 실측 dogfood 기반) |
 | `/bambu-research` | Bambu/MakerWorld/scarf seam 외부 소스 폴링 → bambu-kit references 갱신 |
 | `/onboarding-kaizen` | onboarding-kit 스킬 개선 |
+| `/api-kaizen` | api-kit 스킬·references 개선 |
+| `/api-research` | API 계약 검증 외부 소스 폴링 → docs/api/ 갱신 |
 | `/tone-kaizen` | tone-kit 스킬·references 개선 |
 | `/tone-research` | 톤 리서치 외부 출처 폴링 → docs/tone/ 갱신 |
 | `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
