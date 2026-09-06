@@ -565,8 +565,17 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 상세 프로토콜: `../docs/guides/qa-evaluation-guide.md` > Rubric 기반 분해 참조
 
 **Anti-pattern 검증:**
-`project.yaml`의 `anti_patterns` 목록을 Grep으로 변경/생성 파일에서 검색한다.
-매칭되면 FAIL + 해당 패턴의 message 출력.
+
+각 항목을 **`command` 유무로 먼저 분기한다.** 스키마는 `harness/README.md` §anti_patterns 상세 가 SSOT 다.
+
+- **`command` 가 있으면 그 명령을 실행해 판정한다.** exit 0 = 위반 없음, non-zero = FAIL.
+  Grep 으로 대체하지 마라 — `command` 를 쓴 항목은 애초에 정규식으로 판정할 수 없어서 그렇게 쓴 것이다
+  (예: 코드펜스 언어 힌트는 여는/닫는 fence 가 동형이라 줄 단위 정규식이 오탐 100 % 가 된다).
+  명령을 실행할 수 없으면(도구 부재·권한) **조용히 PASS 로 넘기지 말고 `[미검증]` 으로 기록**하고
+  그 사유를 적는다.
+- **`command` 가 없으면** `pattern` 을 Grep 으로 변경/생성 파일에서 검색한다.
+  매칭되면 FAIL + 해당 패턴의 message 출력.
+- **둘 다 없으면 설정 오류다.** PASS 로 넘기지 말고 계약/설정 결함으로 보고한다.
 
 Grep 전에 **패턴의 스택과 대상 파일의 스택이 일치하는지** 확인한다 (digest `stack-inappropriate-rust-antipatterns`). 불일치하면 `N/A (스택 불일치: 패턴=Rust · 대상=shell/yaml)` 로 기록하고 **매치 0 건을 PASS 로 적지 마라** — 애초에 매치될 수 없는 패턴의 0 은 공허한 0 이다 (엄격도 규칙 10 검사 2·3). 동시에 Sprint Feedback 에 "계약 결함: 대상 스택에 부적합한 안티패턴 조건" 을 기록한다. 매치 0 건을 PASS 로 쓸 때는 **대상 파일 수**와 **패턴이 유효하다는 확인**을 근거에 함께 남긴다 (`대상 42 파일 · 패턴 유효성 확인 · 매치 0`).
 
