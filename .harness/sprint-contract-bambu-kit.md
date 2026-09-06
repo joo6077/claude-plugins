@@ -108,4 +108,4 @@ after 가 임계 이하임을 수치로 보인다. 스킬 실행 검증(`DG-04`)
 - [ ] DG-01: `bash -n scripts/release.sh` 워닝 0 개 (변경/생성 파일 대상)
 - [ ] DG-02: IDE diagnostics 워닝/인포 0 개 (제외 없음)
 - [ ] DG-03: `bash scripts/release.sh 2>&1 || true` 콘솔 로그에 에러/예외 0 개
-- [ ] DG-04: 수정된 스킬을 실제 1 회 실행해 process + filament JSON 생성까지 에러 0 개
+- [x] DG-04: 수정된 스킬을 실제 1 회 실행해 process + filament JSON 생성까지 에러 0 개

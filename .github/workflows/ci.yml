@@ -34,6 +34,15 @@ jobs:
       - name: Sync evals check
         run: python3 scripts/sync-evals.py --check-only
 
+      # marketplace.json 의 description 은 README 표와 kaizen-orchestrator AUTO 블록으로 흘러간다.
+      # 둘 다 CI 게이트가 없어서 릴리스 drift 를 아무도 못 잡고 있었다
+      # (실측 2026-09-06: bambu-kit v0.7.0 릴리스 후 orchestrator 가 v0.6.0 설명을 들고 있었다).
+      - name: Sync docs check
+        run: python3 scripts/sync-docs.py --check-only
+
+      - name: Sync orchestrator check
+        run: python3 scripts/sync-orchestrator.py --check-only
+
       - name: Run eval assertions
         run: python3 scripts/run-evals.py --verbose
 
