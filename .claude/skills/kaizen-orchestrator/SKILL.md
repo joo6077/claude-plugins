@@ -465,7 +465,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/bambu-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 bambu-kit 전 스킬을 전수 감사한다. bambu-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.6.0 · 2026-08-13] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장)
+> 플러그인 설명: [v0.7.0 · 2026-09-06] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장)
 
 ### Step 14: Phase 14 — onboarding-kit 카이젠
 
