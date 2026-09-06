@@ -5,25 +5,37 @@
 > (`conditions_digest: sha256:459a7c625948ffcb`, 평가 후 `SEAL_OK` 재확인).
 > 아래에서 원 조건을 인용할 때는 전부 **원문 그대로**이고 수정본이 아니다.
 
-## AM-01 — 변경 대상 파일 집합 축소
+## AM-01 — narrowing
 
-- **consent**: applied (계약 작성 시점에 확정 · 계약 `## 범위 경계` 에 사유 기재)
-- **direction**: `narrowing` — **자기신고가 아니라 집합 비교로 산출했다**
+- **대상 조건**: `AR-03`
+- **변경**: 변경 대상 파일 집합을 8 개에서 6 개로 한정. 원 집합은 핸드오프
+  `2026-09-06-0130.md` 가 "필수 수정 8 파일" 로 지목한 목록이고, 제외한 2 개는
+  `harness/templates/project.yaml` · `.harness/project.yaml` 이다.
+- **근거**: 사용자 발언이 아니라 **작성자 자체 판단**이다. `commands.lint` 는 이미 선택 필드로
+  존재하므로 스키마를 바꾸지 않고 `harness/README.md` 의 문서 연결만으로 결함 C 의 해당 부분이
+  해소된다. 두 `project.yaml` 은 손댈 필요가 없었다.
+- **앵커**: 없음 — 사용자 합의가 아닌 에이전트 자체 판단이므로 `consent: unanchored` 다.
+  앵커를 지어내지 않는다.
+- **direction 산출** (자기신고 아님 · 집합 비교):
 
 ```text
-원 집합   8 (핸드오프 2026-09-06-0130.md 가 "필수 수정 8 파일" 로 지목)
+원 집합   8 (핸드오프가 지목)
 개정 집합 6 (계약이 확정)
-추가 0 · 제거 2 → 제거만 있고 추가가 없으므로 narrowing
-제거된 2: harness/templates/project.yaml · .harness/project.yaml
+added=0 · removed=2 → narrowing
+removed: harness/templates/project.yaml · .harness/project.yaml
 ```
 
-- **사유**: `commands.lint` 는 이미 선택 필드로 존재한다. 스키마를 바꾸지 않고 `harness/README.md`
-  의 문서 연결만으로 결함 C 의 해당 부분이 해소되므로 두 `project.yaml` 은 손댈 필요가 없었다.
+`narrowing · unanchored` 는 §direction × consent 표에서 **PASS 근거로 사용 가능**하다
+(제약을 강화하는 방향이라 남용이 불가능하기 때문).
 
-## AM-02 — 평가자가 기록한 계약 결함 3 건
+## AM-02 — 기록 전용 (direction 없음)
 
-`qa-evaluator` 판정 REJECT (20/22) 와 함께 남긴 improvement 다. **조건 문구는 고치지 않았다** —
-다음 스프린트의 계약 작성 시 반영한다.
+- **대상 조건**: `AR-03` · `DG-04` · `AR-02`
+- **변경**: **없다.** 조건 문구를 고치지 않았으므로 PASS 집합이 움직이지 않는다 —
+  direction 판정 대상이 아니다. 이 엔트리는 평가자 improvement 를 **기록만** 한다.
+- **근거**: `qa-evaluator` iteration 1 판정 REJECT (20/22) 와 함께 남긴 improvement.
+- **앵커**: 피드백 산출물 `.harness/sprint-feedback-harness-core-defects.md` (iteration 1)
+  및 `~/.harness/feedback/evaluator/1a3bcba6-2026-09-06T121550-44c7700e-95266.yaml`
 
 | 원 조건 | 결함 태그 | 내용 |
 | ------- | --------- | ---- |

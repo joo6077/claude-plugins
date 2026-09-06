@@ -3,7 +3,7 @@ feature: "docs 품질 게이트 정비 — 접근성·사실·링크·내비 4�
 slug: docs-quality-gates
 created: "2026-09-06"
 complexity: "큼"
-conditions: 25
+conditions: 26
 status: review
 retroactive: true
 ---
@@ -63,8 +63,12 @@ retroactive: true
 
 ## Architecture
 
-- [ ] AR-01: 생성 HTML 을 고칠 때 **소스 `.md` 도 함께** 고쳤다 [exact] (측정: 고친 값의 옛 형태가 `docs-site` 매핑표의 **모든** 소스 디렉토리에 남아 있지 않다 — design-kit · harness · api 뿐 아니라 `docs/backend/` · `docs/infra/` · `docs/tone/` 포함)
-      (정정 이력: 1 차에서 design-kit·harness·api 소스만 맞추고 backend·infra 소스 5 곳을 빠뜨려 QA 가 FAIL 했다. 매핑표를 열어 대상 전체를 세지 않고 "고친 것 위주"로 훑은 결과다.)
+- [ ] AR-01: 생성 HTML 을 고칠 때 **소스 `.md` 도 함께** 고쳤다 [exact] (측정: `python3 scripts/check-stale-values.py` exit 0. 이 스크립트가 `docs-site` 매핑표의 전 소스 디렉토리를 훑고, **검사 범위를 먼저 출력하며 범위가 비면 exit 2** 로 실패한다)
+      (정정 이력 3 회. ① design-kit·harness·api 만 맞추고 backend·infra 5 곳 누락 ② 같은 파일 안 "OpenAPI 3.1.1" 두 곳 중 표만 고치고 프로즈 누락 ③ 같은 파일의 출처 인용 링크 누락.
+      세 번 다 원인이 같다 — **"고친 자리" 를 확인하고 "옛 값이 남았는지" 를 확인하지 않았다.**
+      2 차 확인에 쓴 셸 sweep 은 zsh 가 따옴표 없는 변수를 단어 분할하지 않아 디렉토리를 하나도 못 찾았고,
+      그 `0` 을 "없음" 으로 읽어 커밋 메시지에 증거로 적었다. `0` 은 "위반 없음" 과 "검사 안 됨" 을 구분해 주지 않는다.)
+- [ ] AR-05: `.harness/stale-values.yaml` 의 `allow` 항목마다 **왜 고치면 안 되는지** 사유가 적혀 있다 [exact, enumerated] (날짜 박힌 기록 · 개명 이력 설명 · 다른 뜻으로 쓰인 동형 문자열)
 - [ ] AR-02: 날짜가 박힌 역사 기록(변경이력 행 · `[dated:]` · `.harness/history/`)은 고치지 않았다 [exact]
 - [ ] AR-03: 색을 바꿔 대비 수치를 맞추지 않았다 — 틀린 것은 적힌 수치지 색이 아니다 [exact]
 - [ ] AR-04: 삭제한 페이지 4 개는 소스 `.md` 가 없고 내비 미등록이며 `-guide` 판으로 대체된 것이다 [exact]

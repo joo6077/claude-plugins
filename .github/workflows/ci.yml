@@ -57,6 +57,12 @@ jobs:
       - name: Docs internal link check
         run: python3 scripts/check-docs-links.py
 
+      # 생성 HTML 만 고치고 소스 .md 를 빠뜨리면 docs-site 재생성이 조용히 되돌린다.
+      # 2026-09-06 하루에 세 번 재발했고 세 번 다 "고친 자리" 만 보고
+      # "옛 값이 남았는지" 를 안 봐서 생겼다. 범위가 비면 exit 2 로 실패한다.
+      - name: Stale value check (소스에 옛 값이 되살아났는가)
+        run: python3 scripts/check-stale-values.py
+
   playwright:
     name: Playwright Visual Tests
     runs-on: ubuntu-latest
