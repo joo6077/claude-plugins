@@ -8,7 +8,7 @@ status: done
 retroactive: true
 qa_iterations: 4
 qa_result: "APPROVE 26/26 (Iteration 4)"
-qa_history: "It.1 22/24 REJECT · It.2 24/25 REJECT · It.3 24/25 REJECT — 셋 다 AR-01(소스·생성물 동기화)
+qa_history: "It.1 22/24 REJECT · It.2 24/25 REJECT · It.3 24/25 REJECT — 셋 다 AR-01(소스·생성물 동기화)"
 ---
 
 ## 배경 · 이 계약이 사후인 이유
