@@ -188,7 +188,7 @@ schema:
     "$.data[].id":         { type: string,            required: true }
     "$.data[].status":     { type: string,            required: true,
                              enumCandidate: [active, shipped], samples: 2, confirmed: false }
-    "$.data[].cancelledAt":{ type: [string, "null"],  required: false }
+    "$.data[].cancelledAt": { type: [string, "null"], required: false }
     "$.meta.total":        { type: integer,           required: true }
     "$.meta.nextCursor":   { type: [string, "null"],  required: undetermined }
 pin:

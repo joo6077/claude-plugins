@@ -77,9 +77,9 @@ Offset은 데이터 변경이 드문 정적 목록(관리자 대시보드 등)�
 
 ### 5. OpenAPI 스펙은 코드와 항상 동기화한다
 
-OpenAPI 3.1.1 스펙을 단일 소스로 유지한다. 코드에서 스펙을 생성하거나(code-first), 스펙에서 코드를 생성하는(spec-first) 방식 중 하나를 선택하되 혼용하지 않는다. CI에서 스펙과 실제 응답의 불일치를 검증하는 계약 테스트를 실행한다.
+OpenAPI 3.2.0 스펙을 단일 소스로 유지한다. 코드에서 스펙을 생성하거나(code-first), 스펙에서 코드를 생성하는(spec-first) 방식 중 하나를 선택하되 혼용하지 않는다. CI에서 스펙과 실제 응답의 불일치를 검증하는 계약 테스트를 실행한다.
 
-> **출처:** [OpenAPI Specification 3.1.1](https://spec.openapis.org/oas/v3.1.1.html)
+> **출처:** [OpenAPI Specification 3.2.0](https://spec.openapis.org/oas/v3.2.0.html)
 
 ### 6. API 버전은 URL 경로 또는 헤더 방식 중 하나를 선택한다
 
@@ -100,7 +100,7 @@ OpenAPI 3.1.1 스펙을 단일 소스로 유지한다. 코드에서 스펙을 �
 |------|-----|
 | HTTP 상태 코드 범위 | 100~599 (RFC 9110) |
 | RFC 9457 problem+json 필수 필드 | 5개 (type, title, status, detail, instance) |
-| OpenAPI 최신 버전 | 3.1.1 |
+| OpenAPI 최신 버전 | 3.2.0 (2025-09-19) |
 | Cursor 페이지 크기 기본값 | 20~100 (리소스 크기에 따라) |
 | API 응답 시간 목표 | p50 < 100ms, p99 < 500ms |
 

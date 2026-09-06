@@ -320,5 +320,5 @@ Richard Thaler와 Cass Sunstein은 2008년 "Nudge: Improving Decisions About Hea
 - [김·장 법률사무소 — 다크패턴 규제 강화를 위한 전자상거래법 개정](https://www.kimchang.com/ko/insights/detail.kc?sch_section=4&idx=29766)
 - [Richard Thaler, Cass Sunstein — Nudge (Wikipedia)](https://en.wikipedia.org/wiki/Nudge_(book))
 - [Cambridge Core — Nudge and the Manipulation of Choice](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/D1ED64479FF868BD79FFE90E76A4AB54/S1867299X00002762a.pdf)
-- [NNGroup — Dark Patterns in UX](https://www.nngroup.com/articles/dark-patterns/)
+- [NNGroup — Dark Patterns in UX](https://www.nngroup.com/articles/deceptive-patterns/)
 - [서울시 — 6개 유형 온라인 다크패턴 규제 관련 문답서](https://news.seoul.go.kr/economy/archives/566114)

@@ -14,7 +14,7 @@ OWASP Top 10, 주요 공격 벡터(SQLi, XSS, SSRF), 의존성 스캔, rate limi
 
 ### 1. OWASP Top 10을 체크리스트로 사용한다
 
-OWASP Top 10(2021)은 웹 애플리케이션 보안 위협의 업계 표준 분류다. 2021 버전 기준 **A01: Broken Access Control**이 1위로, 94%의 애플리케이션에서 발견되었다. A02는 Cryptographic Failures, A03은 Injection이다. 모든 백엔드 프로젝트는 릴리스 전 Top 10 항목을 최소 1회 점검한다.
+OWASP Top 10(2021)은 웹 애플리케이션 보안 위협의 업계 표준 분류다. 2021 버전 기준 **A01: Broken Access Control**이 1위다. 이 항목으로 **검사된** 애플리케이션이 94% 이고, 평균 발생률(average incidence rate)은 3.81% 다 — 94% 를 발견율로 읽지 마라. A02는 Cryptographic Failures, A03은 Injection이다. 모든 백엔드 프로젝트는 릴리스 전 Top 10 항목을 최소 1회 점검한다.
 
 > **출처:** [OWASP Top 10 — 2021](https://owasp.org/Top10/)
 

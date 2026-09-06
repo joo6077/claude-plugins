@@ -84,7 +84,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 - 출처: [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/)
 - 출처: [Ingress (Gateway API 권장)](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - 출처: [Gateway API v1.4 — BackendTLSPolicy GA](https://kubernetes.io/blog/2025/11/06/gateway-api-v1-4/)
-- 출처: [TLSRoute — Gateway API v1.5](https://gateway-api.sigs.k8s.io/api-types/tlsroute/)
+- 출처: [TLSRoute — Gateway API v1.5](https://gateway-api.sigs.k8s.io/reference/api-types/tlsroute/)
 - 출처: [Sidecar containers (stable v1.33)](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers)
 - 출처: [Kubernetes v1.35 In-Place Pod Resource Updates GA](https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/)
 - 출처: [Karpenter v1.11](https://karpenter.sh/)

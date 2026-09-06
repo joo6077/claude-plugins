@@ -10,7 +10,7 @@ research_sources:
   - Zustand 공식 문서 (zustand.docs.pmnd.rs, pmndrs/zustand README)
   - TanStack Query v5 공식 문서 (tanstack.com/query/v5/docs)
   - React Hook Form 공식 문서 (react-hook-form.com)
-  - @hookform/resolvers (react-hook-form/resolvers GitHub)
+  - "@hookform/resolvers (react-hook-form/resolvers GitHub)"
   - neverthrow 공식 문서 (supermacro/neverthrow)
   - 2026-04 WebSearch 검증
 ```

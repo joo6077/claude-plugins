@@ -135,7 +135,7 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
 
 - [Flutter 3.41 Breaking Changes](https://docs.flutter.dev/release/breaking-changes) — semantics 매처 변경, variable font weight
 - [AToMIC 논문](https://arxiv.org/abs/2510.18861) — LLM 기반 Flutter 테스트 자동 생성
-- [Flutter AI Rules](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md) — Arrange-Act-Assert, Fake/Stub 우선
+- [Flutter AI Rules](https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md) — Arrange-Act-Assert, Fake/Stub 우선
 
 ### 변경 내역
 
@@ -156,14 +156,14 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
 - [Flutter Official Architecture Guide](https://docs.flutter.dev/app-architecture/guide) — MVVM 패턴 공식 권장
 - [Riverpod 3.0 Newsletter](https://codewithandrea.com/newsletter/september-2025/) — `.valueOrNull` → `.value`, offline persistence
 - [Flutter 3.38 Release Notes](https://docs.flutter.dev/release/release-notes/release-notes-3.38.0) — WidgetState 마이그레이션, PredictiveBack 기본 전환
-- [Flutter Official AI Rules](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md) — LLM 코드 생성 공식 가이드라인
+- [Flutter Official AI Rules](https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md) — LLM 코드 생성 공식 가이드라인
 
 ### 변경 내역
 
 - **flutter-toolkit/references/flutter-ai-rules.md**: 신규 생성 — Flutter 공식 AI rules 핵심 요약
   - Before: 공식 AI rules 참조 없음
   - After: 위젯 패턴, 상태관리, 아키텍처, Do's/Don'ts 요약 문서
-  - 근거: [Flutter AI Rules](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md)
+  - 근거: [Flutter AI Rules](https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md)
 
 - **flutter-toolkit/skills/flutter-provider/SKILL.md**: Gotchas 2개 추가
   - Before: Riverpod 버전 변경 미언급
@@ -173,7 +173,7 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
 - **flutter-toolkit/skills/flutter-widget/SKILL.md**: Gotchas 2개 추가
   - Before: MaterialState → WidgetState 마이그레이션 미언급
   - After: WidgetState 마이그레이션 안내, private Widget 클래스 합성 패턴 강조
-  - 근거: [Flutter 3.38](https://docs.flutter.dev/release/release-notes/release-notes-3.38.0), [AI Rules](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md)
+  - 근거: [Flutter 3.38](https://docs.flutter.dev/release/release-notes/release-notes-3.38.0), [AI Rules](https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md)
 
 - **flutter-toolkit/skills/flutter-screen/SKILL.md**: Gotcha 1개 추가
   - Before: PredictiveBack 기본 전환 미언급

@@ -1,0 +1,67 @@
+# 이 세션이 정정한 값들의 "옛 형태" 등록부.
+#
+# scripts/check-stale-values.py 가 docs-site 매핑표의 전 소스 디렉토리를 훑어
+# 옛 형태가 되살아났는지 본다. 생성 HTML 만 고치고 소스를 빠뜨리는 실수가
+# 2026-09-06 하루에 세 번 재발했고, 세 번 다 "고친 자리를 확인" 하고
+# "옛 값이 남았는지" 는 확인하지 않아서 생겼다.
+#
+# allow 는 **고치면 안 되는 자리**다. 날짜가 박힌 기록·개명 이력 설명·다른 뜻으로 쓰인
+# 같은 문자열이 여기 들어간다. 새 항목을 추가할 때는 왜 예외인지 사유를 함께 적어라.
+
+values:
+  - old: "3.1.1"
+    new: "3.2.0"
+    note: "OpenAPI 최신 버전. 2025-09-19 릴리스"
+    allow:
+      - path: docs/backend/research-log.md
+        why: "[dated: 2024-10-24] 가 박힌 리서치 로그 — 그때는 맞았다"
+      - path: docs/api/contract/error-status-contracts.md
+        why: "RFC 9457 §3.1.1 섹션 번호이지 버전이 아니다"
+  - old: "OWASP 권장 12"
+    new: "OWASP: 10 이상"
+    note: "OWASP 원문은 work factor of 10 or more. 12 는 OWASP 귀속이 아니다"
+  - old: "1m30s"
+    new: "30s"
+    note: "Compose healthcheck interval 기본값"
+  - old: "start_period | 40s"
+    new: "start_period | 0s"
+    note: "Compose healthcheck start_period 기본값"
+  - old: "94%의 애플리케이션에서 발견"
+    new: "검사된 애플리케이션이 94%, 평균 발생률 3.81%"
+    note: "OWASP A01 의 94% 는 테스트 커버리지지 발견율이 아니다"
+  - old: "18px+"
+    new: "18pt(약 24px) 이상 또는 14pt(약 18.66px) 이상 Bold"
+    note: "WCAG 대형 텍스트 임계. pt 기준이다"
+  - old: "shadcn-ui@latest"
+    new: "shadcn@latest"
+    note: "CLI 개명"
+    allow:
+      - path: docs/react/kit-design/g1-scaffolding.md
+        why: "개명 이력 자체를 설명하는 문장 — 옛 이름이 나와야 뜻이 통한다"
+  - old: "dynamicColorScheme("
+    new: "dynamicLightColorScheme( / dynamicDarkColorScheme("
+    note: "Compose Material3 는 라이트·다크 분기 함수를 따로 노출한다"
+  - old: "코너 반경 4단계"
+    new: "shape scale (None/Extra small/Small/Medium/Large/Extra large/Full)"
+    note: "M3 shape scale 은 4단계가 아니고 나열값도 한 칸 밀려 있었다"
+  - old: "HTML5.2"
+    new: "HTML Living Standard, 2023-03"
+    note: "<search> 요소 도입 시점"
+  - old: "Safari 15.4"
+    new: "Safari 15"
+    note: "aspect-ratio 최초 stable 지원"
+  - old: "7개 킷"
+    new: "13개 킷"
+    note: "레포의 플러그인 수"
+    allow:
+      - path: harness/docs/guides/plugin-validation-guide.md
+        why: "2026-04-11 변경이력 행 — 그때는 7 개였다"
+  - old: "다섯 가지 에이전트"
+    new: "일곱 가지 에이전트"
+    note: "agent-design-guide §6 은 패턴 7 개를 싣는다"
+  - old: "단일 최대 카테고리"
+    new: "2위 카테고리"
+    note: "SSOT 표가 템플릿 마커 약 90건 > 이름 번역 약 85건 이라고 적는다"
+  - old: "Matrix 5 열에 "
+    new: "Matrix 5 열에서 axis·axis value 를 합치고 2 열을 더한 6 열"
+    note: "Variant Contract Matrix 는 6 열이다"

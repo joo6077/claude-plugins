@@ -12,8 +12,8 @@ banned_libraries:
   - motion (구 framer-motion)
   - framer-motion
   - react-spring
-  - @formkit/auto-animate
-  - @dnd-kit/core / @dnd-kit/sortable
+  - "@formkit/auto-animate"
+  - "@dnd-kit/core / @dnd-kit/sortable"
   - react-dnd
   - gsap
   - lottie-react

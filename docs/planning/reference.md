@@ -399,7 +399,7 @@ teardown 후반, 설계 의사결정과 범위 조정 직전에 사용한다.
 
 ### 출처
 - Noriaki Kano et al., "Attractive Quality and Must-be Quality" citation record https://www.scirp.org/reference/referencespapers?referenceid=1217282 [dated: 1984-01]
-- Kano model overview / practical explainer for product teams https://www.qualtrics.com/experience-management/customer/kano-analysis/ [dated: 2024-??]
+- Kano model overview / practical explainer for product teams https://www.qualtrics.com/articles/strategy-research/kano-analysis/ [dated: 2024-??]
 
 ## 13. Heuristic Evaluation (Nielsen 10 Heuristics)
 ### 요약
@@ -625,5 +625,5 @@ mindmap
 - Growth.Design case studies: https://growth.design/case-studies/
 - UX Collective: https://uxdesign.cc/
 - Kano citation record: https://www.scirp.org/reference/referencespapers?referenceid=1217282
-- Qualtrics, Kano Analysis explainer: https://www.qualtrics.com/experience-management/customer/kano-analysis/
+- Qualtrics, Kano Analysis explainer: https://www.qualtrics.com/articles/strategy-research/kano-analysis/
 - Local Government Association, customer or user journey mapping: https://www.local.gov.uk/our-support/transformation/transformation-capability-framework/design-journey

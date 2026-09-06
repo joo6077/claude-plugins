@@ -62,7 +62,7 @@ RICE보다 덜 데이터 집약적이어서 초기 단계나 실험 backlog tria
 **적용 시점**: release planning, stakeholder negotiation, fixed time/fixed budget delivery.
 **한계/주의사항**: 모두가 Must를 주장하면 무력화된다. 가치/리스크/학습 우선순위보다는 범위 합의 도구에 가깝다.
 **출처**:
-- https://www.agilebusiness.org/businessagility/what-is-dsdm.html [dated: 2025-10]
+- https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/ [dated: 2025-10]
 - https://learning.agilebusiness.org/ [dated: 2025-10]
 
 ### Kano Model
@@ -119,7 +119,7 @@ RICE보다 덜 데이터 집약적이어서 초기 단계나 실험 backlog tria
 ## 참고 링크 (전체)
 - https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/ [dated: 2018-01]
 - https://workshopweaver.com/facilitation-methods/ice-scoring
-- https://www.agilebusiness.org/businessagility/what-is-dsdm.html [dated: 2025-10]
+- https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/ [dated: 2025-10]
 - https://learning.agilebusiness.org/ [dated: 2025-10]
 - https://www.qualtrics.com/fr/articles/strategy-research/modele-kano/
 - https://scaledagileframework.com/wsjf/ [dated: 2025-10]

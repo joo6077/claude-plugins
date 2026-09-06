@@ -117,6 +117,16 @@ echo "Updated: $PLUGIN_JSON"
 "${SED_INPLACE[@]}" "/$PLUGIN_NAME/,/description/{s/\[v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* · [0-9-]*\]/[v${NEW_VERSION} · ${TODAY}]/;}" "$MARKETPLACE_JSON"
 echo "Updated: $MARKETPLACE_JSON"
 
+# ── marketplace.json 에서 파생되는 문서 재생성 ──
+# marketplace.json 의 description 은 두 곳으로 흘러간다:
+#   README.md 플러그인 표          (sync-docs.py)
+#   kaizen-orchestrator AUTO 블록  (sync-orchestrator.py)
+# 이걸 안 돌리면 릴리스마다 drift 가 쌓인다 — 실측 2026-09-06: bambu-kit v0.7.0 릴리스 후
+# orchestrator 가 v0.6.0 설명을 들고 있어 --check-only 가 exit 1 이었다.
+python3 "$REPO_ROOT/scripts/sync-docs.py" >/dev/null
+python3 "$REPO_ROOT/scripts/sync-orchestrator.py" >/dev/null
+echo "Synced: README.md · kaizen-orchestrator"
+
 # ── Git commit + tag + PR ──
 #
 # main 에 직접 push 하지 않는다. main 은 branch protection 으로 보호되며
@@ -163,7 +173,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo ""
   echo "[dry-run] 아래 동작을 수행하지 않고 종료합니다:"
   echo "  git checkout -b $RELEASE_BRANCH"
-  echo "  git add $PLUGIN_JSON $MARKETPLACE_JSON"
+  echo "  git add $PLUGIN_JSON $MARKETPLACE_JSON README.md .claude/skills/kaizen-orchestrator/SKILL.md"
   echo "  git commit -m 'release: ${PLUGIN_NAME} v${NEW_VERSION}'"
   echo "  git tag -a $TAG -m '${PLUGIN_NAME} v${NEW_VERSION}'"
   echo "  git push -u origin $RELEASE_BRANCH --follow-tags"
@@ -175,7 +185,8 @@ if [ "$DRY_RUN" = "1" ]; then
 fi
 
 git checkout -b "$RELEASE_BRANCH"
-git add "$PLUGIN_JSON" "$MARKETPLACE_JSON"
+git add "$PLUGIN_JSON" "$MARKETPLACE_JSON" \
+  "$REPO_ROOT/README.md" "$REPO_ROOT/.claude/skills/kaizen-orchestrator/SKILL.md"
 git commit -m "release: ${PLUGIN_NAME} v${NEW_VERSION}"
 git tag -a "$TAG" -m "${PLUGIN_NAME} v${NEW_VERSION}"
 git push -u origin "$RELEASE_BRANCH" --follow-tags

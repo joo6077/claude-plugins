@@ -265,7 +265,7 @@ iOS/Android 모두 카메라, 위치, 알림 등 시스템 권한은 OS 다이�
 
 Apple HIG는 "사람들이 기능을 이해하기도 전에 권한을 요청하지 마라"고 명시한다.
 
-> **출처:** [Apple HIG — Requesting Permission](https://developer.apple.com/design/human-interface-guidelines/requesting-permission)
+> **출처:** [Apple HIG — Requesting Permission](https://developer.apple.com/design/human-interface-guidelines/privacy)
 > **출처:** [NNGroup — Permission Patterns](https://www.nngroup.com/articles/permission-requests/)
 
 ---

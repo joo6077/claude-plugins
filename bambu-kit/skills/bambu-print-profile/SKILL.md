@@ -325,13 +325,13 @@ Creator 명시 필드 (page profile label):
 옵션 (v0.4.1 4-option, [C]가 default Recommended):
   [C] "모든 면 매끈 — 디자이너 권장 ∧ surface-first 병행" (Recommended, ~3배 시간)
       Creator 명시 4필드 freeze (layer/walls/infill/support) +
-      surface-first 4필드 추가 (ironing topmost_only / scarf external 6mm /
+      surface-first 4필드 추가 (ironing topmost / scarf external 6mm /
       outer_wall_speed 30 / wall_sequence inner-outer-inner). 외벽·top·seam 전부 매끈.
   [A] "속도 우선 / 외관 후순위" (~1.2배 baseline)
       Creator 명시 4필드만 freeze. ironing/scarf/외벽 매끈 처리 모두 OFF.
       사용자가 "디자이너 권장 = 전체 profile 수정 X 의미"라고 명시할 때만 선택.
   [B] "평면 top만 매끈 (ironing only)" (~1.5배)
-      Creator 명시 4필드 freeze + ironing topmost_only만 추가. 외벽/seam은 baseline.
+      Creator 명시 4필드 freeze + ironing topmost만 추가. 외벽/seam은 baseline.
       박스 형상에서 top 평면이 visible할 때.
   [D] "Surface-first 풀 — Creator 명시값 무시" (~3.5배)
       Creator 명시 4필드도 surface-first 값으로 덮어씀 (layer 0.12, walls 3, infill 18).
@@ -344,7 +344,7 @@ Creator 명시 필드 (page profile label):
 
 **Phase 3 처리 분기 (옵션별):**
 - [A] 강도 1 (strong with value) 모두 freeze + 강도 2 (directive) 영역도 freeze. Creator 미명시 영역 default 유지
-- [B] [A] + ironing topmost_only 한 항목만 추가
+- [B] [A] + ironing topmost 한 항목만 추가
 - [C] (default) 강도 1 + Creator 명시 필드 freeze. Creator 미명시 영역(ironing/scarf/외벽 매끈)은 surface-first 자동 적용
 - [D] 강도 1만 freeze (support 등 안전 사항). 다른 모든 영역은 surface-first 값으로 덮어씀
 
@@ -973,12 +973,12 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 
 | 소재 | 판정 |
 |------|------|
-| PLA Basic / PLA Matte | `topmost_only` 적극 권장 |
-| PLA Silk | `topmost_only` only — 광택 죽음 주의 |
-| PETG HF | 원칙 off, 평면 장식만 `topmost_only` (blob/scar 위험) |
+| PLA Basic / PLA Matte | `topmost` 적극 권장 |
+| PLA Silk | `topmost` only — 광택 죽음 주의 |
+| PETG HF | 원칙 off, 평면 장식만 `topmost` (blob/scar 위험) |
 | PA-CF / PAHT-CF | off (fiber 질감, 노즐 마모) |
-| PC | off 또는 소형 `topmost_only` 실험 (heat creep / ooze) |
-| ABS / ASA | `topmost_only` 실험 가능 (후가공 가능 시 의존 낮춤) |
+| PC | off 또는 소형 `topmost` 실험 (heat creep / ooze) |
+| ABS / ASA | `topmost` 실험 가능 (후가공 가능 시 의존 낮춤) |
 | TPU | off (불가 — 유연성으로 표면 drag) |
 
 형상별 ironing 적용성: 회전체/spiral vase는 무의미(top 없음), 박스/평면 top은 강함, 유기적 곡면은 부분, 얇은 벽은 거의 off. surface-recipes.md §5.2 참조.
@@ -1178,6 +1178,24 @@ for p in sys.argv[1:]:
     }
     for bad,why in FORBIDDEN.items():
         if bad in d: errs.append(f"금지 키 {bad}: {why}")
+    # enum allowlist 검사 (2026-09-06 신규 · surface-recipes.md §5) — blocklist 는 미지의 값을 못 잡는다.
+    # 값 출처: 설치본 Bambu Studio 02.08.02.61 바이너리 enum 테이블 실측. Orca 이름을 쓰면 조용히 무시된다.
+    # 키가 아예 없는 것은 부모 상속이므로 정상이다 — 존재할 때만 값을 본다.
+    ENUM_ALLOW={
+        "ironing_type":       ("no ironing","top","topmost","solid"),
+        "top_surface_pattern":("concentric","zig-zag","monotonic","monotonicline",
+                               "alignedrectilinear","hilbertcurve","archimedeanchords","octagramspiral"),
+        "seam_position":      ("nearest","aligned","back","random"),
+        "seam_slope_type":    ("none","external","all"),
+        "wall_sequence":      ("inner wall/outer wall","outer wall/inner wall","inner-outer-inner wall"),
+        "brim_type":          ("auto_brim","brim_ears","outer_only","inner_only","outer_and_inner","no_brim"),
+    }
+    for ek,allowed in ENUM_ALLOW.items():
+        if ek not in d: continue          # 미설정 = 부모 상속. 정상이다
+        ev=d[ek]
+        if isinstance(ev,list): ev=ev[0] if ev else None
+        if ev not in allowed:
+            errs.append(f"enum {ek}={ev!r} 는 허용값이 아니다 — 허용: {', '.join(allowed)}")
     if t=="process":
         cp=d.get("compatible_printers")
         if not (isinstance(cp,list) and any("H2S" in str(x) for x in cp)):
@@ -1377,6 +1395,9 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-08-13 신규) Phase 3.0 Supportability Split 의 불가 항목을 notes.md §1.2.1 에 명시 보고했는지** — 특히 L1 adaptive layer height. 근사 구현으로 조용히 때우지 않았는지.
 - ☐ **(2026-08-13 신규) L2 대응이 게이트 순서를 지켰는지** — 건조 확인 (0) → `filament_wipe` (1) → coupon 후 `filament_retraction_length` (2). 온도/fan 을 자동으로 건드리지 않았는지.
 - ☐ **(2026-08-13 신규) `raft_layers` 를 켰다면 fit-critical 0 건인지** — raft 는 `elefant_foot_compensation` 을 조용히 무효화한다. L3 최후 수단 외에는 켜지 않았는지.
+- ☐ **(2026-09-06 신규) enum 값이 Bambu 이름인지** — `ironing_type` · `top_surface_pattern` ·
+  `seam_position` · `seam_slope_type` · `wall_sequence` · `brim_type` 6 키. OrcaSlicer 문서의 값 이름을
+  그대로 옮기면 Bambu 가 조용히 무시한다. Phase 4.3 게이트의 `ENUM_ALLOW` 가 검사한다.
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)

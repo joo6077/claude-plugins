@@ -94,7 +94,7 @@ qa-evaluator 완료
 
 | 필드 | 타입 | 기본값 | 설명 |
 |------|------|--------|------|
-| `commands.lint` | string\|null | null | 린트 명령. null이면 건너뜀 |
+| `commands.lint` | string\|null | null | 린트 명령. **`commands.analyze` 가 없는 스택(markdown 전용 킷 등)에서 `DG-01` 의 대체 오라클로 쓴다.** 둘 다 null 이면 `DG-01` 은 `N/A (사유)` 로 기록한다 |
 | `commands.format` | string\|null | null | 포맷 명령 |
 | `commands.codegen` | string\|null | null | 코드 생성 명령 |
 | `reusability.shared_path` | string | "" | 공유 컴포넌트 경로 |

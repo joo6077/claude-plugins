@@ -809,10 +809,11 @@ Iteration: {N}
 - {REJECT인 경우: FAIL 항목 요약 + 수정 우선순위}
 
 ## Improvement Suggestions
-- [{조건 ID}] {결함 유형: 측정-상태-모호 | 태그-산출물-불일치 | 측정-중복 | 범위-미명시 | 증거-경로-부재} — {구체 대체 문구}
+- [{조건 ID}] {결함 유형 — 통합 어휘 10 종 중 하나. 정의는 `harness/references/contract-schema.md` §조건 작성 preflight 가 SSOT 다: 측정-수단-부재 | 측정-방식-불일치 | 측정-환경-오염 | 측정-산출물-부재 | 검증경로-미기재 | 측정-중복 | 측정-상태-모호 | 태그-산출물-불일치 | 범위-미명시 | 증거-경로-부재} — {구체 대체 문구}
 ```
 
-> 개선 제안은 산문이 아니라 **`[조건 ID] 결함 유형 — 구체 대체 문구`** 형식으로 쓴다. 같은 유형이 같은 프로젝트에서 2 회째면 `contract_ambiguity_notes` 로 승격하고, 3 회째면 해당 조건을 `[low-confidence]` 로 강등한 뒤 "계약 수정 없이는 다음 iteration 도 동일" 을 피드백 최상단에 명시한다 (qa-evaluation-guide §Recurring Improvement Escalation).
+> 개선 제안은 산문이 아니라 **`[조건 ID] 결함 유형 — 구체 대체 문구`** 형식으로 쓴다.
+> **어휘 밖의 태그를 새로 만들지 마라** — 작성 단계로 되먹여질 자리가 없는 태그는 같은 결함을 재생산한다. 같은 유형이 같은 프로젝트에서 2 회째면 `contract_ambiguity_notes` 로 승격하고, 3 회째면 해당 조건을 `[low-confidence]` 로 강등한 뒤 "계약 수정 없이는 다음 iteration 도 동일" 을 피드백 최상단에 명시한다 (qa-evaluation-guide §Recurring Improvement Escalation).
 
 ### Step 5: 계약 지문 재확인 → 결과 저장
 

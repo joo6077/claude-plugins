@@ -50,7 +50,7 @@ UI는 콘텐츠를 돋보이게 하는 역할을 하며, 사용자의 주의를 
 - 앱 내부에서도 용어, 아이콘, 동작의 일관성을 유지한다
 
 > **출처:** [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines)
-> **출처:** [DEV Community — Navigating Apple's HIG: A Practical Guide](https://dev.to/matheussricardoo/navigating-apples-human-interface-guidelines-hig-a-practical-guide-26ka)
+> **출처:** [DEV Community — Navigating Apple's HIG: A Practical Guide](https://dev.to/matheussricardoo)
 
 ---
 
@@ -244,7 +244,7 @@ Apple Watch는 가장 제한된 화면 크기와 짧은 인터랙션 시간을 �
 - **Siri 통합 필수**: 음성으로 대부분의 기능에 접근 가능해야 한다
 - **야간 모드**: 다크 배경 + 저밝기가 기본. 밝은 UI는 운전자 시야를 방해한다
 
-> **출처:** [Apple — Designing for CarPlay](https://developer.apple.com/design/human-interface-guidelines/designing-for-carplay)
+> **출처:** [Apple — Designing for CarPlay](https://developer.apple.com/design/human-interface-guidelines/carplay/)
 > **출처:** [Apple — CarPlay App Programming Guide](https://developer.apple.com/carplay/)
 
 ---

@@ -72,8 +72,8 @@ PodDisruptionBudget은 노드 drain, 클러스터 업그레이드 등 자발적(
 | terminationGracePeriodSeconds 기본값 | 30 | SIGTERM 후 SIGKILL까지 |
 | Startup probe 예시 | failureThreshold 30 x periodSeconds 10 = 300s | 느린 앱 부팅 허용 |
 | HPA sync 주기 | 15s | `--horizontal-pod-autoscaler-sync-period` |
-| HPA CPU 초기화 안정 기간 | 5m | `--horizontal-pod-autoscaler-initial-readiness-delay` |
-| HPA readiness delay | 30s | Pod ready 후 메트릭 반영 대기 |
+| HPA CPU 초기화 안정 기간 | 5m | `--horizontal-pod-autoscaler-cpu-initialization-period` |
+| HPA readiness delay | 30s | `--horizontal-pod-autoscaler-initial-readiness-delay` |
 | CPU 최소 단위 | 1m | 1 milliCPU = 0.001 CPU |
 | 500m CPU | 0.5 CPU 코어 | 1000m = 1 CPU |
 

@@ -20,7 +20,7 @@ user-invocable: true
 7. **스코어 결과를 신탁처럼 믿지 마라** — 스코어는 토론 시작점이지 결정이 아니다. Top 3 는 반드시 사람이 재검토.
 8. **RICE 의 Reach 가 허술하면 정밀한 척 숫자놀이** — 같은 기간 단위/같은 추정 규칙을 강제해야 한다. 전략 필수 과제나 dependency work 는 점수만으로 설명 안 된다. 출처: [Intercom — RICE](https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/).
 9. **ICE 는 Ease 편향 경계** — Ease 가 높은 것만 고르다 보면 전략적으로 중요한 어려운 과제가 밀린다. 같은 목표를 향한 아이템끼리만 비교. 출처: [Workshop Weaver — ICE Scoring](https://workshopweaver.com/facilitation-methods/ice-scoring).
-10. **MoSCoW — Must 가 전부면 무력화** — 모두가 Must 주장하면 협상 도구로 기능하지 못한다. 가치/리스크/학습 우선순위보다는 범위 합의 도구임을 명시. 출처: [Agile Business — DSDM/MoSCoW](https://www.agilebusiness.org/businessagility/what-is-dsdm.html).
+10. **MoSCoW — Must 가 전부면 무력화** — 모두가 Must 주장하면 협상 도구로 기능하지 못한다. 가치/리스크/학습 우선순위보다는 범위 합의 도구임을 명시. 출처: [Agile Business — DSDM/MoSCoW](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/).
 11. **Kano 분류는 시간에 따라 변한다** — Delighter 는 곧 Basic expectation 이 된다. 정성/정량 조사 없이 직감 분류하면 왜곡. 세그먼트별 재분류 필요. 출처: [Qualtrics — Kano Model](https://www.qualtrics.com/fr/articles/strategy-research/modele-kano/).
 12. **WSJF 는 SAFe 문맥이 없으면 형식주의** — Job size 와 CoD 상대 추정에 정치 개입되기 쉬움. portfolio/program 수준이 아니면 RICE 가 낫다. 출처: [SAFe — WSJF](https://scaledagileframework.com/wsjf/).
 13. **Opportunity Scoring 은 research quality 에 민감** — 정성 감으로만 점수화하면 ODI 장점 사라진다. 중요도↑+만족도↓ 구간에 집중. 출처: [Strategyn ODI](https://strategyn.com/lp/outcome-driven-innovation/).
@@ -42,7 +42,7 @@ user-invocable: true
 | Growth 실험 triage | ICE | 속도 우선 | [Workshop Weaver](https://workshopweaver.com/facilitation-methods/ice-scoring) |
 | 사용자 만족도 중심 | Kano | 기본/성능/매력 구분 | [Qualtrics](https://www.qualtrics.com/fr/articles/strategy-research/modele-kano/) |
 | 대규모 아지일 (팀 5+) | WSJF | Cost of Delay 포함 | [SAFe](https://scaledagileframework.com/wsjf/) |
-| 출시 직전 스코프 조정 | MoSCoW | Must/Should/Could/Won't 명확 | [DSDM](https://www.agilebusiness.org/businessagility/what-is-dsdm.html) |
+| 출시 직전 스코프 조정 | MoSCoW | Must/Should/Could/Won't 명확 | [DSDM](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/) |
 | 문제 공간 탐색 | Opportunity Scoring | Importance vs Satisfaction gap | [Strategyn ODI](https://strategyn.com/lp/outcome-driven-innovation/) |
 
 사용자에게 추천 + 근거 제시 후 선택받는다. 강요 금지.
@@ -129,7 +129,7 @@ Top 3 에 대해:
 주요 1차 출처:
 - [Intercom — RICE](https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/)
 - [Workshop Weaver — ICE](https://workshopweaver.com/facilitation-methods/ice-scoring)
-- [Agile Business — DSDM/MoSCoW](https://www.agilebusiness.org/businessagility/what-is-dsdm.html)
+- [Agile Business — DSDM/MoSCoW](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/)
 - [Qualtrics — Kano](https://www.qualtrics.com/fr/articles/strategy-research/modele-kano/)
 - [SAFe — WSJF](https://scaledagileframework.com/wsjf/)
 - [Strategyn — ODI/Opportunity Scoring](https://strategyn.com/lp/outcome-driven-innovation/)

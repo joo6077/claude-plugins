@@ -37,7 +37,7 @@
 | Search trending | https://makerworld.com/en/search/models | RSS/API 미확인, 스크래핑 | 주 1회 | Trending/Boosts/Newest/Downloads/Likes 정렬. DOM 변경 리스크 |
 | Categories trending | https://makerworld.com/en/models/categories?categories=1 | 스크래핑 | 주 1회 | 트렌드 포착 적합. AI/스팸 노이즈 |
 | Bambu Forum MakerWorld | https://forum.bambulab.com/c/makerworld/144<br>RSS: `.../144.rss` | Discourse | 주 1회 | 정책/저작권/랭킹 변화. 모델 자체보단 플랫폼 변화 감지 |
-| Makrs aggregator | https://makrs.co/models/trending/ | HTML 스크래핑 | 주 1회 | 다중 플랫폼 집계. 정확성 검증 필요 |
+| Makrs aggregator | https://makrs.co/ | HTML 스크래핑 | 주 1회 | 다중 플랫폼 집계. 정확성 검증 필요 |
 
 ### D. H2S / AMS HT / AMS 2 Pro 검증 findings
 
@@ -72,7 +72,7 @@
 4. `https://forum.bambulab.com/c/bambu-lab-software/bambu-studio/8.rss` — Discourse. 릴리스 후 실사용 회귀.
 5. `https://forum.bambulab.com/c/bambu-lab-ams/6.rss` — Discourse. AMS HT/AMS 2 Pro 패턴.
 6. `https://forum.bambulab.com/c/bambu-lab-h2-series/bambu-lab-h2s/175.rss` — Discourse. H2S 실사용.
-7. `https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament/products.json?limit=250` — Shopify JSON. 신소재/단종/이름 변화. 실패 시 collection HTML/Atom fallback.
+7. `https://us.store.bambulab.com/collections/bambu-lab-3d-printer-filament` — Shopify JSON. 신소재/단종/이름 변화. 실패 시 collection HTML/Atom fallback.
 8. `https://www.reddit.com/r/BambuLab/top/.rss?t=week` — RSS. 상위 신호만 (노이즈 억제).
 9. `https://makerworld.com/en/search/models` 또는 `.../categories?categories=1` — 스크래핑. trending 캡처. API 확인 전까지 낮은 빈도.
 10. `https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam` — HTML 스크래핑. scarf best practice 진화.
