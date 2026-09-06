@@ -75,5 +75,5 @@ retroactive: true
 
 ## Diagnostics
 
-- [ ] DG-01: 게이트 11 종 전부 exit 0 (contrast-claims · docs-links · validate-plugin · api-kit-docs · run-evals · sync-docs · sync-orchestrator · sync-evals · a11y · playwright · harness save-test)
+- [ ] DG-01: 게이트 12 종 전부 exit 0 (contrast-claims · docs-links · **stale-values** · validate-plugin · api-kit-docs · run-evals · sync-docs · sync-orchestrator · sync-evals · a11y · playwright · harness save-test)
 - [ ] DG-02: 워킹트리 클린, `main` 대비 커밋만 존재

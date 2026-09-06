@@ -18,6 +18,13 @@
 등록부: `.harness/stale-values.yaml` — 값마다 `old`/`new`/`note`, 그리고 고치면 안 되는
 자리는 `allow` 에 경로와 사유를 적는다 (날짜 박힌 기록 · 개명 이력 설명 · 다른 뜻의 동형 문자열).
 
+**범위 한계 — 이 게이트는 docs-site 파이프라인 전용이다.** `SOURCE_DIRS` 는
+`.claude/skills/docs-site/SKILL.md` 매핑표의 소스 디렉토리만 담는다. `backend-kit/skills/*` ·
+`infra-kit/references/*` · `docs/kaizen/*` 같은 **비 docs-site 문서는 훑지 않는다.**
+같은 사실이 그쪽에 새로 등장하면 이 게이트는 못 잡는다 — 범위를 넓히려면 SOURCE_DIRS 를
+늘리되, 늘린 만큼 `allow` 도 늘어난다는 것을 감안하라 (그쪽에는 같은 문자열이 다른 뜻으로
+쓰인 자리가 많다 — 실측: "3.1.1" 이 OpenAPI 버전이 아니라 RFC 섹션 번호로 쓰인 예).
+
 Usage:
     python3 scripts/check-stale-values.py
     python3 scripts/check-stale-values.py --json
