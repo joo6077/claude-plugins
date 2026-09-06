@@ -8,7 +8,7 @@
     {
       "name": "harness",
       "source": "./harness",
-      "description": "[v0.7.0 · 2026-08-13] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (계약 봉인 E3 + 미검증 카운터 분리 + 문서-스크립트 계약 + 게이트 exit taxonomy)"
+      "description": "[v0.8.0 · 2026-09-06] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (계약 봉인 E3 + 미검증 카운터 분리 + 문서-스크립트 계약 + 게이트 exit taxonomy)"
     },
     {
       "name": "flutter-toolkit",
