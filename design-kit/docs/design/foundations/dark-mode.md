@@ -85,7 +85,7 @@ function toggleTheme() {
 ## 접근성
 
 - 일반 텍스트: 최소 4.5:1 대비율 (WCAG AA)
-- 대형 텍스트 (18px+): 최소 3:1
+- 대형 텍스트 (18pt≈24px 이상, 또는 14pt≈18.66px 이상 Bold): 최소 3:1
 - 포커스 링: `outline: 2px solid var(--color-accent)` — 배경과 3:1 이상
 - 상태 색상: 색상에만 의존 금지, 아이콘/텍스트 병행
 

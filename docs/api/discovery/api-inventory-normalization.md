@@ -75,7 +75,7 @@ canonical key 가 같은 후보만 collapse 한다. method, path template, param
 | operation/path item 내 `(name, in)` 중복 허용치 | `0` | [OpenAPI Operation Object](https://spec.openapis.org/oas/v3.1.0#operation-object) |
 | 같은 hierarchy 내 path template ambiguity 허용치 | `0` | [OpenAPI Paths Object](https://spec.openapis.org/oas/v3.1.0#paths-object) |
 | header name case 구분 | `0` (case-insensitive 비교) | [RFC 9110 Field Names](https://www.rfc-editor.org/rfc/rfc9110.html#name-field-names) |
-| `servers` 누락 시 기본 server URL | `/` | [OpenAPI Paths Object](https://spec.openapis.org/oas/v3.1.0#paths-object) |
+| `servers` 누락 시 기본 server URL | `/` | [OpenAPI Object](https://spec.openapis.org/oas/v3.1.0#openapi-object) |
 | source confidence 기본값 | OpenAPI `1.00` / observed curl·Talend·HAR `0.80` / md `0.55` / synthetic inference `0.35` | 추론 |
 | auto-collapse 조건 | method·path-template exact match **그리고** param-set Jaccard `>= 0.80` | 추론 |
 | conflict 판정 임계 | top-2 후보 confidence 차이 `< 0.15` | 추론 |
