@@ -30,8 +30,14 @@ contract_categories:
 # ── 안티패턴 (필수, 최소 2개 권장) ──
 anti_patterns: []
   # - id: AP-01
-  #   pattern: "regex"
+  #   pattern: "regex"          # ripgrep 정규식 (command 가 없으면 필수)
   #   message: "설명"
+  #
+  # 줄 단위 정규식으로 판정할 수 없는 검사는 command 로 도구에 위임한다.
+  # (여는/닫는 fence 가 동형인 코드펜스 검사 등 — 자세한 기준은 harness/README.md)
+  # - id: AP-02
+  #   command: "python3 scripts/validate-plugin.py --check=code-fence"
+  #   message: "설명"           # exit 0 = 위반 없음, non-zero = FAIL
 
 # ── 재사용성 ──
 reusability:

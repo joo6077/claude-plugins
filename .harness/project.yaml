@@ -34,8 +34,8 @@ anti_patterns:
     pattern: "git push.*--force"
     message: "force push 금지"
   - id: AP-03
-    pattern: "^```\\s*$"
-    message: "bare code fence 금지 — validate-plugin V6 FAIL (언어 힌트 필수: ```text, ```bash, ```yaml 등)"
+    command: "python3 scripts/validate-plugin.py --check=code-fence"
+    message: "bare code fence 금지 — 여는 fence 에 언어 힌트 필수 (```text, ```bash, ```yaml 등). 판정 권위는 validate-plugin V6 상태기계다 — 여는/닫는 fence 가 동형이라 줄 단위 정규식으로는 판정 불가"
   - id: AP-04
     pattern: "^---\\s*\\n(?![^-]*name:)"
     message: "SKILL.md / agents/*.md frontmatter 에서 name 필드 누락 — validate-plugin V1 FAIL"
