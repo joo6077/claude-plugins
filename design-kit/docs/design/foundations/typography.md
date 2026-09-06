@@ -239,7 +239,7 @@ font-size: clamp(2rem, 4vw + 1rem, 3rem);
 - 한글 서체의 글리프 수는 11,172자(현대 한글 완성형)로, 웹폰트 용량 관리가 필수다. 서브셋(subset) 적용 시 사용 빈도 기준 상위 2,350자만으로 일반 콘텐츠의 99%를 커버한다.
 
 > **출처:** [Google Fonts — Choosing Type](https://fonts.google.com/knowledge/choosing_type)
-> **출처:** [Typewolf — Font Pairing](https://www.typewolf.com/site-of-the-day/font-pairing)
+> **출처:** [Typewolf — Font Pairing](https://www.typewolf.com/site-of-the-day)
 
 ---
 

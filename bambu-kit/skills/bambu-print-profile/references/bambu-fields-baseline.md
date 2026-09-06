@@ -179,7 +179,7 @@
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
 |----|-------------|---------|--------------------------|
-| `ironing_type` | enum: `no ironing` (default 표기), `top_surfaces`, `topmost_only`, `all_solid` | `"no ironing"` | fdm_process_common.json:57-61; Orca wiki https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html |
+| `ironing_type` | enum: `no ironing` (default 표기), `top`, `topmost`, `solid` — **Bambu 값이다. OrcaSlicer 는 같은 기능에 다른 값 이름을 쓰며, 그 이름을 넣으면 Bambu 가 에러 없이 무시한다** | `"no ironing"` | fdm_process_common.json:57-61; 설치본 `02.08.02.61` 바이너리 enum 테이블 (연속 배치 확인) + user preset 실측 `topmost`/`top`. ⚠️ Orca wiki 를 이 키의 출처로 쓰지 마라 — 값 이름이 다르다 |
 | `ironing_flow` | `%` (line flow 대비) | `10%` (H2S 0.20 override `15%`) | fdm_process_common.json:57; 0.20mm Standard @BBL H2S.json:41 |
 | `ironing_spacing` | `mm` (line spacing) | `0.15` mm | fdm_process_common.json:59 |
 | `ironing_speed` | `mm/s` | `30` mm/s | fdm_process_common.json:60 |
@@ -189,7 +189,7 @@
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
 |----|-------------|---------|--------------------------|
-| `top_surface_pattern` | enum: `monotonic`, `monotonicline`, `concentric`, `archimedean`, `hilbert` | `monotonicline` | fdm_process_common.json:167 |
+| `top_surface_pattern` | enum: `monotonic`, `monotonicline`, `concentric`, `archimedeanchords`, `hilbertcurve` | `monotonicline` | fdm_process_common.json:167 |
 | `top_surface_speed` | `mm/s` | common `30`; H2S 0.20 Standard `200`; 0.12 HQ `150` | fdm_process_common.json:169-170; 0.20mm Standard @BBL H2S.json; 0.12mm High Quality @BBL H2S.json |
 | `top_surface_acceleration` | `mm/s²` | H2S default `2000` | 0.20mm Standard @BBL H2S.json:165-167; 0.12mm High Quality @BBL H2S.json:146-168 |
 | `top_solid_infill_flow_ratio` | float (1.0 = 100%) | `1` | fdm_process_common.json:172-174 |

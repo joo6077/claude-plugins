@@ -147,6 +147,6 @@
 - Bambu Filament Guide: https://bambulab.com/en-us/filament-guide
 - AMS 2 Pro 공식: https://us.store.bambulab.com/products/ams-2-pro
 - H2S 공식: https://us.store.bambulab.com/products/h2s
-- H2/P2S hotend compatibility: https://us.store.bambulab.com/en/products/bambu-hotend-h2-p2s
+- H2/P2S hotend compatibility: https://us.store.bambulab.com/collections/hotend
 - Bambu Studio Releases: https://github.com/bambulab/BambuStudio/releases
 - 로컬 Bambu Studio `02.06.00.51` 시스템 프로파일

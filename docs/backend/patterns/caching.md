@@ -40,7 +40,7 @@ TTL(Time-To-Live)은 캐시 항목의 유효 기간이다. 변경 빈도가 낮�
 
 인기 키의 TTL이 만료되면 다수의 요청이 동시에 DB를 조회하는 thundering herd 문제가 발생한다. 방어 전략 2가지: **Lock(mutex)** — 첫 요청만 DB를 조회하고 나머지는 lock 해제까지 대기(lock timeout 1~5초). **Probabilistic early expiration** — TTL 만료 전에 확률적으로 미리 갱신하여 동시 만료를 회피한다.
 
-> **출처:** [Redis — Cache Stampede](https://redis.io/glossary/cache-stampede/)
+> **출처:** [Redis — Cache Stampede](https://redis.io/docs/latest/develop/use-cases/cache-aside/)
 
 ### 6. Redis와 Memcached는 용도가 다르다
 

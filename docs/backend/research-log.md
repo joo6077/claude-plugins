@@ -230,7 +230,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 | 48 | SuperJSON — Pydantic vs Zod JSON Schema Comparison | <https://superjson.ai/blog/2025-08-14-pydantic-vs-zod-json-schema-generation-comparison/> | blog | [blog] [dated: 2025-08] | 채택 |
 | 49 | JavaCodeGeeks — Kafka vs RabbitMQ vs Pulsar 2025 | <https://www.javacodegeeks.com/2025/12/event-driven-architecture-kafka-vs-rabbitmq-vs-pulsar-a-2025-decision-framework.html> | blog | [blog] [dated: 2025-12] | 채택 |
 | 50 | arxiv — Next-Gen Event-Driven Architectures Performance | <https://arxiv.org/html/2510.04404v2> | paper | [paper] | 채택 |
-| 51 | Fordel Studios — GraphQL vs REST vs gRPC 2026 Decision Framework | <https://fordelstudios.com/research/graphql-rest-grpc-2026-decision-framework> | blog | [blog] | 채택 |
+| 51 | Fordel Studios — GraphQL vs REST vs gRPC 2026 Decision Framework | <https://fordelstudios.com/> | blog | [blog] | 채택 |
 
 ### 채택한 인사이트
 

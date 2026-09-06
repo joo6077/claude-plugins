@@ -152,7 +152,7 @@ Bambu Studio 2.6+ UI에 "precise z-seam" 또는 동등 옵션이 보이는지, �
 surface-first 정책 적용 후 coupon 검증이 필요한 소재 (`surface-recipes.md` §3·§5·§7 권장값 검증):
 - **PLA Matte** — layer line 은폐 최강 가설 검증, ironing 과다 시 chalky 변색 가설
 - **PLA Silk** — top ironing 광택 불일치 가설 (옆면과 매트 차이)
-- **PC** — chamber 60°C + outer 20-30mm/s + topmost_only 소형 ironing 실험
+- **PC** — chamber 60°C + outer 20-30mm/s + topmost 소형 ironing 실험
 - **ASA** — enclosure + brim + vapor smoothing 후가공 비교
 - **PAHT-CF** — hardened nozzle + fiber 질감 한계 정량화
 - **TPU** — surface-first 모드에서 ironing/scarf off의 표면 한계 측정

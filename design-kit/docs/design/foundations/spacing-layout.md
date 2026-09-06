@@ -128,7 +128,7 @@ Apple은 모든 탭 가능한 요소(버튼, 링크, 테이블 행 등)에 **최
 
 Material Design은 터치 타겟으로 **48 x 48dp** (약 9mm)를 권장한다. 밀집 레이아웃(데스크톱)에서는 **40 x 40dp**까지 축소할 수 있다.
 
-> **출처:** [Accessibility — Material Design 3](https://m3.material.io/foundations/accessible-design/accessibility-basics)
+> **출처:** [Accessibility — Material Design 3](https://m3.material.io/foundations/designing/structure)
 
 ### WCAG 2.5.8: 최소 24 x 24 CSS 픽셀 (Level AA)
 

@@ -567,7 +567,7 @@ PARENT=$(curl -s <span class="s">".../$ENC"</span> | jq -r <span class="s">'.inh
     <table>
       <thead><tr><th style="width:22%">키</th><th style="width:28%">enum / 단위</th><th style="width:20%">default</th><th>출처</th></tr></thead>
       <tbody>
-        <tr><td><code>ironing_type</code></td><td>enum: <code>no ironing</code>, <code>top_surfaces</code>, <code>topmost_only</code>, <code>all_solid</code></td><td><code>"no ironing"</code></td><td>fdm_process_common.json:57-61 · Orca ironing wiki</td></tr>
+        <tr><td><code>ironing_type</code></td><td>enum: <code>no ironing</code>, <code>top</code>, <code>topmost</code>, <code>solid</code></td><td><code>"no ironing"</code></td><td>fdm_process_common.json:57-61 · Orca ironing wiki</td></tr>
         <tr><td><code>ironing_flow</code></td><td><code>%</code> (line flow 대비)</td><td><code>10%</code> (H2S 0.20 override <code>15%</code>)</td><td>fdm_process_common.json:57 · 0.20mm Standard @BBL H2S.json:41</td></tr>
         <tr><td><code>ironing_spacing</code></td><td><code>mm</code> (line spacing)</td><td><code>0.15</code></td><td>fdm_process_common.json:59</td></tr>
         <tr><td><code>ironing_speed</code></td><td><code>mm/s</code></td><td><code>30</code></td><td>fdm_process_common.json:60</td></tr>
@@ -581,7 +581,7 @@ PARENT=$(curl -s <span class="s">".../$ENC"</span> | jq -r <span class="s">'.inh
     <table>
       <thead><tr><th style="width:24%">키</th><th style="width:26%">enum / 단위</th><th style="width:24%">default</th><th>출처</th></tr></thead>
       <tbody>
-        <tr><td><code>top_surface_pattern</code></td><td>enum: <code>monotonic</code>, <code>monotonicline</code>, <code>concentric</code>, <code>archimedean</code>, <code>hilbert</code></td><td><code>monotonicline</code></td><td>fdm_process_common.json:167</td></tr>
+        <tr><td><code>top_surface_pattern</code></td><td>enum: <code>monotonic</code>, <code>monotonicline</code>, <code>concentric</code>, <code>archimedeanchords</code>, <code>hilbertcurve</code></td><td><code>monotonicline</code></td><td>fdm_process_common.json:167</td></tr>
         <tr><td><code>top_surface_speed</code></td><td><code>mm/s</code></td><td>common <code>30</code> · H2S 0.20 Standard <code>200</code> · 0.12 HQ <code>150</code></td><td>fdm_process_common.json:169-170 · H2S process JSON</td></tr>
         <tr><td><code>top_surface_acceleration</code></td><td><code>mm/s²</code></td><td>H2S default <code>2000</code></td><td>0.20mm Standard:165-167 · 0.12mm HQ:146-168</td></tr>
         <tr><td><code>top_solid_infill_flow_ratio</code></td><td>float (1.0 = 100%)</td><td><code>1</code></td><td>fdm_process_common.json:172-174</td></tr>

@@ -240,7 +240,7 @@ NNGroup은 **단일 컬럼 레이아웃을 기본으로 권장**한다. 다중 �
 - 붙여넣기(paste)를 지원해야 한다 — 마스크 없는 원시 텍스트를 붙여넣어도 올바르게 파싱
 - `inputmode="numeric"`으로 모바일 숫자 키보드를 트리거한다
 
-> **출처:** [Baymard Institute — Mobile Form Usability](https://baymard.com/blog/mobile-form-usability)
+> **출처:** [Baymard Institute — Mobile Form Usability](https://baymard.com/blog/mobile-form-usability-single-input-fields)
 
 ---
 
@@ -266,5 +266,5 @@ NNGroup은 **단일 컬럼 레이아웃을 기본으로 권장**한다. 다중 �
    - **프라이버시 우려**: 주민등록번호, 소득 등 민감 정보 → 수집 이유 설명 추가
    - **불필요한 필드**: 사용자가 "왜 이걸 물어보지?"라고 느낌 → 필드 제거
 
-> **출처:** [Zuko — Form Analytics Guide](https://www.zuko.io/blog/form-analytics)
+> **출처:** [Zuko — Form Analytics Guide](https://www.zuko.io/blog)
 > **출처:** [Baymard Institute — Checkout Usability](https://baymard.com/checkout-usability)

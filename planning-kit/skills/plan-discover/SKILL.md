@@ -23,7 +23,7 @@ user-invocable: true
 9. **JTBD 를 페르소나 대체재로 쓰지 마라** — 일반론 인터뷰 금지, 실제 전환 사례(switching moments) 중심으로 수집. ODI 스타일 정량화가 없으면 우선순위 연결이 약해진다. 출처: [Alan Klement](https://www.alanklement.com/), [Strategyn](https://strategyn.com/what-customers-want/).
 10. **OST 는 통찰을 보증하지 않는다** — Opportunity Solution Tree 는 시각화일 뿐, outcome 정의가 흐리면 전체 트리가 기능 분류표로 붕괴한다. 매주 고객 접촉 + 작은 실험 루프 없이 OST 만 그리지 마라. 출처: [Teresa Torres — Continuous Discovery](https://www.producttalk.org/glossary-discovery-continuous-discovery/), [Opportunity Solution Tree](https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/).
 11. **5 Whys 단독 사용 금지 (다변량 문제)** — 숫자 5 가 아니라 countermeasure 수준까지 인과 사슬을 추적한다. 유도 질문/정치적 방어가 개입되면 가짜 원인을 강화한다. 사람 탓으로 끝내지 말고 시스템/프로세스 원인까지 내려갈 것. 출처: [Lean Enterprise Institute — 5 Whys](https://www.lean.org/lexicon-terms/5-whys/).
-12. **RAT 가 comfort test 로 전락하지 않게** — "쉽게 검증 가능한 가정"만 고르면 RAT 가 아니다. desirability / viability / feasibility 중 실패 시 전체가 무너지는 가정을 고르고, kill criteria 를 미리 정해라. 출처: [Leanstack RAT 가이드](https://leanstack.com/articles/the-lean-canvas-diagnostic---part-3-of-7-identify-riskiest-assumptions).
+12. **RAT 가 comfort test 로 전락하지 않게** — "쉽게 검증 가능한 가정"만 고르면 RAT 가 아니다. desirability / viability / feasibility 중 실패 시 전체가 무너지는 가정을 고르고, kill criteria 를 미리 정해라. 출처: [Leanstack RAT 가이드](https://newsletter.leanstack.com/p/the-lean-canvas-diagnostic-3-identify).
 13. **편향 완화는 개인 의지가 아니라 장치로** — 확증편향/매몰비용/계획오류는 pre-mortem, kill criteria, reference class forecasting, red team review 같은 운영 장치로만 억제된다. "반대 의견도 들었다"만으로는 부족 — decision memo 에 pro/con 명시 구조를 강제하라. 출처: [The Decision Lab — Confirmation Bias](https://thedecisionlab.com/biases/confirmation-bias), [Commitment Bias](https://thedecisionlab.com/biases/commitment-bias).
 14. **discovery 단계 범위 유지 — 다음 단계로 임의 진주 금지 (skill-design-guide §5.5 Scope-Bound)** — discovery 의 산출물은 Problem/User/Job/Success Metric/Riskiest Assumption 이다. 사용자가 discovery 만 요청했는데 PRD·솔루션·스토리·우선순위를 임의로 작성해 진행하지 마라 (Gotcha 1 의 "해결책 점프 금지" 와 짝). 다음 단계로 넘어갈 준비가 됐으면 plan-prd 인계 여부를 **먼저 묻고** 진행한다. 요청하지 않은 추가 인터뷰 질문 라운드도 임의 확장이다 (insights-report #1 excessive_changes / over-exploration 대응). 출처: [Teresa Torres — Continuous Discovery](https://www.producttalk.org/glossary-discovery-continuous-discovery/).
 
@@ -74,7 +74,7 @@ Job 은 제품 독립적이어야 한다 — 우리 앱이 없어도 존재하�
 - **Viability** — 비즈니스적으로 말이 되는가 (판매/법무/수익/브랜드/운영)
 - **Feasibility** — 기술적으로 가능한가
 
-각 범주당 가장 위험한 가정 1개씩 명시. 실험 설계는 [Leanstack RAT](https://leanstack.com/articles/the-lean-canvas-diagnostic---part-3-of-7-identify-riskiest-assumptions) 기준으로 kill criteria 포함.
+각 범주당 가장 위험한 가정 1개씩 명시. 실험 설계는 [Leanstack RAT](https://newsletter.leanstack.com/p/the-lean-canvas-diagnostic-3-identify) 기준으로 kill criteria 포함.
 
 ## Step 5: Success Metric
 
@@ -114,7 +114,7 @@ Open Questions 이 5개 이상이면 "다음 세션에서 /plan-discover 재실�
 - [Alan Klement — JTBD](https://www.alanklement.com/)
 - [Teresa Torres — Continuous Discovery / OST](https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/)
 - [Marty Cagan — Four Big Risks](https://www.svpg.com/four-big-risks/)
-- [Leanstack — RAT](https://leanstack.com/articles/the-lean-canvas-diagnostic---part-3-of-7-identify-riskiest-assumptions)
+- [Leanstack — RAT](https://newsletter.leanstack.com/p/the-lean-canvas-diagnostic-3-identify)
 - [Lean Enterprise Institute — 5 Whys](https://www.lean.org/lexicon-terms/5-whys/)
 - [Farnam Street — Inversion](https://fs.blog/inversion/)
 - [The Decision Lab — Confirmation Bias](https://thedecisionlab.com/biases/confirmation-bias)

@@ -425,7 +425,7 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 ### Phase 9 — Rust 백엔드 2026
 
 - [Rust Edition 2024 Guide](https://doc.rust-lang.org/edition-guide/) — 채택
-- [Axum 0.8 announcement](https://tokio.rs/blog/2024-12-01-announcing-axum-0-8-0) — 채택 ({id} 문법)
+- [Axum 0.8 announcement](https://tokio.rs/blog/2025-01-01-announcing-axum-0-8-0) — 채택 ({id} 문법)
 - [SQLx 0.8 CHANGELOG](https://github.com/launchbadge/sqlx/blob/main/CHANGELOG.md) — 채택
 - [SeaORM 1.1 docs](https://www.sea-ql.org/SeaORM/) — 채택 (MockDatabase)
 - [Tonic 0.13 CHANGELOG](https://github.com/hyperium/tonic/blob/master/CHANGELOG.md) — 채택

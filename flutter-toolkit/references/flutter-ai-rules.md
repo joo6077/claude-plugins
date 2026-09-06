@@ -1,6 +1,6 @@
 # Flutter 공식 AI Rules 요약
 
-> 출처: [flutter/flutter/docs/rules/rules.md](https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md)
+> 출처: [flutter/flutter/docs/rules/README.md](https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md)
 > 최종 확인: 2026-04-11
 
 Flutter 공식 AI rules는 LLM이 Flutter 코드를 생성할 때 따라야 할 패턴을 정의한다.

@@ -110,7 +110,7 @@
   - https://cursor.com/blog/bugbot-learning/
   - https://cursor.com/blog/cursorbench
 - **Cline Memory Bank**: 구조화 문서 기반 지속 메모리. https://docs.cline.bot/features/memory-bank
-- **Continue rules-memory**: https://www.continue.dev/continuedev/rules-memory
+- **Continue rules-memory**: https://docs.continue.dev/customize/deep-dives/rules
 - **aider conventions**: 항상 읽는 규약 파일. https://aider.chat/docs/usage/conventions.html
 
 → **reflect-kit 포지셔닝**: Cursor 의 "learned rules + hybrid eval" 와 가장 가깝지만, Claude Code 고유의 **skills / subagents / hooks** 조합으로 차별화.

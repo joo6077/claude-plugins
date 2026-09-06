@@ -165,7 +165,7 @@ Material Design 아이콘은 **24 x 24dp 그리드** 위에 디자인된다. 키
 
 24dp 아이콘에 48dp 터치 타겟을 적용하면, 아이콘 주변에 **12dp의 투명 패딩**이 추가되어 탭 가능 영역이 확장된다. 시각적으로는 24dp로 보이지만 실제 탭 영역은 48dp이다.
 
-> **출처:** [Accessibility — Material Design 3](https://m3.material.io/foundations/accessible-design/accessibility-basics)
+> **출처:** [Accessibility — Material Design 3](https://m3.material.io/foundations/designing/structure)
 > **출처:** [Understanding SC 2.5.8 — W3C WAI](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)
 
 ### 체크리스트: 아이콘 일관성 검증

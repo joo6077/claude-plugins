@@ -389,7 +389,7 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 
 | # | 제목 | URL | 유형 | 태그 | 결과 |
 | - | ---- | --- | ---- | ---- | ---- |
-| 63 | TLSRoute - Kubernetes Gateway API | <https://gateway-api.sigs.k8s.io/api-types/tlsroute/> | 공식 | [spec] | 채택 |
+| 63 | TLSRoute - Kubernetes Gateway API | <https://gateway-api.sigs.k8s.io/reference/api-types/tlsroute/> | 공식 | [spec] | 채택 |
 | 64 | Terraform MCP server overview | <https://developer.hashicorp.com/terraform/mcp-server> | 공식 | [official] | 채택 |
 | 65 | OpenTofu Registry | <https://opentofu.org/registry/> | 공식 | [official] | 채택 |
 | 66 | Infrastructure AI - Pulumi Docs | <https://www.pulumi.com/docs/ai/> | 공식 | [official] | 채택 |

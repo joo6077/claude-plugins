@@ -207,7 +207,7 @@ NNGroup은 대기 시간에 따라 적절한 로딩 인디케이터를 선택하
 - 호버 시 툴팁으로 정확한 값을 표시한다
 
 > **출처:** [Edward Tufte — Sparklines](https://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
-> **출처:** [NNGroup — Dashboard Design](https://www.nngroup.com/articles/dashboard-design/)
+> **출처:** [NNGroup — Dashboard Design](https://www.nngroup.com/articles/dashboards-preattentive/)
 
 ### 숫자 시각화 (Number Formatting)
 
@@ -251,4 +251,4 @@ function formatKoreanNumber(n: number): string {
 }
 ```
 
-> **출처:** [NNGroup — Presenting Numerical Data](https://www.nngroup.com/articles/presenting-numbers/)
+> **출처:** [NNGroup — Presenting Numerical Data](https://www.nngroup.com/articles/web-writing-show-numbers-as-numerals/)

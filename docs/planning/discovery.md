@@ -103,7 +103,7 @@ Discovery에서 Lean Canvas의 강점은 아이디어를 설명 문서가 아니
 **한계/주의사항**: 문서 완성도가 높아도 검증이 끝난 것이 아니다. 한 페이지에 맞추느라 중요한 제약을 과도 단순화할 수 있다.
 **출처**:
 - https://leanstack.com/
-- https://leanstack.com/articles/3-mental-models-for-continuous-innovation
+- https://leanstack.com/
 - https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure
 
 ### RAT (Riskiest Assumption Test)
@@ -121,7 +121,7 @@ Ash Maurya 계열의 실무에서는 Lean Canvas의 블록들을 훑으며 desir
 **적용 시점**: Lean Canvas 작성 직후, discovery backlog 정렬, MVP 범위 조정 전.
 **한계/주의사항**: 팀이 "쉽게 검증 가능한 가정"만 고르면 RAT가 아니라 comfort test가 된다. 여러 리스크를 섞어 한 실험에 우겨 넣으면 해석력이 떨어진다.
 **출처**:
-- https://leanstack.com/articles/the-lean-canvas-diagnostic---part-3-of-7-identify-riskiest-assumptions
+- https://newsletter.leanstack.com/p/the-lean-canvas-diagnostic-3-identify
 - https://leanstack.com/articles/the-lean-canvas-diagnostic---part-4-of-7-desirability-stress-testing
 - https://leanstack.com/articles/the-lean-canvas-diagnostic---part-6-of-7-feasibility
 
@@ -155,9 +155,9 @@ Ash Maurya 계열의 실무에서는 Lean Canvas의 블록들을 훑으며 desir
 - https://www.lean.org/the-lean-post/articles/five-whys-animation/ [dated: 2018-07]
 - https://fs.blog/inversion/ [dated: 2018-10]
 - https://leanstack.com/
-- https://leanstack.com/articles/3-mental-models-for-continuous-innovation
+- https://leanstack.com/
 - https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure
-- https://leanstack.com/articles/the-lean-canvas-diagnostic---part-3-of-7-identify-riskiest-assumptions
+- https://newsletter.leanstack.com/p/the-lean-canvas-diagnostic-3-identify
 - https://leanstack.com/articles/the-lean-canvas-diagnostic---part-4-of-7-desirability-stress-testing
 - https://leanstack.com/articles/the-lean-canvas-diagnostic---part-6-of-7-feasibility
 - https://www.svpg.com/four-big-risks/ [dated: 2017-12]

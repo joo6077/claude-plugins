@@ -55,7 +55,7 @@ for item in source.iter() {
 let results: Vec<_> = source.iter().map(transform).collect();
 ```
 
-> **출처:** [Rust Performance Book — Vec](https://nnethercote.github.io/perf-book/vec.html)
+> **출처:** [Rust Performance Book — Vec](https://nnethercote.github.io/perf-book/heap-allocations.html)
 
 ### 3. Iterator 체이닝은 collect 없이 지연 평가한다
 

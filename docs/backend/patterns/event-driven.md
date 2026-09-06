@@ -16,7 +16,7 @@ last_updated: 2026-08-13
 
 **메시지 큐(RabbitMQ, SQS)**는 작업 분배(work distribution)에 적합하다. 메시지가 한 consumer에게 전달되면 큐에서 제거된다. **이벤트 스트리밍(Kafka)**은 이벤트 로그(event log)다. 메시지가 retention 기간 동안 보존되며 여러 consumer group이 독립적으로 읽는다. 단일 consumer 작업 분배에는 큐, 다중 consumer 이벤트 브로드캐스트에는 스트리밍을 선택한다.
 
-> **출처:** [Apache Kafka Documentation](https://kafka.apache.org/documentation/), [RabbitMQ Tutorials](https://www.rabbitmq.com/docs/tutorials)
+> **출처:** [Apache Kafka Documentation](https://kafka.apache.org/documentation/), [RabbitMQ Tutorials](https://www.rabbitmq.com/tutorials)
 
 ### 2. Outbox 패턴으로 이중쓰기를 방지한다
 

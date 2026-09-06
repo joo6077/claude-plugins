@@ -324,7 +324,7 @@
       <tbody>
         <tr><td><strong>PLA Basic</strong></td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>가장 예측 가능. ironing 적극.</td></tr>
         <tr><td><strong>PLA Matte</strong></td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>layer line 가장 잘 숨음. 표면 매끈 최강.</td></tr>
-        <tr><td><strong>PLA Silk</strong></td><td><code>15-25</code></td><td><code>0.10-0.12</code></td><td>광택 보존 위해 더 느림. ironing은 topmost_only만 (광택 죽음 주의).</td></tr>
+        <tr><td><strong>PLA Silk</strong></td><td><code>15-25</code></td><td><code>0.10-0.12</code></td><td>광택 보존 위해 더 느림. ironing은 topmost만 (광택 죽음 주의).</td></tr>
         <tr><td><strong>PETG HF</strong></td><td><code>20-35</code></td><td><code>0.12</code></td><td><strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>. fan 20-50%.</td></tr>
         <tr><td><strong>PA-CF / PAHT-CF</strong></td><td><code>20-30</code></td><td><code>0.12</code></td><td>fiber 질감으로 완전 매끈 한계. AMS HT 80°C 8h + hardened nozzle 필수.</td></tr>
         <tr><td><strong>PC</strong></td><td><code>20-30</code></td><td><code>0.12</code></td><td>건조 필수 (chamber 60°C). ooze 많으면 외벽 first wipe.</td></tr>
@@ -374,7 +374,7 @@
       <tbody>
         <tr><td><code>top_shell_layers</code></td><td>0.12mm: <code>7-9</code> · 0.16mm: <code>6</code> · 0.20mm: <code>5-6</code></td><td>common <code>3</code>, single 0.12 <code>5</code></td><td>fdm_process_common.json:7-16</td></tr>
         <tr><td><code>bottom_shell_layers</code></td><td><code>4-6</code></td><td>common <code>3</code></td><td>fdm_process_common.json</td></tr>
-        <tr><td><code>top_surface_pattern</code></td><td>기본 <code>monotonicline</code> · 원형 top은 <code>concentric</code> 실험 · 장식은 의도시만 <code>archimedean</code>/<code>hilbert</code></td><td><code>monotonicline</code></td><td>fdm_process_common.json:167</td></tr>
+        <tr><td><code>top_surface_pattern</code></td><td>기본 <code>monotonicline</code> · 원형 top은 <code>concentric</code> 실험 · 장식은 의도시만 <code>archimedeanchords</code>/<code>hilbertcurve</code></td><td><code>monotonicline</code></td><td>fdm_process_common.json:167</td></tr>
         <tr><td><code>top_surface_speed</code></td><td>PLA <code>20-40</code> · PETG <code>15-30</code> · PA/PC/ABS <code>20-30</code> · TPU <code>10-20</code> mm/s</td><td>H2S 0.20 <code>200</code>, 0.12 HQ <code>150</code></td><td>0.12mm HQ:146-168</td></tr>
         <tr><td><code>top_surface_acceleration</code></td><td><code>500-1000</code> mm/s²</td><td>H2S <code>2000</code></td><td>0.20mm Standard:165-167</td></tr>
         <tr><td><code>top_solid_infill_flow_ratio</code></td><td>calibration 후 <code>1.00</code> 기본 · gap 시 <code>+0.02</code> · ridge 시 <code>-0.02</code></td><td><code>1</code></td><td>fdm_process_common.json:172-174</td></tr>
@@ -388,20 +388,20 @@
 <!-- ── Section 5: Ironing 매트릭스 ── -->
 <div class="section">
   <div class="section-label">Section 5 — Ironing 형상 × 소재 매트릭스</div>
-  <p class="desc"><code>ironing_type</code> enum: <code>no ironing</code>, <code>top_surfaces</code>, <code>topmost_only</code>, <code>all_solid</code>. surface-first는 대부분 <code>topmost_only</code> (외벽 주변 과다 ironing 회피). 1.10.0에서 ironing_inset이 추가된 이유와 동일.</p>
+  <p class="desc"><code>ironing_type</code> enum: <code>no ironing</code>, <code>top</code>, <code>topmost</code>, <code>solid</code>. surface-first는 대부분 <code>topmost</code> (외벽 주변 과다 ironing 회피). 1.10.0에서 ironing_inset이 추가된 이유와 동일.</p>
 
   <h3 style="margin-bottom:14px">5.1. 소재별 ironing 정책</h3>
   <div class="table-wrap">
     <table>
       <thead><tr><th>소재</th><th>ironing_type</th><th>speed (mm/s)</th><th>flow (%)</th><th>spacing (mm)</th><th>inset (mm)</th><th>판정</th></tr></thead>
       <tbody>
-        <tr><td><strong>PLA Basic</strong></td><td><code>topmost_only</code> 또는 <code>top_surfaces</code></td><td><code>15-20</code></td><td><code>10-15</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge badge-ok">적극 권장</span></td></tr>
-        <tr><td><strong>PLA Matte</strong></td><td><code>topmost_only</code></td><td><code>15-20</code></td><td><code>8-12</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge badge-ok">권장</span> chalky 주의</td></tr>
-        <tr><td><strong>PLA Silk</strong></td><td><code>topmost_only</code> only</td><td><code>10-15</code></td><td><code>5-10</code></td><td><code>0.10-0.15</code></td><td><code>0.3-0.5</code></td><td><span class="badge badge-warn">신중</span> 광택 죽음</td></tr>
-        <tr><td><strong>PETG HF</strong></td><td>원칙 off · 평면 장식만 <code>topmost_only</code></td><td><code>10-15</code></td><td><code>5-8</code></td><td><code>0.15-0.20</code></td><td><code>0.4-0.6</code></td><td><span class="badge badge-bad">비추</span> blob</td></tr>
+        <tr><td><strong>PLA Basic</strong></td><td><code>topmost</code> 또는 <code>top</code></td><td><code>15-20</code></td><td><code>10-15</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge badge-ok">적극 권장</span></td></tr>
+        <tr><td><strong>PLA Matte</strong></td><td><code>topmost</code></td><td><code>15-20</code></td><td><code>8-12</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge badge-ok">권장</span> chalky 주의</td></tr>
+        <tr><td><strong>PLA Silk</strong></td><td><code>topmost</code> only</td><td><code>10-15</code></td><td><code>5-10</code></td><td><code>0.10-0.15</code></td><td><code>0.3-0.5</code></td><td><span class="badge badge-warn">신중</span> 광택 죽음</td></tr>
+        <tr><td><strong>PETG HF</strong></td><td>원칙 off · 평면 장식만 <code>topmost</code></td><td><code>10-15</code></td><td><code>5-8</code></td><td><code>0.15-0.20</code></td><td><code>0.4-0.6</code></td><td><span class="badge badge-bad">비추</span> blob</td></tr>
         <tr><td><strong>PA-CF / PAHT-CF</strong></td><td><code>no ironing</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-bad">비추</span> fiber</td></tr>
-        <tr><td><strong>PC</strong></td><td><code>no ironing</code> 또는 소형 <code>topmost_only</code> 실험</td><td><code>10-15</code></td><td><code>5-8</code></td><td><code>0.15-0.20</code></td><td><code>0.4</code></td><td><span class="badge badge-warn">실험</span> ooze</td></tr>
-        <tr><td><strong>ABS / ASA</strong></td><td><code>topmost_only</code> 실험 가능</td><td><code>15-20</code></td><td><code>8-12</code></td><td><code>0.12-0.18</code></td><td><code>0.3-0.5</code></td><td><span class="badge badge-warn">실험</span> 후가공 가능</td></tr>
+        <tr><td><strong>PC</strong></td><td><code>no ironing</code> 또는 소형 <code>topmost</code> 실험</td><td><code>10-15</code></td><td><code>5-8</code></td><td><code>0.15-0.20</code></td><td><code>0.4</code></td><td><span class="badge badge-warn">실험</span> ooze</td></tr>
+        <tr><td><strong>ABS / ASA</strong></td><td><code>topmost</code> 실험 가능</td><td><code>15-20</code></td><td><code>8-12</code></td><td><code>0.12-0.18</code></td><td><code>0.3-0.5</code></td><td><span class="badge badge-warn">실험</span> 후가공 가능</td></tr>
         <tr><td><strong>TPU</strong></td><td><code>no ironing</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-bad">불가</span> drag</td></tr>
       </tbody>
     </table>
@@ -415,11 +415,11 @@
     </div>
     <div class="card">
       <h3>박스 / 직육면체 (top 있음)</h3>
-      <div class="card-body"><span class="badge badge-ok">강함</span><br><br>평면 top에 가장 효과적. surface-first의 핵심 영역. topmost_only로 외벽 주변 unevenness 회피.</div>
+      <div class="card-body"><span class="badge badge-ok">강함</span><br><br>평면 top에 가장 효과적. surface-first의 핵심 영역. topmost로 외벽 주변 unevenness 회피.</div>
     </div>
     <div class="card">
       <h3>유기적 곡면</h3>
-      <div class="card-body"><span class="badge badge-warn">부분</span><br><br>작은 수평 island top만 <code>topmost_only</code>. 곡면 자체는 ironing pass 어려움.</div>
+      <div class="card-body"><span class="badge badge-warn">부분</span><br><br>작은 수평 island top만 <code>topmost</code>. 곡면 자체는 ironing pass 어려움.</div>
     </div>
     <div class="card">
       <h3>얇은 벽 / 미세 디테일</h3>

@@ -16,7 +16,7 @@ RTO/RPO, 3-2-1 규칙, DB 백업(논리/물리), PITR, DR 테스트, 멀티리�
 
 Recovery Time Objective(RTO)는 서비스 복구까지 허용 가능한 최대 시간, Recovery Point Objective(RPO)는 허용 가능한 최대 데이터 손실 시간이다. 이 두 지표가 백업 빈도, 복제 방식, 자동화 수준, 비용을 결정한다. RTO/RPO 없이 백업 전략을 세우면 과잉 투자이거나 과소 보호다.
 
-> **출처:** [AWS Prescriptive Guidance — Backup and Recovery for RDS](https://docs.aws.amazon.com/prescriptive-guidance/latest/backup-recovery/rds.html)
+> **출처:** [AWS Prescriptive Guidance — Backup and Recovery for RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html)
 
 ### 2. 논리 백업과 물리 백업/PITR은 대체재가 아닌 보완재다
 
@@ -40,7 +40,7 @@ Point-in-Time Recovery(PITR)는 특정 시점으로 데이터베이스를 복원
 
 DR 계획은 테스트하지 않으면 신뢰할 수 없다. 분기별 또는 반기별로 실제 복구 절차를 실행하고, RTO/RPO 달성 여부를 측정한다. Chaos engineering(예: AWS FIS, Gremlin)으로 장애를 주입하여 시스템과 팀의 대응 능력을 검증한다.
 
-> **출처:** [AWS Prescriptive Guidance — Backup and Recovery for RDS](https://docs.aws.amazon.com/prescriptive-guidance/latest/backup-recovery/rds.html)
+> **출처:** [AWS Prescriptive Guidance — Backup and Recovery for RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html)
 
 ---
 

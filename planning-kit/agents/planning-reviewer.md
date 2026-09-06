@@ -90,7 +90,7 @@ fix_suggestion: <개선 방향>
 | Discovery | discovery.md §JTBD, §Continuous Discovery, §4-risks | [Klement](https://www.alanklement.com/), [Torres](https://www.producttalk.org/glossary-discovery-continuous-discovery/), [Cagan](https://www.svpg.com/four-big-risks/) |
 | PRD Format | prd-patterns.md §Amazon, §Shape Up, §Linear | [Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes), [Shape Up](https://basecamp.com/shapeup/1.5-chapter-06) |
 | Non-goals | prd-patterns.md §Shape Up (rabbit holes/no-gos) | [Shape Up §9](https://basecamp.com/shapeup/2.3-chapter-09) |
-| Success Metrics | discovery.md §Lean Canvas (vanity metric 금지) | [Leanstack](https://leanstack.com/articles/3-mental-models-for-continuous-innovation) |
+| Success Metrics | discovery.md §Lean Canvas (vanity metric 금지) | [Leanstack](https://leanstack.com/) |
 | Stories INVEST | stories.md §INVEST | [Agile Alliance](https://agilealliance.org/glossary/invest/) |
 | Acceptance Criteria | stories.md §Gherkin, §AC Patterns | [Cucumber](https://cucumber.io/docs/gherkin/reference) |
 | Prioritization | prioritization.md §RICE / §Kano / §WSJF / §MoSCoW | [Intercom RICE](https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/), [SAFe WSJF](https://scaledagileframework.com/wsjf/) |

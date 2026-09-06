@@ -125,7 +125,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 |----|----|----|----|
 | PLA Basic | `25-40` | `0.08-0.12` | 가장 예측 가능. ironing 적극 |
 | PLA Matte | `25-40` | `0.08-0.12` | layer line 가장 잘 숨음. 표면 매끈함 최강 |
-| PLA Silk | `15-25` | `0.10-0.12` | 광택 보존 위해 더 느림. ironing은 topmost_only만 (광택 죽음 주의) |
+| PLA Silk | `15-25` | `0.10-0.12` | 광택 보존 위해 더 느림. ironing은 topmost만 (광택 죽음 주의) |
 | PETG HF | `50-70` | `0.12` | **AMS HT 65°C 8h 사전 건조 + continuous drying 필수**. fan 20-50% 유지. ⚠️ **PETG 는 저속에서 ooze 가 누적된다** — 2026-08-13 superlube 실측에서 outer `30` 이 표면을 망쳤고 `50` 으로 올려 해결됐다. PLA 기준 저속을 PETG 에 그대로 쓰지 마라 |
 | PA-CF / PAHT-CF | `20-30` | `0.12` | fiber 질감으로 완전 매끈함 한계. **AMS HT 80°C 8h 건조 + hardened nozzle 필수** |
 | PC | `20-30` | `0.12` | 건조 필수 (chamber 60°C). ooze 많으면 외벽 first wipe |
@@ -143,7 +143,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 |----|----|----|----|
 | `top_shell_layers` | `0.12mm`: 7-9, `0.16mm`: 6, `0.20mm`: 5-6 | common `3`, single 0.12 `5` | fdm_process_common.json:7-16; fdm_process_single_0.12.json:26-47 |
 | `bottom_shell_layers` | `4-6` | common `3` | fdm_process_common.json |
-| `top_surface_pattern` | 기본 `monotonicline`; 원형 top은 `concentric` 실험; `archimedean`/`hilbert`는 의도적 텍스처일 때만 | `monotonicline` | fdm_process_common.json:167 |
+| `top_surface_pattern` | 기본 `monotonicline`; 원형 top은 `concentric` 실험; `archimedeanchords`/`hilbertcurve`는 의도적 텍스처일 때만 | `monotonicline` | fdm_process_common.json:167 |
 | `top_surface_speed` | PLA `20-40`, PETG `15-30`, PA/PC/ABS `20-30`, TPU `10-20` mm/s | H2S 0.20 `200`, 0.12 HQ `150` mm/s | 0.12mm High Quality @BBL H2S.json:146-168 |
 | `top_surface_acceleration` | `500-1000` mm/s² | H2S `2000` mm/s² | 0.20mm Standard @BBL H2S.json:165-167 |
 | `top_solid_infill_flow_ratio` | calibration 후 `1.00` 기본; gap 시 `+0.02`, ridge 시 `-0.02` | `1` | fdm_process_common.json:172-174 |
@@ -152,19 +152,21 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 
 ## 5. Ironing 형상×소재 매트릭스
 
-`ironing_type` enum: `no ironing`, `top_surfaces`, `topmost_only`, `all_solid`. surface-first 권장은 대부분 `topmost_only` (외벽 주변 과다 ironing 회피).
+`ironing_type` enum: `no ironing`, `top`, `topmost`, `solid`. surface-first 권장은 대부분 `topmost` (외벽 주변 과다 ironing 회피).
+
+⚠️ **이 값들은 Bambu 이름이다. OrcaSlicer 문서에서 값 이름을 그대로 가져오지 마라** — 두 슬라이서는 같은 기능에 서로 다른 enum 이름을 쓰고, 틀린 이름을 넣으면 Bambu 가 **에러 없이 무시**해서 ironing 이 통째로 빠진 채 "적용했다" 고 보고된다. 같은 함정이 `top_surface_pattern` 에도 있다 — Bambu 값은 `archimedeanchords` · `hilbertcurve` 이고 축약형이 아니다. 값을 쓰기 전에 설치본에서 확인하고, Phase 4.3 게이트의 enum allowlist 가 최종적으로 잡는다. 근거: 설치본 `02.08.02.61` 바이너리 enum 테이블 (offset 95185361-95185384 연속 배치).
 
 ### 5.1. 소재별 ironing 정책 (필수 enumerate)
 
 | 소재 | ironing_type | ironing_speed (mm/s) | ironing_flow (%) | ironing_spacing (mm) | ironing_inset (mm) | 판정 |
 |----|----|----|----|----|----|----|
-| **PLA Basic** | `topmost_only` 또는 `top_surfaces` | `15-20` | `10-15%` | `0.10-0.15` | `0.21-0.42` | **적극 권장** |
-| **PLA Matte** | `topmost_only` | `15-20` | `8-12%` | `0.10-0.15` | `0.21-0.42` | **권장**, 과하면 chalky 변색 |
-| **PLA Silk** | `topmost_only` only | `10-15` | `5-10%` | `0.10-0.15` | `0.3-0.5` | 광택 죽을 수 있음 — 실측 후 결정 |
-| **PETG HF** | 원칙 `no ironing`, 평면 장식만 `topmost_only` | `10-15` | `5-8%` | `0.15-0.20` | `0.4-0.6` | **비추** — blob/scar 위험 |
+| **PLA Basic** | `topmost` 또는 `top` | `15-20` | `10-15%` | `0.10-0.15` | `0.21-0.42` | **적극 권장** |
+| **PLA Matte** | `topmost` | `15-20` | `8-12%` | `0.10-0.15` | `0.21-0.42` | **권장**, 과하면 chalky 변색 |
+| **PLA Silk** | `topmost` only | `10-15` | `5-10%` | `0.10-0.15` | `0.3-0.5` | 광택 죽을 수 있음 — 실측 후 결정 |
+| **PETG HF** | 원칙 `no ironing`, 평면 장식만 `topmost` | `10-15` | `5-8%` | `0.15-0.20` | `0.4-0.6` | **비추** — blob/scar 위험 |
 | **PA-CF / PAHT-CF** | `no ironing` | — | — | — | — | **비추** — fiber 질감, 노즐 마모 |
-| **PC** | `no ironing` 또는 소형 `topmost_only` 실험 | `10-15` | `5-8%` | `0.15-0.20` | `0.4` | heat creep / ooze 위험 |
-| **ABS / ASA** | `topmost_only` 실험 가능 | `15-20` | `8-12%` | `0.12-0.18` | `0.3-0.5` | 후가공(vapor smoothing) 가능하면 ironing 의존 낮춤 |
+| **PC** | `no ironing` 또는 소형 `topmost` 실험 | `10-15` | `5-8%` | `0.15-0.20` | `0.4` | heat creep / ooze 위험 |
+| **ABS / ASA** | `topmost` 실험 가능 | `15-20` | `8-12%` | `0.12-0.18` | `0.3-0.5` | 후가공(vapor smoothing) 가능하면 ironing 의존 낮춤 |
 | **TPU** | `no ironing` | — | — | — | — | **불가** — TPU 유연성으로 표면 drag |
 
 ### 5.2. 형상별 ironing 적용성
@@ -173,7 +175,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 |----|----|----|
 | 회전체 / 원기둥 | **무의미** | top이 없음 (cylinder는 위쪽 평면 X). spiral vase면 더더욱 무의미 |
 | 박스 / 직육면체 (top 있음) | **강함** | 평면 top에 가장 효과적 |
-| 유기적 곡면 | **부분** | 작은 수평 island top만 `topmost_only` |
+| 유기적 곡면 | **부분** | 작은 수평 island top만 `topmost` |
 | 얇은 벽 / 미세 디테일 | **거의 off** | 표면 면적 부족, ironing pass가 detail 침범 |
 | 평면 top 강조 | **필수** | surface-first의 핵심 영역 |
 | Spiral vase | **무의미** | top_shell_layers=0 강제 |

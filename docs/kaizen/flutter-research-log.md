@@ -138,7 +138,7 @@ insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응
 | 3 | Flutter 3.38 Release Notes | <https://docs.flutter.dev/release/release-notes/release-notes-3.38.0> | 공식 | 높음 | 채택 |
 | 4 | Flutter 3.41 Breaking Changes | <https://docs.flutter.dev/release/breaking-changes> | 공식 | 높음 | 채택 |
 | 5 | AToMIC: LLM Test Gen for Flutter | <https://arxiv.org/abs/2510.18861> | preprint | 중간 | 채택 |
-| 6 | Flutter Official AI Rules (rules.md) | <https://raw.githubusercontent.com/flutter/flutter/refs/heads/main/docs/rules/rules.md> | 공식 | 높음 | 채택 |
+| 6 | Flutter Official AI Rules (rules.md) | <https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md> | 공식 | 높음 | 채택 |
 | 7 | Flutter AI Development Guide | <https://docs.flutter.dev/ai/create-with-ai> | 공식 | 높음 | 채택 |
 | 8 | skills.sh (flutter-animations) | <https://skills.sh> | skills.sh | 중간 | 폐기 |
 

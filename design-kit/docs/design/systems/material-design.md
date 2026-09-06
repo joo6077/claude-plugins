@@ -273,7 +273,7 @@ Android 16과 함께 발표된 M3 Expressive는 Material Design의 시각적 표
 - 기존 M3와 하위 호환된다 — Expressive 컴포넌트를 점진적으로 도입 가능
 - Jetpack Compose Material 3 라이브러리에서 Expressive 변형이 추가될 예정
 
-> **출처:** [Material Design Blog — M3 Expressive](https://material.io/blog/material-3-expressive-update)
+> **출처:** [Material Design Blog — M3 Expressive](https://m3.material.io/blog/building-with-m3-expressive)
 > **출처:** [Android Developers Blog — Android 16 Design](https://android-developers.googleblog.com/)
 
 ---
@@ -306,7 +306,7 @@ Tone 값의 차이가 곧 대비비를 결정한다:
 | **브랜드 Primary + 다이내믹 나머지** | Primary만 브랜드 고정, Secondary/Tertiary/Surface는 다이내믹 | 대부분의 브랜드 앱 |
 | **완전 브랜드** | 다이내믹 컬러 비활성, 모든 색상을 브랜드 팔레트에서 지정 | 강력한 브랜드 아이덴티티가 필요한 앱 |
 
-> **출처:** [Material Design 3 — Dynamic Color](https://m3.material.io/styles/color/dynamic/overview)
+> **출처:** [Material Design 3 — Dynamic Color](https://m3.material.io/styles/color/dynamic)
 > **출처:** [Material Color Utilities (GitHub)](https://github.com/material-foundation/material-color-utilities)
 
 ---
