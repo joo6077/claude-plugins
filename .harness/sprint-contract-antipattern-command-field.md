@@ -4,7 +4,7 @@ slug: antipattern-command-field
 created: "2026-09-06 15:05"
 complexity: "복잡"
 conditions: 21
-status: active
+status: done
 owner_session: 44c7700e-f565-4643-8410-e162aa7d93d5
 conditions_digest: sha256:900a85a9dc5b74bd
 locked_at: "2026-09-06 14:59"
