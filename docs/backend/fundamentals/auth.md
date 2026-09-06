@@ -39,7 +39,7 @@ JWT는 마이크로서비스 간 인증 전파에 유리하고, Session은 단�
 | 알고리즘 | 권장 여부 | 파라미터 |
 |----------|----------|---------|
 | **Argon2id** | 최우선 권장 | 메모리 19MiB 이상, iterations 2, parallelism 1 |
-| **bcrypt** | 권장 | cost factor 최소 10 (OWASP 권장 12) |
+| **bcrypt** | 권장 | cost factor 최소 10 (OWASP: 10 이상) |
 | **scrypt** | 허용 | N=2^17, r=8, p=1 |
 | **PBKDF2** | 레거시 허용 | iterations 600,000+ (SHA-256) |
 | MD5, SHA-1/256 | **금지** | GPU로 초당 수십억 해시 가능 |
@@ -101,7 +101,7 @@ SameSite만으로 충분하다고 판단하지 않는다. 서브도메인 공격
 
 | 항목 | 값 |
 |------|-----|
-| bcrypt cost factor 최소값 | 10 (OWASP 권장 12) |
+| bcrypt cost factor 최소값 | 10 이상 (OWASP: work factor of 10 or more) |
 | Argon2id 최소 메모리 | 19 MiB |
 | Argon2id iterations | 최소 2 |
 | JWT access token TTL | 15분 |

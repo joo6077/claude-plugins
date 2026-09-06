@@ -63,10 +63,10 @@ Dockerfile 작성, 멀티스테이지 빌드, 레이어 캐싱, 이미지 보안
 | 메모리 하드 리밋 최소값 | 6m | Docker가 허용하는 최저값 |
 | CPU CFS period | 100000us (100ms) | `--cpu-period` 기본값 |
 | `--cpus="0.5"` | quota 50000 / period 100000 | 0.5 CPU 코어 상당 |
-| Compose healthcheck interval | 1m30s | 기본값 |
-| Compose healthcheck timeout | 10s | 기본값 |
+| Compose healthcheck interval | 30s | 기본값 |
+| Compose healthcheck timeout | 30s | 기본값 |
 | Compose healthcheck retries | 3 | 기본값 |
-| Compose healthcheck start_period | 40s | 기본값 |
+| Compose healthcheck start_period | 0s | 기본값 |
 | local 로깅 드라이버 기본 용량 | 100MB | 20MB x 5 파일 |
 
 ---

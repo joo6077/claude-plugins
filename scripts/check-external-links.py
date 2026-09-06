@@ -71,7 +71,10 @@ def collect() -> set[str]:
         except Exception:
             continue
         urls |= c.urls
-    md_link = re.compile(r"\]\((https?://[^)\s]+\)?)")
+    # `](url)` 은 첫 `)` 에서 끊긴다. URL 안에 균형 잡힌 괄호가 있으면
+    # (`Nudge_(book)` · `EPRS_ATA(2025)767191_EN.pdf`) 뒷부분이 통째로 날아가 가짜 404 가 된다.
+    # 괄호를 세며 진짜 닫는 괄호까지 먹는다.
+    md_link = re.compile(r"\]\((https?://(?:[^()\s]|\([^()\s]*\))+)\)")
     for d in KIT_DIRS:
         for md in (REPO / d).rglob("*.md"):
             urls |= set(md_link.findall(md.read_text(encoding="utf-8", errors="replace")))

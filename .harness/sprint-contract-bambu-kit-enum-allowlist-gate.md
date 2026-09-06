@@ -4,7 +4,7 @@ slug: bambu-kit-enum-allowlist-gate
 created: "2026-09-06 11:35"
 complexity: "복잡"
 conditions: 22
-status: active
+status: done
 owner_session: 44c7700e-f565-4643-8410-e162aa7d93d5
 conditions_digest: sha256:504aad0be7af3d5b
 locked_at: "2026-09-06 11:34"
