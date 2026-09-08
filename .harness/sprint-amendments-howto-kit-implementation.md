@@ -133,9 +133,14 @@ A-01 의 재측정은 사이드카 커밋 전 시점 값이라 stale 했다. 같
 이번 재측정은 커밋 후 HEAD 에서 15 항목 허용목록 문언 그대로 돌린 결과를 아래에 적는다.
 (값은 커밋 직후 채운다 — 자리표시자 없이, 실행 출력을 그대로.)
 
+**HEAD 해시는 여기에 적지 않는다.** 이 파일을 담는 커밋의 해시를 이 파일 안에 적을 수는 없다 —
+적는 순간 그 커밋이 아니게 된다 (2026-09-08 실측: `10a8a50` 을 적고 `--amend` 하자 HEAD 가
+`b809c75` 로 바뀌어 인용이 stale 해졌다). 검증자는 **자기 시점의 HEAD** 에서 아래 명령을 돌린다.
+이 사이드카를 갱신하는 커밋은 사이드카 경로만 건드리므로(A-02 로 허용목록에 있음) 경로 집합을
+바꾸지 않는다.
+
 ```text
-$ git log --oneline -1
-10a8a50 chore(harness): A-02 — AR-07 허용목록에 amendment 사이드카 경로 추가
-$ git diff --name-only 54fb3b3..HEAD -- . ':(exclude).harness/handoff/*' ':(exclude)docs/bambu-calibration/*' | 15 항목 매치
-총 37 경로 · 허용목록(15 항목) 밖 0 건
+$ git diff --name-only 54fb3b3..HEAD -- . ':(exclude).harness/handoff/*' ':(exclude)docs/bambu-calibration/*' \
+    | 15 항목 허용목록(계약 AR-07 14 항목 + A-02 의 1 항목) 문언 그대로 매치
+총 37 경로 · 허용목록(15 항목) 밖 0 건        ← 2026-09-08, 구현 커밋 0e771e0 + 사이드카 커밋 포함 상태
 ```
