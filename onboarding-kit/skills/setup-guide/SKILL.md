@@ -49,7 +49,8 @@ fetch 가 끝까지 실패한 항목은 조용히 넘기지 말고 마커 + 사�
 
 ```bash
 # Guide Conformance Gate — LLM 호출 없는 순수 판정. zsh · bash 동일 출력 (2026-08-13 양쪽 실행 확인).
-# 사용: guide_gate <가이드.md> [스택]     예) guide_gate docs/setup/firebase/fcm-ios.md flutter
+# 사용: guide_gate <가이드.md> <스택>     예) guide_gate docs/setup/firebase/fcm-ios.md flutter
+#       스택은 필수다 — 비우면 G3 가 FAIL 한다 (판정 불가를 PASS 로 흘리지 않는다)
 guide_gate() {
   g=$1; stack=${2:-}
   [ -f "$g" ] || { echo "GATE_BLOCKED no_such_file=$g"; return 0; }
@@ -78,18 +79,24 @@ guide_gate() {
   fi
 
   # G3 스택 혼용 — Flutter 가이드에 네이티브 Swift 코드블록이 있으면 실패.
-  #    산문으로 "Flutter 는 AppDelegate 를 건드리지 않는다" 고 쓰는 것은 통과한다 — 코드 지시만 잡는다
+  #    산문으로 "Flutter 는 AppDelegate 를 건드리지 않는다" 고 쓰는 것은 통과한다 — 코드 지시만 잡는다.
+  #    스택이 비어 있으면 PASS 가 아니라 FAIL 이다. 2026-09-08 까지는 빈 스택을 PASS 로 흘렸고,
+  #    Drift 루프의 $STACK 이 어디에도 정의되지 않아 이 검사가 3 개월간 no-op 이었다.
   sw=$(grep -c "^${fence}swift" "$g" || true)
-  if [ "$stack" = "flutter" ] && [ "$sw" -ne 0 ]; then
+  if [ -z "$stack" ]; then
+    echo "G3_STACKMIX FAIL stack=unset swift_fence=$sw"; fail=1
+  elif [ "$stack" = "flutter" ] && [ "$sw" -ne 0 ]; then
     echo "G3_STACKMIX FAIL swift_fence=$sw"; fail=1
   else
-    echo "G3_STACKMIX PASS stack=${stack:-unset} swift_fence=$sw"
+    echo "G3_STACKMIX PASS stack=$stack swift_fence=$sw"
   fi
 
   # G4 deprecation 주장 결합 — Deprecated 박스를 쓴 Step 은 그 Step 의 출처 줄이
-  #    "출처가 실제로 deprecated 라고 말했다" 는 근거를 담아야 한다 (출처보다 강한 주장 금지)
+  #    "출처가 실제로 deprecated 라고 말했다" 는 근거를 담아야 한다 (출처보다 강한 주장 금지).
+  #    근거 토큰은 영문(deprecated/sunset/removed)과 한국어(지원 종료/폐지/중단/서비스 종료/단종)를
+  #    모두 인정한다 — 영문 토큰에만 묶여 있던 동안 한국어 1 차 출처는 근거가 있어도 FAIL 이었다.
   g4=$(awk '
-    function flush(){ if (st != "" && dep && src !~ /[Dd]eprecat/) print ln }
+    function flush(){ if (st != "" && dep && src !~ /[Dd]eprecat|[Ss]unset|[Rr]emoved|지원 ?종료|폐지|중단|서비스 종료|단종/) print ln }
     /^## /           { flush(); st=""; src=""; dep=0 }
     /^## Step /      { st=$0; ln=FNR }
     /^\*\*출처:\*\*/ { src=$0 }
@@ -107,6 +114,7 @@ guide_gate() {
 ```
 
 - **게이트 출력을 그대로 보고에 붙여라.** "게이트 통과함" 이라는 문장은 증거가 아니다 — `GATE_PASS` 를 포함한 5 줄 출력이 증거다.
+- **G3 는 스택 인자가 없으면 `FAIL` 이다.** 스택을 모르면 혼용을 판정할 수 없고, 판정할 수 없는 것을 PASS 로 흘리는 것이 no-op 게이트의 정체다. 스택은 Phase 1 에서 확정한 값을 넘긴다.
 - `GATE_FAIL` 이면 완료 보고를 하지 마라. 고치고 다시 돌린다.
 - **게이트를 우회하거나 조건을 느슨하게 고치지 마라.** 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 정당한 케이스를 막는다고 판단되면 그 사실을 사용자에게 보고하고 판단을 받는다.
 - 게이트가 잡는 것은 **기계로 판정 가능한 4 가지**뿐이다. 사실 정확성·스코프·경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다 (단일 게이트는 보장이 아니다).
@@ -209,6 +217,8 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
    `docs/setup/` 아래(또는 사용자가 지정한 위치)에 같은 서비스·기능의 가이드가 이미 있으면, 덮어쓰거나 무시하지 말고 **기존 파일에 게이트를 먼저 돌린다.**
 
    ```bash
+   STACK=flutter   # Phase 1 에서 확정한 스택을 그대로 쓴다. 비워 두면 G3 가 FAIL 한다.
+                   # 2026-09-08 까지는 이 변수가 어디에도 정의되지 않아 G3 가 항상 PASS 하는 no-op 이었다.
    find docs/setup -type f -name '*.md' 2>/dev/null | while IFS= read -r f; do
      printf '%s\n' "--- $f"; guide_gate "$f" "$STACK"
    done

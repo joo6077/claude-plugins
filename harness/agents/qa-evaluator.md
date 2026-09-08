@@ -646,6 +646,11 @@ v5.3 §Amendment 사이드카 가 SSOT — 축 이름과 값 어휘를 바꾸지
   계산한다.** 원 집합과 개정 집합을 `comm` 으로 비교한다. 계산 함수 `amend_direction` 의 정의는
   contract-schema §Amendment 사이드카 가 SSOT 이며 여기서 재정의하지 않는다. 실측 위반
   (3 경로 → 5 경로)은 `relaxing added=2 removed=0` 으로 나온다 — "범위 조정" 이라 부를 여지가 없다
+- **오라클을 바꾸는 amendment(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)는 `amend_direction` 이 아니라
+  `amend_direction_oracle` 로 계산한다.** 입력이 허용 집합이 아니라 **측정 집합**이라 극성이 반대다 — 측정 집합이
+  줄면 `relaxing` 이다. 정의는 contract-schema §Amendment 사이드카 가 SSOT 이며 여기서 재정의하지 않는다.
+  사이드카가 측정 집합을 `amend_direction` 에 넣어 `narrowing` 을 적었으면 그것은 오라벨이다 — 원 오라클과
+  개정 오라클로 각각 판정해 FAIL→PASS 면 `relaxing` 으로 바로잡는다 (실측 2026-09-08 howto-kit A-01: 39 → 37 경로)
 - **원 조건을 삭제하지 않는다.** 사이드카에 "이 조건은 폐기" 라고 적혀 있어도 평가자는 원 조건을
   계속 판정하고, 폐기 요청을 "사용자 확인 필요" 로 올린다
 - `relaxing` 의 승인 주체는 **사용자뿐**이다. reviewer 확인을 추가 요건으로 두지 않는다 —
