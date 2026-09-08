@@ -1,0 +1,111 @@
+{
+  "kit": "howto-kit",
+  "description": "howto-kit 게이트 G1~G6 의 결정론 판정을 픽스처로 검증한다. 각 케이스는 zsh 와 bash 양쪽에서 실행하며 두 셸 출력이 동일해야 통과다.",
+  "runner": "bash howto-kit/evals/run-evals.sh",
+  "cases": [
+    {
+      "id": "E1-pass-baseline",
+      "axis": "baseline",
+      "fixture": "fixtures/pass-fcm-ios.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G1_LEDGER PASS",
+        "G2_MARKER PASS",
+        "G3_DOMAINMIX PASS",
+        "G4_DEPRECATION PASS",
+        "G5_TERMINAL PASS",
+        "G6_GRANULARITY PASS"
+      ],
+      "note": "정상 문서가 통과하는지. 이것만으로는 게이트 생존이 증명되지 않는다 — 아래 양성 케이스가 본증거다."
+    },
+    {
+      "id": "E2-granularity-terminal-action",
+      "axis": "granularity",
+      "fixture": "fixtures/fail-g5-nonterminal.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G5_TERMINAL FAIL",
+        "nonterminal=2",
+        "hedge=2"
+      ],
+      "note": "입도 축. 종결 동사 없이 '이 섹션에서 적절히 설정'·'필요에 따라'로 끝나는 스텝을 G5 가 잡는가. 기존 킷에는 이 검사가 0 개였다."
+    },
+    {
+      "id": "E3-granularity-verify-and-branch",
+      "axis": "granularity",
+      "fixture": "fixtures/fail-g6-granularity.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G6_GRANULARITY FAIL",
+        "no_verify=2",
+        "no_branch=2",
+        "guess_pct=66"
+      ],
+      "note": "입도 축. `확인`(verify) 부재 · `안 보이면`(분기) 부재 · 추정 40% 초과를 G6 가 동시에 잡는가."
+    },
+    {
+      "id": "E4-domain-mix-declared",
+      "axis": "domain",
+      "fixture": "fixtures/fail-g3-domainmix.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G3_DOMAINMIX FAIL",
+        "foreign=android:4"
+      ],
+      "note": "iOS 를 선언하고 Android 경로를 섞었다. 기존 킷의 G3 는 stack 이 비면 항상 PASS 하는 no-op 이었다."
+    },
+    {
+      "id": "E5-domain-mix-undeclared",
+      "axis": "domain",
+      "fixture": "fixtures/edge-empty.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G3_DOMAINMIX FAIL no_target_declared"
+      ],
+      "note": "대상 선언이 없으면 PASS 가 아니라 FAIL 이다. 판정 불가를 통과로 흘리는 것이 no-op 게이트의 정체다."
+    },
+    {
+      "id": "E6-deprecation-korean-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-deprecation-ko.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "한국어 '지원 종료' 주장에 근거가 없다. 기존 G4 는 영문 [Dd]eprecat 토큰에만 묶여 이 케이스를 못 잡았다."
+    },
+    {
+      "id": "E7-deprecation-korean-sourced",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-korean-sourced.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "오탐 대조. 한국어 근거가 붙은 한국어 주장은 통과해야 한다 — 한국어라는 이유로 잡으면 영문 종속을 없앤 의미가 없다."
+    },
+    {
+      "id": "E8-zero-steps-no-divide-by-zero",
+      "axis": "robustness",
+      "fixture": "fixtures/edge-zero-steps.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G6_GRANULARITY PASS steps=0",
+        "guess_pct=0"
+      ],
+      "note": "액션 스텝 0 건에서 0 으로 나누지 않고 판정 줄 6 개를 낸다. G1 은 스텝 0 건을 절차 문서로 인정하지 않으므로 FAIL 이 정상이다."
+    },
+    {
+      "id": "E9-missing-file-blocked",
+      "axis": "robustness",
+      "fixture": "__NONEXISTENT__/x.md",
+      "expect_final": "GATE_BLOCKED",
+      "assertions": [
+        "GATE_BLOCKED no_such_file="
+      ],
+      "note": "없는 파일에서 셸이 죽지 않고 BLOCKED 를 낸다. rc 는 0 이어야 상위 루프가 이어진다."
+    }
+  ]
+}
