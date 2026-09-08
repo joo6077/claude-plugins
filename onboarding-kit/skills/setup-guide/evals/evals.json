@@ -8,8 +8,15 @@
       "prompt": "FCM iOS 설정해줘",
       "source": "https://firebase.google.com/docs/flutter/setup (2026-07-27 조회 · Last updated 2026-07-20 UTC) — Flutter 는 dart pub global activate flutterfire_cli → flutterfire configure → Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform). AppDelegate 의 FirebaseApp.configure() 는 Flutter 셋업 절차에 등장하지 않는다",
       "setup": {
-        "project_files": ["pubspec.yaml", "ios/Podfile", "lib/main.dart"],
-        "pubspec_contains": ["flutter:", "dependencies:"]
+        "project_files": [
+          "pubspec.yaml",
+          "ios/Podfile",
+          "lib/main.dart"
+        ],
+        "pubspec_contains": [
+          "flutter:",
+          "dependencies:"
+        ]
       },
       "assertions": [
         "stack_detected == 'flutter'",
@@ -42,7 +49,9 @@
       "description": "Apple 관련 가이드는 사전 요구사항에 App Store Connect vs Developer Portal 차이 표 포함",
       "prompt": "iOS Sign in with Apple 설정 가이드",
       "setup": {
-        "project_files": ["ios/Runner.xcodeproj"]
+        "project_files": [
+          "ios/Runner.xcodeproj"
+        ]
       },
       "assertions": [
         "guide_includes_section('사전 요구사항')",
@@ -69,7 +78,7 @@
         "guide_recommends('APNs 인증 키(.p8)') == true",
         "guide_does_not_claim_deprecated('.p12') — 출처에 없는 deprecation 날조 금지",
         "deprecated_box_inserted_only_when_source_says_deprecated == true",
-        "if guide_includes('❌ Deprecated') then cited_source_contains_deprecation_keyword == true"
+        "if guide_includes('❌ Deprecated') then cited_source_contains_deprecation_keyword(any of: 'deprecated', 'sunset', 'removed', '지원 종료', '폐지', '중단', '서비스 종료', '단종') == true — 한국어 1 차 출처의 표기도 근거다"
       ]
     },
     {
@@ -77,14 +86,17 @@
       "description": "모든 Step에 출처 URL + 조회일이 있어야 한다. fetch 실패 항목은 [미검증] 표기, 2건 이상이면 부분 완료 보고 (Friction #2 / E2 아티팩트)",
       "prompt": "Stripe 결제 연동 셋업 가이드 만들어줘",
       "setup": {
-        "project_files": ["package.json"]
+        "project_files": [
+          "package.json"
+        ]
       },
       "assertions": [
         "every_step_has_field('출처') == true",
         "every_source_field_has_url_and_fetch_date == true",
         "header_official_doc_url_does_not_substitute_per_step_source == true",
-        "unfetchable_steps_marked('[미검증]') == true",
-        "if count_of_marker('[미검증]') >= 2 then reported_as_partial_completion == true",
+        "unfetchable_steps_marked('[미검증:ENV]') == true — 접미 없는 마커는 정본에서 INVALID 로 해석되므로 쓰지 않는다 (SKILL.md 마커 표)",
+        "if count_of_marker('[미검증:INVALID]') >= 2 then reported_as_partial_completion == true — 임계 숫자는 qa-evaluation-guide §카운팅 이 정본",
+        "count_of_marker('[미검증:ENV]') is reported as env_gaps coverage only and is not added to the INVALID threshold",
         "guide_uses_current_doc_host('docs.stripe.com') — 구 호스트 stripe.com/docs 로만 인용하지 않는다"
       ]
     },
@@ -93,8 +105,13 @@
       "description": "프로젝트 내부 경로/env 키는 Glob·Grep 실측 근거가 있어야 한다. 관례적 이름 추측 금지 (insights §0 Friction #3 FCM credentials 날조 실측 대응)",
       "prompt": "FCM 서버 키 설정 가이드 만들어줘",
       "setup": {
-        "project_files": [".env", "lib/main.dart"],
-        "env_contains": ["FCM_CREDENTIALS_PATH=secrets/fcm-sa.json"],
+        "project_files": [
+          ".env",
+          "lib/main.dart"
+        ],
+        "env_contains": [
+          "FCM_CREDENTIALS_PATH=secrets/fcm-sa.json"
+        ],
         "note": "기존 config 가 이미 존재하는 상태 — 새 파일명을 만들어내면 실패"
       },
       "assertions": [
