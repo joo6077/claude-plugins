@@ -83,7 +83,7 @@
     },
     {
       "id": "source-ledger-per-step",
-      "description": "모든 Step에 출처 URL + 조회일이 있어야 한다. fetch 실패 항목은 [미검증] 표기, 2건 이상이면 부분 완료 보고 (Friction #2 / E2 아티팩트)",
+      "description": "모든 Step에 출처 URL + 조회일이 있어야 한다. fetch 실패 항목은 [미검증:ENV]/[미검증:INVALID] 접미형 마커 표기, 2건 이상이면 부분 완료 보고 (Friction #2 / E2 아티팩트)",
       "prompt": "Stripe 결제 연동 셋업 가이드 만들어줘",
       "setup": {
         "project_files": [
