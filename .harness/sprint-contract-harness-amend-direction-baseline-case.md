@@ -4,7 +4,7 @@ slug: harness-amend-direction-baseline-case
 created: "2026-09-08 16:40"
 complexity: "복잡"
 conditions: 18
-status: active
+status: done
 owner_session: 0e3335f2-8d08-4e29-8a5d-01ec6b7ed620
 conditions_digest: sha256:bef0472d446badb5
 locked_at: "2026-09-08 17:05"
