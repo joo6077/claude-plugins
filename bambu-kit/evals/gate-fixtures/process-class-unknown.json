@@ -1,0 +1,19 @@
+{
+  "type": "process",
+  "name": "gate-fixture unknown geometry class value",
+  "print_settings_id": "gate-fixture unknown geometry class value",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_geometry_class": "lattice",
+  "layer_height": "0.12",
+  "wall_loops": "2",
+  "reduce_crossing_wall": "1",
+  "ironing_type": "no ironing",
+  "seam_position": "aligned",
+  "brim_type": "outer_only",
+  "enable_support": "0"
+}

@@ -395,7 +395,7 @@ ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/filament/"
           <li><span style="color:var(--green);font-weight:700">+</span> <code>layer_height</code>, <code>initial_layer_print_height</code> — 사용자 요구</li>
           <li><span style="color:var(--green);font-weight:700">+</span> <code>wall_loops</code>, <code>sparse_infill_density</code>, <code>top/bottom_shell_layers</code>, <code>wall_sequence</code> — 모델 형상 기반</li>
           <li><span style="color:var(--green);font-weight:700">+</span> <code>seam_position</code>, <code>seam_slope_*</code>, <code>scarf_angle_threshold</code>, <code>override_filament_scarf_seam_setting</code> — seam 전략</li>
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>outer_wall_speed</code>, <code>inner_wall_speed</code> — 소재별</li>
+          <li><span style="color:var(--green);font-weight:700">+</span> <code>outer_wall_speed</code>, <code>inner_wall_speed</code> — 소재별 · <code>_geometry_class</code> <code>planar</code> 한정. <code>thin</code> 은 부모 실효값 유지 (Surface Recipes §2.7)</li>
           <li><span style="color:var(--green);font-weight:700">+</span> <code>enable_arc_fitting</code> — 원통 모델</li>
           <li><span style="color:var(--green);font-weight:700">+</span> 멀티컬러: <code>enable_prime_tower</code>, <code>prime_tower_width</code>/<code>brim_width</code>/<code>flat_ironing</code>, <code>flush_into_*</code></li>
           <li><span style="color:var(--green);font-weight:700">+</span> <code>enable_support</code>, <code>raft_layers</code></li>
@@ -422,7 +422,7 @@ ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/filament/"
         <h4 style="margin-top:14px">절대 안 건드림 (DO NOT touch)</h4>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
           <li><span style="color:var(--red);font-weight:700">×</span> <code>nozzle_temperature</code>, <code>nozzle_temperature_initial_layer</code></li>
-          <li><span style="color:var(--red);font-weight:700">×</span> retraction / fan / cooling 관련 모든 필드</li>
+          <li><span style="color:var(--red);font-weight:700">×</span> retraction / fan / cooling 관련 모든 필드 — <strong>예외 1 건</strong>: <code>_geometry_class</code> 가 <code>thin</code> 이면 사용자 확인 후 filament 스코프 <code>overhang_fan_threshold</code> <code>10%</code> 1 키 (Surface Recipes §2.7 · 설치본 ABS-GF / PETG HF 실효값)</li>
         </ul>
         <p style="margin-top:10px;font-size:12.5px;color:var(--text3)">사용자 명시 요청 (2026-05-16): .3mf creator 튜닝 값 또는 base profile 기본값을 유지한다.</p>
       </div>

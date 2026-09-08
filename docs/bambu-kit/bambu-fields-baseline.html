@@ -740,6 +740,25 @@ PARENT=$(curl -s <span class="s">".../$ENC"</span> | jq -r <span class="s">'.inh
     </table>
   </div>
 
+  <h3 style="margin:28px 0 12px">9.5. 냉각 보상 키 — filament 스코프 (2026-09-08 v4 확장) <span class="badge badge-info">§10.5</span></h3>
+  <div class="callout">
+    <span class="icon">!</span>
+    <span><strong>스코프를 먼저 확인하라.</strong> 아래 키는 전부 <strong>filament</strong> 프로파일의 키다. process JSON 에 넣으면 에러 없이 무시된다. 실측(앱 <code>02.08.02.61</code> · 번들 <code>02.08.00.06</code>): process 0 건 / filament 다수. Phase 4.3 게이트가 설치본(시스템 프로파일 + Bambu 가 저장한 user preset)에서 스코프를 도출해 파일 <code>type</code> 과 대조한다. 어디에도 없는 키는 FAIL 이 아니라 <code>[미검증]</code>. 정책은 <a href="surface-recipes.html" style="color:var(--accent)">Surface Recipes §2.7</a>.</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th style="width:26%">키</th><th style="width:22%">스코프 (process / filament)</th><th style="width:12%">단위</th><th>H2S 소재 실효값</th></tr></thead>
+      <tbody>
+        <tr><td><code>overhang_fan_threshold</code></td><td>filament (0 / 146)</td><td><code>%</code></td><td>ABS <code>25%</code> · ABS-GF <code>10%</code> · PETG HF <code>10%</code> · PLA Basic <code>50%</code></td></tr>
+        <tr><td><code>overhang_fan_speed</code></td><td>filament (0 / 165)</td><td><code>%</code></td><td>ABS <code>100</code> · ABS-GF <code>30</code> · PETG HF <code>100</code> · PLA Basic <code>100</code></td></tr>
+        <tr><td><code>fan_cooling_layer_time</code></td><td>filament (0 / 364)</td><td><code>s</code></td><td>ABS <code>30</code> · ABS-GF <code>12</code> · PETG HF <code>20</code> · PLA Basic <code>100</code></td></tr>
+        <tr><td><code>slow_down_layer_time</code></td><td>filament (0 / 553)</td><td><code>s</code></td><td>ABS <code>12</code> · ABS-GF <code>4</code> · PETG HF <code>10</code> · PLA Basic <code>4</code></td></tr>
+        <tr><td><code>slow_down_min_speed</code></td><td>filament (0 / 1218)</td><td><code>mm/s</code></td><td>전 소재 <code>20</code></td></tr>
+        <tr><td><code>_geometry_class</code> · <code>_thin_loop_share</code></td><td>킷 전용 주석 키 (0 / 0)</td><td><code>planar</code> | <code>thin</code></td><td>Bambu 는 import 시 버린다. Phase 4.3 게이트만 읽는다</td></tr>
+      </tbody>
+    </table>
+  </div>
+
   <h3 style="margin:28px 0 12px">§10 전체 출처</h3>
   <div class="grid-3">
     <div class="card">
