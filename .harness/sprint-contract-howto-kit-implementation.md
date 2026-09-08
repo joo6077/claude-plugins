@@ -4,7 +4,7 @@ slug: howto-kit-implementation
 created: "2026-09-08 10:30"
 complexity: "복잡"
 conditions: 29
-status: active
+status: done
 owner_session: 0e3335f2-8d08-4e29-8a5d-01ec6b7ed620
 conditions_digest: sha256:5de60ce9548db9c6
 locked_at: "2026-09-08 11:40"
