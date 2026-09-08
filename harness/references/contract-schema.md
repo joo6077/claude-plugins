@@ -3,7 +3,7 @@
 > sprint-contract 와 qa-evaluator 가 공유하는 계약 포맷 정의.
 > contract-kaizen 이 변경 제안 가능, evaluator-kaizen 이 읽어서 평가 루브릭에 반영.
 >
-> **최근 갱신: 2026-09-08 (amend_direction 극성 · v5.3 보강)** — 오라클(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)을 바꾸는 amendment 의 direction 을 **측정 집합** 전용 헬퍼 `amend_direction_oracle` 로 계산한다. 기존 `amend_direction` 은 **허용 집합** 전용이며, 측정 집합을 넣으면 극성이 뒤집혀 `relaxing` 이 `narrowing` 으로 적힌다 (실측 howto-kit A-01, 39 → 37 경로). 결측 입력은 조용한 `unknown` 이 아니라 `unknown missing_input=` 으로 드러낸다. 번호는 올리지 않는다 — v5.4 는 다른 브랜치가 선점했다.
+> **최근 갱신: 2026-09-08 (amend_direction 극성 · v5.3 보강)** — 오라클(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)을 바꾸는 amendment 의 direction 을 **측정 집합** 전용 헬퍼 `amend_direction_oracle` 로 계산한다. 기존 `amend_direction` 은 **허용 집합** 전용이며, 측정 집합을 넣으면 극성이 뒤집혀 `relaxing` 이 `narrowing` 으로 적힌다 (실측 howto-kit A-01, 39 → 37 경로). 결측 입력은 조용한 `unknown` 이 아니라 `unknown missing_input=` 으로 드러낸다. 버전 번호는 올리지 않는다 — 다음 번호는 다른 브랜치(`fix/contract-schema-unmeasured-oracle`)가 선점했다.
 >
 > 이전: 2026-08-13 (Phase 2 kaizen · v5.3) — write-once 를 서술에서 **결정론적 봉인**으로 승급. frontmatter `conditions_digest` / `locked_at` 신설 (조건 체크박스 줄만 정규화 해시 — 체크박스 토글·서술 편집은 통과, 조건 문구 변조·조건 추가는 즉시 `SEAL_BROKEN`), amendment 를 **direction × consent 2 축**으로 분리 (앵커 부재가 방향 판정을 `unknown` 으로 붕괴시키던 구조 제거 · 경로 집합 amendment 의 direction 은 집합 비교로 **계산**), 조건 패턴 3 종 추가 (측정 커버리지 표기 · 인자 매트릭스 · 음성 대조).
 >
