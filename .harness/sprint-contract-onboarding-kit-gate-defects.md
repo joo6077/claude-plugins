@@ -4,7 +4,7 @@ slug: onboarding-kit-gate-defects
 created: "2026-09-08 16:05"
 complexity: "복잡"
 conditions: 21
-status: active
+status: done
 owner_session: 0e3335f2-8d08-4e29-8a5d-01ec6b7ed620
 conditions_digest: sha256:a0be77436880ad3e
 locked_at: "2026-09-08 16:55"
