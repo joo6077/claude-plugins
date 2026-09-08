@@ -69,6 +69,11 @@
       "name": "api-kit",
       "source": "./api-kit",
       "description": "[v0.1.0 · 2026-09-04] 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행(/api-probe) · 스냅샷 봉인 · 계약 추출(partial/pin/exact) · 회귀 diff(/api-verify) · 의존성 0 정적 뷰어(/api-ui). Hurl 8 기반, 문서도 소스도 못 믿을 때 실측 응답으로 계약을 만든다"
+    },
+    {
+      "name": "howto-kit",
+      "source": "./howto-kit",
+      "description": "[v0.1.0 · 2026-09-08] 사람이 손으로 하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지 끊지 않고 안내하는 스택·도메인 무관 킷 — 대화 즉답(/howto) · 문서화(/howto-doc) · 기존 문서 재측정(/howto-audit). 출처 등급제(관측/문서/추정/미확인)로 '검증 불가 → 침묵'을 대체하고, 결정론 게이트 G1~G6 이 입도(G5 말단 액션 · G6 값·확인·분기·등급)를 기계 판정한다"
     }
   ]
 }
