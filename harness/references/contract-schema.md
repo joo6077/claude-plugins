@@ -3,7 +3,9 @@
 > sprint-contract 와 qa-evaluator 가 공유하는 계약 포맷 정의.
 > contract-kaizen 이 변경 제안 가능, evaluator-kaizen 이 읽어서 평가 루브릭에 반영.
 >
-> **최근 갱신: 2026-08-13 (Phase 2 kaizen · v5.3)** — write-once 를 서술에서 **결정론적 봉인**으로 승급. frontmatter `conditions_digest` / `locked_at` 신설 (조건 체크박스 줄만 정규화 해시 — 체크박스 토글·서술 편집은 통과, 조건 문구 변조·조건 추가는 즉시 `SEAL_BROKEN`), amendment 를 **direction × consent 2 축**으로 분리 (앵커 부재가 방향 판정을 `unknown` 으로 붕괴시키던 구조 제거 · 경로 집합 amendment 의 direction 은 집합 비교로 **계산**), 조건 패턴 3 종 추가 (측정 커버리지 표기 · 인자 매트릭스 · 음성 대조).
+> **최근 갱신: 2026-09-08 (amend_direction 극성 · v5.3 보강)** — 오라클(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)을 바꾸는 amendment 의 direction 을 **측정 집합** 전용 헬퍼 `amend_direction_oracle` 로 계산한다. 기존 `amend_direction` 은 **허용 집합** 전용이며, 측정 집합을 넣으면 극성이 뒤집혀 `relaxing` 이 `narrowing` 으로 적힌다 (실측 howto-kit A-01, 39 → 37 경로). 결측 입력은 조용한 `unknown` 이 아니라 `unknown missing_input=` 으로 드러낸다. 버전 번호는 올리지 않는다 — 다음 번호는 다른 브랜치(`fix/contract-schema-unmeasured-oracle`)가 선점했다.
+>
+> 이전: 2026-08-13 (Phase 2 kaizen · v5.3) — write-once 를 서술에서 **결정론적 봉인**으로 승급. frontmatter `conditions_digest` / `locked_at` 신설 (조건 체크박스 줄만 정규화 해시 — 체크박스 토글·서술 편집은 통과, 조건 문구 변조·조건 추가는 즉시 `SEAL_BROKEN`), amendment 를 **direction × consent 2 축**으로 분리 (앵커 부재가 방향 판정을 `unknown` 으로 붕괴시키던 구조 제거 · 경로 집합 amendment 의 direction 은 집합 비교로 **계산**), 조건 패턴 3 종 추가 (측정 커버리지 표기 · 인자 매트릭스 · 음성 대조).
 >
 > 이전: 2026-07-28 (v5.2) — 실행 기반 재검증 잔여 결함 봉합. `CONTRACT_ROOT` 탐색 기준을 `.harness/project.yaml` 에서 **`.harness/` 디렉토리 자체**로 바꿔 조용한 오귀속·미초기화 BLOCKED 를 동시에 제거 (`contract_root_unconfigured: true` 경고 + `/harness init` 안내), active 열거 grep 이 `status: "active"` 도 잡도록 수정 (test-fixtures README 와 패턴 일치).
 >
@@ -786,6 +788,45 @@ amend_direction() {  # amend_direction <원집합파일> <개정집합파일> (�
   else echo "unknown added=$added removed=$removed"; fi
 }
 ```
+
+**헬퍼의 입력은 허용 집합이다 — 측정 집합을 넣으면 극성이 뒤집힌다.** `amend_direction` 은
+"통과하는 것의 집합" 을 비교한다. 허용목록 · 파일 열거 · 대상 목록이 그것이다. 반면 diff-scope 오라클의
+**베이스라인 · 제외 pathspec · 측정 명령**을 바꾸는 amendment 는 "재는 것의 집합"(측정 집합)을 바꾼다.
+측정 집합이 **줄면** 통과하는 구현이 **늘어난다** — 허용 집합과 극성이 반대다. 그래서 측정 집합은
+`amend_direction` 에 넣지 않고 아래 `amend_direction_oracle` 에 넣는다. 호출자가 환산하는 방식은 두지 않는다 —
+환산이 사람이 틀리는 지점이다 (실측 2026-09-08: 작성자가 측정 집합의 comm 결과 `removed=2` 를 보고도
+방향을 손으로 적어야 했고, 평가자는 두 오라클로 각각 판정해 반전을 확인해야 했다).
+
+```bash
+# 오라클 변경 amendment 의 direction 계산 — 입력은 **측정 집합** (원 오라클 결과 · 개정 오라클 결과). zsh · bash 동일
+amend_direction_oracle() {  # amend_direction_oracle <원측정집합파일> <개정측정집합파일> (각 줄 1 경로)
+  for f in "$1" "$2"; do [ -f "$f" ] || { echo "unknown missing_input=$f"; return 0; }; done
+  added=$(comm -13 <(LC_ALL=C sort -u "$1") <(LC_ALL=C sort -u "$2") | grep -c . || true)
+  removed=$(comm -23 <(LC_ALL=C sort -u "$1") <(LC_ALL=C sort -u "$2") | grep -c . || true)
+  if   [ "$removed" -gt 0 ]; then echo "relaxing measured_removed=$removed measured_added=$added"
+  elif [ "$added" -gt 0 ];   then echo "narrowing measured_removed=0 measured_added=$added"
+  else echo "unknown measured_removed=0 measured_added=0"; fi
+}
+```
+
+측정에서 **빠지는** 경로가 1 개라도 있으면 `relaxing` 이다 — 그 경로에 대한 검사가 사라지므로, 같은
+amendment 가 다른 경로를 새로 넣더라도 보수적으로 완화로 본다 (`amend_direction` 이 `added>0` 을 무조건
+`relaxing` 으로 보는 것과 같은 보수성이다). 결측 입력은 `unknown missing_input=` 으로 드러낸다 —
+`amend_direction` 처럼 `sort` 에러 뒤에 `unknown` 을 내면 결측과 "실제로 차이 없음" 이 구별되지 않는다.
+
+실측 (2026-09-08, howto-kit `A-01` — diff-scope 베이스라인 `4fb1382` → `54fb3b3`, 측정 집합 39 → 37):
+
+```text
+$ amend_direction_oracle measured-orig.txt measured-amended.txt
+relaxing measured_removed=2 measured_added=0
+
+$ amend_direction        measured-orig.txt measured-amended.txt      # 같은 입력을 허용 집합 헬퍼에 넣으면
+narrowing added=0 removed=2                                         # ← 극성이 뒤집힌 오라벨
+```
+
+어느 헬퍼를 썼는지는 사이드카에 적는다. 평가자는 그것을 확인하고, 의심스러우면 원 오라클과 개정
+오라클로 각각 판정해 대조한다 — FAIL→PASS 면 `relaxing` 이 맞다. 픽스처와 재현 명령은
+`harness/evals/amend-direction/README.md`.
 
 축 2 · **consent** — 사용자 동의 근거가 있는지를 본다.
 
