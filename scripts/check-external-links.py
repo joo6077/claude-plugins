@@ -35,7 +35,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 KIT_DIRS = ["docs", "design-kit", "harness", "api-kit", "tone-kit", "flutter-toolkit",
             "backend-kit", "infra-kit", "rust-kit", "react-kit", "planning-kit",
-            "reflect-kit", "bambu-kit", "onboarding-kit"]
+            "reflect-kit", "bambu-kit", "onboarding-kit", "howto-kit"]
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/125 Safari/537.36")
 DEAD = {"404", "410"}

@@ -112,6 +112,7 @@ def infer_research_docs_dir(plugin_name: str) -> str | None:
     `react-kit` → `docs/react/`
     `flutter-toolkit` → `docs/flutter/`
     `design-kit` → `design-kit/docs/design/`
+    `howto-kit` → `docs/howto/`
     """
     mapping = {
         "backend-kit": "docs/backend/",
@@ -122,6 +123,7 @@ def infer_research_docs_dir(plugin_name: str) -> str | None:
         "design-kit": "design-kit/docs/design/",
         "tone-kit": "docs/tone/",
         "api-kit": "docs/api/",
+        "howto-kit": "docs/howto/",
     }
     return mapping.get(plugin_name)
 
