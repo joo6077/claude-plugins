@@ -4,7 +4,7 @@ slug: howto-research-deep-links
 created: "2026-09-09 16:05"
 complexity: "복잡"
 conditions: 24
-status: active
+status: done
 owner_session: 4d264694-eb0e-4e84-801f-52b2db804772
 conditions_digest: sha256:3ebb87958d77d396
 locked_at: "2026-09-09 15:38"
