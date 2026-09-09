@@ -123,6 +123,26 @@ https://github.com/search?q=howto-kit&type=repositories
 
 ---
 
+## 5. 딥링크 함정 2 건 — `[미확인]`
+
+**영향받는 규칙**: `navigation-anchors.md` §2 의 "계정 슬롯을 조심하라" 와 Firebase 자리표시자 표기.
+확정분은 `docs/howto/deep-links.md` 가 정본이다.
+
+| 항목 | 상태 | 킷의 처리 |
+| --- | --- | --- |
+| Google 계정 인덱스 `/u/0/` 가 다중 계정에서 다른 계정으로 리다이렉트된다는 **공식 문장** | **확인 실패** | 슬롯을 빼고 안내하는 규칙은 유지하되, 근거를 "Google 이 그렇게 문서화했다" 고 말하지 않는다 |
+| Firebase `_` 가 프로젝트 id 자리표시자라고 **설명하는 문장** | **확인 실패** | URL 안에 `project/_/` 가 등장하는 것만 확정. 관행 설명은 `[추정]` 으로 표기한다 |
+
+시도했으나 근거 문장을 얻지 못한 URL · 검색:
+
+```text
+https://support.google.com/accounts/answer/1721977                     (200 이지만 /u/N 표기 없음)
+site:support.google.com OR site:developers.google.com "/u/0/" "account" "redirect"
+https://firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken
+```
+
+---
+
 ## 이 원장을 쓰는 법
 
 - 킷의 다른 파일이 위 항목을 언급할 때는 **이 파일을 가리키고** 등급을 함께 적는다.
