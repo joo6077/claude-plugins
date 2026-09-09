@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog Feeds — 무엇을 폴링해 최신성을 지킬 것인가</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F59E0B;--accent2:#FBBF24;--accent-dim:rgba(245,158,11,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#656C7A;
+    --accent:#B45309;--accent2:#92400E;--accent-dim:rgba(180,83,9,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(245,158,11,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 3축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
+     --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  /* ── 실측 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Changelog Feeds — 무엇을 폴링해 최신성을 지킬 것인가</h1>
+<p class="subtitle">절차 안내 문서는 만든 순간부터 낡는다. 콘솔 라벨이 바뀌고 메뉴가 옮겨간다. 이 페이지는 그 변화를 <strong>언제 알아챌 것인가</strong>에 답한다 &#8212; 각 벤더 변경 로그의 기계 판독 주소와, 그 주소가 지금 실제로 무엇을 돌려주는지의 실측 기록이다. <span class="mono">조회일 2026-09-09</span></p>
+
+<div class="warn-banner">
+  <h2>이 표의 값은 &#8220;벤더가 그렇게 적었다&#8221;가 아니다</h2>
+  <p>포맷 판정은 전부 <strong>응답 본문의 루트 엘리먼트</strong>에서 읽었다. 벤더 문서가 &#8220;RSS 를 제공한다&#8221;고 적었다는 사실은 근거로 쓰지 않았다 &#8212; 실제로 Google Cloud 는 <strong>Atom 인데 <code>text/xml</code></strong> 로 내려온다. Content-Type 을 믿었으면 파서를 잘못 골랐을 것이다.</p>
+  <p>그리고 이 표 자체가 <strong>낡는다.</strong> 인용하기 전에 다시 조회하라 &#8212; 아래 &#167;1.1 의 호스트 이전이 그 증거다.</p>
+</div>
+
+<!-- ══ 확정 5건 ══ -->
+<div class="section">
+  <div class="section-label">확정된 폴링 대상 5건</div>
+  <p class="desc">조회일 <strong>2026-09-09</strong>. 포맷 열은 응답 본문 루트 엘리먼트 기준이고, Content-Type 열은 응답 헤더 원문이다. <strong>두 열이 어긋나는 행이 있다는 것</strong>이 이 표의 핵심이다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>벤더</th><th>피드 URL</th><th>루트 엘리먼트</th><th>포맷</th><th>Content-Type</th><th>조회일</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="sys">Google Cloud release notes</td>
+        <td><code>https://docs.cloud.google.com/feeds/gcp-release-notes.xml</code></td>
+        <td><code>&lt;feed xmlns=&quot;http://www.w3.org/2005/Atom&quot;&gt;</code></td>
+        <td><span class="tag">Atom 1.0</span></td>
+        <td><code>text/xml</code> <span class="tag tag-warn">불일치</span></td>
+        <td class="mono">2026-09-09</td>
+      </tr>
+      <tr>
+        <td class="sys">Apple Developer News</td>
+        <td><code>https://developer.apple.com/news/rss/news.rss</code></td>
+        <td><code>&lt;rss version=&quot;2.0&quot;&gt;</code></td>
+        <td><span class="tag">RSS 2.0</span></td>
+        <td><code>application/rss+xml; charset=UTF-8</code></td>
+        <td class="mono">2026-09-09</td>
+      </tr>
+      <tr>
+        <td class="sys">Apple Releases</td>
+        <td><code>https://developer.apple.com/news/releases/rss/releases.rss</code></td>
+        <td><code>&lt;rss version=&quot;2.0&quot;&gt;</code></td>
+        <td><span class="tag">RSS 2.0</span></td>
+        <td><code>application/rss+xml; charset=UTF-8</code></td>
+        <td class="mono">2026-09-09</td>
+      </tr>
+      <tr>
+        <td class="sys">GitHub Changelog</td>
+        <td><code>https://github.blog/changelog/feed/</code></td>
+        <td><code>&lt;rss version=&quot;2.0&quot;&gt;</code></td>
+        <td><span class="tag">RSS 2.0</span></td>
+        <td><code>application/rss+xml; charset=UTF-8</code></td>
+        <td class="mono">2026-09-09</td>
+      </tr>
+      <tr>
+        <td class="sys">AWS What&#8217;s New</td>
+        <td><code>https://aws.amazon.com/about-aws/whats-new/recent/feed/</code></td>
+        <td><code>&lt;rss version=&quot;2.0&quot;&gt;</code></td>
+        <td><span class="tag">RSS 2.0</span></td>
+        <td><code>application/rss+xml;charset=UTF-8</code></td>
+        <td class="mono">2026-09-09</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="caption">AWS 는 2026-09-08 원장에 없던 <strong>신규 확정</strong>이다. Google Cloud 의 서브타입(Atom vs RSS)은 그때 미확정으로 남아 있다가 이번에 해소됐다.</p>
+</div>
+
+<!-- ══ 최신 항목 ══ -->
+<div class="section">
+  <div class="section-label">각 피드가 지금 무엇을 싣고 있나</div>
+  <p class="desc">조회 시점에 각 피드의 첫 항목이다. 폴링 구현이 파싱 대상으로 삼을 필드가 피드마다 다르다는 것을 보여준다 &#8212; Atom 은 <code>&lt;updated&gt;</code>, RSS 는 <code>&lt;pubDate&gt;</code> 다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>벤더</th><th>첫 항목 제목</th><th>날짜 필드</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">Google Cloud</td><td><code>September 08, 2026</code></td><td class="mono">&lt;updated&gt;</td><td class="mono">2026-09-08T00:00:00-07:00</td></tr>
+      <tr><td class="sys">Apple Developer News</td><td><code>Hello Developer: September 2026</code></td><td class="mono">&lt;pubDate&gt;</td><td class="mono">Wed, 02 Sep 2026 08:00:02 PDT</td></tr>
+      <tr><td class="sys">Apple Releases</td><td><code>Transporter 1.4.5</code></td><td class="mono">&lt;pubDate&gt;</td><td class="mono">Tue, 08 Sep 2026 13:00:00 PDT</td></tr>
+      <tr><td class="sys">GitHub Changelog</td><td><code>GitHub Enterprise Server 3.22 is now generally available</code></td><td class="mono">&lt;pubDate&gt;</td><td class="mono">Tue, 08 Sep 2026 21:52:42 +0000</td></tr>
+      <tr><td class="sys">AWS What&#8217;s New</td><td><code>OpenAI GPT-6 Astra is now generally available on Amazon Bedrock</code></td><td class="mono">&lt;pubDate&gt;</td><td class="mono">Tue, 08 Sep 2026 22:49:00 GMT</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="caption">Google Cloud 는 <strong>날짜를 엔트리 제목으로 쓴다.</strong> 제목에서 변경 내용을 뽑으려는 파서는 이 피드에서 아무것도 얻지 못한다.</p>
+</div>
+
+<!-- ══ 원칙 카드 ══ -->
+<div class="section">
+  <div class="section-label">판정 규칙 4가지</div>
+  <p class="desc">아래 넷은 모두 <strong>이번 조사에서 실제로 틀릴 뻔한 지점</strong>에서 나왔다. 일반론이 아니라 실측 반례가 각각 하나씩 붙어 있다.</p>
+
+  <div class="grid-2">
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">1</span><h3>포맷은 Content-Type 이 아니라 루트 엘리먼트로 판정한다</h3></div>
+        <p class="desc">Google Cloud 피드는 <code>text/xml</code> 로 내려오지만 본문 루트는 Atom 이다. Content-Type 으로 파서를 고르면 RSS 파서를 물려 <strong>아무 항목도 못 읽는다.</strong> 헤더는 힌트이지 계약이 아니다.</p>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!-- AUTOGENERATED FILE. DO NOT EDIT. --&gt;
+&lt;feed xmlns="http://www.w3.org/2005/Atom"&gt;
+  &lt;id&gt;tag:google.com,2016:gcp-release-notes&lt;/id&gt;
+  &lt;title&gt;Google Cloud Platform (GCP) - Release notes&lt;/title&gt;</code></pre>
+        <div class="marks"><span class="tag tag-warn">Atom 인데 text/xml</span></div>
+      </div>
+      <div class="sources">
+        <div class="sources-head">출처</div>
+        <a class="card-source" href="https://docs.cloud.google.com/feeds/gcp-release-notes.xml">docs.cloud.google.com/feeds/gcp-release-notes.xml (조회 2026-09-09)</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">2</span><h3>리다이렉트를 따라라 &#8212; 양방향으로 함정이다</h3></div>
+        <p class="desc">구 호스트 <code>cloud.google.com/feeds/gcp-release-notes.xml</code> 은 <strong>죽지 않았다.</strong> <code>301</code> 로 <code>docs.cloud.google.com</code> 에 넘긴다 &#8212; 리다이렉트를 안 따르는 클라이언트만 빈 응답을 받는다. 반대 함정도 있다: Azure 의 <code>/updates/feed/</code> 는 <code>301</code> 로 <strong>피드가 아닌 HTML</strong> 에 데려간다.</p>
+        <pre><code>$ curl -sSLD - https://cloud.google.com/feeds/gcp-release-notes.xml
+HTTP/2 301
+location: https://docs.cloud.google.com/feeds/gcp-release-notes.xml
+HTTP/2 200
+content-type: text/xml</code></pre>
+        <div class="marks"><span class="tag tag-ok">301 → 피드</span><span class="tag tag-bad">301 → HTML</span></div>
+      </div>
+      <div class="sources">
+        <div class="sources-head">출처</div>
+        <a class="card-source" href="https://cloud.google.com/feeds/gcp-release-notes.xml">cloud.google.com/feeds/gcp-release-notes.xml &#8212; 301 확인 (2026-09-09)</a>
+        <a class="card-source" href="https://azure.microsoft.com/en-us/updates/feed/">azure.microsoft.com/en-us/updates/feed/ &#8212; HTML 로 리다이렉트 (2026-09-09)</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">3</span><h3><code>200</code> 을 피드 존재로 읽지 마라</h3></div>
+        <p class="desc"><code>firebase.google.com/support/releases.xml</code> 은 <code>200</code> 을 돌려준다. 그런데 Content-Type 이 <code>text/html</code> 이고 본문이 <code>&lt;html lang="en"&gt;</code> 로 시작한다 &#8212; 문서 사이트가 미지의 경로에 그냥 페이지를 내주는 <strong>soft 200</strong> 이다. 상태 코드만 보는 탐색기는 여기서 &#8220;피드 발견&#8221;을 보고한다.</p>
+        <div class="compare">
+          <div class="compare-bad">
+            <div class="compare-label"><span>&#10007; 상태 코드만 본다</span></div>
+            <pre><code>200 → "피드 있음"</code></pre>
+          </div>
+          <div class="compare-good">
+            <div class="compare-label"><span>&#10003; 본문까지 본다</span></div>
+            <pre><code>200 + text/html
++ &lt;html&gt; → soft 200</code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="sources">
+        <div class="sources-head">출처</div>
+        <a class="card-source" href="https://firebase.google.com/support/releases">firebase.google.com/support/releases &#8212; HTML changelog (조회 2026-09-09)</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">4</span><h3>피드가 없는 대상은 HTML 폴링으로 내린다</h3></div>
+        <p class="desc">없는 피드를 있다고 적는 것보다, HTML 을 긁는 비용을 감수하는 편이 낫다. 폴링 대상에서 아예 빼는 것이 최악이다 &#8212; 그러면 그 벤더의 변경은 <strong>영영 감지되지 않는다.</strong></p>
+        <div class="rule-box">
+          <strong>내림 순서</strong> &#8212; 기계 판독 피드 → 공식 HTML changelog → (그것도 없으면) 문서 최종 수정일. 어느 단계로 내렸는지를 문서에 적는다.
+        </div>
+      </div>
+      <div class="sources">
+        <div class="sources-head">출처</div>
+        <a class="card-source" href="https://docs.stripe.com/changelog">docs.stripe.com/changelog &#8212; HTML changelog (조회 2026-09-09)</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ 반례 ══ -->
+<div class="section">
+  <div class="section-label">이번 조사가 무효화한 판정 방법</div>
+  <p class="desc">HTML 문서의 <code>&lt;link rel="alternate" type="application/rss+xml"&gt;</code> 는 피드를 찾는 관례적 수단이다. 그래서 <strong>&#8220;이 페이지에 autodiscovery 가 없으니 피드도 없다&#8221;</strong> 는 추론이 자연스러워 보인다. <em>AWS 가 그 추론의 반례다.</em></p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; 틀린 추론</span><span class="tag tag-bad">피드를 놓친다</span></div>
+      <pre><code>$ curl -sSL https://aws.amazon.com/new/ \
+  | grep -c 'rel="alternate".*rss'
+0
+
+→ "AWS 는 RSS 피드가 없다"</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; 실제</span><span class="tag tag-ok">피드는 살아 있다</span></div>
+      <pre><code>$ curl -sSLD - \
+  https://aws.amazon.com/about-aws/whats-new/recent/feed/
+content-type: application/rss+xml;charset=UTF-8
+&lt;rss version="2.0"&gt;&lt;channel&gt;
+  &lt;title&gt;Recent Announcements&lt;/title&gt;</code></pre>
+    </div>
+  </div>
+  <p class="desc">그러므로 Firebase 와 Stripe 도 <strong>autodiscovery 부재를 근거로 &#8220;피드 없음&#8221;이라 쓰지 않는다.</strong> 셋 다 <code>[미확인]</code> 이며, 근거는 &#8220;찾지 못했다&#8221;이지 &#8220;없다&#8221;가 아니다. 이 구분이 이 킷의 존재 이유다.</p>
+</div>
+
+<!-- ══ 확인 실패 3건 ══ -->
+<div class="section">
+  <div class="section-label">확인 실패 3건 &#8212; <code>[미확인]</code></div>
+  <p class="desc">아래 셋은 <strong>&#8220;피드가 없다&#8221;가 아니라 &#8220;피드를 확인하지 못했다&#8221;</strong> 다. 원장은 <code>howto-kit/references/provenance-notes.md</code> &#167;3 이 정본이다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>대상</th><th>등급</th><th>폴링 대체 수단</th><th>관측된 실패 형태</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">Firebase release notes</td><td class="mono">[미확인]</td><td><code>https://firebase.google.com/support/releases</code></td><td>404 · soft 200 (<code>text/html</code>)</td></tr>
+      <tr><td class="sys">Stripe changelog</td><td class="mono">[미확인]</td><td><code>https://docs.stripe.com/changelog</code></td><td>404 &#215; 5</td></tr>
+      <tr><td class="sys">Azure updates</td><td class="mono">[미확인]</td><td><code>https://azure.microsoft.com/en-us/updates/</code></td><td><code>301</code> → HTML · <code>403</code> · <code>image/vnd.microsoft.icon</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>시도한 URL 전부</h4>
+  <pre><code>https://firebase.google.com/feeds/support-release-notes.xml
+https://firebase.google.com/feeds/firebase-release-notes.xml
+https://firebase.google.com/support/releases.xml                  (200 이지만 text/html — soft 200)
+https://docs.stripe.com/changelog.atom
+https://docs.stripe.com/changelog.rss
+https://stripe.com/blog/feed.rss
+https://docs.stripe.com/changelog/feed.xml
+https://docs.stripe.com/changelog/rss.xml
+https://azure.microsoft.com/en-us/updates/feed/                   (301 → HTML)
+https://www.microsoft.com/releasecommunications/api/v2/azure/rss  (403)
+https://azurecomcdn.azureedge.net/en-us/updates/feed/             (200 이지만 image/vnd.microsoft.icon)</code></pre>
+
+  <div class="info-card">
+    <h3>Azure 의 <code>403</code> 은 부재 증명이 아니다</h3>
+    <p class="desc"><code>releasecommunications</code> 엔드포인트는 <strong>접근이 차단됐을 뿐</strong>이고, 다른 네트워크나 인증 상태에서는 열릴 수 있다. 그래서 &#8220;Azure 는 피드가 없다&#8221;가 아니라 <code>[미확인]</code> 이다. <code>/updates/feed/</code> 도 죽은 것이 아니라 <strong>HTML 로 리다이렉트</strong>된다 &#8212; 과거에 피드였던 주소가 지금은 페이지 쿼리로 넘어가는 형태다.</p>
+  </div>
+</div>
+
+<!-- ══ 운영 규칙 체크리스트 ══ -->
+<div class="section">
+  <div class="section-label">폴링 운영 체크리스트</div>
+  <p class="desc">이 문서를 인용해 폴링을 구현하거나 표를 갱신할 때 순서대로 확인한다.</p>
+  <ul class="checklist">
+    <li><span class="check">1</span><span>포맷을 <strong>루트 엘리먼트</strong>로 판정했는가. Content-Type 으로 판정하지 않았는가 (&#167;판정 규칙 1)</span></li>
+    <li><span class="check">2</span><span>리다이렉트를 따라갔는가. 최종 URL 과 최종 Content-Type 을 둘 다 기록했는가 (&#167;판정 규칙 2)</span></li>
+    <li><span class="check">3</span><span><code>200</code> 응답의 <strong>본문 첫 바이트</strong>를 확인했는가. soft 200 을 피드로 세지 않았는가 (&#167;판정 규칙 3)</span></li>
+    <li><span class="check check c-warn">4</span><span>확인 실패를 <strong>&#8220;없음&#8221;으로 승격하지 않았는가.</strong> autodiscovery 부재는 근거가 못 된다 &#8212; AWS 반례</span></li>
+    <li><span class="check check c-warn">5</span><span>차단(<code>403</code>)과 부재를 구분해 적었는가</span></li>
+    <li><span class="check check c-bad">6</span><span>이 표의 URL 을 <strong>조회일 단서 없이</strong> 사실로 인용하고 있지 않은가. 인용 전에 다시 조회하라</span></li>
+  </ul>
+</div>
+
+<!-- ══ 조회 기록 ══ -->
+<div class="section">
+  <div class="section-label">조회 기록</div>
+  <div class="flow">
+    <div class="flow-step">
+      <span class="rank">2026-09-08 · 1차</span>
+      <span class="what">Codex 위임 (read-only)</span>
+      <span class="out">4건 확정 · 3건 확인 실패</span>
+    </div>
+    <div class="flow-step rank-1">
+      <span class="rank">2026-09-09 · 2차</span>
+      <span class="what">Codex + 로컬 curl 보강</span>
+      <span class="out">5건 확정 · 3건 확인 실패</span>
+    </div>
+  </div>
+  <p class="desc">2 차 사이클의 Codex 위임(MODE=research · read-only · foreground · 검색 하드캡 20)은 <strong>정상 완주했다</strong> &#8212; rollout 로그의 <code>turn_aborted</code> 가 0 건이다. 다만 Codex 샌드박스는 DNS 가 막혀 XML 원문을 열지 못해 루트 엘리먼트와 Content-Type 을 <strong>전부 확인 실패로 반환</strong>했다. 부족분은 세션 로컬 <code>curl</code> 로 피드 원문을 직접 조회해 채웠다.</p>
+  <div class="rule-box">
+    <strong>정본 분리</strong> &#8212; 확정된 항목은 <code>docs/howto/changelog-feeds.md</code> 가 정본이고, 확인 실패 항목은 <code>howto-kit/references/provenance-notes.md</code> &#167;3 이 정본이다. 한쪽만 고치면 옛 등급 표기가 남는다.
+  </div>
+  <p class="caption">이 페이지는 <code>docs/howto/changelog-feeds.md</code> 의 시각화본이다. 값이 어긋나면 <code>.md</code> 가 이긴다.</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

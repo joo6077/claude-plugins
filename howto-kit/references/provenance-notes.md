@@ -4,9 +4,13 @@
 먼저 적용한 결과가 이 파일이다. 아래 항목은 킷의 규칙에 영향을 주지만 1 차 출처를 확보하지
 못했다. **인용할 때 반드시 등급 표기를 함께 쓴다.**
 
-조회 기록: 2026-09-08, Codex 위임 리서치 1 회 (read-only). 원문 로그는
-`~/.claude/plugins/data/codex-openai-codex/state/claude-plugins-*/jobs/task-mts2e4by-exu3bg.log`
-및 자동 수집본 `~/.claude/codex-research-log/2026-09.md`.
+조회 기록:
+
+- 2026-09-08 — Codex 위임 리서치 1 회 (read-only). 원문 로그는
+  `~/.claude/plugins/data/codex-openai-codex/state/claude-plugins-*/jobs/task-mts2e4by-exu3bg.log`
+  및 자동 수집본 `~/.claude/codex-research-log/2026-09.md`.
+- 2026-09-09 — `changelog-feeds` 사이클. §3 의 확정분 5 건이
+  `docs/howto/changelog-feeds.md` 로 이관됐다.
 
 ---
 
@@ -64,32 +68,40 @@ https://learn.microsoft.com/en-us/answers/questions/2201392/move-resources-to-ne
 
 ---
 
-## 3. 변경 로그 폴링 대상 — 4 건 확정 · 3 건 `[미확인]`
+## 3. 변경 로그 폴링 대상 — 3 건 `[미확인]`
 
 **영향받는 규칙**: `howto-research` 스킬의 폴링 대상 (최신성 축).
-확인일 2026-09-08 기준이며, **피드 URL 은 바뀐다** — 쓰기 전에 다시 확인한다.
 
-| 대상 | 형식 | URL | 마지막 게시 |
-| --- | --- | --- | --- |
-| Google Cloud release notes | XML feed | `https://docs.cloud.google.com/feeds/gcp-release-notes.xml` | 2026-09-07 |
-| Apple Developer news | RSS | `https://developer.apple.com/news/rss/news.rss` | 2026-09-01 |
-| Apple releases (App Store Connect 포함) | RSS | `https://developer.apple.com/news/releases/rss/releases.rss` | 2026-08-31 |
-| GitHub changelog | RSS | `https://github.blog/changelog/feed/` | 2026-09-04 |
-| Firebase release notes | **HTML** (피드 확인 실패) | `https://firebase.google.com/support/releases` | 2026-09-02 |
-| Stripe changelog | **HTML** (피드 확인 실패) | `https://docs.stripe.com/changelog` | 2026-08-26 |
+**확정된 피드는 이 원장이 아니라 `docs/howto/changelog-feeds.md` 가 정본이다.** 2026-09-09
+사이클에서 5 건이 루트 엘리먼트 실측으로 확정되어 그리로 옮겨졌다. 여기 남은 것은 확인하지
+못한 3 건뿐이다.
 
-피드를 찾지 못한 시도 URL:
+| 대상 | 상태 | HTML 폴링 대체 |
+| --- | --- | --- |
+| Firebase release notes | **확인 실패** | `https://firebase.google.com/support/releases` |
+| Stripe changelog | **확인 실패** | `https://docs.stripe.com/changelog` |
+| Azure updates | **확인 실패** | `https://azure.microsoft.com/en-us/updates/` |
+
+피드를 찾지 못한 시도 URL (2026-09-08 · 2026-09-09 누적):
 
 ```text
 https://firebase.google.com/feeds/support-release-notes.xml
+https://firebase.google.com/feeds/firebase-release-notes.xml
+https://firebase.google.com/support/releases.xml                  (200 이지만 text/html — soft 200)
 https://docs.stripe.com/changelog.atom
 https://docs.stripe.com/changelog.rss
 https://stripe.com/blog/feed.rss
-https://developer.apple.com/news/rss/app-store.rss
+https://docs.stripe.com/changelog/feed.xml
+https://docs.stripe.com/changelog/rss.xml
+https://azure.microsoft.com/en-us/updates/feed/                   (301 → HTML)
+https://www.microsoft.com/releasecommunications/api/v2/azure/rss  (403)
+https://azurecomcdn.azureedge.net/en-us/updates/feed/             (200 이지만 image/vnd.microsoft.icon)
 ```
 
-**킷의 처리**: Firebase 와 Stripe 는 RSS 가 있다고 말하지 않는다 — HTML changelog 를 폴링 대상으로
-적었다. Google Cloud 피드는 XML 인 것은 확인했으나 RSS/Atom 어느 서브타입인지는 확인하지 못했다.
+**킷의 처리**: 세 대상은 RSS 가 있다고 말하지 않는다 — HTML changelog 를 폴링 대상으로 적었다.
+**"확인 실패" 를 "피드 없음" 으로 승격하지 않는다.** autodiscovery 링크 부재는 피드 부재의
+근거가 못 된다는 반례를 2026-09-09 사이클이 확보했기 때문이다 (AWS — `docs/howto/changelog-feeds.md` §3).
+Azure 의 `403` 은 접근 차단이지 부재 증명이 아니다.
 
 ---
 

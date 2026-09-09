@@ -23,8 +23,13 @@ user-invocable: true
    `howto-kit/references/provenance-notes.md` 에 그대로 남아 있다. 그것이 정상 결과다.
 2. **확정된 항목은 `provenance-notes.md` 에서 옮기고 인용처도 같이 고쳐라** — 원장만 고치면
    본문에 옛 등급 표기가 남는다. 생성물만 고치면 되돌아간다.
-3. **피드 URL 은 바뀐다.** `provenance-notes.md` §3 의 표에 적힌 URL 을 인용하기 전에 다시
-   조회한다. "확인일 기준" 이라는 단서 없이 피드 URL 을 사실로 쓰지 마라.
+3. **피드 URL 은 바뀐다.** 확정된 피드의 정본은 `docs/howto/changelog-feeds.md` 이고, 확인
+   실패분의 원장은 `provenance-notes.md` §3 이다. **어느 쪽이든 인용하기 전에 다시 조회한다** —
+   확정됐다는 것은 "그 조회일에 그랬다" 는 뜻이지 지금도 그렇다는 뜻이 아니다. "확인일 기준"
+   이라는 단서 없이 피드 URL 을 사실로 쓰지 마라. 실측 근거: Google Cloud 피드는 호스트가
+   `cloud.google.com` 에서 `docs.cloud.google.com` 으로 옮겨 갔고 구 주소는 301 로만 산다.
+   포맷은 Content-Type 이 아니라 **루트 엘리먼트**로 판정한다 (같은 피드가 Atom 인데
+   `text/xml` 로 내려온다).
 4. **한 번에 한 카테고리만 갱신하라** — 여러 축을 한 사이클에 손대면 무엇이 왜 바뀌었는지
    추적이 끊긴다.
 5. **UI 라벨을 수집할 때 로케일 변형 URL 을 같이 확보하라** — 한국어 라벨의 1 차 출처는
