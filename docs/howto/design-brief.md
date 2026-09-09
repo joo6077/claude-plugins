@@ -42,7 +42,7 @@ SKILL.md:131  "문서에 있는 상위 섹션명까지만 확정하고,
 
 **그 전제 자체가 틀렸다.** 2026-09-07 실측:
 
-- Firebase 공식 문서에 콘솔 딥링크가 그대로 박혀 있다 — `console.firebase.google.com/project/_/settings/general/…` (`_` 는 프로젝트 id 자리) [firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken.md]
+- Firebase 공식 문서에 콘솔 딥링크가 그대로 박혀 있다 — `console.firebase.google.com/project/_/settings/general/…` [firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken.md]. **`_` 가 프로젝트 id 자리라는 설명 문장은 확보하지 못했다** — `[미확인]`, `howto-kit/references/provenance-notes.md` §5
 - 필드명까지 적는다 — *"Enter your app's package name in the **Android package name** field."* [firebase.google.com/docs/android/setup]
 - 안 보일 때의 분기까지 적는다 — *"If you don't see a Campaigns tab or add button…"* [developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links], *"Organizations that you are a member of will not appear if the organization has blocked…"* [docs.github.com/…/managing-your-personal-access-tokens]
 
@@ -94,11 +94,11 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 불변도 낮음  아이콘 · 배치(좌/우/상단)
 ```
 
-실측된 딥링크 관행:
+실측된 딥링크 관행 (**확정 정본은 `docs/howto/deep-links.md`** — 2026-09-09 사이클에서 7 벤더 8 인용으로 확정했고 AWS·Azure 가 추가됐다):
 
 | 서비스 | 공식 문서에 등장하는 형태 | 출처 |
 | --- | --- | --- |
-| Firebase | `console.firebase.google.com/project/_/settings/general/…` (`_` = 프로젝트 자리) | firebase-admin.auth.decodedidtoken.md |
+| Firebase | `console.firebase.google.com/project/_/settings/general/…` (`_` 의 의미는 `[미확인]`) | firebase-admin.auth.decodedidtoken.md |
 | Apple | *"replace `[Team ID]` in the following URL with your Team ID: `https://appstoreconnect.apple.com/teams/[Team ID]/access/ci/…`"* | developer.apple.com/documentation/xcode/understanding-infrastructure-validation-builds |
 | Stripe | `dashboard.stripe.com/test/apikeys` — *"MODE: Use `test` for sandboxes … or omit a value for live mode"* | docs.stripe.com/keys, docs.stripe.com/stripe-apps/deep-links |
 | GitHub | `github.com/settings/personal-access-tokens/new` | docs.github.com/…/managing-your-personal-access-tokens |
