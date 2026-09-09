@@ -146,9 +146,12 @@ https://firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decode
 **영향받는 규칙**: `navigation-anchors.md` §3 · `skills/howto` Gotcha 5 의 근거 목록.
 확정분은 `docs/howto/ui-anchoring.md` 가 정본이다.
 
-Apple Style Guide 에서 "방향어를 위치 단서로 단독 사용하지 마라" 에 **동등한 조항을 확보하지
-못했다.** Apple 은 방향어를 금지 대상이 아니라 **용법**으로 다룬다 (`left side` — `left-hand side`
-를 쓰지 말라는 식). 시도 URL:
+| 항목 | 상태 | 근거 |
+| --- | --- | --- |
+| Apple Style Guide 에 "방향어를 위치 단서로 단독 사용하지 마라" 의 **동등 조항** | **확인 실패** | 아래 시도 URL 참조 |
+| Apple 이 방향어를 **용법**으로 다룬다 (`left side` — `left-hand side` 를 쓰지 말라는 식) | 확인됨 2026-09-09 | help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf |
+
+시도했으나 동등 조항을 얻지 못한 URL:
 
 ```text
 https://support.apple.com/guide/applestyleguide/welcome/web
