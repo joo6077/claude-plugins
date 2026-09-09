@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI Anchoring — 방향어는 단독 사용 금지다</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F59E0B;--accent2:#FBBF24;--accent-dim:rgba(245,158,11,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#656C7A;
+    --accent:#B45309;--accent2:#92400E;--accent-dim:rgba(180,83,9,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(245,158,11,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 3축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
+     --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  /* ── 실측 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>UI Anchoring — 방향어는 금지가 아니라 단독 사용 금지다</h1>
+<p class="subtitle">절차 문서에서 화면의 요소를 어떻게 가리킬 것인가. 이 킷은 P5 를 <strong>&#8220;방향어 대신 명명된 컨테이너&#8221;</strong>라고 써 왔다. 이번 사이클이 그 진술이 <strong>근거보다 강했다</strong>는 것을 확인하고 고친다. <span class="mono">조회일 2026-09-09</span></p>
+
+<div class="warn-banner">
+  <h2>규칙과 근거가 서로 어긋나 있었다</h2>
+  <p>킷의 P5 는 Google 스타일 가이드를 근거로 방향어를 배제하라고 했다. 그런데 킷이 <strong>근거로 인용한 벤더 문장 8 건 중 4 건이 방향어를 쓴다</strong> &#8212; <code>on the right</code>, <code>at the top-right</code>, <code>in the upper-right corner</code>, <code>at the bottom of the page</code>.</p>
+  <p>규칙이 맞다면 이 문장들은 전부 위반이다. 벤더 지원 문서가 죄다 틀렸을 리는 없으니 <strong>규칙 쪽을 의심하는 것이 맞다.</strong></p>
+</div>
+
+<!-- ══ Google ══ -->
+<div class="section">
+  <div class="section-label">Google &#8212; 완화 조건이 없다</div>
+  <div class="info-card">
+    <p class="desc">&#8220;Don&#8217;t use directional language to orient the reader, such as above, below, or right-hand side. Phrases like those don&#8217;t work well for accessibility or for localization. <strong>If a UI element is hard to find, provide a screenshot.</strong>&#8221;</p>
+    <div class="compare">
+      <div class="compare-good">
+        <div class="compare-label"><span>&#10003; Recommended</span></div>
+        <pre><code>Click menu Menu.</code></pre>
+      </div>
+      <div class="compare-bad">
+        <div class="compare-label"><span>&#10007; Not recommended</span></div>
+        <pre><code>In the left-side panel, click
+the button with three lines.</code></pre>
+      </div>
+    </div>
+    <p class="desc"><strong>Google 은 예외를 명시하지 않는다.</strong> 다만 &#8220;권장하지 않음&#8221; 예시를 보면 무엇을 겨냥하는지 분명하다 &#8212; <code>the button with three lines</code> 는 <strong>이름이 없다.</strong> 방향어가 이름을 대신하고 있는 문장이다. Google 만 근거로 삼으면 &#8220;방향어 금지&#8221;로 읽을 수 있고, 실제로 이 킷이 그렇게 읽었다.</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://developers.google.com/style/ui-elements">developers.google.com/style/ui-elements (조회 2026-09-09)</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Microsoft ══ -->
+<div class="section">
+  <div class="section-label">Microsoft 가 모순을 푼다 &#8212; <code>only clue</code></div>
+  <p class="desc">Microsoft 스타일 가이드는 같은 문제를 다르게 규정한다. <em>금지의 단위가 &#8220;방향어&#8221;가 아니라 &#8220;방향어만&#8221;이다.</em></p>
+
+  <div class="grid-2">
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">1</span><h3>단독 사용 금지</h3></div>
+        <div class="rule-box">&#8220;Don&#8217;t use directional terms as the only clue to location. Left, right, up, down, above, and below aren&#8217;t very useful for people who use screen-reading software. Instead, use specific language that conveys context, such as &#8216;the first item in the following list&#8217; or &#8216;on the toolbar&#8217;.&#8221;</div>
+      </div>
+      <div class="sources">
+        <div class="sources-head">출처</div>
+        <a class="card-source" href="https://learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities">learn.microsoft.com &#8230; writing-all-abilities (조회 2026-09-09)</a>
+      </div>
+    </div>
+
+    <div class="card principle">
+      <div class="card-body">
+        <div class="principle-title"><span class="num">2</span><h3>허용 조건 2종</h3></div>
+        <div class="rule-box"><strong>(a)</strong> &#8220;It&#8217;s OK to use a directional term <strong>if another indication of location</strong>, such as in the Save As dialog box, on the Standard toolbar, or in the title bar, <strong>is also included</strong>.&#8221;</div>
+        <div class="rule-box" style="margin-top:10px"><strong>(b)</strong> &#8220;Directional terms are also OK to use when a sighted user with dyslexia can clearly see <strong>a change in the interface as the result of an action</strong>, such as a change in the right pane when an option in the left pane is selected.&#8221;</div>
+      </div>
+      <div class="sources">
+        <div class="sources-head">출처</div>
+        <a class="card-source" href="https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/u/upper-left-upper-right">learn.microsoft.com &#8230; upper-left-upper-right (조회 2026-09-09)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:20px">
+  <table>
+    <thead><tr><th>형태</th><th>허용</th><th>예</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">방향어 <strong>단독</strong></td><td><span class="tag tag-bad">&#10007;</span></td><td>&#8220;오른쪽 위 버튼을 누르세요&#8221;</td></tr>
+      <tr><td class="sys">방향어 <strong>+ 다른 위치 단서</strong></td><td><span class="tag tag-ok">&#10003;</span></td><td><code>more actions () at the top-right</code> &#8212; 요소 이름이 함께 있다</td></tr>
+      <tr><td class="sys">동작 결과로 <strong>보이는 변화</strong></td><td><span class="tag tag-ok">&#10003;</span></td><td><code>a change in the right pane when an option in the left pane is selected</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="desc"><strong>인용된 벤더 문장 4 건은 전부 방향어에 이름이 붙어 있다.</strong> 위반이 아니다. 모순이 해소된다.</p>
+</div>
+
+<!-- ══ 실측 재확인 ══ -->
+<div class="section">
+  <div class="section-label">실측된 지목 어휘 &#8212; 8건 재확인</div>
+  <p class="desc">조회일 <strong>2026-09-09</strong>. 마지막 열이 이 규칙의 실증이다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>위치</th><th>실제 문장</th><th>출처</th><th>방향어 단독?</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">좌측 사이드바</td><td><em>&#8220;Click Components from the left sidebar.&#8221;</em></td><td class="mono">support.atlassian.com/statuspage</td><td><span class="tag tag-ok">아니오 (Components)</span></td></tr>
+      <tr><td class="sys">사이드바 + 상세</td><td><em>&#8220;Click Network in the sidebar, then click the network service that you&#8217;re using (such as Wi-Fi) on the right.&#8221;</em></td><td class="mono">support.apple.com/102022</td><td><span class="tag tag-ok">아니오 (Network)</span></td></tr>
+      <tr><td class="sys">탭</td><td><em>&#8220;Click the Third-party tab.&#8221;</em></td><td class="mono">support.atlassian.com/statuspage</td><td><span class="tag tag-neutral">방향어 없음</span></td></tr>
+      <tr><td class="sys">탭 아래 배너</td><td><em>&#8220;From the Commits tab, select Sync now in the info banner under the tabs.&#8221;</em></td><td class="mono">support.atlassian.com/bitbucket-cloud</td><td><span class="tag tag-ok">아니오 (Sync now)</span></td></tr>
+      <tr><td class="sys">모달</td><td><em>&#8220;In the Sync branch dialog, select the Sync strategy dropdown&#8230;&#8221;</em></td><td class="mono">같음</td><td><span class="tag tag-neutral">방향어 없음</span></td></tr>
+      <tr><td class="sys">우측 상단 액션</td><td><em>&#8220;Select more actions () at the top-right, then select Export.&#8221;</em></td><td class="mono">support.atlassian.com/jira-service-management-cloud</td><td><span class="tag tag-ok">아니오 (more actions)</span></td></tr>
+      <tr><td class="sys">우측 상단 버튼</td><td><em>&#8220;Stripe displays a Refund button in the upper-right corner of the page.&#8221;</em></td><td class="mono">docs.stripe.com/connect/end-to-end-marketplace</td><td><span class="tag tag-ok">아니오 (Refund)</span></td></tr>
+      <tr><td class="sys">페이지 하단</td><td><em>&#8220;Click Save component at the bottom of the page to save your changes.&#8221;</em></td><td class="mono">support.atlassian.com/statuspage</td><td><span class="tag tag-ok">아니오 (Save component)</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="caption"><strong>8 건 중 방향어 단독은 0 건이다.</strong></p>
+</div>
+
+<!-- ══ 규칙 변화 ══ -->
+<div class="section">
+  <div class="section-label">킷의 규칙은 어떻게 바뀌나</div>
+  <div class="warn-card">
+    <h3>약화가 아니다</h3>
+    <p class="desc">단독 사용 금지는 <strong>그대로 강제한다.</strong> &#8220;방향어를 써도 된다&#8221;로 읽으면 F4(화면에서 항목을 못 찾음)가 되살아난다. 바뀌는 것은 두 가지뿐이다.</p>
+  </div>
+  <div class="compare" style="margin-top:18px">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; 전</span></div>
+      <pre><code>방향어 대신 명명된 컨테이너
+근거: Google</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; 후</span></div>
+      <pre><code>방향어를 단독으로 쓰지 않는다
+위치 단서를 함께 준다
+완화 근거: Microsoft</code></pre>
+    </div>
+  </div>
+  <p class="desc"><strong>출처 귀속이 핵심이다.</strong> Google 은 완화 조건을 명시하지 않았으므로, Google 을 근거로 &#8220;이름과 함께면 된다&#8221;고 말하면 그것이 <em>과대 인용</em>이다.</p>
+  <p class="desc">킷 내부는 이미 갈려 있었다 &#8212; 체크리스트와 <code>howto-reviewer</code> 의 R4 는 <code>~만으로</code>(단독)라고 옳게 썼는데 제목과 본문은 <code>~대신</code>(대체)이라고 썼다. 이번에 그 불일치를 없앤다.</p>
+
+  <h4>쓸 수 있는 위치 단서</h4>
+  <pre><code>좌측 사이드바 · 상단 탭 · 탭 아래 정보 배너 · &lt;이름&gt; 다이얼로그
+우측 상단 액션 메뉴(⋯) · 페이지 하단 · 툴바 · &lt;섹션명&gt; 섹션</code></pre>
+  <div class="rule-box">
+    <strong>그래도 못 찾으면 &#8212; 스크린샷.</strong> Google 이 제시하는 최후 수단이다. 이 킷의 등급 사다리에서 스크린샷은 <code>관측</code> 등급에 해당한다 &#8212; 사용자가 화면을 읽어 준 것과 같은 강도다.
+  </div>
+</div>
+
+<!-- ══ 미확인 ══ -->
+<div class="section">
+  <div class="section-label">Apple &#8212; <code>[미확인]</code></div>
+  <p class="desc">Apple Style Guide 에서 동등한 금지 조항을 <strong>확보하지 못했다.</strong> Apple 은 방향어를 금지 대상이 아니라 <strong>용법</strong>으로 다룬다 (<code>left side</code> &#8212; <code>left-hand side</code> 를 쓰지 말라는 식).</p>
+  <div class="rule-box"><strong>킷의 처리</strong> &#8212; Apple 을 이 규칙의 근거로 인용하지 않는다. 근거는 Microsoft(완화 조건 포함)와 Google(완화 조건 없음) 둘뿐이다.</div>
+  <p class="caption">시도한 URL 은 <code>howto-kit/references/provenance-notes.md</code> &#167;6 에 원장으로 남아 있다.</p>
+</div>
+
+<!-- ══ 체크리스트 ══ -->
+<div class="section">
+  <div class="section-label">지목 어휘 체크리스트</div>
+  <ul class="checklist">
+    <li><span class="check">1</span><span>요소를 <strong>이름</strong>으로 부르고 있는가. 방향어가 이름을 <strong>대신</strong>하고 있지 않은가</span></li>
+    <li><span class="check">2</span><span>방향어를 썼다면 <strong>다른 위치 단서</strong>(요소 이름 &#183; 다이얼로그명 &#183; 툴바)가 함께 있는가</span></li>
+    <li><span class="check check c-ok">3</span><span>동작 결과로 <strong>보이는 변화</strong>를 서술하는 방향어라면 그대로 써도 된다</span></li>
+    <li><span class="check check c-warn">4</span><span>완화 조건의 근거를 <strong>Google 로 잘못 귀속</strong>하고 있지 않은가. Google 은 예외를 명시하지 않았다</span></li>
+    <li><span class="check check c-bad">5</span><span>못 찾는 요소에 <strong>스크린샷</strong>을 줄 수 있는가 &#8212; Google 의 최후 수단</span></li>
+  </ul>
+  <p class="caption">이 페이지는 <code>docs/howto/ui-anchoring.md</code> 의 시각화본이다. 값이 어긋나면 <code>.md</code> 가 이긴다.</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>
