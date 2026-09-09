@@ -4,7 +4,7 @@ slug: howto-research-changelog-feeds
 created: "2026-09-09 09:55"
 complexity: "복잡"
 conditions: 27
-status: active
+status: done
 owner_session: 4d264694-eb0e-4e84-801f-52b2db804772
 conditions_digest: sha256:ca745849209eb9d6
 locked_at: "2026-09-09 10:01"
