@@ -177,7 +177,7 @@ pre code{white-space:pre}
 
 <div class="hero">
   <h1>스킬 설계 가이드</h1>
-  <p class="subtitle">Anthropic 공식 문서 + 내부 스킬 분석 + 이 레포의 실측 REJECT 코퍼스로 만든 <code>SKILL.md</code> 설계 원칙. 2026-08-13 사이클에서 <strong>스킬 유형 11 종(탐색형 생성 신설)</strong>, <strong>§5.6 Variant Budget</strong>, <strong>§3.8 User-Reported Failure Gate</strong>, <strong>Enforcement 등급 원장 8 행</strong>이 반영됐다. 이번 사이클의 방침은 새 문장 추가가 아니라 <em>등급 승급</em>이다.</p>
+  <p class="subtitle">Anthropic 공식 문서 + 내부 스킬 분석 + 이 레포의 실측 REJECT 코퍼스로 만든 <code>SKILL.md</code> 설계 원칙. 2026-08-13 사이클에서 <strong>스킬 유형 카탈로그(탐색형 생성 신설)</strong>, <strong>§5.6 Variant Budget</strong>, <strong>§3.8 User-Reported Failure Gate</strong>, <strong>Enforcement 등급 원장 8 행</strong>이 반영됐다. 이번 사이클의 방침은 새 문장 추가가 아니라 <em>등급 승급</em>이다.</p>
   <div class="meta">
     <span>version 1.5.0</span>
     <span>last_updated 2026-08-13</span>
@@ -218,11 +218,11 @@ pre code{white-space:pre}
   </div>
 </div>
 
-<!-- ═══ 2. 11 유형 ═══ -->
+<!-- ═══ 2. 유형 카탈로그 ═══ -->
 <div class="section">
   <div class="section-label">Archetypes</div>
-  <div class="section-title">§2 스킬 11 가지 유형 — 10·11 은 본 레포 운영 경험에서 추가됐다</div>
-  <p class="section-desc">Anthropic 이 내부 스킬 수백 개를 분석해 9 가지 유형을 식별했다. <strong>좋은 스킬은 하나의 유형에 명확히 속하고, 나쁜 스킬은 여러 유형에 걸친다.</strong> 여기에 이 레포 운영에서 관측된 2 종을 더해 11 종을 쓴다 — 10 은 긴 세션의 truncation 환경에서 lifecycle 스킬이 별도 카테고리로 식별된 것(2026-05), 11 은 탐색이 발산해 산출물이 수십 개로 불어나고 변주끼리 구별되지 않는 실패가 반복 관측된 것(2026-08 · 글로벌 REJECT <code>UI-04</code>)이다.</p>
+  <div class="section-title">§2 스킬 유형 체크리스트 — 10~12 는 본 레포 운영 경험에서 추가됐다</div>
+  <p class="section-desc">Anthropic 이 내부 스킬 수백 개를 분석해 유형 1~9 를 식별했다. <strong>좋은 스킬은 하나의 유형에 명확히 속하고, 나쁜 스킬은 여러 유형에 걸친다.</strong> 여기에 이 레포 운영에서 관측된 3 종을 더해 <strong>현재 12 종</strong>을 쓴다 — 10 은 긴 세션의 truncation 환경에서 lifecycle 스킬이 별도 카테고리로 식별된 것(2026-05), 11 은 탐색이 발산해 산출물이 수십 개로 불어나고 변주끼리 구별되지 않는 실패가 반복 관측된 것(2026-08 · 글로벌 REJECT <code>UI-04</code>), 12 는 사람이 외부 UI 를 조작하도록 안내하는 스킬이 두 킷에 독립적으로 4 개 생긴 것(2026-09)이다. <strong>개수를 제목이나 다른 문서의 인용 문구에 박지 마라</strong> — 표가 9 → 11 로 늘었을 때 제목과 인용 7 곳이 따라오지 않아 &#8220;9가지&#8221;라고 적힌 채 11 행인 상태가 오래 남았다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>#</th><th>유형</th><th>설명</th><th>예시</th></tr></thead>
@@ -238,6 +238,7 @@ pre code{white-space:pre}
         <tr><td>9</td><td><strong>인프라 운영</strong></td><td>리소스 정리 및 비용 분석</td><td>미사용 리소스 정리</td></tr>
         <tr><td>10</td><td><strong>Session Lifecycle</strong> <span class="badge">레포 추가</span></td><td>세션 종료/이어가기/요약 자동화</td><td>handoff, work-summary, resume-prompt</td></tr>
         <tr><td>11</td><td><strong>탐색형 생성</strong> <span class="badge">레포 추가</span></td><td>하나의 결정을 위해 비교용 변주안 N 개를 생성</td><td>design-mockup, 시안·후보 생성 스킬</td></tr>
+        <tr><td>12</td><td><strong>절차 안내형</strong> <span class="badge">레포 추가</span></td><td>사람이 외부 UI·콘솔을 조작하도록 화면&#8594;메뉴&#8594;항목&#8594;값&#8594;확인까지 끊지 않고 안내. 고유 실패는 <strong>입도 부족을 날조로 메우는 것</strong>이다</td><td>howto, setup-guide</td></tr>
       </tbody>
     </table>
   </div>
