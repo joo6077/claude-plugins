@@ -17,21 +17,39 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. **딥링크가 메뉴 경로�
 
 공식 문서에 콘솔 URL 이 그대로 박혀 있는 경우가 많다. 먼저 이것을 찾아라.
 
+**확정 인용의 정본은 `docs/howto/deep-links.md` 다.** 아래는 요약이며 조회일 2026-09-09 기준이다.
+인용 전에 다시 조회한다.
+
 | 서비스 | 공식 문서에 등장하는 형태 | 출처 |
 | --- | --- | --- |
-| Firebase | `console.firebase.google.com/project/_/settings/general/…` (`_` = 프로젝트 id 자리) | firebase.google.com 문서 내 딥링크 |
-| Google Cloud | `console.cloud.google.com/<서비스>` + `?project=` | cloud.google.com |
-| Apple | *"replace `[Team ID]` in the following URL with your Team ID: `https://appstoreconnect.apple.com/teams/[Team ID]/access/ci/…`"* | developer.apple.com/documentation/xcode/understanding-infrastructure-validation-builds |
-| Stripe | `dashboard.stripe.com/test/apikeys` — *"MODE: Use `test` for sandboxes … or omit a value for live mode"* | docs.stripe.com/keys · docs.stripe.com/stripe-apps/deep-links |
+| Firebase | `console.firebase.google.com/project/_/settings/general/android:com.random.android` | firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken |
+| Google Cloud | *"Send the following URL to the principal …"* + `https://console.cloud.google.com/logs?project=PROJECT_ID` | docs.cloud.google.com/iam/docs/grant-role-console |
+| Apple | *"replace `[Team ID]` in the following URL with your Team ID: `https://appstoreconnect.apple.com/teams/[Team ID]/access/ci/infrastructure-validation`"* | developer.apple.com/documentation/xcode/understanding-infrastructure-validation-builds |
+| Stripe | `dashboard.stripe.com/test/apikeys` · 문법 `dashboard.stripe.com/<ACCOUNT_ID>/<MODE>/<PAGE>` | docs.stripe.com/keys · docs.stripe.com/stripe-apps/deep-links |
 | GitHub | `github.com/settings/personal-access-tokens/new` | docs.github.com |
+| AWS | *"Sign in to the AWS Management Console and open the IAM console at `https://console.aws.amazon.com/iam/`"* | docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_last-accessed-view-data.html |
+| Azure | `https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/%7E/logs` | learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview |
 
-**Stripe 는 모드가 URL 로 갈린다** — `dashboard.stripe.com/test/…`(test) ↔ `dashboard.stripe.com/…`(live).
-잘못된 모드의 화면을 열면 키가 안 보인다.
+**Stripe 는 모드가 경로 세그먼트다** — *"MODE: Use `test` for sandboxes (including the test mode
+sandbox) or omit a value for live mode"*. **생략하면 live** 이므로 `dashboard.stripe.com/apikeys`
+라고만 쓰면 운영 모드 화면이 열리고, 테스트 키를 찾는 사용자는 원하는 값을 못 본다.
 
-### 계정 슬롯을 조심하라
+**Azure 는 프래그먼트(`#view/`)에 딥링크가 들어간다.** 프래그먼트는 서버로 가지 않으므로
+리다이렉트 검사로 검증할 수 없다 — 근거는 Learn 문서가 그 링크를 건다는 사실뿐이다.
 
-`/u/0/` 같은 계정 인덱스를 임의로 박으면 **다른 계정으로 리다이렉트된다.** 계정이 여럿일 수 있으면
-슬롯을 빼고 안내한다.
+### 자리표시자 표기를 통일하지 마라
+
+`_`(Firebase) · `PROJECT_ID`(Google Cloud) · `[Team ID]`(Apple) · `<ACCOUNT_ID>`(Stripe) —
+벤더마다 다르다. 통일해 버리면 사용자가 문서와 화면을 대조하지 못한다. **원문 표기를 그대로 옮겨라.**
+
+### 리전·계정 슬롯을 조심하라
+
+AWS 는 로그인 엔드포인트에 리전을 실을 수 있고 **그 리전으로 리다이렉트된다**
+(*"You can manually request a certain regional sign-in endpoint …"* — docs.aws.amazon.com/IAM/latest/UserGuide/id_users_sign-in.html).
+리전을 모르면 슬롯을 비워라.
+
+`/u/0/` 같은 Google 계정 인덱스도 임의로 박지 않는다. 다만 그 동작을 설명하는 공식 문장은
+**확보하지 못했다** — `[미확인]`, `references/provenance-notes.md` §5 참조.
 
 ### 딥링크가 없으면 전역 검색어를 준다
 
