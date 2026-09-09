@@ -41,7 +41,7 @@ Codex에 위임:
 - 해당 도메인에서 자동화 효과가 큰 작업 Top 10
 - skills.sh 마켓플레이스 기존 스킬 분석
 - 커뮤니티 니즈 (GitHub issues, Reddit)
-- skill-design-guide 9가지 아키타입 중 적합한 유형
+- skill-design-guide 아키타입 카탈로그 중 적합한 유형
 
 ### Step 1.2: 리서치 문서 주제 선정
 

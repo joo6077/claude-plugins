@@ -296,7 +296,7 @@ tools: Agent(worker, researcher), Read, Bash
 
 ---
 
-## 6. 일곱 가지 에이전트 디자인 패턴
+## 6. 에이전트 디자인 패턴
 
 > **출처(패턴 1~5):** [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
 
@@ -679,7 +679,7 @@ agent-design-guide.md 를 편집할 때:
 | **중첩 3 층** | 서브에이전트도 위임 가능하나 기본 3 층에서 끊김 · 깊이를 설계 가정으로 삼지 마라 (§4) |
 | **하드 리밋** | 동시 20 · 세션 200 · 깊이 3 — 자체 예산은 항상 이보다 작게 (§7) |
 | 영속 메모리 | 대화를 넘어서 학습시켜라 |
-| 6가지 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행 중 선택 |
+| 디자인 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅 트리거 중 선택 |
 | **Fan-out 상한 / Exploration Budget** | §7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환 |
 | **Binary Decidability** | §3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격) |
 | **Unverifiable 정책** | `[미검증]` 마커 · 2건 누적 REJECT · 조용한 PASS 금지 · 생성자의 완료 주장은 증거 아님 |
