@@ -4,7 +4,7 @@ slug: howto-research-ui-anchoring
 created: "2026-09-09 17:10"
 complexity: "복잡"
 conditions: 24
-status: active
+status: done
 owner_session: 4d264694-eb0e-4e84-801f-52b2db804772
 conditions_digest: sha256:ac14502f09311b6d
 locked_at: "2026-09-09 16:01"

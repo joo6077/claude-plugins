@@ -149,7 +149,7 @@ https://firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decode
 | 항목 | 상태 | 근거 |
 | --- | --- | --- |
 | Apple Style Guide 에 "방향어를 위치 단서로 단독 사용하지 마라" 의 **동등 조항** | **확인 실패** | 아래 시도 URL 참조 |
-| Apple 이 방향어를 **용법**으로 다룬다 (`left side` — `left-hand side` 를 쓰지 말라는 식) | 확인됨 2026-09-09 | help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf |
+| Apple 이 방향어를 **용법**으로 다룬다 — *"left side  Not left-hand side."* | 확인됨 2026-09-09 | help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf (PDF 4.1MB, `pdftotext` 추출 후 대조) |
 
 시도했으나 동등 조항을 얻지 못한 URL:
 
@@ -160,6 +160,11 @@ https://help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf
 
 **킷의 처리**: Apple 을 이 규칙의 근거로 인용하지 않는다. 근거는 Microsoft(완화 조건 포함)와
 Google(완화 조건 없음) 둘뿐이다.
+
+**검증 방법 주의** — Apple Style Guide 는 PDF 다. `curl` 로 받은 뒤 본문을 파이썬 정규식으로
+훑으면 폰트 서브셋 인코딩 때문에 **문자열이 하나도 안 잡힌다** (실측: `left side` 포함 4 개
+전부 MISS). `pdftotext` 로 추출하면 잡힌다. 추출 도구 없이 "PDF 에 없다" 고 판정하지 마라 —
+그것은 확인 실패이지 부재가 아니다.
 
 ---
 
