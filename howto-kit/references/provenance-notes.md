@@ -123,6 +123,25 @@ https://github.com/search?q=howto-kit&type=repositories
 
 ---
 
+## 6. Apple 의 방향어 규정 — `[미확인]`
+
+**영향받는 규칙**: `navigation-anchors.md` §3 · `skills/howto` Gotcha 5 의 근거 목록.
+확정분은 `docs/howto/ui-anchoring.md` 가 정본이다.
+
+Apple Style Guide 에서 "방향어를 위치 단서로 단독 사용하지 마라" 에 **동등한 조항을 확보하지
+못했다.** Apple 은 방향어를 금지 대상이 아니라 **용법**으로 다룬다 (`left side` — `left-hand side`
+를 쓰지 말라는 식). 시도 URL:
+
+```text
+https://support.apple.com/guide/applestyleguide/welcome/web
+https://help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf
+```
+
+**킷의 처리**: Apple 을 이 규칙의 근거로 인용하지 않는다. 근거는 Microsoft(완화 조건 포함)와
+Google(완화 조건 없음) 둘뿐이다.
+
+---
+
 ## 이 원장을 쓰는 법
 
 - 킷의 다른 파일이 위 항목을 언급할 때는 **이 파일을 가리키고** 등급을 함께 적는다.

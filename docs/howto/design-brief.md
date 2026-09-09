@@ -114,9 +114,18 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 
 내부 데이터는 `path: ["Settings","General","Cloud Messaging"]` 로 **구조화**해 보관하고 렌더링만 `>` 로 한다 (Microsoft 는 `>` 를 굵게 하지 말라 하고 Google 은 시퀀스 전체를 한 bold 로 감싸라 해서 표기가 갈리기 때문이다).
 
-### P5. 방향어 대신 명명된 컨테이너로 화면을 지목한다
+### P5. 방향어를 단독으로 쓰지 않는다 — 이름 있는 컨테이너가 1 순위다
 
-> *"Don't use directional language to orient the reader"* / *"Add context to help the user find the element."* — Google, [developers.google.com/style/ui-elements]
+> **2026-09-09 교정.** 이 항목은 원래 "방향어 **대신**" 이라고 적혀 근거보다 강했다. 실제 규칙은
+> **단독 사용 금지**이며 완화 조건의 출처는 Google 이 아니라 Microsoft 다. 확정 정본은
+> `docs/howto/ui-anchoring.md`.
+
+> *"Don't use directional terms as the only clue to location."* /
+> *"It's OK to use a directional term if another indication of location … is also included."*
+> — Microsoft, [learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities]
+
+> *"Don't use directional language to orient the reader"* — Google,
+> [developers.google.com/style/ui-elements] (완화 조건 없음)
 
 실제 지원 문서가 쓰는 지목 어휘(2026-09-07 실측):
 
