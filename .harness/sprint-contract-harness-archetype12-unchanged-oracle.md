@@ -4,7 +4,7 @@ slug: harness-archetype12-unchanged-oracle
 created: "2026-09-09 13:20"
 complexity: "복잡"
 conditions: 22
-status: active
+status: done
 owner_session: 4d264694-eb0e-4e84-801f-52b2db804772
 conditions_digest: sha256:c335ef27bcb4405e
 locked_at: "2026-09-09 13:23"
