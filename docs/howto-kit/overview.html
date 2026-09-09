@@ -177,8 +177,10 @@
   .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
   .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
     border-radius:12px;padding:14px 16px;position:relative}
+  /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
+     --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
   .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
-    text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+    text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
   .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
   .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
   .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
@@ -340,7 +342,7 @@ GATE_FAIL</code></pre>
       <tr><td>READ-DO / DO-CONFIRM 의 원 정의</td><td class="mono">확인 실패</td><td>킷의 운영 어휘로만 쓰고 외부 표준으로 인용하지 않는다</td></tr>
       <tr><td>&#8220;한 묶음 5~9 항목&#8221; 상한</td><td class="mono">확인 실패</td><td>규칙에 넣지 않았다</td></tr>
       <tr><td>&#8220;killer item&#8221; 정의 원문</td><td class="mono">확인 실패</td><td>규칙에 넣지 않았다</td></tr>
-      <tr><td>Firebase &#183; Stripe 변경 로그 RSS</td><td class="mono">확인 실패</td><td>HTML changelog 를 폴링 대상으로 적었다</td></tr>
+      <tr><td>Firebase &#183; Stripe &#183; Azure updates 변경 로그 RSS</td><td class="mono">확인 실패</td><td>HTML changelog 를 폴링 대상으로 적었다. 확정된 5건은 <code>changelog-feeds.html</code> 로 옮겼다</td></tr>
       <tr><td><code>howto-kit</code> 외부 이름 충돌</td><td class="mono">확인 실패</td><td>&#8220;충돌 없음&#8221;이 아니라 &#8220;확인 실패&#8221;로 남긴다</td></tr>
     </tbody>
   </table>

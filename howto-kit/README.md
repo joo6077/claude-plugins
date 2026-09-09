@@ -126,7 +126,11 @@ sh howto-kit/evals/run-evals.sh
 ## 이 킷이 사실로 말하지 않는 것
 
 `references/provenance-notes.md` 에 미확정 근거 원장이 있다. 체크리스트 방법론의 1 차 출처,
-일부 RSS 피드, 이름 충돌 검사는 **확인 실패** 상태이며 그렇게 표기돼 있다.
+변경 로그 피드 3 건(Firebase · Stripe · Azure updates), 이름 충돌 검사는 **확인 실패** 상태이며
+그렇게 표기돼 있다. **확인 실패는 "없음" 이 아니다** — 피드 autodiscovery 링크가 없어도 피드가
+살아 있는 반례를 확보했기 때문에 세 건을 "피드 없음" 으로 승격하지 않는다.
+
+확정된 폴링 대상은 원장이 아니라 `docs/howto/changelog-feeds.md` 가 정본이다.
 
 ## onboarding-kit 과의 관계
 

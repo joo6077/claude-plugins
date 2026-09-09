@@ -388,7 +388,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 3. **UI 필드의 placeholder 텍스트 문서화 규정**을 지정 출처 범위에서 확인하지 못했다. Google 의 placeholder 규정은 CLI command 쪽에서만 확인됐다.
 4. **Google Cloud 정책 문서 안에서 `not recommended`/`sunset`/`removed` 를 각각 별도 공식 용어로 정의한 문장**과 Apple 의 동등한 정의를 확인하지 못했다. 3 단계 구분은 AWS·Amazon SP-API 근거로 세웠다.
 5. **권한 관련 Microsoft Learn 인용 2 건은 이 브리프에서 제외했다.** 리서치가 돌려준 URL 에 `%20` 이 경로 안에 섞여 있어 링크가 깨졌을 가능성이 있다 (*"If you're missing permissions, the resource group is greyed out"*, *"If you don't see the option to grant permission, ask an admin…"*). 재확인 후 P6 근거로 추가할 것. 지금 P6 는 Apple·Atlassian·GitHub 3 건으로만 서 있다.
-6. **RSS/변경 로그 피드 URL 실측을 완료하지 못했다.** 최신성 축의 "무엇을 폴링할 것인가"는 미결이다.
+6. ~~**RSS/변경 로그 피드 URL 실측을 완료하지 못했다.**~~ **2026-09-09 해소 (부분).** 5 건을 루트 엘리먼트 실측으로 확정했고 3 건(Firebase · Stripe · Azure updates)이 확인 실패로 남았다. 정본은 `docs/howto/changelog-feeds.md`, 미확인 원장은 `howto-kit/references/provenance-notes.md` §3.
 7. **후보 이름의 marketplace/GitHub/npm 충돌 검사**를 하지 않았다.
 8. **로그인 뒤 화면을 Playwright MCP 로 스냅샷하는 경로**(사용자 동의 + 이미 로그인된 브라우저 프로필)는 아이디어 단계다. 실증하지 않았다. 등급 사다리의 최상단 후보로만 적어 둔다.
 
