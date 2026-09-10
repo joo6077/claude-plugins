@@ -111,15 +111,23 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 분기 사유 5 종(권한/역할 · 요금제 · 버전 · 언어 · A/B 롤아웃)과 전형적 대응은
 `../../references/navigation-anchors.md` §5.
 
-### Gotcha 5: 방향어 대신 명명된 컨테이너로 지목한다
+### Gotcha 5: 방향어를 단독으로 쓰지 않는다
 
-`위쪽` · `아래` · `오른편` 은 화면 크기와 레이아웃에 따라 달라진다. 대신 **이름 있는 영역**을 쓴다 —
+금지 대상은 방향어가 아니라 **방향어만**이다. `위쪽` · `아래` · `오른편` 은 화면 크기와 레이아웃에
+따라 달라지므로, **이름 있는 영역**을 1 순위로 쓰고 방향어는 그것을 보조하게 한다 —
 `좌측 사이드바` · `상단 탭` · `<이름> 다이얼로그` · `우측 상단 액션 메뉴(⋯)` · `페이지 하단`.
 
-- 나쁨: "오른쪽 위에 있는 버튼을 누르세요"
-- 좋음: "우측 상단 액션 메뉴(⋯)를 열고 **Export** 를 선택한다"
+- 나쁨: "오른쪽 위에 있는 버튼을 누르세요" — 방향어가 **이름을 대신**하고 있다
+- 좋음: "우측 상단 액션 메뉴(⋯)를 열고 **Export** 를 선택한다" — 방향어 + 이름
 
-> *"Don't use directional language to orient the reader"* — developers.google.com/style/ui-elements
+> *"Don't use directional terms as the only clue to location."* /
+> *"It's OK to use a directional term if another indication of location … is also included."*
+> — learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities ·
+> learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/u/upper-left-upper-right
+
+Google 은 완화 조건 없이 더 강하게 적었고, 못 찾는 요소에는 **스크린샷**을 주라고 한다
+(developers.google.com/style/ui-elements). 근거를 섞지 마라 — 자세한 구분은
+`docs/howto/ui-anchoring.md`.
 
 ### Gotcha 6: 사이트가 갈리는 절차는 배정표를 맨 위에 박는다
 

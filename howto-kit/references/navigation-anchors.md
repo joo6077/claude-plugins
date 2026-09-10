@@ -59,12 +59,26 @@ AWS 는 로그인 엔드포인트에 리전을 실을 수 있고 **그 리전으
 > product services, documentation pages, tutorials and even Google Cloud Resources"*
 > — cloud.google.com/blog/topics/developers-practitioners/tips-get-most-out-google-cloud-documentation
 
-## 3. 화면 지목 어휘 — 방향어 대신 명명된 컨테이너
+## 3. 화면 지목 어휘 — 방향어는 단독으로 쓰지 않는다
 
-> *"Don't use directional language to orient the reader"* / *"Add context to help the user find the element."*
-> — developers.google.com/style/ui-elements
+**금지 대상은 방향어가 아니라 "방향어만" 이다.** 확정 정본은 `docs/howto/ui-anchoring.md` 다.
 
-`위쪽` · `아래` · `오른편` 은 화면 크기와 레이아웃에 따라 달라진다. **이름 있는 영역**을 쓴다.
+> *"Don't use directional terms as the only clue to location."*
+> — learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities (조회 2026-09-09)
+
+> *"It's OK to use a directional term if another indication of location, such as in the Save As
+> dialog box, on the Standard toolbar, or in the title bar, is also included."*
+> — learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/u/upper-left-upper-right (조회 2026-09-09)
+
+Google 은 더 강하게 적었고 **완화 조건을 명시하지 않았다** — 그러므로 "이름과 함께면 된다" 의
+근거로 Google 을 인용하지 마라.
+
+> *"Don't use directional language to orient the reader, such as above, below, or right-hand side.
+> … If a UI element is hard to find, provide a screenshot."*
+> — developers.google.com/style/ui-elements (조회 2026-09-09)
+
+`위쪽` · `아래` · `오른편` 은 화면 크기와 레이아웃에 따라 달라진다. **이름 있는 영역**을 1 순위로
+쓰고, 방향어는 그것을 보조한다.
 
 실제 지원 문서가 쓰는 지목 어휘:
 
