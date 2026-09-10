@@ -32,7 +32,7 @@
       "prompt": "flutter-animation이라는 새 스킬 만들어줘",
       "expected_output": "skill-design-guide 기반 SKILL.md + 폴더 스캐폴딩",
       "assertions": [
-        {"text": "skill-design-guide.md를 먼저 읽고 9가지 아키타입 중 적합한 것을 선택한다", "type": "behavior"},
+        {"text": "skill-design-guide.md를 먼저 읽고 아키타입 카탈로그에서 적합한 것을 선택한다", "type": "behavior"},
         {"text": "SKILL.md frontmatter에 name, description, argument-hint, user-invocable가 포함된다", "type": "output"},
         {"text": "description에 트리거 키워드와 negative trigger(비트리거 조건)가 포함된다", "type": "output"},
         {"text": "Gotchas 섹션이 최소 1개 이상 포함된다", "type": "output"},
@@ -45,7 +45,7 @@
       "prompt": "performance-analyzer 에이전트 만들어줘",
       "expected_output": "agent-design-guide 기반 에이전트 .md 파일 스캐폴딩",
       "assertions": [
-        {"text": "agent-design-guide.md를 먼저 읽고 6가지 디자인 패턴 중 적합한 것을 선택한다", "type": "behavior"},
+        {"text": "agent-design-guide.md를 먼저 읽고 디자인 패턴 카탈로그에서 적합한 것을 선택한다", "type": "behavior"},
         {"text": "스킬로 충분한 작업인지 먼저 판단하고, 에이전트가 필요한 이유를 확인한다", "type": "behavior"},
         {"text": "frontmatter에 tools와 model 필드가 명시적으로 포함된다", "type": "output"},
         {"text": "description에 트리거 키워드와 negative trigger가 포함된다", "type": "output"},

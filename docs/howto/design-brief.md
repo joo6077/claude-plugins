@@ -42,7 +42,7 @@ SKILL.md:131  "문서에 있는 상위 섹션명까지만 확정하고,
 
 **그 전제 자체가 틀렸다.** 2026-09-07 실측:
 
-- Firebase 공식 문서에 콘솔 딥링크가 그대로 박혀 있다 — `console.firebase.google.com/project/_/settings/general/…` (`_` 는 프로젝트 id 자리) [firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken.md]
+- Firebase 공식 문서에 콘솔 딥링크가 그대로 박혀 있다 — `console.firebase.google.com/project/_/settings/general/…` [firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken.md]. **`_` 가 프로젝트 id 자리라는 설명 문장은 확보하지 못했다** — `[미확인]`, `howto-kit/references/provenance-notes.md` §5
 - 필드명까지 적는다 — *"Enter your app's package name in the **Android package name** field."* [firebase.google.com/docs/android/setup]
 - 안 보일 때의 분기까지 적는다 — *"If you don't see a Campaigns tab or add button…"* [developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links], *"Organizations that you are a member of will not appear if the organization has blocked…"* [docs.github.com/…/managing-your-personal-access-tokens]
 
@@ -94,11 +94,11 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 불변도 낮음  아이콘 · 배치(좌/우/상단)
 ```
 
-실측된 딥링크 관행:
+실측된 딥링크 관행 (**확정 정본은 `docs/howto/deep-links.md`** — 2026-09-09 사이클에서 7 벤더 8 인용으로 확정했고 AWS·Azure 가 추가됐다):
 
 | 서비스 | 공식 문서에 등장하는 형태 | 출처 |
 | --- | --- | --- |
-| Firebase | `console.firebase.google.com/project/_/settings/general/…` (`_` = 프로젝트 자리) | firebase-admin.auth.decodedidtoken.md |
+| Firebase | `console.firebase.google.com/project/_/settings/general/…` (`_` 의 의미는 `[미확인]`) | firebase-admin.auth.decodedidtoken.md |
 | Apple | *"replace `[Team ID]` in the following URL with your Team ID: `https://appstoreconnect.apple.com/teams/[Team ID]/access/ci/…`"* | developer.apple.com/documentation/xcode/understanding-infrastructure-validation-builds |
 | Stripe | `dashboard.stripe.com/test/apikeys` — *"MODE: Use `test` for sandboxes … or omit a value for live mode"* | docs.stripe.com/keys, docs.stripe.com/stripe-apps/deep-links |
 | GitHub | `github.com/settings/personal-access-tokens/new` | docs.github.com/…/managing-your-personal-access-tokens |
@@ -388,7 +388,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 3. **UI 필드의 placeholder 텍스트 문서화 규정**을 지정 출처 범위에서 확인하지 못했다. Google 의 placeholder 규정은 CLI command 쪽에서만 확인됐다.
 4. **Google Cloud 정책 문서 안에서 `not recommended`/`sunset`/`removed` 를 각각 별도 공식 용어로 정의한 문장**과 Apple 의 동등한 정의를 확인하지 못했다. 3 단계 구분은 AWS·Amazon SP-API 근거로 세웠다.
 5. **권한 관련 Microsoft Learn 인용 2 건은 이 브리프에서 제외했다.** 리서치가 돌려준 URL 에 `%20` 이 경로 안에 섞여 있어 링크가 깨졌을 가능성이 있다 (*"If you're missing permissions, the resource group is greyed out"*, *"If you don't see the option to grant permission, ask an admin…"*). 재확인 후 P6 근거로 추가할 것. 지금 P6 는 Apple·Atlassian·GitHub 3 건으로만 서 있다.
-6. **RSS/변경 로그 피드 URL 실측을 완료하지 못했다.** 최신성 축의 "무엇을 폴링할 것인가"는 미결이다.
+6. ~~**RSS/변경 로그 피드 URL 실측을 완료하지 못했다.**~~ **2026-09-09 해소 (부분).** 5 건을 루트 엘리먼트 실측으로 확정했고 3 건(Firebase · Stripe · Azure updates)이 확인 실패로 남았다. 정본은 `docs/howto/changelog-feeds.md`, 미확인 원장은 `howto-kit/references/provenance-notes.md` §3.
 7. **후보 이름의 marketplace/GitHub/npm 충돌 검사**를 하지 않았다.
 8. **로그인 뒤 화면을 Playwright MCP 로 스냅샷하는 경로**(사용자 동의 + 이미 로그인된 브라우저 프로필)는 아이디어 단계다. 실증하지 않았다. 등급 사다리의 최상단 후보로만 적어 둔다.
 

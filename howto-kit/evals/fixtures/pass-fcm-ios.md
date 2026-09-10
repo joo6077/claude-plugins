@@ -13,7 +13,7 @@
 
 ## S1. Firebase 프로젝트의 Cloud Messaging 설정을 연다
 
-- 어디서: `console.firebase.google.com/project/_/settings/cloudmessaging` (`_` 는 프로젝트 id 자리)
+- 어디서: `console.firebase.google.com/project/_/settings/cloudmessaging`
 - 무엇을: Cloud Messaging (탭)
 - 동작: 열기
 - 값: 입력 없음
