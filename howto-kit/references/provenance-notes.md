@@ -219,6 +219,31 @@ https://cloud.google.com/terms
 
 ---
 
+## 9. 절차 표준 — 2 건 `[미확인]`
+
+**영향받는 규칙**: `step-contract.md` 의 골격 근거, `verify` 필수 규칙의 성격.
+확정분은 `docs/howto/procedure-standards.md` 가 정본이다.
+
+| 항목 | 상태 | 킷의 처리 |
+| --- | --- | --- |
+| **ISO/IEC/IEEE 26514 · 26515 의 절차 작성 세부 조항** | **확인 실패** | ISO 를 근거로 인용하지 않는다. 유료 전문의 내용을 2 차 요약으로 추정해 쓰지 않는다 |
+| 스타일 가이드의 **매 스텝 verification 규정** | **확인 실패** | `verify` 필수는 **표준 인용이 아니라 도메인 실패 데이터에 근거한 강화**로 표기한다 |
+
+시도했으나 확인하지 못한 URL:
+
+```text
+https://www.iso.org/standard/77451.html                                                  (5.5KB 스텁만 응답)
+https://www.iso.org/standard/70880.html                                                  (같음)
+https://www.iso.org/obp/ui?_escaped_fragment_=iso:std:iso-iec-ieee:26514:ed-1:v1:en
+https://developers.google.com/style/procedures                                           (verification 규정 없음)
+https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions
+```
+
+**주의**: `iso.org` 는 이 환경에서 5.5KB 스텁만 응답한다 — **접근 차단이지 부재가 아니다.**
+다른 네트워크에서는 공개 Scope 를 볼 수 있다.
+
+---
+
 ## 이 원장을 쓰는 법
 
 - 킷의 다른 파일이 위 항목을 언급할 때는 **이 파일을 가리키고** 등급을 함께 적는다.
