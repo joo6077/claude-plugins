@@ -192,6 +192,33 @@ site:learn.microsoft.com/en-us/style-guide "procedure" "If" "version"
 
 ---
 
+## 8. Apple 의 일반 deprecation 정책 — `[미확인]`
+
+**영향받는 규칙**: `source-tiers.md` 의 deprecation 3 단계 근거 목록.
+확정분은 `docs/howto/deprecation-policy.md` 가 정본이다.
+
+| 항목 | 상태 | 근거 |
+| --- | --- | --- |
+| Apple 의 **일반 lifecycle 정책** — AWS·SP-API·Google Cloud 처럼 단계를 정의한 문서 | **확인 실패** | 아래 시도 URL 참조 |
+| Apple 이 **개별 API·기능 종료 공지**는 제공한다 | 확인됨 2026-09-10 | developer.apple.com/support/deprecated-sirikit-intent-domains |
+| Google Cloud 가 `not recommended` 를 **별도 공식 용어로 정의**한 문장 | **확인 실패** | cloud.google.com/products 의 출시 단계 목록에 해당 항목 없음 |
+
+시도했으나 일반 정책 문서를 얻지 못한 URL:
+
+```text
+https://developer.apple.com/support/deprecated-sirikit-intent-domains
+https://developer.apple.com/help/app-store-connect/reference/app-uploads/on-demand-resources-size-limits/
+https://developer.apple.com/documentation/devicemanagement/service-configuration
+https://cloud.google.com/products
+https://cloud.google.com/terms
+```
+
+**킷의 처리**: Apple 을 단계 정의의 근거로 인용하지 않는다. Apple 절차에서 deprecation 을 말해야
+하면 **그 기능의 개별 공지 페이지**를 출처로 단다. `not recommended` 는 Google Cloud 의 공식
+단계가 아니므로, 그 표현을 단계로 취급하지 않는다.
+
+---
+
 ## 이 원장을 쓰는 법
 
 - 킷의 다른 파일이 위 항목을 언급할 때는 **이 파일을 가리키고** 등급을 함께 적는다.

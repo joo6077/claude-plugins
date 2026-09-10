@@ -106,6 +106,39 @@
         "GATE_BLOCKED no_such_file="
       ],
       "note": "없는 파일에서 셸이 죽지 않고 BLOCKED 를 낸다. rc 는 0 이어야 상위 루프가 이어진다."
+    },
+    {
+      "id": "E10-g4-korean-delete-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-korean-delete-unsourced.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "Google Cloud 한국어 문서가 removed 를 '삭제' 로 옮긴다. 토큰 추가 전에는 근거 없는 '삭제 예정' 주장이 그대로 통과했다 (false negative)."
+    },
+    {
+      "id": "E11-g4-korean-delete-sourced",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-korean-delete-sourced.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "같은 주장에 출처가 붙으면 통과해야 한다."
+    },
+    {
+      "id": "E12-g4-delete-action-not-deprecation",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-delete-action-not-deprecation.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "오탐 대조. '계정을 삭제한다' 는 정상 액션이지 deprecation 주장이 아니다. 토큰을 '삭제' 단독으로 넓히면 이 케이스가 unsourced_claims=2 로 깨진다."
     }
   ]
 }
