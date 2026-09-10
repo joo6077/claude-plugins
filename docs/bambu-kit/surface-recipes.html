@@ -290,6 +290,20 @@
       </div>
       <a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp">PrintConfig.cpp:277-282</a>
     </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">2.7</span>
+        <div>
+          <div class="phase-tag">형상 클래스 — planar vs thin (2026-09-08 신규)</div>
+          <h3>측정으로 판정 · thin 은 속도 하향 없음</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        3mf 메시를 높이 25/50/75 % 에서 절단해 루프 둘레 <code>&lt; 30 mm</code> 비율의 중앙값이 <code>&gt;= 0.5</code> 면 <code>thin</code>, 아니면 <code>planar</code>. 결과는 process JSON 에 <code>_geometry_class</code> · <code>_thin_loop_share</code> 로 기록하고 Phase 4.3 게이트가 읽는다. <strong><code>thin</code> 은 §3 속도 하향을 적용하지 않는다</strong> — 얇은 단면의 병목은 유량이 아니라 열 방출 시간이라 느릴수록 나빠진다 (2026-09-07 래티스 실측: 층시간 8.6~14.6 s 가 ABS <code>slow_down_layer_time 12</code> 를 가로지름, 스트럿 미지지율 10~24 % 가 <code>overhang_fan_threshold 25%</code> 에 미달). 냉각은 사용자 확인 후 filament 스코프 <code>overhang_fan_threshold 10%</code> 1 키만. 같은 3mf 안에서 Side Container <code>thin</code>(루프 전부 &lt; 30 mm) / Funnel <code>planar</code>(루프 2 개)로 갈렸다.
+      </div>
+      <a class="card-source" href="#" onclick="return false">실측 2026-09-07 — ams-2-pro-lattice-dry-pods notes.md §1.2.2 · 워크플로우 25 에이전트 진단</a>
+    </div>
   </div>
 </div>
 
@@ -298,6 +312,10 @@
   <div class="section-label">Section 3 — 외벽 표면 권장값 (공통 + 소재별)</div>
   <p class="desc">H2S 0.4 hardened nozzle 기준. 모든 단위 명시. 공통 baseline은 fdm_process_common.json + H2S profile 변수. PA · flow ratio 캘리브레이션 전제.</p>
 
+  <div class="callout">
+    <strong>형상 클래스가 <code>thin</code> 이면 아래 표의 속도 행을 적용하지 않는다</strong> — §2.7. <code>outer_wall_speed</code> · 인접 4 키 · <code>top_surface_speed</code> 는 부모 실효값을 그대로 두고 냉각으로 보상한다. 이 표는 <code>_geometry_class</code> <code>planar</code> 전용이다.
+  </div>
+
   <h3 style="margin-bottom:14px">3.1. 공통 process 기본값</h3>
   <div class="table-wrap">
     <table>
@@ -305,12 +323,12 @@
       <tbody>
         <tr><td><code>layer_height</code></td><td><strong><code>0.12</code> mm 1 차 권장 (전 형상)</strong> · 회전체/유기적에서 계단이 핵심이고 시간을 감수할 때만 <code>0.08-0.12</code> · 큰 평면 <code>0.12-0.16</code></td><td>H2S 0.20 Standard</td><td><code>0.12</code>: 0.12mm High Quality @BBL H2S.json (공식 체인 실재). <strong><code>0.08</code> 은 공식 근거가 아니다</strong> — <code>min_layer_height 0.07</code> 하한 위라는 것만 확인, H2S 공식 0.08 process 프로파일 근거는 <code>[미확인]</code> (Fields Baseline §10.1)</td></tr>
         <tr><td><code>wall_loops</code></td><td><code>3</code> (표면 우선) ~ <code>4</code> (강도 + 표면)</td><td><code>2</code></td><td>fdm_process_common.json</td></tr>
-        <tr><td><code>outer_wall_speed</code></td><td>PLA/PETG <code>20-40</code> · Silk <code>15-25</code> · PA/PC/ABS <code>20-30</code> · TPU <code>10-20</code> mm/s</td><td>H2S 0.12 HQ <code>60</code></td><td>0.12mm High Quality @BBL H2S.json</td></tr>
+        <tr><td><code>outer_wall_speed</code></td><td><strong>소재별 매트릭스(3.2)가 정본.</strong> PLA <code>25-40</code> · Silk <code>15-25</code> · <strong>PETG <code>50-70</code></strong> · PA/PC <code>20-30</code> · ABS/ASA <code>25-35</code> · TPU <code>10-20</code> mm/s. <code>planar</code> 한정 (§2.7)</td><td>H2S 0.12 HQ <code>60</code></td><td>0.12mm High Quality @BBL H2S.json. ⚠️ PETG 를 PLA 와 같은 저속 그룹에 묶지 마라</td></tr>
         <tr><td><code>inner_wall_speed</code></td><td>outer의 <code>2-3배</code> 이하 (예: 30 → 60-90)</td><td>H2S 0.12 HQ <code>90</code></td><td>동일</td></tr>
         <tr><td><code>wall_sequence</code></td><td><code>inner-outer-inner wall</code> 기본 · sharp box 치수만 <code>inner / outer</code></td><td><code>inner / outer</code></td><td>fdm_process_common.json:58</td></tr>
         <tr><td><code>reduce_crossing_wall</code></td><td><code>1</code></td><td><code>0</code></td><td>fdm_process_common.json:100</td></tr>
         <tr><td><code>enable_arc_fitting</code></td><td><code>1</code> (<strong>기본값 유지 — 표면 품질 카드가 아니다</strong>)</td><td><code>1</code></td><td>fdm_process_common.json:29. ⚠️ 품질 개선 기능이 아니라 <strong>G-code encoding 변경</strong>(직선 세그먼트 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 해결책으로 제시하지 마라 — <a href="failure-recipes.html" style="color:var(--accent)">Failure Recipes §2.2</a></td></tr>
-        <tr><td><code>resolution</code></td><td><code>0.006-0.010</code> mm</td><td><code>0.012</code></td><td>fdm_process_common.json:103. ⚠️ <strong>XY 세그먼트 해상도 전용</strong> — Z 계단의 주 해결책이 아니다 (<a href="failure-recipes.html" style="color:var(--accent)">Failure Recipes §2.2</a>)</td></tr>
+        <tr><td><code>resolution</code></td><td><strong>기본값 <code>0.012</code> 유지</strong> — 2026-09-05 실측(opus-xero)에서 <code>0.008</code> 은 이득 근거가 없어 철회</td><td><code>0.012</code></td><td>fdm_process_common.json:103. ⚠️ <strong>XY 세그먼트 해상도 전용</strong> — Z 계단의 주 해결책이 아니다 (<a href="failure-recipes.html" style="color:var(--accent)">Failure Recipes §2.2</a>)</td></tr>
         <tr><td>flow ratio</td><td>소재/색상별 calibration 후 (PLA Basic 기본 <code>0.98</code>)</td><td>동일</td><td>Bambu PLA Basic @BBL H2S.json</td></tr>
         <tr><td>Pressure Advance</td><td>소재/노즐/건조 후 PA profile 저장 필수</td><td>—</td><td>Bambu 공식 calibration 가이드</td></tr>
       </tbody>
@@ -325,7 +343,7 @@
         <tr><td><strong>PLA Basic</strong></td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>가장 예측 가능. ironing 적극.</td></tr>
         <tr><td><strong>PLA Matte</strong></td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>layer line 가장 잘 숨음. 표면 매끈 최강.</td></tr>
         <tr><td><strong>PLA Silk</strong></td><td><code>15-25</code></td><td><code>0.10-0.12</code></td><td>광택 보존 위해 더 느림. ironing은 topmost만 (광택 죽음 주의).</td></tr>
-        <tr><td><strong>PETG HF</strong></td><td><code>20-35</code></td><td><code>0.12</code></td><td><strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>. fan 20-50%.</td></tr>
+        <tr><td><strong>PETG HF</strong></td><td><code>50-70</code></td><td><code>0.12</code></td><td><strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>. fan 20-50%. ⚠️ PETG 는 저속에서 ooze 가 누적된다 — 2026-08-13 superlube 실측에서 outer <code>30</code> 이 표면을 망쳤고 <code>50</code> 으로 올려 해결됐다.</td></tr>
         <tr><td><strong>PA-CF / PAHT-CF</strong></td><td><code>20-30</code></td><td><code>0.12</code></td><td>fiber 질감으로 완전 매끈 한계. AMS HT 80°C 8h + hardened nozzle 필수.</td></tr>
         <tr><td><strong>PC</strong></td><td><code>20-30</code></td><td><code>0.12</code></td><td>건조 필수 (chamber 60°C). ooze 많으면 외벽 first wipe.</td></tr>
         <tr><td><strong>ABS / ASA</strong></td><td><code>25-35</code></td><td><code>0.12</code></td><td>enclosure + brim. vapor smoothing 후가공 가능.</td></tr>

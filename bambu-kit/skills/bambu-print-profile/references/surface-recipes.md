@@ -1,6 +1,6 @@
 # Surface-first 레시피 (Bambu Studio H2S)
 
-> Last updated: 2026-05-16
+> Last updated: 2026-09-08 (§2.7 형상 클래스 축 신설 · 최초 2026-05-16)
 > Source: Codex research run `a25261e23b21252b2` (score 24/25)
 > Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
 >   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
@@ -90,6 +90,51 @@ default" 라는 원칙은 유지된다 — 그 원칙을 만족하는 최선이 
 - 다른 설정(seam_position, scarf, ironing)은 무의미 — 슬라이서가 normalize에서 무시
 - 단점: 강도 ↓ (외벽 1겹), top 없음 (밀폐 불가), 멀티컬러 불가
 
+### 2.7. 형상 클래스 — `planar` vs `thin` (2026-09-08 신규)
+
+§3 의 속도표는 소재 축만 갖는다. 2026-09-07 래티스 통(ABS · `0.12mm High Quality @BBL H2S`) 실측에서
+같은 surface-first 값이 큰 평면(Funnel)과 스트럿 단면(Side Container)에 똑같이 들어갔고, 결함 원인은
+flow · PA · Z · 워핑 · 습기가 아니라 **속도값과 냉각 문턱**이었다. 얇은 단면의 병목은 유량이 아니라
+**열 방출 시간**이라 느릴수록 나빠진다. 그래서 형상 축을 §2.4 "얇은 벽 / 미세 디테일" 분기에
+**측정으로** 붙인다 — 키워드 추측이 아니라 단면 루프 둘레로 판정한다.
+
+| 클래스 | 판정 | 속도 정책 | 냉각 정책 |
+|---|---|---|---|
+| `planar` | 루프 둘레 `30` mm 미만 비율의 3 높이 중앙값 `< 0.5` | §3 표 적용 (소재별 하향 + 유량비 게이트) | base 위임 (변경 없음) |
+| `thin` | 같은 비율 `>= 0.5` | **§3 속도 하향을 적용하지 않는다.** `outer_wall_speed` · 인접 4 키 · `top_surface_speed` 를 process JSON 에 쓰지 않고 부모 실효값을 그대로 둔다 | 사용자 확인 후 filament 스코프 `overhang_fan_threshold` 1 키만 (`SKILL.md` §filament 튜닝 정책 예외) |
+
+**측정** — `SKILL.md` Phase 1.0 의 geometry-class probe 블록이 3mf 메시를 빌드 좌표에서 높이 25 / 50 / 75 %
+로 절단해 오브젝트별 루프 수 · 둘레 · `< 30 mm` 비율 · `_geometry_class` 를 출력한다. 결과는 process JSON 에
+`_geometry_class` (`planar` | `thin`) 와 `_thin_loop_share` 로 기록하고 Phase 4.3 게이트가 이를 읽는다.
+`_` 접두 키는 Bambu Studio 가 import 시 거부하지 않고 버린다 (실측: user preset
+`AMS 2 Pro Dry Pods FUNNEL - ABS 0.12mm.json` 에 `_scarf_loop_circumference_mm` 0 건, import 성공).
+
+**임계 근거** — `30` mm 는 `seam-recipes.md` §2.2 의 scarf off 임계와 같은 값이다. 그 아래에서는 램프가
+루프를 지배한다는 실측(둘레 32 mm 루프에 8 mm 램프로 세로 파임, 2026-09-05)과, 래티스 스트럿 단면 둘레가
+`5.3~20.6` mm 에 몰린다는 실측(2026-09-07)이 같은 경계를 가리킨다. 비율 `0.5` 는 "레이어의 절반 이상이
+스트럿 단면" 이면 그 레이어의 열 거동을 스트럿이 결정한다는 뜻이다.
+
+2026-09-07 실측 분류 — 같은 3mf 안에서 두 클래스가 갈린다:
+
+| 오브젝트 | 루프 (25 / 50 / 75 %) | `< 30 mm` 비율 중앙값 | 최대 둘레 | 클래스 |
+|---|---|---|---|---|
+| Side Container LHS V1 | 52 / 25 / 20 | `1.00` | 20.6 mm | `thin` |
+| Center Container Round Temp V2.1 | 29 / 26 / 30 | `0.97` | 391.2 mm | `thin` |
+| Rear Container V2 | 4 / 42 / 55 | `0.95` | 338.7 mm | `thin` |
+| Funnel V1 | 2 / 2 / 2 | `0.00` | 175.5 mm | `planar` |
+| Small Lid V1 | 1 / 2 / 2 | `0.00` | 81.9 mm | `planar` |
+
+**왜 `thin` 에서 속도를 낮추지 않는가** — 같은 실측에서 층시간이 `8.6~14.6 s` 로 ABS 실효
+`slow_down_layer_time 12` 를 주기적으로 가로질렀고, 사선 스트럿 미지지율(20° = 10.4 % / 40° = 24.0 %)이
+ABS 실효 `overhang_fan_threshold 25%` 에 걸리지 않아 `overhang_fan_speed 100` 이 발동하지 못했다. 외벽을
+`60 → 30` 으로 내린 것은 체류 시간을 늘려 이 둘을 악화시켰다. `user-preferences.md` §2 "속도를 낮추는 것이
+품질에 기여한다는 근거가 그 소재·형상에 있을 때만 낮춘다" 의 실제 사례다.
+
+`thin` 에서 유량비 게이트는 부모 실효값으로 계산한다 — `0.12mm High Quality @BBL H2S` 는
+`gap_infill_speed 230` 대 `outer_wall_speed 60` 으로 `3.8x` 경고 구간이며, 이 경고는 정보 보고이지 외벽 하향
+사유가 아니다. 인접 키를 외벽 쪽으로 낮추는 것은 허용하지만 외벽을 내리지는 않는다. 냉각 보상 키의
+이름 · 스코프 · 실효값 정본은 `bambu-fields-baseline.md` §10.5 다.
+
 ## 3. 외벽 표면 권장값 (공통)
 
 H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
@@ -100,6 +145,10 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 
 ⚠️ **단일 값이 아니라 유량비로 판정한다.** outer 만 낮추는 것은 surface-first 가 아니다.
 인접 feature 의 `Q` 비율이 `3x` 이하인지 확인하라 (`SKILL.md` §유량비 게이트).
+
+⚠️ **형상 클래스가 `thin` 이면 아래 표의 속도 행(`outer_wall_speed` · `inner_wall_speed` · `internal_solid_infill_speed`
+· `sparse_infill_speed` · `gap_infill_speed`)과 §4 의 `top_surface_speed` 를 적용하지 않는다** — §2.7. 부모 실효값을
+그대로 두고 냉각으로 보상한다. 이 표는 `planar` 전용이다.
 
 | 항목 | Surface-first 값 | 기본 baseline | 근거 |
 |----|----|----|----|
@@ -214,6 +263,7 @@ surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사�
 - **PETG / PC / ABS**: 열 축적 → warping, 광택 불균일, stringing 누적 시간 ↑
 - 외벽 50mm/s 미만에서 chamber 온도 관리 필수 (특히 ABS/ASA enclosure)
 - 0.04mm 같은 극단적 fine layer는 nozzle ooze 누적 → blob 위험 ↑
+- **얇은 단면(`_geometry_class: thin`)**: 느릴수록 열 방출 시간이 늘어 스트럿이 뭉개진다 — §2.7. 속도 무시 정책은 `planar` 에만 적용한다
 
 ## 7. 매끈 표면 TOP 3 소재 (Codex 권장)
 

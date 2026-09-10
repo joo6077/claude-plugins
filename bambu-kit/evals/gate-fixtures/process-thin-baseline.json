@@ -1,0 +1,26 @@
+{
+  "type": "process",
+  "name": "gate-fixture thin class at parent baseline speed",
+  "print_settings_id": "gate-fixture thin class at parent baseline speed",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_geometry_class": "thin",
+  "_thin_loop_share": "1.00",
+  "layer_height": "0.12",
+  "wall_loops": "2",
+  "reduce_crossing_wall": "1",
+  "ironing_type": "no ironing",
+  "seam_position": "aligned",
+  "brim_type": "outer_only",
+  "brim_width": "8",
+  "brim_object_gap": "0",
+  "elefant_foot_compensation": "0.15",
+  "xy_hole_compensation": "0",
+  "xy_contour_compensation": "0",
+  "raft_layers": "0",
+  "enable_support": "0"
+}

@@ -242,6 +242,7 @@
 - 외벽 매끈함 공통값: `layer_height` **`0.12` 1 차 권장**, `wall_loops 3-4`, `wall_sequence inner-outer-inner` (⚠️ `wall_loops >= 3` 전제), `reduce_crossing_wall 1`.
   **속도는 단일 값이 아니라 유량비로 결정한다** — `surface-recipes.md` §3 표가 정본이고 `SKILL.md` §유량비 게이트가 임계를 갖는다. 여기에 수치를 복제하지 마라.
   ⚠️ `resolution` 하향과 `enable_arc_fitting` 끄기는 **공통값이 아니다** — 2026-09-05 실측에서 이득 근거 없음으로 철회됐다 (`surface-recipes.md` §3).
+- **형상 클래스 축 (2026-09-08)**: `_geometry_class` `planar` | `thin`. `thin` 은 속도 하향 없음 + 확인 후 filament 냉각 키 1 종. 정책은 `surface-recipes.md` §2.7, 키 정본은 §10.5.
 
 ## 9. 미해결 / 검증 필요
 
@@ -312,6 +313,29 @@
 | `bed_temperature_initial_layer` | **obsolete ignored key** | §10.3 plate-specific 키 |
 | `bed_temperature` | 같은 규칙의 대상. obsolete 여부 자체는 근거상 `bed_temperature_initial_layer` 만 확인됨 → 게이트 금지 목록으로만 취급 `[미확인]` | §10.3 plate-specific 키 |
 | `elephant_foot_compensation` | Bambu 의도적 오타 미반영 — silent skip | `elefant_foot_compensation` (`tolerance.md`) |
+
+### 10.5. 냉각 보상 키 — filament 스코프 (2026-09-08 v4 확장)
+
+> 정책은 `surface-recipes.md` §2.7 이 갖는다. 이 표는 키 이름 · 스코프 · 실효값의 정본이다.
+
+⚠️ **스코프를 먼저 확인하라.** 아래 키는 전부 **filament** 프로파일의 키다. process JSON 에 넣으면 에러 없이
+무시된다. 실측(앱 `02.08.02.61` · 번들 `02.08.00.06`, `/Applications/BambuStudio.app/Contents/Resources/profiles/BBL`
+과 `~/Library/Application Support/BambuStudio/system/BBL` 이 동일): process 0 건 / filament 다수. Phase 4.3
+게이트가 설치본에서 스코프를 도출해 파일 `type` 과 대조한다 — 손으로 유지하는 목록이 아니다. 근거는 시스템
+프로파일 + Bambu 가 직접 저장한 user preset 두 곳이다 (`brim_type` 처럼 시스템 프로파일이 설정하지 않는 키는
+user preset 에서만 잡힌다). 두 곳 어디에도 없는 키는 FAIL 이 아니라 `[미검증]` 이다.
+
+| 키 | 스코프 (process / filament 실측 파일 수) | 단위 | H2S 소재 실효값 | 출처 |
+|----|-------------|------|-----------------|------|
+| `overhang_fan_threshold` | filament (0 / 146) | `%` 미지지 비율 문턱 | ABS `25%` · ABS-GF `10%` · PETG HF `10%` · PLA Basic `50%` | `Bambu <소재> @BBL H2S.json` 체인 실측 |
+| `overhang_fan_speed` | filament (0 / 165) | `%` | ABS `100` · ABS-GF `30` · PETG HF `100` · PLA Basic `100` | 동일 |
+| `fan_cooling_layer_time` | filament (0 / 364) | `s` | ABS `30` · ABS-GF `12` · PETG HF `20` · PLA Basic `100` | 동일 |
+| `slow_down_layer_time` | filament (0 / 553) | `s` | ABS `12` · ABS-GF `4` · PETG HF `10` · PLA Basic `4` | 동일 |
+| `slow_down_min_speed` | filament (0 / 1218) | `mm/s` | 전 소재 `20` | 동일 |
+| `_geometry_class` · `_thin_loop_share` | 킷 전용 주석 키 (0 / 0) | `planar` \| `thin` · 비율 | — | Bambu 는 import 시 버린다. Phase 4.3 게이트만 읽는다 |
+
+`thin` 클래스의 자동 결정 대상은 `overhang_fan_threshold` 1 키뿐이고 그것도 사용자 확인 후다
+(`user-preferences.md` §1). 나머지는 키 사전으로만 둔다 — 값을 자동으로 정하지 않는다.
 
 출처 (§10 전체):
 

@@ -34,7 +34,7 @@ bambu-kit/skills/bambu-print-profile/
     ├── bambu-fields-baseline.md      # Bambu Studio JSON schema (필수 필드, 키 이름) + §8 Surface 필드 19종
     ├── materials.md                  # 40+ 필라멘트 카탈로그 + 용도 매핑
     ├── seam-recipes.md               # 형상×소재 scarf 매트릭스 + Real-world findings + §0 Surface-first 회전체 default v2
-    ├── surface-recipes.md            # Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프) — 사전 정책
+    ├── surface-recipes.md            # Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프 + §2.7 형상 클래스 planar/thin) — 사전 정책
     ├── failure-recipes.md            # 2026-08-13 신규 — 실측 실패 3종(L1 곡면 계단 / L2 스트링잉 / L3 바닥 박리) 사후 레시피 + 금지 키 사유 정본
     ├── comment-analysis.md           # v0.4.0 신규 — 댓글 4 카테고리 추출 매뉴얼 + 한/영/중 키워드 사전 + Designer Constraint Override Rule
     ├── tolerance.md                   # v0.4.2 신규 — 공차 보정 키 (elefant_foot/xy_hole/xy_contour) + 소재별 수축률 + fit-critical 결정 트리 + calibration coupon
@@ -102,6 +102,161 @@ assert n>0, "FAIL: 메시 0개 파싱 — 빈 결과는 PASS 아님"
 print("meshes parsed:",n)
 PY
 ```
+
+**형상 클래스 측정 (2026-09-08 신규 · surface-first 이면 필수 — `surface-recipes.md` §2.7):**
+
+surface-first 의 속도 정책은 형상 클래스(`planar` | `thin`)를 입력으로 받는다. 키워드로 추측하지 말고
+아래로 **측정**한다. 오브젝트명 부분일치 인자를 주면 그 오브젝트만, 없으면 build 의 전부를 판정한다.
+출력의 `_geometry_class` 와 `thin_share_median` 을 process JSON 에 `_geometry_class` · `_thin_loop_share`
+로 기록한다 — Phase 4.3 게이트가 읽고, `outer_wall_speed` 를 명시한 JSON 에 이 키가 없으면 FAIL 한다.
+
+```bash
+python3 - "<model.3mf>" "<오브젝트명 부분일치>" <<'PY'
+# bambu-kit geometry-class probe — 3mf 메시를 빌드 좌표에서 3 높이로 절단해 루프 둘레 분포로 형상 클래스를 정한다
+# usage: python3 - "<model.3mf>" ["<오브젝트명 부분일치>" ...]   (인자 없으면 build 의 모든 오브젝트)
+import sys, json, math, zipfile, xml.etree.ElementTree as ET
+from collections import defaultdict
+
+THIN_LOOP_MM = 30.0          # seam-recipes.md §2.2 와 같은 임계 — 이 둘레 아래에서는 스트럿 단면이 지배한다
+THIN_SHARE = 0.5             # 3 높이 중앙값이 이 이상이면 thin
+HEIGHT_FRACTIONS = (0.25, 0.5, 0.75)
+NS = {"c": "http://schemas.microsoft.com/3dmanufacturing/core/2015/02",
+      "p": "http://schemas.microsoft.com/3dmanufacturing/production/2015/06"}
+IDENTITY = (1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+
+def parse_matrix(text):
+    return tuple(float(cell) for cell in text.split()) if text else IDENTITY
+
+
+def transform(matrix, point):     # 3MF 행벡터 규약: [x y z 1] · M
+    x, y, z = point
+    return (x * matrix[0] + y * matrix[3] + z * matrix[6] + matrix[9],
+            x * matrix[1] + y * matrix[4] + z * matrix[7] + matrix[10],
+            x * matrix[2] + y * matrix[5] + z * matrix[8] + matrix[11])
+
+
+archive = zipfile.ZipFile(sys.argv[1])
+wanted = sys.argv[2:]
+docs = {}
+
+
+def document(path):
+    if path not in docs:
+        docs[path] = ET.fromstring(archive.read(path))
+    return docs[path]
+
+
+def find_object(path, object_id):
+    for obj in document(path).findall("./c:resources/c:object", NS):
+        if obj.get("id") == object_id:
+            return obj
+    sys.exit(f"FAIL: {path} 에 object id={object_id} 없음")
+
+
+def triangles(path, object_id, matrices):
+    """오브젝트를 mesh 까지 풀어 빌드 좌표의 삼각형 목록으로 만든다. 사슬은 안쪽 변환부터 적용한다."""
+    obj = find_object(path, object_id)
+    result = []
+    mesh = obj.find("c:mesh", NS)
+    if mesh is not None:
+        vertices = []
+        for vertex in mesh.findall("c:vertices/c:vertex", NS):
+            point = (float(vertex.get("x")), float(vertex.get("y")), float(vertex.get("z")))
+            for matrix in matrices:
+                point = transform(matrix, point)
+            vertices.append(point)
+        for tri in mesh.findall("c:triangles/c:triangle", NS):
+            result.append((vertices[int(tri.get("v1"))], vertices[int(tri.get("v2"))], vertices[int(tri.get("v3"))]))
+    for component in obj.findall("c:components/c:component", NS):
+        sub_path = component.get(f"{{{NS['p']}}}path")
+        sub_path = sub_path.lstrip("/") if sub_path else path
+        result += triangles(sub_path, component.get("objectid"), [parse_matrix(component.get("transform"))] + matrices)
+    return result
+
+
+def loop_lengths(tris, z):
+    """평면 z 로 자른 단면의 연결 성분별 둘레. 꼭짓점이 평면 위에 놓이는 퇴화를 피하려고 호출측이 z 를 살짝 띄운다."""
+    segments = []
+    for corner_a, corner_b, corner_c in tris:
+        crossings = []
+        for start, end in ((corner_a, corner_b), (corner_b, corner_c), (corner_c, corner_a)):
+            if (start[2] - z) * (end[2] - z) < 0:
+                ratio = (z - start[2]) / (end[2] - start[2])
+                crossings.append((start[0] + ratio * (end[0] - start[0]), start[1] + ratio * (end[1] - start[1])))
+        if len(crossings) == 2:
+            segments.append(crossings)
+    key = lambda pt: (round(pt[0], 3), round(pt[1], 3))
+    adjacency = defaultdict(list)
+    for index, (start, end) in enumerate(segments):
+        adjacency[key(start)].append(index)
+        adjacency[key(end)].append(index)
+    seen = [False] * len(segments)
+    lengths = []
+    for index in range(len(segments)):
+        if seen[index]:
+            continue
+        stack, seen[index], length = [index], True, 0.0
+        while stack:
+            current = stack.pop()
+            start, end = segments[current]
+            length += math.hypot(start[0] - end[0], start[1] - end[1])
+            for neighbour in adjacency[key(start)] + adjacency[key(end)]:
+                if not seen[neighbour]:
+                    seen[neighbour] = True
+                    stack.append(neighbour)
+        lengths.append(length)
+    return lengths
+
+
+names = {}
+if "Metadata/model_settings.config" in archive.namelist():
+    for obj in document("Metadata/model_settings.config").iter("object"):
+        for meta in obj.findall("metadata"):
+            if meta.get("key") == "name":
+                names[obj.get("id")] = meta.get("value")
+
+root_path = next((entry for entry in archive.namelist() if entry.lower() == "3d/3dmodel.model"), None)
+assert root_path, "FAIL: 3dmodel.model 없음"
+build = {}
+for item in document(root_path).findall("./c:build/c:item", NS):
+    build.setdefault(item.get("objectid"), parse_matrix(item.get("transform")))   # 같은 오브젝트의 인스턴스는 첫 배치로 대표한다
+
+reports = []
+for object_id, build_matrix in build.items():
+    name = names.get(object_id, f"object {object_id}")
+    if wanted and not any(needle in name for needle in wanted):
+        continue
+    tris = triangles(root_path, object_id, [build_matrix])
+    if not tris:
+        sys.exit(f"FAIL: {name} 삼각형 0 개 — 빈 결과는 PASS 아님")
+    z_values = [z for tri in tris for (_, _, z) in tri]
+    z_min, z_max = min(z_values), max(z_values)
+    shares, counts, thin_counts, max_loop = [], [], [], 0.0
+    for fraction in HEIGHT_FRACTIONS:
+        lengths = loop_lengths(tris, z_min + fraction * (z_max - z_min) + 1e-4)
+        if not lengths:
+            sys.exit(f"FAIL: {name} 높이 {fraction:.0%} 에서 루프 0 개 — 절단 실패")
+        thin = sum(1 for length in lengths if length < THIN_LOOP_MM)
+        counts.append(len(lengths)); thin_counts.append(thin); shares.append(thin / len(lengths))
+        max_loop = max(max_loop, max(lengths))
+    median_share = sorted(shares)[1]
+    reports.append({
+        "object": name, "id": object_id, "height_mm": round(z_max - z_min, 2),
+        "loops": counts, "loops_under_30mm": thin_counts, "thin_share": [round(share, 2) for share in shares],
+        "thin_share_median": round(median_share, 2), "max_loop_mm": round(max_loop, 2),
+        "_geometry_class": "thin" if median_share >= THIN_SHARE else "planar",
+    })
+
+assert reports, f"FAIL: 대상 오브젝트 0 개 — 인자 {wanted} 가 어느 이름에도 없음. 목록={sorted(set(names.values()))}"
+for report in reports:
+    print(json.dumps(report, ensure_ascii=False))
+PY
+```
+
+실측 (2026-09-07 래티스 통, 같은 3mf): `Side Container LHS V1` → loops 52/25/20 전부 < 30 mm → `thin`,
+`Funnel V1` → loops 2/2/2 → `planar`. 한 플레이트 = 한 process 이므로 클래스가 갈리면 process 를 나눈다.
+STL 입력은 이 절단을 아직 지원하지 않는다 — bbox 만으로 `thin` 을 단정하지 말고 사용자에게 단면 성격을 묻는다.
 
 임베드 프로파일은 JSON 이므로 그대로 파싱한다 (grep 금지):
 
@@ -710,7 +865,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ✅ `layer_height`, `initial_layer_print_height` (사용자 요구 반영)
 - ✅ `wall_loops`, `sparse_infill_density`, `top/bottom_shell_layers`, `wall_sequence` (모델 형상 기반)
 - ✅ `seam_position`, `seam_slope_*`, `scarf_angle_threshold`, `override_filament_scarf_seam_setting` (seam 전략)
-- ✅ `outer_wall_speed`, `inner_wall_speed` (소재별)
+- ✅ `outer_wall_speed`, `inner_wall_speed` (소재별 · **`_geometry_class` 가 `planar` 일 때만**. `thin` 이면 이 두 키와 인접 4 키 · `top_surface_speed` 를 쓰지 않고 부모 실효값을 둔다 — `surface-recipes.md` §2.7)
 - ✅ **유량 인접 속도 3 키 — 외벽을 낮췄으면 반드시 함께 낮춘다**: `internal_solid_infill_speed`, `sparse_infill_speed`, `gap_infill_speed`. 이 키를 빼놓고 외벽만 낮추면 유량 계단이 생긴다 (§유량비 게이트)
 - ✅ **가속 2 키 — 속도와 같이 설계한다**: `outer_wall_acceleration`, `default_acceleration`. 속도만 내리고 가속을 두면 짧은 세그먼트에서 명령 속도에 도달하지 못한 채 유량만 출렁인다
 - ✅ 멀티컬러: `enable_prime_tower`, `prime_tower_width/brim_width/flat_ironing`, `flush_into_*`
@@ -873,7 +1028,7 @@ ABS H2S 는 `20`/`35` mm^3/s (Standard / High Flow).
 - ✅ `filament_scarf_seam_type` (none/external/all)
 - ✅ `filament_scarf_height`, `filament_scarf_gap`, `filament_scarf_length`
 - ❌ **`nozzle_temperature`, `nozzle_temperature_initial_layer` 안 건드림** — 사용자가 .3mf의 creator 튜닝 값이나 base profile 기본값을 유지하길 원함 (사용자 명시 요청 2026-05-16). **L2 스트링잉이 감지돼도 온도를 자동 하향하지 마라** — stringing 은 줄 수 있으나 층간 접착/flow 부족을 만든다
-- ❌ fan/cooling 안 건드림 — base에 위임. L3 aux fan 조정은 **notes 안내까지만** (`failure-recipes.md` §3.2)
+- ❌ fan/cooling 안 건드림 — base에 위임. L3 aux fan 조정은 **notes 안내까지만** (`failure-recipes.md` §3.2). **예외 1 건**: `_geometry_class` 가 `thin` 이면 사용자 확인 후 filament 스코프 `overhang_fan_threshold` 를 `10%` 로 낮춘다 — 설치본 `Bambu ABS-GF @BBL H2S` · `Bambu PETG HF @BBL H2S` 실효값이라 임의값이 아니다. process 에 넣으면 무시된다 (`surface-recipes.md` §2.7 · `bambu-fields-baseline.md` §10.5)
 - ❌ retraction 기본 안 건드림 — base 에 위임. **단 아래 L2 게이트 예외 2 단계만 허용**
 - ⚠️ **override 하기 전에 소재 부모 프로파일을 실제로 조회한다.** filament 키의 기준값은 machine 기본이 아니라 **그 소재의 `@BBL H2S` 프로파일이 명시한 값**이다. 조회 절차는 §filament 부모값 조회 참조
 
@@ -934,6 +1089,17 @@ underlying default 열은 **소재 override 가 없을 때의 값**이므로 그
 
 상세 정책은 `references/surface-recipes.md` 참조. SKILL은 결정 트리 분기와 형상 enumerate만 인라인으로 가진다.
 
+**형상 클래스 라우팅 (2026-09-08 신규 · Phase 1.0 측정값을 그대로 쓴다 — 여기서 추측하지 마라):**
+
+| `_geometry_class` | 속도 | 냉각 | JSON 기록 |
+|---|---|---|---|
+| `planar` | §외벽 표면 공통 + 유량비 게이트대로 하향 | base 위임 | `_geometry_class: "planar"` |
+| `thin` | **하향 없음** — `outer_wall_speed` · 인접 4 키 · `top_surface_speed` 를 쓰지 않는다. 유량비는 부모 실효값으로 계산해 보고만 한다 (`0.12mm High Quality @BBL H2S` 는 `3.8x` 경고 구간) | 사용자 확인 후 filament `overhang_fan_threshold 10%` 1 키 (§filament 튜닝 정책 예외) | `_geometry_class: "thin"` + `_thin_loop_share` |
+
+2026-09-07 래티스 통은 큰 평면과 스트럿 단면이 같은 3mf 안에 공존했고(Funnel `planar` / Side Container `thin`)
+같은 외벽 `30` 이 둘 다에 들어간 것이 결함이었다. 얇은 단면의 병목은 유량이 아니라 열 방출 시간이라
+느릴수록 나빠진다 — `user-preferences.md` §2 "근거가 그 소재·형상에 있을 때만 낮춘다" 의 실제 사례다.
+
 ```text
 회전체 · 원통 결정 트리 (정본: seam-recipes.md §0 v4 — 여기서 재정의하지 마라)
   │
@@ -963,7 +1129,7 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 1. **회전체 / 원기둥 / 컵 / 화병** (rotational / cylinder): 위 Auto-select 트리
 2. **박스 / 직육면체** (box / rectangular): `seam_position: back` (또는 aligned) + corner painted seam + scarf off 또는 length 5-8mm. random 금지 (평평한 면에 specks 분산 시 외관 ↓)
 3. **유기적 곡면 / 피규어** (organic / curved): `seam_position: aligned` (back 우선) + painted seam (주름/접합부/머리카락 텍스처) + scarf external length 10-15mm
-4. **얇은 벽 / 미세 디테일** (thin wall): `seam_position: aligned` + scarf length 짧게 (5-10mm) 또는 off. `Contour and Hole` 비추 (내경 치수 영향). `wall_loops` 1-2 + Arachne 검토
+4. **얇은 벽 / 미세 디테일** (thin wall): `seam_position: aligned` + scarf length 짧게 (5-10mm) 또는 off. `Contour and Hole` 비추 (내경 치수 영향). `wall_loops` 1-2 + Arachne 검토. **속도·냉각은 `_geometry_class: thin` 라우팅(위 표)을 따른다**
 5. **평면 top 강조** (flat top — 도구/케이스 lid/박스 top): seam은 후면/코너 + **Top surface 품질이 외벽보다 우선** + ironing 적극 적용 (surface-recipes.md §5)
 6. **spiral vase 가능 모델** (spiral mode applicable): 단일 외벽 + top X + infill X + 단일 색상 → `spiral_mode = 1`. 다른 설정 (seam_position, scarf, ironing) 무의미
 
@@ -1129,12 +1295,25 @@ allok=True; unverified=[]
 # 시스템 프로파일 인덱스 — 부모 체인 해석용 (유량비 · 부모값 이탈 검사)
 SYS = pathlib.Path.home()/"Library/Application Support/BambuStudio/system/BBL"
 SYSIDX = {}
+# 키 스코프 인덱스 — 키가 어느 종류(process/filament)의 시스템 프로파일에 실재하는지. 다른 종류에 넣으면 조용히 무시된다
+SCOPE = {}
 if SYS.is_dir():
     for kind in ("process","filament"):
         for q in (SYS/kind).glob("*.json"):
             try: dd = json.loads(q.read_text(encoding="utf-8"))
             except Exception: continue
             if "name" in dd: SYSIDX[dd["name"]] = dd
+            for key in dd: SCOPE.setdefault(key, set()).add(kind)
+    # Bambu 가 직접 저장한 user preset 도 스코프 근거다 — 시스템 프로파일이 설정하지 않는 키(brim_type 등)는 여기서만 잡힌다
+    for kind in ("process","filament"):
+        for q in (SYS.parent.parent/"user").glob(f"*/{kind}/*.json"):
+            try: SCOPE_KEYS = json.loads(q.read_text(encoding="utf-8")).keys()
+            except Exception: continue
+            for key in SCOPE_KEYS: SCOPE.setdefault(key, set()).add(kind)
+# 스코프 검사에서 제외하는 메타 키 — 필수 메타필드 표의 키. version 은 시스템 filament 1 건에만 있어 제외하지 않으면 오탐이다
+META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id",
+        "compatible_printers","filament_extruder_variant","instantiation","setting_id"}
+GEOMETRY_CLASSES = ("planar","thin")
 
 def resolve(name, depth=0):
     if depth > 12 or name not in SYSIDX: return {}
@@ -1196,6 +1375,24 @@ for p in sys.argv[1:]:
         if isinstance(ev,list): ev=ev[0] if ev else None
         if ev not in allowed:
             errs.append(f"enum {ek}={ev!r} 는 허용값이 아니다 — 허용: {', '.join(allowed)}")
+    # 키 스코프 검사 (2026-09-08 신규 · bambu-fields-baseline.md §10.5) — 설치본에서 도출한 스코프와 파일 type 을 대조한다
+    if SCOPE:
+        for key in d:
+            if key.startswith("_") or key in META: continue   # _ 접두는 킷 전용 주석 키 — Bambu 가 import 시 버린다
+            kinds=SCOPE.get(key)
+            if kinds is None:
+                unverified.append(f"{f}: {key} 는 설치본 어느 시스템 프로파일에도 없는 키 — 스코프 판정 불가")
+            elif t not in kinds:
+                errs.append(f"키 스코프 불일치 {key}: 이 파일은 type={t} 인데 설치본에서는 {'/'.join(sorted(kinds))} 에만 실재 — 조용히 무시된다")
+    else:
+        unverified.append(f"{f}: 시스템 프로파일 경로 없음 — 키 스코프 검사 미실행")
+    # 형상 클래스 검사 (2026-09-08 신규 · surface-recipes.md §2.7) — 속도 하향은 planar 에서만 정당하다
+    geometry=d.get("_geometry_class")
+    if t=="process":
+        if geometry is not None and geometry not in GEOMETRY_CLASSES:
+            errs.append(f"_geometry_class={geometry!r} 는 허용값이 아니다 — 허용: {', '.join(GEOMETRY_CLASSES)}")
+        elif geometry is None and "outer_wall_speed" in d:
+            errs.append("outer_wall_speed 를 명시했는데 _geometry_class 가 없다 — Phase 1.0 probe 로 측정해 planar|thin 을 기록하라")
     if t=="process":
         cp=d.get("compatible_printers")
         if not (isinstance(cp,list) and any("H2S" in str(x) for x in cp)):
@@ -1210,10 +1407,14 @@ for p in sys.argv[1:]:
                 errs.append(f"raft_layers={d.get('raft_layers')} 이면 elefant_foot 무효화됨")
     par = resolve(d.get("inherits")) if SYSIDX else {}
     if not SYSIDX:
-        unverified.append(f"{f}: 시스템 프로파일 경로 없음 — 유량비/부모값 검사 미실행")
+        unverified.append(f"{f}: 시스템 프로파일 경로 없음 — 유량비/부모값/형상 클래스 검사 미실행")
     elif not par:
-        unverified.append(f"{f}: 부모 {d.get('inherits')!r} 해석 실패 — 유량비/부모값 검사 미실행")
+        unverified.append(f"{f}: 부모 {d.get('inherits')!r} 해석 실패 — 유량비/부모값/형상 클래스 검사 미실행")
     elif t=="process":
+        if geometry=="thin":
+            own=num(d.get("outer_wall_speed")); parent=num(par.get("outer_wall_speed"))
+            if own is not None and parent is not None and own < parent:
+                errs.append(f"_geometry_class=thin 인데 outer_wall_speed={own:g} 가 부모 실효값 {parent:g} 보다 낮다 — thin 은 속도 하향 대상이 아니다 (surface-recipes.md §2.7)")
         # 유량비 게이트 — 동일 filament 이므로 flow_ratio 는 비율에서 상쇄된다
         eff = dict(par); eff.update(d)
         lh = num(eff.get("layer_height"))
@@ -1266,7 +1467,7 @@ for p in sys.argv[1:]:
         print(f"OK   {f}: type={t} from={d.get('from')} keys={len(d)} "
               f"ironing={d.get('ironing_type','-')} xy_hole={d.get('xy_hole_compensation','-')} "
               f"layer={d.get('layer_height','-')} brim={d.get('brim_type','-')} "
-              f"wipe={d.get('filament_wipe','-')}")
+              f"wipe={d.get('filament_wipe','-')} geometry={d.get('_geometry_class','-')}")
 for u in unverified: print(f"[미검증] {u}")
 print("RESULT:","PASS" if allok else "FAIL")
 sys.exit(0 if allok else 1)
@@ -1287,6 +1488,7 @@ PY
 - **(2026-08-13)** Phase 1.9 가 **L1 감지**인데 출력의 `layer=-` 또는 baseline `0.2` 그대로면 → L1 미대응. 그리고 Phase 3.0 의 "adaptive 는 범위 밖" 보고를 `notes.md` 에 실제로 썼는지 확인 (게이트는 JSON 만 본다)
 - **(2026-08-13)** Phase 1.9 가 **L3 감지**인데 출력의 `brim=-` 이면 → L3 미대응
 - **(2026-08-13)** Phase 1.9 가 **L2 감지**인데 건조 게이트 (0) 단계를 통과하지 않은 상태에서 `wipe=1` 이면 → 순서 위반. 건조 확인 없이 wipe 를 먼저 켜지 마라 (`failure-recipes.md` §2.1)
+- **(2026-09-08)** 출력의 `geometry=-` 인데 `outer_wall_speed` 를 명시했으면 → 형상 클래스 미측정. `geometry=thin` 인데 외벽을 낮췄으면 → 라우팅 위반. 둘 다 게이트가 FAIL 로 잡지만, notes.md 에 클래스와 측정값(루프 수 · 둘레 · 비율)을 썼는지는 눈으로 확인한다 (`surface-recipes.md` §2.7)
 
 #### 4.4 Verify (Import 후 사용자 확인)
 
@@ -1398,6 +1600,8 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-09-06 신규) enum 값이 Bambu 이름인지** — `ironing_type` · `top_surface_pattern` ·
   `seam_position` · `seam_slope_type` · `wall_sequence` · `brim_type` 6 키. OrcaSlicer 문서의 값 이름을
   그대로 옮기면 Bambu 가 조용히 무시한다. Phase 4.3 게이트의 `ENUM_ALLOW` 가 검사한다.
+- ☐ **(2026-09-08 신규) `_geometry_class` 를 측정으로 정해 process JSON 에 기록했는지** — Phase 1.0 probe 출력의 `planar` | `thin`. `thin` 인데 `outer_wall_speed` 를 낮췄으면 정책 위반이고 Phase 4.3 게이트가 FAIL 한다 (`surface-recipes.md` §2.7).
+- ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 설치본에서 스코프를 도출해 검사한다 (`bambu-fields-baseline.md` §10.5).
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
@@ -1465,6 +1669,7 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | 9mm Craft Knife Elite (1517485) | PLA Basic | ⚠️ v0.3.0 회귀: 디자이너 명시 "No supports needed, please do not modify the print profile"을 무시하고 surface-first 자동 적용. → v0.4.0 Phase 1.6 + Designer Constraint Override Rule 신규. v0.4.1 dogfood: directive 권장을 보수 해석하여 ironing/scarf 빠진 [A] 결과 → 사용자 의도("모든 면 매끈") 미반영. → v0.4.1 범위 좁힘 정책 + [C] 병행 옵션 default. v0.4.2 dogfood: blade slide-fit 공차 누락 식별 → Phase 1.7 + `elefant_foot_compensation` 추가. |
 | Shower-box 부품 + Holster (2026-06~08 · 5 세션) | 미기록 | ⚠️ **실측 3 종 실패 반복 — "partially successful".** 곡면 계단현상 · voronoi stringing · 바닥 박리가 재출력마다 새로 노출됐고, 그 신호가 다음 프로파일 생성으로 **들어오는 경로가 없었다** (Phase 1.6 은 남의 댓글만 본다). → 2026-08-13 Phase 1.9 Failure-Mode Detector + Phase 3.0 Supportability Split + `failure-recipes.md` 신규. 출처: `/insights` 2026-08-13 (윈도 2026-06-12~08-12). 소재/plate/건조 상태는 리포트에 미기록이라 `[미확인]` — 재현 6 축 대조가 다음 케이스의 첫 단계다 |
 | Ferris Wheel (1186414, 608ZZ variant) | PLA Basic | ⚠️ v0.4.x 이전 회귀: 608ZZ 베어링 외경(22mm)/내경(8mm) fit 안 맞음 (사용자 보고 2026-05-27). → v0.4.2 Phase 1.7 fit-critical 분석 + tolerance.md §3.1 bearing 결정 트리 신규. **2026-07-27 정정**: v0.4.2 가 넣은 `+0.075`/`-0.075` 는 2× 규칙상 22.15mm/7.85mm 로 목표(22.10/7.90) 초과 — 축 fit 에 0.10mm 유격이 생겨 사용자 보고와 일치. 정정값 `+0.05`/`-0.05` (tolerance.md §7). 재출력 검증 대기. |
+| AMS 2 Pro Lattice Dry Pods (2026-09-07) | Bambu ABS | ⚠️ **surface-first 가 형상을 구분하지 않은 회귀.** Side Container(스트럿 단면, 루프 둘레 전부 < 30 mm)와 Funnel(루프 2 개)에 같은 외벽 `30` 이 들어감. 워크플로우 25 에이전트 진단: flow · PA · Z · 워핑 · 습기 배제, 원인은 속도값 + 냉각 문턱(`overhang_fan_threshold 25%` 미발동, 층시간이 `slow_down_layer_time 12` 를 주기 교차). → 2026-09-08 형상 클래스 축 `_geometry_class` (`surface-recipes.md` §2.7) + Phase 1.0 probe + Phase 4.3 스코프·클래스 검사 + `bambu-fields-baseline.md` §10.5. 실물 A/B(`overhang_fan_threshold 10%`)는 검증 대기. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
 
