@@ -168,6 +168,30 @@ Google(완화 조건 없음) 둘뿐이다.
 
 ---
 
+## 7. 분기 카탈로그 — 2 건 `[미확인]`
+
+**영향받는 규칙**: `navigation-anchors.md` §5 의 언어 축 처리, 그리고 설계 브리프 P6 의 근거 성격.
+확정분은 `docs/howto/branch-catalog.md` 가 정본이다.
+
+| 항목 | 상태 | 킷의 처리 |
+| --- | --- | --- |
+| **언어/로케일 분기 문장** 의 1 차 출처 — "UI 언어에 따라 라벨·경로가 갈린다" 는 공식 문장 | **확인 실패** | 언어를 사유 목록에서 빼고 별도 축으로 둔다. 영문 정본 + 한국어 괄호 병기는 **킷의 운영 규약**이며 외부 표준 인용이 아니다 |
+| 절차 문서에 **선제 분기를 쓰라고 규정한 스타일 가이드 조항** | **확인 실패** | P6 는 **관행의 귀납**이지 표준의 인용이 아니다. 근거는 벤더 문서 6 건이 실제로 그렇게 쓴다는 사실뿐이다 |
+
+시도했으나 근거를 얻지 못한 URL · 검색:
+
+```text
+https://support.microsoft.com/en-us/sharepoint/get-started-with-sharepoint/change-your-personal-language-and-region-settings
+https://support.google.com/merchants/answer/13982673?hl=en
+https://developers.google.com/style/translation
+site:learn.microsoft.com/en-us/style-guide "procedure" "If" "version"
+```
+
+**추가 미확정 1 건**: 한 문서가 "권한 부족은 숨김 **또는** 회색 둘 다 가능" 이라고 규정한 원문은
+찾지 못했다. `navigation-anchors.md` §5 의 그 규칙은 서로 다른 두 벤더 문서를 합친 **킷의 종합**이다.
+
+---
+
 ## 이 원장을 쓰는 법
 
 - 킷의 다른 파일이 위 항목을 언급할 때는 **이 파일을 가리키고** 등급을 함께 적는다.

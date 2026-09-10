@@ -148,7 +148,12 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 > *"If you can't see the filter's sharing configuration, you'll need your Jira administrator to give you the Create Shared Object global permission."* — Atlassian
 > *"Organizations that you are a member of will not appear if the organization has blocked…"* — GitHub
 
-분기 사유는 5 가지로 유형화한다: **권한/역할 · 요금제 · 버전 · 언어 · A/B 롤아웃**.
+> **2026-09-10 교정.** 이 목록은 5 종을 주장했지만 인용이 있던 것은 권한 계열뿐이었고, Apple
+> 인용은 권한이 아니라 **기능 선행조건** 분기였다. 확정 정본은 `docs/howto/branch-catalog.md`.
+
+분기 사유는 **6 가지**로 유형화한다: **권한/역할 · 권한/조직정책 · 기능 선행조건 · 요금제 ·
+버전 · A/B 롤아웃**. **언어/로케일은 사유가 아니라 다른 축이다** — 항목이 없는 게 아니라
+이름이 다른 것이므로 라벨 병기로 처리한다.
 
 ### P7. 최신성은 문장이 아니라 스탬프와 등급으로 보장한다
 
@@ -206,7 +211,7 @@ step:
   constraints: string | null      # 형식/길이/범위/기본값
   verify: string                  # 이 스텝이 끝났음을 눈으로 확인하는 관측값 (필수)
   if_not_found:                   # P6 — 선제 분기. 최소 1개
-    - cause: 권한|요금제|버전|언어|A/B
+    - cause: 권한-역할|권한-조직정책|선행조건|요금제|버전|A-B
       then: string
   killer: boolean                 # 누락 시 치명적인가
   source:
