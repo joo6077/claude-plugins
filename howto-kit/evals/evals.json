@@ -141,7 +141,7 @@
       "note": "오탐 대조. '계정을 삭제한다' 는 정상 액션이지 deprecation 주장이 아니다. 토큰을 '삭제' 단독으로 넓히면 이 케이스가 unsourced_claims=2 로 깨진다."
     },
     {
-      "id": "E13-g4-retention-notice-not-deprecation",
+      "id": "E13-g4-retention-notice-sourced",
       "axis": "provenance",
       "fixture": "fixtures/pass-g4-retention-notice-not-deprecation.md",
       "expect_final": "GATE_PASS",
@@ -149,7 +149,7 @@
         "G4_DEPRECATION PASS",
         "unsourced_claims=0"
       ],
-      "note": "오탐 대조. `확인:` 은 제품이 화면에 띄우는 문구를 관측해 적는 자리다. 거기 있는 '삭제 예정' 은 저자의 주장이 아니라 근거다. 캐치올이 이 줄까지 세면 데이터 보존 안내가 deprecation 으로 오탐된다 (2026-09-10 실측 FAIL)."
+      "note": "화면이 띄우는 보존 안내를 `확인:` 에 옮겨 적으면 그것도 주장으로 센다. 출처 줄에 근거를 주석으로 달면 통과한다 — 이 킷의 저작 규약이다. 2026-09-10 에 `확인:` 줄을 주장 탐지에서 면제해 봤다가 되돌렸다: 면제하면 조작된 주장이 출처와 무관하게 항상 통과하는 사각지대가 생긴다."
     },
     {
       "id": "E14-g4-completion-phrase-not-deprecation",
@@ -171,7 +171,18 @@
         "G4_DEPRECATION FAIL",
         "unsourced_claims=1"
       ],
-      "note": "양성. 토큰 추가 전에는 근거 없는 '종료 예정' 주장이 통과했다 (false negative). 주장이 스텝 헤더에 오면 `확인:` 제외와 무관하게 여전히 잡힌다."
+      "note": "양성. 토큰 추가 전에는 근거 없는 '종료 예정' 주장이 통과했다 (false negative)."
+    },
+    {
+      "id": "E16-g4-korean-abolish-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-korean-abolish-unsourced.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "양성. '폐지 예정' 은 기존 '폐지' 토큰으로 잡힌다. 계약 SC-02 가 요구한 세 번째 양성 케이스를 리터럴로 커버한다."
     }
   ]
 }
