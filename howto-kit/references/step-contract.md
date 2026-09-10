@@ -71,8 +71,20 @@ result   전부 끝났을 때의 관측 가능한 최종 상태
 postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 ```
 
-DITA `<taskbody>` 콘텐츠 모델은 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?, <result>?, <postreq>?`
-순서다 — docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/contentmodels/cmtct.html
+이 골격은 DITA 의 **strict task model** 이다 — `<prereq>?, <context>?,
+(<steps>|<steps-unordered>)?, <result>?, <postreq>?` 순서.
+
+**어느 모델인지 반드시 밝혀라.** DITA 1.2 부터 OASIS 배포본에는 모델이 둘이다.
+
+> *"Beginning with DITA 1.2, the DTD and Schema packages distributed by OASIS contain
+> **two task models**. … The **strict task model** maintains the order and cardinality of the
+> DITA 1.0 and 1.1 content model."* / *"this constraint is used in the default task distributed
+> by OASIS."*
+> — docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/taskbody.html
+> (조회 2026-09-10)
+
+general task model 은 요소를 더 허용하고 순서도 자유롭다. 모델명을 안 쓰면 general 을 쓰는
+사람이 이 킷을 "DITA 를 잘못 인용했다" 고 판단한다. 확정 정본은 `docs/howto/procedure-standards.md`.
 
 ## 대화 모드 렌더링
 

@@ -79,6 +79,8 @@ S<n>. [조건이 있으면] <어디서> 에서 <무엇을> <타입> 을 <동작>
 
 > *"In general, use one step for each action."* — developers.google.com/style/procedures
 > *"should not be more than one sentence"* — DITA 1.3 `<cmd>`
+> (docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/cmd.html,
+> 조회 2026-09-10). 표준과 킷 규약의 대조는 `docs/howto/procedure-standards.md` 가 정본이다.
 
 ### Gotcha 2: 딥링크가 메뉴 경로보다 우선한다
 
