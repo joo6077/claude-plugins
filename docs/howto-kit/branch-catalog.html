@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branch Catalog — 항목이 안 보이는 사유</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F59E0B;--accent2:#FBBF24;--accent-dim:rgba(245,158,11,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#656C7A;
+    --accent:#B45309;--accent2:#92400E;--accent-dim:rgba(180,83,9,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(245,158,11,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 3축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
+     --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  /* ── 실측 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Branch Catalog — 항목이 안 보이는 사유는 몇 가지인가</h1>
+<p class="subtitle">절차 문서는 &#8220;그 항목이 안 보일 수도 있다&#8221;를 <strong>되묻기 전에 미리</strong> 붙여야 한다. 사용자가 막힌 뒤에 &#8220;안 보이시나요?&#8221;라고 되묻는 것은 이미 늦었다. 이 킷은 그 사유를 5 종으로 유형화해 놓았었고, 이번 사이클이 <strong>둘이 틀렸다</strong>는 것을 확인했다. <span class="mono">조회일 2026-09-10</span></p>
+
+<div class="warn-banner">
+  <h2>근거 없이 목록만 늘어나 있었다</h2>
+  <p>5 종을 주장했지만 실제 인용이 있던 것은 <strong>권한 계열뿐</strong>이었다. 나머지 4 종은 목록에만 있었다 &#8212; 그것 자체가 이 킷이 막으려는 <strong>F3</strong>(근거 결여)다.</p>
+  <p>게다가 기존 목록의 Apple 인용은 <strong>권한 분기가 아니었다.</strong> 원문을 끝까지 읽으니 기능 선행조건 분기였다.</p>
+</div>
+
+<!-- ══ 무엇이 틀렸나 ══ -->
+<div class="section">
+  <div class="section-label">무엇이 틀렸나</div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>문제</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">근거 부족</td><td>5 종 중 인용이 있던 것은 권한 계열뿐. 나머지 4 종은 목록에만 있었다</td></tr>
+      <tr><td class="sys">유형 누락</td><td>Apple 인용은 권한이 아니라 <strong>기능 선행조건</strong> 분기였다</td></tr>
+      <tr><td class="sys">축 혼동</td><td><strong>언어</strong>는 실패 모드가 다르다. 같은 목록에 둘 것이 아니다</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ══ 확정 6종 ══ -->
+<div class="section">
+  <div class="section-label">확정된 분기 사유 6종 &#8212; 출처 열이 빈 행은 없다</div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>사유</th><th>실제 문장</th><th>출처</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">권한 / 역할</td><td><em>&#8220;If you can&#8217;t see the filter&#8217;s sharing configuration, you&#8217;ll need your Jira administrator to give you the Create Shared Object global permission.&#8221;</em></td><td><a class="card-source" href="https://support.atlassian.com/jira-service-management-cloud/docs/manage-filters/">Atlassian</a></td></tr>
+      <tr><td class="sys">권한 / 조직 정책</td><td><em>&#8220;Organizations that you are a member of will not appear if the organization has blocked the use of fine-grained personal access tokens.&#8221;</em></td><td><a class="card-source" href="https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens">GitHub</a></td></tr>
+      <tr><td class="sys"><strong>기능 선행조건</strong> <span class="tag">신규</span></td><td><em>&#8220;The Campaigns feature becomes available only after your app has received analytics data.&#8221;</em></td><td><a class="card-source" href="https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links">Apple</a></td></tr>
+      <tr><td class="sys">요금제</td><td><em>&#8220;If you don&#8217;t see a fax number there, it means you&#8217;re on a free plan.&#8221;</em></td><td><a class="card-source" href="https://help.dropbox.com/account-settings/where-can-i-find-my-dropbox-fax-number">Dropbox</a></td></tr>
+      <tr><td class="sys">버전</td><td><em>&#8220;On Windows 11, select Advanced network settings &gt; Network reset. On Windows 10, select Status &gt; Network reset.&#8221;</em></td><td><a class="card-source" href="https://support.microsoft.com/en-us/windows/experience/connectivity-networking/fix-wi-fi-connection-issues-in-windows">Microsoft</a></td></tr>
+      <tr><td class="sys">A/B 롤아웃</td><td><em>&#8220;This feature is being rolled out gradually and may not be available in your account yet.&#8221;</em></td><td><a class="card-source" href="https://support.google.com/displayvideo/answer/17234167">Google</a></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="desc"><strong>권한을 둘로 나눈 것은 대응이 다르기 때문이다.</strong> 개인 권한 부족은 &#8220;관리자에게 요청&#8221;이지만, 조직 정책 차단은 <em>요청해도 안 되고</em> 정책 자체를 바꿔야 한다.</p>
+</div>
+
+<!-- ══ 신규 유형 ══ -->
+<div class="section">
+  <div class="section-label">기능 선행조건 &#8212; 새로 식별한 유형</div>
+  <div class="info-card">
+    <p class="desc">&#8220;If you don&#8217;t see a Campaigns tab or add button: <strong>The Campaigns feature becomes available only after your app has received analytics data.</strong> If your app is new or hasn&#8217;t yet had any downloads, the add button (+) next to Campaigns may not appear. Continue checking after your app has been live and generating downloads for at least 24 hours.&#8221;</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links">developer.apple.com &#8230; campaign-links (조회 2026-09-10)</a>
+    </div>
+  </div>
+  <p class="desc" style="margin-top:16px">권한도 요금제도 버전도 아니다. <strong>아직 조건이 안 찼을 뿐</strong>이고, 대응도 다르다 &#8212; 관리자에게 요청할 것도, 결제할 것도, 업그레이드할 것도 없다. <em>기다리는 것</em>이 답이다.</p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; 유형을 놓치면</span></div>
+      <pre><code>안 보이면: 권한 —
+관리자에게 요청하세요</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; 맞게 안내하면</span></div>
+      <pre><code>안 보이면: 선행조건 —
+앱이 데이터를 받은 뒤 나타납니다
+(라이브 후 24시간 이상)</code></pre>
+    </div>
+  </div>
+  <p class="desc">잘못 안내하면 사용자는 <strong>있지도 않은 권한 문제</strong>를 찾아 헤맨다.</p>
+</div>
+
+<!-- ══ 대응표 ══ -->
+<div class="section">
+  <div class="section-label">사유별 &#8212; 사용자가 실제로 할 일</div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>사유</th><th>대응 문장</th><th>사용자가 할 일</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">권한 / 역할</td><td>&#8220;관리자에게 <code>&lt;권한명&gt;</code> 을 요청해야 보입니다&#8221;</td><td>사람에게 요청</td></tr>
+      <tr><td class="sys">권한 / 조직 정책</td><td>&#8220;조직이 이 기능을 차단했습니다&#8221;</td><td><strong>정책 변경</strong> (요청으로 안 됨)</td></tr>
+      <tr><td class="sys">기능 선행조건</td><td>&#8220;<code>&lt;조건&gt;</code> 이 충족된 뒤에 나타납니다&#8221;</td><td><strong>기다린다</strong></td></tr>
+      <tr><td class="sys">요금제</td><td>&#8220;무료 플랜에는 이 메뉴가 없습니다&#8221;</td><td>업그레이드</td></tr>
+      <tr><td class="sys">버전</td><td>&#8220;<code>&lt;버전&gt;</code> 이상에서는 A, 이하에서는 B&#8221;</td><td>분기된 경로를 따라간다</td></tr>
+      <tr><td class="sys">A/B 롤아웃</td><td>상위 섹션명 + 전역 검색어 제공</td><td>기다리거나 우회</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ══ 언어 축 ══ -->
+<div class="section">
+  <div class="section-label">언어/로케일은 사유가 아니라 <em>다른 축</em>이다</div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>위 6종</th><th>언어/로케일</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">증상</td><td>항목이 <strong>없다</strong></td><td>항목은 <strong>있는데 이름이 다르다</strong></td></tr>
+      <tr><td class="sys">사용자 경험</td><td>아무리 찾아도 못 찾는다</td><td>찾긴 찾는데 문서와 안 맞아 확신을 못 한다</td></tr>
+      <tr><td class="sys">해법</td><td>사유를 알려주고 대응을 안내</td><td><strong>라벨을 양쪽 다</strong> 준다</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="desc">같은 목록에 두면 &#8220;언어 때문에 항목이 없다&#8221;는 잘못된 안내가 나온다. 그래서 언어를 사유 목록에서 빼고 별도 축으로 둔다.</p>
+  <div class="rule-box"><strong>언어 분기 문장의 1 차 출처는 확보하지 못했다</strong> &#8212; <code>[미확인]</code>. 영문 정본 + 한국어 괄호 병기는 <strong>킷의 운영 규약</strong>이며 외부 표준의 인용이 아니다. 그 구분을 흐리지 마라.</div>
+</div>
+
+<!-- ══ 안보임 vs 회색 ══ -->
+<div class="section">
+  <div class="section-label">안 보임 vs 회색(비활성)</div>
+  <p class="desc">권한 부족의 표현형은 둘이다. &#8220;안 보인다&#8221;만 안내하면 <strong>회색으로 보이는</strong> 사용자가 자기 케이스가 아니라고 판단하고 막힌다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-body">
+        <h4>항목이 안 보인다</h4>
+        <div class="rule-box">&#8220;If you can&#8217;t see the filter&#8217;s sharing configuration&#8230;&#8221;</div>
+      </div>
+      <div class="sources"><div class="sources-head">출처</div>
+        <a class="card-source" href="https://support.atlassian.com/jira-service-management-cloud/docs/manage-filters/">Atlassian</a></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h4>보이되 회색(비활성)</h4>
+        <div class="rule-box">&#8220;If the Save button is greyed out in the Azure portal&#8221; &#8212; 원인 제목 &#8220;Insufficient RBAC permissions&#8221;</div>
+      </div>
+      <div class="sources"><div class="sources-head">출처</div>
+        <a class="card-source" href="https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/cannot-extend-volume-windows-vm">Microsoft (확인 2026-09-08)</a></div>
+    </div>
+  </div>
+  <div class="warn-card" style="margin-top:18px">
+    <h3>이것은 킷의 종합이지 인용이 아니다</h3>
+    <p class="desc"><strong>한 문서가 &#8220;권한 부족은 숨김 또는 회색 둘 다 가능&#8221;이라고 규정한 원문은 찾지 못했다.</strong> 위 둘은 서로 다른 벤더의 문서이고, 둘을 합쳐 하나의 규칙으로 만든 것은 이 킷의 종합이다. 그렇게 표기한다.</p>
+  </div>
+</div>
+
+<!-- ══ 스타일 가이드 미확인 ══ -->
+<div class="section">
+  <div class="section-label">선제 분기를 규정한 스타일 가이드 조항 &#8212; <code>[미확인]</code></div>
+  <p class="desc">&#8220;절차 문서에 선제 분기 문장을 쓰라&#8221;고 <strong>규정한</strong> 조항을 확보하지 못했다. Google &#183; Microsoft 양쪽에서 실패했다.</p>
+  <div class="rule-box">그러므로 이 킷의 <strong>P6</strong>(&#8220;분기를 되묻기 전에 선제 제공한다&#8221;)는 <strong>관행의 귀납</strong>이지 표준의 인용이 아니다. 근거는 위 벤더 문서 6 건이 실제로 그렇게 쓴다는 사실이다.</div>
+</div>
+
+<!-- ══ 검증 함정 ══ -->
+<div class="section">
+  <div class="section-label">검증 함정 &#8212; HTML 엔티티 때문에 대조가 실패한다</div>
+  <p class="desc">Dropbox 인용은 1 차 대조에서 <strong>MISS</strong> 였다. 페이지는 정상이었고 문장도 있었다. 원인은 아포스트로피가 원문에 <strong>HTML 엔티티</strong>로 들어 있던 것이다.</p>
+  <pre><code>검색한 문자열:  you're on a free plan
+응답 본문 원문:  you&amp;#39;re on a free plan</code></pre>
+  <p class="desc"><code>curl | grep -F</code> 로 대조하면 이런 인용은 전부 &#8220;없음&#8221;으로 나온다. <strong>엔티티를 디코드한 뒤 대조하라.</strong> 그러지 않으면 멀쩡한 1 차 출처를 &#8220;확인 실패&#8221;로 잘못 기록하게 된다 &#8212; 이 킷에서는 그것이 가장 비싼 오류다.</p>
+  <h4>같은 계열의 함정 2건</h4>
+  <ul class="checklist">
+    <li><span class="check check c-warn">1</span><span><code>developer.apple.com</code> 문서는 <strong>SPA</strong> &#8212; HTML 에 본문이 없다. <code>tutorials/data/documentation/&lt;경로&gt;.json</code> 을 써라</span></li>
+    <li><span class="check check c-warn">2</span><span><strong>Apple Style Guide 는 PDF</strong> &#8212; 폰트 서브셋 인코딩 때문에 정규식으로는 안 잡힌다. <code>pdftotext</code> 로 추출하라</span></li>
+  </ul>
+  <div class="rule-box"><strong>공통 규칙</strong> &#8212; &#8220;문자열을 못 찾았다&#8221;는 <em>확인 실패이지 부재가 아니다.</em> 도구를 바꿔 한 번 더 시도한 뒤에 판정하라.</div>
+</div>
+
+<!-- ══ 조회 기록 ══ -->
+<div class="section">
+  <div class="section-label">조회 기록</div>
+  <p class="desc">Codex 위임 1 회 (MODE=research &#183; read-only &#183; foreground &#183; 검색 하드캡 20). rollout 로그의 <code>turn_aborted</code> 는 <strong>0 건</strong>으로 정상 완주했다. 기존 3 건 재확인 &#183; 신규 3 종 확보 &#183; 언어와 스타일 가이드 조항은 확인 실패로 반환했다.</p>
+  <p class="desc">인용 6 건은 전부 세션 로컬 <code>curl</code> 로 응답 본문에서 직접 대조했다. 1 차 대조 결과는 <strong>5 HIT / 1 MISS</strong> 였고, MISS 1 건의 원인이 위 HTML 엔티티였다.</p>
+  <p class="caption">이 페이지는 <code>docs/howto/branch-catalog.md</code> 의 시각화본이다. 값이 어긋나면 <code>.md</code> 가 이긴다.</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

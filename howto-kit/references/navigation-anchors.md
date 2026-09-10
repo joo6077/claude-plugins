@@ -108,28 +108,56 @@ Google 은 더 강하게 적었고 **완화 조건을 명시하지 않았다** �
 
 라벨이 다르거나 항목이 아예 없는 경우를 **미리** 붙인다. 이것은 변명이 아니라 1 급 공식 문서 관행이다.
 
-> *"If you don't see a Campaigns tab or add button…"* — Apple
-> *"If you can't see the filter's sharing configuration, you'll need your Jira administrator to give
-> you the Create Shared Object global permission."* — Atlassian
-> *"Organizations that you are a member of will not appear if the organization has blocked…"* — GitHub
-> *"If you don't see the option to grant permission, ask an admin to manually grant the permission
-> through GitHub."* — learn.microsoft.com/en-us/azure/data-factory/source-control (확인 2026-09-08)
+**확정 정본은 `docs/howto/branch-catalog.md` 다.** 아래는 요약이며 조회일 2026-09-10 기준이다.
+
+### 사유 6 종 — 각 행에 1 차 출처가 있다
+
+| 사유 | 실제 문장 | 출처 |
+| --- | --- | --- |
+| 권한 / 역할 | *"If you can't see the filter's sharing configuration, you'll need your Jira administrator to give you the Create Shared Object global permission."* | Atlassian — support.atlassian.com/jira-service-management-cloud/docs/manage-filters/ |
+| 권한 / 조직 정책 | *"Organizations that you are a member of will not appear if the organization has blocked the use of fine-grained personal access tokens."* | GitHub — docs.github.com/en/enterprise-cloud@latest/…/managing-your-personal-access-tokens |
+| **기능 선행조건** | *"The Campaigns feature becomes available only after your app has received analytics data."* | Apple — developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links |
+| 요금제 | *"If you don't see a fax number there, it means you're on a free plan."* | Dropbox — help.dropbox.com/account-settings/where-can-i-find-my-dropbox-fax-number |
+| 버전 | *"On Windows 11, select Advanced network settings > Network reset. On Windows 10, select Status > Network reset."* | Microsoft — support.microsoft.com/…/fix-wi-fi-connection-issues-in-windows |
+| A/B 롤아웃 | *"This feature is being rolled out gradually and may not be available in your account yet."* | Google — support.google.com/displayvideo/answer/17234167 |
+
+**기능 선행조건은 2026-09-10 사이클에서 새로 식별한 유형이다.** 그동안 Apple 인용을 권한 분기
+예시로 썼는데 원문에 권한 이야기가 없다. 권한도 요금제도 버전도 아니고 **아직 조건이 안 찬 것**이며,
+대응은 요청도 결제도 아닌 **기다리기**다. 이 유형을 놓치면 "권한을 확인하세요" 라고 잘못 안내하게 된다.
+
+권한을 둘로 나눈 것은 대응이 다르기 때문이다 — 개인 권한 부족은 관리자 요청으로 풀리지만,
+조직 정책 차단은 요청해도 안 되고 정책 자체를 바꿔야 한다.
+
+| 사유 | 사용자가 할 일 |
+| --- | --- |
+| 권한 / 역할 | 사람에게 요청 |
+| 권한 / 조직 정책 | 정책 변경 (요청으로 안 됨) |
+| 기능 선행조건 | **기다린다** |
+| 요금제 | 업그레이드 |
+| 버전 | 분기된 경로를 따라간다 |
+| A/B 롤아웃 | 기다리거나 전역 검색어로 우회 |
+
+### 언어/로케일은 사유가 아니라 다른 축이다
+
+위 6 종은 "항목이 **없다**" 인데 언어는 "항목은 있는데 **이름이 다르다**" 다. 같은 목록에 두면
+"언어 때문에 항목이 없다" 는 잘못된 안내가 나온다. 처리도 다르다 — 사유를 알려주는 것이 아니라
+**라벨을 양쪽 다** 준다 (영문 정본 + 한국어 괄호 병기).
+
+언어 분기 문장의 1 차 출처는 **확인 실패**다 — `references/provenance-notes.md` §7.
+
+### 안 보임 vs 회색(비활성)
+
+권한 부족의 표현형은 둘이다. "안 보인다" 만 안내하면 **회색으로 보이는** 사용자가 자기 케이스가
+아니라고 판단하고 막힌다.
+
 > *"If the Save button is greyed out in the Azure portal"* — 원인 제목 *"Insufficient RBAC permissions"*
 > — learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/cannot-extend-volume-windows-vm (확인 2026-09-08)
 
-권한 부족의 표현형은 **두 가지**다 — 항목이 아예 **안 보이거나**, 보이되 **회색(비활성)** 이다.
-분기 문장을 쓸 때 둘을 구분하라. "안 보인다"만 안내하면 회색 상태인 사용자가 자기 케이스가
-아니라고 판단하고 막힌다.
+> *"If you don't see the option to grant permission, ask an admin to manually grant the permission
+> through GitHub."* — learn.microsoft.com/en-us/azure/data-factory/source-control (확인 2026-09-08)
 
-분기 사유 5 종과 전형적 대응:
-
-| 사유 | 전형적 대응 |
-| --- | --- |
-| 권한 / 역할 | "관리자에게 `<권한명>` 을 요청해야 보입니다" |
-| 요금제 | "무료 플랜에는 이 메뉴가 없습니다" |
-| 버전 | "`<버전>` 이상에서는 A, 이하에서는 B" |
-| 언어 | 영문 라벨을 정본으로, 한국어를 괄호에 |
-| A/B 롤아웃 | 상위 섹션명 + 전역 검색어 제공 |
+**한 문서가 "권한 부족은 숨김 또는 회색 둘 다 가능" 이라고 규정한 원문은 못 찾았다.** 위 둘을
+합쳐 하나의 규칙으로 만든 것은 **이 킷의 종합**이지 외부 표준의 인용이 아니다.
 
 ## 6. 사이트 배정표 — 사이트가 갈리는 절차
 

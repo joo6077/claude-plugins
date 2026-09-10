@@ -26,7 +26,9 @@ step:
   constraints: string | null      # 형식·길이·범위·기본값
   verify: string                  # 이 스텝이 끝났음을 눈으로 확인하는 관측값 (필수)
   if_not_found:                   # 선제 분기. 최소 1 개
-    - cause: 권한|요금제|버전|언어|A/B
+    - cause: 권한-역할|권한-조직정책|선행조건|요금제|버전|A-B
+      # 언어/로케일은 사유가 아니다 — 항목이 없는 게 아니라 이름이 다른 것이므로
+      # 라벨 병기로 처리한다 (navigation-anchors.md §5 · docs/howto/branch-catalog.md §3)
       then: string
   killer: boolean                 # 누락 시 치명적인가
   source:
