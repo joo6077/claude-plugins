@@ -63,15 +63,43 @@ MD 생성 전용이던 기존 킷에서는 쓸 수 없던 채널이다.
 | sunset / maintenance | *"should plan to migrate … typically 12 months"* | AWS service lifecycle |
 | removed / shutdown | *"calls to the resources fail as of the removal date"* / *"completely removed"* | Amazon SP-API, AWS |
 
-Google Cloud 는 *"After a service, feature, or product is officially deprecated, it continues to be
-available for at least the period of time defined in the Terms of Service."* 라고 명시한다.
+Google Cloud 도 같은 전이를 정의한다 — *"After a service, feature, or product is officially
+deprecated, it continues to be available for at least the period of time defined in the Terms of
+Service. After this period of time, the service is scheduled for shutdown."* (조회 2026-09-10)
 
 **`권장하지 않음` ≠ `deprecated` ≠ `제거됨`.** `권장하지 않음` 을 `deprecated` 로 승격시키는 것은
 날조다. 1 차 출처가 deprecated 라고 말하지 않은 것을 deprecated 로 쓰지 마라.
 
-한국어 1 차 출처는 `지원 종료` · `폐지` · `중단` · `서비스 종료` 로 쓴다. 게이트 G4 는 영문 토큰과
-한국어 토큰을 **양쪽 다** 인식한다 (기존 킷의 G4 는 `[Dd]eprecat` 영문 토큰에만 묶여 있어 한국어
-1 차 출처를 근거로 인정하지 못했다).
+### 통지 기간 — 약속과 관행을 구분하라
+
+두 벤더 모두 "12 개월" 을 쓰지만 강도가 다르다. 확정 정본은 `docs/howto/deprecation-policy.md` 다.
+
+| 벤더 | 문장 | 성격 |
+| --- | --- | --- |
+| Google Cloud | *"Google will notify Customer **at least 12 months** before …"* | **약관상 약속** (대체 서비스 제공 시 예외 단서 있음) |
+| AWS | *"Sunset services have a sunset time line (**typically 12 months**)."* | **관행 서술** — 약속이 아니다 |
+
+AWS 에 대해 "12 개월이 보장됩니다" 라고 쓰면 **출처보다 강한 주장**이다.
+
+### 한국어 공식 용어 매핑 — 직관과 다르다
+
+Google Cloud 한국어 문서 기준이다 (*"지원 중단됨 — 지원 중단된 기능은 서비스 종료 및 삭제가
+예정된 기능입니다."* — cloud.google.com/products?hl=ko, 조회 2026-09-10).
+
+| 영문 | 한국어 공식 표기 |
+| --- | --- |
+| Deprecated | **지원 중단됨** |
+| shut down | **서비스 종료** |
+| removed | **삭제** |
+
+**`deprecated` 를 `지원 종료` 로 옮기면 한 단계 올려 말하는 것이다.** `지원 종료` 에 대응하는
+영문은 shut down 이다. 국내 서비스도 `지원 종료` 를 그 뜻으로 쓴다 (developers.naver.com —
+*"단축 URL 기능의 지원이 2024년 11월 28일(목) 부로 종료됩니다."*).
+
+게이트 G4 는 영문 토큰과 한국어 토큰을 **양쪽 다** 인식한다. 2026-09-10 에 `삭제 예정` ·
+`삭제가 예정` 을 추가했다 — 그전에는 한국어 1 차 출처를 그대로 옮긴 `삭제 예정` 주장이 근거
+없이도 통과했다 (false negative, 실측 `unsourced_claims=0`). **`삭제` 를 단독 토큰으로 넣지
+마라** — "계정을 삭제한다" 같은 정상 액션을 오탐한다 (실측 `unsourced_claims=2`).
 
 ## 적용 범위 스탬프
 

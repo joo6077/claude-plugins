@@ -18,7 +18,9 @@ HOWTO_HEDGE='이 섹션에서|해당 항목을|적절히|알아서|관련 메뉴
 
 # deprecation 주장·근거 토큰 (G4) — 영문과 한국어를 **양쪽 다** 인식한다.
 # 기존 킷의 G4 는 영문 [Dd]eprecat 에만 묶여 있어 한국어 1 차 출처를 근거로 인정하지 못했다.
-HOWTO_DEP='[Dd]eprecat|[Ss]unset|[Rr]emoved|[Ee]nd of [Ll]ife|EOL|지원 종료|지원종료|폐지|중단|서비스 종료|단종'
+# `삭제` 단독은 넣지 않는다 — "계정을 삭제한다" 같은 정상 액션을 오탐한다 (실측 unsourced_claims=2).
+# Google Cloud 한국어 문서가 removed 를 `삭제` 로 옮기므로 좁은 형태만 추가한다 (2026-09-10).
+HOWTO_DEP='[Dd]eprecat|[Ss]unset|[Rr]emoved|[Ee]nd of [Ll]ife|EOL|지원 종료|지원종료|폐지|중단|서비스 종료|단종|삭제 예정|삭제가 예정'
 
 # G3 플랫폼 계열 — 선언과 다른 계열의 경로가 섞이면 실패
 _howto_fam_declared() {   # _howto_fam_declared <family> <선언문자열>

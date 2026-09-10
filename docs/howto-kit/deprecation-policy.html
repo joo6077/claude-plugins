@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deprecation Policy — 출처보다 강한 주장 금지</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F59E0B;--accent2:#FBBF24;--accent-dim:rgba(245,158,11,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#656C7A;
+    --accent:#B45309;--accent2:#92400E;--accent-dim:rgba(180,83,9,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(245,158,11,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 3축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
+     --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  /* ── 실측 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Deprecation Policy — 출처보다 강한 주장을 막는 단계 구분</h1>
+<p class="subtitle">절차 문서가 &#8220;이 방식은 지원 종료됐다&#8221;고 쓸 때 그 주장이 1 차 출처보다 강하면 <strong>날조</strong>다. <code>권장하지 않음</code> 을 <code>deprecated</code> 로, <code>deprecated</code> 를 <code>제거됨</code> 으로 올리는 것이 전형적인 형태다. <span class="mono">조회일 2026-09-10</span></p>
+
+<div class="warn-banner">
+  <h2>설계 브리프가 확인 실패로 남겨 둔 항목이다</h2>
+  <p>&#167;11-4 — &#8220;Google Cloud 정책 문서 안에서 용어를 각각 정의한 문장과 Apple 의 동등한 정의를 확인하지 못했다. 3 단계 구분은 AWS &#183; Amazon SP-API 근거로 세웠다.&#8221;</p>
+  <p>이번 사이클이 <strong>Google Cloud 를 해소</strong>했고 <strong>Apple 은 여전히 확인 실패</strong>다.</p>
+</div>
+
+<!-- ══ 3단계 ══ -->
+<div class="section">
+  <div class="section-label">3 단계 &#8212; 각 단계에 1 차 출처가 있다</div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>단계</th><th>정의 원문</th><th>출처</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">deprecated</td><td><em>&#8220;Deprecated indicates that the resource is <strong>no longer in active development</strong> as of the deprecation date.&#8221;</em> &#8212; 호출은 아직 된다</td><td><a class="card-source" href="https://developer-docs.amazon.com/sp-api/docs/sp-api-deprecations">Amazon SP-API</a></td></tr>
+      <tr><td class="sys">sunset / shutdown</td><td><em>&#8220;Sunset services have a sunset time line (typically 12 months). The sunset date is the date AWS will end operations and support of the service.&#8221;</em></td><td><a class="card-source" href="https://docs.aws.amazon.com/general/latest/gr/sunset_services.html">AWS</a></td></tr>
+      <tr><td class="sys">removed</td><td><em>&#8220;Removed indicates that <strong>calls to the resources fail</strong> as of the removal date.&#8221;</em></td><td><a class="card-source" href="https://developer-docs.amazon.com/sp-api/docs/sp-api-deprecations">Amazon SP-API</a></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="info-card" style="margin-top:16px">
+    <h3>Google Cloud 도 같은 전이를 정의한다 &#8212; 이번에 확인</h3>
+    <p class="desc">&#8220;After a service, feature, or product is officially deprecated, it continues to be available for at least the period of time defined in the Terms of Service. <strong>After this period of time, the service is scheduled for shutdown.</strong>&#8221;</p>
+    <p class="desc">출시 단계 정의에서 removed 까지 잇는다 &#8212; &#8220;Deprecated features are scheduled to be <strong>shut down and removed</strong>.&#8221;</p>
+    <div class="sources">
+      <div class="sources-head">출처</div>
+      <a class="card-source" href="https://docs.cloud.google.com/service-usage/docs/deprecations">docs.cloud.google.com/service-usage/docs/deprecations (조회 2026-09-10)</a>
+      <a class="card-source" href="https://cloud.google.com/products">cloud.google.com/products (조회 2026-09-10)</a>
+    </div>
+  </div>
+  <div class="rule-box" style="margin-top:16px"><strong><code>권장하지 않음</code> &#8800; <code>deprecated</code> &#8800; <code>제거됨</code>.</strong> 1 차 출처가 deprecated 라고 말하지 않은 것을 deprecated 로 쓰지 마라.</div>
+</div>
+
+<!-- ══ 통지 기간 ══ -->
+<div class="section">
+  <div class="section-label">통지 기간 &#8212; 약속과 관행은 다르다</div>
+  <p class="desc">두 벤더 모두 &#8220;12 개월&#8221;이라는 숫자를 쓴다. 그런데 <em>강도가 다르다.</em></p>
+  <div class="compare">
+    <div class="compare-good">
+      <div class="compare-label"><span>Google Cloud</span><span class="tag tag-ok">약관상 약속</span></div>
+      <pre><code>"Google will notify Customer
+ at least 12 months before:
+ (i) discontinuing any Service ...
+ unless Google replaces such
+ discontinued Service"</code></pre>
+    </div>
+    <div class="compare-bad">
+      <div class="compare-label"><span>AWS</span><span class="tag tag-warn">관행 서술</span></div>
+      <pre><code>"Sunset services have a
+ sunset time line
+ (typically 12 months)"</code></pre>
+    </div>
+  </div>
+  <div class="table-wrap" style="margin-top:16px">
+  <table>
+    <thead><tr><th>벤더</th><th>절차 문서에 쓸 수 있는 것</th><th>쓰면 안 되는 것</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">Google Cloud</td><td>&#8220;최소 12 개월 전 통지가 약관에 명시돼 있습니다&#8221; + <strong>대체 서비스 제공 시 예외</strong> 단서</td><td>예외 단서를 뺀 무조건 보장</td></tr>
+      <tr><td class="sys">AWS</td><td>&#8220;보통 12 개월&#8221;</td><td>&#8220;12 개월이 <strong>보장</strong>됩니다&#8221; &#8212; 출처보다 강한 주장</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ══ 한국어 매핑 ══ -->
+<div class="section">
+  <div class="section-label">한국어 공식 용어 &#8212; 매핑이 직관과 다르다</div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>영문</th><th>한국어 공식 표기</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">Deprecated</td><td><strong>지원 중단됨</strong></td></tr>
+      <tr><td class="sys">shut down</td><td><strong>서비스 종료</strong></td></tr>
+      <tr><td class="sys">removed</td><td><strong>삭제</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px">&#8220;지원 중단됨 &#8212; 지원 중단된 기능은 <strong>서비스 종료 및 삭제가 예정된</strong> 기능입니다.&#8221;</div>
+  <p class="desc" style="margin-top:14px"><strong><code>deprecated</code> 를 <code>지원 종료</code> 로 옮기면 한 단계 올려 말하는 것이다.</strong> Google Cloud 기준으로 <code>지원 종료</code> 에 대응하는 영문은 <em>shut down</em> 이고, deprecated 는 <code>지원 중단됨</code> 이다.</p>
+  <div class="sources">
+    <div class="sources-head">출처</div>
+    <a class="card-source" href="https://cloud.google.com/products?hl=ko">cloud.google.com/products?hl=ko (조회 2026-09-10)</a>
+    <a class="card-source" href="https://developers.naver.com/products/service-api/shortenurl/shortenurl.md">developers.naver.com &#8212; &#8220;단축 URL 기능의 지원이 2024년 11월 28일(목) 부로 종료됩니다.&#8221; (조회 2026-09-10)</a>
+  </div>
+</div>
+
+<!-- ══ G4 false negative ══ -->
+<div class="section">
+  <div class="section-label">G4 게이트의 false negative &#8212; 이번에 고쳤다</div>
+  <p class="desc">위 매핑이 게이트 결함을 드러냈다. <code>howto-gate.sh</code> 의 deprecation 토큰 목록에 <strong><code>삭제</code> 계열이 없었다.</strong> 그래서 한국어 1 차 출처를 그대로 옮긴 <code>삭제 예정</code> 주장은 <strong>근거가 없어도 통과</strong>했다.</p>
+  <pre><code>수정 전
+  근거 없는 "삭제 예정" 주장   G4_DEPRECATION PASS unsourced_claims=0   ← 놓친다
+
+수정 후 (토큰 '삭제 예정|삭제가 예정' 추가)
+  근거 없는 "삭제 예정" 주장   G4_DEPRECATION FAIL unsourced_claims=1   ← 잡는다
+  같은 주장 + 출처 뒷받침      G4_DEPRECATION PASS unsourced_claims=0
+  정상 "계정을 삭제한다" 절차   G4_DEPRECATION PASS unsourced_claims=0</code></pre>
+  <div class="warn-card">
+    <h3>왜 <code>삭제</code> 를 단독 토큰으로 넣지 않았나</h3>
+    <p class="desc">세 번째 줄이 그 이유다. 단독으로 넣으면 계정 삭제 &#183; 파일 삭제 같은 <strong>정상 액션이 deprecation 주장으로 오탐</strong>된다 &#8212; 실측 <code>unsourced_claims=2</code>. 좁은 형태(<code>삭제 예정</code> &#183; <code>삭제가 예정</code>)만 넣어야 양성만 잡고 정상 절차는 통과한다.</p>
+  </div>
+  <p class="desc">세 케이스는 <code>howto-kit/evals/fixtures/</code> 에 픽스처로 커밋했고 <code>evals.json</code> 에 등록했다 (<code>E10</code> &#183; <code>E11</code> &#183; <code>E12</code>).</p>
+</div>
+
+<!-- ══ 단계별 서술 예시 ══ -->
+<div class="section">
+  <div class="section-label">단계별로 절차 문서에 뭐라고 쓰나</div>
+  <p class="desc">같은 기능이라도 <strong>지금 어느 단계인가</strong>에 따라 사용자가 할 일이 다르다. 단계를 올려 말하면 아직 쓸 수 있는 것을 못 쓰게 만들고, 내려 말하면 곧 깨질 것을 계속 쓰게 만든다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>단계</th><th>지금 상태</th><th>절차 문서에 쓸 문장</th><th>사용자가 할 일</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="sys">deprecated</td>
+        <td>호출은 <strong>아직 된다</strong>. 신규 개발만 멈춤</td>
+        <td>&#8220;이 방식은 지원 중단됐습니다. 아직 동작하지만 신규 등록에는 쓰지 마세요.&#8221;</td>
+        <td>새로 만들 때만 피한다</td>
+      </tr>
+      <tr>
+        <td class="sys">sunset / shutdown</td>
+        <td>종료일이 <strong>정해졌다</strong></td>
+        <td>&#8220;<code>&lt;날짜&gt;</code> 에 종료됩니다. 그전에 <code>&lt;대체&gt;</code> 로 옮기세요.&#8221;</td>
+        <td>기한 안에 마이그레이션</td>
+      </tr>
+      <tr>
+        <td class="sys">removed</td>
+        <td>호출이 <strong>실패한다</strong></td>
+        <td>&#8220;이 방식은 제거됐습니다. <code>&lt;대체&gt;</code> 를 쓰세요.&#8221;</td>
+        <td>즉시 전환 (선택지 없음)</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4 style="margin-top:22px">단계를 올려 말하면</h4>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; 출처보다 강함</span><span class="tag tag-bad">아직 쓸 수 있는데 막는다</span></div>
+      <pre><code>출처: "no longer in active
+      development"  (deprecated)
+
+문서: "이 API 는 제거됐으니
+      쓸 수 없습니다"</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; 출처와 같은 강도</span></div>
+      <pre><code>문서: "이 API 는 지원 중단됐습니다.
+      호출은 아직 되지만 신규
+      개발에는 쓰지 마세요"</code></pre>
+    </div>
+  </div>
+
+  <h4 style="margin-top:18px">단계를 내려 말하면</h4>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; 곧 깨진다</span><span class="tag tag-bad">기한을 안 알려준다</span></div>
+      <pre><code>출처: sunset date 명시됨
+
+문서: "권장하지 않는 방식입니다"</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; 기한을 준다</span></div>
+      <pre><code>문서: "&lt;날짜&gt; 에 종료됩니다.
+      그전에 &lt;대체&gt; 로 옮기세요"</code></pre>
+    </div>
+  </div>
+
+  <div class="rule-box" style="margin-top:16px">
+    <strong>판정 규칙</strong> &#8212; 출처 문장에 <em>날짜</em>가 있으면 최소 sunset 이다. <em>&#8220;fail&#8221; / &#8220;removed&#8221;</em> 가 있으면 removed 다. 둘 다 없고 &#8220;no longer in active development&#8221; 계열이면 deprecated 에서 멈춰라. <strong>출처에 없는 단계로 올리지 마라.</strong>
+  </div>
+</div>
+
+<!-- ══ Apple 미확인 ══ -->
+<div class="section">
+  <div class="section-label">Apple &#8212; <code>[미확인]</code></div>
+  <p class="desc">Apple 은 <strong>개별 API &#183; 기능 종료 공지</strong>는 제공하지만, AWS &#183; Amazon SP-API &#183; Google Cloud 처럼 단계를 정의한 <strong>일반 lifecycle 정책 문서</strong>를 확보하지 못했다.</p>
+  <div class="rule-box"><strong>킷의 처리</strong> &#8212; Apple 을 단계 정의의 근거로 인용하지 않는다. Apple 절차에서 deprecation 을 말해야 하면 <strong>그 기능의 개별 공지 페이지</strong>를 출처로 달아라.</div>
+  <p class="caption">시도한 URL 은 <code>howto-kit/references/provenance-notes.md</code> &#167;8 에 원장으로 남아 있다. <code>not recommended</code> 를 Google Cloud 가 별도 공식 용어로 정의한 문장도 확인 실패다.</p>
+</div>
+
+<!-- ══ 검증 기록 ══ -->
+<div class="section">
+  <div class="section-label">검증 기록 &#8212; 직전 사이클의 교훈이 값을 했다</div>
+  <p class="desc">인용 8 건을 세션 로컬 조회로 대조했다. 그중 <strong>Google Cloud deprecations 인용이 <code>raw=miss decoded=HIT</code></strong> 였다 &#8212; 원문에 HTML 엔티티가 섞여 있어 raw 대조로는 안 잡혔다.</p>
+  <div class="info-card">
+    <h3>규칙이 한 사이클 만에 값을 했다</h3>
+    <p class="desc">직전 사이클(<code>branch-catalog</code>)이 Dropbox 인용에서 같은 함정을 만나 <strong>&#8220;엔티티를 디코드한 뒤 대조하라&#8221;</strong>를 규칙으로 남겼다. 그 절차를 이번에 적용했기 때문에 멀쩡한 1 차 출처를 <strong>확인 실패로 잘못 기록하지 않았다.</strong></p>
+  </div>
+  <p class="desc" style="margin-top:14px">관련 함정 3 종 &#8212; <strong>HTML 엔티티 &#183; SPA &#183; PDF</strong> &#8212; 은 <code>docs/howto/branch-catalog.md</code> &#167;6 에 모여 있다.</p>
+</div>
+
+<!-- ══ 체크리스트 ══ -->
+<div class="section">
+  <div class="section-label">deprecation 서술 체크리스트</div>
+  <ul class="checklist">
+    <li><span class="check">1</span><span>1 차 출처가 쓴 <strong>단계 그대로</strong> 옮겼는가. <code>권장하지 않음</code> 을 <code>deprecated</code> 로 올리지 않았는가</span></li>
+    <li><span class="check">2</span><span>통지 기간을 쓴다면 그것이 <strong>약관상 약속</strong>인지 <strong>관행 서술</strong>인지 구분했는가</span></li>
+    <li><span class="check check c-warn">3</span><span>Google Cloud 의 12 개월을 인용할 때 <strong>대체 서비스 예외 단서</strong>를 함께 적었는가</span></li>
+    <li><span class="check check c-warn">4</span><span>한국어로 옮길 때 <code>deprecated</code> &#8594; <code>지원 중단됨</code>, <code>shut down</code> &#8594; <code>지원 종료 / 서비스 종료</code> 매핑을 지켰는가</span></li>
+    <li><span class="check check c-bad">5</span><span>Apple 절차에서 단계를 말한다면 <strong>개별 공지 페이지</strong>를 출처로 달았는가. 일반 정책은 존재를 확인하지 못했다</span></li>
+  </ul>
+  <p class="caption">이 페이지는 <code>docs/howto/deprecation-policy.md</code> 의 시각화본이다. 값이 어긋나면 <code>.md</code> 가 이긴다.</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>
