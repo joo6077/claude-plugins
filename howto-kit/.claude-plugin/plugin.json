@@ -1,7 +1,7 @@
 {
   "name": "howto-kit",
   "description": "사람이 손으로 하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지 끊지 않고 안내하는 스택·도메인 무관 킷",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Jackson Kim"
   },
