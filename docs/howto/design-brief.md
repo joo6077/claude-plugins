@@ -236,6 +236,10 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 
 > *"before starting the current task"* — DITA `<prereq>` / 콘텐츠 모델은 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?` 순서 — [docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/contentmodels/cmtct.html]
 
+> **2026-09-10 보강.** 이 고정 순서는 DITA 의 **strict task model** 이다. DITA 1.2 부터 OASIS
+> 배포본에는 모델이 둘이고(*"two task models"*) general 모델은 순서가 자유롭다. 모델명을 밝히지
+> 않으면 general 을 쓰는 사람이 이 인용을 오류로 판단한다. 정본은 `docs/howto/procedure-standards.md` §2.
+
 ---
 
 ## 5. 출처 등급제 (Provenance Tier) — "검증 불가 → 침묵"의 대체물

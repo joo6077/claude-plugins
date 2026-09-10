@@ -4,7 +4,7 @@ slug: howto-research-procedure-standards
 created: "2026-09-10 13:30"
 complexity: "복잡"
 conditions: 24
-status: active
+status: done
 owner_session: 4d264694-eb0e-4e84-801f-52b2db804772
 conditions_digest: sha256:4f61371a67736e33
 locked_at: "2026-09-10 12:10"
