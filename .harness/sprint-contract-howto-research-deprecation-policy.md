@@ -4,7 +4,7 @@ slug: howto-research-deprecation-policy
 created: "2026-09-10 12:10"
 complexity: "복잡"
 conditions: 25
-status: active
+status: done
 owner_session: 4d264694-eb0e-4e84-801f-52b2db804772
 conditions_digest: sha256:bd8eb381501716ef
 locked_at: "2026-09-10 11:43"

@@ -407,13 +407,30 @@
 
 <!-- ══ 검증 기록 ══ -->
 <div class="section">
-  <div class="section-label">검증 기록 &#8212; 직전 사이클의 교훈이 값을 했다</div>
-  <p class="desc">인용 8 건을 세션 로컬 조회로 대조했다. 그중 <strong>Google Cloud deprecations 인용이 <code>raw=miss decoded=HIT</code></strong> 였다 &#8212; 원문에 HTML 엔티티가 섞여 있어 raw 대조로는 안 잡혔다.</p>
-  <div class="info-card">
-    <h3>규칙이 한 사이클 만에 값을 했다</h3>
-    <p class="desc">직전 사이클(<code>branch-catalog</code>)이 Dropbox 인용에서 같은 함정을 만나 <strong>&#8220;엔티티를 디코드한 뒤 대조하라&#8221;</strong>를 규칙으로 남겼다. 그 절차를 이번에 적용했기 때문에 멀쩡한 1 차 출처를 <strong>확인 실패로 잘못 기록하지 않았다.</strong></p>
+  <div class="section-label">검증 함정 4번째 &#8212; 공백 정규화</div>
+  <p class="desc">인용 8 건을 세션 로컬 조회로 대조했다. 그중 <strong>Google Cloud deprecations 인용이 raw 대조에서 MISS</strong> 였다.</p>
+  <div class="warn-card">
+    <h3>정정 &#8212; 원인을 처음에 잘못 짚었다</h3>
+    <p class="desc">이 사이클은 처음에 원인을 <strong>HTML 엔티티</strong>로 적었다. QA 가 재현되지 않는다고 지적해 다시 확인한 결과 <strong>원인이 달랐다</strong> &#8212; 엔티티가 아니라 원문의 <strong>줄바꿈과 들여쓰기</strong>였다.</p>
+    <pre><code>찾은 문자열:  defined in the Terms of Service
+응답 본문:    defined in the\n  Terms of Service.</code></pre>
+    <p class="desc">HTML 은 줄바꿈과 들여쓰기를 렌더링에서 공백 하나로 접지만 <code>grep -F</code> 에는 그대로 남는다. <strong>문장이 두 줄에 걸치면 리터럴 대조가 실패한다.</strong></p>
   </div>
-  <p class="desc" style="margin-top:14px">관련 함정 3 종 &#8212; <strong>HTML 엔티티 &#183; SPA &#183; PDF</strong> &#8212; 은 <code>docs/howto/branch-catalog.md</code> &#167;6 에 모여 있다.</p>
+  <p class="desc" style="margin-top:16px">이제 이 킷이 아는 검증 함정은 <strong>네 가지</strong>다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>함정</th><th>증상</th><th>대응</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">HTML 엔티티</td><td><code>you&amp;#39;re</code> 가 <code>you're</code> 로 안 잡힘</td><td>엔티티 디코드 후 대조</td></tr>
+      <tr><td class="sys"><strong>공백 정규화</strong> <span class="tag">신규</span></td><td>문장이 줄바꿈으로 갈려 안 잡힘</td><td>태그 제거 + <code>\s+</code> &#8594; 공백 하나</td></tr>
+      <tr><td class="sys">SPA</td><td>HTML 이 껍데기뿐</td><td>문서 데이터 API</td></tr>
+      <tr><td class="sys">PDF</td><td>폰트 서브셋으로 정규식 불가</td><td><code>pdftotext</code> 추출</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>이번 사례가 하나를 더 가르쳐 준다</strong> &#8212; 실패 원인을 짚을 때도 <em>그것을 재현해 보고</em> 적어라. 원인을 잘못 짚으면 다음 사람이 엉뚱한 도구를 쓴다.</div>
+  <h4 style="margin-top:20px">알려진 잔여 오탐 &#8212; <code>삭제 예정</code></h4>
+  <p class="desc">QA 가 적대적 탐색으로 찾았다. <strong>&#8220;30일 지난 데이터를 삭제 예정입니다&#8221;</strong> 같은 데이터 보존 정책 문구도 <code>G4_DEPRECATION FAIL</code> 로 잡힌다. 다만 게이트가 요구하는 것은 &#8220;그 주장에 출처를 달라&#8221;이고 보존 기간도 출처가 필요한 사실 주장이므로, <strong>동작은 방어 가능하고 분류 라벨이 부정확한 상태</strong>로 남겨 둔다. <code>종료 예정</code> &#183; <code>폐지 예정</code> 단독형은 여전히 미탐이다 (기존 갭, 범위 밖).</p>
 </div>
 
 <!-- ══ 체크리스트 ══ -->
