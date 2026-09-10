@@ -125,12 +125,26 @@ sh howto-kit/evals/run-evals.sh
 
 ## 이 킷이 사실로 말하지 않는 것
 
-`references/provenance-notes.md` 에 미확정 근거 원장이 있다. 체크리스트 방법론의 1 차 출처,
-변경 로그 피드 3 건(Firebase · Stripe · Azure updates), 이름 충돌 검사는 **확인 실패** 상태이며
-그렇게 표기돼 있다. **확인 실패는 "없음" 이 아니다** — 피드 autodiscovery 링크가 없어도 피드가
-살아 있는 반례를 확보했기 때문에 세 건을 "피드 없음" 으로 승격하지 않는다.
+`references/provenance-notes.md` 에 미확정 근거 원장이 있다. **현재 9 절**이며 리서치 사이클이
+돌 때마다 늘어난다 — 확정된 것을 옮겨 내고 새로 확인 실패한 것을 더하기 때문이다.
 
-확정된 폴링 대상은 원장이 아니라 `docs/howto/changelog-feeds.md` 가 정본이다.
+| 절 | 항목 |
+| --- | --- |
+| 1 | 체크리스트 방법론의 1 차 출처 (READ-DO / DO-CONFIRM · 5~9 항목 · killer item) |
+| 2 | Microsoft Learn 권한 인용 1 건 |
+| 3 | 변경 로그 피드 3 건 (Firebase · Stripe · Azure updates) |
+| 4 | `howto-kit` 외부 이름 충돌 |
+| 5 | 딥링크 함정 2 건 (Google 계정 슬롯 · Firebase `_` 설명) |
+| 6 | Apple 의 방향어 규정 |
+| 7 | 분기 카탈로그 2 건 (언어 분기 문장 · 선제 분기 스타일 조항) |
+| 8 | Apple 의 일반 deprecation 정책 |
+| 9 | 절차 표준 2 건 (ISO 세부 조항 · verification 규정) |
+
+**확인 실패는 "없음" 이 아니다.** 피드 autodiscovery 링크가 없어도 피드가 살아 있는 반례를
+확보했기 때문에 §3 을 "피드 없음" 으로 승격하지 않는다. 같은 이유로 `iso.org` 가 스텁을 주는
+것(§9)도 부재가 아니라 접근 차단으로 적는다.
+
+확정된 항목은 원장이 아니라 `docs/howto/` 의 리서치 문서 6 종이 정본이다.
 
 ## onboarding-kit 과의 관계
 

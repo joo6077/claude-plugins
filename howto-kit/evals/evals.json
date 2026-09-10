@@ -139,6 +139,39 @@
         "unsourced_claims=0"
       ],
       "note": "오탐 대조. '계정을 삭제한다' 는 정상 액션이지 deprecation 주장이 아니다. 토큰을 '삭제' 단독으로 넓히면 이 케이스가 unsourced_claims=2 로 깨진다."
+    },
+    {
+      "id": "E13-g4-retention-notice-not-deprecation",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-retention-notice-not-deprecation.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "오탐 대조. `확인:` 은 제품이 화면에 띄우는 문구를 관측해 적는 자리다. 거기 있는 '삭제 예정' 은 저자의 주장이 아니라 근거다. 캐치올이 이 줄까지 세면 데이터 보존 안내가 deprecation 으로 오탐된다 (2026-09-10 실측 FAIL)."
+    },
+    {
+      "id": "E14-g4-completion-phrase-not-deprecation",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-completion-phrase-not-deprecation.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "오탐 대조. '설치가 종료됩니다' 는 완료 서술이다. 토큰을 '종료' 단독으로 넓히면 이 케이스가 깨진다 — 그래서 '종료 예정' 형태만 넣었다."
+    },
+    {
+      "id": "E15-g4-korean-shutdown-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-korean-shutdown-unsourced.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "양성. 토큰 추가 전에는 근거 없는 '종료 예정' 주장이 통과했다 (false negative). 주장이 스텝 헤더에 오면 `확인:` 제외와 무관하게 여전히 잡힌다."
     }
   ]
 }

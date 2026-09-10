@@ -20,7 +20,7 @@ HOWTO_HEDGE='이 섹션에서|해당 항목을|적절히|알아서|관련 메뉴
 # 기존 킷의 G4 는 영문 [Dd]eprecat 에만 묶여 있어 한국어 1 차 출처를 근거로 인정하지 못했다.
 # `삭제` 단독은 넣지 않는다 — "계정을 삭제한다" 같은 정상 액션을 오탐한다 (실측 unsourced_claims=2).
 # Google Cloud 한국어 문서가 removed 를 `삭제` 로 옮기므로 좁은 형태만 추가한다 (2026-09-10).
-HOWTO_DEP='[Dd]eprecat|[Ss]unset|[Rr]emoved|[Ee]nd of [Ll]ife|EOL|지원 종료|지원종료|폐지|중단|서비스 종료|단종|삭제 예정|삭제가 예정'
+HOWTO_DEP='[Dd]eprecat|[Ss]unset|[Rr]emoved|[Ee]nd of [Ll]ife|EOL|지원 종료|지원종료|폐지|중단|서비스 종료|단종|삭제 예정|삭제가 예정|종료 예정'
 
 # G3 플랫폼 계열 — 선언과 다른 계열의 경로가 섞이면 실패
 _howto_fam_declared() {   # _howto_fam_declared <family> <선언문자열>
@@ -82,7 +82,11 @@ howto_gate() {
     !open { next }
     {
       if ($0 ~ /\[추정\]/) guess = 1
-      if ($0 ~ dep) dep_claim = 1
+      # `- 확인:` 은 제품이 화면에 띄우는 문구를 관측해 적는 자리다. 거기 있는 "삭제 예정" 은
+      # 저자의 주장이 아니라 근거이므로 주장 탐지에서 뺀다. 안 빼면 데이터 보존 안내
+      # ("30일 지난 데이터를 삭제 예정입니다")가 deprecation 주장으로 오탐된다 (2026-09-10 실측).
+      # `[추정]` 탐지는 그대로 둔다 — G6 의 등급 비율 계산 대상이다.
+      if ($0 !~ /^- 확인:/ && $0 ~ dep) dep_claim = 1
     }
     /^- 값:/       { if (after_colon($0) != "") f_value = 1 }
     /^- 확인:/     { if (after_colon($0) != "") f_verify = 1 }
