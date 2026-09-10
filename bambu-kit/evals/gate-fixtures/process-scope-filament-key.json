@@ -1,0 +1,15 @@
+{
+  "type": "process",
+  "name": "gate-fixture scope filament key in process",
+  "print_settings_id": "gate-fixture scope filament key in process",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_geometry_class": "planar",
+  "overhang_fan_threshold": [
+    "10%"
+  ]
+}

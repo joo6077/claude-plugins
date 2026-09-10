@@ -1,0 +1,23 @@
+{
+  "type": "filament",
+  "name": "gate-fixture scope process key in filament",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "Bambu ABS @BBL H2S",
+  "filament_settings_id": [
+    "gate-fixture scope process key in filament"
+  ],
+  "filament_extruder_variant": [
+    "Direct Drive Standard",
+    "Direct Drive High Flow",
+    "Direct Drive E3D High Flow"
+  ],
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "outer_wall_speed": [
+    "30",
+    "30",
+    "30"
+  ]
+}
