@@ -1,176 +1,231 @@
 # Sprint Feedback
 Feature: howto-kaizen 1 사이클 — G4 주장 탐지 정밀화 · 미확정 원장 인덱스 동기화
-Evaluated: 2026-09-10 15:20
+Evaluated: 2026-09-11 11:20
 Verdict: REJECT
-Iteration: 1
+Iteration: 2
 
 ## Contract Fingerprint
-- path: /Users/jackson/Hub/10_Dev/claude-plugins/.harness/sprint-contract-howto-kaizen-g4-precision.md
+- path: .harness/sprint-contract-howto-kaizen-g4-precision.md
 - sha256: 2446f0321cc85aa297a7b6de8ae9859d6f38a59984a460573de84f81789bd33c
 - status: active
 - slug: howto-kaizen-g4-precision
 - contract_root: /Users/jackson/Hub/10_Dev/claude-plugins
 - contract_root_unconfigured: false
-- 선택 근거: ladder 1 명시경로 (owner_session 도 일치 — ladder 2 로도 유일 성립)
+- 선택 근거: ladder 2 세션소유 (owner_session 4d264694-eb0e-4e84-801f-52b2db804772 == 현재 세션, active 후보 3개 중 유일 소유)
 - legacy_contract_used: false
-- seal_status: SEAL_OK
+- seal_status: SEAL_OK (conditions_digest sha256:bcf7e7535ec1a339 == 실측 contract_digest)
 - contract_seal_broken: n/a
-- 재확인(Step 5): 일치
-- status_transition: skipped (verdict=REJECT)
+- 재확인(Step 5): 일치 (저장 직전 sha256/status 동일)
+- status_transition: skipped (verdict=REJECT status=active)
 
 ## Amendments
-- amendments: 0 (사이드카 없음, 확인됨)
+- amendments: 2 (AM-01, AM-02)
+- PASS 근거 가능: 2 [AM-01 narrowing·unanchored → SC-03 / AM-02 narrowing·unanchored → ER-01·ER-02]
+- PASS 근거 불가: 0
+- 집합형 direction 재현 (자기신고 아님, 직접 재계산):
+  - AM-01(SC-03): 원 커밋 f99c181(15케이스) vs 현재(16케이스)를 **behavior 튜플**(fixture|expect_final|assertions)로
+    비교 → `narrowing measured_removed=0 measured_added=1` (E16 1건 순수 추가, 행동 제거 0건). 재현 명령·출력:
+    ```
+    $ diff behavior_orig.txt behavior_new.txt
+    5a6
+    > fixtures/fail-g4-korean-abolish-unsourced.md | GATE_FAIL | G4_DEPRECATION FAIL,unsourced_claims=1
+    ```
+    단, **raw id 문자열**(`E13-g4-retention-notice-not-deprecation` → `E13-g4-retention-notice-sourced`
+    로 개명)로 그대로 비교하면 `relaxing measured_removed=1 measured_added=2`로 **극성이 반전**된다
+    (재현: `amend_direction_oracle ev_orig.txt ev_new.txt` = relaxing 1/2). E13은 fixture·assertions·
+    expect_final이 전부 동일하고 note/id만 바뀐 순수 개명이므로, 개명을 "제거"로 세지 않는 behavior
+    비교가 실체에 맞다고 판단했다 — 사이드카의 "narrowing 0/1" 결론을 **행동 단위 재구성으로 재현**했다.
+    헬퍼 선택(`amend_direction_oracle`, 측정 집합)은 옳다 — eval 케이스 목록은 G4 구현이 스캔당하는
+    모집단이라 diff-scope 스캔 대상과 동일 구조다. 다만 사이드카는 이 raw-id 반전 위험을 문서화하지
+    않았다 — Improvement로 남긴다.
+  - AM-02(ER-01·ER-02): "확인:에만 조작된 주장 + 무관 출처" 픽스처를 f99c181(면제 상태) 코드에 돌리면
+    `G4_DEPRECATION PASS unsourced_claims=0`(버그), 현재(반영 후) 코드에 돌리면
+    `G4_DEPRECATION FAIL unsourced_claims=1`(수정됨) — 사이드카의 before/after 서술을 **직접 실행 재현**.
+    zsh·bash 동일. narrowing 판정 타당.
 
 ## User Correction Audit
 - correction_log_status: available (~/.claude/logs/claude-plugins/2026-09.md)
-- unreflected_corrections: 0 (스프린트 윈도우 14:20 이후 로그된 추가 사용자 prompt 없음)
+- unreflected_corrections: 0 (2026-09-10T14:20~2026-09-11 구간 키워드 스캔 — "아니/다시/잘못/틀렸/취소/되돌려"
+  매칭 0건. 전수 정독은 아니고 키워드 기반 스크리닝이다 — `[샘플링-키워드스캔]`)
 - verdict 영향: 없음 (표면화 전용)
 
 ## Results
 
-### Skill (3/3)
-- [x] SK-01: 게이트가 `- 확인:` 줄을 deprecation 주장 탐지에서 제외 — PASS
-  - 근거: `howto-kit/scripts/howto-gate.sh:89` `if ($0 !~ /^- 확인:/ && $0 ~ dep) dep_claim = 1`. 이유 주석 `:85-88`.
-- [x] SK-02: `HOWTO_DEP` 에 `종료 예정` 추가, `삭제`/`종료` 단독 없음 — PASS
-  - 근거: `howto-kit/scripts/howto-gate.sh:23` `HOWTO_DEP='...|삭제 예정|삭제가 예정|종료 예정'`. 파이프 분해 후 정확히 `삭제`/`종료` 인 토큰 0건 (grep -nx 확인).
-- [x] SK-03: README "이 킷이 사실로 말하지 않는 것" 절이 원장 절 수(9)를 정확히 서술 — PASS
-  - 근거: `awk` 비-범위형 추출 결과에 "현재 9 절" 등장, 옛 서술 문자열 전체 파일 기준 0건.
+### Skill (2/3)
+- [x] SK-02: `HOWTO_DEP`에 `종료 예정` 추가, `삭제`·`종료` 단독 없음 — PASS [exact, L3]
+  - 근거: `howto-kit/scripts/howto-gate.sh:24` `HOWTO_DEP='...|삭제 예정|삭제가 예정|종료 예정'`.
+    `grep -o "HOWTO_DEP='[^']*'" ... | tr '|' '\n' | grep -nE '^(삭제|종료)$'` → 0건.
+- [x] SK-03: README "이 킷이 사실로 말하지 않는 것"이 원장 절 수(9)를 정확히 말한다 — PASS [exact, L3]
+  - 근거: `awk '/^## 이 킷이 사실로 말하지 않는 것/{f=1;print;next} f&&/^## /{exit} f' howto-kit/README.md`
+    → "현재 9 절" + 표 9행. 옛 문자열("체크리스트 방법론의 1 차 출처, 변경 로그 피드 3 건... ") 매칭 0건.
+- [ ] SK-01: 게이트가 `- 확인:` 줄을 deprecation 주장 탐지에서 **제외한다** — **FAIL** [exact, L3]
+  - 근거: `grep -n 'dep_claim = 1' howto-kit/scripts/howto-gate.sh` → 78행(헤더 블록), 91행(캐치올 블록).
+    두 줄 중 `확인` 제외 조건을 포함한 줄 0건 (`grep -c '확인'` = 0). 91행은
+    `if ($0 ~ dep) dep_claim = 1` — 조건 없이 모든 열린-스텝 줄(`- 확인:` 포함)을 그대로 센다.
+    실제로 `howto-kit/scripts/howto-gate.sh:85-90` 주석이 "면제해 봤다가 **되돌렸다**"라고 명시한다 —
+    이 조건이 요구하는 동작을 구현이 **의도적으로 반대로** 만든 것이다.
+  - AM-02는 ER-01·ER-02만 대상 조건으로 선언했고 SK-01은 사이드카 어디에도 등장하지 않는다 —
+    이 FAIL을 흡수할 amendment가 없다.
+  - 수정: SK-01을 폐기/역전 표현으로 바꾸는 AM-03을 추가하거나(예: "게이트가 `- 확인:` 줄을 deprecation
+    주장 탐지에서 제외하지 않는다 — 출처 인용 규약으로 오탐을 막는다"), 계약 재작성 시 SK-01 문구
+    자체를 이 결론에 맞게 고쳐야 한다.
 
-### Script (3/4)
-- [x] SC-01: CI validate job 8종 전수 exit 0 — PASS
-  - 근거(직접 실행): validate-plugin.py=0, sync-evals.py --check-only=0, sync-docs.py --check-only=0, sync-orchestrator.py --check-only=0, run-evals.py --verbose=0 (106 passed/0 failed), check-contrast-claims.py=0, check-docs-links.py=0 (내부링크 358·깨진링크 0·내비 176/176), check-stale-values.py=0.
-- [ ] SC-02: 게이트 변경이 7 케이스 매트릭스를 모두 만족한다 — **FAIL**
-  - 근거: 계약이 명시한 양성 3종은 `삭제 예정` · `종료 예정` · `폐지 예정`(근거 없음) 이다 [exact, enumerated]. 실제 커밋된 픽스처/`evals.json` 전체에서 리터럴 `폐지 예정` 을 grep 하면 **0건** (`grep -rn "폐지 예정" howto-kit/ docs/` → 매치 없음). 7번째 슬롯으로 실제 쓰인 것은 기존(이번 스프린트 이전부터 있던) `fail-g4-deprecation-ko.md` 이며 그 안의 토큰은 `지원 종료` 다 — `폐지 예정` 이 아니다. `evals.json` 신규분(E13/E14/E15) 3건도 데이터 보존·설치 완료·종료 예정만 다루고 `폐지 예정` 케이스는 어디에도 없다.
-  - 참고(기능 자체는 정상): QA 가 직접 만든 적대적 픽스처(`폐지 예정` 근거 없음, 스크래치패드)로 실행한 결과 `G4_DEPRECATION FAIL unsourced_claims=1` 로 올바르게 잡힌다 — **기능적 결함은 아니고, 계약이 요구한 리터럴 7번째 케이스가 산출물에 커밋되지 않은 것**이다.
-  - 수정: `howto-kit/evals/fixtures/` 에 `폐지 예정` 근거 없음 전용 픽스처를 추가하고 `evals.json` 에 등록하거나(케이스 16), 계약 SC-02 문구의 세 번째 토큰을 실제 구현이 쓰는 `지원 종료` 로 정정한다(어느 쪽이든 리터럴 일치가 필요).
-- [x] SC-03: `sh howto-kit/evals/run-evals.sh` → EVALS_PASS, 15케이스 — PASS
-  - 근거: 실행 출력 `EVALS total=15 pass=15 fail=0` + `EVALS_PASS` (E1~E15 전부 PASS 나열).
-- [x] SC-04: 게이트가 zsh·bash 동일 출력 — PASS
-  - 근거: `pass-g4-retention-notice-not-deprecation.md` · `fail-g4-korean-shutdown-unsourced.md` · `pass-fcm-ios.md` 3종에 대해 `zsh -c` vs `bash -c` 로 `howto_gate` 직접 실행, `diff` 결과 모두 동일 (IDENTICAL).
+### Script (4/4)
+- [x] SC-01: CI validate job 8종 전부 exit 0 — PASS [exact, enumerated, L3]
+  | # | 명령 | exit |
+  |---|---|---|
+  | 1 | `scripts/validate-plugin.py` | 0 |
+  | 2 | `scripts/sync-evals.py --check-only` | 0 |
+  | 3 | `scripts/sync-docs.py --check-only` | 0 |
+  | 4 | `scripts/sync-orchestrator.py --check-only` | 0 |
+  | 5 | `scripts/run-evals.py --verbose` | 0 (Total: 106 passed, 0 failed) |
+  | 6 | `scripts/check-contrast-claims.py` | 0 |
+  | 7 | `scripts/check-docs-links.py` | 0 (내부 링크 358개, 깨진 링크 0, 등록 176/176) |
+  | 8 | `scripts/check-stale-values.py` | 0 |
+- [x] SC-02: 7케이스 매트릭스 전수 — PASS [exact, enumerated, L3]
+  | 케이스 | 파일 | G4 결과 |
+  |---|---|---|
+  | 삭제 예정(양성) | fail-g4-korean-delete-unsourced.md | FAIL unsourced_claims=1 |
+  | 종료 예정(양성) | fail-g4-korean-shutdown-unsourced.md | FAIL unsourced_claims=1 |
+  | 폐지 예정(양성) | fail-g4-korean-abolish-unsourced.md | FAIL unsourced_claims=1 |
+  | 데이터 보존(오탐대조) | pass-g4-retention-notice-not-deprecation.md | PASS unsourced_claims=0 |
+  | 설치 완료(오탐대조) | pass-g4-completion-phrase-not-deprecation.md | PASS unsourced_claims=0 |
+  | 계정 삭제 액션(오탐대조) | pass-g4-delete-action-not-deprecation.md | PASS unsourced_claims=0 |
+  | 출처 뒷받침 | pass-g4-korean-delete-sourced.md | PASS unsourced_claims=0 |
+  zsh·bash 동일 결과 확인.
+- [x] SC-03: `run-evals.sh`가 EVALS_PASS, 케이스 16 — PASS (AM-01 적용) [exact, L3]
+  - 근거: `bash howto-kit/evals/run-evals.sh` → `EVALS total=16 pass=16 fail=0` / `EVALS_PASS`. zsh 동일.
+    원 계약 리터럴은 15이나 AM-01(narrowing·unanchored, PASS 근거 가능)로 16을 기준값으로 채택.
+- [x] SC-04: zsh/bash 동일 출력 — PASS [exact, L3]
+  - 근거: `pass-g4-retention-notice-not-deprecation.md`에 대해 zsh/bash 각각 실행한 G1~G6 전체 출력을
+    `diff`로 비교 → IDENTICAL.
 
-### Error (4/4, 단 아래 Critical Finding 참조)
-- [x] ER-01: 오탐 원인이 토큰이 아니라 스캔 범위였다는 실측이 문서에 남음 — PASS
-  - 근거: `docs/howto/deprecation-policy.md:169-186` 수정 전/후 `G4_DEPRECATION FAIL`→`PASS` 인용 + "게이트가 `- 확인:` 줄까지 주장으로 세고 있던 것" 서술.
-- [x] ER-02: `확인:` 제외해도 양성 케이스가 여전히 잡힌다는 근거 명시 — PASS (계약 리터럴 기준. **아래 Critical Finding 참조 — 이 조건의 측정 범위 자체가 좁다**)
-  - 근거: 같은 절 "주장이 스텝 헤더나 다른 필드에 오면 여전히 잡힌다 — 양성 3 종(...)이 수정 후에도 FAIL 이다" 서술 존재. SC-02 양성 케이스가 그 증거로 인용됨.
-- [x] ER-03: 원장 9절이 줄지 않음 — PASS
-  - 근거: `grep -cE '^## [0-9]\.' howto-kit/references/provenance-notes.md` → `9`.
-- [x] ER-04: overview.html 표가 원장과 어긋나지 않음 — PASS
-  - 근거: `docs/howto-kit/overview.html:343-351` 표에 §1~§9 전부 열거, "전체는 `references/provenance-notes.md` 가 정본" 포인터 병기. README.md 와 항목·순서 일치.
+### Error (2/4)
+- [x] ER-03: 원장 9절 유지 — PASS [exact, L3]
+  - 근거: `grep -c '^## [0-9]\.' howto-kit/references/provenance-notes.md` = 9.
+- [x] ER-04: overview.html 표가 원장과 어긋나지 않음 — PASS [structural, L3]
+  - 근거: `docs/howto-kit/overview.html:342-351` 표 9행이 `provenance-notes.md`의 9개 절과 1:1 일치
+    (번호·제목 대조 완료).
+- [x] ER-01: 오탐 원인이 스캔범위였다는 실측 문서화 — PASS (AM-02 적용) [exact, L3]
+  - 근거: `docs/howto/deprecation-policy.md` §7.1(168-207행)이 "확인: 줄 제외"를 **첫 시도(과교정)**로
+    서술하고 QA 사각지대 지적을 인용, 최종 해법(출처 주석 규약)으로 재서술했다. 수정 전/후 인용:
+    `170-171행: "30일 지난 데이터를 삭제 예정입니다"... G4_DEPRECATION FAIL 로 잡혔다` (수정 전, 오탐)
+    → `190-193행: 출처 주석 후 G4_DEPRECATION PASS unsourced_claims=0` (수정 후, 정상).
+    AM-02(narrowing·unanchored, PASS 근거 가능)가 "해법이 반대로 뒤집혔다"를 정당하게 흡수한다.
+- [ ] ER-02: 제외해도 양성 케이스가 여전히 잡힌다는 근거 + 구멍 없음 — **FAIL** [structural, L3]
+  - 근거: 측정 요건 "같은 절에 주장이 스텝 헤더에 오면 여전히 탐지된다는 서술이 있고, SC-02의 양성
+    3종이 그 증거로 인용된다"가 문서에 없다. `grep -n "헤더" docs/howto/deprecation-policy.md` → 0건
+    (파일 전체). `grep -n "3종\|3 종\|매트릭스\|여전히" docs/howto/deprecation-policy.md` → 무관한
+    1건("Apple 은 여전히...")만 있고 SC-02 양성 3종을 근거로 인용한 문장 없음.
+  - AM-02는 "해법 방향이 뒤집혔다"만 서술했지 ER-02의 이 특정 증거 요건을 갱신하지 않았다 — 사이드카가
+    원 조건의 이 하위 요건을 흡수하지 않는다.
+  - 별개로, 실제 "구멍 없음" 자체는 **직접 재현으로 검증됨**: `- 확인:`에만 조작된 주장 + 무관 출처
+    픽스처가 현재 코드에서 `G4_DEPRECATION FAIL unsourced_claims=1`로 정상 탐지된다(사각지대 폐쇄,
+    zsh·bash 동일). 즉 **행동은 옳으나 계약이 요구하는 문서화 형태가 없다** — FAIL은 문서화 결함이지
+    구현 결함이 아니다.
+  - 수정: `docs/howto/deprecation-policy.md` §7.1에 "주장이 `- 확인:`이 아니라 스텝 헤더(`## S1. 구
+    기능은 폐지 예정이므로...`)에 와도 여전히 탐지된다"는 서술과 SC-02 3종 양성(fail-g4-korean-*
+    -unsourced.md 3파일)을 그 증거로 명시 인용.
 
 ### Architecture (5/5)
-- [x] AR-01: 신규 픽스처 3종 존재 — PASS
-  - 근거: `test -f` 3건 모두 존재 확인 (pass-g4-retention-notice-not-deprecation.md, pass-g4-completion-phrase-not-deprecation.md, fail-g4-korean-shutdown-unsourced.md).
-- [x] AR-02: overview.html 이 README.md 와 짝으로 갱신 — PASS
-  - 근거: `git diff --name-only origin/main...HEAD` 에 두 파일 모두 포함.
-- [x] AR-03: step-contract.md 변경 없음 — PASS
-  - 근거: `git diff --name-only origin/main...HEAD -- howto-kit/references/step-contract.md` 출력 없음.
-- [x] AR-04: .gitignore 에 두 항목 추가, 추적 파일 0 — PASS
-  - 근거: `.gitignore` tail 에 `.claude/worktrees/` · `result.json` 존재. `git ls-files .claude/worktrees result.json` 출력 없음(추적 안 됨).
-- [x] AR-05: 변경 범위가 선언 경로와 정확히 일치 — PASS
-  - 근거: scoped pathspec 집합과 전체 diff 집합을 `diff` 로 비교 → IDENTICAL (10개 파일 모두 일치).
+- [x] AR-01: 신규 픽스처 3종 존재 — PASS [exact, enumerated, L3]
+  | 파일 | 존재 |
+  |---|---|
+  | pass-g4-retention-notice-not-deprecation.md | O |
+  | pass-g4-completion-phrase-not-deprecation.md | O |
+  | fail-g4-korean-shutdown-unsourced.md | O |
+- [x] AR-02: overview.html이 README.md와 짝으로 갱신 — PASS [exact, L3]
+  - 근거: `git diff --name-only origin/main...HEAD`에 `docs/howto-kit/overview.html`,
+    `howto-kit/README.md` 둘 다 포함.
+- [x] AR-03: step-contract.md 미변경 — PASS [exact, L3]
+  - 근거: `git diff --name-only origin/main...HEAD -- howto-kit/references/step-contract.md` 빈 결과.
+- [x] AR-04: .gitignore에 워크트리·result.json 추가, 추적 파일 0 — PASS [exact, enumerated, L3]
+  - 근거: `.gitignore:10` `.claude/worktrees/`, `.gitignore:13` `result.json`.
+    `git ls-files .claude/worktrees result.json` → 빈 결과.
+- [x] AR-05: 변경 범위 == 선언 pathspec — PASS [exact, enumerated, L3]
+  - 근거: `git diff --name-only origin/main...HEAD -- howto-kit docs .harness .gitignore
+    ':(exclude).claude/worktrees' ':(exclude)result.json'` 결과와 `git diff --name-only
+    origin/main...HEAD` 전체 결과를 정렬해 `diff` → IDENTICAL (12개 파일).
 
 ### Anti-patterns (2/2)
-- [x] AP-03: bare code fence 금지 — PASS
-  - 근거: `python3 scripts/validate-plugin.py --check=code-fence` → 전 14플러그인 `0 bare — OK`.
-- [x] AP-04: frontmatter name 필드 누락 금지 — PASS
-  - 근거: `python3 scripts/validate-plugin.py` 전체 exit 0, 14 plugins 14 OK (howto-kit 포함 V1 정상).
+- [x] AP-03: bare code fence 0건 — PASS [exact, L3]
+  - 근거: `python3 scripts/validate-plugin.py --check=code-fence` exit=0, `V6 code-fence 0 bare — OK` (howto-kit 포함 14 plugins).
+- [x] AP-04: frontmatter name 필드 누락 없음 — PASS [exact, L3]
+  - 근거: `python3 scripts/validate-plugin.py` exit=0, `V1 frontmatter ... — OK` 14/14.
 
 ### Reusability (2/2)
-- [x] RE-01: 재사용 가능 컴포넌트를 private 처리하지 않음 — PASS (구조적, 신규 공유 컴포넌트 없음)
-- [x] RE-02: 기존 픽스처 포맷을 그대로 따름 — PASS
-  - 근거: 신규 3픽스처의 필드 라벨 순서(`대상/조회일/어디서/무엇을/동작/값/확인/안 보이면/출처`)가 기존 `pass-g4-korean-delete-sourced.md` 와 동일.
+- [x] RE-01: 재사용 가능 컴포넌트를 private으로 만들지 않음 — PASS [L2]
+  - 근거: 이번 diff는 신규 셸 함수/컴포넌트 추가 없음(토큰·픽스처·문서 변경뿐). 해당 없음으로 위반 없음.
+- [x] RE-02: 기존 컴포넌트 재사용, 새 포맷 미발명 — PASS [exact, L3]
+  - 근거: 신규 픽스처 3종(+ AM-01의 E16)을 기존 `pass-g4-korean-sourced.md`와 대조.
+    두 파일의 `출처:` 줄 포맷이 `출처: <URL> (조회 <날짜>) — 문서에 "<용어>" 명시`로 **동일**하고
+    필드 순서(어디서→무엇을→동작→값→확인→안 보이면→출처)도 동일. 새 포맷 발명 없음 — 편법 아님.
 
-### Diagnostics (4/4)
-- [x] DG-01: 워닝 0개 — PASS
-  - 근거: `bash -n scripts/release.sh` exit 0, `sh -n howto-kit/scripts/howto-gate.sh` exit 0.
-- [x] DG-02: N/A — 검증됨 (project.yaml `commands.lint: null` 확인, IDE 진단 MCP 없음)
-- [x] DG-03: 콘솔 에러/예외 0개 — PASS
-  - 근거: `bash scripts/release.sh 2>&1` 출력에 대해 `grep -inE "error|exception|traceback"` → 매치 없음 (사용법 안내만 출력).
-- [x] DG-04: N/A — 검증됨 (플러그인 모노레포, SC-02 게이트 실행이 런타임 검증 대신함)
-
-## Critical Finding — 적대적 탐색으로 발견한 게이트 홀 (조건 밖, REJECT 사유에 포함)
-
-`- 확인:` 줄을 deprecation 주장 탐지에서 전면 제외한 결과, **`확인:` 줄에만 조작된(fabricated)
-deprecation 주장을 적으면 출처와 무관하게 항상 G4 를 통과한다.**
-
-재현 (QA 직접 작성 픽스처, 레포에 커밋되지 않음 — 스크래치패드 전용):
-
-```text
-## S1. 구 버전 API 키를 재발급한다
-...
-- 확인: 이 기능은 폐지 예정이니 서두르라는 안내가 뜬다
-- 출처: https://example.com/docs/api-keys (조회 2026-09-10)   ← deprecation 과 무관한 일반 문서
-```
-
-실행 결과: `G4_DEPRECATION PASS unsourced_claims=0`, `GATE_PASS`.
-
-수정 전(이번 스프린트 이전) 게이트라면 이 케이스는 `dep_claim=1`(캐치올이 모든 줄을 셈) +
-`dep_src=0`(출처 줄이 deprecation 을 언급하지 않음) 이 되어 `G4_DEPRECATION FAIL` 로 잡혔을
-것이다. 즉 이번 수정은 "데이터 보존 안내 오탐" 을 없애는 대신, **"확인: 줄에 적힌 조작된
-주장은 절대 못 잡는다"는 새 사각지대**를 만들었다.
-
-ER-02 의 계약 리터럴 측정("주장이 스텝 헤더에 오면 여전히 탐지된다")은 이 시나리오를 요구하지
-않으므로 문면상 PASS 하지만, ER-02 가 스스로 내세우는 "구멍을 만들지 않았다"는 주장의 실질은
-이 시나리오에서 깨진다 — `확인:` 필드 자체가 새로 뚫린 유일한 구멍이기 때문이다.
-
-무엇을:/값:/동작: 줄에 있는 주장은 여전히 정상적으로 잡힌다 (adv2/adv3 직접 재현, 아래 참조).
-다중 스텝 중 1개만 위반인 케이스의 카운트도 정확하다 (adv4, unsourced_claims=1).
-
-**권장**: `확인:` 줄 전체를 면제하는 대신, "그 줄이 deprecation 성격 주장을 담고 있으면 같은
-스텝의 `출처:` 줄도 deprecation 관련 근거를 담아야 한다"는 조건부 규칙으로 좁히거나, 최소한
-이 사각지대를 `provenance-notes.md`/`deprecation-policy.md` 에 "알려진 잔여 갭"으로 명시해야
-한다. 현재 문서는 이 사각지대를 언급하지 않는다.
-
-## 종료 단독 토큰 재현 (SK-02 근거 검증)
-
-과제 지시대로 `종료` 단독을 토큰에 추가해 재현·원복했다:
-- 기존 픽스처 `pass-g4-completion-phrase-not-deprecation.md` 자체는 "설치가 종료됩니다" 가
-  `확인:` 줄 안에 있어, 이미 그 줄이 면제 대상이라 바로 이 픽스처만으로는 재현되지 않았다
-  (여전히 `G4_DEPRECATION PASS`).
-- 그러나 같은 문구를 스텝 **헤더**(`## S1. 설치 진행 후 종료한다`)나 스텝 안의 **일반 서술
-  줄**(필드 접두 없는 자유 텍스트)에 두면 `종료` 단독 추가 시 즉시 `G4_DEPRECATION FAIL` 로
-  오탐한다 — 원본(`종료 예정`만 있음) 은 같은 입력에서 `PASS` 를 유지한다. 재현 확인됨,
-  코드 주석의 근거는 유효하다 (단, 인용된 기존 픽스처 자체는 최선의 재현 사례는 아니었다).
-- 두 토큰 세트 모두 스크래치패드 임시 파일로만 테스트했고 원본 `howto-gate.sh` 는 변경 없이
-  그대로 복원했다 (`git diff` 로 원상 확인).
+### Diagnostics (2/4, 2 N/A)
+- [x] DG-01: `bash -n scripts/release.sh` / `sh -n howto-kit/scripts/howto-gate.sh` 워닝 0 — PASS
+  - 근거: 둘 다 exit=0, 출력 없음.
+- [x] DG-02: N/A — 계약 명시 (IDE 진단 MCP 없음, `commands.lint`=null). DG-01·SC-04로 대체 검증됨.
+- [x] DG-03: `bash scripts/release.sh 2>&1 \|\| true` 콘솔 에러/예외 0 — PASS
+  - 근거: `grep -iE "error|exception|traceback"` 매칭 0건.
+- [x] DG-04: N/A — 계약 명시 (플러그인 모노레포, SC-02가 런타임 검증 대신함).
 
 ## Unverifiable Summary
 - invalid_evidence: 0
 - env_gaps: 0
-- verified_coverage: 24/24 = 1.00 (임계 0.60 충족)
-- Verdict 영향: 통상 (전 조건 정적/실행 검증 완료, [미검증] 마커 없음)
+- verified_coverage: (24-0)/24 = 1.00 (임계 0.60 충족)
+- 연속 ENV 승급: 없음
+- Verdict 영향: 통상 (미검증 카운터 REJECT 사유 아님 — REJECT는 SK-01·ER-02 FAIL 때문)
 
-## Discrimination (규칙 12 적용 조건 — SC-02/ER-02, "입력 검증" 범주로 판단)
-- 결합 확인: `howto-kit/evals/run-evals.sh:39-40` 이 `. "$GATE"; howto_gate` 로 실제 게이트
-  함수를 zsh·bash 양쪽에서 직접 호출 — 로직 재구현 없음, 결합 확인됨.
-- 음성 대조: 계약 SC-01(`docs/index.html` 등록 제거 시 FAIL)·SC-04(`set -- $var` 형태 시
-  zsh 만 결과 갈림) 에 명시됨.
+## Discrimination
+- 규칙 12의 9항(동시성/인증/멱등성/입력검증/데이터유실/마이그레이션/재시도/보안경계/사용자보고-테스트충돌) 해당 조건 없음 — 게이트 자체다 판별력 검증은 과제 지시에 따라 별도 적대적 재현으로 수행함(위 ER-01/ER-02 근거 참조: 반전 코드 대비 실행 결과 대조 완료).
 
 ## User-Reported Failures
-- 해당 없음 (이번 평가는 최초 라운드이며 사용자 실패 보고 없음).
+- 해당 없음 (이번 재평가는 QA 자체 판정, 사용자 결함 보고 없음)
 
 ## Evidence Validity
-- 검사 대상 증거: 24건 (조건별) + Critical Finding 1건
+- 검사 대상 증거: 24건 (조건별 1개 이상, SC-01/SC-02는 다중 하위 실행)
 - 무효 판정: 0건
-- 셸 스니펫 실행 검증: 실행 다수 건 (howto_gate 직접 호출, 8개 CI 스크립트, run-evals.sh) ·
-  zsh/bash 양쪽 확인 3건(SC-04) · 미실행 0건
-- 무효 0건은 미검증 카운터에 영향 없음
+- 셸 스니펫 실행 검증: SC-02(7건) · SC-04(1건) · ER-01/ER-02 재현(2건, exempted-code vs current-code) · 사각지대 재현(2건) 모두 zsh·bash 양쪽 실행 확인. 나머지는 zsh(도구 기본 셸)로 실행, 셸 종속성 없는 grep/awk/python 명령이라 bash 이중검증 생략.
+- 무효 0건 — 미검증 카운터 변화 없음
 
 ## Summary
-- Total: 23/24 conditions passed
+- Total: 22/24 conditions passed
 - Verdict: REJECT
-- FAIL 항목: SC-02 (7 케이스 매트릭스 중 `폐지 예정` 근거 없음 리터럴 픽스처 누락)
-- 추가 필수 확인 사항(REJECT 미해결 시 재발 위험): `확인:` 줄 전면 면제로 인한 조작 주장
-  사각지대 (Critical Finding 참조) — 재제출 시 함께 검토 요망.
-- 수정 우선순위: (1) SC-02 픽스처/계약 문구 정합 (2) `확인:` 사각지대 문서화 또는 조건부 규칙
-  으로 좁히는 방안 검토.
+- FAIL 2건:
+  1. **SK-01** — 게이트가 `- 확인:` 줄을 deprecation 탐지에서 제외해야 하는데, 구현은 QA(Iteration 1)
+     지적을 수용하며 이 제외를 **의도적으로 되돌렸다**. 계약 문구와 구현이 정면으로 반대다. 이 FAIL을
+     흡수할 amendment가 없다 — AM-02는 ER-01·ER-02만 대상으로 선언했다.
+  2. **ER-02** — "구멍 없음"의 실제 동작은 재현 검증했지만(사각지대 폐쇄 확인), 계약이 요구하는
+     특정 증거 형태(스텝 헤더 서술 + SC-02 3종 인용)가 문서에 없다. 문서화 결함.
+- 수정 우선순위:
+  1. SK-01을 다루는 AM-03 사이드카를 추가하거나(narrowing/relaxing 판정 포함), 다음 계약 개정에서
+     SK-01 문구를 최종 해법(출처 주석 규약)에 맞게 재작성한다.
+  2. `docs/howto/deprecation-policy.md` §7.1에 스텝 헤더 탐지 지속 서술 + SC-02 3종 인용을 추가한다.
 
 ## Improvement Suggestions
-- [SC-02] 증거-경로-부재 — 계약이 리터럴로 요구한 `폐지 예정` 근거 없음 케이스의 실제 픽스처
-  파일을 `howto-kit/evals/fixtures/`에 추가하고 `evals.json`에 16번째 케이스로 등록하거나,
-  계약 문구의 세 번째 토큰을 구현이 실제로 커버한 `지원 종료`로 정정한다.
-- [ER-02] 범위-미명시 — "구멍을 만들지 않았다"의 측정 범위가 "헤더에 오면 잡히는가"로만
-  좁혀져 있어 "확인: 줄 자체에 조작된 주장이 있고 출처가 무관한 경우"를 검증하지 않는다.
-  다음 사이클에서 이 시나리오를 명시적 서브체크로 추가하거나, deprecation 성격 확인: 줄은
-  같은 스텝의 출처: 줄도 deprecation 토큰을 포함해야 한다는 조건부 규칙 도입을 검토한다.
+- [SK-01] 검증경로-미기재 — AM-02가 ER-01·ER-02의 "해법 방향 반전"을 흡수했음에도 동일 반전의 영향을
+  받는 SK-01은 사이드카 대상에서 누락됐다. 다음 사이클에서 SK-01을 "게이트가 `- 확인:` 줄을 deprecation
+  주장 탐지에서 제외하지 **않는다** — 대신 `- 출처:` 줄의 인용 주석으로 오탐을 방지한다"로 재작성 권장.
+- [ER-02] 태그-산출물-불일치 — 측정이 "스텝 헤더 서술 + SC-02 3종 인용"이라는 구체적 문서 산출물을
+  요구하는데, 실제 문서(§7.1)는 그 형태를 갖추지 않고도 같은 절의 다른 곳(§4)에서 유사 내용을 다룬다.
+  다음 계약에서는 "§7.1에 아래 요소가 모두 있어야 한다"처럼 위치까지 고정하거나, 반대로 파일 전체
+  범위로 완화해 위치 종속성을 없앨 것을 권장.
+- [AM-01] 측정-방식-불일치 — eval 케이스 ID 문자열 개명(E13)이 raw-string 비교에서는 `relaxing`으로
+  반전되는데 사이드카는 이 반전 가능성을 문서화하지 않았다. 다음 사이드카부터는 "id 개명이 있는 경우
+  behavior 튜플(fixture+assertions+expect_final)로 정규화해 비교했다"는 방법론 문장을 명시할 것.
+
+## Cross Diagnosis
+- cross_diagnosis_by: sprint-contract (미실행 — 이 실행 환경에 Task/Agent 도구가 제공되지 않아 서브
+  에이전트 스폰 불가. Read/Bash만 사용 가능). 자기진단(Step 6)으로 대체.
+
+## Self-Diagnosis (Step 6)
+- l3_unreached: false — 24개 조건 전부 L3(의미 추적/재현)까지 도달. SK-01/ER-02는 코드·문서를 직접
+  대조하고 반례(exempted-code vs current-code, blindspot fixture)를 실행해 재현했다.
+- bias_detected: false — SC-01/SC-02/SC-04/AR-05 등 대부분 PASS이지만 SK-01·ER-02를 관대하게
+  덮지 않고 FAIL로 유지. amendment 적용 범위를 조건별로 엄격히 구분했다(AM-02가 ER-01·ER-02만
+  선언했음에도 SK-01까지 봐주지 않음).
+- evidence_missing: false — 전 조건 파일:라인 또는 명령 출력 인용.
+- contract_misinterpret: 낮음 — SK-01/ER-02 FAIL이 "계약이 틀렸다"는 방향일 수 있어 리스크가 있으나,
+  Step 3.3 규칙(원 조건을 amendment 없이 임의로 무효화하지 않는다)을 따라 문자 그대로 판정했다.
+- perspective_gap: false — 기능(SC-02 매트릭스) + 보안/적대적(사각지대 재현) + 문서(ER-01/ER-02) +
+  구조(AR-05 diff-scope) 4관점에서 점검.
