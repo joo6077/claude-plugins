@@ -823,6 +823,24 @@ amend_direction() {  # amend_direction &lt;원집합파일&gt; &lt;개정집합�
   elif [ "$added" -gt 0 ]; then echo "relaxing added=$added removed=$removed"
   else echo "unknown added=$added removed=$removed"; fi
 }</code>
+  <p class="section-desc"><strong>헬퍼의 입력은 허용 집합이다 — 측정 집합을 넣으면 극성이 뒤집힌다.</strong> <code>amend_direction</code> 은 "통과하는 것의 집합"(허용목록·파일 열거·대상 목록)을 비교한다. 반면 diff-scope 오라클의 <strong>베이스라인·제외 pathspec·측정 명령</strong>을 바꾸는 amendment 는 "재는 것의 집합"(측정 집합)을 바꾼다. 측정 집합이 <strong>줄면</strong> 통과하는 구현이 <strong>늘어난다</strong> — 허용 집합과 극성이 반대다. 그래서 측정 집합은 아래 <code>amend_direction_oracle</code> 에 넣는다. 호출자가 환산하는 방식은 두지 않는다 — 환산이 사람이 틀리는 지점이다 (실측 2026-09-08 howto-kit A-01).</p>
+  <code class="code-block"># 오라클 변경 amendment 의 direction 계산 — 입력은 **측정 집합**. zsh · bash 동일
+amend_direction_oracle() {  # amend_direction_oracle &lt;원측정집합파일&gt; &lt;개정측정집합파일&gt;
+  for f in "$1" "$2"; do [ -f "$f" ] || { echo "unknown missing_input=$f"; return 0; }; done
+  added=$(comm -13 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
+  removed=$(comm -23 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
+  if   [ "$removed" -gt 0 ]; then echo "relaxing measured_removed=$removed measured_added=$added"
+  elif [ "$added" -gt 0 ];   then echo "narrowing measured_removed=0 measured_added=$added"
+  else echo "unknown measured_removed=0 measured_added=0"; fi
+}</code>
+  <p class="section-desc">측정에서 <strong>빠지는</strong> 경로가 1개라도 있으면 <code>relaxing</code> 이다 — 그 경로에 대한 검사가 사라지므로 보수적으로 완화로 본다. 결측 입력은 <code>unknown missing_input=</code> 으로 드러낸다 — <code>amend_direction</code> 처럼 <code>sort</code> 에러 뒤에 <code>unknown</code> 을 내면 결측과 "실제로 차이 없음" 이 구별되지 않는다. 실측 (howto-kit <code>A-01</code>, 베이스라인 <code>4fb1382</code> → <code>54fb3b3</code>, 측정 집합 39 → 37):</p>
+  <code class="code-block">$ amend_direction_oracle measured-orig.txt measured-amended.txt
+relaxing measured_removed=2 measured_added=0
+
+$ amend_direction        measured-orig.txt measured-amended.txt   # 허용집합 헬퍼에 넣으면
+narrowing added=0 removed=2                                      # ← 극성이 뒤집힌 오라벨</code>
+  <p class="section-desc">어느 헬퍼를 썼는지는 사이드카에 적는다. 평가자는 의심스러우면 원 오라클과 개정 오라클로 각각 판정해 대조한다 — FAIL→PASS 면 <code>relaxing</code> 이 맞다. 픽스처는 <code>harness/evals/amend-direction/</code>.</p>
+
   <h3 class="sub">엔트리 포맷</h3>
   <code class="code-block">## AM-01 — narrowing
 - 대상 조건: AR-02

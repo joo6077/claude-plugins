@@ -481,7 +481,7 @@ tools: Agent(worker, researcher), Read, Bash
 <!-- ═══ 6 ═══ -->
 <div class="section">
   <div class="section-label">Design Patterns</div>
-  <div class="section-title">§6 일곱 가지 에이전트 디자인 패턴</div>
+  <div class="section-title">§6 에이전트 디자인 패턴</div>
   <p class="section-desc">Anthropic 이 식별한 5 패턴에 계획-실행 분리(패턴 6)와 Hook-Triggered Auto-Correction(패턴 7)을 더한다. 에이전트를 설계할 때 이 중 하나를 기반으로 삼는다.</p>
   <div class="pattern-grid">
     <div class="pattern">
@@ -900,7 +900,7 @@ src/lib/auth.ts 의 auth 미들웨어 참조."</code>
         <tr><td><strong>중첩 3 층</strong></td><td>서브에이전트도 위임 가능하나 기본 3 층에서 끊김 · 깊이를 설계 가정으로 삼지 마라 (§4)</td></tr>
         <tr><td><strong>하드 리밋</strong></td><td>동시 20 · 세션 200 · 깊이 3 — 자체 예산은 항상 이보다 작게 (§7)</td></tr>
         <tr><td>영속 메모리</td><td>대화를 넘어서 학습시켜라</td></tr>
-        <tr><td>7 가지 패턴</td><td>체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅 트리거 중 선택</td></tr>
+        <tr><td>디자인 패턴</td><td>체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅 트리거 중 선택</td></tr>
         <tr><td><strong>Fan-out / Exploration Budget</strong></td><td>§7 — 병렬 spawn 기본 5 개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환</td></tr>
         <tr><td><strong>Binary Decidability</strong></td><td>§3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격)</td></tr>
         <tr><td><strong>Unverifiable 정책</strong></td><td><code>[미검증]</code> 마커 · 2 건 누적 REJECT · 조용한 PASS 금지 · 생성자의 완료 주장은 증거 아님</td></tr>

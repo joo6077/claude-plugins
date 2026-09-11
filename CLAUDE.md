@@ -20,6 +20,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **onboarding-kit** — 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보 기반 step-by-step 가이드 (Firebase, GCP, AWS, FCM, OAuth, Stripe 등)
 - **tone-kit** — 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성, 역할 기반 네이밍, 추출 임계치, 한국어 기술 문체, 템플릿 스캐폴딩, 파일 단위 정리 캠페인
 - **api-kit** — 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행, 스냅샷 봉인, 계약 추출, 회귀 diff, 정적 뷰어
+- **howto-kit** — 사람이 손으로 하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지 끊지 않고 안내하는 스택·도메인 무관 킷
 <!-- /AUTO:summary -->
 
 ## Commands
@@ -290,6 +291,17 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 
 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션) 표기. 3축 레이어(스택 / 언어 / 프로젝트). 어댑터는 위반 실측이 있는 `dart-flutter` 하나만 채운다. 리서치 문서는 `docs/tone/` 8종.
 
+**howto-kit — 절차 안내 (3종 + 1 에이전트)**
+
+| 스킬/에이전트 | 용도 |
+|---------------|------|
+| `/howto` | **기본 모드.** 대화창에서 Step Contract 로 즉답. 파일을 만들지 않는다. 선행 질문은 한 번에 묶어 1 회 |
+| `/howto-doc` | 같은 Step Contract 를 MD 로 렌더 + 결정론 게이트 G1~G6 실행 |
+| `/howto-audit` | 이미 있는 절차 문서를 입도·출처·네비게이션 기준으로 재측정 |
+| `howto-reviewer` (에이전트) | `/howto-audit` 에서 호출. 게이트가 못 잡는 12 축(경로 실재성·값 구체성·범위 준수 등) 독립 평가 |
+
+출처 등급제(`관측`/`문서`/`추정`/`미확인`)가 "검증 불가 → 침묵"을 대체한다. **G5(말단 액션)·G6(입도)이 이 킷의 존재 이유** — 기존 절차 킷에는 입도를 재는 검사가 0 개였다. G3 는 대상 플랫폼을 선언하지 않으면 PASS 가 아니라 FAIL 이다. 미확정 근거는 `howto-kit/references/provenance-notes.md` 에 원장으로 남긴다.
+
 **이 레포 전용 스킬 (.claude/skills/)**
 
 | 스킬 | 용도 |
@@ -310,6 +322,8 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/api-research` | API 계약 검증 외부 소스 폴링 → docs/api/ 갱신 |
 | `/tone-kaizen` | tone-kit 스킬·references 개선 |
 | `/tone-research` | 톤 리서치 외부 출처 폴링 → docs/tone/ 갱신 |
+| `/howto-kaizen` | howto-kit 스킬·references 개선 |
+| `/howto-research` | 절차 안내 외부 출처 폴링 → docs/howto/ 갱신 |
 | `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
 | `/create-kit` | 새 플러그인 킷 생성 오케스트레이션 |
 
@@ -351,7 +365,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 ## Key Conventions
 
 - 모든 문서와 커밋 메시지는 한국어 사용
-- 스킬 설계는 `harness/docs/guides/skill-design-guide.md`의 9가지 아키타입을 따른다
+- 스킬 설계는 `harness/docs/guides/skill-design-guide.md`의 아키타입 카탈로그를 따른다
 - Gotchas 섹션이 스킬에서 가장 중요한 부분 — Claude가 반복하는 실수를 방지한다
 - harness evals는 `evals/test-fixtures/fixture-a~e` 디렉토리에 계약 시나리오별 테스트가 있다
 - flutter-toolkit evals는 `evals/evals.json`에 19개 스킬별 assertion이 정의되어 있다

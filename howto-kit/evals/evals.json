@@ -1,0 +1,188 @@
+{
+  "kit": "howto-kit",
+  "description": "howto-kit 게이트 G1~G6 의 결정론 판정을 픽스처로 검증한다. 각 케이스는 zsh 와 bash 양쪽에서 실행하며 두 셸 출력이 동일해야 통과다.",
+  "runner": "bash howto-kit/evals/run-evals.sh",
+  "cases": [
+    {
+      "id": "E1-pass-baseline",
+      "axis": "baseline",
+      "fixture": "fixtures/pass-fcm-ios.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G1_LEDGER PASS",
+        "G2_MARKER PASS",
+        "G3_DOMAINMIX PASS",
+        "G4_DEPRECATION PASS",
+        "G5_TERMINAL PASS",
+        "G6_GRANULARITY PASS"
+      ],
+      "note": "정상 문서가 통과하는지. 이것만으로는 게이트 생존이 증명되지 않는다 — 아래 양성 케이스가 본증거다."
+    },
+    {
+      "id": "E2-granularity-terminal-action",
+      "axis": "granularity",
+      "fixture": "fixtures/fail-g5-nonterminal.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G5_TERMINAL FAIL",
+        "nonterminal=2",
+        "hedge=2"
+      ],
+      "note": "입도 축. 종결 동사 없이 '이 섹션에서 적절히 설정'·'필요에 따라'로 끝나는 스텝을 G5 가 잡는가. 기존 킷에는 이 검사가 0 개였다."
+    },
+    {
+      "id": "E3-granularity-verify-and-branch",
+      "axis": "granularity",
+      "fixture": "fixtures/fail-g6-granularity.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G6_GRANULARITY FAIL",
+        "no_verify=2",
+        "no_branch=2",
+        "guess_pct=66"
+      ],
+      "note": "입도 축. `확인`(verify) 부재 · `안 보이면`(분기) 부재 · 추정 40% 초과를 G6 가 동시에 잡는가."
+    },
+    {
+      "id": "E4-domain-mix-declared",
+      "axis": "domain",
+      "fixture": "fixtures/fail-g3-domainmix.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G3_DOMAINMIX FAIL",
+        "foreign=android:4"
+      ],
+      "note": "iOS 를 선언하고 Android 경로를 섞었다. 기존 킷의 G3 는 stack 이 비면 항상 PASS 하는 no-op 이었다."
+    },
+    {
+      "id": "E5-domain-mix-undeclared",
+      "axis": "domain",
+      "fixture": "fixtures/edge-empty.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G3_DOMAINMIX FAIL no_target_declared"
+      ],
+      "note": "대상 선언이 없으면 PASS 가 아니라 FAIL 이다. 판정 불가를 통과로 흘리는 것이 no-op 게이트의 정체다."
+    },
+    {
+      "id": "E6-deprecation-korean-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-deprecation-ko.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "한국어 '지원 종료' 주장에 근거가 없다. 기존 G4 는 영문 [Dd]eprecat 토큰에만 묶여 이 케이스를 못 잡았다."
+    },
+    {
+      "id": "E7-deprecation-korean-sourced",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-korean-sourced.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "오탐 대조. 한국어 근거가 붙은 한국어 주장은 통과해야 한다 — 한국어라는 이유로 잡으면 영문 종속을 없앤 의미가 없다."
+    },
+    {
+      "id": "E8-zero-steps-no-divide-by-zero",
+      "axis": "robustness",
+      "fixture": "fixtures/edge-zero-steps.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G6_GRANULARITY PASS steps=0",
+        "guess_pct=0"
+      ],
+      "note": "액션 스텝 0 건에서 0 으로 나누지 않고 판정 줄 6 개를 낸다. G1 은 스텝 0 건을 절차 문서로 인정하지 않으므로 FAIL 이 정상이다."
+    },
+    {
+      "id": "E9-missing-file-blocked",
+      "axis": "robustness",
+      "fixture": "__NONEXISTENT__/x.md",
+      "expect_final": "GATE_BLOCKED",
+      "assertions": [
+        "GATE_BLOCKED no_such_file="
+      ],
+      "note": "없는 파일에서 셸이 죽지 않고 BLOCKED 를 낸다. rc 는 0 이어야 상위 루프가 이어진다."
+    },
+    {
+      "id": "E10-g4-korean-delete-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-korean-delete-unsourced.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "Google Cloud 한국어 문서가 removed 를 '삭제' 로 옮긴다. 토큰 추가 전에는 근거 없는 '삭제 예정' 주장이 그대로 통과했다 (false negative)."
+    },
+    {
+      "id": "E11-g4-korean-delete-sourced",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-korean-delete-sourced.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "같은 주장에 출처가 붙으면 통과해야 한다."
+    },
+    {
+      "id": "E12-g4-delete-action-not-deprecation",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-delete-action-not-deprecation.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "오탐 대조. '계정을 삭제한다' 는 정상 액션이지 deprecation 주장이 아니다. 토큰을 '삭제' 단독으로 넓히면 이 케이스가 unsourced_claims=2 로 깨진다."
+    },
+    {
+      "id": "E13-g4-retention-notice-sourced",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-retention-notice-not-deprecation.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "화면이 띄우는 보존 안내를 `확인:` 에 옮겨 적으면 그것도 주장으로 센다. 출처 줄에 근거를 주석으로 달면 통과한다 — 이 킷의 저작 규약이다. 2026-09-10 에 `확인:` 줄을 주장 탐지에서 면제해 봤다가 되돌렸다: 면제하면 조작된 주장이 출처와 무관하게 항상 통과하는 사각지대가 생긴다."
+    },
+    {
+      "id": "E14-g4-completion-phrase-not-deprecation",
+      "axis": "provenance",
+      "fixture": "fixtures/pass-g4-completion-phrase-not-deprecation.md",
+      "expect_final": "GATE_PASS",
+      "assertions": [
+        "G4_DEPRECATION PASS",
+        "unsourced_claims=0"
+      ],
+      "note": "오탐 대조. '설치가 종료됩니다' 는 완료 서술이다. 토큰을 '종료' 단독으로 넓히면 이 케이스가 깨진다 — 그래서 '종료 예정' 형태만 넣었다."
+    },
+    {
+      "id": "E15-g4-korean-shutdown-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-korean-shutdown-unsourced.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "양성. 토큰 추가 전에는 근거 없는 '종료 예정' 주장이 통과했다 (false negative)."
+    },
+    {
+      "id": "E16-g4-korean-abolish-unsourced",
+      "axis": "provenance",
+      "fixture": "fixtures/fail-g4-korean-abolish-unsourced.md",
+      "expect_final": "GATE_FAIL",
+      "assertions": [
+        "G4_DEPRECATION FAIL",
+        "unsourced_claims=1"
+      ],
+      "note": "양성. '폐지 예정' 은 기존 '폐지' 토큰으로 잡힌다. 계약 SC-02 가 요구한 세 번째 양성 케이스를 리터럴로 커버한다."
+    }
+  ]
+}

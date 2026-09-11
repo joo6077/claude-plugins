@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Howto Kit 개요 — 절차를 끊지 않고 안내한다</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F59E0B;--accent2:#FBBF24;--accent-dim:rgba(245,158,11,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#656C7A;
+    --accent:#B45309;--accent2:#92400E;--accent-dim:rgba(180,83,9,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(245,158,11,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 3축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
+     --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  /* ── 실측 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Howto Kit 개요 — 절차를 끊지 않고 안내한다</h1>
+<p class="subtitle">어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인. 사용자가 화면에서 길을 잃는 지점을 없애는 것이 목표다. 정확도를 못 올리면 <strong>등급을 낮춰 표기</strong>하지, 지어내지 않는다. <span class="mono">v0.1.0 · 갱신 2026-09-08</span></p>
+
+<!-- ══ 고치는 결함 ══ -->
+<div class="section">
+  <div class="section-label">고치는 결함 4종</div>
+  <p class="desc">사용자 불만 원문: <em>&#8220;맨날 다르게 알려주고 자세히 안 알려줘서 내가 몇 번이나 요청해야 함. 어떤 페이지에 정확히 어떤 메뉴를 통해 들어가고 어떤 항목을 어떻게 설정 및 입력하고 이런 걸 안 알려줌.&#8221;</em></p>
+  <table>
+    <thead><tr><th>ID</th><th>결함</th><th>대응</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">F1</td><td>같은 질문에 매번 다른 절차</td><td>Step Contract 고정</td></tr>
+      <tr><td class="mono">F2</td><td>&#8220;설정에서 활성화하세요&#8221; 수준의 입도</td><td>말단 액션 규칙 + 값&#183;확인 필수 (G5&#183;G6)</td></tr>
+      <tr><td class="mono">F3</td><td>학습 데이터 기반 옛 UI</td><td>출처 등급제 + 조회일 스탬프</td></tr>
+      <tr><td class="mono">F4</td><td>화면에서 항목을 못 찾음</td><td>딥링크 우선 + 중간 단계 무생략 + 선제 분기</td></tr>
+    </tbody>
+  </table>
+  <p class="desc"><strong>F2 를 F3 로 바꾸지 않는 것</strong>이 이 킷의 핵심 제약이다. 자세히 쓰라는 요구를 날조로 메우는 것이 이 도메인의 최악 실패다.</p>
+</div>
+
+<!-- ══ 무엇이 달라지나 ══ -->
+<div class="section">
+  <div class="section-label">한 스텝의 before / after</div>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">사용자가 여기서 막힌다</span></div>
+      <pre><code>Firebase 콘솔의 Cloud Messaging 섹션에서
+APNs 키를 설정하세요.</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; after</span><span class="tag tag-good">Step Contract</span></div>
+      <pre><code>S2. Apple app configuration 섹션에서
+    APNs authentication key 의 Upload 버튼을 누른다
+    값:   앞서 받은 .p8 파일 + Key ID + Team ID
+    확인: 키 목록에 Key ID 행이 추가된다
+    안 보이면: 요금제 — 무료 플랜에서도 보인다.
+              안 보이면 iOS 앱이 프로젝트에 미등록이다
+    출처: firebase.google.com/docs/... (조회 2026-09-08)</code></pre>
+    </div>
+  </div>
+  <p class="desc">차이는 길이가 아니라 <strong>끝맺음</strong>이다. before 는 &#8220;섹션에서 설정하세요&#8221;로 끝나 사용자를 화면에 혼자 남긴다. after 는 종결 동사로 끝나고, 무엇을 넣고 무엇을 보고 성공을 판단할지까지 닫는다.</p>
+</div>
+
+<!-- ══ 출처 등급제 ══ -->
+<div class="section">
+  <div class="section-label">출처 등급제 — &#8220;검증 불가 → 침묵&#8221;의 대체물</div>
+  <p class="desc">정직성이 요구하는 것은 침묵이 아니라 <strong>등급 표시</strong>다. 출처가 다른 정보를 같은 등급으로 섞어 파는 것이 부정직이지, 등급을 붙여 파는 것은 부정직이 아니다.</p>
+  <table>
+    <thead><tr><th>등급</th><th>표기</th><th>허용되는 문장</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">관측</td><td>표기 생략</td><td>무엇이든 단정 가능</td></tr>
+      <tr><td class="mono">문서</td><td><code>출처: &lt;URL&gt; (조회 YYYY-MM-DD)</code></td><td>라벨&#183;경로&#183;필드명 단정 가능</td></tr>
+      <tr><td class="mono">추정</td><td><code>[추정]</code> 필수</td><td>단정 금지. &#8220;대개 …에 있습니다&#8221;</td></tr>
+      <tr><td class="mono">미확인</td><td><code>[미확인]</code> + 시도한 URL</td><td>이때만 전역 검색어로 우회</td></tr>
+    </tbody>
+  </table>
+  <p class="desc"><code>추정</code>이 액션 스텝의 <strong>40%</strong>를 넘으면 그대로 내보내지 않는다 — 화면 폐루프로 사용자에게 묻거나 미확인으로 강등한다.</p>
+</div>
+
+<!-- ══ 게이트 ══ -->
+<div class="section">
+  <div class="section-label">결정론 게이트 G1~G6</div>
+  <p class="desc">LLM 호출 없는 순수 판정이다. <strong>G5&#183;G6 이 이 킷의 존재 이유</strong> — 기존 절차 킷 어디에도 입도를 재는 검사가 없었다.</p>
+  <table>
+    <thead><tr><th>ID</th><th>검사</th><th>실패 조건</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">G1</td><td>출처 원장 완전성</td><td>액션 스텝 수 &#8800; 출처 줄 수</td></tr>
+      <tr><td class="mono">G2</td><td>미검증 마커 분류</td><td>접미 없는 레거시 마커 &#8805;1, 또는 INVALID 가 정본 임계 이상</td></tr>
+      <tr><td class="mono">G3</td><td>도메인 혼용</td><td>선언과 다른 계열 경로 혼입, 또는 <strong>대상 미선언</strong></td></tr>
+      <tr><td class="mono">G4</td><td>deprecation 근거 결합</td><td>주장한 스텝의 출처가 뒷받침하지 않음 (한국어 토큰 포함)</td></tr>
+      <tr><td class="mono">G5</td><td><strong>말단 액션</strong></td><td>종결 동사로 끝나지 않거나 회피 표현이 섞인 스텝 &#8805;1</td></tr>
+      <tr><td class="mono">G6</td><td><strong>입도 완전성</strong></td><td>값&#183;확인&#183;안 보이면&#183;출처 누락 &#8805;1, 또는 추정 비율 &gt; 40%</td></tr>
+    </tbody>
+  </table>
+  <p class="desc">G3 는 대상 플랫폼을 선언하지 않으면 <strong>PASS 가 아니라 FAIL</strong> 이다. 판정 불가를 통과로 흘리는 것이 no-op 게이트의 정체다 — 기존 킷의 G3 는 스택 인자가 비면 항상 PASS 해서 3개월간 아무것도 잡지 못했다.</p>
+</div>
+
+<!-- ══ 셸 이식성 ══ -->
+<div class="section">
+  <div class="section-label">게이트는 양쪽 셸에서 돌려야 증명된다</div>
+  <p class="desc">실측 2026-09-08. 같은 게이트, 같은 위반 입력, 다른 셸.</p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; zsh</span><span class="tag tag-bad">위반을 흘렸다</span></div>
+      <pre><code>G5_TERMINAL PASS nonterminal=0 hedge=0
+GATE_PASS</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; bash</span><span class="tag tag-good">정상 판정</span></div>
+      <pre><code>G5_TERMINAL FAIL nonterminal=2 hedge=2
+GATE_FAIL</code></pre>
+    </div>
+  </div>
+  <p class="desc">원인은 <code>set -- $stats</code>. zsh 는 기본적으로 파라미터 확장에 <strong>단어분할을 하지 않아서</strong> 전체가 <code>$1</code> 에 들어가고, 이후 산술 비교가 전부 조용히 실패했다. bash 에서만 테스트했으면 못 잡았을 결함이다. 그래서 evals 는 두 셸 출력의 <strong>동일성</strong>까지 검사한다.</p>
+</div>
+
+<!-- ══ 사용 흐름 ══ -->
+<div class="section">
+  <div class="section-label">사용 흐름</div>
+  <table>
+    <thead><tr><th>상황</th><th>스킬</th><th>산출물</th></tr></thead>
+    <tbody>
+      <tr><td>지금 화면에서 뭘 눌러야 하나</td><td class="mono">/howto</td><td>대화 텍스트 (파일 없음)</td></tr>
+      <tr><td>그 절차를 문서로 남겨야 한다</td><td class="mono">/howto-doc</td><td>MD 파일 + 게이트 출력</td></tr>
+      <tr><td>이미 있는 절차 문서를 재측정한다</td><td class="mono">/howto-audit</td><td>판정 리포트 (수정하지 않음)</td></tr>
+    </tbody>
+  </table>
+  <p class="desc"><code>/howto</code> 와 <code>/howto-audit</code> 은 읽기 전용이다. <code>Write</code> 는 <code>/howto-doc</code> 에만 있다.</p>
+</div>
+
+<!-- ══ 사실로 말하지 않는 것 ══ -->
+<div class="section">
+  <div class="section-label">이 킷이 사실로 말하지 않는 것</div>
+  <p class="desc">킷의 규칙을 킷 자신에게 먼저 적용한 결과다. 원장은 <strong>현재 9 절</strong>이며 리서치 사이클이 돌 때마다 늘어난다 &#8212; 확정된 것을 옮겨 내고 새로 확인 실패한 것을 더하기 때문이다. 전체는 <code>references/provenance-notes.md</code> 가 정본이다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>&#167;</th><th>항목</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">1</td><td>체크리스트 방법론의 1 차 출처 (READ-DO / DO-CONFIRM &#183; 5~9 항목 &#183; killer item)</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">2</td><td>Microsoft Learn 권한 인용 1 건</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">3</td><td>변경 로그 피드 3 건 (Firebase &#183; Stripe &#183; Azure updates)</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">4</td><td><code>howto-kit</code> 외부 이름 충돌</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">5</td><td>딥링크 함정 2 건 (Google 계정 슬롯 &#183; Firebase <code>_</code> 설명)</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">6</td><td>Apple 의 방향어 규정</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">7</td><td>분기 카탈로그 2 건 (언어 분기 문장 &#183; 선제 분기 스타일 조항)</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">8</td><td>Apple 의 일반 deprecation 정책</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="mono">9</td><td>절차 표준 2 건 (ISO 세부 조항 &#183; verification 규정)</td><td class="mono">확인 실패</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="caption"><strong>확인 실패는 &#8220;없음&#8221;이 아니다.</strong> autodiscovery 링크가 없어도 피드가 살아 있는 반례(&#167;3), <code>iso.org</code> 가 스텁을 주는 것(&#167;9) &#8212; 둘 다 <strong>접근 차단이지 부재가 아니다</strong>. 확정된 항목은 <code>docs/howto/</code> 리서치 문서 6 종이 정본이다.</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procedure Standards — 표준과 킷 규약의 대조</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F59E0B;--accent2:#FBBF24;--accent-dim:rgba(245,158,11,0.12);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#818cf8;--cyan:#22d3ee;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+    --nav-bg:rgba(13,13,20,0.85);
+  }
+  [data-theme="light"]{
+    --bg:#f4f5f9;--bg2:#eaecf2;--surface:#ffffff;--surface2:#f0f1f6;--border:#d4d9e6;
+    --text:#181825;--text2:#4d5568;--text3:#656C7A;
+    --accent:#B45309;--accent2:#92400E;--accent-dim:rgba(180,83,9,0.10);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#4338ca;--cyan:#0e7490;
+    --nav-bg:rgba(244,245,249,0.9);
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background var(--transition),color var(--transition);
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 50%),
+                     radial-gradient(ellipse at 80% 100%,rgba(245,158,11,0.03) 0%,transparent 50%);
+  }
+  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
+
+  /* ── NAV ── */
+  .nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,48px);
+    background:var(--nav-bg);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
+  .nav-logo span{color:var(--accent2)}
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
+    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
+    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
+    font-size:12px;font-weight:600;color:var(--text2);
+    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
+  }
+  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── TYPO ── */
+  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
+    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
+  h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .section{margin-bottom:clamp(44px,6vw,76px)}
+  .section-label{
+    font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
+    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:880px;margin-bottom:22px}
+  .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
+  strong{color:var(--text);font-weight:700}
+  em{color:var(--accent2);font-style:normal;font-weight:700}
+
+  /* ── TAGS / BADGES ── */
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px}
+  .tag-warn{background:rgba(251,191,36,0.14);color:var(--yellow)}
+  .tag-bad{background:rgba(248,113,113,0.14);color:var(--red)}
+  .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
+  .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+
+  /* 강도 배지 */
+  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
+  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
+  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
+
+  /* ── CARDS ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card .card-body{flex:1}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+  .mono{font-family:var(--mono);font-size:12px}
+
+  .principle-title{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .principle-title h3{margin-bottom:0}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
+  .pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text3);
+    font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:4px}
+
+  .card-source{display:inline-flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--accent);
+    text-decoration:none;margin-top:6px;font-family:var(--mono);line-height:1.5;overflow-wrap:anywhere}
+  .card-source:hover{color:var(--accent2);text-decoration:underline}
+  .card-source:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sources{margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+  .sources-head{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+  /* 링크 없는 출처 — 텍스트 배지 */
+  .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
+    color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
+    padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+
+  /* 내부 문서 링크 — 출처 링크와 구분 */
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+  /* ── TABLES ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
+    font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:hover td{background:rgba(217,70,239,0.04)}
+  td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
+    padding:2px 6px;border-radius:4px;color:var(--text)}
+  .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
+    border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+  .table-wrap>table{min-width:max-content}
+  .sys{font-weight:700;color:var(--text);white-space:nowrap}
+
+  /* ── 경고 / 신호 카드 ── */
+  .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
+    border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
+    margin-bottom:clamp(36px,5vw,56px)}
+  .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
+  .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
+  .warn-banner p:last-child{margin-bottom:0}
+  .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .warn-card h3{color:var(--yellow)}
+  .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+
+  /* ── 비교 패널 (before/after 주인공) ── */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .compare-bad,.compare-good{border-radius:12px;padding:clamp(14px,2vw,20px);min-width:0;display:flex;flex-direction:column}
+  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .compare-bad .compare-label{color:var(--red)}
+  .compare-good .compare-label{color:var(--green)}
+  .compare pre{margin-bottom:0;background:var(--bg2)}
+  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+
+  /* ── 원칙 카드 ── */
+  .principle{margin-bottom:20px}
+  .principle .desc{margin-top:16px;margin-bottom:0}
+
+  /* ── 체크리스트 ── */
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
+  .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
+  .checklist .check.c-bad{border-color:var(--red);color:var(--red)}
+  .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
+  .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ── 3축 흐름 ── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
+  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;position:relative}
+  /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
+     --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
+  .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
+  .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
+  .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+
+  /* ── 결정 규칙 박스 ── */
+  .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
+  .rule-box strong{color:var(--accent2)}
+
+  /* ── 실측 분포 막대 ── */
+  .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
+  .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
+  .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .dist-fill.f-blue{background:linear-gradient(90deg,var(--blue),#a5b4fc)}
+  .dist-val{color:var(--text3);font-family:var(--mono);text-align:right;white-space:nowrap}
+
+  pre{max-width:100%;overflow-x:auto;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
+
+  /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
+  .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
+  :not(pre)>code{overflow-wrap:anywhere}
+  th code,td code{overflow-wrap:normal}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  @media(max-width:640px){
+    .compare{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .flow-step{flex:1 1 100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Procedure Standards — 스텝 하나를 어떻게 쓰라고 하는가</h1>
+<p class="subtitle">이 킷의 Step Contract 는 DITA 1.3 을 뼈대로 삼는다. 이 페이지는 그 인용이 실제로 표준에 있는지, 그리고 <strong>킷이 표준을 어디서 넘어섰는지</strong>를 기록한다. <span class="mono">조회일 2026-09-10</span></p>
+
+<div class="warn-banner">
+  <h2>넘어선 곳을 감추면 잘못 인용된다</h2>
+  <p>킷은 몇 곳에서 표준보다 <strong>강한</strong> 규칙을 쓴다. 그것을 &#8220;표준이 그렇다&#8221;고 적으면 <strong>과대 인용</strong>이 되고, 그게 바로 이 킷이 막으려는 F3 다. 강화한 지점은 <em>강화했다고</em> 적는다.</p>
+</div>
+
+<!-- ══ 확정 인용 ══ -->
+<div class="section">
+  <div class="section-label">확정된 인용 &#8212; 출처 열이 빈 행은 없다</div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>규정</th><th>원문</th><th>출처</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">스텝 명령문은 한 문장</td><td><em>&#8220;should not be more than one sentence&#8221;</em></td><td><a class="card-source" href="https://docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/cmd.html">DITA 1.3 <code>&lt;cmd&gt;</code></a></td></tr>
+      <tr><td class="sys">결과를 매 스텝에 쓰지 마라</td><td><em>&#8220;should not be used for every step&#8221;</em></td><td><a class="card-source" href="https://docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/stepresult.html">DITA 1.3 <code>&lt;stepresult&gt;</code></a></td></tr>
+      <tr><td class="sys">task 모델은 <strong>둘</strong>이다</td><td><em>&#8220;the DTD and Schema packages distributed by OASIS contain two task models&#8221;</em></td><td><a class="card-source" href="https://docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/taskbody.html">DITA 1.3 <code>&lt;taskbody&gt;</code></a></td></tr>
+      <tr><td class="sys">strict 가 OASIS 기본</td><td><em>&#8220;this constraint is used in the default task distributed by OASIS&#8221;</em></td><td><a class="card-source" href="https://docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/taskbody.html">같은 문서</a></td></tr>
+      <tr><td class="sys">스텝 하나에 동작 하나</td><td><em>&#8220;In general, use one step for each action.&#8221;</em></td><td><a class="card-source" href="https://developers.google.com/style/procedures">Google</a></td></tr>
+      <tr><td class="sys">동작 먼저, 결과 나중</td><td><em>&#8220;State the action first and the result second.&#8221;</em></td><td><a class="card-source" href="https://developers.google.com/style/procedures">Google</a></td></tr>
+      <tr><td class="sys">번호 매긴 목록</td><td><em>&#8220;Use a numbered list.&#8221;</em></td><td><a class="card-source" href="https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions">Microsoft</a></td></tr>
+      <tr><td class="sys">명령형 동사</td><td><em>&#8220;Use imperative verb forms.&#8221;</em></td><td><a class="card-source" href="https://learn.microsoft.com/en-us/style-guide/checklists/procedures-and-instructions-checklist">Microsoft</a></td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ══ taskbody 두 모델 ══ -->
+<div class="section">
+  <div class="section-label">킷의 <code>&lt;taskbody&gt;</code> 인용이 불완전했다</div>
+  <p class="desc">킷은 콘텐츠 모델을 이렇게 인용했다. <strong>어느 모델인지 밝히지 않았다.</strong></p>
+  <pre><code>&lt;prereq&gt;?, &lt;context&gt;?, (&lt;steps&gt;|&lt;steps-unordered&gt;)?, &lt;result&gt;?, &lt;postreq&gt;?</code></pre>
+  <div class="info-card">
+    <p class="desc">&#8220;Beginning with DITA 1.2, the DTD and Schema packages distributed by OASIS contain <strong>two task models</strong>. The <strong>general task model</strong> allows two additional elements inside the task body (&#8230;); it also allows multiple instances and varying order&#8230; The <strong>strict task model</strong> maintains the order and cardinality of the DITA 1.0 and 1.1 content model.&#8221;</p>
+    <div class="sources"><div class="sources-head">출처</div>
+      <a class="card-source" href="https://docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/taskbody.html">docs.oasis-open.org &#8230; taskbody.html (조회 2026-09-10)</a></div>
+  </div>
+  <div class="table-wrap" style="margin-top:16px">
+  <table>
+    <thead><tr><th>모델</th><th>순서</th><th>요소</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">strict task</td><td>DITA 1.0/1.1 의 순서와 개수 유지 &#8212; <strong>고정</strong></td><td>제한적</td></tr>
+      <tr><td class="sys">general task</td><td>순서 자유, 다중 인스턴스 허용</td><td>두 요소 추가</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="desc" style="margin-top:14px">킷이 인용한 고정 순서 모델은 <strong>strict task model</strong> 이고, 그것이 OASIS 기본이다. <strong>그러므로 킷의 인용은 틀리지 않았지만 불완전했다.</strong> 모델명을 안 쓰면 general 을 쓰는 사람이 &#8220;킷이 DITA 를 잘못 인용했다&#8221;고 판단한다.</p>
+</div>
+
+<!-- ══ 강화 지점 ══ -->
+<div class="section">
+  <div class="section-label">킷이 표준을 넘어선 지점 &#8212; <code>verify</code> 필수</div>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>DITA 의 권고</span></div>
+      <pre><code>&lt;stepresult&gt;
+"should not be used
+ for every step"</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>킷의 규칙</span><span class="tag tag-warn">강화</span></div>
+      <pre><code>verify 는
+모든 스텝에 필수</code></pre>
+    </div>
+  </div>
+  <p class="desc"><strong>표준을 모르고 어기는 것이 아니다.</strong> 이 도메인의 실패 데이터가 다르다 &#8212; 막으려는 실패가 <strong>무증상 실패</strong>다. 절차를 다 따랐는데 아무 일도 일어나지 않고 에러도 안 난다. 확인 지점이 없으면 사용자는 마지막 스텝까지 가서야 아무것도 안 됐다는 것을 알고, <strong>어느 스텝이 실패했는지 되짚을 수 없다.</strong></p>
+  <p class="desc">Google 의 규정도 결과를 쓰라고는 하되 <strong>순서만</strong> 정한다 &#8212; <em>&#8220;State the action first and the result second.&#8221;</em></p>
+  <div class="rule-box"><strong>&#8220;매 스텝에 확인을 넣어라&#8221;고 규정한 스타일 가이드 조항은 찾지 못했다</strong> &#8212; <code>[미확인]</code>. 그러므로 <code>verify</code> 필수는 <strong>표준의 인용이 아니라 도메인 실패 데이터에 근거한 강화</strong>다. 다른 표기는 과대 인용이다.</div>
+</div>
+
+<!-- ══ ISO ══ -->
+<div class="section">
+  <div class="section-label">ISO/IEC/IEEE 26514 &#183; 26515 &#8212; <code>[미확인]</code></div>
+  <p class="desc">설계 브리프 &#167;11-2 가 남긴 항목이다. <strong>이번에도 해소하지 못했다.</strong></p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>표준</th><th>공개 범위에서 확인한 것</th><th>확인 못 한 것</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">ISO/IEC/IEEE 26514</td><td>제목 &#183; 판</td><td><strong>절차 작성 세부 조항</strong></td></tr>
+      <tr><td class="sys">ISO/IEC/IEEE 26515</td><td>제목 &#183; 판</td><td>같음</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="warn-card" style="margin-top:16px">
+    <h3>접근 차단이지 부재가 아니다</h3>
+    <p class="desc">두 표준 모두 <strong>유료</strong>다. 그리고 이 환경에서는 <code>iso.org</code> 자체가 <strong>5.5KB 스텁</strong>만 응답해 공개 Scope 조차 직접 대조하지 못했다. 다른 네트워크에서는 볼 수 있다.</p>
+  </div>
+  <div class="rule-box" style="margin-top:14px"><strong>킷의 처리</strong> &#8212; ISO 를 근거로 인용하지 않는다. <strong>유료 전문의 내용을 2 차 요약으로 추정해 쓰지 않는다.</strong></div>
+</div>
+
+<!-- ══ 대조표 ══ -->
+<div class="section">
+  <div class="section-label">킷 규약과 표준의 대조</div>
+  <p class="desc"><em>&#8220;인용&#8221;과 &#8220;강화&#8221;와 &#8220;킷 고유&#8221;를 섞어 쓰지 마라.</em> 강화한 것을 표준이라 부르면 그것이 F3 다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>킷 규약</th><th>표준 근거</th><th>관계</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">스텝 명령문 1 문장</td><td>DITA <code>&lt;cmd&gt;</code></td><td><span class="tag tag-ok">인용</span></td></tr>
+      <tr><td class="sys">스텝 하나에 동작 하나</td><td>Google</td><td><span class="tag tag-ok">인용</span></td></tr>
+      <tr><td class="sys">번호 매긴 스텝</td><td>Microsoft</td><td><span class="tag tag-ok">인용</span></td></tr>
+      <tr><td class="sys">명령형</td><td>Microsoft</td><td><span class="tag tag-ok">인용</span></td></tr>
+      <tr><td class="sys">골격 <code>prereq/context/steps/result/postreq</code></td><td>DITA <strong>strict</strong> task model</td><td><span class="tag tag-ok">인용</span></td></tr>
+      <tr><td class="sys"><strong><code>verify</code> 매 스텝 필수</strong></td><td>DITA 는 <strong>반대 권고</strong></td><td><span class="tag tag-warn">강화</span></td></tr>
+      <tr><td class="sys"><strong><code>안 보이면</code> 선제 분기 필수</strong></td><td>규정 조항 확인 실패</td><td><span class="tag tag-warn">관행의 귀납</span></td></tr>
+      <tr><td class="sys"><strong>출처 등급 표기</strong></td><td>대응 표준 없음</td><td><span class="tag">킷 고유</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ══ 검증 함정 ══ -->
+<div class="section">
+  <div class="section-label">검증 함정 4종이 이번에도 값을 했다</div>
+  <p class="desc">이번 사이클은 앞선 사이클들이 축적한 함정 목록을 전부 적용한 <strong>정규화 대조기</strong>를 썼다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>함정</th><th>발견 사이클</th></tr></thead>
+    <tbody>
+      <tr><td class="sys">HTML 엔티티</td><td class="mono">branch-catalog</td></tr>
+      <tr><td class="sys">공백 정규화 (줄바꿈 + 들여쓰기)</td><td class="mono">deprecation-policy</td></tr>
+      <tr><td class="sys">SPA</td><td class="mono">deep-links</td></tr>
+      <tr><td class="sys">PDF 폰트 서브셋</td><td class="mono">ui-anchoring</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="desc" style="margin-top:14px">그 덕에 이번에 하나를 건졌다.</p>
+  <pre><code>Google "State the action first and the result second"
+  raw=miss   norm=HIT</code></pre>
+  <p class="desc">원문이 두 줄에 걸쳐 있어 raw 대조로는 안 잡혔다. <strong>함정 목록이 없었으면 이 인용은 &#8220;확인 실패&#8221;로 잘못 기록됐을 것이다.</strong> 목록이 사이클을 거치며 실제로 값을 하고 있다.</p>
+  <p class="caption">전체 결과: 9 건 중 <strong>7 raw HIT &#183; 1 norm 으로 구제 &#183; 1 확인 실패</strong>(ISO &#8212; 접근 차단).</p>
+</div>
+
+<!-- ══ 체크리스트 ══ -->
+<div class="section">
+  <div class="section-label">표준 인용 체크리스트</div>
+  <p class="desc">절차 규약에 표준을 근거로 달 때 순서대로 확인한다.</p>
+  <ul class="checklist">
+    <li><span class="check">1</span><span>인용한 문장이 <strong>그 URL 에 실재</strong>하는가. 정규화 대조기로 확인했는가 (엔티티 &#183; 공백 &#183; SPA &#183; PDF)</span></li>
+    <li><span class="check">2</span><span>표준에 <strong>변종</strong>이 있는가. DITA task 처럼 모델이 둘이면 <strong>어느 것인지 명시</strong>했는가</span></li>
+    <li><span class="check check c-warn">3</span><span>규약이 표준보다 <strong>강한가</strong>. 강하다면 &#8220;강화&#8221;라고 적고 <strong>왜 강화했는지</strong> 근거를 댔는가</span></li>
+    <li><span class="check check c-warn">4</span><span>표준에 대응 조항이 <strong>아예 없는</strong> 규약인가. 그렇다면 &#8220;킷 고유&#8221;로 표기했는가</span></li>
+    <li><span class="check check c-bad">5</span><span><strong>유료 표준의 내용을 2차 요약으로 추정해</strong> 쓰고 있지 않은가. 공개 범위에서 본 것만 인용하라</span></li>
+    <li><span class="check check c-bad">6</span><span>접근 실패를 <strong>부재로 승격</strong>하고 있지 않은가. <code>iso.org</code> 가 스텁을 주는 것은 차단이지 없는 것이 아니다</span></li>
+  </ul>
+</div>
+
+<!-- ══ 조회 기록 ══ -->
+<div class="section">
+  <div class="section-label">조회 기록 &#8212; 위임 지적이 절반만 맞았다</div>
+  <p class="desc">Codex 위임 1 회 (MODE=research &#183; read-only &#183; foreground &#183; 검색 하드캡 20). rollout 로그의 <code>turn_aborted</code> 는 <strong>0 건</strong>으로 정상 완주했다.</p>
+  <div class="info-card">
+    <h3>위임 결과를 그대로 받았으면 멀쩡한 인용을 고칠 뻔했다</h3>
+    <p class="desc"><strong>Codex 가 킷의 오류를 지적했다</strong> &#8212; <code>&lt;taskbody&gt;</code> 모델이 킷 인용과 다르다는 것이다. 직접 확인한 결과 지적은 <strong>절반만 맞았다</strong>: 킷 인용이 틀린 게 아니라 <strong>두 모델 중 어느 것인지 안 밝힌 것</strong>이 문제였다.</p>
+  </div>
+  <p class="caption">이 페이지는 <code>docs/howto/procedure-standards.md</code> 의 시각화본이다. 값이 어긋나면 <code>.md</code> 가 이긴다.</p>
+</div>
+
+</div>
+
+<script>
+// ===== THEME =====
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) { saved = null; }
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  var icon = document.getElementById('theme-icon');
+  var label = document.getElementById('theme-label');
+  if (icon) icon.innerHTML = theme === 'dark' ? '&#9728;&#65039;' : '&#127761;';
+  if (label) label.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  try { localStorage.setItem('dk-theme', theme); } catch (e) {}
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+</script>
+</body>
+</html>

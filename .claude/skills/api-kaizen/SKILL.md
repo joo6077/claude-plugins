@@ -82,4 +82,4 @@ Step 1 과 같은 명령을 다시 돌리고 차이를 표로 낸다.
 
 - `../../../docs/api/` — 리서치 SSOT 12 종
 - `../../../docs/superpowers/specs/2026-09-02-api-kit-design.md` — 확정 결정
-- `../../../harness/docs/guides/skill-design-guide.md` — 9 가지 아키타입 · Gotchas 패턴
+- `../../../harness/docs/guides/skill-design-guide.md` — 아키타입 카탈로그 · Gotchas 패턴

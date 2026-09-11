@@ -1,0 +1,48 @@
+{
+  "type": "process",
+  "name": "gate-fixture outer wall lowered without geometry class",
+  "print_settings_id": "gate-fixture outer wall lowered without geometry class",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "layer_height": "0.12",
+  "wall_loops": "2",
+  "outer_wall_speed": [
+    "30",
+    "30",
+    "30"
+  ],
+  "inner_wall_speed": [
+    "80",
+    "80",
+    "80"
+  ],
+  "internal_solid_infill_speed": [
+    "85",
+    "85",
+    "85"
+  ],
+  "sparse_infill_speed": [
+    "80",
+    "80",
+    "80"
+  ],
+  "gap_infill_speed": [
+    "60",
+    "60",
+    "60"
+  ],
+  "top_surface_speed": [
+    "85",
+    "85",
+    "85"
+  ],
+  "reduce_crossing_wall": "1",
+  "ironing_type": "no ironing",
+  "seam_position": "aligned",
+  "brim_type": "outer_only",
+  "enable_support": "0"
+}

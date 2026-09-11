@@ -4,3 +4,10 @@ playwright-report/
 scripts/__pycache__/
 .mockups/
 .playwright-mcp/
+
+# git worktree 는 로컬 작업 상태다 — 커밋 대상이 아니다.
+# 이 레포는 격리 작업에 .claude/worktrees/ 를 쓴다 (superpowers:using-git-worktrees).
+.claude/worktrees/
+
+# Bambu Studio CLI 산출물 (bambu-kit 프로파일 검증 시 레포 루트에 떨어진다)
+result.json

@@ -2,7 +2,7 @@
 name: create-skill
 description: >
   설계 가이드 기반으로 새 스킬을 생성한다.
-  ../../docs/guides/skill-design-guide.md의 9가지 아키타입, Gotchas 패턴, 폴더 구조,
+  ../../docs/guides/skill-design-guide.md의 아키타입 카탈로그, Gotchas 패턴, 폴더 구조,
   description 작성법을 따라 SKILL.md + 폴더를 스캐폴딩한다.
   "스킬 만들어줘", "새 스킬", "create skill", "skill 생성",
   "스킬 추가" 같은 요청 시 트리거.
@@ -25,7 +25,7 @@ user-invocable: true
 - 뻔한 내용(일반 코딩 지식)을 넣으면 가치 없다 — Claude 가 추론만으로 절대 알 수 없는 정보만 넣어라
 - 스킬 생성 직후 반드시 `python3 scripts/validate-plugin.py <plugin-name>` 으로 V1 frontmatter / V4 trigger 중복 / V5 placeholder / V6 bare code fence 검증을 돌려라. 생성만 하고 검증 안 하면 frontmatter drift 를 다음 사이클까지 못 잡는다.
 - **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** SKILL.md frontmatter 의 **공식 필수는 `name` 과 `description` 2 종**이다 (`../../docs/guides/skill-design-guide.md` §frontmatter 규칙). `argument-hint` · `user-invocable` 은 Claude Code 전용 선택 필드로 다른 플랫폼에서는 무시된다. 다만 **이 레포는 `user-invocable` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 skills 에 대해 `name`/`description`/`user-invocable` 3 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다.
-- **아키타입 미선정 상태로 구조 작성 금지** — skill-design-guide의 9가지 아키타입(Generator, Guide, Runner 등) 중 하나를 먼저 확정하고 그에 맞는 Process 구조를 따라라. 아키타입 없이 자유 형식으로 쓰면 Process 단계 순서가 비논리적이 되고 QA Evaluator가 재현 불가 판정한다.
+- **아키타입 미선정 상태로 구조 작성 금지** — skill-design-guide의 아키타입 카탈로그(Generator, Guide, Runner 등) 중 하나를 먼저 확정하고 그에 맞는 Process 구조를 따라라. 아키타입 없이 자유 형식으로 쓰면 Process 단계 순서가 비논리적이 되고 QA Evaluator가 재현 불가 판정한다.
 - **argument-hint 누락은 discovery 실패** — user-invocable 스킬이면서 인자를 받는 경우 `argument-hint`를 반드시 작성해라. 빈 문자열이면 Claude가 인자 전달 가능성 자체를 인지하지 못해 사용자가 매번 수동으로 입력해야 한다.
 - **스킬 이름에 프레임워크/언어 접두사 필수** — 범용(harness, design-kit)이 아닌 스택 종속 스킬은 반드시 `flutter-`, `rust-`, `react-` 같은 접두사를 붙여라. 접두사 없으면 다른 킷의 동명 스킬과 충돌하거나 트리거 우선순위가 모호해진다.
 - **references/ 분리 판단 기준** — Process 본문에서 3회 이상 참조되는 정보(감지 로직, 템플릿 코드, 체크리스트)는 references/로 분리해라. 인라인으로 남기면 SKILL.md가 2000 words를 초과하여 Claude 컨텍스트 효율이 떨어진다.
@@ -43,7 +43,7 @@ user-invocable: true
 
 `../../docs/guides/skill-design-guide.md`를 읽어 최신 설계 원칙을 확인한다.
 특히 아래 섹션을 참조:
-- 섹션 2: 9가지 스킬 유형 체크리스트
+- 섹션 2: 스킬 유형 체크리스트
 - 섹션 3: Gotchas 작성법
 - 섹션 3.5: 검증 가능한 성공 기준
 - 섹션 4: description은 트리거 조건
@@ -55,7 +55,7 @@ user-invocable: true
 사용자의 요청에서:
 - **스킬 이름** (snake_case, 하이픈)
 - **목적** — 무엇을 하는 스킬인가
-- **아키타입** — 9가지 중 어디에 속하는가 (복수 가능하면 주된 것 1개)
+- **아키타입** — 카탈로그의 어느 유형에 속하는가 (복수 가능하면 주된 것 1개)
 - **대상 위치** — 어떤 플러그인/프로젝트에 생성하는가
 - **트리거 키워드** — 사용자가 어떤 말을 할 때 활성화되는가
 - **비트리거 조건** — 어떤 경우에는 활성화하면 안 되는가
@@ -105,7 +105,7 @@ user-invocable: true
 - [ ] description 관점 일관성 (3 인칭 또는 명령형 통일, 혼용 금지)
 - [ ] Gotchas 섹션 존재 (최소 1 개)
 - [ ] Process 에 검증 기준 포함
-- [ ] 9 가지 아키타입 중 해당 유형 확인
+- [ ] 아키타입 카탈로그에서 해당 유형 확인
 - [ ] **Cross-Surface Parity 5 개 item 확인** (skill-design-guide §11): Binary Decidability / 트리거 배타성 (substring 포함) / 검증 가능한 성공 기준 / Rule-by-rule audit / Unverifiable 정책 (에이전트 전용, 해당 시) — 새 Gotcha 가 이 중 하나에 해당하면 형제 surface 로의 전파 필요성을 사용자에게 보고
 - [ ] **Sibling Enumerated 비교**: 형제 스킬이 있으면 `grep -n "^- " <sibling>/SKILL.md` 로 기존 Gotchas 목록 나열 후 공통 원칙 누락 여부 대조
 - [ ] **Code Examples 품질** (§8.7): 모든 fenced block 에 언어 힌트 존재 + 미완성 마커(V5 placeholder 3종) 0 건

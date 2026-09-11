@@ -465,7 +465,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/bambu-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 bambu-kit 전 스킬을 전수 감사한다. bambu-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.8.0 · 2026-09-06] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장)
+> 플러그인 설명: [v0.9.0 · 2026-09-10] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → Bambu Studio import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장)
 
 ### Step 14: Phase 14 — onboarding-kit 카이젠
 
@@ -492,6 +492,15 @@ exit_codes: [0, 2]
 공통 실행 패턴에 따라 `/api-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 api-kit 전 스킬을 전수 감사한다. api-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
 > 플러그인 설명: [v0.1.0 · 2026-09-04] 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행(/api-probe) · 스냅샷 봉인 · 계약 추출(partial/pin/exact) · 회귀 diff(/api-verify) · 의존성 0 정적 뷰어(/api-ui). Hurl 8 기반, 문서도 소스도 못 믿을 때 실측 응답으로 계약을 만든다
+
+### Step 17: Phase 17 — howto-kit 카이젠
+
+**범위:** `howto-kit/skills/*/SKILL.md`, `howto-kit/references/`
+, `docs/howto/` 리서치 문서
+
+공통 실행 패턴에 따라 `/howto-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 howto-kit 전 스킬을 전수 감사한다. howto-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.2.1 · 2026-09-11] 사람이 손으로 하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지 끊지 않고 안내하는 스택·도메인 무관 킷 — 대화 즉답(/howto) · 문서화(/howto-doc) · 기존 문서 재측정(/howto-audit). 출처 등급제(관측/문서/추정/미확인)로 '검증 불가 → 침묵'을 대체하고, 결정론 게이트 G1~G6 이 입도(G5 말단 액션 · G6 값·확인·분기·등급)를 기계 판정한다
 
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->
