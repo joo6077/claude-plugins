@@ -4,7 +4,7 @@ slug: howto-kaizen-g4-precision
 created: "2026-09-10 14:20"
 complexity: "복잡"
 conditions: 24
-status: active
+status: done
 owner_session: 4d264694-eb0e-4e84-801f-52b2db804772
 conditions_digest: sha256:bcf7e7535ec1a339
 locked_at: "2026-09-10 14:30"
