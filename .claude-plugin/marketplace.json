@@ -58,7 +58,7 @@
     {
       "name": "onboarding-kit",
       "source": "./onboarding-kit",
-      "description": "[v0.3.0 · 2026-08-13] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate)"
+      "description": "[v0.3.1 · 2026-09-12] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate)"
     },
     {
       "name": "tone-kit",
