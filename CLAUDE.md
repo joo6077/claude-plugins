@@ -124,208 +124,26 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 
 ## Skills Reference
 
-### 이 레포 스킬 (플러그인 소속)
+킷별 스킬·에이전트 전체 목록은 각 킷의 `README.md` 를 본다 — `scripts/sync-docs.py` 가 SKILL.md frontmatter 에서 자동 생성·동기화하므로 그쪽이 SSOT 다. 이 파일에는 목록만 봐서는 읽히지 않는 설계 의도만 남긴다.
 
-**harness — QA 프레임워크**
+### 공통 패턴
 
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/init` | `.harness/` 디렉토리 초기화 + project.yaml 생성 |
-| `/sprint-contract` | 구현 전 완료 조건 정의. 기능 구현 요청 시 가장 먼저 실행 |
-| `qa-evaluator` (에이전트) | Sprint Contract 기준 APPROVE/REJECT 판정. 구현 완료 후 실행 |
-| `/create-skill` | skill-design-guide 기반 새 SKILL.md 스캐폴딩 |
-| `/create-agent` | agent-design-guide 기반 새 에이전트 .md 스캐폴딩 |
-| `/contract-kaizen` | sprint-contract 스킬 + 계약 설계 가이드 개선 |
-| `/evaluator-kaizen` | qa-evaluator 에이전트 + 평가 방법론 가이드 개선 |
-| `/harness-kaizen` | harness 스킬 전체 개선 |
+- **guide / audit / system·init / test 4종** — backend-kit, infra-kit 의 기본 골격. design-kit 은 여기에 concept·reference·mockup·component 를 더해 8종이다
+- **audit 은 전용 reviewer 에이전트를 호출한다** (`design-reviewer` `backend-reviewer` `infra-reviewer` `rust-reviewer` `react-reviewer` `api-reviewer` `howto-reviewer`). 읽기 전용 독립 평가이므로 단독 실행하지 않는다
+- **run → build → preflight → audit 4단 빌드 체인** — flutter-toolkit, rust-kit, react-kit 공통. run 이 프리미티브, build 는 wrapper, preflight 가 pre-commit 게이트, audit 이 quick/deep 감사다
+- **`<kit>-kaizen` / `<kit>-research`** — 전자는 스킬 품질 개선, 후자는 외부 1차 출처 폴링. 역할을 섞지 않는다
 
-**flutter-toolkit — Flutter 개발 워크플로우 (18종)**
+### 킷별 특이사항
 
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/flutter-screen` | Screen/Page 위젯 생성 + 라우터 등록 |
-| `/flutter-feature` | 화면+Provider+API를 한 번에 생성하는 복합 스킬 |
-| `/flutter-widget` | 프로젝트 컨벤션에 맞는 커스텀 위젯 생성 |
-| `/flutter-provider` | Riverpod Notifier + State 클래스 생성 |
-| `/flutter-api` | Clean Architecture 전 레이어 일괄 생성 (DataSource→Model→Repository→UseCase) |
-| `/flutter-test` | unit/widget/integration 테스트 코드 자동 생성 |
-| `/flutter-hooks` | Flutter Hooks 패턴 가이드 (HookWidget, 커스텀 Hook) |
-| `/flutter-error` | 에러 처리 패턴 가이드 (예외→Failure→UI 표시) |
-| `/flutter-l10n` | i18n 번역 문자열 추가/수정 + codegen 재생성 |
-| `/flutter-responsive` | 반응형 레이아웃 적용 (breakpoint, 멀티컬럼) |
-| `/flutter-transition` | 커스텀 페이지 전환 애니메이션 적용 |
-| `/flutter-skeleton` | 스켈레톤 shimmer 로딩 UI 구현 |
-| `/flutter-extract` | 재사용 위젯을 공용으로 추출·분리 |
-| `/flutter-build` | 코드 생성(build_runner) + 정적 분석(analyze) |
-| `/flutter-run` | 빌드 프리미티브 개별 실행 (codegen, analyze, fix, test) |
-| `/flutter-preflight` | Pre-commit quality gate (fix→codegen→analyze→test) |
-| `/flutter-audit` | 코드 품질 감사 — pre-commit 리뷰, PR 전 검토 (quick/deep 모드) |
-| `/flutter-kaizen` | flutter-toolkit 스킬 개선 |
-| `widget-inspector` (에이전트) | 프로젝트 코드에서 재사용 가능한 위젯 패턴 감지·리포팅 |
+- **harness** — `/sprint-contract` → 개발 → `qa-evaluator` 가 기본 사이클. 트리거 조건은 아래 "Harness 트리거 규칙" 참조
+- **react-kit** — 애니메이션 **라이브러리 0개 원칙**. `/react-audit` 의 Library Policy 카테고리가 빌드 게이트로 강제한다
+- **api-kit** — `pin` 은 값 고정이 아니라 **경로별 명시 assertion** 이다. 타입은 멀쩡한데 값만 망가진 회귀를 잡는다. 비교 기준선은 RFC 8785 JCS
+- **howto-kit** — **G5(말단 액션)·G6(입도)이 이 킷의 존재 이유.** G3 는 대상 플랫폼을 선언하지 않으면 PASS 가 아니라 FAIL 이다. 출처 등급제(`관측`/`문서`/`추정`/`미확인`)가 "검증 불가 → 침묵" 을 대체한다
+- **tone-kit** — 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션). 3축 레이어(스택 / 언어 / 프로젝트). 어댑터는 위반 실측이 있는 `dart-flutter` 하나만 채운다
+- **bambu-kit** — 도구형 1스킬 킷이라 guide/audit/system 3종 패턴을 적용하지 않는다. H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 한정
+- **reflect-kit** — 훅 3종(UserPromptSubmit / PostToolUseFailure / Stop)이 로그를 모으고 `/reflect-digest` → `/reflect-promote` 로 승격한다
 
-**design-kit — UI/UX 디자인**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/design-guide` | UI 코드에 대한 디자인 원칙 가이드 (가벼운 리뷰) |
-| `/design-audit` | 완성된 UI를 카테고리별 PASS/FAIL로 체계적 감사 |
-| `/design-system` | 디자인 토큰 체계(컬러, 타이포, 스페이싱 등) 세팅 |
-| `/design-test` | 디자인 품질 테스트 생성 (토큰 검증, WCAG 접근성, 시각 회귀, 반응형) |
-| `design-reviewer` (에이전트) | design-audit에서 호출. UI 코드를 디자인 원칙 기준으로 독립 평가 |
-
-**backend-kit — 스택 무관 백엔드 개발 가이드**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/backend-guide` | 백엔드 코드/설계에 대한 원칙 기반 가이드 (가벼운 리뷰) |
-| `/backend-audit` | 백엔드 코드를 10개 카테고리별 PASS/FAIL로 체계적 감사 |
-| `/backend-system` | 프로젝트 백엔드 아키텍처 기반 세팅 (API 규격, 에러 처리 등) |
-| `/backend-test` | 백엔드 테스트 코드 자동 생성 (pytest/jest/JUnit/go test 등 스택 무관) |
-| `backend-reviewer` (에이전트) | backend-audit에서 호출. 읽기 전용 독립 평가 |
-
-**infra-kit — 스택 무관 인프라/DevOps 가이드**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/infra-guide` | 인프라 설정에 대한 원칙 기반 가이드 (가벼운 리뷰) |
-| `/infra-audit` | 인프라 설정을 카테고리별 PASS/FAIL로 체계적 감사 |
-| `/infra-init` | 프로젝트 인프라 기반 초기 세팅 (Docker, CI/CD, 시크릿 등) |
-| `/infra-test` | 인프라 테스트 자동 생성 (Terraform test, hadolint, actionlint, kubeconform 등) |
-| `infra-reviewer` (에이전트) | infra-audit에서 호출. 읽기 전용 독립 평가 |
-
-**rust-kit — Rust 백엔드 개발 워크플로우 (17종)**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/rust-init` | 프로젝트 스캐폴딩 (workspace + toolchain + hexagonal 구조) |
-| `/rust-feature` | feature 모듈 스캐폴딩 |
-| `/rust-api` | Axum 라우터/핸들러 + utoipa OpenAPI |
-| `/rust-model` | SQLx 모델 + 마이그레이션 |
-| `/rust-service` | 비즈니스 로직 서비스 레이어 |
-| `/rust-auth` | JWT/OAuth 인증 레이어 |
-| `/rust-middleware` | Axum 미들웨어 (CORS, logging, rate-limit) |
-| `/rust-grpc` | tonic gRPC 서비스 |
-| `/rust-test` | 테스트 코드 생성 (unit + integration) |
-| `/rust-docker` | Dockerfile + docker-compose |
-| `/rust-error` | 에러 처리 패턴 가이드 (thiserror/anyhow) |
-| `/rust-l10n` | 백엔드 i18n (rust-i18n/fluent) |
-| `/rust-run` | 빌드 프리미티브 개별 실행 (build, clippy, fmt, test, audit, check) |
-| `/rust-build` | cargo build + clippy (rust-run wrapper) |
-| `/rust-preflight` | pre-commit gate (fmt → clippy → test → audit) |
-| `/rust-audit` | 코드 품질 감사 (quick/deep 모드) |
-| `rust-reviewer` (에이전트) | rust-audit에서 호출. 읽기 전용 독립 평가 |
-
-**react-kit — React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 (21종 + 3 에이전트)**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/react-init` | 프로젝트 스캐폴딩 (Vite + Tauri 2 + React 19 + TS strict + Tailwind v4 + shadcn + TanStack Router + Zustand + TanStack Query + Lingui + Rust WASM) |
-| `/react-screen` | TanStack Router 파일 기반 화면/라우트 추가 |
-| `/react-feature` | Clean Arch 4계층 복합 생성 (domain → data → presentation → infrastructure) |
-| `/react-widget` | shadcn 기반 cva variant 컴포넌트 + Container Queries |
-| `/react-store` | Zustand v5 스토어 (클라이언트 상태 전용) |
-| `/react-api` | Clean Arch 4계층 API (datasource → model → repository → usecase) + neverthrow Result |
-| `/react-query` | TanStack Query v5 훅 (queryKey 팩토리 + invalidation 전략) |
-| `/react-form` | React Hook Form + Zod resolver + setError('root.serverError') |
-| `/react-wasm` | Rust WASM 바인딩 (wasm-pack + Comlink Worker), WASM 카탈로그 기반 이식 판정 |
-| `/react-tauri` | Tauri command + invoke + capabilities, isTauri() 가드 + infrastructure/tauri/ 경계 |
-| `/react-test` | Clean Arch 레이어별 테스트 (Vitest unit / MSW integration / RTL component / Playwright e2e) |
-| `/react-error` | 3단계 에러 처리 (datasource → Failure → UI), Severity 매핑, ErrorBoundary |
-| `/react-l10n` | Lingui v5 매크로 (`<Trans>`/`t`/`<Plural>`) + extract/compile codegen |
-| `/react-responsive` | Tailwind v4 breakpoints + Container Queries (page-size vs container-size 자동 판정) |
-| `/react-skeleton` | shadcn Skeleton + TanStack Query isPending 분기 (스피너 금지, layout-matching) |
-| `/react-extract` | TypeScript AST 기반 재사용 컴포넌트 추출 (widget-inspector-react 연동) |
-| `/react-animation` | 3-Tier 애니메이션 (Tailwind+CSS / View Transitions / Pointer Primitives), **라이브러리 0개 원칙** |
-| `/react-run` | 빌드 프리미티브 (dev, build, lint, test, wasm-build, format, codegen) |
-| `/react-build` | 전체 빌드 (wasm-pack → tsc → vite build) |
-| `/react-preflight` | Pre-commit gate (fix → codegen → lint → tsc → test → wasm-build → vite-build) |
-| `/react-audit` | 6 카테고리 감사 (Architecture / Strict TS / Performance / Accessibility / Anti-patterns / **Library Policy**), quick/deep 모드 |
-| `widget-inspector-react` (에이전트) | React 재사용 패턴 감지 (중복 UI, shadcn 재발명, variant hint, container hint, cross-feature import) |
-| `animation-architect-react` (에이전트) | 3-Tier 애니메이션 자문 (Tier 판정 + 접근성 검토 + 구현 단계). 라이브러리 0개 원칙 enforce |
-| `react-reviewer` (에이전트) | react-audit 6 카테고리 독립 평가, Library Policy 빌드 게이트 검증 |
-
-**reflect-kit — 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론)**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/reflect-digest` | 주간/월간 reflections 로그 집계. 4축 precedence table로 승격 후보 도출 (리포트만) |
-| `/reflect-promote` | 승격 후보를 실제 surface(CLAUDE.md/memory/skill/hook/path-scoped)에 반영 + ledger 관리 + rollback |
-| `/reflect-kaizen` | LLM-as-judge 스팟체크 + 30d post_freq calibration + 임계값/프롬프트 개선 제안 |
-| `/codex-kaizen` | Codex 위임 방법/템플릿을 자동수집 로그(codex-research-log) 기반으로 주기 강화. 방법론 리서치 + 템플릿 diff 제안(승인 게이트) |
-| 훅 3종 | UserPromptSubmit(log-prompt), PostToolUseFailure(log-tool-failure), Stop(log-reflection, 백그라운드) |
-
-**bambu-kit — Bambu Lab H2S 자동 process+filament JSON 생성**
-
-| 스킬 | 용도 |
-|------|------|
-| `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 JSON 생성 → import용 zip 번들 출력. references 4종 SSOT (bambu-fields-baseline / materials / seam-recipes / kaizen-sources) |
-
-도구형 1스킬 킷 (guide/audit/system 3종 패턴 비적용). H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 한정.
-
-**onboarding-kit — 외부 서비스 셋업 가이드**
-
-| 스킬 | 용도 |
-|------|------|
-| `/setup-guide` | 그 시점 최신 정보 기준 외부 서비스 셋업 가이드 step-by-step MD 자동 생성 |
-
-**api-kit — 블랙박스 API 계약 검증 (5종 + 1 에이전트)**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/api-init` | 스펙·문서·curl 덤프에서 인벤토리 생성 (`project.yaml` `auth.yaml` `inventory.yaml`) |
-| `/api-probe` | 엔드포인트 탐색 실행 → 마크다운 리포트 + 스냅샷 봉인 |
-| `/api-contract` | 스냅샷에서 계약 추출 (partial / pin / exact 3단계) |
-| `/api-verify` | 회귀 검증 → PASS/FAIL + canonical diff. exit code로 계약 실패와 환경 실패 구분 |
-| `/api-ui` | `.api/` 전체를 의존성 0 단일 `ui.html`로 생성 후 열기 |
-| `api-reviewer` (에이전트) | 추출된 계약이 적절한지 독립 평가. 단독 실행하지 않는다 |
-
-`pin`은 **값 고정이 아니라 경로별 명시 assertion**이다 — 타입은 멀쩡한데 값만 망가진 회귀를 잡는다. 비교 기준선은 RFC 8785 JCS. 리서치 문서는 `docs/api/` 12종.
-
-**tone-kit — 코딩 톤·유지보수성 게이트**
-
-| 스킬 | 용도 |
-|------|------|
-| `/tone-guide` | 구현 전 톤 규칙 강제 로드 + 완료 전 규칙 전수 대조 (audit 내장) |
-| `/tone-scaffold` | 파일 헤더·컴포넌트 골격·문서 주석·typedef·상태 컨테이너 생성 + 생성물 자기 감사 |
-| `/tone-campaign` | 다수 파일을 한 파일씩 순차 정리 (의존순 배치 + 원장 + 파일당 승인 게이트) |
-
-규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션) 표기. 3축 레이어(스택 / 언어 / 프로젝트). 어댑터는 위반 실측이 있는 `dart-flutter` 하나만 채운다. 리서치 문서는 `docs/tone/` 8종.
-
-**howto-kit — 절차 안내 (3종 + 1 에이전트)**
-
-| 스킬/에이전트 | 용도 |
-|---------------|------|
-| `/howto` | **기본 모드.** 대화창에서 Step Contract 로 즉답. 파일을 만들지 않는다. 선행 질문은 한 번에 묶어 1 회 |
-| `/howto-doc` | 같은 Step Contract 를 MD 로 렌더 + 결정론 게이트 G1~G6 실행 |
-| `/howto-audit` | 이미 있는 절차 문서를 입도·출처·네비게이션 기준으로 재측정 |
-| `howto-reviewer` (에이전트) | `/howto-audit` 에서 호출. 게이트가 못 잡는 12 축(경로 실재성·값 구체성·범위 준수 등) 독립 평가 |
-
-출처 등급제(`관측`/`문서`/`추정`/`미확인`)가 "검증 불가 → 침묵"을 대체한다. **G5(말단 액션)·G6(입도)이 이 킷의 존재 이유** — 기존 절차 킷에는 입도를 재는 검사가 0 개였다. G3 는 대상 플랫폼을 선언하지 않으면 PASS 가 아니라 FAIL 이다. 미확정 근거는 `howto-kit/references/provenance-notes.md` 에 원장으로 남긴다.
-
-**이 레포 전용 스킬 (.claude/skills/)**
-
-| 스킬 | 용도 |
-|------|------|
-| `/kaizen` | 전체 10 Phase 카이젠 오케스트레이션 (설계 가이드 → contract → evaluator → harness → flutter → design → backend → infra → rust → react → Final) |
-| `/design-kaizen` | design-kit 스킬 개선 |
-| `/design-research` | 디자인 레퍼런스 크롤링 → design-kit/docs/design/ 문서 갱신 |
-| `/backend-kaizen` | backend-kit 스킬 개선 |
-| `/backend-research` | 백엔드 레퍼런스 크롤링 → docs/backend/ 문서 갱신 |
-| `/infra-kaizen` | infra-kit 스킬 개선 |
-| `/infra-research` | 인프라 레퍼런스 크롤링 → docs/infra/ 문서 갱신 |
-| `/rust-kaizen` | rust-kit 스킬 개선 |
-| `/rust-research` | Rust 레퍼런스 크롤링 → docs/rust/ 문서 갱신 |
-| `/bambu-kaizen` | bambu-kit 스킬 개선 (references + 실측 dogfood 기반) |
-| `/bambu-research` | Bambu/MakerWorld/scarf seam 외부 소스 폴링 → bambu-kit references 갱신 |
-| `/onboarding-kaizen` | onboarding-kit 스킬 개선 |
-| `/api-kaizen` | api-kit 스킬·references 개선 |
-| `/api-research` | API 계약 검증 외부 소스 폴링 → docs/api/ 갱신 |
-| `/tone-kaizen` | tone-kit 스킬·references 개선 |
-| `/tone-research` | 톤 리서치 외부 출처 폴링 → docs/tone/ 갱신 |
-| `/howto-kaizen` | howto-kit 스킬·references 개선 |
-| `/howto-research` | 절차 안내 외부 출처 폴링 → docs/howto/ 갱신 |
-| `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
-| `/create-kit` | 새 플러그인 킷 생성 오케스트레이션 |
+`.claude/skills/` 의 이 레포 전용 카이젠·리서치 스킬은 세션 시작 시 자동으로 목록에 오르므로 여기 중복 기재하지 않는다.
 
 ## Key Conventions
 
