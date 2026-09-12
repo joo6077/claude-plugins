@@ -327,41 +327,6 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/docs-site` | docs/ HTML 문서 페이지 생성·관리 |
 | `/create-kit` | 새 플러그인 킷 생성 오케스트레이션 |
 
-### 외부 플러그인 스킬 (이 레포에 없음)
-
-아래는 별도 설치된 플러그인이나 Claude Code 내장 기능으로, 이 레포 작업 시에도 사용 가능하다.
-
-**superpowers — 범용 워크플로우**
-
-| 스킬 | 용도 |
-|------|------|
-| `brainstorming` | 기능 설계·창작 작업 전 요구사항 탐색. 구현 전 자동 실행 |
-| `writing-plans` | 멀티스텝 작업의 구현 계획 작성 |
-| `executing-plans` | 작성된 계획을 리뷰 체크포인트와 함께 실행 |
-| `test-driven-development` | TDD 워크플로우 (테스트 먼저, 구현 후) |
-| `systematic-debugging` | 버그·테스트 실패 시 체계적 원인 분석 |
-| `requesting-code-review` | 작업 완료 후 코드 리뷰 요청 |
-| `receiving-code-review` | 리뷰 피드백 수신 시 기술적 검증 후 반영 |
-| `verification-before-completion` | 완료 선언 전 빌드·테스트 실행으로 증거 확보 |
-| `finishing-a-development-branch` | 개발 완료 후 merge/PR/cleanup 옵션 제시 |
-| `subagent-driven-development` | 독립 태스크를 서브에이전트로 병렬 실행 |
-| `dispatching-parallel-agents` | 2+ 독립 태스크 병렬 에이전트 디스패치 |
-| `using-git-worktrees` | 격리된 git worktree에서 피처 작업 |
-| `writing-skills` | 새 스킬 작성·검증 |
-
-**기타 외부 스킬**
-
-| 스킬 | 용도 |
-|------|------|
-| `/review` | 커밋/PR 전 빌드·import·포트·괄호 등 체크리스트 검토 |
-| `/simplify` | 변경 코드의 재사용성·품질·효율 리뷰 후 개선 |
-| `/release` | 플러그인 버전 bump + marketplace.json 갱신 + git commit/tag/push |
-| `/claude-api` | Claude API / Anthropic SDK 앱 빌드 |
-| `/codex:rescue` | Codex 서브에이전트에 조사·수정·리서치 위임 |
-| `/update-config` | Claude Code settings.json 설정 변경 |
-| `/loop` | 프롬프트/슬래시 커맨드를 주기적 반복 실행 |
-| `/schedule` | 원격 에이전트 cron 스케줄 생성·관리 |
-
 ## Key Conventions
 
 - 모든 문서와 커밋 메시지는 한국어 사용
