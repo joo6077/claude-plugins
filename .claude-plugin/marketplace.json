@@ -23,7 +23,7 @@
     {
       "name": "backend-kit",
       "source": "./backend-kit",
-      "description": "[v0.3.0 · 2026-08-13] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (쓰기 경로 무결성 SSOT (경합 invariant 3유형 · upsert arbiter · 통합 테스트 대상 증명))"
+      "description": "[v0.3.1 · 2026-09-12] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (쓰기 경로 무결성 SSOT (경합 invariant 3유형 · upsert arbiter · 통합 테스트 대상 증명))"
     },
     {
       "name": "infra-kit",
