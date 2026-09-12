@@ -10,7 +10,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 | [`harness`](./harness/) | v0.9.1 | 범용 | [v0.9.1 · 2026-09-12] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (계약 봉인 E3 + 미검증 카운터 분리 + 문서-스크립트 계약 + 게이트 exit taxonomy) |
 | [`flutter-toolkit`](./flutter-toolkit/) | v0.7.1 | Flutter | [v0.7.1 · 2026-09-12] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계) |
 | [`design-kit`](./design-kit/) | v0.4.0 | 범용 | [v0.4.0 · 2026-08-13] 스택 무관 UI/UX 디자인 가이드 + 감사 (Variant Distinctiveness Gate + Decision Propagation Manifest + 증거 채널 + WCAG 24×24 정정) |
-| [`backend-kit`](./backend-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (쓰기 경로 무결성 SSOT (경합 invariant 3유형 · upsert arbiter · 통합 테스트 대상 증명)) |
+| [`backend-kit`](./backend-kit/) | v0.3.1 | 범용 | [v0.3.1 · 2026-09-12] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (쓰기 경로 무결성 SSOT (경합 invariant 3유형 · upsert arbiter · 통합 테스트 대상 증명)) |
 | [`infra-kit`](./infra-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (게이트 결과 상태 taxonomy 5종 + YAML 파서 액션 핀닝 + USE×RED 환경 선배제) |
 | [`rust-kit`](./rust-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT) |
 | [`react-kit`](./react-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 (템플릿 의존성 현행화 + 표준 커버리지 공백 문서화 (라이브러리 0개 원칙 유지)) |
