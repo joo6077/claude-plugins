@@ -43,7 +43,7 @@
     {
       "name": "planning-kit",
       "source": "./planning-kit",
-      "description": "[v0.5.0 · 2026-08-13] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 (Projects v2 REST 지원 정정 + one-When 과잉 인용 라벨링 + HBR 절차 미확인 강등)"
+      "description": "[v0.5.1 · 2026-09-12] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 (Projects v2 REST 지원 정정 + one-When 과잉 인용 라벨링 + HBR 절차 미확인 강등)"
     },
     {
       "name": "reflect-kit",

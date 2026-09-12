@@ -449,7 +449,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/planning-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 planning-kit 전 스킬을 전수 감사한다. planning-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.5.0 · 2026-08-13] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 (Projects v2 REST 지원 정정 + one-When 과잉 인용 라벨링 + HBR 절차 미확인 강등)
+> 플러그인 설명: [v0.5.1 · 2026-09-12] 스택 무관 제품 기획 플러그인 — 레퍼런스 teardown · Lightning Demo · VPC · Blue Ocean · HMW · Crazy 8s · JTBD · PR-FAQ · Shape Up · RICE·Kano·WSJF · DDD Event Storming · GitHub Projects v2 (Projects v2 REST 지원 정정 + one-When 과잉 인용 라벨링 + HBR 절차 미확인 강등)
 
 ### Step 12: Phase 12 — reflect-kit 카이젠
 
