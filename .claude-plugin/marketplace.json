@@ -13,7 +13,7 @@
     {
       "name": "flutter-toolkit",
       "source": "./flutter-toolkit",
-      "description": "[v0.7.0 · 2026-08-13] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계)"
+      "description": "[v0.7.1 · 2026-09-12] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계)"
     },
     {
       "name": "design-kit",

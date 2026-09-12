@@ -396,7 +396,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/flutter-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 flutter-toolkit 전 스킬을 전수 감사한다. flutter-toolkit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.7.0 · 2026-08-13] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계)
+> 플러그인 설명: [v0.7.1 · 2026-09-12] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계)
 
 ### Step 6: Phase 6 — design-kit 카이젠
 
