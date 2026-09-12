@@ -8,7 +8,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 | 플러그인 | 버전 | 스택 | 설명 |
 |----------|------|------|------|
 | [`harness`](./harness/) | v0.9.1 | 범용 | [v0.9.1 · 2026-09-12] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (계약 봉인 E3 + 미검증 카운터 분리 + 문서-스크립트 계약 + 게이트 exit taxonomy) |
-| [`flutter-toolkit`](./flutter-toolkit/) | v0.7.0 | Flutter | [v0.7.0 · 2026-08-13] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계) |
+| [`flutter-toolkit`](./flutter-toolkit/) | v0.7.1 | Flutter | [v0.7.1 · 2026-09-12] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계) |
 | [`design-kit`](./design-kit/) | v0.4.0 | 범용 | [v0.4.0 · 2026-08-13] 스택 무관 UI/UX 디자인 가이드 + 감사 (Variant Distinctiveness Gate + Decision Propagation Manifest + 증거 채널 + WCAG 24×24 정정) |
 | [`backend-kit`](./backend-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 백엔드 개발 가이드 + 감사 + 아키텍처 세팅 (쓰기 경로 무결성 SSOT (경합 invariant 3유형 · upsert arbiter · 통합 테스트 대상 증명)) |
 | [`infra-kit`](./infra-kit/) | v0.3.0 | 범용 | [v0.3.0 · 2026-08-13] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (게이트 결과 상태 taxonomy 5종 + YAML 파서 액션 핀닝 + USE×RED 환경 선배제) |
