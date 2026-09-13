@@ -47,6 +47,11 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     ("planning-kit/references/", "docs/planning-kit/"),
     ("docs/planning/", "docs/planning-kit/"),
     ("docs/tone/", "docs/tone-kit/"),
+    # 2026-09-13: reflect-kit 이 매핑에 없어 codex-kaizen 문서가 8 일간 조용히 낡았다.
+    # 스킬 본문이 곧 문서의 소스인 킷은 skills/ 를 직접 매핑한다.
+    ("reflect-kit/skills/", "docs/reflect-kit/"),
+    ("reflect-kit/references/", "docs/reflect-kit/"),
+
     ("tone-kit/references/", "docs/tone-kit/"),
 ]
 
