@@ -130,18 +130,110 @@ tr:hover td{background:rgba(244,63,94,0.03)}
     <h2>Codex가 이미 남긴 rollout을 훅이 verbatim으로 떠온다</h2>
     <p style="color:var(--text2);margin-bottom:16px">
       Codex CLI는 모든 위임을 <code>~/.codex/sessions/.../rollout-*.jsonl</code>에 완전 기록한다. 손으로 옮겨 적을 이유가 없다 —
-      Stop 훅이 새로 끝난 rollout을 찾아 프롬프트와 응답을 <strong>원문 그대로</strong> 월간 로그에 붙인다. 멱등(중복 방지)이고, 첫 실행 시 과거를 쏟지 않도록 시드한다.
+      Stop 훅이 끝난 rollout을 찾아 프롬프트와 응답을 <strong>원문 그대로</strong> 월간 로그에 붙인다. 성공한 실행뿐 아니라
+      <strong>멈춘 실행과 읽지 못한 파일도 남긴다</strong> — 개선의 근거가 되어야 할 실패를 버리지 않기 위해서다.
     </p>
-    <div class="flow-diagram">[ codex-rescue 위임 ]  →  codex가 rollout-*.jsonl 기록 (prompt + response 전부)
+    <div class="flow-diagram">[ codex exec 직접 호출 ]  →  codex가 rollout-*.jsonl 기록 (prompt + response 전부)
+   --model gpt-5.6-sol                   │
+   -s read-only  &lt;/dev/null              │
                                          │
 [ turn 종료 ]  →  Stop 훅  →  harvest-codex-log.sh
-                                         │  · 새 rollout 탐지 (멱등: 이미 떠온 건 skip)
-                                         │  · task_complete 확인 (진행 중이면 다음 Stop으로 미룸)
-                                         │  · prompt / response / web_search 수 추출
+                                         │  · 새 rollout 탐지 (이미 떠온 건 skip)
+                                         │  · 상태 판정: completed / stalled / unreadable
+                                         │  · prompt · response · 조회 활동(주소 포함)
+                                         │  · model · cli 버전 · 호출 경로
                                          ▼
                   ~/.claude/codex-research-log/YYYY-MM.md  (verbatim, 점수 없음)</div>
     <div class="callout good">
       <strong>인플레이션 불가</strong> — 로그가 codex 원본에서 그대로 복사되므로 요약·과장이 끼어들 여지가 없다. 채점 칸 자체가 사라졌다.
+    </div>
+    <div class="callout">
+      <strong>중복은 상한이 아니라 파일 집합으로 막는다</strong> — 처리 목록을 고정 개수(500)로 자르던 때,
+      세션 파일이 555개가 되자 밀려난 것이 매번 다시 담겼다. 2026-04 로그는 서로 다른 세션 19개가
+      <strong>1597건</strong>으로 부풀어 29MB였다. 지금은 목록을 실제로 존재하는 세션 파일과 맞물려 유지하므로
+      파일이 남아 있는 한 다시 담기지 않고, 파일이 지워지면 목록에서도 빠진다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">멈춤 — 2026-09-12 실측</div>
+    <h2>원인은 조회도 버전도 아니었다. 열린 stdin 이다</h2>
+    <p style="color:var(--text2);margin-bottom:16px">
+      리서치 위임이 자주 멈췄다. 두 번 원인을 잘못 짚었다 — 처음엔 «내장 조회가 범인» 이라 보고
+      템플릿에 «내장 검색을 쓰지 마라» 를 박았고, 다음엔 «codex 0.153.4 버전 회귀» 라고 봤다.
+      세션 기록을 전수로 세어 둘 다 반박됐다. 다만 <strong>세는 법을 한 번 더 고쳐야 했다</strong> —
+      처음엔 686개를 한 덩어리로 셌는데, 그중 대부분이 편집기 확장·플러그인이 app-server 로 만든
+      세션이고 우리 호출 경로(<code>codex exec</code>)는 소수였다. 분모가 섞이면 «우리 래퍼가 얼마나
+      실패하는가» 를 답할 수 없다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>호출 경로 (<code>session_meta.source</code>)</th><th>표본</th><th>미완료율</th></tr></thead>
+        <tbody>
+          <tr><td><code>vscode</code> — 확장·플러그인의 app-server</td><td>535</td><td>14.0%</td></tr>
+          <tr><td><code>exec</code> — 우리 래퍼</td><td>146</td><td>17.1%</td></tr>
+          <tr><td><code>exec</code> 중 평상시만 (04-11~09-11)</td><td>28</td><td><strong>3.6%</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout good">
+      <strong>평상시 우리 경로는 3.6% 다.</strong> 17.1% 로 보였던 것은 조사·실험을 몰아 돌린 이틀치가
+      섞였기 때문이고, 그 이틀의 실패 상당수는 <strong>감시 장치가 멀쩡한 실행을 죽인 것</strong>이었다.
+      세션 기록 파일이 생기는지로 시작을 판정했는데, 파일은 시도와 «같은 초» 에 만들어지고
+      <code>find -newermt</code> 는 엄격히 더 새로운 것만 찾으므로 3연발로 오판했다. 지금은
+      codex 자신의 화면 출력 머리말로 판정한다.
+    </div>
+    <div class="callout">
+      <strong>진단할 때 두 가지를 조심하라.</strong> 하나 — <code>~/.codex/logs_2.sqlite</code> 는
+      app-server 세션만 기록한다(thread 106개, <code>app_server</code> 문자열 36,582행 대
+      <code>exec</code> 71행). <code>codex exec</code> 세션 id 로 조회하면 0행이라 그 데이터베이스로는
+      우리 경로를 진단할 수 없다. 둘 — <code>codex</code> 는 node 껍데기다. 실제 사슬은
+      zsh → node → rust 3단이라 <code>kill &lt;pid&gt;</code> 는 껍데기만 죽이고 rust 자식이 남아
+      한도를 계속 먹는다(실측: 고아 58분, 다른 사슬 2시간 3분). 트리 전체를 잎부터 죽여야 한다.
+    </div>
+    <p style="color:var(--text2);margin:16px 0">
+      조회 횟수는 멈춤과 무관했다. 호출 경로가 갈랐고, 그보다 결정적인 것이 stdin 이었다 —
+      파이프나 배경 실행 안에서 부르면 codex 가 <code>Reading additional input from stdin...</code> 에서
+      무한 대기한다. 세션 id 는 찍히지만 <strong>세션 기록 파일을 만들지 않아</strong> «멈춘 것» 처럼 보인다.
+      같은 프롬프트가 stdin 을 연 채로 3회 연속 실패했고, <code>&lt;/dev/null</code> 하나를 붙이자 115초에 완료됐다.
+    </p>
+    <div class="callout good">
+      <strong>판정은 세션 기록 파일로</strong> — 정상 호출은 몇 초 안에 <code>rollout-*.jsonl</code> 을 만든다.
+      25초가 지나도 없으면 죽은 실행이니 기다리지 말고 정리하고 다시 시도한다. 파일이 생겼는데 크기가
+      몇 분째 그대로면 그때가 진짜 정지다. <code>~/.claude/bin/codex-research</code> 가 이 판정과 재시도를
+      자동으로 한다 — 9분 기다리던 것이 82초에 판정난다.
+    </div>
+    <div class="callout">
+      <strong>macOS 에는 <code>timeout</code> 이 없다</strong> — 상한이 필요하면
+      <code>perl -e 'alarm shift; exec @ARGV' &lt;초&gt; &lt;명령…&gt;</code> 을 쓴다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">모델 선택</div>
+    <h2>한도는 모델별로 나뉘지 않는다 — 같은 풀을 다른 속도로 쓴다</h2>
+    <p style="color:var(--text2);margin-bottom:16px">
+      <code>~/.codex/config.toml</code> 의 기본 모델이 가장 작은 등급이면 리서치라는 최고난도 작업을
+      그 모델이 받는다. 그래서 리서치·구현·진단은 <code>--model</code> 을 <strong>명시</strong>한다.
+      한도는 <code>limit_id: codex</code> 하나를 공유하므로 모델을 바꿔도 잔여량이 복원되지 않고,
+      소비 속도만 달라진다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>모델</th><th>쓰는 자리</th><th>5시간당 메시지 (Plus)</th></tr></thead>
+        <tbody>
+          <tr><td><code>gpt-6-astra</code></td><td>최신. <code>none</code> 추론 강도 미지원</td><td>5–45</td></tr>
+          <tr><td><code>gpt-5.6-sol</code></td><td><strong>리서치·구현·진단 기본값</strong></td><td>10–100</td></tr>
+          <tr><td><code>gpt-5.6-terra</code></td><td>비용과 지연을 함께 볼 때</td><td>25–200</td></tr>
+          <tr><td><code>gpt-5.6-luna</code></td><td>단순 분류 전용 — 리서치에 쓰지 마라</td><td>250–2,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      공식 문서는 <em>“Different models can use different amounts of your allowance for the same task.”</em>
+      라고 밝히고, 한도에 가까워지면 <em>“switch to a smaller model to make your usage limits last longer”</em>
+      를 권한다. 리서치를 하루 몇 번 돌리는 정도면 <code>gpt-5.6-sol</code> 로 올려도 5시간 창에 넉넉히 들어간다.
+      <a class="card-source" href="https://learn.chatgpt.com/docs/pricing">Codex Pricing →</a>
     </div>
   </section>
 
@@ -153,7 +245,7 @@ tr:hover td{background:rgba(244,63,94,0.03)}
         <thead><tr><th>#</th><th>단계</th><th>핵심</th></tr></thead>
         <tbody>
           <tr><td><span class="precedence-num">1</span></td><td>신호 수집</td><td>최근 로그에서 약점 패턴을 <strong>리뷰 시점 독립 평가</strong>로 태깅 (self-score 아님)</td></tr>
-          <tr><td><span class="precedence-num">2</span></td><td>방법론 리서치</td><td><code>references/search-sources.md</code>의 1차 출처로 gpt-5.5 prompting·평가 베스트 프랙티스 확인</td></tr>
+          <tr><td><span class="precedence-num">2</span></td><td>방법론 리서치</td><td><code>references/search-sources.md</code>의 1차 출처로 현행 모델(gpt-6-astra · gpt-5.6-sol) prompting·평가 베스트 프랙티스 확인</td></tr>
           <tr><td><span class="precedence-num">3</span></td><td>GAP 분석</td><td>현재 템플릿 vs (로그 약점 + 리서치)를 대조해 구체 갭 enumerate</td></tr>
           <tr><td><span class="precedence-num">4</span></td><td>diff 제안</td><td>구체 diff + 근거 한 줄. <strong>파일 미적용 — 승인 대기</strong>. 1사이클 1실패유형 (과적합 방지)</td></tr>
           <tr><td><span class="precedence-num">5</span></td><td>적용 + 스탬프</td><td>승인 후에만 반영 + <code>template_version</code> bump + 변경이력 1줄</td></tr>
@@ -211,8 +303,8 @@ tr:hover td{background:rgba(244,63,94,0.03)}
       <div class="card">
         <div class="card-icon">🎯</div>
         <h3>Outcome-first 프롬프트</h3>
-        <p>gpt-5.5는 절차 나열보다 목표·성공조건·제약·증거 중심 프롬프트가 낫다. 과한 절차 지시는 overthinking·latency를 키운다.</p>
-        <a class="card-source" href="https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5">OpenAI prompt-guidance →</a>
+        <p>현행 GPT-5 계열은 절차 나열보다 목표·성공조건·제약·증거 중심 프롬프트가 낫다. 과한 절차 지시는 overthinking·latency를 키우고, <strong>모순된 규칙은 빠진 세부보다 더 큰 불안정</strong>을 만든다. 실측으로 가벼운 프롬프트가 평가 점수를 10~15% 올리면서 토큰을 41~66% 줄였다.</p>
+        <a class="card-source" href="https://developers.openai.com/api/docs/guides/latest-model">OpenAI latest-model 가이드 →</a>
       </div>
       <div class="card">
         <div class="card-icon">📐</div>
@@ -241,7 +333,8 @@ tr:hover td{background:rgba(244,63,94,0.03)}
     <ul class="checklist">
       <li>위임 시점 self-score를 부활시키지 않았다 — 평가는 리뷰 시점 독립 평가만.</li>
       <li>전역 자산(codex-prompt-template.md · CLAUDE.md)을 승인 없이 편집하지 않았다.</li>
-      <li>codex에 <code>--model</code>을 넘기지 않았다 — gpt-5.5 게이트 실패 시 1회 재시도 → WebSearch fallback(미검증 명시).</li>
+      <li>리서치 위임에 <code>--model gpt-5.6-sol</code> 이상을 지정했다 — 기본값이 가장 작은 등급이라 그냥 두면 리서치를 그 모델이 받는다.</li>
+      <li>호출에 <code>&lt;/dev/null</code>을 붙였다 — stdin이 열려 있으면 codex가 무한 대기한다.</li>
       <li>단일 실패 1건 patch가 아니라 반복 패턴을 줄이는 generalized instruction이다.</li>
       <li>모든 변경에 로그 또는 1차 출처 근거가 있다 — 추측 기반 강화 금지.</li>
       <li>새 인용은 WebFetch로 제목·저자 1회 검증 후 추가했다 (codex ID 오매핑 방지).</li>

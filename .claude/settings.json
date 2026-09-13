@@ -53,6 +53,16 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 scripts/check-installed-sync.py 2>/dev/null || true"
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
