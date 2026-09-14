@@ -4,7 +4,9 @@ Bambu Lab H2S 자동 process+filament JSON 생성 플러그인.
 
 ## 개요
 
-H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. MakerWorld URL이나 로컬 모델 파일을 받아 모델 분석 → 소재 추천 → seam 전략 결정 → Bambu Studio용 process+filament JSON을 자동 생성하고 import용 zip 번들로 떨궈준다.
+H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ 와 OrcaSlicer v2.4+ 양쪽**을 지원한다. MakerWorld URL이나 로컬 모델 파일을 받아 모델 분석 → 소재 추천 → 슬라이서 판별 → seam 전략 결정 → 그 슬라이서용 process+filament JSON을 자동 생성하고 import용 zip 번들로 떨궈준다.
+
+두 슬라이서는 키 이름·유효값·스코프가 갈라져 있다(뱀부 519 키 / 오르카 887 키, 실측 2026-09-14). 한쪽 프로파일을 다른 쪽에 넣으면 없는 키가 오류 없이 버려지므로, Phase 1.95 가 대상 슬라이서를 먼저 확정한다. 차이 정본은 `references/bambu-fields-baseline.md` §11.
 
 다른 플러그인(rust-kit, react-kit 등)과 달리 도구형 1스킬 킷이다. guide/audit/system 3종 패턴 대신 `bambu-print-profile` 단일 스킬이 references 4종을 토대로 풀 워크플로우(Phase 1~5)를 수행한다.
 
@@ -12,7 +14,7 @@ H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. MakerWorld URL이
 
 | 스킬 | 용도 |
 |------|------|
-| `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 JSON 생성 → zip 번들 출력 |
+| `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → 슬라이서 판별 → seam 전략 → 해당 슬라이서용 JSON 생성 → zip 번들 출력 |
 
 트리거 키워드: "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력".
 
@@ -22,7 +24,7 @@ H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. MakerWorld URL이
 
 | 문서 | 내용 |
 |------|------|
-| `bambu-fields-baseline.md` | Bambu Studio JSON schema — process/filament 필수 필드, inherits 체인, silent skip 회피 메타필드 |
+| `bambu-fields-baseline.md` | 슬라이서 JSON schema — process/filament/machine 필수 필드, inherits 체인, silent skip 회피 메타필드, §11 슬라이서별 키 차이 |
 | `materials.md` | Bambu 필라멘트 카탈로그 40+ + 용도 매핑 (PLA/PETG/PA/PC/ASA/CF/TPU) + AMS 호환성 |
 | `seam-recipes.md` | 형상×소재 scarf 매트릭스 + Real-world findings (회전체 random vs aligned, PETG entire_loop stringing 등) |
 | `surface-recipes.md` | Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프) |
@@ -41,7 +43,7 @@ bambu-kit는 자체 카이젠 스킬을 플러그인 외부 `.claude/skills/`에
 
 ```text
 /Users/jackson/Hub/60_3D Print/Settings/<모델명>/
-├── <모델명>.zip              # Bambu Studio Import Configs용
+├── <모델명>.zip              # 대상 슬라이서 Import Configs용
 │   ├── process/<name>.json
 │   └── filament/<name>.json (멀티 소재 시 N개)
 └── notes.md                  # 케이스별 디테일/실측 결과

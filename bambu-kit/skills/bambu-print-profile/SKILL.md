@@ -1,12 +1,12 @@
 ---
 name: bambu-print-profile
-description: Bambu Lab H2S 환경에서 MakerWorld URL이나 로컬 모델 파일을 받아 process+filament JSON 프로파일을 자동 생성하여 import용 zip 번들로 떨궈주는 스킬. references/ 8종을 토대로 모델 형상 분석 → 실측 실패 모드 판정 → 소재 추천 → seam 전략 결정 → Bambu Studio용 JSON 생성까지 수행한다. "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력" 같은 요청 시 트리거. 단순 색상/온도/한 값 변경에는 트리거 X. 다른 프린터(X1/P1/A1 등)나 다른 슬라이서(OrcaSlicer/PrusaSlicer)에는 트리거 X — H2S + Bambu Studio 고정.
+description: Bambu Lab H2S 환경에서 MakerWorld URL이나 로컬 모델 파일을 받아 process+filament JSON 프로파일을 자동 생성하여 import용 zip 번들로 떨궈주는 스킬. Bambu Studio 와 OrcaSlicer 를 모두 다루며, Phase 1.95 에서 대상 슬라이서를 확정한 뒤 그쪽 키셋으로 생성한다. references/ 9종을 토대로 모델 형상 분석 → 실측 실패 모드 판정 → 소재 추천 → seam 전략 결정 → 슬라이서별 JSON 생성까지 수행한다. "삼프 설정", "Bambu 프로파일 만들어줘", "오르카 프로파일", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력" 같은 요청 시 트리거. 단순 색상/온도/한 값 변경에는 트리거 X. 다른 프린터(X1/P1/A1 등)나 PrusaSlicer 에는 트리거 X — H2S 고정.
 user-invocable: true
 ---
 
 # Bambu Print Profile Skill
 
-H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정. 사용자의 모델(URL/파일)을 받아 process+filament JSON을 생성하고 import용 zip을 떨궈준다.
+H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ 와 OrcaSlicer v2.4+ 양쪽**을 지원하며, 어느 쪽으로 생성할지는 Phase 1.95 가 확정한다. 두 슬라이서는 키 이름·유효값·스코프가 갈라져 있어 한쪽 프로파일을 다른 쪽에 그대로 넣으면 조용히 무시된다 — 차이 정본은 `references/bambu-fields-baseline.md` §11 이다. 사용자의 모델(URL/파일)을 받아 process+filament JSON을 생성하고 import용 zip을 떨궈준다.
 
 ## 트리거 조건
 
@@ -693,6 +693,46 @@ Failure-Mode 판정
 1.9.1 판정 완료 (+ 1.9.2 해당 시 응답 수령) 가 끝나야 Phase 2 로 진입한다.
 **감지 결과 미확정 상태로 Phase 3 JSON 생성에 진입 금지.**
 
+### Phase 1.95 — 슬라이서 판별 (2026-09-14 신규)
+
+**필수 실행 — 모든 입력 분기.** 생성할 JSON 의 키 이름·유효값·스코프가 슬라이서마다 다르므로,
+**어느 슬라이서용인지 확정하기 전에 Phase 3 에 진입하지 마라.** 키 차이 정본은
+`references/bambu-fields-baseline.md` §11 이다.
+
+#### 1.95.1 설치본 탐지
+
+```bash
+for app in BambuStudio OrcaSlicer; do
+  p="/Applications/$app.app"
+  [ -d "$p" ] || { printf '%-14s 미설치\n' "$app"; continue; }
+  v=$(defaults read "$p/Contents/Info" CFBundleShortVersionString 2>/dev/null)
+  n=$(find "$p/Contents/Resources/profiles/BBL/process" -name '*.json' 2>/dev/null | wc -l | tr -d ' ')
+  printf '%-14s %s · process 프로파일 %s 개\n' "$app" "${v:-판정불가}" "$n"
+done
+```
+
+#### 1.95.2 판정 규칙
+
+| 상황 | 판정 |
+| --- | --- |
+| 사용자가 슬라이서를 명시했다 | 그대로 채택. **추측으로 덮어쓰지 마라** |
+| 한쪽만 설치돼 있다 | 그쪽으로 확정하고 사용자에게 한 줄로 알린다 |
+| 둘 다 설치돼 있고 사용자 미지정 | **묻는다.** 임의로 고르지 마라 — 키 차이 때문에 산출물이 조용히 무시된다 |
+| 둘 다 미설치 | **`[미검증]` 으로 표시하고 Bambu Studio 키셋으로 생성한다.** 스코프·enum 검사는 근거가 없으므로 Phase 4.3 이 "판정 불가" 로 보고한다 |
+
+확정값을 `TARGET_SLICER` (`bambu` | `orca`) 로 두고 Phase 3·4.3 이 그대로 쓴다. process JSON 에는
+`_target_slicer` 로 기록해 나중에 어느 슬라이서용인지 추적할 수 있게 한다 (`_` 접두라 import 시 버려진다).
+
+**Phase 4.3 게이트에는 환경변수로 넘긴다** — `TARGET_SLICER=orca python3 - ...` 형태다. 게이트
+스크립트는 heredoc 안에서 돌기 때문에 셸 변수도 파이썬 전역도 보지 못한다. 안 넘기면 스코프·부모값
+검사가 통째로 `[미검증]` 으로 떨어진다 (조용히 뱀부로 폴백하지 않는다).
+
+**추측 금지.** 파일 확장자·모델 출처·과거 대화로 슬라이서를 유추하지 마라. 위 표의 4 분기 밖은 없다.
+
+#### Slicer Gate (Phase 2 진입 조건)
+
+`TARGET_SLICER` 가 확정되거나 `[미검증]` 이 명시적으로 기록돼야 Phase 2 로 진입한다.
+
 ### Phase 2 — 소재 추천 (2-3개 + 사용자 픽)
 
 **진입 조건**: Phase 1.6 completed (designer_constraints 추출) **+ Phase 1.7 completed (tolerance fit-critical 분석) + Phase 1.8 completed (Surface Intent Gate) + Phase 1.9 completed (Failure-Mode Gate)**. Phase 1.9 결과는 Phase 2 소재 추천에도 영향 — L2 감지 시 건조 요구가 큰 소재(PETG/PA/PC)를 후보에 남길 때 건조 조건을 함께 제시해야 한다. Phase 1.7 fit-critical 결과는 Phase 2 소재 추천에 직접 영향 — 소재별 수축률 차이가 fit 정확도와 직결 (PLA 0.2-0.3% < PETG 0.3-0.5% < ASA 0.5-0.8%). `references/materials.md` §4 수축률 표 참조.
@@ -1288,28 +1328,70 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 zip 을 만들기 **전에** 생성한 JSON 전부에 대해 아래를 실행하고, **출력 원문을 응답에 붙여라.**
 
 ```bash
-python3 - <output_dir>/process/*.json <output_dir>/filament/*.json <<'PY'
-import sys, json, pathlib
+TARGET_SLICER=<bambu|orca> python3 - <output_dir>/process/*.json <output_dir>/filament/*.json <<'PY'
+import os, sys, json, pathlib
 allok=True; unverified=[]
 
 # 시스템 프로파일 인덱스 — 부모 체인 해석용 (유량비 · 부모값 이탈 검사)
-SYS = pathlib.Path.home()/"Library/Application Support/BambuStudio/system/BBL"
+# 근거는 **앱 번들**이 1 순위다. 사용자 데이터 디렉토리는 GUI 를 한 번도 안 띄우면 존재하지 않는다
+# (실측 2026-09-14: OrcaSlicer 를 CLI 로만 쓴 환경에서 ~/Library/.../OrcaSlicer 가 아예 없었다).
+SLICER_ROOTS = {
+    "bambu": pathlib.Path("/Applications/BambuStudio.app/Contents/Resources/profiles/BBL"),
+    "orca":  pathlib.Path("/Applications/OrcaSlicer.app/Contents/Resources/profiles/BBL"),
+}
+# Phase 1.95 가 확정한 TARGET_SLICER 는 **환경변수로** 들어온다. heredoc 안의 스크립트는 셸 변수를
+# 못 보므로 `globals().get(...)` 은 언제나 None 이었다 (2026-09-14 감사에서 적발 — 오르카 산출물이
+# 늘 뱀부 스코프로 검사되는 회귀였다). 다른 슬라이서로 폴백하지 않는다 — 틀린 근거로 검사하느니
+# 검사를 안 한 것으로 보고하는 게 낫다 (ER-02).
+SLICER = os.environ.get("TARGET_SLICER") or None
+SYS = SLICER_ROOTS.get(SLICER) if SLICER else None
+if SLICER is None:
+    unverified.append("TARGET_SLICER 미전달 — 스코프/부모값 검사 미실행 (실행 명령에 TARGET_SLICER=bambu|orca 를 붙여라)")
+    SYS = None
+elif SLICER not in SLICER_ROOTS:
+    unverified.append(f"TARGET_SLICER={SLICER!r} 는 bambu|orca 가 아니다 — 스코프/부모값 검사 미실행")
+    SYS = None
+elif not SYS.is_dir():
+    unverified.append(f"TARGET_SLICER={SLICER} 설치본 경로 없음 ({SYS}) — 스코프/부모값 검사 미실행. 다른 슬라이서로 대신 검사하지 않는다")
+    SYS = None
+else:
+    print(f"SLICER {SLICER}: {SYS}")
+USERDIR = {
+    "bambu": pathlib.Path.home()/"Library/Application Support/BambuStudio/user",
+    "orca":  pathlib.Path.home()/"Library/Application Support/OrcaSlicer/user",
+}.get(SLICER) if SLICER else None
 SYSIDX = {}
-# 키 스코프 인덱스 — 키가 어느 종류(process/filament)의 시스템 프로파일에 실재하는지. 다른 종류에 넣으면 조용히 무시된다
+# 키 스코프 인덱스 — 키가 어느 종류(process/filament/machine)의 시스템 프로파일에 실재하는지.
+# 다른 종류에 넣으면 조용히 무시된다. machine 은 2026-09-14 신규 — 그 전에는 process/filament 2 종만
+# 봐서 `retraction_minimum_travel`(machine 567 건 / process 0 건) 같은 키를 process 에 넣어도 안 잡혔다.
 SCOPE = {}
-if SYS.is_dir():
-    for kind in ("process","filament"):
+KINDS = ("process","filament","machine")
+if SYS is not None:
+    for kind in KINDS:
         for q in (SYS/kind).glob("*.json"):
             try: dd = json.loads(q.read_text(encoding="utf-8"))
             except Exception: continue
             if "name" in dd: SYSIDX[dd["name"]] = dd
             for key in dd: SCOPE.setdefault(key, set()).add(kind)
-    # Bambu 가 직접 저장한 user preset 도 스코프 근거다 — 시스템 프로파일이 설정하지 않는 키(brim_type 등)는 여기서만 잡힌다
-    for kind in ("process","filament"):
-        for q in (SYS.parent.parent/"user").glob(f"*/{kind}/*.json"):
-            try: SCOPE_KEYS = json.loads(q.read_text(encoding="utf-8")).keys()
-            except Exception: continue
-            for key in SCOPE_KEYS: SCOPE.setdefault(key, set()).add(kind)
+    # 스코프 근거만 **전 제조사**로 넓힌다. BBL 트리만 보면 이 킷이 권장하기 시작한 오르카 전용 키가
+    # 전부 "판정 불가" 로 떨어지는데, 판정 불가는 통과로 취급되므로 진짜 위반까지 같이 샌다
+    # (실측 2026-09-14: scarf_joint_speed 는 오르카 전 제조사 187 건 / BBL 0 건).
+    # **부모 체인 해석(SYSIDX)은 넓히지 마라** — 같은 이름 프로파일이 제조사마다 있어 엉뚱한 부모를 잡는다.
+    for q in SYS.parent.rglob("*.json"):
+        try: dd = json.loads(q.read_text(encoding="utf-8"))
+        except Exception: continue
+        if not isinstance(dd, dict): continue
+        kind = dd.get("type")
+        if kind in KINDS:
+            for key in dd: SCOPE.setdefault(key, set()).add(kind)
+    # 슬라이서가 직접 저장한 user preset 도 스코프 근거다 — 시스템 프로파일이 설정하지 않는 키(brim_type 등)는 여기서만 잡힌다.
+    # 이 경로는 GUI 를 띄운 적이 있어야 생긴다. 없으면 번들만으로 판정한다.
+    if USERDIR and USERDIR.is_dir():
+        for kind in KINDS:
+            for q in USERDIR.glob(f"*/{kind}/*.json"):
+                try: SCOPE_KEYS = json.loads(q.read_text(encoding="utf-8")).keys()
+                except Exception: continue
+                for key in SCOPE_KEYS: SCOPE.setdefault(key, set()).add(kind)
 # 스코프 검사에서 제외하는 메타 키 — 필수 메타필드 표의 키. version 은 시스템 filament 1 건에만 있어 제외하지 않으면 오탐이다
 META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id",
         "compatible_printers","filament_extruder_variant","instantiation","setting_id"}
@@ -1358,7 +1440,8 @@ for p in sys.argv[1:]:
     for bad,why in FORBIDDEN.items():
         if bad in d: errs.append(f"금지 키 {bad}: {why}")
     # enum allowlist 검사 (2026-09-06 신규 · surface-recipes.md §5) — blocklist 는 미지의 값을 못 잡는다.
-    # 값 출처: 설치본 Bambu Studio 02.08.02.61 바이너리 enum 테이블 실측. Orca 이름을 쓰면 조용히 무시된다.
+    # 값 출처: 설치본 Bambu Studio 02.08.02.61 · OrcaSlicer 2.4.2 바이너리 문자열 전수 대조 실측.
+    # 아래 값은 두 슬라이서 공통이다 — 갈리는 값은 바로 아래 SLICER 분기에서만 더한다.
     # 키가 아예 없는 것은 부모 상속이므로 정상이다 — 존재할 때만 값을 본다.
     ENUM_ALLOW={
         "ironing_type":       ("no ironing","top","topmost","solid"),
@@ -1369,6 +1452,10 @@ for p in sys.argv[1:]:
         "wall_sequence":      ("inner wall/outer wall","outer wall/inner wall","inner-outer-inner wall"),
         "brim_type":          ("auto_brim","brim_ears","outer_only","inner_only","outer_and_inner","no_brim"),
     }
+    # 슬라이서별 허용값 차이. 위 표의 값은 전부 양쪽 바이너리에 있고, 갈리는 것은 이 하나뿐이다
+    # (바이너리 문자열 전수 대조 2026-09-14). 안 갈라주면 오르카 정상 산출물을 FAIL 로 잡는다.
+    if SLICER == "orca":
+        ENUM_ALLOW = dict(ENUM_ALLOW, seam_position=ENUM_ALLOW["seam_position"]+("aligned_back",))
     for ek,allowed in ENUM_ALLOW.items():
         if ek not in d: continue          # 미설정 = 부모 상속. 정상이다
         ev=d[ek]
@@ -1479,6 +1566,78 @@ PY
 - `RESULT: PASS` **이면서 exit 0** 이어야 다음 단계(zip 번들링 · 완료 보고)로 진행한다. `FAIL` 이면 JSON 을 고치고 재실행하라 — 사용자에게 넘기지 마라.
 - **출력이 비어 있으면 PASS 가 아니다.** 파일 glob 이 아무것도 매칭 못 한 것이므로 경로부터 고쳐라 (`skill-design-guide.md` §3.7).
 - 위 명령을 실행하지 않았거나 실행할 수 없었다면 완료를 선언하지 말고 `[미검증]` 으로 명시하라. 마커는 `[미검증]` 하나로 통일하며 동의어(`미확인`, `N/A`, `TBD`, `unverified`)를 새로 만들지 않는다 — 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
+
+#### 음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신규)
+
+`RESULT: PASS` 는 **검사가 돌았다는 증거가 아니다.** 검사가 죽어 있어도 PASS 가 나온다. 게이트를
+고쳤거나 새 키를 도입했으면 아래 두 가지를 **실제로 주입해 FAIL 이 나오는지** 확인하라.
+
+| 주입 | 기대 | 안 잡히면 |
+| --- | --- | --- |
+| `evals/gate-fixtures/process-machine-scope-key.json` | 키 스코프 불일치 **FAIL 1 건** (`retraction_minimum_travel`) | 스코프 검사가 `machine` 을 안 본다 |
+| `evals/gate-fixtures/process-seam-slope-type-invalid.json` | enum 허용값 위반 **FAIL 1 건** (`seam_slope_type`) | `ENUM_ALLOW` 에 그 키가 빠졌다 |
+
+**FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
+위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
+있다" 를 전혀 증명하지 못한다. 실제로 2026-09-14 감사에서 두 픽스처가 각각 오류 7 건 · 6 건을 내며
+이 상태였다. 그래서 두 픽스처는 **목표 위반 1 개만 남기고 나머지 필드를 전부 정상값으로** 채웠다.
+
+절차는 세 단계다.
+
+1. 게이트 원본을 그대로 파일로 뽑는다 (손으로 베끼면 SKILL.md 와 어긋난다).
+2. 원본으로 돌려 **FAIL 1 건 · exit 1** 을 확인한다.
+3. 목표 검사만 지운 사본으로 돌려 **RESULT: PASS · exit 0** 으로 바뀌는지 확인한다.
+   바뀌지 않으면 픽스처에 목표 외 위반이 남아 있는 것이다 — 픽스처를 고쳐라.
+
+```bash
+# macOS mktemp 은 X 가 **맨 끝**이어야 치환한다. `/tmp/gate-XXXX.py` 로 쓰면 그 이름 그대로 만들어져
+# 2 회차부터 "File exists" 로 죽는다 — 다시 돌려 확인하라는 절차가 다시 못 돌게 된다 (실측 2026-09-14).
+GATE=$(mktemp -t gate)
+S=bambu-kit/skills/bambu-print-profile/SKILL.md
+A=$(grep -n '^TARGET_SLICER=.* python3 - ' "$S" | head -1 | cut -d: -f1)
+B=$(awk -v s="$A" 'NR>s && $0=="PY" {print NR; exit}' "$S")
+sed -n "$((A+1)),$((B-1))p" "$S" > "$GATE"
+
+# (2) 검사 유지 → FAIL 1 건 · exit 1
+TARGET_SLICER=bambu python3 "$GATE" bambu-kit/evals/gate-fixtures/process-machine-scope-key.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" bambu-kit/evals/gate-fixtures/process-seam-slope-type-invalid.json; echo "exit=$?"
+
+# (3) 검사 제거 → PASS · exit 0. 변이가 실제로 적용됐는지 줄 수로 먼저 확인한다
+sed 's/^KINDS = ("process","filament","machine")$/KINDS = ("process","filament")/' "$GATE" > "$GATE.nomachine"
+grep -c '^KINDS = ("process","filament")$' "$GATE.nomachine"   # 1 이어야 변이가 먹은 것
+TARGET_SLICER=bambu python3 "$GATE.nomachine" bambu-kit/evals/gate-fixtures/process-machine-scope-key.json; echo "exit=$?"
+
+grep -v '"seam_slope_type":    (' "$GATE" > "$GATE.noenum"
+test "$(wc -l < "$GATE")" -gt "$(wc -l < "$GATE.noenum")"      # 줄이 줄었어야 변이가 먹은 것
+TARGET_SLICER=bambu python3 "$GATE.noenum" bambu-kit/evals/gate-fixtures/process-seam-slope-type-invalid.json; echo "exit=$?"
+```
+
+실측 2026-09-14 (`TARGET_SLICER` 를 `bambu` · `orca` 로 각각 돌려 동일 결과):
+
+```text
+[검사 유지]  FAIL process-machine-scope-key.json: 키 스코프 불일치 retraction_minimum_travel: … machine 에만 실재
+             RESULT: FAIL   exit=1
+[machine 제거] OK   process-machine-scope-key.json: type=process from=User keys=17 …
+             [미검증] retraction_minimum_travel 는 설치본 어느 시스템 프로파일에도 없는 키 — 스코프 판정 불가
+             RESULT: PASS   exit=0
+
+[검사 유지]  FAIL process-seam-slope-type-invalid.json: enum seam_slope_type='hole' 는 허용값이 아니다 — 허용: none, external, all
+             RESULT: FAIL   exit=1
+[enum 제거]  OK   process-seam-slope-type-invalid.json: type=process from=User keys=19 …
+             RESULT: PASS   exit=0
+```
+
+`machine` 분기를 지웠을 때 FAIL 이 사라지고 `[미검증]` 으로 **강등**된다는 점이 핵심이다. 판정 불가는
+통과로 취급되므로, 스코프 종류를 하나라도 빠뜨리면 위반이 조용히 통과한다.
+
+**왜 enum 을 따로 보는가.** 슬라이서는 유효하지 않은 enum 값을 **오류 없이 조용히 기본값으로
+강등**한다. 실측 2026-09-14: `seam_slope_type` 에 `hole` 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고
+스카프가 통째로 사라진다 (유효값은 `none` · `external` · `all` 뿐). 사용자는 설정을 켰다고 믿는데
+산출물에는 없다 — 게이트가 안 잡으면 아무도 안 잡는다.
+
+같은 이유로 **키 이름 오타도 조용히 사라진다.** 가짜 키를 하나 넣어 슬라이스한 뒤 G-code 설정
+트레일러에서 그 키가 사라지는지 보면 "실존하는 키인지" 를 판별할 수 있다 (실측: 가짜 키
+`jackson_totally_fake_key` 는 exit 0 · 경고 0 으로 소멸).
 
 **추가 의미 검증 (스크립트가 못 잡는 항목 — 위 출력값을 눈으로 대조):**
 

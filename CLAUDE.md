@@ -16,7 +16,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 - **react-kit** — React + Vite + Tauri 2 + Rust WASM 전용 개발 워크플로우 플러그인 — 21종 스킬 + 3 에이전트, 라이브러리 0개 애니메이션, Clean Architecture, Strict TypeScript 강제
 - **planning-kit** — 스택 무관 제품 기획 플러그인 — 소크라테스식 질문, PRD, 우선순위, 리스크, 개념 데이터 모델(Mermaid), GitHub 프로젝트 동기화
 - **reflect-kit** — 개인 Claude Code 사용자의 대화 피드백 → 학습 → 재주입 파이프라인 kit. Reflexion 방법론을 개인 레벨에 적용하여 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고 빈도·위험도·절차성 기준으로 CLAUDE.md / memory / skill / hook에 승격한다.
-- **bambu-kit** — Bambu Lab H2S용 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio import 번들
+- **bambu-kit** — Bambu Lab H2S용 자동 process+filament JSON 생성 — MakerWorld URL/모델 분석 → 소재 추천 → 슬라이서 판별(Bambu Studio / OrcaSlicer) → seam 전략 → import 번들
 - **onboarding-kit** — 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보 기반 step-by-step 가이드 (Firebase, GCP, AWS, FCM, OAuth, Stripe 등)
 - **tone-kit** — 스택 무관 코딩 톤·유지보수성 게이트 — 주석 경제성, 역할 기반 네이밍, 추출 임계치, 한국어 기술 문체, 템플릿 스캐폴딩, 파일 단위 정리 캠페인
 - **api-kit** — 실제 응답을 SSOT로 삼는 블랙박스 API 계약 검증 킷 — 탐색 실행, 스냅샷 봉인, 계약 추출, 회귀 diff, 정적 뷰어

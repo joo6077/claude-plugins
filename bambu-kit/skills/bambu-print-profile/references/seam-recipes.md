@@ -147,6 +147,31 @@ scarf_length = clamp( min(10mm, 둘레 x 0.10~0.15), 하한 3mm )
 scarf 를 "수평 램프 길이" 로 정의하고 짧은 루프에서의 실패를 인정한다는 사실 + 위 실측에
 근거한 시작값이다. coupon 으로 확정하라.
 
+#### 둘레 20 mm 미만에서는 상한과 하한이 양립하지 않는다 — 그때는 끄는 것이 답이다
+
+Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘레 <= 0.15`, 하한은 `길이 >= 3 mm` 다.
+둘을 동시에 만족하려면 `0.15 x 둘레 >= 3`, 즉 **둘레가 20 mm 이상**이어야 한다.
+
+| 둘레 | 상한이 허용하는 최대 길이 | 하한 3 mm 와 양립? |
+| --- | --- | --- |
+| `100 mm` | 15 mm | 된다 |
+| `30 mm` | 4.5 mm | 된다 (여유 1.5 mm) |
+| **`20 mm`** | **3.0 mm** | **경계** |
+| `5.31 mm` | 0.80 mm | **안 된다** |
+
+즉 둘레 20 mm 미만 루프에는 **검사를 통과하는 길이 값이 존재하지 않는다.** 이것은 검사의
+결함이 아니라 §2.2 표의 "`< 30 mm` 는 scarf off" 와 같은 결론을 수치로 못박은 것이다. 검사가
+내는 `끄거나 3mm 이상으로` 라는 문구에서 **"끄거나" 쪽이 유일한 선택지**인 구간이 여기다.
+
+실측 2026-09-14 (래티스 통 Side Container): 최소 루프 둘레 `5.31 mm` → 상한 `0.80 mm` 대 하한
+`3 mm`. `seam_slope_type` 을 `none` 으로 두고 `wall_generator: arachne` + `wall_loops 2` 로
+갭필 쪽을 해결했다. §6.5.3 의 "3 으로만 올려도 60% 가 360° 가 된다" 와 같은 방향이다.
+
+**루프 둘레는 추측하지 말고 Phase 1.0 probe 로 재라.** 그리고 검사에 넘기는
+`_scarf_loop_circumference_mm` 는 **가장 작은 루프**로 적어라 — 오르카가 경사 길이를
+`min(설정값, 루프 둘레)` 로 자르므로(§6.5.3) 클램프는 항상 가장 짧은 루프에서 먼저 문다.
+최대 루프를 적으면 검사는 통과하는데 실물은 360° 경사가 된다.
+
 ## 3. 형상별 권장 조합 (0.4mm nozzle / 0.2mm layer 기준)
 
 | 형상 | Process 추천 | Filament scarf 추천 |
@@ -216,6 +241,97 @@ scarf 를 "수평 램프 길이" 로 정의하고 짧은 루프에서의 실패�
 - **All / Contour and Hole**: 구멍/내벽까지 개선, 시간 ↑, 내경 치수 영향, 작은 디테일 거칠어짐.
 - **Painted/Aligned**: 실패 가능성 ↓, 박스/피규어에 강함. 완전 원통에는 "위치 이동"일 뿐 제거 아님.
 - **Scarf around entire wall**: 두 번째 seam 흔적 줄이는 실험. 공식 문서는 보통 Off 권장. 시간 + 전체 벽 질감 변화가 대가.
+
+## 6.5 루프가 작고 많은 형상 — 래티스·격자·메시 (2026-09-14 신설)
+
+레이어마다 **독립 폐루프가 수십 개** 생기는 형상은 일반 원통과 정책이 다르다. 실측 대상:
+래티스 통(레이어당 루프 25~59 개, 루프 둘레 2.92~3.08 mm, 스트럿 국소 최소폭 1.15~1.51 mm).
+
+### 6.5.1 이음매 개수는 못 줄인다 — 자리와 크기만 바꾼다
+
+루프마다 압출 시작·종료가 한 번씩 필요하므로 **이음매 수 = 루프 수**다. 실측으로 확인했다.
+
+| 설정 | 이음매 수 | 한 자리에 쌓임(0.3 mm 내) |
+| --- | --- | --- |
+| `seam_position: aligned` | 9,861 | 78% |
+| `seam_position: random` | 9,890 | 11% |
+
+**개수가 같다.** 흩뿌리기는 돌기를 만든 것도 없앤 것도 아니고 **옮긴 것**이다. 꽃병 모드는 루프가
+하나일 때만 성립하므로 이 형상에는 적용 불가다.
+
+### 6.5.2 `random` 을 기본 처방으로 쓰지 마라
+
+수치만 보면 `random` 이 쌓임을 78% → 11% 로 낮춰 최적으로 보인다. 그러나 실물 결과는 반대다.
+오르카 개발 스레드의 실측 보고:
+
+> *"random is a disaster, blobs and strings galore."*
+> — <https://github.com/OrcaSlicer/OrcaSlicer/pull/3839#issuecomment-1912989343>
+
+세로 홈 하나가 겉면 전체에 흩어진 돌기 수천 개보다 낫다는 것이 그 스레드의 결론이다.
+**기본은 `aligned`,** 눈에 안 띄는 면으로 몰 수 있으면 그쪽을 쓴다.
+
+같은 출처가 `wipe_before_external_loop` 도 경사와 함께 쓰면 결과가 *"significantly worse"* 라고
+보고했다 — 경사를 쓸 때는 끈다.
+
+### 6.5.3 경사 길이는 루프 둘레보다 짧게 (클램프 주의)
+
+오르카 소스가 경사 길이를 **`min(설정값, 루프 둘레)`** 로 자른다
+(<https://github.com/OrcaSlicer/OrcaSlicer/blob/v2.4.2/src/libslic3r/GCode.cpp>).
+그래서 기본값 20 mm 를 그대로 두면 둘레 3 mm 짜리 루프는 **한 바퀴 전체가 경사**가 된다.
+`seam_slope_entire_loop` 를 꺼도 그렇다.
+
+360° 경사는 *"inconsistent layer height"* 를 만든다는 시험 보고가 있다
+(<https://github.com/OrcaSlicer/OrcaSlicer/pull/3839#issuecomment-1922460406>).
+
+**규칙: 경사 길이를 루프 둘레보다 작게 잡아라.** 실측 임계 —
+
+| 경사 길이 설정 | 실제 램프 | 360° 가 된 루프 |
+| --- | --- | --- |
+| 0.5 | 0.420 | 0% |
+| **1.5** | **1.419** | **0%** |
+| 3 | 2.920 | 59.8% |
+| 10 | 2.910~9.922 | 전부 |
+
+루프 둘레가 2.92 mm 라 **3 으로만 올려도 60% 가 360°** 가 된다. 여유가 크지 않다.
+
+⚠️ 키 이름이 오해를 부른다. `seam_slope_min_length` 의 실제 라벨은 **"Scarf length"** 이고 툴팁은
+*"Length of the scarf. Setting this parameter to zero effectively disables the scarf."* 다.
+"이 길이 미만 루프는 건너뛴다" 는 **임계값이 아니다.** 값을 낮춰도 적용 개수는 안 변하고
+경사만 짧아진다.
+
+### 6.5.4 `seam_slope_conditional` 은 반드시 `0`
+
+조건부 판정을 켜면 각도 임계(기본 155°)와 하향면 검사가 붙는데, **루프의 어느 한 지점이라도
+걸리면 그 루프 전체가 탈락**한다. 짧고 각진 래티스 루프는 전멸한다.
+
+| `seam_slope_conditional` | 경사가 걸린 이음매 |
+| --- | --- |
+| `1` | **0%** |
+| `0` | **98.2%** |
+
+0% 다. 기본값이 `1` 이므로 **명시적으로 `0` 을 쓰지 않으면 경사 설정 전체가 무효**다.
+
+### 6.5.5 이 형상 권장 조합
+
+| 키 | 값 | 근거 |
+| --- | --- | --- |
+| `seam_position` | `aligned` | §6.5.2 |
+| `seam_slope_type` | `external` | 유효값 `none`/`external`/`all` 중. 오타는 조용히 `none` 강등 |
+| `seam_slope_conditional` | `0` | §6.5.4 — 안 끄면 0% |
+| `seam_slope_min_length` | 루프 둘레의 절반 이하 | §6.5.3 |
+| `wipe_before_external_loop` | `0` | §6.5.2 |
+| `scarf_joint_speed` | `60%` | 오르카 전용. 뱀부에서는 **경사 구간 속도를 따로 낮출 수 없다** — 경사 자체는 쓸 수 있다 |
+| `staggered_inner_seams` | `1` | 오르카 전용 |
+
+**뱀부에서도 경사는 쓸 수 있다.** 위 표에서 뱀부에 없는 것은 `scarf_joint_speed` ·
+`staggered_inner_seams` 둘뿐이고, `seam_slope_type` · `seam_slope_conditional` ·
+`seam_slope_min_length` 는 양쪽 다 있다. 뱀부에서 빠지는 것은 **경사 구간만 속도·토출량을 따로
+제어하는 능력**이다 (근거: `bambu-fields-baseline.md` §11.2 · §11.3, 바이너리 문자열 실측 2026-09-14).
+
+돌기 자체를 더 줄이려면 **압력 보정(pressure advance)이 1 순위**다. 공식 문서:
+*"The first thing to tune would be pressure advance."*
+(<https://github.com/OrcaSlicer/OrcaSlicer_WIKI/blob/main/print_settings/quality/quality_settings_seam.md>)
+그다음이 `seam_gap`(0/5/10/15% 비교), 그다음이 wipe 계열이다.
 
 ## 7. 미해결 / 검증 필요
 

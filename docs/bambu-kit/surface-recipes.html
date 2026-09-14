@@ -366,6 +366,48 @@
         <li>이미 출력했고 <strong>바닥이 뜬</strong> 결과물 (L3)</li>
         <li>재현 6 축 대조 · 금지 키 게이트 · 실패 순서 판정</li>
       </ul>
+<div class="section">
+  <div class="section-label">Section 2.8 · 벽 예산 (2026-09-14)</div>
+
+  <p>형상 클래스가 <code>thin</code> 이면 한 가지를 더 계산한다 — <strong>벽이 실제로 들어가는지</strong>다.</p>
+
+  <pre><code>벽 예산 = outer_wall_line_width x 2 + inner_wall_line_width x 2 x (wall_loops - 1)</code></pre>
+
+  <p><code>0.12mm High Quality @BBL H2S</code> 실효값(외 0.42 · 내 0.45 · <code>wall_loops</code> 2) 기준
+  <strong>1.74 mm</strong> 다. 피처의 <strong>국소 최소폭</strong>이 이보다 작으면 벽 두 겹이 안 들어간다.
+  중앙값이나 수력직경으로 재면 안 된다 — 결함은 가장 좁은 자리에서 난다.</p>
+
+  <div class="table-wrap">
+
+  <table>
+    <thead><tr><th>국소 최소폭</th><th>상태</th><th>처방</th></tr></thead>
+    <tbody>
+      <tr><td>&ge; 벽 예산</td><td>정상</td><td>그대로</td></tr>
+      <tr><td>&lt; 벽 예산, &ge; 0.84 mm</td><td><strong>벽이 못 들어감</strong></td><td><code>wall_generator</code> 를 <code>arachne</code> 로</td></tr>
+      <tr><td>&lt; 0.84 mm</td><td>벽 1 겹도 불가</td><td>모델 쪽 문제 — 사용자에게 보고</td></tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <p><code>classic</code> 생성기는 벽이 못 들어가는 자리를 <strong>갭필로 때운다</strong>. 갭필 선폭은 그 자리 형상이
+  정하므로 결함이 <strong>매 출력 같은 위치에 재현</strong>된다.</p>
+
+  <h3>실측 — 래티스 통 (2026-09-14)</h3>
+  <p>스트럿 국소 최소폭 1.15~1.51 mm, 벽 예산 1.74 mm 미만이라 56~90% 구간에서 두 겹이 안 들어간다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th><code>wall_generator</code></th><th>갭필 구간</th><th>외벽 블록</th><th>갭필 선폭 범위</th></tr></thead>
+    <tbody>
+      <tr><td><code>classic</code></td><td><strong>16,123</strong></td><td>18,267 (파편화)</td><td>0.076~0.697 mm (9 배 요동)</td></tr>
+      <tr><td><code>arachne</code></td><td><strong>0</strong></td><td>9,875</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><code>classic</code> 은 외벽까지 두 배로 파편화한다 — 조각 하나하나가 압출 시작·종료라 이음매 후보지도 두 배다.</p>
+</div>
+
+
       <div class="note">→ <a href="failure-recipes.html" style="color:var(--accent2)">Failure Recipes</a> 로 간다. 실패 보고에 이 페이지의 사전 권장값을 그대로 다시 적용하면 원인을 건너뛰게 된다.</div>
     </div>
     <div class="compare-good">

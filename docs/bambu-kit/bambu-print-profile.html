@@ -148,7 +148,7 @@
 <!-- ── Section 1: 트리거 조건 ── -->
 <div class="section">
   <div class="section-label">트리거 조건 (Triggers)</div>
-  <p class="desc">스킬은 H2S + Bambu Studio 환경에 한정된다. 다른 프린터(X1/P1/A1)나 다른 슬라이서(OrcaSlicer/PrusaSlicer) 요청에는 트리거되지 않는다. 단순 1필드 변경에도 트리거되지 않는다 — 그건 Bambu Studio UI에서 직접 처리하는 게 빠르다.</p>
+  <p class="desc">스킬은 H2S 환경에 한정되지만 <strong>슬라이서는 Bambu Studio 와 OrcaSlicer 양쪽</strong>을 다룬다 (2026-09-14 신설). 어느 쪽으로 생성할지는 Phase 1.95 가 확정한다. 다른 프린터(X1/P1/A1)나 PrusaSlicer 요청에는 트리거되지 않는다. 단순 1필드 변경에도 트리거되지 않는다 — 그건 슬라이서 UI에서 직접 처리하는 게 빠르다.</p>
 
   <div class="compare">
     <div class="compare-good">
@@ -156,7 +156,7 @@
       <ul>
         <li>MakerWorld URL이 메시지에 포함 (<code>makerworld.com/en/models/...</code>)</li>
         <li>로컬 모델 파일 경로 언급 (<code>.3mf</code> / <code>.stl</code> / <code>.step</code>)</li>
-        <li>"삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅", "프린트 셋팅"</li>
+        <li>"삼프 설정", "Bambu 프로파일 만들어줘", "오르카 프로파일", "출력 셋팅", "프린트 셋팅"</li>
         <li>"MakerWorld 모델 출력하려고" 같은 출력 의도 표현</li>
         <li>"원기둥 seam 안 보이게", "회전체 표면 깔끔하게" 같은 형상 + seam 결합 요청</li>
         <li>모델명 + 소재 + 품질 요구가 묶여서 들어오는 경우</li>
@@ -167,7 +167,7 @@
       <ul>
         <li>단순 1필드 변경 ("온도 245로 해줘", "색만 바꿔줘") → Studio UI 직접</li>
         <li>기존 프로파일 리뷰만 요청 ("이 설정 어때?")</li>
-        <li>다른 프린터 / 다른 슬라이서 언급 (X1C, P1S, A1, OrcaSlicer, PrusaSlicer)</li>
+        <li>다른 프린터 언급 (X1C, P1S, A1) 또는 PrusaSlicer — <strong>OrcaSlicer 는 이제 트리거한다</strong></li>
         <li>슬라이싱 결과 분석만 요청 ("이 출력 어땠어?")</li>
         <li>하드웨어 트러블슈팅 ("벨트 텐션", "노즐 막힘")</li>
         <li>장비 펌웨어/메인보드 관련 질문</li>
@@ -176,13 +176,13 @@
   </div>
 
   <div class="callout">
-    <strong>Why H2S만?</strong> Bambu Studio의 시스템 프리셋은 프린터별로 inherit chain이 완전히 다르다. <code>compatible_printers</code>가 정확히 매칭되지 않으면 import는 성공해도 드롭다운에 안 보이는 silent skip이 발생한다. 멀티 프린터 지원은 v2 카이젠 백로그.
+    <strong>Why H2S만?</strong> 시스템 프리셋은 프린터별로 inherit chain이 완전히 다르다. <code>compatible_printers</code>가 정확히 매칭되지 않으면 import는 성공해도 드롭다운에 안 보이는 silent skip이 발생한다. 멀티 프린터 지원은 v2 카이젠 백로그.<br><br><strong>슬라이서는 왜 둘인가?</strong> 오르카에만 있는 <code>scarf_joint_speed</code> 계열로 갭필을 0 으로 만들 수 있어 실측 결함이 풀렸다. 대신 두 슬라이서는 키 이름·유효값·스코프가 갈라져 있어 한쪽 프로파일을 다른 쪽에 그대로 넣으면 <strong>오류도 경고도 없이 무시된다</strong> — 차이 정본은 <a href="bambu-fields-baseline.html" style="color:var(--accent2);text-decoration:underline">Fields Baseline §11</a>.
   </div>
 </div>
 
 <!-- ── Section 2: 워크플로우 5단계 ── -->
 <div class="section">
-  <div class="section-label">워크플로우 5단계 (Phase 1~5)</div>
+  <div class="section-label">워크플로우 5단계 (Phase 1~5 · 1.95 슬라이서 판별 포함)</div>
   <p class="desc">입력(URL/파일/대화 컨텍스트) → 모델 컨텍스트 추출 → 소재 추천 → JSON 생성 → zip 번들 → 검증 + (선택) coupon test. 각 Phase는 references 4종 중 어느 파일을 로드해야 하는지 명시되어 있다.</p>
 
   <div class="grid-2">
@@ -208,6 +208,38 @@
         <p style="margin-top:10px">추출 후 사용자에게 <strong style="color:var(--text)">짧게 보고</strong>: 모델명, 부품 수, 회전체 여부, 권장 소재 후기(있다면). 정보 부족 시 즉시 사용자에게 채워달라고 요청.</p>
       </div>
       <a class="card-source" href="https://makerworld.com" target="_blank">↗ makerworld.com (모델 소스)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="num">1.95</span>
+        <div>
+          <div class="phase-tag">Phase 1.95 · 2026-09-14 신설</div>
+          <h3>슬라이서 판별</h3>
+          <div class="rule-number">Slicer Gate</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Bambu Studio 와 OrcaSlicer 중 <strong style="color:var(--text)">어느 쪽 키셋으로 생성할지</strong>를 여기서 확정한다. 두 슬라이서는 키 이름·유효값·스코프가 갈라져 있어, 한쪽 프로파일을 다른 쪽에 그대로 넣으면 오류도 경고도 없이 무시된다.</p>
+        <h4>판정 규칙 — 이 4 갈래 밖은 없다</h4>
+        <div class="table-wrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th>상황</th><th>판정</th></tr></thead>
+            <tbody>
+              <tr><td>사용자가 명시했다</td><td>그대로 채택. <strong>추측으로 덮어쓰지 마라</strong></td></tr>
+              <tr><td>한쪽만 설치돼 있다</td><td>그쪽으로 확정하고 한 줄로 알린다</td></tr>
+              <tr><td>둘 다 설치 · 사용자 미지정</td><td><strong>묻는다.</strong> 임의로 고르지 마라</td></tr>
+              <tr><td>둘 다 미설치</td><td><code>[미검증]</code> 표시 + Bambu 키셋으로 생성</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:10px">확정값은 <code>TARGET_SLICER</code> (<code>bambu</code> | <code>orca</code>) 로 두고 Phase 3 · 4.3 이 그대로 쓴다. process JSON 에는 <code>_target_slicer</code> 로 기록한다 (<code>_</code> 접두라 import 시 버려진다).</p>
+        <div class="callout" style="margin-top:10px">
+          <strong>Phase 4.3 게이트에는 환경변수로 넘긴다</strong> — <code>TARGET_SLICER=orca python3 - …</code> 형태다. 게이트 스크립트는 heredoc 안에서 돌기 때문에 셸 변수도 파이썬 전역도 보지 못한다. 안 넘기면 스코프·부모값 검사가 통째로 <code>[미검증]</code> 으로 떨어진다 — <strong>조용히 뱀부로 폴백하지 않는다.</strong>
+        </div>
+        <p style="margin-top:10px"><strong style="color:var(--text)">추측 금지.</strong> 파일 확장자·모델 출처·과거 대화로 슬라이서를 유추하지 마라.</p>
+      </div>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline §11 — 슬라이서별 키 차이</a>
     </div>
 
     <div class="card">
@@ -473,6 +505,30 @@ ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/filament/"
       <li><span class="check">7</span><div><code>nozzle_temperature</code> 등 사용자 영역 필드 안 건드렸는지. 무심코 base 값을 복사해 넣지 말 것.</div></li>
     </ul>
     <a class="card-source" href="#" onclick="return false">↗ Codex run a2a01770a87626167 (JSON import gate 검증)</a>
+  </div>
+
+  <div class="callout">
+    <strong>키 종류 색인은 제조사 전체를 읽는다 (2026-09-14):</strong>
+    검사는 키가 <code>process</code> · <code>filament</code> · <code>machine</code> 중 어느 종류인지를
+    설치본 프로파일에서 도출한다. 이때 <strong>제조사 폴더 전체</strong>를 읽는다 — 뱀부 제조사 폴더만
+    보면 이 킷이 권장하기 시작한 오르카 전용 키가 전부 <code>[미검증]</code> 으로 떨어지고,
+    <strong>판정 불가는 통과로 취급되므로 진짜 위반까지 같이 샌다.</strong> 실측 2026-09-14:
+    <code>scarf_joint_speed</code> 는 오르카 제조사 전체에 187 건 있는데 뱀부 제조사 폴더에는 0 건이다.
+    <br><br>
+    반대로 <strong>부모 체인 해석은 넓히지 않는다.</strong> 같은 이름의 프로파일이 제조사마다 있어
+    엉뚱한 부모를 잡는다. 종류 판정만 넓히고 상속 해석은 제조사 안에 가둔다.
+  </div>
+
+  <div class="callout">
+    <strong>음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신설):</strong>
+    <code>RESULT: PASS</code> 는 <strong>검사가 돌았다는 증거가 아니다.</strong> 검사가 죽어 있어도 PASS 가 나온다.
+    그래서 게이트를 고쳤거나 새 키를 도입했으면 <code>evals/gate-fixtures/</code> 의 시험용 파일 2 종을
+    실제로 주입해 <strong>FAIL 1 건</strong>이 나오는지 보고, 이어서 <strong>목표 검사만 지운 사본</strong>으로
+    돌려 <code>RESULT: PASS</code> 로 바뀌는지까지 본다. 바뀌지 않으면 시험용 파일에 목표 외 위반이
+    남아 있는 것이라 판별력이 없다 — 실측 2026-09-14 에 두 파일이 각각 오류 7 건 · 6 건을 내며 그
+    상태였다. <code>machine</code> 분기를 지웠을 때 FAIL 이 사라지고 <code>[미검증]</code> 으로
+    <strong>강등</strong>되는 것이 핵심이다. 판정 불가는 통과로 취급되므로, 스코프 종류를 하나라도
+    빠뜨리면 위반이 조용히 통과한다.
   </div>
 
   <div class="callout">
