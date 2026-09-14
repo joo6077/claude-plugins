@@ -695,6 +695,93 @@ seam_slope_entire_loop: 1
 
   </div>
 
+
+<div class="section">
+  <div class="section-label">Section 6.5 · 루프가 작고 많은 형상 (2026-09-14)</div>
+
+  <p>레이어마다 <strong>독립 폐루프가 수십 개</strong> 생기는 형상(래티스·격자·메시)은 일반 원통과 정책이 다르다.
+  실측 대상: 래티스 통 — 레이어당 루프 25~59 개, 루프 둘레 2.92~3.08 mm, 스트럿 국소 최소폭 1.15~1.51 mm.</p>
+
+  <h3>이음매 개수는 못 줄인다 — 자리와 크기만 바꾼다</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>설정</th><th>이음매 수</th><th>한 자리에 쌓임 (0.3 mm 내)</th></tr></thead>
+    <tbody>
+      <tr><td><code>seam_position: aligned</code></td><td>9,861</td><td>78%</td></tr>
+      <tr><td><code>seam_position: random</code></td><td>9,890</td><td>11%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><strong>개수가 같다.</strong> 흩뿌리기는 돌기를 없앤 것이 아니라 옮긴 것이다. 꽃병 모드는 루프가 하나일 때만
+  성립하므로 이 형상에는 적용 불가다.</p>
+
+  <h3><code>random</code> 을 기본 처방으로 쓰지 마라</h3>
+  <p>수치만 보면 <code>random</code> 이 쌓임을 78% → 11% 로 낮춰 최적으로 보이나 실물 결과는 반대다.
+  오르카 개발 스레드 실측 보고: <em>&ldquo;random is a disaster, blobs and strings galore.&rdquo;</em>
+  (<a href="https://github.com/OrcaSlicer/OrcaSlicer/pull/3839#issuecomment-1912989343" style="color:#5EEAD4;text-decoration:underline">PR #3839</a>)
+  같은 출처가 <code>wipe_before_external_loop</code> 도 경사와 함께 쓰면 <em>&ldquo;significantly worse&rdquo;</em> 라고 보고했다.</p>
+
+  <h3>경사 길이는 루프 둘레보다 짧게 — 클램프 주의</h3>
+  <p>오르카 소스가 경사 길이를 <code>min(설정값, 루프 둘레)</code> 로 자른다. 기본값 20 mm 를 두면 둘레 3 mm 루프는
+  <strong>한 바퀴 전체가 경사</strong>가 된다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>경사 길이 설정</th><th>실제 램프</th><th>360° 가 된 루프</th></tr></thead>
+    <tbody>
+      <tr><td>0.5</td><td>0.420</td><td>0%</td></tr>
+      <tr><td><strong>1.5</strong></td><td><strong>1.419</strong></td><td><strong>0%</strong></td></tr>
+      <tr><td>3</td><td>2.920</td><td>59.8%</td></tr>
+      <tr><td>10</td><td>2.910~9.922</td><td>전부</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>키 이름이 오해를 부른다 — <code>seam_slope_min_length</code> 의 실제 라벨은 <strong>Scarf length</strong> 이고
+  &ldquo;이 길이 미만 루프는 건너뛴다&rdquo; 는 임계값이 아니다.</p>
+
+  <h3>둘레 20 mm 미만에서는 상한과 하한이 양립하지 않는다 — 그때는 끄는 것이 답이다</h3>
+  <p>Phase 4.3 검사는 두 끝을 같이 본다. 상한은 <code>길이 / 둘레 &le; 0.15</code>, 하한은
+  <code>길이 &ge; 3 mm</code> 다. 둘을 동시에 만족하려면 <code>0.15 &times; 둘레 &ge; 3</code>,
+  즉 <strong>둘레가 20 mm 이상</strong>이어야 한다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>둘레</th><th>상한이 허용하는 최대 길이</th><th>하한 3 mm 와 양립?</th></tr></thead>
+    <tbody>
+      <tr><td>100 mm</td><td>15 mm</td><td>된다</td></tr>
+      <tr><td>30 mm</td><td>4.5 mm</td><td>된다 (여유 1.5 mm)</td></tr>
+      <tr><td><strong>20 mm</strong></td><td><strong>3.0 mm</strong></td><td><strong>경계</strong></td></tr>
+      <tr><td>5.31 mm</td><td>0.80 mm</td><td><strong>안 된다</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note">둘레 20 mm 미만 루프에는 <strong>검사를 통과하는 길이 값이 존재하지 않는다.</strong>
+  검사의 결함이 아니라 &ldquo;<code>&lt; 30 mm</code> 는 scarf off&rdquo; 를 수치로 못박은 것이다.
+  검사가 내는 <em>끄거나 3mm 이상으로</em> 라는 문구에서 <strong>&ldquo;끄거나&rdquo; 쪽이 유일한 선택지</strong>인 구간이다.
+  실측 2026-09-14 (래티스 통 Side Container): 최소 루프 둘레 5.31 mm → 상한 0.80 mm 대 하한 3 mm.
+  <code>seam_slope_type</code> 을 <code>none</code> 으로 두고 <code>wall_generator: arachne</code> +
+  <code>wall_loops 2</code> 로 갭필 쪽을 해결했다.</div>
+  <div class="note"><strong>검사에 넘기는 <code>_scarf_loop_circumference_mm</code> 는 가장 작은 루프로 적어라.</strong>
+  클램프가 <code>min(설정값, 루프 둘레)</code> 이므로 항상 가장 짧은 루프에서 먼저 문다. 최대 루프를 적으면
+  검사는 통과하는데 실물은 360° 경사가 된다. 둘레는 추측하지 말고 Phase 1.0 probe 로 재라.</div>
+
+  <h3><code>seam_slope_conditional</code> 은 반드시 <code>0</code></h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th><code>seam_slope_conditional</code></th><th>경사가 걸린 이음매</th></tr></thead>
+    <tbody>
+      <tr><td><code>1</code> (기본값)</td><td><strong>0%</strong></td></tr>
+      <tr><td><code>0</code></td><td><strong>98.2%</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>조건부 판정은 각도 임계(기본 155°)와 하향면 검사를 붙이는데, 루프의 어느 한 지점이라도 걸리면
+  그 루프 전체가 탈락한다. 짧고 각진 래티스 루프는 전멸한다. 기본값이 <code>1</code> 이므로
+  <strong>명시적으로 <code>0</code> 을 쓰지 않으면 경사 설정 전체가 무효</strong>다.</p>
+
+  <p>돌기 자체를 더 줄이려면 <strong>압력 보정(pressure advance)이 1 순위</strong>다 —
+  공식 문서: <em>&ldquo;The first thing to tune would be pressure advance.&rdquo;</em>
+  그다음이 <code>seam_gap</code>, 그다음이 wipe 계열이다.</p>
+</div>
+
   <hr class="spacer">
 
   <div class="note">

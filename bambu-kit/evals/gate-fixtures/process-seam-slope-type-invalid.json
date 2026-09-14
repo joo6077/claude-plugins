@@ -1,0 +1,39 @@
+{
+  "_fixture": "NEG — seam_slope_type 에 유효하지 않은 값을 넣었다. 슬라이서는 exit 0 · 경고 0 으로 조용히 none 으로 강등해 스카프가 통째로 사라진다 (2026-09-14 실측, 유효값은 none|external|all 뿐). 이 파일에서 위반은 그 한 줄뿐이라, ENUM_ALLOW 에서 seam_slope_type 을 지우면 FAIL 0 건 · RESULT PASS 로 바뀐다.",
+  "_expect": "FAIL 1 건: enum seam_slope_type='hole' 는 허용값이 아니다",
+  "type": "process",
+  "name": "NEG invalid seam_slope_type",
+  "print_settings_id": "NEG invalid seam_slope_type",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_geometry_class": "planar",
+  "_scarf_loop_circumference_mm": "120",
+  "layer_height": "0.12",
+  "wall_loops": "2",
+  "inner_wall_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "internal_solid_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "sparse_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "gap_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "seam_slope_type": "hole",
+  "seam_slope_min_length": "10"
+}

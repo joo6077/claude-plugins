@@ -383,6 +383,107 @@
   <span class="k">"inherits"</span>: <span class="s">"0.20mm Standard"</span>,  <span class="c">// @BBL H2S 누락</span>
   <span class="k">"compatible_printers"</span>: <span class="s">"Bambu Lab H2S 0.4 nozzle"</span>  <span class="c">// scalar</span>
 <span class="p">}</span></pre>
+<div class="section">
+  <div class="section-label">Section 11 · 슬라이서별 키 차이 (2026-09-14)</div>
+
+  <p>이 킷은 Bambu Studio 와 OrcaSlicer 를 모두 다룬다. <strong>두 슬라이서는 키 집합이 갈라져 있어
+  한쪽 프로파일을 다른 쪽에 그대로 넣으면 없는 키가 조용히 버려진다.</strong> 오류도 경고도 없다.</p>
+
+  <h3>키 존재는 근거 두 가지로 판정한다</h3>
+  <p><strong>프로파일 JSON 차집합은 기능 차집합이 아니다.</strong> 프로파일은 소스 기본값과 다른 키만
+  저장하므로, 기본값을 쓰는 키는 지원해도 프로파일에 안 나온다. 반대로 오르카는 뱀부 벤더
+  프로파일(<code>profiles/BBL/</code>)을 통째로 실어 나르기 때문에 <strong>자기가 구현하지도 않은 뱀부 키가
+  오르카 프로파일 안에 들어 있다.</strong> 그래서 항상 둘을 같이 본다 — 갈리면 바이너리를 따르고,
+  갈렸다는 사실을 적는다.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>방법</th><th>뱀부 전용</th><th>오르카 전용</th><th>양쪽</th></tr></thead>
+    <tbody>
+      <tr><td>프로파일 차집합 (전 벤더)</td><td>33</td><td>401</td><td>486</td></tr>
+      <tr><td>바이너리 문자열 (같은 키 집합)</td><td>116</td><td>189</td><td>469</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>"오르카 프로파일 전용" 401 개 중 107 개는 뱀부 바이너리에도 있다.</strong>
+  프로파일만 세면 뱀부가 못 하는 일이라고 단정하게 되는데, 실제로는 기본값으로 쓰고 있어 안 적힌 것뿐이다.
+  프로파일 규모 자체는 뱀부 519 · 오르카 887 키 (오르카가 벤더를 40 개 넘게 싣는 탓이 크다).</div>
+
+  <h3>오르카 전용 — 바이너리로 확인된 것만</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>키</th><th>스코프</th><th>쓰는 자리</th></tr></thead>
+    <tbody>
+      <tr><td><code>scarf_joint_speed</code></td><td>process</td><td>경사 구간만 속도를 따로 낮춘다</td></tr>
+      <tr><td><code>scarf_joint_flow_ratio</code></td><td>process</td><td>경사 구간 토출량</td></tr>
+      <tr><td><code>scarf_overhang_threshold</code></td><td>process</td><td>하향면에서 경사를 피한다</td></tr>
+      <tr><td><code>staggered_inner_seams</code></td><td>process</td><td>내벽 이음매를 외벽과 어긋나게</td></tr>
+      <tr><td><code>wipe_before_external_loop</code> · <code>wipe_on_loops</code></td><td>process</td><td>이음매 시작·종료 정돈</td></tr>
+      <tr><td><code>outer_wall_flow_ratio</code> · <code>inner_wall_flow_ratio</code></td><td>process</td><td>벽별 토출량</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>양쪽 다 아는데 뱀부 프로파일에는 안 적힌 키</h3>
+  <p>바이너리에는 양쪽 다 있고 뱀부 프로파일 JSON 에만 0 건이다. 프로파일만 세면 "오르카 전용" 으로
+  오판한다 — 이 문서 v4 초판이 실제로 그렇게 적었다가 2026-09-14 감사에서 걸렸다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>키</th><th>뱀부 바이너리</th><th>뱀부 프로파일</th><th>오르카 프로파일</th></tr></thead>
+    <tbody>
+      <tr><td><code>wall_sequence</code></td><td>있음</td><td>0 건</td><td>303 건</td></tr>
+      <tr><td><code>seam_slope_steps</code></td><td>있음</td><td>0 건</td><td>189 건</td></tr>
+      <tr><td><code>wall_distribution_count</code></td><td>있음</td><td>0 건</td><td>237 건</td></tr>
+      <tr><td><code>wall_transition_length</code> · <code>_angle</code> · <code>_filter_deviation</code></td><td>있음</td><td>0 건</td><td>235~237 건</td></tr>
+      <tr><td><code>reduce_infill_retraction</code></td><td>있음</td><td>0 건</td><td>733 건</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><code>precise_outer_wall</code> 도 양쪽 바이너리에 있다. v4 초판이 적은
+  <code>percise_outer_wall</code> 철자는 <strong>어느 바이너리에도 없다</strong> — 오르카가 싣는 Cubicon
+  벤더 프로파일 1 건에만 남은 옛 철자다. 쓰지 마라.</div>
+
+  <h3>뱀부 전용 — 오르카 프로파일에 있어도 오르카는 모른다</h3>
+  <p><code>filament_scarf_*</code> 계열은 <strong>오르카 프로파일에서 89 · 66 · 67 · 54 건씩 잡힌다.</strong>
+  그래서 프로파일만 세면 "오르카에도 있다" 는 결론이 나온다. 하지만 오르카 바이너리에는 이 문자열이
+  <strong>부분일치조차 0 건</strong>이다. 오르카가 싣는 <code>BBL</code> · <code>Qidi</code> ·
+  <code>Flashforge</code> · <code>WonderMaker</code> 벤더 프로파일이 뱀부에서 복사해 온 것이라 남아 있을
+  뿐이고, 오르카는 읽는 순간 버린다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>키</th><th>스코프</th><th>오르카 바이너리</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td><code>filament_scarf_seam_type</code> 외 3</td><td>filament</td><td>없음</td><td>뱀부는 경사 이음매를 <strong>소재 쪽</strong>에 둔다. 오르카는 전부 process</td></tr>
+      <tr><td><code>override_filament_scarf_seam_setting</code></td><td>process</td><td>없음</td><td><code>0</code> 이면 process 의 <code>seam_slope_*</code> 가 통째로 무시된다</td></tr>
+      <tr><td><code>seam_placement_away_from_overhangs</code></td><td>process</td><td>없음</td><td>2.8 실험 기능</td></tr>
+      <tr><td><code>seam_slope_gap</code></td><td>process</td><td>없음</td><td><code>seam_gap</code> 과 다른 키</td></tr>
+      <tr><td><code>monotonic_travel_into_wall</code> · <code>reduce_infill_retraction_mode</code></td><td>process</td><td>없음</td><td>오르카는 모드 없는 <code>reduce_infill_retraction</code> 을 쓴다</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>뱀부에서 경사 이음매를 못 쓰는 게 아니다.</strong> 뱀부에도
+  <code>seam_slope_type</code> · <code>seam_slope_min_length</code> · <code>seam_slope_start_height</code> ·
+  <code>seam_slope_conditional</code> 과 <code>filament_scarf_*</code> 가 다 있다. 뱀부에 없는 것은
+  <strong>경사 구간의 속도·토출량을 따로 제어하는 키</strong>(<code>scarf_joint_speed</code> ·
+  <code>scarf_joint_flow_ratio</code>)뿐이다.</div>
+
+  <h3>이식할 때 반드시 하는 것</h3>
+  <ul>
+    <li><strong>스코프를 전수로 센다</strong> — 키 이름이 양쪽에 있어도 스코프가 다를 수 있다. 게이트가
+      <code>process</code> · <code>filament</code> · <code>machine</code> 3 종을 대조한다 (2026-09-14 신규 —
+      그전에는 2 종만 봐서 <code>retraction_minimum_travel</code>(machine 567 / process 0) 을 놓쳤다)</li>
+    <li><strong>enum 유효값을 확인한다</strong> — 벗어난 값은 오류 없이 기본값으로 강등된다. 오르카
+      <code>seam_slope_type</code> 유효값은 <code>none</code> · <code>external</code> · <code>all</code> 뿐이고
+      <code>hole</code> 을 넣으면 exit 0 · 경고 0 으로 경사가 사라진다. 허용값도 갈린다 —
+      <code>seam_position</code> 의 <code>aligned_back</code> 은 오르카에만 있다</li>
+    <li><strong>음성 대조로 확인한다</strong> — 가짜 키를 넣어 슬라이스한 뒤 G-code 설정 트레일러에서
+      소멸하는지 본다</li>
+    <li><strong>근거를 둘 다 본다</strong> — 바이너리 문자열과 프로파일 집계. 한쪽만 보면 양방향으로
+      오판한다</li>
+  </ul>
+</div>
+
+
       <div class="note">로드 시 에러 메시지 없음. Studio UI에 preset이 그냥 안 보인다 → 디버깅 어려움.</div>
     </div>
     <div class="compare-good">

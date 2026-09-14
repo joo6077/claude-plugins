@@ -53,6 +53,11 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     ("reflect-kit/references/", "docs/reflect-kit/"),
 
     ("tone-kit/references/", "docs/tone-kit/"),
+
+    # 2026-09-14: bambu-kit 이 매핑에 없어 SKILL.md 를 크게 고쳐도 "no docs drift" 가 나왔고,
+    # 파생 페이지가 "OrcaSlicer 요청에는 트리거되지 않는다" 를 그대로 단 채 QA 까지 갔다.
+    # reflect-kit 과 같은 누락이 같은 이유로 반복된 것이다.
+    ("bambu-kit/skills/bambu-print-profile/references/", "docs/bambu-kit/"),
 ]
 
 
@@ -63,6 +68,11 @@ SOURCE_OVERRIDES: dict[str, list[str]] = {
     "design-kit/docs/design/foundations/spacing-layout.md": [
         "docs/design-kit/spacing-system.html",
         "docs/design-kit/grid-alignment.html",
+    ],
+    # 스킬 본문이 곧 문서의 소스인 킷. stem 이 "SKILL" 이라 접두 규칙으로는 페이지 이름을
+    # 만들 수 없다 (`docs/bambu-kit/SKILL.html` 이 나온다) — 그래서 여기 명시한다.
+    "bambu-kit/skills/bambu-print-profile/SKILL.md": [
+        "docs/bambu-kit/bambu-print-profile.html",
     ],
 }
 

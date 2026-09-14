@@ -1,0 +1,37 @@
+{
+  "_fixture": "NEG — machine 스코프 키를 process 파일에 넣었다. 이 파일에서 위반은 그 한 줄뿐이고 나머지 필드는 전부 정상값이라, 스코프 검사에서 machine 분기를 지우면 FAIL 0 건 · RESULT PASS 로 바뀐다 (2026-09-14 실측).",
+  "_expect": "FAIL 1 건: 키 스코프 불일치 retraction_minimum_travel — 설치본에서는 machine 에만 실재 (뱀부 567 건 / process 0 건)",
+  "type": "process",
+  "name": "NEG machine-scope key in process",
+  "print_settings_id": "NEG machine-scope key in process",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_geometry_class": "planar",
+  "layer_height": "0.12",
+  "wall_loops": "2",
+  "inner_wall_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "internal_solid_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "sparse_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "gap_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "retraction_minimum_travel": "3"
+}

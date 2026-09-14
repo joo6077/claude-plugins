@@ -211,6 +211,7 @@
 프로파일 JSON 을 grep 하면 0 건이지만 **실재하는 BambuStudio 키다.** 실재 여부는 (a) 슬라이스된
 3mf 의 `Metadata/project_settings.config` (최종 해석값 전체) 또는 (b) 앱 바이너리 문자열로
 확인한다. 프로파일 JSON grep 을 키 존재 판정의 오라클로 쓰지 마라 — 실측에서 두 번 오판했다.
+두 근거를 함께 재는 법과 그 실측 결과는 **§11.1** 에 있다.
 
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
@@ -345,3 +346,107 @@ user preset 에서만 잡힌다). 두 곳 어디에도 없는 키는 FAIL 이 �
 - <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/filament/fdm_filament_common.json>
 - UI 기능 존재 근거 (JSON 근거 아님): <https://github.com/bambulab/BambuStudio/issues/9518> ·
   <https://forum.bambulab.com/t/set-minimum-and-maximums-for-variable-layer-height/67875>
+
+## 11. 슬라이서별 키 차이 (2026-09-14 v4 신설)
+
+이 킷은 Bambu Studio 와 OrcaSlicer 를 모두 다룬다. **두 슬라이서는 키 집합이 갈라져 있어 한쪽
+프로파일을 다른 쪽에 그대로 넣으면 없는 키가 조용히 버려진다.** 오류도 경고도 없다.
+
+### 11.1 키가 어느 슬라이서에 있는가 — 근거를 두 가지로 본다 (실측 2026-09-14)
+
+**프로파일 JSON 차집합은 기능 차집합이 아니다.** 프로파일은 소스 기본값과 다른 키만 저장하므로,
+기본값을 쓰는 키는 그 슬라이서가 멀쩡히 지원해도 프로파일에 한 줄도 안 나온다. 반대로 오르카는
+뱀부 벤더 프로파일(`profiles/BBL/`)을 통째로 실어 나르기 때문에, **자기가 구현하지도 않은 뱀부 키가
+오르카 프로파일 안에 들어 있다.** 그래서 키 존재는 항상 두 가지를 같이 본다.
+
+| 근거 | 재는 법 | 무엇을 말해주나 |
+| --- | --- | --- |
+| 앱 바이너리 문자열 | `strings -a <앱>/Contents/MacOS/<앱>` 에 키 이름이 한 줄로 있는가 | **그 슬라이서가 그 키를 아는가** (1 순위) |
+| 프로파일 집계 | `Contents/Resources/profiles/**.json` 에서 키 등장 수 | 기본값과 다르게 쓰는 자리가 있는가 |
+
+두 근거가 갈리면 **바이너리를 따르고, 갈렸다는 사실 자체를 적는다.**
+
+#### 실측 — 같은 키 집합을 두 방법으로 판정한 결과
+
+앱 번들 `Contents/Resources/profiles` 전수에서 `type` 이 process·filament·machine 인 JSON 의 키
+합집합(474 → 전 벤더 기준 920)을 두 방법으로 갈라봤다.
+
+| 방법 | 뱀부 전용 | 오르카 전용 | 양쪽 |
+| --- | --- | --- | --- |
+| 프로파일 차집합 (전 벤더) | 33 | 401 | 486 |
+| 바이너리 문자열 (같은 키 집합) | 116 | 189 | 469 |
+
+**"오르카 프로파일 전용" 401 개 중 107 개는 뱀부 바이너리에도 있다.** 프로파일 차집합만 보면
+뱀부가 못 하는 일이라고 단정하게 되는데, 실제로는 뱀부가 기본값으로 쓰고 있어 안 적힌 것뿐이다.
+
+참고로 프로파일 규모 자체는 뱀부 519 · 오르카 887 키다 (오르카가 벤더를 40 개 넘게 싣는 탓이
+크다). 벤더를 `BBL` 로 맞추면 뱀부 457 · 오르카 404 로 좁혀진다.
+
+### 11.2 오르카 전용 — 바이너리로 확인된 것만
+
+아래는 **오르카 바이너리에 있고 뱀부 바이너리에는 없는** 키다. 뱀부용 JSON 에 쓰면 조용히 버려진다.
+
+| 키 | 스코프 | 쓰는 자리 |
+| --- | --- | --- |
+| `scarf_joint_speed` | process | 경사 이음매 구간만 속도를 따로 낮춘다 |
+| `scarf_joint_flow_ratio` | process | 경사 구간 토출량. 과소·과다 압출 방지 |
+| `scarf_overhang_threshold` | process | 하향면에서 경사를 피한다 |
+| `staggered_inner_seams` | process | 내벽 이음매를 외벽과 어긋나게 놓는다 |
+| `wipe_before_external_loop` | process | 외벽 직전 과압출을 부품 안쪽에서 처리 |
+| `wipe_on_loops` | process | 루프 종료부를 안쪽으로 밀어 넣는다 |
+| `outer_wall_flow_ratio` · `inner_wall_flow_ratio` | process | 벽별 토출량 |
+
+### 11.2a 양쪽 다 아는데 뱀부 프로파일에는 안 적힌 키
+
+바이너리에는 양쪽 다 있고 **뱀부 프로파일 JSON 에만 0 건**인 키다. 프로파일만 세면 "오르카 전용"
+으로 오판하게 된다 — v4 초판이 실제로 그렇게 적었다가 2026-09-14 감사에서 걸렸다.
+
+| 키 | 뱀부 바이너리 | 뱀부 프로파일 | 오르카 프로파일 | 뱀부 JSON 에 써도 되나 |
+| --- | --- | --- | --- | --- |
+| `wall_sequence` | 있음 | 0 건 | 303 건 | **된다** (§3 참조) |
+| `seam_slope_steps` | 있음 | 0 건 | 189 건 | 된다 |
+| `wall_distribution_count` | 있음 | 0 건 | 237 건 | 된다 |
+| `wall_transition_length` | 있음 | 0 건 | 235 건 | 된다 |
+| `wall_transition_angle` | 있음 | 0 건 | 237 건 | 된다 |
+| `wall_transition_filter_deviation` | 있음 | 0 건 | 235 건 | 된다 |
+| `reduce_infill_retraction` | 있음 | 0 건 | 733 건 | 된다 |
+
+`precise_outer_wall`(외벽 치수 우선)도 양쪽 바이너리에 있다. v4 초판이 `percise_outer_wall` 로
+적었는데 그 철자는 **어느 바이너리에도 없다** — 오르카가 싣는 Cubicon 벤더 프로파일 1 건에만 남은
+옛 철자다. 쓰지 마라.
+
+### 11.3 뱀부 전용 — 오르카 프로파일에 있어도 오르카는 모른다
+
+아래는 **뱀부 바이너리에 있고 오르카 바이너리에는 없는** 키다. 주의할 점이 하나 있다:
+`filament_scarf_*` 계열은 **오르카 프로파일에서 89·66·67·54 건씩 잡힌다.** 그래서 프로파일만 세면
+"오르카에도 있다" 는 결론이 나온다. 하지만 오르카 바이너리에는 이 문자열이 **부분일치조차 0 건**
+이다. 오르카가 싣는 `BBL` · `Qidi` · `Flashforge` · `WonderMaker` 벤더 프로파일이 뱀부에서
+복사해 온 것이라 그 안에 남아 있을 뿐이고, 오르카는 읽는 순간 버린다.
+
+| 키 | 스코프 | 오르카 바이너리 | 오르카 프로파일 | 비고 |
+| --- | --- | --- | --- | --- |
+| `filament_scarf_seam_type` · `filament_scarf_height` · `filament_scarf_gap` · `filament_scarf_length` | filament | 없음 | 89 · 66 · 67 · 54 건 | 뱀부는 경사 이음매를 **소재 쪽**에 둔다. 오르카는 전부 process 다 |
+| `override_filament_scarf_seam_setting` | process | 없음 | 2 건 | 위 소재 설정을 process 에서 덮어쓸지. **이 값이 `0` 이면 process 의 `seam_slope_*` 가 통째로 무시된다** |
+| `seam_placement_away_from_overhangs` | process | 없음 | 2 건 | 2.8 실험 기능. 하향면을 피해 이음매 배치 |
+| `seam_slope_gap` | process | 없음 | 2 건 | `seam_gap` 과 다른 키다 (§7 참조) |
+| `monotonic_travel_into_wall` | process | 없음 | 0 건 | |
+| `reduce_infill_retraction_mode` | process | 없음 | 0 건 | 오르카는 `reduce_infill_retraction` (모드 없는 불리언) — 그 키는 뱀부에도 있다 (§11.2a) |
+
+**뱀부에서 경사 이음매를 못 쓰는 게 아니다.** 뱀부에는 `seam_slope_type` · `seam_slope_min_length` ·
+`seam_slope_start_height` · `seam_slope_conditional` 과 `filament_scarf_*` 가 다 있다. 뱀부에 없는 것은
+**경사 구간의 속도·토출량을 따로 제어하는 키**(`scarf_joint_speed` · `scarf_joint_flow_ratio`)뿐이다.
+
+### 11.4 이식할 때 반드시 하는 것
+
+1. **스코프를 전수로 센다.** 키 이름이 양쪽에 다 있어도 스코프가 다를 수 있다. Phase 4.3 게이트가
+   `process` · `filament` · `machine` 3 종을 대조한다 (2026-09-14 신규 — 그전에는 2 종만 봐서
+   `retraction_minimum_travel`(machine 567 / process 0) 같은 키를 놓쳤다).
+2. **enum 유효값을 확인한다.** 같은 키라도 허용값이 다를 수 있고, 벗어난 값은 오류 없이 기본값으로
+   강등된다. 실측: 오르카 `seam_slope_type` 의 유효값은 `none` · `external` · `all` 뿐이고
+   `hole` 을 넣으면 exit 0 · 경고 0 으로 경사가 사라진다.
+3. **음성 대조로 확인한다.** 가짜 키를 하나 넣어 슬라이스한 뒤 G-code 설정 트레일러에서 소멸하는지
+   본다. 소멸하면 "그 슬라이서가 모르는 키" 다.
+4. **키 존재는 근거 두 가지로 판정한다** (§11.1). 바이너리 문자열과 프로파일 집계를 **둘 다** 보고,
+   갈리면 바이너리를 따르되 갈렸다는 사실을 적는다. 한쪽만 보면 양방향으로 오판한다 — 프로파일만
+   보면 `wall_sequence` 를 "뱀부에 없다" 로, 반대로 `filament_scarf_*` 를 "오르카에도 있다" 로
+   틀리게 적는다 (2026-09-14 감사에서 둘 다 실제로 발생).
