@@ -73,6 +73,11 @@ def main():
     first = drifted[0][0]
     print(f"  해소: bash scripts/release.sh {first} patch  → PR 머지 → "
           f"claude plugin update {first}@joo6077-plugins")
+    # 2026-09-14: 이 어긋남이 실제로 문제가 되는 자리는 "고친 스킬을 돌려 확인할 때" 다.
+    # Skill 도구가 레포가 아니라 설치본을 부르기 때문에, 경고만 보고 그냥 스킬을 부르면
+    # 수정 전 스킬로 수정본을 검증하고 통과시킨다 (bambu-kit 실측: 레포 1838 줄 / 설치본 1690 줄).
+    print(f"  ⚠ 고친 스킬을 돌려 확인해야 하면 Skill 도구를 쓰지 마라 — 설치본을 부른다.")
+    print(f"     위 순서로 먼저 배포하거나, 레포 {first}/skills/<이름>/SKILL.md 를 기준 삼아 직접 실행하라.")
     return 0
 
 
