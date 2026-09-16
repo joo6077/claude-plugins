@@ -235,7 +235,7 @@
         </div>
         <p style="margin-top:10px">확정값은 <code>TARGET_SLICER</code> (<code>bambu</code> | <code>orca</code>) 로 두고 Phase 3 · 4.3 이 그대로 쓴다. process JSON 에는 <code>_target_slicer</code> 로 기록한다 (<code>_</code> 접두라 import 시 버려진다).</p>
         <div class="callout" style="margin-top:10px">
-          <strong>Phase 4.3 게이트에는 환경변수로 넘긴다</strong> — <code>TARGET_SLICER=orca python3 - …</code> 형태다. 게이트 스크립트는 heredoc 안에서 돌기 때문에 셸 변수도 파이썬 전역도 보지 못한다. 안 넘기면 스코프·부모값 검사가 통째로 <code>[미검증]</code> 으로 떨어진다 — <strong>조용히 뱀부로 폴백하지 않는다.</strong>
+          <strong>Phase 4.3 게이트에는 환경변수로 넘긴다</strong> — <code>TARGET_SLICER=orca SKILL_DIR=&lt;이 스킬의 기준 폴더&gt; python3 - …</code> 형태다. 게이트 스크립트는 heredoc 안에서 돌기 때문에 셸 변수도 파이썬 전역도 보지 못한다. <code>TARGET_SLICER</code> 를 안 넘기면 키·부모값 검사가, <code>SKILL_DIR</code> 을 안 넘기면 옵션 목록을 못 찾아 키 존재·종류·enum 검사가 <code>[미검증]</code> 으로 떨어진다 — <strong>조용히 뱀부로 폴백하지 않는다.</strong>
         </div>
         <p style="margin-top:10px"><strong style="color:var(--text)">추측 금지.</strong> 파일 확장자·모델 출처·과거 대화로 슬라이서를 유추하지 마라.</p>
       </div>
@@ -508,27 +508,32 @@ ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/filament/"
   </div>
 
   <div class="callout">
-    <strong>키 종류 색인은 제조사 전체를 읽는다 (2026-09-14):</strong>
-    검사는 키가 <code>process</code> · <code>filament</code> · <code>machine</code> 중 어느 종류인지를
-    설치본 프로파일에서 도출한다. 이때 <strong>제조사 폴더 전체</strong>를 읽는다 — 뱀부 제조사 폴더만
-    보면 이 킷이 권장하기 시작한 오르카 전용 키가 전부 <code>[미검증]</code> 으로 떨어지고,
-    <strong>판정 불가는 통과로 취급되므로 진짜 위반까지 같이 샌다.</strong> 실측 2026-09-14:
-    <code>scarf_joint_speed</code> 는 오르카 제조사 전체에 187 건 있는데 뱀부 제조사 폴더에는 0 건이다.
+    <strong>키 판정은 슬라이서 버전별 옵션 목록으로 한다 (2026-09-15):</strong>
+    검사는 <code>references/option-keys/&lt;슬라이서&gt;-&lt;버전&gt;.tsv</code> 로 세 가지를 판정한다.
+    슬라이서가 모르는 키는 <strong>모르는 키</strong>, 다른 종류 프리셋의 키는 <strong>키 스코프 불일치</strong>,
+    enum 키에 슬라이서가 받지 않는 값을 넣으면 <strong>받지 않는 값</strong> 으로 FAIL 한다. 옛 이름과 옛 값은
+    슬라이서가 바꿔 읽으므로 <code>옛 이름</code> · <code>옛 값</code> 경고만 낸다.
     <br><br>
-    반대로 <strong>부모 체인 해석은 넓히지 않는다.</strong> 같은 이름의 프로파일이 제조사마다 있어
-    엉뚱한 부모를 잡는다. 종류 판정만 넓히고 상속 해석은 제조사 안에 가둔다.
+    목록은 두 슬라이서의 태그 소스를 부분 빌드한 판정 프로그램(<code>bambu-kit/scripts/option-key-probe/</code>)이
+    <strong>슬라이서 자신의 판정 함수로</strong> 뽑았다 (오르카 2.4.2 받는 키 749 · 뱀부 02.08.02.61 받는 키 679).
+    그전에는 번들 프로파일에 키가 등장하는지로 판정했는데 두 구멍이 있었다 — 오르카는 뱀부 제조사 프로파일을
+    싣고 다녀서 뱀부 전용 키 <code>override_filament_scarf_seam_setting</code> 이 통과했고, 뱀부 process 기본
+    프로파일에 잘못 들어간 filament 키 <code>pre_start_fan_time</code> 이 종류 허용 근거가 됐다.
+    <br><br>
+    설치본 버전의 목록이 없으면 다른 버전 목록으로 대신 검사하지 않고 <code>[미검증]</code> 으로 보고한다.
+    <strong>부모 체인 해석은 뱀부 제조사 폴더 안에 가둔다</strong> — 같은 이름 프로파일이 제조사마다 있어 엉뚱한 부모를 잡는다.
   </div>
 
   <div class="callout">
-    <strong>음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신설):</strong>
+    <strong>음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신설 · 2026-09-15 갱신):</strong>
     <code>RESULT: PASS</code> 는 <strong>검사가 돌았다는 증거가 아니다.</strong> 검사가 죽어 있어도 PASS 가 나온다.
-    그래서 게이트를 고쳤거나 새 키를 도입했으면 <code>evals/gate-fixtures/</code> 의 시험용 파일 2 종을
-    실제로 주입해 <strong>FAIL 1 건</strong>이 나오는지 보고, 이어서 <strong>목표 검사만 지운 사본</strong>으로
-    돌려 <code>RESULT: PASS</code> 로 바뀌는지까지 본다. 바뀌지 않으면 시험용 파일에 목표 외 위반이
-    남아 있는 것이라 판별력이 없다 — 실측 2026-09-14 에 두 파일이 각각 오류 7 건 · 6 건을 내며 그
-    상태였다. <code>machine</code> 분기를 지웠을 때 FAIL 이 사라지고 <code>[미검증]</code> 으로
-    <strong>강등</strong>되는 것이 핵심이다. 판정 불가는 통과로 취급되므로, 스코프 종류를 하나라도
-    빠뜨리면 위반이 조용히 통과한다.
+    그래서 게이트를 고쳤거나 옵션 목록을 새로 만들었으면 <code>evals/gate-fixtures/</code> 의 시험용 파일 4 종
+    (모르는 키 · 종류 두 가지 · 받지 않는 값)을 실제로 주입해 <strong>FAIL 1 건</strong>이 나오는지 보고, 이어서
+    <strong>목표 검사만 지운 사본</strong>으로 돌려 <code>RESULT: PASS</code> 로 바뀌는지까지 본다. 바뀌지 않으면
+    시험용 파일에 목표 외 위반이 남아 있는 것이라 판별력이 없다 — 실측 2026-09-14 에 두 파일이 각각 오류
+    7 건 · 6 건을 내며 그 상태였다. 종류 판정 근거를 옛 방식(번들 프로파일 합집합)으로 되돌리면
+    <code>pre_start_fan_time</code> 이 다시 통과한다는 점이 목록이 막은 구멍을 보여준다. 목록 폴더가 없으면
+    FAIL 대신 <code>[미검증]</code> 이 남는다.
   </div>
 
   <div class="callout">

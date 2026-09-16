@@ -1,0 +1,37 @@
+{
+  "_fixture": "NEG — 뱀부에만 있는 키를 오르카용 process 파일에 넣었다. TARGET_SLICER=orca 로 검사한다. 오르카는 뱀부 제조사 프로파일을 싣고 다녀서 번들에는 이 키가 등장하지만, 오르카 옵션 목록에는 없다. 이 파일에서 위반은 그 한 줄뿐이다 (2026-09-15).",
+  "_expect": "FAIL 1 건: 모르는 키 override_filament_scarf_seam_setting — 오르카 2.4.2 옵션 목록에 없다",
+  "type": "process",
+  "name": "NEG bambu-only key in orca process",
+  "print_settings_id": "NEG bambu-only key in orca process",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_geometry_class": "planar",
+  "layer_height": "0.12",
+  "wall_loops": "2",
+  "inner_wall_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "internal_solid_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "sparse_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "gap_infill_speed": [
+    "150",
+    "150",
+    "150"
+  ],
+  "override_filament_scarf_seam_setting": "0"
+}
