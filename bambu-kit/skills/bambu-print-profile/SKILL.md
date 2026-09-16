@@ -38,6 +38,7 @@ bambu-kit/skills/bambu-print-profile/
     ├── failure-recipes.md            # 2026-08-13 신규 — 실측 실패 3종(L1 곡면 계단 / L2 스트링잉 / L3 바닥 박리) 사후 레시피 + 금지 키 사유 정본
     ├── comment-analysis.md           # v0.4.0 신규 — 댓글 4 카테고리 추출 매뉴얼 + 한/영/중 키워드 사전 + Designer Constraint Override Rule
     ├── tolerance.md                   # v0.4.2 신규 — 공차 보정 키 (elefant_foot/xy_hole/xy_contour) + 소재별 수축률 + fit-critical 결정 트리 + calibration coupon
+    ├── option-keys/                  # 2026-09-15 신규 — 슬라이서 버전별 옵션 목록 (Phase 4.3 키 존재·종류·enum 판정 근거). 만드는 법: bambu-kit/scripts/option-key-probe/
     └── kaizen-sources.md             # 주 1회 갱신용 데이터 소스 (카이젠 스킬용)
 ```
 
@@ -718,14 +719,15 @@ done
 | 사용자가 슬라이서를 명시했다 | 그대로 채택. **추측으로 덮어쓰지 마라** |
 | 한쪽만 설치돼 있다 | 그쪽으로 확정하고 사용자에게 한 줄로 알린다 |
 | 둘 다 설치돼 있고 사용자 미지정 | **묻는다.** 임의로 고르지 마라 — 키 차이 때문에 산출물이 조용히 무시된다 |
-| 둘 다 미설치 | **`[미검증]` 으로 표시하고 Bambu Studio 키셋으로 생성한다.** 스코프·enum 검사는 근거가 없으므로 Phase 4.3 이 "판정 불가" 로 보고한다 |
+| 둘 다 미설치 | **`[미검증]` 으로 표시하고 Bambu Studio 키셋으로 생성한다.** 설치본 버전을 알 수 없어 옵션 목록을 고를 수 없으므로 Phase 4.3 이 키 존재·종류·enum 검사를 `[미검증]` 으로 보고한다 |
 
 확정값을 `TARGET_SLICER` (`bambu` | `orca`) 로 두고 Phase 3·4.3 이 그대로 쓴다. process JSON 에는
 `_target_slicer` 로 기록해 나중에 어느 슬라이서용인지 추적할 수 있게 한다 (`_` 접두라 import 시 버려진다).
 
-**Phase 4.3 게이트에는 환경변수로 넘긴다** — `TARGET_SLICER=orca python3 - ...` 형태다. 게이트
-스크립트는 heredoc 안에서 돌기 때문에 셸 변수도 파이썬 전역도 보지 못한다. 안 넘기면 스코프·부모값
-검사가 통째로 `[미검증]` 으로 떨어진다 (조용히 뱀부로 폴백하지 않는다).
+**Phase 4.3 게이트에는 환경변수로 넘긴다** — `TARGET_SLICER=orca SKILL_DIR=<이 스킬의 기준 폴더> python3 - ...`
+형태다. 게이트 스크립트는 heredoc 안에서 돌기 때문에 셸 변수도 파이썬 전역도 보지 못한다. `TARGET_SLICER` 를
+안 넘기면 키·부모값 검사가, `SKILL_DIR` 을 안 넘기면 옵션 목록(`references/option-keys/`)을 못 찾아 키 존재·종류·enum
+검사가 `[미검증]` 으로 떨어진다 (조용히 뱀부로 폴백하지 않는다). 기준 폴더는 스킬을 불러올 때 알려주는 경로다.
 
 **추측 금지.** 파일 확장자·모델 출처·과거 대화로 슬라이서를 유추하지 마라. 위 표의 4 분기 밖은 없다.
 
@@ -1328,8 +1330,8 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 zip 을 만들기 **전에** 생성한 JSON 전부에 대해 아래를 실행하고, **출력 원문을 응답에 붙여라.**
 
 ```bash
-TARGET_SLICER=<bambu|orca> python3 - <output_dir>/process/*.json <output_dir>/filament/*.json <<'PY'
-import os, sys, json, pathlib
+TARGET_SLICER=<bambu|orca> SKILL_DIR=<이 스킬의 기준 폴더> python3 - <output_dir>/process/*.json <output_dir>/filament/*.json <<'PY'
+import os, sys, json, pathlib, plistlib
 allok=True; unverified=[]
 
 # 시스템 프로파일 인덱스 — 부모 체인 해석용 (유량비 · 부모값 이탈 검사)
@@ -1356,43 +1358,47 @@ elif not SYS.is_dir():
     SYS = None
 else:
     print(f"SLICER {SLICER}: {SYS}")
-USERDIR = {
-    "bambu": pathlib.Path.home()/"Library/Application Support/BambuStudio/user",
-    "orca":  pathlib.Path.home()/"Library/Application Support/OrcaSlicer/user",
-}.get(SLICER) if SLICER else None
 SYSIDX = {}
-# 키 스코프 인덱스 — 키가 어느 종류(process/filament/machine)의 시스템 프로파일에 실재하는지.
-# 다른 종류에 넣으면 조용히 무시된다. machine 은 2026-09-14 신규 — 그 전에는 process/filament 2 종만
-# 봐서 `retraction_minimum_travel`(machine 567 건 / process 0 건) 같은 키를 process 에 넣어도 안 잡혔다.
-SCOPE = {}
-KINDS = ("process","filament","machine")
+# **부모 체인 해석(SYSIDX)은 BBL 제조사 폴더만 본다** — 같은 이름 프로파일이 제조사마다 있어 엉뚱한 부모를 잡는다.
 if SYS is not None:
-    for kind in KINDS:
+    for kind in ("process","filament","machine"):
         for q in (SYS/kind).glob("*.json"):
             try: dd = json.loads(q.read_text(encoding="utf-8"))
             except Exception: continue
             if "name" in dd: SYSIDX[dd["name"]] = dd
-            for key in dd: SCOPE.setdefault(key, set()).add(kind)
-    # 스코프 근거만 **전 제조사**로 넓힌다. BBL 트리만 보면 이 킷이 권장하기 시작한 오르카 전용 키가
-    # 전부 "판정 불가" 로 떨어지는데, 판정 불가는 통과로 취급되므로 진짜 위반까지 같이 샌다
-    # (실측 2026-09-14: scarf_joint_speed 는 오르카 전 제조사 187 건 / BBL 0 건).
-    # **부모 체인 해석(SYSIDX)은 넓히지 마라** — 같은 이름 프로파일이 제조사마다 있어 엉뚱한 부모를 잡는다.
-    for q in SYS.parent.rglob("*.json"):
-        try: dd = json.loads(q.read_text(encoding="utf-8"))
-        except Exception: continue
-        if not isinstance(dd, dict): continue
-        kind = dd.get("type")
-        if kind in KINDS:
-            for key in dd: SCOPE.setdefault(key, set()).add(kind)
-    # 슬라이서가 직접 저장한 user preset 도 스코프 근거다 — 시스템 프로파일이 설정하지 않는 키(brim_type 등)는 여기서만 잡힌다.
-    # 이 경로는 GUI 를 띄운 적이 있어야 생긴다. 없으면 번들만으로 판정한다.
-    if USERDIR and USERDIR.is_dir():
-        for kind in KINDS:
-            for q in USERDIR.glob(f"*/{kind}/*.json"):
-                try: SCOPE_KEYS = json.loads(q.read_text(encoding="utf-8")).keys()
-                except Exception: continue
-                for key in SCOPE_KEYS: SCOPE.setdefault(key, set()).add(kind)
-# 스코프 검사에서 제외하는 메타 키 — 필수 메타필드 표의 키. version 은 시스템 filament 1 건에만 있어 제외하지 않으면 오탐이다
+
+# 옵션 목록 — 태그 소스를 빌드해 슬라이서 자신의 함수로 뽑은 키 존재 · 종류 · enum 판정 근거 (bambu-fields-baseline.md §11.1).
+# 번들 프로파일 등장 여부로 판정하지 마라 — 오르카가 싣고 다니는 뱀부 제조사 프로파일 때문에 뱀부 전용 키가 통과했고,
+# 뱀부 process 기본 프로파일에 잘못 들어간 filament 키(pre_start_fan_time)가 허용 근거가 됐다 (2026-09-15).
+SKILL_DIR = os.environ.get("SKILL_DIR")
+OPTION_KEY_DIR = pathlib.Path(SKILL_DIR)/"references/option-keys" if SKILL_DIR else None
+APP_PLISTS = {
+    "bambu": pathlib.Path("/Applications/BambuStudio.app/Contents/Info.plist"),
+    "orca":  pathlib.Path("/Applications/OrcaSlicer.app/Contents/Info.plist"),
+}
+HEADER, CANONICAL, RENAMED, TYPES, ENUM, RENAMED_VALUE = set(), set(), {}, {}, {}, {}
+if SYS is not None:
+    try: installed = plistlib.loads(APP_PLISTS[SLICER].read_bytes()).get("CFBundleShortVersionString")
+    except Exception: installed = None
+    if OPTION_KEY_DIR is None:
+        unverified.append("SKILL_DIR 미전달 — 키 존재 · 종류 · enum 값 검사 미실행 (실행 명령에 SKILL_DIR=<이 스킬의 기준 폴더> 를 붙여라)")
+    elif installed is None:
+        unverified.append(f"{APP_PLISTS[SLICER]} 에서 설치본 버전을 못 읽었다 — 키 존재 · 종류 · enum 값 검사 미실행")
+    elif not (OPTION_KEY_DIR/f"{SLICER}-{installed}.tsv").is_file():
+        # 다른 버전 목록으로 대신 검사하지 않는다 — 버전이 바뀌면 키가 생기고 사라진다
+        unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 없음 — 키 존재 · 종류 · enum 값 검사 미실행. "
+                          f"scripts/option-key-probe/build-option-list.sh 로 설치본 {SLICER} {installed} 목록을 만들어라")
+    else:
+        print(f"OPTION LIST {SLICER}-{installed}.tsv")
+        for row in (OPTION_KEY_DIR/f"{SLICER}-{installed}.tsv").read_text(encoding="utf-8").splitlines():
+            kind, *cells = row.split("\t")
+            if kind == "header": HEADER.add(cells[0])
+            elif kind == "canonical": CANONICAL.add(cells[0])
+            elif kind == "renamed": RENAMED[cells[0]] = cells[1]
+            elif kind in ("process","filament","machine"): TYPES.setdefault(cells[0], set()).add(kind)
+            elif kind == "enum": ENUM.setdefault(cells[0], set()).add(cells[1])
+            elif kind == "renamed-value": RENAMED_VALUE[(cells[0], cells[1])] = cells[2]
+# 키 판정에서 제외하는 메타 키 — 필수 메타필드 표의 키. 형식 검사는 아래에서 따로 한다
 META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id",
         "compatible_printers","filament_extruder_variant","instantiation","setting_id"}
 GEOMETRY_CLASSES = ("planar","thin")
@@ -1439,40 +1445,30 @@ for p in sys.argv[1:]:
     }
     for bad,why in FORBIDDEN.items():
         if bad in d: errs.append(f"금지 키 {bad}: {why}")
-    # enum allowlist 검사 (2026-09-06 신규 · surface-recipes.md §5) — blocklist 는 미지의 값을 못 잡는다.
-    # 값 출처: 설치본 Bambu Studio 02.08.02.61 · OrcaSlicer 2.4.2 바이너리 문자열 전수 대조 실측.
-    # 아래 값은 두 슬라이서 공통이다 — 갈리는 값은 바로 아래 SLICER 분기에서만 더한다.
-    # 키가 아예 없는 것은 부모 상속이므로 정상이다 — 존재할 때만 값을 본다.
-    ENUM_ALLOW={
-        "ironing_type":       ("no ironing","top","topmost","solid"),
-        "top_surface_pattern":("concentric","zig-zag","monotonic","monotonicline",
-                               "alignedrectilinear","hilbertcurve","archimedeanchords","octagramspiral"),
-        "seam_position":      ("nearest","aligned","back","random"),
-        "seam_slope_type":    ("none","external","all"),
-        "wall_sequence":      ("inner wall/outer wall","outer wall/inner wall","inner-outer-inner wall"),
-        "brim_type":          ("auto_brim","brim_ears","outer_only","inner_only","outer_and_inner","no_brim"),
-    }
-    # 슬라이서별 허용값 차이. 위 표의 값은 전부 양쪽 바이너리에 있고, 갈리는 것은 이 하나뿐이다
-    # (바이너리 문자열 전수 대조 2026-09-14). 안 갈라주면 오르카 정상 산출물을 FAIL 로 잡는다.
-    if SLICER == "orca":
-        ENUM_ALLOW = dict(ENUM_ALLOW, seam_position=ENUM_ALLOW["seam_position"]+("aligned_back",))
-    for ek,allowed in ENUM_ALLOW.items():
-        if ek not in d: continue          # 미설정 = 부모 상속. 정상이다
-        ev=d[ek]
-        if isinstance(ev,list): ev=ev[0] if ev else None
-        if ev not in allowed:
-            errs.append(f"enum {ek}={ev!r} 는 허용값이 아니다 — 허용: {', '.join(allowed)}")
-    # 키 스코프 검사 (2026-09-08 신규 · bambu-fields-baseline.md §10.5) — 설치본에서 도출한 스코프와 파일 type 을 대조한다
-    if SCOPE:
-        for key in d:
-            if key.startswith("_") or key in META: continue   # _ 접두는 킷 전용 주석 키 — Bambu 가 import 시 버린다
-            kinds=SCOPE.get(key)
-            if kinds is None:
-                unverified.append(f"{f}: {key} 는 설치본 어느 시스템 프로파일에도 없는 키 — 스코프 판정 불가")
-            elif t not in kinds:
-                errs.append(f"키 스코프 불일치 {key}: 이 파일은 type={t} 인데 설치본에서는 {'/'.join(sorted(kinds))} 에만 실재 — 조용히 무시된다")
-    else:
-        unverified.append(f"{f}: 시스템 프로파일 경로 없음 — 키 스코프 검사 미실행")
+    # 키 판정 (2026-09-15 교체 · bambu-fields-baseline.md §11.1) — 슬라이서는 모르는 키와 다른 종류의 키를
+    # 오류 없이 버리고, 받지 않는 enum 값은 기본값으로 바꾼다 (seam_slope_type: hole → 스카프가 통째로 사라진다).
+    # 키가 아예 없는 것은 부모 상속이므로 정상이다 — 파일에 적힌 키만 본다. 목록이 없으면 위에서 [미검증] 으로 보고했다.
+    if CANONICAL:
+        for key, value in d.items():
+            if key.startswith("_") or key in META or key in FORBIDDEN: continue   # _ 접두는 킷 전용 주석 키 — import 시 버린다
+            if key in HEADER and key not in CANONICAL and key not in RENAMED: continue   # 파일 머리 키 — 옵션과 따로 읽는다
+            option = RENAMED.get(key, key)
+            if option != key:
+                print(f"WARN {f}: 옛 이름 {key} — {SLICER} 가 {option} 로 바꿔 읽는다. 새 이름으로 써라")
+            written = value if isinstance(value, list) else [value]
+            read_as = [RENAMED_VALUE.get((key, item), item) for item in written]   # 값 바꾸기는 파일에 적힌 원래 키 기준이다
+            for before, after in zip(written, read_as):
+                if before != after:
+                    print(f"WARN {f}: 옛 값 {key}={before!r} — {SLICER} 가 {after!r} 로 바꿔 읽는다. 새 값으로 써라")
+            if option not in CANONICAL:
+                errs.append(f"모르는 키 {key}: {SLICER} {installed} 옵션 목록에 없다 — 불러올 때 오류 없이 버려진다")
+            elif t not in TYPES.get(option, set()):
+                kinds = "/".join(sorted(TYPES.get(option, set()))) or "어느 종류에도 없음"
+                errs.append(f"키 스코프 불일치 {key}: 이 파일은 type={t} 인데 {SLICER} 는 {kinds} 프리셋에서만 받는다 — 설정 가져오기가 지운다")
+            elif option in ENUM:
+                for after in read_as:
+                    if after not in ENUM[option]:
+                        errs.append(f"받지 않는 값 {option}={after!r}: {SLICER} 가 기본값으로 바꿔 읽는다 — 받는 값: {', '.join(sorted(ENUM[option]))}")
     # 형상 클래스 검사 (2026-09-08 신규 · surface-recipes.md §2.7) — 속도 하향은 planar 에서만 정당하다
     geometry=d.get("_geometry_class")
     if t=="process":
@@ -1567,20 +1563,22 @@ PY
 - **출력이 비어 있으면 PASS 가 아니다.** 파일 glob 이 아무것도 매칭 못 한 것이므로 경로부터 고쳐라 (`skill-design-guide.md` §3.7).
 - 위 명령을 실행하지 않았거나 실행할 수 없었다면 완료를 선언하지 말고 `[미검증]` 으로 명시하라. 마커는 `[미검증]` 하나로 통일하며 동의어(`미확인`, `N/A`, `TBD`, `unverified`)를 새로 만들지 않는다 — 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
 
-#### 음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신규)
+#### 음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신규 · 2026-09-15 옵션 목록 기준으로 갱신)
 
 `RESULT: PASS` 는 **검사가 돌았다는 증거가 아니다.** 검사가 죽어 있어도 PASS 가 나온다. 게이트를
-고쳤거나 새 키를 도입했으면 아래 두 가지를 **실제로 주입해 FAIL 이 나오는지** 확인하라.
+고쳤거나 옵션 목록을 새로 만들었으면 아래 넷을 **실제로 주입해 FAIL 이 나오는지** 확인하라.
 
-| 주입 | 기대 | 안 잡히면 |
-| --- | --- | --- |
-| `evals/gate-fixtures/process-machine-scope-key.json` | 키 스코프 불일치 **FAIL 1 건** (`retraction_minimum_travel`) | 스코프 검사가 `machine` 을 안 본다 |
-| `evals/gate-fixtures/process-seam-slope-type-invalid.json` | enum 허용값 위반 **FAIL 1 건** (`seam_slope_type`) | `ENUM_ALLOW` 에 그 키가 빠졌다 |
+| 주입 | 대상 슬라이서 | 기대 | 지운 사본 | 안 잡히면 |
+| --- | --- | --- | --- | --- |
+| `evals/gate-fixtures/process-bambu-only-key-in-orca.json` | orca | 모르는 키 **FAIL 1 건** (`override_filament_scarf_seam_setting`) | `모르는 키` 줄을 `pass` 로 | 오르카가 모르는 뱀부 키가 통과한다 |
+| `evals/gate-fixtures/process-pre-start-fan-time.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`pre_start_fan_time` · `filament`) | 종류 근거를 번들 합집합으로 | 제조사 프로파일의 실수가 허용 근거가 됐다 |
+| `evals/gate-fixtures/process-machine-scope-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`retraction_minimum_travel` · `machine`) | `키 스코프 불일치` 줄을 `pass` 로 | 종류 판정이 죽었다 |
+| `evals/gate-fixtures/process-seam-slope-type-invalid.json` | bambu | 받지 않는 값 **FAIL 1 건** (`seam_slope_type`) | `받지 않는 값` 줄을 `pass` 로 | enum 값 판정이 죽었다 |
 
 **FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
 있다" 를 전혀 증명하지 못한다. 실제로 2026-09-14 감사에서 두 픽스처가 각각 오류 7 건 · 6 건을 내며
-이 상태였다. 그래서 두 픽스처는 **목표 위반 1 개만 남기고 나머지 필드를 전부 정상값으로** 채웠다.
+이 상태였다. 그래서 픽스처는 **목표 위반 1 개만 남기고 나머지 필드를 전부 정상값으로** 채운다.
 
 절차는 세 단계다.
 
@@ -1597,47 +1595,77 @@ S=bambu-kit/skills/bambu-print-profile/SKILL.md
 A=$(grep -n '^TARGET_SLICER=.* python3 - ' "$S" | head -1 | cut -d: -f1)
 B=$(awk -v s="$A" 'NR>s && $0=="PY" {print NR; exit}' "$S")
 sed -n "$((A+1)),$((B-1))p" "$S" > "$GATE"
+export SKILL_DIR=bambu-kit/skills/bambu-print-profile
+FX=bambu-kit/evals/gate-fixtures
 
 # (2) 검사 유지 → FAIL 1 건 · exit 1
-TARGET_SLICER=bambu python3 "$GATE" bambu-kit/evals/gate-fixtures/process-machine-scope-key.json; echo "exit=$?"
-TARGET_SLICER=bambu python3 "$GATE" bambu-kit/evals/gate-fixtures/process-seam-slope-type-invalid.json; echo "exit=$?"
+TARGET_SLICER=orca  python3 "$GATE" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-pre-start-fan-time.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-machine-scope-key.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
 
-# (3) 검사 제거 → PASS · exit 0. 변이가 실제로 적용됐는지 줄 수로 먼저 확인한다
-sed 's/^KINDS = ("process","filament","machine")$/KINDS = ("process","filament")/' "$GATE" > "$GATE.nomachine"
-grep -c '^KINDS = ("process","filament")$' "$GATE.nomachine"   # 1 이어야 변이가 먹은 것
-TARGET_SLICER=bambu python3 "$GATE.nomachine" bambu-kit/evals/gate-fixtures/process-machine-scope-key.json; echo "exit=$?"
+# (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
+drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
+  sed -E "s/^( *)errs\.append\(f\"$1 .*$/\1pass/" "$GATE" > "$GATE.$2"
+  diff "$GATE" "$GATE.$2" | grep -c '^>'
+}
+drop "모르는 키" unknown
+TARGET_SLICER=orca  python3 "$GATE.unknown" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
+drop "키 스코프 불일치" scope
+TARGET_SLICER=bambu python3 "$GATE.scope" $FX/process-machine-scope-key.json; echo "exit=$?"
+drop "받지 않는 값" enum
+TARGET_SLICER=bambu python3 "$GATE.enum" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
 
-grep -v '"seam_slope_type":    (' "$GATE" > "$GATE.noenum"
-test "$(wc -l < "$GATE")" -gt "$(wc -l < "$GATE.noenum")"      # 줄이 줄었어야 변이가 먹은 것
-TARGET_SLICER=bambu python3 "$GATE.noenum" bambu-kit/evals/gate-fixtures/process-seam-slope-type-invalid.json; echo "exit=$?"
+# 종류 판정 근거를 옛 방식(번들 프로파일 종류 합집합)으로 되돌린다 — 목록이 막은 구멍이 다시 열려야 한다
+python3 - "$GATE" "$GATE.bundle" <<'MUT'
+import sys, pathlib
+gate = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+anchor = "# 키 판정에서 제외하는 메타 키"
+union = """TYPES = {}
+for profile in SLICER_ROOTS[SLICER].parent.rglob("*.json"):
+    try: loaded = json.loads(profile.read_text(encoding="utf-8"))
+    except Exception: continue
+    if isinstance(loaded, dict) and loaded.get("type") in ("process","filament","machine"):
+        for listed in loaded: TYPES.setdefault(listed, set()).add(loaded["type"])
+"""
+print("기준점", gate.count(anchor), "개")   # 1 이어야 변이가 먹은 것
+pathlib.Path(sys.argv[2]).write_text(gate.replace(anchor, union + anchor), encoding="utf-8")
+MUT
+TARGET_SLICER=bambu python3 "$GATE.bundle" $FX/process-pre-start-fan-time.json; echo "exit=$?"
+
+# 목록이 없을 때 조용히 통과하지 않는지 — 목록 폴더를 없는 경로로 바꾼다
+sed 's#"references/option-keys"#"references/option-keys-없음"#' "$GATE" > "$GATE.nolist"
+grep -c 'option-keys-없음' "$GATE.nolist"   # 1 이어야 변이가 먹은 것
+TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
 ```
 
-실측 2026-09-14 (`TARGET_SLICER` 를 `bambu` · `orca` 로 각각 돌려 동일 결과):
+실측 2026-09-15 (zsh · 변이 적용 확인 값은 전부 1):
 
 ```text
-[검사 유지]  FAIL process-machine-scope-key.json: 키 스코프 불일치 retraction_minimum_travel: … machine 에만 실재
-             RESULT: FAIL   exit=1
-[machine 제거] OK   process-machine-scope-key.json: type=process from=User keys=17 …
-             [미검증] retraction_minimum_travel 는 설치본 어느 시스템 프로파일에도 없는 키 — 스코프 판정 불가
-             RESULT: PASS   exit=0
-
-[검사 유지]  FAIL process-seam-slope-type-invalid.json: enum seam_slope_type='hole' 는 허용값이 아니다 — 허용: none, external, all
-             RESULT: FAIL   exit=1
-[enum 제거]  OK   process-seam-slope-type-invalid.json: type=process from=User keys=19 …
-             RESULT: PASS   exit=0
+[검사 유지]    FAIL process-bambu-only-key-in-orca.json: 모르는 키 override_filament_scarf_seam_setting: orca 2.4.2 옵션 목록에 없다 …   exit=1
+               FAIL process-pre-start-fan-time.json: 키 스코프 불일치 pre_start_fan_time: … bambu 는 filament 프리셋에서만 받는다 …   exit=1
+               FAIL process-machine-scope-key.json: 키 스코프 불일치 retraction_minimum_travel: … bambu 는 machine 프리셋에서만 받는다 …   exit=1
+               FAIL process-seam-slope-type-invalid.json: 받지 않는 값 seam_slope_type='hole': bambu 가 기본값으로 바꿔 읽는다 — 받는 값: all, external, none   exit=1
+[모르는 키 제거]   OK process-bambu-only-key-in-orca.json …   RESULT: PASS   exit=0
+[스코프 제거]      OK process-machine-scope-key.json …        RESULT: PASS   exit=0
+[받지 않는 값 제거] OK process-seam-slope-type-invalid.json …  RESULT: PASS   exit=0
+[번들 합집합]      OK process-pre-start-fan-time.json …       RESULT: PASS   exit=0
+[목록 없음]        OK process-bambu-only-key-in-orca.json …
+                   [미검증] …/option-keys-없음/orca-2.4.2.tsv 없음 — 키 존재 · 종류 · enum 값 검사 미실행 …   RESULT: PASS   exit=0
 ```
 
-`machine` 분기를 지웠을 때 FAIL 이 사라지고 `[미검증]` 으로 **강등**된다는 점이 핵심이다. 판정 불가는
-통과로 취급되므로, 스코프 종류를 하나라도 빠뜨리면 위반이 조용히 통과한다.
+번들 합집합으로 되돌리면 `pre_start_fan_time` 이 통과한다는 점이 핵심이다. 뱀부 process 기본 프로파일
+`fdm_process_common.json` 이 그 키를 잘못 담고 있어서, 프로파일 등장 여부로는 종류를 판정할 수 없다.
+목록이 없을 때는 FAIL 이 사라지는 대신 `[미검증]` 이 남는다 — 이 줄이 있으면 완료를 선언하지 않는다.
 
 **왜 enum 을 따로 보는가.** 슬라이서는 유효하지 않은 enum 값을 **오류 없이 조용히 기본값으로
 강등**한다. 실측 2026-09-14: `seam_slope_type` 에 `hole` 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고
 스카프가 통째로 사라진다 (유효값은 `none` · `external` · `all` 뿐). 사용자는 설정을 켰다고 믿는데
 산출물에는 없다 — 게이트가 안 잡으면 아무도 안 잡는다.
 
-같은 이유로 **키 이름 오타도 조용히 사라진다.** 가짜 키를 하나 넣어 슬라이스한 뒤 G-code 설정
-트레일러에서 그 키가 사라지는지 보면 "실존하는 키인지" 를 판별할 수 있다 (실측: 가짜 키
-`jackson_totally_fake_key` 는 exit 0 · 경고 0 으로 소멸).
+같은 이유로 **키 이름 오타도 조용히 사라진다** (실측: 가짜 키 `jackson_totally_fake_key` 는 exit 0 ·
+경고 0 으로 소멸). 게이트는 이것을 옵션 목록으로 `모르는 키` 로 잡는다. 목록 자체가 맞는지 의심될 때는
+가짜 키를 넣어 명령줄로 슬라이스한 뒤 결과 3mf 의 `Metadata/project_settings.config` 에서 그 키가 사라지는지 본다.
 
 **추가 의미 검증 (스크립트가 못 잡는 항목 — 위 출력값을 눈으로 대조):**
 
@@ -1756,11 +1784,12 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-08-13 신규) Phase 3.0 Supportability Split 의 불가 항목을 notes.md §1.2.1 에 명시 보고했는지** — 특히 L1 adaptive layer height. 근사 구현으로 조용히 때우지 않았는지.
 - ☐ **(2026-08-13 신규) L2 대응이 게이트 순서를 지켰는지** — 건조 확인 (0) → `filament_wipe` (1) → coupon 후 `filament_retraction_length` (2). 온도/fan 을 자동으로 건드리지 않았는지.
 - ☐ **(2026-08-13 신규) `raft_layers` 를 켰다면 fit-critical 0 건인지** — raft 는 `elefant_foot_compensation` 을 조용히 무효화한다. L3 최후 수단 외에는 켜지 않았는지.
-- ☐ **(2026-09-06 신규) enum 값이 Bambu 이름인지** — `ironing_type` · `top_surface_pattern` ·
-  `seam_position` · `seam_slope_type` · `wall_sequence` · `brim_type` 6 키. OrcaSlicer 문서의 값 이름을
-  그대로 옮기면 Bambu 가 조용히 무시한다. Phase 4.3 게이트의 `ENUM_ALLOW` 가 검사한다.
+- ☐ **(2026-09-06 신규 · 2026-09-15 갱신) enum 값이 대상 슬라이서가 받는 값인지** — 한쪽 문서의 값 이름을
+  다른 슬라이서에 그대로 옮기면 조용히 기본값으로 바뀐다 (뱀부 `seam_position: aligned_back` → `aligned`).
+  Phase 4.3 게이트가 옵션 목록의 enum 줄로 모든 enum 키를 검사해 `받지 않는 값` 으로 잡고, 슬라이서가 옛 값을
+  바꿔 읽는 경우(오르카 `top_surface_pattern: zig-zag` → `rectilinear`)는 `옛 값` 경고로 알린다.
 - ☐ **(2026-09-08 신규) `_geometry_class` 를 측정으로 정해 process JSON 에 기록했는지** — Phase 1.0 probe 출력의 `planar` | `thin`. `thin` 인데 `outer_wall_speed` 를 낮췄으면 정책 위반이고 Phase 4.3 게이트가 FAIL 한다 (`surface-recipes.md` §2.7).
-- ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 설치본에서 스코프를 도출해 검사한다 (`bambu-fields-baseline.md` §10.5).
+- ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 옵션 목록의 프리셋 종류 줄로 검사한다 (`bambu-fields-baseline.md` §10.5 · §11.1).
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)

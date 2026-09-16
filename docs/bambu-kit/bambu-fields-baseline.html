@@ -384,17 +384,40 @@
   <span class="k">"compatible_printers"</span>: <span class="s">"Bambu Lab H2S 0.4 nozzle"</span>  <span class="c">// scalar</span>
 <span class="p">}</span></pre>
 <div class="section">
-  <div class="section-label">Section 11 · 슬라이서별 키 차이 (2026-09-14)</div>
+  <div class="section-label">Section 11 · 슬라이서별 키 차이 (2026-09-14 · 2026-09-15 옵션 목록 도입)</div>
 
   <p>이 킷은 Bambu Studio 와 OrcaSlicer 를 모두 다룬다. <strong>두 슬라이서는 키 집합이 갈라져 있어
   한쪽 프로파일을 다른 쪽에 그대로 넣으면 없는 키가 조용히 버려진다.</strong> 오류도 경고도 없다.</p>
 
-  <h3>키 존재는 근거 두 가지로 판정한다</h3>
+  <h3>키 존재는 옵션 목록이 1 순위다</h3>
+  <p><strong>1 순위 근거는 <code>references/option-keys/</code> 의 슬라이서 버전별 목록이다</strong>
+  (<code>orca-2.4.2.tsv</code> · <code>bambu-02.08.02.61.tsv</code>). 두 슬라이서의 태그 소스에서 옵션 등록부 ·
+  옛 이름 처리 함수 · 프리셋 기본값을 부분 빌드한 판정 프로그램(<code>bambu-kit/scripts/option-key-probe/</code>)이
+  슬라이서 자신의 함수로 뽑았다. Phase 4.3 게이트가 이 목록으로 키 존재 · 프리셋 종류 · enum 값을 판정한다.
+  설치본 버전이 바뀌면 <code>build-option-list.sh &lt;orca|bambu&gt;</code> 로 새 목록을 만든다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>줄 종류</th><th>뜻</th><th>오르카 2.4.2</th><th>뱀부 02.08.02.61</th></tr></thead>
+    <tbody>
+      <tr><td><code>canonical</code></td><td>JSON 을 불러올 때 그대로 받는 키</td><td>749</td><td>679</td></tr>
+      <tr><td><code>renamed</code></td><td>불러올 때 새 이름으로 바뀌는 옛 키</td><td>42</td><td>23</td></tr>
+      <tr><td><code>process</code> · <code>filament</code> · <code>machine</code></td><td>그 종류 프리셋이 받는 키 — 설정 가져오기가 나머지를 지운다</td><td>356 · 127 · 161</td><td>277 · 143 · 136</td></tr>
+      <tr><td><code>enum</code></td><td>enum 키가 받는 값</td><td>384</td><td>385</td></tr>
+      <tr><td><code>renamed-value</code></td><td>불러올 때 새 값으로 바뀌는 옛 값</td><td>32</td><td>19</td></tr>
+      <tr><td><code>header</code></td><td>옵션이 아니라 따로 읽는 파일 머리 키</td><td>36</td><td>42</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>실행 파일 문자열은 2 순위 참고로만 쓴다.</strong> 옛 이름도 문자열로 들어 있어
+  (오르카 42 · 뱀부 23 개 전부) 모르는 키로 걸러지지 않고, 3 글자 키 <code>url</code> 은 기본 최소 길이에 걸려
+  반드시 <code>strings -a -n 3</code> 으로 뽑아야 하며, 명령이 실패해도 빈 출력이 나와 "0 건" 으로 읽힌다.
+  뱀부 <code>reduce_infill_retraction</code> 은 문자열에는 있지만 뱀부가 받지 않는 키다 — 불러오기 함수가
+  <code>"0"</code> 일 때만 <code>reduce_infill_retraction_mode: Disabled</code> 로 옮기고 키는 버린다.</div>
+
   <p><strong>프로파일 JSON 차집합은 기능 차집합이 아니다.</strong> 프로파일은 소스 기본값과 다른 키만
   저장하므로, 기본값을 쓰는 키는 지원해도 프로파일에 안 나온다. 반대로 오르카는 뱀부 벤더
   프로파일(<code>profiles/BBL/</code>)을 통째로 실어 나르기 때문에 <strong>자기가 구현하지도 않은 뱀부 키가
-  오르카 프로파일 안에 들어 있다.</strong> 그래서 항상 둘을 같이 본다 — 갈리면 바이너리를 따르고,
-  갈렸다는 사실을 적는다.</p>
+  오르카 프로파일 안에 들어 있다.</strong> 아래 표는 목록 도입 전(2026-09-14) 두 방법의 비교다.</p>
 
   <div class="table-wrap">
   <table>
@@ -435,7 +458,7 @@
       <tr><td><code>seam_slope_steps</code></td><td>있음</td><td>0 건</td><td>189 건</td></tr>
       <tr><td><code>wall_distribution_count</code></td><td>있음</td><td>0 건</td><td>237 건</td></tr>
       <tr><td><code>wall_transition_length</code> · <code>_angle</code> · <code>_filter_deviation</code></td><td>있음</td><td>0 건</td><td>235~237 건</td></tr>
-      <tr><td><code>reduce_infill_retraction</code></td><td>있음</td><td>0 건</td><td>733 건</td></tr>
+      <tr><td><code>reduce_infill_retraction</code></td><td>문자열만 있음 — 뱀부 목록에 없다</td><td>0 건</td><td>733 건</td></tr>
     </tbody>
   </table>
   </div>
@@ -469,17 +492,15 @@
 
   <h3>이식할 때 반드시 하는 것</h3>
   <ul>
-    <li><strong>스코프를 전수로 센다</strong> — 키 이름이 양쪽에 있어도 스코프가 다를 수 있다. 게이트가
-      <code>process</code> · <code>filament</code> · <code>machine</code> 3 종을 대조한다 (2026-09-14 신규 —
-      그전에는 2 종만 봐서 <code>retraction_minimum_travel</code>(machine 567 / process 0) 을 놓쳤다)</li>
-    <li><strong>enum 유효값을 확인한다</strong> — 벗어난 값은 오류 없이 기본값으로 강등된다. 오르카
-      <code>seam_slope_type</code> 유효값은 <code>none</code> · <code>external</code> · <code>all</code> 뿐이고
-      <code>hole</code> 을 넣으면 exit 0 · 경고 0 으로 경사가 사라진다. 허용값도 갈린다 —
-      <code>seam_position</code> 의 <code>aligned_back</code> 은 오르카에만 있다</li>
-    <li><strong>음성 대조로 확인한다</strong> — 가짜 키를 넣어 슬라이스한 뒤 G-code 설정 트레일러에서
-      소멸하는지 본다</li>
-    <li><strong>근거를 둘 다 본다</strong> — 바이너리 문자열과 프로파일 집계. 한쪽만 보면 양방향으로
-      오판한다</li>
+    <li><strong>종류를 목록으로 확인한다</strong> — 키 이름이 양쪽에 있어도 받는 프리셋 종류가 다를 수 있다.
+      게이트가 옵션 목록의 <code>process</code> · <code>filament</code> · <code>machine</code> 줄로 대조한다</li>
+    <li><strong>enum 값을 목록으로 확인한다</strong> — 벗어난 값은 오류 없이 기본값으로 바뀐다.
+      <code>seam_slope_type</code> 에 <code>hole</code> 을 넣으면 exit 0 · 경고 0 으로 경사가 사라지고,
+      <code>seam_position</code> 의 <code>aligned_back</code> 은 오르카만 받는다 (뱀부는 <code>aligned</code> 로 바꾼다)</li>
+    <li><strong>음성 대조로 확인한다</strong> — 목록이 의심되면 가짜 키를 넣어 명령줄로 슬라이스한 뒤 결과
+      3mf 설정에서 소멸하는지 본다</li>
+    <li><strong>키 존재는 목록으로 판정한다</strong> — 프로파일 집계만 보면 양방향으로 오판하고, 실행 파일
+      문자열은 옛 이름까지 통과시킨다</li>
   </ul>
 </div>
 
@@ -844,7 +865,7 @@ PARENT=$(curl -s <span class="s">".../$ENC"</span> | jq -r <span class="s">'.inh
   <h3 style="margin:28px 0 12px">9.5. 냉각 보상 키 — filament 스코프 (2026-09-08 v4 확장) <span class="badge badge-info">§10.5</span></h3>
   <div class="callout">
     <span class="icon">!</span>
-    <span><strong>스코프를 먼저 확인하라.</strong> 아래 키는 전부 <strong>filament</strong> 프로파일의 키다. process JSON 에 넣으면 에러 없이 무시된다. 실측(앱 <code>02.08.02.61</code> · 번들 <code>02.08.00.06</code>): process 0 건 / filament 다수. Phase 4.3 게이트가 설치본(시스템 프로파일 + Bambu 가 저장한 user preset)에서 스코프를 도출해 파일 <code>type</code> 과 대조한다. 어디에도 없는 키는 FAIL 이 아니라 <code>[미검증]</code>. 정책은 <a href="surface-recipes.html" style="color:var(--accent)">Surface Recipes §2.7</a>.</span>
+    <span><strong>스코프를 먼저 확인하라.</strong> 아래 키는 전부 <strong>filament</strong> 프로파일의 키다. process JSON 에 넣으면 에러 없이 무시된다. 실측(앱 <code>02.08.02.61</code> · 번들 <code>02.08.00.06</code>): process 0 건 / filament 다수. Phase 4.3 게이트가 옵션 목록(Section 11)의 프리셋 종류 줄과 파일 <code>type</code> 을 대조한다. 목록에 없는 키는 <code>모르는 키</code> 로 FAIL 이고, 목록이 없는 버전이면 <code>[미검증]</code> 이다. 정책은 <a href="surface-recipes.html" style="color:var(--accent)">Surface Recipes §2.7</a>.</span>
   </div>
   <div class="table-wrap">
     <table>
