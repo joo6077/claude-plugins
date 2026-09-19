@@ -4,7 +4,7 @@ slug: harness-auto-section-na
 created: "2026-09-19 14:05"
 complexity: "복잡"
 conditions: 20
-status: active
+status: done
 owner_session: be3037df-1ee8-45db-aa79-f54d3cadb2fc
 conditions_digest: sha256:60d5bc4f0b98511c
 locked_at: "2026-09-19 13:58"
