@@ -1779,7 +1779,7 @@ TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.js
    ls "$HOME/Library/Application Support/BambuStudio/user/<userid>/process/"
    ls "$HOME/Library/Application Support/BambuStudio/user/<userid>/filament/"
    ```
-   `.json` + `.info` 페어 확인.
+   `.json` + `.info` 페어 확인. 제작자 3mf 로 출력하면 바로 아래 값 섞임 방지도 따른다.
 
 **제작자 3mf 로 출력할 때 — 값 섞임 방지 (2026-09-19 신규)**
 
