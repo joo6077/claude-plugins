@@ -90,6 +90,13 @@ root=next((n for n in names if n.lower()=='3d/3dmodel.model'),None)
 assert root, f"FAIL: 3dmodel.model 없음. 실제 목록={names[:20]}"
 items=ET.fromstring(z.read(root)).findall('.//c:build/c:item',NS)
 print("build items:",len(items),"objectids:",[i.get('objectid') for i in items])
+disabled=[i.get('objectid') for i in items if i.get('printable')=='0']
+if disabled:
+    labels={}
+    if 'Metadata/model_settings.config' in names:
+        for obj in ET.fromstring(z.read('Metadata/model_settings.config')).iter('object'):
+            labels.update({obj.get('id'):m.get('value') for m in obj.findall('metadata') if m.get('key')=='name'})
+    print(f'WARN printable="0" 부품 {len(disabled)}개 — 슬라이서가 출력하지 않는다:',[labels.get(i,f'object {i}') for i in disabled])
 n=0
 for part in sorted(p for p in names if p.lower().startswith('3d/') and p.lower().endswith('.model')):
     for obj in ET.fromstring(z.read(part)).findall('.//c:resources/c:object',NS):
@@ -104,6 +111,10 @@ print("meshes parsed:",n)
 PY
 ```
 
+⚠️ **`printable="0"` 부품은 슬라이서가 조용히 뺀다.** 위 명령이 `WARN printable="0"` 줄을 내면 조립에 필요한 개수와
+대조해 사용자에게 먼저 보고한다. 켤지는 사용자가 정한다 — 제작자가 끈 이유는 파일에 남지 않는다.
+실측 (2026-09-19 H2 AMS Flipper): 경첩 2 개에 축 부품이 2 개 필요한데 두 번째가 꺼져 있어 10 개 중 9 개만 출력됐다.
+
 **형상 클래스 측정 (2026-09-08 신규 · surface-first 이면 필수 — `surface-recipes.md` §2.7):**
 
 surface-first 의 속도 정책은 형상 클래스(`planar` | `thin`)를 입력으로 받는다. 키워드로 추측하지 말고
@@ -111,16 +122,23 @@ surface-first 의 속도 정책은 형상 클래스(`planar` | `thin`)를 입력
 출력의 `_geometry_class` 와 `thin_share_median` 을 process JSON 에 `_geometry_class` · `_thin_loop_share`
 로 기록한다 — Phase 4.3 게이트가 읽고, `outer_wall_speed` 를 명시한 JSON 에 이 키가 없으면 FAIL 한다.
 
+**구멍 · 빈 칸이 있는 부품은 형상 클래스와 무관하게 벽 예산도 잰다** (2026-09-19 신규 · `surface-recipes.md` §2.8).
+`WALL_LOOPS` 를 주고 돌리면 부품마다 살이 벽 폭보다 좁은 둘레 비율(바닥 0.1 mm · 25 · 50 · 75 %)이 나오고, 마지막 줄의
+`_wall_budget_short_share` 와 `_wall_budget_mm` 를 process JSON 에 그대로 옮겨 적는다. 선폭은 부모 프리셋 실효값을 넣는다.
+
 ```bash
 python3 - "<model.3mf>" "<오브젝트명 부분일치>" <<'PY'
 # bambu-kit geometry-class probe — 3mf 메시를 빌드 좌표에서 3 높이로 절단해 루프 둘레 분포로 형상 클래스를 정한다
 # usage: python3 - "<model.3mf>" ["<오브젝트명 부분일치>" ...]   (인자 없으면 build 의 모든 오브젝트)
-import sys, json, math, zipfile, xml.etree.ElementTree as ET
+#        WALL_LOOPS=<벽 수> [OUTER_LINE_WIDTH=0.42] [INNER_LINE_WIDTH=0.45] 를 주면 벽 예산 부족 비율도 잰다 (surface-recipes.md §2.8)
+import os, sys, json, math, zipfile, xml.etree.ElementTree as ET
 from collections import defaultdict
 
 THIN_LOOP_MM = 30.0          # seam-recipes.md §2.2 와 같은 임계 — 이 둘레 아래에서는 스트럿 단면이 지배한다
 THIN_SHARE = 0.5             # 3 높이 중앙값이 이 이상이면 thin
 HEIGHT_FRACTIONS = (0.25, 0.5, 0.75)
+FIRST_LAYER_PROBE_MM = 0.1   # 바닥 층 — 첫 출력에서 벽 예산 부족이 가장 크게 드러난 높이 (2026-09-19)
+SAMPLE_STEP_MM = 1.0
 NS = {"c": "http://schemas.microsoft.com/3dmanufacturing/core/2015/02",
       "p": "http://schemas.microsoft.com/3dmanufacturing/production/2015/06"}
 IDENTITY = (1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
@@ -140,6 +158,18 @@ def transform(matrix, point):     # 3MF 행벡터 규약: [x y z 1] · M
 archive = zipfile.ZipFile(sys.argv[1])
 wanted = sys.argv[2:]
 docs = {}
+
+wall_budget = None
+if "WALL_LOOPS" in os.environ:
+    try:
+        wall_loops = int(os.environ["WALL_LOOPS"])
+        outer_width = float(os.environ.get("OUTER_LINE_WIDTH", "0.42"))   # 0.12mm High Quality @BBL H2S 실효값
+        inner_width = float(os.environ.get("INNER_LINE_WIDTH", "0.45"))
+    except ValueError:
+        sys.exit("FAIL: WALL_LOOPS · OUTER_LINE_WIDTH · INNER_LINE_WIDTH 는 숫자여야 한다")
+    if wall_loops < 1:
+        sys.exit(f"FAIL: WALL_LOOPS={wall_loops} — 벽은 1 겹 이상이어야 한다")
+    wall_budget = outer_width * 2 + inner_width * 2 * (wall_loops - 1)
 
 
 def document(path):
@@ -176,8 +206,8 @@ def triangles(path, object_id, matrices):
     return result
 
 
-def loop_lengths(tris, z):
-    """평면 z 로 자른 단면의 연결 성분별 둘레. 꼭짓점이 평면 위에 놓이는 퇴화를 피하려고 호출측이 z 를 살짝 띄운다."""
+def section_loops(tris, z):
+    """평면 z 로 자른 단면을 연결 성분(루프)별 선분 목록으로 묶는다. 꼭짓점이 평면 위에 놓이는 퇴화를 피하려고 호출측이 z 를 살짝 띄운다."""
     segments = []
     for corner_a, corner_b, corner_c in tris:
         crossings = []
@@ -193,21 +223,57 @@ def loop_lengths(tris, z):
         adjacency[key(start)].append(index)
         adjacency[key(end)].append(index)
     seen = [False] * len(segments)
-    lengths = []
+    loops = []
     for index in range(len(segments)):
         if seen[index]:
             continue
-        stack, seen[index], length = [index], True, 0.0
+        stack, seen[index], loop = [index], True, []
         while stack:
             current = stack.pop()
             start, end = segments[current]
-            length += math.hypot(start[0] - end[0], start[1] - end[1])
+            loop.append((start, end))
             for neighbour in adjacency[key(start)] + adjacency[key(end)]:
                 if not seen[neighbour]:
                     seen[neighbour] = True
                     stack.append(neighbour)
-        lengths.append(length)
-    return lengths
+        loops.append(loop)
+    return loops
+
+
+def wall_budget_shortfall(loops, budget):
+    """루프 위 점마다 다른 루프까지의 거리를 재서 벽 예산보다 좁은 둘레 비율과 가장 좁은 살 두께를 낸다.
+    같은 루프 안의 좁은 목(한 윤곽이 접혀 들어온 자리)은 재지 않는다."""
+    grid = defaultdict(list)     # 칸 한 변 = 예산이라 예산 안의 이웃 선분은 주변 3x3 칸에 모두 들어온다
+    for loop_index, loop in enumerate(loops):
+        for start, end in loop:
+            for cell_x in range(int(min(start[0], end[0]) // budget), int(max(start[0], end[0]) // budget) + 1):
+                for cell_y in range(int(min(start[1], end[1]) // budget), int(max(start[1], end[1]) // budget) + 1):
+                    grid[(cell_x, cell_y)].append((loop_index, start, end))
+    total_length = short_length = 0.0
+    thinnest = math.inf
+    for loop_index, loop in enumerate(loops):
+        for start, end in loop:
+            length = math.hypot(end[0] - start[0], end[1] - start[1])
+            steps = max(1, int(length // SAMPLE_STEP_MM))
+            for step in range(steps):
+                ratio = (step + 0.5) / steps
+                point_x, point_y = start[0] + ratio * (end[0] - start[0]), start[1] + ratio * (end[1] - start[1])
+                cell_x, cell_y = int(point_x // budget), int(point_y // budget)
+                nearest = math.inf
+                for offset_x in (-1, 0, 1):
+                    for offset_y in (-1, 0, 1):
+                        for other_index, other_start, other_end in grid.get((cell_x + offset_x, cell_y + offset_y), ()):
+                            if other_index == loop_index:
+                                continue
+                            span_x, span_y = other_end[0] - other_start[0], other_end[1] - other_start[1]
+                            span_sq = span_x * span_x + span_y * span_y
+                            along = 0.0 if span_sq == 0 else max(0.0, min(1.0, ((point_x - other_start[0]) * span_x + (point_y - other_start[1]) * span_y) / span_sq))
+                            nearest = min(nearest, math.hypot(point_x - other_start[0] - along * span_x, point_y - other_start[1] - along * span_y))
+                total_length += length / steps
+                if nearest < budget:
+                    short_length += length / steps
+                thinnest = min(thinnest, nearest)
+    return (short_length / total_length if total_length else 0.0), thinnest
 
 
 names = {}
@@ -235,28 +301,46 @@ for object_id, build_matrix in build.items():
     z_min, z_max = min(z_values), max(z_values)
     shares, counts, thin_counts, max_loop = [], [], [], 0.0
     for fraction in HEIGHT_FRACTIONS:
-        lengths = loop_lengths(tris, z_min + fraction * (z_max - z_min) + 1e-4)
-        if not lengths:
+        loops = section_loops(tris, z_min + fraction * (z_max - z_min) + 1e-4)
+        if not loops:
             sys.exit(f"FAIL: {name} 높이 {fraction:.0%} 에서 루프 0 개 — 절단 실패")
+        lengths = [sum(math.hypot(start[0] - end[0], start[1] - end[1]) for start, end in loop) for loop in loops]
         thin = sum(1 for length in lengths if length < THIN_LOOP_MM)
         counts.append(len(lengths)); thin_counts.append(thin); shares.append(thin / len(lengths))
         max_loop = max(max_loop, max(lengths))
     median_share = sorted(shares)[1]
-    reports.append({
+    report = {
         "object": name, "id": object_id, "height_mm": round(z_max - z_min, 2),
         "loops": counts, "loops_under_30mm": thin_counts, "thin_share": [round(share, 2) for share in shares],
         "thin_share_median": round(median_share, 2), "max_loop_mm": round(max_loop, 2),
         "_geometry_class": "thin" if median_share >= THIN_SHARE else "planar",
-    })
+    }
+    if wall_budget is not None:
+        probe_heights = [z_min + FIRST_LAYER_PROBE_MM] + [z_min + fraction * (z_max - z_min) for fraction in HEIGHT_FRACTIONS]
+        shortfalls = [wall_budget_shortfall(section_loops(tris, height + 1e-4), wall_budget) for height in probe_heights]
+        thinnest = min(web for _, web in shortfalls)
+        report.update({
+            "wall_budget_mm": round(wall_budget, 2),
+            "wall_short_share": [round(share, 3) for share, _ in shortfalls],   # 바닥 0.1 mm · 25 % · 50 % · 75 %
+            "wall_short_share_max": round(max(share for share, _ in shortfalls), 3),
+            "min_web_mm": None if thinnest == math.inf else round(thinnest, 2),
+        })
+    reports.append(report)
 
 assert reports, f"FAIL: 대상 오브젝트 0 개 — 인자 {wanted} 가 어느 이름에도 없음. 목록={sorted(set(names.values()))}"
 for report in reports:
     print(json.dumps(report, ensure_ascii=False))
+if wall_budget is not None:
+    print(json.dumps({"_wall_budget_mm": round(wall_budget, 2),
+                      "_wall_budget_short_share": max(report["wall_short_share_max"] for report in reports)}))
 PY
 ```
 
 실측 (2026-09-07 래티스 통, 같은 3mf): `Side Container LHS V1` → loops 52/25/20 전부 < 30 mm → `thin`,
 `Funnel V1` → loops 2/2/2 → `planar`. 한 플레이트 = 한 process 이므로 클래스가 갈리면 process 를 나눈다.
+실측 (2026-09-19 H2 AMS Flipper, `WALL_LOOPS=4`): 10 개 전부 `planar` 인데 바닥 층 부족 비율이 뒤쪽 브래킷 71.9 % ·
+80° 브래킷 72.1 % · AMS2 브래킷 0 % 였다. 비율은 둘레 **길이**로 센다 — 점 수로 세면 메시가 잘게 쪼개진 곡선이 부풀어
+같은 부품이 58.8 % 로 나온다.
 STL 입력은 이 절단을 아직 지원하지 않는다 — bbox 만으로 `thin` 을 단정하지 말고 사용자에게 단면 성격을 묻는다.
 
 임베드 프로파일은 JSON 이므로 그대로 파싱한다 (grep 금지):
@@ -1298,10 +1382,11 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 # 4. 임포트 + 출력 절차 (Bambu Studio)
 1. Import Configs → zip
 2. 드롭다운 확인
-3. Plate별 process 적용
+3. 값을 박아 넣은 3mf 를 연다. 판마다 process 가 맞는지 확인만 하고, 연 뒤 드롭다운에서 설정을 바꾸지 않는다 (Phase 4.4)
 4. AMS 슬롯 매핑
 5. 인두/도구 분기 STL 선택
 6. Slice + send
+7. 보낸 G-code 를 생성 설정과 대조한다 — `MISMATCH` 가 있으면 멈춘다 (Phase 4.4)
 
 ---
 
@@ -1518,6 +1603,13 @@ for p in sys.argv[1:]:
                     print(f"WARN {f}: 유량비 {worst:.1f}x ({who}) — 3~5x 경고 구간. notes.md 에 사유를 적어라")
         else:
             unverified.append(f"{f}: layer_height/outer_wall_speed/line_width 결측 — 유량비 미계산")
+        # 벽 예산 검사 (2026-09-19 신규 · surface-recipes.md §2.8) — classic 은 벽이 못 들어가는 틈을 가는 선(갭필)으로 메워 덩어리가 솟는다
+        short_share = num(d.get("_wall_budget_short_share"))
+        generator = eff.get("wall_generator") or "classic"
+        if short_share is None:
+            unverified.append(f"{f}: _wall_budget_short_share 미기록 — 벽 예산 미검증 (Phase 1.0 형상 측정을 WALL_LOOPS 와 함께 돌려라)")
+        elif short_share >= 0.10 and generator == "classic":   # 10 % 는 추정 — 결함 실측 22~90 %, 결함 없던 부품 0 %
+            errs.append(f"벽 예산 미달 비율 {short_share:.0%} 인데 wall_generator=classic — 틈을 갭필로 메워 덩어리가 솟는다. arachne 로 (surface-recipes.md §2.8)")
     # scarf 길이 / 루프 둘레 비율 검사 (2026-09-05 신규 · seam-recipes.md §2.2)
     if t=="process" and str(d.get("seam_slope_type","none"))!="none":
         L=num(d.get("seam_slope_min_length"))
@@ -1689,6 +1781,123 @@ TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.js
    ```
    `.json` + `.info` 페어 확인.
 
+**제작자 3mf 로 출력할 때 — 값 섞임 방지 (2026-09-19 신규)**
+
+제작자 3mf 를 연 뒤 드롭다운에서 생성한 설정으로 바꾸면, 설정 전환 창(Transfer · Discard · Save)의 Transfer 가
+**3mf 에 들어 있던 제작자 값**을 새 설정 위로 옮긴다. 실측 (2026-09-19 H2 AMS Flipper): 생성 설정과 달리
+`bottom_shell_layers` 5 · `outer_wall_acceleration` 4000 · `default_acceleration` 9000 이 그대로 출력됐다. 설정 파일만
+보면 안 보이고 보낸 G-code 에서만 드러난다. 그래서 두 가지를 한다.
+
+(1) **값을 박아 넣은 3mf 를 같이 준다.** 사용자는 그 3mf 를 열기만 하고 드롭다운을 바꾸지 않는다.
+
+```bash
+python3 - "<제작자.3mf>" "<출력.3mf>" "<process.json>" ["<filament.json>"] <<'PY'
+# 제작자 3mf 의 프로젝트 설정에 생성한 process · filament 값을 박아 넣는다 — 열자마자 그 값으로 잘리게 한다
+# usage: python3 - "<제작자.3mf>" "<출력.3mf>" "<process.json>" ["<filament.json>"]
+import sys, json, zipfile
+
+source, target, *preset_paths = sys.argv[1:]
+META = {"type", "name", "version", "from", "inherits", "print_settings_id", "filament_settings_id",
+        "compatible_printers", "filament_extruder_variant", "instantiation", "setting_id"}
+DIFF_SLOT = {"process": 0, "filament": 1}   # different_settings_to_system 의 칸 — 프로세스 · 필라멘트 · 프린터 순
+
+with zipfile.ZipFile(source) as archive:
+    project = json.loads(archive.read("Metadata/project_settings.config"))
+    baked = 0
+    for preset_path in preset_paths:
+        with open(preset_path, encoding="utf-8") as preset_file:
+            preset = json.load(preset_file)
+        kind = preset.get("type")
+        if kind not in DIFF_SLOT:
+            sys.exit(f"FAIL: {preset_path} 의 type={kind!r} — process 또는 filament 만 박는다")
+        if kind == "process":
+            project["print_settings_id"] = preset["name"]
+        else:
+            project["filament_settings_id"] = [preset["name"]] * len(project.get("filament_settings_id") or [None])
+        keys = [key for key in preset if not key.startswith("_") and key not in META]
+        for key in keys:
+            if key not in project:
+                sys.exit(f"FAIL: {key} 가 프로젝트 설정에 없다 — 이 슬라이서가 모르는 키일 수 있다")
+            value = preset[key][0] if isinstance(preset[key], list) else preset[key]
+            project[key] = [value] * len(project[key]) if isinstance(project[key], list) else value   # 배열 길이는 프로젝트의 압출기 변형 수를 따른다
+        # 스튜디오가 설정 옆에 바뀐 값 표시를 할 때 읽는 칸이다
+        slots = project.get("different_settings_to_system")
+        if isinstance(slots, list) and len(slots) > DIFF_SLOT[kind]:
+            slot = DIFF_SLOT[kind]
+            slots[slot] = ";".join(sorted(set(filter(None, slots[slot].split(";"))) | set(keys)))
+        baked += len(keys)
+    with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as output:
+        for entry in archive.infolist():
+            if entry.filename == "Metadata/project_settings.config":
+                output.writestr(entry, json.dumps(project, indent=4).encode("utf-8"))
+            else:
+                output.writestr(entry, archive.read(entry.filename))
+print(f"OK {target}: 키 {baked} 개를 박았다. 출력 안 함 부품은 건드리지 않는다 — Phase 1.0 보고를 따른다")
+PY
+```
+
+(2) **보낸 뒤 G-code 로 대조한다.** 스튜디오가 자른 G-code 는
+`$(getconf DARWIN_USER_TEMP_DIR)/bamboo_model/<날짜>/<세션>/Metadata/.<번호>.0.gcode` 에 남는다. 세션마다 폴더가 따로 생기고
+스튜디오를 닫아도 지워지지 않는다(실측 2026-09-19). `latest` 를 주면 가장 최근에 자른 것을 읽는다. `MISMATCH` 가 1 개라도 나오면 출력을 멈추고 값을 박은 3mf 부터 다시 연다.
+
+```bash
+python3 - latest "<process.json>" ["<filament.json>"] <<'PY'
+# 슬라이서가 실제로 쓴 설정(G-code 설정 기록 구간)을 생성한 설정 JSON 과 키마다 대조한다
+# usage: python3 - <G-code 경로 | latest> "<process.json>" ["<filament.json>"]
+#        latest — 뱀부 스튜디오가 가장 최근에 자른 G-code (세션마다 임시 폴더가 따로 생기고 닫아도 남는다)
+import sys, os, re, json, glob, subprocess
+
+gcode_path, *preset_paths = sys.argv[1:]
+META = {"type", "name", "version", "from", "inherits", "print_settings_id", "filament_settings_id",
+        "compatible_printers", "filament_extruder_variant", "instantiation", "setting_id"}
+
+if gcode_path == "latest":
+    temp_dir = subprocess.run(["getconf", "DARWIN_USER_TEMP_DIR"], capture_output=True, text=True).stdout.strip()
+    session_dirs = os.path.join(temp_dir, "bamboo_model", "*", "*", "Metadata")
+    found = glob.glob(os.path.join(session_dirs, "*.gcode")) + glob.glob(os.path.join(session_dirs, ".*.gcode"))   # 스튜디오가 점으로 시작하는 이름으로 쓴다
+    if not found:
+        sys.exit("FAIL: 스튜디오가 자른 G-code 가 임시 폴더에 없다 — 슬라이스한 뒤 스튜디오를 닫기 전에 돌려라")
+    gcode_path = max(found, key=os.path.getmtime)
+
+recorded, in_block = {}, False
+with open(gcode_path, errors="replace") as gcode:
+    for line in gcode:
+        if line.startswith("; CONFIG_BLOCK_START"):
+            in_block = True
+        elif line.startswith("; CONFIG_BLOCK_END"):
+            break
+        elif in_block:
+            match = re.match(r"^; (\w+) = (.*)$", line.rstrip("\n"))
+            if match:
+                recorded[match.group(1)] = match.group(2)
+if not recorded:
+    sys.exit(f"FAIL: {gcode_path} 에 설정 기록 구간이 없다")
+
+mismatches = []
+for preset_path in preset_paths:
+    with open(preset_path, encoding="utf-8") as preset_file:
+        preset = json.load(preset_file)
+    for key, value in preset.items():
+        if key.startswith("_") or key in META:
+            continue
+        expected = str(value[0] if isinstance(value, list) else value)
+        sent = recorded.get(key)
+        if sent is None or sent.split(",")[0].strip('"') != expected:
+            mismatches.append((key, expected, sent))
+
+print(f"G-code: {gcode_path}")
+for key, expected, sent in mismatches:
+    print(f"MISMATCH {key}: 설정 {expected!r} · 보낸 값 {sent!r}")
+print("RESULT:", f"FAIL {len(mismatches)} 개" if mismatches else "PASS")
+sys.exit(1 if mismatches else 0)
+PY
+```
+
+보내기 전에 명령줄로 잘라 같은 대조를 할 수도 있다 —
+`/Applications/BambuStudio.app/Contents/MacOS/BambuStudio --slice 1 --outputdir <빈 폴더> <3mf>` 가 `plate_1.gcode` 를 낸다.
+화면에서는 경고인 "감김 감지 구역에 너무 가깝다" 가 명령줄에서는 오류(`return_code -64`)로 멈추므로 비교용 사본의
+`enable_wrapping_detection` 을 `"0"` 으로 둔다. 비정상 종료하면 사용자 화면에 종료 창이 뜨니 돌리기 전에 알린다.
+
 ### Phase 5 — Coupon Test (v0.3.0 자동 생성)
 
 **자동 트리거 (이전: 사용자 명시 요청 시):**
@@ -1779,6 +1988,13 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-07-27 신규) Phase 1.8 Surface Intent Gate 통과** — 표면 우선 판정인데 `ironing_type` 이 `"no ironing"` 으로 남아있지 않은지. 기능 우선 판정이면 notes.md 에 "표면 마감 미적용" 을 명시했는지 (조용히 생략 금지).
 - ☐ **(2026-07-27 신규) Phase 4.3 검증 명령을 실제로 실행하고 출력을 응답에 붙였는지** — 체크리스트를 눈으로 훑은 것은 실행이 아니다. `RESULT: PASS` + exit 0 없이 완료 선언 금지.
 - ☐ **(2026-07-27 신규) 로컬 모델 형상을 태그 매칭이 아닌 XML 파서로 추출했는지** — `sed`/`grep` 태그 범위 매칭 금지, 지오메트리가 `3D/Objects/*.model` 에 있을 수 있음, **빈 출력은 PASS 아님** (Phase 1.0).
+- ☐ **(2026-09-19 신규) 제작자 3mf 의 `printable="0"` 부품을 보고했는지** — 슬라이서가 조용히 뺀다. Phase 1.0 3MF 추출이
+  경고 줄로 낸다. 조립에 필요한 개수와 대조하고, 켤지는 사용자가 정한다.
+- ☐ **(2026-09-19 신규) 구멍 · 빈 칸이 있는 부품은 형상 클래스와 무관하게 벽 예산을 쟀는지** — Phase 1.0 형상 측정을
+  `WALL_LOOPS` 와 함께 돌려 `_wall_budget_short_share` 를 기록한다. 10 % 이상인데 `classic` 이면 게이트가 FAIL 한다
+  (`surface-recipes.md` §2.8).
+- ☐ **(2026-09-19 신규) 제작자 3mf 로 출력하면 값을 박은 3mf 를 주고 보낸 G-code 로 대조했는지** — 3mf 를 연 뒤 설정을
+  바꾸면 제작자 값이 옮겨진다. 설정 파일로는 안 보인다 (Phase 4.4).
 - ☐ **(2026-08-13 신규) Phase 1.9 Failure-Mode Gate 통과** — L1/L2/L3 3 종을 각각 감지/없음으로 판정 보고했는지. 감지 0 건이면 "실패 모드 신호 없음" 을 명시했는지 (조용히 skip 금지). grep 매치를 **문장을 읽어** 확인했는지 (`실`·`1층` substring 오탐).
 - ☐ **(2026-08-13 신규) 금지 키 4 종이 생성 JSON 에 0 건인지** — `adaptive_layer_height`, `bed_temperature`, `bed_temperature_initial_layer`, `elephant_foot_compensation`. Phase 4.3 게이트가 dict 키 정확 일치로 검사한다.
 - ☐ **(2026-08-13 신규) Phase 3.0 Supportability Split 의 불가 항목을 notes.md §1.2.1 에 명시 보고했는지** — 특히 L1 adaptive layer height. 근사 구현으로 조용히 때우지 않았는지.
@@ -1858,6 +2074,7 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | Shower-box 부품 + Holster (2026-06~08 · 5 세션) | 미기록 | ⚠️ **실측 3 종 실패 반복 — "partially successful".** 곡면 계단현상 · voronoi stringing · 바닥 박리가 재출력마다 새로 노출됐고, 그 신호가 다음 프로파일 생성으로 **들어오는 경로가 없었다** (Phase 1.6 은 남의 댓글만 본다). → 2026-08-13 Phase 1.9 Failure-Mode Detector + Phase 3.0 Supportability Split + `failure-recipes.md` 신규. 출처: `/insights` 2026-08-13 (윈도 2026-06-12~08-12). 소재/plate/건조 상태는 리포트에 미기록이라 `[미확인]` — 재현 6 축 대조가 다음 케이스의 첫 단계다 |
 | Ferris Wheel (1186414, 608ZZ variant) | PLA Basic | ⚠️ v0.4.x 이전 회귀: 608ZZ 베어링 외경(22mm)/내경(8mm) fit 안 맞음 (사용자 보고 2026-05-27). → v0.4.2 Phase 1.7 fit-critical 분석 + tolerance.md §3.1 bearing 결정 트리 신규. **2026-07-27 정정**: v0.4.2 가 넣은 `+0.075`/`-0.075` 는 2× 규칙상 22.15mm/7.85mm 로 목표(22.10/7.90) 초과 — 축 fit 에 0.10mm 유격이 생겨 사용자 보고와 일치. 정정값 `+0.05`/`-0.05` (tolerance.md §7). 재출력 검증 대기. |
 | AMS 2 Pro Lattice Dry Pods (2026-09-07) | Bambu ABS | ⚠️ **surface-first 가 형상을 구분하지 않은 회귀.** Side Container(스트럿 단면, 루프 둘레 전부 < 30 mm)와 Funnel(루프 2 개)에 같은 외벽 `30` 이 들어감. 워크플로우 25 에이전트 진단: flow · PA · Z · 워핑 · 습기 배제, 원인은 속도값 + 냉각 문턱(`overhang_fan_threshold 25%` 미발동, 층시간이 `slow_down_layer_time 12` 를 주기 교차). → 2026-09-08 형상 클래스 축 `_geometry_class` (`surface-recipes.md` §2.7) + Phase 1.0 probe + Phase 4.3 스코프·클래스 검사 + `bambu-fields-baseline.md` §10.5. 실물 A/B(`overhang_fan_threshold 10%`)는 검증 대기. |
+| H2 AMS Flipper (1815860, 2026-09-19) | Bambu ABS | ⚠️ **첫 출력 2~3 층에서 모서리 · 둥근 경첩 구멍 둘레 덩어리와 구멍 안 실.** 원인 세 가지: (1) 10 개 전부 `planar` 인데 벽 4 겹 예산 3.54 mm 보다 좁은 둘레가 바닥 층 약 72 % → `classic` 갭필 253 m · 선폭 0.07~0.75 mm, (2) 제작자 3mf 에서 축 부품 1 개가 `printable="0"`, (3) 3mf 를 연 뒤 설정을 바꿔 제작자 값 3 개가 옮겨짐. `arachne` + 되감기 0.4→0.6 + 값을 박은 3mf 로 재출력 — 명령줄 재슬라이스 갭필 253 m → 0.4 m, 사용자 "이번엔 괜찮네". → 2026-09-19 Phase 1.0 printable 보고 · 벽 예산 측정, Phase 4.3 벽 예산 검사, Phase 4.4 값 섞임 방지. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
 
