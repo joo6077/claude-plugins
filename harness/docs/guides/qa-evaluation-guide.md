@@ -1036,6 +1036,13 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
      `N/A (IDE diagnostics 미적용 확장자: .md/.html)` 으로 기록한다
    - 대신 그 킷에 **실제로 성립하는 오라클**을 쓴다: `python3 scripts/validate-plugin.py <kit>` ·
      `commands.lint` · 문서 링크 검사. 어느 것도 없으면 계약 결함으로 Sprint Feedback 에 남긴다
+   - **명령은 있는데 이번 변경 파일을 재지 않으면** `DG-01` · `DG-03` 도 N/A 다 (2026-09-19 신규) — 예: `commands` 가
+     `scripts/release.sh` 만 재는데 스프린트가 그 파일을 건드리지 않았다. 측정: 명령 대상 경로와
+     `git diff --name-only <기준>...<브랜치>` 의 교집합 0 개
+   - `DG-04` 는 산출물에 구동할 앱 · 서버가 없으면 N/A 다 (설정 파일 · 문서 · 스크립트 조각). 측정: 변경 파일에 실행 진입점 0 개
+   - `RE-01` · `RE-02` 는 산출물에 재사용 단위 코드(컴포넌트 · 함수 · 모듈)가 없으면 N/A 다. 측정: 변경 파일이 설정 · 문서 · 데이터뿐
+   - 평가자는 사유를 **다시 잰다.** 사유가 거짓이면 FAIL(N/A 남용), 사실이면 N/A 로 따로 센다. 계약 작성 절차는
+     `harness/skills/sprint-contract/SKILL.md` Step 4 다
 3. **`[미검증]` 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.** 대상이
    없거나 미구현이거나 **의도적으로 실행하지 않았으면** 그것은 미검증이 아니라 **FAIL** 이다.
    나머지는 `UNVERIFIED_ENV`(구현자 통제 밖 도구·환경 부재 · 남용 방지 4 요건 충족) 와

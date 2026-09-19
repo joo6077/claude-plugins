@@ -805,6 +805,20 @@ done < "$DUPS"
 - [ ] DG-04: 실제 앱/서버 구동 시 에러 0개
 ```
 
+**적용 대상이 없는 자동 포함 조건** (2026-09-19 신규) — 조건을 지우지 않고 ID 를 유지한 채 본문을 `N/A (사유)` 로 쓴다.
+사유에는 그 사유를 재는 측정을 붙인다. 허용되는 경우와 판정 의미의 정본은 `harness/docs/guides/qa-evaluation-guide.md`
+§Canonical Unverified-Evidence Protocol 2 항, 작성 절차는 `harness/skills/sprint-contract/SKILL.md` Step 4 다.
+
+```markdown
+## Diagnostics
+- [ ] DG-01: N/A (commands.analyze 대상 scripts/release.sh 가 이번 변경 파일에 없다. 측정: git diff --name-only <기준>...<브랜치> | grep -c '^scripts/release.sh$' 이 0)
+- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ([] 제외)
+- [ ] DG-03: N/A (commands.test 대상도 같은 파일이라 이번 변경 파일에 없다. 측정: DG-01 과 같은 명령)
+- [ ] DG-04: N/A (산출물이 설정 파일 · 문서뿐이라 구동할 앱이 없다. 측정: 변경 파일에 실행 진입점 0 개)
+```
+
+N/A 줄도 조건 줄이다 — §조건 수 계산과 §계약 봉인에 그대로 들어간다.
+
 ## Amendment 사이드카 (v5 추가)
 
 스프린트 도중 사용자와 합의해 조건을 바꿨다면 **계약 본문을 건드리지 말고** 사이드카 파일에 쓴다.
