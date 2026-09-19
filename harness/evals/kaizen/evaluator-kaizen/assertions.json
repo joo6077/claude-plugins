@@ -1,11 +1,15 @@
 {
   "l3-miss": [
-    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "L3.*강제|L3.*필수|must.*reach.*L3"}
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "기본값은 L3|L3 ?까지 도달"}
   ],
   "false-approve": [
     {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "증거.*없.*PASS|evidence.*missing"}
   ],
   "reject-loop": [
     {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "동의어|synonym|리터럴.*의미|literal.*semantic"}
+  ],
+  "vacuous-zero": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "양성 대조"},
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "Agent\\(general-purpose\\)"}
   ]
 }

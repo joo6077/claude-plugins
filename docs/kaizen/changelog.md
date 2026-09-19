@@ -1,8 +1,31 @@
 ---
 title: Kaizen Changelog
 version: 1.6.0
-last_updated: 2026-08-13
+last_updated: 2026-09-19
 ---
+
+## [2026-09-19] — evaluator-kaizen (수동) — 0 건 측정의 양성 대조 · 7단계 교차 진단
+
+### 트리거
+
+사용자 요청("qa 카이젠 함 돌리자"). 같은 날 qa-evaluator 가 기록 형식에 없는 문자열을 세는 0 건 검사를 통과시킨 실측 결함과,
+글로벌 피드백 60건 중 34건의 "교차 진단 못 함" 보고.
+
+### 변경
+
+- `harness/agents/qa-evaluator.md` — 규칙 10 에 0 이 기대값인 측정의 양성 대조 절차(명령 성공 · 대상 수 · 알려진 나쁜 예,
+  죽은 측정은 대체 측정 또는 `[미검증:INVALID]`, 죽은 금지 패턴은 N/A + 계약 결함). Step 3.5 (e) · 결과 서식 `양성 대조` 줄.
+  `tools` 에 `Agent(general-purpose)` 를 넣고 7단계를 실제로 도는 절차로 교체(7단계에서만 사용 · 계약 검토 호출이면 건너뜀 ·
+  못 띄우면 `none`)
+- `harness/docs/guides/qa-evaluation-guide.md` — §0 매치 판정 규칙 확장(새 절을 만들지 않음) · §교차 진단 프로토콜 정정 ·
+  대응 표 15번 행(계약·에이전트 설계 쪽 DEFERRED)
+- `harness/references/feedback-schema.yaml` — `cross_diagnosis_by` 에 `none`
+- `harness/evals/kaizen/evaluator-kaizen/` — `vacuous-zero` 준비물 · 검사 2개
+
+### 검증
+
+- 적용 전 초안을 옛 평가자로 검토 — 1차 보류(괄호 허용 목록 오해 · 불안정한 인용), 2차 적용 권고
+- 행동 시험: 공허한 0 · 오류를 삼킨 측정을 심은 준비물 계약을 새 평가자와 옛 평가자로 각각 판정 (결과는 스프린트 결과 파일)
 
 ## [2026-08-13] — 사실 정정 사이클 (14/14 CHANGED)
 

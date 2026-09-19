@@ -1,10 +1,46 @@
 ---
 title: Kaizen Research Log
 version: 1.5.0
-last_updated: 2026-08-13
+last_updated: 2026-09-19
 ---
 
 # Kaizen Research Log
+
+## [2026-09-19] — evaluator-kaizen (수동) — 0 건 측정의 양성 대조 · 7단계 교차 진단 실행 경로
+
+### 데이터 소스 (Triage)
+
+- **실측 결함 1건** — 같은 날 `qa-pending-stop-hook` 스프린트에서 qa-evaluator 가 DG-04("세션 기록에 `hook error` 0건")를
+  통과시켰다. 그 문자열은 세션 기록 형식에 없어 항상 0 이었다. 뒤이은 계약 교차 진단이 사후에 잡았다.
+- **글로벌 evaluator 피드백 420건** — 최근 10건 APPROVE 8 · REJECT 2(80%), 최근 30건 18 · 12.
+  이번 개선은 기준을 조이는 방향이라 편향 점검(APPROVE 90% 초과 시 완화 금지)에 걸리지 않는다.
+- **최근 60건 중 34건이 "교차 진단 못 함"** 을 적었다. 그런데 `cross_diagnosis_by` 는 44건이 `sprint-contract` 였다 —
+  하지 않은 교차 진단을 한 것처럼 적은 기록이 섞였다. 값은 7종으로 흩어졌다.
+- L3 샘플링 태그: 최근 10건 중 0건. 샘플링을 전수라고 주장한 흔적은 찾지 못했다.
+
+### 외부 리서치 출처 (Codex 조사 `r2` · `r3`, 인용 주소는 curl 200 재확인)
+
+- 빈 검사 판별: [GNU grep Exit Status](https://www.gnu.org/software/grep/manual/grep.html) (매치 없음 1 · 오류 2) ·
+  [pytest exit codes](https://docs.pytest.org/en/stable/reference/exit-codes.html) (수집 0 건 = 5) ·
+  [Xu & Wu 2026, arXiv 2607.28871](https://arxiv.org/abs/2607.28871) (통과 증거 46.0% 가 버그를 구별 못 함) ·
+  [Zhang et al. 2026, arXiv 2606.11686](https://arxiv.org/abs/2606.11686) (반응 없는 검사에 점수를 주지 않음)
+- 서브에이전트 중첩: [Create custom subagents](https://code.claude.com/docs/en/sub-agents) — 기본 3층까지 스폰 가능(v2.1.219+),
+  `tools` 에서 `Agent` 를 빼면 막힌다. **`Agent(agent_type)` 허용 목록은 `claude --agent` 메인 스레드에만 적용되고
+  서브에이전트 정의에서는 괄호 안이 무시된다.**
+- EICAR 시험 파일 페이지는 조사 중 한때 503 · 타임아웃이 나서 인용에서 뺐다.
+
+### 조회로 정정된 사실
+
+- qa-evaluator 7단계는 첫 커밋부터 도구 목록(`Read, Grep, Glob, Bash`)으로는 실행할 수 없는 절차였다. 2026-08-13
+  Phase 1 에서 agent-design-guide 는 "중첩 허용" 으로 정정됐지만 이 에이전트에는 반영되지 않았다.
+- agent-design-guide 247~262줄은 `Agent(agent_type)` 를 서브에이전트 정의에도 먹히는 화이트리스트처럼 적었다 —
+  공식 문서와 다르다 (적용 전 초안 검토에서 옛 평가자가 원문으로 잡음).
+
+### DEFERRED
+
+- agent-design-guide 의 `Agent(agent_type)` 서브에이전트 예외 명시 · skill-design-guide 마스터 대응 표 15번 등록 → harness-kaizen
+- 계약 쪽 "0 기대 조건의 `양성 대조:` 절" → contract-kaizen (이어서 실행)
+- 운영 경로(설치본 서브에이전트로 불린 평가자)의 7단계 실제 동작 → 배포 뒤 첫 QA 의 `cross_diagnosis_by` 로 확인
 
 ## [2026-08-13] — 사실 정정 사이클 (14/14 CHANGED)
 

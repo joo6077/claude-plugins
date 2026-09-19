@@ -43,7 +43,9 @@ schema_version: 1
 #     #   evidence_missing: bool
 #     #   contract_misinterpret: bool
 #     #   perspective_gap: bool
-#   cross_diagnosis_by: enum [sprint-contract, qa-evaluator]
+#   cross_diagnosis_by: enum [sprint-contract, qa-evaluator, none]
+#     교차 진단을 실제로 못 했으면 none — 사유와 오류 출력을 cross_diagnosis_notes 에 적는다
+#     (2026-09 이전 기록에는 unavailable · null 같은 비표준 값이 섞여 있다)
 #   cross_diagnosis_notes: string
 #   improvement_suggestions: list[string]
 

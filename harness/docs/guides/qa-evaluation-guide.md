@@ -967,6 +967,29 @@ Good: (a) 대상 파일 목록을 먼저 세고(예: 42 개) (b) 패턴이 유�
       (c) 그 위에서 0 매치 → PASS. 근거: "대상 42 파일 · 패턴 유효성 확인 · 매치 0"
 ```
 
+**양성 대조를 실행으로 남긴다 (2026-09 보강).** 위 "의도된 0" 판정은 평가자가 머리로 하면 다시 샌다 —
+실측: 세션 기록에 원래 나오지 않는 문자열 `hook error` 를 세는 조건이 항상 0 이었는데 평가자가
+통과시켰다. 0 이 기대값인 측정마다 세 가지를 실행 결과로 남긴다:
+
+1. **명령 성공** — "없음" 과 "실패" 는 종료 코드가 다르다. GNU grep 은 매치 없음 1 · 오류 2 이고
+   `-q` 는 오류가 있어도 매치가 하나면 0 을 낸다 ([GNU grep Exit Status](https://www.gnu.org/software/grep/manual/grep.html)).
+   pytest 는 수집 0 건을 성공이 아니라 종료 코드 5 로 낸다 ([pytest exit codes](https://docs.pytest.org/en/stable/reference/exit-codes.html)).
+   `2>/dev/null` · `|| true` · 파이프가 오류를 삼키면 그것을 빼고 다시 돌린다
+2. **대상 수** — 읽은 파일·줄·기록이 0 보다 크다
+3. **양성 대조** — 같은 측정이 알려진 나쁜 예에서 1 이상을 낸다. 출처 순서: 계약의 `양성 대조:` 절 →
+   같은 형식의 실제 기록 → 평가자가 만든 임시 사본
+
+대조가 0 이면 죽은 측정이다. 같은 의도를 재는 유효한 측정을 찾으면 그것으로 판정하고
+`측정-방식-불일치` 를 Improvement 로 남긴다. 못 찾으면 `[미검증:INVALID]`. 금지 패턴이 죽었으면
+`N/A (패턴 무력)` + 계약 결함 — 구현을 떨어뜨리지 않는다.
+
+> **왜 필요한가:** LLM 수리 에이전트의 통과 증거 3,730 건 중 46.0% 가 원래 버그를 구별하지 못했다
+> ([Xu & Wu 2026, arXiv 2607.28871](https://arxiv.org/abs/2607.28871)). 전체 점수가 거의 안 움직여도
+> 특정 영역 검사는 크게 무너질 수 있어, 반응하지 않은 검사에는 점수를 주지 않는 방식이 제안됐다
+> ([Zhang et al. 2026, arXiv 2606.11686](https://arxiv.org/abs/2606.11686)).
+> §Discriminating Evidence Gate(규칙 12)와의 차이: 그쪽은 9 항 대상에서 **테스트 통과**가 구현을
+> 재는지(변이)를 보고, 이 절은 모든 조건에서 **0 이 기대값인 측정**이 살아 있는지(양성 대조)를 본다.
+
 ### 렌더 산출물 특칙 (Friction #2 직결)
 
 UI·문서·차트처럼 렌더 결과를 캡처할 수 있는 산출물은 캡처를 증거로 쓰되:
@@ -1618,12 +1641,16 @@ qa-evaluator 실행 완료 후 다음 항목을 자가 점검한다:
 
 ### 교차 진단 프로토콜
 
-qa-evaluator 실행 후 Agent tool로 sprint-contract 서브에이전트를 호출한다.
+qa-evaluator 는 판정 뒤 `general-purpose` 서브에이전트 1 개를 띄워 계약 작성자 관점으로 판정을
+되짚게 한다. 에이전트 `tools` 에 `Agent(general-purpose)` 를 적었지만 괄호 안 제한은 서브에이전트로 불릴 때
+무시되므로, 7단계 지시("Agent 도구는 7단계에서만")가 유일한 범위 제한이다. 서브에이전트의 중첩 스폰은
+기본 3 층까지 허용된다 ([Create custom subagents](https://code.claude.com/docs/en/sub-agents)).
 
-- **전달 내용**: 평가 판정 결과 (출력만)
+- **전달 내용**: 계약 경로 + 평가 판정 결과 (출력만)
 - **미전달**: 평가 과정의 추론, 중간 메모
-- **핵심 질문**: "계약 조건의 원래 의도를 정확히 해석했는가?"
-- **결과**: 피드백 YAML의 `cross_diagnosis` 필드에 기록
+- **핵심 질문**: "계약 조건의 원래 의도를 정확히 해석했는가?" · "0 건을 근거로 한 PASS 중 공허한 통과가 있는가?"
+- **결과**: 피드백 YAML 의 `cross_diagnosis_notes` 에 기록. 띄우지 못하면 `cross_diagnosis_by: none` + 사유 — 하지 않은 교차 진단을 한 것처럼 적지 않는다
+- **건너뛰기**: 계약 문서 자체를 검토하는 호출(sprint-contract 스킬 Step 8 이 평가자를 부르는 경우)에서는 하지 않는다
 
 > **Human-in-the-loop rubric refinement 연결**: 계약 조건의 해석 차이가 발견되면 evaluator 는 **계약 수정 권장**을 Sprint Feedback 에 명시한다 — 단, 실제 수정은 사용자 권한이다. 이는 [arxiv 2511.10865](https://arxiv.org/abs/2511.10865) 의 "one-time rubric refinement" 패턴과 동일하다: LLM 이 1 차 평가 → 해석 충돌 발견 시 rubric 개선 제안 → 사용자가 승인·수정 → 이후 평가는 refined rubric 기준. evaluator 가 계약을 무단으로 재해석하거나 "의도를 미루어" PASS 처리하지 않는다.
 
@@ -1722,7 +1749,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 - 동급: `harness/references/contract-schema.md`
 - 하위: `harness/agents/qa-evaluator.md`, `*-kit/agents/*-reviewer.md`
 
-### Parity Table (8 개 parity item — 행 수는 계산값이다. 손으로 세지 마라)
+### Parity Table (9 개 parity item — 행 수는 계산값이다. 손으로 세지 마라)
 
 | # | Parity Item | skill-design-guide | agent-design-guide | contract-design-guide | **qa-evaluation-guide (이 가이드)** |
 | --- | ------------- | ------------------- | ------------------- | ---------------------- | ------------------------------------- |
@@ -1734,6 +1761,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 | 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (정의 · 승급 규칙 — **SSOT**) | §6 패턴 7 (훅 = E3 게이트) | §원칙별 Enforcement 등급 | **§원칙별 Enforcement 등급 (평가자 원칙 현재 등급표)** |
 | 12 | Counterpart Enumeration | §5.5 (편집 전 양면 열거) | — | §양면 조건 — Counterpart Conditions | **대응 절 없음 (의도된 설계 — 아래 참조)** |
 | 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — `REOPENED`) | 계약 측 착지 없음 (평가 레이어 소관) | **§Canonical User-Reported Failure Protocol** |
+| 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | — (생성 측 짝 없음) | DEFERRED — §4 "읽기만 하는 리뷰어는 Agent 를 뺀다" 에 qa-evaluator 7단계 예외 명시 (harness-kaizen) | DEFERRED — 0 기대 조건의 `양성 대조:` 절 작성 의무 (contract-kaizen) | **§0 매치 판정 규칙 (2026-09 보강)** |
 
 > **item 14 — 2026-08 사이클 신규.** 계약 측에는 착지가 없다 (contract-design-guide 가 명시:
 > `REOPENED` 는 완료 판정 시점의 상태 전이라 계약 작성 시점에 대응 아티팩트가 없어 §증거 아티팩트
