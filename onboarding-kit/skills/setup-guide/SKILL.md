@@ -52,7 +52,7 @@ fetch 가 끝까지 실패한 항목은 조용히 넘기지 말고 마커 + 사�
 # 사용: guide_gate <가이드.md> <스택>     예) guide_gate docs/setup/firebase/fcm-ios.md flutter
 #       스택은 필수다 — 비우면 G3 가 FAIL 한다 (판정 불가를 PASS 로 흘리지 않는다)
 guide_gate() {
-  g=$1; stack=${2:-}
+  g=${1}; stack=${2:-}
   [ -f "$g" ] || { echo "GATE_BLOCKED no_such_file=$g"; return 0; }
   fence=$(printf '\140\140\140')   # 백틱 3 개 — 문서 렌더링 보호를 위해 8 진수로 생성
   fail=0
@@ -98,8 +98,8 @@ guide_gate() {
   g4=$(awk '
     function flush(){ if (st != "" && dep && src !~ /[Dd]eprecat|[Ss]unset|[Rr]emoved|지원 ?종료|폐지|중단|서비스 종료|단종/) print ln }
     /^## /           { flush(); st=""; src=""; dep=0 }
-    /^## Step /      { st=$0; ln=FNR }
-    /^\*\*출처:\*\*/ { src=$0 }
+    /^## Step /      { st=$(0); ln=FNR }
+    /^\*\*출처:\*\*/ { src=$(0) }
     /❌ Deprecated/  { dep=1 }
     END              { flush() }
   ' "$g" | grep -c . || true)

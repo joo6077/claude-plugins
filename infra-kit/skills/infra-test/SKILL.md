@@ -220,7 +220,7 @@ PIN_ALLOW_FIRST_PARTY_TAGS="${PIN_ALLOW_FIRST_PARTY_TAGS:-0}"
 CORE_TOOLS="grep"          # 없으면 검사 자체가 불가 → EXECUTION_ERROR
 OPTIONAL_TOOLS="python3"   # 없으면 해당 rule 만 [미검증]
 
-have() { command -v "$1" >/dev/null 2>&1; }
+have() { command -v "${1}" >/dev/null 2>&1; }
 # 외부 명령에 의존하지 않고 공백 구분 토큰 수를 센다 — 머리말은 도구가 없는 환경에서도 찍혀야 한다
 # shellcheck disable=SC2086  # 의도적 단어 분리
 count() { set -- ${1:-}; echo "$#"; }
@@ -262,7 +262,7 @@ done
 # 규칙 2: 원격 action 핀닝 — YAML 파서로 jobs.*.uses 와 jobs.*.steps[].uses 를 **둘 다** 열거한다.
 # grep 은 로컬 `./` · `docker://` · 잡 레벨 재사용 워크플로를 구분하지 못해 오탐/누락을 낸다.
 if ! have python3; then
-  echo "[미검증] TOOL_OR_ENV_MISSING: python3 미설치 — 핀닝 rule 미검사 (재검증: python3 설치 후 bash $0)"
+  echo "[미검증] TOOL_OR_ENV_MISSING: python3 미설치 — 핀닝 rule 미검사 (재검증: python3 설치 후 bash ${0})"
   unverified=$((unverified + 1))
 else
   set +e

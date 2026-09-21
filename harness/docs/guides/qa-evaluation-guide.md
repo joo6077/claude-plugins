@@ -1761,7 +1761,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 | 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (정의 · 승급 규칙 — **SSOT**) | §6 패턴 7 (훅 = E3 게이트) | §원칙별 Enforcement 등급 | **§원칙별 Enforcement 등급 (평가자 원칙 현재 등급표)** |
 | 12 | Counterpart Enumeration | §5.5 (편집 전 양면 열거) | — | §양면 조건 — Counterpart Conditions | **대응 절 없음 (의도된 설계 — 아래 참조)** |
 | 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — `REOPENED`) | 계약 측 착지 없음 (평가 레이어 소관) | **§Canonical User-Reported Failure Protocol** |
-| 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | — (생성 측 짝 없음) | DEFERRED — §4 "읽기만 하는 리뷰어는 Agent 를 뺀다" 에 qa-evaluator 7단계 예외 명시 (harness-kaizen) | DEFERRED — 0 기대 조건의 `양성 대조:` 절 작성 의무 (contract-kaizen) | **§0 매치 판정 규칙 (2026-09 보강)** |
+| 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | — (생성 측 짝 없음) | DEFERRED — §4 "읽기만 하는 리뷰어는 Agent 를 뺀다" 에 qa-evaluator 7단계 예외 명시 (harness-kaizen) | `contract-design-guide.md` §0 이 기대값인 조건 — 양성 대조 없이 잠그지 마라 (포맷은 `contract-schema.md` §양성 대조) | **§0 매치 판정 규칙 (2026-09 보강)** |
 
 > **item 14 — 2026-08 사이클 신규.** 계약 측에는 착지가 없다 (contract-design-guide 가 명시:
 > `REOPENED` 는 완료 판정 시점의 상태 전이라 계약 작성 시점에 대응 아티팩트가 없어 §증거 아티팩트

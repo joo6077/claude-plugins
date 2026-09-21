@@ -154,7 +154,7 @@ impl UserRepository for PgUserRepository {
     async fn find_by_id(&self, id: i64) -> Result<Option<User>, DomainError> {
         let user = sqlx::query_as!(
             User,
-            r#"SELECT id, name, email, created_at FROM users WHERE id = $1"#,
+            r#"SELECT id, name, email, created_at FROM users WHERE id = \$1"#,
             id
         )
         .fetch_optional(&self.pool)
@@ -179,7 +179,7 @@ impl UserRepository for PgUserRepository {
             User,
             r#"
             INSERT INTO users (name, email)
-            VALUES ($1, $2)
+            VALUES (\$1, \$2)
             RETURNING id, name, email, created_at
             "#,
             name,
@@ -195,8 +195,8 @@ impl UserRepository for PgUserRepository {
         let user = sqlx::query_as!(
             User,
             r#"
-            UPDATE users SET name = $2
-            WHERE id = $1
+            UPDATE users SET name = \$2
+            WHERE id = \$1
             RETURNING id, name, email, created_at
             "#,
             id,
@@ -209,7 +209,7 @@ impl UserRepository for PgUserRepository {
     }
 
     async fn delete(&self, id: i64) -> Result<(), DomainError> {
-        sqlx::query!(r#"DELETE FROM users WHERE id = $1"#, id)
+        sqlx::query!(r#"DELETE FROM users WHERE id = \$1"#, id)
             .execute(&self.pool)
             .await
             .map_err(DomainError::from)?;

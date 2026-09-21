@@ -1,10 +1,42 @@
 ---
 title: Kaizen Research Log
 version: 1.5.0
-last_updated: 2026-09-19
+last_updated: 2026-09-21
 ---
 
 # Kaizen Research Log
+
+## [2026-09-21] — contract-kaizen (수동) — 인자 치환 안전 · N/A 경로 · 봉인 전 교차 진단 · 양성 대조
+
+### 데이터 소스 (Triage)
+
+- **실측 결함 (A)** — 스킬 본문의 `$` + 숫자가 호출 인자로 치환된다 (공식: https://code.claude.com/docs/en/skills).
+  `sprint-contract` 를 인자와 함께 부른 3 회 모두 `read_fm` 의 awk 와 6.5 게이트 스니펫이 깨진 채 로드됐고
+  (`fm && 전역 ~ k`), 인자 없이 부른 4 번째 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳.
+- **계약 피드백 최근 10 건 (B)** — 교차 진단 메모에 `RE-01` 5 · `RE-02` 4 · `DG-03` 4 · `AP-01` 3 회가
+  "아무것도 재지 않는 조건" 으로 지적됐다. 자기진단 `untestable_conditions: true` 가 10 건 중 8 건.
+- **(D)** `l3-miss` 회귀 검사는 2026-03-31 생성 이후 대상 파일 21 판 전부에서 0 건이었다. contract-kaizen
+  회귀 시험에도 죽은 검사가 2 개 더 있었다 (`ambiguous-conditions` 의 SKILL.md 검사 · `category-bias`).
+
+### 조회로 정정된 사실
+
+- `$N` 은 **그 자리에 인자가 있을 때만** 치환된다 — 인자 없는 호출이 멀쩡했던 이유. 이스케이프는 역슬래시
+  하나(`\$1`)이고, `$` 뒤가 숫자가 아니면 치환 대상이 아니다.
+- **`$(0)` 은 awk 전용이다.** 순수 bash 에서는 명령 치환이라 `0: command not found` 로 깨진다 (실행 확인).
+  초안 v1 은 5 개 킷을 한 규칙으로 묶었는데, 봉인 전 교차 진단이 `infra-test:265`(순수 bash)를 잡아냈다.
+
+### 기계 검출기 보류 (실측 근거)
+
+0 이 기대값인 조건을 자동 경보하는 검출기 3 변종을 이 레포 계약 **56 개**에 돌렸다 — 나이브 54/56 계약,
+"대조" 절 제외형 53/56 (경보 259 건), `grep -c` 한정형 29/56 (경보 52 건)인데 셋째는 정작 동기가 된 조건
+(`hook error` 0 건)을 놓쳤다. 전건 경보이거나 핵심을 놓치므로 **검출기 대신 작성 시점 패턴 + 평가자 규칙**으로 막는다.
+
+### DEFERRED
+
+- `8 카테고리 / V1~V8` 표기가 남은 문서 18 곳(각 킷 kaizen 스킬 · README · CLAUDE.md 등) → 이번 스프린트의
+  변경 허용 경로 16 개 밖이라 harness-kaizen 및 각 킷 카이젠으로 넘긴다
+- agent-design-guide 의 `Agent(agent_type)` 서브에이전트 예외 · skill-design-guide 마스터 대응 표 15 번 등록 → harness-kaizen
+- `save-feedback.sh` 가 워크트리에서 `CONTRACT_ROOT` 를 `PWD` 기준으로 잘못 계산 (이번 세션 2 회 관측) → harness-kaizen
 
 ## [2026-09-19] — evaluator-kaizen (수동) — 0 건 측정의 양성 대조 · 7단계 교차 진단 실행 경로
 

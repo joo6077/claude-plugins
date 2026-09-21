@@ -7,7 +7,7 @@ scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-
 
 # Claude Code 플러그인 검증 가이드
 
-> 릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하는 8-카테고리 검증 체계.
+> 릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하는 9-카테고리 검증 체계.
 
 **이 문서의 용도:** `scripts/validate-plugin.py` 의 각 체크가 무엇을, 왜, 어떻게 검증하는지 정의한다.
 새 킷을 추가하거나 기존 킷을 개선할 때 이 문서를 SSOT(Single Source of Truth)로 사용한다.
@@ -24,7 +24,7 @@ scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-
 - **placeholder 노출**: `TODO`, `TBD`, `FIXME` 가 사용자에게 그대로 보여진다.
 - **버전 불일치**: `plugin.json`의 버전과 `marketplace.json`의 description 태그가 달라 릴리스 추적이 깨진다.
 
-이 가이드는 위 문제를 자동으로 탐지하는 8가지 검증 카테고리(V1~V8)를 정의하고, 각 카테고리의 기준·방법·예외·FAIL 예시를 명시한다. 카이젠 주기마다 이 가이드를 기준으로 전체 킷을 점검하여 품질 저하를 방지한다.
+이 가이드는 위 문제를 자동으로 탐지하는 9가지 검증 카테고리(V1~V9)를 정의하고, 각 카테고리의 기준·방법·예외·FAIL 예시를 명시한다. 카이젠 주기마다 이 가이드를 기준으로 전체 킷을 점검하여 품질 저하를 방지한다.
 
 ---
 
@@ -61,7 +61,7 @@ python3 scripts/validate-plugin.py --fix
 
 ---
 
-## 3. 8가지 검증 카테고리
+## 3. 9가지 검증 카테고리
 
 ### V1 Frontmatter 무결성
 
@@ -420,6 +420,19 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 
 ---
 
+### V9 스킬 본문의 인자 치환 위험
+
+- **검사 이름**: `arg-substitution` (`--check=arg-substitution`)
+- **대상**: 각 킷의 `skills/*/SKILL.md`
+- **판정**: 이스케이프되지 않은 `$` + 숫자가 1 건이라도 있으면 FAIL. 파일:라인과 고치는 법을 함께 출력한다
+- **왜**: Claude Code 는 스킬 본문의 `$N` 을 `$ARGUMENTS[N]` 으로 치환한다 ([Skills — Available string substitutions](https://code.claude.com/docs/en/skills)). 인자와 함께 호출하면 본문 코드의 `$0` · `$1` 이 인자 낱말로 바뀌어 awk·셸 스니펫이 깨진 채 로드된다. 2026-09 실측: `sprint-contract` 를 인자와 함께 부른 3 회 모두 frontmatter reader 와 저장 검사 게이트 스니펫이 깨졌고(`fm && 전역 ~ k`), 인자 없이 부른 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳이 있었다
+- **고치는 법** (자리마다 다르다)
+  - awk 필드: `$(0)` · `$(2)` — awk 에서 괄호형은 같은 필드 참조다
+  - bash 위치 인자·스크립트 이름: `${1}` · `${0}` — **`$(0)` 을 순수 bash 에 쓰면 명령 치환이라 `0: command not found` 로 깨진다**
+  - SQL 자리표시자처럼 문법상 `$` + 숫자여야 하는 곳: 역슬래시 이스케이프. 로드 시 역슬래시가 제거되어 Claude 는 원래 형태를 본다
+- **`--fix` 없음**: awk 인지 bash 인지 판단이 필요해 자동 치환이 위험하다
+- **고친 뒤 실행으로 확인**: `$` + 숫자 0 건은 "형태만 바꾼 오류"(`$(1)` 을 bash 에 쓴 경우)를 못 잡는다. 고친 함수를 실제로 한 번 실행해 같은 결과가 나오는지 본다
+
 ## 4. 자동화 사용법
 
 ### CLI 옵션
@@ -549,7 +562,7 @@ python3 scripts/validate-plugin.py <kit-name>
 
 | 결과 | 의미 | 처리 |
 | ------ | ------ | ------ |
-| **ERROR** (FAIL) | V1~V8 중 하나 이상 실패 | 카이젠 개선 우선순위 "높음"에 자동 편입. 이 세션에서 반드시 수정 |
+| **ERROR** (FAIL) | V1~V9 중 하나 이상 실패 | 카이젠 개선 우선순위 "높음"에 자동 편입. 이 세션에서 반드시 수정 |
 | **WARNING** | V4 trigger 키워드 중복 등 | 우선순위 "중간". description 보강으로 해소 권장 |
 | **PASS** | 모든 체크 통과 | 해당 카테고리 skip. 변경으로 FAIL 이 생기지 않도록 주의 |
 

@@ -1,8 +1,35 @@
 ---
 title: Kaizen Changelog
 version: 1.6.0
-last_updated: 2026-09-19
+last_updated: 2026-09-21
 ---
+
+## [2026-09-21] — contract-kaizen (수동) — 인자 치환 안전 · N/A 경로 · 봉인 전 교차 진단 · 양성 대조
+
+### 트리거
+
+사용자 요청("qa 카이젠 함 돌리자" → evaluator 다음 순서). 같은 세션에서 스킬 인자 치환으로 스니펫이 3 회 깨진
+실측과, 계약 피드백 최근 10 건의 빈 검사 지적(RE-01 5 · RE-02 4 · DG-03 4 · AP-01 3).
+
+### 변경
+
+- `harness/skills/sprint-contract/SKILL.md` — 스니펫 5 자리를 `${1}` · `$(0)` · `$(2)` 로, Gotchas 2 항목 추가
+  (인자 치환 · 기존 검사 선실행), Step 3·4 에 `N/A (사유)` 경로, 조건 패턴 4 종(양성 대조), 6.6 에 "봉인 전 7·8 단계",
+  Step 8 제목에 "(6.6 봉인 전에 실행)"
+- `harness/references/contract-schema.md` — §양성 대조 (0 기대 측정) 포맷 정의
+- `harness/docs/guides/contract-design-guide.md` — §0 이 기대값인 조건 원칙 절 (검출기 보류 근거 포함)
+- `harness/docs/guides/qa-evaluation-guide.md` — 대응 표 15 번 계약 칸을 DEFERRED 에서 실제 위치로
+- `scripts/validate-plugin.py` + `harness/docs/guides/plugin-validation-guide.md` — **V9 `arg-substitution`** 추가
+  (SKILL.md 의 이스케이프되지 않은 `$` + 숫자 = FAIL, `--fix` 없음)
+- 다른 킷 스킬 5 개 — 같은 위험 제거: rust-model 6 · rust-test 1 은 SQL 이라 역슬래시 이스케이프,
+  bambu-print-profile 3 · setup-guide 3 · infra-test 2 는 awk/bash 를 갈라 `$(N)` · `${N}`
+- `harness/evals/kaizen/contract-kaizen/` — 죽은 검사 2 개 교정(양쪽 대조 첨부) + `vacuous-boilerplate` 준비물
+
+### 검증
+
+- 봉인 **전** 교차 진단 2 회(옛 평가자) — 계약 조건 4 곳과 초안 C-10 을 고쳤다. `infra-test:265` 를 `$(0)` 으로
+  바꿨다면 실제로 깨졌을 것
+- 고친 스킬을 인자와 함께 실제 로드, 고친 셸 함수 실행 대조, V9 음성 대조, 회귀 시험 — 결과는 스프린트 결과 파일
 
 ## [2026-09-19] — evaluator-kaizen (수동) — 0 건 측정의 양성 대조 · 7단계 교차 진단
 

@@ -1,0 +1,27 @@
+schema_version: 1
+timestamp: "2026-09-21T09:20:00+09:00"
+project_hash: "test0010"
+project_name: "fixture-project-j"
+skill: sprint-contract
+skill_version: "0.9.1"
+outcome: completed
+contract:
+  condition_count: 21
+  category_count: 4
+  category_coverage: 0.75
+  anti_pattern_count: 2
+  complexity: medium
+diagnosis:
+  checklist:
+    ambiguous_conditions: false
+    missing_error_paths: false
+    untestable_conditions: true
+    category_coverage_gap: false
+    complexity_underestimate: false
+  cross_diagnosis_by: qa-evaluator
+  cross_diagnosis_notes: "대상이 레포 밖 셸 훅인데 project.yaml 금지 패턴 최소 2 개 규칙 때문에 AP-01(hardcoded.*version)·AP-03(코드펜스)을 넣었다 — 둘 다 변경 파일에 걸릴 수 없어 항상 0 이다. RE-01·RE-02 는 측정 절이 없고 DG-03 은 이 변경과 무관한 릴리스 스크립트를 실행한다. 0 이 기대값인 DG-04 는 기록 형식에 없는 문자열을 세어 항상 통과했다."
+  improvement_suggestions:
+    - "적용될 패턴이 없으면 N/A (사유) 로 적게 하고, 자동 포함 항목도 무관하면 N/A 를 허용할 것"
+    - "0 이 기대값인 조건에는 양성 대조 절을 요구하고 봉인 전에 실측하게 할 것"
+user_rating: bad
+user_comment: "빈 검사를 채우느라 시간만 쓰고 정작 공허한 0 은 통과했음"
