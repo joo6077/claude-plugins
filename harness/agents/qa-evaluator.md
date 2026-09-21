@@ -598,6 +598,13 @@ Grep 전에 **패턴의 스택과 대상 파일의 스택이 일치하는지** �
 - `commands.test` 실행 → 콘솔 에러 확인 (`diagnostics.console_errors` 패턴 매칭)
 - `diagnostics.console_exclude` 패턴은 제외
 
+**본문이 `N/A (사유)` 인 Reusability · Diagnostics 조건** (2026-09-19 신규):
+- 명령을 돌리지 않는다. 대신 괄호 안의 사유를 **잰다** — 사유에 적힌 측정 명령을 실행하거나 변경 파일 목록으로 확인한다
+- 사유가 사실이면 그 조건은 PASS · FAIL · `[미검증]` 어디에도 넣지 않고 N/A 로 따로 센다. 리포트 섹션 제목의
+  `{PASS}/{TOTAL}` 에서 TOTAL 에 넣지 않고 옆에 `N/A n` 을 적는다
+- 사유가 거짓이면(예: 명령이 재는 파일이 이번 변경에 실제로 들어 있다) **FAIL** 이다 — N/A 남용이다. 사유 없는 N/A 도 FAIL 이다
+- 판정 의미의 정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 2 항이다
+
 ### Step 3: 런타임 검증 (MCP 사용 가능 시)
 
 `project.yaml`의 `runtime_inspection` 섹션을 확인한다.

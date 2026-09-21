@@ -749,15 +749,14 @@ done < "$DUPS"
 
 #### 해당 없음 마커 — `N/A (사유)` (표기 정본)
 
-카테고리·금지 패턴·자동 포함 항목이 **이번 변경에 애초에 적용될 수 없을 때** 쓰는 표기다. 형식은
-`- [ ] {PREFIX}-00: N/A (사유)` 이며 **사유를 괄호에 반드시 적는다** — 무엇과 무엇이 어긋나서 적용
-불가인지(대상이 레포 밖 · 패턴 스택 불일치 · 명령이 이 변경의 산출물을 건드리지 않음)를 쓴다.
+형식은 `- [ ] {PREFIX}-00: N/A (사유)` 이며 **사유를 괄호에 반드시 적는다** — 무엇과 무엇이 어긋나서 적용
+불가인지를 쓰고, 그 사유를 재는 측정을 붙인다.
 
-- `[미검증]`(재지 못함)과 다르다. 두 마커의 경계는 `qa-evaluation-guide.md`
-  §Canonical Unverified-Evidence Protocol 이 SSOT 다
-- 억지로 채운 빈 검사보다 낫다 — 매치될 수 없는 패턴의 0 은 공허한 0 이라 PASS 근거가 아니며
-  평가자도 같은 판정을 한다 (`qa-evaluator.md` 규칙 10 · Anti-pattern 검증 절)
-- 쓰는 자리: sprint-contract Step 3(금지 패턴) · Step 4(자동 포함 항목) · Step 6(카테고리)
+- **자동 포함 조건**(Reusability · Diagnostics)에 쓰는 경우와 사유별 측정은 아래 §적용 대상이 없는 자동 포함 조건 에 있다
+- **금지 패턴**에도 같은 표기를 쓴다 — 변경 파일에 걸릴 수 있는 패턴이 하나도 없으면(대상이 레포 밖 · 스택 불일치)
+  억지로 2 개를 채우지 말고 `AP-00: N/A (사유)` 로 적는다. 매치될 수 없는 패턴의 0 은 공허한 0 이라
+  PASS 근거가 아니다 (`qa-evaluator.md` 규칙 10 · Anti-pattern 검증 절). 작성 절차는 SKILL.md Step 3
+- `[미검증]`(재지 못함)과 다르다 — 경계는 `qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 다
 
 #### 양성 대조 (Positive Control · 0 기대 측정 · v5.5 추가)
 
@@ -828,6 +827,20 @@ done < "$DUPS"
 - [ ] DG-03: {commands.test} 콘솔 로그에 에러/예외 0개
 - [ ] DG-04: 실제 앱/서버 구동 시 에러 0개
 ```
+
+**적용 대상이 없는 자동 포함 조건** (2026-09-19 신규) — 조건을 지우지 않고 ID 를 유지한 채 본문을 `N/A (사유)` 로 쓴다.
+사유에는 그 사유를 재는 측정을 붙인다. 허용되는 경우와 판정 의미의 정본은 `harness/docs/guides/qa-evaluation-guide.md`
+§Canonical Unverified-Evidence Protocol 2 항, 작성 절차는 `harness/skills/sprint-contract/SKILL.md` Step 4 다.
+
+```markdown
+## Diagnostics
+- [ ] DG-01: N/A (commands.analyze 대상 scripts/release.sh 가 이번 변경 파일에 없다. 측정: git diff --name-only <기준>...<브랜치> | grep -c '^scripts/release.sh$' 이 0)
+- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ([] 제외)
+- [ ] DG-03: N/A (commands.test 대상도 같은 파일이라 이번 변경 파일에 없다. 측정: DG-01 과 같은 명령)
+- [ ] DG-04: N/A (산출물이 설정 파일 · 문서뿐이라 구동할 앱이 없다. 측정: 변경 파일에 실행 진입점 0 개)
+```
+
+N/A 줄도 조건 줄이다 — §조건 수 계산과 §계약 봉인에 그대로 들어간다.
 
 ## Amendment 사이드카 (v5 추가)
 

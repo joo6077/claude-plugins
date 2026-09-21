@@ -41,6 +41,14 @@ sprint-contract가 project.yaml을 올바르게 읽고, 설정에 맞는 계약�
   - [ ] "새 화면 만들어줘" → 트리거됨 (always 목록)
   - [ ] 1파일 수정 예상 → 트리거 안 됨 (min_files: 2)
 
+#### HSB-CAP-06: 설정 · 문서 산출물 스프린트의 자동 포함 조건
+- Task: 이 레포(`commands` 가 `scripts/release.sh` 만 잰다)에서 "킷 references 문서와 설정 JSON 만 고친다" 는 계약 생성
+- Success Criteria:
+  - [ ] 자동 포함 조건(RE-01 ~ DG-04)을 지우지 않고 ID 를 유지한다
+  - [ ] 적용 대상이 없는 조건은 `N/A (사유)` 로 쓴다 — `DG-01` · `DG-03` · `DG-04` · `RE-01` · `RE-02`
+  - [ ] 각 사유에 측정 방법을 적는다 (예: 변경 파일과 `scripts/release.sh` 의 교집합 0 개)
+  - [ ] N/A 로 뺀 자리를 실제로 성립하는 오라클(`validate-plugin.py <kit>` 등) 조건으로 채운다
+
 ### Pressure Tests
 
 #### HSB-PRESS-01: config에 없는 패턴을 하드코딩
