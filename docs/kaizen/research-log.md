@@ -1,10 +1,78 @@
 ---
 title: Kaizen Research Log
 version: 1.5.0
-last_updated: 2026-08-13
+last_updated: 2026-09-21
 ---
 
 # Kaizen Research Log
+
+## [2026-09-21] — contract-kaizen (수동) — 인자 치환 안전 · N/A 경로 · 봉인 전 교차 진단 · 양성 대조
+
+### 데이터 소스 (Triage)
+
+- **실측 결함 (A)** — 스킬 본문의 `$` + 숫자가 호출 인자로 치환된다 (공식: https://code.claude.com/docs/en/skills).
+  `sprint-contract` 를 인자와 함께 부른 3 회 모두 `read_fm` 의 awk 와 6.5 게이트 스니펫이 깨진 채 로드됐고
+  (`fm && 전역 ~ k`), 인자 없이 부른 4 번째 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳.
+- **계약 피드백 최근 10 건 (B)** — 교차 진단 메모에 `RE-01` 5 · `RE-02` 4 · `DG-03` 4 · `AP-01` 3 회가
+  "아무것도 재지 않는 조건" 으로 지적됐다. 자기진단 `untestable_conditions: true` 가 10 건 중 8 건.
+- **(D)** `l3-miss` 회귀 검사는 2026-03-31 생성 이후 대상 파일 21 판 전부에서 0 건이었다. contract-kaizen
+  회귀 시험에도 죽은 검사가 2 개 더 있었다 (`ambiguous-conditions` 의 SKILL.md 검사 · `category-bias`).
+
+### 조회로 정정된 사실
+
+- `$N` 은 **그 자리에 인자가 있을 때만** 치환된다 — 인자 없는 호출이 멀쩡했던 이유. 이스케이프는 역슬래시
+  하나(`\$1`)이고, `$` 뒤가 숫자가 아니면 치환 대상이 아니다.
+- **`$(0)` 은 awk 전용이다.** 순수 bash 에서는 명령 치환이라 `0: command not found` 로 깨진다 (실행 확인).
+  초안 v1 은 5 개 킷을 한 규칙으로 묶었는데, 봉인 전 교차 진단이 `infra-test:265`(순수 bash)를 잡아냈다.
+
+### 기계 검출기 보류 (실측 근거)
+
+0 이 기대값인 조건을 자동 경보하는 검출기 3 변종을 이 레포 계약 **56 개**에 돌렸다 — 나이브 54/56 계약,
+"대조" 절 제외형 53/56 (경보 259 건), `grep -c` 한정형 29/56 (경보 52 건)인데 셋째는 정작 동기가 된 조건
+(`hook error` 0 건)을 놓쳤다. 전건 경보이거나 핵심을 놓치므로 **검출기 대신 작성 시점 패턴 + 평가자 규칙**으로 막는다.
+
+### DEFERRED
+
+- `8 카테고리 / V1~V8` 표기가 남은 문서 18 곳(각 킷 kaizen 스킬 · README · CLAUDE.md 등) → 이번 스프린트의
+  변경 허용 경로 16 개 밖이라 harness-kaizen 및 각 킷 카이젠으로 넘긴다
+- agent-design-guide 의 `Agent(agent_type)` 서브에이전트 예외 · skill-design-guide 마스터 대응 표 15 번 등록 → harness-kaizen
+- `save-feedback.sh` 가 워크트리에서 `CONTRACT_ROOT` 를 `PWD` 기준으로 잘못 계산 (이번 세션 2 회 관측) → harness-kaizen
+
+## [2026-09-19] — evaluator-kaizen (수동) — 0 건 측정의 양성 대조 · 7단계 교차 진단 실행 경로
+
+### 데이터 소스 (Triage)
+
+- **실측 결함 1건** — 같은 날 `qa-pending-stop-hook` 스프린트에서 qa-evaluator 가 DG-04("세션 기록에 `hook error` 0건")를
+  통과시켰다. 그 문자열은 세션 기록 형식에 없어 항상 0 이었다. 뒤이은 계약 교차 진단이 사후에 잡았다.
+- **글로벌 evaluator 피드백 420건** — 최근 10건 APPROVE 8 · REJECT 2(80%), 최근 30건 18 · 12.
+  이번 개선은 기준을 조이는 방향이라 편향 점검(APPROVE 90% 초과 시 완화 금지)에 걸리지 않는다.
+- **최근 60건 중 34건이 "교차 진단 못 함"** 을 적었다. 그런데 `cross_diagnosis_by` 는 44건이 `sprint-contract` 였다 —
+  하지 않은 교차 진단을 한 것처럼 적은 기록이 섞였다. 값은 7종으로 흩어졌다.
+- L3 샘플링 태그: 최근 10건 중 0건. 샘플링을 전수라고 주장한 흔적은 찾지 못했다.
+
+### 외부 리서치 출처 (Codex 조사 `r2` · `r3`, 인용 주소는 curl 200 재확인)
+
+- 빈 검사 판별: [GNU grep Exit Status](https://www.gnu.org/software/grep/manual/grep.html) (매치 없음 1 · 오류 2) ·
+  [pytest exit codes](https://docs.pytest.org/en/stable/reference/exit-codes.html) (수집 0 건 = 5) ·
+  [Xu & Wu 2026, arXiv 2607.28871](https://arxiv.org/abs/2607.28871) (통과 증거 46.0% 가 버그를 구별 못 함) ·
+  [Zhang et al. 2026, arXiv 2606.11686](https://arxiv.org/abs/2606.11686) (반응 없는 검사에 점수를 주지 않음)
+- 서브에이전트 중첩: [Create custom subagents](https://code.claude.com/docs/en/sub-agents) — 기본 3층까지 스폰 가능(v2.1.219+),
+  `tools` 에서 `Agent` 를 빼면 막힌다. **`Agent(agent_type)` 허용 목록은 `claude --agent` 메인 스레드에만 적용되고
+  서브에이전트 정의에서는 괄호 안이 무시된다.**
+- EICAR 시험 파일 페이지는 조사 중 한때 503 · 타임아웃이 나서 인용에서 뺐다.
+
+### 조회로 정정된 사실
+
+- qa-evaluator 7단계는 첫 커밋부터 도구 목록(`Read, Grep, Glob, Bash`)으로는 실행할 수 없는 절차였다. 2026-08-13
+  Phase 1 에서 agent-design-guide 는 "중첩 허용" 으로 정정됐지만 이 에이전트에는 반영되지 않았다.
+- agent-design-guide 247~262줄은 `Agent(agent_type)` 를 서브에이전트 정의에도 먹히는 화이트리스트처럼 적었다 —
+  공식 문서와 다르다 (적용 전 초안 검토에서 옛 평가자가 원문으로 잡음).
+
+### DEFERRED
+
+- agent-design-guide 의 `Agent(agent_type)` 서브에이전트 예외 명시 · skill-design-guide 마스터 대응 표 15번 등록 → harness-kaizen
+- 계약 쪽 "0 기대 조건의 `양성 대조:` 절" → contract-kaizen (이어서 실행)
+- 운영 경로(설치본 서브에이전트로 불린 평가자)의 7단계 실제 동작 → 배포 뒤 첫 QA 의 `cross_diagnosis_by` 로 확인
 
 ## [2026-08-13] — 사실 정정 사이클 (14/14 CHANGED)
 

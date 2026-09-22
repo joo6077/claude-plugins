@@ -1685,7 +1685,7 @@ PY
 GATE=$(mktemp -t gate)
 S=bambu-kit/skills/bambu-print-profile/SKILL.md
 A=$(grep -n '^TARGET_SLICER=.* python3 - ' "$S" | head -1 | cut -d: -f1)
-B=$(awk -v s="$A" 'NR>s && $0=="PY" {print NR; exit}' "$S")
+B=$(awk -v s="$A" 'NR>s && $(0)=="PY" {print NR; exit}' "$S")
 sed -n "$((A+1)),$((B-1))p" "$S" > "$GATE"
 export SKILL_DIR=bambu-kit/skills/bambu-print-profile
 FX=bambu-kit/evals/gate-fixtures
@@ -1698,8 +1698,8 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; ec
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
 drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
-  sed -E "s/^( *)errs\.append\(f\"$1 .*$/\1pass/" "$GATE" > "$GATE.$2"
-  diff "$GATE" "$GATE.$2" | grep -c '^>'
+  sed -E "s/^( *)errs\.append\(f\"${1} .*$/\1pass/" "$GATE" > "$GATE.${2}"
+  diff "$GATE" "$GATE.${2}" | grep -c '^>'
 }
 drop "모르는 키" unknown
 TARGET_SLICER=orca  python3 "$GATE.unknown" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"

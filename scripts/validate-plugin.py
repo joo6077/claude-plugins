@@ -93,7 +93,7 @@ class CheckResult:
     """단일 체크 결과."""
 
     def __init__(self, check_id: str, label: str):
-        self.check_id = check_id          # V1~V8
+        self.check_id = check_id          # V1~V9
         self.label = label                 # 사람이 읽을 이름
         self.status = "OK"                 # OK | WARN | FAIL | SKIP
         self.summary = ""                  # 요약 (예: "7 skills + 1 agent — OK")
@@ -715,6 +715,49 @@ def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
 
 
 # ---------------------------------------------------------------------------
+# V9 스킬 본문의 인자 치환 위험
+# V9 — see harness/docs/guides/plugin-validation-guide.md §3.9
+# ---------------------------------------------------------------------------
+
+
+def check_v9_arg_substitution(ctx: CheckContext) -> CheckResult:
+    """SKILL.md 본문의 이스케이프되지 않은 `$` + 숫자를 잡는다.
+
+    근거: Claude Code 는 스킬 본문의 `$N` 을 `$ARGUMENTS[N]` 으로 치환한다
+    (https://code.claude.com/docs/en/skills). 인자와 함께 호출하면 본문 코드의
+    `$0` · `$1` 이 인자 낱말로 바뀌어 awk·셸 스니펫이 깨진 채 로드된다. 2026-09
+    실측: sprint-contract 를 인자와 함께 부른 3 회 모두 frontmatter reader 와
+    저장 검사 게이트 스니펫이 깨졌고, 인자 없이 부른 회차만 멀쩡했다.
+
+    고치는 법은 자리에 따라 다르다 — awk 필드는 `$(0)`, bash 위치 인자·스크립트
+    이름은 `${1}` · `${0}`, SQL 자리표시자처럼 문법상 `$` + 숫자여야 하는 곳은
+    역슬래시 이스케이프(`\\$1`). `$(0)` 을 순수 bash 에 쓰면 명령 치환이 되어
+    깨지므로 --fix 는 제공하지 않는다.
+    """
+    result = CheckResult("V9", "arg-substitution")
+    failures: list[str] = []
+    skill_files = sorted(ctx.kit_path.glob("skills/*/SKILL.md"))
+
+    for path in skill_files:
+        for lineno, line in enumerate(ctx.read(path).splitlines(), start=1):
+            for match in re.finditer(r"(?<!\\)\$[0-9]", line):
+                rel = path.relative_to(REPO_ROOT)
+                failures.append(
+                    f"FAIL {rel}:{lineno} — {match.group(0)} 가 호출 인자로 치환된다 "
+                    f"(awk 필드는 $(N), bash 위치 인자·스크립트 이름은 ${{N}}, SQL 등은 역슬래시 이스케이프)"
+                )
+
+    if failures:
+        result.status = "FAIL"
+        result.summary = f"{len(failures)} arg-substitution hazard(s)"
+        result.details = failures
+    else:
+        result.status = "OK"
+        result.summary = f"{len(skill_files)} skills — OK"
+    return result
+
+
+# ---------------------------------------------------------------------------
 # CHECK_REGISTRY + validate_kit
 # ---------------------------------------------------------------------------
 
@@ -727,6 +770,7 @@ CHECK_REGISTRY: dict[str, Callable[[CheckContext], CheckResult]] = {
     "code-fence": check_v6_code_fence,
     "plugin-json": check_v7_plugin_json,
     "hook-exec": check_v8_hook_exec,
+    "arg-substitution": check_v9_arg_substitution,
 }
 
 
@@ -748,7 +792,7 @@ def print_human(results: list[PluginResult]) -> None:
     for pr in results:
         print(f"\n=== {pr.name} ===")
         for cr in pr.checks:
-            label = f"  {cr.check_id} {cr.label:<16}"
+            label = f"  {cr.check_id} {cr.label:<18}"
             print(f"{label}{cr.summary}")
             for detail in cr.details:
                 print(f"    {detail}")
@@ -789,7 +833,7 @@ def print_json_output(results: list[PluginResult]) -> None:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Claude Code 플러그인 8-카테고리 검증 도구",
+        description="Claude Code 플러그인 9-카테고리 검증 도구",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "체크 이름: frontmatter, templates, refs, triggers, "

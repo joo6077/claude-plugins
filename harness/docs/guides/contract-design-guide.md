@@ -746,6 +746,16 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
             [structural] (측정: 해당 파일 존재 + 시안 ID 1 건 이상)
 ```
 
+### 0 이 기대값인 조건 — 양성 대조 없이 잠그지 마라
+
+"위반 0 건" · "오류 0 건" 은 **검사가 살아 있을 때만** 의미가 있다. 실측 2026-09-19: 세션 기록에 원래 나타나지 않는 문자열을 세는 조건이 항상 0 이라 통과했고 평가자도 그대로 PASS 를 줬다. 같은 날 다른 계약에서는 대상 파일이 없어 명령 자체가 실패하는데 `2>/dev/null` 이 오류를 삼켜 0 처럼 보이는 조건이 있었다.
+
+도구 쪽 규약도 같은 구분을 한다 — GNU grep 은 매치 없음 1 · 오류 2 로 종료 코드를 가르고 ([GNU grep Exit Status](https://www.gnu.org/software/grep/manual/grep.html)), pytest 는 수집 0 건을 성공이 아니라 종료 코드 5 로 낸다 ([pytest exit codes](https://docs.pytest.org/en/stable/reference/exit-codes.html)). LLM 수리 에이전트 연구에서는 통과 증거 3,730 건 중 46.0% 가 원래 결함을 구별하지 못했다 ([Xu & Wu 2026](https://arxiv.org/abs/2607.28871)).
+
+**따라서 0 기대 조건에는 `양성 대조:` 절을 쓰고 봉인 전에 실측한다.** 포맷 정의는 `harness/references/contract-schema.md` §양성 대조 가 SSOT 이며 여기서 재정의하지 않는다. 평가자 쪽 대응 규칙은 `qa-evaluation-guide.md` §0 매치 판정 규칙 이다.
+
+**기계 자동 경보는 두지 않았다.** 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(`grep -c` 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 4 종)과 평가자 규칙으로 막는다.
+
 ### 계약 봉인 — Write-Once Seal (E3)
 
 > **출처:** 글로벌 REJECT `AR-04` 4 건 (fit-pal 2026-08-11) · improvement `[LG-02, LG-04]

@@ -20,3 +20,10 @@ contract_misinterpret가 반복될 때 기대하는 개선:
 
 - [ ] qa-evaluator.md에 리터럴/의미 해석 균형 기준이 추가되어야 한다
 - [ ] Gotchas에 "동의어 FAIL 판정 시 의미 동일성 한 번 더 확인" 추가되어야 한다
+
+## fixture: vacuous-zero
+
+APPROVE 뒤에 교차 진단(또는 사용자)이 "0 건을 근거로 한 PASS 가 공허했다" 를 지적하고, 평가자는 도구가 없어 교차 진단을 못 했다고 적는 패턴이 반복될 때 기대하는 개선:
+
+- [ ] qa-evaluator.md 규칙 10 에 0 이 기대값인 측정의 양성 대조 절차(명령 성공 · 대상 수 · 알려진 나쁜 예)가 추가되어야 한다
+- [ ] qa-evaluator.md 의 `tools` 에 7단계 교차 진단용 `Agent(general-purpose)` 가 있어야 하고, 7단계를 못 하면 `cross_diagnosis_by: none` 으로 적게 해야 한다

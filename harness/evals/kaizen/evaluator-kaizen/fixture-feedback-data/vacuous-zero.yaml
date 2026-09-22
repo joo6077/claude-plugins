@@ -1,0 +1,27 @@
+schema_version: 1
+timestamp: "2026-09-19T12:35:00+09:00"
+project_hash: "test0009"
+project_name: "fixture-project-i"
+skill: qa-evaluator
+skill_version: "0.9.1"
+outcome: completed
+evaluation:
+  verdict: APPROVE
+  conditions_total: 21
+  conditions_passed: 21
+  l3_coverage: 1.0
+  reject_reasons: []
+diagnosis:
+  checklist:
+    l3_unreached: false
+    bias_detected: true
+    evidence_missing: true
+    contract_misinterpret: false
+    perspective_gap: false
+  cross_diagnosis_by: none
+  cross_diagnosis_notes: "7단계 미수행 — 이 에이전트 도구 목록에 Agent 가 없어 서브에이전트를 띄울 수 없음. 사후 계약 검토에서 DG-04('세션 기록에 hook error 0건')가 기록 형식에 없는 문자열이라 항상 0 인 공허한 통과였음이 드러남"
+  improvement_suggestions:
+    - "0 이 기대값인 측정은 알려진 나쁜 예로 1 이상이 나오는지 양성 대조를 실행 결과로 남길 것"
+    - "교차 진단 단계가 실제로 돌 수 있게 도구 목록과 절차를 맞출 것"
+user_rating: bad
+user_comment: "빈 검사를 통과시켰고 교차 진단은 한 번도 안 돌았음"
