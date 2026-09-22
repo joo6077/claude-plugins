@@ -16,7 +16,7 @@ user-invocable: true
 2. **리서치 문서 기반만** — docs/backend/ 문서에 없는 원칙을 스킬에 추가하지 마라. 먼저 backend-research로 문서를 갱신하라.
 3. **스킬 범위 변경 금지** — 스킬의 description(트리거 조건)을 변경하려면 사용자 승인 필수.
 4. **scope 는 파일 수가 아니라 unit(관심사) 기준으로 센다** — "몇 개 파일을 고쳤나" 가 아니라 "몇 개의 독립된 관심사를 건드렸나" 로 판단하라. 한 관심사(예: Counterpart Enumeration 도입)를 위해 4 스킬 + 에이전트 + references 를 함께 고치는 것은 scope creep 이 아니라 sibling parity 준수다. 반대로 파일 2 개만 고쳐도 무관한 관심사 3 개를 섞었으면 scope creep 이다. 한 사이클에서 다루는 관심사는 **2~3 개**로 제한하고, 각 관심사마다 어떤 파일이 왜 포함됐는지 리포트에 적어라.
-5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py backend-kit`을 실행하여 **8 카테고리(V1~V8)** 상태를 확인하라. 회귀가 발생하면 즉시 수정한다.
+5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py backend-kit`을 실행하여 **9 카테고리(V1~V9)** 상태를 확인하라. 회귀가 발생하면 즉시 수정한다.
 6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 자동 로드 로직) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 backend-kit Phase 7 에서 Phase 5 디자인 반영 때 반복 드리프트 차단).
 
    | Sibling Group | 공통 원칙 검증 항목 |
@@ -79,7 +79,7 @@ kaizen(backend-kit): [개선 내용 요약]
 
 ## Step 6: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `scripts/validate-plugin.py backend-kit` 을 실행하여 8 카테고리(V1~V8) 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py backend-kit` 을 실행하여 9 카테고리(V1~V9) 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
@@ -90,5 +90,5 @@ kaizen(backend-kit): [개선 내용 요약]
 - backend-kit/skills/backend-system/SKILL.md
 - backend-kit/agents/backend-reviewer.md
 - docs/backend/ — 리서치 SSOT
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 8 카테고리(V1~V8) 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 9 카테고리(V1~V9) 기준 (SSOT)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구

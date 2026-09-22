@@ -65,7 +65,7 @@ python3 scripts/run-evals.py tone-kit --verbose
 python3 scripts/sync-docs.py --check-only
 ```
 
-`validate-plugin.py tone-kit` 은 **8 카테고리 V1~V8 전부 OK** 여야 한다 (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec).
+`validate-plugin.py tone-kit` 은 **9 카테고리 V1~V9 전부 OK** 여야 한다 (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec / V9 arg-substitution).
 
 description 을 고쳤으면 substring containment 를 수동 계산한다 — V4 는 set intersection 만 검사한다.
 
@@ -79,7 +79,7 @@ grep 패턴을 고쳤으면 bash·zsh 양쪽에서 실행하고 합성 양성 �
 | # | 축 | 변경 | 근거 |
 |---|---|---|---|
 
-회귀: V1~V8 OK · evals N/N PASS · 배타성 위반 0
+회귀: V1~V9 OK · evals N/N PASS · 배타성 위반 0
 다음 사이클 이월: ...
 ```
 

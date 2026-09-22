@@ -15,7 +15,7 @@ user-invocable: true
 2. **리서치 문서 기반만** — docs/infra/ 문서에 없는 원칙을 스킬에 추가하지 마라.
 3. **스킬 범위 변경 금지** — description 변경은 사용자 승인 필수.
 4. **scope-creep 은 파일 수가 아니라 unit(관심사) 수로 센다** — "스킬 4개 중 2개만" 같은 파일 개수 규칙은 무의미하다. 한 사이클에서 다루는 **독립 관심사(concern)** 를 1~2 개로 제한하라. 예: "canonical 프로토콜 정합화" 1 unit 은 reviewer + audit + test 3 파일에 걸쳐도 1 unit 이고, 반대로 한 파일 안에서 "Gotcha 추가 + Process 재구조화 + description 변경" 을 하면 3 unit 이다. 관심사가 3 개를 넘으면 다음 사이클로 미뤄라.
-5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py infra-kit`을 실행하여 **8 카테고리(V1 frontmatter · V2 templates · V3 refs · V4 triggers · V5 placeholders · V6 code-fence · V7 plugin-json · V8 hook-exec)** 상태를 확인하라. 회귀가 발생하면 즉시 수정한다.
+5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py infra-kit`을 실행하여 **9 카테고리(V1 frontmatter · V2 templates · V3 refs · V4 triggers · V5 placeholders · V6 code-fence · V7 plugin-json · V8 hook-exec · V9 arg-substitution)** 상태를 확인하라. 회귀가 발생하면 즉시 수정한다.
 6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 자동 로드 로직) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 infra-kit Phase 8 에서 backend-kit Phase 7 반영 때 반복 드리프트 차단).
 
    | Sibling Group | 공통 원칙 검증 항목 |
@@ -77,7 +77,7 @@ chore(kaizen-phase<N>): [개선 내용 요약]
 
 ## Step 6: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `scripts/validate-plugin.py infra-kit` 을 실행하여 8 카테고리(V1~V8) 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py infra-kit` 을 실행하여 9 카테고리(V1~V9) 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
@@ -92,7 +92,7 @@ chore(kaizen-phase<N>): [개선 내용 요약]
 - infra-kit/references/init-checklist.md — init 카테고리 체크리스트 SSOT
 - infra-kit/references/principle-index.md — 원칙 인덱스
 - docs/infra/ — 리서치 SSOT (platform / operations / security)
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 8 카테고리(V1~V8) 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 9 카테고리(V1~V9) 기준 (SSOT)
 - `harness/docs/guides/skill-design-guide.md` §3.7 — Completion Evidence Gate + Enforcement 등급 E1/E2/E3 (SSOT)
 - `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol — `[미검증]` 마커·임계값 정본 (SSOT)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구

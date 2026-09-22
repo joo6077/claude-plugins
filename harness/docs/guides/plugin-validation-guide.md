@@ -1,7 +1,7 @@
 ---
 title: Claude Code 플러그인 검증 가이드
-version: 1.1.0
-last_updated: 2026-06-11
+version: 1.2.0
+last_updated: 2026-09-21
 scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-kit"
 ---
 
@@ -592,7 +592,7 @@ python3 scripts/validate-plugin.py <kit-name>
 이 가이드는 다음 상황에서 갱신한다:
 
 - 새 킷 추가 시: §6 킷별 예외 카탈로그에 추가
-- 새 검증 카테고리 도입 시: V9~ 형식으로 §3 에 추가
+- 새 검증 카테고리 도입 시: V10~ 형식으로 §3 에 추가 (V9 까지는 이미 쓰였다)
 - 기존 체크 기준 변경 시: 해당 V-번호 섹션 수정 + `last_updated` 갱신
 - 통합 규칙 변경 시: §7.3 수정
 
@@ -606,8 +606,9 @@ python3 scripts/validate-plugin.py <kit-name>
 | ------ | ------ | ------ |
 | 2026-04-11 | 1.0.0 | 초기 작성 — V1~V7 카테고리, 7개 킷 예외 카탈로그, scripts/validate-plugin.py 구현 |
 | 2026-06-11 | 1.1.0 | V8 hook-exec 추가 — hooks.json 직접 실행 `.sh` 의 실행 비트(0755) 검증. reflect 30일 집계상 hook permission-denied 957건(전체 friction 38%)의 회귀 방지 가드 |
+| 2026-09-21 | 1.2.0 | V9 arg-substitution 추가 — 스킬 본문 코드의 `$` + 숫자가 호출 인자로 치환되어 awk·bash 스니펫이 깨지는 것을 막는다. 공식 규칙은 `$N` = `[N]` 이며, sprint-contract 를 인자와 함께 부른 3 회 모두 `read_fm` 의 awk 와 저장 검사 스니펫이 깨져 로드됐다 |
 
 다음 갱신 예정:
 
-- V9: 에이전트 파라미터 스키마 검증 (tools 목록이 실제 Claude 지원 도구인지)
-- V10: README ↔ SKILL.md 스킬 목록 정합성 (README 에 언급된 스킬이 실제 존재하는지)
+- V10: 에이전트 파라미터 스키마 검증 (tools 목록이 실제 Claude 지원 도구인지)
+- V11: README ↔ SKILL.md 스킬 목록 정합성 (README 에 언급된 스킬이 실제 존재하는지)
