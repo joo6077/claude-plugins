@@ -4,7 +4,7 @@ slug: validate-check-count-sync
 created: "2026-09-22 11:30"
 complexity: "중간"
 conditions: 17
-status: active
+status: done
 owner_session: f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0
 conditions_digest: sha256:b846c6001c1f0180
 locked_at: "2026-09-22 14:46"

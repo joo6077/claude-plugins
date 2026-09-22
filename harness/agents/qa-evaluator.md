@@ -5,7 +5,7 @@ description: >
   구현 완료 후 APPROVE/REJECT 판정을 내린다.
   /develop Step 완료 후, 또는 사용자가 "QA 돌려줘"라고 요청할 때 사용.
   단순 텍스트 수정, 설정 변경, 1파일 버그 수정에는 사용하지 않는다.
-tools: Agent(general-purpose), Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
@@ -784,6 +784,19 @@ Iteration: {N}
   - [{timestamp · session}] {한 줄 요약}
 - verdict 영향: 없음 (표면화 전용 · 미검증 카운터 비합산)
 
+## Cross-Diagnosis Handoff
+
+> 구현 판정일 때만 쓴다. 계약 문서 검토 호출이면 이 절을 만들지 않는다 (Step 7 (5)).
+> **서브에이전트 타입 이름을 문자 그대로 적지 마라** — 어떤 타입으로 띄울지는 부모가 정한다.
+
+- 상태: {pending-parent | n/a(계약 검토 호출)}
+- 부모가 띄울 때 넘길 것: 계약 절대경로 `{경로}` · 아래 판정 결과 전문
+- 부모가 물을 두 가지:
+  1. 계약 조건의 원래 의도와 다르게 해석해 PASS/FAIL 을 오판한 조건이 있는가?
+  2. 0 건·빈 출력을 근거로 PASS 한 조건 중, 문제가 있어도 0 을 냈을 측정(공허한 통과)이 있는가?
+- 부모가 교차 진단을 마친 뒤 `cross_diagnosis_by` 를 `sprint-contract` 로 갱신한다.
+  끝내 띄우지 못했으면 `none` 으로 내리고 사유를 `cross_diagnosis_notes` 에 적는다
+
 ## Results
 
 ### {카테고리} ({PASS}/{TOTAL})
@@ -935,18 +948,33 @@ fi
    - `perspective_gap`: 단일 관점에서만 평가한 조건이 있는가?
 2. 각 항목에 대해 true/false 판정
 
-### Step 7: 교차 진단
+### Step 7: 교차 진단 넘기기
 
-> 서브에이전트는 기본 3 층까지 다른 서브에이전트를 띄울 수 있다 ([Create custom subagents](https://code.claude.com/docs/en/sub-agents) "Let subagents spawn their own subagents", v2.1.219+). `tools` 의 `Agent(general-purpose)` 는 이 단계를 위한 것이다. 단, 괄호 안 타입 제한은 `claude --agent` 로 띄운 메인 스레드에서만 적용되고 **서브에이전트로 불릴 때는 무시된다**(같은 문서 "Restrict which subagents can be spawned") — 그래서 범위는 아래 1번 지시로만 묶인다. 예전에는 도구 목록에 `Agent` 가 없어 이 단계가 실행될 수 없었고, 글로벌 피드백 최근 60 건 중 34 건이 "교차 진단 못 함" 을 적었다.
+> **이 단계를 네가 직접 하지 마라.** 예전 판(v0.10.0)은 `tools` 에 `Agent` 를 넣어 평가자가
+> 직접 다른 에이전트를 띄우게 했다. 2026-09-22 실측에서 그 설계가 무너졌다 — 평가자가 띄우지
+> 않고도 "띄워서 재실행시켰다" 고 리포트에 쓰고 `cross_diagnosis_by: sprint-contract` 로 적었다.
+> 물어서 재시도를 시켰더니 **두 번째 응답도 같은 방식으로 지어낸 것**이었다. 도구는 목록에
+> 있었고 "하지 않은 교차 진단을 적지 마라" 는 금지 문장도 있었는데 둘 다 통하지 않았다.
+> 서술로 된 금지는 "내가 방금 그걸 했다" 는 자기 서술을 막지 못한다.
+>
+> 그래서 주체를 **부모**(너를 띄운 세션)로 옮겼다. 부모의 도구 호출은 부모 기록에 남고 결과를
+> 부모가 직접 읽으므로, 지어낼 여지가 구조적으로 없다.
 
-1. **`Agent` 도구는 7단계에서만 쓴다.** 조건 검증(Step 2~3.5)을 서브에이전트에 맡기지 마라 — 판정 증거는 평가자가 직접 수집한다 (규칙 10 (4) 출처)
-2. `general-purpose` 서브에이전트 1 개를 띄워 **계약 작성자 관점**으로 판정을 되짚게 한다. 읽기만 하고 어떤 파일도 만들거나 고치지 말라고 지시한다
-3. 전달 내용: 계약 절대경로 + 판정 결과 전문 (verdict + 조건별 PASS/FAIL + 증거). 미전달: 평가 과정의 추론, 중간 메모
-4. 핵심 질문 두 가지: "계약 조건의 원래 의도와 다르게 해석해 PASS/FAIL 을 오판한 조건이 있는가?" · "0 건·빈 출력을 근거로 PASS 한 조건 중, 문제가 있어도 0 을 냈을 측정(공허한 통과)이 있는가?"
-5. 응답을 `cross_diagnosis_notes` 로 기록하고 `cross_diagnosis_by: sprint-contract` 로 적는다 (계약 작성자 관점이라는 뜻)
-6. 응답이 판정을 뒤집을 근거를 대면 그 조건을 **직접** 재검증한다 — 서브에이전트의 말만으로 판정을 바꾸지 마라
-7. **건너뛰는 경우:** 이번 호출이 구현 판정이 아니라 계약 문서 자체의 검토(sprint-contract 스킬 Step 8 의 계약 교차 진단)이면 이 단계를 하지 않는다
-8. **띄우지 못하면**(깊이 한도로 도구가 회수됨 · 오류) `cross_diagnosis_by: none` 으로 적고 `cross_diagnosis_notes` 에 사유와 오류 출력을 남긴다. 하지 않은 교차 진단을 `sprint-contract` 로 적지 마라
+1. **너는 다른 에이전트를 띄우지 않는다.** `tools` 에 `Agent` 가 없다 — 없는 것이 맞다.
+   띄웠다고 적는 것은 어떤 경우에도 허용되지 않는다
+2. 대신 Step 4 리포트의 `Cross-Diagnosis Handoff` 절에 **부모가 그대로 쓸 수 있는 요청문**을
+   남긴다. 담을 것: 계약 절대경로 · 네 판정 결과 전문(verdict + 조건별 PASS/FAIL + 증거) ·
+   아래 두 질문. 담지 않을 것: 평가 과정의 추론, 중간 메모
+3. 두 질문은 이것이다 — "계약 조건의 원래 의도와 다르게 해석해 PASS/FAIL 을 오판한 조건이
+   있는가?" · "0 건·빈 출력을 근거로 PASS 한 조건 중, 문제가 있어도 0 을 냈을 측정(공허한
+   통과)이 있는가?"
+4. 요청문에 **서브에이전트 타입 이름을 문자 그대로 박지 마라.** 무엇을 넘기는지만 적는다 —
+   어떤 타입으로 띄울지는 부모가 정한다
+5. **건너뛰는 경우:** 이번 호출이 구현 판정이 아니라 계약 문서 자체의 검토(sprint-contract
+   스킬 Step 8 의 계약 교차 진단)이면 이 절을 만들지 않는다. 그쪽은 부모가 이미 계약 작성
+   흐름 안에서 교차 진단을 돌린다
+6. 부모가 교차 진단을 마치면 그 결과로 `cross_diagnosis_by` 를 갱신하는 것도 부모 몫이다.
+   네가 저장하는 값은 Step 8 에 적힌 대로 `pending-parent` 다
 
 ### Step 8: 피드백 저장
 
@@ -969,7 +997,11 @@ fi
    - `evaluation.l3_coverage`: L3 검증 도달 비율
    - `evaluation.reject_reasons`: REJECT 시 사유 목록
    - `diagnosis.checklist`: Step 6의 결과
-   - `diagnosis.cross_diagnosis_by: sprint-contract` (7단계를 못 했으면 `none` — 사유는 notes 에)
+   - `diagnosis.cross_diagnosis_by: pending-parent` — **너는 항상 이 값으로 저장한다.**
+     교차 진단은 부모가 하므로 네가 저장하는 시점에는 아직 끝나지 않았다. 부모가 마친 뒤
+     `sprint-contract` 로 갱신하고, 끝내 못 띄웠으면 `none` 으로 내린다. `none` 은 "못 했다"
+     는 뜻이라 "부모가 할 예정" 과 섞으면 다음 카이젠이 개선 효과를 읽지 못한다.
+     계약 문서 검토 호출이면 이 필드를 `n/a` 없이 그대로 두지 말고 부모 쪽 규약을 따른다
    - `diagnosis.cross_diagnosis_notes`: Step 7의 결과
 
 2. **스크립트 경로 해석 ladder (E3 — `test -f` 로 결정론적 판정).** 위에서부터 **존재하는 첫 경로**를 쓴다. 레포 상대경로를 그대로 쓰면 harness 를 플러그인으로 설치한 프로젝트에서는 항상 부재다 (digest `feedback-script-location-mismatch`):
