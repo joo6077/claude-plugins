@@ -4,7 +4,7 @@ slug: cross-diagnosis-to-parent
 created: "2026-09-22 15:40"
 complexity: "복잡"
 conditions: 22
-status: active
+status: done
 owner_session: f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0
 conditions_digest: sha256:7a4741e17b61c7f0
 locked_at: "2026-09-22 15:43"
