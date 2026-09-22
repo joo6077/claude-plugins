@@ -61,7 +61,7 @@ v0.10.0 은 이 단계를 살리려고 두 가지를 했다 — tools 줄에 `Ag
 `cross_diagnosis_notes` 의 **내용**만 읽고 `cross_diagnosis_by` 값으로 분기하지 않는다. 따라서
 enum 에 값을 더해도 소비면이 깨지지 않는다 — 이 사실 자체를 조건으로 잠근다 (ER-02).
 
-**고치는 파일 6개**
+**고치는 파일 7개**
 
 ```text
 harness/agents/qa-evaluator.md

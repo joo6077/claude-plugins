@@ -1,6 +1,6 @@
 ---
 slug: cross-diagnosis-to-parent
-created: "2026-09-22 16:05"
+created: "2026-09-22 15:49"
 ---
 
 ## A-01 — AR-04 (iv) 허용 목록에 앞 스프린트 계약 파일 1개 추가
@@ -27,10 +27,42 @@ created: "2026-09-22 16:05"
 **amend_direction**: `relaxing added=1 removed=0` — 집합 비교로 계산했다.
 원 허용 집합 3개 → 개정 4개. 자기신고가 아니라 계산값이다.
 
-**consent**: `anchored` — 2026-09-22 16:05, 세션 `f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0`.
+**consent**: `anchored` — 세션 `f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0`.
 사용자에게 세 선택지(개정으로 허용 / status 되돌리기 / AR-04 FAIL 받기)를 제시하고
 "개정으로 한 개 허용" 을 받았다. 되돌리는 쪽은 APPROVE 된 스프린트를 `active` 로 남겨
 기록을 거짓으로 만들기 때문에 택하지 않았다.
+
+**앵커 (검증 가능한 형태)** — 세션 기록
+`~/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0.jsonl`
+의 `AskUserQuestion` 호출·답변 쌍이다.
+
+| 항목 | 값 |
+| --- | --- |
+| 질문 `header` | `AR-04` |
+| 호출 시각 | `2026-09-22T06:48:58.556Z` (KST 15:48:58) |
+| 답변 시각 | `2026-09-22T06:49:14.987Z` (KST 15:49:14) |
+| 구현 커밋 | `cb39d89` — KST 15:49:57 |
+
+동의가 커밋보다 **43 초 앞선다.** 순서는 올바르다.
+
+재현 명령:
+
+```bash
+S=~/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0.jsonl
+grep -o '"name":"AskUserQuestion".\{0,120\}' "$S" | grep -c 'AR-04'
+git log --format='%h %ad' --date=format:'%H:%M:%S' -1 cb39d89
+```
+
+**앞선 판(2026-09-22 첫 작성)의 오류** — consent 시각을 `16:05` 로 적었다. `date` 를 돌리지
+않고 짐작해서 쓴 값이고, 실제 동의 시각은 위 표의 15:49:14 다. 커밋(15:49:57)보다 뒤인 값을
+적었으니 QA 가 "16:05 에 합의한 내용이 15:49:57 커밋에 굳었다 — 시간 역전" 으로 읽고 REJECT
+했다. **판정은 정당했다** — 검증하면 반증되는 앵커를 적었으므로 `unanchored` 와 다를 바 없다.
+고친 것은 시각 하나이고 동의 사실 자체는 처음부터 실재했다.
+
+QA 가 든 두 번째 근거(reflect-kit 프롬프트 기록에 15:06 이후 대화 없음)는 성립하지 않는다.
+그 기록은 `UserPromptSubmit` 훅이 쓰는 파일이라 `AskUserQuestion` 의 답은 애초에 남지 않는다.
+이 세션의 `AskUserQuestion` 5 건 전부가 그 기록에 없다 — 즉 "없음" 이 "안 일어났음" 을 뜻하지
+않는 자리다. 0 을 근거로 쓰기 전에 양성 대조를 세워야 한다는 규칙이 평가자 쪽에도 적용된다.
 
 **남는 구조적 문제**: 여러 스프린트를 한 브랜치에 쌓으면 앞 스프린트의 `status` 전환이 항상
 뒤 스프린트의 범위 조건에 들어온다. 다음 계약에서 `.harness/` 범위 조건을 쓸 때는 산출물
