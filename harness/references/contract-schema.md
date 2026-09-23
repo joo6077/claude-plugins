@@ -1014,6 +1014,11 @@ for ln in io.open(sys.argv[1],encoding="utf-8"):
 | ------ | ------ | ------ |
 | `narrowing` | PASS 근거 가능 | **PASS 근거 가능** |
 | `relaxing` | PASS 근거 가능 (사용자 재승인 성립) | PASS 근거 **불가** — 표면화 |
+| `unknown` | PASS 근거 불가 — 표면화 | PASS 근거 불가 — 표면화 |
+
+- **`relaxing` 의 승인 주체는 사용자뿐이다.** reviewer 확인을 추가 요건으로 두지 않는다 —
+  평가자는 계약에 없는 요구를 만들지 않는 것이 원칙이다 (contract-design-guide §Cross-Surface
+  Parity item 12 착지 구조).
 
 #### REJECT 를 받고 개정을 고쳐 판정을 뒤집을 때 (2026-09-23 추가)
 
@@ -1033,11 +1038,7 @@ for ln in io.open(sys.argv[1],encoding="utf-8"):
 `AskUserQuestion` 쌍을 앵커로 냈다. 평가자와 교차 진단이 각각 그 기록을 직접 파싱해 같은 값을
 얻어 APPROVE 로 갔다. 그 사이 **구현 파일은 한 줄도 바뀌지 않았다** — 뒤집힌 것은 근거의
 검증 가능성이었다.
-| `unknown` | PASS 근거 불가 — 표면화 | PASS 근거 불가 — 표면화 |
 
-- **`relaxing` 의 승인 주체는 사용자뿐이다.** reviewer 확인을 추가 요건으로 두지 않는다 —
-  평가자는 계약에 없는 요구를 만들지 않는 것이 원칙이다 (contract-design-guide §Cross-Surface
-  Parity item 12 착지 구조).
 - 사용자 발언을 인용할 때 로그는 redaction 을 거치므로 인용문은 "verbatim" 이 아니라
   **"redaction 거친 원문"** 이다 — 그렇게 표기하라.
 - **`unanchored` 를 감추려고 앵커를 지어내지 마라.** 없으면 `unanchored` 라고 쓰는 것이
