@@ -426,6 +426,44 @@ amendment 는 `{CONTRACT_ROOT}/.harness/sprint-amendments-<slug>.md` (plain 모�
 | `anchored` | 사용자 발언 인용 + **reflect-kit prompt 로그 앵커**(timestamp · session · cwd) |
 | `unanchored` | 앵커를 붙일 수 없다 (로그 미설치 · 구두 합의 · 에이전트 자체 판단) |
 
+**앵커 출처는 두 가지다 (2026-09-23 추가).** 위 표의 요구 값 세 개(timestamp · session · cwd)는
+그대로 두고 **출처만 늘렸다** — 요구 값을 늘리면 기존 개정이 소급으로 무효가 된다.
+
+| 출처 | 어디서 뽑나 | 언제 쓰나 |
+| --- | --- | --- |
+| reflect-kit prompt 로그 | `~/.claude/logs/<프로젝트>/YYYY-MM.md` | 사용자가 **타이핑한** 동의 |
+| 세션 기록의 `AskUserQuestion` 쌍 | `~/.claude/projects/<프로젝트>/<세션ID>.jsonl` | 사용자가 **선택지를 골라** 준 동의 |
+
+**선택지로 받은 동의는 prompt 로그에 구조적으로 남지 않는다.** 그 로그는 `UserPromptSubmit` 훅이
+쓰고 선택지 답은 도구 결과라 훅에 들어오지 않는다. 실측(2026-09-23): 한 달치 로그에서 답변 고정
+문구를 33 건 찾았으나 **전부** 다른 프롬프트에 붙여넣은 기록 덩어리 속 줄이었고 사용자가 실제로
+입력한 것은 0 건이었다. 그래서 prompt 로그만 인정하면 선택지 동의는 영원히 `anchored` 가 될 수
+없고, 실제로 그 때문에 REJECT 가 한 번 났다.
+
+`AskUserQuestion` 앵커는 아래를 적는다. 질문 본문·선택지·고른 답까지 들어 있어 prompt 로그보다
+오히려 강한 근거다.
+
+```bash
+S=~/.claude/projects/<프로젝트-슬러그>/$CLAUDE_CODE_SESSION_ID.jsonl
+# 호출·답변 쌍의 timestamp 와 질문 header 를 뽑는다. tool_use 종류로 걸러야 한다 —
+# grep -c '"name":"AskUserQuestion"' 는 시스템 프롬프트의 도구 정의 문자열까지 세서 값이 부풀려진다
+python3 -c 'import json,io,sys
+for ln in io.open(sys.argv[1],encoding="utf-8"):
+    try: d=json.loads(ln)
+    except Exception: continue
+    c=(d.get("message") or {}).get("content")
+    if isinstance(c,list):
+        for it in c:
+            if isinstance(it,dict) and it.get("type")=="tool_use" and it.get("name")=="AskUserQuestion":
+                q=(it.get("input") or {}).get("questions") or []
+                print(d.get("timestamp"), q[0].get("header") if q else "?")' "$S"
+```
+
+**동의가 그 개정을 담은 커밋보다 앞서는지 확인하라.** 시각을 짐작해 적으면 검증하는 순간
+반증된다 — 실측(2026-09-23): 개정에 `16:05` 이라 적었으나 그 내용을 담은 커밋이 15:49:57 이라
+시간 역전으로 읽혀 REJECT 가 났다. 실제 동의는 15:49:14 로 커밋보다 43 초 앞섰고 틀린 것은
+적힌 시각 하나였다. **검증하면 반증되는 앵커는 앵커가 없는 것과 같다.**
+
 **2 축 조합표 — 이것이 판정 규칙이다:**
 
 | `direction` \ `consent` | `anchored` | `unanchored` |
