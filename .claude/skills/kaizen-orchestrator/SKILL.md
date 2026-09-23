@@ -396,7 +396,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/flutter-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 flutter-toolkit 전 스킬을 전수 감사한다. flutter-toolkit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.7.1 · 2026-09-12] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계)
+> 플러그인 설명: [v0.7.2 · 2026-09-23] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계)
 
 ### Step 6: Phase 6 — design-kit 카이젠
 
@@ -423,7 +423,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/infra-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 infra-kit 전 스킬을 전수 감사한다. infra-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.3.0 · 2026-08-13] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (게이트 결과 상태 taxonomy 5종 + YAML 파서 액션 핀닝 + USE×RED 환경 선배제)
+> 플러그인 설명: [v0.3.1 · 2026-09-23] 스택 무관 인프라/DevOps 가이드 + 감사 + 초기 세팅 (게이트 결과 상태 taxonomy 5종 + YAML 파서 액션 핀닝 + USE×RED 환경 선배제)
 
 ### Step 9: Phase 9 — rust-kit 카이젠
 
@@ -432,7 +432,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/rust-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 rust-kit 전 스킬을 전수 감사한다. rust-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.3.0 · 2026-08-13] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)
+> 플러그인 설명: [v0.3.1 · 2026-09-23] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)
 
 ### Step 10: Phase 10 — react-kit 카이젠
 
@@ -465,7 +465,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/bambu-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 bambu-kit 전 스킬을 전수 감사한다. bambu-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.9.2 · 2026-09-19] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → 슬라이서 판별(Bambu Studio / OrcaSlicer) → import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장)
+> 플러그인 설명: [v0.9.3 · 2026-09-23] Bambu Lab H2S 자동 process+filament JSON 생성 — MakerWorld URL 전체 크롤링(다국어/페이지네이션) → Phase 1.6 댓글 분석(designer_reply/user_success/user_failure/user_variant) → Override Rule 범위 좁힘 → Phase 1.6.5 4-옵션([A]속도/[B]top만/[C]디자이너∧surface-first 병행 default/[D]풀) → Phase 1.7 Tolerance & Fit Analysis (베어링/볼트/heat-set insert/슬라이드 fit + 공차 보정 키 elefant_foot/xy_hole/xy_contour + 소재별 수축률) → 소재 추천 → seam 전략 → fit calibration coupon → 슬라이서 판별(Bambu Studio / OrcaSlicer) → import 번들 (실측 실패 3종 인테이크 + 지원가능성 분기 + E3 금지 키 확장)
 
 ### Step 14: Phase 14 — onboarding-kit 카이젠
 
@@ -473,7 +473,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/onboarding-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 onboarding-kit 전 스킬을 전수 감사한다. onboarding-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.3.1 · 2026-09-12] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate)
+> 플러그인 설명: [v0.3.2 · 2026-09-23] 스택 무관 외부 서비스 셋업 가이드 자동 생성 — 그 시점 최신 정보(WebFetch → Context7 → Codex) 기준 step-by-step MD (배포 가이드 사실 정정 4종 + Guide Conformance Gate)
 
 ### Step 15: Phase 15 — tone-kit 카이젠
 
