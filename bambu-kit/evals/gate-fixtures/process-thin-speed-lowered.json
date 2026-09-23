@@ -42,6 +42,11 @@
     "85",
     "85"
   ],
+  "bridge_speed": [
+    "25",
+    "25",
+    "25"
+  ],
   "reduce_crossing_wall": "1",
   "ironing_type": "no ironing",
   "seam_position": "aligned",
