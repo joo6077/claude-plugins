@@ -994,6 +994,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ✅ `outer_wall_speed`, `inner_wall_speed` (소재별 · **`_geometry_class` 가 `planar` 일 때만**. `thin` 이면 이 두 키와 인접 4 키 · `top_surface_speed` 를 쓰지 않고 부모 실효값을 둔다 — `surface-recipes.md` §2.7)
 - ✅ **유량 인접 속도 3 키 — 외벽을 낮췄으면 반드시 함께 낮춘다**: `internal_solid_infill_speed`, `sparse_infill_speed`, `gap_infill_speed`. 이 키를 빼놓고 외벽만 낮추면 유량 계단이 생긴다 (§유량비 게이트)
 - ✅ **가속 2 키 — 속도와 같이 설계한다**: `outer_wall_acceleration`, `default_acceleration`. 속도만 내리고 가속을 두면 짧은 세그먼트에서 명령 속도에 도달하지 못한 채 유량만 출렁인다
+- ✅ **허공 위 속도 — 외벽을 낮췄으면 `bridge_speed` 도 `20-30` 으로 내린다**: H2S 부모 프리셋은 `50` 이라 이 키를 안 쓰면 허공 위 구간만 외벽보다 빠르게 남는다. 실측 2026-09-22: 외벽 `30` 인데 허공 위 7.0~7.8 m 가 전부 `50` mm/s 로 나갔다 (`surface-recipes.md` §4)
 - ✅ 멀티컬러: `enable_prime_tower`, `prime_tower_width/brim_width/flat_ironing`, `flush_into_*`
 - ✅ `enable_support`
 - ✅ **(2026-08-13) L3 감지 시**: `brim_type`, `brim_width`, `brim_object_gap` · 조건부 `initial_layer_print_height`, `initial_layer_line_width`, `initial_layer_speed` (`failure-recipes.md` §3.1)
@@ -1270,7 +1271,7 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 | PETG HF | 원칙 off, 평면 장식만 `topmost` (blob/scar 위험) |
 | PA-CF / PAHT-CF | off (fiber 질감, 노즐 마모) |
 | PC | off 또는 소형 `topmost` 실험 (heat creep / ooze) |
-| ABS / ASA | `topmost` 실험 가능 (후가공 가능 시 의존 낮춤) |
+| ABS / ASA | 기본 `no ironing`. 실물 비교 뒤 사용자가 원할 때만 `topmost` |
 | TPU | off (불가 — 유연성으로 표면 drag) |
 
 형상별 ironing 적용성: 회전체/spiral vase는 무의미(top 없음), 박스/평면 top은 강함, 유기적 곡면은 부분, 얇은 벽은 거의 off. surface-recipes.md §5.2 참조.
@@ -1610,6 +1611,14 @@ for p in sys.argv[1:]:
             unverified.append(f"{f}: _wall_budget_short_share 미기록 — 벽 예산 미검증 (Phase 1.0 형상 측정을 WALL_LOOPS 와 함께 돌려라)")
         elif short_share >= 0.10 and generator == "classic":   # 10 % 는 추정 — 결함 실측 22~90 %, 결함 없던 부품 0 %
             errs.append(f"벽 예산 미달 비율 {short_share:.0%} 인데 wall_generator=classic — 틈을 갭필로 메워 덩어리가 솟는다. arachne 로 (surface-recipes.md §2.8)")
+        # 허공 위 속도 검사 (2026-09-22 신규 · surface-recipes.md §4) — 외벽만 낮추면 부모 bridge_speed 50 이 살아남는다
+        own_wall = num(d.get("outer_wall_speed")); parent_wall = num(par.get("outer_wall_speed"))
+        if own_wall is not None and parent_wall is not None and own_wall < parent_wall:
+            bridge = num(eff.get("bridge_speed"))
+            if bridge is None:
+                unverified.append(f"{f}: bridge_speed 실효값 미확인 — 외벽을 낮췄는데 허공 위 속도 미검증")
+            elif bridge > 30:
+                errs.append(f"외벽을 {parent_wall:g}→{own_wall:g} 로 낮췄는데 bridge_speed={bridge:g} 가 그대로다 — 허공 위 구간만 외벽보다 빠르다. 20~30 으로 (surface-recipes.md §4)")
     # scarf 길이 / 루프 둘레 비율 검사 (2026-09-05 신규 · seam-recipes.md §2.2)
     if t=="process" and str(d.get("seam_slope_type","none"))!="none":
         L=num(d.get("seam_slope_min_length"))
@@ -1666,6 +1675,7 @@ PY
 | `evals/gate-fixtures/process-pre-start-fan-time.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`pre_start_fan_time` · `filament`) | 종류 근거를 번들 합집합으로 | 제조사 프로파일의 실수가 허용 근거가 됐다 |
 | `evals/gate-fixtures/process-machine-scope-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`retraction_minimum_travel` · `machine`) | `키 스코프 불일치` 줄을 `pass` 로 | 종류 판정이 죽었다 |
 | `evals/gate-fixtures/process-seam-slope-type-invalid.json` | bambu | 받지 않는 값 **FAIL 1 건** (`seam_slope_type`) | `받지 않는 값` 줄을 `pass` 로 | enum 값 판정이 죽었다 |
+| `evals/gate-fixtures/process-bridge-speed-not-lowered.json` | bambu | 허공 위 속도 **FAIL 1 건** (`bridge_speed` 50) | `외벽을` 줄을 `pass` 로 | 외벽만 낮추고 허공 위를 그대로 둔 프로파일이 통과한다 |
 
 **FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
@@ -1695,6 +1705,7 @@ TARGET_SLICER=orca  python3 "$GATE" $FX/process-bambu-only-key-in-orca.json; ech
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-pre-start-fan-time.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-machine-scope-key.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-speed-not-lowered.json; echo "exit=$?"
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
 drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
@@ -1707,6 +1718,8 @@ drop "키 스코프 불일치" scope
 TARGET_SLICER=bambu python3 "$GATE.scope" $FX/process-machine-scope-key.json; echo "exit=$?"
 drop "받지 않는 값" enum
 TARGET_SLICER=bambu python3 "$GATE.enum" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
+drop "외벽을" bridge
+TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-speed-not-lowered.json; echo "exit=$?"
 
 # 종류 판정 근거를 옛 방식(번들 프로파일 종류 합집합)으로 되돌린다 — 목록이 막은 구멍이 다시 열려야 한다
 python3 - "$GATE" "$GATE.bundle" <<'MUT'
@@ -1768,6 +1781,8 @@ TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.js
 - **(2026-08-13)** Phase 1.9 가 **L3 감지**인데 출력의 `brim=-` 이면 → L3 미대응
 - **(2026-08-13)** Phase 1.9 가 **L2 감지**인데 건조 게이트 (0) 단계를 통과하지 않은 상태에서 `wipe=1` 이면 → 순서 위반. 건조 확인 없이 wipe 를 먼저 켜지 마라 (`failure-recipes.md` §2.1)
 - **(2026-09-08)** 출력의 `geometry=-` 인데 `outer_wall_speed` 를 명시했으면 → 형상 클래스 미측정. `geometry=thin` 인데 외벽을 낮췄으면 → 라우팅 위반. 둘 다 게이트가 FAIL 로 잡지만, notes.md 에 클래스와 측정값(루프 수 · 둘레 · 비율)을 썼는지는 눈으로 확인한다 (`surface-recipes.md` §2.7)
+- **(2026-09-22)** 외벽을 낮춘 프로파일에 `bridge_speed` 가 없으면 → 부모값(H2S `50`)이 살아남는다. 게이트는 부모를 해석할 수 있을 때만 잡으므로, 해석 실패로 `[미검증]` 이 떴으면 값을 눈으로 확인한다 (`surface-recipes.md` §4)
+- **(2026-09-22)** 소재가 ABS · ASA 인데 출력의 `ironing=topmost` 면 → 기본값 위반. 사용자가 실물 비교 뒤 요청한 경우만 허용이고, 그 근거를 notes.md 에 적었는지 확인한다 (`surface-recipes.md` §5.1)
 
 #### 4.4 Verify (Import 후 사용자 확인)
 
@@ -2007,6 +2022,7 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-09-08 신규) `_geometry_class` 를 측정으로 정해 process JSON 에 기록했는지** — Phase 1.0 probe 출력의 `planar` | `thin`. `thin` 인데 `outer_wall_speed` 를 낮췄으면 정책 위반이고 Phase 4.3 게이트가 FAIL 한다 (`surface-recipes.md` §2.7).
 - ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 옵션 목록의 프리셋 종류 줄로 검사한다 (`bambu-fields-baseline.md` §10.5 · §11.1).
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
+- ☐ **(2026-09-22 신규) 외벽을 낮췄으면 `bridge_speed` 를 `20-30` 으로 같이 넣었는지, ABS · ASA 에 다림질을 기본으로 켜지 않았는지** — 둘 다 부모값·기본값이 조용히 살아남는 자리다. 허공 위 속도는 Phase 4.3 게이트가 FAIL 로 잡는다 (`surface-recipes.md` §4 · §5.1).
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
@@ -2075,6 +2091,7 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 | Ferris Wheel (1186414, 608ZZ variant) | PLA Basic | ⚠️ v0.4.x 이전 회귀: 608ZZ 베어링 외경(22mm)/내경(8mm) fit 안 맞음 (사용자 보고 2026-05-27). → v0.4.2 Phase 1.7 fit-critical 분석 + tolerance.md §3.1 bearing 결정 트리 신규. **2026-07-27 정정**: v0.4.2 가 넣은 `+0.075`/`-0.075` 는 2× 규칙상 22.15mm/7.85mm 로 목표(22.10/7.90) 초과 — 축 fit 에 0.10mm 유격이 생겨 사용자 보고와 일치. 정정값 `+0.05`/`-0.05` (tolerance.md §7). 재출력 검증 대기. |
 | AMS 2 Pro Lattice Dry Pods (2026-09-07) | Bambu ABS | ⚠️ **surface-first 가 형상을 구분하지 않은 회귀.** Side Container(스트럿 단면, 루프 둘레 전부 < 30 mm)와 Funnel(루프 2 개)에 같은 외벽 `30` 이 들어감. 워크플로우 25 에이전트 진단: flow · PA · Z · 워핑 · 습기 배제, 원인은 속도값 + 냉각 문턱(`overhang_fan_threshold 25%` 미발동, 층시간이 `slow_down_layer_time 12` 를 주기 교차). → 2026-09-08 형상 클래스 축 `_geometry_class` (`surface-recipes.md` §2.7) + Phase 1.0 probe + Phase 4.3 스코프·클래스 검사 + `bambu-fields-baseline.md` §10.5. 실물 A/B(`overhang_fan_threshold 10%`)는 검증 대기. |
 | H2 AMS Flipper (1815860, 2026-09-19) | Bambu ABS | ⚠️ **첫 출력 2~3 층에서 모서리 · 둥근 경첩 구멍 둘레 덩어리와 구멍 안 실.** 원인 세 가지: (1) 10 개 전부 `planar` 인데 벽 4 겹 예산 3.54 mm 보다 좁은 둘레가 바닥 층 약 72 % → `classic` 갭필 253 m · 선폭 0.07~0.75 mm, (2) 제작자 3mf 에서 축 부품 1 개가 `printable="0"`, (3) 3mf 를 연 뒤 설정을 바꿔 제작자 값 3 개가 옮겨짐. `arachne` + 되감기 0.4→0.6 + 값을 박은 3mf 로 재출력 — 명령줄 재슬라이스 갭필 253 m → 0.4 m, 사용자 "이번엔 괜찮네". → 2026-09-19 Phase 1.0 printable 보고 · 벽 예산 측정, Phase 4.3 벽 예산 검사, Phase 4.4 값 섞임 방지. |
+| H2 AMS Flipper 재출력 (1815860, 2026-09-22) | Bambu ABS | ⚠️ **아랫면 곡면이 처지고 까끌하다 + 낮은 부품 윗면이 이상하다.** 갭필·되감기 해소 뒤 남은 두 건. 재슬라이스 실측: 외벽을 60→30 으로 낮췄는데 `bridge_speed` 는 부모 50 그대로라 허공 위 7.0~7.8 m · 10~12 층이 전부 50 mm/s(팬 100 %)로 나갔다. 다림질은 가장 낮은 부품(9.08 mm)에서 윗면 2.33 m 위를 6.29 m 지나갔다. → 2026-09-22 튜닝 정책에 허공 위 속도 · Phase 4.3 허공 위 속도 검사 · ABS 다림질 기본 끔. 실물 재출력 검증 대기. |
 
 `/Users/jackson/Hub/60_3D Print/Settings/<modelname>/notes.md`에 케이스별 detail 보존.
 
