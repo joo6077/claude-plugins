@@ -8,6 +8,11 @@
   "compatible_printers": [
     "Bambu Lab H2S 0.4 nozzle"
   ],
+  "bridge_speed": [
+    "25",
+    "25",
+    "25"
+  ],
   "_geometry_class": "planar",
   "overhang_fan_threshold": [
     "10%"

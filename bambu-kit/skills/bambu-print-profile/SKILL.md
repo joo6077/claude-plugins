@@ -994,7 +994,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ✅ `outer_wall_speed`, `inner_wall_speed` (소재별 · **`_geometry_class` 가 `planar` 일 때만**. `thin` 이면 이 두 키와 인접 4 키 · `top_surface_speed` 를 쓰지 않고 부모 실효값을 둔다 — `surface-recipes.md` §2.7)
 - ✅ **유량 인접 속도 3 키 — 외벽을 낮췄으면 반드시 함께 낮춘다**: `internal_solid_infill_speed`, `sparse_infill_speed`, `gap_infill_speed`. 이 키를 빼놓고 외벽만 낮추면 유량 계단이 생긴다 (§유량비 게이트)
 - ✅ **가속 2 키 — 속도와 같이 설계한다**: `outer_wall_acceleration`, `default_acceleration`. 속도만 내리고 가속을 두면 짧은 세그먼트에서 명령 속도에 도달하지 못한 채 유량만 출렁인다
-- ✅ **허공 위 속도 — 외벽을 낮췄으면 `bridge_speed` 도 `20-30` 으로 내린다**: H2S 부모 프리셋은 `50` 이라 이 키를 안 쓰면 허공 위 구간만 외벽보다 빠르게 남는다. 실측 2026-09-22: 외벽 `30` 인데 허공 위 7.0~7.8 m 가 전부 `50` mm/s 로 나갔다 (`surface-recipes.md` §4)
+- ✅ **허공 위 속도 — `_geometry_class` 를 재서 기록한 설정이면 `bridge_speed` 를 `20-30` 으로 쓴다** (외벽을 낮췄으면 더더욱): H2S 부모 프리셋은 `50` 이라 이 키를 안 쓰면 허공 위 구간만 그대로 남는다. 실측 2026-09-22: 외벽 `30` 인데 허공 위 7.0~7.8 m 가 전부 `50` mm/s 로 나갔다 (`surface-recipes.md` §4)
 - ✅ 멀티컬러: `enable_prime_tower`, `prime_tower_width/brim_width/flat_ironing`, `flush_into_*`
 - ✅ `enable_support`
 - ✅ **(2026-08-13) L3 감지 시**: `brim_type`, `brim_width`, `brim_object_gap` · 조건부 `initial_layer_print_height`, `initial_layer_line_width`, `initial_layer_speed` (`failure-recipes.md` §3.1)
@@ -1501,6 +1501,24 @@ def num(v):
     try: return float(v)
     except (TypeError, ValueError): return None
 
+def nums(v):
+    """압출기 슬롯 값을 전부 실수로. 하나라도 숫자가 아니면 빈 목록 — 첫 칸만 읽으면 2·3 번 슬롯이 안 보인다."""
+    items = v if isinstance(v, list) else [v]
+    out = []
+    for item in items:
+        try: out.append(float(item))
+        except (TypeError, ValueError): return []
+    return out
+
+def slots(own, parent):
+    """자식·부모 값을 슬롯별로 짝지어 (슬롯번호, 자식, 부모) 로 낸다. 한 칸짜리는 모든 슬롯에 같은 값이다."""
+    mine, theirs = nums(own), nums(parent)
+    if not mine or not theirs: return []
+    width = max(len(mine), len(theirs))
+    if len(mine) == 1: mine = mine * width
+    if len(theirs) == 1: theirs = theirs * width
+    return [(i + 1, mine[i], theirs[i]) for i in range(min(len(mine), len(theirs)))]
+
 # 인접 feature: (속도 키, line width 키). gap_infill 은 전용 width 가 없어 line_width 로 폴백한다.
 ADJACENT = (("inner_wall_speed","inner_wall_line_width"),
             ("internal_solid_infill_speed","internal_solid_infill_line_width"),
@@ -1581,27 +1599,29 @@ for p in sys.argv[1:]:
         unverified.append(f"{f}: 부모 {d.get('inherits')!r} 해석 실패 — 유량비/부모값/형상 클래스 검사 미실행")
     elif t=="process":
         if geometry=="thin":
-            own=num(d.get("outer_wall_speed")); parent=num(par.get("outer_wall_speed"))
-            if own is not None and parent is not None and own < parent:
-                errs.append(f"_geometry_class=thin 인데 outer_wall_speed={own:g} 가 부모 실효값 {parent:g} 보다 낮다 — thin 은 속도 하향 대상이 아니다 (surface-recipes.md §2.7)")
+            lowered=[(i,own,parent) for i,own,parent in slots(d.get("outer_wall_speed"), par.get("outer_wall_speed")) if own < parent]
+            if lowered:
+                i,own,parent = lowered[0]
+                errs.append(f"_geometry_class=thin 인데 outer_wall_speed 슬롯 {i} 이 {own:g} 로 부모 실효값 {parent:g} 보다 낮다 — thin 은 속도 하향 대상이 아니다 (surface-recipes.md §2.7)")
         # 유량비 게이트 — 동일 filament 이므로 flow_ratio 는 비율에서 상쇄된다
         eff = dict(par); eff.update(d)
         lh = num(eff.get("layer_height"))
-        ow = num(eff.get("outer_wall_speed"))
+        outer_slots = nums(eff.get("outer_wall_speed"))
         oww = num(eff.get("outer_wall_line_width")) or num(eff.get("line_width"))
-        if lh and ow and oww:
-            q_out = oww*lh*ow
-            worst, who = 0.0, None
+        if lh and outer_slots and oww:
+            worst, who, slot = 0.0, None, 0
             for sk, wk in ADJACENT:
-                sp = num(eff.get(sk)); wd = num(eff.get(wk)) or num(eff.get("line_width"))
-                if not (sp and wd): continue
-                r = (wd*lh*sp)/q_out
-                if r > worst: worst, who = r, sk
+                wd = num(eff.get(wk)) or num(eff.get("line_width"))
+                if not wd: continue
+                for i, sp, ow in slots(eff.get(sk), eff.get("outer_wall_speed")):
+                    if not (sp and ow): continue
+                    r = (wd*lh*sp)/(oww*lh*ow)
+                    if r > worst: worst, who, slot = r, sk, i
             if who:
                 if worst > 5.0:
-                    errs.append(f"유량비 {worst:.1f}x ({who}) — 5x 초과. 인접 속도를 낮춰라")
+                    errs.append(f"유량비 {worst:.1f}x ({who} 슬롯 {slot}) — 5x 초과. 인접 속도를 낮춰라")
                 elif worst > 3.0:
-                    print(f"WARN {f}: 유량비 {worst:.1f}x ({who}) — 3~5x 경고 구간. notes.md 에 사유를 적어라")
+                    print(f"WARN {f}: 유량비 {worst:.1f}x ({who} 슬롯 {slot}) — 3~5x 경고 구간. notes.md 에 사유를 적어라")
         else:
             unverified.append(f"{f}: layer_height/outer_wall_speed/line_width 결측 — 유량비 미계산")
         # 벽 예산 검사 (2026-09-19 신규 · surface-recipes.md §2.8) — classic 은 벽이 못 들어가는 틈을 가는 선(갭필)으로 메워 덩어리가 솟는다
@@ -1611,14 +1631,18 @@ for p in sys.argv[1:]:
             unverified.append(f"{f}: _wall_budget_short_share 미기록 — 벽 예산 미검증 (Phase 1.0 형상 측정을 WALL_LOOPS 와 함께 돌려라)")
         elif short_share >= 0.10 and generator == "classic":   # 10 % 는 추정 — 결함 실측 22~90 %, 결함 없던 부품 0 %
             errs.append(f"벽 예산 미달 비율 {short_share:.0%} 인데 wall_generator=classic — 틈을 갭필로 메워 덩어리가 솟는다. arachne 로 (surface-recipes.md §2.8)")
-        # 허공 위 속도 검사 (2026-09-22 신규 · surface-recipes.md §4) — 외벽만 낮추면 부모 bridge_speed 50 이 살아남는다
-        own_wall = num(d.get("outer_wall_speed")); parent_wall = num(par.get("outer_wall_speed"))
-        if own_wall is not None and parent_wall is not None and own_wall < parent_wall:
-            bridge = num(eff.get("bridge_speed"))
-            if bridge is None:
-                unverified.append(f"{f}: bridge_speed 실효값 미확인 — 외벽을 낮췄는데 허공 위 속도 미검증")
-            elif bridge > 30:
-                errs.append(f"외벽을 {parent_wall:g}→{own_wall:g} 로 낮췄는데 bridge_speed={bridge:g} 가 그대로다 — 허공 위 구간만 외벽보다 빠르다. 20~30 으로 (surface-recipes.md §4)")
+        # 허공 위 속도 검사 (2026-09-22 신규 · 2026-09-23 범위 확대 · surface-recipes.md §4)
+        # 형상을 재서 기록한 설정이면 외벽을 안 낮췄어도 부모 bridge_speed 50 이 그대로 남는다
+        wall_lowered = [i for i,own,parent in slots(d.get("outer_wall_speed"), par.get("outer_wall_speed")) if own < parent]
+        if geometry or wall_lowered:
+            bridge_slots = nums(eff.get("bridge_speed"))
+            if not bridge_slots:
+                unverified.append(f"{f}: bridge_speed 실효값 미확인 — 허공 위 속도 미검증")
+            else:
+                over = [(i+1, value) for i, value in enumerate(bridge_slots) if value > 30]
+                if over:
+                    i, value = over[0]
+                    errs.append(f"허공 위 속도 슬롯 {i} 이 bridge_speed={value:g} — 외벽보다 빠른 채로 허공에 걸친다. 20~30 으로 (surface-recipes.md §4)")
     # scarf 길이 / 루프 둘레 비율 검사 (2026-09-05 신규 · seam-recipes.md §2.2)
     if t=="process" and str(d.get("seam_slope_type","none"))!="none":
         L=num(d.get("seam_slope_min_length"))
@@ -1637,11 +1661,14 @@ for p in sys.argv[1:]:
         # 소재 부모값 이탈 검사
         for k in GUARDED:
             if k not in d: continue
-            cv, pv = num(d.get(k)), num(par.get(k))
-            if pv is None:
+            pairs = slots(d.get(k), par.get(k))
+            if not pairs:
                 unverified.append(f"{f}: {k} 부모값이 위임(nil) — 이탈 판정 불가")
-            elif cv is not None and pv > 0 and cv > pv*1.5:
-                errs.append(f"{k}={cv} 가 소재 부모값 {pv} 의 1.5 배 초과 — 부모값을 쓰거나 coupon 근거를 대라")
+            else:
+                over = [(i, cv, pv) for i, cv, pv in pairs if pv > 0 and cv > pv*1.5]
+                if over:
+                    i, cv, pv = over[0]
+                    errs.append(f"{k} 슬롯 {i} 이 {cv:g} 로 소재 부모값 {pv:g} 의 1.5 배 초과 — 부모값을 쓰거나 coupon 근거를 대라")
     for k,v in d.items():
         if isinstance(v,(int,float,bool)): errs.append(f"{k} 가 문자열이 아님 ({v!r})")
     if errs:
@@ -1675,7 +1702,10 @@ PY
 | `evals/gate-fixtures/process-pre-start-fan-time.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`pre_start_fan_time` · `filament`) | 종류 근거를 번들 합집합으로 | 제조사 프로파일의 실수가 허용 근거가 됐다 |
 | `evals/gate-fixtures/process-machine-scope-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`retraction_minimum_travel` · `machine`) | `키 스코프 불일치` 줄을 `pass` 로 | 종류 판정이 죽었다 |
 | `evals/gate-fixtures/process-seam-slope-type-invalid.json` | bambu | 받지 않는 값 **FAIL 1 건** (`seam_slope_type`) | `받지 않는 값` 줄을 `pass` 로 | enum 값 판정이 죽었다 |
-| `evals/gate-fixtures/process-bridge-speed-not-lowered.json` | bambu | 허공 위 속도 **FAIL 1 건** (`bridge_speed` 50) | `외벽을` 줄을 `pass` 로 | 외벽만 낮추고 허공 위를 그대로 둔 프로파일이 통과한다 |
+| `evals/gate-fixtures/process-bridge-speed-not-lowered.json` | bambu | 허공 위 속도 **FAIL 1 건** (`bridge_speed` 50) | `허공 위 속도` 줄을 `pass` 로 | 외벽만 낮추고 허공 위를 그대로 둔 프로파일이 통과한다 |
+| `evals/gate-fixtures/process-bridge-class-recorded.json` | bambu | 허공 위 속도 **FAIL 1 건** (외벽 하향 없음) | `허공 위 속도` 줄을 `pass` 로 | 형상만 재고 외벽을 안 낮춘 설정이 부모 50 을 그대로 쓴다 |
+| `evals/gate-fixtures/process-bridge-extruder-mismatch.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2 만 50) | `허공 위 속도` 줄을 `pass` 로 | 첫 칸만 읽어 2·3 번 슬롯이 안 보인다 |
+| `evals/gate-fixtures/process-thin-outer-slot2.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2 만 하향) | `_geometry_class=thin` 줄을 `pass` 로 | 슬롯별 외벽 하향이 안 보인다 |
 
 **FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
@@ -1706,6 +1736,9 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-pre-start-fan-time.json; echo "e
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-machine-scope-key.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-speed-not-lowered.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-class-recorded.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-extruder-mismatch.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-outer-slot2.json; echo "exit=$?"
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
 drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
@@ -1718,8 +1751,12 @@ drop "키 스코프 불일치" scope
 TARGET_SLICER=bambu python3 "$GATE.scope" $FX/process-machine-scope-key.json; echo "exit=$?"
 drop "받지 않는 값" enum
 TARGET_SLICER=bambu python3 "$GATE.enum" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
-drop "외벽을" bridge
+drop "허공 위 속도" bridge
 TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-speed-not-lowered.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-class-recorded.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-extruder-mismatch.json; echo "exit=$?"
+drop "_geometry_class=thin" thinroute
+TARGET_SLICER=bambu python3 "$GATE.thinroute" $FX/process-thin-outer-slot2.json; echo "exit=$?"
 
 # 종류 판정 근거를 옛 방식(번들 프로파일 종류 합집합)으로 되돌린다 — 목록이 막은 구멍이 다시 열려야 한다
 python3 - "$GATE" "$GATE.bundle" <<'MUT'
@@ -1783,6 +1820,7 @@ TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.js
 - **(2026-09-08)** 출력의 `geometry=-` 인데 `outer_wall_speed` 를 명시했으면 → 형상 클래스 미측정. `geometry=thin` 인데 외벽을 낮췄으면 → 라우팅 위반. 둘 다 게이트가 FAIL 로 잡지만, notes.md 에 클래스와 측정값(루프 수 · 둘레 · 비율)을 썼는지는 눈으로 확인한다 (`surface-recipes.md` §2.7)
 - **(2026-09-22)** 외벽을 낮춘 프로파일에 `bridge_speed` 가 없으면 → 부모값(H2S `50`)이 살아남는다. 게이트는 부모를 해석할 수 있을 때만 잡으므로, 해석 실패로 `[미검증]` 이 떴으면 값을 눈으로 확인한다 (`surface-recipes.md` §4)
 - **(2026-09-22)** 소재가 ABS · ASA 인데 출력의 `ironing=topmost` 면 → 기본값 위반. 사용자가 실물 비교 뒤 요청한 경우만 허용이고, 그 근거를 notes.md 에 적었는지 확인한다 (`surface-recipes.md` §5.1)
+- **(2026-09-23)** 속도 키를 슬롯마다 다른 값으로 쓸 이유가 있는지 — 게이트는 이제 슬롯을 전부 읽고 FAIL 문구에 슬롯 번호를 적는다. 부모와 슬롯 수가 다르면(뱀부 3 칸 · 오르카 2 칸) 짧은 쪽까지만 비교하므로, 남는 슬롯은 눈으로 본다
 
 #### 4.4 Verify (Import 후 사용자 확인)
 
@@ -2023,6 +2061,7 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 옵션 목록의 프리셋 종류 줄로 검사한다 (`bambu-fields-baseline.md` §10.5 · §11.1).
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
 - ☐ **(2026-09-22 신규) 외벽을 낮췄으면 `bridge_speed` 를 `20-30` 으로 같이 넣었는지, ABS · ASA 에 다림질을 기본으로 켜지 않았는지** — 둘 다 부모값·기본값이 조용히 살아남는 자리다. 허공 위 속도는 Phase 4.3 게이트가 FAIL 로 잡는다 (`surface-recipes.md` §4 · §5.1).
+- ☐ **(2026-09-23 신규) 형상을 재서 기록한 설정이면 외벽을 안 낮췄어도 `bridge_speed` 를 넣었는지** — 게이트가 `_geometry_class` 기록만으로도 허공 위 속도를 재고, 값 비교는 압출기 슬롯을 전부 읽는다.
 
 ## MakerWorld URL fallback 체인 (2026-05-16 갱신)
 
