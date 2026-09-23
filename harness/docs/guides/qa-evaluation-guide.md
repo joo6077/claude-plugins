@@ -445,19 +445,39 @@ amendment 는 `{CONTRACT_ROOT}/.harness/sprint-amendments-<slug>.md` (plain 모�
 
 ```bash
 S=~/.claude/projects/<프로젝트-슬러그>/$CLAUDE_CODE_SESSION_ID.jsonl
-# 호출·답변 쌍의 timestamp 와 질문 header 를 뽑는다. tool_use 종류로 걸러야 한다 —
-# grep -c '"name":"AskUserQuestion"' 는 시스템 프롬프트의 도구 정의 문자열까지 세서 값이 부풀려진다
+# 호출과 답변을 tool_use_id 로 짝지어 네 값(질문 제목 · 호출 시각 · 답변 시각 · 세션 · 작업폴더)을 뽑는다
 python3 -c 'import json,io,sys
+calls={}; out=[]
 for ln in io.open(sys.argv[1],encoding="utf-8"):
     try: d=json.loads(ln)
     except Exception: continue
+    ts=d.get("timestamp"); sid=d.get("sessionId"); cwd=d.get("cwd")
     c=(d.get("message") or {}).get("content")
-    if isinstance(c,list):
-        for it in c:
-            if isinstance(it,dict) and it.get("type")=="tool_use" and it.get("name")=="AskUserQuestion":
-                q=(it.get("input") or {}).get("questions") or []
-                print(d.get("timestamp"), q[0].get("header") if q else "?")' "$S"
+    if not isinstance(c,list): continue
+    for it in c:
+        if not isinstance(it,dict): continue
+        if it.get("type")=="tool_use" and it.get("name")=="AskUserQuestion":
+            q=(it.get("input") or {}).get("questions") or []
+            calls[it.get("id")]=(q[0].get("header") if q else "?", ts)
+        elif it.get("type")=="tool_result" and it.get("tool_use_id") in calls:
+            h,call_ts=calls.pop(it.get("tool_use_id"))
+            out.append((h,call_ts,ts,sid,cwd))
+for h,a,b,sid,cwd in out:
+    print("header=%s call=%s answer=%s session=%s cwd=%s" % (h,a,b,sid,cwd))
+print("미응답 호출:", len(calls))' "$S"
 ```
+
+**세 가지를 이 형태로만 얻을 수 있다.**
+
+- **`answer` 가 동의 시각이다.** `call` 은 물어본 시각일 뿐이라 그 값으로 순서를 따지면 안 된다.
+  실측(이 세션): 네 건의 간격이 28 분 57 초 · 33 초 · 15 분 15 초 · 16 초였다. 29 분이 벌어지면
+  커밋이 그 사이에 들어와 **호출 시각으로는 "동의가 앞섰다" 로 읽히지만 실제 동의는 커밋보다
+  늦다** — 아래 문단이 막으려는 시간 역전을 호출 시각이 만들어낸다
+- **`session` 과 `cwd` 는 레코드에 있으므로 함께 적는다.** 위 표가 요구하는 값 세 개 중 둘이다
+- **`tool_use_id` 로 짝지어야 한다.** 답변 쪽 문자열만 세면 부풀려진다 — 이 세션에서 호출은
+  4 건인데 답변 고정 문구는 6 건 잡혔고, 2 건은 내가 그 문구를 인자로 쓴 명령이 기록에 남은
+  것이었다. `grep -c '"name":"AskUserQuestion"'` 도 시스템 프롬프트의 도구 정의 문자열까지
+  세서 5 를 낸다 (실제 4)
 
 **동의가 그 개정을 담은 커밋보다 앞서는지 확인하라.** 시각을 짐작해 적으면 검증하는 순간
 반증된다 — 실측(2026-09-23): 개정에 `16:05` 이라 적었으나 그 내용을 담은 커밋이 15:49:57 이라

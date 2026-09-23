@@ -566,7 +566,8 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 
 ```bash
 # .harness/ 의 계약 파일만 골라 봉인 상태를 센다. 피드백·개정·project.yaml·handoff/ 는 계약이 아니다
-find .harness -maxdepth 1 -type f -name 'sprint-contract*.md' -print0 \
+# -maxdepth 를 걸지 않는다 — history/ 로 옮긴 계약이 조용히 검사에서 빠진다 (실측 1 건)
+find .harness -type f -name 'sprint-contract*.md' -print0 \
 | while IFS= read -r -d '' f; do verify_seal "$f"; done \
 | awk '{print $1}' | sort | uniq -c
 ```
@@ -985,19 +986,39 @@ narrowing added=0 removed=2                                         # ← 극성
 
 ```bash
 S=~/.claude/projects/<프로젝트-슬러그>/$CLAUDE_CODE_SESSION_ID.jsonl
-# 호출·답변 쌍의 timestamp 와 질문 header 를 뽑는다. tool_use 종류로 걸러야 한다 —
-# grep -c '"name":"AskUserQuestion"' 는 시스템 프롬프트의 도구 정의 문자열까지 세서 값이 부풀려진다
+# 호출과 답변을 tool_use_id 로 짝지어 네 값(질문 제목 · 호출 시각 · 답변 시각 · 세션 · 작업폴더)을 뽑는다
 python3 -c 'import json,io,sys
+calls={}; out=[]
 for ln in io.open(sys.argv[1],encoding="utf-8"):
     try: d=json.loads(ln)
     except Exception: continue
+    ts=d.get("timestamp"); sid=d.get("sessionId"); cwd=d.get("cwd")
     c=(d.get("message") or {}).get("content")
-    if isinstance(c,list):
-        for it in c:
-            if isinstance(it,dict) and it.get("type")=="tool_use" and it.get("name")=="AskUserQuestion":
-                q=(it.get("input") or {}).get("questions") or []
-                print(d.get("timestamp"), q[0].get("header") if q else "?")' "$S"
+    if not isinstance(c,list): continue
+    for it in c:
+        if not isinstance(it,dict): continue
+        if it.get("type")=="tool_use" and it.get("name")=="AskUserQuestion":
+            q=(it.get("input") or {}).get("questions") or []
+            calls[it.get("id")]=(q[0].get("header") if q else "?", ts)
+        elif it.get("type")=="tool_result" and it.get("tool_use_id") in calls:
+            h,call_ts=calls.pop(it.get("tool_use_id"))
+            out.append((h,call_ts,ts,sid,cwd))
+for h,a,b,sid,cwd in out:
+    print("header=%s call=%s answer=%s session=%s cwd=%s" % (h,a,b,sid,cwd))
+print("미응답 호출:", len(calls))' "$S"
 ```
+
+**세 가지를 이 형태로만 얻을 수 있다.**
+
+- **`answer` 가 동의 시각이다.** `call` 은 물어본 시각일 뿐이라 그 값으로 순서를 따지면 안 된다.
+  실측(이 세션): 네 건의 간격이 28 분 57 초 · 33 초 · 15 분 15 초 · 16 초였다. 29 분이 벌어지면
+  커밋이 그 사이에 들어와 **호출 시각으로는 "동의가 앞섰다" 로 읽히지만 실제 동의는 커밋보다
+  늦다** — 아래 문단이 막으려는 시간 역전을 호출 시각이 만들어낸다
+- **`session` 과 `cwd` 는 레코드에 있으므로 함께 적는다.** 위 표가 요구하는 값 세 개 중 둘이다
+- **`tool_use_id` 로 짝지어야 한다.** 답변 쪽 문자열만 세면 부풀려진다 — 이 세션에서 호출은
+  4 건인데 답변 고정 문구는 6 건 잡혔고, 2 건은 내가 그 문구를 인자로 쓴 명령이 기록에 남은
+  것이었다. `grep -c '"name":"AskUserQuestion"'` 도 시스템 프롬프트의 도구 정의 문자열까지
+  세서 5 를 낸다 (실제 4)
 
 **동의가 그 개정을 담은 커밋보다 앞서는지 확인하라.** 시각을 짐작해 적으면 검증하는 순간
 반증된다 — 실측(2026-09-23): 개정에 `16:05` 이라 적었으나 그 내용을 담은 커밋이 15:49:57 이라
@@ -1019,6 +1040,10 @@ for ln in io.open(sys.argv[1],encoding="utf-8"):
 - **`relaxing` 의 승인 주체는 사용자뿐이다.** reviewer 확인을 추가 요건으로 두지 않는다 —
   평가자는 계약에 없는 요구를 만들지 않는 것이 원칙이다 (contract-design-guide §Cross-Surface
   Parity item 12 착지 구조).
+- 사용자 발언을 인용할 때 로그는 redaction 을 거치므로 인용문은 "verbatim" 이 아니라
+  **"redaction 거친 원문"** 이다 — 그렇게 표기하라.
+- **`unanchored` 를 감추려고 앵커를 지어내지 마라.** 없으면 `unanchored` 라고 쓰는 것이
+  `narrowing` 을 살리는 유일한 길이다.
 
 #### REJECT 를 받고 개정을 고쳐 판정을 뒤집을 때 (2026-09-23 추가)
 
@@ -1038,11 +1063,6 @@ for ln in io.open(sys.argv[1],encoding="utf-8"):
 `AskUserQuestion` 쌍을 앵커로 냈다. 평가자와 교차 진단이 각각 그 기록을 직접 파싱해 같은 값을
 얻어 APPROVE 로 갔다. 그 사이 **구현 파일은 한 줄도 바뀌지 않았다** — 뒤집힌 것은 근거의
 검증 가능성이었다.
-
-- 사용자 발언을 인용할 때 로그는 redaction 을 거치므로 인용문은 "verbatim" 이 아니라
-  **"redaction 거친 원문"** 이다 — 그렇게 표기하라.
-- **`unanchored` 를 감추려고 앵커를 지어내지 마라.** 없으면 `unanchored` 라고 쓰는 것이
-  `narrowing` 을 살리는 유일한 길이다.
 
 ### 엔트리 포맷
 
