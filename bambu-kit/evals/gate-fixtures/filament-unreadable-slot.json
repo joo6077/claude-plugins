@@ -1,0 +1,26 @@
+{
+  "type": "filament",
+  "name": "gate-fixture unreadable retraction slot 1",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "Bambu ABS @BBL H2S",
+  "filament_settings_id": [
+    "gate-fixture unreadable retraction slot 1"
+  ],
+  "filament_extruder_variant": [
+    "Direct Drive Standard",
+    "Direct Drive High Flow",
+    "Direct Drive E3D High Flow"
+  ],
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "overhang_fan_threshold": [
+    "10%"
+  ],
+  "filament_retraction_length": [
+    "150%",
+    "0.4",
+    "0.4"
+  ]
+}

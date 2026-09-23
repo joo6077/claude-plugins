@@ -1520,6 +1520,12 @@ def slots(own, parent):
     return [(i + 1, mine[i], theirs[i]) for i in range(min(len(mine), len(theirs)))
             if mine[i] is not None and theirs[i] is not None]
 
+def missed_slots(own, parent):
+    """짝을 못 지은 슬롯 번호. 못 읽은 칸을 말하지 않으면 «쟀는데 괜찮다» 와 «못 쟀다» 가 구분되지 않는다."""
+    width = max(len(nums(own)), len(nums(parent)))
+    done = {slot for slot, _, _ in slots(own, parent)}
+    return [i for i in range(1, width + 1) if i not in done]
+
 # 인접 feature: (속도 키, line width 키). gap_infill 은 전용 width 가 없어 line_width 로 폴백한다.
 ADJACENT = (("inner_wall_speed","inner_wall_line_width"),
             ("internal_solid_infill_speed","internal_solid_infill_line_width"),
@@ -1600,6 +1606,9 @@ for p in sys.argv[1:]:
         unverified.append(f"{f}: 부모 {d.get('inherits')!r} 해석 실패 — 유량비/부모값/형상 클래스 검사 미실행")
     elif t=="process":
         if geometry=="thin":
+            missed = missed_slots(d.get("outer_wall_speed"), par.get("outer_wall_speed"))
+            if missed and d.get("outer_wall_speed") is not None:
+                unverified.append(f"{f}: outer_wall_speed 슬롯 {', '.join(str(i) for i in missed)} 을 못 읽었다 — 그 칸만 미검증 (나머지 칸은 잰다)")
             lowered=[(i,own,parent) for i,own,parent in slots(d.get("outer_wall_speed"), par.get("outer_wall_speed")) if own < parent]
             if lowered:
                 i,own,parent = lowered[0]
@@ -1664,9 +1673,12 @@ for p in sys.argv[1:]:
         for k in GUARDED:
             if k not in d: continue
             pairs = slots(d.get(k), par.get(k))
+            missed = missed_slots(d.get(k), par.get(k))
             if not pairs:
-                unverified.append(f"{f}: {k} 부모값이 위임(nil) — 이탈 판정 불가")
+                unverified.append(f"{f}: {k} 부모값이 위임(nil)이거나 값을 못 읽었다 — 이탈 판정 불가")
             else:
+                if missed:
+                    unverified.append(f"{f}: {k} 슬롯 {', '.join(str(i) for i in missed)} 을 못 읽었다 — 그 칸만 미검증 (나머지 칸은 잰다)")
                 over = [(i, cv, pv) for i, cv, pv in pairs if pv > 0 and cv > pv*1.5]
                 if over:
                     i, cv, pv = over[0]
@@ -1709,6 +1721,8 @@ PY
 | `evals/gate-fixtures/process-bridge-extruder-mismatch.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2 만 50) | `허공 위 속도` 줄을 `pass` 로 | 첫 칸만 읽어 2·3 번 슬롯이 안 보인다 |
 | `evals/gate-fixtures/process-thin-outer-slot2.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2 만 하향) | `_geometry_class=thin` 줄을 `pass` 로 | 슬롯별 외벽 하향이 안 보인다 |
 | `evals/gate-fixtures/process-bridge-unreadable-slot.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `허공 위 속도` 줄을 `pass` 로 | 못 읽는 칸 하나가 나머지 슬롯 검사를 통째로 끈다 |
+| `evals/gate-fixtures/process-thin-unreadable-slot.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `_geometry_class=thin` 줄을 `pass` 로 | 못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다 |
+| `evals/gate-fixtures/filament-unreadable-slot.json` | bambu | FAIL 0 건 + `[미검증]` 1 줄 (슬롯 1) | 못 읽은 칸 알림 줄을 `pass` 로 | 소재 부모값 이탈 검사가 조용히 꺼진다 |
 
 **FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
@@ -1743,6 +1757,8 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-class-recorded.json; echo
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-extruder-mismatch.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-outer-slot2.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-unreadable-slot.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-unreadable-slot.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/filament-unreadable-slot.json; echo "exit=$?"
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
 drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
