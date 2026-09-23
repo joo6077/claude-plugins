@@ -1705,6 +1705,7 @@ TARGET_SLICER=orca  python3 "$GATE" $FX/process-bambu-only-key-in-orca.json; ech
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-pre-start-fan-time.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-machine-scope-key.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-speed-not-lowered.json; echo "exit=$?"
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
 drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
@@ -1717,6 +1718,8 @@ drop "키 스코프 불일치" scope
 TARGET_SLICER=bambu python3 "$GATE.scope" $FX/process-machine-scope-key.json; echo "exit=$?"
 drop "받지 않는 값" enum
 TARGET_SLICER=bambu python3 "$GATE.enum" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
+drop "외벽을" bridge
+TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-speed-not-lowered.json; echo "exit=$?"
 
 # 종류 판정 근거를 옛 방식(번들 프로파일 종류 합집합)으로 되돌린다 — 목록이 막은 구멍이 다시 열려야 한다
 python3 - "$GATE" "$GATE.bundle" <<'MUT'
