@@ -314,7 +314,7 @@ claude-plugins/
 │   ├── sync-docs.py             # README/CLAUDE.md AUTO 마커 자동 동기화
 │   ├── sync-evals.py            # 스킬 ↔ evals.json 정합성 동기화
 │   ├── run-evals.py             # 플러그인별 assertion 실행
-│   └── validate-plugin.py       # 8-카테고리 플러그인 검증 (V1~V8)
+│   └── validate-plugin.py       # 9-카테고리 플러그인 검증 (V1~V9)
 ├── .harness/                    # 이 레포 자체의 harness 설정 (project.yaml + sprint-contract)
 ├── .claude/                     # 이 레포 개발용 스킬 (research/kaizen, plugin 외부)
 └── README.md
