@@ -432,7 +432,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/rust-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 rust-kit 전 스킬을 전수 감사한다. rust-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.3.0 · 2026-08-13] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)
+> 플러그인 설명: [v0.3.1 · 2026-09-23] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)
 
 ### Step 10: Phase 10 — react-kit 카이젠
 
