@@ -8,6 +8,11 @@
   "compatible_printers": [
     "Bambu Lab H2S 0.4 nozzle"
   ],
+  "bridge_speed": [
+    "25",
+    "25",
+    "25"
+  ],
   "_geometry_class": "lattice",
   "layer_height": "0.12",
   "wall_loops": "2",
