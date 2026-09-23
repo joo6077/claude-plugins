@@ -85,7 +85,7 @@ chore(kaizen-phase<N>): [개선 내용 요약]
 
 ## Step 6: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `scripts/validate-plugin.py rust-kit` 을 실행하여 **8 카테고리(V1~V8: frontmatter · templates · refs · triggers · placeholders · code-fence · plugin-json · hook-exec)** 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py rust-kit` 을 실행하여 **9 카테고리(V1~V9: frontmatter · templates · refs · triggers · placeholders · code-fence · plugin-json · hook-exec · arg-substitution)** 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
@@ -100,6 +100,6 @@ chore(kaizen-phase<N>): [개선 내용 요약]
 - infra-kit/skills/infra-audit/SKILL.md — sibling ground truth (Phase 8 Rule-by-Rule 20-row)
 - harness/docs/guides/skill-design-guide.md — §3.5 · §3.6 · §5.5 · §8.7 · §8.8 · §11 신규 원칙 SSOT
 - harness/docs/guides/agent-design-guide.md — §3.5 · §10 · §12 신규 원칙 SSOT
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 8 카테고리(V1~V8) 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 9 카테고리(V1~V9) 기준 (SSOT)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구
 - `scripts/run-evals.py` — 플러그인 evals 자동화 도구

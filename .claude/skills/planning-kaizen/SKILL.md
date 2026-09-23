@@ -60,7 +60,7 @@ kaizen(planning-kit): [개선 내용 요약]
 
 ## Step 6: Plugin Validation 결과 반영
 
-세션 시작/종료 시 `scripts/validate-plugin.py planning-kit` 실행하여 **8 카테고리 (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec)** 확인. 실행 패턴·우선순위는 `harness/docs/guides/plugin-validation-guide.md §7` SSOT.
+세션 시작/종료 시 `scripts/validate-plugin.py planning-kit` 실행하여 **9 카테고리 (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec / V9 arg-substitution)** 확인. 실행 패턴·우선순위는 `harness/docs/guides/plugin-validation-guide.md §7` SSOT.
 
 # References
 

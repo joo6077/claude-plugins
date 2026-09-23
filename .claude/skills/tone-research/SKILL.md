@@ -72,7 +72,7 @@ python3 scripts/validate-plugin.py tone-kit
 python3 scripts/detect-docs-drift.py
 ```
 
-V1~V8 전부 OK 여야 한다. HTML 페이지가 있으면 drift 도 확인한다.
+V1~V9 전부 OK 여야 한다. HTML 페이지가 있으면 drift 도 확인한다.
 
 ## Step 6. 커밋
 

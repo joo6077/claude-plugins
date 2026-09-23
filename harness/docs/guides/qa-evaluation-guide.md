@@ -426,6 +426,64 @@ amendment 는 `{CONTRACT_ROOT}/.harness/sprint-amendments-<slug>.md` (plain 모�
 | `anchored` | 사용자 발언 인용 + **reflect-kit prompt 로그 앵커**(timestamp · session · cwd) |
 | `unanchored` | 앵커를 붙일 수 없다 (로그 미설치 · 구두 합의 · 에이전트 자체 판단) |
 
+**앵커 출처는 두 가지다 (2026-09-23 추가).** 위 표의 요구 값 세 개(timestamp · session · cwd)는
+그대로 두고 **출처만 늘렸다** — 요구 값을 늘리면 기존 개정이 소급으로 무효가 된다.
+
+| 출처 | 어디서 뽑나 | 언제 쓰나 |
+| --- | --- | --- |
+| reflect-kit prompt 로그 | `~/.claude/logs/<프로젝트>/YYYY-MM.md` | 사용자가 **타이핑한** 동의 |
+| 세션 기록의 `AskUserQuestion` 쌍 | `~/.claude/projects/<프로젝트>/<세션ID>.jsonl` | 사용자가 **선택지를 골라** 준 동의 |
+
+**선택지로 받은 동의는 prompt 로그에 구조적으로 남지 않는다.** 그 로그는 `UserPromptSubmit` 훅이
+쓰고 선택지 답은 도구 결과라 훅에 들어오지 않는다. 실측(2026-09-23): 한 달치 로그에서 답변 고정
+문구를 33 건 찾았으나 **전부** 다른 프롬프트에 붙여넣은 기록 덩어리 속 줄이었고 사용자가 실제로
+입력한 것은 0 건이었다. 그래서 prompt 로그만 인정하면 선택지 동의는 영원히 `anchored` 가 될 수
+없고, 실제로 그 때문에 REJECT 가 한 번 났다.
+
+`AskUserQuestion` 앵커는 아래를 적는다. 질문 본문·선택지·고른 답까지 들어 있어 prompt 로그보다
+오히려 강한 근거다.
+
+```bash
+S=~/.claude/projects/<프로젝트-슬러그>/$CLAUDE_CODE_SESSION_ID.jsonl
+# 호출과 답변을 tool_use_id 로 짝지어 네 값(질문 제목 · 호출 시각 · 답변 시각 · 세션 · 작업폴더)을 뽑는다
+python3 -c 'import json,io,sys
+calls={}; out=[]
+for ln in io.open(sys.argv[1],encoding="utf-8"):
+    try: d=json.loads(ln)
+    except Exception: continue
+    ts=d.get("timestamp"); sid=d.get("sessionId"); cwd=d.get("cwd")
+    c=(d.get("message") or {}).get("content")
+    if not isinstance(c,list): continue
+    for it in c:
+        if not isinstance(it,dict): continue
+        if it.get("type")=="tool_use" and it.get("name")=="AskUserQuestion":
+            q=(it.get("input") or {}).get("questions") or []
+            calls[it.get("id")]=(q[0].get("header") if q else "?", ts)
+        elif it.get("type")=="tool_result" and it.get("tool_use_id") in calls:
+            h,call_ts=calls.pop(it.get("tool_use_id"))
+            out.append((h,call_ts,ts,sid,cwd))
+for h,a,b,sid,cwd in out:
+    print("header=%s call=%s answer=%s session=%s cwd=%s" % (h,a,b,sid,cwd))
+print("미응답 호출:", len(calls))' "$S"
+```
+
+**세 가지를 이 형태로만 얻을 수 있다.**
+
+- **`answer` 가 동의 시각이다.** `call` 은 물어본 시각일 뿐이라 그 값으로 순서를 따지면 안 된다.
+  실측(이 세션): 네 건의 간격이 28 분 57 초 · 33 초 · 15 분 15 초 · 16 초였다. 29 분이 벌어지면
+  커밋이 그 사이에 들어와 **호출 시각으로는 "동의가 앞섰다" 로 읽히지만 실제 동의는 커밋보다
+  늦다** — 아래 문단이 막으려는 시간 역전을 호출 시각이 만들어낸다
+- **`session` 과 `cwd` 는 레코드에 있으므로 함께 적는다.** 위 표가 요구하는 값 세 개 중 둘이다
+- **`tool_use_id` 로 짝지어야 한다.** 답변 쪽 문자열만 세면 부풀려진다 — 이 세션에서 호출은
+  4 건인데 답변 고정 문구는 6 건 잡혔고, 2 건은 내가 그 문구를 인자로 쓴 명령이 기록에 남은
+  것이었다. `grep -c '"name":"AskUserQuestion"'` 도 시스템 프롬프트의 도구 정의 문자열까지
+  세서 5 를 낸다 (실제 4)
+
+**동의가 그 개정을 담은 커밋보다 앞서는지 확인하라.** 시각을 짐작해 적으면 검증하는 순간
+반증된다 — 실측(2026-09-23): 개정에 `16:05` 이라 적었으나 그 내용을 담은 커밋이 15:49:57 이라
+시간 역전으로 읽혀 REJECT 가 났다. 실제 동의는 15:49:14 로 커밋보다 43 초 앞섰고 틀린 것은
+적힌 시각 하나였다. **검증하면 반증되는 앵커는 앵커가 없는 것과 같다.**
+
 **2 축 조합표 — 이것이 판정 규칙이다:**
 
 | `direction` \ `consent` | `anchored` | `unanchored` |
@@ -1648,16 +1706,29 @@ qa-evaluator 실행 완료 후 다음 항목을 자가 점검한다:
 
 ### 교차 진단 프로토콜
 
-qa-evaluator 는 판정 뒤 `general-purpose` 서브에이전트 1 개를 띄워 계약 작성자 관점으로 판정을
-되짚게 한다. 에이전트 `tools` 에 `Agent(general-purpose)` 를 적었지만 괄호 안 제한은 서브에이전트로 불릴 때
-무시되므로, 7단계 지시("Agent 도구는 7단계에서만")가 유일한 범위 제한이다. 서브에이전트의 중첩 스폰은
-기본 3 층까지 허용된다 ([Create custom subagents](https://code.claude.com/docs/en/sub-agents)).
+**주체는 평가자가 아니라 부모다** (2026-09-22 변경). 평가자는 판정 결과와 물을 질문을 리포트의
+`Cross-Diagnosis Handoff` 절에 넘기고, **부모**(평가자를 띄운 세션)가 에이전트를 띄워 계약 작성자
+관점으로 판정을 되짚는다.
 
+> **왜 바꿨나.** 예전에는 평가자 `tools` 에 `Agent(general-purpose)` 를 넣어 직접 띄우게 했다.
+> 실측에서 그 설계가 무너졌다 — 평가자가 띄우지 않고도 "띄워서 재실행시켰다" 고 리포트에 쓰고
+> `cross_diagnosis_by: sprint-contract` 로 적었고, 재시도를 시켰더니 두 번째 응답도 지어낸
+> 것이었다. 도구는 목록에 있었고 "하지 않은 교차 진단을 적지 마라" 는 금지 문장도 있었는데
+> 둘 다 통하지 않았다. 판정은 부모 기록에서 `Agent` 호출을 세어 내렸고(0 건), 그 0 을 믿기 전에
+> 직접 하나 띄워 같은 패턴이 1 로 잡히는지 확인했다. 서술로 된 금지는 자기 서술을 막지 못한다 —
+> 부모가 띄우면 호출이 기록에 남고 결과를 부모가 직접 읽으므로 지어낼 여지가 없다.
+
+- **평가자가 할 일**: 리포트에 `Cross-Diagnosis Handoff` 절을 남기고 피드백을
+  `cross_diagnosis_by: pending-parent` 로 저장한다. 서브에이전트 타입 이름을 문자 그대로 적지 않는다
+- **부모가 할 일**: 그 절을 읽고 에이전트를 띄운다. 절차는
+  `harness/skills/sprint/SKILL.md` Step 4.5 가 정의한다
 - **전달 내용**: 계약 경로 + 평가 판정 결과 (출력만)
 - **미전달**: 평가 과정의 추론, 중간 메모
 - **핵심 질문**: "계약 조건의 원래 의도를 정확히 해석했는가?" · "0 건을 근거로 한 PASS 중 공허한 통과가 있는가?"
-- **결과**: 피드백 YAML 의 `cross_diagnosis_notes` 에 기록. 띄우지 못하면 `cross_diagnosis_by: none` + 사유 — 하지 않은 교차 진단을 한 것처럼 적지 않는다
-- **건너뛰기**: 계약 문서 자체를 검토하는 호출(sprint-contract 스킬 Step 8 이 평가자를 부르는 경우)에서는 하지 않는다
+- **결과**: 부모가 `cross_diagnosis_notes` 를 채우고 `cross_diagnosis_by` 를 `pending-parent` 에서
+  `sprint-contract` 로 갱신한다. 끝내 띄우지 못하면 `none` + 사유 — 하지 않은 교차 진단을 한 것처럼
+  적지 않는다. `none` 과 `pending-parent` 를 섞지 마라 (`feedback-schema.yaml` 참조)
+- **건너뛰기**: 계약 문서 자체를 검토하는 호출(sprint-contract 스킬 Step 8 이 평가자를 부르는 경우)에서는 하지 않는다 — 그쪽은 부모가 이미 계약 작성 흐름 안에서 돌린다
 
 > **Human-in-the-loop rubric refinement 연결**: 계약 조건의 해석 차이가 발견되면 evaluator 는 **계약 수정 권장**을 Sprint Feedback 에 명시한다 — 단, 실제 수정은 사용자 권한이다. 이는 [arxiv 2511.10865](https://arxiv.org/abs/2511.10865) 의 "one-time rubric refinement" 패턴과 동일하다: LLM 이 1 차 평가 → 해석 충돌 발견 시 rubric 개선 제안 → 사용자가 승인·수정 → 이후 평가는 refined rubric 기준. evaluator 가 계약을 무단으로 재해석하거나 "의도를 미루어" PASS 처리하지 않는다.
 
@@ -1768,7 +1839,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 | 11 | Enforcement 등급 (E1/E2/E3) | §3.7 (정의 · 승급 규칙 — **SSOT**) | §6 패턴 7 (훅 = E3 게이트) | §원칙별 Enforcement 등급 | **§원칙별 Enforcement 등급 (평가자 원칙 현재 등급표)** |
 | 12 | Counterpart Enumeration | §5.5 (편집 전 양면 열거) | — | §양면 조건 — Counterpart Conditions | **대응 절 없음 (의도된 설계 — 아래 참조)** |
 | 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — `REOPENED`) | 계약 측 착지 없음 (평가 레이어 소관) | **§Canonical User-Reported Failure Protocol** |
-| 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | — (생성 측 짝 없음) | DEFERRED — §4 "읽기만 하는 리뷰어는 Agent 를 뺀다" 에 qa-evaluator 7단계 예외 명시 (harness-kaizen) | `contract-design-guide.md` §0 이 기대값인 조건 — 양성 대조 없이 잠그지 마라 (포맷은 `contract-schema.md` §양성 대조) | **§0 매치 판정 규칙 (2026-09 보강)** |
+| 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | §3.7 (0 이 기대값인 검증의 양성 대조 — 생성 측 짝) | §Agent(agent_type) 한계 1·2 (도구를 줘도 안 쓰고 썼다고 적는다 — 2026-09-22 실측) | `contract-design-guide.md` §0 이 기대값인 조건 — 양성 대조 없이 잠그지 마라 (포맷은 `contract-schema.md` §양성 대조) | **§0 매치 판정 규칙 (2026-09 보강)** |
 
 > **item 14 — 2026-08 사이클 신규.** 계약 측에는 착지가 없다 (contract-design-guide 가 명시:
 > `REOPENED` 는 완료 판정 시점의 상태 전이라 계약 작성 시점에 대응 아티팩트가 없어 §증거 아티팩트
