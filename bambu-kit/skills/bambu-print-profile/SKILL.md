@@ -1502,22 +1502,23 @@ def num(v):
     except (TypeError, ValueError): return None
 
 def nums(v):
-    """압출기 슬롯 값을 전부 실수로. 하나라도 숫자가 아니면 빈 목록 — 첫 칸만 읽으면 2·3 번 슬롯이 안 보인다."""
+    """압출기 슬롯 값을 실수로. 못 읽는 칸은 None 으로 자리를 지킨다 — 한 칸 때문에 나머지 슬롯 검사가 꺼지면 안 된다."""
     items = v if isinstance(v, list) else [v]
     out = []
     for item in items:
         try: out.append(float(item))
-        except (TypeError, ValueError): return []
+        except (TypeError, ValueError): out.append(None)
     return out
 
 def slots(own, parent):
-    """자식·부모 값을 슬롯별로 짝지어 (슬롯번호, 자식, 부모) 로 낸다. 한 칸짜리는 모든 슬롯에 같은 값이다."""
+    """자식·부모를 슬롯별로 짝지어 (슬롯번호, 자식, 부모) 로 낸다. 한 칸짜리는 모든 슬롯에 같은 값이고, 못 읽는 칸은 건너뛴다."""
     mine, theirs = nums(own), nums(parent)
     if not mine or not theirs: return []
     width = max(len(mine), len(theirs))
     if len(mine) == 1: mine = mine * width
     if len(theirs) == 1: theirs = theirs * width
-    return [(i + 1, mine[i], theirs[i]) for i in range(min(len(mine), len(theirs)))]
+    return [(i + 1, mine[i], theirs[i]) for i in range(min(len(mine), len(theirs)))
+            if mine[i] is not None and theirs[i] is not None]
 
 # 인접 feature: (속도 키, line width 키). gap_infill 은 전용 width 가 없어 line_width 로 폴백한다.
 ADJACENT = (("inner_wall_speed","inner_wall_line_width"),
@@ -1608,7 +1609,7 @@ for p in sys.argv[1:]:
         lh = num(eff.get("layer_height"))
         outer_slots = nums(eff.get("outer_wall_speed"))
         oww = num(eff.get("outer_wall_line_width")) or num(eff.get("line_width"))
-        if lh and outer_slots and oww:
+        if lh and any(value is not None for value in outer_slots) and oww:
             worst, who, slot = 0.0, None, 0
             for sk, wk in ADJACENT:
                 wd = num(eff.get(wk)) or num(eff.get("line_width"))
@@ -1636,13 +1637,14 @@ for p in sys.argv[1:]:
         wall_lowered = [i for i,own,parent in slots(d.get("outer_wall_speed"), par.get("outer_wall_speed")) if own < parent]
         if geometry or wall_lowered:
             bridge_slots = nums(eff.get("bridge_speed"))
-            if not bridge_slots:
-                unverified.append(f"{f}: bridge_speed 실효값 미확인 — 허공 위 속도 미검증")
-            else:
-                over = [(i+1, value) for i, value in enumerate(bridge_slots) if value > 30]
-                if over:
-                    i, value = over[0]
-                    errs.append(f"허공 위 속도 슬롯 {i} 이 bridge_speed={value:g} — 외벽보다 빠른 채로 허공에 걸친다. 20~30 으로 (surface-recipes.md §4)")
+            unreadable = [i+1 for i, value in enumerate(bridge_slots) if value is None]
+            if unreadable or not bridge_slots:
+                where = f"슬롯 {', '.join(str(i) for i in unreadable)}" if unreadable else "전부"
+                unverified.append(f"{f}: bridge_speed {where} 을 못 읽었다 — 그 칸만 미검증 (나머지 칸은 잰다)")
+            over = [(i+1, value) for i, value in enumerate(bridge_slots) if value is not None and value > 30]
+            if over:
+                i, value = over[0]
+                errs.append(f"허공 위 속도 슬롯 {i} 이 bridge_speed={value:g} — 외벽보다 빠른 채로 허공에 걸친다. 20~30 으로 (surface-recipes.md §4)")
     # scarf 길이 / 루프 둘레 비율 검사 (2026-09-05 신규 · seam-recipes.md §2.2)
     if t=="process" and str(d.get("seam_slope_type","none"))!="none":
         L=num(d.get("seam_slope_min_length"))
@@ -1706,6 +1708,7 @@ PY
 | `evals/gate-fixtures/process-bridge-class-recorded.json` | bambu | 허공 위 속도 **FAIL 1 건** (외벽 하향 없음) | `허공 위 속도` 줄을 `pass` 로 | 형상만 재고 외벽을 안 낮춘 설정이 부모 50 을 그대로 쓴다 |
 | `evals/gate-fixtures/process-bridge-extruder-mismatch.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2 만 50) | `허공 위 속도` 줄을 `pass` 로 | 첫 칸만 읽어 2·3 번 슬롯이 안 보인다 |
 | `evals/gate-fixtures/process-thin-outer-slot2.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2 만 하향) | `_geometry_class=thin` 줄을 `pass` 로 | 슬롯별 외벽 하향이 안 보인다 |
+| `evals/gate-fixtures/process-bridge-unreadable-slot.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `허공 위 속도` 줄을 `pass` 로 | 못 읽는 칸 하나가 나머지 슬롯 검사를 통째로 끈다 |
 
 **FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
@@ -1739,6 +1742,7 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-speed-not-lowered.json; e
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-class-recorded.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-extruder-mismatch.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-outer-slot2.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-unreadable-slot.json; echo "exit=$?"
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
 drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
@@ -1755,6 +1759,7 @@ drop "허공 위 속도" bridge
 TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-speed-not-lowered.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-class-recorded.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-extruder-mismatch.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-unreadable-slot.json; echo "exit=$?"
 drop "_geometry_class=thin" thinroute
 TARGET_SLICER=bambu python3 "$GATE.thinroute" $FX/process-thin-outer-slot2.json; echo "exit=$?"
 
@@ -1821,6 +1826,7 @@ TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.js
 - **(2026-09-22)** 외벽을 낮춘 프로파일에 `bridge_speed` 가 없으면 → 부모값(H2S `50`)이 살아남는다. 게이트는 부모를 해석할 수 있을 때만 잡으므로, 해석 실패로 `[미검증]` 이 떴으면 값을 눈으로 확인한다 (`surface-recipes.md` §4)
 - **(2026-09-22)** 소재가 ABS · ASA 인데 출력의 `ironing=topmost` 면 → 기본값 위반. 사용자가 실물 비교 뒤 요청한 경우만 허용이고, 그 근거를 notes.md 에 적었는지 확인한다 (`surface-recipes.md` §5.1)
 - **(2026-09-23)** 속도 키를 슬롯마다 다른 값으로 쓸 이유가 있는지 — 게이트는 이제 슬롯을 전부 읽고 FAIL 문구에 슬롯 번호를 적는다. 부모와 슬롯 수가 다르면(뱀부 3 칸 · 오르카 2 칸) 짧은 쪽까지만 비교하므로, 남는 슬롯은 눈으로 본다
+- **(2026-09-23)** 출력에 `못 읽었다` 미검증 줄이 있으면 그 칸 값을 눈으로 본다 — 게이트는 읽은 칸만 판정한다. 값이 `150%` 같은 비율 표기면 그 키가 비율을 받는 키인지 옵션 목록에서 확인하라 (`bridge_speed` 는 아니다)
 
 #### 4.4 Verify (Import 후 사용자 확인)
 

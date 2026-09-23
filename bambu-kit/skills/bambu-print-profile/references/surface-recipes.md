@@ -270,7 +270,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 | `bridge_flow` | `1.0` 유지; 외관 노출 bridge는 `0.95-1.0` | common `0.95`, override `1` | fdm_process_common.json:12; fdm_process_single_0.12.json:9 |
 | `bridge_speed` | `20-30` mm/s | common `25`, H2S `50` | fdm_process_common.json:14-16 |
 
-### 허공 위 속도는 외벽과 같이 내린다 (2026-09-22 실측, H2 AMS Flipper ABS)
+### 허공 위 속도는 형상을 잰 설정이면 항상 내린다 (2026-09-22 실측, H2 AMS Flipper ABS)
 
 **형상을 재서 `_geometry_class` 를 기록한 프로파일은 `bridge_speed` 를 반드시 같이 쓴다** (외벽을 낮췄으면 더더욱).
 공통 프리셋은 `25` 지만 H2S 프리셋이 `50` 으로 덮어써서, 키를 안 쓰면 외벽만 `30` 이 되고 허공 위 구간은 `50` 으로 남는다 —
