@@ -4,7 +4,7 @@ slug: insights-0924-hooks-skill-collector
 created: "2026-09-24 13:45"
 complexity: "복잡"
 conditions: 36
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:6c15402756476a09
 locked_at: "2026-09-24 14:15"
