@@ -48,7 +48,7 @@ user-invocable: true
   발견한 교차 이슈는 "DEFERRED to phase-N" 주석으로 기록만 하고 해당 Phase 에 위임한다. 이 리스트를 무시하면 Phase 간 변경 충돌 + Regression 원인 추적 불가 상태가 된다.
 
 - **Regression 원인 추적 누락** — Smoke Test FAIL 시 단순 revert만 하고 끝내면 같은 패턴의 실패가 반복된다. revert 후 반드시 "왜 실패했는가"를 1줄로 기록하고 다음 사이클의 피드백 입력으로 활용해라.
-- **`/insights` 3대 마찰점 반영 체크리스트** — Step 4 ANALYZE 단계에서 `.claude/kaizen-input/insights-report.md §Friction Points` 를 대조하라. 개선안이 (1) Proactive quality gaps (Rule-by-Rule Audit / Enumerate-before-Act 강화), (2) Wrong approach / false dichotomies (token/코드 verify 단계 추가), (3) Session truncation (checkpoint commit + SESSION_LOG 유지) 중 어느 것을 해소하는지 mapping. 해당 없으면 "N/A — 리서치 기반 예방적 개선" 로 명시.
+- **`/insights` 마찰 항목 대조** — Step 4 ANALYZE 단계에서 데이터 풀(`.harness/.meta/kaizen-data-pool.md`) §0 의 마찰 항목(§0 본문과 §0-b 세션별 마찰)을 대조하라. 개선안이 그중 어느 마찰을 해소하는지 짝지어 적는다. 요약본 파일을 직접 읽지 마라 — 어느 보고서를 요약한 것인지는 수집기가 가린다. 해당 없으면 "N/A — 리서치 기반 예방적 개선" 로 명시.
 - **Cross-Surface Parity 전파 인식** — 본 harness-kaizen 에서 `harness/skills/{init,create-skill,create-agent,contract-kaizen,evaluator-kaizen,harness-kaizen}/SKILL.md` 를 수정할 때, 수정 내용이 skill/agent/contract/eval 4개 가이드의 parity item 과 연동되는지 확인하라. parity 관련 변경이 필요하면 DEFERRED 로 Phase 1/2/3 에 위임한다.
 
 ## 핵심 제약: 할루시네이션 절대 불가
