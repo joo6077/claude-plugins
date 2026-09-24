@@ -16,5 +16,8 @@ AR-01 ① 이 떨어진다.
 
 - 봉인 커밋: `57f1020040341ad527834b66faa54d2d76233ca3` (계약 파일 1 개, `conditions_digest: sha256:2e3e2f264632e340`)
 - 구현 커밋: `7b4618c68fe3233462a0a6c9813007c1398bf297` — `design-kit/` 열셋 (내 경로만, `git commit -o`)
+- 상한 기록 커밋: `903c9036ab90948ee391ba644d9d253607fb8518` (개정 1 개)
+- notes 커밋: `9067101c39ad798f00f6448b05da990ffc6b19c7` (`phase6-notes.md` · `phase6-review.md`) — 이 Phase 커밋이라 상한을 옮긴다
 
 end_sha: 7b4618c68fe3233462a0a6c9813007c1398bf297
+end_sha: 9067101c39ad798f00f6448b05da990ffc6b19c7
