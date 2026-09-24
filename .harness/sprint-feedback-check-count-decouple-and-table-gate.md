@@ -1,144 +1,226 @@
 # Sprint Feedback
 Feature: 검사 개수를 지시문에서 떼어내고 표 무결성 검사를 추가
-Evaluated: 2026-09-24 12:45
+Evaluated: 2026-09-24 12:50
 Verdict: APPROVE
-Iteration: 2
+Iteration: 3
 
 ## Contract Fingerprint
 - path: /Users/jackson/Hub/10_Dev/claude-plugins/.harness/sprint-contract-check-count-decouple-and-table-gate.md
-- sha256: 320dbcf1f2c4304650e35cc1edf01582bfcc2f1dfc23cdaade530d302582b299
-- status: active
+- sha256: 074c59853f26389e9360f9eb96db518683bc362516951df0dea8f8ca9dde673b
+- status: done (앞 iteration 2 APPROVE 때 이미 전환됨 — 이번 재평가로 새로 바꾸지 않는다)
 - slug: check-count-decouple-and-table-gate
 - contract_root: /Users/jackson/Hub/10_Dev/claude-plugins
 - contract_root_unconfigured: false
-- 선택 근거: ladder 2 세션소유 (owner_session == CLAUDE_CODE_SESSION_ID == f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0, 명시 경로도 사용자가 함께 지정해 일치)
+- 선택 근거: 사용자가 계약 절대경로를 명시 (ladder 1)
 - legacy_contract_used: false
-- seal_status: SEAL_OK (직접 계산 재확인 — `verify_seal` 실행 결과 `SEAL_OK`, 조건 줄 19개 = frontmatter `conditions: 19`)
+- seal_status: SEAL_OK
 - contract_seal_broken: n/a
-- 재확인(Step 5): 일치 (sha256·status 모두 Iteration 1과 동일 — 계약 본문은 이번 개정에서 전혀 바뀌지 않았다)
-- status_transition: active -> done (verdict=APPROVE, status=active였으므로 전환 수행)
+- 재확인(Step 5): 일치 (평가 시작·종료 시점 sha256 동일)
+- 봉인 커밋 대조(1-e-3): 봉인 커밋 2ae9794 이후 계약 파일 diff는 frontmatter `status: active -> done` 한 줄뿐. 조건 줄·산문 전부 봉인 시점과 동일. `reseal_detected: false`
+- status_transition: skipped (verdict=APPROVE 이지만 status 가 이미 done — 전환 대상 아님)
 
-### Iteration 1 → 2 사이 무엇이 바뀌었나 (직접 확인)
-- `f68963d`가 건드린 파일은 `.harness/sprint-amendments-check-count-decouple-and-table-gate.md`, `.harness/sprint-feedback-check-count-decouple-and-table-gate.md` 2개뿐이다 (`git show --name-only --format='' f68963d`로 확인). 계약 파일(`sprint-contract-...md`)은 포함되지 않았다.
-- `git diff --name-only 57fdcb3..f68963d -- . ':(exclude).harness/**'` — 빈 출력. 구현 코드는 Iteration 1 평가 시점(`57fdcb3`)과 바이트 단위로 동일하다.
-- 따라서 **구현을 재검증할 필요가 있는 조건은 ER-02·AR-02 둘뿐**이고, 나머지 17개는 Iteration 1의 PASS 근거를 인용한다 (아래 각 조건에 "Iteration 1 인용 — 코드 미변경 확인" 명시).
+## 재평가 배경 — 구현이 바뀐 이유 직접 확인
+
+Iteration 2 APPROVE 뒤 부모 교차 진단이 V10(`check_v10_table_integrity`)의 코드 판정 결함을
+짚었다 — `startswith` 만 써서 들여쓴 표 행(목록·인용 안에 들어간 표)을 못 봤다는 지적이다.
+아래를 직접 재현해 확인했다.
+
+- `git show 57fdcb3:reflect-kit/skills/reflect-promote/SKILL.md` 를 떠서 확인: 8행 표(헤더+구분선+행0~3) 뒤에
+  `**규칙 #3 판정 근거**: …` 산문 한 문단이 끼어들고 그 뒤에 행4~7이 헤더 없이 이어졌다 — 실제로 깨진 표였다.
+- `git show 04e49f6:reflect-kit/skills/reflect-promote/SKILL.md` 확인: 그 산문이 표 뒤로 옮겨져 8행이 하나의
+  표로 복원됐다.
+- 고친 `check_v10_table_integrity`(현재 `scripts/validate-plugin.py:760`)는 `line.strip().startswith("```")`로
+  코드펜스를 판정하고(V6과 동일 기준), 표행 판정 시 `line.lstrip()`을 써서 들여쓴 표도 본다.
+- 되돌린 판(`57fdcb3` 버전)에 현재 V10을 걸면 `reflect-promote/SKILL.md:66`에서 FAIL, `Exit 2`가 남을
+  것이므로(코드 경로 직접 확인), 그 파일을 고치지 않으면 이 스프린트가 만든 검사 자신이 CI를 막는다.
+  A-04가 그 파일을 AR-01 허용 목록에 추가한 이유이며, 정당하다.
 
 ## Amendments
-- amendments: 3건 (A-01, A-02-첫번째[구현 중 서식 수정], A-02-두번째[REJECT 해소용 재개정]) — 파일 안에 `## A-02`가 두 번 등장한다(서로 다른 내용). 판정에 쓰는 것은 두 번째(REJECT 해소용)다.
-- A-01 (ER-02 측정 오탐 최초 보고): direction=unchanged, consent=n/a — 조건을 고치지 않고 판정을 QA에 위임. Iteration 1이 이미 반영해 REJECT를 냈다.
-- A-02-첫번째 (구현 중 서식 수정 3건): direction=n/a, consent=n/a — 정보성. DG-02 측정으로 이미 확인됨 (Iteration 1).
-- **A-02-두번째 (ER-02·AR-02 재는 말을 검사 번호로 좁힘 — 이번 판정의 핵심)**:
-  - 대상: ER-02, AR-02
-  - 재는 말 변경: `10 카테고리`·`V1~V10`·`V1-V10` → `V1~V10`·`V1-V10` (`10 카테고리` 제거)
-  - **amend_direction_oracle 직접 재계산**: 대상 19개 파일에 원 측정(`grep -c '10 카테고리\|V1~V10\|V1-V10'`)을 걸면 총=3(`backend-kaizen:1`·`infra-kaizen:1`·`rust-kaizen:1`), 개정 측정(`grep -c 'V1~V10\|V1-V10'`)을 걸면 총=0. 원측정 결과 집합 ⊇ 개정측정 결과 집합, 제거 3·추가 0 → `amend_direction_oracle` 정의(제거>0 → relaxing)에 따라 **relaxing**. bash·zsh 양쪽에서 동일 결과. 사이드카가 적은 값과 내가 독립적으로 잰 값이 일치한다.
-  - **consent 직접 재확인 (사이드카 서술이 아니라 세션 기록 원본을 직접 파싱)**: `~/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0.jsonl`을 contract-schema.md §동의 근거 출처의 파이썬 스크립트로 직접 파싱 → `header=REJECT 처리 call=2026-09-24T02:34:33.381Z answer=2026-09-24T02:34:43.593Z session=f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0 cwd=/Users/jackson/Hub/10_Dev/claude-plugins`. 질문 본문(`AskUserQuestion` 호출의 `questions[0]`)과 답변(`tool_result.content`)도 직접 열어 확인 — 3개 선택지("개정으로 재는 말을 좁힌다(추천)" / "FAIL 그대로 남긴다" / "세 파일 문구를 바꾼다") 중 사용자가 고른 답은 정확히 `"개정으로 재는 말을 좁힌다 (추천)"` (tool_result 문자열에 그대로 기록됨). 사이드카가 적은 header·시각·세션·cwd·고른 답 5개 값 전부 원본과 일치 → **consent=anchored** 확정 (출처: 세션 기록의 AskUserQuestion 쌍, prompt 로그가 아님 — 선택지 응답은 prompt 로그에 구조적으로 남지 않으므로 정상).
-  - **시간 역전 점검**: 동의 시각(11:34:43 KST) < 이 개정을 담은 커밋 `f68963d`(11:35:45 KST, `git log -1 --format=%cI f68963d`로 확인) — 62초 앞선다. 시간 역전 없음.
-  - **좁히는 것의 정당성 (git show로 직접 확인)**: 걸린 3건(`backend-kaizen/SKILL.md:26`, `infra-kaizen/SKILL.md:25`, `rust-kaizen/SKILL.md:99`)을 `git show 2ae9794~1`(봉인 직전 커밋)로 대조 → 3건 전부 봉인 이전부터 존재했고, 전부 "감사(backend-audit/infra-audit) 카테고리 10종"이라는 검사 개수와 무관한 개념이다. 이번 구현이 새로 심은 것이 아니고, 검사 개수를 감추는 위장도 아니다.
-  - **좁힌 뒤에도 살아있는지 (양성 대조 직접 실행)**: scratchpad에 README.md 사본을 만들어 `카이젠 세션에 V1~V10 상태를 확인하라`를 추가 → 개정 측정 결과 1 (기대대로 걸림). 대상 파일은 건드리지 않았고 사본은 확인 직후 삭제했다.
-  - **표 대조**: `relaxing × anchored` → contract-schema.md §Amendment 사이드카 2×2 표에서 "PASS 근거 가능 (사용자 재승인 성립)" 칸. Iteration 1의 REJECT 근거(봉인된 문구가 기준·측정 생존·완화 미요청)는 그 시점 기준으로 정당했고, 이번 개정이 정식으로 완화를 요청하고 사용자가 승인했으므로 이제 그 개정된 측정으로 판정한다.
-- PASS 근거 가능: A-02-두번째 (ER-02·AR-02에 적용)
-- PASS 근거 불가: 0건
-- 집합형 direction 계산 결과: `amend_direction_oracle` 로 계산 — `relaxing measured_removed=3 measured_added=0` (내가 직접 grep으로 재현. 사이드카는 "패턴 3→2개"로 서술했으나 나는 실제 매치 라인 집합 기준으로 재계산해 같은 결론에 도달했다 — 더 엄격한 확인)
+
+- amendments: 5건 (A-01~A-05, 번호 중복 없음 — `grep -n '^## A-'` 확인)
+- PASS 근거 가능: 2건 — A-03(ER-02·AR-02 측정 좁힘), A-04(AR-01 허용 목록 22개로 확장)
+- PASS 근거 불가 조합: 0건
+- A-01: 정보성 보고 (오탐 발견 서술). direction=`unchanged`. 판정에는 A-03이 대체
+- A-02: 구현 중 사소 수정 3건. 조건 판정 무관
+- A-03: `amend_direction_oracle` — 재는 낱말집합 {10 카테고리, V1~V10, V1-V10} → {V1~V10, V1-V10}.
+  직접 계산: `removed=1 added=0` → **relaxing** (측정 집합이 준 것이므로 `amend_direction_oracle`이
+  맞는 헬퍼 — 자기신고 아님, 계산 확인함). consent=`anchored` —
+  세션 기록의 `AskUserQuestion` 쌍을 내가 직접 파싱해 확인: header="REJECT 처리",
+  call=2026-09-24T02:34:33.381Z, answer=2026-09-24T02:34:43.593Z, session=f5b7f3a5-...,
+  cwd=/Users/jackson/Hub/10_Dev/claude-plugins — 개정 문서의 기재와 정확히 일치.
+  순서 확인: 동의(02:34:43.593Z) < 그 개정을 구현한 커밋 f68963d(2026-09-24T11:35:45+09:00=02:35:45Z).
+  시간 역전 없음. → PASS 근거로 사용 가능(표: relaxing×anchored)
+- A-04: `amend_direction` — 허용 파일 집합(AR-01) 21개 → 22개, `comm` 계산: `added=1 removed=0` →
+  **relaxing**. consent=`anchored` — 이번엔 두 출처를 모두 확인했다: (1) 세션 기록의 `type=user`
+  메시지(시각 2026-09-24T03:34:07.454Z, 내용 "…: 개정으로 1개 추가 (추천)") (2) 같은 내용이
+  reflect-kit prompt 로그 `~/.claude/logs/claude-plugins/2026-09.md:63689`에
+  `## [prompt] 2026-09-24T12:34:07+0900` + `- session:` + `- cwd:` 형식으로 그대로 존재 —
+  스키마가 요구하는 "reflect-kit prompt 로그" 출처와 정확히 일치한다(개정 문서가 "세션 기록에서
+  뽑았다"고 적었지만 실제로는 두 출처 모두에서 확인되므로 분류가 맞다).
+  순서 확인: 동의(03:34:07.454Z) < 구현 커밋 04e49f6(2026-09-24T12:35:20+09:00=03:35:20Z),
+  74초 앞섬. 시간 역전 없음. → PASS 근거로 사용 가능(표: relaxing×anchored)
+- A-05: 판정 뒤 고친 것 3건(코드펜스 판정 기준 통일, 서술 오류 정정, `--help` 옛 개수 제거).
+  조건 판정 결과에 영향 없음(각주 처리)
 
 ## User Correction Audit
+
 - correction_log_status: available (`~/.claude/logs/claude-plugins/2026-09.md`)
-- 스프린트 기간: Iteration 1 평가 시각(2026-09-24 12:10) ~ 이번 평가 시각(2026-09-24 12:45)
-- unreflected_corrections: 0 — 이 구간에 `[prompt]` 항목 없음(로그의 마지막 prompt는 11:07:00으로 이 구간보다 이전). REJECT 처리는 `AskUserQuestion` 선택지 응답으로 이뤄졌고, 이는 설계상 prompt 로그에 남지 않는다(contract-schema.md §앵커 출처 2 참조) — 로그 부재가 곧 반영 누락을 뜻하지 않는다.
+- unreflected_corrections: 0 — 이번 재평가 구간의 사용자 발언은 위 A-03·A-04 동의로 전부
+  사이드카에 반영되어 있다
 - verdict 영향: 없음 (표면화 전용)
 
 ## Cross-Diagnosis Handoff
 
-> 이번 호출은 부모 에이전트(오케스트레이터)가 이미 REJECT 사유 분석과 개정 검토 방향을 지정한
-> 재평가다. 지시에 따라 이 평가에서는 Step 7의 `Agent` 도구를 띄우지 않았다.
-
 - 상태: pending-parent
-- 부모가 이어서 검토할 것: 이 리포트 전문(특히 아래 Amendments 절의 `amend_direction_oracle`·`consent` 직접 재계산 근거와 ER-02/AR-02 판정 근거)
-- 부모가 확인하면 좋을 것:
-  1. `A-02` 헤더가 이 사이드카 파일 안에서 두 번 재사용됐다(서식 수정 건과 REJECT 해소 건). 식별자 충돌이므로 다음에는 `A-03`으로 번호를 이어가는 규칙을 명문화할 필요가 있다.
-  2. 이번 완화(relaxing)가 정당한 이유는 "걸린 3건이 봉인 전부터 있던 무관한 개념"이라는 사실에 전적으로 의존한다. 이 사실은 이번 평가에서 `git show 2ae9794~1`로 재확인했다(위 Amendments 절).
-- `cross_diagnosis_by`: pending-parent (지시에 따름 — 이 평가에서는 자체적으로 Agent를 띄우지 않았다)
+- 부모가 띄울 때 넘길 것: 계약 절대경로
+  `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/sprint-contract-check-count-decouple-and-table-gate.md`
+  · 이 판정 결과 전문
+- 부모가 물을 두 가지:
+  1. 계약 조건의 원래 의도와 다르게 해석해 PASS/FAIL 을 오판한 조건이 있는가? (특히 AR-01·ER-02·AR-02의
+     amendment 적용 판정)
+  2. 0 건·빈 출력을 근거로 PASS 한 조건(SK-01·ER-02·AR-02·AR-03) 중, 문제가 있어도 0 을 냈을
+     측정(공허한 통과)이 있는가?
+- 부모가 교차 진단을 마친 뒤 `cross_diagnosis_by` 를 `sprint-contract` 로 갱신한다.
 
 ## Results
 
 ### Skill (3/3)
-- [x] SK-01: 21개 파일 중 기준 문서를 뺀 20개(스크립트 제외 시 실측 대상 19개)에 개수·범위 표기 0줄 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인(`git diff 57fdcb3..f68963d`가 `.harness/` 외 빈 출력). 원 근거: 측정 스크립트 실행 결과 `총=0 대상=19`, 양성 대조로 봉인 전(c0e12a8) 상태에 같은 스크립트를 걸어 `총=32` 확인. L3
-- [x] SK-02: 검사 목록을 얻는 명령이 지시문에 실려 있다 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인. 원 근거: `grep -Fc 'check_v[0-9]'`가 3개 파일(design-kaizen·rust-kaizen·tone-kaizen)에서 매치, 그 명령을 bash·zsh 양쪽에서 실행해 10개 검사 이름 정상 출력. L3
-- [x] SK-03: `sprint-contract/SKILL.md` 병합 서술이 재배치도 인정하고 위험을 구별한다 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인. 원 근거: `harness/skills/sprint-contract/SKILL.md:746-754`에 "main이 앞서" 문구 존재, `grep -Fc '재배치'`=4. L3
+- [x] SK-01: 21개 파일 중 기준 문서를 뺀 20개(.py 제외 19개)에 개수·범위 표기 0줄 — PASS
+  - 근거: L3. 계약 지정 측정 명령 직접 실행 → `총=0 대상=19`. 개별 파일 스캔 결과에서
+    양성 매치 0건 확인 (grep -c '9 카테고리\|9-카테고리\|V1~V9\|V1-V9')
+- [x] SK-02: 검사 목록을 얻는 명령이 지시문에 실려 있다(최소 3개 파일) — PASS
+  - 근거: L3. `.claude/skills/design-kaizen/SKILL.md`, `.claude/skills/rust-kaizen/SKILL.md`,
+    `.claude/skills/tone-kaizen/SKILL.md` 3개 파일에 `check_v[0-9]` 패턴 각 1건 확인
+    (요구 최소 3개 충족)
+- [x] SK-03: sprint-contract/SKILL.md 의 병합 서술이 재배치를 인정하고 위험을 구별 — PASS
+  - 근거: L3. `harness/skills/sprint-contract/SKILL.md:746-752` 직접 Read.
+    `재배치` 4건, 같은 문맥에 "`main` 이 앞서 있으면" · "해시가 바뀌어" 명시. 위험(인용 해시가
+    조상 아니게 됨)을 정확히 서술함
 
 ### Script (2/2)
-- [x] SC-01: `scripts/validate-plugin.py`에 표 무결성 검사가 V10으로 등록됐고 돌아간다 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인. 이번에도 `python3 scripts/validate-plugin.py --check=table-integrity` 재실행해 `14 plugins, 14 OK / Exit: 0` 직접 재확인(신규 실행 산출물). L3
-- [x] SC-02: 전체 실행이 `14 plugins, 14 OK · Exit: 0`이다 — PASS
-  - 근거: 이번 평가에서 직접 재실행 — `python3 scripts/validate-plugin.py` 전체 실행 결과 마지막 두 줄 `Total: 14 plugins, 14 OK` / `Exit: 0` (신규 실행 산출물, V10을 포함한 10개 카테고리 전부 OK 로그 확인). L3
+- [x] SC-01: `validate-plugin.py`에 표 무결성 검사가 V10으로 등록되고 돌아간다 — PASS
+  - 근거: L3. (a) `grep -c 'def check_v10' scripts/validate-plugin.py` = 1
+    (실제 함수명 `check_v10_table_integrity`, 부분 일치로 조건 문구 충족)
+    (b) `grep -oE '"[a-z-]+": check_v10'` = 1건 (`"table-integrity": check_v10`)
+    (c) `python3 scripts/validate-plugin.py --check=table-integrity` → 14 plugins 14 OK
+    양성 대조 직접 재현: `git show ac77cdc:harness/references/contract-schema.md` 를
+    임시 파일로 떠서 검사하니 `FAIL …:1036 — 헤더 없이 끊긴 표 행` 1건 정확히 재현.
+    확인 뒤 즉시 삭제, `git status --porcelain` 로 흔적 없음 확인
+- [x] SC-02: `python3 scripts/validate-plugin.py` 전체가 14 plugins 14 OK Exit 0 — PASS
+  - 근거: L3. 직접 실행 → `Total: 14 plugins, 14 OK` / `Exit: 0`.
+    음성 대조 직접 재현: 위 임시 파일 존재 상태에서 전체 실행 →
+    `Total: 14 plugins, 13 OK, 1 ERROR` / `Exit: 2` (V10이 정확히 FAIL을 유발함을 확인).
+    파일 삭제 후 재실행 → 다시 14 OK 로 복구 확인
 
 ### Error (2/2)
 - [x] ER-01: V10 대상 범위가 V6보다 넓고 이유가 적혀 있다 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인. 원 근거: `check_v10_table_integrity` 함수 안 `docs` 3회, 가이드 문서에 범위·이유 서술. L3
-- [x] ER-02: 개수 표기를 지운 자리가 "등록된 검사 전부" 같은 개수 없는 표현으로 바뀌었다 — **PASS** (Iteration 1 FAIL → 개정 A-02-두번째로 뒤집힘)
-  - 개정 전 측정값(참고): `grep -c '10 카테고리\|V1~V10\|V1-V10'` = 총 3 (Iteration 1과 동일하게 재확인)
-  - **개정 후 측정값(판정 기준)**: `grep -c 'V1~V10\|V1-V10'`을 대상 19개 파일에 실행 → **총=0** (기준: 0, 충족). bash·zsh 양쪽 동일.
-  - 판정 이유: A-02-두번째 개정이 `amend_direction_oracle=relaxing`·`consent=anchored`이고 둘 다 이번 평가에서 원본 자료(git show·세션 JSONL)로 독립 재확인됐다. 2×2 표에서 `relaxing×anchored`는 "PASS 근거 가능(사용자 재승인 성립)" 칸에 해당하므로, 개정된 측정으로 판정한다. 걸렸던 3건은 봉인 전부터 있던 감사 카테고리 명명(검사 개수와 무관)이며 구현이 새로 심은 결함이 아님을 `git show 2ae9794~1`로 재확인했다.
-- [ ] ~~ER-01 중복~~ (표기 정정용, 무시)
+  - 근거: L3. `check_v10_table_integrity` 함수 내 `docs/**/*.md` glob 포함(문자열 "docs" 3회
+    등장 — `ctx.kit_path.glob("docs/**/*.md")` 및 docstring 2곳).
+    `harness/docs/guides/plugin-validation-guide.md:450-453` (### V10 마크다운 표 무결성 절)에
+    이유 서술 확인 — A-05가 고친 정정판("표가 끊긴 자리는 원래 V6 범위 안이었고, 넓힌 이유는
+    같은 종류 문서가 docs/에도 있어서")이 실제로 반영되어 있음을 직접 Read로 확인
+- [x] ER-02: 개수 표기를 지운 자리가 "등록된 검사 전부" 식으로 바뀌었다 (개수 신규 박기 없음) — PASS
+  - 근거: L3 (amendment A-03 적용). 좁힌 측정 명령(`grep -c 'V1~V10\|V1-V10'`)을 20개 파일에
+    직접 실행 → `총=0`. A-03의 direction·consent 검증은 위 Amendments 절 참조
 
 ### Architecture (4/4)
-- [x] AR-01: 변경 파일이 21개 경로와 정확히 일치 — PASS
-  - 근거: 이번 평가에서 직접 재실행 — `sprint_head`가 새 HEAD `f68963d`로 resolve(STALE_HEAD 아님), `git diff --name-only c0e12a8..f68963d -- . ':(exclude).harness/**'` → 21행, 선언 목록과 완전 일치(신규 실행 산출물 — HEAD가 Iteration 1의 `57fdcb3`에서 `f68963d`로 바뀌었으므로 재실행이 필요했다). L3
-- [x] AR-02: 기준 문서가 개수를 적는 유일한 자리가 됐다 — **PASS** (Iteration 1 FAIL → 개정 A-02-두번째로 뒤집힘, ER-02와 같은 개정·같은 측정 공유)
-  - 전반부: `harness/docs/guides/plugin-validation-guide.md`에 개정 측정(`V1~V10\|V1-V10`) ≥1 — 실측 2건(27행, 593행). 충족.
-  - **후반부(개정 후 측정, ER-02와 동일)**: 대상 19개 파일에 `V1~V10\|V1-V10` = **총 0**. 충족.
-  - 판정 이유: ER-02와 동일한 개정·동일한 근거를 공유하므로 같은 결론. 별도 해석을 만들지 않았다.
+- [x] AR-01: 변경 파일이 21개 경로와 정확히 일치 (amendment A-04 적용 시 22개) — PASS
+  - 근거: L3. `sprint_head` 해석 → `04e49f6`(UNRESOLVED 아님, STALE_HEAD 아님).
+    `git diff --name-only c0e12a8..04e49f6 -- . ':(exclude).harness/**'` → 정확히 22행,
+    전부 원 21개 목록 + `reflect-kit/skills/reflect-promote/SKILL.md`(A-04로 추가된 1개)와
+    1:1 일치. A-04의 direction·consent 검증은 위 Amendments 절 참조
+- [x] AR-02: 기준 문서가 개수를 적는 유일한 자리 (그 밖 20개는 0) — PASS
+  - 근거: L3. `plugin-validation-guide.md`에 `V1~V10` 2건 확인. `scripts/validate-plugin.py`
+    포함 나머지 19개(+py) 파일에서 `V1~V10\|V1-V10` 0건. (참고: 가이드 문서 안에 "카테고리"
+    관련 표기가 4곳 있다는 A-05의 자기 신고를 직접 확인했으나, AR-02 조건 문구는 "그 문서
+    밖 0건"만 요구하므로 문자 그대로 PASS. 이 문서-내부-단일화 갭은 이미 A-05가
+    "다음 스프린트로 남기는 것"에 기록해 뒀다 — 계약 갭이지 이번 조건의 미충족이 아님)
+- [x] AR-03: 손대지 않기로 한 것이 변경되지 않았다 — PASS
+  - 근거: L3. `git diff c0e12a8..04e49f6 -- harness/evals/` = 0행,
+    `-- docs/kaizen/` = 0행. `verify_seal`을 `find .harness -name 'sprint-contract*.md'`
+    (maxdepth 없음) 전체에 실행 → `SEAL_OK 63 · SEAL_ABSENT 10 · SEAL_BROKEN 0`
+- [x] AR-04: 이 계약 자신이 봉인 커밋 절차를 따랐다 — PASS
+  - 근거: L3. `git log --diff-filter=A -- .harness/sprint-contract-check-count-decouple-and-table-gate.md`
+    → 첫 커밋 `2ae9794`. `git show --name-only --format='' 2ae9794` → 파일 1개
+    (`.harness/sprint-contract-check-count-decouple-and-table-gate.md`)
 
-### Anti-patterns (2/2, 계약 조건 기준)
-- [x] AP-03: bare code fence 0건 (V6 대상 7개) — PASS
-  - 근거: 이번 평가에서 직접 재실행 — `python3 scripts/validate-plugin.py --check=code-fence` → 14 plugins 14 OK, Exit 0 (신규 실행 산출물). L3
-- [x] AP-04: frontmatter가 보존됐다 (V1 FAIL 0건) — PASS
-  - 근거: 이번 평가에서 직접 재실행 — `python3 scripts/validate-plugin.py --check=frontmatter` → 14 plugins 14 OK, Exit 0 (신규 실행 산출물). L3
-
-#### 참고: project.yaml 표준 안티패턴(계약 조건 아님, 부가 확인)
-- AP-01(`hardcoded.*version`): Iteration 1 인용 — 코드 미변경 확인, 원 근거 0건
-- AP-02(`git push.*--force`): Iteration 1 인용 — 코드 미변경 확인, 원 근거 0건
+### Anti-patterns (2/2, + 프로젝트 공통 AP-01·AP-02 위반 0건)
+- [x] AP-03: bare code fence 0건(V6 대상) — PASS
+  - 근거: L3. `python3 scripts/validate-plugin.py --check=code-fence` → 14 plugins 14 OK
+- [x] AP-04: frontmatter 보존, V1 FAIL 0건 — PASS
+  - 근거: L3. `python3 scripts/validate-plugin.py --check=frontmatter` → 14 plugins 14 OK
+- 프로젝트 공통 anti_patterns(project.yaml) AP-01(hardcoded version)·AP-02(force push):
+  변경 파일 22개 전체에 패턴 검색 → 0건. 대상 파일 수 > 0 확인(공허한 0 아님)
 
 ### Reusability (2/2)
-- [x] RE-01: V10이 기존 검사와 같은 형태다 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인. 원 근거: `def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:` 시그니처 V6·V9와 동일. L3
-- [x] RE-02: 판정 코드가 validate-plugin.py 한 곳에만 있다 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인. 원 근거: 가이드 문서에 `def ` 파이썬 함수 정의 0건. L3
+- [x] RE-01: V10이 기존 검사(V6·V9)와 같은 시그니처·형태를 따른다 — PASS
+  - 근거: L3. `def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:` 시그니처가
+    `check_v6_code_fence`·`check_v9_arg_substitution`과 동일. 함수 내 `ctx.read`·`CheckResult`
+    각 사용 확인
+- [x] RE-02: 판정 로직이 `validate-plugin.py` 한 곳에만, 기준 문서는 가리키기만 — PASS
+  - 근거: L3. `grep -c '^def ' harness/docs/guides/plugin-validation-guide.md` = 0
 
-### Diagnostics (1/1, N/A 3건)
-- N/A DG-01: `commands.analyze` 대상과 변경 파일 교집합 0 — Iteration 1 인용, 코드 미변경 확인.
-- [x] DG-02: 편집기와 같은 조건 마크다운 경고가 기준을 넘지 않는다 — PASS
-  - 근거: Iteration 1 인용 — 코드 미변경 확인(20개 대상 .md 파일이 바이트 단위로 동일하므로 markdownlint 결과도 동일할 수밖에 없다 — `git diff 57fdcb3..f68963d`가 해당 파일들에 대해 빈 출력임을 확인). 원 근거: `347 issues, 49 조합`, 봉인 전 대비 늘어난 조합 0.
-- N/A DG-03: `commands.test` 대상과 변경 파일 교집합 0 — Iteration 1 인용, 코드 미변경 확인.
-- N/A DG-04: 실행 진입점 없음 — Iteration 1 인용, 코드 미변경 확인. 대체 조건 SC-02는 PASS(이번 평가에서 재실행 확인).
+### Diagnostics (2/2, N/A 2)
+- [x] DG-01: N/A — 근거 확인: AR-01의 22행에 `scripts/release.sh` 0건 (사유 사실과 일치)
+- [x] DG-02: 편집기 조건 마크다운 경고가 기준값 이내 — PASS
+  - 근거: L3. scratchpad에 `markdownlint-cli2@0.23.2` 설치, `{"config":{"MD013":false}}` 설정으로
+    대상 20개 .md 파일에 직접 실행(zsh unquoted 변수 word-split 실패를 발견해 xargs로 우회 —
+    최초 시도 "Linting: 0 files" 였던 것을 원인 규명 후 재실행).
+    결과: 총 347건, (파일,규칙) 조합 49개 — 계약의 봉인 전 기준값(347건·49조합)과 정확히 일치.
+    조합별 개수까지 산출해 통합 목록으로 확인(늘어난 조합 0개)
+- [x] DG-03: N/A — DG-01과 동일 사유·측정
+- [x] DG-04: N/A — SC-02가 실질 검사 역할 수행(위에서 PASS 확인)
 
 ## Unverifiable Summary
 - invalid_evidence: 0
 - env_gaps: 0
-- verified_coverage: (19 - 0) / 19 = 1.00 (임계 0.60 충족)
+- verified_coverage: (19-0)/19 = 1.00 (임계 0.60 충족)
 - 연속 ENV 승급: 없음
-- Verdict 영향: 통상 (미검증 카운터 해당 없음 — 전 조건 PASS)
+- Verdict 영향: 통상
 
 ## Discrimination (규칙 12 적용 조건 없음)
-- 이번 19개 조건 중 규칙 12의 9항(동시성 가드·인증/권한·멱등성·입력 검증·데이터 유실·마이그레이션 안전성·재시도/중복제거·보안 경계·사용자 결함 보고 충돌)에 해당하는 조건 없음 — 전부 문서/스크립트 구조 검증. 해당 없음.
+- 적용 조건: 없음 — 이 스프린트 조건 중 동시성 가드·인증/권한·멱등성·입력 검증·데이터 유실·
+  마이그레이션·재시도/중복제거·보안 경계·사용자 결함 보고 충돌 어디에도 해당하지 않음
 
 ## User-Reported Failures
-- 없음. (참고: ER-02·AR-02는 사용자 버그 신고가 아니라 QA 자체 REJECT였고, 개정을 통해 정식 절차로 해소했다 — §Canonical User-Reported Failure Protocol 대상 아님)
+- 없음 (사용자로부터 별도 실패 보고 없음. 이번 재평가는 부모 교차 진단이 짚은 코드 결함에 대한
+  자발적 수정이며, 위 "재평가 배경"에서 직접 재현·확인함)
 
 ## Evidence Validity
-- 검사 대상 증거: 19건(조건) + 부가 2건(AP-01/AP-02) + amendment 재계산 2건(amend_direction_oracle, consent)
+- 검사 대상 증거: 19건 (조건별) + amendment 2건(A-03·A-04) + 봉인·재봉인 대조
 - 무효 판정: 0건
-- 셸 스니펫 실행 검증: ER-02/AR-02의 개정 측정 스니펫을 bash·zsh 양쪽에서 실행해 동일 결과(총=0) 확인. AR-01·SC-02·AP-03·AP-04는 이번 평가에서 신규로 직접 재실행.
-- 양성 대조: ER-02/AR-02 개정 측정 — scratchpad 사본에 `V1~V10` 문구를 넣어 1 확인(직접 실행, 사이드카 서술을 인용만 하지 않고 재현). SK-01 등 나머지는 Iteration 1에서 이미 대조 완료, 코드 미변경으로 유효 유지.
-- consent 근거: 세션 JSONL을 직접 파싱해 사이드카의 5개 값(header·call·answer·session·cwd·고른 답) 전부 원본과 대조 일치 확인 — 사이드카 서술을 근거로 인용하지 않고 원본 기록에서 직접 추출했다.
-- 무효 0건은 미검증 카운터에 합산 없음
+- 셸 스니펫 실행 검증: 실행 다수건, zsh 문제 1건 직접 발견 및 우회 확인 (DG-02 측정 시
+  `$FILES` unquoted 변수를 zsh에서 word-split 안 해 "Linting: 0 files"로 죽는 것을 발견 →
+  xargs로 재실행하여 정상 측정값 획득. contract-schema §셸 이식성 규약이 경고하는 바로 그 함정)
+- 양성 대조: SC-01/SC-02 — `ac77cdc:harness/references/contract-schema.md`를 임시 파일로 사용해
+  1건 FAIL·Exit 2 재현 확인 후 즉시 삭제. AR-03(iii) — 계약 63개 전체에 verify_seal 실행해
+  SEAL_BROKEN 0건 확인(양성 대조: SEAL_BROKEN을 낼 변조 파일은 만들지 않음 — 이미 이 레포에
+  SEAL_ABSENT 10건이 실재해 verify_seal 함수 자체의 판별력은 별도로 검증됨)
+- 추가 실행: V10 개선판의 오탐 여부를 직접 검증하기 위해 인용문 표·목록 내 들여쓴 표·HTML 표·
+  표 뒤 각주·4중 백틱 안 3중 백틱 5개 합성 사례를 `probe-kit/`에 만들어 `check_v10_table_integrity`를
+  직접 호출·검사함. 결과: 4개는 정확히 판정(오탐 없음), 1개(4중 백틱 안 3중 백틱)는 FAIL 오탐 —
+  단, 이는 A-05가 "다음 스프린트로 남기는 것" 3번에 이미 명시적으로 기록한 기존 한계이고 실제
+  210개 파일 코퍼스에는 해당 패턴이 0건이라 이번 조건(SC-02: 14 OK)에는 영향 없음. 확인 후
+  `probe-kit/` 즉시 삭제, `git status --porcelain`으로 흔적 없음 확인
+- 무효 0건 — 미검증 카운터 변화 없음
 
 ## Summary
-- Total: 19 PASS / 0 FAIL / 3 N/A (19 conditions)
-- Verdict: **APPROVE**
+- Total: 19/19 conditions passed
+- Verdict: APPROVE
 
 ## Improvement Suggestions
-- [문서 정리] 사이드카 파일(`sprint-amendments-check-count-decouple-and-table-gate.md`) 안에서 `## A-02` 헤더가 서로 다른 내용으로 두 번 등장한다(구현 중 서식 수정 건 / REJECT 해소 재개정 건). 다음부터는 새 개정마다 번호를 이어가라(`A-03`) — 식별자 재사용은 나중에 "어느 A-02를 말하는가"를 되짚어야 하는 비용을 만든다.
-- [SK-03] 측정-환경-오염 — Iteration 1에서 이미 지적됨(양성 대조 문구가 실측과 다름). 이번 판정에는 영향 없으나 다음 계약 작성 시 재적용 필요.
+- [AR-02] 범위-미명시 — 기준 문서(`plugin-validation-guide.md`) 안에서 개수 표기가 4곳
+  (줄 10, 27, 599, 629)에 흩어져 있다. 계약은 "한 곳에만"이라 서술했으나 측정 조건은 그것을
+  재지 않는다. 다음 계약에서는 "기준 문서 안에서도 §3 헤더 한 곳에만 등장"처럼 문서 내부
+  단일화까지 재는 조건을 명시할 것을 권고 (A-05가 이미 이 갭을 자체 기록해 둠 — 구현 결함이
+  아니라 계약 결함)
+- [ER-02/AR-02] 측정-방식-불일치 — 이번 계약이 A-01→A-03 두 단계를 거쳐 "10 카테고리"를
+  재는 낱말에서 빼는 데 도달했다. 다음부터는 처음부터 검사 번호 표기(`V1~VN`)만 재고,
+  "N 카테고리" 류는 이 레포에서 감사 카테고리(backend/infra-kit 10종)와 항상 겹치므로
+  애초에 재는 낱말 후보에서 제외할 것
+
+## References
+- 계약: .harness/sprint-contract-check-count-decouple-and-table-gate.md
+- 개정: .harness/sprint-amendments-check-count-decouple-and-table-gate.md (A-01~A-05)
+- 검사 스크립트: scripts/validate-plugin.py
+- 기준 문서: harness/docs/guides/plugin-validation-guide.md
