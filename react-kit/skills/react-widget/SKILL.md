@@ -14,7 +14,7 @@ user-invocable: true
 1. **기존 shadcn 컴포넌트 직접 수정 금지** — shadcn은 "코드 소유" 모델이라 수정이 가능하지만, `/react-widget`은 래핑해서 확장한다. 직접 수정은 shadcn CLI 업데이트 시 충돌. shadcn v2 (CLI v4, 2026-03) 는 `--dry-run`/`--diff` 플래그로 설치 전 미리보기 가능.
 2. **`cn` 유틸리티 경로 고정** — `@/presentation/shared/lib/utils`의 `cn(...)`을 import한다. `@/lib/utils` 같은 다른 경로 사용 금지 (Clean Arch 준수).
 3. **`React.FC` 금지** — 제네릭 추론이 약하고 children이 암묵적으로 포함된다. 대신 `(props: Props) => JSX.Element` 또는 React 19 `ref as prop` 패턴 사용.
-4. **React 19 `ref as prop` 권장 — `forwardRef` deprecation 예고** — React 19 stable(2024-12, 2026-04 현재 19.2+) 에서 **`ref` 는 일반 prop 으로 전달 가능**하다. 새 컴포넌트는 `forwardRef` 없이 `ref?: Ref<HTMLButtonElement>` 를 Props 타입에 포함한다. 기존 `forwardRef` 컴포넌트는 하위호환으로 경고 없이 동작하지만 새 코드는 ref-as-prop 패턴 고정. displayName 설정도 함수명만 제대로 붙으면 자동 추론됨 (React v19 블로그, shadcn tailwind-v4 docs).
+4. **React 19 `ref as prop` 권장 — `forwardRef` deprecation 예고** — React 19 stable(2024-12, 2026-09-24 조회 npm `latest` 19.3.0) 에서 **`ref` 는 일반 prop 으로 전달 가능**하다. 새 컴포넌트는 `forwardRef` 없이 `ref?: Ref<HTMLButtonElement>` 를 Props 타입에 포함한다. 기존 `forwardRef` 컴포넌트는 하위호환으로 경고 없이 동작하지만 새 코드는 ref-as-prop 패턴 고정. displayName 설정도 함수명만 제대로 붙으면 자동 추론됨 (React v19 블로그, shadcn tailwind-v4 docs).
 
     나쁜 예 — forwardRef 신규 작성:
 
@@ -55,7 +55,8 @@ user-invocable: true
 13. **템플릿 내 확장 포인트 주석은 미완성 마커가 아니다** — 아래 Process 템플릿에 등장하는 `// 사용자가 지정한 --variants 값들을 여기에 추가`, `// 필요한 추가 props 를 여기에 선언` 같은 주석은 스킬 사용자가 파라미터로 확장하는 **지점 안내**이지 구현 대기 미완성 마커가 아니다. 생성된 위젯 파일에 미완성 키워드(대문자 4글자 T-O-D-O / F-I-X-M-E / X-X-X) 문자열을 남기지 않는다. 스킬 산출물은 그 자리에서 컴파일 가능한 완결 코드여야 한다.
 14. **Enumerate-before-Act (skill-design-guide §5.5)** — 위젯을 생성하기 전에 기존 `src/presentation/shared/components/*` 와 shadcn `components/ui/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 정확히 같은 이름뿐 아니라 (b) 유사 역할 컴포넌트(이미 있는 `Button` 을 `PrimaryButton` 으로 재발명), (c) shadcn 기본 컴포넌트로 충족 가능한지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. shadcn 재발명·중복 컴포넌트는 widget-inspector-react 가 사후 검출하지만, enumerate 로 선(先) 방지하는 편이 비용이 낮다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
 15. **요청한 위젯만 — 임의 variant·상태 확장 금지** — 사용자가 지정한 `--variants`/`--sizes` 만 생성한다. "버튼 만들어줘" 요청에 loading·disabled·icon-only·destructive 같은 variant 를 요청 없이 임의로 덧붙이지 마라. 디자인 시스템상 표준 variant 가 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
-16. **렌더 증거 없이 완료 선언 금지 (E2)** — cva variant 를 선언했다는 것과 그 variant 가 실제로 다르게 보인다는 것은 다른 사실이다. Tailwind 클래스 오타·Merge 충돌·토큰 미정의는 타입 검사를 전부 통과한다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` 의 §4 체크리스트를 응답에 채운다. 증거를 얻을 수 없으면 해당 항목에 `[미검증]` 마커와 사유를 붙이고 **부분 완료로 보고**한다. 임계값·마커 정의는 그 문서가 인용하는 상위 SSOT 를 따르며 여기서 재정의하지 않는다.
+16. **렌더 증거 없이 완료 선언 금지 (E2)** — cva variant 를 선언했다는 것과 그 variant 가 실제로 다르게 보인다는 것은 다른 사실이다. Tailwind 클래스 오타·Merge 충돌·토큰 미정의는 타입 검사를 전부 통과한다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` 의 §4 체크리스트를 응답에 채운다. 증거를 얻을 수 없으면 해당 항목에 `[미검증]` 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 §2)을 채워 **부분 완료로 보고**한다. 임계값·마커 정의는 그 문서가 인용하는 상위 SSOT 를 따르며 여기서 재정의하지 않는다.
+17. **기준 캡처는 편집 전에 찍는다** — `react-kit/references/render-evidence-protocol.md` §1 Step 0 과 §2 비교 반복 순서의 1 번을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 기준 캡처 경로와 바뀌어야 할 표식)를 응답에 남긴다. 편집한 뒤에는 편집 전 모습을 다시 찍을 수 없다. 새 컴포넌트면 기준 캡처 칸에 `신규` 라고 적되 되말하기와 관례 표는 남긴다.
 
 # Process
 

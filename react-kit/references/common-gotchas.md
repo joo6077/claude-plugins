@@ -154,13 +154,13 @@ N. **[제목]**: [설명]
 ## G11. 렌더 증거 규약 — 정의는 별도 SSOT (Phase 10 2026-07-27)
 
 **원칙**: 렌더 결과가 산출물인 스킬(`react-screen` · `react-widget` · `react-skeleton` ·
-`react-responsive` · `react-animation`)과 measurement 를 만드는 `react-test` 는 완료 선언 전에
+`react-responsive` · `react-animation`)은 편집 전과 완료 직전 두 번, measurement 를 만드는 `react-test` 는 완료 선언 전에
 `react-kit/references/render-evidence-protocol.md` 를 따른다. **내용을 이 파일에 복제하지 않는다**
 — 그 문서가 react-kit 의 렌더 증거 SSOT 이고, 임계값·마커·등급은 다시 상위 harness 가이드를
 인용한다.
 
-**요지**: `tsc` 통과와 Strict TS 검증은 "그려진다" 는 증거가 아니다. 증거를 못 얻으면 `[미검증]`
-마커와 사유를 붙이고 부분 완료로 보고한다. 마커 동의어(`미확인` / `unverified` 등) 신설 금지.
+**요지**: `tsc` 통과와 Strict TS 검증은 "그려진다" 는 증거가 아니다. 증거를 못 얻으면
+`[미검증]` 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 §2)을 채워 부분 완료로 보고한다. 마커 동의어(`미확인` / `unverified` 등) 신설 금지.
 
 ---
 
@@ -171,4 +171,4 @@ N. **[제목]**: [설명]
 - react-kit 카이젠 시 Gotchas 섹션 품질 검증 기준으로
 - QA Evaluator 가 react-kit 스킬을 평가할 때 체크리스트로
 - Sprint Contract 작성 시 I-02 예외 목록 참조 (G7)
-- 렌더 산출물 스킬 완료 직전 증거 규약 확인 (G11)
+- 렌더 산출물 스킬 편집 전 · 완료 직전 증거 규약 확인 (G11)

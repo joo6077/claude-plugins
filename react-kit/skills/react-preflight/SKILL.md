@@ -108,12 +108,20 @@ pnpm react-preflight --files "src/presentation/features/auth/**"
   2. codegen    ✓ (routeTree.gen.ts 갱신)
   3. lint       ✓ (0 warnings)
   4. tsc        ✓ (0 errors)
-  5. test       ✓ (N passed)
+  5. test       ✓ (N passed · 0 skipped)
   6. wasm-build ✓ (core_bg.wasm X.X MB)
   7. vite-build ✓ (dist/ X.X MB)
 
 커밋할 준비가 됐습니다.
 ```
+
+5 단계 줄은 Vitest 요약의 passed · skipped 두 수를 그대로 옮긴다. ✓ 는 passed 가 1 이상이고 skipped 가 0 일 때만 쓴다.
+
+- passed 가 0 이면 `5. test       [미검증] (0 passed — 시험을 하나도 돌리지 않았다)` 로 적는다
+- skipped 가 1 이상이면 `5. test       [미검증] (N passed · M skipped)` 로 적고 skipped 범위(파일 · 이름)와 `.only` 가 남은 곳 수(`grep -rnE '(it|test|describe)\.only\(' src tests 2>/dev/null | wc -l`)를 그 아래에 적는다. 의도한 `skip` · `skipIf` 도 있으니 실패로 바꾸지는 않는다
+- 5 단계가 `[미검증]` 이면 나머지 단계는 그대로 돌리되 첫 줄을 `/react-preflight 완료 — test 단계 [미검증]` 으로, 끝 줄을 「test 단계 미검증 — 위 범위를 확인한 뒤 커밋한다」 로 쓴다
+
+0 개 실행과 `.only` 로 좁힌 실행은 종료 코드 0 이어도 검사되지 않은 것이다. 근거는 `references/render-evidence-protocol.md` §3 (b)(c).
 
 실패 시:
 
@@ -132,6 +140,7 @@ pnpm react-preflight --files "src/presentation/features/auth/**"
 - **MUST** 각 단계 실패 시 즉시 중단한다. 실패를 무시하고 다음 단계 진행 금지
 - **MUST** 모든 명령을 `pnpm` 으로 실행한다
 - **MUST** test 단계에서 `vitest run` 을 사용한다. `vitest` (watch 모드) 금지
+- **MUST** test 단계 보고에 passed · skipped 두 수를 적는다. passed 0 이나 skipped 1 이상을 ✓ 로 적지 않는다
 - **MUST** `--files` 옵션이 있어도 tsc 는 프로젝트 전체를 검사한다
 - **MUST NOT** `--no-verify` 로 git hook 을 우회하는 안내를 제공하지 않는다
 

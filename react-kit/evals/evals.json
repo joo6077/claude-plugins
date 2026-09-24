@@ -25,7 +25,8 @@
         {"text": "TanStack Router 파일 기반 라우트 규칙에 맞는 파일을 생성한다", "type": "output"},
         {"text": "routes/ 디렉토리에 파일을 생성한다", "type": "output"},
         {"text": "lazy loading 여부를 판단하고 적용한다", "type": "behavior"},
-        {"text": "loader가 필요하면 createFileRoute로 loader를 포함한다", "type": "output"}
+        {"text": "loader가 필요하면 createFileRoute로 loader를 포함한다", "type": "output"},
+        {"text": "편집 전에 되말하기 · 관례 표(같은 역할 기존 화면 2 개 이상 또는 관례 없음과 그 사유) · 기준 캡처 칸 `신규` 를 남긴다", "type": "behavior"}
       ]
     },
     {
@@ -159,7 +160,8 @@
         {"text": "Lingui v5 Trans 컴포넌트 또는 t 매크로를 사용한다", "type": "output"},
         {"text": "하드코딩된 문자열을 매크로로 교체한다", "type": "output"},
         {"text": "lingui extract + compile codegen을 실행한다", "type": "behavior"},
-        {"text": "컴포넌트 파일에서 해당 문자열을 찾아 매크로로 래핑한다", "type": "output"}
+        {"text": "컴포넌트 파일에서 해당 문자열을 찾아 매크로로 래핑한다", "type": "output"},
+        {"text": "lingui extract --clean 을 기본 흐름에서 돌리지 않는다", "type": "behavior"}
       ]
     },
     {
@@ -219,7 +221,8 @@
       "assertions": [
         {"text": "서브커맨드(dev, build, lint, test, wasm-build, format, codegen)를 파싱하여 해당 명령만 실행한다", "type": "behavior"},
         {"text": "패키지 매니저(pnpm/npm/yarn)를 프로젝트에서 감지한다", "type": "behavior"},
-        {"text": "코드를 직접 수정하거나 새 파일을 생성하지 않는다", "type": "behavior"}
+        {"text": "코드를 직접 수정하거나 새 파일을 생성하지 않는다", "type": "behavior"},
+        {"text": "시험 수를 N passed · M skipped 로 적고, 0 passed 나 skipped 1 이상을 success 로 적지 않는다", "type": "output"}
       ]
     },
     {
@@ -243,7 +246,8 @@
         {"text": "fix → codegen → lint → tsc → test → wasm-build → vite-build 7단계를 순서대로 실행한다", "type": "behavior"},
         {"text": "실패 시 즉시 중단하고 복구 안내를 제공한다", "type": "behavior"},
         {"text": "WASM이 없으면 wasm-build 단계를 스킵한다", "type": "behavior"},
-        {"text": "각 단계 결과를 요약 보고한다", "type": "output"}
+        {"text": "각 단계 결과를 요약 보고한다", "type": "output"},
+        {"text": "test 줄에 passed · skipped 두 수를 적고, 0 passed 나 skipped 1 이상이면 ✓ 와 「커밋할 준비가 됐습니다」 를 쓰지 않는다", "type": "output"}
       ]
     },
     {
