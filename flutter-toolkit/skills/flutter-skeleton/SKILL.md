@@ -17,6 +17,7 @@ user-invocable: true
 - 수치값은 `AppRadii`, `AppPadding` 디자인 토큰 사용 — 실제 레이아웃과 동일한 구조여야 로딩→컨텐츠 전환이 자연스럽다
 - **완료 선언 전 시각 증거 규약 실행 (`/insights` 2026-07-27 Friction #2)** — 스켈레톤은 "레이아웃 점프 제로" 가 목적이므로 **loading 상태와 loaded 상태 두 장을 캡처해 대조**해야 검증이 성립한다. 한 장만 보거나 캡처 없이 "자연스럽게 전환됩니다" 라고 쓰면 그것은 증거가 아니다. 절차: `references/visual-evidence-protocol.md`
 - **빈 스켈레톤 캡처는 PASS 증거가 아니다** — shimmer 블록이 0 개 렌더된 빈 화면은 "문제 없음" 이 아니라 **검증 실패 신호**다. unbounded-height 컨테이너 안의 `ListView` 가 collapse 하면 정확히 이 형태로 나타난다 (실측 사고 사례). 캡처에서 shimmer 블록 개수를 세어 근거에 적어라
+- **기준 캡처는 편집 전에 찍는다** — `references/visual-evidence-protocol.md` Step 0 · Step 1 · Step 2-1 을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 지금의 loading 화면 캡처 경로)를 응답에 남긴다. 편집한 뒤에는 편집 전 화면을 다시 찍을 수 없다
 
 화면/페이지의 `loading` 상태를 스켈레톤 shimmer로 구현한다.
 

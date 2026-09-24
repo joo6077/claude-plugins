@@ -17,6 +17,7 @@ user-invocable: true
 - Windows에서 `fvm.bat` 사용 — `fvm` 직접 호출은 PATH 이슈 발생
 - partial codegen `--build-filter="lib/features/auth/**"`는 필터 밖 의존성을 재생성하지 않는다 — 새 import/타입 추가 시 full codegen 사용
 - `dart fix --apply` 후 반드시 `analyze` 실행 — fix가 새 워닝을 만들 수 있다
+- 편집 훅(`scripts/format-edited-dart.sh`)이 Edit·Write 로 고친 .dart 파일을 그때마다 포맷한다(끄기: `FLUTTER_TOOLKIT_FORMAT_ON_EDIT=off`). fix 의 포맷은 훅이 못 본 파일을 뒷정리하는 몫이다 — `lib/` 통째 포맷으로 되돌리지 마라
 - **codegen 후 변경 보고 시 `.g.dart` / `.freezed.dart` 를 수기 변경과 섞지 마라** — 산출물 수십 개가 `git diff --stat` 에 섞이면 "변환 헬퍼만 변경" 같은 스코프 조건이 위반으로 판정된다 (글로벌 REJECT `AR-01` 실제 사례). codegen 서브커맨드 섹션의 exclude pathspec 명령을 사용해 두 목록을 나눠 보고하라
 - Makefile 기반 monorepo(fit-pal 등)에서는 `fvm flutter run` 직접 호출 대신 `make app-run` 사용 — dart-define, observatory-port, launch.json 설정이 Makefile에 집중 관리된다. 직접 호출하면 dart-define 환경변수 누락으로 앱이 다른 환경으로 기동됨
 
@@ -80,12 +81,25 @@ $FLUTTER analyze
 
 ### fix
 
-자동 수정 가능한 린트 이슈를 먼저 고치고, 포맷을 통일한다. 수동 수정을 줄여주므로 커밋 전에 항상 돌리는 것이 좋다.
+자동 수정 가능한 린트 이슈를 먼저 고치고, 이번에 바뀐 .dart 파일만 포맷한다. 수동 수정을 줄여주므로 커밋 전에 항상 돌리는 것이 좋다.
+`lib/` 를 통째로 포맷하면 이번에 손대지 않은 파일까지 바뀌어 diff 에 섞인다.
 
 ```bash
+# dart fix 는 경로를 하나만 받는다. 파일을 여럿 주면 "Only one file or directory is expected" 로 exit 64
 $DART fix --apply lib/
-$DART format lib/
+# 추적 전 새 파일은 git diff 에 안 나와 ls-files 로 더한다. 생성물은 코드 생성기가 다시 쓰므로 뺀다
+CHANGED=$( { git diff --name-only --relative --diff-filter=ACMR HEAD -- '*.dart'
+             git ls-files --others --exclude-standard -- '*.dart'; } \
+           | grep -vE '\.(g|freezed|gr|mocks|config|gen)\.dart$' )
+if [ -n "$CHANGED" ]; then
+  printf '%s\n' "$CHANGED" | tr '\n' '\0' | xargs -0 $DART format --
+else
+  echo "포맷 건너뜀 — 이번에 바뀐 .dart 파일 없음"
+fi
 ```
+
+프로젝트 폴더(`pubspec.yaml` 이 있는 곳)에서 실행한다. `--relative` 가 그 폴더 밖 파일을 빼고 경로를 그 폴더 기준으로 바꾼다.
+목록이 비면 포맷을 건너뛰고 보고에 `포맷 건너뜀 (바뀐 .dart 없음)` 이라고 적는다.
 
 ### test [path]
 

@@ -93,6 +93,8 @@ shared 디렉토리의 일반적인 분류 구조 (프로젝트에 이미 있는
 - Variant/size 패턴
 - 탭 인터랙션 래핑 방식
 
+**편집 전 확정** — 기준 캡처는 편집 전에 찍는다. `references/visual-evidence-protocol.md` Step 0 · Step 1 · Step 2-1 을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 기준 캡처 경로)를 응답에 남긴다. 이 결과를 남기기 전에는 4 단계로 가지 않는다. 새 위젯이면 기준 캡처 칸에 `신규` 라고 적는다.
+
 ### 3. Widget Base Class 결정
 
 | 조건 | Base Class |
