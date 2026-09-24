@@ -17,5 +17,8 @@ AR-03 ① 이 떨어진다.
 - 구현 커밋 둘 (킷 폴더와 조사 기록 폴더를 나눠, 내 경로만):
   - `cb7d99d14ce182bbf0dc04fa0620c9ea4e078be6` — `docs/flutter/research-log.md`
   - `ef351d27bb106e4b94e7a0d17d637ff8deafcd21` — `flutter-toolkit/` 스물둘
+- 상한 기록 커밋: `573fecc822c8af58758f95cac549e8767e314c4c` (개정 1 개)
+- notes 커밋: `6cc2c64768d7ac64a6b4a89a78093c7589bbe920` (`phase5-notes.md` · `phase5-review.md`) — 이 Phase 커밋이라 상한을 옮긴다
 
 end_sha: ef351d27bb106e4b94e7a0d17d637ff8deafcd21
+end_sha: 6cc2c64768d7ac64a6b4a89a78093c7589bbe920
