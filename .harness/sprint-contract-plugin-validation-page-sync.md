@@ -4,7 +4,7 @@ slug: plugin-validation-page-sync
 created: "2026-09-24 13:37"
 complexity: "중간"
 conditions: 27
-status: active
+status: done
 owner_session: f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0
 conditions_digest: sha256:0c84c3f3266af6ec
 locked_at: "2026-09-24 13:50"
