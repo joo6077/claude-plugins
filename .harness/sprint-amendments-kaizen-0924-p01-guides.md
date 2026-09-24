@@ -1,7 +1,9 @@
 ---
 slug: kaizen-0924-p01-guides
-created: "2026-09-24 20:50"
+created: "2026-09-24 20:41"
 ---
+
+# kaizen-0924-p01-guides 개정
 
 이 파일은 범위 상한 `end_sha` 를 적는 자리다. 조건은 바꾸지 않았다 — 개정 0 건.
 
