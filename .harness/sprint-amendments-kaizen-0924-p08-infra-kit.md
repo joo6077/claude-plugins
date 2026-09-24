@@ -17,5 +17,8 @@ AR-01 ① 이 떨어진다.
 - 구현 커밋 둘 (킷 몫 두 폴더를 나눠, 내 경로만):
   - `19d2a2f8a41d715d303e2a2d65025198f136ba7c` — `docs/infra/` 둘 (platform/cicd.md · research-log.md)
   - `d215fdd7faf0d3029694d770eb3f5004f1bb51ca` — `infra-kit/` 열하나
+- 상한 기록 커밋: `a18f6c306590bc6a4435386a75c0191fc8c5b714` (개정 1 개)
+- notes 커밋: `c9ebbe278daff29d7b6b2829e2e1c4fd9f7da4a3` (`phase8-notes.md` · `phase8-review.md`) — 이 Phase 커밋이라 상한을 옮긴다
 
 end_sha: d215fdd7faf0d3029694d770eb3f5004f1bb51ca
+end_sha: c9ebbe278daff29d7b6b2829e2e1c4fd9f7da4a3
