@@ -420,7 +420,7 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 - **검사 이름**: `arg-substitution` (`--check=arg-substitution`)
 - **대상**: 각 킷의 `skills/*/SKILL.md`
 - **판정**: 이스케이프되지 않은 `$` + 숫자가 1 건이라도 있으면 FAIL. 파일:라인과 고치는 법을 함께 출력한다
-- **왜**: Claude Code 는 스킬 본문의 `$N` 을 `$ARGUMENTS[N]` 으로 치환한다 ([Skills — Available string substitutions](https://code.claude.com/docs/en/skills)). 인자와 함께 호출하면 본문 코드의 `$0` · `$1` 이 인자 낱말로 바뀌어 awk·셸 스니펫이 깨진 채 로드된다. 2026-09 실측: `sprint-contract` 를 인자와 함께 부른 3 회 모두 frontmatter reader 와 저장 검사 게이트 스니펫이 깨졌고(`fm && 전역 ~ k`), 인자 없이 부른 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳이 있었다
+- **왜**: Claude Code 는 스킬 본문의 `$N` 을 `$ARGUMENTS[N]` 으로 치환한다 ([Skills — Available string substitutions](https://code.claude.com/docs/en/skills)). 인자와 함께 호출하면 본문 코드의 `$0` · `$1` 이 그 순번(0 부터)에 들어온 인자 낱말로 바뀌어 awk·셸 스니펫이 깨진 채 로드된다. 2026-09 실측: `sprint-contract` 를 인자와 함께 부른 3 회 모두 frontmatter reader 와 저장 검사 게이트 스니펫이 깨졌고(`fm && 전역 ~ k`), 인자 없이 부른 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳이 있었다
 - **고치는 법** (자리마다 다르다)
   - awk 필드: `$(0)` · `$(2)` — awk 에서 괄호형은 같은 필드 참조다
   - bash 위치 인자·스크립트 이름: `${1}` · `${0}` — **`$(0)` 을 순수 bash 에 쓰면 명령 치환이라 `0: command not found` 로 깨진다**
@@ -503,7 +503,7 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
     FAIL react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
     FAIL react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
   V4 triggers          58 keywords, 1 duplicate
-    WARN "새 화면 추가" — react-kit / flutter-toolkit (cross-kit)
+    WARN "새 화면 추가" — react-kit / planning-kit (cross-kit)
   V5 placeholders      0 found — OK
   V6 code-fence        0 bare — OK
   V7 plugin-json       v0.1.0 matches marketplace — OK
