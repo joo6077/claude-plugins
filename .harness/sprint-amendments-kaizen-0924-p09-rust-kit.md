@@ -18,5 +18,8 @@ AR-01 ① 이 떨어진다.
 - 구현 커밋 둘 (킷 몫 두 폴더를 나눠, 내 경로만):
   - `aaa59ebcaa983ab6aee4571bccab6a6a79860766` — `docs/rust/` 둘 (data/sqlx-patterns.md · research-log.md)
   - `c0342a5f46cc0746401625e24ac8e3049c830dc5` — `rust-kit/` 아홉
+- 상한 기록 커밋: `d88c35a70ccb88faf7bea3f57cf1f8c5f51b0279` (개정 1 개)
+- notes 커밋: `234a996e38bf677d68eab62f869fd242e7c2d697` (`phase9-notes.md` · `phase9-review.md`) — 이 Phase 커밋이라 상한을 옮긴다
 
 end_sha: c0342a5f46cc0746401625e24ac8e3049c830dc5
+end_sha: 234a996e38bf677d68eab62f869fd242e7c2d697
