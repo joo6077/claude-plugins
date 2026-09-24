@@ -316,12 +316,10 @@ python3 scripts/validate-plugin.py --fix</pre>
   V1 frontmatter       21 skills + 3 agents — OK
   V2 templates         5 parsed, 4 skipped (ts/js) — OK
   V3 refs              89 links, <span style="color:var(--red)">2 BROKEN</span>
-    <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:42
-         → references/shadcn-skeleton.md (not found)
-    <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:67
-         → ../design-kit/references/token-schema.md (not found)
+    <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
+    <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
   V4 triggers          58 keywords, <span style="color:var(--yellow)">1 duplicate</span>
-    <span style="color:var(--yellow)">WARN</span> "새 화면 추가" — react-screen, flutter-screen
+    <span style="color:var(--yellow)">WARN</span> "새 화면 추가" — react-kit / flutter-toolkit (cross-kit)
   V5 placeholders      0 found — OK
   V6 code-fence        0 bare — OK
   V7 plugin-json       v0.1.0 matches marketplace — OK
@@ -331,7 +329,7 @@ python3 scripts/validate-plugin.py --fix</pre>
 
 Total: 2 plugins, 1 OK, 1 ERROR
 Exit: 2</pre>
-  <p class="desc" style="margin-top:16px">요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 <code>Total: 14 plugins, 14 OK</code> 처럼 짧아진다.</p>
+  <p class="desc" style="margin-top:16px">요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 <code>Total: N plugins, N OK</code> 처럼 짧아진다.</p>
 </div>
 
 <!-- ── 6. FAIL 예시 & Bad vs Good ── -->
@@ -480,7 +478,7 @@ chmod +x scripts/run-guard.sh
 awk '{ print $1 }' "$FILE"
 echo "대상: $1"
 
-<span style="color:var(--red)"># 인자와 함께 부르면 $1 이 인자 낱말로 바뀐다 → FAIL</span></pre>
+<span style="color:var(--red)"># $N 은 N 번째 인자(0 부터)로 바뀐다 — 인자를 둘 넘기면 $1 이 둘째 인자 낱말이 된다 → FAIL</span></pre>
     </div>
     <div class="compare-good">
       <div class="compare-label">✓ V9 — 치환되지 않는 형태</div>

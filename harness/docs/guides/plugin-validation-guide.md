@@ -127,7 +127,7 @@ description: >
 
 **예외**
 
-- `templates/` 없는 킷: V2 체크 전체 SKIP (harness, flutter-toolkit, design-kit, backend-kit, infra-kit — §6 킷별 예외 카탈로그 참조)
+- `templates/` 없는 킷: V2 체크 전체 SKIP (어느 킷인지는 §6 킷별 예외 카탈로그 참조)
 - `.ts`, `.js` 파일: 언제나 SKIP (parse 실패로 처리하지 않음)
 - `.template` 확장자 파일: 내부 확장자(`.json.template`)로 판별. 예를 들어 `package.json.template` 는 `.json` 파서 적용
 
@@ -503,7 +503,7 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
     FAIL react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
     FAIL react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
   V4 triggers          58 keywords, 1 duplicate
-    WARN "새 화면 추가" — react-screen, flutter-screen
+    WARN "새 화면 추가" — react-kit / flutter-toolkit (cross-kit)
   V5 placeholders      0 found — OK
   V6 code-fence        0 bare — OK
   V7 plugin-json       v0.1.0 matches marketplace — OK
@@ -515,7 +515,7 @@ Total: 2 plugins, 1 OK, 1 ERROR
 Exit: 2
 ```
 
-요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 `Total: 14 plugins, 14 OK` 처럼 짧아진다.
+요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 `Total: N plugins, N OK` 처럼 짧아진다.
 
 ### Exit Code
 
