@@ -17,5 +17,8 @@ AR-01 ① 이 떨어진다.
 - 구현 커밋 둘 (킷 몫 두 폴더를 나눠, 내 경로만):
   - `86a196b2c037abfa2081b0c2f793895405168289` — `docs/backend/` 셋 (database.md · api-design.md · research-log.md)
   - `7971ef73672d214540c9e6f7be242233eb13e1a6` — `backend-kit/` 여덟
+- 상한 기록 커밋: `6a49ea5551ac6476eb1693ab6f10868c6d0c1e2c` (개정 1 개)
+- notes 커밋: `d3a7195630997044e1fe39bc727ae24e87eeaa34` (`phase7-notes.md` · `phase7-review.md`) — 이 Phase 커밋이라 상한을 옮긴다
 
 end_sha: 7971ef73672d214540c9e6f7be242233eb13e1a6
+end_sha: d3a7195630997044e1fe39bc727ae24e87eeaa34
