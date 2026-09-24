@@ -14,7 +14,7 @@ user-invocable: true
 2. **proto 경로와 `build.rs` 인자 일치 필수** — `compile_protos(&["proto/foo.proto"], &["proto"])` 에서 첫 번째 인자(파일 경로)와 두 번째 인자(include 디렉토리)가 실제 파일 시스템 경로와 정확히 일치해야 한다. 경로 불일치는 `file not found` 컴파일 에러로 나타난다.
 3. **streaming RPC는 `Pin<Box<dyn Stream>>` 반환** — streaming 메서드의 연관 타입 `type ...Stream`을 반드시 정의해야 한다. `tokio_stream::wrappers::ReceiverStream`으로 채널 기반 스트리밍을 구현한다. `impl Stream`을 직접 반환하는 패턴은 tonic 0.14에서도 지원하지 않는다 (tonic이 object-safe server trait을 유지하기 위함).
 4. **`#[tonic::async_trait]` 유지** — Axum 0.8이 `#[async_trait]`을 제거한 것과 달리 **tonic 0.14의 사용자 impl은 여전히 `#[tonic::async_trait]` 매크로를 요구**한다. tonic이 코드 생성하는 Server trait이 dyn 호환을 유지하기 위해 `async_trait` 매크로 기반의 `Pin<Box<dyn Future>>` 시그니처를 사용한다. 네이티브 async fn in trait로 교체하지 마라 — 컴파일 에러가 난다.
-5. **tonic-health / tonic-reflection은 별도 크레이트** — gRPC health checking protocol과 reflection은 `tonic` 본체에 포함되지 않는다. 필요하면 `tonic-health = "0.13"`, `tonic-reflection = "0.13"`을 별도로 추가한다.
+5. **tonic-health / tonic-reflection은 별도 크레이트** — gRPC health checking protocol과 reflection은 `tonic` 본체에 포함되지 않는다. 필요하면 `tonic-health = "0.14"`, `tonic-reflection = "0.14"`을 별도로 추가한다 — 본문 `[dependencies]` 예시와 같은 0.14 계열이다 (`references/project-detection.md` Step 2c).
 
 # Process
 

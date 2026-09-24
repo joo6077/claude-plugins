@@ -32,6 +32,7 @@ user-invocable: true
 - **편집 전 Read + 앵커 재확인** — 기존 모델/마이그레이션 파일을 수정할 때 파일을 열지 않고 Edit 하지 마라(`edit-before-read`). 특히 doc 주석(`///`)은 **바로 아래 항목에 붙는다** — 라인 번호만 보고 고치면 엉뚱한 필드의 문서를 바꾼다. 수정 대상 필드명과 그 위 주석 블록을 함께 읽어 대응 관계를 확인한 뒤 적용한다. 출처: 2026-07 실측 `wrong-line-doc-comment-fix`.
 - **read-check-then-write 경합은 SQL 술어로 막는다 (D4 · ER-02)** — "읽어서 확인하고 조건이 맞으면 갱신" 흐름을 `SELECT` → Rust `if` → `UPDATE` 로 쓰면 두 문장 사이에 다른 트랜잭션이 끼어든다. 기대 상태를 `UPDATE` 의 `WHERE` 술어(버전 컬럼·타임스탬프·값 스냅샷)로 내리고, 갱신된 행이 없으면 도메인 `Conflict` 로 올린다. `INSERT` 중복은 partial unique index + `ON CONFLICT` 로 같은 층에서 처리한다. 구현·테스트 절차는 `references/concurrency-guard-protocol.md` 가 SSOT 다 — 이 스킬에서 규칙을 재열거하지 말고 그 파일을 따르라.
 - **요청한 컬럼/테이블만 생성 — 임의 확장 금지** — "테이블 1개 추가" 요청에 `created_at`/`updated_at`/소프트삭제/감사 컬럼·연관 인덱스·캐시 레이어를 요청 없이 덧붙이지 마라. 프로젝트 컨벤션상 표준 컬럼이 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응 — "체크 제거" 요청에 캐시·디렉토리 체크를 덧붙인 패턴의 DB 버전).
+- **시각 컬럼은 종류부터 정하고, ORM 마다 다른 타입 대응을 따른다** — 시각 필드마다 순간 · 받는 사람 지역을 따라가는 벽시계 · 특정 지역에 묶인 벽시계 가운데 무엇인지 먼저 정한다. 반복 일정 · 알림 시각 같은 벽시계를 `TIMESTAMPTZ` 순간 하나로만 저장하지 마라 — `TIMESTAMPTZ` 는 원래 시간대 이름을 남기지 않는다. 특정 지역에 묶인 벽시계는 IANA 시간대 식별자 열을 함께 둔다. 시간대와 나라를 코드 상수나 한 나라 기본값으로 박지 마라. SQLx 는 순간에 `DateTime<Utc>` 를 쓰지만 `sea-orm-cli generate entity` 는 `timestamp with time zone` 열에 `DateTimeWithTimeZone`(`DateTime<FixedOffset>`)을 붙이므로, §4S 어댑터가 도메인 모델과 주고받을 때 타입을 바꾼다. 종류 셋의 정의는 `docs/backend/fundamentals/database.md` 원칙 10, Rust 타입 대응 표는 `docs/rust/data/sqlx-patterns.md` 원칙 6 이다. 출처: [SQLx PostgreSQL types](https://docs.rs/sqlx/latest/sqlx/postgres/types/index.html) · [SeaORM 1.1 column types](https://github.com/SeaQL/seaql.github.io/blob/master/SeaORM/versioned_docs/version-1.1.x/04-generate-entity/03-column-types.md) · [PostgreSQL Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html)
 
 # DB 모델 + 마이그레이션 생성 (SQLx 또는 SeaORM)
 
@@ -77,6 +78,7 @@ cargo add sea-orm-migration --features sqlx-postgres,runtime-tokio-rustls
 | 테이블 이름 | `users` |
 | 컬럼 목록 | `id: BIGSERIAL PK`, `name: TEXT NOT NULL`, `email: TEXT NOT NULL UNIQUE`, `created_at: TIMESTAMPTZ DEFAULT NOW()` |
 | 관계 | 외래키 여부, `ON DELETE` 정책 |
+| 시각 필드 종류 | `created_at`: 순간 · `remind_at`: 받는 사람 지역을 따라가는 벽시계 (Gotcha 「시각 컬럼은 종류부터」) |
 | CRUD 범위 | 전체 / 특정 메서드만 (list, get, create, update, delete) |
 
 ---
@@ -87,7 +89,7 @@ cargo add sea-orm-migration --features sqlx-postgres,runtime-tokio-rustls
 
 - 구조체 위치 (`domain/models/`, `src/domain/models/` 등)
 - ID 타입 (`i64`, `Uuid` 등)
-- 타임스탬프 타입 (`chrono::DateTime<Utc>`, `time::OffsetDateTime` 등)
+- 타임스탬프 타입 (`chrono::DateTime<Utc>`, `time::OffsetDateTime` 등)과 기존 시각 필드의 종류 — 벽시계 필드가 시간대 이름 열과 짝을 이루는지 본다
 - 에러 타입 (`DomainError`, `AppError`, `sqlx::Error` 그대로 사용 여부)
 - 기존 Repository trait 패턴
 
@@ -225,7 +227,6 @@ SeaORM은 Entity/Model/ActiveModel 3종을 `sea-orm-codegen` 또는 `sea-orm-cli
 ```rust
 // infra/entities/user.rs — DeriveEntityModel로 생성 (보통 sea-orm-cli로 자동 생성)
 use sea_orm::entity::prelude::*;
-use chrono::{DateTime, Utc};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
@@ -235,7 +236,8 @@ pub struct Model {
     pub name: String,
     #[sea_orm(unique)]
     pub email: String,
-    pub created_at: DateTime<Utc>,
+    // sea-orm-cli 가 timestamp with time zone 열에 붙이는 타입이다 (DateTime<FixedOffset>)
+    pub created_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -255,6 +257,7 @@ use sea_orm::{
 };
 use std::sync::Arc;
 
+use chrono::Utc;
 use crate::domain::models::User;
 use crate::domain::ports::UserRepository;
 use crate::domain::errors::DomainError;
@@ -286,7 +289,7 @@ impl SeaUserRepository {
             id: m.id,
             name: m.name,
             email: m.email,
-            created_at: m.created_at,
+            created_at: m.created_at.with_timezone(&Utc),
         }
     }
 }
@@ -301,7 +304,7 @@ impl UserRepository for SeaUserRepository {
         let active = ActiveModel {
             name: Set(name.to_string()),
             email: Set(email.to_string()),
-            created_at: Set(chrono::Utc::now()),
+            created_at: Set(Utc::now().fixed_offset()),
             ..Default::default()
         };
         let m = active

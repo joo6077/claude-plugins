@@ -26,7 +26,7 @@ user-invocable: true
 11. **Edition 2024 준수 확인** — 신규 프로젝트에서 `edition = "2024"` + `resolver = "3"`이 아니면 INFO로 보고한다. `gen` 변수명, `:id` path 문법 등 edition 2024 비호환 패턴도 감사한다.
 12. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 코드에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "더 나을 것 같다"처럼 주관 해석 여지가 남는 기준은 카테고리 평가 시작 시점에 근거 제약(파일:라인 + 출처 URL) 을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "API Design 이 깔끔한지" → "핸들러 state 가 `Arc<dyn Port>` 인지 (파일:라인 + fit-pal §아키텍처 3번)".
 13. **Rule-by-Rule Audit 프로토콜 (skill-design-guide §3.6 대응)** — `references/audit-criteria.md` 7 카테고리 × N 체크항목을 한 번에 묶어 "대체로 PASS/FAIL" 로 리포트하지 말고, 각 체크항목 단위로 개별 판정과 근거를 생성하라. 묶음 판정은 PASS 세부가 가려지고 FAIL 누락 추적이 불가능해진다. 리포트 표(Step 4) 각 row 는 한 체크항목에 대응한다.
-14. **미검증 항목 마커 프로토콜 (evaluator v3 대응)** — 런타임 환경/외부 시스템 접근 불가(예: production DB pool 설정·실제 Redis 연결·OAuth provider 응답)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 이유를 기술하라 (예: `[미검증] production DB 접근 불가 — pool 설정 파일 정적 리뷰만 수행`). 미검증 2 건 이상은 CONDITIONAL APPROVE 규칙을 적용한다 (Step 4 참조).
+14. **미검증 항목 마커 프로토콜 (evaluator v3 대응)** — 런타임 환경/외부 시스템 접근 불가(예: production DB pool 설정·실제 Redis 연결·OAuth provider 응답)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워라 (예: `[미검증:ENV]` — 막는 것: 운영 DB 접속 명령과 그 거부 출력 · 시도한 우회: pool 설정 파일 정적 리뷰 · 통제 불가 사유: 감사자에게 운영 DB 접속 권한이 없다 · 재검증 명령: 권한을 받은 뒤 같은 접속 명령. 네 칸 중 하나라도 비면 `[미검증:INVALID]` 다). 마커는 두 분류로 갈린다 — `UNVERIFIED_ENV`(구현자 통제 밖 · 남용 방지 4 요건 충족)와 `UNVERIFIED_INVALID_EVIDENCE`(4 요건 미충족 · 공허한 증거). 임계값 2 는 후자에만 적용되고 전자는 `env_gaps` 로 따로 센다 (Step 5 참조). 대상 미구현·의도적 미실행은 미검증이 아니라 FAIL 이다. 마커 의미·임계값·4 요건의 SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이며, 복제본은 `rust-kit/agents/rust-reviewer.md` §미검증 증거 프로토콜 이다 — 여기서 재정의하지 않는다.
 15. **Evidence Validity Gate — 0 매치 / 0 테스트를 PASS 로 쓰지 마라 (qa-evaluation-guide §Evidence Validity Gate)** — 증거의 *존재*와 *유효성*은 다른 축이다. row 를 PASS 로 확정하기 전에 4 검사를 통과시킨다: (1) **비공백** — 출력이 실제 내용을 담는가 (2) **활성화** — 그 측정이 검사 대상을 한 번이라도 통과했는가 (3) **반증 가능성** — 조건이 위반됐다면 다른 결과가 나왔을 측정인가 (4) **출처** — 감사자가 직접 수집했는가. 하나라도 실패하면 PASS 가 아니라 `[미검증]` 이다.
 
     **0 매치 판정 (Rust 감사에서 가장 잦은 vacuous pass):**
@@ -118,20 +118,25 @@ prompt: |
 ## 5. 최종 판정
 
 임계값과 마커 의미는 `harness/docs/guides/qa-evaluation-guide.md`
-§Canonical Unverified-Evidence Protocol 이 정본이다 — 여기서 다시 정의하지 않는다. 판정 분류는 세 가지다:
+§Canonical Unverified-Evidence Protocol 이 정본이다 — 여기서 다시 정의하지 않는다. 판정 분류는 네 가지다:
 
-- **APPROVE** — 전 row PASS + 미검증 태그 0 건.
-- **CONDITIONAL APPROVE** — 전 row PASS 이지만 `[미검증]` 태그 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · MCP server 설정) 후 재검증 권고. 2 건 이상은 REJECT.
-- **REJECT** — 1 건 이상 FAIL 또는 `[미검증]` 2 건 이상. 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 함께 제시한다.
+카운터는 두 개이며 **합산하지 않는다** (정본 조항 3): `UNVERIFIED_INVALID_EVIDENCE`(임계 판정용)와 `env_gaps`(= `UNVERIFIED_ENV`, 커버리지 게이트용).
 
-**무효 증거는 미검증에 합산한다** (Gotcha 15) — 4 검사 중 하나라도 실패한 근거는 PASS 로 세지 않고
-`[미검증]` 카운터에 더한다. 리포트 말미에 집계를 남긴다:
+- **APPROVE** — 전 row PASS + `UNVERIFIED_INVALID_EVIDENCE` 0 건.
+- **CONDITIONAL APPROVE** — 전 row PASS 이지만 `UNVERIFIED_INVALID_EVIDENCE` 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · MCP server 설정) 후 재검증 권고. 2 건 이상은 REJECT.
+- **REJECT** — 1 건 이상 FAIL 또는 `UNVERIFIED_INVALID_EVIDENCE` 2 건 이상. FAIL 마다 구체적 개선 액션(파일:라인 + 권장 변경 + 출처)을 함께 제시한다.
+- **BLOCKED** — `(총 rule 수 − env_gaps) / 총 rule 수 < 0.60`. 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
+
+`env_gaps` 로 세려면 남용 방지 4 요건을 모두 채워야 한다 (`rust-reviewer.md` §`UNVERIFIED_ENV` 남용 방지 4 요건). 못 채운 주장은 `UNVERIFIED_INVALID_EVIDENCE` 로 강등된다.
+
+**무효 증거는 `UNVERIFIED_INVALID_EVIDENCE` 에 합산한다** (Gotcha 15) — 4 검사 중 하나라도 실패한 근거는 PASS 로 세지 않고
+그 카운터에 더한다. 리포트 말미에 집계를 남긴다:
 
 ```text
 ## Evidence Validity
 - 검사 대상 증거: N 건
 - 무효 판정: K 건 [row 번호 — 실패한 검사 번호 — 사유]
-- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
+- 무효 K 건은 `UNVERIFIED_INVALID_EVIDENCE` 카운터에 합산 (현재 누계: M)
 ```
 
 # References

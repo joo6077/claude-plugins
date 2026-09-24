@@ -181,6 +181,18 @@
         {"text": "deep 모드 시 rust-reviewer 에이전트 호출", "type": "behavior"},
         {"text": "최종 판정 APPROVE/REJECT", "type": "output"}
       ]
+    },
+    {
+      "id": 17,
+      "skill": "rust-preflight",
+      "prompt": "커밋 전 검사해줘 — 공용 작업 폴더라 다른 세션도 같이 고치고 있어",
+      "expected_output": "clippy · test 실패를 내 변경 · 남의 미커밋 · 기준 커밋으로 가른 preflight 리포트",
+      "assertions": [
+        {"text": "clippy 또는 test 가 실패하면 임시 워크트리에서 HEAD · FORK_BASE · 기준 가지로 같은 명령을 다시 돌린다", "type": "behavior"},
+        {"text": "HEAD 임시 워크트리에 내가 쓴 파일만 얹어 한 번 더 돌려 내 변경과 남의 미커밋을 가른다", "type": "behavior"},
+        {"text": "git stash 로 남의 변경을 치우지 않는다", "type": "behavior"},
+        {"text": "FAIL 행 Details 가 내 변경 · 남의 미커밋 · 기준 커밋에서 이미 실패 · [미검증] 가운데 하나로 시작하고 Status 는 FAIL 그대로다", "type": "output"}
+      ]
     }
   ]
 }
