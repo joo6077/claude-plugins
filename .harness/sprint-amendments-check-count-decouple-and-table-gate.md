@@ -64,7 +64,7 @@ grep -c 'V1~V10\|V1-V10' <대상 20 개>   # 총 0
 새 필드(`measurement_digest` 같은)를 두고 없는 계약은 `ABSENT` 로 다루는 설계가 필요하다 —
 `SEAL_ABSENT` 를 다루는 방식과 같다.
 
-## A-02 — ER-02 · AR-02 의 재는 말을 검사 번호로 좁힌다 (QA REJECT 해소)
+## A-03 — ER-02 · AR-02 의 재는 말을 검사 번호로 좁힌다 (QA REJECT 해소)
 
 **앵커**: ER-02 측정 — `grep -c '10 카테고리\|V1~V10\|V1-V10'` 이 0 ·
 AR-02 측정 — "ER-02 와 같은 측정"
@@ -93,7 +93,7 @@ AR-02 측정 — "ER-02 와 같은 측정"
 검사 개수를 새로 박지 않았는가" 이고, 감사 카테고리는 그 개념이 아니다. 검사 번호로 좁혀 재면
 **0 이다** (작성 시점 실측).
 
-**amend_direction_oracle**: `relaxing` — 재는 말이 3 개에서 2 개로 줄어 검사 집합이 좁아진다.
+**amend_direction_oracle**: `relaxing` (이 개정 A-03) — 재는 말이 3 개에서 2 개로 줄어 검사 집합이 좁아진다.
 자기신고가 아니라 집합 비교로 계산했다. 측정 집합을 바꾸는 개정이므로 `amend_direction` 이
 아니라 `amend_direction_oracle` 에 넣는다 (스키마 §Amendment 사이드카).
 
