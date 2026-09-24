@@ -385,10 +385,10 @@
       "id": 19,
       "skill": "design-mockup",
       "prompt": "대시보드 홈 화면 시안 만들어줘",
-      "expected_output": "하이파이 HTML 시안 5개 + 각 UI 요소에 유니크 ID 부여",
+      "expected_output": "하이파이 HTML 시안 3개(개수 미지정) + 각 UI 요소에 유니크 ID 부여",
       "assertions": [
         {
-          "text": "HTML 시안을 정확히 5개 생성한다",
+          "text": "개수를 지정하지 않았으므로 HTML 시안을 정확히 3개 생성한다",
           "type": "output"
         },
         {
@@ -534,6 +534,10 @@
         {
           "text": "대화 확인만으로 종료하지 않는다",
           "type": "behavior"
+        },
+        {
+          "text": "승인 기록에 확정 구성과 폐기한 대안·이유 칸을 포함한다",
+          "type": "output"
         }
       ]
     },
@@ -577,6 +581,74 @@
         },
         {
           "text": "EVIDENCE 블록으로 결과를 보고하고 미실행 항목은 [미검증]으로 남긴다",
+          "type": "output"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "skill": "design-mockup",
+      "prompt": "그룹 설정 화면 시안 만들어줘 — 앱에 프로필 설정 화면이랑 알림 설정 화면이 이미 있어",
+      "expected_output": "파일을 만들기 전에 대상 화면 경로·라우트, 한 문장 되말하기, 같은 역할 기존 화면 2 개 이상의 관례 표를 남기고 관례를 constants 에 넣은 시안",
+      "assertions": [
+        {
+          "text": "시안 파일을 만들기 전에 대상 화면의 파일 경로와 라우트를 적는다",
+          "type": "output"
+        },
+        {
+          "text": "요청을 요소 이름과 배치까지 넣어 한 문장으로 되말한다",
+          "type": "output"
+        },
+        {
+          "text": "같은 역할의 서로 다른 기존 화면 2 개 이상을 읽고 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻 · 재사용 부품 칸의 관례 표를 남긴다",
+          "type": "output"
+        },
+        {
+          "text": "코드 검색에서 나오지 않은 부품 이름을 시안에 쓰지 않는다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "skill": "design-mockup",
+      "prompt": "추가 칩만 오른쪽에 고정해줘",
+      "expected_output": "되말하기로 갈래를 확인하고, 요소 하나 지목 Change Manifest · 반영 확인 표식 · 캡처 점검 목록 · 스스로 고치기 최대 3 회를 따른 수정",
+      "assertions": [
+        {
+          "text": "「추가 칩만」 과 「줄 전체」 두 갈래로 읽히면 묻고 시작한다",
+          "type": "behavior"
+        },
+        {
+          "text": "Change Manifest 변경 목록에 추가 칩만 올리고 같은 줄의 나머지 칩을 보존 목록에 올린다",
+          "type": "output"
+        },
+        {
+          "text": "기준 캡처에서 달라져야 할 표식을 정하고 재캡처에서 그 표식이 바뀌었는지로 반영을 판정한다",
+          "type": "behavior"
+        },
+        {
+          "text": "의도 외 변화가 3 회째에도 남으면 증거를 붙여 사용자에게 넘긴다",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "skill": "design-audit",
+      "prompt": "이 화면이 앱의 기존 화면 관례와 맞는지 감사해줘",
+      "expected_output": "Authenticity 의 같은 역할 관례 일치 항목을 같은 역할 기존 화면 2 개 이상과 대조해 판정한 리포트",
+      "assertions": [
+        {
+          "text": "같은 역할의 기존 화면 2 개 이상과 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻을 대조한다",
+          "type": "behavior"
+        },
+        {
+          "text": "역할이 다른 화면은 대조 대상으로 쓰지 않는다",
+          "type": "behavior"
+        },
+        {
+          "text": "같은 역할 기존 화면이 2 개 미만이면 FAIL 대신 이유를 적는다",
           "type": "output"
         }
       ]

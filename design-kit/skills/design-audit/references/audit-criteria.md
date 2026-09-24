@@ -38,7 +38,7 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 | 터치 타겟 AAA | WCAG 2.2 SC 2.5.5 — 44×44 CSS px 이상 | [WCAG 2.2 SC 2.5.5](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) |
 | 포커스 표시 | 인터랙티브 요소에 포커스 인디케이터 존재 | [WCAG 2.2 SC 2.4.7](https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html) |
 
-## WCAG 2.2 신규 성공 기준 (2023-10 권고안, 2026 AA 컴플라이언스 타겟)
+## WCAG 2.2 신규 성공 기준 (W3C 권고안 — 현재 게시본 2024-12-12)
 
 > WCAG 2.2는 WCAG 2.1의 상위 호환으로 9개 신규 SC를 추가했다. design-audit는 이 중 AA 레벨 기준을 체크리스트에 포함한다.
 > 출처: [W3C WCAG 2.2 What's New](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/), [W3C WCAG 2.2 TR](https://www.w3.org/TR/WCAG22/)
@@ -56,7 +56,7 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 
 ## APCA / WCAG 3 보조 체크 (NOTE)
 
-> **현재 상태 (2026-04):** WCAG 3.0은 Working Draft이며 Recommendation은 2028~2030 예상이다. **WCAG 2.2 AA가 2026 법적 컴플라이언스 타겟**이며, APCA는 보조 체크로 권장한다. Contra 자동 판정을 APCA로 대체하지 마라.
+> **현재 상태 (2026-04):** WCAG 3.0은 Working Draft이며 Recommendation은 2028~2030 예상이다. **이 감사의 대비 판정 기준은 WCAG 2.2 AA 다** — 법적 의무인지는 관할 법령마다 달라 여기서 단정하지 않는다. APCA는 보조 체크로 권장한다. Contra 자동 판정을 APCA로 대체하지 마라.
 
 APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리즘으로, 폰트 크기·굵기·극성을 고려한 지각 대비 Lc 값을 반환한다. 대규모 디자인 시스템 리프레시 / 다크 모드 튜닝 / 얇은 텍스트가 섞인 팔레트에서 WCAG 2.x 수치 대비만으로는 실제 가독성이 떨어지는 경우가 있을 때 사이드 체크로 사용한다.
 
@@ -93,8 +93,8 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 | 그리드 일관성 | 정의된 그리드 시스템 내에서 요소가 정렬됨 | Material Design 3 Layout |
 | 거터 규칙성 | 열 간격(gutter)이 일관된 값을 사용함 | EightShapes Grid |
 | 반응형 전략 | 주요 breakpoint에서 레이아웃이 적절히 변환됨 | Apple HIG Layout |
-| Container Queries | 컴포넌트 수준 반응형은 `container-type: inline-size` + `@container` 사용. 글로벌 레이아웃/OS 선호(reduced-motion, color-scheme)는 media query 유지. `block-size`/`size` 쿼리 금지(layout loop). 2026 Baseline: Chrome 105+/Firefox 110+/Safari 16+ | [MDN CSS Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries), [web.dev container queries](https://web.dev/blog/how-to-use-container-queries-now), [LogRocket container queries 2026](https://blog.logrocket.com/container-queries-2026/) |
-| 가로 오버플로 | 최소 지원 뷰포트(375px)에서 `document.documentElement.scrollWidth - clientWidth <= 2`. 문서 본체가 가로로 스크롤되면 FAIL | [WCAG 2.2 SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) |
+| Container Queries | 컴포넌트 수준 반응형은 `container-type: inline-size` + `@container` 사용. 글로벌 레이아웃/OS 선호(reduced-motion, color-scheme)는 media query 유지. `size` 도 유효한 값이며 금지 대상이 아니다 — 기본은 `inline-size`. 크기 쿼리 지원: Chrome 105 · Firefox 110 · Safari 16 부터 (style · scroll-state 쿼리는 지원 범위가 다르다) | [MDN Container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries), [MDN 호환 데이터](https://github.com/mdn/browser-compat-data/blob/main/css/properties/container-type.json), [web.dev container queries](https://web.dev/blog/how-to-use-container-queries-now), [LogRocket container queries 2026](https://blog.logrocket.com/container-queries-2026/) |
+| 가로 오버플로 | 최소 지원 뷰포트(375px)에서 `document.documentElement.scrollWidth - clientWidth <= 2`. 문서 본체가 가로로 스크롤되면 FAIL. 375px 와 2px 허용치는 이 킷의 판정값이다 — WCAG 2.2 SC 1.4.10 의 기준은 320 CSS px 폭에서 내용·기능 손실과 양방향 스크롤이 없는 것이므로, 375px 통과로 SC 1.4.10 충족을 말하지 않는다 | [WCAG 2.2 SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) |
 | grid/flex 자식 min-width | grid·flex 컨테이너의 자식에 `min-width: 0` 이 적용됨. 기본값 `auto`(= min-content)는 긴 코드·표·안 끊기는 토큰의 최소폭을 트랙 폭으로 전파시켜 문서를 밀어낸다 | [MDN minimum size auto](https://developer.mozilla.org/en-US/docs/Web/CSS/min-width#values), [CSS Grid Sizing §6.6](https://www.w3.org/TR/css-grid-1/#min-size-auto) |
 | 넓은 콘텐츠 스크롤 | 표·코드블록 등 축소 불가 콘텐츠는 `overflow-x: auto` 컨테이너로 감싸 **끝까지 스크롤 도달 가능**해야 함. `overflow: hidden`/`display: none` 으로 잘라서 오버플로를 없애면 FAIL (내용 손실) | [WCAG 2.2 SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) |
 | 테마 영속화 | 테마 토글을 제공하면 선택이 `localStorage` 에 저장되고 로드 시 복원됨. 저장값이 없으면 `prefers-color-scheme` 을 따름 | [MDN prefers-color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) |
@@ -116,3 +116,4 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 | 장식 목적성 | blur, gradient, shadow 등 장식 효과에 기능적 목적 존재 | BSWEN AI UI Anti-Patterns |
 | 카피 구체성 | 헤드라인/CTA가 이 제품에만 해당하는 구체적 내용 (범용 문구 아님) | Crea8ive Solution Anti-AI Trends 2026 |
 | 이미지 고유성 | 이미지/일러스트가 프로젝트 고유 스타일임 (제네릭 스톡 느낌 아님) | authentic-design.md |
+| 같은 역할 관례 일치 | 같은 역할의 기존 화면 2 개 이상과 줄 모양(카드/평평한 줄) · 칩·뱃지 모양 · 아이콘 뜻이 같다. 대조 화면은 `../../../references/visual-change-protocol.md` §0 관례 표가 있으면 그 화면, 없으면 감사자가 직접 찾은 2 개다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 2 개 미만이면 FAIL 로 적지 않고 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다 | [WCAG 2.2 SC 3.2.4](https://www.w3.org/TR/WCAG22/) |

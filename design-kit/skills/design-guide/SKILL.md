@@ -21,7 +21,7 @@ user-invocable: true
 7. **접근성·에러 케이스 누락 금지** — 시각적 레이아웃에만 집중하다 키보드 접근, 스크린리더, 에러 상태, 빈 상태를 빠뜨리는 실수를 하지 마라. WCAG 위반은 가장 높은 우선순위다.
 8. **픽셀 nitpick에 갇히지 마라** — 고영향 이슈가 있는데 픽셀 정렬이나 사소한 간격에 집착하지 마라. 한 세션에서는 상위 1~3개 blocking issue에만 집중하고 나머지는 Minor로 분류한다.
 9. **디자인 시스템 우회 지적** — 커스텀 one-off override나 토큰 외 하드코딩된 값이 있으면 반드시 언급하라. 일관성 붕괴는 단기적으로는 Minor처럼 보이지만 장기적으로 유지보수 비용을 높인다.
-10. **APCA Lc 참조 안내** — 접근성 대비 가이드 시 WCAG 2.2 AA(4.5:1) 기준을 우선 적용하되, 추가로 APCA Lc 임계값을 informational로 제시하라. 본문 텍스트 Lc 75~90, 비본문 Lc 60 이상. APCA는 폰트 크기+굵기별 차등 대비를 요구하므로 가는 폰트(300w)에 더 높은 Lc가 필요하다. 법적 표준은 WCAG 2.2 AA이며 APCA는 WCAG 3.0 WD 참고용. 출처: research-log §C.
+10. **APCA Lc 참조 안내** — 접근성 대비 가이드 시 WCAG 2.2 AA(4.5:1) 기준을 우선 적용하되, 추가로 APCA Lc 임계값을 informational로 제시하라. 본문 텍스트 Lc 75~90, 비본문 Lc 60 이상. APCA는 폰트 크기+굵기별 차등 대비를 요구하므로 가는 폰트(300w)에 더 높은 Lc가 필요하다. 판정 기준은 WCAG 2.2 AA이며 APCA는 WCAG 3.0 WD 참고용. 출처: research-log §C.
 11. **Fluid Typography/Spacing 가이드** — 타이포그래피나 간격 질문 시 고정 크기 외에 `clamp(min, preferred, max)` 기반 fluid scale 옵션을 언급하라. Modular Scale 비율(1.125~1.618)과 Utopia 접근법을 참고로 안내한다. 출처: research-log §E, §F.
 12. **Compound Component 패턴 인식** — 컴포넌트 구조 관련 질문 시 Compound Components(Context API로 상태 공유) + Slot Pattern(named slot 분리) 패턴을 인지하고 안내하라. "prop soup" 문제가 보이면 compound 패턴을 제안한다. 출처: research-log §G.
 13. **가이드형 스킬도 Process Step 순서 고정 (탐색→진단→처방)** — 본 스킬은 원칙 안내형이지만 적용 시 3-Step 순서를 반드시 따른다. (1) **탐색:** 사용자가 제시한 코드/설명에서 관련 카테고리·디자인 토큰·기존 컴포넌트·출처를 Grep/Read 로 전수 파악 (Step 1). (2) **진단:** 위반 항목을 파일:라인 + 위반 원칙 + 우선순위(Critical/Important/Minor) 로 목록화 (Step 2~3). (3) **처방:** 각 진단에 대해 권장 방향을 "하나의 가능성" 으로 제시하고 근거·출처를 첨부 (Step 3 포맷). 진단 단계를 생략하고 바로 "이렇게 바꾸세요" 로 넘어가면 Gotcha #6 의 "해법만 강요" 안티패턴이 된다. flutter-error · flutter-hooks 가이드 스킬 sibling parity 와 동일 원칙 (Phase 5 원칙 2).
@@ -48,6 +48,10 @@ user-invocable: true
 | image | 이미지, 일러스트, 사진, 아이콘 스타일 |
 | ethical design | 다크 패턴, 윤리, 동의, 탈퇴, 구독 해지 |
 | authenticity | AI스러운, 제네릭, 템플릿, 개성, 진정성, 브랜드 톤 |
+
+코드를 받았으면 카테고리를 고르기 전에 그 코드가 쓰는 토큰과 기존 컴포넌트를 Grep/Read 로 찾아 `파일:줄` 목록으로
+남긴다 (Gotcha 13 의 탐색 단계). 배치·줄 모양·칩 모양을 묻는 질문이면 `../../references/visual-change-protocol.md`
+§0 관례 표 — 같은 역할의 서로 다른 기존 화면 2 개 이상 — 를 근거로 쓴다.
 
 ## Step 2: 원칙 참조
 

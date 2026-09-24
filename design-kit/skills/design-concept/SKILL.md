@@ -94,11 +94,14 @@ user-invocable: true
 ```text
 # 감지 대상
 .design/concept.md          → 기존 컨셉 로드 (수정/확장 모드)
+.design/approvals/*-concept.md → 폐기한 컨셉 안 로드
 **/theme/** **/tokens/**    → 이미 토큰 체계가 있으면 컨셉 방향 제약으로 활용
 ```
 
 - `.design/concept.md` 존재 → 로드하여 수정/확장 모드로 진입. 기존 컨셉 내용을 사용자에게 요약하고 변경할 부분을 확인한다.
 - `.design/concept.md` 미존재 → 신규 생성 모드로 진행.
+- 컨셉 승인 기록 존재 → 폐기한 대안·이유 칸의 안은 사용자가 되살리라고 하지 않는 한 다시 제안하지 않는다
+  (`../../references/visual-change-protocol.md` §4).
 
 **이 Step 0 은 독립 Process 단계다 (SK-05 재발 방지)** — Gotchas 의 "기존 컨셉 무시 금지" 지침(Gotcha #4) 과 별개로 Process 첫 단계에서 반드시 수행한다. 자동 로드 로직을 Gotchas 섹션에만 기재하면 평가자가 "프로세스 단계" 요건 미충족으로 판정한다 (2026-04 design-kit REJECT 사유).
 
@@ -213,6 +216,7 @@ templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)�
 - 대상 산출물: .design/concept.md · .design/moodboard.html
 - 확정된 방향: {무드 키워드 · 역할별 컬러 톤 계열 · 타이포 방향 · 레이아웃 방향 — 서술형}
 - 미확정/후속: {design-system 단계로 넘긴 항목 — 예 hex 확정, 대비 수치 계산}
+- 폐기한 대안·이유: {이번에 버린 컨셉 안과 이유 — 없으면 `없음`}
 - 원문 근거: {사용자 발화 인용}
 ```
 
@@ -221,6 +225,7 @@ templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)�
 ```bash
 ls .design/approvals/                                        # 파일 존재
 grep -cE '#[0-9a-fA-F]{3,8}\b' .design/approvals/{YYYYMMDD}-concept.md   # → 0
+grep -c '^- 폐기한 대안·이유:' .design/approvals/{YYYYMMDD}-concept.md     # → 1
 ```
 
 ## Step 8: 다음 단계 안내

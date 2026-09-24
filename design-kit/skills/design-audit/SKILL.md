@@ -42,7 +42,7 @@ user-invocable: true
 
     **0 매치 판정** — `grep` 0 건은 두 가지다. **의도된 0**(대상 파일 수를 먼저 세고, 패턴이 다른 위치에서 매치됨을 확인한 뒤의 0)만 PASS 근거가 된다. **공허한 0**(경로 오류·빈 파일·절대 매치 안 되는 패턴)은 측정 실패이며 `[미검증]` 이다. 근거 문장에 `대상 N 파일 · 패턴 유효성 확인 · 매치 0` 형태로 셋을 함께 적어라.
 
-    **렌더 산출물 특칙** — 빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 **검증 실패 신호**다. 캡처를 근거로 쓸 때는 조건이 요구하는 구체 요소를 지목하라. 지목할 수 없으면 무효 증거다. 출처: `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate.
+    **렌더 산출물 특칙** — 빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 **검증 실패 신호**다. 캡처를 근거로 쓸 때는 조건이 요구하는 구체 요소를 지목하라. 지목할 수 없으면 무효 증거다. 캡처마다 `../../references/visual-change-protocol.md` §3 캡처 점검 목록(넘침 · 깨진 글리프 · 칩·뱃지와 줄 모양 · 디버그 겹침)을 보고, 하나라도 걸린 캡처는 PASS 근거로 쓰지 않는다. 출처: `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate.
 
 13. **Before/After 대조 감사 — 의도 외 영역 변화는 FAIL** — 변경분(`git diff` 기준)을 감사할 때는 정적 상태만 보지 말고 **요청 범위와 실제 변경 범위를 대조**하라. 요청이 특정 시각 속성 하나를 지목했는데(보더만·색만·간격만) 같은 요소의 background / fill / radius / shadow / spacing / typography 가 함께 변했다면 `Major` FAIL 이다. 승인된 시안·기존 앱 색상이 있는데 프로젝트 토큰이나 기본 팔레트로 치환됐다면 `Major` FAIL 이다 (우선순위 위반). 감사 리포트는 `EVIDENCE` 블록(before / after / proof / 의도 외 영역)으로 닫는다. 상세: `../../references/visual-change-protocol.md`.
 
@@ -69,15 +69,15 @@ user-invocable: true
 | 카테고리 | 핵심 체크포인트 | 심각도 기준 |
 |----------|-----------------|-------------|
 | **Typography** | 타이포 스케일 일관성, 행간 1.2~1.6배, 본문 최소 14px(모바일)/16px(웹) | Major |
-| **Color** | 텍스트 대비 WCAG 2.2 AA 4.5:1, 시맨틱 토큰 사용, 다크모드 대비 유지, OKLCH/P3 wide gamut 사용 시 sRGB fallback 확인. **APCA Lc 참조(informational):** 본문 Lc 75~90, 비본문 Lc 60 이상, Lc 15 미만은 비가시. APCA는 폰트 크기+굵기별 차등 대비를 요구하므로 가는 폰트에 더 높은 대비 필요. 현재 법적 표준은 WCAG 2.2 AA이며 APCA는 WCAG 3.0 WD 참고용 | Critical(대비) / Major(토큰) |
+| **Color** | 텍스트 대비 WCAG 2.2 AA 4.5:1, 시맨틱 토큰 사용, 다크모드 대비 유지, OKLCH/P3 wide gamut 사용 시 sRGB fallback 확인. **APCA Lc 참조(informational):** 본문 Lc 75~90, 비본문 Lc 60 이상, Lc 15 미만은 비가시. APCA는 폰트 크기+굵기별 차등 대비를 요구하므로 가는 폰트에 더 높은 대비 필요. 판정 기준은 WCAG 2.2 AA이며 APCA는 WCAG 3.0 WD 참고용 | Critical(대비) / Major(토큰) |
 | **Spacing** | 스페이싱 스케일 일관성, 터치 타겟 WCAG 2.2 SC 2.5.8 AA ≥24×24 CSS px (AAA SC 2.5.5 = 44×44), 그룹 간/내 여백 위계 | Critical(터치) / Major(스케일) |
 | **Accessibility** | 색상만으로 상태 전달 금지, 포커스 인디케이터, 폼 라벨, 대체 텍스트, WCAG 2.2 SC 2.4.11 Focus Not Obscured (AA), SC 2.5.7 Dragging Movements (AA), SC 3.3.8 Accessible Authentication Min (AA) | Critical |
 | **Interaction** | 액션 피드백, 로딩 인디케이터, 에러 표시, 취소/되돌리기 경로, 드래그 전용 UX 시 single-pointer 대체(WCAG 2.2 SC 2.5.7) | Major |
 | **Motion** | 애니메이션 목적성, 듀레이션 200~500ms, prefers-reduced-motion 대응 | Major |
 | **Visual Hierarchy** | 제목/본문/캡션 비율 차이, 핵심 콘텐츠 대비 강조, 그룹 여백 분리 | Major |
-| **Layout & Grid** | 그리드 정렬, 거터 일관성, 주요 breakpoint 반응형 전략, 컴포넌트 수준 반응형은 `container-type: inline-size` + `@container` 권장 (2026 Baseline). **Container Queries 체크:** 페이지 레벨 분기는 media queries, 컴포넌트 레벨 분기는 container queries 사용 여부 확인. cqw/cqi 유닛 활용, 콘텐츠가 깨지는 지점 기반 breakpoint 설정 권장 (디바이스 타겟 X) | Major |
+| **Layout & Grid** | 그리드 정렬, 거터 일관성, 주요 breakpoint 반응형 전략, 컴포넌트 수준 반응형은 `container-type: inline-size` + `@container` 권장 (크기 쿼리 지원: Chrome 105 · Firefox 110 · Safari 16). **Container Queries 체크:** 페이지 레벨 분기는 media queries, 컴포넌트 레벨 분기는 container queries 사용 여부 확인. cqw/cqi 유닛 활용, 콘텐츠가 깨지는 지점 기반 breakpoint 설정 권장 (디바이스 타겟 X) | Major |
 | **Ethical Design** | 다크 패턴 12유형 부재, 동의 명시성, 가입·탈퇴 경로 대칭성 | Critical |
-| **Authenticity** | 동일 구조 3회 이상 반복, 제네릭 팔레트, 목적 없는 장식, 범용 카피 | Minor~Major |
+| **Authenticity** | 동일 구조 3회 이상 반복, 제네릭 팔레트, 목적 없는 장식, 범용 카피, 같은 역할 기존 화면과 관례 불일치 | Minor~Major |
 
 ## Step 3: design-reviewer 에이전트 호출
 

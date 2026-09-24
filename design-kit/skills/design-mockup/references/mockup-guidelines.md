@@ -4,7 +4,7 @@ design-mockup 스킬이 참조하는 시안 생성 가이드라인.
 
 ## 레이아웃 다양성 규칙
 
-5개 시안은 반드시 서로 다른 레이아웃/구성 접근을 사용한다:
+시안은 개수와 무관하게 서로 다른 레이아웃/구성 접근을 사용한다 (개수는 `SKILL.md` Step 3-a 를 따른다):
 
 | 차별화 축 | 설명 |
 |-----------|------|
@@ -64,6 +64,6 @@ design-mockup 스킬이 참조하는 시안 생성 가이드라인.
 | 간격 일관성 | 정의된 스케일 값만 사용 | `docs/design/foundations/spacing-layout.md` |
 | 그리드 정렬 | 요소가 그리드에 정렬됨 | `docs/design/foundations/grid-alignment.md` |
 | 대비 비율 | WCAG AA 4.5:1 이상 | `docs/design/accessibility/accessibility.md` |
-| 터치 타겟 | 인터랙티브 요소 44×44pt 이상 | `docs/design/accessibility/accessibility.md` |
+| 터치 타겟 | 인터랙티브 요소 44×44 CSS px 이상 — 시안 기본값(WCAG 2.2 SC 2.5.5 AAA, Apple HIG 는 44pt). AA 최소는 SC 2.5.8 24×24 CSS px | `docs/design/accessibility/accessibility.md` |
 | 인증성 | 동일 구조 3회 이상 반복 없음 | `docs/design/foundations/authentic-design.md` |
 | 피드백 | 인터랙티브 요소에 hover/active 상태 존재 | `docs/design/interaction/feedback.md` |
