@@ -70,8 +70,8 @@ user-invocable: true
 - silent skip 체크리스트 항목 보존 — **추가는 OK, 삭제 금지** (Gotcha 5)
 - references ↔ SKILL 경로 정합성 (`bambu-kit/skills/bambu-print-profile/references/...`)
 - 사용자 정책 (nozzle_temperature 등) 미수정 확인 (Gotcha 3)
-- **회귀 검증 (필수)**: `python3 scripts/validate-plugin.py bambu-kit` — **9 카테고리 (V1~V9)** 전부 OK 여야 한다
-  (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec / V9 arg-substitution)
+- **회귀 검증 (필수)**: `python3 scripts/validate-plugin.py bambu-kit` — **등록된 검사 전부** 전부 OK 여야 한다
+  (목록은 아래 명령으로 얻는다)
 - **수치를 바꿨으면 출처 URL 을 함께 기록했는지** — references 는 SSOT 다. 근거 없는 수치 변경 금지
 
 ## Step 5: 검증 출력

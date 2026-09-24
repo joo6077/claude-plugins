@@ -757,6 +757,71 @@ def check_v9_arg_substitution(ctx: CheckContext) -> CheckResult:
     return result
 
 
+def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
+    """마크다운 표가 헤더 없이 끊긴 자리를 잡는다.
+
+    근거: 긴 문서에 절을 끼워 넣으면 표 중간에 들어가 뒷부분이 헤더 없이 남는다.
+    2026-09-23 실측: contract-schema.md 의 4 행 표 사이에 소제목을 넣어 마지막 행이
+    고립됐고, markdownlint 는 그것을 표로 인식하지 못해 경고 수가 전혀 움직이지 않았다
+    (같은 파일 세 커밋 내리 14 건). 즉 경고 수로는 이 붕괴를 볼 수 없다.
+
+    판정: 코드 블록 밖의 표행(`|` 로 시작) 중, 바로 위가 표행이 **아니고** 바로 아래도
+    헤더 구분선(`|` 로 시작하고 `|-: ` 만으로 이뤄진 줄)이 **아닌** 행. 정상 표는
+    헤더 행 다음에 구분선이 오므로 걸리지 않는다.
+
+    범위가 V6 보다 넓다. V6 은 skills/agents/references/README 만 보는데 표가 끊긴
+    자리는 harness/docs/guides/ 였고 그건 V6 범위 밖이었다. 그래서 킷 안의
+    docs/**/*.md 를 더한다.
+
+    --fix 는 제공하지 않는다. 끊긴 표를 어디로 되돌려야 하는지는 의미 판단이다.
+    """
+    result = CheckResult("V10", "table-integrity")
+    md_files: list[Path] = []
+    md_files.extend(ctx.kit_path.glob("skills/*/SKILL.md"))
+    md_files.extend(ctx.kit_path.glob("agents/*.md"))
+    md_files.extend(ctx.kit_path.glob("references/*.md"))
+    md_files.extend(ctx.kit_path.glob("docs/**/*.md"))
+    if (ctx.kit_path / "README.md").exists():
+        md_files.append(ctx.kit_path / "README.md")
+
+    failures: list[str] = []
+
+    for path in sorted(set(md_files)):
+        lines = ctx.read(path).splitlines()
+        # 코드 블록 밖 줄만 남기되 원래 줄 번호를 유지한다
+        kept: list[tuple[int, str]] = []
+        in_fence = False
+        for lineno, line in enumerate(lines, start=1):
+            if line.startswith("```"):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+            kept.append((lineno, line))
+
+        for idx, (lineno, line) in enumerate(kept):
+            if not line.startswith("|"):
+                continue
+            prev_is_row = idx > 0 and kept[idx - 1][1].startswith("|")
+            nxt = kept[idx + 1][1] if idx + 1 < len(kept) else ""
+            next_is_sep = nxt.startswith("|") and set(nxt) <= set("|-: ")
+            if not prev_is_row and not next_is_sep:
+                rel = path.relative_to(REPO_ROOT)
+                failures.append(
+                    f"FAIL {rel}:{lineno} — 헤더 없이 끊긴 표 행 "
+                    f"(절을 표 중간에 끼워 넣었는지 보라): {line[:60]}"
+                )
+
+    if failures:
+        result.status = "FAIL"
+        result.summary = f"{len(failures)} broken table row(s)"
+        result.details = failures
+    else:
+        result.status = "OK"
+        result.summary = f"{len(set(md_files))} md files — OK"
+    return result
+
+
 # ---------------------------------------------------------------------------
 # CHECK_REGISTRY + validate_kit
 # ---------------------------------------------------------------------------
@@ -771,6 +836,7 @@ CHECK_REGISTRY: dict[str, Callable[[CheckContext], CheckResult]] = {
     "plugin-json": check_v7_plugin_json,
     "hook-exec": check_v8_hook_exec,
     "arg-substitution": check_v9_arg_substitution,
+    "table-integrity": check_v10_table_integrity,
 }
 
 

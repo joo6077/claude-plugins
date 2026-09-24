@@ -65,11 +65,17 @@ python3 scripts/run-evals.py tone-kit --verbose
 python3 scripts/sync-docs.py --check-only
 ```
 
-`validate-plugin.py tone-kit` 은 **9 카테고리 V1~V9 전부 OK** 여야 한다 (V1 frontmatter / V2 templates / V3 refs / V4 triggers / V5 placeholders / V6 code-fence / V7 plugin-json / V8 hook-exec / V9 arg-substitution).
+`validate-plugin.py tone-kit` 은 **등록된 검사 전부 OK** 여야 한다 (목록은 아래 명령으로 얻는다).
 
 description 을 고쳤으면 substring containment 를 수동 계산한다 — V4 는 set intersection 만 검사한다.
 
 grep 패턴을 고쳤으면 bash·zsh 양쪽에서 실행하고 합성 양성 케이스로 생존을 증명한다.
+
+등록된 검사 목록은 개수를 적지 말고 **명령으로 얻는다.** 검사가 늘어도 이 문서를 고칠 일이 없다.
+
+```bash
+grep -oE '"[a-z-]+": check_v[0-9]+' scripts/validate-plugin.py | sed -E 's/"([a-z-]+)".*/\1/'
+```
 
 ## Step 5. 보고
 
@@ -79,7 +85,7 @@ grep 패턴을 고쳤으면 bash·zsh 양쪽에서 실행하고 합성 양성 �
 | # | 축 | 변경 | 근거 |
 |---|---|---|---|
 
-회귀: V1~V9 OK · evals N/N PASS · 배타성 위반 0
+회귀: 등록된 검사 전부 OK · evals N/N PASS · 배타성 위반 0
 다음 사이클 이월: ...
 ```
 
