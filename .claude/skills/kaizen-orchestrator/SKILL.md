@@ -222,24 +222,37 @@ python3 scripts/collect-kaizen-data.py
 ```yaml
 # docs-contract
 script: scripts/collect-kaizen-data.py
-options: ["--hub-dir", "--insights", "--output", "--skip-validate"]
+options: ["--hub-dir", "--insights", "--output", "--skip-validate", "--usage-data"]
 input_candidates:
   - .claude/kaizen-input/insights-report.md
   - ~/.claude/kaizen-input/insights-report.md
   - ~/.claude/usage-data/report.html
+usage_data_inputs:
+  - ~/.claude/usage-data/facets
+  - ~/.claude/usage-data/session-meta
 exit_codes: [0, 2]
 ```
 
 **수집 소스 (스크립트 내장):**
 
-0. **`/insights` 외부 도구 산출물** — 위 `input_candidates` 를 **우선순위대로** 탐색. `--insights PATH` 로 명시 지정하면 자동 탐색보다 우선한다
+**0. `/insights` 외부 도구 산출물** — 위 `input_candidates` 중 요약본(`.md`)은 frontmatter `report_file` 이 usage-data 폴더의 가장 새 `report-*.html` 이름과 같을 때(`report_file` 이 없으면 `generated` 날짜가 그 보고서 날짜 이상일 때)만 원본 `report.html` 을 이기고, 둘 다 없으면 진다. `--insights PATH` 로 명시 지정하면 이 선택보다 앞선다
 
-   - `/insights` 는 Claude Code 마켓플레이스 등록 스킬이 아니라 사용자가 외부 도구로 30일 세션 사용 데이터를 분석한 산출물 (Friction Points / Recommended Patterns / Feature Suggestions)
-   - `.md` 후보는 본문 그대로, `.html` 후보는 태그를 벗겨 데이터 풀 §0 (최상위) 으로 삽입되어 **모든 Phase 가 최우선 참조**
-   - 선택 결과는 stderr 에 후보별로 찍힌다 (`✓ 선택` / `· 후순위` / `✗ 없음`) — 무엇을 읽었는지 확인하고 넘어가라
-   - 60일 초과 시 STALE 경고 표시. STALE 이면 사용자에게 `/insights` 재실행 권고
-   - 후보가 하나도 없으면 §0 에 "(없음)" 안내 후 진행 — Step 0 자체는 막지 않는다
-   - `--insights` 로 지정한 파일이 없으면 **다른 후보로 조용히 대체하지 않고 exit 2** 로 멈춘다
+- `/insights` 는 Claude Code 마켓플레이스 등록 스킬이 아니라 사용자가 외부 도구로 30일 세션 사용 데이터를 분석한 산출물 (Friction Points / Recommended Patterns / Feature Suggestions)
+- `.md` 후보는 본문 그대로, `.html` 후보는 태그를 벗겨 데이터 풀 §0 (최상위) 으로 삽입되어 **모든 Phase 가 최우선 참조**
+- 선택 결과는 stderr 에 후보별로 찍힌다 (`✓ 선택` / `· 제외` 와 진 이유 / `· 후순위` / `✗ 없음`) — 무엇을 읽었는지 확인하고 넘어가라
+- 요약본 나이와 VERY FRESH · STALE 은 frontmatter `generated` 날짜로 잰다 (워크트리를 새로 만들면 파일 수정 시각이 그 순간으로 바뀐다). 원본 `.html` 은 수정 시각으로 잰다
+- §0 머리에 보고서 관측 기간(본문의 `YYYY-MM-DD to YYYY-MM-DD`)을 적는다
+- 60일 초과 시 STALE 경고 표시. STALE 이면 사용자에게 `/insights` 재실행 권고
+- 후보가 하나도 없으면 §0 에 "(없음)" 안내 후 진행 — Step 0 자체는 막지 않는다
+- `--insights` 로 지정한 파일이 없으면 **다른 후보로 조용히 대체하지 않고 exit 2** 로 멈춘다
+
+**0-b. 세션별 분석 (facets)** — 위 선언의 `facets` · `session-meta` 두 폴더 · 데이터 풀 §0 안의 하위 절 `### 0-b` 로 렌더
+
+- facets 파일마다 짝 session-meta 하나만 읽는다. facets 가 없는 session-meta(평가용 세션)는 세지 않는다.
+- 프로젝트는 git 공용 폴더 기준으로 묶는다 — 같은 레포의 워크트리는 한 묶음이다. `/tmp` · `/private/tmp` · `/var/folders` 아래 세션은 임시 폴더로 따로 센다.
+- 프로젝트별 세션 수 · outcome 분포 · 마찰 합계(종류 이름을 합치지 않는다)와 세션별 행(마찰 원문 · 요약 · 언급된 킷)을 싣는다.
+- §0 보고서와 같은 세션에서 나온 원자료다. 건수를 §0 과 더하지 마라.
+- 못 읽은 파일은 stderr 와 §0-b 에 수를 적는다. 폴더가 없으면 `(없음)` 으로 적고 Step 0 은 멈추지 않는다.
 
 **0.5. 개인 메모리 (전 프로젝트 교차)** — `~/.claude/projects/*/memory/` · 데이터 풀 §0.5 로 렌더
 
@@ -297,6 +310,7 @@ exit_codes: [0, 2]
 - `.harness/.meta/kaizen-data-pool.md` — 카이젠 공통 데이터 풀 (Step 0 에서 생성)
   §0 (`/insights`) → §0.5 (개인 메모리) 순으로 먼저 읽고, 그 다음 너의 Phase
   범위에 해당하는 섹션 (§N) 을 본다.
+  §0-b 에서 자기 킷이 언급된 행을 먼저 읽는다.
   §0.5 에서 `grounding: self_inference` 인 엔트리 (및 `grounding` 미보유 엔트리) 는
   배경 참고까지만이다 — 계약 조건의 PASS 근거로 인용하지 마라.
   4 값 정의는 `reflect-kit/references/memory-grounding.md` 가 SSOT.
@@ -312,6 +326,7 @@ exit_codes: [0, 2]
 - `/insights` 리포트가 60일 초과 STALE 이면 데이터 풀에 ⚠ 마커가 붙는다. 이 사이클은 진행하되, **사용자에게 `/insights` 재실행을 권고**하라.
 - `/insights` 가 30일 세션 분석이지만 카이젠 사이클(주 1 회)이 더 빈번하므로, 이전 사이클과 같은 리포트가 재참조될 수 있다. 매 사이클 §0 의 friction point 가 이미 해결되었는지 각 Phase QA Acceptance Criteria 에 명시한다.
 - `--insights=PATH` 인자가 명시적으로 전달되면 자동 탐색 경로보다 우선한다 (사용자가 특정 리포트 버전을 강제하고 싶을 때).
+- 요약본을 새로 쓸 때는 frontmatter 에 generated 와 report_file 을 반드시 적는다 — 없으면 원본에 진다.
 - **§0.5 개인 메모리를 "카이젠이 쓴 것" 이라는 이유로 통째로 배제하지 마라.** 메모리의 `feedback` 엔트리는 전부 Claude 가 쓴 것이라 저자로 가르면 아무것도 끊기지 않는다. 가르는 축은 저자가 아니라 **근거**(`grounding`)다 — 외부 신호(사용자 교정 · 실행 증거)가 붙은 엔트리는 카이젠 산출이라도 유효하다. 취급을 달리할 대상은 `self_inference` 와 미태깅뿐이고, 그것도 삭제가 아니라 **PASS 근거 금지 라벨**이다.
 - **메모리는 카이젠의 입력이자 출력이다 — 같은 사이클 안에서 왕복시키지 마라.** 이번 사이클이 Step F3.5 로 낸 승격 후보는 이번 사이클 §0.5 의 근거가 될 수 없다. 후보는 `/reflect-promote` 승인을 거쳐 메모리가 된 뒤에야 **다음** 사이클 §0.5 로 들어온다.
 
@@ -568,7 +583,11 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
      - changelog, research-log이 모든 Phase 변경을 포함하는가 (docs/planning/research-log.md 포함)
    - Diagnostics: 전체 `bash -n` 검증
 
-2. **QA Evaluator 실행:**
+2. **처리 배정표 닫기:**
+
+   - insights-report.md 처리 배정표의 Phase N 행마다 대상 계약(그 Phase 계약 슬러그)과 QA(APPROVE/REJECT) 칸을 채우고 python3 scripts/check-insights-tracking.py --final .claude/kaizen-input/insights-report.md 가 exit 0 이어야 Final 계약이 통과한다 — 빈 칸이 남으면 통과하지 못한다
+
+3. **QA Evaluator 실행:**
 
    - **APPROVE** → Step F2 로 진행
    - **REJECT** → 해당 Phase로 돌아가 수정 후 Final 재실행
