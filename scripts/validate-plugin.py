@@ -774,6 +774,9 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     원래 V6 범위 안이었다 — 넓힌 이유는 "그 파일이 범위 밖이어서" 가 아니라 "같은 종류의
     문서가 docs/ 에도 있어서" 다 (교차 진단이 이 서술 오류를 짚었다).
 
+    스킬 폴더 안 references/ 문서도 더한다. 킷 최상위 references/*.md 만 보면 스킬마다 둔 참조 문서가
+    빠진다 — 2026-09-25 실측 14 킷에 41 개(표가 있는 파일 40 개)가 검사 밖이었고 끊긴 표는 0 개였다.
+
     표행 판정은 왼쪽 공백을 벗겨서 한다. 표는 목록·인용 안에서 들여쓰여 쓰이고,
     왼쪽 끝만 보면 그것이 전부 검사에서 빠진다.
 
@@ -785,6 +788,7 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     md_files.extend(ctx.kit_path.glob("agents/*.md"))
     md_files.extend(ctx.kit_path.glob("references/*.md"))
     md_files.extend(ctx.kit_path.glob("docs/**/*.md"))
+    md_files.extend(ctx.kit_path.glob("skills/*/references/**/*.md"))
     if (ctx.kit_path / "README.md").exists():
         md_files.append(ctx.kit_path / "README.md")
 
