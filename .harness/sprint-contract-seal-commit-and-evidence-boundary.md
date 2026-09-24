@@ -4,7 +4,7 @@ slug: seal-commit-and-evidence-boundary
 created: "2026-09-24 09:15"
 complexity: "복잡"
 conditions: 19
-status: active
+status: done
 owner_session: f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0
 conditions_digest: sha256:2493939cfb28dc22
 locked_at: "2026-09-24 09:58"

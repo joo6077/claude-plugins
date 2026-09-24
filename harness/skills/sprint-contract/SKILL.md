@@ -730,8 +730,16 @@ git add "$CF"
 git commit -o "$CF" -m "contract: $SLUG 봉인 ($N 조건)"
 
 # (c) 확인: 이 커밋에 파일이 정확히 1 개인가
-git show --name-only --format='' HEAD | grep -c .   # 1 이어야 한다
+N=$(git show --name-only --format='' HEAD | grep -c .)
+[ "$N" = 1 ] && echo "OK seal_commit files=1" \
+  || echo "BLOCKED 봉인 커밋에 파일 $N 개 — 구현 편집으로 넘어가지 마라"
 ```
+
+**`BLOCKED` 가 뜨면 구현 편집으로 진행하지 않는다.** Step 6.5 와 같은 틀이다 — 이 확인을
+통과하기 전에는 다음 단계로 가지 않는다. 그러지 않으면 이 절차는 안내로만 남고 아무것도 막지
+못한다 (실측 2026-09-24: 계약 71 개 중 단독 커밋은 3 개, 나머지 68 개는 섞였거나 추적조차
+안 됐다 — 교차 진단이 이 구멍을 짚었다). 섞였으면 `git reset --soft HEAD~1` 로 되돌리고
+계약 경로만 다시 커밋한다.
 
 - **`-o` 를 빼지 마라.** 다른 세션이 스테이징해 둔 것을 함께 삼킨다. 이 레포는 작업 폴더를 여러
   세션이 공유한다
