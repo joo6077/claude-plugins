@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """플러그인 검증 스크립트.
 
-.claude-plugin/marketplace.json 에 등록된 모든 킷을 7가지 카테고리로 검증한다.
+.claude-plugin/marketplace.json 에 등록된 모든 킷을 등록된 검사 전부로 검증한다.
 가이드: harness/docs/guides/plugin-validation-guide.md
 
 Usage:
@@ -93,7 +93,7 @@ class CheckResult:
     """단일 체크 결과."""
 
     def __init__(self, check_id: str, label: str):
-        self.check_id = check_id          # V1~V9
+        self.check_id = check_id          # V1, V2, … (등록 순서)
         self.label = label                 # 사람이 읽을 이름
         self.status = "OK"                 # OK | WARN | FAIL | SKIP
         self.summary = ""                  # 요약 (예: "7 skills + 1 agent — OK")
@@ -757,6 +757,82 @@ def check_v9_arg_substitution(ctx: CheckContext) -> CheckResult:
     return result
 
 
+def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
+    """마크다운 표가 헤더 없이 끊긴 자리를 잡는다.
+
+    근거: 긴 문서에 절을 끼워 넣으면 표 중간에 들어가 뒷부분이 헤더 없이 남는다.
+    2026-09-23 실측: contract-schema.md 의 4 행 표 사이에 소제목을 넣어 마지막 행이
+    고립됐고, markdownlint 는 그것을 표로 인식하지 못해 경고 수가 전혀 움직이지 않았다
+    (같은 파일 세 커밋 내리 14 건). 즉 경고 수로는 이 붕괴를 볼 수 없다.
+
+    판정: 코드 블록 밖의 표행(`|` 로 시작) 중, 바로 위가 표행이 **아니고** 바로 아래도
+    헤더 구분선(`|` 로 시작하고 `|-: ` 만으로 이뤄진 줄)이 **아닌** 행. 정상 표는
+    헤더 행 다음에 구분선이 오므로 걸리지 않는다.
+
+    범위가 V6 보다 넓다. 킷 안의 docs/**/*.md 를 더해 기준 문서(harness/docs/guides/)가
+    검사 대상이 된다. 실제로 표가 끊겼던 자리는 harness/references/contract-schema.md 라
+    원래 V6 범위 안이었다 — 넓힌 이유는 "그 파일이 범위 밖이어서" 가 아니라 "같은 종류의
+    문서가 docs/ 에도 있어서" 다 (교차 진단이 이 서술 오류를 짚었다).
+
+    표행 판정은 왼쪽 공백을 벗겨서 한다. 표는 목록·인용 안에서 들여쓰여 쓰이고,
+    왼쪽 끝만 보면 그것이 전부 검사에서 빠진다.
+
+    --fix 는 제공하지 않는다. 끊긴 표를 어디로 되돌려야 하는지는 의미 판단이다.
+    """
+    result = CheckResult("V10", "table-integrity")
+    md_files: list[Path] = []
+    md_files.extend(ctx.kit_path.glob("skills/*/SKILL.md"))
+    md_files.extend(ctx.kit_path.glob("agents/*.md"))
+    md_files.extend(ctx.kit_path.glob("references/*.md"))
+    md_files.extend(ctx.kit_path.glob("docs/**/*.md"))
+    if (ctx.kit_path / "README.md").exists():
+        md_files.append(ctx.kit_path / "README.md")
+
+    failures: list[str] = []
+
+    for path in sorted(set(md_files)):
+        lines = ctx.read(path).splitlines()
+        # 코드 블록 밖 줄만 남기되 원래 줄 번호를 유지한다
+        kept: list[tuple[int, str]] = []
+        in_fence = False
+        for lineno, line in enumerate(lines, start=1):
+            # 들여쓴 코드 블록도 코드 블록이다. V6 와 같은 기준을 쓴다 —
+            # startswith 만 쓰면 들여쓴 블록을 못 알아보고 그 안의 줄을 검사한다
+            if line.strip().startswith("```"):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+            kept.append((lineno, line))
+
+        for idx, (lineno, line) in enumerate(kept):
+            # 표는 목록·인용 안에서 들여쓰여 쓰인다. 왼쪽 끝만 보면 그것이 전부 빠진다 —
+            # 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 84 줄(9 파일) 있었고, 그 안에
+            # 실제로 끊긴 표가 숨어 있었다 (reflect-promote/SKILL.md 의 8 행 표 한가운데에
+            # 산문 한 문단이 들어가 행 4~7 이 고립). 교차 진단이 찾았다
+            stripped = line.lstrip()
+            if not stripped.startswith("|"):
+                continue
+            prev_is_row = idx > 0 and kept[idx - 1][1].lstrip().startswith("|")
+            nxt = kept[idx + 1][1].lstrip() if idx + 1 < len(kept) else ""
+            next_is_sep = nxt.startswith("|") and set(nxt) <= set("|-: ")
+            if not prev_is_row and not next_is_sep:
+                rel = path.relative_to(REPO_ROOT)
+                failures.append(
+                    f"FAIL {rel}:{lineno} — 헤더 없이 끊긴 표 행 "
+                    f"(절을 표 중간에 끼워 넣었는지 보라): {line[:60]}"
+                )
+
+    if failures:
+        result.status = "FAIL"
+        result.summary = f"{len(failures)} broken table row(s)"
+        result.details = failures
+    else:
+        result.status = "OK"
+        result.summary = f"{len(set(md_files))} md files — OK"
+    return result
+
+
 # ---------------------------------------------------------------------------
 # CHECK_REGISTRY + validate_kit
 # ---------------------------------------------------------------------------
@@ -771,6 +847,7 @@ CHECK_REGISTRY: dict[str, Callable[[CheckContext], CheckResult]] = {
     "plugin-json": check_v7_plugin_json,
     "hook-exec": check_v8_hook_exec,
     "arg-substitution": check_v9_arg_substitution,
+    "table-integrity": check_v10_table_integrity,
 }
 
 
@@ -833,11 +910,10 @@ def print_json_output(results: list[PluginResult]) -> None:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Claude Code 플러그인 9-카테고리 검증 도구",
+        description="Claude Code 플러그인 검증 도구 (등록된 검사 전부 실행)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
-            "체크 이름: frontmatter, templates, refs, triggers, "
-            "placeholders, code-fence, plugin-json, hook-exec\n"
+            f"체크 이름: {', '.join(CHECK_REGISTRY)}\n"
             "가이드: harness/docs/guides/plugin-validation-guide.md"
         ),
     )

@@ -61,12 +61,12 @@ user-invocable: true
      | 1 | `enforcement_need == hard_gate` | **hook 검토** |
      | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** |
      | 3 | `scope == global` AND 복수 프로젝트 freq ≥ 3 | risk=high → **global CLAUDE.md** / 나머지 → **global memory** |
-
-     **규칙 #3 판정 근거**: 단일 프로젝트 digest 결과로는 "복수 프로젝트" 조건을 검증할 수 없다. 반드시 `/reflect-digest project=all` 출력의 `global_freq` + `project_count` 두 값을 함께 확인해야 rule #3 로 올바르게 분류된다. single-project digest에서 올라온 후보는 rule #4/#5로 재할당하는 것이 일관된 처리.
      | 4 | `scope == project` AND freq ≥ 3 | **project CLAUDE.md** (200줄 초과 예상 시 path_scoped_rule) |
      | 5 | `scope == project` AND freq ≥ 2 | **project memory** |
      | 6 | `risk_class == low` AND freq == 1 | **관망 (skip)** |
      | 7 | 그 외 | **review 후보 (수동)** |
+
+     **규칙 #3 판정 근거**: 단일 프로젝트 digest 결과로는 "복수 프로젝트" 조건을 검증할 수 없다. 반드시 `/reflect-digest project=all` 출력의 `global_freq` + `project_count` 두 값을 함께 확인해야 rule #3 로 올바르게 분류된다. single-project digest에서 올라온 후보는 rule #4/#5로 재할당하는 것이 일관된 처리.
    - digest 제안과 다를 경우 사용자에게 차이를 보고하고 결정 받는다.
 
 3. **중복 체크 → 재발이면 등급 상향 경로로 분기**

@@ -83,7 +83,7 @@ user-invocable: true
 
 ## Step 7: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `python3 scripts/validate-plugin.py react-kit` 을 실행하여 **9 카테고리 (V1~V9)** 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `python3 scripts/validate-plugin.py react-kit` 을 실행하여 **등록된 검사 전부** 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 | 체크 | 대상 |
 |------|------|
@@ -116,7 +116,7 @@ user-invocable: true
 - `react-kit/skills/` — 개선 대상 21개 스킬
 - `react-kit/agents/` — 개선 대상 3개 에이전트
 - `react-kit/evals/evals.json` — 테스트 케이스 (향후 추가)
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 9 카테고리(V1~V9) 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 검사 정의 기준 (SSOT · 개수와 번호는 이 문서에만 둔다)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구
 - `react-kit/references/render-evidence-protocol.md` — 렌더 산출물 증거 규약 (react-kit SSOT)
 - `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol — `[미검증]` 마커·임계값 정본. react-reviewer 는 이 절을 문구 변형 없이 복제한다

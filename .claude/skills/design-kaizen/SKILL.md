@@ -15,7 +15,7 @@ user-invocable: true
 2. **Gotchas 추가 시 실패 근거 필수** — "이런 실수를 할 수 있다"가 아니라 "실제로 이런 실패가 발생했다"는 근거가 있어야 한다. 추측성 Gotchas는 추가하지 않는다.
 3. **기존 스킬 구조 유지** — SKILL.md의 섹션 구조(Gotchas → Process → References)를 변경하지 마라. 내용만 개선한다.
 4. **audit-criteria.md와 스킬 Gotchas 중복 금지** — audit-criteria.md는 체크리스트 항목, Gotchas는 반복 실수 방지 지침이다. 같은 내용을 양쪽에 복사하지 마라. 역할이 다르다.
-5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py design-kit`을 실행하라. **9 카테고리 (V1~V9: frontmatter / templates / refs / triggers / placeholders / code-fence / plugin-json / hook-exec / arg-substitution)** 중 하나라도 FAIL이면 수정 후 재검증한다. 실행 출력을 인용하지 않은 "검증 통과" 보고는 증거가 아니다 (skill-design-guide §3.7 Completion Evidence Gate).
+5. **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 종료 시 반드시 `scripts/validate-plugin.py design-kit`을 실행하라. **등록된 검사 전부** 중 하나라도 FAIL이면 수정 후 재검증한다. 실행 출력을 인용하지 않은 "검증 통과" 보고는 증거가 아니다 (skill-design-guide §3.7 Completion Evidence Gate).
 6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 자동 로드 로직) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 design-kit SK-05 REJECT 재발 방지 — design-concept 에 Step 0 자동 로드는 있었지만 design-component 에는 Gotcha 외부의 Process Step 형태로만 있어 평가자 판정 갈렸던 사례).
 
    | Sibling Group | 공통 원칙 검증 항목 |
@@ -39,6 +39,12 @@ user-invocable: true
 10. **NO_CHANGE 도 유효한 결과다** — 데이터 풀과 §0 인사이트를 다 뒤졌는데 design 도메인 신규 신호가 0 건이면 **NO_CHANGE 로 보고하라**. 직전 사이클 승격분의 문장을 다시 다듬는 것은 개선이 아니다. 같은 위반이 재발했다면 문장 수정이 아니라 **enforcement 등급 상향**(E1 문장 → E2 체크리스트 아티팩트 → E3 결정론적 게이트)이 정답이다 (skill-design-guide §3.7 등급 승급 규칙).
 
 # Process
+
+등록된 검사 목록은 개수를 적지 말고 **명령으로 얻는다.** 검사가 늘어도 이 문서를 고칠 일이 없다.
+
+```bash
+grep -oE '"[a-z-]+": check_v[0-9]+' scripts/validate-plugin.py | sed -E 's/"([a-z-]+)".*/\1/'
+```
 
 ## Step 1: 현재 상태 파악
 
@@ -77,7 +83,7 @@ index.lock 이 충돌한다. 변경 파일 목록만 리포트하고 커밋은 �
 
 ## Step 6: Plugin Validation 결과 반영
 
-카이젠 세션 시작/종료 시 `scripts/validate-plugin.py design-kit` 을 실행하여 9 카테고리(V1~V9) 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+카이젠 세션 시작/종료 시 `scripts/validate-plugin.py design-kit` 을 실행하여 등록된 검사 전부의 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
@@ -86,7 +92,7 @@ index.lock 이 충돌한다. 변경 파일 목록만 리포트하고 커밋은 �
 - 기존 카이젠 패턴: `.claude/skills/kaizen-orchestrator/SKILL.md`
 - harness-kaizen: `harness/skills/harness-kaizen/SKILL.md`
 - flutter-kaizen: `flutter-toolkit/skills/flutter-kaizen/SKILL.md`
-- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 9 카테고리(V1~V9) 기준 (SSOT)
+- `harness/docs/guides/plugin-validation-guide.md` — 플러그인 품질 검사 정의 기준 (SSOT · 개수와 번호는 이 문서에만 둔다)
 - `scripts/validate-plugin.py` — 플러그인 검증 자동화 도구
 - `harness/docs/guides/qa-evaluation-guide.md` — §Canonical Unverified-Evidence Protocol · §Evidence Validity Gate (design-reviewer 복제 원본)
 - `harness/docs/guides/skill-design-guide.md` — §3.7 Completion Evidence Gate · Enforcement 등급 E1/E2/E3 (SSOT)

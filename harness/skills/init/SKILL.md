@@ -89,4 +89,4 @@ harness 초기화 완료!
 python3 scripts/validate-plugin.py
 ```
 
-9 카테고리 (V1~V9) 결과를 기록해 두면 이후 카이젠/릴리스 주기마다 drift 비교가 가능하다. 기준 문서: `harness/docs/guides/plugin-validation-guide.md` (카테고리 수·정의의 SSOT).
+등록된 검사 전부의 결과를 기록해 두면 이후 카이젠/릴리스 주기마다 drift 비교가 가능하다. 기준 문서: `harness/docs/guides/plugin-validation-guide.md` (카테고리 수·정의의 SSOT).
