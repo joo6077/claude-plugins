@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """플러그인 검증 스크립트.
 
-.claude-plugin/marketplace.json 에 등록된 모든 킷을 7가지 카테고리로 검증한다.
+.claude-plugin/marketplace.json 에 등록된 모든 킷을 등록된 검사 전부로 검증한다.
 가이드: harness/docs/guides/plugin-validation-guide.md
 
 Usage:
@@ -807,7 +807,7 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
 
         for idx, (lineno, line) in enumerate(kept):
             # 표는 목록·인용 안에서 들여쓰여 쓰인다. 왼쪽 끝만 보면 그것이 전부 빠진다 —
-            # 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 136 줄 있었고, 그 안에
+            # 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 84 줄(9 파일) 있었고, 그 안에
             # 실제로 끊긴 표가 숨어 있었다 (reflect-promote/SKILL.md 의 8 행 표 한가운데에
             # 산문 한 문단이 들어가 행 4~7 이 고립). 교차 진단이 찾았다
             stripped = line.lstrip()
@@ -913,8 +913,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         description="Claude Code 플러그인 검증 도구 (등록된 검사 전부 실행)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
-            "체크 이름: frontmatter, templates, refs, triggers, "
-            "placeholders, code-fence, plugin-json, hook-exec\n"
+            f"체크 이름: {', '.join(CHECK_REGISTRY)}\n"
             "가이드: harness/docs/guides/plugin-validation-guide.md"
         ),
     )
