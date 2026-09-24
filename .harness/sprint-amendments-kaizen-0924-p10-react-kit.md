@@ -19,4 +19,7 @@ AR-01 첫째 값이 떨어진다.
   - `ec4f530eab2577d2663aac94b60bae00cf790c37` — `docs/react/` 둘 (research-log.md · kit-design/g4-quality.md)
   - `001c900b79d256689f0c9c73d5724b1c545f054c` — `react-kit/` 열일곱 (새 시험 `react-kit/evals/scripts/project-detect-test.sh` 모드 `100755` 포함)
 
+- notes 커밋: `0b873831d6dc093923bd37ba7308119aea3fd0cb` — `.harness/.meta/kaizen-0924/phase10-notes.md` · `phase10-review.md`. 범위 상한을 이 커밋으로 옮긴다
+
 end_sha: 001c900b79d256689f0c9c73d5724b1c545f054c
+end_sha: 0b873831d6dc093923bd37ba7308119aea3fd0cb
