@@ -10,6 +10,11 @@
   ],
   "vacuous-zero": [
     {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "양성 대조"},
-    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "Agent\\(general-purpose\\)"}
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "cross_diagnosis_by: pending-parent"}
+  ],
+  "silent-check": [
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "산출물이 검사일 때"},
+    {"type": "file_contains", "file": "harness/agents/qa-evaluator.md", "pattern": "## Check Artifacts"},
+    {"type": "file_contains", "file": "harness/docs/guides/qa-evaluation-guide.md", "pattern": "### 산출물이 검사일 때"}
   ]
 }

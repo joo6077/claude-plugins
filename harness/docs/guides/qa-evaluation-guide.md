@@ -1,7 +1,7 @@
 ---
 title: QA Evaluation Guide
-version: v5.0
-last_updated: 2026-08-13
+version: v5.1
+last_updated: 2026-09-24
 ---
 
 # QA Evaluation Guide
@@ -9,9 +9,20 @@ last_updated: 2026-08-13
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
 > evaluator-kaizen이 리서치 기반으로 이 문서를 갱신한다.
 >
-> **참조 스키마**: `harness/references/contract-schema.md` (v5.3)
+> **참조 스키마**: `harness/references/contract-schema.md` (v5.5)
 >
-> **최근 갱신: 2026-08-13 (Phase 3 kaizen · v5.0)** — 2026-08-11~12 글로벌 REJECT 를 근거로
+> **최근 갱신: 2026-09-24 (Phase 3 kaizen · v5.1)** — 입력은 인사이트 처리 배정표의 Phase 3 네 행(`harness:P04` ·
+> `user-setup:P4` · `F16` · `F31`)과 Phase 2 가 넘긴 스키마 v5.5 의 반대편이다.
+>
+> - 신규 **§산출물이 검사일 때** — 검사 스크립트 · 막는 훅 · 시험 파일을 만든 스프린트는 평가자가 임시 사본으로
+>   다섯 가지(첫 칸만 읽기 · 표에만 올린 시험 · 한 칸 못 읽으면 전체 꺼짐 · 셸마다 다른 대상 수 · 효과 증명)를
+>   돌린다. 실측 2026-09-23 의 세 결함이 전부 교차 검토에서야 잡혔다
+> - 신규 **§0 이 기대값인데 매치가 나올 때** — 매치 줄을 줄마다 가르고 낱말 필터를 금지한다. 판정은 계약 측정 그대로다
+> - 신규 **§삭제 열거** — 변경 범위에서 지운 파일을 뽑아 리포트에 올리기만 한다 (자동 REJECT 없음)
+> - 정합 — 스키마 v5.5 의 Diff-Scope 표준형 5 요소 · 커밋 구간 상태 전제 · Parity 16 행(알려진 답 대조) ·
+>   `Evaluated` 시각은 `date` 출력
+>
+> 이전 (2026-08-13, v5.0): 2026-08-11~12 글로벌 REJECT 를 근거로
 > **미검증 임계의 오처벌을 정밀화**하고, Phase 2 가 만든 계약 봉인·amendment 2 축의 **소비면**을
 > 착지시켰다. 이번 사이클의 전략도 새 문장 추가가 아니라 **분류·카운터의 정밀화**다.
 >
@@ -183,6 +194,9 @@ Independent Verification & Validation (IV&V) 원칙:
 | **계약 지문 재확인 (TOCTOU)** | **E3 (신규)** | `sha256` 문자열 동일성 비교 — LLM 판단이 개입하지 않는다 |
 | **Amendment 취급 (direction × consent 2 축)** | **E2 (2026-08 개정)** | 사이드카 파싱 후 2 축 분류가 필요하나 취급 규칙 자체는 고정. 집합형 조건의 `direction` 은 `comm` 집합 비교로 **계산**하므로 그 부분만 결정론적 |
 | **User Correction Audit** | **E1 (신규)** | 최초 도입 · 표면화 전용(자동 REJECT 없음). 재발 관측 시 E2 로 올린다 |
+| **산출물이 검사일 때 다섯 가지** | **E2 (신규)** | 사본 경로 · 명령 · 종료 코드 · 읽은 대상 수를 `Check Artifacts` 블록에 남긴다. 사본을 만드는 판단이 들어가 E3 로 못 올린다 |
+| **0 기대 측정의 매치 줄 가르기** | **E2 (신규)** | 매치 줄마다 `파일:라인` 과 분류를 남긴다. 용법 판정은 LLM 판단이라 E3 로 못 올린다 |
+| **삭제 열거** | **E1 (신규)** | 리포트에 올리기만 한다(자동 REJECT 없음). 뽑는 명령은 결정론이지만 verdict 에 닿지 않는다 |
 
 ---
 
@@ -671,6 +685,32 @@ DIRS=$(find "$LOGS_ROOT" -maxdepth 1 -type d \
 
 ---
 
+## 삭제 열거 — 변경 범위에서 지운 파일을 드러낸다 (2026-09-24 추가)
+
+> **대응:** qa-evaluator Step 2 「삭제 열거」 · 리포트 `Deletions` 블록 · 처리 배정표 `user-setup:P4` · `F31`
+>
+> **배경:** 잘못된 커밋 하나가 파일 3217 개를 지운 것으로 기록했다(2026-09-14). 커밋 훅
+> (`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제만 막는다. 그보다 작은 삭제는 계약에 범위 조건이
+> 없으면 아무도 보지 않는다.
+
+- 계약의 범위 조건이 쓰는 커밋 구간에서 `git diff --name-status --diff-filter=D <base>..<상한>` 으로 지운 파일을
+  전부 뽑는다. `--name-status` 의 상태 문자 `D` 가 삭제다 ([git diff](https://git-scm.com/docs/git-diff)).
+  커밋 구간에는 커밋하지 않은 삭제가 없으므로 `git status --porcelain` 줄의 앞 두 글자(상태 칸)에 `D` 가 있는 줄도
+  함께 뽑는다 (`grep -E '^(D.|.D) '` — 경로에 든 `D` 는 세지 않는다)
+- 계약에 기준 커밋이 없으면 구간을 지어내지 않는다 — 커밋하지 않은 삭제만 뽑고
+  `deletions_range: unavailable (계약에 기준 커밋 없음)` 을 적는다
+- 뽑은 경로를 하나씩 계약이 선언한 경로와 대조해 `Deletions` 블록에 적는다. 작업 폴더를 여러 세션이 같이
+  쓰면 커밋하지 않은 삭제에 다른 세션의 것이 섞인다 — 선언 밖 경로가 그런 것으로 보이면 그렇다고 함께 적는다
+
+### verdict 영향 — 범위 조건이 재면 그 조건으로, 아니면 리포트에 올리기만
+
+- 계약의 범위 조건이 그 삭제를 재면 그 조건 판정에 쓴다
+- 재는 조건이 없는데 선언 밖 삭제가 있으면 **FAIL 로 만들지 않고** 「사용자 확인 필요」 로 올린다. 평가자는
+  계약에 없는 요구를 만들지 않는다 (§User Correction Audit 과 같은 E1)
+- 두 미검증 카운터 어디에도 합산하지 않는다
+
+---
+
 ## 계약 파싱 범위 — 조건 섹션 / 서술 섹션
 
 > **대응:** `contract-schema.md v4 §허용 섹션 헤더` · Phase 2 kaizen (2026-07-27) ·
@@ -739,12 +779,15 @@ Sprint Contract 의 각 조건에 대해 Step 2 (조건별 정적 검증) 을 �
 4. **검증 수단 존재 확인** — 조건에 "측정: ...", 도구명, 관찰 대상 중 하나가 명시되었는가? 없으면 `[structural]` 기본 fallback 적용하되 REJECT 사유에 "검증 수단 미명시" 명시
 5. **`[exact, enumerated]` / `[structural, enumerated]` 대상 목록 확인** — 태그가 enumerated 이면 나열된 대상 N 개가 계약에 실제로 쓰여 있는지 확인. N 이 애매하면 REJECT 사유에 "enumerated 대상 수 불분명"
 6. **상태 의존 측정 명령의 전제 확인** — 측정 명령이 `git diff` / `git status` / 빌드 산출물처럼
-   **실행 시점의 상태에 따라 결과가 달라지는** 것이면, 계약이 상태 전제(`Given: 커밋 직전 working
-   tree` / `Given: 스테이징 완료 후` / 브랜치 비교)를 명시했는지 확인한다. 명시되지 않았으면
+   **실행 시점의 상태에 따라 결과가 달라지는** 것이면, 계약이 상태 전제
+   (`Given: 이 스프린트의 커밋이 끝난 뒤` / `Given: 커밋 직전 working tree` / `Given: 스테이징 완료 후` /
+   브랜치 비교)를 명시했는지 확인한다. 명시되지 않았으면
    **평가자가 상태를 임의로 고르지 마라** — Step 1.5 에서 "상태 전제 미명시" 플래그를 세우고,
    실제 판정에 사용한 상태를 근거란에 반드시 기록한다 (`측정 상태: HEAD 대비 working tree`).
-   contract-schema v4 §Diff-Scope Oracle 표준형이 계약 측 대응이며, 표준형 4 요소(상태 전제 ·
-   경로 한정 · 생성물 제외 · 기대 집합) 중 빠진 것을 REJECT 사유에 열거한다
+   커밋 전 상태를 전제로 한 `git diff HEAD` · `--cached` · `git status --porcelain` 은 커밋하고 나면
+   빈 출력이다 — 커밋 뒤 평가에서 그 빈 출력은 공허한 0 이다 (§0 매치 판정 규칙).
+   contract-schema §Diff-Scope Oracle 표준형이 계약 측 대응이며, 표준형 5 요소(상태 전제 ·
+   경로 한정 · 생성물 제외 · 기대 집합 · 상한 ref) 중 빠진 것을 REJECT 사유에 열거한다
 
 ### 모호 조건 발견 시 대응
 
@@ -1080,6 +1123,26 @@ Good: (a) 대상 파일 목록을 먼저 세고(예: 42 개) (b) 패턴이 유�
 > §Discriminating Evidence Gate(규칙 12)와의 차이: 그쪽은 9 항 대상에서 **테스트 통과**가 구현을
 > 재는지(변이)를 보고, 이 절은 모든 조건에서 **0 이 기대값인 측정**이 살아 있는지(양성 대조)를 본다.
 
+### 0 이 기대값인데 매치가 나올 때 — 줄마다 가른다 (2026-09-24 추가)
+
+금지 낱말의 부재를 grep 으로 재는 조건은 그 낱말을 **이름으로 드는 줄**(금지 조항 · 인용 · 예시)과 **다른 뜻으로
+쓴 같은 낱말**까지 센다. grep 은 용법을 가르지 못한다 — 카이젠 감사 로그(`.harness/.meta/orchestrator-audit-log.md`)
+가 두 번 관측한 메타 이슈다. 평가자는 아래 순서를 지킨다:
+
+1. 매치 줄을 하나씩 `파일:라인` 과 함께 **실제 용법** 과 **이름으로 든 줄 · 다른 뜻** 으로 갈라 근거에 적는다
+2. **낱말로 거르는 필터로 매치를 빼지 마라** (`grep -v '금지'` · `grep -v '예:'` 따위). 같은 줄에 실제 위반이 함께
+   있으면 그것도 빠져 공허한 0 이 된다
+3. **판정은 계약 측정 그대로다.** 매치 수가 기준을 넘으면 FAIL 이다. 평가자는 판정이 관대해지는 쪽으로 측정을
+   바꾸지 않는다 — 위 §0 매치 판정 규칙 의 대체 측정은 늘 0 만 내던 죽은 측정을 살아 있는 측정으로 바꾸는 것이라
+   판정이 엄격해지는 쪽이다
+4. 매치가 전부 이름으로 든 줄이나 다른 뜻이면 Improvement `[조건 ID] 측정-방식-불일치 — {좁힌 측정}` 을 남긴다.
+   좁힌 측정을 **두 번 돌린 값**을 함께 적는다 — 지금 대상에서 0, 알려진 위반을 넣은 임시 사본에서 1 이상.
+   두 값 없이 좁히라고만 하면 다음 계약이 죽은 측정을 봉인할 수 있다
+
+실측(2026-09-24): 검사 번호 표기의 부재를 재던 측정 `grep '10 카테고리|V1~V10|V1-V10'` 이 다른 뜻의
+「10 카테고리」(감사 카테고리 이름) 세 줄을 잡아 REJECT 됐고, 같은 측정을 좁히라는 제안이 그날 세 평가에
+되풀이됐다.
+
 ### 렌더 산출물 특칙 (Friction #2 직결)
 
 UI·문서·차트처럼 렌더 결과를 캡처할 수 있는 산출물은 캡처를 증거로 쓰되:
@@ -1089,6 +1152,51 @@ UI·문서·차트처럼 렌더 결과를 캡처할 수 있는 산출물은 캡�
 - 캡처에서 조건이 요구하는 **구체 요소를 지목**해 근거에 쓴다 (`스냅샷에 항목 3 행 · 헤더 텍스트
   "내 그룹" 확인`). 요소를 지목할 수 없으면 그 캡처는 무효 증거다
 - 캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 분기 B1(`[미검증:ENV]` · 4 요건 충족 시) 이지 PASS 가 아니다
+
+### 산출물이 검사일 때 — 사본으로 돌리는 다섯 가지 (2026-09-24 추가)
+
+이번 스프린트가 만들거나 고친 파일이 입력을 읽어 통과·실패나 수를 내는 것(검사 스크립트 · 막는 훅 · 검증기 ·
+측정 스크립트 · 새 시험 파일)이면, 그 검사가 원본 대상에서 낸 「위반 0」 · 「통과」 는 검사가 살아 있다는 증거가
+아니다. 실측(2026-09-23, 한 킷의 검사 강화 스프린트): 새 검사가 첫 칸만 읽었고, 표에만 올린 시험 파일은 실행
+목록에 없어 한 번도 돌지 않았고, 한 칸을 못 읽자 검사 전체가 꺼졌다. 셋 다 원본에서는 통과로 보였고 평가자가
+아니라 교차 검토가 잡았다. 다음 날(2026-09-24)에는 평가자 자신의 측정이 frontmatter 를 못 읽은 계약 16 개를
+봉인 없음으로 분류해 조용히 건너뛰었다.
+
+대상 파일은 건드리지 않고 임시 사본을 만들어 아래 다섯을 돌린다. 항목마다 사본 경로 · 명령 · 종료 코드 · 읽은
+대상 수 · 관찰 출력을 리포트 `Check Artifacts` 블록에 남기고, 해당 없는 항목은 `해당 없음 (사유)` 로 적는다.
+
+- ① **첫 칸만 읽기** — 위반을 둘째 이후 칸에만 둔 사본에서 실패와 그 칸 번호 · 파일명이 나오고, 읽은 칸 수가
+  전체 칸 수와 같다. 여러 입력을 받는 검사는 빠진 입력 · 남는 입력까지 입력 전부를 봐야 한다
+  ([CWE-20](https://cwe.mitre.org/data/definitions/20.html))
+- ② **표에만 올린 시험** — 새 시험 파일이 실행 목록(러너 수집 명령 · 실행 스크립트 · CI 단계)에 들어가 실제로
+  돌았다. 실행 출력에 그 파일 이름이 나오거나, 이름을 찍지 않는 러너면 수집 명령 출력에서 그 파일의 시험 수가
+  0 보다 크다. 종료 코드 0 은 수집 여부를 말하지 않는다 — pytest 는 수집 0 건을 종료 코드 5 로 따로 낸다
+  ([pytest exit codes](https://docs.pytest.org/en/stable/reference/exit-codes.html))
+- ③ **한 칸 못 읽으면 전체 꺼짐** — 한 칸은 못 읽게, 다른 칸에는 실제 위반을 넣은 사본 하나로 돌린다. 실제
+  위반이 잡히고 못 읽은 칸 번호가 따로 나와야 한다. 모든 칸을 읽어야만 안전한 검사면 못 읽은 칸 번호와 함께
+  실패로 끝나야 한다. 어느 쪽이든 「위반 없음」 이나 종료 코드 0 이면 결함이다 — 예외 조건 하나가 검사 전체를
+  예상 밖 상태로 만든 것이다 ([CWE-754](https://cwe.mitre.org/data/definitions/754.html))
+- ④ **셸마다 다른 대상 수** — 셸 코드면 zsh · bash 양쪽에서 돌려 읽은 대상 수가 같고 0 보다 크다. 종료 코드만
+  비교하지 않는다. zsh 는 `SH_WORD_SPLIT` 이 꺼진 기본값에서 따옴표 없는 변수를 낱말로 쪼개지 않고
+  ([zsh Parameter Expansion](https://zsh.sourceforge.io/Doc/Release/Expansion.html)), 배열을 1 부터 센다
+  (contract-schema §셸 이식성 규약). 해석기가 정해진 스크립트(첫 줄 `#!` 이나 부르는 쪽이 `bash` 로 고정)는
+  그 해석기로만 돌리고 다른 셸 칸은 `해당 없음 (고정 해석기)` 로 적는다 — 두 셸에서 도는 것은 사용자 셸에 붙여
+  넣는 명령과 `source` 하는 파일이다
+- ⑤ **효과 증명** — 답을 아는 사본으로 돌린다. 막는 검사는 알려진 위반에서 실패를 내야 한다 — 정상 입력 통과와
+  문법 검사만으로는 살아 있다는 증명이 아니다. 수를 내는 검사는 손으로 센 작은 입력에서 그 수를 내야 하고,
+  계약에 `알려진 답:` 절이 있으면 그 입력부터 다시 돌린다 (contract-schema §알려진 답 대조). 예: 경고 줄
+  `경로:13:8` 에서 줄 번호를 탐욕 매치로 뽑으면 열 번호 8 을 줄 번호로 읽는다 (2026-09-24 Phase 1 계약 보조
+  스크립트 실측). ⑤ 는 임시 사본에서만 돌아 원본을 바꾸지 않으므로 §Discriminating Evidence Gate 의 실행 음성
+  대조 안전 조건과 무관하다
+
+**판정.** 다섯 가지를 돌리지 않았거나 기록이 없으면 그 검사 출력에 기댄 PASS 는 `[미검증:INVALID]` 다. 돌려서
+결함이 드러나면 그 검사를 대상으로 한 조건은 **FAIL** 이다 — 조건이 한 입력만 적었어도 「검사가 위반을 잡는다」
+는 주장의 반례다.
+
+**한계.** 사본 절차(첫 칸 밖 위반 · 못 읽는 칸 섞기 · 알려진 위반)를 그대로 규정한 외부 1 차 출처는 없다.
+CWE-20 · CWE-754 와 [CheckEval](https://arxiv.org/abs/2403.18771) 의 판별력 원칙을 레포 규칙으로 옮긴 것이다.
+생성 측 · 계약 측 짝은 ⑤ 에만 있다(skill-design-guide §3.7 · contract-schema §양성 대조 · §알려진 답 대조) —
+①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다.
 
 ### 보고 형식
 
@@ -1757,6 +1865,8 @@ qa-evaluator 실행 완료 후 다음 항목을 자가 점검한다:
 - **전달 내용**: 계약 경로 + 평가 판정 결과 (출력만)
 - **미전달**: 평가 과정의 추론, 중간 메모
 - **핵심 질문**: "계약 조건의 원래 의도를 정확히 해석했는가?" · "0 건을 근거로 한 PASS 중 공허한 통과가 있는가?"
+  — 산출물이 검사인 조건이면 둘째 질문에 「규칙 10 의 다섯 가지 가운데 돌리지 않은 것이 있는가?」 를 붙인다
+  (§산출물이 검사일 때)
 - **결과**: 부모가 `cross_diagnosis_notes` 를 채우고 `cross_diagnosis_by` 를 `pending-parent` 에서
   `sprint-contract` 로 갱신한다. 끝내 띄우지 못하면 `none` + 사유 — 하지 않은 교차 진단을 한 것처럼
   적지 않는다. `none` 과 `pending-parent` 를 섞지 마라 (`feedback-schema.yaml` 참조)
@@ -1782,7 +1892,7 @@ qa-evaluator 실행 완료 후 다음 항목을 자가 점검한다:
    "이 조건은 현 형태로 반복 판정 불가 — 계약 수정 없이는 다음 iteration 도 같은 결과" 를
    피드백 최상단에 명시한다
 4. 평가자는 계약을 **직접 수정하지 않는다** (사용자 권한). 대신 제안을 구체 대체 문구로 적는다 —
-   "모호하다" 가 아니라 "`Given: 스테이징 완료 후` 를 붙이고 `--cached` 를 쓸 것"
+   "모호하다" 가 아니라 "`Given: 이 스프린트의 커밋이 끝난 뒤` 를 붙이고 `<base>..<상한>` 구간으로 잴 것"
 
 > 이 승급 사다리는 one-time rubric refinement 패턴([arxiv 2511.10865](https://arxiv.org/abs/2511.10865))
 > 의 운영 형태다. 반복 관측 자체를 신호로 쓰면 rubric 개선이 사람의 기억에 의존하지 않는다.
@@ -1837,10 +1947,14 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 공식 문서:
 
 - [Claude Code — Plugins reference](https://code.claude.com/docs/en/plugins-reference) — `${CLAUDE_PLUGIN_ROOT}` 는 플러그인 설치 디렉토리의 절대경로이며 **skill/agent 본문 어디에서나 치환**된다. 플러그인 업데이트 시 경로가 바뀌므로 그 아래에 상태를 쓰지 않는다 (§피드백 저장 경로 해석 근거)
+- [MITRE CWE-20: Improper Input Validation](https://cwe.mitre.org/data/definitions/20.html) — 빠진 입력 · 남는 입력까지 관련 속성 전부를 검사하라 (§산출물이 검사일 때 ①)
+- [MITRE CWE-754: Improper Check for Exceptional Conditions](https://cwe.mitre.org/data/definitions/754.html) — 예외 조건 하나를 잘못 다뤄 예상 밖 상태가 되는 결함 (§산출물이 검사일 때 ③)
+- [zsh Parameter Expansion](https://zsh.sourceforge.io/Doc/Release/Expansion.html) — `SH_WORD_SPLIT` 이 꺼진 기본값에서 매개변수 확장을 낱말로 쪼개지 않는다 (§산출물이 검사일 때 ④)
+- [git diff](https://git-scm.com/docs/git-diff) — `--name-status` 의 상태 문자 `D` 는 삭제다 (§삭제 열거)
 
 관련 스키마:
 
-- `harness/references/contract-schema.md` — Sprint Contract v5.3 스키마 (허용 섹션 헤더 2 계층 + `CONTRACT_ROOT` + **계약 봉인** + **Amendment `direction` × `consent`** + Counterpart 조건 패턴 + Diff-Scope Oracle 표준형 + **측정 커버리지 표기** + **인자 매트릭스** + **음성 대조** + specificity tag + aggregation mode + `[미검증]` 마커 + sibling enumerated)
+- `harness/references/contract-schema.md` — Sprint Contract v5.5 스키마 (허용 섹션 헤더 2 계층 + `CONTRACT_ROOT` + **계약 봉인** + **Amendment `direction` × `consent`** + Counterpart 조건 패턴 + Diff-Scope Oracle 표준형 + **측정 커버리지 표기** + **인자 매트릭스** + **음성 대조** + **알려진 답 대조** + specificity tag + aggregation mode + `[미검증]` 마커 + sibling enumerated)
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
 
 ---
@@ -1859,7 +1973,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 - 동급: `harness/references/contract-schema.md`
 - 하위: `harness/agents/qa-evaluator.md`, `*-kit/agents/*-reviewer.md`
 
-### Parity Table (9 개 parity item — 행 수는 계산값이다. 손으로 세지 마라)
+### Parity Table (10 개 parity item — 행 수는 계산값이다. 손으로 세지 마라)
 
 | # | Parity Item | skill-design-guide | agent-design-guide | contract-design-guide | **qa-evaluation-guide (이 가이드)** |
 | --- | ------------- | ------------------- | ------------------- | ---------------------- | ------------------------------------- |
@@ -1872,6 +1986,7 @@ qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하
 | 12 | Counterpart Enumeration | §5.5 (편집 전 양면 열거) | — | §양면 조건 — Counterpart Conditions | **대응 절 없음 (의도된 설계 — 아래 참조)** |
 | 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — `REOPENED`) | 계약 측 착지 없음 (평가 레이어 소관) | **§Canonical User-Reported Failure Protocol** |
 | 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | §3.7 (0 이 기대값인 검증의 양성 대조 — 생성 측 짝) | §Agent(agent_type) 한계 1·2 (도구를 줘도 안 쓰고 썼다고 적는다 — 2026-09-22 실측) | `contract-design-guide.md` §0 이 기대값인 조건 — 양성 대조 없이 잠그지 마라 (포맷은 `contract-schema.md` §양성 대조) | **§0 매치 판정 규칙 (2026-09 보강)** |
+| 16 | 알려진 답 대조 (0 이 아닌 기대값) | §3.7 (0 이 아닌 값을 내는 새 측정 — 생성 측 짝) | — (생성 측 전용) | `contract-design-guide.md` §0 이 아닌 기대값 — 새 측정은 알려진 답으로 먼저 맞춘다 (포맷은 `contract-schema.md` §알려진 답 대조) | **§산출물이 검사일 때 ⑤ 효과 증명 — 계약의 `알려진 답:` 입력부터 다시 돌린다** |
 
 > **item 14 — 2026-08 사이클 신규.** 계약 측에는 착지가 없다 (contract-design-guide 가 명시:
 > `REOPENED` 는 완료 판정 시점의 상태 전이라 계약 작성 시점에 대응 아티팩트가 없어 §증거 아티팩트
@@ -1909,15 +2024,16 @@ qa-evaluation-guide.md 편집 시:
 
 ### 버전 정보
 
-- **Guide version**: 2026-08-13 (Phase 3 kaizen · v5.0 — **미검증 카운터 분리**(`UNVERIFIED_ENV` / `UNVERIFIED_INVALID_EVIDENCE` · 남용 방지 4 요건 · 검증 커버리지 게이트 · 연속 ENV 승급) · **§Discriminating Evidence Gate** · **§Canonical User-Reported Failure Protocol** · **§계약 봉인 검증** · Amendment `direction × consent` 2 축 · scoring bias 출처 정정)
+- **Guide version**: 2026-09-24 (Phase 3 kaizen · v5.1 — **§산출물이 검사일 때** 다섯 가지 · **§0 이 기대값인데 매치가 나올 때** · **§삭제 열거** · 스키마 v5.5 정합(Diff-Scope 표준형 5 요소 · 커밋 구간 상태 전제 · Parity 16 행) · `Evaluated` 는 `date` 출력)
+- 이전: 2026-08-13 (Phase 3 kaizen · v5.0 — **미검증 카운터 분리**(`UNVERIFIED_ENV` / `UNVERIFIED_INVALID_EVIDENCE` · 남용 방지 4 요건 · 검증 커버리지 게이트 · 연속 ENV 승급) · **§Discriminating Evidence Gate** · **§Canonical User-Reported Failure Protocol** · **§계약 봉인 검증** · Amendment `direction × consent` 2 축 · scoring bias 출처 정정)
 - 이전: 2026-07-28 (병렬 스프린트 안전성 · v4.3 — 계약 선택 ladder 5 단계 + 3.5 레거시 브릿지 · CONTRACT_ROOT 는 먼저 만나는 `.harness` 에서 멈춤 + `contract_root_unconfigured` 경고 · ladder 1 `test -f` 존재 검사 + 부재/모호 BLOCKED 사유 분리 · 계약 `status` 수명주기 · 계약 지문 TOCTOU · Amendment 소비 규칙 · User Correction Audit · Evidence Validity 검사 5 실행가능성)
 - 이전: 2026-07-27 (Phase 3 kaizen · v4.0 — Evidence Validity Gate · 증거 분류 triage · 계약 파싱 범위 · Canonical Unverified-Evidence Protocol · Recurring Improvement Escalation · 원칙별 Enforcement 등급)
-- **Parity with**: skill-design-guide 1.5.0 · agent-design-guide 1.6.0 · contract-design-guide v5.0
+- **Parity with**: skill-design-guide 1.6.0 · agent-design-guide 1.7.0 · contract-design-guide v5.1
 - **원본**: 세 값 전부 각 파일 **YAML frontmatter 의 `version` 필드**다. 단일 추출 경로이며
   예외 파일은 없다 — 2026-08-13 이전에는 `contract-design-guide.md` 에만 frontmatter 가 없어
   이 값의 추출 경로가 달랐고, 그래서 이 절이 스테일해도 아무도 재지 못했다. 그 파일에
   frontmatter 를 신설해 세 값의 원본을 하나로 통일했다.
-- **Schema link**: contract-schema.md v5.3 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
+- **Schema link**: contract-schema.md v5.5 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
 - **추출 (값을 손으로 옮겨 적지 마라 · zsh · bash 동일)** — 출력 4 줄이 위 `Parity with` 3 값과
   `Schema link` 의 스키마 버전과 **문자 그대로** 같아야 한다. 한 줄이라도 다르면 이 절이 스테일한
   것이다:
