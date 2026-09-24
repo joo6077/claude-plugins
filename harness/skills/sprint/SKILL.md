@@ -39,6 +39,20 @@ ps aux | grep -E 'mcp[-_]server|figma-developer|playwright-mcp' | grep -v grep |
 
 병렬 세션/에이전트 흔적이 보이면 (미커밋 변경, 다른 브랜치의 최근 커밋, 실행 중 MCP) **이번 스프린트가 쓰기 할 파일 목록을 열거**해 보고하고 겹침 여부를 확인받는다.
 
+**병렬 흔적이 있고 커밋이 둘 이상 예상되면 워크트리를 따로 만든다 (2026-09-25 추가).** 같은 작업 폴더에서
+`git checkout -b` 로 가지만 바꾸면 남의 미커밋 변경이 새 가지로 따라오고, 남이 깨 놓은 검사가 내 가지에서도
+빨갛다. 워크트리는 `HEAD` 와 공용 목록(`git add` 로 올려 둔 목록)을 폴더마다 따로 둔다
+(<https://git-scm.com/docs/git-worktree>). 기준은 검사가 통과하는 것을 확인한 커밋이다:
+
+```bash
+git worktree add -b <가지> <새 폴더> <검사 통과를 확인한 커밋>
+```
+
+sprint-contract Step 6.7 의 가지 만들기는 이 워크트리 안에서 한다. 서브에이전트의 `isolation: worktree` 는 부모
+`HEAD` 가 아니라 기본 가지에서 임시 워크트리를 만든다 (<https://code.claude.com/docs/en/sub-agents>) — 기준 커밋이
+다르므로 이 절차를 대신하지 않는다. 실측(2026-09-18): 다른 세션들이 깨 놓은 공용 개발 가지에서 몇 시간을 쓴 뒤에야
+사용자가 워크트리를 먼저 제안했다.
+
 ### Step 0.5: 핸드오프 재검증 (재개 세션 필수)
 
 이전 세션의 핸드오프 문서 · 잔여작업 목록 · "다음 단계" 메모를 이어받는 경우에만 수행한다. 문서를 읽는 것으로 끝내지 말고 **git 으로 대조**한다:
@@ -74,7 +88,36 @@ Contract 가 합의되면 구현 시작. Pre-Edit Batch Audit (skill-design-guid
 
 스택 별 자동 검증 명령 실행 (Flutter: `fvm flutter analyze`, Rust: `cargo build && cargo clippy`, Node: `npm run lint && npx tsc`). 0 issue 까지 fix.
 
-보고에는 **실행한 명령과 그 출력**을 인용한다 — "분석 통과했습니다" 같은 자기보고는 증거가 아니다 (skill-design-guide §3.7 Completion Evidence Gate). 검증이 불가능하면 조용히 넘기지 말고 `[미검증]` + 사유 한 줄을 남긴다.
+보고에는 **실행한 명령과 그 출력**을 인용한다 — "분석 통과했습니다" 같은 자기보고는 증거가 아니다 (skill-design-guide §3.7 Completion Evidence Gate). 검증이 불가능하면 조용히 넘기지 말고 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채운다. 칸의 뜻은 skill-design-guide §3.7 5 조항 3 항이 정한다. 미검증이 2 건 이상이면 완료가 아니라 부분 완료로 보고한다.
+
+**검사가 빨가면 고치기 전에 원인을 셋으로 가른다 (2026-09-25 추가)** — 이번 변경 · 남의 미커밋 변경 · 기준 커밋에서
+이미 실패. 여럿이 같이 쓰는 가지에서는 빨간 검사가 내 탓이 아닌 경우가 많다. 같은 명령을 깨끗한 임시 워크트리에서
+다시 돌려 가른다. `<기준 가지>` 는 합칠 대상 가지다. 임시 워크트리에는 추적하지 않는 파일(설치한 의존성 · 빌드
+산출물)이 없으니 `<실패한 검사 명령>` 앞에 그 프로젝트의 준비 명령을 붙인다 — 안 붙이면 준비가 안 된 탓의 실패를
+기준 커밋 탓으로 읽는다:
+
+```bash
+FORK_BASE=$(git merge-base HEAD origin/<기준 가지>)
+for ref in HEAD "$FORK_BASE" origin/<기준 가지>; do
+  t=$(mktemp -d)
+  git worktree add -q --detach "$t" "$ref"
+  ( cd "$t" && <실패한 검사 명령> ) >/dev/null 2>&1
+  rc=$?
+  echo "$ref $(git rev-parse --short "$ref") exit=$rc"
+  git worktree remove --force "$t"
+done
+```
+
+| 공용 작업 폴더 | `HEAD` 임시 | `FORK_BASE` 임시 | 판정 |
+| --- | --- | --- | --- |
+| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 내가 쓴 목록 밖이면 남의 미커밋이다 |
+| 실패 | 실패 | 실패 | 기준 커밋에서 이미 실패 — 내 변경 전부터다 |
+| 실패 | 실패 | 통과 | 이번 커밋 탓일 가능성이 크다 |
+
+`FORK_BASE` 는 분기점이지 기준 가지의 지금 상태가 아니다 (<https://git-scm.com/docs/git-merge-base>).
+`origin/<기준 가지>` 줄은 분기 뒤 기준 가지가 깨졌는지를 본다 — 여기서 실패하면 합친 뒤에도 빨갈 수 있다.
+명령 · 커밋 · 종료 코드를 보고에 인용한다. 실측(2026-09-18): 다른 세션들이 깬 공용 개발 가지의 자동 검사 실패 다섯
+건을 고치는 데 몇 시간을 썼다.
 
 ### Step 4: QA Evaluator
 
@@ -89,7 +132,10 @@ Contract 가 합의되면 구현 시작. Pre-Edit Batch Audit (skill-design-guid
 QA Iteration: N/3 · 직전 판정: APPROVE|REJECT
 - 직전 REJECT 사유(1 줄): <사유>
 - 이번 라운드에서 고친 것: <조건 ID 나열>
+사용자가 할 일: 없음 | <한 줄>
 ```
+
+끝 줄은 sprint-contract Step 5 와 같은 문구 `사용자가 할 일: 없음` 또는 `사용자가 할 일: <한 줄>` 로 쓴다.
 
 - 카운터는 기억이 아니라 **파일에서 복원**한다. 컨텍스트가 끊겼거나 세션이 바뀌었으면 **이번 스프린트의 피드백 파일 하나**를 대상으로 기존 판정 기록 수를 세어 N 을 정한다. 대상 파일은 Contract frontmatter 의 `slug` 로 결정한다 — 슬러그가 있으면 `{CONTRACT_ROOT}/.harness/sprint-feedback-<slug>.md`, 슬러그가 없는 plain 모드면 `{CONTRACT_ROOT}/.harness/sprint-feedback.md` 다.
 
@@ -133,9 +179,29 @@ QA APPROVE 후 conventional commit 메시지 작성 → 사용자 확인 → com
 
 커밋은 **검증 증거가 확보된 수정 단위**로 나눈다. 한 스프린트에서 성격이 다른 수정을 했다면 배치로 묶지 말고 단위별로 커밋한다 (Friction #5 — 배치 커밋은 중간 회귀를 은폐한다).
 
+**내 경로만 싣는다 (2026-09-25 추가).** 작업 폴더를 여러 세션이 같이 쓰면 공용 목록에 남의 변경이 올라 있다.
+커밋하기 전에 이번에 실을 경로를 적고 그 경로만 싣는다 (`--only` — <https://git-scm.com/docs/git-commit>):
+
+```bash
+git add -- <새 파일…>                       # 추적 안 된 새 파일만 — -o 는 git 이 모르는 경로에서 죽는다
+git status --short -- <내 경로…>             # 실을 것 확인. 상태 칸의 D 는 삭제다 — 개수를 사용자에게 보고한다
+git diff HEAD -- <내 경로…>                  # 다른 세션이 커밋한 줄을 되돌리지 않는지 본다
+git commit -o -m "<메시지>" -- <내 경로…>
+git show --name-status --format= HEAD        # 실린 경로 집합이 적은 목록과 같은지 본다
+```
+
+- `git add -A` · `git add .` · `git commit -a` · `git commit -i` 를 쓰지 않는다 — 남의 변경과 삭제까지 싣는다
+- 확인은 파일 수가 아니라 경로 집합으로 한다. 수가 같아도 다른 파일일 수 있다
+- `-o` 는 경로를 가를 뿐 누가 고쳤는지는 모른다. 적은 경로 안에 남의 변경이 섞였으면 위 `git diff HEAD` 줄에 드러난다
+- 커밋 안전 훅(`harness/scripts/commit-guard.sh`)은 지정한 경로 안의 삭제가 50 개를 넘으면 막는다. 그보다 작은 삭제는 위 `git status` 줄에서 사용자에게 보고한다
+
+실측(2026-09-14 · 09-23): 잘못된 커밋 하나가 파일 3217 개를 삭제로 기록했고, 다른 커밋 하나는 다른 세션의 커밋 두 개를 되돌렸다.
+
 ### Step 6: Push
 
 push 직전 사용자 명시 승인 필수 (Scope-Bound Edits Hard-stop). main 직접 push 는 `--force` 와 동등한 위험으로 분류, 별도 승인 단계.
+
+보고 끝은 `사용자가 할 일: 없음` 또는 `사용자가 할 일: <한 줄>` 로 맺는다 (sprint-contract Step 5 와 같은 문구). 실측(2026-09-19): 한 줄 수정이 계약 · QA 절차에 묻혀 사용자가 「그래서 내가 뭘 하면 되냐」고 물었다.
 
 ## References
 
@@ -147,3 +213,7 @@ push 직전 사용자 명시 승인 필수 (Scope-Bound Edits Hard-stop). main �
 - `~/.claude/usage-data/report-ko.html` — `/insights` Quick Win #1 (본 스킬의 source of truth)
 - <https://arxiv.org/abs/2605.06527> — STALE (2026-05). 에이전트의 자기 기억 무효화 탐지 정확도 최고 55.2% (Step 0.5 근거)
 - <https://arxiv.org/abs/2606.27416> — Glite ARF (2026-06). 병렬 에이전트 task isolation + 완료분 immutability 를 결정론적 verifier 로 강제 (Step 0 파일 소유권 근거)
+- <https://git-scm.com/docs/git-worktree> — 워크트리마다 `HEAD` 와 목록을 따로 둔다 (Step 0 워크트리)
+- <https://code.claude.com/docs/en/sub-agents> — `isolation: worktree` 는 기본 가지에서 만든다 (Step 0)
+- <https://git-scm.com/docs/git-merge-base> — 분기점 (Step 3 원인 가르기)
+- <https://git-scm.com/docs/git-commit> — `--only` 는 지정한 경로만 싣는다 (Step 5)

@@ -22,7 +22,7 @@ user-invocable: true
 - description 을 사람용 요약으로 쓰면 위임 정확도가 떨어진다 — "언제 위임할지" + 트리거 키워드 + negative trigger (비트리거 조건) 명시
 - 도구를 전체 상속(tools 생략) 하면 에이전트의 격리 의미가 없다 — 역할에 필요한 도구만 명시적으로 나열
 - 플러그인 에이전트는 hooks, mcpServers, permissionMode 를 지원하지 않는다 — 필요하면 `.claude/agents/` 에 생성
-- **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** 공식 subagent frontmatter 는 15 종이고 **필수는 `name` 과 `description` 둘뿐**이다 (`../../docs/guides/agent-design-guide.md` §frontmatter 전체 필드 — 그 표가 SSOT). `tools` 를 생략하면 전체 상속, `model` 을 생략하면 `inherit` 이며 **에이전트가 invisible 처리되지는 않는다**. 다만 **이 레포는 `tools` · `model` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 agents 에 대해 `name`/`description`/`tools`/`model` 4 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다. 생성 직후 `python3 scripts/validate-plugin.py <plugin-name>` 으로 확인해라.
+- **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** 공식 subagent frontmatter 는 18 종이고 **필수는 `name` 과 `description` 둘뿐**이다 (`../../docs/guides/agent-design-guide.md` §frontmatter 전체 필드 — 그 표가 SSOT). `tools` 를 생략하면 전체 상속, `model` 을 생략하면 `inherit` 이며 **에이전트가 invisible 처리되지는 않는다**. 다만 **이 레포는 `tools` · `model` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 agents 에 `name`/`description`/`tools`/`model` 4 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다. 생성 직후 `python3 scripts/validate-plugin.py <plugin-name>` 으로 확인해라.
 - **실제 launch 실패는 다른 원인에서 온다** — `tools` 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 launch 자체에 실패한다. "필드를 안 썼다" 가 아니라 "쓴 값이 전부 무효다" 가 위험한 경우다.
 - description 관점 일관성 (3 인칭 또는 명령형) — create-skill Gotchas 와 동일한 Anthropic best practice 규칙을 따른다
 - `model: sonnet` 을 기본으로 쓰되, 판단/평가/합성이 필요한 에이전트는 `model: opus` 를 지정해라. 모델 선택 없이 기본 상속하면 호출 시점의 모델에 의존하여 품질이 불안정해진다
@@ -30,7 +30,7 @@ user-invocable: true
 - 에이전트가 코드를 수정하면 안 되는 경우(리뷰어, 감사) `Edit`, `Write` 를 tools 에서 제외해라. 읽기 전용 에이전트가 파일을 수정하면 독립 평가의 의미가 사라진다
 - 에이전트 생성 후 반드시 해당 플러그인의 README에 등록 여부를 확인해라. `sync-docs.py --check-only` 가 drift 를 알려주지만, 에이전트 추가 자체는 자동 반영되지 않는다
 - **Binary Decidability Pre-Check (리뷰어 계열 필수)** — 평가/감사 에이전트(`*-reviewer`, `qa-evaluator`)는 평가 시작 전에 계약 조건을 boolean 판정 가능한지 pre-check 하는 단계를 반드시 포함해야 한다 (agent-design-guide §3.5). "적절히", "필요 시", "보통" 같은 모호 표현을 감지하면 즉시 REJECT 또는 계약 수정 요청을 반환하도록 시스템 프롬프트에 명시해라. 없으면 PH-01 (design-kit 2026-04) 유형 REJECT 재발.
-- **Unverifiable 조건 정책 4항** — 평가 에이전트는 검증 불가 상황(mcp_server:null, 런타임 미실행 등) 에서 `[미검증]` 마커를 달고, **2건 이상이면 자동 REJECT** 규칙을 시스템 프롬프트에 명시해야 한다 (agent-design-guide §10 — 항 수와 문구의 SSOT 는 그 섹션이며 여기서 재정의하지 마라). 4항: (1) 미검증 마커 의무, (2) 2건 이상 자동 REJECT, (3) fit-pal/fit-pal-flutter 2026-04 패턴 재발 방지를 위한 "런타임 검증 불가 사유 명시", (4) **생성자(구현 주체)의 완료 주장은 증거가 아니다** — 도구 출력·파일 상태로 재확인하지 않은 주장은 미검증으로 취급. 없으면 LG-02/DG-04/UI-04 유형 REJECT 재발.
+- **Unverifiable 조건 정책 4항** — 평가 에이전트는 검증 불가 상황(mcp_server:null, 런타임 미실행 등) 에서 분류 접미를 붙인 `[미검증:ENV]` · `[미검증:INVALID]` 마커를 달고, **`INVALID` 2 건 이상이면 REJECT** 규칙을 시스템 프롬프트에 명시해야 한다 (agent-design-guide §10 — 항 수와 문구의 SSOT 는 그 섹션이며 여기서 재정의하지 마라). 4항: (1) 분류 접미를 붙인 마커, (2) `ENV` 는 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)이 있어야 성립하고 `INVALID` 2 건 이상이면 REJECT, (3) 조용한 PASS 금지, (4) **생성자(구현 주체)의 완료 주장은 증거가 아니다** — 도구 출력·파일 상태로 재확인하지 않은 주장은 미검증으로 취급. 없으면 LG-02/DG-04/UI-04 유형 REJECT 재발.
 - **Cross-Surface Parity 체크 (agent-design-guide §12)** — 새 에이전트의 시스템 프롬프트 원칙을 추가할 때 parity item 4개(Binary Decidability / 트리거 배타성 / 검증 기준 / Unverifiable 정책) 중 하나인지 판정하고, 해당하면 skill-design-guide §11 · contract-design-guide · qa-evaluation-guide 와 동일 용어로 존재하는지 Grep 으로 확인해라.
 - **Rule-by-Rule Audit Before Completion (평가 에이전트 필수)** — 평가/감사 에이전트는 판정 제출 전에 모든 계약 조건을 전수 대조하는 Step 을 포함해야 한다 (agent-design-guide §10 · qa-evaluation-guide §Rule-by-Rule). "샘플링으로 충분" 패턴은 L3 Coverage Honesty 위반이며 `[샘플링-N/전체-M]` 태그 없이 완료 선언 시 자동 REJECT.
 - **Sibling Agent 트리거 키워드 배타성 (substring 포함)** — 동일 plugin 의 형제 에이전트 (예: design-reviewer, rust-reviewer, react-reviewer, widget-inspector, animation-architect, backend-reviewer 등) description 간 트리거 키워드 substring containment 까지 금지 (agent-design-guide §3). RE-02 (react-kit 2026-04) 재발 방지.
@@ -78,7 +78,7 @@ user-invocable: true
 
 `tools` 와 `model` 은 **이 레포에서 필수** 다 (공식 스펙에서는 선택 — 생략 시 각각 전체 상속 ·
 `inherit`). 누락하면 `scripts/validate-plugin.py` 의 V1 이 FAIL 한다. 공식 필수는 `name` ·
-`description` 2 종뿐이며, 15 종 전체 표는 `../../docs/guides/agent-design-guide.md` 를 본다.
+`description` 2 종뿐이며, 18 종 전체 표는 `../../docs/guides/agent-design-guide.md` 를 본다.
 
 ```markdown
 ---
@@ -103,7 +103,7 @@ model: {sonnet|opus|haiku|inherit}   # 필수 — 작업 복잡도 기반 선택
 
 ### 5. 검증
 
-- [ ] frontmatter 필드 존재 — **공식 스펙 필수는 `name` · `description` 2 종**이고, 이 레포 정책(`scripts/validate-plugin.py` V1)은 여기에 `tools` · `model` 을 더해 **4 종**을 요구한다. 둘을 구분해서 보고해라 (공식 15 종 표는 `../../docs/guides/agent-design-guide.md` §frontmatter 전체 필드)
+- [ ] frontmatter 필드 존재 — **공식 스펙 필수는 `name` · `description` 2 종**이고, 이 레포 정책(`scripts/validate-plugin.py` V1)은 여기에 `tools` · `model` 을 더해 **4 종**을 요구한다. 둘을 구분해서 보고해라 (공식 18 종 표는 `../../docs/guides/agent-design-guide.md` §frontmatter 전체 필드)
 - [ ] description 에 위임 트리거 + negative trigger (비트리거 조건) 포함
 - [ ] description 관점 일관성 (3 인칭 또는 명령형 통일)
 - [ ] tools 가 역할에 맞게 최소한으로 제한됨

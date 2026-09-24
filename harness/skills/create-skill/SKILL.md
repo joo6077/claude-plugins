@@ -21,14 +21,14 @@ user-invocable: true
 - description 은 **3 인칭 일관성** 을 유지해라 — "이 스킬은 ~한다" 또는 명령형 ("~해라") 중 하나로 통일. 1 인칭 ("나는 ~할 수 있다") 이나 2 인칭 ("당신의 ~") 은 Anthropic 공식 best practice 위반이다. description 은 system prompt 에 injection 되므로 관점 불일치가 discovery 문제를 유발한다.
 - description 은 "무엇을 하는 스킬인가" + "언제 사용하는가" 양쪽을 모두 포함해야 한다 — Anthropic 공식 예시: "Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction."
 - Gotchas 없이 스킬을 만들면 안 된다 — 최소 1 개, "처음엔 모르더라도 빈 Gotchas 섹션은 만들어 둬라"
-- 메인 SKILL.md 에 모든 내용을 넣으면 컨텍스트 과부하 — 100 줄 넘으면 references/ 분리 검토. 전체 SKILL.md 본문 1500-2000 words 타깃 (Anthropic best practices 기준).
+- 메인 SKILL.md 에 모든 내용을 넣으면 컨텍스트 과부하 — 100 줄 넘으면 references/ 분리 검토. SKILL.md 본문은 500 줄 미만을 권고한다 (`../../docs/guides/skill-design-guide.md` §SKILL.md 본문 500 라인 미만 권고 — 강제 상한은 아니다).
 - 뻔한 내용(일반 코딩 지식)을 넣으면 가치 없다 — Claude 가 추론만으로 절대 알 수 없는 정보만 넣어라
 - 스킬 생성 직후 반드시 `python3 scripts/validate-plugin.py <plugin-name>` 으로 V1 frontmatter / V4 trigger 중복 / V5 placeholder / V6 bare code fence 검증을 돌려라. 생성만 하고 검증 안 하면 frontmatter drift 를 다음 사이클까지 못 잡는다.
 - **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** SKILL.md frontmatter 의 **공식 필수는 `name` 과 `description` 2 종**이다 (`../../docs/guides/skill-design-guide.md` §frontmatter 규칙). `argument-hint` · `user-invocable` 은 Claude Code 전용 선택 필드로 다른 플랫폼에서는 무시된다. 다만 **이 레포는 `user-invocable` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 skills 에 대해 `name`/`description`/`user-invocable` 3 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다.
 - **아키타입 미선정 상태로 구조 작성 금지** — skill-design-guide의 아키타입 카탈로그(Generator, Guide, Runner 등) 중 하나를 먼저 확정하고 그에 맞는 Process 구조를 따라라. 아키타입 없이 자유 형식으로 쓰면 Process 단계 순서가 비논리적이 되고 QA Evaluator가 재현 불가 판정한다.
-- **argument-hint 누락은 discovery 실패** — user-invocable 스킬이면서 인자를 받는 경우 `argument-hint`를 반드시 작성해라. 빈 문자열이면 Claude가 인자 전달 가능성 자체를 인지하지 못해 사용자가 매번 수동으로 입력해야 한다.
+- **`argument-hint` 는 자동 완성에 뜨는 인자 힌트다** — 스킬을 언제 쓸지 고르는 일은 `description` 이 맡고 이 필드는 그 일에 관여하지 않는다 (<https://code.claude.com/docs/en/skills>). 그래도 인자를 받는 user-invocable 스킬이면 사용자가 무엇을 넘길지 알 수 있게 이 레포 관례로 적는다.
 - **스킬 이름에 프레임워크/언어 접두사 필수** — 범용(harness, design-kit)이 아닌 스택 종속 스킬은 반드시 `flutter-`, `rust-`, `react-` 같은 접두사를 붙여라. 접두사 없으면 다른 킷의 동명 스킬과 충돌하거나 트리거 우선순위가 모호해진다.
-- **references/ 분리 판단 기준** — Process 본문에서 3회 이상 참조되는 정보(감지 로직, 템플릿 코드, 체크리스트)는 references/로 분리해라. 인라인으로 남기면 SKILL.md가 2000 words를 초과하여 Claude 컨텍스트 효율이 떨어진다.
+- **references/ 분리 판단 기준** — Process 본문에서 3회 이상 참조되는 정보(감지 로직, 템플릿 코드, 체크리스트)는 references/로 분리해라. 인라인으로 남기면 SKILL.md 가 500 줄 권고를 넘겨 컨텍스트 효율이 떨어진다.
 - **Binary Decidability 검증 가능 성공 기준** — Process의 각 Step은 QA 계약과 1:1로 매칭 가능한 "측정 가능한 완료 기준"을 포함해야 한다 (skill-design-guide §3.5). "적절히 처리한다", "필요 시 추가한다" 같은 모호 표현은 금지. Grep 가능한 키워드, 파일 경로, 라인 수, boolean 조건으로만 기술해라. 모호 조건은 평가자 단계에서 자동 REJECT 대상이 된다 (PH-01 / design-kit 2026-04 REJECT 사례).
 - **Cross-Surface Parity 체크 필수** — 새 Gotcha를 추가하거나 원칙을 도입할 때 skill-design-guide §11의 5개 parity item (Binary Decidability / 트리거 배타성 / 검증 기준 / Rule-by-Rule Audit / Unverifiable 정책) 중 하나에 해당하는지 판정해라. 해당하면 agent-design-guide · contract-design-guide · qa-evaluation-guide에 동일 용어로 존재하는지 Grep 하여 전파 필요성을 사용자에게 보고해라 (없으면 PH-01 / SK-13 같은 cascade REJECT 가 발생한다).
 - **Sibling-Skill 원칙 일관성** — 동일 plugin 내 형제 스킬이 이미 존재하면 생성 전에 `grep -n "^- " <sibling>/SKILL.md` 로 기존 Gotchas 목록을 enumerated 수집하고, 공통 원칙(예: rust-init/rust-feature/rust-api의 domain event + outbox 원칙, Composition Root 단일화) 누락이 없는지 set intersection 으로 대조해라. 하나라도 누락되면 H-01/H-03 패턴 REJECT 가 재발한다 (skill-design-guide §8.8).
