@@ -93,7 +93,7 @@ class CheckResult:
     """단일 체크 결과."""
 
     def __init__(self, check_id: str, label: str):
-        self.check_id = check_id          # V1~V9
+        self.check_id = check_id          # V1, V2, … (등록 순서)
         self.label = label                 # 사람이 읽을 이름
         self.status = "OK"                 # OK | WARN | FAIL | SKIP
         self.summary = ""                  # 요약 (예: "7 skills + 1 agent — OK")
@@ -769,9 +769,13 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     헤더 구분선(`|` 로 시작하고 `|-: ` 만으로 이뤄진 줄)이 **아닌** 행. 정상 표는
     헤더 행 다음에 구분선이 오므로 걸리지 않는다.
 
-    범위가 V6 보다 넓다. V6 은 skills/agents/references/README 만 보는데 표가 끊긴
-    자리는 harness/docs/guides/ 였고 그건 V6 범위 밖이었다. 그래서 킷 안의
-    docs/**/*.md 를 더한다.
+    범위가 V6 보다 넓다. 킷 안의 docs/**/*.md 를 더해 기준 문서(harness/docs/guides/)가
+    검사 대상이 된다. 실제로 표가 끊겼던 자리는 harness/references/contract-schema.md 라
+    원래 V6 범위 안이었다 — 넓힌 이유는 "그 파일이 범위 밖이어서" 가 아니라 "같은 종류의
+    문서가 docs/ 에도 있어서" 다 (교차 진단이 이 서술 오류를 짚었다).
+
+    표행 판정은 왼쪽 공백을 벗겨서 한다. 표는 목록·인용 안에서 들여쓰여 쓰이고,
+    왼쪽 끝만 보면 그것이 전부 검사에서 빠진다.
 
     --fix 는 제공하지 않는다. 끊긴 표를 어디로 되돌려야 하는지는 의미 판단이다.
     """
@@ -792,7 +796,9 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
         kept: list[tuple[int, str]] = []
         in_fence = False
         for lineno, line in enumerate(lines, start=1):
-            if line.startswith("```"):
+            # 들여쓴 코드 블록도 코드 블록이다. V6 와 같은 기준을 쓴다 —
+            # startswith 만 쓰면 들여쓴 블록을 못 알아보고 그 안의 줄을 검사한다
+            if line.strip().startswith("```"):
                 in_fence = not in_fence
                 continue
             if in_fence:
@@ -800,10 +806,15 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
             kept.append((lineno, line))
 
         for idx, (lineno, line) in enumerate(kept):
-            if not line.startswith("|"):
+            # 표는 목록·인용 안에서 들여쓰여 쓰인다. 왼쪽 끝만 보면 그것이 전부 빠진다 —
+            # 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 136 줄 있었고, 그 안에
+            # 실제로 끊긴 표가 숨어 있었다 (reflect-promote/SKILL.md 의 8 행 표 한가운데에
+            # 산문 한 문단이 들어가 행 4~7 이 고립). 교차 진단이 찾았다
+            stripped = line.lstrip()
+            if not stripped.startswith("|"):
                 continue
-            prev_is_row = idx > 0 and kept[idx - 1][1].startswith("|")
-            nxt = kept[idx + 1][1] if idx + 1 < len(kept) else ""
+            prev_is_row = idx > 0 and kept[idx - 1][1].lstrip().startswith("|")
+            nxt = kept[idx + 1][1].lstrip() if idx + 1 < len(kept) else ""
             next_is_sep = nxt.startswith("|") and set(nxt) <= set("|-: ")
             if not prev_is_row and not next_is_sep:
                 rel = path.relative_to(REPO_ROOT)
@@ -899,7 +910,7 @@ def print_json_output(results: list[PluginResult]) -> None:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Claude Code 플러그인 9-카테고리 검증 도구",
+        description="Claude Code 플러그인 검증 도구 (등록된 검사 전부 실행)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "체크 이름: frontmatter, templates, refs, triggers, "
