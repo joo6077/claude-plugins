@@ -6,7 +6,7 @@ infra-guide 스킬이 카테고리별 원칙 문서 경로를 찾을 때 참조�
 | 카테고리 | 키워드 | 문서 경로 |
 |----------|--------|-----------|
 | container | Docker, Dockerfile, Compose, 이미지, 컨테이너 | `docs/infra/platform/container.md` |
-| cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner | `docs/infra/platform/cicd.md` |
+| cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner, CI 실패, 빨간 검사, 재실행 | `docs/infra/platform/cicd.md` |
 | kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC, Gateway API, Karpenter, In-Place Pod Resize | `docs/infra/platform/kubernetes.md` |
 | iac | Terraform, Pulumi, CDK, OpenTofu, 모듈, state, plan, ephemeral, Crossplane | `docs/infra/platform/iac.md` |
 | networking | VPC, 서브넷, NAT, DNS, 로드밸런서, ALB, NLB | `docs/infra/operations/networking.md` |

@@ -127,10 +127,10 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 - [ ] Remote backend 설정 (S3+DynamoDB / GCS / Terraform Cloud)
 - [ ] State locking 활성화
 - [ ] `.gitignore`에 `*.tfstate`, `.terraform/` 추가
-- [ ] **State encryption** — OpenTofu 1.7+는 native state encryption, Terraform은 backend-level 암호화(SSE-S3/CMEK)
+- [ ] **State encryption** — OpenTofu는 native state encryption, Terraform은 backend-level 암호화(SSE-S3/CMEK)
 - [ ] **Ephemeral values** — Terraform 1.10+ `ephemeral` 블록 / write-only arguments로 시크릿이 state/plan에 저장되지 않게 구성
 - [ ] **모듈 테스트** — `terraform test` / `tofu test` 모듈 테스트 프레임워크 도입 (1.7+ mocking 지원)
-- [ ] **OpenTofu 대안 검토** — v1.7+ native state encryption, v1.9+ provider-level `for_each`, v1.10+ OCI Registry 지원 + S3 네이티브 state locking (DynamoDB 불필요)
+- [ ] **OpenTofu 대안 검토** — native state encryption, v1.9+ provider-level `for_each`, v1.10+ OCI Registry 지원 + S3 네이티브 state locking (DynamoDB 불필요)
 - [ ] **Crossplane v2 검토 (대규모)** — K8s CRD 기반 인프라 합성 + 플랫폼 팀 선언적 API 엔진, namespaced XR/MR 기본값
 
 참조:

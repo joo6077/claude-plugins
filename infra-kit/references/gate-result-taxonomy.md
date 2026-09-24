@@ -93,6 +93,11 @@ VIOLATION=<n>  [미검증]=<n>  EXECUTION_ERROR=<n>
 [미검증] TOOL_OR_ENV_MISSING: kubeconform 미설치 — 재검증: brew install kubeconform && bash tests/k8s-validation.sh
 ```
 
+리포트(`infra-test` 완료 보고 · `infra-audit` 과 `infra-reviewer` 의 근거 열)에서는 스크립트의 이 줄과 그 근거인 `command -v <도구>` 출력을
+**막는 것** 칸으로 옮기고 나머지 세 칸(시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채운다. 네 칸의 정의는
+`harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate 3 항이 SSOT 다 — 여기서 다시 정의하지 않는다.
+하나라도 비면 `UNVERIFIED_ENV` 로 인정되지 않는다.
+
 ## 소비처
 
 | 파일 | 소비 방식 |
