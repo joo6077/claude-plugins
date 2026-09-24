@@ -1,9 +1,52 @@
 ---
-version: 1.2.0
-last_updated: 2026-08-13
+version: 1.3.0
+last_updated: 2026-09-25
 ---
 
 # Rust Kit Research Log
+
+## [2026-09-24] — Phase 9 kaizen
+
+외부 조회 0 회. 이번 라운드의 유일한 외부 근거는 `.harness/.meta/evidence/phase9.md` (수집 2026-09-24, codex foreground) 이며,
+아래 URL 은 전부 그 파일에서 가져왔다. 처리 배정표 `backend-family:P4` 와 `backend-family:P2` 의 rust-model 부분, Phase 1 설계
+가이드 변경(`[미검증]` 네 칸)의 이 킷 쪽 반대편, 근거 파일 §3 현행화를 네 관심사로 묶었다.
+
+### 채택한 인사이트
+
+- **실패를 셋으로 가른다 (`backend-family:P4`).** rust-preflight Gotcha 10 · Step 3.5 · Step 5. 판정 세 줄은 harness `/sprint` Step 3 을
+  글자 그대로 옮겼다(Phase 4 가 정본을 정했다). preflight 는 커밋 전에 돌아 미커밋 변경에 내 것도 섞이므로 `HEAD` 임시 워크트리에
+  내 파일만 얹어 한 번 더 돌린다. 근거: [git status](https://git-scm.com/docs/git-status) (누가 고쳤는지는 알려주지 않는다 — 시작 때
+  목록이 필요하다) · [git merge-base](https://git-scm.com/docs/git-merge-base) · [git stash](https://git-scm.com/docs/git-stash) (작업
+  폴더를 `HEAD` 로 되돌린다 — 공유 폴더에서 쓰지 않는다) · [git worktree](https://git-scm.com/docs/git-worktree) ·
+  [Clippy CHANGELOG](https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md) (새 lint 가 `deny` 로 둔 코드를 새로 실패시킨다)
+- **시각 종류별 Rust 타입 (`backend-family:P2` rust-model 부분).** `docs/rust/data/sqlx-patterns.md` 원칙 6 · rust-model Gotcha ·
+  §4S 예시. SQLx 와 SeaORM 은 순간 타입이 다르다 — [SQLx PostgreSQL types](https://docs.rs/sqlx/latest/sqlx/postgres/types/index.html) ·
+  [SeaORM 1.1 column types](https://github.com/SeaQL/seaql.github.io/blob/master/SeaORM/versioned_docs/version-1.1.x/04-generate-entity/03-column-types.md) ·
+  [PostgreSQL Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html)
+- **미검증 표기를 현행 정본에 맞춤.** rust-reviewer 의 정본 복제본이 2026-08-13 개정(카운터 둘 · 남용 방지 4 요건) 전 판이었다.
+  조항 2·3 과 4 요건을 옮기고, rust-reviewer · rust-audit 판정을 두 카운터와 BLOCKED 로, 여섯 자리의 `[미검증]` 을 네 칸으로
+  바꿨다. rust-audit Gotcha 14 가 「미검증 2 건 이상은 CONDITIONAL APPROVE」 로 Step 5 와 반대로 적혀 있던 것도 고쳤다
+
+### 봉인 전 실측 (근거 파일 §5 열린 질문)
+
+| 대상 | 실측 값 |
+| --- | --- |
+| SeaORM 1.1.19 Entity 필드의 열 타입 추론 | `DateTimeWithTimeZone` · `DateTimeUtc` → `TimestampWithTimeZone` · `DateTime` → `DateTime` · `Time` → `Time` |
+| SQLx 0.8.6 타입의 PostgreSQL 이름 | `DateTime<Utc>` → `TIMESTAMPTZ` · `NaiveDateTime` → `TIMESTAMP` · `NaiveTime` → `TIME` |
+| rust-model §4S 예시 | Entity 블록과 어댑터 두 줄이 오프라인 컴파일을 통과 (chrono 0.4.44 · rustc 1.96.0) |
+
+### 버전 현행성 (crates.io · 2026-09-24)
+
+`rust-kit/references/project-detection.md` Step 2c 표에 옮겼다. 스킬 본문 · 템플릿의 버전 리터럴은 그대로다 — tower-http 0.7 과
+utoipa 6 은 breaking change 가 있어 자동으로 바꾸지 않는다 ([tower-http CHANGELOG](https://github.com/tower-rs/tower-http/blob/master/tower-http/CHANGELOG.md) ·
+[utoipa CHANGELOG](https://github.com/juhaku/utoipa/blob/master/utoipa/CHANGELOG.md)). rust-grpc Gotcha 5 의 `0.13` 만 본문 예시
+0.14 와 어긋나 고쳤다.
+
+### 미반영
+
+- rust-audit 기준의 시각 종류 판정 행 — 근거 파일 §4 권고다. 기준 문서에 DB 카테고리가 없어 자리부터 정해야 한다. 다음 사이클
+- 스킬 본문 · 템플릿의 버전 리터럴을 Step 2c 참조로 바꾸기 (근거 파일 §4 권고 8) — 다음 사이클
+- SeaORM 2.x 타입 대응 실측 — 로컬에 2.x 크레이트가 없다
 
 ## [2026-08-13] — Phase 9 kaizen
 
