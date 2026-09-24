@@ -13,5 +13,7 @@ AR-06 ① 이 떨어진다.
 
 - 봉인 커밋: `211f00d8b3a49a45f30295eead457516b7b72fee` (계약 파일 1 개, `conditions_digest: sha256:76b807f6d67fcf8a`)
 - 구현 커밋: `3e3ff0469de65141a77902acf46c72b79fc2b616` (네 파일)
+- notes 커밋: `a92d474b8c63f6d58dd5fd43c7d324e3c43f1a7f` (`phase2-notes.md` · `phase2-review.md`) — 이 Phase 커밋이라 상한을 옮긴다
 
 end_sha: 3e3ff0469de65141a77902acf46c72b79fc2b616
+end_sha: a92d474b8c63f6d58dd5fd43c7d324e3c43f1a7f
