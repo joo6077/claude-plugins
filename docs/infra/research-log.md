@@ -1,9 +1,64 @@
 ---
-version: 1.3.0
-last_updated: 2026-08-13
+version: 1.4.0
+last_updated: 2026-09-25
 ---
 
 # Infra Kit Research Log
+
+## [2026-09-24] - Phase 8 kaizen
+
+CHANGED. 처리 배정표의 Phase 8 행 `backend-family:P3` 하나와 앞 Phase 가 넘긴 셋(Phase 1 — `infra-test` 의 `[미검증]` 네 칸,
+Phase 4 — harness `/sprint` Step 3 의 판정 세 줄, Phase 7 — README 검증 절 「7 카테고리 구조 감사」)을 세 관심사로 묶었다.
+외부 근거는 `.harness/.meta/evidence/phase8.md` 하나이고 이 Phase 는 새로 조회하지 않았다.
+
+### 조회한 외부 소스 (근거 파일 `.harness/.meta/evidence/phase8.md`)
+
+| # | 소스 | 조회 결과 | 채택 |
+| --- | --- | --- | --- |
+| 1 | [Git — git merge-base](https://git-scm.com/docs/git-merge-base) | 기준 가지의 지금 끝이 아니라 두 이력의 공통 조상. 이력이 복잡하면 둘 이상일 수 있다 | **채택** — `cicd.md` 원칙 7 |
+| 2 | [GitHub CLI — gh run list](https://cli.github.com/manual/gh_run_list) | `--commit` · `--branch` · `--status` · `--workflow` · `--limit` 필터와 `headSha` 같은 JSON 필드 | **채택** — 기준 커밋 기록 조회. `--workflow` 없는 성공 조회는 필수 검사 통과가 아니다 |
+| 3 | [GitHub — Re-running workflows and jobs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs) | 재실행은 원 실행과 같은 `GITHUB_SHA` · `GITHUB_REF`. 실패한 job 만 다시 돌리거나 디버그 로그를 켤 수 있다 | **채택** — 환경 · 비결정성 가르기 |
+| 4 | [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) | job 마다 새 VM. `-latest` 는 GitHub 가 정한 최신 안정 이미지 | **채택** — runner 이미지도 원인 후보 |
+| 5 | [GitHub — About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) | 필수 검사는 전부 성공 · skipped · neutral 이어야 한다 | **채택** — 성공 커밋에서 가지를 자를 때 |
+| 6 | [Kubernetes v1.37.1](https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1) | 최신 안정판 | **채택** — `kubeconform` 예시의 고정 `1.30.0` 을 대상 클러스터 버전 변수로 |
+| 7 | [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/) | state · plan 암호화, `enforced` · `fallback`. 1.7 도입 연혁은 적혀 있지 않다 | **채택** — 남아 있던 「1.7+」 네 자리 제거 |
+| 8 | [OpenTelemetry spec status](https://opentelemetry.io/docs/specs/status/) | signal 별로 상태가 다르다 | README 2026-04-24 이력 줄에 정정 표시 |
+
+공식 문서에서 「내 변경 / 기준 실패 / 환경」 세 분류를 규범으로 정한 곳은 찾지 못했다(근거 파일 §2). 그래서 원칙 7 은 이 분류가 킷의 규칙이라고 적는다.
+GitHub 밖 CI 의 같은 조회 명령도 근거 파일에 없다.
+
+### 변경 내역
+
+- `platform/cicd.md` (0.2.0) — 원칙 7 「빨간 검사는 고치기 전에 원인부터 가른다」. 판정 세 줄은 harness `/sprint` Step 3 과 같은 말이고,
+  CI 에서만 보이는 「환경 · 비결정성」 과 「미확정」 을 더했다
+- `skills/infra-guide/SKILL.md` — Gotcha 14 (E1), Step 1 cicd 키워드 행에 「CI 실패 · 빨간 검사 · 재실행」. `references/principle-index.md` cicd 행도 같이 고쳤다
+- `skills/infra-test/SKILL.md` — Gotcha 12 · Step 8 · 보고 예시의 `[미검증]` 을 네 칸으로, Step 7 에 알려진 답 대조, Step 6 `kubeconform` 버전을 변수로
+- `skills/infra-audit/SKILL.md` Gotcha 11 · 12 · Step 4, `agents/infra-reviewer.md` 출력 포맷, `references/gate-result-taxonomy.md` — `[미검증]` 네 칸
+- `references/audit-criteria.md` · `references/init-checklist.md` · `skills/infra-init/SKILL.md` — 「OpenTofu 1.7+ native state encryption」 네 자리에서 버전을 뺐다
+- `evals/evals.json` — 사례 6 (공용 가지의 빨간 CI, infra-guide). `README.md` — 검증 절 두 줄 · cicd 요약 · 2026-04-24 이력 줄 정정 표시
+
+### 사실 정정
+
+- **OpenTofu 1.7+ 가 남아 있었다** — 2026-08-13 항목은 audit-criteria 의 「1.7+」 를 뺐다고 적었지만 네 자리(audit-criteria 1 · init-checklist 2 · infra-init 1)가 그대로였다
+- **2026-07-27 항목의 OTel 판정** — 「"3 신호 stable" 서술 유지 가능」 은 같은 행에 적은 metrics SDK mixed 와 어긋난다. 2026-08-13 항목이 이미 정정했고, 이력 줄은 그대로 둔다
+
+### 조회만 하고 규칙으로 올리지 않은 것 (근거 파일 §3)
+
+- Kubernetes v1.37.0 — `SELinuxMount` 기본 활성, `scheduling.k8s.io/v1alpha2` 제거, `eventRecordQPS=0` 의미 정정 ([changelog](https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md))
+- Terraform v1.16.0 — provisioner 의 `bastion_host_key` 가 이제 실제로 쓰인다 ([release](https://github.com/hashicorp/terraform/releases/tag/v1.16.0))
+- OpenTofu v1.12.6 — OCI registry redirect 에 원 credential 이 다시 실리던 문제 · 악성 응답의 과다 사용 수정 ([release](https://github.com/opentofu/opentofu/releases/tag/v1.12.6))
+- Flux v2.9 — `image.toolkit.fluxcd.io/v1beta2` · `notification.toolkit.fluxcd.io/v1beta2` 제거 ([v2.9.0 notes](https://github.com/fluxcd/flux2/releases/tag/v2.9.0)). 「Flux v2.8+」 최소 조건은 거짓이 아니다
+- Argo CD 3.5 — Helm 4 전환 · `--repo-server-strict-tls` 폐기 예정 ([업그레이드 가이드](https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/))
+- Crossplane v2.4.0 — CLI 위치 `cli.crossplane.io`, 바이너리 이름 `crossplane` ([release](https://github.com/crossplane/crossplane/releases/tag/v2.4.0))
+
+### 다음 사이클 후보
+
+- Flux v2.9 · Argo CD 3.5 에서 빠진 API 를 `operations/deployment-strategies.md` 원칙에 먼저 올린 뒤 감사 기준 GitOps 행에 붙일지
+- `Karpenter v1.11` · OpenTofu v1.11 출처 이름이 최소 조건인지 최신판인지 표기를 가를 것
+- 도입 버전 표기 — 「Terraform 1.10+ ephemeral」 은 근거 파일이 확인하지 못했다(§5). 「1.7+ mocking」(audit-criteria · init-checklist · infra-test Gotcha 8) · 「OpenTofu 1.7+ write-only 인수」(infra-test Gotcha 10) 는 근거 파일이 다루지 않았다
+- `agents/infra-reviewer.md` §9 가 정본(`harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol)의 2026-08-13 이후 판과 다르다 — 다른 킷 reviewer 들도 같다
+
+---
 
 ## [2026-08-13] - Phase 8 kaizen
 
