@@ -176,7 +176,7 @@ Riverpod codegen을 우회하거나 mounted 체크를 빠뜨리면 런타임 상
 - [ ] async 작업 후 상태 변경 전 `ref.mounted` 확인 (Notifier 생명주기) 및 async gap 후 `context.mounted` 확인 (Widget 생명주기)
 - [ ] **Riverpod 3.0**: Notifier 내부 필드로 `Timer` / `StreamSubscription` / `TextEditingController` 등 생명주기 객체를 **직접 유지하지 않음** — 2.x pseudo-singleton 동작이 폐기되어 provider rebuild 마다 Notifier 가 재생성되므로 리소스 누수 발생. 이런 객체는 별도 provider 로 분리 후 `ref.onDispose` 로 바인딩
 - [ ] **Riverpod 3.0 legacy**: 신규 파일에 `StateNotifierProvider` / `StateProvider` / `ChangeNotifierProvider` 를 추가하지 않음 (legacy 분류). 기존 마이그레이션은 점진적으로 `@riverpod` / `Notifier` 기반으로 전환
-- [ ] 프로젝트에 Result 타입이 있으면 양쪽 분기를 모두 처리. Result 가 Freezed sealed class 기반이면 **Dart pattern matching (switch expression) 을 권장**하되, `.when`/`.map` 사용 자체를 위반으로 보고하지 마라 — `.when`/`.map` 은 Freezed 3.0 에서 제거됐다가 **3.1.0 에서 다시 추가**됐고 최신 stable 은 3.2.5 다. 프로젝트가 이미 generated `when`/`map` 을 쓰고 있으면 **일관성 유지가 우선**이다. 지적 대상은 "한쪽 분기 미처리" 뿐 ([Freezed changelog](https://pub.dev/packages/freezed/changelog))
+- [ ] 프로젝트에 Result 타입이 있으면 양쪽 분기를 모두 처리. Result 가 Freezed sealed class 기반이면 **Dart pattern matching (switch expression) 을 권장**하되, `.when`/`.map` 사용 자체를 위반으로 보고하지 마라 — `.when`/`.map` 은 Freezed 3.0 에서 제거됐다가 **3.1.0 에서 다시 추가**됐고 지금 stable 은 4.0.2 · 2026-09-24 조회 — 4.0 의 breaking 은 `references/flutter-ai-rules.md` 의 Freezed 절 이다. 프로젝트가 이미 generated `when`/`map` 을 쓰고 있으면 **일관성 유지가 우선**이다. 지적 대상은 "한쪽 분기 미처리" 뿐 ([Freezed changelog](https://pub.dev/packages/freezed/changelog))
 
 ### State Management (HAS_BLOC일 때)
 

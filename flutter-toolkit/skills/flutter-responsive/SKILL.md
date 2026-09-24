@@ -149,4 +149,4 @@ int crossAxisCount(double width) {
 - **MUST** 로컬 반응형에는 `MediaQuery`보다 `LayoutBuilder`를 우선 사용한다 -- `LayoutBuilder`는 부모 위젯의 실제 가용 공간을 기준으로 하므로, 전체 화면 크기가 아닌 해당 위젯의 공간에 맞게 반응한다
 - **MUST** 600px 미만에서는 단일 컬럼을 유지한다 -- 좁은 화면에서 다중 컬럼을 강제하면 콘텐츠가 읽기 어려울 정도로 좁아진다
 - **MUST** `$FLUTTER` / `$DART` 변수를 사용한다. 하드코딩된 명령 prefix 금지
-- **MUST** 완료 선언 전에 `references/visual-evidence-protocol.md` 를 실행하고 **Visual Evidence Block** 을 응답에 채운다 -- 반응형은 **breakpoint 양쪽(좁은 폭 / 넓은 폭)을 각각 캡처해 대조**해야 검증이 성립한다. 한쪽만 확인하고 "반응형 적용 완료" 라고 쓰면 반대쪽 회귀를 놓친다. 캡처 불가 시 `[미검증]` + 사유를 남기고 부분 완료로 보고한다 (`/insights` 2026-07-27 Friction #2)
+- **MUST** 완료 선언 전에 `references/visual-evidence-protocol.md` 를 실행하고 **Visual Evidence Block** 을 응답에 채운다 -- 반응형은 **breakpoint 양쪽(좁은 폭 / 넓은 폭)을 각각 캡처해 대조**해야 검증이 성립한다. 한쪽만 확인하고 "반응형 적용 완료" 라고 쓰면 반대쪽 회귀를 놓친다. 캡처 불가 시 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 Step 4)을 채우고 부분 완료로 보고한다 (`/insights` 2026-07-27 Friction #2)

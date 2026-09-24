@@ -43,7 +43,7 @@ Figma 시안 캡처 → Flutter 렌더 캡처 → SSIM 측정 → 임계값 미�
 | 단계 | 도구 | 비고 |
 |------|------|------|
 | Figma 캡처 | Figma MCP `get_screenshot` | 노드 ID 지정, PNG 추출 |
-| Flutter 캡처 | flutter-playwright MCP `take_screenshot` 또는 integration_test golden | 렌더 결과 PNG |
+| Flutter 캡처 | 프로젝트에 등록된 화면 캡처 MCP(서버 이름은 `.mcp.json` 에서 읽는다) 또는 integration_test golden | 렌더 결과 PNG |
 | SSIM 측정 | Python `scikit-image.metrics.structural_similarity` 또는 `pixelmatch` (Node) | 0.0~1.0 score |
 | 픽셀 diff | `pixelmatch` antialiasing-aware diff PNG 산출 | 차이 영역 시각화 |
 | 파라미터 매핑 | FigmaDecoration / TextStyle / 색상 토큰 | diff 영역 → 어느 위젯 파라미터인지 추론 |
@@ -55,7 +55,7 @@ Figma 시안 캡처 → Flutter 렌더 캡처 → SSIM 측정 → 임계값 미�
 ```python
 # 의사 코드
 figma_png = figma_mcp.get_screenshot(node_id=NODE_ID)
-flutter_png = flutter_playwright.take_screenshot(route=ROUTE, device=DEVICE)
+flutter_png = capture_mcp.take_screenshot(route=ROUTE, device=DEVICE)  # 서버·도구 이름은 .mcp.json 에서 읽는다
 ```
 
 같은 viewport / DPR / 폰트 시스템에서 캡처. 디바이스 차이로 false-positive 발생 가능 — 픽셀 단위가 아닌 **device-independent pixel** 기준으로 정규화.

@@ -122,9 +122,11 @@ Examples:
 
 | 라이브러리 | 명령 |
 |-----------|------|
-| Slang | `$DART run build_runner build --delete-conflicting-outputs --build-filter="lib/**/i18n/**"` |
+| Slang | `$DART run build_runner build --delete-conflicting-outputs` — `flutter-run` codegen 절의 블록으로 돌린다 |
 | easy_localization | codegen 불필요 (런타임 로드) |
 | intl/ARB | `$FLUTTER gen-l10n` |
+
+Slang 도 `--build-filter` 로 i18n 폴더만 돌리지 않는다 — 필터 한 번에 생성물 267 개가 지워진 적이 있다(2026-09-16). 전체를 돌리고 전후 삭제 수를 센다.
 
 ### 7. 보고
 

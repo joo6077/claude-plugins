@@ -5,12 +5,12 @@
       "id": 1,
       "skill": "flutter-run",
       "prompt": "프로젝트에서 codegen 돌려줘. auth 피처만",
-      "expected_output": "FVM 감지 시 fvm dart run build_runner build --delete-conflicting-outputs --build-filter=\"lib/features/auth/**\", 시스템 SDK면 dart run ...",
+      "expected_output": "필터 없이 전체 codegen — FVM 감지 시 fvm dart run build_runner build --delete-conflicting-outputs, 시스템 SDK면 dart run ... auth 인자는 보고에 적기만 하고 범위를 좁히지 않는다. 전후 삭제 수 줄(before · after · new_first · new)을 보고한다",
       "assertions": [
         {"text": "pubspec.yaml에서 build_runner 의존성 확인을 시도한다", "type": "behavior"},
         {"text": ".fvmrc 존재 여부로 SDK 매니저를 감지한다", "type": "behavior"},
-        {"text": "--delete-conflicting-outputs 플래그가 포함된다", "type": "output"},
-        {"text": "--build-filter에 auth feature 경로가 포함된다", "type": "output"}
+        {"text": "--build-filter 를 붙이지 않고 전체 codegen 을 돌린다 — auth 인자는 보고에 적기만 한다", "type": "output"},
+        {"text": "codegen 전후 삭제 수 줄(before · after · new_first · new)을 보고하고, new 가 0 이 아니면 멈춰 늘어난 삭제 목록을 보인다", "type": "output"}
       ]
     },
     {
@@ -63,7 +63,7 @@
         {"text": "_widget 접미사를 사용하지 않는다", "type": "output"},
         {"text": "variant/size 패턴이 필요한 경우 프로젝트 기존 패턴을 따른다", "type": "behavior"},
         {"text": "완료 보고 전 references/visual-evidence-protocol.md 를 실행하고 Visual Evidence Block 을 채운다", "type": "behavior"},
-        {"text": "시각 검증 채널이 없으면 [미검증] 마커와 사유를 남기고 부분 완료로 보고한다", "type": "behavior"},
+        {"text": "시각 검증 채널이 없으면 [미검증] 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채우고 부분 완료로 보고한다", "type": "behavior"},
         {"text": "기존 위젯 수정 요청이면 Flutter 기본 위젯으로 교체하지 않고 유지할 속성을 먼저 열거한다", "type": "behavior"}
       ]
     },
@@ -200,7 +200,8 @@
         {"text": "build 메서드 크기와 분리 가능 서브트리를 측정한다", "type": "behavior"},
         {"text": "발견된 후보마다 파일:라인 근거를 포함한다", "type": "output"},
         {"text": "코드를 수정하지 않고 리포팅만 수행한다", "type": "behavior"},
-        {"text": "리포트 서두에 스캔 대상 파일 수를 명시하고, 0개면 Clean 대신 [미검증] 으로 보고한다", "type": "behavior"}
+        {"text": "리포트 서두에 스캔 대상 파일 수를 명시하고, 0개면 Clean 대신 [미검증] 으로 보고한다", "type": "behavior"},
+        {"text": "호출 스킬이 넘긴 관례 표가 있으면 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻을 칸마다 맞음 · 어긋남 · [미검증] 과 양쪽 파일:라인으로 적고, 표가 없으면 [미검증] 관례 표 없음 을 적는다", "type": "output"}
       ]
     },
     {

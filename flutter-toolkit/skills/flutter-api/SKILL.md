@@ -17,7 +17,7 @@ user-invocable: true
 
 - 상대 import `import '../'` 금지 — 반드시 `package:app/...` 절대 import 사용. 리팩터링 시 경로 깨짐 방지
 - Failure 변환은 Repository/DataSource 경계에서 수행 — UseCase에서 try-catch 하지 마라
-- **Freezed 3.x Mixed mode — `when`/`map` 은 3.1.0 에서 되돌아왔다** — `.when()`/`.map()` 제거는 **3.0 의 breaking** 이었고 **3.1.0 에서 다시 추가**됐다 (최신 stable 3.2.5). 따라서 "`.when()` 호출이 남아 있으면 무조건 마이그레이션" 은 **틀린 지시다.** 신규 union 분기는 Dart 3 pattern matching (`switch` expression) 을 권장하되, 기존 코드가 generated `when`/`map` 을 쓰고 있으면 **일관성을 유지**한다. Mixed mode(기존 union 문법 + 간단 class 선언 혼용)와 `eject union cases`(union → standalone sealed class 변환)는 그대로 유효하다 (출처: <https://pub.dev/packages/freezed/changelog>)
+- **Freezed 3.x Mixed mode — `when`/`map` 은 3.1.0 에서 되돌아왔다** — `.when()`/`.map()` 제거는 **3.0 의 breaking** 이었고 **3.1.0 에서 다시 추가**됐다 (지금 stable 은 4.0.2 · 2026-09-24 조회 — 4.0 의 breaking 은 `references/flutter-ai-rules.md` 의 Freezed 절). 따라서 "`.when()` 호출이 남아 있으면 무조건 마이그레이션" 은 **틀린 지시다.** 신규 union 분기는 Dart 3 pattern matching (`switch` expression) 을 권장하되, 기존 코드가 generated `when`/`map` 을 쓰고 있으면 **일관성을 유지**한다. Mixed mode(기존 union 문법 + 간단 class 선언 혼용)와 `eject union cases`(union → standalone sealed class 변환)는 그대로 유효하다 (출처: <https://pub.dev/packages/freezed/changelog>)
 - **Freezed + json_serializable 버전 핀닝** — Freezed 3.2.3 + json_serializable 6.11.3 조합에서 analyzer >=9 / build >=4 호환 이슈가 보고됨. `pubspec.lock` 에서 버전 호환성을 반드시 확인하라 (출처: community report 2025-09)
 
 # API 레이어 생성
