@@ -1,8 +1,8 @@
 ---
 title: Claude Code 플러그인 검증 가이드
-version: 1.3.0
+version: 1.3.1
 last_updated: 2026-09-24
-scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-kit"
+scope: "marketplace.json 에 등록된 킷 전부"
 ---
 
 # Claude Code 플러그인 검증 가이드
@@ -16,7 +16,7 @@ scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-
 
 ## 1. 목적
 
-플러그인 모노레포는 13개 킷, 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.
+플러그인 모노레포는 여러 킷과 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.
 
 - **숨은 깨진 링크**: SKILL.md가 references/xxx.md 를 참조하지만 파일이 존재하지 않는다.
 - **Frontmatter 누락**: 신규 스킬에 `name` 또는 `description` 이 없어 Claude가 스킬을 인식하지 못한다.
@@ -30,13 +30,8 @@ scope: "harness/flutter-toolkit/design-kit/backend-kit/infra-kit/rust-kit/react-
 
 ## 2. 적용 범위
 
-`.claude-plugin/plugin.json` 을 가진 모든 디렉토리를 검증 대상으로 삼는다. 현재 13개 킷이 대상이다:
-
-```
-harness/          flutter-toolkit/    design-kit/
-backend-kit/      infra-kit/          rust-kit/
-react-kit/
-```
+`.claude-plugin/plugin.json` 을 가진 모든 디렉토리를 검증 대상으로 삼는다. 지금 몇 개인지는 전체 실행의
+마지막 `Total:` 줄이 알려준다.
 
 킷 목록은 `.claude-plugin/marketplace.json` 의 `plugins` 배열에서 자동으로 읽는다. 새 킷을 추가할 때 marketplace.json 에 먼저 등록하면 검증 대상에 자동 포함된다.
 
@@ -480,37 +475,47 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
 | `--help` | 사용법 출력 | `--help` |
 
 `--check` 에 사용하는 체크 이름:
-`frontmatter`, `templates`, `refs`, `triggers`, `placeholders`, `code-fence`, `plugin-json`, `hook-exec`
+`frontmatter`, `templates`, `refs`, `triggers`, `placeholders`, `code-fence`, `plugin-json`, `hook-exec`, `arg-substitution`, `table-integrity`
+
+`--help` 도 같은 목록을 보여준다. 그쪽은 등록 표에서 바로 뽑으므로, 이 목록과 다르면 `--help` 가 맞다.
 
 ### 출력 포맷
 
-```
+형식 예시다. 수치와 버전 번호는 예로 든 값이다.
+
+```text
 === harness ===
-  V1 frontmatter    7 skills + 1 agent — OK
-  V2 templates      0 files — SKIP (no templates/)
-  V3 refs           12 links — OK
-  V4 triggers       42 keywords — OK
-  V5 placeholders   0 found — OK
-  V6 code-fence     0 bare — OK
-  V7 plugin-json    v0.3.5 matches marketplace — OK
-  V8 hook-exec      3 hook 스크립트 실행 가능 — OK
+  V1 frontmatter       9 skills + 1 agent — OK
+  V2 templates         2 parsed, 1 skipped (ts/js) — OK
+  V3 refs              12 links — OK
+  V4 triggers          36 keywords — OK
+  V5 placeholders      0 found — OK
+  V6 code-fence        0 bare — OK
+  V7 plugin-json       v0.3.5 matches marketplace — OK
+  V8 hook-exec         3 hook 스크립트 실행 가능 — OK
+  V9 arg-substitution  9 skills — OK
+  V10 table-integrity   18 md files — OK
 
 === react-kit ===
-  V1 frontmatter    21 skills + 3 agents — OK
-  V2 templates      5 parsed, 4 skipped (ts/js) — OK
-  V3 refs           89 links, 2 BROKEN
+  V1 frontmatter       21 skills + 3 agents — OK
+  V2 templates         5 parsed, 4 skipped (ts/js) — OK
+  V3 refs              89 links, 2 BROKEN
     FAIL react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
     FAIL react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
-  V4 triggers       58 keywords, 1 duplicate
+  V4 triggers          58 keywords, 1 duplicate
     WARN "새 화면 추가" — react-screen, flutter-screen
-  V5 placeholders   0 found — OK
-  V6 code-fence     0 bare — OK
-  V7 plugin-json    v0.1.0 matches marketplace — OK
-  V8 hook-exec      no hooks.json — OK
+  V5 placeholders      0 found — OK
+  V6 code-fence        0 bare — OK
+  V7 plugin-json       v0.1.0 matches marketplace — OK
+  V8 hook-exec         no hooks.json — OK
+  V9 arg-substitution  21 skills — OK
+  V10 table-integrity   32 md files — OK
 
-Total: 7 plugins — 5 OK, 1 WARNING, 1 ERROR
+Total: 2 plugins, 1 OK, 1 ERROR
 Exit: 2
 ```
+
+요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 `Total: 14 plugins, 14 OK` 처럼 짧아진다.
 
 ### Exit Code
 
@@ -533,7 +538,7 @@ Exit: 2
 | V5 Placeholders | `TODO:` → `<설명 필요>`, `TBD` → `<내용 추가>`, `FIXME:` → `<수정 필요>` |
 | V6 Code fence | 빈 ` ``` ` → ` ```text ` |
 
-나머지 체크(V1~V4, V7)는 `--fix` 로 수정하지 않는다. 파일 삭제나 링크 재배선 같은 작업은 의미 분석이 필요하므로 위험하다.
+나머지 체크(V1~V4, V7~V10)는 `--fix` 로 수정하지 않는다. 파일 삭제나 링크 재배선 같은 작업은 의미 분석이 필요하므로 위험하다.
 
 ### 수동 수정
 
@@ -544,6 +549,9 @@ Exit: 2
 | V3 | 참조 파일 생성 또는 링크 경로 수정 |
 | V4 | description 에서 중복 키워드 제거 또는 구체화 |
 | V7 | plugin.json 또는 marketplace.json 버전 태그 일치 |
+| V8 | `chmod +x <script>` 후 커밋해 git 이 `100755` 로 추적하게 한다 |
+| V9 | 자리마다 다르다 — awk 필드는 `$(N)`, bash 위치 인자는 `${N}`, 문법상 `$` + 숫자여야 하는 곳은 역슬래시 이스케이프 (§3 V9) |
+| V10 | 표 중간에 끼어든 절이나 문단을 표 뒤로 옮겨 헤더와 행을 다시 잇는다 |
 
 ### 카이젠 위임 기준
 
@@ -559,13 +567,15 @@ Exit: 2
 
 | 킷 | V2 templates | 비고 |
 | ------- | ------------- | ------ |
-| harness | `templates/` 없음 — SKIP | QA 프레임워크. 코드 템플릿 대상 아님 |
-| flutter-toolkit | `templates/` 없음 — SKIP | 스킬 지시문 기반. 별도 템플릿 파일 없음 |
-| design-kit | `templates/` 없음 — SKIP | 디자인 가이드 중심. 코드 템플릿 없음 |
+| harness | `templates/` 4 항목 — 2 개 파싱, 1 개 SKIP | `project.yaml` · `settings-hooks.json` 파싱, `env.sh` SKIP (`procedures/` 는 디렉터리라 V2 대상 아님) |
+| flutter-toolkit | `templates/` 2 파일 — 전부 SKIP | `.md` 는 V2 파서 대상 아님 |
+| design-kit | `templates/` 8 파일 — 전부 SKIP | `.html` 은 V2 파서 대상 아님 |
 | backend-kit | `templates/` 없음 — SKIP | 스택 무관 가이드. 프레임워크별 스캐폴딩은 각 킷에서 |
 | infra-kit | `templates/` 없음 — SKIP | 스택 무관 가이드. 인프라 코드 템플릿 없음 |
-| rust-kit | `templates/` 없음 — SKIP | 스킬에서 인라인으로 생성. 향후 templates/ 추가 가능 |
+| rust-kit | `templates/` 5 파일 — 1 개 파싱, 4 개 SKIP | `rust-init.toml.template` 파싱, `.rs.template` 4 개 SKIP |
 | react-kit | `templates/` 9 파일 — TS 파일은 V2 SKIP | `.ts/.js` 4개 SKIP, 나머지 5개(`Cargo.toml.template` 등) 파싱 |
+| tone-kit | `templates/` 6 파일 — 전부 SKIP | `.md` 는 V2 파서 대상 아님 |
+| 그 밖의 킷 | `templates/` 없음 — SKIP | V2 전체 SKIP |
 
 > TS/JS 파일 V2 SKIP 은 외부 도구(tsc) 의존 없이 검증 불가능하기 때문이다. 이 파일들의 구문 검증은 CI 빌드 단계에서 수행한다.
 
@@ -574,7 +584,7 @@ Exit: 2
 ## 7. 카이젠 연동
 
 각 킷의 카이젠 스킬(`*-kaizen`)이 이 가이드를 베이스라인으로 사용한다.
-이 §7 이 9개 카이젠 스킬의 "Plugin Validation 결과 반영" 단계의 SSOT(Single Source of Truth)다.
+이 §7 이 각 카이젠 스킬(`*-kaizen`)의 "Plugin Validation 결과 반영" 단계의 SSOT(Single Source of Truth)다.
 각 카이젠 스킬은 킷 특화 규칙만 로컬에 유지하고, 공통 규칙은 이 섹션을 따른다.
 
 ### §7.1 실행 패턴
@@ -642,6 +652,7 @@ python3 scripts/validate-plugin.py <kit-name>
 | 2026-06-11 | 1.1.0 | V8 hook-exec 추가 — hooks.json 직접 실행 `.sh` 의 실행 비트(0755) 검증. reflect 30일 집계상 hook permission-denied 957건(전체 friction 38%)의 회귀 방지 가드 |
 | 2026-09-21 | 1.2.0 | V9 arg-substitution 추가 — 스킬 본문 코드의 `$` + 숫자가 호출 인자로 치환되어 awk·bash 스니펫이 깨지는 것을 막는다. 공식 규칙은 `$N` = `[N]` 이며, sprint-contract 를 인자와 함께 부른 3 회 모두 `read_fm` 의 awk 와 저장 검사 스니펫이 깨져 로드됐다 |
 | 2026-09-24 | 1.3.0 | V10 table-integrity 추가 — 헤더 없이 끊긴 표 행을 잡는다. markdownlint 는 고립 표 행을 표로 인식하지 못해 경고 수가 안 움직인다 (실측: 같은 파일 세 커밋 내리 14 건). 범위는 V6 + 킷 안 docs/**/*.md (210 파일, 오탐 0 확인) |
+| 2026-09-24 | 1.3.1 | 사실 정정 — `--check` 체크 이름 10 개 전부, 출력 예시에 V9 · V10 줄과 실제 요약줄 형식(`Total: N plugins, …`), 수동 수정 표에 V8 · V9 · V10, 킷별 예외 표의 `templates/` 항목 수를 실제 값으로(harness 4 · flutter-toolkit 2 · design-kit 8 · rust-kit 5 · tone-kit 6). 금방 낡는 킷 수 · 카이젠 스킬 수 표기와 부분 킷 목록은 뺐다 |
 
 다음 갱신 예정:
 
