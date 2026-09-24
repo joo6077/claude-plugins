@@ -6,6 +6,37 @@ last_updated: 2026-08-13
 
 # Flutter Kit Research Log
 
+## [2026-09-25] — Phase 5 kaizen
+
+**주제:** 코드 생성 필터 제거와 전후 삭제 수 · widget-inspector 관례 대조 · 위젯 시험 함정 둘 · 카탈로그 타일 높이 ·
+`[미검증]` 네 칸 · 특정 이름 빼기 · 지금 틀린 버전 사실 정정
+
+**외부 조회 0 회.** 이 사이클의 유일한 외부 근거는 `.harness/.meta/evidence/phase5.md` 다. 아래 URL 은 전부 그 파일이 인용한 것이다.
+
+| # | URL | 확인한 사실 |
+| --- | --- | --- |
+| 1 | <https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart> | `--build-filter` 는 공식 옵션이다. 다만 필터 밖의 기존 생성물을 남긴다는 보장은 공식 자료에 없다 |
+| 2 | <https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md> | 2.16 부터 잘못되거나 고쳐진 생성물을 기본으로 고친다. `--delete-conflicting-outputs` 는 제거된 호환 옵션 목록으로 옮겨졌다 |
+| 3 | <https://git-scm.com/docs/git-status> | `--porcelain=v1` 은 스크립트용 고정 형식이고 두 자리 가운데 어느 쪽의 `D` 도 삭제다 |
+| 4 | <https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html> | locale 이 null 이면 시스템 로캘, 지원하지 않으면 `supportedLocales` 첫 항목 |
+| 5 | <https://riverpod.dev/docs/root/do_dont> | 위젯이 provider 를 초기화하지 말고 provider 가 스스로 초기화한다 |
+| 6 | <https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html> | 겹친 스크롤을 하나처럼 움직이게 하는 위젯이 따로 있다 — 저절로는 협조하지 않는다 |
+| 7 | <https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json> | stable 3.47.5 (2026-09-18) |
+| 8 | <https://pub.dev/api/packages/freezed> | stable 4.0.2 — Dart 3.13 · Analyzer 14, 생성자 파라미터 `final` 미지원 breaking |
+
+### 반영
+
+- **codegen 필터 제거 (F06 · flutter:P-F06-codegen-delete-count · user-setup:P1)** — 두 제안의 방향이 갈렸다(조건부 유지 대 전부 제거).
+  킷이 필터를 스스로 붙이지 않는 쪽으로 정했다. 사용자가 프로젝트 전용 필터 명령을 이름으로 부를 때만 쓴다. 킷이 codegen 을
+  직접 돌리는 다섯 자리(run · build · preflight · l10n · transition)는 전후 삭제 수를 매번 센다
+- **관례 대조 (F02 · flutter:P-INSPECTOR-convention)** — widget-inspector 감지 기준 7. 호출 스킬이 넘긴 관례 표만 읽는다
+- **시험 함정 (F24 · flutter:P-TEST-locale-buildmod)** · **카탈로그 타일 높이 (F22 · flutter:P-CATALOG-tile-height)**
+
+### 미반영
+
+- **F25** — 시안 개수는 사용자 결정이 먼저다(근거 파일 §2 F25)
+- **F22 의 겹친 ProviderScope 부분** — 근거 파일에 없다
+
 ## [2026-08-13] — Phase 5 kaizen
 
 **주제:** 버전 사실 정정 3 종 + Primitive Substitution Gate(G1) · Riverpod invalidate 경계(G2) ·
