@@ -45,12 +45,23 @@ user-invocable: true
 
 ### 1. fix
 
-자동 수정 가능한 린트 이슈를 고치고 포맷을 통일한다:
+자동 수정 가능한 린트 이슈를 고치고, 이번에 바뀐 .dart 파일만 포맷한다 (`flutter-run` fix 절과 같은 명령):
 
 ```bash
+# dart fix 는 경로를 하나만 받는다. 파일을 여럿 주면 exit 64
 $DART fix --apply lib/
-$DART format lib/
+CHANGED=$( { git diff --name-only --relative --diff-filter=ACMR HEAD -- '*.dart'
+             git ls-files --others --exclude-standard -- '*.dart'; } \
+           | grep -vE '\.(g|freezed|gr|mocks|config|gen)\.dart$' )
+if [ -n "$CHANGED" ]; then
+  printf '%s\n' "$CHANGED" | tr '\n' '\0' | xargs -0 $DART format --
+else
+  echo "포맷 건너뜀 — 이번에 바뀐 .dart 파일 없음"
+fi
 ```
+
+`lib/` 를 통째로 포맷하지 않는다 — 이번에 손대지 않은 파일까지 바뀌어 커밋 범위가 흐려진다.
+목록이 비면 포맷을 건너뛰고 Report 의 fix 줄에 `포맷 건너뜀 (바뀐 .dart 없음)` 을 적는다.
 
 실패 시 즉시 중단.
 
@@ -97,7 +108,7 @@ $FLUTTER test
 ```text
 Preflight passed
 
-  1. fix     : success
+  1. fix     : success (포맷 N 파일 또는 포맷 건너뜀 (바뀐 .dart 없음))
   2. codegen : success (또는 skipped)
   3. analyze : clean
   4. test    : N passed (또는 skipped)

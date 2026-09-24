@@ -18,17 +18,23 @@
     ```yaml
     # docs-contract
     script: scripts/collect-kaizen-data.py
-    options: ["--hub-dir", "--insights", "--output", "--skip-validate"]
+    options: ["--hub-dir", "--insights", "--output", "--skip-validate", "--usage-data"]
     input_candidates:
       - .claude/kaizen-input/insights-report.md
       - ~/.claude/kaizen-input/insights-report.md
       - ~/.claude/usage-data/report.html
+    usage_data_inputs:
+      - ~/.claude/usage-data/facets
+      - ~/.claude/usage-data/session-meta
     exit_codes: [0, 2]
     ```
 
 스크립트 쪽은 `doc_contract() -> dict` 를 제공한다 (같은 키). 제공하지 않으면 `build_arg_parser()`
 에서 `options` 만 유도하고, 선언에 있는 나머지 키는 **검증 불가**로 보고한다 —
 검증 불가는 통과가 아니다.
+
+스크립트가 내놓은 키를 문서 선언이 빠뜨려도 위반이다. 선언에 없는 키를 건너뛰면 스크립트가
+입력을 늘려도 문서가 따라오지 않은 채 통과한다.
 
 ## 종료 코드
 
@@ -59,7 +65,8 @@ MARKER = "# docs-contract"
 FENCE_RE = re.compile(r"^(?P<indent>[ \t]*)(?P<fence>`{3,}|~{3,})[ \t]*yaml[ \t]*$")
 
 # 선언에서 검증 가능한 키. 여기 없는 키가 선언에 있으면 "알 수 없는 키" 로 보고한다.
-KNOWN_KEYS = {"script", "options", "input_candidates", "exit_codes"}
+KNOWN_KEYS = {"script", "options", "input_candidates", "usage_data_inputs", "exit_codes"}
+COMPARED_KEYS = ("options", "input_candidates", "usage_data_inputs", "exit_codes")
 
 
 class Finding:
@@ -147,6 +154,7 @@ def actual_contract(module, script_rel: str) -> tuple[dict, list[str]]:
     ]
     return {"script": script_rel, "options": sorted(options)}, [
         "input_candidates",
+        "usage_data_inputs",
         "exit_codes",
     ]
 
@@ -158,8 +166,16 @@ def compare(where: str, declared: dict, actual: dict, unverifiable: list[str]) -
     if unknown:
         findings.append(Finding("violation", where, f"알 수 없는 선언 키: {unknown}"))
 
-    for key in ("options", "input_candidates", "exit_codes"):
+    for key in COMPARED_KEYS:
         if key not in declared:
+            if key in actual:
+                findings.append(
+                    Finding(
+                        "violation",
+                        where,
+                        f"`{key}` 를 스크립트가 내놓는데 문서 선언에 없다 — 스크립트 실체 {actual[key]}",
+                    )
+                )
             continue
         if key in unverifiable:
             findings.append(
@@ -172,7 +188,7 @@ def compare(where: str, declared: dict, actual: dict, unverifiable: list[str]) -
             continue
         want = declared[key]
         got = actual.get(key)
-        if key == "options":
+        if key in ("options", "usage_data_inputs"):
             want, got = sorted(map(str, want)), sorted(map(str, got or []))
         elif key == "exit_codes":
             want, got = sorted(map(int, want)), sorted(map(int, got or []))

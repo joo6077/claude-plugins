@@ -11,6 +11,8 @@
   5. scripts/validate-plugin.py 최근 실행 결과 (옵션)
   6. ~/.claude/projects/*/memory/*.md 의 `metadata.type: feedback` 엔트리
      (전 프로젝트 교차 · 관련성·중요도 2 축 선별 → 데이터 풀 §0.5. 읽기 전용)
+  7. ~/.claude/usage-data/facets/*.json 과 짝 session-meta/<id>.json
+     (`/insights` 세션별 원자료 → 데이터 풀 §0 안의 §0-b)
 
 출력:
   .harness/.meta/kaizen-data-pool.md (기본)
@@ -21,6 +23,7 @@ Usage:
   python3 scripts/collect-kaizen-data.py --output /tmp/kaizen-data.md
   python3 scripts/collect-kaizen-data.py --hub-dir ~/Hub/10_Dev
   python3 scripts/collect-kaizen-data.py --insights .claude/kaizen-input/insights-report.md
+  python3 scripts/collect-kaizen-data.py --usage-data <폴더>
 
 문서-스크립트 계약:
   이 스크립트의 인터페이스(옵션 집합 · /insights 입력 후보 · 종료 코드)는
@@ -32,10 +35,12 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import json
 import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
+from collections.abc import Sequence
 from pathlib import Path
 
 try:
@@ -49,25 +54,30 @@ DEFAULT_OUTPUT = REPO_ROOT / ".harness" / ".meta" / "kaizen-data-pool.md"
 DEFAULT_HUB = Path.home() / "Hub" / "10_Dev"
 GLOBAL_FEEDBACK_DIR = Path.home() / ".harness" / "feedback" / "evaluator"
 
-# `/insights` 산출물 입력 후보 — **우선순위 순서**다.
-#
-# 1) 레포 안의 사람이 정리한 델타 분석본 (`.claude/kaizen-input/insights-report.md`)
-# 2) 홈의 같은 이름 (여러 레포가 공유할 때)
-# 3) `/insights` 원본 산출물 (`~/.claude/usage-data/report.html`)
-#
-# 2026-08-13 이전에는 3) 하나만 봤다. 그런데 오케스트레이터 SKILL.md Step 0 은 1)·2) 자동
-# 탐색과 `--insights=PATH` 를 이미 주장하고 있었다 — 문서가 없는 인터페이스를 약속한 상태였고,
-# 그 결과 **사람이 정리한 §0 델타 분석본이 데이터 풀에 들어가지 못했다.**
-# 하위호환: 1)·2) 가 없으면 종전대로 3) 을 쓰고, 셋 다 없으면 §0 에 "(없음)" 을 쓰고 진행한다.
+DEFAULT_USAGE_DATA = Path.home() / ".claude" / "usage-data"
+
+# `/insights` 입력 후보. 순서는 요약본끼리의 우선순위이자 문서 선언 대조용이다.
+# 요약본(.md)과 원본(.html) 사이는 순서로 정하지 않는다 — 고정 순서는 2026-05-07 과
+# 2026-09-24 에 방향만 바꿔 두 번 옛 보고서를 골랐다. 규칙은 resolve_insights_path 가 갖는다.
 INSIGHTS_CANDIDATES: tuple[Path, ...] = (
     REPO_ROOT / ".claude" / "kaizen-input" / "insights-report.md",
     Path.home() / ".claude" / "kaizen-input" / "insights-report.md",
-    Path.home() / ".claude" / "usage-data" / "report.html",
+    DEFAULT_USAGE_DATA / "report.html",
 )
 # 하위호환 별칭 — 기존 코드/문서가 참조하던 이름. 후보 3 번과 같은 값이다.
 INSIGHTS_PATH = INSIGHTS_CANDIDATES[-1]
 INSIGHTS_FRESH_DAYS = 60  # 60일 초과 시 stale 경고
 INSIGHTS_VERY_FRESH_HOURS = 24  # 24시간 이내 = "방금 실행됨" 표시
+HTML_SUFFIXES = (".html", ".htm")
+
+USAGE_DATA_INPUTS: tuple[Path, ...] = (
+    DEFAULT_USAGE_DATA / "facets",
+    DEFAULT_USAGE_DATA / "session-meta",
+)
+# 시험·평가 세션이 도는 자리. 프로젝트 묶음에 섞이면 그 프로젝트 세션 수가 부풀어 보인다.
+TEMP_PATH_PREFIXES: tuple[str, ...] = ("/tmp", "/private/tmp", "/var/folders")
+FACETS_TEMP_GROUP = "(임시 폴더 — 시험 세션)"
+FACETS_NO_KIT = "(킷 언급 없음 — 전 Phase 공통)"
 
 # 종료 코드 — harness/evals/gate-exit-codes.md 가 SSOT 다 (여기서 의미를 재정의하지 않는다).
 DOC_CONTRACT_EXIT_CODES: tuple[int, ...] = (0, 2)
@@ -104,6 +114,7 @@ def doc_contract() -> dict:
         "script": display_path(Path(__file__)),
         "options": sorted(options),
         "input_candidates": [display_path(p) for p in INSIGHTS_CANDIDATES],
+        "usage_data_inputs": [display_path(p) for p in USAGE_DATA_INPUTS],
         "exit_codes": sorted(DOC_CONTRACT_EXIT_CODES),
     }
 
@@ -216,15 +227,67 @@ def _extract_html_text(html: str) -> str:
     return txt.strip()
 
 
-def resolve_insights_path(explicit: Path | None = None) -> tuple[Path | None, list[str]]:
-    """`/insights` 입력 파일을 우선순위대로 고른다.
+_REPORT_NAME_RE = re.compile(r"^report-(\d{4}-\d{2}-\d{2})[^/]*\.html$")
+_ISO_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+_REPORT_PERIOD_RE = re.compile(r"(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})")
 
-    반환: (선택된 경로 또는 None, 후보별 상태 문자열 목록).
-    상태 문자열은 stderr 에 그대로 찍어 "무엇을 봤고 무엇을 골랐는지" 를 남긴다 —
-    조용히 고르면 이번 D1 같은 drift 를 다시 발견하지 못한다.
+
+def newest_report(usage_dir: Path) -> tuple[str | None, datetime.date | None]:
+    """`report-<날짜>-<시각>.html` 중 가장 새 것의 (파일 이름, 파일 이름의 날짜). 없으면 (None, None)."""
+    names = sorted(p.name for p in usage_dir.glob("report-*.html") if _REPORT_NAME_RE.match(p.name))
+    if not names:
+        return None, None
+    return names[-1], datetime.date.fromisoformat(_REPORT_NAME_RE.match(names[-1]).group(1))
+
+
+def _as_date(value: object) -> datetime.date | None:
+    """frontmatter 값에서 날짜를 꺼낸다. YAML 이 date 로 읽든 문자열로 두든 받는다."""
+    if isinstance(value, datetime.datetime):
+        return value.date()
+    if isinstance(value, datetime.date):
+        return value
+    m = _ISO_DATE_RE.search(str(value or ""))
+    if not m:
+        return None
+    try:
+        return datetime.date.fromisoformat(m.group(0))
+    except ValueError:
+        return None
+
+
+def summary_loss_reason(
+    front: dict, newest_name: str | None, newest_date: datetime.date
+) -> str | None:
+    """요약본이 원본에 지는 이유. 이기면 None. `report_file` 이 있으면 그것만 본다."""
+    report_file = str(front.get("report_file") or "").strip()
+    if report_file:
+        name = Path(report_file).name
+        if name == newest_name:
+            return None
+        return f"report_file {name} ≠ 가장 새 보고서 {newest_name or '(report-*.html 없음)'}"
+    generated = _as_date(front.get("generated"))
+    if generated is not None:
+        if generated >= newest_date:
+            return None
+        return f"generated {generated} < 가장 새 보고서 날짜 {newest_date}"
+    return "frontmatter 에 report_file · generated 가 없다 — 어느 보고서를 요약했는지 모른다"
+
+
+def resolve_insights_path(
+    explicit: Path | None = None,
+    candidates: Sequence[Path] | None = None,
+    usage_dir: Path | None = None,
+) -> tuple[Path | None, list[str]]:
+    """`/insights` 입력 파일을 '어느 보고서를 요약했는가' 로 고른다.
+
+    요약본(.md)은 자기가 요약한 보고서가 `usage_dir` 의 가장 새 `report-*.html` 일 때만 원본(.html)을
+    이긴다. frontmatter `report_file` 이 있으면 그 이름으로, 없으면 `generated` 날짜가 가장 새 보고서
+    날짜 이상인지로 가린다. 둘 다 없으면 진다. 원본이 없으면 있는 요약본을 쓴다.
+
+    반환: (선택된 경로 또는 None, 후보별 상태 문자열 목록). 상태 문자열은 stderr 에 그대로 찍는다 —
+    조용히 고르면 옛 요약본이 새 보고서를 가려도 아무도 모른다.
     """
     trace: list[str] = []
-    chosen: Path | None = None
 
     if explicit is not None:
         exists = explicit.is_file()
@@ -234,23 +297,62 @@ def resolve_insights_path(explicit: Path | None = None) -> tuple[Path | None, li
             return None, trace
         return explicit, trace
 
-    for cand in INSIGHTS_CANDIDATES:
-        if chosen is None and cand.is_file():
+    cands = list(INSIGHTS_CANDIDATES if candidates is None else candidates)
+    newest_name, newest_date = newest_report(DEFAULT_USAGE_DATA if usage_dir is None else usage_dir)
+    original = next(
+        (c for c in cands if c.suffix.lower() in HTML_SUFFIXES and c.is_file()), None
+    )
+    if original is not None and newest_date is None:
+        newest_date = datetime.date.fromtimestamp(original.stat().st_mtime)
+    if newest_name:
+        trace.append(f"· 기준  가장 새 보고서 {newest_name}")
+
+    chosen: Path | None = None
+    losses: dict[Path, str] = {}
+    for cand in cands:
+        if chosen is not None or cand.suffix.lower() in HTML_SUFFIXES or not cand.is_file():
+            continue
+        if original is None:
             chosen = cand
-            trace.append(f"✓ 선택  {display_path(cand)}")
-        elif cand.is_file():
-            trace.append(f"· 후순위 {display_path(cand)} (존재하지만 우선순위 낮음)")
+            continue
+        try:
+            front, _ = _memory_split_frontmatter(cand.read_text(encoding="utf-8", errors="replace"))
+        except OSError as exc:
+            losses[cand] = f"읽지 못했다 ({exc})"
+            continue
+        reason = summary_loss_reason(front, newest_name, newest_date)
+        if reason is None:
+            chosen = cand
         else:
-            trace.append(f"✗ 없음  {display_path(cand)}")
+            losses[cand] = reason
+    if chosen is None:
+        chosen = original
+
+    for cand in cands:
+        shown = display_path(cand)
+        if cand == chosen:
+            trace.append(f"✓ 선택  {shown}")
+        elif cand in losses:
+            trace.append(f"· 제외  {shown} — {losses[cand]}")
+        elif cand.is_file():
+            trace.append(f"· 후순위 {shown}")
+        else:
+            trace.append(f"✗ 없음  {shown}")
     return chosen, trace
 
 
-def collect_insights_report(path: Path | None) -> dict | None:
+def _report_period(text: str) -> tuple[str, str] | None:
+    m = _REPORT_PERIOD_RE.search(text)
+    return (m.group(1), m.group(2)) if m else None
+
+
+def collect_insights_report(path: Path | None, usage_dir: Path | None = None) -> dict | None:
     """`/insights` 산출물을 로드한다.
 
-    경로가 None 이거나 읽을 수 없으면 None 반환. 있으면 경로/mtime/content 를 dict 로 반환한다.
-    카이젠 오케스트레이터 Step 0 에서 데이터 풀에 §0 (최상위) 으로 삽입된다.
-    `.md` 는 그대로, `.html` 은 태그를 벗겨서 싣는다.
+    경로가 None 이거나 읽을 수 없으면 None 반환. 카이젠 오케스트레이터 Step 0 에서 데이터 풀 §0
+    (최상위) 으로 삽입된다. `.md` 는 그대로, `.html` 은 태그를 벗겨서 싣는다.
+    관측 기간은 본문의 `YYYY-MM-DD to YYYY-MM-DD` 에서 읽고, 요약본 본문에 없으면 그 요약본이
+    가리키는 원본 보고서(`usage_dir` 안)에서 읽는다.
     """
     if path is None or not path.is_file():
         return None
@@ -259,23 +361,229 @@ def collect_insights_report(path: Path | None) -> dict | None:
     except OSError as exc:
         print(f"WARNING: /insights 후보를 읽지 못했다 — {path}: {exc}", file=sys.stderr)
         return None
-    is_html = path.suffix.lower() in (".html", ".htm")
-    content = _extract_html_text(raw) if is_html else raw
+    is_html = path.suffix.lower() in HTML_SUFFIXES
+    # 요약본의 `##` 제목을 그대로 실으면 §0-b 가 §0 이 아니라 요약본 마지막 절 밑으로 들어간다.
+    content = _extract_html_text(raw) if is_html else _memory_body_excerpt(raw, raw.count("\n") + 1)
     fmt = "html-extracted" if is_html else "markdown"
-    mtime = datetime.datetime.fromtimestamp(path.stat().st_mtime)
-    age_seconds = (datetime.datetime.now() - mtime).total_seconds()
-    age_days = age_seconds / 86400
-    very_fresh = age_seconds < INSIGHTS_VERY_FRESH_HOURS * 3600
+    front = {} if is_html else _memory_split_frontmatter(raw)[0]
+
+    # 워크트리를 새로 만들면 요약본 수정 시각이 체크아웃 순간이 된다 — 8 월 요약본이 VERY FRESH 로 찍혔다.
+    generated = _as_date(front.get("generated"))
+    if generated is not None:
+        dated_at = datetime.datetime.combine(generated, datetime.time.min)
+        age_basis = "frontmatter generated"
+    else:
+        dated_at = datetime.datetime.fromtimestamp(path.stat().st_mtime)
+        age_basis = "파일 수정 시각"
+    age_seconds = (datetime.datetime.now() - dated_at).total_seconds()
+
+    period = _report_period(raw)
+    period_source = "본문" if period else None
+    if period is None and not is_html:
+        usage = DEFAULT_USAGE_DATA if usage_dir is None else usage_dir
+        named = Path(str(front.get("report_file") or "")).name
+        original = usage / (named or "report.html")
+        if original.is_file():
+            period = _report_period(original.read_text(encoding="utf-8", errors="replace"))
+            period_source = f"`{display_path(original)}` 본문" if period else None
     return {
         "path": path,
-        "mtime": mtime.isoformat(timespec="seconds"),
-        "age_days": int(age_days),
+        "dated_at": dated_at.isoformat(timespec="seconds"),
+        "age_basis": age_basis,
+        "age_days": int(age_seconds / 86400),
         "age_hours": round(age_seconds / 3600, 1),
-        "very_fresh": very_fresh,
-        "stale": age_days > INSIGHTS_FRESH_DAYS,
+        "very_fresh": age_seconds < INSIGHTS_VERY_FRESH_HOURS * 3600,
+        "stale": age_seconds / 86400 > INSIGHTS_FRESH_DAYS,
+        "period": period,
+        "period_source": period_source,
         "content": content,
         "format": fmt,
     }
+
+
+def project_group(project_path: str) -> str:
+    """세션 경로를 프로젝트 묶음 이름으로 접는다. 같은 레포의 워크트리·하위 폴더는 한 묶음이다."""
+    if not project_path:
+        return "(경로 없음)"
+    if project_path.startswith(TEMP_PATH_PREFIXES):
+        return FACETS_TEMP_GROUP
+    try:
+        proc = subprocess.run(
+            ["git", "-C", project_path, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        proc = None
+    if proc is not None and proc.returncode == 0 and proc.stdout.strip():
+        return Path(proc.stdout.strip()).parent.name
+    # 지운 워크트리는 git 이 못 연다. 워크트리 꼬리를 떼야 본 레포 묶음에 들어간다.
+    return Path(project_path.split("/.claude/worktrees/")[0]).name or project_path
+
+
+def kit_mentions(text: str, plugin_names: Sequence[str]) -> list[str]:
+    """플러그인 이름이 글자 그대로 나올 때만 잡는다. 비슷한 글자로 맞추면 엉뚱한 Phase 가 행을 가져간다."""
+    return [
+        name for name in plugin_names
+        if re.search(r"(?<![\w-])" + re.escape(name) + r"(?![\w-])", text)
+    ]
+
+
+def marketplace_plugin_names() -> list[str]:
+    path = REPO_ROOT / ".claude-plugin" / "marketplace.json"
+    try:
+        plugins = json.loads(path.read_text(encoding="utf-8")).get("plugins") or []
+    except (OSError, ValueError, AttributeError):
+        return []
+    return [str(p["name"]) for p in plugins if isinstance(p, dict) and p.get("name")]
+
+
+def collect_usage_facets(usage_dir: Path, plugin_names: Sequence[str] = ()) -> dict:
+    """`facets/*.json` 마다 짝 `session-meta/<id>.json` 하나만 연다.
+
+    session-meta 폴더를 따로 훑지 않는다 — 실측 200 개 중 182 개가 facets 없는 평가 세션이었다.
+    못 읽은 파일은 버리지 않고 이름을 모아 둔다.
+    """
+    facets_dir = usage_dir / "facets"
+    meta_dir = usage_dir / "session-meta"
+    result: dict = {
+        "usage_dir": usage_dir,
+        "facets_exists": facets_dir.is_dir(),
+        "report_exists": (usage_dir / "report.html").is_file(),
+        "facets_files": 0,
+        "sessions": [],
+        "broken_facets": [],
+        "missing_meta": [],
+    }
+    if not facets_dir.is_dir():
+        return result
+    for path in sorted(facets_dir.glob("*.json")):
+        result["facets_files"] += 1
+        try:
+            facet = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(facet, dict):
+                raise ValueError("JSON 객체가 아니다")
+        except (OSError, ValueError):
+            result["broken_facets"].append(path.name)
+            continue
+        session_id = str(facet.get("session_id") or path.stem)
+        try:
+            meta = json.loads((meta_dir / f"{session_id}.json").read_text(encoding="utf-8"))
+            if not isinstance(meta, dict):
+                raise ValueError("JSON 객체가 아니다")
+        except (OSError, ValueError):
+            result["missing_meta"].append(path.name)
+            continue
+        raw_friction = facet.get("friction_counts")
+        friction = {
+            str(k): v for k, v in (raw_friction.items() if isinstance(raw_friction, dict) else ())
+            if isinstance(v, int)
+        }
+        goal = str(facet.get("underlying_goal") or "")
+        detail = " ".join(str(facet.get("friction_detail") or "").split())
+        result["sessions"].append(
+            {
+                "id": session_id[:8],
+                "date": str(meta.get("start_time") or "")[:10],
+                "group": project_group(str(meta.get("project_path") or "")),
+                "outcome": str(facet.get("outcome") or "(없음)"),
+                "friction": friction,
+                "friction_detail": detail,
+                "brief_summary": " ".join(str(facet.get("brief_summary") or "").split()),
+                "kits": kit_mentions(f"{goal}\n{detail}", plugin_names),
+            }
+        )
+    result["sessions"].sort(key=lambda s: (s["date"], s["id"]))
+    return result
+
+
+def facets_summary(facets: dict) -> str:
+    """풀과 stderr 가 같은 문장을 쓰게 한 곳에서 만든다."""
+    if not facets["facets_exists"]:
+        return f"(없음) {display_path(facets['usage_dir'])}/facets 가 없다"
+    sessions = facets["sessions"]
+    groups = {s["group"] for s in sessions if s["group"] != FACETS_TEMP_GROUP}
+    temp = sum(1 for s in sessions if s["group"] == FACETS_TEMP_GROUP)
+    broken, missing = len(facets["broken_facets"]), len(facets["missing_meta"])
+    return (
+        f"세션 {len(sessions)} · 프로젝트 묶음 {len(groups)} · 임시 폴더 {temp} · "
+        f"못 읽은 파일 {broken + missing} (깨진 facets JSON {broken} · session-meta 없음·깨짐 {missing})"
+    )
+
+
+def _count_text(counter: Counter) -> str:
+    items = sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))
+    return " · ".join(f"{k} {v}" for k, v in items) or "(없음)"
+
+
+def render_usage_facets(facets: dict) -> list[str]:
+    """데이터 풀 §0 안의 하위 절. `## 0.` 과 `## 0.5` 사이에 들어간다."""
+    lines = [
+        "### 0-b. 세션별 분석 (facets)",
+        "",
+        "§0 보고서와 같은 세션에서 나온 원자료다 — 건수를 §0 과 더하지 마라",
+        "",
+    ]
+    source = display_path(facets["usage_dir"])
+    if not facets["facets_exists"]:
+        return lines + [f"- {facets_summary(facets)}", ""]
+
+    sessions = facets["sessions"]
+    unreadable = facets["broken_facets"] + facets["missing_meta"]
+    lines += [
+        f"- 소스: `{source}/facets/*.json` 과 짝 `session-meta/<id>.json` "
+        "(facets 가 없는 session-meta 는 세지 않는다)",
+        f"- 집계: {facets_summary(facets)}",
+    ]
+    if unreadable:
+        lines.append("- ⚠ 못 읽은 파일: " + ", ".join(f"`{n}`" for n in unreadable))
+    if facets["facets_files"] == 0 and facets["report_exists"]:
+        lines.append("- ⚠ report.html 은 있는데 facets 가 0 개다 — `/insights` 가 세션 분석을 남기지 않았다")
+
+    by_group: dict[str, list[dict]] = defaultdict(list)
+    for s in sessions:
+        by_group[s["group"]].append(s)
+    total_friction: Counter = Counter()
+    total_outcome: Counter = Counter()
+    lines += [
+        "",
+        "마찰 종류 이름은 합치지 않는다 (`environment_issue` 와 `environment_issues` 는 다른 줄이다).",
+        "",
+        "| 프로젝트 묶음 | 세션 | outcome 분포 | 마찰 합계 |",
+        "| --- | --- | --- | --- |",
+    ]
+    for group, members in sorted(by_group.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+        friction: Counter = Counter()
+        outcome = Counter(s["outcome"] for s in members)
+        for s in members:
+            friction.update(s["friction"])
+        total_friction.update(friction)
+        total_outcome.update(outcome)
+        lines.append(
+            f"| {group} | {len(members)} | {_count_text(outcome)} | {_count_text(friction)} |"
+        )
+    lines += [
+        "",
+        f"- 전체 마찰 합계: {_count_text(total_friction)} (합 {sum(total_friction.values())})",
+        f"- 전체 outcome: {_count_text(total_outcome)}",
+        "",
+        "#### 세션별 행",
+        "",
+        "`friction_detail` · `brief_summary` 는 원문이다 (줄바꿈만 공백으로 폈다). "
+        "`언급된 킷` 은 플러그인 이름이 목표·마찰 원문에 글자 그대로 나온 것만 적었다.",
+        "",
+    ]
+    for s in sessions:
+        kits = ", ".join(s["kits"]) or FACETS_NO_KIT
+        lines += [
+            f"- `{s['id']}` · {s['date'] or '(날짜 없음)'} · {s['group']} · "
+            f"마찰 {sum(s['friction'].values())} · 언급된 킷: {kits}",
+            f"  - friction_detail: {s['friction_detail'] or '(없음)'}",
+            f"  - brief_summary: {s['brief_summary'] or '(없음)'}",
+        ]
+    lines.append("")
+    return lines
 
 
 def collect_global_feedback() -> dict:
@@ -1103,6 +1411,7 @@ def render_data_pool(
     validate_output: str | None,
     insights: dict | None = None,
     memory: dict | None = None,
+    facets: dict | None = None,
 ) -> str:
     """수집한 데이터를 마크다운 data pool 로 렌더링한다."""
     now = datetime.datetime.now().isoformat(timespec="seconds")
@@ -1130,11 +1439,17 @@ def render_data_pool(
         else:
             fresh_marker = f" ({insights['age_days']}일 전)"
         fmt_note = " · HTML 추출 텍스트" if insights["format"] == "html-extracted" else " · Markdown 추출본"
+        if insights["period"]:
+            start, end = insights["period"]
+            period_line = f"- 보고서 관측 기간: {start} ~ {end} (출처: {insights['period_source']})"
+        else:
+            period_line = "- 보고서 관측 기간: (본문에서 `YYYY-MM-DD to YYYY-MM-DD` 를 찾지 못했다)"
         lines += [
             "## 0. `/insights` Report (외부 도구 산출물)",
             "",
             f"- 경로: `{rel}`{fmt_note}",
-            f"- 최근 갱신: {insights['mtime']}{fresh_marker}",
+            period_line,
+            f"- 기준 시각: {insights['dated_at']} ({insights['age_basis']}){fresh_marker}",
             "- 모든 Phase 서브에이전트가 **최우선** 참조해야 한다 (Friction Points / Recommended Patterns / Feature Suggestions / 이번 사이클 신규 워크플로우 제안)",
             "",
             "<details><summary>insights report 본문 (auto-extracted)</summary>",
@@ -1152,6 +1467,9 @@ def render_data_pool(
             "- 사용자가 Claude Code CLI 에서 `/insights` 를 실행하면 자동 생성된다.",
             "",
         ]
+
+    if facets is not None:
+        lines += render_usage_facets(facets)
 
     # §0.5: 프로젝트 메모리 (feedback 타입) — **§0 과 §1 사이**에 온다.
     # Phase 서브에이전트가 §0 다음으로 읽는 자리다.
@@ -1373,6 +1691,8 @@ def render_data_pool(
         "각 Phase subagent 는 아래 매핑을 참고하여 자신의 범위에 맞는 섹션을 우선 읽는다. "
         "§0 (/insights) 가 존재할 때는 **모든 Phase** 가 §0 을 최우선 참조한다.",
         "",
+        "§0-b 에서 자기 킷이 언급된 행을 먼저 읽는다. 킷 언급이 없는 행은 전 Phase 공통이다.",
+        "",
         "**모든 Phase 는 §0.5 (프로젝트 메모리) 에서 자기 도메인 그룹을 함께 읽는다.** "
         "그룹 제목의 `[gid]` 가 Phase 대상 킷에 대응한다. 단 `self_inference`·`미분류` "
         "라벨이 붙은 항목은 계약 조건의 PASS 근거로 쓸 수 없다.",
@@ -1424,9 +1744,20 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=None,
         metavar="PATH",
         help=(
-            "/insights 산출물 경로를 명시 지정 (자동 탐색보다 우선). "
-            "생략하면 후보를 우선순위대로 탐색: "
-            + " → ".join(display_path(p) for p in INSIGHTS_CANDIDATES)
+            "/insights 산출물 경로를 명시 지정 (자동 선택보다 우선). "
+            "생략하면 요약본(.md)은 frontmatter report_file 이 --usage-data 의 가장 새 "
+            "report-*.html 일 때(없으면 generated 가 그 날짜 이상일 때)만 원본을 이긴다. 후보: "
+            + " · ".join(display_path(p) for p in INSIGHTS_CANDIDATES)
+        ),
+    )
+    parser.add_argument(
+        "--usage-data",
+        type=Path,
+        default=DEFAULT_USAGE_DATA,
+        metavar="DIR",
+        help=(
+            "/insights 산출물 폴더 — report-*.html · report.html · facets/ · session-meta/ "
+            f"(default: {display_path(DEFAULT_USAGE_DATA)})"
         ),
     )
     return parser
@@ -1434,9 +1765,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_arg_parser().parse_args()
+    usage_dir = args.usage_data.expanduser()
 
-    print("[1/7] /insights 리포트 탐색 중...", file=sys.stderr)
-    insights_path, insights_trace = resolve_insights_path(args.insights)
+    print("[1/8] /insights 리포트 탐색 중...", file=sys.stderr)
+    summaries = [c for c in INSIGHTS_CANDIDATES if c.suffix.lower() not in HTML_SUFFIXES]
+    insights_path, insights_trace = resolve_insights_path(
+        args.insights, [*summaries, usage_dir / "report.html"], usage_dir
+    )
     for line in insights_trace:
         print(f"       {line}", file=sys.stderr)
     if args.insights is not None and insights_path is None:
@@ -1447,29 +1782,35 @@ def main() -> int:
             file=sys.stderr,
         )
         return 2
-    insights = collect_insights_report(insights_path)
+    insights = collect_insights_report(insights_path, usage_dir)
 
-    print("[2/7] 글로벌 feedback 수집 중...", file=sys.stderr)
+    print("[2/8] /insights 세션별 원자료(facets) 수집 중...", file=sys.stderr)
+    facets = collect_usage_facets(usage_dir, marketplace_plugin_names())
+    print(f"       {facets_summary(facets)}", file=sys.stderr)
+    for name in facets["broken_facets"] + facets["missing_meta"]:
+        print(f"       ⚠ 못 읽음  {name}", file=sys.stderr)
+
+    print("[3/8] 글로벌 feedback 수집 중...", file=sys.stderr)
     global_fb = collect_global_feedback()
 
-    print("[3/7] 프로젝트 메모리(feedback) 수집 중...", file=sys.stderr)
+    print("[4/8] 프로젝트 메모리(feedback) 수집 중...", file=sys.stderr)
     memory = collect_memory_feedback()
 
-    print("[4/7] Hub 외부 프로젝트 수집 중...", file=sys.stderr)
+    print("[5/8] Hub 외부 프로젝트 수집 중...", file=sys.stderr)
     hub_projects = collect_hub_projects(args.hub_dir)
 
-    print("[5/7] followup 문서 수집 중...", file=sys.stderr)
+    print("[6/8] followup 문서 수집 중...", file=sys.stderr)
     followups = collect_followup_docs()
 
-    print("[6/7] 현재 레포 sprint-contract 이력 수집 중...", file=sys.stderr)
+    print("[7/8] 현재 레포 sprint-contract 이력 수집 중...", file=sys.stderr)
     local_contracts = collect_recent_local_contracts()
 
     validate_output: str | None = None
     if not args.skip_validate:
-        print("[7/7] validate-plugin 스냅샷 실행 중...", file=sys.stderr)
+        print("[8/8] validate-plugin 스냅샷 실행 중...", file=sys.stderr)
         validate_output = run_validate_plugin()
     else:
-        print("[7/7] validate-plugin 스냅샷 건너뜀 (--skip-validate)", file=sys.stderr)
+        print("[8/8] validate-plugin 스냅샷 건너뜀 (--skip-validate)", file=sys.stderr)
 
     content = render_data_pool(
         global_fb,
@@ -1479,6 +1820,7 @@ def main() -> int:
         validate_output,
         insights,
         memory,
+        facets,
     )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -1493,12 +1835,14 @@ def main() -> int:
         else:
             marker = f" ({insights['age_days']}d ago)"
         print(
-            f"  - /insights 산출물: {insights['path']}{marker} · format={insights['format']}",
+            f"  - /insights 산출물: {insights['path']}{marker} · format={insights['format']}"
+            f" · 나이 기준 {insights['age_basis']}",
             file=sys.stderr,
         )
     else:
         cands = " · ".join(display_path(p) for p in INSIGHTS_CANDIDATES)
         print(f"  - /insights 산출물: 없음 (후보 전부 미존재 — {cands})", file=sys.stderr)
+    print(f"  - facets: {facets_summary(facets)}", file=sys.stderr)
     print(
         f"  - global feedback: {global_fb['total']}개",
         f"(REJECT {global_fb['by_verdict'].get('REJECT', 0)}, "

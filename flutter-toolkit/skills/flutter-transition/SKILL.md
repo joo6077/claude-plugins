@@ -18,6 +18,7 @@ user-invocable: true
 - **auto_route 11.0 breaking changes** — `redirect` 가 `redirectUntil` 로 리네이밍됐고, `navigateNamed` / `pushNamed` 등 deprecated named navigation 메서드가 제거됐다. `.named` 생성자로 codegen 없이 shorthand named route 를 사용할 수 있다. 기존 코드에 `redirect` 가 남아 있으면 컴파일 에러 발생 (출처: <https://pub.dev/packages/auto_route/changelog>)
 - **Flutter 3.44 변경 (현재 stable 은 3.47.0 — 출처: <https://docs.flutter.dev/release/release-notes>)** — page transition builders 재구성이 3.44 에서 실제로 반영됐다. 커스텀 전환 코드가 있으면 업그레이드 시 호환성을 확인하라. 관련 신규/변경: `Hero` 애니메이션 curve 커스터마이징 지원, `CupertinoSheetRoute`(스크롤·드래그 지원) 추가, `showCupertinoSheet` 가 `RouteSettings` 를 받는다 (출처: <https://docs.flutter.dev/release/release-notes>, <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>)
 - **전환 애니메이션은 코드 리딩으로 검증되지 않는다 (`/insights` 2026-07-27 Friction #2)** — 방향·타이밍·커브는 실행해서 봐야 확정된다. 완료 보고 전에 `references/visual-evidence-protocol.md` 를 실행하고, 검증 채널이 없으면 `[미검증]` 을 명시하라. "부드럽게 전환됩니다" 같은 서술은 증거가 아니다
+- **기준 캡처는 편집 전에 찍는다** — `references/visual-evidence-protocol.md` Step 0 · Step 1 · Step 2-1 을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 지금 전환의 캡처 경로)를 응답에 남긴다. 편집한 뒤에는 편집 전 전환을 다시 찍을 수 없다
 
 GoRouter, auto_route, Navigator 기반 커스텀 페이지 전환 애니메이션을 적용한다.
 

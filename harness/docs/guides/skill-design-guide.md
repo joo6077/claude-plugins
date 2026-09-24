@@ -281,7 +281,7 @@ Good: 사용자 "X 함수 수정해" → Claude X 만 수정 → 인접 개선�
 | Enumerate-before-Act | §5.5 | E1 | low-freedom 영역 추정 착수 2 회 재발 → 열거 산출물을 남기는 E2 |
 | Pre-Edit Batch Audit | §3.6 | E2 (승인받는 위반 체크리스트) | 체크리스트 없이 편집 착수 2 회 재발 → 편집 전 audit 산출물 존재를 확인하는 E3 |
 | Rule-by-Rule Audit | §3.6 | E2 (완료 전 대조 리포트) | 완료 보고에 대조 결과 누락 2 회 재발 → 규칙 리스트 자동 대조 스크립트 E3 |
-| Scope-Bound Edits | §3.6 | E1 + Hard-stop 목록만 E3 (훅) | 범위 밖 편집 2 회 재발 → 허용 경로 화이트리스트를 검사하는 E3 |
+| Scope-Bound Edits | §3.6 | E1 + Hard-stop 중 커밋의 대량 삭제·되돌림만 E3 (`harness/scripts/commit-guard.sh`) | 범위 밖 편집 2 회 재발 → 허용 경로 화이트리스트를 검사하는 E3 |
 | Completion Evidence Gate | §3.7 | E2 (`[미검증]` 마커 · 증거 블록) | 증거 없는 완료 주장 재발 → 검증 스크립트 통과 전 완료 차단 E3 |
 | Counterpart Enumeration | §5.5 | E2 (producer/consumer 열거 아티팩트) | 반대편 누락 재발 → 양면 경로 대조 E3 |
 | Variant Budget | §5.6 | E2 (Variant Matrix) | 축 값이 겹치는 variant 재발 → 축 값 비교 스크립트 E3 |

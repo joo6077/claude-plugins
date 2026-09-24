@@ -51,7 +51,7 @@ pubspec.yaml에서 추출:
 |------|----------|-------------------|
 | flutter-run codegen | `$DART run build_runner build --delete-conflicting-outputs` | `$MAKE app-codegen` (또는 `app-codegen-filter FILTER=...`) |
 | flutter-run analyze | `$FLUTTER analyze` | `$MAKE app-analyze` |
-| flutter-run fix | `$DART fix --apply lib/ && $DART format lib/` | `$MAKE app-fix` |
+| flutter-run fix | `$DART fix --apply lib/` 뒤 이번에 바뀐 .dart 파일만 `$DART format --` (`git diff --name-only` 목록 · 생성물 제외 · flutter-run fix 절) | `$MAKE app-fix` |
 | flutter-run test | `$FLUTTER test` | `$MAKE app-test` |
 | flutter-preflight | fix → codegen → analyze → test | `$MAKE app-preflight` |
 | flutter-build | codegen → analyze | `$MAKE app-build` |

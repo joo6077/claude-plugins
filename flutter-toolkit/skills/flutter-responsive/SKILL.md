@@ -14,6 +14,7 @@ user-invocable: true
 
 - breakpoint 값을 하드코딩하지 마라 — 프로젝트에 이미 정의된 breakpoint 상수가 있는지 먼저 확인
 - **breakpoint 양쪽을 각각 캡처해 대조하기 전에는 완료가 아니다 (`/insights` 2026-07-27 Friction #2)** — 넓은 화면만 보고 완료를 선언하면 기존 모바일 레이아웃 회귀를 놓친다. 절차: `references/visual-evidence-protocol.md`. 검증 채널이 없으면 `[미검증]` 을 명시하고 멈춰서 말하라 — 추측 금지
+- **기준 캡처는 편집 전에 찍는다** — `references/visual-evidence-protocol.md` Step 0 · Step 1 · Step 2-1 을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 좁은 폭과 넓은 폭 캡처 경로)를 응답에 남긴다. 편집한 뒤에는 편집 전 레이아웃을 다시 찍을 수 없다
 - LayoutBuilder 안에서 Provider를 watch하면 레이아웃 변경마다 불필요한 리빌드 발생 — Provider는 LayoutBuilder 밖에서 watch
 - **Flutter Web WASM 빌드 시 반응형 폴백** — `flutter build web --wasm` 으로 빌드하면 WasmGC 미지원 브라우저(iOS WebKit 전면, Firefox/Safari 일부)에서 자동으로 JS 렌더러로 폴백한다. 반응형 breakpoint 테스트 시 WASM 과 JS 모드 양쪽에서 레이아웃이 동일한지 확인하라 — 렌더러 차이로 미세한 레이아웃 차이가 발생할 수 있다 (출처: <https://docs.flutter.dev/platform-integration/web/wasm>)
 - **Web Stateful Hot Reload (Flutter 3.38+)** — Web 에서도 Stateful Hot Reload 가 기본 활성화됐다. 반응형 레이아웃 조정 시 브라우저 리사이즈 + hot reload 로 빠른 피드백 루프 가능. `web_dev_config.yaml` 로 CORS 프록시/로컬 SSL 설정도 가능 (출처: <https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228>)

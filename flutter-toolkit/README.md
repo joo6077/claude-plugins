@@ -24,6 +24,7 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 | `flutter-skeleton` | Flutter 화면/페이지의 로딩 상태를 스켈레톤 shimmer로 구현한다. |
 | `flutter-test` | 대상 파일/클래스를 분석하여 Flutter 테스트 코드를 자동 생성한다. |
 | `flutter-transition` | GoRouter, auto_route, Navigator 기반 커스텀 페이지 전환 애니메이션을 적용한다. |
+| `flutter-ui-verify` | Flutter 앱 화면을 실제로 띄워 편집 전·후 캡처를 대조하고 의도와 다르면 스스로 고쳐 다시 찍는다. |
 | `flutter-widget` | 프로젝트 컨벤션에 맞는 새 위젯을 생성한다. |
 <!-- /AUTO:skills -->
 
@@ -34,6 +35,20 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 |----------|------|
 | `widget-inspector` | 프로젝트 코드에서 재사용 가능한 위젯 패턴을 감지하고 리포팅한다. |
 <!-- /AUTO:agents -->
+
+## 훅
+
+`format-edited-dart` (`scripts/format-edited-dart.sh`) — `PostToolUse` 훅. 파일을 고치는 도구(Edit · Write)가 끝나면 방금 고친 `.dart` 파일 하나만 `dart format` 한다.
+
+- 대상은 도구 입력의 `tool_input.file_path` 하나뿐이다. 폴더 통째로 포맷하지 않는다 — 같은 작업 폴더를 다른 세션과 나눠 쓰면 남이 고친 파일까지 바뀐다
+- `.g.dart` · `.freezed.dart` 같은 생성물과, 조상 폴더에 `pubspec.yaml` 이 없는 `.dart` 파일은 건너뛴다
+- 프로젝트에 `.fvmrc` 가 있으면 `fvm dart format` 을 먼저 쓰고, 없으면 `dart format` 을 부른다
+- 끄는 법: 환경 변수 `FLUTTER_TOOLKIT_FORMAT_ON_EDIT=off`
+- 포맷이 실패해도 편집을 막지 않는다 (항상 exit 0)
+
+## 화면 확인
+
+`flutter-ui-verify` 는 UI 스킬을 거치지 않고 화면 코드를 직접 고친 뒤나 사용자가 화면 확인을 요청할 때, 편집 전·후 캡처를 대조하고 의도와 다르면 스스로 고쳐 다시 찍는다(최대 3 회). 절차는 `references/visual-evidence-protocol.md` 를 번호로 따른다.
 
 ## 레퍼런스
 

@@ -41,6 +41,27 @@
 └── history/                   ← 아카이브 (자동)
 ```
 
+## 커밋 안전 훅
+
+`scripts/commit-guard.sh` 가 `hooks/hooks.json` 에 Bash PreToolUse · PostToolUse 로 등록돼 있다. 플러그인을 켜면 모든 프로젝트의 `git commit` 에 걸린다.
+
+커밋 직전(`commit-guard.sh pre`)에 아래 세 가지를 exit 2 로 막는다. 기준은 삭제 50 개 초과다 — 50 개까지는 통과하고 51 개부터 막는다.
+
+| 막는 것 | 판정 |
+| ------- | ---- |
+| 대량 삭제 | 커밋에 실릴 삭제가 50 개를 넘는다. 이름 바꾸기는 세지 않는다. 같은 명령의 `git add -A` · `git add .` · `git add -u` 나 `git commit -a` 가 올릴 작업 폴더 삭제도 더해 센다 |
+| 남의 커밋 되돌림 | 공용 목록(`git add` 로 올려 둔 목록)의 내용이 HEAD 와도 작업 폴더와도 다르고, 작업 폴더는 HEAD 와 같은 파일이 있다. 다른 세션이 커밋한 뒤 옛 내용이 목록에 남은 경우다 |
+| 빈 개인 목록 | `GIT_INDEX_FILE=<경로>` 로 커밋하는데 그 파일이 없거나 비어 있고, 같은 명령에 `git read-tree` 가 없다 |
+
+막을 때는 개수와 상위 폴더 최대 5 개를 보여 주고 파일 이름 전체는 뿌리지 않는다. 경로를 지정한 커밋(`-o`, `-- <경로>`)과 병합 · 골라담기 · 되돌리기 도중의 커밋은 검사하지 않는다.
+커밋 직후(`commit-guard.sh post`)에는 방금 커밋의 삭제가 50 개를 넘으면 `git reset --soft HEAD~1` 을 권하는 알림만 남기고 막지 않는다.
+
+의도한 삭제라면 개수와 폴더를 사용자에게 보여 주고 승인을 받은 뒤에만 `HARNESS_COMMIT_GUARD=off git commit …` 처럼 명령 앞에 붙인다. 셸 환경변수로 `HARNESS_COMMIT_GUARD=off` 를 두면 훅 전체가 꺼진다.
+
+사용자 전역 훅(`~/.claude/settings.json` 에 등록한 훅)은 그 사람 기계에만 있고 올려 둔 목록을 보여 주기만 하는 것이 많다. 이 훅은 플러그인과 함께 설치되고 사고 형태를 직접 세어 막는다.
+
+jq 가 없으면 검사를 못 했다는 알림만 내고 통과시킨다. 시험은 `bash harness/evals/hooks/commit-guard-test.sh` 다.
+
 ## 글로벌 피드백 시스템
 
 스프린트 계약 완료·QA 평가 완료 시 피드백을 OS별 글로벌 경로(`~/.harness/feedback/`)에 자동 저장한다.

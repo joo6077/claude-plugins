@@ -52,6 +52,8 @@ ARCH에 따라 대상 경로를 결정한다:
 - 네이밍 관습: `Screen` vs `Page` vs `View` 접미사
 - Widget base class: `ConsumerWidget`, `HookConsumerWidget`, `StatelessWidget` 등
 
+**편집 전 확정** — 기준 캡처는 편집 전에 찍는다. `references/visual-evidence-protocol.md` Step 0 · Step 1 · Step 2-1 을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 기준 캡처 경로)를 응답에 남긴다. 기존 화면을 고치는 요청이면 이 결과를 남기기 전에는 5 단계로 가지 않는다. 새 화면이면 기준 캡처 칸에 `신규` 라고 적는다.
+
 ### 3. 사용자 확인
 
 다음을 확인한다:

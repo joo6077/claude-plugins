@@ -35,7 +35,7 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 - **개선안의 severity 편향 방지** — evaluator가 REJECT threshold를 낮추는 방향으로만 개선하면 "모든 구현이 APPROVE"가 되어 QA 의미가 사라진다. 개선안 적용 전후로 최근 10건의 판정 분포(APPROVE/REJECT 비율)를 비교하고, APPROVE 비율이 90%를 초과하면 threshold 완화가 아닌 다른 축 개선을 우선해라.
 - **Cross-Surface Parity 전파 확인** — qa-evaluation-guide 신규 원칙(Binary Decidability Pre-Check / `[미검증]` 프로토콜 / Sibling Enumerated / L3 Coverage Honesty) 을 수정할 때 skill-design-guide §11 · agent-design-guide §12 · contract-design-guide §Cross-Surface Parity 에 대응 parity item 이 존재하는지 `grep -n "Parity Item" harness/docs/guides/*.md` 로 확인하라. 누락 surface 는 관련 Phase(1 또는 2)로 DEFERRED.
 - **L3 Coverage Honesty 회귀 체크** — 최근 10건 글로벌 피드백(evaluator/ YAML)에서 `[샘플링-N/전체-M]` 태그가 명시된 비율을 측정해라. 30% 초과가 태그 **누락** 상태면(= 전수 검증 주장했는데 실제로는 샘플링) L3 Coverage Honesty 원칙 강화를 이번 사이클 최우선 개선 대상으로 승격. QA 검증 증거 인플레이션을 조기 차단하기 위함 (qa-evaluation-guide §L3 Coverage Honesty 2026-04 추가).
-- **`/insights` 3대 마찰점 반영 체크리스트** — 카이젠 개선안 draft 시 `.claude/kaizen-input/insights-report.md §Friction Points` 를 대조하여 (1) Proactive quality gaps (Rule-by-Rule Audit 강화), (2) Wrong approach (enumerate-before-act 검증 단계 추가), (3) Session truncation (평가 체크포인트 분할) 중 해당 항목을 improvements 목록에 mapping 해라. 해당 없으면 "N/A — 예방적 개선" 명시.
+- **`/insights` 마찰 항목 대조** — 카이젠 개선안 draft 시 데이터 풀(`.harness/.meta/kaizen-data-pool.md`) §0 의 마찰 항목(§0 본문과 §0-b 세션별 마찰)을 대조해 해당 항목을 improvements 목록에 짝지어라. 요약본 파일을 직접 읽지 마라 — 어느 보고서를 요약한 것인지는 수집기가 가린다. 해당 없으면 "N/A — 예방적 개선" 명시.
 - **평가자 자기순환 방지** — qa-evaluator.md 를 개선하는 Phase 에서 DRAFT 평가는 반드시 **현재(구) 버전** evaluator 로 수행한다. 개선된 버전으로 자기 자신을 QA 하면 self-preference bias (arxiv 2410.21819) 발생. 기존 Gotcha 재강조.
 
 ## 개선 대상
