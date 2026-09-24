@@ -1,129 +1,214 @@
 ---
 phase: 2
-title: Phase 2 Contract — 확보된 외부 근거 + 실측 결함
-collected: 2026-08-13
-method: codex (foreground 회수)
-note: 이 파일이 Phase 2 의 유일한 외부 근거다. 추가 외부 조회 금지. 여기 없는 URL·수치를 지어내지 마라.
+title: "Phase 2 contract — 확보된 외부 근거"
+collected: 2026-09-24
+method: codex (foreground, 직접 호출 · gpt-5.6-sol · 조회는 curl/gh)
+inputs: 처리 배정표(.claude/kaizen-input/insights-report.md)의 Phase 2 행 · phase-research-templates.md Phase 2 필수 출처 · 현행화 점검
+note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 새로 찾지 마라. 여기 없는 URL·수치를 지어내지 마라. 없으면 미반영으로 남긴다.
 ---
 
-## 0. 먼저 확인할 것
+읽기 전용으로 조사했으며 레포 파일은 만들거나 수정하지 않았다.
 
-`harness/references/contract-schema.md` 의 **실제 현재 버전**을 파일에서 읽어 확인하라.
-로컬 관측은 **v5.2** 다. 문서 어딘가에 v4 로 적힌 곳이 있으면 그것이 drift 다.
+## 1. 출처 목록
 
-## 1. 실측 결함 (데이터풀 §1, 2026-08-11~12 — 이번 사이클 최대 신호)
+실제로 조회한 자료만 적었다.
 
-### F1. 산문 조건과 측정문이 서로 다른 것을 잰다
+### 필수 소스
 
-improvement 원문:
+1. [Li et al., LLMs-as-Judges: A Comprehensive Survey, arXiv 2412.05579v2](https://arxiv.org/abs/2412.05579)
+2. [Kim et al., An Empirical Study of LLM-as-a-Judge, arXiv 2506.13639v1](https://arxiv.org/html/2506.13639v1)
+3. [Gherkin Best Practices](https://github.com/andredesousa/gherkin-best-practices)
+4. [Tjong, Avoiding Ambiguity in Requirements Specifications](https://cs.uwaterloo.ca/~dberry/FTP_SITE/tech.reports/TjongThesis.pdf)
 
-> "[AR-04] 계약-측정-불일치 — 조건 프로즈(화이트리스트 12항목)와 측정 필드(5개 무관 디렉토리 grep)의
-> 커버리지 갭. 측정 필드에 화이트리스트 개별 대조를 포함시켜라"
+### 공식 문서·현행화 소스
 
-### F2. 경로 화이트리스트 위반 5건 연속 + 계약 자기편집
+5. [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference/)
+6. [POSIX.1-2024 `command`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html)
+7. [POSIX.1-2024 `PATH`](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap08.html)
+8. [zsh Array Parameters](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters)
+9. [GNU Bash Arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html)
+10. [GNU Coreutils `date`](https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html)
+11. [Claude Code Skills](https://code.claude.com/docs/en/skills)
+12. [Claude Code Plugins Reference](https://code.claude.com/docs/en/plugins-reference)
+13. [jq 1.8.2 릴리스](https://github.com/jqlang/jq/releases/tag/jq-1.8.2)
+14. [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
 
-- "AR-04: 계약 명시 5개 pathspec 밖에 위치"
-- "AR-04: 허용 경로 밖 (1건)"
-- "AR-04: git show --name-only 결과가 계약이 enumerate 한 3개 경로 밖에 있다 — 리터럴 위반"
-- **"AR-04: 계약 write-once 위반 — 생성자가 자신이 만든 산출물을 사후에 허용하려 계약 AR-04 조건 문구를
-  직접 편집(5→7 경로, 사이드카/사용자 승인 앵커 없음)"**
+## 2. 항목별 관찰 사실
 
-직전 사이클이 amendment 사이드카를 도입했는데도 발생했다.
-**왜 사이드카가 쓰이지 않았는지 근본원인을 규명하라.** 문장 추가로는 6번째 재발이 난다.
+### harness:P03 — 면제는 값에만, 준비 단계는 봉인 전 실행
 
-### F3. 조합 케이스 수를 사람이 타이핑해서 틀린다
+- POSIX에서 `PATH`는 실행 파일을 찾을 경로 접두 목록이며 앞에서부터 검색한다. `command -v`는 현재 셸 환경에서 사용할 경로나 명령을 출력하고, 찾지 못하면 출력하지 않으며 0보다 큰 종료 상태를 반환한다. 따라서 `PATH` 축소와 `command -v`는 “도구 부재 전제”를 구현 전에 직접 확인하는 정당한 방법이다. 다만 **빈 출력뿐 아니라 종료 코드도 같이 기록해야 한다**. [POSIX `PATH`](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap08.html), [POSIX `command -v`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html)
 
-- "3 visibility x 6 relation = 18 케이스 중 15케이스(5 relation)만 재현. GroupMemberAndFollower 관계 전체 누락"
-- "16종 매핑 단위 테스트 커버리지 부족 (2종만 검증)"
-- improvement: "audience_matrix.rs 의 6 relation 을 feed_integration.rs 가 상수/enum 으로 재사용해
-  6 author x 3 visibility = 18 을 기계적으로 순회하게 만들면 수 불일치 재발 방지"
+- 반대·한계: `command -v`는 외부 실행 파일만이 아니라 셸 내장·예약어·함수도 보고할 수 있다. 단순한 `PATH` 축소가 모든 명령 종류를 숨긴다는 일반화는 틀리다. `jq`처럼 외부 유틸리티임이 확실한 대상에는 적합하지만, 일반 도구에는 출력의 종류까지 확인해야 한다. [POSIX `command -v`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html)
 
-### F4. QA 모호성 태그가 계약 작성 단계로 되먹여지지 않는다
+- 레포 실측 근거도 방향이 같다. 2026-09-22에는 따옴표 없는 셸 변수가 파일을 못 찾은 오류를 `2>/dev/null`이 삼켜 0처럼 보이게 했다. 즉 기대 “값”과 별개로 입력 경로·대상 수·명령 성공 여부를 먼저 검증해야 했다. [skill-design-guide.md:325](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:325)
 
-improvement 태그로 반복 등장: `측정-수단-부재`, `측정-방식-불일치`, `측정-환경-오염`,
-`측정-산출물-부재`, `검증경로-미기재`, `측정-중복`.
+- 추론: 스키마 면제를 “구현이 만들 값”으로 한정하고, PATH·파일 경로·환경변수·빈 입력 구성 같은 준비 단계는 면제하지 않는 설계가 외부 명령 의미와 잘 맞는다.
 
-### F5. write-once 원문이 amendment 로 대체된 채 남는다
+### harness:P05 — 알려진 답 대조와 zsh 배열
 
-> "[LG-02, LG-04] write-once 계약 원문이 amendment 로 대체된 채 남아있다 — 다음 계약 작성 시 확정 문구 반영 권장"
+- LLM-as-Judge 실험에서 평가 기준이나 참조 답을 제거하면 인간 판정과의 상관이 낮아졌다. GPT-4o에서는 기본 설정 0.666에서 기준 제거 시 0.591, 참조 답 제거 시 0.638로 낮아졌다. 작은 알려진 답을 측정 스크립트의 참조 오라클로 쓰는 방향과 일치한다. [arXiv 2506.13639](https://arxiv.org/html/2506.13639v1)
 
-## 2. 확보된 외부 근거
+- 이 논문이 직접 입증한 것은 LLM 평가 설계다. “2~3줄 fixture가 모든 셸 측정 스크립트에 최적”이라는 수치까지 입증하지는 않는다.
 
-### F1 — 확립된 이름과 기법
+- 반대·보정: 알려진 입력에서 0이 나왔다고 해서 반드시 “스크립트 결함”만 있는 것은 아니다. fixture가 비영점 결과를 실제로 유발하지 못했을 수도 있다. 문구는 “통과가 아니라 **스크립트 또는 fixture 결함**”이 더 정확하다.
 
-단일 용어보다 `requirements traceability gap` / `verification method mismatch` /
-`verification-validation mismatch` 에 가깝다.
+- zsh 일반 배열은 기본적으로 1부터 번호를 매기고 `${arr[0]}`은 빈 문자열이다. 단, `KSH_ARRAYS` 옵션을 켜면 0부터 센다. [zsh 공식 문서](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters)
 
-- NASA 는 요구사항마다 검증 접근을 식별하고, 각 `shall` 을 고유 ID 와 source 에 연결한
-  **verification matrix** 를 요구한다. 또한 trace 가 parent requirement 를 **"fully addresses"** 하는지
-  **독립적으로 평가**하라고 한다.
-  <https://www.nasa.gov/reference/appendix-d-requirements-verification-matrix/>
-  <https://www.nasa.gov/reference/6-2-requirements-management/>
-- LLM judge 문헌도 평가 입력을 `evaluation criteria` / `reference` / `item` 으로 분리하고,
-  criteria·reference 누락이 신뢰도를 낮춘다고 본다.
-  <https://arxiv.org/html/2412.05579>
-  <https://arxiv.org/html/2506.13639v1>
+- Bash indexed array는 0부터 센다. `"${name[@]}"`는 각 원소를 별도 단어로 확장한다. [GNU Bash Arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html)
 
-### F2 — baseline + change control
+- 추론: 두 셸을 함께 지원하는 코드에서는 첨자 기반 순회를 피하고 `for x in "${arr[@]}"`를 사용하는 권고가 타당하다. 다만 문장은 “zsh 기본 옵션에서는 1부터”라고 써야 예외가 정확히 드러난다.
 
-- NASA: established requirements baseline 변경은 **change request 로 평가하고 change board/CCB
-  승인 후** 반영. <https://www.nasa.gov/reference/6-2-requirements-management/>
-- IEEE 830 은 **ISO/IEC/IEEE 29148 로 대체**되었다.
-  <https://standards.ieee.org/ieee/830/1222/>
-  <https://www.iso.org/standard/72089.html>
+### harness:P06 — 작업 크기에 맞는 조건 수와 N/A
 
-### F3 — 조합 커버리지
+- Gherkin 커뮤니티 가이드는 시나리오를 가능한 짧게 하고, 한 시나리오에서 여러 규칙을 동시에 시험하지 말며, When–Then 쌍이 여러 개면 분리를 검토하라고 한다. 기능 파일이 커지면 하위 기능으로 나누라고도 권한다. [Gherkin Best Practices](https://github.com/andredesousa/gherkin-best-practices)
 
-- NIST ACTS / Combinatorial Testing 은 t-way 조합 커버리지와 covering array 를 공식적으로 다룬다.
-  combinatorial coverage 는 statement/branch coverage 와 **다른** 정적 test-set 속성이다.
-  <https://csrc.nist.gov/Projects/automated-combinatorial-testing-for-software/faqs>
-  <https://www.nist.gov/publications/combinatorial-coverage-measurement>
-- Gherkin: 한 시나리오에 one When-Then pair.
-  <https://github.com/andredesousa/gherkin-best-practices>
+- 같은 가이드는 step 수에 절대 상한을 두지 않고 “reasonable value”, 예시로 Given/When/Then당 2~3개의 `And` 정도를 제시한다. conjunctive step 분리도 의무 규칙은 아니라고 명시한다. 따라서 “조건은 작업 크기에 비례하되 고정 총량을 기계적으로 강제하지 않는다”는 방향은 지지되지만, `1~3개`라는 정확한 기능 조건 수는 내부 정책이다. [Gherkin Best Practices](https://github.com/andredesousa/gherkin-best-practices)
 
-### F4 — 모호성 분류
+- Cucumber 공식 문서는 Given을 초기 상태, When을 사건·행동, Then을 기대 결과로 정의하지만, 여러 Given·Then을 `And`/`But`로 연결하는 것도 정식 문법으로 허용한다. “one When–Then pair”는 공식 Gherkin 표준이 아니라 커뮤니티 설계 휴리스틱이다. [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference/)
 
-- Tjong/Berry 는 lexical / syntactic / semantic ambiguity 를 분류하고 guiding rules 를
-  **inspection checklist** 로 쓸 수 있다고 한다.
-  <https://cs.uwaterloo.ca/~dberry/FTP_SITE/tech.reports/TjongThesis.pdf>
-- SREE 는 ambiguity indicator corpus 를 lexical scan 으로 잡고, lexical scope 에서 **100% recall 을
-  목표로 하되 사람이 false positive 를 판단**한다.
-  <https://cs.uwaterloo.ca/~dberry/ambig.in.RSs.html>
-- Tjong/Berry 분류를 그대로 acceptance criteria contract schema 로 전환한 1차 선례는 **미확인**.
-  인접: AmbiTRUS 2025 <https://www.sciencedirect.com/science/article/abs/pii/S0164121225000251>
+- LLM 평가 연구에서는 모든 중간 점수 설명보다 양끝 점수 설명만 둔 구성이 인간 평가와 가장 높은 상관을 보이면서 일관성을 유지했다. 더 많은 기준 설명이 항상 더 신뢰성 높다는 근거는 아니다. [arXiv 2506.13639](https://arxiv.org/html/2506.13639v1)
 
-## 3. 제안된 스키마 조항 (초안 — 우리 체계에 맞게 재작성하고, 과잉이면 줄여라)
+- 레포에는 실제 충돌이 있다. Gotcha는 안티패턴 최소 2개를 강제하지만, Step 3과 스키마는 `AP-00: N/A (사유)`를 허용한다. [sprint-contract/SKILL.md:38](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:38), [sprint-contract/SKILL.md:498](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:498)
 
-- 각 조건에 `condition_id`, `intent_claims[]`, `required_targets[]`, `measurement.targets[]`,
-  `measurement.command`, `precondition`, `coverage_relation: exact|superset|subset`, `evidence_artifact`.
-- E3 게이트가 `required_targets - measurement.targets == ∅` 를 **계산**한다.
-  산문이 화이트리스트 12개면 측정도 12개를 전부 포함하거나, 상위 패턴이 12개를 덮는다는 **확장 결과**를 출력.
-- `measurement.command` 는 파싱 가능한 구조. free text grep 금지. pathspec / exclude / expected set 분리 필드.
-- path whitelist 는 `scope_allowlist` 로 **단일 관리**. `git diff --name-only` 결과가 밖이면 즉시 FAIL.
-- 계약 최초 저장 시 `locked_at`, `baseline_sha256`, `author_session`, `allowed_paths_hash` 기록.
-  구현 시작 후 본문 수정 금지 — 본문을 고쳐 allowlist 를 늘려도 `baseline_sha256` 이 깨져 FAIL.
-- amendment 는 **`narrowing` 만 자동 적용**. `relaxing`/`unknown` 은 PASS 근거 금지 + 사용자 재승인 필요.
-- 조합 조건은 `factors` 블록으로 선언하고 generator 가 케이스를 산출. `cases_total` 수기 입력 금지.
-- QA taxonomy 4종을 조건 작성 preflight 로 승격:
-  `missing_measurement` / `oracle_mismatch` / `environment_contamination` / `missing_evidence_artifact`.
+- 추론: 자동 포함 RE 2개·DG 4개와 형식상 필요한 `N/A` 줄은 기능 크기 지표에서 빼고, 4축 복잡도 결과에 따라 기능 조건만 1~3개부터 확장하는 방식이 더 일관된다. 정확한 구간 자체에는 외부 정량 근거가 없다.
 
-## 4. 넣지 말아야 할 것 (명시적 금지)
+### harness:P08 — `created`·`Evaluated` 시각을 명령 출력에서 취득
 
-- "측정이 조건 의도를 커버하는지 확인하라" 같은 Gotcha 한 줄 추가
-- LLM 에게 "모호한가?" 만 묻는 게이트
-- `conditions:` 처럼 사람이 숫자를 옮겨 적는 필드
-- `relaxing` amendment 를 조용히 최신 계약으로 간주하는 규칙
-- path whitelist 를 자연어 문장과 grep 명령 양쪽에 중복 관리하는 구조
+- GNU `date`는 현재 날짜와 시간을 출력하며 `date [+format]` 형식을 지원한다. 따라서 `date '+%Y-%m-%d %H:%M'` 출력 전사는 손으로 짐작한 시각보다 재현 가능한 절차다. [GNU Coreutils `date`](https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html)
 
-## 5. 트레이드오프 (반영하라)
+- OWASP는 로그 시각과 실제 사건 시각이 다를 수 있다고 구분하며, 서버·장치 간 시각 동기화 또는 시간 오프셋·신뢰도 기록을 권한다. 이는 AskUserQuestion의 **호출 시각이 아니라 답변 시각**을 동의 시각으로 쓰는 내부 제안과 부합한다. [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
 
-계약 작성 비용이 오른다. 조합 게이트를 작은 변경에도 강제하면 과잉 절차다.
-권장 기준: **"2개 이상 축의 곱이 조건 의미를 결정할 때만 필수"**.
-lexical ambiguity linter 는 false positive 가 많아 자동 판정기가 아니라
-"검출기 + 사람의 해소 기록" 으로 써야 한다.
+- 반대·한계: `date '+%Y-%m-%d %H:%M'`만으로는 시간대와 초가 사라진다. 현재 스키마와의 호환을 위해 그 형식을 유지할 수 있지만, 서로 다른 시간대의 기록을 비교한다면 오프셋을 가진 원본 타임스탬프도 보존해야 한다. [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
 
-## 6. 열린 질문 (계약에 결정 근거를 남겨라)
+- 현재 스키마는 이미 동의 앵커의 두 번째 출처로 세션 기록의 AskUserQuestion 쌍과 답변 시각을 규정하지만, 평가자 정의에는 prompt-log만 남아 있다. [contract-schema.md:989](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:989), [qa-evaluator.md:693](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:693)
 
-- path whitelist 판정 기준을 `working tree` / `staged` / `branch diff` 중 무엇으로 고정할지.
-- `relaxing` amendment 승인 주체를 사용자 명시 승인으로 할지, reviewer 확인까지 요구할지.
-- 조합 full Cartesian 과 pairwise 의 기본값을 복잡도별로 나눌지.
+### user-setup:P5 — 셸 이식성 규약
+
+- 권장 문장의 핵심은 공식 문서와 일치한다. zsh 기본 배열은 1-base, Bash indexed array는 0-base다. [zsh 배열](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters), [Bash 배열](https://www.gnu.org/software/bash/manual/html_node/Arrays.html)
+
+- 보정 권고: “zsh 배열은 1부터” 대신 “**zsh 일반 배열은 기본 옵션에서 1부터**”라고 적는다. `KSH_ARRAYS`에서는 0-base이기 때문이다.
+
+### F11 — 한 줄 변경에 무거운 절차
+
+- P06과 같은 근거다. 짧고 단일 규칙인 시나리오를 선호하고 큰 시나리오는 분리하라는 가이드는 규모 비례 절차를 지지한다. 다만 정확한 조건 수는 규정하지 않는다. [Gherkin Best Practices](https://github.com/andredesousa/gherkin-best-practices)
+
+- “사용자가 할 일: 없음/한 줄” 끝맺음에 직접 대응하는 외부 근거는 이번 조회에서 찾지 못했다.
+
+### F12 — 실행하지 않은 검증 명령을 계약에 기재
+
+- P03과 동일하다. `command -v`와 종료 상태는 준비 전제를 직접 확인할 수 있는 표준 수단이다. [POSIX `command`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html)
+
+- 명확한 평가 기준과 참조 답이 판단 신뢰성에 중요하다는 연구도 “명령 문자열 존재”보다 실행 결과를 기준으로 삼는 방향과 맞는다. [arXiv 2506.13639](https://arxiv.org/html/2506.13639v1)
+
+### F13 — 짐작한 시각으로 REJECT
+
+- P08과 동일하다. 시각은 사건 시각과 기록 시각을 구분해 수집해야 하며, 출력 또는 로그 기록에서 얻는 편이 낫다. [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
+
+### F17 — 측정 스크립트 자체 버그
+
+- 알려진 답과 평가 기준을 함께 주는 것이 판정 신뢰성을 높였다는 실험은 known-answer 대조의 방향을 지지한다. [arXiv 2506.13639](https://arxiv.org/html/2506.13639v1)
+
+- zsh와 Bash의 배열 시작 첨자가 실제로 다르므로, 첨자 반복을 피하라는 수정은 직접 근거가 있다. [zsh 배열](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters), [Bash 배열](https://www.gnu.org/software/bash/manual/html_node/Arrays.html)
+
+### F21 — 필요한 도구가 없을 때 Step 0에서 멈춤
+
+- POSIX `command -v`는 도구 부재를 출력 없음과 비영 종료 상태로 판정할 수 있게 한다. [POSIX `command`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html)
+
+- “첫 줄에 알리고 즉시 멈춘다”는 UX 정책 자체를 뒷받침하는 직접 근거는 이번 조회에서 찾지 못했다.
+
+- 추론: 도구가 이후 전 단계의 필수 전제라면 fail-fast가 맞다. fallback이 가능한 도구라면 즉시 중단보다 가용 기능과 불가능 기능을 구분하는 편이 기존 3단계 fallback 정책과 더 일관된다.
+
+### F27 — 스스로 검증하는 계약
+
+- LLM-as-Judge 설문은 judge 시스템을 기능·방법론·적용·메타평가·한계의 다섯 관점으로 다뤄, 평가자 자체의 메타평가가 별도 문제임을 명시한다. [arXiv 2412.05579](https://arxiv.org/abs/2412.05579)
+
+- 신뢰성 실험은 평가 기준과 참조 답을 빼면 인간 판정 정합성이 낮아지고, 명확한 기준이 있을 때 추가 CoT의 이득은 작다고 보고한다. 조건별 명령·기대 출력·종료 코드와 결정론적 검사기를 우선하는 방향을 지지한다. [arXiv 2506.13639](https://arxiv.org/html/2506.13639v1)
+
+- 반대·한계: 이 연구는 계약 검사기의 특정 단계 수나 기능 조건 수를 검증한 것이 아니다. 그런 숫자는 내부 경험 정책으로 표시해야 한다.
+
+## 3. 현행화 — 낡은 곳
+
+### 외부 도구·표준
+
+| 위치 | 현재 값 | 최신 확인 값 | 판정 |
+|---|---|---|---|
+| [skill-design-guide.md:10](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:10) | “Anthropic 공식 문서(2026-04 최신)” | 현재 Skills 문서는 최소 Claude Code v2.1.273까지의 동작을 기술하고, 새 `arguments`, `${CLAUDE_SKILL_DIR}`, `${CLAUDE_PROJECT_DIR}` 등의 규약을 포함한다. [Claude Code Skills](https://code.claude.com/docs/en/skills) | **낡음**. “2026-04 최신”이라는 최신성 표시는 제거하거나 조회일 2026-09-24로 갱신해야 한다. |
+| [sprint-contract/SKILL.md:74](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:74) | `$N = $ARGUMENTS[N]`, 누락된 indexed argument는 그대로 남고 `\\$1`로 literal escape | 현행 공식 문서도 동일 | 최신. [Claude Code Skills](https://code.claude.com/docs/en/skills) |
+| [qa-evaluator.md:1223](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1223) | `${CLAUDE_PLUGIN_ROOT}`는 설치 디렉터리 절대경로 | 현행 공식 문서도 동일 | 최신. [Plugins Reference](https://code.claude.com/docs/en/plugins-reference) |
+| [harness/README.md:63](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/README.md:63) | jq 버전 미지정 | 최신 확인 안정 릴리스 `jq-1.8.2`, 2026-06-20. 보안 수정 다수 포함 | 낡은 버전 표기는 없지만 최소 버전 정책도 없다. [jq 1.8.2](https://github.com/jqlang/jq/releases/tag/jq-1.8.2) |
+| contract/schema 셸 스니펫 | zsh 기본 1-base 가능성을 아직 명시하지 않음 | zsh 기본 1-base, `KSH_ARRAYS`에서는 0-base; Bash는 0-base | **규약 누락**. [zsh](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters), [Bash](https://www.gnu.org/software/bash/manual/html_node/Arrays.html) |
+
+이번 범위에서 폐기된 POSIX `command -v`, `${arr[@]}`, `date +format`, `${CLAUDE_PLUGIN_ROOT}`, `$ARGUMENTS[N]` 사용은 발견하지 못했다.
+
+### 같이 고쳐야 할 내부 버전 드리프트
+
+외부 버전 문제는 아니지만 Phase 2 편집 시 그대로 두면 문서 정합성이 깨진다.
+
+- [contract-design-guide.md:1293](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:1293): Schema version `v5.3` → 현재 스키마 선언은 [contract-schema.md:1126](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:1126)의 `v5.4`.
+- [qa-evaluator.md:1217](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1217): contract-design-guide `v4` → 실제 frontmatter는 [contract-design-guide.md:3](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:3)의 `v5.0`.
+- [contract-schema.md:817](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:817)에는 “v5.5 추가”가 있으나 같은 파일의 현재 버전은 `v5.4`다. 버전 bump 누락인지 미래 버전 라벨 오기인지 결정이 필요하다.
+
+## 4. 권장안
+
+Phase 2 계약 조건으로 삼을 만한 것은 다음과 같다.
+
+1. **봉인 전 준비 단계 실행을 E2 증거로 요구한다.**
+
+   - 면제 대상은 구현이 만들 결과값뿐이다.
+   - PATH, 파일 경로, 환경변수, 설치 위치, 빈 입력 구성은 봉인 전 실행한다.
+   - 출력과 종료 코드를 함께 기록한다.
+   - 자기진단에 `measure_premise_unrun`을 추가한다.
+   - 2026-09-22 사례는 “따옴표 없는 변수가 대상 파일을 못 찾았고 오류 억제가 이를 0으로 위장했다”로 쓰는 것이 확인된 레포 사실과 맞다.
+
+2. **비영 측정 스크립트에 known-answer 대조를 요구한다.**
+
+   - 손으로 셀 수 있는 2~3줄 입력, 기대값, 실제값, 종료 코드를 나란히 적는다.
+   - 불일치나 0은 통과가 아니라 “스크립트 또는 fixture 결함”으로 둔다.
+   - 조건 패턴 표와 skill-design-guide 생성 측 규칙에 같이 착지시킨다.
+
+3. **zsh 문장은 예외를 포함해 쓴다.**
+
+   > zsh 일반 배열은 기본 옵션에서 1부터 센다(`${arr[1]}`이 첫 원소). `KSH_ARRAYS`에서는 0부터 세며 Bash indexed array도 0부터 센다. 양쪽에서 도는 코드는 첨자 반복 대신 `for x in "${arr[@]}"`를 사용한다.
+
+4. **복잡도와 조건 수를 분리한다.**
+
+   - 복잡도는 기존 4축 표로 판정한다.
+   - 조건 수는 자동 RE 2·DG 4와 형식상 `N/A`를 제외한 “기능 조건 수”로 정의한다.
+   - 단순 작업의 기능 조건 1~3개는 내부 정책임을 명시한다.
+   - 해당 없는 카테고리는 `N/A (사유)` 한 줄로 접는다.
+   - Gotcha와 red-flags의 “안티패턴 최소 2개”는 `AP-00` 허용 규칙과 동기화한다.
+   - 트리거 기준은 바꾸지 않는다.
+
+5. **모든 사람이 전사하는 시각은 명령 출력으로 채운다.**
+
+   - `created`와 `Evaluated`는 `date '+%Y-%m-%d %H:%M'` 출력에서 가져온다.
+   - 동의 앵커는 AskUserQuestion의 호출 시각이 아니라 답변 시각을 사용한다.
+   - 서로 다른 시간대 기록과 비교할 가능성이 있으면 원본 ISO 타임스탬프도 보존한다.
+
+6. **조건 문장 하나에는 한 판정 단위만 둔다.**
+
+   - one When–Then은 “공식 표준”이 아니라 복합 조건 탐지 휴리스틱이라고 정확히 표현한다.
+   - 여러 `And` 자체를 금지하지 말고, 서로 독립적으로 FAIL할 수 있는 결과가 함께 있으면 조건을 분리한다.
+
+7. **도구 부재 처리는 필수성과 fallback 여부로 나눈다.**
+
+   - 필수 도구이고 대체 경로가 없으면 첫 줄에 도구명·실패 출력·재실행 명령을 알리고 중단한다.
+   - fallback이 있으면 즉시 중단하지 말고 기존 3단계 fallback을 수행한다.
+
+8. **종료 출력은 짧게 고정한다.**
+
+   - sprint-contract 5단계 DRAFT 끝
+   - `/sprint` QA 결과 블록 끝
+   - `/sprint` 6단계 보고 끝
+
+   각각 `사용자가 할 일: {없음 | 한 줄}`을 둔다. 이는 외부 표준이 아니라 이번 18세션 마찰을 줄이기 위한 로컬 UX 정책으로 표시한다.
+
+## 5. 못 가져온 것 / 열린 질문
+
+- “단순 작업 기능 조건 1~3개”라는 정확한 수치를 지지하는 외부 연구는 찾지 못했다. 외부 자료는 짧고 단일 목적의 조건을 권하지만 고정 개수는 주지 않는다.
+- `N/A (사유)` 형식과 자동 RE/DG 제외 계수는 이 모노레포 고유 스키마이므로 외부 표준 근거가 없다.
+- “사용자가 할 일” 끝맺음 문구의 직접적인 외부 근거는 찾지 못했다.
+- F21의 “도구가 없으면 무조건 Step 0에서 중단”을 직접 지지하는 근거는 찾지 못했다. 필수 도구와 fallback 가능한 도구를 구분해야 한다.
+- Acceptance criteria anti-patterns 2026 별도 최신 자료는 조회하지 않았다. 중지 조건인 필수 소스 3건 이상과 항목 1~3 근거가 확보된 시점에 조회를 멈췄다.
+- `v5.5 추가`와 현재 스키마 `v5.4`의 불일치는 단순 오기인지 선점된 차기 버전인지 레포만으로 확정할 수 없다. Phase 2에서 버전 정책 결정을 내려야 한다.
