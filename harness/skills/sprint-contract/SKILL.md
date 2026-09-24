@@ -123,7 +123,7 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
 
 ## Process
 
-> Step 0 · 0.5 · 1.2 · 1.4 · 6.2 · 6.5 · 6.6 은 **E2/E3 게이트**다 (등급 정의: `../../docs/guides/skill-design-guide.md` §3.7,
+> Step 0 · 0.5 · 1.2 · 1.4 · 6.2 · 6.5 · 6.6 · **Step 6.7** 은 **E2/E3 게이트**다 (등급 정의: `../../docs/guides/skill-design-guide.md` §3.7,
 > 계약 레이어 등급표: `../../docs/guides/contract-design-guide.md` §원칙별 Enforcement 등급).
 > 각 게이트의 산출물을 실제로 출력하기 전에는 다음 단계로 넘어가지 않는다.
 
@@ -710,6 +710,38 @@ ACT=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [
   5 곳에 박힌 "6개" 가 실제와 어긋난 채 통과했다.
 - `SEAL_BROKEN` 이 뜨면 **다시 봉인하지 말고** `recorded` / `actual` 을 사용자에게 보고하라.
 
+### 6.7. 봉인 커밋 (E3)
+
+**봉인 직후, 구현을 시작하기 전에 계약 파일만 단독으로 커밋한다.** 이것이 봉인 뒤 첫 git 동작이다.
+
+> **왜 필요한가.** 봉인은 조건 줄만 덮으므로 산문 편집은 `SEAL_OK` 를 유지하고, 조건을 고친 뒤
+> 새 값으로 다시 봉인하면 `SEAL_BROKEN` 이 아예 사라진다. 둘 다 **대조할 원문이 있어야** 잡힌다.
+> 실측(2026-09-24, 계약 3 건): 봉인 뒤 2~6 분 지나 **구현 파일과 함께** 커밋됐다 (그 커밋에 담긴
+> 파일 20 · 10 · 5 개). git 이 가진 가장 오래된 판이 이미 구현 뒤 상태라 그 사이 변경을 증명할
+> 길이 없었다. 계약 68 여 개 중 12 개는 추적조차 되지 않았다.
+
+```bash
+# (a) 전용 가지로 옮긴다 — main 은 보호돼 직접 밀어 넣을 수 없다
+git rev-parse --abbrev-ref HEAD | grep -qx main && git checkout -b "feat/$SLUG"
+
+# (b) 계약만 커밋한다. 새 파일은 add 가 먼저 필요하다 —
+#     git commit -o 만 쓰면 "did not match any file(s) known to git" 으로 죽는다 (실측)
+git add "$CF"
+git commit -o "$CF" -m "contract: $SLUG 봉인 ($N 조건)"
+
+# (c) 확인: 이 커밋에 파일이 정확히 1 개인가
+git show --name-only --format='' HEAD | grep -c .   # 1 이어야 한다
+```
+
+- **`-o` 를 빼지 마라.** 다른 세션이 스테이징해 둔 것을 함께 삼킨다. 이 레포는 작업 폴더를 여러
+  세션이 공유한다
+- **병합할 때 스쿼시를 쓰지 마라.** 이 레포는 세 방식(병합 커밋 · 스쿼시 · 재배치)을 모두
+  허용하는데, 스쿼시로 합치면 **봉인 커밋이 `main` 기록에서 사라진다.** 자기 가지에서는 QA 가
+  통과하는데 `main` 에는 대조할 원문이 없어진다 — 이 절차의 목적 자체가 무너진다.
+  `gh pr merge --merge` (병합 커밋)로 병합한다
+- **옛 계약에 소급으로 만들어 넣지 마라.** 봉인 커밋이 없는 계약은 `SEAL_ABSENT` 와 같은 급으로
+  다룬다 — 경고이지 실패가 아니다. 없던 원문을 있는 것처럼 만드는 행위다
+
 ### 7. 자기진단
 
 1. 구조화 체크리스트 실행:
@@ -731,6 +763,7 @@ ACT=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [
    - `slug_reservation_skipped`: Step 0.5 선점 없이 계약 파일을 썼는가? (선점 없이 쓰면 병렬 세션 덮어쓰기 위험)
    - `slug_adopted_without_confirm`: `SLUG_CONFIRM` 이 떴는데 사용자 확인 없이 채택했는가? 또는 (a-1) 기존 슬러그 재사용 탐색을 건너뛰었는가?
    - `contract_seal_missing`: Step 6.6 을 실행해 `conditions_digest` / `locked_at` 을 기록하고 `SEAL_OK` 출력을 인용했는가?
+   - `seal_commit_missing`: **Step 6.7** 을 실행해 봉인 직후 계약만 단독 커밋했는가? (`git show --name-only --format='' HEAD | grep -c .` 가 1) 그 커밋을 만들기 전에 전용 가지로 옮겼는가?
    - `measurement_coverage_gap`: Step 6.5 (4) 의 `UNCOVERED` 각 건에 조건 수정 또는 해소 기록을 남겼는가?
    - `factor_matrix_missing`: 2 개 이상 축의 곱이 의미를 결정하는 조건에 축·축 값·`cases_total` 산출 명령이 있는가? (탐색형이면 variant 축 조합 중복 검사까지)
    - `negative_control_missing`: 테스트 통과로 판정되는 조건에 `음성 대조:` 절이 있는가?

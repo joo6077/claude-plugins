@@ -468,6 +468,47 @@ SCHEMA="${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md"
 - `SEAL_BROKEN` 을 BLOCKED 로 만들지 않는 이유: BLOCKED 는 verdict 부재라 글로벌 피드백 코퍼스에
   위반이 남지 않는다. 그러면 다음 카이젠이 이 결함을 볼 수 없다
 
+#### 1-e-3. 봉인 커밋 대조 — 산문 변조와 조용한 재봉인을 잡는다 (2026-09-24 추가)
+
+`verify_seal` 은 **조건 줄만** 본다. 그래서 두 가지를 놓친다 — (a) 조건이 가리키는 **산문**을
+고쳐 통과 집합을 바꾼 것 (b) 조건을 고친 뒤 **새 값으로 다시 봉인**해 `SEAL_BROKEN` 을 없앤 것.
+둘 다 **봉인 시점 원문과 대조해야** 잡힌다.
+
+계약 작성 측이 봉인 직후 계약 파일만 단독 커밋한다 (`sprint-contract` Step 6.7). 그 커밋을 찾아
+지금 판과 비교한다.
+
+```bash
+# 봉인 커밋(계약이 git 에 처음 들어온 커밋)을 찾는다
+SEAL_COMMIT=$(git log --diff-filter=A --format='%h' -- "$CONTRACT" | tail -1)
+if [ -z "$SEAL_COMMIT" ]; then
+  echo "SEAL_COMMIT_ABSENT $CONTRACT"      # 추적 안 된 계약 — 경고이지 실패가 아니다
+else
+  # 그 커밋에 계약 하나만 담겼는지 (섞였으면 '봉인 시점 원문' 성질이 없다)
+  N=$(git show --name-only --format='' "$SEAL_COMMIT" | grep -c .)
+  echo "seal_commit=$SEAL_COMMIT files=$N"
+  # 조건 줄 밖(산문)에 무엇이 바뀌었는지 본다
+  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]' \
+    | grep -vE '^[+-][+-]' | grep -vE '^[+-]- \[[ x]\] [A-Z]{2,}-[0-9]{2}'
+  # conditions_digest 자체가 바뀌었으면 재봉인이다
+  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]conditions_digest:'
+fi
+```
+
+**결과별 취급:**
+
+| 관측 | verdict 영향 | 기록 |
+| ------ | ------ | ------ |
+| 봉인 커밋 없음 (`SEAL_COMMIT_ABSENT`) | **없음 — 경고이지 실패가 아니다** | `seal_commit: absent`. 절차 도입 전 계약이 다수다 (실측: 68 여 개 중 12 개는 추적조차 안 됨). 소급으로 만들지 마라 |
+| 봉인 커밋에 파일이 2 개 이상 | 없음 — 경고 | `seal_commit: mixed(N files)`. 구현 파일이 섞여 대조 기준이 약하다 |
+| 산문 차이 있음 + 개정 파일에 그 기록 있음 | 없음 | `prose_edit: recorded` |
+| 산문 차이 있음 + 개정 기록 없음 | 없음 — 경고 + 사용자 확인 목록 | `prose_edit: unrecorded` + 바뀐 줄 인용. 조건이 그 산문을 가리키면 통과 집합이 달라졌는지 **직접** 확인한다 |
+| `conditions_digest` 가 바뀜 | **verdict = REJECT** | `reseal_detected: true` + 두 값 인용. 조용한 재봉인은 위반을 지우는 행위다 |
+
+- **산문 차이를 자동으로 REJECT 로 만들지 마라.** 서술 섹션 보강은 의도된 설계다. 조건이 그
+  산문을 **가리킬 때만** 통과 집합이 달라진다
+- 이 대조는 `git` 이 없거나 계약이 추적되지 않으면 못 한다. 그 경우 `seal_commit: absent` 로
+  적고 평가를 계속한다 — BLOCKED 가 아니다
+
 #### 1-f. 계약 부재 — **사유를 혼동하지 마라**
 
 BLOCKED 사유가 3 가지이며 복구책이 서로 다르다. 틀린 사유를 적으면 사용자는 있지도 않은 문제를
