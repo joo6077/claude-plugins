@@ -1,18 +1,18 @@
 ---
 title: Claude Code 스킬 설계 가이드
-version: 1.5.0
-last_updated: 2026-08-13
+version: 1.6.0
+last_updated: 2026-09-24
 ---
 
 # Claude Code 스킬 설계 가이드
 
-> Anthropic 공식 문서(2026-04 최신) + 내부 스킬 분석 + 커뮤니티 실전 경험 정리
+> Anthropic 공식 문서(2026-09-24 조회) + 내부 스킬 분석 + 커뮤니티 실전 경험 정리
 
 **이 문서의 용도:** 새 스킬을 만들거나 기존 스킬을 개선할 때 참고한다. 이 프로젝트(`claude-plugins`)의 실제 스킬을 적용 사례로 함께 다룬다.
 
 **주요 출처:**
 
-- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04)
+- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-09-24 조회)
 - [Extend Claude with Skills — Claude Code Docs](https://code.claude.com/docs/en/skills)
 - [anthropics/skills — skill-creator SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
 - [Equipping Agents for the Real World — Anthropic Engineering](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
@@ -282,7 +282,9 @@ Good: 사용자 "X 함수 수정해" → Claude X 만 수정 → 인접 개선�
 | Pre-Edit Batch Audit | §3.6 | E2 (승인받는 위반 체크리스트) | 체크리스트 없이 편집 착수 2 회 재발 → 편집 전 audit 산출물 존재를 확인하는 E3 |
 | Rule-by-Rule Audit | §3.6 | E2 (완료 전 대조 리포트) | 완료 보고에 대조 결과 누락 2 회 재발 → 규칙 리스트 자동 대조 스크립트 E3 |
 | Scope-Bound Edits | §3.6 | E1 + Hard-stop 중 커밋의 대량 삭제·되돌림만 E3 (`harness/scripts/commit-guard.sh`) | 범위 밖 편집 2 회 재발 → 허용 경로 화이트리스트를 검사하는 E3 |
-| Completion Evidence Gate | §3.7 | E2 (`[미검증]` 마커 · 증거 블록) | 증거 없는 완료 주장 재발 → 검증 스크립트 통과 전 완료 차단 E3 |
+| Completion Evidence Gate | §3.7 | E2 (`[미검증]` 네 칸 · 증거 블록) | 증거 없는 완료 주장 재발 → 검증 스크립트 통과 전 완료 차단 E3 |
+| 0 기대 양성 대조 | §3.7 | E2 (명령 성공 · 대상 수 · 양성 대조 세 기록) | 대조 없이 0 을 통과로 읽은 일 2 회 재발 → 측정이 대조 결과를 함께 내게 하는 E3 |
+| 알려진 답 대조 | §3.7 | E2 (기대값 · 실제값 · 명령 기록) | 대조 없이 새 측정 값을 믿은 일 2 회 재발 → 알려진 답 입력을 측정과 함께 돌리는 E3 |
 | Counterpart Enumeration | §5.5 | E2 (producer/consumer 열거 아티팩트) | 반대편 누락 재발 → 양면 경로 대조 E3 |
 | Variant Budget | §5.6 | E2 (Variant Matrix) | 축 값이 겹치는 variant 재발 → 축 값 비교 스크립트 E3 |
 | User-Reported Failure Gate | §3.8 | E1 | 사용자 재보고 뒤에도 완료 주장 재발 → `REOPENED` 상태를 남기는 E2 |
@@ -297,15 +299,24 @@ E3 는 per-run 으로 금지된 전이를 막지만 **태스크 전체의 성공
 
 1. **증거 블록 의무.** 산출물을 만드는 스킬은 완료 보고에 실행한 **명령과 그 출력**(또는 `파일:라인`) 을 포함한다. "동작한다", "정상 렌더링된다" 같은 서술만으로 완료를 선언하지 않는다.
 2. **증거는 자기보고가 아니라 도구 출력이어야 한다.** 스스로 "확인했다" 고 쓰는 문장은 증거가 아니다 (위 AUROC 0.54~0.65).
-3. **검증 불가 시 `[미검증]` 명시.** 인프라 부재·도구 미설치·런타임 미실행으로 검증이 불가하면 조용히 넘기지 말고 해당 항목에 `[미검증]` 마커와 사유 한 줄을 붙인다. **미검증 2 건 이상이면 완료가 아니라 부분 완료로 보고**한다. 마커·임계값은 agent-design-guide §10 "Unverifiable 조건 정책" 과 동일 규약을 쓴다 (용어 분기 금지).
+3. **검증 불가 시 `[미검증]` 에 네 칸을 붙인다.** 인프라 부재·도구 미설치·런타임 미실행으로 검증이 불가하면 조용히 넘기지 말고 해당 항목에 `[미검증]` 을 달고 아래 네 칸을 채운다.
+   - **막는 것** — 실행한 명령과 그 실패 출력. "도구가 없다" 같은 서술이 아니라 출력을 붙인다
+   - **시도한 우회** — 하나 이상과 그 결과. 검증을 못 한 경우 우회가 정말 없으면 칸을 비우지 말고 `없음 — 이유` 를 적는다 (`qa-evaluator.md` 규칙 11 (2) 가 계약 결함 기록으로 받는다). 작업 자체를 못 한다고 할 때는 하나 이상이어야 한다
+   - **통제 불가 사유** — 한 문장
+   - **재검증 명령** — 조건이 갖춰지면 돌릴 명령
+
+   평가 측은 네 칸이 다 있어야 `[미검증:ENV]`(구현자가 통제할 수 없는 환경 부재)로 받고, 하나라도 비면 `[미검증:INVALID]` 로 센다. **미검증 2 건 이상이면 완료가 아니라 부분 완료로 보고**한다. 마커와 네 칸은 agent-design-guide §10 "Unverifiable 조건 정책" 과 같은 말을 쓴다 (용어 분기 금지). 2 건 기준은 양쪽이 세는 대상이 다르다 — 생성 측은 `[미검증]` 전체로 부분 완료를 가르고, 평가 측은 `INVALID` 만으로 REJECT 를 가른다.
+
+   **작업 자체를 못 한다고 결론 내리기 전에도 같은 네 칸을 먼저 적는다.** 검증 불가와 작업 불가는 같은 모양이다 — 막는 것의 실제 출력도, 시도한 우회도 없이 결론부터 내면 사용자가 우회를 대신 찾는다. 실측(2026-09-18 · 09-23): 배포 전이고 실기기가 없다는 이유로 두 작업을 불가로 선언했는데 사용자가 "올리면 되잖아" 로 되받았고, 서버 목록 상한을 막힘으로 읽었는데 그 작업은 서버 연동이 필요 없었다.
 4. **렌더 가능한 산출물은 렌더 결과를 증거로 쓴다.** UI·문서·차트처럼 이미지로 만들 수 있는 산출물은 렌더 → 캡처 → 대조까지 수행한다 (공식 best practices "Use visual analysis"). 단 **스냅샷/캡처가 비어 있으면 그것은 PASS 증거가 아니라 검증 실패 신호**다 — 빈 결과를 "문제 없음" 으로 읽는 것이 Friction #2 의 실제 사고 형태였다 (빈 카탈로그를 MCP 스냅샷 근거로 "정상 렌더링" 이라 반복 주장).
 5. **피드백 루프를 닫는다.** 검증 스크립트가 있으면 `실행 → 실패 시 수정 → 재실행` 을 반복하고, 스킬 본문에 **"검증을 통과하기 전에는 다음 단계로 진행하지 않는다"** 를 명시한다 (공식 문서의 feedback loop 패턴).
 
 ```text
 Bad:  구현 → "정상 동작 확인했습니다" (도구 출력 없음) → 사용자가 실제로는 깨져 있음을 발견
 Bad:  스냅샷 빈 화면 반환 → "렌더링 정상" 으로 해석 → 반복 주장 → 신뢰 손상
+Bad:  "실기기가 없어 이 작업은 못 한다" → 막는 것의 출력도, 시도한 우회도 없이 불가 선언
 Good: 구현 → 검증 명령 실행 → 출력 인용 → 실패분 수정 → 재실행 → 통과 후 완료 선언
-Good: 검증 불가 → "[미검증] MCP 미설정 — 시각 대조 불가" 명시 → 부분 완료로 보고
+Good: 검증 불가 → "[미검증] 막는 것: 캡처 명령과 그 실패 출력 · 시도한 우회: 정적 렌더 테스트(통과) · 통제 불가 사유: 이 환경에 MCP 서버가 없다 · 재검증 명령: 서버를 붙인 뒤 같은 캡처 명령" → 부분 완료로 보고
 ```
 
 **Cross-Surface Parity:** 본 원칙은 §11 parity 표 5 번째 항목 — agent-design-guide §10 "Unverifiable 조건 정책" 의 스킬(생성) 측 짝이다. 평가자만 미검증을 표기하고 생성자는 표기하지 않으면, 평가 시점에야 미검증이 드러나 iteration 이 낭비된다.
@@ -335,6 +346,33 @@ Good: 검증 불가 → "[미검증] MCP 미설정 — 시각 대조 불가" 명
 계약 측은 `contract-design-guide.md` §0 이 기대값인 조건, 포맷은 `contract-schema.md` §양성 대조,
 평가 측은 `qa-evaluation-guide.md` §0 매치 판정 규칙이 맡는다. 생성 측에 짝이 없으면 스킬이
 공허한 0 을 만들어 내고 평가 시점에야 드러난다 — 5 번째 항목과 같은 구조의 낭비다.
+
+#### 0 이 아닌 값을 내는 새 측정 — 알려진 답 대조
+
+> **현재 등급: E2** (§3.7 등급 원장 참조)
+
+위 양성 대조는 0 이 기대값인 측정을 다룬다. 이 항목은 **이번에 새로 짠 측정 스크립트가 길이 · 개수 ·
+무게 · 비율처럼 0 이 아닌 값을 낼 때** 그 값이 맞는지 본다. 새 스크립트의 첫 출력은 아직 아무도
+확인하지 않은 값이다 — 그럴듯한 숫자가 나왔다는 것이 스크립트가 옳다는 증거는 아니다.
+
+값을 믿기 전에 셋을 남긴다.
+
+1. **알려진 답 입력** — 손으로 답을 셀 수 있는 작은 입력을 만든다. 2~3 줄이면 된다 (레포 관례이며
+   외부 근거는 없다). 대상 파일은 건드리지 않고 임시 사본으로 만든다
+2. **기대값 · 실제값 · 명령** — 손으로 센 기대값, 스크립트가 낸 실제값, 돌린 명령을 나란히 적는다
+3. **판정** — 둘이 다르면 통과가 아니다. 스크립트나 입력 중 하나가 틀렸다. 0 이 아닌 기대값에 0 이나
+   빈 출력이 나와도 통과가 아니다. 본 측정에 들어가기 전에 고친다
+
+양성 대조와 구별한다. 양성 대조는 **나쁜 예에서 1 이상**이 나오는지 보고, 알려진 답 대조는 **좋은 작은
+입력에서 정확한 값**이 나오는지 본다. 기대값이 0 인 측정에는 이 항목이 아니라 위 양성 대조를 쓴다.
+
+실측으로 잡힌 형태들이다 (2026-09-22). 호 이동의 길이를 빠뜨린 G-code 길이 측정이 그럴듯한 총합을
+냈고, zsh 배열을 0 부터 센다고 가정한 측정이 한 칸 밀린 값을 냈다 — 기본 zsh 배열은 1 부터 센다
+(`KSH_ARRAYS` 설정 시 예외, [zsh 매뉴얼 — Array Subscripts](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Subscripts)).
+둘 다 작은 입력 하나로 드러났을 결함이다. zsh 첨자 규칙 자체는 계약 측 문서가 맡고 여기서는 사례로만 든다.
+
+**Cross-Surface Parity:** 본 원칙은 §11 parity 표 16 번째 항목이다. 생성 측 전용이라 agent-design-guide 에
+대응 절을 두지 않고, 평가자는 이 대조를 계약 조건으로 받는다.
 
 ---
 
@@ -557,7 +595,7 @@ description: >
 
 메타데이터만 항상 상주하고 나머지는 on-demand 로 읽는다. 바로 이 구조가 "컨텍스트 절약"의 핵심이다.
 
-### SKILL.md 본문 500 라인 상한 (공식)
+### SKILL.md 본문 500 라인 미만 권고 (공식)
 
 > **출처:** [Skill Authoring Best Practices — Token budgets](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#token-budgets) — "Keep SKILL.md body under 500 lines for optimal performance."
 
@@ -1082,9 +1120,9 @@ sprint-contract/
 
 스킬 설계 가이드가 개정되면, **에이전트 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 스킬 Gotchas** 에 대응 원칙이 존재하는지 **자동으로 체크** 해야 한다. 전파가 필요한 원칙인지, 스킬 전용인지 판정하고 전자라면 즉시 복제한다.
 
-### 전수 대상 parity items (14개)
+### 전수 대상 parity items (16개)
 
-두 가이드(skill-design-guide, agent-design-guide)는 아래 14개 항목을 **동일한 개념 · 동일한 용어** 로 다룬다 (대부분은 양쪽 공유, 일부는 한쪽 전용이거나 구분 대상):
+두 가이드(skill-design-guide, agent-design-guide)는 아래 16개 항목을 **동일한 개념 · 동일한 용어** 로 다룬다 (대부분은 양쪽 공유, 일부는 한쪽 전용이거나 구분 대상):
 
 | # | Parity Item | skill-design-guide 위치 | agent-design-guide 대응 위치 |
 | --- | ------------- | ------------------------ | ------------------------------ |
@@ -1092,7 +1130,7 @@ sprint-contract/
 | 2 | 트리거 키워드 배타성 (substring 포함) | §4 (트리거 키워드 중복 방지) | §3 description 트리거 + §10 sibling agent 검사 |
 | 3 | 검증 가능한 성공 기준 | §3.6 (Give a way to verify) | §10 Reviewer L3 커버리지 |
 | 4 | Rule-by-rule audit before completion | §3.6 (Rule-by-Rule Audit) | §10 Reviewer 전수 대조 |
-| 5 | Unverifiable / degraded-mode 정책 | §3.7 (Completion Evidence Gate — `[미검증]` 마커 · 2 건 임계) | §10 Unverifiable 조건 정책 |
+| 5 | Unverifiable / degraded-mode 정책 | §3.7 (Completion Evidence Gate — `[미검증]` 에 네 칸 · 2 건 이상이면 부분 완료) | §10 Unverifiable 조건 정책 (네 칸은 같은 말 · 2 건 기준은 세는 대상이 다르다) |
 | 6 | Pre-Edit Batch Audit ↔ Self-Evaluator Rule-by-Rule | §3.6 (Pre-Edit Batch Audit) | §10 (Self-Evaluator Rule-by-Rule Audit) |
 | 7 | Pre-Sprint Sync Check | §9 (Pre-Sprint Sync Check) | — (멀티세션 sprint orchestrator 한정 · 단일 평가자 에이전트는 해당 없음) |
 | 8 | Hook-Triggered Auto-Correction | — (스킬은 훅을 직접 spawn 하지 않음 · 패턴은 agent 가이드 전용) | §6 패턴 7 |
@@ -1102,8 +1140,10 @@ sprint-contract/
 | 12 | Counterpart Enumeration | §5.5 (변경의 반대편 열거) | — (생성 측 전용 · 평가자는 계약 조건으로 수용) |
 | 13 | Variant Budget ↔ Exploration Budget | §5.6 (산출물 개수·축 고정) | §7 (탐색 turn 예산) — **짝이 아니라 구분 대상** |
 | 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — 평가자 측) |
+| 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | §3.7 (0 이 기대값인 검증의 양성 대조) | §4 Agent(agent_type) 한계 2 (도구를 줘도 안 쓰고 썼다고 적는다) |
+| 16 | 알려진 답 대조 (0 이 아닌 기대값) | §3.7 (0 이 아닌 값을 내는 새 측정) | — (생성 측 전용 · 평가자는 계약 조건으로 받는다) |
 
-Item 7 은 멀티세션 orchestrator 행동에만 관련되어 agent-design-guide 에 대응이 없다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 12 는 코드를 생성·수정하는 측의 규율이라 평가자 가이드에 대응 섹션을 두지 않고, 대신 계약 조건으로 흡수한다. Item 10 은 토큰 경제 목적의 짝 원칙 — 스킬 측은 중첩 호출 반환 최소화, 에이전트 측은 fan-out 상한·exploration budget 으로 양쪽 존재. **Item 5 는 2026-07 사이클에서 "에이전트 전용" 에서 양면으로 전환되었다** — 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비되기 때문이다. **Item 13 은 유일하게 "동일 개념" 이 아니라 "이름이 비슷한 다른 개념" 이다** — 양쪽 절이 서로를 참조해 용어 혼동을 막는 것이 parity 의 내용이다. **Item 14 는 2026-08 사이클 신규**로, 생성 측이 완료를 고집하고 평가 측만 REOPENED 로 다루면 두 판정이 충돌해 사용자가 중재자가 된다. 이 예외들(7, 8, 12, 13)을 제외한 나머지 (1~6, 9~11, 14) 는 **양쪽 모두 존재** 한다.
+Item 7 은 멀티세션 orchestrator 행동에만 관련되어 agent-design-guide 에 대응이 없다. Item 8 은 hook + agent 협업 패턴으로 agent-design-guide 전용. Item 12 는 코드를 생성·수정하는 측의 규율이라 평가자 가이드에 대응 섹션을 두지 않고, 대신 계약 조건으로 흡수한다. Item 10 은 토큰 경제 목적의 짝 원칙 — 스킬 측은 중첩 호출 반환 최소화, 에이전트 측은 fan-out 상한·exploration budget 으로 양쪽 존재. **Item 5 는 2026-07 사이클에서 "에이전트 전용" 에서 양면으로 전환되었다** — 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비되기 때문이다. **Item 13 은 유일하게 "동일 개념" 이 아니라 "이름이 비슷한 다른 개념" 이다** — 양쪽 절이 서로를 참조해 용어 혼동을 막는 것이 parity 의 내용이다. **Item 14 는 2026-08 사이클 신규**로, 생성 측이 완료를 고집하고 평가 측만 REOPENED 로 다루면 두 판정이 충돌해 사용자가 중재자가 된다. **Item 15 · 16 은 2026-09 사이클에 표에 올렸다.** Item 15 는 §3.7 이 이미 「15 번째 항목」으로 인용했는데 이 표에는 행이 없고 `qa-evaluation-guide.md` Parity Table 에만 있었다. Item 16 은 Item 12 처럼 생성 측 전용이라 평가자 가이드에 대응 절을 두지 않고 계약 조건으로 흡수한다. 이 예외들(7, 8, 12, 13, 16)을 제외한 나머지 (1~6, 9~11, 14, 15) 는 **양쪽 모두 존재** 한다.
 
 ### 개정 시 체크리스트
 
@@ -1130,13 +1170,13 @@ skill-design-guide.md 를 편집할 때:
 | Gotchas 최우선 | 반복 실패 지점을 기록하는 것이 가장 높은 가치 |
 | frontmatter 스키마 엄수 | name ≤ 64, description ≤ 1024, 3인칭, XML 금지, 예약어 금지 |
 | Undertrigger 방지 | description 은 "pushy" 하게 — 트리거 맥락 나열 |
-| 500 라인 상한 | SKILL.md body 는 500 라인 미만 |
+| 500 라인 권고 | SKILL.md body 는 500 라인 미만 권고 — 강제 상한은 아니다 |
 | Reference 1-level deep | 참조 파일에서 또 참조하지 마라 |
 | 자유도 매칭 | high/medium/low freedom 을 태스크 취약성에 맞춰라 |
 | **Enumerate-before-Act** | low-freedom 영역은 선(先) 목록화 · 후(後) 편집 |
 | **Counterpart Enumeration** | 계약·직렬화·공유 모델 변경은 소비자 파일까지 양면 열거 |
 | **Rule-by-rule audit** | 완료 선언 전 규칙 전수 대조 패스 의무 |
-| **Completion Evidence Gate** | 도구 출력 증거 없는 완료 선언 금지 · 검증 불가 시 `[미검증]` 명시 |
+| **Completion Evidence Gate** | 도구 출력 증거 없는 완료 선언 금지 · 검증 불가 시 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령) · 작업 불가 선언 전에도 같은 네 칸 |
 | **Enforcement 등급** | E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 문장을 다듬지 말고 §3.7 등급 원장에서 등급을 올려라 |
 | **Variant Budget** | 탐색형 산출물은 상한 3 · 축 1(+1) 고정 · Variant Matrix 합의 후 생성 |
 | **User-Reported Failure Gate** | 사용자 실패 보고는 `REOPENED` — 반박 금지, 오라클 유효성부터 의심 |
@@ -1156,7 +1196,7 @@ skill-design-guide.md 를 편집할 때:
 
 ## 출처
 
-- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04)
+- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-09-24 조회)
 - [Extend Claude with Skills — Claude Code Docs](https://code.claude.com/docs/en/skills)
 - [Agent Skills Overview — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
 - [anthropics/skills — GitHub](https://github.com/anthropics/skills)
