@@ -50,8 +50,8 @@
 
 ## 검증
 
-- `python3 scripts/run-evals.py backend-kit` — 7 스킬 assertion 전수 검증 (exit 0 = PASS, 1 = FAIL, 2 = 파싱 오류)
-- `python3 scripts/validate-plugin.py backend-kit` — 7 카테고리 구조 감사 (refs/placeholders/code-fence 등)
+- `python3 scripts/run-evals.py backend-kit` — 평가 사례 8 개의 구조 검증 (exit 0 = PASS, 1 = FAIL, 2 = 파싱 오류)
+- `python3 scripts/validate-plugin.py backend-kit` — 등록된 검사 전부 (개수는 `harness/docs/guides/plugin-validation-guide.md` 가 정한다)
 
 ## Phase 7 kaizen (2026-04-24)
 
