@@ -19,5 +19,8 @@ AR-05 ① 이 떨어진다.
   - `bcaa8785ad38113eac91b26df23755602c017983` — 스킬 다섯(sprint · create-agent · create-skill · contract-kaizen · harness-kaizen)
   - `0da6157e2beec9c64bab7056717216f652fb03e0` — `validate-plugin.py` V10 · 검증 가이드 1.4.0
   - `c9477a47e7357c6c6857422197503b021f007ef0` — 수집기 · 수집기 시험
+- 상한 기록 커밋: `f6cc80c06a7f84880328be49ced1a00eff66cc58` (개정 1 개)
+- notes 커밋: `6ecc297e96f5727ac62741ab5d152b80153e1d93` (`phase4-notes.md` · `phase4-review.md`) — 이 Phase 커밋이라 상한을 옮긴다
 
 end_sha: c9477a47e7357c6c6857422197503b021f007ef0
+end_sha: 6ecc297e96f5727ac62741ab5d152b80153e1d93
