@@ -26,3 +26,7 @@ created: "2026-09-26 03:55"
 - 개선안 7 (A8): 블록을 항목 첫 문장 바로 뒤에 두고, 잇는 방법 문장은 「첫 줄과 둘째 줄은 줄바꿈이나 `;` 로 잇고 `&&` 로 잇지 않는다」 로 썼다 — 블록은 세 줄이고 규칙은 첫 줄과 둘째 줄 사이에 걸린다
 
 end_sha: d24d382adeb55dfdd8470c17ee6fa2969fafa8a2
+
+notes 커밋 `7f874b4db6df605eb0b64b803258fef4d5cfe260` (`f2-review-fixes-notes.md` · `f2-review-fixes-review.md` · 감사 기록 한 줄) — 이 계약 커밋이라 상한을 옮긴다.
+
+end_sha: 7f874b4db6df605eb0b64b803258fef4d5cfe260
