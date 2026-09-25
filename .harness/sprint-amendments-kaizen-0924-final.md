@@ -20,3 +20,7 @@ created: "2026-09-25 22:52"
 조건 · 측정은 그대로다 — amend_direction: unchanged.
 
 end_sha: 410dcc9178c4553ea7ffffd0dba11f3abd8ab2a1
+
+notes 커밋 `fdae7db91c4abc1c50a4c999b32540200a15c634` (`final-notes.md` · `final-review.md`) — 이 계약 커밋이라 상한을 옮긴다.
+
+end_sha: fdae7db91c4abc1c50a4c999b32540200a15c634
