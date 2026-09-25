@@ -13,7 +13,7 @@
     {
       "name": "flutter-toolkit",
       "source": "./flutter-toolkit",
-      "description": "[v0.8.0 · 2026-09-24] Flutter 개발 워크플로우 스킬 모음 (Freezed·Flutter·Impeller 사실 정정 3종 + Primitive Substitution Gate + invalidate 경계)"
+      "description": "[v0.9.0 · 2026-09-25] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 시나리오 테스트를 캡처와 함께 HTML 보고서로)"
     },
     {
       "name": "design-kit",
