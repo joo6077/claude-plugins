@@ -21,5 +21,7 @@ R2 옛 파일 수 「서른」 두 자리 — 와 `## 범위 경계` 의 승인 
 - 봉인 커밋: `72239901a6b9eddad1f5a4557cc601989af0d69d` (계약 파일 1 개, `conditions_digest: sha256:d165f830e0906f4b`)
 - 구현 커밋 열셋: `154916a` backend · `cc11f71` infra · `c4eeef3` rust · `cfef54f` planning · `535e143` flutter · `37ac75f` design · `d6e30aa` react ·
   `3ac3f73` reflect · `4868995` bambu · `4595b8e` onboarding · `f93d715` tone · `9da098b` api · `6de53a3` howto
+- notes 커밋: `d499479d595919da44366bc56ae89cee154fa44d` — notes · 검토 기록. 범위 상한을 이 커밋으로 옮긴다
 
 end_sha: 6de53a3cfebec27b82f8e74d30ee250ecf7172b9
+end_sha: d499479d595919da44366bc56ae89cee154fa44d
