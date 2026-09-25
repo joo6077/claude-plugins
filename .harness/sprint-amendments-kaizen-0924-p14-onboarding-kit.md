@@ -16,5 +16,7 @@ AR-01 첫째 값이 떨어진다.
 
 - 봉인 커밋: `fdf756d3d5fd9ac413a6e5af0b2a43137d082df6` (계약 파일 1 개, `conditions_digest: sha256:e90190048db61bfa`)
 - 구현 커밋: `b2e661fea8a3c53a287f0c974206772c4e94ba30` — `onboarding-kit/` 일곱 파일 (SKILL.md · references 둘 · evals.json · 새 러너 · 새 픽스처 · README)
+- notes 커밋: `c76f88ccb35fdf74241fabf07dcaa3d7e00eb989` — `.harness/.meta/kaizen-0924/phase14-notes.md` · `phase14-review.md`. 범위 상한을 이 커밋으로 옮긴다
 
 end_sha: b2e661fea8a3c53a287f0c974206772c4e94ba30
+end_sha: c76f88ccb35fdf74241fabf07dcaa3d7e00eb989
