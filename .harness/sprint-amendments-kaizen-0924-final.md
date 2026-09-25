@@ -79,3 +79,17 @@ end_sha: 65ea663cc27189ab2508fc518ca9399d50dc24ff
 notes 커밋 `0cf02789a6c6f03ccb9651528c028b6172e197ee` (`final-notes.md` 교차 진단 뒤 보강 절 · 다음 사이클 메모 넷) — 이 계약 커밋이라 상한을 옮긴다.
 
 end_sha: 0cf02789a6c6f03ccb9651528c028b6172e197ee
+
+## 교차 진단 2 회차 뒤 보강 — 조건 변경 없음 (direction: unchanged)
+
+QA 2 회차 APPROVE 뒤 교차 진단이 보강 잣대(`coverage.py`)가 원본의 코드 블록 안을 재지 않는다고 짚었다. 코드 블록 줄을
+공백·태그를 빼고 대조하면(`scratchpad/xd-final2/fence2.py`) Codex 가 만든 두 쪽이 옛 판보다 덜 담았다. 조건 문구는 바꾸지 않는다.
+
+| 페이지 | 커밋 | 코드 블록 대조 전 → 뒤 | coverage.py 뒤 |
+| --- | --- | --- | --- |
+| `docs/rust-kit/sqlx-patterns.html` | `a0a395e` | `in_old=48 in_new=46 lost=4` → `in_new=52 lost=0` | `lost=0 wr=0.43->0.77` |
+| `docs/backend-kit/backend-test.html` | `10d42ee` | `in_old=5 in_new=31 lost=2` → `in_new=46 lost=0` | `lost=0 wr=0.47->0.69` |
+
+두 쪽 모두 `check-docs-a11y.js` 2/2 PASS · `check-docs-links.py` · `check-contrast-claims.py` 종료 코드 0. QA 2 회차 리포트 커밋 `bc6302c`.
+
+end_sha: 10d42ee02d227081aed436a221bb6233be50e152
