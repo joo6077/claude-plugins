@@ -13,13 +13,29 @@
 
 ### 2. 사전 요구사항
 
-- 필요한 계정/권한 (예: Apple Developer Program 가입)
+- 필요한 계정/권한 (예: Apple Developer Program 가입) — 막는 요구면 아래 세 칸으로 쓴다
 - 설치해야 할 CLI 도구 (버전 포함)
 - 프로젝트 전제조건
 
 > **사이트 혼동 주의 박스** (Apple/Google/AWS 가이드는 필수): 진입할 사이트 URL과 다른 비슷한 사이트의 차이를 **작업별 표**로 명시. "셋업은 전부 A 사이트" 같은 뭉뚱그린 안내는 금지 — 작업마다 사이트가 갈린다 (SKILL.md Gotcha 3 의 Apple 7 행 표가 형식 예시다).
 >
 > **콘솔 라벨 경계 한 줄** (로그인이 필요한 콘솔을 다루는 가이드는 필수): "이 가이드의 섹션명·버튼 라벨은 공개 문서 기준이며, 로그인 뒤 실제 화면과 다를 수 있다" 를 적고, 못 찾을 때 쓸 상위 섹션명 검색어를 함께 준다 (SKILL.md Gotcha 2).
+
+**막는 요구는 세 칸으로 쓴다** (SKILL.md Gotcha 9). 계정 등급 · 기기 · 권한 · 출시 상태처럼 없으면 어떤 작업이 멈추는 요구마다 아래 세 칸을 채운다. 「이게 없으면 진행할 수 없다」 한 줄로 끝내지 않는다 — 실제로 막히는 범위는 대개 셋업 전체가 아니라 그중 한 작업이다.
+
+| 칸 | 쓰는 것 |
+| --- | --- |
+| 출처 | 그 요구를 적은 1차 출처 URL 과 조회일. 출처가 요구하지 않으면 막는 요구로 쓰지 않는다 |
+| 막히는 것 | 없으면 멈추는 Step · 작업. 안 막히는 작업도 함께 적는다 |
+| 우회 | 출처가 제시하는 우회 하나. 출처에 없으면 `우회 없음(출처 확인)` 으로 적고 우회를 지어내지 않는다 |
+
+예 — FCM iOS (조회 2026-09-24):
+
+| 요구 | 출처 | 막히는 것 | 우회 |
+| --- | --- | --- | --- |
+| 실기기 | [Firebase Apple 셋업](https://firebase.google.com/docs/ios/setup) — Cloud Messaging 을 쓰면 실제 Apple 기기를 준비하라고 한다 | APNs · FCM 원격 메시지 수신 확인. 프로젝트 생성 · Firebase 구성 · 일반 앱 실행은 안 막힌다 | `우회 없음(출처 확인)` — 시뮬레이터를 FCM 수신 우회로 쓰라는 문장은 이 출처에 없다 |
+| 유료 개발자 계정 | [Apple 지원 기능 표](https://developer.apple.com/help/account/reference/supported-capabilities-ios) — Push notifications 가 무료 계정 열에 없다 · [멤버십 개요](https://developer.apple.com/help/account/membership/programs-overview) — 일반 개발과 개인 기기 시험은 멤버십 없이 된다 | Push Notifications 기능 · APNs 키 구성 | 비영리 단체 · 공인 교육기관 · 정부 기관은 [가입 비용 면제](https://developer.apple.com/programs/enroll/) 경로가 있다. 그 밖의 우회는 확인하지 못했다 |
+| 앱 출시 | 막는 요구가 아니다 — [Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing-notifications-using-the-push-notification-console) 이 개발 환경에서 기기 토큰으로 시험 발송을 지원한다 | 없음 | 해당 없음 |
 
 ### 3. 설정 단계 (Step 1~N)
 
