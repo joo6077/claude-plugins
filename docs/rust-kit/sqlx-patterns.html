@@ -374,7 +374,8 @@
           <h3>정적 SQL은 <code>query_as!</code>, 동적 SQL은 <code>query_as</code>로 분리한다</h3>
         </div>
         <p class="card-copy"><code>query_as!</code>는 컴파일 타임에 SQL과 Rust 타입을 검증한다. 조건이 동적으로 붙으면 <code>QueryBuilder</code>나 <code>query_as::&lt;_, T&gt;()</code>를 사용한다.</p>
-        <pre><code>#[derive(Debug, FromRow)]
+        <pre><code>// 컴파일 타임 검증 — 정적 쿼리
+#[derive(Debug, FromRow)]
 pub struct UserRow {
     pub id: Uuid,
     pub email: String,
@@ -395,7 +396,8 @@ pub async fn find_by_id(
     .fetch_optional(pool)
     .await
 }</code></pre>
-        <pre><code>pub async fn search_users(
+        <pre><code>// 런타임 동적 쿼리
+pub async fn search_users(
     pool: &amp;PgPool,
     email_like: Option&lt;&amp;str&gt;,
 ) -&gt; Result&lt;Vec&lt;UserRow&gt;, sqlx::Error&gt; {
@@ -442,10 +444,10 @@ pub struct UserRow {
 sqlx = { version = "0.8", features = [
     "postgres",
     "runtime-tokio-native-tls",
-    "uuid",
-    "chrono",
-    "json",
-    "rust_decimal",
+    "uuid",       # Uuid 타입 지원
+    "chrono",     # DateTime&lt;Utc&gt; 지원 (time 대신 chrono 선택)
+    "json",       # serde_json::Value 지원
+    "rust_decimal", # Decimal 타입 지원
 ] }</code></pre>
         <div class="feature-list" aria-label="활성화할 feature">
           <span class="feature-chip">postgres</span>
