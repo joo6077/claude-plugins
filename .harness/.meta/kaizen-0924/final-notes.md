@@ -25,8 +25,10 @@
 | `8163d69` | 사이클 상태 · 실패 횟수 · evals 점검 · 정리 기록 · 메모리 후보 · 릴리스 계획 | AR-05 · ER-05 · AR-06 · SC-01 |
 | `410dcc9` | 감사 기록 항목 | AR-07 |
 | `73462de` | 개정 파일 `end_sha` (`410dcc9`) | AR-08 |
-| 이 파일의 커밋 | notes · 검토 기록 | AR-08 |
-| 그다음 커밋 | 개정 파일에 notes 커밋 sha 로 `end_sha` 한 줄 더 | AR-08 |
+| `fdae7db` | notes · 검토 기록 | AR-08 |
+| `507db0f` | 개정 파일에 notes 커밋 sha 로 `end_sha` 한 줄 더 (`fdae7db`) | AR-08 |
+| 이 파일을 고친 커밋 | 끝 판 재측정 · 계약 피드백 저장 기록(아래 두 절) | AR-08 |
+| 그다음 커밋 | 개정 파일에 그 커밋 sha 로 `end_sha` 한 줄 더 | AR-08 |
 
 저장소 밖 변경(커밋 없음): 전역 피드백 서른넷의 교차 진단 두 칸(ER-01 · ER-02), 가장 오래된 139 개를 `~/.harness/feedback-archive/kaizen-2026-09-24/` 로 옮김(ER-05).
 고치기 전 사본은 스크래치 `kaizen/final-fb-before/`(서른넷), 정리 직전 목록은 `kaizen/final-fb-before-cleanup.txt`(639 줄)다.
@@ -36,6 +38,7 @@
 
 오케스트레이터 Step F1 교차 Phase 정합. 공통 정의를 읽은 bash 에서 상한 `410dcc9`(개정 파일 첫 `end_sha`)로 돌린 도우미 출력 여덟 줄을 글자 그대로 옮긴다
 (`f1.sh` 넷 · `tonegrade.py` 첫 줄 · `toneterms.py` 첫 줄 · `synt.sh` 끝줄 · `amend.sh` 끝줄). `tonegrade.py` · `toneterms.py` 종료 코드는 둘 다 0 이다.
+상한을 notes 커밋 `fdae7db` 로 옮겨 다시 돌려도 여덟 줄이 글자까지 같았다(아래 `## 끝 판 재측정`).
 
 ```text
 p1hand=0 0 0 0 0 0 4 1
@@ -79,6 +82,29 @@ ends=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 p1_last=1 kept=16 xfix=1 1 1 1 p1_remeasu
 - DG-02 — 마크다운 열여덟 가운데 새 묶음은 감사 기록의 도구 고정 소제목 MD024 셋뿐. AP-03 — 펜스 `0 0`. AP-01 — 더한 줄의 킷 판 번호 0
 - DG-04 — 페이지 마흔넷 `44/44 PASS` · `docs` 전체 `177/177 PASS` (종료 코드 0)
 - DG-05 — 새 복제본에서 `rc=[000000000000000000000] vpk_rc=0 vpk_pass=13 vpk_bad=0 vpk_skip=[marketplace-sync plugin-json-bumps]`
+
+## 끝 판 재측정
+
+BUILD-FINISH 가 커밋 뒤 상태에서 조건 스물여섯을 계약 측정 글자 그대로 다시 쟀다. 도우미는 계약에서 새로 떼어 냈고(떼는 명령 그대로, 스물여섯 · BUILD 가 쓴 도우미와 파일 내용이 같다),
+공통 정의가 개정 파일 마지막 `end_sha:` 인 `fdae7db` 를 `END` 로 읽었다. 모든 조건이 기대값과 같아 고친 것이 없다.
+
+- 위 `## 조건별 결과 (BUILD 예행)` 의 값이 모두 그대로 나왔다. 더해서 AR-08 `heads=6/6 lines=8/8 nohtml=19/19 memo=13/13` · `MISS` 0 줄 · notes 마지막 커밋이 `END`,
+  AR-09 `my=107 outside=0 html_extra=0 forbidden=0 unsigned=0 broken=0 self=SEAL_OK seal_files=1`, AP-01 `0`, AP-03 `bare_open_total=0 unclosed_total=0`,
+  RE-01 `0` · RE-02 `generated=1` · `accent=0` · 스크립트 `0`, DG-01 · DG-03 `0`
+- DG-02 — `new_total=3`, `NEW` 셋이 모두 감사 기록의 도구 고정 소제목 MD024(`### Post-Kaizen Checklist failures` · `### Orchestrator SKILL.md manual edits` · `### Next-cycle watchlist`), 예외 밖 0
+- DG-04 — 페이지 마흔넷 `44/44 PASS` 종료 코드 0 · `OK` 줄 모두 `err=0`, `docs` 전체 `177/177 PASS` 종료 코드 0
+- 공통 지침 검증 절 — `HEAD` 새 복제본에서 `validate-plugin.py` · `sync-docs.py --check-only` · `sync-evals.py --check-only`(`Total: 0 added, 0 orphans, 0 missing`) · `run-evals.py` 모두 종료 코드 0.
+  `validate-post-kaizen.py --since 511f19b` 종료 코드 0 — PASS 12 · SKIP 셋(버전 두 줄 · 이 계약 구간에 harness 원본 변경이 없어 `docs-site-regen`), `scope-isolation` · `doc-contracts` PASS.
+  훅 시험 `harness/evals/hooks/commit-guard-test.sh` · `flutter-toolkit/evals/hooks/format-edited-dart-test.sh` · `scripts/test-collect-kaizen-data.py` 종료 코드 0
+
+## 계약 피드백 (Step 7 · 9 · 10)
+
+- Step 7 자기진단 — 스물다섯 항목 가운데 true 는 `implementation_leakage` 하나다. 조건 측정 절에 도우미 이름 · 셸 함수 이름이 들어갔다(대상이 기록 파일이라 도우미 출력 글자를 기대값으로 적었다).
+  ER-01 · ER-02 · ER-05 가 세션 스크래치 사본에 기대는 점은 `untestable_conditions` false 로 두고 사유에 적었다 — 같은 세션에서는 명령으로 판정된다
+- Step 8 교차 진단 — 봉인 전 REVIEW 두 회차(`.harness/.meta/kaizen-0924/final-review.md`)를 `cross_diagnosis_notes` 에 옮겼다(`cross_diagnosis_by: qa-evaluator`)
+- Step 9 저장 — `~/.harness/feedback/contract/1a3bcba6-2026-09-25T230229-de8c7935-38547.yaml` (`sprint_slug: 'kaizen-0924-final'`). 초안은 저장 도구가 지웠고 커밋하지 않았다
+- Step 10 검증 — `bash harness/scripts/verify-feedback.sh <그 파일>` → `PASS` 종료 코드 0
+- 개선 제안 셋 — 저장소 밖 상태를 고치기 전 사본을 오래 남는 자리에 두기 · 나눠 맡긴 페이지 재생성은 원본 소제목 비율도 재기 · 범위 밖 도구 형식 경고는 예외로 굳히지 말고 도구를 고치기(FN-78)
 
 ## 교차 진단 기록
 
