@@ -39,6 +39,18 @@
         {"text": "파일 하나마다 제안 표를 내고 승인을 받은 뒤 편집한다", "type": "behavior"},
         {"text": "여러 파일을 한 번에 일괄 편집하지 않는다", "type": "behavior"}
       ]
+    },
+    {
+      "id": 4,
+      "skill": "tone-guide",
+      "prompt": "이 주석 톤 봐줘 — `// 차례칸이 비면 첫 세트로 돌아간다`",
+      "expected_output": "K-11 을 관측 컨벤션으로 짚고 원래 이름이나 풀어 쓴 문장을 대안으로 제시",
+      "assertions": [
+        {"text": "references/locale-korean.md 를 실제로 Read 하고 K-11 행을 강도와 함께 인용한다", "type": "behavior"},
+        {"text": "새로 붙인 이름을 K-11 관측 컨벤션으로 짚되 MUST 위반으로 단정하지 않는다", "type": "output"},
+        {"text": "원래 이름을 그대로 쓰거나 하는 일을 문장으로 풀어 쓴 대안을 낸다", "type": "output"},
+        {"text": "사전에 없다는 사실만으로 위반이라고 판정하지 않는다", "type": "behavior"}
+      ]
     }
   ]
 }

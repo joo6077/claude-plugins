@@ -53,6 +53,7 @@ version: 0.1.0
 | K-08 | 용어 번역표는 프로젝트 저장소가 소유한다. 킷으로 승격하지 않는다 (§6) | 관측 컨벤션 |
 | K-09 | 한국어 규칙의 정의처는 이 파일 하나다. 다른 문서는 중복 정의 없이 참조만 한다 | MUST |
 | K-10 | 완료 선언 전에 §8 대조 grep 과 §9 자기모순 검사를 각각 1회 실행하고 결과를 보고한다 | MUST |
+| K-11 | 글쓴이가 새로 붙인 이름(합성어·비유)으로 대상을 부르지 않는다. 원래 이름을 그대로 쓰거나 하는 일을 문장으로 풀어 쓴다 (§4 끝) | 관측 컨벤션 |
 
 ## 2. 번역투 킬러 패턴 치환표
 
@@ -87,6 +88,13 @@ version: 0.1.0
 3. **음역 금지.** `보더 라디우스` 는 한국어도 영어도 아니라 검색이 안 되고 공식 API 이름과도 어긋난다.
 
 경계에 정착 외래어가 있다. `다운로드` · `업로드` · `파싱` · `파일` · `폴더` 는 한국어 어휘로 굳었으므로 허용한다. 반대로 `잡` 은 `작업`, `큐` 는 `대기열` 로 쓴다. 정착 여부는 팀이 한 번 판정하고 결과를 §6 표에 적는다. 매 세션 재논쟁하지 않는다.
+
+**새 이름을 만들지 않는다 (K-11).** 대상을 부를 이름이 이미 있으면 그 이름을 쓴다 — 파일 이름, 함수·설정 키 이름, 공식 API 이름. 이름이 없으면 하는 일을 문장으로 풀어 쓴다. 글쓴이가 새로 붙인 합성어나 비유는 읽는 사람이 무엇을 가리키는지부터 되묻게 만든다.
+
+- 판정 기준은 사전에 실렸는지가 아니라 **처음 읽는 사람이 뜻을 짐작할 수 있는가** 다. 한글 맞춤법 제50항 해설은 사전에 없는 전문 용어도 정당한 말로 다룬다.
+- 새 이름이 꼭 필요하면 처음 나올 때 괄호로 뜻을 붙인다.
+- 음역이 섞인 새 이름(`표시훅` 의 `훅`)은 3원칙의 음역 금지(K-05)에도 걸릴 수 있다. 정착 외래어인지는 §6 표로 판정하고, 둘 다 걸리면 두 규칙을 함께 적되 강도는 규칙마다 그대로 인용한다.
+- 새 이름은 모양이 정해져 있지 않아 §8 에 grep 을 두지 않는다. 완료 전 전수 대조에서 규칙표의 K-11 행을 읽어 판정한다.
 
 ## 5. 언어 의존 상수 표
 
@@ -177,4 +185,8 @@ grep -nE '(을|를) ?(처리|관리)(합니다|한다)|에 대해서?|하도록 
 - [Google Engineering Practices](https://google.github.io/eng-practices/review/reviewer/looking-for.html)
 - [Effective Dart documentation](https://dart.dev/effective-dart/documentation)
 - [Microsoft Code with Engineering Playbook](https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/)
+- [Microsoft Style Guide — Use technical terms carefully](https://github.com/MicrosoftDocs/microsoft-style-guide/blob/main/styleguide/word-choice/use-technical-terms-carefully.md) (K-11)
+- [Google developer documentation style guide — Jargon](https://developers.google.com/style/jargon) (K-11)
+- [한글 맞춤법 — 제50항 해설](https://korean.go.kr/kornorms/regltn/regltnView.do?regltn_code=0001) (K-11 판정 기준)
 - 프로젝트 실측 (2026-08-28 전수 감사) — `- 반환값:` 577건 / 80파일, `- [param]:` 788건, 공용 패키지 번역투 doc 129건, 이름 번역 주석 약 85건 / 48파일
+- 세션 관찰 (2026-09-19) — 대화에서 새 합성어 1건을 사용자가 알아듣지 못해 되물었다 (K-11)
