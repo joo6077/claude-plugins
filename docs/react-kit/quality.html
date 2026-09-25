@@ -21,30 +21,40 @@
     background-image:radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
                      radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
   }
+  a{color:var(--accent2)}
+  a:focus-visible,summary:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px}
   .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
-  h2{font-size:clamp(18px,2vw,24px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
-  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
-  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:8px;margin-bottom:clamp(24px,4vw,40px);max-width:760px;line-height:1.7}
+  h2{font-size:clamp(20px,2.2vw,26px);font-weight:700;margin-bottom:10px;letter-spacing:-0.3px;line-height:1.3}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;margin-bottom:8px;line-height:1.4}
+  h4{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+  .section{margin-bottom:clamp(48px,6vw,80px);scroll-margin-top:24px}
+  .sub{margin-top:clamp(28px,3.5vw,40px)}
   .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
     color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
-  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
+  .desc{color:var(--text2);font-size:clamp(14px,1.1vw,16px);line-height:1.7;max-width:760px;margin-bottom:24px}
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
   .card:hover{border-color:rgba(56,189,248,0.25)}
+  .card p{color:var(--text2);font-size:15px}
+  .card p+p{margin-top:8px}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--bg2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:last-child td{border-bottom:none}
   tr:hover td{background:rgba(56,189,248,0.03)}
+  td strong{color:var(--text)}
   td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
-  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
-  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
-  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
-    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+  .w{max-width:46ch;white-space:normal}
+  .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.65}
+  .checklist li strong{color:var(--text)}
+  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
   .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
   @media(max-width:640px){.compare{grid-template-columns:1fr}}
   .compare-bad,.compare-good{border-radius:12px;padding:20px}
@@ -53,39 +63,147 @@
   .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
   .compare-bad .compare-label{color:var(--red)}
   .compare-good .compare-label{color:var(--green)}
-  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
+  .compare p{font-size:14px;color:var(--text2)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;
     background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
-  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
+  .card-head{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  .card-head h3{margin-bottom:0}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--text2);margin:12px 0}
   code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
-  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
+  pre code{background:none;padding:0;font-size:inherit;border-radius:0}
+  .code-path,.card p.code-path{font-family:var(--mono);font-size:12px;color:var(--text3);margin-top:4px;overflow-wrap:anywhere}
+  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:14px;text-decoration:none;margin-bottom:32px;padding:6px 0}
   .nav-back:hover{color:var(--text)}
-  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;margin-bottom:32px}
-  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;margin-bottom:28px}
+  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;
     padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
-  .card-source{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8;border-top:1px solid var(--border);padding-top:10px;width:100%}
-  .card-source:hover{opacity:1}
+  .card-source{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:13px;text-decoration:none;margin-top:14px;opacity:0.85;border-top:1px solid var(--border);padding-top:10px;width:100%}
+  .card-source:hover{opacity:1;text-decoration:underline}
   .footer-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
-  .footer-link{color:var(--accent2);font-size:13px;text-decoration:none;opacity:0.8}
-  .footer-link:hover{opacity:1}
-  .severity-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+  .footer-link{color:var(--accent2);font-size:14px;text-decoration:none;opacity:0.85;padding:6px 12px;border:1px solid var(--border);border-radius:20px}
+  .footer-link:hover{opacity:1;border-color:rgba(56,189,248,0.4)}
+  .severity-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:700}
   .sev-info{background:rgba(56,189,248,0.15);color:var(--accent)}
   .sev-warn{background:rgba(251,191,36,0.15);color:var(--yellow)}
   .sev-error{background:rgba(248,113,113,0.15);color:var(--red)}
   .sev-fatal{background:rgba(248,113,113,0.25);color:var(--red);border:1px solid rgba(248,113,113,0.4)}
-  .flow-step{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .flow-step{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);color:var(--text2);font-size:15px}
   .flow-step:last-child{border-bottom:none}
+  .flow-step strong{color:var(--text)}
   .flow-num{width:28px;height:28px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+  /* 목차 */
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:clamp(40px,5vw,64px)}
+  .toc a{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);border-radius:20px;
+    background:var(--surface);color:var(--text2);font-size:14px;text-decoration:none;transition:border-color var(--transition),color var(--transition)}
+  .toc a:hover{border-color:rgba(56,189,248,0.45);color:var(--text)}
+  .toc a span{color:var(--accent);font-family:var(--mono);font-size:12px}
+
+  /* 숫자 요약 */
+  .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .stat b{display:block;font-size:28px;font-weight:800;color:var(--accent);line-height:1.1}
+  .stat span{font-size:13px;color:var(--text2)}
+  @media(max-width:900px){.stat-row{grid-template-columns:repeat(3,1fr)}}
+
+  /* 머리 설정 · 입력 */
+  .kv{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px;font-size:14px}
+  .kv dt{font-family:var(--mono);font-size:12.5px;color:var(--accent2);padding-top:2px}
+  .kv dd{color:var(--text2)}
+  .kv dd ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+  .kv dd li::before{content:'· ';color:var(--text3)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+  .chip{font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:3px 10px;border-radius:14px}
+
+  /* 스킬 소개 카드 */
+  .skill-card{border-top:3px solid var(--accent)}
+  .skill-card .skill-name{font-family:var(--mono);font-size:15px;color:var(--accent);font-weight:700;margin-bottom:6px}
+  .callout{border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 10px 10px 0;padding:14px 18px;color:var(--text);font-size:15px;margin-top:20px}
+  .callout p{color:var(--text)}
+  .callout code{background:rgba(13,13,20,0.55)}
+  .callout.warn{border-left-color:var(--yellow);background:rgba(251,191,36,0.08)}
+  .callout.danger{border-left-color:var(--red);background:rgba(248,113,113,0.08)}
+  .callout ol{margin:8px 0 0 20px;display:flex;flex-direction:column;gap:6px;color:var(--text2);font-size:14px}
+
+  /* 3 단계 흐름 그림 */
+  .stage{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:stretch}
+  .stage-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .stage-tag{display:block;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:6px}
+  .stage-box strong{display:block;font-family:var(--mono);font-size:14px;color:var(--text);margin-bottom:4px}
+  .stage-box p{font-size:13px;color:var(--text2)}
+  .stage-arrow{display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;font-weight:800}
+  .escape{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 16px;border:1px dashed rgba(248,113,113,0.45);border-radius:12px;font-size:14px;color:var(--text2)}
+  .escape strong{color:var(--red)}
+  .escape .arr{color:var(--text3)}
+
+  /* 스킬 상호작용 파이프라인 */
+  .pipeline{list-style:none;counter-reset:pipe;display:flex;flex-direction:column;gap:0}
+  .pipeline li{counter-increment:pipe;position:relative;display:grid;grid-template-columns:36px 1fr;gap:14px;padding-bottom:18px}
+  .pipeline li::before{content:counter(pipe);width:36px;height:36px;border-radius:10px;background:var(--accent-dim);color:var(--accent);
+    font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .pipeline li:not(:last-child)::after{content:'';position:absolute;left:17px;top:38px;bottom:2px;width:2px;background:var(--border)}
+  .pipe-name{font-family:var(--mono);font-size:15px;color:var(--text);font-weight:700}
+  .pipe-role{display:block;font-size:14px;color:var(--text2)}
+
+  /* 배치 경로 */
+  .place{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .place li{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr);gap:12px;font-size:14px;color:var(--text2);padding:8px 0;border-bottom:1px solid var(--border)}
+  .place li:last-child{border-bottom:none}
+  .place li b{color:var(--text);font-weight:600}
+  .place code{overflow-wrap:anywhere}
+
+  /* 주의사항 번호 카드 */
+  .gotcha-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+  .gotcha{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .gotcha h4{display:flex;gap:8px;align-items:flex-start}
+  .gotcha p{font-size:14px;color:var(--text2)}
+
+  /* 출처 목록 */
+  .src-list{list-style:none;counter-reset:src;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:8px 20px}
+  .src-list li{counter-increment:src;display:grid;grid-template-columns:28px 1fr;gap:8px;font-size:14px;padding:8px 0;border-bottom:1px solid var(--border)}
+  .src-list li::before{content:counter(src);color:var(--accent);font-family:var(--mono);font-size:12px;padding-top:2px}
+  .src-list a{text-decoration:none;overflow-wrap:anywhere}
+  .src-list a:hover{text-decoration:underline}
+  .src-list small{display:block;color:var(--text3);font-family:var(--mono);font-size:12px;overflow-wrap:anywhere}
+
+  /* 변경 이력 */
+  .timeline{border-left:2px solid var(--border);padding-left:20px;display:flex;flex-direction:column;gap:18px}
+  .tl-item{position:relative}
+  .tl-item::before{content:'';position:absolute;left:-27px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+  .tl-date{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:700}
+  .tl-item p{color:var(--text2);font-size:15px}
+  .source-meta{margin-top:28px;color:var(--text3);font-size:13px}
+
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition:none !important;animation:none !important}
+  }
 
 /* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ──────────────────
    내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
 /* (1) grid/flex 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
-.grid-2>*,.grid-3>*,.compare>*{min-width:0}
+.grid-2>*,.grid-3>*,.compare>*,.stat-row>*,.stage>*,.gotcha-grid>*,.src-list>*,.kv>*,.pipeline li>*{min-width:0}
 /* flex li 안의 익명 텍스트 아이템은 min-width 를 줄 수 없으므로 줄바꿈 기회를 넓힌다 */
 .checklist li{overflow-wrap:anywhere}
+/* (2) 표는 감싼 상자에서 스크롤시킨다 — 긴 설명 칸은 .w 로 폭을 묶어 한 줄로 늘어지지 않게 한다 */
+.table-wrap{overflow-x:auto;max-width:100%;margin-bottom:24px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.table-wrap>table{min-width:max-content}
 /* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
 pre{overflow-x:auto;max-width:100%}
 pre code{white-space:pre}
 :not(pre)>code{overflow-wrap:anywhere}
+/* (4) 좁은 화면은 한 줄로 쌓는다 */
+@media(max-width:760px){
+  .stage{grid-template-columns:1fr}
+  .stage-arrow{transform:rotate(90deg);min-height:24px}
+}
+@media(max-width:600px){
+  .grid-2,.grid-3,.compare,.gotcha-grid,.src-list{grid-template-columns:1fr}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .kv{grid-template-columns:1fr;gap:2px 0}
+  .kv dd{margin-bottom:10px}
+  .place li{grid-template-columns:1fr;gap:2px}
+}
 </style>
 </head>
 <body>
@@ -94,7 +212,7 @@ pre code{white-space:pre}
 <a href="../index.html" class="nav-back">&#8592; 문서 허브</a>
 
 <h1>G4 — 품질 (테스트 · 에러 처리 · i18n)</h1>
-<p class="subtitle">react-kit 품질 보증을 담당하는 세 스킬. Vitest + Testing Library + Playwright 3단 테스트 피라미드, neverthrow 기반 Failure 전파, Lingui v5 매크로 i18n을 자동화한다.</p>
+<p class="subtitle">react-kit 에서 프로젝트 품질을 맡는 세 스킬의 설계다. <code>/react-test</code> 는 Vitest · Testing Library · Playwright 3단 테스트를, <code>/react-error</code> 는 neverthrow 기반 Failure 전파와 Error Boundary 를, <code>/react-l10n</code> 은 Lingui v5 매크로 번역을 자동화한다.</p>
 
 <div class="meta-row">
   <span class="tag">G4</span>
@@ -102,100 +220,235 @@ pre code{white-space:pre}
   <span class="tag">/react-error</span>
   <span class="tag">/react-l10n</span>
   <span class="tag">Vitest</span>
+  <span class="tag">Testing Library</span>
+  <span class="tag">Playwright</span>
   <span class="tag">neverthrow</span>
   <span class="tag">Lingui v5</span>
 </div>
 
-<!-- ── 공통 원칙 ── -->
-<div class="section">
+<nav class="toc" aria-label="이 페이지 목차">
+  <a href="#purpose"><span>00</span>문서 목적</a>
+  <a href="#principles"><span>01</span>공통 설계 원칙</a>
+  <a href="#react-test"><span>02</span>/react-test</a>
+  <a href="#react-error"><span>03</span>/react-error</a>
+  <a href="#react-l10n"><span>04</span>/react-l10n</a>
+  <a href="#interaction"><span>05</span>세 스킬의 상호작용</a>
+  <a href="#cross-group"><span>06</span>다른 그룹과의 관계</a>
+  <a href="#sources"><span>07</span>출처</a>
+  <a href="#history"><span>08</span>변경 이력</a>
+</nav>
+
+<!-- ── 문서 목적 ── -->
+<section class="section" id="purpose">
+  <div class="section-label">문서 목적</div>
+  <h2>G4 그룹은 품질을 보장하는 세 스킬이다</h2>
+  <p class="desc">세 스킬 모두 G1 이 설치한 Vitest · Testing Library · Playwright · Lingui · neverthrow 를 전제로 하고, G2 의 Result / Failure 패턴을 그대로 이어받는다.</p>
+
+  <div class="stat-row">
+    <div class="stat"><b>3</b><span>스킬 (test · error · l10n)</span></div>
+    <div class="stat"><b>3</b><span>테스트 유형 (unit · component · e2e)</span></div>
+    <div class="stat"><b>6</b><span>레이어별 테스트 전략 행</span></div>
+    <div class="stat"><b>4</b><span>Severity 단계</span></div>
+    <div class="stat"><b>15</b><span>출처 문서</span></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card skill-card">
+      <div class="skill-name">/react-test</div>
+      <p>Vitest (unit) + React Testing Library (component) + Playwright (e2e) 3단 테스트 피라미드. Clean Architecture 레이어마다 다른 테스트 전략을 자동으로 만든다.</p>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#1-react-test--테스트-코드-자동-생성">출처: g4-quality.md §1</a>
+    </div>
+    <div class="card skill-card">
+      <div class="skill-name">/react-error</div>
+      <p>데이터 경계의 예외를 <code>Failure</code> 로 바꾸고, React 렌더 경계의 에러는 Error Boundary 로 잡고, 화면 표시는 Severity 에 따라 나눈다.</p>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#2-react-error--에러-처리-패턴-생성">출처: g4-quality.md §2</a>
+    </div>
+    <div class="card skill-card">
+      <div class="skill-name">/react-l10n</div>
+      <p>Lingui v5 매크로 기반 번역. <code>Trans</code> / <code>t</code> 매크로, Vite 플러그인, 자동 codegen, locale 파일 관리까지 맡는다.</p>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#3-react-l10n--lingui-기반-i18n">출처: g4-quality.md §3</a>
+    </div>
+  </div>
+
+  <div class="card sub">
+    <h3>원본 머리 설정</h3>
+    <dl class="kv">
+      <dt>last_updated</dt><dd>2026-04-10</dd>
+      <dt>group</dt><dd>G4</dd>
+      <dt>scope</dt><dd>react-kit 품질 보증 + 에러 처리 + i18n 스킬 3종</dd>
+      <dt>skills</dt><dd><code>/react-test</code> · <code>/react-error</code> · <code>/react-l10n</code></dd>
+      <dt>depends_on</dt><dd>G1 <code>/react-init</code> · G2 전체 · G3 <code>/react-wasm</code> <code>/react-tauri</code></dd>
+      <dt>research_sources</dt>
+      <dd>
+        <ul>
+          <li>Vitest 공식 가이드 (vitest.dev/guide)</li>
+          <li>Testing Library React 문서 (testing-library.com)</li>
+          <li>Playwright Component Testing (playwright.dev/docs/test-components)</li>
+          <li>Lingui Macros + React 문서 (lingui.dev/ref/macro, lingui.dev/tutorials/react)</li>
+          <li>neverthrow 공식 (supermacro/neverthrow)</li>
+          <li>2026-04 WebSearch 검증</li>
+        </ul>
+      </dd>
+    </dl>
+  </div>
+</section>
+
+<!-- ── 공통 설계 원칙 ── -->
+<section class="section" id="principles">
   <div class="section-label">G4 공통 설계 원칙</div>
+  <h2>다섯 원칙이 세 스킬에 똑같이 걸린다</h2>
   <div class="grid-2">
     <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">1</span><h3>레이어 인식</h3></div>
-      <p class="card-body">domain 순수 함수는 node 환경, presentation hook/component는 jsdom, 전체 플로우는 Playwright 브라우저. 계층별 적합한 도구 사용.</p>
-      <a class="card-source" href="../react/kit-design/g4-quality.md#공통-설계-원칙">출처: g4-quality.md §공통설계원칙</a>
+      <div class="card-head"><span class="num">1</span><h3>레이어 인식</h3></div>
+      <p>모든 G4 스킬은 Clean Architecture 레이어를 의식한다. domain 순수 함수는 node 환경에서, presentation hook · component 는 jsdom 환경에서, 전체 흐름은 Playwright 브라우저에서 시험한다 — 계층마다 맞는 도구를 쓴다.</p>
+      <a class="card-source" href="https://vitest.dev/guide/">출처: Vitest 공식 가이드</a>
     </div>
     <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">2</span><h3>Result 친화</h3></div>
-      <p class="card-body">에러 경로 테스트는 <code>throw</code>가 아니라 <code>Result.isErr()</code>로 검증. Error Boundary는 최후의 안전망이지 1차 에러 처리가 아님.</p>
+      <div class="card-head"><span class="num">2</span><h3>Result 친화</h3></div>
+      <p>에러 경로 테스트는 throw 가 아니라 <code>Result.isErr()</code> 로 검증한다. UI 의 Error Boundary 는 최후의 안전망일 뿐 1차 에러 처리가 아니다.</p>
       <a class="card-source" href="https://github.com/supermacro/neverthrow">출처: neverthrow GitHub</a>
     </div>
     <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">3</span><h3>Strict TS 유지</h3></div>
-      <p class="card-body">테스트 코드도 <code>any</code> 금지. <code>vi.mocked(...)</code>로 타입 안전성 유지. <code>expect(...).toBe(...)</code>의 타입 추론 활용.</p>
-      <a class="card-source" href="../react/kit-design/g4-quality.md#공통-설계-원칙">출처: g4-quality.md §공통설계원칙</a>
+      <div class="card-head"><span class="num">3</span><h3>Strict TS 유지</h3></div>
+      <p>테스트 코드도 <code>any</code> 를 쓰지 않는다. <code>expect(...).toBe(...)</code> 의 타입 추론을 살려 엄격하게 쓴다.</p>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#공통-설계-원칙">출처: g4-quality.md §공통 설계 원칙</a>
     </div>
     <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">4</span><h3>i18n 커버리지</h3></div>
-      <p class="card-body">모든 presentation 레이어 문자열은 Lingui 매크로 경유. 하드코딩된 한국어/영어 문자열은 <code>/react-audit</code>이 검출.</p>
+      <div class="card-head"><span class="num">4</span><h3>project-detection 재사용</h3></div>
+      <p>G1 의 project-detection 을 다시 써서 Vitest / Playwright / Lingui 설치 여부와 버전, 설정 파일 위치를 감지한다.</p>
+      <a class="card-source" href="scaffolding.html">출처: G1 Scaffolding &amp; 생성</a>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="num">5</span><h3>i18n 커버리지</h3></div>
+      <p>presentation 레이어의 모든 문자열은 기본으로 Lingui 매크로를 거친다. 하드코딩된 한국어 / 영어 문자열은 <code>/react-audit</code> 이 잡아낸다.</p>
       <a class="card-source" href="https://lingui.dev/tutorials/react">출처: Lingui React 튜토리얼</a>
     </div>
   </div>
-</div>
+</section>
 
 <!-- ── /react-test ── -->
-<div class="section">
-  <div class="section-label">/react-test — 레이어별 테스트 전략</div>
-  <p class="desc">Clean Architecture 레이어에 따라 다른 테스트 도구를 사용한다. 대상 파일 경로를 보고 자동으로 적합한 유형 선택.</p>
+<section class="section" id="react-test">
+  <div class="section-label">1 · /react-test — 테스트 코드 자동 생성</div>
+  <h2>대상 파일을 보고 알맞은 테스트 유형을 고른다</h2>
+  <p class="desc">대상 파일 · 클래스를 분석해 Vitest unit, Testing Library component, Playwright e2e 가운데 맞는 유형의 테스트를 만든다.</p>
 
-  <div style="overflow-x:auto;margin-bottom:24px">
-    <table>
-      <thead>
-        <tr>
-          <th>레이어</th>
-          <th>테스트 유형</th>
-          <th>도구</th>
-          <th>특징</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>domain/</code></td>
-          <td>Unit</td>
-          <td>Vitest (node)</td>
-          <td>순수 함수. 외부 의존성 0개. MSW 불필요</td>
-        </tr>
-        <tr>
-          <td><code>data/</code></td>
-          <td>Unit + Integration</td>
-          <td>Vitest + MSW</td>
-          <td>fetch 모의, Zod parse 실패, Result 변환</td>
-        </tr>
-        <tr>
-          <td>presentation hooks</td>
-          <td>Component test</td>
-          <td>Vitest + Testing Library + QueryClient</td>
-          <td><code>renderHook</code>, <code>waitFor</code>, store 초기화</td>
-        </tr>
-        <tr>
-          <td>presentation components</td>
-          <td>Component test</td>
-          <td>Vitest + Testing Library + jsdom</td>
-          <td>렌더, userEvent, <code>getByRole</code></td>
-        </tr>
-        <tr>
-          <td>presentation routes</td>
-          <td>E2E</td>
-          <td>Playwright</td>
-          <td>실제 브라우저, 라우팅, 폼 제출</td>
-        </tr>
-        <tr>
-          <td><code>infrastructure/</code></td>
-          <td>Integration</td>
-          <td>Vitest + mock or Playwright</td>
-          <td>isTauri() mock, invoke 모의</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="grid-2">
+    <div class="card">
+      <h3>1.1 트리거</h3>
+      <div class="chips">
+        <span class="chip">테스트 만들어줘</span><span class="chip">react-test</span><span class="chip">unit test</span>
+        <span class="chip">component test</span><span class="chip">e2e test</span>
+      </div>
+      <p>조건: G1 초기화 완료, 대상 파일 경로가 주어짐.</p>
+    </div>
+    <div class="card">
+      <h3>1.2 입력</h3>
+      <dl class="kv">
+        <dt>target_path</dt><dd>필수. 테스트 대상 파일 경로 (예: <code>src/domain/usecases/user-usecases.ts</code>)</dd>
+        <dt>test_type</dt><dd>선택. <code>unit</code> / <code>component</code> / <code>e2e</code>. 없으면 대상 파일의 레이어로 자동 선택</dd>
+        <dt>--coverage</dt><dd>커버리지 수집을 켠다</dd>
+      </dl>
+    </div>
   </div>
 
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card">
-      <h3>Domain Unit 테스트 — Result 검증</h3>
-      <pre><code class="language-ts">describe('userRepository.fetchUser', () => {
-  it('returns ok(User) on 200', async () => {
+  <div class="sub">
+    <h3>1.3 Clean Architecture 레이어별 테스트 전략</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>레이어</th><th>테스트 유형</th><th>도구</th><th>특징</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>domain/</strong><div class="w">entities, usecases, failures</div></td>
+            <td>Unit</td>
+            <td>Vitest (node 환경)</td>
+            <td><div class="w">순수 함수. 외부 의존성 없음. 빠르고 독립적. MSW 불필요</div></td>
+          </tr>
+          <tr>
+            <td><strong>data/</strong><div class="w">datasources, models, repositories</div></td>
+            <td>Unit + integration</td>
+            <td>Vitest + MSW (fetch 모의)</td>
+            <td><div class="w">fetch 모의, Zod parse 실패, Result 변환 경로 검증</div></td>
+          </tr>
+          <tr>
+            <td><strong>presentation/hooks</strong><div class="w">TanStack Query, Zustand</div></td>
+            <td>Component test</td>
+            <td>Vitest + Testing Library + QueryClient wrapper</td>
+            <td><div class="w"><code>renderHook</code>, <code>waitFor</code>, store 초기화</div></td>
+          </tr>
+          <tr>
+            <td><strong>presentation/components</strong><div class="w">위젯, 폼</div></td>
+            <td>Component test</td>
+            <td>Vitest + Testing Library + jsdom</td>
+            <td><div class="w">렌더, 사용자 이벤트 (userEvent), 접근성 (<code>getByRole</code>)</div></td>
+          </tr>
+          <tr>
+            <td><strong>presentation/routes</strong><div class="w">화면 전체</div></td>
+            <td>E2E</td>
+            <td>Playwright</td>
+            <td><div class="w">실제 브라우저, 실 네트워크 또는 MSW, 라우팅 · 폼 제출</div></td>
+          </tr>
+          <tr>
+            <td><strong>infrastructure/</strong><div class="w">Tauri, WASM</div></td>
+            <td>Integration</td>
+            <td>Vitest + mock 또는 Playwright (Tauri 환경)</td>
+            <td><div class="w"><code>isTauri()</code> 가짜, invoke 모의</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>1.4 Vitest Unit 테스트 패턴</h3>
+    <p class="desc">domain 은 스키마 · 순수 함수를 그대로 부르고, data 레이어의 Repository 는 MSW 로 fetch 를 모의한다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h4>domain — 스키마 검증</h4>
+        <p class="code-path">tests/unit/domain/usecases/user-usecases.test.ts</p>
+        <pre><code class="language-ts">import { describe, it, expect } from 'vitest'
+import { UserSchema } from '@/domain/entities/user'
+
+describe('UserSchema', () =&gt; {
+  it('accepts valid user shape', () =&gt; {
+    const parsed = UserSchema.safeParse({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      email: 'jane@example.com',
+      name: 'Jane',
+      createdAt: '2026-04-10T00:00:00Z',
+    })
+    expect(parsed.success).toBe(true)
+  })
+
+  it('rejects missing email', () =&gt; {
+    const parsed = UserSchema.safeParse({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      name: 'Jane',
+      createdAt: '2026-04-10T00:00:00Z',
+    })
+    expect(parsed.success).toBe(false)
+  })
+})</code></pre>
+        <a class="card-source" href="https://vitest.dev/guide/">출처: Vitest 공식 가이드</a>
+      </div>
+      <div class="card">
+        <h4>data — Repository 를 MSW 로 모의</h4>
+        <p class="code-path">tests/unit/data/repositories/user-repository.test.ts</p>
+        <pre><code class="language-ts">import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest'
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
+import { userRepository } from '@/data/repositories/user-repository'
+
+const server = setupServer()
+beforeAll(() =&gt; server.listen())
+afterEach(() =&gt; server.resetHandlers())
+afterAll(() =&gt; server.close())
+
+describe('userRepository.fetchUser', () =&gt; {
+  it('returns ok(User) on 200', async () =&gt; {
     server.use(
-      http.get('*/users/123', () =>
+      http.get('*/users/123', () =&gt;
         HttpResponse.json({
           id: '123',
           email_address: 'jane@example.com',
@@ -211,11 +464,8 @@ pre code{white-space:pre}
     }
   })
 
-  it('returns err(not-found) on 404', async () => {
-    server.use(
-      http.get('*/users/999', () =>
-        new HttpResponse(null, { status: 404 })),
-    )
+  it('returns err(not-found) on 404', async () =&gt; {
+    server.use(http.get('*/users/999', () =&gt; new HttpResponse(null, { status: 404 })))
     const result = await userRepository.fetchUser('999')
     expect(result.isErr()).toBe(true)
     if (result.isErr()) {
@@ -223,94 +473,260 @@ pre code{white-space:pre}
     }
   })
 })</code></pre>
-      <a class="card-source" href="https://mswjs.io/docs/">출처: MSW 공식 문서</a>
-    </div>
-    <div class="card">
-      <h3>Component 테스트 — userEvent</h3>
-      <pre><code class="language-ts">describe('LoginForm', () => {
-  it('shows validation error when email is empty', async () => {
-    const user = userEvent.setup()
-    render(&#60;LoginForm onSubmit={vi.fn()} /&#62;)
-
-    await user.click(
-      screen.getByRole('button', { name: /로그인/i }),
-    )
-    expect(
-      await screen.findByText(/올바른 이메일/i),
-    ).toBeInTheDocument()
-  })
-})</code></pre>
-      <p style="margin-top:8px;font-size:12px;color:var(--text3)">핵심: getByRole 우선 · userEvent (fireEvent 금지) · findBy* 는 await 필수</p>
-      <a class="card-source" href="https://testing-library.com/docs/">출처: Testing Library React 문서</a>
+        <a class="card-source" href="https://github.com/supermacro/neverthrow">출처: neverthrow GitHub (Result isOk / isErr)</a>
+      </div>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:20px">
-    <h3>Playwright E2E</h3>
-    <pre><code class="language-ts">// tests/e2e/login.spec.ts
-test('user can log in and see dashboard', async ({ page }) => {
+  <div class="sub">
+    <h3>1.5 Testing Library Component 테스트 패턴</h3>
+    <p class="desc">컴포넌트는 jsdom 환경 + Testing Library 쿼리 + user-event 로 시험한다.</p>
+    <div class="card">
+      <p class="code-path">tests/component/LoginForm.test.tsx</p>
+      <pre><code class="language-tsx">import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { ok, err } from 'neverthrow'
+import { LoginForm } from '@/presentation/features/auth/components/login-form'
+
+describe('LoginForm', () =&gt; {
+  it('shows validation error when email is empty', async () =&gt; {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(ok(undefined))
+    render(&lt;LoginForm onSubmit={onSubmit} /&gt;)
+
+    await user.click(screen.getByRole('button', { name: /로그인/i }))
+    expect(await screen.findByText(/올바른 이메일/i)).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('calls onSubmit with values and shows server error on Result.err', async () =&gt; {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(err({ kind: 'login/invalid-credentials' as const }))
+    render(&lt;LoginForm onSubmit={onSubmit} /&gt;)
+
+    await user.type(screen.getByLabelText(/이메일/i), 'jane@example.com')
+    await user.type(screen.getByLabelText(/비밀번호/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /로그인/i }))
+
+    expect(onSubmit).toHaveBeenCalledWith({ email: 'jane@example.com', password: 'password123' })
+    expect(await screen.findByText(/이메일 또는 비밀번호가 올바르지 않습니다/i)).toBeInTheDocument()
+  })
+})</code></pre>
+      <a class="card-source" href="https://testing-library.com/docs/">출처: Testing Library React 문서</a>
+    </div>
+
+    <h4 class="sub">핵심 규칙 세 가지</h4>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label">피할 쿼리 · 이벤트</div>
+        <pre><code class="language-ts">// getByTestId 는 마지막 수단
+screen.getByTestId('login-submit')
+
+// fireEvent 는 실제 입력과 거리가 멀다
+fireEvent.click(button)
+
+// findBy* 에 await 가 없으면 pending Promise 로 끝난다
+screen.findByText(/올바른 이메일/i)</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">권장</div>
+        <pre><code class="language-ts">// 접근성 기반 쿼리가 실제 사용자 경험에 가깝다
+screen.getByRole('button', { name: /로그인/i })
+
+// userEvent 는 실제 키보드 · 마우스 이벤트에 가깝다
+await user.click(button)
+
+// findBy* 는 비동기 — await 필수. getBy* 는 동기(없으면 즉시 throw)
+await screen.findByText(/올바른 이메일/i)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>1.6 Playwright E2E 패턴</h3>
+    <div class="grid-2">
+      <div class="card">
+        <p class="code-path">tests/e2e/login.spec.ts</p>
+        <pre><code class="language-ts">import { test, expect } from '@playwright/test'
+
+test('user can log in and see dashboard', async ({ page }) =&gt; {
   await page.goto('/login')
   await page.getByLabel('이메일').fill('jane@example.com')
   await page.getByLabel('비밀번호').fill('password123')
   await page.getByRole('button', { name: '로그인' }).click()
   await expect(page).toHaveURL(/\/dashboard/)
-  await expect(
-    page.getByRole('heading', { name: /환영합니다/ }),
-  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: /환영합니다/ })).toBeVisible()
 })</code></pre>
-    <a class="card-source" href="https://playwright.dev/docs/test-components">출처: Playwright Component Testing</a>
+        <a class="card-source" href="https://playwright.dev/docs/test-fixtures">출처: Playwright Fixtures</a>
+      </div>
+      <div class="card">
+        <h4>화면 전체 흐름은 실제 브라우저에서</h4>
+        <p>라우트 단위 화면은 Playwright 로 실제 브라우저에서 돌린다. 로그인 → 대시보드 이동처럼 라우팅과 폼 제출이 함께 걸리는 흐름이 대상이다.</p>
+        <div class="callout">
+          <p><strong>Tauri e2e</strong> — <code>@playwright/experimental-ct-react</code> 또는 Tauri webdriver 로 데스크톱 앱까지 다룰 수 있다. 기본 템플릿은 웹 타깃만 만들고, Tauri e2e 는 옵션이다.</p>
+        </div>
+        <a class="card-source" href="https://playwright.dev/docs/test-components">출처: Playwright Component Testing (experimental)</a>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- ── /react-test Gotchas ── -->
-<div class="section">
-  <div class="section-label">/react-test 주의사항</div>
-  <ul class="checklist">
-    <li><span class="check">!</span><strong>환경 분리 필수</strong> — component 테스트는 jsdom, unit 테스트는 node. <code>environmentMatchGlobs</code>로 경로별 분리.</li>
-    <li><span class="check">!</span><strong>setupFiles 필수</strong> — <code>@testing-library/jest-dom</code> matchers를 전역 등록하려면 setup 파일에서 <code>expect.extend(matchers)</code>.</li>
-    <li><span class="check">!</span><strong>MSW v2 API</strong> — 구 <code>rest.get(...)</code>가 아니라 <code>http.get(...) + HttpResponse</code>. deprecated API 사용 금지.</li>
-    <li><span class="check">!</span><strong>findBy* 는 await 필수</strong> — 까먹으면 pending Promise로 false positive.</li>
-    <li><span class="check">!</span><strong>Playwright vs Vitest 파일 분리</strong> — <code>.spec.ts</code> (Playwright) vs <code>.test.ts</code> (Vitest)로 확장자 구분.</li>
-  </ul>
-</div>
+  <div class="sub">
+    <h3>1.7 에러 경로 테스트 패턴</h3>
+    <p class="desc">Result 패턴에는 throw 가 없다. 그래서 전통적인 <code>expect(() =&gt; ...).toThrow()</code> 가 아니라 <code>isErr()</code> 확인으로 검증한다.</p>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label">Result 에 맞지 않는 검증</div>
+        <pre><code class="language-ts">// Result 를 돌려주는 함수는 throw 하지 않는다 — 이 단언은 에러 경로를 못 본다
+expect(() =&gt; userRepository.fetchUser('123')).toThrow()</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">isErr() 로 검증</div>
+        <pre><code class="language-ts">it('returns invalid-format Failure when API returns bad shape', async () =&gt; {
+  server.use(
+    http.get('*/users/123', () =&gt; HttpResponse.json({ wrong: 'shape' })),
+  )
+  const result = await userRepository.fetchUser('123')
+  expect(result.isErr()).toBe(true)
+  if (result.isErr()) {
+    expect(result.error.kind).toBe('user/validation-failed')
+    expect(result.error.issues.length).toBeGreaterThan(0)
+  }
+})</code></pre>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Error Boundary 테스트 — 일부러 throw 하는 자식으로 경계를 건드린다</h4>
+      <pre><code class="language-tsx">it('Error Boundary catches render-time error and shows fallback', () =&gt; {
+  const Boom = () =&gt; {
+    throw new Error('render boom')
+  }
+  render(
+    &lt;RootErrorBoundary&gt;
+      &lt;Boom /&gt;
+    &lt;/RootErrorBoundary&gt;,
+  )
+  expect(screen.getByText(/예기치 못한 오류/i)).toBeInTheDocument()
+})</code></pre>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#17-에러-경로-테스트-패턴">출처: g4-quality.md §1.7</a>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>1.8 /react-test 주의사항</h3>
+    <div class="card">
+      <ul class="checklist">
+        <li><span class="check">!</span><span><strong>vitest.config 에 jsdom 환경 명시</strong> — component 테스트 파일은 jsdom, unit 테스트는 node. <code>environmentMatchGlobs</code> 로 경로마다 나누기를 권장한다.</span></li>
+        <li><span class="check">!</span><span><strong><code>setupFiles</code> 필수</strong> — <code>@testing-library/jest-dom</code> matchers 를 전역 등록하려면 setup 파일에서 <code>expect.extend(matchers)</code> 를 실행한다.</span></li>
+        <li><span class="check">!</span><span><strong><code>cleanup()</code> 자동</strong> — Testing Library 는 테스트마다 DOM 을 자동으로 정리하지만, 글로벌 모드에서는 <code>afterEach(cleanup)</code> 를 적어 두기를 권장한다.</span></li>
+        <li><span class="check">!</span><span><strong>Playwright 와 Vitest 함께 쓰기</strong> — 둘 다 "test" 라는 이름을 쓴다. 설정은 <code>playwright.config.ts</code> 와 <code>vitest.config.ts</code> 로 나누고, 파일 확장자도 <code>.spec.ts</code> (Playwright) 와 <code>.test.ts</code> (Vitest) 로 가르기를 권장한다.</span></li>
+        <li><span class="check">!</span><span><strong>fetch 모의는 MSW 우선</strong> — <code>vi.stubGlobal('fetch', ...)</code> 같은 저수준 목은 피하고 MSW 로 한다. 요청 모양이 문서로 남는 효과도 있다.</span></li>
+        <li><span class="check">!</span><span><strong>MSW v2 API 변경</strong> — 구 <code>rest.get(...)</code> 가 아니라 <code>http.get(...)</code> + <code>HttpResponse</code>. deprecated API 는 쓰지 않는다.</span></li>
+        <li><span class="check">!</span><span><strong>비동기 단언을 잊기 쉽다</strong> — <code>findBy*</code> 는 반드시 await 한다. 잊으면 pending Promise 때문에 문제가 있는데도 테스트가 통과한다.</span></li>
+        <li><span class="check">!</span><span><strong>Strict TS</strong> — <code>vi.mocked(...)</code> 로 모킹한 객체의 타입 안전성을 지킨다. <code>as any</code> 금지.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>1.9 Clean Architecture 배치</h3>
+    <ul class="place">
+      <li><b>unit 테스트</b><code>tests/unit/&lt;layer&gt;/&lt;module&gt;.test.ts</code></li>
+      <li><b>component 테스트</b><code>tests/component/&lt;Name&gt;.test.tsx</code></li>
+      <li><b>e2e 테스트</b><code>tests/e2e/&lt;flow&gt;.spec.ts</code></li>
+      <li><b>MSW 서버 설정</b><code>tests/__mocks__/server.ts</code> (공유)</li>
+    </ul>
+  </div>
+</section>
 
 <!-- ── /react-error ── -->
-<div class="section">
-  <div class="section-label">/react-error — 3단계 에러 처리 흐름</div>
-  <p class="desc">데이터 경계의 throw → Failure 변환, React 렌더 경계의 Error Boundary, UI 표시를 Severity에 따라 분기한다.</p>
+<section class="section" id="react-error">
+  <div class="section-label">2 · /react-error — 에러 처리 패턴 생성</div>
+  <h2>throw 는 경계에서 끊고, 화면에는 Severity 로 보인다</h2>
+  <p class="desc">데이터 경계의 throw → Failure 변환, React 렌더 경계의 Error Boundary, UI 표시 매핑을 세팅한다.</p>
 
-  <div class="card" style="margin-bottom:24px">
-    <h3>에러 처리 흐름도</h3>
-    <div class="flow-step">
-      <div class="flow-num">1</div>
-      <div>
-        <strong>데이터 경계</strong> — fetch/WASM/Tauri의 throw/reject를 <code>ResultAsync.fromPromise</code>로 Failure 변환. 이 시점이 유일한 throw 허용 위치.
+  <div class="grid-2">
+    <div class="card">
+      <h3>2.1 트리거</h3>
+      <div class="chips">
+        <span class="chip">에러 처리</span><span class="chip">Failure</span><span class="chip">Error Boundary</span>
+        <span class="chip">react-error</span><span class="chip">에러 표시</span>
+      </div>
+      <p>조건: G1 초기화 완료 (<code>neverthrow</code> 설치됨).</p>
+    </div>
+    <div class="card">
+      <h3>2.2 입력</h3>
+      <dl class="kv">
+        <dt>scope</dt><dd><code>global</code> — 앱 전체 ErrorBoundary + toast/snackbar 시스템. <code>feature</code> — 특정 feature 의 Failure 타입 + UI 매핑</dd>
+        <dt>feature_name</dt><dd><code>scope = feature</code> 일 때 필수</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card sub">
+    <h3>2.3 3단계 에러 처리 흐름</h3>
+    <div class="stage" role="img" aria-label="데이터 경계의 throw 가 Result 로 전파되고 Severity 에 따라 UI 로 표시되는 흐름. 예외적으로 빠져나간 에러는 Error Boundary 가 Fallback UI 로 잡는다">
+      <div class="stage-box">
+        <span class="stage-tag">데이터 경계</span>
+        <strong>throw / reject</strong>
+        <p>fetch · WASM · Tauri</p>
+      </div>
+      <div class="stage-arrow" aria-hidden="true">&#8594;</div>
+      <div class="stage-box">
+        <span class="stage-tag">도메인 · 프레젠테이션 전파</span>
+        <strong>Result&lt;T, Failure&gt;</strong>
+        <p>neverthrow chain</p>
+      </div>
+      <div class="stage-arrow" aria-hidden="true">&#8594;</div>
+      <div class="stage-box">
+        <span class="stage-tag">사용자 표시</span>
+        <strong>Severity &#8594; UI 선택</strong>
+        <p>snackbar / dialog / page</p>
       </div>
     </div>
-    <div class="flow-step">
-      <div class="flow-num">2</div>
-      <div>
-        <strong>Failure 전파</strong> — <code>neverthrow</code>의 <code>Result&#60;T, Failure&#62;</code>로 체인. Severity 매핑: info / warning / error / fatal.
-      </div>
+    <div class="escape">
+      <strong>예외적으로 빠져나간 에러</strong><span class="arr" aria-hidden="true">&#8594;</span>
+      <span>React Error Boundary</span><span class="arr" aria-hidden="true">&#8594;</span>
+      <span>Fallback UI</span>
     </div>
-    <div class="flow-step">
-      <div class="flow-num">3</div>
-      <div>
-        <strong>UI 표시</strong> — Severity에 따라 Toast / Snackbar / Inline Error / Full Page Error 분기.
+  </div>
+
+  <div class="sub">
+    <h3>2.4 Step 1 — 데이터 경계에서 throw → Failure 변환</h3>
+    <div class="grid-2">
+      <div class="card">
+        <p>G2 <code>/react-api</code> 가 이미 이 패턴을 만든다. 다시 보면:</p>
+        <p class="code-path">src/data/datasources/remote/user-api.ts</p>
+        <pre><code class="language-ts">export function fetchUserDto(id: string): ResultAsync&lt;unknown, UserFailure&gt; {
+  return ResultAsync.fromPromise(
+    fetch(`${BASE}/users/${id}`).then(async (r) =&gt; {
+      if (r.status === 404) throw { kind: 'user/not-found', userId: id }
+      if (!r.ok) throw { kind: 'user/network-error', cause: r.statusText }
+      return r.json()
+    }),
+    (e) =&gt; (isUserFailure(e)
+      ? e
+      : { kind: 'user/network-error', cause: String(e) }),
+  )
+}</code></pre>
+        <a class="card-source" href="https://github.com/supermacro/neverthrow">출처: neverthrow GitHub (ResultAsync.fromPromise)</a>
       </div>
-    </div>
-    <div class="flow-step">
-      <div class="flow-num">B</div>
-      <div>
-        <strong>Error Boundary</strong> — Result 패턴이 커버 못 하는 React render-time throw를 최후 안전망으로 포획.
+      <div class="card">
+        <h4>규칙</h4>
+        <div class="flow-step"><div class="flow-num">1</div><div>throw 는 <strong>datasource 안에서만</strong> 한다. 곧바로 <code>ResultAsync.fromPromise</code> 의 두 번째 인자에서 Failure 로 바꾼다.</div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div>Failure 는 <strong>discriminated union</strong> 이다. <code>kind</code> 필드로 분기한다.</div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div><code>cause</code> 필드에 원본 에러 메시지를 남긴다 (디버깅용).</div></div>
+        <a class="card-source" href="state-data.html">관련: G2 상태 &amp; 데이터 (Result / Failure)</a>
       </div>
     </div>
   </div>
 
-  <div class="grid-2" style="margin-bottom:24px">
-    <div class="card">
-      <h3>Failure 타입 + Severity 매핑</h3>
-      <pre><code class="language-ts">export type Severity = 'info' | 'warning' | 'error' | 'fatal'
+  <div class="sub">
+    <h3>2.5 Step 2 — Failure 전파 + Severity 매핑</h3>
+    <div class="grid-2">
+      <div class="card">
+        <p class="code-path">src/domain/failures/user-failures.ts</p>
+        <pre><code class="language-ts">export type Severity = 'info' | 'warning' | 'error' | 'fatal'
 
 export type UserFailure =
   | { kind: 'user/not-found'; userId: string }
@@ -321,224 +737,513 @@ export type UserFailure =
 
 export function severityOf(failure: UserFailure): Severity {
   switch (failure.kind) {
-    case 'user/not-found':      return 'info'
-    case 'user/rate-limited':   return 'warning'
+    case 'user/not-found':
+      return 'info'       // 사용자 인지 충분
+    case 'user/rate-limited':
+      return 'warning'    // 일시적, 재시도 안내
     case 'user/unauthorized':
-    case 'user/validation-failed': return 'error'
-    case 'user/network-error':  return 'fatal'
+    case 'user/validation-failed':
+      return 'error'      // 사용자 액션 필요
+    case 'user/network-error':
+      return 'fatal'      // 네트워크 자체 문제
   }
 }</code></pre>
-      <a class="card-source" href="https://github.com/supermacro/neverthrow">출처: neverthrow GitHub</a>
-    </div>
-    <div class="card">
-      <h3>Severity → UI 매핑 규칙</h3>
-      <div style="overflow-x:auto;margin-top:8px">
-        <table>
-          <thead><tr><th>Severity</th><th>표시</th><th>위치</th></tr></thead>
-          <tbody>
-            <tr><td><span class="severity-badge sev-info">info</span></td><td>Toast (자동 dismiss)</td><td>우하단</td></tr>
-            <tr><td><span class="severity-badge sev-warn">warning</span></td><td>Snackbar + action</td><td>하단</td></tr>
-            <tr><td><span class="severity-badge sev-error">error</span></td><td>Inline error / Dialog</td><td>관련 위치</td></tr>
-            <tr><td><span class="severity-badge sev-fatal">fatal</span></td><td>Full page / Modal</td><td>전체</td></tr>
-          </tbody>
-        </table>
+        <a class="card-source" href="../react/kit-design/g4-quality.md#25-step-2--failure-전파--severity-매핑">출처: g4-quality.md §2.5</a>
       </div>
-      <a class="card-source" href="../react/kit-design/g4-quality.md#26-step-3-ui-표시-매핑">출처: g4-quality.md §2.6</a>
+      <div class="card">
+        <h4>Severity 는 사용자 관점의 심각도다</h4>
+        <p>기술적 에러 레벨이 아니다. "네트워크 없음" 은 기술적으로는 warning 급이지만 사용자에게는 fatal 이다.</p>
+        <div class="table-wrap" style="margin-top:14px;margin-bottom:0">
+          <table>
+            <thead><tr><th>kind</th><th>Severity</th><th>이유</th></tr></thead>
+            <tbody>
+              <tr><td><code>user/not-found</code></td><td><span class="severity-badge sev-info">info</span></td><td>사용자 인지 충분</td></tr>
+              <tr><td><code>user/rate-limited</code></td><td><span class="severity-badge sev-warn">warning</span></td><td>일시적, 재시도 안내</td></tr>
+              <tr><td><code>user/unauthorized</code></td><td><span class="severity-badge sev-error">error</span></td><td>사용자 액션 필요</td></tr>
+              <tr><td><code>user/validation-failed</code></td><td><span class="severity-badge sev-error">error</span></td><td>사용자 액션 필요</td></tr>
+              <tr><td><code>user/network-error</code></td><td><span class="severity-badge sev-fatal">fatal</span></td><td>네트워크 자체 문제</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h3>React Error Boundary (클래스 컴포넌트 필수)</h3>
-    <pre><code class="language-tsx">// src/presentation/shared/components/root-error-boundary.tsx
-export class RootErrorBoundary extends React.Component&#60;Props, State&#62; {
+  <div class="sub">
+    <h3>2.6 Step 3 — UI 표시 매핑</h3>
+    <p class="desc">Severity 마다 표시 위치 · 형태가 정해져 있다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Severity</th><th>표시 형태</th><th>위치</th><th>상호작용</th></tr></thead>
+        <tbody>
+          <tr><td><span class="severity-badge sev-info">info</span></td><td>Toast (자동 dismiss)</td><td>화면 우하단</td><td>없음</td></tr>
+          <tr><td><span class="severity-badge sev-warn">warning</span></td><td>Snackbar (action 포함)</td><td>화면 하단</td><td>"다시 시도" 버튼 등</td></tr>
+          <tr><td><span class="severity-badge sev-error">error</span></td><td><div class="w">Inline error (필드 옆 / 폼 최상단) 또는 Dialog</div></td><td>관련 위치</td><td>사용자 액션 유도</td></tr>
+          <tr><td><span class="severity-badge sev-fatal">fatal</span></td><td>Full page error 또는 Modal</td><td>전체</td><td>새로고침 / 로그아웃 안내</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h4>구현 예시 — shadcn <code>Toaster</code> 기반</h4>
+      <p class="code-path">src/presentation/shared/lib/display-failure.ts</p>
+      <pre><code class="language-ts">import { toast } from 'sonner'   // shadcn/ui 권장 toast 라이브러리
+
+type FailureLike = { kind: string; cause?: string }
+
+export function displayFailure(failure: FailureLike, severity: Severity): void {
+  switch (severity) {
+    case 'info':
+      toast.info(toUserMessage(failure))
+      break
+    case 'warning':
+      toast.warning(toUserMessage(failure), {
+        action: { label: '다시 시도', onClick: () =&gt; { /* retry */ } },
+      })
+      break
+    case 'error':
+      toast.error(toUserMessage(failure))
+      break
+    case 'fatal':
+      // Zustand store 에 fatal 플래그 설정 → 최상단 FullPageError 가 렌더
+      useAppStore.getState().setFatalError(failure)
+      break
+  }
+}
+
+function toUserMessage(failure: FailureLike): string {
+  // Failure kind → 사용자용 번역 키. Lingui 로 i18n 화 (G4 /react-l10n 참조)
+  // ...
+  return '...'
+}</code></pre>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#26-step-3--ui-표시-매핑">출처: g4-quality.md §2.6</a>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>2.7 React Error Boundary</h3>
+    <p class="desc"><strong>Result 패턴이 못 덮는 것</strong>은 React 렌더 중 throw 다. 이것을 Error Boundary 가 잡는다.</p>
+    <div class="card">
+      <p class="code-path">src/presentation/shared/components/root-error-boundary.tsx</p>
+      <pre><code class="language-tsx">import * as React from 'react'
+
+type Props = { children: React.ReactNode }
+type State = { hasError: boolean; error: Error | null }
+
+export class RootErrorBoundary extends React.Component&lt;Props, State&gt; {
   state: State = { hasError: false, error: null }
 
   static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('RootErrorBoundary:', error, info)
-    // 프로덕션: Sentry 전송
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error('RootErrorBoundary:', error, errorInfo)
+    // 프로덕션: Sentry 같은 서비스로 전송
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       return (
-        &#60;div role="alert" className="flex min-h-screen items-center justify-center"&#62;
-          &#60;div className="space-y-4 text-center"&#62;
-            &#60;h1 className="text-2xl font-semibold"&#62;예기치 못한 오류&#60;/h1&#62;
-            &#60;button onClick={() =&#62; window.location.reload()}&#62;새로고침&#60;/button&#62;
-          &#60;/div&#62;
-        &#60;/div&#62;
+        &lt;div role="alert" className="flex min-h-screen items-center justify-center"&gt;
+          &lt;div className="space-y-4 text-center"&gt;
+            &lt;h1 className="text-2xl font-semibold"&gt;예기치 못한 오류&lt;/h1&gt;
+            &lt;p className="text-muted-foreground"&gt;{this.state.error?.message}&lt;/p&gt;
+            &lt;button onClick={() =&gt; window.location.reload()}&gt;새로고침&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
       )
     }
     return this.props.children
   }
 }</code></pre>
-    <a class="card-source" href="../react/kit-design/g4-quality.md#27-react-error-boundary">출처: g4-quality.md §2.7</a>
+      <div class="callout warn">
+        <p>Error Boundary 는 <strong>최후의 안전망</strong>이다. 1차 에러 처리는 Result 로 한다. Error Boundary 가 자주 열리면 Result 패턴에 구멍이 있다는 신호다.</p>
+      </div>
+      <a class="card-source" href="../react/kit-design/g4-quality.md#27-react-error-boundary">출처: g4-quality.md §2.7</a>
+    </div>
   </div>
-</div>
 
-<!-- ── /react-error Gotchas ── -->
-<div class="section">
-  <div class="section-label">/react-error 주의사항</div>
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">금지 패턴</div>
-      <pre><code class="language-ts">// ❌ 비동기 에러 — Boundary 못 잡음
-useEffect(() => {
-  fetch('/api/users').then(data => {
-    throw new Error('parse failed')  // 잡히지 않음
+  <div class="sub">
+    <h3>2.8 /react-error 주의사항</h3>
+    <div class="compare">
+      <div class="compare-bad">
+        <div class="compare-label">금지 패턴</div>
+        <pre><code class="language-ts">// 금지: 비동기 에러 — Error Boundary 에 닿지 않는다
+useEffect(() =&gt; {
+  fetch('/api/users').then(() =&gt; {
+    throw new Error('parse failed')
   })
 }, [])
 
-// ❌ Failure를 Error로 감싸기
+// 금지: Failure 를 Error 로 감싸기 — stack trace 가 무의미해지고 타입이 사라진다
 throw new Error(JSON.stringify(failure))
 
-// ❌ domain에서 throw
-// src/domain/usecases/...
-throw new Error('not found')  // Result 반환 필수</code></pre>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">권장 패턴</div>
-      <pre><code class="language-ts">// ✅ ResultAsync로 모두 감싸기
+// 금지: domain 에서 throw — throw 는 datasource 안에서만
+throw new Error('not found')</code></pre>
+      </div>
+      <div class="compare-good">
+        <div class="compare-label">권장 패턴</div>
+        <pre><code class="language-ts">// 권장: 비동기 경로를 ResultAsync 로 감싼다
 const result = await ResultAsync.fromPromise(
-  fetch('/api/users').then(r => r.json()),
-  (e) => ({ kind: 'network-error', cause: String(e) }),
+  fetch('/api/users').then((r) =&gt; r.json()),
+  (e) =&gt; ({ kind: 'user/network-error', cause: String(e) }),
 )
 
-// ✅ Result 그대로 전파
+// 권장: Failure 값을 그대로 전파한다
 return err({ kind: 'user/not-found', userId: id })
 
-// ✅ Exhaustiveness 검증
-function never(x: never): never {
+// 권장: never 로 모든 kind 를 다뤘는지 검증한다
+function assertNever(x: never): never {
   throw new Error(`Unhandled: ${JSON.stringify(x)}`)
 }</code></pre>
+      </div>
+    </div>
+    <div class="card">
+      <ul class="checklist">
+        <li><span class="check">!</span><span><strong>비동기 에러는 Error Boundary 가 못 잡는다</strong> — <code>useEffect</code> 안의 throw, Promise reject 는 Error Boundary 에 닿지 않는다. 반드시 Result 로 감싼다.</span></li>
+        <li><span class="check">!</span><span><strong>Error Boundary 는 클래스 컴포넌트 필수</strong> — React 19 에서도 아직 hooks 로 만들 수 없다. <code>react-error-boundary</code> 같은 라이브러리는 옵션이고, 기본은 자체 구현이다.</span></li>
+        <li><span class="check">!</span><span><strong>Toast 라이브러리 선택</strong> — shadcn/ui 는 <code>sonner</code> 를 권장한다. Radix 기반 <code>&lt;Toaster /&gt;</code> 와 겹치지 않게 하나만 고른다.</span></li>
+        <li><span class="check">!</span><span><strong>fatal 상태</strong> — Zustand store 에 <code>fatalError: Failure | null</code> 필드를 두고 최상위 컴포넌트에서 렌더를 가른다.</span></li>
+        <li><span class="check">!</span><span><strong>개발 환경에서 Boundary 를 건너뛰는 것처럼 보인다</strong> — Vite dev 모드에서는 Error Boundary 가 렌더 에러를 못 잡는 것처럼 보일 수 있다 (React 가 dev 에서 에러를 다시 던져 개발자에게 보여 준다). 프로덕션 빌드로 확인한다.</span></li>
+        <li><span class="check">!</span><span><strong>Failure 를 Error 로 감싸지 않는다</strong> — Failure 는 그 자체로 타입 안전한 값이다. <code>new Error(JSON.stringify(failure))</code> 같은 변환은 stack trace 를 무의미하게 만들고 타입 정보를 잃는다.</span></li>
+        <li><span class="check">!</span><span><strong>Strict TS</strong> — Failure discriminated union 의 모든 kind 를 switch 에서 다뤘는지 <code>never</code> 타입으로 검증한다.</span></li>
+      </ul>
     </div>
   </div>
-</div>
+
+  <div class="sub">
+    <h3>2.9 Clean Architecture 배치</h3>
+    <ul class="place">
+      <li><b>Failure 타입</b><code>src/domain/failures/&lt;resource&gt;-failures.ts</code></li>
+      <li><b>Severity 매핑 함수</b><span>같은 파일 (<code>severityOf(failure)</code>)</span></li>
+      <li><b>UI 표시 유틸</b><code>src/presentation/shared/lib/display-failure.ts</code></li>
+      <li><b>Error Boundary</b><code>src/presentation/shared/components/root-error-boundary.tsx</code></li>
+      <li><b>Fatal error store</b><span><code>src/presentation/shared/stores/app-store.ts</code> (Zustand)</span></li>
+    </ul>
+  </div>
+</section>
 
 <!-- ── /react-l10n ── -->
-<div class="section">
-  <div class="section-label">/react-l10n — Lingui v5 매크로 i18n</div>
-  <p class="desc">Lingui v5 매크로 기반 번역. JSX는 <code>Trans</code>, 동적 문자열은 <code>useLingui().t</code>, 컴포넌트 밖은 <code>msg</code> 매크로.</p>
+<section class="section" id="react-l10n">
+  <div class="section-label">3 · /react-l10n — Lingui 기반 i18n</div>
+  <h2>매크로로 문자열을 감싸고, extract · compile 로 catalog 를 맞춘다</h2>
+  <p class="desc">Lingui v5 매크로 기반 번역 문자열 추가, 자동 codegen, locale 전환 흐름을 자동화한다.</p>
 
-  <div class="grid-2" style="margin-bottom:24px">
+  <div class="grid-2">
     <div class="card">
-      <h3>JSX 내부 — Trans 컴포넌트</h3>
-      <pre><code class="language-tsx">import { Trans } from '@lingui/react/macro'
-
-export function Welcome({ name }: { name: string }) {
-  return (
-    &#60;h1&#62;
-      &#60;Trans&#62;안녕하세요, {name}님!&#60;/Trans&#62;
-    &#60;/h1&#62;
-  )
-}
-// 컴파일 시 해시 id 자동 생성</code></pre>
-      <a class="card-source" href="https://lingui.dev/ref/macro">출처: Lingui Macros 레퍼런스</a>
+      <h3>3.1 트리거</h3>
+      <div class="chips">
+        <span class="chip">다국어</span><span class="chip">번역 추가</span><span class="chip">i18n</span>
+        <span class="chip">react-l10n</span><span class="chip">l10n key</span>
+      </div>
+      <p>조건: G1 초기화로 Lingui 가 설치되어 있고 <code>lingui.config.ts</code> 가 있다.</p>
     </div>
     <div class="card">
-      <h3>동적 문자열 — useLingui</h3>
-      <pre><code class="language-tsx">import { useLingui } from '@lingui/react/macro'
-
-export function SubmitButton({ disabled }: { disabled: boolean }) {
-  const { t } = useLingui()
-  return (
-    &#60;button
-      disabled={disabled}
-      aria-label={t`제출`}
-    &#62;
-      {t`로그인`}
-    &#60;/button&#62;
-  )
-}</code></pre>
-      <a class="card-source" href="https://lingui.dev/tutorials/react">출처: Lingui React 튜토리얼</a>
+      <h3>3.2 입력</h3>
+      <dl class="kv">
+        <dt>message</dt><dd>필수. 번역할 원본 문자열 (영어 또는 한국어)</dd>
+        <dt>context</dt><dd>선택. 번역자용 맥락 (예: "로그인 버튼 레이블")</dd>
+        <dt>component_path</dt><dd>선택. 문자열을 넣을 컴포넌트 파일 경로</dd>
+      </dl>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:20px">
-    <h3>번역 추가 + codegen 흐름</h3>
-    <div class="flow-step">
-      <div class="flow-num">1</div>
-      <div>컴포넌트에 매크로 삽입 (<code>&#60;Trans&#62;로그인&#60;/Trans&#62;</code> 또는 <code>t`로그인`</code>)</div>
-    </div>
-    <div class="flow-step">
-      <div class="flow-num">2</div>
-      <div><code>pnpm lingui extract</code> — 소스 스캔 후 <code>en.po</code>에 새 키 추가</div>
-    </div>
-    <div class="flow-step">
-      <div class="flow-num">3</div>
-      <div>각 locale 파일(<code>ko.po</code>, <code>ja.po</code>)에 빈 번역 엔트리 자동 생성 → 번역가가 입력</div>
-    </div>
-    <div class="flow-step">
-      <div class="flow-num">4</div>
-      <div><code>pnpm lingui compile</code> — <code>.po</code> → runtime catalog (Vite 플러그인이 자동 수행)</div>
-    </div>
-    <a class="card-source" href="https://lingui.dev/tutorials/setup-vite">출처: Lingui Vite 셋업</a>
-  </div>
+  <div class="sub">
+    <h3>3.3 Lingui 기본 구조 (G1 생성)</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h4>폴더 구조</h4>
+        <pre><code class="language-text">src/
+├── infrastructure/i18n/
+│   ├── setup.ts             # i18n.loadAndActivate 초기화
+│   └── locales/
+│       ├── en.po            # 영어 catalog (원본)
+│       ├── ko.po            # 한국어 catalog
+│       └── ja.po            # 일본어 catalog (선택)
+├── presentation/
+│   └── features/
+│       └── auth/
+│           └── components/login-form.tsx   # macro 사용</code></pre>
+        <a class="card-source" href="https://lingui.dev/tutorials/setup-vite">출처: Lingui Vite 셋업</a>
+      </div>
+      <div class="card">
+        <h4><code>lingui.config.ts</code></h4>
+        <pre><code class="language-ts">import { defineConfig } from '@lingui/cli'
 
-  <div class="card">
-    <h3>Vite 플러그인 설정</h3>
-    <pre><code class="language-ts">// vite.config.ts
+export default defineConfig({
+  sourceLocale: 'en',
+  locales: ['en', 'ko', 'ja'],
+  catalogs: [
+    {
+      path: 'src/infrastructure/i18n/locales/{locale}',
+      include: ['src'],
+    },
+  ],
+})</code></pre>
+        <h4 style="margin-top:14px">Vite 플러그인 (<code>vite.config.ts</code>)</h4>
+        <pre><code class="language-ts">import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
 import { lingui } from '@lingui/vite-plugin'
 
 export default defineConfig({
   plugins: [
-    // SWC 플러그인이 반드시 먼저
     react({ plugins: [['@lingui/swc-plugin', {}]] }),
     lingui(),
   ],
 })</code></pre>
-    <a class="card-source" href="https://lingui.dev/ref/vite-plugin">출처: Lingui Vite Plugin</a>
+        <a class="card-source" href="https://lingui.dev/ref/vite-plugin">출처: Lingui Vite Plugin</a>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- ── /react-l10n Gotchas ── -->
-<div class="section">
-  <div class="section-label">/react-l10n 주의사항</div>
-  <ul class="checklist">
-    <li><span class="check">!</span><strong>매크로 import 경로 변경 (v5)</strong> — 구 <code>@lingui/macro</code> → <code>@lingui/react/macro</code> (JSX) 또는 <code>@lingui/core/macro</code> (core). /react-audit 검출 항목.</li>
-    <li><span class="check">!</span><strong>Vite 플러그인 순서</strong> — <code>react({ plugins: [['@lingui/swc-plugin', {}]] })</code>가 반드시 lingui() 앞. SWC가 먼저 매크로를 transpile.</li>
-    <li><span class="check">!</span><strong>domain 레이어 금지</strong> — Lingui import는 presentation 레이어만. domain은 i18n을 모른다. Failure의 사용자 메시지는 presentation의 display-failure.ts에서 매핑.</li>
-    <li><span class="check">!</span><strong>RSC 관련 없음</strong> — react-kit은 Vite + TanStack Router 기반. SSR/RSC 없음.</li>
-    <li><span class="check">!</span><strong>번역 누락</strong> — extract 후 ko.po에 빈 msgstr로 남은 키는 영어 fallback. /react-audit이 경고.</li>
-  </ul>
-</div>
+  <div class="sub">
+    <h3>3.4 번역 매크로 사용 패턴</h3>
+    <p class="desc">Lingui v5 는 매크로 import 경로를 나눈다. JSX 는 <code>@lingui/react/macro</code> 의 <code>Trans</code>, 문자열 · 함수 호출은 <code>@lingui/react/macro</code> 의 <code>useLingui</code> (v5 신규) 또는 <code>@lingui/core/macro</code> 의 <code>msg</code> 를 쓴다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h4>JSX 안 — <code>Trans</code> 컴포넌트</h4>
+        <pre><code class="language-tsx">import { Trans } from '@lingui/react/macro'
 
-<!-- ── 상호작용 흐름 ── -->
-<div class="section">
-  <div class="section-label">3개 스킬의 상호작용</div>
+export function Welcome({ name }: { name: string }) {
+  return (
+    &lt;h1&gt;
+      &lt;Trans&gt;안녕하세요, {name}님!&lt;/Trans&gt;
+    &lt;/h1&gt;
+  )
+}</code></pre>
+        <p>컴파일하면 <code>&lt;Trans id="abc123" message="안녕하세요, {name}님!" values={{ name }} /&gt;</code> 로 바뀐다. id 는 해시로 자동으로 만든다.</p>
+        <a class="card-source" href="https://lingui.dev/ref/macro">출처: Lingui Macros 레퍼런스</a>
+      </div>
+      <div class="card">
+        <h4>문자열 · 동적 함수 — <code>useLingui</code> 의 <code>t</code></h4>
+        <pre><code class="language-tsx">import { useLingui } from '@lingui/react/macro'
+
+export function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { t } = useLingui()
+  return (
+    &lt;button disabled={disabled} aria-label={t`제출`}&gt;
+      {t`로그인`}
+    &lt;/button&gt;
+  )
+}</code></pre>
+        <a class="card-source" href="https://lingui.dev/ref/react">출처: Lingui React API</a>
+      </div>
+    </div>
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead><tr><th>매크로</th><th>쓰는 자리</th><th>import 경로</th></tr></thead>
+        <tbody>
+          <tr><td><code>&lt;Trans&gt;</code></td><td>JSX 안의 선언적 번역</td><td><code>@lingui/react/macro</code></td></tr>
+          <tr><td><code>t</code> (<code>useLingui</code> 경유)</td><td>속성 값, 동적 문자열, 함수 반환값</td><td><code>@lingui/react/macro</code></td></tr>
+          <tr><td><code>msg</code></td><td>컴포넌트 밖 (상수 정의, reducer message 등)</td><td><code>@lingui/core/macro</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>3.5 번역 추가 + codegen 흐름</h3>
+    <p class="desc"><code>/react-l10n</code> 이 "로그인" 이라는 한국어 문자열을 추가할 때의 순서다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="flow-step"><div class="flow-num">1</div><div>대상 컴포넌트에 매크로를 넣는다 (<code>&lt;Trans&gt;로그인&lt;/Trans&gt;</code> 또는 <code>t`로그인`</code>).</div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div>소스에 import 를 더한다 (<code>import { Trans } from '@lingui/react/macro'</code>).</div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div>추출 명령 <code>pnpm lingui extract</code> — 코드에서 매크로를 훑어 <code>en.po</code> 에 새 키를 더한다.</div></div>
+        <div class="flow-step"><div class="flow-num">4</div><div>각 locale 파일 (<code>ko.po</code>, <code>ja.po</code>) 에 빈 번역 항목이 자동으로 생긴다.</div></div>
+        <div class="flow-step"><div class="flow-num">5</div><div>사용자에게 "ko.po 에 번역 추가하세요" 라고 안내한다 — <strong>번역 자체는 사람이 입력</strong>한다.</div></div>
+        <div class="flow-step"><div class="flow-num">6</div><div>compile: <code>pnpm lingui compile</code> — <code>.po</code> → <code>.js</code> 컴파일된 catalog 를 만든다 (Vite 플러그인이 자동으로 한다).</div></div>
+      </div>
+      <div class="card">
+        <h4>CLI 명령</h4>
+        <pre><code class="language-sh">pnpm lingui extract                   # 소스 → .po 동기화
+pnpm lingui compile                   # .po → runtime catalog
+pnpm lingui extract --clean           # 안 쓰는 키 정리 — 기본 흐름 아님, 사용자가 요청할 때만 (react-l10n §4-1)</code></pre>
+        <div class="callout danger">
+          <p><strong><code>--clean</code> 은 기본 흐름에 넣지 않는다 — 사용자가 요청할 때만 돌린다.</strong> <code>--clean</code> 은 소스에서 더는 찾지 못한 메시지를 catalog 에서 지운다. 매크로가 적용되지 않아 extractor 가 메시지를 못 찾으면 번역이 채워진 항목까지 함께 지워진다. 옵션 자체는 정상이라 금지하지는 않는다.</p>
+          <ol>
+            <li>번역 폴더에 커밋하지 않은 변경이 없는지 먼저 본다. 있으면 알리고 멈춘다.</li>
+            <li><code>pnpm lingui extract --clean</code> 을 돌리고 바로 locales 폴더의 <code>git diff --stat</code> 을 보인다.</li>
+            <li>지워진 키 수와, 번역이 채워져 있다가 지워진 항목을 따로 센다.</li>
+            <li>채워진 번역이 지워졌으면 그 목록을 보이고, 사용자가 확인하기 전에는 커밋하지 않는다.</li>
+          </ol>
+        </div>
+        <a class="card-source" href="../../react-kit/skills/react-l10n/SKILL.md">출처: react-l10n SKILL.md Gotcha 12 · §4-1</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>3.6 Locale 전환</h3>
+    <div class="grid-2">
+      <div class="card">
+        <p class="code-path">src/infrastructure/i18n/setup.ts</p>
+        <pre><code class="language-ts">import { i18n } from '@lingui/core'
+import { messages as en } from './locales/en'
+import { messages as ko } from './locales/ko'
+
+export async function activateLocale(locale: 'en' | 'ko' | 'ja'): Promise&lt;void&gt; {
+  i18n.load(locale, locale === 'en' ? en : ko)   // 필요 시 동적 import 로 lazy
+  i18n.activate(locale)
+}
+
+// 초기화
+activateLocale(navigator.language.startsWith('ko') ? 'ko' : 'en')</code></pre>
+        <p><code>&lt;I18nProvider i18n={i18n}&gt;</code> 로 App 최상단을 감싼다 (Lingui React API). 이 Provider 가 없으면 매크로가 동작하지 않는다.</p>
+        <a class="card-source" href="https://lingui.dev/ref/react">출처: Lingui React API</a>
+      </div>
+      <div class="card">
+        <h4>Lazy load (번들 크기 최적화)</h4>
+        <pre><code class="language-ts">export async function activateLocale(locale: string): Promise&lt;void&gt; {
+  const { messages } = await import(`./locales/${locale}.po`)
+  i18n.load(locale, messages)
+  i18n.activate(locale)
+}</code></pre>
+        <p>locale 을 바꿀 때만 그 catalog 를 불러와 첫 번들에 모든 언어를 싣지 않는다.</p>
+        <a class="card-source" href="https://lingui.dev/tutorials/react">출처: Lingui React 튜토리얼</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>3.7 /react-l10n 주의사항</h3>
+    <div class="gotcha-grid">
+      <div class="gotcha">
+        <h4><span class="num">1</span>매크로 import 경로 혼동</h4>
+        <p>v5 에서 <code>@lingui/macro</code> (구버전) 가 <code>@lingui/react/macro</code> (JSX/React) 와 <code>@lingui/core/macro</code> (core) 로 나뉘었다. 잘못 import 하면 컴파일 단계에서 매크로가 적용되지 않는다.</p>
+      </div>
+      <div class="gotcha">
+        <h4><span class="num">2</span><code>msgid</code> 대신 해시 id 가 기본</h4>
+        <p>v5 는 코드의 원본 문자열을 해시해 id 를 자동으로 만든다. id 를 직접 정하려면 <code>&lt;Trans id="custom.id" /&gt;</code> 로 적는다.</p>
+      </div>
+      <div class="gotcha">
+        <h4><span class="num">3</span>번역 누락</h4>
+        <p><code>extract</code> 뒤 <code>ko.po</code> 에 빈 msgstr 로 남은 키는 런타임에 원본 (en) 으로 돌아간다. <code>/react-audit</code> 이 "빈 번역 키" 수로 경고한다.</p>
+      </div>
+      <div class="gotcha">
+        <h4><span class="num">4</span>plurals, interpolation</h4>
+        <p><code>&lt;Plural&gt;</code>, <code>&lt;Select&gt;</code> 같은 전용 매크로를 쓴다. <code>{count} 개</code> 처럼 단순 치환은 <code>&lt;Trans&gt;</code> 안에서 <code>{count}</code> 그대로 둔다.</p>
+      </div>
+      <div class="gotcha">
+        <h4><span class="num">5</span>Vite 플러그인 순서</h4>
+        <p><code>react({ plugins: [['@lingui/swc-plugin', {}]] })</code> 가 반드시 lingui 플러그인보다 앞에 온다. SWC 가 매크로를 먼저 transpile 한 뒤 lingui 플러그인이 catalog 를 넣는다.</p>
+      </div>
+      <div class="gotcha">
+        <h4><span class="num">6</span>Strict TS</h4>
+        <p>매크로는 타입을 잘 추론한다. 동적 key 는 <code>msg`...`</code> 로 감싸고 <code>i18n._(msg)</code> 로 부른다. <code>any</code> 금지.</p>
+      </div>
+      <div class="gotcha">
+        <h4><span class="num">7</span>서버 컴포넌트는 쓰지 않는다</h4>
+        <p>react-kit 기본 구성 (Vite + TanStack Router) 은 SSR 이 없다. Lingui 의 RSC 지원은 여기와 관련이 없다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>3.8 Clean Architecture 배치</h3>
+    <ul class="place">
+      <li><b>번역 매크로 사용</b><span><code>src/presentation/**/*.tsx</code> — presentation 레이어만</span></li>
+      <li><b>locale catalog</b><span><code>src/infrastructure/i18n/locales/&lt;locale&gt;.po</code> + 컴파일된 <code>.ts</code></span></li>
+      <li><b>i18n setup</b><code>src/infrastructure/i18n/setup.ts</code></li>
+      <li><b>config</b><span><code>lingui.config.ts</code> (프로젝트 루트)</span></li>
+    </ul>
+    <div class="callout danger">
+      <p><strong>절대 금지</strong> — <code>domain/</code> 에 매크로를 import 하지 않는다. 도메인 레이어는 i18n 을 모른다. Failure 의 사용자 메시지는 presentation 레이어 (<code>display-failure.ts</code>) 에서 매핑한다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 상호작용 ── -->
+<section class="section" id="interaction">
+  <div class="section-label">4 · 3개 스킬의 상호작용</div>
+  <h2>컴포넌트가 생기면 번역 → 에러 → 테스트 → preflight 순으로 이어진다</h2>
   <div class="card">
-    <pre><code class="language-text">컴포넌트 생성 (G1 /react-widget, /react-screen)
-         │
-         ▼
-/react-l10n    ← 하드코딩된 문자열을 매크로로 교체
-         │
-         ▼
-/react-error   ← Failure 타입 + severity 매핑 + Error Boundary
-         │
-         ▼
-/react-test    ← unit + component + e2e 테스트 생성
-         │       (에러 경로 isErr 검증 + 번역 렌더 포함)
-         ▼
-/react-preflight (G6) ← tsc + eslint + vitest + playwright</code></pre>
-    <a class="card-source" href="../react/kit-design/g4-quality.md#4-3개-스킬의-상호작용">출처: g4-quality.md §4 스킬 상호작용</a>
+    <ol class="pipeline">
+      <li><div><span class="pipe-name">컴포넌트 생성</span><span class="pipe-role">G1 <code>/react-widget</code>, <code>/react-screen</code></span></div></li>
+      <li><div><span class="pipe-name">/react-l10n</span><span class="pipe-role">하드코딩된 문자열을 매크로로 바꾼다</span></div></li>
+      <li><div><span class="pipe-name">/react-error</span><span class="pipe-role">Failure 타입 정의 + severity 매핑 + Error Boundary</span></div></li>
+      <li><div><span class="pipe-name">/react-test</span><span class="pipe-role">unit + component + e2e 테스트 생성 — 에러 경로 (isErr) 와 번역 렌더 포함</span></div></li>
+      <li><div><span class="pipe-name">/react-preflight (G6)</span><span class="pipe-role">전체 quality gate (tsc + eslint + vitest + playwright)</span></div></li>
+    </ol>
+    <a class="card-source" href="../react/kit-design/g4-quality.md#4-3개-스킬의-상호작용">출처: g4-quality.md §4</a>
   </div>
-</div>
+</section>
+
+<!-- ── 다른 그룹과의 관계 ── -->
+<section class="section" id="cross-group">
+  <div class="section-label">5 · 공유 helpers 및 Cross-group 관계</div>
+  <h2>G4 가 다른 그룹과 맞물리는 다섯 자리</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>그룹</th><th>관계</th><th>G4 에서 하는 일</th></tr></thead>
+      <tbody>
+        <tr><td><a href="scaffolding.html">G1 project-detection</a></td><td>재사용</td><td><div class="w">Vitest / Playwright / Lingui 설치 여부, 설정 파일 위치 감지</div></td></tr>
+        <tr><td><a href="state-data.html">G2 Result/Failure</a></td><td>확장</td><td><div class="w"><code>/react-error</code> 가 severity 와 UI 매핑을 더한다</div></td></tr>
+        <tr><td><a href="performance.html">G3 WASM/Tauri</a></td><td>테스트 템플릿</td><td><div class="w"><code>/react-test</code> 가 infrastructure 레이어 테스트 케이스로 WASM mock, Tauri invoke mock 템플릿을 준다</div></td></tr>
+        <tr><td><a href="ui-patterns.html">G5 UI 패턴</a></td><td>테스트 자동 생성</td><td><div class="w"><code>/react-skeleton</code> 의 로딩 상태 테스트 케이스를 자동으로 만든다</div></td></tr>
+        <tr><td><a href="build-audit.html">G6 /react-audit</a></td><td>검출</td><td><div class="w">G4 출력물에서 아래 네 가지를 모두 잡아낸다</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>G6 <code>/react-audit</code> 이 G4 출력물에서 잡는 것</h3>
+    <ul class="checklist">
+      <li><span class="check">1</span><span><code>toBe()</code> 없이, <code>findBy*</code> 대기 없이 끝나는 단언 누락</span></li>
+      <li><span class="check">2</span><span>Failure switch 의 exhaustiveness 위반</span></li>
+      <li><span class="check">3</span><span>하드코딩된 i18n 문자열 (매크로 미사용)</span></li>
+      <li><span class="check">4</span><span>Error Boundary 없는 최상위 컴포넌트</span></li>
+    </ul>
+    <a class="card-source" href="../react/kit-design/g4-quality.md#5-공유-helpers-및-cross-group-관계">출처: g4-quality.md §5</a>
+  </div>
+</section>
+
+<!-- ── 출처 ── -->
+<section class="section" id="sources">
+  <div class="section-label">6 · 출처 요약</div>
+  <h2>원본이 인용한 문서 열다섯</h2>
+  <ol class="src-list">
+    <li><div><a href="https://vitest.dev/guide/">Vitest 공식 가이드</a><small>vitest.dev/guide/</small></div></li>
+    <li><div><a href="https://vitest.dev/guide/browser/component-testing">Vitest — Component Testing</a><small>vitest.dev/guide/browser/component-testing</small></div></li>
+    <li><div><a href="https://github.com/vitest-dev/vitest">Vitest GitHub</a><small>github.com/vitest-dev/vitest</small></div></li>
+    <li><div><a href="https://testing-library.com/docs/">Testing Library React 문서</a><small>testing-library.com/docs/</small></div></li>
+    <li><div><a href="https://playwright.dev/docs/test-components">Playwright Component Testing (experimental)</a><small>playwright.dev/docs/test-components</small></div></li>
+    <li><div><a href="https://playwright.dev/docs/test-fixtures">Playwright Fixtures</a><small>playwright.dev/docs/test-fixtures</small></div></li>
+    <li><div><a href="https://playwright.dev/docs/testing-library">Playwright Migrating from Testing Library</a><small>playwright.dev/docs/testing-library</small></div></li>
+    <li><div><a href="https://lingui.dev/">Lingui 공식 사이트</a><small>lingui.dev/</small></div></li>
+    <li><div><a href="https://lingui.dev/ref/macro">Lingui Macros 레퍼런스</a><small>lingui.dev/ref/macro</small></div></li>
+    <li><div><a href="https://lingui.dev/tutorials/setup-vite">Lingui Vite 셋업</a><small>lingui.dev/tutorials/setup-vite</small></div></li>
+    <li><div><a href="https://lingui.dev/ref/react">Lingui React API</a><small>lingui.dev/ref/react</small></div></li>
+    <li><div><a href="https://lingui.dev/ref/vite-plugin">Lingui Vite Plugin</a><small>lingui.dev/ref/vite-plugin</small></div></li>
+    <li><div><a href="https://lingui.dev/tutorials/react">Lingui React 튜토리얼</a><small>lingui.dev/tutorials/react</small></div></li>
+    <li><div><a href="https://github.com/lingui/js-lingui">js-lingui GitHub</a><small>github.com/lingui/js-lingui</small></div></li>
+    <li><div><a href="https://github.com/supermacro/neverthrow">neverthrow GitHub</a><small>github.com/supermacro/neverthrow</small></div></li>
+  </ol>
+</section>
+
+<!-- ── 변경 이력 ── -->
+<section class="section" id="history">
+  <div class="section-label">7 · 변경 이력</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-date">2026-04-10 — 초판</div>
+      <p>G4 3개 스킬 (<code>/react-test</code>, <code>/react-error</code>, <code>/react-l10n</code>) 상세 설계. WebSearch fallback 으로 Vitest v2, Testing Library React, Playwright Component Test, Lingui v5 매크로 (v5 에서 <code>@lingui/react/macro</code> 경로 분리) 를 검증했다. G2 Result/Failure 패턴을 severity + UI 매핑으로 확장했다.</p>
+    </div>
+  </div>
+</section>
 
 <!-- ── 푸터 ── -->
-<div class="section">
+<section class="section">
   <div class="section-label">관련 문서</div>
   <div class="footer-links">
-    <a href="state-data.html" class="footer-link">→ G2 상태 &amp; 데이터</a>
-    <a href="performance.html" class="footer-link">→ G3 성능</a>
-    <a href="build-audit.html" class="footer-link">→ G6 빌드 &amp; 감사</a>
-    <a href="integration.html" class="footer-link">→ 전체 통합</a>
-    <a href="../index.html" class="footer-link">→ 문서 허브</a>
+    <a href="scaffolding.html" class="footer-link">&#8594; G1 Scaffolding &amp; 생성</a>
+    <a href="state-data.html" class="footer-link">&#8594; G2 상태 &amp; 데이터</a>
+    <a href="performance.html" class="footer-link">&#8594; G3 성능 (WASM/Tauri)</a>
+    <a href="ui-patterns.html" class="footer-link">&#8594; G5 UI 패턴</a>
+    <a href="build-audit.html" class="footer-link">&#8594; G6 빌드 &amp; 감사</a>
+    <a href="integration.html" class="footer-link">&#8594; 전체 통합</a>
+    <a href="../index.html" class="footer-link">&#8594; 문서 허브</a>
   </div>
-</div>
+  <p class="source-meta">원본: <a href="../react/kit-design/g4-quality.md">docs/react/kit-design/g4-quality.md</a> (머리 설정 last_updated 2026-04-10) — 원본 전체를 2026-09-25 에 이 페이지로 다시 옮겼다.</p>
+</section>
 
 </div>
 </body>
