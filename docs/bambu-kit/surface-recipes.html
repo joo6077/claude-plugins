@@ -79,19 +79,25 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <main class="page">
 <a href="../index.html" class="nav-back">← Bambu Kit</a>
 <header class="hero">
-<h1>Surface-first Recipes — 완벽한 표면과 숨은 seam</h1>
-<p class="subtitle">Bambu Studio H2S에서 속도보다 외관을 우선하는 사전 정책. seam을 분산하지 않고 형상에 맞춰 숨기며 외벽·Top/Bottom·Ironing을 함께 판단한다. 실측 실패 뒤에는 Failure Recipes로 전환한다.</p>
+<h1>Surface-first 레시피 — 완벽한 표면과 숨은 seam</h1>
+<p class="subtitle">스킬이 사용자 의도가 "완벽한 표면 + seam이 안 보임 + 속도 무시"일 때 참조. seam 분산 전략(이전 default)이 아닌 <strong>은닉(invisible) 전략</strong>과 외벽/Top·Bottom/Ironing 정책을 함께 다룬다.</p>
 <div class="hero-meta">
-<span class="tag">Last updated 2026-09-25</span>
-<span class="tag">Codex run a25261e23b21252b2 · 24/25</span>
-<span class="tag">앱·프로파일 버전 런타임 조회</span>
+<span class="tag">Last updated: 2026-09-25</span>
+<span class="tag">Source: Codex research run a25261e23b21252b2 (score 24/25)</span>
+<span class="tag">Bambu Studio H2S · 사전 정책</span>
 </div>
+<p class="desc">Last updated: 2026-09-25 (G-code 실측 세 곳에 잰 방법 · 2026-09-08 §2.7 형상 클래스 축 신설 · 최초 2026-05-16). Source: Codex research run <code>a25261e23b21252b2</code> (score 24/25).</p>
 <div class="callout">
-<strong>버전을 하드코딩하지 않는다.</strong> 앱 <code>/Applications/BambuStudio.app/Contents/Info.plist</code>와 번들 <code>~/Library/Application Support/BambuStudio/system/BBL.json</code>은 따로 갱신된다. 최초 앱/번들 <code>02.06.00.51 / 02.06.00.05</code>, 2026-09-05 확인은 <code>02.08.02.61 / 02.08.00.06</code>이며 H2S 0.4 앵커 10/10은 같았다.</div>
+<strong>Bambu Studio reference version: 런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.</strong>
+앱 <code>/Applications/BambuStudio.app/Contents/Info.plist</code> · 프로파일 번들 <code>~/Library/Application Support/BambuStudio/system/BBL.json</code> 의 <code>version</code>.
+두 값은 <strong>따로 갱신된다</strong> (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 <code>SKILL.md</code> §환경 검증.
+최초 작성 시점 기준: 앱 <code>02.06.00.51</code> / 번들 <code>02.06.00.05</code>. 2026-09-05 확인: 앱 <code>02.08.02.61</code> / 번들 <code>02.08.00.06</code>, H2S 0.4 앵커값 10/10 동일.
+</div>
 <div class="callout info">
-<strong>2026-08-13 정정:</strong> <code>0.08</code> 공식 process 근거는 미확인, arc fitting은 G-code encoding 변경, resolution은 XY 전용이다. 근거: <code>.harness/.meta/evidence/phase13.md</code>.</div>
+<strong>2026-08-13 정정 (카이젠 Phase 13):</strong> <code>layer_height</code> <code>0.08</code> 의 공식 근거 표기 · <code>enable_arc_fitting</code> 성격 · <code>resolution</code> 적용 축 3 건. 근거: <code>.harness/.meta/evidence/phase13.md</code>
+</div>
 <div class="callout info">
-<strong>형제 정본:</strong> seam은 <code>seam-recipes.md</code>, 필드 enum/default는 <code>bambu-fields-baseline.md §8 · §10</code>, 소재는 <code>materials.md</code>, 실측 실패 뒤 사후 대응은 <code>failure-recipes.md</code>를 따른다.
+<strong>Sibling references:</strong> <code>seam-recipes.md</code> (seam 전용), <code>bambu-fields-baseline.md</code> §8 · §10 (필드 enum/default), <code>materials.md</code> (소재 카탈로그), <code>failure-recipes.md</code> (<strong>실측 실패 후 사후 대응</strong> — 이 파일은 사전 정책이다)
 </div>
 </header>
 
@@ -100,22 +106,32 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <h2>1. Surface-first 모드 개요</h2>
 <div class="grid-3">
 <article class="card">
-<div class="rule-number">원칙 01 · 트리거</div>
-<h3>외관 품질을 명시하면 ON</h3>
-<div class="card-body">“표면 매끈하게”, “심 안 보이게”, “완벽한 표면”, “퀄리티 우선”, “속도 신경 안 씀”, 또는 외관 prototype·피규어·장식품·케이스·회전체 화병/컵이면 적용한다.</div>
+<div class="rule-number">원칙 01 · 트리거 조건</div>
+<h3>다음 중 하나면 surface-first 모드 ON</h3>
+<div class="card-body">
+<p>사용자가 "표면 매끈하게", "심 안 보이게", "완벽한 표면", "퀄리티 우선", "속도 신경 안 씀" 같은 요구를 명시</p>
+<p>모델이 외관 prototype, 피규어, 장식품, 케이스 외관, 회전체 화병/컵</p>
+<p>사용자가 직접 surface-first 키워드 사용</p>
+</div>
 <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">출처 · Bambu Studio release</a>
 </article>
 <article class="card">
 <div class="rule-number">원칙 02 · 우선순위</div>
-<h3>은닉 ≥ 외벽 &gt; top &gt; 강도·치수 &gt; 시간</h3>
-<div class="card-body">속도는 후순위지만 PETG·PC·ABS 열 축적과 warping은 관리한다. PETG 건조와 CF hardened nozzle 안전은 언제나 우선이다.</div>
+<h3>seam 은닉 ≥ 외벽 매끈 &gt; top 마감 &gt; 강도/치수 &gt; 시간</h3>
+<div class="card-body">
+<p>1. <strong>seam 은닉 ≥ 외벽 매끈</strong> &gt; top 마감 &gt; 강도/치수 &gt; 시간</p>
+<p>2. 속도는 무시 (단, 너무 느린 PETG/PC/ABS는 열 축적/warping 부작용 별도 관리)</p>
+<p>3. 안전성 (PETG 건조, CF 노즐 호환)은 항상 우선</p>
+</div>
 <a class="card-source" href="https://bambulab.com/en-us/filament/petg-hf">출처 · Bambu PETG HF</a>
 </article>
 <article class="card">
-<div class="rule-number">원칙 03 · 시간</div>
-<h3>예상 시간을 먼저 고지</h3>
+<div class="rule-number">원칙 03 · 출력 시간 예상</div>
+<h3>사용자에게 시간 추정치 사전 고지</h3>
 <div class="metric">2~4배</div>
-<div class="card-body">0.20mm Standard 대비 0.12mm, 외벽·인접 속도 하향, wall 3, ironing의 누적 결과다.</div>
+<div class="card-body">
+<p>일반 0.20mm Standard 대비 <strong>2~4배</strong> 늘어남 (0.12mm + 외벽·인접 속도 하향 + wall 3 + ironing)</p>
+</div>
 <a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">출처 · Orca Ironing wiki</a>
 </article>
 </div>
@@ -124,354 +140,404 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <section class="section" id="geometry">
 <div class="section-label">Section 02</div>
 <h2>2. 형상별 결정 트리 (Auto-select)</h2>
-<p class="desc">형상을 분석해 자동 판정하고 모호할 때만 옵션을 제시한다.</p>
-<h3 class="subhead">2.1 회전체 / 원기둥 / 컵 / 화병 — v4</h3>
+<p class="desc">스킬이 모델 형상을 분석한 후 다음 순서로 자동 판정. 모호하면 사용자에게 옵션 제시.</p>
+
+<h3 class="subhead">2.1. 회전체 / 원기둥 / 컵 / 화병 (v4 — 2026-09-05)</h3>
+<p class="desc"><strong>정본은 <code>seam-recipes.md</code> §0 이다.</strong> 여기서 트리를 재정의하지 말고 요지만 둔다.</p>
 <pre>회전체 감지
-├─ vase 가능 → spiral_mode = 1 + spiral_mode_smooth = 1 (H2S timelapse 끔)
-├─ 숨길 면 → aligned/back + seam paint + 짧은 scarf (gap 0)
-├─ 360° 노출 → aligned/back + 짧은 scarf의 약한 한 줄 또는 CAD 은폐
-└─ random → fallback 전용, surface-first default 아님</pre>
+  ├─ (1) vase 가능?  → spiral_mode = 1 + spiral_mode_smooth = 1   ★ 유일한 해결, 수작업 0
+  │                     ⚠️ H2S 는 전송 시 timelapse 를 끈다
+  ├─ (2) 숨길 면 있음 → aligned/back + Studio seam paint + 짧은 scarf (gap 0)
+  ├─ (3) 360° 노출    → aligned/back + 짧은 scarf 로 약한 한 줄 수용
+  │                     또는 CAD seam 은폐 feature · 소재 선택(PLA Matte/CF)
+  └─ (4) random       → fallback 전용. surface-first default 아님</pre>
 <div class="callout">
-<strong>v4:</strong> random은 seam 제거가 아니라 specks 분산이다. 수작업 없는 최선은 vase이며 정본은 <code>seam-recipes.md §0</code>이다.</div>
-<div class="grid-2">
+<strong>v4 변경 사유:</strong> <code>random</code> 은 seam 을 없애는 것이 아니라 한 줄을 표면 전체 specks 로 바꾸는 것이며 (Prusa KB), 사용자가 그 결과를 거부했다 (2026-09-05). v3 의 "사용자 수작업이 없는 옵션이 default" 라는 원칙은 유지된다 — 그 원칙을 만족하는 최선이 random 이 아니라 vase 였다.
+</div>
+
+<div class="grid-2 subhead">
 <article class="card">
 <div class="card-header">
 <span class="num">2.2</span>
 <h3>박스 / 직육면체</h3>
 </div>
-<div class="card-body">back/aligned로 sharp corner에 숨긴다. scarf off 또는 <code>5-8mm</code>. 평면 specks를 만드는 random 금지.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50">출처 · Scarf hotfix</a>
+<div class="card-body">
+<p><code>seam_position</code>: <strong>back</strong> (또는 aligned)</p>
+<p>Sharp corner에 seam 숨김 + 필요 시 painted seam으로 코너 강조</p>
+<p>scarf: 일반적으로 off 또는 length 5-8mm (corner sharpness 보존)</p>
+<p>random 금지 (평평한 면에 specks 분산되면 외관 ↓)</p>
+</div>
+<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50">출처 · Scarf 1.10.1 hotfix</a>
 </article>
 <article class="card">
 <div class="card-header">
 <span class="num">2.3</span>
 <h3>유기적 곡면 / 피규어</h3>
 </div>
-<div class="card-body">후면·주름·접합부·머리카락에 paint. Contour, <code>10-15mm</code>, gap <code>0</code>, height <code>0-10%</code>, steps <code>10</code>. 흔들리면 Smart off.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50">출처 · Scarf hotfix</a>
+<div class="card-body">
+<p><code>seam_position</code>: aligned (back 방향 우선)</p>
+<p>Studio UI seam paint로 후면, 주름, 접합부, 머리카락 텍스처에 페인팅</p>
+<p>scarf: <code>Contour</code> (외벽만), length 10-15mm, gap 0, height 0-10%, steps 10</p>
+<p>Smart scarf는 각도 판정 흔들리면 Off 고려 (seam-recipes.md §1 참조)</p>
+</div>
+<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50">출처 · Scarf 1.10.1 hotfix</a>
 </article>
 <article class="card">
 <div class="card-header">
 <span class="num">2.4</span>
 <h3>얇은 벽 / 미세 디테일</h3>
 </div>
-<div class="card-body">aligned + scarf <code>5-10mm</code> 또는 off. wall 1-2, Arachne 검토. 작은 홀은 Contour and Hole 비추천.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp">출처 · PrintConfig.cpp</a>
+<div class="card-body">
+<p><code>seam_position</code>: aligned</p>
+<p>scarf: 짧게 (length 5-10mm) 또는 off — scarf ramp가 얇은 벽 형상 침범</p>
+<p><code>wall_loops</code>: 1-2 (Arachne wall generator 검토)</p>
+<p>작은 홀에는 <code>Contour and Hole</code> 비추 (내경 치수 영향)</p>
+</div>
+<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">출처 · Bambu Studio release</a>
 </article>
 <article class="card">
 <div class="card-header">
 <span class="num">2.5</span>
-<h3>평면 top 강조</h3>
+<h3>평면 top 강조 (도구, 케이스 lid, 박스 top)</h3>
 </div>
-<div class="card-body">외벽보다 top speed/flow 우선, ironing 적극. <code>monotonicline</code>, 원형은 <code>concentric</code> 실험.</div>
-<a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">출처 · Ironing wiki</a>
+<div class="card-body">
+<p>seam은 후면/코너에 숨김 (위 §2.2 박스 규칙)</p>
+<p><strong>Top surface 품질이 외벽보다 더 중요</strong> — outer 속도보다 top 속도/flow에 집중</p>
+<p>Ironing <strong>적극 적용</strong> (§5 참조)</p>
+<p><code>top_surface_pattern</code>: <code>monotonicline</code> 또는 원형이면 <code>concentric</code> 실험</p>
+</div>
+<a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">출처 · Orca Ironing wiki</a>
 </article>
 <article class="card">
 <div class="card-header">
 <span class="num">2.6</span>
-<h3>Spiral vase</h3>
+<h3>Spiral vase 가능 모델</h3>
 </div>
-<div class="card-body">단일 외벽·top/infill 없음·단일 색이면 <code>spiral_mode=1</code>. seam/scarf/ironing은 무시된다. 외벽 1겹, 밀폐·멀티컬러 불가.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp">출처 · PrintConfig.cpp</a>
+<div class="card-body">
+<p>단일 외벽 / top 없음 / infill 없음 / 멀티컬러 아님 만족 시</p>
+<p><code>spiral_mode = 1</code></p>
+<p>다른 설정(seam_position, scarf, ironing)은 무의미 — 슬라이서가 normalize에서 무시</p>
+<p>단점: 강도 ↓ (외벽 1겹), top 없음 (밀폐 불가), 멀티컬러 불가</p>
+</div>
+<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">출처 · Bambu Studio release</a>
 </article>
 </div>
-<h3 class="subhead">2.7 형상 클래스 — <code>planar</code> vs <code>thin</code> (2026-09-08 신규)</h3>
-<p class="desc">메시를 높이 25/50/75%에서 절단해 단면 루프로 판정한다. 얇은 단면은 열 방출 시간이 병목이라 느릴수록 나빠질 수 있다.</p>
+
+<h3 class="subhead">2.7. 형상 클래스 — <code>planar</code> vs <code>thin</code> (2026-09-08 신규)</h3>
+<p class="desc">§3 의 속도표는 소재 축만 갖는다. 2026-09-07 래티스 통(ABS · <code>0.12mm High Quality @BBL H2S</code>) 실측에서 같은 surface-first 값이 큰 평면(Funnel)과 스트럿 단면(Side Container)에 똑같이 들어갔고, 결함 원인은 flow · PA · Z · 워핑 · 습기가 아니라 <strong>속도값과 냉각 문턱</strong>이었다. 얇은 단면의 병목은 유량이 아니라 <strong>열 방출 시간</strong>이라 느릴수록 나빠진다. 그래서 형상 축을 §2.4 "얇은 벽 / 미세 디테일" 분기에 <strong>측정으로</strong> 붙인다 — 키워드 추측이 아니라 단면 루프 둘레로 판정한다.</p>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>클래스</th>
-<th>판정</th>
-<th>속도</th>
-<th>냉각</th>
-</tr>
+<tr><th>클래스</th><th>판정</th><th>속도 정책</th><th>냉각 정책</th></tr>
 </thead>
 <tbody>
 <tr>
-<td>
-<code>planar</code>
-</td>
-<td>&lt;30mm 비율 중앙값 &lt;0.5</td>
-<td>§3 + 유량비 gate</td>
-<td>base</td>
+<td><code>planar</code></td>
+<td>루프 둘레 <code>30</code> mm 미만 비율의<br>3 높이 중앙값 <code>&lt; 0.5</code></td>
+<td>§3 표 적용 (소재별 하향 + 유량비 게이트)</td>
+<td>base 위임 (변경 없음)</td>
 </tr>
 <tr>
-<td>
-<code>thin</code>
-</td>
-<td>같은 비율 ≥0.5</td>
-<td>외벽·인접 4키·top을 쓰지 않고 부모값</td>
-<td>확인 후 <code>overhang_fan_threshold</code>만</td>
+<td><code>thin</code></td>
+<td>같은 비율 <code>&gt;= 0.5</code></td>
+<td><strong>§3 속도 하향을 적용하지 않는다.</strong><br><code>outer_wall_speed</code> · 인접 4 키 · <code>top_surface_speed</code> 를<br>process JSON 에 쓰지 않고 부모 실효값을 그대로 둔다</td>
+<td>사용자 확인 후 filament 스코프<br><code>overhang_fan_threshold</code> 1 키만<br>(<code>SKILL.md</code> §filament 튜닝 정책 예외)</td>
 </tr>
+</tbody>
+</table>
+</div>
+
+<div class="grid-2 subhead">
+<article class="card">
+<div class="rule-number">측정</div>
+<h3>3 높이 절단으로 루프 둘레를 잰다</h3>
+<div class="card-body">
+<p><code>SKILL.md</code> Phase 1.0 의 geometry-class probe 블록이 3mf 메시를 빌드 좌표에서 높이 25 / 50 / 75 % 로 절단해 오브젝트별 루프 수 · 둘레 · <code>&lt; 30 mm</code> 비율 · <code>_geometry_class</code> 를 출력한다. 결과는 process JSON 에 <code>_geometry_class</code> (<code>planar</code> | <code>thin</code>) 와 <code>_thin_loop_share</code> 로 기록하고 Phase 4.3 게이트가 이를 읽는다.</p>
+<p><code>_</code> 접두 키는 Bambu Studio 가 import 시 거부하지 않고 버린다 (실측: user preset <code>AMS 2 Pro Dry Pods FUNNEL - ABS 0.12mm.json</code> 에 <code>_scarf_loop_circumference_mm</code> 0 건, import 성공).</p>
+</div>
+</article>
+<article class="card">
+<div class="rule-number">임계 근거</div>
+<h3><code>30</code> mm 와 비율 <code>0.5</code></h3>
+<div class="card-body">
+<p><code>30</code> mm 는 <code>seam-recipes.md</code> §2.2 의 scarf off 임계와 같은 값이다. 그 아래에서는 램프가 루프를 지배한다는 실측(둘레 32 mm 루프에 8 mm 램프로 세로 파임, 2026-09-05)과, 래티스 스트럿 단면 둘레가 <code>5.3~20.6</code> mm 에 몰린다는 실측(2026-09-07)이 같은 경계를 가리킨다.</p>
+<p>비율 <code>0.5</code> 는 "레이어의 절반 이상이 스트럿 단면" 이면 그 레이어의 열 거동을 스트럿이 결정한다는 뜻이다.</p>
+</div>
+</article>
+</div>
+
+<p class="rule-number subhead">2026-09-07 실측 분류 — 같은 3mf 안에서 두 클래스가 갈린다</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>오브젝트</th><th>루프 (25 / 50 / 75 %)</th><th><code>&lt; 30 mm</code> 비율 중앙값</th><th>최대 둘레</th><th>클래스</th></tr>
+</thead>
+<tbody>
+<tr><td>Side Container LHS V1</td><td>52 / 25 / 20</td><td><code>1.00</code></td><td>20.6 mm</td><td><code>thin</code></td></tr>
+<tr><td>Center Container Round Temp V2.1</td><td>29 / 26 / 30</td><td><code>0.97</code></td><td>391.2 mm</td><td><code>thin</code></td></tr>
+<tr><td>Rear Container V2</td><td>4 / 42 / 55</td><td><code>0.95</code></td><td>338.7 mm</td><td><code>thin</code></td></tr>
+<tr><td>Funnel V1</td><td>2 / 2 / 2</td><td><code>0.00</code></td><td>175.5 mm</td><td><code>planar</code></td></tr>
+<tr><td>Small Lid V1</td><td>1 / 2 / 2</td><td><code>0.00</code></td><td>81.9 mm</td><td><code>planar</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout">
+<strong>왜 <code>thin</code> 에서 속도를 낮추지 않는가</strong> — 같은 실측에서 층시간이 <code>8.6~14.6 s</code> 로 ABS 실효 <code>slow_down_layer_time 12</code> 를 주기적으로 가로질렀고, 사선 스트럿 미지지율(20° = 10.4 % / 40° = 24.0 %)이 ABS 실효 <code>overhang_fan_threshold 25%</code> 에 걸리지 않아 <code>overhang_fan_speed 100</code> 이 발동하지 못했다. 외벽을 <code>60 → 30</code> 으로 내린 것은 체류 시간을 늘려 이 둘을 악화시켰다. <code>user-preferences.md</code> §2 "속도를 낮추는 것이 품질에 기여한다는 근거가 그 소재·형상에 있을 때만 낮춘다" 의 실제 사례다.
+</div>
+<div class="callout info">
+<strong><code>thin</code> 의 유량비 게이트:</strong> <code>thin</code> 에서 유량비 게이트는 부모 실효값으로 계산한다 — <code>0.12mm High Quality @BBL H2S</code> 는 <code>gap_infill_speed 230</code> 대 <code>outer_wall_speed 60</code> 으로 <code>3.8x</code> 경고 구간이며, 이 경고는 정보 보고이지 외벽 하향 사유가 아니다. 인접 키를 외벽 쪽으로 낮추는 것은 허용하지만 외벽을 내리지는 않는다. 냉각 보상 키의 이름 · 스코프 · 실효값 정본은 <code>bambu-fields-baseline.md</code> §10.5 다.
+</div>
+
+<h3 class="subhead">2.8. 벽 예산 — 피처 폭이 벽을 못 담으면 갭필로 샌다 (2026-09-14 신설)</h3>
+<p class="desc">구멍 · 빈 칸이 있는 부품은 형상 클래스(§2.7)와 <strong>무관하게</strong> 한 가지를 더 계산한다. <strong>벽이 실제로 들어가는지</strong>다. 처음에는 <code>thin</code> 에서만 계산했는데, 2026-09-19 전부 <code>planar</code> 로 판정된 부품에서 같은 결함이 났다 (아래 실측).</p>
+<div class="grid-2">
+<article class="card">
+<div class="rule-number">계산식</div>
+<h3>벽 두 겹이 들어갈 최소폭</h3>
+<pre>벽 예산 = outer_wall_line_width x 2 + inner_wall_line_width x 2 x (wall_loops - 1)</pre>
+<div class="card-body">
+<p><code>0.12mm High Quality @BBL H2S</code> 실효값(외 0.42 · 내 0.45 · <code>wall_loops</code> 2) 기준 <strong>1.74 mm</strong> 다.</p>
+<p>피처의 <strong>국소 최소폭</strong>이 이 값보다 작으면 벽 두 겹이 안 들어간다. 중앙값이나 수력직경으로 재면 안 된다 — 결함은 가장 좁은 자리에서 난다. 회전 캘리퍼로 루프별 최소 두께를 재라.</p>
+</div>
+</article>
+<article class="card">
+<div class="rule-number">측정</div>
+<h3>부족 둘레 비율 <code>_wall_budget_short_share</code></h3>
+<div class="card-body">
+<p><code>SKILL.md</code> Phase 1.0 형상 측정을 <code>WALL_LOOPS=&lt;벽 수&gt; OUTER_LINE_WIDTH=&lt;외벽 선폭&gt; INNER_LINE_WIDTH=&lt;내벽 선폭&gt;</code> 과 함께 돌린다. 부품마다 루프 위 점에서 <strong>다른 루프</strong>까지의 거리를 재서, 벽 예산보다 좁은 둘레 비율을 바닥 0.1 mm · 25 · 50 · 75 % 높이에서 낸다.</p>
+<p>마지막 줄의 <code>_wall_budget_short_share</code>(전 부품 최댓값)를 process JSON 에 기록하면 Phase 4.3 게이트가 <code>classic</code> 과 함께 10 % 이상일 때 FAIL 한다. 10 % 는 추정이다 — 결함이 난 실측은 22~90 %, 결함이 없던 부품은 0 % 였다.</p>
+<p>비율은 둘레 <strong>길이</strong>로 센다. 점 수로 세면 메시가 잘게 쪼개진 곡선 구간이 부풀어, 같은 뒤쪽 브래킷이 72.0 % 대신 58.8 % 로 나온다 (2026-09-19 두 방식 대조). 같은 루프 안에서 윤곽이 접혀 들어온 좁은 목은 재지 않는다.</p>
+</div>
+</article>
+</div>
+
+<p class="rule-number subhead">판정과 처방</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>국소 최소폭</th><th>상태</th><th>처방</th></tr>
+</thead>
+<tbody>
+<tr><td>&gt;= 벽 예산</td><td><span class="badge ok">정상</span></td><td>그대로</td></tr>
+<tr><td>&lt; 벽 예산, &gt;= 외벽 2겹(0.84 mm)</td><td><span class="badge warn">벽이 못 들어감</span></td><td><code>wall_generator</code> 를 <code>arachne</code> 로</td></tr>
+<tr><td>&lt; 외벽 2겹</td><td><span class="badge bad">벽 1 겹도 불가</span></td><td>모델 쪽 문제. 사용자에게 보고</td></tr>
+</tbody>
+</table>
+</div>
+<p class="desc subhead"><code>classic</code> 생성기는 벽이 못 들어가는 자리를 <strong>갭필로 때운다.</strong> 갭필 선폭은 그 자리 형상이 정하므로 자리마다 달라지고, 결함이 <strong>매 출력 같은 위치에 재현</strong>된다. <code>arachne</code> 는 벽 선폭을 형상에 맞춰 바꿔 갭필을 만들지 않는다.</p>
+
+<p class="rule-number">실측 (2026-09-14, 래티스 통)</p>
+<p class="desc">스트럿 국소 최소폭 1.15~1.51 mm — 벽 예산 1.74 mm 미만이라 <strong>56~90% 구간에서 두 겹이 안 들어간다.</strong> 같은 부품을 두 생성기로 잘라 비교했다.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th><code>wall_generator</code></th><th>갭필 구간</th><th>외벽 블록</th><th>갭필 선폭 범위</th></tr>
+</thead>
+<tbody>
+<tr><td><code>classic</code></td><td><strong>16,123</strong></td><td>18,267 (파편화)</td><td>0.076~0.697 mm (9 배 요동)</td></tr>
+<tr><td><code>arachne</code></td><td><strong>0</strong></td><td>9,875</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<p class="caption"><code>classic</code> 은 외벽까지 두 배로 파편화한다 — 조각 하나하나가 압출 시작·종료라 이음매 후보지도 두 배다.</p>
+
+<p class="rule-number subhead">실측 (2026-09-19, H2 AMS Flipper — <code>planar</code>)</p>
+<p class="desc">10 개 부품 전부 <code>planar</code> 였고 벽 4 겹(외 0.42 · 내 0.45, 예산 3.54 mm)으로 출력했다. 첫 출력 2~3 층에서 모서리 · 갈림길 · 둥근 경첩 구멍 둘레에 덩어리가 솟아 사용자가 멈췄다.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>부품</th><th>바닥 층 부족 비율</th><th>최소 살</th></tr>
+</thead>
+<tbody>
+<tr><td>뒤쪽 브래킷 (구멍 21 개)</td><td>71.9 %</td><td>2.01 mm</td></tr>
+<tr><td>80° 브래킷</td><td>72.1 %</td><td>2.53 mm</td></tr>
+<tr><td>AMS2 브래킷</td><td>0 %</td><td>2.29 mm</td></tr>
+</tbody>
+</table>
+</div>
+<p class="desc subhead">같은 판을 두 생성기로 잘라 비교했다 (뱀부 스튜디오 02.08.02.61 명령줄).</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th><code>wall_generator</code></th><th>전체 갭필</th><th>갭필 조각</th><th>갭필 선폭</th><th>1 층 되감기</th></tr>
+</thead>
+<tbody>
+<tr><td><code>classic</code></td><td><strong>253.0 m</strong></td><td>165,952</td><td>0.069~0.748 mm</td><td>353 회</td></tr>
+<tr><td><code>arachne</code></td><td>0.4 m</td><td>1,558</td><td>0.068~0.404 mm</td><td>206 회</td></tr>
 </tbody>
 </table>
 </div>
 <div class="callout info">
-<strong>기록:</strong> <code>_geometry_class</code>, <code>_thin_loop_share</code>. 30mm는 scarf off 임계, 0.5는 레이어 절반 이상을 스트럿이 지배한다는 뜻이다.</div>
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-<th>오브젝트</th>
-<th>루프 25/50/75%</th>
-<th>&lt;30mm 중앙값</th>
-<th>최대 둘레</th>
-<th>클래스</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Side Container LHS V1</td>
-<td>52/25/20</td>
-<td>1.00</td>
-<td>20.6mm</td>
-<td>thin</td>
-</tr>
-<tr>
-<td>Center Container Round Temp V2.1</td>
-<td>29/26/30</td>
-<td>0.97</td>
-<td>391.2mm</td>
-<td>thin</td>
-</tr>
-<tr>
-<td>Rear Container V2</td>
-<td>4/42/55</td>
-<td>0.95</td>
-<td>338.7mm</td>
-<td>thin</td>
-</tr>
-<tr>
-<td>Funnel V1</td>
-<td>2/2/2</td>
-<td>0.00</td>
-<td>175.5mm</td>
-<td>planar</td>
-</tr>
-<tr>
-<td>Small Lid V1</td>
-<td>1/2/2</td>
-<td>0.00</td>
-<td>81.9mm</td>
-<td>planar</td>
-</tr>
-</tbody>
-</table>
+<strong>잰 방법 (2026-09-25 추가):</strong> 명령줄로 자른 G-code 에서 쟀고 호(<code>G2</code> · <code>G3</code>)를 넣었는지 기록이 없다 — 같은 수치를 다시 잴 때는 <code>SKILL.md</code> Phase 4.4 「G-code 로 길이 재기」 블록으로 재고 호 비율을 같이 적는다.
 </div>
-<p class="caption">실측: 층시간 8.6~14.6s가 ABS 12s를 넘나들고 미지지율 20°=10.4%, 40°=24.0%가 fan threshold 25% 미만이었다. outer 60→30은 악화. 부모 gap 230 / outer 60 = 3.8x는 정보 경고다.</p>
-<h3 class="subhead">2.8 벽 예산 — 피처 폭이 벽을 못 담으면 갭필로 샌다 (2026-09-14 신설)</h3>
-<pre>벽 예산 = outer line width × 2 + inner line width × 2 × (wall loops - 1)
-0.42 × 2 + 0.45 × 2 × (2 - 1) = 1.74mm</pre>
-<p class="desc"><code>WALL_LOOPS</code>, <code>OUTER_LINE_WIDTH</code>, <code>INNER_LINE_WIDTH</code>를 넣고 국소 최소폭을 잰다. 바닥 0.1mm와 25/50/75%에서 다른 루프까지 거리의 부족 둘레 길이를 계산한다. <code>_wall_budget_short_share</code>가 classic과 함께 10% 이상이면 FAIL. 10%는 추정, 결함 실측 22~90%, 무결함 0%다. 점 수가 아닌 둘레 길이로 세며 같은 루프 안의 접힌 목은 제외한다.</p>
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-<th>국소 최소폭</th>
-<th>상태</th>
-<th>처방</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>≥ 벽 예산</td>
-<td>정상</td>
-<td>유지</td>
-</tr>
-<tr>
-<td>&lt; 예산, ≥ 외벽 2겹 0.84mm</td>
-<td>벽 못 들어감</td>
-<td>
-<code>arachne</code>
-</td>
-</tr>
-<tr>
-<td>&lt;0.84mm</td>
-<td>한 겹도 불가</td>
-<td>모델 문제 보고</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="grid-2 subhead">
-<article class="card">
-<div class="rule-number">2026-09-14 래티스</div>
-<h3>1.15~1.51mm 스트럿</h3>
-<div class="card-body">56~90% 부족. classic 갭필 16,123·외벽 18,267·선폭 0.076~0.697mm. Arachne 갭필 0·외벽 9,875.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp">출처 · PrintConfig.cpp</a>
-</article>
-<article class="card">
-<div class="rule-number">2026-09-19 Flipper</div>
-<h3>planar도 같은 결함</h3>
-<div class="card-body">4겹 예산 3.54mm. 뒤/80° 브래킷 부족 71.9/72.1%, 최소 살 2.01/2.53mm. AMS2 브래킷은 부족 0%, 최소 살 2.29mm였다. classic 253.0m·165,952조각·선폭 0.069~0.748mm·되감기 353회, Arachne 0.4m·1,558조각·0.068~0.404mm·206회. 재출력은 정상 확인.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">출처 · Bambu Studio</a>
-</article>
-</div>
-<p class="caption">잰 방법 (2026-09-25 추가): 명령줄로 자른 G-code 에서 쟀고 호(G2 · G3)를 넣었는지 기록이 없다. 같은 수치를 다시 잴 때는 SKILL.md Phase 4.4 「G-code 로 길이 재기」 블록으로 재고 호 비율을 같이 적는다.</p>
+<p class="desc">둥근 경첩 구멍은 바깥 4 겹과 안쪽 4 겹 사이 틈이 원을 따라 한 바퀴 이어져 갭필 고리가 됐고, 사용자가 "원형으로 있는 게 엄청 심하다" 고 짚은 자리가 거기였다. <code>arachne</code> 로 바꾼 재출력에서 사용자가 "이번엔 괜찮네" 라고 확인했다.</p>
 </section>
 
 <section class="section" id="outer">
 <div class="section-label">Section 03</div>
 <h2>3. 외벽 표면 권장값 (공통)</h2>
-<p class="desc">H2S 0.4 hardened nozzle 기준 SSOT. thin에는 속도 행과 §4 top speed를 적용하지 않는다. 인접 feature Q 비율은 3x 이하.</p>
+<p class="desc">H2S 0.4 hardened nozzle 기준. 모든 단위 명시.</p>
+<div class="callout info">
+<strong>이 표가 속도·가속 값의 정본(SSOT)이다.</strong> <code>seam-recipes.md</code> 는 seam 전략만 갖고 속도는 여기를 참조한다. 두 문서에 같은 소재의 속도 범위를 따로 적지 마라 — 2026-08 superlube 회귀가 그 불일치에서 나왔다.
+</div>
+<div class="callout">
+<strong>⚠️ 단일 값이 아니라 유량비로 판정한다.</strong> outer 만 낮추는 것은 surface-first 가 아니다. 인접 feature 의 <code>Q</code> 비율이 <code>3x</code> 이하인지 확인하라 (<code>SKILL.md</code> §유량비 게이트).
+</div>
+<div class="callout">
+<strong>⚠️ 형상 클래스가 <code>thin</code> 이면 아래 표의 속도 행(<code>outer_wall_speed</code> · <code>inner_wall_speed</code> · <code>internal_solid_infill_speed</code> · <code>sparse_infill_speed</code> · <code>gap_infill_speed</code>)과 §4 의 <code>top_surface_speed</code> 를 적용하지 않는다</strong> — §2.7. 부모 실효값을 그대로 두고 냉각으로 보상한다. 이 표는 <code>planar</code> 전용이다.
+</div>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>항목</th>
-<th>Surface-first</th>
-<th>baseline</th>
-<th>주의</th>
-</tr>
+<tr><th>항목</th><th>Surface-first 값</th><th>기본 baseline</th><th>근거</th></tr>
 </thead>
 <tbody>
 <tr>
-<td>layer</td>
-<td>0.12 1차; 선택 시 0.08-0.12; 평면 0.12-0.16</td>
-<td>0.20</td>
-<td>0.08 공식 근거 미확인</td>
+<td><code>layer_height</code></td>
+<td><strong><code>0.12</code> mm 1 차 권장</strong> (전 형상).<br>회전체/유기적에서 계단이 핵심이고 시간을 감수할 때만 <code>0.08-0.12</code> mm,<br>큰 평면 <code>0.12-0.16</code> mm</td>
+<td>H2S 0.20 Standard</td>
+<td><code>0.12</code>: 0.12mm High Quality @BBL H2S.json (공식 체인 실재).<br>아래 경고 참조</td>
 </tr>
 <tr>
-<td>wall loops</td>
-<td>3~4</td>
-<td>2</td>
-<td>표면~강도</td>
+<td><code>wall_loops</code></td>
+<td><code>3</code> (표면 우선) ~ <code>4</code> (강도까지 우선)</td>
+<td><code>2</code> (fdm_process_common)</td>
+<td>fdm_process_common.json</td>
 </tr>
 <tr>
-<td>outer</td>
-<td>PLA 25-40; Silk 15-25; PETG 50-70; PA/PC 20-30; ABS 25-35; TPU 10-20</td>
-<td>60</td>
-<td>PETG 저속 금지</td>
+<td><code>outer_wall_speed</code></td>
+<td><strong>소재별 매트릭스(아래)가 정본.</strong><br>PLA <code>25-40</code> · Silk <code>15-25</code> · <strong>PETG <code>50-70</code></strong><br>PA/PC <code>20-30</code> · ABS/ASA <code>25-35</code> · TPU <code>10-20</code> mm/s</td>
+<td>H2S 0.12 HQ <code>60</code> mm/s</td>
+<td>0.12mm High Quality @BBL H2S.json.<br>아래 경고 참조</td>
 </tr>
 <tr>
-<td>inner</td>
-<td>outer의 2-3배 이하</td>
-<td>90</td>
-<td>outer 30→60-90</td>
+<td><code>inner_wall_speed</code></td>
+<td>outer의 <code>2-3배</code> 이하 (예: outer 30 → inner 60-90)</td>
+<td>H2S 0.12 HQ <code>90</code> mm/s</td>
+<td>동일</td>
 </tr>
 <tr>
-<td>solid / sparse</td>
-<td>70-120</td>
-<td>200</td>
-<td>5x 방지</td>
+<td><code>internal_solid_infill_speed</code></td>
+<td>outer 30 기준 <code>70-120</code> mm/s</td>
+<td>H2S 0.16 HQ <code>200</code> mm/s</td>
+<td>0.16mm High Quality @BBL H2S.json.<br><strong>스톡을 그대로 두면 유량비가 5x 를 넘는다</strong></td>
 </tr>
 <tr>
-<td>gap</td>
-<td>30-70, 최대 80</td>
-<td>250</td>
-<td>유량 gate</td>
+<td><code>sparse_infill_speed</code></td>
+<td><code>internal_solid</code> 와 같은 창</td>
+<td>H2S 0.16 HQ <code>200</code> mm/s</td>
+<td>동일</td>
 </tr>
 <tr>
-<td>outer accel</td>
-<td>1000-2000</td>
-<td>2000</td>
-<td>mm/s²</td>
+<td><code>gap_infill_speed</code></td>
+<td><code>30-70</code> mm/s, 최대 <code>80</code></td>
+<td>H2S 0.16 HQ <code>250</code> mm/s</td>
+<td>동일</td>
 </tr>
 <tr>
-<td>default accel</td>
-<td>2500-4000; 5x 초과 2500-3000</td>
-<td>4000</td>
-<td>mm/s²</td>
+<td><code>outer_wall_acceleration</code></td>
+<td><code>1000-2000</code> mm/s²</td>
+<td>H2S <code>2000</code></td>
+<td>속도만 내리고 가속을 두면<br>짧은 세그먼트에서 유량만 출렁인다</td>
 </tr>
 <tr>
-<td>wall sequence</td>
-<td>inner-outer-inner; sharp box만 inner/outer</td>
-<td>inner/outer</td>
-<td>전자는 wall≥3</td>
+<td><code>default_acceleration</code></td>
+<td><code>2500-4000</code> mm/s² (유량비 5x 초과 시 2500-3000)</td>
+<td>H2S <code>4000</code></td>
+<td>동일</td>
 </tr>
 <tr>
-<td>reduce crossing</td>
-<td>1</td>
-<td>0</td>
-<td>common</td>
+<td><code>wall_sequence</code></td>
+<td><code>inner-outer-inner wall</code> 기본;<br>박스 sharp 치수 우선만 <code>inner wall/outer wall</code></td>
+<td><code>inner wall/outer wall</code></td>
+<td>fdm_process_common.json:58 (enum).<br>아래 경고 참조</td>
 </tr>
 <tr>
-<td>arc fitting</td>
-<td>1 유지</td>
-<td>1</td>
-<td>encoding, 품질 카드 아님</td>
+<td><code>reduce_crossing_wall</code></td>
+<td><code>1</code></td>
+<td><code>0</code></td>
+<td>fdm_process_common.json:100</td>
 </tr>
 <tr>
-<td>resolution</td>
-<td>0.012 유지</td>
-<td>0.012</td>
-<td>XY 전용</td>
+<td><code>enable_arc_fitting</code></td>
+<td><code>1</code> (<strong>기본값 유지 — 표면 품질 카드가 아니다</strong>)</td>
+<td><code>1</code></td>
+<td>fdm_process_common.json:29.<br>아래 경고 참조</td>
 </tr>
 <tr>
-<td>flow / PA</td>
-<td>색상별 calibration; PLA 0.98 / 건조 후 PA 저장</td>
-<td>동일 / —</td>
-<td>Calibration</td>
+<td><code>resolution</code></td>
+<td><strong>기본값 <code>0.012</code> 유지</strong></td>
+<td><code>0.012</code> mm</td>
+<td>fdm_process_common.json:103.<br>아래 경고 참조</td>
+</tr>
+<tr>
+<td>flow ratio</td>
+<td>소재/색상별 calibration 후 적용 (PLA Basic 기본 <code>0.98</code>)</td>
+<td>동일</td>
+<td>Bambu PLA Basic @BBL H2S.json:29-42</td>
+</tr>
+<tr>
+<td>Pressure Advance (PA)</td>
+<td>소재/노즐/건조 후 PA profile 저장 필수<br>(Bambu Studio Calibration → PA test)</td>
+<td>—</td>
+<td>Bambu 공식 calibration 가이드</td>
 </tr>
 </tbody>
 </table>
 </div>
-<h3 class="subhead">소재별 외벽 보정</h3>
+
+<div class="grid-2 subhead">
+<article class="card">
+<div class="rule-number">표의 경고 · <code>layer_height</code></div>
+<h3><code>0.08</code> 은 이 파일의 공식 근거가 아니다</h3>
+<div class="card-body"><code>min_layer_height 0.07</code> 하한 위라는 것만 확인되고 H2S 공식 0.08 process 프로파일 근거는 <code>[미확인]</code> (<code>bambu-fields-baseline.md</code> §10.1).</div>
+</article>
+<article class="card">
+<div class="rule-number">표의 경고 · <code>outer_wall_speed</code></div>
+<h3>PETG 를 PLA 와 같은 저속 그룹에 묶지 마라</h3>
+<div class="card-body">⚠️ PETG 를 PLA 와 같은 저속 그룹에 묶지 마라 — §소재별 매트릭스 참조.</div>
+</article>
+<article class="card">
+<div class="rule-number">표의 경고 · <code>wall_sequence</code></div>
+<h3><code>inner-outer-inner wall</code> 은 <code>wall_loops &gt;= 3</code> 을 전제한다</h3>
+<div class="card-body">2 겹 이하에서는 의도대로 동작하지 않으므로 쓰지 마라. Creator 가 <code>wall_loops</code> 를 2 로 고정한 모델에 이 값을 넣은 사례가 있다 (2026-08 superlube).</div>
+</article>
+<article class="card">
+<div class="rule-number">표의 경고 · <code>enable_arc_fitting</code></div>
+<h3>품질 개선 기능이 아니라 G-code encoding 변경</h3>
+<div class="card-body">⚠️ 이것은 품질 개선 기능이 아니라 <strong>G-code encoding 변경</strong>(직선 세그먼트 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 해결책으로 제시하지 마라 — <code>failure-recipes.md</code> §1.2.</div>
+</article>
+<article class="card">
+<div class="rule-number">표의 경고 · <code>resolution</code></div>
+<h3>XY 세그먼트 해상도 전용</h3>
+<div class="card-body">⚠️ XY 세그먼트 해상도 전용이고 Z 계단 해결책이 아니다. 2026-09-05 실측(opus-xero)에서 <code>0.008</code> 은 이득 근거가 없어 철회됐다 — 표면 품질 카드로 제시하지 마라.</div>
+</article>
+</div>
+
+<h3 class="subhead">소재별 외벽 보정 (matrix)</h3>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>소재</th>
-<th>outer</th>
-<th>layer</th>
-<th>보정</th>
-</tr>
+<tr><th>소재</th><th>outer wall (mm/s)</th><th>layer (mm)</th><th>추가 보정</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>PLA Basic</td>
-<td>25-40</td>
-<td>0.08-0.12</td>
-<td>ironing 적극</td>
-</tr>
-<tr>
-<td>PLA Matte</td>
-<td>25-40</td>
-<td>0.08-0.12</td>
-<td>line 은폐 최강</td>
-</tr>
-<tr>
-<td>PLA Silk</td>
-<td>15-25</td>
-<td>0.10-0.12</td>
-<td>topmost만</td>
-</tr>
-<tr>
-<td>PETG HF</td>
-<td>50-70</td>
-<td>0.12</td>
-<td>65°C 8h + continuous, fan 20-50%; outer 30 실패, 50 해결</td>
-</tr>
-<tr>
-<td>PA-CF / PAHT-CF</td>
-<td>20-30</td>
-<td>0.12</td>
-<td>80°C 8h + hardened</td>
-</tr>
-<tr>
-<td>PC</td>
-<td>20-30</td>
-<td>0.12</td>
-<td>건조, chamber 60°C</td>
-</tr>
-<tr>
-<td>ABS / ASA</td>
-<td>25-35</td>
-<td>0.12</td>
-<td>enclosure + brim</td>
-</tr>
-<tr>
-<td>TPU</td>
-<td>10-20</td>
-<td>0.16-0.20</td>
-<td>scarf/ironing 비추천</td>
-</tr>
+<tr><td>PLA Basic</td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>가장 예측 가능. ironing 적극</td></tr>
+<tr><td>PLA Matte</td><td><code>25-40</code></td><td><code>0.08-0.12</code></td><td>layer line 가장 잘 숨음. 표면 매끈함 최강</td></tr>
+<tr><td>PLA Silk</td><td><code>15-25</code></td><td><code>0.10-0.12</code></td><td>광택 보존 위해 더 느림.<br>ironing은 topmost만 (광택 죽음 주의)</td></tr>
+<tr><td>PETG HF</td><td><code>50-70</code></td><td><code>0.12</code></td><td><strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>.<br>fan 20-50% 유지. ⚠️ 아래 PETG 경고</td></tr>
+<tr><td>PA-CF / PAHT-CF</td><td><code>20-30</code></td><td><code>0.12</code></td><td>fiber 질감으로 완전 매끈함 한계.<br><strong>AMS HT 80°C 8h 건조 + hardened nozzle 필수</strong></td></tr>
+<tr><td>PC</td><td><code>20-30</code></td><td><code>0.12</code></td><td>건조 필수 (chamber 60°C). ooze 많으면 외벽 first wipe</td></tr>
+<tr><td>ABS / ASA</td><td><code>25-35</code></td><td><code>0.12</code></td><td>enclosure + brim. 후가공(vapor smoothing) 가능</td></tr>
+<tr><td>TPU</td><td><code>10-20</code></td><td><code>0.16-0.20</code></td><td>scarf/ironing 비추. layer 두껍게 가도 됨 (유연성 우선)</td></tr>
 </tbody>
 </table>
 </div>
 <div class="callout">
-<strong>0.08-0.12:</strong> 1차값은 0.12. 0.08은 min 0.07 위지만 공식 profile 근거가 미확인이다. 시간 배수를 고지하고 선택받은 뒤만 쓴다.</div>
+<strong>⚠️ PETG 는 저속에서 ooze 가 누적된다</strong> — 2026-08-13 superlube 실측에서 outer <code>30</code> 이 표면을 망쳤고 <code>50</code> 으로 올려 해결됐다. PLA 기준 저속을 PETG 에 그대로 쓰지 마라.
+</div>
+<div class="callout">
+<strong>⚠️ 위 표의 <code>layer</code> 열에 나오는 <code>0.08-0.12</code> 범위는 <code>0.12</code> 를 1 차값으로 읽는다.</strong> <code>0.08</code> 쪽 끝은 <code>min_layer_height 0.07</code> 하한 위라는 것만 확인된 비공식 영역이고 H2S 공식 process 프로파일 근거는 <code>[미확인]</code> 이다 (<code>bambu-fields-baseline.md</code> §10.1). 사용자에게 시간 배수(레이어 수 <code>기존/신규</code> 배)를 고지하고 선택을 받은 뒤에만 <code>0.08</code> 로 내려라 — 자동으로 밀어넣지 마라.
+</div>
 </section>
 
 <section class="section" id="top">
@@ -480,224 +546,146 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>항목</th>
-<th>값</th>
-<th>baseline</th>
-</tr>
+<tr><th>항목</th><th>Surface-first 값</th><th>기본 baseline</th><th>근거</th></tr>
 </thead>
 <tbody>
 <tr>
-<td>top shell</td>
-<td>0.12: 7-9; 0.16: 6; 0.20: 5-6</td>
-<td>common 3; 0.12는 5</td>
+<td><code>top_shell_layers</code></td>
+<td><code>0.12mm</code>: 7-9, <code>0.16mm</code>: 6, <code>0.20mm</code>: 5-6</td>
+<td>common <code>3</code>, single 0.12 <code>5</code></td>
+<td>fdm_process_common.json:7-16;<br>fdm_process_single_0.12.json:26-47</td>
 </tr>
 <tr>
-<td>bottom shell</td>
-<td>4-6</td>
-<td>3</td>
+<td><code>bottom_shell_layers</code></td>
+<td><code>4-6</code></td>
+<td>common <code>3</code></td>
+<td>fdm_process_common.json</td>
 </tr>
 <tr>
-<td>pattern</td>
-<td>monotonicline; 원형 concentric; texture만 archimedeanchords/hilbertcurve</td>
-<td>monotonicline</td>
+<td><code>top_surface_pattern</code></td>
+<td>기본 <code>monotonicline</code>; 원형 top은 <code>concentric</code> 실험;<br><code>archimedeanchords</code>/<code>hilbertcurve</code>는 의도적 텍스처일 때만</td>
+<td><code>monotonicline</code></td>
+<td>fdm_process_common.json:167</td>
 </tr>
 <tr>
-<td>top speed</td>
-<td>PLA 20-40; PETG 15-30; PA/PC/ABS 20-30; TPU 10-20</td>
-<td>200 / 150</td>
+<td><code>top_surface_speed</code></td>
+<td>PLA <code>20-40</code>, PETG <code>15-30</code>, PA/PC/ABS <code>20-30</code>, TPU <code>10-20</code> mm/s</td>
+<td>H2S 0.20 <code>200</code>, 0.12 HQ <code>150</code> mm/s</td>
+<td>0.12mm High Quality @BBL H2S.json:146-168</td>
 </tr>
 <tr>
-<td>top accel</td>
-<td>500-1000</td>
-<td>2000</td>
+<td><code>top_surface_acceleration</code></td>
+<td><code>500-1000</code> mm/s²</td>
+<td>H2S <code>2000</code> mm/s²</td>
+<td>0.20mm Standard @BBL H2S.json:165-167</td>
 </tr>
 <tr>
-<td>top flow</td>
-<td>1.00; gap +.02, ridge -.02</td>
-<td>1</td>
+<td><code>top_solid_infill_flow_ratio</code></td>
+<td>calibration 후 <code>1.00</code> 기본; gap 시 <code>+0.02</code>, ridge 시 <code>-0.02</code></td>
+<td><code>1</code></td>
+<td>fdm_process_common.json:172-174</td>
 </tr>
 <tr>
-<td>bridge flow</td>
-<td>1.0; 노출 0.95-1.0</td>
-<td>.95 / override 1</td>
+<td><code>bridge_flow</code></td>
+<td><code>1.0</code> 유지; 외관 노출 bridge는 <code>0.95-1.0</code></td>
+<td>common <code>0.95</code>, override <code>1</code></td>
+<td>fdm_process_common.json:12;<br>fdm_process_single_0.12.json:9</td>
 </tr>
 <tr>
-<td>bridge speed</td>
-<td>20-30</td>
-<td>common 25, H2S 50</td>
+<td><code>bridge_speed</code></td>
+<td><code>20-30</code> mm/s</td>
+<td>common <code>25</code>, H2S <code>50</code></td>
+<td>fdm_process_common.json:14-16</td>
 </tr>
 </tbody>
 </table>
 </div>
-<h3 class="subhead">허공 위 속도는 형상을 잰 설정이면 항상 내린다 — 2026-09-22</h3>
-<p class="desc">형상 기록 프로파일은 bridge speed를 반드시 쓴다. Phase 4.3은 &gt;30과 슬롯 하나만 높은 경우도 FAIL한다.</p>
+
+<h3 class="subhead">허공 위 속도는 형상을 잰 설정이면 항상 내린다 (2026-09-22 실측, H2 AMS Flipper ABS)</h3>
+<p class="desc"><strong>형상을 재서 <code>_geometry_class</code> 를 기록한 프로파일은 <code>bridge_speed</code> 를 반드시 같이 쓴다</strong> (외벽을 낮췄으면 더더욱). 공통 프리셋은 <code>25</code> 지만 H2S 프리셋이 <code>50</code> 으로 덮어써서, 키를 안 쓰면 외벽만 <code>30</code> 이 되고 허공 위 구간은 <code>50</code> 으로 남는다 — 지지대 없이 허공에 거는 구간만 외벽보다 1.7 배 빠르다. 외벽을 안 낮춘 설정도 부모 <code>50</code> 을 그대로 물려받으므로 같은 자리가 남는다.</p>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>부품</th>
-<th>허공 압출</th>
-<th>층</th>
-<th>속도</th>
-<th>팬</th>
-</tr>
+<tr><th>부품</th><th>허공 위 압출</th><th>그 층 수</th><th>속도</th><th>팬</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>뒤 브래킷 A/B</td>
-<td>7.7/7.8m</td>
-<td>10/11</td>
-<td>50</td>
-<td>100%</td>
-</tr>
-<tr>
-<td>급지 받침 A/B</td>
-<td>7.2/7.0m</td>
-<td>12</td>
-<td>50</td>
-<td>100%</td>
-</tr>
-<tr>
-<td>출력 나사 A/B</td>
-<td>1.8m</td>
-<td>1</td>
-<td>50</td>
-<td>100%</td>
-</tr>
-<tr>
-<td>80° 브래킷 A/B</td>
-<td>1.4m</td>
-<td>2</td>
-<td>50</td>
-<td>100%</td>
-</tr>
+<tr><td>뒤쪽 브래킷 A / B</td><td>7.7 m / 7.8 m</td><td>10 / 11</td><td><code>50</code> mm/s</td><td>100%</td></tr>
+<tr><td>자동 급지 받침 A / B</td><td>7.2 m / 7.0 m</td><td>12</td><td><code>50</code> mm/s</td><td>100%</td></tr>
+<tr><td>출력 나사 A / B</td><td>1.8 m</td><td>1</td><td><code>50</code> mm/s</td><td>100%</td></tr>
+<tr><td>80° 브래킷 A / B</td><td>1.4 m</td><td>2</td><td><code>50</code> mm/s</td><td>100%</td></tr>
 </tbody>
 </table>
 </div>
-<p class="caption">최장 연속 5층, 층당 평균 428mm. “아랫면 휘어진 부분이 밑으로 쳐지고 까끌까끌하다.” 재측정은 호 비율 포함.</p>
+<div class="callout info">
+<strong>잰 방법 (2026-09-25 추가):</strong> 명령줄로 자른 G-code 에서 쟀고 호(<code>G2</code> · <code>G3</code>)를 넣었는지 기록이 없다 — 같은 수치를 다시 잴 때는 <code>SKILL.md</code> Phase 4.4 「G-code 로 길이 재기」 블록으로 재고 호 비율을 같이 적는다.
+</div>
+<p class="desc">층마다 조금씩 나오는 허공 구간(가장 긴 연속 5 층, 층당 평균 428 mm)은 둥글게 말려 올라가는 아랫면이다. 사용자 보고는 "아랫면 휘어진 부분이 밑으로 쳐지고 까끌까끌하다" 였다. Phase 4.3 게이트가 <code>_geometry_class</code> 기록이나 외벽 하향을 보면 <code>bridge_speed &gt; 30</code> 을 FAIL 로 잡으며, 압출기 슬롯을 전부 읽어 슬롯 하나만 높은 경우도 잡는다 (2026-09-23 확대).</p>
 </section>
 
 <section class="section" id="ironing">
 <div class="section-label">Section 05</div>
 <h2>5. Ironing 형상×소재 매트릭스</h2>
-<p class="desc">Bambu enum: <code>no ironing</code>, <code>top</code>, <code>topmost</code>, <code>solid</code>. Orca 이름은 에러 없이 무시될 수 있다. pattern도 Bambu 철자를 설치본에서 확인한다.</p>
+<p class="desc"><code>ironing_type</code> enum: <code>no ironing</code>, <code>top</code>, <code>topmost</code>, <code>solid</code>. surface-first 권장은 대부분 <code>topmost</code> (외벽 주변 과다 ironing 회피).</p>
+<div class="callout">
+<strong>⚠️ 이 값들은 Bambu 이름이다. OrcaSlicer 문서에서 값 이름을 그대로 가져오지 마라</strong> — 두 슬라이서는 같은 기능에 서로 다른 enum 이름을 쓰고, 틀린 이름을 넣으면 Bambu 가 <strong>에러 없이 무시</strong>해서 ironing 이 통째로 빠진 채 "적용했다" 고 보고된다. 같은 함정이 <code>top_surface_pattern</code> 에도 있다 — Bambu 값은 <code>archimedeanchords</code> · <code>hilbertcurve</code> 이고 축약형이 아니다. 값을 쓰기 전에 설치본에서 확인하고, Phase 4.3 게이트의 enum allowlist 가 최종적으로 잡는다. 근거: 설치본 <code>02.08.02.61</code> 바이너리 enum 테이블 (offset 95185361-95185384 연속 배치).
+</div>
+
+<h3 class="subhead">5.1. 소재별 ironing 정책 (필수 enumerate)</h3>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>소재</th>
-<th>type</th>
-<th>speed</th>
-<th>flow</th>
-<th>spacing</th>
-<th>inset</th>
-<th>판정</th>
-</tr>
+<tr><th>소재</th><th>ironing_type</th><th>ironing_speed (mm/s)</th><th>ironing_flow (%)</th><th>ironing_spacing (mm)</th><th>ironing_inset (mm)</th><th>판정</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>PLA Basic</td>
-<td>topmost/top</td>
-<td>15-20</td>
-<td>10-15%</td>
-<td>.10-.15</td>
-<td>.21-.42</td>
-<td>적극</td>
-</tr>
-<tr>
-<td>PLA Matte</td>
-<td>topmost</td>
-<td>15-20</td>
-<td>8-12%</td>
-<td>.10-.15</td>
-<td>.21-.42</td>
-<td>권장, chalky 주의</td>
-</tr>
-<tr>
-<td>PLA Silk</td>
-<td>topmost only</td>
-<td>10-15</td>
-<td>5-10%</td>
-<td>.10-.15</td>
-<td>.3-.5</td>
-<td>광택 실측</td>
-</tr>
-<tr>
-<td>PETG HF</td>
-<td>원칙 off; 장식만 topmost</td>
-<td>10-15</td>
-<td>5-8%</td>
-<td>.15-.20</td>
-<td>.4-.6</td>
-<td>비추천</td>
-</tr>
-<tr>
-<td>PA-CF</td>
-<td>off</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>비추천</td>
-</tr>
-<tr>
-<td>PC</td>
-<td>off / 소형 실험</td>
-<td>10-15</td>
-<td>5-8%</td>
-<td>.15-.20</td>
-<td>.4</td>
-<td>heat creep</td>
-</tr>
-<tr>
-<td>ABS / ASA</td>
-<td>기본 off; 비교 후 topmost</td>
-<td>15-20</td>
-<td>8-12%</td>
-<td>.12-.18</td>
-<td>.3-.5</td>
-<td>기본 끔</td>
-</tr>
-<tr>
-<td>TPU</td>
-<td>off</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>불가</td>
-</tr>
+<tr><td><strong>PLA Basic</strong></td><td><code>topmost</code> 또는 <code>top</code></td><td><code>15-20</code></td><td><code>10-15%</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge ok">적극 권장</span></td></tr>
+<tr><td><strong>PLA Matte</strong></td><td><code>topmost</code></td><td><code>15-20</code></td><td><code>8-12%</code></td><td><code>0.10-0.15</code></td><td><code>0.21-0.42</code></td><td><span class="badge ok">권장</span>, 과하면 chalky 변색</td></tr>
+<tr><td><strong>PLA Silk</strong></td><td><code>topmost</code> only</td><td><code>10-15</code></td><td><code>5-10%</code></td><td><code>0.10-0.15</code></td><td><code>0.3-0.5</code></td><td>광택 죽을 수 있음 — 실측 후 결정</td></tr>
+<tr><td><strong>PETG HF</strong></td><td>원칙 <code>no ironing</code>,<br>평면 장식만 <code>topmost</code></td><td><code>10-15</code></td><td><code>5-8%</code></td><td><code>0.15-0.20</code></td><td><code>0.4-0.6</code></td><td><span class="badge warn">비추</span> — blob/scar 위험</td></tr>
+<tr><td><strong>PA-CF / PAHT-CF</strong></td><td><code>no ironing</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge warn">비추</span> — fiber 질감, 노즐 마모</td></tr>
+<tr><td><strong>PC</strong></td><td><code>no ironing</code> 또는<br>소형 <code>topmost</code> 실험</td><td><code>10-15</code></td><td><code>5-8%</code></td><td><code>0.15-0.20</code></td><td><code>0.4</code></td><td>heat creep / ooze 위험</td></tr>
+<tr><td><strong>ABS / ASA</strong></td><td>기본 <code>no ironing</code>,<br>실물 비교 뒤에만 <code>topmost</code></td><td><code>15-20</code></td><td><code>8-12%</code></td><td><code>0.12-0.18</code></td><td><code>0.3-0.5</code></td><td><span class="badge warn">기본 끔</span> — 후가공(vapor smoothing)이<br>가능하면 더더욱</td></tr>
+<tr><td><strong>TPU</strong></td><td><code>no ironing</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge bad">불가</span> — TPU 유연성으로 표면 drag</td></tr>
 </tbody>
 </table>
 </div>
 <div class="callout">
-<strong>ABS 기본 끔:</strong> 높이 9.08mm 나사의 top 2.33m에 ironing 6.29m(2.7배). 원인 대조는 없어 금지가 아니라 기본 끔이다. 재측정은 호 비율 포함.</div>
-<h3 class="subhead">5.2 형상별 적용성</h3>
+<strong>ABS 를 기본 끔으로 돌린 근거 (2026-09-22, H2 AMS Flipper)</strong> — 판에서 가장 낮은 부품(출력 나사, 높이 9.08 mm)은 윗면이 한 층뿐인데 그 층 윗면 길이 2.33 m 위를 다림질이 6.29 m 지나갔다 (2.7 배). 사용자 보고는 "높이가 낮은 부품은 탑 표면이 이상했다" 였다. 다림질이 그 결함의 원인인지는 <code>[추정]</code> 이다 — 실측은 길이 비율까지이고 같은 부품을 다림질만 빼고 다시 출력한 대조가 아직 없다. 그래서 금지가 아니라 <strong>기본 끔</strong>이고, 사용자가 실물 비교 뒤 요청하면 켠다.
+</div>
+<div class="callout info">
+<strong>잰 방법 (2026-09-25 추가):</strong> 명령줄로 자른 G-code 에서 쟀고 호(<code>G2</code> · <code>G3</code>)를 넣었는지 기록이 없다 — 같은 수치를 다시 잴 때는 <code>SKILL.md</code> Phase 4.4 「G-code 로 길이 재기」 블록으로 재고 호 비율을 같이 적는다.
+</div>
+
+<h3 class="subhead">5.2. 형상별 ironing 적용성</h3>
 <div class="grid-3">
 <article class="card">
-<h3>회전체</h3>
-<div class="card-body">top 없음, 무의미</div>
+<div class="rule-number">회전체 / 원기둥</div>
+<h3>무의미</h3>
+<div class="card-body">top이 없음 (cylinder는 위쪽 평면 X). spiral vase면 더더욱 무의미</div>
 </article>
 <article class="card">
-<h3>박스</h3>
-<div class="card-body">평면 top에 강함</div>
+<div class="rule-number">박스 / 직육면체 (top 있음)</div>
+<h3>강함</h3>
+<div class="card-body">평면 top에 가장 효과적</div>
 </article>
 <article class="card">
-<h3>유기적</h3>
-<div class="card-body">수평 island만</div>
+<div class="rule-number">유기적 곡면</div>
+<h3>부분</h3>
+<div class="card-body">작은 수평 island top만 <code>topmost</code></div>
 </article>
 <article class="card">
-<h3>얇은 벽</h3>
-<div class="card-body">거의 off</div>
+<div class="rule-number">얇은 벽 / 미세 디테일</div>
+<h3>거의 off</h3>
+<div class="card-body">표면 면적 부족, ironing pass가 detail 침범</div>
 </article>
 <article class="card">
-<h3>평면 top</h3>
-<div class="card-body">필수</div>
+<div class="rule-number">평면 top 강조</div>
+<h3>필수</h3>
+<div class="card-body">surface-first의 핵심 영역</div>
 </article>
 <article class="card">
-<h3>Spiral vase</h3>
-<div class="card-body">top shell 0, 무의미</div>
+<div class="rule-number">Spiral vase</div>
+<h3>무의미</h3>
+<div class="card-body">top_shell_layers=0 강제</div>
 </article>
 </div>
 </section>
@@ -705,31 +693,54 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <section class="section" id="tradeoffs">
 <div class="section-label">Section 06</div>
 <h2>6. 트레이드오프</h2>
+<p class="desc">surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사전 고지 필수.</p>
 <div class="grid-2">
 <article class="card">
-<div class="rule-number">6.1 치수</div>
-<h3>모서리·홀</h3>
-<div class="card-body">sharp edge와 작은 hole 내경 영향. 얇은 벽에 wall 3-4면 형상 파손.</div>
+<div class="rule-number">6.1</div>
+<h3>표면 vs 치수</h3>
+<div class="card-body">
+<p>낮은 outer speed + scarf + ironing + flow 조정은 외관 ↑하지만:</p>
+<p><strong>Sharp corner / edge sharpness 흐려짐</strong></p>
+<p><strong>작은 hole 내경 영향</strong> (<code>Contour and Hole</code> 모드 켜면 더 심함)</p>
+<p>얇은 벽에서 wall 3-4겹 적용 시 형상 깨짐</p>
+</div>
 </article>
 <article class="card">
-<div class="rule-number">6.2 강도</div>
-<h3>접합·냉각</h3>
-<div class="card-body">wall sequence/scarf가 접합과 overhang을 바꾸며 낮은 fan은 PLA 접착을 낮출 수 있다.</div>
+<div class="rule-number">6.2</div>
+<h3>표면 vs 강도</h3>
+<div class="card-body">
+<p><code>inner-outer-inner</code> wall sequence는 외관 ↑하지만 일부 형상에서 벽 접합/overhang 안정성 변화</p>
+<p>scarf ramp 구간은 layer 강도 미세 변화</p>
+<p>낮은 cooling fan은 광택 ↑하지만 PLA 층간 접착 ↓ 가능</p>
+</div>
 </article>
 <article class="card">
-<div class="rule-number">6.3 실패</div>
-<h3>blob·drag·clog</h3>
-<div class="card-body">PETG/PC/TPU ironing, Smart scarf 단절, CF 0.4 nozzle 위험.</div>
+<div class="rule-number">6.3</div>
+<h3>표면 vs 실패 확률</h3>
+<div class="card-body">
+<p><strong>PETG / PC / TPU ironing은 blob, drag mark, clog / heat creep 위험 ↑</strong></p>
+<p>Smart scarf가 angle/overhang에서 끊기면 표면 불균일 — Off 또는 threshold 낮춤 필요</p>
+<p>PA-CF / PAHT-CF의 0.4mm hardened nozzle은 0.6mm 권장 소재에서 막힘 위험</p>
+</div>
 </article>
 <article class="card">
-<div class="rule-number">6.4 시간·소재</div>
-<h3>2~4배</h3>
-<div class="card-body">4h→12h, top 7-9, wall 3-4, coupons.</div>
+<div class="rule-number">6.4</div>
+<h3>표면 vs 시간 / 소재</h3>
+<div class="card-body">
+<p>출력 시간 <strong>2~4배</strong> (예: 4시간 → 12시간)</p>
+<p>top_shell 7-9 layers, wall 3-4, calibration coupons → 소재 소모 ↑</p>
+</div>
 </article>
 <article class="card">
-<div class="rule-number">6.5 과도한 저속</div>
-<h3>느리면 나쁠 수 있다</h3>
-<div class="card-body">PETG/PC/ABS 열·warping·stringing. 50 미만은 chamber 관리. 0.04mm는 ooze. thin은 저속 정책 제외.</div>
+<div class="rule-number">6.5</div>
+<h3>속도 무시 시 부작용</h3>
+<div class="card-body">
+<p>속도 무시는 사용자 명시 요구지만, 너무 느리면:</p>
+<p><strong>PETG / PC / ABS</strong>: 열 축적 → warping, 광택 불균일, stringing 누적 시간 ↑</p>
+<p>외벽 50mm/s 미만에서 chamber 온도 관리 필수 (특히 ABS/ASA enclosure)</p>
+<p>0.04mm 같은 극단적 fine layer는 nozzle ooze 누적 → blob 위험 ↑</p>
+<p><strong>얇은 단면(<code>_geometry_class: thin</code>)</strong>: 느릴수록 열 방출 시간이 늘어 스트럿이 뭉개진다 — §2.7. 속도 무시 정책은 <code>planar</code> 에만 적용한다</p>
+</div>
 </article>
 </div>
 </section>
@@ -741,49 +752,60 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <article class="card">
 <span class="num">1</span>
 <h3>PLA Matte</h3>
-<div class="card-body">line 은폐 최강. 강도·접착은 Basic보다 보수적.</div>
+<div class="card-body">layer line 은폐 최강. 강도/층간 접착은 PLA Basic보다 보수적</div>
 </article>
 <article class="card">
 <span class="num">2</span>
 <h3>PLA Basic</h3>
-<div class="card-body">calibration·ironing·저속 예측 가능.</div>
+<div class="card-body">calibration, ironing, 낮은 outer speed 가장 예측 가능. 색상 선택 폭 넓음</div>
 </article>
 <article class="card">
 <span class="num">3</span>
 <h3>ABS / ASA</h3>
-<div class="card-body">난도 높지만 vapor smoothing 가능. chamber·환기·수축 관리.</div>
+<div class="card-body">출력 난도 ↑, but vapor smoothing 같은 후가공 가능. H2S chamber / 환기 / 수축 관리 필요</div>
 </article>
 </div>
 <div class="callout">
-<strong>매끈함 한정 비추천:</strong> PETG HF는 stringing/blob, CF는 fiber 질감, TPU는 scarf/ironing 한계. CF 무광 질감 자체는 별도 장점이다.</div>
+<strong>비추 (매끈함 목표 한정):</strong>
+<strong>PETG HF</strong>: 기능 OK, 단 stringing/blob 의존성 큼 ·
+<strong>PA-CF / PAHT-CF</strong>: fiber 질감으로 완전 매끈 부적합 (다만 "고급 무광" 텍스처로는 매력) ·
+<strong>TPU</strong>: scarf/ironing 한계로 표면 마감 약함
+</div>
 </section>
 
 <section class="section" id="anti">
 <div class="section-label">Anti-patterns</div>
 <h2>안티패턴 bad / good 비교</h2>
+<p class="desc">위 절들이 금지하거나 바로잡은 선택을 한 줄씩 짝지었다. 왼쪽 n 번째 줄과 오른쪽 n 번째 줄이 한 쌍이다.</p>
 <div class="compare">
 <div class="compare-bad">
 <div class="compare-label">Bad</div>
 <ul>
-<li>회전체를 무조건 random</li>
-<li>PETG outer 30</li>
-<li>thin에도 planar 저속</li>
-<li>outer만 낮추고 인접 유량 방치</li>
-<li>좁은 피처에 classic</li>
-<li>0.08·arc·resolution을 만능키로 설명</li>
-<li>ABS/PETG/TPU ironing 자동 ON</li>
+<li>회전체에 <code>random</code> 을 default 로 둔다 — seam 한 줄을 표면 전체 specks 로 바꿀 뿐이다 (§2.1)</li>
+<li>PETG 를 PLA 와 같은 저속 그룹에 묶어 outer <code>30</code> (§3)</li>
+<li>outer 만 낮추고 인접 feature 는 스톡 그대로 — 유량비가 5x 를 넘는다 (§3)</li>
+<li><code>thin</code> 부품에도 §3 속도 하향 — 외벽 <code>60 → 30</code> 이 두 문턱을 악화시켰다 (§2.7)</li>
+<li>벽 예산보다 좁은 피처를 <code>classic</code> 로 자른다 — 갭필 <strong>253.0 m</strong> (§2.8)</li>
+<li><code>bridge_speed</code> 를 안 써서 H2S 부모 <code>50</code> 이 남는다 (§4)</li>
+<li><code>wall_loops</code> 2 에 <code>inner-outer-inner wall</code> (§3)</li>
+<li><code>enable_arc_fitting</code> · <code>resolution</code> <code>0.008</code> 을 표면 품질 카드로 제시 (§3)</li>
+<li>OrcaSlicer 문서의 ironing enum 이름을 그대로 쓴다 — 에러 없이 무시된다 (§5)</li>
+<li>ABS 윗면에 다림질을 자동으로 켠다 — 윗면 길이의 2.7 배를 지나갔다 (§5.1)</li>
 </ul>
 </div>
 <div class="compare-good">
 <div class="compare-label">Good</div>
 <ul>
-<li>vase→숨김→한 줄→random</li>
-<li>PETG 50-70 + 건조</li>
-<li>3높이로 형상 분류</li>
-<li>Q 비율 3x 이하</li>
-<li>벽 예산 뒤 Arachne</li>
-<li>0.12 1차, XY/Z 구분</li>
-<li>소재×형상 매트릭스</li>
+<li>vase 가능이면 <code>spiral_mode = 1</code> + <code>spiral_mode_smooth = 1</code>, 아니면 aligned/back + seam paint + 짧은 scarf (gap 0)</li>
+<li>PETG HF outer <code>50-70</code> + AMS HT 65°C 8h 사전 건조 + continuous drying</li>
+<li>인접 feature 의 <code>Q</code> 비율이 <code>3x</code> 이하인지 확인 (<code>SKILL.md</code> §유량비 게이트)</li>
+<li>부모 실효값을 두고 filament 스코프 <code>overhang_fan_threshold</code> 로 냉각 보상</li>
+<li><code>wall_generator</code> 를 <code>arachne</code> 로 — 갭필 <strong>0.4 m</strong></li>
+<li><code>_geometry_class</code> 를 기록한 프로파일은 <code>bridge_speed</code> <code>20-30</code> 을 같이 쓴다</li>
+<li><code>inner-outer-inner wall</code> 은 <code>wall_loops &gt;= 3</code> 일 때만</li>
+<li>기본값 유지 (<code>1</code> · <code>0.012</code>) — <code>failure-recipes.md</code> §1.2</li>
+<li>설치본에서 값을 확인하고 Phase 4.3 게이트의 enum allowlist 로 잡는다</li>
+<li>기본 <code>no ironing</code>, 실물 비교 뒤 요청하면 <code>topmost</code></li>
 </ul>
 </div>
 </div>
@@ -795,105 +817,93 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <h3 class="subhead">Gotchas 체크리스트</h3>
 <div class="card">
 <ul class="checklist">
-<li>
-<span class="check">✓</span>
-<span>앱과 번들 버전을 따로 조회한다.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>vase부터 보고 random은 마지막 fallback.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>scarf gap은 <code>0</code>.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>형상 class와 thin share를 기록한다.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>thin에는 속도 하향을 쓰지 않는다.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>벽 부족은 둘레 길이로 센다.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>형상 측정 profile은 bridge 20-30.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>PETG 65°C 8h, PAHT-CF 80°C 8h.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>wall&lt;3이면 inner-outer-inner 금지.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>Bambu enum을 설치본에서 확인.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>ABS ironing은 기본 끔.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>arc/resolution을 Z 해결책으로 쓰지 않는다.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>G-code 재측정은 호 비율 포함.</span>
-</li>
-<li>
-<span class="check">✓</span>
-<span>실패 뒤에는 Failure Recipes의 재현 6축→L3→L2→L1.</span>
-</li>
+<li><span class="check">✓</span><span>앱과 프로파일 번들 버전은 따로 갱신된다. 버전을 하드코딩하지 말고 <code>SKILL.md</code> §환경 검증으로 런타임에 조회한다.</span></li>
+<li><span class="check">✓</span><span>회전체는 vase 가능 여부부터 본다. <code>random</code> 은 fallback 전용이고 surface-first default 아님.</span></li>
+<li><span class="check">✓</span><span>속도·가속 값의 정본은 §3 표다. <code>seam-recipes.md</code> 에 같은 소재의 속도 범위를 따로 적지 마라.</span></li>
+<li><span class="check">✓</span><span>outer 만 낮추는 것은 surface-first 가 아니다. 인접 feature 의 <code>Q</code> 비율 <code>3x</code> 이하를 확인한다.</span></li>
+<li><span class="check">✓</span><span><code>_geometry_class</code> 와 <code>_thin_loop_share</code> 를 process JSON 에 기록한다. <code>thin</code> 이면 §3 속도 행과 <code>top_surface_speed</code> 를 적용하지 않는다.</span></li>
+<li><span class="check">✓</span><span>구멍 · 빈 칸이 있는 부품은 형상 클래스와 무관하게 벽 예산을 계산한다. 비율은 둘레 길이로 센다.</span></li>
+<li><span class="check">✓</span><span>형상을 잰 프로파일은 <code>bridge_speed</code> 를 반드시 같이 쓴다. 압출기 슬롯 하나만 높아도 게이트가 잡는다.</span></li>
+<li><span class="check">✓</span><span>PETG HF 는 AMS HT 65°C 8h, PA-CF / PAHT-CF 는 AMS HT 80°C 8h 건조 + hardened nozzle.</span></li>
+<li><span class="check">✓</span><span><code>inner-outer-inner wall</code> 은 <code>wall_loops &gt;= 3</code> 을 전제한다.</span></li>
+<li><span class="check">✓</span><span><code>layer_height</code> <code>0.08</code> 은 시간 배수를 고지하고 선택을 받은 뒤에만 — 자동으로 밀어넣지 마라.</span></li>
+<li><span class="check">✓</span><span><code>enable_arc_fitting</code> · <code>resolution</code> 은 Z 계단 해결책이 아니다.</span></li>
+<li><span class="check">✓</span><span>ironing · <code>top_surface_pattern</code> enum 은 Bambu 이름을 설치본에서 확인한다.</span></li>
+<li><span class="check">✓</span><span>ABS / ASA ironing 은 기본 끔. 다림질이 결함 원인인지는 아직 <code>[추정]</code> 이다.</span></li>
+<li><span class="check">✓</span><span>G-code 수치를 다시 잴 때는 <code>SKILL.md</code> Phase 4.4 「G-code 로 길이 재기」 블록으로 재고 호 비율을 같이 적는다.</span></li>
+<li><span class="check">✓</span><span>실측 실패 뒤에는 이 파일(사전 정책)이 아니라 <code>failure-recipes.md</code> (사후 대응) 로 간다.</span></li>
 </ul>
 </div>
-<h3 class="subhead">Primary sources</h3>
+
+<h3 class="subhead">Codex 리서치 근거</h3>
+<p class="desc">Codex run <code>a25261e23b21252b2</code> (2026-05-16, score 24/25). Primary sources:</p>
 <div class="grid-2">
 <article class="card">
-<h3>Codex run a25261e23b21252b2</h3>
-<div class="card-body">2026-05-16, score 24/25.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">Bambu Studio release</a>
+<h3>Bambu Studio GitHub release <code>v02.06.00.51</code></h3>
+<div class="card-body"><code>https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51</code></div>
+<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51">Bambu Studio v02.06.00.51</a>
 </article>
 <article class="card">
-<h3>Scarf hotfix</h3>
-<div class="card-body">1.10.0 → 1.10.1 회귀.</div>
-<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50">v01.10.01.50</a>
+<h3>Scarf seam 회귀 이력</h3>
+<div class="card-body">1.10.0 → 1.10.1 hotfix (<code>https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50</code>)</div>
+<a class="card-source" href="https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50">v01.10.01.50 release</a>
 </article>
 <article class="card">
-<h3>PETG HF</h3>
+<h3>Bambu PETG HF guide</h3>
+<div class="card-body"><code>https://bambulab.com/en-us/filament/petg-hf</code></div>
 <a class="card-source" href="https://bambulab.com/en-us/filament/petg-hf">Bambu PETG HF</a>
 </article>
 <article class="card">
-<h3>PAHT-CF</h3>
+<h3>Bambu PAHT-CF guide</h3>
+<div class="card-body"><code>https://bambulab.com/en-us/filament/pa6-cf</code></div>
 <a class="card-source" href="https://bambulab.com/en-us/filament/pa6-cf">Bambu PAHT-CF</a>
 </article>
 <article class="card">
-<h3>ABS / ASA</h3>
+<h3>Bambu ABS/ASA</h3>
+<div class="card-body"><code>https://bambulab.com/en-us/filament/abs</code>, /asa</div>
 <a class="card-source" href="https://bambulab.com/en-us/filament/abs">Bambu ABS</a>
 </article>
 <article class="card">
-<h3>TPU 95A HF</h3>
-<a class="card-source" href="https://bambulab.com/en-us/filament/tpu-95a-hf">Bambu TPU</a>
+<h3>Bambu TPU 95A HF</h3>
+<div class="card-body"><code>https://bambulab.com/en-us/filament/tpu-95a-hf</code></div>
+<a class="card-source" href="https://bambulab.com/en-us/filament/tpu-95a-hf">Bambu TPU 95A HF</a>
 </article>
 <article class="card">
-<h3>AMS HT</h3>
+<h3>AMS HT documentation</h3>
+<div class="card-body"><code>https://cdn1.bambulab.com/documentation/h2d/en/AMS_HT_20250109.pdf</code></div>
 <a class="card-source" href="https://cdn1.bambulab.com/documentation/h2d/en/AMS_HT_20250109.pdf">AMS HT PDF</a>
 </article>
 <article class="card">
-<h3>Ironing</h3>
-<a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">Orca Ironing wiki</a>
+<h3>OrcaSlicer Ironing wiki</h3>
+<div class="card-body"><code>https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html</code></div>
+<a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">OrcaSlicer Ironing wiki</a>
 </article>
 </div>
-<div class="callout info">
-<strong>로컬:</strong> common, 0.20 Standard, 0.12 High Quality process JSON과 PLA Basic, PETG HF, PAHT-CF, PC filament JSON.</div>
-<div class="callout">
-<strong>후속 검증:</strong> precise z-seam 키, seam slope 3키 default, PLA Matte/Silk·PC·ASA·PAHT-CF·TPU coupon, PETG lot/습도, PLA Silk 광택.</div>
+
+<h3 class="subhead">로컬 system profile 출처</h3>
+<div class="card">
+<div class="card-body">
+<p><code>~/Library/Application Support/BambuStudio/system/BBL/process/fdm_process_common.json</code></p>
+<p><code>~/Library/Application Support/BambuStudio/system/BBL/process/0.20mm Standard @BBL H2S.json</code></p>
+<p><code>~/Library/Application Support/BambuStudio/system/BBL/process/0.12mm High Quality @BBL H2S.json</code></p>
+<p><code>~/Library/Application Support/BambuStudio/system/BBL/filament/Bambu PLA Basic @BBL H2S.json</code></p>
+<p><code>~/Library/Application Support/BambuStudio/system/BBL/filament/Bambu PETG HF @BBL H2S.json</code></p>
+<p><code>~/Library/Application Support/BambuStudio/system/BBL/filament/Bambu PAHT-CF @BBL H2S.json</code></p>
+<p><code>~/Library/Application Support/BambuStudio/system/BBL/filament/Bambu PC @BBL H2S.json</code></p>
+</div>
+</div>
+
+<h3 class="subhead">후속 검증 필요</h3>
+<p class="desc"><code>BACKLOG.md</code> "Surface-first 후속 검증" 섹션 참조:</p>
+<div class="card">
+<ul class="checklist">
+<li><span class="check">?</span><span>precise z-seam JSON 키 매핑</span></li>
+<li><span class="check">?</span><span><code>seam_slope_steps</code> / <code>seam_slope_entire_loop</code> / <code>seam_slope_inner_walls</code> 누락 default 재확인</span></li>
+<li><span class="check">?</span><span>Coupon 부족 소재 (PLA Matte/Silk, PC, ASA, PAHT-CF, TPU) 실측</span></li>
+<li><span class="check">?</span><span>PETG HF lot/습도 의존성 비교 coupon</span></li>
+<li><span class="check">?</span><span>PLA Silk top ironing 광택 불일치 사례 검증</span></li>
+</ul>
+</div>
 </section>
 </main>
 </body>
