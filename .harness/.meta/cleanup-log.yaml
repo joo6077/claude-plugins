@@ -66,3 +66,11 @@ cleanup_log:
     over_500_truncated: 0
     deleted: 0
     notes: "no action needed — 302 건 (500 미만), 6 개월 초과 0 건. 이번 사이클에 14 Phase QA 로 신규 피드백이 다수 추가됐다 (직전 사이클 279 → 302)."
+  - date: "2026-09-25"
+    cycle: "kaizen-2026-09-24"
+    total_before: 639
+    aged_over_6months: 0
+    over_500_truncated: 139
+    deleted: 0
+    archived_to: "/Users/jackson/.harness/feedback-archive/kaizen-2026-09-24"
+    notes: "500 개 상한을 넘은 가장 오래된 139 개를 지우지 않고 보관 폴더로 옮겼다(2026-04-04 ~ 2026-04-17 판). 수집기 · 집계 시험은 피드백 경로만 읽어 결과는 삭감과 같다. 180 일 초과 0 건. 이번 사이클 17 Phase · Final 후속 둘의 QA · 계약 피드백이 늘어 302 → 639."
