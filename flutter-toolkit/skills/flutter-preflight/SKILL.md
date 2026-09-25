@@ -135,7 +135,7 @@ Ready to commit.
 Preflight failed at step N
 
   1. fix     : success
-  2. codegen : success · 삭제 before=N after=N new_first=N new=N codegen_exit=N (또는 skipped)
+  2. codegen : success / failed / skipped · 삭제 before=N after=N new_first=N new=N codegen_exit=N (skipped 면 없음)
      [늘어난 삭제 — new 가 0 이 아니면 그 목록]
   3. analyze : failed (N errors)
      [에러 목록]

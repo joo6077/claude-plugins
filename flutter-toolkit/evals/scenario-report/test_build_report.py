@@ -53,7 +53,7 @@ VALID = {
          "steps": [{"kw": "만일", "text": "다시 연다"}, {"kw": "그러면", "text": "창이 뜬다"}],
          "skipped": "앞 시나리오 결함을 먼저 고친다."},
     ],
-    "run": [["MCP 서버", "fitpal-mobile"]],
+    "run": [["MCP 서버", "app-mobile"]],
 }
 IMAGES = ("01-picker.png", "02-confirm.png", "02-title.png")
 
