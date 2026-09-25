@@ -4,7 +4,7 @@ slug: kaizen-0924-p07-backend-kit
 created: "2026-09-25 05:22"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:80b4853008bd8dfe
 locked_at: "2026-09-25 06:04"

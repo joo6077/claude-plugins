@@ -4,7 +4,7 @@ slug: kaizen-0924-p14-onboarding-kit
 created: "2026-09-25 09:55"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:e90190048db61bfa
 locked_at: "2026-09-25 11:00"

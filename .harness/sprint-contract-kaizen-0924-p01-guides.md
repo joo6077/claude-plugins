@@ -4,7 +4,7 @@ slug: kaizen-0924-p01-guides
 created: "2026-09-24 19:45"
 complexity: "복잡"
 conditions: 25
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:176baf1603fe5981
 locked_at: "2026-09-24 20:35"

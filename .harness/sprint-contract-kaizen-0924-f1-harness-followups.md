@@ -4,7 +4,7 @@ slug: kaizen-0924-f1-harness-followups
 created: "2026-09-25 15:10"
 complexity: "복잡"
 conditions: 30
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:a37827c20fae4fbe
 locked_at: "2026-09-25 16:40"

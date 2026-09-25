@@ -4,7 +4,7 @@ slug: kaizen-0924-p04-harness
 created: "2026-09-25 03:20"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:afb7f33963bceeda
 locked_at: "2026-09-25 04:17"
