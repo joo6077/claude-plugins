@@ -1,6 +1,6 @@
 ---
-version: 1.3.0
-last_updated: 2026-08-13
+version: 1.4.0
+last_updated: 2026-09-25
 ---
 
 # Design Kit Research Log
@@ -490,3 +490,41 @@ Parent (상태 관리)
 - surface registry 를 수동 작성하게 할지, 라우트 · 스토리북 · 화면 목록에서 자동 생성하게 할지.
 - Distinctiveness Gate 의 현재 등급은 **E1**(문장 규약 + 매트릭스 아티팩트)이다. 축 값이 겹치는
   variant 가 다시 관측되면 문장을 다듬지 말고 판정식을 CI 게이트로 승급할 것.
+
+---
+
+## [2026-09-24] - Phase 6 kaizen (되말하기 · 관례 표 · 반영 판정)
+
+**트리거:** kaizen-orchestrator Phase 6 (design-kit). 처리 배정표 `F01` · `F04` · `design:P1` ~ `design:P7` 아홉 행과 러닝북 Phase 6 추가 과제(flutter 규약과 숫자 · 세 규약 정본 결정),
+근거 파일 §3 현행화 열 줄을 규약 한 곳 정의 · 스킬은 인용 구조로 묶었다. 외부 근거는 `.harness/.meta/evidence/phase6.md` 하나이고 아래 URL 은 전부 그 파일과
+`.harness/.meta/kaizen-0924/phase6-notes.md` 에 있다.
+
+### 조사한 소스 (Phase 6 — 2026-09-24)
+
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/) — Recommendation 2024-12-12. SC 3.2.4 같은 기능의 일관된 식별 → 관례 일치는 같은 역할 한정, SC 1.4.4 텍스트 200%, SC 1.4.10 320 CSS px Reflow,
+  SC 2.5.8 AA 24×24 · SC 2.5.5 AAA 44×44. 「2026 법적 타겟」 근거 없음
+- [W3C DTCG Format Module 2025.10](https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/) — 이름에 `{` `}` `.` 금지 · color `$value` 는 `colorSpace` · `components` 객체 ·
+  dimension `$value` 는 `value` · `unit` 객체 · 그룹 속성에 `$schema` 없음
+- [Tailwind CSS v4.0](https://tailwindcss.com/blog/tailwindcss-v4) (2025-01-22, 기본 팔레트 `rgb` → `oklch`) · [v4.3.3](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.3) (2026-07-16)
+- [Style Dictionary v5.0.0](https://github.com/style-dictionary/style-dictionary/releases/tag/v5.0.0) · [v5.5.5](https://github.com/style-dictionary/style-dictionary/releases/tag/v5.5.5) (2026-09-20) ·
+  [v5 Migration](https://styledictionary.com/versions/v5/migration/) (Node.js 22 이상)
+- [MDN Container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries) · [MDN 호환 데이터 container-type](https://github.com/mdn/browser-compat-data/blob/main/css/properties/container-type.json)
+  — `size` 는 유효한 값, 크기 쿼리 Chrome 105 · Firefox 110 · Safari 16
+
+### 반영 (Phase 6 — 2026-09-24)
+
+- 공유 규약 `references/visual-change-protocol.md` 가 편집 전에 바꿀 화면의 파일 경로와 라우트, 요소 이름과 배치까지 넣은 한 문장 되말하기, 같은 역할의 서로 다른 기존 화면 2 개 이상에서 뽑은 관례 표를 응답에 남기게 한다
+- 재캡처에서 기준 표식이 바뀌었는지로 반영을 판정하고 스스로 고치기는 최대 3 회다. 캡처마다 글자 넘침 · 깨진 글리프 · 칩·뱃지와 줄 모양 · 디버그 겹침 넷을 본다
+- 승인 기록에 확정 구성 · 폐기한 대안 칸이 생겼고 design-mockup · design-concept 은 그 기록을 읽어 폐기한 안을 다시 넣지 않는다
+- 감사 기준 Authenticity 에 같은 역할 관례 일치 행(역할이 다른 화면은 대조하지 않는다). 숫자는 flutter-toolkit 규약과 같고, 세 규약이 같이 쓰는 규칙의 정본은 harness 설계 가이드 한 절에 두기로 했다
+- 시안 개수가 어긋난 두 자리를 미지정 3 규칙에 맞췄다. DTCG 예시를 2025.10 규격 형태로, Style Dictionary 안내를 v5 로, WCAG 2.2 게시일 · 크기 쿼리 · 44×44 표기를 바로잡았다. 평가 사례가 30 개가 됐다
+
+### 근거 파일이 밝힌 한계 (Phase 6 — 2026-09-24)
+
+「같은 역할 기존 화면 정확히 2 개/3 개」 · 「스스로 고치기 정확히 3 회/5 회」 를 정하는 외부 표준은 없어 숫자는 형제 규약 정합과 운영 비용으로 고른 레포 결정이다.
+Material 3 Expressive · Apple HIG 2026 · DTCG `$schema` URL · Figma Variables 의 OKLCH 지원은 조회하지 않았다. `design:P2` 개수 규칙 방향은 사용자 확인 목록으로 넘겼다.
+
+### Final 후속 (Phase 6 — 2026-09-24)
+
+`kaizen-0924-f1-kit-followups` 커밋 `37ac75f` 가 design-component `# Gotchas` 에 규약 인용을 넣고(교차 진단 P6), 결정 전파 게이트가 id · source 가 빠지면 2, 표면 목록이 비거나 제외 이유가 없으면 1,
+표면이 0 개면 3 을 내게 고쳤다(Codex r2).

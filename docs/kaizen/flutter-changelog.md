@@ -1,10 +1,27 @@
 ---
 title: Flutter Kaizen Changelog
-version: 1.4.0
-last_updated: 2026-08-13
+version: 1.5.0
+last_updated: 2026-09-25
 ---
 
 # Flutter Kaizen Changelog
+
+## [2026-09-24] — Phase 5 kaizen (codegen 필터 · 삭제 수 블록 · 관례 대조)
+
+flutter-toolkit 이 codegen 에 `--build-filter` 를 스스로 붙이지 않는다. feature 인자가 와도 전체를 돌리고, 사용자가 프로젝트 전용 필터 명령을 이름으로 부를 때만 그 명령을 쓴다.
+킷이 codegen 을 직접 돌리는 다섯 자리(flutter-run · flutter-build · flutter-preflight · flutter-l10n · flutter-transition)는 세 스킬에 글자 그대로 들어간 전후 삭제 수 블록으로 돈다 —
+git 이 삭제로 보는 추적 파일을 경로로 세고, 늘어나면 한 번 더 돌린 뒤 첫 기준과 비교하고, codegen 실패나 남은 삭제를 종료 코드로 드러낸다. 남으면 멈추되 맞는 삭제일 수 있어 되돌리지 않는다.
+생성물을 git 에 올리지 않는 저장소에서는 이 세기가 늘 0 이라 통과로 쓰지 않는다. `--delete-conflicting-outputs` 를 필수로 두던 규칙은 build_runner 2.16 에서 제거된 호환 옵션이 된 사실로 바꿨다.
+
+widget-inspector 에 관례 대조(감지 기준 7)가 생겼다 — 호출 스킬이 넘긴 관례 표의 화면과 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻을 대조하고, flutter-widget · flutter-screen 이 그 표를 넘긴다.
+flutter-test 에 위젯 시험 로캘 고정과 build 도중 provider 수정 금지 Gotcha 가, flutter-widget 카탈로그 등록에 타일 높이 문단이 들어갔다. 생성 측 `[미검증]` 아홉 자리는 설계 가이드 §3.7 의
+네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 요구한다. 킷 파일에서 특정 앱 · 프로젝트 · 화면 조종 도구 이름을 뺐고, Freezed 는 4.0.2, Flutter 는 3.47.5 로 고쳤다.
+평가 사례 1 · 5 · 16 이 새 동작을 기대한다.
+
+### Final 후속 수정 (2026-09-24 사이클)
+
+교차 진단 P5 가 찾은 계약 밖 결함을 `kaizen-0924-f1-kit-followups` 가 고쳤다(커밋 `535e143`) — `project-detection.md` 가 묶음 타겟을 codegen 줄 자리에 넣으라던 문장,
+`visual-evidence-protocol.md` 증거 블록 빈칸 넷이 네 칸 미검증 줄을 가리키게, flutter-build · flutter-preflight 실패 보고 틀의 삭제 줄, flutter-l10n Gotcha 의 codegen 경로.
 
 ## [2026-08-13] — Phase 5 kaizen
 
