@@ -17,7 +17,7 @@
 | ci | b52f43c | validate 잡에 scenario-report 단위 시험 · 결정 전파 시험 (B6 · C L13) |
 | react | 59f8ca4 | react-l10n 지워진 번역 줄도 0 건에 종료 코드 0 (A3) |
 | design | 1113bdd | 결정 전파 검사 모양 오류 → 종료 코드 2 · 새 시험 · 쓰는 세 자리 · 문서 사이트 두 쪽 (A4 · A5) |
-| flutter | 0dd1f66 | scenario-report 도구 · 앱 이름 · 예시 보고서 다시 만듦 · preflight 실패 틀 (A6 · B8) |
+| flutter | 0dd1f66 | scenario-report 스킬 문서 · 기록 형식 문서의 도구 · 앱 이름(시험 예시 기록 `example/*/record.json` · `example/index.html` 의 도구 이름은 그대로 — 아래 교차 진단 뒤 기록) · 예시 보고서 다시 만듦 · preflight 실패 틀 (A6 · B8) |
 | reflect | 8d5e2c1 | no issues 정상 종료 기록 · 그 뒤 실패만 수집 멈춤 · 시험 · 문서 · 문서 사이트 두 쪽 (A7) |
 | api | 1396a11 | api-ui 서버 띄우기 세 줄 블록 · 문서 사이트 뷰어 쪽 (A8) |
 | rust | 05e796d | rust-audit 가리키는 자리 · unwrap 세기 명령 (B7 · B9) |
@@ -79,3 +79,13 @@
 - Final: 루트 README 킷 절 스킬 수 · 목록을 `AUTO 마커` 안으로 옮겨 sync-docs 가 세게 하기
 - Phase 12 (reflect-kit): `reflect-kit/README.md` 의 `.errors.log` 한 줄 설명에 정상 종료 줄(`ok:no-issues`)을 넣을지. 새 판 설치 뒤 설치본 Stop 훅이 `ok:no-issues` 줄을 실제로 남기는지 `.errors.log` 로 한 번 본다
 - 측정 도구: 이 계약 DG-02 는 세션 스크래치의 markdownlint-cli2 에 기댄다 — 다음 계약은 판과 설치 명령을 준비 단계에 적거나 오래 남는 자리에 둔다
+
+## 교차 진단 뒤 기록 (2026-09-26, 부모)
+
+교차 진단은 판정을 뒤집을 근거가 없다고 했다(QA APPROVE 26/26 유지). 짚은 것 넷을 다음 사이클 메모로 넘긴다.
+
+- SK-04 는 스킬 문서 둘만 잰다. `flutter-toolkit/evals/scenario-report/example/TC-001-*/record.json:85·89·93` · `TC-002-*/record.json:100·104` · `example/index.html:87` 에 `login_as` · `tap_native_point` · `tap_widget` · `find_widget` 이 남았다. 단위 시험이 커밋된 보고서와 바이트 단위로 비교하므로 예시를 다시 만들 때 함께 바꾼다. 이 표와 `docs/kaizen/flutter-changelog.md` 의 「뺐다」 문장은 이 사실에 맞게 정정했다
+- `scripts/detect-docs-drift.py` 가 원본 다섯(`design-kit/references/visual-change-protocol.md` · `design-kit/skills/design-test/SKILL.md` · `reflect-kit/docs/` · `api-kit/skills/api-ui/SKILL.md`)과 그 페이지의 짝을 모른다. 오케스트레이터 F2 표 · docs-site Step 1 표에도 없고, 반대로 감지 도구의 `docs/flutter/` 는 두 표에 없다 — 세 곳을 한 표로 맞춘다
+- 결정 전파 검사(`design-kit/references/visual-change-protocol.md`)가 폴더 경로 · UTF-8 이 아닌 파일을 받으면 오류 추적과 종료 코드 1(위반)로 끝난다(`IsADirectoryError` · `UnicodeDecodeError`). 입력 오류는 2 여야 한다
+- 새 시험 둘은 이 맥(Python 3.14 · BSD 도구)에서만 돌았다 — PR 의 첫 CI(ubuntu · Python 3.12) 결과로 확인한다
+
