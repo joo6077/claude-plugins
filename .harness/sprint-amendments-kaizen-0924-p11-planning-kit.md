@@ -18,4 +18,7 @@ AR-01 첫째 값이 떨어진다.
   - `bbdebaff602a9d3c24843f6082e03f99880716f5` — `docs/planning/` 넷 (prd-patterns · flows · data-modeling · research-log)
   - `7de513bf87387ce18f7278571f133699da9d5e67` — `planning-kit/` 여섯 (plan-prd · plan-stories · plan-data-model · plan-flow · plan-audit · planning-reviewer)
 
+- notes 커밋: `1a5859da461c3cdeea50bf9f1f3205b59ac3e454` — `.harness/.meta/kaizen-0924/phase11-notes.md` · `phase11-review.md`. 범위 상한을 이 커밋으로 옮긴다
+
 end_sha: 7de513bf87387ce18f7278571f133699da9d5e67
+end_sha: 1a5859da461c3cdeea50bf9f1f3205b59ac3e454
