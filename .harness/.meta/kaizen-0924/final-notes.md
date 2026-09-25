@@ -115,7 +115,7 @@ BUILD-FINISH 가 커밋 뒤 상태에서 조건 스물여섯을 계약 측정 �
 - 원문은 교차 진단 전문(세션 스크래치 `xdiag-all.md`)이고 필수 글자 표는 계약 GAP 분석 「교차 진단 기록 표」 다
 - Phase 개정 파일: P1 에 notes 커밋 `76cfb37…` 를 상한으로 덧붙여 ER-04 셋째 · AR-04 ② 를 다시 재니 0 · 0. P7 · P8 · P9 · P11 에 kit followups 커밋 `154916a` · `cc11f71` · `c4eeef3` · `cfef54f` 전체 sha 와
   `amend_direction: unchanged` 한 줄씩(DG-02 뜻 기준 FAIL 해소)
-- 두 followups 평가자 피드백은 `pending-parent` 그대로다 — 교차 진단 전문이 P1 ~ P17 뿐이다(FN-77)
+- 두 followups 평가자 피드백은 `pending-parent` 그대로다 — 교차 진단 전문이 P1 ~ P17 뿐이다(FN-77). 2026-09-26 에 두 followups 교차 진단 결론으로 갱신했다(아래 `## 교차 진단 뒤 보강 (2026-09-26)`)
 
 ## 문서 사이트
 
@@ -188,7 +188,7 @@ BUILD-FINISH 가 커밋 뒤 상태에서 조건 스물여섯을 계약 측정 �
 - PR · 푸시(오케스트레이터 F4 7 번) — Final QA 뒤 부모가 사용자 규칙(푸시는 사용자가 요청할 때만)대로 한다(FN-39)
 - 버전 — 카이젠 PR 을 합친 뒤 `main` 에서 `.harness/.meta/kaizen-0924/release-plan.md` 의 `release.sh` 열네 줄. 배포 뒤 reflect-kit 설치본 Stop 훅 확인 한 줄
 - 메모리 승격 — `.harness/.meta/memory-promotion-candidates-2026-09-24.md` 후보 넷. `/reflect-promote` 호출을 사용자에게 제안한다(후보 파일은 승격 완료가 아니다)
-- 두 followups 교차 진단 — 부모가 돌리면 두 평가자 피드백의 `pending-parent` 를 그때 갱신(FN-77)
+- 두 followups 교차 진단 — 부모가 돌리면 두 평가자 피드백의 `pending-parent` 를 그때 갱신(FN-77). 2026-09-26 에 갱신을 마쳤다
 
 ## 다음 사이클 메모
 
@@ -203,10 +203,65 @@ BUILD-FINISH 가 커밋 뒤 상태에서 조건 스물여섯을 계약 측정 �
 | FN-58 | Phase notes 열일곱의 다음 사이클 메모 | Phase 가 다음 사이클로 보낸 것. 감사 기록이 notes 경로 열일곱을 가리킨다 |
 | FN-64 | `scripts/check-stale-values.py` 의 `EXCLUDED_KITS` 에서 backend-kit 해제 | 예외 셋은 이번에 등록부에 넣었다. 해제는 `scripts/` 라 다음 사이클 (F1H-79) |
 | FN-76 | `check-insights-tracking.py` 가 슬러그 형식만 봄 | `scripts/` 범위 밖 — 번호 ↔ 슬러그 대응을 검사기에 넣는다 |
-| FN-77 | 두 followups 평가자 피드백 `pending-parent` | 교차 진단 전문이 P1 ~ P17 뿐 — 부모가 두 followups 교차 진단을 돌리면 그때 |
+| FN-77 | 두 followups 평가자 피드백 `pending-parent` | 교차 진단 전문이 P1 ~ P17 뿐 — 부모가 두 followups 교차 진단을 돌리면 그때. 2026-09-26 에 끝냈다(다음 사이클로 넘기지 않는다) |
 | FN-78 | `append-audit-log.py` 고정 소제목 MD024 · 끝 빈 줄 없음 | `scripts/` 범위 밖 — 소제목에 날짜를 붙이고 앞에 빈 줄을 넣는다 |
 | FN-79 | css-tokens 매핑 표에 howto-kit accent 없음 | `.claude/skills/docs-site/` 범위 밖 — F1H-91 과 함께 |
 | FN-80 | `docs/process/kaizen-flow.html` 이 9-Phase | 원본이 「내부 문서」 뿐 — 다음 사이클 docs-site 매핑 결정과 함께 |
 
 두 followups 가 고치지 않은 것은 원래 notes 에 있다 — `.harness/.meta/kaizen-0924/f1-harness-followups-notes.md` §다음 사이클 메모(F1H 스물아홉 · 구현 중 찾은 넷) ·
 `.harness/.meta/kaizen-0924/f1-kit-followups-notes.md` §고치지 않은 항목과 이유 · §다음 사이클 메모(서른셋). 이번 사이클 메타 이슈 여덟은 감사 기록 `### 이번 사이클 메타 이슈 (2026-09-24 사이클)` 에 있다.
+
+Final 교차 진단(2026-09-25)이 더 짚은 것 가운데 고치지 않은 넷 — 판정에는 영향이 없다.
+
+- 계약 밖 결함 2 — `.harness/.meta/orchestrator-audit-log.md:517` 의 도구 생성 줄 「Next-cycle watchlist — 특별 감시 대상 없음」 이 같은 항목 아래쪽의 감시 거리
+  (`:548` `F1H-82` — CI 에 넣은 러너의 첫 우분투 실행, PR 뒤 첫 확인 항목)와 어긋난다. 원인은 `scripts/append-audit-log.py:171-178` 이 사후 점검 실패 목록으로만 감시 목록을 만드는 것이다.
+  감사 기록은 덧붙이기만 하고(AR-07 `append_only`) 스크립트는 `scripts/` 라 이 계약 범위 밖이다 — 다음 사이클에 수동 입력의 감시 거리도 받게 고친다(FN-78 과 같은 도구)
+- 측정 구멍 1 — AR-03 의 `docs.py` 는 새 글자 · 옛 글자 · 줄 수만 봐서 페이지 본문이 빠져도 통과한다(교차 진단이 본문 700 줄을 지운 사본에서도 끝줄이 같음을 확인).
+  이번에는 담김 검사(스크래치 `kaizen/coverage.py`)로 열네 쪽을 채웠다. 다음 사이클 문서 사이트 계약은 옛 페이지 대비 원본 코드 표시 · 낱말 비율을 조건으로 잰다
+- 측정 구멍 2 — AR-03 이 판 번호를 재는 페이지는 열넷인데, 사이클 동안 머리 설정 `version` 이 바뀐 원본은 스물하나다. 빠진 일곱
+  (`api-design` · `cicd` · `data-modeling` · `flows` · `prd-patterns` · `sqlx-patterns` · `visual-evidence-protocol`)도 새 판 번호가 있고 옛 판 번호는 0 이다(교차 진단 직접 확인).
+  다음 사이클에는 판 번호 목록을 손으로 적지 말고 원본 머리 설정에서 뽑는다
+- 측정 구멍 3 — SK-01 (d) 의 `tonegrade.py` 가 강도 칸에 글이 덧붙은 줄(예: `tone-kit/references/adapter-dart-flutter.md:40` D-04) 등을 못 읽어
+  교차 진단 셈으로 규칙 79 개 가운데 63 개만 센다. 바뀐 표 줄을 직접 대조해 강도가 바뀐 줄은 0 이었다. 다음 사이클 tone-kit 정합 검사는 강도 칸의 앞머리만 보고 판정한다
+
+## 교차 진단 뒤 보강 (2026-09-26)
+
+QA 1 회차(`APPROVE` 26/26) 뒤 부모 세션의 교차 진단(2026-09-25)은 판정을 유지하면서 페이지 내용 빠짐 · 측정 구멍 셋 · 계약 밖 결함 둘을 짚었다.
+조건은 바꾸지 않았다 — 개정 파일 `## 교차 진단 뒤 보강 — 조건 변경 없음 (direction: unchanged)` 절에 이유 · 페이지 · 담김 검사 전후 값 표를 적었다.
+
+| 커밋 | 내용 |
+| --- | --- |
+| `8e2b8e7` ~ `a38de63` (열넷) | 원본을 옛 페이지보다 덜 담은 페이지 열넷 보강 — 한 쪽 한 커밋 (Claude 에이전트) |
+| `849940e` | 이 계약 `status: done` 과 QA 1 회차 리포트 |
+| `a784aef` | `.harness/.meta/evals-audit-2026-09-24.md` 의 bambu-kit CI 문장을 사실대로 (계약 밖 결함 1) |
+| `65ea663` | 개정 파일 「교차 진단 뒤 보강」 절 |
+| `8d914c5` | 개정 파일 `end_sha` (`65ea663`) |
+| 이 절을 넣은 커밋 | notes — 이 절 · 다음 사이클 메모 넷 · FN-77 끝남 표시 |
+| 그다음 커밋 | 개정 파일에 그 커밋 sha 로 `end_sha` 한 줄 더 |
+
+담김 검사 — 봉인 커밋 `509d295` 판 옛 페이지와 맞대 원본 코드 표시가 빠진 수(`lost`)와 원본 낱말 비율(`wr=옛->새`)을 쟀다(스크래치 `kaizen/coverage.py` 와 같은 식).
+열네 쪽 모두 `lost=0` 이고 새 비율이 옛 비율 이상이다. 끝 판 페이지 마흔넷 전부를 다시 재도 `lost` 가 1 이상이거나 새 비율이 낮은 쪽은 0 이다. 쪽마다 값은 개정 파일 표에 있다.
+
+저장소 밖(커밋 없음) — 평가자 피드백 셋의 `cross_diagnosis_by: pending-parent` 를 `sprint-contract` 로, `cross_diagnosis_notes` 를 교차 진단 결론(판정 유지 · 공허한 통과 · 계약 밖 결함)으로 바꿨다.
+고치기 전 사본은 스크래치 `kaizen/fix2/fb-before/` 이고 두 칸 말고 달라진 것은 0, 셋 모두 `verify-feedback.sh` `PASS` 다. FN-77 은 이것으로 끝났다.
+
+- `~/.harness/feedback/evaluator/5a24cc99-2026-09-25T172451-de8c7935-85973.yaml` — `kaizen-0924-f1-harness-followups` (원문 스크래치 `kaizen/final-xdiag-followups.md`)
+- `~/.harness/feedback/evaluator/5a24cc99-2026-09-25T180346-de8c7935-52654.yaml` — `kaizen-0924-f1-kit-followups` (같은 원문)
+- `~/.harness/feedback/evaluator/1a3bcba6-2026-09-25T232231-de8c7935-24681.yaml` — `kaizen-0924-final` QA 1 회차 (이번 교차 진단 요지)
+
+재측정 — 도우미 스물여섯을 계약에서 새로 떼어(BUILD 판과 파일 내용이 같다) 공통 정의가 개정 파일 마지막 `end_sha:` 인 `65ea663` 을 `END` 로 읽은 bash 에서 돌렸다.
+조건 스물여섯이 모두 기대값과 같다. 앞 절과 값이 달라진 것은 AR-09 `my` 하나다(이 계약 QA 리포트 한 파일이 늘었다).
+
+- AR-03 — `pairs=44 exist=44 changed=44 short=0 accent=0 ext=0 hidden_up=0 tok_new=56/56 tok_old=0/9 html_added=0 html_removed=0` · `nav_ver=5/5` · `title_ver=5/5` ·
+  서명 커밋 HTML 44 · 첫 화면 1 · 첫 화면 numstat `5 5` · api-kit 문서 `12/12 PASS` · 내비 등록 176 · 176 · 대비 수치 종료 코드 0
+- DG-04 — 페이지 마흔넷 `44/44 PASS`(`OK` 줄 모두 `err=0`) · `docs` 전체 `177/177 PASS`, 둘 다 종료 코드 0
+- DG-05 — 새 복제본에서 `rc=[000000000000000000000] vpk_rc=0 vpk_pass=13 vpk_bad=0 vpk_skip=[marketplace-sync plugin-json-bumps]`
+- DG-02 — `new_total=3`, `NEW` 셋이 모두 감사 기록의 도구 고정 소제목 MD024. 개정 파일 · evals 점검 기록에 새 경고 0
+- AR-05 — evals 점검 기록을 고친 뒤에도 `state=1 phases=17 keys_ok=1 zero=1 last_updated=1 evals=[total_line=1 paths=10/10 adr_cmd=1]`
+- AR-01 — `done=19 status_only=19 seal_ok=19 fb_tracked=19 fb_new=19 dirty=0`. AR-09 — `my=108 outside=0 html_extra=0 forbidden=0 unsigned=0 broken=0 self=SEAL_OK seal_files=1`
+- SK-01 여덟 줄은 위 `## F1 정합` 과 글자까지 같다. SK-02 · SC-01 · ER-01 ~ ER-05 · AR-02 · AR-04 · AR-06 · AR-07 · AP-01 · AP-03 · RE-01 · RE-02 · DG-01 · DG-03 도
+  `## 조건별 결과 (BUILD 예행)` · `## 끝 판 재측정` 값과 같다
+- AR-08 — `heads=6/6 lines=8/8 nohtml=19/19 memo=13/13`. notes 마지막 커밋이 `END` 인지는 이 notes 커밋 뒤 `end_sha` 를 덧붙이고 다시 잰다
+- 공통 지침 검증 절 — `65ea663` 새 복제본에서 `validate-post-kaizen.py --since 511f19b` 종료 코드 0(PASS 12 · SKIP 셋 — 버전 두 줄 · `docs-site-regen`),
+  `validate-plugin.py` · `sync-docs.py --check-only` · `sync-evals.py --check-only`(`Total: 0 added, 0 orphans, 0 missing`) · `run-evals.py`(`Total: 115 passed, 0 failed`) 종료 코드 0.
+  훅 시험 · CI 시험 열하나는 DG-05 안에서 모두 종료 코드 0
