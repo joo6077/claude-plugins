@@ -351,7 +351,9 @@ PY
 | 벽 1 mm 사각 관 (바깥 10 mm, `WALL_LOOPS=2`) | 예산 `1.74` mm · 부족 비율 `1.0` · 최소 살 `1.0` mm | 두 루프 사이 거리 |
 
 ```bash
-S="$SKILL_DIR/SKILL.md"                 # SKILL_DIR — 이 스킬의 기준 폴더
+SKILL_DIR=<이 스킬의 기준 폴더>         # 다른 블록과 같이 채운다 — 비워 두면 S 가 /SKILL.md 가 되어 빈 코드를 돈다
+S="$SKILL_DIR/SKILL.md"
+if [ ! -s "$S" ]; then echo "STOP $S 가 없다 — SKILL_DIR 부터 채운다"; exit 1; fi
 T=$(mktemp -d -t probe)
 awk 'index($(0), "# bambu-kit geometry-class probe") == 1 {f=1} f && $(0) == "PY" {exit} f' "$S" > "$T/probe.py"
 wc -l < "$T/probe.py"                   # 0 이면 측정 코드를 못 뽑았다 — 여기서 멈춘다
@@ -1597,8 +1599,9 @@ if SYS is not None:
             elif kind == "renamed-value": RENAMED_VALUE[(cells[0], cells[1])] = cells[2]
         print(f"OPTION LIST {SLICER}-{installed}.tsv canonical {len(CANONICAL)} · 종류 {len(TYPES)} · enum {len(ENUM)}")
         # 파일이 있기만 하고 비었거나 깨지면 아래 키 검사가 통째로 건너뛰는데, 파일이 없을 때와 달리 아무 말이 없었다 (2026-09-24 재현)
-        if not CANONICAL or not TYPES:
-            unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 을 읽었지만 canonical {len(CANONICAL)} · 종류 {len(TYPES)} 줄 — "
+        # enum 줄만 빠진 목록도 같다 — canonical · 종류가 멀쩡해도 enum 검사가 조용히 꺼져 받지 않는 값이 통과한다 (2026-09-25 교차 진단)
+        if not CANONICAL or not TYPES or not ENUM:
+            unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 을 읽었지만 canonical {len(CANONICAL)} · 종류 {len(TYPES)} · enum {len(ENUM)} 줄 — "
                               "목록이 비었거나 깨졌다. 키 존재 · 종류 · enum 값 검사 미실행")
 # 키 판정에서 제외하는 메타 키 — 필수 메타필드 표의 키. 형식 검사는 아래에서 따로 한다
 META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id",
@@ -1895,7 +1898,16 @@ MISSING=$(find "$FX" -maxdepth 1 -name '*.json' | sort | while read -r fixture; 
   # (2) 의 TARGET_SLICER= 줄만 센다 — 빈 목록 변이 줄에도 같은 이름이 나와 파일 전체를 찾으면 빠진 줄을 못 잡는다
   grep -F "\"\$GATE\" \$FX/$name;" "$S" | grep -q '^TARGET_SLICER=' || echo "실행 줄에 없음 $name"
 done)
-if [ -n "$MISSING" ]; then printf '%s\n' "$MISSING"; echo "STOP 표와 실행 줄을 먼저 채운다"; exit 1; fi
+# 반대 방향 — 표 행이나 (2) 실행 줄에 이름이 있는데 폴더에 파일이 없는지. 파일만 지우면 그 실행 줄이 파일 없음 오류로
+# exit=1 을 내 기대한 FAIL 처럼 보인다 (2026-09-25 교차 진단)
+ORPHAN=$( { sed -nE 's/^\| `evals\/gate-fixtures\/([^`]+\.json)` \|.*/\1/p' "$S"
+  grep -E '^TARGET_SLICER=[a-z]+ +python3 "\$GATE" \$FX/' "$S" | sed -E 's/.*\$FX\/([^;]+);.*/\1/'; } \
+  | sort -u | while read -r name; do [ -f "$FX/$name" ] || echo "폴더에 없음 $name"; done)
+if [ -n "$MISSING$ORPHAN" ]; then
+  [ -z "$MISSING" ] || printf '%s\n' "$MISSING"
+  [ -z "$ORPHAN" ] || printf '%s\n' "$ORPHAN"
+  echo "STOP 표 · 실행 줄 · 폴더를 먼저 맞춘다"; exit 1
+fi
 
 # (2) 검사 유지 → FAIL 이 기대인 파일은 FAIL 1 건 · exit 1, PASS 가 기대인 파일은 RESULT: PASS · exit 0
 TARGET_SLICER=orca  python3 "$GATE" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
@@ -1992,6 +2004,12 @@ TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.js
 EMPTY=$(mktemp -d -t emptylist); mkdir -p "$EMPTY/references/option-keys"
 : > "$EMPTY/references/option-keys/orca-$(defaults read /Applications/OrcaSlicer.app/Contents/Info.plist CFBundleShortVersionString).tsv"
 SKILL_DIR="$EMPTY" TARGET_SLICER=orca python3 "$GATE" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
+
+# enum 줄만 빠진 목록도 조용히 통과하지 않는지 — 받지 않는 값(seam_slope_type='hole') FAIL 이 사라지는 대신 [미검증] 이 남아야 한다
+NOENUM=$(mktemp -d -t noenum); mkdir -p "$NOENUM/references/option-keys"
+BV=$(defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVersionString)
+grep -v "^enum$(printf '\t')" "$SKILL_DIR/references/option-keys/bambu-$BV.tsv" > "$NOENUM/references/option-keys/bambu-$BV.tsv"
+SKILL_DIR="$NOENUM" TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
 ```
 
 실측 2026-09-15 (zsh · 변이 적용 확인 값은 전부 1):
@@ -2013,6 +2031,7 @@ SKILL_DIR="$EMPTY" TARGET_SLICER=orca python3 "$GATE" $FX/process-bambu-only-key
 `fdm_process_common.json` 이 그 키를 잘못 담고 있어서, 프로파일 등장 여부로는 종류를 판정할 수 없다.
 목록이 없을 때는 FAIL 이 사라지는 대신 `[미검증]` 이 남는다 — 이 줄이 있으면 완료를 선언하지 않는다.
 목록 파일이 있기만 하고 비었을 때도 같다 — `[미검증] … 목록이 비었거나 깨졌다` 가 남는다 (2026-09-25 추가. 그전에는 아무 줄 없이 `RESULT: PASS` 였다).
+enum 줄만 빠진 목록도 같다 — `받지 않는 값` FAIL 이 사라지는 대신 `[미검증] … enum 0 줄` 이 남는다 (2026-09-25 추가. 그전에는 `RESULT: PASS` 였다).
 
 **왜 enum 을 따로 보는가.** 슬라이서는 유효하지 않은 enum 값을 **오류 없이 조용히 기본값으로
 강등**한다. 실측 2026-09-14: `seam_slope_type` 에 `hole` 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고
@@ -2188,7 +2207,9 @@ PY
 기대와 다르면 박은 3mf 와 대조 결과를 믿지 않는다.
 
 ```bash
-S="$SKILL_DIR/SKILL.md"                 # SKILL_DIR — 이 스킬의 기준 폴더
+SKILL_DIR=<이 스킬의 기준 폴더>         # 다른 블록과 같이 채운다 — 비워 두면 S 가 /SKILL.md 가 되어 빈 코드를 돈다
+S="$SKILL_DIR/SKILL.md"
+if [ ! -s "$S" ]; then echo "STOP $S 가 없다 — SKILL_DIR 부터 채운다"; exit 1; fi
 T=$(mktemp -d -t slots)
 awk 'index($(0), "# 제작자 3mf 의 프로젝트 설정에") == 1 {f=1} f && $(0) == "PY" {exit} f' "$S" > "$T/bake.py"
 awk 'index($(0), "# 슬라이서가 실제로 쓴 설정") == 1 {f=1} f && $(0) == "PY" {exit} f' "$S" > "$T/compare.py"
@@ -2444,6 +2465,8 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 
 ```bash
 ID=<모델 번호>; OUT=<output_dir>/makerworld; mkdir -p "$OUT"
+# 앞 실행이 남긴 댓글 페이지를 지운다 — 남으면 아래 집계가 옛 페이지까지 읽어 댓글 수와 내용이 섞인다
+find "$OUT" -maxdepth 1 -name 'comments-*.json' -delete
 curl -sS -o "$OUT/design.json" -w 'design %{http_code}\n' "https://makerworld.com/api/v1/design-service/design/$ID"
 curl -sS -o "$OUT/instances.json" -w 'instances %{http_code}\n' "https://api.bambulab.com/v1/design-service/design/$ID/instances"
 OFF=0
