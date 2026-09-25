@@ -170,7 +170,8 @@ msgstr ""      ← 여기에 한국어 번역 입력 (동일 언어면 그대로
 3. 지워진 키 수와 지워진 번역을 따로 본다:
 
    ```bash
-   git diff -U0 -- src/infrastructure/i18n/locales/ | grep -c '^-msgid '
+   # 지워진 키가 0 개인 정상 상황에서 grep -c 는 종료 코드 1 을 내 단계가 실패로 읽힌다 — awk 로 센다
+   git diff -U0 -- src/infrastructure/i18n/locales/ | awk '/^-msgid /{n++} END{print n+0}'
    git diff -U0 -- src/infrastructure/i18n/locales/ | grep -E '^-(msgstr "[^"]|")'
    ```
 

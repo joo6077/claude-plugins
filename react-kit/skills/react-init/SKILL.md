@@ -87,6 +87,12 @@ pnpm create vite@latest . --template react-swc-ts
 }
 ```
 
+`vite.config.ts` 의 `defineConfig` 에 개발 서버 포트를 고정한다 — `templates/vite.config.template.ts` 의 `server` 블록과 같다. 넣지 않으면 5173 이 차 있을 때 Vite 가 다음 빈 포트로 조용히 옮겨 Tauri `devUrl` · harness `vm_port` 와 어긋난다 ([Vite server options](https://vite.dev/config/server-options.html#server-port)).
+
+```ts
+server: { port: 5173, strictPort: true },
+```
+
 ### 단계 3 — Tailwind CSS v4 (Vite 플러그인, @theme + OKLCH)
 
 ```bash
@@ -200,7 +206,7 @@ pnpm add -D vite-plugin-wasm vite-plugin-top-level-await
 pnpm add -D @tauri-apps/cli
 pnpm tauri init
 # devUrl: http://localhost:5173, frontendDist: ../dist
-# devUrl 포트는 vite.config.ts 의 server.port 와 같게 둔다 — 템플릿이 strictPort: true 라 포트가 차면 옮기지 않고 멈춘다
+# devUrl 포트는 vite.config.ts 의 server.port 와 같게 둔다 — 단계 2 에서 넣은 strictPort: true 라 포트가 차면 옮기지 않고 멈춘다
 # src-tauri/capabilities/default.json 최소 권한 세팅
 ```
 
