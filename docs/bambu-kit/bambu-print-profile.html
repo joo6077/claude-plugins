@@ -985,7 +985,8 @@ done</pre>
 <!-- ── Phase 2 ── -->
 <div class="section" id="phase2">
   <div class="section-label">Phase 2 — 소재 추천 (2~3 개 + 사용자 픽)</div>
-  <p class="desc"><strong>진입 조건:</strong> Phase 1.6 · 1.7 · 1.8 · 1.9 완료. 1.9 에서 L2 를 감지했으면 건조 요구가 큰 소재(PETG · PA · PC)를 후보에 남길 때 건조 조건을 함께 낸다. 1.7 fit-critical 결과는 수축률 차이로 fit 정확도와 직결된다 — PLA 0.2~0.3 % &lt; PETG 0.3~0.5 % &lt; ASA 0.5~0.8 % (<code>materials.md</code> §4).</p>
+  <p class="desc"><strong>진입 조건:</strong> Phase 1.6 · 1.7 · 1.8 · 1.9 완료. 1.9 에서 L2 를 감지했으면 건조 요구가 큰 소재(PETG · PA · PC)를 후보에 남길 때 건조 조건을 함께 낸다. 1.7 fit-critical 결과는 수축률 차이로 fit 정확도와 직결된다 — PLA 0.2~0.3 % &lt; PETG 0.3~0.5 % &lt; ASA 0.5~0.8 % (<code>references/materials.md</code> §4 수축률 표).</p>
+  <p class="desc"><code>references/materials.md</code> 를 읽고 모델 용도 · 형상 · 사용자 요구에 맞춘다.</p>
 
   <div class="grid-2">
     <div class="table-wrap prose">
@@ -1020,7 +1021,7 @@ done</pre>
 <!-- ── Phase 3 ── -->
 <div class="section" id="phase3">
   <div class="section-label">Phase 3 — 프로파일 JSON 생성</div>
-  <p class="desc"><code>bambu-fields-baseline.md</code> 와 <code>seam-recipes.md</code> 를 읽는다. Phase 1.9 에서 실패 모드를 하나라도 감지했으면 <code>failure-recipes.md</code> 도 읽는다.</p>
+  <p class="desc"><code>references/bambu-fields-baseline.md</code> 와 <code>references/seam-recipes.md</code> 를 읽는다. Phase 1.9 에서 실패 모드를 하나라도 감지했으면 <code>references/failure-recipes.md</code> 도 읽는다.</p>
 
   <h3>3.0 Supportability Split — JSON 생성 <em>전</em> 필수 (2026-08-13)</h3>
   <p class="desc">JSON 으로 할 수 없는 요구를 근사로 때우지 않는다. 조용한 근사는 "했다고 보고했는데 안 되어 있음" 으로 끝난다. 1.9 감지 항목과 사용자 요구를 <strong>가능 · 불가</strong> 두 칸으로 가르고, 불가 칸은 notes.md 에 적는다.</p>
