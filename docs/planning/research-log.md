@@ -34,7 +34,7 @@ PR/FAQ · Linear-style 은 `## Non-goals (폐기한 결정 포함)`, Shape Up �
 - 무변경 확인: GitHub CLI 는 킷이 버전을 고정하지 않는다(실행 때 `gh --version`, 조사 시점 최신 2.101.0). Cucumber Gherkin 의 3-5 steps 권장 · 관찰 가능한 `Then` 은
   plan-stories Gotcha 5 · 9 와 그대로 맞다. 출처: <https://github.com/cli/cli/releases/tag/v2.101.0> · <https://cucumber.io/docs/gherkin/reference>
 
-### 명시적 비범위
+### 명시적 비범위 — 2026-09-24 사이클
 
 - `planning-reviewer` 의 미검증 정본 복제는 2026-08-13 개정 전 판이다(카운터 둘 · 남용 방지 4 요건이 없는데 `§Canonical User-Reported Failure Protocol` 이 4 요건을 가리킨다).
   판정 규칙을 바꾸는 일이라 다음 사이클 Phase 3 이 정본을 정리한 뒤 킷 reviewer 들과 함께 옮긴다
