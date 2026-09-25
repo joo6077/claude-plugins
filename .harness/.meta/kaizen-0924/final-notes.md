@@ -265,3 +265,9 @@ QA 1 회차(`APPROVE` 26/26) 뒤 부모 세션의 교차 진단(2026-09-25)은 �
 - 공통 지침 검증 절 — `65ea663` 새 복제본에서 `validate-post-kaizen.py --since 511f19b` 종료 코드 0(PASS 12 · SKIP 셋 — 버전 두 줄 · `docs-site-regen`),
   `validate-plugin.py` · `sync-docs.py --check-only` · `sync-evals.py --check-only`(`Total: 0 added, 0 orphans, 0 missing`) · `run-evals.py`(`Total: 115 passed, 0 failed`) 종료 코드 0.
   훅 시험 · CI 시험 열하나는 DG-05 안에서 모두 종료 코드 0
+
+## 교차 진단 2 회차 뒤 보강 (2026-09-26)
+
+- 커밋: QA 2 회차 리포트 `bc6302c` · sqlx-patterns `a0a395e` · backend-test `10d42ee` · 개정 `fc2f6e8`
+- 다음 사이클 메모 — 담김 잣대 `coverage.py` 는 원본 코드 블록 안을 재지 않는다. 코드 블록 줄 대조(`fence2.py` 꼴)를 합쳐야 한다
+- 다음 사이클 메모 — 옛 판보다는 늘었지만 원본 전체 기준으로 아직 낮은 쪽: `docs/onboarding-kit/setup-guide.html`(코드 블록 61 줄 중 1, `guide_gate` 함수 블록 없음) · `docs/design-kit/design-concept.html`(52 줄 중 3) · `docs/design-kit/design-mockup.html`(20 줄 중 15)
