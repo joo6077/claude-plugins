@@ -17,6 +17,12 @@ values:
         why: "[dated: 2024-10-24] 가 박힌 리서치 로그 — 그때는 맞았다"
       - path: docs/api/contract/error-status-contracts.md
         why: "RFC 9457 §3.1.1 섹션 번호이지 버전이 아니다"
+      - path: backend-kit/skills/backend-audit/references/audit-criteria.md
+        why: "date-time 형식 근거로 특정 판 명세 링크를 인용 — 최신판 주장이 아니다"
+      - path: backend-kit/skills/backend-guide/SKILL.md
+        why: "date-time 형식 근거로 특정 판 명세 링크를 인용 — 최신판 주장이 아니다"
+      - path: backend-kit/skills/backend-system/SKILL.md
+        why: "date-time 형식 근거로 특정 판 명세 링크를 인용 — 최신판 주장이 아니다"
   - old: "OWASP 권장 12"
     new: "OWASP: 10 이상"
     note: "OWASP 원문은 work factor of 10 or more. 12 는 OWASP 귀속이 아니다"
@@ -65,3 +71,18 @@ values:
   - old: "Matrix 5 열에 "
     new: "Matrix 5 열에서 axis·axis value 를 합치고 2 열을 더한 6 열"
     note: "Variant Contract Matrix 는 6 열이다"
+  - old: "OpenAPI 3.2.0"
+    new: "OpenAPI 3.2.1"
+    note: "OpenAPI 최신 패치판. 2026-09-10 공개 — 카이젠 2026-09-24 Phase 7 이 api-design.md 세 자리를 고쳤다"
+    allow:
+      - path: docs/backend/research-log.md
+        why: "2026-09-24 사이클 기록의 옛 값 → 새 값 표 — 고친 이력이라 옛 값이 나와야 뜻이 통한다"
+  - old: "1.7+ native state encryption"
+    new: "OpenTofu native state encryption (도입 판 번호를 적지 않는다)"
+    note: "근거 파일이 1.7 도입 연혁을 뒷받침하지 않았다 — 카이젠 2026-09-24 Phase 8 이 infra-kit 네 자리에서 판 번호를 뺐다"
+    allow:
+      - path: docs/infra/research-log.md
+        why: "2026-09-24 사이클 기록의 변경 내역 줄 — 옛 문장을 고친 이력이라 옛 값이 나와야 뜻이 통한다"
+  - old: "-kubernetes-version 1.30.0"
+    new: '-kubernetes-version "$K8S_VERSION"'
+    note: "kubeconform 에 고정 쿠버네티스 판 번호를 박지 않고 클러스터 판 번호 변수로 받는다 — 카이젠 2026-09-24 Phase 8 (infra-test)"
