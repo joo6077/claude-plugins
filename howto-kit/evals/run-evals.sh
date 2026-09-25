@@ -31,8 +31,8 @@ python3 - "$EVALS" > "$TSV" <<'PY'
 import json, sys
 with open(sys.argv[1], encoding='utf-8') as f:
     data = json.load(f)
-for c in data['cases']:
-    print('\t'.join([c['id'], c['fixture'], c['expect_final'], '|'.join(c['assertions'])]))
+for entry in data['cases']:
+    print('\t'.join([entry['id'], entry['fixture'], entry['expect_final'], '|'.join(entry['assertions'])]))
 PY
 
 record() {   # record <id> <problems> <상세> — PASS/FAIL 한 줄을 찍고 결과 파일에 1 · 0 한 줄
@@ -126,7 +126,8 @@ for rel in sorted(set(scan) | set(declared)):
     if rel in scan:
         buf, inb = [], False
         for ln in open(os.path.join(kit, rel), encoding="utf-8").read().split("\n"):
-            if not inb and ln.strip() == "```bash":
+            # sh · shell · zsh 펜스도 센다 — bash 만 보면 다른 펜스로 쓴 블록이 수 대조와 실행에서 함께 빠진다 (2026-09-25 교차 진단)
+            if not inb and ln.strip() in ("```bash", "```sh", "```shell", "```zsh"):
                 inb, buf = True, []
             elif inb and ln.strip() == "```":
                 inb = False
