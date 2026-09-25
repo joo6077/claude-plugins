@@ -1,4 +1,4 @@
-# Flutter Toolkit · v0.5.0
+# Flutter Toolkit
 
 Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 의존성, 컨벤션을 자동 감지하여 적용한다.
 

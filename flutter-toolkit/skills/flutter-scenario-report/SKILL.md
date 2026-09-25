@@ -132,5 +132,7 @@ python3 "{스킬 폴더}/scripts/build_report.py" "{결과 폴더}"
 
 - `references/record-format.md` (이 스킬 폴더) — `record.json` 의 키 · 판정 계산 · 스크립트가 막는 것
 - `scripts/build_report.py` (이 스킬 폴더) — 기록을 검사하고 보고서를 만든다. 파이썬 표준 라이브러리만 쓴다
+- `templates/report.html` (이 스킬 폴더) — 보고서의 페이지 틀 · 스타일 · 화면 스크립트. 스크립트는 `<!-- cases -->` 한 곳에 케이스를 끼운다. 옆 칸 머리는 큰 제목이 화면 밖으로 나가야 보인다 — 맨 위에서 제목이 두 번 보이지 않게
+- `evals/scenario-report/example/` (플러그인 폴더) — 두 케이스 예시 기록과 그것으로 만든 보고서. 템플릿을 고치면 이 예시로 보고서를 다시 만들어 함께 커밋한다 — 단위 테스트가 커밋된 보고서와 바이트 단위로 비교한다
 - `references/project-detection.md` (플러그인 공용) — 캡처 채널과 MCP 서버 이름을 정하는 감지 절차
 - `references/visual-evidence-protocol.md` (플러그인 공용) — 캡처를 증거로 쓰는 규약. 캡처가 실패하면 이 규약의 Step 4 를 따른다
