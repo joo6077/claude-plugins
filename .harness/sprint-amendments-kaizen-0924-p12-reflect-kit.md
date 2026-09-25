@@ -17,5 +17,7 @@ AR-01 첫째 값이 떨어진다.
 
 - 봉인 커밋: `3697018bdd4f85f5a51eaadbbcdb40671e8d18d0` (계약 파일 1 개, `conditions_digest: sha256:71e1e96b9d125ed8`)
 - 구현 커밋: `9c680cb18983d5f305ef03d24fafd79892ad39f0` — `reflect-kit/` 열두 파일 (훅 넷 · 스킬 둘 · 문서 셋 · 새 시험 셋)
+- notes 커밋: `86b053c94c12f570862d9768acfb149d49df9574` — `.harness/.meta/kaizen-0924/phase12-notes.md` · `phase12-review.md`. 범위 상한을 이 커밋으로 옮긴다
 
 end_sha: 9c680cb18983d5f305ef03d24fafd79892ad39f0
+end_sha: 86b053c94c12f570862d9768acfb149d49df9574
