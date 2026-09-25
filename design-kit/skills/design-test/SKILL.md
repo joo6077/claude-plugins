@@ -300,7 +300,8 @@ test('DEC-20260813-001 → dashboard.desktop.main', async ({ page }) => {
 })
 ```
 
-생성 후 커버리지 체커(§6)를 돌려 위반 0 건을 확인한다. `golden` 만 있고 `assertions` 가 빈 surface
+생성 후 커버리지 체커(§6)를 돌려 종료 코드 0 을 확인한다. 종료 코드 2(`SCHEMA_ERROR`)는 입력 모양이 틀려 판정하지 못한 것이라 `FAIL` 줄 없이 `violations=0` 이 찍혀도 통과로 읽지 않는다.
+종료 코드 3(`NO_SURFACE` · `NO_DECISION`)은 `NO_MANIFEST` 와 같이 대상 0 건으로 보고한다. `golden` 만 있고 `assertions` 가 빈 surface
 가 남아 있으면 그것은 FAIL 이며, 테스트 파일을 만들었다는 사실이 커버리지를 대체하지 않는다.
 
 `excluded_surfaces` 에 올라온 표면은 테스트를 만들지 않되 **보고에는 이유와 함께 열거**한다.
@@ -363,7 +364,7 @@ test.describe('Responsive Layout', () => {
 | 토큰 검증 | `npx vitest run tests/design/tokens.test.ts` |
 | 접근성 | `npx playwright test tests/design/a11y.test.ts` |
 | 시각 회귀 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` (첫 실행) |
-| 결정 전파 | `python3 <§6 커버리지 체커> .design/decisions.yaml` → 위반 0 · 그 다음 `npx playwright test tests/design/decision-*.test.ts` |
+| 결정 전파 | `python3 <§6 커버리지 체커> .design/decisions.yaml` → 종료 코드 0 · 그 다음 `npx playwright test tests/design/decision-*.test.ts` |
 | 반응형 | `npx playwright test tests/design/responsive.test.ts` |
 
 도구 미설치 시 설치 안내를 제시한다:

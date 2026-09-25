@@ -115,6 +115,7 @@ Agent 도구 호출:
 - 모든 카테고리 PASS + 미검증 0 → **APPROVE**
 - **Decision Propagation Coverage FAIL 1 개 이상 → REJECT** (10 카테고리 판정과 별개의 전제 조건 —
   Gotcha 14. manifest 부재는 FAIL 이 아니라 `NO_MANIFEST` 보고다)
+- 결정 전파 검사 종료 코드 2(`SCHEMA_ERROR`)는 입력 모양이 틀려 판정하지 못한 것이라 **REJECT** 다 — `FAIL` 줄 없이 `violations=0` 이 찍혀도 통과로 읽지 않는다. 종료 코드 3(`NO_SURFACE` · `NO_DECISION`)은 `NO_MANIFEST` 와 같이 대상 0 건으로 보고한다
 - Critical FAIL 1개 이상 → **REJECT** (즉시)
 - Major/Minor FAIL만 있음 → **REJECT** + 우선순위별 개선 목록
 - FAIL 0 이지만 **미검증 2 건 이상** → **REJECT** (Gotcha 11 임계값)

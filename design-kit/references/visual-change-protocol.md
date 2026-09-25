@@ -416,6 +416,9 @@ except FileNotFoundError:
 except yaml.YAMLError as e:
     print(f"SCHEMA_ERROR {e}"); sys.exit(2)
 
+# 모양이 틀린 입력(맨 위 목록 · 문자열 목록)이 .get 에서 멈추면 종료 코드 1(위반)로 읽힌다 — 2 로 낸다
+if not isinstance(doc, dict) or not isinstance(doc.get("decisions") or [], list):
+    print("SCHEMA_ERROR 맨 위는 매핑이고 decisions 는 목록이어야 한다"); sys.exit(2)
 decisions = doc.get("decisions") or []
 if not decisions:
     print("NO_DECISION 대상 0 건 — 검사 미수행"); sys.exit(3)
@@ -425,19 +428,28 @@ PATTERNS = {"visible": r"\bvisible\b", "count": r"(>=|<=|>|<|==)\s*\d+|\bcount\b
             "height": r"\bheight\b"}
 viol = surfaces = schema = 0
 for d in decisions:
+    if not isinstance(d, dict):
+        print(f"SCHEMA_ERROR {d!r}: 결정이 매핑이 아니다"); schema += 1; continue
     did = d.get("decision_id", "<no-id>")
     # 아래 두 검사가 없으면 표면을 하나도 적지 않은 결정이 surface 0 개 · 위반 0 으로 통과한다 (2026-09-25 재현)
     if not re.fullmatch(r"DEC-\d{8}-\d{3}", str(d.get("decision_id", ""))) or not d.get("source"):
         print(f"SCHEMA_ERROR {did}: decision_id 형식(DEC-YYYYMMDD-NNN) 또는 source 가 없다"); schema += 1
-    if not (d.get("required_surfaces") or d.get("excluded_surfaces")):
+    req, exc = d.get("required_surfaces") or [], d.get("excluded_surfaces") or []
+    if not isinstance(req, list) or not isinstance(exc, list):
+        print(f"SCHEMA_ERROR {did}: required_surfaces · excluded_surfaces 는 목록이어야 한다"); schema += 1; continue
+    if not (req or exc):
         print(f"FAIL {did}: required_surfaces · excluded_surfaces 가 둘 다 비었다 — 침묵은 커버리지 공백"); viol += 1
-    for x in d.get("excluded_surfaces") or []:
+    for x in exc:
+        if not isinstance(x, dict):
+            print(f"SCHEMA_ERROR {did}/{x!r}: excluded_surfaces 항목이 매핑이 아니다"); schema += 1; continue
         if not x.get("reason"):
             print(f"FAIL {did}/{x.get('surface_id', '<no-surface-id>')}: excluded_surfaces 에 reason 이 없다"); viol += 1
-    for s in d.get("required_surfaces") or []:
+    for s in req:
+        if not isinstance(s, dict) or not isinstance(s.get("assertions") or [], list):
+            print(f"SCHEMA_ERROR {did}/{s!r}: required_surfaces 항목은 매핑, assertions 는 목록이어야 한다"); schema += 1; continue
         surfaces += 1
         sid = s.get("surface_id", "<no-surface-id>")
-        asserts = " ; ".join(s.get("assertions") or [])
+        asserts = " ; ".join(str(a) for a in s.get("assertions") or [])
         hit = [k for k, p in PATTERNS.items() if re.search(p, asserts, re.I)]
         if not s.get("golden") and not hit:
             print(f"FAIL {did}/{sid}: golden 도 user-visible assertion 도 없음"); viol += 1

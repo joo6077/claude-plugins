@@ -48,6 +48,7 @@
 <!-- AUTO:evals -->
 | 파일 | 설명 |
 |------|------|
+| `decision-gate-test.sh` | 파일 |
 | `evals.json` | 파일 |
 | `visuals.spec.js` | 파일 |
 <!-- /AUTO:evals -->

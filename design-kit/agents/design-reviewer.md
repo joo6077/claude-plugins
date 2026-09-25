@@ -177,6 +177,7 @@ L3 커버리지: {{n}}/10 카테고리 ({{샘플링 시 — 남은 카테고리 
 
 판정 규칙 (미검증 임계는 canonical 2 — 규칙 8 조항 3):
 - Decision Propagation Coverage FAIL ≥ 1 → **REJECT** (전제 조건 — 규칙 12. `N/10` 에는 넣지 않는다)
+- 결정 전파 검사 종료 코드 2(`SCHEMA_ERROR`)는 입력 모양이 틀려 판정하지 못한 것이라 **REJECT** 다 — `FAIL` 줄 없이 `violations=0` 이 찍혀도 통과로 읽지 않는다. 종료 코드 3(`NO_SURFACE` · `NO_DECISION`)은 `NO_MANIFEST` 와 같이 대상 0 건으로 보고한다
 - FAIL ≥ 1 → **REJECT**
 - FAIL = 0, 미검증 ≥ 2 → **REJECT** (개별 FAIL 이 없어도 verdict 는 REJECT)
 - FAIL = 0, 미검증 = 1, L3 = 10/10 → **APPROVE** + 미검증 1 건 경고 명시

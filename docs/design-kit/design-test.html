@@ -653,7 +653,7 @@ test('DEC-20260813-001 → dashboard.desktop.main', async ({ page }) =&gt; {
     'DEC-20260813-001/dashboard.desktop.main.png', { maxDiffPixelRatio: 0.01 }
   )
 })</code></pre>
-  <div class="note warning">생성 후 커버리지 체커(§6)를 돌려 위반 0 건을 확인합니다. <code>golden</code> 만 있고 <code>assertions</code> 가 빈 surface 가 남아 있으면 그것은 FAIL 이며, 테스트 파일을 만들었다는 사실이 커버리지를 대체하지 않습니다. <code>excluded_surfaces</code> 에 올라온 표면은 테스트를 만들지 않되 보고에는 이유와 함께 열거합니다.</div>
+  <div class="note warning">생성 후 커버리지 체커(§6)를 돌려 종료 코드 0 을 확인합니다. 종료 코드 2(<code>SCHEMA_ERROR</code>)는 입력 모양이 틀려 판정하지 못한 것이라 <code>FAIL</code> 줄 없이 <code>violations=0</code> 이 찍혀도 통과로 읽지 않습니다. 종료 코드 3(<code>NO_SURFACE</code> · <code>NO_DECISION</code>)은 <code>NO_MANIFEST</code> 와 같이 대상 0 건으로 보고합니다. <code>golden</code> 만 있고 <code>assertions</code> 가 빈 surface 가 남아 있으면 그것은 FAIL 이며, 테스트 파일을 만들었다는 사실이 커버리지를 대체하지 않습니다. <code>excluded_surfaces</code> 에 올라온 표면은 테스트를 만들지 않되 보고에는 이유와 함께 열거합니다.</div>
 </section>
 
 <!-- STEP 6 -->
@@ -842,7 +842,7 @@ assertions: []</span>
     </div>
     <div class="ap-card good">
       <div class="ap-label">Good</div>
-      <p><code>assertions[]</code> 를 golden 비교보다 먼저 실행하고, 커버리지 체커로 위반 0 건을 확인합니다.</p>
+      <p><code>assertions[]</code> 를 golden 비교보다 먼저 실행하고, 커버리지 체커가 종료 코드 0 으로 끝나는지 확인합니다.</p>
       <span class="code-inline">await expect(main).toBeVisible()
 await expect(page.locator("[data-surface='group-list'] &gt; *")).not.toHaveCount(0)
 expect((await main.boundingBox())?.height ?? 0).toBeGreaterThan(0)
@@ -897,7 +897,7 @@ count/height · screenshot/golden id</span>
         <tr><td>토큰 검증</td><td><code>npx vitest run tests/design/tokens.test.ts</code></td></tr>
         <tr><td>접근성</td><td><code>npx playwright test tests/design/a11y.test.ts</code></td></tr>
         <tr><td>시각 회귀</td><td><code>npx playwright test tests/design/visual-regression.test.ts --update-snapshots</code> (첫 실행)</td></tr>
-        <tr><td>결정 전파</td><td><code>python3 &lt;§6 커버리지 체커&gt; .design/decisions.yaml</code> → 위반 0 · 그 다음 <code>npx playwright test tests/design/decision-*.test.ts</code></td></tr>
+        <tr><td>결정 전파</td><td><code>python3 &lt;§6 커버리지 체커&gt; .design/decisions.yaml</code> → 종료 코드 0 · 그 다음 <code>npx playwright test tests/design/decision-*.test.ts</code></td></tr>
         <tr><td>반응형</td><td><code>npx playwright test tests/design/responsive.test.ts</code></td></tr>
       </tbody>
     </table>
