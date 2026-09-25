@@ -1,0 +1,23 @@
+{
+  "type": "filament",
+  "name": "gate-fixture retraction over one and a half times the material parent",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "Bambu ABS @BBL H2S",
+  "filament_settings_id": [
+    "gate-fixture retraction over one and a half times the material parent"
+  ],
+  "filament_extruder_variant": [
+    "Direct Drive Standard",
+    "Direct Drive High Flow",
+    "Direct Drive E3D High Flow"
+  ],
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "filament_retraction_length": [
+    "0.8",
+    "0.8",
+    "0.8"
+  ]
+}

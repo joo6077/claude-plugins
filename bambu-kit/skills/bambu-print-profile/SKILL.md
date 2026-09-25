@@ -46,6 +46,8 @@ bambu-kit/skills/bambu-print-profile/
 
 ## 워크플로우 (Phase 1~5 · 진입 게이트 4종 + Coupon)
 
+> **2026-09-25 카이젠 변경 (Phase 13)**: MakerWorld 는 JSON 주소를 먼저 부른다 — 화면 없는 브라우저가 모델 페이지에서 `Just a moment...` · 403 으로 막혔고 JSON 주소는 200 이었다 (「MakerWorld 읽는 순서」). 조용히 통과하던 자리 다섯을 막았다 — 값 박기 · G-code 대조가 첫 칸만 읽던 것, 폴더에만 있던 시험 파일 8 개, 빈 옵션 목록이 키 검사를 끄던 것, 호를 빠뜨리던 G-code 길이 재기, 정답을 모르는 형상 측정. 근거: `.harness/.meta/evidence/phase13.md`.
+>
 > **2026-08-13 카이젠 변경 (Phase 13)**: Phase 1.9 (Failure-Mode Detector) 신규 — 사용자 실측 출력 실패 3 종(L1 곡면 계단현상 / L2 스트링잉 / L3 바닥 박리)을 프로파일 키로 되돌리는 **인테이크 경로**가 아예 없었다. Phase 1.6 은 *다른 사용자의* 댓글 실패만 모으고, *이 사용자 자신의 직전 출력 결과*가 다음 프로파일 생성에 들어오는 경로가 0 건이었다 — 그래서 v0.4.2 공차 정정도 2026-07-27 표면 의도 게이트도 전부 사용자가 불만을 말한 뒤 손으로 실린 사후 수습이었다. Phase 3.0 (Supportability Split) 신규 — JSON 으로 지원 불가능한 요구(L1 adaptive layer height)를 조용히 근사 구현하지 않고 **notes only** 로 분기한다. Phase 4.3 게이트에 **금지 키 검사 4 종** 추가 (E3 확장 — 문장 추가가 아니라 기존 결정론적 게이트의 검사 항목 확장). references/failure-recipes.md 신규 + bambu-fields-baseline.md §10 신규. 사실 정정 3 건 (`layer_height 0.08` 근거 · `enable_arc_fitting` 성격 · `resolution` 적용 축). 근거: `.harness/.meta/evidence/phase13.md`.
 >
 > **2026-07-27 카이젠 변경**: Phase 1.0 (로컬 모델 견고 파싱) 신규 — `sed` 태그 매칭 금지 + `3D/Objects/*.model` 처리 + 빈 출력 = 검증 실패. Phase 1.8 (Surface Intent Gate) 신규 — 표면 의도 확인이 MakerWorld 전용 경로에만 있어 로컬 파일 케이스에서 ironing 이 누락되던 구조적 구멍을 막음. Phase 4.3 (Completion Evidence Gate) 신규 — 생성 JSON 을 실제 파싱해 검증하는 결정론적 명령(E3). 공차는 **경계 오프셋(지름 = 2×)** 임을 `tolerance.md` §1.1 에 SSOT 로 고정하고 `PL-01` 불일치 해소. 공차 무효화 3조건(color-paint / fuzzy-skin / raft) 신규 발견 반영.
@@ -60,7 +62,7 @@ bambu-kit/skills/bambu-print-profile/
 
 **입력 분기:**
 
-1. **MakerWorld URL** → **Playwright MCP 1차** (`mcp__playwright__browser_navigate` → `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`). MakerWorld Cloudflare 차단을 우회하고 JS-rendered 모델 상세/댓글/사진까지 추출 가능. 추출 정보: 모델명/제작자/부품 구성/회전체 부품/권장 프로파일/사용자 댓글 전체. Playwright 미사용 환경이면 `codex-rescue` 에이전트에 위임 (research mode), 둘 다 실패 시 사용자에게 직접 입력 요청.
+1. **MakerWorld URL** → **JSON 주소를 먼저 부른다** (이 파일 끝 「MakerWorld 읽는 순서」). 설명 · 제작자 · 소재별 프로파일 · 댓글 전체를 셸 `curl` 로 받는다. 화면 없이 도는 브라우저는 모델 페이지에서 `Just a moment...` · HTTP 403 으로 막혔다 (2026-09-22). 브라우저 도구는 JSON 에 없는 사진을 볼 때만 쓰고, 모두 실패하면 사용자에게 핵심 정보를 묻는다. 추출 정보: 모델명/제작자/부품 구성/회전체 부품/권장 프로파일/사용자 댓글 전체.
 2. **로컬 .3mf 파일** → embedded 설정(`Metadata/project_settings.config`, **JSON**) + 지오메트리를 **아래 Phase 1.0 절차로** 추출. 부품별 dimension을 "Bambu Studio에서 확인" 으로 사용자에게 넘기지 마라 — 파싱으로 얻을 수 있다.
 3. **STL 파일** → **아래 Phase 1.0** bounding box 파서 사용. `du -h` 같은 파일 크기는 형상 정보가 아니다. 회전체 판정은 bbox 종횡비 + 사용자 설명 조합.
 4. **이미 정보가 채팅에 있음** → 그대로 사용.
@@ -336,6 +338,101 @@ if wall_budget is not None:
 PY
 ```
 
+**측정 전에 알려진 답으로 한 번 돌린다 (2026-09-25 신규 · `harness/docs/guides/skill-design-guide.md` §3.7 알려진 답 대조).**
+위 측정을 처음 쓰는 환경이거나 측정 코드를 고쳤으면, 손으로 답을 셀 수 있는 가짜 3mf 셋으로 먼저 돌린다. `SELFTEST PASS` · `exit=0` 이
+나오기 전에는 실제 모델을 재지 않는다 — 다르면 측정부터 고친다. 가짜 3mf 는 3MF Core 규격의 최소 구조(`<resources>` 의 mesh 하나와
+`<build>` 의 item 하나, 단위 mm)로 실행할 때 만들고 끝나면 지운다 — 이진 시험 파일을 레포에 두지 않는다
+([3MF Core 1.4.0](https://github.com/3MFConsortium/spec_core/blob/1.4.0/3MF%20Core%20Specification.md)).
+
+| 가짜 입력 | 기대 | 고정하는 것 |
+| --- | --- | --- |
+| 10 mm 정육면체 | 가장 긴 루프 `40.0` mm · `planar` | 루프 하나의 둘레 |
+| 2 mm 사각 기둥 (높이 10 mm) | 가장 긴 루프 `8.0` mm · `thin` | 30 mm 문턱 아래 분류 |
+| 벽 1 mm 사각 관 (바깥 10 mm, `WALL_LOOPS=2`) | 예산 `1.74` mm · 부족 비율 `1.0` · 최소 살 `1.0` mm | 두 루프 사이 거리 |
+
+```bash
+S="$SKILL_DIR/SKILL.md"                 # SKILL_DIR — 이 스킬의 기준 폴더
+T=$(mktemp -d -t probe)
+awk 'index($(0), "# bambu-kit geometry-class probe") == 1 {f=1} f && $(0) == "PY" {exit} f' "$S" > "$T/probe.py"
+wc -l < "$T/probe.py"                   # 0 이면 측정 코드를 못 뽑았다 — 여기서 멈춘다
+python3 - "$T" <<'PY'
+# 가짜 3mf 셋으로 형상 측정을 돌려 손으로 센 답과 대조한다
+import json, os, subprocess, sys, zipfile
+
+work = sys.argv[1]
+CORE = "http://schemas.microsoft.com/3dmanufacturing/core/2015/02"
+
+
+def ring(size, z, inset=0.0):
+    low, high = inset, size - inset
+    return [(low, low, z), (high, low, z), (high, high, z), (low, high, z)]
+
+
+def sides(bottom, top):
+    return [(bottom[k], bottom[(k + 1) % 4], top[(k + 1) % 4], top[k]) for k in range(4)]
+
+
+def box(size, height):
+    bottom, top = ring(size, 0.0), ring(size, height)
+    return sides(bottom, top) + [tuple(bottom), tuple(top)]
+
+
+def tube(size, wall, height):
+    outer_bottom, outer_top = ring(size, 0.0), ring(size, height)
+    inner_bottom, inner_top = ring(size, 0.0, wall), ring(size, height, wall)
+    caps = [(outer[k], outer[(k + 1) % 4], inner[(k + 1) % 4], inner[k])
+            for outer, inner in ((outer_bottom, inner_bottom), (outer_top, inner_top)) for k in range(4)]
+    return sides(outer_bottom, outer_top) + sides(inner_bottom, inner_top) + caps
+
+
+def write_3mf(path, quads):
+    points, index, faces = [], {}, []
+    for quad in quads:
+        ids = []
+        for point in quad:
+            if point not in index:
+                index[point] = len(points)
+                points.append(point)
+            ids.append(index[point])
+        faces += [(ids[0], ids[1], ids[2]), (ids[0], ids[2], ids[3])]
+    vertices = "".join(f'<vertex x="{x}" y="{y}" z="{z}"/>' for x, y, z in points)
+    triangles = "".join(f'<triangle v1="{a}" v2="{b}" v3="{c}"/>' for a, b, c in faces)
+    model = (f'<?xml version="1.0" encoding="UTF-8"?><model unit="millimeter" xmlns="{CORE}"><resources>'
+             f'<object id="1" type="model"><mesh><vertices>{vertices}</vertices><triangles>{triangles}</triangles></mesh></object>'
+             f'</resources><build><item objectid="1"/></build></model>')
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("3D/3dmodel.model", model)
+
+
+def probe(name, quads, wall_loops=None):
+    path = os.path.join(work, f"{name}.3mf")
+    write_3mf(path, quads)
+    # 셸에 남은 벽 수 · 선폭이 답을 바꾸지 않게 뺀다 — 선폭은 측정 코드의 기본값(0.42 · 0.45)을 쓴다
+    env = {key: value for key, value in os.environ.items() if key not in ("WALL_LOOPS", "OUTER_LINE_WIDTH", "INNER_LINE_WIDTH")}
+    if wall_loops:
+        env["WALL_LOOPS"] = str(wall_loops)
+    result = subprocess.run([sys.executable, os.path.join(work, "probe.py"), path], capture_output=True, text=True, env=env)
+    if result.returncode != 0:
+        sys.exit(f"FAIL {name}: 측정이 멈췄다 — {(result.stderr or result.stdout).strip()[-300:]}")
+    return json.loads(result.stdout.splitlines()[0])
+
+
+cube, pillar, square = probe("cube10", box(10, 10)), probe("pillar2", box(2, 10)), probe("tube1", tube(10, 1, 10), wall_loops=2)
+checks = [
+    ("10 mm 정육면체", (cube["max_loop_mm"], cube["_geometry_class"]), (40.0, "planar")),
+    ("2 mm 기둥", (pillar["max_loop_mm"], pillar["_geometry_class"]), (8.0, "thin")),
+    ("벽 1 mm 관", (square["wall_budget_mm"], square["wall_short_share_max"], square["min_web_mm"]), (1.74, 1.0, 1.0)),
+]
+failed = 0
+for label, got, want in checks:
+    failed += got != want
+    print(f"{'OK  ' if got == want else 'FAIL'} {label}: 기대 {want} · 실제 {got}")
+print("SELFTEST", "PASS" if not failed else f"FAIL {failed} 개 — 실제 모델을 재지 말고 측정부터 고친다")
+sys.exit(1 if failed else 0)
+PY
+echo "exit=$?"; rm -rf "$T"
+```
+
 실측 (2026-09-07 래티스 통, 같은 3mf): `Side Container LHS V1` → loops 52/25/20 전부 < 30 mm → `thin`,
 `Funnel V1` → loops 2/2/2 → `planar`. 한 플레이트 = 한 process 이므로 클래스가 갈리면 process 를 나눈다.
 실측 (2026-09-19 H2 AMS Flipper, `WALL_LOOPS=4`): 10 개 전부 `planar` 인데 바닥 층 부족 비율이 뒤쪽 브래킷 71.9 % ·
@@ -376,24 +473,39 @@ PY
 
 **전체 크롤링 원칙 (v0.4.0 강화):**
 
-페이지 상단(제목/제작자/Description)만 보고 끝내지 말고 **전체 페이지 + 전체 댓글 + 댓글 안 첨부 이미지/링크/언급 리소스**를 single pass로 enumerate한다.
+페이지 상단(제목/제작자/Description)만 보고 끝내지 말고 **전체 페이지 + 전체 댓글 + 댓글 안 첨부 이미지/링크/언급 리소스**를 single pass로 enumerate한다. 받는 법은 이 파일 끝 「MakerWorld 읽는 순서」 1 번(JSON 주소)이 먼저다.
 
-- **댓글 카운트 확인**: 스냅샷에서 `heading "Comment & Rating (N)"` 형식으로 N 파싱.
-- **20개 이하**: 단일 스냅샷에 모두 포함됨. 그대로 분석.
-- **20-50개**: Playwright `browser_evaluate`로 페이지 스크롤(`window.scrollBy`) 3-5회 후 재스냅샷.
-- **50+ 댓글**: 정렬 변경 (`Top` / `Most Likes` / `Newest First`)으로 sampling. designer_reply는 100% 추출, 나머지는 평점 분포 + 텍스트 30+ 댓글 추출. `references/comment-analysis.md` §4.1 참조.
+- **댓글 수 확인 (JSON)**: 모델 주소의 `commentCount` 와 댓글 주소의 `total` 을 **둘 다** 적고, 받은 `hits` 수가 `total` 과 같은지 본다. 두 값이 달라도 멈추지 말고 둘 다 notes 에 적는다 — 무엇을 세는지 공식 근거가 없다 (`[관측 2026-09-24]` `commentCount` 190 · `total` 159).
+- **`hits` 원소마다 `comment` 와 `ratingItem` 을 각각 읽는다** — 한쪽만 읽으면 나머지를 잃는다 (`[관측 2026-09-24]` 첫 페이지 100 개 중 `comment` 44 · `ratingItem` 56, 둘째 페이지 59 개는 전부 `ratingItem`). 각 항목 안의 답글 배열도 따로 읽는다 — 배열 이름은 받은 JSON 에서 확인해 comments-raw.md 에 적는다.
+- **JSON 을 못 받아 브라우저로 읽을 때만**: 스냅샷의 `heading "Comment & Rating (N)"` 에서 N 을 읽는다. 20개 이하는 단일 스냅샷, 20-50개는 페이지 스크롤(`window.scrollBy`) 3-5회 후 재스냅샷, 50+ 는 정렬 변경(`Top` / `Most Likes` / `Newest First`)으로 sampling — designer_reply 는 100% 추출, 나머지는 평점 분포 + 텍스트 30+ 댓글. `references/comment-analysis.md` §4.1 참조.
 - **다국어 댓글**: MakerWorld는 중/영/한 혼재. 번역된 본문 + "Show original" 클릭한 원문 둘 다 캡처. 다국어 키워드 사전은 `references/comment-analysis.md` §3 참조.
-- **페이지네이션**: 댓글 영역의 "Load more" 또는 페이지 번호 UI가 있으면 `browser_click`으로 진행.
+- **페이지네이션**: JSON 은 `offset` 을 받은 `hits` 수만큼 늘려 끝까지 넘긴다. 브라우저면 댓글 영역의 "Load more" 또는 페이지 번호 UI 를 누른다.
 
 **Attached Resources Inventory (필수, MakerWorld URL 케이스 한정):**
 
-페이지 스냅샷에서 외부 링크를 enumerate하여 분류:
+받은 JSON 의 문자열(설명 HTML 과 댓글 본문)과, 브라우저를 썼다면 그 스냅샷에서 외부 링크를 enumerate하여 분류한다.
+**대상 파일이 비었거나 없으면 링크 0 건은 「첨부 0 개」 가 아니다** — 줄 수부터 찍고, 0 이면 읽기 단계로 돌아간다.
 
 ```bash
-grep -oE 'https?://[^"]+\.pdf' <snapshot-yml>     # assembly manual
-grep -oE 'https?://youtu\.be/[^"]+|youtube\.com/watch[^"]+' <snapshot-yml>  # 영상
-grep -oE 'https?://github\.com/[^/"]+/[^/"]+' <snapshot-yml>  # 레포
-grep -oE 'https?://(printables|thangs|cults3d)\.com/[^"]+' <snapshot-yml>  # 외부 호스팅
+python3 - "$OUT" > "$OUT/strings.txt" <<'PY'
+# 받은 JSON 의 문자열 값을 한 줄씩 푼다 — JSON 이스케이프를 풀어야 링크 grep 이 맞게 잡는다
+import json, sys, pathlib
+def walk(node):
+    if isinstance(node, dict):
+        for value in node.values(): walk(value)
+    elif isinstance(node, list):
+        for value in node: walk(value)
+    elif isinstance(node, str):
+        print(node.replace("\n", " "))
+for path in sorted(pathlib.Path(sys.argv[1]).glob("*.json")):
+    walk(json.loads(path.read_text(encoding="utf-8")))
+PY
+SRC="$OUT/strings.txt"    # 브라우저로 읽었으면 그 스냅샷 파일
+wc -l < "$SRC"            # 0 이거나 파일이 없으면 아래 0 건은 첨부 0 개가 아니다
+grep -oE 'https?://[^"]+\.pdf' "$SRC"     # assembly manual
+grep -oE 'https?://youtu\.be/[^"]+|youtube\.com/watch[^"]+' "$SRC"  # 영상
+grep -oE 'https?://github\.com/[^/"]+/[^/"]+' "$SRC"  # 레포
+grep -oE 'https?://(printables|thangs|cults3d)\.com/[^"]+' "$SRC"  # 외부 호스팅
 ```
 
 결과를 4개 카테고리로 분류해서 사용자에게 짧게 보고:
@@ -1475,7 +1587,6 @@ if SYS is not None:
         unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 없음 — 키 존재 · 종류 · enum 값 검사 미실행. "
                           f"scripts/option-key-probe/build-option-list.sh 로 설치본 {SLICER} {installed} 목록을 만들어라")
     else:
-        print(f"OPTION LIST {SLICER}-{installed}.tsv")
         for row in (OPTION_KEY_DIR/f"{SLICER}-{installed}.tsv").read_text(encoding="utf-8").splitlines():
             kind, *cells = row.split("\t")
             if kind == "header": HEADER.add(cells[0])
@@ -1484,6 +1595,11 @@ if SYS is not None:
             elif kind in ("process","filament","machine"): TYPES.setdefault(cells[0], set()).add(kind)
             elif kind == "enum": ENUM.setdefault(cells[0], set()).add(cells[1])
             elif kind == "renamed-value": RENAMED_VALUE[(cells[0], cells[1])] = cells[2]
+        print(f"OPTION LIST {SLICER}-{installed}.tsv canonical {len(CANONICAL)} · 종류 {len(TYPES)} · enum {len(ENUM)}")
+        # 파일이 있기만 하고 비었거나 깨지면 아래 키 검사가 통째로 건너뛰는데, 파일이 없을 때와 달리 아무 말이 없었다 (2026-09-24 재현)
+        if not CANONICAL or not TYPES:
+            unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 을 읽었지만 canonical {len(CANONICAL)} · 종류 {len(TYPES)} 줄 — "
+                              "목록이 비었거나 깨졌다. 키 존재 · 종류 · enum 값 검사 미실행")
 # 키 판정에서 제외하는 메타 키 — 필수 메타필드 표의 키. 형식 검사는 아래에서 따로 한다
 META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id",
         "compatible_printers","filament_extruder_variant","instantiation","setting_id"}
@@ -1705,7 +1821,7 @@ PY
 - **출력이 비어 있으면 PASS 가 아니다.** 파일 glob 이 아무것도 매칭 못 한 것이므로 경로부터 고쳐라 (`skill-design-guide.md` §3.7).
 - 위 명령을 실행하지 않았거나 실행할 수 없었다면 완료를 선언하지 말고 `[미검증]` 으로 명시하라. 마커는 `[미검증]` 하나로 통일하며 동의어(`미확인`, `N/A`, `TBD`, `unverified`)를 새로 만들지 않는다 — 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
 
-#### 음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신규 · 2026-09-15 옵션 목록 기준으로 갱신)
+#### 음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신규 · 2026-09-15 옵션 목록 기준으로 갱신 · 2026-09-25 시험 파일 전수)
 
 `RESULT: PASS` 는 **검사가 돌았다는 증거가 아니다.** 검사가 죽어 있어도 PASS 가 나온다. 게이트를
 고쳤거나 옵션 목록을 새로 만들었으면 아래 표의 시험 파일을 **전부 실제로 주입해 FAIL 이 나오는지** 확인하라.
@@ -1717,7 +1833,8 @@ PY
 공차 보정 음수 금지(`elefant_foot_compensation`) · 형상 클래스별 외벽 하향(`outer_wall_speed`) ·
 유량비 5x(인접 속도 4 키) · 벽 예산(`_wall_budget_short_share`) · 허공 위 속도(`bridge_speed` 30 초과) ·
 scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) · 소재 부모값 1.5 배(`GUARDED` 키).
-이 목록 밖의 숫자 키는 값이 무엇이든 통과한다.
+이 목록 밖의 숫자 키는 값이 무엇이든 통과한다. 일곱 모두 아래 표에 FAIL 이 나야 하는 시험 파일이 하나 이상 있다 (2026-09-25).
+금지 키 · `compatible_printers` · 메타필드 · 숫자 타입 검사는 아직 FAIL 시험 파일이 없다.
 
 | 주입 | 대상 슬라이서 | 기대 | 지운 사본 | 안 잡히면 |
 | --- | --- | --- | --- | --- |
@@ -1732,6 +1849,18 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 | `evals/gate-fixtures/process-bridge-unreadable-slot.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `허공 위 속도` 줄을 `pass` 로 | 못 읽는 칸 하나가 나머지 슬롯 검사를 통째로 끈다 |
 | `evals/gate-fixtures/process-thin-unreadable-slot.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `_geometry_class=thin` 줄을 `pass` 로 | 못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다 |
 | `evals/gate-fixtures/filament-unreadable-slot.json` | bambu | FAIL 0 건 + `[미검증]` 1 줄 (슬롯 1) | 못 읽은 칸 알림 줄을 `pass` 로 | 소재 부모값 이탈 검사가 조용히 꺼진다 |
+| `evals/gate-fixtures/filament-scope-process-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`outer_wall_speed` · `process`) | `키 스코프 불일치` 줄을 `pass` 로 | process 키를 소재 설정에 넣어도 통과한다 |
+| `evals/gate-fixtures/process-scope-filament-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`overhang_fan_threshold` · `filament`) | `키 스코프 불일치` 줄을 `pass` 로 | 냉각 키를 process 에 넣어도 통과한다 |
+| `evals/gate-fixtures/process-class-unknown.json` | bambu | 형상 클래스 허용값 **FAIL 1 건** (`lattice`) | `_geometry_class=.geometry.r.` 줄을 `pass` 로 | 허용 밖 형상 클래스가 통과한다 |
+| `evals/gate-fixtures/process-speed-without-class.json` | bambu | 형상 클래스 없음 **FAIL 1 건** | `outer_wall_speed 를 명시했는데` 줄을 `pass` 로 | 형상을 재지 않고 외벽을 낮춘 설정이 통과한다 |
+| `evals/gate-fixtures/process-thin-speed-lowered.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 1) | `_geometry_class=thin` 줄을 `pass` 로 | thin 인데 외벽을 낮춘 설정이 통과한다 |
+| `evals/gate-fixtures/process-wall-budget-classic.json` | bambu | 벽 예산 **FAIL 1 건** (72 %) | `벽 예산 미달 비율` 줄을 `pass` 로 | 벽이 못 들어가는 틈을 갭필로 메우는 설정이 통과한다 |
+| `evals/gate-fixtures/process-flow-ratio-over.json` | bambu | 유량비 **FAIL 1 건** (`sparse_infill_speed` 7.1x) | `유량비` 줄을 `pass` 로 | 인접 속도가 외벽의 5 배를 넘어도 통과한다 |
+| `evals/gate-fixtures/process-scarf-ratio-over.json` | bambu | scarf 길이 비율 **FAIL 1 건** (20 %) | `scarf 길이 .L.mm 가 루프` 줄을 `pass` 로 | scarf 가 루프 둘레의 15 % 를 넘어도 통과한다 |
+| `evals/gate-fixtures/filament-retraction-over-parent.json` | bambu | 소재 부모값 **FAIL 1 건** (`filament_retraction_length` 슬롯 1) | `.k. 슬롯` 줄을 `pass` 로 | 소재 부모값의 1.5 배를 넘긴 되감기가 통과한다 |
+| `evals/gate-fixtures/process-elefant-foot-negative.json` | bambu | 공차 보정 음수 **FAIL 1 건** (`-0.1`) | `if float(eff)<0:` 줄을 `pass` 로 | 음수 공차 보정이 통과한다 |
+| `evals/gate-fixtures/filament-lattice-fanfix.json` | bambu | **PASS** · `[미검증]` 0 줄 — 냉각 키를 소재 설정에 둔 정상 설정 | — | 정상 설정이 FAIL 로 막힌다 |
+| `evals/gate-fixtures/process-thin-baseline.json` | bambu | **PASS** (+ 벽 예산 `[미검증]` 1 줄) — thin 인데 외벽을 안 낮춘 정상 설정 | — | 정상 설정이 FAIL 로 막힌다 |
 
 **FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
@@ -1753,10 +1882,22 @@ S=bambu-kit/skills/bambu-print-profile/SKILL.md
 A=$(grep -n '^TARGET_SLICER=.* python3 - ' "$S" | head -1 | cut -d: -f1)
 B=$(awk -v s="$A" 'NR>s && $(0)=="PY" {print NR; exit}' "$S")
 sed -n "$((A+1)),$((B-1))p" "$S" > "$GATE"
+# 경로가 틀려 빈 파일을 뽑으면 python3 이 빈 스크립트를 exit 0 으로 돌려 아래 줄이 모두 통과처럼 보인다 (2026-09-24 재현)
+echo "gate_lines=$(wc -l < "$GATE") result_lines=$(grep -c 'RESULT' "$GATE")"
+if [ ! -s "$GATE" ] || ! grep -q 'RESULT' "$GATE"; then echo "STOP 게이트를 못 뽑았다 — S 경로부터 본다"; exit 1; fi
 export SKILL_DIR=bambu-kit/skills/bambu-print-profile
 FX=bambu-kit/evals/gate-fixtures
 
-# (2) 검사 유지 → FAIL 1 건 · exit 1
+# (1) 폴더의 시험 파일이 표와 아래 (2) 실행 줄에 다 있는지 — 표에만 넣거나 폴더에만 두면 그 파일은 한 번도 안 돈다 (2026-09-24: 8 개)
+MISSING=$(find "$FX" -maxdepth 1 -name '*.json' | sort | while read -r fixture; do
+  name=${fixture##*/}                  # zsh 에서 path 는 PATH 와 묶인 특수 변수라 이름으로 쓰지 않는다
+  grep -qF "| \`evals/gate-fixtures/$name\` |" "$S" || echo "표에 없음 $name"
+  # (2) 의 TARGET_SLICER= 줄만 센다 — 빈 목록 변이 줄에도 같은 이름이 나와 파일 전체를 찾으면 빠진 줄을 못 잡는다
+  grep -F "\"\$GATE\" \$FX/$name;" "$S" | grep -q '^TARGET_SLICER=' || echo "실행 줄에 없음 $name"
+done)
+if [ -n "$MISSING" ]; then printf '%s\n' "$MISSING"; echo "STOP 표와 실행 줄을 먼저 채운다"; exit 1; fi
+
+# (2) 검사 유지 → FAIL 이 기대인 파일은 FAIL 1 건 · exit 1, PASS 가 기대인 파일은 RESULT: PASS · exit 0
 TARGET_SLICER=orca  python3 "$GATE" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-pre-start-fan-time.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-machine-scope-key.json; echo "exit=$?"
@@ -1768,16 +1909,30 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-outer-slot2.json; echo "exi
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-bridge-unreadable-slot.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-unreadable-slot.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/filament-unreadable-slot.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/filament-scope-process-key.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-scope-filament-key.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-class-unknown.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-speed-without-class.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-speed-lowered.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-flow-ratio-over.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-scarf-ratio-over.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/filament-retraction-over-parent.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-elefant-foot-negative.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/filament-lattice-fanfix.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-baseline.json; echo "exit=$?"
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
-drop() {   # drop <FAIL 낱말> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다
-  sed -E "s/^( *)errs\.append\(f\"${1} .*$/\1pass/" "$GATE" > "$GATE.${2}"
+drop() {   # drop <FAIL 낱말 — 정규식> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다 (f 없는 문자열 포함)
+  sed -E "s/^( *)errs\.append\(f?\"${1} .*$/\1pass/" "$GATE" > "$GATE.${2}"
   diff "$GATE" "$GATE.${2}" | grep -c '^>'
 }
 drop "모르는 키" unknown
 TARGET_SLICER=orca  python3 "$GATE.unknown" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
 drop "키 스코프 불일치" scope
 TARGET_SLICER=bambu python3 "$GATE.scope" $FX/process-machine-scope-key.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE.scope" $FX/filament-scope-process-key.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE.scope" $FX/process-scope-filament-key.json; echo "exit=$?"
 drop "받지 않는 값" enum
 TARGET_SLICER=bambu python3 "$GATE.enum" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
 drop "허공 위 속도" bridge
@@ -1787,6 +1942,29 @@ TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-extruder-mismatch.
 TARGET_SLICER=bambu python3 "$GATE.bridge" $FX/process-bridge-unreadable-slot.json; echo "exit=$?"
 drop "_geometry_class=thin" thinroute
 TARGET_SLICER=bambu python3 "$GATE.thinroute" $FX/process-thin-outer-slot2.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE.thinroute" $FX/process-thin-speed-lowered.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE.thinroute" $FX/process-thin-unreadable-slot.json; echo "exit=$?"
+drop "_geometry_class=.geometry.r." classname      # 「_geometry_class=」 만 쓰면 thin 줄까지 걸린다 — {geometry!r} 을 점으로 맞춘다
+TARGET_SLICER=bambu python3 "$GATE.classname" $FX/process-class-unknown.json; echo "exit=$?"
+drop "outer_wall_speed 를 명시했는데" noclass
+TARGET_SLICER=bambu python3 "$GATE.noclass" $FX/process-speed-without-class.json; echo "exit=$?"
+drop "벽 예산 미달 비율" budget
+TARGET_SLICER=bambu python3 "$GATE.budget" $FX/process-wall-budget-classic.json; echo "exit=$?"
+drop "유량비" flow
+TARGET_SLICER=bambu python3 "$GATE.flow" $FX/process-flow-ratio-over.json; echo "exit=$?"
+drop "scarf 길이 .L.mm 가 루프" scarf              # 하한 3mm 줄도 「scarf 길이」 로 시작한다
+TARGET_SLICER=bambu python3 "$GATE.scarf" $FX/process-scarf-ratio-over.json; echo "exit=$?"
+drop ".k. 슬롯" guarded
+TARGET_SLICER=bambu python3 "$GATE.guarded" $FX/filament-retraction-over-parent.json; echo "exit=$?"
+# 공차 음수 검사는 if 와 한 줄이라 drop() 이 못 바꾼다 — 그 줄만 pass 로 바꾼 사본
+sed -E 's/^( *)if float\(eff\)<0: errs\.append.*$/\1pass/' "$GATE" > "$GATE.negcomp"
+diff "$GATE" "$GATE.negcomp" | grep -c '^>'   # 1 이어야 변이가 먹은 것
+TARGET_SLICER=bambu python3 "$GATE.negcomp" $FX/process-elefant-foot-negative.json; echo "exit=$?"
+
+# 못 읽은 칸 알림은 errs 가 아니라 unverified 로 나가서 drop() 이 못 바꾼다 — 소재 쪽 알림 줄만 지운 사본은 [미검증] 줄이 1 → 0 이 된다
+sed -E 's/^( *)unverified\.append\(f"\{f\}: \{k\} 슬롯 .*$/\1pass/' "$GATE" > "$GATE.slotnote"
+diff "$GATE" "$GATE.slotnote" | grep -c '^>'   # 1 이어야 변이가 먹은 것
+TARGET_SLICER=bambu python3 "$GATE.slotnote" $FX/filament-unreadable-slot.json; echo "exit=$?"
 
 # 종류 판정 근거를 옛 방식(번들 프로파일 종류 합집합)으로 되돌린다 — 목록이 막은 구멍이 다시 열려야 한다
 python3 - "$GATE" "$GATE.bundle" <<'MUT'
@@ -1809,6 +1987,11 @@ TARGET_SLICER=bambu python3 "$GATE.bundle" $FX/process-pre-start-fan-time.json; 
 sed 's#"references/option-keys"#"references/option-keys-없음"#' "$GATE" > "$GATE.nolist"
 grep -c 'option-keys-없음' "$GATE.nolist"   # 1 이어야 변이가 먹은 것
 TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
+
+# 목록 파일이 있기만 하고 비었을 때도 조용히 통과하지 않는지 — 빈 목록을 담은 임시 기준 폴더로 돌린다
+EMPTY=$(mktemp -d -t emptylist); mkdir -p "$EMPTY/references/option-keys"
+: > "$EMPTY/references/option-keys/orca-$(defaults read /Applications/OrcaSlicer.app/Contents/Info.plist CFBundleShortVersionString).tsv"
+SKILL_DIR="$EMPTY" TARGET_SLICER=orca python3 "$GATE" $FX/process-bambu-only-key-in-orca.json; echo "exit=$?"
 ```
 
 실측 2026-09-15 (zsh · 변이 적용 확인 값은 전부 1):
@@ -1829,6 +2012,7 @@ TARGET_SLICER=orca  python3 "$GATE.nolist" $FX/process-bambu-only-key-in-orca.js
 번들 합집합으로 되돌리면 `pre_start_fan_time` 이 통과한다는 점이 핵심이다. 뱀부 process 기본 프로파일
 `fdm_process_common.json` 이 그 키를 잘못 담고 있어서, 프로파일 등장 여부로는 종류를 판정할 수 없다.
 목록이 없을 때는 FAIL 이 사라지는 대신 `[미검증]` 이 남는다 — 이 줄이 있으면 완료를 선언하지 않는다.
+목록 파일이 있기만 하고 비었을 때도 같다 — `[미검증] … 목록이 비었거나 깨졌다` 가 남는다 (2026-09-25 추가. 그전에는 아무 줄 없이 `RESULT: PASS` 였다).
 
 **왜 enum 을 따로 보는가.** 슬라이서는 유효하지 않은 enum 값을 **오류 없이 조용히 기본값으로
 강등**한다. 실측 2026-09-14: `seam_slope_type` 에 `hole` 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고
@@ -1902,8 +2086,18 @@ with zipfile.ZipFile(source) as archive:
         for key in keys:
             if key not in project:
                 sys.exit(f"FAIL: {key} 가 프로젝트 설정에 없다 — 이 슬라이서가 모르는 키일 수 있다")
-            value = preset[key][0] if isinstance(preset[key], list) else preset[key]
-            project[key] = [value] * len(project[key]) if isinstance(project[key], list) else value   # 배열 길이는 프로젝트의 압출기 변형 수를 따른다
+            value = preset[key]
+            if not isinstance(project[key], list):
+                project[key] = value[0] if isinstance(value, list) else value
+                continue
+            # 칸마다 옮긴다 — 첫 칸만 모든 칸에 복사하면 슬롯마다 다른 값이 사라진다 (2026-09-24 재현: ["25","30"] → ["25","25"])
+            cells, width = (value if isinstance(value, list) else [value]), len(project[key])
+            if len(cells) == width:
+                project[key] = list(cells)
+            elif len(set(cells)) == 1:
+                project[key] = [cells[0]] * width   # 한 값이면 프로젝트의 압출기 변형 수만큼 채운다
+            else:
+                sys.exit(f"FAIL: {key} 칸 수가 다르다 — 설정 {len(cells)} 칸 · 프로젝트 {width} 칸이고 값이 칸마다 다르다. 어느 칸이 어느 압출기인지 정하지 않고는 박지 않는다")
         # 스튜디오가 설정 옆에 바뀐 값 표시를 할 때 읽는 칸이다
         slots = project.get("different_settings_to_system")
         if isinstance(slots, list) and len(slots) > DIFF_SLOT[kind]:
@@ -1929,7 +2123,7 @@ python3 - latest "<process.json>" ["<filament.json>"] <<'PY'
 # 슬라이서가 실제로 쓴 설정(G-code 설정 기록 구간)을 생성한 설정 JSON 과 키마다 대조한다
 # usage: python3 - <G-code 경로 | latest> "<process.json>" ["<filament.json>"]
 #        latest — 뱀부 스튜디오가 가장 최근에 자른 G-code (세션마다 임시 폴더가 따로 생기고 닫아도 남는다)
-import sys, os, re, json, glob, subprocess
+import sys, os, re, csv, json, glob, subprocess
 
 gcode_path, *preset_paths = sys.argv[1:]
 META = {"type", "name", "version", "from", "inherits", "print_settings_id", "filament_settings_id",
@@ -1964,23 +2158,147 @@ for preset_path in preset_paths:
     for key, value in preset.items():
         if key.startswith("_") or key in META:
             continue
-        expected = str(value[0] if isinstance(value, list) else value)
+        expected = [str(item) for item in value] if isinstance(value, list) else [str(value)]
         sent = recorded.get(key)
-        if sent is None or sent.split(",")[0].strip('"') != expected:
-            mismatches.append((key, expected, sent))
+        if sent is None:
+            mismatches.append(f"MISMATCH {key}: 설정 {expected!r} · 보낸 값 없음")
+            continue
+        # 칸마다 대조한다 — 첫 칸만 보면 슬롯 2 · 3 이 달라도 PASS 였다 (2026-09-24 재현). 따옴표 칸은 csv 가 푼다
+        got = [cell.strip() for cell in next(csv.reader([sent]))]
+        if len(expected) == 1:
+            expected = expected * len(got)   # 한 칸짜리 설정은 모든 칸에 같은 값이다
+        if len(got) == 1:
+            got = got * len(expected)
+        for slot, (want, have) in enumerate(zip(expected, got), 1):
+            if want != have:
+                mismatches.append(f"MISMATCH {key} 슬롯 {slot}: 설정 {want!r} · 보낸 값 {have!r}")
+        if len(expected) != len(got):
+            extra = range(min(len(expected), len(got)) + 1, max(len(expected), len(got)) + 1)
+            print(f"WARN {key}: 칸 수가 다르다 — 설정 {len(expected)} · 보낸 값 {len(got)}. 슬롯 {', '.join(map(str, extra))} 은 비교하지 않았다")
 
 print(f"G-code: {gcode_path}")
-for key, expected, sent in mismatches:
-    print(f"MISMATCH {key}: 설정 {expected!r} · 보낸 값 {sent!r}")
+for line in mismatches:
+    print(line)
 print("RESULT:", f"FAIL {len(mismatches)} 개" if mismatches else "PASS")
 sys.exit(1 if mismatches else 0)
 PY
+```
+
+**두 스크립트 자기 검사 (2026-09-25 신규)** — 칸이 여럿인 설정을 두 스크립트가 칸마다 다루는지 가짜 입력으로 먼저 본다.
+기대와 다르면 박은 3mf 와 대조 결과를 믿지 않는다.
+
+```bash
+S="$SKILL_DIR/SKILL.md"                 # SKILL_DIR — 이 스킬의 기준 폴더
+T=$(mktemp -d -t slots)
+awk 'index($(0), "# 제작자 3mf 의 프로젝트 설정에") == 1 {f=1} f && $(0) == "PY" {exit} f' "$S" > "$T/bake.py"
+awk 'index($(0), "# 슬라이서가 실제로 쓴 설정") == 1 {f=1} f && $(0) == "PY" {exit} f' "$S" > "$T/compare.py"
+echo "bake_lines=$(wc -l < "$T/bake.py") compare_lines=$(wc -l < "$T/compare.py")"   # 0 이면 못 뽑았다 — 멈춘다
+printf '; CONFIG_BLOCK_START\n; bridge_speed = 25,50,25\n; CONFIG_BLOCK_END\n' > "$T/slot.gcode"
+printf '{"type": "process", "name": "t", "bridge_speed": ["25", "25", "25"]}\n' > "$T/three.json"
+python3 "$T/compare.py" "$T/slot.gcode" "$T/three.json"; echo "exit=$?"     # 기대: MISMATCH bridge_speed 슬롯 2 한 줄 · exit=1
+mkdir -p "$T/Metadata"
+printf '{"bridge_speed": ["50", "50"], "print_settings_id": "x", "different_settings_to_system": ["", "", ""]}' > "$T/Metadata/project_settings.config"
+( cd "$T" && zip -q src.3mf Metadata/project_settings.config )
+printf '{"type": "process", "name": "t", "bridge_speed": ["25", "30"]}\n' > "$T/two.json"
+python3 "$T/bake.py" "$T/src.3mf" "$T/out.3mf" "$T/two.json" > /dev/null \
+  && unzip -p "$T/out.3mf" Metadata/project_settings.config | python3 -c 'import json, sys; print(json.load(sys.stdin)["bridge_speed"])'   # 기대: ['25', '30']
+rm -rf "$T"
 ```
 
 보내기 전에 명령줄로 잘라 같은 대조를 할 수도 있다 —
 `/Applications/BambuStudio.app/Contents/MacOS/BambuStudio --slice 1 --outputdir <빈 폴더> <3mf>` 가 `plate_1.gcode` 를 낸다.
 화면에서는 경고인 "감김 감지 구역에 너무 가깝다" 가 명령줄에서는 오류(`return_code -64`)로 멈추므로 비교용 사본의
 `enable_wrapping_detection` 을 `"0"` 으로 둔다. 비정상 종료하면 사용자 화면에 종료 창이 뜨니 돌리기 전에 알린다.
+
+**G-code 로 길이 재기 (2026-09-25 신규)** — 갭필 · 허공 위 · 다림질 길이처럼 G-code 에서 잰 수치를 근거로 쓸 때는 이 블록으로 잰다.
+세션마다 새로 짠 스크립트가 호(`G2` · `G3`)를 빠뜨렸다 — 호 길이가 빠지고, 호에서 좌표를 안 옮기면 다음 직선이 부풀어 총합이
+그럴듯하게 틀린다 (2026-09-22). 이 킷은 `enable_arc_fitting` 을 끄지 않으므로(§튜닝 정책) 곡선은 호 명령으로 나온다.
+맨 앞의 자기 검사가 알려진 답과 다르면 실제 G-code 는 재지 않고 멈춘다.
+
+```bash
+python3 - "<G-code 경로>" <<'PY'
+# G-code 로 기능별 압출 길이를 잰다 — 직선(G0 · G1)과 호(G2 · G3)를 따로 센다. XY 평면 길이다
+# usage: python3 - "<G-code 경로>"   (보낸 G-code 는 위 대조와 같은 자리에 있다)
+import math, re, sys
+from collections import defaultdict
+
+
+def measure(lines):
+    x = y = 0.0
+    absolute_xy, relative_e, last_e = True, False, 0.0
+    feature, markers = None, 0
+    lengths = defaultdict(lambda: [0.0, 0.0])      # 기능 → [직선 mm, 호 mm]
+    for raw in lines:
+        line = raw.strip()
+        marker = re.match(r"^; FEATURE: (.+)$", line)
+        if marker:
+            feature, markers = marker.group(1).strip(), markers + 1
+            continue
+        words = line.split(";", 1)[0].split()
+        if not words:
+            continue
+        code = words[0].upper()
+        if code in ("M82", "M83"):
+            relative_e = code == "M83"
+        elif code in ("G90", "G91"):
+            absolute_xy = code == "G90"
+        if code not in ("G0", "G1", "G2", "G3", "G92"):
+            continue
+        args = {}
+        for word in words[1:]:
+            try:
+                args[word[0].upper()] = float(word[1:])
+            except ValueError:
+                pass
+        if code == "G92":
+            x, y, last_e = args.get("X", x), args.get("Y", y), args.get("E", last_e)
+            continue
+        if absolute_xy:
+            end_x, end_y = args.get("X", x), args.get("Y", y)
+        else:
+            end_x, end_y = x + args.get("X", 0.0), y + args.get("Y", 0.0)
+        extruding = False
+        if "E" in args:
+            extruding = args["E"] > 0 if relative_e else args["E"] > last_e
+            if not relative_e:
+                last_e = args["E"]
+        if code in ("G2", "G3"):
+            if "R" in args:
+                sys.exit(f"FAIL: R 로 적은 호는 재지 않는다 — I · J 호만 잰다: {line}")
+            center_x, center_y = x + args.get("I", 0.0), y + args.get("J", 0.0)
+            radius = math.hypot(x - center_x, y - center_y)
+            start = math.atan2(y - center_y, x - center_x)
+            finish = math.atan2(end_y - center_y, end_x - center_x)
+            sweep = (start - finish) % (2 * math.pi) if code == "G2" else (finish - start) % (2 * math.pi)
+            length, kind = radius * (sweep or 2 * math.pi), 1   # 시작점과 끝점이 같으면 한 바퀴다
+        else:
+            length, kind = math.hypot(end_x - x, end_y - y), 0
+        if extruding and feature and length > 0:      # 제자리 압출(되감기 복귀)은 길이가 0 이라 세지 않는다
+            lengths[feature][kind] += length
+        x, y = end_x, end_y                # 호에서도 좌표를 옮긴다 — 안 옮기면 다음 직선이 부푼다
+    return lengths, markers
+
+
+# G2 3/4 호(반지름 2) · G3 1/4 호(반지름 4) — 짧은 호만 두면 방향을 무시한 계산이, 반지름이 같으면 두 방향을 바꾼 계산이 같은 합을 내 못 잡는다
+KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1", "G2 X12 Y2 I0 J2 E1", "G3 X16 Y6 I0 J4 E1", "G1 X26 Y6 E1"]
+known, _ = measure(KNOWN)
+line_mm, arc_mm = known["Outer wall"]
+print(f"SELFTEST 직선 {line_mm:.3f} · 호 {arc_mm:.3f} · 합 {line_mm + arc_mm:.3f} (기대 20.000 · 15.708 · 35.708)")
+if abs(line_mm - 20.0) > 1e-3 or abs(arc_mm - 5 * math.pi) > 1e-3:
+    sys.exit("FAIL: 알려진 답과 다르다 — 이 블록부터 고친다. 실제 G-code 는 재지 않았다")
+
+with open(sys.argv[1], errors="replace") as gcode:
+    lengths, markers = measure(gcode)
+if markers == 0:
+    sys.exit("FAIL: `; FEATURE: ` 줄이 0 개다 — 뱀부 · 오르카 G-code 가 아니거나 표시가 다르다. 빈 결과는 통과가 아니다")
+if not lengths:
+    sys.exit("FAIL: 기능 표시는 있는데 압출로 센 이동이 0 개다 — E 모드(M82 · M83)가 맞는지 본다")
+print(f"G-code: {sys.argv[1]} · 기능 표시 {markers} 줄")
+for feature, (line_mm, arc_mm) in sorted(lengths.items(), key=lambda item: -sum(item[1])):
+    total = line_mm + arc_mm
+    print(f"{feature}: 직선 {line_mm / 1000:.3f} m · 호 {arc_mm / 1000:.3f} m · 합 {total / 1000:.3f} m · 호 비율 {arc_mm / total:.0%}")
+PY
+```
 
 ### Phase 5 — Coupon Test (v0.3.0 자동 생성)
 
@@ -2079,6 +2397,8 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
   (`surface-recipes.md` §2.8).
 - ☐ **(2026-09-19 신규) 제작자 3mf 로 출력하면 값을 박은 3mf 를 주고 보낸 G-code 로 대조했는지** — 3mf 를 연 뒤 설정을
   바꾸면 제작자 값이 옮겨진다. 설정 파일로는 안 보인다 (Phase 4.4).
+- ☐ **(2026-09-25 신규) G-code 로 길이를 쟀으면 자기 검사 줄(`SELFTEST`)과 기능별 호 비율을 같이 붙였는지** — 호를 빼면 호 길이가
+  빠지고 다음 직선이 부풀어 총합이 그럴듯하게 틀린다 (Phase 4.4 「G-code 로 길이 재기」).
 - ☐ **(2026-08-13 신규) Phase 1.9 Failure-Mode Gate 통과** — L1/L2/L3 3 종을 각각 감지/없음으로 판정 보고했는지. 감지 0 건이면 "실패 모드 신호 없음" 을 명시했는지 (조용히 skip 금지). grep 매치를 **문장을 읽어** 확인했는지 (`실`·`1층` substring 오탐).
 - ☐ **(2026-08-13 신규) 금지 키 4 종이 생성 JSON 에 0 건인지** — `adaptive_layer_height`, `bed_temperature`, `bed_temperature_initial_layer`, `elephant_foot_compensation`. Phase 4.3 게이트가 dict 키 정확 일치로 검사한다.
 - ☐ **(2026-08-13 신규) Phase 3.0 Supportability Split 의 불가 항목을 notes.md §1.2.1 에 명시 보고했는지** — 특히 L1 adaptive layer height. 근사 구현으로 조용히 때우지 않았는지.
@@ -2094,14 +2414,78 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-09-22 신규) 외벽을 낮췄으면 `bridge_speed` 를 `20-30` 으로 같이 넣었는지, ABS · ASA 에 다림질을 기본으로 켜지 않았는지** — 둘 다 부모값·기본값이 조용히 살아남는 자리다. 허공 위 속도는 Phase 4.3 게이트가 FAIL 로 잡는다 (`surface-recipes.md` §4 · §5.1).
 - ☐ **(2026-09-23 신규) 형상을 재서 기록한 설정이면 외벽을 안 낮췄어도 `bridge_speed` 를 넣었는지** — 게이트가 `_geometry_class` 기록만으로도 허공 위 속도를 재고, 값 비교는 압출기 슬롯을 전부 읽는다.
 
-## MakerWorld URL fallback 체인 (2026-05-16 갱신)
+## MakerWorld 읽는 순서 (2026-09-25 갱신 — JSON 주소 먼저)
 
-1. **Playwright MCP** (1차, 권장) — `mcp__playwright__browser_navigate` + `mcp__playwright__browser_snapshot` 조합. JS 렌더링 페이지 정상 처리, Cloudflare bot challenge 우회. 이미지 캡처가 필요하면 `mcp__playwright__browser_take_screenshot` 추가. **개인 환경에 Playwright MCP가 설치되어 있을 때 가장 정확**.
-2. **`codex-rescue` 에이전트** (Playwright 미설치 환경) — research mode 위임. Codex 측 캐시/웹검색 결과 활용 가능. 단 MakerWorld 본문은 못 가져올 수 있음 (캐시된 페이지 또는 우회 정보만).
-3. **WebFetch** (마지막 대안) — 보통 Cloudflare 차단으로 실패. 트래픽 패턴이 가벼운 시간대에만 간헐적 성공.
-4. **사용자 직접 입력** — 위 모두 실패 시 "이 모델 어떤 부품 구성이고 어떤 소재 권장돼?" 질문으로 핵심 정보만 받기.
+화면 없이 도는 브라우저로 모델 페이지를 열면 제목이 `Just a moment...` 에 HTTP 403 이었고, 기다렸다 다시 열어도 같았다
+(2026-09-22 실측). 같은 모델의 JSON 주소는 셸 `curl` 로 200 을 받았다. 그래서 JSON 주소를 먼저 부르고, 안 되면 다음 단계로 바로 넘어간다.
 
-> ⚠️ **WebFetch만 단독 시도 금지** — Cloudflare 차단이 default이므로 무한 retry 시 토큰 낭비. 1번부터 4번 순서로 시도하고 명시적으로 fallback 보고.
+1. **JSON 주소** — 아래 표의 셋을 셸 `curl` 로 부르고 상태 코드를 먼저 본다. 200 이 아니면 다시 부르지 말고 2 번으로 간다.
+2. **브라우저 도구** — 이 세션의 도구 목록에 페이지를 여는 도구가 있을 때만 쓴다. 서버 이름은 환경마다 다르므로 이름을 박지 말고 목록에서 찾는다.
+   JSON 에 없는 사진 · 렌더된 첨부만 여기서 본다. 제목이 `Just a moment...` 이거나 HTTP 403 이면 기다렸다 다시 열지 말고 3 번으로 간다.
+3. **Codex 위임** — 브라우저로 열라고 쓰지 말고, 1 번 주소 셋을 셸 `curl` 로 부르라고 주소를 그대로 적어 넘긴다.
+4. **사용자 입력** — 위가 모두 실패하면 "이 모델 어떤 부품 구성이고 어떤 소재 권장돼?" 로 핵심 정보만 받는다.
+   3mf 는 자동으로 내려받는다고 가정하지 않는다 — 받기가 실패하거나 로그인을 요구하면 다시 시도하지 말고 사용자가 내려받은 `.3mf` 를 달라고 한다.
+
+> ⚠️ 403 · `Just a moment...` 에서 기다리지 않는 것은 MakerWorld 공식 지침이 아니라 이 킷의 운영 규칙이다 — 다시 열어도 같았던 실측에 기댄다.
+> 어느 단계로 받았는지 notes 에 적는다.
+
+### JSON 주소 (`[관측 2026-09-24]`)
+
+공식 문서가 없는 주소라 경로와 필드 이름은 관측값이다 — 응답 모양이 바뀌면 이 절부터 고친다. 모델 번호는 URL `/models/<번호>-…` 의 숫자다.
+
+| 주소 | 받는 것 |
+| --- | --- |
+| `https://makerworld.com/api/v1/design-service/design/<번호>` | `title` · 설명 HTML `summary` · `designCreator` · 소재별 프로파일 `instances` · `commentCount` · `license` |
+| `https://api.bambulab.com/v1/design-service/design/<번호>/instances` | 프로파일 목록 `hits` 와 `total` |
+| `https://api.bambulab.com/v1/comment-service/commentandrating?designId=<번호>&offset=<N>&limit=100` | 댓글 · 평점 `hits` 와 `total` |
+
+댓글은 `offset` 을 받은 `hits` 수만큼 늘려 가며 받고, `hits` 가 비거나 받은 수가 `total` 에 닿으면 멈춘다
+(`[관측 2026-09-24]` `total` 159 → offset 0 에서 100 개, 100 에서 59 개). 마지막 줄들이 받은 수를 센다 — `WARN` 이 나오면 페이지를 끝까지 넘겼는지부터 본다.
+
+```bash
+ID=<모델 번호>; OUT=<output_dir>/makerworld; mkdir -p "$OUT"
+curl -sS -o "$OUT/design.json" -w 'design %{http_code}\n' "https://makerworld.com/api/v1/design-service/design/$ID"
+curl -sS -o "$OUT/instances.json" -w 'instances %{http_code}\n' "https://api.bambulab.com/v1/design-service/design/$ID/instances"
+OFF=0
+while :; do
+  CODE=$(curl -sS -o "$OUT/comments-$OFF.json" -w '%{http_code}' "https://api.bambulab.com/v1/comment-service/commentandrating?designId=$ID&offset=$OFF&limit=100")
+  echo "comments offset=$OFF $CODE"
+  [ "$CODE" = 200 ] || { rm -f "$OUT/comments-$OFF.json"; break; }
+  read -r GOT TOTAL < <(python3 -c 'import json, sys; d = json.load(open(sys.argv[1])); print(len(d.get("hits") or []), d.get("total") or 0)' "$OUT/comments-$OFF.json")
+  [ "$GOT" -gt 0 ] || break
+  OFF=$((OFF + GOT))
+  [ "$OFF" -lt "$TOTAL" ] || break
+done
+python3 - "$OUT" <<'PY'
+# 받은 JSON 을 세어 보고한다 — 댓글 수 두 값이 다르면 둘 다 적는다
+import json, sys, pathlib
+
+
+def load(path):
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        sys.exit(f"FAIL {path.name} 을 JSON 으로 못 읽었다 — 위 상태 코드를 보고 2 번으로 간다")
+
+
+out = pathlib.Path(sys.argv[1])
+design = load(out / "design.json")
+pages = sorted(out.glob("comments-*.json"), key=lambda page: int(page.stem.split("-")[1]))
+bodies = [load(page) for page in pages]
+hits = [hit for body in bodies for hit in (body.get("hits") or [])]
+total = bodies[0].get("total") if bodies else None
+comments = sum(1 for hit in hits if hit.get("comment"))
+ratings = sum(1 for hit in hits if hit.get("ratingItem"))
+print(f"design {design.get('title')!r} · commentCount {design.get('commentCount')} · instances {len(design.get('instances') or [])}")
+print(f"comments total {total} · 받은 hits {len(hits)} (페이지 {len(pages)}) · comment {comments} · ratingItem {ratings}")
+if not hits and design.get("commentCount"):
+    sys.exit("FAIL 댓글을 하나도 못 받았는데 commentCount 가 0 이 아니다 — 위 상태 코드가 200 이 아니면 2 번으로, 200 이면 응답 모양이 바뀌었는지 본다")
+if total is not None and len(hits) != total:
+    print(f"WARN 받은 hits {len(hits)} 가 total {total} 과 다르다 — offset 을 끝까지 넘겼는지 본다")
+if design.get("commentCount") != total:
+    print(f"NOTE commentCount {design.get('commentCount')} 와 total {total} 이 다르다 — 둘 다 notes 에 적는다")
+PY
+```
 
 ## v2 백로그 (수동으로 진행)
 
@@ -2179,4 +2563,5 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 - v0.4.1 dogfood: 2026-05-27 9mm Craft Knife Elite v2 — directive 권장 "do not modify profile"을 전체 profile 수정 금지로 보수 해석한 회귀 (ironing 누락) → Phase 3 Override Rule 적용 범위 좁힘 (Creator 명시 필드만 freeze, 미명시 영역은 자동 결정 위임) + Phase 1.6.5 4-옵션 재설계 (속도 / top만 / 병행 default / 풀) + comment-analysis.md §5 권장 강도별 적용 범위 (strong with value / directive / intent) + Gotcha 1개 신규
 - v0.4.2 dogfood: 2026-05-27 페리스 휠 (1186414, 608ZZ variant) 베어링 fit 안 맞은 사용자 보고 + 9mm sheath blade slide-fit 가능성 → Phase 1.7 (Tolerance & Fit Analysis) 신규 + Phase 3 공차 보정 키 정책 (`elefant_foot_compensation` 오타 발견 — Bambu 의도적) + Phase 5 fit calibration coupon 자동 트리거 + references/tolerance.md 신규 (4 섹션: Bambu 키 / 소재 수축률 / fit-critical 결정 트리 / coupon) + materials.md §4 수축률 컬럼 14 소재 보강 + Gotcha 2개 신규
 - 2026-08-13 카이젠 Phase 13: 근거 파일 `.harness/.meta/evidence/phase13.md` (Codex foreground · read-only · 외부 조회 0 회). 슬라이서 소스 기준 키/기본값 확정 → `references/failure-recipes.md` 신규 + `bambu-fields-baseline.md` §10 신규 + Phase 1.9 / 3.0 신규 + Phase 4.3 금지 키 검사 확장. 사실 정정 3 건: `layer_height 0.08` 의 공식 프로파일 근거 부재(`[미확인]`) · `enable_arc_fitting` 은 품질 기능이 아니라 G-code encoding 변경 · `resolution` 은 XY 전용이며 Z 계단 해결책이 아님. 소스: <https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp>
+- 2026-09-25 카이젠 Phase 13: 근거 파일 `.harness/.meta/evidence/phase13.md`. MakerWorld JSON 주소 셋은 공식 문서가 없는 `[관측 2026-09-24]` 값이다. 형상 측정 자기 검사의 가짜 3mf 는 [3MF Core 1.4.0](https://github.com/3MFConsortium/spec_core/blob/1.4.0/3MF%20Core%20Specification.md) 의 최소 구조를 따른다
 - 전체 로그: `~/.claude/codex-research-log/2026-05.md`
