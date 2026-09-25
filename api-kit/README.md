@@ -65,7 +65,7 @@ exact           정규화 후 본문 전체 diff
 
 - **prod 는 기본 read-only** — GET/HEAD/OPTIONS. 쓰기 메서드는 명시 allowlist 없이는 실행하지 않는다
 - **자격증명은 `.gitignore` 등록을 강제** — 등록 확인과 추적 검사를 통과하지 못하면 파일을 만들지 않는다
-- **시크릿은 킷 자체 scrubber 를 거친다** — Hurl `--secret` 은 stderr 와 리포트만 가리고 stdout 은 가리지 않는다
+- **시크릿은 킷 자체 scrubber 를 거친다** — Hurl `--secret` 은 stderr · JSON 리포트의 `report.json` · `--curl` 파일을 가리지만 stdout · `--output` 파일 · 리포트의 원본 응답 파일(`store/`)은 가리지 않는다
 - **prod 스냅샷은 커밋하지 않는다** — 스키마만 커밋한다
 
 ## 뷰어

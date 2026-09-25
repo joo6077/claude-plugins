@@ -12,7 +12,7 @@ user-invocable: true
 
 ## Gotchas
 
-- **Hurl `--secret` 은 stdout 을 가리지 않는다. 스냅샷 저장 전에 킷 자체 scrubber 를 반드시 거친다** — `--secret` 이 마스킹하는 건 stderr 로그와 리포트뿐이다. 기본 stdout, `--include`, `--json` stdout, JSON 리포트의 raw response body 에는 토큰이 평문으로 남는다. Hurl 이 응답 stdout 을 "unaltered output" 으로 취급하기 때문이다. 응답을 파일로 남기는 **모든** 경로에 자체 redaction 을 걸어라. 같은 이유로 `--very-verbose` 를 무심코 켜지 마라 — request/response body 를 stderr 로 뱉으므로 CI 로그에 그대로 남는다. 진단으로 켤 때는 redaction 을 함께 걸고 그 출력을 artifact 로 흘리지 않는다. (`docs/api/execution/auth-secret-lifecycle.md` §6, `probe-synthesis-hurl-semantics.md` Gotchas)
+- **Hurl `--secret` 은 stdout 을 가리지 않는다. 스냅샷 저장 전에 킷 자체 scrubber 를 반드시 거친다** — `--secret` 이 가린다고 확인된 곳은 stderr 로그 · JSON 리포트의 `report.json` · `--curl` 파일이다(실측 2026-09-05 · 2026-09-24). 기본 stdout, `--include`, `--output <file>`, `--json` stdout, JSON 리포트의 `store/*_response.json` 에는 토큰이 평문으로 남는다. Hurl 이 응답 stdout 을 "unaltered output" 으로 취급하기 때문이다. 응답을 파일로 남기는 **모든** 경로에 자체 redaction 을 걸어라. 같은 이유로 `--very-verbose` 를 무심코 켜지 마라 — request/response body 를 stderr 로 뱉는다. 등록한 시크릿 값은 `***` 로 바뀌지만 등록하지 않은 변형(base64 · 대소문자 · `Bearer` 접두)과 시크릿으로 등록하지 않은 개인정보는 CI 로그에 그대로 남는다. 진단으로 켤 때는 redaction 을 함께 걸고 그 출력을 artifact 로 흘리지 않는다. (`docs/api/execution/auth-secret-lifecycle.md` §6, `probe-synthesis-hurl-semantics.md` Gotchas)
 - **redaction 에 실패하면 스냅샷을 저장하지 않는다 (fail-closed)** — 부분 마스킹 결과를 "일단 저장하고 나중에 정리" 하지 마라. 리포트를 만든 뒤 마스킹하면 이미 파일과 CI 로그에 비밀이 남는다. redaction 은 저장 파이프라인의 마지막 보정이 아니라 **통과해야 하는 게이트**다. (`docs/api/verification/regression-diff-failure-policy.md` Gotchas)
 - **`--secret` 은 exact value 매칭이다** — 값 하나당 등록 하나. base64 인코딩본, 대소문자 변환본, `Bearer ` 접두를 포함한 형태는 각각 별도 secret 으로 등록해야 한다. 하나라도 빠지면 그 형태로 로그에 노출된다. 자체 scrubber 의 deny 패턴에도 같은 변형을 넣어라. (`auth-secret-lifecycle.md` §5)
 - **prod 는 기본 GET/HEAD/OPTIONS 만이고, 그 판정을 메서드 이름에만 맡기지 마라** — 쓰기 메서드는 env + host + path + method 4중 일치 allowlist 항목이 있을 때만 열린다. `PUT`/`DELETE` 가 idempotent 라는 사실은 재시도 판단 근거이지 실행 허용 근거가 아니고, "검증 목적" 은 상태 변경 면책이 되지 않는다. 반대 방향의 함정도 있다 — `GET /orders/{id}/refresh-cache` 처럼 메서드는 safe 인데 서버 동작이 mutation 인 엔드포인트가 실무에 존재한다. 인벤토리의 `sideEffect: true` 를 먼저 보고, 표시가 없어도 path 패턴이 의심스러우면 사용자에게 확인한다. `TRACE` 는 RFC 상 safe 로 분류되지만 요청을 loop-back 해 `Authorization` 헤더가 응답 본문에 실려 오므로 허용 0회다. prod read-only 의 정확한 범위는 아직 미확정이니 임의로 넓히지 마라. (`docs/api/execution/environment-safety-gates.md` §1~§4)
@@ -180,7 +180,7 @@ echo "exit=$?"
 ```text
 1. scrub      키 이름 deny list + 값 형태 정규식(JWT·이메일·전화·카드번호) + 등록된 시크릿 값
               → 하나라도 처리 실패하면 여기서 중단. 저장하지 않는다
-2. I-JSON 검문 중복 키 · lone surrogate · NaN/Infinity · binary64 표현 불가 숫자
+2. I-JSON 검문 중복 키 · lone surrogate · NaN/Infinity · binary64 표현 불가 숫자 · -0
               → 정규화 대상이 아니라 실패/fallback 대상
 3. raw 봉인    상태코드 · 원본 헤더 라인 · 바이트 digest · 시크릿만 마스킹한 본문
 4. normalized  타임스탬프·UUID·커서를 sentinel 로, 부동소수 정밀도 고정

@@ -1,7 +1,7 @@
 ---
 title: 스냅샷 봉인과 정규화
-version: 0.1.0
-last_updated: 2026-09-04
+version: 0.1.1
+last_updated: 2026-09-24
 ---
 
 # 스냅샷 봉인과 정규화
@@ -32,10 +32,11 @@ JCS 는 I-JSON 입력, 토큰 사이 공백 0개, ECMAScript primitive serializa
 ### 3. 정규화 전 I-JSON 게이트
 
 JCS 로 넘기기 전에 I-JSON 으로 먼저 검문한다.
-중복 키, Unicode 로 표현 불가한 문자열, IEEE 754 binary64 로 표현 불가한 숫자, NaN/Infinity, lone surrogate 는 정규화 대상이 아니라 **실패 또는 fallback 대상**이다.
+중복 키, Unicode 로 표현 불가한 문자열, IEEE 754 binary64 로 표현 불가한 숫자, NaN/Infinity, lone surrogate, `-0` 은 정규화 대상이 아니라 **실패 또는 fallback 대상**이다.
+`-0` 은 올바른 JSON 숫자지만 JCS 가 `0` 으로 적어 부호가 사라진다 — 그래서 파서는 `-0` 을 만나면 오류를 내고 멈춰야 한다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인).
 게이트를 건너뛰면 파서가 조용히 값을 바꾼 뒤의 결과를 봉인하게 된다.
 
-> **출처:** [RFC 8785 JCS](https://www.rfc-editor.org/rfc/rfc8785.html), [RFC 7493 I-JSON](https://www.rfc-editor.org/rfc/rfc7493.html)
+> **출처:** [RFC 8785 JCS](https://www.rfc-editor.org/rfc/rfc8785.html), [RFC 7493 I-JSON](https://www.rfc-editor.org/rfc/rfc7493.html), [RFC 8785 정정 목록](https://www.rfc-editor.org/errata/rfc8785)
 
 ### 4. 헤더 정규화는 JCS 밖에서
 

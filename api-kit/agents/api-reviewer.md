@@ -84,7 +84,7 @@ model: sonnet
 | - | -------- | -------- | ---- | ---- | ---- | ---- |
 | 1 | Pin Assertion Fitness | 변동 필드(`total`·`cursor`·`id`·`*At`·`timestamp`)에 값 고정(`const`) pin **0 건** | PASS/FAIL | | | contract-extraction-modes §2 |
 | 2 | Pin Assertion Fitness | 모든 pin 이 assertion 종류를 명시한다 (const · enum · range · pattern · format · invariant) | PASS/FAIL | | | contract-extraction-modes §2 |
-| 3 | Pin Assertion Fitness | pin 경로가 스냅샷에 실제로 존재한다 (부재 경로 pin 0 건) | PASS/FAIL | | | 추론 — 부재 경로 pin 은 항상 실패하거나 항상 공허 |
+| 3 | Pin Assertion Fitness | pin 경로가 스냅샷에 실제로 존재한다 — 경로 간 불변식은 판정식 쪽 경로(`>= len($.data)` 의 `$.data`)까지 양쪽 모두 (부재 경로 pin 0 건) | PASS/FAIL | | | 추론 — 부재 경로 pin 은 항상 실패하거나 항상 공허. 경로 간 불변식은 한쪽이 없으면 `/api-verify` 가 매번 `판정 불가` 를 낸다 |
 | 4 | Pin Assertion Fitness | 안정 필드에만 `const` 를 걸었다 (discriminator · API 버전 · 통화 코드 · 고정 status) | PASS/FAIL | | | contract-extraction-modes §2 |
 | 5 | Normalization & Masking | 스냅샷·계약에 시크릿 원문 **0 건** (JWT · `Bearer` · 이메일 · 전화 · 카드 형태 — 대상 N 파일 + positive control 명시) | PASS/FAIL | | | snapshot-sealing §수치 기준 · 설계 §8.2 |
 | 6 | Normalization & Masking | 비결정 필드(타임스탬프 · UUID · 커서 · request id)가 masks 에 등록되어 sentinel 로 치환됐다 | PASS/FAIL | | | 설계 §9.1 |

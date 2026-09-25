@@ -1,7 +1,7 @@
 ---
 title: 인증·시크릿 수명주기
-version: 0.2.0
-last_updated: 2026-09-05
+version: 0.2.1
+last_updated: 2026-09-24
 ---
 
 # 인증·시크릿 수명주기
@@ -57,7 +57,7 @@ base64 인코딩본, 대소문자 변환본, `Bearer ` 접두 포함본 같은 �
 
 Hurl은 HTTP 응답 stdout을 "unaltered output"으로 취급한다. 실측(8.0.1) 결과 마스킹 여부는 채널마다 갈린다.
 
-가려지는 곳은 stderr 로그(`--verbose` / `--very-verbose`)와 JSON 리포트의 `report.json`(`curl_cmd`·요청 헤더)뿐이다.
+가린다고 확인된 곳은 stderr 로그(`--verbose` / `--very-verbose`), JSON 리포트의 `report.json`(`curl_cmd`·요청 헤더), `--curl <file>`의 헤더 값이다(`--curl`은 실측 2026-09-24).
 가려지지 않는 곳이 더 넓다 — 기본 stdout, `--include`, `--output <file>`,
 `--json` stdout 전체(`curl_cmd`·요청 헤더·`captures[].value`), 그리고 JSON 리포트가 원본 응답을
 따로 떨구는 `store/*_response.json`이다. HTML 리포트는 응답 본문을 아예 담지 않아 이 목록에 없다.
@@ -96,7 +96,7 @@ OAuth BCP도 access token 권한을 최소 필요 범위로 제한하라고 규�
 | bearer token 권장 lifetime | 1시간 이하 | RFC 6750 §5.3 |
 | `expires_in=3600` | 1시간 | RFC 6749 §5.1 |
 | `--secret` 등록 단위 | exact value 1개당 secret 1개 (변형값 N개면 +N개) | Hurl Templates/Secrets · 실측 2026-09-05 |
-| `--secret` 마스킹되는 채널 | stderr 로그, JSON 리포트 `report.json` | 실측 2026-09-05 (hurl 8.0.1) |
+| `--secret` 마스킹되는 채널 | stderr 로그, JSON 리포트 `report.json`, `--curl <file>` | 실측 2026-09-05 · 2026-09-24 (hurl 8.0.1) |
 | `--secret` 마스킹 안 되는 채널 | 기본 stdout, `--include`, `--output`, `--json` stdout 전체, JSON 리포트 `store/*_response.json` | 실측 2026-09-05 |
 | `redact` capture 마스킹 범위 | stderr만. `--json` stdout·리포트 원본 응답은 평문 | 실측 2026-09-05 |
 | token response 캐시 헤더 | `Cache-Control: no-store`, `Pragma: no-cache` | RFC 6749 §5.1 |
@@ -122,10 +122,10 @@ OAuth BCP도 access token 권한을 최소 필요 범위로 제한하라고 규�
 
 ## Gotchas
 
-- **`--secret`이 가리는 채널은 stderr 로그와 `report.json` 둘뿐이다** — 기본 stdout, `--include`, `--output <file>`, `--json` stdout 전체, JSON 리포트의 `store/*_response.json`에는 평문이 남는다(실측 2026-09-05). 응답 저장 경로에는 api-kit 자체 redaction을 반드시 걸어라.
+- **`--secret`이 가린다고 확인된 채널은 stderr 로그 · `report.json` · `--curl <file>`이다** — 기본 stdout, `--include`, `--output <file>`, `--json` stdout 전체, JSON 리포트의 `store/*_response.json`에는 평문이 남는다(실측 2026-09-05). 응답 저장 경로에는 api-kit 자체 redaction을 반드시 걸어라.
 - **`--json` stdout에는 응답 body 필드가 아예 없다** — 그래서 "body가 안 새더라"는 관측은 마스킹의 증거가 아니다. 대신 같은 출력의 `curl_cmd`·요청 헤더·`captures[].value`가 평문이다. 새는 자리가 다를 뿐 새는 건 맞다.
 - **`--secret`은 exact value 매칭이다** — 값 하나당 등록 하나다. base64본, 대소문자 변환본, `Bearer ` 접두 포함본처럼 변형이 N개면 secret도 N개를 따로 등록해야 한다. 하나라도 빠지면 그 형태로 로그에 노출된다.
 - **`redact` capture는 소급 적용되지 않는다** — 이후 로그에만 유효하고, 이미 출력된 원본 응답을 지우지는 못한다. 실측에서는 사정거리가 더 좁았다: 캡처값을 다음 entry 헤더로 넘기면 `--json` stdout의 `curl_cmd`와 요청 헤더에 평문으로 나타났고, JSON 리포트의 원본 응답 파일도 평문이었다.
 - **`redact` capture와 `--very-verbose`는 함께 쓸 수 없다** — Hurl 8.0.1은 `redacted secret not authorized in verbose`로 실행을 거부한다. 진단하려고 verbose를 켜는 순간 파일이 안 돈다.
 - **Hurl 옵션 우선순위는 env < CLI < `[Options]`** — 파일 안 `[Options]`가 profile 설정을 덮어쓴다. profile 충돌은 실행 전에 api-kit이 먼저 잡아야 한다. 실측으로 `HURL_MAX_REDIRS=3` < `--max-redirs 5` < `[Options] max-redirs: 7` 순서를 확인했다.
-- **`HURL_*` 환경변수는 옵션에만 붙고 변수에는 안 붙는다** — `HURL_INSECURE`는 `--insecure`가 되지만 `HURL_who`는 `{{who}}` 변수가 되지 않는다(실측: `actual: none`). 변수는 `--variable` / `--variables-file` / `--secret` / `--secrets-file` / `[Options] variable:`로만 들어간다.
+- **환경변수로 변수를 넣으려면 `HURL_VARIABLE_` 접두가 필요하다** — `HURL_INSECURE`는 `--insecure`가 되지만 `HURL_who`는 `{{who}}` 변수가 되지 않는다(실측: `actual: none`). Hurl 8.0.0부터 `HURL_VARIABLE_who`가 `{{who}}`를 채우고 `HURL_SECRET_<이름>`은 `--secret`처럼 값을 가린다([Hurl CHANGELOG](https://github.com/Orange-OpenSource/hurl/blob/master/CHANGELOG.md) 8.0.0). 변수는 `--variable` / `--variables-file` / `--secret` / `--secrets-file` / `[Options] variable:`와 이 두 환경변수로 들어가고, 겹치면 명령줄 `--variable`이 이긴다(실측 2026-09-24, hurl 8.0.1).

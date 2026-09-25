@@ -245,7 +245,7 @@ JSON 리포트는 두 종류의 파일을 쓰고 그 둘의 처리가 다르다.
 |-------------|------------------|
 | stderr 로그 (`--verbose` / `--very-verbose`) | 기본 stdout (HTTP 응답) |
 | JSON 리포트의 `report.json` (`curl_cmd` · 요청 헤더) | `--include` 출력 |
-| | `--output <file>` |
+| `--curl <file>` 의 헤더 값 (실측 2026-09-24) | `--output <file>` |
 | | `--json` stdout 전체 — `curl_cmd` · 요청 헤더 · `captures[].value` |
 | | JSON 리포트의 `store/*_response.json` (원본 응답 본문) |
 
@@ -309,6 +309,6 @@ CI artifact 로 저장할 경우 저장을 끄거나 후처리 scrubber 를 강�
 - **entry 번호는 `1` 부터다** — `--from-entry` / `--to-entry` 로 부분 실행할 때 0-based 로 계산하면 한 칸씩 밀린다.
 - **`redact` capture 는 소급 적용되지 않는다** — 이후 로그에만 유효하고 이미 출력된 원본은 지우지 못한다. 실측에서는 사정거리가 더 좁았다: 캡처값을 다음 entry 헤더로 넘기면 `--json` 의 `curl_cmd` 와 요청 헤더에 평문으로 나타나고, JSON 리포트의 원본 응답 파일도 평문이다.
 - **`redact` capture 와 `--very-verbose` 는 함께 못 쓴다** — 진단하려고 verbose 를 켜는 순간 Hurl 이 실행을 거부한다.
-- **`HURL_*` 환경변수는 옵션에만 붙고 변수에는 안 붙는다** — `HURL_INSECURE` 는 `--insecure` 가 되지만 `HURL_who` 는 `{{who}}` 가 되지 않는다 (실측: assert `actual: none`).
+- **환경변수로 변수를 넣으려면 `HURL_VARIABLE_` 접두가 필요하다** — `HURL_INSECURE` 는 `--insecure` 가 되지만 `HURL_who` 는 `{{who}}` 를 채우지 않는다 (실측: assert `actual: none`). Hurl 8.0.0 부터 변수 접두는 `HURL_VARIABLE_` 이라 `HURL_VARIABLE_who` 가 `{{who}}` 를 채우고, `HURL_SECRET_<이름>` 은 `--secret` 처럼 값을 가린다. 둘이 겹치면 명령줄 `--variable` 이 이긴다 (실측 2026-09-24). CI 환경에 남은 `HURL_VARIABLE_*` 가 `{{baseUrl}}` 같은 변수를 조용히 채울 수 있으니 필요한 변수는 명령줄로 준다.
 - **Hurl `--curl` 은 export 전용이다** — curl 명령을 뽑는 기능이지 읽어들이는 기능이 아니다.
 - **JUnit 매핑은 `.hurl` 파일 1개 = `<testcase>` 1개다** — 이 매핑을 바꾸면 CI 대시보드가 계약 실패와 환경 실패를 구분하지 못한다. JUnit 만 저장하고 `.hurl` 을 폐기하면 실패를 재현할 수 없다.

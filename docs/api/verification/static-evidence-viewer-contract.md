@@ -1,7 +1,7 @@
 ---
 title: 정적 증거 뷰어 계약
-version: 0.1.0
-last_updated: 2026-09-04
+version: 0.1.1
+last_updated: 2026-09-24
 ---
 
 # 정적 증거 뷰어 계약
@@ -82,7 +82,7 @@ operation/testcase 단위 그룹핑과 `failure` / `error` / `skipped` 필터를
 | 외부 참조 개수 | `<script src` `0` / `<link rel=stylesheet` `0` / `fetch(` `0` / `XMLHttpRequest` `0` | 확정 시안 `.mockups/api-ui-v7.html` 실측 |
 | 텍스트 대비 | 일반 `4.5:1` 이상, large text `3:1`, UI component·graphical object `3:1` | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) |
 | 텍스트 확대 | `200%` 까지 정보 손실 없음 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) |
-| 클릭 타깃 최소 크기 | `44px` | 확정 시안 `.mockups/api-ui-v7.html` 실측 |
+| 누르는 자리 최소 크기 | 요소 상자 `24×24` CSS px 미만 `0` 개. `44×44` 는 권장값 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) 2.5.8 (AA) · 2.5.5 (AAA). 확정 시안 1280×720 실측(2026-09-25): 보이는 누르는 요소 56 개 중 24 미만 0 · 44 미만 39 |
 | 테마 | 라이트·다크 양립 (둘 다 대비 기준 충족) | 확정 시안 `.mockups/api-ui-v7.html` 실측 |
 | Data URL 길이 한계 | Chromium·Firefox `512MB`, Safari·WebKit `2048MB` (data URL 기준이며 인라인 HTML 전체 한계는 아님) | [MDN data URL length limitations](https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Schemes/data#length_limitations) |
 | 해시 알고리즘 | `sha256` 최소, 가능하면 `sha384` 이상 (`sha256` / `sha384` / `sha512`) | [W3C SRI](https://www.w3.org/TR/SRI/) |
@@ -109,3 +109,4 @@ operation/testcase 단위 그룹핑과 `failure` / `error` / `skipped` 필터를
 - **`<script type="application/json">` 도 안전하지 않다** — 실행되지 않을 뿐, 본문에 `</script` 가 있으면 블록이 조기 종료되어 이후 마크업이 파서에 노출된다. escape 를 건너뛰지 마라.
 - **CSP `<meta>` 는 헤더의 완전한 대체가 아니다** — 정적 HTML 에서 유용하지만 일부 지시어는 `<meta>` 로 적용되지 않는다. `<meta>` CSP 를 넣었다는 사실만으로 네트워크 차단을 보증했다고 보고하지 마라.
 - **Hurl secret redaction 은 저장된 raw 응답까지 보증하지 않는다** — 마스킹은 도구 출력 계층의 기능이고, 뷰어가 인라인하는 원본에는 비밀이 남을 수 있다. 마스킹은 리포트 생성 파이프라인에서 한 번 더 수행한다.
+- **브라우저로 여는 확인은 글자 검사를 대신하지 못한다** — 브라우저를 조종하는 도구 가운데 기본 설정에서 `file://` 주소를 막는 것이 있어(실측 오류 `Access to "file:" protocol is blocked`) `127.0.0.1` 웹 서버로 열게 된다. `.api/` 폴더를 통째로 띄우면 출처가 `http://127.0.0.1` 로 바뀌어 `file://` 에서 막히는 옆 파일 `fetch` 가 성공해 버리고 `credentials.local.json` · `reports/` 까지 HTTP 로 열린다 — `ui.html` 한 장만 든 빈 폴더를 띄운다. 외부 참조 0 건은 계속 글자 검사로 잰다. 웹 서버로 열면 `favicon.ico` 404 콘솔 오류가 한 건 생길 수 있다 — 아이콘 링크가 없어 브라우저가 기본 경로를 부른 것이지 뷰어 결함이 아니다. 헤드리스 셸은 아이콘을 아예 부르지 않아 이 한 건도 안 나온다(실측 2026-09-24).
