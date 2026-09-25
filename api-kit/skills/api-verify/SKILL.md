@@ -114,7 +114,7 @@ hurl --test \
 redaction  →  masks/*.yaml 적용  →  I-JSON 게이트  →  JCS 직렬화
 ```
 
-- I-JSON 게이트 실패(중복 키·NaN·lone surrogate·`-0`)는 계약 실패가 아니라 **비교 불가**로 분류한다.
+- I-JSON 게이트 실패(중복 키·NaN/Infinity·binary64 로 표현 못 하는 숫자·lone surrogate·`-0`)는 계약 실패가 아니라 **비교 불가**로 분류한다.
 - 배열은 정렬하지 않는다.
 - 적용된 마스크 목록을 리포트에 함께 출력한다.
 

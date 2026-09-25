@@ -78,6 +78,7 @@ HTTP digest fields 가 content digest 와 representation digest 를 분리하고
 | 안전 정수 범위 | `-9007199254740991 ~ 9007199254740991` | 범위 밖 정수는 exact interchange 를 기대할 수 없음 ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493.html)) |
 | JCS 토큰 사이 추가 공백 | `0 byte` | JCS 정의 ([RFC 8785](https://www.rfc-editor.org/rfc/rfc8785.html)) |
 | lone surrogate / noncharacter 허용 | `0` | 정상 surrogate pair 는 허용, 단독 surrogate 는 실패 ([RFC 8785](https://www.rfc-editor.org/rfc/rfc8785.html), [RFC 7493](https://www.rfc-editor.org/rfc/rfc7493.html)) |
+| `-0` 허용 | `0` | JCS 는 `-0` 을 `0` 으로 적어 부호가 사라진다 — 읽는 쪽은 `-0` 을 만나면 오류를 낸다(SHOULD) ([RFC 8785 정정 7920](https://www.rfc-editor.org/errata/rfc8785)) |
 | manifest digest 기본 알고리즘 | `sha-256` (옵션 `sha-512`) | 추론 — RFC 9530 의 algorithm agility 와 sha-256/sha-512 사용례 |
 | baseline 내 시크릿 원문 | `0건` | 2026-09-04 결정 — raw 보존과 시크릿 0건을 동시에 만족하기 위해 값만 마스킹 |
 
