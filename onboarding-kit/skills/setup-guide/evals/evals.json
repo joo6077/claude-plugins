@@ -232,6 +232,19 @@
         "GATE_FAIL"
       ],
       "note": "G1 · G2 · G3 양성 대조 — 손으로 센 답과 같아야 한다"
+    },
+    {
+      "id": "ledger-misplaced",
+      "fixture": "fixtures/gate-fail-ledger-misplaced.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER FAIL steps=2 ledger=2 misplaced=2",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "GATE_FAIL"
+      ],
+      "note": "출처 줄 수는 맞지만 Step 하나에 둘 · 다른 Step 에 0 — Step 마다 하나인지 따로 세는 판정이 살아 있어야 FAIL"
     }
   ]
 }
