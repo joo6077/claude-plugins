@@ -16,5 +16,7 @@ AR-01 첫째 값이 떨어진다.
 
 - 봉인 커밋: `89f0ef8e35ef7ddfa8d9a63d148c8a6f707f7615` (계약 파일 1 개, `conditions_digest: sha256:b172964574387cbb`)
 - 구현 커밋: `c012f2b48f4c7190a800461007c67001b37b5bc0` — `bambu-kit/` 여덟 파일 (SKILL.md · references 둘 · 옵션 목록 생성기 · 새 시험 파일 넷)
+- notes 커밋: `307687fb4a1406e778b85217f89e83b0d4d2ea27` — `.harness/.meta/kaizen-0924/phase13-notes.md` · `phase13-review.md`. 범위 상한을 이 커밋으로 옮긴다
 
 end_sha: c012f2b48f4c7190a800461007c67001b37b5bc0
+end_sha: 307687fb4a1406e778b85217f89e83b0d4d2ea27
