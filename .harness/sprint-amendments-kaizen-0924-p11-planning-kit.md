@@ -22,3 +22,5 @@ AR-01 첫째 값이 떨어진다.
 
 end_sha: 7de513bf87387ce18f7278571f133699da9d5e67
 end_sha: 1a5859da461c3cdeea50bf9f1f3205b59ac3e454
+
+교차 진단 뒤 Final 에서 고침 — cfef54fcb5c1743dccd97225f5d70e47074b5743 (`docs/planning/research-log.md` 「명시적 비범위」 소제목에 날짜를 붙여 옛 줄 MD024 하나를 없앰) · amend_direction: unchanged — 조건 · 측정은 그대로 두고 구현을 고쳤다. 근거: xdiag-all.md P11 DG-02

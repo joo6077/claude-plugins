@@ -23,3 +23,5 @@ AR-01 ① 이 떨어진다.
 
 end_sha: c0342a5f46cc0746401625e24ac8e3049c830dc5
 end_sha: 234a996e38bf677d68eab62f869fd242e7c2d697
+
+교차 진단 뒤 Final 에서 고침 — c4eeef36cc3a097bfe222a762fb3f589a4f6c526 (`docs/rust/research-log.md` 「채택한 인사이트」 소제목에 날짜를 붙여 옛 줄 MD024 하나를 없앰) · amend_direction: unchanged — 조건 · 측정은 그대로 두고 구현을 고쳤다. 근거: xdiag-all.md P9 DG-02

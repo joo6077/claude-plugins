@@ -22,3 +22,5 @@ AR-01 ① 이 떨어진다.
 
 end_sha: d215fdd7faf0d3029694d770eb3f5004f1bb51ca
 end_sha: c9ebbe278daff29d7b6b2829e2e1c4fd9f7da4a3
+
+교차 진단 뒤 Final 에서 고침 — cc11f71d6af2f5380e6cf6035f33206fd6370232 (`docs/infra/research-log.md` 2026-09-24 항목 소제목 둘에 날짜를 붙여 옛 줄 MD024 둘을 없앰) · amend_direction: unchanged — 조건 · 측정은 그대로 두고 구현을 고쳤다. 근거: xdiag-all.md P8 DG-02
