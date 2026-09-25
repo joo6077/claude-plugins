@@ -18,5 +18,7 @@ AR-01 첫째 값이 떨어진다.
 
 - 봉인 커밋: `5784b109b031d7f40ca071cd22ff17401064ff43` (계약 파일 1 개, `conditions_digest: sha256:3178ee00afdb7c67`)
 - 구현 커밋: `be4abdd8616fa5f0e4bcd58198345309d800fb90` — `api-kit/` 열 파일 · `docs/api/` 일곱 파일 (계약 범위 선언 열일곱)
+- notes 커밋: `95c458fbd1427769b760ffc2599b3e99b36fae47` — `.harness/.meta/kaizen-0924/phase16-notes.md` · `phase16-review.md`. 범위 상한을 이 커밋으로 옮긴다
 
 end_sha: be4abdd8616fa5f0e4bcd58198345309d800fb90
+end_sha: 95c458fbd1427769b760ffc2599b3e99b36fae47
