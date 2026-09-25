@@ -170,12 +170,13 @@
     <p class="subtitle">
       Flutter 공식 AI rules 는 LLM 이 Flutter 코드를 생성할 때 따라야 할 패턴을 정의한다.
       flutter-toolkit 스킬은 이 규칙과 정합성을 유지해야 한다. 아래는 공식 rules 요약과,
-      2026 기준으로 추가 정합이 필요한 생태계 변화(Riverpod 3.0 / Freezed 3.0 / go_router / Flutter 3.47)다.
+      2026 기준으로 추가 정합이 필요한 생태계 변화(Riverpod 3.0 / Freezed 3.0 → 4.0 / go_router / Flutter 3.47)다.
     </p>
     <div class="hero-meta">
       <span>공식 rules 최종 확인 2026-04-11</span>
-      <span>생태계 노트 리서치 2026-04-11</span>
-      <span>Impeller · stable 상태 2026-08 기준</span>
+      <span>생태계 노트 리서치 2026-04-11 (WebSearch)</span>
+      <span>Impeller 플랫폼 상태 2026-08 기준</span>
+      <span>stable 번호 2026-09-24 조회</span>
     </div>
   </header>
 
@@ -198,7 +199,7 @@
       </article>
       <article class="card">
         <h3>Const Constructor</h3>
-        <p>가능한 모든 곳에 <code>const</code> 를 사용해 리빌드를 최소화한다.</p>
+        <p>가능한 모든 곳에 <code>const</code> 를 써서 리빌드를 최소화한다.</p>
         <a class="card-source" href="https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md" target="_blank" rel="noopener">flutter/flutter/docs/rules/README.md</a>
       </article>
       <article class="card">
@@ -213,7 +214,7 @@
     <div class="section-header">
       <div class="section-label">2 · State</div>
       <h2>State Management — 공식 우선순위</h2>
-      <p>서드파티 패키지가 없을 때의 공식 순서다. 프로젝트에 Riverpod/Bloc 이 있으면 해당 패키지 패턴을 따른다.</p>
+      <p>서드파티 패키지가 없을 때의 공식 순서다. 프로젝트에 Riverpod/Bloc 이 있으면 그 패키지 패턴을 따른다.</p>
     </div>
     <div class="prio">
       <div class="prio-item">
@@ -238,7 +239,7 @@
       </div>
     </div>
     <div class="callout">
-      프로젝트에 <strong>Riverpod/Bloc 이 이미 있으면 해당 패키지 패턴을 따른다.</strong> 위 순서는 서드파티 없이
+      프로젝트에 <strong>Riverpod/Bloc 이 이미 있으면 그 패키지 패턴을 따른다.</strong> 위 순서는 서드파티 없이
       프레임워크만으로 상태를 다룰 때의 기본값이다. 상세는 <a href="state-management.html">상태 관리 문서</a> 참조.
     </div>
   </section>
@@ -246,15 +247,15 @@
   <section>
     <div class="section-header">
       <div class="section-label">3 · Architecture</div>
-      <h2>아키텍처</h2>
-      <p>레이어 분리와 대규모 프로젝트 구조.</p>
+      <h2>아키텍처 · 코드 생성 · 라인 길이</h2>
+      <p>레이어 분리와 대규모 프로젝트 구조, JSON 직렬화 도구, 한 줄 상한.</p>
     </div>
     <div class="grid-2">
       <article class="card">
         <h3>레이어 · 구조</h3>
         <ul>
           <li><strong>레이어 분리</strong>: Presentation → Domain → Data → Core</li>
-          <li><strong>대규모 프로젝트</strong>: Feature-first 구조 (feature 내 presentation/domain/data)</li>
+          <li><strong>대규모 프로젝트</strong>: Feature-first 구조 (feature 안에 presentation/domain/data)</li>
           <li><strong>MVVM</strong>: View ↔ ViewModel (1:1) ↔ Repository ↔ Service</li>
         </ul>
         <a class="card-source" href="https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md" target="_blank" rel="noopener">flutter/flutter/docs/rules/README.md</a>
@@ -276,7 +277,7 @@
     <div class="section-header">
       <div class="section-label">4 · Do's &amp; Don'ts</div>
       <h2>해야 할 것 vs 하지 말 것</h2>
-      <p>공식 rules 의 명시적 목록. 코드 생성 시 그대로 적용한다.</p>
+      <p>공식 rules 의 명시적 목록. 코드 생성 시 그대로 따른다.</p>
     </div>
     <div class="compare">
       <div class="compare-col good">
@@ -284,7 +285,7 @@
         <ul>
           <li><span><code>go_router</code> 네비게이션 (딥링크, 웹 지원)</span></li>
           <li><span>SOLID 원칙</span></li>
-          <li><span><code>dart:developer.log</code> 사용</span></li>
+          <li><span><code>dart:developer.log</code> 사용 (<code>print()</code> 금지)</span></li>
           <li><span><code>compute()</code> 사용 (비용 큰 연산은 Isolate)</span></li>
           <li><span>모든 public API 에 <code>///</code> 문서화</span></li>
           <li><span><code>dart_format</code>, <code>dart_fix</code> 도구 활용</span></li>
@@ -295,9 +296,9 @@
         <span class="compare-label">Don't</span>
         <ul>
           <li><span><code>print()</code> 사용 금지 → <code>dart:developer.log</code></span></li>
-          <li><span><code>build()</code> 내 네트워크 호출 금지</span></li>
+          <li><span><code>build()</code> 안에서 네트워크 호출 금지</span></li>
           <li><span>같은 Row/Column 에 <code>Flexible</code> + <code>Expanded</code> 혼용 금지</span></li>
-          <li><span><code>!</code> 연산자 남용 금지 (non-null 보장된 경우만)</span></li>
+          <li><span><code>!</code> 연산자 남용 금지 (non-null 이 보장된 경우만)</span></li>
           <li><span>깊은 위젯 트리 중첩 금지 → 합성으로 분해</span></li>
         </ul>
       </div>
@@ -322,13 +323,13 @@
     <div class="section-header">
       <div class="section-label">6 · Riverpod 3.0</div>
       <h2>2026 생태계 — Riverpod 3.0</h2>
-      <p>Notifier 라이프사이클과 legacy provider 정리. 모든 항목에 출처 URL 이 있다.</p>
+      <p>공식 rules 밖에서 flutter-toolkit 이 추가로 맞춰야 하는 첫 묶음. Notifier 라이프사이클과 legacy provider 정리다.</p>
     </div>
     <div class="cards">
       <article class="card">
         <h3>Ref.mounted 공식 패턴</h3>
         <p>
-          disposed Notifier 접근 시 에러를 throw 한다. async 메서드 끝에 <code>if (!ref.mounted) return;</code> 이 필수다.
+          disposed Notifier 에 접근하면 에러를 throw 한다. async 메서드 끝에 <code>if (!ref.mounted) return;</code> 이 필수다.
         </p>
         <a class="card-source" href="https://riverpod.dev/docs/whats_new" target="_blank" rel="noopener">riverpod.dev/docs/whats_new</a>
       </article>
@@ -336,7 +337,7 @@
         <h3>Notifier 재생성 라이프사이클</h3>
         <p>
           2.x 의 pseudo-singleton 이 폐기됐다. <code>Timer</code>/<code>StreamSubscription</code>/Controller 를 Notifier 필드로
-          유지하면 리소스가 누수된다. 별도 provider + <code>ref.onDispose</code> 로 분리한다.
+          들고 있으면 리소스가 샌다. 별도 provider + <code>ref.onDispose</code> 로 분리한다.
         </p>
         <a class="card-source" href="https://riverpod.dev/docs/3.0_migration" target="_blank" rel="noopener">riverpod.dev/docs/3.0_migration</a>
       </article>
@@ -344,16 +345,16 @@
         <h3>legacy provider 정리</h3>
         <p>
           <code>StateNotifierProvider</code> / <code>StateProvider</code> / <code>ChangeNotifierProvider</code> 는 legacy 다.
-          신규 코드는 <code>@riverpod</code> / <code>Notifier</code> 기반으로 작성한다.
+          신규 코드는 <code>@riverpod</code> / <code>Notifier</code> 기반으로 쓴다.
         </p>
         <a class="card-source" href="https://pub.dev/packages/flutter_riverpod/changelog" target="_blank" rel="noopener">pub.dev/packages/flutter_riverpod/changelog</a>
       </article>
       <article class="card">
         <h3>Ref 타입 파라미터 제거 · 알림 필터링 · valueOrNull</h3>
         <ul>
-          <li><code>FutureProviderRef</code> 등 subclass 가 전부 삭제되고 <code>Ref</code> 를 직접 쓴다.</li>
+          <li>Ref 의 타입 파라미터가 빠졌다. <code>FutureProviderRef</code> 등 subclass 가 전부 삭제되고 <code>Ref</code> 를 직접 쓴다.</li>
           <li><code>==</code> 기반 알림 필터링 — <code>StreamProvider</code>/<code>StreamNotifier</code> 의 동등성 이벤트는 listener 에 전달되지 않는다. 모델의 <code>operator ==</code> / <code>hashCode</code> 정의가 알림 동작을 결정한다.</li>
-          <li><code>.valueOrNull</code> → <code>.value</code> 로 변경. <code>dart fix --apply</code> 로 자동 마이그레이션 가능.</li>
+          <li><code>.valueOrNull</code> → <code>.value</code> 로 바뀌었다. <code>dart fix --apply</code> 로 자동 마이그레이션할 수 있다.</li>
         </ul>
         <a class="card-source" href="https://riverpod.dev/docs/3.0_migration" target="_blank" rel="noopener">riverpod.dev/docs/3.0_migration</a>
       </article>
@@ -362,9 +363,9 @@
 
   <section>
     <div class="section-header">
-      <div class="section-label">7 · Freezed 3.0</div>
-      <h2>Freezed 3.0 — when/map 은 영구 제거가 아니다</h2>
-      <p>이번 사이클에 정정된 항목이다. 과거 요약("<code>.when</code>/<code>.map</code> 제거")은 사실이 아니다.</p>
+      <div class="section-label">7 · Freezed 3.0 → 4.0</div>
+      <h2>Freezed — when/map 은 살아 있고, 4.0 에는 breaking 이 있다</h2>
+      <p>3.0 요약만 보고 <code>.when</code>/<code>.map</code> 을 지우지 마라. 지금 stable 은 4.0.2 다(2026-09-24 조회).</p>
     </div>
     <div class="cards">
       <article class="card">
@@ -378,26 +379,51 @@
       <article class="card">
         <h3>union 분기 — pattern matching 권장, when/map 은 살아 있다</h3>
         <p>
-          union 분기는 Dart pattern matching (switch expression) 을 신규 코드에서 권장한다.
+          union 분기는 신규 코드에서 Dart pattern matching (switch expression) 을 권장한다.
           <strong>단 <code>.when</code> / <code>.map</code> 이 영구 제거된 것은 아니다</strong> — 3.0 에서 제거됐다가
-          <strong>3.1.0 에서 다시 추가</strong>됐고 최신 stable 은 <strong>3.2.5</strong> 다.
+          <strong>3.1.0 에서 다시 추가</strong>됐고 지금 stable 은 <strong>4.0.2</strong> 다(2026-09-24 조회).
           기존 코드가 generated <code>when</code>/<code>map</code> 을 쓰면 일관성을 유지한다.
         </p>
         <a class="card-source" href="https://pub.dev/packages/freezed/changelog" target="_blank" rel="noopener">pub.dev/packages/freezed/changelog</a>
       </article>
       <article class="card">
+        <h3>4.0 — Dart 3.13 · Analyzer 14 기준, primary constructor 도입</h3>
+        <p>
+          4.0 은 <strong>Dart 3.13 · Analyzer 14</strong> 기준으로 바뀌었고 primary constructor 가 들어왔다.
+          <strong>생성자 파라미터에 <code>final</code> 을 붙이는 형태는 지원하지 않는다(breaking).</strong>
+          올리기 전에 changelog 를 읽는다.
+        </p>
+        <a class="card-source" href="https://pub.dev/api/packages/freezed" target="_blank" rel="noopener">pub.dev/api/packages/freezed</a>
+        <a class="card-source" href="https://raw.githubusercontent.com/rrousselGit/freezed/master/packages/freezed/CHANGELOG.md" target="_blank" rel="noopener">rrousselGit/freezed · packages/freezed/CHANGELOG.md</a>
+      </article>
+      <article class="card">
         <h3>컬렉션 · 어노테이션 변경</h3>
         <ul>
           <li>List / Map / Set 은 <code>UnmodifiableListView</code> / <code>UnmodifiableMapView</code> / <code>UnmodifiableSetView</code> 로 자동 변환된다.</li>
-          <li><code>@With</code> / <code>@Implements</code> 문법이 generic annotation 기반으로 변경됐다.</li>
+          <li><code>@With</code> / <code>@Implements</code> 문법이 generic annotation 기반으로 바뀌었다.</li>
         </ul>
         <a class="card-source" href="https://pub.dev/packages/freezed/changelog" target="_blank" rel="noopener">pub.dev/packages/freezed/changelog</a>
       </article>
     </div>
+
+    <div class="section-label" style="margin-top:28px;margin-bottom:12px">판마다 바뀐 것</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>판</th><th>바뀐 것</th><th>코드에서 할 일</th></tr></thead>
+        <tbody>
+          <tr><td class="num">3.0</td><td>abstract / sealed 선언 필수 · <code>.when</code>/<code>.map</code> 제거</td><td>선언 형태를 맞춘다</td></tr>
+          <tr><td class="num">3.1.0</td><td><code>.when</code>/<code>.map</code> 다시 추가</td><td>쓰던 코드는 일관성 유지</td></tr>
+          <tr><td class="num">4.0</td><td>Dart 3.13 · Analyzer 14 기준 · primary constructor</td><td>올리기 전에 changelog 를 읽는다</td></tr>
+          <tr><td class="num">4.0</td><td>생성자 파라미터 <code>final</code> 형태 미지원</td><td>breaking</td></tr>
+          <tr><td class="num">4.0.2</td><td>stable (2026-09-24 조회)</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="callout">
       <strong>정정 이력</strong> — "3.0 에서 <code>.when</code>/<code>.map</code> 제거 → pattern matching 사용" 이라는 요약은
       3.1.0 의 재추가를 반영하지 못한 낡은 서술이었다. 마이그레이션을 강제하기 전에
-      <code>pubspec.lock</code> 의 freezed 버전을 확인하라.
+      <code>pubspec.lock</code> 에서 프로젝트가 쓰는 freezed 판을 확인하라. 4.0 으로 올릴 때는 위 breaking 줄부터 본다.
     </div>
   </section>
 
@@ -418,11 +444,11 @@
     <div class="section-header">
       <div class="section-label">9 · Flutter</div>
       <h2>Flutter breaking changes · 버전 매트릭스</h2>
-      <p>3.29 / 3.27 의 주요 변경과, 2026-08 기준 stable 및 Android 의존성 매트릭스.</p>
+      <p>3.29 / 3.27 의 주요 변경, Impeller 플랫폼 상태(2026-08 기준), 3.47 Android 의존성 매트릭스.</p>
     </div>
     <ul class="facts">
       <li><strong>Flutter 3.29</strong>: 웹 HTML 렌더러 제거. 출처: <a href="https://docs.flutter.dev/release/release-notes/release-notes-3.29.0" target="_blank" rel="noopener">docs.flutter.dev/release/release-notes/release-notes-3.29.0</a></li>
-      <li><strong>Flutter 3.29</strong>: 스크립트 기반 Flutter Gradle plugin 제거 (3.19 부터 deprecated). 기존 Android 프로젝트 migration 필요.</li>
+      <li><strong>Flutter 3.29</strong>: 스크립트 기반 Flutter Gradle plugin 제거 (3.19 부터 deprecated 였다). 기존 Android 프로젝트는 migration 이 필요하다.</li>
       <li><strong>Flutter 3.27</strong>: DisplayP3 색공간 지원 추가, 일부 <code>Color</code> 메서드 deprecation.</li>
       <li>Impeller OpenGL ES 백엔드 확장 (3.29 기준 거의 전 디바이스 커버). 출처: <a href="https://docs.flutter.dev/release/breaking-changes" target="_blank" rel="noopener">docs.flutter.dev/release/breaking-changes</a></li>
     </ul>
@@ -459,36 +485,59 @@
     </div>
 
     <div class="callout accent">
-      <strong>현재 stable 은 3.47.0</strong> (릴리스 인덱스 stable 목록 최상단). 출처:
+      <strong>현재 stable 은 3.47.5</strong> (2026-09-18 배포 · 2026-09-24 조회). 출처:
+      <a href="https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json" target="_blank" rel="noopener">flutter_infra_release/releases/releases_macos.json</a>.
+      의존성 매트릭스 출처:
       <a href="https://docs.flutter.dev/release/release-notes" target="_blank" rel="noopener">docs.flutter.dev/release/release-notes</a> ·
-      <a href="https://flutter.dev/blog/whats-new-in-flutter-3-47" target="_blank" rel="noopener">flutter.dev/blog/whats-new-in-flutter-3-47</a> ·
+      <a href="https://flutter.dev/blog/whats-new-in-flutter-3-47" target="_blank" rel="noopener">flutter.dev/blog/whats-new-in-flutter-3-47</a>.
       Impeller 상태 출처: <a href="https://docs.flutter.dev/perf/impeller" target="_blank" rel="noopener">docs.flutter.dev/perf/impeller</a>
     </div>
   </section>
 
   <section>
     <div class="section-header">
-      <div class="section-label">10 · Hooks &amp; Monorepo</div>
+      <div class="section-label">10 · Versions</div>
+      <h2>stable 번호와 조회 날짜</h2>
+      <p>원본이 날짜를 붙여 적은 stable 번호 둘. 번호만 떼어 옮기면 언제 값인지 알 수 없다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>대상</th><th>stable</th><th>배포</th><th>조회</th><th>출처</th></tr></thead>
+        <tbody>
+          <tr><td>Flutter</td><td class="val">3.47.5</td><td class="num">2026-09-18</td><td class="num">2026-09-24</td><td><a href="https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json" target="_blank" rel="noopener">releases_macos.json</a></td></tr>
+          <tr><td>Freezed</td><td class="val">4.0.2</td><td>원본에 없음</td><td class="num">2026-09-24</td><td><a href="https://pub.dev/api/packages/freezed" target="_blank" rel="noopener">pub.dev/api/packages/freezed</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout accent">
+      공식 rules 요약과 생태계 노트 본문은 2026-04-11 에 확인했고, Impeller 플랫폼 상태는 2026-08 기준이다.
+      위 두 번호만 2026-09-24 에 다시 조회했다. 같은 문서 안에서도 줄마다 기준 날짜가 다르다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <div class="section-label">11 · Hooks &amp; Monorepo</div>
       <h2>flutter_hooks · Makefile 기반 monorepo 관습</h2>
-      <p>hooks + Riverpod 통합과, 실행 옵션을 Makefile 에 집중하는 관습.</p>
+      <p>hooks + Riverpod 통합과, 실행 옵션을 Makefile 에 모으는 관습.</p>
     </div>
     <div class="grid-2">
       <article class="card">
         <h3>flutter_hooks</h3>
         <ul>
           <li><code>HookConsumerWidget</code> 으로 hooks + Riverpod provider 를 통합한다.</li>
-          <li><code>useMemoized</code> + <code>useEffect</code> 조합으로 데이터 페칭 중복을 방지한다.</li>
-          <li><code>useEffect</code> cleanup 은 반환 함수로 등록한다 — 위젯 dispose / 의존성 변경 시 호출된다.</li>
+          <li><code>useMemoized</code> + <code>useEffect</code> 조합으로 데이터 페칭 중복을 막는다.</li>
+          <li><code>useEffect</code> cleanup 은 반환 함수로 등록한다 — 위젯이 dispose 되거나 의존성이 바뀌면 hooks 가 그 함수를 부른다.</li>
         </ul>
         <a class="card-source" href="https://riverpod.dev/docs/concepts/about_hooks" target="_blank" rel="noopener">riverpod.dev/docs/concepts/about_hooks</a>
         <a class="card-source" href="https://pub.dev/packages/flutter_hooks" target="_blank" rel="noopener">pub.dev/packages/flutter_hooks</a>
       </article>
       <article class="card">
-        <h3>Makefile 기반 monorepo (fit-pal / apps)</h3>
+        <h3>Makefile 기반 monorepo 관습</h3>
         <ul>
-          <li><code>dart-define-from-file=.dart_defines.json</code>, <code>--observatory-port=8181</code> 등 실행 옵션을 Makefile 타겟에 집중한다.</li>
-          <li>직접 <code>fvm flutter run</code> 을 호출하면 환경 누락으로 다른 플레이버가 기동될 위험이 있다.</li>
-          <li>flutter-preflight / flutter-run 스킬은 <code>HAS_MAKEFILE = true</code> 감지 시 <code>make &lt;target&gt;</code> 을 우선한다.</li>
+          <li><code>dart-define-from-file=.dart_defines.json</code>, <code>--observatory-port=8181</code> 등 실행 옵션을 Makefile 타겟에 모은다.</li>
+          <li>직접 <code>fvm flutter run</code> 을 부르면 환경이 빠져 다른 플레이버가 기동될 위험이 있다.</li>
+          <li>flutter-preflight / flutter-run 스킬은 <code>HAS_MAKEFILE = true</code> 를 감지하면 <code>make &lt;target&gt;</code> 을 우선한다.</li>
         </ul>
         <a class="card-source" href="project-detection.html">flutter-toolkit · 프로젝트 감지 문서</a>
       </article>
@@ -497,7 +546,7 @@
 
   <section>
     <div class="section-header">
-      <div class="section-label">11 · Snippet</div>
+      <div class="section-label">12 · Snippet</div>
       <h2>규칙이 코드로 보이는 형태</h2>
       <p>private 위젯 추출 + const + <code>dart:developer.log</code> 를 한 화면에.</p>
     </div>
@@ -522,16 +571,23 @@
 
   <section>
     <div class="section-header">
-      <div class="section-label">12 · Gotchas</div>
+      <div class="section-label">13 · Gotchas</div>
       <h2>Gotchas 체크리스트</h2>
-      <p>버전 사실 확인, legacy API, 리소스 누수.</p>
+      <p>버전 사실 확인, breaking 변경, legacy API, 리소스 누수.</p>
     </div>
     <ul class="gotchas">
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
           <strong>Freezed <code>.when</code>/<code>.map</code> 을 "제거됨" 으로 단정하지 마라</strong>
-          <span>3.0 에서 제거됐다가 3.1.0 에서 다시 추가됐다. 최신 stable 은 3.2.5 다. 마이그레이션을 강제하기 전에 <code>pubspec.lock</code> 을 읽어라.</span>
+          <span>3.0 에서 제거됐다가 3.1.0 에서 다시 추가됐다. 지금 stable 은 4.0.2 다(2026-09-24 조회). 마이그레이션을 강제하기 전에 <code>pubspec.lock</code> 을 읽어라.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
+          <strong>Freezed 4.0 으로 올리기 전에 changelog 를 읽어라</strong>
+          <span>4.0 은 Dart 3.13 · Analyzer 14 기준이고 primary constructor 가 들어왔다. 생성자 파라미터에 <code>final</code> 을 붙인 형태는 지원하지 않는다(breaking).</span>
         </div>
       </li>
       <li class="gotcha">
@@ -544,22 +600,29 @@
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
+          <strong>stable 번호는 조회 날짜와 같이 옮겨라</strong>
+          <span>Flutter 3.47.5(2026-09-18 배포)와 Freezed 4.0.2 는 2026-09-24 조회 값이다. 날짜를 떼면 다음 사람이 낡은 번호를 현재 값으로 읽는다.</span>
+        </div>
+      </li>
+      <li class="gotcha">
+        <div class="gotcha-check">✓</div>
+        <div class="gotcha-body">
           <strong>Notifier 필드에 Timer/Subscription 을 들고 있지 마라</strong>
-          <span>Riverpod 3.0 에서 Notifier 는 재생성된다. 별도 provider + <code>ref.onDispose</code> 로 분리하지 않으면 리소스가 누수된다.</span>
+          <span>Riverpod 3.0 은 Notifier 를 다시 만든다. 별도 provider + <code>ref.onDispose</code> 로 분리하지 않으면 리소스가 샌다.</span>
         </div>
       </li>
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
           <strong>모델의 <code>==</code> 정의가 알림 동작을 바꾼다</strong>
-          <span>Riverpod 3.0 은 <code>==</code> 기반으로 알림을 필터링한다. <code>operator ==</code>/<code>hashCode</code> 를 잘못 정의하면 listener 가 이벤트를 못 받는다.</span>
+          <span>Riverpod 3.0 은 <code>==</code> 기반으로 알림을 거른다. <code>operator ==</code>/<code>hashCode</code> 를 잘못 정의하면 listener 가 이벤트를 못 받는다.</span>
         </div>
       </li>
       <li class="gotcha">
         <div class="gotcha-check">✓</div>
         <div class="gotcha-body">
           <strong>Makefile 프로젝트에서 직접 <code>fvm flutter run</code> 하지 마라</strong>
-          <span>dart-define 파일과 포트 옵션이 누락되어 다른 플레이버가 기동될 수 있다. <code>make &lt;target&gt;</code> 을 우선한다.</span>
+          <span>dart-define 파일과 포트 옵션이 빠져 다른 플레이버가 기동될 수 있다. <code>make &lt;target&gt;</code> 을 우선한다.</span>
         </div>
       </li>
     </ul>
@@ -574,15 +637,16 @@
       <h3>공식 rules + 버전 사실 확인이 함께 가야 한다</h3>
       <p>
         합성·private 위젯·<code>const</code>·<code>go_router</code>·<code>dart:developer.log</code> 같은 공식 rules 는 그대로 따르되,
-        생태계 항목은 <strong>버전 사실을 매번 확인</strong>한다. Freezed 의 <code>.when</code>/<code>.map</code> 은 3.1.0 에서 되살아났고,
-        Impeller 는 플랫폼마다 상태가 다르며, 2026-08 기준 stable 은 3.47.0 이다. 과거 요약을 그대로 옮기는 것이
+        생태계 항목은 <strong>버전 사실을 매번 확인</strong>한다. Freezed 의 <code>.when</code>/<code>.map</code> 은 3.1.0 에서 되살아났고
+        4.0 은 생성자 파라미터에 <code>final</code> 을 붙인 형태를 지원하지 않는다. Impeller 는 플랫폼마다 상태가 다르며,
+        2026-09-24 조회 기준 stable 은 Flutter 3.47.5 · Freezed 4.0.2 다. 과거 요약을 그대로 옮기는 것이
         이 문서에서 가장 흔한 결함이다.
       </p>
     </div>
   </section>
 
   <footer>
-    <div>Flutter Toolkit · 공식 AI Rules 요약 · 최종 확인 2026-04-11</div>
+    <div>Flutter Toolkit · 공식 AI Rules 요약 · 최종 확인 2026-04-11 · 버전 조회 2026-09-24</div>
     <div>Source: <a href="../../flutter-toolkit/references/flutter-ai-rules.md">flutter-toolkit/references/flutter-ai-rules.md</a></div>
   </footer>
 
