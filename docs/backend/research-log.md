@@ -15,7 +15,7 @@ last_updated: 2026-09-25
 종류와 시간대 출처를 맡는다. 함께 근거 파일 §3 의 낡은 버전 표기와, 2026-08-13 사이클에 범위 밖으로 남긴 감사 기준 한 줄,
 설계 가이드 1.6.0 §3.7 3 항(`[미검증]` 네 칸)의 이 킷 쪽 반대편을 고쳤다.
 
-### 외부 리서치 (evidence 파일 한정)
+### 외부 리서치 (evidence 파일 한정) — 2026-09-24 사이클
 
 1. **RFC 5545 §3.3.5** (<https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5>) — DATE-TIME 을 UTC 순간 · 시간대 없는
    지역 시각(floating) · 시간대에 묶인 지역 시각 셋으로 나눈다. floating 은 합리적일 때만 쓰라고 제한한다. 서머타임으로 두 번
@@ -31,7 +31,7 @@ last_updated: 2026-09-25
 6. **microservices.io — Transactional Outbox** (<https://microservices.io/patterns/data/transactional-outbox.html>) — relay 가
    같은 메시지를 여러 번 발행할 수 있어 consumer idempotency 가 필요하다 → 감사 기준 CDC 행 정정의 근거
 
-### 사실 정정
+### 사실 정정 — 2026-09-24 사이클
 
 | 위치 | 이전 서술 | 정정 |
 | ------ | ------ | ------ |
@@ -39,7 +39,7 @@ last_updated: 2026-09-25
 | OAuth 2.1 인용 다섯 자리 (backend-system · backend-guide · backend-audit · backend-reviewer · evals.json) | `draft-15` (2026-09-03 만료) | `draft-16` (2027-03-07 만료) |
 | `docs/backend/fundamentals/api-design.md` 원칙 5 · 수치 기준 | OpenAPI 3.2.0 | 3.2.1 |
 
-### Phase 7 변경 요약
+### Phase 7 변경 요약 — 2026-09-24 사이클
 
 | 파일 | 변경 |
 | ---- | ---- |
@@ -54,7 +54,7 @@ last_updated: 2026-09-25
 | `backend-kit/README.md` | 검증 절의 평가 사례 수 · 구조 검사 개수 표기 |
 | `docs/backend/fundamentals/api-design.md` | OpenAPI 3.2.1 |
 
-### 미반영 (근거 부족 · 범위 밖)
+### 미반영 (근거 부족 · 범위 밖) — 2026-09-24 사이클
 
 - rust-model 의 타입 대응(SQLx 와 SeaORM 이 순간 타입을 다르게 둔다) — Phase 9 몫이다
 - 벽시계 값을 API 로 보낼 때의 문자열 형태 — 근거 파일에 없다

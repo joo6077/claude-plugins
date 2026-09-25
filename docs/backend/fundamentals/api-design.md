@@ -99,7 +99,7 @@ OpenAPI 3.2.1 스펙을 단일 소스로 유지한다. 코드에서 스펙을 �
 | 항목 | 값 |
 |------|-----|
 | HTTP 상태 코드 범위 | 100~599 (RFC 9110) |
-| RFC 9457 problem+json 필수 필드 | 5개 (type, title, status, detail, instance) |
+| problem+json 필드 (이 킷 규칙 — 원칙 3) | 5개 (type, title, status, detail, instance). RFC 9457 은 `type` 이 없으면 `about:blank` 로 본다 |
 | OpenAPI 최신 버전 | 3.2.1 (2026-09-10 공개 · 2026-09-24 조회) |
 | Cursor 페이지 크기 기본값 | 20~100 (리소스 크기에 따라) |
 | API 응답 시간 목표 | p50 < 100ms, p99 < 500ms |

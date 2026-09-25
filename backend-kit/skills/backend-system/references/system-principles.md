@@ -18,7 +18,7 @@
 
 | 카테고리 | 참조 문서 | 핵심 원칙 |
 |----------|-----------|-----------|
-| API 규격 | ../../../../docs/backend/fundamentals/api-design.md | 리소스 명사, RFC 9110 메서드, RFC 9457 에러(`type` URI 필드 필수), OpenAPI 3.1 JSON Schema 호환, API Versioning(REST=URL path, GraphQL=@deprecated 진화) |
+| API 규격 | ../../../../docs/backend/fundamentals/api-design.md | 리소스 명사, RFC 9110 메서드, RFC 9457 에러(`type` URI 로 유형 식별 — 없으면 `about:blank`. 다섯 필드는 이 킷 규칙), OpenAPI 3.1 JSON Schema 호환, API Versioning(REST=URL path, GraphQL=@deprecated 진화) |
 | 에러 처리 | ../../../../docs/backend/fundamentals/error-handling.md | Result 패턴, backoff+jitter, circuit breaker(3-state) + rate limiter 조합, RFC 9457 problem+json 통일. 출처: [Azure Circuit Breaker](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker) |
 | 인증/인가 | ../../../../docs/backend/fundamentals/auth.md | OAuth 2.1 Authorization Code + PKCE 필수 (Implicit/ROPC 금지), RFC 9068 JWT profile, 고보안 시 FAPI 2.0(DPoP/mTLS + PAR 필수 + JARM 권장). Passkeys/WebAuthn 도입 권장(패스워드 전용 인증은 WARNING). 출처: [RFC 9700](https://datatracker.ietf.org/doc/rfc9700/), [FAPI 2.0 Final](https://openid.net/specs/fapi-security-profile-2_0-final.html), [FIDO Alliance](https://fidoalliance.org/passkeys/) |
 | 관측성 | ../../../../docs/backend/patterns/observability.md (TBD) | OTel 3 Signals(Traces+Metrics+Logs) 통합 관측, OTLP 1.10.0, W3C Trace Context 기본 전파, 구조화 로깅(JSON + trace_id/span_id), PII 마스킹 필수. OTel Profiles는 2026-03 Public Alpha — 프로덕션 안정 아님. 출처: [OTel Status](https://opentelemetry.io/docs/specs/status/), [OTLP 1.10.0](https://opentelemetry.io/docs/specs/otlp/) |

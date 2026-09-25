@@ -17,7 +17,7 @@
 | 기준 | PASS 조건 | 출처 |
 |------|-----------|------|
 | HTTP 메서드 의미론 | GET=safe, PUT=전체교체, PATCH=부분수정 | [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110) |
-| 에러 응답 포맷 | application/problem+json (RFC 9457) — `type` URI로 문제 유형 식별, `title`/`status`/`detail`/`instance` 필수. 커스텀 확장 필드 허용 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
+| 에러 응답 포맷 | application/problem+json (RFC 9457) — `type` URI로 문제 유형 식별, `title`/`status`/`detail`/`instance` 까지 다섯 필드를 넣는다. 다섯 필드를 모두 넣는 것은 이 킷 규칙(`api-design.md` 원칙 3)이다 — RFC 9457 은 `type` 이 없으면 `about:blank` 로 보므로 누락을 RFC 위반으로 적지 않는다. 커스텀 확장 필드 허용 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
 | 페이지네이션 | 대량 목록에 cursor/keyset 사용 | [Slack Engineering — Evolving Pagination](https://slack.engineering/evolving-api-pagination-at-slack/) |
 | OpenAPI 3.1 JSON Schema 호환 | 스펙이 OpenAPI 3.1.x 이상이고 JSON Schema draft와 호환되며 실제 응답과 일치 | [OpenAPI Spec 3.1](https://swagger.io/specification/) |
 | 하이브리드 API 경계 선택 | REST/GraphQL/gRPC 선택이 boundary별 설명되어 있다 (단일 프로토콜 강요 금지, public=REST / 다중 클라이언트=GraphQL / internal=gRPC) | [GraphQL vs REST vs gRPC 2026](https://www.javacodegeeks.com/2026/02/graphql-vs-rest-vs-grpc-the-2026-api-architecture-decision.html), [Fordel Studios 2026](https://fordelstudios.com/) |
