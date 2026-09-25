@@ -22,7 +22,7 @@ user-invocable: true
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
 - `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
-- `references/phase-research-templates.md` — **Phase 1~16 각 의무 리서치 소스 테이블** (Phase 17 표는 아직 없다). 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
+- `references/phase-research-templates.md` — **Phase 1~16 각 의무 리서치 소스 테이블** (Phase 17 표는 아직 없다 — 표가 생길 때까지 Phase 17 은 `.claude/skills/howto-research/SKILL.md` Step 1 표의 1차 출처에서 3 건 이상을 조회한다). 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
 
 ## 연동 스크립트
 
@@ -194,6 +194,7 @@ Final: 전체 정합성 검증
 
 - 동시에 도는 킷 Phase 는 3 개까지 둔다 — 5 개 · 4 개로 돌린 두 사이클에서 서브에이전트가 과부하 오류(529)로 죽었고 2 ~ 3 개는 무사고였다 (`.harness/.meta/orchestrator-audit-log.md` 의 두 사이클 방법론 관찰)
 - 여러 Phase 가 한 가지에 커밋하면 커밋마다 서명 줄 `Kaizen-Phase: <슬러그>` 한 줄을 넣고 범위 조건은 그 줄로 내 커밋을 가린다 — 규약 원문은 `harness/references/contract-schema.md` §여러 주체가 한 가지에 커밋할 때
+- Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 `**범위:**` 줄과 `references/phase-dependencies.md` 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 `scripts/sync-orchestrator.py` 가 `skills/` · `references/` 만 보고 만들어 `hooks/` · `docs/` · `agents/` 가 빠진다 (2026-09-24 사이클: reflect-kit 의 `hooks/_lib-project-id.sh` · `docs/SCHEMA.md` 수정이 Phase 12 AUTO 줄 밖이었다)
 
 ### Regression 실패 카운터
 
@@ -580,7 +581,7 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 1. **Final Sprint Contract 생성:**
 
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~17 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 + api-kit 5 스킬 + api-reviewer 에이전트 + howto-kit 3 스킬 + howto-reviewer 에이전트 포함)
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~17 변경에 반영되었는가 (planning-kit 12 스킬 + planning-reviewer 에이전트 + reflect-kit 4 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 + api-kit 5 스킬 + api-reviewer 에이전트 + howto-kit 3 스킬 + howto-reviewer 에이전트 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
      - Phase 4 harness 변경이 Phase 5~17 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit, api-kit, howto-kit)과 충돌하지 않는가
      - tone-kit 의 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션)이 공개 출처 없이 승격되지 않았는가
@@ -619,9 +620,9 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 | planning-kit | `docs/planning/` | `docs/planning-kit/` |
 | reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/` | `docs/reflect-kit/` |
 | bambu-kit | `bambu-kit/skills/bambu-print-profile/SKILL.md`, `bambu-kit/skills/bambu-print-profile/references/` | `docs/bambu-kit/` |
-| onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/` | `docs/onboarding-kit/` |
+| onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `docs/onboarding-kit/` |
 | tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
-| api-kit | `api-kit/references/`, `docs/api/` | `docs/api-kit/` |
+| api-kit | `docs/api/` | `docs/api-kit/` |
 | howto-kit | `docs/howto/` | `docs/howto-kit/` |
 | process (공유) | (내부 문서) | `docs/process/` |
 
