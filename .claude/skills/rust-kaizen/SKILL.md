@@ -37,7 +37,7 @@ user-invocable: true
    - H-01: `grep -c "domain event\|outbox" rust-kit/skills/rust-init/SKILL.md rust-kit/skills/rust-feature/SKILL.md` 각각 >= 1
    - H-03: `grep -c "Composition Root" rust-kit/skills/rust-api/SKILL.md` >= 1
    - SK-03: `grep -n "State<PgPool>\|State<sqlx::\|State(pool)" rust-kit/skills/rust-api/SKILL.md` 0 건 (핸들러 레이어 state 는 `Arc<dyn ...>` trait object 만 허용)
-   - AR-02: `grep -rn "17개 리서치\|17 리서치\|docs/rust/ 리서치 문서 17" .` 0 건 (리서치 문서 실제 수 20 과 일치)
+   - AR-02: `grep -rn "17개 리서치\|17 리서치\|docs/rust/ 리서치 문서 17" rust-kit docs/rust` 0 건 (리서치 문서 실제 수 20 과 일치). 레포 전체(`.`)를 훑으면 이 줄 자신과 카이젠 입력 파일이 잡혀 늘 1 건 이상이다
    - **DG-03** (마이그레이션 미적용 테스트 실패): `grep -c "마이그레이션" rust-kit/skills/rust-preflight/SKILL.md rust-kit/skills/rust-test/SKILL.md` 각각 >= 1
    - **API-01** (mock-only 를 통합 테스트로 주장): `grep -c "MockDatabase" rust-kit/skills/rust-test/SKILL.md` >= 1 이면서 "통합 테스트로 주장하지 마라" 문구 존재
    - **cargo-test-wrong-target**: `grep -c -- "--bins" rust-kit/skills/rust-run/SKILL.md rust-kit/skills/rust-test/SKILL.md rust-kit/references/project-detection.md` 각각 >= 1

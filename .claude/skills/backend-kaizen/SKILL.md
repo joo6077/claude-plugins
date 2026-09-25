@@ -22,14 +22,14 @@ user-invocable: true
    | Sibling Group | 공통 원칙 검증 항목 |
    |---------------|---------------------|
    | backend-guide · backend-system | **3-Step Process (탐색→진단→처방)** + Enumerate-before-Act + 트레이드오프 제시 |
-   | backend-audit · backend-reviewer (agent) | **Binary Decidability Pre-Check · Rule-by-Rule Audit · 미검증 3항 · L3 Coverage Honesty** 4 항목 동시 존재 |
+   | backend-audit · backend-reviewer (agent) | **Binary Decidability Pre-Check · Rule-by-Rule Audit · `[미검증]` 네 칸 · L3 Coverage Honesty** 4 항목 동시 존재 |
    | backend-guide · backend-audit · backend-system · backend-test | **10 카테고리 명명 규칙** 일치 (Architecture · API Design · Database · Auth · Error · Security · Caching · Event-Driven · Testing · Observability) |
    | backend-test · infra-test (Phase 8) | **Step 0 스택 감지 독립 단계 + 기존 패턴 탐색 + 외부 실환경 강제 금지** |
    | backend-system · rust-service (Phase 9) | **Outbox · Circuit Breaker + Rate Limiter 조합 · OAuth 2.1 draft 명시** |
    | backend-system · backend-guide · backend-audit | **Counterpart Enumeration (E2) · 빈 상태 상태코드(RFC 9110) · timestamp 타임존 직렬화(RFC 3339)** 3 항목 동시 존재 |
    | backend-test · backend-audit | **mock-only 를 통합 테스트로 계상 금지 · 통합 테스트 전 마이그레이션 적용** 2 항목 동시 존재 (글로벌 REJECT API-01 · DG-03 대응) |
 
-7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (단독 실행 시 생성 대상) · **`.harness/history/<date>-kaizen-phase7-*.md` (병렬 실행 시 계약 경로 — 오케스트레이터가 Phase 별로 분리 지정하며 `.harness/sprint-contract.md` 를 쓰면 다른 Phase 와 충돌한다)** · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지 — Phase 6 design-kaizen 패턴 계승).
+7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (단독 실행 시 생성 대상) · **`.harness/sprint-contract-<slug>.md` (병렬 실행 시 계약 경로 — 슬러그로 Phase 마다 갈리며 `.harness/sprint-contract.md` 를 쓰면 다른 Phase 와 충돌한다. 경로 규약은 `harness/references/contract-schema.md` §계약 파일)** · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지 — Phase 6 design-kaizen 패턴 계승).
 8. **설계 가이드 신규 원칙 감사 (kaizen 시작 시 전수 확인)** — skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / **§3.7 Completion Evidence Gate + Enforcement 등급 E1·E2·E3** / §5.5 Enumerate-before-Act / **§5.5 Counterpart Enumeration** / §8.7 Code Examples / §8.8 Sibling Consistency / §11 Cross-Surface Parity · agent §3.5 Binary Decidability / §10 Unverifiable / §12 L3 Coverage Honesty · qa-evaluation-guide **§Canonical Unverified-Evidence Protocol** 12 항목 전수 확인. 각 원칙에 대해 반영 스킬 목록을 리포트에 명시.
 
    **enforcement 등급 판정 규칙 (§3.7 이 SSOT — 여기서 재정의 금지)**: 새 원칙을 넣을 때 E1 문장 / E2 체크리스트 아티팩트 / E3 결정론적 게이트 중 어느 강도인지 먼저 정하고 스킬 본문에 등급을 명시한다. **같은 위반이 재발했는데 같은 등급에서 문장만 다듬는 것은 개선이 아니다** — 2 회 재발이면 E1→E2, 3 회 이상이거나 신뢰 손상이 걸리면 E2→E3 로 올린다.

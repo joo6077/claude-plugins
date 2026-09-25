@@ -31,7 +31,7 @@ user-invocable: true
 
 - `tone-kit/skills/*/SKILL.md` 3종
 - `tone-kit/references/*.md` 9종
-- `tone-kit/templates/*.md` 8종
+- `tone-kit/templates/*.md` 6종
 - `docs/tone/*.md` 8종
 - 글로벌 피드백에 tone-kit 관련 항목이 있으면 함께 읽는다
 

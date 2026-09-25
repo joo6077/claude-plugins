@@ -28,7 +28,7 @@ user-invocable: true
    | design-mockup · design-reference | **HTML 산출물 의도 설계 명시 (AR-01 예외 선언)** |
    | design-system · design-component | **DTCG v1 · OKLCH · 다크모드 토큰 매핑** 공통 원칙 정합성 |
 
-7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/history/*-sprint-contract.md` (오케스트레이터 병렬 실행 시 Phase 별 계약 경로) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지).
+7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/sprint-contract-<slug>.md` (오케스트레이터 병렬 실행 시 Phase 별 계약 경로 — 경로 규약은 `harness/references/contract-schema.md` §계약 파일) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지).
 
    **오케스트레이터 병렬 실행 중에는 git add/commit/tag 를 직접 실행하지 마라** — 다른 Phase 서브에이전트와 index.lock 이 충돌한다. 커밋은 오케스트레이터가 직렬 처리한다 (Step 5 참조).
 

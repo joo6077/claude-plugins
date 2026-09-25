@@ -25,7 +25,7 @@ last_updated: 2026-09-05
 | - | ---- | ---- | --------- | -------- |
 | 1 | [Anthropic Skill Authoring Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) | 공식 | frontmatter 스키마, description 작성법, trigger 패턴 | WebFetch |
 | 2 | [Claude Code Sub-agents 공식 문서](https://code.claude.com/docs/en/sub-agents) | 공식 | initialPrompt, color, tools 필드, 에이전트 체인 제약 | WebFetch |
-| 3 | [anthropics/skills GitHub repo](https://github.com/anthropics/skills) | 공식 | skill-creator SKILL.md 규칙, 500 라인 상한, gerund form | WebFetch |
+| 3 | [anthropics/skills GitHub repo](https://github.com/anthropics/skills) | 공식 | skill-creator SKILL.md 규칙, SKILL.md 본문 500 줄 미만 권고, gerund form | WebFetch |
 | 4 | LLM agent skill design arxiv 2026 | 학술 | 2026 최신 skill authoring 연구 | Codex WebSearch |
 
 ## Phase 2 — Contract (contract-design-guide, sprint-contract, contract-schema)
@@ -113,7 +113,7 @@ last_updated: 2026-09-05
 | 3 | [OpenTofu state encryption](https://opentofu.org/docs/v1.11/language/state/encryption/) | 공식 | Terraform 대안 | WebFetch |
 | 4 | [SLSA provenance](https://slsa.dev/provenance) | 표준 | 공급망 보안 | WebFetch |
 | 5 | [Sigstore Cosign](https://docs.sigstore.dev/cosign/verifying/attestation/) | 공식 | 서명 검증 | WebFetch |
-| 6 | [OpenTelemetry status](https://opentelemetry.io/docs/specs/status/) | 공식 | 3 signals stable | WebFetch |
+| 6 | [OpenTelemetry status](https://opentelemetry.io/docs/specs/status/) | 공식 | signal 마다 안정 상태가 다르다 — 한 문장으로 단정하지 않는다 (`infra-kit/skills/infra-guide/SKILL.md` Gotcha 13) | WebFetch |
 
 ## Phase 9 — rust-kit
 
@@ -227,7 +227,7 @@ tone-kit 은 코딩 톤·유지보수성 게이트를 다룬다. **규칙 강도
 | 4 | [StatelessWidget API](https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html) | 공식 | 헬퍼 대신 위젯 클래스 권고의 원문 문구 | [Element.rebuild](https://api.flutter.dev/flutter/widgets/Element/rebuild.html) |
 | 5 | [Effective Dart: Style](https://dart.dev/effective-dart/style) | 공식 | 네이밍 규약 변경 여부 | [Documentation](https://dart.dev/effective-dart/documentation) |
 | 6 | [Google Engineering Practices](https://google.github.io/eng-practices/review/reviewer/looking-for.html) | 공식 | 주석 경제성 원칙 근거 | [abseil swe-book](https://abseil.io/resources/swe-book/html/ch03.html) |
-| 7 | [국립국어원 공공언어](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) | 공식 | 한국어 축 문체 근거 | [LINE 테크니컬 라이팅](https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/) |
+| 7 | [국립국어원 보도자료 작성 길잡이](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) | 공식 | 한국어 축 문체 근거 — 실제 내용은 보도자료 구성 · 형식 안내라 코드 주석 문체 근거로는 약하다 | [LINE 테크니컬 라이팅](https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/) |
 | 8 | 디자인 시스템 컴포넌트 인덱스 (M3 · HIG · MUI · Fluent · Ant · Carbon) | 공식 | 접미사 taxonomy 어휘 원천. **권위가 아니라 어휘 대조용** | WebFetch |
 
 **주의 3건**

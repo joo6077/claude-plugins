@@ -53,7 +53,6 @@ Phase 10: React-kit 카이젠 (react-kaizen)
 Phase 11: Planning-kit 카이젠 (planning-kaizen)
   planning-kit/skills/*/SKILL.md
   planning-kit/agents/planning-reviewer.md
-  planning-kit/references/
   docs/planning/ (리서치 문서)
       ↓ 제품 기획 완료 후 Reflect-kit으로
 Phase 12: Reflect-kit 카이젠 (reflect-kaizen)
@@ -67,7 +66,7 @@ Phase 13: Bambu-kit 카이젠 (bambu-kaizen)
       ↓ 프로파일 생성 완료 후 Onboarding-kit으로
 Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
   onboarding-kit/skills/*/SKILL.md
-  onboarding-kit/references/
+  onboarding-kit/skills/setup-guide/references/
       ↓ 셋업 가이드 완료 후 Tone-kit으로
 Phase 15: Tone-kit 카이젠 (tone-kaizen)
   tone-kit/skills/*/SKILL.md
@@ -79,6 +78,12 @@ Phase 16: Api-kit 카이젠 (api-kaizen)
   api-kit/agents/api-reviewer.md
   api-kit/references/
   docs/api/ (리서치 문서)
+      ↓ API 계약 검증 완료 후 Howto-kit으로
+Phase 17: Howto-kit 카이젠 (howto-kaizen)
+  howto-kit/skills/*/SKILL.md
+  howto-kit/agents/howto-reviewer.md
+  howto-kit/references/
+  docs/howto/ (리서치 문서)
 ```
 
 ## Phase 간 의존성 상세
@@ -103,6 +108,7 @@ Phase 16: Api-kit 카이젠 (api-kaizen)
 | tone-kit/references/ | tone-kit 전 스킬 | 3축 운영 규칙 + 어댑터 슬롯 + grep 게이트 |
 | docs/api/ | api-kit 전 스킬 | 블랙박스 API 계약 검증 리서치 원칙 (인벤토리 / Probe·Hurl 의미론 / 안전 게이트 / 인증·시크릿 / 봉인·정규화 / 추출 모드 / 다중 샘플 / 오류 계약 / 회귀 diff / 정적 뷰어 / baseline 거버넌스 / 상호운용) |
 | api-kit/references/ | api-kit 전 스킬 + api-reviewer | `pin` = 경로별 명시 assertion 정의, RFC 8785 JCS 기준선, exit code 분리 규약 |
+| docs/howto/ | howto-kit 전 스킬 | 절차 안내 리서치 원칙 (절차 표준 / 화면 기준점 / 딥링크 / 분기 목록 / 변경 이력 구독 / 폐기 정책) |
 
 ## Phase 스킵 시 전파 규칙
 
@@ -121,10 +127,11 @@ Phase 16: Api-kit 카이젠 (api-kaizen)
 - Phase 13 스킵 → Phase 14 진행에 영향 없음 (독립 스택)
 - Phase 14 스킵 → Phase 15 진행에 영향 없음 (독립 스택)
 - Phase 15 스킵 → Phase 16 진행에 영향 없음 (독립 스택)
-- Phase 7~16 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning|tone|api}/ 또는 각 킷 references/ 기준 점진 개선)
+- Phase 16 스킵 → Phase 17 진행에 영향 없음 (독립 스택)
+- Phase 7~17 중 어느 하나라도 피드백 0건이면 SKIP하지 않고 **리서치 전용 모드**로 진행 (docs/{backend|infra|rust|react|planning|tone|api|howto}/ 또는 각 킷 references/ 기준 점진 개선)
 
 ## QA 실패 시 롤백 범위
 
 - Phase N QA REJECT → Phase N 변경만 수정 (이전 Phase 건드리지 않음)
 - Final QA REJECT → 해당 Phase로 돌아가 수정 (다른 Phase 건드리지 않음)
-- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7~16도 동일 규칙 적용)
+- 2+ 연속 실패 → .harness/.meta/kaizen-failure-count.yaml에 기록, 해당 Phase 일시 중지 (Phase 7~17도 동일 규칙 적용)
