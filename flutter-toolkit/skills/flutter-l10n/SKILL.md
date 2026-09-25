@@ -12,7 +12,7 @@ user-invocable: true
 ## Gotchas
 
 - i18n 라이브러리를 자동 감지한다(slang, easy_localization, intl 등) — 감지 결과를 무시하고 특정 라이브러리를 가정하면 안 된다
-- 번역 키 추가 후 반드시 codegen 재실행 — slang은 `fvm dart run slang`, intl은 `fvm flutter gen-l10n`
+- 번역 키 추가 후 반드시 codegen 재실행 — 명령은 Step 6 표를 따른다. slang 은 `flutter-run` codegen 절 블록으로 build_runner 를 돌려 전후 삭제 수를 세고, intl 은 `fvm flutter gen-l10n`
 - 키 네이밍은 프로젝트 기존 패턴을 따른다 — 새 네이밍 규칙을 임의로 만들지 마라
 
 i18n 파일에 번역 문자열을 추가/수정하고 codegen을 재생성한다.

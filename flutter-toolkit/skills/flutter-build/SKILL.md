@@ -88,7 +88,8 @@ build 완료
 
 ```text
 build 실패 (step N)
-  1. codegen : success / failed / skipped
+  1. codegen : success / failed / skipped · 삭제 before=N after=N new_first=N new=N codegen_exit=N (skipped 면 없음)
+     [늘어난 삭제 — new 가 0 이 아니면 그 목록]
   2. analyze : success / failed / skipped
   [에러 내용]
 ```

@@ -53,10 +53,10 @@ pubspec.yaml에서 추출:
 | flutter-run analyze | `$FLUTTER analyze` | `$MAKE app-analyze` |
 | flutter-run fix | `$DART fix --apply lib/` 뒤 이번에 바뀐 .dart 파일만 `$DART format --` (`git diff --name-only` 목록 · 생성물 제외 · flutter-run fix 절) | `$MAKE app-fix` |
 | flutter-run test | `$FLUTTER test` | `$MAKE app-test` |
-| flutter-preflight | fix → codegen → analyze → test | `$MAKE app-preflight` |
-| flutter-build | codegen → analyze | `$MAKE app-build` |
+| flutter-preflight | fix → codegen → analyze → test | 단계마다 위 행의 타겟 — codegen 은 flutter-run codegen 절 블록 안의 `$MAKE app-codegen` |
+| flutter-build | codegen → analyze | 단계마다 위 행의 타겟 — codegen 은 flutter-run codegen 절 블록 안의 `$MAKE app-codegen` |
 
-Makefile 타겟이 안에서 codegen 을 돌리면(`app-build` · `app-preflight`) 그 타겟을 flutter-run codegen 절 블록의 codegen 줄 자리에 넣어 전후 삭제 수를 센다.
+안에서 codegen 을 돌리는 묶음 타겟(`app-build` · `app-preflight`)은 codegen 줄 자리에 넣지 않는다. 넣으면 늘어난 삭제를 되돌리려는 둘째 실행이 analyze · test 까지 다시 돌고, analyze · test 실패가 `codegen_exit` 로 찍혀 codegen 실패로 잘못 보고된다. 두 스킬은 위 표처럼 단계를 하나씩 부른다.
 
 ### Step 3. 의존성 감지
 
