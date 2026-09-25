@@ -90,6 +90,36 @@ pre{overflow-x:auto;max-width:100%}
 .prec-name{font-size:0.94rem;font-weight:700;color:var(--text)}
 .prec-ex{font-size:0.84rem;color:var(--text3);line-height:1.6}
 
+/* STEP FLOW — §0 편집 전 확정. 세로 연결선으로 순서를 보인다 */
+.steps{list-style:none;display:flex;flex-direction:column;margin:22px 0}
+.step{display:grid;grid-template-columns:48px 1fr;gap:18px;position:relative;padding-bottom:18px}
+.step:last-child{padding-bottom:0}
+.step:not(:last-child)::before{content:'';position:absolute;left:23px;top:48px;bottom:4px;width:2px;background:var(--border)}
+.step-num{width:48px;height:48px;border-radius:12px;background:var(--accent-dim);color:var(--accent);font-weight:800;
+  font-size:17px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(232,150,90,0.32)}
+.step-body{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;
+  transition:var(--transition)}
+.step-body:hover{border-color:rgba(232,150,90,0.32)}
+.step-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px}
+.step-body p{font-size:0.9rem;color:var(--text2);line-height:1.75}
+.step-eg{display:block;font-size:0.84rem;color:var(--text3);margin-top:8px;line-height:1.6}
+
+/* LOOP — §3 비교 반복 순서. 다섯 칸을 가로로 늘어놓고 좁은 폭에서 쌓는다 */
+.loop{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:22px 0}
+@media(max-width:960px){.loop{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.loop{grid-template-columns:1fr}}
+.loop-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 16px;
+  transition:var(--transition)}
+.loop-item:hover{border-color:rgba(232,150,90,0.32)}
+.loop-n{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:8px;
+  background:var(--accent-dim);color:var(--accent);font-weight:800;font-size:13px;margin-bottom:10px;padding:0 6px}
+.loop-title{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:6px}
+.loop-item p{font-size:0.84rem;color:var(--text2);line-height:1.65}
+.loop-item.key{border-color:rgba(232,150,90,0.45)}
+
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:0.06em;padding:3px 9px;border-radius:6px;
+  background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+
 .checklist{list-style:none;display:flex;flex-direction:column;gap:10px;max-width:870px;margin-top:14px}
 .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:0.9rem;color:var(--text2);line-height:1.7;
   padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:24px}
@@ -144,7 +174,7 @@ pre{overflow-x:auto;max-width:100%}
    내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
 /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. .code-block(white-space:pre)
        의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
-.grid-2>*,.grid-3>*,.compare>*,.prec-row>*,.chan-row>*{min-width:0}
+.grid-2>*,.grid-3>*,.compare>*,.prec-row>*,.chan-row>*,.step>*,.loop>*{min-width:0}
 /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다. */
 .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
 .table-wrap>table{min-width:max-content}
@@ -169,6 +199,7 @@ pre{overflow-x:auto;max-width:100%}
   }
 </style>
   <!-- kaizen-cycle: 2026-08-13 (§5 Variant Contract Matrix · §6 Decision Propagation Manifest · §7 Evidence Channels 추가) -->
+  <!-- kaizen-cycle: 2026-09-24 (§0 편집 전 확정 · §2 요소 하나 지목 · §3 비교 반복 순서 · 캡처 점검 목록 · §4 확정 구성 · 폐기 칸 · §6 게이트 스키마 검사 · 형제 규약 숫자) -->
 </head>
 <body>
 <div class="page">
@@ -176,10 +207,10 @@ pre{overflow-x:auto;max-width:100%}
 <div class="hero">
   <div class="hero-badge">Design Kit · SSOT</div>
   <h1>Visual Change Protocol</h1>
-  <p class="subtitle">design-kit 내 <strong>시각 산출물을 만들거나 바꾸는 스킬</strong>(design-mockup · design-system · design-guide · design-audit · design-test)이 공유하는 SSOT. 각 스킬은 이 문서를 Gotcha 한 줄로 인용하며, 여기 정의된 임계값·용어를 자기 문서에서 다시 정의하지 않는다.</p>
+  <p class="subtitle">design-kit 내 <strong>시각 산출물을 만들거나 바꾸는 스킬</strong>(design-mockup · design-component · design-concept · design-system · design-guide · design-audit · design-test)이 공유하는 SSOT. 각 스킬은 이 문서를 Gotcha 한 줄로 인용하며, 여기 정의된 임계값·용어를 자기 문서에서 다시 정의하지 않는다.</p>
   <div class="hero-meta">
-    <span>2026-07-27 신설 · 2026-08-13 확장</span>
-    <span>7 개 절 · 시각 작업 공통 규약</span>
+    <span>2026-07-27 신설 · 2026-08-13 §5~§7 · 2026-09-24 §0 추가</span>
+    <span>§0 ~ §7 · 8 개 절</span>
     <span>실행 가능한 게이트 2 종</span>
   </div>
 </div>
@@ -187,28 +218,37 @@ pre{overflow-x:auto;max-width:100%}
 <!-- SCOPE -->
 <div class="section">
   <div class="section-label">Scope</div>
-  <div class="section-title">적용 대상 스킬 · 7 개 절</div>
-  <p class="section-desc">design-kit 내 시각 산출물을 만들거나 바꾸는 스킬이 이 문서를 공유한다. 각 스킬은 <strong>Gotcha 한 줄로 이 문서를 인용</strong>하고, 임계값·용어를 자기 문서에서 다시 정의하지 않는다. §5 는 비교안을 만드는 스킬에만, §6 은 결정 전파를 판정하는 스킬에만 적용된다.</p>
-  <div class="grid-3">
+  <div class="section-title">적용 대상 스킬 · 8 개 절</div>
+  <p class="section-desc">design-kit 내 시각 산출물을 만들거나 바꾸는 스킬 일곱이 이 문서를 공유한다. 각 스킬은 <strong>Gotcha 한 줄로 이 문서를 인용</strong>하고, 임계값·용어를 자기 문서에서 다시 정의하지 않는다. §5 는 비교안을 만드는 스킬에만, §6 은 결정 전파를 판정하는 스킬에만 적용된다.</p>
+  <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-mockup</code></div>
-      <p>하이파이 HTML 시안 생성 — §1 승인 시안 값, §4 승인 기록의 주 생산자다. <strong>§5 Variant Contract Matrix 적용 대상</strong>.</p>
+      <p>하이파이 HTML 시안 생성 — 파일을 만들기 전에 §0 대상과 되말하기를 남기고, §1 승인 시안 값과 §4 승인 기록의 주 생산자다. <strong>§5 Variant Contract Matrix 적용 대상</strong>.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-component</code></div>
+      <p>반복되는 UI 요소를 컴포넌트로 정의 — 편집 전 확정(대상 · 되말하기 · 관례 표) · 승인 기록 · 증거 채널을 이 규약에서 가져온다. Step 0 의 재사용 부품 칸은 <strong>§0 관례 표</strong>를 쓴다.</p>
+      <a class="card-source" href="design-component.html">design-component 페이지</a>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-concept</code></div>
-      <p>컨셉 방향 정의 — 비교용 컨셉 안을 여러 개 만든다. <strong>§5 Distinctiveness Gate 적용 대상</strong>.</p>
+      <p>컨셉 방향 정의 — 비교용 컨셉 안을 여러 개 만든다. <strong>§5 Distinctiveness Gate 적용 대상</strong>이며, 컨셉 확정은 §4 승인 기록 파일로 남긴다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-system</code></div>
-      <p>디자인 토큰 체계 세팅 — §1 순위 3·4 충돌이 가장 자주 발생한다.</p>
+      <p>디자인 토큰 체계 세팅 — §1 순위 3·4 충돌이 가장 자주 발생한다. 부분 변경 요청은 §2 변경 / 보존 목록으로 처리한다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-guide</code></div>
-      <p>UI 코드 가이드 — 부분 변경 요청을 §2 로 처리한다.</p>
+      <p>UI 코드 가이드 — 부분 변경 요청을 §2 로 처리한다. 배치·줄 모양·칩 모양을 묻는 질문이면 §0 관례 표로 답한다.</p>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span><code>design-audit</code> · <code>design-reviewer</code></div>
-      <p>카테고리별 PASS/FAIL 감사 — §2 의 "의도 외 변경" 을 FAIL 로 판정하고, <strong>§6 커버리지</strong>를 판정한다.</p>
+      <div class="card-title"><span class="dot"></span><code>design-audit</code></div>
+      <p>카테고리별 PASS/FAIL 감사 — §2 의 "의도 외 변경" 을 FAIL 로 판정하고, 캡처마다 §3 캡처 점검 목록을 보며, <strong>§6 커버리지</strong>를 판정한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>design-reviewer</code> <span class="tag">에이전트</span></div>
+      <p>design-audit 이 부르는 독립 평가자 — §3 렌더 산출물 특칙 · §6 커버리지 · §7 증거 채널을 같은 기준으로 적용한다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>design-test</code></div>
@@ -219,9 +259,10 @@ pre{overflow-x:auto;max-width:100%}
     <table>
       <thead><tr><th>절</th><th>질문</th><th>적용 대상</th><th>등급</th></tr></thead>
       <tbody>
+        <tr><td><strong>§0</strong> 편집 전 확정</td><td>무엇을 바꾸는지 먼저 정했는가</td><td>시각 스킬 전체</td><td>대상 · 되말하기 · 관례 표</td></tr>
         <tr><td><strong>§1</strong> Precedence</td><td>무엇이 진실인가</td><td>시각 스킬 전체</td><td>문장 규약</td></tr>
         <tr><td><strong>§2</strong> Isolation</td><td>무엇을 건드리지 않는가</td><td>시각 스킬 전체</td><td>Change Manifest</td></tr>
-        <tr><td><strong>§3</strong> Evidence Block</td><td>무엇을 증거로 삼는가</td><td>시각 스킬 전체</td><td>EVIDENCE 블록</td></tr>
+        <tr><td><strong>§3</strong> Evidence Block</td><td>무엇을 증거로 삼는가</td><td>시각 스킬 전체</td><td>EVIDENCE 블록 · 비교 반복 순서</td></tr>
         <tr><td><strong>§4</strong> Approval Record</td><td>승인을 어떻게 남기는가</td><td>mockup · concept</td><td>파일 아티팩트</td></tr>
         <tr><td><strong>§5</strong> Variant Matrix</td><td>비교안이 실제로 서로 다른가</td><td>mockup · concept</td><td><span class="pill">E1</span></td></tr>
         <tr><td><strong>§6</strong> Decision Manifest</td><td>결정이 모든 표면에 갔는가</td><td>test · audit · reviewer</td><td><span class="pill e2">E2</span></td></tr>
@@ -234,7 +275,7 @@ pre{overflow-x:auto;max-width:100%}
 <!-- BACKGROUND -->
 <div class="section">
   <div class="section-label">Background</div>
-  <div class="section-title">왜 필요한가 — 실측 3 건</div>
+  <div class="section-title">왜 필요한가 — 두 번의 실측</div>
   <p class="section-desc">2026-06~07 사용 데이터에서 시각 작업 관련 반복 마찰이 <strong>최상위 신호</strong>로 올라왔다. 아래 세 사례가 각각 별개 세션에서 발생했다.</p>
   <div class="grid-3">
     <div class="card">
@@ -253,6 +294,125 @@ pre{overflow-x:auto;max-width:100%}
   <div class="danger">
     <div class="danger-title">공통 원인</div>
     <p><strong>무엇을 진실로 삼을지</strong>와 <strong>무엇을 건드리지 않을지</strong>가 규정되지 않았다는 것. 이 문서의 §1 과 §2 가 각각 그 공백을 메운다.</p>
+  </div>
+  <div class="sub-title">2026-09-24 사이클 — <code>/insights</code> 실측과 반영한 자리</div>
+  <p class="section-desc">두 번째 실측은 편집 <em>전</em>과 편집 <em>후</em> 양쪽에서 나왔다. 무엇을 바꿀지 정하지 않고 시작했고, 반영됐는지 확인하지 않고 끝냈다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>실측</th><th>무슨 일이 있었나</th><th>반영한 절</th></tr></thead>
+      <tbody>
+        <tr><td><code>F01</code> · <code>F02</code></td><td>평평한 줄 대신 카드를 만들었다 · 화면을 보여 달라는 요청에 그 화면으로 가는 칩을 만들었다 · 칩 하나만 오른쪽에 고정하라는 말을 줄 전체 고정으로 뒤집었다 · 앱에 없는 위젯을 지어냈다</td><td>§0 편집 전 확정 · §2 요소 하나 지목</td></tr>
+        <tr><td><code>F03</code> · <code>F26</code></td><td>재시작이 조용히 실패했는데 「갱신했다」 고 보고했다 · 사용자가 기준 화면 · 변경 · 재촬영 · 비교 · 스스로 고치기를 합의 조건으로 요구했다</td><td>§3 비교 반복 순서</td></tr>
+        <tr><td><code>F04</code></td><td>글자 넘침과 깨진 글리프를 사용자가 먼저 찾았다 · 넘침을 데이터 수정으로 재현하려다 실패했다</td><td>§3 캡처 점검 목록</td></tr>
+        <tr><td><code>F20</code></td><td>사용자가 폐기한 시간대·국가 항목을 되살렸다</td><td>§4 폐기한 대안·이유 칸</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SIBLING PROTOCOLS -->
+<div class="section">
+  <div class="section-label">Sibling Protocols</div>
+  <div class="section-title">형제 규약과 같은 숫자</div>
+  <p class="section-desc">시각 증거 규약은 스택마다 하나씩 셋이 있다. 그중 두 숫자는 flutter-toolkit 규약과 <strong>같은 값</strong>이다 — 한쪽만 바꾸면 두 규약이 서로 다른 기준을 가르친다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>같은 값</th><th>이 문서</th><th>flutter-toolkit visual-evidence-protocol</th></tr></thead>
+      <tbody>
+        <tr><td><strong>같은 역할 기존 화면 2 개 이상</strong></td><td>§0 관례 표</td><td>Step 0</td></tr>
+        <tr><td><strong>스스로 고치기 최대 3 회</strong></td><td>§3 비교 반복 순서</td><td>Step 2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">
+    <div class="warn-title">공통 규칙의 정본은 아직 없다</div>
+    <p>세 규약(이 문서 · flutter-toolkit <code>visual-evidence-protocol</code> · react-kit <code>render-evidence-protocol</code>)이 같이 쓰는 규칙의 정본은 harness <code>skill-design-guide.md</code> 한 절에 두고, 세 규약에는 <strong>스택마다 다른 채널 · 도구 · 명령만</strong> 남긴다. 그 절은 아직 없다 — <strong>생기기 전까지는 한쪽 값을 바꾸면 다른 쪽도 같이 바꾼다.</strong></p>
+    <a class="card-source" href="../flutter-toolkit/visual-evidence-protocol.html">flutter-toolkit — Visual Evidence Protocol</a>
+    <a class="card-source" href="../react-kit/render-evidence-protocol.html">react-kit — Render Evidence Protocol</a>
+    <a class="card-source" href="../harness/skill-design-guide.html">harness — skill-design-guide</a>
+  </div>
+</div>
+
+<!-- 0. PRE-EDIT CONFIRMATION -->
+<div class="section">
+  <div class="section-label">§0 · 2026-09-24 신규</div>
+  <div class="section-title">편집 전 확정 — 대상 · 되말하기 · 관례 표</div>
+  <p class="section-desc">화면이나 화면 요소를 만들거나 바꾸는 요청이면 파일을 만들거나 고치기 <strong>전에</strong> 아래 셋을 응답에 남긴다. <strong>시각 요청은 말만으로 의도가 정해지지 않는다.</strong></p>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">대상</div>
+        <p>바꿀 화면의 파일 경로와 라우트(웹은 주소, 앱은 화면 파일)를 적는다. 새로 만드는 화면이면 <code>신규</code> 라고 적는다.</p>
+        <span class="step-eg">화면을 가리키는 요청이면 대상은 <strong>그 화면 자체</strong>다 — 그 화면으로 들어가는 진입점(버튼·칩)이나 화면을 흉내 낸 그림이 아니다.</span>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">되말하기</div>
+        <p>요청을 <strong>대상 요소 이름과 배치까지 넣어</strong> 한 문장으로 되말한다. 두 갈래로 읽히면 묻고 시작한다.</p>
+        <span class="step-eg">예: 「추가 칩만 오른쪽 고정」 과 「줄 전체 오른쪽 고정」</span>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">관례 표</div>
+        <p>앱 코드가 있으면 같은 역할의 서로 다른 기존 화면 <strong>2 개 이상</strong>을 Read 해서 경로와 함께 표로 남긴다.</p>
+        <span class="step-eg">칸은 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻 · 재사용 부품이다 — 아래 표.</span>
+      </div>
+    </li>
+  </ol>
+
+  <div class="danger">
+    <div class="danger-title">실측 — /insights 2026-09-24 F01 · F02</div>
+    <p>평평한 줄 대신 카드를 만들었고, 화면을 보여 달라는 요청에 그 화면으로 가는 칩을 만들었고, 칩 하나만 오른쪽에 고정하라는 말을 줄 전체 고정으로 뒤집었고, 앱에 없는 위젯을 지어냈다. 넷 다 <strong>편집 전에 대상과 배치를 한 문장으로 확정했다면</strong> 드러났을 어긋남이다.</p>
+  </div>
+
+  <div class="sub-title">관례 표의 칸</div>
+  <p class="section-desc">같은 역할의 기존 화면마다 한 줄씩 적는다. 표는 추측이 아니라 <strong>Read 한 파일</strong>에서 채운다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>칸</th><th>적는 것</th></tr></thead>
+      <tbody>
+        <tr><td><strong>화면 경로</strong></td><td>Read 한 기존 화면의 파일 경로</td></tr>
+        <tr><td><strong>줄 모양</strong></td><td>카드인지 평평한 줄인지</td></tr>
+        <tr><td><strong>칩·뱃지 모양</strong></td><td>그 화면이 쓰는 칩·뱃지의 모양</td></tr>
+        <tr><td><strong>아이콘 뜻</strong></td><td>같은 모양의 아이콘이 닫기 · 끝내기 · 접기 가운데 무엇을 뜻하는지</td></tr>
+        <tr><td><strong>재사용 부품</strong></td><td>실제 심볼 이름 · <code>파일:줄</code> · 한 줄 용도</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-title">관례 표의 규칙</div>
+  <ul class="checklist">
+    <li><span class="check">1</span>재사용 부품은 앱 코드가 실제로 부르는지 grep 으로 확인한다. 시안·카탈로그에서만 쓰이는 부품은 뺀다. <strong>코드 검색에서 나오지 않은 부품 이름은 시안·스펙에 쓰지 않는다</strong></li>
+    <li><span class="check">2</span>관례 일치는 <strong>같은 역할</strong>에만 적용한다. 역할이 다른 화면까지 같은 구조로 맞추지 않는다</li>
+    <li><span class="check">3</span>비교안을 만들면 관례를 §5 매트릭스의 <code>constants</code> 에 넣는다. 관례를 벗어나는 안은 <strong>사용자가 요청하거나 승인했을 때만</strong> 만든다</li>
+    <li><span class="check">4</span>같은 역할 기존 화면이 2 개 미만이면 찾은 화면을 전부 적고 <code>관례 없음 — 같은 역할 기존 화면 N 개</code> 라고 쓴다. 앱 코드가 아직 없으면 <code>관례 없음 — 앱 코드 없음</code> 이다</li>
+  </ul>
+
+  <div class="compare" style="margin-top:22px">
+    <div class="compare-good">
+      <div class="compare-label">같은 역할 — 관례에 맞춘다</div>
+      <code class="code-block">목록 화면 A · 목록 화면 B
+→ 줄 모양 · 칩 모양 · 아이콘 뜻을
+   관례 표 값과 같게</code>
+      <p>같은 기능은 같은 모양으로 식별돼야 한다. 여기서 벗어나면 사용자는 같은 동작을 다른 것으로 읽는다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">다른 역할 — 구조를 맞추지 않는다</div>
+      <code class="code-block">목록 화면 · 설정 화면 · 온보딩
+→ 역할이 다르면 레이아웃 변주 허용</code>
+      <p>그래서 감사 기준 Authenticity 의 레이아웃 변주 규칙(같은 구조 3 회 이상 반복 금지)과 부딪히지 않는다.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>왜 같은 역할에만 — WCAG 2.2 SC 3.2.4</div>
+    <p>WCAG 2.2 SC 3.2.4 가 요구하는 것은 <strong>같은 기능을 일관되게 식별하는 것</strong>이지 모든 화면의 구조를 같게 하는 것이 아니다. 관례 표는 이 요구를 같은 역할의 화면 사이에서만 집행한다.</p>
+    <a class="card-source" href="https://www.w3.org/TR/WCAG22/">W3C — WCAG 2.2</a>
   </div>
 </div>
 
@@ -316,14 +476,25 @@ pre{overflow-x:auto;max-width:100%}
 <div class="section">
   <div class="section-label">§2</div>
   <div class="section-title">Partial Visual Change Isolation — 무엇을 건드리지 않는가</div>
-  <p class="section-desc">"보더만", "색만", "간격만" 처럼 <strong>속성 하나를 지목한 요청</strong>은 그 속성만 바꾸라는 뜻이다.</p>
+  <p class="section-desc">"보더만", "색만", "간격만" 처럼 <strong>속성 하나를 지목한 요청</strong>은 그 속성만 바꾸라는 뜻이다. <strong>요소 하나를 지목한 요청</strong>(「이 칩만」, 「추가 버튼만 오른쪽으로」)도 같은 규칙을 따른다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>속성 하나를 지목했을 때</div>
+      <p>변경 목록에는 그 속성만 올리고, 같은 요소·영역의 나머지 시각 속성(background, fill, radius, shadow, spacing, typography 중 해당분)은 보존 목록에 올린다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>요소 하나를 지목했을 때</div>
+      <p>변경 목록에는 <strong>지목된 요소만</strong> 올리고, 같은 줄·같은 영역의 <strong>이웃 요소는 보존 목록</strong>에 올린다. 요소가 두 갈래로 읽히면 §0 되말하기에서 먼저 묻는다.</p>
+    </div>
+  </div>
   <div class="card">
     <div class="card-title"><span class="dot"></span>편집 전 — Change Manifest</div>
     <p>편집을 시작하기 전에 두 목록을 명시한다. <strong>문장 다짐이 아니라 응답에 남는 목록이어야 한다.</strong></p>
     <code class="code-block">## Change Manifest
 - 변경: [속성 — 대상 — 현재값 → 목표값]
 - 보존: [같은 요소/영역의 나머지 시각 속성 열거 —
-        background, fill, radius, shadow, spacing, typography 중 해당분]</code>
+        background, fill, radius, shadow, spacing, typography 중 해당분
+        · 요소 하나를 지목했으면 같은 줄·같은 영역의 이웃 요소와 그 자리]</code>
     <p style="margin-top:12px">보존 목록에 올린 속성은 편집 후에도 값이 같아야 한다. <strong>리팩토링·정리·"김에 개선" 을 이유로 바꾸지 않는다.</strong></p>
   </div>
   <div class="compare">
@@ -331,8 +502,11 @@ pre{overflow-x:auto;max-width:100%}
       <div class="compare-label">Bad — 범위 초과</div>
       <code class="code-block">"보더만 바꿔줘"
 → 보더 변경 + 배경도 어둡게 조정
-→ "김에 개선했습니다"</code>
-      <p>보더만 요청했는데 배경이 어두워졌다면 그것은 성공이 아니다. 감사 맥락에서는 FAIL 이다.</p>
+→ "김에 개선했습니다"
+
+"추가 칩만 오른쪽 고정"
+→ 줄 전체를 오른쪽 고정</code>
+      <p>보더만 요청했는데 배경이 어두워졌다면, 칩 하나를 지목했는데 줄 전체가 움직였다면 그것은 성공이 아니다. 감사 맥락에서는 FAIL 이다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — Manifest 후 격리 편집</div>
@@ -341,7 +515,11 @@ pre{overflow-x:auto;max-width:100%}
 - 보존: [background, fill, radius, shadow,
         spacing, typography]
 
-→ border-color 만 편집 → 보존 목록 값 동일 확인</code>
+## Change Manifest
+- 변경: [위치 — 추가 칩 — 현재 자리 → 오른쪽 고정]
+- 보존: [같은 줄의 이웃 칩과 그 자리]
+
+→ 변경 목록만 편집 → 보존 목록 값 동일 확인</code>
     </div>
   </div>
   <div class="grid-2">
@@ -396,6 +574,73 @@ pre{overflow-x:auto;max-width:100%}
     <p>· <strong>빈 화면·빈 목록·플레이스홀더만 있는 캡처는 PASS 증거가 아니라 검증 실패 신호다.</strong> "요소가 안 보이니 문제도 없다" 는 잘못된 부재 추론이다.<br>· 캡처에서 <strong>구체 요소를 지목</strong>해 근거에 쓴다 (<code>헤더 "내 그룹" + 목록 3 행 확인</code>). 지목할 수 없으면 그 캡처는 무효 증거다.<br>· 캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 <code>[미검증]</code> 이지 PASS 가 아니다.</p>
   </div>
   <a class="card-source" href="../harness/qa-evaluation-guide.html">Evidence Validity Gate 정본 — qa-evaluation-guide</a>
+
+  <div class="sub-title">비교 반복 순서 — 반영 확인과 스스로 고치기 상한 <span class="pill">2026-09-24 신규</span></div>
+  <p class="section-desc">시각 산출물을 고칠 때는 아래 순서를 지킨다. 새로 만드는 산출물이면 1 의 기준 캡처 자리에 <code>신규</code> 라고 적는다. 실측(<code>/insights</code> 2026-09-24 F03 · F26): 재시작이 조용히 실패했는데 「갱신했다」 고 보고했고, 사용자는 기준 화면 · 변경 · 재촬영 · 비교 · 스스로 고치기를 합의 조건으로 요구했다.</p>
+  <div class="loop">
+    <div class="loop-item">
+      <div class="loop-n">1</div>
+      <div class="loop-title">기준 캡처</div>
+      <p>캡처 파일 경로를 남기고 본 것을 요소 단위로 적는다. 이번 변경으로 <strong>반드시 달라져야 할 눈에 보이는 표식 하나</strong>를 이때 정한다 (예: 테두리 색, 칩 순서).</p>
+    </div>
+    <div class="loop-item">
+      <div class="loop-n">2</div>
+      <div class="loop-title">한 번에 한 의도</div>
+      <p>한 번에 한 의도만 고친다. 여러 변경을 묶으면 재캡처의 차이가 무엇 때문인지 가를 수 없다.</p>
+    </div>
+    <div class="loop-item key">
+      <div class="loop-n">3</div>
+      <div class="loop-title">반영 확인</div>
+      <p>새로 찍은 캡처에서 1 의 표식이 바뀌었는지로 판정한다. 새로고침·재시작 명령의 성공 메시지만으로 판정하지 않는다.</p>
+    </div>
+    <div class="loop-item">
+      <div class="loop-n">4</div>
+      <div class="loop-title">재캡처</div>
+      <p>반영이 확인된 캡처를 재캡처로 쓰고 경로를 남긴다.</p>
+    </div>
+    <div class="loop-item">
+      <div class="loop-n">5</div>
+      <div class="loop-title">대조</div>
+      <p>§2 보존 목록의 속성이 그대로인지 본다. 의도 외 영역이 변했으면 self-reject 하고 되돌린 뒤 다시 한다.</p>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="warn">
+      <div class="warn-title">표식이 그대로면 「반영 안 됨」</div>
+      <p>같은 새로고침을 되풀이하지 말고 <strong>처음부터 다시 띄운다.</strong> 반영이 확인되기 전에는 「갱신했다」 고 말하지 않는다.</p>
+    </div>
+    <div class="danger">
+      <div class="danger-title">스스로 고치기는 최대 3 회</div>
+      <p>3 회째도 실패하면 <strong>기준 캡처 · 마지막 재캡처 · 달라진 속성</strong>을 붙여 사용자에게 넘긴다. 이 숫자는 flutter-toolkit 규약 Step 2 와 같은 값이다.</p>
+    </div>
+  </div>
+
+  <div class="sub-title">캡처 점검 목록 <span class="pill">2026-09-24 신규</span></div>
+  <p class="section-desc">기준 캡처와 재캡처마다 아래 넷을 본다. <strong>하나라도 걸리면 그 캡처로 PASS 를 주지 않는다.</strong> 실측(<code>/insights</code> 2026-09-24 F04): 글자 넘침과 깨진 글리프를 사용자가 먼저 찾았고, 넘침을 데이터 수정으로 재현하려다 실패했다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="tag">1</span>글자 넘침</div>
+      <p>잘린 글자, 뜻밖의 말줄임, 컨테이너 밖으로 나간 글자, 문서 본체의 가로 스크롤.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag">2</span>깨진 글리프</div>
+      <p>네모나 빈칸으로 나온 글자와 이모지. <strong>실제 서비스 글꼴로 그리지 않은 캡처로는 글자 모양을 판정하지 않는다</strong> — 글자 항목은 실제 글꼴로 그린 캡처로 본다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag">3</span>칩·뱃지와 줄 모양</div>
+      <p>칩·뱃지 모양, 카드인지 평평한 줄인지를 <strong>§0 관례 표</strong>와 대조한다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag">4</span>디버그 겹침</div>
+      <p>떠 있는 디버그 단추·띠·개발 도구 표시가 판정할 자리를 가리는지 본다. 가렸으면 치우거나 옮긴 뒤 <strong>같은 자리를 다시 찍는다</strong>.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>넘침은 데이터를 고쳐 재현하지 않는다</div>
+    <p>글자를 키운 상태로 한 장 더 찍는다. 웹은 <strong>텍스트 200% 확대</strong>(WCAG 2.2 SC 1.4.4), 앱은 <strong>기기 글자 크기 최대</strong>다.</p>
+    <p style="margin-top:10px"><strong>320 CSS px 폭</strong>에서 내용·기능이 사라지거나 양방향 스크롤이 생기는지(SC 1.4.10 Reflow)는 따로 판정한다. 잘라낸 조각만 보고 결함이라 단정하기 전에 <strong>전체 화면을 한 장 더 찍는다</strong>.</p>
+    <a class="card-source" href="https://www.w3.org/TR/WCAG22/">W3C — WCAG 2.2 (SC 1.4.4 · SC 1.4.10)</a>
+  </div>
 </div>
 
 <!-- 4. APPROVAL RECORD -->
@@ -415,17 +660,31 @@ pre{overflow-x:auto;max-width:100%}
 
 - 승인일: {YYYY-MM-DD}
 - 승인 주체: {사용자 직접 확정 | 자율 모드 (근거 명시)}
-- 대상 산출물: {파일 경로}
+- 대상 산출물: {파일 경로 — 예 .design/mockups/dashboard-sidebar.html}
 - 선택된 안: {시안 이름/ID}
-- 확정된 시각 값: {승인 시점에 고정된 색상·타이포·간격}
+- 확정된 시각 값: {승인 시점에 고정된 색상·타이포·간격
+                  — 이후 §1 순위 2 의 근거가 된다}
+- 확정 구성: {화면에 남는 요소와 배치 — 무엇이 어디에 있는가}
+- 폐기한 대안·이유: {이번 결정에서 버린 안·요소와 이유 — 없으면 `없음`}
 - 미확정/후속: {합의되지 않아 남긴 항목}
 - 원문 근거: {사용자 발화 인용 또는 자율 모드 판단 근거}</code>
     </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>2026-09-24 에 더한 칸</th><th>무엇을 막는가</th></tr></thead>
+      <tbody>
+        <tr><td><code>확정 구성</code></td><td>색·간격 값만 남고 <strong>무엇이 어디에 있는지</strong>가 빠져, 다음 세션이 배치를 다시 정하는 일</td></tr>
+        <tr><td><code>폐기한 대안·이유</code></td><td>사용자가 버린 안·요소가 다음 시안에서 되살아나는 일 (실측 F20 — 폐기한 시간대·국가 항목이 되살아났다)</td></tr>
+      </tbody>
+    </table>
   </div>
   <ul class="checklist">
     <li><span class="check">1</span><strong>자율 모드에서 승인을 대행한 경우에도 기록을 남긴다.</strong> 이때 승인 주체를 "자율 모드" 로 명시하고 판단 근거를 적는다. 기록 없이 진행하면 측정 근거 부재로 평가에서 REJECT 된다</li>
     <li><span class="check">2</span>승인 기록의 "확정된 시각 값" 은 <strong>§1 우선순위 2 의 실체</strong>다. 이후 세션에서 토큰·팔레트와 충돌하면 <strong>승인 기록이 이긴다</strong></li>
     <li><span class="check">3</span>승인 후 시안을 수정하면 기록을 갱신한다. <strong>스테일 승인 기록은 없는 것보다 나쁘다</strong></li>
+    <li><span class="check">4</span><strong>폐기한 대안은 다시 넣지 않는다.</strong> 다음 시안·수정 전에 같은 대상의 승인 기록을 읽고, 폐기 칸의 안·요소는 사용자가 되살리라고 하지 않는 한 다시 만들지 않는다</li>
+    <li><span class="check">5</span>제품 요구 수준의 폐기 결정(기능·설정 항목을 없앤다는 결정)은 이 기록에서 새로 정하지 않는다. <strong>그 결정이 적힌 파일 경로를 폐기 칸에 적는다</strong> — 결정 원문이 두 곳에 있으면 한쪽만 고쳐진다</li>
   </ul>
   <div class="warn">
     <div class="warn-title">§1 과 §4 의 연결</div>
@@ -480,7 +739,7 @@ pre{overflow-x:auto;max-width:100%}
   </div>
 
   <div class="sub-title">Variant Contract Matrix (산출 <em>전</em> 합의 · E1 아티팩트)</div>
-  <p class="section-desc"><code>skill-design-guide</code> §5.6 의 Variant Matrix 5 열(<code>id</code> · <code>axis</code> · <code>axis value</code> · <code>constants</code> · <code>생성·수정 파일</code>)에서 <code>axis</code> 와 <code>axis value</code> 를 <code>axis_vector</code> 한 열로 합치고, <code>strategy_label</code> · <code>intended_user_scenario</code> 2 열을 더한 <strong>6 열</strong>이다. <strong>열을 빼지 마라.</strong></p>
+  <p class="section-desc"><code>skill-design-guide</code> §5.6 의 Variant Matrix 5 열(<code>id</code> · <code>axis</code> · <code>axis value</code> · <code>constants</code> · <code>생성·수정 파일</code>)에서 <code>axis</code> 와 <code>axis value</code> 를 <code>axis_vector</code> 한 열로 합치고, <code>strategy_label</code> · <code>intended_user_scenario</code> 2 열을 더한 <strong>6 열</strong>이다. <strong>열을 빼지 마라.</strong> §0 관례 표가 있으면 그 관례는 <code>constants</code> 에 들어간다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>variant_id</th><th>strategy_label</th><th>axis_vector (축1/축2/축3/축4)</th><th>constants</th><th>intended_user_scenario</th><th>생성 파일</th></tr></thead>
@@ -551,15 +810,15 @@ A3: 채움 / 1 / 상단 / 클러스터</code>
 
   <div class="warn">
     <div class="warn-title">트레이드오프 — 게이트 통과는 품질 승인이 아니다</div>
-    <p>이 게이트는 중복을 확실히 막지만 <strong>체크박스식 변형</strong>을 유도할 수 있다 — 축 값만 바꾸고 실제로는 좋지 않은 안을 만드는 것. 그래서 게이트는 <strong>"구별되는가" 만 판정</strong>하고, <strong>"좋은가" 는 여전히 사용자 판단과 리뷰의 몫</strong>이다.</p>
+    <p>이 게이트는 중복을 확실히 막지만 <strong>체크박스식 변형</strong>을 유도할 수 있다 — 축 값만 바꾸고 실제로는 좋지 않은 안을 만드는 것. 그래서 게이트는 <strong>"구별되는가" 만 판정</strong>하고, <strong>"좋은가" 는 여전히 사용자 판단과 리뷰의 몫</strong>이다. 게이트 통과를 품질 승인으로 읽지 마라.</p>
   </div>
 </div>
 
 <!-- 6. DECISION PROPAGATION MANIFEST -->
 <div class="section">
-  <div class="section-label">§6 · 2026-08-13 신규</div>
+  <div class="section-label">§6 · 2026-08-13 신규 · 2026-09-24 게이트 보강</div>
   <div class="section-title">Decision Propagation Manifest — 확정된 결정이 모든 표면에 갔는가</div>
-  <p class="section-desc">적용 대상은 <code>design-test</code>(생성) · <code>design-audit</code> · <code>design-reviewer</code>(판정) 이며, 현재 등급은 <span class="pill e2">E2</span> — <code>decisions.yaml</code> 이라는 아티팩트를 남긴다. §4 승인 기록은 "무엇이 확정됐는가" 를 남기지만, 확정된 결정이 <strong>어느 표면들에 반영돼야 하는가</strong>는 어디에도 적히지 않았고 그 결과 <strong>"A1 에는 적용, A3 에는 누락"</strong> 이 반복됐다.</p>
+  <p class="section-desc">적용 대상은 <code>design-test</code>(생성) · <code>design-audit</code> · <code>design-reviewer</code>(판정) 이며, 현재 등급은 <span class="pill e2">E2</span> — <code>decisions.yaml</code> 이라는 아티팩트를 남긴다. §4 승인 기록은 "무엇이 확정됐는가" 를 남기지만, 확정된 결정이 <strong>어느 표면들에 반영돼야 하는가</strong>는 어디에도 적히지 않았고 그 결과 <strong>"A1 에는 적용, A3 에는 누락"</strong> 이 반복됐다. 이 절은 승인 기록의 downstream 이다 — <code>decision_id</code> 를 발급하고, 그 결정을 소비해야 할 surface 를 열거하고, surface 마다 <strong>사용자가 볼 수 있는 증거</strong>를 요구한다.</p>
 
   <div class="card">
     <div class="card-title"><span class="dot"></span>시각 회귀 도구의 기본 기능이 아니다</div>
@@ -636,9 +895,17 @@ if not decisions:
 # user-visible assertion 으로 인정하는 3 종: visible / count / height
 PATTERNS = {"visible": r"\bvisible\b", "count": r"(&gt;=|&lt;=|&gt;|&lt;|==)\s*\d+|\bcount\b",
             "height": r"\bheight\b"}
-viol = surfaces = 0
+viol = surfaces = schema = 0
 for d in decisions:
     did = d.get("decision_id", "&lt;no-id&gt;")
+    # 아래 두 검사가 없으면 표면을 하나도 적지 않은 결정이 surface 0 개 · 위반 0 으로 통과한다 (2026-09-25 재현)
+    if not re.fullmatch(r"DEC-\d{8}-\d{3}", str(d.get("decision_id", ""))) or not d.get("source"):
+        print(f"SCHEMA_ERROR {did}: decision_id 형식(DEC-YYYYMMDD-NNN) 또는 source 가 없다"); schema += 1
+    if not (d.get("required_surfaces") or d.get("excluded_surfaces")):
+        print(f"FAIL {did}: required_surfaces · excluded_surfaces 가 둘 다 비었다 — 침묵은 커버리지 공백"); viol += 1
+    for x in d.get("excluded_surfaces") or []:
+        if not x.get("reason"):
+            print(f"FAIL {did}/{x.get('surface_id', '&lt;no-surface-id&gt;')}: excluded_surfaces 에 reason 이 없다"); viol += 1
     for s in d.get("required_surfaces") or []:
         surfaces += 1
         sid = s.get("surface_id", "&lt;no-surface-id&gt;")
@@ -648,9 +915,33 @@ for d in decisions:
             print(f"FAIL {did}/{sid}: golden 도 user-visible assertion 도 없음"); viol += 1
         elif not hit:
             print(f"FAIL {did}/{sid}: golden 만 존재 — visible/count/height assertion 부재"); viol += 1
-print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol}")
-sys.exit(1 if viol else 0)</pre>
+print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol} schema_errors={schema}")
+if schema:
+    sys.exit(2)
+if viol:
+    sys.exit(1)
+if surfaces == 0:
+    print("NO_SURFACE required_surfaces 0 개 — 검사 미수행"); sys.exit(3)
+sys.exit(0)</pre>
   <p class="code-cap">coverage_gate.py — exit 3 은 "대상 0 건 = 검사 미수행" 이며 PASS 가 아니다.</p>
+
+  <div class="sub-title">종료 코드 — 무엇이 어느 값으로 떨어지는가</div>
+  <p class="section-desc">판정 순서는 스키마 오류 → 커버리지 위반 → 검사 대상 0 이다. 앞 단계가 걸리면 뒤 단계 값은 나오지 않는다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>종료 코드</th><th>뜻</th><th>이 게이트에서 떨어지는 경우</th></tr></thead>
+      <tbody>
+        <tr><td><code>0</code></td><td>통과</td><td>스키마 오류 · 위반 없이 <code>required_surfaces</code> 가 1 개 이상 검사됐다</td></tr>
+        <tr><td><code>1</code></td><td>커버리지 위반</td><td>surface 에 golden · assertion 이 없다 · golden 만 있다 · 두 surface 목록이 다 비었다 · <code>excluded_surfaces</code> 에 <code>reason</code> 이 없다</td></tr>
+        <tr><td><code>2</code></td><td>스키마 오류</td><td>YAML 을 읽지 못했다 · <code>decision_id</code> 가 <code>DEC-YYYYMMDD-NNN</code> 형식이 아니다 · <code>source</code> 가 없다</td></tr>
+        <tr><td><code>3</code></td><td>검사 미수행</td><td>manifest 파일이 없다 · 결정이 0 건이다 · 모든 결정이 제외 표면만 적어 <code>required_surfaces</code> 가 0 개다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <div class="note-title">2026-09-25 재현 — 결정마다 스키마 검사를 더한 이유</div>
+    <p>이전 판은 surface 만 셌다. 그래서 <strong>표면을 하나도 적지 않은 결정</strong>이 <code>surfaces=0 violations=0</code> 으로 종료 코드 0 을 받았다. 지금 판은 결정마다 <code>decision_id</code> 형식과 <code>source</code> 를 보고, 두 surface 목록이 모두 비면 FAIL, <code>reason</code> 없는 제외 표면도 FAIL 로 센다. 검사한 surface 가 0 개면 통과가 아니라 <code>NO_SURFACE</code> 로 종료 코드 3 이다.</p>
+  </div>
 
   <div class="danger">
     <div class="danger-title">골든을 무차별로 만들지 마라</div>
@@ -744,30 +1035,34 @@ sys.exit(1 if viol else 0)</pre>
 <!-- SUMMARY -->
 <div class="section">
   <div class="section-label">Summary</div>
-  <div class="section-title">규약 요약 — 7 개 절이 서로를 지탱한다</div>
-  <p class="section-desc">§1 은 값의 출처를, §2 는 변경의 경계를, §3 은 완료의 근거를, §4 는 §1 순위 2 의 실체를, §5 는 비교안의 구별성을, §6 은 결정의 전파를, §7 은 증거의 강도를 규정한다.</p>
+  <div class="section-title">규약 요약 — 8 개 절이 서로를 지탱한다</div>
+  <p class="section-desc">§0 은 무엇을 바꿀지를, §1 은 값의 출처를, §2 는 변경의 경계를, §3 은 완료의 근거와 반영 확인을, §4 는 §1 순위 2 의 실체와 폐기한 안을, §5 는 비교안의 구별성을, §6 은 결정의 전파를, §7 은 증거의 강도를 규정한다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>절</th><th>질문</th><th>산출물</th><th>실패 시</th></tr></thead>
       <tbody>
+        <tr><td><strong>§0</strong> 편집 전 확정</td><td>무엇을 바꾸는지 먼저 정했는가</td><td>대상 · 되말하기 · 관례 표 (응답에 남김)</td><td>카드·칩 모양이 뒤집힘 · 진입점을 화면으로 착각 · 없는 부품을 지어냄 (F01 · F02)</td></tr>
         <tr><td><strong>§1</strong> Precedence</td><td>무엇이 진실인가</td><td>순위 1~5 중 채택한 근거 명시</td><td>승인 시안 값이 토큰으로 덮어써짐</td></tr>
         <tr><td><strong>§2</strong> Isolation</td><td>무엇을 건드리지 않는가</td><td>Change Manifest (변경 목록 + 보존 목록)</td><td>의도 외 영역 변경 → self-reject / 감사에서 FAIL</td></tr>
-        <tr><td><strong>§3</strong> Evidence</td><td>무엇을 증거로 삼는가</td><td>EVIDENCE 블록 (before / after / proof / 의도 외 영역)</td><td>무효 증거 → PASS 아닌 <code>[미검증]</code></td></tr>
-        <tr><td><strong>§4</strong> Approval Record</td><td>승인을 어떻게 남기는가</td><td><code>.design/approvals/{YYYYMMDD}-{대상}.md</code></td><td>승인 근거 확인 불가 → REJECT (UI-06)</td></tr>
+        <tr><td><strong>§3</strong> Evidence</td><td>무엇을 증거로 삼는가</td><td>EVIDENCE 블록 · 비교 반복 순서 · 캡처 점검 목록</td><td>무효 증거 → PASS 아닌 <code>[미검증]</code> · 3 회째 실패 → 사용자에게 넘김</td></tr>
+        <tr><td><strong>§4</strong> Approval Record</td><td>승인을 어떻게 남기는가</td><td><code>.design/approvals/{YYYYMMDD}-{대상}.md</code></td><td>승인 근거 확인 불가 → REJECT (UI-06) · 폐기한 안 되살림 (F20)</td></tr>
         <tr><td><strong>§5</strong> Variant Matrix</td><td>비교안이 실제로 서로 다른가</td><td>Variant Contract Matrix (6 열) + <code>distinct_gate.py</code></td><td>축 값 중복 → 구조 구별 요구 위반 REJECT (UI-04)</td></tr>
-        <tr><td><strong>§6</strong> Decision Manifest</td><td>결정이 모든 표면에 갔는가</td><td><code>.design/decisions.yaml</code> + <code>coverage_gate.py</code></td><td>surface 누락 → 커버리지 공백 FAIL</td></tr>
+        <tr><td><strong>§6</strong> Decision Manifest</td><td>결정이 모든 표면에 갔는가</td><td><code>.design/decisions.yaml</code> + <code>coverage_gate.py</code></td><td>surface 누락 → 커버리지 공백 FAIL · 대상 0 → 검사 미수행</td></tr>
         <tr><td><strong>§7</strong> Evidence Channels</td><td>무엇을 재는 증거인가</td><td>채널 라벨이 붙은 PASS 문장 (5 요소)</td><td>채널 승격 주장 → <code>[미검증]</code></td></tr>
       </tbody>
     </table>
   </div>
   <ul class="checklist">
+    <li><span class="check">✓</span>편집 전에 <strong>대상 · 되말하기 · 관례 표</strong>를 응답에 남겼는가? 관례 표의 부품 이름이 코드 검색에서 실제로 나왔는가?</li>
     <li><span class="check">✓</span>시각 값을 정할 때 순위 1~3 근거를 <strong>실제로 찾아봤는가</strong>? 못 찾았으면 "찾지 못했다" 고 말했는가?</li>
-    <li><span class="check">✓</span>편집 전에 Change Manifest 를 <strong>응답에 남겼는가</strong>? (문장 다짐이 아니라 목록)</li>
+    <li><span class="check">✓</span>편집 전에 Change Manifest 를 <strong>응답에 남겼는가</strong>? 요소 하나를 지목했으면 이웃 요소를 보존 목록에 올렸는가?</li>
     <li><span class="check">✓</span>보존 목록의 값이 편집 후에도 동일한지 확인했는가?</li>
+    <li><span class="check">✓</span>기준 캡처에서 정한 표식이 새 캡처에서 바뀐 것으로 <strong>반영을 확인</strong>했는가? 스스로 고치기가 3 회를 넘지 않았는가?</li>
+    <li><span class="check">✓</span>캡처마다 <strong>점검 목록 넷</strong>(글자 넘침 · 깨진 글리프 · 칩·뱃지와 줄 모양 · 디버그 겹침)을 봤는가?</li>
     <li><span class="check">✓</span>EVIDENCE 블록의 4 필드를 채웠고, 증거가 유효성 4 검사를 통과했는가?</li>
-    <li><span class="check">✓</span>시안·컨셉이 확정됐으면 승인 기록 파일을 남기고 <strong>확정된 시각 값</strong>을 기록했는가?</li>
+    <li><span class="check">✓</span>시안·컨셉이 확정됐으면 승인 기록 파일에 <strong>확정된 시각 값 · 확정 구성 · 폐기한 대안</strong>을 남겼는가? 다음 수정 전에 폐기 칸을 읽었는가?</li>
     <li><span class="check">✓</span>비교안을 냈다면 <strong>Variant Contract Matrix 를 산출 전에 합의</strong>했고, 모든 쌍이 Hamming 요구치를 넘겼는가?</li>
-    <li><span class="check">✓</span>확정된 결정이 있다면 <code>decisions.yaml</code> 에 <code>required_surfaces</code> 와 <code>excluded_surfaces</code> 를 <strong>둘 다</strong> 적었는가?</li>
+    <li><span class="check">✓</span>확정된 결정이 있다면 <code>decisions.yaml</code> 에 <code>required_surfaces</code> 와 <code>excluded_surfaces</code> 를 <strong>둘 다</strong> 적었고, 게이트가 종료 코드 0 을 냈는가?</li>
     <li><span class="check">✓</span>증거를 인용할 때 <strong>채널 이름</strong>을 함께 적었고, 주장의 강도가 채널 강도를 넘지 않는가?</li>
   </ul>
 </div>
@@ -779,10 +1074,14 @@ sys.exit(1 if viol else 0)</pre>
     <li><a href="../harness/skill-design-guide.html">harness/docs/guides/skill-design-guide.md §5.6 Variant Budget — 개수·축 정본 / §3.7 Completion Evidence Gate — 등급 SSOT / §3.8 User-Reported Failure Gate</a></li>
     <li><a href="../harness/agent-design-guide.html">harness/docs/guides/agent-design-guide.md §10 — 사용자 보고 우선 (평가 측 정본)</a></li>
     <li><a href="../harness/contract-design-guide.html">harness/docs/guides/contract-design-guide.md §증거 아티팩트 존재 의무 — UI-06 계약 측 대응</a></li>
+    <li><a href="../flutter-toolkit/visual-evidence-protocol.html">flutter-toolkit/references/visual-evidence-protocol.md — 형제 규약 (Step 0 · Step 2 가 같은 숫자)</a></li>
+    <li><a href="../react-kit/render-evidence-protocol.html">react-kit/references/render-evidence-protocol.md — 형제 규약</a></li>
+    <li><a href="design-component.html">design-kit design-component — §0 관례 표의 재사용 부품 칸을 Step 0 에서 쓴다</a></li>
+    <li><a href="https://www.w3.org/TR/WCAG22/">W3C WCAG 2.2 — SC 3.2.4 · SC 1.4.4 · SC 1.4.10</a></li>
     <li><a href="https://www.w3.org/TR/act-rules-format/">W3C ACT Rules Format — requirement mapping / applicability / expectations / outcome</a></li>
     <li><a href="https://playwright.dev/docs/test-snapshots">Playwright Visual Comparisons — baseline / threshold 한계</a></li>
   </ul>
-  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: design-kit/references/visual-change-protocol.md · 2026-07-27 신설 · 2026-08-13 §5~§7 추가</p>
+  <p style="margin-top:24px;font-size:12px;color:var(--text3)">소스: design-kit/references/visual-change-protocol.md · 2026-07-27 신설 · 2026-08-13 §5~§7 추가 · 2026-09-24 §0 · 비교 반복 순서 · 캡처 점검 목록 · 승인 기록 두 칸 · 결정 전파 게이트 스키마 검사 추가</p>
 </div>
 
 </div>
