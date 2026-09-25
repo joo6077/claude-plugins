@@ -4,7 +4,7 @@ slug: flutter-scenario-report-template
 created: "2026-09-25 16:32"
 complexity: "중간"
 conditions: 25
-status: active
+status: done
 owner_session: e6978555-fef9-4611-a5d0-f6a8085b3924
 conditions_digest: sha256:dd6e00e15297ea92
 locked_at: "2026-09-25 16:42"
