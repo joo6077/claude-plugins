@@ -159,7 +159,7 @@ margin-top:18px
 .good .compare-label{color:var(--success)}
 .compare-panel p{color:var(--text2)}
 .checklist{list-style:none;display:grid;gap:12px}
-.checklist li{position:relative;padding-left:28px;color:var(--text2)}
+.checklist li{position:relative;padding-left:28px;color:var(--text2);overflow-wrap:anywhere}
 .checklist li::before{content:'✓';position:absolute;left:0;color:var(--success);font-weight:800}
 .callout{padding:20px;border-left:3px solid var(--accent);background:var(--accent-glow);color:var(--text2);margin-top:24px}
 .step h3{font-size:1.1rem;margin-bottom:8px}
@@ -174,7 +174,7 @@ margin-top:18px
 @media(max-width:600px){
 .page{padding:0 18px}
 section{padding:56px 0}
-.grid-2,.grid-3,.metrics,.check-grid,.compare{grid-template-columns:1fr}
+.grid-2,.grid-3,.metrics,.check-grid,.compare{grid-template-columns:minmax(0,1fr)}
 .workflow{flex-direction:column;gap:8px}
 .workflow-arrow{transform:rotate(90deg);padding:0}
 .workflow-step{white-space:normal;text-align:center}
