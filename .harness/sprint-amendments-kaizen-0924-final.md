@@ -93,3 +93,7 @@ QA 2 회차 APPROVE 뒤 교차 진단이 보강 잣대(`coverage.py`)가 원본�
 두 쪽 모두 `check-docs-a11y.js` 2/2 PASS · `check-docs-links.py` · `check-contrast-claims.py` 종료 코드 0. QA 2 회차 리포트 커밋 `bc6302c`.
 
 end_sha: 10d42ee02d227081aed436a221bb6233be50e152
+
+notes 커밋 `c691f97` — 이 계약 커밋이라 상한을 옮긴다.
+
+end_sha: c691f9718e3f24aac245671b427e0a3571f3cf46
