@@ -91,6 +91,14 @@ jobs:
       - name: Howto-kit gate evals (zsh · bash · sh)
         run: sh howto-kit/evals/run-evals.sh
 
+      # 아래 두 시험도 evals.json 규칙 밖이라 run-evals.py 가 읽지 않는다.
+      # scenario-report 시험은 보고서 틀이 바뀌면 커밋된 예시 보고서와 바이트로 대조한다 — 돌리는 곳이 없으면 대조가 죽는다
+      - name: Flutter-toolkit scenario report test (보고서 틀 · 예시 보고서)
+        run: python3 -m unittest discover -s flutter-toolkit/evals/scenario-report -v
+
+      - name: Design-kit decision gate test (결정 전파 검사 종료 코드)
+        run: bash design-kit/evals/decision-gate-test.sh
+
   playwright:
     name: Playwright Visual Tests
     runs-on: ubuntu-latest
