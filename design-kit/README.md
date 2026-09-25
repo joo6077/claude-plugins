@@ -2,7 +2,7 @@
 
 스택 무관 UI/UX 디자인 플러그인. 디자인 시스템 세팅, 실시간 가이드, 디자인 감사를 제공한다.
 
-버전: `0.1.0`
+버전은 `.claude-plugin/plugin.json` 의 `version` 을 본다.
 
 ## 스킬
 
@@ -48,6 +48,7 @@
 <!-- AUTO:evals -->
 | 파일 | 설명 |
 |------|------|
+| `decision-gate-test.sh` | 파일 |
 | `evals.json` | 파일 |
 | `visuals.spec.js` | 파일 |
 <!-- /AUTO:evals -->

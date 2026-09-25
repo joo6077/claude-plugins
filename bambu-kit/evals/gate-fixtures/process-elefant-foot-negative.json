@@ -1,0 +1,13 @@
+{
+  "type": "process",
+  "name": "gate-fixture negative elephant foot compensation",
+  "print_settings_id": "gate-fixture negative elephant foot compensation",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_wall_budget_short_share": "0.00",
+  "elefant_foot_compensation": "-0.1"
+}

@@ -177,13 +177,25 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 - `skip:transcript-file-missing path=<>` — 파일 없음
 - `skip:transcript-too-short lines=<N>` — 10줄 미만
 - `skip:transcript-empty-after-tail` — tail 결과 빈 값
-- `fail:codex-exit-<N> session=<>` — codex exec 비정상 종료
+- `fail:codex-exit-<N> session=<> err=<한 줄>` — codex exec 비정상 종료
 - `fail:codex-empty-output session=<>` — codex 빈 응답
+- `fallback:claude-used session=<>` — codex 가 실패해 `claude -p` 대체 경로로 기록했다
+- `fallback:claude-exit-<N> session=<> err=<한 줄>` — 대체 경로도 비정상 종료. 이 실행은 기록 없이 끝난다
+- `fallback:claude-empty-output session=<>` — 대체 경로 빈 응답
+- `skip:fallback-unavailable session=<>` — claude CLI 없음
+- `fail:tag-field-unresolved session=<>` — 태그 필드 이름을 못 읽어 분석 전에 멈췄다
 - `env-dedup:kept=<N> dropped=<M> drop=<tag>... session=<>` — 환경 오설정 블록 억제
 - `skip:env-dedup-all <요약> session=<>` — 전 블록 억제로 append 생략
 - `warn:env-dedup-failed exit=<N> session=<>` — dedup 게이트 실패 → fail-open
+- `warn:lemma-map-unreadable path=<> session=<>` — 태그 정규화 사전을 못 읽어 사전 없이 태그를 묶었다. 실행은 계속된다
+- `vocab:raw_distinct/clusters/entries/singletons/fold/singleton_share/epc=<일곱 값> session=<>` — 태그 파편화 지표 한 줄. 실패가 아니라 `collect_status` 는 세지 않는다
+- `ok:no-issues session=<>` — 분석 결과가 「no issues」 인 정상 종료. 실패가 아니며, `collect_status` 는 이 줄 · `skip:env-dedup-all` 과 마지막 기록 가운데 늦은 쪽 뒤의 실패만 「마지막 기록 뒤」 실패로 센다
 
-`/reflect-digest`가 `.errors.log`를 읽어 훅 실패 요약도 리포트에 포함.
+`err=` 의 뽑는 규칙은 `SCHEMA.md` §3 이 정본이다. 분석기 stderr 를 통째로 버리던 동안(2026-08-28 ~ 2026-09-25) 원인이
+남지 않아 수집이 멈춘 것을 한 달 가까이 몰랐다.
+
+`/reflect-digest`가 `.errors.log`를 읽어 훅 실패 요약도 리포트에 포함. 요약 머리의 `collect_status` 줄이 기록 없이 끝난
+실행 수를 따로 세므로 「엔트리 0」 이 「문제 없음」 으로 읽히지 않는다.
 
 ## Codex 리서치 요약 (설계 근거)
 
@@ -244,6 +256,7 @@ v0.1.0~v0.2.0 은 `project_id = <basename>-<6자 md5 hex>` 를 상시 적용했�
 |------|---------|-----------|
 | 첫 write, basename 디렉토리 없음 | `<basename>` | bucket 생성 + `.project-root` 마커에 git root 기록 |
 | 재호출, 마커가 자기 repo 와 일치 | `<basename>` | no-op |
+| 같은 레포의 링크된 워크트리에서 호출 | 본 레포 `<basename>` | 마커가 본 레포 root 라 일치 — no-op (아래 `### 워크트리`) |
 | 다른 git root 가 같은 basename 으로 호출 | `<basename>-<hash6>` | stderr 1회 경고 (PID 기반 마커로 중복 억제) |
 | 기존 v0.2.0 hash 디렉토리 read | glob union | `normalize_project_query` 로 `<basename>` + `<basename>-<hash6>` 둘 다 스캔 |
 
@@ -264,3 +277,19 @@ v0.1.0~v0.2.0 은 `project_id = <basename>-<6자 md5 hex>` 를 상시 적용했�
 
 - `.project-root` 마커 없이 생성된 v0.2.0 디렉토리는 "충돌 없는" 것으로 간주 (read 에서만 glob union 포함)
 - 같은 basename 의 다른 repo 가 매우 짧은 시간 내 동시에 write 할 때 race condition 가능 (마커 생성 전) — 개인 스케일에서는 무시 가능
+
+### 워크트리 (2026-09-25)
+
+`git rev-parse --show-toplevel` 은 링크된 워크트리에서 워크트리 폴더를 돌려준다. 그래서 같은 레포가 워크트리 이름마다
+다른 로그 폴더로 갈렸다 (2026-09-25 실측: 로그 폴더 31 개 중 12 개가 워크트리 이름). `project_root` 는 링크된 워크트리
+(git-dir 과 common-dir 이 다름)이고 공통 git 폴더 이름이 `.git` 일 때만 그 부모를 본 레포로 쓴다
+(<https://git-scm.com/docs/git-rev-parse>). 조건을 둘 다 거는 이유:
+
+- 서브모듈의 공통 git 폴더는 상위 레포의 `.git/modules/<이름>` 이다 — 부모를 쓰면 `modules` 로 묶인다
+- `git init --separate-git-dir` 로 만든 본 체크아웃은 git-dir 과 common-dir 이 같다 — `--show-toplevel` 이 맞다
+
+bare 레포에 붙인 워크트리는 공통 폴더 이름이 `.git` 이 아니라 전처럼 워크트리 폴더 이름이 된다.
+
+이미 워크트리 이름으로 생긴 폴더는 **옮기지 않는다.** 그 12 개 폴더에는 reflections 가 한 건도 없고 (수집이
+2026-08-28 부터 멈췄다) 원시 로그와 `.errors.log` 만 있다. 옮기면 원시 로그의 `cwd:` 와 폴더 이름이 어긋나고, 합쳐
+얻는 것은 `.errors.log` 의 실패 시도 수뿐이다. `project=all` 은 그 폴더들을 그대로 순회하므로 전체 수에서 빠지지 않는다.

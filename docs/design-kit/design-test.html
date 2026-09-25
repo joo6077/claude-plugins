@@ -7,794 +7,985 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
-  --border:#2a2a40;--border2:#3a3a55;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
-  --accent:#E8965A;--accent2:#F0B088;--accent-dim:rgba(232,150,90,0.12);
+  --bg:#0d0d14;
+  --bg2:#12121c;
+  --surface:#181825;
+  --surface2:#1e1e30;
+  --surface3:#282845;
+  --border:#2a2a40;
+  --border2:#3a3a55;
+  --text:#F5F0E8;
+  --text2:#A89A8F;
+  --text3:#948779;
+  --accent:#E8965A;
+  --accent2:#F0B088;
+  --accent-dim:rgba(232,150,90,0.12);
   --accent-glow:rgba(232,150,90,0.06);
-  --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
-  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --error:#f87171;
+  --success:#4ade80;
+  --warn:#fbbf24;
+  --info:#38bdf8;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
   --transition:0.25s cubic-bezier(.4,0,.2,1);
 }
 html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  min-height:100vh;
   -webkit-font-smoothing:antialiased;
 }
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-
 .page{max-width:1280px;margin:0 auto;padding:0 24px}
-section{padding:80px 0}section+section{border-top:1px solid var(--border)}
-
-/* HERO */
-.hero{padding:60px 0 80px;text-align:center;
-  background:radial-gradient(ellipse at 50% 0%,rgba(232,150,90,0.08) 0%,transparent 60%)}
-.hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
-  background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
-  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
-.hero h1{font-size:clamp(2.5rem,5vw+1rem,4.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+section{padding:80px 0}
+section+section{border-top:1px solid var(--border)}
+.hero{
+  padding:60px 0 80px;
+  text-align:center;
+  background:radial-gradient(ellipse at 50% 0%,rgba(232,150,90,0.08) 0%,transparent 60%);
+}
+.hero-badge{
+  display:inline-block;
+  padding:6px 18px;
+  border-radius:100px;
+  background:var(--accent-dim);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+.hero h1{
+  font-size:clamp(2.5rem,5vw + 1rem,4.5rem);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.03em;
   background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px}
-.hero p{font-size:1.125rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
-
-/* SECTION */
-.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:20px;
+}
+.hero p{font-size:1.125rem;color:var(--text2);max-width:720px;margin:0 auto;line-height:1.7}
+.hero-meta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:28px}
+.section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
 .section-title{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:8px}
-.section-desc{font-size:1rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:48px}
-
-/* CARD */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:32px;transition:var(--transition)}
+.section-desc{font-size:1rem;color:var(--text2);max-width:760px;line-height:1.7;margin-bottom:48px}
+.subhead{font-size:1.2rem;font-weight:700;margin:32px 0 16px}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:32px;
+  transition:border-color var(--transition),transform var(--transition);
+}
 .card:hover{border-color:var(--border2)}
-.card-title{font-size:1.125rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-
-/* TABLE */
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+.card-title{font-size:1.125rem;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.card p{color:var(--text2);font-size:14px}
+.principle-card{display:flex;flex-direction:column;min-height:100%}
+.card-source{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  margin-top:auto;
+  padding-top:16px;
+  color:var(--accent2);
+  font-size:13px;
+  font-weight:600;
+  text-underline-offset:3px;
+}
+.card-source:hover{color:var(--text)}
+.card-source:focus-visible,.reference-list a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.table-wrap{overflow-x:auto;max-width:100%;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px;-webkit-overflow-scrolling:touch}
+.table-wrap>table{min-width:max-content}
 table{width:100%;border-collapse:collapse;font-size:14px}
 thead{background:var(--surface2)}
-th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
-  letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--accent-glow)}
-
-/* GRID */
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
-@media(min-width:901px) and (max-width:1100px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
-
-/* CODE BLOCK */
-.code-block{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
-  padding:20px 24px;overflow-x:auto;font-family:'Cascadia Code','Fira Code','Consolas',monospace;
-  font-size:13px;line-height:1.8;color:var(--text2);margin-bottom:24px;
-  white-space:pre;tab-size:2;
+.grid-2>*,.grid-3>*,.grid-4>*,.ap-grid>*,.evidence-grid>*{min-width:0}
+pre{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 24px;
+  overflow-x:auto;
+  max-width:100%;
+  font-family:'Cascadia Code','Fira Code','Consolas',monospace;
+  font-size:13px;
+  line-height:1.8;
+  color:var(--text2);
+  margin-bottom:24px;
+  white-space:pre;
+  tab-size:2;
 }
-.code-block .kw{color:#c792ea}.code-block .fn{color:#82aaff}
-.code-block .str{color:#c3e88d}.code-block .cm{color:#7d97a5;font-style:italic}
-.code-block .num{color:#f78c6c}.code-block .op{color:#89ddff}
-
-/* COMPARE PANELS */
+pre code{white-space:pre;background:transparent;padding:0;color:inherit}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.9em;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+:not(pre)>code{overflow-wrap:anywhere}
 .ap-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-@media(max-width:700px){.ap-grid{grid-template-columns:1fr}}
 .ap-card{padding:24px;border-radius:var(--radius);border:1px solid}
-.ap-card.bad{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.04)}
-.ap-card.good{border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.04)}
-.ap-card .ap-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
-.ap-card.bad .ap-label{color:var(--error)}.ap-card.good .ap-label{color:var(--success)}
+.ap-card.bad{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.04)}
+.ap-card.good{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04)}
+.ap-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.bad .ap-label{color:var(--error)}
+.good .ap-label{color:var(--success)}
 .ap-card p{font-size:13px;color:var(--text2);line-height:1.7}
-.ap-card .code-inline{
-  display:block;margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);
-  font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:12px;line-height:1.7;
-  white-space:pre;overflow-x:auto;
-}
-.ap-card.bad .code-inline{background:rgba(248,113,113,0.06);color:#fca5a5}
-.ap-card.good .code-inline{background:rgba(74,222,128,0.06);color:#86efac}
-
-/* CHECKLIST */
-.check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.code-inline{display:block;margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:12px;line-height:1.7;white-space:pre;overflow-x:auto;max-width:100%}
+.bad .code-inline{background:rgba(248,113,113,.06);color:#fca5a5}
+.good .code-inline{background:rgba(74,222,128,.06);color:#86efac}
+.checklist{list-style:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 28px}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:15px 0;border-bottom:1px solid var(--border)}
 .check-item:last-child{border-bottom:none}
-.check-item input[type="checkbox"]{
-  appearance:none;-webkit-appearance:none;width:20px;height:20px;border:2px solid var(--border);
-  border-radius:4px;cursor:pointer;flex-shrink:0;margin-top:2px;position:relative;transition:var(--transition);
-  background:var(--surface);
-}
-.check-item input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
-.check-item input[type="checkbox"]:checked::after{
-  content:'';position:absolute;top:2px;left:6px;width:5px;height:10px;
-  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
-}
-.check-item label{font-size:14px;color:var(--text2);line-height:1.6;cursor:pointer}
-.check-item input[type="checkbox"]:checked+label{color:var(--text);text-decoration:line-through;opacity:0.6}
-
-/* FEATURE CARD (a11y cards) */
-.feat-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:28px;position:relative;overflow:hidden;transition:var(--transition);
-}
+.checkmark{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:2px solid var(--accent);border-radius:5px;color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0;margin-top:2px}
+.check-copy{font-size:14px;color:var(--text2);line-height:1.65}
+.check-copy strong{color:var(--text)}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;transition:border-color var(--transition),transform var(--transition)}
 .feat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.feat-card .feat-icon{font-size:32px;margin-bottom:16px;display:block}
-.feat-card .feat-name{font-size:1.1rem;font-weight:700;margin-bottom:8px}
-.feat-card .feat-desc{font-size:13px;color:var(--text2);line-height:1.7}
-.feat-card .feat-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;
-  background:var(--accent-dim);color:var(--accent);margin-top:12px}
-
-/* VIEWPORT DEMO */
-.vp-demo{display:flex;align-items:flex-end;justify-content:center;gap:20px;flex-wrap:wrap;padding:32px 0}
-.vp-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
-  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;transition:var(--transition)}
-.vp-box:hover{border-color:var(--accent)}
-.vp-box .vp-label{font-size:11px;color:var(--text3);font-weight:500}
-.vp-box .vp-size{font-size:12px;color:var(--accent);font-weight:700}
-
-/* STEP INDICATOR */
-.step-num{display:inline-flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--bg);
-  font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
-
-/* BADGE */
-.badge{padding:4px 14px;border-radius:100px;font-size:12px;font-weight:700}
-.badge.pass{background:rgba(74,222,128,0.15);color:#4ade80}
-.badge.fail{background:rgba(248,113,113,0.15);color:#f87171}
-.badge.info{background:rgba(56,189,248,0.15);color:#38bdf8}
-.badge.warn{background:rgba(251,191,36,0.15);color:#fbbf24}
-
-.fig-caption{font-size:13px;color:var(--text3);text-align:center;margin-top:12px;font-style:italic}
-.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}
-.mb-16{margin-bottom:16px}.mb-24{margin-bottom:24px}.mb-32{margin-bottom:32px}
-.text-accent{color:var(--accent)}.text-muted{color:var(--text2)}
-code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9em;
-  background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
-
-/* FLOW DIAGRAM */
+.feat-icon{font-size:30px;margin-bottom:14px;display:block}
+.feat-name{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.feat-desc{font-size:13px;color:var(--text2);line-height:1.7}
 .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin-bottom:32px}
-.flow-step{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:12px 20px;font-size:13px;font-weight:600;text-align:center;min-width:120px;
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:13px;font-weight:600;text-align:center;min-width:112px}
+.flow-arrow{color:var(--accent);font-size:20px;padding:0 7px;font-weight:700}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--bg);font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
+.badge{display:inline-flex;align-items:center;min-height:26px;padding:3px 12px;border-radius:100px;font-size:12px;font-weight:700}
+.badge.pass{background:rgba(74,222,128,.15);color:#4ade80}
+.badge.fail{background:rgba(248,113,113,.15);color:#f87171}
+.badge.info{background:rgba(56,189,248,.15);color:#38bdf8}
+.badge.warn{background:rgba(251,191,36,.15);color:#fbbf24}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center}
+.metric-value{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:var(--accent);line-height:1.2}
+.metric-label{font-size:13px;color:var(--text2);margin-top:8px}
+.note{padding:18px 20px;background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--text2);font-size:14px}
+.warning{background:rgba(251,191,36,.08);border-left-color:var(--warn)}
+.evidence-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.evidence-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.evidence-key{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.evidence-value{font-size:14px;color:var(--text2)}
+.reference-list{list-style:none;display:grid;gap:12px}
+.reference-list li{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;color:var(--text2)}
+.reference-list a{color:var(--accent2);text-underline-offset:3px;overflow-wrap:anywhere}
+.reference-list a:hover{color:var(--text)}
+.mt-24{margin-top:24px}
+.mb-24{margin-bottom:24px}
+.mb-32{margin-bottom:32px}
+@media(max-width:900px){
+  .grid-2,.grid-3,.grid-4,.evidence-grid{grid-template-columns:1fr}
 }
-.flow-arrow{color:var(--accent);font-size:20px;padding:0 8px;font-weight:700}
-
-/* THRESHOLD VISUAL */
-.threshold-bar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.threshold-track{flex:1;height:24px;background:var(--surface2);border-radius:var(--radius-sm);overflow:hidden;position:relative}
-.threshold-fill{height:100%;border-radius:var(--radius-sm);display:flex;align-items:center;
-  padding-left:10px;font-size:11px;font-weight:700;color:var(--bg)}
-.threshold-label{font-size:13px;font-weight:500;min-width:140px;color:var(--text2)}
-
+@media(min-width:901px) and (max-width:1100px){
+  .grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .ap-grid{grid-template-columns:1fr}
+}
 @media(max-width:600px){
-  .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
-  .flow{flex-direction:column}.flow-arrow{transform:rotate(90deg)}
+  .page{padding:0 16px}
+  section{padding:48px 0}
+  .hero{padding:40px 0 48px}
+  .grid-2,.grid-3,.grid-4,.ap-grid,.evidence-grid{grid-template-columns:1fr}
+  .flow{flex-direction:column}
+  .flow-arrow{transform:rotate(90deg)}
+  .card{padding:22px}
+  .checklist{padding:8px 18px}
 }
-
-/* ── 가로 오버플로 방지 (제거·완화 금지) ─────────────────────────────
-   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
-/* (1) grid 자식의 기본 min-width 는 auto(=min-content) 다. .code-block(white-space:pre)
-       의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
-.grid-2>*,.grid-3>*,.grid-4>*,.ap-grid>*{min-width:0}
-/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 않고 래퍼에서 가로 스크롤시킨다. */
-.table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
-.table-wrap>table{min-width:max-content}
-/* (3) white-space:pre 코드 블록은 컨테이너에서 스크롤, 인라인 코드는 어디서든 줄바꿈. */
-:not(.code-block)>code{overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .card,.feat-card{transition:opacity .2s ease}
+  .feat-card:hover{transform:none}
+}
 </style>
 </head>
 <body>
+<main class="page">
 
-<div class="page">
-
-<!-- ===== HERO ===== -->
+<!-- HERO -->
 <header class="hero">
   <div class="hero-badge">Design Test</div>
   <h1>디자인 품질 테스트<br>자동 생성</h1>
-  <p>디자인 토큰 일관성, 접근성(WCAG 2.2 AA), 시각 회귀(Playwright), 반응형 레이아웃 검증까지 -- UI 코드를 분석하여 디자인 품질 테스트를 자동으로 생성합니다.</p>
+  <p>UI 코드와 디자인 토큰을 분석하여 디자인 품질 테스트를 자동 생성합니다. 디자인 토큰 일관성 검증, 접근성 테스트(WCAG 2.2 AA), 시각 회귀 테스트(Playwright/Storybook), 반응형 레이아웃 검증을 프로젝트 스택에 맞게 만듭니다.</p>
+  <div class="hero-meta">
+    <span class="badge info">token</span>
+    <span class="badge info">a11y</span>
+    <span class="badge info">visual</span>
+    <span class="badge info">responsive</span>
+  </div>
 </header>
 
-<!-- ===== PROCESS FLOW ===== -->
-<section>
+<!-- PRINCIPLES -->
+<section aria-labelledby="principles-title">
+  <div class="section-label">핵심 원칙</div>
+  <h2 class="section-title" id="principles-title">테스트가 증거가 되기 위한 조건</h2>
+  <p class="section-desc">스냅샷 파일이나 초록색 실행 결과만으로 품질을 증명할 수 없습니다. 판정 기준, 활성화 실패, 콘텐츠 존재, 사용자 관측 채널을 함께 묶어야 합니다.</p>
+  <div class="grid-3">
+    <article class="card principle-card">
+      <div class="card-title"><span class="dot"></span>baseline은 통과가 아니다</div>
+      <p>Playwright 는 스냅샷이 없으면 실제 화면을 baseline 으로 <strong>자동 기록하고 그 실행을 통과 처리</strong>합니다(첫 실행 시 "A snapshot doesn't exist ... writing actual"). 따라서 <code>--update-snapshots</code> 직후의 green 은 아무것도 입증하지 않습니다 — 무엇과도 비교되지 않았기 때문입니다. 의도적 변형이 실제로 실패하는 negative control 과 되돌린 뒤 통과를 모두 확인해야 합니다.</p>
+      <a class="card-source" href="https://playwright.dev/docs/test-snapshots">Playwright Visual Comparisons ↗</a>
+    </article>
+    <article class="card principle-card">
+      <div class="card-title"><span class="dot"></span>두 임계값을 분리한다</div>
+      <p><code>maxDiffPixelRatio</code> 는 달라도 되는 픽셀의 <strong>비율</strong>(0~1, 기본 unset)이고, <code>threshold</code> 는 같은 좌표 픽셀 간 허용 <strong>색차</strong>(YIQ 색공간, 0=엄격 ~ 1=관대, 기본 0.2)입니다. 둘은 다른 것이므로 색상 회귀를 잡으려면 <code>threshold</code> 를 낮춰야 하며, <code>maxDiffPixelRatio</code> 만 조정해서는 잡히지 않습니다.</p>
+      <a class="card-source" href="https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-have-screenshot-1">Playwright — toHaveScreenshot options ↗</a>
+    </article>
+    <article class="card principle-card">
+      <div class="card-title"><span class="dot"></span>reduced motion은 대체다</div>
+      <p><code>prefers-reduced-motion: reduce</code> 는 vestibular trigger(scale·pan 등 이동감을 주는 모션)를 <strong>더 온건한 대안으로 교체</strong>하라는 의미이며 모든 전환을 없애라는 뜻이 아닙니다. <code>transform: scale/translate</code> 기반 모션이 사라지거나 opacity/dissolve 로 대체되었는지를 검증합니다. (Baseline 2020-01)</p>
+      <a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion">MDN prefers-reduced-motion ↗</a>
+    </article>
+  </div>
+</section>
+
+<!-- USAGE -->
+<section aria-labelledby="usage-title">
+  <div class="section-label">호출</div>
+  <h2 class="section-title" id="usage-title">인자와 트리거</h2>
+  <p class="section-desc">사용자가 직접 부를 수 있는 스킬(<code>user-invocable: true</code>)입니다. 대상 파일이나 디렉토리를 먼저 주고, 테스트 유형은 선택으로 붙입니다.</p>
+  <pre><code>argument-hint: "&lt;file-or-directory&gt; [token|a11y|visual|responsive]"</code></pre>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>트리거 문구</div>
+      <p>"디자인 테스트", "접근성 테스트", "시각 회귀 테스트", "토큰 검증", "design test", "a11y test", "visual regression" 같은 요청 시 트리거됩니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>다른 스킬과의 경계</div>
+      <p>디자인 원칙 가이드는 <code>design-guide</code>, 전수 감사는 <code>design-audit</code> 를 사용합니다. 이 스킬은 테스트 코드를 만들고 실행하는 데까지를 맡습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NUMERIC TABLE -->
+<section aria-labelledby="numbers-title">
+  <div class="section-label">수치 기준</div>
+  <h2 class="section-title" id="numbers-title">판정에 쓰는 숫자</h2>
+  <p class="section-desc">원본 스킬에 명시된 값만 옮겼습니다. 프로젝트 breakpoint는 임의 숫자가 아니라 해당 디자인 시스템의 정의를 사용합니다.</p>
+  <div class="grid-4 mb-32">
+    <div class="metric"><div class="metric-value">4.5:1</div><div class="metric-label">본문 텍스트 대비</div></div>
+    <div class="metric"><div class="metric-value">3:1</div><div class="metric-label">큰 텍스트·비텍스트 UI 대비</div></div>
+    <div class="metric"><div class="metric-value">24×24</div><div class="metric-label">WCAG 2.2 AA 터치 타겟(px)</div></div>
+    <div class="metric"><div class="metric-value">44×44</div><div class="metric-label">AAA 터치 타겟(px)</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th><th>적용 방식</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>시각 회귀 허용 픽셀 비율 예시</td><td><code>maxDiffPixelRatio: 0.01</code></td><td>anti-aliasing·폰트 렌더링 차이로 생기는 false positive 완화 (Gotcha 4)</td></tr>
+        <tr><td>주변 영역 scoped 예시</td><td><code>maxDiffPixelRatio: 0.001</code></td><td>변경 금지 영역에 대상보다 엄격한 값. 단 0 은 쓰지 않음</td></tr>
+        <tr><td>Playwright 색차 기본값</td><td><code>threshold: 0.2</code></td><td>YIQ 색공간, 0=엄격 ~ 1=관대. 미묘한 색상 회귀는 낮춰서 검증</td></tr>
+        <tr><td>시각 회귀 viewport 예시</td><td>375×812 · 768×1024 · 1440×900</td><td>mobile · tablet · desktop</td></tr>
+        <tr><td>반응형 breakpoint 예시</td><td>sm 640 · md 768 · lg 1024 · xl 1280</td><td>예시 코드일 뿐, 프로젝트 디자인 시스템 값으로 대체</td></tr>
+        <tr><td>오버플로 허용치</td><td><code>clientWidth + 2</code></td><td>2px tolerance, breakpoint별 문서 너비 비교</td></tr>
+        <tr><td>모바일 본문 최소 크기</td><td>14px 이상</td><td>375×812 viewport에서 body font-size 검사</td></tr>
+        <tr><td>negative control</td><td>1 회</td><td>baseline 기록 뒤 의도적 변형으로 실패 확인</td></tr>
+        <tr><td>manifest 부재</td><td><code>NO_MANIFEST</code> + exit 3</td><td>대상 0 건과 통과는 다르다</td></tr>
+        <tr><td>결정 전파 커버리지 규칙</td><td>4 조</td><td><code>../../references/visual-change-protocol.md</code> §6 이 정본</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- GOTCHAS -->
+<section aria-labelledby="gotchas-title">
+  <div class="section-label">Gotchas</div>
+  <h2 class="section-title" id="gotchas-title">생성 전에 확인할 체크리스트</h2>
+  <p class="section-desc">15개 가드레일을 모두 확인합니다. 특히 10~15번은 시각 회귀 결과가 실제 사용자 관측을 증명하도록 만드는 규칙입니다.</p>
+  <ol class="checklist">
+    <li class="check-item"><span class="checkmark">1</span><div class="check-copy"><strong>스택 감지 없이 테스트 생성 금지.</strong> React/Vue/Svelte/Flutter/HTML 등 프로젝트 프레임워크를 먼저 감지하라. Playwright 테스트를 Flutter 프로젝트에 생성하면 안 된다.</div></li>
+    <li class="check-item"><span class="checkmark">2</span><div class="check-copy"><strong>WCAG 2.2 AA 기준 미적용 금지.</strong> 접근성 테스트는 반드시 WCAG 2.2 AA를 기준으로 한다. 대비 비율 4.5:1 (본문), 3:1 (큰 텍스트/비텍스트 UI), 터치 타겟 24×24px(AA) / 44×44px(AAA). 출처: design-kit design-audit Gotcha #3</div></li>
+    <li class="check-item"><span class="checkmark">3</span><div class="check-copy"><strong>axe-core 룰셋 버전 확인.</strong> <code>@axe-core/playwright</code> 또는 <code>axe-core</code> 사용 시 프로젝트에 설치된 버전의 룰셋을 확인하라. 메이저 버전 간 룰 차이가 있다.</div></li>
+    <li class="check-item"><span class="checkmark">4</span><div class="check-copy"><strong>시각 회귀 테스트의 threshold 미설정 금지.</strong> 픽셀 단위 비교는 anti-aliasing, 폰트 렌더링 차이로 false positive가 빈번하다. <code>maxDiffPixelRatio: 0.01</code> 같은 threshold 필수.</div></li>
+    <li class="check-item"><span class="checkmark">5</span><div class="check-copy"><strong>토큰 검증에서 하드코딩 탐지 범위 명확히.</strong> CSS에서 <code>#ff0000</code>, <code>16px</code>, <code>400</code> 같은 raw value가 있다고 무조건 FAIL이 아니다. reset/normalize CSS, 외부 라이브러리 코드는 제외하라.</div></li>
+    <li class="check-item"><span class="checkmark">6</span><div class="check-copy"><strong>반응형 테스트에서 breakpoint 출처 확인.</strong> 프로젝트의 디자인 시스템에 정의된 breakpoint를 사용하라. 임의로 320/768/1024를 넣지 마라.</div></li>
+    <li class="check-item"><span class="checkmark">7</span><div class="check-copy"><strong>다크 모드 테스트 누락 금지.</strong> 디자인 토큰에 다크 모드 매핑이 있으면 반드시 양쪽 모드에서 테스트한다. <code>prefers-color-scheme: dark</code> 미디어 쿼리 또는 토큰 클래스 전환.</div></li>
+    <li class="check-item"><span class="checkmark">8</span><div class="check-copy"><strong>Storybook 의존 여부 확인.</strong> 시각 회귀 테스트에 Storybook을 전제하지 마라. Storybook이 없으면 Playwright의 페이지 스크린샷으로 대체한다.</div></li>
+    <li class="check-item"><span class="checkmark">9</span><div class="check-copy"><strong>APCA 대비 알고리즘은 informational.</strong> WCAG 2.2 AA(4.5:1 WCAG2 공식)가 판정 기준. APCA Lc는 추가 정보 제공용으로만 포함하고 PASS/FAIL 판정 기준으로 쓰지 마라. 출처: design-guide Gotcha #10</div></li>
+    <li class="check-item"><span class="checkmark">10</span><div class="check-copy"><strong>첫 실행 baseline 생성을 "테스트 통과"로 보고 금지 (negative control 필수).</strong> Playwright 는 스냅샷이 없으면 실제 화면을 baseline 으로 자동 기록하고 그 실행을 통과 처리한다. 따라서 <code>--update-snapshots</code> 직후의 green 은 아무것도 입증하지 않는다 — 무엇과도 비교되지 않았기 때문이다(증거 유효성 검사 2 활성화 실패). baseline 을 만든 뒤에는 반드시 negative control 을 1 회 수행하라: 대상 요소에 의도적 변형(예: 배경색 1 단계 변경)을 준 상태로 테스트를 돌려 실패하는 것을 확인하고, 되돌린 뒤 통과를 확인한다. 이 두 실행의 출력을 증거로 인용하기 전에는 시각 회귀 테스트가 동작한다고 보고하지 마라. 출처: Playwright Visual Comparisons, <code>harness/docs/guides/qa-evaluation-guide.md</code> §Evidence Validity Gate 검사 2·3.</div></li>
+    <li class="check-item"><span class="checkmark">11</span><div class="check-copy"><strong>빈 스냅샷/빈 페이지는 PASS 증거가 아니다.</strong> 렌더가 실패해 빈 화면이 캡처돼도 시각 회귀 테스트는 baseline 과 동일하면 통과한다. 시각 테스트에는 콘텐츠 존재 assertion 을 함께 생성하라 (핵심 요소 visible, 목록 항목 수 ≥ 1, 컨테이너 높이 &gt; 0). 스냅샷 비교만 있는 테스트 파일은 unbounded-height collapse 같은 결함을 통과시킨다 — 실제 사고 사례다. 상세: <code>../../references/visual-change-protocol.md</code> §3.</div></li>
+    <li class="check-item"><span class="checkmark">12</span><div class="check-copy"><strong>부분 변경 검증은 scoped 스냅샷으로 — 의도 외 영역 변화 감지.</strong> "보더만 바꿨다" 를 검증할 때 전체 페이지 스냅샷 하나만 쓰면 배경까지 변한 것을 구분하지 못한다. 변경 대상 요소의 locator 단위 스냅샷과 주변 영역 스냅샷을 분리 생성하여, 대상은 변하고 주변은 변하지 않았음을 각각 판정하라. 주변 영역 스냅샷이 실패하면 그것은 회귀다. 상세: <code>../../references/visual-change-protocol.md</code> §2.</div></li>
+    <li class="check-item"><span class="checkmark">13</span><div class="check-copy"><strong><code>prefers-reduced-motion: reduce</code> 는 "애니메이션 제거" 가 아니다.</strong> 이 설정은 vestibular trigger(scale·pan 등 이동감을 주는 모션)를 더 온건한 대안으로 교체하라는 의미이며 모든 전환을 없애라는 뜻이 아니다. 따라서 reduced-motion 테스트를 "애니메이션 개수 0" 으로 assert 하지 마라. <code>transform: scale/translate</code> 기반 모션이 사라지거나 opacity/dissolve 로 대체되었는지를 검증하라. 출처: MDN prefers-reduced-motion (Baseline 2020-01).</div></li>
+    <li class="check-item"><span class="checkmark">14</span><div class="check-copy"><strong>골든만 있는 결정 전파 테스트는 FAIL — Decision Propagation Manifest Coverage.</strong> 확정된 디자인 결정이 어느 표면에 반영돼야 하는지는 <code>.design/decisions.yaml</code> 이 열거한다 (<code>decision_id</code> → <code>required_surfaces[]</code> → golden + assertions). 이 manifest 가 있으면 커버리지 규칙 4 조를 따라 테스트를 생성하라. 핵심은 golden 만 있고 핵심 요소의 visible / count / height assertion 이 없으면 FAIL 이라는 것 — 빈 화면도 baseline 과 같으면 통과하므로 스냅샷 단독은 "사용자가 본다" 를 증명하지 못한다 (Gotcha 11 과 같은 뿌리). <code>excluded_surfaces</code> 에 이유 없이 빠진 표면은 검토된 것이 아니라 커버리지 공백이다. 스키마·규칙·실행 가능한 체커: <code>../../references/visual-change-protocol.md</code> §6 Decision Propagation Manifest.</div></li>
+    <li class="check-item"><span class="checkmark">15</span><div class="check-copy"><strong>증거에 채널 이름을 붙여라 — 스냅샷 존재는 사용자 관측이 아니다.</strong> <code>artifact_snapshot</code> / <code>dom_snapshot</code> / <code>browser_user_visible</code> / <code>device_user_visible</code> 는 강도가 다르다. PASS 문장에는 viewport · route/state · visible locator · count/height · screenshot/golden id 5 요소가 들어가야 하며, 하나라도 없으면 <code>[미검증]</code> 이다. 채널 정의: <code>../../references/visual-change-protocol.md</code> §7 Evidence Channels. 사용자가 실패를 보고했을 때의 우선순위 규약은 <code>harness/docs/guides/skill-design-guide.md</code> §3.8 이 정본이다 — 테스트 통과를 근거로 반박하지 마라.</div></li>
+  </ol>
+</section>
+
+<!-- PROCESS -->
+<section aria-labelledby="process-title">
   <div class="section-label">Process</div>
-  <div class="section-title">실행 흐름</div>
-  <div class="section-desc">design-test 스킬은 9단계 프로세스로 동작합니다(Step 0~8, 조건부 Step 5-b 는 별도). 스택 감지부터 테스트 실행, 결과 보고까지 자동으로 수행합니다.</div>
-
+  <h2 class="section-title" id="process-title">스택 감지에서 EVIDENCE까지</h2>
+  <p class="section-desc">기본 흐름은 Step 0~8이며, <code>.design/decisions.yaml</code> 이 있을 때만 Step 5-b 를 조건부로 수행합니다.</p>
   <div class="flow">
-    <div class="flow-step"><span class="step-num">0</span>스택 감지</div>
-    <span class="flow-arrow">&#8594;</span>
-    <div class="flow-step"><span class="step-num">1</span>대상 분석</div>
-    <span class="flow-arrow">&#8594;</span>
-    <div class="flow-step"><span class="step-num">2</span>패턴 탐색</div>
-    <span class="flow-arrow">&#8594;</span>
-    <div class="flow-step"><span class="step-num">3</span>토큰 테스트</div>
-    <span class="flow-arrow">&#8594;</span>
+    <div class="flow-step"><span class="step-num">0</span>감지</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="step-num">1</span>분석</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="step-num">2</span>탐색</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="step-num">3</span>토큰</div>
+    <span class="flow-arrow">→</span>
     <div class="flow-step"><span class="step-num">4</span>접근성</div>
-    <span class="flow-arrow">&#8594;</span>
-    <div class="flow-step"><span class="step-num">5</span>시각 회귀</div>
-    <span class="flow-arrow">&#8594;</span>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="step-num">5</span>시각</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step">5-b 결정 전파(조건부)</div>
+    <span class="flow-arrow">→</span>
     <div class="flow-step"><span class="step-num">6</span>반응형</div>
-    <span class="flow-arrow">&#8594;</span>
-    <div class="flow-step"><span class="step-num">7</span>실행 검증</div>
-    <span class="flow-arrow">&#8594;</span>
-    <div class="flow-step"><span class="step-num">8</span>결과 보고</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="step-num">7</span>실행</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="step-num">8</span>보고</div>
   </div>
 </section>
 
-<!-- ===== UI STACK DETECTION ===== -->
-<section>
+<!-- STEP 0 -->
+<section aria-labelledby="step0-title">
   <div class="section-label">Step 0</div>
-  <div class="section-title">UI 스택 감지</div>
-  <div class="section-desc">프로젝트 루트에서 프레임워크와 디자인 시스템을 자동 감지합니다. 감지 결과에 따라 적합한 테스트 도구가 선택됩니다.</div>
-
+  <h2 class="section-title" id="step0-title">프로젝트 감지</h2>
+  <p class="section-desc">프로젝트 루트에서 UI 스택과 디자인 시스템을 감지합니다. 감지 결과에 따라 테스트 도구가 정해집니다.</p>
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>감지 대상</th>
-          <th>스택</th>
-          <th>테스트 도구</th>
-        </tr>
-      </thead>
+      <thead><tr><th>감지 대상</th><th>스택</th><th>테스트 도구</th></tr></thead>
       <tbody>
-        <tr>
-          <td><code>package.json</code> + React</td>
-          <td>React</td>
-          <td>Playwright + axe-core + Storybook (선택)</td>
-        </tr>
-        <tr>
-          <td><code>package.json</code> + Vue</td>
-          <td>Vue</td>
-          <td>Playwright + axe-core</td>
-        </tr>
-        <tr>
-          <td><code>package.json</code> + Svelte</td>
-          <td>Svelte</td>
-          <td>Playwright + axe-core</td>
-        </tr>
-        <tr>
-          <td><code>package.json</code> + Angular</td>
-          <td>Angular</td>
-          <td>Playwright + axe-core</td>
-        </tr>
-        <tr>
-          <td><code>pubspec.yaml</code> + Flutter</td>
-          <td>Flutter</td>
-          <td>flutter-test 스킬로 리다이렉트</td>
-        </tr>
-        <tr>
-          <td><code>*.html</code> (정적 사이트)</td>
-          <td>HTML/CSS</td>
-          <td>Playwright + axe-core + pa11y</td>
-        </tr>
+        <tr><td><code>package.json</code> + React</td><td>React</td><td>Playwright + axe-core + Storybook (선택)</td></tr>
+        <tr><td><code>package.json</code> + Vue</td><td>Vue</td><td>Playwright + axe-core</td></tr>
+        <tr><td><code>package.json</code> + Svelte</td><td>Svelte</td><td>Playwright + axe-core</td></tr>
+        <tr><td><code>package.json</code> + Angular</td><td>Angular</td><td>Playwright + axe-core</td></tr>
+        <tr><td><code>pubspec.yaml</code> + Flutter</td><td>Flutter</td><td>→ flutter-test 스킬로 리다이렉트</td></tr>
+        <tr><td><code>*.html</code> (정적 사이트)</td><td>HTML/CSS</td><td>Playwright + axe-core + pa11y</td></tr>
       </tbody>
     </table>
   </div>
-
-  <div class="card mt-24">
-    <div class="card-title"><span class="dot"></span>추가 감지 항목</div>
-    <div class="grid-2 mt-16">
-      <div>
-        <p class="text-accent" style="font-size:13px;font-weight:600;margin-bottom:6px">디자인 토큰</p>
-        <p class="text-muted" style="font-size:13px"><code>**/tokens/**</code>, <code>**/theme/**</code>, <code>**/design-system/**</code>, CSS custom properties (<code>--</code>)</p>
-      </div>
-      <div>
-        <p class="text-accent" style="font-size:13px;font-weight:600;margin-bottom:6px">Storybook</p>
-        <p class="text-muted" style="font-size:13px"><code>.storybook/</code>, <code>*.stories.*</code></p>
-      </div>
-      <div>
-        <p class="text-accent" style="font-size:13px;font-weight:600;margin-bottom:6px">Tailwind</p>
-        <p class="text-muted" style="font-size:13px"><code>tailwind.config.*</code></p>
-      </div>
-      <div>
-        <p class="text-accent" style="font-size:13px;font-weight:600;margin-bottom:6px">CSS-in-JS</p>
-        <p class="text-muted" style="font-size:13px">styled-components, emotion, vanilla-extract</p>
-      </div>
-    </div>
+  <h3 class="subhead">추가 감지</h3>
+  <div class="grid-4">
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">◇</span><div class="feat-name">디자인 토큰</div><div class="feat-desc"><code>**/tokens/**</code>, <code>**/theme/**</code>, <code>**/design-system/**</code>, CSS custom properties (<code>--</code>)</div></div>
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">▣</span><div class="feat-name">Storybook</div><div class="feat-desc"><code>.storybook/</code>, <code>*.stories.*</code></div></div>
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">≋</span><div class="feat-name">Tailwind</div><div class="feat-desc"><code>tailwind.config.*</code></div></div>
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">{ }</span><div class="feat-name">CSS-in-JS</div><div class="feat-desc">styled-components, emotion, vanilla-extract</div></div>
   </div>
 </section>
 
-<!-- ===== TEST TYPE INFERENCE ===== -->
-<section>
+<!-- STEP 1 -->
+<section aria-labelledby="step1-title">
   <div class="section-label">Step 1</div>
-  <div class="section-title">테스트 유형 자동 추론</div>
-  <div class="section-desc">대상 파일이나 디렉토리의 특성을 분석하여 적합한 테스트 유형을 자동으로 선택합니다. 명시적으로 유형을 지정할 수도 있습니다.</div>
-
+  <h2 class="section-title" id="step1-title">대상 분석</h2>
+  <p class="section-desc"><code>$ARGUMENTS</code>에서 대상과 테스트 유형을 파싱합니다. 유형 미지정 시 대상 특성으로 자동 추론합니다.</p>
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>대상 특성</th>
-          <th>테스트 유형</th>
-          <th>설명</th>
-        </tr>
-      </thead>
+      <thead><tr><th>대상 특성</th><th>테스트 유형</th></tr></thead>
       <tbody>
-        <tr>
-          <td>토큰 파일, 테마 설정</td>
-          <td><span class="badge info">token</span></td>
-          <td>디자인 토큰 일관성 검증 -- 포맷 통일, 스케일 검증, 하드코딩 탐지</td>
-        </tr>
-        <tr>
-          <td>컴포넌트, 페이지</td>
-          <td><span class="badge info">a11y</span> + <span class="badge info">visual</span></td>
-          <td>접근성 테스트(WCAG 2.2 AA) + 시각 회귀 테스트(Playwright 스크린샷)</td>
-        </tr>
-        <tr>
-          <td>레이아웃, 그리드</td>
-          <td><span class="badge info">responsive</span></td>
-          <td>반응형 레이아웃 -- breakpoint별 오버플로, 가독성, 이미지 반응성</td>
-        </tr>
-        <tr>
-          <td>전체 프로젝트</td>
-          <td><span class="badge warn">ALL</span></td>
-          <td>모든 유형의 테스트를 생성</td>
-        </tr>
+        <tr><td>토큰 파일, 테마 설정</td><td><span class="badge info">token</span> 일관성 검증</td></tr>
+        <tr><td>컴포넌트, 페이지</td><td><span class="badge info">a11y</span> 접근성 + <span class="badge info">visual</span> 시각 회귀</td></tr>
+        <tr><td>레이아웃, 그리드</td><td><span class="badge info">responsive</span> 반응형</td></tr>
+        <tr><td>전체 프로젝트</td><td><span class="badge warn">모든 유형</span></td></tr>
       </tbody>
     </table>
   </div>
+</section>
 
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>사용법</div>
-    <div class="code-block"><span class="cm">// 특정 파일에 자동 추론</span>
-<span class="fn">/design-test</span> src/components/Button.tsx
-
-<span class="cm">// 유형 명시</span>
-<span class="fn">/design-test</span> src/styles/tokens.css <span class="str">token</span>
-
-<span class="cm">// 전체 프로젝트</span>
-<span class="fn">/design-test</span> .</div>
+<!-- STEP 2 -->
+<section aria-labelledby="step2-title">
+  <div class="section-label">Step 2</div>
+  <h2 class="section-title" id="step2-title">기존 패턴 탐색</h2>
+  <p class="section-desc">새 관례를 만들기 전에 프로젝트가 이미 쓰는 테스트 위치, 설정, 명명법을 확인합니다.</p>
+  <div class="grid-3">
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">♿</span><div class="feat-name">기존 접근성 테스트</div><div class="feat-desc"><code>*.a11y.test.*</code>, axe-core import</div></div>
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">◫</span><div class="feat-name">기존 시각 테스트</div><div class="feat-desc"><code>*.visual.test.*</code>, <code>__snapshots__/</code>, <code>.loki/</code></div></div>
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">▶</span><div class="feat-name">Playwright 설정</div><div class="feat-desc"><code>playwright.config.*</code></div></div>
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">▣</span><div class="feat-name">Storybook 테스트</div><div class="feat-desc"><code>*.stories.*</code> 존재 여부</div></div>
+    <div class="feat-card"><span class="feat-icon" aria-hidden="true">◇</span><div class="feat-name">디자인 토큰 검증</div><div class="feat-desc">기존 lint 규칙, stylelint 설정</div></div>
   </div>
 </section>
 
-<!-- ===== TOKEN CONSISTENCY ===== -->
-<section>
+<!-- STEP 3 -->
+<section aria-labelledby="step3-title">
   <div class="section-label">Step 3</div>
-  <div class="section-title">토큰 일관성 테스트</div>
-  <div class="section-desc">디자인 토큰 파일을 분석하여 포맷 일관성, 스케일 규칙, 하드코딩 여부, 다크 모드 커버리지를 검증하는 테스트를 자동 생성합니다.</div>
+  <h2 class="section-title" id="step3-title">토큰 일관성 테스트 생성</h2>
+  <p class="section-desc">디자인 토큰 파일을 분석하여 일관성을 검증하는 테스트를 생성합니다. CSS custom properties 를 파싱해 색상 포맷(hex/oklch/hsl), 스페이싱 스케일(base * multiplier), 컴포넌트 파일의 하드코딩 값, 라이트·다크 토큰 대응을 검사합니다.</p>
+  <pre><code>// tests/design/tokens.test.ts
+import { describe, it, expect } from 'vitest'
+import fs from 'fs'
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>컬러 포맷 통일</div>
-      <p class="text-muted" style="font-size:13px;line-height:1.7">모든 컬러 토큰이 동일한 포맷(hex/oklch/hsl)을 사용하는지 검증합니다. 포맷이 혼재되면 테스트가 실패합니다.</p>
-      <div class="code-block mt-16"><span class="kw">it</span>(<span class="str">'all color tokens use consistent format'</span>, () => {
-  <span class="kw">const</span> formats = <span class="kw">new</span> <span class="fn">Set</span>(
-    colorTokens.<span class="fn">map</span>(([, , value]) => {
-      <span class="kw">if</span> (value.<span class="fn">startsWith</span>(<span class="str">'#'</span>)) <span class="kw">return</span> <span class="str">'hex'</span>
-      <span class="kw">if</span> (value.<span class="fn">startsWith</span>(<span class="str">'oklch'</span>)) <span class="kw">return</span> <span class="str">'oklch'</span>
-      <span class="kw">if</span> (value.<span class="fn">startsWith</span>(<span class="str">'hsl'</span>)) <span class="kw">return</span> <span class="str">'hsl'</span>
-    })
-  )
-  <span class="fn">expect</span>(formats.size).<span class="fn">toBeLessThanOrEqual</span>(<span class="num">1</span>)
-})</div>
-    </div>
+describe('Design Token Consistency', () =&gt; {
+  // CSS custom properties 파싱
+  const cssContent = fs.readFileSync('src/styles/tokens.css', 'utf-8')
+  const tokens = [...cssContent.matchAll(/--([^:]+):\s*([^;]+)/g)]
 
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>스페이싱 스케일 검증</div>
-      <p class="text-muted" style="font-size:13px;line-height:1.7">스페이싱 토큰이 base * multiplier 규칙을 따르는지 확인합니다. 각 단계의 비율이 1보다 커야 합니다.</p>
-      <div class="code-block mt-16"><span class="kw">it</span>(<span class="str">'spacing tokens follow scale'</span>, () => {
-  <span class="kw">const</span> spacings = tokens
-    .<span class="fn">filter</span>(([, name]) => name.<span class="fn">includes</span>(<span class="str">'spacing'</span>))
-    .<span class="fn">map</span>(([, , v]) => <span class="fn">parseFloat</span>(v))
-    .<span class="fn">sort</span>((a, b) => a - b)
+  it('all color tokens use consistent format (hex/oklch/hsl)', () =&gt; {
+    const colorTokens = tokens.filter(([, name]) =&gt; name.includes('color'))
+    const formats = new Set(
+      colorTokens.map(([, , value]) =&gt; {
+        if (value.trim().startsWith('#')) return 'hex'
+        if (value.trim().startsWith('oklch')) return 'oklch'
+        if (value.trim().startsWith('hsl')) return 'hsl'
+        return 'other'
+      })
+    )
+    expect(formats.size).toBeLessThanOrEqual(1)
+  })
 
-  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">1</span>; i &lt; spacings.length; i++) {
-    <span class="fn">expect</span>(spacings[i] / spacings[i-<span class="num">1</span>])
-      .<span class="fn">toBeGreaterThan</span>(<span class="num">1</span>)
-  }
-})</div>
-    </div>
+  it('spacing tokens follow scale (base * multiplier)', () =&gt; {
+    const spacingTokens = tokens
+      .filter(([, name]) =&gt; name.includes('spacing'))
+      .map(([, , value]) =&gt; parseFloat(value))
+      .sort((a, b) =&gt; a - b)
 
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>하드코딩 탐지</div>
-      <p class="text-muted" style="font-size:13px;line-height:1.7">컴포넌트 CSS에서 raw 컬러값(<code>#ff0000</code>)이나 raw 픽셀값(<code>16px</code>)을 탐지합니다. reset/normalize와 외부 라이브러리는 자동 제외됩니다.</p>
-      <div class="code-block mt-16"><span class="kw">it</span>(<span class="str">'no hardcoded values in components'</span>, () => {
-  <span class="kw">const</span> css = fs.<span class="fn">readFileSync</span>(<span class="str">'src/components/Button.css'</span>)
-  <span class="kw">const</span> rawColors = [...css.<span class="fn">matchAll</span>(/<span class="str">#[0-9a-fA-F]{3,8}</span>/g)]
-  <span class="kw">const</span> rawPx = [...css.<span class="fn">matchAll</span>(/<span class="str">:\s*\d+px</span>/g)]
-  <span class="cm">// reset, normalize, 외부 라이브러리 제외</span>
-  <span class="fn">expect</span>(rawColors).<span class="fn">toEqual</span>([])
-  <span class="fn">expect</span>(rawPx).<span class="fn">toEqual</span>([])
-})</div>
-    </div>
+    for (let i = 1; i &lt; spacingTokens.length; i++) {
+      const ratio = spacingTokens[i] / spacingTokens[i - 1]
+      expect(ratio).toBeGreaterThan(1)
+    }
+  })
 
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>다크 모드 커버리지</div>
-      <p class="text-muted" style="font-size:13px;line-height:1.7">라이트 모드 토큰에 대응하는 다크 모드 토큰이 모두 존재하는지 검증합니다. 누락된 토큰이 있으면 테스트가 실패합니다.</p>
-      <div class="code-block mt-16"><span class="kw">it</span>(<span class="str">'dark mode covers all light tokens'</span>, () => {
-  <span class="kw">const</span> lightNames = tokens
-    .<span class="fn">filter</span>(([, n]) => !n.<span class="fn">includes</span>(<span class="str">'dark'</span>))
-    .<span class="fn">map</span>(([, n]) => n.<span class="fn">replace</span>(<span class="str">'light-'</span>, <span class="str">''</span>))
-  <span class="kw">const</span> darkNames = tokens
-    .<span class="fn">filter</span>(([, n]) => n.<span class="fn">includes</span>(<span class="str">'dark'</span>))
-    .<span class="fn">map</span>(([, n]) => n.<span class="fn">replace</span>(<span class="str">'dark-'</span>, <span class="str">''</span>))
-  <span class="kw">const</span> missing = lightNames
-    .<span class="fn">filter</span>(n => !darkNames.<span class="fn">includes</span>(n))
-  <span class="fn">expect</span>(missing).<span class="fn">toEqual</span>([])
-})</div>
-    </div>
-  </div>
+  it('no hardcoded values in component files', () =&gt; {
+    const componentCss = fs.readFileSync('src/components/Button.css', 'utf-8')
+    const rawColors = [...componentCss.matchAll(/#[0-9a-fA-F]{3,8}/g)]
+    const rawPx = [...componentCss.matchAll(/:\s*\d+px/g)]
+    // reset, normalize, 외부 라이브러리 파일은 검사 대상에서 제외
+    expect(rawColors).toEqual([])
+    expect(rawPx).toEqual([])
+  })
+
+  it('dark mode tokens cover all light mode tokens', () =&gt; {
+    const lightNames = tokens
+      .filter(([, name]) =&gt; !name.includes('dark'))
+      .map(([, name]) =&gt; name.replace('light-', ''))
+    const darkNames = tokens
+      .filter(([, name]) =&gt; name.includes('dark'))
+      .map(([, name]) =&gt; name.replace('dark-', ''))
+    const missing = lightNames.filter(n =&gt; !darkNames.includes(n))
+    expect(missing).toEqual([])
+  })
+})</code></pre>
+  <div class="note">하드코딩 값 검사는 reset·normalize CSS와 외부 라이브러리를 제외해야 합니다. <code>#ff0000</code>, <code>16px</code>, <code>400</code>이 있다는 이유만으로 무조건 FAIL 로 보지 않습니다 (Gotcha 5).</div>
 </section>
 
-<!-- ===== ACCESSIBILITY TESTS ===== -->
-<section>
+<!-- STEP 4 -->
+<section aria-labelledby="step4-title">
   <div class="section-label">Step 4</div>
-  <div class="section-title">접근성 테스트</div>
-  <div class="section-desc">axe-core 기반 WCAG 2.2 AA 자동 검증. 페이지별 위반 사항, 인터랙티브 요소의 accessible name, 색상 대비, 터치 타겟 크기, 다크 모드 대비를 테스트합니다.</div>
+  <h2 class="section-title" id="step4-title">접근성 테스트 생성</h2>
+  <p class="section-desc">Step 1 에서 감지된 라우트마다 axe-core WCAG 2.2 AA 룰셋, 접근 가능한 이름, 색 대비 4.5:1, 24×24px 터치 타겟을 검사합니다. 토큰에 다크 모드가 있으면 다크 모드 대비 테스트를 더합니다.</p>
+  <pre><code>// tests/design/a11y.test.ts
+import { test, expect } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
 
-  <div class="grid-2">
-    <div class="feat-card">
-      <div class="feat-icon">&#9989;</div>
-      <div class="feat-name">axe-core WCAG 2.2 AA</div>
-      <div class="feat-desc">wcag2a, wcag2aa, wcag22aa 태그셋으로 전체 페이지를 스캔합니다. violations 배열이 비어있어야 통과합니다.</div>
-      <div class="feat-tag">@axe-core/playwright</div>
-    </div>
-
-    <div class="feat-card">
-      <div class="feat-icon">&#128270;</div>
-      <div class="feat-name">터치 타겟 24x24px</div>
-      <div class="feat-desc">모바일 뷰포트(375x812)에서 모든 인터랙티브 요소(<code>button</code>, <code>a</code>, <code>input</code> 등)의 bounding box가 최소 24x24px(AA) 이상인지 검증합니다.</div>
-      <div class="feat-tag">WCAG 2.2 Target Size</div>
-    </div>
-
-    <div class="feat-card">
-      <div class="feat-icon">&#127912;</div>
-      <div class="feat-name">색상 대비 4.5:1</div>
-      <div class="feat-desc">axe-core의 <code>color-contrast</code> 규칙으로 본문 텍스트 4.5:1, 큰 텍스트/비텍스트 UI 3:1 비율을 검증합니다.</div>
-      <div class="feat-tag">WCAG 2 Contrast</div>
-    </div>
-
-    <div class="feat-card">
-      <div class="feat-icon">&#127761;</div>
-      <div class="feat-name">다크 모드 접근성</div>
-      <div class="feat-desc"><code>prefers-color-scheme: dark</code>를 에뮬레이션하여 다크 모드에서도 색상 대비가 유지되는지 검증합니다. 토큰에 다크 모드가 있을 때만 생성됩니다.</div>
-      <div class="feat-tag">Dark Mode</div>
-    </div>
-  </div>
-
-  <div class="card mt-24">
-    <div class="card-title"><span class="dot"></span>생성되는 테스트 코드</div>
-    <div class="code-block mt-16"><span class="kw">import</span> { test, expect } <span class="kw">from</span> <span class="str">'@playwright/test'</span>
-<span class="kw">import</span> AxeBuilder <span class="kw">from</span> <span class="str">'@axe-core/playwright'</span>
-
-test(<span class="str">'should pass axe-core WCAG 2.2 AA'</span>, <span class="kw">async</span> ({ page }) => {
-  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>)
-  <span class="kw">const</span> results = <span class="kw">await new</span> <span class="fn">AxeBuilder</span>({ page })
-    .<span class="fn">withTags</span>([<span class="str">'wcag2a'</span>, <span class="str">'wcag2aa'</span>, <span class="str">'wcag22aa'</span>])
-    .<span class="fn">analyze</span>()
-  <span class="fn">expect</span>(results.violations).<span class="fn">toEqual</span>([])
-})
-
-<span class="cm">// 다크 모드 (토큰에 다크 모드가 있을 때)</span>
-test(<span class="str">'dark mode passes color contrast'</span>, <span class="kw">async</span> ({ page }) => {
-  <span class="kw">await</span> page.<span class="fn">emulateMedia</span>({ colorScheme: <span class="str">'dark'</span> })
-  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>)
-  <span class="kw">const</span> results = <span class="kw">await new</span> <span class="fn">AxeBuilder</span>({ page })
-    .<span class="fn">withRules</span>([<span class="str">'color-contrast'</span>])
-    .<span class="fn">analyze</span>()
-  <span class="fn">expect</span>(results.violations).<span class="fn">toEqual</span>([])
-})</div>
-  </div>
-</section>
-
-<!-- ===== VISUAL REGRESSION ===== -->
-<section>
-  <div class="section-label">Step 5</div>
-  <div class="section-title">시각 회귀 테스트</div>
-  <div class="section-desc">Playwright 스크린샷 비교로 UI 변경을 감지합니다. 뷰포트별 스냅샷을 생성하고 threshold를 설정하여 anti-aliasing, 폰트 렌더링 차이에 의한 false positive를 방지합니다.</div>
-
-  <div class="vp-demo">
-    <div class="vp-box" style="width:60px;height:100px;padding:8px">
-      <div class="vp-label">Mobile</div>
-      <div class="vp-size">375x812</div>
-    </div>
-    <div class="vp-box" style="width:100px;height:120px;padding:8px">
-      <div class="vp-label">Tablet</div>
-      <div class="vp-size">768x1024</div>
-    </div>
-    <div class="vp-box" style="width:180px;height:100px;padding:8px">
-      <div class="vp-label">Desktop</div>
-      <div class="vp-size">1440x900</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>Playwright 스크린샷 비교</div>
-    <div class="code-block mt-16"><span class="kw">const</span> viewports = [
-  { name: <span class="str">'mobile'</span>,  width: <span class="num">375</span>,  height: <span class="num">812</span> },
-  { name: <span class="str">'tablet'</span>,  width: <span class="num">768</span>,  height: <span class="num">1024</span> },
-  { name: <span class="str">'desktop'</span>, width: <span class="num">1440</span>, height: <span class="num">900</span> },
+const pages = [
+  { name: 'Home', path: '/' },
+  { name: 'Settings', path: '/settings' },
+  // Step 1에서 감지된 라우트 목록
 ]
 
-<span class="kw">for</span> (<span class="kw">const</span> vp <span class="kw">of</span> viewports) {
-  test(<span class="str">`${pg.name} - ${vp.name} visual snapshot`</span>, <span class="kw">async</span> ({ page }) => {
-    <span class="kw">await</span> page.<span class="fn">setViewportSize</span>({ width: vp.width, height: vp.height })
-    <span class="kw">await</span> page.<span class="fn">goto</span>(pg.path)
-    <span class="kw">await</span> page.<span class="fn">waitForLoadState</span>(<span class="str">'networkidle'</span>)
-    <span class="kw">await</span> <span class="fn">expect</span>(page).<span class="fn">toHaveScreenshot</span>(
-      <span class="str">`${pg.name}-${vp.name}.png`</span>,
-      { maxDiffPixelRatio: <span class="num">0.01</span> }  <span class="cm">// threshold 필수!</span>
-    )
+for (const page of pages) {
+  test.describe(`${page.name} Accessibility`, () =&gt; {
+    test('should pass axe-core WCAG 2.2 AA', async ({ page: p }) =&gt; {
+      await p.goto(page.path)
+      const results = await new AxeBuilder({ page: p })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
+        .analyze()
+      expect(results.violations).toEqual([])
+    })
+
+    test('all interactive elements have accessible names', async ({ page: p }) =&gt; {
+      await p.goto(page.path)
+      const buttons = await p.locator('button, [role="button"]').all()
+      for (const btn of buttons) {
+        const name = await btn.getAttribute('aria-label')
+          ?? await btn.textContent()
+        expect(name?.trim()).toBeTruthy()
+      }
+    })
+
+    test('color contrast meets 4.5:1 ratio', async ({ page: p }) =&gt; {
+      await p.goto(page.path)
+      const results = await new AxeBuilder({ page: p })
+        .withRules(['color-contrast'])
+        .analyze()
+      expect(results.violations).toEqual([])
+    })
+
+    test('touch targets are at least 24x24px', async ({ page: p }) =&gt; {
+      await p.setViewportSize({ width: 375, height: 812 })
+      await p.goto(page.path)
+      const targets = await p.locator(
+        'button, a, input, select, [role="button"], [role="link"]'
+      ).all()
+      for (const target of targets) {
+        const box = await target.boundingBox()
+        if (box) {
+          expect(box.width).toBeGreaterThanOrEqual(24)
+          expect(box.height).toBeGreaterThanOrEqual(24)
+        }
+      }
+    })
   })
-}</div>
-  </div>
+}
 
-  <div class="card mt-24">
-    <div class="card-title"><span class="dot"></span>Threshold 가이드</div>
-    <div class="threshold-bar mt-16">
-      <div class="threshold-label"><code>maxDiffPixelRatio</code></div>
-      <div class="threshold-track">
-        <div class="threshold-fill" style="width:20%;background:var(--success)">0.01</div>
-      </div>
-      <span class="badge pass">권장</span>
-    </div>
-    <div class="threshold-bar">
-      <div class="threshold-label">threshold 없음</div>
-      <div class="threshold-track">
-        <div class="threshold-fill" style="width:95%;background:var(--error)">false positive 빈발</div>
-      </div>
-      <span class="badge fail">금지</span>
-    </div>
-    <p class="text-muted mt-16" style="font-size:13px">픽셀 단위 비교는 anti-aliasing, 서브픽셀 렌더링, 폰트 힌팅 차이로 OS/브라우저마다 미세한 차이가 발생합니다. threshold 없이 비교하면 CI에서 false positive가 빈번하게 발생합니다.</p>
-  </div>
-
-  <div class="card mt-24">
-    <div class="card-title"><span class="dot"></span>Storybook 연동</div>
-    <p class="text-muted" style="font-size:13px;line-height:1.7"><code>.storybook/</code> 디렉토리와 <code>*.stories.*</code> 파일이 감지되면 컴포넌트별 시각 테스트를 추가로 생성합니다. Storybook이 없으면 Playwright 페이지 스크린샷으로 대체합니다.</p>
-  </div>
+// 다크 모드 접근성 (토큰에 다크 모드가 있을 때)
+test('dark mode passes color contrast', async ({ page }) =&gt; {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.goto('/')
+  const results = await new AxeBuilder({ page })
+    .withRules(['color-contrast'])
+    .analyze()
+  expect(results.violations).toEqual([])
+})</code></pre>
+  <div class="note">다크 모드 테스트는 <code>prefers-color-scheme: dark</code> 미디어 쿼리 에뮬레이션 또는 토큰 클래스 전환으로 양쪽 모드를 모두 돌립니다 (Gotcha 7). 대비 판정은 WCAG2 공식이며 APCA Lc 는 참고 정보로만 곁들입니다 (Gotcha 9).</div>
 </section>
 
-<!-- ===== RESPONSIVE LAYOUT ===== -->
-<section>
-  <div class="section-label">Step 6</div>
-  <div class="section-title">반응형 레이아웃 테스트</div>
-  <div class="section-desc">프로젝트 디자인 시스템의 breakpoint를 기준으로 수평 오버플로, 텍스트 가독성, 이미지 반응성을 검증합니다.</div>
+<!-- STEP 5 -->
+<section aria-labelledby="step5-title">
+  <div class="section-label">Step 5</div>
+  <h2 class="section-title" id="step5-title">시각 회귀 테스트 생성</h2>
+  <p class="section-desc">mobile 375×812, tablet 768×1024, desktop 1440×900 예시 viewport에서 콘텐츠 존재 assertion 을 스냅샷 비교 "전에" 실행하고 스크린샷을 비교합니다. Storybook 이 감지될 때만 컴포넌트별 시각 테스트 섹션을 더합니다.</p>
+  <pre><code>// tests/design/visual-regression.test.ts
+import { test, expect } from '@playwright/test'
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Breakpoint</th>
-          <th>Width</th>
-          <th>검증 항목</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>sm</code></td>
-          <td>640px</td>
-          <td>수평 오버플로 없음 (scrollWidth &le; clientWidth + 2px)</td>
-        </tr>
-        <tr>
-          <td><code>md</code></td>
-          <td>768px</td>
-          <td>수평 오버플로 없음</td>
-        </tr>
-        <tr>
-          <td><code>lg</code></td>
-          <td>1024px</td>
-          <td>수평 오버플로 없음</td>
-        </tr>
-        <tr>
-          <td><code>xl</code></td>
-          <td>1280px</td>
-          <td>수평 오버플로 없음</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+const viewports = [
+  { name: 'mobile', width: 375, height: 812 },
+  { name: 'tablet', width: 768, height: 1024 },
+  { name: 'desktop', width: 1440, height: 900 },
+]
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>텍스트 가독성</div>
-      <p class="text-muted" style="font-size:13px;line-height:1.7">모바일 뷰포트(375px)에서 본문 font-size가 최소 14px 이상인지 검증합니다.</p>
-      <div class="code-block mt-16"><span class="kw">const</span> bodyFontSize = <span class="kw">await</span> page.<span class="fn">evaluate</span>(() => {
-  <span class="kw">return</span> <span class="fn">parseFloat</span>(
-    <span class="fn">getComputedStyle</span>(document.body).fontSize
-  )
-})
-<span class="fn">expect</span>(bodyFontSize)
-  .<span class="fn">toBeGreaterThanOrEqual</span>(<span class="num">14</span>)</div>
-    </div>
+const pages = [
+  { name: 'Home', path: '/' },
+  // Step 1에서 감지된 주요 페이지
+]
 
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>이미지 반응성</div>
-      <p class="text-muted" style="font-size:13px;line-height:1.7">모바일 뷰포트에서 모든 <code>&lt;img&gt;</code> 요소가 뷰포트 너비를 초과하지 않는지 검증합니다.</p>
-      <div class="code-block mt-16"><span class="kw">const</span> images = <span class="kw">await</span> page
-  .<span class="fn">locator</span>(<span class="str">'img'</span>).<span class="fn">all</span>()
-<span class="kw">for</span> (<span class="kw">const</span> img <span class="kw">of</span> images) {
-  <span class="kw">const</span> box = <span class="kw">await</span> img.<span class="fn">boundingBox</span>()
-  <span class="kw">if</span> (box) {
-    <span class="fn">expect</span>(box.width)
-      .<span class="fn">toBeLessThanOrEqual</span>(<span class="num">375</span>)
+for (const vp of viewports) {
+  for (const pg of pages) {
+    test(`${pg.name} - ${vp.name} visual snapshot`, async ({ page }) =&gt; {
+      await page.setViewportSize({ width: vp.width, height: vp.height })
+      await page.goto(pg.path)
+      await page.waitForLoadState('networkidle')
+
+      // Gotcha 11 — 빈 렌더가 baseline 과 일치해 통과하는 것을 막는 콘텐츠 존재 assertion.
+      // 스냅샷 비교 "전에" 실행해야 빈 화면이 baseline 으로 굳는 것도 함께 막는다.
+      const main = page.locator('main, [role="main"]').first()
+      await expect(main).toBeVisible()
+      const box = await main.boundingBox()
+      expect(box?.height ?? 0).toBeGreaterThan(0)
+
+      await expect(page).toHaveScreenshot(
+        `${pg.name}-${vp.name}.png`,
+        { maxDiffPixelRatio: 0.01 }
+      )
+    })
   }
-}</div>
+}
+
+// Storybook이 있을 때 — 컴포넌트별 시각 테스트
+// Storybook 감지 시에만 이 섹션 생성</code></pre>
+  <h3 class="subhead">부분 변경 scoped 검증</h3>
+  <p class="section-desc">특정 요소의 특정 속성만 바꾼 변경을 검증할 때는 대상과 주변을 분리합니다 (Gotcha 12). 주변 스냅샷이 실패하면 의도 외 영역이 변한 것이므로 회귀로 처리합니다.</p>
+  <div class="grid-2 mb-24">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>대상 요소 (변경 허용)</div>
+      <p><code>target-card.png</code>처럼 locator 단위로 캡처합니다. 의도한 변경은 이 영역에만 허용합니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>주변 영역 (변경 금지 — 실패 시 회귀)</div>
+      <p><code>surrounding-panel.png</code>을 따로 캡처합니다. "변하지 않아야" 하므로 대상보다 엄격한 <code>0.001</code> 을 쓰되, Gotcha 4 대로 0 은 쓰지 않습니다 — anti-aliasing·폰트 렌더링 차이로 상시 실패합니다.</p>
     </div>
   </div>
+  <pre><code>// tests/design/scoped-change.test.ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Scoped visual change — 대상만 변하고 주변은 불변', () =&gt; {
+  test('대상 요소 스냅샷 (변경 허용)', async ({ page }) =&gt; {
+    await page.goto('/')
+    await expect(page.getByTestId('target-card'))
+      .toHaveScreenshot('target-card.png', { maxDiffPixelRatio: 0.01 })
+  })
+
+  // 주변 영역은 "변하지 않아야" 하므로 대상보다 엄격한 threshold 를 쓴다.
+  // 단 Gotcha 4 대로 0 은 쓰지 마라 — anti-aliasing·폰트 렌더링 차이로 상시 실패한다.
+  test('주변 영역 스냅샷 (변경 금지 — 실패 시 회귀)', async ({ page }) =&gt; {
+    await page.goto('/')
+    await expect(page.getByTestId('surrounding-panel'))
+      .toHaveScreenshot('surrounding-panel.png', { maxDiffPixelRatio: 0.001 })
+  })
+})</code></pre>
 </section>
 
-<!-- ===== GOTCHAS CHECKLIST ===== -->
-<section>
-  <div class="section-label">Gotchas</div>
-  <div class="section-title">체크리스트</div>
-  <div class="section-desc">design-test 스킬이 반복하기 쉬운 9가지 실수입니다. 테스트를 생성하기 전에 모두 확인하세요.</div>
-
-  <div class="card">
-    <div class="check-item">
-      <input type="checkbox" id="g1">
-      <label for="g1"><strong>스택 감지 없이 테스트 생성 금지</strong> -- React/Vue/Svelte/Flutter/HTML 등 프로젝트 프레임워크를 먼저 감지하라. Playwright 테스트를 Flutter 프로젝트에 생성하면 안 된다.</label>
+<!-- STEP 5-B -->
+<section aria-labelledby="step5b-title">
+  <div class="section-label">Step 5-b · 조건부</div>
+  <h2 class="section-title" id="step5b-title">결정 전파 테스트 생성</h2>
+  <p class="section-desc"><code>.design/decisions.yaml</code>이 있을 때만 실행합니다. manifest 가 없으면 이 단계를 건너뛰되 "해당 없음" 이 아니라 "manifest 부재" 로 보고합니다 — 체커가 <code>NO_MANIFEST</code> + exit 3 을 내는 이유와 같습니다. 대상 0 건과 통과는 다릅니다.</p>
+  <p class="section-desc">manifest 가 있으면 <code>decision_id</code> 마다 <code>required_surfaces[]</code> 를 순회하며 surface 당 테스트 1 개를 생성합니다. 스키마와 커버리지 규칙 4 조는 <code>../../references/visual-change-protocol.md</code> §6 이 정본이며 여기서 재정의하지 않습니다. 생성 규칙은 셋입니다.</p>
+  <div class="grid-3 mb-32">
+    <div class="card">
+      <div class="card-title"><span class="step-num">1</span>셋업</div>
+      <p>surface 의 <code>route_or_entry</code> · <code>state</code> · <code>viewport_or_container</code> 를 테스트 셋업에 그대로 옮깁니다.</p>
     </div>
-    <div class="check-item">
-      <input type="checkbox" id="g2">
-      <label for="g2"><strong>WCAG 2.2 AA 기준 미적용 금지</strong> -- 접근성 테스트는 반드시 WCAG 2.2 AA를 기준으로 한다. 대비 비율 4.5:1(본문), 3:1(큰 텍스트/비텍스트 UI), 터치 타겟 24x24px(AA) / 44x44px(AAA).</label>
+    <div class="card">
+      <div class="card-title"><span class="step-num">2</span>assertion 우선</div>
+      <p><code>assertions[]</code> 를 golden 비교보다 먼저 실행합니다 — 빈 렌더가 baseline 으로 굳는 것을 막습니다.</p>
     </div>
-    <div class="check-item">
-      <input type="checkbox" id="g3">
-      <label for="g3"><strong>axe-core 룰셋 버전 확인</strong> -- <code>@axe-core/playwright</code> 또는 <code>axe-core</code> 사용 시 프로젝트에 설치된 버전의 룰셋을 확인하라. 메이저 버전 간 룰 차이가 있다.</label>
-    </div>
-    <div class="check-item">
-      <input type="checkbox" id="g4">
-      <label for="g4"><strong>시각 회귀 테스트의 threshold 미설정 금지</strong> -- 픽셀 단위 비교는 anti-aliasing, 폰트 렌더링 차이로 false positive가 빈번하다. <code>maxDiffPixelRatio: 0.01</code> 같은 threshold 필수.</label>
-    </div>
-    <div class="check-item">
-      <input type="checkbox" id="g5">
-      <label for="g5"><strong>토큰 검증에서 하드코딩 탐지 범위 명확히</strong> -- CSS에서 <code>#ff0000</code>, <code>16px</code>, <code>400</code> 같은 raw value가 있다고 무조건 FAIL이 아니다. reset/normalize CSS, 외부 라이브러리 코드는 제외하라.</label>
-    </div>
-    <div class="check-item">
-      <input type="checkbox" id="g6">
-      <label for="g6"><strong>반응형 테스트에서 breakpoint 출처 확인</strong> -- 프로젝트의 디자인 시스템에 정의된 breakpoint를 사용하라. 임의로 320/768/1024를 넣지 마라.</label>
-    </div>
-    <div class="check-item">
-      <input type="checkbox" id="g7">
-      <label for="g7"><strong>다크 모드 테스트 누락 금지</strong> -- 디자인 토큰에 다크 모드 매핑이 있으면 반드시 양쪽 모드에서 테스트한다. <code>prefers-color-scheme: dark</code> 미디어 쿼리 또는 토큰 클래스 전환.</label>
-    </div>
-    <div class="check-item">
-      <input type="checkbox" id="g8">
-      <label for="g8"><strong>Storybook 의존 여부 확인</strong> -- 시각 회귀 테스트에 Storybook을 전제하지 마라. Storybook이 없으면 Playwright의 페이지 스크린샷으로 대체한다.</label>
-    </div>
-    <div class="check-item">
-      <input type="checkbox" id="g9">
-      <label for="g9"><strong>APCA 대비 알고리즘은 informational</strong> -- WCAG 2.2 AA(4.5:1 WCAG2 공식)가 법적 기준. APCA Lc는 추가 정보 제공용으로만 포함하고 PASS/FAIL 판정 기준으로 쓰지 마라.</label>
+    <div class="card">
+      <div class="card-title"><span class="step-num">3</span>영역 분리</div>
+      <p><code>selectors[]</code> 는 대상 locator 스냅샷에, 그 바깥은 주변 영역 스냅샷에 씁니다 (Gotcha 12 와 짝).</p>
     </div>
   </div>
+  <pre><code>// tests/design/decision-DEC-20260813-001.test.ts — manifest 에서 생성
+import { test, expect } from '@playwright/test'
+
+test('DEC-20260813-001 → dashboard.desktop.main', async ({ page }) =&gt; {
+  await page.setViewportSize({ width: 1440, height: 900 })   // viewport_or_container
+  await page.goto('/dashboard')                              // route_or_entry
+  // assertions[] — golden 비교보다 먼저 (Gotcha 11·14)
+  const main = page.locator('main').first()
+  await expect(main).toBeVisible()
+  await expect(page.locator("[data-surface='group-list'] &gt; *")).not.toHaveCount(0)
+  expect((await main.boundingBox())?.height ?? 0).toBeGreaterThan(0)
+  // golden — 위 assertion 을 통과한 뒤에만 의미가 있다
+  await expect(main).toHaveScreenshot(
+    'DEC-20260813-001/dashboard.desktop.main.png', { maxDiffPixelRatio: 0.01 }
+  )
+})</code></pre>
+  <div class="note warning">생성 후 커버리지 체커(§6)를 돌려 종료 코드 0 을 확인합니다. 종료 코드 2(<code>SCHEMA_ERROR</code>)는 입력 모양이 틀려 판정하지 못한 것이라 <code>FAIL</code> 줄 없이 <code>violations=0</code> 이 찍혀도 통과로 읽지 않습니다. 종료 코드 3(<code>NO_SURFACE</code> · <code>NO_DECISION</code>)은 <code>NO_MANIFEST</code> 와 같이 대상 0 건으로 보고합니다. <code>golden</code> 만 있고 <code>assertions</code> 가 빈 surface 가 남아 있으면 그것은 FAIL 이며, 테스트 파일을 만들었다는 사실이 커버리지를 대체하지 않습니다. <code>excluded_surfaces</code> 에 올라온 표면은 테스트를 만들지 않되 보고에는 이유와 함께 열거합니다.</div>
 </section>
 
-<!-- ===== ANTI-PATTERNS ===== -->
-<section>
-  <div class="section-label">Anti-patterns</div>
-  <div class="section-title">안티패턴</div>
-  <div class="section-desc">테스트 생성 시 가장 흔한 3가지 안티패턴과 올바른 대안입니다.</div>
+<!-- STEP 6 -->
+<section aria-labelledby="step6-title">
+  <div class="section-label">Step 6</div>
+  <h2 class="section-title" id="step6-title">반응형 레이아웃 테스트 생성</h2>
+  <p class="section-desc">프로젝트 디자인 시스템의 breakpoint를 사용해 가로 오버플로, 모바일 본문 크기, 이미지 고정 폭 오버플로를 검사합니다.</p>
+  <pre><code>// tests/design/responsive.test.ts
+import { test, expect } from '@playwright/test'
 
-  <!-- Anti-pattern 1: No threshold -->
-  <div class="mb-32">
-    <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
-      <span class="step-num">1</span> Threshold 없는 시각 회귀 테스트
-    </h3>
-    <div class="ap-grid">
-      <div class="ap-card bad">
-        <div class="ap-label">Anti-pattern</div>
-        <p>threshold 없이 픽셀 비교하면 CI에서 false positive가 빈발합니다.</p>
-        <div class="code-inline">await expect(page).toHaveScreenshot(
-  'home.png'
-  // threshold 없음!
-)</div>
-      </div>
-      <div class="ap-card good">
-        <div class="ap-label">Correct</div>
-        <p>maxDiffPixelRatio를 설정하여 미세한 렌더링 차이를 허용합니다.</p>
-        <div class="code-inline">await expect(page).toHaveScreenshot(
-  'home.png',
-  { maxDiffPixelRatio: 0.01 }
-)</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Anti-pattern 2: APCA as PASS/FAIL -->
-  <div class="mb-32">
-    <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
-      <span class="step-num">2</span> APCA를 PASS/FAIL 판정 기준으로 사용
-    </h3>
-    <div class="ap-grid">
-      <div class="ap-card bad">
-        <div class="ap-label">Anti-pattern</div>
-        <p>APCA Lc 값으로 합격/불합격을 판정합니다. APCA는 아직 법적 기준이 아닙니다.</p>
-        <div class="code-inline">// APCA Lc >= 60 이면 PASS?
-const lc = calcAPCA(fg, bg)
-expect(lc).toBeGreaterThanOrEqual(60)
-// WCAG 2.2에 APCA는 없다!</div>
-      </div>
-      <div class="ap-card good">
-        <div class="ap-label">Correct</div>
-        <p>WCAG 2 공식(4.5:1)으로 판정하고, APCA는 informational로만 출력합니다.</p>
-        <div class="code-inline">// WCAG 2 contrast ratio 기준
-const results = await new AxeBuilder({ page })
-  .withRules(['color-contrast'])
-  .analyze()
-expect(results.violations).toEqual([])
-// APCA는 로그에 참고용으로만 출력</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Anti-pattern 3: Hardcoded breakpoints -->
-  <div class="mb-32">
-    <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
-      <span class="step-num">3</span> 임의 하드코딩 breakpoint
-    </h3>
-    <div class="ap-grid">
-      <div class="ap-card bad">
-        <div class="ap-label">Anti-pattern</div>
-        <p>프로젝트 디자인 시스템을 무시하고 임의의 breakpoint 값을 사용합니다.</p>
-        <div class="code-inline">// 프로젝트 토큰과 무관한 임의 값
-const breakpoints = [320, 768, 1024]
-// Tailwind는 640/768/1024/1280인데
-// 320은 어디서 온 거지?</div>
-      </div>
-      <div class="ap-card good">
-        <div class="ap-label">Correct</div>
-        <p>프로젝트의 디자인 시스템에 정의된 breakpoint를 읽어서 사용합니다.</p>
-        <div class="code-inline">// tailwind.config.ts 또는 토큰 파일에서 추출
+// 프로젝트 디자인 시스템의 breakpoint 사용
 const breakpoints = [
   { name: 'sm', width: 640 },
   { name: 'md', width: 768 },
   { name: 'lg', width: 1024 },
   { name: 'xl', width: 1280 },
-]</div>
-      </div>
+]
+
+test.describe('Responsive Layout', () =&gt; {
+  for (const bp of breakpoints) {
+    test(`no horizontal overflow at ${bp.name} (${bp.width}px)`, async ({ page }) =&gt; {
+      await page.setViewportSize({ width: bp.width, height: 900 })
+      await page.goto('/')
+      const scrollWidth = await page.evaluate(() =&gt; document.documentElement.scrollWidth)
+      const clientWidth = await page.evaluate(() =&gt; document.documentElement.clientWidth)
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2) // 2px tolerance
+    })
+  }
+
+  test('text remains readable on mobile', async ({ page }) =&gt; {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+    const bodyFontSize = await page.evaluate(() =&gt; {
+      const body = document.querySelector('body')
+      return parseFloat(getComputedStyle(body!).fontSize)
+    })
+    expect(bodyFontSize).toBeGreaterThanOrEqual(14) // 최소 14px
+  })
+
+  test('images are responsive (no fixed width overflow)', async ({ page }) =&gt; {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+    const images = await page.locator('img').all()
+    for (const img of images) {
+      const box = await img.boundingBox()
+      if (box) {
+        expect(box.width).toBeLessThanOrEqual(375)
+      }
+    }
+  })
+})</code></pre>
+  <div class="note">예시 코드의 <code>sm 640</code>, <code>md 768</code>, <code>lg 1024</code>, <code>xl 1280</code>은 자리 표시일 뿐입니다. 실제 생성 시 프로젝트 디자인 시스템에 정의된 breakpoint로 바꾸고, 임의로 320/768/1024를 넣지 않습니다 (Gotcha 6).</div>
+</section>
+
+<!-- ANTI-PATTERNS -->
+<section aria-labelledby="anti-title">
+  <div class="section-label">Anti-patterns</div>
+  <h2 class="section-title" id="anti-title">실패를 통과로 오인하는 패턴</h2>
+  <p class="section-desc">왼쪽은 원본 Gotchas 가 금지하는 방식, 오른쪽은 원본이 요구하는 교정 방식입니다.</p>
+
+  <h3 class="subhead"><span class="step-num">1</span>baseline 생성 직후 green (Gotcha 10)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>스냅샷이 없어 현재 화면을 baseline 으로 기록한 실행이 통과했으므로 시각 회귀 테스트가 작동한다고 보고합니다. 무엇과도 비교되지 않은 결과입니다.</p>
+      <span class="code-inline">npx playwright test tests/design/visual-regression.test.ts --update-snapshots
+→ passed
+→ "시각 회귀 테스트 통과"</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>대상에 의도적 변형(예: 배경색 1 단계 변경)을 준 실행이 실패하는지 보고, 되돌린 뒤 통과까지 확인해 두 출력을 인용합니다.</p>
+      <span class="code-inline">1. baseline 기록
+2. negative control → 실패해야 한다
+3. 되돌리기 → 통과
+4. 2 와 3 의 출력 인용</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">2</span>스냅샷 비교만 있는 테스트 (Gotcha 11)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>스크린샷 비교만 수행합니다. 렌더가 실패해 빈 화면이 캡처돼도 baseline 과 동일하면 통과하고, unbounded-height collapse 같은 결함이 그대로 지나갑니다.</p>
+      <span class="code-inline">await expect(page).toHaveScreenshot(
+  `${pg.name}-${vp.name}.png`,
+  { maxDiffPixelRatio: 0.01 }
+)</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>핵심 요소 visible, 컨테이너 높이 &gt; 0 assertion 을 스냅샷 비교 전에 실행합니다.</p>
+      <span class="code-inline">const main = page.locator('main, [role="main"]').first()
+await expect(main).toBeVisible()
+const box = await main.boundingBox()
+expect(box?.height ?? 0).toBeGreaterThan(0)
+await expect(page).toHaveScreenshot(...)</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">3</span>전체 페이지 하나로 부분 변경 검증 (Gotcha 12)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>"보더만 바꿨다" 를 전체 페이지 스냅샷 하나로 판정해 배경까지 변한 것을 구분하지 못합니다.</p>
+      <span class="code-inline">await expect(page).toHaveScreenshot(...)</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>대상 locator 와 주변 영역을 분리합니다. 주변 스냅샷 실패는 회귀로 처리합니다.</p>
+      <span class="code-inline">await expect(page.getByTestId('target-card'))
+  .toHaveScreenshot('target-card.png', { maxDiffPixelRatio: 0.01 })
+await expect(page.getByTestId('surrounding-panel'))
+  .toHaveScreenshot('surrounding-panel.png', { maxDiffPixelRatio: 0.001 })</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">4</span>threshold 미설정 또는 0 (Gotcha 4)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>픽셀 단위 비교에 threshold 를 두지 않거나, 주변 영역을 엄격하게 하려고 0 을 씁니다. anti-aliasing·폰트 렌더링 차이로 false positive 가 빈번해 상시 실패합니다.</p>
+      <span class="code-inline">threshold 없음
+또는 0</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>일반 스냅샷은 <code>0.01</code>, 변하지 않아야 하는 주변 영역은 대상보다 엄격한 <code>0.001</code> 을 씁니다.</p>
+      <span class="code-inline">{ maxDiffPixelRatio: 0.01 }
+{ maxDiffPixelRatio: 0.001 }</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">5</span>픽셀 비율만으로 색상 회귀 잡기 (Step 7)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>negative control 이 실패하지 않는데 <code>maxDiffPixelRatio</code> 만 조정합니다. <code>threshold</code> 기본값 0.2 가 이미 관대한 편이라 미묘한 색상 변화는 픽셀 비율과 무관하게 통과합니다.</p>
+      <span class="code-inline">maxDiffPixelRatio 만 조정</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>두 축을 각각 확인합니다. 색상 회귀를 잡으려면 같은 좌표 픽셀 간 색차 기준인 <code>threshold</code> 를 낮춥니다.</p>
+      <span class="code-inline">maxDiffPixelRatio — 달라도 되는 픽셀의 비율
+threshold — 허용 색차, 낮춰서 색상 회귀 검출</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">6</span>APCA로 합격 판정 (Gotcha 9)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>APCA Lc 값을 PASS/FAIL 판정 기준으로 씁니다.</p>
+      <span class="code-inline">APCA Lc → PASS/FAIL</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>WCAG 2.2 AA(4.5:1 WCAG2 공식)를 판정 기준으로 쓰고 APCA Lc 는 추가 정보 제공용으로만 포함합니다.</p>
+      <span class="code-inline">.withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
+APCA Lc → informational</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">7</span>reduced motion에서 애니메이션 0개 요구 (Gotcha 13)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>사용자 설정을 모든 애니메이션 제거로 해석하고 reduced-motion 테스트를 "애니메이션 개수 0" 으로 assert 합니다.</p>
+      <span class="code-inline">"애니메이션 개수 0"</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>이동감을 주는 모션이 사라지거나 opacity/dissolve 로 대체되었는지를 검증합니다.</p>
+      <span class="code-inline">transform: scale/translate 사라짐
+또는 opacity/dissolve 로 대체</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">8</span>golden 만 있는 결정 전파 테스트 (Gotcha 14)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>surface 에 golden 만 있고 assertions 가 비어 있습니다. <code>excluded_surfaces</code> 에 이유 없이 빠진 표면도 커버리지 공백입니다.</p>
+      <span class="code-inline">golden: 있음
+assertions: []</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p><code>assertions[]</code> 를 golden 비교보다 먼저 실행하고, 커버리지 체커가 종료 코드 0 으로 끝나는지 확인합니다.</p>
+      <span class="code-inline">await expect(main).toBeVisible()
+await expect(page.locator("[data-surface='group-list'] &gt; *")).not.toHaveCount(0)
+expect((await main.boundingBox())?.height ?? 0).toBeGreaterThan(0)
+await expect(main).toHaveScreenshot(...)</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">9</span>스택·도구 전제 (Gotcha 1 · 6 · 8)</h3>
+  <div class="ap-grid mb-32">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>스택 감지 없이 Flutter 프로젝트에 Playwright 테스트를 만들고, breakpoint 에 임의로 320/768/1024 를 넣고, 시각 회귀에 Storybook 을 전제합니다.</p>
+      <span class="code-inline">pubspec.yaml → Playwright 테스트
+breakpoint 320 / 768 / 1024
+Storybook 전제</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>Step 0 감지 결과를 따릅니다. Flutter 는 flutter-test 스킬로 넘기고, breakpoint 는 디자인 시스템 정의를 쓰고, Storybook 이 없으면 페이지 스크린샷으로 대체합니다.</p>
+      <span class="code-inline">pubspec.yaml + Flutter → flutter-test 스킬
+디자인 시스템 breakpoint
+Storybook 없음 → Playwright 페이지 스크린샷</span>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="step-num">10</span>스냅샷 존재를 사용자 관측으로 보고 (Gotcha 15)</h3>
+  <div class="ap-grid">
+    <div class="ap-card bad">
+      <div class="ap-label">Bad</div>
+      <p>채널 이름 없이 "스냅샷 있음" 을 PASS 로 적습니다. 사용자가 실패를 보고했는데 테스트 통과를 근거로 반박합니다.</p>
+      <span class="code-inline">스냅샷 있음 → PASS</span>
+    </div>
+    <div class="ap-card good">
+      <div class="ap-label">Good</div>
+      <p>채널을 밝히고 5 요소를 모두 적습니다. 하나라도 없으면 <code>[미검증]</code> 입니다.</p>
+      <span class="code-inline">채널: browser_user_visible
+viewport · route/state · visible locator
+count/height · screenshot/golden id</span>
     </div>
   </div>
 </section>
 
-<!-- ===== EXECUTION ===== -->
-<section>
+<!-- STEP 7 -->
+<section aria-labelledby="step7-title">
   <div class="section-label">Step 7</div>
-  <div class="section-title">실행 검증</div>
-  <div class="section-desc">생성된 테스트를 실행하고 결과를 확인합니다. 첫 실행 시 시각 회귀 테스트는 기준 스냅샷을 생성합니다.</div>
-
+  <h2 class="section-title" id="step7-title">실행 검증</h2>
+  <p class="section-desc">생성된 테스트를 유형별로 실행합니다. 도구 미설치 시 설치 안내를 제시하되, 실행하지 않은 결과를 통과로 보고하지 않습니다.</p>
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>테스트 유형</th>
-          <th>실행 명령</th>
-          <th>비고</th>
-        </tr>
-      </thead>
+      <thead><tr><th>테스트 유형</th><th>실행 명령</th></tr></thead>
       <tbody>
-        <tr>
-          <td><span class="badge info">token</span></td>
-          <td><code>npx vitest run tests/design/tokens.test.ts</code></td>
-          <td>Vitest 기반</td>
-        </tr>
-        <tr>
-          <td><span class="badge info">a11y</span></td>
-          <td><code>npx playwright test tests/design/a11y.test.ts</code></td>
-          <td>axe-core + Playwright</td>
-        </tr>
-        <tr>
-          <td><span class="badge info">visual</span></td>
-          <td><code>npx playwright test tests/design/visual-regression.test.ts --update-snapshots</code></td>
-          <td>첫 실행 시 기준 스냅샷 생성</td>
-        </tr>
-        <tr>
-          <td><span class="badge info">responsive</span></td>
-          <td><code>npx playwright test tests/design/responsive.test.ts</code></td>
-          <td>Playwright 기반</td>
-        </tr>
+        <tr><td>토큰 검증</td><td><code>npx vitest run tests/design/tokens.test.ts</code></td></tr>
+        <tr><td>접근성</td><td><code>npx playwright test tests/design/a11y.test.ts</code></td></tr>
+        <tr><td>시각 회귀</td><td><code>npx playwright test tests/design/visual-regression.test.ts --update-snapshots</code> (첫 실행)</td></tr>
+        <tr><td>결정 전파</td><td><code>python3 &lt;§6 커버리지 체커&gt; .design/decisions.yaml</code> → 종료 코드 0 · 그 다음 <code>npx playwright test tests/design/decision-*.test.ts</code></td></tr>
+        <tr><td>반응형</td><td><code>npx playwright test tests/design/responsive.test.ts</code></td></tr>
       </tbody>
     </table>
   </div>
-
-  <div class="card">
-    <div class="card-title"><span class="dot"></span>의존성 설치</div>
-    <div class="code-block mt-16"><span class="cm"># 도구 미설치 시 안내되는 설치 명령</span>
-npm install -D @playwright/test @axe-core/playwright
-npx playwright install chromium</div>
+  <pre><code>npm install -D @playwright/test @axe-core/playwright
+npx playwright install chromium</code></pre>
+  <h3 class="subhead">시각 회귀 baseline 검증 루프 (필수 — 건너뛰지 마라)</h3>
+  <p class="section-desc">첫 실행은 baseline 을 기록할 뿐 아무것도 비교하지 않습니다. 아래 4 단계를 모두 마치기 전에는 "시각 회귀 테스트 통과" 라고 보고하지 않습니다 (Gotcha 10).</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>단계</th><th>명령</th><th>기대 결과</th></tr></thead>
+      <tbody>
+        <tr><td>1. baseline 기록</td><td><code>npx playwright test tests/design/visual-regression.test.ts --update-snapshots</code></td><td>스냅샷 파일 생성 — 통과는 증거가 아님</td></tr>
+        <tr><td>2. negative control</td><td>대상에 의도적 변형을 준 뒤 <code>npx playwright test tests/design/visual-regression.test.ts</code></td><td><span class="badge fail">실패해야 한다</span> 통과하면 테스트가 아무것도 검사하지 않는 것이므로 locator/threshold 를 고쳐라</td></tr>
+        <tr><td>3. 되돌리기</td><td>변형 revert 후 동일 명령</td><td><span class="badge pass">통과</span></td></tr>
+        <tr><td>4. 증거 인용</td><td>2 와 3 의 출력을 그대로 보고에 첨부</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc">2 단계가 실패하지 않으면 비교 기준이 너무 관대한 것입니다. 두 축을 각각 확인하십시오 — 둘은 다른 것입니다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>maxDiffPixelRatio</div>
+      <p>달라도 되는 픽셀의 <strong>비율</strong>입니다 (0~1, 기본 unset). 크게 잡으면 국소 변경이 묻힙니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>threshold</div>
+      <p>같은 좌표 픽셀 간 허용 <strong>색차</strong>입니다 (YIQ 색공간, 0=엄격 ~ 1=관대, 기본 0.2). 기본값이 이미 관대한 편이라 미묘한 색상 변화는 픽셀 비율과 무관하게 통과할 수 있습니다. 색상 회귀를 잡으려면 <code>threshold</code> 를 낮춰야 하며, <code>maxDiffPixelRatio</code> 만 조정해서는 잡히지 않습니다.</p>
+      <a class="card-source" href="https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-have-screenshot-1">출처: Playwright — toHaveScreenshot options ↗</a>
+    </div>
   </div>
 </section>
 
-</div>
+<!-- STEP 8 / EVIDENCE -->
+<section aria-labelledby="step8-title">
+  <div class="section-label">Step 8 · EVIDENCE</div>
+  <h2 class="section-title" id="step8-title">결과 보고</h2>
+  <p class="section-desc">생성된 파일 목록, 테스트 케이스 수, 실행 결과를 사용자에게 제시합니다. CI 파이프라인에 통합하는 방법(접근성 게이트, 시각 회귀 PR 리뷰 등)을 안내합니다. 보고는 EVIDENCE 블록으로 닫고, 실행하지 못한 테스트는 통과로 적지 말고 <code>[미검증]</code> 과 사유를 남깁니다.</p>
+  <div class="evidence-grid mb-24">
+    <div class="evidence-item">
+      <div class="evidence-key">채널</div>
+      <div class="evidence-value">artifact_snapshot · dom_snapshot · browser_user_visible · device_user_visible 중 하나를 명시</div>
+    </div>
+    <div class="evidence-item">
+      <div class="evidence-key">실행 명령</div>
+      <div class="evidence-value">실제로 실행한 명령어를 그대로 기록</div>
+    </div>
+    <div class="evidence-item">
+      <div class="evidence-key">출력</div>
+      <div class="evidence-value">통과/실패 수, 실패 항목 — viewport · route/state · visible locator · count/height · golden id 포함</div>
+    </div>
+    <div class="evidence-item">
+      <div class="evidence-key">negative control</div>
+      <div class="evidence-value">Step 7 2단계 실패 확인 출력. 미수행 시 <code>[미검증] 사유</code></div>
+    </div>
+    <div class="evidence-item">
+      <div class="evidence-key">결정 전파</div>
+      <div class="evidence-value">커버리지 체커 출력. manifest 부재 시 <code>NO_MANIFEST</code> 그대로</div>
+    </div>
+    <div class="evidence-item">
+      <div class="evidence-key">미검증</div>
+      <div class="evidence-value">실행 불가 테스트와 사유</div>
+    </div>
+  </div>
+  <pre><code>## EVIDENCE
+- 채널: [artifact_snapshot | dom_snapshot | browser_user_visible | device_user_visible]
+- 실행 명령: [명령어]
+- 출력: [통과/실패 수, 실패 항목 — viewport · route/state · visible locator · count/height · golden id 포함]
+- negative control: [Step 7 2단계 실패 확인 출력 — 미수행 시 "[미검증] 사유"]
+- 결정 전파: [커버리지 체커 출력 — manifest 부재 시 "NO_MANIFEST" 그대로]
+- 미검증: [실행 불가 테스트와 사유]</code></pre>
+</section>
 
+<!-- REFERENCES -->
+<section aria-labelledby="references-title">
+  <div class="section-label">References</div>
+  <h2 class="section-title" id="references-title">정본과 외부 출처</h2>
+  <p class="section-desc">원본 스킬이 지정한 참조만 연결했습니다. 부분 변경 격리, 결정 전파, 증거 채널은 visual-change-protocol이 정본(SSOT)입니다. 괄호 안은 원본 스킬 파일 기준 경로입니다.</p>
+  <ul class="reference-list">
+    <li><a href="../../design-kit/skills/design-guide/references/principle-index.md">design-guide principle-index.md</a> (<code>../design-guide/references/principle-index.md</code>) — 디자인 원칙 인덱스 (접근성 카테고리 포함)</li>
+    <li><a href="../../design-kit/skills/design-system/references/token-principles.md">design-system token-principles.md</a> (<code>../design-system/references/token-principles.md</code>) — 토큰 설계 원칙</li>
+    <li><a href="../../design-kit/references/visual-change-protocol.md">visual-change-protocol.md</a> (<code>../../references/visual-change-protocol.md</code>) — 부분 변경 격리 · before/after 증거 블록 · §6 Decision Propagation Manifest · §7 Evidence Channels (SSOT)</li>
+    <li><a href="../../harness/docs/guides/skill-design-guide.md">skill-design-guide.md §3.8</a> (<code>harness/docs/guides/skill-design-guide.md</code>) — User-Reported Failure Gate, 사용자 실패 보고 우선순위 규약의 정본</li>
+    <li><a href="../../harness/docs/guides/qa-evaluation-guide.md">qa-evaluation-guide.md</a> (<code>harness/docs/guides/qa-evaluation-guide.md</code>) — §Evidence Validity Gate 검사 2·3 (Gotcha 10 의 출처)</li>
+    <li><a href="https://playwright.dev/docs/test-snapshots">Playwright Visual Comparisons</a> — baseline 생성·갱신 동작</li>
+  </ul>
+</section>
+
+</main>
 </body>
 </html>

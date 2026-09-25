@@ -58,6 +58,15 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     # 파생 페이지가 "OrcaSlicer 요청에는 트리거되지 않는다" 를 그대로 단 채 QA 까지 갔다.
     # reflect-kit 과 같은 누락이 같은 이유로 반복된 것이다.
     ("bambu-kit/skills/bambu-print-profile/references/", "docs/bambu-kit/"),
+
+    # 2026-09-25: api-kit · howto-kit · onboarding-kit 원본이 매핑에 없어 고쳐도 "no docs drift" 가 나왔다.
+    # 원본 폴더 이름(docs/api · docs/howto)과 페이지 폴더 이름(docs/api-kit · docs/howto-kit)이 다르다.
+    ("docs/api/", "docs/api-kit/"),
+    ("docs/howto/", "docs/howto-kit/"),
+    # onboarding-kit 은 스킬 하나가 킷 전부다. 같은 스킬 폴더의 evals/ 픽스처는 페이지가 아니라서
+    # 스킬 폴더 전체가 아니라 본문과 references/ 만 잇는다
+    ("onboarding-kit/skills/setup-guide/SKILL.md", "docs/onboarding-kit/"),
+    ("onboarding-kit/skills/setup-guide/references/", "docs/onboarding-kit/"),
 ]
 
 
@@ -69,10 +78,13 @@ SOURCE_OVERRIDES: dict[str, list[str]] = {
         "docs/design-kit/spacing-system.html",
         "docs/design-kit/grid-alignment.html",
     ],
-    # 스킬 본문이 곧 문서의 소스인 킷. stem 이 "SKILL" 이라 접두 규칙으로는 페이지 이름을
-    # 만들 수 없다 (`docs/bambu-kit/SKILL.html` 이 나온다) — 그래서 여기 명시한다.
+    # bambu-kit 은 스킬 폴더의 references/ 만 접두 매핑에 있어 본문을 여기 명시한다
     "bambu-kit/skills/bambu-print-profile/SKILL.md": [
         "docs/bambu-kit/bambu-print-profile.html",
+    ],
+    # 예제 원본은 페이지 이름이 원본 이름과 다르다
+    "docs/onboarding-kit/examples/fcm-ios-setup-guide.md": [
+        "docs/onboarding-kit/fcm-ios-example.html",
     ],
 }
 
@@ -184,10 +196,12 @@ def map_source_to_html(source: str) -> str | None:
 
     for prefix, html_dir in SOURCE_TO_HTML:
         if source.startswith(prefix):
-            # Extract relative path after prefix
-            rel = source[len(prefix):]
-            # Convert name.md → name.html (strip all extensions)
-            name = re.sub(r"\.(md|yaml|yml)$", "", Path(rel).name)
+            # Convert name.md → name.html (strip all extensions).
+            # 접두가 파일 경로 전체일 수 있어(onboarding SKILL.md) 이름은 원본 경로에서 뽑는다
+            name = re.sub(r"\.(md|yaml|yml)$", "", Path(source).name)
+            # 스킬 본문은 파일 이름이 모두 SKILL 이라 `SKILL.html` 로 겹친다 — 스킬 폴더 이름을 페이지 이름으로 쓴다
+            if name == "SKILL":
+                name = Path(source).parent.name
             # docs-site 출력은 **전부 flat** 이다 — 소스의 subdir 을 보존하면 안 된다.
             # (과거 design-kit 만 subdir 을 보존해 26/26 전부 존재하지 않는 경로를 가리켰고,
             #  그 결과 모든 design-kit 소스 변경이 `[NEW — 신규 생성 필요]` 로 오보되어

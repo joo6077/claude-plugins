@@ -1,7 +1,7 @@
 ---
 title: Contract Design Guide
-version: v5.0
-last_updated: 2026-08-13
+version: v5.1
+last_updated: 2026-09-24
 ---
 
 # Contract Design Guide
@@ -683,21 +683,22 @@ awk '/^## 이 킷이 사실로 말하지 않는 것/{f=1;print;next} f&&/^## /{e
 > Improvement (2026-07-21, "AR-01/AR-02 는 unstaged working tree 에서 측정이 모호 — `git diff --cached`
 > 기준 권고"). E1 문장을 세 번 다듬었으므로 **표준형을 강제**한다 (skill-design-guide §3.7 승급 규칙).
 
-"변경 범위" 를 조건으로 쓸 때 `git diff` 를 자유 서술로 적지 마라. 아래 **4 요소를 모두 채운
+"변경 범위" 를 조건으로 쓸 때 `git diff` 를 자유 서술로 적지 마라. 아래 **5 요소를 모두 채운
 표준형**만 허용한다. 하나라도 빠지면 조건을 다시 써라.
 
 | # | 요소 | 이유 |
 | - | ---- | ---- |
-| 1 | **상태 전제** — `Given: 커밋 직전 working tree` 또는 `Given: 스테이징 완료 후` 중 하나를 명시 | `HEAD` / `--cached` / `main...HEAD` 는 서로 다른 집합을 본다. 평가자가 다른 상태에서 실행하면 판정이 뒤집힌다 |
+| 1 | **상태 전제** — `Given: 이 스프린트의 커밋이 끝난 뒤` · `Given: 커밋 직전 working tree` · `Given: 스테이징 완료 후` 중 하나를 명시. 평가 시점에 다시 잴 수 있는 것을 고른다 | `HEAD` / `--cached` / `main...HEAD` 는 서로 다른 집합을 본다. 평가자가 다른 상태에서 실행하면 판정이 뒤집힌다 |
 | 2 | **경로 한정 pathspec** — `-- <path>` 로 대상 디렉토리를 좁힌다 | 병렬 세션·무관 변경이 섞여 들어온다 |
 | 3 | **생성물 제외** — `':(exclude)*.g.dart'` 처럼 codegen·락파일·빌드 산출물을 pathspec 으로 뺀다 | 미커밋 codegen 이 scope 조건을 깨뜨린 것이 2026-06-29 REJECT 의 직접 원인 |
 | 4 | **기대 집합** — 결과가 "정확히 N 행" 인지 "이 목록과 일치" 인지 명시 | "포함한다" 와 "일치한다" 는 다른 판정이다 |
+| 5 | **상한 ref** — `<base>..<상한>` 의 상한을 이 스프린트가 소유한 ref 로 적는다 (`HEAD` 금지 — 스키마 §커밋 구간 상한). 상한 ref 는 커밋 구간을 재는 조건에만 요구한다 — 커밋 전 두 상태(`git diff HEAD` · `--cached`)에는 상한이 없다 | `HEAD` 는 평가 시점마다 움직여 봉인 뒤 들어온 남의 변경을 잡는다 |
 
 ```text
 Good:
 - [ ] AR-01: 이번 스프린트 변경이 변환 헬퍼 2 개 파일로 한정된다 [exact, enumerated]
-      (Given: 커밋 직전 working tree ·
-       측정: `git diff --name-only HEAD -- app/lib ':(exclude)*.g.dart' ':(exclude)*.freezed.dart'`
+      (Given: 이 스프린트의 커밋이 끝난 뒤 ·
+       측정: `git diff --name-only <base>..<상한> -- app/lib ':(exclude)*.g.dart' ':(exclude)*.freezed.dart'`
        결과가 `app/lib/data/mapper/schedule_mapper.dart`,
        `app/lib/data/mapper/group_mapper.dart` 2 행과 정확히 일치)
 
@@ -710,8 +711,9 @@ Bad:
 
 - 계약 작성 시점에 **그 명령을 실제로 1 회 실행**하고 현재 출력(baseline)을 계약 서술 절에 붙인다.
   실행해보지 않은 측정 명령은 oracle 이 아니라 추측이다
-- 커밋 후 판정이 전제라면 조건에 `Given: 스테이징 완료 후` 를 쓰고 `--cached` 를 사용한다.
-  구현 중 자가 확인이 목적이면 `HEAD` 기준 working tree 를 쓰되 전제를 그렇게 적는다
+- 커밋 뒤에 재는 조건이면 커밋 구간 `<base>..<상한>` 을 쓴다 (2026-09-24 정정). `--cached` 와 `git diff HEAD` 는
+  커밋하고 나면 빈 출력이다 — 옛 문구는 커밋 뒤 판정에 `--cached` 를 권해 늘 빈 집합을 재게 했다. 스테이징만 하고
+  커밋 전에 재는 조건일 때만 `--cached` 를, 구현 중 자가 확인이면 `HEAD` 기준 working tree 를 쓰되 전제를 그렇게 적는다
 - 브랜치 비교(`main...HEAD`) 는 **커밋이 끝난 뒤**에만 유효하다 (LG-07/AR-01 절 참조)
 - **경로 목록은 "기대 집합" 한 곳에서만 관리한다.** 같은 경로 집합을 산문과 측정 명령 양쪽에
   적으면 한쪽만 고쳐지는 순간 계약이 자기모순에 빠진다. 산문에는 **개수만** 쓰고
@@ -754,7 +756,7 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
 
 **따라서 0 기대 조건에는 `양성 대조:` 절을 쓰고 봉인 전에 실측한다.** 포맷 정의는 `harness/references/contract-schema.md` §양성 대조 가 SSOT 이며 여기서 재정의하지 않는다. 평가자 쪽 대응 규칙은 `qa-evaluation-guide.md` §0 매치 판정 규칙 이다.
 
-**기계 자동 경보는 두지 않았다.** 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(`grep -c` 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 4 종)과 평가자 규칙으로 막는다.
+**기계 자동 경보는 두지 않았다.** 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(`grep -c` 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 5 종)과 평가자 규칙으로 막는다.
 
 #### 대상 파일을 열거하라 — 개수만 적으면 집합이 재현되지 않는다 (2026-09-23 추가)
 
@@ -784,6 +786,16 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
 **대응**: 넣을 문장이나 지울 문장을 **계약에 리터럴로 못박고** `grep -F` 로 확인한다. 낱말로
 재야 한다면 `awk` 로 해당 절만 잘라 범위를 좁히고, 그 낱말의 **현재 건수를 봉인 전에 실측**해
 양성 대조에 적는다.
+
+### 0 이 아닌 기대값 — 새 측정은 알려진 답으로 먼저 맞춘다 (2026-09-24 추가)
+
+양성 대조는 기대값이 0 인 측정만 다룬다. 새로 짠 측정 스크립트가 길이 · 개수 · 합계처럼 0 이 아닌 값을 내면, 그 첫
+출력은 그럴듯해 보여도 아직 아무도 확인하지 않은 값이다. 실측(2026-09-22): 호 이동 길이를 빠뜨린 길이 측정과 첨자가
+한 칸 밀린 zsh 배열 측정이 둘 다 그럴듯한 값을 냈다.
+
+**따라서 그런 조건에는 `알려진 답:` 절을 쓰고 봉인 전에 실측한다** — 손으로 답을 셀 수 있는 작은 입력에 돌려 기대값과
+실제값을 나란히 적는다. 포맷 정의는 `harness/references/contract-schema.md` §알려진 답 대조 가 SSOT 이고, 생성 측 규칙은
+`skill-design-guide.md` §3.7 「0 이 아닌 값을 내는 새 측정 — 알려진 답 대조」 다.
 
 ### 계약 봉인 — Write-Once Seal (E3)
 
@@ -1099,7 +1111,7 @@ rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검
 | 모호한 조건 | "적절히 처리한다" → 해석이 여러 개 | 구체적 행동과 결과로 재작성 |
 | 단일 카테고리 편중 | 모든 조건이 UI에만 집중 | GQM으로 카테고리 균형 확인 |
 | 복합 조건 | "A이고 B이며 C이다" | 각각 독립 조건으로 분리 |
-| 과소 안티패턴 | 0-1개 안티패턴 | 최소 2개 필수 |
+| 과소 안티패턴 | 걸릴 수 있는 패턴이 있는데 0-1개만 넣음 | 걸리는 패턴은 최소 2개 · 하나도 없으면 `AP-00: N/A (사유)` 한 줄 |
 | 테스트 불가 조건 | "사용자 경험이 좋다" | 측정 가능한 지표로 변환 |
 | 복잡도 과소평가 | 파일 수로만 판단 | 영향 범위(레이어, 공개 API)로 판단 |
 | 구현 누수 | 조건에 클래스명/메서드명/DB명 포함 | 외부 관찰 가능한 행동으로 재작성 |
@@ -1118,7 +1130,7 @@ rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검
 | 정성적 수식어 사용 | "충분히", "상당한", "적절히", "대부분" 등 binary 판정 불가 수식어 | 구체 수치/기준값으로 대체 또는 조건 분리 (Binary Decidability Pre-Check 실패 1 순위) |
 | 한쪽 면만 계약 | 계약·직렬화·공유 모델을 바꾸는데 producer 조건만 있고 consumer 조건이 없음 → 서버만 고치고 클라이언트는 다음 스프린트로 밀림 | producer/consumer 를 **별도 조건 2 개**로 분리하고 각 면의 파일 경로를 `[exact, enumerated]` 로 열거 (insights Friction #4 재발 방지) |
 | preamble–조건 모순 | 계약 서두의 설계 의도와 조건이 서로 다른 것을 요구 → 구현자가 조용히 한쪽만 따르고 평가자는 다른 쪽으로 판정 | DRAFT 제시 전 서술↔조건 방향 대조 + 열거한 기존 식별자 grep 존재 확인 (RE-02 재발 방지) |
-| diff-scope oracle 자유 서술 | `git diff` 를 상태 전제·경로 한정·생성물 제외·기대 집합 없이 적음 → 미커밋 codegen 혼입, working tree/staged 해석 차이로 판정 뒤집힘 | Diff-Scope Oracle **표준형 4 요소**를 전부 채우고 작성 시점에 명령을 1 회 실행해 baseline 첨부 (AR-01 3 회 재발 방지) |
+| diff-scope oracle 자유 서술 | `git diff` 를 상태 전제·경로 한정·생성물 제외·기대 집합 없이 적음 → 미커밋 codegen 혼입, working tree/staged 해석 차이로 판정 뒤집힘 | Diff-Scope Oracle **표준형 5 요소**를 전부 채우고 작성 시점에 명령을 1 회 실행해 baseline 첨부 (AR-01 3 회 재발 방지) |
 | `[exact]` 산출물 오분류 | 조건 문장에 테스트·문서 산출물이 등장하는데 이번 스프린트에 낼 생각이 없음 | 낼 것이면 산출물 경로까지 조건화, 아니면 `[goal]` 로 낮추거나 산출물 문구 제거 (UI-07 재발 방지) |
 | 증거 없는 goal 조건 | 승인 기록·합의 로그처럼 사람이 남겨야 생기는 증거에 의존하는데 그 기록물이 존재하지 않음 → 판정 불가 | 증거 기록물의 **경로**를 조건에 명시하고, 경로를 못 적으면 조건을 만들지 않음 (UI-06 재발 방지) |
 | 미분류 섹션 헤더 | 조건 섹션도 서술 섹션도 아닌 헤더(`Notes` 등) 추가, 또는 서술 섹션에 `- [ ]` 조건 배치 → 평가자 파서 오작동 | 헤더 2 계층 허용 목록만 사용 + 저장 직후 결정론적 헤더 검사 (`parser-incompatible-contract-section` 재발 방지) |
@@ -1129,7 +1141,8 @@ rust-init, rust-feature, rust-service, rust-api 4 스킬 중 rust-api 만 점검
 
 ### 구조화 진단 체크리스트
 
-sprint-contract 실행 완료 후 다음 항목을 자가 점검한다:
+sprint-contract 실행 완료 후 다음 항목을 자가 점검한다. **모든 항목은 「문제가 있다」 가 true 다** (2026-09-24 추가) —
+문항이 「했는가」 와 「빠졌는가」 로 섞이면 카이젠이 true 의 뜻을 가를 수 없다:
 
 | 항목 | 점검 내용 |
 | ------ | ----------- |
@@ -1139,19 +1152,21 @@ sprint-contract 실행 완료 후 다음 항목을 자가 점검한다:
 | category_coverage_gap | project.yaml 카테고리 중 커버하지 못한 것이 있는가? |
 | complexity_underestimate | 복잡도를 과소평가하여 조건 수가 부족한가? |
 | implementation_leakage | 조건에 내부 구현 용어(클래스명, 메서드명, DB명)가 포함되었는가? |
-| nfr_coverage | 해당 기능의 비기능 요구사항(성능/보안/접근성)이 조건에 반영되었는가? |
+| nfr_coverage | 해당 기능의 비기능 요구사항(성능/보안/접근성)이 조건에서 빠졌는가? |
 | boundary_without_measurement | 경계값(>=, <=, ==) 조건에 측정 방법이 누락되었는가? |
-| format_granularity_missing | 포맷 일관성 조건에 적용 수준(file/section/field)이 명시되었는가? |
+| format_granularity_missing | 포맷 일관성 조건에 적용 수준(file/section/field)이 빠졌는가? |
 | counterpart_missing | 계약·직렬화·공유 모델 변경인데 consumer 면 조건이 누락되었는가? |
 | preamble_condition_conflict | 서술 절의 설계 의도와 조건이 서로 다른 것을 요구하는가? |
-| diff_oracle_nonstandard | 변경 범위 조건이 Diff-Scope Oracle 표준형 4 요소(상태 전제/경로 한정/생성물 제외/기대 집합)를 다 채웠는가? |
-| evidence_artifact_missing | `[goal]` 조건이 참조하는 증거 기록물의 경로가 조건에 명시되었는가? |
+| diff_oracle_nonstandard | 변경 범위 조건에서 Diff-Scope Oracle 표준형 5 요소(상태 전제/경로 한정/생성물 제외/기대 집합/상한 ref) 중 하나라도 빠졌는가? |
+| evidence_artifact_missing | `[goal]` 조건이 참조하는 증거 기록물의 경로가 조건에서 빠졌는가? |
 | section_header_unclassified | 조건 섹션도 서술 섹션도 아닌 헤더가 있거나, 서술 섹션에 `- [ ]` 조건이 들어갔는가? |
-| contract_seal_missing | 사용자 승인 후 `conditions_digest` / `locked_at` 을 기록하고 검증 출력을 인용했는가? |
-| measurement_coverage_gap | `enumerated` 조건에서 검출기가 `UNCOVERED` 를 낸 건마다 수정 또는 해소 기록을 남겼는가? |
-| factor_matrix_missing | 2 개 이상 축의 곱이 의미를 결정하는 조건에 축·축 값·`cases_total` 산출 명령이 있는가? |
-| negative_control_missing | 테스트 통과를 요구하는 조건에 `음성 대조:` 절이 있는가? |
-| amendment_direction_uncomputed | 집합형 amendment 의 direction 을 자기신고하지 않고 집합 비교로 계산했는가? |
+| contract_seal_missing | 사용자 승인 후 `conditions_digest` / `locked_at` 이 없거나 검증 출력을 인용하지 않았는가? |
+| measurement_coverage_gap | `enumerated` 조건에서 검출기가 낸 `UNCOVERED` 가운데 수정도 해소 기록도 없는 건이 남았는가? |
+| factor_matrix_missing | 2 개 이상 축의 곱이 의미를 결정하는 조건에 축·축 값·`cases_total` 산출 명령이 빠졌는가? |
+| negative_control_missing | 테스트 통과를 요구하는 조건에 `음성 대조:` 절이 빠졌는가? |
+| amendment_direction_uncomputed | 집합형 amendment 의 direction 을 집합 비교 없이 자기신고했는가? |
+| measure_premise_unrun | 값이 면제인 조건의 측정 명령에서 준비 단계(읽을 경로 · `command -v` · 도구를 숨기는 전제 · 임시 사본)를 봉인 전에 돌리지 않았는가? |
+| known_answer_missing | 0 이 아닌 값을 내는 새 측정 스크립트에 `알려진 답:` 절이 빠졌거나 기대값과 실제값이 다른 채 봉인했는가? |
 
 ### 모호성 분류 (Ambiguity Taxonomy)
 
@@ -1210,7 +1225,7 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 하위 **qa-evaluation-guide · sprint-contract SKILL.md · qa-evaluator 에이전트** 에
 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
 
-### 계약 설계에 전수된 parity items (7 개)
+### 계약 설계에 전수된 parity items (9 개)
 
 | # | Parity Item | skill-design-guide 위치 | agent-design-guide 위치 | **contract-design-guide 대응 위치 (이 가이드)** |
 | --- | ------------- | ------------------------ | ------------------------ | ------------------------------------------------ |
@@ -1221,6 +1236,8 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 | 12 | Counterpart Enumeration | §5.5 (변경의 반대편 열거) | — (평가자는 계약 조건으로 수용) | **§조건 작성법 > "양면 조건 — Counterpart Conditions"** |
 | 13 | Variant Budget ↔ Exploration Budget | §5.6 (산출물 개수·축 고정) | §7 (탐색 turn 예산) — **구분 대상** | **§조건 작성법 > "인자 매트릭스" 의 variant 용법** (축 값 조합 중복 = FAIL) |
 | 14 | User-Reported Failure Gate | §3.8 (사용자 관측은 재현 대상) | §10 (사용자 보고 우선 — 평가자 측) | — (계약 측 착지 없음. 완료 판정 시점의 규약이라 **평가 레이어 소관** — Phase 3) |
+| 15 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | §3.7 (0 이 기대값인 검증의 양성 대조) | §4 Agent(agent_type) 한계 2 | **§0 이 기대값인 조건 — 양성 대조 없이 잠그지 마라** (포맷 SSOT: 스키마 §양성 대조) |
+| 16 | 알려진 답 대조 (0 이 아닌 기대값) | §3.7 (0 이 아닌 값을 내는 새 측정) | — (생성 측 전용) | **§0 이 아닌 기대값 — 새 측정은 알려진 답으로 먼저 맞춘다** (포맷 SSOT: 스키마 §알려진 답 대조) |
 
 > 두 가이드의 item 1 · item 4 (rule-by-rule audit) 는 contract 가이드에
 > 해당 위치 없이 qa-evaluation-guide 로 위임된다 (중복 배제).
@@ -1289,6 +1306,6 @@ verdict 에 반영되지 않는다.
 
 | 항목 | 값 | 원본 |
 | ------ | ------ | ------ |
-| Guide version | 2026-08-13 (Phase 2 kaizen · v5.0) | 이 파일 YAML frontmatter 의 `version` (= `v5.0`) 이 SSOT — 날짜·사유만 이 행에 적는다. 상위 surface(`qa-evaluation-guide.md` §버전 정보 Parity)가 그 필드를 추출하므로 **둘을 같이 올린다** |
-| Schema version | v5.3 | `harness/references/contract-schema.md` §스키마 버전 > `현재:` |
-| Parity with | skill-design-guide 1.5.0 · agent-design-guide 1.6.0 | 두 가이드 frontmatter `version` |
+| Guide version | 2026-09-24 (Phase 2 kaizen · v5.1) | 이 파일 YAML frontmatter 의 `version` (= `v5.1`) 이 SSOT — 날짜·사유만 이 행에 적는다. 상위 surface(`qa-evaluation-guide.md` §버전 정보 Parity)가 그 필드를 추출하므로 **둘을 같이 올린다** |
+| Schema version | v5.5 | `harness/references/contract-schema.md` §스키마 버전 > `현재:` |
+| Parity with | skill-design-guide 1.6.0 · agent-design-guide 1.7.0 | 두 가이드 frontmatter `version` |

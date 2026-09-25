@@ -15,7 +15,7 @@ user-invocable: true
 - anti-pattern 5개가 자동 체크된다: StatefulWidget, bare catch(e), 상대 import, GestureDetector/InkWell, Palette 직접 참조 — 하나라도 걸리면 preflight FAIL
 - FVM 미설치 환경에서 preflight 실행하면 모든 단계가 실패한다 — 먼저 FVM 존재를 확인해라
 - test 단계에서 콘솔 에러 패턴 4개를 체크한다: "EXCEPTION CAUGHT BY", "RenderFlex overflowed", "setState() called after dispose", "Null check operator" — 테스트 통과해도 이 패턴 있으면 FAIL
-- Makefile 기반 프로젝트(fit-pal 등)에서는 `make app-run` / `make app-test` 명령을 사용한다 — `fvm flutter run` 직접 호출 시 dart-define, observatory-port 설정이 누락된다. `Makefile` 존재 확인 후 `make` 커맨드를 우선 사용하라
+- Makefile 기반 프로젝트에서는 `make app-run` / `make app-test` 명령을 사용한다 — `fvm flutter run` 직접 호출 시 dart-define, observatory-port 설정이 누락된다. `Makefile` 존재 확인 후 `make` 커맨드를 우선 사용하라
 
 # Preflight (Pre-commit Quality Gate)
 
@@ -37,7 +37,7 @@ user-invocable: true
 
 ## Input
 
-`$ARGUMENTS`: feature 이름 (optional, e.g., `auth`). 지정하면 codegen에 해당 feature만 적용.
+`$ARGUMENTS`: feature 이름 (optional, e.g., `auth`). 보고에 적기만 하고 codegen 범위를 좁히지 않는다.
 
 ## Steps
 
@@ -67,19 +67,32 @@ fi
 
 ### 2. codegen [feature]
 
-`HAS_BUILD_RUNNER`이면 실행:
+`HAS_BUILD_RUNNER`이면 필터 없이 전체 codegen 을 돌리고 전후 삭제 수를 센다 (`flutter-run` codegen 절과 같은 블록).
+feature 인자가 와도 `--build-filter` 를 붙이지 않는다 — 인자는 보고에 적기만 하고 범위를 좁히지 않는다:
 
 ```bash
-$DART run build_runner build --delete-conflicting-outputs
+# 코드 생성 전후로 git 이 삭제로 보는 추적 파일을 센다. 0 건에 종료 코드 1 을 내는 grep -c 대신 awk 로 센다
+deleted() { git status --porcelain=v1 --untracked-files=no | awk 'substr($(0),1,1)=="D" || substr($(0),2,1)=="D" {print substr($(0),4)}' | sort; }
+count() { printf '%s\n' "${1}" | awk 'NF{n++} END{print n+0}'; }
+RC=0
+BEFORE=$(deleted)
+$DART run build_runner build --delete-conflicting-outputs || RC=$?
+NEW=$(comm -13 <(printf '%s\n' "$BEFORE") <(deleted))
+FIRST=$(count "$NEW")
+if [ "$RC" = 0 ] && [ "$FIRST" -gt 0 ]; then
+  # 한 번 더 돌린다. 비교 기준은 첫 BEFORE 그대로다 — 다시 재면 늘어난 삭제가 기준에 섞여 0 이 된다
+  $DART run build_runner build --delete-conflicting-outputs || RC=$?
+  NEW=$(comm -13 <(printf '%s\n' "$BEFORE") <(deleted))
+fi
+echo "삭제 before=$(count "$BEFORE") after=$(count "$(deleted)") new_first=$FIRST new=$(count "$NEW") codegen_exit=$RC"
+[ -z "$NEW" ] || printf '늘어난 삭제:\n%s\n' "$NEW"
+# 블록의 종료 코드가 codegen 실패와 남은 삭제를 둘 다 드러낸다 — 마지막 명령이 성공하면 실패가 가려진다
+[ "$RC" = 0 ] && [ -z "$NEW" ]
 ```
 
-feature 인자가 있으면:
-
-```bash
-$DART run build_runner build --delete-conflicting-outputs --build-filter="lib/features/$FEATURE/**"
-```
-
-`HAS_BUILD_RUNNER = false`이면 skip. 실패 시 즉시 중단.
+`HAS_BUILD_RUNNER = false`이면 skip. 실패 시 즉시 중단. `new` 가 0 이 아니면 그것도 실패다 — 멈춰서 `늘어난 삭제` 목록을 보고하고,
+맞는 삭제일 수 있으니 되돌리지 말고 목록을 보인다.
+생성물을 git 에 올리지 않는 프로젝트에서는 이 세기가 생성물 삭제를 보지 못해 늘 0 이다 — `git ls-files -- '*.g.dart' '*.freezed.dart'` 가 비면 `new=0` 을 통과로 쓰지 말고 보고 줄 뒤에 `추적된 생성물 0 개 — 삭제를 셀 수 없다` 를 붙인다.
 
 ### 3. analyze
 
@@ -109,7 +122,7 @@ $FLUTTER test
 Preflight passed
 
   1. fix     : success (포맷 N 파일 또는 포맷 건너뜀 (바뀐 .dart 없음))
-  2. codegen : success (또는 skipped)
+  2. codegen : success · 삭제 before=N after=N new_first=N new=0 codegen_exit=0 (또는 skipped)
   3. analyze : clean
   4. test    : N passed (또는 skipped)
 
@@ -122,7 +135,8 @@ Ready to commit.
 Preflight failed at step N
 
   1. fix     : success
-  2. codegen : success
+  2. codegen : success / failed / skipped · 삭제 before=N after=N new_first=N new=N codegen_exit=N (skipped 면 없음)
+     [늘어난 삭제 — new 가 0 이 아니면 그 목록]
   3. analyze : failed (N errors)
      [에러 목록]
   4. test    : skipped

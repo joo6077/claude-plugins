@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sprint Contract 스키마 v5.3 — Harness</title>
+<title>Sprint Contract 스키마 v5.5 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -165,37 +165,106 @@ pre code{white-space:pre}
 .sl h4{font-size:13px;font-weight:800;margin-bottom:8px;letter-spacing:0.03em}
 .sl.ok h4{color:var(--green)}.sl.absent h4{color:var(--yellow)}.sl.broken h4{color:var(--red)}
 .sl p{font-size:12.2px;color:var(--text2);line-height:1.62}
-
+/* 페이지 안 이동 링크 — 스타일 없는 <a> 는 다크 배경에서 대비 1.87 이라 색을 직접 준다 (docs-site Gotcha 14) */
+.jump{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent);font-weight:600;transition:var(--transition)}
+.jump:hover{color:var(--accent2)}
+.jump:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.new{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:rgba(74,222,128,0.12);color:var(--green);font-size:11px;font-weight:800;letter-spacing:0.04em;margin-left:6px;vertical-align:2px}
+.ev td:nth-child(2){white-space:nowrap}
+.pattern .jump{font-size:12px}
+.cols-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+@media(max-width:920px){.cols-2{grid-template-columns:1fr}}
+.cols-2>*{min-width:0}
+.card ul + p,.note ul + p{margin-top:10px}
 </style>
-<!-- kaizen-cycle: 2026-08-13 · source: harness/references/contract-schema.md -->
+<!-- kaizen-cycle: 2026-09-24 · source: harness/references/contract-schema.md -->
 </head>
 <body>
 <div class="page">
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · Sprint Contract 스키마</div>
-  <span class="badge">v5.3 · 2026-08-13</span>
+  <span class="badge">v5.5 · 2026-09-24</span>
 </div>
 
 <div class="hero">
   <h1>Sprint Contract 스키마</h1>
-  <p class="subtitle"><code>sprint-contract</code> 와 <code>qa-evaluator</code> 가 공유하는 계약 포맷 정의. v5.3 은 write-once 를 서술에서 <strong>결정론적 봉인</strong>으로 승급하고(<code>conditions_digest</code> / <code>locked_at</code>), amendment 를 <strong>direction × consent 2 축</strong>으로 분리했으며, 조건 패턴 3 종(측정 커버리지 표기 · 인자 매트릭스 · 음성 대조)을 추가했다.</p>
+  <p class="subtitle"><code>sprint-contract</code> 와 <code>qa-evaluator</code> 가 공유하는 계약 포맷 정의. <code>contract-kaizen</code> 이 변경을 제안하고, <code>evaluator-kaizen</code> 이 읽어서 평가 루브릭에 반영한다. v5.5(2026-09-24 · Phase 2 kaizen)는 재는 명령의 <strong>준비 단계 실측</strong>(값만 면제), <strong>알려진 답 대조</strong> 패턴, <strong>조건 수는 기능 조건만</strong> 센다, 여러 주체가 한 가지에 커밋할 때의 <strong>서명 줄</strong>, 검사 스크립트는 <strong>이 스프린트 몫의 줄로 한정</strong>, zsh 배열 첨자, 시각 필드는 <code>date</code> 출력으로 — 일곱 가지를 더했다.</p>
   <div class="meta">
-    <span>현재 v5.3</span>
-    <span>2026-08-13</span>
+    <span>현재 v5.5</span>
+    <span>2026-09-24</span>
     <span>경로·슬러그 SSOT</span>
-    <span>봉인 정의 SSOT</span>
-    <span>amendment 축 SSOT</span>
+    <span>봉인 정의</span>
+    <span>결함 태그 어휘 SSOT</span>
+    <span>amendment 축</span>
+  </div>
+</div>
+
+<!-- ═══ 이번 판에서 바뀐 것 ═══ -->
+<div class="section" id="whats-new">
+  <div class="section-label">What Changed</div>
+  <div class="section-title">v5.3 이후 더해진 절 — 어디를 먼저 읽을까</div>
+  <p class="section-desc">v5.3(2026-08-13) 뒤로 2026-09-08 의 <code>amend_direction</code> 극성 보강, v5.4(2026-09-08)의 커밋 구간 상한 · 미실측 오라클 봉인 금지, v5.5(2026-09-24)의 일곱 가지가 더해졌다. 그 사이 2026-09-19 · 09-23 · 09-24 날짜만 붙은 절도 여럿 들어왔다. 아래 카드는 각 절로 바로 이동한다.</p>
+  <div class="pattern-grid">
+    <div class="pattern">
+      <span class="pattern-num">v5.5</span>
+      <h4>면제는 기대값에만 — 재는 명령의 준비 단계는 봉인 전에 돌린다</h4>
+      <p>명령이 읽을 경로, <code>command -v</code> 로 잡히는 도구, 도구를 숨기는 전제, 임시 사본 절차는 이 스프린트가 만들 값이 아니다. 봉인 전에 한 번 돌려 출력과 종료 코드를 남긴다.</p>
+      <p class="fit"><a class="jump" href="#unmeasured">미실측 오라클 봉인 금지</a></p>
+    </div>
+    <div class="pattern">
+      <span class="pattern-num">v5.5</span>
+      <h4>알려진 답 대조 · 양성 대조 번호 확정</h4>
+      <p>0 이 아닌 값을 내는 새 스크립트는 손으로 셀 수 있는 작은 입력으로 기대값과 실제값을 맞춰 본다. 0 을 기대하는 측정은 1 이상을 내는 나쁜 예로 대조한다.</p>
+      <p class="fit"><a class="jump" href="#known-answer">알려진 답 대조</a> · <a class="jump" href="#positive">양성 대조</a></p>
+    </div>
+    <div class="pattern">
+      <span class="pattern-num">v5.5</span>
+      <h4>조건 수는 기능 조건만 센다</h4>
+      <p>자동 포함 여섯 줄 · 금지 패턴 · <code>N/A</code> 줄을 빼고 단순 1~3 · 중간 4~8 · 복잡 9~20.</p>
+      <p class="fit"><a class="jump" href="#complexity">복잡도별 조건 수</a></p>
+    </div>
+    <div class="pattern">
+      <span class="pattern-num">v5.5</span>
+      <h4>여러 주체가 한 가지에 커밋할 때 — 서명 줄</h4>
+      <p><code>mine</code> 이 서명 줄로 내 커밋의 파일을 모으고, <code>unsigned_on</code> 이 선언 경로를 건드렸는데 서명이 없는 커밋을 찾는다.</p>
+      <p class="fit"><a class="jump" href="#signature">서명 줄</a></p>
+    </div>
+    <div class="pattern">
+      <span class="pattern-num">v5.5</span>
+      <h4>검사 스크립트 전체 통과를 걸지 마라</h4>
+      <p>여러 줄을 내는 검사는 이 스프린트가 소유한 줄의 이름을 적고 그 줄만 본다. 전체 통과는 사이클 마지막 단계의 조건이다.</p>
+      <p class="fit"><a class="jump" href="#own-lines">이 스프린트 몫의 줄</a></p>
+    </div>
+    <div class="pattern">
+      <span class="pattern-num">v5.5</span>
+      <h4>Diff-Scope 상태 전제 · zsh 배열 첨자 · 시각 필드</h4>
+      <p>커밋 뒤 빈 출력이 되는 <code>git diff HEAD</code> · <code>--cached</code> 대신 커밋 구간. zsh 배열은 1 부터 센다. 시각은 <code>date</code> 출력을 옮긴다.</p>
+      <p class="fit"><a class="jump" href="#diff-scope">Diff-Scope</a> · <a class="jump" href="#shell">셸 이식성</a> · <a class="jump" href="#frontmatter">시각 필드</a></p>
+    </div>
+    <div class="pattern">
+      <span class="pattern-num">v5.4</span>
+      <h4>커밋 구간 상한에 <code>HEAD</code> 금지 · 미실측 오라클 봉인 금지</h4>
+      <p>상한은 이 스프린트가 소유한 ref 여야 한다. 값을 고정하는 조건은 봉인 전에 1 회 실측한다.</p>
+      <p class="fit"><a class="jump" href="#upper-bound">커밋 구간 상한</a></p>
+    </div>
+    <div class="pattern">
+      <span class="pattern-num">09-19 ~ 09-24</span>
+      <h4>날짜로 붙은 절</h4>
+      <p>자동 포함 조건의 <code>N/A (사유)</code>(09-19) · 산문 편집은 개정에 남긴다 · <code>.harness/</code> 범위 조건 · 앵커 출처 두 가지 · REJECT 뒤 판정을 뒤집을 때(09-23) · 봉인 커밋(09-24).</p>
+      <p class="fit"><a class="jump" href="#auto-na">자동 포함 N/A</a> · <a class="jump" href="#seal-commit">봉인 커밋</a> · <a class="jump" href="#harness-scope">.harness/ 범위</a> · <a class="jump" href="#anchor">앵커 출처</a> · <a class="jump" href="#reversal">판정 뒤집기</a></p>
+    </div>
   </div>
 </div>
 
 <!-- ═══ CONTRACT_ROOT ═══ -->
-<div class="section">
+<div class="section" id="paths">
   <div class="section-label">Paths</div>
-  <div class="section-title">계약 파일 — 산출물 경로 (이 섹션이 SSOT 다)</div>
+  <div class="section-title">계약 파일 — 산출물 경로 (v5 개정 · 이 섹션이 경로·슬러그 규약의 SSOT 다)</div>
   <p class="section-desc"><code>sprint-contract</code> 스킬, <code>qa-evaluator</code> 에이전트, <code>harness/scripts/*.sh</code>, 각종 가이드 문서는 여기를 <strong>인용만</strong> 하고 자체 규칙을 재정의하지 않는다.</p>
+
   <h3 class="sub"><code>CONTRACT_ROOT</code> 해석 — 먼저 만나는 <code>.harness/</code> 에서 멈춘다 (v5.2 개정)</h3>
-  <p class="section-desc"><code>CONTRACT_ROOT</code> 는 현재 디렉토리부터 위로 올라가며 <strong>처음 만나는 <code>.harness/</code> 디렉토리를 가진 조상의 절대경로</strong>다. 판정 기준은 <code>.harness/project.yaml</code> 이 아니라 <strong><code>.harness/</code> 디렉토리 자체</strong>다. 세션 도중 cwd 가 바뀌어도 이 값을 기준으로 경로를 해석한다.</p>
+  <p class="section-desc"><code>CONTRACT_ROOT</code> 는 현재 디렉토리부터 위로 올라가며 <strong>처음 만나는 <code>.harness/</code> 디렉토리를 가진 조상의 절대경로</strong>다. 판정 기준은 <code>.harness/project.yaml</code> 이 아니라 <strong><code>.harness/</code> 디렉토리 자체</strong>다. 세션 도중 cwd 가 바뀌어도 이 값을 기준으로 경로를 해석한다 (v4 추가 — <code>cwd-contract-path-drift</code> 재발 방지).</p>
   <div class="note bad">
     <div class="note-title">v5.1 까지는 <code>project.yaml</code> 을 기준으로 삼았고, 그것이 조용한 오귀속을 만들었다</div>
     <p><code>project.yaml</code> 이 없는 <code>.harness/</code> 는 그냥 지나쳐 상위로 올라갔기 때문에, <strong>자기 계약을 가진 디렉토리를 건너뛰고 남의 계약을 채점</strong>했다. 실측(2026-07-28): <code>apps/app_kiosk</code> 는 자체 <code>.harness/sprint-contract.md</code>(sha256 <code>e1a45c8bb5744b66…</code> · "adm_statistic_screen 리팩토링")를 갖고 있으나 <code>project.yaml</code> 이 없어, 조상 <code>apps/</code> 의 다른 계약(<code>ac9cd299b0cc9711…</code> · "preset skin 화면 스펙 통합")이 <strong>경고 없이</strong> 선택됐다. <strong>BLOCKED 보다 나쁘다</strong> — 사용자는 남의 계약으로 받은 verdict 를 자기 판정으로 읽는다.</p>
@@ -203,9 +272,9 @@ pre code{white-space:pre}
   <ul class="checklist">
     <li><span class="check">!</span><strong><code>.harness/</code> 를 가진 디렉토리를 건너뛰고 상위 계약을 채점하지 마라.</strong> 탐색은 첫 <code>.harness/</code> 에서 무조건 멈춘다</li>
     <li><span class="check">!</span>멈춘 디렉토리에 <code>project.yaml</code> 이 <strong>없으면</strong> 그 디렉토리를 그대로 <code>CONTRACT_ROOT</code> 로 쓰되, 산출물에 <strong><code>contract_root_unconfigured: true</code></strong> 를 남기고 <code>/harness init</code> 실행을 안내한다</li>
-    <li><span class="check">!</span><strong><code>project.yaml</code> 부재만으로 BLOCKED 하지 마라.</strong> 계약 파일이 실재하면 정상 평가한다 — 경고이지 실패가 아니며 ladder 판정을 바꾸지 않는다. 다만 그 파일에서만 오는 값(<code>contract_categories</code> · <code>commands</code> · <code>anti_patterns</code>)을 읽을 수 없다는 사실을 경고에 함께 적는다</li>
-    <li><span class="check">!</span><strong>복구 안내 문구를 원인에 맞춰라.</strong> 계약 파일이 실재하는데 "Sprint Contract 가 존재하지 않습니다" 라고 말하지 마라 — 실제 원인은 <code>/harness init</code> 미실행이다. 실측 3 곳(<code>flutter_playwright</code> · <code>purchase-bot</code> · <code>_sandbox/flutter_colorpicker</code>)이 계약을 가진 채 이 오안내로 BLOCKED 됐다</li>
-    <li><span class="check">!</span>조상 체인에 <code>.harness/</code> 가 여러 개 있어도 <strong>가장 깊은 것 하나를 채택하고 그대로 진행한다.</strong> <strong>"후보가 2 개 이상이면 BLOCKED" 같은 규칙을 도입하지 마라</strong> — 실측상 정상 중첩 배포본이 4 개 존재하며, 중첩을 에러로 처리하면 전부 깨진다</li>
+    <li><span class="check">!</span><strong><code>project.yaml</code> 부재만으로 BLOCKED 하지 마라.</strong> 계약 파일이 실재하면 정상 평가한다 — <code>contract_root_unconfigured</code> 는 경고이지 실패가 아니며 ladder 판정을 바꾸지 않는다. <code>project.yaml</code> 에서만 오는 값(<code>contract_categories</code> · <code>commands</code> · <code>anti_patterns</code>)을 읽을 수 없다는 사실을 경고에 함께 적고, 그 값에 의존하는 진단은 실행 불가로 기록한다</li>
+    <li><span class="check">!</span><strong>복구 안내 문구를 원인에 맞춰라.</strong> 계약 파일이 실재하는데 "Sprint Contract 가 존재하지 않습니다" 라고 말하지 마라 — 실제 원인은 <code>/harness init</code> 미실행(= <code>project.yaml</code> 부재)이다. 실측 3 곳(<code>flutter_playwright</code> · <code>purchase-bot</code> · <code>_sandbox/flutter_colorpicker</code>)이 계약을 가진 채 이 오안내로 BLOCKED 됐다</li>
+    <li><span class="check">!</span>조상 체인에 <code>.harness/</code> 가 여러 개 있어도 <strong>가장 깊은 것 하나를 채택하고 그대로 진행한다.</strong> <strong>"후보가 2 개 이상이면 BLOCKED" 같은 규칙을 도입하지 마라</strong> — 실측상 정상 중첩 배포본이 존재한다(<code>fit-pal/app</code>, <code>fit-pal/server</code>, <code>fit-pal-wt/app</code>, <code>fit-pal-wt/server</code> 4 개가 각자 <code>.harness/</code> 를 가지면서 조상에도 있다). 중첩을 에러로 처리하면 이 배포본들이 전부 깨진다</li>
   </ul>
   <code class="code-block"># CONTRACT_ROOT 탐색 — 첫 `.harness/` 에서 멈춘다 (zsh · bash 동일)
 resolve_contract_root() { # [시작디렉토리] → "&lt;절대경로&gt; configured|unconfigured", 없으면 exit 1
@@ -221,27 +290,28 @@ resolve_contract_root() { # [시작디렉토리] → "&lt;절대경로&gt; confi
   return 1   # 조상 체인에 .harness/ 가 없다 — 이때만 "harness 미초기화" 다
 }</code>
 
-  <h3 class="sub">셸 이식성 규약 — 글로빙 대신 <code>find</code> (v5.1)</h3>
+  <h3 class="sub" id="shell">셸 이식성 규약 — 글로빙 대신 <code>find</code> (v5.1)</h3>
   <p class="section-desc"><strong>이 스키마를 구현하는 문서·스크립트의 셸 스니펫은 zsh 에서도 그대로 돌아야 한다.</strong> 사용자 기본 셸이 zsh 이고, zsh 는 <code>nomatch</code> 가 기본이라 <strong>매치가 0 인 글로브는 명령을 실행조차 하지 않고 죽인다.</strong> bash 는 패턴 문자열을 그대로 넘기므로 같은 코드가 bash 에서만 동작한다.</p>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>금지 패턴 3 종</div>
+      <div class="card-title"><span class="dot"></span>zsh 에서 조용히 깨지는 네 가지</div>
       <ul>
-        <li>계약·피드백·amendment 파일 열거에 <code>sprint-contract-*.md</code> 같은 <strong>글로브를 쓰지 마라.</strong> <code>find &lt;dir&gt; -maxdepth 1 -type f \( -name … -o -name … \)</code> 로 열거한다</li>
-        <li><code>for f in a.md b-*.md; do [ -f "$f" ] || continue; …; done</code> 형태는 <strong>가드가 무력하다.</strong> zsh 는 <code>b-*.md</code> 가 없으면 루프 본문에 진입하지 않고 스크립트를 중단한다 — <code>a.md</code> 까지 통째로 누락된다</li>
-        <li><strong>파일 목록을 문자열에 모아 unquoted 로 넘기지 마라 (v5.2).</strong> zsh 는 <code>SH_WORD_SPLIT</code> 이 기본 off 라 <code>grep … $files</code> 가 목록 전체를 <strong>파일명 하나</strong>로 넘긴다. bash 에서만 동작하고 zsh 에서는 매치 0 으로 <strong>조용히 미발동</strong>한다 — 죽지도 않으니 발견이 더 늦다. 배열로 모아(<code>arr+=("$f")</code> → <code>"${arr[@]}"</code>) 넘긴다</li>
+        <li>계약·피드백·amendment 파일을 열거할 때 <code>sprint-contract-*.md</code> 같은 <strong>글로브를 쓰지 마라.</strong> <code>find &lt;dir&gt; -maxdepth 1 -type f \( -name ... -o -name ... \)</code> 로 열거한다</li>
+        <li><code>for f in a.md b-*.md; do [ -f "$f" ] || continue; ...; done</code> 형태는 <strong>가드가 무력하다.</strong> zsh 는 <code>b-*.md</code> 가 없으면 루프 본문에 진입하지 않고 스크립트를 중단한다 — <code>a.md</code> 까지 통째로 누락된다</li>
+        <li><strong>파일 목록을 문자열에 모아 unquoted 로 넘기지 마라 (v5.2).</strong> zsh 는 <code>SH_WORD_SPLIT</code> 이 기본 off 라 <code>grep ... $files</code> 가 목록 전체를 <strong>파일명 하나</strong>로 넘긴다. bash 에서만 동작하고 zsh 에서는 매치 0 으로 <strong>조용히 미발동</strong>한다 — 죽지도 않으니 발견이 더 늦다. 배열로 모아(<code>arr+=("$f")</code> → <code>"${arr[@]}"</code>) 넘긴다. 공백 포함 파일명도 이때만 안전하다</li>
+        <li><strong>zsh 배열은 기본 옵션에서 1 부터 센다</strong><span class="new">2026-09-24</span> — <code>${arr[1]}</code> 이 첫 원소이고 <code>${arr[0]}</code> 은 빈 값이다. <code>KSH_ARRAYS</code> 옵션을 켜면 0 부터 세고, bash 배열도 0 부터 센다. 두 셸에서 도는 코드는 첨자로 돌지 말고 <code>for x in "${arr[@]}"</code> 로 원소를 돈다. 실측(2026-09-22): 0 부터 센다고 가정한 zsh 측정이 한 칸 밀린 값을 냈다</li>
       </ul>
-      <p><strong>선례:</strong> <code>harness/skills/harness-kaizen/scripts/trigger-check.sh</code> 의 <code>current_feedback_files()</code> / <code>history_feedback_files()</code> 가 <code>find</code> 형태이고, <code>check_repeated_antipatterns()</code> 가 배열 형태다. 새 구현은 그 형태를 따른다.</p>
+      <a class="card-source" href="https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters">zsh 매뉴얼 — Array Parameters</a>
+      <a class="card-source" href="https://www.gnu.org/software/bash/manual/html_node/Arrays.html">Bash 매뉴얼 — Arrays</a>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>계약 후보 열거 — 두 셸에서 동일</div>
-      <code class="code-block"># 매치 0 이어도 두 셸에서 동일하게 빈 출력 + exit 0
+      <code class="code-block"># 계약 후보 열거 (plain + 접미형) — 매치 0 이어도 두 셸에서 동일하게 빈 출력 + exit 0
 list_contracts() { # list_contracts &lt;CONTRACT_ROOT&gt;
   find "$1/.harness" -maxdepth 1 -type f \
-    \( -name 'sprint-contract.md' \
-       -o -name 'sprint-contract-*.md' \) \
-    2&gt;/dev/null | LC_ALL=C sort
+    \( -name 'sprint-contract.md' -o -name 'sprint-contract-*.md' \) 2&gt;/dev/null | LC_ALL=C sort
 }</code>
+      <p><strong>선례:</strong> <code>harness/skills/harness-kaizen/scripts/trigger-check.sh</code> 의 <code>current_feedback_files()</code> / <code>history_feedback_files()</code> 가 <code>find</code> 형태이고, <code>check_repeated_antipatterns()</code> 가 배열 형태다. 새 구현은 그 형태를 따른다.</p>
     </div>
   </div>
 
@@ -266,35 +336,39 @@ sprint-amendments-&lt;slug&gt;.md</code>
       <p>생성 주체: <code>sprint-contract</code> / <code>qa-evaluator</code></p>
     </div>
   </div>
-  <div class="note good">
-    <div class="note-title">plain 모드는 계속 유효하다</div>
-    <p>슬러그가 없으면 접미 없는 파일명이 <strong>그대로 유효</strong>하다 — <code>sprint-contract.md</code> · <code>sprint-feedback.md</code> · <code>sprint-amendments.md</code>. <strong>plain 모드를 폐기하거나 마이그레이션을 강제하지 마라.</strong> 병렬 세션을 돌리지 않는 프로젝트에서는 plain 이 정상 경로다. 접두형(<code>&lt;slug&gt;-sprint-contract.md</code>)은 <strong>쓰지 않는다</strong> — 실측 배포본의 접미형 계약 40 개 · 접미형 피드백 7 개가 고아가 된다.</p>
-  </div>
-  <div class="grid-2">
+  <p class="section-desc">3 종은 <strong>같은 슬러그</strong>로 짝지어진다. <code>sprint-contract-emoji-picker.md</code> ↔ <code>sprint-feedback-emoji-picker.md</code> ↔ <code>sprint-amendments-emoji-picker.md</code>.</p>
+  <div class="cols-2">
+    <div class="note good">
+      <div class="note-title">plain 모드는 계속 유효하다</div>
+      <p>슬러그가 없으면 접미 없는 파일명이 <strong>그대로 유효</strong>하다.</p>
+      <code class="code-block">{CONTRACT_ROOT}/.harness/sprint-contract.md
+{CONTRACT_ROOT}/.harness/sprint-feedback.md
+{CONTRACT_ROOT}/.harness/sprint-amendments.md</code>
+      <p><strong>plain 모드를 폐기하거나 마이그레이션을 강제하지 마라.</strong> 병렬 세션을 돌리지 않는 프로젝트에서는 plain 이 정상 경로다. 접두형(<code>&lt;slug&gt;-sprint-contract.md</code>)은 <strong>쓰지 않는다</strong> — 실측 배포본의 접미형 계약 40 개 · 접미형 피드백 7 개가 고아가 된다.</p>
+    </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>슬러그 규칙</div>
-      <ul>
-        <li>소문자화 → 공백·특수문자를 <code>-</code> 로 치환 → 연속된 <code>-</code> 축약 → 앞뒤 <code>-</code> 제거</li>
-        <li>최종 형식은 <code>^[a-z0-9][a-z0-9-]{0,47}$</code> (총 1~48 자)를 만족해야 한다</li>
-        <li>도출 결과가 정규식을 만족하지 않으면(한국어만으로 된 feature 명이라 전부 치환되어 빈 문자열이 되는 경우) <strong>임의로 지어내지 말고 사용자에게 슬러그를 물어라</strong></li>
-      </ul>
-      <p>기존 배포본 슬러그와 호환된다: <code>emoji-picker</code>, <code>ws5-stage2-apply</code>, <code>s6</code>, <code>az4-current-session</code>.</p>
+      <p>슬러그는 feature 이름에서 도출한다 — ① 소문자화 ② 공백·특수문자를 <code>-</code> 로 치환 ③ 연속된 <code>-</code> 를 하나로 축약 ④ 앞뒤 <code>-</code> 제거. 최종 형식은 다음 정규식을 만족해야 한다(총 1~48 자).</p>
+      <code class="code-block">^[a-z0-9][a-z0-9-]{0,47}$</code>
+      <p>도출 결과가 이 정규식을 만족하지 않으면(예: 한국어만으로 된 feature 명이라 전부 치환되어 빈 문자열이 되는 경우) <strong>임의로 지어내지 말고 사용자에게 슬러그를 물어라.</strong> 기존 배포본 슬러그와 호환된다: <code>emoji-picker</code>, <code>ws5-stage2-apply</code>, <code>s6</code>, <code>az4-current-session</code>.</p>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>슬러그 재사용 우선 (v5.1)</div>
-      <p><strong>같은 스프린트를 이어서 작업할 때는 새 슬러그를 도출하지 말고 기존 계약의 슬러그를 재사용한다.</strong> 3 종은 같은 슬러그로만 짝지어지므로, 이어작업에서 슬러그를 새로 도출하면 이미 존재하는 피드백·사이드카가 고아가 된다.</p>
-      <ul>
-        <li>재사용 판정 순서: 계약 frontmatter <code>slug</code> → 파일명 접미 → (둘 다 없으면) plain 모드. <strong>도출 규칙은 신규 스프린트에서만 쓴다</strong></li>
-        <li><strong>비ASCII feature 명에서 정보를 잃은 슬러그는 자동 채택하지 마라.</strong> <code>"emoji picker 개선"</code> → <code>emoji-picker</code> 는 정규식은 통과하지만 "개선" 이 소실되어 원 스프린트와 구별되지 않는다</li>
-      </ul>
-    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>슬러그 재사용 우선 (v5.1)</div>
+    <p><strong>같은 스프린트를 이어서 작업할 때는 새 슬러그를 도출하지 말고 기존 계약의 슬러그를 재사용한다.</strong> 계약 · 피드백 · amendment 3 종은 같은 슬러그로만 짝지어지므로, 이어작업에서 슬러그를 새로 도출하면 이미 존재하는 피드백·사이드카가 고아가 된다(실측 배포본에 접미형 짝 40 개가 있다).</p>
+    <ul>
+      <li>재사용 판정 순서: 대상 계약 파일의 frontmatter <code>slug</code> → 파일명 접미 → (둘 다 없으면) plain 모드. <strong>도출 규칙은 신규 스프린트에서만 쓴다</strong></li>
+      <li><strong>비ASCII feature 명에서 정보를 잃은 슬러그는 자동 채택하지 마라.</strong> 도출 규칙은 <code>[^a-z0-9]+</code> 를 <code>-</code> 로 치환하므로 한국어 부분이 통째로 사라진다 — <code>"emoji picker 개선"</code> → <code>emoji-picker</code> 는 정규식은 통과하지만 "개선" 이 소실되어 원 스프린트와 구별되지 않는다. 정규식 통과 여부와 무관하게 <strong>비ASCII 문자가 제거된 경우 사용자에게 슬러그를 확인받는다</strong></li>
+      <li>전부 치환되어 빈 문자열이 되는 경우(<code>"병렬 스프린트 안전성"</code>)는 위 슬러그 규칙대로 즉시 질의한다</li>
+    </ul>
   </div>
 </div>
 
 <!-- ═══ 헤더 ═══ -->
-<div class="section">
+<div class="section" id="headers">
   <div class="section-label">Section Headers</div>
   <div class="section-title">허용 섹션 헤더 — 2 계층 (v4 추가)</div>
+  <p class="section-desc">계약 파일의 2 단계(<code>##</code>) 헤더는 아래 두 계층 중 하나여야 한다. 밖의 헤더는 금지다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>계층</th><th>허용 헤더</th><th>헤더 매칭</th><th>조건 체크박스</th></tr></thead>
@@ -304,8 +378,8 @@ sprint-amendments-&lt;slug&gt;.md</code>
       </tbody>
     </table>
   </div>
-  <code class="code-block"># 결정론적 검사 (E3) — 계약 저장 직후 실행하고 위반 0 건을 확인한 뒤 다음 단계로
-CONTRACT="$CONTRACT_ROOT/.harness/sprint-contract-&lt;slug&gt;.md"   # plain 모드면 접미 없이
+  <p class="section-desc"><strong>결정론적 검사 (E3)</strong> — 계약 저장 직후 실행하고 위반 0 건을 확인한 뒤 다음 단계로 넘어간다(<code>$CONTRACT</code> = 방금 저장한 계약의 절대경로).</p>
+  <code class="code-block">CONTRACT="$CONTRACT_ROOT/.harness/sprint-contract-&lt;slug&gt;.md"   # plain 모드면 접미 없이
 
 # (1) 헤더 목록 — 허용 목록 밖 헤더가 있으면 위반
 grep -n '^## ' "$CONTRACT"
@@ -314,16 +388,18 @@ grep -n '^## ' "$CONTRACT"
 awk '/^## /{s=$0} /^- \[ \]/{print FILENAME":"FNR": "s" -&gt; "$0}' "$CONTRACT"</code>
   <div class="note bad">
     <div class="note-title">허용 헤더 목록은 v5 에서도 늘어나지 않았다</div>
-    <p>스프린트 도중 합의된 조건 변경(amendment)을 기록하려고 계약 본문에 <code>## 변경 이력</code> · <code>## Amendments</code> · <code>## Notes</code> 같은 섹션을 추가하지 마라 — 허용 목록 위반이며 <code>parser-incompatible-contract-section</code> 재발이다. <strong>amendment 는 별도 사이드카 파일에 쓴다.</strong></p>
+    <p>스프린트 도중 합의된 조건 변경(amendment)을 기록하려고 계약 본문에 <code>## 변경 이력</code> · <code>## Amendments</code> · <code>## Notes</code> 같은 섹션을 추가하지 마라 — 허용 목록 위반이며 <code>parser-incompatible-contract-section</code> 재발이다. amendment 는 <strong>별도 사이드카 파일</strong>에 쓴다(<a class="jump" href="#amendment">Amendment 사이드카</a>).</p>
   </div>
 </div>
 
 <!-- ═══ frontmatter ═══ -->
-<div class="section">
+<div class="section" id="frontmatter">
   <div class="section-label">Frontmatter</div>
-  <div class="section-title">메타데이터 (YAML frontmatter) · 값 따옴표 규약</div>
-  <code class="code-block">feature: "{기능명}"
-created: "{YYYY-MM-DD HH:mm}"
+  <div class="section-title">메타데이터 (YAML frontmatter) · 시각 필드 · 값 따옴표 규약</div>
+  <div class="cols-2">
+    <div>
+      <code class="code-block">feature: "{기능명}"
+created: "{YYYY-MM-DD HH:mm}"   # 저장하는 순간 date '+%Y-%m-%d %H:%M' 출력을 옮긴다
 complexity: "{simple|medium|complex}"
 conditions: {총 조건 수}
 slug: {slug}                # v5 — 접미형일 때 필수, plain 모드면 생략. 따옴표 없이
@@ -331,27 +407,35 @@ status: active              # v5 — active | done. 따옴표 없이
 owner_session: {세션 ID}    # v5 — $CLAUDE_CODE_SESSION_ID. 값이 없으면 필드 자체를 생략. 따옴표 없이
 conditions_digest: sha256:{16hex}   # v5.3 — 조건 봉인. 따옴표 없이
 locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각</code>
+    </div>
+    <div class="note warn">
+      <div class="note-title">시각 필드는 <code>date</code> 출력을 옮긴다 — 짐작해 적지 마라 (v5.5)</div>
+      <p><code>created</code> · <code>locked_at</code> 과 개정 파일 · 피드백에 적는 시각이 모두 해당한다. 실측(2026-09-24): 개정 파일 머리에 <code>20:50</code> 이라 적었는데 그 파일을 처음 담은 커밋은 <code>20:41:11</code> 이라 뒤에 고쳤다 — <strong>검증하면 반증되는 시각이다.</strong></p>
+      <p>이 형식은 시간대와 초를 버리므로, 시간대가 다른 기록과 비교할 일이 있으면 <code>date '+%Y-%m-%dT%H:%M:%S%z'</code> 원본을 서술 절에 함께 남긴다.</p>
+      <a class="card-source" href="https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html">GNU coreutils — date invocation</a>
+    </div>
+  </div>
   <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>값 따옴표 규약 (v5.1 — writer / reader 대칭)</div>
+      <p><code>slug</code> · <code>status</code> · <code>owner_session</code> 세 필드는 <strong>기계가 문자열 동등 비교</strong>로 소비한다. writer 와 reader 의 따옴표 규약이 어긋나면 비교가 영원히 실패한다 — v5 에서 writer 가 <code>owner_session: "abc"</code> 로 쓰는데 reader awk 가 따옴표를 벗기지 않아 <code>$CLAUDE_CODE_SESSION_ID</code> 와 <strong>절대 일치하지 않았고</strong>, ladder 2 단계(세션 소유 계약)가 통째로 죽어 있었다.</p>
+      <ul>
+        <li><strong>writer (sprint-contract)</strong> — 세 필드를 <strong>따옴표 없이</strong> 쓴다. <code>feature</code> · <code>created</code> 같은 자유 서술 필드는 기존대로 따옴표를 써도 된다(비교 대상이 아니다)</li>
+        <li><strong>reader (qa-evaluator 등)</strong> — 따옴표가 <strong>있든 없든 벗겨서</strong> 비교한다. 값 앞뒤가 같은 종류의 따옴표(<code>"</code> 또는 <code>'</code>)로 감싸인 경우에만 한 쌍을 제거하고, 앞뒤 공백도 제거한다</li>
+      </ul>
+    </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>v5 신규 필드</div>
       <div class="table-wrap" style="margin-top:10px">
         <table>
-          <thead><tr><th>필드</th><th>규칙</th></tr></thead>
+          <thead><tr><th>필드</th><th>값</th><th>규칙</th></tr></thead>
           <tbody>
-            <tr><td><code>slug</code></td><td>파일명 접미와 <strong>동일</strong>해야 한다. plain 모드면 필드 자체를 생략</td></tr>
-            <tr><td><code>status</code></td><td>작성 시 <code>active</code>. <code>done</code> 전환 주체·시점은 아래 참조</td></tr>
-            <tr><td><code>owner_session</code></td><td>환경변수가 비어 있으면 <strong>필드를 쓰지 마라.</strong> 빈 문자열·<code>unknown</code> 같은 placeholder 금지</td></tr>
+            <tr><td><code>slug</code></td><td>슬러그 규칙을 만족하는 문자열</td><td>파일명 접미와 <strong>동일</strong>해야 한다. plain 모드면 필드 자체를 생략</td></tr>
+            <tr><td><code>status</code></td><td><code>active</code> | <code>done</code></td><td>작성 시 <code>active</code>. <code>done</code> 전환 주체·시점은 <a class="jump" href="#status">아래</a> 참조</td></tr>
+            <tr><td><code>owner_session</code></td><td><code>$CLAUDE_CODE_SESSION_ID</code> 값</td><td>환경변수가 비어 있으면 <strong>필드를 쓰지 마라.</strong> 빈 문자열·<code>unknown</code> 같은 placeholder 금지</td></tr>
           </tbody>
         </table>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>값 따옴표 규약 (v5.1 — writer / reader 대칭)</div>
-      <p><code>slug</code> · <code>status</code> · <code>owner_session</code> 세 필드는 <strong>기계가 문자열 동등 비교</strong>로 소비한다. writer 와 reader 의 규약이 어긋나면 비교가 영원히 실패한다 — v5 에서 writer 가 <code>owner_session: "abc"</code> 로 쓰는데 reader awk 가 따옴표를 벗기지 않아 <strong>절대 일치하지 않았고, ladder 2 단계가 통째로 죽어 있었다.</strong></p>
-      <ul>
-        <li><strong>writer</strong> — 세 필드를 <strong>따옴표 없이</strong> 쓴다. <code>feature</code> · <code>created</code> 같은 자유 서술 필드는 따옴표를 써도 된다</li>
-        <li><strong>reader</strong> — 따옴표가 <strong>있든 없든 벗겨서</strong> 비교한다. 값 앞뒤가 같은 종류의 따옴표로 감싸인 경우에만 한 쌍을 제거하고, 앞뒤 공백도 제거한다</li>
-      </ul>
     </div>
   </div>
   <code class="code-block"># frontmatter 스칼라 1 개 읽기 — 값의 따옴표를 벗겨서 돌려준다 (zsh · bash 동일)
@@ -371,16 +455,16 @@ fm_get() { # fm_get &lt;file&gt; &lt;key&gt;
 </div>
 
 <!-- ═══ 봉인 ═══ -->
-<div class="section">
+<div class="section" id="seal">
   <div class="section-label">Write-Once Seal</div>
   <div class="section-title">계약 봉인 — <code>conditions_digest</code> / <code>locked_at</code> (v5.3 신규 · E3)</div>
-  <p class="section-desc">계약은 <strong>write-once</strong> 다. 승인 후에는 조건 문구를 고치지 않는다. v5 는 그 규칙을 amendment 사이드카라는 <strong>대안 경로</strong>로만 표현했고, <strong>위반을 재는 오라클이 없었다.</strong> 실측 결과 규칙은 지켜지지 않았다 — 2026-08-11 REJECT: <em>"계약 write-once 위반 — 생성자가 자신이 만든 산출물을 사후에 허용하려 계약 AR-04 조건 문구를 직접 편집(5→7 경로, 사이드카/사용자 승인 앵커 없음)"</em>.</p>
+  <p class="section-desc">계약은 <strong>write-once</strong> 다. 승인 후에는 조건 문구를 고치지 않는다. v5 는 그 규칙을 amendment 사이드카라는 <strong>대안 경로</strong>로만 표현했고, 위반을 재는 오라클이 없었다. 실측 결과 규칙은 지켜지지 않았다 — 2026-08-11 REJECT: <em>"계약 write-once 위반 — 생성자가 자신이 만든 산출물을 사후에 허용하려 계약 AR-04 조건 문구를 직접 편집(5→7 경로, 사이드카/사용자 승인 앵커 없음)"</em>.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>#</th><th>근본원인</th><th>대응</th></tr></thead>
+      <thead><tr><th>#</th><th>근본원인 (셋을 다 막아야 재발이 끊긴다)</th><th>대응</th></tr></thead>
       <tbody>
         <tr><td>RC1</td><td>write-once 규칙이 <strong>읽기 측 문서에만</strong> 있었다 (<code>qa-evaluator</code> / <code>qa-evaluation-guide</code>). 본문을 편집하는 주체는 <strong>생성자</strong>인데 생성자 문서(SKILL.md · contract-design-guide)에는 <strong>0 건</strong>이었다</td><td>쓰기 측 3 표면에 동일 규약 착지</td></tr>
-        <tr><td>RC2</td><td>준수 경로(사이드카)의 기대 보상이 위반 경로보다 낮았다 — 앵커가 없다는 이유로 <code>unknown</code> 이 되어 아무 효력이 없었다</td><td>§Amendment 사이드카 의 <strong>direction × consent 2 축</strong> 분리</td></tr>
+        <tr><td>RC2</td><td>준수 경로(사이드카)의 기대 보상이 위반 경로보다 낮았다 — 앵커가 없다는 이유로 <code>unknown</code> 이 되어 아무 효력이 없었다</td><td>Amendment 사이드카 의 <strong>direction × consent 2 축</strong> 분리</td></tr>
         <tr><td>RC3</td><td>위반을 <strong>탐지할 수 없었다</strong> — 저장 검사 게이트는 헤더와 조건 <strong>개수</strong>만 본다. 문구가 바뀌어도 개수가 같으면 통과한다</td><td>본 절의 봉인 (E3)</td></tr>
       </tbody>
     </table>
@@ -391,8 +475,44 @@ fm_get() { # fm_get &lt;file&gt; &lt;key&gt;
     <ul>
       <li><strong>정규화 대상이 조건 줄뿐인 이유</strong> — 평가 진행에 따른 체크박스 토글(<code>- [ ]</code> → <code>- [x]</code>)과 서술 섹션 보강은 계약 변조가 아니다. 이 둘로 봉인이 깨지면 게이트가 정상 작업을 막고, <strong>우회된 게이트는 없는 게이트보다 나쁘다</strong></li>
       <li>조건 <strong>문구 변조</strong>와 <strong>조건 추가·삭제</strong>는 반드시 깨진다. 이것이 봉인의 유일한 목적이다</li>
-      <li>조건 열거 정규식은 §조건 수 계산과 <strong>같은 것</strong>을 쓴다(<code>[A-Z]{2,}-[0-9]{2}</code>). 새 패턴을 발명하면 두 게이트가 서로 다른 집합을 세게 된다</li>
+      <li>조건 열거 정규식은 조건 수 계산과 <strong>같은 것</strong>을 쓴다(<code>[A-Z]{2,}-[0-9]{2}</code>). 새 패턴을 발명하면 두 게이트가 서로 다른 집합을 세게 된다</li>
     </ul>
+  </div>
+  <div class="note warn">
+    <div class="note-title">조건 줄이 가리키는 산문을 고치면 개정 파일에 남긴다 <span class="new">2026-09-23</span></div>
+    <p>봉인은 조건 줄만 덮으므로 산문 편집은 <code>SEAL_OK</code> 를 유지한다. 그런데 조건이 "위 N 개 경로" · "아래 목록" 처럼 산문을 가리키면 <strong>그 산문은 사실상 조건의 일부</strong>다. 산문을 고쳐 통과 집합이 달라지면 조건 문구를 고친 것과 결과가 같다. 그러니 조건이 참조하는 산문을 고칠 때는 <code>sprint-amendments-&lt;slug&gt;.md</code> 에 한 줄 남긴다 — 통과 집합이 안 바뀌면 <code>amend_direction: unchanged</code> 로 적으면 된다.</p>
+    <p>실측(2026-09-23): 범위를 6 개에서 7 개로 늘리면서 산문 라벨만 고치고 개정에 안 남겼다. 조건 줄 5 곳에 박힌 "6개" 가 실제와 어긋난 채 통과했다.</p>
+  </div>
+
+  <h3 class="sub" id="seal-commit">봉인 커밋 — 봉인 시점 원문을 git 에 남긴다 <span class="new">2026-09-24</span></h3>
+  <p class="section-desc">위 두 규칙(산문 편집을 개정에 남기기 · 조용한 재봉인 금지)은 <strong>대조할 원문이 있어야</strong> 성립한다. 봉인 직후 계약 파일만 단독으로 커밋해 그 원문을 git 에 남긴다. 절차는 <code>harness/skills/sprint-contract/SKILL.md</code> Step 6.7 이 정의한다.</p>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">실측 계약 (2026-09-24) — 봉인 뒤 <strong>2~6 분</strong> 지나 구현 파일과 함께 커밋</div></div>
+    <div class="stat"><div class="stat-num">20 · 10 · 5</div><div class="stat-label">그 커밋 셋에 함께 담긴 파일 수</div></div>
+    <div class="stat"><div class="stat-num">68 여</div><div class="stat-label">당시 계약 수</div></div>
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">그중 git 이 추적조차 하지 않던 계약</div></div>
+  </div>
+  <p class="section-desc">git 이 가진 가장 오래된 판이 이미 구현 뒤 상태라 그 사이 무엇이 바뀌었는지 증명할 길이 없었다.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">규칙 1</div>
+      <h4>커밋에 계약 파일 하나만 담는다</h4>
+      <p>구현 파일이 섞이면 "봉인 시점 원문" 이라는 성질이 사라진다. 새 파일은 <code>git add</code> 가 먼저 필요하고(추적 안 된 경로는 <code>git commit -o</code> 만으로는 죽는다), 그래도 <code>-o</code> 를 붙여 다른 세션이 스테이징한 것을 삼키지 않는다.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">규칙 2</div>
+      <h4>전용 가지에서 한다</h4>
+      <p><code>main</code> 이 보호돼 있으면 직접 밀어 넣을 수 없다.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">규칙 3</div>
+      <h4>병합할 때 스쿼시를 쓰지 마라</h4>
+      <p>여러 커밋을 하나로 합치면 봉인 커밋이 <code>main</code> 기록에서 사라져, 자기 가지에서는 통과하는데 <code>main</code> 에는 대조할 원문이 없어진다.</p>
+    </div>
+  </div>
+  <div class="note bad">
+    <div class="note-title">옛 계약에 소급으로 만들어 넣지 마라</div>
+    <p>봉인 커밋이 없는 계약은 <code>SEAL_ABSENT</code> 와 같은 급으로 다룬다 — 경고이지 실패가 아니다. 소급 봉인 커밋은 없던 원문을 있는 것처럼 만드는 행위다.</p>
   </div>
   <code class="code-block"># 봉인 계산·검증 — zsh · bash 동일. 해시 백엔드 4 종은 같은 값을 낸다
 sha256_16() {  # stdin → sha256 앞 16 자리
@@ -417,11 +537,11 @@ verify_seal() {  # verify_seal &lt;계약파일&gt; → SEAL_OK | SEAL_BROKEN | 
   <div class="seal">
     <div class="sl ok">
       <h4>SEAL_OK</h4>
-      <p>조건 줄이 봉인 시점과 동일하다. 정상 진행.</p>
+      <p>조건 줄이 봉인 시점과 동일하다. 체크박스 토글과 서술 편집은 여기에 머문다.</p>
     </div>
     <div class="sl absent">
       <h4>SEAL_ABSENT</h4>
-      <p>두 필드는 <strong>선택 필드</strong>다. 부재는 <strong>경고이지 실패가 아니다.</strong> ladder 판정·<code>status</code> 해석·<code>conditions</code> 검사에 전혀 영향을 주지 않는다. 실측(2026-08-13): 이 레포와 <code>history/</code> 의 기존 계약 <strong>109 개 전부</strong>가 이 상태이고 <code>SEAL_BROKEN</code> 은 0 건이다(zsh·bash 동일).</p>
+      <p><strong>하위호환 — 부재는 실패가 아니다.</strong> 두 필드는 <strong>선택 필드</strong>다. ladder 판정·<code>status</code> 해석·<code>conditions</code> 검사에 전혀 영향을 주지 않는다. 실측(2026-08-13): 이 레포와 <code>history/</code> 의 기존 계약 <strong>109 개 전부</strong>가 <code>SEAL_ABSENT</code> 이고 <code>SEAL_BROKEN</code> 은 0 건이다(zsh·bash 동일).</p>
     </div>
     <div class="sl broken">
       <h4>SEAL_BROKEN</h4>
@@ -430,16 +550,16 @@ verify_seal() {  # verify_seal &lt;계약파일&gt; → SEAL_OK | SEAL_BROKEN | 
   </div>
   <div class="note bad">
     <div class="note-title">레거시 계약에 봉인을 소급해서 써 넣지 마라</div>
-    <p>그 순간 그 계약의 원문이 무엇이었는지 <strong>증명할 수 없는 봉인</strong>이 된다. 봉인은 E3(결정론적 게이트)에 해당하며, 등급 정의의 SSOT 는 <code>skill-design-guide.md</code> §3.7 이다 — 그 절이 인용하는 E3 게이트 정의(<code>g(입력, 상태) → {통과, 거부}</code> 인 순수 함수)가 이 봉인 구현의 근거다.</p>
+    <p>그 순간 그 계약의 원문이 무엇이었는지 <strong>증명할 수 없는 봉인</strong>이 된다. 봉인은 E3(결정론적 게이트)에 해당하며, 등급 정의의 SSOT 는 <code>skill-design-guide.md</code> §3.7 이다 — 그 절이 인용하는 E3 게이트 정의(<code>g(입력, 현재상태) → {통과, 거부}</code> 인 순수 함수)가 이 봉인 구현의 근거다.</p>
     <a class="card-source" href="https://arxiv.org/html/2607.07405v1">Reason Less, Verify More: Deterministic Gates — arxiv:2607.07405</a>
   </div>
 </div>
 
 <!-- ═══ status / ladder ═══ -->
-<div class="section">
+<div class="section" id="status">
   <div class="section-label">Status Lifecycle</div>
   <div class="section-title">status 해석 규칙 · ladder 3.5 · <code>done</code> 전환 주체</div>
-  <p class="section-desc">계약을 "active 인가" 로 세는 모든 로직 — 특히 <code>qa-evaluator</code> 의 계약 선택 — 은 아래를 그대로 따른다.</p>
+  <p class="section-desc">계약을 "active 인가" 로 세는 모든 로직 — 특히 <code>qa-evaluator</code> 의 계약 선택 — 은 아래를 그대로 따른다. 이것이 backward-compat 의 핵심이다.</p>
   <ul class="checklist">
     <li><span class="check">✓</span><strong><code>status: active</code> 가 명시된 계약만 active 로 센다</strong></li>
     <li><span class="check">✓</span><code>status:</code> 필드가 <strong>없으면 레거시</strong>로 간주하고 <strong>active 후보에서 제외</strong>한다</li>
@@ -451,16 +571,19 @@ verify_seal() {  # verify_seal &lt;계약파일&gt; → SEAL_OK | SEAL_BROKEN | 
     <p>배포본 fit-pal 계열 <code>.harness</code> 에 이미 존재하는 접미형 계약 40 개 중 <code>status:</code> 필드를 가진 것은 <strong>0 개</strong>다. 이들을 active 로 세면 후보가 수십 개가 되어 그 프로젝트의 QA 가 영구 BLOCKED 된다. <strong>파일 개수를 세지 말고 <code>status</code> 를 읽어라.</strong></p>
   </div>
   <code class="code-block"># active 계약 열거 — frontmatter 없는 레거시는 자연히 빠진다.
-# 글로빙 금지(§셸 이식성 규약): 매치 0 이면 zsh 가 명령을 죽인다.
-# 따옴표 유무를 모두 잡는다(§값 따옴표 규약): writer 는 무따옴표로 쓰지만 손으로 적은
+# 글로빙 금지 (§셸 이식성 규약): 매치 0 이면 zsh 가 명령을 죽인다.
+# 따옴표 유무를 모두 잡는다 (§값 따옴표 규약): writer 는 무따옴표로 쓰지만 손으로 적은
 # `status: "active"` 가 실재하며, 그걸 놓치면 active 를 0 개로 세어 없던 BLOCKED 를 만든다.
 find "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
   \( -name 'sprint-contract.md' -o -name 'sprint-contract-*.md' \) \
   -exec grep -lE "^status:[[:space:]]*[\"']?active" {} + 2&gt;/dev/null
-# grep 은 매치 0 이면 exit 1 이다 — `set -e` 아래에서 쓸 때는 `|| true` 를 붙여라</code>
+# grep 은 매치 0 이면 exit 1 이다 — `set -e` 아래에서 쓸 때는 `|| true` 를 붙여라
+# 이 열거는 빠른 스크리닝이다. 값 동등 비교가 필요하면 §값 따옴표 규약의 `fm_get` 을 써라.
+# 같은 패턴을 `harness/evals/test-fixtures/README.md` 의 사전 점검이 쓴다 — 두 곳이 어긋나면 안 된다.</code>
+  <p class="section-desc"><code>status</code> 를 나중에 <code>done</code> 으로 바꾸는 것은 frontmatter 값 수정이므로 허용 섹션 헤더 규칙과 무관하다(본문에 새 <code>##</code> 를 만드는 것이 아니다).</p>
 
   <h3 class="sub">ladder 3.5 — 레거시 브릿지 (v5.1 · 회귀 봉합)</h3>
-  <p class="section-desc">레거시를 active 후보에서 제외하는 규칙만으로는 <strong>기존 프로젝트 전체가 0-active BLOCKED</strong> 가 된다. v5 이전에는 평가자가 plain 계약을 조건 없이 읽었으므로 이것은 명백한 회귀다. 따라서 ladder 3 과 4 사이에 브릿지 한 단계를 둔다. <strong>active 후보가 0 개일 때만</strong> 본다.</p>
+  <p class="section-desc">레거시를 active 후보에서 제외하는 규칙만으로는 <strong>기존 프로젝트 전체가 0-active BLOCKED</strong> 가 된다. v5 이전에는 평가자가 plain 계약을 조건 없이 읽었으므로 이것은 명백한 회귀다. 따라서 ladder 3 과 4 사이에 브릿지 한 단계를 둔다. <strong>active 후보가 0 개일 때만</strong> 보며, 하위 규칙은 2 개다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>하위 규칙</th><th>조건</th><th>선택</th></tr></thead>
@@ -471,13 +594,18 @@ find "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
       </tbody>
     </table>
   </div>
+  <ul class="checklist">
+    <li><span class="check">!</span>어느 하위 규칙으로 선택했든 산출물에 <strong><code>legacy_contract_used: true</code> 경고</strong>를 남긴다</li>
+    <li><span class="check">!</span>active 가 1 개 이상이면 이 단계를 보지 않는다 — ladder 3 이 확정했거나(2 개 이상이면) ladder 4 BLOCKED 다. <strong>레거시와 active 를 섞어 판단하지 않는다</strong></li>
+    <li><span class="check">!</span><strong><code>legacy_contract_used: true</code> 는 경고이지 실패가 아니다.</strong> verdict 는 정상 산출한다. 다만 그 계약은 소유 세션을 알 수 없으므로, 병렬 세션 환경이라면 사용자에게 계약 확정(<code>status: active</code> 부여 또는 <code>HARNESS_CONTRACT</code> 고정)을 권고한다</li>
+  </ul>
+  <p class="section-desc"><strong>왜 plain 을 우선하는가</strong> (실측, 2026-07-28 · <code>~/Hub/10_Dev</code> 하위 <code>.harness</code> 13 개): active 가 1 개인 곳은 이 레포뿐이고 나머지 12 개는 전부 <code>status</code> 미보유 레거시다. 그 12 개는 <strong>전부 plain <code>sprint-contract.md</code> 를 갖고 있다.</strong> 반면 접미형 레거시는 <code>fit-pal/app</code> 27 개 · <code>fit-pal/server</code> 12 개처럼 과거 스프린트가 쌓여 있어, "레거시가 정확히 1 개일 때만" 이라는 규칙만 두면 이 3 개 배포본이 BLOCKED 로 남아 회귀가 남는다. plain 우선은 v5 이전 동작과 정확히 같으므로 회귀가 0 이다.</p>
   <div class="stat-row">
     <div class="stat"><div class="stat-num">13</div><div class="stat-label"><code>~/Hub/10_Dev</code> 하위 <code>.harness</code> 실측 개수</div></div>
     <div class="stat"><div class="stat-num">12</div><div class="stat-label">레거시 전용 — <strong>전부 plain 을 갖고 있다</strong></div></div>
     <div class="stat"><div class="stat-num">1 / 12</div><div class="stat-label">ladder 3 / ladder 3.5-a 결과</div></div>
     <div class="stat"><div class="stat-num">0</div><div class="stat-label">BLOCKED — 회귀 0</div></div>
   </div>
-  <p class="section-desc">어느 하위 규칙으로 선택했든 산출물에 <strong><code>legacy_contract_used: true</code> 경고</strong>를 남긴다. active 가 1 개 이상이면 이 단계를 보지 않는다 — <strong>레거시와 active 를 섞어 판단하지 않는다.</strong> 이 경고는 실패가 아니며 verdict 는 정상 산출한다. 다만 그 계약은 소유 세션을 알 수 없으므로 병렬 세션 환경이라면 계약 확정을 권고한다.</p>
   <code class="code-block"># ladder 2 / 3 / 3.5 / 4 판정 — fm_get · list_contracts 는 위 정의를 쓴다 (zsh · bash 동일)
 n_act=0; n_own=0; n_leg=0; pick_act=""; pick_own=""; pick_leg=""; pick_plain=""
 while IFS= read -r f; do
@@ -517,179 +645,348 @@ fi</code>
       <thead><tr><th>시점</th><th>주체</th><th>동작</th></tr></thead>
       <tbody>
         <tr><td>verdict = <strong>APPROVE</strong> 직후</td><td><strong>qa-evaluator</strong></td><td>평가한 계약의 frontmatter <code>status</code> 를 <code>done</code> 으로 전환</td></tr>
-        <tr><td>verdict = <strong>REJECT</strong></td><td><strong>qa-evaluator</strong></td><td>전환하지 않는다 — <code>active</code> 유지 (재작업 대상)</td></tr>
+        <tr><td>verdict = <strong>REJECT</strong></td><td><strong>qa-evaluator</strong></td><td>전환하지 않는다 — <code>active</code> 를 유지한다 (재작업 대상)</td></tr>
         <tr><td>verdict = <strong>BLOCKED</strong></td><td>아무도</td><td>전환하지 않는다 — 애초에 verdict 가 아니다</td></tr>
-        <tr><td>같은 슬러그 재작성 시 아카이브</td><td>sprint-contract</td><td><code>history/</code> 로 옮긴 <strong>사본</strong>의 <code>status</code> 를 <code>done</code> 으로</td></tr>
+        <tr><td>같은 슬러그 재작성 시 아카이브</td><td>sprint-contract</td><td><code>history/</code> 로 옮긴 <strong>사본</strong>의 <code>status</code> 를 <code>done</code> 으로 (sprint-contract Step 6 아카이브)</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="section-desc"><strong><code>status: active</code> 가 명시된 계약만 전환한다.</strong> ladder 3.5 로 채택한 레거시 계약에는 <strong><code>status</code> 를 새로 써 넣지 마라</strong> — <code>status: done</code> 을 박으면 다음 호출에서 브릿지 후보가 사라져 <strong>없던 BLOCKED 를 새로 만든다.</strong> 전환은 verdict 산출 이후의 후처리이며 <strong>전환 실패는 verdict 를 무효화하지 않는다</strong> — 전환 결과(<code>active -&gt; done</code> / <code>skipped</code> / <code>failed</code>)만 산출물에 기록한다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>레거시에는 <code>status</code> 를 새로 써 넣지 마라</div>
+      <p><strong><code>status: active</code> 가 명시된 계약만 전환한다.</strong> ladder 3.5 로 채택한 레거시 계약(= <code>status</code> 필드 없음)은 애초에 active 후보가 아니라 단조 증가를 일으키지 않으며, <code>status: done</code> 을 박으면 다음 호출에서 브릿지 후보가 사라져 <strong>없던 BLOCKED 를 새로 만든다.</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>전환은 verdict 산출 이후의 후처리</div>
+      <p><strong>전환 실패는 verdict 를 무효화하지 않는다.</strong> 파일이 읽기 전용이거나 다른 세션이 이미 바꿨더라도 판정은 그대로 유효하며, 전환 결과(<code>active -&gt; done</code> / <code>skipped</code> / <code>failed</code>)만 산출물에 기록한다. frontmatter 안의 <code>status:</code> 만 바꾼다 — 본문에 우연히 등장하는 <code>status:</code> 줄은 건드리지 않는다. 전환은 frontmatter 값 수정이므로 허용 섹션 헤더 규칙과 무관하다.</p>
+    </div>
+  </div>
 </div>
 
-<!-- ═══ 필수 섹션 + 조건 패턴 ═══ -->
-<div class="section">
+<!-- ═══ 필수 섹션 + 조건 태그 ═══ -->
+<div class="section" id="required">
   <div class="section-label">Required Sections</div>
   <div class="section-title">필수 섹션 4 종 · 조건 태그 · Aggregation Mode</div>
   <div class="grid-4">
     <div class="card">
       <div class="card-title"><span class="dot"></span>1. 카테고리별 조건</div>
       <code class="code-block">## {CategoryID}
-- [ ] {PREFIX}-{NN}: {조건문} [tag]</code>
-      <p><code>CategoryID</code> 와 <code>PREFIX</code> 는 <code>project.yaml.contract_categories</code> 에서 가져온다. 조건문은 능동태·단일 조건·측정 가능해야 한다.</p>
+- [ ] {PREFIX}-{NN}: {PASS/FAIL 이진 판정 가능한 조건문} [specificity-tag]</code>
+      <p><code>CategoryID</code> 와 <code>PREFIX</code> 는 <code>project.yaml.contract_categories</code> 에서 가져온다. 조건문은 능동태, 단일 조건, 측정 가능해야 한다. "잘 동작한다", "적절히 처리한다" 같은 모호 표현 금지. 조건 끝에 <strong>구체성 태그</strong>를 붙인다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>2. Anti-patterns</div>
       <code class="code-block">## Anti-patterns
 - [ ] {id}: {message}</code>
-      <p><code>project.yaml.anti_patterns</code> 에서 <strong>최소 2 개</strong> 선별. 해당 구현에서 발생 가능성이 높은 것을 우선 선택한다.</p>
+      <p><code>project.yaml.anti_patterns</code> 에서 <strong>최소 2 개</strong> 선별 — 이번 변경 파일에 걸릴 수 있는 패턴이 그보다 적으면 걸리는 것만 쓰고, 하나도 없으면 <code>AP-00: N/A (사유)</code> 한 줄로 쓴다(<a class="jump" href="#na">해당 없음 마커</a>). 해당 구현에서 발생 가능성이 높은 것을 우선 선택한다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>3. Reusability (자동 포함)</div>
       <code class="code-block">## Reusability
-- [ ] RE-01: private 일회용 컴포넌트가 없다
-- [ ] RE-02: 기존 공용 컴포넌트를 재사용한다</code>
+- [ ] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다
+- [ ] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다</code>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>4. Diagnostics (자동 포함)</div>
       <code class="code-block">## Diagnostics
-- [ ] DG-01: analyze 경고 0건
-- [ ] DG-02: analyze 에러 0건
-- [ ] DG-03: 테스트 전체 통과
-- [ ] DG-04: 콘솔 에러 0건</code>
+- [ ] DG-01: {commands.analyze} 워닝 0개 (변경/생성 파일 대상)
+- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ({diagnostics.ide_exclude} 제외)
+- [ ] DG-03: {commands.test} 콘솔 로그에 에러/예외 0개
+- [ ] DG-04: 실제 앱/서버 구동 시 에러 0개</code>
+      <p>적용 대상이 없으면 ID 를 유지한 채 <code>N/A (사유)</code> — <a class="jump" href="#auto-na">아래</a>.</p>
     </div>
   </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>태그</th><th>의미</th></tr></thead>
-      <tbody>
-        <tr><td><code>[exact]</code></td><td>이름/값/구조 문자 그대로 매칭</td></tr>
-        <tr><td><code>[structural]</code></td><td>섹션/필드/파일 존재 확인 <em>(기본값)</em></td></tr>
-        <tr><td><code>[goal]</code></td><td>목표 달성 여부만 판정, 수단 무관</td></tr>
-        <tr><td><code>enumerated</code></td><td>각 대상을 개별 이름으로 명시해야 PASS</td></tr>
-        <tr><td><code>collective</code></td><td>포괄 경로/패턴 하나로도 PASS <em>(기본값)</em></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <code class="code-block">- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
+
+  <h3 class="sub">조건 태그 (Specificity Tag)</h3>
+  <p class="section-desc">모든 계약 조건은 끝에 구체성 태그를 붙여야 한다. 미명시 시 <code>[structural]</code> 로 간주한다. 다수 대상(파일/모듈/키워드) 조건은 태그에 <strong>Aggregation Mode</strong> 를 함께 명시한다.</p>
+  <div class="cols-2">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>태그 / 모드</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code>[exact]</code></td><td>이름/값/구조 문자 그대로 매칭</td></tr>
+          <tr><td><code>[structural]</code></td><td>섹션/필드/파일 존재 확인 <em>(기본값)</em></td></tr>
+          <tr><td><code>[goal]</code></td><td>목표 달성 여부만 판정, 수단 무관</td></tr>
+          <tr><td><code>enumerated</code></td><td>각 대상을 개별 이름으로 명시해야 PASS</td></tr>
+          <tr><td><code>collective</code></td><td>포괄 경로/패턴 하나로도 PASS <em>(기본값)</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <code class="code-block">- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
 - [ ] UI-02: 설정 화면에 접근성 라벨이 모든 버튼에 존재한다 [structural]
-- [ ] LO-01: 로그인 실패 시 사용자에게 실패 원인이 전달된다 [goal]
-- [ ] RE-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이 각각 파일명으로 명시된다 [exact, enumerated]
+- [ ] LO-01: 로그인 실패 시 사용자에게 실패 원인이 전달된다 [goal]</code>
+      <code class="code-block">- [ ] RE-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이 각각 파일명으로 명시된다 [exact, enumerated]
 - [ ] RE-02: References 에 docs/react/kit-design/ 경로가 명시된다 [structural, collective]</code>
-  <p class="section-desc">숫자 레벨 태그(L-one/L-two/L-three)는 <strong>QA 평가 깊이 전용</strong> — 계약 태그로 재사용 금지. 상세 작성법은 <code>harness/docs/guides/contract-design-guide.md</code> §조건 구체성 태그 참조. 태그는 평가 criteria 를 명확히 하는 핵심 수단이며, LLM 판정 신뢰성 연구는 <strong>criteria 품질이 곧 평가 품질</strong>이라고 보고한다.</p>
+    </div>
+  </div>
+  <p class="section-desc">숫자 레벨 태그(L-one/L-two/L-three)는 <strong>QA 평가 깊이 전용</strong> — 계약 태그로 재사용 금지. 상세한 작성법은 <code>harness/docs/guides/contract-design-guide.md</code> §조건 구체성 태그 참조. 태그는 평가 기준을 명확히 하는 수단이며, LLM 판정 신뢰성 연구는 <strong>기준 품질이 곧 평가 품질</strong>이라고 보고한다.</p>
   <a class="card-source" href="https://arxiv.org/html/2506.13639v1">An Empirical Study of LLM-as-a-Judge — arxiv:2506.13639</a>
 
-  <h3 class="sub">검증 수단 인라인 명시 · <code>[미검증]</code> 마커 (v3)</h3>
+  <h3 class="sub">검증 수단 인라인 명시 · <code>[미검증]</code> 마커 · Sibling Consistency (v3)</h3>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>형식과 예시</div>
-      <code class="code-block">- [ ] {PREFIX}-{NN}: {조건} (측정: {명령/도구/관찰}) [tag]
-
-- [ ] AR-03: docs/flutter/ 총 줄 수 >= 1500
-      (측정: `wc -l docs/flutter/*.md | tail -1`) [exact]
-- [ ] UI-05: 모달 overlay 가 표시된다
-      (측정: MCP Figma read-back 또는 Playwright snapshot) [goal]</code>
-      <p><strong>MCP / 외부 도구 fallback 3 단계</strong>를 인라인 기술한다.</p>
+      <div class="card-title"><span class="dot"></span>모든 조건은 "어떤 도구 · 명령 · 관찰로 판정할지" 를 인라인 기술한다</div>
+      <code class="code-block">- [ ] {PREFIX}-{NN}: {조건} (측정: {명령/도구/관찰}) [specificity-tag]</code>
+      <code class="code-block">- [ ] AR-03: docs/flutter/ 총 줄 수 &gt;= 1500 (측정: `wc -l docs/flutter/*.md | tail -1`) [exact]
+- [ ] UI-05: 모달 overlay 가 표시된다 (측정: MCP Figma read-back 또는 Playwright snapshot) [goal]</code>
+      <p><strong>MCP / 외부 도구 fallback 3 단계</strong> — 외부 도구 의존 조건은 다음 3 단계를 인라인 기술한다.</p>
       <code class="code-block">- [ ] LG-02: 모달 close 버튼 클릭 시 overlay 가 dismiss 된다
-      (측정: 1차 MCP Figma read-back · 2차 fallback:
-      MutationObserver 로 CSS display 상태 확인 스크린샷 ·
-      3차 불가능 시 `[미검증]` 마커 허용) [goal]</code>
+      (측정: 1차 MCP Figma read-back · 2차 fallback: MutationObserver 로 CSS display
+      상태 확인 스크린샷 · 3차 불가능 시 `[미검증]` 마커 허용) [goal]</code>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span><code>[미검증]</code> 수용 임계</div>
+      <div class="card-title"><span class="dot"></span><code>[미검증]</code> 마커 — 수용 임계</div>
+      <p>평가 시점에 검증 도구가 모두 불가능하면 평가자는 해당 조건에 <code>[미검증]</code> 마커를 붙이고 근거 블록에 사유를 기록한다.</p>
       <ul>
         <li>계약 전체에서 <code>[미검증]</code> 마커 <strong>1 건까지만</strong> PASS 처리 가능</li>
         <li><strong>2 건 이상 누적 시 자동 REJECT</strong> (qa-evaluation-guide 의 동일 정책과 맞물림)</li>
-        <li>계약 작성 단계에서 허용 건수 예상치가 2 건 이상이면 <strong>조건 재설계</strong></li>
+        <li>계약 작성 단계에서 <code>[미검증]</code> 허용 건수 예상치가 2 건 이상이면 <strong>조건 재설계</strong></li>
       </ul>
-      <p><strong>Sibling Consistency enumerated (v3):</strong> 플러그인 내 여러 스킬에 공통 원칙을 요구하는 조건은 반드시 enumerated 를 사용한다. 대상 스킬 개수를 숫자로 명시하고 이름 전부 열거.</p>
-      <code class="code-block">- [ ] SK-03: domain event + outbox 원칙이 rust-init,
-      rust-feature, rust-service, rust-api 4 개 스킬
-      Gotchas 에 모두 존재한다 [exact, enumerated]</code>
-    </div>
-  </div>
-
-  <h3 class="sub">Counterpart 조건 · Diff-Scope Oracle 표준형 · 증거 아티팩트 경로 (v4)</h3>
-  <div class="grid-3">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Counterpart 조건</div>
-      <p>계약 · 직렬화 포맷 · 공유 모델 · 공개 시그니처 · DB 스키마를 변경하는 스프린트는 <strong>producer 면과 consumer 면을 각각 별도 조건</strong>으로 담아야 한다. 한 조건에 양면을 묶는 것은 복합 조건이므로 금지다. 각 조건은 해당 면의 파일 경로를 <code>[exact, enumerated]</code> 로 열거한다(<code>collective</code> 금지).</p>
-      <code class="code-block">- [ ] AR-04: 응답 필드 rename 이 producer 면 파일
-      `server/src/handler/schedule.rs` 에 반영된다
-      [exact, enumerated]
-      (측정: 신규 필드명 존재 · 구 필드명 0 건)
-- [ ] AR-05: 같은 rename 이 consumer 면 파일
-      `app/lib/data/model/schedule_model.dart`,
-      `app/lib/data/model/schedule_model.g.dart`
-      2 개에 반영된다 [exact, enumerated]</code>
-      <p>소비면의 <strong>내부 구현</strong>은 조건화하지 않는다(과잉 계약). 양면을 다 못 바꾸면 남는 쪽은 <code>[미검증]</code> 이 아니라 <strong>명시적 미완 조건</strong>이다.</p>
-      <a class="card-source" href="https://docs.pact.io/consumer/contract_tests_not_functional_tests">Pact — Contract tests are not functional tests</a>
-      <a class="card-source" href="https://docs.pact.io/getting_started/what_is_pact_good_for">Pact — What is Pact good for</a>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Diff-Scope Oracle 표준형 4 요소</div>
-      <p><code>git diff</code> 자유 서술을 금지한다. <strong>(1)</strong> 상태 전제 <strong>(2)</strong> 경로 한정 pathspec <strong>(3)</strong> 생성물 제외 pathspec <strong>(4)</strong> 기대 집합("정확히 일치" 인지 "포함" 인지)를 모두 채운다.</p>
-      <code class="code-block">- [ ] AR-01: 변경이 변환 헬퍼 2 개 파일로 한정된다
-      [exact, enumerated]
-      (Given: 커밋 직전 working tree ·
-       측정: `git diff --name-only HEAD -- app/lib
-       ':(exclude)*.g.dart'` 결과가
-       `app/lib/data/mapper/schedule_mapper.dart`,
-       `app/lib/data/mapper/group_mapper.dart`
-       2 행과 정확히 일치)</code>
-      <p>계약 작성 시점에 그 명령을 <strong>1 회 실행</strong>하고 현재 출력(baseline)을 서술 섹션에 남긴다. 측정 명령 자체가 곧 <strong>test oracle</strong> 이므로, oracle 이 조건 의도와 다른 것을 측정하면 false REJECT / false PASS 가 발생한다.</p>
-      <a class="card-source" href="https://testrigor.com/blog/what-is-test-oracle-in-software-testing/">What is Test Oracle — testRigor</a>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>증거 아티팩트 경로</div>
-      <p>조건이 참조하는 증거가 코드 · 파일 · 명령 출력이 아니라 <strong>기록물</strong>(승인 로그, 합의 기록, 실측 수치)이면, 그 기록물이 평가 시점에 존재할 <strong>경로</strong>를 조건에 적는다. <strong>경로를 적을 수 없으면 그 조건을 만들지 않는다.</strong></p>
-      <code class="code-block">- [ ] UI-06: 채택 시안 ID 와 승인 일시가
-      `.harness/design-approval.md` 에 기록되어 있다
-      [structural] (측정: 파일 존재 + 시안 ID 1 건 이상)</code>
+      <p><strong>Sibling Consistency enumerated</strong> — 플러그인 내 여러 스킬에 공통 원칙을 요구하는 조건은 반드시 <code>[exact, enumerated]</code> 또는 <code>[structural, enumerated]</code> 를 사용한다. 대상 스킬 개수를 숫자로 명시하고 이름 전부 열거.</p>
+      <code class="code-block">- [ ] SK-03: domain event + outbox 원칙이 rust-init, rust-feature, rust-service,
+      rust-api 4 개 스킬 Gotchas 에 모두 존재한다 [exact, enumerated]</code>
     </div>
   </div>
 </div>
 
-<!-- ═══ v5.3 조건 패턴 3 종 ═══ -->
-<div class="section">
-  <div class="section-label">v5.3 Patterns</div>
-  <div class="section-title">조건 패턴 3 종 — 측정 커버리지 · 인자 매트릭스 · 음성 대조</div>
+<!-- ═══ 범위 조건 ═══ -->
+<div class="section" id="scope">
+  <div class="section-label">Scope Oracles</div>
+  <div class="section-title">Counterpart 조건 · Diff-Scope Oracle 표준형 · 커밋 구간 상한 · 서명 줄</div>
 
-  <h3 class="sub">측정 커버리지 표기 (E2 검출기)</h3>
-  <p class="section-desc"><code>enumerated</code> 조건은 <strong>산문이 요구한 대상 집합</strong>과 <strong>측정이 실제로 훑는 대상 집합</strong>이 같아야 한다. 실측 improvement: <em>"[AR-04] 계약-측정-불일치 — 조건 프로즈(화이트리스트 12 항목)와 측정 필드(5 개 무관 디렉토리 grep)의 커버리지 갭"</em>.</p>
+  <h3 class="sub">Counterpart 조건 (v4)</h3>
+  <div class="cols-2">
+    <div>
+      <p class="section-desc">계약 · 직렬화 포맷 · 공유 모델 · 공개 시그니처 · DB 스키마를 변경하는 스프린트는 <strong>producer 면과 consumer 면을 각각 별도 조건</strong>으로 담아야 한다. 한 조건에 양면을 묶는 것은 복합 조건이므로 금지다. 각 조건은 해당 면의 파일 경로를 <code>[exact, enumerated]</code> 로 열거한다(<code>collective</code> 금지). consumer 가 없으면 "소비자 없음" 을 근거와 함께 조건에 명시한다.</p>
+      <p class="section-desc">소비면의 <strong>내부 구현</strong>은 조건화하지 않는다(과잉 계약). 한 스프린트에서 양면을 다 못 바꾸면 남는 쪽은 <code>[미검증]</code> 이 아니라 <strong>명시적 미완 조건</strong>으로 남긴다 — <code>[미검증]</code> 은 검증 도구 부재 전용 마커다.</p>
+      <a class="card-source" href="https://docs.pact.io/consumer/contract_tests_not_functional_tests">Pact — Contract tests are not functional tests</a>
+      <a class="card-source" href="https://docs.pact.io/getting_started/what_is_pact_good_for">Pact — What is Pact good for</a>
+    </div>
+    <code class="code-block">- [ ] AR-04: 응답 필드 rename 이 producer 면 파일 `server/src/handler/schedule.rs` 에
+      반영된다 [exact, enumerated] (측정: 신규 필드명 존재 · 구 필드명 0 건)
+- [ ] AR-05: 같은 rename 이 consumer 면 파일 `app/lib/data/model/schedule_model.dart`,
+      `app/lib/data/model/schedule_model.g.dart` 2 개에 반영된다 [exact, enumerated]
+      (측정: 신규 필드명 존재 · 구 필드명 0 건)</code>
+  </div>
+
+  <h3 class="sub" id="diff-scope">Diff-Scope Oracle 표준형 — 5 요소 (v4 · v5.4 에서 4 → 5)</h3>
+  <p class="section-desc">"변경 범위" 를 조건으로 쓸 때 <code>git diff</code> 자유 서술을 금지한다. 아래 5 요소를 모두 채운다. 상한 ref 는 커밋 구간을 재는 조건에만 요구한다 — 커밋 전 두 상태(<code>git diff HEAD</code> · <code>--cached</code>)에는 상한이 없다.</p>
+  <div class="steps">
+    <div class="step"><div class="step-n">(1) 상태 전제</div><h4>평가 시점에 다시 잴 수 있는 것</h4><p><code>Given: 이 스프린트의 커밋이 끝난 뒤</code> · <code>Given: 커밋 직전 working tree</code> · <code>Given: 스테이징 완료 후</code> 중 하나.</p></div>
+    <div class="step"><div class="step-n">(2) 경로 한정</div><h4>경로 한정 pathspec</h4><p>재는 범위를 경로로 좁힌다.</p></div>
+    <div class="step"><div class="step-n">(3) 생성물 제외</div><h4>생성물 제외 pathspec</h4><p><code>':(exclude)*.g.dart'</code> 처럼 생성물을 뺀다.</p></div>
+    <div class="step"><div class="step-n">(4) 기대 집합</div><h4>"정확히 일치" 인지 "포함" 인지</h4><p>기대 집합과 비교 방식을 함께 적는다.</p></div>
+    <div class="step"><div class="step-n">(5) 상한 ref</div><h4>커밋 구간 상한</h4><p><code>HEAD</code> 가 아니라 이 스프린트가 소유한 ref — <a class="jump" href="#upper-bound">아래</a>.</p></div>
+  </div>
+  <code class="code-block">- [ ] AR-01: 변경이 변환 헬퍼 2 개 파일로 한정된다 [exact, enumerated]
+      (Given: 이 스프린트의 커밋이 끝난 뒤 ·
+       측정: `U=$(sprint_head &lt;slug&gt;) || exit 2; git diff --name-only &lt;base&gt;..$U -- app/lib ':(exclude)*.g.dart'` 결과가
+       `app/lib/data/mapper/schedule_mapper.dart`,
+       `app/lib/data/mapper/group_mapper.dart` 2 행과 정확히 일치)</code>
+  <p class="section-desc">계약 작성 시점에 그 명령을 1 회 실행하고 현재 출력(baseline)을 서술 섹션에 남긴다. 측정 명령 자체가 곧 <strong>test oracle</strong> 이므로, 오라클이 조건 의도와 다른 것을 재면 잘못된 REJECT · 잘못된 PASS 가 나온다.</p>
+  <a class="card-source" href="https://testrigor.com/blog/what-is-test-oracle-in-software-testing/">What is Test Oracle — testRigor</a>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">커밋하면 빈 출력이 되는 상태 전제</div>
+      <p><code>Given: 커밋 직전 working tree</code> 의 <code>git diff HEAD</code> 와 <code>Given: 스테이징 완료 후</code> 의 <code>--cached</code> 는 커밋하고 나면 빈 출력이다. <code>git status --porcelain</code> 줄 수도 같다. 실측(2026-08-13): 커밋 뒤 평가에서 <code>git status --porcelain</code> 이 늘 0 줄이라 조건을 다시 잴 수 없었다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">상태 전제는 평가 시점에 다시 잴 수 있는 것으로 (v5.5)</div>
+      <p>QA 는 대개 커밋 뒤에 돌므로 평가 시점에 재는 범위 조건은 커밋 구간 <code>&lt;base&gt;..&lt;상한&gt;</code> 으로 쓴다. 위 AR-01 예시가 그 형태다 — <code>Given: 이 스프린트의 커밋이 끝난 뒤</code> 와 <code>U=$(sprint_head &lt;slug&gt;) || exit 2</code>.</p>
+    </div>
+  </div>
+
+  <h3 class="sub" id="harness-scope"><code>.harness/</code> 범위 조건 — 산출물 슬러그를 열거하지 마라 <span class="new">2026-09-23</span></h3>
+  <p class="section-desc">변경 범위 조건이 <code>.harness/</code> 를 재야 할 때, 이번 스프린트의 산출물 파일명을 화이트리스트로 열거하는 형태를 쓰지 마라. <strong>여러 스프린트를 한 브랜치에 쌓으면 앞 스프린트의 status 전환이 항상 뒤 스프린트 구간에 들어온다.</strong> 앞 스프린트가 APPROVE 되면 평가자가 그 계약의 <code>status</code> 를 <code>done</code> 으로 바꾸고, 그 한 줄이 뒤 스프린트의 화이트리스트에 없어 조건이 FAIL 한다.</p>
+  <p class="section-desc">실측(2026-09-23): 그 때문에 개정 1 건과 사용자 승인이 강제됐고, 다음 회차에서 같은 함정이 또 나올 구조였다. 재려던 것은 "과거 기록을 고치지 않았다" 인데 status 전환은 기록을 고치는 것이 아니라 기록이 스스로 완료를 표시하는 것이다.</p>
+  <div class="cols-2">
+    <div class="note good">
+      <div class="note-title">권장 형태 — status 전환과 조건 변조를 구별하는 검사</div>
+      <p><code>sprint-contract*.md</code> 에 <code>verify_seal</code> 을 돌려 <code>SEAL_BROKEN</code> 이 0 개인지 본다.</p>
+      <ul>
+        <li>판정은 <strong><code>SEAL_BROKEN</code> 이 0 개</strong>다. <code>SEAL_OK</code> 와 <code>SEAL_ABSENT</code> 는 <strong>둘 다 통과</strong>다 — 봉인 없는 레거시 계약이 실재하고 그것은 경고이지 실패가 아니다</li>
+        <li><code>status:</code> 토글과 새 산출물 추가는 위반이 아니다</li>
+        <li><strong>블록 머리의 <code>type</code> 줄을 빼지 마라.</strong> 실측(2026-09-25): <code>fm_get</code> 만 빠진 셸에서 계약 79 개가 전부 <code>SEAL_ABSENT</code> 로 나왔고 종료 코드는 0 이었다</li>
+        <li>실측(2026-09-23): 계약 67 개에 돌려 <code>SEAL_OK</code> 56 · <code>SEAL_ABSENT</code> 11 · <code>SEAL_BROKEN</code> 0</li>
+      </ul>
+      <p>레포의 다른 부분(<code>harness/evals/</code> · <code>docs/kaizen/</code> 등)을 재는 조건은 경로 패턴을 그대로 쓰면 된다 — 그쪽은 스프린트 산출물이 자라지 않는다.</p>
+    </div>
+    <code class="code-block"># .harness/ 의 계약 파일만 골라 봉인 상태를 센다. 피드백·개정·project.yaml·handoff/ 는 계약이 아니다
+# -maxdepth 를 걸지 않는다 — history/ 로 옮긴 계약이 조용히 검사에서 빠진다 (실측 1 건)
+# 네 함수 가운데 하나라도 없는 셸에서 세면 모든 계약이 SEAL_ABSENT(fm_get 없음)나 SEAL_BROKEN(contract_digest · sha256_16 없음)으로 잘못 나온다 — 정의부터 확인하고 없으면 멈춘다
+type verify_seal fm_get contract_digest sha256_16 &gt;/dev/null 2&gt;&amp;1 || { echo "STOP verify_seal · fm_get · contract_digest · sha256_16 정의 없음 — §계약 봉인 · §값 따옴표 규약 블록을 먼저 읽는다" &gt;&amp;2; exit 2; }
+find .harness -type f -name 'sprint-contract*.md' -print0 \
+| while IFS= read -r -d '' f; do verify_seal "$f"; done \
+| awk '{print $1}' | sort | uniq -c</code>
+  </div>
+
+  <h3 class="sub" id="upper-bound">커밋 구간 상한 — <code>HEAD</code> 를 쓰지 마라 (v5.4)</h3>
+  <p class="section-desc"><code>&lt;base&gt;..HEAD</code> 로 쓰면 상한이 <strong>평가 시점마다 움직인다.</strong> 봉인 이후 무관한 작업이 브랜치에 들어오는 순간 그 파일이 화이트리스트 위반으로 잡히고, 스프린트는 자기가 만들지도 않은 변경 때문에 FAIL 한다. 상한은 <strong>이 스프린트가 소유한 ref</strong> 여야 한다.</p>
+  <div class="note bad">
+    <div class="note-title">실측 — <code>mcp-dynamic-pull-collision</code>, 같은 결함 2 회</div>
+    <p>SC-02 가 <code>1752e9a..HEAD</code> 로 서버 <code>lib/</code> 화이트리스트를 재는데, 봉인 뒤 병합된 별개 버그 수정(0.14.1)이 화이트리스트 밖 파일을 고쳐 SC-02 가 새로 FAIL 이 됐다. 스프린트 머지 커밋까지로 좁히자 4 경로 전부가 원 화이트리스트 안에 들어왔다 — <strong>조건도 구현도 옳았고 상한만 틀렸다.</strong></p>
+  </div>
+  <ul class="checklist">
+    <li><span class="check">!</span>계약에 <strong>상한을 해석하는 명령</strong>을 적는다. 작성 시점에는 머지 커밋 해시를 모르므로 해시를 박지 말고, 슬러그로 해석되는 형태를 쓴다</li>
+    <li><span class="check">!</span>프로젝트의 브랜치·머지 메시지 관례에 의존하므로 <strong>관례가 다르면 그 프로젝트의 형태로 적는다.</strong> 아래는 <code>sprint/&lt;slug&gt;</code> 브랜치 + <code>Merge sprint/&lt;slug&gt;: …</code> 머지 메시지 관례일 때의 형태다</li>
+    <li><span class="check">!</span>해석이 실패하면(<code>UNRESOLVED</code>) 조용히 <code>HEAD</code> 로 떨어지지 마라 — 평가자가 사용자에게 묻는다</li>
+    <li><span class="check">!</span>측정에서는 상한을 먼저 변수로 받고 <code>|| exit 2</code> 로 멈춘다. 상한 해석을 <code>&lt;base&gt;..</code> 뒤에 바로 이어 쓰면 해석이 실패해도 빈 값이 들어가 <code>&lt;base&gt;..</code> 가 되고, git 은 그것을 <code>&lt;base&gt;..HEAD</code> 로 읽는다</li>
+  </ul>
+  <div class="grid-2">
+    <code class="code-block"># 스프린트 상한 해석 — 머지됐으면 머지 커밋, 아직이면 브랜치 tip (zsh · bash 동일)
+sprint_head() {  # sprint_head &lt;slug&gt;
+  m=$(git log --merges --format=%H --grep="Merge sprint/$1" -1)
+  [ -n "$m" ] &amp;&amp; { echo "$m"; return 0; }
+  git rev-parse --verify -q "sprint/$1" &amp;&amp; return 0
+  echo "UNRESOLVED sprint/$1" &gt;&amp;2; return 1
+}</code>
+    <code class="code-block">- [ ] SC-02: 서버 `lib/` 변경이 화이트리스트 5 경로에 포함된다 [exact, enumerated]
+      (Given: 이 스프린트의 커밋이 끝난 뒤 ·
+       측정: `U=$(sprint_head &lt;slug&gt;) || exit 2; git diff --name-only &lt;base&gt;..$U -- packages/server/lib
+       ':(exclude)*.g.dart'` 의 각 줄이 아래 5 경로 중 하나)</code>
+  </div>
+
+  <h3 class="sub" id="signature">여러 주체가 한 가지에 커밋할 때 — 서명 줄로 내 커밋을 가린다 <span class="new">2026-09-24</span></h3>
+  <p class="section-desc"><code>&lt;base&gt;..&lt;상한&gt;</code> 구간에는 이 스프린트 말고도 오케스트레이터 · 다른 스프린트 · 다른 Phase 의 커밋이 들어올 수 있다. 실측(2026-08-13): 한 Phase 계약의 범위 조건이 세 번 깨졌고, 그중 두 번은 오케스트레이터가 감사 기록 커밋을 그 구간에 넣어서였다. 계약이 둘 중 하나를 고른다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>선택지</th><th>언제</th><th>어떻게 재나</th><th>남는 사각</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A — 누적 차이</strong></td><td>한 주체만 커밋하는 가지의 기본값</td><td><code>git diff --name-only &lt;base&gt;..&lt;상한&gt; -- . ':(exclude).harness'</code> 로 구현 경로를 재고, <code>.harness/</code> 는 <a class="jump" href="#harness-scope">.harness/ 범위 조건</a>으로 잰다. 구간의 변경이 전부 어느 한쪽에 걸리므로 빠지는 커밋이 없다</td><td>다른 주체가 같은 구간에 커밋하면 그 파일까지 이 계약이 떠안는다 — 그때는 소리 나게 실패한다</td></tr>
+        <tr><td><strong>B — 서명 줄</strong></td><td>여러 주체가 같은 가지에 동시에 커밋 (A 는 늘 남의 파일을 잡는다)</td><td>이 스프린트의 모든 커밋 메시지 끝 문단에 서명 줄 <code>&lt;키&gt;: &lt;slug&gt;</code> 한 줄을 달고, 그 줄로 내 커밋의 파일을 모은다(<code>mine</code>). 서명 줄을 빠뜨린 커밋은 <strong>조용히 빠지므로</strong> 반대 방향 확인을 함께 건다 — 선언한 구현 경로를 건드린 구간 안 커밋은 전부 서명 줄을 달아야 한다(<code>unsigned_on</code> 출력 0 줄)</td><td>서명 줄 없이 선언 밖 경로를 고친 내 커밋. 커밋 규칙으로 막는다 — <code>git add &lt;경로&gt; &amp;&amp; git commit -o &lt;경로&gt;</code> 로 내 경로만 싣는다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="cols-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>도우미가 서명 줄을 찾는 방식</div>
+      <ul>
+        <li><code>mine</code> · <code>unsigned_on</code> 은 메시지 어느 문단이든 서명 줄과 글자가 똑같은 줄을 찾는다 — 끝 문단인지는 보지 않는다. 서명 줄을 끝 문단에 두는 관례는 그대로 둔다 — 도우미가 자리를 보지 않을 뿐이다</li>
+        <li>도우미는 줄 전체가 서명 줄과 같아야 잡으므로, 다른 주체가 본문 문장 안에 슬러그를 인용한 커밋은 잡히지 않는다 (실측 2026-09-24 스크래치 저장소: 본문 인용 커밋이 슬러그를 아무 데서나 찾는 옛 꼴에는 잡히고 서명 줄 꼴에는 안 잡혔다)</li>
+        <li>상한은 <code>sprint/&lt;slug&gt;</code> 가지가 없으면 개정 파일의 <code>end_sha:</code> 줄 마지막 값으로 읽는다 — 해석이 안 되면 <code>HEAD</code> 로 떨어지지 말고 멈춘다</li>
+      </ul>
+    </div>
+    <code class="code-block"># 서명 줄로 이 스프린트 커밋의 파일을 모은다 · 선언 경로를 건드렸는데 서명이 없는 커밋을 찾는다 (zsh · bash 동일)
+mine() {  # mine &lt;base&gt; &lt;상한&gt; &lt;서명 줄&gt;
+  git log --format= --name-only "${1}..${2}" --grep="^${3}\$" | grep . | LC_ALL=C sort -u
+}
+unsigned_on() {  # unsigned_on &lt;base&gt; &lt;상한&gt; &lt;서명 줄&gt; &lt;경로&gt;... — 출력 0 줄이어야 한다
+  _b=${1}; _u=${2}; _s=${3}; shift 3
+  git log --format=%H "${_b}..${_u}" -- "$@" | while read -r _c; do
+    git log -1 --format=%B "$_c" | grep -qxF "$_s" || echo "$_c"
+  done
+}</code>
+  </div>
+
+  <h3 class="sub" id="evidence-path">증거 아티팩트 경로 (v4)</h3>
+  <div class="cols-2">
+    <p class="section-desc">조건이 참조하는 증거가 코드 · 파일 · 명령 출력이 아니라 <strong>기록물</strong>(승인 로그, 합의 기록, 실측 수치)이면, 그 기록물이 평가 시점에 존재할 <strong>경로</strong>를 조건에 적는다. <strong>경로를 적을 수 없으면 그 조건을 만들지 않는다.</strong></p>
+    <code class="code-block">- [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approval.md` 에 기록되어 있다
+      [structural] (측정: 파일 존재 + 시안 ID 1 건 이상)</code>
+  </div>
+</div>
+
+<!-- ═══ 오라클 검증 패턴 ═══ -->
+<div class="section" id="patterns">
+  <div class="section-label">Oracle Patterns</div>
+  <div class="section-title">측정이 제 할 일을 하는지 확인하는 패턴 — 미실측 금지 · 커버리지 · 매트릭스 · 대조 셋</div>
+
+  <h3 class="sub" id="unmeasured">미실측 오라클 봉인 금지 (v5.4) · 면제는 기대값에만 (v5.5)</h3>
+  <p class="section-desc">수치·열거 오라클은 <strong>봉인 전에 최소 1 회 실측한 값</strong>이어야 한다. 아직 재보지 않았으면 그 조건에 <code>[미실측]</code> 을 붙이고, 실측으로 값을 확정하기 전에는 <code>conditions_digest</code> 를 계산하지 않는다. <code>[미실측]</code> 은 봉인 시점에 계약에 남아 있으면 안 되는 임시 표기다 — 평가 시점의 도구 부재를 기록하는 <code>[미검증]</code> 과 다르다.</p>
+  <div class="note bad">
+    <div class="note-title">실측 배경 (2026-09-07 <code>mcp-dynamic-pull-collision</code>)</div>
+    <p>RS-01 이 BEFORE 오라클로 «<code>summary.totalTools</code> 가 <code>0</code>» 을 잠갔는데 그 값은 작성 시점에 측정된 적이 없었다. 결함이 실제로 내는 값은 <code>37</code> 이었고(<code>0</code> 은 VM 연결 <strong>전</strong>의 값이라 결함과 무관했다), 결함의 진짜 서명은 전혀 다른 관측 — <code>tools/list</code> 에서 서버 정적 도구가 앱 스텁으로 조용히 교체되는 것 — 이었다. 결함이 실재하는데도 조건이 구조적으로 PASS 할 수 없는 상태였다.</p>
+    <p><strong>이 실패는 개정으로만 빠져나갈 수 있고, 그 개정은 direction 계산상 반드시 <code>relaxing</code> 이 된다</strong> — 원 조건의 PASS 집합이 공집합이므로 무엇을 넣어도 집합이 늘어난다. 즉 미실측 수치 하나가 사용자 승인을 강제하는 amendment 를 만들어 낸다. 개정 오라클이 원 오라클보다 날카로워도 <code>narrowing</code> 으로 자기신고할 수 없다.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>구분</th><th>무엇</th><th>봉인 전에 재나</th></tr></thead>
+      <tbody>
+        <tr><td><strong>적용 대상</strong></td><td>값을 고정하는 조건(<code>== 0</code> · <code>&gt;= 1500</code> · <code>정확히 N 행</code>)과 열거 집합</td><td>잰다</td></tr>
+        <tr><td><strong>면제</strong></td><td>이 스프린트가 <strong>만들어 낼</strong> 값(신규 필드명 · 새 파일 경로 · 수정 후 기대 출력). 구별 기준은 <strong>"이 값이 구현 전에도 관측 가능한가"</strong> — BEFORE · baseline · 회귀 오라클은 전부 관측 가능하므로 면제되지 않는다</td><td>기대값은 면제</td></tr>
+        <tr><td><strong>준비 단계</strong> <span class="new">v5.5</span></td><td>그 값을 재는 명령의 준비 — 명령이 읽을 경로가 지금 있는가, 부르는 도구가 이 기계에서 어디로 잡히는가(<code>command -v &lt;도구&gt;</code> 의 출력과 종료 코드 — 못 찾으면 출력이 없고 종료 코드가 0 보다 크다), <code>PATH</code> · 환경변수를 바꿔 도구를 숨기는 전제가 이 기계에서 성립하는가, 임시 사본 · 빈 입력을 만드는 절차가 도는가</td><td><strong>면제가 아니다</strong> — 한 번 돌려 출력과 종료 코드를 서술 절에 남긴다</td></tr>
+        <tr><td><strong>잴 방법이 없는 값</strong></td><td>—</td><td>그 조건을 만들지 마라 (증거 아티팩트 경로와 같은 논리)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note warn">
+    <div class="note-title">준비 단계를 안 돌려서 난 REJECT (실측 2026-09-22)</div>
+    <p>계약이 <code>PATH=/usr/bin:/bin</code> 으로 <code>jq</code> 를 숨긴다고 전제했는데 이 기계의 <code>jq</code> 는 <code>/usr/bin/jq</code> 라 숨겨지지 않았고, 평가자가 명령을 그대로 돌리자 기준과 다른 출력이 나와 REJECT 됐다. 같은 날 다른 조건의 <code>find</code> 명령은 범위 밖 파일 세 개를 더 잡았다. 둘 다 봉인 전에 한 번 돌렸으면 드러났다.</p>
+    <p><code>command -v</code> 는 셸 내장 · 함수도 보고하므로, 외부 도구를 숨기는 전제라면 출력이 경로인지까지 본다.</p>
+    <a class="card-source" href="https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html">POSIX — command</a>
+  </div>
+
+  <h3 class="sub" id="coverage">측정 커버리지 표기 (v5.3 · E2 검출기)</h3>
+  <p class="section-desc"><code>enumerated</code> 조건은 <strong>산문이 요구한 대상 집합</strong>과 <strong>측정이 실제로 훑는 대상 집합</strong>이 같아야 한다. 실측 improvement: <em>"[AR-04] 계약-측정-불일치 — 조건 프로즈(화이트리스트 12항목)와 측정 필드(5개 무관 디렉토리 grep)의 커버리지 갭"</em>. 두 집합을 <strong>같은 표기</strong>로 적어 기계가 대조할 수 있게 한다.</p>
   <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span>표기 규약</div>
       <ul>
-        <li>대상은 <strong>백틱으로 감싼 공백 없는 토큰</strong>으로 적는다. 백틱 안에 공백이 있으면 명령으로 간주해 대상 집합에서 제외한다 — <code>wc -l</code> 은 대상이 아니다</li>
+        <li>대상은 <strong>백틱으로 감싼 공백 없는 토큰</strong>으로 적는다(<code>app/lib/foo.dart</code>, <code>RE-01</code>, <code>--cached</code>). 백틱 안에 공백이 있으면 명령으로 간주해 대상 집합에서 제외한다 — <code>wc -l</code> 은 대상이 아니다</li>
         <li>산문 측 = 조건에서 <code>측정</code> 이라는 낱말이 처음 나오기 <strong>전</strong>의 토큰. 측정 측 = 그 <strong>뒤</strong>의 토큰</li>
-        <li>상위 패턴 하나로 여러 대상을 덮을 때는 <strong>작성 시점에 그 명령을 1 회 실행해 확장 결과를 측정 절에 백틱으로 열거</strong>한다. <strong>실행하지 않은 커버리지 주장은 추측이다</strong></li>
-        <li><strong>경로 화이트리스트는 예외 — 목록을 두 번 적지 마라.</strong> 같은 경로 집합을 산문과 측정 명령 양쪽에서 관리하면 한쪽만 고쳐지는 순간 계약이 자기모순에 빠진다. 화이트리스트형 조건은 <strong>산문에 개수만</strong> 적고(<code>정확히 N 경로로 한정된다</code>) <strong>열거는 Diff-Scope 표준형의 "기대 집합" 한 곳에서만</strong> 한다</li>
+        <li>상위 패턴 하나로 여러 대상을 덮을 때는 <strong>작성 시점에 그 명령을 1 회 실행해 확장 결과를 측정 절에 백틱으로 열거</strong>한다(Diff-Scope 표준형의 baseline 규칙과 같은 방식). <strong>실행하지 않은 커버리지 주장은 추측이다</strong></li>
+        <li><strong>경로 화이트리스트는 예외 — 목록을 두 번 적지 마라.</strong> 같은 경로 집합을 산문과 측정 명령 양쪽에서 관리하면 한쪽만 고쳐지는 순간 계약이 자기모순에 빠진다(실측 AR-04 의 배경 구조). 화이트리스트형 조건은 <strong>산문에 개수만</strong> 적고(<code>정확히 N 경로로 한정된다</code>) <strong>열거는 Diff-Scope 표준형의 "기대 집합" 한 곳에서만</strong> 한다. 이렇게 쓰면 산문 측 대상 토큰이 0 개라 검출기도 자연히 통과한다</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>이것은 blocking 게이트가 아니라 검출기다</div>
       <div class="table-wrap" style="margin-top:10px">
         <table>
-          <thead><tr><th>검출기 변형</th><th>flagged</th></tr></thead>
+          <thead><tr><th>검출기 변형</th><th>잡힌 조건</th></tr></thead>
           <tbody>
             <tr><td>나이브 (백틱 토큰 전부)</td><td><strong>76 / 114</strong></td></tr>
             <tr><td>경로형 토큰 2 개 이상</td><td><strong>29 / 114</strong></td></tr>
           </tbody>
         </table>
       </div>
-      <p>실측 오탐률 때문이다(2026-08-13 · 계약 109 개 · <code>enumerated</code> 조건 114 개). 나이브 형태는 사실상 전건 경보였고, 좁힌 형태도 표본 상당수가 "상위 명령이 실제로 덮는" 정당 케이스다. 따라서 <code>UNCOVERED</code> 1 건마다 <strong>(a) 조건을 고치거나 (b) 서술 절에 해소 기록 한 줄을 남긴다.</strong> 자동으로 FAIL 시키지 않는다 — lexical ambiguity linter 를 자동 판정기가 아니라 "검출기 + 사람의 해소 기록" 으로 쓰는 접근과 같은 결론이다. 요구사항마다 검증 접근을 식별하고 trace 가 parent requirement 를 "fully addresses" 하는지 <strong>독립 평가</strong>하라는 규약과도 같은 문제다.</p>
+      <p>실측 오탐률 때문이다(2026-08-13 · 계약 109 개 · <code>enumerated</code> 조건 114 개). 나이브 형태는 사실상 전건 경보였고, 좁힌 형태도 표본을 확인하면 상당수가 "상위 명령이 실제로 덮는" 정당 케이스다. 따라서 <code>UNCOVERED</code> 1 건마다 <strong>(a) 조건을 고치거나 (b) 서술 절에 해소 기록 한 줄을 남긴다.</strong> 자동으로 FAIL 시키지 않는다.</p>
       <a class="card-source" href="https://cs.uwaterloo.ca/~dberry/ambig.in.RSs.html">SREE — Ambiguity in Requirements Specifications</a>
       <a class="card-source" href="https://www.nasa.gov/reference/appendix-d-requirements-verification-matrix/">NASA Requirements Verification Matrix</a>
     </div>
   </div>
+  <code class="code-block"># 커버리지 검출기 — zsh · bash 동일. 경로형 토큰이 2 개 이상인 enumerated 조건만 본다
+awk -v MODE=path -v MIN=2 '
+function collect(s, arr,   n, i, parts, t, c) {
+  c = 0; n = split(s, parts, "`")
+  for (i = 2; i &lt;= n; i += 2) {
+    t = parts[i]
+    if (t == "" || t ~ /[ \t]/) continue
+    if (MODE == "path" &amp;&amp; t !~ /\// &amp;&amp; t !~ /\.[A-Za-z0-9]+$/) continue
+    arr[t] = 1; c++
+  }
+  return c
+}
+function flush(   i, p, m, pos, miss, np) {
+  if (id == "") return
+  if (buf ~ /enumerated/) {
+    delete P; delete M
+    pos = index(buf, "측정")
+    if (pos &gt; 0) { p = substr(buf, 1, pos - 1); m = substr(buf, pos) } else { p = buf; m = "" }
+    np = collect(p, P); collect(m, M)
+    if (np &gt;= MIN) {
+      miss = ""
+      for (i in P) if (!(i in M)) miss = miss " " i
+      if (miss != "") printf "UNCOVERED %s %s:%s\n", FILENAME, id, miss
+    }
+  }
+  id = ""; buf = ""
+}
+match($0, /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/) {
+  flush(); id = substr($0, RSTART + 6, RLENGTH - 6); sub(/^[^A-Z]*/, "", id); buf = $0; next
+}
+/^## /  { flush(); next }
+/^- \[/ { flush(); next }
+{ if (id != "") buf = buf " " $0 }
+END { flush() }
+' "$CF"</code>
 
-  <h3 class="sub">인자 매트릭스 (Factor Matrix)</h3>
-  <p class="section-desc">축이 <strong>2 개 이상</strong>이고 그 곱이 조건의 의미를 결정할 때만 쓴다. 축 하나짜리 조건에 강요하면 과잉 절차다. 실측 REJECT 두 건이 같은 뿌리다 — <em>"3 visibility × 6 relation = 18 케이스 중 15 케이스(5 relation)만 재현. GroupMemberAndFollower 관계가 전체 누락"</em> · <em>"16 종 매핑 단위 테스트 커버리지 부족(2 종만 검증)"</em>.</p>
+  <h3 class="sub" id="factor">인자 매트릭스 (Factor Matrix · v5.3)</h3>
+  <p class="section-desc">축이 <strong>2 개 이상</strong>이고 그 곱이 조건의 의미를 결정할 때만 쓴다. 축 하나짜리 조건에 강요하면 과잉 절차다. 실측 REJECT 두 건이 같은 뿌리다 — <em>"3 visibility x 6 relation = 18 케이스 중 15케이스(5 relation)만 재현. GroupMemberAndFollower 관계가 전체 누락"</em> · <em>"16종 매핑 단위 테스트 커버리지 부족 (2종만 검증)"</em>.</p>
   <ul class="checklist">
-    <li><span class="check">✓</span>축과 축 값을 조건에 <strong>열거</strong>하고, 값의 출처를 코드의 <strong>공유 상수/enum</strong> 으로 지정한다. 개별 테스트가 값을 재입력하면 다시 어긋난다</li>
+    <li><span class="check">✓</span>축과 축 값을 조건에 <strong>열거</strong>하고, 값의 출처를 코드의 <strong>공유 상수/enum</strong> 으로 지정한다. 개별 테스트가 값을 재입력하면 다시 어긋난다(improvement: <em>"audience_matrix.rs 의 6 relation 을 feed_integration.rs 가 상수/enum 으로 재사용해 … 기계적으로 순회"</em>)</li>
     <li><span class="check">✓</span><strong><code>cases_total</code> 을 손으로 적지 마라.</strong> 축 값 개수의 곱을 산출하는 명령을 조건에 적고 그 출력을 쓴다</li>
     <li><span class="check">✓</span>기본은 <strong>full Cartesian</strong> 이다. pairwise 로 낮추려면 곱셈 결과와 사유를 서술 절에 적고 사용자 승인을 받는다. <strong>임계 숫자를 지어내지 않는다</strong></li>
-    <li><span class="check">✓</span>combinatorial coverage 는 statement/branch coverage 와 <strong>다른</strong> 정적 test-set 속성이므로 기존 커버리지 수치로 대체할 수 없다</li>
   </ul>
   <a class="card-source" href="https://csrc.nist.gov/Projects/automated-combinatorial-testing-for-software/faqs">NIST Combinatorial Testing FAQ</a>
   <a class="card-source" href="https://www.nist.gov/publications/combinatorial-coverage-measurement">Combinatorial coverage measurement — NIST</a>
@@ -699,11 +996,12 @@ fi</code>
        (출처 `audience_matrix.rs`) ·
        cases_total: 축 값 개수의 곱을 명령으로 산출한 값 ·
        측정: 테스트가 두 상수를 import 해 순회하고 케이스 수가 cases_total 과 일치)</code>
-  <div class="note warn">
-    <div class="note-title">두 번째 용법 — variant 구별성</div>
-    <p>탐색형 스프린트(시안·목업·변주)는 같은 매트릭스를 <strong>variant 쪽에</strong> 쓴다. variant 마다 축 값 조합을 <code>[exact, enumerated]</code> 로 열거하고, <strong>동일 조합이 2 개 이상이면 FAIL</strong> 이다. 실측 REJECT <code>UI-04</code>: <em>"B3(단일 컬럼)과 B6(조밀 로그)이 계약 지정 4 축 전부에서 동일값 — 구조 구별 요구 위반"</em>. 스킬 측 짝은 <code>skill-design-guide.md</code> §5.6 Variant Budget 의 Variant Matrix 다 — <strong>계약은 그 매트릭스를 조건으로 받는다.</strong></p>
-  </div>
-  <code class="code-block"># variant 축 조합 중복 검출 — 1 열 variant ID, 2 열부터 축 값 (탭 구분). zsh · bash 동일
+  <div class="cols-2">
+    <div class="note warn">
+      <div class="note-title">두 번째 용법 — variant 구별성</div>
+      <p>탐색형 스프린트(시안·목업·변주)는 같은 매트릭스를 <strong>variant 쪽에</strong> 쓴다. variant 마다 축 값 조합을 <code>[exact, enumerated]</code> 로 열거하고, <strong>동일 조합이 2 개 이상이면 FAIL</strong> 이다. 실측 REJECT <code>UI-04</code>: <em>"B3(단일 컬럼)과 B6(조밀 로그)이 계약 지정 4축 전부에서 동일값 — 구조 구별 요구 위반"</em>. 스킬 측 짝은 <code>skill-design-guide.md</code> §5.6 Variant Budget 의 Variant Matrix 다 — <strong>계약은 그 매트릭스를 조건으로 받는다.</strong></p>
+    </div>
+    <code class="code-block"># variant 축 조합 중복 검출 — 1 열 variant ID, 2 열부터 축 값 (탭 구분). zsh · bash 동일
 TAB=$(printf '\t')
 cut -f2- "$VARIANTS" | LC_ALL=C sort | uniq -d &gt; "$DUPS"
 n=$(grep -c . "$DUPS" || true)
@@ -712,98 +1010,284 @@ while IFS= read -r dup; do
   printf 'DUP_AXIS [%s] &lt;- variants: %s\n' "$dup" "$(grep -F "$TAB$dup" "$VARIANTS" | cut -f1 | tr '\n' ' ')"
 done &lt; "$DUPS"
 [ "$n" -eq 0 ] &amp;&amp; echo "VARIANT_DISTINCT_OK" || echo "VARIANT_DISTINCT_FAIL n=$n"</code>
+  </div>
 
-  <h3 class="sub">음성 대조 (Negative Control)</h3>
-  <p class="section-desc">조건이 <strong>테스트 통과</strong>를 요구하면, 그 테스트가 실제로 구현을 훑는지까지 조건에 담는다. <strong>구현을 제거해도 통과하는 측정문은 오라클이 아니다.</strong> 적용 범위는 조건이 <strong>테스트·실행 산출물로 판정</strong>될 때로 한정한다 — <code>[structural]</code> 조건에는 적용하지 않는다(대상을 지우면 자명하게 실패하므로 무의미하다).</p>
+  <h3 class="sub" id="negative">음성 대조 (Negative Control · v5.3)</h3>
+  <p class="section-desc">조건이 <strong>테스트 통과</strong>를 요구하면, 그 테스트가 실제로 구현을 훑는지까지 조건에 담는다. <strong>구현을 제거해도 통과하는 측정문은 오라클이 아니다.</strong> 적용 범위는 조건이 <strong>테스트·실행 산출물로 판정</strong>될 때로 한정한다 — 파일·섹션 존재를 보는 <code>[structural]</code> 조건에는 적용하지 않는다(대상을 지우면 자명하게 실패하므로 무의미하다).</p>
   <div class="compare">
     <div class="compare-bad">
       <div class="compare-label">실측 REJECT ER-02 (2026-08-12)</div>
-      <code class="code-block">"신규 통합 테스트가 실제 바이너리를 호출하지 않고
-독립적으로 재작성한 SQL 로 …
-mutation test 로 확정 — 실제 코드에서 동시성 가드
-(WHERE exercises = $3::jsonb)를 완전히 삭제해도
-이 테스트는 여전히 통과한다"</code>
+      <p style="margin-top:0"><em>"신규 통합 테스트가 실제 바이너리를 호출하지 않고 독립적으로 재작성한 SQL로 … <strong>mutation test로 확정 — 실제 코드에서 동시성 가드(WHERE exercises = $3::jsonb)를 완전히 삭제해도 이 테스트는 여전히 통과한다</strong>"</em></p>
       <p>같은 날 <code>LG-01</code> · <code>LG-03</code> 도 "측정문은 통과하는데 구현과 결합되지 않은" 동형이다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 음성 대조 절 포함</div>
-      <code class="code-block">- [ ] ER-02: 낙관적 동시성 가드가 conflict 경로를
-      실제로 막는다 [goal]
-      (측정: 백필 대상 행을 사전 변형한 뒤 실제
-       바이너리를 호출해 skipped 카운터 증가 관찰 ·
-       음성 대조: 가드 술어를 제거하면 이 측정이
-       FAIL 해야 한다)</code>
+      <code class="code-block">- [ ] ER-02: 낙관적 동시성 가드가 conflict 경로를 실제로 막는다 [goal]
+      (측정: 백필 대상 행을 사전 변형한 뒤 실제 바이너리를 호출해 skipped 카운터 증가 관찰 ·
+       음성 대조: 가드 술어를 제거하면 이 측정이 FAIL 해야 한다)</code>
     </div>
   </div>
-  <p class="section-desc">측정이 구현을 <strong>직접</strong> 호출하는지 확인한다. 테스트가 로직을 재작성해 검증하면 결합이 없다 — 바이너리·함수·쿼리를 그대로 호출하는 경로로 바꾼다. 계약 작성 시점에 음성 대조를 실제로 돌릴 수 없으면 그 사실을 조건에 적는다. <strong>"돌렸다" 고 적지 마라.</strong></p>
-  <div class="note">
-    <div class="note-title">근거의 성격 — 외부 앵커를 붙이지 않는다</div>
-    <p>이 조항의 근거는 <strong>이 레포의 실측 REJECT 코퍼스</strong>다. 외부 문헌 앵커는 2026-08-13 사이클에 확보하지 못했으므로 <strong>인용하지 않는다.</strong> 평가 측 집행 절차(§Discriminating Evidence Gate)는 <code>qa-evaluation-guide.md</code> 가 별도 문헌 근거와 함께 정의한다.</p>
+  <ul class="checklist">
+    <li><span class="check">✓</span>조건에 <code>음성 대조:</code> 절을 넣고 <strong>어느 구현 지점을 무력화하면 그 측정이 FAIL 하는지</strong>를 적는다</li>
+    <li><span class="check">✓</span>측정이 구현을 <strong>직접</strong> 호출하는지 확인한다. 테스트가 로직을 재작성해 검증하면 결합이 없다 — 바이너리·함수·쿼리를 그대로 호출하는 경로로 바꾼다</li>
+    <li><span class="check">✓</span>계약 작성 시점에 음성 대조를 실제로 돌릴 수 없으면 그 사실을 조건에 적는다. <strong>"돌렸다" 고 적지 마라</strong></li>
+  </ul>
+
+  <h3 class="sub" id="na">해당 없음 마커 — <code>N/A (사유)</code> (표기 정본)</h3>
+  <p class="section-desc">형식은 <code>- [ ] {PREFIX}-00: N/A (사유)</code> 이며 <strong>사유를 괄호에 반드시 적는다</strong> — 무엇과 무엇이 어긋나서 적용 불가인지를 쓰고, 그 사유를 재는 측정을 붙인다.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>자동 포함 조건</div>
+      <p>Reusability · Diagnostics 에 쓰는 경우와 사유별 측정은 <a class="jump" href="#auto-na">적용 대상이 없는 자동 포함 조건</a>에 있다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>금지 패턴</div>
+      <p>변경 파일에 걸릴 수 있는 패턴이 하나도 없으면(대상이 레포 밖 · 스택 불일치) 억지로 2 개를 채우지 말고 <code>AP-00: N/A (사유)</code> 로 적는다. 매치될 수 없는 패턴의 0 은 공허한 0 이라 PASS 근거가 아니다(<code>qa-evaluator.md</code> 규칙 10 · Anti-pattern 검증 절). 작성 절차는 SKILL.md Step 3.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>[미검증]</code> 과 다르다</div>
+      <p><code>[미검증]</code> 은 재지 못함이다. 경계는 <code>qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol 이 SSOT 다.</p>
+    </div>
   </div>
 
-  <h3 class="sub">조건 작성 preflight — QA 모호성 태그의 되먹임</h3>
-  <p class="section-desc">평가자가 improvement 에 반복해서 붙이는 태그는 <strong>계약 작성 단계에서 미리 잡을 수 있는 결함</strong>의 목록이다. DRAFT 를 제시하기 전에 조건마다 6 항을 확인한다. <strong>이 표는 검출용 자문 목록이지 자동 판정기가 아니다</strong> — LLM 에게 "이 조건 모호한가?" 만 묻는 게이트를 만들지 마라. 판정 근거가 남지 않는다.</p>
+  <h3 class="sub" id="positive">양성 대조 (Positive Control · 0 기대 측정 · v5.5)</h3>
+  <p class="section-desc">측정의 기대값이 <strong>0 · 없음 · 빈 출력</strong>인 조건은 그 0 이 "검사했는데 없다" 인지 "검사가 죽어서 0" 인지 구분되지 않는다. 그런 조건에는 <code>양성 대조:</code> 절을 넣는다.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>QA 태그</th><th>작성 단계 자문</th></tr></thead>
+      <thead><tr><th>항목</th><th>규칙</th></tr></thead>
       <tbody>
-        <tr><td><code>측정-수단-부재</code></td><td>이 조건을 어떤 명령·도구·관찰로 판정하는지 인라인에 적었는가</td></tr>
-        <tr><td><code>측정-방식-불일치</code></td><td>측정이 조건이 지정한 <strong>값</strong>(뷰포트·경로·상태)과 같은 값을 쓰는가</td></tr>
-        <tr><td><code>측정-환경-오염</code></td><td>병렬 세션·공유 프로세스·잔여 산출물이 결과를 흔드는가 → <code>Given:</code> 에 환경 전제를 박았는가</td></tr>
-        <tr><td><code>측정-산출물-부재</code></td><td>측정이 읽을 대상(테스트·기록물·출력)이 평가 시점에 실재하는가</td></tr>
-        <tr><td><code>검증경로-미기재</code></td><td>1 차 도구가 없을 때의 fallback 을 적었는가</td></tr>
-        <tr><td><code>측정-중복</code></td><td>같은 것을 두 조건이 재고 있지 않은가 (SSOT 위반)</td></tr>
+        <tr><td><strong>무엇을 적나</strong></td><td>같은 측정 명령이 <strong>1 이상을 내는</strong> 알려진 나쁜 예. 출처 순서: 같은 형식의 기존 기록(다른 파일 · 다른 세션) → 계약 작성자가 만들 임시 사본. 경로와 기대 건수를 함께 적는다</td></tr>
+        <tr><td><strong>언제 재나</strong></td><td><strong>봉인 전에 1 회 실측</strong>한다. 실측하지 않은 대조는 <code>[미실측]</code> 이며 <a class="jump" href="#unmeasured">미실측 오라클 봉인 금지</a> · Step 6.5 (5) 가 막는다</td></tr>
+        <tr><td><strong>명령 성공도 함께</strong></td><td><code>2&gt;/dev/null</code> · <code>|| true</code> 로 오류를 삼키는 측정은 "없음" 과 "실패" 를 못 가른다. 종료 코드로 가르는 형태로 적는다 (grep 은 1 = 없음, 2 = 오류)</td></tr>
+        <tr><td><strong>평가자 쪽 대응</strong></td><td><code>harness/agents/qa-evaluator.md</code> 규칙 10 이 이 절을 첫 출처로 읽는다. 절이 없으면 평가자가 직접 대조를 만들며, 만들 수 없으면 그 조건은 <code>[미검증:INVALID]</code> 다</td></tr>
       </tbody>
     </table>
+  </div>
+  <p class="section-desc">실측 배경: 2026-09-19 스프린트에서 세션 기록 형식에 없는 문자열(<code>hook error</code>)을 세는 조건이 항상 0 이라 통과했고, 같은 날 다른 계약에서는 대상 파일이 없어 명령이 실패하는데 <code>2&gt;/dev/null</code> 이 오류를 삼켜 0 처럼 보였다.</p>
+
+  <h3 class="sub" id="known-answer">알려진 답 대조 (Known-Answer · 0 이 아닌 기대값 · v5.5)</h3>
+  <p class="section-desc">조건의 측정이 <strong>새로 짠 스크립트</strong>이고 기대값이 0 이 아닌 수(길이 · 개수 · 합계 · 비율)면, 그 스크립트의 첫 출력은 아직 아무도 확인하지 않은 값이다. <strong>그럴듯한 숫자가 나왔다는 것은 스크립트가 옳다는 증거가 아니다.</strong> 그런 조건에는 <code>알려진 답:</code> 절을 넣는다.</p>
+  <div class="cols-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>알려진 답 절에 적는 것</div>
+      <ul>
+        <li><strong>무엇을 적나</strong> — 손으로 답을 셀 수 있는 작은 입력(경로, 또는 만들 임시 사본 — 대상 파일은 건드리지 않는다), 손으로 센 <strong>기대값</strong>, 그 입력에 스크립트를 돌린 <strong>실제값</strong>, 명령과 <strong>종료 코드</strong></li>
+        <li><strong>언제 재나</strong> — 봉인 전에 1 회. 재지 않았으면 <code>[미실측]</code> 이다 (미실측 오라클 봉인 금지 · SKILL.md Step 6.5 (5))</li>
+        <li><strong>판정</strong> — 기대값과 실제값이 다르면 봉인하지 않는다. 스크립트나 입력 중 하나가 틀렸다. 0 이 아닌 기대값에 0 이나 빈 출력이 나와도 같다</li>
+        <li><strong>생성 측 짝</strong> — <code>harness/docs/guides/skill-design-guide.md</code> §3.7 「0 이 아닌 값을 내는 새 측정 — 알려진 답 대조」(§11 parity 16 번째). 입력 크기 2~3 줄은 레포 관례이며 외부 근거는 없다</li>
+      </ul>
+    </div>
+    <div>
+      <code class="code-block">- [ ] SC-03: 새 길이 측정 스크립트가 G-code 파일의 압출 경로 총길이를 낸다 [exact]
+      (측정: `python3 measure_len.py out.gcode` ·
+       알려진 답: 10 mm 직선 두 줄과 반지름 5 mm 반원 호 한 줄짜리 사본 `known.gcode` —
+       기대 35.71 · 봉인 전 실제 35.71 · 종료 코드 0)</code>
+      <p class="section-desc" style="margin-top:12px">실측 배경(2026-09-22): 호 이동 길이를 빠뜨린 G-code 길이 측정이 그럴듯한 총합을 냈고, zsh 배열을 0 부터 센다고 가정한 측정이 한 칸 밀린 값을 냈다(<a class="jump" href="#shell">셸 이식성 규약</a>). 둘 다 작은 입력 하나로 드러났을 결함이다.</p>
+    </div>
+  </div>
+  <h3 class="sub">대조 셋 — 무엇을 묻는가</h3>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>음성 대조</div>
+      <p><strong>구현을 무력화하면 이 측정이 FAIL 하는가.</strong> 테스트 통과를 요구하는 조건용.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>양성 대조</div>
+      <p><strong>문제가 있으면 이 측정이 1 이상을 내는가.</strong> 기대값 0 인 조건용 — 나쁜 예에서 1 이상이 나오는지 본다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>알려진 답 대조</div>
+      <p><strong>좋은 작은 입력에서 정확한 값이 나오는가.</strong> 0 이 아닌 기대값을 내는 새 스크립트용. 기대값이 0 인 측정은 양성 대조를 쓴다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ preflight ═══ -->
+<div class="section" id="preflight">
+  <div class="section-label">Authoring Preflight</div>
+  <div class="section-title">조건 작성 preflight — QA 모호성 태그의 되먹임 (v5.3)</div>
+  <p class="section-desc">평가자가 improvement 에 반복해서 붙이는 태그는 <strong>계약 작성 단계에서 미리 잡을 수 있는 결함</strong>의 목록이다. DRAFT 를 제시하기 전에 조건마다 확인한다. <strong>이 표가 결함 태그 어휘의 SSOT 다.</strong> 평가자(<code>harness/agents/qa-evaluator.md</code>)와 계약 작성(<code>harness/skills/sprint-contract/SKILL.md</code>)이 <strong>같은 어휘를 쓴다.</strong> 다른 파일은 이 표를 복제하지 말고 경로로 참조하라.</p>
+  <div class="note">
+    <div class="note-title">왜 통합했나 (v5.3)</div>
+    <p>이전 판은 평가자 집합 5 종과 작성 집합 6 종이 <strong>교집합 <code>측정-중복</code> 하나뿐인 별개 어휘</strong>였다. 그래서 평가자가 3 회 반복해 붙인 <code>측정-상태-모호</code> 가 작성 단계로 되먹여질 자리가 아예 없었고, 같은 결함이 계약마다 재생산됐다. 되먹임 루프의 단절이 원인이므로 규칙 문장을 더 쓰는 것으로는 안 걸린다 — <strong>어휘를 하나로 만드는 것</strong>이 수정이다.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>태그</th><th>평가자 측 — 언제 붙이는가</th><th>작성자 측 — DRAFT 전 무엇을 자문하는가</th></tr></thead>
+      <tbody>
+        <tr><td><code>측정-수단-부재</code></td><td>조건에 판정 명령·도구·관찰이 아예 없다</td><td>이 조건을 어떤 명령·도구·관찰로 판정하는지 인라인에 적었는가</td></tr>
+        <tr><td><code>측정-방식-불일치</code></td><td>측정이 조건 산문과 다른 값(뷰포트·경로·상태)을 쓴다</td><td>측정이 조건이 지정한 <strong>값</strong>과 같은 값을 쓰는가</td></tr>
+        <tr><td><code>측정-환경-오염</code></td><td>병렬 세션·잔여 산출물·설치본 차이가 결과를 흔들었다</td><td>환경 의존이 있는가 → <code>Given:</code> 에 환경 전제를 박았는가. <strong>리터럴 환경값을 조건에 박지 않았는가</strong></td></tr>
+        <tr><td><code>측정-산출물-부재</code></td><td>측정이 읽을 대상이 평가 시점에 없다</td><td>측정이 읽을 대상(테스트·기록물·출력)이 평가 시점에 실재하는가</td></tr>
+        <tr><td><code>검증경로-미기재</code></td><td>1 차 도구 부재 시 무엇을 할지가 없다</td><td>1 차 도구가 없을 때의 fallback 을 적었는가</td></tr>
+        <tr><td><code>측정-중복</code></td><td>같은 것을 두 조건이 재고 있다</td><td>같은 것을 두 조건이 재고 있지 않은가 (SSOT 위반)</td></tr>
+        <tr><td><code>측정-상태-모호</code></td><td>측정 명령이 어떤 상태 전제에서 실행되는지 불명확해 판정이 갈린다</td><td>명령이 상태 의존적인가 → <code>Given:</code> 으로 전제(커밋 완료·빌드 산출·기동 여부)를 박았는가</td></tr>
+        <tr><td><code>태그-산출물-불일치</code></td><td><code>[exact]</code> 인데 산출물 이름이 다르거나, 태그가 요구하는 산출물이 제출되지 않았다</td><td>태그 강도가 실제 제출물과 맞는가. 낼 생각 없는 부산출물을 <code>[exact]</code> 로 적지 않았는가</td></tr>
+        <tr><td><code>범위-미명시</code></td><td>"주요·모든·핵심" 같은 범위어가 열거 없이 쓰여 대상 집합이 갈린다</td><td>범위어를 인라인 enumerate 했는가. 예외를 조건 내부에 적었는가</td></tr>
+        <tr><td><code>증거-경로-부재</code></td><td><code>[goal]</code> 조건이 참조하는 기록물의 경로가 없어 읽을 대상이 없다</td><td>승인 기록·합의 로그에 의존한다면 그 기록물의 <strong>경로</strong>를 조건에 적었는가</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc">이 표는 <strong>검출용 자문 목록</strong>이지 자동 판정기가 아니다. LLM 에게 "이 조건 모호한가?" 만 묻는 게이트를 만들지 마라 — 판정 근거가 남지 않는다.</p>
+
+  <h3 class="sub" id="own-lines">검사 스크립트 전체 통과를 조건으로 걸지 마라 — 이 스프린트 몫의 줄로 한정한다 <span class="new">2026-09-24</span></h3>
+  <p class="section-desc">여러 줄을 내는 검사(<code>validate-post-kaizen.py</code> 처럼 사이클 전체를 보는 것)를 측정으로 쓸 때 「전체 FAIL 0」 을 걸면, 이 스프린트가 만들지 않는 산출물의 상태가 판정에 섞여 조건이 원리상 만족 불가능해진다. 위 표의 <code>측정-환경-오염</code> 한 형태이며, 새 태그를 만들지 않는다.</p>
+  <div class="grid-3">
+    <div class="step"><div class="step-n">한정</div><h4>소유한 줄의 이름을 적는다</h4><p>조건에 <strong>이 스프린트가 소유한 줄의 이름</strong>을 적고 그 줄이 <code>FAIL</code> · <code>ERROR</code> 가 아닌지만 본다. 뺀 줄은 이름과 이유를 조건에 함께 적는다.</p></div>
+    <div class="step"><div class="step-n">대조</div><h4>서명 줄 <code>mine</code> 과 겹치는 것만</h4><p>여러 주체가 같은 가지에 커밋하면 소유한 줄도 남의 결함으로 떨어질 수 있다. 그 줄이 가리키는 파일을 서명 줄 <code>mine</code> 과 대조해 겹치는 것만 이 스프린트 몫으로 센다.</p></div>
+    <div class="step"><div class="step-n">전체 통과</div><h4>사이클 마지막 단계의 조건</h4><p>검사 전체 통과는 사이클 마지막 단계(카이젠이면 Final) 계약의 조건이다.</p></div>
+  </div>
+  <div class="note bad">
+    <div class="note-title">실측 두 번</div>
+    <p>2026-08-13 한 Phase 계약이 「<code>doc-contracts</code> 줄이 있고 FAIL 0 · 종료 코드 0」 을 걸었는데 그 검사는 사이클 마지막 단계 산출물 다섯 줄도 함께 봐서 Phase 안에서는 만족할 수 없었다. 2026-09-24 에는 다른 스프린트가 같은 검사의 「FAIL 0」 을 걸었다가 문서 사이트 재생성 · 범위 분리 두 줄 때문에 REJECT 를 받았다.</p>
+  </div>
+</div>
+
+<!-- ═══ 자동 포함 N/A ═══ -->
+<div class="section" id="auto-na">
+  <div class="section-label">Auto-included N/A</div>
+  <div class="section-title">적용 대상이 없는 자동 포함 조건 <span class="new">2026-09-19</span></div>
+  <div class="cols-2">
+    <div>
+      <p class="section-desc">Reusability · Diagnostics 는 자동 포함이다. 적용 대상이 없으면 <strong>조건을 지우지 않고 ID 를 유지한 채</strong> 본문을 <code>N/A (사유)</code> 로 쓴다. 사유에는 그 사유를 재는 측정을 붙인다.</p>
+      <p class="section-desc">허용되는 경우와 판정 의미의 정본은 <code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol 2 항, 작성 절차는 <code>harness/skills/sprint-contract/SKILL.md</code> Step 4 다.</p>
+      <div class="note warn">
+        <div class="note-title">N/A 줄도 조건 줄이다</div>
+        <p>조건 수 계산과 계약 봉인에 그대로 들어간다(봉인 정규식이 <code>[A-Z]{2,}-[0-9]{2}</code> 로 N/A 줄도 뽑는다). 단, v5.5 의 <a class="jump" href="#complexity">복잡도별 조건 수</a>는 기능 조건만 세므로 N/A 줄을 뺀다.</p>
+      </div>
+    </div>
+    <code class="code-block">## Diagnostics
+- [ ] DG-01: N/A (commands.analyze 대상 scripts/release.sh 가 이번 변경 파일에 없다. 측정: git diff --name-only &lt;기준&gt;...&lt;브랜치&gt; | grep -c '^scripts/release.sh$' 이 0)
+- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ([] 제외)
+- [ ] DG-03: N/A (commands.test 대상도 같은 파일이라 이번 변경 파일에 없다. 측정: DG-01 과 같은 명령)
+- [ ] DG-04: N/A (산출물이 설정 파일 · 문서뿐이라 구동할 앱이 없다. 측정: 변경 파일에 실행 진입점 0 개)</code>
   </div>
 </div>
 
 <!-- ═══ Amendment ═══ -->
-<div class="section">
+<div class="section" id="amendment">
   <div class="section-label">Amendment Sidecar</div>
-  <div class="section-title">Amendment 사이드카 — direction × consent 2 축 (SSOT)</div>
-  <p class="section-desc">스프린트 도중 사용자와 합의해 조건을 바꿨다면 <strong>계약 본문을 건드리지 말고</strong> 사이드카 파일에 쓴다. 경로: <code>{CONTRACT_ROOT}/.harness/sprint-amendments-&lt;slug&gt;.md</code>.</p>
+  <div class="section-title">Amendment 사이드카 — direction × consent 2 축 (v5 추가 · v5.3 분리)</div>
+  <p class="section-desc">스프린트 도중 사용자와 합의해 조건을 바꿨다면 <strong>계약 본문을 건드리지 말고</strong> 사이드카 파일에 쓴다. 경로: <code>{CONTRACT_ROOT}/.harness/sprint-amendments-&lt;slug&gt;.md</code> (plain 모드면 <code>sprint-amendments.md</code>).</p>
   <ul class="checklist">
-    <li><span class="check">!</span><strong>계약 본문에 새 <code>##</code> 섹션을 추가하지 마라.</strong> 허용 섹션 헤더 목록은 고정이며 <code>## 변경 이력</code> / <code>## Amendments</code> 를 그 목록에 넣지 않는다. <strong>사이드카는 별도 파일이지 계약 섹션이 아니다</strong></li>
+    <li><span class="check">!</span><strong>계약 본문에 새 <code>##</code> 섹션을 추가하지 마라.</strong> 허용 섹션 헤더 목록은 고정이며, <code>## 변경 이력</code> / <code>## Amendments</code> 를 그 목록에 넣지 않는다. <strong>사이드카는 별도 파일이지 계약 섹션이 아니다</strong></li>
     <li><span class="check">!</span><strong>원 조건을 삭제·수정하지 마라. 추가만 한다.</strong> 계약 본문의 <code>- [ ]</code> 조건은 그대로 둔다. 사이드카는 "이 조건을 이렇게 읽어라" 를 덧붙일 뿐이다</li>
+    <li><span class="check">!</span>각 amendment 는 <strong>direction</strong> 과 <strong>consent</strong> 두 축을 각각 갖는다 (v5.3 — 이전에는 한 축이었다)</li>
   </ul>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>축 1 · <code>direction</code> — PASS 집합의 증감</div>
-      <p>판정 기준은 단 하나다: <strong>이 amendment 를 적용하면 PASS 하는 구현의 집합이 줄어드는가, 늘어나는가.</strong> "범위 축소" 라는 말로 판정하지 마라 — 무엇의 범위인지에 따라 정반대가 된다.</p>
-      <div class="table-wrap" style="margin-top:10px">
-        <table>
-          <thead><tr><th>direction</th><th>QA 에서의 취급</th></tr></thead>
-          <tbody>
-            <tr><td><code>narrowing</code></td><td>PASS 근거로 사용 가능 — 완화가 불가능하므로 consent 축과 무관</td></tr>
-            <tr><td><code>relaxing</code></td><td>consent 가 <code>anchored</code> 일 때만 PASS 근거. <code>unanchored</code> 면 <strong>불가</strong></td></tr>
-            <tr><td><code>unknown</code></td><td><strong>PASS 근거로 쓸 수 없다.</strong> 사용자 확인 대상으로 표면화</td></tr>
-          </tbody>
-        </table>
-      </div>
+
+  <h3 class="sub">축 1 · <code>direction</code> — PASS 집합이 어느 쪽으로 움직이는가</h3>
+  <p class="section-desc">판정 기준은 단 하나다: <strong>이 amendment 를 적용하면 PASS 하는 구현의 집합이 줄어드는가, 늘어나는가.</strong> "범위 축소" 라는 말로 판정하지 마라 — 무엇의 범위인지에 따라 정반대가 된다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>direction</th><th>의미</th><th>QA 에서의 취급</th></tr></thead>
+      <tbody>
+        <tr><td><code>narrowing</code></td><td>PASS 집합이 <strong>줄어든다</strong> (제약 강화 · 기준 상향 · 허용 범위 축소)</td><td>PASS 근거로 사용 가능 — 완화가 불가능하므로 consent 축과 무관</td></tr>
+        <tr><td><code>relaxing</code></td><td>PASS 집합이 <strong>늘어난다</strong> (기준 하향 · 조건 면제 · 허용 범위 확대)</td><td>consent 가 <code>anchored</code> 일 때만 PASS 근거. <code>unanchored</code> 면 <strong>불가</strong></td></tr>
+        <tr><td><code>unknown</code></td><td>PASS 집합의 증감을 판정할 수 없다</td><td><strong>PASS 근거로 쓸 수 없다.</strong> 사용자 확인 대상으로 표면화</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc"><strong>집합형 조건의 direction 은 자기신고하지 말고 계산한다.</strong> 경로 화이트리스트·파일 열거·대상 목록처럼 조건이 집합을 담고 있으면 원 집합과 개정 집합을 비교해 direction 을 <strong>계산</strong>한다. 실측 위반(3 경로 → 5 경로)은 이 계산에서 <code>relaxing added=2 removed=0</code> 이 나온다 — 서술로 "범위 조정" 이라 부를 여지가 사라진다.</p>
+  <code class="code-block"># 집합형 amendment 의 direction 계산 — zsh · bash 동일
+amend_direction() {  # amend_direction &lt;원집합파일&gt; &lt;개정집합파일&gt; (각 줄 1 원소)
+  added=$(comm -13 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
+  removed=$(comm -23 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
+  if   [ "$added" -eq 0 ] &amp;&amp; [ "$removed" -gt 0 ]; then echo "narrowing added=$added removed=$removed"
+  elif [ "$added" -gt 0 ]; then echo "relaxing added=$added removed=$removed"
+  else echo "unknown added=$added removed=$removed"; fi
+}</code>
+  <div class="note warn">
+    <div class="note-title">헬퍼의 입력은 허용 집합이다 — 측정 집합을 넣으면 극성이 뒤집힌다</div>
+    <p><code>amend_direction</code> 은 "통과하는 것의 집합" 을 비교한다. 허용목록 · 파일 열거 · 대상 목록이 그것이다. 반면 diff-scope 오라클의 <strong>베이스라인 · 제외 pathspec · 측정 명령</strong>을 바꾸는 amendment 는 "재는 것의 집합"(측정 집합)을 바꾼다. 측정 집합이 <strong>줄면</strong> 통과하는 구현이 <strong>늘어난다</strong> — 허용 집합과 극성이 반대다. 그래서 측정 집합은 <code>amend_direction</code> 에 넣지 않고 아래 <code>amend_direction_oracle</code> 에 넣는다. 호출자가 환산하는 방식은 두지 않는다 — 환산이 사람이 틀리는 지점이다(실측 2026-09-08: 작성자가 측정 집합의 comm 결과 <code>removed=2</code> 를 보고도 방향을 손으로 적어야 했고, 평가자는 두 오라클로 각각 판정해 반전을 확인해야 했다).</p>
+  </div>
+  <code class="code-block"># 오라클 변경 amendment 의 direction 계산 — 입력은 **측정 집합** (원 오라클 결과 · 개정 오라클 결과). zsh · bash 동일
+amend_direction_oracle() {  # amend_direction_oracle &lt;원측정집합파일&gt; &lt;개정측정집합파일&gt; (각 줄 1 경로)
+  for f in "$1" "$2"; do [ -f "$f" ] || { echo "unknown missing_input=$f"; return 0; }; done
+  added=$(comm -13 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
+  removed=$(comm -23 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
+  if   [ "$removed" -gt 0 ]; then echo "relaxing measured_removed=$removed measured_added=$added"
+  elif [ "$added" -gt 0 ];   then echo "narrowing measured_removed=0 measured_added=$added"
+  else echo "unknown measured_removed=0 measured_added=0"; fi
+}</code>
+  <p class="section-desc">측정에서 <strong>빠지는</strong> 경로가 1 개라도 있으면 <code>relaxing</code> 이다 — 그 경로에 대한 검사가 사라지므로, 같은 amendment 가 다른 경로를 새로 넣더라도 보수적으로 완화로 본다(<code>amend_direction</code> 이 <code>added&gt;0</code> 을 무조건 <code>relaxing</code> 으로 보는 것과 같은 보수성이다). 결측 입력은 <code>unknown missing_input=</code> 으로 드러낸다 — <code>amend_direction</code> 처럼 <code>sort</code> 에러 뒤에 <code>unknown</code> 을 내면 결측과 "실제로 차이 없음" 이 구별되지 않는다. 실측(2026-09-08, howto-kit <code>A-01</code> — diff-scope 베이스라인 <code>4fb1382</code> → <code>54fb3b3</code>, 측정 집합 39 → 37):</p>
+  <code class="code-block">$ amend_direction_oracle measured-orig.txt measured-amended.txt
+relaxing measured_removed=2 measured_added=0
+
+$ amend_direction        measured-orig.txt measured-amended.txt      # 같은 입력을 허용 집합 헬퍼에 넣으면
+narrowing added=0 removed=2                                         # ← 극성이 뒤집힌 오라벨</code>
+  <p class="section-desc">어느 헬퍼를 썼는지는 사이드카에 적는다. 평가자는 그것을 확인하고, 의심스러우면 원 오라클과 개정 오라클로 각각 판정해 대조한다 — FAIL→PASS 면 <code>relaxing</code> 이 맞다. 픽스처와 재현 명령은 <code>harness/evals/amend-direction/README.md</code>.</p>
+
+  <h3 class="sub" id="anchor">축 2 · <code>consent</code> — 사용자 동의 근거 · 앵커 출처 두 가지 <span class="new">2026-09-23</span></h3>
+  <div class="cols-2">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>consent</th><th>조건</th></tr></thead>
+        <tbody>
+          <tr><td><code>anchored</code></td><td>사용자 발언 인용 + <strong>reflect-kit prompt 로그 앵커</strong>(timestamp · session · cwd)</td></tr>
+          <tr><td><code>unanchored</code></td><td>앵커를 붙일 수 없다 (로그 미설치 · 구두 합의 · 에이전트 자체 판단)</td></tr>
+        </tbody>
+      </table>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>축 2 · <code>consent</code> — 사용자 동의 근거</div>
-      <div class="table-wrap" style="margin-top:10px">
-        <table>
-          <thead><tr><th>consent</th><th>조건</th></tr></thead>
-          <tbody>
-            <tr><td><code>anchored</code></td><td>사용자 발언 인용 + <strong>reflect-kit prompt 로그 앵커</strong>(timestamp · session · cwd)</td></tr>
-            <tr><td><code>unanchored</code></td><td>앵커를 붙일 수 없다 (로그 미설치 · 구두 합의 · 에이전트 자체 판단)</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <ul>
-        <li><strong><code>relaxing</code> 의 승인 주체는 사용자뿐이다.</strong> reviewer 확인을 추가 요건으로 두지 않는다 — 평가자는 계약에 없는 요구를 만들지 않는 것이 원칙이다</li>
-        <li>사용자 발언 인용은 로그 redaction 을 거치므로 <strong>"redaction 거친 원문"</strong> 이다 — "verbatim" 이라고 표기하지 마라</li>
-        <li><strong><code>unanchored</code> 를 감추려고 앵커를 지어내지 마라.</strong> 없으면 <code>unanchored</code> 라고 쓰는 것이 <code>narrowing</code> 을 살리는 유일한 길이다</li>
-      </ul>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>앵커 출처</th><th>어디서 뽑나</th><th>언제 쓰나</th></tr></thead>
+        <tbody>
+          <tr><td>reflect-kit prompt 로그</td><td><code>~/.claude/logs/&lt;프로젝트&gt;/YYYY-MM.md</code></td><td>사용자가 <strong>타이핑한</strong> 동의</td></tr>
+          <tr><td>세션 기록의 <code>AskUserQuestion</code> 쌍</td><td><code>~/.claude/projects/&lt;프로젝트&gt;/&lt;세션ID&gt;.jsonl</code></td><td>사용자가 <strong>선택지를 골라</strong> 준 동의</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
-  <div class="note">
-    <div class="note-title">앵커 부재가 direction 판정을 무너뜨리지 않는다 (v5.3 의 핵심 교정)</div>
-    <p>v5 는 두 축이 한 필드에 뭉쳐 있어서 앵커가 없다는 이유만으로 방향까지 <code>unknown</code> 이 되었다 — 실측: <em>"amendment A-01 은 prompt-log 앵커 부재로 unknown 분류, PASS 근거 불가"</em>. 그 결과 준수 경로가 아무 효력이 없어졌고, 다음 시도에서 <strong>계약 본문 직접 편집</strong>으로 우회가 일어났다. 두 축을 분리하면 <code>narrowing · unanchored</code> 는 정상적으로 PASS 근거가 된다(제약을 강화하는 방향이라 남용 불가).</p>
-    <div class="table-wrap" style="margin-top:10px">
+  <p class="section-desc">위 표의 요구 값 세 개(timestamp · session · cwd)는 그대로 두고 <strong>출처만 늘렸다</strong> — 요구 값을 늘리면 기존 개정이 소급으로 무효가 된다.</p>
+  <div class="note bad">
+    <div class="note-title">선택지로 받은 동의는 prompt 로그에 구조적으로 남지 않는다</div>
+    <p>그 로그는 <code>UserPromptSubmit</code> 훅이 쓰고 선택지 답은 도구 결과라 훅에 들어오지 않는다. 실측(2026-09-23): 한 달치 로그에서 답변 고정 문구를 33 건 찾았으나 <strong>전부</strong> 다른 프롬프트에 붙여넣은 기록 덩어리 속 줄이었고 사용자가 실제로 입력한 것은 0 건이었다. 그래서 prompt 로그만 인정하면 선택지 동의는 영원히 <code>anchored</code> 가 될 수 없고, 실제로 그 때문에 REJECT 가 한 번 났다.</p>
+  </div>
+  <p class="section-desc"><code>AskUserQuestion</code> 앵커는 아래를 적는다. 질문 본문·선택지·고른 답까지 들어 있어 prompt 로그보다 오히려 강한 근거다.</p>
+  <code class="code-block">S=~/.claude/projects/&lt;프로젝트-슬러그&gt;/$CLAUDE_CODE_SESSION_ID.jsonl
+# 호출과 답변을 tool_use_id 로 짝지어 네 값(질문 제목 · 호출 시각 · 답변 시각 · 세션 · 작업폴더)을 뽑는다
+python3 -c 'import json,io,sys
+calls={}; out=[]
+for ln in io.open(sys.argv[1],encoding="utf-8"):
+    try: d=json.loads(ln)
+    except Exception: continue
+    ts=d.get("timestamp"); sid=d.get("sessionId"); cwd=d.get("cwd")
+    c=(d.get("message") or {}).get("content")
+    if not isinstance(c,list): continue
+    for it in c:
+        if not isinstance(it,dict): continue
+        if it.get("type")=="tool_use" and it.get("name")=="AskUserQuestion":
+            q=(it.get("input") or {}).get("questions") or []
+            calls[it.get("id")]=(q[0].get("header") if q else "?", ts)
+        elif it.get("type")=="tool_result" and it.get("tool_use_id") in calls:
+            h,call_ts=calls.pop(it.get("tool_use_id"))
+            out.append((h,call_ts,ts,sid,cwd))
+for h,a,b,sid,cwd in out:
+    print("header=%s call=%s answer=%s session=%s cwd=%s" % (h,a,b,sid,cwd))
+print("미응답 호출:", len(calls))' "$S"</code>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>answer</code> 가 동의 시각이다</div>
+      <p><code>call</code> 은 물어본 시각일 뿐이라 그 값으로 순서를 따지면 안 된다. 실측(이 세션): 네 건의 간격이 28 분 57 초 · 33 초 · 15 분 15 초 · 16 초였다. 29 분이 벌어지면 커밋이 그 사이에 들어와 <strong>호출 시각으로는 "동의가 앞섰다" 로 읽히지만 실제 동의는 커밋보다 늦다</strong> — 호출 시각이 시간 역전을 만들어낸다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>session</code> 과 <code>cwd</code> 를 함께 적는다</div>
+      <p>레코드에 있으므로 함께 적는다. 위 표가 요구하는 값 세 개 중 둘이다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><code>tool_use_id</code> 로 짝지어야 한다</div>
+      <p>답변 쪽 문자열만 세면 부풀려진다 — 이 세션에서 호출은 4 건인데 답변 고정 문구는 6 건 잡혔고, 2 건은 내가 그 문구를 인자로 쓴 명령이 기록에 남은 것이었다. <code>grep -c '"name":"AskUserQuestion"'</code> 도 시스템 프롬프트의 도구 정의 문자열까지 세서 5 를 낸다(실제 4).</p>
+    </div>
+  </div>
+  <div class="note warn">
+    <div class="note-title">동의가 그 개정을 담은 커밋보다 앞서는지 확인하라</div>
+    <p>시각을 짐작해 적으면 검증하는 순간 반증된다 — 실측(2026-09-23): 개정에 <code>16:05</code> 이라 적었으나 그 내용을 담은 커밋이 15:49:57 이라 시간 역전으로 읽혀 REJECT 가 났다. 실제 동의는 15:49:14 로 커밋보다 43 초 앞섰고 틀린 것은 적힌 시각 하나였다. <strong>검증하면 반증되는 앵커는 앵커가 없는 것과 같다.</strong></p>
+  </div>
+
+  <h3 class="sub">두 축의 조합 — 앵커 부재가 direction 판정을 무너뜨리지 않는다 (v5.3 의 핵심 교정)</h3>
+  <p class="section-desc">v5 는 두 축이 한 필드에 뭉쳐 있어서, 앵커가 없다는 이유만으로 방향까지 <code>unknown</code> 이 되었다 — 실측: <em>"amendment A-01은 prompt-log 앵커 부재로 unknown 분류, PASS 근거 불가"</em>. 그 결과 준수 경로가 아무 효력이 없어졌고, 다음 시도에서 <strong>계약 본문 직접 편집</strong>으로 우회가 일어났다. 두 축을 분리하면 <code>narrowing · unanchored</code> 는 정상적으로 PASS 근거가 된다(제약을 강화하는 방향이라 남용 불가).</p>
+  <div class="cols-2">
+    <div class="table-wrap">
       <table>
         <thead><tr><th>direction \ consent</th><th><code>anchored</code></th><th><code>unanchored</code></th></tr></thead>
         <tbody>
@@ -813,87 +1297,151 @@ mutation test 로 확정 — 실제 코드에서 동시성 가드
         </tbody>
       </table>
     </div>
+    <div class="card">
+      <ul style="margin-top:0">
+        <li><strong><code>relaxing</code> 의 승인 주체는 사용자뿐이다.</strong> reviewer 확인을 추가 요건으로 두지 않는다 — 평가자는 계약에 없는 요구를 만들지 않는 것이 원칙이다(contract-design-guide §Cross-Surface Parity item 12 착지 구조)</li>
+        <li>사용자 발언을 인용할 때 로그는 redaction 을 거치므로 인용문은 "verbatim" 이 아니라 <strong>"redaction 거친 원문"</strong> 이다 — 그렇게 표기하라</li>
+        <li><strong><code>unanchored</code> 를 감추려고 앵커를 지어내지 마라.</strong> 없으면 <code>unanchored</code> 라고 쓰는 것이 <code>narrowing</code> 을 살리는 유일한 길이다</li>
+      </ul>
+    </div>
   </div>
-  <p class="section-desc"><strong>집합형 조건의 direction 은 자기신고하지 말고 계산한다.</strong> 경로 화이트리스트·파일 열거·대상 목록처럼 조건이 집합을 담고 있으면 원 집합과 개정 집합을 비교해 direction 을 <strong>계산</strong>한다. 실측 위반(3 경로 → 5 경로)은 이 계산에서 <code>relaxing added=2 removed=0</code> 이 나온다 — <strong>서술로 "범위 조정" 이라 부를 여지가 사라진다.</strong></p>
-  <code class="code-block"># 집합형 amendment 의 direction 계산 — zsh · bash 동일
-amend_direction() {  # amend_direction &lt;원집합파일&gt; &lt;개정집합파일&gt; (각 줄 1 원소)
-  added=$(comm -13 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
-  removed=$(comm -23 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
-  if   [ "$added" -eq 0 ] &amp;&amp; [ "$removed" -gt 0 ]; then echo "narrowing added=$added removed=$removed"
-  elif [ "$added" -gt 0 ]; then echo "relaxing added=$added removed=$removed"
-  else echo "unknown added=$added removed=$removed"; fi
-}</code>
-  <p class="section-desc"><strong>헬퍼의 입력은 허용 집합이다 — 측정 집합을 넣으면 극성이 뒤집힌다.</strong> <code>amend_direction</code> 은 "통과하는 것의 집합"(허용목록·파일 열거·대상 목록)을 비교한다. 반면 diff-scope 오라클의 <strong>베이스라인·제외 pathspec·측정 명령</strong>을 바꾸는 amendment 는 "재는 것의 집합"(측정 집합)을 바꾼다. 측정 집합이 <strong>줄면</strong> 통과하는 구현이 <strong>늘어난다</strong> — 허용 집합과 극성이 반대다. 그래서 측정 집합은 아래 <code>amend_direction_oracle</code> 에 넣는다. 호출자가 환산하는 방식은 두지 않는다 — 환산이 사람이 틀리는 지점이다 (실측 2026-09-08 howto-kit A-01).</p>
-  <code class="code-block"># 오라클 변경 amendment 의 direction 계산 — 입력은 **측정 집합**. zsh · bash 동일
-amend_direction_oracle() {  # amend_direction_oracle &lt;원측정집합파일&gt; &lt;개정측정집합파일&gt;
-  for f in "$1" "$2"; do [ -f "$f" ] || { echo "unknown missing_input=$f"; return 0; }; done
-  added=$(comm -13 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
-  removed=$(comm -23 &lt;(LC_ALL=C sort -u "$1") &lt;(LC_ALL=C sort -u "$2") | grep -c . || true)
-  if   [ "$removed" -gt 0 ]; then echo "relaxing measured_removed=$removed measured_added=$added"
-  elif [ "$added" -gt 0 ];   then echo "narrowing measured_removed=0 measured_added=$added"
-  else echo "unknown measured_removed=0 measured_added=0"; fi
-}</code>
-  <p class="section-desc">측정에서 <strong>빠지는</strong> 경로가 1개라도 있으면 <code>relaxing</code> 이다 — 그 경로에 대한 검사가 사라지므로 보수적으로 완화로 본다. 결측 입력은 <code>unknown missing_input=</code> 으로 드러낸다 — <code>amend_direction</code> 처럼 <code>sort</code> 에러 뒤에 <code>unknown</code> 을 내면 결측과 "실제로 차이 없음" 이 구별되지 않는다. 실측 (howto-kit <code>A-01</code>, 베이스라인 <code>4fb1382</code> → <code>54fb3b3</code>, 측정 집합 39 → 37):</p>
-  <code class="code-block">$ amend_direction_oracle measured-orig.txt measured-amended.txt
-relaxing measured_removed=2 measured_added=0
 
-$ amend_direction        measured-orig.txt measured-amended.txt   # 허용집합 헬퍼에 넣으면
-narrowing added=0 removed=2                                      # ← 극성이 뒤집힌 오라벨</code>
-  <p class="section-desc">어느 헬퍼를 썼는지는 사이드카에 적는다. 평가자는 의심스러우면 원 오라클과 개정 오라클로 각각 판정해 대조한다 — FAIL→PASS 면 <code>relaxing</code> 이 맞다. 픽스처는 <code>harness/evals/amend-direction/</code>.</p>
-
-  <h3 class="sub">엔트리 포맷</h3>
-  <code class="code-block">## AM-01 — narrowing
-- 대상 조건: AR-02
-- 변경: 대상 파일을 `harness/scripts/save-feedback.sh` 1 개로 한정 (원 조건은 `harness/scripts/` 전체)
-- 근거 (redaction 거친 원문): "피드백 스크립트만 손대고 나머지는 다른 에이전트가 한다"
-- 앵커: 2026-07-28T10:14:02+09:00 · session=8a9c2ebc · cwd=/Users/jackson/Hub/10_Dev/claude-plugins</code>
-  <p class="section-desc">사이드카 파일은 계약 파서 대상이 아니므로 <code>##</code> 헤더 이름에 제약이 없다. 다만 위 5 개 항목(대상 조건 · 변경 · 근거 · 앵커 · 헤더의 유형)은 전부 채운다. <strong>앵커를 붙일 수 없는 구두 합의는 amendment 로 인정하지 않는다</strong> — 계약 조건과 동일하게, 평가 시점에 읽을 대상이 없으면 판정 불가다.</p>
-</div>
-
-<!-- ═══ 복잡도 + 버전 ═══ -->
-<div class="section">
-  <div class="section-label">Complexity &amp; Versions</div>
-  <div class="section-title">복잡도별 조건 수 · 스키마 버전 이력</div>
-  <div class="table-wrap">
+  <h3 class="sub" id="reversal">REJECT 를 받고 개정을 고쳐 판정을 뒤집을 때 <span class="new">2026-09-23</span></h3>
+  <p class="section-desc">개정의 앵커가 틀렸다는 이유로 REJECT 를 받았다면, 고친 뒤 재평가를 받을 수 있다. 다만 <strong>뒤집는 근거는 구현자가 쓰지 않은 기록에서 확인돼야 한다.</strong> 개정 문서의 서술만 다듬어 통과시키는 것은 봉인 뒤 계약을 고쳐 판정을 바꾸는 것과 같다.</p>
+  <p class="section-desc"><strong>판정 기준은 하나다 — 구현자가 사후에 고칠 수 있는가, 그리고 고친 것이 드러나는가.</strong> 기록의 <strong>구조적 값</strong>(시각 · 식별자 · 해시 · 도구가 찍은 출력)은 고칠 수 없으니 근거가 되고, 그 안에 <strong>사람이 쓴 서술</strong>은 고칠 수 있으니 근거가 못 된다. 같은 파일 안에서도 이 선으로 갈린다.</p>
+  <div class="table-wrap ev">
     <table>
-      <thead><tr><th>복잡도</th><th>파일 영향</th><th>조건 수</th></tr></thead>
+      <thead><tr><th>뒤집는 근거</th><th>인정</th><th>왜</th></tr></thead>
       <tbody>
-        <tr><td>단순</td><td>1-3</td><td>4-6</td></tr>
-        <tr><td>중간</td><td>4-8</td><td>8-12</td></tr>
-        <tr><td>복잡</td><td>9+</td><td>12-20</td></tr>
+        <tr><td>세션 기록의 시각 · <code>tool_use</code> 구조 · 도구가 찍은 출력</td><td><span class="badge g">가능</span></td><td>구현자가 고칠 수 없다</td></tr>
+        <tr><td>git 의 커밋 해시 · 커밋 시각 · diff</td><td><span class="badge g">가능</span></td><td>고치면 해시가 바뀌어 드러난다</td></tr>
+        <tr><td>평가자가 <strong>직접 다시 돌려</strong> 얻은 값</td><td><span class="badge g">가능</span></td><td>구현자를 거치지 않는다</td></tr>
+        <tr><td><strong>커밋 메시지 본문</strong></td><td><span class="badge r">불가</span></td><td>git 기록이지만 구현자가 쓴 서술이다</td></tr>
+        <tr><td>개정 문서에 새로 쓴 설명·해명</td><td><span class="badge r">불가</span></td><td>구현자가 쓴 글이 근거가 된다</td></tr>
+        <tr><td>계약·지침의 "실측(…)" 문장</td><td><span class="badge r">불가</span></td><td>도구 출력을 구현자가 옮겨 적은 것이다</td></tr>
+        <tr><td><strong>아직 원격에 밀어 올리지 않은 커밋</strong></td><td><span class="badge r">불가</span></td><td><code>commit --amend</code> · 재배치로 갈아도 드러나지 않는다. 밀어 올린 뒤 근거가 된다</td></tr>
+        <tr><td>QA 피드백 파일</td><td><span class="badge r">불가</span></td><td>평가자가 썼지만 구현자가 고칠 수 있는 평범한 레포 파일이다</td></tr>
+        <tr><td>계약의 <code>locked_at</code></td><td><span class="badge r">불가</span></td><td>구현자가 손으로 적은 시각이다. <code>conditions_digest</code> 는 다시 계산해 확인되지만 이 값은 기준점이 없다</td></tr>
       </tbody>
     </table>
   </div>
   <div class="grid-2">
+    <div class="note">
+      <div class="note-title">행 이름을 "누가 썼나" 로 두면 갈린다</div>
+      <p>세션 기록 안의 대부분은 구현자 자신이 한 말이지만 그 <strong>시각과 구조</strong>는 못 고친다. 반대로 커밋 메시지는 git 기록인데 본문은 구현자가 쓴 글이다 — 실측(2026-09-24): 이번 세션의 커밋 메시지 하나가 "불릿 목록 뒤로 이동" 이라 적었으나 실제로는 헤딩 뒤에 불릿이 남아 사실과 달랐다. 교차 진단이 이 경계 흔들림을 짚었다.</p>
+      <p>평가자는 그 값을 <strong>직접 뽑아</strong> 확인한다. 구현자의 서술을 인용하지 마라. 교차 진단이 독립으로 같은 값을 뽑으면 근거가 한 겹 더 굳는다.</p>
+    </div>
+    <div class="note good">
+      <div class="note-title">실측 (2026-09-23) — 뒤집힌 것은 근거의 검증 가능성이었다</div>
+      <p>개정 A-01 이 동의 시각을 짐작해 적어 REJECT 를 받았고, 고칠 때 세션 기록의 <code>AskUserQuestion</code> 쌍을 앵커로 냈다. 평가자와 교차 진단이 각각 그 기록을 직접 파싱해 같은 값을 얻어 APPROVE 로 갔다. 그 사이 <strong>구현 파일은 한 줄도 바뀌지 않았다.</strong></p>
+    </div>
+  </div>
+
+  <h3 class="sub" id="entry">엔트리 포맷</h3>
+  <div class="cols-2">
+    <code class="code-block">## AM-01 — narrowing
+- 대상 조건: AR-02
+- 변경: 대상 파일을 `harness/scripts/save-feedback.sh` 1 개로 한정 (원 조건은 `harness/scripts/` 전체)
+- 근거 (redaction 거친 원문): "피드백 스크립트만 손대고 나머지는 다른 에이전트가 한다"
+- 앵커: 2026-07-28T10:14:02+09:00 · session=8a9c2ebc · cwd=/Users/jackson/Hub/10_Dev/claude-plugins</code>
+    <p class="section-desc">사이드카 파일은 계약 파서 대상이 아니므로 <code>##</code> 헤더 이름에 제약이 없다. 다만 위 5 개 항목(대상 조건 · 변경 · 근거 · 앵커 · 헤더의 유형)은 전부 채운다. <strong>앵커를 붙일 수 없는 구두 합의는 amendment 로 인정하지 않는다</strong> — 계약 조건과 동일하게, 평가 시점에 읽을 대상이 없으면 판정 불가다.</p>
+  </div>
+</div>
+
+<!-- ═══ 복잡도 ═══ -->
+<div class="section" id="complexity">
+  <div class="section-label">Condition Count</div>
+  <div class="section-title">복잡도별 조건 수 — 기능 조건만 센다 (v5.5 개정)</div>
+  <p class="section-desc">기능 조건은 조건 줄에서 자동 포함 여섯 줄(<code>RE-01</code> · <code>RE-02</code> · <code>DG-01</code>~<code>DG-04</code>), <code>## Anti-patterns</code> 절의 줄, <code>N/A (사유)</code> 줄을 뺀 나머지다. 옛 표는 전체 조건 줄을 셌는데, 그러면 이 레포(카테고리 4 개)에서 가장 작은 계약도 카테고리마다 한 줄 · 금지 패턴 한 줄 · 자동 포함 여섯 줄로 11 줄이라 단순 작업의 「4-6 개」를 지킬 수 없었다. 실측(2026-09-19): 한 줄 훅 수정이 무거운 계약 · QA 절차에 묻혔다.</p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">옛 표 (v5.4 까지) — 전체 조건 줄</div>
+      <div class="table-wrap" style="margin-bottom:0">
+        <table>
+          <thead><tr><th>복잡도</th><th>파일 영향</th><th>조건 수</th></tr></thead>
+          <tbody>
+            <tr><td>단순</td><td>1-3</td><td>4-6</td></tr>
+            <tr><td>중간</td><td>4-8</td><td>8-12</td></tr>
+            <tr><td>복잡</td><td>9+</td><td>12-20</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>가장 작은 계약도 11 줄이 되어 단순 등급을 지킬 수 없었다.</p>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">v5.5 — 기능 조건 수</div>
+      <div class="table-wrap" style="margin-bottom:0">
+        <table>
+          <thead><tr><th>복잡도</th><th>기능 조건 수</th></tr></thead>
+          <tbody>
+            <tr><td>단순</td><td><strong>1~3</strong></td></tr>
+            <tr><td>중간</td><td><strong>4~8</strong></td></tr>
+            <tr><td>복잡</td><td><strong>9~20</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>복잡도는 파일 수가 아니라 SKILL.md Step 1 의 4 축 표로 판정한다. 20 을 넘기면 스프린트를 나눌지 먼저 본다.</p>
+    </div>
+  </div>
+  <p class="section-desc">수는 레포 내부 정책이다. 외부 근거는 조건을 짧게, 한 조건에 한 규칙만 재라고 권할 뿐 개수를 주지 않는다. 세는 명령은 SKILL.md Step 6.2 의 두 번째 명령이다(같은 식).</p>
+  <a class="card-source" href="https://github.com/andredesousa/gherkin-best-practices">Gherkin Best Practices</a>
+  <code class="code-block">awk '/^## /{s=$(0)} /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"</code>
+</div>
+
+<!-- ═══ 버전 ═══ -->
+<div class="section" id="versions">
+  <div class="section-label">Schema Versions</div>
+  <div class="section-title">스키마 버전 — 현재 v5.5 (2026-09-24)</div>
+  <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>v5.3 (2026-08-13) — 현재</div>
+      <div class="card-title"><span class="dot"></span>v5.5 (2026-09-24) — 현재</div>
+      <ul>
+        <li><strong>양성 대조</strong>(2026-09-19 추가분의 번호를 확정) · <strong>알려진 답 대조</strong> 두 패턴을 조건 패턴에 올린다</li>
+        <li><strong>면제는 기대값에만</strong> — 재는 명령의 준비 단계(경로 · <code>command -v</code> · 도구를 숨기는 전제 · 임시 사본)는 봉인 전에 돌린다</li>
+        <li><strong>조건 수는 기능 조건만</strong> 센다 — 자동 포함 여섯 줄 · 금지 패턴 · <code>N/A</code> 줄을 빼고 단순 1~3 · 중간 4~8 · 복잡 9~20</li>
+        <li><strong>Diff-Scope 상태 전제</strong> — 커밋 뒤 빈 출력이 되는 working tree · <code>--cached</code> · <code>--porcelain</code> 대신 커밋 구간</li>
+        <li><strong>여러 주체가 한 가지에 커밋할 때</strong> 서명 줄 <code>mine</code> 과 반대 방향 확인 <code>unsigned_on</code></li>
+        <li><strong>검사 스크립트는 이 스프린트 몫의 줄로 한정</strong>(새 태그 없이 <code>측정-환경-오염</code>)</li>
+        <li>zsh 배열 첨자, 시각 필드는 <code>date</code> 출력</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>v5.4 (2026-09-08)</div>
+      <ul>
+        <li><strong>커밋 구간 상한에서 <code>HEAD</code> 금지.</strong> 실측 <code>mcp-dynamic-pull-collision</code>(같은 결함 2 이터레이션 연속): SC-02 가 <code>&lt;base&gt;..HEAD</code> 로 재는 바람에, 봉인 이후 병합된 무관한 버그 수정이 화이트리스트 밖 파일을 건드리자 스프린트가 자기가 만들지 않은 변경 때문에 FAIL 했다. 상한은 스프린트가 소유한 ref(머지 커밋 또는 브랜치 tip)여야 하고, 계약이 그 해석 명령을 적는다. Diff-Scope 표준형이 4 요소 → 5 요소가 된다</li>
+        <li><strong>미실측 오라클 봉인 금지.</strong> RS-01 이 «<code>totalTools</code> 가 <code>0</code>» 을 BEFORE 오라클로 잠갔으나 그 값은 작성 시점에 측정된 적이 없었고, 결함이 내는 실제 값은 <code>37</code> 이었다. 원 조건의 PASS 집합이 공집합이 되어 개정이 유일한 출구가 됐고, 그 개정은 집합 비교상 필연적으로 <code>relaxing</code> 이라 사용자 승인을 강제했다 — 잘못 쓰인 계약 한 줄이 사용자 시간을 소비하는 구조다. 값을 고정하는 조건은 봉인 전에 1 회 실측하고, 미실측이면 <code>[미실측]</code> 표기 후 봉인을 보류한다(구현이 만들어 낼 값은 면제)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>2026-09-08 — amend_direction 극성 (v5.3 보강)</div>
+      <p>오라클(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)을 바꾸는 amendment 의 direction 을 <strong>측정 집합</strong> 전용 헬퍼 <code>amend_direction_oracle</code> 로 계산한다. 기존 <code>amend_direction</code> 은 <strong>허용 집합</strong> 전용이며, 측정 집합을 넣으면 극성이 뒤집혀 <code>relaxing</code> 이 <code>narrowing</code> 으로 적힌다(실측 howto-kit A-01, 39 → 37 경로). 결측 입력은 조용한 <code>unknown</code> 이 아니라 <code>unknown missing_input=</code> 으로 드러낸다. 버전 번호는 올리지 않았다 — 다음 번호는 다른 브랜치(<code>fix/contract-schema-unmeasured-oracle</code>)가 선점했다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>v5.3 (2026-08-13)</div>
       <p>write-once 를 서술에서 <strong>결정론적 봉인(E3)</strong> 으로 승급 + 조건 패턴 3 종 추가.</p>
       <ul>
-        <li><strong>계약 봉인</strong> — <code>conditions_digest</code> · <code>locked_at</code> 선택 필드. 조건 체크박스 줄만 정규화 해시. 체크박스 토글과 서술 편집은 <code>SEAL_OK</code>, 조건 문구 변조와 조건 추가·삭제는 <code>SEAL_BROKEN</code>, 부재는 <code>SEAL_ABSENT</code> (경고이지 실패 아님). 실측 하위호환: 기존 계약 109 개 전부 <code>SEAL_ABSENT</code> · <code>SEAL_BROKEN</code> 0 (zsh·bash 동일)</li>
-        <li><strong>amendment direction × consent 2 축 분리</strong> — 이제 <code>narrowing · unanchored</code> 는 PASS 근거가 되고, 집합형 direction 은 <code>comm</code> 집합 비교로 <strong>계산</strong>한다 (3→5 경로 = <code>relaxing</code>)</li>
-        <li><strong>측정 커버리지 표기 + 검출기(E2)</strong> — blocking 게이트가 아니다. 실측 오탐률(나이브 76 / 좁힌 형태 29, 분모 114) 때문에 "검출기 + 해소 기록" 으로 착지</li>
-        <li><strong>인자 매트릭스</strong> — 조합 케이스 수 수기 오류와 variant 축 값 중복(<code>UI-04</code>)을 같은 패턴으로 처리</li>
-        <li><strong>음성 대조</strong> — <code>ER-02</code> 의 mutation test 확정 결함 대응. 테스트 통과를 요구하는 조건에만 적용</li>
+        <li><strong>계약 봉인</strong> — <code>conditions_digest</code> · <code>locked_at</code> 선택 필드. 직전 사이클이 도입한 amendment 사이드카만으로는 2026-08-11 REJECT 를 막지 못했다. 근본원인은 3 개였다 — 규칙이 <strong>읽기 측 문서에만</strong> 존재(쓰기 측 grep 0 건) · 준수 경로의 기대 보상이 위반 경로보다 낮음 · <strong>위반을 재는 오라클 부재</strong>. 실측 하위호환: 기존 계약 109 개 전부 <code>SEAL_ABSENT</code> · <code>SEAL_BROKEN</code> 0 (zsh·bash 동일)</li>
+        <li><strong>amendment direction × consent 2 축 분리</strong> — 이제 <code>narrowing · unanchored</code> 는 PASS 근거가 되고, 집합형 조건의 direction 은 <code>comm</code> 집합 비교로 <strong>계산</strong>한다(3→5 경로 = <code>relaxing</code>)</li>
+        <li><strong>측정 커버리지 표기 + 검출기(E2)</strong> — blocking 게이트가 아니다. 실측 오탐률(계약 109 개 · enumerated 조건 114 개 · 나이브 76 건 / 좁힌 형태 29 건) 때문에 "검출기 + 해소 기록" 으로 착지</li>
+        <li><strong>인자 매트릭스</strong> — 조합 케이스 수 수기 오류(<code>3 x 6 = 18 중 15 만 재현</code> · <code>16 종 중 2 종만 검증</code>)와 variant 축 값 중복(<code>UI-04</code>)을 같은 패턴으로 처리</li>
+        <li><strong>음성 대조</strong> — <code>ER-02</code> 의 mutation test 확정 결함(가드를 삭제해도 테스트 통과) 대응. 테스트 통과를 요구하는 조건에만 적용</li>
         <li><strong>조건 작성 preflight</strong> — QA 모호성 태그 6 종을 작성 단계 자문 목록으로 되먹임</li>
       </ul>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>v5.2 / v5.1 / v5 (2026-07-28)</div>
+      <div class="card-title"><span class="dot"></span>v5.2 · v5.1 · v5 (2026-07-28)</div>
       <ul>
-        <li><strong>v5.2</strong> — <code>CONTRACT_ROOT</code> 탐색 기준을 <code>.harness/</code> 디렉토리 자체로 개정(조용한 오귀속 + 미초기화 BLOCKED 동시 제거). active 열거 grep 의 따옴표 대응(<code>grep -lE "^status:[[:space:]]*[\"']?active"</code>) — v5.1 패턴은 <code>status: "active"</code> 를 놓쳐 active 를 0 개로 세었다</li>
-        <li><strong>v5.1</strong> — ladder 3.5 레거시 브릿지(적용 후 실측: ladder 3 1 개 · 3.5-a 12 개 · BLOCKED 0), <code>status: done</code> 전환 주체 명시, frontmatter 값 따옴표 규약, 셸 이식성 규약, 슬러그 재사용 우선</li>
-        <li><strong>v5</strong> — 병렬 스프린트 안전성. 접미형 경로 정식화 + plain 모드 병존, 슬러그 규칙, frontmatter <code>slug</code>/<code>status</code>/<code>owner_session</code> 3 필드, status 해석 규칙, amendment 사이드카 규약, <code>CONTRACT_ROOT</code> 단일 규칙 명문화(중첩 배포본 4 개 보호)</li>
+        <li><strong>v5.2</strong> — v5.1 을 실행 기반으로 재검증해 남은 결함 봉합. <code>CONTRACT_ROOT</code> 탐색 기준 개정(조상 체인에서 먼저 만나는 <code>.harness/</code> 에서 멈춘다 · 기준이 <code>project.yaml</code> 이 아니라 디렉토리 자체 · <code>project.yaml</code> 이 없으면 그 디렉토리를 쓰되 <code>contract_root_unconfigured: true</code> 경고 · 부재만으로 BLOCKED 금지). active 열거 grep 의 따옴표 대응 — v5.1 패턴은 <code>status: "active"</code> 를 놓쳐 active 를 0 개로 세었고, <code>harness/evals/test-fixtures/README.md</code> 의 사전 점검 패턴과도 어긋나 있었다</li>
+        <li><strong>v5.1</strong> — v5 회귀 봉합(적대적 검증 blocking 5 · major 6 대응). ladder 3.5 레거시 브릿지(적용 후 실측: ladder 3 1 개 · 3.5-a 12 개 · BLOCKED 0), <code>status: done</code> 전환 주체 명시, frontmatter 값 따옴표 규약, 셸 이식성 규약, 슬러그 재사용 우선</li>
+        <li><strong>v5</strong> — 병렬 스프린트 안전성. 접미형 경로 정식화 + plain 모드 병존, 슬러그 규칙(<code>^[a-z0-9][a-z0-9-]{0,47}$</code>), frontmatter <code>slug</code> / <code>status</code> / <code>owner_session</code> 3 필드, status 해석 규칙(배포본 접미형 계약 40 개 전부 <code>status</code> 미보유라 이 규칙이 없으면 영구 BLOCKED), amendment 사이드카 규약, <code>CONTRACT_ROOT</code> 는 "가장 가까운 조상" 단일 규칙(중첩 배포본 4 개 보호)</li>
       </ul>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot"></span>v4 (2026-07-27)</div>
-      <p>허용 섹션 헤더 2 계층 분류(조건 섹션 parsed / 서술 섹션 non-parsed)와 저장 직후 결정론적 검사, <code>CONTRACT_ROOT</code> 기준 경로 해석, Counterpart 조건(producer/consumer 분리), Diff-Scope Oracle 표준형 4 요소, 증거 아티팩트 경로 명시 의무. Phase 1 §3.7 enforcement 등급 사다리를 계약 레이어에 적용하여 재발 규칙 4 건을 승급.</p>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>v3 / v2 / v1</div>
+      <div class="card-title"><span class="dot"></span>v4 (2026-07-27) · v3 · v2 · v1</div>
       <ul>
-        <li><strong>v3 (2026-04-24)</strong> — 검증 수단 인라인 명시 필수, MCP/외부 도구 3 단계 fallback, <code>[미검증]</code> 마커 및 수용 임계(1 건 허용 / 2 건 이상 REJECT), Sibling Consistency enumerated 필수</li>
-        <li><strong>v2 (2026-04-11)</strong> — 조건 구체성 태그와 aggregation mode 필수화. 숫자 레벨 태그 금지 명시</li>
+        <li><strong>v4 (2026-07-27)</strong> — 허용 섹션 헤더 2 계층 분류(조건 섹션 parsed / 서술 섹션 non-parsed)와 저장 직후 결정론적 검사, <code>CONTRACT_ROOT</code> 기준 경로 해석, Counterpart 조건(producer/consumer 분리 · <code>[exact, enumerated]</code> 필수), Diff-Scope Oracle 표준형 4 요소, 증거 아티팩트 경로 명시 의무. Phase 1 §3.7 enforcement 등급 사다리를 계약 레이어에 적용하여 재발 규칙 4 건을 승급</li>
+        <li><strong>v3 (2026-04-24)</strong> — 검증 수단 인라인 명시 필수, MCP/외부 도구 의존 조건의 3 단계 fallback 규칙, <code>[미검증]</code> 마커 및 수용 임계(1 건 허용 / 2 건 이상 REJECT), Sibling Consistency 조건 enumerated 필수. Phase 1 Cross-Surface Parity 원칙을 계약 레이어에 전수</li>
+        <li><strong>v2 (2026-04-11)</strong> — 조건 구체성 태그(<code>[exact]</code> / <code>[structural]</code> / <code>[goal]</code>)와 aggregation mode(<code>enumerated</code> / <code>collective</code>) 필수화. 숫자 레벨 태그 금지 명시</li>
         <li><strong>v1</strong> — 초기 스키마</li>
       </ul>
     </div>
@@ -902,15 +1450,17 @@ narrowing added=0 removed=2                                      # ← 극성이
 
 <div class="footer">
   <h3>관련 문서</h3>
-  <p>이 페이지는 <code>harness/references/contract-schema.md</code> (v5.3 · 2026-08-13) 를 시각화한 것이다. 원문이 정본이며, 경로·슬러그·봉인·amendment 축의 SSOT 는 원문 스키마다. <code>sprint-contract</code> 스킬과 <code>qa-evaluator</code> 에이전트, 각 가이드 문서는 이 스키마를 <strong>인용만</strong> 하고 자체 규칙을 재정의하지 않는다.</p>
+  <p>이 페이지는 <code>harness/references/contract-schema.md</code> (v5.5 · 2026-09-24) 를 시각화한 것이다. 원문이 정본이며, 경로·슬러그·봉인·결함 태그 어휘·amendment 축은 원문 스키마를 따른다. <code>sprint-contract</code> 스킬과 <code>qa-evaluator</code> 에이전트, 각 가이드 문서는 이 스키마를 <strong>인용만</strong> 하고 자체 규칙을 재정의하지 않는다.</p>
   <ul>
-    <li><code>harness/docs/guides/contract-design-guide.md</code> (v5.0) — 조건 작성 원칙 · 등급표 · 안티패턴</li>
-    <li><code>harness/docs/guides/qa-evaluation-guide.md</code> (v5.0) — 평가 방법론 · 계약 선택 ladder · 봉인 소비면</li>
-    <li><code>harness/docs/guides/skill-design-guide.md</code> (1.5.0) — Enforcement 등급 정의 · 등급 원장 <strong>SSOT</strong></li>
-    <li><code>harness/docs/guides/agent-design-guide.md</code> (1.6.0) — 평가자 에이전트 설계 원칙</li>
+    <li><code>harness/skills/sprint-contract/SKILL.md</code> — 작성 절차 (Step 3 금지 패턴 · Step 4 자동 포함 N/A · Step 6.2 조건 수 · Step 6.5 봉인 전 검사 · Step 6.7 봉인 커밋)</li>
+    <li><code>harness/agents/qa-evaluator.md</code> — 평가 절차 (규칙 10 · 결함 태그 어휘 사용처)</li>
+    <li><code>harness/docs/guides/contract-design-guide.md</code> — 조건 작성 원칙 · 조건 구체성 태그 · Cross-Surface Parity</li>
+    <li><code>harness/docs/guides/qa-evaluation-guide.md</code> — 평가 방법론 · Canonical Unverified-Evidence Protocol</li>
+    <li><code>harness/docs/guides/skill-design-guide.md</code> — §3.7 Enforcement 등급 · 알려진 답 대조 생성 측 짝 · §5.6 Variant Budget</li>
     <li><code>harness/references/feedback-schema.yaml</code> — 피드백 YAML 스키마</li>
     <li><code>harness/skills/harness-kaizen/scripts/trigger-check.sh</code> — 셸 이식성 규약의 참조 구현</li>
     <li><code>harness/evals/test-fixtures/README.md</code> — active 열거 패턴이 이 스키마와 동일해야 한다</li>
+    <li><code>harness/evals/amend-direction/README.md</code> — <code>amend_direction</code> · <code>amend_direction_oracle</code> 픽스처와 재현 명령</li>
   </ul>
 </div>
 

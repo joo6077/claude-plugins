@@ -4,7 +4,7 @@
 
 Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개인 레벨에 적용한다. 세션 중 발생한 오해·반복 실수·잘못된 접근을 구조화 로그로 수집하고, 빈도·위험도·절차성 기준으로 Claude Code의 여러 surface(CLAUDE.md / memory / skill / hook)에 승격 반영한다. 승격된 규칙은 30일 pre/post 재발률로 효과를 측정한다.
 
-버전: `0.3.0`
+버전은 `.claude-plugin/plugin.json` 의 `version` 을 본다.
 
 ## v0.3.0 변경 요약
 
@@ -91,11 +91,12 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 **유일한 누적 근거**다. 억제된 사건은 `reflections-*.md` 본문에 없으므로 이 파일을 지우면 규모를
 알 수 없게 된다. 억제 창은 `REFLECT_ENV_REPEAT_DAYS` (기본 7일) 로 조정한다.
 
-`project_id` = `<basename(git-root)>` (Hybrid 기본, v0.3.0+) / 충돌 시 `<basename>-<6자 md5 hex>` fallback. 헬퍼: `hooks/_lib-project-id.sh` — `compute_project_id` (쓰기용), `normalize_project_query` (읽기용 glob 확장).
+`project_id` = `<basename(본 레포 root)>` (Hybrid 기본, v0.3.0+ — 워크트리 안에서도 본 레포 이름) / 충돌 시 `<basename>-<6자 md5 hex>` fallback. 헬퍼: `hooks/_lib-project-id.sh` — `project_root` (본 레포 root), `compute_project_id` (쓰기용), `normalize_project_query` (읽기용 glob 확장), `collect_status` · `facets_unmatched` (digest 머리의 수집 상태 · facets 대조).
 
 ## 의존성
 
-- `codex` CLI (`codex exec`로 세션 분석)
+- `codex` CLI (`codex exec -s read-only`로 세션 분석)
+- `claude` CLI — codex 가 실패하면 `claude -p --model haiku` 로 한 번 더 분석한다
 - `jq` (JSON 파싱)
 - `awk`, `sed` (redaction, POSIX ERE)
 - `uuidgen` (rule_id 발급)

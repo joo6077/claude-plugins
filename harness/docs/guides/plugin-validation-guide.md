@@ -1,7 +1,7 @@
 ---
 title: Claude Code 플러그인 검증 가이드
-version: 1.3.1
-last_updated: 2026-09-24
+version: 1.4.0
+last_updated: 2026-09-25
 scope: "marketplace.json 에 등록된 킷 전부"
 ---
 
@@ -447,6 +447,10 @@ markdownlint 는 그것을 표로 인식하지 못해 경고 수가 전혀 움�
 V6 범위 안이었다 — 넓힌 이유는 "그 파일이 범위 밖이어서" 가 아니라 "같은 종류의 문서가
 `docs/` 에도 있어서" 다 (교차 진단이 이 서술 오류를 짚었다).
 
+스킬 폴더 안의 `skills/*/references/**/*.md` 도 더한다 (2026-09-25). 킷 최상위 `references/*.md` 만 보면 스킬마다
+둔 참조 문서가 빠진다 — 실측 14 킷에 41 개(표가 있는 파일 40 개)가 검사 밖이었고 끊긴 표는 0 개였다. V6 는 같은
+범위로 넓히지 않았다 — 넓히면 그 안의 언어 힌트 없는 펜스 8 개가 바로 걸린다.
+
 **표행은 왼쪽 공백을 벗겨서 판정한다.** 표는 목록·인용 안에서 들여쓰여 쓰이고, 왼쪽 끝만
 보면 그것이 전부 검사에서 빠진다. 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 84 줄(9 파일)
 있었고 그 안에 실제로 끊긴 표가 숨어 있었다 —
@@ -499,10 +503,10 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
 === react-kit ===
   V1 frontmatter       21 skills + 3 agents — OK
   V2 templates         5 parsed, 4 skipped (ts/js) — OK
-  V3 refs              89 links, 2 BROKEN
+  V3 refs              89 links, 2 BROKEN — FAIL
     FAIL react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
     FAIL react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
-  V4 triggers          58 keywords, 1 duplicate
+  V4 triggers          58 keywords, 1 duplicate — WARN
     WARN "새 화면 추가" — react-kit / planning-kit (cross-kit)
   V5 placeholders      0 found — OK
   V6 code-fence        0 bare — OK
@@ -516,6 +520,8 @@ Exit: 2
 ```
 
 요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 `Total: N plugins, N OK` 처럼 짧아진다.
+
+V 줄은 늘 판정 글자(`— OK` · `— WARN` · `— FAIL` · `— SKIP`)로 끝난다. 요약이 개수만 적는 실패(`2 BROKEN` · `1 duplicate`)는 끝에 판정을 붙인다 — 2026-09-25 전에는 V3 · V4 · V5 · V9 의 실패 줄이 판정 없이 끝나 V 줄 글자로 FAIL 을 세면 0 이 나왔다. 그래도 통과 여부는 V 줄 글자보다 종료 코드로 먼저 판정한다.
 
 ### Exit Code
 
@@ -652,6 +658,7 @@ python3 scripts/validate-plugin.py <kit-name>
 | 2026-06-11 | 1.1.0 | V8 hook-exec 추가 — hooks.json 직접 실행 `.sh` 의 실행 비트(0755) 검증. reflect 30일 집계상 hook permission-denied 957건(전체 friction 38%)의 회귀 방지 가드 |
 | 2026-09-21 | 1.2.0 | V9 arg-substitution 추가 — 스킬 본문 코드의 `$` + 숫자가 호출 인자로 치환되어 awk·bash 스니펫이 깨지는 것을 막는다. 공식 규칙은 `$N` = `[N]` 이며, sprint-contract 를 인자와 함께 부른 3 회 모두 `read_fm` 의 awk 와 저장 검사 스니펫이 깨져 로드됐다 |
 | 2026-09-24 | 1.3.0 | V10 table-integrity 추가 — 헤더 없이 끊긴 표 행을 잡는다. markdownlint 는 고립 표 행을 표로 인식하지 못해 경고 수가 안 움직인다 (실측: 같은 파일 세 커밋 내리 14 건). 범위는 V6 + 킷 안 docs/**/*.md (210 파일, 오탐 0 확인) |
+| 2026-09-25 | 1.4.0 | V10 범위에 스킬 폴더 안 `skills/*/references/**/*.md` 를 더했다 — 14 킷 41 개가 검사 밖이었다 (끊긴 표 0 개 확인). V6 는 같은 범위의 언어 힌트 없는 펜스 8 개 때문에 넓히지 않았다 |
 | 2026-09-24 | 1.3.1 | 사실 정정 — `--check` 체크 이름 10 개 전부, 출력 예시에 V9 · V10 줄과 실제 요약줄 형식(`Total: N plugins, …`), 수동 수정 표에 V8 · V9 · V10, 킷별 예외 표의 `templates/` 항목 수를 실제 값으로(harness 4 · flutter-toolkit 2 · design-kit 8 · rust-kit 5 · tone-kit 6). 금방 낡는 킷 수 · 카이젠 스킬 수 표기와 부분 킷 목록은 뺐다 |
 
 다음 갱신 예정:

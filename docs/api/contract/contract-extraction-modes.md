@@ -1,7 +1,7 @@
 ---
 title: 계약 추출 모드 — partial · pin · exact
-version: 0.1.0
-last_updated: 2026-09-04
+version: 0.1.1
+last_updated: 2026-09-24
 ---
 
 # 계약 추출 모드 — partial · pin · exact
@@ -134,3 +134,4 @@ partial 에서는 열고, pin 에서는 명시한 path 만 검사하고, exact �
 - **`format` 은 구현마다 annotation/assertion 지원이 다르다** — format 을 hard fail 조건으로 쓰려면 validator 설정에 명시적으로 묶어야 한다. 안 그러면 조용히 통과한다.
 - **OpenAPI 3.0 `nullable: true` 는 다른 제약을 무력화하지 않는다** — `enum` 에 `null` 이 없으면 nullable 을 켜도 null 이 실패한다.
 - **composition 에서는 `additionalProperties` 보다 `unevaluatedProperties` 가 정확하다** — `additionalProperties` 는 같은 schema object 의 `properties`/`patternProperties` annotation 에만 의존하기 때문이다.
+- **새 pin 은 한 번 망가뜨려 본다** — 결함을 일부러 넣고 검사를 돌려 실패하면 그 결함은 잡힌 것이고, 통과하면 검사 묶음에 문제가 있다는 신호다([PIT](https://pitest.org/)). pin 을 새로 만들었으면 스냅샷 **사본**의 그 값을 타입은 그대로 두고 망가뜨려(`47` → `-1`) 그 pin 이 FAIL 을 내는지 본다. 사본에 변이가 실제로 들어갔는지 먼저 확인하고, 봉인된 baseline 은 건드리지 않는다.

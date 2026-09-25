@@ -26,20 +26,22 @@
   /* Typography */
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(24px,4vw,40px);max-width:760px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
   h4{font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px;letter-spacing:0.2px}
-  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section{margin-bottom:clamp(48px,6vw,80px);scroll-margin-top:16px}
   .section-label{
     font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
     color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;
   }
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
   .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:760px;margin-bottom:24px}
-  .caption{color:var(--text3);font-size:12px;text-align:center;margin-top:12px}
+  .desc strong{color:var(--text)}
+  .caption{color:var(--text3);font-size:12px;margin-top:10px;line-height:1.6}
   .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
     padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
+  .sub{font-size:14px;font-weight:700;color:var(--text);margin:28px 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
   /* Cards */
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition);display:flex;flex-direction:column}
@@ -52,24 +54,30 @@
   /* Card internals */
   .card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
   .card-body{color:var(--text2);font-size:13px;line-height:1.7;flex:1}
+  .card-body p+p{margin-top:8px}
+  .card-body strong{color:var(--text)}
+  .card-body ul.plain{list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:5px;margin-top:6px}
   .rule-number{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-  .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+  .num{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 6px;border-radius:8px;
     background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0}
 
   /* Table */
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
   td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  td strong{color:var(--text)}
   tr:hover td{background:rgba(20,184,166,0.03)}
   td code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
-  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto}
 
   /* Checklist */
   .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
   .checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--text2);line-height:1.6}
-  .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
-    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:800}
+  .checklist li strong{color:var(--text)}
+  .checklist .check{width:22px;height:22px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--accent);font-weight:800}
   .checklist code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .when-tag{font-family:var(--mono);font-size:11px;color:var(--accent2);margin-right:4px}
 
   /* Compare panels */
   .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
@@ -82,6 +90,7 @@
   .compare-good .compare-label{color:var(--green)}
   .compare ul{list-style:none;display:flex;flex-direction:column;gap:8px}
   .compare li{font-size:13px;color:var(--text2);line-height:1.6;padding-left:16px;position:relative}
+  .compare li strong{color:var(--text)}
   .compare-good li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:700}
   .compare-bad li::before{content:'×';position:absolute;left:0;color:var(--red);font-weight:700}
   .compare li code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;color:var(--text)}
@@ -94,19 +103,27 @@
   pre .bad{color:var(--red)}
   pre .cm{color:var(--text3)}
   code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text)}
+  .code-note{font-size:12px;color:var(--text3);margin-top:-4px;margin-bottom:12px}
 
   /* Source link (per spec) */
   .card-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);text-decoration:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;font-family:var(--mono)}
   .card-source:hover{color:var(--accent2);text-decoration:underline}
+  a.inline{color:var(--accent2);text-decoration:underline}
+  a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:4px}
 
   /* Nav */
   .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
   .nav-back:hover{color:var(--text)}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:clamp(36px,5vw,56px)}
+  .toc a{display:inline-flex;align-items:center;min-height:32px;padding:4px 12px;border:1px solid var(--border);border-radius:20px;background:var(--surface);
+    color:var(--text2);font-size:12px;text-decoration:none;transition:border-color var(--transition),color var(--transition)}
+  .toc a:hover{border-color:rgba(20,184,166,0.45);color:var(--text)}
 
   /* Status badges */
-  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;white-space:nowrap}
   .badge-ok{background:rgba(74,222,128,0.12);color:var(--green)}
   .badge-warn{background:rgba(251,191,36,0.12);color:var(--yellow)}
+  .badge-bad{background:rgba(248,113,113,0.12);color:var(--red)}
   .badge-info{background:var(--accent-dim);color:var(--accent)}
 
   /* Phase header */
@@ -115,20 +132,59 @@
   /* Callout */
   .callout{border-left:3px solid var(--yellow);background:rgba(251,191,36,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin:14px 0}
   .callout strong{color:var(--yellow)}
+  .callout.note{border-left-color:var(--accent);background:rgba(20,184,166,0.05)}
+  .callout.note strong{color:var(--accent)}
+  .callout.stop{border-left-color:var(--red);background:rgba(248,113,113,0.05)}
+  .callout.stop strong{color:var(--red)}
+
+  /* Phase map */
+  .flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:10px;margin-bottom:20px}
+  .step{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+  .step .k{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.5px}
+  .step .t{font-size:13px;font-weight:700;color:var(--text);line-height:1.4}
+  .step .g{font-size:12px;color:var(--text3);line-height:1.5}
+  .step.gate{border-left:3px solid var(--accent)}
+  .step.opt{border-style:dashed}
+
+  /* Timeline */
+  .timeline{list-style:none;position:relative;padding-left:24px;display:flex;flex-direction:column;gap:16px}
+  .timeline::before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--border)}
+  .timeline li{position:relative;font-size:13px;color:var(--text2);line-height:1.7}
+  .timeline li::before{content:'';position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
+  .timeline li strong{color:var(--text)}
+  .timeline .when{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent2);margin-right:8px}
+
+  /* Ladder */
+  .ladder{list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:rung;margin-bottom:16px}
+  .ladder li{counter-increment:rung;display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:start;background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.65}
+  .ladder li::before{content:counter(rung);display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:800}
+  .ladder strong{color:var(--text)}
+
+  /* Stat row */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px;margin-bottom:20px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .stat .v{font-size:24px;font-weight:800;color:var(--text);font-family:var(--mono);line-height:1.2}
+  .stat .l{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5}
 
   /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════
      내용을 자르지(overflow:hidden) 말고 스크롤/줄바꿈으로 해소한다. */
   /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 다 — 트랙 폭으로 전파된다 */
-  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*{min-width:0}
+  .grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.flow>*,.stats>*,.ladder li>*{min-width:0}
   /* (2) 표는 컬럼 폭 합계가 전파된다 — 가로 스크롤 컨테이너에서 스크롤시킨다 */
   .table-wrap{max-width:100%;-webkit-overflow-scrolling:touch}
+  .table-wrap>table{min-width:max-content}
+  /* 문장이 긴 표는 한 줄로 펴면 읽을 수 없다 — 셀 안에서 줄을 바꾸고 좁은 화면에서만 가로로 스크롤한다 */
+  .table-wrap.prose>table{min-width:640px}
   /* (3) white-space:pre 코드는 컨테이너에서 스크롤, 인라인 코드/본문은 줄바꿈 허용 */
   pre{max-width:100%}
   pre code{white-space:pre}
   :not(pre)>code{overflow-wrap:anywhere}
   /* 단, 표 셀의 식별자는 쪼개지 않는다 — (2)대로 표 자체가 가로 스크롤한다 */
   th code,td code{overflow-wrap:normal}
-  .desc,.subtitle,.card-body,.callout,.checklist li{overflow-wrap:anywhere}
+  .desc,.subtitle,.card-body,.callout,.checklist li,.ladder li,.timeline li,.compare li,.step{overflow-wrap:anywhere}
+  /* (4) 좁은 화면은 한 줄에 하나씩 */
+  @media(max-width:600px){.grid-2,.grid-3,.grid-4,.flow,.stats{grid-template-columns:1fr}}
 
   @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
 </style>
@@ -139,524 +195,2029 @@
 <a href="../index.html" class="nav-back">&#8592; Bambu Kit</a>
 
 <h1>Bambu Print Profile — H2S 자동 JSON 생성 워크플로우</h1>
-<p class="subtitle">MakerWorld URL 또는 로컬 모델 → 모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 process+filament JSON + zip 번들. <code>H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+</code> 환경 가정. 4건의 Codex research run과 실측 피드백으로 references 4종을 채워 silent skip을 유발하는 메타필드 누락 패턴을 회피한다.</p>
+<p class="subtitle">MakerWorld URL 이나 로컬 모델 파일을 받아 process · filament JSON 을 만들고 import 용 zip 으로 묶어 주는 스킬이다. <code>H2S + AMS HT + AMS 2 Pro</code> 환경을 가정하고, 슬라이서는 <strong>Bambu Studio v2.6.0+ 와 OrcaSlicer v2.4+ 양쪽</strong>을 다룬다. references 9 종을 토대로 모델 형상 분석 → 실측 실패 모드 판정 → 소재 추천 → seam 전략 → 슬라이서별 JSON 생성까지 이어 간다.</p>
 
-<div class="callout" style="border-left-color:var(--accent);background:rgba(20,184,166,0.05);margin-bottom:32px">
-  <strong style="color:var(--accent)">v2 정책 추가 (2026-05-16):</strong> Phase 3에 <strong>Surface-first 모드</strong> 분기 추가. 회전체 default를 <code>random + entire_loop</code>(분산)에서 <strong>Auto-select 결정 트리</strong>(spiral → painted → random fallback)로 전환. 6개 형상 enumerate + 8개 소재 ironing 매트릭스 + PETG HF 건조 경고. 자세한 정책 → <a href="surface-recipes.html" style="color:var(--accent2);text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code> (score 24/25).
+<div class="callout note">
+  <strong>2026-09-25 카이젠 변경 (Phase 13):</strong> MakerWorld 는 <strong>JSON 주소를 먼저 부른다</strong> — 화면 없이 도는 브라우저가 모델 페이지에서 <code>Just a moment...</code> · HTTP 403 으로 막혔고, 같은 모델의 JSON 주소는 200 이었다 (아래 「MakerWorld 읽는 순서」). 이어서 조용히 통과하던 자리 다섯을 막았다 — 값 박기 · G-code 대조가 첫 칸만 읽던 것, 폴더에만 있던 시험 파일 8 개, 빈 옵션 목록이 키 검사를 끄던 것, 호(<code>G2</code> · <code>G3</code>)를 빠뜨리던 G-code 길이 재기, 정답을 모르는 채 돌던 형상 측정. 근거 파일: <code>.harness/.meta/evidence/phase13.md</code>.
 </div>
 
-<!-- ── Section 1: 트리거 조건 ── -->
-<div class="section">
+<nav class="toc" aria-label="이 페이지의 절">
+  <a href="#triggers">트리거</a>
+  <a href="#files">파일 구조</a>
+  <a href="#history">변경 이력</a>
+  <a href="#map">워크플로우 지도</a>
+  <a href="#phase1">Phase 1 · 1.0</a>
+  <a href="#makerworld">MakerWorld 읽는 순서</a>
+  <a href="#phase15">1.5 첨부 자료</a>
+  <a href="#phase16">1.6 댓글</a>
+  <a href="#phase17">1.7 공차</a>
+  <a href="#phase18">1.8 표면 의도</a>
+  <a href="#phase19">1.9 실패 모드</a>
+  <a href="#phase195">1.95 슬라이서</a>
+  <a href="#phase2">2 소재</a>
+  <a href="#phase3">3 JSON 생성</a>
+  <a href="#tolerance">공차 보정 키</a>
+  <a href="#env">환경 확인</a>
+  <a href="#flow">유량비</a>
+  <a href="#filament">filament · 스트링잉</a>
+  <a href="#surface">Surface-first</a>
+  <a href="#phase4">4 번들 · notes</a>
+  <a href="#gate">4.3 생성물 검사</a>
+  <a href="#negative">음성 대조</a>
+  <a href="#verify">4.4 출력 확인</a>
+  <a href="#phase5">5 Coupon</a>
+  <a href="#gotchas">Gotcha</a>
+  <a href="#preflight">사전 절차</a>
+  <a href="#cases">실측 사례</a>
+  <a href="#sources">출처</a>
+</nav>
+
+<!-- ── 트리거 조건 ── -->
+<div class="section" id="triggers">
   <div class="section-label">트리거 조건 (Triggers)</div>
-  <p class="desc">스킬은 H2S 환경에 한정되지만 <strong>슬라이서는 Bambu Studio 와 OrcaSlicer 양쪽</strong>을 다룬다 (2026-09-14 신설). 어느 쪽으로 생성할지는 Phase 1.95 가 확정한다. 다른 프린터(X1/P1/A1)나 PrusaSlicer 요청에는 트리거되지 않는다. 단순 1필드 변경에도 트리거되지 않는다 — 그건 슬라이서 UI에서 직접 처리하는 게 빠르다.</p>
+  <p class="desc">프린터는 H2S 로 고정하지만 슬라이서는 Bambu Studio 와 OrcaSlicer 를 모두 받는다. 어느 쪽 키로 만들지는 <strong>Phase 1.95</strong> 가 정한다. 한 값만 바꾸는 요청은 슬라이서 화면에서 직접 하는 편이 빠르므로 트리거하지 않는다.</p>
 
   <div class="compare">
     <div class="compare-good">
       <div class="compare-label">트리거함 — 워크플로우 실행</div>
       <ul>
-        <li>MakerWorld URL이 메시지에 포함 (<code>makerworld.com/en/models/...</code>)</li>
-        <li>로컬 모델 파일 경로 언급 (<code>.3mf</code> / <code>.stl</code> / <code>.step</code>)</li>
-        <li>"삼프 설정", "Bambu 프로파일 만들어줘", "오르카 프로파일", "출력 셋팅", "프린트 셋팅"</li>
-        <li>"MakerWorld 모델 출력하려고" 같은 출력 의도 표현</li>
-        <li>"원기둥 seam 안 보이게", "회전체 표면 깔끔하게" 같은 형상 + seam 결합 요청</li>
-        <li>모델명 + 소재 + 품질 요구가 묶여서 들어오는 경우</li>
+        <li>MakerWorld URL 이 메시지에 있다 (<code>makerworld.com/en/models/...</code>)</li>
+        <li>로컬 모델 파일 경로를 말한다 (<code>.3mf</code> · <code>.stl</code> · <code>.step</code>)</li>
+        <li>"삼프 설정", "Bambu 프로파일 만들어줘", "오르카 프로파일", "출력 셋팅 추천", "프린트 셋팅", "MakerWorld 모델 출력하려고"</li>
+        <li>"원기둥 seam 안 보이게", "회전체 표면 깔끔하게" 처럼 형상과 seam 을 묶은 요청</li>
       </ul>
     </div>
     <div class="compare-bad">
-      <div class="compare-label">트리거 안 함 — 다른 도구 사용</div>
+      <div class="compare-label">트리거 안 함</div>
       <ul>
-        <li>단순 1필드 변경 ("온도 245로 해줘", "색만 바꿔줘") → Studio UI 직접</li>
-        <li>기존 프로파일 리뷰만 요청 ("이 설정 어때?")</li>
-        <li>다른 프린터 언급 (X1C, P1S, A1) 또는 PrusaSlicer — <strong>OrcaSlicer 는 이제 트리거한다</strong></li>
+        <li>한 값만 바꾸는 요청 ("온도 245로 해줘", "색만 바꿔줘")</li>
+        <li>이미 있는 프로파일 리뷰</li>
+        <li>다른 프린터(X1 · P1 · A1 등) 또는 PrusaSlicer 같은 다른 슬라이서</li>
         <li>슬라이싱 결과 분석만 요청 ("이 출력 어땠어?")</li>
-        <li>하드웨어 트러블슈팅 ("벨트 텐션", "노즐 막힘")</li>
-        <li>장비 펌웨어/메인보드 관련 질문</li>
       </ul>
     </div>
   </div>
 
   <div class="callout">
-    <strong>Why H2S만?</strong> 시스템 프리셋은 프린터별로 inherit chain이 완전히 다르다. <code>compatible_printers</code>가 정확히 매칭되지 않으면 import는 성공해도 드롭다운에 안 보이는 silent skip이 발생한다. 멀티 프린터 지원은 v2 카이젠 백로그.<br><br><strong>슬라이서는 왜 둘인가?</strong> 오르카에만 있는 <code>scarf_joint_speed</code> 계열로 갭필을 0 으로 만들 수 있어 실측 결함이 풀렸다. 대신 두 슬라이서는 키 이름·유효값·스코프가 갈라져 있어 한쪽 프로파일을 다른 쪽에 그대로 넣으면 <strong>오류도 경고도 없이 무시된다</strong> — 차이 정본은 <a href="bambu-fields-baseline.html" style="color:var(--accent2);text-decoration:underline">Fields Baseline §11</a>.
+    <strong>슬라이서를 먼저 정하는 이유:</strong> 두 슬라이서는 키 이름 · 받는 값 · 키가 속한 프리셋 종류가 갈라져 있다. 한쪽 프로파일을 다른 쪽에 그대로 넣으면 <strong>오류도 경고도 없이 무시된다.</strong> 차이의 기준 원본은 <code>references/bambu-fields-baseline.md</code> §11 이다 — <a class="inline" href="bambu-fields-baseline.html">Fields Baseline 페이지</a>.
   </div>
 </div>
 
-<!-- ── Section 2: 워크플로우 5단계 ── -->
-<div class="section">
-  <div class="section-label">워크플로우 5단계 (Phase 1~5 · 1.95 슬라이서 판별 포함)</div>
-  <p class="desc">입력(URL/파일/대화 컨텍스트) → 모델 컨텍스트 추출 → 소재 추천 → JSON 생성 → zip 번들 → 검증 + (선택) coupon test. 각 Phase는 references 4종 중 어느 파일을 로드해야 하는지 명시되어 있다.</p>
+<!-- ── 파일 구조 ── -->
+<div class="section" id="files">
+  <div class="section-label">작업 폴더 · references 9 종</div>
+  <p class="desc">bambu-kit 플러그인의 한 스킬이다. 설치하면 <code>~/.claude/plugins/cache/joo6077-plugins/bambu-kit/&lt;version&gt;/skills/bambu-print-profile/</code> 에 풀린다. 산출물은 항상 <code>/Users/jackson/Hub/60_3D Print/Settings/&lt;모델명&gt;/</code> 에 쓴다.</p>
 
   <div class="grid-2">
-
     <div class="card">
-      <div class="card-header">
-        <span class="num">1</span>
-        <div>
-          <div class="phase-tag">Phase 1</div>
-          <h3>모델 컨텍스트 추출</h3>
-          <div class="rule-number">Input Branching</div>
-        </div>
-      </div>
-      <div class="card-body">
-        <p>입력 형태에 따라 4갈래로 분기한다. WebFetch는 MakerWorld의 Cloudflare 차단으로 거의 100% 실패하므로 바로 <code>codex-rescue</code>에 위임하는 게 토큰 효율적이다.</p>
-        <h4>분기 표</h4>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:6px">
-          <li><span class="badge badge-info">URL</span> WebFetch 시도 안 함 → <code>codex-rescue</code> research mode 위임</li>
-          <li><span class="badge badge-info">.3mf</span> <code>unzip -p &lt;path&gt; Metadata/project_settings.config</code>로 embedded 설정 직독</li>
-          <li><span class="badge badge-info">.stl</span> bounding box + 부품 수만 추출, 회전체 식별은 사용자 설명 의존</li>
-          <li><span class="badge badge-info">대화 컨텍스트</span> 이미 정보가 있다면 그대로 사용</li>
-        </ul>
-        <p style="margin-top:10px">추출 후 사용자에게 <strong style="color:var(--text)">짧게 보고</strong>: 모델명, 부품 수, 회전체 여부, 권장 소재 후기(있다면). 정보 부족 시 즉시 사용자에게 채워달라고 요청.</p>
-      </div>
-      <a class="card-source" href="https://makerworld.com" target="_blank">↗ makerworld.com (모델 소스)</a>
+      <h3>폴더 구조</h3>
+<pre class="tree">bambu-kit/skills/bambu-print-profile/
+├── SKILL.md
+├── BACKLOG.md                 <span class="cm"># v2 카이젠 · 자동 수집 할 일</span>
+└── references/
+    ├── bambu-fields-baseline.md   <span class="cm"># JSON 필수 필드 · 키 이름 · §8 Surface 필드 19 종</span>
+    ├── materials.md               <span class="cm"># 필라멘트 40+ · 용도 매핑 · §4 수축률</span>
+    ├── seam-recipes.md            <span class="cm"># 형상 × 소재 scarf 표 · §0 회전체 트리</span>
+    ├── surface-recipes.md         <span class="cm"># Surface-first 정책 · §2.7 형상 클래스</span>
+    ├── failure-recipes.md         <span class="cm"># 실측 실패 L1 · L2 · L3 사후 레시피</span>
+    ├── comment-analysis.md        <span class="cm"># 댓글 4 분류 · 한/영/중 키워드</span>
+    ├── tolerance.md               <span class="cm"># 공차 보정 키 · 수축률 · fit 트리</span>
+    ├── option-keys/               <span class="cm"># 슬라이서 버전별 옵션 목록 (2026-09-15)</span>
+    └── kaizen-sources.md          <span class="cm"># 주 1 회 갱신용 자료 출처</span></pre>
+      <a class="card-source" href="kaizen-sources.html">↗ Kaizen Sources — 갱신 자료 출처</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="num">1.95</span>
-        <div>
-          <div class="phase-tag">Phase 1.95 · 2026-09-14 신설</div>
-          <h3>슬라이서 판별</h3>
-          <div class="rule-number">Slicer Gate</div>
-        </div>
-      </div>
+      <h3>references 가 맡는 일</h3>
       <div class="card-body">
-        <p>Bambu Studio 와 OrcaSlicer 중 <strong style="color:var(--text)">어느 쪽 키셋으로 생성할지</strong>를 여기서 확정한다. 두 슬라이서는 키 이름·유효값·스코프가 갈라져 있어, 한쪽 프로파일을 다른 쪽에 그대로 넣으면 오류도 경고도 없이 무시된다.</p>
-        <h4>판정 규칙 — 이 4 갈래 밖은 없다</h4>
-        <div class="table-wrap" style="margin-top:6px">
+        <div class="table-wrap prose" style="margin-top:4px">
           <table>
-            <thead><tr><th>상황</th><th>판정</th></tr></thead>
+            <thead><tr><th>파일</th><th>이 스킬에서 쓰는 자리</th></tr></thead>
             <tbody>
-              <tr><td>사용자가 명시했다</td><td>그대로 채택. <strong>추측으로 덮어쓰지 마라</strong></td></tr>
-              <tr><td>한쪽만 설치돼 있다</td><td>그쪽으로 확정하고 한 줄로 알린다</td></tr>
-              <tr><td>둘 다 설치 · 사용자 미지정</td><td><strong>묻는다.</strong> 임의로 고르지 마라</td></tr>
-              <tr><td>둘 다 미설치</td><td><code>[미검증]</code> 표시 + Bambu 키셋으로 생성</td></tr>
+              <tr><td><code>bambu-fields-baseline.md</code></td><td>Phase 3 키 이름 · §10 금지 키 · §11 슬라이서별 차이 · §11.1 옵션 목록</td></tr>
+              <tr><td><code>materials.md</code></td><td>Phase 2 후보 · §4 수축률(공차) · 흡습률</td></tr>
+              <tr><td><code>seam-recipes.md</code></td><td>회전체 결정 트리 §0 v4 · scarf 길이 상한 §2.2 · 소재별 §4</td></tr>
+              <tr><td><code>surface-recipes.md</code></td><td>표면 우선 속도 §3 · 형상 클래스 §2.7 · 벽 예산 §2.8 · 허공 위 §4 · 다림질 §5</td></tr>
+              <tr><td><code>failure-recipes.md</code></td><td>Phase 1.9 · 3.0 — 재현 6 축 §0 · 계단 §1 · 스트링잉 §2 · 박리 §3</td></tr>
+              <tr><td><code>comment-analysis.md</code></td><td>Phase 1.6 — 분류 §2 · 키워드 §3 · 수집 §4 · 권장 강도 §5 · 보관 §6</td></tr>
+              <tr><td><code>tolerance.md</code></td><td>Phase 1.7 · 3 — 지름 2 배 규칙 §1.1 · 무효화 §1.2 · 결정 트리 §3 · coupon §5</td></tr>
+              <tr><td><code>option-keys/</code></td><td>Phase 4.3 키 존재 · 종류 · enum 판정. 만드는 법은 <code>bambu-kit/scripts/option-key-probe/</code></td></tr>
             </tbody>
           </table>
         </div>
-        <p style="margin-top:10px">확정값은 <code>TARGET_SLICER</code> (<code>bambu</code> | <code>orca</code>) 로 두고 Phase 3 · 4.3 이 그대로 쓴다. process JSON 에는 <code>_target_slicer</code> 로 기록한다 (<code>_</code> 접두라 import 시 버려진다).</p>
-        <div class="callout" style="margin-top:10px">
-          <strong>Phase 4.3 게이트에는 환경변수로 넘긴다</strong> — <code>TARGET_SLICER=orca SKILL_DIR=&lt;이 스킬의 기준 폴더&gt; python3 - …</code> 형태다. 게이트 스크립트는 heredoc 안에서 돌기 때문에 셸 변수도 파이썬 전역도 보지 못한다. <code>TARGET_SLICER</code> 를 안 넘기면 키·부모값 검사가, <code>SKILL_DIR</code> 을 안 넘기면 옵션 목록을 못 찾아 키 존재·종류·enum 검사가 <code>[미검증]</code> 으로 떨어진다 — <strong>조용히 뱀부로 폴백하지 않는다.</strong>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes · Failure Recipes · Seam Recipes 페이지</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 변경 이력 ── -->
+<div class="section" id="history">
+  <div class="section-label">변경 이력 — 실측 결함이 절을 하나씩 늘렸다</div>
+  <p class="desc">이 스킬의 절 대부분은 실제 출력에서 드러난 결함 하나에 대응한다. 새 절이 왜 생겼는지 알아야 그 절을 건너뛰지 않는다.</p>
+
+  <div class="card">
+    <ol class="timeline">
+      <li><span class="when">v0.3.0 · 2026-05-19</span><strong>Phase 1.5 첨부 자료 분석 · notes.md 5 절 표준 · Phase 5 coupon 자동 생성.</strong> Stealth Press 1S 에서 웹 부품 목록만 보고 PDF 매뉴얼의 헷갈리는 인서트 5 곳, 희생 부품, 부싱 접착, 실제 인서트 수를 놓쳤다.</li>
+      <li><span class="when">v0.4.0 · 2026-05-23</span><strong>Phase 1.6 댓글 분석 · Designer Constraint Override Rule · 전체 크롤링 강화.</strong> 9mm Craft Knife Elite 에서 디자이너 댓글 "No supports needed, please do not modify the print profile" 을 무시하고 surface-first 를 자동으로 켰다.</li>
+      <li><span class="when">v0.4.1 · 2026-05-27</span><strong>Override 범위를 좁힘 · 4 옵션 재설계([C] 병행이 기본).</strong> "do not modify" 를 프로파일 전체 수정 금지로 읽어 다림질 · scarf 가 빠졌다.</li>
+      <li><span class="when">v0.4.2 · 2026-05-27</span><strong>Phase 1.7 공차 · fit 분석 · 공차 보정 키 정책 · fit coupon 자동.</strong> 페리스 휠(MakerWorld 1186414) 608ZZ 베어링이 중심부와 맞지 않았다.</li>
+      <li><span class="when">2026-07-27</span><strong>Phase 1.0 로컬 모델 견고 읽기 · Phase 1.8 Surface Intent Gate · Phase 4.3 Completion Evidence Gate.</strong> 공차는 경계 오프셋(지름은 2 배)으로 <code>tolerance.md</code> §1.1 에 고정했다. 공차 무효화 3 조건(color-paint · fuzzy-skin · raft)을 새로 찾았다.</li>
+      <li><span class="when">2026-08-13</span><strong>Phase 1.9 Failure-Mode Detector · Phase 3.0 Supportability Split · 금지 키 검사 4 종.</strong> 사용자 자신의 직전 출력 실패가 다음 프로파일로 들어오는 경로가 없었다. 사실 정정 3 건(<code>layer_height 0.08</code> 근거 · <code>enable_arc_fitting</code> 성격 · <code>resolution</code> 적용 축).</li>
+      <li><span class="when">2026-09-05 ~ 09-23</span><strong>환경 확인 · vase 판정 · 유량비 · 형상 클래스 · 슬라이서 축 · 옵션 목록 · 벽 예산 · 값 섞임 방지 · 허공 위 속도.</strong> 래티스 통 · H2 AMS Flipper 실측이 이끌었다 (아래 「검증된 실측 사례」).</li>
+      <li><span class="when">2026-09-25</span><strong>MakerWorld JSON 주소 먼저 · 조용히 통과하던 검사 다섯 자리.</strong> 형상 측정 자기 검사, 옵션 목록이 비었거나 enum 줄이 빠졌을 때 <code>[미검증]</code>, 시험 파일 전수 대조, 두 스크립트의 칸별 처리, 호를 세는 G-code 길이 재기.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 워크플로우 지도 ── -->
+<div class="section" id="map">
+  <div class="section-label">워크플로우 지도 (Phase 1~5 · 진입 조건 + Coupon)</div>
+  <p class="desc">Phase 1 대 번호가 잘게 나뉜 것은 JSON 을 만들기 <strong>전에</strong> 확정해야 할 것이 많기 때문이다. 왼쪽 테두리가 굵은 칸은 통과하지 못하면 다음 Phase 로 넘어가지 않는 진입 조건이 붙은 단계다. 점선 칸은 조건이 맞을 때만 돈다.</p>
+
+  <div class="flow">
+    <div class="step"><span class="k">PHASE 1</span><span class="t">모델 컨텍스트 추출</span><span class="g">입력 4 갈래 · MakerWorld 는 JSON 주소 먼저</span></div>
+    <div class="step"><span class="k">PHASE 1.0</span><span class="t">로컬 모델 지오메트리</span><span class="g">XML 해석기 · 형상 클래스 · 벽 예산</span></div>
+    <div class="step opt"><span class="k">PHASE 1.5</span><span class="t">첨부 자료 분석</span><span class="g">PDF · 영상 · GitHub 가 있을 때만</span></div>
+    <div class="step gate"><span class="k">PHASE 1.6</span><span class="t">댓글 분석</span><span class="g">Designer Constraints Gate → 1.7</span></div>
+    <div class="step gate"><span class="k">PHASE 1.7</span><span class="t">공차 · fit 분석</span><span class="g">Tolerance Gate → 2</span></div>
+    <div class="step gate"><span class="k">PHASE 1.8</span><span class="t">표면 의도 확인</span><span class="g">Surface Intent Gate → 2</span></div>
+    <div class="step gate"><span class="k">PHASE 1.9</span><span class="t">실패 모드 감지</span><span class="g">Failure-Mode Gate → 2</span></div>
+    <div class="step gate"><span class="k">PHASE 1.95</span><span class="t">슬라이서 판별</span><span class="g">Slicer Gate → 2</span></div>
+    <div class="step"><span class="k">PHASE 2</span><span class="t">소재 추천</span><span class="g">후보 2~3 개 + 사용자 픽</span></div>
+    <div class="step"><span class="k">PHASE 3</span><span class="t">프로파일 JSON 생성</span><span class="g">3.0 지원 가능 · 불가 가르기부터</span></div>
+    <div class="step gate"><span class="k">PHASE 4</span><span class="t">zip · notes.md · 검사 · 확인</span><span class="g">4.3 Completion Evidence Gate</span></div>
+    <div class="step opt"><span class="k">PHASE 5</span><span class="t">Coupon Test</span><span class="g">조건 7 가지 중 하나면 자동</span></div>
+  </div>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>진입 조건</th><th>들어가는 곳</th><th>통과 조건</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Designer Constraints Gate</strong></td><td>Phase 1.7</td><td>1.6.1 ~ 1.6.5 완료 + 사용자 확인. 댓글 0 개면 빈 <code>designer_constraints</code> 로 확정</td></tr>
+        <tr><td><strong>Tolerance Gate</strong></td><td>Phase 2</td><td>1.7.1 ~ 1.7.3 완료, 또는 fit-critical 0 건 확정</td></tr>
+        <tr><td><strong>Surface Intent Gate</strong></td><td>Phase 2</td><td>1.8.1 승계 또는 1.8.2 판정 완료. 표면 의도가 정해지지 않은 채 Phase 3 에 들어가지 않는다</td></tr>
+        <tr><td><strong>Failure-Mode Gate</strong></td><td>Phase 2</td><td>1.9.1 판정 완료(+ 해당하면 1.9.2 답을 받음). 감지 결과가 정해지지 않은 채 Phase 3 에 들어가지 않는다</td></tr>
+        <tr><td><strong>Slicer Gate</strong></td><td>Phase 2</td><td><code>TARGET_SLICER</code> 가 확정되거나 <code>[미검증]</code> 이 명시적으로 기록됨</td></tr>
+        <tr><td><strong>Completion Evidence Gate</strong> (4.3)</td><td>zip 번들 · 완료 보고</td><td><code>RESULT: PASS</code> 이면서 exit 0. 출력 원문을 응답에 붙인다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Phase 1 + 1.0 ── -->
+<div class="section" id="phase1">
+  <div class="section-label">Phase 1 — 모델 컨텍스트 추출 (전체 크롤링)</div>
+  <p class="desc">입력 형태에 따라 네 갈래로 나뉜다. 부품별 치수를 "Bambu Studio 에서 확인하세요" 로 사용자에게 넘기지 않는다 — 파일을 읽으면 얻을 수 있다. 추출한 뒤에는 모델명 · 부품 수 · 회전체 여부 · 권장 소재 후기 · 첨부 자료 개수를 짧게 보고한다.</p>
+
+  <div class="grid-4" style="margin-bottom:24px">
+    <div class="card">
+      <span class="badge badge-info" style="align-self:flex-start">MakerWorld URL</span>
+      <div class="card-body" style="margin-top:10px">JSON 주소를 셸 <code>curl</code> 로 먼저 부른다. 설명 · 제작자 · 소재별 프로파일 · 댓글 전체를 받는다. 브라우저 도구는 JSON 에 없는 사진을 볼 때만 쓴다.</div>
+      <a class="card-source" href="#makerworld">↗ MakerWorld 읽는 순서</a>
+    </div>
+    <div class="card">
+      <span class="badge badge-info" style="align-self:flex-start">.3mf</span>
+      <div class="card-body" style="margin-top:10px">안에 든 설정(<code>Metadata/project_settings.config</code>, <strong>JSON</strong>)과 지오메트리를 Phase 1.0 절차로 뽑는다.</div>
+      <a class="card-source" href="#phase10">↗ Phase 1.0</a>
+    </div>
+    <div class="card">
+      <span class="badge badge-info" style="align-self:flex-start">.stl</span>
+      <div class="card-body" style="margin-top:10px">Phase 1.0 bounding box 읽기를 쓴다. <code>du -h</code> 같은 파일 크기는 형상 정보가 아니다. 회전체는 bbox 가로세로 비 + 사용자 설명으로 판정한다.</div>
+      <a class="card-source" href="#phase10">↗ Phase 1.0</a>
+    </div>
+    <div class="card">
+      <span class="badge badge-info" style="align-self:flex-start">채팅</span>
+      <div class="card-body" style="margin-top:10px">이미 대화에 정보가 있으면 그대로 쓴다.</div>
+      <a class="card-source" href="#map">↗ 워크플로우 지도</a>
+    </div>
+  </div>
+
+  <div class="sub" id="phase10"><span class="tag">Phase 1.0</span> 로컬 모델 지오메트리 추출 — 견고 읽기 (2026-07-27)</div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">하지 마라</div>
+      <ul>
+        <li><code>sed -n '/&lt;build&gt;/,/&lt;\/build&gt;/p'</code> 같은 태그 범위 셸 매칭 — 3MF 태그는 거의 전부 속성을 가져 <strong>0 줄</strong>이 나온다(실측 재현). <code>&lt;build&gt;</code> 는 3MF Core 규격상 <code>@anyAttribute</code> 를 허용하므로 예외가 아니라 정상 형태다</li>
+        <li><code>3D/3dmodel.model</code> 만 보고 "메시 없음" 결론 — 실측 root 파일은 1.9KB · 꼭짓점 0 개, 실제 메시는 <code>3D/Objects/object_1.model</code>(514 개)에 있었다</li>
+        <li>빈 출력을 통과로 읽기 — 0 줄 · 0 꼭짓점 · 빈 dict 는 형상 정보가 없다는 신호다</li>
+        <li>추측한 치수로 공차 계산 — Phase 1.7 이 통째로 무의미해진다</li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">이렇게 한다</div>
+      <ul>
+        <li>정식 XML 해석기 <code>xml.etree.ElementTree</code> + 네임스페이스 두 개(<code>core</code> · <code>production</code>)</li>
+        <li><code>3D/</code> 아래 <code>*.model</code> 을 전부 훑는다 — Bambu Studio 는 production extension 으로 오브젝트를 나눈다</li>
+        <li><code>assert</code> 로 빈 결과를 non-zero exit 로 멈춘다 (<code>skill-design-guide.md</code> §3.7)</li>
+        <li>못 고치면 사용자에게 치수를 묻는다</li>
+      </ul>
+    </div>
+  </div>
+
+<pre>python3 - "&lt;model.3mf&gt;" &lt;&lt;'PY'
+import sys, zipfile, xml.etree.ElementTree as ET
+NS={'c':'http://schemas.microsoft.com/3dmanufacturing/core/2015/02',
+    'p':'http://schemas.microsoft.com/3dmanufacturing/production/2015/06'}
+z=zipfile.ZipFile(sys.argv[1]); names=z.namelist()
+root=next((n for n in names if n.lower()=='3d/3dmodel.model'),None)
+assert root, f"FAIL: 3dmodel.model 없음. 실제 목록={names[:20]}"
+items=ET.fromstring(z.read(root)).findall('.//c:build/c:item',NS)
+print("build items:",len(items),"objectids:",[i.get('objectid') for i in items])
+disabled=[i.get('objectid') for i in items if i.get('printable')=='0']
+if disabled:
+    labels={}
+    if 'Metadata/model_settings.config' in names:
+        for obj in ET.fromstring(z.read('Metadata/model_settings.config')).iter('object'):
+            labels.update({obj.get('id'):m.get('value') for m in obj.findall('metadata') if m.get('key')=='name'})
+    print(f'WARN printable="0" 부품 {len(disabled)}개 — 슬라이서가 출력하지 않는다:',[labels.get(i,f'object {i}') for i in disabled])
+n=0
+for part in sorted(p for p in names if p.lower().startswith('3d/') and p.lower().endswith('.model')):
+    for obj in ET.fromstring(z.read(part)).findall('.//c:resources/c:object',NS):
+        vs=obj.findall('.//c:mesh/c:vertices/c:vertex',NS)
+        if not vs: continue
+        xs=[float(v.get('x')) for v in vs]; ys=[float(v.get('y')) for v in vs]; zs=[float(v.get('z')) for v in vs]
+        n+=1
+        print(f"  {part} id={obj.get('id')}: {len(vs)} verts "
+              f"bbox={max(xs)-min(xs):.2f} x {max(ys)-min(ys):.2f} x {max(zs)-min(zs):.2f} mm")
+assert n&gt;0, "FAIL: 메시 0개 파싱 — 빈 결과는 PASS 아님"
+print("meshes parsed:",n)
+PY</pre>
+
+  <div class="callout">
+    <strong><code>printable="0"</code> 부품은 슬라이서가 조용히 뺀다.</strong> 위 명령이 <code>WARN printable="0"</code> 줄을 내면 조립에 필요한 개수와 대조해 사용자에게 먼저 보고한다. 켤지는 사용자가 정한다 — 제작자가 끈 이유는 파일에 남지 않는다. 실측(2026-09-19 H2 AMS Flipper): 경첩 2 개에 축 부품이 2 개 필요한데 두 번째가 꺼져 있어 10 개 중 9 개만 출력됐다.
+  </div>
+
+  <h3 style="margin-top:28px">형상 클래스 측정 — surface-first 이면 필수 (2026-09-08)</h3>
+  <p class="desc">surface-first 의 속도 정책은 형상 클래스(<code>planar</code> | <code>thin</code>)를 입력으로 받는다. 키워드로 추측하지 않고 메시를 빌드 좌표에서 세 높이로 잘라 <strong>루프 둘레 분포</strong>로 정한다. 구멍 · 빈 칸이 있는 부품은 형상 클래스와 무관하게 <strong>벽 예산</strong>도 잰다(2026-09-19 · <code>surface-recipes.md</code> §2.8).</p>
+
+  <div class="stats">
+    <div class="stat"><div class="v">30 mm</div><div class="l">가는 루프 문턱 — <code>seam-recipes.md</code> §2.2 와 같은 값</div></div>
+    <div class="stat"><div class="v">0.5</div><div class="l">세 높이 중앙값이 이 이상이면 <code>thin</code></div></div>
+    <div class="stat"><div class="v">25 · 50 · 75 %</div><div class="l">절단 높이 (벽 예산은 바닥 0.1 mm 를 더한다)</div></div>
+    <div class="stat"><div class="v">10 %</div><div class="l">벽 예산 미달 비율 문턱 — <code>classic</code> 이면 Phase 4.3 이 FAIL</div></div>
+  </div>
+
+<pre><span class="cm"># bambu-kit geometry-class probe — 발췌. 전체 코드는 SKILL.md Phase 1.0</span>
+<span class="cm"># usage: python3 - "&lt;model.3mf&gt;" ["&lt;오브젝트명 부분일치&gt;" ...]   (인자 없으면 build 의 모든 오브젝트)</span>
+<span class="cm">#        WALL_LOOPS=&lt;벽 수&gt; [OUTER_LINE_WIDTH=0.42] [INNER_LINE_WIDTH=0.45] 를 주면 벽 예산 부족 비율도 잰다</span>
+THIN_LOOP_MM = 30.0
+THIN_SHARE = 0.5
+HEIGHT_FRACTIONS = (0.25, 0.5, 0.75)
+FIRST_LAYER_PROBE_MM = 0.1   <span class="cm"># 첫 출력에서 벽 예산 부족이 가장 크게 드러난 높이 (2026-09-19)</span>
+wall_budget = outer_width * 2 + inner_width * 2 * (wall_loops - 1)   <span class="cm"># 선폭 기본값은 0.12mm High Quality @BBL H2S 실효값</span>
+"_geometry_class": "thin" if median_share &gt;= THIN_SHARE else "planar"</pre>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>출력을 process JSON 에 옮기는 키</h3>
+      <div class="card-body">
+        <div class="table-wrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th>측정 출력</th><th>JSON 키</th></tr></thead>
+            <tbody>
+              <tr><td><code>_geometry_class</code></td><td><code>_geometry_class</code></td></tr>
+              <tr><td><code>thin_share_median</code></td><td><code>_thin_loop_share</code></td></tr>
+              <tr><td>마지막 줄 <code>_wall_budget_short_share</code></td><td><code>_wall_budget_short_share</code></td></tr>
+              <tr><td>마지막 줄 <code>_wall_budget_mm</code></td><td><code>_wall_budget_mm</code></td></tr>
+            </tbody>
+          </table>
         </div>
-        <p style="margin-top:10px"><strong style="color:var(--text)">추측 금지.</strong> 파일 확장자·모델 출처·과거 대화로 슬라이서를 유추하지 마라.</p>
+        <p style="margin-top:10px"><code>_</code> 로 시작하는 키는 import 때 버려지는 이 킷 전용 기록 키다. Phase 4.3 이 읽고, <code>outer_wall_speed</code> 를 적은 JSON 에 <code>_geometry_class</code> 가 없으면 FAIL 한다. 선폭은 부모 프리셋 실효값을 넣는다.</p>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes §2.7 형상 클래스 · §2.8 벽 예산</a>
+    </div>
+
+    <div class="card">
+      <h3>실측으로 확인한 값</h3>
+      <div class="card-body">
+        <ul class="plain">
+          <li>2026-09-07 래티스 통(같은 3mf): <code>Side Container LHS V1</code> 루프 52 / 25 / 20 개가 전부 30 mm 미만 → <code>thin</code>. <code>Funnel V1</code> 루프 2 / 2 / 2 → <code>planar</code>. 한 플레이트 = 한 process 이므로 클래스가 갈리면 process 를 나눈다</li>
+          <li>2026-09-19 H2 AMS Flipper(<code>WALL_LOOPS=4</code>): 10 개 전부 <code>planar</code> 인데 바닥 층 부족 비율이 뒤쪽 브래킷 71.9 % · 80° 브래킷 72.1 % · AMS2 브래킷 0 %</li>
+          <li>비율은 둘레 <strong>길이</strong>로 센다 — 점 수로 세면 잘게 쪼개진 곡선이 부풀어 같은 부품이 58.8 % 로 나온다</li>
+          <li>STL 입력은 이 절단을 아직 지원하지 않는다 — bbox 만으로 <code>thin</code> 을 단정하지 말고 단면 성격을 묻는다</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#cases">↗ 검증된 실측 사례 표</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">측정 전에 알려진 답으로 한 번 돌린다 <span class="badge badge-info">2026-09-25 신규</span></h3>
+  <p class="desc">측정을 처음 쓰는 환경이거나 측정 코드를 고쳤으면, 손으로 답을 셀 수 있는 가짜 3mf 셋으로 먼저 돌린다. <code>SELFTEST PASS</code> · <code>exit=0</code> 이 나오기 전에는 실제 모델을 재지 않는다 — 다르면 측정부터 고친다 (<code>skill-design-guide.md</code> §3.7 알려진 답 대조). 가짜 3mf 는 3MF Core 규격의 최소 구조(<code>&lt;resources&gt;</code> 의 mesh 하나와 <code>&lt;build&gt;</code> 의 item 하나, 단위 mm)로 실행할 때 만들고 끝나면 지운다 — 이진 시험 파일을 레포에 두지 않는다.</p>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>가짜 입력</th><th>기대</th><th>고정하는 것</th></tr></thead>
+      <tbody>
+        <tr><td>10 mm 정육면체</td><td>가장 긴 루프 <code>40.0</code> mm · <code>planar</code></td><td>루프 하나의 둘레</td></tr>
+        <tr><td>2 mm 사각 기둥 (높이 10 mm)</td><td>가장 긴 루프 <code>8.0</code> mm · <code>thin</code></td><td>30 mm 문턱 아래 분류</td></tr>
+        <tr><td>벽 1 mm 사각 관 (바깥 10 mm, <code>WALL_LOOPS=2</code>)</td><td>예산 <code>1.74</code> mm · 부족 비율 <code>1.0</code> · 최소 살 <code>1.0</code> mm</td><td>두 루프 사이 거리</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+<pre>SKILL_DIR=&lt;이 스킬의 기준 폴더&gt;         <span class="cm"># 비워 두면 S 가 /SKILL.md 가 되어 빈 코드를 돈다</span>
+S="$SKILL_DIR/SKILL.md"
+if [ ! -s "$S" ]; then echo "STOP $S 가 없다 — SKILL_DIR 부터 채운다"; exit 1; fi
+T=$(mktemp -d -t probe)
+awk 'index($(0), "# bambu-kit geometry-class probe") == 1 {f=1} f &amp;&amp; $(0) == "PY" {exit} f' "$S" &gt; "$T/probe.py"
+wc -l &lt; "$T/probe.py"                   <span class="cm"># 0 이면 측정 코드를 못 뽑았다 — 여기서 멈춘다</span>
+<span class="cm"># … 가짜 3mf 셋(cube10 · pillar2 · tube1)을 만들어 probe.py 로 재고 기대값과 대조한다</span>
+<span class="cm"># 셸에 남은 WALL_LOOPS · 선폭 환경변수는 빼고 돌린다 — 답이 바뀌지 않게</span>
+echo "exit=$?"; rm -rf "$T"</pre>
+  <p class="code-note">3MF 최소 구조의 근거: <a class="inline" href="https://github.com/3MFConsortium/spec_core/blob/1.4.0/3MF%20Core%20Specification.md">3MF Core Specification 1.4.0</a></p>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>안에 든 프로파일은 JSON 으로 읽는다</h3>
+<pre>unzip -p "&lt;model.3mf&gt;" Metadata/project_settings.config \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ['layer_height','wall_loops','sparse_infill_density','enable_support','ironing_type','seam_position','xy_hole_compensation','xy_contour_compensation','elefant_foot_compensation','raft_layers']})"</pre>
+      <div class="card-body">grep 으로 값을 뽑지 않는다.</div>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline — 키 이름</a>
+    </div>
+    <div class="card">
+      <h3>STL — ASCII · 바이너리 양쪽</h3>
+      <div class="card-body">
+        <p>앞 5 바이트가 <code>solid</code> 이고 앞 2KB 에 <code>facet</code> 이 있으면 ASCII 로, 아니면 바이너리(삼각형 수 선언 → 50 바이트씩)로 읽는다. 선언한 삼각형 수보다 파일이 짧으면 <code>FAIL: STL 잘림</code>, 꼭짓점 0 개면 <code>FAIL</code> 로 멈춘다. 출력은 <code>tris=… bbox=… x … x … mm</code> 한 줄이다.</p>
+      </div>
+      <a class="card-source" href="#phase17">↗ 치수는 Phase 1.7 공차 계산에 그대로 쓴다</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── MakerWorld 읽는 순서 ── -->
+<div class="section" id="makerworld">
+  <div class="section-label">MakerWorld 읽는 순서 (2026-09-25 갱신 — JSON 주소 먼저)</div>
+  <p class="desc">화면 없이 도는 브라우저로 모델 페이지를 열면 제목이 <code>Just a moment...</code> 에 HTTP 403 이었고, 기다렸다 다시 열어도 같았다(2026-09-22 실측). 같은 모델의 JSON 주소는 셸 <code>curl</code> 로 200 을 받았다. 그래서 JSON 주소를 먼저 부르고, 안 되면 다음 단계로 <strong>바로</strong> 넘어간다.</p>
+
+  <ol class="ladder">
+    <li><div><strong>JSON 주소</strong> — 아래 표의 셋을 셸 <code>curl</code> 로 부르고 상태 코드를 먼저 본다. 200 이 아니면 다시 부르지 말고 2 번으로 간다.</div></li>
+    <li><div><strong>브라우저 도구</strong> — 이 세션의 도구 목록에 페이지를 여는 도구가 있을 때만 쓴다. 서버 이름은 환경마다 다르므로 이름을 박지 말고 목록에서 찾는다. JSON 에 없는 사진 · 렌더된 첨부만 여기서 본다. 제목이 <code>Just a moment...</code> 이거나 HTTP 403 이면 기다렸다 다시 열지 말고 3 번으로 간다.</div></li>
+    <li><div><strong>Codex 위임</strong> — 브라우저로 열라고 쓰지 말고, 1 번 주소 셋을 셸 <code>curl</code> 로 부르라고 주소를 그대로 적어 넘긴다.</div></li>
+    <li><div><strong>사용자 입력</strong> — 위가 모두 실패하면 "이 모델 어떤 부품 구성이고 어떤 소재 권장돼?" 로 핵심 정보만 받는다. 3mf 를 자동으로 내려받는다고 가정하지 않는다 — 받기가 실패하거나 로그인을 요구하면 다시 시도하지 말고 사용자가 내려받은 <code>.3mf</code> 를 달라고 한다.</div></li>
+  </ol>
+
+  <div class="callout">
+    <strong>이 킷의 운영 규칙이다:</strong> 403 · <code>Just a moment...</code> 에서 기다리지 않는 것은 MakerWorld 공식 지침이 아니라, 다시 열어도 같았던 실측에 기댄 규칙이다. 어느 단계로 받았는지 notes 에 적는다.
+  </div>
+
+  <h3 style="margin-top:24px">JSON 주소 <span class="badge badge-warn">[관측 2026-09-24]</span></h3>
+  <p class="desc">공식 문서가 없는 주소라 경로와 필드 이름은 관측값이다 — 응답 모양이 바뀌면 이 절부터 고친다. 모델 번호는 URL <code>/models/&lt;번호&gt;-…</code> 의 숫자다.</p>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>주소</th><th>받는 것</th></tr></thead>
+      <tbody>
+        <tr><td><code>https://makerworld.com/api/v1/design-service/design/&lt;번호&gt;</code></td><td><code>title</code> · 설명 HTML <code>summary</code> · <code>designCreator</code> · 소재별 프로파일 <code>instances</code> · <code>commentCount</code> · <code>license</code></td></tr>
+        <tr><td><code>https://api.bambulab.com/v1/design-service/design/&lt;번호&gt;/instances</code></td><td>프로파일 목록 <code>hits</code> 와 <code>total</code></td></tr>
+        <tr><td><code>https://api.bambulab.com/v1/comment-service/commentandrating?designId=&lt;번호&gt;&amp;offset=&lt;N&gt;&amp;limit=100</code></td><td>댓글 · 평점 <code>hits</code> 와 <code>total</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="desc" style="margin-top:20px">댓글은 <code>offset</code> 을 받은 <code>hits</code> 수만큼 늘려 가며 받고, <code>hits</code> 가 비거나 받은 수가 <code>total</code> 에 닿으면 멈춘다(관측: <code>total</code> 159 → offset 0 에서 100 개, 100 에서 59 개). 시작할 때 앞 실행이 남긴 댓글 페이지와 <code>design.json</code> · <code>instances.json</code> 을 지운다 — 남으면 받기가 실패해도 집계가 옛 모델 제목 · 댓글 수 · 댓글 페이지를 읽는다.</p>
+
+<pre>ID=&lt;모델 번호&gt;; OUT=&lt;output_dir&gt;/makerworld; mkdir -p "$OUT"
+find "$OUT" -maxdepth 1 -name 'comments-*.json' -delete
+rm -f "$OUT/design.json" "$OUT/instances.json"
+curl -sS -o "$OUT/design.json" -w 'design %{http_code}\n' "https://makerworld.com/api/v1/design-service/design/$ID"
+curl -sS -o "$OUT/instances.json" -w 'instances %{http_code}\n' "https://api.bambulab.com/v1/design-service/design/$ID/instances"
+OFF=0
+while :; do
+  CODE=$(curl -sS -o "$OUT/comments-$OFF.json" -w '%{http_code}' "https://api.bambulab.com/v1/comment-service/commentandrating?designId=$ID&amp;offset=$OFF&amp;limit=100")
+  echo "comments offset=$OFF $CODE"
+  [ "$CODE" = 200 ] || { rm -f "$OUT/comments-$OFF.json"; break; }
+  read -r GOT TOTAL &lt; &lt;(python3 -c 'import json, sys; d = json.load(open(sys.argv[1])); print(len(d.get("hits") or []), d.get("total") or 0)' "$OUT/comments-$OFF.json")
+  [ "$GOT" -gt 0 ] || break
+  OFF=$((OFF + GOT))
+  [ "$OFF" -lt "$TOTAL" ] || break
+done
+<span class="cm"># 이어서 python3 로 design · comments 를 세어 보고한다 (SKILL.md 원문)</span>
+<span class="cm">#  design '&lt;title&gt;' · commentCount N · instances N</span>
+<span class="cm">#  comments total N · 받은 hits N (페이지 N) · comment N · ratingItem N</span>
+<span class="cm">#  FAIL — 댓글을 하나도 못 받았는데 commentCount 가 0 이 아니다</span>
+<span class="cm">#  WARN — 받은 hits 가 total 과 다르다 → offset 을 끝까지 넘겼는지 본다</span>
+<span class="cm">#  NOTE — commentCount 와 total 이 다르다 → 둘 다 notes 에 적는다</span></pre>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <div class="card-header"><span class="num">A</span><div><h3>전체 크롤링 원칙 (v0.4.0 강화)</h3><div class="rule-number">Single Pass</div></div></div>
+      <div class="card-body">
+        <p>페이지 윗부분(제목 · 제작자 · Description)만 보고 끝내지 않는다. 전체 페이지 + 전체 댓글 + 댓글 안 첨부 이미지 · 링크 · 언급 자료를 한 번에 훑는다.</p>
+        <ul class="plain">
+          <li><strong>댓글 수 두 값</strong> — 모델 주소의 <code>commentCount</code> 와 댓글 주소의 <code>total</code> 을 둘 다 적는다. 달라도 멈추지 않는다 — 무엇을 세는지 공식 근거가 없다(관측 <code>commentCount</code> 190 · <code>total</code> 159)</li>
+          <li><strong><code>hits</code> 원소마다 <code>comment</code> 와 <code>ratingItem</code> 을 각각 읽는다</strong> — 첫 페이지 100 개 중 <code>comment</code> 44 · <code>ratingItem</code> 56, 둘째 페이지 59 개는 전부 <code>ratingItem</code> 이었다. 답글 배열도 따로 읽고 이름은 comments-raw.md 에 적는다</li>
+          <li><strong>JSON 을 못 받아 브라우저로 읽을 때만</strong> 스냅샷의 <code>heading "Comment &amp; Rating (N)"</code> 에서 N 을 읽는다. 20 개 이하는 스냅샷 하나, 20~50 개는 <code>window.scrollBy</code> 3~5 회 뒤 다시, 50+ 는 정렬(<code>Top</code> · <code>Most Likes</code> · <code>Newest First</code>)을 바꿔 뽑는다. designer_reply 는 100 %, 나머지는 평점 분포 + 텍스트 30+ 개</li>
+          <li><strong>다국어</strong> — 중 · 영 · 한이 섞인다. 번역된 본문과 "Show original" 원문을 둘 다 잡는다</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://makerworld.com">↗ makerworld.com · comment-analysis.md §3 · §4.1</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="num">B</span><div><h3>첨부 자료 목록 (MakerWorld URL 한정 · 필수)</h3><div class="rule-number">Attached Resources Inventory</div></div></div>
+      <div class="card-body">
+        <p>받은 JSON 의 문자열(설명 HTML · 댓글 본문)을 한 줄씩 풀어 <code>strings.txt</code> 로 만든 뒤 외부 링크를 센다. JSON 이스케이프를 풀어야 링크 grep 이 맞게 잡는다.</p>
+<pre>SRC="$OUT/strings.txt"    <span class="cm"># 브라우저로 읽었으면 그 스냅샷 파일</span>
+wc -l &lt; "$SRC"            <span class="cm"># 0 이거나 없으면 아래 0 건은 첨부 0 개가 아니다</span>
+grep -oE 'https?://[^"]+\.pdf' "$SRC"
+grep -oE 'https?://youtu\.be/[^"]+|youtube\.com/watch[^"]+' "$SRC"
+grep -oE 'https?://github\.com/[^/"]+/[^/"]+' "$SRC"
+grep -oE 'https?://(printables|thangs|cults3d)\.com/[^"]+' "$SRC"</pre>
+        <p><strong>대상 파일이 비었거나 없으면 링크 0 건은 「첨부 0 개」 가 아니다</strong> — 줄 수부터 찍고, 0 이면 읽기 단계로 돌아간다. 결과는 <code>assembly_manual_pdf</code> · <code>video_build_guide</code> · <code>github_repo</code> · <code>external_bom_or_alt</code> 넷으로 나눠 개수를 보고한다.</p>
+      </div>
+      <a class="card-source" href="#phase15">↗ 찾은 첨부는 Phase 1.5 에서 연다</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 1.5 ── -->
+<div class="section" id="phase15">
+  <div class="section-label">Phase 1.5 — Attached Resources Analysis (v0.3.0)</div>
+  <p class="desc"><strong>조건부</strong> — Phase 1 에서 첨부 자료를 찾았을 때만 돈다. 없으면 건너뛰고 Phase 2 로 간다. Stealth Press 1S 에서 웹 부품 목록만 보고 PDF 매뉴얼 쪽 정보를 전부 놓친 것이 이 단계의 시작이다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="phase-tag">1.5.1 · 있으면 필수</div>
+      <h3>PDF 조립 매뉴얼</h3>
+      <div class="card-body">
+        <p><code>curl -L</code> 로 출력 폴더에 받고 <code>mdls -name kMDItemNumberOfPages</code> 로 쪽수를 본다. 10 쪽 이상이면 <code>pages: "1-10"</code> 처럼 나눠 읽는다.</p>
+        <ul class="plain">
+          <li>부품 목록(BOM) — 웹 목록과 수량 · 규격이 다르면 <strong>PDF 우선</strong></li>
+          <li>조립 단계 1~N 순서</li>
+          <li>숨은 부품 위치 — "Insert on other side!", "Do not forget", "Fit from the back!"</li>
+          <li>안전 주의 — "Do not over-tighten", "fix A before B" 같은 순서 의존</li>
+          <li>인서트 · 볼트 실제 개수</li>
+          <li>별도 소모품 — 접착제 · RTV 실리콘 · shim · 필라멘트 조각</li>
+          <li>도구 · 부품 분기 — 인두 종류별 mount STL</li>
+          <li>인서트 압입 온도 명시 여부</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#phase4">↗ 결과는 notes.md §2 · §3 으로</a>
+    </div>
+
+    <div class="card">
+      <div class="phase-tag">1.5.2 · 있으면 시도</div>
+      <h3>YouTube 영상</h3>
+      <div class="card-body">
+        <p><code>codex-rescue</code> 에이전트에 자막 추출을 맡긴다(<code>MODE=research</code>, 쓰기 없음). 받는 것: 손기술 팁 5~10 개, 자주 보고되는 실수, 영상 시각 + 설명.</p>
+        <p>실패하면 멈추지 않고 넘어간다 — notes.md §5 에 영상 URL 만 적는다. 토큰을 더 쓰지 않는다.</p>
+      </div>
+      <a class="card-source" href="#phase4">↗ notes.md §5 License + Credits</a>
+    </div>
+
+    <div class="card">
+      <div class="phase-tag">1.5.3 · 있으면</div>
+      <h3>GitHub README</h3>
+      <div class="card-body">
+        <p><code>raw.githubusercontent.com/&lt;owner&gt;/&lt;repo&gt;/main/README.md</code> 로 받는다(없으면 master 브랜치).</p>
+        <ul class="plain">
+          <li>CHANGELOG · Releases — 리비전 차이 (R1 vs R1S)</li>
+          <li>추가 STL 위치</li>
+          <li>라이선스 (LICENSE 파일도)</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#phase4">↗ notes.md §1.5 · §5</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px">1.5.4 Cross-check 보고 — 차이가 있으면 반드시 알린다</h3>
+<pre>⚠️ Cross-check 결과
+- 웹 BOM: 인서트 30개 / PDF 매뉴얼 카운트: 34개 → 35-40개 권장
+- 웹 BOM: M3x25 / R1S 매뉴얼: M3x20 (사이즈 다름)
+- PDF에만 있음: bushing 접착제, 0.5-1mm shim, 인두 타입별 mount STL 선택</pre>
+</div>
+
+<!-- ── Phase 1.6 ── -->
+<div class="section" id="phase16">
+  <div class="section-label">Phase 1.6 — Comment Analysis (v0.4.0)</div>
+  <p class="desc"><strong>필수 — MakerWorld URL 한정.</strong> 댓글이 0 개여도 "댓글 없음" 을 명시해 보고한다. 댓글을 넷으로 나누고 디자이너 명시 권장을 뽑는다. 이 단계가 끝나지 않으면 Phase 2 로 가지 않는다. 상세는 <code>references/comment-analysis.md</code>.</p>
+
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="card"><span class="badge badge-info" style="align-self:flex-start">designer_reply</span><div class="card-body" style="margin-top:8px">디자이너(@creator)가 쓴 댓글 · 답변. 가장 먼저 뽑는다.</div><a class="card-source" href="#cases">↗ 9mm Craft Knife 사례</a></div>
+    <div class="card"><span class="badge badge-ok" style="align-self:flex-start">user_success</span><div class="card-body" style="margin-top:8px">출력 성공 보고 (사진 + 4~5 점).</div><a class="card-source" href="#phase16">↗ comment-analysis.md §2</a></div>
+    <div class="card"><span class="badge badge-bad" style="align-self:flex-start">user_failure</span><div class="card-body" style="margin-top:8px">실패 · 문제 보고 (warping · stringing · 기구 · 1~3 점). Phase 1.9 도 읽는다.</div><a class="card-source" href="#phase19">↗ Phase 1.9</a></div>
+    <div class="card"><span class="badge badge-warn" style="align-self:flex-start">user_variant</span><div class="card-body" style="margin-top:8px">크기 · 소재 · 구조 변형 보고.</div><a class="card-source" href="#phase16">↗ comment-analysis.md §2</a></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>1.6.2 디자이너 권장 뽑기 — 한 · 영 · 중 키워드</h3>
+<pre><span class="cm"># 영어</span>
+grep -iE "no supports?|do not modify|must|recommend|required|never" &lt;comments&gt;
+<span class="cm"># 한국어</span>
+grep -E "권장|금지|필수|반드시|꼭|쓰면 안" &lt;comments&gt;
+<span class="cm"># 중국어</span>
+grep -E "请不要|需要|必须|建议|不要修改|禁止" &lt;comments&gt;</pre>
+<pre>designer_constraints:
+  - source: "@&lt;creator&gt; [2025-07-22 11:11]"
+    raw_quote: "No supports needed, please do not modify the print profile."
+    parsed:
+      - constraint_type: "forbid_support"
+        target_field: "enable_support"
+        target_value: "0"
+        priority: "strong"
+      - constraint_type: "forbid_profile_modification"
+        target_field: "*"
+        priority: "strong"
+        note: "surface-first/auto-tuning 적용 전 사용자 confirm 필수"</pre>
+      <a class="card-source" href="#phase3">↗ Phase 3 Override Rule 이 이 구조를 읽는다</a>
+    </div>
+
+    <div class="card">
+      <h3>1.6.3 ~ 1.6.4 보관 · 추가 조사</h3>
+      <div class="card-body">
+        <p><strong>comments-raw.md</strong> — 추출 결과를 <code>&lt;output_dir&gt;/comments-raw.md</code> 에 원문으로 남긴다. MakerWorld 페이지는 나중에 고쳐지거나 지워질 수 있다. designer_reply 는 100 % 인용, 나머지는 표본. 형식은 <code>comment-analysis.md</code> §6.</p>
+        <p><strong>추가 조사 (조건부)</strong> — 댓글에 외부 URL · 추가 자료 언급이 있을 때만 들어간다.</p>
+        <ul class="plain">
+          <li>printables · thingiverse · cults3d 의 같은 모델 → WebFetch 또는 Codex 위임으로 매뉴얼 · 추가 STL 확인</li>
+          <li>GitHub fork · remix → README 를 받는다</li>
+          <li>YouTube · Bilibili 빌드 영상 → <code>codex-rescue</code> 에 자막 위임, 실패해도 넘어간다</li>
+          <li>SNS · 단축 URL · 제휴 링크는 건너뛴다 (<code>comment-analysis.md</code> §4.2)</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#phase4">↗ notes.md §5 에 「댓글 분석 출처: comments-raw.md」</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">1.6.5 디자이너 권장 vs 자동 모드 — 네 가지 선택지</h3>
+  <p class="desc">뽑은 권장이 자동 모드(특히 surface-first)와 부딪히면 사용자에게 알리고 넷 중 하나를 고르게 한다. .3mf 제작자 프로파일과도 대조한다 — 댓글은 서포트 끄라는데 .3mf 는 켜져 있거나, 권장 layer 와 .3mf 값이 다르면 보고한다.</p>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>옵션</th><th>뜻</th><th>시간</th><th>Phase 3 처리</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-ok">[C] 기본 권장</span></td><td>모든 면 매끈 — 디자이너 권장 ∧ surface-first 병행. 제작자가 적은 4 필드(layer · walls · infill · support)를 고정하고 surface-first 4 필드(다림질 topmost · scarf external 6mm · <code>outer_wall_speed</code> 30 · <code>wall_sequence</code> inner-outer-inner)를 더한다</td><td>~3 배</td><td>강도 1 + 제작자 명시 필드 고정. 제작자가 적지 않은 영역은 surface-first 자동 적용</td></tr>
+        <tr><td><span class="badge badge-info">[A]</span></td><td>속도 우선 · 외관 뒤로 — 제작자 4 필드만 고정, 다림질 · scarf · 외벽 매끈 처리를 모두 끈다. 사용자가 "디자이너 권장 = 프로파일 전체 수정 금지" 라고 말할 때만</td><td>~1.2 배</td><td>강도 1 · 2 영역 모두 고정. 나머지는 기본값</td></tr>
+        <tr><td><span class="badge badge-info">[B]</span></td><td>평면 top 만 매끈 — 4 필드 고정 + 다림질 topmost 만. 박스 형상에서 top 평면이 보일 때</td><td>~1.5 배</td><td>[A] + 다림질 topmost 한 항목</td></tr>
+        <tr><td><span class="badge badge-warn">[D]</span></td><td>Surface-first 전부 — 제작자 4 필드도 surface-first 값(layer 0.12 · walls 3 · infill 18)으로 덮는다. 디자이너 권장을 무시한다는 동의가 필요하다</td><td>~3.5 배</td><td>강도 1(서포트 같은 안전 사항)만 고정하고 나머지는 전부 덮는다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">디자이너 권장 강도(strong with value · directive · intent)의 구분은 아래 Phase 3 「Designer-stated Constraint Override Rule」 표를 따른다. 1.8.1 은 여기서 고른 옵션을 그대로 이어받아 표면 의도를 다시 묻지 않는다.</p>
+</div>
+
+<!-- ── Phase 1.7 ── -->
+<div class="section" id="phase17">
+  <div class="section-label">Phase 1.7 — Tolerance &amp; Fit Analysis (v0.4.2)</div>
+  <p class="desc"><strong>필수 — MakerWorld URL · 로컬 파일 모두.</strong> Phase 1 본문 · 1.5 첨부 · 1.6 댓글에서 끼워 맞춤이 중요한(fit-critical) 부품 네 종류를 찾는다. 결과는 Phase 2 소재 선택(수축률)과 Phase 3 공차 보정 키에 바로 들어간다. 없으면 "fit-critical 부품 없음 — 일반 공차 처리만" 이라고 적는다. 상세는 <code>references/tolerance.md</code>.</p>
+
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="card">
+      <div class="phase-tag">(a)</div><h3>Bearing</h3>
+      <div class="card-body">ISO 번호 <code>608</code> · <code>608ZZ</code> · <code>609</code> · <code>688</code> · <code>688ZZ</code> · <code>625</code> · <code>625ZZ</code> · <code>MR105</code> · <code>MR84</code>. 키워드 bearing · 베어링 · 轴承. 모델 분류 ferris wheel · spinner · fidget · fan · wheel.</div>
+      <a class="card-source" href="#cases">↗ 페리스 휠 608ZZ 사례</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">(b)</div><h3>Bolt / Screw</h3>
+      <div class="card-body"><code>M3</code> ~ <code>M8</code>. bolt · screw · self-tapping · wood screw · machine screw. BOM 표나 댓글의 "x M3" 개수.</div>
+      <a class="card-source" href="#tolerance">↗ tolerance.md §3.2</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">(c)</div><h3>Heat-set Insert</h3>
+      <div class="card-body">heat-set insert · brass insert · M3 insert · soldering iron + insert. 조립 가이드의 "press insert at X mm hole".</div>
+      <a class="card-source" href="#tolerance">↗ tolerance.md §4</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">(d)</div><h3>Slide / Push-lock / Snap</h3>
+      <div class="card-body">push lock · push button · slide fit · snap fit. knife sheath · pen holder · drawer · sliding mechanism.</div>
+      <a class="card-source" href="#cases">↗ 9mm sheath blade 사례</a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>1.7.3 부품 종류 → 공차 보정 키</h3>
+      <div class="card-body">
+        <div class="table-wrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th>종류</th><th>Bambu JSON 키</th><th>방향</th></tr></thead>
+            <tbody>
+              <tr><td>bearing 바깥지름 (압입)</td><td><code>xy_hole_compensation</code></td><td>+ (소재별 표)</td></tr>
+              <tr><td>bearing 안지름 (축)</td><td><code>xy_contour_compensation</code></td><td>− (소재별 표)</td></tr>
+              <tr><td>bolt 통과 구멍</td><td><code>xy_hole_compensation</code></td><td>+ · <code>tolerance.md</code> §3.2</td></tr>
+              <tr><td>heat-set 인서트 구멍</td><td>구멍 명시 (M3=4.0mm)</td><td><code>xy_hole</code> 표 그대로</td></tr>
+              <tr><td>slide-fit 구멍</td><td><code>xy_hole_compensation</code></td><td>+ (헐겁게)</td></tr>
+              <tr><td>slide-fit 바깥지름</td><td><code>xy_contour_compensation</code></td><td>− (헐겁게)</td></tr>
+              <tr><td>첫 레이어 눌림</td><td><code>elefant_foot_compensation</code></td><td>0.10~0.20 (PLA 0.15)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:10px">bolt 통과 구멍: 모델이 이미 3.2~3.4mm 면 수축 보정만, 명목 3.0mm 면 오프셋 <code>+0.10~+0.20</code>.</p>
+      </div>
+      <a class="card-source" href="#tolerance">↗ 아래 공차 보정 키 적용 정책</a>
+    </div>
+
+    <div class="card">
+      <h3>틀리기 쉬운 두 가지</h3>
+      <div class="card-body">
+        <div class="callout stop" style="margin-top:0">
+          <strong>키 이름 오타:</strong> <code>elefant_foot_compensation</code> 이 정답이다(Bambu 가 일부러 둔 오타). <code>elephant_foot_compensation</code> 으로 쓰면 조용히 무시되고, Phase 4.3 이 금지 키로 잡는다.
+        </div>
+        <div class="callout stop">
+          <strong>보정값은 경계 오프셋 — 지름 변화는 2 배다.</strong> <code>보정값 = (목표 지름 − 모델 지름) / 2</code>. 기준 원본은 <code>tolerance.md</code> §1.1. §4 의 "최종 지름" 을 보정값 칸에 그대로 넣은 것이 평가자 REJECT <code>PL-01</code> 의 원인이었다. 계약서에 지름으로 적혀 있어도 JSON 에는 오프셋으로 바꿔 넣는다.
+        </div>
+        <p>카운트는 이렇게 보고한다 — <code>bearing: X개 (608ZZ × 2, MR105 × 4)</code> · <code>bolt: Y개 (M3 × N)</code> · <code>insert: Z개</code> · <code>slide-fit: W개</code>.</p>
+      </div>
+      <a class="card-source" href="#tolerance">↗ tolerance.md §1.1 · §1.2</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 1.8 ── -->
+<div class="section" id="phase18">
+  <div class="section-label">Phase 1.8 — Surface Intent Gate (2026-07-27)</div>
+  <p class="desc"><strong>필수 — 모든 입력 갈래 (MakerWorld · 로컬 .3mf · STL · 채팅).</strong> 표면 품질을 원하는지 JSON 을 만들기 전에 한 번 정한다.</p>
+
+  <div class="callout stop">
+    <strong>왜 생겼나 (실측 결함):</strong> 사용자가 표면 품질을 원했는데 기능용 프로파일만 만들어 <strong>다림질 없이 완료를 보고</strong>했다. 사용자는 "표면 매끈해야하는데.. 한거 맞음?" → "아이어닝해야지" 로 두 번 지적해야 했다. 표면 의도를 묻는 곳이 Phase 1.6.5(MakerWorld URL 전용) 안에만 있어, 로컬 파일이나 댓글 0 개 경로에서는 아무도 묻지 않았다. 페리스 휠 생성물의 설정이 <code>ironing_type: "no ironing"</code> 이었다.
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="phase-tag">1.8.1 · 1.8.2</div>
+      <h3>이미 정했으면 다시 묻지 않는다</h3>
+      <div class="card-body">
+        <p>1.6.5 에서 <code>[A]</code> · <code>[B]</code> · <code>[C]</code> · <code>[D]</code> 를 골랐으면 그대로 이어받고 1.8.2 를 건너뛴다. 아니면 요청에서 신호를 grep 한다.</p>
+<pre><span class="cm"># 표면 우선 신호</span>
+grep -iE "매끈|매끄럽|반들|광택|표면|외관|심 안 보|seam 안|이쁘게|smooth|shiny|surface|cosmetic|아이어닝|ironing"
+<span class="cm"># 기능 우선 신호</span>
+grep -iE "기능|튼튼|빨리|속도|시간|prototype|functional|strong|fast|test"</pre>
+        <div class="table-wrap prose">
+          <table>
+            <thead><tr><th>상황</th><th>처리</th></tr></thead>
+            <tbody>
+              <tr><td>표면 신호 있음</td><td>surface-first 켬. Phase 3 <code>ironing_type</code> 결정 트리를 반드시 거친다</td></tr>
+              <tr><td>기능 신호만 있음</td><td>surface-first 끔. notes.md 에 <strong>"표면 마감 미적용"</strong> 을 적는다</td></tr>
+              <tr><td>둘 다 없음 · 모호</td><td><strong>한 줄로 묻는다</strong> — 추측 금지</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes — 정책 원본</a>
+    </div>
+
+    <div class="card">
+      <div class="phase-tag">질문 형식 · 1.8.3</div>
+      <h3>모호하면 이렇게 묻는다</h3>
+<pre>표면 마감 방향을 정해야 합니다 (출력 시간에 직접 영향):
+  [S] 표면 우선 — 평면 top ironing + 외벽 저속 + scarf seam (~1.5-3배 시간)
+  [F] 기능 우선 — baseline 속도, ironing/scarf 없음 (~1.0-1.2배)
+기본 권장: 눈에 보이는 곳에 쓰는 부품이면 [S], 내부 지그/기능 부품이면 [F].</pre>
+      <div class="card-body">
+        <p><strong>형상 × 소재 적용성</strong> — 표면 우선이라도 무의미하거나 해로운 조합은 적용하지 않고 이유를 보고한다.</p>
+        <ul class="plain">
+          <li>회전체 · spiral vase → top 이 없어 다림질 무의미 (seam 전략으로)</li>
+          <li>TPU · PA-CF → 다림질 불가 또는 역효과</li>
+          <li>PETG HF → 건조가 안 됐으면 stringing 위험 (<code>surface-recipes.md</code> §6.5)</li>
+        </ul>
+        <p>표면 우선으로 판정했는데 최종 process JSON 의 <code>ironing_type</code> 이 <code>"no ironing"</code> 이면 진입 조건 실패다.</p>
+      </div>
+      <a class="card-source" href="#gate">↗ Phase 4.3 · 추가 의미 검증이 잡는다</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 1.9 ── -->
+<div class="section" id="phase19">
+  <div class="section-label">Phase 1.9 — Failure-Mode Detector (2026-08-13)</div>
+  <p class="desc"><strong>필수 — 모든 입력 갈래.</strong> 사용자 자신의 직전 출력 실패를 다음 프로파일로 되돌리는 입구다. Phase 1.6 은 남의 댓글 실패만, 1.7 · 1.8 은 사전 형상 · 의도만 본다. 2026-08-13 관측(shower-box + holster 5 세션 — 곡면 계단 · voronoi stringing · 바닥 박리 반복 · "partially successful")에 해당하는 신호가 매번 대화 밖으로 흘렀다. 상세 레시피는 <code>references/failure-recipes.md</code>.</p>
+
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="card">
+      <span class="badge badge-warn" style="align-self:flex-start">L1 곡면 계단현상</span>
+<pre>grep -iE "계단|층층|단계단|거칠|곡면.*(거칠|계단)|stair|step(ped|ping)|layer line|faceted|각져"</pre>
+      <a class="card-source" href="failure-recipes.html">↗ Failure Recipes §1</a>
+    </div>
+    <div class="card">
+      <span class="badge badge-warn" style="align-self:flex-start">L2 스트링잉</span>
+<pre>grep -iE "실|거미줄|늘어|삐져|스트링|보로노이|string|wisp|ooze|hairy|voronoi"</pre>
+      <a class="card-source" href="failure-recipes.html">↗ Failure Recipes §2</a>
+    </div>
+    <div class="card">
+      <span class="badge badge-warn" style="align-self:flex-start">L3 바닥 박리 · 들림 · 워핑</span>
+<pre>grep -iE "박리|들림|들렸|떴|안 붙|휘|뒤틀|1층|첫 ?층|peel|lift|warp|curl|adhesion|detach"</pre>
+      <a class="card-source" href="failure-recipes.html">↗ Failure Recipes §3</a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>읽는 법</h3>
+      <div class="card-body">
+        <ul class="plain">
+          <li>대상은 사용자 요청 · 채팅 컨텍스트 · Phase 1.6 <code>user_failure</code> 셋이다. 1.6 을 건너뛴 로컬 파일 경로에서도 앞의 둘은 항상 있다</li>
+          <li><strong>부분 문자열 오탐을 확인한다</strong> — <code>실</code> 은 실제 · 실행 · 확실을, <code>1층</code> 은 11층을 잡는다. 매치된 문장을 읽어 실제 출력 결과 보고인지 본다</li>
+          <li>매치 0 건이면 "실패 모드 신호 없음" 을 <strong>명시 보고</strong>하고 1.9.3 을 건너뛴다</li>
+          <li><strong>1.9.2 재출력 확인</strong> — <code>다시</code> · <code>또</code> · <code>여전히</code> · <code>재출력</code> · <code>again</code> · <code>still</code> · <code>retry</code> 가 있거나 같은 모델 폴더가 이미 있으면 한 줄로 묻는다. 신호가 없으면 묻지 않는다</li>
+        </ul>
+<pre>이 모델(또는 같은 소재·형상)로 이전에 출력한 결과가 있나요? 있으면 어디가 안 좋았는지 한 줄만 알려주세요.
+(곡면 계단 / 실 늘어짐 / 바닥 들림 중 있으면 해당 항목의 대응 레시피를 켜겠습니다.)</pre>
+      </div>
+      <a class="card-source" href="failure-recipes.html">↗ Failure Recipes — 감지 신호</a>
+    </div>
+
+    <div class="card">
+      <h3>1.9.3 사용자 실측 보고 — 반박하지 않는다</h3>
+      <div class="card-body">
+        <p>기준 원본은 <code>harness/docs/guides/skill-design-guide.md</code> §3.8 User-Reported Failure Gate 다. 여기서 규칙을 다시 쓰지 않는다. 상태는 PASS 가 아니라 <code>REOPENED</code>, 재현 전에 "정상입니다" 를 다시 말하지 않는다.</p>
+        <p>재현 6 축의 3D 프린팅 대응표는 <code>failure-recipes.md</code> §0 이다 — 모델 리비전 · 적용 preset 이름 · 슬라이서 버전 · plate · chamber · 소재 lot · 건조 · AMS 슬롯. <strong>다른 축을 먼저 값으로 특정</strong>하고 프로파일 키를 만지기 전에 보고한다. 건조 미충족이나 preset 미적용이 원인인 실패에 retraction 을 올리는 것은 원인이 아닌 곳을 고치는 일이다.</p>
+<pre>Failure-Mode 판정
+- L1 곡면 계단현상: 감지 / 없음   (근거: 사용자 문장 quote)
+- L2 스트링잉:      감지 / 없음
+- L3 바닥 박리:     감지 / 없음
+- 재현 6축 불일치:  &lt;축 이름 + 값&gt; 또는 "전 축 일치"
+→ 감지 0 건이면 "실패 모드 신호 없음 — 사후 레시피 미적용"</pre>
+        <p><strong>L2 ∧ L3 동시 감지</strong>면 fan 방향이 부딪힌다(<code>failure-recipes.md</code> §3.3) — 어느 쪽이 먼저인지 사용자에게 묻는다. 셋 다면 L3 → L2 → L1 순서(§5).</p>
+      </div>
+      <a class="card-source" href="failure-recipes.html">↗ Failure Recipes §0 재현 6 축</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 1.95 ── -->
+<div class="section" id="phase195">
+  <div class="section-label">Phase 1.95 — 슬라이서 판별 (2026-09-14)</div>
+  <p class="desc"><strong>필수 — 모든 입력 갈래.</strong> 생성할 JSON 의 키 이름 · 받는 값 · 프리셋 종류가 슬라이서마다 다르다. <strong>어느 슬라이서용인지 정하기 전에 Phase 3 에 들어가지 않는다.</strong></p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="phase-tag">1.95.1</div>
+      <h3>설치본 찾기</h3>
+<pre>for app in BambuStudio OrcaSlicer; do
+  p="/Applications/$app.app"
+  [ -d "$p" ] || { printf '%-14s 미설치\n' "$app"; continue; }
+  v=$(defaults read "$p/Contents/Info" CFBundleShortVersionString 2&gt;/dev/null)
+  n=$(find "$p/Contents/Resources/profiles/BBL/process" -name '*.json' 2&gt;/dev/null | wc -l | tr -d ' ')
+  printf '%-14s %s · process 프로파일 %s 개\n' "$app" "${v:-판정불가}" "$n"
+done</pre>
+      <div class="card-body">
+        <p>확정값을 <code>TARGET_SLICER</code> (<code>bambu</code> | <code>orca</code>) 로 두고 Phase 3 · 4.3 이 그대로 쓴다. process JSON 에는 <code>_target_slicer</code> 로 적어 나중에 어느 슬라이서용인지 알 수 있게 한다(<code>_</code> 접두라 import 때 버려진다).</p>
       </div>
       <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline §11 — 슬라이서별 키 차이</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="num">2</span>
-        <div>
-          <div class="phase-tag">Phase 2</div>
-          <h3>소재 추천 (2~3개 + 사용자 픽)</h3>
-          <div class="rule-number">Material Match</div>
-        </div>
-      </div>
+      <div class="phase-tag">1.95.2</div>
+      <h3>판정 규칙 — 이 네 갈래 밖은 없다</h3>
       <div class="card-body">
-        <p><code>references/materials.md</code>의 40+ 필라멘트 카탈로그를 로드. 모델 용도/형상/사용자 요구에 맞춰 매칭한다.</p>
-        <h4>용도 → 우선 후보</h4>
-        <div class="table-wrap" style="margin-top:6px">
+        <div class="table-wrap prose" style="margin-top:6px">
           <table>
-            <thead><tr><th>용도</th><th>우선 후보</th></tr></thead>
+            <thead><tr><th>상황</th><th>판정</th></tr></thead>
             <tbody>
-              <tr><td>박스 오프너/도구 (functional)</td><td><code>PETG HF</code>, <code>PLA Tough+</code></td></tr>
-              <tr><td>내열 부품 (vent, hot duct)</td><td><code>PETG HF</code>, <code>ASA</code>, <code>PC</code></td></tr>
-              <tr><td>외관 prototype</td><td><code>PLA Basic</code>, <code>PLA Matte</code></td></tr>
-              <tr><td>기어/지그</td><td><code>PAHT-CF</code>, <code>PETG-CF</code></td></tr>
-              <tr><td>Sealing/gasket</td><td><code>TPU 90A</code> (85A 비추)</td></tr>
+              <tr><td>사용자가 슬라이서를 말했다</td><td>그대로 채택. <strong>추측으로 덮어쓰지 않는다</strong></td></tr>
+              <tr><td>한쪽만 설치돼 있다</td><td>그쪽으로 확정하고 한 줄로 알린다</td></tr>
+              <tr><td>둘 다 설치 · 사용자 미지정</td><td><strong>묻는다.</strong> 임의로 고르면 키 차이 때문에 산출물이 조용히 무시된다</td></tr>
+              <tr><td>둘 다 미설치</td><td><code>[미검증]</code> 표시 + Bambu Studio 키로 생성. 설치본 버전을 몰라 옵션 목록을 고를 수 없으므로 Phase 4.3 이 키 존재 · 종류 · enum 검사를 <code>[미검증]</code> 으로 보고한다</td></tr>
             </tbody>
           </table>
         </div>
-        <h4>필수 cross-check</h4>
-        <p>AMS 2 Pro 직접 로드 가능 여부 (PET-CF/PPA-CF/PPS-CF/TPU 95A HF는 외부 스풀) · AMS HT 65°C 사전+continuous 건조 요구 (PETG/PA/PC) · H2S 노즐 호환 (CF류는 hardened).</p>
-      </div>
-      <a class="card-source" href="https://github.com/bambulab/BambuStudio" target="_blank">↗ Bambu Studio (필라멘트 baseline)</a>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <span class="num">3</span>
-        <div>
-          <div class="phase-tag">Phase 3</div>
-          <h3>프로파일 JSON 생성</h3>
-          <div class="rule-number">JSON Build</div>
+        <div class="callout">
+          <strong>Phase 4.3 에는 환경변수로 넘긴다</strong> — <code>TARGET_SLICER=orca SKILL_DIR=&lt;이 스킬의 기준 폴더&gt; python3 - …</code>. 검사 스크립트는 heredoc 안에서 돌아 셸 변수도 파이썬 전역도 보지 못한다. <code>TARGET_SLICER</code> 가 없으면 키 · 부모값 검사가, <code>SKILL_DIR</code> 이 없으면 옵션 목록을 못 찾아 키 존재 · 종류 · enum 검사가 <code>[미검증]</code> 으로 떨어진다 — <strong>조용히 뱀부로 물러서지 않는다.</strong> 기준 폴더는 스킬을 불러올 때 알려주는 경로다.
         </div>
+        <p><strong>추측 금지</strong> — 파일 확장자 · 모델 출처 · 과거 대화로 슬라이서를 짐작하지 않는다.</p>
       </div>
+      <a class="card-source" href="#gate">↗ Phase 4.3 검사 실행 줄</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 2 ── -->
+<div class="section" id="phase2">
+  <div class="section-label">Phase 2 — 소재 추천 (2~3 개 + 사용자 픽)</div>
+  <p class="desc"><strong>진입 조건:</strong> Phase 1.6 · 1.7 · 1.8 · 1.9 완료. 1.9 에서 L2 를 감지했으면 건조 요구가 큰 소재(PETG · PA · PC)를 후보에 남길 때 건조 조건을 함께 낸다. 1.7 fit-critical 결과는 수축률 차이로 fit 정확도와 직결된다 — PLA 0.2~0.3 % &lt; PETG 0.3~0.5 % &lt; ASA 0.5~0.8 % (<code>references/materials.md</code> §4 수축률 표).</p>
+  <p class="desc"><code>references/materials.md</code> 를 읽고 모델 용도 · 형상 · 사용자 요구에 맞춘다.</p>
+
+  <div class="grid-2">
+    <div class="table-wrap prose">
+      <table>
+        <thead><tr><th>용도</th><th>우선 후보</th></tr></thead>
+        <tbody>
+          <tr><td>박스 오프너 · 도구 (기능품)</td><td><code>PETG HF</code>, <code>PLA Tough+</code></td></tr>
+          <tr><td>내열 부품 (vent, hot duct)</td><td><code>PETG HF</code>, <code>ASA</code>, <code>PC</code></td></tr>
+          <tr><td>외관 prototype</td><td><code>PLA Basic</code>, <code>PLA Matte</code></td></tr>
+          <tr><td>실외 부품</td><td><code>ASA</code>, <code>ASA-CF</code></td></tr>
+          <tr><td>기어 · 지그</td><td><code>PAHT-CF</code>, <code>PETG-CF</code></td></tr>
+          <tr><td>멀티컬러 가벼운 출력</td><td><code>PLA Basic</code> (같은 base 공유)</td></tr>
+          <tr><td>Sealing · gasket</td><td><code>TPU 90A</code> — 85A 는 문제가 확인돼 비추천</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>반드시 대조할 것</h3>
       <div class="card-body">
-        <p><code>references/bambu-fields-baseline.md</code> + <code>references/seam-recipes.md</code>를 로드하여 process JSON과 filament JSON을 각각 생성한다. 메타필드는 절대 누락하지 말 것 — Bambu Studio는 silent skip한다.</p>
-        <h4>출력물</h4>
-        <ul class="checklist" style="margin-top:6px">
-          <li><span class="check">✓</span> <code>process/&lt;name&gt;.json</code> — layer/wall/seam/speed/support 등 모델 형상 기반 override</li>
-          <li><span class="check">✓</span> <code>filament/&lt;material&gt;.json</code> — scarf 필드만 override (배열 형태)</li>
-          <li><span class="check">✓</span> 멀티 소재 시 filament JSON N개</li>
+        <ul class="plain">
+          <li><strong>AMS 2 Pro 직접 로드</strong> — PET-CF · PPA-CF · PPS-CF · TPU 95A HF 는 외부 스풀</li>
+          <li><strong>건조</strong> — PETG · PA · PC 는 AMS HT 65°C 사전 건조 + 출력 중 계속 건조</li>
+          <li><strong>H2S 노즐</strong> — CF 계열은 경화 노즐(hardened) 권장</li>
         </ul>
-        <p style="margin-top:10px">메타필드 7종은 다음 섹션의 표를 참조. <code>nozzle_temperature</code>는 절대 안 건드린다 — 사용자가 .3mf creator 튜닝 또는 base 기본값 유지를 명시 요청했음 (2026-05-16).</p>
+        <p>후보를 내고 사용자가 고른다. 한 소재인지 여러 소재인지도 여기서 정한다.</p>
       </div>
-      <a class="card-source" href="#" onclick="return false">↗ Codex run a2a01770a87626167 (JSON import gate)</a>
+      <a class="card-source" href="materials.html">↗ Materials — 필라멘트 카탈로그 · AMS</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 3 ── -->
+<div class="section" id="phase3">
+  <div class="section-label">Phase 3 — 프로파일 JSON 생성</div>
+  <p class="desc"><code>references/bambu-fields-baseline.md</code> 와 <code>references/seam-recipes.md</code> 를 읽는다. Phase 1.9 에서 실패 모드를 하나라도 감지했으면 <code>references/failure-recipes.md</code> 도 읽는다.</p>
+
+  <h3>3.0 Supportability Split — JSON 생성 <em>전</em> 필수 (2026-08-13)</h3>
+  <p class="desc">JSON 으로 할 수 없는 요구를 근사로 때우지 않는다. 조용한 근사는 "했다고 보고했는데 안 되어 있음" 으로 끝난다. 1.9 감지 항목과 사용자 요구를 <strong>가능 · 불가</strong> 두 칸으로 가르고, 불가 칸은 notes.md 에 적는다.</p>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>요구</th><th>process · filament JSON</th><th>처리</th></tr></thead>
+      <tbody>
+        <tr><td>L1 계단 — adaptive · variable layer height</td><td><span class="badge badge-bad">불가</span> (<code>failure-recipes.md</code> §1.1)</td><td><strong>notes 만.</strong> <code>adaptive_layer_height</code> 를 넣지 않는다 — Phase 4.3 이 잡는다</td></tr>
+        <tr><td>L1 계단 — 고정 <code>layer_height</code> 낮추기</td><td><span class="badge badge-ok">가능</span></td><td><code>0.12</code> 먼저, <code>0.08-0.12</code> 는 사용자 확인 뒤 (§1.2)</td></tr>
+        <tr><td>L1 계단 — XY 다각형 모서리</td><td><span class="badge badge-warn">조건부</span></td><td><code>resolution</code> <code>0.006-0.010</code>. Z 계단 해결책이 아니다. XY 모서리를 실제로 봤을 때만 — 2026-09-05 실측(모서리 없는 박스)에서 이득 근거가 없어 철회. surface-first 공통값에 넣지 않는다</td></tr>
+        <tr><td>L2 스트링잉 — 건조 · 소재 상태</td><td><span class="badge badge-bad">불가</span> (물리 조건)</td><td>notes + 건조 뒤 재출력 권고. <strong>건조 미충족이면 JSON 을 만지지 않는다</strong></td></tr>
+        <tr><td>L2 스트링잉 — wipe</td><td><span class="badge badge-ok">가능</span> (검사 통과 시)</td><td><code>filament_wipe</code> · <code>filament_wipe_distance</code> 2 키만</td></tr>
+        <tr><td>L2 스트링잉 — retraction 올리기</td><td><span class="badge badge-warn">coupon 뒤에만</span></td><td>Phase 5 coupon 통과 전 본 출력에 넣지 않는다</td></tr>
+        <tr><td>L3 박리 — brim · 첫 레이어</td><td><span class="badge badge-ok">가능</span></td><td><code>failure-recipes.md</code> §3.1</td></tr>
+        <tr><td>L3 박리 — chamber 예열 · plate 종류</td><td><span class="badge badge-bad">불가</span> (장비 조작)</td><td>notes 만</td></tr>
+        <tr><td>L3 박리 — plate 온도 · aux fan</td><td><span class="badge badge-warn">사용자 확인 뒤에만</span></td><td>plate 전용 키만. <code>bed_temperature_initial_layer</code> 금지</td></tr>
+        <tr><td>Studio 화면 페인팅 (seam · color · fuzzy)</td><td><span class="badge badge-bad">불가</span></td><td>사용자 작업으로 안내</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+<pre>⚠️ 이 프로파일로 대응 불가한 항목
+- 곡면 계단현상: Variable/Adaptive Layer Height 는 process JSON 범위 밖입니다.
+  JSON 으로는 layer_height 0.20 → 0.12 하향으로 대응했고 레이어 수가 약 1.67 배 됩니다.
+  더 줄이려면 Bambu Studio UI 에서 Variable Layer Height 를 직접 적용해야 합니다.</pre>
+  <p class="code-note">notes.md §1.2.1 과 완료 보고 양쪽에 쓴다. 배수는 손으로 치지 말고 <code>기존 layer_height / 새 layer_height</code> 로 계산한다.</p>
+
+  <h3 style="margin-top:28px">Designer-stated Constraint Override Rule (v0.4.0 · v0.4.1 범위 좁힘)</h3>
+  <p class="desc">Phase 1.6 의 <code>designer_constraints</code> 는 자동 모드(surface-first 포함)와 형상 기반 자동 결정보다 <strong>명시 필드에 한해</strong> 우선한다. 권장 강도 셋마다 적용 범위가 다르다(<code>comment-analysis.md</code> §5).</p>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>강도</th><th>예시</th><th>적용 범위</th><th>JSON 처리</th></tr></thead>
+      <tbody>
+        <tr><td><strong>(1) strong — 값이 명시됨</strong></td><td>"No supports needed" / "并不需要支撑"</td><td>명시 키로 강제</td><td><code>enable_support: "0"</code> 처럼 적는다. inherits 에 맡기지 않는다 — base 기본값은 나중에 바뀔 수 있다</td></tr>
+        <tr><td><strong>(2) directive — 필드 지정 없음</strong></td><td>"do not modify profile" / "请不要修改打印配置"</td><td>제작자가 같은 페이지 · 댓글에서 적은 필드만 강제</td><td>제작자 라벨의 layer · walls · infill 만 고정. 다림질 · scarf · <code>outer_wall_speed</code> · <code>wall_sequence</code> · <code>seam_position</code> 같은 미명시 영역은 자동 결정</td></tr>
+        <tr><td><strong>(3) intent · info</strong></td><td>"Push-lock means it must be held down"</td><td>JSON 무관</td><td>notes.md §3.2 사용성 참고용 인용</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="compare" style="margin-top:20px">
+    <div class="compare-bad">
+      <div class="compare-label">v0.4.0 — 너무 넓게 읽었다</div>
+      <ul>
+        <li>directive 권장을 "프로파일 전체 수정 금지" 로 읽음</li>
+        <li>다림질 · scarf 같은 표면 마감을 자동으로 끔 → 9mm v2 에서 "모든 면 매끈" 의도가 빠졌다</li>
+      </ul>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">v0.4.1 — 명시 필드만</div>
+      <ul>
+        <li>directive 는 제작자가 적은 필드(layer · walls · infill)에만 적용</li>
+        <li>[C] 병행이 기본 — 제작자 4 필드와 surface-first 4 필드가 <strong>같은 process JSON 에 함께</strong> 들어간다</li>
+        <li>예외: 사용자가 1.6.5 에서 "전체 수정 금지 뜻" 이라고 답하면 [A] 로 바꾼다</li>
+        <li>디자이너가 소재를 지정하면 Phase 2 후보를 그 소재 하나로 좁힌다</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── 공차 보정 키 ── -->
+<div class="section" id="tolerance">
+  <div class="section-label">공차 보정 키 적용 정책 (v0.4.2)</div>
+  <p class="desc">Phase 1.7 결과를 process JSON 공차 키로 옮긴다. 공차 키는 제작자 라벨에 적히는 일이 거의 없어 <strong>제작자 미명시 영역</strong>이다 — [C] 병행에서도 디자이너 권장과 부딪히지 않는다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Bambu Studio v2.6.0 에서 확인한 공차 키 4 개</h3>
+      <div class="card-body">
+        <div class="table-wrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th>키</th><th>기본값</th><th>용도</th></tr></thead>
+            <tbody>
+              <tr><td><code>elefant_foot_compensation</code></td><td><code>"0"</code></td><td>첫 레이어 눌림 보정 (오타 키가 정답)</td></tr>
+              <tr><td><code>xy_hole_compensation</code></td><td><code>"0"</code></td><td>구멍 지름 (양수 = 넓게)</td></tr>
+              <tr><td><code>xy_contour_compensation</code></td><td><code>"0"</code></td><td>바깥지름 (음수 = 좁게)</td></tr>
+              <tr><td><code>circle_compensation_manual_offset</code></td><td><code>"0"</code></td><td>원형 수동 오프셋 (선택)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline — 키 이름 정확도</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="num">4</span>
-        <div>
-          <div class="phase-tag">Phase 4</div>
-          <h3>Bundle + Verify</h3>
-          <div class="rule-number">Zip & Sanity</div>
+      <h3>소재별 수축률 → 보정값</h3>
+      <div class="card-body">
+        <div class="table-wrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th>소재</th><th>수축률</th><th><code>xy_hole</code></th><th><code>xy_contour</code></th></tr></thead>
+            <tbody>
+              <tr><td>PLA (Basic · Matte · Tough+ · CF)</td><td>0.2~0.3 %</td><td><code>+0.05</code></td><td><code>-0.05</code></td></tr>
+              <tr><td>PETG (Basic · HF)</td><td>0.3~0.5 %</td><td><code>+0.075</code></td><td><code>-0.075</code></td></tr>
+              <tr><td>ASA · ABS</td><td>0.5~0.8 %</td><td><code>+0.10</code></td><td><code>-0.10</code></td></tr>
+              <tr><td>PC</td><td>0.6~0.7 %</td><td colspan="2">ASA 와 같음</td></tr>
+              <tr><td>PAHT-CF · PA6-CF</td><td>0.4~0.6 %</td><td colspan="2">PETG 와 같음</td></tr>
+              <tr><td>TPU 90A · 95A</td><td>1.0~1.5 %</td><td><code>+0.15</code></td><td><code>-0.10</code></td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
+      <a class="card-source" href="materials.html">↗ Materials §4 수축률 표</a>
+    </div>
+  </div>
+
+  <div class="table-wrap prose" style="margin-top:20px">
+    <table>
+      <thead><tr><th>Fit-critical 종류</th><th>Bambu 키</th><th>권장 보정</th></tr></thead>
+      <tbody>
+        <tr><td><strong>베어링 바깥지름 압입</strong> (608ZZ 22mm 등)</td><td><code>xy_hole_compensation</code></td><td>+ (PLA <code>0.05</code> · PETG <code>0.075</code> · ASA <code>0.10</code>)</td></tr>
+        <tr><td><strong>베어링 안지름 축</strong> (608ZZ 8mm 등)</td><td><code>xy_contour_compensation</code></td><td>− (PLA <code>-0.05</code> · PETG <code>-0.075</code> · ASA <code>-0.10</code>)</td></tr>
+        <tr><td><strong>볼트 통과 구멍</strong> (M3 → 최종 지름 3.2~3.4mm, M4 → 4.3mm)</td><td><code>xy_hole_compensation</code></td><td><strong>§1.1 변환식 필수.</strong> 모델이 이미 목표 지름이면 수축 보정만(PLA <code>+0.05</code>), 명목 3.0mm 면 오프셋 <code>+0.10~+0.20</code>. 표의 지름을 보정값으로 쓰지 않는다 (<code>PL-01</code>)</td></tr>
+        <tr><td><strong>heat-set 인서트 구멍</strong> (M3 4.0mm 등)</td><td>구멍 명시 + <code>xy_hole_compensation</code></td><td>표 §2 그대로</td></tr>
+        <tr><td><strong>slide-fit · push-lock</strong> (knife sheath 등)</td><td><code>xy_contour</code> (바깥) + <code>xy_hole</code> (구멍)</td><td>둘 다 헐겁게</td></tr>
+        <tr><td><strong>모든 부품 첫 레이어 눌림</strong></td><td><code>elefant_foot_compensation</code></td><td><code>0.10-0.20</code> (PLA <code>0.15</code>)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>공차 키가 조용히 무효화되는 3 조건</h3>
       <div class="card-body">
-        <p>Bambu Studio의 <em>Import Configs</em> 호환 zip 구조를 만든다. 출력 경로는 <code>~/Hub/60_3D Print/Settings/&lt;modelname&gt;/</code> 고정.</p>
-        <h4>zip 구조</h4>
+        <div class="table-wrap prose" style="margin-top:6px">
+          <table>
+            <thead><tr><th>조건</th><th>무효화</th><th>대응</th></tr></thead>
+            <tbody>
+              <tr><td>오브젝트가 multi-material · color-paint 됨</td><td><code>xy_hole</code> · <code>xy_contour</code> → 강제 <code>0</code></td><td>공차 보정 불가. 모델 지오메트리로 풀어야 한다고 보고</td></tr>
+              <tr><td>fuzzy skin paint 됨</td><td>같음</td><td>같음</td></tr>
+              <tr><td><code>raft_layers != 0</code></td><td><code>elefant_foot_compensation</code> → <code>0</code></td><td>둘을 같이 지정하지 않는다</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:10px">이 스킬은 멀티컬러를 정식 지원하고 dual-color 사례가 많다(box-opener-knife, stealth-press-1s). fit-critical + color-paint 면 공차 보정이 전부 무의미하므로 Phase 1.7 보고 때 함께 경고한다.</p>
+      </div>
+      <a class="card-source" href="#phase17">↗ tolerance.md §1.2 (소스 검증)</a>
+    </div>
+
+    <div class="card">
+      <h3>적용 절차</h3>
+      <div class="card-body">
+        <ul class="checklist" style="margin-top:4px">
+          <li><span class="check">1</span><div>Phase 1.7 종류 + 개수 확인</div></li>
+          <li><span class="check">2</span><div>Phase 2 에서 고른 소재의 수축률 확인 (<code>materials.md</code> §4)</div></li>
+          <li><span class="check">3</span><div>종류별 매트릭스 × 수축률 = <strong>오프셋</strong> 도출 → §1.1 변환식으로 지름 효과(2 배) 검산</div></li>
+          <li><span class="check">4</span><div>무효화 3 조건 해당 여부 확인, 해당하면 보고</div></li>
+          <li><span class="check">5</span><div>process JSON 에 키를 적는다(기본 <code>"0"</code> 덮어쓰기). <code>elefant_foot_compensation</code> 은 음수 불가</div></li>
+          <li><span class="check">6</span><div>fit-critical 1 개 이상이면 Phase 5 fit calibration coupon 자동</div></li>
+        </ul>
+        <p style="margin-top:10px"><strong>한 값만 적을 수 있다</strong> — process JSON 은 <code>xy_hole_compensation</code> 을 하나만 가진다. 베어링 압입(빡빡)과 볼트 통과(헐거움)가 한 모델에 있으면 가장 중요한 쪽에 맞추고, 나머지는 notes.md §1.6 에 "Studio 오브젝트별 설정 필요" 로 적는다.</p>
+        <p><strong>fit-critical 0 건</strong>이면 <code>elefant_foot_compensation</code> 만 0.15(PLA 안전 여유)로 넣고 <code>xy_hole</code> · <code>xy_contour</code> 는 <code>"0"</code> 그대로 둔다.</p>
+      </div>
+      <a class="card-source" href="#phase5">↗ Phase 5 fit calibration coupon</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 메타필드 + process 튜닝 정책 ── -->
+<div class="section" id="meta">
+  <div class="section-label">필수 메타필드 · process 튜닝 범위</div>
+  <p class="desc">Bambu Studio 는 메타필드가 빠지거나 틀린 JSON 을 import 해도 오류를 띄우지 않는다 — 드롭다운에 preset 이 보이지 않을 뿐이다(조용히 무시, silent skip). 아래 7 필드는 Codex run <code>a2a01770a87626167</code> 로 확인한 조합이다.</p>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th style="width:28%">필드</th><th style="width:34%">값</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>type</code></td><td><code>"process"</code> 또는 <code>"filament"</code></td><td>잘못 쓰면 그 종류 드롭다운에 안 뜬다</td></tr>
+        <tr><td><code>name</code></td><td><code>"&lt;모델명&gt; - &lt;변종&gt; 0.12mm"</code> 등</td><td>화면에 그대로 보이므로 알아보기 쉬운 이름</td></tr>
+        <tr><td><code>version</code></td><td><code>"2.6.0.2"</code></td><td>semver 로 읽혀야 한다. 현재 v2.6.0 과 호환</td></tr>
+        <tr><td><code>from</code></td><td><code>"User"</code></td><td><strong>대문자 U</strong> — 소문자 <code>"user"</code> 는 실패</td></tr>
+        <tr><td><code>inherits</code></td><td>시스템 프리셋 이름과 정확히 같게</td><td>못 찾으면 조용히 무시된다</td></tr>
+        <tr><td><code>print_settings_id</code> / <code>filament_settings_id</code></td><td><code>name</code> 과 같게. filament 는 <strong>배열</strong></td><td>빠지면 "Preset type is unknown"</td></tr>
+        <tr><td><code>compatible_printers</code></td><td><code>["Bambu Lab H2S 0.4 nozzle"]</code></td><td>H2S 고정</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <div class="rule-number" style="color:var(--green)">바꿔도 되는 키</div>
+      <div class="card-body">
+        <ul class="plain">
+          <li><code>layer_height</code> · <code>initial_layer_print_height</code> — 사용자 요구</li>
+          <li><code>wall_loops</code> · <code>sparse_infill_density</code> · <code>top/bottom_shell_layers</code> · <code>wall_sequence</code> — 형상</li>
+          <li><code>seam_position</code> · <code>seam_slope_*</code> · <code>scarf_angle_threshold</code> · <code>override_filament_scarf_seam_setting</code> — seam</li>
+          <li><code>outer_wall_speed</code> · <code>inner_wall_speed</code> — 소재별 · <strong><code>_geometry_class</code> 가 <code>planar</code> 일 때만</strong>. <code>thin</code> 이면 이 둘과 인접 4 키 · <code>top_surface_speed</code> 를 쓰지 않고 부모 실효값을 둔다</li>
+          <li><strong>유량 인접 속도 3 키</strong> — 외벽을 낮췄으면 반드시 함께: <code>internal_solid_infill_speed</code> · <code>sparse_infill_speed</code> · <code>gap_infill_speed</code></li>
+          <li><strong>가속 2 키</strong> — 속도와 같이 설계: <code>outer_wall_acceleration</code> · <code>default_acceleration</code>. 가속을 두면 짧은 구간에서 속도에 못 닿은 채 유량만 출렁인다</li>
+          <li><strong><code>bridge_speed</code> <code>20-30</code></strong> — <code>_geometry_class</code> 를 재서 기록한 설정이면. H2S 부모는 <code>50</code> 이다</li>
+          <li>멀티컬러: <code>enable_prime_tower</code> · <code>prime_tower_width/brim_width/flat_ironing</code> · <code>flush_into_*</code></li>
+          <li><code>enable_support</code></li>
+          <li>L3 감지 시: <code>brim_type</code> · <code>brim_width</code> · <code>brim_object_gap</code> · 조건부 <code>initial_layer_print_height</code> · <code>initial_layer_line_width</code> · <code>initial_layer_speed</code></li>
+        </ul>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes §2.7 · §4</a>
+    </div>
+
+    <div class="card">
+      <div class="rule-number" style="color:var(--yellow)">조건부 · 기본값 유지</div>
+      <div class="card-body">
+        <ul class="plain">
+          <li><code>raft_layers</code> — 일반 튜닝 대상이 아니다. <strong>L3 최후 수단 전용</strong>(<code>1-3</code>). 켜면 <code>elefant_foot_compensation</code> 이 조용히 무효화되므로 fit-critical 부품이 있으면 켜지 않는다</li>
+          <li><code>enable_arc_fitting</code> — <strong>기본값 유지.</strong> 품질 기능이 아니라 G-code 표기 변경(직선 → 호 명령)이고 펌웨어 호 분할 위험이 있다. 곡면 계단(Z) 대응으로 내밀지 않는다</li>
+        </ul>
+        <div class="callout" style="margin-bottom:0">
+          <strong>실측 2026-09-22:</strong> 외벽 <code>30</code> 인데 허공 위 7.0~7.8 m 가 전부 <code>50</code> mm/s 로 나갔다 — <code>bridge_speed</code> 를 안 쓰면 허공 위 구간만 부모값으로 남는다.
+        </div>
+      </div>
+      <a class="card-source" href="failure-recipes.html">↗ Failure Recipes §1.2 · §3.3</a>
+    </div>
+
+    <div class="card">
+      <div class="rule-number" style="color:var(--red)">넣지 않는 키</div>
+      <div class="card-body">
+        <ul class="plain">
+          <li><code>adaptive_layer_height</code> — 옵션 정의가 주석 처리돼 있고 legacy ignore 목록에 있다(<code>bambu-fields-baseline.md</code> §10.1). Phase 4.3 이 남아 있으면 FAIL</li>
+          <li><code>bed_temperature</code> · <code>bed_temperature_initial_layer</code> — 폐기 · 금지. plate 온도가 필요하면 plate 전용 키만, <strong>사용자 확인 뒤에만</strong> (§10.3)</li>
+          <li><code>elephant_foot_compensation</code> — 오타 키, 조용히 무시</li>
+        </ul>
+      </div>
+      <a class="card-source" href="https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp">↗ BambuStudio PrintConfig.cpp</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 환경 확인 · vase ── -->
+<div class="section" id="env">
+  <div class="section-label">환경 확인 — 버전 조회 + 프리셋 온전성 (2026-09-05 · Phase 3 전 필수)</div>
+  <p class="desc">references 의 수치는 <strong>설치본에서 읽은 값</strong>이다. 설치본이 낡았거나 프리셋이 손상됐으면 그 위에서 만든 프로파일도 틀린다. Phase 3 에 들어가기 전에 앱 버전(<code>Info.plist</code>)과 프로파일 번들 버전(<code>system/BBL.json</code>)을 읽고, 부모 체인을 풀어 아래 네 값이 상식 범위 안인지 본다. 출력을 응답에 붙인다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>키</th><th>범위</th><th>읽는 프로파일</th></tr></thead>
+      <tbody>
+        <tr><td><code>nozzle_volume</code></td><td>80 ~ 400</td><td><code>Bambu Lab H2S 0.4 nozzle</code></td></tr>
+        <tr><td><code>filament_max_volumetric_speed</code></td><td>1 ~ 60</td><td><code>Bambu PLA Basic @BBL H2S</code></td></tr>
+        <tr><td><code>filament_retraction_length</code></td><td>0 ~ 5</td><td><code>Bambu PLA Basic @BBL H2S</code></td></tr>
+        <tr><td><code>outer_wall_speed</code></td><td>1 ~ 1000</td><td><code>0.16mm High Quality @BBL H2S</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">못 읽은 값은 <code>[미검증]</code>, 숫자가 아니거나 범위 밖이면 <code>FAIL</code>. 끝줄 <code>RESULT: PASS | FAIL</code> 과 exit 코드로 판정한다.</p>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <div class="phase-tag">ER-01</div>
+      <h3>버전 조회 실패</h3>
+      <div class="card-body">추측값을 쓰지 않는다. <code>[미검증]</code> 으로 표시하고 references 수치를 "확인되지 않은 기준" 으로 밝힌 뒤 Studio 설치 상태를 확인받는다. 설치 경로가 다르면 경로를 물어 다시 조회한다.</div>
+      <a class="card-source" href="#preflight">↗ 사전 절차 1 — 버전 대조</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">ER-03</div>
+      <h3>온전성 FAIL 이면 멈춘다</h3>
+      <div class="card-body">어느 키가 어떤 범위를 벗어났는지 그대로 보고하고, Studio 를 최신 stable 로 올리거나 번들을 다시 받게 안내한다. <code>2.8.1.55</code> ~ <code>2.8.2.60</code> 에 H2S 프리셋이 손상 배포된 전례가 있다(<code>nozzle_volume</code> 이 <code>["32","32","32"]</code>, 정상은 <code>["145","148"]</code>). 손상된 부모 위의 자식 프로파일은 값이 전부 어긋난다.</div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases">↗ Bambu Studio Releases</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">번들 버전이 기준</div>
+      <h3>앱과 번들은 따로 움직인다</h3>
+      <div class="card-body">Bambu 는 프로파일을 앱과 무관하게 네트워크로 갱신한다. 앱을 안 올려도 번들이 앞설 수 있다(실측: 앱 <code>02.06.00.51</code> / 번들 <code>02.06.00.05</code>). references 수치를 판단할 때는 <strong>번들 버전</strong>을 본다.</div>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline — 기준 설치본</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px" id="vase">vase 가능 판정 — 회전체 seam 정책 1 순위 (2026-09-05)</h3>
+  <p class="desc"><code>seam-recipes.md</code> §0 v4 트리의 (1) 분기다. <code>spiral_mode</code> + <code>spiral_mode_smooth</code> 는 회전체에서 seam 을 실제로 없애는 유일한 수단이고 사용자 수작업이 0 이다. <strong>조건을 어긴 레이어는 오류 없이 일반(seam 있는) 출력으로 조용히 돌아간다</strong>(<code>GCode.cpp</code> 레이어별 판정) — 그래서 생성 전에 형상을 직접 판정한다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <ul class="checklist">
+        <li><span class="check">1</span><div>플레이트에 <strong>인스턴스 1 개</strong>, 또는 <code>print_sequence = "by object"</code> (아니면 슬라이스 오류)</div></li>
+        <li><span class="check">2</span><div><strong>단일 소재 · 단일 region</strong> — modifier mesh 나 오브젝트별 설정 덮기가 없다</div></li>
+        <li><span class="check">3</span><div><code>bottom_shell_layers</code> 위 <strong>모든 레이어가 닫힌 윤곽 정확히 1 개</strong> — 관통 구멍 · 내벽 · 섬 · 분기 · 손잡이가 하나라도 있으면 그 레이어는 탈락. Z 사다리로 잘라 루프 수를 센다</div></li>
+        <li><span class="check">4</span><div><strong>수평 top 면이 없다</strong> — 내부 선반 · 턱 포함</div></li>
+        <li><span class="check">5</span><div><strong>서포트 불필요</strong> — 오버행이 자기지지 범위 안</div></li>
+        <li><span class="check">6</span><div><strong>watertight · manifold · 단일 연결 셸</strong></div></li>
+        <li><span class="check">7</span><div><code>skirt_height &lt;= bottom_shell_layers</code> 이고 draft shield 를 쓰지 않는다</div></li>
+      </ul>
+      <p class="caption">판정이 불확실하면 켜지 않는다. 애매하면 (2) painted 분기를 제안하고 형상 판단을 묻는다. <code>spiral_mode = 1</code> 이 강제하는 값과 JSON 형태는 <code>bambu-fields-baseline.md</code> §8.4 — spiral 키 3 종은 배열이 아니라 <strong>스칼라</strong>다.</p>
+      <a class="card-source" href="seam-recipes.html">↗ Seam Recipes §0 v4 트리</a>
+    </div>
+    <div class="card">
+      <div class="callout stop" style="margin-top:0">
+        <strong>H2S timelapse 경고 (반드시 알린다):</strong> H2S 는 <code>corexy</code> + 단일 익스트루더라 timelapse G-code 주입 조건에서 spiral vase 예외가 적용되지 않는다(<code>!m_spiral_vase</code> 확인이 I3 분기에만 있다). 매 레이어 셔터 멈춤이 들어가 <strong>없어야 할 seam 이 생긴다</strong> — 2025-12 제보 · 미해결.
+      </div>
+      <div class="card-body">
+        <p><strong>프로파일로 고칠 수 없다.</strong> <code>timelapse_type</code> 에는 끄는 값이 없고 spiral 은 그 값이 <code>0</code> 이기를 요구한다. 사용자에게 <strong>전송 대화상자의 <code>타임랩스</code> 체크 해제</strong>를 안내한다(프로세스 설정의 <code>기타 → 특수 모드 → 타임랩스</code> 는 모드 선택이지 끄기가 아니다).</p>
+        <p><span class="badge badge-warn">[미확인]</span> 2.8 에서 H2S machine 프로파일에 <code>farthest_point_timelapse = 1</code> 이 들어갔고 이 값이 주입 조건에 부정으로 들어간다. 완화됐을 가능성이 있으나 실제 G-code 로 확인되지 않았다 — 확인 전까지는 위 안내를 유지한다.</p>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/issues/9166">↗ BambuStudio issue #9166</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 유량비 ── -->
+<div class="section" id="flow">
+  <div class="section-label">유량비 검사 — 외벽 속도를 낮출 때 필수 (원본 절 「유량비 게이트」 · 2026-09-05)</div>
+  <p class="desc">표면 품질을 좌우하는 것은 절대 속도가 아니라 <strong>유량 <code>Q</code> 와 그 변화율</strong>이다. 외벽만 낮추고 인접 압출을 그대로 두면 "느린 프로파일" 이 아니라 <strong>노즐 압력을 흔드는 프로파일</strong>이 된다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+<pre>Q = line_width x layer_height x speed x flow_ratio        (mm^3/s)
+비율 = max(인접 feature 의 Q) / Q(outer_wall)</pre>
+      <div class="table-wrap" style="margin-top:6px">
+        <table>
+          <thead><tr><th>비율</th><th>판정</th><th>조치</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;= 3x</code></td><td><span class="badge badge-ok">통과</span></td><td>그대로 진행</td></tr>
+            <tr><td><code>3x ~ 5x</code></td><td><span class="badge badge-warn">경고</span></td><td>notes.md 에 비율 · 사유 · 사용자 고지</td></tr>
+            <tr><td><code>&gt; 5x</code></td><td><span class="badge badge-bad">FAIL</span></td><td>인접 속도를 낮춰 다시 계산</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes §3 — 권장 착지값의 기준 원본</a>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <ul class="plain">
+          <li>인접 feature 넷: <code>inner_wall</code> · <code>internal_solid_infill</code> · <code>sparse_infill</code> · <code>gap_infill</code></li>
+          <li>선폭은 feature 별 키(<code>inner_wall_line_width</code> 등). <code>gap_infill</code> 은 전용 키가 없어 <code>line_width</code> 로 대신한다</li>
+          <li><code>flow_ratio</code> 는 filament 부모의 <code>filament_flow_ratio</code>. 같은 소재라 비율에서 서로 지워진다</li>
+          <li>권장 착지값은 <code>surface-recipes.md</code> §3 이 기준이다 — 수치를 여기로 복제하지 않는다. H2S 기본값을 그대로 두면 비율이 5x 를 넘는다</li>
+        </ul>
+        <div class="callout">
+          <strong>MVS 여유:</strong> 어느 feature 의 <code>Q</code> 도 소재의 <code>filament_max_volumetric_speed</code>(MVS — 소재가 1 초에 밀어낼 수 있는 최대 부피)의 80 % 를 넘기지 않는다. 넘으면 슬라이서가 속도를 잘라내며 유량이 다시 출렁인다. PLA Basic H2S 는 <code>25</code>/<code>40</code>, ABS H2S 는 <code>20</code>/<code>35</code> mm^3/s (Standard / High Flow).
+        </div>
+        <p>근거: OrcaSlicer extrusion rate smoothing 문서가 Bambu X1C 에서 200 → 40 mm/s(5x) 전이만으로 압력 추종 실패 흔적이 생긴 사례를 든다. Klipper pressure advance(PA, 압력 보정) 문서는 PA 가 무한 보상이 아니며 고가속 + 고 PA 에서 extruder skip 이 난다고 적는다.</p>
+      </div>
+      <a class="card-source" href="#gate">↗ Phase 4.3 유량비 검사 (5x 초과 FAIL)</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── filament · L2 ── -->
+<div class="section" id="filament">
+  <div class="section-label">filament 튜닝 · L2 스트링잉 검사 · 부모값 조회</div>
+  <p class="desc">filament JSON 은 <code>seam-recipes.md</code> 가 정한 scarf 필드만 덮는다. 나머지는 base 에 맡긴다. 덮기 전에 <strong>소재 부모 프로파일을 실제로 조회한다</strong> — filament 키의 기준값은 machine 기본이 아니라 그 소재 <code>@BBL H2S</code> 프로파일이 적은 값이다.</p>
+
+  <div class="compare">
+    <div class="compare-good">
+      <div class="compare-label">덮어도 되는 키</div>
+      <ul>
+        <li><code>filament_scarf_seam_type</code> (<code>none</code> · <code>external</code> · <code>all</code>)</li>
+        <li><code>filament_scarf_height</code> · <code>filament_scarf_gap</code> · <code>filament_scarf_length</code> — 모두 <strong>배열</strong></li>
+        <li><strong>예외 1 건</strong>: <code>_geometry_class</code> 가 <code>thin</code> 이면 사용자 확인 뒤 filament 스코프 <code>overhang_fan_threshold</code> 를 <code>10%</code> 로 — 설치본 <code>Bambu ABS-GF @BBL H2S</code> · <code>Bambu PETG HF @BBL H2S</code> 실효값이라 임의값이 아니다. process 에 넣으면 무시된다</li>
+        <li>L2 스트링잉 검사의 예외 2 단계 (아래 표)</li>
+      </ul>
+    </div>
+    <div class="compare-bad">
+      <div class="compare-label">건드리지 않는 키</div>
+      <ul>
+        <li><code>nozzle_temperature</code> · <code>nozzle_temperature_initial_layer</code> — .3mf 제작자 값이나 base 기본값을 유지하길 원한다(사용자 명시 2026-05-16). <strong>L2 가 감지돼도 온도를 자동으로 내리지 않는다</strong> — stringing 은 줄지만 층간 접착 · 유량 부족을 만든다</li>
+        <li>fan · cooling — base 에 맡긴다. L3 aux fan 은 notes 안내까지만 (<code>failure-recipes.md</code> §3.2)</li>
+        <li>retraction — 기본은 base 에 맡긴다</li>
+        <li><code>filament_retraction_speed</code> · <code>filament_retraction_minimum_travel</code> · <code>filament_z_hop</code> · <code>filament_z_hop_types</code> — 키 사전으로만 둔다(§10.2). 사용자가 요청할 때 정확한 키를 쓰려는 것이지 자동 결정 대상이 아니다</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px">L2 스트링잉 검사 (원본 절 「L2 스트링잉 게이트」 · 2026-09-05 개정 · <code>failure-recipes.md</code> §2.1 감별 트리)</h3>
+  <p class="desc">건조 여부를 먼저 묻지 않는다. <strong>관측 신호로 습기를 지목하거나 배제한 뒤에</strong> 말한다.</p>
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>단계</th><th>관측 신호</th><th>판정 · 허용하는 덮기</th></tr></thead>
+      <tbody>
+        <tr><td><strong>(a)</strong></td><td>압출 중 pop · crackle + 보이는 증기, 압출물의 무작위 기포 · 공극, 결손이 경로와 무관하게 전역 무작위</td><td><strong>습기 1 순위.</strong> 건조 뒤 재출력 권고 + JSON 보류</td></tr>
+        <tr><td><strong>(b)</strong></td><td>결손이 travel 직후 <strong>선 시작부</strong>에 몰림</td><td>리트랙션 재가압 · PA · seam 축. (1)(2) 로 진행</td></tr>
+        <tr><td><strong>(c)</strong></td><td><strong>특정 속도 구간</strong>에서만</td><td>MVS 제한 · 부분 막힘 · 온도 부족. JSON 은 유량비 검사로</td></tr>
+        <tr><td><strong>(d)</strong></td><td><strong>외벽에서만</strong> 나고 인필은 멀쩡, 또는 속도가 급변하는 <strong>경계에서만</strong></td><td>유량 계단. 유량비 검사로</td></tr>
+        <tr><td><strong>(1)</strong></td><td>(b) 이고 travel stringing 이 남음</td><td><code>filament_wipe</code> = <code>"1"</code>, <code>filament_wipe_distance</code> = <strong>소재 부모값</strong> — 이 2 키만</td></tr>
+        <tr><td><strong>(2)</strong></td><td>(1) 로도 남음</td><td><code>filament_retraction_length</code> 를 <strong>소재 부모값의 1.5 배까지만.</strong> Phase 5 coupon 통과 뒤에만 본 출력에 반영</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>건조 미확인은 진단 중단 사유가 아니다</h3>
+      <div class="card-body">
+        <p>건조가 검증되지 않았으면 결론에 그 사실을 적고 신뢰도를 낮춰 보고하되, (b)(c)(d) 진단과 JSON 수정은 그대로 진행한다. 흡습이 큰 소재(PA · PVA · TPU · PC · PETG)는 신뢰도 상한을 더 낮게 둔다.</p>
+        <p><code>materials.md</code> 기준 25 °C / 55 % RH(상대습도) 포화 흡습률은 PLA Basic 0.43 % · PETG HF 0.40 % · ABS 0.65 % · PC 0.25 % 이고 PA 계열은 한 자릿수 높다. <strong>PLA 와 ABS 를 습기 1 순위로 두려면 (a) 신호가 실제로 보여야 한다.</strong></p>
+      </div>
+      <a class="card-source" href="materials.html">↗ Materials — 흡습률</a>
+    </div>
+    <div class="card">
+      <h3>filament 부모값 조회 — 덮기 전 필수</h3>
+      <div class="card-body">
+        <p><code>fdm_filament_common</code> 의 <code>"nil"</code> 은 "미설정" 이 아니라 <strong>위임</strong>이다. 그리고 위임된 실효값이 곧 machine 기본인 것도 아니다 — 소재 프로파일이 machine 값을 덮는 경우가 있다.</p>
+<pre>SYS="$HOME/Library/Application Support/BambuStudio/system/BBL"
+python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1],encoding='utf-8'))
+for k in sorted(d):
+    if 'retract' in k or 'wipe' in k or 'volumetric' in k: print(f'{k:36} {d[k]}')
+" "$SYS/filament/Bambu ABS @BBL H2S.json"</pre>
+        <p>실측(Bambu Studio 02.06.00.51): <code>Bambu ABS @BBL H2S</code> · <code>Bambu PLA Basic @BBL H2S</code> 는 <code>filament_retraction_length</code> <code>0.4</code> · <code>filament_wipe_distance</code> <code>1</code> 을 적는다. machine <code>Bambu Lab H2S 0.4 nozzle</code> 의 <code>0.8</code> / <code>2</code> 와 <strong>다르다.</strong> 조회에 실패하면 추측값을 쓰지 말고 그 키를 빼고 <code>[미검증]</code> 으로 보고한다 — 부모에 맡기는 쪽이 틀린 숫자보다 안전하다.</p>
+      </div>
+      <a class="card-source" href="https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp">↗ PrintConfig.cpp — nil 위임</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Surface-first ── -->
+<div class="section" id="surface">
+  <div class="section-label">Surface-first 모드 — 적용 여부는 Phase 1.8 이 정한다</div>
+  <p class="desc">여기서 표면 의도를 다시 추측하지 않는다. 이전 판의 "default ON" 표기는 "사용자 요구가 …일 때" 라는 조건과 모순이어서 아무도 켜지 않는 경로가 생겼다(다림질 누락). 판정은 <strong>Phase 1.8 한 곳</strong>에서만 한다. <code>references/user-preferences.md</code> 가 있으면 1.8 은 그 §1 을 적용하고 표면 의도를 되묻지 않는다 — 그 파일은 목표(품질 우선)와 제약(시간 무제한)만 갖고, 구체 속도값은 <code>surface-recipes.md</code> §3 이 소재별로 정한다.</p>
+
+  <h3>형상 클래스 라우팅 (2026-09-08 · Phase 1.0 측정값을 그대로 쓴다)</h3>
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th><code>_geometry_class</code></th><th>속도</th><th>냉각</th><th>JSON 기록</th></tr></thead>
+      <tbody>
+        <tr><td><code>planar</code></td><td>외벽 표면 공통 + 유량비 검사대로 낮춘다</td><td>base 에 맡김</td><td><code>_geometry_class: "planar"</code></td></tr>
+        <tr><td><code>thin</code></td><td><strong>낮추지 않는다</strong> — <code>outer_wall_speed</code> · 인접 4 키 · <code>top_surface_speed</code> 를 쓰지 않는다. 유량비는 부모 실효값으로 계산해 보고만 한다(<code>0.12mm High Quality @BBL H2S</code> 는 <code>3.8x</code> 경고 구간)</td><td>사용자 확인 뒤 filament <code>overhang_fan_threshold 10%</code> 1 키</td><td><code>_geometry_class: "thin"</code> + <code>_thin_loop_share</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">2026-09-07 래티스 통은 큰 평면과 스트럿 단면이 한 3mf 에 함께 있었고(Funnel <code>planar</code> / Side Container <code>thin</code>) 같은 외벽 <code>30</code> 이 둘 다에 들어간 것이 결함이었다. 얇은 단면의 병목은 유량이 아니라 열을 내보낼 시간이라 느릴수록 나빠진다 — <code>user-preferences.md</code> §2 "근거가 그 소재 · 형상에 있을 때만 낮춘다" 의 실제 사례다.</p>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>회전체 · 원통 결정 트리</h3>
+<pre class="tree">회전체 · 원통 (기준 원본: seam-recipes.md §0 v4)
+  │
+  ├─ <span class="kw">1. vase 가능?</span>  → spiral_mode = <span class="ok">1</span> + spiral_mode_smooth = <span class="ok">1</span>
+  │                   ★ 유일한 실질적 해결. 사용자 작업 0.
+  │                   판정은 vase 체크리스트. ⚠️ H2S 는 timelapse 를 끈다
+  │
+  ├─ <span class="kw">2. 숨길 면·방향 있음</span> → seam_position: <span class="ok">aligned</span> 또는 <span class="ok">back</span>
+  │                          + Studio seam paint (Enforce/Block)
+  │                          + scarf external, 길이는 §2.2 상한, gap <span class="ok">0</span>
+  │                          사용자 작업: 페인팅 5-10 분 — 미리 알린다
+  │
+  ├─ <span class="kw">3. 360° 노출</span> → aligned/back + 짧은 scarf 로 약한 한 줄 수용
+  │                  또는 CAD seam 은폐 · 소재 선택(PLA Matte/CF)
+  │
+  └─ <span class="kw">4. random</span> → <span class="bad">fallback 전용.</span> 기능품 · 텍스처 허용 부품만.
+                 surface-first 기본으로 쓰지 않는다</pre>
+      <div class="callout" style="margin-bottom:0">
+        <strong>v4 정정 (2026-09-05):</strong> 이전 판은 random 을 기본 맨 위에 뒀다. <code>random</code> 은 seam 을 없애는 것이 아니라 <strong>한 줄을 표면 전체의 점으로 바꾸는 것</strong>이고(Prusa KB), 사용자가 그 결과를 거부했다. "사용자 작업이 없는 옵션이 기본" 원칙은 유지하되 그 원칙을 만족하는 최선은 random 이 아니라 <strong>vase</strong> 였다. 소재별 분기는 <code>seam-recipes.md</code> §4.
+      </div>
+      <a class="card-source" href="seam-recipes.html">↗ Seam Recipes §0 · §4</a>
+    </div>
+
+    <div class="card">
+      <h3>형상별 결정 — 여섯 갈래 (<code>surface-recipes.md</code> §2)</h3>
+      <div class="card-body">
+        <ul class="checklist" style="margin-top:4px">
+          <li><span class="check">1</span><div><strong>회전체 · 원기둥 · 컵 · 화병</strong> — 왼쪽 트리</div></li>
+          <li><span class="check">2</span><div><strong>박스 · 직육면체</strong> — <code>seam_position: back</code>(또는 aligned) + 모서리 painted seam + scarf off 또는 5~8mm. random 금지 (평면에 점이 흩어져 외관이 나빠진다)</div></li>
+          <li><span class="check">3</span><div><strong>유기적 곡면 · 피규어</strong> — <code>aligned</code>(back 우선) + 주름 · 접합부 · 머리카락에 painted seam + scarf external 10~15mm</div></li>
+          <li><span class="check">4</span><div><strong>얇은 벽 · 미세 디테일</strong> — <code>aligned</code> + scarf 5~10mm 또는 off. <code>Contour and Hole</code> 비추(안지름 영향). <code>wall_loops</code> 1~2 + Arachne 검토. 속도 · 냉각은 <code>thin</code> 라우팅</div></li>
+          <li><span class="check">5</span><div><strong>평면 top 강조</strong> (도구 · 케이스 뚜껑) — seam 은 뒤 · 모서리, <strong>top 품질이 외벽보다 먼저</strong>, 다림질 적극 (§5)</div></li>
+          <li><span class="check">6</span><div><strong>spiral vase 가능 모델</strong> — 외벽 하나 + top · infill 없음 + 단색 → <code>spiral_mode = 1</code>. seam · scarf · 다림질 설정은 의미 없다</div></li>
+        </ul>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes §2 형상 enumerate</a>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>다림질(Ironing) — 소재별 판정</h3>
+      <div class="card-body">
+        <div class="table-wrap prose" style="margin-top:6px">
+          <table>
+            <thead><tr><th>소재</th><th>판정</th></tr></thead>
+            <tbody>
+              <tr><td>PLA Basic · PLA Matte</td><td><code>topmost</code> 적극 권장</td></tr>
+              <tr><td>PLA Silk</td><td><code>topmost</code> 만 — 광택이 죽을 수 있다</td></tr>
+              <tr><td>PETG HF</td><td>원칙 off, 평면 장식만 <code>topmost</code> (blob · 흉터 위험)</td></tr>
+              <tr><td>PA-CF · PAHT-CF</td><td>off (섬유 질감 · 노즐 마모)</td></tr>
+              <tr><td>PC</td><td>off 또는 작은 <code>topmost</code> 실험 (heat creep · ooze)</td></tr>
+              <tr><td>ABS · ASA</td><td>기본 <code>no ironing</code>. 실물 비교 뒤 사용자가 원할 때만 <code>topmost</code></td></tr>
+              <tr><td>TPU</td><td>off (불가 — 유연해서 표면이 끌린다)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:10px">형상별: 회전체 · spiral vase 는 top 이 없어 무의미, 박스 · 평면 top 은 강하게, 유기적 곡면은 부분, 얇은 벽은 거의 off. 구체 <code>ironing_type</code> · <code>ironing_speed</code> · <code>ironing_flow</code> · <code>ironing_spacing</code> · <code>ironing_inset</code> 값은 <code>surface-recipes.md</code> §5.1 · §5.2.</p>
+      </div>
+      <a class="card-source" href="https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html">↗ OrcaSlicer Wiki — Ironing</a>
+    </div>
+
+    <div class="card">
+      <h3>외벽 표면 공통 (<code>surface-recipes.md</code> §3)</h3>
+      <div class="card-body">
+        <p><code>layer_height</code> <code>0.12</code> 먼저 · <code>wall_loops</code> 3~4 · <code>wall_sequence</code> <code>inner-outer-inner wall</code> · <code>reduce_crossing_wall: 1</code> · PA · flow calibration 전제.</p>
+        <p>속도는 한 값이 아니라 <strong>유량비로 정한다</strong> — 외벽만 적은 것이 결함의 원인이었다.</p>
+        <div class="callout">
+          <strong><code>resolution</code> 낮추기와 <code>enable_arc_fitting</code> 끄기는 surface-first 공통값이 아니다.</strong> 2026-09-05 실측(opus-xero)에서 <code>resolution 0.008</code> 은 이득 근거가 없어 원래 값으로 되돌렸고, <code>enable_arc_fitting</code> 은 튜닝 정책이 기본값 유지로 못박는다.
+        </div>
+        <div class="callout stop" style="margin-bottom:0">
+          <strong>PETG HF 안전 경고:</strong> surface-first 에서 PETG HF 는 AMS HT 65°C 8h 사전 건조 + 출력 중 계속 건조가 필수다. 건조 부족 + 낮은 외벽 속도는 stringing · blob 을 크게 키운다 (<code>seam-recipes.md</code> Finding 4 · <code>surface-recipes.md</code> §6.5). 실측 H2D Vent Pipe 에서 같은 모양이 나왔다.
+        </div>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes §3 · §6.5</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 4.1 · 4.2 ── -->
+<div class="section" id="phase4">
+  <div class="section-label">Phase 4 — zip 번들 · notes.md 5 절</div>
+  <p class="desc">4.1 zip 은 Bambu Studio <em>Import Configs</em> 가 받는 모양으로 만든다. 4.2 notes.md 는 <code>/Users/jackson/Hub/60_3D Print/Settings/&lt;modelname&gt;/notes.md</code> 에 반드시 5 절 구조로 쓰고 Phase 1.5 의 PDF · 영상 · GitHub 정보를 합친다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="phase-tag">4.1</div>
+      <h3>zip 구조</h3>
 <pre class="tree">&lt;modelname&gt;.zip
 ├── process/
 │   └── &lt;process name&gt;.json
 └── filament/
     ├── &lt;filament 1&gt;.json
-    └── &lt;filament 2&gt;.json   <span class="cm"># 멀티 소재인 경우</span></pre>
-        <h4>안내</h4>
-        <p><code>File → Import → Import Configs...</code> → zip 선택. 좌측 Process/Filament 드롭다운에 새 preset이 보이는지 <strong style="color:var(--text)">반드시 확인</strong>. 안 보이면 셸로 검증:</p>
-<pre>ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/process/"
-ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/filament/"
-<span class="cm"># .json + .info 페어 확인</span></pre>
-      </div>
-      <a class="card-source" href="https://github.com/bambulab/BambuStudio/wiki" target="_blank">↗ Bambu Studio Wiki — Import Configs</a>
+    └── &lt;filament 2&gt;.json   <span class="cm"># 여러 소재인 경우</span></pre>
+      <div class="card-body">zip 은 Phase 4.3 검사를 통과한 <strong>뒤에</strong> 만든다. Phase 5 조건이면 COUPON process 와 <code>coupon-stl/README.md</code> 가 더해진다.</div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/wiki">↗ Bambu Studio Wiki — Import Configs</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="num">5</span>
-        <div>
-          <div class="phase-tag">Phase 5 (선택, 강력 권장)</div>
-          <h3>Coupon Test</h3>
-          <div class="rule-number">De-risk Print</div>
-        </div>
-      </div>
+      <div class="phase-tag">4.2 · 머리</div>
+      <h3>notes.md 머리와 구조 원칙</h3>
       <div class="card-body">
-        <p>본 출력 전에 작은 cylinder primitive로 빠른 검증. coupon은 본 process의 <strong style="color:var(--text)">scarf 설정만 동일</strong>하게 두고 나머지를 lean하게 깎는다.</p>
-        <h4>대상 케이스</h4>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-          <li><span class="badge badge-warn">필요</span> 출력 시간 &gt; 4시간</li>
-          <li><span class="badge badge-warn">필요</span> 회전체 + seam-critical</li>
-          <li><span class="badge badge-warn">필요</span> 새 소재 또는 새 scarf 조합 첫 시도</li>
+        <p>머리에 <code>Source</code> · <code>Author</code> · <code>License</code> · <code>Generated</code> 와 모델 개요 2~3 문장(목적 · 핵심 기능 · 쓰는 부품 종류)을 둔다.</p>
+        <ul class="plain">
+          <li>PDF 가 없으면 §3 은 제작자 페이지 조립 가이드 요약 또는 "조립 매뉴얼 없음 — 사용자 판단" 명시</li>
+          <li>영상이 없으면 §5 에 "영상 가이드 없음" 명시</li>
+          <li>§2.5 추가 소모품은 PDF 에서 자주 나온다 — 반드시 대조</li>
+          <li>§1.0 · §3.0 디자이너 권장은 Phase 1.6 결과를 그대로 옮긴다. 비었으면 "댓글 없음 또는 디자이너 권장 없음" (생략 금지)</li>
+          <li>댓글 원본은 <code>comments-raw.md</code> 에, §5 에서 출처로 밝힌다</li>
         </ul>
-        <h4>coupon-process.json 차이</h4>
-        <ul style="list-style:disc;padding-left:18px;margin-top:6px;color:var(--text2);font-size:13px">
-          <li><code>top/bottom_shell_layers</code> = 0</li>
-          <li><code>sparse_infill_density</code> = 0%</li>
-          <li>scarf 관련 필드는 <strong>본 process와 동일</strong></li>
-        </ul>
-        <p style="margin-top:10px">Studio에서 cylinder primitive 30×30×9mm 추가 → coupon process 적용 → 짧게 출력 → 결과 평가 후 본 출력 결정.</p>
+        <p>본보기: <code>stealth-press-1s/notes.md</code> — PDF 분석으로 §2.5(순간접착제 · shim · 필라멘트 조각), §3.3(숨은 인서트 5 곳), §3.4(KEY-BAK strain → arm 순서)를 찾았다.</p>
       </div>
-      <a class="card-source" href="https://github.com/bambulab/BambuStudio" target="_blank">↗ Bambu Studio (primitive 모델)</a>
+      <a class="card-source" href="#cases">↗ Stealth Press 1S 사례</a>
     </div>
+  </div>
 
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <div class="phase-tag">§1</div>
+      <h3>필라멘트 요구사항</h3>
+      <div class="card-body">
+        <ul class="plain">
+          <li><strong>1.0 디자이너 명시 권장</strong> — 강도별(strong · directive · intent) 원문 인용 + 적용 위치. 고른 옵션 라벨 [A]~[D] + 시간 배수 + 켜진 표면 마감 영역. [C] 면 두 필드 그룹이 한 JSON 에 공존함을 적는다</li>
+          <li><strong>1.1 추천 소재</strong> — 디자이너 권장 &gt; 제작자 추천 &gt; 자동 매칭 순</li>
+          <li><strong>1.2 출력 설정</strong> — 디자이너 명시 값은 "[Creator 명시 — 수정 X]"</li>
+          <li><strong>1.2.1 실패 모드 대응 + 범위 밖 항목</strong> — 1.9 판정 · 3.0 불가 칸 전부(특히 Variable Layer Height 는 Studio 화면에서 직접) · 부작용 수치</li>
+          <li>1.3 사전 준비 (건조 · 챔버 · 환기 · 베드) · 1.4 파일명 · 1.5 부품별 STL 선택</li>
+          <li><strong>1.6 공차 보정 적용 영역</strong> — fit-critical 종류 · 적용한 키와 값 · 수축률 근거 1 줄 · coupon 실행과 결과</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#phase16">↗ Phase 1.6 · 1.7 · 1.9 · 3.0</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">§2 · §3</div>
+      <h3>부품 리스트 · 조립 워크플로우</h3>
+      <div class="card-body">
+        <ul class="plain">
+          <li><strong>§2 알리 · 아마존 부품</strong> — 2.1 볼트 · 너트(링크 + 사이즈 옵션) · 2.2 베어링 + 인서트(PDF 개수 vs 웹 BOM 차이) · 2.3 레일 · 모터 · 2.4 도구 본체 + 어댑터 · 2.5 추가 소모품 · 2.6 선택 부품 · 2.7 완성 키트</li>
+          <li><strong>§3 조립</strong> — 3.0 디자이너 권장 · 금지 재인용(출력 직전 확인용 상자) · 3.1 단계 순서 · 3.2 핵심 절차(인서트 압입 등) · 3.3 숨은 부품 위치 · 3.4 안전 주의(순서 의존 · <code>user_failure</code> 의 안전 우려 + 디자이너 답변) · 3.5 권장 개선</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#phase15">↗ Phase 1.5 PDF 체크리스트</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">§4 · §5</div>
+      <h3>임포트 · 출력 절차 / License</h3>
+      <div class="card-body">
+        <ul class="checklist" style="margin-top:4px">
+          <li><span class="check">1</span><div>Import Configs → zip</div></li>
+          <li><span class="check">2</span><div>드롭다운 확인</div></li>
+          <li><span class="check">3</span><div>값을 박아 넣은 3mf 를 연다. 판마다 process 가 맞는지 확인만 하고 드롭다운 설정을 바꾸지 않는다</div></li>
+          <li><span class="check">4</span><div>AMS 슬롯 매핑</div></li>
+          <li><span class="check">5</span><div>인두 · 도구 분기 STL 선택</div></li>
+          <li><span class="check">6</span><div>Slice + send</div></li>
+          <li><span class="check">7</span><div>보낸 G-code 를 생성 설정과 대조 — <code>MISMATCH</code> 면 멈춘다</div></li>
+        </ul>
+        <p style="margin-top:10px">§5 — 라이선스 · 감사 · 참고 오픈소스 · 영상 가이드(URL + 요약) · 첨부 파일 목록(PDF · JSON · zip).</p>
+      </div>
+      <a class="card-source" href="#verify">↗ Phase 4.4 값 섞임 방지</a>
+    </div>
   </div>
 </div>
 
-<!-- ── Section 3: 필수 메타필드 ── -->
-<div class="section">
-  <div class="section-label">필수 메타필드 (Silent Skip 회피)</div>
-  <p class="desc">Bambu Studio는 메타필드가 빠지거나 잘못된 JSON을 import해도 에러를 띄우지 않는다. 드롭다운에 preset이 보이지 않을 뿐. Codex run <code>a2a01770a87626167</code>으로 검증된 7종 필드는 절대 누락하지 말 것.</p>
+<!-- ── Phase 4.3 ── -->
+<div class="section" id="gate">
+  <div class="section-label">Phase 4.3 — Completion Evidence Gate · 생성물을 실제로 읽어 검사 (2026-07-27 · 필수)</div>
+  <p class="desc">조용히 무시되는 결함이 v0.4.0 · v0.4.1 · v0.4.2 에 걸쳐 <strong>3 회 이상</strong> 다시 생겼고, import 실패는 사용자가 뒤늦게 발견한다. <code>skill-design-guide.md</code> §3.7 규칙(3 회 이상 → E3 결정론 검사)에 따라 자기보고 체크리스트가 아니라 <strong>LLM 을 부르지 않는 판정 명령</strong>을 통과해야 한다. zip 을 만들기 <strong>전에</strong> 생성한 JSON 전부에 돌리고 출력 원문을 응답에 붙인다.</p>
 
-  <div class="table-wrap">
+<pre>TARGET_SLICER=&lt;bambu|orca&gt; SKILL_DIR=&lt;이 스킬의 기준 폴더&gt; python3 - &lt;output_dir&gt;/process/*.json &lt;output_dir&gt;/filament/*.json &lt;&lt;'PY'
+<span class="cm"># … 검사 본문 (SKILL.md Phase 4.3 원문 그대로 — 음성 대조가 이 블록을 파일로 뽑아 돌린다)</span>
+PY</pre>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>무엇을 근거로 읽나</h3>
+      <div class="card-body">
+        <ul class="plain">
+          <li><strong>시스템 프로파일</strong> — 앱 번들(<code>/Applications/&lt;앱&gt;.app/Contents/Resources/profiles/BBL</code>)이 1 순위다. 사용자 데이터 폴더는 GUI 를 한 번도 안 띄우면 없다(실측 2026-09-14: 명령줄로만 쓴 OrcaSlicer 환경)</li>
+          <li><strong>부모 체인 해석은 BBL 제조사 폴더 안에서만</strong> — 같은 이름 프로파일이 제조사마다 있어 엉뚱한 부모를 잡는다</li>
+          <li><strong>옵션 목록</strong> <code>references/option-keys/&lt;슬라이서&gt;-&lt;설치본 버전&gt;.tsv</code> — 태그 소스를 부분 빌드한 판정 프로그램(<code>bambu-kit/scripts/option-key-probe/</code>)이 <strong>슬라이서 자신의 판정 함수로</strong> 뽑았다(오르카 2.4.2 받는 키 749 · 뱀부 02.08.02.61 받는 키 679)</li>
+          <li>번들 프로파일에 키가 나오는지로 판정하지 않는다 — 오르카가 싣고 다니는 뱀부 제조사 프로파일 때문에 뱀부 전용 키 <code>override_filament_scarf_seam_setting</code> 이 통과했고, 뱀부 process 기본 프로파일에 잘못 들어간 filament 키 <code>pre_start_fan_time</code> 이 허용 근거가 됐다(2026-09-15)</li>
+          <li><strong>칸(압출기 슬롯)마다 읽는다</strong> — 못 읽는 칸은 자리를 지키고 건너뛰며, 건너뛴 칸 번호를 <code>[미검증]</code> 으로 말한다. 한 칸 때문에 나머지 슬롯 검사가 꺼지지 않게 하고, «쟀는데 괜찮다» 와 «못 쟀다» 를 가른다</li>
+        </ul>
+      </div>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline §11.1 옵션 목록</a>
+    </div>
+
+    <div class="card">
+      <h3><code>[미검증]</code> 으로 떨어지는 자리 — 조용히 통과하지 않는다</h3>
+      <div class="card-body">
+        <div class="table-wrap prose" style="margin-top:6px">
+          <table>
+            <thead><tr><th>상황</th><th>빠지는 검사</th></tr></thead>
+            <tbody>
+              <tr><td><code>TARGET_SLICER</code> 없음 · <code>bambu|orca</code> 아님 · 설치본 경로 없음</td><td>스코프 · 부모값 검사. 다른 슬라이서로 대신 검사하지 않는다 (ER-02)</td></tr>
+              <tr><td><code>SKILL_DIR</code> 없음</td><td>키 존재 · 종류 · enum 값</td></tr>
+              <tr><td><code>Info.plist</code> 에서 설치본 버전을 못 읽음</td><td>같음</td></tr>
+              <tr><td>설치본 버전의 목록 파일 없음</td><td>같음. 다른 버전 목록으로 대신하지 않는다 — <code>build-option-list.sh</code> 로 만들라고 알린다</td></tr>
+              <tr><td>목록 파일이 비었거나 깨짐 <span class="badge badge-info">09-25</span></td><td>같음. 그전에는 아무 말 없이 <code>RESULT: PASS</code> 였다</td></tr>
+              <tr><td>enum 줄만 빠진 목록 <span class="badge badge-info">09-25</span></td><td>같음. 그전에는 받지 않는 값이 통과했다</td></tr>
+              <tr><td>부모 해석 실패</td><td>유량비 · 부모값 · 형상 클래스</td></tr>
+              <tr><td>layer · 외벽 속도 · 선폭 결측</td><td>유량비</td></tr>
+              <tr><td><code>_wall_budget_short_share</code> 미기록</td><td>벽 예산</td></tr>
+              <tr><td>scarf 켜짐인데 <code>_scarf_loop_circumference_mm</code> 없음</td><td>scarf 길이 / 둘레 비율</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <a class="card-source" href="#negative">↗ 음성 대조 — 목록 없음 · 빈 목록 · enum 없음 변이</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">검사 항목 — FAIL 이 나는 자리</h3>
+  <div class="table-wrap prose">
     <table>
-      <thead>
-        <tr><th style="width:28%">필드</th><th style="width:34%">값</th><th>비고</th></tr>
-      </thead>
+      <thead><tr><th>검사</th><th>FAIL 조건</th><th>도입</th></tr></thead>
       <tbody>
-        <tr>
-          <td><code>type</code></td>
-          <td><code>"process"</code> 또는 <code>"filament"</code></td>
-          <td>JSON 분류 결정. 잘못 쓰면 그 카테고리 드롭다운에 안 뜸.</td>
-        </tr>
-        <tr>
-          <td><code>name</code></td>
-          <td><code>"&lt;모델명&gt; - &lt;변종&gt; 0.12mm"</code></td>
-          <td>사용자 인지 가능한 이름. UI에 그대로 노출되므로 식별성 우선.</td>
-        </tr>
-        <tr>
-          <td><code>version</code></td>
-          <td><code>"2.6.0.2"</code></td>
-          <td><strong style="color:var(--yellow)">Semver parseable</strong> 필수. Studio v2.6.0과 호환되는 값.</td>
-        </tr>
-        <tr>
-          <td><code>from</code></td>
-          <td><code>"User"</code></td>
-          <td><strong style="color:var(--red)">대문자 U</strong> — <code>"user"</code> 소문자는 silent skip된다.</td>
-        </tr>
-        <tr>
-          <td><code>inherits</code></td>
-          <td>시스템 프리셋명 정확 일치</td>
-          <td>못 찾으면 silent skip. 셸로 사전 검증 권장 (<code>ls ~/Library/Application Support/BambuStudio/system/BBL/...</code>).</td>
-        </tr>
-        <tr>
-          <td><code>print_settings_id</code> / <code>filament_settings_id</code></td>
-          <td><code>name</code>과 동일. filament은 <strong>배열 형태</strong></td>
-          <td>빠지면 "Preset type is unknown" 에러 또는 silent skip.</td>
-        </tr>
-        <tr>
-          <td><code>compatible_printers</code></td>
-          <td><code>["Bambu Lab H2S 0.4 nozzle"]</code></td>
-          <td>H2S 고정. 다른 프린터 문자열은 매칭 실패 → silent skip.</td>
-        </tr>
+        <tr><td>JSON · 메타필드</td><td>JSON 을 못 읽음 · <code>type</code> 이 process|filament 아님 · <code>name</code> · <code>version</code> · <code>inherits</code> 누락 · <code>from</code> 이 <code>"User"</code> 아님 · settings_id 누락 · filament settings_id 가 배열 아님</td><td>2026-07-27</td></tr>
+        <tr><td>금지 키 4 종</td><td>dict 키 정확 일치(부분 문자열 아님): <code>adaptive_layer_height</code> · <code>bed_temperature</code> · <code>bed_temperature_initial_layer</code> · <code>elephant_foot_compensation</code></td><td>2026-08-13</td></tr>
+        <tr><td>모르는 키</td><td>옵션 목록에 없는 키 — 불러올 때 오류 없이 버려진다. <code>_</code> 접두 · 메타 · 파일 머리 키는 제외</td><td>2026-09-15</td></tr>
+        <tr><td>키 스코프 불일치</td><td>이 파일 종류(process · filament)가 받지 않는 키 — 설정 가져오기가 지운다</td><td>2026-09-15</td></tr>
+        <tr><td>받지 않는 값</td><td>enum 키에 슬라이서가 받지 않는 값 — 기본값으로 바꿔 읽는다. 옛 이름 · 옛 값은 <code>WARN</code> 만</td><td>2026-09-15</td></tr>
+        <tr><td>형상 클래스</td><td><code>_geometry_class</code> 가 <code>planar</code> · <code>thin</code> 밖 · <code>outer_wall_speed</code> 를 적었는데 클래스 없음 · <code>thin</code> 인데 외벽 슬롯이 부모보다 낮음</td><td>2026-09-08</td></tr>
+        <tr><td><code>compatible_printers</code></td><td>H2S 가 없음</td><td>2026-07-27</td></tr>
+        <tr><td>공차 보정</td><td><code>elefant_foot_compensation</code> 음수 · 숫자 문자열 아님 · <code>raft_layers</code> 가 0 아님과 동시 지정</td><td>2026-07-27</td></tr>
+        <tr><td>유량비</td><td>인접 4 feature 중 가장 큰 비율이 5x 초과 (3~5x 는 <code>WARN</code>). 슬롯 번호를 함께 적는다</td><td>2026-09-05</td></tr>
+        <tr><td>벽 예산</td><td><code>_wall_budget_short_share</code> 10 % 이상인데 <code>wall_generator</code> 가 <code>classic</code> — 10 % 는 추정 문턱(결함 실측 22~90 %, 결함 없던 부품 0 %)</td><td>2026-09-19</td></tr>
+        <tr><td>허공 위 속도</td><td><code>_geometry_class</code> 가 기록됐거나 외벽을 낮췄는데 <code>bridge_speed</code> 슬롯 하나라도 30 초과</td><td>2026-09-22 · 09-23</td></tr>
+        <tr><td>scarf 길이</td><td>scarf 가 루프 둘레의 15 % 초과, 또는 3mm 미만</td><td>2026-09-05</td></tr>
+        <tr><td>소재 부모값</td><td><code>GUARDED</code> 5 키(<code>filament_retraction_length</code> · <code>filament_wipe_distance</code> · <code>filament_retraction_speed</code> · <code>filament_retraction_minimum_travel</code> · <code>filament_z_hop</code>)가 슬롯별로 부모의 1.5 배 초과</td><td>2026-09-05</td></tr>
+        <tr><td>값 형식</td><td>숫자 · 불리언 값 — 모든 값은 문자열이어야 한다</td><td>2026-07-27</td></tr>
       </tbody>
     </table>
   </div>
+  <p class="caption">통과한 파일은 <code>OK &lt;파일&gt;: type= from= keys= ironing= xy_hole= layer= brim= wipe= geometry=</code> 한 줄을 낸다 — 아래 「추가 의미 검증」 이 이 줄을 읽는다.</p>
 
-  <div class="callout">
-    <strong>왜 silent skip인가?</strong> Bambu Studio는 사용자 데이터 손상을 막기 위해 의심스러운 preset을 조용히 무시한다. 에러 다이얼로그 없음, 로그도 거의 없음. 이 스킬의 가장 큰 실패 모드이며 Codex run <code>a2a01770a87626167</code>이 7종 필드 조합을 모두 시험하여 도출한 baseline이다.
+  <div class="callout stop">
+    <strong>통과 규칙:</strong> <code>RESULT: PASS</code> 이면서 exit 0 이어야 zip · 완료 보고로 간다. <code>FAIL</code> 이면 JSON 을 고쳐 다시 돌리고 사용자에게 넘기지 않는다. <strong>출력이 비어 있으면 PASS 가 아니다</strong> — 파일 glob 이 아무것도 못 잡은 것이니 경로부터 고친다. 돌리지 않았거나 돌릴 수 없었으면 완료를 선언하지 말고 <code>[미검증]</code> 으로 적는다. 표지는 <code>[미검증]</code> 하나로 통일하고 비슷한 말(<code>미확인</code> · <code>N/A</code> · <code>TBD</code> · <code>unverified</code>)을 새로 만들지 않는다 — <code>qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol.
   </div>
 </div>
 
-<!-- ── Section 4: JSON 튜닝 정책 ── -->
-<div class="section">
-  <div class="section-label">JSON 튜닝 정책 (Override Scope)</div>
-  <p class="desc">"무엇을 만지고 무엇을 안 만지는가"가 명확해야 한다. 기본 원칙: <strong style="color:var(--text)">모델 형상/seam 전략에 직결되는 필드만 override</strong>. 사용자 영역(노즐 온도, retraction, fan)은 base profile 또는 .3mf creator 튜닝에 맡긴다.</p>
+<!-- ── 음성 대조 ── -->
+<div class="section" id="negative">
+  <div class="section-label">음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 · 09-15 · 09-25 시험 파일 전수)</div>
+  <p class="desc"><code>RESULT: PASS</code> 는 <strong>검사가 돌았다는 증거가 아니다.</strong> 검사가 죽어 있어도 PASS 가 나온다. 검사를 고쳤거나 옵션 목록을 새로 만들었으면 아래 시험 파일을 <strong>전부 실제로 넣어</strong> 기대대로 나오는지 본다.</p>
 
-  <div class="grid-2">
-
-    <div class="card">
-      <div class="card-header">
-        <span class="num">P</span>
-        <div>
-          <h3>Process JSON — Override 대상</h3>
-          <div class="rule-number">Print Geometry &amp; Strategy</div>
-        </div>
-      </div>
-      <div class="card-body">
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>layer_height</code>, <code>initial_layer_print_height</code> — 사용자 요구</li>
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>wall_loops</code>, <code>sparse_infill_density</code>, <code>top/bottom_shell_layers</code>, <code>wall_sequence</code> — 모델 형상 기반</li>
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>seam_position</code>, <code>seam_slope_*</code>, <code>scarf_angle_threshold</code>, <code>override_filament_scarf_seam_setting</code> — seam 전략</li>
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>outer_wall_speed</code>, <code>inner_wall_speed</code> — 소재별 · <code>_geometry_class</code> <code>planar</code> 한정. <code>thin</code> 은 부모 실효값 유지 (Surface Recipes §2.7)</li>
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>enable_arc_fitting</code> — 원통 모델</li>
-          <li><span style="color:var(--green);font-weight:700">+</span> 멀티컬러: <code>enable_prime_tower</code>, <code>prime_tower_width</code>/<code>brim_width</code>/<code>flat_ironing</code>, <code>flush_into_*</code></li>
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>enable_support</code>, <code>raft_layers</code></li>
-        </ul>
-      </div>
-      <a class="card-source" href="#" onclick="return false">↗ Codex run aab7cad186e9523af (멀티컬러 필드)</a>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <span class="num">F</span>
-        <div>
-          <h3>Filament JSON — Override 대상 (좁다)</h3>
-          <div class="rule-number">Scarf Only</div>
-        </div>
-      </div>
-      <div class="card-body">
-        <p><code>seam-recipes.md</code>에서 결정된 scarf 필드만 override한다. 그 외는 base profile에 위임.</p>
-        <h4>Override 허용</h4>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>filament_scarf_seam_type</code> (<code>none</code>/<code>external</code>/<code>all</code>)</li>
-          <li><span style="color:var(--green);font-weight:700">+</span> <code>filament_scarf_height</code>, <code>filament_scarf_gap</code>, <code>filament_scarf_length</code></li>
-        </ul>
-        <h4 style="margin-top:14px">절대 안 건드림 (DO NOT touch)</h4>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-          <li><span style="color:var(--red);font-weight:700">×</span> <code>nozzle_temperature</code>, <code>nozzle_temperature_initial_layer</code></li>
-          <li><span style="color:var(--red);font-weight:700">×</span> retraction / fan / cooling 관련 모든 필드 — <strong>예외 1 건</strong>: <code>_geometry_class</code> 가 <code>thin</code> 이면 사용자 확인 후 filament 스코프 <code>overhang_fan_threshold</code> <code>10%</code> 1 키 (Surface Recipes §2.7 · 설치본 ABS-GF / PETG HF 실효값)</li>
-        </ul>
-        <p style="margin-top:10px;font-size:12.5px;color:var(--text3)">사용자 명시 요청 (2026-05-16): .3mf creator 튜닝 값 또는 base profile 기본값을 유지한다.</p>
-      </div>
-      <a class="card-source" href="#" onclick="return false">↗ Codex run a06a8ac153247d901 (wipe_on_loops 부재 검증)</a>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── Section 5: Seam 전략 결정 트리 ── -->
-<div class="section">
-  <div class="section-label">Seam 전략 결정 트리</div>
-  <p class="desc">모델 형상이 seam 전략의 1차 결정 인자다. <code>seam-recipes.md</code>의 형상×소재 매트릭스 + Real-world findings에서 도출. PETG HF + entire_loop 콤보는 stringing에 민감하므로 사전/연속 건조 필수.</p>
-
-  <div class="card">
-<pre class="tree">회전체/원기둥 (전방향 노출)?
-  <span class="kw">YES</span> → seam_position: <span class="ok">random</span> + seam_slope_type: <span class="ok">external</span> + seam_slope_entire_loop: <span class="ok">1</span>
-        + seam_slope_inner_walls: <span class="ok">0</span>     <span class="cm"># 내벽 scarf 불필요 — 안 보이는 곳</span>
-        + wall_sequence: <span class="ok">inner-outer-inner wall</span>
-        + 소재별 scarf 파라미터:
-            <span class="kw">PETG</span>  → gap <span class="ok">8%</span>  / length <span class="ok">12</span>
-            <span class="kw">PLA</span>   → gap <span class="ok">10%</span> / length <span class="ok">20</span>
-
-  <span class="kw">NO</span>  → 형상 분기:
-       박스/직육면체    → seam_position: <span class="ok">back</span>    + 일반 seam (scarf 짧게 또는 <span class="ok">none</span>)
-       유기적/피규어    → seam_position: <span class="ok">aligned</span> + painted seam 가이드 (Studio UI)
-       얇은 벽/미세    → seam_position: <span class="ok">aligned</span> + scarf length 짧게 (<span class="ok">5-10mm</span>)</pre>
-
-    <div class="callout" style="margin-top:18px">
-      <strong>경고 — PETG HF + entire_loop:</strong> <code>seam-recipes.md</code> Finding 4 참조. stringing이 발생하면 거의 확실히 필라멘트 흡습이 원인이다. 사용자에게 <strong>AMS HT 65°C 8h 사전 건조 + continuous drying 필수</strong>임을 강조한다. 실측 H2D Vent Pipe 케이스에서 동일 패턴 재현됨.
-    </div>
-  </div>
-</div>
-
-<!-- ── Section 6: Gotcha 자기 검증 체크리스트 ── -->
-<div class="section">
-  <div class="section-label">Gotcha 자기 검증 체크리스트 (생성 직후 7항)</div>
-  <p class="desc">JSON 생성 직후 사용자에게 zip을 넘기기 <strong style="color:var(--text)">전에</strong> 7항을 self-verify한다. 한 항이라도 실패하면 그 자리에서 수정. silent skip은 사용자가 Studio에서 import한 뒤에야 발견되므로 비용이 크다.</p>
-
-  <div class="card">
-    <ul class="checklist">
-      <li><span class="check">1</span><div><code>version</code>이 <code>"2.6.0.2"</code> (또는 현재 Bambu Studio 버전 매칭). semver parseable이어야 함.</div></li>
-      <li><span class="check">2</span><div><code>from</code>이 <strong style="color:var(--text)">"User"</strong> (대문자 U). 소문자 <code>"user"</code>는 실패한다.</div></li>
-      <li><span class="check">3</span><div><code>print_settings_id</code> / <code>filament_settings_id</code> 존재. <strong style="color:var(--text)">filament은 배열</strong> 형태 (<code>["..."]</code>).</div></li>
-      <li><span class="check">4</span><div><code>inherits</code>가 시스템 프리셋에 실제 존재. 필요 시 셸 검증: <code>ls ~/Library/Application\ Support/BambuStudio/system/BBL/{process,filament,machine}/ | grep</code></div></li>
-      <li><span class="check">5</span><div><code>compatible_printers</code>에 H2S 명시 (<code>"Bambu Lab H2S 0.4 nozzle"</code>).</div></li>
-      <li><span class="check">6</span><div>filament JSON의 scarf 필드는 모두 <strong style="color:var(--text)">배열</strong> (<code>["..."]</code>). 스칼라로 두면 silent skip.</div></li>
-      <li><span class="check">7</span><div><code>nozzle_temperature</code> 등 사용자 영역 필드 안 건드렸는지. 무심코 base 값을 복사해 넣지 말 것.</div></li>
-    </ul>
-    <a class="card-source" href="#" onclick="return false">↗ Codex run a2a01770a87626167 (JSON import gate 검증)</a>
+  <div class="stats">
+    <div class="stat"><div class="v">23</div><div class="l">시험 파일 (<code>bambu-kit/evals/gate-fixtures/</code>) — FAIL 기대 20 · <code>[미검증]</code> 만 기대 1 · PASS 기대 2</div></div>
+    <div class="stat"><div class="v">7</div><div class="l">숫자 값까지 보는 규칙 — 전부 FAIL 시험 파일이 있다</div></div>
+    <div class="stat"><div class="v">8</div><div class="l">폴더에만 있고 한 번도 안 돌던 시험 파일 (2026-09-24)</div></div>
+    <div class="stat"><div class="v">1 건</div><div class="l">FAIL 기대 파일이 내야 할 목표 위반 수 — 그 외 위반 0</div></div>
   </div>
 
   <div class="callout">
-    <strong>키 판정은 슬라이서 버전별 옵션 목록으로 한다 (2026-09-15):</strong>
-    검사는 <code>references/option-keys/&lt;슬라이서&gt;-&lt;버전&gt;.tsv</code> 로 세 가지를 판정한다.
-    슬라이서가 모르는 키는 <strong>모르는 키</strong>, 다른 종류 프리셋의 키는 <strong>키 스코프 불일치</strong>,
-    enum 키에 슬라이서가 받지 않는 값을 넣으면 <strong>받지 않는 값</strong> 으로 FAIL 한다. 옛 이름과 옛 값은
-    슬라이서가 바꿔 읽으므로 <code>옛 이름</code> · <code>옛 값</code> 경고만 낸다.
-    <br><br>
-    목록은 두 슬라이서의 태그 소스를 부분 빌드한 판정 프로그램(<code>bambu-kit/scripts/option-key-probe/</code>)이
-    <strong>슬라이서 자신의 판정 함수로</strong> 뽑았다 (오르카 2.4.2 받는 키 749 · 뱀부 02.08.02.61 받는 키 679).
-    그전에는 번들 프로파일에 키가 등장하는지로 판정했는데 두 구멍이 있었다 — 오르카는 뱀부 제조사 프로파일을
-    싣고 다녀서 뱀부 전용 키 <code>override_filament_scarf_seam_setting</code> 이 통과했고, 뱀부 process 기본
-    프로파일에 잘못 들어간 filament 키 <code>pre_start_fan_time</code> 이 종류 허용 근거가 됐다.
-    <br><br>
-    설치본 버전의 목록이 없으면 다른 버전 목록으로 대신 검사하지 않고 <code>[미검증]</code> 으로 보고한다.
-    <strong>부모 체인 해석은 뱀부 제조사 폴더 안에 가둔다</strong> — 같은 이름 프로파일이 제조사마다 있어 엉뚱한 부모를 잡는다.
+    <strong>시험 파일을 새로 만들 때 — 그 키를 보는 규칙이 있는지부터 확인한다.</strong> 옵션 목록은 키 이름 · 받는 프리셋 종류 · <strong>enum 값</strong>만 본다. 숫자 키의 값은 판정하지 않으므로 아무 숫자 키에 말도 안 되는 값을 넣은 시험 파일은 <strong>그냥 통과한다</strong>(실측 2026-09-23: <code>top_surface_acceleration</code> <code>99999</code> → <code>RESULT: PASS</code>). 값까지 보는 규칙은 일곱이다 — 공차 보정 음수 금지(<code>elefant_foot_compensation</code>) · 형상 클래스별 외벽 하향(<code>outer_wall_speed</code>) · 유량비 5x(인접 속도 4 키) · 벽 예산(<code>_wall_budget_short_share</code>) · 허공 위 속도(<code>bridge_speed</code> 30 초과) · scarf 길이 비율(<code>seam_slope_min_length</code> ÷ <code>_scarf_loop_circumference_mm</code>) · 소재 부모값 1.5 배(<code>GUARDED</code> 키). 금지 키 · <code>compatible_printers</code> · 메타필드 · 숫자 형식 검사는 아직 FAIL 시험 파일이 없다.
   </div>
 
-  <div class="callout">
-    <strong>음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신설 · 2026-09-15 갱신):</strong>
-    <code>RESULT: PASS</code> 는 <strong>검사가 돌았다는 증거가 아니다.</strong> 검사가 죽어 있어도 PASS 가 나온다.
-    그래서 게이트를 고쳤거나 옵션 목록을 새로 만들었으면 <code>evals/gate-fixtures/</code> 의 시험용 파일 4 종
-    (모르는 키 · 종류 두 가지 · 받지 않는 값)을 실제로 주입해 <strong>FAIL 1 건</strong>이 나오는지 보고, 이어서
-    <strong>목표 검사만 지운 사본</strong>으로 돌려 <code>RESULT: PASS</code> 로 바뀌는지까지 본다. 바뀌지 않으면
-    시험용 파일에 목표 외 위반이 남아 있는 것이라 판별력이 없다 — 실측 2026-09-14 에 두 파일이 각각 오류
-    7 건 · 6 건을 내며 그 상태였다. 종류 판정 근거를 옛 방식(번들 프로파일 합집합)으로 되돌리면
-    <code>pre_start_fan_time</code> 이 다시 통과한다는 점이 목록이 막은 구멍을 보여준다. 목록 폴더가 없으면
-    FAIL 대신 <code>[미검증]</code> 이 남는다.
-  </div>
-
-  <div class="callout">
-    <strong>WebFetch fallback 체인:</strong> WebFetch (보통 Cloudflare 차단) → <code>codex-rescue</code> 에이전트에 research 위임 (캐시 검색 결과 활용 가능) → 사용자에게 직접 정보 요청 ("이 모델 어떤 부품 구성이고 어떤 소재 권장돼?"). WebFetch 시도로 토큰을 낭비하지 말 것.
-  </div>
-</div>
-
-<!-- ── Section 7: 검증된 실측 사례 + 출처 ── -->
-<div class="section">
-  <div class="section-label">검증된 실측 사례 + 출처</div>
-  <p class="desc">v1 스킬은 손으로 수집한 실측 피드백 2건을 baseline으로 한다. v2 카이젠은 홈서버 Linux daemon이 MQTT + FTPS + JSONL로 print outcome을 자동 capture하여 references에 환류하는 것을 목표로 한다 (TODO.md).</p>
-
-  <div class="table-wrap">
+  <div class="table-wrap prose">
     <table>
-      <thead>
-        <tr><th>모델</th><th>소재</th><th>결과</th><th>seam 전략</th></tr>
-      </thead>
+      <thead><tr><th>주입 (<code>evals/gate-fixtures/</code>)</th><th>슬라이서</th><th>기대</th><th>지운 사본</th><th>안 잡히면</th></tr></thead>
       <tbody>
-        <tr>
-          <td>Box opener knife <br><code style="font-size:11px">MakerWorld 583712</code></td>
-          <td>PLA Basic dual-color</td>
-          <td><span class="badge badge-ok">정상 출력</span> 검증됨</td>
-          <td>회전체 손잡이는 <code>random</code> + <code>external</code></td>
-        </tr>
-        <tr>
-          <td>H2D Vent Pipe <br><code style="font-size:11px">MakerWorld 1441653</code></td>
-          <td>PETG HF + TPU 90A</td>
-          <td><span class="badge badge-warn">stringing 발생</span> (필라멘트 건조 부족 의심)</td>
-          <td><code>random</code> + <code>external</code> + <code>entire_loop</code></td>
-        </tr>
+        <tr><td><code>process-bambu-only-key-in-orca.json</code></td><td>orca</td><td>모르는 키 <strong>FAIL 1 건</strong> (<code>override_filament_scarf_seam_setting</code>)</td><td><code>모르는 키</code> 줄을 <code>pass</code> 로</td><td>오르카가 모르는 뱀부 키가 통과한다</td></tr>
+        <tr><td><code>process-pre-start-fan-time.json</code></td><td>bambu</td><td>키 스코프 불일치 <strong>FAIL 1 건</strong> (<code>pre_start_fan_time</code> · filament)</td><td>종류 근거를 번들 합집합으로</td><td>제조사 프로파일의 실수가 허용 근거가 됐다</td></tr>
+        <tr><td><code>process-machine-scope-key.json</code></td><td>bambu</td><td>키 스코프 불일치 <strong>FAIL 1 건</strong> (<code>retraction_minimum_travel</code> · machine)</td><td><code>키 스코프 불일치</code> 줄을 <code>pass</code> 로</td><td>종류 판정이 죽었다</td></tr>
+        <tr><td><code>process-seam-slope-type-invalid.json</code></td><td>bambu</td><td>받지 않는 값 <strong>FAIL 1 건</strong> (<code>seam_slope_type</code>)</td><td><code>받지 않는 값</code> 줄을 <code>pass</code> 로</td><td>enum 값 판정이 죽었다</td></tr>
+        <tr><td><code>process-bridge-speed-not-lowered.json</code></td><td>bambu</td><td>허공 위 속도 <strong>FAIL 1 건</strong> (<code>bridge_speed</code> 50)</td><td><code>허공 위 속도</code> 줄을 <code>pass</code> 로</td><td>외벽만 낮추고 허공 위를 그대로 둔 프로파일이 통과한다</td></tr>
+        <tr><td><code>process-bridge-class-recorded.json</code></td><td>bambu</td><td>허공 위 속도 <strong>FAIL 1 건</strong> (외벽 하향 없음)</td><td>같음</td><td>형상만 재고 외벽을 안 낮춘 설정이 부모 50 을 그대로 쓴다</td></tr>
+        <tr><td><code>process-bridge-extruder-mismatch.json</code></td><td>bambu</td><td>허공 위 속도 <strong>FAIL 1 건</strong> (슬롯 2 만 50)</td><td>같음</td><td>첫 칸만 읽어 2 · 3 번 슬롯이 안 보인다</td></tr>
+        <tr><td><code>process-thin-outer-slot2.json</code></td><td>bambu</td><td>thin 라우팅 <strong>FAIL 1 건</strong> (슬롯 2 만 하향)</td><td><code>_geometry_class=thin</code> 줄을 <code>pass</code> 로</td><td>슬롯별 외벽 하향이 안 보인다</td></tr>
+        <tr><td><code>process-bridge-unreadable-slot.json</code></td><td>bambu</td><td>허공 위 속도 <strong>FAIL 1 건</strong> (슬롯 2) + <code>[미검증]</code> 1 줄 (슬롯 1)</td><td><code>허공 위 속도</code> 줄을 <code>pass</code> 로</td><td>못 읽는 칸 하나가 나머지 슬롯 검사를 통째로 끈다</td></tr>
+        <tr><td><code>process-thin-unreadable-slot.json</code></td><td>bambu</td><td>thin 라우팅 <strong>FAIL 1 건</strong> (슬롯 2) + <code>[미검증]</code> 1 줄 (슬롯 1)</td><td><code>_geometry_class=thin</code> 줄을 <code>pass</code> 로</td><td>못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다</td></tr>
+        <tr><td><code>filament-unreadable-slot.json</code></td><td>bambu</td><td>FAIL 0 건 + <code>[미검증]</code> 1 줄 (슬롯 1)</td><td>못 읽은 칸 알림 줄을 <code>pass</code> 로</td><td>소재 부모값 이탈 검사가 조용히 꺼진다</td></tr>
+        <tr><td><code>filament-scope-process-key.json</code></td><td>bambu</td><td>키 스코프 불일치 <strong>FAIL 1 건</strong> (<code>outer_wall_speed</code> · process)</td><td><code>키 스코프 불일치</code> 줄을 <code>pass</code> 로</td><td>process 키를 소재 설정에 넣어도 통과한다</td></tr>
+        <tr><td><code>process-scope-filament-key.json</code></td><td>bambu</td><td>키 스코프 불일치 <strong>FAIL 1 건</strong> (<code>overhang_fan_threshold</code> · filament)</td><td>같음</td><td>냉각 키를 process 에 넣어도 통과한다</td></tr>
+        <tr><td><code>process-class-unknown.json</code></td><td>bambu</td><td>형상 클래스 허용값 <strong>FAIL 1 건</strong> (<code>lattice</code>)</td><td><code>_geometry_class=.geometry.r.</code> 줄을 <code>pass</code> 로</td><td>허용 밖 형상 클래스가 통과한다</td></tr>
+        <tr><td><code>process-speed-without-class.json</code></td><td>bambu</td><td>형상 클래스 없음 <strong>FAIL 1 건</strong></td><td><code>outer_wall_speed 를 명시했는데</code> 줄을 <code>pass</code> 로</td><td>형상을 재지 않고 외벽을 낮춘 설정이 통과한다</td></tr>
+        <tr><td><code>process-thin-speed-lowered.json</code></td><td>bambu</td><td>thin 라우팅 <strong>FAIL 1 건</strong> (슬롯 1)</td><td><code>_geometry_class=thin</code> 줄을 <code>pass</code> 로</td><td>thin 인데 외벽을 낮춘 설정이 통과한다</td></tr>
+        <tr><td><code>process-wall-budget-classic.json</code></td><td>bambu</td><td>벽 예산 <strong>FAIL 1 건</strong> (72 %)</td><td><code>벽 예산 미달 비율</code> 줄을 <code>pass</code> 로</td><td>벽이 못 들어가는 틈을 갭필로 메우는 설정이 통과한다</td></tr>
+        <tr><td><code>process-flow-ratio-over.json</code></td><td>bambu</td><td>유량비 <strong>FAIL 1 건</strong> (<code>sparse_infill_speed</code> 7.1x)</td><td><code>유량비</code> 줄을 <code>pass</code> 로</td><td>인접 속도가 외벽의 5 배를 넘어도 통과한다</td></tr>
+        <tr><td><code>process-scarf-ratio-over.json</code></td><td>bambu</td><td>scarf 길이 비율 <strong>FAIL 1 건</strong> (20 %)</td><td><code>scarf 길이 .L.mm 가 루프</code> 줄을 <code>pass</code> 로</td><td>scarf 가 둘레의 15 % 를 넘어도 통과한다</td></tr>
+        <tr><td><code>filament-retraction-over-parent.json</code></td><td>bambu</td><td>소재 부모값 <strong>FAIL 1 건</strong> (<code>filament_retraction_length</code> 슬롯 1)</td><td><code>.k. 슬롯</code> 줄을 <code>pass</code> 로</td><td>부모값의 1.5 배를 넘긴 되감기가 통과한다</td></tr>
+        <tr><td><code>process-elefant-foot-negative.json</code></td><td>bambu</td><td>공차 보정 음수 <strong>FAIL 1 건</strong> (<code>-0.1</code>)</td><td><code>if float(eff)&lt;0:</code> 줄을 <code>pass</code> 로</td><td>음수 공차 보정이 통과한다</td></tr>
+        <tr><td><code>filament-lattice-fanfix.json</code></td><td>bambu</td><td><span class="badge badge-ok">PASS</span> · <code>[미검증]</code> 0 줄 — 냉각 키를 소재 설정에 둔 정상 설정</td><td>—</td><td>정상 설정이 FAIL 로 막힌다</td></tr>
+        <tr><td><code>process-thin-baseline.json</code></td><td>bambu</td><td><span class="badge badge-ok">PASS</span> (+ 벽 예산 <code>[미검증]</code> 1 줄) — thin 인데 외벽을 안 낮춘 정상 설정</td><td>—</td><td>정상 설정이 FAIL 로 막힌다</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="grid-2" style="margin-top:24px">
     <div class="card">
-      <div class="card-header">
-        <span class="num">★</span>
-        <div>
-          <h3>References 빌드 출처</h3>
-          <div class="rule-number">Codex Research Runs</div>
+      <h3>FAIL 이 났다는 것만으로는 부족하다 — 세 단계</h3>
+      <div class="card-body">
+        <p>시험 파일이 목표 외 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서 "검사가 살아 있다" 를 증명하지 못한다. 2026-09-14 감사에서 두 파일이 오류 7 건 · 6 건을 내며 그 상태였다. 그래서 시험 파일은 <strong>목표 위반 하나만 남기고 나머지 필드를 전부 정상값으로</strong> 채운다.</p>
+        <ul class="checklist" style="margin-top:8px">
+          <li><span class="check">1</span><div>검사 원본을 SKILL.md 에서 그대로 파일로 뽑는다 — 손으로 베끼면 어긋난다</div></li>
+          <li><span class="check">2</span><div>원본으로 돌려 <strong>FAIL 1 건 · exit 1</strong> (PASS 기대 파일은 <code>RESULT: PASS</code> · exit 0)</div></li>
+          <li><span class="check">3</span><div>목표 검사만 지운 사본으로 돌려 <strong><code>RESULT: PASS</code> · exit 0</strong> 으로 바뀌는지 본다. 안 바뀌면 시험 파일에 목표 외 위반이 남은 것이다</div></li>
+        </ul>
+      </div>
+      <a class="card-source" href="#gate">↗ Phase 4.3 검사 본문</a>
+    </div>
+
+    <div class="card">
+      <h3>뽑기 · 짝 맞추기 · 지우기 (발췌)</h3>
+<pre>GATE=$(mktemp -t gate)          <span class="cm"># X 가 맨 끝이어야 macOS 가 치환한다</span>
+S=bambu-kit/skills/bambu-print-profile/SKILL.md
+A=$(grep -n '^TARGET_SLICER=.* python3 - ' "$S" | head -1 | cut -d: -f1)
+B=$(awk -v s="$A" 'NR&gt;s &amp;&amp; $(0)=="PY" {print NR; exit}' "$S")
+sed -n "$((A+1)),$((B-1))p" "$S" &gt; "$GATE"
+<span class="cm"># 빈 파일을 뽑으면 python3 이 빈 스크립트를 exit 0 으로 돌린다 (2026-09-24)</span>
+if [ ! -s "$GATE" ] || ! grep -q 'RESULT' "$GATE"; then echo "STOP"; exit 1; fi
+<span class="cm"># (1) 폴더 ↔ 표 ↔ 실행 줄 짝 맞추기 — 양방향 (MISSING · ORPHAN)</span>
+<span class="cm"># (2) 검사 유지 — 23 개를 TARGET_SLICER=… python3 "$GATE" $FX/&lt;파일&gt; 로</span>
+<span class="cm"># (3) 검사 제거</span>
+drop() {
+  sed -E "s/^( *)errs\.append\(f?\"${1} .*$/\1pass/" "$GATE" &gt; "$GATE.${2}"
+  diff "$GATE" "$GATE.${2}" | grep -c '^&gt;'     <span class="cm"># 1 이어야 변이가 먹은 것</span>
+}</pre>
+      <a class="card-source" href="#negative">↗ SKILL.md 음성 대조 원문</a>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <div class="phase-tag">09-25 신규 · (1)</div>
+      <h3>짝 맞추기를 양방향으로</h3>
+      <div class="card-body">
+        <p><strong>MISSING</strong> — 폴더의 시험 파일이 표와 (2) 실행 줄에 다 있는지. 표에만 넣거나 폴더에만 두면 그 파일은 한 번도 안 돈다(2026-09-24: 8 개).</p>
+        <p><strong>ORPHAN</strong> — 표 행이나 실행 줄에 이름이 있는데 폴더에 파일이 없는지. 파일만 지우면 그 실행 줄이 "파일 없음" 으로 exit 1 을 내 기대한 FAIL 처럼 보인다(2026-09-25 교차 진단). 하나라도 있으면 <code>STOP</code>.</p>
+      </div>
+      <a class="card-source" href="#negative">↗ 위 시험 파일 표</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">drop() 이 못 바꾸는 자리</div>
+      <h3>따로 만든 변이</h3>
+      <div class="card-body">
+        <ul class="plain">
+          <li><strong>공차 음수</strong> — <code>if</code> 와 한 줄이라 그 줄만 <code>pass</code> 로</li>
+          <li><strong>못 읽은 칸 알림</strong> — <code>errs</code> 가 아니라 <code>unverified</code> 라서 그 줄만 지운다. <code>[미검증]</code> 줄이 1 → 0</li>
+          <li><strong>번들 합집합</strong> — 종류 근거를 옛 방식으로 되돌리면 <code>pre_start_fan_time</code> 이 다시 통과해야 한다</li>
+          <li><strong>목록 없음</strong> — 폴더 경로를 없는 곳으로</li>
+          <li><strong>빈 목록</strong> <span class="badge badge-info">09-25</span> — 빈 tsv 를 담은 임시 기준 폴더</li>
+          <li><strong>enum 없는 목록</strong> <span class="badge badge-info">09-25</span> — enum 줄만 뺀 목록. <code>받지 않는 값</code> FAIL 대신 <code>[미검증] … enum 0 줄</code></li>
+        </ul>
+        <p>변이마다 "바뀐 줄 1 개" · "기준점 1 개" 를 먼저 찍어 변이가 실제로 먹었는지 본다.</p>
+      </div>
+      <a class="card-source" href="#gate">↗ Phase 4.3 [미검증] 표</a>
+    </div>
+    <div class="card">
+      <div class="phase-tag">왜 enum 을 따로 보나</div>
+      <h3>슬라이서는 틀린 값을 조용히 바꾼다</h3>
+      <div class="card-body">
+        <p>실측 2026-09-14: <code>seam_slope_type</code> 에 <code>hole</code> 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고 스카프가 통째로 사라진다(받는 값은 <code>none</code> · <code>external</code> · <code>all</code> 뿐). 사용자는 켰다고 믿는데 산출물에는 없다.</p>
+        <p><strong>키 이름 오타도 조용히 사라진다</strong> — 가짜 키 <code>jackson_totally_fake_key</code> 는 exit 0 · 경고 0 으로 없어졌다. 목록 자체가 의심되면 가짜 키를 넣어 명령줄로 슬라이스한 뒤 결과 3mf 의 <code>Metadata/project_settings.config</code> 에서 그 키가 사라지는지 본다.</p>
+      </div>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline §11.1</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px">실측 2026-09-15 (zsh · 변이 적용 확인 값은 전부 1)</h3>
+<pre>[검사 유지]    FAIL process-bambu-only-key-in-orca.json: 모르는 키 override_filament_scarf_seam_setting: orca 2.4.2 옵션 목록에 없다 …   exit=1
+               FAIL process-pre-start-fan-time.json: 키 스코프 불일치 pre_start_fan_time: … bambu 는 filament 프리셋에서만 받는다 …   exit=1
+               FAIL process-machine-scope-key.json: 키 스코프 불일치 retraction_minimum_travel: … bambu 는 machine 프리셋에서만 받는다 …   exit=1
+               FAIL process-seam-slope-type-invalid.json: 받지 않는 값 seam_slope_type='hole': bambu 가 기본값으로 바꿔 읽는다 — 받는 값: all, external, none   exit=1
+[모르는 키 제거]   OK process-bambu-only-key-in-orca.json …   RESULT: PASS   exit=0
+[스코프 제거]      OK process-machine-scope-key.json …        RESULT: PASS   exit=0
+[받지 않는 값 제거] OK process-seam-slope-type-invalid.json …  RESULT: PASS   exit=0
+[번들 합집합]      OK process-pre-start-fan-time.json …       RESULT: PASS   exit=0
+[목록 없음]        OK process-bambu-only-key-in-orca.json …
+                   [미검증] …/option-keys-없음/orca-2.4.2.tsv 없음 — 키 존재 · 종류 · enum 값 검사 미실행 …   RESULT: PASS   exit=0</pre>
+  <p class="caption">번들 합집합으로 되돌리면 <code>pre_start_fan_time</code> 이 통과한다는 점이 핵심이다 — 뱀부 process 기본 프로파일 <code>fdm_process_common.json</code> 이 그 키를 잘못 담고 있어 프로파일 등장 여부로는 종류를 판정할 수 없다. 목록이 없거나 · 비었거나 · enum 줄이 빠졌으면 FAIL 대신 <code>[미검증]</code> 이 남는다 — 이 줄이 있으면 완료를 선언하지 않는다.</p>
+
+  <h3 style="margin-top:28px" id="semantic">추가 의미 검증 — 스크립트가 못 잡는 항목 (위 <code>OK</code> 줄을 눈으로 대조)</h3>
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">1</span><div>Phase 1.8 이 <strong>표면 우선</strong>인데 <code>ironing=no ironing</code> → 진입 조건 실패, Phase 3 다시</div></li>
+      <li><span class="check">2</span><div>Phase 1.7 이 <strong>fit-critical ≥ 1</strong> 인데 <code>xy_hole=-</code>(키 없음) → 공차 반영 누락</div></li>
+      <li><span class="check">3</span><div>오브젝트를 color-paint 할 예정이면 <code>xy_hole</code> · <code>xy_contour</code> 는 슬라이서가 버린다 — 사용자에게 경고했는지</div></li>
+      <li><span class="check">4</span><div><span class="when-tag">08-13</span>L1 감지인데 <code>layer=-</code> 또는 <code>0.2</code> 그대로 → L1 미대응. "adaptive 는 범위 밖" 보고를 notes.md 에 실제로 썼는지 (검사는 JSON 만 본다)</div></li>
+      <li><span class="check">5</span><div><span class="when-tag">08-13</span>L3 감지인데 <code>brim=-</code> → L3 미대응</div></li>
+      <li><span class="check">6</span><div><span class="when-tag">08-13</span>L2 감지인데 건조 확인 (0) 단계 없이 <code>wipe=1</code> → 순서 위반</div></li>
+      <li><span class="check">7</span><div><span class="when-tag">09-08</span><code>geometry=-</code> 인데 <code>outer_wall_speed</code> 를 적음 → 형상 클래스 미측정. notes.md 에 클래스와 측정값(루프 수 · 둘레 · 비율)을 썼는지</div></li>
+      <li><span class="check">8</span><div><span class="when-tag">09-22</span>외벽을 낮췄는데 <code>bridge_speed</code> 가 없음 → 부모 <code>50</code> 이 살아남는다. 부모 해석 실패로 <code>[미검증]</code> 이면 값을 눈으로 확인</div></li>
+      <li><span class="check">9</span><div><span class="when-tag">09-22</span>소재가 ABS · ASA 인데 <code>ironing=topmost</code> → 기본값 위반. 실물 비교 뒤 사용자 요청이면 그 근거를 notes.md 에 적었는지</div></li>
+      <li><span class="check">10</span><div><span class="when-tag">09-23</span>속도 키를 슬롯마다 다르게 쓸 이유가 있는지 — 부모와 슬롯 수가 다르면(뱀부 3 칸 · 오르카 2 칸) 짧은 쪽까지만 비교하므로 남는 슬롯은 눈으로</div></li>
+      <li><span class="check">11</span><div><span class="when-tag">09-23</span><code>못 읽었다</code> 미검증 줄이 있으면 그 칸 값을 눈으로. <code>150%</code> 같은 비율 표기면 그 키가 비율을 받는지 옵션 목록에서 확인 (<code>bridge_speed</code> 는 아니다)</div></li>
+    </ul>
+    <a class="card-source" href="surface-recipes.html">↗ Surface Recipes §2.7 · §4 · §5.1</a>
+  </div>
+</div>
+
+<!-- ── Phase 4.4 ── -->
+<div class="section" id="verify">
+  <div class="section-label">Phase 4.4 — Import 후 확인 · 값 섞임 방지 · G-code 대조</div>
+  <p class="desc">생성 뒤 <code>File → Import → Import Configs...</code> 로 zip 을 고르고, 왼쪽 Process · Filament 드롭다운에 새 preset 이 보이는지 <strong>반드시 확인</strong>하게 한다. 안 보이면 셸로 <code>.json</code> + <code>.info</code> 짝을 본다.</p>
+<pre>ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/process/"
+ls "$HOME/Library/Application Support/BambuStudio/user/&lt;userid&gt;/filament/"</pre>
+
+  <div class="callout stop">
+    <strong>제작자 3mf 로 출력할 때 — 값 섞임 (2026-09-19):</strong> 제작자 3mf 를 연 뒤 드롭다운에서 생성한 설정으로 바꾸면, 설정 전환 창(Transfer · Discard · Save)의 Transfer 가 <strong>3mf 에 들어 있던 제작자 값</strong>을 새 설정 위로 옮긴다. 실측(H2 AMS Flipper): 생성 설정과 달리 <code>bottom_shell_layers</code> 5 · <code>outer_wall_acceleration</code> 4000 · <code>default_acceleration</code> 9000 이 그대로 출력됐다. 설정 파일로는 안 보이고 보낸 G-code 에서만 드러난다. 그래서 두 가지를 한다.
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="num">1</span><div><h3>값을 박아 넣은 3mf 를 같이 준다</h3><div class="rule-number">bake</div></div></div>
+      <div class="card-body">
+        <p>제작자 3mf 의 프로젝트 설정에 생성한 process · filament 값을 박아 넣는다 — 사용자는 그 3mf 를 열기만 하고 드롭다운을 바꾸지 않는다.</p>
+        <ul class="plain">
+          <li><code>print_settings_id</code> · <code>filament_settings_id</code> 를 생성 이름으로 바꾼다</li>
+          <li>프로젝트 설정에 없는 키는 <code>FAIL</code> — 이 슬라이서가 모르는 키일 수 있다</li>
+          <li><strong>칸마다 옮긴다</strong> <span class="badge badge-info">09-25</span> — 칸 수가 같으면 그대로, 한 값이면 프로젝트 칸 수만큼 채우고, 칸 수도 값도 다르면 <code>FAIL</code>. 첫 칸만 모든 칸에 복사하던 판은 <code>["25","30"]</code> 을 <code>["25","25"]</code> 로 만들었다(2026-09-24 재현)</li>
+          <li><code>different_settings_to_system</code> 의 해당 칸(process 0 · filament 1)에 바뀐 키를 더한다 — 스튜디오가 바뀐 값 표시를 할 때 읽는 칸이다</li>
+          <li>출력 안 함 부품은 건드리지 않는다 — Phase 1.0 보고를 따른다</li>
+        </ul>
+      </div>
+      <a class="card-source" href="#phase10">↗ Phase 1.0 printable 보고</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="num">2</span><div><h3>보낸 뒤 G-code 로 대조한다</h3><div class="rule-number">compare</div></div></div>
+      <div class="card-body">
+        <p>스튜디오가 자른 G-code 는 <code>$(getconf DARWIN_USER_TEMP_DIR)/bamboo_model/&lt;날짜&gt;/&lt;세션&gt;/Metadata/.&lt;번호&gt;.0.gcode</code> 에 남는다. 세션마다 폴더가 따로 생기고 스튜디오를 닫아도 지워지지 않는다(실측 2026-09-19). <code>latest</code> 를 주면 가장 최근 것을 읽는다.</p>
+        <ul class="plain">
+          <li><code>; CONFIG_BLOCK_START</code> ~ <code>END</code> 사이의 <code>; key = value</code> 를 읽는다. 구간이 없으면 <code>FAIL</code></li>
+          <li><strong>칸마다 대조한다</strong> <span class="badge badge-info">09-25</span> — 첫 칸만 보면 슬롯 2 · 3 이 달라도 PASS 였다. 따옴표 칸은 csv 로 푼다. 칸 수가 다르면 <code>WARN</code> 으로 비교 못 한 슬롯을 적는다</li>
+          <li><code>MISMATCH</code> 가 1 개라도 나오면 출력을 멈추고 값을 박은 3mf 부터 다시 연다</li>
+        </ul>
+<pre>python3 - latest "&lt;process.json&gt;" ["&lt;filament.json&gt;"] &lt;&lt;'PY'
+<span class="cm"># … SKILL.md Phase 4.4 원문</span>
+PY
+<span class="cm"># MISMATCH bridge_speed 슬롯 2: 설정 '25' · 보낸 값 '50'</span>
+<span class="cm"># RESULT: FAIL 1 개</span></pre>
+      </div>
+      <a class="card-source" href="#phase4">↗ notes.md §4 7 단계</a>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>두 스크립트 자기 검사 <span class="badge badge-info">2026-09-25 신규</span></h3>
+      <div class="card-body">
+        <p>칸이 여럿인 설정을 두 스크립트가 칸마다 다루는지 가짜 입력으로 먼저 본다. 기대와 다르면 박은 3mf 와 대조 결과를 믿지 않는다. <code>SKILL_DIR</code> 을 비워 두면 <code>S</code> 가 <code>/SKILL.md</code> 가 되어 빈 코드를 도므로 먼저 멈춘다. 뽑은 줄 수가 0 이면 멈춘다.</p>
+        <div class="table-wrap prose" style="margin-top:6px">
+          <table>
+            <thead><tr><th>가짜 입력</th><th>기대</th></tr></thead>
+            <tbody>
+              <tr><td>G-code <code>bridge_speed = 25,50,25</code> vs 설정 <code>["25","25","25"]</code></td><td><code>MISMATCH bridge_speed 슬롯 2</code> 한 줄 · <code>exit=1</code></td></tr>
+              <tr><td>프로젝트 <code>["50","50"]</code> 에 설정 <code>["25","30"]</code> 박기</td><td><code>['25', '30']</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:10px">보내기 전에 명령줄로 잘라 같은 대조를 할 수도 있다 — <code>/Applications/BambuStudio.app/Contents/MacOS/BambuStudio --slice 1 --outputdir &lt;빈 폴더&gt; &lt;3mf&gt;</code> 가 <code>plate_1.gcode</code> 를 낸다. 화면에서는 경고인 "감김 감지 구역에 너무 가깝다" 가 명령줄에서는 오류(<code>return_code -64</code>)로 멈추므로 비교용 사본의 <code>enable_wrapping_detection</code> 을 <code>"0"</code> 으로 둔다. 비정상 종료하면 사용자 화면에 종료 창이 뜨니 돌리기 전에 알린다.</p>
+      </div>
+      <a class="card-source" href="#verify">↗ bake · compare 원문</a>
+    </div>
+
+    <div class="card">
+      <h3>G-code 로 길이 재기 <span class="badge badge-info">2026-09-25 신규</span></h3>
+      <div class="card-body">
+        <p>갭필 · 허공 위 · 다림질 길이처럼 G-code 에서 잰 수치를 근거로 쓸 때는 이 블록으로 잰다. 세션마다 새로 짠 스크립트가 호(<code>G2</code> · <code>G3</code>)를 빠뜨렸다 — 호 길이가 빠지고, 호에서 좌표를 안 옮기면 다음 직선이 부풀어 총합이 <strong>그럴듯하게 틀린다</strong>(2026-09-22). 이 킷은 <code>enable_arc_fitting</code> 을 끄지 않으므로 곡선은 호 명령으로 나온다.</p>
+<pre><span class="cm"># G2 3/4 호(반지름 2) · G3 1/4 호(반지름 4) — 방향 무시 · 방향 바꾸기를 둘 다 잡는 알려진 답</span>
+KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1",
+         "G2 X12 Y2 I0 J2 E1", "G3 X16 Y6 I0 J4 E1", "G1 X26 Y6 E1"]
+<span class="cm"># SELFTEST 직선 20.000 · 호 15.708 · 합 35.708 — 다르면 실제 G-code 는 재지 않는다</span></pre>
+        <ul class="plain">
+          <li>직선(<code>G0</code> · <code>G1</code>)과 호를 따로 센다. XY 평면 길이, <code>M82</code> · <code>M83</code> · <code>G90</code> · <code>G91</code> · <code>G92</code> 를 따른다</li>
+          <li><code>R</code> 로 적은 호는 재지 않고 멈춘다 — <code>I</code> · <code>J</code> 호만</li>
+          <li>시작점 = 끝점이면 한 바퀴. 제자리 압출(되감기 복귀)은 길이 0 이라 세지 않는다</li>
+          <li><code>; FEATURE: </code> 줄 0 개 또는 압출 이동 0 개면 <code>FAIL</code> — 빈 결과는 통과가 아니다</li>
+          <li>기능별 <code>직선 m · 호 m · 합 m · 호 비율</code> 을 낸다 — 근거로 쓸 때 <code>SELFTEST</code> 줄과 호 비율을 같이 붙인다</li>
+        </ul>
+      </div>
+      <a class="card-source" href="surface-recipes.html">↗ Surface Recipes — G-code 로 길이 재기</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Phase 5 ── -->
+<div class="section" id="phase5">
+  <div class="section-label">Phase 5 — Coupon Test (v0.3.0 자동 생성)</div>
+  <p class="desc">예전에는 사용자가 요청할 때만 만들었다. 이제 아래 중 <strong>하나라도</strong> 해당하면 coupon process JSON 을 자동으로 만들어 zip 에 넣는다. 해당하지 않는 단순 사례는 건너뛴다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>자동으로 켜는 조건</h3>
+      <ul class="checklist">
+        <li><span class="check">1</span><div>본 출력 예상 시간 &gt; <strong>4 시간</strong></div></li>
+        <li><span class="check">2</span><div>회전체 + seam 이 중요 (surface-first 켬)</div></li>
+        <li><span class="check">3</span><div>새 소재 또는 새 scarf 조합 <strong>첫 시도</strong> (memory 에 그 소재 사용 이력 없음)</div></li>
+        <li><span class="check">4</span><div>PETG · PC · PA-CF · ASA-CF · PPS-CF 등 건조 · 챔버에 민감한 소재</div></li>
+        <li><span class="check">5</span><div>멀티컬러 5 색 이상</div></li>
+        <li><span class="check">6</span><div><span class="when-tag">08-13</span>Phase 1.9 실패 모드 1 건 이상 — 사후 대응값(layer 하향 · wipe · brim)이 실제로 나아지는지 본 출력 전에 본다. <strong>L2 (2) 단계(<code>filament_retraction_length</code> 상향)는 coupon 통과가 전제</strong>라 건너뛸 수 없다</div></li>
+        <li><span class="check">7</span><div><span class="when-tag">v0.4.2</span>fit-critical 부품 1 개 이상 — fit calibration coupon(peg-and-hole)으로 공차 검증. 표준 크기: <strong>M3</strong> (3.2mm 구멍 / 4.0mm 인서트) · <strong>M4</strong> (4.3mm / 5.5mm) · <strong>608ZZ</strong> (22.10mm 바깥 / 7.90mm 축). <code>tolerance.md</code> §5</div></li>
+      </ul>
+      <a class="card-source" href="#tolerance">↗ 공차 보정 키 정책</a>
+    </div>
+
+    <div class="card">
+      <h3>산출물과 lean 정책</h3>
+<pre class="tree">&lt;modelname&gt;.zip
+├── process/
+│   ├── &lt;main process&gt;.json
+│   └── &lt;main process&gt; - COUPON.json   <span class="cm">← 자동 추가</span>
+├── filament/
+│   └── ...
+└── coupon-stl/                          <span class="cm">← 자동 추가</span>
+    └── README.md                        <span class="cm">(cylinder 추가 안내)</span></pre>
+      <div class="table-wrap" style="margin-top:6px">
+        <table>
+          <thead><tr><th>키</th><th>COUPON 값</th></tr></thead>
+          <tbody>
+            <tr><td><code>top_shell_layers</code></td><td><code>"0"</code> — 얇은 쿠폰</td></tr>
+            <tr><td><code>bottom_shell_layers</code></td><td><code>"1"</code> — 첫 레이어 안착만</td></tr>
+            <tr><td><code>sparse_infill_density</code></td><td><code>"0%"</code> — 외벽만 평가</td></tr>
+            <tr><td><code>wall_loops</code></td><td>본 process 와 같음</td></tr>
+            <tr><td><code>seam_*</code> · <code>scarf_*</code> · <code>wall_sequence</code> · <code>outer_wall_speed</code></td><td><strong>본 process 와 100 % 같음</strong> — 이것이 평가 대상</td></tr>
+            <tr><td><code>name</code> · <code>print_settings_id</code></td><td><code>"&lt;원본&gt; - COUPON"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio">↗ Bambu Studio — 기본 도형</a>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <h3>사용자 안내 (zip · <code>coupon-stl/README.md</code>)</h3>
+<pre>COUPON 테스트 절차
+
+1. Bambu Studio에서 빈 plate에 cylinder primitive 추가:
+   - Add → Primitive → Cylinder
+   - 회전체 모델: 30mm × 30mm × 35mm
+   - 박스 모델: 30mm × 30mm × 30mm box
+   - 평면 top 모델: 50mm × 50mm × 5mm flat plate
+2. Process: "&lt;원본 process&gt; - COUPON" 선택
+3. Filament: 본 출력과 동일 슬롯
+4. Slice → 출력 (~15-30분 예상)
+5. 평가 항목:
+   - Seam line 가시성
+   - Scarf ramp 매끄러움
+   - Stringing 유무 (PETG/PC/ASA 특히)
+   - 외벽 광택/표면 균일도
+6. 통과 → 본 출력. 실패 → seam_position/scarf_length/외벽 속도 보정 후 재시도.</pre>
+      <a class="card-source" href="seam-recipes.html">↗ Seam Recipes — 평가 기준</a>
+    </div>
+    <div class="card">
+      <h3>STL 을 직접 만들지 않는 이유</h3>
+      <div class="card-body">
+        <p>STL 생성은 OpenSCAD · CadQuery 같은 외부 도구가 필요하다. 그 의존성을 들이는 비용이 Studio 기본 도형 한 번 클릭보다 크다. 안내로 충분하다.</p>
+        <p>나중(v0.4+)에 cylinder.stl + box.stl 을 미리 만들어 첨부하는 안은 BACKLOG 에 있다.</p>
+        <div class="callout note" style="margin-bottom:0">
+          <strong>fit coupon 도 같은 원리다:</strong> 본 출력 전에 작은 조각으로 공차 · seam 을 먼저 확인하고, 결과를 notes.md §1.6 에 통과 · 실패로 남긴다.
         </div>
       </div>
+      <a class="card-source" href="#phase4">↗ notes.md §1.6</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gotcha 체크리스트 ── -->
+<div class="section" id="gotchas">
+  <div class="section-label">Gotcha 체크리스트 — 생성 직후 자기 검증 (34 항)</div>
+  <p class="desc">생성한 JSON 이 조용히 무시되지 않는지, 디자이너 권장이 반영됐는지 zip 을 넘기기 <strong>전에</strong> 본다. 체크리스트를 눈으로 훑는 것은 Phase 4.3 실행을 대신하지 않는다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="rule-number">JSON import · 메타필드</div>
+      <ul class="checklist">
+        <li><span class="check">1</span><div><code>version</code> 이 <code>"2.6.0.2"</code> (또는 현재 Bambu Studio 버전에 맞춤)</div></li>
+        <li><span class="check">2</span><div><code>from</code> 이 <code>"User"</code> (대문자)</div></li>
+        <li><span class="check">3</span><div><code>print_settings_id</code> / <code>filament_settings_id</code> 존재 (filament 은 배열)</div></li>
+        <li><span class="check">4</span><div><code>inherits</code> 가 시스템 프리셋에 실제 존재 — 필요하면 <code>ls ~/Library/Application Support/BambuStudio/system/BBL/{process,filament,machine}/ | grep</code></div></li>
+        <li><span class="check">5</span><div><code>compatible_printers</code> 에 H2S</div></li>
+        <li><span class="check">6</span><div>filament JSON 의 scarf 필드가 모두 <strong>배열</strong> (<code>["..."]</code>)</div></li>
+        <li><span class="check">7</span><div><code>nozzle_temperature</code> 등 사용자 영역 필드를 안 건드렸는지</div></li>
+        <li><span class="check">8</span><div><span class="when-tag">07-27</span>Phase 4.3 검사를 <strong>실제로 실행하고 출력을 붙였는지</strong> — <code>RESULT: PASS</code> + exit 0 없이 완료 선언 금지</div></li>
+        <li><span class="check">9</span><div><span class="when-tag">08-13</span>금지 키 4 종이 0 건 — <code>adaptive_layer_height</code> · <code>bed_temperature</code> · <code>bed_temperature_initial_layer</code> · <code>elephant_foot_compensation</code></div></li>
+        <li><span class="check">10</span><div><span class="when-tag">09-06 · 09-15</span>enum 값이 대상 슬라이서가 받는 값인지 — 뱀부 <code>seam_position: aligned_back</code> → <code>aligned</code> 로 조용히 바뀐다. 오르카 <code>top_surface_pattern: zig-zag</code> → <code>rectilinear</code> 는 <code>옛 값</code> 경고</div></li>
+        <li><span class="check">11</span><div><span class="when-tag">09-08</span>키를 넣기 전 설치본 스코프(process / filament) 확인 — 냉각 키(<code>overhang_fan_threshold</code> 등)는 filament 스코프라 process 에 넣으면 조용히 무시</div></li>
+      </ul>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline §10.5 · §11.1</a>
+    </div>
+
+    <div class="card">
+      <div class="rule-number">디자이너 권장 · 표면 의도</div>
+      <ul class="checklist">
+        <li><span class="check">12</span><div><span class="when-tag">v0.4.0</span>디자이너 권장이 process JSON 에 <strong>명시 키로</strong> 강제됐는지 (<code>enable_support</code> · <code>layer_height</code> · <code>wall_loops</code> 등). inherits 에 맡기지 않는다</div></li>
+        <li><span class="check">13</span><div><span class="when-tag">v0.4.0</span>디자이너 권장이 notes.md §1.0 + §3.0 두 곳에 인용됐는지</div></li>
+        <li><span class="check">14</span><div><span class="when-tag">v0.4.0</span><code>comments-raw.md</code> 가 <code>&lt;output_dir&gt;/</code> 에 있는지 (댓글 0 개여도 빈 메타 블록)</div></li>
+        <li><span class="check">15</span><div><span class="when-tag">v0.4.0</span>"do not modify profile" 강한 제약이 있으면 surface-first 가 자동으로 켜지지 않았는지 — 1.6.5 사용자 확인 결과 반영</div></li>
+        <li><span class="check">16</span><div><span class="when-tag">v0.4.1</span>[C] 면 제작자 필드(layer · walls · infill · support) + surface-first 필드(다림질 · scarf · 외벽 속도 · wall_sequence)가 같은 process JSON 에 모두 있는지 — 9mm v2 결함 재발 방지</div></li>
+        <li><span class="check">17</span><div><span class="when-tag">07-27</span>Phase 1.8 통과 — 표면 우선인데 <code>ironing_type</code> 이 <code>"no ironing"</code> 이 아닌지. 기능 우선이면 notes.md 에 "표면 마감 미적용" 을 적었는지</div></li>
+        <li><span class="check">18</span><div><span class="when-tag">09-08</span><code>_geometry_class</code> 를 측정으로 정해 기록했는지 — <code>thin</code> 인데 외벽을 낮추면 Phase 4.3 FAIL</div></li>
+        <li><span class="check">19</span><div><span class="when-tag">09-22</span>외벽을 낮췄으면 <code>bridge_speed</code> <code>20-30</code> 을 같이 넣었는지, ABS · ASA 에 다림질을 기본으로 켜지 않았는지</div></li>
+        <li><span class="check">20</span><div><span class="when-tag">09-23</span>형상을 재서 기록한 설정이면 외벽을 안 낮췄어도 <code>bridge_speed</code> 를 넣었는지 — 검사가 기록만으로도 재고 슬롯을 전부 읽는다</div></li>
+      </ul>
+      <a class="card-source" href="#phase16">↗ Phase 1.6 · 1.8 · Surface-first</a>
+    </div>
+
+    <div class="card">
+      <div class="rule-number">공차 · fit</div>
+      <ul class="checklist">
+        <li><span class="check">21</span><div><span class="when-tag">v0.4.2</span>fit-critical 부품이 있으면 공차 키가 반영됐는지. 이름은 <strong><code>elefant_foot_compensation</code></strong> — 페리스 휠 608ZZ 결함 재발 방지</div></li>
+        <li><span class="check">22</span><div><span class="when-tag">v0.4.2</span>소재별 수축률 반영 — PLA 값을 PETG · ASA 에 그대로 쓰지 않았는지 (PLA <code>+0.05</code> &lt; PETG <code>+0.075</code> &lt; ASA <code>+0.10</code>)</div></li>
+        <li><span class="check">23</span><div><span class="when-tag">07-27</span>보정값을 지름이 아니라 <strong>오프셋</strong>으로 넣었는지 — <code>(목표지름 − 모델지름) / 2</code>. <code>PL-01</code> 재발 방지</div></li>
+        <li><span class="check">24</span><div><span class="when-tag">07-27</span>공차 무효화 3 조건 확인 — color-paint · fuzzy-skin 이면 <code>xy_hole</code> · <code>xy_contour</code> 강제 0, <code>raft_layers != 0</code> 이면 <code>elefant_foot</code> 무효. 해당하면 보고했는지</div></li>
+        <li><span class="check">25</span><div><span class="when-tag">08-13</span><code>raft_layers</code> 를 켰다면 fit-critical 0 건인지 — L3 최후 수단 외에는 켜지 않는다</div></li>
+      </ul>
+      <a class="card-source" href="#tolerance">↗ 공차 보정 키 적용 정책</a>
+    </div>
+
+    <div class="card">
+      <div class="rule-number">실패 모드 · 모델 파일 · G-code</div>
+      <ul class="checklist">
+        <li><span class="check">26</span><div><span class="when-tag">08-13</span>Phase 1.9 통과 — L1 · L2 · L3 각각 감지 / 없음 보고. 0 건이면 "실패 모드 신호 없음" 명시. grep 매치를 <strong>문장을 읽어</strong> 확인 (<code>실</code> · <code>1층</code> 오탐)</div></li>
+        <li><span class="check">27</span><div><span class="when-tag">08-13</span>Phase 3.0 불가 항목을 notes.md §1.2.1 에 적었는지 — 특히 L1 adaptive layer height</div></li>
+        <li><span class="check">28</span><div><span class="when-tag">08-13</span>L2 대응 순서 — 건조 확인 (0) → <code>filament_wipe</code> (1) → coupon 뒤 <code>filament_retraction_length</code> (2). 온도 · fan 을 자동으로 건드리지 않았는지</div></li>
+        <li><span class="check">29</span><div><span class="when-tag">08-13</span>사용자 실측 실패 보고에 반박하지 않았는지 — 상태 <code>REOPENED</code>, 재현 6 축 먼저 (<code>skill-design-guide.md</code> §3.8)</div></li>
+        <li><span class="check">30</span><div><span class="when-tag">07-27</span>로컬 모델 형상을 태그 매칭이 아닌 XML 해석기로 뽑았는지 — <code>3D/Objects/*.model</code> 확인, 빈 출력은 PASS 아님</div></li>
+        <li><span class="check">31</span><div><span class="when-tag">09-19</span>제작자 3mf 의 <code>printable="0"</code> 부품을 보고했는지 — 조립에 필요한 개수와 대조, 켤지는 사용자가</div></li>
+        <li><span class="check">32</span><div><span class="when-tag">09-19</span>구멍 · 빈 칸이 있는 부품은 벽 예산을 쟀는지 — <code>WALL_LOOPS</code> 와 함께 돌려 <code>_wall_budget_short_share</code> 기록. 10 % 이상 + <code>classic</code> 이면 FAIL</div></li>
+        <li><span class="check">33</span><div><span class="when-tag">09-19</span>제작자 3mf 로 출력하면 값을 박은 3mf 를 주고 보낸 G-code 로 대조했는지</div></li>
+        <li><span class="check">34</span><div><span class="when-tag">09-25</span>G-code 로 길이를 쟀으면 <code>SELFTEST</code> 줄과 기능별 호 비율을 같이 붙였는지</div></li>
+      </ul>
+      <a class="card-source" href="failure-recipes.html">↗ Failure Recipes · Phase 4.4</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 사전 절차 ── -->
+<div class="section" id="preflight">
+  <div class="section-label">매 실행 시 필수 사전 절차 (v0.3.0 강화)</div>
+  <p class="desc">스킬을 시작하자마자 아래 셋을 반드시 한다. 건너뛰면 키 불일치 · 조용한 무시 위험이 생긴다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header"><span class="num">1</span><div><h3>Bambu Studio 버전 대조</h3><div class="rule-number">Version</div></div></div>
+<pre>defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVersionString</pre>
       <div class="card-body">
-        <h4>4건의 References baseline 빌드</h4>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:12px">
-          <li><code>a5afcf864d05cf3b7</code></li>
-          <li><code>aeb457c7603a420db</code></li>
-          <li><code>afcf4968339021b29</code></li>
-          <li><code>ab679b7fbc81fa7b6</code></li>
+        <div class="table-wrap prose" style="margin-top:6px">
+          <table>
+            <thead><tr><th>결과</th><th>처리</th></tr></thead>
+            <tbody>
+              <tr><td><code>02.06.00.xx</code></td><td>references 기준값(2026-07-27 로컬 설치본). 그대로 사용</td></tr>
+              <tr><td><code>02.06.01.xx</code></td><td>그대로 — 작은 패치는 호환 가능성 높음. scarf 필드가 의심되면 대조</td></tr>
+              <tr><td><code>02.07.x.xx</code> · <code>02.08.x.xx</code></td><td><span class="badge badge-warn">bambu-kaizen 권장</span> references 가 <code>02.06.00.51</code> 기준 — 보고 뒤 진행</td></tr>
+              <tr><td><code>02.09.x.xx</code> 이상</td><td><span class="badge badge-bad">/bambu-research 먼저</span> 확인 없이 생성 금지</td></tr>
+              <tr><td><code>02.05.x.xx</code> 이하</td><td><code>"version": "2.6.0.2"</code> 가 거부될 수 있다 — 업그레이드 권장</td></tr>
+              <tr><td>명령 실패</td><td>미설치. JSON 은 만들되 import 확인 셸 명령은 건너뛴다</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <a class="card-source" href="https://api.github.com/repos/bambulab/BambuStudio/releases">↗ BambuStudio releases (2026-07-27 조회)</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="num">2</span><div><h3>Memory 자동 로드</h3><div class="rule-number">Context</div></div></div>
+      <div class="card-body">
+        <p>사용자가 말하지 않아도 세 파일을 읽는다.</p>
+        <ul class="plain">
+          <li><code>3d_printing_setup.md</code> — 하드웨어 환경 (H2S + AMS 구성, 노즐)</li>
+          <li><code>bambu_studio_json_import.md</code> — 조용히 무시되지 않게 하는 필수 필드 4 개</li>
+          <li><code>bambu_print_profile_skill.md</code> — v1 학습 (회전체 random &gt; aligned 등)</li>
         </ul>
-        <h4>3건의 추가 검증 run</h4>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:12px">
+        <p>경로: <code>~/.claude/projects/-Users-jackson/memory/</code></p>
+        <div class="callout" style="margin-bottom:0">
+          <strong>릴리스 현황 (2026-07-27 조회):</strong> 최신은 2.8.1 (<code>v02.08.01.55</code>, 2026-07-14 · Public Beta), 최신 정식은 2.7.1 (<code>v02.07.01.62</code>, 2026-06-16). 로컬 설치본 <code>02.06.00.51</code> 이 references 기준값과 같다. references 를 2.7 · 2.8 기준으로 올리는 일은 <code>/bambu-research</code> 몫이다.
+        </div>
+      </div>
+      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases">↗ Bambu Studio Releases</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="num">3</span><div><h3>시스템 base 프리셋 존재 확인</h3><div class="rule-number">Inherits</div></div></div>
+<pre>ls ~/Library/Application\ Support/BambuStudio/system/BBL/process/ | grep -i "h2s\|0.20mm"
+ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "&lt;material&gt;"</pre>
+      <div class="card-body">생성할 <code>inherits</code> 값이 실제 파일로 있는지 먼저 본다. 이 확인 없이 만들면 inherits 매칭 실패로 조용히 무시된다. 매번 셸로 확인한다.</div>
+      <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline — inherits 체인</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 실측 사례 ── -->
+<div class="section" id="cases">
+  <div class="section-label">검증된 실측 사례</div>
+  <p class="desc">케이스별 상세는 <code>/Users/jackson/Hub/60_3D Print/Settings/&lt;modelname&gt;/notes.md</code> 에 남는다. 각 행의 화살표 뒤가 그 사례로 생긴 절이다.</p>
+
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th style="width:20%">모델</th><th style="width:14%">소재</th><th>결과 → 생긴 절</th></tr></thead>
+      <tbody>
+        <tr><td>Box opener knife<br><a class="inline" href="https://makerworld.com/en/models/583712">MakerWorld 583712</a></td><td>PLA Basic dual-color</td><td><span class="badge badge-ok">정상 출력</span> 회전체 손잡이 seam 은 random + external</td></tr>
+        <tr><td>H2D Vent Pipe<br><code>1441653</code></td><td>PETG HF + TPU 90A</td><td><span class="badge badge-warn">stringing</span> 필라멘트 건조 부족 의심. seam 은 random + external + entire_loop</td></tr>
+        <tr><td>Stealth Press 1S<br><code>825644</code></td><td>ASA dual-color</td><td><span class="badge badge-ok">워크플로우 확립</span> 웹 BOM 30 개 vs PDF 34 개 불일치 → Phase 1.5 · notes.md 5 절 표준</td></tr>
+        <tr><td>9mm Craft Knife Elite<br><code>1517485</code></td><td>PLA Basic</td><td><span class="badge badge-warn">세 번 고침</span> v0.3.0 이 "No supports needed, please do not modify the print profile" 을 무시 → v0.4.0 Phase 1.6 · Override Rule. v0.4.1 에서 directive 를 넓게 읽어 다림질 · scarf 누락 → 범위 좁힘 + [C] 기본. v0.4.2 에서 blade slide-fit 공차 누락 → Phase 1.7 · <code>elefant_foot_compensation</code></td></tr>
+        <tr><td>Shower-box 부품 + Holster<br>2026-06~08 · 5 세션</td><td><span class="badge badge-warn">[미확인]</span></td><td><span class="badge badge-warn">partially successful</span> 곡면 계단 · voronoi stringing · 바닥 박리가 재출력마다 다시 나왔고 그 신호가 다음 프로파일로 들어오는 경로가 없었다 → Phase 1.9 · 3.0 · <code>failure-recipes.md</code>. 출처 <code>/insights</code> 2026-08-13 (기간 06-12~08-12). 소재 · plate · 건조는 기록이 없어 재현 6 축 대조가 다음 사례의 첫 단계다</td></tr>
+        <tr><td>Ferris Wheel (608ZZ)<br><code>1186414</code></td><td>PLA Basic</td><td><span class="badge badge-warn">fit 불량</span> 608ZZ 바깥 22mm · 안 8mm 가 안 맞음(2026-05-27) → Phase 1.7 · <code>tolerance.md</code> §3.1. <strong>2026-07-27 정정</strong>: v0.4.2 의 <code>+0.075</code>/<code>-0.075</code> 는 2 배 규칙상 22.15mm / 7.85mm 로 목표(22.10 / 7.90) 초과 — 축에 0.10mm 유격. 정정값 <code>+0.05</code>/<code>-0.05</code> (§7). 재출력 검증 대기</td></tr>
+        <tr><td>AMS 2 Pro Lattice Dry Pods<br>2026-09-07</td><td>Bambu ABS</td><td><span class="badge badge-warn">형상 구분 없음</span> Side Container(스트럿, 둘레 전부 &lt; 30 mm)와 Funnel(루프 2 개)에 같은 외벽 <code>30</code>. 25 에이전트 진단으로 flow · PA · Z · 워핑 · 습기를 배제, 원인은 속도값 + 냉각 문턱(<code>overhang_fan_threshold 25%</code> 미발동, 층시간이 <code>slow_down_layer_time 12</code> 를 오르내림) → <code>_geometry_class</code> · Phase 1.0 측정 · 4.3 스코프 · 클래스 검사 · §10.5. 실물 A/B(<code>10%</code>)는 검증 대기</td></tr>
+        <tr><td>H2 AMS Flipper<br><code>1815860</code> · 2026-09-19</td><td>Bambu ABS</td><td><span class="badge badge-warn">첫 2~3 층 덩어리</span> 원인 셋: (1) 10 개 전부 <code>planar</code> 인데 벽 4 겹 예산 3.54 mm 보다 좁은 둘레가 바닥 층 약 72 % → <code>classic</code> 갭필 253 m · 선폭 0.07~0.75 mm, (2) 축 부품 1 개가 <code>printable="0"</code>, (3) 3mf 를 연 뒤 설정을 바꿔 제작자 값 3 개가 옮겨짐. <code>arachne</code> + 되감기 0.4→0.6 + 값을 박은 3mf → 재슬라이스 갭필 253 m → 0.4 m, 사용자 "이번엔 괜찮네" → Phase 1.0 printable · 벽 예산, 4.3 벽 예산, 4.4 값 섞임 방지</td></tr>
+        <tr><td>H2 AMS Flipper 재출력<br><code>1815860</code> · 2026-09-22</td><td>Bambu ABS</td><td><span class="badge badge-warn">아랫면 처짐 · 윗면 이상</span> 외벽을 60→30 으로 낮췄는데 <code>bridge_speed</code> 는 부모 50 그대로라 허공 위 7.0~7.8 m · 10~12 층이 전부 50 mm/s(팬 100 %). 다림질은 가장 낮은 부품(9.08 mm)에서 윗면 2.33 m 위를 6.29 m 지나갔다 → 허공 위 속도 정책 · 4.3 허공 위 검사 · ABS 다림질 기본 끔. 실물 재출력 검증 대기</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout note">
+    <strong>회귀 호환성 (v0.4.0):</strong> 기존 검증 사례(box-opener-knife · h2d-vent-pipe · stealth-press-1s)는 v0.4.0 워크플로우로 다시 돌려도 <code>designer_constraints</code> 가 빈 배열로 떨어져 결과가 같다. comments-raw.md 가 새로 생기지만 process · filament JSON 결정에는 영향이 없다.
+  </div>
+</div>
+
+<!-- ── 출처 · 백로그 ── -->
+<div class="section" id="sources">
+  <div class="section-label">출처 · v2 백로그</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="num">★</span><div><h3>references 를 만든 근거</h3><div class="rule-number">Sources</div></div></div>
+      <div class="card-body">
+        <h4>Codex research run — references 기준값 4 건</h4>
+        <p class="mono"><code>a5afcf864d05cf3b7</code> · <code>aeb457c7603a420db</code> · <code>afcf4968339021b29</code> · <code>ab679b7fbc81fa7b6</code></p>
+        <h4>추가 검증 3 건</h4>
+        <ul class="plain">
           <li><code>aab7cad186e9523af</code> — 멀티컬러 필드</li>
-          <li><code>a2a01770a87626167</code> — JSON import gate (silent skip 회피)</li>
-          <li><code>a06a8ac153247d901</code> — <code>wipe_on_loops</code> Bambu 부재 확인</li>
+          <li><code>a2a01770a87626167</code> — JSON import 검사 (조용한 무시 회피)</li>
+          <li><code>a06a8ac153247d901</code> — <code>wipe_on_loops</code> 가 Bambu 에 없음 확인</li>
         </ul>
+        <h4>카이젠 근거 파일</h4>
+        <ul class="plain">
+          <li>2026-08-13 Phase 13 — <code>.harness/.meta/evidence/phase13.md</code> (Codex foreground · 읽기 전용 · 외부 조회 0 회). 슬라이서 소스 기준 키 · 기본값 확정</li>
+          <li>2026-09-25 Phase 13 — 같은 파일. MakerWorld JSON 주소 셋은 공식 문서가 없는 <code>[관측 2026-09-24]</code> 값</li>
+        </ul>
+        <p>전체 로그: <code>~/.claude/codex-research-log/2026-05.md</code></p>
       </div>
-      <a class="card-source" href="#" onclick="return false">↗ ~/.claude/codex-research-log/2026-05.md (전체 로그)</a>
+      <a class="card-source" href="https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp">↗ BambuStudio PrintConfig.cpp (옵션 정의 소스)</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="num">⊙</span>
-        <div>
-          <h3>매 실행 시 권장 사전 절차</h3>
-          <div class="rule-number">Pre-flight</div>
-        </div>
-      </div>
+      <div class="card-header"><span class="num">⊙</span><div><h3>실측 피드백 흐름</h3><div class="rule-number">Dogfood</div></div></div>
       <div class="card-body">
-        <h4>1. 현재 Bambu Studio 버전 cross-check</h4>
-<pre>defaults read /Applications/BambuStudio.app/\
-  Contents/Info.plist CFBundleShortVersionString
-<span class="cm"># 02.06.00.xx 이면 references baseline 그대로</span>
-<span class="cm"># major 버전 다르면 references 업데이트 권장</span></pre>
-        <h4>2. memory 자동 로드</h4>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-          <li><code>3d_printing_setup.md</code> — 하드웨어 환경</li>
-          <li><code>bambu_studio_json_import.md</code> — silent skip 규칙</li>
-          <li><code>bambu_print_profile_skill.md</code> — v1 학습 환류</li>
+        <ul class="plain">
+          <li>2026-05-15 ~ 05-19 — 박스 오프너 + vent pipe + Stealth Press 1S 시험</li>
+          <li>v0.3.0 — Stealth Press 1S PDF 23 쪽 · 영상 · GitHub 분석 누락 → Phase 1.5 · notes 5 절 · 버전 대조 필수 · coupon 자동</li>
+          <li>v0.4.0 — 9mm Craft Knife Elite 디자이너 댓글 무시 → Phase 1.6 · Override Rule · comments-raw.md · 전체 크롤링 · Gotcha 4 개</li>
+          <li>v0.4.1 — 9mm v2 directive 과잉 해석(다림질 누락) → 범위 좁힘 · 4 옵션 재설계 · <code>comment-analysis.md</code> §5 · Gotcha 1 개</li>
+          <li>v0.4.2 — 페리스 휠 608ZZ fit + 9mm sheath slide-fit → Phase 1.7 · 공차 키 정책 · fit coupon · <code>tolerance.md</code> · <code>materials.md</code> §4 수축률 14 소재 · Gotcha 2 개</li>
+          <li>2026-08-13 — 사실 정정 3 건: <code>layer_height 0.08</code> 의 공식 프로파일 근거 없음(<code>[미확인]</code>) · <code>enable_arc_fitting</code> 은 품질 기능이 아니라 G-code 표기 변경 · <code>resolution</code> 은 XY 전용이라 Z 계단 해결책이 아님</li>
+          <li>2026-09-25 — 형상 측정 자기 검사의 가짜 3mf 는 3MF Core 1.4.0 최소 구조를 따른다</li>
         </ul>
       </div>
-      <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases" target="_blank">↗ Bambu Studio Releases</a>
+      <a class="card-source" href="https://github.com/3MFConsortium/spec_core/blob/1.4.0/3MF%20Core%20Specification.md">↗ 3MF Core Specification 1.4.0</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="num">⏱</span>
-        <div>
-          <h3>실측 피드백 기록 위치</h3>
-          <div class="rule-number">Field Notes</div>
-        </div>
-      </div>
+      <div class="card-header"><span class="num">v2</span><div><h3>v2 백로그 (수동 진행)</h3><div class="rule-number">Roadmap</div></div></div>
       <div class="card-body">
-        <p>각 모델별 출력 결과와 튜닝 노트는 다음 경로에 보존된다:</p>
-<pre>/Users/jackson/Hub/60_3D Print/Settings/
-  &lt;modelname&gt;/
-    notes.md      <span class="cm"># 케이스별 detail</span>
-    process/
-    filament/</pre>
-        <p>다음 카이젠 사이클에서 이 노트들을 references에 환류한다 (현재 v1은 손으로, v2는 daemon으로).</p>
+        <p>플러그인 안 <code>bambu-kit/skills/bambu-print-profile/BACKLOG.md</code> 가 전체 목록이다. 핵심은 셋이다.</p>
+        <ul class="plain">
+          <li>홈서버 Linux 에 출력 결과 수집 데몬 (MQTT + FTPS + JSONL)</li>
+          <li>실측 피드백을 references 에 자동으로 되돌리기 (v1 은 손으로)</li>
+          <li>카이젠 스킬은 이 레포의 <code>.claude/skills/bambu-research</code> + <code>.claude/skills/bambu-kaizen</code> 에 따로 있다 (정해진 주기로 새 자료 확인 + SKILL 차이 분석). bambu-kit 플러그인에는 넣지 않는다</li>
+        </ul>
       </div>
-      <a class="card-source" href="#" onclick="return false">↗ bambu-kit/skills/bambu-print-profile/TODO.md</a>
+      <a class="card-source" href="kaizen-sources.html">↗ Kaizen Sources — 주기 확인 대상</a>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="num">v2</span>
-        <div>
-          <h3>v2 카이젠 백로그</h3>
-          <div class="rule-number">Roadmap</div>
-        </div>
-      </div>
+      <div class="card-header"><span class="num">⏱</span><div><h3>이 페이지와 원본</h3><div class="rule-number">Source File</div></div></div>
       <div class="card-body">
-        <ul style="list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:6px">
-          <li>홈서버 Linux에 print outcome capture daemon (MQTT + FTPS + JSONL)</li>
-          <li>실측 피드백을 references에 자동 환류 (v1은 손으로 함)</li>
-          <li>카이젠 스킬은 이 레포의 <code>.claude/skills/bambu-research</code> + <code>.claude/skills/bambu-kaizen</code>에 분리됨 (자동 주기 폴링 + SKILL 격차 분석)</li>
-          <li>bambu-kit 플러그인 자체에는 카이젠 포함 X — 사용자 환경에 무관한 개발 도구이므로 분리</li>
-          <li>다른 프린터(X1/P1/A1) 지원 검토 (compatible_printers 매칭 + inherit chain 차이 해결)</li>
-        </ul>
+        <p>원본은 <code>bambu-kit/skills/bambu-print-profile/SKILL.md</code> 하나다. 이 페이지는 원본의 절 순서를 워크플로우 순서로 다시 묶었다 — 원본 끝에 있는 「MakerWorld 읽는 순서」 를 Phase 1 바로 뒤로, 원본 Phase 3 안에 흩어진 환경 확인 · vase · 유량비 · filament · Surface-first 를 각각 절로 뺐다.</p>
+        <p>긴 스크립트(형상 측정 · Phase 4.3 검사 · bake · compare · G-code 길이)는 발췌만 싣는다. 실행할 때는 원본 블록을 그대로 뽑아 쓴다 — 손으로 베끼면 원본과 어긋난다는 것이 음성 대조 절의 교훈이다.</p>
       </div>
-      <a class="card-source" href="#" onclick="return false">↗ bambu-kit/skills/bambu-print-profile/TODO.md</a>
+      <a class="card-source" href="../index.html">↗ 문서 사이트 첫 화면</a>
     </div>
   </div>
 </div>

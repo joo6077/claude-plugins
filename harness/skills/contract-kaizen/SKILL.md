@@ -66,6 +66,7 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 2. `contract/` 하위 YAML 파일 읽기
 3. 패턴 분석:
    - 반복 실패 패턴 (동일 diagnosis.checklist 항목이 true 인 빈도, 최근 10 건 중 3 회 이상 = 임계치)
+   - **옛 문구로 적힌 12 항목은 세지 않는다 (2026-09-25 추가).** sprint-contract Step 7 은 2026-09-24 에 모든 항목을 「문제가 있다 = true」 로 맞췄다. 그 전 문구가 「했는가」 였던 12 항목(`nfr_coverage` · `format_granularity_missing` · `diff_oracle_nonstandard` · `evidence_artifact_missing` · `section_header_unclassified` · `conditions_count_typed` · `contract_seal_missing` · `seal_commit_missing` · `measurement_coverage_gap` · `factor_matrix_missing` · `negative_control_missing` · `amendment_direction_uncomputed`)은 true 가 「했다」 는 뜻으로 적힌 파일이 섞였다. 같은 개정에 생긴 키 `measure_premise_unrun` 이 체크리스트에 있는 파일에서만 이 12 항목을 센다. 날짜로 가르지 마라 — 설치본은 새 판이 배포되기 전까지 옛 문구로 계속 적는다. 실측(2026-09-25, 최근 계약 피드백 10 건): `nfr_coverage: true` 6 건이 임계를 넘었는데 6 건 모두 그 키가 없었고, 키가 있는 2 건은 둘 다 false 였다
    - 카테고리 편중 (category_coverage 가 일관되게 낮은 영역)
    - 복잡도 과소평가 빈도
    - 교차 진단에서 반복 지적되는 문제

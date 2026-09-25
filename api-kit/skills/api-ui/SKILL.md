@@ -17,7 +17,7 @@ user-invocable: true
 - **`file://` 는 opaque origin 이다.** `fetch('./data.json')` 로 사이드카를 읽는 순간 리포트가 빈 화면이 된다. 같은 폴더의 파일조차 same-origin 이 아니다. 모든 데이터는 HTML 안에 인라인한다. 그래서 §스냅샷 상한이 필요하다.
 - **`<script type="application/json">` 도 escape 없이는 안전하지 않다.** 실행되지 않을 뿐, 본문에 `</script` 가 있으면 블록이 조기 종료되어 이후 마크업이 파서에 노출된다. 인라인 전에 `<`, `</script`, `<!--` 세 패턴을 반드시 escape 한다.
 - **응답 본문은 신뢰할 수 없는 입력이다.** raw body 를 `innerHTML` 에 넣지 마라. 대상 API 가 돌려준 문자열이 리포트를 여는 사람의 브라우저에서 실행된다. `textContent` 또는 HTML entity encoding 으로만 렌더한다. 확정 시안은 `esc()` 한 함수를 모든 값 경로에 통과시킨다.
-- **scrubber 를 통과한 데이터만 인라인한다 — fail-closed.** Hurl 의 `--secret` 은 stderr 로그와 리포트만 exact match 로 가린다. stdout 응답, `--include`, `--json` 출력, 저장된 raw body 는 **가리지 않는다**. 마스킹 검증에서 known secret pattern 이 1건이라도 남으면 `ui.html` 을 **쓰지 마라**. "일단 만들고 나중에 지운다" 는 없다.
+- **scrubber 를 통과한 데이터만 인라인한다 — fail-closed.** Hurl 의 `--secret` 이 exact match 로 가린다고 확인된 곳은 stderr 로그 · JSON 리포트의 `report.json` · `--curl` 파일이다(실측 2026-09-05 · 2026-09-24). stdout 응답, `--include`, `--output <file>`, `--json` 출력, 리포트의 `store/*_response.json` 같은 저장된 raw body 는 **가리지 않는다**. 마스킹 검증에서 known secret pattern 이 1건이라도 남으면 `ui.html` 을 **쓰지 마라**. "일단 만들고 나중에 지운다" 는 없다.
 - **CSP `<meta>` 를 `default-src 'none'` 만 넣으면 페이지가 죽는다.** `script-src`/`style-src` 는 `default-src` 로 폴백하므로 인라인 `<style>`·`<script>`·`style=` 속성이 전부 차단된다. 뷰어는 인라인만으로 구성되므로 최소 정책은 `default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'` 이다. 그리고 **`<meta>` CSP 는 헤더의 완전한 대체가 아니다** — `frame-ancestors` · `sandbox` · `report-uri` 는 `<meta>` 로 적용되지 않는다. CSP 를 넣었다는 사실만으로 "네트워크 차단을 보증했다" 고 보고하지 마라. 보증 근거는 §자기 검증의 실측 0건이다.
 - **경로는 말줄임하지 않는다.** 트리·헤더·데이터 구조 표의 경로에 `text-overflow: ellipsis` 를 걸지 마라. 경로가 곧 식별자라서 `/v1/products/{sku}/inv…` 는 아무것도 식별하지 못한다. 줄을 넘겨서라도 전문을 보여준다.
 - **JSON 행 안에 스키마 열을 넣지 마라.** 먼저 시도했다가 폐기한 설계다. 1280px 에서 스키마 열이 코드 열을 밀어 값이 통째로 사라진다(`"orderId":"or…`). 한 행에 "실제 값" 과 "계약이 아는 정보" 를 같이 넣으면 좁은 폭에서 반드시 하나가 죽는다. **JSON 본문 블록 아래에 데이터 구조 표를 따로 둔다.**
@@ -155,11 +155,42 @@ wc -c "$UI"                                                      # 10MiB 이하
 | `XMLHttpRequest` 매치 라인 | 0 | 확정 시안 실측 0 |
 | 외부 리소스 URL | 0 | 확정 시안의 `https://` 출현은 전부 baseUrl **텍스트** 3건뿐이며 리소스 로드가 아니다 |
 | known secret pattern unredacted | 0 | 마스킹 게이트 (Step 3) |
-| 클릭 타깃 최소 크기 | `44px` | 확정 시안 실측 (`.hit` · 탭 · 버튼 `min-height:44px`) |
+| 누르는 자리 최소 크기 | 요소 상자 24×24 CSS px 미만 `0` 개 (아래 `under24`). 44 는 권장값 | WCAG 2.2 2.5.8 (AA, 24) · 2.5.5 (AAA, 44). 확정 시안 실측은 44 미만 39/56 · 24 미만 0 (2026-09-25) |
 | 텍스트 대비 | 일반 `4.5:1` · large `3:1` · UI component `3:1` | WCAG 2.2 |
 | 테마 | 라이트·다크 양립 (둘 다 대비 충족) | 확정 시안 실측 |
+| 인라인 항목 수 = 화면 항목 수 | `ep` = `shown` | 확정 시안 실측 14 = 14 (2026-09-24) |
+| 콘솔 error 메시지 | `0` (`favicon.ico` 404 한 건은 뺀다) | 확정 시안 실측 — 아이콘을 부르는 브라우저에서 `favicon.ico` 404 한 건 |
 
 **0 매치를 근거로 쓰려면 positive control 이 먼저다.** 경로 오타나 빈 파일로 생긴 0 은 PASS 증거가 아니라 측정 실패다.
+
+**브라우저로 열어 확인한다.** 글자 검사는 화면이 실제로 그려지는지 보지 못한다. 파일을 쓴 뒤 브라우저를 조종하는 도구로 열어 아래 셋을 재고, 받은 숫자를 보고에 그대로 인용한다.
+
+1. **여는 방법** — 브라우저 조종 도구 가운데 기본 설정에서 `file://` 주소를 막는 것이 있다(오류 예: `Access to "file:" protocol is blocked`). 아래 블록을 한 번의 셸 호출에 그대로 붙여 `ui.html` 한 장만 든 빈 폴더를 만들고 서버를 **뒤에서** 띄운 뒤 `http://127.0.0.1:8765/ui.html` 을 열거나, 도구의 로컬 파일 허용 설정을 켜고 `file://` 로 연다.
+
+   ```bash
+   D=$(mktemp -d) && cp .api/ui.html "$D/" || exit 1
+   python3 -m http.server 8765 --bind 127.0.0.1 --directory "${D:?폴더 변수가 비었다 — 두 줄을 한 셸에서 잇는다}" & sleep 1
+   kill -0 $! 2>/dev/null && echo "SERVING pid=$! dir=$D" || echo "NOT_SERVING 8765"
+   ```
+
+   첫 줄과 둘째 줄은 줄바꿈이나 `;` 로 잇고 `&&` 로 잇지 않는다 — bash 는 `&&` 로 이은 목록 끝의 `&` 가 목록 전체를 하위 셸로 보내, 부모 셸의 `$D` 가 비고 `$!` 가 파이썬이 아니라 그 하위 셸 번호가 된다. 이 블록 그대로면 bash · zsh 둘 다 `SERVING` 줄의 번호가 8765 를 쥔 파이썬이다(실측 2026-09-26). 명령마다 새 셸이 뜨는 도구에서는 `$D` 가 비어 지금 폴더(`.api/` 포함)를 띄운다. 앞에서 띄우면 셸이 서버에 묶여 다음 단계로 못 간다. 뒤에서 띄운 파이썬의 `Address already in use` 는 도구 출력에 안 실릴 수 있어 같은 호출 끝의 판정 줄로 가른다. `NOT_SERVING` 이면 8765 를 다른 서버(앞 실행이 남긴 서버일 수 있다)가 쥐고 있으니 그 주소를 열지 않는다 — 그 서버는 끄지 말고 빈 포트로 바꿔 다시 띄우고 여는 주소의 포트도 같이 바꾼다. 어느 쪽으로 열었는지 보고에 적는다. 확인이 끝나면 `SERVING` 줄에 찍힌 번호와 폴더로 `kill <번호>` · `rm -rf <폴더>` 를 돌린다 — 다른 셸 호출에서 `kill $!` 를 쓰지 마라(zsh 는 빈 `$!` 가 `0` 이라 `kill 0` 이 된다). `.api/` 를 통째로 띄우지 마라 — `credentials.local.json`(아이디 · 비밀번호) · `reports/`(가리지 않은 원본 응답) · `snapshots/prod/` 가 HTTP 로 열리고, 출처가 `http://127.0.0.1` 로 바뀌어 옆 파일 `fetch` 가 성공해 버린다. 한 장만 든 폴더에서는 옆 파일 `fetch` 가 404 콘솔 오류로 드러난다(실측 2026-09-25). 그래도 외부 참조 0 건은 위 `grep` 검사로 잰다 — 브라우저 확인으로 대신하지 마라.
+2. **콘솔 오류** — error 등급 메시지가 0 개다. 웹 서버로 열었을 때 `favicon.ico` 를 가리키는 404 한 건은 빼고 세되 뺀 건수를 따로 적는다 — 아이콘 링크가 없어 브라우저가 기본 경로를 부른 것이지 뷰어 결함이 아니다.
+3. **항목 수 · 누르는 자리** — 필터와 검색을 건드리지 않은 첫 화면에서 아래 식을 페이지 안에서 돌린다. `ep` 와 `shown` 이 같고 `under24` 가 0 이어야 한다. `under44` 는 권장값 44 에 못 미치는 수라 판정에 쓰지 않고 보고에만 적는다.
+
+```js
+(() => {
+  const shown = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && s.display !== 'none' && s.visibility !== 'hidden'; };
+  const hits = [...document.querySelectorAll('button, a[href], input, select, textarea, [role="tab"], [role="switch"], [role="menuitem"], [role="option"]')].filter(shown);
+  const under = n => hits.filter(el => { const r = el.getBoundingClientRect(); return r.width < n || r.height < n; }).length;
+  return { ep: Object.keys(EP).length, shown: [...document.querySelectorAll('[data-ep]')].filter(shown).length,
+           targets: hits.length, under24: under(24), under44: under(44) };
+})()
+```
+
+확정 시안 1280×720 실측(2026-09-25): `ep 14 · shown 14 · targets 56 · under24 0 · under44 39`. 콘솔 error 는 헤드리스 셸 0 건, 아이콘을 부르는 브라우저에서 `favicon.ico` 404 한 건.
+
+브라우저 조종 도구가 없어 이 확인을 못 하면 조용히 건너뛰지 말고 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙여 보고한다.
 
 ## 8. 열기와 보고
 
@@ -177,6 +208,7 @@ start .api/ui.html         # Windows
 - PASS / FAIL / 미실행 카운트
 - 잘라낸 스냅샷이 있으면 그 목록과 원본 경로
 - Step 7 측정 결과 (명령 출력 인용)
+- Step 7 브라우저 확인 — 연 방법 · 콘솔 error 수와 뺀 `favicon.ico` 건수 · `ep` · `shown` · `under24` · `under44`. 못 했으면 `[미검증]` 과 네 칸
 - 마스킹 게이트 통과 여부
 
 # References

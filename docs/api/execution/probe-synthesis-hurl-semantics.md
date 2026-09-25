@@ -1,7 +1,7 @@
 ---
 title: Probe 합성과 Hurl 실행 의미론
-version: 0.2.0
-last_updated: 2026-09-05
+version: 0.2.1
+last_updated: 2026-09-24
 ---
 
 # Probe 합성과 Hurl 실행 의미론
@@ -46,9 +46,9 @@ query 는 URL 문자열과 `[Query]` 섹션 중 **한 경로만** 쓴다. Hurl �
 
 설정 우선순위는 environment variable < command-line option < per-entry `[Options]` 다. 뒤쪽이 앞쪽을 이긴다. cli-only 옵션은 `[Options]` 로 내려쓰지 않는다 — 파일에 적혀 있어도 적용되지 않아 문서와 실제 실행이 어긋난다.
 
-이 규칙은 **옵션에만** 적용된다. `HURL_INSECURE` 가 `--insecure` 가 되는 식이고, 변수에는 해당되지 않는다 — `HURL_who` 를 걸어도 `{{who}}` 는 채워지지 않는다. 변수는 `--variable` / `--variables-file` / `--secret` / `--secrets-file` / `[Options] variable:` 로만 들어온다.
+옵션 환경변수는 `HURL_INSECURE` 가 `--insecure` 가 되는 식이다. 변수는 접두가 다르다 — `HURL_who` 를 걸어도 `{{who}}` 는 채워지지 않고, Hurl 8.0.0 부터는 `HURL_VARIABLE_who` 가 채운다. `HURL_SECRET_<이름>` 은 `--secret` 처럼 값을 가린다. 변수도 같은 우선순위를 따라 명령줄 `--variable` 이 환경변수를 이긴다.
 
-> **출처:** [Hurl Manual — Configuration](https://hurl.dev/docs/manual.html#configuration) · 실측 (hurl 8.0.1, 2026-09-05)
+> **출처:** [Hurl Manual — Configuration](https://hurl.dev/docs/manual.html#configuration) · [Hurl CHANGELOG](https://github.com/Orange-OpenSource/hurl/blob/master/CHANGELOG.md) 8.0.0 · 실측 (hurl 8.0.1, 2026-09-05 · 2026-09-24)
 
 ### 7. Response Capture Policy
 
@@ -79,7 +79,7 @@ Hurl 종료 코드로 실패 종류를 나눈다. `4`(assert)만 계약 위반�
 |------|-----|------|------|
 | Hurl 엔진 버전 | `8.0.1` (release `2026-04-28`) | 실측 | `hurl --version` → `hurl 8.0.1 (x86_64-apple-darwin25.0) libcurl/8.7.1` |
 | 옵션 우선순위 랭크 | `1` env < `2` CLI < `3` per-entry `[Options]` | 실측 | `HURL_MAX_REDIRS=3` < `--max-redirs 5` < `[Options] max-redirs: 7` 을 `curl_cmd` 로 관측 |
-| 옵션 우선순위의 적용 대상 | **옵션만.** 변수는 `HURL_*` 로 안 들어온다 | 실측 | `HURL_who=…` → assert `actual: none` |
+| 환경변수로 들어가는 변수 | `HURL_VARIABLE_<이름>` 만 (`HURL_<이름>` 은 안 된다). 명령줄 `--variable` 이 이긴다 | 실측 | `HURL_who=…` → `actual: none` · `HURL_VARIABLE_who=…` → 통과 · 둘을 겹치고 `--variable who=…` → 명령줄 값 (2026-09-24) |
 | `--max-redirs` 기본값 | `50` (`-1` = unlimited) | 실측 | `hurl --help` → `[default: 50]`, man → "-1 to make it unlimited" |
 | retry 기본값 | `0` = no retry, `-1` = unlimited | 문서 | [Hurl Manual — Run Options](https://hurl.dev/docs/manual.html#run-options) |
 | `--retry-interval` 기본값 | `1000 ms` | 실측 | `hurl --help` → `[default: 1000]` |

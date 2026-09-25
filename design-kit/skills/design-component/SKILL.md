@@ -26,6 +26,7 @@ user-invocable: true
 10. **Compound Component 패턴 식별** — Dropdown, Select, Modal, Accordion 등 여러 파트로 구성된 컴포넌트는 Compound Component 패턴(Context API로 상태 공유 + 네임스페이스 API)과 Slot Pattern(named slot 분리)을 Anatomy 섹션에 반영하라. "prop soup"(모든 옵션을 하나의 props에 몰아넣는 것)은 안티패턴이다. 출처: research-log §G.
 11. **다크모드 토큰 매핑 필수** — 컴포넌트의 Design Tokens 섹션에 light/dark 양쪽 semantic 토큰 매핑을 포함하라. 다크모드에서 순수 블랙(`#000000`) 회피, 채도 낮추기(desaturated/muted), 표면 레이어 밝기 미세 차이로 구분하는 원칙을 적용한다. hover/focus 상태 배경 대비 3:1 이상 확보. 출처: research-log §H.
 12. **요청한 컴포넌트만 정의 — 카탈로그 임의 확장 금지** (insights-report #1 스코프 오독 · #3 과잉설계 대응) — "버튼 컴포넌트 정의해줘" 처럼 **특정 컴포넌트** 를 요청받으면 그 컴포넌트만 스펙화하라. 요청하지 않은 Input·Card·Modal 등 "함께 필요할 것 같은" 컴포넌트를 카탈로그에 임의로 덧붙이지 마라. 위 Gotcha들이 요구하는 완전성(상태·anatomy·접근성·When-to-use)은 **요청된 컴포넌트 내부의 완전성**을 의미하지, 카탈로그에 더 많은 컴포넌트를 채우라는 뜻이 아니다. 확정된 시안에서 추출하는 경우에도 사용자가 지목한 요소만 추출하라 — 시안에 존재하는 모든 UI 요소를 자동으로 카탈로그화하지 마라. 추가 컴포넌트가 필요해 보이면 산출물에 박지 말고 "Input·Card도 함께 정의할까요?" 형태의 별도 제안으로 분리한다. 범위가 모호하면 추측 확장 대신 한 줄로 확인하라. 출처: insights-report Friction #1·#3, [zeroheight Design Systems Report 2026](https://report.zeroheight.com/) (feature completeness보다 adoption 우선 — 작게 시작).
+13. **시각 산출물 규약은 `../../references/visual-change-protocol.md` 를 따른다** — 편집 전 확정(대상 · 되말하기 · 관례 표) · 승인 기록 · 증거 채널의 정의와 숫자는 그 규약에 있다. 이 스킬에서 다시 정의하지 않는다. Step 0 의 재사용 부품 칸도 그 규약 §0 관례 표를 쓴다.
 
 # Process
 
@@ -43,6 +44,9 @@ user-invocable: true
 - 시안 존재 → 시안에서 반복되는 UI 요소를 자동 식별하여 제안
 - 토큰 존재 → 컴포넌트별 토큰 매핑 자동 생성
 - 둘 다 없음 → 사용자가 직접 컴포넌트 목록을 지정
+- 앱 코드 존재 → 같은 역할의 기존 부품을 찾아 `../../references/visual-change-protocol.md` §0 관례 표의 재사용 부품 칸
+  (실제 심볼 이름 · `파일:줄` · 한 줄 용도)을 남긴다. 이미 있는 부품은 새 컴포넌트로 다시 정의하지 않고 스펙에서
+  그 부품을 가리킨다. 코드 검색에서 나오지 않은 부품 이름은 쓰지 않는다
 
 **이 Step 0 은 독립 Process 단계다 (SK-05 재발 방지)** — 자동 감지 로직을 Gotchas 섹션이나 다른 Step 하위 항목으로 내리지 마라. 평가자는 "프로세스 단계"로 카운트되는 섹션에서만 자동 로드 준수를 판정한다.
 

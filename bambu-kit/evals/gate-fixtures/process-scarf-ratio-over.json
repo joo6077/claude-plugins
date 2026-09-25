@@ -1,0 +1,15 @@
+{
+  "type": "process",
+  "name": "gate-fixture scarf longer than fifteen percent of the loop",
+  "print_settings_id": "gate-fixture scarf longer than fifteen percent of the loop",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "0.12mm High Quality @BBL H2S",
+  "compatible_printers": [
+    "Bambu Lab H2S 0.4 nozzle"
+  ],
+  "_wall_budget_short_share": "0.00",
+  "_scarf_loop_circumference_mm": "100",
+  "seam_slope_type": "external",
+  "seam_slope_min_length": "20"
+}

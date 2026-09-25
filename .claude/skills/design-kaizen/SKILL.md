@@ -28,9 +28,9 @@ user-invocable: true
    | design-mockup · design-reference | **HTML 산출물 의도 설계 명시 (AR-01 예외 선언)** |
    | design-system · design-component | **DTCG v1 · OKLCH · 다크모드 토큰 매핑** 공통 원칙 정합성 |
 
-7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/history/*-sprint-contract.md` (오케스트레이터 병렬 실행 시 Phase 별 계약 경로) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지).
+7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/sprint-contract-<slug>.md` (오케스트레이터 병렬 실행 시 Phase 별 계약 경로 — 경로 규약은 `harness/references/contract-schema.md` §계약 파일) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/sprint-feedback-<slug>.md` · `.harness/sprint-amendments-<slug>.md` (병렬 실행 때 슬러그 계약의 QA 산출물 · 개정 파일 — qa-evaluator 는 슬러그 계약이면 `sprint-feedback-<slug>.md` 에 쓴다) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지).
 
-   **오케스트레이터 병렬 실행 중에는 git add/commit/tag 를 직접 실행하지 마라** — 다른 Phase 서브에이전트와 index.lock 이 충돌한다. 커밋은 오케스트레이터가 직렬 처리한다 (Step 5 참조).
+   **오케스트레이터 병렬 실행 중에는 내 경로만 싣는다** — `git add <내 경로> && git commit -o <내 경로> -m "<요약>" -m "Kaizen-Phase: <슬러그>"` 로 이 Phase 가 고친 파일만 서명 줄과 함께 커밋한다. `git add -A` · `git commit -a` 는 같은 작업 폴더에서 도는 다른 Phase 의 변경까지 싣고, 서명 줄이 빠지면 범위 조건이 이 커밋을 서명 없는 커밋으로 낸다 (오케스트레이터 「여러 Phase 가 한 가지에 커밋하면」 줄). `index.lock` 오류가 나면 몇 초 쉬었다 다시 한다 (Step 5 참조).
 
 8. **Phase 1~5 신규 원칙 감사 (kaizen 시작 시 전수 확인)** — skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / §3.7 Completion Evidence Gate + Enforcement 등급 / §5.5 Enumerate-before-Act · Counterpart Enumeration / §8.7 Code Examples / §8.8 Sibling Consistency / §11 Cross-Surface Parity · agent §3.5 Binary Decidability / §10 Unverifiable / §12 Parity 전수 확인. 각 원칙에 대해 반영 스킬 목록을 리포트에 명시.
 
@@ -78,8 +78,8 @@ git add design-kit/ .claude/skills/design-kaizen/ docs/design/research-log.md
 git commit -m "kaizen(design-kit): [개선 요약]"
 ```
 
-**오케스트레이터가 Phase 로 호출한 경우 이 Step 을 실행하지 마라** (Gotcha 7) — 병렬 서브에이전트와
-index.lock 이 충돌한다. 변경 파일 목록만 리포트하고 커밋은 오케스트레이터에 넘긴다.
+**오케스트레이터가 Phase 로 호출한 경우 위 명령 대신 Gotcha 7 의 명령을 쓴다** — 폴더째 싣는 위 명령은
+병렬로 도는 다른 Phase 의 변경까지 삼킨다. 이 Phase 가 고친 경로만 서명 줄과 함께 커밋한다.
 
 ## Step 6: Plugin Validation 결과 반영
 

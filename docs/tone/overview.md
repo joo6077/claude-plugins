@@ -1,7 +1,7 @@
 ---
 title: tone-kit 개요 — 무엇을 잡는 킷인가
 version: 0.1.0
-last_updated: 2026-09-02
+last_updated: 2026-09-25
 ---
 
 # tone-kit 개요 — 무엇을 잡는 킷인가
@@ -194,11 +194,11 @@ ListView.separated(itemCount: sections.length, separatorBuilder: (_, __) => divi
 ## 완료 게이트는 이렇게 생겼다
 
 ```bash
-SRC=lib; INC="--include=*.dart"                               # 프로젝트 값으로 교체
+SRC=lib; INC=(--include='*.dart')   # 프로젝트 값으로 교체. 확장자가 둘 이상이면 원소를 늘린다
 
-grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' "$SRC" $INC   # 구분선 블록 — 히트 = 위반
-grep -rnE '\b(effective|resolved)[A-Z]' "$SRC" $INC           # fallback 접두사 — 히트 = 개명 후보
-grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' "$SRC" $INC           # 위젯 반환 헬퍼 — 히트 ≠ 위반
+grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' "$SRC" "${INC[@]}"   # 구분선 블록 — 히트 = 위반
+grep -rnE '\b(effective|resolved)[A-Z]' "$SRC" "${INC[@]}"           # fallback 접두사 — 히트 = 개명 후보
+grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' "$SRC" "${INC[@]}"           # 위젯 반환 헬퍼 — 히트 ≠ 위반
 ```
 
 **히트가 곧 위반은 아니다.** 세 번째 패턴은 추출이 정당한 건까지 잡으므로 히트 수를 위반 수로 보고하면 근거 없는 지적이 된다. 각 패턴에는 "히트가 위반인지" 판정이 병기돼 있고, 최종 판정은 파일을 열어야 나온다. 0건도 그 자체로는 통과가 아니다 — "위반이 없는 것"과 "패턴이 죽은 것"을 구분하지 못하므로, 준수 상태에서 0건이 정상인 패턴은 합성 양성 케이스로 살아 있음을 따로 증명한다.

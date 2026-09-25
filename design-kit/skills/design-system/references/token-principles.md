@@ -73,13 +73,12 @@ Design Tokens Community Group이 2025-10-28에 발표한 **Design Tokens Format 
 
 ```json
 {
-  "$schema": "https://design-tokens.org/schemas/format/2025-10/",
   "color": {
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "oklch(62% 0.18 250)",
-        "$description": "브랜드 핵심 CTA 컬러 (OKLCH primitive)"
+        "$value": { "colorSpace": "srgb", "components": [0.16, 0.45, 0.84], "hex": "#2973d6" },
+        "$description": "브랜드 핵심 CTA 컬러"
       }
     },
     "text": {
@@ -91,7 +90,7 @@ Design Tokens Community Group이 2025-10-28에 발표한 **Design Tokens Format 
   },
   "space": {
     "$type": "dimension",
-    "md": { "$value": "16px" }
+    "md": { "$value": { "value": 16, "unit": "px" } }
   }
 }
 ```
@@ -100,4 +99,7 @@ Design Tokens Community Group이 2025-10-28에 발표한 **Design Tokens Format 
 
 - legacy 포맷의 prefix 없는 `value`/`type` 키는 DTCG v1과 호환되지 않는다.
 - 커스텀 `$` prefix 키(`$myMeta` 등)는 피하고 메타데이터는 `$extensions.<vendor>` 아래에 둔다.
-- Figma Variables는 OKLCH 미지원이므로, DTCG 토큰에 `oklch()`를 쓰고 Figma 쪽에는 hex 근사치를 병기하는 것이 관행이다.
+- color `$value` 는 `oklch()` 같은 CSS 문자열이 아니라 `colorSpace` · `components` 객체다 (`hex` · `alpha` 는 선택). `oklch()` 는 CSS 로 내보낸 쪽의 표기다.
+- dimension `$value` 도 `"16px"` 문자열이 아니라 `{ "value": 16, "unit": "px" }` 객체이고, 단위는 `px` 또는 `rem` 이다.
+- `$schema` 는 2025.10 Final Report 의 그룹 속성 목록에 없다. 도구가 요구하면 그 도구의 확장으로 따로 적는다.
+- Figma 쪽 hex 병기 관행은 `SKILL.md` Gotcha 12 를 따른다.

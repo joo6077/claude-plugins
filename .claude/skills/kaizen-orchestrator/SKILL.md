@@ -2,17 +2,17 @@
 name: kaizen-orchestrator
 description: >
   카이젠 전체 실행을 의존성 순서에 맞춰 오케스트레이션한다.
-  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit 순서로
+  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit → reflect-kit → bambu-kit → onboarding-kit → tone-kit → api-kit → howto-kit 순서로
   Phase별 실행하며, 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
   주 1회 cron 자동 실행, 또는 수동 호출("/kaizen", "카이젠 전체 실행").
   개별 플러그인만 카이젠하려면 해당 카이젠 스킬을 직접 사용.
-argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|phase10|phase11|final]"
+argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|phase10|phase11|phase12|phase13|phase14|phase15|phase16|phase17|final]"
 user-invocable: true
 ---
 
 # Kaizen Orchestrator
 
-설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit 순서로 카이젠을 실행한다.
+설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit → reflect-kit → bambu-kit → onboarding-kit → tone-kit → api-kit → howto-kit 순서로 카이젠을 실행한다.
 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
 전체 Phase 완료 후 크로스 Phase 정합성을 최종 검증한다.
 
@@ -22,7 +22,7 @@ user-invocable: true
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
 - `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
-- `references/phase-research-templates.md` — **Phase 1~14 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
+- `references/phase-research-templates.md` — **Phase 1~16 각 의무 리서치 소스 테이블** (Phase 17 표는 아직 없다 — 표가 생길 때까지 Phase 17 은 `.claude/skills/howto-research/SKILL.md` Step 1 표의 1차 출처에서 3 건 이상을 조회한다). 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
 
 ## 연동 스크립트
 
@@ -37,7 +37,7 @@ user-invocable: true
 
 ## 관련 스킬
 
-- `/meta-kaizen` — 이 오케스트레이터 SKILL.md 자체를 리서치 기반으로 개선하는 메타 카이젠. Phase 1~14 범위 밖. 주 1 회 이하 권장.
+- `/meta-kaizen` — 이 오케스트레이터 SKILL.md 자체를 리서치 기반으로 개선하는 메타 카이젠. 모든 Phase 범위 밖. 주 1 회 이하 권장.
 
 ## Gotchas
 
@@ -99,6 +99,8 @@ Phase 15: Tone-kit 카이젠 (tone-kaizen)
     ↓
 Phase 16: Api-kit 카이젠 (api-kaizen)
     ↓
+Phase 17: Howto-kit 카이젠 (howto-kaizen)
+    ↓
 Final: 전체 정합성 검증
 ```
 
@@ -120,6 +122,7 @@ Final: 전체 정합성 검증
 14. Onboarding-kit 카이젠 — 외부 서비스 셋업 가이드 스킬 개선 (docs/help 변경 + 사용자 피드백 + marketplace 트렌드)
 15. Tone-kit 카이젠 — 코딩 톤·유지보수성 게이트 스킬 개선 (docs/tone/ 리서치 기준). 근거 등급 3등급(MUST / SHOULD / 관측 컨벤션)을 공개 출처 없이 승격하지 않는다
 16. Api-kit 카이젠 — 블랙박스 API 계약 검증 스킬 개선 (docs/api/ 리서치 기준). 문서 기재와 실측이 다르면 실측을 채택한다
+17. Howto-kit 카이젠 — 사람이 손으로 하는 절차 안내 스킬 개선 (docs/howto/ 리서치 기준, 게이트 G1~G6 · 출처 등급)
 
 ## 트리거 조건
 
@@ -149,7 +152,7 @@ Final: 전체 정합성 검증
 
 ### 수동
 
-- `/kaizen-orchestrator` — 전체 (Phase 1→2→…→16→Final)
+- `/kaizen-orchestrator` — 전체 (Phase 1→2→…→17→Final)
 - `/kaizen-orchestrator phase1` — 설계 가이드만
 - `/kaizen-orchestrator phase2` — contract-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase3` — evaluator-kaizen만 (Phase 2 완료 전제)
@@ -166,7 +169,8 @@ Final: 전체 정합성 검증
 - `/kaizen-orchestrator phase14` — onboarding-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase15` — tone-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase16` — api-kaizen만 (Phase 1 완료 전제)
-- `/kaizen-orchestrator final` — Final QA만 (Phase 1~16 완료 전제)
+- `/kaizen-orchestrator phase17` — howto-kaizen만 (Phase 1 완료 전제)
+- `/kaizen-orchestrator final` — Final QA만 (Phase 1~17 완료 전제)
 
 ## Process
 
@@ -188,6 +192,10 @@ Final: 전체 정합성 검증
 10. 다음 Phase → 새 서브에이전트 (fresh load)
 ```
 
+- 동시에 도는 킷 Phase 는 3 개까지 둔다 — 5 개 · 4 개로 돌린 두 사이클에서 서브에이전트가 과부하 오류(529)로 죽었고 2 ~ 3 개는 무사고였다 (`.harness/.meta/orchestrator-audit-log.md` 의 두 사이클 방법론 관찰)
+- 여러 Phase 가 한 가지에 커밋하면 커밋마다 서명 줄 `Kaizen-Phase: <슬러그>` 한 줄을 넣고 범위 조건은 그 줄로 내 커밋을 가린다 — 규약 원문은 `harness/references/contract-schema.md` §여러 주체가 한 가지에 커밋할 때
+- Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 `**범위:**` 줄과 `references/phase-dependencies.md` 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 `scripts/sync-orchestrator.py` 가 `skills/` · `references/` 만 보고 만들어 `hooks/` · `docs/` · `agents/` 가 빠진다 (2026-09-24 사이클: reflect-kit 의 `hooks/_lib-project-id.sh` · `docs/SCHEMA.md` 수정이 Phase 12 AUTO 줄 밖이었다)
+
 ### Regression 실패 카운터
 
 Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한다:
@@ -198,7 +206,7 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 ### Step 0: Pre-flight — 피드백 데이터 풀 수집 (Phase 1 이전 **필수** 실행)
 
-모든 Phase 1~14 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈·개인 메모리(`~/.claude/projects/*/memory/`)·`/insights` 30 일 분석을 근거로 개선하도록 보장한다.
+모든 Phase 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈·개인 메모리(`~/.claude/projects/*/memory/`)·`/insights` 30 일 분석을 근거로 개선하도록 보장한다.
 
 데이터 풀의 섹션 구성은 **§0 · §0.5 · §1 · §2 · §3 · §4 · §5 · §6** 이다. **§0.5 (개인 메모리) 는 §0 과 §1 _사이_ 에 렌더된다** — 순서가 어긋나 있으면 산문을 고치지 말고 수집 로직(`scripts/collect-kaizen-data.py`)의 결함으로 다뤄라.
 
@@ -460,7 +468,7 @@ exit_codes: [0, 2]
 
 ### Step 11: Phase 11 — planning-kit 카이젠
 
-**범위:** `planning-kit/skills/*/SKILL.md`, `planning-kit/references/`
+**범위:** `planning-kit/skills/*/SKILL.md`
 
 공통 실행 패턴에 따라 `/planning-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 planning-kit 전 스킬을 전수 감사한다. planning-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -476,7 +484,7 @@ exit_codes: [0, 2]
 
 ### Step 13: Phase 13 — bambu-kit 카이젠
 
-**범위:** `bambu-kit/skills/*/SKILL.md`, `bambu-kit/references/`
+**범위:** `bambu-kit/skills/*/SKILL.md`, `bambu-kit/skills/*/references/`
 
 공통 실행 패턴에 따라 `/bambu-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 bambu-kit 전 스킬을 전수 감사한다. bambu-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -484,7 +492,7 @@ exit_codes: [0, 2]
 
 ### Step 14: Phase 14 — onboarding-kit 카이젠
 
-**범위:** `onboarding-kit/skills/*/SKILL.md`, `onboarding-kit/references/`
+**범위:** `onboarding-kit/skills/*/SKILL.md`, `onboarding-kit/skills/*/references/`
 
 공통 실행 패턴에 따라 `/onboarding-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 onboarding-kit 전 스킬을 전수 감사한다. onboarding-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -563,19 +571,19 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
   `exact` 는 **본문만** 본다(헤더는 pin 으로 개별 지정) · enum 승격은 **3 샘플 이상**
   (1 샘플은 경고) · prod 기본 동사는 **GET/HEAD/OPTIONS** · 비교 기준선은 **RFC 8785 JCS** ·
   계약 실패와 환경 실패는 **exit code 로 구분**한다.
-  경로 간 불변식(`$.meta.total >= len($.data)`)은 Hurl assert 로 표현할 수 없다 —
+  경로 간 불변식(`$.meta.total >= len($.data)`)은 `.hurl` 에도 적을 수 있지만 한쪽 경로가 없으면 종료 코드 3 이라 판정 불가를 가를 곳이 후처리뿐이다 (`api-kit/skills/api-verify/SKILL.md`, 실측 2026-09-24) —
   계약 YAML 에 기록하고 `/api-verify` 후처리에서 검사하는 구조를 유지하라.
 
 ### Step F1: Final — 전체 정합성 검증 (구 Step 11)
 
-**범위:** Phase 1~16 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit · Phase 15 tone-kit · Phase 16 api-kit 포함 전수 체크)
+**범위:** Phase 1~17 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit · Phase 15 tone-kit · Phase 16 api-kit · Phase 17 howto-kit 포함 전수 체크)
 
 1. **Final Sprint Contract 생성:**
 
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~16 변경에 반영되었는가 (planning-kit 10 스킬 + planning-reviewer 에이전트 + reflect-kit 3 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 + api-kit 5 스킬 + api-reviewer 에이전트 포함)
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~17 변경에 반영되었는가 (planning-kit 12 스킬 + planning-reviewer 에이전트 + reflect-kit 4 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 + api-kit 5 스킬 + api-reviewer 에이전트 + howto-kit 3 스킬 + howto-reviewer 에이전트 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
-     - Phase 4 harness 변경이 Phase 5~16 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit, api-kit)과 충돌하지 않는가
+     - Phase 4 harness 변경이 Phase 5~17 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit, api-kit, howto-kit)과 충돌하지 않는가
      - tone-kit 의 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션)이 공개 출처 없이 승격되지 않았는가
      - tone-kit 트리거 어휘가 타 킷과 set intersection · substring containment 양쪽에서 공집합인가
      - api-kit 의 `pin` 정의(경로별 명시 assertion)와 확정 결정 5 건(exact 본문 한정 · enum 3 샘플 · prod GET/HEAD/OPTIONS · RFC 8785 JCS · exit code 분리)이 유지되는가
@@ -609,9 +617,13 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 | infra-kit | `docs/infra/` | `docs/infra-kit/` |
 | rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
 | react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
-| planning-kit | `planning-kit/references/`, `docs/planning/` | `docs/planning-kit/` |
+| planning-kit | `docs/planning/` | `docs/planning-kit/` |
+| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/` | `docs/reflect-kit/` |
+| bambu-kit | `bambu-kit/skills/bambu-print-profile/SKILL.md`, `bambu-kit/skills/bambu-print-profile/references/` | `docs/bambu-kit/` |
+| onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `docs/onboarding-kit/` |
 | tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
-| api-kit | `api-kit/references/`, `docs/api/` | `docs/api-kit/` |
+| api-kit | `docs/api/` | `docs/api-kit/` |
+| howto-kit | `docs/howto/` | `docs/howto-kit/` |
 | process (공유) | (내부 문서) | `docs/process/` |
 
 **절차:**
@@ -746,7 +758,7 @@ candidates:
 
 5. **kaizen-failure-count.yaml 업데이트:**
 
-   - `.harness/.meta/kaizen-failure-count.yaml` 에 `phase_1` ~ `phase_12` 엔트리가 모두 존재하는지 확인 (없으면 추가)
+   - `.harness/.meta/kaizen-failure-count.yaml` 에 `phase_1` ~ `phase_17` 엔트리가 모두 존재하는지 확인 (없으면 추가)
    - Regression PASS 인 Phase 는 카운터 0 으로 리셋
    - Regression FAIL 인 Phase 는 카운터 +1 → 2 이상이면 사용자 에스컬레이션
    - `last_updated` 필드를 카이젠 실행 날짜로 갱신
@@ -768,7 +780,7 @@ candidates:
    - [ ] Step F3.5 메모리 승격 후보 산출이 실행되었다 — `.harness/.meta/memory-promotion-candidates-{YYYY-MM-DD}.md` 가 존재하고 (후보 0 건이면 `candidates: []`), 카이젠이 승격 ledger 를 직접 수정하지 않았다
    - [ ] `.harness/.meta/kaizen-failure-count.yaml` `last_updated` 필드가 이번 사이클 날짜다
    - [ ] `.harness/.meta/evals-audit-{YYYY-MM-DD}.md` 가 존재한다 (evals 점검 기록)
-   - [ ] Phase 1~14 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다 (검사 대상 킷 목록은 `marketplace.json` 에서 유도된다 — 하드코드하지 않는다)
+   - [ ] 모든 Phase 간 scope 격리가 유지되었다 — 각 Phase commit 이 다른 Phase 의 소스 파일을 수정하지 않았다 (검사 대상 킷 목록은 `marketplace.json` 에서 유도된다 — 하드코드하지 않는다)
 
 7. **PR 생성:**
 

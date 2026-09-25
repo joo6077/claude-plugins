@@ -1,7 +1,7 @@
 ---
 title: SQLx 패턴
-version: 0.1.0
-last_updated: 2026-04-07
+version: 0.2.0
+last_updated: 2026-09-25
 ---
 
 # SQLx 패턴
@@ -124,6 +124,29 @@ let pool = PgPoolOptions::new()
     .await?;
 ```
 
+### 6. 시각은 종류부터 나누고, 종류마다 Rust 타입과 열 타입을 정한다
+
+시각 종류 셋(순간 · 받는 사람 지역을 따라가는 벽시계 · 특정 지역에 묶인 벽시계)의 정의와 시간대 출처 규칙은
+`docs/backend/fundamentals/database.md` 원칙 10 이 정본이다. 여기서는 Rust 타입과 PostgreSQL 열 타입의 짝만 정한다.
+
+| 시각 종류 | SQLx | SeaORM Entity | PostgreSQL 열 |
+| --- | --- | --- | --- |
+| 순간 | `chrono::DateTime<Utc>` | `DateTimeWithTimeZone` (`chrono::DateTime<FixedOffset>`) | `TIMESTAMPTZ` |
+| 받는 사람 지역을 따라가는 벽시계 | `chrono::NaiveDateTime` · 시각만이면 `chrono::NaiveTime` | `DateTime` (`chrono::NaiveDateTime`) · `Time` (`chrono::NaiveTime`) | `TIMESTAMP` · `TIME` |
+| 특정 지역에 묶인 벽시계 | 벽시계 타입 + 시간대 이름 `String` | 벽시계 타입 + `String` | 벽시계 열 + IANA 시간대 식별자 `TEXT` |
+
+- `TIMESTAMPTZ` 는 입력 순간을 UTC 로 바꿔 저장하고 원래 시간대 이름을 남기지 않는다. 서머타임이 드나드는 지역의 미래 반복
+  일정은 벽시계 값과 IANA 시간대 식별자를 함께 저장해야 다시 계산할 수 있다
+- SeaORM 은 순간 타입이 SQLx 와 다르다. `sea-orm-cli generate entity` 는 `timestamp with time zone` 열에 `DateTimeWithTimeZone` 을
+  붙인다. 도메인 모델이 `DateTime<Utc>` 면 어댑터가 읽을 때 `.with_timezone(&Utc)`, 쓸 때 `Utc::now().fixed_offset()` 로 바꾼다.
+  「SeaORM 도 `DateTime<Utc>` + `TIMESTAMPTZ`」 라고 한 줄로 적지 않는다 — `sea-orm-cli` 가 만든 Entity 와 어긋난다
+- 실측(2026-09-25 · sea-orm 1.1.19 · sqlx 0.8.6 · chrono 0.4.44 · 오프라인 컴파일): SeaORM Entity 필드의 열 타입 추론은
+  `DateTimeWithTimeZone` 과 `DateTimeUtc` 가 둘 다 `TimestampWithTimeZone`, `DateTime` 이 `DateTime`, `Time` 이 `Time` 이었다.
+  SQLx 의 `DateTime<Utc>` · `NaiveDateTime` · `NaiveTime` 은 차례로 `TIMESTAMPTZ` · `TIMESTAMP` · `TIME` 이었다. SeaORM 2.x 는 재지 않았다
+- 시간대와 나라를 코드 상수나 한 나라 기본값으로 박지 않는다. 이 항목은 RFC 요구가 아니라 이 킷의 규칙이다
+
+> **출처:** [SQLx PostgreSQL types](https://docs.rs/sqlx/latest/sqlx/postgres/types/index.html), [SeaORM 1.1 column types](https://github.com/SeaQL/seaql.github.io/blob/master/SeaORM/versioned_docs/version-1.1.x/04-generate-entity/03-column-types.md), [SeaORM 2.x column types](https://github.com/SeaQL/seaql.github.io/blob/master/SeaORM/docs/04-generate-entity/03-column-types.md), [Chrono DateTime](https://docs.rs/chrono/latest/chrono/struct.DateTime.html), [PostgreSQL Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html), [RFC 5545 §3.3.5](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5)
+
 ---
 
 ## 수치 기준
@@ -151,6 +174,10 @@ let pool = PgPoolOptions::new()
 ### 트랜잭션 내에서 다른 풀 연결 사용
 
 트랜잭션 컨텍스트 밖의 쿼리는 트랜잭션에 참여하지 않는다. `&mut *tx`를 executor로 전달해야 같은 트랜잭션 안에서 실행된다.
+
+### 벽시계를 `TIMESTAMPTZ` 순간 하나로만 저장
+
+반복 일정 · 알림 시각을 순간으로 바꿔 저장하면 시간대가 바뀌거나 서머타임이 드나들 때 사람이 정한 시각과 어긋난다. 원칙 6 의 표대로 벽시계 열과 시간대 이름 열에 나눠 저장한다.
 
 ---
 

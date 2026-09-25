@@ -63,6 +63,18 @@
         {"text": "CI 파이프라인 YAML의 구문 검사를 포함한다", "type": "output"},
         {"text": "보안 관련 검증(시크릿 노출, SHA 고정)을 포함한다", "type": "behavior"}
       ]
+    },
+    {
+      "id": 6,
+      "skill": "infra-guide",
+      "prompt": "공용 dev 가지 CI 가 어제부터 계속 빨간데 내 PR 때문이야? 고쳐줘",
+      "expected_output": "cicd.md 원칙 7 기준으로 기준 커밋에서 같은 검사를 확인해 원인을 가른 뒤에만 수정 방향 제시",
+      "assertions": [
+        {"text": "principle-index.md 를 거쳐 docs/infra/platform/cicd.md 원칙 7 을 읽은 후 답변한다", "type": "behavior"},
+        {"text": "고치기 전에 기준 커밋(git merge-base)에서 같은 검사 결과를 확인해 원인을 이번 커밋 · 기준 커밋에서 이미 실패 · 환경 · 미확정으로 가른다", "type": "behavior"},
+        {"text": "기준 커밋에서 이미 실패하던 검사를 통과로 적거나 건너뛰라고 하지 않는다", "type": "output"},
+        {"text": "가를 근거가 없으면 미확정으로 두고 같은 커밋 재실행을 권한다", "type": "output"}
+      ]
     }
   ]
 }

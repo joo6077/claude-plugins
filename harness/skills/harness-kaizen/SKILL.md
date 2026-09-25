@@ -124,7 +124,7 @@ user-invocable: true
 1. `bash harness/scripts/feedback-path.sh` 로 글로벌 피드백 경로 확인
 2. `contract/` 와 `evaluator/` 하위 YAML 파일 읽기 (최근 10 건)
 3. 패턴 분석:
-   - 반복 실패 패턴 — 동일 `diagnosis.checklist` 시그니처 빈도 (최근 10 건 중 3 회 이상 = 임계치 초과)
+   - 반복 실패 패턴 — 동일 `diagnosis.checklist` 시그니처 빈도 (최근 10 건 중 3 회 이상 = 임계치 초과). `contract/` 의 옛 문구 12 항목은 contract-kaizen Step 2 의 규칙대로 `measure_premise_unrun` 키가 있는 파일에서만 센다
    - optional 필드 활용 — `repeat_count` 가 2 이상인 피드백 우선 검토
    - `regression_link` 가 non-null 인 피드백 — APPROVE 후 재발한 회귀 이슈 (최우선 개선)
    - 카테고리 편중 — `category_coverage` 가 일관되게 낮은 영역

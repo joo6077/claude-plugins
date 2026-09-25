@@ -1,10 +1,45 @@
 ---
 title: Planning Kaizen Research Log
-version: 1.0.0
-last_updated: 2026-08-13
+version: 1.1.0
+last_updated: 2026-09-25
 ---
 
 # Planning Kaizen Research Log
+
+## [2026-09-24] — Phase 11 kaizen (폐기한 결정 기록 자리)
+
+처리 배정표 `F20` · `backend-family:P1` 두 행을 받았다. 외부 조회 0 회 — `.harness/.meta/evidence/phase11.md` 에 있는 URL 만 인용한다.
+
+### 결정 — 폐기한 결정의 원문은 PRD 비범위 절 한 곳
+
+후보 네 곳(design-kit 승인 기록 · plan-prd 비범위 · harness `/sprint` · 핸드오프 틀) 가운데 제품 요구 수준의 원문 자리는 그 기능 PRD 의 비범위 절로 정했다.
+PR/FAQ · Linear-style 은 `## Non-goals (폐기한 결정 포함)`, Shape Up 은 원문 용어 `## No-gos` 다. 나머지 자리는 이 경로를 가리킨다 — design-kit 승인 기록은
+같은 사이클 Phase 6 에서 이미 그렇게 바뀌었다. 칸은 `하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적` 넷이다. 처리 배정표 제안은 세 칸이었고, 근거 파일 §4 권장 8 에 따라
+범위 칸을 더했다 — 폐기를 영구 금지로 넓히지 않으려는 칸이다.
+
+- 반영: `docs/planning/prd-patterns.md` §폐기한 결정 · `plan-prd` Gotcha 14 · 세 틀 · Step 2 표 · Step 4 · `plan-stories` Step 1 · `plan-data-model` Step 0 · Step 1 ·
+  `plan-flow` Step 0 · Step 2 · `plan-audit` 카테고리 3 · `planning-reviewer` 원칙 매핑 · 폐기한 항목이 다시 들어갔는지 확인
+- 출처: <https://basecamp.com/shapeup/1.5-chapter-06> (No-gos 정의) · <https://agilealliance.org/glossary/invest/> (Negotiable — 영구 금지로 읽지 않는 근거) ·
+  <https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects> (한 곳 기준 — 예는 출시 목표일, 폐기 결정에 옮긴 것은 추론)
+- 근거 파일이 밝힌 한계: 네 칸을 요구하는 외부 방법론은 없다. 범위 · 흔적 칸과 「흔적은 치울 목록」 은 이 킷의 운영 규칙이다. 「Non-goals 3 개 이상」 도 Shape Up 규칙이 아니라 이 킷의 기준이다
+
+### 현행화
+
+- Mermaid 최신 안정판 12.0.0 (2026-09-10) — `docs/planning/flows.md` 의 「10.x+ / 11.x 계열에서 유효」 문장을 버전 사실로 바꿨다. 12 에서 렌더해 보지는 않았다.
+  `docs/planning/data-modeling.md` 에 ERD 기본 배치 Dagre → ELK · 기본 모양 변경을 적었다. 출처: <https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0> ·
+  <https://mermaid.js.org/syntax/entityRelationshipDiagram.html>
+- `plan-sync-github` 의 GitHub 문서 링크에 붙은 버전 날짜 `2022-11-28` 은 2028-03-10 까지 지원되고, 최신 버전 날짜는 `2026-03-10` 이다. 킷은 버전 헤더를 보내지 않고
+  문서 링크에만 이 날짜를 쓴다. `2026-03-10` 에는 옛 호출이 깨지는 변경이 있어 날짜만 바꾸지 않았다. 출처: <https://docs.github.com/en/rest/about-the-rest-api/api-versions> ·
+  <https://docs.github.com/en/rest/about-the-rest-api/breaking-changes>
+- 무변경 확인: GitHub CLI 는 킷이 버전을 고정하지 않는다(실행 때 `gh --version`, 조사 시점 최신 2.101.0). Cucumber Gherkin 의 3-5 steps 권장 · 관찰 가능한 `Then` 은
+  plan-stories Gotcha 5 · 9 와 그대로 맞다. 출처: <https://github.com/cli/cli/releases/tag/v2.101.0> · <https://cucumber.io/docs/gherkin/reference>
+
+### 명시적 비범위 — 2026-09-24 사이클
+
+- `planning-reviewer` 의 미검증 정본 복제는 2026-08-13 개정 전 판이다(카운터 둘 · 남용 방지 4 요건이 없는데 `§Canonical User-Reported Failure Protocol` 이 4 요건을 가리킨다).
+  판정 규칙을 바꾸는 일이라 다음 사이클 Phase 3 이 정본을 정리한 뒤 킷 reviewer 들과 함께 옮긴다
+- PRD 가 없는 프로젝트에서 폐기 결정을 적을 자리와 `/sprint` 재검증이 이 경로를 읽는 줄 — harness 몫이라 다음 사이클 Phase 4
+- Design Sprint 산출물은 plan-prd 에 틀이 없다 — 비범위 표를 넣을 자리가 없어 그대로 뒀다
 
 ## [2026-08-13] — Phase 11 kaizen (사실 정정 전용)
 

@@ -56,7 +56,7 @@ user-invocable: true
 
 13. **스냅샷 baseline 을 사유 없이 갱신하지 않는다** — Playwright `toHaveScreenshot()` 은 baseline 이 없으면 현재 화면을 golden 파일로 기록한다. `--update-snapshots` 로 갱신하면 **깨진 화면이 정답으로 고정**되고 이후 실행은 자기 자신과 비교해 영원히 통과한다. baseline 을 만들거나 갱신했으면 (a) 갱신 사유 한 줄, (b) 그 이미지에서 지목한 구체 요소를 남긴다. 통과시킬 목적으로 `maxDiffPixels` / `maxDiffPixelRatio` 를 키우지 않는다 — 어떤 변경에도 같은 결과를 내는 측정은 oracle 이 아니다.
 
-14. **테스트를 만들 수 없는 항목은 조용히 넘기지 않는다** — 대상이 런타임·브라우저·네이티브 의존이라 이 스킬로 measurement 를 만들 수 없으면, "테스트 생성 완료" 로 보고하지 말고 그 항목에 `[미검증]` 마커와 사유를 붙인다. 상세 규약과 완료 전 체크리스트는 `react-kit/references/render-evidence-protocol.md` §3~§4 를 따르며, 임계값·마커 정의는 그 문서가 인용하는 상위 SSOT 를 따른다 (여기서 재정의하지 않는다).
+14. **테스트를 만들 수 없는 항목은 조용히 넘기지 않는다** — 대상이 런타임·브라우저·네이티브 의존이라 이 스킬로 measurement 를 만들 수 없으면, "테스트 생성 완료" 로 보고하지 말고 그 항목에 `[미검증]` 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 §2)을 채운다. 상세 규약과 완료 전 체크리스트는 `react-kit/references/render-evidence-protocol.md` §3~§4 를 따르며, 임계값·마커 정의는 그 문서가 인용하는 상위 SSOT 를 따른다 (여기서 재정의하지 않는다).
 
 ## Process
 

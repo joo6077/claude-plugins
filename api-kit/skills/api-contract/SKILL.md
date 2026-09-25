@@ -17,11 +17,11 @@ user-invocable: true
 - **`exact` 는 본문만 본다. 헤더는 diff 대상 0개다.** `Date`·`X-Request-Id` 류가 매 응답 바뀌므로 헤더를 전체 diff 에 넣으면 항상 실패한다. 계약에 필요한 헤더는 `pin` 으로 개별 지정한다 (`Content-Type ^application/json`, `Cache-Control = "no-store"`). 2026-09-04 확정. 출처: `contract-extraction-modes.md` §4.
 - **enum 은 1 샘플이면 확정하지 않는다 — 후보 표시 + 경고까지다.** 자동 승격은 독립 샘플 `>=3`, distinct value `>=2`, 최근 20 관측에서 신규 값 없음, domain 크기 `<=12` 를 모두 만족할 때만. 사용자가 직접 확정하는 수동 경로를 따로 둔다. 오탐 실패 한 번이면 사용자는 도구를 끈다. 2026-09-04 확정. 출처: `contract-extraction-modes.md` §7 · 수치 기준.
 - **`required` 는 관측 샘플 presence 100% 일 때만이고, `null` 은 missing 이 아니다.** 단일 스냅샷 추론은 `required` / `optional` / `미확정` 3분류로 제시하고 사용자에게 확정받는다 — 스냅샷 하나에서 본 필드를 required 로 올리는 것 자체가 오탐 생성기다. `null` presence 를 부재로 세면 nullable 필드가 optional 로 오분류되어 필드 소실 회귀를 놓친다. 출처: `contract-extraction-modes.md` §5·§6, 설계문서 §9.2.
-- **비교 기준선은 JCS 이고, 정규화 전에 I-JSON 게이트를 먼저 통과시킨다.** pretty-print 결과·키 삽입 순서·diff UI 문자열을 해싱해 기준선으로 쓰면 표시 포매터가 바뀔 때 계약이 통째로 깨진다. 중복 키·NaN/Infinity·lone surrogate·안전 정수 범위(`±9007199254740991`) 밖 숫자는 정규화 대상이 아니라 **실패 또는 fallback 대상**이다. 파서가 "last key wins" 로 삼킨 뒤 검사하면 이미 값이 소실된 상태다. **배열은 정렬하지 않는다** — JCS 는 object property 만 재귀 정렬하고 array order 는 보존한다. 배열을 정렬해 안정화하면 실제 순서 회귀가 은폐되고, 정렬 보장 없는 컬렉션의 순서는 pin 대상이 아니라 variance 신호다(`$.data[0].id` 같은 index assertion 금지). 출처: `snapshot-sealing-canonicalization.md` §2·§3 · 안티패턴 3행, `multi-sample-pagination-variance.md` §5.
+- **비교 기준선은 JCS 이고, 정규화 전에 I-JSON 게이트를 먼저 통과시킨다.** pretty-print 결과·키 삽입 순서·diff UI 문자열을 해싱해 기준선으로 쓰면 표시 포매터가 바뀔 때 계약이 통째로 깨진다. 중복 키·NaN/Infinity·lone surrogate·`-0`·안전 정수 범위(`±9007199254740991`) 밖 숫자는 정규화 대상이 아니라 **실패 또는 fallback 대상**이다. `-0` 은 JCS 가 `0` 으로 적어 부호가 사라진다(RFC 8785 정정 7920). 파서가 "last key wins" 로 삼킨 뒤 검사하면 이미 값이 소실된 상태다. **배열은 정렬하지 않는다** — JCS 는 object property 만 재귀 정렬하고 array order 는 보존한다. 배열을 정렬해 안정화하면 실제 순서 회귀가 은폐되고, 정렬 보장 없는 컬렉션의 순서는 pin 대상이 아니라 variance 신호다(`$.data[0].id` 같은 index assertion 금지). 출처: `snapshot-sealing-canonicalization.md` §2·§3 · 안티패턴 3행, `multi-sample-pagination-variance.md` §5.
 - **partial 에서 스키마를 닫지 마라.** `additionalProperties: false` 는 exact 또는 사용자가 명시한 strict 설정에서만 쓴다. partial 에서 닫으면 서버의 정상적인 필드 추가가 전부 회귀로 보고된다. pin 은 명시한 path 만 검사하고 나머지는 열어 둔다. 출처: `contract-extraction-modes.md` §1·§9.
 - **컬렉션은 한 덩어리로 계약하지 않는다 — envelope · item · pagination marker 세 조각이다.** 첫 페이지 item 개수를 컬렉션 길이로 봉인하면 서버 page size 를 데이터 크기로 착각한다. cursor/`nextLink` 는 opaque 이므로 파싱·합성하지 않고 존재·타입만 계약한다. `nextLink: null` 을 표준 종료 marker 로 일반화하지 마라 — 부재와 null 은 다른 신호다. 출처: `multi-sample-pagination-variance.md` §3·§4·§9 · Gotchas 1행.
 - **오류 응답은 machine-readable 필드로만 계약한다.** `detail` 같은 사람용 설명 문자열을 exact match 로 고정하면 문구·다국어 변경만으로 깨진다. problem+json 은 `type` URI 가 1차 식별자이고 `type` 누락(= `about:blank`)은 위반이 아니다. 5xx 본문 exact pin 은 0개 — status class + envelope 형태 + retry metadata 만 검증한다. 출처: `error-status-contracts.md` §1·§3·§9.
-- **`.hurl` 합성 규칙 3가지를 어기면 케이스가 조용히 틀린다.** (1) URL query 와 `[Query]` 섹션을 동시에 만들면 Hurl 이 둘 다 전송해 파라미터가 중복된다 — `[Query]` 한 경로만 쓴다. (2) 로그인→조회 같은 의존 흐름은 반드시 한 파일에 둔다. `--test` 는 파일 단위 병렬 실행이라 파일 경계가 곧 격리 경계다. (3) `Accept` · `Content-Type` · `Authorization` 은 추론에 맡기지 말고 명시 생성한다 — 생략하면 실패 원인이 계약인지 전송인지 구분되지 않는다. 시크릿 값은 `.hurl` 본문에 절대 쓰지 않고 주입한다. 그리고 **Hurl assert 는 경로 하나에 predicate 하나**이므로 `$.meta.total >= len($.data)` 같은 경로 간 불변식은 `.hurl` 이 아니라 `contracts/*.yaml` 의 `pin` 으로만 기록하고 `/api-verify` 후처리에서 검사한다 — 상수로 박아 넣으면(`>= 3`) 데이터가 늘어난 순간 오탐이 된다(Hurl 은 JSON Schema assert 가 네이티브가 아니다, 설계문서 §5.1). 출처: `probe-synthesis-hurl-semantics.md` §2·§3·§5, `auth-secret-lifecycle.md` §4.
+- **`.hurl` 합성 규칙 3가지를 어기면 케이스가 조용히 틀린다.** (1) URL query 와 `[Query]` 섹션을 동시에 만들면 Hurl 이 둘 다 전송해 파라미터가 중복된다 — `[Query]` 한 경로만 쓴다. (2) 로그인→조회 같은 의존 흐름은 반드시 한 파일에 둔다. `--test` 는 파일 단위 병렬 실행이라 파일 경계가 곧 격리 경계다. (3) `Accept` · `Content-Type` · `Authorization` 은 추론에 맡기지 말고 명시 생성한다 — 생략하면 실패 원인이 계약인지 전송인지 구분되지 않는다. 시크릿 값은 `.hurl` 본문에 절대 쓰지 않고 주입한다. 그리고 `$.meta.total >= len($.data)` 같은 경로 간 불변식은 `.hurl` 이 아니라 `contracts/*.yaml` 의 `pin` 으로만 기록하고 `/api-verify` 후처리에서 검사한다. `.hurl` 에도 한쪽을 capture 해 판정식 값에 넣으면 적을 수는 있지만(`jsonpath "$.data" count <= {{total}}`), 한쪽 경로가 없으면 종료 코드 `3` 이 나 환경 실패로 잘못 분류되고 `판정 불가` 를 따로 셀 수 없다(실측 2026-09-24). 상수로 박아 넣으면(`>= 3`) 데이터가 늘어난 순간 오탐이 된다(Hurl 은 JSON Schema assert 가 네이티브가 아니다, 설계문서 §5.1). 출처: `probe-synthesis-hurl-semantics.md` §2·§3·§5, `auth-secret-lifecycle.md` §4.
 - **baseline 은 시크릿 값만 마스킹한 raw 를 보관하고, redaction 은 저장 전 fail-closed 게이트다.** 요약본·스키마만 남기면 값 drift 를 재현할 수 없고, 마스킹 없는 raw 를 남기면 저장소가 자격증명 저장소가 된다. redaction 이 실패하면 스냅샷을 저장하지 않는다. prod 스냅샷은 커밋하지 않고 스키마 계약만 커밋한다(prod evidence 커밋 0건). 2026-09-04 확정. 출처: `baseline-governance-promotion.md` §2·§3·§10, 설계문서 §8.2·§8.3.
 
 # 응답 스냅샷에서 계약 추출
@@ -66,6 +66,7 @@ JCS 로 넘기기 전에 검문한다. 아래는 정규화 대상이 아니라 �
 NaN / Infinity                      → 실패
 lone surrogate / noncharacter       → 실패
 IEEE 754 binary64 표현 불가 숫자     → 실패
+-0 (음의 영)                        → 실패 — JCS 가 0 으로 적어 부호가 사라진다
 안전 정수 범위 밖 (±9007199254740991) → 경고 + 문자열 보존 검토
 ```
 
@@ -267,7 +268,8 @@ baseline:
 1. 모드 배정 결과 (partial / pin / exact 각 몇 개, 승격 근거)
 2. **미확정으로 남긴 항목** — required 미확정, enum 후보, 자격 미달로 exact 를 못 올린 케이스
 3. 샘플 부족으로 유보한 판정
-4. 다음 단계 안내:
+4. **새로 만든 pin 의 변이 확인** — pin 마다 스냅샷 **사본**의 그 값을 타입은 두고 한 번 망가뜨려(`47` → `-1`, `"Bearer"` → `"bearer"`) 그 pin 판정이 FAIL 을 내는지 본 결과. 먼저 사본에 변이가 실제로 들어갔는지 값으로 확인한다 — 안 들어간 사본의 PASS 를 보고 pin 이 죽었다고 오진하지 않게. `.hurl` pin 은 사본을 `127.0.0.1` 로컬 서버로 돌려주고 그 케이스를 돌리고, 경로 간 불변식은 `/api-verify` §6 후처리를 사본에 돌린다. 봉인된 baseline 과 원본 스냅샷은 건드리지 않는다
+5. 다음 단계 안내:
    - 회귀 검증은 `/api-verify <id>` 로 실행하세요.
    - baseline 은 `pending` 입니다. 첫 성공 verification 이 기록되면 `accepted` 로 전환됩니다 — 그 전 실패는 게이트를 깨지 않습니다.
 

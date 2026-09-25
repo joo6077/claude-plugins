@@ -23,5 +23,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // Tauri devUrl 과 harness vm_port 가 5173 을 가리킨다 — 차 있으면 다른 포트로 옮기지 말고 멈춘다
+    strictPort: true,
   },
 })

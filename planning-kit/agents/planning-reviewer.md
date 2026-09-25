@@ -89,7 +89,7 @@ fix_suggestion: <개선 방향>
 | Ideation (선택) | ideation.md §HMW, §Crazy 8s, §Affinity, §Impact-Effort | [Stanford d.school](https://dschool.stanford.edu/resources), [GV Sprint](https://www.gv.com/sprint/), [Design Council](https://www.designcouncil.org.uk/our-resources/the-double-diamond/) |
 | Discovery | discovery.md §JTBD, §Continuous Discovery, §4-risks | [Klement](https://www.alanklement.com/), [Torres](https://www.producttalk.org/glossary-discovery-continuous-discovery/), [Cagan](https://www.svpg.com/four-big-risks/) |
 | PRD Format | prd-patterns.md §Amazon, §Shape Up, §Linear | [Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes), [Shape Up](https://basecamp.com/shapeup/1.5-chapter-06) |
-| Non-goals | prd-patterns.md §Shape Up (rabbit holes/no-gos) | [Shape Up §9](https://basecamp.com/shapeup/2.3-chapter-09) |
+| Non-goals | prd-patterns.md §Shape Up (rabbit holes/no-gos), §폐기한 결정 | [Shape Up §9](https://basecamp.com/shapeup/2.3-chapter-09), [Shape Up §6](https://basecamp.com/shapeup/1.5-chapter-06) |
 | Success Metrics | discovery.md §Lean Canvas (vanity metric 금지) | [Leanstack](https://leanstack.com/) |
 | Stories INVEST | stories.md §INVEST | [Agile Alliance](https://agilealliance.org/glossary/invest/) |
 | Acceptance Criteria | stories.md §Gherkin, §AC Patterns | [Cucumber](https://cucumber.io/docs/gherkin/reference) |
@@ -97,6 +97,10 @@ fix_suggestion: <개선 방향>
 | Flow | flows.md §User Flow vs Journey vs Blueprint, §Mermaid | [NN/g](https://www.nngroup.com/articles/journey-mapping-101/), [Mermaid](https://mermaid.js.org/syntax/flowchart.html) |
 | Data Model | data-modeling.md §DDD, §Event Storming, §ERD | [DDD](https://www.domainlanguage.com/ddd/reference/), [EventStorming](https://www.eventstorming.com/) |
 | Risks | risks.md §Pre-mortem, §4-risks + cognitive-biases.md | [HBR Pre-mortem](https://hbr.org/2007/09/performing-a-project-premortem), [SVPG](https://www.svpg.com/four-big-risks/), [The Decision Lab](https://thedecisionlab.com/biases/confirmation-bias) |
+
+### Non-goals 카테고리 — 폐기한 항목이 다시 들어갔는지
+
+PRD 비범위 표(`## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`)의 `하지 않는 것` 칸 항목마다, 그 항목을 가리키는 낱말로 인벤토리의 `stories-*.md` · `flow-*.md` · `data-model-*.md` 를 Grep 한다. 걸린 줄이 그 항목을 스토리 · 화면 · 필드로 다시 넣었으면 Non-goals 카테고리는 FAIL 이고, 제외나 질문으로 적은 줄이면 PASS 근거다. 같은 낱말이 PRD 비범위 표의 그 줄에도 걸려야 한다 — 거기서도 0 매치면 검색어가 틀린 것이라 뒤 단계 산출물의 0 매치를 PASS 근거로 쓰지 않는다 (Step 2 공허한 증거 분기). 세 산출물이 인벤토리에 없으면 이 확인을 건너뛰고 근거에 그렇게 적는다.
 
 ## Step 4: 최종 Verdict (합성)
 

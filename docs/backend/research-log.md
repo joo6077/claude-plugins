@@ -1,9 +1,66 @@
 ---
-version: 1.3.0
-last_updated: 2026-08-13
+version: 1.4.0
+last_updated: 2026-09-25
 ---
 
 # Backend Kit Research Log
+
+## [2026-09-24] — Phase 7 kaizen
+
+판정: **CHANGED**. 외부 조회 **0 회** — `.harness/.meta/evidence/phase7.md` 가 이번 Phase 의 유일한 외부 근거이며,
+그 파일에 없는 URL·수치는 쓰지 않았다.
+
+이번 신호는 처리 배정표 `backend-family:P2` 다. 2026-09-14 세션에서 이미 버린 시간대·나라 항목을 되살리고, 한 나라를
+기본으로 두는 판단이 사용자 교정 뒤에도 되풀이됐다(인사이트 F20). 버린 결정의 기록 자리는 Phase 11 몫이고, 이 킷은 시각
+종류와 시간대 출처를 맡는다. 함께 근거 파일 §3 의 낡은 버전 표기와, 2026-08-13 사이클에 범위 밖으로 남긴 감사 기준 한 줄,
+설계 가이드 1.6.0 §3.7 3 항(`[미검증]` 네 칸)의 이 킷 쪽 반대편을 고쳤다.
+
+### 외부 리서치 (evidence 파일 한정) — 2026-09-24 사이클
+
+1. **RFC 5545 §3.3.5** (<https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5>) — DATE-TIME 을 UTC 순간 · 시간대 없는
+   지역 시각(floating) · 시간대에 묶인 지역 시각 셋으로 나눈다. floating 은 합리적일 때만 쓰라고 제한한다. 서머타임으로 두 번
+   오는 시각은 첫 번째, 없는 시각은 전환 전 오프셋으로 해석한다. 시간대를 어디서 받을지와 나라 코드는 정하지 않는다
+2. **PostgreSQL — Date/Time Types** (<https://www.postgresql.org/docs/current/datatype-datetime.html>) — `TIMESTAMPTZ` 는
+   UTC 로 바꿔 저장하고 원래 시간대를 남기지 않는다. `TIMESTAMP` 는 시간대 표시를 무시한다
+3. **IETF OAuth 2.1 Draft** (<https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/>) — 최신 `draft-ietf-oauth-v2-1-16`,
+   2027-03-07 만료. 여전히 Active Internet-Draft 다
+4. **OpenAPI 3.2.1** (<https://spec.openapis.org/oas/latest.html>, <https://github.com/OAI/OpenAPI-Specification/releases/tag/3.2.1>) —
+   2026-09-10 공개. 릴리스 노트는 중대한 변경 없이 문구 교정·명확화 중심이라고 밝힌다
+5. **AsyncAPI 3.1.0** (<https://github.com/asyncapi/spec/releases/tag/v3.1.0>) — 최신 안정판. 킷이 인용하는 수신자 문서 규범은
+   3.0.0 에도 있어 인용은 그대로 둔다. 킷 파일에 "최신판" 으로 적힌 AsyncAPI 버전은 없다
+6. **microservices.io — Transactional Outbox** (<https://microservices.io/patterns/data/transactional-outbox.html>) — relay 가
+   같은 메시지를 여러 번 발행할 수 있어 consumer idempotency 가 필요하다 → 감사 기준 CDC 행 정정의 근거
+
+### 사실 정정 — 2026-09-24 사이클
+
+| 위치 | 이전 서술 | 정정 |
+| ------ | ------ | ------ |
+| `backend-kit/skills/backend-audit/references/audit-criteria.md` §8 CDC 파이프라인 행 | Outbox+CDC 조합이 exactly-once 를 보장한다는 서술 (2026-08-13 사이클에 범위 밖이라 미반영) | 이중쓰기는 막지만 전달 보장은 at-least-once. consumer idempotency 가 함께 있어야 PASS |
+| OAuth 2.1 인용 다섯 자리 (backend-system · backend-guide · backend-audit · backend-reviewer · evals.json) | `draft-15` (2026-09-03 만료) | `draft-16` (2027-03-07 만료) |
+| `docs/backend/fundamentals/api-design.md` 원칙 5 · 수치 기준 | OpenAPI 3.2.0 | 3.2.1 |
+
+### Phase 7 변경 요약 — 2026-09-24 사이클
+
+| 파일 | 변경 |
+| ---- | ---- |
+| `docs/backend/fundamentals/database.md` | 원칙 10 신설 (시각 종류 셋 · 저장 형태 · 서머타임 처리 · 시간대 출처) + 안티패턴 2 |
+| `backend-kit/skills/backend-system/SKILL.md` | Gotcha 18 신설 (E2 — 시각 필드 표 네 칸) · Gotcha 13 (c) · Step 2 API 규격 행 · OAuth draft-16 |
+| `backend-kit/skills/backend-guide/SKILL.md` | Gotcha 19 신설 (E1) · database 키워드 다섯 · OAuth draft-16 |
+| `backend-kit/skills/backend-audit/references/audit-criteria.md` | §3 Database 두 행 · §2 Timestamp 직렬화 행을 순간 필드로 좁힘 · §8 CDC 행 정정 · `[미검증]` 두 자리를 네 칸으로 |
+| `backend-kit/skills/backend-audit/SKILL.md` | Gotcha 11 본문 · 예시 · Gotcha 12 · Step 0 의 `[미검증]` 을 네 칸으로 · Gotcha 16 · Step 3 의 8 · 17 행 |
+| `backend-kit/agents/backend-reviewer.md` | 출력 포맷의 미검증 표기와 예시 행을 네 칸으로 · OAuth draft-16 |
+| `backend-kit/skills/backend-test/SKILL.md` | Gotcha 13 · Step 5 의 `[미검증]` 을 네 칸으로 |
+| `backend-kit/evals/evals.json` | 사례 8 (반복 시각 저장 · 기본 시간대 상수) · 사례 4 draft-16 |
+| `backend-kit/README.md` | 검증 절의 평가 사례 수 · 구조 검사 개수 표기 |
+| `docs/backend/fundamentals/api-design.md` | OpenAPI 3.2.1 |
+
+### 미반영 (근거 부족 · 범위 밖) — 2026-09-24 사이클
+
+- rust-model 의 타입 대응(SQLx 와 SeaORM 이 순간 타입을 다르게 둔다) — Phase 9 몫이다
+- 벽시계 값을 API 로 보낼 때의 문자열 형태 — 근거 파일에 없다
+- 시간대를 사용자 설정에서 물려받을지 일정 레코드에 따로 남길지 — 근거 파일 §5 열린 질문이다. 제품 요구가 정한다
+- OpenAPI 3.1 을 적은 자리(`backend-system` Step 2 · `backend-audit` Step 3 · `audit-criteria.md` §2) — 최소 지원선인지 최신판 뜻인지
+  툴체인 호환 확인이 먼저다(근거 파일 §5)
 
 ## [2026-08-13] — Phase 7 kaizen
 

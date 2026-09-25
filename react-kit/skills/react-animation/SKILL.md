@@ -38,9 +38,11 @@ user-invocable: true
 
 12. **`view-transition-name: match-element` 활용 (Chrome 137+)**: 수십 개 요소에 수동으로 고유 이름을 부여하는 대신 `view-transition-name: match-element` CSS 값을 사용하면 브라우저가 자동으로 요소를 매칭한다. 단, 2026-Q2 기준 Chromium 전용이므로 fallback 경로를 유지한다.
 
-13. **모션은 정적 코드로 입증되지 않는다 — 완료 선언 전 증거 필수 (E2)**: 이 스킬의 산출물은 **재생되어야만 존재를 확인할 수 있다**. `animate-*` 클래스가 붙어 있다는 사실, `startViewTransition` 이 호출된다는 사실은 R3(정적) 증거이며 애니메이션이 실제로 재생됐다는 증거가 아니다 — keyframe 미정의, `prefers-reduced-motion` 상시 적중, 부모의 `overflow: hidden` 클리핑, 미지원 브라우저 fallback 진입은 전부 조용히 "아무 일도 안 일어남" 으로 끝난다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` §4 체크리스트를 채운다. 스냅샷 비교로 검증할 때는 **전/후 두 시점을 지목**한다 — 정지 프레임 1 장은 어떤 모션에도 같은 결과를 내므로 oracle 이 아니다 (§3 d). 증거를 못 얻으면 `[미검증]` 마커와 사유를 붙이고 부분 완료로 보고한다.
+13. **모션은 정적 코드로 입증되지 않는다 — 완료 선언 전 증거 필수 (E2)**: 이 스킬의 산출물은 **재생되어야만 존재를 확인할 수 있다**. `animate-*` 클래스가 붙어 있다는 사실, 코드가 `startViewTransition` 을 부른다는 사실은 R3(정적) 증거이며 애니메이션이 실제로 재생됐다는 증거가 아니다 — keyframe 미정의, `prefers-reduced-motion` 상시 적중, 부모의 `overflow: hidden` 클리핑, 미지원 브라우저 fallback 진입은 전부 조용히 "아무 일도 안 일어남" 으로 끝난다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` §4 체크리스트를 채운다. 스냅샷 비교로 검증할 때는 **전/후 두 시점을 지목**한다 — 정지 프레임 1 장은 어떤 모션에도 같은 결과를 내므로 oracle 이 아니다 (§3 d). 증거를 못 얻으면 `[미검증]` 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 §2)을 채워 부분 완료로 보고한다.
 
     **증거 확보를 위해 애니메이션 라이브러리를 도입하지 않는다.** Library Policy (Gotcha #1) 는 이 규약보다 상위이며 어떤 검증 편의로도 완화되지 않는다.
+
+14. **기준 캡처는 편집 전에 찍는다** — `react-kit/references/render-evidence-protocol.md` §1 Step 0 과 §2 비교 반복 순서의 1 번을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 지금 모습의 캡처 경로와 바뀌어야 할 표식)를 응답에 남긴다. 편집한 뒤에는 편집 전 모습을 다시 찍을 수 없다.
 
 # Process
 

@@ -78,11 +78,11 @@
     ],
     [
       "MCP 서버",
-      "fitpal-mobile"
+      "app-mobile"
     ],
     [
       "배경",
-      "login_as fitpal-dev, er-04-reset.sql 실행"
+      "login_as dev-account, er-04-reset.sql 실행"
     ],
     [
       "시나리오 1",

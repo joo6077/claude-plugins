@@ -121,10 +121,16 @@ a:focus-visible,.card-source:focus-visible{
   font-size:0.97rem;color:var(--text2);
   max-width:760px;line-height:1.75;
 }
+.section-desc strong{color:var(--text)}
 .sub-title{
   font-size:1.02rem;font-weight:700;color:var(--text);
-  margin:36px 0 14px;letter-spacing:-0.01em;
+  margin:40px 0 14px;letter-spacing:-0.01em;
 }
+.sub-desc{
+  font-size:0.93rem;color:var(--text2);
+  max-width:800px;line-height:1.75;
+}
+.sub-desc strong{color:var(--text)}
 
 /* ----- Grid ----- */
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
@@ -259,6 +265,7 @@ td.metric-key{
   white-space:nowrap;
 }
 td.metric-desc{color:var(--text2);font-size:13px}
+td.metric-desc strong{color:var(--text)}
 .table-note{
   font-size:12px;color:var(--text3);
   margin-top:12px;line-height:1.7;
@@ -282,9 +289,6 @@ pre{
   line-height:1.75;color:var(--text2);
 }
 pre code{background:none;border:none;padding:0;color:inherit;font-size:1em}
-pre .cm{color:var(--text3)}
-pre .hl{color:var(--accent)}
-pre .bad{color:var(--error)}
 
 /* ----- Callout ----- */
 .callout{
@@ -340,6 +344,65 @@ pre .bad{color:var(--error)}
   font-size:0.88rem;color:var(--text2);
   line-height:1.72;
 }
+.compare-text strong{color:var(--text)}
+
+/* ----- Report flow (스크립트 한 줄 → 리포트 네 칸) ----- */
+.flow{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1.25fr);
+  gap:18px;align-items:stretch;margin-top:20px;
+}
+.flow-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px 24px;
+}
+.flow-box.flow-to{border-color:rgba(52,211,153,0.3)}
+.flow-kicker{
+  display:block;font-size:11px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px;
+}
+.flow-box h4{
+  font-size:0.97rem;font-weight:700;color:var(--text);
+  margin-bottom:8px;line-height:1.45;
+}
+.flow-box p{font-size:0.88rem;color:var(--text2);line-height:1.7}
+.flow-box p strong{color:var(--text)}
+.flow-box pre{margin-top:12px}
+.flow-arrow{
+  align-self:center;justify-self:center;
+  font-family:var(--mono);font-size:1.5rem;font-weight:700;
+  color:var(--accent);
+}
+.slots{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.slots li{
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;
+  padding:14px 16px;
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  background:var(--surface2);
+}
+.slots li.slot-moved{border-color:rgba(52,211,153,0.4)}
+.slot-k{
+  grid-row:span 2;align-self:start;
+  font-family:var(--mono);font-size:12px;font-weight:700;
+  color:var(--accent);white-space:nowrap;padding-top:2px;
+}
+.slot-name{font-size:0.94rem;font-weight:700;color:var(--text)}
+.slot-how{font-size:0.86rem;color:var(--text2);line-height:1.65}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{
+  font-family:var(--mono);font-size:12px;
+  padding:5px 11px;border-radius:999px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);
+}
+@media(max-width:900px){
+  .flow{grid-template-columns:minmax(0,1fr)}
+  .flow-arrow{transform:rotate(90deg)}
+}
 
 /* ----- Checklist ----- */
 .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
@@ -387,13 +450,13 @@ pre .bad{color:var(--error)}
    3) pre 는 overflow-x:auto + max-width:100%
    4) 좁은 뷰포트 단일 컬럼
    --------------------------------------------------------- */
-.grid-2>*,.grid-3>*,.split>*,.compare>*{min-width:0}
-.checklist li>*,.bugs li>*{min-width:0}
-.card,.compare-box,.callout,.bugs li,.hero .lede{overflow-wrap:anywhere}
+.grid-2>*,.grid-3>*,.split>*,.compare>*,.flow>*{min-width:0}
+.checklist li>*,.bugs li>*,.slots li>*,.chips>*{min-width:0}
+.card,.compare-box,.callout,.bugs li,.hero .lede,.flow-box,.slots li{overflow-wrap:anywhere}
 @media(max-width:600px){
-  .grid-2,.grid-3,.split,.compare{grid-template-columns:1fr}
+  .grid-2,.grid-3,.split,.compare,.flow{grid-template-columns:1fr}
   .page{padding:0 16px 72px}
-  .card,.bugs li{padding:20px 18px}
+  .card,.bugs li,.flow-box{padding:20px 18px}
 }
 
 /* ----- Motion sensitivity ----- */
@@ -416,13 +479,13 @@ pre .bad{color:var(--error)}
     <div class="badge">Infra Kit SSOT · 신설 2026-08-13 (Phase 8 kaizen)</div>
     <h1>인프라 게이트 결과 상태 taxonomy</h1>
     <p class="subtitle">
-      infra-kit 안에서 이 문서가 <strong>상태어 SSOT</strong>다.
-      <code>infra-test</code>가 생성하는 검증 스크립트, <code>infra-audit</code>의 rule 판정,
-      <code>infra-reviewer</code>의 근거 열은 아래 5 상태만 쓰고
+      <strong>infra-kit 안에서 이 파일이 상태어 SSOT 다.</strong>
+      <code>infra-test</code> 가 생성하는 검증 스크립트, <code>infra-audit</code> 의 rule 판정,
+      <code>infra-reviewer</code> 의 근거 열은 아래 5 상태만 쓰고
       자기 문서에서 상태를 다시 정의하지 않는다. 인용만 한다.
     </p>
     <div class="lede">
-      <strong>여기서 정의하지 않는 것 (상위 SSOT를 인용만 한다):</strong><br>
+      <strong>여기서 정의하지 않는 것 (상위 SSOT 를 인용만 한다):</strong><br>
       · <strong>exit 숫자의 의미</strong> → <code>harness/evals/gate-exit-codes.md</code><br>
       · <strong><code>[미검증]</code> 마커 의미 · 임계값 · 카운터 분리</strong> →
       <code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol
@@ -433,11 +496,10 @@ pre .bad{color:var(--error)}
   <section class="section">
     <div class="section-header">
       <div class="section-label">Why — 실측</div>
-      <h2 class="section-title">"위반 0"으로 접히는 세 가지 결함</h2>
+      <h2 class="section-title">"위반 0" 으로 접히는 세 가지 버그</h2>
       <p class="section-desc">
-        2026-07-27 Phase 8은 <code>infra-test</code>가 생성해주는 CI 검증 스크립트에서
-        버그 3건을 고쳤다. 셋의 공통 뿌리는 하나다 —
-        결과에 <strong>"검사를 수행하지 못했다"</strong>는 상태가 없다는 것.
+        2026-07-27 Phase 8 은 <code>infra-test</code> 가 생성해주는 CI 검증 스크립트에서
+        버그 3 건을 고쳤다.
       </p>
     </div>
 
@@ -445,31 +507,30 @@ pre .bad{color:var(--error)}
       <li>
         <span class="idx">1</span>
         <span>
-          <strong>grep 앵커 누락</strong> — 미핀닝 3건 중 1건만 검출했다.
-          탐지 범위가 좁아진 것을 "위반이 적다"로 읽었다.
+          <strong>grep 앵커 누락</strong> — 미핀닝 3 건 중 1 건만 검출했다.
         </span>
       </li>
       <li>
         <span class="idx">2</span>
         <span>
-          <strong>결함을 <code>echo WARN</code>하고 exit 0</strong> — 게이트가 무력화됐다.
-          실패해야 할 파이프라인이 초록불로 통과했다.
+          <strong>결함을 <code>echo WARN</code> 하고 exit 0</strong> — 게이트가 무력화됐다.
         </span>
       </li>
       <li>
         <span class="idx">3</span>
         <span>
-          <strong>매칭 없는 glob이 리터럴 패턴으로 잔존</strong> —
-          "YAML syntax error" 오보를 냈다. 대상이 0건인 것과 문법이 깨진 것을 구분하지 못했다.
+          <strong>매칭 없는 glob 이 리터럴 패턴으로 남음</strong> —
+          "YAML syntax error" 오보를 냈다.
         </span>
       </li>
     </ul>
 
     <div class="callout callout-warn">
       <span class="callout-title">공통 뿌리</span>
-      상태가 없으면 <strong>도구 부재도, 대상 부재도, 실행 실패도 전부 "위반 0"</strong>으로 접힌다.
+      셋의 공통 뿌리는 <strong>결과에 "검사를 수행하지 못했다" 라는 상태가 없다</strong>는 것이다.
+      상태가 없으면 도구 부재도, 대상 부재도, 실행 실패도 전부 <strong>"위반 0"</strong> 으로 접힌다.
       인프라 감사는 <code>hadolint</code> · <code>actionlint</code> · <code>kubeconform</code> ·
-      <code>conftest</code> · <code>cosign</code> · <code>trivy</code>가 없는 환경,
+      <code>conftest</code> · <code>cosign</code> · <code>trivy</code> 가 없는 환경,
       kubectl·레지스트리 접근이 막힌 환경이 흔하므로 이 접힘이 특히 자주 일어난다.
       <br><br>
       <strong>도구 부재를 통과로 집계하는 게이트는 없는 것보다 나쁘다</strong> — 통과 기록이 남기 때문이다.
@@ -482,9 +543,9 @@ pre .bad{color:var(--error)}
       <div class="section-label">Taxonomy</div>
       <h2 class="section-title">5 상태</h2>
       <p class="section-desc">
-        상태어 · exit 코드 · 평가자 분류의 3열 매핑이 정본이다.
-        exit 숫자의 의미는 <code>harness/evals/gate-exit-codes.md</code>,
-        <code>[미검증]</code> 계열 분류는 <code>qa-evaluation-guide.md</code>가 상위 SSOT다.
+        상태마다 exit 코드와 평가자 분류를 짝지어 둔다. exit 열은
+        <code>harness/evals/gate-exit-codes.md</code>, 평가자 분류 열은
+        <code>qa-evaluation-guide.md</code> 에서 온 것이다.
       </p>
     </div>
 
@@ -494,8 +555,8 @@ pre .bad{color:var(--error)}
           <tr>
             <th>상태</th>
             <th>의미</th>
-            <th>exit</th>
-            <th>평가자 분류</th>
+            <th>exit (gate-exit-codes.md)</th>
+            <th>평가자 분류 (qa-evaluation-guide.md)</th>
           </tr>
         </thead>
         <tbody>
@@ -521,7 +582,7 @@ pre .bad{color:var(--error)}
             <td><span class="status-pill pill-missing">TOOL_OR_ENV_MISSING</span></td>
             <td class="metric-desc">
               대상은 있는데 <strong>도구·런타임·접근권이 없어</strong> 수행하지 못했다.
-              리포트에는 <code>[미검증] TOOL_OR_ENV_MISSING</code>으로 적는다
+              리포트에는 <code>[미검증] TOOL_OR_ENV_MISSING</code> 으로 적는다
             </td>
             <td><span class="exit-code">2</span> <code>usage_or_infra_error</code></td>
             <td class="metric-desc">
@@ -541,31 +602,28 @@ pre .bad{color:var(--error)}
       </table>
     </div>
     <p class="table-note">
-      exit 열은 <code>harness/evals/gate-exit-codes.md</code>, 평가자 분류 열은
-      <code>harness/docs/guides/qa-evaluation-guide.md</code>의 정의를 인용한 것이다.
-      이 표에서 그 정의를 변경하지 않는다.
+      exit 숫자의 의미와 <code>[미검증]</code> 분류는 위 두 파일이 정의한다. 이 표는 그 정의를 인용할 뿐 바꾸지 않는다.
     </p>
 
     <div class="grid-2" style="margin-top:24px">
       <article class="card">
         <div class="card-num">01</div>
-        <h3 class="card-title">SKIP_NO_TARGET과 TOOL_OR_ENV_MISSING을 섞지 마라</h3>
+        <h3 class="card-title">SKIP_NO_TARGET 과 TOOL_OR_ENV_MISSING 을 섞지 마라</h3>
         <p class="card-body">
           전자는 <strong>볼 것이 없는 것</strong>이고 후자는 <strong>볼 수 없는 것</strong>이다.
           전자는 정상 종결이지만 후자는 커버리지 손실이다.
-          같은 자리에 넣는 순간 "이 프로젝트는 해당 없음"과 "이 환경은 검사 불가"가 구별되지 않는다.
         </p>
-        <a class="card-source" href="../../infra-kit/references/gate-result-taxonomy.md">infra-kit/references/gate-result-taxonomy.md</a>
+        <a class="card-source" href="../../infra-kit/references/gate-result-taxonomy.md">taxonomy §5 상태</a>
       </article>
 
       <article class="card">
         <div class="card-num">02</div>
-        <h3 class="card-title">TOOL_OR_ENV_MISSING과 VIOLATION도 섞지 마라</h3>
+        <h3 class="card-title">TOOL_OR_ENV_MISSING 과 VIOLATION 도 섞지 마라</h3>
         <p class="card-body">
-          도구가 없어 돌리지 못한 rule은 PASS도 N/A도 아니고 <code>[미검증]</code>이다.
-          같은 원칙이 <strong>규칙 소스</strong>에도 적용된다 —
-          <code>audit-criteria.md</code>를 읽지 못했다면 그 카테고리는 검사하지 않은 것이므로
-          위반 0으로 보고하지 마라.
+          도구가 없어 돌리지 못한 rule 은 PASS 도 N/A 도 아니고 <code>[미검증]</code> 이다.
+          같은 원칙은 <strong>규칙 소스</strong>에도 해당한다 —
+          <code>audit-criteria.md</code> 를 읽지 못했다면 그 카테고리는 검사하지 않은 것이므로
+          위반 0 으로 보고하지 마라.
         </p>
         <a class="card-source" href="../harness/qa-evaluation-guide.html">harness — QA 평가 가이드</a>
       </article>
@@ -576,32 +634,32 @@ pre .bad{color:var(--error)}
   <section class="section">
     <div class="section-header">
       <div class="section-label">Precedence</div>
-      <h2 class="section-title">실행 불완전이 정책 위반을 이긴다</h2>
+      <h2 class="section-title">우선순위 — 실행 불완전이 정책 위반을 이긴다</h2>
       <p class="section-desc">
-        한 run에서 <code>VIOLATION</code>과
-        <code>TOOL_OR_ENV_MISSING</code>/<code>EXECUTION_ERROR</code>가 동시에 나오면
-        종료 코드는 <strong>2</strong>다. 실행이 불완전한 run의 결과 집합을
-        완전한 분석 결과로 보고해서는 안 되기 때문이다.
+        한 run 에서 <code>VIOLATION</code> 과
+        <code>TOOL_OR_ENV_MISSING</code>/<code>EXECUTION_ERROR</code> 가 동시에 나오면
+        종료 코드는 <strong>2</strong> 다. 실행이 불완전한 run 의 결과 집합을
+        완전한 분석 결과로 보고해서는 안 되기 때문이다
+        (근거·규칙 원문: <code>harness/evals/gate-exit-codes.md</code> §규칙).
       </p>
     </div>
 
     <div class="compare">
       <div class="compare-box compare-bad">
         <div class="compare-label">Anti-pattern</div>
-        <h3 class="compare-title">위반이 있으니 exit 1로 끝낸다</h3>
+        <h3 class="compare-title">위반이 나왔으니 exit 1 로 끝낸다</h3>
         <p class="compare-text">
-          도구 3개가 미설치라 rule 절반을 못 돌렸는데 exit 1만 남기면,
-          "검사했고 위반 N건"이라는 완전한 분석 결과로 읽힌다.
-          커버리지 손실이 기록에서 사라진다.
+          <code>TOOL_OR_ENV_MISSING</code> 이나 <code>EXECUTION_ERROR</code> 가 같이 나온 run 인데
+          exit 1 을 내면, 실행이 불완전한 run 의 결과 집합을 <strong>완전한 분석 결과로 보고</strong>하는 셈이 된다.
         </p>
       </div>
       <div class="compare-box compare-good">
         <div class="compare-label">Correct</div>
-        <h3 class="compare-title">실행 불완전이 있으면 exit 2</h3>
+        <h3 class="compare-title">실행 불완전이 섞이면 exit 2</h3>
         <p class="compare-text">
-          <code>VIOLATION</code>이 함께 있어도 종료 코드는 2다.
-          근거·규칙 원문은 <code>harness/evals/gate-exit-codes.md</code> §규칙을 따른다.
-          이 문서는 그 규칙을 인용할 뿐 재정의하지 않는다.
+          <code>VIOLATION</code> 이 함께 있어도 종료 코드는 <strong>2</strong> 다.
+          규칙 원문은 <code>harness/evals/gate-exit-codes.md</code> §규칙에 있고,
+          이 파일은 그것을 인용한다.
         </p>
       </div>
     </div>
@@ -609,18 +667,17 @@ pre .bad{color:var(--error)}
     <div class="compare">
       <div class="compare-box compare-bad">
         <div class="compare-label">Anti-pattern</div>
-        <h3 class="compare-title">종료 코드 하나로 요약을 대신한다</h3>
+        <h3 class="compare-title">종료 코드 하나만 남기고 다른 카운트를 감춘다</h3>
         <p class="compare-text">
-          exit 2만 보고 나머지 카운트를 감추면
-          위반이 몇 건인지, 미검증이 몇 건인지, 실행 실패가 몇 건인지를
-          호출자가 알 수 없다.
+          종료 코드는 하나뿐이다. 그 하나만 남기면 위반 · 미검증 · 실행 오류가
+          각각 몇 건이었는지는 보고에서 빠진다.
         </p>
       </div>
       <div class="compare-box compare-good">
         <div class="compare-label">Correct</div>
         <h3 class="compare-title">요약 줄에 세 카운트를 모두 출력</h3>
         <p class="compare-text">
-          종료 코드가 하나라고 해서 다른 카운트를 감추지 마라.
+          <strong>종료 코드가 하나라고 해서 다른 카운트를 감추지 마라.</strong>
           아래 형식을 그대로 출력한다.
         </p>
       </div>
@@ -635,8 +692,8 @@ pre .bad{color:var(--error)}
       <div class="section-label">Preamble</div>
       <h2 class="section-title">머리말 4 카운터 — 검사 시작 전 출력 · 필수</h2>
       <p class="section-desc">
-        게이트 스크립트와 감사 리포트는 <strong>결과보다 먼저</strong> 아래 4줄을 출력한다.
-        이 머리말이 없으면 "위반 0"은 해석 불가다 — <strong>분모를 모르기 때문</strong>이다.
+        게이트 스크립트와 감사 리포트는 <strong>결과보다 먼저</strong> 아래 4 줄을 출력한다.
+        이 머리말이 없으면 "위반 0" 은 해석 불가다 — <strong>분모를 모르기 때문</strong>이다.
       </p>
     </div>
 
@@ -648,23 +705,22 @@ pre .bad{color:var(--error)}
     <div class="grid-3" style="margin-top:28px">
       <article class="card">
         <div class="card-num">A</div>
-        <h3 class="card-title">도구 유무는 추측 금지</h3>
+        <h3 class="card-title">도구 유무는 추측하지 않는다</h3>
         <p class="card-body">
           <code>command -v &lt;tool&gt;</code> 결과만 적는다.
-          "보통 설치되어 있다"는 가정은 머리말을 거짓으로 만든다.
+          사용 가능 · 미설치 두 줄 모두 이 출력에서 나온다.
         </p>
         <a class="card-source" href="../../infra-kit/references/gate-result-taxonomy.md">taxonomy §머리말 4 카운터</a>
       </article>
 
       <article class="card">
         <div class="card-num">B</div>
-        <h3 class="card-title">대상 0건이면 그 자리에서 종결</h3>
+        <h3 class="card-title">대상 0 이면 그 자리에서 종결</h3>
         <p class="card-body">
-          <code>SKIP_NO_TARGET</code>으로 종결한다 (exit 3).
-          <strong>PASS로 넘기지 마라</strong> — 검사하지 않은 것을 통과로 기록하는 순간
-          그 기록이 다음 사이클을 속인다.
+          대상 수가 0 이면 그 자리에서 <code>SKIP_NO_TARGET</code> 으로 종결한다 (exit 3).
+          <strong>PASS 로 넘기지 마라.</strong>
         </p>
-        <a class="card-source" href="../../infra-kit/references/gate-result-taxonomy.md">taxonomy §머리말 4 카운터</a>
+        <a class="card-source" href="../../harness/evals/gate-exit-codes.md">gate-exit-codes.md §4 값</a>
       </article>
 
       <article class="card">
@@ -672,7 +728,7 @@ pre .bad{color:var(--error)}
         <h3 class="card-title">읽지 못한 규칙 소스도 [미검증]</h3>
         <p class="card-body">
           규칙 소스를 읽지 못했으면 그 소스 이름을 <code>[미검증]</code> 목록에 넣는다.
-          규칙이 없으면 판정도 없다.
+          읽지 못한 카테고리를 위반 0 으로 보고하지 않는다.
         </p>
         <a class="card-source" href="../harness/qa-evaluation-guide.html">harness — QA 평가 가이드</a>
       </article>
@@ -701,25 +757,25 @@ pre .bad{color:var(--error)}
         </thead>
         <tbody>
           <tr>
-            <td class="metric-key">핵심 도구<br>(<code>grep</code> · <code>python3</code>)</td>
+            <td class="metric-key">핵심 도구<br>(<code>grep</code> · <code>python3</code> 같이<br>게이트 자체가 의존)</td>
             <td class="metric-desc">
-              즉시 <span class="status-pill pill-exec">EXECUTION_ERROR</span> + exit 2.
+              즉시 <span class="status-pill pill-exec">EXECUTION_ERROR</span> + exit 2.<br>
               검사를 <strong>시작하지 않는다</strong>
             </td>
             <td class="metric-desc">
-              없으면 모든 rule 결과가 오보다. 실측 회귀: <code>grep</code>이 없으면
-              <code>grep -q</code>가 비영 종료해 "checkout 스텝 없음"
-              <strong>VIOLATION을 오보</strong>했다
+              없으면 모든 rule 결과가 오보다. 실측 회귀: <code>grep</code> 이 없으면<br>
+              <code>grep -q</code> 가 비영 종료해 "checkout 스텝 없음"
+              <strong>VIOLATION 을 오보</strong>했다
             </td>
           </tr>
           <tr>
             <td class="metric-key">
-              선택 도구<br>(<code>hadolint</code> · <code>actionlint</code> ·
-              <code>kubeconform</code> · <code>conftest</code> ·
+              선택 도구<br>(<code>hadolint</code> · <code>actionlint</code> ·<br>
+              <code>kubeconform</code> · <code>conftest</code> ·<br>
               <code>cosign</code> · <code>trivy</code>)
             </td>
             <td class="metric-desc">
-              해당 rule만 <span class="status-pill pill-missing">TOOL_OR_ENV_MISSING</span>,
+              해당 rule 만 <span class="status-pill pill-missing">TOOL_OR_ENV_MISSING</span>,<br>
               나머지는 계속 검사
             </td>
             <td class="metric-desc">부분 커버리지가 0 커버리지보다 낫다</td>
@@ -731,7 +787,7 @@ pre .bad{color:var(--error)}
     <div class="callout">
       <span class="callout-title">배치 위치</span>
       핵심 도구 검사는 <strong>머리말 출력 직후, 첫 rule 실행 전</strong>에 둔다.
-      그래야 사용자가 "무엇이 없어서 아무것도 못 했는지"를 본다.
+      그래야 사용자가 "무엇이 없어서 아무것도 못 했는지" 를 본다.
     </div>
   </section>
 
@@ -741,34 +797,99 @@ pre .bad{color:var(--error)}
       <div class="section-label">Re-verification</div>
       <h2 class="section-title">재검증 명령 의무</h2>
       <p class="section-desc">
-        <code>TOOL_OR_ENV_MISSING</code>을 출력할 때는
-        <strong>환경이 갖춰졌을 때 이 rule을 통과시킬 실행 가능한 명령</strong>을 같은 줄에 적는다.
-        이것은 상위 SSOT의 남용 방지 4 요건 4항이 요구하는 것이며,
-        없으면 그 항목은 <code>UNVERIFIED_ENV</code>가 아니라
-        <code>UNVERIFIED_INVALID_EVIDENCE</code>로 강등된다.
+        <code>TOOL_OR_ENV_MISSING</code> 을 출력할 때는
+        <strong>환경이 갖춰졌을 때 이 rule 을 통과시킬 실행 가능한 명령</strong>을 같은 줄에 적는다.
+        이것은 상위 SSOT 의 남용 방지 4 요건 4 항이 요구하는 것이며,
+        없으면 그 항목은 <code>UNVERIFIED_ENV</code> 가 아니라
+        <code>UNVERIFIED_INVALID_EVIDENCE</code> 로 강등된다.
       </p>
     </div>
 
 <pre><code>[미검증] TOOL_OR_ENV_MISSING: kubeconform 미설치 — 재검증: brew install kubeconform &amp;&amp; bash tests/k8s-validation.sh</code></pre>
 
+    <h3 class="sub-title">리포트로 옮길 때 — 네 칸</h3>
+    <p class="sub-desc">
+      위 한 줄은 스크립트가 찍는 형식이다. 리포트에서는 이 줄을 그대로 붙이지 않고
+      네 칸으로 옮긴다 — 스크립트의 이 줄과 그 근거인 <code>command -v &lt;도구&gt;</code> 출력을
+      <strong>막는 것</strong> 칸으로 옮기고 나머지 세 칸(시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채운다.
+    </p>
+
+    <div class="flow">
+      <div class="flow-box">
+        <span class="flow-kicker">스크립트 출력</span>
+        <h4>한 줄 + 도구 확인 결과</h4>
+        <p>
+          <code>[미검증] TOOL_OR_ENV_MISSING: …</code> 줄과,
+          그 줄의 근거인 <code>command -v &lt;도구&gt;</code> 출력.
+        </p>
+<pre><code>[미검증] TOOL_OR_ENV_MISSING: kubeconform 미설치 — 재검증: …
+$ command -v kubeconform
+(출력 그대로)</code></pre>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">→</div>
+      <div class="flow-box flow-to">
+        <span class="flow-kicker">리포트 근거 열</span>
+        <h4>네 칸</h4>
+        <ul class="slots">
+          <li class="slot-moved">
+            <span class="slot-k">칸 1</span>
+            <span class="slot-name">막는 것</span>
+            <span class="slot-how">스크립트의 이 줄과 <code>command -v &lt;도구&gt;</code> 출력을 옮긴다</span>
+          </li>
+          <li>
+            <span class="slot-k">칸 2</span>
+            <span class="slot-name">시도한 우회</span>
+            <span class="slot-how">채운다</span>
+          </li>
+          <li>
+            <span class="slot-k">칸 3</span>
+            <span class="slot-name">통제 불가 사유</span>
+            <span class="slot-how">채운다</span>
+          </li>
+          <li>
+            <span class="slot-k">칸 4</span>
+            <span class="slot-name">재검증 명령</span>
+            <span class="slot-how">채운다</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="sub-desc" style="margin-top:20px">이 네 칸을 쓰는 리포트는 세 곳이다.</p>
+    <div class="chips">
+      <span class="chip">infra-test 완료 보고</span>
+      <span class="chip">infra-audit 근거 열</span>
+      <span class="chip">infra-reviewer 근거 열</span>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-title">네 칸의 정의는 여기 없다</span>
+      네 칸의 정의는 <code>harness/docs/guides/skill-design-guide.md</code>
+      §3.7 Completion Evidence Gate 3 항이 SSOT 다 — 여기서 다시 정의하지 않는다.
+      <strong>하나라도 비면 <code>UNVERIFIED_ENV</code> 로 인정되지 않는다.</strong>
+      정의는 <a href="../harness/skill-design-guide.html#s3-7">harness — 스킬 설계 가이드 §3.7</a> 에서 본다.
+    </div>
+
     <div class="split" style="margin-top:28px">
       <div class="card">
-        <h3 class="card-title">같은 줄에 붙이는 이유</h3>
+        <div class="card-num">1</div>
+        <h3 class="card-title">스크립트 줄에 재검증 명령이 없으면</h3>
         <p class="card-body">
-          미검증 항목은 나중에 누군가가 되살려야 한다.
-          명령이 리포트 밖에 있으면 그 항목은 영구 미검증으로 남는다.
-          <strong>줄 단위로 자기완결</strong>해야 grep 한 번으로 복구 절차가 나온다.
-        </p>
-        <a class="card-source" href="../../infra-kit/references/gate-result-taxonomy.md">taxonomy §재검증 명령 의무</a>
-      </div>
-      <div class="card">
-        <h3 class="card-title">강등 규칙</h3>
-        <p class="card-body">
-          재검증 명령이 없으면 <code>UNVERIFIED_ENV</code>로 인정되지 않는다.
-          분류 자체와 남용 방지 4 요건의 정의는 상위 SSOT에 있으며
-          이 문서는 그것을 인용만 한다.
+          그 항목은 <code>UNVERIFIED_ENV</code> 가 아니라
+          <code>UNVERIFIED_INVALID_EVIDENCE</code> 로 강등된다.
+          남용 방지 4 요건 4 항이 요구하는 것이다.
         </p>
         <a class="card-source" href="../harness/qa-evaluation-guide.html">harness — QA 평가 가이드</a>
+      </div>
+      <div class="card">
+        <div class="card-num">2</div>
+        <h3 class="card-title">리포트의 네 칸 중 하나라도 비면</h3>
+        <p class="card-body">
+          <code>UNVERIFIED_ENV</code> 로 인정되지 않는다.
+          스크립트 줄을 막는 것 칸에 옮긴 것만으로는 네 칸이 다 차지 않는다 —
+          나머지 세 칸을 채워야 한다.
+        </p>
+        <a class="card-source" href="../harness/skill-design-guide.html#s3-7">harness — 스킬 설계 가이드 §3.7</a>
       </div>
     </div>
   </section>
@@ -779,8 +900,7 @@ pre .bad{color:var(--error)}
       <div class="section-label">Consumers</div>
       <h2 class="section-title">소비처</h2>
       <p class="section-desc">
-        아래 3개 표면이 이 taxonomy를 소비한다. 세 곳 모두 상태어를 재정의하지 않고 인용한다 —
-        한 곳이라도 자기 정의를 만들면 SSOT가 깨진다.
+        아래 세 파일이 이 taxonomy 를 쓴다. 세 곳 모두 상태를 자기 문서에서 다시 정의하지 않고 인용만 한다.
       </p>
     </div>
 
@@ -816,7 +936,7 @@ pre .bad{color:var(--error)}
       <div class="section-label">Checklist</div>
       <h2 class="section-title">게이트를 쓰기 전 점검</h2>
       <p class="section-desc">
-        스크립트를 생성하거나 감사 리포트를 쓰기 전에 아래를 순서대로 확인한다.
+        스크립트를 생성하거나 감사 리포트를 쓰기 전에 위 규칙을 순서대로 확인한다.
       </p>
     </div>
 
@@ -831,36 +951,48 @@ pre .bad{color:var(--error)}
       <li>
         <span class="check"></span>
         <span>
-          도구 유무를 <code>command -v</code>로 <strong>실제 확인</strong>했는가.
-          추측으로 적은 줄은 머리말을 거짓으로 만든다.
+          도구 유무를 추측하지 않고 <code>command -v</code> 결과만 적었는가.
         </span>
       </li>
       <li>
         <span class="check"></span>
         <span>
-          대상 0건을 <code>SKIP_NO_TARGET</code>(exit 3)으로 종결했는가 —
-          <strong>PASS로 넘기지 않았는가</strong>.
+          대상 0 을 <code>SKIP_NO_TARGET</code>(exit 3)으로 종결했는가 —
+          <strong>PASS 로 넘기지 않았는가</strong>.
         </span>
       </li>
       <li>
         <span class="check"></span>
         <span>
-          도구 부재를 <code>TOOL_OR_ENV_MISSING</code>으로 적고
-          같은 줄에 <strong>재검증 명령</strong>을 붙였는가.
+          핵심 도구 검사를 머리말 출력 직후, <strong>첫 rule 실행 전</strong>에 두었는가 —
+          없으면 즉시 <code>EXECUTION_ERROR</code> + exit 2 로 검사를 시작하지 않는다.
         </span>
       </li>
       <li>
         <span class="check"></span>
         <span>
-          핵심 도구 검사를 <strong>첫 rule 실행 전</strong>에 배치했는가 —
-          없으면 즉시 <code>EXECUTION_ERROR</code> + exit 2로 중단해야 한다.
+          선택 도구가 없을 때 해당 rule 만 <code>TOOL_OR_ENV_MISSING</code> 으로 두고
+          나머지는 계속 검사했는가.
         </span>
       </li>
       <li>
         <span class="check"></span>
         <span>
-          <code>VIOLATION</code>과 실행 불완전이 함께 나왔을 때
-          종료 코드를 <strong>2</strong>로 냈는가.
+          <code>TOOL_OR_ENV_MISSING</code> 줄에 <strong>재검증 명령</strong>을 같은 줄로 붙였는가.
+        </span>
+      </li>
+      <li>
+        <span class="check"></span>
+        <span>
+          리포트로 옮길 때 스크립트 줄과 <code>command -v</code> 출력을 <strong>막는 것</strong> 칸에 넣고
+          나머지 세 칸(시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채웠는가.
+        </span>
+      </li>
+      <li>
+        <span class="check"></span>
+        <span>
+          <code>VIOLATION</code> 과 실행 불완전이 함께 나왔을 때
+          종료 코드를 <strong>2</strong> 로 냈는가.
         </span>
       </li>
       <li>
@@ -874,7 +1006,7 @@ pre .bad{color:var(--error)}
         <span class="check"></span>
         <span>
           읽지 못한 <strong>규칙 소스</strong>를 <code>[미검증]</code> 목록에 넣었는가 —
-          그 카테고리를 "위반 0"으로 보고하지 않았는가.
+          그 카테고리를 "위반 0" 으로 보고하지 않았는가.
         </span>
       </li>
     </ul>
@@ -882,6 +1014,7 @@ pre .bad{color:var(--error)}
 
   <footer class="footer">
     Infra Kit · Gate Result Taxonomy · 신설 2026-08-13 (Phase 8 kaizen) ·
+    2026-09-24 카이젠 사이클 원본으로 다시 만듦 ·
     소스 <code>infra-kit/references/gate-result-taxonomy.md</code>
   </footer>
 </main>

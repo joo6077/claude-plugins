@@ -18,11 +18,11 @@
 등록부: `.harness/stale-values.yaml` — 값마다 `old`/`new`/`note`, 그리고 고치면 안 되는
 자리는 `allow` 에 경로와 사유를 적는다 (날짜 박힌 기록 · 개명 이력 설명 · 다른 뜻의 동형 문자열).
 
-**범위 한계 — 이 게이트는 docs-site 파이프라인 전용이다.** `SOURCE_DIRS` 는
-`.claude/skills/docs-site/SKILL.md` 매핑표의 소스 디렉토리만 담는다. `backend-kit/skills/*` ·
-`infra-kit/references/*` · `docs/kaizen/*` 같은 **비 docs-site 문서는 훑지 않는다.**
-같은 사실이 그쪽에 새로 등장하면 이 게이트는 못 잡는다 — 범위를 넓히려면 SOURCE_DIRS 를
-늘리되, 늘린 만큼 `allow` 도 늘어난다는 것을 감안하라 (그쪽에는 같은 문자열이 다른 뜻으로
+**검사 범위 — docs-site 소스 디렉토리(`SOURCE_DIRS`)와 `.claude-plugin/marketplace.json` 에 등록된 킷 폴더 전부.**
+2026-09-25 전에는 docs-site 소스만 읽어 킷의 스킬 · 에이전트 · 시험 문서에 되살아난 옛 값을 못 잡았다
+(사본 다섯 곳에 등록 옛 값을 넣어도 0 건). 킷 목록은 marketplace.json 에서 읽으므로 킷이 늘면 따라 늘어난다.
+`EXCLUDED_KITS` 의 킷은 이유와 함께 출력에 적고 빼며, `docs/kaizen/*` 처럼 두 목록 밖의 문서는 여전히 훑지 않는다.
+범위를 넓힐수록 `allow` 도 늘어난다는 것을 감안하라 (킷 폴더에는 같은 문자열이 다른 뜻으로
 쓰인 자리가 많다 — 실측: "3.1.1" 이 OpenAPI 버전이 아니라 RFC 섹션 번호로 쓰인 예).
 
 Usage:
@@ -39,6 +39,10 @@ import yaml
 
 REPO = Path(__file__).resolve().parent.parent
 REGISTRY = REPO / ".harness" / "stale-values.yaml"
+MARKETPLACE = REPO / ".claude-plugin" / "marketplace.json"
+
+# 킷 이름 → 빼는 이유. 이유는 출력에 그대로 나간다
+EXCLUDED_KITS: dict[str, str] = {}
 
 # `.claude/skills/docs-site/SKILL.md` 의 소스→출력 매핑표에 대응하는 소스 디렉토리.
 # 매핑이 늘면 여기도 늘려야 한다 — 그래서 아래에서 존재 여부를 검사하고 없으면 경고한다.
@@ -51,24 +55,36 @@ SOURCE_DIRS = [
 ]
 
 
+def kit_dirs() -> list[str]:
+    plugins = json.loads(MARKETPLACE.read_text(encoding="utf-8"))["plugins"]
+    return [str(Path(p["source"])) for p in plugins if p["name"] not in EXCLUDED_KITS]
+
+
 def main() -> int:
     reg = yaml.safe_load(REGISTRY.read_text(encoding="utf-8"))
     values = reg.get("values", [])
 
-    files, missing_dirs = [], []
-    for d in SOURCE_DIRS:
+    # docs-site 소스는 킷 폴더 안에도 있다(design-kit/references 등) — 같은 파일을 두 번 세지 않는다
+    dirs = SOURCE_DIRS + [d for d in kit_dirs() if d not in SOURCE_DIRS]
+    files, seen, missing_dirs = [], set(), []
+    for d in dirs:
         p = REPO / d
         if not p.exists():
             missing_dirs.append(d)
             continue
-        files += sorted(p.rglob("*.md"))
+        for f in sorted(p.rglob("*.md")):
+            if f.resolve() not in seen:
+                seen.add(f.resolve())
+                files.append(f)
 
     as_json = "--json" in sys.argv
     if not as_json:
-        print(f"검사 범위: 소스 디렉토리 {len(SOURCE_DIRS) - len(missing_dirs)}/{len(SOURCE_DIRS)} · "
+        print(f"검사 범위: 소스 디렉토리 {len(dirs) - len(missing_dirs)}/{len(dirs)} · "
               f"파일 {len(files)} 개 · 등록값 {len(values)} 개")
         for d in missing_dirs:
             print(f"  경고: 없는 소스 디렉토리 {d}")
+        for name, why in EXCLUDED_KITS.items():
+            print(f"  검사 제외: {name} — {why}")
 
     if not files:
         print("ERROR: 검사 대상 파일이 0 개다. 범위 설정이 잘못됐다 — 이 상태의 '위반 0' 은 무의미하다.",

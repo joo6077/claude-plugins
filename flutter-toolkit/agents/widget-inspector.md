@@ -96,7 +96,7 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 - 개별 파라미터 3개 이상 → 위반 후보 (Named constructor variant 가 아닌 경우)
 - 프로젝트에 기존 위반 사례가 많으면 우선순위 낮게 (기존 패턴 일관성 우선)
 
-출처: flutter-hooks SKILL.md Gotchas + apps sprint-feedback iter 2 AR-01 패턴
+출처: flutter-hooks SKILL.md Gotchas + 앱 프로젝트 sprint-feedback iter 2 AR-01 패턴
 
 ### 6. Primitive Substitution (HAS_DS · DS 컴포넌트 미재사용)
 
@@ -119,6 +119,24 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 출처: `references/primitive-substitution-gate.md` (실측 REJECT `RE-02` 2026-08-12 기반)
 
+### 7. 관례 대조 (Convention Match · quick 모드 · 관례 표를 받았을 때)
+
+호출한 스킬이 넘긴 관례 표(`references/visual-evidence-protocol.md` Step 0 의 6 번)만 입력으로 쓴다.
+이 에이전트가 대조할 화면 수를 정하거나 표 밖의 화면으로 범위를 넓히지 않는다. deep 모드에서는 돌지 않는다.
+
+**탐지 방법:**
+
+- 표의 기존 화면 경로를 `Read` 로 열고, 이번에 바뀐 파일의 같은 역할 자리를 `Read` 로 연다
+- 세 칸을 따로 본다 — 줄 모양(카드인지 평평한 줄인지) · 칩·뱃지 모양 · 아이콘 뜻(닫기·끝내기·접기)
+
+**판단 기준:**
+
+- 칸마다 `맞음` · `어긋남` · `[미검증]` 가운데 하나와 양쪽 `파일:라인` 을 적는다
+- 표를 받지 못했으면 `[미검증] 관례 표 없음`, 표의 경로를 읽지 못했으면 `[미검증] 경로 확인 실패 — <경로>` 를 적는다
+- `어긋남` 은 추출 후보가 아니다 — Total 에 더하지 않고 따로 보고한다
+
+출처: `/insights` 2026-09-24 F02 (기존 관례를 무시한 카드 · 없는 위젯 · 아이콘 뜻 오용)
+
 ## Process
 
 ### Step 1: 스캔 범위 결정
@@ -135,7 +153,7 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 ### Step 2: 감지 실행
 
-감지 기준 6가지를 순서대로 적용한다:
+감지 기준 7가지를 순서대로 적용한다:
 
 1. private 위젯 수집 (`class _.*Widget`, `class _.*State`)
 2. build 메서드 크기 측정
@@ -143,6 +161,7 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 4. 패턴 반복 탐지 (deep 모드에서만 전체 비교)
 5. Props 번들링 위반 (`HAS_FREEZED` + `HAS_HOOKS` 프로젝트에서만)
 6. Primitive Substitution (`HAS_DS` 프로젝트에서만 · SSOT 파일의 검색 명령 사용)
+7. 관례 대조 (quick 모드 · 호출 스킬이 넘긴 관례 표만)
 
 ### Step 3: 리포트 생성
 
@@ -172,6 +191,10 @@ Props Bundling Violation (HAS_FREEZED + HAS_HOOKS)
 Primitive Substitution (HAS_DS)
   [파일:라인 — 사용한 기본 위젯 ↔ 실재하는 DS 후보 (경로)]
   → 제안: DS 컴포넌트로 교체 / 후보 없음이면 리포트에 올리지 않음
+
+Convention Match (관례 대조 · quick)
+  [칸 — 맞음/어긋남/[미검증] — 바뀐 파일:라인 ↔ 관례 파일:라인]
+  → 어긋남은 추출 후보가 아니다 (Total 에 넣지 않는다)
 
 Total: N extraction candidates
 ```
@@ -218,3 +241,4 @@ Clean — 추출 후보 없음
 - **MUST** 리포트 서두에 스캔 대상 파일 수를 명시한다 — 0 개면 "Clean" 이 아니라 `[미검증]` 으로 보고한다 (Evidence Validity Gate 검사 2)
 - **MUST** Primitive Substitution 감지는 `flutter-toolkit/references/primitive-substitution-gate.md` 의 대상·면제 목록을 그대로 쓴다 — 이 문서에서 목록을 복제하거나 확장하지 않는다. 특히 면제된 layout primitive 를 후보로 올리면 노이즈이자 규칙 오적용이다
 - **MUST NOT** `HAS_DS = false` 프로젝트에서 Primitive Substitution 을 실행하지 않는다 — 대체 후보가 존재할 수 없어 전건이 오탐이 된다
+- **MUST** 관례 대조는 호출 스킬이 넘긴 관례 표의 경로만 읽는다 — 대조할 화면 수를 새로 정하거나 표 밖 화면을 찾지 않는다. 표가 없으면 `[미검증] 관례 표 없음` 을 적는다

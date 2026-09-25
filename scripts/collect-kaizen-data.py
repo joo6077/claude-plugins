@@ -70,10 +70,9 @@ INSIGHTS_FRESH_DAYS = 60  # 60일 초과 시 stale 경고
 INSIGHTS_VERY_FRESH_HOURS = 24  # 24시간 이내 = "방금 실행됨" 표시
 HTML_SUFFIXES = (".html", ".htm")
 
-USAGE_DATA_INPUTS: tuple[Path, ...] = (
-    DEFAULT_USAGE_DATA / "facets",
-    DEFAULT_USAGE_DATA / "session-meta",
-)
+# /insights 세션 원자료 폴더 이름. 읽는 자리(collect_usage_facets)와 문서 대조(doc_contract)가 이 값 하나를
+# 같이 쓴다 — 따로 적으면 한쪽만 바뀌어도 validate-doc-contracts.py 가 어긋남을 못 잡는다
+USAGE_DATA_DIRS: tuple[str, str] = ("facets", "session-meta")
 # 시험·평가 세션이 도는 자리. 프로젝트 묶음에 섞이면 그 프로젝트 세션 수가 부풀어 보인다.
 TEMP_PATH_PREFIXES: tuple[str, ...] = ("/tmp", "/private/tmp", "/var/folders")
 FACETS_TEMP_GROUP = "(임시 폴더 — 시험 세션)"
@@ -114,7 +113,7 @@ def doc_contract() -> dict:
         "script": display_path(Path(__file__)),
         "options": sorted(options),
         "input_candidates": [display_path(p) for p in INSIGHTS_CANDIDATES],
-        "usage_data_inputs": [display_path(p) for p in USAGE_DATA_INPUTS],
+        "usage_data_inputs": [display_path(DEFAULT_USAGE_DATA / name) for name in USAGE_DATA_DIRS],
         "exit_codes": sorted(DOC_CONTRACT_EXIT_CODES),
     }
 
@@ -445,8 +444,7 @@ def collect_usage_facets(usage_dir: Path, plugin_names: Sequence[str] = ()) -> d
     session-meta 폴더를 따로 훑지 않는다 — 실측 200 개 중 182 개가 facets 없는 평가 세션이었다.
     못 읽은 파일은 버리지 않고 이름을 모아 둔다.
     """
-    facets_dir = usage_dir / "facets"
-    meta_dir = usage_dir / "session-meta"
+    facets_dir, meta_dir = (usage_dir / name for name in USAGE_DATA_DIRS)
     result: dict = {
         "usage_dir": usage_dir,
         "facets_exists": facets_dir.is_dir(),

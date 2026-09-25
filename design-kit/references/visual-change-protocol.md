@@ -1,13 +1,49 @@
 # Visual Change Protocol
 
-> design-kit 내 **시각 산출물을 만들거나 바꾸는 스킬**(design-mockup · design-system · design-guide ·
-> design-audit · design-test)이 공유하는 SSOT 다. 각 스킬은 이 문서를 Gotcha 한 줄로 인용하며,
+> design-kit 내 **시각 산출물을 만들거나 바꾸는 스킬**(design-mockup · design-component · design-concept ·
+> design-system · design-guide · design-audit · design-test)이 공유하는 SSOT 다. 각 스킬은 이 문서를 Gotcha 한 줄로 인용하며,
 > 여기 정의된 임계값·용어를 자기 문서에서 다시 정의하지 않는다.
 >
 > **배경 (실측):** 2026-06~07 사용 데이터에서 시각 작업 관련 반복 마찰이 최상위 신호로 올라왔다.
 > 승인된 시안 색상을 무시하고 프로젝트 토큰을 적용한 사례, 보더만 요청받고 배경까지 바꾼 사례,
 > 빈 화면 캡처를 "정상 렌더링" 근거로 반복 주장해 사용자 신뢰가 손상된 사례가 각각 별개 세션에서
 > 발생했다. 공통점은 **무엇을 진실로 삼을지**와 **무엇을 건드리지 않을지**가 규정되지 않았다는 것이다.
+>
+> **형제 규약과 같은 숫자:** §0 의 「같은 역할 기존 화면 2 개 이상」 과 §3 의 「스스로 고치기 최대 3 회」 는
+> flutter-toolkit `references/visual-evidence-protocol.md` Step 0 · Step 2 와 같은 값이다.
+> **세 규약(이 문서 · flutter-toolkit visual-evidence-protocol · react-kit render-evidence-protocol)이 같이 쓰는 규칙의 정본은 harness `skill-design-guide.md` 한 절에 두고, 세 규약에는 스택마다 다른 채널 · 도구 · 명령만 남긴다.**
+> 그 절은 아직 없다 — 생기기 전까지는 한쪽 값을 바꾸면 다른 쪽도 같이 바꾼다.
+
+---
+
+## 0. 편집 전 확정 — 대상 · 되말하기 · 관례 표
+
+화면이나 화면 요소를 만들거나 바꾸는 요청이면 파일을 만들거나 고치기 **전에** 아래 셋을 응답에 남긴다.
+시각 요청은 말만으로 의도가 정해지지 않는다. 실측(`/insights` 2026-09-24 F01 · F02): 평평한 줄 대신 카드를
+만들었고, 화면을 보여 달라는 요청에 그 화면으로 가는 칩을 만들었고, 칩 하나만 오른쪽에 고정하라는 말을 줄
+전체 고정으로 뒤집었고, 앱에 없는 위젯을 지어냈다.
+
+1. **대상** — 바꿀 화면의 파일 경로와 라우트(웹은 주소, 앱은 화면 파일)를 적는다. 새로 만드는 화면이면
+   `신규` 라고 적는다. 화면을 가리키는 요청이면 대상은 그 화면 자체다 — 그 화면으로 들어가는 진입점(버튼·칩)이나
+   화면을 흉내 낸 그림이 아니다
+2. **되말하기** — 요청을 대상 요소 이름과 배치까지 넣어 한 문장으로 되말한다. 두 갈래로 읽히면 묻고 시작한다
+   (예: 「추가 칩만 오른쪽 고정」 과 「줄 전체 오른쪽 고정」)
+3. **관례 표** — 앱 코드가 있으면 같은 역할의 서로 다른 기존 화면 **2 개 이상**을 Read 해서 경로와 함께 표로
+   남긴다. 칸은 줄 모양(카드인지 평평한 줄인지) · 칩·뱃지 모양 · 아이콘 뜻(닫기·끝내기·접기) · 재사용 부품(실제
+   심볼 이름 · `파일:줄` · 한 줄 용도)이다
+
+관례 표의 규칙:
+
+- 재사용 부품은 앱 코드가 실제로 부르는지 grep 으로 확인한다. 시안·카탈로그에서만 쓰이는 부품은 뺀다.
+  **코드 검색에서 나오지 않은 부품 이름은 시안·스펙에 쓰지 않는다**
+- 관례 일치는 **같은 역할**에만 적용한다. 역할이 다른 화면까지 같은 구조로 맞추지 않는다 — WCAG 2.2 SC 3.2.4 가
+  요구하는 것은 같은 기능을 일관되게 식별하는 것이지 모든 화면의 구조를 같게 하는 것이 아니다
+  ([WCAG 2.2](https://www.w3.org/TR/WCAG22/)). 그래서 감사 기준 Authenticity 의 레이아웃 변주 규칙(같은 구조 3 회 이상
+  반복 금지)과 부딪히지 않는다
+- 비교안을 만들면 관례를 §5 매트릭스의 `constants` 에 넣는다. 관례를 벗어나는 안은 사용자가 요청하거나
+  승인했을 때만 만든다
+- 같은 역할 기존 화면이 2 개 미만이면 찾은 화면을 전부 적고 `관례 없음 — 같은 역할 기존 화면 N 개` 라고 쓴다.
+  앱 코드가 아직 없으면 `관례 없음 — 앱 코드 없음` 이다
 
 ---
 
@@ -44,6 +80,10 @@ Good: 승인 시안 값을 그대로 적용 + "이 값을 `color.accent.brand` �
 
 "보더만", "색만", "간격만" 처럼 **속성 하나를 지목한 요청**은 그 속성만 바꾸라는 뜻이다.
 
+**요소 하나를 지목한 요청**(「이 칩만」, 「추가 버튼만 오른쪽으로」)도 같은 규칙을 따른다. 변경 목록에는 지목된
+요소만 올리고, 같은 줄·같은 영역의 이웃 요소는 보존 목록에 올린다. 요소가 두 갈래로 읽히면 §0 되말하기에서
+먼저 묻는다.
+
 ### 편집 전 (Change Manifest)
 
 편집을 시작하기 전에 두 목록을 명시한다. 문장 다짐이 아니라 **응답에 남는 목록**이어야 한다.
@@ -51,7 +91,7 @@ Good: 승인 시안 값을 그대로 적용 + "이 값을 `color.accent.brand` �
 ```text
 ## Change Manifest
 - 변경: [속성 — 대상 — 현재값 → 목표값]
-- 보존: [같은 요소/영역의 나머지 시각 속성 열거 — background, fill, radius, shadow, spacing, typography 중 해당분]
+- 보존: [같은 요소/영역의 나머지 시각 속성 열거 — background, fill, radius, shadow, spacing, typography 중 해당분 · 요소 하나를 지목했으면 같은 줄·같은 영역의 이웃 요소와 그 자리]
 ```
 
 보존 목록에 올린 속성은 편집 후에도 값이 같아야 한다. 리팩토링·정리·"김에 개선" 을 이유로 바꾸지 않는다.
@@ -102,6 +142,40 @@ Good: 승인 시안 값을 그대로 적용 + "이 값을 `color.accent.brand` �
   지목할 수 없으면 그 캡처는 무효 증거다.
 - 캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 `[미검증]` 이지 PASS 가 아니다.
 
+### 비교 반복 순서 — 반영 확인과 스스로 고치기 상한
+
+시각 산출물을 고칠 때는 아래 순서를 지킨다. 새로 만드는 산출물이면 1 의 기준 캡처 자리에 `신규` 라고 적는다.
+실측(`/insights` 2026-09-24 F03 · F26): 재시작이 조용히 실패했는데 「갱신했다」 고 보고했고, 사용자는 기준 화면 ·
+변경 · 재촬영 · 비교 · 스스로 고치기를 합의 조건으로 요구했다.
+
+1. **기준 캡처** — 캡처 파일 경로를 남기고 본 것을 요소 단위로 적는다. 이번 변경으로 반드시 달라져야 할 눈에
+   보이는 표식 하나를 이때 정한다 (예: 테두리 색, 칩 순서)
+2. **한 번에 한 의도**만 고친다. 여러 변경을 묶으면 재캡처의 차이가 무엇 때문인지 가를 수 없다
+3. **반영 확인** — 새로 찍은 캡처에서 1 의 표식이 바뀌었는지로 판정한다. 새로고침·재시작 명령의 성공 메시지만으로
+   판정하지 않는다. 표식이 그대로면 「반영 안 됨」 이다 — 같은 새로고침을 되풀이하지 말고 처음부터 다시 띄운다.
+   반영이 확인되기 전에는 「갱신했다」 고 말하지 않는다
+4. **재캡처** — 반영이 확인된 캡처를 재캡처로 쓰고 경로를 남긴다
+5. **대조** — §2 보존 목록의 속성이 그대로인지 본다. 의도 외 영역이 변했으면 self-reject 하고 되돌린 뒤 다시 한다.
+   **스스로 고치기는 최대 3 회**다. 3 회째도 실패하면 기준 캡처 · 마지막 재캡처 · 달라진 속성을 붙여 사용자에게 넘긴다
+
+### 캡처 점검 목록
+
+기준 캡처와 재캡처마다 아래 넷을 본다. 하나라도 걸리면 그 캡처로 PASS 를 주지 않는다. 실측(`/insights`
+2026-09-24 F04): 글자 넘침과 깨진 글리프를 사용자가 먼저 찾았고, 넘침을 데이터 수정으로 재현하려다 실패했다.
+
+1. **글자 넘침** — 잘린 글자, 뜻밖의 말줄임, 컨테이너 밖으로 나간 글자, 문서 본체의 가로 스크롤
+2. **깨진 글리프** — 네모나 빈칸으로 나온 글자와 이모지. 실제 서비스 글꼴로 그리지 않은 캡처로는 글자 모양을
+   판정하지 않는다 — 글자 항목은 실제 글꼴로 그린 캡처로 본다
+3. **칩·뱃지와 줄 모양** — 칩·뱃지 모양, 카드인지 평평한 줄인지를 §0 관례 표와 대조한다
+4. **디버그 겹침** — 떠 있는 디버그 단추·띠·개발 도구 표시가 판정할 자리를 가리는지 본다. 가렸으면 치우거나
+   옮긴 뒤 같은 자리를 다시 찍는다
+
+넘침은 데이터를 고쳐 재현하지 말고 글자를 키운 상태로 한 장 더 찍는다.
+웹은 텍스트 200% 확대(WCAG 2.2 SC 1.4.4), 앱은 기기 글자 크기 최대다.
+320 CSS px 폭에서 내용·기능이 사라지거나 양방향 스크롤이 생기는지(SC 1.4.10 Reflow)는 따로 판정한다.
+잘라낸 조각만 보고 결함이라 단정하기 전에 전체 화면을 한 장 더 찍는다.
+출처: [WCAG 2.2](https://www.w3.org/TR/WCAG22/).
+
 ---
 
 ## 4. Design Approval Record — 승인을 어떻게 남기는가
@@ -128,6 +202,8 @@ QA evaluator 가 증거로 읽는 위치다.
 - 대상 산출물: {파일 경로 — 예 .design/mockups/dashboard-sidebar.html}
 - 선택된 안: {시안 이름/ID}
 - 확정된 시각 값: {승인 시점에 고정된 색상·타이포·간격 — 이후 §1 순위 2 의 근거가 된다}
+- 확정 구성: {화면에 남는 요소와 배치 — 무엇이 어디에 있는가}
+- 폐기한 대안·이유: {이번 결정에서 버린 안·요소와 이유 — 없으면 `없음`}
 - 미확정/후속: {합의되지 않아 남긴 항목}
 - 원문 근거: {사용자 발화 인용 또는 자율 모드 판단 근거}
 ```
@@ -139,6 +215,11 @@ QA evaluator 가 증거로 읽는 위치다.
 - 승인 기록의 "확정된 시각 값" 은 §1 우선순위 2 의 실체다. 이후 세션에서 토큰·팔레트와 충돌하면
   **승인 기록이 이긴다.**
 - 승인 후 시안을 수정하면 기록을 갱신한다. 스테일 승인 기록은 없는 것보다 나쁘다.
+- **폐기한 대안은 다시 넣지 않는다.** 다음 시안·수정 전에 같은 대상의 승인 기록을 읽고, 폐기 칸의 안·요소는
+  사용자가 되살리라고 하지 않는 한 다시 만들지 않는다. 실측(`/insights` 2026-09-24 F20): 사용자가 폐기한
+  시간대·국가 항목을 되살렸다.
+- 제품 요구 수준의 폐기 결정(기능·설정 항목을 없앤다는 결정)은 이 기록에서 새로 정하지 않는다. 그 결정이 적힌
+  파일 경로를 폐기 칸에 적는다 — 결정 원문이 두 곳에 있으면 한쪽만 고쳐진다.
 
 ---
 
@@ -335,6 +416,9 @@ except FileNotFoundError:
 except yaml.YAMLError as e:
     print(f"SCHEMA_ERROR {e}"); sys.exit(2)
 
+# 모양이 틀린 입력(맨 위 목록 · 문자열 목록)이 .get 에서 멈추면 종료 코드 1(위반)로 읽힌다 — 2 로 낸다
+if not isinstance(doc, dict) or not isinstance(doc.get("decisions") or [], list):
+    print("SCHEMA_ERROR 맨 위는 매핑이고 decisions 는 목록이어야 한다"); sys.exit(2)
 decisions = doc.get("decisions") or []
 if not decisions:
     print("NO_DECISION 대상 0 건 — 검사 미수행"); sys.exit(3)
@@ -342,20 +426,43 @@ if not decisions:
 # user-visible assertion 으로 인정하는 3 종: visible / count / height
 PATTERNS = {"visible": r"\bvisible\b", "count": r"(>=|<=|>|<|==)\s*\d+|\bcount\b",
             "height": r"\bheight\b"}
-viol = surfaces = 0
+viol = surfaces = schema = 0
 for d in decisions:
+    if not isinstance(d, dict):
+        print(f"SCHEMA_ERROR {d!r}: 결정이 매핑이 아니다"); schema += 1; continue
     did = d.get("decision_id", "<no-id>")
-    for s in d.get("required_surfaces") or []:
+    # 아래 두 검사가 없으면 표면을 하나도 적지 않은 결정이 surface 0 개 · 위반 0 으로 통과한다 (2026-09-25 재현)
+    if not re.fullmatch(r"DEC-\d{8}-\d{3}", str(d.get("decision_id", ""))) or not d.get("source"):
+        print(f"SCHEMA_ERROR {did}: decision_id 형식(DEC-YYYYMMDD-NNN) 또는 source 가 없다"); schema += 1
+    req, exc = d.get("required_surfaces") or [], d.get("excluded_surfaces") or []
+    if not isinstance(req, list) or not isinstance(exc, list):
+        print(f"SCHEMA_ERROR {did}: required_surfaces · excluded_surfaces 는 목록이어야 한다"); schema += 1; continue
+    if not (req or exc):
+        print(f"FAIL {did}: required_surfaces · excluded_surfaces 가 둘 다 비었다 — 침묵은 커버리지 공백"); viol += 1
+    for x in exc:
+        if not isinstance(x, dict):
+            print(f"SCHEMA_ERROR {did}/{x!r}: excluded_surfaces 항목이 매핑이 아니다"); schema += 1; continue
+        if not x.get("reason"):
+            print(f"FAIL {did}/{x.get('surface_id', '<no-surface-id>')}: excluded_surfaces 에 reason 이 없다"); viol += 1
+    for s in req:
+        if not isinstance(s, dict) or not isinstance(s.get("assertions") or [], list):
+            print(f"SCHEMA_ERROR {did}/{s!r}: required_surfaces 항목은 매핑, assertions 는 목록이어야 한다"); schema += 1; continue
         surfaces += 1
         sid = s.get("surface_id", "<no-surface-id>")
-        asserts = " ; ".join(s.get("assertions") or [])
+        asserts = " ; ".join(str(a) for a in s.get("assertions") or [])
         hit = [k for k, p in PATTERNS.items() if re.search(p, asserts, re.I)]
         if not s.get("golden") and not hit:
             print(f"FAIL {did}/{sid}: golden 도 user-visible assertion 도 없음"); viol += 1
         elif not hit:
             print(f"FAIL {did}/{sid}: golden 만 존재 — visible/count/height assertion 부재"); viol += 1
-print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol}")
-sys.exit(1 if viol else 0)
+print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol} schema_errors={schema}")
+if schema:
+    sys.exit(2)
+if viol:
+    sys.exit(1)
+if surfaces == 0:
+    print("NO_SURFACE required_surfaces 0 개 — 검사 미수행"); sys.exit(3)
+sys.exit(0)
 ```
 
 **골든을 무차별로 만들지 마라.** 골든 회귀는 유지비가 크다 — 의도된 디자인 변경마다 baseline

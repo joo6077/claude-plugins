@@ -561,7 +561,7 @@ export function SubmitButton({ disabled }: { disabled: boolean }) {
 ```sh
 pnpm lingui extract                   # 소스 → .po 동기화
 pnpm lingui compile                   # .po → runtime catalog
-pnpm lingui extract --clean           # 삭제된 키 정리
+pnpm lingui extract --clean           # 안 쓰는 키 정리 — 기본 흐름 아님, 사용자가 요청할 때만 (react-l10n §4-1)
 ```
 
 ### 3.6 Locale 전환

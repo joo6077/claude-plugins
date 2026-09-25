@@ -130,6 +130,10 @@
   .table-wrap>table{min-width:max-content}
   .sys{font-weight:700;color:var(--text);white-space:nowrap}
   .num-cell{font-family:var(--mono);color:var(--text);white-space:nowrap}
+  td a.ref{color:var(--accent);text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+  td a.ref:hover{color:var(--accent2)}
+  td a.ref:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  tr.row-new td:first-child{box-shadow:inset 3px 0 0 var(--yellow)}
 
   /* ── 수치 막대 ── */
   .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
@@ -153,6 +157,8 @@
   .warn-banner p:last-child{margin-bottom:0}
   .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
     border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .info-card h3{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .info-card h3 .tag{margin:0}
 
   /* ── before / after 쌍 ── */
   .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:18px}
@@ -207,7 +213,7 @@
   pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
 
   /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
-  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*,.gate-row>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
   th code,td code{overflow-wrap:normal}
   .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
@@ -220,7 +226,7 @@
     html{scroll-behavior:auto}
   }
 
-  /* ════ 이 페이지 전용 — JCS 요구사항판 / 두 갈래 산출물 ════ */
+  /* ════ 이 페이지 전용 — JCS 요구사항판 / 두 갈래 산출물 / I-JSON 게이트 줄 ════ */
   /* JCS 가 요구하는 다섯 가지를 한 장에 늘어놓는다. 기준선의 정의 그 자체 */
   .jcs-req{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px;margin-top:6px}
   .jcs-req>*{min-width:0}
@@ -244,6 +250,22 @@
     border-bottom:1px dashed var(--border);overflow-wrap:anywhere}
   .lane-item:last-child{border-bottom:none}
   .lane-item b{color:var(--text);font-weight:700}
+
+  /* 게이트가 거르는 입력 — 이름 · 예 · 결과를 한 줄에 둔다. 좁은 화면에서는 세 칸이 위아래로 쌓인다 */
+  .gate{display:flex;flex-direction:column;gap:10px;margin-top:6px;margin-bottom:22px}
+  .gate-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,2.2fr);gap:16px;align-items:start;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+  .gate-row.g-new{border-color:rgba(251,191,36,0.5);border-left:3px solid var(--yellow)}
+  .gate-key{font-size:13.5px;font-weight:700;color:var(--text);overflow-wrap:anywhere;line-height:1.6}
+  .gate-key .tag{margin:4px 0 0;display:inline-block}
+  .gate-eg code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;
+    color:var(--text);display:inline-block;margin:0 4px 4px 0}
+  .gate-why{font-size:12.5px;color:var(--text2);line-height:1.7;overflow-wrap:anywhere}
+  .gate-why code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:4px;color:var(--text)}
+  /* 공통 미디어 쿼리보다 뒤에 둔다 — 앞에 두면 위 .gate-row 세 칸 정의가 이겨서 375px 에서도 쌓이지 않는다 */
+  @media(max-width:640px){
+    .gate-row{grid-template-columns:1fr;gap:6px}
+  }
 </style>
 </head>
 <body>
@@ -262,7 +284,7 @@
 <p class="subtitle">
   응답을 baseline 으로 봉인할 때 무엇을 원본 증거로 남기고 무엇을 비교 기준선으로 파생시킬지 가르는 규칙.
   비교 기준선은 RFC 8785 JCS canonical JSON 이며, 사람이 읽는 화면 표시용 포매팅은 기준선이 아니다.
-  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+  <span class="mono">v0.1.1 · 최종 갱신 2026-09-24</span>
 </p>
 
 <div class="warn-banner">
@@ -277,6 +299,31 @@
     헤더 정규화를 왜 JCS 밖으로 빼는지, baseline id 를 왜 응답 바이트가 아니라 매니페스트 digest 로 만드는지 —
     전부 "기준선은 JCS 여야 한다" 를 지키기 위한 배치다.
   </p>
+</div>
+
+<!-- ═══════════════ 0. 이번 판에서 바뀐 것 ═══════════════ -->
+<div class="section">
+  <div class="info-card">
+    <h3>이번 판(v0.1.1)에서 바뀐 것 <span class="tag tag-warn">2026-09-24</span></h3>
+    <ul class="checklist">
+      <li>
+        <span class="check c-warn">+</span>
+        <span><strong>I-JSON 게이트가 거르는 목록에 <code>-0</code> 을 넣었다.</strong>
+          <code>-0</code> 은 올바른 JSON 숫자지만 JCS 가 <code>0</code> 으로 적어 부호가 사라진다.
+          그래서 파서는 <code>-0</code> 을 만나면 오류를 내고 멈춰야 한다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인). &rarr; 원칙 3</span>
+      </li>
+      <li>
+        <span class="check c-warn">+</span>
+        <span><strong>수치 기준에 <code>-0</code> 허용 <code>0</code> 행을 더했다.</strong>
+          읽는 쪽은 <code>-0</code> 을 만나면 오류를 낸다(SHOULD). &rarr; 수치 기준 표</span>
+      </li>
+      <li>
+        <span class="check c-warn">+</span>
+        <span><strong>원칙 3 출처에 RFC 8785 정정 목록을 더했다.</strong>
+          <a href="https://www.rfc-editor.org/errata/rfc8785" target="_blank" rel="noopener">www.rfc-editor.org/errata/rfc8785</a></span>
+      </li>
+    </ul>
+  </div>
 </div>
 
 <!-- ═══════════════ 1. 개념 오리엔테이션 ═══════════════ -->
@@ -296,7 +343,7 @@
     <div class="flow-step rank-2">
       <span class="rank">02 · 기준선</span>
       <span class="what">I-JSON 게이트 → JCS</span>
-      <span class="out">먼저 I-JSON 으로 검문하고, 통과한 것만 JCS 로 정규화한다. 실패는 정규화 대상이 아니다.</span>
+      <span class="out">먼저 I-JSON 으로 검문하고(중복 키 · <code>-0</code> 등), 통과한 것만 JCS 로 정규화한다. 걸린 것은 정규화 대상이 아니다.</span>
     </div>
     <div class="flow-step rank-3">
       <span class="rank">03 · 식별</span>
@@ -306,38 +353,45 @@
   </div>
 
   <pre><code>HTTP 응답
-   │
-   ├─────────────────────────── raw lane (증거) ──────────────────────────┐
-   │   status / 원본 헤더 라인 / wire bytes / content bytes                │
-   │   시크릿 값만 마스킹 · 자리는 유지                                      │
-   │   digest: raw content, decoded representation (둘 다 기록)             │
-   │                                                                       │
-   └─── normalized lane (기준선) ────────────────────────────┐             │
-        Content-Type / Content-Encoding 해석                  │             │
-                 ↓                                            │             │
-        [ I-JSON 게이트 ]  중복 키 · 표현 불가 문자열 ·          │             │
-                          binary64 밖 숫자 · NaN/Inf ·         │             │
-                          lone surrogate  → 실패/fallback      │             │
-                 ↓ 통과                                        │             │
-        [ RFC 8785 JCS ]  공백 0 · property 재귀 정렬 ·          │             │
-                          ECMAScript primitive · UTF-8         │             │
-                 ↓                                            │             │
-        [ 변동 필드 path registry ]  timestamp / id / nonce     │             │
-                 ↓                                            │             │
-             normalized JCS digest ─────────────────┐          │             │
-                                                    ↓          ↓             ↓
-                                         ┌──────────────────────────────────────┐
-                                         │  manifest  →  digest  =  baseline id │
-                                         │  raw digest · JCS digest ·           │
-                                         │  redaction registry 버전 ·            │
-                                         │  media type · extraction mode        │
-                                         └──────────────────────────────────────┘</code></pre>
+ │
+ ├─▶ raw lane · 증거
+ │     status · 원본 헤더 라인 · wire bytes · content bytes
+ │     시크릿 값만 마스킹 — 자리는 유지
+ │     digest 둘 — raw content bytes · decoded representation
+ │        └──▶ manifest 의 raw digest
+ │
+ └─▶ normalized lane · 기준선
+       Content-Type / Content-Encoding 해석
+         ↓
+       [ I-JSON 게이트 ]
+           중복 키 · Unicode 로 표현 불가한 문자열 · binary64 밖 숫자
+           NaN/Infinity · lone surrogate · -0
+           → 걸리면 실패 또는 fallback. 정규화하지 않는다
+         ↓ 통과
+       [ RFC 8785 JCS ]
+           토큰 사이 공백 0 · property 재귀 정렬
+           ECMAScript primitive serialization · UTF-8
+         ↓
+       [ 변동 필드 path registry ]
+           timestamp · id · nonce · token 을 비교 직전에 안정화
+         ↓
+       normalized JCS digest
+          └──▶ manifest 의 JCS digest
+
+ manifest
+ ├─ raw digest
+ ├─ normalized JCS digest
+ ├─ redaction registry 버전
+ ├─ media type
+ └─ extraction mode
+      ↓ digest (sha-256 기본 · sha-512 옵션)
+ baseline id — 응답 바이트가 아니라 매니페스트에서 나온다</code></pre>
 
   <div class="lane">
     <div class="lane-col l-raw">
       <span class="lane-role">raw — 증거</span>
       <div class="lane-item"><b>보관 대상</b> 상태코드, 원본 헤더 라인, wire/content 바이트, 디코딩 전후 digest</div>
-      <div class="lane-item"><b>가공</b> 시크릿 값만 마스킹. 자리는 유지한다 (2026-09-04 결정)</div>
+      <div class="lane-item"><b>가공</b> 시크릿 값만 마스킹. 토큰 · 키 · 쿠키 값은 자리를 유지한 채 값만 가린다 (2026-09-04 결정)</div>
       <div class="lane-item"><b>정렬·정규화</b> 하지 않는다. 손대면 증거가 아니게 된다</div>
       <div class="lane-item"><b>용도</b> 회귀 조사 시 원본 복원. baseline 이 증거로 기능하는 근거</div>
     </div>
@@ -373,7 +427,7 @@
     <div class="req">
       <span class="req-key">number</span>
       <span class="req-what">ECMAScript primitive serialization</span>
-      <p class="req-note">숫자와 문자열의 직렬화 방식이 고정된다. 구현마다 다른 표기가 나오지 않는다.</p>
+      <p class="req-note">숫자와 문자열의 직렬화 방식이 고정된다. 이 규칙대로면 <code>-0</code> 도 <code>0</code> 으로 적힌다 — 부호를 지키려면 게이트에서 먼저 멈춰야 한다.</p>
     </div>
     <div class="req">
       <span class="req-key">order</span>
@@ -421,7 +475,90 @@
   </p>
 </div>
 
-<!-- ═══════════════ 3. 원칙 카드 ═══════════════ -->
+<!-- ═══════════════ 3. I-JSON 게이트 ═══════════════ -->
+<div class="section">
+  <div class="section-label">정규화 전 I-JSON 게이트 · 걸리는 입력</div>
+  <p class="desc">
+    JCS 로 넘기기 전에 I-JSON 으로 먼저 검문한다. 아래 어느 한 줄에라도 걸리면 그 응답은 정규화 대상이 아니라
+    <strong>실패 또는 fallback 대상</strong>이다. 게이트를 건너뛰면 파서가 조용히 값을 바꾼 뒤의 결과를 봉인하게 된다.
+  </p>
+
+  <div class="gate">
+    <div class="gate-row">
+      <div class="gate-key">중복 키</div>
+      <div class="gate-eg"><code>{"a":1,"a":2}</code></div>
+      <div class="gate-why">파서가 "last key wins" 로 하나를 삼키면 값이 이미 사라진 뒤다. 그래서 검사는 파싱 게이트에서 한다.
+        중복 JSON object member 허용치는 <code>0</code> 이다.</div>
+    </div>
+    <div class="gate-row">
+      <div class="gate-key">Unicode 로 표현 불가한 문자열 · lone surrogate</div>
+      <div class="gate-eg"><code>"\uD800"</code></div>
+      <div class="gate-why">정상 surrogate pair 는 허용하고, 짝 없는 단독 surrogate 는 실패다.
+        lone surrogate / noncharacter 허용치는 <code>0</code> 이다.</div>
+    </div>
+    <div class="gate-row">
+      <div class="gate-key">IEEE 754 binary64 로 표현 불가한 숫자</div>
+      <div class="gate-eg"><code>1e400</code></div>
+      <div class="gate-why">binary64 로 담을 수 없는 숫자는 파싱하는 순간 원래 값이 아니게 된다. 안전 정수 범위
+        <code>-9007199254740991 ~ 9007199254740991</code> 밖의 정수도 exact interchange 를 기대할 수 없다.</div>
+    </div>
+    <div class="gate-row">
+      <div class="gate-key">NaN / Infinity</div>
+      <div class="gate-eg"><code>NaN</code> <code>Infinity</code></div>
+      <div class="gate-why">JSON 숫자로 적을 수 없는 값이다. 받아들이는 파서가 있어도 정규화하지 않고 실패 또는 fallback 으로 보낸다.</div>
+    </div>
+    <div class="gate-row g-new">
+      <div class="gate-key"><code>-0</code><br><span class="tag tag-warn">v0.1.1 추가</span></div>
+      <div class="gate-eg"><code>{"t":-0}</code></div>
+      <div class="gate-why">올바른 JSON 숫자지만 JCS 가 <code>0</code> 으로 적어 부호가 사라진다.
+        그래서 파서는 <code>-0</code> 을 만나면 오류를 내고 멈춰야 한다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인).
+        허용치는 <code>0</code> 이다.</div>
+    </div>
+  </div>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what">게이트 없이 <code>-0</code> 을 JCS 로 넘긴다</span>
+      </div>
+      <pre><code>입력:  {"t":-0}
+
+JCS
+   ↓
+{"t":0}
+
+# 부호가 사라진 채 봉인된다
+# 다음 실행에서 0 이 와도 digest 가 같다
+# → -0 과 0 의 차이를 영원히 못 잡는다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what">게이트에서 <code>-0</code> 을 만나면 멈춘다</span>
+      </div>
+      <pre><code>입력:  {"t":-0}
+
+[ I-JSON 게이트 ]
+   ↓
+오류 — -0 을 만남. 정규화하지 않는다
+→ 실패 또는 fallback 으로 보낸다
+
+# SHOULD — RFC 8785 정정 7920</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    <code>-0</code> 은 "파서가 조용히 값을 바꾼 뒤의 결과를 봉인" 하는 가장 작은 예다.
+    JCS 결과만 보면 바뀐 흔적이 남지 않으므로, 멈출 수 있는 곳은 JCS 앞의 게이트뿐이다.
+  </p>
+  <div class="sources">
+    <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
+    <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">&rarr; RFC 7493 I-JSON</a>
+    <a class="card-source" href="https://www.rfc-editor.org/errata/rfc8785" target="_blank" rel="noopener">&rarr; RFC 8785 정정 목록</a>
+  </div>
+</div>
+
+<!-- ═══════════════ 4. 원칙 카드 ═══════════════ -->
 <div class="section">
   <div class="section-label">원칙 7</div>
   <p class="lead">
@@ -475,17 +612,21 @@
           <span class="num">3</span>
           <h3>정규화 전 I-JSON 게이트</h3>
           <span class="pill">fail before canonicalize</span>
+          <span class="tag tag-warn">v0.1.1 · -0</span>
         </div>
         <p class="desc">
           JCS 로 넘기기 전에 I-JSON 으로 먼저 검문한다.
           중복 키, Unicode 로 표현 불가한 문자열, IEEE 754 binary64 로 표현 불가한 숫자, NaN/Infinity,
-          lone surrogate 는 정규화 대상이 아니라 <strong>실패 또는 fallback 대상</strong>이다.
+          lone surrogate, <code>-0</code> 은 정규화 대상이 아니라 <strong>실패 또는 fallback 대상</strong>이다.
+          <code>-0</code> 은 올바른 JSON 숫자지만 JCS 가 <code>0</code> 으로 적어 부호가 사라진다 —
+          그래서 파서는 <code>-0</code> 을 만나면 오류를 내고 멈춰야 한다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인).
           게이트를 건너뛰면 파서가 조용히 값을 바꾼 뒤의 결과를 봉인하게 된다.
         </p>
       </div>
       <div class="sources">
         <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
         <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">&rarr; RFC 7493 I-JSON</a>
+        <a class="card-source" href="https://www.rfc-editor.org/errata/rfc8785" target="_blank" rel="noopener">&rarr; RFC 8785 정정 목록</a>
       </div>
     </div>
 
@@ -572,12 +713,12 @@
   </div>
 </div>
 
-<!-- ═══════════════ 4. 수치 기준 ═══════════════ -->
+<!-- ═══════════════ 5. 수치 기준 ═══════════════ -->
 <div class="section">
   <div class="section-label">수치 기준</div>
   <p class="desc">
     허용치가 <code>0</code> 인 항목이 많다. 정규화는 "웬만하면 맞춰 준다" 가 아니라
-    "규격을 벗어나면 봉인하지 않는다" 는 게이트이기 때문이다.
+    "규격을 벗어나면 봉인하지 않는다" 는 게이트이기 때문이다. 노란 줄이 이번 판에 더한 행이다.
   </p>
 
   <div class="table-wrap">
@@ -589,22 +730,33 @@
         <tr>
           <td class="sys">중복 JSON object member 허용치</td>
           <td class="num-cell"><code>0</code></td>
-          <td>중복 이름은 I-JSON/JCS 위반 (RFC 7493)</td>
+          <td>중복 이름은 I-JSON/JCS 위반
+            (<a class="ref" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">RFC 7493</a>)</td>
         </tr>
         <tr>
           <td class="sys">안전 정수 범위</td>
           <td class="num-cell"><code>-9007199254740991 ~ 9007199254740991</code></td>
-          <td>범위 밖 정수는 exact interchange 를 기대할 수 없음 (RFC 7493)</td>
+          <td>범위 밖 정수는 exact interchange 를 기대할 수 없음
+            (<a class="ref" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">RFC 7493</a>)</td>
         </tr>
         <tr>
           <td class="sys">JCS 토큰 사이 추가 공백</td>
           <td class="num-cell"><code>0 byte</code></td>
-          <td>JCS 정의 (RFC 8785)</td>
+          <td>JCS 정의
+            (<a class="ref" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">RFC 8785</a>)</td>
         </tr>
         <tr>
           <td class="sys">lone surrogate / noncharacter 허용</td>
           <td class="num-cell"><code>0</code></td>
-          <td>정상 surrogate pair 는 허용, 단독 surrogate 는 실패 (RFC 8785, RFC 7493)</td>
+          <td>정상 surrogate pair 는 허용, 단독 surrogate 는 실패
+            (<a class="ref" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">RFC 8785</a>,
+            <a class="ref" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">RFC 7493</a>)</td>
+        </tr>
+        <tr class="row-new">
+          <td class="sys"><code>-0</code> 허용</td>
+          <td class="num-cell"><code>0</code></td>
+          <td>JCS 는 <code>-0</code> 을 <code>0</code> 으로 적어 부호가 사라진다 — 읽는 쪽은 <code>-0</code> 을 만나면 오류를 낸다(SHOULD)
+            (<a class="ref" href="https://www.rfc-editor.org/errata/rfc8785" target="_blank" rel="noopener">RFC 8785 정정 7920</a>)</td>
         </tr>
         <tr>
           <td class="sys">manifest digest 기본 알고리즘</td>
@@ -620,12 +772,13 @@
     </table>
   </div>
   <p class="caption">
-    표의 근거 열에 나오는 RFC 링크는 위 원칙 카드의 <span class="mono">&rarr;</span> 출처와 같은 문서다:
-    <span class="mono">RFC 7493 I-JSON</span> · <span class="mono">RFC 8785 JCS</span> · <span class="mono">RFC 9530 Digest Fields</span>.
+    표의 근거 링크는 위 원칙 카드의 <span class="mono">&rarr;</span> 출처와 같은 문서다:
+    <span class="mono">RFC 7493 I-JSON</span> · <span class="mono">RFC 8785 JCS</span> · <span class="mono">RFC 8785 정정 목록</span>.
+    manifest digest 알고리즘 행만 원본이 「추론」 으로 표시한 값이다.
   </p>
 
   <p class="desc" style="margin-top:26px">
-    허용치를 같은 축에 놓으면 이 문서의 성격이 드러난다. 여섯 항목 중 넷이 <code>0</code> 이다.
+    허용치를 같은 축에 놓으면 이 문서의 성격이 드러난다. 일곱 항목 중 다섯이 <code>0</code> 이다.
   </p>
 
   <div class="dist">
@@ -641,6 +794,11 @@
     </div>
     <div class="dist-row">
       <span class="dist-label">lone surrogate</span>
+      <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
+      <span class="dist-val">0</span>
+    </div>
+    <div class="dist-row">
+      <span class="dist-label">-0</span>
       <span class="dist-track"><span class="dist-fill f-red" style="width:2%"></span></span>
       <span class="dist-val">0</span>
     </div>
@@ -668,15 +826,52 @@
   <div class="rule-box">
     <strong>게이트 위치가 중요하다:</strong> 위 허용치는 <em>파싱 이후</em> 검사가 아니라 <em>파싱 게이트</em> 에서 본다.
     파서가 "last key wins" 로 중복 키를 삼킨 뒤에 검사하면 이미 값이 소실된 상태라 검사 자체가 의미가 없다.
+    <code>-0</code> 도 같다 — JCS 를 거친 뒤에는 <code>0</code> 과 구분할 수 없다.
   </div>
 </div>
 
-<!-- ═══════════════ 5. 안티패턴 ═══════════════ -->
+<!-- ═══════════════ 6. 안티패턴 ═══════════════ -->
 <div class="section">
   <div class="section-label">안티패턴</div>
   <p class="desc">
     다섯 가지 모두 "기준선이 JCS 하나" 라는 축을 흔든다. 흔들린 기준선은 회귀를 못 잡거나, 없는 회귀를 만들어 낸다.
+    먼저 원본 표를 그대로 두고, 아래에서 하나씩 BAD / GOOD 로 풀었다.
   </p>
+
+  <div class="table-wrap" style="margin-bottom:26px">
+    <table>
+      <thead>
+        <tr><th>안티패턴</th><th>문제</th><th>흔드는 원칙</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>pretty-print JSON, 키 삽입 순서, diff UI 문자열을 해싱해 기준선으로 사용</td>
+          <td>표시 포매터가 바뀌면 계약이 통째로 깨진다. 기준선은 JCS 결과여야 한다</td>
+          <td class="num-cell">2</td>
+        </tr>
+        <tr>
+          <td>파서가 "last key wins" 로 삼킨 뒤 중복 키를 검사</td>
+          <td>이미 값이 소실된 상태라 검사 자체가 무의미하다. 검문은 파싱 게이트에서</td>
+          <td class="num-cell">3</td>
+        </tr>
+        <tr>
+          <td>배열을 안정화한다며 정렬</td>
+          <td>JCS 는 object property 만 정렬하고 array order 는 보존한다. 정렬은 실제 순서 회귀를 은폐한다</td>
+          <td class="num-cell">2</td>
+        </tr>
+        <tr>
+          <td><code>Set-Cookie</code> 를 comma-join 해서 헤더 정규화 입력에 투입</td>
+          <td><code>Set-Cookie</code> 는 comma-list 결합이 불가능한 예외 헤더다. 쿠키가 잘못 병합된다</td>
+          <td class="num-cell">4</td>
+        </tr>
+        <tr>
+          <td>마스킹 결과만 저장하고 raw digest·원본 접근 경계를 남기지 않음</td>
+          <td>회귀 조사 시 원본을 복원할 수 없어 baseline 이 증거로서 기능하지 못한다</td>
+          <td class="num-cell">1 · 7</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="pair">
     <div class="pane pane-bad">
@@ -775,7 +970,7 @@ Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ..., b=2; Path=/
     <div class="compare-good">
       <div class="compare-label">GOOD — 파싱 게이트에서 검문</div>
       <p class="desc">
-        I-JSON 게이트를 JCS 앞에 두고 파싱 시점에 중복 키 · NaN/Infinity · lone surrogate 를 잡는다.
+        I-JSON 게이트를 JCS 앞에 두고 파싱 시점에 중복 키 · NaN/Infinity · lone surrogate · <code>-0</code> 을 잡는다.
         걸리면 정규화하지 않고 실패 또는 fallback 으로 보낸다.
       </p>
     </div>
@@ -799,18 +994,19 @@ Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ..., b=2; Path=/
   </div>
 </div>
 
-<!-- ═══════════════ 6. Gotchas ═══════════════ -->
+<!-- ═══════════════ 7. Gotchas ═══════════════ -->
 <div class="section">
   <div class="section-label">Gotchas · 봉인 전 확인</div>
   <p class="desc">
     아래가 확인되지 않은 상태로 봉인하면, 나중에 나오는 diff 가 "서버 변경" 인지 "우리 정규화" 인지 구분할 수 없다.
+    느낌표 네 줄은 원본 Gotchas 그대로이고, 체크 여섯 줄은 위 원칙에서 뽑은 봉인 전 확인이다.
   </p>
 
   <ul class="checklist">
     <li>
       <span class="check c-warn">!</span>
       <span><strong>JCS property sort 는 UTF-16 code unit 순서다</strong> — unescaped property name 기준이라
-        UTF-8 byte sort 와 비ASCII 구간에서 결과가 달라진다. 자체 구현 정렬을 쓰지 말고 JCS 구현을 썼는가.</span>
+        UTF-8 byte sort 와 비ASCII 구간에서 결과가 달라진다. 자체 구현 정렬을 쓰지 말고 JCS 구현을 쓴다.</span>
     </li>
     <li>
       <span class="check c-warn">!</span>
@@ -820,10 +1016,10 @@ Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ..., b=2; Path=/
     <li>
       <span class="check c-warn">!</span>
       <span><strong><code>Content-Encoding: gzip</code> 이면 digest 가 둘이다</strong> —
-        raw content bytes digest 와 decoded representation digest 가 다르므로 매니페스트에 둘을 구분해 기록했는가.</span>
+        raw content bytes digest 와 decoded representation digest 가 다르므로 매니페스트에 둘을 구분해 기록한다.</span>
     </li>
     <li>
-      <span class="check c-bad">&times;</span>
+      <span class="check c-warn">!</span>
       <span><strong>charset parameter 는 파싱 근거가 아니다</strong> —
         <code>application/json; charset=utf-8</code> 의 charset 은 compliant recipient 에게 의미가 없지만,
         증거에는 원문 그대로 남긴다.</span>
@@ -834,7 +1030,7 @@ Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ..., b=2; Path=/
     </li>
     <li>
       <span class="check">&#10003;</span>
-      <span>I-JSON 게이트가 JCS <em>앞</em> 에 있는가. 중복 키 · NaN/Infinity · binary64 밖 숫자 · lone surrogate 가
+      <span>I-JSON 게이트가 JCS <em>앞</em> 에 있는가. 중복 키 · NaN/Infinity · binary64 밖 숫자 · lone surrogate · <code>-0</code> 이
         파싱 시점에 걸리는가.</span>
     </li>
     <li>

@@ -21,7 +21,7 @@ user-invocable: true
 6. **반응형 테스트에서 breakpoint 출처 확인** — 프로젝트의 디자인 시스템에 정의된 breakpoint를 사용하라. 임의로 320/768/1024를 넣지 마라
 7. **다크 모드 테스트 누락 금지** — 디자인 토큰에 다크 모드 매핑이 있으면 반드시 양쪽 모드에서 테스트한다. `prefers-color-scheme: dark` 미디어 쿼리 또는 토큰 클래스 전환
 8. **Storybook 의존 여부 확인** — 시각 회귀 테스트에 Storybook을 전제하지 마라. Storybook이 없으면 Playwright의 페이지 스크린샷으로 대체한다
-9. **APCA 대비 알고리즘은 informational** — WCAG 2.2 AA(4.5:1 WCAG2 공식)가 법적 기준. APCA Lc는 추가 정보 제공용으로만 포함하고 PASS/FAIL 판정 기준으로 쓰지 마라. 출처: design-guide Gotcha #10
+9. **APCA 대비 알고리즘은 informational** — WCAG 2.2 AA(4.5:1 WCAG2 공식)가 판정 기준. APCA Lc는 추가 정보 제공용으로만 포함하고 PASS/FAIL 판정 기준으로 쓰지 마라. 출처: design-guide Gotcha #10
 10. **첫 실행 baseline 생성을 "테스트 통과"로 보고 금지 (negative control 필수)** — Playwright 는 스냅샷이 없으면 실제 화면을 baseline 으로 **자동 기록하고 그 실행을 통과 처리**한다. 따라서 `--update-snapshots` 직후의 green 은 아무것도 입증하지 않는다 — 무엇과도 비교되지 않았기 때문이다(증거 유효성 검사 2 활성화 실패). baseline 을 만든 뒤에는 반드시 **negative control** 을 1 회 수행하라: 대상 요소에 의도적 변형(예: 배경색 1 단계 변경)을 준 상태로 테스트를 돌려 **실패하는 것을 확인**하고, 되돌린 뒤 통과를 확인한다. 이 두 실행의 출력을 증거로 인용하기 전에는 시각 회귀 테스트가 동작한다고 보고하지 마라. 출처: [Playwright Visual Comparisons](https://playwright.dev/docs/test-snapshots) (첫 실행 시 "A snapshot doesn't exist ... writing actual"), `harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate 검사 2·3.
 11. **빈 스냅샷/빈 페이지는 PASS 증거가 아니다** — 렌더가 실패해 빈 화면이 캡처돼도 시각 회귀 테스트는 baseline 과 동일하면 통과한다. 시각 테스트에는 **콘텐츠 존재 assertion 을 함께 생성**하라 (핵심 요소 visible, 목록 항목 수 ≥ 1, 컨테이너 높이 > 0). 스냅샷 비교만 있는 테스트 파일은 unbounded-height collapse 같은 결함을 통과시킨다 — 실제 사고 사례다. 상세: `../../references/visual-change-protocol.md` §3.
 12. **부분 변경 검증은 scoped 스냅샷으로 — 의도 외 영역 변화 감지** — "보더만 바꿨다" 를 검증할 때 전체 페이지 스냅샷 하나만 쓰면 배경까지 변한 것을 구분하지 못한다. 변경 대상 요소의 **locator 단위 스냅샷**과 **주변 영역 스냅샷**을 분리 생성하여, 대상은 변하고 주변은 변하지 않았음을 각각 판정하라. 주변 영역 스냅샷이 실패하면 그것은 회귀다. 상세: `../../references/visual-change-protocol.md` §2.
@@ -300,7 +300,8 @@ test('DEC-20260813-001 → dashboard.desktop.main', async ({ page }) => {
 })
 ```
 
-생성 후 커버리지 체커(§6)를 돌려 위반 0 건을 확인한다. `golden` 만 있고 `assertions` 가 빈 surface
+생성 후 커버리지 체커(§6)를 돌려 종료 코드 0 을 확인한다. 종료 코드 2(`SCHEMA_ERROR`)는 입력 모양이 틀려 판정하지 못한 것이라 `FAIL` 줄 없이 `violations=0` 이 찍혀도 통과로 읽지 않는다.
+종료 코드 3(`NO_SURFACE` · `NO_DECISION`)은 `NO_MANIFEST` 와 같이 대상 0 건으로 보고한다. `golden` 만 있고 `assertions` 가 빈 surface
 가 남아 있으면 그것은 FAIL 이며, 테스트 파일을 만들었다는 사실이 커버리지를 대체하지 않는다.
 
 `excluded_surfaces` 에 올라온 표면은 테스트를 만들지 않되 **보고에는 이유와 함께 열거**한다.
@@ -363,7 +364,7 @@ test.describe('Responsive Layout', () => {
 | 토큰 검증 | `npx vitest run tests/design/tokens.test.ts` |
 | 접근성 | `npx playwright test tests/design/a11y.test.ts` |
 | 시각 회귀 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` (첫 실행) |
-| 결정 전파 | `python3 <§6 커버리지 체커> .design/decisions.yaml` → 위반 0 · 그 다음 `npx playwright test tests/design/decision-*.test.ts` |
+| 결정 전파 | `python3 <§6 커버리지 체커> .design/decisions.yaml` → 종료 코드 0 · 그 다음 `npx playwright test tests/design/decision-*.test.ts` |
 | 반응형 | `npx playwright test tests/design/responsive.test.ts` |
 
 도구 미설치 시 설치 안내를 제시한다:

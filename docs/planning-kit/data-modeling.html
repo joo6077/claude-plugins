@@ -14,19 +14,25 @@
   --error: #f87171; --success: #4ade80; --warn: #fbbf24;
   --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
   --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+  --mono: "SF Mono", Menlo, Consolas, monospace;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.7;
+  background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px;
   -webkit-font-smoothing: antialiased; min-height: 100vh;
   background-image:
     radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
     radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
 }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+code { font-family: var(--mono); }
 .container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
-.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+
+/* hero */
+.hero { padding: 72px 0 48px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
 .badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
   border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
   letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
@@ -34,45 +40,136 @@ body {
   letter-spacing: -0.03em; margin-bottom: 24px;
   background: linear-gradient(135deg, var(--text), var(--accent));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
-section { margin-bottom: 72px; }
-.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 760px; margin: 0 auto; line-height: 1.7; }
+.hero .subtitle strong { color: var(--text); }
+.meta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 28px; }
+.meta-row span { padding: 6px 14px; border: 1px solid var(--border2); border-radius: 999px;
+  background: var(--surface); color: var(--text2); font-size: 13px; }
+.meta-row code { color: var(--accent2); font-size: 12.5px; }
+
+/* 쪽 안 차례 */
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 64px; justify-content: center; }
+.toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+  border: 1px solid var(--border2); border-radius: 999px; background: var(--surface);
+  color: var(--text2); font-size: 14px; text-decoration: none; transition: var(--transition); }
+.toc a:hover { border-color: var(--accent); color: var(--text); }
+
+/* 절 머리 */
+section { margin-bottom: 80px; scroll-margin-top: 24px; }
+.section-header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 .section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
-.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); line-height: 1.3; }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 16px; }
+
+/* 배치 틀 */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 14px; margin-bottom: 24px; }
+.split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start; }
+.split.rev { grid-template-columns: 0.9fr 1.1fr; }
+.split.even { grid-template-columns: 1fr 1fr; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+
+/* 카드 */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
-.card:hover { border-color: var(--accent); transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
-.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card:hover { border-color: var(--accent); box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .card-number { display: inline-flex; align-items: center; justify-content: center;
   width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
-  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
-.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
-  line-height: 1.4; letter-spacing: -0.01em; }
-.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
-.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
-.card ul li { margin-bottom: 4px; }
-.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
-  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
-.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
-  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
-.card-source::before { content: "↳ 출처: "; color: var(--text3); }
-.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; -webkit-overflow-scrolling: touch; }
-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  color: var(--accent2); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.card h3 { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.4; letter-spacing: -0.01em; }
+.card h4 { font-size: 13px; font-weight: 700; color: var(--accent2); letter-spacing: 0.06em;
+  text-transform: uppercase; margin: 18px 0 8px; }
+.card p { color: var(--text2); font-size: 16px; line-height: 1.75; margin-bottom: 12px; }
+.card p strong, .card li strong { color: var(--text); }
+.card ul, .card ol { padding-left: 20px; color: var(--text2); font-size: 15.5px; line-height: 1.8; margin-bottom: 8px; }
+.card li { margin-bottom: 4px; }
+:not(pre) > code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-size: 13.5px; overflow-wrap: anywhere; }
+.when-limit { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 20px; }
+.when-limit div { padding: 14px 16px; border-radius: var(--radius-sm); background: var(--bg2);
+  border: 1px solid var(--border); }
+.when-limit b { display: block; font-size: 12px; letter-spacing: 0.08em; margin-bottom: 6px; }
+.when-limit .when b { color: var(--success); }
+.when-limit .limit b { color: var(--warn); }
+.when-limit span { color: var(--text2); font-size: 15px; line-height: 1.7; display: block; }
+.card-sources { display: flex; flex-direction: column; gap: 6px; margin-top: auto; padding-top: 16px;
+  border-top: 1px dashed var(--border2); }
+.card-sources .src-label { color: var(--text3); font-size: 12px; letter-spacing: 0.08em; }
+.card-source { color: var(--accent); font-size: 13px; text-decoration: none; overflow-wrap: anywhere;
+  transition: var(--transition); }
+.card-source:hover { color: var(--accent2); text-decoration: underline; }
+.dated { color: var(--text3); font-size: 12px; margin-left: 6px; white-space: nowrap; }
+
+/* 개념 타일 */
+.tile { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent);
+  border-radius: var(--radius-sm); padding: 18px; transition: var(--transition); }
+.tile:hover { border-color: var(--accent); }
+.tile strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 6px; }
+.tile span { color: var(--text2); font-size: 14.5px; line-height: 1.6; display: block; }
+
+/* 개요 흐름 */
+.prose p { color: var(--text2); font-size: 17px; line-height: 1.85; margin-bottom: 16px; }
+.prose p strong { color: var(--text); }
+.flow { list-style: none; display: flex; flex-direction: column; gap: 0; counter-reset: step; }
+.flow li { position: relative; padding: 16px 18px 16px 60px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); counter-increment: step; }
+.flow li + li { margin-top: 22px; }
+.flow li + li::after { content: "↓"; position: absolute; top: -21px; left: 26px; color: var(--accent2); font-size: 14px; }
+.flow li::before { content: counter(step); position: absolute; left: 16px; top: 16px; width: 30px; height: 30px;
+  border-radius: 8px; background: var(--accent-dim); color: var(--accent2); font-weight: 700;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.flow b { display: block; color: var(--text); font-size: 16px; }
+.flow span { color: var(--text2); font-size: 14.5px; display: block; margin-top: 2px; }
+
+/* 두 해상도 */
+.lens { border-radius: var(--radius-sm); padding: 18px 20px; background: var(--bg2); border: 1px solid var(--border); }
+.lens .lens-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent2); margin-bottom: 8px; }
+.lens b { display: block; color: var(--text); font-size: 16px; margin-bottom: 4px; }
+.lens span { color: var(--text2); font-size: 15px; line-height: 1.7; display: block; }
+
+/* 표 */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.table-wrap > table { min-width: max-content; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+caption { caption-side: bottom; text-align: left; padding: 12px 20px; color: var(--text3); font-size: 13px; }
 thead { background: var(--surface2); }
-th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
-  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
-td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+th { text-align: left; padding: 14px 18px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  letter-spacing: 0.04em; border-bottom: 1px solid var(--border2); }
+td { padding: 14px 18px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: var(--accent-glow); }
-td strong, td b { color: var(--text); }
-td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
-  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
-.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+td strong { color: var(--text); }
+td .up { color: var(--warn); font-weight: 600; }
+
+/* 새로 반영한 판 바뀜 알림 */
+.notice { border: 1px solid var(--warn); border-left: 4px solid var(--warn); background: var(--surface);
+  border-radius: var(--radius); padding: 24px 26px; margin-bottom: 24px; }
+.notice .notice-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--warn); margin-bottom: 10px; }
+.notice h3 { color: var(--text); font-size: 20px; margin-bottom: 10px; line-height: 1.4; }
+.notice p { color: var(--text2); font-size: 16px; line-height: 1.75; margin-bottom: 14px; }
+.notice p strong { color: var(--text); }
+.notice .table-wrap { background: var(--bg2); }
+
+/* 코드 */
+pre { overflow-x: auto; max-width: 100%; }
+pre code { white-space: pre; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 18px 20px; font-family: var(--mono); font-size: 14px; line-height: 1.65; color: var(--text); }
+.code-block .kw { color: var(--accent2); font-weight: 600; }
+.code-block .rel { color: var(--warn); }
+.code-block .key { color: var(--success); }
+.code-cap { color: var(--text3); font-size: 13px; margin-top: 8px; }
+.read-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.read-list li { padding: 10px 14px; border-radius: var(--radius-sm); background: var(--bg2);
+  border: 1px solid var(--border); color: var(--text2); font-size: 15px; }
+
+/* 비교 */
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
   background: var(--surface); line-height: 1.7; }
 .compare.bad { border-left: 3px solid var(--error); }
@@ -81,307 +178,637 @@ td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; 
   padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
 .compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
 .compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
-.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
-.compare p { color: var(--text2); font-size: 14px; }
+.compare h4 { color: var(--text); font-size: 16px; margin-bottom: 6px; line-height: 1.5; }
+.compare p { color: var(--text2); font-size: 15px; }
+
+/* 함정 목록 */
 .checklist { display: flex; flex-direction: column; gap: 14px; }
 .checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
   border: 1px solid var(--border); border-left: 3px solid var(--accent);
   border-radius: var(--radius-sm); transition: var(--transition); }
-.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); }
 .checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
-  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  background: var(--accent-dim); color: var(--accent2); display: flex; align-items: center;
   justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
-.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
-.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.checklist-body strong { color: var(--text); font-size: 16px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 15px; line-height: 1.7; }
+
+/* 참고 링크 */
+.ref-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.ref-list li { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; transition: var(--transition); }
+.ref-list li:hover { border-color: var(--accent); }
+.ref-list .ref-name { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+.ref-list a { font-size: 13px; overflow-wrap: anywhere; text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
 .refs { display: flex; flex-wrap: wrap; gap: 10px; }
-.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
-  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
-.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+.refs a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px;
+  border: 1px solid var(--border2); border-radius: 999px; color: var(--accent2); text-decoration: none;
+  font-size: 14px; transition: var(--transition); }
+.refs a:hover { background: var(--accent-dim); border-color: var(--accent); }
+
 footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
   text-align: center; color: var(--text3); font-size: 13px; }
-footer a { color: var(--accent); text-decoration: none; }
-.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
-.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
-  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
-.callout strong { color: var(--text); }
+footer code { color: var(--text2); }
+
+/* 가로 넘침 규칙 — grid · flex 자식의 기본 min-width 는 auto(= min-content)라 긴 코드 · 표 폭이 트랙으로 번진다 */
+.grid-2 > *, .grid-5 > *, .split > *, .pair > *, .when-limit > *, .compare-grid > *, .ref-list > *, .checklist-body { min-width: 0; }
+@media (max-width: 860px) {
+  .split, .split.rev, .split.even { grid-template-columns: 1fr; }
+}
 @media (max-width: 720px) {
   .container { padding: 24px 18px 64px; }
-  .hero { padding: 48px 0 36px; }
-  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .hero { padding: 48px 0 32px; }
   .card { padding: 22px; }
-  th, td { padding: 12px 14px; font-size: 13px; }
+  .section-header h2 { font-size: 26px; }
+  th, td { padding: 12px 14px; font-size: 14px; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-  /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
-  a{color:var(--accent)}
-  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width: 600px) {
+  .grid-2, .grid-5, .split, .split.rev, .split.even, .pair, .when-limit, .compare-grid, .ref-list { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
 <div class="container">
 
   <header class="hero">
-    <span class="badge">Planning Kit v0.1 · Data Modeling</span>
+    <span class="badge">Planning Kit · Data Modeling · 문서 v0.1.1</span>
     <h1>Data Modeling</h1>
     <p class="subtitle">
-      제품 기획에서 데이터 모델링은 DB 스키마 설계의 하위 작업이 아니다. 어떤 도메인 개념이 어떤 경계 안에서
-      작동하고, 어떤 이벤트가 시스템 동작을 바꾸는지 <strong>모델의 언어로 끌어올리는 일</strong>이다.
+      제품 기획에서 데이터 모델링은 DB(데이터베이스) 테이블 설계의 하위 작업이 아니다.
+      도메인 개념이 무엇인지, 어떤 경계 안에서 어떤 규칙이 작동하는지, 어떤 이벤트가 시스템 동작을 바꾸는지를
+      <strong>분명히 하는 일</strong>이다.
     </p>
+    <div class="meta-row">
+      <span>원본 <code>docs/planning/data-modeling.md</code></span>
+      <span>last_updated 2026-09-25</span>
+      <span>방법 6 가지 · 출처 9 개</span>
+    </div>
   </header>
 
-  <section>
+  <nav class="toc" aria-label="쪽 안 차례">
+    <a href="#overview">개요</a>
+    <a href="#ddd">DDD</a>
+    <a href="#event-storming">Event Storming</a>
+    <a href="#erd">ERD</a>
+    <a href="#er-diagram">erDiagram</a>
+    <a href="#class-diagram">classDiagram</a>
+    <a href="#data-dictionary">Data Dictionary</a>
+    <a href="#compare">방법 비교</a>
+    <a href="#anti-patterns">안티패턴</a>
+    <a href="#gotchas">함정</a>
+    <a href="#references">참고 링크</a>
+  </nav>
+
+  <!-- 00 개요 -->
+  <section id="overview">
     <div class="section-header">
-      <span class="section-label">01 · Methods</span>
-      <h2>모델링 방법론</h2>
-      <p>DDD · Event Storming · ERD · Data Dictionary를 한 흐름으로 연결한다.</p>
+      <span class="section-label">00 · Overview</span>
+      <h2>개요 — 네 가지를 한 흐름으로</h2>
+      <p>DDD(도메인 주도 설계) · Event Storming · ERD(엔터티 관계도) · Data Dictionary 를 제품 기획 관점에서 잇고, Mermaid 로 문서 안에 둔다.</p>
     </div>
-
-    <div class="grid-2">
-
-      <div class="card">
-        <span class="card-number">1</span>
-        <h3>DDD 핵심 개념</h3>
+    <div class="split">
+      <div class="prose">
         <p>
-          Eric Evans의 DDD. <strong>Bounded Context</strong>(모델 · 언어가 일관된 경계),
-          <strong>Aggregate</strong>(변경 일관성 단위), <strong>Entity</strong>(식별성),
-          <strong>Value Object</strong>(속성값 자체가 의미), <strong>Domain Event</strong>.
+          데이터 모델링이 약하면 <strong>PRD(제품 요구사항 문서)는 화면 설명서가 되고</strong>,
+          구현은 우연히 생긴 상태 필드의 모음이 된다.
         </p>
-        <ul>
-          <li>용어 충돌 방지를 위한 컨텍스트 구분</li>
-          <li>같은 aggregate 안에서만 강한 일관성 보장</li>
-          <li>도메인 이벤트로 흐름을 드러냄</li>
-        </ul>
-        <a class="card-source" href="https://www.domainlanguage.com/ddd/reference/" target="_blank" rel="noopener">Domain Language — DDD Reference</a>
-      </div>
-
-      <div class="card">
-        <span class="card-number">2</span>
-        <h3>Event Storming (Alberto Brandolini)</h3>
         <p>
-          복잡한 비즈니스 프로세스를 <strong>도메인 이벤트 중심</strong>으로 빠르게 모델링하는 협업 기법.
-          Big Picture → Process Design → Software Design 3단계로 해상도를 올릴 수 있다.
+          DDD 는 복잡한 비즈니스 규칙을 모델의 언어로 끌어올리는 접근이고,
+          Event Storming 은 그 모델을 여럿이 함께 찾아내는 워크숍 형식이다.
+          ERD 와 Data Dictionary 는 그 뒤에 구조를 더 명시적으로 고정하는 산출물이다.
+          Mermaid 는 이것들을 텍스트 문서 안에서 유지하기 쉽게 만든다.
         </p>
-        <ul>
-          <li>실제 발생하는 사건을 과거형 event로 기록</li>
-          <li>hotspot · unknown area를 먼저 드러냄</li>
-          <li>command · policy · actor · read model 구분</li>
-        </ul>
-        <a class="card-source" href="https://www.eventstorming.com/" target="_blank" rel="noopener">EventStorming.com</a>
       </div>
-
-      <div class="card">
-        <span class="card-number">3</span>
-        <h3>ERD (Crow's Foot)</h3>
-        <p>
-          엔터티와 관계를 구조적으로 명시한다.
-          Crow's Foot 표기는 one-to-many · optionality를 시각적으로 분명히 보여준다.
-        </p>
-        <ul>
-          <li>엔터티명은 단수형 권장</li>
-          <li>관계를 문장으로 읽었을 때 자연스러운가 점검</li>
-          <li>속성 vs 별도 엔터티 판단</li>
-        </ul>
-        <a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid — ER Diagram</a>
-      </div>
-
-      <div class="card">
-        <span class="card-number">4</span>
-        <h3>Mermaid erDiagram</h3>
-        <p>
-          Markdown 안에 가벼운 ERD를 유지하기에 적합.
-          PlantUML 호환 관계 표기와 attribute block 지원.
-        </p>
-        <ul>
-          <li>관계 라벨은 first entity 관점에서 읽기</li>
-          <li>PK / FK 명시</li>
-          <li>복잡한 물리 스키마 전체는 별도 도구 사용</li>
-        </ul>
-        <a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid — erDiagram</a>
-      </div>
-
-      <div class="card">
-        <span class="card-number">5</span>
-        <h3>Mermaid classDiagram</h3>
-        <p>
-          개념 모델 · aggregate 내부 구조 · 도메인 오브젝트 관계 표현에 적합.
-          속성 + 행위를 함께 적을 수 있어 ERD보다 <strong>행위적 모델</strong>을 담기 쉽다.
-        </p>
-        <ul>
-          <li>클래스명 = 도메인 언어</li>
-          <li>연관 · 구성 · 상속 구분</li>
-          <li>구현 클래스 다이어그램으로 곧장 내려가지 않기</li>
-        </ul>
-        <a class="card-source" href="https://mermaid.js.org/syntax/classDiagram.html" target="_blank" rel="noopener">Mermaid — Class Diagram</a>
-      </div>
-
-      <div class="card">
-        <span class="card-number">6</span>
-        <h3>Data Dictionary</h3>
-        <p>
-          필드 목록이 아니라 <strong>데이터 계약</strong>. 이름 · 설명 · 타입 · 허용값 · null 가능성 · owner ·
-          변경 규칙을 담는다. analytics/event naming drift 방지 효과.
-        </p>
-        <ul>
-          <li>source of truth / owner 명시</li>
-          <li>PII 여부와 retention rule</li>
-          <li>생성/수정 시맨틱스 정의</li>
-        </ul>
-        <a class="card-source" href="https://elearn.domainlanguage.com/modules/bcintro/" target="_blank" rel="noopener">Domain Language — Bounded Context Intro</a>
-      </div>
-
+      <ol class="flow" aria-label="모델링 흐름">
+        <li><b>발견 — Event Storming</b><span>도메인에서 일어나는 사건을 벽에 붙이며 함께 이해한다</span></li>
+        <li><b>언어와 경계 — DDD</b><span>Bounded Context · Aggregate 로 규칙이 통하는 범위를 정한다</span></li>
+        <li><b>구조 고정 — ERD · Data Dictionary</b><span>엔터티 관계와 필드 계약을 명시한다</span></li>
+        <li><b>문서 안에 유지 — Mermaid</b><span>erDiagram · classDiagram 을 Markdown 에 텍스트로 둔다</span></li>
+      </ol>
     </div>
   </section>
 
-  <section>
+  <!-- 01 DDD -->
+  <section id="ddd">
     <div class="section-header">
-      <span class="section-label">02 · Mermaid ER Example</span>
-      <h2>ER 다이어그램 예시</h2>
-      <p>Workspace · Project · Issue 계층.</p>
+      <span class="section-label">01 · Domain-Driven Design</span>
+      <h2>DDD 핵심 개념</h2>
+      <p>Bounded Context / Aggregate / Entity / Value Object / Domain Event — 다섯 낱말이 모델의 뼈대다.</p>
     </div>
-<pre class="code-block">erDiagram
-  ORGANIZATION ||--o{ WORKSPACE : owns
-  WORKSPACE   ||--o{ MEMBER    : has
-  WORKSPACE   ||--o{ PROJECT   : contains
-  PROJECT     ||--o{ ISSUE     : includes
+
+    <div class="grid-5">
+      <div class="tile"><strong>Bounded Context</strong><span>특정 모델과 언어가 일관되게 통하는 경계</span></div>
+      <div class="tile"><strong>Aggregate</strong><span>변경 일관성의 단위</span></div>
+      <div class="tile"><strong>Entity</strong><span>식별성이 중요한 객체</span></div>
+      <div class="tile"><strong>Value Object</strong><span>속성값 자체가 의미의 전부인 객체</span></div>
+      <div class="tile"><strong>Domain Event</strong><span>도메인에서 의미 있는 사건을 명시적으로 드러낸다</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-number">1</span><h3>모델을 코드와 문서 모두의 중심에 둔다</h3></div>
+      <p>
+        Eric Evans 의 DDD 는 모델을 코드와 문서 모두의 중심에 둔다. 기획 문서에 이 개념이 필요한 이유는
+        <strong>기능을 화면 기준으로만 쪼개지 않기 위해서</strong>다.
+      </p>
+      <p>
+        예를 들어 「구독」 「청구」 「권한」 을 한 모델로 섞으면 용어가 부딪히고, 나중에 조직 · 시스템 경계도 꼬인다.
+        반대로 Bounded Context 를 의식하면 PRD 의 용어도 더 안정된다.
+      </p>
+      <h4>핵심 질문</h4>
+      <ul>
+        <li>어떤 용어가 어떤 컨텍스트에서만 참인가?</li>
+        <li>어떤 데이터는 식별성보다 값 동등성이 중요한가?</li>
+        <li>어떤 변경은 같은 aggregate 안에서만 강한 일관성이 필요한가?</li>
+        <li>어떤 사건을 domain event 로 명시하면 흐름이 더 또렷해지는가?</li>
+      </ul>
+      <div class="when-limit">
+        <div class="when"><b>적용 시점</b><span>복잡한 도메인 정의, 마이크로서비스 경계 논의, 핵심 비즈니스 규칙 모델링</span></div>
+        <div class="limit"><b>한계 · 주의</b><span>DDD 용어만 붙이고 CRUD(생성 · 조회 · 수정 · 삭제 위주) 설계를 유지하면 효과가 없다. 모든 곳에 aggregate 를 크게 잡으면 오히려 병목이 생긴다.</span></div>
+      </div>
+      <div class="card-sources">
+        <span class="src-label">출처</span>
+        <a class="card-source" href="https://www.domainlanguage.com/ddd/reference/" target="_blank" rel="noopener">Domain Language — DDD Reference<span class="dated">dated 2025-10</span></a>
+        <a class="card-source" href="https://www.domainlanguage.com/ddd/blue-book/" target="_blank" rel="noopener">Domain Language — Blue Book (Eric Evans)<span class="dated">dated 2025-10</span></a>
+        <a class="card-source" href="https://elearn.domainlanguage.com/modules/bcintro/" target="_blank" rel="noopener">Domain Language — Bounded Context 소개<span class="dated">dated 2013-12</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 Event Storming -->
+  <section id="event-storming">
+    <div class="section-header">
+      <span class="section-label">02 · Event Storming</span>
+      <h2>Event Storming (Alberto Brandolini)</h2>
+      <p>그림을 완성하는 것보다 도메인을 함께 이해하는 과정이 더 중요하다.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-number">2</span><h3>도메인 이벤트 중심으로 빠르게 모델링하는 협업 기법</h3></div>
+      <p>
+        복잡한 비즈니스 프로세스를 도메인 이벤트 중심으로 빠르게 모델링한다. Alberto Brandolini 는 이를
+        <strong>deliberate collective learning</strong>(의도적인 집단 학습)으로 설명한다.
+        완성도 높은 다이어그램을 만드는 것보다 도메인을 함께 이해하는 과정이 더 중요하다는 뜻이다.
+      </p>
+      <div class="pair">
+        <div class="lens">
+          <span class="lens-tag">넓게 보기</span>
+          <b>Big Picture Event Storming</b>
+          <span>프로세스와 병목을 발견하는 데 알맞다.</span>
+        </div>
+        <div class="lens">
+          <span class="lens-tag">좁혀 보기</span>
+          <b>Process Design / Software Design</b>
+          <span>command, policy, aggregate, read model 을 더 세밀히 다루는 데 알맞다.</span>
+        </div>
+      </div>
+      <p>
+        제품 기획 단계에서 특히 좋은 점은 <strong>business 와 tech 가 같은 벽 앞에서 같은 언어를 쓰게 만든다</strong>는 점이다.
+      </p>
+      <h4>핵심 질문</h4>
+      <ul>
+        <li>도메인에서 실제로 일어나는 사건을 과거형 event 로 적었는가?</li>
+        <li>hotspot · unknown area(아직 모르는 영역)가 드러나는가?</li>
+        <li>command, policy, actor 를 나눠 볼 필요가 있는가?</li>
+        <li>병목 · 대기 · 핸드오프가 어디서 생기는가?</li>
+      </ul>
+      <div class="when-limit">
+        <div class="when"><b>적용 시점</b><span>도메인 탐색, 프로세스 재설계, bounded context 후보 탐색</span></div>
+        <div class="limit"><b>한계 · 주의</b><span>벽에 스티커를 붙이는 행위가 목적이 되면 실패한다. 퍼실리테이션이 약하면 소음만 많은 브레인스토밍(noisy brainstorm)으로 끝난다.</span></div>
+      </div>
+      <div class="card-sources">
+        <span class="src-label">출처</span>
+        <a class="card-source" href="https://www.eventstorming.com/" target="_blank" rel="noopener">EventStorming.com</a>
+        <a class="card-source" href="https://www.eventstorming.com/book/" target="_blank" rel="noopener">EventStorming.com — Book</a>
+        <a class="card-source" href="https://www.eventstorming.com/resources/" target="_blank" rel="noopener">EventStorming.com — Resources</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ERD -->
+  <section id="erd">
+    <div class="section-header">
+      <span class="section-label">03 · Entity Relationship Diagram</span>
+      <h2>ERD — Crow's Foot 표기</h2>
+      <p>화면 정의보다 상위의 구조를 보여 준다. 관계가 복잡한 도메인이면 필수다.</p>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <div class="card-head"><span class="card-number">3</span><h3>엔터티와 관계를 구조로 명시한다</h3></div>
+        <p>
+          ERD 는 엔터티와 관계를 구조적으로 명시한다. Crow's Foot 표기는 one-to-many(일대다)와
+          optionality(없어도 되는 관계인지)를 눈으로 분명히 보여 줘 데이터 모델을 설명할 때 널리 쓴다.
+        </p>
+        <p>
+          관리자 제품, B2B SaaS(기업 대상 구독형 서비스), 업무 도메인처럼 관계가 복잡하면 필수다.
+          <strong>엔터티 이름은 가급적 단수형</strong>으로 두고, 관계의 뜻은 동사로 읽히게 쓴다.
+        </p>
+        <h4>핵심 질문</h4>
+        <ul>
+          <li>엔터티가 진짜 도메인 개념을 반영하는가?</li>
+          <li>관계의 cardinality · optionality 가 명시되는가?</li>
+          <li>속성이 아니라 별도 엔터티여야 할 개념을 잘 분리했는가?</li>
+          <li>한 관계를 실제 문장으로 읽었을 때 자연스러운가?</li>
+        </ul>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>구조 설계, 데이터 저장 모델 합의, 분석용 이벤트 구조를 정하기 전 단계</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>ERD 는 행위 규칙과 시간 흐름을 잘 설명하지 못한다. DDD · 이벤트 모델과 함께 본다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid — Entity Relationship Diagrams</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="table-wrap">
+          <table>
+            <caption>읽는 법 — Mermaid erDiagram 의 관계 끝 표기. 위 출처 문서의 문법이다.</caption>
+            <thead><tr><th>왼쪽 끝</th><th>오른쪽 끝</th><th>뜻</th></tr></thead>
+            <tbody>
+              <tr><td><code>|o</code></td><td><code>o|</code></td><td>0 개 또는 1 개</td></tr>
+              <tr><td><code>||</code></td><td><code>||</code></td><td>정확히 1 개</td></tr>
+              <tr><td><code>}o</code></td><td><code>o{</code></td><td>0 개 이상</td></tr>
+              <tr><td><code>}|</code></td><td><code>|{</code></td><td>1 개 이상</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="read-list">
+          <li><code>ORGANIZATION ||--o{ WORKSPACE : owns</code> — 조직 하나가 워크스페이스를 0 개 이상 가진다</li>
+          <li><code>PROJECT ||--o{ ISSUE : includes</code> — 프로젝트 하나가 이슈를 0 개 이상 담는다</li>
+          <li>관계 라벨(<code>owns</code> · <code>includes</code>)은 왼쪽 엔터티를 주어로 읽는다</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 Mermaid erDiagram -->
+  <section id="er-diagram">
+    <div class="section-header">
+      <span class="section-label">04 · Mermaid erDiagram</span>
+      <h2>Mermaid erDiagram 공식 패턴</h2>
+      <p>Markdown 안에서 가벼운 ERD 를 유지한다. 렌더러 판이 바뀌면 같은 코드도 그림이 달라진다.</p>
+    </div>
+
+    <div class="notice">
+      <span class="notice-tag">렌더러 판 바뀜 · Mermaid 12.0.0 (2026-09-10 공개)</span>
+      <h3>ERD 기본 배치가 Dagre 에서 ELK 로 바뀌었다</h3>
+      <p>
+        Mermaid 12.0.0 부터 ERD 의 기본 배치 엔진이 Dagre 에서 ELK 로, 기본 모양(theme · look)도 바뀌었다.
+        <strong>문법은 그대로라도 같은 코드가 11 이하와 다른 그림으로 나올 수 있다.</strong>
+        그래서 렌더 결과를 비교할 때는 렌더러 버전을 함께 적는다.
+        Dagre 와 ELK 는 둘 다 상자와 선의 자리를 자동으로 정하는 배치 엔진이다.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>Mermaid 11 이하</th><th>Mermaid 12.0.0 부터</th></tr></thead>
+          <tbody>
+            <tr><td><strong>ERD 기본 배치 엔진</strong></td><td>Dagre</td><td><span class="up">ELK</span></td></tr>
+            <tr><td><strong>기본 모양 (theme · look)</strong></td><td>이전 기본값</td><td><span class="up">바뀐 기본값</span></td></tr>
+            <tr><td><strong>erDiagram 문법</strong></td><td>같은 문법</td><td>같은 문법 (그대로)</td></tr>
+            <tr><td><strong>같은 코드의 그림</strong></td><td>11 이하 기준 그림</td><td><span class="up">11 이하와 다를 수 있다</span></td></tr>
+            <tr><td><strong>렌더 결과를 비교할 때</strong></td><td colspan="2">렌더러 버전을 함께 적는다</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="split rev">
+      <div>
+        <pre class="code-block" aria-label="Mermaid erDiagram 예시"><code><span class="kw">erDiagram</span>
+  ORGANIZATION <span class="rel">||--o{</span> WORKSPACE : owns
+  WORKSPACE <span class="rel">||--o{</span> MEMBER : has
+  WORKSPACE <span class="rel">||--o{</span> PROJECT : contains
+  PROJECT <span class="rel">||--o{</span> ISSUE : includes
 
   ORGANIZATION {
-    string id PK
+    string id <span class="key">PK</span>
     string name
   }
   WORKSPACE {
-    string id PK
-    string organization_id FK
+    string id <span class="key">PK</span>
+    string organization_id <span class="key">FK</span>
     string name
   }
   ISSUE {
-    string id PK
-    string project_id FK
+    string id <span class="key">PK</span>
+    string project_id <span class="key">FK</span>
     string status
-  }
-</pre>
+  }</code></pre>
+        <p class="code-cap">원본 예시 — Organization · Workspace · Member · Project · Issue 계층</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-number">4</span><h3>관계 표기와 attribute block</h3></div>
+        <p>
+          Mermaid <code>erDiagram</code> 은 Markdown 안에서 가벼운 ERD 를 유지하기에 알맞다.
+          공식 문법은 PlantUML 호환 관계 표기와 attribute block 을 지원한다.
+        </p>
+        <h4>핵심 질문</h4>
+        <ul>
+          <li>관계 라벨이 첫 번째 엔터티 관점에서 읽히는가?</li>
+          <li>cardinality 가 정확한가?</li>
+          <li>attribute 에 PK(기본 키) · FK(외래 키) 의미를 드러냈는가?</li>
+        </ul>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>설계 초안, PRD · ADR(아키텍처 결정 기록)에 넣기, 가벼운 구조 공유</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>복잡한 물리 테이블 구조 전체를 표현하기엔 한계가 있다. 렌더러 판에 따라 그림이 달라진다(위 알림).</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid — Entity Relationship Diagrams</a>
+          <a class="card-source" href="https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0" target="_blank" rel="noopener">GitHub — mermaid@12.0.0 릴리스 노트</a>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section>
+  <!-- 05 Mermaid classDiagram -->
+  <section id="class-diagram">
     <div class="section-header">
-      <span class="section-label">03 · Data Dictionary Schema</h2>
-      <h2>Data Dictionary 최소 포맷</h2>
-      <p>필드 하나를 기술할 때 담아야 할 속성들.</p>
+      <span class="section-label">05 · Mermaid classDiagram</span>
+      <h2>Mermaid classDiagram 공식 패턴</h2>
+      <p>속성과 행위를 함께 적는다 — ERD 보다 행위 쪽 모델을 더 잘 담는다.</p>
+    </div>
+
+    <div class="split even">
+      <div class="card">
+        <div class="card-head"><span class="card-number">5</span><h3>개념 모델과 aggregate 내부 구조</h3></div>
+        <p>
+          Mermaid <code>classDiagram</code> 은 개념 모델, aggregate 내부 구조, 도메인 오브젝트 관계를 표현하는 데 알맞다.
+          속성과 메서드를 함께 적을 수 있어 <strong>단순 ERD 보다 행위적 모델을 더 잘 담는다</strong>.
+        </p>
+        <h4>핵심 질문</h4>
+        <ul>
+          <li>클래스 이름이 도메인 언어와 일치하는가?</li>
+          <li>속성과 행위를 함께 보아야 하는 개념인가?</li>
+          <li>연관 · 구성 · 상속을 구분했는가?</li>
+        </ul>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>도메인 모델 초안, aggregate 설명, 객체 협력 설명</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>구현 클래스 다이어그램으로 곧장 내려가면 추상 수준이 너무 빨리 무너질 수 있다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://mermaid.js.org/syntax/classDiagram.html" target="_blank" rel="noopener">Mermaid — Class Diagrams</a>
+        </div>
+      </div>
+
+      <div>
+        <pre class="code-block" aria-label="Mermaid classDiagram 예시"><code><span class="kw">classDiagram</span>
+  <span class="kw">class</span> Subscription {
+    +subscriptionId: String
+    +status: SubscriptionStatus
+    +activate()
+    +cancel()
+  }
+  <span class="kw">class</span> BillingAccount {
+    +accountId: String
+    +currency: String
+  }
+  <span class="kw">class</span> Plan {
+    +planId: String
+    +interval: String
+  }
+
+  Subscription <span class="rel">--&gt;</span> BillingAccount : billed through
+  Subscription <span class="rel">--&gt;</span> Plan : uses</code></pre>
+        <p class="code-cap">원본 예시 — Subscription · BillingAccount · Plan</p>
+        <ul class="read-list">
+          <li><code>+activate()</code> · <code>+cancel()</code> — ERD 에는 없는 행위를 같은 그림에 적는다</li>
+          <li><code>Subscription --&gt; BillingAccount : billed through</code> — 구독은 청구 계정을 거쳐 청구된다</li>
+          <li><code>Subscription --&gt; Plan : uses</code> — 구독은 요금제를 쓴다</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 Data Dictionary -->
+  <section id="data-dictionary">
+    <div class="section-header">
+      <span class="section-label">06 · Data Dictionary</span>
+      <h2>Data Dictionary 포맷</h2>
+      <p>필드 이름 목록이 아니라 데이터 계약(data contract)이다.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <div class="card-head"><span class="card-number">6</span><h3>최소한 담아야 하는 것</h3></div>
+      <p>
+        이름, 설명, 타입, 허용값, null 가능 여부, 생성 주체, 시스템 오브 레코드(값의 기준이 되는 시스템), 변경 규칙.
+      </p>
+      <p>
+        기획 단계에서 만들면 분석 이벤트 이름이 조금씩 어긋나는 것(naming drift)을 줄이고,
+        <strong>API(프로그램끼리 주고받는 창구) · DB · UI 가 서로 다른 이름을 쓰는 문제를 일찍 막는다</strong>.
+      </p>
+      <div class="when-limit">
+        <div class="when"><b>적용 시점</b><span>API 설계, 이벤트 구조 정의, analytics tracking plan(분석 이벤트 수집 계획), admin · reporting 제품</span></div>
+        <div class="limit"><b>한계 · 주의</b><span>운영 ownership(누가 계속 고치는지) 없이는 금방 썩는다. glossary 와 schema registry(필드 정의를 모아 두는 저장소)가 따로 놀면 같은 내용을 두 곳에서 고치게 된다.</span></div>
+      </div>
+      <div class="card-sources">
+        <span class="src-label">출처</span>
+        <a class="card-source" href="https://www.domainlanguage.com/ddd/reference/" target="_blank" rel="noopener">Domain Language — DDD Reference<span class="dated">dated 2025-10</span></a>
+        <a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid — Entity Relationship Diagrams</a>
+      </div>
     </div>
 
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr><th>Attribute</th><th>설명</th><th>예시</th></tr>
-        </thead>
+        <caption>셋째 열은 원본 classDiagram 의 <code>Subscription.status</code> 로 채워 본 것이다. 원본 예시에 없는 값은 지어내지 않고 「원본 예시에 없음」 으로 둔다.</caption>
+        <thead><tr><th>원본 체크리스트</th><th>무엇을 적나</th><th>Subscription.status 로 채우면</th></tr></thead>
         <tbody>
-          <tr><td><strong>name</strong></td><td>필드 이름 (API/DB/UI에서 같은 이름)</td><td><code>subscription_status</code></td></tr>
-          <tr><td><strong>business meaning</strong></td><td>도메인 언어로 설명</td><td>"구독의 현재 결제 상태"</td></tr>
-          <tr><td><strong>type</strong></td><td>데이터 타입 · enum 정의</td><td><code>enum: active|past_due|canceled</code></td></tr>
-          <tr><td><strong>nullable / default</strong></td><td>null 허용 여부 · 기본값</td><td>not null · default <code>active</code></td></tr>
-          <tr><td><strong>owner · source of truth</strong></td><td>값을 생성/보증하는 시스템</td><td>Billing Service</td></tr>
-          <tr><td><strong>update semantics</strong></td><td>언제 어떻게 변경되는가</td><td>webhook on invoice.updated</td></tr>
-          <tr><td><strong>PII · retention</strong></td><td>개인정보 여부 · 보존 기간</td><td>non-PII · retain 7y</td></tr>
+          <tr><td><strong>Field name / business meaning / data type</strong></td><td>이름 · 도메인 언어로 쓴 뜻 · 타입</td><td><code>status</code> · 구독의 현재 상태 · <code>SubscriptionStatus</code></td></tr>
+          <tr><td><strong>Required? Nullable? Default?</strong></td><td>필수인가 · null 을 허용하나 · 기본값</td><td>원본 예시에 없음 — 셋을 따로 적는다</td></tr>
+          <tr><td><strong>Allowed values / enum definition</strong></td><td>허용값과 enum 정의</td><td><code>SubscriptionStatus</code> 의 값 목록</td></tr>
+          <tr><td><strong>Source of truth / owner</strong></td><td>기준 시스템과 책임자</td><td>원본 예시에 없음 — 기준 시스템 이름을 적는다</td></tr>
+          <tr><td><strong>Created at / updated at semantics</strong></td><td>언제 생기고 언제 바뀌나</td><td><code>activate()</code> · <code>cancel()</code> 이 바꾼다</td></tr>
+          <tr><td><strong>PII 여부와 retention rule</strong></td><td>개인 식별 정보인가 · 보관 규칙</td><td>원본 예시에 없음 — 해당 여부 · 보관 기간을 적는다</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- 07 비교 -->
+  <section id="compare">
+    <div class="section-header">
+      <span class="section-label">07 · Comparison</span>
+      <h2>여섯 방법 한눈에</h2>
+      <p>원본 여섯 절의 요약 · 적용 시점 · 한계를 한 표로 모았다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>방법</th><th>무엇을 드러내나</th><th>언제</th><th>약한 곳</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DDD</strong></td><td>용어가 통하는 경계 · 일관성 단위</td><td>복잡한 도메인 정의</td><td>용어만 붙이면 효과 없음</td></tr>
+          <tr><td><strong>Event Storming</strong></td><td>사건 흐름 · 병목 · 모르는 영역</td><td>도메인 탐색</td><td>스티커가 목적이 되면 실패</td></tr>
+          <tr><td><strong>ERD</strong></td><td>엔터티 · 관계 · cardinality</td><td>구조 설계</td><td>행위 · 시간 흐름</td></tr>
+          <tr><td><strong>erDiagram</strong></td><td>텍스트로 둔 가벼운 ERD</td><td>설계 초안 · PRD</td><td>물리 구조 전체 · 판마다 다른 그림</td></tr>
+          <tr><td><strong>classDiagram</strong></td><td>속성과 행위를 함께</td><td>도메인 모델 초안</td><td>구현 클래스로 너무 빨리 내려감</td></tr>
+          <tr><td><strong>Data Dictionary</strong></td><td>필드 하나하나의 계약</td><td>API · 이벤트 설계</td><td>책임자가 없으면 썩음</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <section>
+  <!-- 08 안티패턴 -->
+  <section id="anti-patterns">
     <div class="section-header">
-      <span class="section-label">04 · Anti-patterns</span>
-      <h2>안티패턴 vs 좋은 패턴</h2>
-      <p>"DDD 용어만 붙이고 CRUD를 유지"하는 전형적 실수.</p>
+      <span class="section-label">08 · Anti-patterns</span>
+      <h2>안티패턴과 바꿀 방향</h2>
+      <p>원본 각 절의 「한계 · 주의사항」 을 나쁜 예 · 좋은 예 짝으로 옮겼다.</p>
     </div>
 
     <div class="compare-grid">
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>구독 · 청구 · 권한을 한 모델로 섞기</h4>
-        <p>용어 충돌이 생기고 나중에 조직/시스템 경계도 꼬인다.</p>
+        <h4>구독 · 청구 · 권한을 한 모델로 섞는다</h4>
+        <p>용어가 부딪히고, 나중에 조직 · 시스템 경계도 꼬인다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>Bounded Context별로 용어 사전 분리</h4>
-        <p>Subscription context의 "status"와 Authorization context의 "status"가 다를 수 있음을 인정.</p>
+        <h4>Bounded Context 마다 모델과 용어를 나눈다</h4>
+        <p>어떤 용어가 어떤 컨텍스트에서만 참인지 묻는다. PRD 의 용어가 안정된다.</p>
       </div>
 
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>Aggregate를 지나치게 크게 잡기</h4>
-        <p>전체 Workspace를 하나의 aggregate로 묶으면 동시성 병목 · 트랜잭션 실패가 늘어난다.</p>
+        <h4>모든 곳에 aggregate 를 크게 잡는다</h4>
+        <p>오히려 병목이 생긴다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>변경 일관성이 필요한 최소 단위로 분리</h4>
-        <p>Issue · Comment · Label 등 별도 aggregate, cross-aggregate는 eventual consistency.</p>
+        <h4>강한 일관성이 필요한 변경만 한 aggregate 로 묶는다</h4>
+        <p>「같은 aggregate 안에서만 강한 일관성이 필요한 변경인가」 를 먼저 묻는다.</p>
       </div>
 
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>Event Storming이 스티커 부착 워크숍으로 끝남</h4>
-        <p>벽에 메모만 쌓이고 모델/문서로 정제되지 않는다.</p>
+        <h4>Event Storming 에서 스티커 붙이기가 목적이 된다</h4>
+        <p>퍼실리테이션이 약하면 소음만 많은 브레인스토밍으로 끝난다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>Storming 결과를 classDiagram · Context Map으로 문서화</h4>
-        <p>워크숍 직후 24~48시간 내 artifact 확정 규칙 운영.</p>
+        <h4>함께 이해하는 과정에 초점을 둔다</h4>
+        <p>과거형 event 로 적고, hotspot 과 병목 · 대기 · 핸드오프를 드러낸다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>ERD 하나로 행위 규칙과 시간 흐름까지 설명한다</h4>
+        <p>ERD 는 구조는 잘 보여 주지만 행위와 시간 흐름은 잘 설명하지 못한다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>DDD · 이벤트 모델과 함께 본다</h4>
+        <p>행위는 classDiagram 과 domain event 로, 구조는 ERD 로 나눠 담는다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Mermaid 렌더 그림을 판 번호 없이 비교한다</h4>
+        <p>12.0.0 부터 ERD 기본 배치가 ELK 로 바뀌어, 같은 코드도 11 이하와 다른 그림이 나올 수 있다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>렌더 결과 옆에 렌더러 버전을 적는다</h4>
+        <p>그림이 달라진 까닭이 코드인지 렌더러인지 가를 수 있다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Data Dictionary 를 만들고 책임자를 정하지 않는다</h4>
+        <p>운영 ownership 이 없으면 금방 썩는다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>필드마다 source of truth 와 owner 를 적는다</h4>
+        <p>glossary 와 schema registry 가 따로 놀지 않게 한곳에서 고친다.</p>
       </div>
     </div>
   </section>
 
-  <section>
+  <!-- 09 함정 -->
+  <section id="gotchas">
     <div class="section-header">
-      <span class="section-label">05 · Gotchas</span>
-      <h2>Gotchas</h2>
-      <p>모델링 문서에서 자주 놓치는 함정.</p>
+      <span class="section-label">09 · Gotchas</span>
+      <h2>모델링 문서에서 자주 놓치는 것</h2>
+      <p>원본 핵심 질문 가운데 빠뜨리기 쉬운 것만 골랐다.</p>
     </div>
 
     <div class="checklist">
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>ERD만으로 도메인을 설명하려 한다</strong>
-          <p>ERD는 구조 표현이 강하지만 행위 규칙과 시간 흐름을 잘 보여주지 못한다. Event Storming · classDiagram과 함께.</p>
+          <strong>값 동등성이 중요한 데이터에 식별자를 붙인다</strong>
+          <p>속성값 자체가 의미의 전부라면 Value Object 다. Entity 로 다루기 전에 「식별성보다 값 동등성이 중요한가」 를 묻는다.</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Value Object를 Entity처럼 다루기</strong>
-          <p>주소 · 금액 · 기간처럼 속성값 자체가 의미의 전부인 객체에 id를 붙이면 equality 비교가 복잡해진다.</p>
+          <strong>별도 엔터티여야 할 개념을 속성 칸에 넣는다</strong>
+          <p>ERD 핵심 질문 「속성이 아닌 별도 엔터티여야 할 개념을 잘 분리했는가」 를 엔터티마다 확인한다.</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Data Dictionary에 owner가 빠짐</strong>
-          <p>운영 ownership 없이는 금방 썩는다. glossary와 schema registry가 분리되면 중복 관리가 생긴다.</p>
+          <strong>관계 라벨이 두 번째 엔터티 쪽에서 읽힌다</strong>
+          <p>erDiagram 라벨은 첫 번째 엔터티 관점에서 읽혀야 한다. 문장으로 소리 내 읽어 보면 어긋남이 드러난다.</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Mermaid erDiagram에 FK 표시 누락</strong>
-          <p>attribute block에 <code>PK</code>/<code>FK</code>를 명시해야 관계 의도가 드러난다.</p>
+          <strong>attribute block 에 PK · FK 를 적지 않는다</strong>
+          <p>키를 적어야 관계 의도가 attribute 수준에서도 드러난다.</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>DDD 용어를 "코드 주석용 장식"으로 쓴다</strong>
-          <p>용어만 붙이고 CRUD 설계를 유지하면 효과가 없다. aggregate 경계가 코드의 트랜잭션 경계로 이어져야 한다.</p>
+          <strong>classDiagram 을 구현 클래스 그림으로 곧장 내린다</strong>
+          <p>클래스 이름이 도메인 언어와 일치하는지부터 본다. 추상 수준이 너무 빨리 무너지면 기획 문서의 역할을 잃는다.</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>PII 여부와 보관 규칙 칸을 비운다</strong>
+          <p>Data Dictionary 체크리스트 마지막 줄이다. 생성 · 수정 시점 규칙과 함께 필드마다 채운다.</p>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- 10 참고 링크 -->
+  <section id="references">
+    <div class="section-header">
+      <span class="section-label">10 · References</span>
+      <h2>참고 링크 (전체)</h2>
+      <p>원본이 인용한 출처 아홉 개. 날짜 표시는 원본의 <code>[dated: …]</code> 를 옮긴 것이다.</p>
+    </div>
+    <ul class="ref-list">
+      <li><span class="ref-name">DDD Reference<span class="dated">dated 2025-10</span></span><a href="https://www.domainlanguage.com/ddd/reference/" target="_blank" rel="noopener">domainlanguage.com/ddd/reference/</a></li>
+      <li><span class="ref-name">DDD Blue Book<span class="dated">dated 2025-10</span></span><a href="https://www.domainlanguage.com/ddd/blue-book/" target="_blank" rel="noopener">domainlanguage.com/ddd/blue-book/</a></li>
+      <li><span class="ref-name">Bounded Context 소개<span class="dated">dated 2013-12</span></span><a href="https://elearn.domainlanguage.com/modules/bcintro/" target="_blank" rel="noopener">elearn.domainlanguage.com/modules/bcintro/</a></li>
+      <li><span class="ref-name">EventStorming</span><a href="https://www.eventstorming.com/" target="_blank" rel="noopener">eventstorming.com</a></li>
+      <li><span class="ref-name">EventStorming — Book</span><a href="https://www.eventstorming.com/book/" target="_blank" rel="noopener">eventstorming.com/book/</a></li>
+      <li><span class="ref-name">EventStorming — Resources</span><a href="https://www.eventstorming.com/resources/" target="_blank" rel="noopener">eventstorming.com/resources/</a></li>
+      <li><span class="ref-name">Mermaid — ER Diagram</span><a href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">mermaid.js.org/syntax/entityRelationshipDiagram.html</a></li>
+      <li><span class="ref-name">Mermaid — Class Diagram</span><a href="https://mermaid.js.org/syntax/classDiagram.html" target="_blank" rel="noopener">mermaid.js.org/syntax/classDiagram.html</a></li>
+      <li><span class="ref-name">mermaid@12.0.0 릴리스</span><a href="https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0" target="_blank" rel="noopener">github.com/mermaid-js/mermaid/releases/tag/mermaid@12.0.0</a></li>
+    </ul>
+  </section>
+
+  <!-- 11 함께 보기 -->
   <section>
     <div class="section-header">
-      <span class="section-label">06 · References</span>
+      <span class="section-label">11 · See also</span>
       <h2>함께 보기</h2>
-      <p>Planning Kit 내 관련 페이지.</p>
+      <p>Planning Kit 안의 관련 페이지.</p>
     </div>
     <div class="refs">
       <a href="flows.html">Flows</a>
@@ -391,30 +818,9 @@ footer a { color: var(--accent); text-decoration: none; }
     </div>
   </section>
 
-  <section>
-    <div class="section-header">
-      <span class="section-label">07 · Mini Glossary</span>
-      <h2>용어 미니 사전</h2>
-      <p>DDD 기본 용어 빠른 참조.</p>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>용어</th><th>의미</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Bounded Context</strong></td><td>특정 모델과 언어가 일관되게 통하는 경계</td></tr>
-          <tr><td><strong>Aggregate</strong></td><td>변경 일관성 보장의 최소 단위</td></tr>
-          <tr><td><strong>Entity</strong></td><td>식별성(id)이 의미의 핵심인 객체</td></tr>
-          <tr><td><strong>Value Object</strong></td><td>속성값 자체가 의미의 전부인 객체 (equality 비교)</td></tr>
-          <tr><td><strong>Domain Event</strong></td><td>도메인에서 의미 있는 사건을 과거형으로 드러낸 객체</td></tr>
-          <tr><td><strong>Context Map</strong></td><td>Bounded Context 간 관계(shared kernel, ACL, upstream/downstream)</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
   <footer>
-    Planning Kit v0.1 · last updated 2026-04-14 ·
-    source: <code>docs/planning/data-modeling.md</code>
+    Planning Kit · 문서 v0.1.1 · last updated 2026-09-25 ·
+    원본 <code>docs/planning/data-modeling.md</code>
   </footer>
 
 </div>

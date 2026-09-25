@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>플러그인 검증 가이드 — Harness</title>
+<title>플러그인 검증 가이드 v1.4.0 — Harness</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -21,13 +21,15 @@
     background-image:radial-gradient(ellipse at 20% 0%,rgba(217,119,87,0.06) 0%,transparent 50%),
                      radial-gradient(ellipse at 80% 100%,rgba(217,119,87,0.03) 0%,transparent 50%);
   }
+  a{color:var(--accent)}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
   .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:760px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:20px;max-width:760px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
-  .section{margin-bottom:clamp(48px,6vw,80px)}
+  .section{margin-bottom:clamp(48px,6vw,80px);scroll-margin-top:16px}
   .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
   .desc{color:var(--text2);font-size:clamp(16px,1.2vw,18px);line-height:1.7;max-width:820px;margin-bottom:24px}
@@ -36,16 +38,18 @@
   .card:hover{border-color:rgba(217,119,87,0.25)}
   .card h3{margin-bottom:8px;color:var(--text)}
   .card p{color:var(--text2);font-size:16px;line-height:1.65}
+  .card p+p{margin-top:8px}
   .card-source{display:inline-block;margin-top:12px;font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--mono);padding:4px 10px;border:1px solid rgba(217,119,87,0.3);border-radius:6px;transition:all var(--transition)}
   .card-source:hover{background:var(--accent-dim);border-color:var(--accent)}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
   table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
   th{text-align:left;padding:12px 14px;color:var(--text);font-weight:700;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase;background:var(--surface2)}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
   tr:last-child td{border-bottom:none}
   tr:hover td{background:rgba(217,119,87,0.03)}
   td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+  td strong{color:var(--text)}
   .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
   @media(max-width:640px){.compare{grid-template-columns:1fr}}
   .compare-bad,.compare-good{border-radius:12px;padding:18px}
@@ -59,20 +63,41 @@
   .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
   .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
   pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.7}
+  code{font-family:var(--mono);font-size:0.92em}
   .v-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative}
   .v-badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);font-size:14px;font-weight:800;margin-bottom:12px}
   .v-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
   .v-desc{font-size:13px;color:var(--text2);line-height:1.6}
+  .v-meta{margin-top:10px}
   .exit-grid{display:grid;grid-template-columns:auto 1fr;gap:12px 20px;align-items:center;margin-top:16px}
   .exit-code{font-family:var(--mono);font-size:24px;font-weight:800;padding:8px 18px;border-radius:8px;text-align:center}
   .exit-0{background:rgba(74,222,128,0.12);color:var(--green)}
   .exit-1{background:rgba(251,191,36,0.12);color:var(--yellow)}
   .exit-2{background:rgba(248,113,113,0.12);color:var(--red)}
 
+  /* 머리 · 목차 · 새로 들어온 것 */
+  .meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--text3);margin-bottom:24px}
+  .meta span{padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center}
+  .meta .ver{background:var(--accent-dim);border-color:rgba(217,119,87,0.3);color:var(--accent);font-weight:700;letter-spacing:0.04em}
+  .note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:16px 20px;max-width:900px}
+  .note-title{font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px}
+  .note ul{margin-left:18px;color:var(--text2);font-size:14px;line-height:1.75}
+  .note li+li{margin-top:4px}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 clamp(32px,5vw,56px);max-width:960px}
+  .toc a{font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text2);text-decoration:none;min-height:32px;display:inline-flex;align-items:center;transition:border-color var(--transition),color var(--transition)}
+  .toc a:hover{border-color:var(--accent);color:var(--accent)}
+  .plain-list{list-style:disc;margin-left:18px;color:var(--text2);font-size:14px;line-height:1.8}
+  .plain-list li+li{margin-top:4px}
+  .scope-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;margin-top:8px}
+  .scope-step{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+  .scope-step .when{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:700;letter-spacing:0.5px}
+  .scope-step p{font-size:13px;color:var(--text2);line-height:1.6;margin-top:6px}
+  .scope-step.off{border-style:dashed}
+
   /* ═══ 가로 오버플로 방지 (docs-site 정본 규칙) — 내용을 자르지 말고 스크롤시킨다 ═══ */
   /* (1) grid 자식의 기본 min-width 는 auto(=min-content) 라, 긴 코드·표·안 끊기는 토큰의
          최소폭이 그대로 트랙 폭으로 전파되어 문서를 밀어낸다. */
-  .grid-2>*,.grid-3>*,.compare>*,.exit-grid>*{min-width:0}
+  .grid-2>*,.grid-3>*,.compare>*,.exit-grid>*,.scope-steps>*{min-width:0}
   /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다.
          마크업: <div class="table-wrap"><table>…</table></div> */
   .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
@@ -85,220 +110,449 @@
          줄바꿈 없이 한 줄에 나열된다. 인라인 흐름으로 되돌려 자연 줄바꿈시킨다. */
   .checklist li{display:block}
   .checklist .check{display:inline-flex;vertical-align:-4px;margin-right:10px}
+  @media(max-width:600px){.grid-2,.grid-3,.scope-steps{grid-template-columns:1fr}}
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition:none!important}
+  }
 </style>
+<!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/plugin-validation-guide.md (v1.4.0) -->
 </head>
 <body>
 <div class="page">
 
 <h1>플러그인 검증 가이드</h1>
 <p class="subtitle">
-  <code>scripts/validate-plugin.py</code> 의 <strong>V1~V10 자동 검증</strong>.
-  릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하며, 등록된 킷 전체의 스킬 · 에이전트 · 템플릿 · 훅 · 문서 표 무결성을 확인한다.
+  릴리스 전 품질 검사이자 카이젠 때 비교 기준이 되는 <strong>검사 10 종(V1 ~ V10)</strong>.
+  <code>scripts/validate-plugin.py</code> 의 각 검사가 무엇을, 왜, 어떻게 보는지 정한다.
+  새 킷을 더하거나 기존 킷을 고칠 때 이 문서를 기준 원본(여기 적힌 것이 맞다고 치는 문서)으로 삼는다.
 </p>
+<div class="meta">
+  <span class="ver">v1.4.0 · 2026-09-25</span>
+  <span>범위 — marketplace.json 에 등록된 킷 전부</span>
+  <span>검사 10 종</span>
+  <span>자동 수정 — V5 · V6 만</span>
+</div>
+
+<div class="note">
+  <div class="note-title">1.3.1 판 이후 원본에 들어온 것 (1.4.0)</div>
+  <ul>
+    <li><strong>V10 범위</strong> — 스킬 폴더 안의 <code>skills/*/references/**/*.md</code> 를 더했다(2026-09-25). 킷 최상위 <code>references/*.md</code> 만 보면 스킬마다 둔 참조 문서가 빠진다. 실측 14 킷에 41 개(표가 있는 파일 40 개)가 검사 밖이었고, 끊긴 표는 0 개였다</li>
+    <li><strong>V6 는 넓히지 않았다</strong> — 같은 범위로 넓히면 그 안의 언어 힌트 없는 펜스 8 개가 바로 걸린다</li>
+    <li><strong>V 줄 끝의 판정 글자</strong> — V 줄은 늘 <code>— OK</code> · <code>— WARN</code> · <code>— FAIL</code> · <code>— SKIP</code> 로 끝난다. 2026-09-25 전에는 V3 · V4 · V5 · V9 의 실패 줄이 판정 없이 끝나, V 줄 글자로 FAIL 을 세면 0 이 나왔다</li>
+    <li><strong>그래도 통과 여부는 종료 코드로 먼저 판정한다</strong> — V 줄 글자는 그다음이다</li>
+  </ul>
+</div>
+
+<nav class="toc" aria-label="절 목록">
+  <a href="#purpose">1 목적</a><a href="#scope">2 범위 · 실행</a><a href="#overview">3 V1~V10</a>
+  <a href="#detail">4 기준 · 방법 · 예외</a><a href="#v8">5 V8</a><a href="#v9">6 V9</a><a href="#v10">7 V10</a>
+  <a href="#cli">8 옵션 · 종료 코드</a><a href="#output">9 출력 형식</a><a href="#examples">10 FAIL 예시</a>
+  <a href="#fix">11 고치기</a><a href="#catalog">12 킷별 예외</a><a href="#kaizen">13 카이젠 연동</a>
+  <a href="#gotchas">14 확인 목록</a><a href="#history">15 변경 이력</a>
+</nav>
 
 <!-- ── 1. 목적 ── -->
-<div class="section">
-  <div class="section-label">1 · 목적 · 적용 범위</div>
-  <p class="desc">플러그인 모노레포는 여러 킷과 100여 개 스킬, 10여 개 에이전트로 구성된다. 킷 수가 늘어날수록 다음 문제가 발생한다.</p>
+<div class="section" id="purpose">
+  <div class="section-label">1 · 목적</div>
+  <p class="desc">플러그인 모노레포는 여러 킷과 100여 개 스킬, 10여 개 에이전트로 이뤄진다. 킷이 늘수록 아래 다섯 문제가 생긴다. 이 문서는 그 문제를 자동으로 찾는 검사 10 종을 정하고, 검사마다 기준 · 방법 · 예외 · FAIL 예시를 적는다. 카이젠 주기마다 이 문서를 기준으로 전체 킷을 점검해 품질이 떨어지는 것을 막는다.</p>
 
-  <div class="grid-2">
+  <div class="grid-3">
     <div class="card">
-      <h3>자동 탐지 대상 5종</h3>
-      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.85">
-        <li><strong>숨은 깨진 링크</strong> — SKILL.md 가 <code>references/xxx.md</code> 참조하나 파일 없음</li>
-        <li><strong>Frontmatter 누락</strong> — <code>name</code>/<code>description</code> 없어 Claude 가 스킬 미인식</li>
-        <li><strong>트리거 중복</strong> — 두 킷이 동일 키워드 선언 → 의도치 않은 스킬 실행</li>
-        <li><strong>Placeholder 노출</strong> — <code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 사용자에게 노출</li>
-        <li><strong>버전 불일치</strong> — <code>plugin.json</code> vs <code>marketplace.json</code> 태그 diff</li>
-      </ul>
+      <span class="tag">V3</span>
+      <h3 style="margin-top:10px">숨은 깨진 링크</h3>
+      <p>SKILL.md 가 <code>references/xxx.md</code> 를 가리키는데 그 파일이 없다.</p>
     </div>
     <div class="card">
-      <h3>적용 범위</h3>
-      <p><code>.claude-plugin/plugin.json</code> 을 가진 모든 디렉토리 — <code>.claude-plugin/marketplace.json</code> 의 <code>plugins</code> 배열에 <strong>등록된 킷 전부</strong>.</p>
-      <p style="margin-top:8px">새 킷은 등록하는 순간 자동으로 포함된다. 지금 몇 개인지는 전체 실행의 마지막 줄 <code>Total: N plugins, …</code> 이 알려준다 — 여기에 목록을 적어 두면 킷이 늘 때마다 낡는다.</p>
+      <span class="tag">V1</span>
+      <h3 style="margin-top:10px">frontmatter 누락</h3>
+      <p>새 스킬 맨 위 <code>---</code> 설정 블록에 <code>name</code> 이나 <code>description</code> 이 없어 Claude 가 스킬을 알아보지 못한다.</p>
+    </div>
+    <div class="card">
+      <span class="tag">V4</span>
+      <h3 style="margin-top:10px">트리거 겹침</h3>
+      <p>두 킷이 같은 키워드를 트리거로 적어, 뜻하지 않은 스킬이 실행된다.</p>
+    </div>
+    <div class="card">
+      <span class="tag">V5</span>
+      <h3 style="margin-top:10px">미완성 표시 노출</h3>
+      <p><code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 가 사용자에게 그대로 보인다.</p>
+    </div>
+    <div class="card">
+      <span class="tag">V7</span>
+      <h3 style="margin-top:10px">버전 불일치</h3>
+      <p><code>plugin.json</code> 의 버전과 <code>marketplace.json</code> description 의 버전 태그가 달라 릴리스를 따라갈 수 없다.</p>
+    </div>
+    <div class="card">
+      <span class="tag">기준</span>
+      <h3 style="margin-top:10px">이 문서가 기준 원본</h3>
+      <p>검사 기준을 바꿀 때는 이 문서를 먼저 고친다. 문서 사이트의 이 페이지는 그 원본을 옮긴 것이다.</p>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §1</a>
     </div>
   </div>
 </div>
 
-<!-- ── 2. 실행 명령 ── -->
-<div class="section">
-  <div class="section-label">2 · 실행 명령</div>
-  <p class="desc">모든 킷 전수 또는 특정 킷/체크만 선택 실행. CI 파이프라인에는 <code>--json</code> 출력 사용.</p>
+<!-- ── 2. 적용 범위 · 실행 명령 ── -->
+<div class="section" id="scope">
+  <div class="section-label">2 · 적용 범위 · 실행 명령</div>
 
-  <pre><span style="color:var(--accent)"># 전체 킷 검증</span>
+  <div class="grid-2">
+    <div class="card">
+      <h3>적용 범위</h3>
+      <p><code>.claude-plugin/plugin.json</code> 을 가진 모든 디렉터리가 검사 대상이다. 지금 몇 개인지는 전체 실행의 마지막 <code>Total:</code> 줄이 알려준다 — 여기에 목록을 적어 두면 킷이 늘 때마다 낡는다.</p>
+      <p>킷 목록은 <code>.claude-plugin/marketplace.json</code> 의 <code>plugins</code> 배열에서 자동으로 읽는다. 새 킷을 marketplace.json 에 먼저 등록하면 검사 대상에 저절로 들어간다.</p>
+      <a class="card-source" href="https://code.claude.com/docs/en/plugins-reference">code.claude.com · Plugins reference</a>
+    </div>
+    <div class="card">
+      <h3>실행 명령</h3>
+      <pre style="margin-top:8px"><span style="color:var(--accent)"># 전체 킷 검사</span>
 python3 scripts/validate-plugin.py
 
 <span style="color:var(--accent)"># 특정 킷만</span>
 python3 scripts/validate-plugin.py react-kit
 
-<span style="color:var(--accent)"># 특정 체크만 (쉼표 구분)</span>
+<span style="color:var(--accent)"># 특정 검사만</span>
 python3 scripts/validate-plugin.py --check=frontmatter,refs
 
-<span style="color:var(--accent)"># JSON 출력 (CI 파이프라인용)</span>
+<span style="color:var(--accent)"># JSON 출력 (CI — 커밋마다 자동으로 도는 검사)</span>
 python3 scripts/validate-plugin.py --json
 
 <span style="color:var(--accent)"># 자동 수정 (V5 placeholders + V6 code-fence)</span>
 python3 scripts/validate-plugin.py --fix</pre>
+    </div>
+  </div>
 </div>
 
-<!-- ── 3. V1~V10 검증 카테고리 ── -->
-<div class="section">
-  <div class="section-label">3 · V1 ~ V10 검증 카테고리</div>
-  <p class="desc">10가지 카테고리. 각 카테고리는 PASS / WARNING / FAIL 판정 + 구체적 라인 번호를 보고한다.</p>
+<!-- ── 3. V1~V10 한눈에 ── -->
+<div class="section" id="overview">
+  <div class="section-label">3 · V1 ~ V10 한눈에</div>
+  <p class="desc">검사마다 PASS · WARNING · FAIL 을 내고, 걸린 자리는 파일과 줄 번호까지 보고한다. 카드 아래 태그는 <code>--check=</code> 에 넣는 검사 이름이다.</p>
 
   <div class="grid-2">
     <div class="v-card">
       <div class="v-badge">V1</div>
       <div class="v-title">Frontmatter 무결성</div>
-      <div class="v-desc">SKILL.md — <code>name</code> · <code>description</code> · <code>user-invocable</code>. 에이전트 — <code>name</code> · <code>description</code> · <code>tools</code> · <code>model</code>. YAML 파싱 성공 + 필수 필드 존재.</div>
+      <div class="v-desc">스킬은 <code>name</code> · <code>description</code> · <code>user-invocable</code>, 에이전트는 <code>name</code> · <code>description</code> · <code>tools</code> · <code>model</code>. YAML 로 읽혀야 하고 필드 값이 비어도 FAIL.</div>
+      <div class="v-meta"><span class="tag">frontmatter</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V2</div>
       <div class="v-title">Templates 구문</div>
-      <div class="v-desc"><code>templates/</code> 내 JSON · YAML · TOML 파서 검증. <code>.ts/.js</code> 는 외부 도구 의존으로 SKIP. <code>.template</code> 확장자는 내부 확장자로 판별.</div>
+      <div class="v-desc"><code>templates/</code> 안의 JSON · YAML · TOML(설정 파일 형식)을 표준 파서로 읽는다. <code>.ts</code> · <code>.js</code> 는 외부 도구 없이 볼 수 없어 SKIP. <code>.template</code> 은 안쪽 확장자로 가린다.</div>
+      <div class="v-meta"><span class="tag">templates</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V3</div>
       <div class="v-title">Cross-reference 링크</div>
-      <div class="v-desc">SKILL.md 마크다운 링크 <code>[text](path)</code> 가 실제 파일로 해소. 절대 URL · 앵커 · <code>&lt;!-- novalidate --&gt;</code> 주석은 제외.</div>
+      <div class="v-desc">SKILL.md 본문의 마크다운 링크 <code>[text](path)</code> 가 실제 파일로 이어지는지 본다. 절대 URL · 앵커 · <code>&lt;!-- novalidate --&gt;</code> 가 달린 링크는 뺀다.</div>
+      <div class="v-meta"><span class="tag">refs</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V4</div>
       <div class="v-title">Trigger 키워드</div>
-      <div class="v-desc">description 의 따옴표 키워드 추출. 킷 간 exact-match 중복 시 WARNING. KIT_CONTEXT_TOKENS 로 "flutter"/"react" 같은 kit-specific 단어 있으면 disambiguation.</div>
+      <div class="v-desc">description 의 따옴표 키워드가 킷 안이나 킷 사이에서 글자 그대로 겹치면 WARNING. 두 킷 description 이 모두 킷 고유 낱말을 담으면 경고를 뺀다.</div>
+      <div class="v-meta"><span class="tag">triggers</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V5</div>
       <div class="v-title">Placeholders</div>
-      <div class="v-desc"><code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 0건. 단어 경계(<code>\b</code>) 기준 대소문자 무관 매칭. <code>--fix</code> 로 중립 주석 자동 교체.</div>
+      <div class="v-desc"><code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 0 건. 대소문자 무관, 단어 경계 기준. 코드 블록 안 주석도 센다. <code>--fix</code> 가 중립 문구로 바꾼다.</div>
+      <div class="v-meta"><span class="tag">placeholders</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V6</div>
       <div class="v-title">Code fence 언어 힌트</div>
-      <div class="v-desc">여는 fence (<code>```</code>) 뒤 언어 힌트 필수. 상태 머신으로 <code>in_block</code> 추적. <code>--fix</code> 로 <code>```text</code> 자동 보강.</div>
+      <div class="v-desc">여는 펜스(<code>```</code>) 뒤에 언어 힌트가 있어야 한다. 힌트가 없으면 Claude 가 언어를 가리지 못해 문맥 품질이 떨어진다. <code>--fix</code> 가 <code>```text</code> 로 채운다.</div>
+      <div class="v-meta"><span class="tag">code-fence</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V7</div>
       <div class="v-title">plugin.json ↔ marketplace.json 정합성</div>
-      <div class="v-desc"><code>name</code> · <code>version</code> 일치 + marketplace description 의 <code>[vX.Y.Z · YYYY-MM-DD]</code> 태그가 <code>plugin.json</code> 버전과 일치. 정규식 <code>\[v(\d+\.\d+\.\d+)\s*·\s*\d&lbrace;4&rbrace;-\d&lbrace;2&rbrace;-\d&lbrace;2&rbrace;\]</code> 로 추출.</div>
+      <div class="v-desc"><code>name</code> · <code>version</code> 이 같고, marketplace description 에 <code>[vX.Y.Z · YYYY-MM-DD]</code> 태그가 있으며 그 버전이 plugin.json 과 같아야 한다.</div>
+      <div class="v-meta"><span class="tag">plugin-json</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V8</div>
       <div class="v-title">Hook 스크립트 실행 비트</div>
-      <div class="v-desc"><code>hooks/hooks.json</code> 이 <strong>인터프리터 없이 직접 실행</strong>하는 <code>${CLAUDE_PLUGIN_ROOT}/x.sh</code> 스크립트가 실행 비트(mode 0755)를 가지는지 검증. git 이 추적하는 파일 모드가 <code>100644</code>(비실행)이면 marketplace clone · plugin cache 등 <strong>모든 설치본</strong>에서 hook 이 <code>Permission denied</code> 로 실패한다. <code>bash</code> · <code>sh</code> · <code>source</code> 경유 호출은 읽기 권한만 필요하므로 V8 대상에서 제외. <code>hooks.json</code> 없는 킷 또는 직접 실행 참조 0건이면 OK.</div>
+      <div class="v-desc"><code>hooks/hooks.json</code> 이 인터프리터 없이 <strong>직접 실행</strong>하는 <code>.sh</code> 가 실행 비트(mode 0755)를 가지는지 본다. <code>100644</code> 로 커밋되면 모든 설치본에서 <code>Permission denied</code> 로 실패한다.</div>
+      <div class="v-meta"><span class="tag">hook-exec</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V9</div>
       <div class="v-title">스킬 본문의 인자 치환 위험</div>
-      <div class="v-desc"><code>skills/*/SKILL.md</code> 에서 이스케이프되지 않은 <code>$</code> + 숫자가 1 건이라도 있으면 FAIL. Claude Code 는 스킬 본문의 <code>$N</code> 을 호출 인자로 바꿔 넣으므로, 인자와 함께 부르면 본문의 awk · 셸 스니펫이 깨진 채 로드된다. 파일:라인과 고치는 법을 함께 출력한다. awk 인지 bash 인지 판단이 필요해 <code>--fix</code> 는 없다.</div>
+      <div class="v-desc"><code>skills/*/SKILL.md</code> 에 이스케이프하지 않은 <code>$</code> + 숫자가 1 건이라도 있으면 FAIL. 인자와 함께 부르면 본문의 awk · 셸 스니펫이 깨진 채 로드된다. <code>--fix</code> 없음.</div>
+      <div class="v-meta"><span class="tag">arg-substitution</span></div>
     </div>
     <div class="v-card">
       <div class="v-badge">V10</div>
       <div class="v-title">마크다운 표 무결성</div>
-      <div class="v-desc">코드 블록 밖의 표행 중 <strong>헤더 없이 끊긴 행</strong>이 0 개인지 본다 — 바로 위가 표행이 아니고 바로 아래도 헤더 구분선이 아닌 행이다. 목록 · 인용 안에 들여쓴 표도 왼쪽 공백을 벗겨 판정한다. 범위는 V6 대상에 킷 안 <code>docs/**/*.md</code> 를 더한 것. 끊긴 표를 어디로 되돌릴지는 의미 판단이라 <code>--fix</code> 는 없다.</div>
-    </div>
-  </div>
-
-  <div class="grid-3" style="margin-top:20px">
-    <div class="card">
-      <h3>V1 · V3 설계 근거</h3>
-      <p>Frontmatter 와 링크 무결성은 Claude 플러그인 로딩의 최소 전제. 스킬 로더가 YAML 파싱 실패 시 전체 스킬 미로드.</p>
-      <a class="card-source" href="https://docs.anthropic.com/en/docs/claude-code/plugins">docs.anthropic.com · Claude Code Plugins</a>
-    </div>
-    <div class="card">
-      <h3>V4 Context Disambiguation</h3>
-      <p>"테스트 만들어줘" 같은 공통 키워드가 여러 킷에서 겹쳐도, description 에 kit-specific 단어(Flutter/React/Rust)가 있으면 disambiguation 성공.</p>
-      <a class="card-source" href="https://docs.anthropic.com/en/docs/claude-code/skills">docs.anthropic.com · Claude Skills</a>
-    </div>
-    <div class="card">
-      <h3>V8 회귀 방지 근거</h3>
-      <p>2026-06 reflect 30일 집계에서 hook <code>permission-denied</code> 가 24개 프로젝트 957건(전체 friction 의 38%)으로 단일 최대 마찰원. <code>100644</code> 로 커밋된 직접 실행 스크립트가 전 설치본에 누적 실패를 일으켰다.</p>
-      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3.8</a>
-    </div>
-  </div>
-
-  <div class="grid-3" style="margin-top:16px">
-    <div class="card">
-      <h3>V7 릴리스 태깅</h3>
-      <p><code>scripts/release.sh</code> 가 plugin.json 버전 bump + marketplace.json description 의 <code>[vX.Y.Z · 날짜]</code> 태그 자동 갱신. 수동 수정은 V7 FAIL 위험.</p>
-      <a class="card-source" href="https://semver.org/">semver.org · SemVer 2.0</a>
-    </div>
-    <div class="card">
-      <h3>V8 직접 실행 vs 경유</h3>
-      <p><code>${CLAUDE_PLUGIN_ROOT}/x.sh</code> 가 command 첫 토큰이면 직접 실행 → exec 비트 필수. <code>bash ${CLAUDE_PLUGIN_ROOT}/x.sh</code> 처럼 인터프리터가 앞서면 PASS.</p>
-      <a class="card-source" href="https://docs.anthropic.com/en/docs/claude-code/hooks">docs.anthropic.com · Claude Code Hooks</a>
-    </div>
-    <div class="card">
-      <h3>V8 수정 흐름</h3>
-      <p><code>chmod +x &lt;script&gt;</code> 후 커밋하면 git mode 가 <code>100755</code> 로 추적된다. <code>release.sh</code> 로 새 버전을 배포해야 기존 설치본 cache 가 갱신된다.</p>
-      <a class="card-source" href="https://git-scm.com/docs/git-update-index#_using_assume_unchanged_bit">git-scm.com · file mode</a>
-    </div>
-  </div>
-
-  <h3 style="margin-top:28px">V9 — 자리마다 고치는 법이 다르다</h3>
-  <p class="desc" style="margin-top:8px">2026-09 실측: <code>sprint-contract</code> 를 인자와 함께 부른 3 회 모두 frontmatter 를 읽는 awk 와 저장 검사 스니펫이 깨져 로드됐고, 인자 없이 부른 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳이 있었다.</p>
-  <div class="table-wrap">
-  <table>
-    <thead><tr><th>자리</th><th>이렇게 쓴다</th><th>주의</th></tr></thead>
-    <tbody>
-      <tr><td>awk 필드</td><td><code>$(0)</code> · <code>$(2)</code></td><td>awk 에서 괄호형은 같은 필드 참조다</td></tr>
-      <tr><td>bash 위치 인자 · 스크립트 이름</td><td><code>${1}</code> · <code>${0}</code></td><td><code>$(0)</code> 을 순수 bash 에 쓰면 명령 치환이라 <code>0: command not found</code> 로 깨진다</td></tr>
-      <tr><td>SQL 자리표시자처럼 문법상 필요한 곳</td><td>역슬래시로 이스케이프</td><td>로드할 때 역슬래시가 제거되어 Claude 는 원래 형태를 본다</td></tr>
-    </tbody>
-  </table>
-  </div>
-  <p class="desc" style="margin-top:16px">고친 뒤에는 <strong>그 함수를 실제로 한 번 실행</strong>해 같은 결과가 나오는지 본다. <code>$</code> + 숫자 0 건은 <code>$(1)</code> 을 bash 에 쓴 것 같은 "형태만 바꾼 오류" 를 못 잡는다.</p>
-  <a class="card-source" href="https://code.claude.com/docs/en/skills">code.claude.com · Skills 문자열 치환</a>
-
-  <div class="grid-2" style="margin-top:28px">
-    <div class="card">
-      <h3>V10 — 경고 수로는 안 보인다</h3>
-      <p>긴 문서에 절을 끼워 넣으면 표 중간에 들어가 뒷부분이 헤더 없이 남는다. markdownlint 는 그것을 표로 인식하지 못해 경고 수가 움직이지 않는다. 실측(2026-09-23): <code>contract-schema.md</code> 의 4 행 표 사이에 소제목이 들어가 마지막 행이 고립됐는데, 같은 파일의 경고 수는 세 커밋 내리 14 건이었다.</p>
-      <a class="card-source" href="https://github.com/DavidAnson/markdownlint">github.com · markdownlint</a>
-    </div>
-    <div class="card">
-      <h3>V10 — 들여쓴 표까지 본다</h3>
-      <p>표는 목록 · 인용 안에서 들여쓰여 쓰인다. 왼쪽 끝만 보던 처음 판은 들여쓴 표행 84 줄(9 파일)을 통째로 놓쳤고, 그 안에 실제로 끊긴 표가 숨어 있었다 — <code>reflect-promote/SKILL.md</code> 의 8 행 표 한가운데에 산문 한 문단이 들어가 행 4~7 이 고립돼 있었다.</p>
-      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V10</a>
+      <div class="v-desc">코드 블록 밖 표 행 가운데 <strong>헤더 없이 끊긴 행</strong>이 0 개인지 본다. 들여쓴 표도 왼쪽 공백을 벗겨 판정한다. 범위는 V6 대상 + 킷 안 <code>docs/**/*.md</code> + <code>skills/*/references/**/*.md</code>. <code>--fix</code> 없음.</div>
+      <div class="v-meta"><span class="tag">table-integrity</span></div>
     </div>
   </div>
 </div>
 
-<!-- ── 4. CLI 옵션 & Exit Code ── -->
-<div class="section">
-  <div class="section-label">4 · CLI 옵션 · Exit Code</div>
+<!-- ── 4. V1~V7 기준 · 방법 · 예외 ── -->
+<div class="section" id="detail">
+  <div class="section-label">4 · V1 ~ V7 기준 · 검증 방법 · 예외</div>
+  <p class="desc">V8 · V9 · V10 은 성격이 달라 뒤에 따로 절을 둔다. 여기서는 앞 일곱 검사가 무엇을 기준으로 삼고 어떻게 재는지 한 표로 본다.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>검사</th><th>기준</th><th>검증 방법</th></tr></thead>
+    <tbody>
+      <tr><td><strong>V1</strong></td><td>스킬 <code>skills/*/SKILL.md</code> 는 <code>name</code> · <code>description</code> · <code>user-invocable</code> 셋,<br>에이전트 <code>agents/*.md</code> 는 <code>name</code> · <code>description</code> · <code>tools</code> · <code>model</code> 넷을 모두 가진다.<br>두 경우 모두 맨 위 <code>---</code> 블록이 YAML 로 정상으로 읽혀야 한다</td><td><code>yaml.safe_load()</code> 로 읽은 뒤 <code>dict.get()</code> 으로 필드를 확인한다.<br>값이 빈 문자열이어도 FAIL</td></tr>
+      <tr><td><strong>V2</strong></td><td><code>templates/</code> 가 있으면 그 안의 JSON · YAML · TOML 파일이 표준 파서로 읽혀야 한다.<br>트랜스파일이 필요한 <code>.ts</code> · <code>.js</code> 는 외부 도구(tsc · node) 없이 검증할 수 없어 SKIP</td><td>확장자별 파서로 읽는다(아래 표).<br><code>templates/</code> 가 없으면 <code>SKIP (no templates/)</code> 를 출력하고 PASS 로 친다</td></tr>
+      <tr><td><strong>V3</strong></td><td>SKILL.md 본문의 마크다운 링크 <code>[text](path)</code> 가 실제 파일로 이어진다</td><td>정규식으로 링크를 뽑아 SKILL.md 위치를 기준으로 <code>os.path.exists()</code> 로 확인한다</td></tr>
+      <tr><td><strong>V4</strong></td><td>description 에서 따옴표(<code>"..."</code> · <code>'...'</code>)로 감싼 키워드가 같은 킷 안이나 다른 킷과 글자 그대로 겹치면 WARNING.<br>겹침은 두 스킬이 같은 사용자 말에 함께 트리거될 수 있다는 뜻이다</td><td>3 자 이상 키워드를 뽑아 소문자로 맞춘 뒤 <code>collections.Counter</code> 로 센다. 2 회 이상이면 WARNING</td></tr>
+      <tr><td><strong>V5</strong></td><td><code>SKILL.md</code> · <code>agents/*.md</code> · <code>README.md</code> · <code>references/*.md</code> 본문에 <code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 가 0 건.<br>코드 블록 안 주석(<code>// TODO: ...</code> · <code># TODO: ...</code>)도 센다</td><td>단어 경계(<code>\b</code>) 정규식을 <code>re.IGNORECASE</code> 로 찾는다. 걸린 파일과 줄 번호를 모두 보고한다</td></tr>
+      <tr><td><strong>V6</strong></td><td>마크다운 코드 블록의 여는 펜스에 언어 힌트가 있다. 닫는 펜스(<code>```</code> 한 줄)는 보지 않는다</td><td>상태 머신으로 <code>```</code> 를 기준 삼아 <code>in_block</code> 을 뒤집어 가며 추적한다. 여는 펜스에서 <code>```</code> 뒤가 비면 FAIL</td></tr>
+      <tr><td><strong>V7</strong></td><td>킷 <code>.claude-plugin/plugin.json</code> 과 루트 <code>.claude-plugin/marketplace.json</code> 의 <code>name</code> · <code>version</code> 이 같다.<br>marketplace description 에 <code>[vX.Y.Z · YYYY-MM-DD]</code> 형식이 있고 그 버전 태그가 같다</td><td>① marketplace.json 의 그 킷 항목에서 description 을 꺼낸다 ② 정규식으로 버전 태그를 읽는다 ③ plugin.json 의 <code>version</code> 과 비교한다</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card">
+      <h3>검사 코드에 박힌 필드 · 패턴</h3>
+      <pre style="margin-top:8px"><span style="color:var(--text3)"># V1 — see harness/docs/guides/plugin-validation-guide.md §3.1</span>
+required_skill_fields = {"name", "description", "user-invocable"}
+required_agent_fields = {"name", "description", "tools", "model"}
+
+<span style="color:var(--text3)"># V3 — see harness/docs/guides/plugin-validation-guide.md §3.3</span>
+pattern = r'\[(?:[^\]]+)\]\(([^)#]+)\)'  # [text](path), 앵커 제외
+
+<span style="color:var(--text3)"># V4 — see harness/docs/guides/plugin-validation-guide.md §3.4</span>
+pattern = r'["\']([^"\']{3,})["\']'  # 3자 이상 키워드만 추출
+
+<span style="color:var(--text3)"># V5 — see harness/docs/guides/plugin-validation-guide.md §3.5</span>
+pattern = r'\b(TODO|TBD|FIXME)\b'
+
+<span style="color:var(--text3)"># V7 — see harness/docs/guides/plugin-validation-guide.md §3.7</span>
+version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'</pre>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3</a>
+    </div>
+    <div class="card">
+      <h3>V6 — 여는 펜스만 판정한다</h3>
+      <pre style="margin-top:8px"><span style="color:var(--text3)"># V6 — see harness/docs/guides/plugin-validation-guide.md §3.6</span>
+<span style="color:var(--text3)"># ``` 뒤가 비어있으면(strip 후 빈 문자열) FAIL</span>
+if line.startswith("```") and not in_block:
+    hint = line[3:].strip()
+    if not hint:
+        violations.append(...)</pre>
+      <p style="margin-top:12px">언어 힌트가 없는 펜스는 Claude 가 구문을 구분하고 언어를 가리는 데 쓸 단서를 잃는다. 닫는 펜스는 원래 힌트가 없으므로 판정하지 않는다.</p>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V6</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">V2 — 확장자별 파서</h3>
+  <div class="table-wrap" style="margin-top:10px;max-width:640px">
+  <table>
+    <thead><tr><th>확장자</th><th>파서</th></tr></thead>
+    <tbody>
+      <tr><td><code>.json</code></td><td><code>json.loads()</code></td></tr>
+      <tr><td><code>.yaml</code> · <code>.yml</code></td><td><code>yaml.safe_load()</code></td></tr>
+      <tr><td><code>.toml</code></td><td><code>tomllib.loads()</code> (Python 3.11 표준)</td></tr>
+      <tr><td><code>.ts</code> · <code>.js</code> · <code>.tsx</code></td><td>SKIP</td></tr>
+      <tr><td>기타</td><td>SKIP</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="desc" style="margin-top:12px"><code>.template</code> 확장자 파일은 안쪽 확장자로 가린다 — <code>package.json.template</code> 은 <code>.json</code> 파서로 읽는다.</p>
+
+  <h3 style="margin-top:28px">검사별 예외</h3>
+  <div class="table-wrap" style="margin-top:10px">
+  <table>
+    <thead><tr><th>검사</th><th>예외</th></tr></thead>
+    <tbody>
+      <tr><td><strong>V1</strong></td><td>없다. 모든 스킬과 에이전트는 예외 없이 frontmatter 를 가져야 한다</td></tr>
+      <tr><td><strong>V2</strong></td><td><code>templates/</code> 없는 킷은 V2 전체 SKIP (어느 킷인지는 <a href="#catalog">§12 킷별 예외</a>)<br><code>.ts</code> · <code>.js</code> 는 언제나 SKIP — 읽기 실패로 치지 않는다<br><code>.template</code> 은 안쪽 확장자(<code>.json.template</code>)로 판별한다</td></tr>
+      <tr><td><strong>V3</strong></td><td>절대 URL(<code>https://</code> · <code>http://</code>)과 앵커만 있는 링크(<code>#section</code> · <code>#heading</code>)는 뺀다<br><code>&lt;!-- novalidate --&gt;</code> 주석이 달린 링크는 SKIP — 일부러 잇지 않은 링크다<br>본문에 그대로 적힌 상대 경로 문자열(코드 인라인 경로)은 V3 범위 밖이다 — 독자가 눈으로 확인한다</td></tr>
+      <tr><td><strong>V4</strong></td><td>2 자 이하 키워드는 너무 흔해 뽑지 않는다<br><code>--fix</code> · <code>--json</code> 같은 명령줄 플래그 모양은 뺀다<br>공통 동사(<code>구현해줘</code> · <code>만들어줘</code>)는 겹침이 설계 의도일 수 있다 — WARNING 으로 두고 ERROR 로 올리지 않는다<br>킷 사이 문맥 구분 — 아래 카드</td></tr>
+      <tr><td><strong>V5</strong></td><td><code>validate-plugin.py</code> 본문은 검사 도구 자신이라 V5 대상에서 뺀다<br>코드 템플릿 예시 안의 미완성 표시는 빼지 않는다 — 설명용이라도 사용자 문서에 보이므로 FAIL</td></tr>
+      <tr><td><strong>V6</strong></td><td>닫는 펜스(<code>```</code> 한 줄)는 정상이라 보지 않는다<br><code>~~~</code> 물결 펜스는 지금 검사하지 않는다 — 모노레포 관례가 백틱이다</td></tr>
+      <tr><td><strong>V7</strong></td><td>marketplace.json 에 아직 등록하지 않은 새 킷은 V7 대상이 아니다 — marketplace 에 없으면 킷 자체가 검사 목록에서 빠진다</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card">
+      <h3>V4 — 킷 사이 문맥 구분</h3>
+      <p>두 킷이 같은 키워드를 글자 그대로 공유해도, 두 킷 description 전체가 그 킷에만 있는 낱말을 담으면 구분에 성공한 것으로 보고 경고를 뺀다. 「같은 개념, 다른 프레임워크」 (Flutter 「테스트 만들어줘」 와 React 「테스트 만들어줘」) 가 문제없는데 경고로 잡히는 것을 막는다.</p>
+      <p>구현은 <code>scripts/validate-plugin.py</code> 의 <code>KIT_CONTEXT_TOKENS</code> 상수다.</p>
+      <a class="card-source" href="https://code.claude.com/docs/en/skills">code.claude.com · Skills</a>
+    </div>
+    <div class="card">
+      <h3>킷 고유 낱말 예</h3>
+      <div class="table-wrap">
+      <table style="background:transparent;border:0">
+        <thead><tr><th style="background:transparent;padding:6px 0">킷</th><th style="background:transparent;padding:6px 0 6px 12px">낱말</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:6px 0"><strong>flutter-toolkit</strong></td><td style="padding:6px 0 6px 12px"><code>flutter</code> · <code>dart</code> · <code>HookWidget</code> · <code>Riverpod</code></td></tr>
+          <tr><td style="padding:6px 0"><strong>react-kit</strong></td><td style="padding:6px 0 6px 12px"><code>react</code> · <code>vite</code> · <code>tauri</code> · <code>shadcn</code></td></tr>
+          <tr><td style="padding:6px 0"><strong>rust-kit</strong></td><td style="padding:6px 0 6px 12px"><code>rust</code> · <code>cargo</code> · <code>axum</code></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V4</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 5. V8 ── -->
+<div class="section" id="v8">
+  <div class="section-label">5 · V8 Hook 스크립트 실행 비트</div>
+  <p class="desc"><code>hooks/hooks.json</code> 이 <strong>인터프리터 없이 직접 실행</strong>하는 <code>.sh</code> 스크립트(<code>"command": "${CLAUDE_PLUGIN_ROOT}/scripts/x.sh"</code>)가 실행 비트(mode 0755)를 가지는지 본다. git 은 파일 모드를 추적하므로, 스크립트가 <code>100644</code>(비실행)로 커밋되면 marketplace clone · 플러그인 설치본 등 <strong>모든 설치본</strong>에서 그 훅이 <code>Permission denied</code> 로 실패한다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>왜 중요한가</h3>
+      <p>2026-06 reflect 로그 30 일 집계에서 훅 <code>permission-denied</code> 계열이 <strong>24 개 프로젝트 957 건(전체 마찰의 38%)</strong>으로 가장 큰 마찰 하나였다. 원인은 <code>harness/scripts/{env-check,run-guard,sdk-guard}.sh</code> 와 <code>design-kit/scripts/env-check.sh</code> 4 종이 <code>100644</code> 로 커밋된 것이었다. SessionStart · PreToolUse 훅은 매 세션 · 매 Bash 호출마다 돌아, 비실행 스크립트 하나가 전 프로젝트에 실패를 쌓는다.</p>
+      <a class="card-source" href="https://code.claude.com/docs/en/hooks">code.claude.com · Hooks</a>
+    </div>
+    <div class="card">
+      <h3>직접 실행 vs 인터프리터 경유</h3>
+      <p><code>${CLAUDE_PLUGIN_ROOT}/x.sh</code> 가 명령의 첫 토막이면 직접 실행이라 실행 비트가 꼭 있어야 한다. <code>bash ${CLAUDE_PLUGIN_ROOT}/x.sh</code> 처럼 인터프리터(<code>bash</code> · <code>sh</code> · <code>source</code>)가 앞서면 읽기 권한만 있으면 되므로 V8 대상이 아니다 — reflect-kit 의 <code>log-prompt.sh</code> 는 <code>bash</code> 경유라 PASS.</p>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V8</a>
+    </div>
+    <div class="card">
+      <h3>고치는 흐름</h3>
+      <p><code>chmod +x &lt;script&gt;</code> 후 커밋하면 git 이 모드를 <code>100755</code> 로 추적한다. 기존 설치본에 남은 옛 사본은 <code>release.sh</code> 로 새 버전을 배포해야 바뀐다.</p>
+      <p><strong>예외</strong> — <code>hooks/hooks.json</code> 이 없는 킷은 OK(<code>no hooks.json</code>). 직접 실행 <code>.sh</code> 참조가 0 건이어도 OK.</p>
+      <a class="card-source" href="https://git-scm.com/docs/git-update-index">git-scm.com · git update-index</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── 6. V9 ── -->
+<div class="section" id="v9">
+  <div class="section-label">6 · V9 스킬 본문의 인자 치환 위험</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>무엇을 · 어떻게 판정하나</h3>
+      <ul class="plain-list" style="margin-top:6px">
+        <li><strong>검사 이름</strong> — <code>arg-substitution</code> (<code>--check=arg-substitution</code>)</li>
+        <li><strong>대상</strong> — 각 킷의 <code>skills/*/SKILL.md</code></li>
+        <li><strong>판정</strong> — 이스케이프하지 않은 <code>$</code> + 숫자가 1 건이라도 있으면 FAIL. 파일:줄과 고치는 법을 함께 출력한다</li>
+        <li><strong><code>--fix</code> 없음</strong> — awk 인지 bash 인지 판단이 필요해 자동으로 바꾸면 위험하다</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>왜</h3>
+      <p>Claude Code 는 스킬 본문의 <code>$N</code> 을 <code>$ARGUMENTS[N]</code> 으로 바꿔 넣는다. 인자와 함께 부르면 본문 코드의 <code>$0</code> · <code>$1</code> 이 그 순번(0 부터)에 들어온 인자 낱말로 바뀌어 awk · 셸 스니펫이 깨진 채 로드된다.</p>
+      <p>2026-09 실측 — <code>sprint-contract</code> 를 인자와 함께 부른 3 회 모두 frontmatter 를 읽는 코드와 저장 검사 스니펫이 깨졌고(<code>fm &amp;&amp; 전역 ~ k</code>), 인자 없이 부른 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳이 있었다.</p>
+      <a class="card-source" href="https://code.claude.com/docs/en/skills">code.claude.com · Skills — Available string substitutions</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">고치는 법 — 자리마다 다르다</h3>
+  <div class="table-wrap" style="margin-top:10px">
+  <table>
+    <thead><tr><th>자리</th><th>이렇게 쓴다</th><th>주의</th></tr></thead>
+    <tbody>
+      <tr><td>awk 필드</td><td><code>$(0)</code> · <code>$(2)</code></td><td>awk 에서 괄호형은 같은 필드 참조다</td></tr>
+      <tr><td>bash 위치 인자 · 스크립트 이름</td><td><code>${1}</code> · <code>${0}</code></td><td><strong><code>$(0)</code> 을 순수 bash 에 쓰면 명령 치환이라 <code>0: command not found</code> 로 깨진다</strong></td></tr>
+      <tr><td>데이터베이스 질의문의 자리표시자처럼 문법상 <code>$</code> + 숫자여야 하는 곳</td><td>역슬래시로 이스케이프</td><td>로드할 때 역슬래시가 빠져 Claude 는 원래 형태를 본다</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="desc" style="margin-top:16px"><strong>고친 뒤 실행으로 확인한다.</strong> <code>$</code> + 숫자 0 건은 「형태만 바꾼 오류」(<code>$(1)</code> 을 bash 에 쓴 경우)를 못 잡는다. 고친 함수를 실제로 한 번 실행해 같은 결과가 나오는지 본다.</p>
+</div>
+
+<!-- ── 7. V10 ── -->
+<div class="section" id="v10">
+  <div class="section-label">7 · V10 마크다운 표 무결성</div>
+  <p class="desc"><strong>무엇을</strong> — 코드 블록 밖의 표 행 가운데 헤더 없이 끊긴 행이 0 개인지 본다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>왜 — 경고 수로는 안 보인다</h3>
+      <p>긴 문서에 절을 끼워 넣으면 표 중간에 들어가 뒷부분이 헤더 없이 남는다. markdownlint 는 그것을 표로 알아보지 못해 경고 수가 전혀 움직이지 않는다.</p>
+      <p>실측(2026-09-23) — <code>contract-schema.md</code> 의 4 행 표 사이에 소제목이 들어가 마지막 행이 고립됐는데, 같은 파일의 경고 수는 <strong>세 커밋 내리 14 건</strong>이었다. 167 줄을 넣고 표를 깨고 다시 고치는 동안 1 도 안 움직였다.</p>
+      <a class="card-source" href="https://github.com/DavidAnson/markdownlint">github.com · markdownlint</a>
+    </div>
+    <div class="card">
+      <h3>어떻게 — 고립 행 판정</h3>
+      <p>표 행(<code>|</code> 로 시작) 가운데 바로 위가 표 행이 <strong>아니고</strong>, 바로 아래도 헤더 구분선(<code>|</code> 로 시작하고 파이프 · 붙임표 · 콜론 · 공백만으로 이뤄진 줄)이 <strong>아닌</strong> 행을 고립으로 본다. 정상 표는 헤더 행 다음에 구분선이 오므로 걸리지 않는다.</p>
+      <p><strong>표 행은 왼쪽 공백을 벗겨서 판정한다.</strong> 표는 목록 · 인용 안에서 들여쓰여 쓰이고, 왼쪽 끝만 보면 그것이 전부 검사에서 빠진다.</p>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V10</a>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">범위 — V6 보다 넓다</h3>
+  <div class="scope-steps">
+    <div class="scope-step">
+      <div class="when">V6 대상</div>
+      <p><code>skills/*/SKILL.md</code> · <code>agents/*.md</code> · 킷 최상위 <code>references/*.md</code> · <code>README.md</code></p>
+    </div>
+    <div class="scope-step">
+      <div class="when">+ 1.3.0 · 2026-09-24</div>
+      <p>킷 안 <code>docs/**/*.md</code> — 기준 문서(<code>harness/docs/guides/</code>)가 검사 대상이 된다. 210 파일, 오탐 0 확인</p>
+    </div>
+    <div class="scope-step">
+      <div class="when">+ 1.4.0 · 2026-09-25</div>
+      <p>스킬 폴더 안 <code>skills/*/references/**/*.md</code> — 14 킷 41 개(표가 있는 파일 40 개)가 검사 밖이었다. 끊긴 표 0 개</p>
+    </div>
+    <div class="scope-step off">
+      <div class="when">V6 는 넓히지 않음</div>
+      <p>같은 범위로 넓히면 그 안의 언어 힌트 없는 펜스 8 개가 바로 걸린다</p>
+    </div>
+  </div>
+  <p class="desc" style="margin-top:16px">실제로 표가 끊겼던 자리는 <code>harness/references/contract-schema.md</code> 라 원래 V6 범위 안이었다. <code>docs/</code> 로 넓힌 이유는 「그 파일이 범위 밖이어서」 가 아니라 「같은 종류의 문서가 <code>docs/</code> 에도 있어서」 다 — 교차 진단이 이 서술 오류를 짚었다.</p>
+
+  <div class="grid-2" style="margin-top:8px">
+    <div class="card">
+      <h3>들여쓴 표에 숨어 있던 실제 끊김</h3>
+      <p>실측(2026-09-24) — 대상 210 파일에 들여쓴 표 행이 84 줄(9 파일) 있었고, 그 안에 실제로 끊긴 표가 숨어 있었다. <code>reflect-kit/skills/reflect-promote/SKILL.md</code> 의 8 행 표 한가운데에 산문 한 문단이 들어가 행 4 ~ 7 이 고립돼 있었다. 왼쪽 끝만 보던 처음 판은 그것을 못 잡았다.</p>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V10</a>
+    </div>
+    <div class="card">
+      <h3>FAIL 출력 형태 · <code>--fix</code> 없음</h3>
+      <pre style="margin-top:8px">FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
+  (절을 표 중간에 끼워 넣었는지 보라): | `unknown` | PASS 근거 불가 — 표면화 | …</pre>
+      <p style="margin-top:12px">끊긴 표를 어디로 되돌려야 하는지는 뜻을 읽어야 정할 수 있어 자동 수정은 없다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 8. 명령줄 옵션 · 종료 코드 ── -->
+<div class="section" id="cli">
+  <div class="section-label">8 · 명령줄 옵션 · 종료 코드</div>
 
   <div class="table-wrap">
   <table>
     <thead><tr><th>옵션</th><th>설명</th><th>예시</th></tr></thead>
     <tbody>
-      <tr><td><code>[plugin]</code></td><td>특정 킷만 검증</td><td><code>validate-plugin.py react-kit</code></td></tr>
-      <tr><td><code>--check=&lt;list&gt;</code></td><td>특정 체크만 (쉼표 구분)</td><td><code>--check=frontmatter,refs</code></td></tr>
-      <tr><td><code>--json</code></td><td>JSON 출력 (CI)</td><td><code>--json</code></td></tr>
-      <tr><td><code>--fix</code></td><td>자동 수정 (V5 + V6만)</td><td><code>--fix</code></td></tr>
+      <tr><td><code>[plugin]</code></td><td>특정 킷만 검사</td><td><code>validate-plugin.py react-kit</code></td></tr>
+      <tr><td><code>--check=&lt;list&gt;</code></td><td>특정 검사만 (쉼표 구분)</td><td><code>--check=frontmatter,refs</code></td></tr>
+      <tr><td><code>--json</code></td><td>JSON 출력 (CI 파이프라인용)</td><td><code>--json</code></td></tr>
+      <tr><td><code>--fix</code></td><td>자동 수정 (V5 + V6 만)</td><td><code>--fix</code></td></tr>
       <tr><td><code>--help</code></td><td>사용법 출력</td><td><code>--help</code></td></tr>
     </tbody>
   </table>
   </div>
 
-  <p class="desc" style="margin-top:20px"><code>--check</code> 값: <code>frontmatter</code> · <code>templates</code> · <code>refs</code> · <code>triggers</code> · <code>placeholders</code> · <code>code-fence</code> · <code>plugin-json</code> · <code>hook-exec</code> · <code>arg-substitution</code> · <code>table-integrity</code></p>
-  <p class="desc">도움말 출력도 같은 목록을 보여준다. 그쪽은 스크립트의 등록 표에서 바로 뽑으므로 이 목록과 다르면 도움말이 맞다.</p>
+  <p class="desc" style="margin-top:20px"><code>--check</code> 에 넣는 검사 이름: <code>frontmatter</code> · <code>templates</code> · <code>refs</code> · <code>triggers</code> · <code>placeholders</code> · <code>code-fence</code> · <code>plugin-json</code> · <code>hook-exec</code> · <code>arg-substitution</code> · <code>table-integrity</code></p>
+  <p class="desc"><code>--help</code> 도 같은 목록을 보여준다. 그쪽은 스크립트의 등록 표에서 바로 뽑으므로, 이 목록과 다르면 <code>--help</code> 가 맞다.</p>
 
-  <h3 style="margin-top:28px">Exit Code</h3>
+  <h3 style="margin-top:28px">종료 코드</h3>
   <div class="exit-grid">
     <div class="exit-code exit-0">0</div>
-    <div style="color:var(--text2);font-size:13px">모든 체크 PASS</div>
+    <div style="color:var(--text2);font-size:14px">모든 검사 PASS</div>
     <div class="exit-code exit-1">1</div>
-    <div style="color:var(--text2);font-size:13px">WARNING 있음 — 킷별 예외 카탈로그 해당 특수 케이스 포함</div>
+    <div style="color:var(--text2);font-size:14px">WARNING 있음 — 킷별 예외 카탈로그에 해당하는 특수한 경우 포함</div>
     <div class="exit-code exit-2">2</div>
-    <div style="color:var(--text2);font-size:13px">ERROR 있음 — 진짜 FAIL</div>
+    <div style="color:var(--text2);font-size:14px">ERROR 있음 — 진짜 FAIL</div>
   </div>
 </div>
 
-<!-- ── 5. 출력 포맷 샘플 ── -->
-<div class="section">
-  <div class="section-label">5 · 출력 포맷 샘플</div>
-  <p class="desc">킷별로 그룹화된 섹션. FAIL 항목은 라인 번호까지 보고. 마지막 줄에 총괄 요약 + exit code. 아래는 <strong>형식 예시</strong>라 수치와 버전 번호는 예로 든 값이다.</p>
+<!-- ── 9. 출력 형식 ── -->
+<div class="section" id="output">
+  <div class="section-label">9 · 출력 형식</div>
+  <p class="desc">킷별로 묶어 출력하고, FAIL 항목은 줄 번호까지 보고하며, 마지막 줄에 전체 요약과 종료 코드가 온다. 아래는 <strong>형식 예시</strong>라 수치와 버전 번호는 예로 든 값이다.</p>
 
   <pre>=== harness ===
   V1 frontmatter       9 skills + 1 agent — OK
@@ -315,10 +569,10 @@ python3 scripts/validate-plugin.py --fix</pre>
 === react-kit ===
   V1 frontmatter       21 skills + 3 agents — OK
   V2 templates         5 parsed, 4 skipped (ts/js) — OK
-  V3 refs              89 links, <span style="color:var(--red)">2 BROKEN</span>
+  V3 refs              89 links, 2 BROKEN <span style="color:var(--red)">— FAIL</span>
     <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
     <span style="color:var(--red)">FAIL</span> react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
-  V4 triggers          58 keywords, <span style="color:var(--yellow)">1 duplicate</span>
+  V4 triggers          58 keywords, 1 duplicate <span style="color:var(--yellow)">— WARN</span>
     <span style="color:var(--yellow)">WARN</span> "새 화면 추가" — react-kit / planning-kit (cross-kit)
   V5 placeholders      0 found — OK
   V6 code-fence        0 bare — OK
@@ -329,30 +583,76 @@ python3 scripts/validate-plugin.py --fix</pre>
 
 Total: 2 plugins, 1 OK, 1 ERROR
 Exit: 2</pre>
-  <p class="desc" style="margin-top:16px">요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 <code>Total: N plugins, N OK</code> 처럼 짧아진다.</p>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <h3>요약줄</h3>
+      <p>결과가 있는 상태만 적는다. 전부 통과하면 <code>Total: N plugins, N OK</code> 처럼 짧아진다.</p>
+    </div>
+    <div class="card">
+      <h3>V 줄은 판정 글자로 끝난다</h3>
+      <p>늘 <code>— OK</code> · <code>— WARN</code> · <code>— FAIL</code> · <code>— SKIP</code> 으로 끝난다. 요약이 개수만 적는 실패(<code>2 BROKEN</code> · <code>1 duplicate</code>)는 끝에 판정을 붙인다. 2026-09-25 전에는 V3 · V4 · V5 · V9 의 실패 줄이 판정 없이 끝나, V 줄 글자로 FAIL 을 세면 0 이 나왔다.</p>
+    </div>
+    <div class="card">
+      <h3>통과 여부는 종료 코드로 먼저</h3>
+      <p>V 줄 글자는 보조다. 판정 글자가 붙은 뒤에도 통과 여부는 종료 코드(0 · 1 · 2)로 먼저 판정한다.</p>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §4 출력 포맷</a>
+    </div>
+  </div>
 </div>
 
-<!-- ── 6. FAIL 예시 & Bad vs Good ── -->
-<div class="section">
-  <div class="section-label">6 · FAIL 예시 · Bad vs Good</div>
-  <p class="desc">각 카테고리의 전형적 FAIL 패턴. 교정 방법은 수동 또는 <code>--fix</code> 자동.</p>
+<!-- ── 10. FAIL 예시 · Bad vs Good ── -->
+<div class="section" id="examples">
+  <div class="section-label">10 · FAIL 예시 · Bad vs Good</div>
+  <p class="desc">검사마다 전형적인 FAIL 모양과 고친 모양. 고치는 방법은 손으로 하거나, V5 · V6 은 <code>--fix</code> 가 한다.</p>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">✗ V1 — 필드 누락</div>
+      <div class="compare-label">✗ V1 — 필드 누락 · YAML 읽기 실패</div>
       <pre>---
 name: react-screen
-description: 화면을 생성한다.
+description: &gt;
+  화면을 생성한다.
 <span style="color:var(--red)"># user-invocable 없음 → FAIL</span>
+---
+
+---
+name: react-screen
+description: &gt;
+ 들여쓰기 오류로 파싱 실패: [broken
+<span style="color:var(--red)"># YAML 로 못 읽음 → FAIL</span>
 ---</pre>
     </div>
     <div class="compare-good">
-      <div class="compare-label">✓ V1 — 3필드 완비</div>
+      <div class="compare-label">✓ V1 — 세 필드를 다 갖춤</div>
       <pre>---
 name: react-screen
-description: 화면을 생성한다.
+description: &gt;
+  화면을 생성한다.
 user-invocable: true
----</pre>
+---
+<span style="color:var(--green)"># 읽힘 + 필드 셋 → PASS</span></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V2 — 후행 쉼표</div>
+      <pre><span style="color:var(--text3)">// package.json.template</span>
+{
+  "name": "my-app",
+  "version": "0.1.0",
+}
+<span style="color:var(--red)"># json.loads() 실패 → FAIL</span></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V2 — 표준 JSON</div>
+      <pre><span style="color:var(--text3)">// package.json.template</span>
+{
+  "name": "my-app",
+  "version": "0.1.0"
+}
+<span style="color:var(--green)"># .json 파서로 읽힘 → PASS</span></pre>
     </div>
   </div>
 
@@ -360,35 +660,47 @@ user-invocable: true
     <div class="compare-bad">
       <div class="compare-label">✗ V3 — 깨진 링크</div>
       <pre>## References
-- [shadcn 가이드](references/shadcn-skeleton.md)
-<span style="color:var(--red)"># 파일 없음 → FAIL</span></pre>
+- [shadcn 스켈레톤 가이드](references/shadcn-skeleton.md)
+<span style="color:var(--red)"># 파일 없음 → FAIL</span>
+
+<span style="color:var(--text3)"># 킷 간 교차 참조</span>
+참조: [Rust 에러 가이드](../rust-kit/references/error-patterns.md)
+<span style="color:var(--red)"># 파일 없으면 FAIL</span></pre>
     </div>
     <div class="compare-good">
-      <div class="compare-label">✓ V3 — 실 파일</div>
+      <div class="compare-label">✓ V3 — 실제 파일</div>
       <pre>## References
-- [Radix primitives](references/radix.md)
-<span style="color:var(--green)"># 파일 존재 → PASS</span></pre>
+- [shadcn 스켈레톤 가이드](references/shadcn-skeleton.md)
+<span style="color:var(--green)"># SKILL.md 옆에 그 파일을 만들었다 → PASS</span>
+
+<span style="color:var(--text3)"># 일부러 잇지 않는 링크만</span>
+<span style="color:var(--text3)"># &lt;!-- novalidate --&gt; 를 단다 → SKIP</span></pre>
     </div>
   </div>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">✗ V4 — 키워드 중복</div>
-      <pre><span style="color:var(--text3)"># react-screen</span>
-"새 화면 추가", "페이지 추가"
+      <div class="compare-label">✗ V4 — 키워드 겹침</div>
+      <pre><span style="color:var(--text3)"># react-screen/SKILL.md</span>
+description: &gt;
+  "새 화면 추가", "페이지 추가" 요청 시 트리거.
 
-<span style="color:var(--text3)"># flutter-screen</span>
-"새 화면 추가"
-<span style="color:var(--yellow)"># 동일 → WARNING</span></pre>
+<span style="color:var(--text3)"># flutter-screen/SKILL.md</span>
+description: &gt;
+  "새 화면 추가" 요청 시 트리거.
+<span style="color:var(--yellow)"># 같은 키워드 → WARNING</span></pre>
     </div>
     <div class="compare-good">
-      <div class="compare-label">✓ V4 — 컨텍스트 차별화</div>
-      <pre><span style="color:var(--text3)"># flutter-test</span>
-"Flutter WidgetTester 테스트..."
+      <div class="compare-label">✓ V4 — 킷 문맥으로 구분</div>
+      <pre><span style="color:var(--text3)"># flutter-test/SKILL.md</span>
+  Flutter 프로젝트에 WidgetTester 기반 ...
+  "테스트 만들어줘", "unit test" 요청 시 트리거.
 
-<span style="color:var(--text3)"># react-test</span>
-"React Vitest 테스트..."
-<span style="color:var(--green)"># KIT_CONTEXT_TOKENS 로 PASS</span></pre>
+<span style="color:var(--text3)"># react-test/SKILL.md</span>
+  React + Vitest 기반 테스트 코드 생성.
+  "테스트 만들어줘", "unit test" 요청 시 트리거.
+<span style="color:var(--green)"># 양쪽 모두 KIT_CONTEXT_TOKENS 와 맞음</span>
+<span style="color:var(--green)"># (context_hit=True) → WARN 제거</span></pre>
     </div>
   </div>
 
@@ -396,78 +708,81 @@ user-invocable: true
     <div class="compare-bad">
       <div class="compare-label">✗ V5 — TODO 노출</div>
       <pre>## Process
+
 1. 입력을 받는다
-2. <span style="color:var(--red)">TODO: 검증 로직 추가 예정</span>
+2. <span style="color:var(--red)">TODO: 검증 로직 추가 예정</span>  ← FAIL
 3. 결과를 출력한다</pre>
     </div>
     <div class="compare-good">
-      <div class="compare-label">✓ V5 — 중립 주석</div>
+      <div class="compare-label">✓ V5 — <code>--fix</code> 뒤</div>
       <pre>## Process
+
 1. 입력을 받는다
-2. <span style="color:var(--green)">&lt;검증 로직 필요&gt;</span>
-3. 결과를 출력한다</pre>
+2. <span style="color:var(--green)">&lt;설명 필요&gt;</span> 검증 로직 추가 예정
+3. 결과를 출력한다
+<span style="color:var(--green)"># TODO: → &lt;설명 필요&gt; 로 바뀜</span></pre>
     </div>
   </div>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">✗ V6 — bare fence</div>
+      <div class="compare-label">✗ V6 — 언어 힌트 없는 펜스</div>
       <pre>## 예시
 
-<span style="color:var(--red)">```
+<span style="color:var(--red)">```</span>
+// 언어 힌트 없음 → FAIL
 const x = 1;
-```</span></pre>
+```</pre>
     </div>
     <div class="compare-good">
       <div class="compare-label">✓ V6 — 언어 힌트</div>
-      <pre>## 예시
+      <pre>## 올바른 예시
 
-<span style="color:var(--green)">```typescript
+<span style="color:var(--green)">```typescript</span>
+// 언어 힌트 있음 → PASS
 const x: number = 1;
-```</span></pre>
+```</pre>
     </div>
   </div>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">✗ V7 — 버전 불일치</div>
-      <pre><span style="color:var(--text3)">// plugin.json</span>
-&lbrace; "version": "0.2.0" &rbrace;
+      <div class="compare-label">✗ V7 — 버전 불일치 · 태그 없음</div>
+      <pre><span style="color:var(--text3)">// react-kit/.claude-plugin/plugin.json</span>
+{ "version": "0.2.0" }
+<span style="color:var(--text3)">// .claude-plugin/marketplace.json</span>
+{ "description": "[v0.1.0 · 2026-04-10] React + Vite ..." }
+<span style="color:var(--red)"># 0.2.0 ≠ 0.1.0 → FAIL</span>
 
-<span style="color:var(--text3)">// marketplace.json description</span>
-"[v0.1.0 · 2026-04-10] React..."
-<span style="color:var(--red)"># FAIL</span></pre>
+{ "description": "React + Vite + Tauri 2 개발 플러그인" }
+<span style="color:var(--red)"># [vX.Y.Z · YYYY-MM-DD] 형식 없음 → FAIL</span></pre>
     </div>
     <div class="compare-good">
       <div class="compare-label">✓ V7 — 태그 일치</div>
-      <pre><span style="color:var(--text3)">// plugin.json</span>
-&lbrace; "version": "0.2.0" &rbrace;
-
-<span style="color:var(--text3)">// marketplace.json</span>
-"[v0.2.0 · 2026-04-17] React..."
-<span style="color:var(--green)"># PASS</span></pre>
+      <pre><span style="color:var(--text3)">// react-kit/.claude-plugin/plugin.json</span>
+{ "version": "0.2.0" }
+<span style="color:var(--text3)">// .claude-plugin/marketplace.json</span>
+{ "description": "[v0.2.0 · 2026-04-17] React + Vite ..." }
+<span style="color:var(--green)"># 버전 태그가 같음 → PASS</span></pre>
     </div>
   </div>
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">✗ V8 — 비실행 hook 스크립트</div>
+      <div class="compare-label">✗ V8 — 비실행 훅 스크립트</div>
       <pre><span style="color:var(--text3)"># harness/hooks/hooks.json</span>
-&lbrace; "command":
-  "${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh" &rbrace;
-
-<span style="color:var(--text3)"># git ls-files -s 결과</span>
-100644 ... run-guard.sh
-<span style="color:var(--red)"># mode 0644 (비실행) → FAIL</span></pre>
+{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh" }
+<span style="color:var(--text3)"># 그런데 git ls-files -s 결과 100644 (비실행)</span>
+<span style="color:var(--red)"># → FAIL: 직접 실행 hook 스크립트가 비실행 (mode 0o644 — chmod +x 필요)</span></pre>
     </div>
     <div class="compare-good">
       <div class="compare-label">✓ V8 — 실행 비트 부여</div>
       <pre><span style="color:var(--text3)"># chmod +x 후 커밋</span>
-chmod +x scripts/run-guard.sh
+chmod +x harness/scripts/run-guard.sh
 
 <span style="color:var(--text3)"># git ls-files -s 결과</span>
 100755 ... run-guard.sh
-<span style="color:var(--green)"># mode 0755 (실행 가능) → PASS</span></pre>
+<span style="color:var(--green)"># 직접 실행 가능 → PASS</span></pre>
     </div>
   </div>
 
@@ -478,7 +793,8 @@ chmod +x scripts/run-guard.sh
 awk '{ print $1 }' "$FILE"
 echo "대상: $1"
 
-<span style="color:var(--red)"># $N 은 N 번째 인자(0 부터)로 바뀐다 — 인자를 둘 넘기면 $1 이 둘째 인자 낱말이 된다 → FAIL</span></pre>
+<span style="color:var(--red)"># $N 은 N 번째 인자(0 부터)로 바뀐다</span>
+<span style="color:var(--red)"># 인자를 둘 넘기면 $1 이 둘째 인자 낱말이 된다 → FAIL</span></pre>
     </div>
     <div class="compare-good">
       <div class="compare-label">✓ V9 — 치환되지 않는 형태</div>
@@ -515,163 +831,197 @@ echo "대상: ${1}"
   </div>
 </div>
 
-<!-- ── 7. 자동 수정 · 수동 수정 ── -->
-<div class="section">
-  <div class="section-label">7 · 자동 수정 · 수동 수정</div>
-  <p class="desc"><code>--fix</code> 는 V5 · V6 만 안전 수정. 나머지는 파일 삭제/링크 재배선 같은 의미 분석이 필요하므로 수동.</p>
+<!-- ── 11. 자동 수정 · 수동 수정 ── -->
+<div class="section" id="fix">
+  <div class="section-label">11 · 발견 시 대응 — 자동 수정 · 수동 수정</div>
+  <p class="desc"><code>--fix</code> 는 V5 · V6 만 안전하게 고친다. 나머지(V1 ~ V4, V7 ~ V10)는 <code>--fix</code> 로 고치지 않는다 — 파일 삭제나 링크 재배선 같은 작업은 뜻을 읽어야 해서 위험하다.</p>
 
   <div class="grid-2">
     <div class="card">
       <h3>자동 수정 (<code>--fix</code>)</h3>
       <div class="table-wrap">
       <table style="background:transparent;border:0">
-        <thead style="background:transparent"><tr><th style="background:transparent;padding:6px 0">체크</th><th style="background:transparent;padding:6px 0">동작</th></tr></thead>
+        <thead><tr><th style="background:transparent;padding:6px 0">검사</th><th style="background:transparent;padding:6px 0 6px 12px">수정 동작</th></tr></thead>
         <tbody>
-          <tr><td style="padding:6px 0"><strong>V5</strong></td><td style="padding:6px 0"><code>TODO:</code> → <code>&lt;설명 필요&gt;</code></td></tr>
-          <tr><td style="padding:6px 0"></td><td style="padding:6px 0"><code>TBD</code> → <code>&lt;내용 추가&gt;</code></td></tr>
-          <tr><td style="padding:6px 0"></td><td style="padding:6px 0"><code>FIXME:</code> → <code>&lt;수정 필요&gt;</code></td></tr>
-          <tr><td style="padding:6px 0"><strong>V6</strong></td><td style="padding:6px 0">빈 <code>```</code> → <code>```text</code></td></tr>
+          <tr><td style="padding:6px 0"><strong>V5</strong> Placeholders</td><td style="padding:6px 0 6px 12px"><code>TODO:</code> → <code>&lt;설명 필요&gt;</code></td></tr>
+          <tr><td style="padding:6px 0"></td><td style="padding:6px 0 6px 12px"><code>TBD</code> → <code>&lt;내용 추가&gt;</code></td></tr>
+          <tr><td style="padding:6px 0"></td><td style="padding:6px 0 6px 12px"><code>FIXME:</code> → <code>&lt;수정 필요&gt;</code></td></tr>
+          <tr><td style="padding:6px 0"><strong>V6</strong> Code fence</td><td style="padding:6px 0 6px 12px">빈 <code>```</code> → <code>```text</code></td></tr>
         </tbody>
       </table>
       </div>
     </div>
     <div class="card">
       <h3>수동 수정</h3>
-      <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.85">
-        <li><strong>V1</strong> — frontmatter 누락 필드 추가</li>
-        <li><strong>V2</strong> — templates/ JSON/YAML/TOML 구문 오류</li>
-        <li><strong>V3</strong> — 참조 파일 생성 또는 링크 경로 수정</li>
-        <li><strong>V4</strong> — description 중복 키워드 제거 또는 구체화</li>
-        <li><strong>V7</strong> — plugin.json 또는 marketplace.json 버전 태그</li>
-        <li><strong>V8</strong> — <code>chmod +x &lt;script&gt;</code> 후 커밋 (git mode 100755)</li>
-        <li><strong>V9</strong> — awk 필드는 <code>$(N)</code>, bash 위치 인자는 <code>${N}</code>, 문법상 필요한 곳은 역슬래시 이스케이프</li>
-        <li><strong>V10</strong> — 표 중간에 끼어든 절 · 문단을 표 뒤로 옮겨 헤더와 행을 다시 잇는다</li>
-      </ul>
-    </div>
-  </div>
-
-  <h3 style="margin-top:28px">카이젠 위임 기준</h3>
-  <p class="desc">다음 경우 해당 킷의 <code>*-kaizen</code> 스킬로 위임:</p>
-  <ul class="checklist">
-    <li><span class="check">✓</span><div><strong>V3 FAIL 3건 이상</strong> — 참조 구조 재설계 수준</div></li>
-    <li><span class="check">✓</span><div><strong>V4 중복 5건 이상</strong> — 킷 간 트리거 키워드 체계 재정의 필요</div></li>
-    <li><span class="check">✓</span><div><strong>V1 FAIL 3건 이상</strong> — 스킬 템플릿 자체가 잘못된 경우</div></li>
-  </ul>
-</div>
-
-<!-- ── 8. 카이젠 연동 ── -->
-<div class="section">
-  <div class="section-label">8 · 카이젠 연동 — SSOT</div>
-  <p class="desc">이 가이드 §7(원본) 은 <strong>각 킷 카이젠 스킬(<code>*-kaizen</code>)의 "Plugin Validation 결과 반영" 단계의 SSOT</strong>. 각 카이젠 스킬은 킷 특화 규칙만 로컬에 유지하고, 공통 규칙은 이 가이드를 참조한다.</p>
-
-  <div class="grid-2">
-    <div class="card">
-      <h3>실행 패턴</h3>
-      <pre style="background:transparent;border:0;padding:4px 0;font-size:11px"><span style="color:var(--accent)"># 세션 시작 — 현재 상태</span>
-python3 scripts/validate-plugin.py &lt;kit&gt;
-
-<span style="color:var(--accent)"># 자동 수정 (V5 + V6)</span>
-python3 scripts/validate-plugin.py &lt;kit&gt; \
-  --fix --check=placeholders,code-fence
-
-<span style="color:var(--accent)"># 세션 종료 — 회귀 없음 확인</span>
-python3 scripts/validate-plugin.py &lt;kit&gt;</pre>
-    </div>
-    <div class="card">
-      <h3>우선순위 매핑</h3>
       <div class="table-wrap">
       <table style="background:transparent;border:0">
-        <thead style="background:transparent"><tr><th style="background:transparent;padding:6px 0">결과</th><th style="background:transparent;padding:6px 0">처리</th></tr></thead>
+        <thead><tr><th style="background:transparent;padding:6px 0">검사</th><th style="background:transparent;padding:6px 0 6px 12px">고치는 법</th></tr></thead>
         <tbody>
-          <tr><td style="padding:6px 0"><strong style="color:var(--red)">ERROR</strong></td><td style="padding:6px 0">개선 우선순위 <strong>높음</strong>. 이 세션에서 반드시 수정</td></tr>
-          <tr><td style="padding:6px 0"><strong style="color:var(--yellow)">WARNING</strong></td><td style="padding:6px 0">우선순위 <strong>중간</strong>. description 보강으로 해소 권장</td></tr>
-          <tr><td style="padding:6px 0"><strong style="color:var(--green)">PASS</strong></td><td style="padding:6px 0">skip. 변경으로 FAIL 생기지 않도록 주의</td></tr>
+          <tr><td style="padding:6px 0"><strong>V1</strong></td><td style="padding:6px 0 6px 12px">SKILL.md 나 <code>agents/*.md</code> frontmatter 에 빠진 필드를 넣는다</td></tr>
+          <tr><td style="padding:6px 0"><strong>V2</strong></td><td style="padding:6px 0 6px 12px"><code>templates/</code> 의 JSON · YAML · TOML 구문 오류를 고친다</td></tr>
+          <tr><td style="padding:6px 0"><strong>V3</strong></td><td style="padding:6px 0 6px 12px">참조 파일을 만들거나 링크 경로를 고친다</td></tr>
+          <tr><td style="padding:6px 0"><strong>V4</strong></td><td style="padding:6px 0 6px 12px">description 에서 겹치는 키워드를 빼거나 더 구체적으로 쓴다</td></tr>
+          <tr><td style="padding:6px 0"><strong>V7</strong></td><td style="padding:6px 0 6px 12px">plugin.json 이나 marketplace.json 버전 태그를 맞춘다</td></tr>
+          <tr><td style="padding:6px 0"><strong>V8</strong></td><td style="padding:6px 0 6px 12px"><code>chmod +x &lt;script&gt;</code> 후 커밋해 git 이 <code>100755</code> 로 추적하게 한다</td></tr>
+          <tr><td style="padding:6px 0"><strong>V9</strong></td><td style="padding:6px 0 6px 12px">자리마다 다르다 — awk 필드는 <code>$(N)</code>, bash 위치 인자는 <code>${N}</code>, 문법상 <code>$</code> + 숫자여야 하는 곳은 역슬래시 이스케이프 (<a href="#v9">§6</a>)</td></tr>
+          <tr><td style="padding:6px 0"><strong>V10</strong></td><td style="padding:6px 0 6px 12px">표 중간에 끼어든 절이나 문단을 표 뒤로 옮겨 헤더와 행을 다시 잇는다</td></tr>
         </tbody>
       </table>
       </div>
     </div>
   </div>
+
+  <h3 style="margin-top:28px">카이젠 위임 기준</h3>
+  <p class="desc">다음 경우 그 킷의 <code>*-kaizen</code> 스킬로 넘긴다.</p>
+  <ul class="checklist">
+    <li><span class="check">✓</span><strong>V3 FAIL 3 건 이상</strong> — 참조 구조를 다시 설계해야 할 수준</li>
+    <li><span class="check">✓</span><strong>V4 겹침 5 건 이상</strong> — 킷 사이 트리거 키워드 체계를 다시 정해야 한다</li>
+    <li><span class="check">✓</span><strong>V1 FAIL 3 건 이상</strong> — 스킬 템플릿 자체가 잘못된 경우</li>
+  </ul>
 </div>
 
-<!-- ── 9. 킷별 예외 카탈로그 ── -->
-<div class="section">
-  <div class="section-label">9 · 킷별 예외 카탈로그</div>
-  <p class="desc"><code>templates/</code> 없는 킷은 V2 전체 SKIP. TS/JS 파일은 외부 도구(tsc) 의존으로 V2 SKIP.</p>
+<!-- ── 12. 킷별 예외 카탈로그 ── -->
+<div class="section" id="catalog">
+  <div class="section-label">12 · 킷별 예외 카탈로그</div>
+  <p class="desc"><code>templates/</code> 가 없는 킷은 V2 전체 SKIP 이다. 항목 수는 원본 1.3.1 판에서 실제 값으로 맞췄다.</p>
 
   <div class="table-wrap">
   <table>
     <thead><tr><th>킷</th><th>V2 templates</th><th>비고</th></tr></thead>
     <tbody>
-      <tr><td>harness</td><td><code>templates/</code> 4 항목 — 2개 파싱, 1개 SKIP</td><td><code>project.yaml</code> · <code>settings-hooks.json</code> 파싱, <code>env.sh</code> SKIP (<code>procedures/</code> 는 디렉터리라 V2 비대상)</td></tr>
-      <tr><td>flutter-toolkit</td><td><code>templates/</code> 2 파일 — 전부 SKIP</td><td><code>provider-riverpod.md</code> · <code>widget-freezed-props.md</code> (<code>.md</code> 는 V2 파서 대상 아님)</td></tr>
-      <tr><td>design-kit</td><td><code>templates/</code> 8 파일 — 전부 SKIP</td><td>base/catalog/component/guide/mockup/moodboard/reference/system<code>.html</code> — <code>.html</code> 은 V2 파서 대상 아님</td></tr>
-      <tr><td>backend-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드</td></tr>
-      <tr><td>infra-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드</td></tr>
-      <tr><td>rust-kit</td><td><code>templates/</code> 5 파일 — 1개 파싱, 4개 SKIP</td><td><code>rust-init.toml.template</code> 파싱, <code>.rs.template</code> 4개 SKIP</td></tr>
-      <tr><td>react-kit</td><td><code>templates/</code> 9 파일 — TS 4개 SKIP, 5개 파싱</td><td><code>.ts/.js</code> 4개 SKIP, <code>Cargo.toml.template</code> 등 5개 파싱</td></tr>
-      <tr><td>tone-kit</td><td><code>templates/</code> 6 파일 — 전부 SKIP</td><td>briefing-table · campaign-ledger · dart-doc 등 <code>.md</code> — <code>.md</code> 는 V2 파서 대상 아님</td></tr>
+      <tr><td>harness</td><td><code>templates/</code> 4 항목 — 2 개 파싱, 1 개 SKIP</td><td><code>project.yaml</code> · <code>settings-hooks.json</code> 파싱, <code>env.sh</code> SKIP (<code>procedures/</code> 는 디렉터리라 V2 대상 아님)</td></tr>
+      <tr><td>flutter-toolkit</td><td><code>templates/</code> 2 파일 — 전부 SKIP</td><td><code>.md</code> 는 V2 파서 대상 아님</td></tr>
+      <tr><td>design-kit</td><td><code>templates/</code> 8 파일 — 전부 SKIP</td><td><code>.html</code> 은 V2 파서 대상 아님</td></tr>
+      <tr><td>backend-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드. 프레임워크별 뼈대는 각 킷에서</td></tr>
+      <tr><td>infra-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드. 인프라 코드 템플릿 없음</td></tr>
+      <tr><td>rust-kit</td><td><code>templates/</code> 5 파일 — 1 개 파싱, 4 개 SKIP</td><td><code>rust-init.toml.template</code> 파싱, <code>.rs.template</code> 4 개 SKIP</td></tr>
+      <tr><td>react-kit</td><td><code>templates/</code> 9 파일 — TS 파일은 V2 SKIP</td><td><code>.ts/.js</code> 4 개 SKIP, 나머지 5 개(<code>Cargo.toml.template</code> 등) 파싱</td></tr>
+      <tr><td>tone-kit</td><td><code>templates/</code> 6 파일 — 전부 SKIP</td><td><code>.md</code> 는 V2 파서 대상 아님</td></tr>
       <tr><td>그 밖의 킷</td><td><code>templates/</code> 없음 — SKIP</td><td>V2 전체 SKIP</td></tr>
     </tbody>
   </table>
   </div>
+  <p class="desc" style="margin-top:16px">TS · JS 파일을 V2 에서 SKIP 하는 것은 외부 도구(tsc) 없이 검증할 수 없어서다. 이 파일들의 구문은 CI 빌드 단계에서 확인한다.</p>
 </div>
 
-<!-- ── 10. Gotchas 체크리스트 ── -->
-<div class="section">
-  <div class="section-label">10 · Gotchas 체크리스트</div>
-  <p class="desc">validate-plugin 실행 전/후에 확인할 항목.</p>
+<!-- ── 13. 카이젠 연동 ── -->
+<div class="section" id="kaizen">
+  <div class="section-label">13 · 카이젠 연동 (원본 §7)</div>
+  <p class="desc">각 킷의 카이젠 스킬(<code>*-kaizen</code>)이 이 문서를 비교 기준으로 쓴다. 원본 §7 이 카이젠 스킬마다 있는 「Plugin Validation 결과 반영」 단계의 기준 원본이다. 카이젠 스킬은 킷에만 해당하는 규칙만 자기 파일에 두고, 공통 규칙은 이 절을 따른다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>§7.1 실행 패턴 — 시작과 끝 둘 다</h3>
+      <pre style="margin-top:8px"><span style="color:var(--accent)"># 세션 시작 시 현재 상태 파악</span>
+python3 scripts/validate-plugin.py &lt;kit-name&gt;
+
+<span style="color:var(--accent)"># 자동 수정 가능한 항목 먼저 (V5 placeholders, V6 code-fence)</span>
+python3 scripts/validate-plugin.py &lt;kit-name&gt; --fix --check=placeholders,code-fence
+
+<span style="color:var(--accent)"># 세션 종료 시 다시 망가진 것 없는지 확인</span>
+python3 scripts/validate-plugin.py &lt;kit-name&gt;</pre>
+    </div>
+    <div class="card">
+      <h3>§7.2 우선순위 매핑</h3>
+      <div class="table-wrap">
+      <table style="background:transparent;border:0">
+        <thead><tr><th style="background:transparent;padding:6px 0">결과</th><th style="background:transparent;padding:6px 0 6px 12px">의미</th><th style="background:transparent;padding:6px 0 6px 12px">처리</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:6px 0"><strong style="color:var(--red)">ERROR</strong> (FAIL)</td><td style="padding:6px 0 6px 12px">V1 ~ V10 중 하나 이상 실패</td><td style="padding:6px 0 6px 12px">개선 우선순위 「높음」 에 자동으로 들어간다. 이 세션에서 반드시 고친다</td></tr>
+          <tr><td style="padding:6px 0"><strong style="color:var(--yellow)">WARNING</strong></td><td style="padding:6px 0 6px 12px">V4 트리거 키워드 겹침 등</td><td style="padding:6px 0 6px 12px">우선순위 「중간」. description 을 보강해 없애기를 권한다</td></tr>
+          <tr><td style="padding:6px 0"><strong style="color:var(--green)">PASS</strong></td><td style="padding:6px 0 6px 12px">모든 검사 통과</td><td style="padding:6px 0 6px 12px">그 항목은 건너뛴다. 이번 변경으로 FAIL 이 생기지 않게 주의</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <h3>§7.3 통합 규칙</h3>
+      <ul class="plain-list" style="margin-top:6px">
+        <li><code>--fix</code> 자동 모드는 <strong>V5 placeholders 와 V6 code-fence 만</strong> 고친다. 다른 검사는 손으로 고친다</li>
+        <li>V3 refs BROKEN 은 링크 경로나 참조 파일을 손으로 확인한 뒤 고친다</li>
+        <li>V1 frontmatter 누락은 한 줄 수정이라 바로 고친다</li>
+        <li>V7 plugin-json 불일치가 릴리스 흐름 문제라면 카이젠이 아니라 <code>scripts/release.sh</code> (릴리스 스킬)에서 다룬다</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>§7.4 카이젠 스킬이 이 문서를 가리키는 방식</h3>
+      <p>카이젠 스킬의 「Step N: Plugin Validation 결과 반영」 절은 아래 형식을 따른다. 킷에만 해당하는 규칙(예외 동작, Library Policy 원칙 등)만 스킬 파일에 남긴다.</p>
+      <pre style="margin-top:10px">카이젠 세션 시작/종료 시 `scripts/validate-plugin.py &lt;kit-name&gt;` 을 실행하여
+전 카테고리 상태를 확인하고 결과를 개선 우선순위에 반영한다.
+
+**실행 패턴, 우선순위 매핑, 통합 규칙**은
+`harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT).</pre>
+    </div>
+    <div class="card">
+      <h3>§7.5 이 문서를 고치는 때</h3>
+      <ul class="plain-list" style="margin-top:6px">
+        <li>새 킷을 더하면 — <a href="#catalog">킷별 예외 카탈로그</a>(원본 §6)에 더한다</li>
+        <li>새 검사를 들이면 — V11 부터의 번호로 원본 §3 에 더한다 (V10 까지는 이미 쓰였다)</li>
+        <li>기존 검사 기준을 바꾸면 — 그 V 번호 절을 고치고 <code>last_updated</code> 를 갱신한다</li>
+        <li>통합 규칙을 바꾸면 — §7.3 을 고친다</li>
+      </ul>
+      <p style="margin-top:10px">이 문서 갱신은 <code>harness-kaizen</code> 스킬이 맡는다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 14. 확인 목록 ── -->
+<div class="section" id="gotchas">
+  <div class="section-label">14 · 확인 목록 — 실행 전후</div>
+  <p class="desc">위 절들에서 되풀이해 놓치기 쉬운 것만 모았다.</p>
 
   <ul class="checklist">
-    <li><span class="check">✓</span><div><strong>커밋 전 전수 실행</strong> — <code>python3 scripts/validate-plugin.py</code> PASS 확인. CI 보다 먼저.</div></li>
-    <li><span class="check">✓</span><div><strong>--fix 우선</strong> — V5 · V6 자동 수정으로 쉬운 오류 제거 → 남은 FAIL 집중.</div></li>
-    <li><span class="check">✓</span><div><strong>새 킷 등록 순서</strong> — marketplace.json 등록 → plugin.json 생성 → SKILL.md 작성 → validate 확인.</div></li>
-    <li><span class="check">✓</span><div><strong>V3 링크 상대경로</strong> — SKILL.md 위치 기준. 절대 경로 · 프로젝트 root 기준 금지.</div></li>
-    <li><span class="check">✓</span><div><strong>V4 context disambiguation</strong> — "테스트 만들어줘" 처럼 공통 키워드는 "Flutter"/"React" 같은 kit-specific 단어 description 에 포함.</div></li>
-    <li><span class="check">✓</span><div><strong>V7 릴리스 흐름</strong> — <code>scripts/release.sh</code> 가 plugin.json + marketplace.json 동시 업데이트. 수동 수정 지양.</div></li>
-    <li><span class="check">✓</span><div><strong>V8 hook 실행 비트</strong> — 직접 실행 <code>.sh</code> 추가 시 <code>chmod +x</code> 후 커밋. git mode 100755 확인. 누락 시 전 설치본에서 <code>Permission denied</code>.</div></li>
-    <li><span class="check">✓</span><div><strong>V9 고친 뒤 실행 확인</strong> — <code>$</code> + 숫자 0 건은 형태만 바꾼 오류를 못 잡는다. 고친 스니펫을 한 번 실제로 돌려 같은 결과인지 본다.</div></li>
-    <li><span class="check">✓</span><div><strong>V10 절 끼워 넣기</strong> — 긴 문서에 새 절을 넣을 땐 표와 그 표에 딸린 목록이 <strong>전부 끝난 뒤</strong>에 넣는다. 마크다운 경고 수로는 끊김이 안 보인다.</div></li>
-    <li><span class="check">✓</span><div><strong>카이젠 세션 시작/종료 필수</strong> — 세션 시작 시 현재 상태 파악, 종료 시 회귀 없음 확인.</div></li>
-    <li><span class="check">✓</span><div><strong>Exit code 2 차단</strong> — CI 에서 exit 2 를 빌드 실패로 처리. WARN(1) 은 통과시킬지 팀 정책.</div></li>
-    <li><span class="check">✓</span><div><strong>V1 frontmatter 즉시 수정</strong> — 1줄 수정이므로 발견 즉시 처리. 카이젠 위임 대상 아님.</div></li>
-    <li><span class="check">✓</span><div><strong>novalidate 주석 제한</strong> — <code>&lt;!-- novalidate --&gt;</code> 는 의도적 미해소 링크에만. 남용 시 V3 가치 상실.</div></li>
-    <li><span class="check">✓</span><div><strong>JSON 출력 스키마</strong> — CI 통합 시 <code>--json</code> 출력 포맷 버전 고정 확인.</div></li>
+    <li><span class="check">✓</span><strong>통과 여부는 종료 코드로</strong> — V 줄 글자보다 종료 코드(0 · 1 · 2)를 먼저 본다. 판정 글자가 없던 판에서는 V 줄로 FAIL 을 세면 0 이 나왔다.</li>
+    <li><span class="check">✓</span><strong>카이젠 세션 시작과 끝에 둘 다</strong> — 시작 때 현재 상태를 파악하고, 끝날 때 다시 망가진 것이 없는지 본다.</li>
+    <li><span class="check">✓</span><strong><code>--fix</code> 먼저</strong> — V5 · V6 은 자동 수정으로 걷어 내고 남은 FAIL 에 집중한다. 다른 검사는 <code>--fix</code> 로 고쳐지지 않는다.</li>
+    <li><span class="check">✓</span><strong>새 킷은 marketplace.json 에 먼저 등록</strong> — 등록해야 검사 목록에 들어간다. 등록 전 킷은 V7 을 포함해 아무 검사도 받지 않는다.</li>
+    <li><span class="check">✓</span><strong>V1 은 발견 즉시</strong> — 한 줄 수정이다. 3 건 이상이면 스킬 템플릿을 의심하고 카이젠으로 넘긴다.</li>
+    <li><span class="check">✓</span><strong>V3 링크는 SKILL.md 위치 기준</strong> — 그 파일이 있는 자리에서 경로를 풀어 찾는다. <code>&lt;!-- novalidate --&gt;</code> 는 일부러 잇지 않는 링크에만 단다.</li>
+    <li><span class="check">✓</span><strong>V4 공통 키워드엔 킷 낱말을</strong> — 「테스트 만들어줘」 처럼 여러 킷이 쓰는 말은 description 에 <code>Flutter</code> · <code>React</code> 같은 킷 고유 낱말을 함께 적는다.</li>
+    <li><span class="check">✓</span><strong>V7 은 릴리스 흐름에서</strong> — <code>scripts/release.sh</code> 가 plugin.json 과 marketplace.json 을 같이 올린다. 손으로 한쪽만 고치면 V7 FAIL 이 난다.</li>
+    <li><span class="check">✓</span><strong>V8 직접 실행 <code>.sh</code> 는 <code>chmod +x</code> 후 커밋</strong> — git 모드 <code>100755</code> 를 확인한다. 빠지면 모든 설치본에서 <code>Permission denied</code>.</li>
+    <li><span class="check">✓</span><strong>V9 는 고친 뒤 실행으로</strong> — <code>$</code> + 숫자 0 건은 형태만 바꾼 오류를 못 잡는다. 고친 스니펫을 한 번 실제로 돌려 같은 결과인지 본다.</li>
+    <li><span class="check">✓</span><strong>V10 절 끼워 넣기</strong> — 긴 문서에 새 절을 넣을 땐 표가 <strong>끝난 뒤</strong>에 넣는다. 마크다운 경고 수로는 끊김이 안 보인다.</li>
+    <li><span class="check">✓</span><strong>V6 범위는 V10 보다 좁다</strong> — 스킬 폴더 안 <code>references/</code> 는 V10 만 본다. 그 안의 언어 힌트 없는 펜스는 아직 검사 밖이다.</li>
   </ul>
 </div>
 
-<!-- ── 11. 변경 이력 · 출처 ── -->
-<div class="section">
-  <div class="section-label">11 · 변경 이력 · 출처</div>
+<!-- ── 15. 변경 이력 · 다음 갱신 · 출처 ── -->
+<div class="section" id="history">
+  <div class="section-label">15 · 변경 이력 · 다음 갱신 · 출처</div>
 
   <div class="table-wrap" style="margin-bottom:20px">
   <table>
     <thead><tr><th>날짜</th><th>버전</th><th>내용</th></tr></thead>
     <tbody>
-      <tr><td>2026-04-11</td><td>1.0.0</td><td>초기 작성 — V1~V7 카테고리, 7개 킷 예외 카탈로그, <code>scripts/validate-plugin.py</code> 구현</td></tr>
-      <tr><td>2026-06-11</td><td>1.1.0</td><td>V8 hook-exec 추가 — <code>hooks.json</code> 직접 실행 <code>.sh</code> 의 실행 비트(0755) 검증. reflect 30일 집계상 hook permission-denied 957건(전체 friction 38%)의 회귀 방지 가드</td></tr>
-      <tr><td>2026-09-21</td><td>1.2.0</td><td>V9 arg-substitution 추가 — 스킬 본문 코드의 <code>$</code> + 숫자가 호출 인자로 치환되어 awk · bash 스니펫이 깨지는 것을 막는다. <code>sprint-contract</code> 를 인자와 함께 부른 3 회 모두 깨진 채 로드됐다</td></tr>
-      <tr><td>2026-09-24</td><td>1.3.0</td><td>V10 table-integrity 추가 — 헤더 없이 끊긴 표 행을 잡는다. markdownlint 는 고립 표 행을 표로 인식하지 못해 경고 수가 안 움직인다 (같은 파일 세 커밋 내리 14 건). 범위는 V6 + 킷 안 <code>docs/**/*.md</code></td></tr>
-      <tr><td>2026-09-24</td><td>1.3.1</td><td>사실 정정 — <code>--check</code> 체크 이름 10 개 전부, 출력 예시에 V9 · V10 줄과 실제 요약줄 형식, 수동 수정 표에 V8 · V9 · V10, 킷별 예외 표의 <code>templates/</code> 항목 수를 실제 값으로. 금방 낡는 킷 수 · 카이젠 스킬 수 표기와 부분 킷 목록은 뺐다</td></tr>
+      <tr><td>2026-04-11</td><td>1.0.0</td><td>처음 작성 — V1 ~ V7 카테고리, 7 개 킷 예외 카탈로그, <code>scripts/validate-plugin.py</code> 구현</td></tr>
+      <tr><td>2026-06-11</td><td>1.1.0</td><td>V8 hook-exec 추가 — <code>hooks.json</code> 직접 실행 <code>.sh</code> 의 실행 비트(0755) 검증. reflect 30 일 집계상 훅 permission-denied 957 건(전체 마찰 38%)이 다시 생기지 않게 막는다</td></tr>
+      <tr><td>2026-09-21</td><td>1.2.0</td><td>V9 arg-substitution 추가 — 스킬 본문 코드의 <code>$</code> + 숫자가 호출 인자로 치환되어 awk · bash 스니펫이 깨지는 것을 막는다. 공식 규칙은 <code>$N</code> = <code>[N]</code> 이며, sprint-contract 를 인자와 함께 부른 3 회 모두 <code>read_fm</code> 의 awk 와 저장 검사 스니펫이 깨져 로드됐다</td></tr>
+      <tr><td>2026-09-24</td><td>1.3.0</td><td>V10 table-integrity 추가 — 헤더 없이 끊긴 표 행을 잡는다. markdownlint 는 고립 표 행을 표로 알아보지 못해 경고 수가 안 움직인다 (실측: 같은 파일 세 커밋 내리 14 건). 범위는 V6 + 킷 안 <code>docs/**/*.md</code> (210 파일, 오탐 0 확인)</td></tr>
+      <tr><td>2026-09-24</td><td>1.3.1</td><td>사실 정정 — <code>--check</code> 검사 이름 10 개 전부, 출력 예시에 V9 · V10 줄과 실제 요약줄 형식(<code>Total: N plugins, …</code>), 수동 수정 표에 V8 · V9 · V10, 킷별 예외 표의 <code>templates/</code> 항목 수를 실제 값으로(harness 4 · flutter-toolkit 2 · design-kit 8 · rust-kit 5 · tone-kit 6). 금방 낡는 킷 수 · 카이젠 스킬 수 표기와 일부 킷 목록은 뺐다</td></tr>
+      <tr><td>2026-09-25</td><td><strong>1.4.0</strong></td><td>V10 범위에 스킬 폴더 안 <code>skills/*/references/**/*.md</code> 를 더했다 — 14 킷 41 개가 검사 밖이었다 (끊긴 표 0 개 확인). V6 는 같은 범위의 언어 힌트 없는 펜스 8 개 때문에 넓히지 않았다</td></tr>
     </tbody>
   </table>
   </div>
 
-  <p class="desc">다음 갱신 예정:</p>
-  <ul style="list-style:disc;margin-left:18px;color:var(--text2);font-size:13px;line-height:1.8">
-    <li><strong>V11</strong> — 에이전트 파라미터 스키마 검증 (tools 목록이 실제 Claude 지원 도구인지)</li>
-    <li><strong>V12</strong> — README ↔ SKILL.md 스킬 목록 정합성 (README 에 언급된 스킬이 실제 존재하는지)</li>
-  </ul>
-
-  <div class="grid-2" style="margin-top:24px">
+  <div class="grid-2">
     <div class="card">
-      <h3>원본 가이드</h3>
-      <a class="card-source" href="https://github.com/anthropics/claude-code">github.com/anthropics/claude-code</a>
-      <p style="margin-top:8px">플러그인 시스템 공식 문서.</p>
+      <h3>다음 갱신 예정</h3>
+      <ul class="plain-list" style="margin-top:6px">
+        <li><strong>V11</strong> — 에이전트 매개변수 틀 검증 (<code>tools</code> 목록이 실제 Claude 가 지원하는 도구인지)</li>
+        <li><strong>V12</strong> — README ↔ SKILL.md 스킬 목록 정합성 (README 에 적힌 스킬이 실제로 있는지)</li>
+      </ul>
     </div>
     <div class="card">
-      <h3>이 레포</h3>
+      <h3>출처</h3>
+      <p>이 페이지의 원본은 <code>harness/docs/guides/plugin-validation-guide.md</code> (v1.4.0 · 2026-09-25) 다. 원본 갱신은 <code>harness-kaizen</code> 스킬이 맡는다.</p>
       <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">harness/docs/guides/plugin-validation-guide.md</a>
-      <p style="margin-top:8px">이 HTML 페이지의 SSOT. 가이드 갱신은 <code>harness-kaizen</code> 스킬 담당.</p>
+      <a class="card-source" href="https://code.claude.com/docs/en/skills">code.claude.com · Skills</a>
+      <a class="card-source" href="https://code.claude.com/docs/en/plugins-reference">code.claude.com · Plugins reference</a>
+      <a class="card-source" href="https://semver.org/">semver.org · 버전 번호 규칙</a>
     </div>
   </div>
 </div>

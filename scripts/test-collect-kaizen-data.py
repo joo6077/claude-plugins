@@ -266,6 +266,35 @@ def facets_cases(module, script: Path, root: Path, tally: Tally) -> None:
                 (proc.returncode, "(없음)" in section_0b(empty_pool)))
 
 
+def folder_name_case(module, root: Path, tally: Tally) -> None:
+    """폴더 이름을 한 곳에서 바꾸면 읽는 자리와 문서 대조 값이 같이 바뀌어야 한다.
+
+    두 자리가 따로 적혀 있으면 한쪽만 바뀌어도 validate-doc-contracts.py 가 어긋남을 못 잡는다.
+    """
+    usage = root / "usage-renamed"
+    (usage / "facets-x").mkdir(parents=True)
+    (usage / "meta-x").mkdir()
+    meta = {"session_id": "eeeeeeee-0005", "project_path": "/nonexistent-ckd/sample", "start_time": "2026-09-21T01:00:00Z"}
+    (usage / "meta-x" / "eeeeeeee-0005.json").write_text(json.dumps(meta), encoding="utf-8")
+    (usage / "facets-x" / "eeeeeeee-0005.json").write_text(
+        json.dumps({"session_id": "eeeeeeee-0005", "outcome": "fully_achieved"}), encoding="utf-8"
+    )
+    missing = object()
+    saved = getattr(module, "USAGE_DATA_DIRS", missing)
+    module.USAGE_DATA_DIRS = ("facets-x", "meta-x")
+    try:
+        sessions = len(module.collect_usage_facets(usage)["sessions"])
+        inputs = module.doc_contract()["usage_data_inputs"]
+    finally:
+        if saved is missing:
+            del module.USAGE_DATA_DIRS
+        else:
+            module.USAGE_DATA_DIRS = saved
+    tally.check("폴더 이름 한 곳 — 바꾼 이름의 폴더에서 세션을 읽는다", 1, sessions)
+    tally.check("폴더 이름 한 곳 — 문서 대조 값도 같이 바뀐다",
+                ["~/.claude/usage-data/facets-x", "~/.claude/usage-data/meta-x"], inputs)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--script", type=Path, default=REPO_ROOT / "scripts" / "collect-kaizen-data.py",
@@ -282,6 +311,7 @@ def main() -> int:
         age_cases(module, root, tally)
         default_prefix_cases(module, tally)
         facets_cases(module, script, root, tally)
+        folder_name_case(module, root, tally)
     print(f"결과: {tally.passed} 통과 · {tally.failed} 실패")
     return 0 if tally.failed == 0 else 1
 

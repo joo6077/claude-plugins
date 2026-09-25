@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CI/CD — Infra Kit</title>
+<title>CI/CD v0.2.0 — Infra Kit</title>
 <style>
   :root{
     --bg:#0d0d14;
@@ -45,7 +45,7 @@
     background:var(--bg);
     color:var(--text);
     line-height:1.7;
-    font-size:15px;
+    font-size:16px;
     min-height:100vh;
     background-image:
       radial-gradient(ellipse 80% 60% at 50% -10%,var(--accent-glow),transparent 60%),
@@ -63,6 +63,12 @@
     color:var(--accent2);
   }
 
+  a:focus-visible{
+    outline:2px solid var(--accent2);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
   code{
     font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
     font-size:0.9em;
@@ -71,6 +77,7 @@
     border-radius:4px;
     color:var(--accent2);
     border:1px solid var(--border);
+    overflow-wrap:anywhere;
   }
 
   .container{
@@ -79,9 +86,10 @@
     padding:80px 32px 120px;
   }
 
+  /* ── hero ── */
   .hero{
     text-align:center;
-    padding:60px 0 80px;
+    padding:60px 0 56px;
     position:relative;
   }
 
@@ -149,14 +157,58 @@
     line-height:1.7;
   }
 
+  .hero-meta{
+    margin-top:18px;
+    color:var(--text3);
+    font-size:0.88rem;
+  }
+
+  /* ── 목차 ── */
+  .toc{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-top:36px;
+  }
+
+  .toc a{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    min-height:44px;
+    padding:10px 16px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:var(--surface);
+    color:var(--text2);
+    font-size:0.9rem;
+    font-weight:600;
+    transition:border-color var(--transition),color var(--transition),background var(--transition);
+  }
+
+  .toc a span{
+    color:var(--accent);
+    font-size:0.78rem;
+    letter-spacing:0.1em;
+  }
+
+  .toc a:hover{
+    border-color:var(--accent);
+    color:var(--text);
+    background:var(--surface2);
+  }
+
   section{
     margin-top:80px;
+    scroll-margin-top:24px;
   }
 
   .section-head{
     display:flex;
+    flex-wrap:wrap;
     align-items:baseline;
-    gap:16px;
+    gap:8px 16px;
     margin-bottom:32px;
     padding-bottom:16px;
     border-bottom:1px solid var(--border);
@@ -177,10 +229,45 @@
     color:var(--text);
   }
 
+  .lead{
+    color:var(--text2);
+    font-size:1.05rem;
+    line-height:1.8;
+    max-width:880px;
+    margin-bottom:28px;
+  }
+
+  .lead strong{
+    color:var(--text);
+  }
+
+  h3.sub{
+    font-size:1.25rem;
+    font-weight:700;
+    color:var(--text);
+    margin:48px 0 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  h3.sub::before{
+    content:"";
+    width:18px;
+    height:2px;
+    background:var(--accent);
+    flex-shrink:0;
+  }
+
+  /* ── 원칙 카드 ── */
   .grid-2{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(440px,1fr));
     gap:24px;
+  }
+
+  .grid-2>*,.compare>*,.cause-grid>*,.case-grid>*,.steps>*{
+    min-width:0;
   }
 
   .card{
@@ -214,12 +301,27 @@
     height:100%;
   }
 
+  .card.wide{
+    grid-column:1/-1;
+    border-color:var(--border2);
+    background:linear-gradient(135deg,var(--surface) 60%,var(--surface2));
+  }
+
   .card-num{
     font-size:0.78rem;
     color:var(--accent);
     font-weight:700;
     letter-spacing:0.1em;
     margin-bottom:10px;
+  }
+
+  .card-num .new{
+    margin-left:10px;
+    padding:2px 8px;
+    border-radius:999px;
+    border:1px solid var(--accent);
+    color:var(--accent2);
+    letter-spacing:0.05em;
   }
 
   .card h3{
@@ -232,8 +334,12 @@
 
   .card p{
     color:var(--text2);
-    font-size:0.95rem;
+    font-size:1rem;
     line-height:1.75;
+    margin-bottom:18px;
+  }
+
+  .card p.more{
     margin-bottom:18px;
   }
 
@@ -241,6 +347,7 @@
     display:inline-flex;
     align-items:center;
     gap:6px;
+    max-width:100%;
     font-size:0.8rem;
     color:var(--accent);
     padding:6px 12px;
@@ -248,6 +355,7 @@
     border:1px solid var(--accent-dim);
     border-radius:var(--radius-sm);
     font-weight:600;
+    overflow-wrap:anywhere;
     transition:all var(--transition);
   }
 
@@ -266,11 +374,188 @@
     transform:translateX(3px);
   }
 
+  .source-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  /* ── 원인 다섯 갈래 ── */
+  .cause-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-bottom:20px;
+  }
+
+  .cause{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-top:3px solid var(--accent);
+    border-radius:var(--radius-sm);
+    padding:16px 16px 18px;
+  }
+
+  .cause.ci{
+    border-top-color:var(--warn);
+  }
+
+  .cause-idx{
+    font-size:0.75rem;
+    font-weight:700;
+    letter-spacing:0.1em;
+    color:var(--accent);
+  }
+
+  .cause.ci .cause-idx{
+    color:var(--warn);
+  }
+
+  .cause-name{
+    display:block;
+    margin-top:6px;
+    font-size:1rem;
+    font-weight:700;
+    color:var(--text);
+    line-height:1.45;
+  }
+
+  .cause-where{
+    display:block;
+    margin-top:8px;
+    font-size:0.8rem;
+    color:var(--text3);
+  }
+
+  .rule-note{
+    background:var(--surface);
+    border:1px dashed var(--border2);
+    border-radius:var(--radius-sm);
+    padding:16px 20px;
+    color:var(--text2);
+    font-size:0.95rem;
+    line-height:1.75;
+  }
+
+  .rule-note strong{
+    color:var(--text);
+  }
+
+  /* ── 단계 ── */
+  .steps{
+    list-style:none;
+    display:grid;
+    gap:14px;
+    counter-reset:step;
+  }
+
+  .step{
+    display:grid;
+    grid-template-columns:44px 1fr;
+    gap:16px;
+    align-items:start;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px 22px;
+    transition:border-color var(--transition);
+  }
+
+  .step:hover{
+    border-color:var(--border2);
+  }
+
+  .step-idx{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:var(--accent-dim);
+    border:1px solid var(--accent);
+    color:var(--accent2);
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .step-body{
+    min-width:0;
+  }
+
+  .step-body h4{
+    font-size:1.05rem;
+    color:var(--text);
+    margin-bottom:6px;
+    font-weight:700;
+  }
+
+  .step-body p{
+    color:var(--text2);
+    font-size:1rem;
+    line-height:1.75;
+  }
+
+  /* ── 코드 ── */
+  .code-panel{
+    margin-top:24px;
+    background:var(--bg2);
+    border:1px solid var(--border2);
+    border-radius:var(--radius);
+    max-width:100%;
+  }
+
+  .code-head{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:6px 16px;
+    padding:12px 18px;
+    border-bottom:1px solid var(--border);
+    background:var(--surface2);
+    border-radius:var(--radius) var(--radius) 0 0;
+    font-size:0.8rem;
+    color:var(--text3);
+  }
+
+  .code-head b{
+    color:var(--accent);
+    font-weight:700;
+    letter-spacing:0.08em;
+  }
+
+  pre{
+    margin:0;
+    padding:20px 22px;
+    overflow-x:auto;
+    max-width:100%;
+    font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;
+    font-size:0.88rem;
+    line-height:1.7;
+    color:var(--text);
+    white-space:pre;
+  }
+
+  pre code{
+    background:none;
+    border:none;
+    padding:0;
+    color:inherit;
+    font-size:inherit;
+    overflow-wrap:normal;
+  }
+
+  /* ── 표 ── */
   .table-wrap{
     background:var(--surface);
     border:1px solid var(--border);
     border-radius:var(--radius);
-    overflow:hidden;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
+  }
+
+  .table-wrap>table{
+    min-width:max-content;
   }
 
   table{
@@ -282,6 +567,7 @@
     padding:16px 22px;
     text-align:left;
     border-bottom:1px solid var(--border);
+    vertical-align:top;
   }
 
   th{
@@ -295,7 +581,7 @@
 
   td{
     color:var(--text2);
-    font-size:0.95rem;
+    font-size:1rem;
   }
 
   td:first-child{
@@ -315,6 +601,119 @@
     background:var(--surface2);
   }
 
+  .pill{
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:999px;
+    font-size:0.85rem;
+    font-weight:700;
+  }
+
+  .pill.fail{
+    color:var(--error);
+    background:rgba(248,113,113,0.12);
+    border:1px solid rgba(248,113,113,0.35);
+  }
+
+  .pill.pass{
+    color:var(--success);
+    background:rgba(74,222,128,0.12);
+    border:1px solid rgba(74,222,128,0.35);
+  }
+
+  .verdict{
+    color:var(--text);
+  }
+
+  .table-note{
+    margin-top:16px;
+    color:var(--text2);
+    font-size:0.95rem;
+    line-height:1.75;
+  }
+
+  /* ── CI 에서만 보이는 경우 ── */
+  .case-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+  }
+
+  .case{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--warn);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+
+  .case-tag{
+    display:inline-block;
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--warn);
+    margin-bottom:10px;
+  }
+
+  .case h4{
+    font-size:1.08rem;
+    color:var(--text);
+    margin-bottom:10px;
+    font-weight:700;
+  }
+
+  .case p{
+    color:var(--text2);
+    font-size:1rem;
+    line-height:1.75;
+  }
+
+  .callout{
+    margin-top:24px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--warn);
+    border-radius:var(--radius-sm);
+    padding:22px 24px;
+  }
+
+  .callout-title{
+    display:block;
+    color:var(--warn);
+    font-weight:700;
+    font-size:0.95rem;
+    margin-bottom:8px;
+  }
+
+  .callout p{
+    color:var(--text2);
+    font-size:1rem;
+    line-height:1.8;
+  }
+
+  .callout p + p{
+    margin-top:10px;
+  }
+
+  .sources{
+    margin-top:32px;
+    padding:22px 24px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+  }
+
+  .sources-title{
+    display:block;
+    color:var(--text);
+    font-weight:700;
+    font-size:0.95rem;
+    margin-bottom:14px;
+  }
+
+  /* ── bad / good 비교 ── */
   .compare{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -367,8 +766,15 @@
 
   .compare-col p{
     color:var(--text2);
-    font-size:0.92rem;
+    font-size:1rem;
     line-height:1.7;
+  }
+
+  .compare-col .ref{
+    display:block;
+    margin-top:10px;
+    color:var(--text3);
+    font-size:0.85rem;
   }
 
   .anti-list{
@@ -377,6 +783,11 @@
     gap:18px;
   }
 
+  .anti-list .compare{
+    margin-top:0;
+  }
+
+  /* ── Gotchas ── */
   .gotcha-list{
     display:flex;
     flex-direction:column;
@@ -416,8 +827,13 @@
 
   .gotcha-body{
     color:var(--text2);
-    font-size:0.94rem;
+    font-size:1rem;
     line-height:1.75;
+    min-width:0;
+  }
+
+  .gotcha-body strong{
+    color:var(--text);
   }
 
   footer{
@@ -427,6 +843,12 @@
     text-align:center;
     color:var(--text3);
     font-size:0.85rem;
+  }
+
+  @media(max-width:900px){
+    .cause-grid{
+      grid-template-columns:repeat(2,1fr);
+    }
   }
 
   @media(max-width:720px){
@@ -439,13 +861,35 @@
     .compare{
       grid-template-columns:1fr;
     }
+    .case-grid{
+      grid-template-columns:1fr;
+    }
     th,td{
       padding:12px 14px;
-      font-size:0.88rem;
+      font-size:0.9rem;
+    }
+    .card{
+      padding:22px;
+    }
+  }
+
+  @media(max-width:600px){
+    .grid-2,.compare,.case-grid,.cause-grid{
+      grid-template-columns:1fr;
+    }
+    .step{
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    h2{
+      font-size:1.6rem;
     }
   }
 
   @media(prefers-reduced-motion:reduce){
+    html{
+      scroll-behavior:auto;
+    }
     *{
       transition:none!important;
       animation:none!important;
@@ -457,12 +901,20 @@
 <div class="container">
 
   <header class="hero">
-    <div class="badge">Infra Kit v0.1</div>
+    <div class="badge">Infra Kit · CI/CD v0.2.0</div>
     <h1>CI/CD</h1>
-    <p class="subtitle">GitHub Actions · GitLab CI 파이프라인 설계, OIDC 단기 토큰, 최소 권한, 캐싱 · 아티팩트 분리, 매트릭스 빌드, self-hosted runner 보안까지 — 빠르고 안전한 자동화 파이프라인의 원칙.</p>
+    <p class="subtitle">GitHub Actions/GitLab CI 파이프라인 설계, OIDC 인증, 최소 권한 원칙, 캐싱 전략, 매트릭스 빌드, self-hosted runner 보안, 아티팩트 관리, 빨간 검사의 원인 가르기를 다룬다.</p>
+    <p class="hero-meta">원본 <code>docs/infra/platform/cicd.md</code> · v0.2.0 · 2026-09-25</p>
+    <nav class="toc" aria-label="이 페이지 목차">
+      <a href="#principles"><span>01</span>핵심 원칙</a>
+      <a href="#triage"><span>02</span>빨간 검사 원인 가르기</a>
+      <a href="#numbers"><span>03</span>수치/기준값</a>
+      <a href="#anti-patterns"><span>04</span>안티패턴</a>
+      <a href="#gotchas"><span>05</span>Gotchas</a>
+    </nav>
   </header>
 
-  <section>
+  <section id="principles">
     <div class="section-head">
       <span class="section-num">01 · Principles</span>
       <h2>핵심 원칙</h2>
@@ -471,53 +923,227 @@
 
       <article class="card">
         <div class="card-num">PRINCIPLE 01</div>
-        <h3>DAG/<code>needs</code> 중심 설계로 임계경로를 최소화</h3>
+        <h3>DAG/<code>needs</code> 중심 설계로 임계경로를 최소화한다</h3>
         <p>모든 작업을 순차적으로 나열하면 불필요한 대기가 발생한다. <code>needs</code>(GitHub Actions) 또는 <code>needs</code>/<code>dependencies</code>(GitLab CI)로 작업 간 의존 관계를 명시하면, 독립적인 작업이 병렬로 실행되어 파이프라인 전체 시간이 줄어든다. 파이프라인을 DAG(Directed Acyclic Graph)로 설계한다.</p>
         <a class="card-source" href="https://docs.gitlab.com/ci/yaml/needs/" target="_blank" rel="noopener">GitLab CI — needs</a>
       </article>
 
       <article class="card">
         <div class="card-num">PRINCIPLE 02</div>
-        <h3>OIDC 단기 토큰을 기본으로 사용</h3>
+        <h3>OIDC 단기 토큰을 기본으로 사용한다</h3>
         <p>클라우드 프로바이더(AWS, GCP, Azure) 접근에 장기 액세스 키를 CI secret에 저장하면 키 유출 시 무제한 접근이 가능해진다. OIDC federation으로 CI 작업 실행 시점에 단기 토큰을 발급받으면 토큰 수명이 제한되고, 키 로테이션이 불필요하며, 감사 추적이 용이하다.</p>
         <a class="card-source" href="https://docs.github.com/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect" target="_blank" rel="noopener">GitHub — Security hardening with OpenID Connect</a>
       </article>
 
       <article class="card">
         <div class="card-num">PRINCIPLE 03</div>
-        <h3><code>GITHUB_TOKEN</code>/job token에 최소 권한 부여</h3>
+        <h3><code>GITHUB_TOKEN</code>/job token에 최소 권한을 부여한다</h3>
         <p>기본 토큰 권한을 <code>read-all</code>로 낮추고, 각 작업에서 필요한 권한만 <code>permissions</code> 블록으로 명시한다. 포크(fork)에서 오는 PR과 외부 기여자의 워크플로우는 별도 격리 전략을 적용한다. <code>pull_request_target</code> 사용 시 체크아웃 대상에 특히 주의한다.</p>
         <a class="card-source" href="https://docs.github.com/en/actions/concepts/security/github_token" target="_blank" rel="noopener">GitHub — GITHUB_TOKEN</a>
       </article>
 
       <article class="card">
         <div class="card-num">PRINCIPLE 04</div>
-        <h3>캐시와 아티팩트를 구분하여 사용</h3>
+        <h3>캐시와 아티팩트를 구분하여 사용한다</h3>
         <p>캐시는 의존성(node_modules, pip 패키지, Go 모듈)을 재사용하여 설치 시간을 줄이는 용도다. 아티팩트는 빌드 산출물(바이너리, 테스트 리포트)을 후속 작업에 전달하거나 다운로드하는 용도다. 캐시는 hit/miss가 결과에 영향을 주면 안 되고, 아티팩트는 누락 시 파이프라인이 실패해야 한다.</p>
         <a class="card-source" href="https://docs.github.com/actions/concepts/workflows-and-actions/dependency-caching" target="_blank" rel="noopener">GitHub — Dependency caching</a>
       </article>
 
       <article class="card">
         <div class="card-num">PRINCIPLE 05</div>
-        <h3>Self-hosted runner는 ephemeral을 우선</h3>
+        <h3>Self-hosted runner는 ephemeral을 우선한다</h3>
         <p>장수(long-lived) runner는 이전 작업의 파일, 환경변수, 프로세스가 잔존하여 보안 위험과 재현 불가능한 빌드를 만든다. 매 작업마다 새 인스턴스를 생성하고 작업 후 폐기하는 ephemeral 패턴을 기본으로 한다. 비신뢰 코드(외부 PR)가 실행되는 인프라로 간주하고 네트워크를 격리한다.</p>
         <a class="card-source" href="https://docs.gitlab.com/runner/security/" target="_blank" rel="noopener">GitLab Runner — Security</a>
       </article>
 
       <article class="card">
         <div class="card-num">PRINCIPLE 06</div>
-        <h3>매트릭스 빌드는 커버리지 확장용</h3>
+        <h3>매트릭스 빌드는 커버리지 확장용이다</h3>
         <p>OS, 언어 버전, 의존성 조합을 매트릭스로 구성하여 호환성 커버리지를 넓힌다. <code>max-parallel</code>로 동시 실행 수를 제어하고, <code>fail-fast</code>로 첫 실패 시 나머지를 취소할지 결정한다. 매트릭스가 과도하면 리소스 낭비와 큐 대기가 발생하므로 실제 배포 대상 조합으로 제한한다.</p>
         <a class="card-source" href="https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs" target="_blank" rel="noopener">GitHub — Using a matrix for your jobs</a>
+      </article>
+
+      <article class="card wide">
+        <div class="card-num">PRINCIPLE 07 <span class="new">v0.2.0</span></div>
+        <h3>빨간 검사는 고치기 전에 원인부터 가른다</h3>
+        <p>여럿이 같이 쓰는 가지에서는 빨간 검사가 이번 변경 탓이 아닌 경우가 많다. 원인을 가르지 않고 고치기 시작하면 남이 깬 것을 쫓느라 시간을 쓴다.</p>
+        <p class="more">가르는 순서 · 재현 명령 · 판정 표는 <a href="#triage">02 · 빨간 검사 원인 가르기</a> 에 있다.</p>
+        <div class="source-row">
+          <a class="card-source" href="https://git-scm.com/docs/git-merge-base" target="_blank" rel="noopener">Git — git merge-base</a>
+          <a class="card-source" href="https://cli.github.com/manual/gh_run_list" target="_blank" rel="noopener">GitHub CLI — gh run list</a>
+          <a class="card-source" href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs" target="_blank" rel="noopener">GitHub — Re-running workflows and jobs</a>
+          <a class="card-source" href="https://docs.github.com/en/actions/reference/runners/github-hosted-runners" target="_blank" rel="noopener">GitHub-hosted runners</a>
+          <a class="card-source" href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches" target="_blank" rel="noopener">GitHub — About protected branches</a>
+        </div>
       </article>
 
     </div>
   </section>
 
-  <section>
+  <section id="triage">
     <div class="section-head">
-      <span class="section-num">02 · Numbers</span>
-      <h2>수치 & 기준값</h2>
+      <span class="section-num">02 · Triage</span>
+      <h2>빨간 검사 원인 가르기</h2>
+    </div>
+
+    <p class="lead">원칙 07 의 절차다. <strong>원인은 이번 커밋 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패 · 환경 · 미확정 가운데 하나로 적는다.</strong></p>
+
+    <div class="cause-grid">
+      <div class="cause">
+        <span class="cause-idx">원인 1</span>
+        <span class="cause-name">이번 커밋</span>
+        <span class="cause-where">아래 판정 표 셋째 줄</span>
+      </div>
+      <div class="cause">
+        <span class="cause-idx">원인 2</span>
+        <span class="cause-name">남의 미커밋 변경</span>
+        <span class="cause-where">아래 판정 표 첫째 줄</span>
+      </div>
+      <div class="cause">
+        <span class="cause-idx">원인 3</span>
+        <span class="cause-name">기준 커밋에서 이미 실패</span>
+        <span class="cause-where">아래 판정 표 둘째 줄</span>
+      </div>
+      <div class="cause ci">
+        <span class="cause-idx">원인 4</span>
+        <span class="cause-name">환경</span>
+        <span class="cause-where">CI 에서만 보이는 경우</span>
+      </div>
+      <div class="cause ci">
+        <span class="cause-idx">원인 5</span>
+        <span class="cause-name">미확정</span>
+        <span class="cause-where">CI 에서만 보이는 경우</span>
+      </div>
+    </div>
+
+    <div class="rule-note"><strong>이 분류는 이 킷의 규칙이다</strong> — Git · GitHub 문서는 기준 커밋을 구하는 방법, 커밋별 실행 기록 조회, 같은 커밋 재실행 같은 수단만 준다.</div>
+
+    <h3 class="sub">기준 커밋을 구하고 깨끗한 곳에서 다시 돌린다</h3>
+
+    <ol class="steps">
+      <li class="step">
+        <div class="step-idx">1</div>
+        <div class="step-body">
+          <h4>기준 커밋 <code>FORK_BASE</code> 를 구한다</h4>
+          <p>기준 커밋 <code>FORK_BASE</code> 는 <code>git merge-base HEAD origin/&lt;기준 가지&gt;</code> 로 구한다. 기준 가지의 지금 끝이 아니라 두 이력의 공통 조상이다. 이력이 복잡하면 merge base 가 둘 이상일 수 있으니 어느 것을 골랐는지 적는다.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-idx">2</div>
+        <div class="step-body">
+          <h4>깨끗한 임시 워크트리에서 다시 돌린다</h4>
+          <p>같은 명령을 깨끗한 임시 워크트리에서 다시 돌려 가른다.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-idx">3</div>
+        <div class="step-body">
+          <h4>준비 명령을 앞에 붙인다</h4>
+          <p>임시 워크트리에는 추적하지 않는 파일(설치한 의존성 · 빌드 산출물)이 없으니 <code>&lt;실패한 검사 명령&gt;</code> 앞에 그 프로젝트의 준비 명령을 붙인다 — 안 붙이면 준비가 안 된 탓의 실패를 기준 커밋 탓으로 읽는다.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="code-panel">
+      <div class="code-head"><b>BASH</b><span><code>HEAD</code> · <code>FORK_BASE</code> · <code>origin/&lt;기준 가지&gt;</code> 세 곳에서 같은 검사를 돌린다</span></div>
+<pre><code>FORK_BASE=$(git merge-base HEAD origin/&lt;기준 가지&gt;)
+for ref in HEAD "$FORK_BASE" origin/&lt;기준 가지&gt;; do
+  t=$(mktemp -d)
+  git worktree add -q --detach "$t" "$ref"
+  ( cd "$t" &amp;&amp; &lt;실패한 검사 명령&gt; ) &gt;/dev/null 2&gt;&amp;1
+  rc=$?
+  echo "$ref $(git rev-parse --short "$ref") exit=$rc"
+  git worktree remove --force "$t"
+done</code></pre>
+    </div>
+
+    <h3 class="sub">판정 표</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>공용 작업 폴더</th><th><code>HEAD</code> 임시</th><th><code>FORK_BASE</code> 임시</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="pill fail">실패</span></td>
+            <td><span class="pill pass">통과</span></td>
+            <td>—</td>
+            <td class="verdict">미커밋 변경 탓 — <code>git status --short</code> 의 파일이 내가 쓴 목록 밖이면 남의 미커밋이다</td>
+          </tr>
+          <tr>
+            <td><span class="pill fail">실패</span></td>
+            <td><span class="pill fail">실패</span></td>
+            <td><span class="pill fail">실패</span></td>
+            <td class="verdict">기준 커밋에서 이미 실패 — 내 변경 전부터다</td>
+          </tr>
+          <tr>
+            <td><span class="pill fail">실패</span></td>
+            <td><span class="pill fail">실패</span></td>
+            <td><span class="pill pass">통과</span></td>
+            <td class="verdict">이번 커밋 탓일 가능성이 크다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-note">위 세 줄은 harness <code>/sprint</code> Step 3 의 판정과 같은 말이다. <code>origin/&lt;기준 가지&gt;</code> 줄은 분기 뒤 기준 가지가 깨졌는지를 본다. CI 에서만 보이는 두 경우를 더한다.</p>
+
+    <h3 class="sub">CI 에서만 보이는 두 경우</h3>
+
+    <div class="case-grid">
+      <div class="case">
+        <span class="case-tag">원인 4</span>
+        <h4>환경 · 비결정성</h4>
+        <p>같은 커밋을 다시 돌렸는데 결과가 달라진다. GitHub 재실행은 원 실행과 같은 <code>GITHUB_SHA</code> · <code>GITHUB_REF</code> 를 쓰고, 실패한 job 만 다시 돌리거나 디버그 로그를 켤 수 있다. GitHub 호스트 runner 는 job 마다 새 VM 이고 <code>-latest</code> 는 GitHub 가 정한 최신 안정 이미지라 runner 이미지 · 도구 버전도 원인 후보다.</p>
+      </div>
+      <div class="case">
+        <span class="case-tag">원인 5</span>
+        <h4>미확정</h4>
+        <p>기록도 재현 환경도 없어 가를 수 없다. 억지로 셋 중 하나에 넣지 말고 「미확정 — 같은 커밋 재실행이 필요하다」 로 적는다.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">「기준 커밋에서 이미 실패」 로 적을 수 있는 때</span>
+      <p>「기준 커밋에서 이미 실패」 는 같은 검사에서 같은 핵심 오류가 날 때만이다. 이름만 같은 검사의 다른 오류는 별개다. 이미 실패하던 검사는 이번 변경의 회귀로 세지 않되 따로 보고하고, 그 이유로 필수 검사를 건너뛰거나 통과로 적지 않는다.</p>
+      <p><code>HEAD</code> 에서만 실패하고 기준 커밋에서 통과해도 이번 변경과 함께 나타났다는 증거일 뿐 원인 증명은 아니다 — 비결정적 테스트 · 외부 서비스 · 캐시 · 시간 의존 때문에 같은 커밋도 결과가 달라질 수 있다.</p>
+    </div>
+
+    <h3 class="sub">GitHub Actions 에서 실행 기록 찾기</h3>
+
+    <p class="lead">GitHub Actions 라면 기준 커밋의 실행 기록은 <code>gh run list --commit &lt;sha&gt;</code> 로 찾는다.</p>
+
+    <div class="compare">
+      <div class="compare-col bad">
+        <span class="compare-label">Bad</span>
+        <h4>최근 성공 커밋에서 가지를 자를 때 <code>gh run list --branch &lt;가지&gt; --status success --limit 1 --json headSha</code> 를 그대로 쓰지 마라</h4>
+        <p><code>--workflow</code> 가 없어 문서 빌드처럼 필수가 아닌 workflow 하나만 성공한 커밋도 나온다.</p>
+      </div>
+      <div class="compare-col good">
+        <span class="compare-label">Good</span>
+        <h4>필수 검사 전부와 빠지는 커밋 범위를 확인한다</h4>
+        <p>그 커밋에서 보호 가지의 필수 검사가 전부 성공 · skipped · neutral 인지 확인하고, 옛 커밋에서 잘랐으면 <code>&lt;고른 커밋&gt;..origin/&lt;기준 가지&gt;</code> 로 빠지는 커밋 범위를 함께 보고한다.</p>
+        <span class="ref">GitHub 밖 CI 의 같은 조회 명령은 이 문서의 근거에 없다.</span>
+      </div>
+    </div>
+
+    <div class="sources">
+      <span class="sources-title">원칙 07 출처</span>
+      <div class="source-row">
+        <a class="card-source" href="https://git-scm.com/docs/git-merge-base" target="_blank" rel="noopener">Git — git merge-base</a>
+        <a class="card-source" href="https://cli.github.com/manual/gh_run_list" target="_blank" rel="noopener">GitHub CLI — gh run list</a>
+        <a class="card-source" href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs" target="_blank" rel="noopener">GitHub — Re-running workflows and jobs</a>
+        <a class="card-source" href="https://docs.github.com/en/actions/reference/runners/github-hosted-runners" target="_blank" rel="noopener">GitHub-hosted runners</a>
+        <a class="card-source" href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches" target="_blank" rel="noopener">GitHub — About protected branches</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="numbers">
+    <div class="section-head">
+      <span class="section-num">03 · Numbers</span>
+      <h2>수치/기준값</h2>
     </div>
     <div class="table-wrap">
       <table>
@@ -529,16 +1155,16 @@
           <tr><td>아티팩트 보존 기본 기간</td><td><strong>90일</strong></td><td>리포지토리 설정에서 변경 가능</td></tr>
           <tr><td><code>GITHUB_TOKEN</code> 최대 수명</td><td><strong>24시간</strong></td><td>작업 종료 시 자동 만료</td></tr>
           <tr><td>Self-hosted runner 업데이트 기한</td><td><strong>30일</strong></td><td>이내 미업데이트 시 작업 거부</td></tr>
-          <tr><td>GitLab <code>needs</code> 최대 의존 수</td><td><strong>50개</strong> / job</td><td>초과 시 파이프라인 생성 실패</td></tr>
+          <tr><td>GitLab <code>needs</code> 최대 의존 수</td><td><strong>50개</strong>/job</td><td>초과 시 파이프라인 생성 실패</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <section>
+  <section id="anti-patterns">
     <div class="section-head">
-      <span class="section-num">03 · Anti-patterns</span>
-      <h2>안티패턴 & 올바른 접근</h2>
+      <span class="section-num">04 · Anti-patterns</span>
+      <h2>안티패턴 &amp; 올바른 접근</h2>
     </div>
     <div class="anti-list">
 
@@ -546,12 +1172,13 @@
         <div class="compare-col bad">
           <span class="compare-label">Bad</span>
           <h4>장기 클라우드 키를 CI secret에 고정</h4>
-          <p>AWS access key, GCP service account JSON 등을 GitHub secret에 저장하고 수년간 방치. 키 로테이션을 잊으면 유출 시 무제한 접근이 가능하다.</p>
+          <p>키 로테이션을 잊으면 유출 시 무제한 접근.</p>
         </div>
         <div class="compare-col good">
           <span class="compare-label">Good</span>
-          <h4>OIDC federation으로 단기 토큰 발급</h4>
-          <p>CI 작업 실행 시점에 IdP에서 단기 토큰을 발급받아 사용. 수명이 제한되고 로테이션 불필요. 감사 로그로 누가/언제 어떤 작업을 했는지 추적 가능.</p>
+          <h4>OIDC federation으로 대체</h4>
+          <p>CI 작업 실행 시점에 단기 토큰을 발급받으면 토큰 수명이 제한되고, 키 로테이션이 불필요하며, 감사 추적이 용이하다.</p>
+          <span class="ref">원칙 02</span>
         </div>
       </div>
 
@@ -559,12 +1186,13 @@
         <div class="compare-col bad">
           <span class="compare-label">Bad</span>
           <h4>캐시와 아티팩트 혼용</h4>
-          <p>캐시를 아티팩트처럼 쓰면 캐시 미스 시 다음 job이 실패. 아티팩트를 캐시처럼 쓰면 불필요한 저장 비용이 발생하고 보존 기간 정책이 꼬인다.</p>
+          <p>캐시를 아티팩트처럼 쓰면 캐시 미스 시 빌드 실패. 아티팩트를 캐시처럼 쓰면 불필요한 저장 비용.</p>
         </div>
         <div class="compare-col good">
           <span class="compare-label">Good</span>
-          <h4>역할 분리: 캐시=선택적 최적화, 아티팩트=필수 전달</h4>
-          <p>캐시는 hit/miss가 결과에 영향 없어야 한다. 아티팩트는 빌드 산출물을 명시적으로 다음 job에 전달하며, 누락 시 파이프라인이 실패해야 한다.</p>
+          <h4>캐시는 의존성 재사용, 아티팩트는 산출물 전달</h4>
+          <p>캐시는 hit/miss가 결과에 영향을 주면 안 되고, 아티팩트는 누락 시 파이프라인이 실패해야 한다.</p>
+          <span class="ref">원칙 04</span>
         </div>
       </div>
 
@@ -572,12 +1200,12 @@
         <div class="compare-col bad">
           <span class="compare-label">Bad</span>
           <h4>모든 브랜치에서 풀 파이프라인 실행</h4>
-          <p>feature 브랜치에서 전체 배포 파이프라인을 돌리면 리소스 낭비. 배포가 불필요한 브랜치에서도 프로덕션 빌드·스캔까지 수행되어 큐 대기 증가.</p>
+          <p>feature 브랜치에서 전체 배포 파이프라인을 돌리면 리소스 낭비.</p>
         </div>
         <div class="compare-col good">
           <span class="compare-label">Good</span>
-          <h4>브랜치·이벤트별 필터로 실행 범위 제한</h4>
-          <p><code>on.push.branches</code>, <code>if</code> 조건, path 필터로 실행 범위를 제한. feature 브랜치는 lint+test만, main 브랜치는 전체 배포 파이프라인.</p>
+          <h4>브랜치별 필터로 실행 범위 제한</h4>
+          <p>feature 브랜치까지 전체 배포 파이프라인을 돌리지 않게 브랜치별 필터로 실행 범위를 제한한다.</p>
         </div>
       </div>
 
@@ -585,34 +1213,36 @@
         <div class="compare-col bad">
           <span class="compare-label">Bad</span>
           <h4>장수 공유 runner</h4>
-          <p>상태가 축적되어 "내 로컬에서는 되는데" 문제를 재현. 이전 작업의 npm 캐시, 환경변수, 임시 파일이 다음 빌드에 영향을 주어 플래키 빌드 발생.</p>
+          <p>상태가 축적되어 "내 로컬에서는 되는데" 문제 재현.</p>
         </div>
         <div class="compare-col good">
           <span class="compare-label">Good</span>
-          <h4>Ephemeral runner 패턴</h4>
-          <p>매 작업마다 새 인스턴스 생성 후 폐기. 네트워크 격리, 권한 최소화. 외부 PR 코드도 안전하게 실행 가능한 수준으로 격리 가정.</p>
+          <h4>ephemeral 패턴 필수</h4>
+          <p>매 작업마다 새 인스턴스를 생성하고 작업 후 폐기한다. 비신뢰 코드(외부 PR)가 실행되는 인프라로 간주하고 네트워크를 격리한다.</p>
+          <span class="ref">원칙 05</span>
         </div>
       </div>
 
       <div class="compare">
         <div class="compare-col bad">
           <span class="compare-label">Bad</span>
-          <h4>매트릭스 폭발</h4>
-          <p>OS 3종 × 언어 5버전 × 의존성 3버전 = 45 jobs. 큐가 막히고 CI 비용이 급증. 실제로 배포되지 않는 조합까지 포함.</p>
+          <h4>matrix 폭발</h4>
+          <p>OS 3종 × 언어 5버전 × 의존성 3버전 = 45 jobs.</p>
         </div>
         <div class="compare-col good">
           <span class="compare-label">Good</span>
-          <h4>실제 배포 대상만 PR에서 실행</h4>
-          <p>핵심 조합만 PR에서 실행하고, 나머지 커버리지 매트릭스는 nightly 스케줄로 분리. <code>max-parallel</code>, <code>fail-fast</code> 조정.</p>
+          <h4>실제 배포 대상만 포함하고 나머지는 nightly로 분리</h4>
+          <p><code>max-parallel</code>로 동시 실행 수를 제어하고, <code>fail-fast</code>로 첫 실패 시 나머지를 취소할지 결정한다.</p>
+          <span class="ref">원칙 06</span>
         </div>
       </div>
 
     </div>
   </section>
 
-  <section>
+  <section id="gotchas">
     <div class="section-head">
-      <span class="section-num">04 · Gotchas</span>
+      <span class="section-num">05 · Gotchas</span>
       <h2>Gotchas 체크리스트</h2>
     </div>
     <div class="gotcha-list">
@@ -641,7 +1271,7 @@
   </section>
 
   <footer>
-    Infra Kit · CI/CD · last updated 2026-04-04
+    Infra Kit · CI/CD v0.2.0 · 원본 docs/infra/platform/cicd.md · last updated 2026-09-25
   </footer>
 
 </div>

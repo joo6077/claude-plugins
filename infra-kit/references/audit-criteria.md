@@ -100,7 +100,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 | State locking | DynamoDB lock 또는 동등 메커니즘 | locking 없음 |
 | plan → apply | plan 파일 저장 후 apply | 직접 apply |
 | 시크릿 제외 — Ephemeral values 우선 | Terraform 1.10+ `ephemeral` 블록 / write-only arguments / `ephemeralasnull` 사용 또는 Vault/SSM 참조 (state 비저장) | state 또는 plan JSON에 평문 시크릿, sensitive 마킹만 의존 |
-| State encryption | OpenTofu 1.7+ native state encryption 또는 backend-level 암호화(SSE-S3/CMEK/Cloud KMS) + 접근 제어 | 암호화 미설정 remote state |
+| State encryption | OpenTofu native state encryption 또는 backend-level 암호화(SSE-S3/CMEK/Cloud KMS) + 접근 제어 | 암호화 미설정 remote state |
 | 테스트 프레임워크 | `terraform test` / OpenTofu `tofu test` 모듈 테스트(1.7+ mocking 포함) 존재 | 모듈 테스트 전혀 없음 |
 | S3 네이티브 State Locking | OpenTofu 1.10+는 S3 네이티브 locking 지원 (DynamoDB 불필요) — 해당 버전 사용 시 DynamoDB 제거 검토 | OpenTofu 1.10+ 사용하면서 DynamoDB 불필요 유지 |
 | OCI Registry 모듈 | OpenTofu 1.10+는 OCI Registry에서 모듈/프로바이더 배포 지원 — 에어갭 환경에서 활용 | 에어갭 환경에서 HTTP 미러 수동 관리 |

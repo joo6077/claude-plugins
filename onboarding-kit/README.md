@@ -39,8 +39,9 @@ bambu-kit과 같은 도구형 1스킬 킷. 스택 무관 — Flutter / 네이티
 이 레포 개발용으로 `.claude/skills/onboarding-kaizen/`이 존재한다 (플러그인에는 포함 X). bambu-kaizen 패턴과 동일하게 SKILL.md/references/evals를 주기적으로 개선한다.
 
 - 수동 호출: `/onboarding-kaizen`
-- 전체 카이젠: `/kaizen` (Phase 13으로 자동 실행)
+- 전체 카이젠: `/kaizen` (Phase 14로 자동 실행)
 - 사용자 피드백 메모리(`feedback_setup_guide_*`)가 3개 이상 누적되면 자동 트리거 후보
+- `guide_gate` 시험: `sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh` — 등록된 입력마다 zsh · bash 두 셸 출력을 기대 출력과 대조한다. 폴더에만 있고 등록 안 된 픽스처도 실패로 센다
 
 ## License
 

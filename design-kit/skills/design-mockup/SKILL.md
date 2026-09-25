@@ -23,7 +23,7 @@ user-invocable: true
 7. **디바이스 프레임은 목적에 따라 선택적으로 사용하라** — 클라이언트 발표나 near-final 데모에는 디바이스 프레임이 완성 인상을 준다. 그러나 레이아웃 구조 비교나 콘텐츠 밀도 검토가 목적이면 프레임 없이 보여주는 편이 낫다. 프레임 chrome이 실제 논점인 레이아웃 판단을 방해할 수 있다.
 8. **인터랙션이 쟁점이면 정적 비교에 의존하지 마라** — 드롭다운, 오버레이, 멀티스텝 플로우, 로딩 상태, 모달 전환은 나란히 놓인 정지 화면만으로 판단하기 어렵다. HTML 시안에 hover/focus/click 인터랙션을 포함하거나, 인터랙티브 프로토타입 링크를 함께 제공하라.
 9. **반응형 시안은 breakpoint별 스냅샷만으로 끝내지 마라** — mobile/tablet/desktop 3단 구성을 보여줄 때, 각 화면에서 동일한 유저 시나리오 상태를 맞춰 두어야 비교가 의미 있다. 컬럼 수, 거터, max-width 등 레이아웃 규칙도 함께 명시하라.
-10. **Container Queries 활용 권장** — 반응형 시안에서 페이지 레벨 분기는 media queries, 컴포넌트 레벨 분기는 `container-type: inline-size` + `@container` queries를 사용하라. 2026 Baseline 기준 모든 주요 브라우저 지원. cqw/cqi 유닛으로 컨테이너 상대 크기 지정이 가능하다. 콘텐츠가 깨지는 지점에 breakpoint를 설정하고 디바이스 타겟 기반은 피하라. 출처: research-log §J.
+10. **Container Queries 활용 권장** — 반응형 시안에서 페이지 레벨 분기는 media queries, 컴포넌트 레벨 분기는 `container-type: inline-size` + `@container` queries를 사용하라. 크기 쿼리는 Chrome 105 · Firefox 110 · Safari 16 부터 지원한다 (style · scroll-state 쿼리는 지원 범위가 다르다). cqw/cqi 유닛으로 컨테이너 상대 크기 지정이 가능하다. 콘텐츠가 깨지는 지점에 breakpoint를 설정하고 디바이스 타겟 기반은 피하라. 출처: research-log §J.
 11. **Fluid Typography 적용** — 시안 내 텍스트에 `clamp(min, preferred, max)` 기반 fluid font-size를 적용하면 breakpoint 없이 모든 뷰포트에서 자연스러운 크기 전환을 보여줄 수 있다. 특히 히어로/디스플레이 텍스트에 효과적이다. 출처: research-log §E.
 12. **mockup.html은 HTML 형식이 정상 산출물이다** — 이 스킬의 출력물(`.design/mockups/*.html`)은 의도적으로 HTML 형식을 사용한다. `design-tokens.md`, `audit-report.md` 같은 `.md` 계약 패턴과 구조가 다른 것은 설계상 의도된 차이이며 오류가 아니다. QA 평가 또는 검증 도구가 "HTML 형식이 .md 패턴과 다르다"고 지적할 경우 False positive로 처리하고 이 Gotcha를 근거로 무시한다.
 13. **확정 = 승인 기록 파일 생성 (대화 로그로 끝내지 마라)** — 사용자가 시안을 확정하면 Step 6 에서 `.design/approvals/{YYYYMMDD}-{화면명}.md` 를 생성한다. 여기에 선택된 안, 산출물 경로, **확정된 시각 값(색상·타이포·간격)**, 원문 근거를 남긴다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(시안 승인 기록) 확인 불가" 로 REJECT 된다 — 2026-07-13 글로벌 REJECT `UI-06` 의 실제 사유다. **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 규격: `../../references/visual-change-protocol.md` §4.
@@ -41,6 +41,10 @@ user-invocable: true
 - 주요 기능과 정보 요소
 - 대상 사용자
 
+파일을 만들기 전에 `../../references/visual-change-protocol.md` §0 의 대상과 되말하기를 응답에 남긴다 — 대상 화면의
+파일 경로와 라우트(새 화면이면 `신규`), 그리고 요청을 요소 이름과 배치까지 넣어 되말한 한 문장. 두 갈래로 읽히면
+묻고 시작한다.
+
 불명확하면 사용자에게 확인한다.
 
 ## Step 2: 자동 감지 및 로드
@@ -52,11 +56,16 @@ user-invocable: true
 .design/concept.md          → 컨셉 로드
 **/theme/** **/tokens/**    → 디자인 토큰 로드
 **/design-tokens.*          → 디자인 토큰 로드
+.design/approvals/*.md      → 같은 화면의 확정 구성 · 폐기한 대안 로드
 ```
 
 - 컨셉 존재 → 무드 키워드, 컬러/타이포 방향, UI 패턴을 시안에 반영
 - 토큰 존재 → 구체적 컬러값, 타이포 스케일, 간격을 시안에 적용
 - 둘 다 없음 → 사용자 요구사항만으로 시안 생성
+- 승인 기록 존재 → 확정 구성을 지키고, 폐기한 대안·요소는 사용자가 되살리라고 하지 않는 한 시안에 다시 넣지 않는다
+  (`../../references/visual-change-protocol.md` §4)
+- 앱 코드 존재 → §0 관례 표를 만든다. 같은 역할의 서로 다른 기존 화면 2 개 이상을 읽고, 재사용 부품은 grep 으로
+  확인한 실제 이름만 쓴다. 관례는 Step 3-a 매트릭스의 `constants` 에 넣는다
 
 ## Step 3: 개수 계약 · Variant Contract Matrix 합의 후 하이파이 HTML 시안 생성
 
@@ -120,15 +129,16 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
   - **동일 화면 일부 요소 변경 비교** → 변경 전/후를 겹쳐서 설명
   - **결정 근거/핸드오프 포함 비교** → 주석(annotation) 추가
   - **인터랙션·상태 변화 비교** → hover/focus/click 동작 포함
-- 수정 요청이 **특정 속성만 지목한 경우**(보더만·색만·간격만) 편집 전에 Change Manifest 를 남긴다 (Gotcha 15):
+- 수정 요청이 **속성 하나나 요소 하나를 지목한 경우**(보더만·색만·간격만, 이 칩만) 편집 전에 Change Manifest 를 남긴다 (Gotcha 15 · `../../references/visual-change-protocol.md` §2):
 
   ```text
   ## Change Manifest
   - 변경: [속성 — 대상 ID — 현재값 → 목표값]
-  - 보존: [같은 요소의 나머지 시각 속성 — background / fill / radius / shadow / spacing / typography 중 해당분]
+  - 보존: [같은 요소의 나머지 시각 속성 — background / fill / radius / shadow / spacing / typography 중 해당분 · 요소 하나를 지목했으면 같은 줄·같은 영역의 이웃 요소와 그 자리]
   ```
 
   수정 후 보존 목록의 값이 그대로인지 확인한다. 변했으면 되돌리고 지목된 속성만 다시 적용한다.
+  고치는 순서 · 반영 확인 · 스스로 고치기 최대 3 회는 §3 비교 반복 순서를 따르고, 캡처마다 §3 캡처 점검 목록을 본다.
 - 수정 후 HTML 파일 갱신
 - 확정 시 `.design/mockups/` 에 최종본 유지
 
@@ -145,6 +155,8 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 - 대상 산출물: .design/mockups/{파일명}.html
 - 선택된 안: {전략 레이블 + 시안 ID}
 - 확정된 시각 값: {승인 시점에 고정된 색상·타이포·간격 — 이후 토큰과 충돌 시 이 값이 우선}
+- 확정 구성: {화면에 남는 요소와 배치}
+- 폐기한 대안·이유: {이번 결정에서 버린 안·요소와 이유 — 없으면 `없음`}
 - 미확정/후속: {합의되지 않아 남긴 항목}
 - 원문 근거: {사용자 발화 인용}
 ```
@@ -154,6 +166,7 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 ```bash
 ls .design/approvals/                      # 파일 존재
 grep -c '확정된 시각 값' .design/approvals/{파일명}.md   # → 1
+grep -cE '^- (확정 구성|폐기한 대안·이유):' .design/approvals/{파일명}.md   # → 2
 ```
 
 승인 후 시안을 다시 수정하면 이 기록도 갱신한다. 스테일 승인 기록은 없는 것보다 나쁘다.

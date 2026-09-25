@@ -39,7 +39,7 @@
 
 ## 인프라/환경 파일
 
-- `.env*` — 환경변수에서 외부 서비스 키 흔적 (`FIREBASE_*`, `AWS_*`, `STRIPE_*`)
+- `.env.example` 류 — 환경변수 키 이름에서 외부 서비스 흔적 (`FIREBASE_*`, `AWS_*`, `STRIPE_*`). 값이 든 `.env` 파일(`.env.local` · `.env.production` 등)은 있는지만 보고 열지 않는다 (SKILL.md Gotcha 8)
 - `docker-compose*.yml`, `Dockerfile` — 컨테이너 의존성
 - `terraform/*.tf` — IaC 리소스
 - `k8s/*.yaml`, `helm/` — Kubernetes 매니페스트

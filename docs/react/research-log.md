@@ -1,9 +1,54 @@
 ---
-version: 1.3.0
-last_updated: 2026-08-13
+version: 1.4.0
+last_updated: 2026-09-25
 ---
 
 # React Kit Research Log
+
+## [2026-09-25] - Phase 10 kaizen (렌더 증거 반영 확인 · 조용한 통과)
+
+`/insights` 2026-09-24 처리 배정표의 Phase 10 행 여섯(F03 · F05 · other-kits:P1 · P2 · P5 · P6)과 앞 Phase 가 넘긴 둘
+(Phase 1 — 렌더 증거 규약의 `[미검증]` 사유 한 줄 · Phase 6 — 규약에 되말하기 · 관례 표 · 반영 확인 · 캡처 점검 · 3 회 상한 없음)을
+받았다. react-kit 관측 사례는 없다 — 전부 플러터 세션 사고가 같은 모양으로 날 수 있는 자리를 막은 것이다.
+외부 조회는 이번 라운드에서 직접 하지 않았다 — 근거는 `.harness/.meta/evidence/phase10.md` (수집 2026-09-24) 한 파일뿐이다.
+
+- **렌더 증거 규약 1.1.0**: 편집 전과 완료 직전 두 번 실행한다. §1 에 되말하기 · 화면 자체 · 관례 표(같은 역할 기존 화면 2 개 이상),
+  §2 에 비교 반복 순서(기준 캡처 → 한 의도 → 반영 확인 → 재캡처 → 대조, 스스로 고치기 최대 3 회) · 캡처 점검 목록 넷 ·
+  도구가 고장이라 말하기 전 세 확인, `[미검증]` 네 칸. 다섯 UI 스킬에 편집 전 Gotcha. 반영 확인의 주소 대조와
+  「새로고침 → 서버 다시 띄우기 → WASM 다시 빌드」 순서는 공식 표준이 없어 킷 규칙으로 적었다
+- **개발 서버 포트 고정**: 템플릿 `vite.config.template.ts` 에 `strictPort: true`. Vite 는 지정 포트가 차 있으면 다음 빈 포트로 옮기고
+  Tauri 는 고정 포트를 기대한다. 다른 포트가 필요하면 `--port` 와 함께 `devUrl` · `vm_port` 를 같은 번호로 맞춘다 (react-run Gotcha).
+  출처: <https://vite.dev/config/server-options.html#server-port> · <https://vite.dev/guide/cli> · <https://v2.tauri.app/start/frontend/vite/>
+- **시험 수 보고**: react-run · react-preflight 가 passed · skipped 두 수를 적고, 0 passed 나 skipped 1 이상을 통과로 적지 않는다.
+  의도한 `skip` · `skipIf` 가 있어 skipped 를 실패로 바꾸지는 않았다.
+  출처: <https://vitest.dev/config/passwithnotests> · <https://vitest.dev/config/allowonly> · <https://vitest.dev/api/>
+- **`lingui extract --clean`**: react-l10n 기본 흐름에서 뺐다. 기본 `extract` 는 번역을 보존하고 `--clean` 은 소스에서 못 찾은 메시지를 지운다.
+  사용자가 정리를 요청할 때만 커밋 안 한 변경 확인 → 삭제 수 · 지워진 번역 확인 → 확인 전 커밋 안 함 순서로 돌린다.
+  출처: <https://lingui.dev/ref/cli>
+- **`scripts/project-detect.sh`**: 값이 없을 때 `"null"` 을 내는데 `-n` 으로 재서 `tanstackRouter` 가 늘 참이었다. `!= "null"` 비교로 고치고
+  답을 아는 세 입력 × jq · python3 두 경로 시험(`react-kit/evals/scripts/project-detect-test.sh`)을 더했다. 그 시험이 결함 하나를 더 찾았다 —
+  jq 경로에 넘기는 필드 경로의 큰따옴표에 역슬래시가 붙어 jq 가 문법 오류로 늘 `"null"` 을 냈다. 비교만 고치면 jq 가 있는 기계에서 늘 거짓이 된다.
+  역슬래시를 뺐다. 부르는 스킬은 없다 —
+  지우지 않고 고친 까닭은 설계 문서(`kit-design/final-integration.md`)가 이 스크립트를 킷 구성으로 적고 있어서다.
+  출처: <https://www.gnu.org/software/bash/manual/html_node/Bash-Conditional-Expressions.html>
+
+### 확인한 현행 stable (2026-09-24 npm `latest`)
+
+| 항목 | 값 | 우리 반영 |
+| --- | --- | --- |
+| React | `19.3.0` — `<ViewTransition>` · Fragment Refs 가 stable | react-init · react-widget 의 「19.2+」 를 조회값으로. 2026-04-12 라운드 backlog 의 `react-view-transitions` 는 「canary 대기」 가 풀렸다 — react-animation Tier 2 는 아직 `document.startViewTransition` 래퍼이고, 옮길지는 다음 사이클에 정한다 |
+| @hookform/resolvers | `5.9.1` | react-init · react-form 의 「5.5.7」 을 조회값으로. Zod 4 호환 하한 5.1.0 은 그대로 |
+| react-hook-form | `7.88.0` | react-form 의 「v7.71.x」 를 「v7 라인」 으로 |
+| @lingui/core | `6.8.0` | react-init 조회값만 바꿨다. v6 는 Node 22.19+ · ESM 전용이라 v5 pin 은 그대로 (2026-08-13 라운드 열린 질문) |
+| Zod | `4.6.5` | 2026-08-13 라운드에서 못 정한 patch 번호를 확인했다. 스킬 · 템플릿은 major 만 적어 바꿀 곳이 없다 |
+| Vite · TanStack Query · Tauri CLI · Tailwind · Zustand | `8.3.0` · `5.103.2` · `2.11.5` · `4.3.3` · `5.0.15` | 변경 없음 — Query v5 object-form, Tauri capability, Tailwind `@theme`, Zustand `useShallow`(여러 필드일 때만), Vite 8(Node 20.19+ · 22.12+) 서술이 현행과 맞다 |
+
+출처: <https://github.com/facebook/react/releases/tag/v19.3.0> · <https://react.dev/blog/2026/09/09/react-19-3> ·
+<https://github.com/react-hook-form/resolvers/releases/tag/v5.9.1> · <https://github.com/react-hook-form/react-hook-form/releases/tag/v7.88.0> ·
+<https://github.com/lingui/js-lingui/releases/tag/v6.8.0> · <https://lingui.dev/releases/migration-6> · <https://github.com/colinhacks/zod/releases/tag/v4.6.5> ·
+<https://vite.dev/blog/announcing-vite8>
+
+옛 라운드 표의 버전 값(2026-08-13 · 2026-04-12)은 그 날짜의 사실이라 고치지 않고 이 표에 현행 값을 적는다.
 
 ## [2026-08-13] - Phase 10 kaizen (현행성 갱신)
 

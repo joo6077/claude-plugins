@@ -22,9 +22,9 @@ user-invocable: true
 8. **이미지 태그 `latest` 사용 FAIL** — 프로덕션 Dockerfile/compose에서 `FROM node:latest`, `image: postgres:latest`처럼 `latest` 태그를 사용하면 재현 불가능한 빌드가 된다. 반드시 구체적 버전 태그(`postgres:16-alpine`)를 사용하라.
 9. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 설정 파일에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "보안이 충분해 보인다"처럼 주관 해석 여지가 남는 기준은 **카테고리 평가 시작 시점에** 근거 제약(파일:라인 + 출처 URL)을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "K8s 네임스페이스 보안이 좋은지"가 아니라 "네임스페이스에 `pod-security.kubernetes.io/enforce=baseline` 라벨이 있는지 (Kubernetes PSA)"로 좁힌다.
 10. **Rule-by-Rule Audit 프로토콜 (skill-design-guide §3.6 대응)** — `audit-criteria.md` 10 카테고리 × N 체크항목을 한 번에 묶어 "대체로 PASS/FAIL" 로 리포트하지 말고, 각 체크항목 단위로 개별 판정과 근거를 생성하라. 묶음 판정은 PASS 세부가 가려지고 FAIL 누락 추적이 불가능해진다. 리포트 표의 각 row 는 한 체크항목에 대응한다.
-11. **미검증 항목 마커 프로토콜** — 런타임 환경/외부 시스템 접근 불가(예: production K8s 클러스터 kubectl 접근 · 실제 Cosign 서명 검증 · terraform state 파일 열람)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증:ENV]` 태그를 붙이고 근거에 이유를 기술하라 (예: `[미검증:ENV] production cluster kubectl 접근 불가 — manifest 정적 리뷰만 수행`). 마커 의미·4 분기·카운터 분리(`invalid_evidence` / `env_gaps`)·임계값·커버리지 게이트는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 이며, `infra-kit/agents/infra-reviewer.md` §9 가 그 복제본이다. **이 스킬에서 임계값이나 분류어를 다시 정의하지 마라.**
+11. **미검증 항목 마커 프로토콜** — 런타임 환경/외부 시스템 접근 불가(예: production K8s 클러스터 kubectl 접근 · 실제 Cosign 서명 검증 · terraform state 파일 열람)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증:ENV]` 태그를 붙이고 근거에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워라 (예: `[미검증:ENV]` — 막는 것: `kubectl get ns` 와 그 접근 거부 출력 · 시도한 우회: manifest 정적 리뷰 · 통제 불가 사유: 감사자에게 production 클러스터 자격증명이 없다 · 재검증 명령: 자격증명을 받은 뒤 같은 `kubectl get ns`. 네 칸 중 하나라도 비면 `[미검증:INVALID]` 다). 마커 의미·4 분기·카운터 분리(`invalid_evidence` / `env_gaps`)·임계값·커버리지 게이트는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 이며, `infra-kit/agents/infra-reviewer.md` §9 가 그 복제본이다. **이 스킬에서 임계값이나 분류어를 다시 정의하지 마라.**
 
-12. **도구·규칙 소스 부재를 "위반 0" 으로 집계하지 마라** — 인프라 감사는 검사 도구가 없는 환경이 흔하다(`hadolint` · `actionlint` · `kubeconform` · `conftest` · `cosign` · `trivy` 미설치, kubectl/레지스트리 접근 불가). **검사하지 못한 것과 검사해서 위반이 없는 것은 다르다.** 도구가 없어 돌리지 못한 rule 은 PASS 도 N/A 도 아니고 `[미검증]` 이다. 같은 원칙이 규칙 소스에도 적용된다 — `../../references/audit-criteria.md` 를 읽지 못했다면 그 카테고리는 검사하지 않은 것이므로 `[미검증] TOOL_OR_ENV_MISSING: audit-criteria.md 소스 부재 — 미검사` 로 명시하고 위반 0 으로 보고하지 마라. 빈 결과를 통과로 읽는 것이 이 마찰의 실제 사고 형태다. 상태어 5 종과 머리말 4 카운터는 `../../references/gate-result-taxonomy.md` 가 SSOT 다 — Step 3a 가 그것을 소비한다.
+12. **도구·규칙 소스 부재를 "위반 0" 으로 집계하지 마라** — 인프라 감사는 검사 도구가 없는 환경이 흔하다(`hadolint` · `actionlint` · `kubeconform` · `conftest` · `cosign` · `trivy` 미설치, kubectl/레지스트리 접근 불가). **검사하지 못한 것과 검사해서 위반이 없는 것은 다르다.** 도구가 없어 돌리지 못한 rule 은 PASS 도 N/A 도 아니고 `[미검증]` 이다. 같은 원칙은 규칙 소스에도 해당한다 — `../../references/audit-criteria.md` 를 읽지 못했다면 그 카테고리는 검사하지 않은 것이므로 `[미검증] TOOL_OR_ENV_MISSING: audit-criteria.md 소스 부재 — 미검사` 로 명시하고 네 칸(Gotcha 11)을 채워라 — 위반 0 으로 보고하지 마라. 빈 결과를 통과로 읽는 것이 이 마찰의 실제 사고 형태다. 상태어 5 종과 머리말 4 카운터는 `../../references/gate-result-taxonomy.md` 가 SSOT 다 — Step 3a 가 그것을 소비한다.
 
 # Process
 
@@ -100,7 +100,7 @@ user-invocable: true
 
 verdict 는 아래 순서로 확정하고 **위에서 성립하는 첫 항에서 멈춘다**:
 
-1. 감사 전제 붕괴(대상 0 건 · 규칙 소스 전부 로드 실패) → **BLOCKED** (`SKIP_NO_TARGET` 또는 소스 부재 사유 명시)
+1. 감사 전제 붕괴(대상 0 건 · 규칙 소스 전부 로드 실패) → **BLOCKED** (대상 0 건이면 `SKIP_NO_TARGET`, 소스를 못 읽었으면 Gotcha 11 의 네 칸)
 2. FAIL ≥ 1 → **REJECT** — 각 FAIL 에 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 제시한다
 3. `invalid_evidence` ≥ 2 → **REJECT** (개별 FAIL 이 0 건이어도)
 4. `verified_coverage = (rule 총수 − env_gaps) / rule 총수` 가 **0.60 미만** → **BLOCKED** (`insufficient_verified_coverage`). 원인이 구현이 아니라 환경이므로 REJECT 로 기록하지 않는다. 복구책은 각 `env_gaps` 항목의 **재검증 명령**을 실행한 뒤 재감사다

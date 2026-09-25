@@ -46,15 +46,26 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 > 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
 > 아래 5 조항은 정본을 문구 변형 없이 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
 > 정의하지 않는다.
+> **재동기화 2026-09-25 (Phase 9):** 정본이 2026-08-13 에 미검증 카운터를 둘로 나눴는데 이 사본은
+> 옛 3 분기 · 단일 임계로 남아 있었다. 조항 2·3 을 현행 정본으로 바꾸고 남용 방지 4 요건을 함께 옮겼다.
+> 정본 조항 1 의 N/A 표와 계약 DG 조건을 다루는 정본의 새 조항 2 는 옮기지 않았다 — backend · infra reviewer 사본과
+> 같다. 킷 reviewer 에 맞는지는 정본 쪽이 정한다.
 
 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
    `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
-2. **`[미검증]` 은 검증 도구·환경 부재 전용이다.** 대상이 없거나 미구현이면 그것은 미검증이
-   아니라 **FAIL** 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 `[미검증]` 이다
-   (3 분기: FAIL / 도구 부재 / 증거 무효).
-3. **임계값은 2 다.** `[미검증]` 0 건은 통상 판정, **1 건은 PASS 허용 + 경고 명시, 2 건 이상은
-   개별 FAIL 이 없어도 verdict 는 REJECT**. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이
-   "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.
+2. **`[미검증]` 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.** 대상이
+   없거나 미구현이거나 **의도적으로 실행하지 않았으면** 그것은 미검증이 아니라 **FAIL** 이다.
+   나머지는 `UNVERIFIED_ENV`(구현자 통제 밖 도구·환경 부재 · 남용 방지 4 요건 충족) 와
+   `UNVERIFIED_INVALID_EVIDENCE`(4 요건 미충족 주장 + 공허한 증거) 로 나눈다
+   (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
+   마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
+   `[미검증]` 은 `INVALID` 로 해석한다.**
+3. **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+   **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
+   "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
+   쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어
+   검증 커버리지 게이트(`(총수 − env_gaps)/총수 < 0.60` → `BLOCKED`)에만 쓴다. 같은 조건이
+   2 iteration 연속 `UNVERIFIED_ENV` 이면 계약 결함으로 승급해 `INVALID` 쪽으로 이관한다.
 4. **생성자의 완료 주장은 증거가 아니다.** 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장,
    코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가
    에이전트 궤적에서 **실패의 75.8% 가 false success** 였고, LLM 판정자의 AUROC 는 0.54~0.65 에
@@ -63,6 +74,18 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
    리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
    를 남긴다.
+
+### `UNVERIFIED_ENV` 남용 방지 4 요건 (하나라도 없으면 `INVALID` 로 강등 · 정본 복제)
+
+1. **1 차 도구 시도 기록** — 기준이 지정한 검증 도구를 실제로 호출했고 그 결과(에러 메시지·
+   타임아웃·미설치 출력)를 근거란에 인용했다
+2. **fallback 시도 기록** — 대체 정적 검증(마이그레이션 DDL 정적 확인 · 설정 파일 grep)을
+   수행했다. 기준에 fallback 이 없으면 "fallback 미기술" 을 **기준 결함**으로 기록하는 것까지가
+   이 요건이다
+3. **실패 로그** — 1·2 의 실패를 서술이 아니라 **출력**으로 남겼다. "확인 불가했다" 는 로그가 아니다
+4. **통제 불가 사유 + 재검증 명령** — 왜 구현자가 통제할 수 없는 환경 요인인지 한 문장으로 적고,
+   환경이 갖춰졌을 때 이 rule 을 통과시킬 **실행 가능한 명령**을 함께 적었다
+   (예: `docker compose up -d db && cargo test --workspace`)
 
 ## Canonical User-Reported Failure Protocol
 
@@ -134,23 +157,26 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 | 17 | API Design | Axum 0.8 `{id}` 중괄호 path 문법 (0.7 `:id` 잔재 0 건) | PASS/FAIL | | | |
 | 18 | Testing | 동시성 가드 음성 대조 — positive + stale expected value negative 쌍이 실 DB 에 존재하고 가드 구현 심볼과 결합돼 있다 (`references/concurrency-guard-protocol.md`) | PASS/FAIL | | | |
 
-**미검증 항목 마커 (agent-design-guide §10)** — 런타임 환경 접근 불가로 L3 검증이 불가능한 항목은 조용히 PASS 처리하지 말고 "판정" 컬럼에 `[미검증]` 을 붙이고 "근거" 컬럼에 이유를 기술한다 (예: `[미검증] production DB 접근 불가 — pool 설정 파일 정적 리뷰만 수행`). 마커 의미·임계값은 위 §미검증 증거 프로토콜(정본 복제) 을 따른다.
+**미검증 항목 마커 (agent-design-guide §10)** — 런타임 환경 접근 불가로 L3 검증이 불가능한 항목은 조용히 PASS 처리하지 말고 "판정" 컬럼에 `[미검증:ENV]` 또는 `[미검증:INVALID]` 를 붙이고 "근거" 컬럼에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 적는다 (예: `[미검증:ENV]` — 막는 것: 운영 DB 접속 명령과 그 거부 출력 · 시도한 우회: pool 설정 파일 정적 리뷰 · 통제 불가 사유: 감사자에게 운영 DB 접속 권한이 없다 · 재검증 명령: 권한을 받은 뒤 같은 접속 명령). 네 칸은 §`UNVERIFIED_ENV` 남용 방지 4 요건을 채우는 형태다. 막는 것 칸에는 명령과 그 출력을 붙인다(4 요건 3 항). 하나라도 비면 `[미검증:INVALID]` 다. 마커 의미·임계값은 위 §미검증 증거 프로토콜(정본 복제) 을 따른다.
 
 ## 최종 판정 (agent-design-guide §12 L3 Coverage Honesty)
 
-판정은 세 가지다:
+판정은 네 가지다:
 
-- **APPROVE** — 전 row PASS + 미검증 태그 0 건.
-- **CONDITIONAL APPROVE** — 전 row PASS 이지만 `[미검증]` 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선 후 재검증 권고.
-- **REJECT** — 1 건 이상 FAIL 또는 `[미검증]` 2 건 이상. 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처 URL) 함께 제시.
+카운터는 두 개이며 **합산하지 않는다** (정본 조항 3): `UNVERIFIED_INVALID_EVIDENCE`(임계 판정용)와 `env_gaps`(= `UNVERIFIED_ENV`, 커버리지 게이트용).
 
-**FAIL 수:** {N}개 · **미검증 수:** {M}개 (무효 증거 합산 포함)
+- **APPROVE** — 전 row PASS + `UNVERIFIED_INVALID_EVIDENCE` 0 건.
+- **CONDITIONAL APPROVE** — 전 row PASS 이지만 `UNVERIFIED_INVALID_EVIDENCE` 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선 후 재검증 권고.
+- **REJECT** — 1 건 이상 FAIL 또는 `UNVERIFIED_INVALID_EVIDENCE` 2 건 이상. FAIL 마다 구체적 개선 액션(파일:라인 + 권장 변경 + 출처 URL)을 함께 제시한다.
+- **BLOCKED** — `(총 rule 수 − env_gaps) / 총 rule 수 < 0.60`. 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
+
+**FAIL 수:** {N}개 · **미검증 수:** `UNVERIFIED_INVALID_EVIDENCE` = {M}개 (무효 증거 합산 포함) / `env_gaps` = {E}개
 
 ```text
 ## Evidence Validity
 - 검사 대상 증거: N 건
 - 무효 판정: K 건 [row 번호 — 실패한 검사 번호 — 사유]
-- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
+- 무효 K 건은 `UNVERIFIED_INVALID_EVIDENCE` 카운터에 합산 (현재 누계: M)
 ```
 
 ## References

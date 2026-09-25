@@ -21,7 +21,7 @@ user-invocable: true
 7. **트레이드오프 없이 "~해야 한다"만 쓰지 마라** — 모든 설계 결정에는 트레이드오프가 있다. 예를 들어 "이벤트 소싱을 도입하라"가 아니라 "이벤트 소싱은 감사 추적에 강하지만 쿼리 복잡도가 올라간다. 현재 요구사항 기준 도입 여부를 판단하라" 형태로 양면을 제시해야 한다.
 8. **성능 수치 없이 "느리다/빠르다" 표현 금지** — "N+1은 느리다" 대신 "N+1은 레코드 100건 기준 100회 추가 쿼리를 발생시킨다. DataLoader/JOIN으로 1회로 줄여야 한다"처럼 구체적 수치 기준을 함께 제시하라.
 9. **deprecation 없이 마이그레이션 권고 금지** — "OAuth 2.0 대신 OAuth 2.1을 쓰라"고 할 때 2.0의 어떤 grant가 제거되었고 왜 위험한지(implicit grant → token 노출)를 근거로 함께 설명해야 한다. 단순 버전 번호 비교만으로 마이그레이션을 권고하지 마라.
-10. **OAuth 2.1 은 아직 Draft** — 2026-04 기준 OAuth 2.1 은 `draft-ietf-oauth-v2-1-15` (Active Internet-Draft, expires 2026-09). 최종 RFC 가 아니므로 "OAuth 2.1 표준"이라고 단정하지 마라. 실무 기준선은 RFC 9700(BCP) + FAPI 2.0 Final 을 사용한다. 출처: [IETF OAuth 2.1 Draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
+10. **OAuth 2.1 은 아직 Draft** — 2026-09-24 조회 기준 OAuth 2.1 은 `draft-ietf-oauth-v2-1-16` (Active Internet-Draft, 2027-03-07 만료). 최종 RFC 가 아니므로 "OAuth 2.1 표준"이라고 단정하지 마라. 실무 기준선은 RFC 9700(BCP) + FAPI 2.0 Final 을 사용한다. 출처: [IETF OAuth 2.1 Draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)
 11. **마이크로서비스 무조건 권장 금지** — 팀 규모 10명 미만이면 Modular Monolith First 를 기본으로 제안하라. 마이크로서비스는 인프라 비용 3.75-6x, 디버깅 시간 35% 증가. Amazon Prime Video 가 마이크로서비스→모놀리스 전환으로 인프라 비용 90% 절감한 사례를 참고. 출처: [ByteIota 2026](https://byteiota.com/modular-monolith-42-ditch-microservices-in-2026/)
 12. **Enumerate-before-Act (skill-design-guide §5.5 대응)** — 가이드 제공 전에 해당 코드/설명에서 **관련 원칙 위반 후보를 전부 나열** 한 뒤 한 번에 제시하라. "하나 고치면 다음에 또 지적"의 round-trip 을 차단한다 (/insights 마찰점 #1). 예: auth 코드를 보면 Implicit grant / PKCE 미사용 / JWT localStorage 저장 / CORS wildcard 를 한 번에 모두 나열하고 사용자 승인을 기다린다.
 13. **3-Step Process (Phase 5 flutter-error/flutter-hooks parity)** — 가이드형 스킬은 반드시 탐색(코드/설명 맥락 파악) → 진단(원칙 위반 rule-by-rule 열거) → 처방(우선순위 + 트레이드오프 + 출처) 3단계를 **순서 고정**으로 따른다. 맥락 없이 바로 처방을 내지 말 것.
@@ -30,6 +30,7 @@ user-invocable: true
 16. **빈 상태를 404 로 답하는 설계를 발견하면 지적하라** — RFC 9110 의 404 는 "대상 리소스의 현재 표현을 찾지 못했다" 는 뜻이며, 원소 0 개인 컬렉션은 유효한 빈 표현을 가진 존재하는 리소스다. 200(빈 배열)/204 가 의미상 맞다. 이미 404 로 배포된 API 를 200 으로 바꾸는 것은 **계약 변경**이므로 Gotcha 14 를 함께 적용해 소비면을 열거하라. 출처: [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html).
 17. **경합 질문에 "트랜잭션으로 감싸세요" 로 답하지 마라** — 사전 조회 후 쓰기(read-check-then-write) 코드를 발견하면 **invariant 를 먼저 분류**하고 어떤 DB primitive 가 그것을 담당하는지까지 처방해야 가이드다. 세 유형(같은 row 상태 전이 / 존재·권한·가시성 predicate / cross-row·absence·aggregate)과 primitive 매핑, 그리고 금지 3 종(`Serializable` 전 write path 기본값 강제 · `SELECT FOR UPDATE` 를 모든 TOCTOU 의 해법으로 제시 · `READ COMMITTED` + 복잡한 술어를 "안전" 으로 서술)의 SSOT 는 `backend-kit/references/write-path-integrity-protocol.md` §1~§2 다 — 여기서 재열거하지 않는다. Gotcha 7(트레이드오프 양면 제시)을 함께 적용해 선택한 primitive 의 비용(blocking · deadlock · retry · abort율)을 같이 말한다.
 18. **멱등성 조언은 "Idempotency-Key 를 쓰세요" 에서 멈추지 마라** — 헤더만으로는 재시도 안전성이 성립하지 않는다. key 범위 · payload fingerprint · replay response · in-flight duplicate · different-payload reuse · expiry **6 항목**을 짚어야 처방이다 (SSOT: 위 프로토콜 §4). 또한 그 IETF 문서는 **만료된 Internet-Draft** 이므로 "표준" 으로 소개하지 마라.
+19. **"UTC 로 통일하라" 전에 시각 종류부터 나눠라 (enforcement 등급 E1)** — Gotcha 15 는 한 순간의 표기 규칙이다. 반복 일정·영업시간·알림 시각 같은 벽시계 값에 같은 처방을 내리면 서머타임이 드나들 때 사람이 정한 시각과 어긋난다. 시각 필드마다 순간인지, 받는 사람 지역을 따라가는 벽시계인지, 특정 지역에 묶인 벽시계인지를 먼저 나누고, 특정 지역에 묶였으면 IANA 시간대 식별자(`Asia/Seoul` 처럼 지역 이름으로 적는 시간대 이름) 칸을 함께 두라고 짚는다. 코드에 한 나라나 한 시간대를 기본값으로 박은 설계를 보면 지적하고, 시간대를 요청·기기·사용자 설정·레코드 칸 중 어디서 받을지 정하게 한다. 이 지적은 RFC 요구가 아니라 이 킷의 규칙이므로 "표준 위반" 이라고 말하지 않는다. 원칙 본문은 `docs/backend/fundamentals/database.md` 원칙 10 이다. 출처: [RFC 5545 §3.3.5](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5).
 
 # Process (3-Step · 탐색 → 진단 → 처방)
 
@@ -41,7 +42,7 @@ user-invocable: true
 |----------|--------|
 | architecture | hexagonal, ports, adapter, clean, DDD, 도메인, bounded context, layered |
 | api-design | REST, 엔드포인트, URL, 상태코드, 페이지네이션, OpenAPI 3.1 |
-| database | 스키마, 인덱스, 쿼리, N+1, migration, 풀링 |
+| database | 스키마, 인덱스, 쿼리, N+1, migration, 풀링, 벽시계, 반복 일정, 시간대, 서머타임, 나라 코드 |
 | auth | 인증, 인가, JWT, OAuth, OAuth 2.1, PKCE, DPoP, RBAC, 세션, CORS, FAPI 2.0, Passkeys, WebAuthn, FIDO2 |
 | error-handling | 에러, retry, circuit breaker, 예외, fallback, problem+json, RFC 9457, rate limiter |
 | testing | 테스트, mock, fixture, 커버리지, contract test, Pact, PactFlow, Testcontainers |

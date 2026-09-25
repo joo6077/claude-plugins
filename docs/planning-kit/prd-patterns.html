@@ -14,19 +14,26 @@
   --error: #f87171; --success: #4ade80; --warn: #fbbf24;
   --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
   --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+  --mono: "SF Mono", Menlo, Consolas, monospace;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.7;
+  background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px;
   -webkit-font-smoothing: antialiased; min-height: 100vh;
   background-image:
     radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
     radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
 }
+/* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+code { font-family: var(--mono); }
 .container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
-.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+
+/* hero */
+.hero { padding: 72px 0 48px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
 .badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
   border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
   letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
@@ -34,45 +41,176 @@ body {
   letter-spacing: -0.03em; margin-bottom: 24px;
   background: linear-gradient(135deg, var(--text), var(--accent));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
-section { margin-bottom: 72px; }
-.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 760px; margin: 0 auto; line-height: 1.7; }
+.hero .subtitle strong { color: var(--text); }
+.meta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 28px; }
+.meta-row span { padding: 6px 14px; border: 1px solid var(--border2); border-radius: 999px;
+  background: var(--surface); color: var(--text2); font-size: 13px; }
+.meta-row code { color: var(--accent2); font-size: 12.5px; }
+
+/* 쪽 안 차례 */
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 64px; justify-content: center; }
+.toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+  border: 1px solid var(--border2); border-radius: 999px; background: var(--surface);
+  color: var(--text2); font-size: 14px; text-decoration: none; transition: var(--transition); }
+.toc a:hover { border-color: var(--accent); color: var(--text); }
+.toc a.is-new { border-color: var(--accent); color: var(--accent2); }
+
+/* 절 머리 */
+section { margin-bottom: 80px; scroll-margin-top: 24px; }
+.section-header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 .section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
-.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); line-height: 1.3; }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 16px; }
+
+/* 배치 틀 */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start; }
+.split.rev { grid-template-columns: 0.9fr 1.1fr; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+
+/* 개요 */
+.prose p { color: var(--text2); font-size: 17px; line-height: 1.85; margin-bottom: 16px; }
+.prose p strong { color: var(--text); }
+.blocks { list-style: none; display: flex; flex-direction: column; gap: 10px; counter-reset: blk; }
+.blocks li { position: relative; padding: 14px 18px 14px 58px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); counter-increment: blk; }
+.blocks li::before { content: counter(blk); position: absolute; left: 16px; top: 14px; width: 28px; height: 28px;
+  border-radius: 8px; background: var(--accent-dim); color: var(--accent2); font-weight: 700;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.blocks b { display: block; color: var(--text); font-size: 16px; }
+.blocks span { color: var(--text2); font-size: 14.5px; display: block; margin-top: 2px; }
+.blocks-cap { color: var(--text3); font-size: 13px; margin-top: 10px; }
+
+/* 카드 */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
-.card:hover { border-color: var(--accent); transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
-.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card:hover { border-color: var(--accent); box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .card-number { display: inline-flex; align-items: center; justify-content: center;
   width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
-  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
-.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
-  line-height: 1.4; letter-spacing: -0.01em; }
-.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
-.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
-.card ul li { margin-bottom: 4px; }
-.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
-  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
-.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
-  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
-.card-source::before { content: "↳ 출처: "; color: var(--text3); }
-.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  color: var(--accent2); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.card h3 { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.4; letter-spacing: -0.01em; }
+.card h4 { font-size: 13px; font-weight: 700; color: var(--accent2); letter-spacing: 0.06em;
+  text-transform: uppercase; margin: 18px 0 8px; }
+.card p { color: var(--text2); font-size: 16px; line-height: 1.75; margin-bottom: 12px; }
+.card p strong, .card li strong { color: var(--text); }
+.card ul, .card ol { padding-left: 20px; color: var(--text2); font-size: 15.5px; line-height: 1.8; margin-bottom: 8px; }
+.card li { margin-bottom: 4px; }
+:not(pre) > code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-size: 13.5px; overflow-wrap: anywhere; }
+.caveat { border: 1px dashed var(--warn); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px;
+  color: var(--text2); font-size: 15px; line-height: 1.7; background: var(--bg2); }
+.caveat b { color: var(--warn); font-size: 12px; letter-spacing: 0.08em; display: block; margin-bottom: 4px; }
+.when-limit { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 20px; }
+.when-limit div { padding: 14px 16px; border-radius: var(--radius-sm); background: var(--bg2);
+  border: 1px solid var(--border); }
+.when-limit b { display: block; font-size: 12px; letter-spacing: 0.08em; margin-bottom: 6px; }
+.when-limit .when b { color: var(--success); }
+.when-limit .limit b { color: var(--warn); }
+.when-limit span { color: var(--text2); font-size: 15px; line-height: 1.7; display: block; }
+.card-sources { display: flex; flex-direction: column; gap: 6px; margin-top: auto; padding-top: 16px;
+  border-top: 1px dashed var(--border2); }
+.card-sources .src-label { color: var(--text3); font-size: 12px; letter-spacing: 0.08em; }
+.card-source { color: var(--accent); font-size: 13px; text-decoration: none; overflow-wrap: anywhere;
+  transition: var(--transition); }
+.card-source:hover { color: var(--accent2); text-decoration: underline; }
+.dated { color: var(--text3); font-size: 12px; margin-left: 6px; white-space: nowrap; }
+
+/* 새 절 */
+.fresh { border: 1px solid var(--accent); border-radius: var(--radius-lg); background: var(--surface);
+  padding: 32px; box-shadow: 0 8px 40px rgba(236, 72, 153, 0.08); }
+.fresh-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--accent2); background: var(--accent-dim); border-radius: 999px; padding: 4px 10px; margin-bottom: 14px; }
+.fresh h3 { color: var(--text); font-size: 24px; line-height: 1.4; margin-bottom: 12px; letter-spacing: -0.01em; }
+.fresh > p { color: var(--text2); font-size: 17px; line-height: 1.8; margin-bottom: 14px; }
+.fresh > p strong { color: var(--text); }
+.fresh h4 { font-size: 13px; font-weight: 700; color: var(--accent2); letter-spacing: 0.06em;
+  margin: 28px 0 12px; }
+.heading-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 8px 0 4px; }
+.heading-pair div { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 18px; }
+.heading-pair .fmt { display: block; color: var(--text3); font-size: 12px; letter-spacing: 0.08em; margin-bottom: 8px; }
+.heading-pair code { font-size: 15px; }
+.heading-pair span.note { display: block; color: var(--text2); font-size: 14px; margin-top: 8px; }
+
+.one-place { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 18px; align-items: center; }
+.origin { background: var(--bg2); border: 2px solid var(--accent); border-radius: var(--radius); padding: 22px; }
+.origin .op-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--accent2); margin-bottom: 8px; }
+.origin b { display: block; color: var(--text); font-size: 18px; margin-bottom: 8px; }
+.origin span { color: var(--text2); font-size: 15px; display: block; line-height: 1.7; }
+.pointers { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.pointers li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; }
+.pointers .arrow { color: var(--accent2); font-size: 18px; font-weight: 700; }
+.pointers b { display: block; color: var(--text); font-size: 15.5px; }
+.pointers span { color: var(--text2); font-size: 14px; display: block; }
+.one-place-cap { color: var(--text2); font-size: 15px; margin-top: 14px; }
+.one-place-cap strong { color: var(--text); }
+
+.kind { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+  white-space: nowrap; }
+.kind.ext { color: var(--success); background: rgba(74, 222, 128, 0.1); }
+.kind.kit { color: var(--warn); background: rgba(251, 191, 36, 0.1); }
+
+.qlist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.qlist li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start;
+  padding: 12px 14px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text2); font-size: 15.5px; line-height: 1.7; }
+.qlist li::before { content: "?"; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;
+  border-radius: 6px; background: var(--accent-dim); color: var(--accent2); font-weight: 700; font-size: 13px; margin-top: 2px; }
+
+/* 표 */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.table-wrap > table { min-width: max-content; }
+/* 긴 문장 칸은 max-content 면 한 줄로 늘어 넓은 화면에서도 끝 칸이 밀려난다. 넓으면 줄바꿈, 좁으면 가로 스크롤 */
+.table-wrap > table.text-table { min-width: 40rem; }
+.text-table td:first-child { width: 11rem; }
+.text-table.src-kind td:first-child { width: auto; }
+.text-table.src-kind td:nth-child(2) { width: 12rem; }
+.text-table.src-kind td:last-child { width: 9rem; }
+.fresh .table-wrap { background: var(--bg2); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+caption { caption-side: bottom; text-align: left; padding: 12px 20px; color: var(--text3); font-size: 13px; }
 thead { background: var(--surface2); }
-th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
-  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
-td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+th { text-align: left; padding: 14px 18px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  letter-spacing: 0.04em; border-bottom: 1px solid var(--border2); }
+td { padding: 14px 18px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: var(--accent-glow); }
-td strong, td b { color: var(--text); }
-td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
-  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
-.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+td strong { color: var(--text); }
+td .ph { color: var(--text3); font-style: italic; }
+
+/* 고르기 */
+.picker { display: flex; flex-direction: column; gap: 12px; }
+.pick-row { display: grid; grid-template-columns: 1.3fr auto 1fr; gap: 16px; align-items: center;
+  padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  transition: var(--transition); }
+.pick-row:hover { border-color: var(--accent); }
+.pick-when { color: var(--text2); font-size: 15.5px; line-height: 1.7; }
+.pick-arrow { color: var(--accent2); font-size: 18px; font-weight: 700; }
+.pick-pattern b { display: block; color: var(--text); font-size: 16px; }
+.pick-pattern span { display: block; color: var(--text2); font-size: 14px; }
+.pick-row.all { border-style: dashed; border-color: var(--accent); }
+
+/* 코드 */
+pre { overflow-x: auto; max-width: 100%; }
+pre code { white-space: pre; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 18px 20px; font-family: var(--mono); font-size: 14px; line-height: 1.65; color: var(--text); }
+.code-block .h { color: var(--accent2); font-weight: 600; }
+.code-block .c { color: var(--text3); }
+.code-cap { color: var(--text3); font-size: 13px; margin-top: 8px; }
+.notes { display: flex; flex-direction: column; gap: 12px; }
+.notes div { padding: 16px 18px; border-left: 3px solid var(--accent); background: var(--surface);
+  border-radius: var(--radius-sm); }
+.notes b { display: block; color: var(--text); font-size: 15.5px; margin-bottom: 4px; }
+.notes span { color: var(--text2); font-size: 15px; line-height: 1.7; display: block; }
+
+/* 비교 */
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
   background: var(--surface); line-height: 1.7; }
 .compare.bad { border-left: 3px solid var(--error); }
@@ -81,340 +219,759 @@ td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; 
   padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
 .compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
 .compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
-.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
-.compare p { color: var(--text2); font-size: 14px; }
+.compare h4 { color: var(--text); font-size: 16px; margin-bottom: 6px; line-height: 1.5; }
+.compare p { color: var(--text2); font-size: 15px; }
+
+/* 함정 목록 */
 .checklist { display: flex; flex-direction: column; gap: 14px; }
 .checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
   border: 1px solid var(--border); border-left: 3px solid var(--accent);
   border-radius: var(--radius-sm); transition: var(--transition); }
-.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); }
 .checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
-  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  background: var(--accent-dim); color: var(--accent2); display: flex; align-items: center;
   justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
-.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
-.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.checklist-body strong { color: var(--text); font-size: 16px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 15px; line-height: 1.7; }
+.checklist-body .from { color: var(--text3); font-size: 12.5px; letter-spacing: 0.04em; margin-top: 6px; }
+
+/* 참고 링크 */
+.ref-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.ref-list li { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; transition: var(--transition); }
+.ref-list li:hover { border-color: var(--accent); }
+.ref-list .ref-name { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+.ref-list a { font-size: 13px; overflow-wrap: anywhere; text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
 .refs { display: flex; flex-wrap: wrap; gap: 10px; }
-.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
-  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
-.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+.refs a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px;
+  border: 1px solid var(--border2); border-radius: 999px; color: var(--accent2); text-decoration: none;
+  font-size: 14px; transition: var(--transition); }
+.refs a:hover { background: var(--accent-dim); border-color: var(--accent); }
+
 footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
   text-align: center; color: var(--text3); font-size: 13px; }
-footer a { color: var(--accent); text-decoration: none; }
-.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
-.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
-  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
-.callout strong { color: var(--text); }
+footer code { color: var(--text2); }
+
+/* 가로 넘침 규칙 — grid · flex 자식의 기본 min-width 는 auto(= min-content)라 긴 코드 · 표 폭이 트랙으로 번진다 */
+.grid-2 > *, .split > *, .pair > *, .when-limit > *, .heading-pair > *, .one-place > *, .pointers li > *,
+.qlist li > *, .pick-row > *, .compare-grid > *, .ref-list > *, .checklist-body, .notes > * { min-width: 0; }
+@media (max-width: 860px) {
+  .split, .split.rev, .one-place { grid-template-columns: 1fr; }
+}
 @media (max-width: 720px) {
   .container { padding: 24px 18px 64px; }
-  .hero { padding: 48px 0 36px; }
-  .grid-2, .compare-grid { grid-template-columns: 1fr; }
-  .card { padding: 22px; }
-  th, td { padding: 12px 14px; font-size: 13px; }
+  .hero { padding: 48px 0 32px; }
+  .card, .fresh { padding: 22px; }
+  .section-header h2 { font-size: 26px; }
+  th, td { padding: 12px 14px; font-size: 14px; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-  /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
-  a{color:var(--accent)}
-  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width: 600px) {
+  .grid-2, .split, .split.rev, .pair, .when-limit, .heading-pair, .one-place, .compare-grid, .ref-list { grid-template-columns: 1fr; }
+  .pick-row { grid-template-columns: 1fr; gap: 6px; }
+  .pick-arrow { transform: rotate(90deg); justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
 <div class="container">
 
   <header class="hero">
-    <span class="badge">Planning Kit v0.1 · PRD Patterns</span>
+    <span class="badge">Planning Kit · PRD Patterns · 문서 v0.2.0</span>
     <h1>PRD Patterns</h1>
     <p class="subtitle">
-      PRD는 한 가지 형식이 아니다. narrative-first · Shape Up pitch · lightweight issue template · 공개 문서형 spec ·
-      Design Sprint 산출물까지. 형식보다 <strong>실행팀이 독립적으로 좋은 판단을 내릴 수 있는 정보 밀도</strong>가 중요하다.
+      PRD(제품 요구사항 문서)는 더 이상 한 가지 형식으로 고정되지 않는다.
+      서사를 먼저 쓰는 문서, Shape Up pitch, 이슈 · 문서 템플릿 중심의 가벼운 스펙까지 모양은 다르지만,
+      <strong>중요한 것은 형식보다 의사결정 구조</strong>다.
     </p>
+    <div class="meta-row">
+      <span>원본 <code>docs/planning/prd-patterns.md</code></span>
+      <span>last_updated 2026-09-25</span>
+      <span>패턴 6 가지 · 원칙 1 가지 · 출처 16 개</span>
+    </div>
   </header>
 
-  <section>
+  <nav class="toc" aria-label="쪽 안 차례">
+    <a href="#overview">개요</a>
+    <a href="#patterns">여섯 패턴</a>
+    <a href="#discarded" class="is-new">폐기한 결정 (새 절)</a>
+    <a href="#five-blocks">다섯 블록</a>
+    <a href="#picker">패턴 고르기</a>
+    <a href="#skeleton">Shape Up 뼈대</a>
+    <a href="#anti-patterns">안티패턴</a>
+    <a href="#gotchas">함정</a>
+    <a href="#references">참고 링크</a>
+  </nav>
+
+  <!-- 00 개요 -->
+  <section id="overview">
+    <div class="section-header">
+      <span class="section-label">00 · Overview</span>
+      <h2>개요 — 형식이 아니라 의사결정 구조</h2>
+      <p>조직 문화마다 PRD 모양이 다르다. 그래도 강한 패턴은 같은 다섯 가지를 나눠 적는다.</p>
+    </div>
+    <div class="split">
+      <div class="prose">
+        <p>
+          어떤 조직은 서사를 먼저 쓰는 문서(narrative-first)를 쓰고, 어떤 조직은 Shape Up pitch 처럼
+          appetite 와 no-go 를 강조하며, 어떤 조직은 이슈 · 문서 템플릿 중심의 가벼운 스펙을 선호한다.
+          <strong>중요한 것은 형식보다 의사결정 구조다.</strong>
+        </p>
+        <p>
+          아래 패턴들은 각기 다른 조직 문화를 반영하지만, 공통으로
+          <strong>「실행팀이 독립적으로 좋은 판단을 내릴 수 있는 정보 밀도」</strong>를 높이는 데 초점이 있다.
+        </p>
+        <p>
+          이번 판(v0.2.0)은 여섯 패턴 뒤에 원칙 하나를 더했다 — 사용자가 버리기로 한 결정을
+          <a href="#discarded">PRD 비범위 절 한 곳에만 적는 규칙</a>이다.
+        </p>
+      </div>
+      <div>
+        <ol class="blocks" aria-label="강한 PRD 가 나눠 적는 다섯 가지">
+          <li><b>문제 정의</b><span>지금 풀어야 할 문제</span></li>
+          <li><b>대상 사용자 · 고객</b><span>누구를 위한 것인가</span></li>
+          <li><b>성공 기준</b><span>무엇을 보고 성공이라 할 것인가</span></li>
+          <li><b>범위 · 비범위</b><span>하는 것과 하지 않는 것</span></li>
+          <li><b>남아 있는 리스크</b><span>아직 풀리지 않은 위험</span></li>
+        </ol>
+        <p class="blocks-cap">원본 개요가 「최소한 다섯 가지를 분리한다」 고 적은 그 다섯. 패턴별로 어디서 다루는지는 <a href="#five-blocks">03 절</a>에 모았다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 패턴 -->
+  <section id="patterns">
     <div class="section-header">
       <span class="section-label">01 · Patterns</span>
-      <h2>PRD 작성 패턴</h2>
-      <p>각 패턴은 문제 · 대상 · 성공기준 · 범위/비범위 · 리스크를 다르게 분리한다.</p>
+      <h2>PRD 작성 패턴 여섯 가지</h2>
+      <p>패턴마다 요약 · 핵심 질문 · 적용 시점 · 한계 · 출처를 원본 그대로 옮겼다.</p>
     </div>
 
     <div class="grid-2">
 
       <div class="card">
-        <span class="card-number">1</span>
-        <h3>Amazon Working Backwards (PR/FAQ)</h3>
+        <div class="card-head"><span class="card-number">1</span><h3>Amazon Working Backwards (PR/FAQ)</h3></div>
         <p>
-          내부 아이디어를 <strong>고객 관점의 보도자료</strong>와 <strong>FAQ</strong>로 먼저 표현한다.
-          기능 명세 전에 고객 효익과 까다로운 반대 질문을 선제적으로 드러낸다.
+          내부 아이디어를 고객 관점의 보도자료(Press Release)와 FAQ(자주 묻는 질문)로 먼저 표현하는 방식으로 알려져 있다.
+          기능 명세보다 <strong>고객 효익과 고객이 느끼는 변화</strong>를 먼저 쓰고, 어려운 질문의 답을 미리 적는다.
         </p>
+        <p>
+          PR/FAQ 는 팀이 고객 언어로 생각하게 만든다. 보도자료는 「출시 후 세상」 을 가정하고,
+          FAQ 는 내부 실행 위험과 까다로운 반대 질문을 드러낸다. 그래서 아이디어의 모호함과 부풀린 기대를 초기에 깎아낸다.
+        </p>
+        <h4>핵심 질문</h4>
         <ul>
-          <li>PR 첫 문단에 고객 가치가 명확히 드러남</li>
-          <li>FAQ는 칭찬이 아니라 실제 반대 질문을 다룸</li>
-          <li>고객 혜택 · 운영 영향 · 가격 · 롤아웃 제약을 포함</li>
+          <li>보도자료 첫 문단에서 고객 가치가 분명한가?</li>
+          <li>누구를 위한 출시인지 적혀 있는가?</li>
+          <li>FAQ 가 칭찬용 질문이 아니라 실제 반대 질문을 다루는가?</li>
+          <li>고객 혜택 · 운영 영향 · 가격 · 정책 · 단계적 출시(롤아웃) 제약이 들어 있는가?</li>
+          <li>문서만 읽고도 「왜 지금 이걸 하는지」 가 이해되는가?</li>
         </ul>
-        <a class="card-source" href="https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes" target="_blank" rel="noopener">Amazon — Working Backwards culture</a>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>신규 제품 제안, 큰 베팅(bets) 검토, 임원 검토(exec review) 전 서사 정렬</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>서사가 강해도 실행 세부는 별도 산출물이 필요하다. 조직이 문서로 토론하는 훈련이 약하면 구호 문서로 전락하기 쉽다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes" target="_blank" rel="noopener">About Amazon — An insider look at Amazon's culture and processes<span class="dated">dated 2025-10</span></a>
+          <a class="card-source" href="https://www.amazon.jobs/en/landing_pages/about-amazon%20" target="_blank" rel="noopener">Amazon Jobs — About Amazon</a>
+        </div>
       </div>
 
       <div class="card">
-        <span class="card-number">2</span>
-        <h3>Shape Up Pitch (Basecamp / Ryan Singer)</h3>
+        <div class="card-head"><span class="card-number">2</span><h3>Shape Up Pitch (Basecamp / Ryan Singer)</h3></div>
         <p>
-          <strong>Problem · Appetite · Solution · Rabbit holes · No-gos</strong>를 핵심 구성요소로 삼는다.
-          범위를 약속하지 않고 <code>appetite</code>(시간 상자)를 약속한다.
+          pitch 는 <strong>Problem · Appetite · Solution · Rabbit holes · No-gos</strong> 다섯 요소를 뼈대로 삼는다.
+          전통적 PRD 처럼 세부 요구사항을 빠짐없이 적는 문서가 아니라, 팀이 6 주 주기 안에서 스스로 마무리할 수 있는
+          <strong>경계</strong>를 설계하는 문서다.
         </p>
+        <p>
+          Shape Up 은 범위를 약속하지 않고 appetite(이 문제에 쓸 의향이 있는 시간)를 약속한다.
+          그래서 pitch 는 「무엇을 다 만들 것인가」 보다 「이 시간 상자 안에서 어떤 문제를 어느 정도 해상도로 풀 것인가」 를 분명히 한다.
+          Rabbit holes(빠지기 쉬운 함정)와 No-gos(이번에 하지 않을 것)는 함정과 비범위를 문서에서 먼저 드러낸다는 점에서 특히 실무적이다.
+        </p>
+        <h4>핵심 질문</h4>
         <ul>
-          <li>Appetite: 6주 · 2주 같은 시간 상자 단위</li>
-          <li>Rabbit holes: 빠지기 쉬운 함정을 미리 명시</li>
-          <li>No-gos: 이번 사이클 비범위를 문서에 고정</li>
+          <li><strong>Problem</strong> — 지금 해결해야 할 문제는 무엇인가?</li>
+          <li><strong>Appetite</strong> — 이 문제에 얼마의 시간을 쓸 의향이 있는가?</li>
+          <li><strong>Solution</strong> — 팀이 출발할 수 있을 만큼 구체적인가?</li>
+          <li><strong>Rabbit holes</strong> — 빠지기 쉬운 함정은 무엇인가?</li>
+          <li><strong>No-gos</strong> — 이번 사이클에 하지 않을 것은 무엇인가?</li>
         </ul>
-        <a class="card-source" href="https://basecamp.com/shapeup/1.5-chapter-06" target="_blank" rel="noopener">Shape Up — Writing the Pitch</a>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>시간 상자형 전달, 불확실성 높은 개선 과제, 범위가 슬금슬금 불어나는 것(scope creep)을 막아야 할 때</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>과제를 다듬는(shaping) 역량이 약하면 지나치게 모호해질 수 있다. appetite 는 있는데 성공 기준이 약하면 결과 평가가 흐려진다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://basecamp.com/shapeup/1.5-chapter-06" target="_blank" rel="noopener">Shape Up — 1.5 Write the Pitch<span class="dated">dated 2025-10</span></a>
+          <a class="card-source" href="https://basecamp.com/shapeup/2.3-chapter-09" target="_blank" rel="noopener">Shape Up — 2.3 Chapter 9<span class="dated">dated 2025-10</span></a>
+          <a class="card-source" href="https://basecamp.com/shapeup/4.0-appendix-01" target="_blank" rel="noopener">Shape Up — Appendix 1</a>
+        </div>
       </div>
 
       <div class="card">
-        <span class="card-number">3</span>
-        <h3>Linear 공개 문서 패턴</h3>
+        <div class="card-head"><span class="card-number">3</span><h3>Linear 공개 문서 패턴</h3></div>
         <p>
-          장문 PRD 대신 <strong>issue template · project template · issue document</strong> 중심의 경량 문서 구조.
-          spec을 planning system 안에 두어 문서와 실행 보드의 이중 관리 비용을 줄인다.
+          Linear 는 전통적 장문 PRD 템플릿보다 <strong>issue template · project template · issue document</strong>
+          중심의 가벼운 문서 구조를 공개한다. 스펙을 계획 도구 안에 붙여 두고, 이슈 · 프로젝트 상태와 떨어지지 않게 한다.
         </p>
+        <p>
+          실무에서는 「문서 따로, 실행 보드 따로」 두 벌을 관리하는 비용을 줄이는 패턴으로 읽을 수 있다.
+          템플릿으로 필수 필드와 자리 표시 글(placeholder)을 강제하고, project template 에 milestone 과 issue 를
+          미리 넣어 두는 방식은 반복 계획에 강하다.
+        </p>
+        <h4>핵심 질문</h4>
         <ul>
-          <li>issue 생성 시 필수 컨텍스트 필드 강제</li>
-          <li>project template에 milestone/issue 사전 포함</li>
-          <li>spec이 보드와 같은 workspace 안에 존재</li>
+          <li>이슈를 만들 때 반드시 채워야 할 맥락 필드가 있는가?</li>
+          <li>project template 에 milestone · issue 구조를 미리 정해 두었는가?</li>
+          <li>스펙 문서가 이슈 · 프로젝트와 링크된 한 작업 공간(single workspace) 안에 있는가?</li>
+          <li>템플릿이 들어온 이슈를 먼저 볼 것부터 골라내는 일과 보고 체계까지 고려하는가?</li>
         </ul>
-        <a class="card-source" href="https://linear.app/docs/issue-templates" target="_blank" rel="noopener">Linear Docs — Issue Templates</a>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>빠르게 반복하는 팀, 계획과 실행 통합, 템플릿 기반 운영을 자리 잡게 할 때</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>문서가 지나치게 가벼우면 복잡한 전략 맥락을 잃기 쉽다. 템플릿만 복제하고 사고 구조를 복제하지 못하면 품질이 들쭉날쭉해진다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://linear.app/docs/issue-templates" target="_blank" rel="noopener">Linear Docs — Issue templates</a>
+          <a class="card-source" href="https://linear.app/docs/project-templates" target="_blank" rel="noopener">Linear Docs — Project templates</a>
+          <a class="card-source" href="https://linear.app/docs/issue-documents" target="_blank" rel="noopener">Linear Docs — Issue documents</a>
+        </div>
       </div>
 
       <div class="card">
-        <span class="card-number">4</span>
-        <h3>Notion 공개 Product Spec / PRD</h3>
+        <div class="card-head"><span class="card-number">4</span><h3>Notion 공개 Product Spec / PRD 템플릿</h3></div>
         <p>
-          Context · Goals/KPI · Constraints · Assumptions · Dependencies · Tasks 등
-          범용 섹션 구조 + relation 기반 링크로 <strong>허브 문서</strong>를 구성한다.
+          Context · Goals/KPI(핵심 성과 지표) · Constraints · Assumptions · Dependencies · Tasks 처럼
+          범용이면서 협업에 바로 쓸 수 있는 절 구조를 준다. 문서 안에서 관련 데이터베이스와 페이지를
+          <strong>relation 으로 잇기 쉽다</strong>는 점이 특징이다.
         </p>
+        <p>
+          이 패턴은 깊이 있는 전략 문서보다 함께 고쳐 가는 살아 있는 문서(living document)에 맞다.
+          개요 문서와 세부 리서치, 사용자 페르소나, 작업 분해를 링크로 묶어 PRD 를 허브 문서로 운영할 수 있다.
+        </p>
+        <h4>핵심 질문</h4>
         <ul>
-          <li>Context를 1~2문장으로 요약</li>
-          <li>Assumptions = 아직 사실이 아닌 전제를 명시</li>
-          <li>Dependencies/Tasks를 relation으로 연결</li>
+          <li><strong>Context</strong> — 배경을 1~2 문장으로 요약했는가?</li>
+          <li><strong>Goals/KPI</strong> — 성공을 어떻게 재는가?</li>
+          <li><strong>Constraints</strong> — 기술 · 정책 · 자원 제약은 무엇인가?</li>
+          <li><strong>Assumptions</strong> — 아직 사실이 아닌 전제는 무엇인가?</li>
+          <li><strong>Dependencies/Tasks</strong> — 선행 조건과 실행 항목이 이어져 있는가?</li>
         </ul>
-        <a class="card-source" href="https://www.notion.so/notion/Product-spec-1cd083403f64437e86631e60c64218d2" target="_blank" rel="noopener">Notion — Product Spec Template</a>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>문서 허브형 운영, 여러 직군이 함께하는 협업(cross-functional), 연결된 데이터베이스(linked database)로 추적할 때</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>자유도가 높아 표준화가 약해질 수 있다. relation 설계 없이 문서만 늘어나면 찾는 비용이 커진다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://www.notion.so/notion/Product-spec-1cd083403f64437e86631e60c64218d2" target="_blank" rel="noopener">Notion — Product spec 템플릿<span class="dated">dated 2025-08</span></a>
+          <a class="card-source" href="https://www.notion.so/Product-Requirement-Document-PRD-143ab0de8afc4ffd9656084c019e0671" target="_blank" rel="noopener">Notion — Product Requirement Document (PRD)<span class="dated">dated 2025-11</span></a>
+        </div>
       </div>
 
       <div class="card">
-        <span class="card-number">5</span>
-        <h3>Stripe 공개 문서형 spec</h3>
+        <div class="card-head"><span class="card-number">5</span><h3>Stripe 공개 문서형 spec 패턴</h3></div>
+        <div class="caveat">
+          <b>원본이 밝힌 한계</b>
+          2026-04-14 기준으로 검증할 수 있는 Stripe 의 공식 「PRD 템플릿」 주소는 확인하지 못했다.
+          아래는 PRD 템플릿이 아니라 공개 문서에서 읽어 낸 구조다.
+        </div>
         <p>
-          고객/개발자-facing 제품에서 공식 문서 자체가 spec 역할을 한다.
-          목적 · 핵심 개념 · 요구 필드 · 예시 · 운영 규칙이 매우 구조적으로 제시된다.
+          Stripe 는 제품 가이드와 문서 페이지에서 목적 · 핵심 개념 · 요구 필드 · 예시 · 운영 규칙을 매우 구조적으로 보여 준다.
+          공개 산출물 관점에서는 이것이 사실상 스펙 구실을 한다.
         </p>
+        <p>
+          고객이나 개발자가 직접 쓰는 제품은 내부 PRD 가 아니어도 공개 문서에서 요구사항 구조가 드러난다.
+          즉 <strong>PM(제품 관리자) 문서는 배경과 의사결정</strong>, <strong>공개 문서는 계약과 사용법</strong>으로 나뉠 수 있다.
+        </p>
+        <h4>핵심 질문</h4>
         <ul>
-          <li>제품 개념과 스키마가 분리돼 설명</li>
-          <li>필드별 required/recommended/optional 명시</li>
-          <li>예시 값 · validation rule · update rule 포함</li>
+          <li>제품 개념과, 데이터가 어떤 모양이어야 하는지 정한 틀을 나눠 설명하는가?</li>
+          <li>필드마다 요구 수준(required · recommended · optional)이 분명한가?</li>
+          <li>예시 값 · 검증 규칙 · 갱신 규칙이 있는가?</li>
+          <li>문서가 연동 계약(integration contract) 구실을 하는가?</li>
         </ul>
-        <a class="card-source" href="https://docs.stripe.com/products-prices/how-products-and-prices-work" target="_blank" rel="noopener">Stripe Docs — Products &amp; Prices</a>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>프로그램끼리 주고받는 창구(API) · 플랫폼 제품, 외부 개발자 대상 기능, 문서가 곧 제품 계약인 경우</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>PRD 를 대신하는 문서가 아니라 공개 계약 문서 패턴이다. 내부 의사결정 근거, 무엇을 얻고 무엇을 내줬는지(trade-off), 비범위는 별도 문서가 필요하다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://docs.stripe.com/products-prices/how-products-and-prices-work" target="_blank" rel="noopener">Stripe Docs — How products and prices work</a>
+          <a class="card-source" href="https://docs.stripe.com/agentic-commerce/product-catalog" target="_blank" rel="noopener">Stripe Docs — Agentic commerce product catalog</a>
+        </div>
       </div>
 
       <div class="card">
-        <span class="card-number">6</span>
-        <h3>Google Design Sprint 산출물</h3>
+        <div class="card-head"><span class="card-number">6</span><h3>Google Design Sprint 산출물</h3></div>
         <p>
-          긴 PRD 대신 <strong>map → sketches → decision → storyboard → prototype → test</strong>의
-          연속 산출물을 만든다. 문서로 합의하지 않고 가설을 시각화해 검증한다.
+          Google/GV Design Sprint 는 긴 PRD 대신 짧은 기간에
+          <strong>map → sketches → decision → storyboard → prototype → test</strong> 라는 연속 산출물을 만든다.
+          「문서로 합의」 보다 가설을 눈에 보이게 만들고 검증하는 데 특화되어 있다.
         </p>
+        <p>
+          그래서 sprint 산출물은 PRD 를 대체한다기보다 발견 단계에서 스펙으로 넘어가는 다리 구실을 한다.
+          팀이 문제 공간과 해법 공간을 좁혀 가는 과정 자체가 문서가 되고, 테스트 결과를 바탕으로 요구사항을 뒤늦게 굳힌다.
+        </p>
+        <h4>핵심 질문</h4>
         <ul>
-          <li>Map: 사용자와 핵심 흐름을 한 장에 정리</li>
-          <li>Storyboard: 테스트 가능한 end-to-end 흐름</li>
-          <li>Prototype/Test: 실제 사용자 반응 검증</li>
+          <li><strong>Map</strong> — 사용자와 핵심 흐름이 한 장에 정리됐는가?</li>
+          <li><strong>Sketch</strong> — 각자 해법을 그림으로 제안했는가?</li>
+          <li><strong>Decide</strong> — 어떤 접근을 골랐는가?</li>
+          <li><strong>Storyboard</strong> — 테스트할 수 있는 처음부터 끝까지의 흐름이 있는가?</li>
+          <li><strong>Prototype/Test</strong> — 실제 사용자 반응으로 검증했는가?</li>
         </ul>
-        <a class="card-source" href="https://www.thesprintbook.com/" target="_blank" rel="noopener">The Sprint Book — GV Design Sprint</a>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>불확실성이 큰 신규 흐름, 여러 직군의 방향 맞추기, 빠른 시제품(prototype) 검증</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>sprint 는 실행 결정까지 빠르게 가지만 뒤이은 상세 스펙을 자동으로 만들어 주지는 않는다. 반복 운영 체계 없이 1 회성 워크숍으로 끝나면 효과가 급감한다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://www.thesprintbook.com/" target="_blank" rel="noopener">The Sprint Book<span class="dated">dated 2025-10</span></a>
+          <a class="card-source" href="https://www.gv.com/sprint/" target="_blank" rel="noopener">GV — The Design Sprint</a>
+        </div>
       </div>
 
     </div>
   </section>
 
-  <section>
+  <!-- 02 폐기한 결정 -->
+  <section id="discarded">
     <div class="section-header">
-      <span class="section-label">02 · Structure</span>
-      <h2>좋은 PRD의 5 블록</h2>
-      <p>형식은 달라도 공통적으로 분리되는 정보 축.</p>
+      <span class="section-label">02 · Discarded decisions</span>
+      <h2>폐기한 결정 — 비범위 절 한 곳에 적는다</h2>
+      <p>이번 판에 새로 들어온 원칙. 여섯 패턴 어느 형식을 쓰든 버린 결정을 적는 자리는 하나다.</p>
+    </div>
+
+    <div class="fresh">
+      <span class="fresh-tag">새 절 · 원본 v0.2.0</span>
+      <h3>결정 원문은 PRD 비범위 절 한 곳에만 둔다</h3>
+      <p>
+        사용자가 버리기로 한 기능 · 설정 항목은 그 기능 PRD 의 비범위 절에 적는다.
+        디자인 승인 기록 · 작업 계약 · 핸드오프처럼 같은 결정을 다시 언급하는 문서는
+        이 PRD 경로를 가리키고 결정을 다시 쓰지 않는다 —
+        <strong>원문이 두 곳에 있으면 한쪽만 고쳐진다.</strong>
+      </p>
+
+      <h4>형식마다 절 이름</h4>
+      <div class="heading-pair">
+        <div>
+          <span class="fmt">PR/FAQ · Linear-style 스펙</span>
+          <code>## Non-goals (폐기한 결정 포함)</code>
+          <span class="note">비범위 절 이름에 폐기한 결정이 들어 있음을 밝힌다.</span>
+        </div>
+        <div>
+          <span class="fmt">Shape Up pitch</span>
+          <code>## No-gos</code>
+          <span class="note">원문 용어를 그대로 쓴다. pitch 다섯 요소 가운데 하나다.</span>
+        </div>
+      </div>
+
+      <h4>원문 한 곳, 나머지는 가리키기만</h4>
+      <div class="one-place">
+        <div class="origin">
+          <span class="op-tag">원문</span>
+          <b>그 기능 PRD 의 비범위 절</b>
+          <span>버린 항목 · 이유 · 범위 · 코드에 남은 흔적을 네 칸 표로 적는다. PRD 를 쓴 뒤에 나온 폐기 결정도 새 문서가 아니라 이 표에 한 줄 더한다.</span>
+        </div>
+        <ul class="pointers" aria-label="같은 결정을 언급하는 문서">
+          <li><span class="arrow" aria-hidden="true">←</span><div><b>디자인 승인 기록</b><span>PRD 경로만 가리킨다</span></div></li>
+          <li><span class="arrow" aria-hidden="true">←</span><div><b>작업 계약</b><span>PRD 경로만 가리킨다</span></div></li>
+          <li><span class="arrow" aria-hidden="true">←</span><div><b>핸드오프</b><span>PRD 경로만 가리킨다</span></div></li>
+        </ul>
+      </div>
+      <p class="one-place-cap">
+        세 문서는 결정을 <strong>다시 쓰지 않는다.</strong> 결정을 고칠 일이 생기면 PRD 표 한 줄만 고치면 된다.
+      </p>
+
+      <h4>비범위 표 — 네 칸</h4>
+      <div class="table-wrap">
+        <table class="text-table">
+          <caption>칸 이름과 범위 값 · <code>없음</code> 규칙은 원본 체크리스트 그대로다. 셋째 칸 「적는 것」 은 원본 문장에서 옮겼다.</caption>
+          <thead><tr><th>칸</th><th>적는 것</th><th>규칙</th></tr></thead>
+          <tbody>
+            <tr><td><strong>하지 않는 것</strong></td><td>사용자가 버리기로 한 기능 · 설정 항목</td><td>PRD 를 쓴 뒤에 나온 폐기 결정도 이 표에 한 줄 더한다</td></tr>
+            <tr><td><strong>이유</strong></td><td>왜 뺐는가</td><td>Shape Up No-gos 정의가 「무엇을 뺐는지와 왜 뺐는지」 의 출처다</td></tr>
+            <tr><td><strong>범위</strong></td><td>결정이 어디까지 미치는가</td><td><code>이번 PRD</code> · <code>이번 사이클</code> · <code>제품 전체</code> 가운데 하나</td></tr>
+            <tr><td><strong>코드에 남은 흔적</strong></td><td>서버 필드 · 호출되지 않는 화면 파일 등</td><td>흔적이 없으면 <code>없음</code> 이라고 적는다. 흔적은 채울 빈틈이 아니라 치울 목록이다</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>핵심 질문</h4>
+      <ul class="qlist">
+        <li><span>비범위 표가 네 칸(하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적)을 갖는가? 흔적이 없으면 <code>없음</code> 이라고 적었는가?</span></li>
+        <li><span>범위 칸이 <code>이번 PRD</code> · <code>이번 사이클</code> · <code>제품 전체</code> 가운데 하나인가?</span></li>
+        <li><span>PRD 를 쓴 뒤에 나온 폐기 결정을 새 문서가 아니라 이 표에 한 줄 더했는가?</span></li>
+        <li><span>뒤 단계 산출물(스토리 · 흐름 · 데이터 모델)이 표의 항목을 다시 만들지 않았는가?</span></li>
+      </ul>
+
+      <h4>근거가 어디서 왔나</h4>
+      <div class="table-wrap">
+        <table class="text-table src-kind">
+          <caption>원본은 외부 방법론에서 온 것과 이 킷이 추론 · 운영 규칙으로 정한 것을 나눠 적는다.</caption>
+          <thead><tr><th>내용</th><th>근거</th><th>종류</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>No-gos 는 pitch 다섯 요소 가운데 하나이고, appetite 에 맞추거나 문제를 다루기 쉽게 하려고 일부러 뺀 기능 또는 사용 사례다</td>
+              <td>Shape Up 1.5 장</td>
+              <td><span class="kind ext">외부 방법론</span></td>
+            </tr>
+            <tr>
+              <td>정보를 여러 필드에 겹쳐 두지 말고 한 곳을 기준으로 둔다 — 그 문서의 예는 출시 목표일이다</td>
+              <td>GitHub Projects 모범 사례</td>
+              <td><span class="kind ext">외부 문서</span></td>
+            </tr>
+            <tr>
+              <td>위 「한 곳 기준」 을 폐기 결정에 옮겨 쓴 것</td>
+              <td>—</td>
+              <td><span class="kind kit">이 킷의 추론</span></td>
+            </tr>
+            <tr>
+              <td>INVEST 의 Negotiable(협상할 수 있다)은 스토리를 특정 기능의 고정 계약으로 보지 않는다</td>
+              <td>Agile Alliance 용어집</td>
+              <td><span class="kind ext">외부 방법론</span></td>
+            </tr>
+            <tr>
+              <td><code>코드에 남은 흔적</code> 칸과 「흔적은 채울 빈틈이 아니라 치울 목록」 이라는 분류</td>
+              <td>—</td>
+              <td><span class="kind kit">이 킷의 운영 규칙</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="when-limit">
+        <div class="when"><b>적용 시점</b><span>PRD 작성, 기획 도중 사용자가 기능이나 설정 항목을 없애기로 한 때, 스토리 · 흐름 · 데이터 모델을 PRD 에서 이어 만들 때</span></div>
+        <div class="limit"><b>한계 · 주의</b><span>폐기는 영구 금지가 아니다. Shape Up 의 No-gos 는 그 pitch 와 appetite 안의 결정이고, INVEST 의 Negotiable 은 스토리를 특정 기능의 고정 계약으로 보지 않는다. 그래서 뒤 단계 산출물이 표의 항목과 겹치면 되살리지 말고 먼저 묻는다. PRD 가 없는 프로젝트의 기록 자리는 이 절이 정하지 않는다.</span></div>
+      </div>
+
+      <div class="card-sources">
+        <span class="src-label">출처</span>
+        <a class="card-source" href="https://basecamp.com/shapeup/1.5-chapter-06" target="_blank" rel="noopener">Shape Up — 1.5 Write the Pitch (No-gos)</a>
+        <a class="card-source" href="https://agilealliance.org/glossary/invest/" target="_blank" rel="noopener">Agile Alliance — INVEST</a>
+        <a class="card-source" href="https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects" target="_blank" rel="noopener">GitHub Docs — Best practices for Projects</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 다섯 블록 -->
+  <section id="five-blocks">
+    <div class="section-header">
+      <span class="section-label">03 · Five blocks</span>
+      <h2>다섯 블록을 어느 패턴이 맡나</h2>
+      <p>형식은 달라도 공통으로 나눠 적는 정보. 셋째 칸은 원본 각 절의 핵심 질문을 블록별로 다시 모은 것이다.</p>
     </div>
 
     <div class="table-wrap">
-      <table>
+      <table class="text-table">
         <thead>
-          <tr><th>블록</th><th>질문</th><th>산출물 예</th></tr>
+          <tr><th>블록</th><th>묻는 것</th><th>원본에서 이 블록을 맡는 자리</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>Problem</strong></td><td>지금 해결해야 할 문제는 무엇인가?</td><td>user quote, baseline metric</td></tr>
-          <tr><td><strong>Audience</strong></td><td>누구를 위한 것인가?</td><td>segment · persona · JTBD</td></tr>
-          <tr><td><strong>Success</strong></td><td>성공을 어떻게 측정할 것인가?</td><td>North star metric, guardrails</td></tr>
-          <tr><td><strong>Scope / Non-goals</strong></td><td>무엇을 하고, 무엇을 하지 않는가?</td><td>MoSCoW, No-gos, rabbit holes</td></tr>
-          <tr><td><strong>Risks</strong></td><td>무엇이 틀리면 전체가 무너지는가?</td><td>RAT, 4-risks, pre-mortem 링크</td></tr>
+          <tr>
+            <td><strong>문제 정의</strong></td>
+            <td>지금 풀어야 할 문제는 무엇인가?</td>
+            <td>Shape Up <code>Problem</code> · Notion <code>Context</code> · PR/FAQ 「왜 지금 이걸 하는지」</td>
+          </tr>
+          <tr>
+            <td><strong>대상 사용자 · 고객</strong></td>
+            <td>누구를 위한 것인가?</td>
+            <td>PR/FAQ 「누구를 위한 출시인지」 · Design Sprint <code>Map</code>(사용자와 핵심 흐름)</td>
+          </tr>
+          <tr>
+            <td><strong>성공 기준</strong></td>
+            <td>성공을 어떻게 재는가?</td>
+            <td>Notion <code>Goals/KPI</code> · Design Sprint <code>Prototype/Test</code>(실제 사용자 반응)</td>
+          </tr>
+          <tr>
+            <td><strong>범위 · 비범위</strong></td>
+            <td>무엇을 하고 무엇을 하지 않는가?</td>
+            <td>Shape Up <code>Appetite</code> · <code>No-gos</code> · 폐기한 결정 <code>## Non-goals (폐기한 결정 포함)</code></td>
+          </tr>
+          <tr>
+            <td><strong>남아 있는 리스크</strong></td>
+            <td>아직 무엇이 틀릴 수 있는가?</td>
+            <td>PR/FAQ 의 실제 반대 질문 FAQ · Shape Up <code>Rabbit holes</code> · Notion <code>Assumptions</code> · <code>Dependencies</code></td>
+          </tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <section>
+  <!-- 04 고르기 -->
+  <section id="picker">
     <div class="section-header">
-      <span class="section-label">03 · Shape Up Skeleton</span>
-      <h2>Shape Up Pitch 스켈레톤</h2>
-      <p>시간 상자형 delivery에서 가장 자주 쓰는 경량 포맷.</p>
+      <span class="section-label">04 · Pattern picker</span>
+      <h2>어떤 패턴을 고를까</h2>
+      <p>왼쪽은 원본의 「적용 시점」 그대로다. 조직 문화와 전달 주기, 문서를 읽는 사람에 따라 궁합이 다르다.</p>
     </div>
-<pre class="code-block"># [Pitch] 워크스페이스 초대 재설계
 
-## Problem
-초대 수락률이 42% → 29%로 떨어졌다. 신규 사용자가 초대 메일에서
-워크스페이스 컨텍스트를 이해하지 못한다는 피드백이 반복된다.
-
-## Appetite
-6주 (small batch). 그 이상 걸리면 접는다.
-
-## Solution
-- 초대 메일에 워크스페이스 프리뷰 카드 추가
-- 수락 화면에 "왜 이 워크스페이스인가" 설명 + 첫 3단계 온보딩
-- 이메일 검증과 초대 수락을 한 플로우로 통합
-
-## Rabbit holes
-- SSO/SAML 조직의 로그인 흐름을 같이 건드리지 않는다
-- 이메일 템플릿 i18n 리팩토링을 여기서 하지 않는다
-
-## No-gos
-- 초대 링크 보안 모델 변경
-- 새 권한 체계 도입
-</pre>
+    <div class="picker">
+      <div class="pick-row">
+        <div class="pick-when">신규 제품 제안 · 큰 베팅 검토 · 임원 검토 전 서사 정렬</div>
+        <div class="pick-arrow" aria-hidden="true">→</div>
+        <div class="pick-pattern"><b>PR/FAQ</b><span>고객 언어로 「출시 후 세상」 부터 맞춘다</span></div>
+      </div>
+      <div class="pick-row">
+        <div class="pick-when">시간 상자형 전달 · 불확실성 높은 개선 과제 · 범위 불어남 방지</div>
+        <div class="pick-arrow" aria-hidden="true">→</div>
+        <div class="pick-pattern"><b>Shape Up Pitch</b><span>범위 대신 appetite 를 약속하고 함정 · 비범위를 먼저 적는다</span></div>
+      </div>
+      <div class="pick-row">
+        <div class="pick-when">빠르게 반복하는 팀 · 계획과 실행 통합 · 템플릿 기반 운영</div>
+        <div class="pick-arrow" aria-hidden="true">→</div>
+        <div class="pick-pattern"><b>Linear 템플릿</b><span>스펙을 이슈 · 프로젝트 옆에 붙여 둔다</span></div>
+      </div>
+      <div class="pick-row">
+        <div class="pick-when">문서 허브형 운영 · 여러 직군 협업 · 연결된 데이터베이스로 추적</div>
+        <div class="pick-arrow" aria-hidden="true">→</div>
+        <div class="pick-pattern"><b>Notion Product Spec</b><span>relation 으로 리서치 · 페르소나 · 작업을 묶는다</span></div>
+      </div>
+      <div class="pick-row">
+        <div class="pick-when">외부 개발자 대상 기능 · 플랫폼 제품 · 문서가 곧 제품 계약인 경우</div>
+        <div class="pick-arrow" aria-hidden="true">→</div>
+        <div class="pick-pattern"><b>Stripe 형 공개 문서</b><span>계약과 사용법은 공개 문서, 의사결정은 내부 문서</span></div>
+      </div>
+      <div class="pick-row">
+        <div class="pick-when">불확실성이 큰 신규 흐름 · 여러 직군 방향 맞추기 · 빠른 시제품 검증</div>
+        <div class="pick-arrow" aria-hidden="true">→</div>
+        <div class="pick-pattern"><b>Design Sprint 산출물</b><span>가설을 그림으로 만들고 사용자에게 검증한다</span></div>
+      </div>
+      <div class="pick-row all">
+        <div class="pick-when">어느 패턴이든 — 기획 도중 사용자가 기능 · 설정 항목을 버리기로 한 때</div>
+        <div class="pick-arrow" aria-hidden="true">→</div>
+        <div class="pick-pattern"><b>폐기한 결정 원칙</b><span>그 PRD 비범위 절 표에 한 줄 더한다 (<a href="#discarded">02 절</a>)</span></div>
+      </div>
+    </div>
   </section>
 
-  <section>
+  <!-- 05 Shape Up 뼈대 -->
+  <section id="skeleton">
     <div class="section-header">
-      <span class="section-label">04 · Anti-patterns</span>
+      <span class="section-label">05 · Shape Up skeleton</span>
+      <h2>Shape Up pitch 뼈대</h2>
+      <p>다섯 절 제목과 원본 핵심 질문만 둔 빈 틀이다. No-gos 절에 02 절의 네 칸 표가 들어간다.</p>
+    </div>
+
+    <div class="split">
+      <div>
+<pre class="code-block"><code><span class="h"># [Pitch] &lt;제목&gt;</span>
+
+<span class="h">## Problem</span>
+<span class="c">&lt;!-- 지금 해결해야 할 문제는 무엇인가? --&gt;</span>
+
+<span class="h">## Appetite</span>
+<span class="c">&lt;!-- 이 문제에 얼마의 시간을 쓸 의향이 있는가? --&gt;</span>
+
+<span class="h">## Solution</span>
+<span class="c">&lt;!-- 팀이 출발할 수 있을 만큼 구체적인가? --&gt;</span>
+
+<span class="h">## Rabbit holes</span>
+<span class="c">&lt;!-- 빠지기 쉬운 함정은 무엇인가? --&gt;</span>
+
+<span class="h">## No-gos</span>
+<span class="c">&lt;!-- 이번 사이클에 하지 않을 것 · 폐기한 결정 --&gt;</span>
+
+| 하지 않는 것 | 이유 | 범위 | 코드에 남은 흔적 |
+| --- | --- | --- | --- |
+| &lt;항목&gt; | &lt;왜 뺐나&gt; | 이번 사이클 | 없음 |</code></pre>
+        <p class="code-cap">PR/FAQ · Linear-style 스펙이면 마지막 절 제목만 <code>## Non-goals (폐기한 결정 포함)</code> 으로 바꾼다. 표는 같다.</p>
+      </div>
+      <div class="notes">
+        <div>
+          <b>경계를 설계하는 문서</b>
+          <span>세부 요구사항을 빠짐없이 적는 대신, 팀이 6 주 주기 안에서 스스로 마무리할 수 있는 경계를 그린다.</span>
+        </div>
+        <div>
+          <b>Rabbit holes · No-gos 는 먼저 적는다</b>
+          <span>함정과 비범위를 문서에서 먼저 드러낸다는 점이 이 형식의 실무적 강점이다.</span>
+        </div>
+        <div>
+          <b>성공 기준은 따로 챙긴다</b>
+          <span>다섯 절에 성공 기준 칸이 없다. appetite 는 있는데 성공 기준이 약하면 결과 평가가 흐려진다는 것이 원본이 적은 한계다.</span>
+        </div>
+        <div>
+          <b>No-gos 는 영구 금지가 아니다</b>
+          <span>그 pitch 와 appetite 안의 결정이다. 뒤 단계 산출물이 겹치면 되살리지 말고 먼저 묻는다.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 안티패턴 -->
+  <section id="anti-patterns">
+    <div class="section-header">
+      <span class="section-label">06 · Anti-patterns</span>
       <h2>안티패턴 vs 좋은 패턴</h2>
-      <p>PRD를 설명 문서로만 쓰면 빠지는 함정.</p>
+      <p>원본 핵심 질문을 뒤집으면 드러나는 실패. 오른쪽은 그 질문을 통과한 모습이다.</p>
     </div>
 
     <div class="compare-grid">
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>해결책을 먼저 적고 문제를 역으로 맞춘다</h4>
-        <p>PR/FAQ 형식이라도 고객 가치가 아니라 기능 설명으로 시작하면 실패.</p>
+        <h4>보도자료가 기능 설명으로 시작한다</h4>
+        <p>PR/FAQ 형식을 써도 첫 문단이 고객 가치가 아니면, 팀을 고객 언어로 생각하게 만드는 장점이 사라진다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>고객 언어로 "출시 후 세상"부터 적는다</h4>
-        <p>보도자료 1문단에 고객 혜택과 변화가 나타날 때까지 리라이트.</p>
+        <h4>첫 문단에 고객 가치와 대상을 적는다</h4>
+        <p>보도자료 첫 문단에서 고객 가치가 분명하고, 누구를 위한 출시인지 적혀 있다.</p>
       </div>
 
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>Shape Up pitch에 No-gos가 없다</h4>
-        <p>scope creep이 생기고 6주 안에 못 끝낸다.</p>
+        <h4>FAQ 가 칭찬용 질문뿐이다</h4>
+        <p>까다로운 반대 질문이 빠지면 모호함과 부풀린 기대를 초기에 깎아내지 못한다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>Rabbit holes와 No-gos를 문서 레벨에서 고정</h4>
-        <p>팀이 6주 동안 직접 참조 가능한 경계.</p>
+        <h4>FAQ 가 실제 반대 질문을 다룬다</h4>
+        <p>고객 혜택 · 운영 영향 · 가격 · 정책 · 단계적 출시 제약까지 답을 미리 적는다.</p>
       </div>
 
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>Notion 허브 문서가 점점 기능 목록으로 변함</h4>
-        <p>자유도 높은 템플릿이 표준화를 잃는다.</p>
+        <h4>버린 결정을 여러 문서에 다시 쓴다</h4>
+        <p>디자인 승인 기록 · 작업 계약 · 핸드오프에 같은 결정을 옮겨 적으면, 나중에 한쪽만 고쳐진다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>Context + Assumptions + Success 블록은 reserved</h4>
-        <p>최소 고정 필드를 정해 협업형 허브 문서의 장점을 유지.</p>
+        <h4>원문은 PRD 비범위 절 한 곳</h4>
+        <p>다른 문서는 그 PRD 경로를 가리키기만 한다. PRD 뒤에 나온 폐기 결정도 같은 표에 한 줄 더한다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>뒤 단계 산출물이 버린 항목을 되살린다</h4>
+        <p>스토리 · 흐름 · 데이터 모델을 이어 만들다가 비범위 표에 있는 항목을 슬그머니 다시 만든다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>겹치면 먼저 묻는다</h4>
+        <p>폐기는 영구 금지가 아니다. 그래서 되살릴지 말지를 혼자 정하지 않고 사용자에게 먼저 묻는다.</p>
       </div>
     </div>
   </section>
 
-  <section>
+  <!-- 07 함정 -->
+  <section id="gotchas">
     <div class="section-header">
-      <span class="section-label">05 · Gotchas</span>
-      <h2>Gotchas</h2>
-      <p>PRD 작성 시 반복되는 함정.</p>
+      <span class="section-label">07 · Gotchas</span>
+      <h2>함정 — 원본의 한계 · 주의사항</h2>
+      <p>일곱 절 각각의 「한계/주의사항」 을 한곳에 모았다.</p>
     </div>
 
     <div class="checklist">
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>PR/FAQ는 narrative만으로 실행을 보장하지 않는다</strong>
-          <p>narrative가 강해도 엔지니어링 세부 · 운영 리스크는 별도 artifact가 필요하다. 문서 토론 훈련 없는 조직에서는 슬로건화되기 쉽다.</p>
+          <strong>PR/FAQ 서사만으로 실행이 보장되지 않는다</strong>
+          <p>서사가 강해도 실행 세부는 별도 산출물이 필요하다. 조직이 문서로 토론하는 훈련이 약하면 구호 문서로 전락하기 쉽다.</p>
+          <p class="from">Amazon Working Backwards</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Shape Up appetite만 있고 성공 기준이 없다</strong>
-          <p>appetite는 "얼마의 시간을 쓸 것인가"다. 그 안에서 어떤 결과를 "성공"으로 볼지는 별도로 정의해야 한다.</p>
+          <strong>appetite 만 있고 성공 기준이 없다</strong>
+          <p>shaping 역량이 약하면 pitch 가 지나치게 모호해진다. appetite 는 있는데 성공 기준이 약하면 결과 평가가 흐려진다.</p>
+          <p class="from">Shape Up Pitch</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Linear 경량 템플릿에 전략 문맥이 사라진다</strong>
-          <p>템플릿만 복제하고 사고 구조를 복제하지 못하면 품질이 들쭉날쭉해진다. PRD 상위에 왜(why) 문서를 따로 둬라.</p>
+          <strong>가벼운 템플릿이 전략 맥락을 잃는다</strong>
+          <p>문서가 지나치게 가벼우면 복잡한 전략 맥락을 잃기 쉽다. 템플릿만 복제하고 사고 구조를 복제하지 못하면 품질이 들쭉날쭉해진다.</p>
+          <p class="from">Linear 공개 문서 패턴</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Stripe형 공개 문서 = PRD 대체재가 아니다</strong>
-          <p>공개 문서는 계약과 사용법. 내부 trade-off · 비범위 · 의사결정 근거는 내부 문서로 남겨야 한다.</p>
+          <strong>허브 문서가 늘기만 한다</strong>
+          <p>자유도가 높아 표준화가 약해질 수 있다. relation 설계 없이 문서만 늘어나면 찾는 비용이 커진다.</p>
+          <p class="from">Notion Product Spec / PRD</p>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Design Sprint 1회 워크숍으로 끝내면 효과가 급감한다</strong>
-          <p>sprint는 discovery-to-spec 브리지다. 후속 상세 spec과 반복 운영 체계가 없으면 휘발된다.</p>
+          <strong>공개 문서는 PRD 를 대신하지 않는다</strong>
+          <p>공개 계약 문서 패턴일 뿐이다. 내부 의사결정 근거, 무엇을 얻고 무엇을 내줬는지, 비범위는 별도 문서가 필요하다. Stripe 의 공식 PRD 템플릿 주소는 2026-04-14 기준으로 확인하지 못했다.</p>
+          <p class="from">Stripe 공개 문서형 spec</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Design Sprint 를 1 회 워크숍으로 끝낸다</strong>
+          <p>sprint 는 실행 결정까지 빠르게 가지만 뒤이은 상세 스펙을 자동으로 만들어 주지 않는다. 반복 운영 체계 없이 1 회성으로 끝나면 효과가 급감한다.</p>
+          <p class="from">Google Design Sprint</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>폐기를 영구 금지로 읽는다</strong>
+          <p>No-gos 는 그 pitch 와 appetite 안의 결정이다. 뒤 단계 산출물이 표의 항목과 겹치면 되살리지 말고 먼저 묻는다. 흔적 칸과 「치울 목록」 분류는 외부 방법론이 아니라 이 킷의 운영 규칙이고, PRD 가 없는 프로젝트의 기록 자리는 이 절이 정하지 않는다.</p>
+          <p class="from">폐기한 결정 — 비범위 절 한 곳에 적는다</p>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- 08 참고 링크 -->
+  <section id="references">
+    <div class="section-header">
+      <span class="section-label">08 · References</span>
+      <h2>참고 링크 (전체)</h2>
+      <p>원본이 인용한 출처 열여섯 개. 날짜 표시는 원본의 <code>[dated: …]</code> 를 옮긴 것이다.</p>
+    </div>
+    <ul class="ref-list">
+      <li><span class="ref-name">Amazon — culture and processes<span class="dated">dated 2025-10</span></span><a href="https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes" target="_blank" rel="noopener">aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes</a></li>
+      <li><span class="ref-name">Amazon Jobs — About Amazon</span><a href="https://www.amazon.jobs/en/landing_pages/about-amazon%20" target="_blank" rel="noopener">amazon.jobs/en/landing_pages/about-amazon%20</a></li>
+      <li><span class="ref-name">Shape Up — 1.5 Write the Pitch<span class="dated">dated 2025-10</span></span><a href="https://basecamp.com/shapeup/1.5-chapter-06" target="_blank" rel="noopener">basecamp.com/shapeup/1.5-chapter-06</a></li>
+      <li><span class="ref-name">Shape Up — 2.3 Chapter 9<span class="dated">dated 2025-10</span></span><a href="https://basecamp.com/shapeup/2.3-chapter-09" target="_blank" rel="noopener">basecamp.com/shapeup/2.3-chapter-09</a></li>
+      <li><span class="ref-name">Shape Up — Appendix 1</span><a href="https://basecamp.com/shapeup/4.0-appendix-01" target="_blank" rel="noopener">basecamp.com/shapeup/4.0-appendix-01</a></li>
+      <li><span class="ref-name">Linear — Issue templates</span><a href="https://linear.app/docs/issue-templates" target="_blank" rel="noopener">linear.app/docs/issue-templates</a></li>
+      <li><span class="ref-name">Linear — Project templates</span><a href="https://linear.app/docs/project-templates" target="_blank" rel="noopener">linear.app/docs/project-templates</a></li>
+      <li><span class="ref-name">Linear — Issue documents</span><a href="https://linear.app/docs/issue-documents" target="_blank" rel="noopener">linear.app/docs/issue-documents</a></li>
+      <li><span class="ref-name">Notion — Product spec<span class="dated">dated 2025-08</span></span><a href="https://www.notion.so/notion/Product-spec-1cd083403f64437e86631e60c64218d2" target="_blank" rel="noopener">notion.so/notion/Product-spec-1cd083403f64437e86631e60c64218d2</a></li>
+      <li><span class="ref-name">Notion — PRD<span class="dated">dated 2025-11</span></span><a href="https://www.notion.so/Product-Requirement-Document-PRD-143ab0de8afc4ffd9656084c019e0671" target="_blank" rel="noopener">notion.so/Product-Requirement-Document-PRD-143ab0de8afc4ffd9656084c019e0671</a></li>
+      <li><span class="ref-name">Stripe — Products and prices</span><a href="https://docs.stripe.com/products-prices/how-products-and-prices-work" target="_blank" rel="noopener">docs.stripe.com/products-prices/how-products-and-prices-work</a></li>
+      <li><span class="ref-name">Stripe — Product catalog</span><a href="https://docs.stripe.com/agentic-commerce/product-catalog" target="_blank" rel="noopener">docs.stripe.com/agentic-commerce/product-catalog</a></li>
+      <li><span class="ref-name">The Sprint Book<span class="dated">dated 2025-10</span></span><a href="https://www.thesprintbook.com/" target="_blank" rel="noopener">thesprintbook.com</a></li>
+      <li><span class="ref-name">GV — Design Sprint</span><a href="https://www.gv.com/sprint/" target="_blank" rel="noopener">gv.com/sprint/</a></li>
+      <li><span class="ref-name">Agile Alliance — INVEST</span><a href="https://agilealliance.org/glossary/invest/" target="_blank" rel="noopener">agilealliance.org/glossary/invest/</a></li>
+      <li><span class="ref-name">GitHub Docs — Best practices for Projects</span><a href="https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects" target="_blank" rel="noopener">docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects</a></li>
+    </ul>
+  </section>
+
+  <!-- 09 함께 보기 -->
   <section>
     <div class="section-header">
-      <span class="section-label">06 · References</span>
+      <span class="section-label">09 · See also</span>
       <h2>함께 보기</h2>
-      <p>Planning Kit 내 관련 페이지.</p>
+      <p>Planning Kit 안의 관련 페이지. 스토리 · 흐름 · 데이터 모델은 PRD 비범위 표를 이어받는 뒤 단계다.</p>
     </div>
     <div class="refs">
       <a href="discovery.html">Discovery</a>
       <a href="stories.html">Stories</a>
-      <a href="prioritization.html">Prioritization</a>
       <a href="flows.html">Flows</a>
+      <a href="data-modeling.html">Data Modeling</a>
+      <a href="prioritization.html">Prioritization</a>
       <a href="risks.html">Risks</a>
       <a href="github-integration.html">GitHub Integration</a>
     </div>
   </section>
 
-  <section>
-    <div class="section-header">
-      <span class="section-label">07 · Pattern Picker</span>
-      <h2>어떤 PRD 패턴을 고를까</h2>
-      <p>조직 문화 · delivery cadence · audience에 따라 궁합이 다르다.</p>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>상황</th><th>추천 패턴</th><th>이유</th></tr></thead>
-        <tbody>
-          <tr><td><strong>exec review가 중심</strong></td><td>PR/FAQ</td><td>narrative로 방향 정렬</td></tr>
-          <tr><td><strong>fixed 6-week cycle</strong></td><td>Shape Up Pitch</td><td>appetite · rabbit holes · no-gos</td></tr>
-          <tr><td><strong>엔지니어링 중심 OSS 혼합</strong></td><td>Linear / issue template</td><td>planning = execution 단일 surface</td></tr>
-          <tr><td><strong>문서 허브 · cross-team</strong></td><td>Notion Product Spec</td><td>relation 기반 링크 구조</td></tr>
-          <tr><td><strong>API / 개발자-facing 제품</strong></td><td>Stripe-style 공개 문서 spec</td><td>문서가 계약 역할</td></tr>
-          <tr><td><strong>불확실성 높은 신규 흐름</strong></td><td>Design Sprint 산출물</td><td>가설 시각화 + 검증</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
   <footer>
-    Planning Kit v0.1 · last updated 2026-04-14 ·
-    source: <code>docs/planning/prd-patterns.md</code>
+    Planning Kit · 문서 v0.2.0 · last updated 2026-09-25 ·
+    원본 <code>docs/planning/prd-patterns.md</code>
   </footer>
 
 </div>

@@ -28,6 +28,8 @@ user-invocable: true
 
 13. **OTel 성숙도를 한 문장으로 단정하지 마라 (Phase 8 리서치)** — "OpenTelemetry 3 신호 모두 stable" 같은 서술은 과잉 단정이다. signal/component 별로 상태가 다르므로 (tracing stable · metrics API/protocol stable + SDK 언어별 혼재 · logging stable · profiles protocol development) 조언할 때 **해당 signal 의 상태를 개별로** 말하고 [spec status](https://opentelemetry.io/docs/specs/status/) 를 근거로 제시하라.
 
+14. **빨간 CI 를 이번 변경 탓으로 단정하기 전에 원인부터 가른다 (enforcement 등급 E1)** — 여럿이 같이 쓰는 가지에서는 빨간 검사가 남의 커밋 · 남의 미커밋 변경 · 환경 탓인 경우가 많다. 고치라고 권하기 전에 기준 커밋(`git merge-base HEAD origin/<기준 가지>`)에서 같은 검사가 어땠는지 확인하게 하고, 원인을 이번 커밋 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패 · 환경 · 미확정 가운데 하나로 적는다. 가를 근거가 없으면 미확정으로 두고 같은 커밋 재실행을 권한다 — 억지로 하나에 넣지 않는다. 기준 커밋에서 이미 실패하던 검사도 통과로 적거나 건너뛰라고 하지 않는다. GitHub Actions 의 `gh run list --branch <가지> --status success --limit 1` 결과를 필수 검사가 전부 통과한 커밋으로 읽지 않는다. 판정 표 · 재현 명령 · 출처는 `docs/infra/platform/cicd.md` 원칙 7 이 SSOT 다. 실측(2026-09-18): 다른 세션들이 깬 공용 개발 가지의 자동 검사 실패를 고치는 데 몇 시간을 썼다.
+
 # Process (3-Step · 탐색 → 진단 → 처방)
 
 ## Step 1: 탐색 — 맥락 파악
@@ -37,7 +39,7 @@ user-invocable: true
 | 카테고리 | 키워드 |
 |----------|--------|
 | container | Docker, Dockerfile, Compose, 이미지, 컨테이너 |
-| cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner |
+| cicd | GitHub Actions, GitLab CI, 파이프라인, workflow, runner, CI 실패, 빨간 검사, 재실행 |
 | kubernetes | K8s, Pod, Deployment, Helm, Kustomize, RBAC, Pod Security, Gateway API, TLSRoute, Sidecar, Karpenter, In-Place Resize, DRA |
 | iac | Terraform, Pulumi, CDK, OpenTofu, Crossplane, 모듈, state, plan, ephemeral, Pulumi ESC |
 | networking | VPC, 서브넷, NAT, DNS, 로드밸런서, ALB, NLB |

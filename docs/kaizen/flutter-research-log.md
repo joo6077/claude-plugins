@@ -1,10 +1,40 @@
 ---
 title: Flutter Kaizen Research Log
-version: 1.3.0
-last_updated: 2026-08-13
+version: 1.4.0
+last_updated: 2026-09-25
 ---
 
 # Flutter Kaizen Research Log
+
+## [2026-09-24] — Phase 5 (codegen 필터 · 삭제 수 블록 · 관례 대조)
+
+외부 조회 0 회. 이 Phase 의 외부 근거는 `.harness/.meta/evidence/phase5.md` 하나이고 아래 URL 은 전부 그 파일과 `.harness/.meta/kaizen-0924/phase5-notes.md` 에 있다.
+트리거 orchestrator-phase-5. 처리 배정표 열 행(`F02` · `F06` · `F22` · `F24` · `F25` · `flutter:P-F06-codegen-delete-count` · `flutter:P-INSPECTOR-convention` ·
+`flutter:P-TEST-locale-buildmod` · `flutter:P-CATALOG-tile-height` · `user-setup:P1`)과 러닝북 과제 셋, 앞 Phase 넘김 셋, 근거 파일 §3 현행화를 일곱 갈래로 묶었다.
+
+### 조회한 근거 (2026-09-24 사이클)
+
+- [build_runner CLI 옵션 소스](https://github.com/dart-lang/build/blob/master/build_runner/lib/src/build_runner_command_line.dart) ·
+  [build-filter 통합시험](https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart) — 필터는 공식 옵션, 필터 밖 생성물 보존 보장은 없음
+- [build_runner CHANGELOG](https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md) — 2.16 부터 생성물을 기본으로 고치고 `--delete-conflicting-outputs` 는 제거된 호환 옵션
+- [git-status](https://git-scm.com/docs/git-status) — `--porcelain=v1` 고정 형식 · 두 자리 `D`
+- [Flutter 국제화](https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization) · [WidgetsApp.locale](https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html) ·
+  [TestPlatformDispatcher.locale](https://api.flutter.dev/flutter/flutter_test/TestPlatformDispatcher/locale.html) — 로캘 기본값과 시험 로캘
+- [Riverpod DO/DON'T](https://riverpod.dev/docs/root/do_dont) · [useEffect](https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/useEffect.html) — 위젯이 provider 를 초기화하지 않는다 · build 중 동기 호출
+- [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) · [NestedScrollView](https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html) ·
+  [ScrollView.shrinkWrap](https://api.flutter.dev/flutter/widgets/ScrollView/shrinkWrap.html) — 겹친 스크롤은 저절로 협조하지 않음 · shrinkWrap 비용
+- [Flutter 배포 메타데이터](https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json) — stable 3.47.5, 2026-09-18
+- [Freezed pub API](https://pub.dev/api/packages/freezed) · [Freezed CHANGELOG](https://raw.githubusercontent.com/rrousselGit/freezed/master/packages/freezed/CHANGELOG.md) — 4.0.2 · 생성자 파라미터 `final` 미지원
+
+### 근거 파일이 밝힌 한계 (2026-09-24 사이클)
+
+필터가 필터 밖 생성물을 지운다는 공식 문장은 없다(267 개는 내부 실측). 「고정 높이가 낮으면 안쪽이 스크롤을 먹는다」 는 공식 설명과 내부 실측을 합친 추론이다.
+관례 대조와 시안 개수에는 외부 표준 근거가 없다. 삭제 수만으로 삭제의 옳고 그름은 가를 수 없다.
+
+### Final 후속 (2026-09-24 사이클)
+
+교차 진단 P5 의 계약 밖 결함 넷을 `kaizen-0924-f1-kit-followups` 커밋 `535e143` 이 고쳤다. `--delete-conflicting-outputs` 는 build_runner 2.7.0 부터 `-d` 를 무시한다는 사실을
+설치본 CHANGELOG 로 확인했고, 2.16 쪽은 설치본이 없어 확인하지 못했다(다음 사이클 Phase 5).
 
 ## [2026-08-13] — Phase 5
 

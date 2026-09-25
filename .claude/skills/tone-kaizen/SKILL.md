@@ -31,8 +31,8 @@ user-invocable: true
 
 - `tone-kit/skills/*/SKILL.md` 3종
 - `tone-kit/references/*.md` 9종
-- `tone-kit/templates/*.md` 8종
-- `docs/tone/*.md` 8종
+- `tone-kit/templates/*.md` 6종
+- `docs/tone/*.md` 11종 (리서치 문서 8종 + overview · research-log · templates)
 - 글로벌 피드백에 tone-kit 관련 항목이 있으면 함께 읽는다
 
 ## Step 2. 격차 분석

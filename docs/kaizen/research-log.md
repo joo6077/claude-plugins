@@ -1,10 +1,103 @@
 ---
 title: Kaizen Research Log
-version: 1.5.0
-last_updated: 2026-09-21
+version: 1.6.0
+last_updated: 2026-09-25
 ---
 
 # Kaizen Research Log
+
+## [2026-09-24] — 카이젠 사이클 (Phase 1 ~ 4 · 12 · 13 · 14 · 17 · Final)
+
+이 항목의 외부 근거는 Phase 마다 오케스트레이터가 미리 고정한 근거 파일(`.harness/.meta/evidence/phase{N}.md`)뿐이다. Phase 는 새로 조회하지 않았고, 아래 URL 은 전부 그 파일과
+Phase notes(`.harness/.meta/kaizen-0924/phase{N}-notes.md`)에 있다. 킷 전용 연구 기록이 따로 있는 Phase(5 · 6 · 7 · 8 · 9 · 10 · 11 · 15 · 16)는 그 파일에 적었다 —
+`docs/kaizen/flutter-research-log.md` · `docs/design/research-log.md` · `docs/{backend,infra,rust,react,planning,tone,api}/research-log.md`.
+
+### Phase 1 — 설계 가이드 (2026-09-24 사이클)
+
+skill-design-guide · agent-design-guide 판을 올렸다. 근거:
+[Skill Authoring Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices.md) (검증기 실행 → 고침 → 재실행, 500 줄 미만은 최적 성능 권고),
+[Create custom subagents](https://code.claude.com/docs/en/sub-agents.md) (2026-09-22 수정본 — frontmatter 18 종, `initialPrompt` 범위, 내장 Explore 모델 상속, 세션 전체 스폰 수 상한 없음),
+[skill-creator SKILL.md](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) (`expected_output`, 500 줄은 ideal),
+[Claude Code v2.1.281](https://github.com/anthropics/claude-code/releases/tag/v2.1.281) (2026-09-23 게시),
+[zsh 매뉴얼 — Array Subscripts](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Subscripts) (기본 zsh 배열은 1 부터, `KSH_ARRAYS` 예외).
+근거 파일이 밝힌 한계 — 「우회 1 개 이상 의무」 의 공식 문구는 없다, 「2~3 줄」 은 레포 관례, 세션 누적 상한이 없어진 릴리스는 특정 못 함.
+
+### Phase 2 — contract (2026-09-24 사이클)
+
+contract-schema v5.5 · contract-design-guide v5.1. 근거:
+[POSIX.1-2024 `command`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html) (`command -v` 는 못 찾으면 출력 없이 0 보다 큰 종료 코드, 셸 내장 · 함수도 보고),
+[zsh Array Parameters](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters) · [GNU Bash Arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html) (zsh 일반 배열은 기본 옵션에서 1 부터, bash 는 0 부터),
+[Gherkin Best Practices](https://github.com/andredesousa/gherkin-best-practices) (조건을 짧게, 한 조건에 한 규칙 — 개수는 주지 않는다),
+[GNU Coreutils `date`](https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html).
+근거 파일이 밝힌 한계 — 기능 조건 1~3 · 4~8 · 9~20 은 레포 내부 정책, 「사용자가 할 일」 끝맺음과 도구 없는 세션의 멈춤은 직접 근거 없음, 알려진 답 입력 2~3 줄은 레포 관례.
+
+### Phase 3 — evaluator (2026-09-24 사이클)
+
+qa-evaluation-guide v5.1. 트리거 orchestrator-phase-3. 피드백: 글로벌 평가 피드백 최근 30 건(APPROVE 26 · REJECT 4) + `grep` 으로 찾은 네 건. 근거:
+[MITRE CWE-20](https://cwe.mitre.org/data/definitions/20.html) (빠진 입력 · 남는 입력까지 관련 속성 전부 검사),
+[MITRE CWE-754](https://cwe.mitre.org/data/definitions/754.html) (예외 조건 하나를 잘못 다뤄 예상 밖 상태),
+[pytest Exit Codes](https://docs.pytest.org/en/stable/reference/exit-codes.html) (수집 0 건은 종료 코드 5),
+[zsh Parameter Expansion](https://zsh.sourceforge.io/Doc/Release/Expansion.html) (`SH_WORD_SPLIT` 이 꺼진 기본값),
+[git diff](https://git-scm.com/docs/git-diff) (`--name-status` 의 `D` — 삭제 열거),
+[CheckEval](https://arxiv.org/abs/2403.18771) (판정을 추적 가능한 yes/no 로).
+근거 파일이 밝힌 한계 — 사본 절차 셋을 그대로 규정한 1 차 출처는 없다(레포 규칙으로 옮긴 추론), 모든 칸을 읽어야 안전한 검사는 실패로 닫는 쪽이 옳을 수 있다.
+
+### Phase 4 — harness (2026-09-24 사이클)
+
+harness-kaizen. 트리거 orchestrator-phase-4. 근거:
+[git commit](https://git-scm.com/docs/git-commit) (`--only` 는 지정한 경로의 작업 폴더 내용을 싣는다),
+[git worktree](https://git-scm.com/docs/git-worktree) (워크트리마다 `HEAD` 와 목록을 따로 둔다),
+[git merge-base](https://git-scm.com/docs/git-merge-base) (분기점이지 기준 가지의 지금 상태가 아니다),
+[Claude Code Subagents](https://code.claude.com/docs/en/sub-agents) (`isolation: worktree` 는 기본 가지에서 만든다),
+[Claude Code Skills](https://code.claude.com/docs/en/skills) (`argument-hint` 는 자동 완성 힌트),
+[Claude Code Hooks](https://code.claude.com/docs/en/hooks) (`PreToolUse` 는 exit 2 로 막는다).
+근거 파일이 밝힌 한계 — 피드백 초안과 최종본을 가르는 외부 표준은 없다, `-o` 는 누가 고쳤는지 판정하지 않는다, 범위 선언 자리는 열린 선택이었다(계약 안 블록을 골랐다).
+
+### Phase 12 — reflect-kit (2026-09-24 사이클)
+
+처리 배정표 Phase 12 행 셋(`reflect-collector:P3` · `P4` · `P5`). P3 을 고치다 대체 경로가 원시 로그를 더럽힌 것(분석기 표식)을 새로 찾았다. 근거:
+[Codex non-interactive mode](https://developers.openai.com/codex/noninteractive) · [Codex CLI v0.156.1](https://github.com/openai/codex/releases/tag/rust-v0.156.1) ·
+[Claude Code model configuration](https://code.claude.com/docs/en/model-config) · [Claude Code CLI reference](https://code.claude.com/docs/en/cli-reference) ·
+[headless mode](https://code.claude.com/docs/en/headless) · [git-rev-parse](https://git-scm.com/docs/git-rev-parse) · [Reflexion](https://arxiv.org/abs/2303.11366).
+
+### Phase 13 — bambu-kit (2026-09-24 사이클)
+
+MakerWorld JSON 주소 셋은 공식 문서가 없어 `[관측 2026-09-24]` 로 적었다:
+[design](https://makerworld.com/api/v1/design-service/design/1186414) ·
+[instances](https://api.bambulab.com/v1/design-service/design/1186414/instances) ·
+[commentandrating](https://api.bambulab.com/v1/comment-service/commentandrating?designId=1186414&offset=0&limit=100).
+가짜 3mf 의 최소 구조는 [3MF Core 1.4.0](https://github.com/3MFConsortium/spec_core/blob/1.4.0/3MF%20Core%20Specification.md) 을 따랐다.
+근거 파일이 밝힌 한계 — 403 에서 기다리지 말라는 공식 지침은 없다(킷의 운영 규칙으로 적었다), 두 댓글 수가 무엇을 세는지 근거가 없다.
+
+### Phase 14 — onboarding-kit (2026-09-24 사이클)
+
+막는 요구 세 칸의 근거: Cloud Messaging 은 실제 Apple 기기를 요구한다(<https://firebase.google.com/docs/ios/setup>).
+Push notifications 는 무료 계정 열에 없고(<https://developer.apple.com/help/account/reference/supported-capabilities-ios>), 일반 개발과 개인 기기 시험은 멤버십 없이 된다
+(<https://developer.apple.com/help/account/membership/programs-overview>). 개발 환경에서 기기 토큰으로 시험 발송이 된다
+(<https://developer.apple.com/documentation/usernotifications/testing-notifications-using-the-push-notification-console>).
+CI 우분투 이미지에 zsh 가 없다는 근거는 <https://github.com/actions/runner-images> 다.
+
+### Phase 17 — howto-kit (2026-09-24 사이클)
+
+셸 함수는 `find` 가 새로 띄운 셸로 넘어가지 않는다([ShellCheck SC2033](https://www.shellcheck.net/wiki/SC2033),
+[POSIX Shell Command Language](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) · [POSIX find](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/find.html)).
+`export -f` 는 bash 기능이라([bash(1)](https://man7.org/linux/man-pages/man1/bash.1.html)) dash · zsh 자식에게 안 넘어간다([zsh Functions](https://zsh.sourceforge.io/Doc/Release/Functions.html)).
+`${CLAUDE_PLUGIN_ROOT}` 는 플러그인 스킬 본문에서 글자로 치환되고 환경 변수로는 훅 · 보조 서버에만 간다
+([Claude Code skills](https://code.claude.com/docs/en/skills) · [Plugins reference](https://code.claude.com/docs/en/plugins-reference)).
+CI 우분투 이미지에 zsh 가 없고 `sh` 가 dash 인 것은 [runner-images Ubuntu 24.04](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md) 로 확인했다.
+
+### Final — kaizen-0924-f1-harness-followups (2026-09-24 사이클)
+
+입력: 교차 진단 P1 ~ P17 · final-todo · Phase notes 열일곱 · Codex 독립 검토 r1 7 건 · REVIEW 검토 두 회차. 외부 근거는 사이클 근거 파일에서만 옮겼다 — 서브에이전트 동시 20 상한이
+ultracode 에 없다 · `initialPrompt` 가 플러그인 서브에이전트에서 무시된다 · 배치 우선순위 1 위가 managed settings 다([Claude Code sub-agents](https://code.claude.com/docs/en/sub-agents.md),
+`.harness/.meta/evidence/phase1.md` · `phase4.md`). 나머지는 저장소 안 실측 — 킷 Phase 동시 5 · 4 개에서 과부하 오류 529, api-verify 의 종료 코드 3, reflect-kit `project_root` 규칙.
+
+### Final — kaizen-0924-f1-kit-followups (2026-09-24 사이클)
+
+입력: 교차 진단 P5 ~ P17 · final-todo · Phase notes · Codex 독립 검토 r2 8 건 · r3 6 건 · REVIEW 검토 두 회차. 외부 근거는 사이클 근거 파일에서만 옮겼다 — Firebase Apple 셋업의 실제 Apple 기기 요구
+(<https://firebase.google.com/docs/ios/setup>, `phase14.md`), Vite `strictPort`(<https://vite.dev/config/server-options.html#server-port>, `phase10.md`),
+RFC 8785 정정 7920 의 `-0`(<https://www.rfc-editor.org/errata/rfc8785>, `phase16.md`). 나머지는 저장소 안 실측 — backend 다섯 필드는 `docs/api/contract/error-status-contracts.md` §2,
+build_runner 2.7.0 동작은 설치본 CHANGELOG.
 
 ## [2026-09-21] — contract-kaizen (수동) — 인자 치환 안전 · N/A 경로 · 봉인 전 교차 진단 · 양성 대조
 

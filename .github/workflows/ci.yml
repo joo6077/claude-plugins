@@ -67,6 +67,38 @@ jobs:
       - name: Kaizen collector test (인사이트 입력 선택 · facets)
         run: python3 scripts/test-collect-kaizen-data.py
 
+      # 아래 시험들은 zsh 와 bash 출력을 맞대는데 ubuntu-latest 에는 zsh 가 없다.
+      # reflect-kit 시험 둘은 zsh 가 없으면 zsh 경우를 건너뛰고 통과하므로 설치를 모든 시험보다 앞에 둔다
+      - name: Install zsh (셸 대조 시험용)
+        run: command -v zsh >/dev/null || { sudo apt-get update && sudo apt-get install -y zsh; }
+
+      - name: React-kit project detection test
+        run: bash react-kit/evals/scripts/project-detect-test.sh
+
+      - name: Reflect-kit log-reflection hook test
+        run: bash reflect-kit/evals/hooks/log-reflection-test.sh
+
+      - name: Reflect-kit project id test (워크트리 · 본 레포 이름)
+        run: bash reflect-kit/evals/hooks/project-id-test.sh
+
+      - name: Reflect-kit collect status test
+        run: bash reflect-kit/evals/hooks/collect-status-test.sh
+
+      # 이 두 킷의 평가 파일은 <킷>/evals/evals.json 규칙 밖이라 run-evals.py 가 읽지 않는다
+      - name: Onboarding-kit gate evals (zsh · bash)
+        run: sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh
+
+      - name: Howto-kit gate evals (zsh · bash · sh)
+        run: sh howto-kit/evals/run-evals.sh
+
+      # 아래 두 시험도 evals.json 규칙 밖이라 run-evals.py 가 읽지 않는다.
+      # scenario-report 시험은 보고서 틀이 바뀌면 커밋된 예시 보고서와 바이트로 대조한다 — 돌리는 곳이 없으면 대조가 죽는다
+      - name: Flutter-toolkit scenario report test (보고서 틀 · 예시 보고서)
+        run: python3 -m unittest discover -s flutter-toolkit/evals/scenario-report -v
+
+      - name: Design-kit decision gate test (결정 전파 검사 종료 코드)
+        run: bash design-kit/evals/decision-gate-test.sh
+
   playwright:
     name: Playwright Visual Tests
     runs-on: ubuntu-latest

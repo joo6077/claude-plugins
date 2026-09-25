@@ -41,6 +41,7 @@ user-invocable: true
 ## Step 1: 입력 파싱
 
 - Step 0 에서 로드된 PRD 에서 Problem / User / Solution 식별
+- PRD 비범위 절(`## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`)의 폐기한 결정과 겹치는 스토리는 만들지 않는다. 코드에 흔적이 남아 있어도 요구로 읽지 않는다 — 필요해 보이면 스토리를 쓰기 전에 사용자에게 묻는다 (plan-prd Gotcha 14)
 - 기능 경계 단위로 1차 분할
 - 추가로 사용자가 명시한 기능 설명이 있으면 병합
 

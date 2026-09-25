@@ -36,6 +36,8 @@ onboarding-kit의 `/setup-guide` SKILL.md, references/ 3종, evals/evals.json을
 
 `harness/agents/qa-evaluator`로 APPROVE/REJECT 판정. REJECT 시 수정 후 재평가.
 
+게이트 평가 러너도 돌린다 — `sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh` 의 끝줄이 `EVALS_PASS` 이고 종료 코드가 0 이어야 한다 (1 은 한 건 이상 실패, 2 는 zsh · bash · python3 가 없거나 입력을 못 읽어 돌리지 못함). 이 킷의 평가 파일은 `<킷>/evals/evals.json` 이 아니라 스킬 폴더 안에 있어 `scripts/run-evals.py` 가 읽지 않는다.
+
 **validate-plugin.py 실행 없이 완료 선언 금지** — 카이젠 세션 시작/종료 시 `python3 scripts/validate-plugin.py onboarding-kit` 을 실행한다. **등록된 검사 전부** 중 하나라도 FAIL 이면 수정 후 재검증한다. 실행 출력을 인용하지 않은 "검증 통과" 보고는 증거가 아니다.
 
 실행 패턴, 우선순위 매핑, 통합 규칙은 `harness/docs/guides/plugin-validation-guide.md §7` 이 정의한다 (SSOT) — 해당 섹션을 그대로 따른다. 등급 근거는 `harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate (E1/E2/E3 SSOT).

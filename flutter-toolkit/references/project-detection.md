@@ -33,7 +33,7 @@ pubspec.yaml에서 추출:
 
 프로젝트 루트에 `Makefile` 이 존재하고 Flutter 관련 타겟 (`app-run`, `app-test`, `app-analyze`, `app-codegen`, `app-preflight` 등) 이 정의되어 있으면 `HAS_MAKEFILE = true`. 이 경우 flutter-preflight / flutter-run 스킬은 `$FLUTTER` 직접 호출 대신 `make <target>` 을 우선 사용한다.
 
-이유: Makefile 기반 monorepo (예: fit-pal) 는 `dart-define-from-file=.dart_defines.json`, `--observatory-port=8181`, launch.json/tasks.json 연동 설정을 Makefile 타겟 한 곳에 집중 관리한다. `fvm flutter run` 을 직접 호출하면 이 설정들이 누락되어 앱이 다른 환경으로 기동되거나 디버거가 연결되지 않는다 (fit-pal sprint-feedback iter 2 AC-6 기반).
+이유: Makefile 기반 monorepo 는 `dart-define-from-file=.dart_defines.json`, `--observatory-port=8181`, launch.json/tasks.json 연동 설정을 Makefile 타겟 한 곳에 집중 관리한다. `fvm flutter run` 을 직접 호출하면 이 설정들이 누락되어 앱이 다른 환경으로 기동되거나 디버거가 연결되지 않는다 (실제 앱 프로젝트 sprint-feedback iter 2 AC-6 기반).
 
 감지 절차:
 
@@ -49,12 +49,14 @@ pubspec.yaml에서 추출:
 
 | 스킬 | 기본 동작 | Makefile 우선 동작 |
 |------|----------|-------------------|
-| flutter-run codegen | `$DART run build_runner build --delete-conflicting-outputs` | `$MAKE app-codegen` (또는 `app-codegen-filter FILTER=...`) |
+| flutter-run codegen | `$DART run build_runner build --delete-conflicting-outputs` (필터 없이 · 전후 삭제 수를 센다) | `$MAKE app-codegen` — 전후 삭제 수는 그대로 센다. `app-codegen-filter` 는 사용자가 그 이름을 직접 부를 때만 쓴다 |
 | flutter-run analyze | `$FLUTTER analyze` | `$MAKE app-analyze` |
 | flutter-run fix | `$DART fix --apply lib/` 뒤 이번에 바뀐 .dart 파일만 `$DART format --` (`git diff --name-only` 목록 · 생성물 제외 · flutter-run fix 절) | `$MAKE app-fix` |
 | flutter-run test | `$FLUTTER test` | `$MAKE app-test` |
-| flutter-preflight | fix → codegen → analyze → test | `$MAKE app-preflight` |
-| flutter-build | codegen → analyze | `$MAKE app-build` |
+| flutter-preflight | fix → codegen → analyze → test | 단계마다 위 행의 타겟 — codegen 은 flutter-run codegen 절 블록 안의 `$MAKE app-codegen` |
+| flutter-build | codegen → analyze | 단계마다 위 행의 타겟 — codegen 은 flutter-run codegen 절 블록 안의 `$MAKE app-codegen` |
+
+안에서 codegen 을 돌리는 묶음 타겟(`app-build` · `app-preflight`)은 codegen 줄 자리에 넣지 않는다. 넣으면 늘어난 삭제를 되돌리려는 둘째 실행이 analyze · test 까지 다시 돌고, analyze · test 실패가 `codegen_exit` 로 찍혀 codegen 실패로 잘못 보고된다. 두 스킬은 위 표처럼 단계를 하나씩 부른다.
 
 ### Step 3. 의존성 감지
 

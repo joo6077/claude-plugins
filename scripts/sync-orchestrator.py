@@ -71,7 +71,8 @@ def generate_phase_sections(plugins: list[dict]) -> str:
 
         lines.append(f"### Step {step_num}: Phase {phase_num} — {name} 카이젠")
         lines.append("")
-        lines.append(f"**범위:** `{name}/skills/*/SKILL.md`, `{name}/references/`")
+        refs = infer_references_dir(name)
+        lines.append(f"**범위:** `{name}/skills/*/SKILL.md`" + (f", `{refs}`" if refs else ""))
         if research_docs_dir:
             lines.append(f", `{research_docs_dir}` 리서치 문서")
         lines.append("")
@@ -89,6 +90,20 @@ def generate_phase_sections(plugins: list[dict]) -> str:
     )
 
     return "\n".join(lines)
+
+
+def infer_references_dir(plugin_name: str) -> str | None:
+    """킷의 참조 폴더 — 킷 바로 아래 references/, 없으면 skills/*/references/, 둘 다 없으면 None.
+
+    있는지 보지 않고 `<킷>/references/` 를 적으면 없는 폴더를 범위로 가르친다
+    (2026-09-25: planning-kit · bambu-kit · onboarding-kit 세 줄이 그랬다).
+    """
+    kit = REPO_ROOT / plugin_name
+    if (kit / "references").is_dir():
+        return f"{plugin_name}/references/"
+    if any(p.is_dir() for p in kit.glob("skills/*/references")):
+        return f"{plugin_name}/skills/*/references/"
+    return None
 
 
 def infer_kaizen_skill(plugin_name: str) -> str:

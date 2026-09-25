@@ -26,6 +26,7 @@
   --radius: 14px;
   --radius-sm: 8px;
   --radius-lg: 20px;
+  --mono: "SF Mono", Menlo, Consolas, monospace;
   --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
 }
 
@@ -43,12 +44,38 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
   background: var(--bg);
   color: var(--text);
+  font-size: 16px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   background-image:
     radial-gradient(ellipse at top, var(--accent-glow), transparent 60%),
     radial-gradient(ellipse at bottom, rgba(196, 181, 253, 0.04), transparent 50%);
+}
+
+a {
+  color: var(--accent2);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent2);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+code {
+  background: var(--surface3);
+  color: var(--accent2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.85em;
 }
 
 .container {
@@ -59,7 +86,7 @@ body {
 
 /* ===== HERO ===== */
 .hero {
-  padding: 72px 0 56px;
+  padding: 72px 0 48px;
   text-align: center;
   border-bottom: 1px solid var(--border);
   margin-bottom: 64px;
@@ -99,9 +126,82 @@ body {
   line-height: 1.7;
 }
 
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  margin-top: 22px;
+  font-size: 13px;
+  color: var(--text3);
+}
+
+.hero-meta code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 12px;
+  margin: 36px auto 0;
+  max-width: 900px;
+  text-align: left;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.stat-num {
+  display: block;
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent2);
+  line-height: 1.3;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.toc a {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 13px;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.toc a:hover {
+  color: var(--accent2);
+  border-color: var(--accent);
+}
+
 /* ===== SECTIONS ===== */
 section {
   margin-bottom: 72px;
+  scroll-margin-top: 24px;
 }
 
 .section-header {
@@ -130,13 +230,49 @@ section {
 .section-header p {
   margin-top: 10px;
   color: var(--text2);
-  font-size: 15px;
+  font-size: 16px;
+}
+
+.sub-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 48px 0 18px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  scroll-margin-top: 24px;
+}
+
+.sub-head:first-of-type {
+  margin-top: 0;
+}
+
+.sub-head::before {
+  content: "";
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.sub-head span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
 }
 
 /* ===== PRINCIPLE CARDS ===== */
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 20px;
 }
 
@@ -169,6 +305,7 @@ section {
   font-weight: 700;
   font-size: 14px;
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .card h3 {
@@ -182,7 +319,7 @@ section {
 
 .card p {
   color: var(--text2);
-  font-size: 14.5px;
+  font-size: 16px;
   line-height: 1.75;
   margin-bottom: 12px;
 }
@@ -190,7 +327,7 @@ section {
 .card ul {
   padding-left: 18px;
   color: var(--text2);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.8;
   margin-bottom: 12px;
 }
@@ -199,23 +336,25 @@ section {
   margin-bottom: 4px;
 }
 
-.card code {
-  background: var(--surface3);
-  color: var(--accent2);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 13px;
+.card strong {
+  color: var(--text);
+}
+
+.source-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border2);
 }
 
 .card-source {
   display: inline-block;
-  margin-top: auto;
-  padding-top: 16px;
   color: var(--accent);
-  font-size: 12px;
+  font-size: 13px;
   text-decoration: none;
-  border-top: 1px dashed var(--border2);
+  overflow-wrap: anywhere;
   transition: var(--transition);
 }
 
@@ -228,6 +367,223 @@ section {
   color: var(--accent2);
 }
 
+.card-note {
+  display: block;
+  font-size: 13px;
+  color: var(--text3);
+}
+
+/* ===== STATUS CODE CLASSES ===== */
+.status-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 76px), 1fr));
+  gap: 6px;
+  margin: 6px 0 14px;
+}
+
+.status-seg {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.status-seg b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--text);
+}
+
+.status-seg small {
+  display: block;
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.45;
+}
+
+.status-seg.s4 { border-top-color: var(--warn); }
+.status-seg.s5 { border-top-color: var(--error); }
+.status-seg.s2 { border-top-color: var(--success); }
+
+/* ===== FEATURE PANEL (원칙 3) ===== */
+.feature {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+.feature-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.feature-head .card-number {
+  margin-bottom: 0;
+}
+
+.feature-head > div {
+  min-width: 0;
+}
+
+.feature-head h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.feature-head p {
+  margin-top: 6px;
+  color: var(--text2);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.feature-grid > *,
+.compare > *,
+.pair-grid > *,
+.grid-2 > *,
+.grid-3 > *,
+.stat-strip > *,
+.status-bar > * {
+  min-width: 0;
+}
+
+.field-note {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--accent-glow);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  color: var(--text2);
+}
+
+.field-note strong {
+  color: var(--text);
+}
+
+.feature .source-row {
+  margin-top: 22px;
+}
+
+/* ===== COMPARE (원칙 4) ===== */
+.compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.compare-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.compare-col.pick {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent-dim);
+}
+
+.compare-col h4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+.compare-col h4 em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-dim);
+  color: var(--accent2);
+}
+
+.compare-col dl {
+  display: grid;
+  gap: 10px;
+}
+
+.compare-col dt {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.compare-col dt.pro { color: var(--success); }
+.compare-col dt.con { color: var(--error); }
+
+.compare-col dd {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+.callout {
+  display: flex;
+  gap: 14px;
+  padding: 18px 22px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  margin-top: 18px;
+}
+
+.callout-mark {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.callout p {
+  color: var(--text2);
+  font-size: 16px;
+}
+
+.callout strong {
+  color: var(--text);
+}
+
+.lead-in {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--text2);
+}
+
+.pagination-block .source-row {
+  border-top: none;
+  padding-top: 10px;
+}
+
 /* ===== TABLES ===== */
 .table-wrap {
   background: var(--surface);
@@ -236,6 +592,12 @@ section {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   max-width: 100%;
+}
+
+.card .table-wrap,
+.feature .table-wrap {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
 }
 
 table {
@@ -279,11 +641,6 @@ td strong, td b {
 }
 
 td code {
-  background: var(--surface3);
-  color: var(--accent2);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
   font-size: 12.5px;
 }
 
@@ -294,7 +651,7 @@ td code {
   border-radius: var(--radius-sm);
   padding: 18px 22px;
   margin: 14px 0;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-family: var(--mono);
   font-size: 13px;
   line-height: 1.6;
   color: var(--text);
@@ -306,11 +663,75 @@ td code {
 .code-block .tk-str { color: #86efac; }
 .code-block .tk-num { color: #fbbf24; }
 .code-block .tk-cmt { color: var(--text3); }
+.code-block .tk-bad { color: var(--error); }
+.code-block .tk-ok { color: var(--success); }
 
 /* ===== ANTIPATTERNS ===== */
 .anti-table td:first-child {
   color: var(--error);
   font-weight: 600;
+}
+
+.pairs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.pair {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+
+.pair-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.pair-why {
+  font-size: 15px;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+
+.pair-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pair-side {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.pair-side.bad { border-left: 3px solid var(--error); }
+.pair-side.good { border-left: 3px solid var(--success); }
+
+.pair-tag {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.pair-side.bad .pair-tag { color: var(--error); }
+.pair-side.good .pair-tag { color: var(--success); }
+
+.pair-side .code-block {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  border: none;
+  background: transparent;
 }
 
 /* ===== CHECKLIST ===== */
@@ -352,26 +773,27 @@ td code {
   margin-top: 2px;
 }
 
+.checklist-body {
+  min-width: 0;
+}
+
 .checklist-body strong {
   color: var(--text);
-  font-size: 15px;
+  font-size: 16px;
   display: block;
   margin-bottom: 6px;
 }
 
 .checklist-body p {
   color: var(--text2);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.7;
 }
 
 .checklist-body code {
-  background: var(--surface3);
-  color: var(--accent2);
   padding: 1px 5px;
   border-radius: 3px;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 /* ===== FOOTER ===== */
@@ -384,9 +806,8 @@ footer {
   font-size: 13px;
 }
 
-footer a {
-  color: var(--accent);
-  text-decoration: none;
+footer code {
+  overflow-wrap: anywhere;
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -394,9 +815,8 @@ footer a {
    내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다.
    ════════════════════════════════════════════════════════════════════ */
 
-/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 다.
-       긴 코드·표·안 끊기는 토큰의 최소폭이 트랙 폭으로 전파되어 문서를 밀어낸다. */
-.grid-2 > * { min-width: 0; }
+/* (1) grid 자식의 min-width 는 위 FEATURE PANEL 절에서 0 으로 둔다.
+       기본값 auto(= min-content)면 긴 코드·표·안 끊기는 토큰의 최소폭이 트랙 폭으로 전파된다. */
 
 /* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너에서 스크롤시킨다. */
 .table-wrap > table { min-width: max-content; }
@@ -409,12 +829,20 @@ pre code { white-space: pre; }
 @media (max-width: 720px) {
   .container { padding: 24px 18px 64px; }
   .hero { padding: 48px 0 36px; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .card { padding: 22px; }
+  .grid-2,
+  .grid-3,
+  .feature-grid,
+  .compare,
+  .pair-grid { grid-template-columns: 1fr; }
+  .card, .compare-col { padding: 22px; }
+  .feature { padding: 22px; }
+  .pair { padding: 18px; }
+  .section-header h2 { font-size: 26px; }
   th, td { padding: 12px 14px; font-size: 13px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }
 }
 </style>
@@ -429,16 +857,39 @@ pre code { white-space: pre; }
       REST 리소스 설계, HTTP 메서드 의미론, 상태 코드, 페이지네이션,
       에러 응답 표준화, OpenAPI 스펙 관리를 다룬다.
     </p>
+    <div class="hero-meta">
+      <span>원본 <code>docs/backend/fundamentals/api-design.md</code></span>
+      <span>문서 v0.1.1</span>
+      <span>2026-09-25 갱신</span>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat"><span class="stat-num">7</span><span class="stat-label">설계 원칙</span></div>
+      <div class="stat"><span class="stat-num">100~599</span><span class="stat-label">상태 코드 범위 (RFC 9110)</span></div>
+      <div class="stat"><span class="stat-num">5</span><span class="stat-label">problem+json 필드 (이 킷 규칙)</span></div>
+      <div class="stat"><span class="stat-num">20~100</span><span class="stat-label">cursor 페이지 크기 기본값</span></div>
+      <div class="stat"><span class="stat-num">3.2.1</span><span class="stat-label">OpenAPI 최신판</span></div>
+    </div>
+
+    <nav class="toc" aria-label="이 페이지 목차">
+      <a href="#principles">원칙</a>
+      <a href="#errors">에러 응답</a>
+      <a href="#pagination">페이지네이션</a>
+      <a href="#metrics">수치 기준</a>
+      <a href="#antipatterns">안티패턴</a>
+      <a href="#gotchas">Gotchas</a>
+    </nav>
   </header>
 
   <!-- ===== 원칙 ===== -->
-  <section>
+  <section id="principles">
     <div class="section-header">
       <span class="section-label">01 · Principles</span>
       <h2>원칙</h2>
-      <p>공식 표준(RFC)과 업계 가이드라인에 근거한 REST API 설계 규칙.</p>
+      <p>공식 표준(RFC)과 업계 가이드라인에 근거한 REST API 설계 규칙 일곱 가지.</p>
     </div>
 
+    <h3 class="sub-head">리소스와 메서드 <span>원칙 1 · 2</span></h3>
     <div class="grid-2">
 
       <div class="card">
@@ -447,11 +898,16 @@ pre code { white-space: pre; }
         <p>
           <code>/users</code>(리소스)에 GET/POST/PUT/DELETE를 적용한다.
           <code>/getUsers</code>, <code>/createUser</code> 같은 동사 URI는 쓰지 않는다.
-          컬렉션은 복수형(<code>/users</code>), 개별 리소스는 식별자(<code>/users/{id}</code>).
-          중첩은 2단계까지 허용하고(<code>/users/{id}/orders</code>),
-          그 이상은 독립 리소스로 승격한다.
         </p>
-        <a class="card-source" href="https://github.com/microsoft/api-guidelines" target="_blank" rel="noopener">Microsoft REST API Guidelines</a>
+        <ul>
+          <li>컬렉션은 복수형 — <code>/users</code></li>
+          <li>개별 리소스는 식별자 — <code>/users/{id}</code></li>
+          <li>중첩은 2단계까지 — <code>/users/{id}/orders</code></li>
+          <li>그 이상은 독립 리소스로 승격한다</li>
+        </ul>
+        <div class="source-row">
+          <a class="card-source" href="https://github.com/microsoft/api-guidelines" target="_blank" rel="noopener">Microsoft REST API Guidelines</a>
+        </div>
       </div>
 
       <div class="card">
@@ -464,24 +920,55 @@ pre code { white-space: pre; }
           <li><strong>PATCH</strong>: 부분 수정(partial update). 멱등성은 구현에 따라 다르다.</li>
           <li><strong>DELETE</strong>: 리소스 삭제. 멱등.</li>
         </ul>
+        <p>상태 코드 범위:</p>
+        <div class="status-bar" role="list" aria-label="상태 코드 다섯 범위">
+          <div class="status-seg" role="listitem"><b>1xx</b><small>정보</small></div>
+          <div class="status-seg s2" role="listitem"><b>2xx</b><small>성공</small></div>
+          <div class="status-seg" role="listitem"><b>3xx</b><small>리다이렉션</small></div>
+          <div class="status-seg s4" role="listitem"><b>4xx</b><small>클라이언트 에러</small></div>
+          <div class="status-seg s5" role="listitem"><b>5xx</b><small>서버 에러</small></div>
+        </div>
         <p>
-          상태 코드 범위: 1xx(정보), 2xx(성공), 3xx(리다이렉션), 4xx(클라이언트 에러), 5xx(서버 에러).
           100~599 범위에서 RFC 9110이 정의한 코드만 사용한다. 자체 정의 상태 코드는 금지.
         </p>
-        <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">RFC 9110 — HTTP Semantics</a>
+        <div class="source-row">
+          <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">RFC 9110 — HTTP Semantics</a>
+        </div>
       </div>
 
-      <div class="card">
+    </div>
+
+    <h3 class="sub-head" id="errors">에러 응답 <span>원칙 3</span></h3>
+    <div class="feature">
+      <div class="feature-head">
         <span class="card-number">3</span>
-        <h3>에러 응답은 application/problem+json(RFC 9457)으로 표준화한다</h3>
-        <p>모든 4xx/5xx 응답은 다음 5개 필드를 포함한다:</p>
-        <ul>
-          <li><code>type</code> — 에러 유형 URI (문서 링크)</li>
-          <li><code>title</code> — 사람이 읽을 수 있는 짧은 설명</li>
-          <li><code>status</code> — HTTP 상태 코드 (정수)</li>
-          <li><code>detail</code> — 이 요청에 대한 구체적 설명</li>
-          <li><code>instance</code> — 이 에러 발생의 고유 참조 URI</li>
-        </ul>
+        <div>
+          <h3>에러 응답은 application/problem+json(RFC 9457)으로 표준화한다</h3>
+          <p>모든 4xx/5xx 응답은 다음 5개 필드를 포함한다.</p>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>필드</th><th>설명</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>type</code></td><td>에러 유형 URI (문서 링크)</td></tr>
+                <tr><td><code>title</code></td><td>사람이 읽을 수 있는 짧은 설명</td></tr>
+                <tr><td><code>status</code></td><td>HTTP 상태 코드 (정수)</td></tr>
+                <tr><td><code>detail</code></td><td>이 요청에 대한 구체적 설명</td></tr>
+                <tr><td><code>instance</code></td><td>이 에러 발생의 고유 참조 URI</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="field-note">
+            다섯 필드를 모두 넣는 것은 <strong>이 킷의 규칙</strong>이다.
+            RFC 9457 은 <code>type</code> 이 없으면 <code>about:blank</code> 로 본다.
+          </div>
+        </div>
 <pre class="code-block">{
   <span class="tk-key">"type"</span>: <span class="tk-str">"https://api.example.com/errors/insufficient-balance"</span>,
   <span class="tk-key">"title"</span>: <span class="tk-str">"Insufficient Balance"</span>,
@@ -489,39 +976,81 @@ pre code { white-space: pre; }
   <span class="tk-key">"detail"</span>: <span class="tk-str">"계좌 잔액이 50,000원 부족합니다."</span>,
   <span class="tk-key">"instance"</span>: <span class="tk-str">"/transfers/abc-123"</span>
 }</pre>
-        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9457" target="_blank" rel="noopener">RFC 9457 — Problem Details for HTTP APIs</a>
       </div>
 
-      <div class="card">
+      <div class="source-row">
+        <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9457" target="_blank" rel="noopener">RFC 9457 — Problem Details for HTTP APIs</a>
+      </div>
+    </div>
+
+    <h3 class="sub-head" id="pagination">페이지네이션 <span>원칙 4</span></h3>
+    <div class="pagination-block">
+      <div class="feature-head">
         <span class="card-number">4</span>
-        <h3>큰 컬렉션은 cursor 기반 페이지네이션을 우선한다</h3>
-        <p>
-          <strong>Offset</strong>은 임의 페이지 점프가 가능하지만 삽입/삭제 시 row 누락·중복이 발생하고,
-          <code>OFFSET N</code>이 클수록 성능이 저하된다.
-          <strong>Cursor</strong>는 일관된 결과와 O(1) 탐색을 보장하지만 임의 페이지 점프는 불가능하다.
-        </p>
+        <div>
+          <h3>큰 컬렉션은 cursor 기반 페이지네이션을 우선한다</h3>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-col">
+          <h4>Offset</h4>
+          <dl>
+            <dt class="pro">장점</dt>
+            <dd>임의 페이지 점프 가능</dd>
+            <dt class="con">단점</dt>
+            <dd>삽입/삭제 시 row 누락·중복, <code>OFFSET N</code>이 클수록 성능 저하</dd>
+          </dl>
+        </div>
+        <div class="compare-col pick">
+          <h4>Cursor <em>우선</em></h4>
+          <dl>
+            <dt class="pro">장점</dt>
+            <dd>일관된 결과, O(1) 탐색</dd>
+            <dt class="con">단점</dt>
+            <dd>임의 페이지 점프 불가</dd>
+          </dl>
+        </div>
+      </div>
+
+      <p class="lead-in">Cursor 응답 형태:</p>
 <pre class="code-block">{
   <span class="tk-key">"data"</span>: [...],
   <span class="tk-key">"next_cursor"</span>: <span class="tk-str">"eyJpZCI6MTAwfQ=="</span>,
   <span class="tk-key">"has_more"</span>: <span class="tk-num">true</span>
 }</pre>
+
+      <div class="callout">
+        <span class="callout-mark">!</span>
         <p>
-          Offset은 데이터 변경이 드문 정적 목록(관리자 대시보드 등)에서만 사용한다.
-          실시간 피드, 타임라인, 검색 결과는 반드시 cursor를 쓴다.
+          Offset은 데이터 변경이 드문 <strong>정적 목록</strong>(관리자 대시보드 등)에서만 사용한다.
+          실시간 피드, 타임라인, 검색 결과는 <strong>반드시 cursor</strong>를 쓴다.
         </p>
-        <a class="card-source" href="https://slack.engineering/evolving-api-pagination-at-slack/" target="_blank" rel="noopener">Slack Engineering — Evolving API Pagination</a>
       </div>
+
+      <div class="source-row">
+        <a class="card-source" href="https://slack.engineering/evolving-api-pagination-at-slack/" target="_blank" rel="noopener">Slack Engineering — Evolving API Pagination at Slack</a>
+      </div>
+    </div>
+
+    <h3 class="sub-head">스펙 · 버전 · 쿼리 <span>원칙 5 · 6 · 7</span></h3>
+    <div class="grid-3">
 
       <div class="card">
         <span class="card-number">5</span>
         <h3>OpenAPI 스펙은 코드와 항상 동기화한다</h3>
         <p>
-          OpenAPI 3.2.0 스펙을 단일 소스로 유지한다.
-          코드에서 스펙을 생성하거나(code-first), 스펙에서 코드를 생성하는(spec-first) 방식 중 하나를 선택하되
-          혼용하지 않는다.
+          OpenAPI 3.2.1 스펙을 단일 소스로 유지한다.
+          코드에서 스펙을 생성하거나(code-first), 스펙에서 코드를 생성하는(spec-first) 방식 중
+          하나를 선택하되 혼용하지 않는다.
+        </p>
+        <p>
           CI에서 스펙과 실제 응답의 불일치를 검증하는 계약 테스트를 실행한다.
         </p>
-        <a class="card-source" href="https://spec.openapis.org/oas/v3.2.0.html" target="_blank" rel="noopener">OpenAPI Specification 3.2.0</a>
+        <div class="source-row">
+          <a class="card-source" href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener">OpenAPI Specification 최신판 3.2.1</a>
+          <a class="card-source" href="https://github.com/OAI/OpenAPI-Specification/releases/tag/3.2.1" target="_blank" rel="noopener">OpenAPI 3.2.1 release</a>
+        </div>
       </div>
 
       <div class="card">
@@ -535,7 +1064,9 @@ pre code { white-space: pre; }
           하이브리드(경로 + 헤더 동시 사용)는 혼란을 유발하므로 지양한다.
           메이저 버전만 URL에 반영하고, 하위 호환 변경은 버전을 올리지 않는다.
         </p>
-        <a class="card-source" href="https://github.com/microsoft/api-guidelines" target="_blank" rel="noopener">Microsoft REST API Guidelines</a>
+        <div class="source-row">
+          <span class="card-note">원본 문서가 출처를 달지 않은 이 킷의 규칙이다.</span>
+        </div>
       </div>
 
       <div class="card">
@@ -545,17 +1076,22 @@ pre code { white-space: pre; }
           <code>/users?status=active&amp;sort=-created_at&amp;fields=id,name</code> 형태를 사용한다.
           리소스 경로에 필터를 넣지 않는다
           (<code>/users/active</code> 금지 — 이것은 <code>active</code>라는 ID의 사용자처럼 보인다).
-          복합 필터가 필요하면 LHS brackets(<code>filter[status]=active</code>) 또는
-          RHS colon(<code>status:eq:active</code>) 컨벤션을 선택한다.
         </p>
-        <a class="card-source" href="https://github.com/microsoft/api-guidelines" target="_blank" rel="noopener">Microsoft REST API Guidelines</a>
+        <p>복합 필터가 필요하면 둘 중 하나의 컨벤션을 선택한다.</p>
+        <ul>
+          <li>LHS brackets — <code>filter[status]=active</code></li>
+          <li>RHS colon — <code>status:eq:active</code></li>
+        </ul>
+        <div class="source-row">
+          <span class="card-note">원본 문서가 출처를 달지 않은 이 킷의 규칙이다.</span>
+        </div>
       </div>
 
     </div>
   </section>
 
   <!-- ===== 수치 기준 ===== -->
-  <section>
+  <section id="metrics">
     <div class="section-header">
       <span class="section-label">02 · Metrics</span>
       <h2>수치 기준</h2>
@@ -569,8 +1105,12 @@ pre code { white-space: pre; }
         </thead>
         <tbody>
           <tr><td><strong>HTTP 상태 코드 범위</strong></td><td>100~599 (RFC 9110)</td></tr>
-          <tr><td><strong>RFC 9457 problem+json 필수 필드</strong></td><td>5개 (<code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code>, <code>instance</code>)</td></tr>
-          <tr><td><strong>OpenAPI 최신 버전</strong></td><td>3.2.0 (2025-09-19)</td></tr>
+          <tr>
+            <td><strong>problem+json 필드</strong> (이 킷 규칙 — 원칙 3)</td>
+            <td>5개 (<code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code>, <code>instance</code>).
+              RFC 9457 은 <code>type</code> 이 없으면 <code>about:blank</code> 로 본다</td>
+          </tr>
+          <tr><td><strong>OpenAPI 최신 버전</strong></td><td>3.2.1 (2026-09-10 공개 · 2026-09-24 조회)</td></tr>
           <tr><td><strong>Cursor 페이지 크기 기본값</strong></td><td>20~100 (리소스 크기에 따라)</td></tr>
           <tr><td><strong>API 응답 시간 목표</strong></td><td>p50 &lt; 100ms, p99 &lt; 500ms</td></tr>
         </tbody>
@@ -579,17 +1119,17 @@ pre code { white-space: pre; }
   </section>
 
   <!-- ===== 안티패턴 ===== -->
-  <section>
+  <section id="antipatterns">
     <div class="section-header">
       <span class="section-label">03 · Anti-patterns</span>
       <h2>안티패턴</h2>
-      <p>피해야 할 패턴과 그 이유.</p>
+      <p>피해야 할 패턴과 그 이유. 아래 비교는 표와 원칙 1 · 3 · 6 · 7 을 요청 모양으로 옮긴 것이다.</p>
     </div>
 
     <div class="table-wrap">
       <table class="anti-table">
         <thead>
-          <tr><th style="width:38%">안티패턴</th><th>문제</th></tr>
+          <tr><th>안티패턴</th><th>문제</th></tr>
         </thead>
         <tbody>
           <tr>
@@ -611,10 +1151,103 @@ pre code { white-space: pre; }
         </tbody>
       </table>
     </div>
+
+    <div class="pairs">
+
+      <div class="pair">
+        <div class="pair-title">GET 바디에 조건 싣기</div>
+        <p class="pair-why">프록시/캐시가 바디를 무시할 수 있다. 조건은 쿼리 파라미터로 보낸다(원칙 7).</p>
+        <div class="pair-grid">
+          <div class="pair-side bad">
+            <span class="pair-tag">나쁜 예</span>
+<pre class="code-block"><span class="tk-bad">GET</span> /users
+{ <span class="tk-key">"status"</span>: <span class="tk-str">"active"</span> }</pre>
+          </div>
+          <div class="pair-side good">
+            <span class="pair-tag">좋은 예</span>
+<pre class="code-block"><span class="tk-ok">GET</span> /users?status=active&amp;sort=-created_at</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <div class="pair-title">200 OK 에 자체 에러 코드 넣기</div>
+        <p class="pair-why">로드밸런서 · 모니터링이 에러를 못 본다. 상태 코드와 problem+json 다섯 필드로 답한다(원칙 3).</p>
+        <div class="pair-grid">
+          <div class="pair-side bad">
+            <span class="pair-tag">나쁜 예</span>
+<pre class="code-block">HTTP/1.1 <span class="tk-bad">200</span> OK
+{ <span class="tk-key">"success"</span>: <span class="tk-num">false</span>, <span class="tk-key">"code"</span>: <span class="tk-str">"E1001"</span> }</pre>
+          </div>
+          <div class="pair-side good">
+            <span class="pair-tag">좋은 예</span>
+<pre class="code-block">HTTP/1.1 <span class="tk-ok">422</span>
+Content-Type: application/problem+json
+
+{
+  <span class="tk-key">"type"</span>: <span class="tk-str">"https://api.example.com/errors/insufficient-balance"</span>,
+  <span class="tk-key">"title"</span>: <span class="tk-str">"Insufficient Balance"</span>,
+  <span class="tk-key">"status"</span>: <span class="tk-num">422</span>,
+  <span class="tk-key">"detail"</span>: <span class="tk-str">"계좌 잔액이 50,000원 부족합니다."</span>,
+  <span class="tk-key">"instance"</span>: <span class="tk-str">"/transfers/abc-123"</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <div class="pair-title">버전 없이 공개하기</div>
+        <p class="pair-why">깨지는 변경 한 번에 모든 클라이언트가 같이 깨진다. 메이저 버전만 경로에 싣는다(원칙 6).</p>
+        <div class="pair-grid">
+          <div class="pair-side bad">
+            <span class="pair-tag">나쁜 예</span>
+<pre class="code-block"><span class="tk-bad">GET</span> /users</pre>
+          </div>
+          <div class="pair-side good">
+            <span class="pair-tag">좋은 예</span>
+<pre class="code-block"><span class="tk-ok">GET</span> /v1/users</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <div class="pair-title">동사를 URI 에 넣기</div>
+        <p class="pair-why">행위는 HTTP 메서드가 맡는다. URI 는 리소스 명사, 컬렉션은 복수형(원칙 1).</p>
+        <div class="pair-grid">
+          <div class="pair-side bad">
+            <span class="pair-tag">나쁜 예</span>
+<pre class="code-block">GET  /<span class="tk-bad">getUsers</span>
+POST /<span class="tk-bad">createUser</span></pre>
+          </div>
+          <div class="pair-side good">
+            <span class="pair-tag">좋은 예</span>
+<pre class="code-block"><span class="tk-ok">GET</span>  /users
+<span class="tk-ok">POST</span> /users</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <div class="pair-title">필터를 경로에 넣기</div>
+        <p class="pair-why"><code>/users/active</code> 는 <code>active</code> 라는 ID 의 사용자처럼 보인다(원칙 7).</p>
+        <div class="pair-grid">
+          <div class="pair-side bad">
+            <span class="pair-tag">나쁜 예</span>
+<pre class="code-block">GET /users/<span class="tk-bad">active</span></pre>
+          </div>
+          <div class="pair-side good">
+            <span class="pair-tag">좋은 예</span>
+<pre class="code-block">GET /users?<span class="tk-ok">status=active</span>
+GET /users?<span class="tk-ok">filter[status]=active</span></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </section>
 
   <!-- ===== Gotchas ===== -->
-  <section>
+  <section id="gotchas">
     <div class="section-header">
       <span class="section-label">04 · Gotchas</span>
       <h2>Gotchas</h2>
@@ -660,7 +1293,7 @@ pre code { white-space: pre; }
   </section>
 
   <footer>
-    Backend Kit v0.1 · last updated 2026-04-04 ·
+    Backend Kit v0.1 · 문서 v0.1.1 · last updated 2026-09-25 ·
     source: <code>docs/backend/fundamentals/api-design.md</code>
   </footer>
 

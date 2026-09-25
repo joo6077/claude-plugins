@@ -53,9 +53,22 @@ G3 는 대상을 선언하지 않으면 **PASS 가 아니라 FAIL** 이다. 판�
 no-op 게이트의 정체다.
 
 ```bash
-. howto-kit/scripts/howto-gate.sh
-howto_gate docs/setup/fcm-ios.md
+GATE="${CLAUDE_PLUGIN_ROOT}/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE="$(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
+  -path '*/howto-kit/scripts/howto-gate.sh' 2>/dev/null | head -1)
+if [ -n "$GATE" ] && [ -f "$GATE" ]; then
+  echo "RESOLVED: $GATE"
+  . "$GATE"; howto_gate <절차 문서>
+else
+  echo "MISSING: howto-gate.sh tried=${CLAUDE_PLUGIN_ROOT}/scripts · $(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts · $HOME/.claude/plugins/marketplaces"
+  false
+fi
 ```
+
+`howto-doc` Phase 4 와 같은 블록이다. 스크립트를 플러그인 설치 경로 → git 최상위 폴더의 `howto-kit/` →
+마켓플레이스 설치본 순으로 찾고, 못 찾으면 `MISSING:` 을 찍는다. `find -exec sh -c` 로 여러 파일을 돌릴 때는
+스크립트를 `sh -c` 안에서 읽는다 — 셸 함수는 자식 셸로 넘어가지 않는다 (`howto-audit` Gotcha 6).
 
 ## 스킬 목록
 
@@ -105,8 +118,10 @@ howto_gate docs/setup/fcm-ios.md
 | `run-evals.sh` | 파일 |
 <!-- /AUTO:evals -->
 
-evals 는 서술이 아니라 **실행 결과**로 판정한다. 모든 케이스를 zsh 와 bash 양쪽에서 돌려 출력이
-동일한지까지 본다.
+evals 는 서술이 아니라 **실행 결과**로 판정한다. 모든 케이스를 zsh · bash · sh 세 셸에서 돌려 출력이
+같은지까지 본다. 스킬 본문과 이 README 에서 게이트를 부르는 셸 블록(`bash` · `sh` · `shell` · `zsh` 펜스)도 그대로 뽑아 네 경우(플러그인 설치 경로 ·
+git 최상위 폴더 · 마켓플레이스 설치본 · 스크립트 없음)에서 zsh · bash 로 돌린다. 블록 수는 `evals.json` 의
+`gate_blocks` 와 같아야 한다.
 
 ```bash
 sh howto-kit/evals/run-evals.sh

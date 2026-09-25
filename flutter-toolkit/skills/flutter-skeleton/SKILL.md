@@ -181,7 +181,7 @@ loading: () => const ProfileSkeleton(),
 - [ ] Padding, 간격이 실제 레이아웃과 동일한가
 - [ ] Sliver 구조가 실제 화면과 동일한가 (pinned header 등)
 - [ ] `$FLUTTER analyze` 통과하는가
-- [ ] `references/visual-evidence-protocol.md` 실행 — loading / loaded 두 상태를 캡처해 대조하고 **Visual Evidence Block** 을 응답에 채웠는가 (캡처 불가 시 `[미검증]` + 사유 명시, 부분 완료로 보고)
+- [ ] `references/visual-evidence-protocol.md` 실행 — loading / loaded 두 상태를 캡처해 대조하고 **Visual Evidence Block** 을 응답에 채웠는가 (캡처 불가 시 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 Step 4)을 채우고 부분 완료로 보고)
 
 ## Rules
 

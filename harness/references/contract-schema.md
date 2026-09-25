@@ -3,7 +3,9 @@
 > sprint-contract 와 qa-evaluator 가 공유하는 계약 포맷 정의.
 > contract-kaizen 이 변경 제안 가능, evaluator-kaizen 이 읽어서 평가 루브릭에 반영.
 >
-> **최근 갱신: 2026-09-08 (amend_direction 극성 · v5.3 보강)** — 오라클(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)을 바꾸는 amendment 의 direction 을 **측정 집합** 전용 헬퍼 `amend_direction_oracle` 로 계산한다. 기존 `amend_direction` 은 **허용 집합** 전용이며, 측정 집합을 넣으면 극성이 뒤집혀 `relaxing` 이 `narrowing` 으로 적힌다 (실측 howto-kit A-01, 39 → 37 경로). 결측 입력은 조용한 `unknown` 이 아니라 `unknown missing_input=` 으로 드러낸다. 버전 번호는 올리지 않는다 — 다음 번호는 다른 브랜치(`fix/contract-schema-unmeasured-oracle`)가 선점했다.
+> **최근 갱신: 2026-09-24 (Phase 2 kaizen · v5.5)** — 재는 명령의 준비 단계 실측(값만 면제), 알려진 답 대조 패턴, 조건 수는 기능 조건만 센다, 여러 주체가 한 가지에 커밋할 때의 서명 줄, 검사 스크립트는 이 스프린트 몫의 줄로 한정, zsh 배열 첨자, 시각 필드는 `date` 출력으로.
+>
+> 이전: 2026-09-08 (amend_direction 극성 · v5.3 보강) — 오라클(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)을 바꾸는 amendment 의 direction 을 **측정 집합** 전용 헬퍼 `amend_direction_oracle` 로 계산한다. 기존 `amend_direction` 은 **허용 집합** 전용이며, 측정 집합을 넣으면 극성이 뒤집혀 `relaxing` 이 `narrowing` 으로 적힌다 (실측 howto-kit A-01, 39 → 37 경로). 결측 입력은 조용한 `unknown` 이 아니라 `unknown missing_input=` 으로 드러낸다. 버전 번호는 올리지 않는다 — 다음 번호는 다른 브랜치(`fix/contract-schema-unmeasured-oracle`)가 선점했다.
 >
 > 이전: 2026-08-13 (Phase 2 kaizen · v5.3) — write-once 를 서술에서 **결정론적 봉인**으로 승급. frontmatter `conditions_digest` / `locked_at` 신설 (조건 체크박스 줄만 정규화 해시 — 체크박스 토글·서술 편집은 통과, 조건 문구 변조·조건 추가는 즉시 `SEAL_BROKEN`), amendment 를 **direction × consent 2 축**으로 분리 (앵커 부재가 방향 판정을 `unknown` 으로 붕괴시키던 구조 제거 · 경로 집합 amendment 의 direction 은 집합 비교로 **계산**), 조건 패턴 3 종 추가 (측정 커버리지 표기 · 인자 매트릭스 · 음성 대조).
 >
@@ -86,6 +88,11 @@ bash 는 패턴 문자열을 그대로 넘기므로 같은 코드가 bash 에서
   off 라 `grep ... $files` 가 목록 전체를 **파일명 하나**로 넘긴다. bash 에서만 동작하고 zsh 에서는
   매치 0 으로 **조용히 미발동**한다 — 죽지도 않으니 발견이 더 늦다. 배열로 모아
   (`arr+=("$f")` → `"${arr[@]}"`) 넘긴다. 공백 포함 파일명도 이때만 안전하다.
+- **zsh 배열은 기본 옵션에서 1 부터 센다 (2026-09-24 추가).** `${arr[1]}` 이 첫 원소이고 `${arr[0]}` 은 빈 값이다.
+  `KSH_ARRAYS` 옵션을 켜면 0 부터 세고, bash 배열도 0 부터 센다. 두 셸에서 도는 코드는 첨자로 돌지 말고
+  `for x in "${arr[@]}"` 로 원소를 돈다. 실측(2026-09-22): 0 부터 센다고 가정한 zsh 측정이 한 칸 밀린 값을 냈다
+  ([zsh 매뉴얼 — Array Parameters](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters) ·
+  [Bash 매뉴얼 — Arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html)).
 - 선례: `harness/skills/harness-kaizen/scripts/trigger-check.sh` 의 `current_feedback_files()` /
   `history_feedback_files()` 가 `find` 형태이고, `check_repeated_antipatterns()` 가 배열 형태다.
   새 구현은 그 형태를 따른다.
@@ -188,7 +195,7 @@ awk '/^## /{s=$0} /^- \[ \]/{print FILENAME":"FNR": "s" -> "$0}' "$CONTRACT"
 
 ```yaml
 feature: "{기능명}"
-created: "{YYYY-MM-DD HH:mm}"
+created: "{YYYY-MM-DD HH:mm}"   # 저장하는 순간 date '+%Y-%m-%d %H:%M' 출력을 옮긴다
 complexity: "{simple|medium|complex}"
 conditions: {총 조건 수}
 slug: {slug}                # v5 — 접미형일 때 필수, plain 모드면 생략. 따옴표 없이
@@ -197,6 +204,12 @@ owner_session: {세션 ID}    # v5 — $CLAUDE_CODE_SESSION_ID. 값이 없으면
 conditions_digest: sha256:{16hex}   # v5.3 — 조건 봉인. 따옴표 없이
 locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각
 ```
+
+**시각 필드는 `date` 출력을 옮긴다 — 짐작해 적지 마라 (v5.5).** `created` · `locked_at` 과 개정 파일 · 피드백에
+적는 시각이 모두 해당한다. 실측(2026-09-24): 개정 파일 머리에 `20:50` 이라 적었는데 그 파일을 처음 담은 커밋은
+`20:41:11` 이라 뒤에 고쳤다 — 검증하면 반증되는 시각이다. 이 형식은 시간대와 초를 버리므로, 시간대가 다른 기록과
+비교할 일이 있으면 `date '+%Y-%m-%dT%H:%M:%S%z'` 원본을 서술 절에 함께 남긴다
+([GNU date](https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html)).
 
 ### 값 따옴표 규약 (v5.1 — writer / reader 대칭)
 
@@ -555,19 +568,24 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 #### Diff-Scope Oracle 표준형 (v4 추가)
 
 "변경 범위" 를 조건으로 쓸 때 `git diff` 자유 서술을 금지한다. 아래 5 요소를 모두 채운다:
-**(1) 상태 전제** (`Given: 커밋 직전 working tree` 또는 `Given: 스테이징 완료 후`) ·
+**(1) 상태 전제** (`Given: 이 스프린트의 커밋이 끝난 뒤` · `Given: 커밋 직전 working tree` · `Given: 스테이징 완료 후` 중 하나 — 평가 시점에 다시 잴 수 있는 것) ·
 **(2) 경로 한정 pathspec** · **(3) 생성물 제외 pathspec** · **(4) 기대 집합**("정확히 일치" 인지
-"포함" 인지) · **(5) 상한 ref** (아래 §커밋 구간 상한).
+"포함" 인지) · **(5) 상한 ref** (아래 §커밋 구간 상한). 상한 ref 는 커밋 구간을 재는 조건에만 요구한다 — 커밋 전 두 상태(`git diff HEAD` · `--cached`)에는 상한이 없다.
 
 ```markdown
 - [ ] AR-01: 변경이 변환 헬퍼 2 개 파일로 한정된다 [exact, enumerated]
-      (Given: 커밋 직전 working tree ·
-       측정: `git diff --name-only HEAD -- app/lib ':(exclude)*.g.dart'` 결과가
+      (Given: 이 스프린트의 커밋이 끝난 뒤 ·
+       측정: `U=$(sprint_head <slug>) || exit 2; git diff --name-only <base>..$U -- app/lib ':(exclude)*.g.dart'` 결과가
        `app/lib/data/mapper/schedule_mapper.dart`,
        `app/lib/data/mapper/group_mapper.dart` 2 행과 정확히 일치)
 ```
 
 계약 작성 시점에 그 명령을 1 회 실행하고 현재 출력(baseline)을 서술 섹션에 남긴다.
+
+**상태 전제는 평가 시점에 다시 잴 수 있는 것으로 고른다 (v5.5).** `Given: 커밋 직전 working tree` 의
+`git diff HEAD` 와 `Given: 스테이징 완료 후` 의 `--cached` 는 커밋하고 나면 빈 출력이다. `git status --porcelain`
+줄 수도 같다. QA 는 대개 커밋 뒤에 돌므로 평가 시점에 재는 범위 조건은 커밋 구간 `<base>..<상한>` 으로 쓴다.
+실측(2026-08-13): 커밋 뒤 평가에서 `git status --porcelain` 이 늘 0 줄이라 조건을 다시 잴 수 없었다.
 
 ##### `.harness/` 범위 조건 — 산출물 슬러그를 열거하지 마라 (2026-09-23 추가)
 
@@ -586,6 +604,8 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 ```bash
 # .harness/ 의 계약 파일만 골라 봉인 상태를 센다. 피드백·개정·project.yaml·handoff/ 는 계약이 아니다
 # -maxdepth 를 걸지 않는다 — history/ 로 옮긴 계약이 조용히 검사에서 빠진다 (실측 1 건)
+# 네 함수 가운데 하나라도 없는 셸에서 세면 모든 계약이 SEAL_ABSENT(fm_get 없음)나 SEAL_BROKEN(contract_digest · sha256_16 없음)으로 잘못 나온다 — 정의부터 확인하고 없으면 멈춘다
+type verify_seal fm_get contract_digest sha256_16 >/dev/null 2>&1 || { echo "STOP verify_seal · fm_get · contract_digest · sha256_16 정의 없음 — §계약 봉인 · §값 따옴표 규약 블록을 먼저 읽는다" >&2; exit 2; }
 find .harness -type f -name 'sprint-contract*.md' -print0 \
 | while IFS= read -r -d '' f; do verify_seal "$f"; done \
 | awk '{print $1}' | sort | uniq -c
@@ -594,6 +614,7 @@ find .harness -type f -name 'sprint-contract*.md' -print0 \
 - 판정은 **`SEAL_BROKEN` 이 0 개**다. `SEAL_OK` 와 `SEAL_ABSENT` 는 **둘 다 통과**다 —
   봉인 없는 레거시 계약이 실재하고 그것은 경고이지 실패가 아니다 (§계약 봉인)
 - `status:` 토글과 새 산출물 추가는 위반이 아니다
+- 블록 머리의 `type` 줄을 빼지 마라. 실측(2026-09-25): `fm_get` 만 빠진 셸에서 계약 79 개가 전부 `SEAL_ABSENT` 로 나왔고 종료 코드는 0 이었다
 - 실측(2026-09-23): 계약 67 개에 돌려 `SEAL_OK` 56 · `SEAL_ABSENT` 11 · `SEAL_BROKEN` 0
 
 레포의 다른 부분(`harness/evals/` · `docs/kaizen/` 등)을 재는 조건은 경로 패턴을 그대로 쓰면
@@ -615,6 +636,8 @@ SC-02 가 새로 FAIL 이 됐다. 스프린트 머지 커밋까지로 좁히자 
 - 프로젝트의 브랜치·머지 메시지 관례에 의존하므로 **관례가 다르면 그 프로젝트의 형태로 적는다.**
   아래는 `sprint/<slug>` 브랜치 + `Merge sprint/<slug>: …` 머지 메시지 관례일 때의 형태다.
 - 해석이 실패하면(`UNRESOLVED`) 조용히 `HEAD` 로 떨어지지 마라 — 평가자가 사용자에게 묻는다.
+- 측정에서는 상한을 먼저 변수로 받고 `|| exit 2` 로 멈춘다(아래 SC-02 예시와 위 AR-01 예시의 첫 명령).
+  상한 해석을 `<base>..` 뒤에 바로 이어 쓰면 해석이 실패해도 빈 값이 들어가 `<base>..` 가 되고, git 은 그것을 `<base>..HEAD` 로 읽는다.
 
 ```bash
 # 스프린트 상한 해석 — 머지됐으면 머지 커밋, 아직이면 브랜치 tip (zsh · bash 동일)
@@ -629,8 +652,43 @@ sprint_head() {  # sprint_head <slug>
 ```markdown
 - [ ] SC-02: 서버 `lib/` 변경이 화이트리스트 5 경로에 포함된다 [exact, enumerated]
       (Given: 이 스프린트의 커밋이 끝난 뒤 ·
-       측정: `git diff --name-only <base>..$(sprint_head <slug>) -- packages/server/lib
+       측정: `U=$(sprint_head <slug>) || exit 2; git diff --name-only <base>..$U -- packages/server/lib
        ':(exclude)*.g.dart'` 의 각 줄이 아래 5 경로 중 하나)
+```
+
+##### 여러 주체가 한 가지에 커밋할 때 — 서명 줄로 내 커밋을 가린다 (2026-09-24 추가)
+
+`<base>..<상한>` 구간에는 이 스프린트 말고도 오케스트레이터 · 다른 스프린트 · 다른 Phase 의 커밋이 들어올 수 있다.
+실측(2026-08-13): 한 Phase 계약의 범위 조건이 세 번 깨졌고, 그중 두 번은 오케스트레이터가 감사 기록 커밋을 그 구간에 넣어서였다.
+계약이 둘 중 하나를 고른다.
+
+- **선택지 A — 누적 차이.** 한 주체만 커밋하는 가지의 기본값이다. `git diff --name-only <base>..<상한> -- .
+  ':(exclude).harness'` 로 구현 경로를 재고, `.harness/` 는 위 §`.harness/` 범위 조건 으로 잰다. 구간의 변경이 전부
+  어느 한쪽에 걸리므로 빠지는 커밋이 없다. 다른 주체가 같은 구간에 커밋하면 그 파일까지 이 계약이 떠안지만,
+  그때는 소리 나게 실패한다
+- **선택지 B — 서명 줄.** 여러 주체가 같은 가지에 동시에 커밋하면 A 는 늘 남의 파일을 잡는다. 이 스프린트의 모든
+  커밋 메시지 끝 문단에 서명 줄 `<키>: <slug>` 한 줄을 달고, 그 줄로 내 커밋의 파일을 모은다(`mine`).
+  서명 줄을 빠뜨린 커밋은 **조용히 빠진다.** 그래서 반대 방향 확인을 함께 건다 — 선언한 구현 경로를 건드린 구간 안
+  커밋은 전부 서명 줄을 달아야 한다(`unsigned_on` 출력 0 줄). 그래도 남는 사각은 서명 줄 없이 선언 밖 경로를 고친
+  내 커밋이다. 이것은 커밋 규칙으로 막는다 — `git add <경로> && git commit -o <경로>` 로 내 경로만 싣는다
+
+`mine` · `unsigned_on` 은 메시지 어느 문단이든 서명 줄과 글자가 똑같은 줄을 찾는다 — 끝 문단인지는 보지 않는다.
+서명 줄을 끝 문단에 두는 관례는 그대로 둔다 — 도우미가 자리를 보지 않을 뿐이다. 도우미는 줄 전체가 서명 줄과 같아야 잡으므로,
+다른 주체가 본문 문장 안에 슬러그를 인용한 커밋은 잡히지 않는다 (실측 2026-09-24 스크래치 저장소: 본문 인용 커밋이 슬러그를
+아무 데서나 찾는 옛 꼴에는 잡히고 서명 줄 꼴에는 안 잡혔다). 상한은 `sprint/<slug>` 가지가 없으면 개정 파일의 `end_sha:` 줄 마지막 값으로 읽는다 — 해석이 안 되면
+`HEAD` 로 떨어지지 말고 멈춘다.
+
+```bash
+# 서명 줄로 이 스프린트 커밋의 파일을 모은다 · 선언 경로를 건드렸는데 서명이 없는 커밋을 찾는다 (zsh · bash 동일)
+mine() {  # mine <base> <상한> <서명 줄>
+  git log --format= --name-only "${1}..${2}" --grep="^${3}\$" | grep . | LC_ALL=C sort -u
+}
+unsigned_on() {  # unsigned_on <base> <상한> <서명 줄> <경로>... — 출력 0 줄이어야 한다
+  _b=${1}; _u=${2}; _s=${3}; shift 3
+  git log --format=%H "${_b}..${_u}" -- "$@" | while read -r _c; do
+    git log -1 --format=%B "$_c" | grep -qxF "$_s" || echo "$_c"
+  done
+}
 ```
 
 #### 미실측 오라클 봉인 금지 (v5.4 추가)
@@ -655,6 +713,15 @@ sprint_head() {  # sprint_head <slug>
 - **면제**: 이 스프린트가 **만들어 낼** 값 (신규 필드명 · 새 파일 경로 · 수정 후 기대 출력) 은
   실측 대상이 아니다. 존재하지 않는 것을 미리 잴 수는 없다. 구별 기준은 **"이 값이 구현 전에도
   관측 가능한가"** 이며, BEFORE · baseline · 회귀 오라클은 전부 관측 가능하므로 면제되지 않는다.
+- **면제는 기대값에만 걸린다 (v5.5).** 그 값을 재는 명령의 **준비 단계**는 면제가 아니다 — 명령이 읽을 경로가
+  지금 있는가, 부르는 도구가 이 기계에서 어디로 잡히는가(`command -v <도구>` 의 출력과 종료 코드 — 못 찾으면 출력이
+  없고 종료 코드가 0 보다 크다), `PATH` · 환경변수를 바꿔 도구를 숨기는 전제가 이 기계에서 성립하는가, 임시 사본 ·
+  빈 입력을 만드는 절차가 도는가. 이것들은 봉인 전에 한 번 돌려 출력과 종료 코드를 서술 절에 남긴다.
+  `command -v` 는 셸 내장 · 함수도 보고하므로, 외부 도구를 숨기는 전제라면 출력이 경로인지까지 본다
+  ([POSIX `command`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html)).
+  실측(2026-09-22): 계약이 `PATH=/usr/bin:/bin` 으로 `jq` 를 숨긴다고 전제했는데 이 기계의 `jq` 는 `/usr/bin/jq` 라
+  숨겨지지 않았고, 평가자가 명령을 그대로 돌리자 기준과 다른 출력이 나와 REJECT 됐다. 같은 날 다른 조건의 `find`
+  명령은 범위 밖 파일 세 개를 더 잡았다. 둘 다 봉인 전에 한 번 돌렸으면 드러났다
 - 잴 방법 자체가 없는 값이면 그 조건을 만들지 마라 (§증거 아티팩트 경로와 같은 논리).
 
 #### 증거 아티팩트 경로 (v4 추가)
@@ -826,6 +893,32 @@ done < "$DUPS"
 
 실측 배경: 2026-09-19 스프린트에서 세션 기록 형식에 없는 문자열(`hook error`)을 세는 조건이 항상 0 이라 통과했고, 같은 날 다른 계약에서는 대상 파일이 없어 명령이 실패하는데 `2>/dev/null` 이 오류를 삼켜 0 처럼 보였다.
 
+#### 알려진 답 대조 (Known-Answer · 0 이 아닌 기대값 · v5.5 추가)
+
+조건의 측정이 **새로 짠 스크립트**이고 기대값이 0 이 아닌 수(길이 · 개수 · 합계 · 비율)면, 그 스크립트의 첫 출력은
+아직 아무도 확인하지 않은 값이다. 그럴듯한 숫자가 나왔다는 것은 스크립트가 옳다는 증거가 아니다. 그런 조건에는
+`알려진 답:` 절을 넣는다.
+
+- **무엇을 적나** — 손으로 답을 셀 수 있는 작은 입력(경로, 또는 만들 임시 사본 — 대상 파일은 건드리지 않는다),
+  손으로 센 **기대값**, 그 입력에 스크립트를 돌린 **실제값**, 명령과 **종료 코드**
+- **언제 재나** — 봉인 전에 1 회. 재지 않았으면 `[미실측]` 이다 (§미실측 오라클 봉인 금지 · SKILL.md Step 6.5 (5))
+- **판정** — 기대값과 실제값이 다르면 봉인하지 않는다. 스크립트나 입력 중 하나가 틀렸다. 0 이 아닌 기대값에 0 이나
+  빈 출력이 나와도 같다
+- **양성 대조와의 차이** — 양성 대조는 나쁜 예에서 1 이상이 나오는지, 알려진 답 대조는 좋은 작은 입력에서 정확한
+  값이 나오는지 본다. 기대값이 0 인 측정은 위 §양성 대조 를 쓴다
+- **생성 측 짝** — `harness/docs/guides/skill-design-guide.md` §3.7 「0 이 아닌 값을 내는 새 측정 — 알려진 답 대조」
+  (§11 parity 16 번째). 입력 크기 2~3 줄은 레포 관례이며 외부 근거는 없다
+
+실측 배경(2026-09-22): 호 이동 길이를 빠뜨린 G-code 길이 측정이 그럴듯한 총합을 냈고, zsh 배열을 0 부터 센다고
+가정한 측정이 한 칸 밀린 값을 냈다 (§셸 이식성 규약). 둘 다 작은 입력 하나로 드러났을 결함이다.
+
+```markdown
+- [ ] SC-03: 새 길이 측정 스크립트가 G-code 파일의 압출 경로 총길이를 낸다 [exact]
+      (측정: `python3 measure_len.py out.gcode` ·
+       알려진 답: 10 mm 직선 두 줄과 반지름 5 mm 반원 호 한 줄짜리 사본 `known.gcode` —
+       기대 35.71 · 봉인 전 실제 35.71 · 종료 코드 0)
+```
+
 #### 조건 작성 preflight — QA 모호성 태그의 되먹임 (v5.3 추가)
 
 평가자가 improvement 에 반복해서 붙이는 태그는 **계약 작성 단계에서 미리 잡을 수 있는 결함**의
@@ -856,6 +949,22 @@ done < "$DUPS"
 이 표는 **검출용 자문 목록**이지 자동 판정기가 아니다. LLM 에게 "이 조건 모호한가?" 만 묻는
 게이트를 만들지 마라 — 판정 근거가 남지 않는다.
 
+##### 검사 스크립트 전체 통과를 조건으로 걸지 마라 — 이 스프린트 몫의 줄로 한정한다 (2026-09-24 추가)
+
+여러 줄을 내는 검사(`validate-post-kaizen.py` 처럼 사이클 전체를 보는 것)를 측정으로 쓸 때 「전체 FAIL 0」 을 걸면,
+이 스프린트가 만들지 않는 산출물의 상태가 판정에 섞여 조건이 원리상 만족 불가능해진다. 위 표의 `측정-환경-오염` 한
+형태이며, 새 태그를 만들지 않는다.
+
+- 조건에 **이 스프린트가 소유한 줄의 이름**을 적고 그 줄이 `FAIL` · `ERROR` 가 아닌지만 본다. 뺀 줄은 이름과 이유를
+  조건에 함께 적는다
+- 여러 주체가 같은 가지에 커밋하면 소유한 줄도 남의 결함으로 떨어질 수 있다. 그 줄이 가리키는 파일을 서명 줄
+  `mine` (§여러 주체가 한 가지에 커밋할 때)과 대조해 겹치는 것만 이 스프린트 몫으로 센다
+- 검사 전체 통과는 사이클 마지막 단계(카이젠이면 Final) 계약의 조건이다
+
+실측 두 번: 2026-08-13 한 Phase 계약이 「`doc-contracts` 줄이 있고 FAIL 0 · 종료 코드 0」 을 걸었는데 그 검사는 사이클
+마지막 단계 산출물 다섯 줄도 함께 봐서 Phase 안에서는 만족할 수 없었다. 2026-09-24 에는 다른 스프린트가 같은 검사의
+「FAIL 0」 을 걸었다가 문서 사이트 재생성 · 범위 분리 두 줄 때문에 REJECT 를 받았다.
+
 ### 2. Anti-patterns
 
 ```markdown
@@ -863,7 +972,8 @@ done < "$DUPS"
 - [ ] {id}: {message}
 ```
 
-- `project.yaml.anti_patterns`에서 최소 2개 선별
+- `project.yaml.anti_patterns`에서 최소 2개 선별 — 이번 변경 파일에 걸릴 수 있는 패턴이 그보다 적으면 걸리는 것만
+  쓰고, 하나도 없으면 `AP-00: N/A (사유)` 한 줄로 쓴다 (§해당 없음 마커)
 - 해당 구현에서 발생 가능성이 높은 것을 우선 선택
 
 ### 3. Reusability (자동 포함)
@@ -1115,18 +1225,38 @@ amendment 로 인정하지 않는다 — 계약 조건과 동일하게, 평가 �
 
 ## 복잡도별 조건 수 가이드
 
-| 복잡도 | 파일 영향 | 조건 수 |
-|--------|----------|--------|
-| 단순 | 1-3 | 4-6 |
-| 중간 | 4-8 | 8-12 |
-| 복잡 | 9+ | 12-20 |
+조건 수는 **기능 조건**만 센다 (v5.5 개정). 기능 조건은 조건 줄에서 자동 포함 여섯 줄(`RE-01` · `RE-02` ·
+`DG-01`~`DG-04`), `## Anti-patterns` 절의 줄, `N/A (사유)` 줄을 뺀 나머지다. 옛 표는 전체 조건 줄을 셌는데, 그러면
+이 레포(카테고리 4 개)에서 가장 작은 계약도 카테고리마다 한 줄 · 금지 패턴 한 줄 · 자동 포함 여섯 줄로 11 줄이라
+단순 작업의 「4-6 개」를 지킬 수 없었다. 실측(2026-09-19): 한 줄 훅 수정이 무거운 계약 · QA 절차에 묻혔다.
+
+| 복잡도 | 기능 조건 수 |
+| ------ | ------ |
+| 단순 | 1~3 |
+| 중간 | 4~8 |
+| 복잡 | 9~20 |
+
+- 수는 레포 내부 정책이다. 외부 근거는 조건을 짧게, 한 조건에 한 규칙만 재라고 권할 뿐 개수를 주지 않는다
+  ([Gherkin Best Practices](https://github.com/andredesousa/gherkin-best-practices))
+- 복잡도는 파일 수가 아니라 SKILL.md Step 1 의 4 축 표로 판정한다. 20 을 넘기면 스프린트를 나눌지 먼저 본다
+- 세는 명령은 SKILL.md Step 6.2 의 두 번째 명령이다 (같은 식):
+
+```bash
+awk '/^## /{s=$(0)} /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"
+```
 
 ## 스키마 버전
 
-현재: **v5.4** (2026-09-08)
+현재: **v5.5** (2026-09-24)
 
 변경 이력:
 
+- **v5.5 (2026-09-24)** — **양성 대조**(2026-09-19 추가분의 번호를 확정) · **알려진 답 대조** 두 패턴을 조건 패턴에
+  올린다. **면제는 기대값에만** — 재는 명령의 준비 단계(경로 · `command -v` · 도구를 숨기는 전제 · 임시 사본)는 봉인
+  전에 돌린다. **조건 수는 기능 조건만** 센다 — 자동 포함 여섯 줄 · 금지 패턴 · `N/A` 줄을 빼고 단순 1~3 · 중간 4~8 ·
+  복잡 9~20. **Diff-Scope 상태 전제** — 커밋 뒤 빈 출력이 되는 working tree · `--cached` · `--porcelain` 대신 커밋
+  구간. **여러 주체가 한 가지에 커밋할 때** 서명 줄 `mine` 과 반대 방향 확인 `unsigned_on`. **검사 스크립트는 이
+  스프린트 몫의 줄로 한정**(새 태그 없이 `측정-환경-오염`). zsh 배열 첨자, 시각 필드는 `date` 출력.
 - **v5.4 (2026-09-08)** — **커밋 구간 상한에서 `HEAD` 금지.** 실측 `mcp-dynamic-pull-collision`
   (같은 결함 2 이터레이션 연속): SC-02 가 `<base>..HEAD` 로 재는 바람에, 봉인 이후 병합된 무관한
   버그 수정이 화이트리스트 밖 파일을 건드리자 스프린트가 자기가 만들지 않은 변경 때문에 FAIL 했다.

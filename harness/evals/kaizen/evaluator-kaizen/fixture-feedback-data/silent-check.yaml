@@ -1,0 +1,27 @@
+schema_version: 1
+timestamp: "2026-09-23T11:39:00+09:00"
+project_hash: "test0011"
+project_name: "fixture-project-k"
+skill: qa-evaluator
+skill_version: "0.12.0"
+outcome: completed
+evaluation:
+  verdict: APPROVE
+  conditions_total: 18
+  conditions_passed: 18
+  l3_coverage: 1.0
+  reject_reasons: []
+diagnosis:
+  checklist:
+    l3_unreached: false
+    bias_detected: true
+    evidence_missing: false
+    contract_misinterpret: false
+    perspective_gap: false
+  cross_diagnosis_by: sprint-contract
+  cross_diagnosis_notes: "교차 검토가 새 검사의 결함 셋을 잡았다 — 첫 칸만 읽는 검사, 표에만 올리고 실행 목록에 없는 시험 파일, 한 칸을 못 읽으면 검사 전체가 꺼지는 호출부. 평가자는 원본 대상에서 나온 위반 0 과 종료 코드 0 을 근거로 통과시켰다"
+  improvement_suggestions:
+    - "산출물이 검사면 위반을 둘째 칸에만 둔 사본과 못 읽는 칸 · 실제 위반을 섞은 사본으로 직접 돌려 볼 것"
+    - "새 시험 파일이 실행 목록에 들어가 실제로 돌았는지 실행 출력으로 확인할 것"
+user_rating: bad
+user_comment: "교차 검토가 없었으면 조용히 실패하는 검사가 그대로 나갔음"

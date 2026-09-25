@@ -34,7 +34,7 @@ user-invocable: true
     | 실패 누적 후 종료 | 첫 실패에서 죽지 말고 `fail=1` 로 누적하고 마지막에 `exit "$fail"`. 전수 리포트를 잃지 않으면서 게이트는 유지된다 | — |
     | 매칭 없는 glob | `shopt -s nullglob` 또는 배열 길이 검사 없이 `for f in dir/*.yml` 을 쓰지 마라. 매칭이 없으면 **리터럴 패턴 한 번**으로 루프가 돌아 존재하지 않는 파일을 오보한다 | POSIX glob 비확장 동작 |
 
-12. **검사 도구 미설치는 PASS 가 아니라 `[미검증]` 이다 (Completion Evidence Gate · skill-design-guide §3.7)** — `hadolint` · `actionlint` · `kubeconform` · `conftest` · `container-structure-test` 는 미설치가 흔하다. 도구를 못 돌렸으면 "검증 항목 N 건 통과" 에 넣지 마라. 완료 보고에는 **실행한 명령과 그 출력**을 인용하고, 돌리지 못한 항목은 `[미검증] TOOL_OR_ENV_MISSING: <도구> 미설치 — 재검증: <명령>` 으로 개별 표기한다. "테스트를 생성했으니 검증됐다" 는 자기보고이지 증거가 아니다. **분기·상태어는 `../../references/gate-result-taxonomy.md`, 마커 의미·임계값·카운터 분리는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 다 — 어느 쪽도 이 스킬에서 재정의하지 마라.**
+12. **검사 도구 미설치는 PASS 가 아니라 `[미검증]` 이다 (Completion Evidence Gate · skill-design-guide §3.7)** — `hadolint` · `actionlint` · `kubeconform` · `conftest` · `container-structure-test` 는 미설치가 흔하다. 도구를 못 돌렸으면 "검증 항목 N 건 통과" 에 넣지 마라. 완료 보고에는 **실행한 명령과 그 출력**을 인용하고, 돌리지 못한 항목은 `[미검증] TOOL_OR_ENV_MISSING` 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워 개별 표기한다 — 막는 것은 `command -v <도구>` 와 그 출력이고, 시도한 우회가 정말 없으면 칸을 비우지 말고 `없음 — 이유` 를 적는다 (네 칸 정의: `harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate 3 항). "테스트를 생성했으니 검증됐다" 는 자기보고이지 증거가 아니다. **분기·상태어는 `../../references/gate-result-taxonomy.md`, 마커 의미·임계값·카운터 분리는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 다 — 어느 쪽도 이 스킬에서 재정의하지 마라.**
 
 13. **핵심 도구 부재를 rule 위반으로 오보하지 마라 (실측 회귀)** — `grep -q ... "$f"` 는 grep 이 **없을 때도** 비영으로 끝난다. 그래서 `grep` 이 PATH 에 없는 환경에서 스크립트가 "checkout 스텝 없음 VIOLATION" 을 오보하고 exit 1 로 끝났다 (실제 관측). 게이트 자체가 의존하는 **핵심 도구**(`grep` · YAML 파서용 `python3`)는 머리말 출력 직후 · 첫 rule 실행 **전**에 `command -v` 로 검사하고, 없으면 rule 을 하나도 돌리지 말고 `EXECUTION_ERROR` + exit 2 로 끝내라. `hadolint` 같은 **선택 도구**는 그 rule 만 `TOOL_OR_ENV_MISSING` 으로 표기하고 나머지 검사는 계속한다 (층 구분 근거: `../../references/gate-result-taxonomy.md` §핵심 도구 / 선택 도구 분리).
 
@@ -252,7 +252,8 @@ violation=0; unverified=0; exec_error=0
 
 # 규칙 1: checkout 스텝 존재
 for f in "${workflows[@]}"; do
-  if grep -q 'actions/checkout' "$f"; then
+  # uses: 키로 부른 줄만 센다 — 이름만 찾으면 주석 한 줄(`# uses: actions/checkout@v4`)로도 PASS 한다 (2026-09-25 재현)
+  if grep -qE '^[[:space:]]*(-[[:space:]]+)?uses:[[:space:]]*["'"'"']?actions/checkout@' "$f"; then
     echo "PASS            : $f checkout 존재"
   else
     echo "VIOLATION       : $f checkout 스텝 없음"; violation=$((violation + 1))
@@ -378,8 +379,10 @@ updates:
 ### Step 6: K8s Manifest 테스트 생성
 
 ```bash
-# kubeconform 검증
-kubeconform -strict -kubernetes-version 1.30.0 k8s/*.yaml
+# kubeconform 검증 — 스키마 버전은 대상 클러스터 버전으로 (kubectl version 의 Server Version, IaC 의 클러스터 버전 변수 등)
+# 고정 값을 박으면 클러스터를 올린 뒤에도 옛 스키마로 검증한다
+K8S_VERSION="${K8S_VERSION:?대상 클러스터의 Kubernetes 버전을 넣는다}"
+kubeconform -strict -kubernetes-version "$K8S_VERSION" k8s/*.yaml
 
 # Helm chart 검증
 helm template my-release helm/chart/ | kubeconform -strict
@@ -422,6 +425,8 @@ deny[msg] {
 
 먼저 `command -v <tool>` 로 각 도구의 존재를 확인하고, **확인된 도구만 실행한다.** 미설치 도구는 설치 안내를 제시하되 해당 항목을 통과로 세지 마라 (Gotcha 12). CI에 통합할 수 있는 명령 형태로 제공한다.
 
+**생성한 검사 스크립트는 실제 대상보다 답을 아는 작은 입력에 먼저 돌린다 (알려진 답 대조 · skill-design-guide §3.7).** 새 스크립트의 첫 출력은 아직 아무도 확인하지 않은 값이다. 예: 임시 폴더에 워크플로 하나(원격 `uses:` 셋 — `actions/checkout@v4` · 40 자 커밋 번호(SHA)로 고정한 액션 하나 · `@v4` 태그 액션 하나. checkout 이 있어 checkout 규칙은 통과한다)를 두고 `WF_DIR=<임시 폴더> bash tests/ci-validation.sh` 를 돌리면 `열거된 uses 참조 수: 3` · 참조 단위 `VIOLATION       :` 줄 2 개 · 집계 `VIOLATION=1`(규칙 단위로 센다) · exit 1 이 나와야 한다. 기대값 · 실제값 · 돌린 명령을 실행 증거 블록에 나란히 적고, 다르면 실제 대상에 돌리지 말고 스크립트나 입력부터 고친다. 이 입력은 핀닝 rule 이 1 이상을 내는지 보는 양성 대조도 겸한다.
+
 실행 전에 `../../references/gate-result-taxonomy.md` §머리말 4 카운터를 그대로 출력해 **검사 범위를 먼저 고정**한다 — 대상 수 · 규칙 소스 수 · 사용 가능 도구 수 · 미설치 도구 수. 그 다음 각 스택의 결과를 상태 5 종 중 하나로 분류한다:
 
 | 관측 | 상태 | exit |
@@ -441,7 +446,7 @@ deny[msg] {
 1. **검사 범위 머리말** — 4 카운터 (대상 수 · 규칙 소스 수 · 사용 가능 도구 수 · 미설치 도구 수).
 2. **생성된 파일** — 경로 목록.
 3. **실행 증거** — 실행한 명령과 그 출력(또는 exit code)을 인용한다. 실패분은 수정 후 재실행하고, 통과 전에는 완료를 선언하지 않는다.
-4. **미검증 항목** — `[미검증] TOOL_OR_ENV_MISSING: <도구> 미설치 — 재검증: <명령>` 형태로 개별 나열 + `미검증 N 건` 집계. 재검증 명령이 없으면 그 항목은 `UNVERIFIED_ENV` 로 인정되지 않는다 (`../../references/gate-result-taxonomy.md` §재검증 명령 의무). **2 건 이상이면 완료가 아니라 부분 완료로 보고한다.**
+4. **미검증 항목** — 항목마다 `[미검증] TOOL_OR_ENV_MISSING: <도구>` 아래 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워 개별 나열 + `미검증 N 건` 집계 (Gotcha 12). 네 칸 중 하나라도 비면 그 항목은 `UNVERIFIED_ENV` 로 인정되지 않는다 (`../../references/gate-result-taxonomy.md` §재검증 명령 의무). **2 건 이상이면 완료가 아니라 부분 완료로 보고한다.**
 
 ```text
 검사 범위:
@@ -455,8 +460,16 @@ deny[msg] {
   $ bash tests/ci-validation.sh
   VIOLATION=0  [미검증]=0  EXECUTION_ERROR=0 · exit 0
 미검증 2 건:
-  [미검증] TOOL_OR_ENV_MISSING: kubeconform 미설치 — 재검증: brew install kubeconform && kubeconform -strict k8s/
-  [미검증] TOOL_OR_ENV_MISSING: container-structure-test 미설치 — 재검증: gcloud components install container-structure-test && container-structure-test test --image app:dev --config container-structure-test.yaml
+  [미검증] TOOL_OR_ENV_MISSING: kubeconform
+    막는 것: $ command -v kubeconform → 출력 없음 · exit 1
+    시도한 우회: k8s/*.yaml 을 python3 YAML 파서로 읽기만 함 (exit 0 — 구문만 확인, 스키마 검증은 못 함)
+    통제 불가 사유: 이 환경에 패키지 설치 권한이 없다
+    재검증 명령: brew install kubeconform && kubeconform -strict k8s/
+  [미검증] TOOL_OR_ENV_MISSING: container-structure-test
+    막는 것: $ command -v container-structure-test → 출력 없음 · exit 1
+    시도한 우회: 없음 — 이미지 안 파일 구조를 볼 다른 도구가 이 환경에 없다
+    통제 불가 사유: 이 환경에 패키지 설치 권한이 없다
+    재검증 명령: gcloud components install container-structure-test && container-structure-test test --image app:dev --config container-structure-test.yaml
 → 부분 완료 (미검증 2 건)
 ```
 

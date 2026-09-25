@@ -1,6 +1,6 @@
 # MakerWorld 댓글 분석 매뉴얼
 
-> Last updated: 2026-05-23
+> Last updated: 2026-09-25 (§4.1 JSON 먼저 · §8 읽는 순서 · 최초 2026-05-23)
 > Added in: bambu-kit v0.4.0
 > Trigger: SKILL.md Phase 1.6 (Comment Analysis) 진입 시 로드
 
@@ -128,18 +128,25 @@ must
 
 ## 4. 운영 가이드
 
-### 4.1 댓글 50+ 페이지 처리 (페이지네이션/스크롤)
+### 4.1 댓글 받기 — JSON 먼저, 50+ 도 전수
 
-MakerWorld 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" 정렬 옵션이 있다.
+MakerWorld 댓글은 JSON 주소(SKILL.md 「MakerWorld 읽는 순서」)로 **전부** 받는다. `offset` 을 받은 `hits` 수만큼 늘려 가며
+`hits` 가 비거나 받은 수가 `total` 에 닿을 때까지 넘긴다 — 50+ 여도 sampling 하지 않는다 (`[관측 2026-09-24]` `total` 159 를 두 번에 받았다).
 
-**전략:**
+1. **원소마다 두 종류를 본다**: `hits` 의 원소에 `comment` 와 `ratingItem` 이 따로 있다. 한쪽만 읽으면 나머지를 잃는다
+   (관측: 첫 페이지 100 개 중 `comment` 44 · `ratingItem` 56). 각 항목 안의 답글 배열도 따로 읽는다.
+2. **수를 두 가지로 적는다**: 모델 주소의 `commentCount` 와 댓글 주소의 `total` 은 같은 값이 아니다 (관측: 190 · 159).
+   무엇을 세는지 공식 근거가 없으니 멈추지 말고 둘 다 적는다.
+3. **사용자에게 보고**: "댓글 total N · 받은 hits M · commentCount K".
 
-1. **첫 스냅샷**: `mcp__playwright__browser_snapshot` 호출 후 댓글 카운트 헤딩 확인
+**JSON 을 못 받았을 때만 — 브라우저 스냅샷 경로.** 페이지 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" 정렬 옵션이 있다.
+
+1. **첫 스냅샷**: 브라우저 도구로 스냅샷을 찍고 댓글 카운트 헤딩 확인
    ```yaml
    - heading "Comment & Rating (N)"
    ```
 2. **N ≤ 20**: 단일 스냅샷으로 충분.
-3. **20 < N ≤ 50**: `browser_evaluate`로 `window.scrollBy(0, 2000)` 3-5회 호출 후 재스냅샷.
+3. **20 < N ≤ 50**: `window.scrollBy(0, 2000)` 3-5회 실행 후 재스냅샷.
 4. **N > 50**:
    - `Top` 정렬로 핵심 댓글 추출 (designer_reply, 평점 분포 sample)
    - `Most Likes`로 검증된 user_success/user_failure 추출
@@ -166,7 +173,8 @@ MakerWorld 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" �
 사용자가 출력 결과 사진을 댓글에 첨부한 경우.
 
 **전략:**
-1. `mcp__playwright__browser_take_screenshot`으로 댓글 영역 캡처 (full comment block)
+
+1. 브라우저 도구가 있으면 그 캡처 기능으로 댓글 영역을 찍는다 (full comment block). 없으면 4 번 fail-soft 대로 넘어간다
 2. 이미지에서 다음 단서 추출:
    - **표면 품질**: 광택/매트/stringing 흔적
    - **색상 변형**: 멀티컬러 패턴
@@ -315,7 +323,7 @@ JSON 동작 변경 의도가 없는 사용성/안전 정보. JSON에 직접 반�
 
 다음 케이스는 fail-soft (skip + 보고 + 진행):
 
-- Cloudflare bot challenge로 페이지 로드 실패 → MakerWorld URL fallback 체인 작동 (Playwright → Codex → WebFetch → 사용자 직접 입력)
+- 모델 페이지가 `Just a moment...` · HTTP 403 으로 막힘 → SKILL.md 「MakerWorld 읽는 순서」 대로 다음 단계로 바로 넘어간다 (JSON 주소 → 브라우저 도구 → Codex 셸 `curl` → 사용자 직접 입력). 기다렸다 다시 열지 않는다
 - 댓글 0개 모델 → "댓글 없음" 명시 후 Phase 2 진행 (designer_constraints는 description 본문에서만 추출)
 - 다국어 번역 결과 부정확 → 원문 quote 함께 보존
 - 외부 링크 follow 실패 → notes.md §5에 URL만 적고 진행
@@ -332,7 +340,7 @@ JSON 동작 변경 의도가 없는 사용성/안전 정보. JSON에 직접 반�
 
 ## 10. 미해결 / 검증 필요
 
-- MakerWorld API endpoint (있다면) 직접 호출로 댓글 전체를 단일 호출에 받을 수 있는지 검증 (v2 BACKLOG)
+- MakerWorld JSON 주소 — 2026-09-24 관측으로 댓글 전체를 `offset` 으로 끝까지 받을 수 있음을 확인했다 (SKILL.md 「MakerWorld 읽는 순서」). 공식 스키마 · 안정성 · 요청 횟수 제한 문서는 아직 없다
 - 다국어 자동 번역 품질 — Show original 클릭 자동화 검증 필요
 - 50+ 댓글 페이지 sampling 전략의 reproducibility (random seed 영향)
 - 이미지 OCR 도입 가치 평가 — 현재는 visual 검토만 (text는 댓글 본문에서 추출)

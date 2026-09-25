@@ -30,6 +30,8 @@ user-invocable: true
 
 `docs/planning/flows.md` (User Flow vs Journey vs Blueprint, Mermaid 문법 패턴) 로드.
 
+이전 단계 산출물 `.planning/prd-*.md` 가 있으면 비범위 절(`## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`)의 폐기한 결정을 함께 로드한다. 이 단계에서 다이어그램을 그리지 않는다.
+
 ## Step 1: 다이어그램 타입 선택
 
 | 의도 | Mermaid 타입 | 언제 | 출처 |
@@ -41,6 +43,8 @@ user-invocable: true
 | 정보 구조 (IA) | `flowchart TD` (트리 형태) | 네비게이션/사이트맵 | [Rosenfeld/Morville IA](https://www.oreilly.com/library/view/information-architecture-4th/9781491913529/) |
 
 ## Step 2: 작성
+
+Step 0 에서 읽은 폐기한 결정과 겹치는 화면 · 분기 · 단계는 그리지 않는다. 코드에 흔적이 남아 있어도 요구로 읽지 않는다 — 필요해 보이면 그리기 전에 사용자에게 묻는다 (plan-prd Gotcha 14).
 
 ### User Flow (flowchart)
 

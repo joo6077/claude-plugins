@@ -207,34 +207,48 @@ onLibraryDownloadCancel
 
 아래 블록은 `bash` · `zsh` 양쪽에서 실행 검증했다. `SRC` 와 `INC` 를 프로젝트 값으로 바꿔 쓴다.
 매치 0건이면 grep 종료 코드가 1 이다 — 실패가 아니라 통과다.
+명령은 코드 블록에만 둔다. 표 칸에서는 `|` 를 `\|` 로 적어야 하는데, 칸의 글을 그대로 붙여 넣으면 `\|` 가 정규식의 "또는" 이 아니라 글자 `|` 로 읽힌다. 그러면 매치가 조용히 0 건이 되거나(G-1 · G-2 · G-5) 파이프 자리의 `\|` 가 인자로 넘어가 파일의 모든 줄이 나온다(G-6).
 
-```bash
-SRC=src                # 소스 루트 — 프로젝트 값으로 교체
-INC="--include=*.dart" # 대상 확장자 — 프로젝트 값으로 교체
-```
-
-| ID | 대응 규칙 | 명령 |
+| ID | 대응 규칙 | 잡는 것 |
 | --- | --- | --- |
-| G-1 | N-07 | `grep -rnE '\b(effective\|resolved)[A-Z]' "$SRC" $INC` |
-| G-2 | N-03 | `grep -rnE 'class [A-Za-z]*(Row\|Cell)[A-Za-z]*' "$SRC" $INC` |
-| G-3 | N-04 | 아래 블록 |
-| G-4 | N-05 | 아래 블록 |
-| G-5 | N-01 | `grep -rnE 'class [A-Za-z]*(Blue\|Red\|Green\|Yellow\|Gray\|Grey\|Rounded\|Circle\|Square\|Big\|Small\|Large\|Thin\|Thick)[A-Z]' "$SRC" $INC` |
-| G-6 | N-08 | `grep -rnE '\b(final\|const\|var\|let)\s+[a-z]\s*=' "$SRC" $INC \| grep -vE 'for \('` |
-| G-7 | N-09 | `find "$SRC" -type f \( -name 'utils.*' -o -name 'helper*' -o -name 'common_*' \)` |
-| G-8 | N-10 | 아래 블록 |
+| G-1 | N-07 | `effective*` · `resolved*` 식별자 |
+| G-2 | N-03 | `Row` · `Cell` 이 든 클래스 이름 |
+| G-3 | N-04 | 확립된 바 종류 밖의 `Bar` |
+| G-4 | N-05 | 확립된 합성어 밖의 `Box` · `View` · `Container` · `Wrapper` |
+| G-5 | N-01 | 색 · 모양 · 크기 낱말이 든 클래스 이름 |
+| G-6 | N-08 | 한 글자 이름 선언 (for 루프 인덱스는 걸러 낸다) |
+| G-7 | N-09 | 무역할 파일명 |
+| G-8 | N-10 | 같은 어간이 역할어 둘 이상으로 불리는 경우 |
 
 ```bash
+SRC=src                    # 소스 루트 — 프로젝트 값으로 교체
+INC=(--include='*.dart')   # 대상 확장자 — 둘 이상이면 원소를 늘린다. 한 문자열에 몰면 zsh 가 나누지 않아 0 건이 된다
+
+# G-1 — fallback 접두사
+grep -rnE '\b(effective|resolved)[A-Z]' "$SRC" "${INC[@]}"
+
+# G-2 — 표가 아닌 곳의 Row / Cell 후보
+grep -rnE 'class [A-Za-z]*(Row|Cell)[A-Za-z]*' "$SRC" "${INC[@]}"
+
 # G-3 — 확립된 바 종류를 제외한 나머지 Bar. 남은 건 전부 Header/Toolbar 후보다.
-grep -rnE 'class [A-Za-z]+Bar[A-Za-z]*' "$SRC" $INC \
+grep -rnE 'class [A-Za-z]+Bar[A-Za-z]*' "$SRC" "${INC[@]}" \
   | grep -vE '(AppBar|Toolbar|ToolBar|NavigationBar|SnackBar|TabBar|StatusBar|SearchBar|ProgressBar|ScrollBar|SideBar|TitleBar|BottomBar)'
 
 # G-4 — 의미 약한 접미사. 확립된 합성어는 제외한다.
-grep -rnE 'class [A-Za-z]+(Box|View|Container|Wrapper)[A-Za-z]*' "$SRC" $INC \
+grep -rnE 'class [A-Za-z]+(Box|View|Container|Wrapper)[A-Za-z]*' "$SRC" "${INC[@]}" \
   | grep -vE '(MessageBox|CheckBox|Checkbox|ComboBox|TextBox|ListView|GridView|PageView|WebView|ScrollView)'
 
+# G-5 — 외형 낱말
+grep -rnE 'class [A-Za-z]*(Blue|Red|Green|Yellow|Gray|Grey|Rounded|Circle|Square|Big|Small|Large|Thin|Thick)[A-Z]' "$SRC" "${INC[@]}"
+
+# G-6 — 한 글자 이름. for 루프 인덱스는 걸러 낸다
+grep -rnE '\b(final|const|var|let)\s+[a-z]\s*=' "$SRC" "${INC[@]}" | grep -vE 'for \('
+
+# G-7 — 무역할 파일명
+find "$SRC" -type f \( -name 'utils.*' -o -name 'helper*' -o -name 'common_*' \)
+
 # G-8 — 같은 도메인 어간이 두 개 이상의 역할어로 불리는 경우를 뽑는다.
-grep -rhoE '[A-Za-z]+(Item|Tile|Cell|Row|Card)' "$SRC" $INC \
+grep -rhoE '[A-Za-z]+(Item|Tile|Cell|Row|Card)' "$SRC" "${INC[@]}" \
   | sed -E 's/(Item|Tile|Cell|Row|Card)$/ &/' \
   | sort -u \
   | awk '{c[$1]=c[$1]" "$2} END{for(k in c) if(split(c[k],a," ")>1) print k" ->"c[k]}'

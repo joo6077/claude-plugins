@@ -40,6 +40,7 @@ user-invocable: true
 
 10. **매크로 분리 codemod** — 기존 `@lingui/macro` 에서 v5 분리 import 로 일괄 전환: `npx @lingui/codemods split-macro-imports <path>`. 수동 import 경로 변경 실수를 방지한다.
 11. **RTL 언어 지원 — shadcn CLI 자동 매핑 (2026-01)** — shadcn CLI 가 logical property (`start`/`end`) 를 자동 매핑하여 아랍어, 히브리어 등 RTL 언어를 즉시 대응한다. 새 컴포넌트 추가 시 `left`/`right` 대신 `start`/`end` logical property 를 사용하면 별도 RTL 스타일링 없이 양방향 레이아웃이 동작한다.
+12. **`lingui extract --clean` 을 기본 흐름에 넣지 마라** — `--clean` 은 소스에서 더는 찾지 못한 메시지를 catalog 에서 지운다. 매크로가 적용되지 않아(Gotcha 2 · 3) extractor 가 메시지를 못 찾으면 번역이 채워진 항목까지 지워진다. 옵션 자체는 안 쓰는 키를 정리하는 정상 옵션이라 금지하지 않는다 — 사용자가 정리를 요청할 때만 §4-1 순서로 돌린다 ([Lingui CLI](https://lingui.dev/ref/cli))
 
 ## Process
 
@@ -144,13 +145,10 @@ export function getLabel(): string {
 매크로 삽입 후 아래 순서를 실행한다:
 
 ```bash
-# 1. 소스 스캔 → .po 파일에 새 키 추가
+# 1. 소스 스캔 → .po 파일에 새 키 추가 (이미 있는 번역은 그대로 둔다)
 pnpm lingui extract
 
-# 2. 삭제된 키 정리 (선택)
-pnpm lingui extract --clean
-
-# 3. .po → runtime catalog 컴파일 (Vite 플러그인이 dev 모드에서 자동 수행)
+# 2. .po → runtime catalog 컴파일 (Vite 플러그인이 dev 모드에서 자동 수행)
 pnpm lingui compile
 ```
 
@@ -162,6 +160,23 @@ src/infrastructure/i18n/locales/ko.po 에서 아래 항목에 번역을 입력�
 msgid "로그인"
 msgstr ""      ← 여기에 한국어 번역 입력 (동일 언어면 그대로)
 ```
+
+#### 4-1. 안 쓰는 키 정리 — 사용자가 요청할 때만
+
+`--clean` 은 위 흐름에 넣지 않는다(Gotcha 12). 사용자가 안 쓰는 키 정리를 요청하면 아래 순서로 돌린다.
+
+1. 번역 폴더에 커밋하지 않은 변경이 없는지 본다 — `git status --porcelain -- src/infrastructure/i18n/locales/` 출력이 비어 있어야 한다. 비어 있지 않으면 알리고 멈춘다 — 그 변경과 `--clean` 이 지운 것이 diff 에 섞인다
+2. `pnpm lingui extract --clean` 을 돌리고 바로 `git diff --stat -- src/infrastructure/i18n/locales/` 를 보인다
+3. 지워진 키 수와 지워진 번역을 따로 본다:
+
+   ```bash
+   # 0 건인 정상 상황에서 grep 은 종료 코드 1 을 내 단계가 실패로 읽힌다 — 두 줄 다 awk 로 센다
+   git diff -U0 -- src/infrastructure/i18n/locales/ | awk '/^-msgid /{n++} END{print n+0}'
+   git diff -U0 -- src/infrastructure/i18n/locales/ | awk '/^-(msgstr "[^"]|")/{print; n++} END{print "filled_deleted=" n+0}'
+   ```
+
+   둘째 명령의 끝 줄이 `filled_deleted=0` 이 아니면 번역이 채워져 있던 항목이 지워졌을 수 있다 — 그 위에 찍힌 줄을 보고 가른다 (여러 줄 번역은 `"` 로 시작하는 이어진 줄로 나오는데, 여러 줄 `msgid` 의 이어진 줄도 같은 모양이다)
+4. 번역이 채워져 있던 항목이 지워졌으면 그 목록을 보이고, 사용자가 확인하기 전에는 정리 결과를 커밋하지 않는다
 
 ### 5. Locale 전환 패턴
 

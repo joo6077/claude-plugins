@@ -77,9 +77,9 @@ user-invocable: true
 
 카이젠 작업도 일반 개발과 동일하게 Sprint Contract 를 작성하고 `harness:qa-evaluator` 로 APPROVE 를 받은 후 commit 한다.
 
-**계약 파일 경로**: 단독 실행이면 `.harness/sprint-contract.md`, **오케스트레이터의 Phase 로 실행될 때는 `.harness/history/<YYYYMMDD>-kaizen-phase10-react-sprint-contract.md`** 를 쓴다. 여러 Phase 가 병렬로 도는 상황에서 `.harness/sprint-contract.md` 단일 경로를 쓰면 마지막에 쓴 Phase 가 앞선 Phase 의 계약을 덮어써 QA 근거가 소실된다 (2026-07-27 사이클 실측 제약).
+**계약 파일 경로**: 단독 실행이면 `.harness/sprint-contract.md`, **오케스트레이터의 Phase 로 실행될 때는 `.harness/sprint-contract-<slug>.md`** 를 쓴다 (경로 규약은 `harness/references/contract-schema.md` §계약 파일). 여러 Phase 가 병렬로 도는 상황에서 `.harness/sprint-contract.md` 단일 경로를 쓰면 마지막에 쓴 Phase 가 앞선 Phase 의 계약을 덮어써 QA 근거가 소실된다 (2026-07-27 사이클 실측 제약).
 
-**병렬 실행 중 git 쓰기 금지**: 오케스트레이터 Phase 로 실행될 때는 `git add`/`commit`/`tag`/`push` 를 호출하지 않는다. 같은 레포에서 다른 Phase 가 동시에 작업하므로 index.lock 이 충돌한다. 커밋은 오케스트레이터가 직렬로 처리한다.
+**병렬 실행 중에는 내 경로만 싣는다**: 오케스트레이터 Phase 로 실행될 때는 `git add <내 경로> && git commit -o <내 경로> -m "<요약>" -m "Kaizen-Phase: <슬러그>"` 로 이 Phase 가 고친 파일만 서명 줄과 함께 커밋한다. `git add -A` · `git commit -a` 는 같은 작업 폴더에서 도는 다른 Phase 의 변경까지 싣고, 서명 줄이 빠지면 범위 조건이 이 커밋을 서명 없는 커밋으로 낸다 (오케스트레이터 「여러 Phase 가 한 가지에 커밋하면」 줄). `index.lock` 오류가 나면 몇 초 쉬었다 다시 한다.
 
 ## Step 7: Plugin Validation 결과 반영
 

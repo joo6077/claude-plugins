@@ -25,6 +25,8 @@ user-invocable: true
 - **golden 파일은 플랫폼·폰트·Flutter 버전에 종속된다** — `matchesGoldenFile` 은 `expectLater` 와 함께 await 해야 하며, 마스터 이미지는 `$FLUTTER test --update-goldens` 로 갱신한다. 커스텀 폰트는 플랫폼과 Flutter 버전에 따라 다르게 렌더되므로 **로컬과 CI 의 OS · Flutter 버전을 일치시키지 않으면 CI 에서만 실패**한다. golden 실패를 "환경 탓" 으로 넘기지 말고 원인을 이 4 가지(OS 차이 / 버전 차이 / 폰트 로드 실패 / 실제 UI 변경) 중 하나로 특정하라 (출처: <https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html>)
 - **Flutter 3.44 신규 테스트 헬퍼** — `TestWidgetsApp` 이 `WidgetTester` 의 기본 앱으로 표준화됐고(라우트 지정 가능), Material 텍스트 필드용 `TestTextField` 가 추가됐다. `WidgetTesterCallback` 의 파라미터명이 `widgetTester` → `tester` 로 변경됐고, flutter_test 의 false-positive 히트테스트 미스가 수정됐다. 기존 테스트를 손볼 때 이 헬퍼로 보일러플레이트를 줄일 수 있다 (출처: <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>)
 - **Maestro (대안 E2E)** — Semantics label/identifier 기반 black-box E2E 도구. Flutter Web 지원, Flutter Desktop 미지원 (2026-03). Flutter `Key` 는 접근성 레이어에 노출되지 않으므로 selector 로 사용 불가. Patrol 과 달리 언어 무관 YAML 기반 시나리오 (출처: <https://docs.maestro.dev/get-started/supported-platform/flutter>)
+- **위젯 시험의 로캘을 고정하지 않으면 결과가 실행 환경을 따라간다 (2026-09-25 추가)** — `WidgetsApp.locale` 이 null 이면 시스템 로캘을 쓰고, 지원하지 않는 로캘이면 `supportedLocales` 의 첫 항목을 쓴다. 시험의 플랫폼 로캘도 바꿀 수 있다(`TestPlatformDispatcher.locale`). Flutter 가 기본으로 주는 번역은 미국 영어뿐이다. 한 언어의 문자열을 그대로 단언하지 말고, 생성된 번역 접근자로 기대값을 만들거나 시험 하네스에서 로캘을 명시한다 (출처: <https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization>, <https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html>, <https://api.flutter.dev/flutter/flutter_test/TestPlatformDispatcher/locale.html>). 실측(2026-09-16): 기본 로캘 때문에 시험이 실패했다
+- **`initState` · `build` · `useEffect` 본문에서 provider 상태를 바꾸지 마라 — 시험이 빌드 도중 수정으로 실패한다 (2026-09-25 추가)** — `useEffect` 는 build 중에 동기로 불리므로 그 본문에서 provider 를 바꾸면 위젯 생명주기 도중 provider 가 다시 계산된다. Riverpod 은 위젯이 provider 를 초기화하지 말고 provider 가 스스로 초기화하라고 한다. 초기화는 provider 안으로 옮기고, 파생값은 `ref.watch` 나 `useMemoized` 로 계산한다. 시험을 고쳐 통과시키기 전에 이 자리부터 본다 (출처: <https://riverpod.dev/docs/root/do_dont>, <https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/useEffect.html>). 실측(2026-09-16): 빌드 도중 provider 를 바꿔 시험이 실패했다
 
 ## 0. 프로젝트 감지
 
@@ -152,5 +154,5 @@ SDK 러너가 필요하므로 `$DART test` 로는 실행되지 않는다. 순수
 
 - 실행 결과가 `+0 -0` (0 개 실행) 이면 그것은 "통과" 가 아니라 **"검사되지 않음"** 이다. 테스트가
   수집되지 않은 원인(파일 경로 · `main()` 누락 · group 필터)을 먼저 찾는다
-- 테스트를 실행하지 못했으면 `[미검증]` 마커와 사유를 남긴다. "테스트를 작성했습니다" 로 완료를
+- 테스트를 실행하지 못했으면 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채운다. "테스트를 작성했습니다" 로 완료를
   대체하지 않는다 (`harness/docs/guides/qa-evaluation-guide.md` §Evidence Validity Gate 검사 2)

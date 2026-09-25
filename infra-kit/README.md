@@ -27,7 +27,7 @@
 
 ### Platform
 - **container** — Dockerfile best practices, 멀티스테이지, non-root, 리소스 제한
-- **cicd** — GitHub Actions/GitLab CI, OIDC, 최소 권한, 캐싱, self-hosted runner
+- **cicd** — GitHub Actions/GitLab CI, OIDC, 최소 권한, 캐싱, self-hosted runner, 빨간 검사 원인 가르기
 - **kubernetes** — requests/limits, 프로브, RBAC, Pod Security, HPA/VPA, Helm/Kustomize
 - **iac** — Terraform 모듈, 상태 관리, drift, plan/apply, policy as code
 
@@ -50,13 +50,13 @@
 
 ## 검증
 
-- `python3 scripts/run-evals.py infra-kit` — 4 스킬 assertion 전수 검증 (exit 0 = PASS, 1 = FAIL, 2 = 파싱 오류)
-- `python3 scripts/validate-plugin.py infra-kit` — 7 카테고리 구조 감사 (refs/placeholders/code-fence 등)
+- `python3 scripts/run-evals.py infra-kit` — 평가 사례 6 개의 구조 검증 (exit 0 = PASS, 1 = FAIL, 2 = 파싱 오류)
+- `python3 scripts/validate-plugin.py infra-kit` — 등록된 검사 전부 (개수는 `harness/docs/guides/plugin-validation-guide.md` 가 정한다)
 
 ## Phase 8 kaizen (2026-04-24)
 
 - Phase 1~7 누적 원칙 전수 반영 (Binary Decidability · Rule-by-Rule Audit · Enumerate-before-Act · Cross-Surface Parity · CONDITIONAL APPROVE · L3 Coverage Honesty · 미검증 마커)
-- 리서치 반영: Kubernetes PSA · Terraform 1.10+ ephemeral · OpenTelemetry 3 signals stable · OpenTofu state encryption · SLSA provenance · Sigstore Cosign v3
+- 리서치 반영: Kubernetes PSA · Terraform 1.10+ ephemeral · OpenTelemetry 3 signals stable(2026-08-13 정정 — signal 별로 상태가 다르다, infra-guide Gotcha 13) · OpenTofu state encryption · SLSA provenance · Sigstore Cosign v3
 - REJECT reason 해소: AR-03 · AR-04 · SK-07 · SK-08 · SK-13
 - Sibling Parity: infra-test ↔ backend-test Step 0 스택 감지 + 기존 패턴 탐색 + 외부 실환경 금지 3 항목 동기화
 

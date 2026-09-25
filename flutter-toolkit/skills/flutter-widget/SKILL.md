@@ -28,7 +28,7 @@ user-invocable: true
 - **기존 위젯 수정이 기본값이다 — 교체는 사전 승인 사항 (`/insights` 2026-07-27 Friction #1 · digest `preserve-original-colors`)** — 시각 변경 요청을 받으면 편집 전에 세 줄을 남긴다: (1) 대상 위젯을 `파일:라인` 으로 지목, (2) **유지할 속성**(색상 체계 · 크기 · 모션 · 레이아웃) 을 열거, (3) 기존 위젯을 Flutter 기본 위젯(`CircularProgressIndicator` 등)이나 다른 컴포넌트로 **교체**하려면 승인을 먼저 받는다. 실측 사례: "play 아이콘이 회전했으면 좋겠다" 에 Material `CircularProgressIndicator` 를 새로 만들어 전면 재작업 / "보더만" 요청에 배경까지 어둡게 변경. 요청하지 않은 색상·배경 변경은 그 자체로 회귀다. 절차 전문: `references/visual-evidence-protocol.md` Step 0
 - **TextStyle / 레거시 타이포 토큰 마이그레이션 전수 체크 (insights #1 대응)** — 프로젝트에 타이포 토큰 마이그레이션 규칙(예: `bodyMSemiBold` → 신규 `bodyM + FontWeight.w600`)이 있으면, 위젯 수정 전에 `grep -rn "bodyMSemiBold\|<마이그레이션 대상 토큰>" lib/` 로 대상 줄을 **전수 나열 후 체크리스트** 로 만들고, 완료 선언 전에 같은 Grep 을 재실행해 0 건 확인. "몇 개 고쳤다" 같은 서술로 끝내면 나머지 잔존분이 남아 반복 지적을 유발 (`/insights` 30d Friction Point #1 "legacy bodyMSemiBold 미처리" 실제 사례 기반)
 - **Stack vs Column 선택 근거 명시 (insights #2 대응)** — 자식 위젯이 수직·수평 나열 외 **겹치거나 Positioned 로 절대 배치해야 할 때만** `Stack` 을 사용. 단순 나열에 Stack 을 쓰면 레이아웃 디버깅 비용이 커지고 피그마 대조에서 드리프트 발생. 의사결정 트리: (1) 자식이 겹치지 않고 동일 axis 면 Row/Column, (2) `Expanded`/`Flexible` 로 비율 조정이 필요하면 Flex 계열, (3) 하나가 다른 자식 위에 오버레이(배지, 플로팅 버튼, Gradient 오버레이)되어야 할 때만 Stack. Stack 사용 시 선택 근거를 **코드 주석 한 줄** 로 기록(`// Stack: 좋아요 배지가 카드 우측 상단에 오버레이`)
-- **현재 stable 은 Flutter 3.47.0** — 릴리스 인덱스 stable 목록 최상단이 3.47.0 이다. 아래 3.41 / 3.44 항목은 그 버전에서 도입된 변경을 정리한 것이지 "최신" 이 아니다. 3.47 은 Android 의존성 매트릭스를 **Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1** 로 제시한다 — Android 빌드 설정을 건드리는 위젯 작업이면 이 매트릭스를 먼저 확인하라 (출처: <https://docs.flutter.dev/release/release-notes>, <https://flutter.dev/blog/whats-new-in-flutter-3-47>)
+- **현재 stable 은 Flutter 3.47.5** (2026-09-18 배포 · 2026-09-24 조회, 출처: <https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json>). 아래 3.41 / 3.44 항목은 그 버전에서 도입된 변경을 정리한 것이지 "최신" 이 아니다. 3.47 은 Android 의존성 매트릭스를 **Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1** 로 제시한다 — Android 빌드 설정을 건드리는 위젯 작업이면 이 매트릭스를 먼저 확인하라 (출처: <https://docs.flutter.dev/release/release-notes>, <https://flutter.dev/blog/whats-new-in-flutter-3-47>)
 - **Flutter 3.44 위젯 변경** — 새 위젯을 만들기 전에 빌트인이 요구를 충족하는지 먼저 확인하라. 신규: `CarouselView` 무한 스크롤 + `CarouselView.onItemChanged` + `CarouselController.leadingIndex`, `AnimatedCrossFade.onEnd`, `Hero` 애니메이션 curve 커스터마이징, `RoundedSuperellipseInputBorder`, `Overlay.alwaysSizeToContent`, `ScrollCacheExtent`(PageView 등 캐시 범위). Deprecated: `ReorderableListView.onReorder` → `onReorderStart` / `onReorderEnd`. 제거: `ExtendSelectionByPageIntent` (출처: <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>, <https://docs.flutter.dev/release/release-notes>)
 - **Riverpod 3.4.1 (2026-07-27 실측 최신, pub.dev)** — `(Async)Notifier` 에는 `mounted` 프로퍼티가 **없다**. async gap 후 `ref` 재사용 시 `context.mounted` 로 가드하거나 `CancelToken` · `Completer` 로 작업 자체를 취소하라. `ref.state` · `ref.listenSelf` · `ref.future` 는 Notifier 내부에서는 `state` / `listenSelf` / `future` (prefix 없음) 로 접근한다. 3.2.0 부터 `family.overrideWith` 가 deprecated (→ `family.overrideWith2`, 4.0 에서 rename 예정), 3.4.0 부터 `SyncProviderTransformerMixin` deprecated (출처: <https://pub.dev/packages/flutter_riverpod>, <https://pub.dev/packages/flutter_riverpod/changelog>)
 
@@ -234,6 +234,15 @@ Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지�
 `Overlay.of(context).insert()` 또는 `showGeneralDialog`를 사용하는 위젯은 Widgetbook use case에서 자체 `MaterialApp` 래핑이 필요하다 — OverlayEntry 컨텍스트에 Theme/Token이 없으면 null 크래시 발생.
 `showModalBottomSheet` 기반은 Flutter가 caller Theme을 캡처하므로 래핑 불필요.
 
+**카탈로그 타일 높이는 미리보기 내용보다 낮게 고정하지 않는다 (2026-09-25 추가).** 안쪽이 따로 스크롤되길 의도하지 않은
+타일에 적용한다. 내용이 타일보다 크면 넘치고, 안쪽 목록이 제 스크롤을 가지면 스크롤 입력을 안쪽이 받아 바깥 카탈로그가
+멈춘 듯 보일 수 있다 — `ListView` 는 스스로 스크롤하는 위젯이고, 겹친 스크롤 둘은 저절로 하나처럼 움직이지 않는다
+(그러려면 `NestedScrollView` 가 따로 있다). 높이 숫자만 올려 맞추지 말고 미리보기 내용의 아래 끝이 타일 안에 드는지 시험으로 잰다.
+`shrinkWrap` 은 내용 크기에 맞추지만 비용이 커서 늘 쓰는 답이 아니다. 안쪽 스크롤이 필요한 타일이면 높이 규칙 대신 두 스크롤이
+어떻게 이어질지를 설계한다 (출처: <https://api.flutter.dev/flutter/widgets/ListView-class.html>,
+<https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html>, <https://api.flutter.dev/flutter/widgets/ScrollView/shrinkWrap.html>).
+실측(2026-08-02): 내용보다 2~8px 낮게 고정한 타일 높이 88 · 92 에서 렌더 시험 2 건이 실패했고 96 으로 올리자 통과했다.
+
 ## Code Rules
 
 - **MUST** `package:$PACKAGE/...` import만 사용 (상대경로 금지). 순서: `dart:` → `package:` (그룹 사이 빈 줄, 알파벳순)
@@ -255,12 +264,12 @@ Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지�
 
 ## Post-Creation: Widget Inspector
 
-생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 추출 후보가 있으면 리포팅하고, 없으면 조용히 넘어간다.
+생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 편집 전에 만든 관례 표(규약 Step 0 의 6 번)를 함께 넘긴다 — 에이전트가 그 표로 관례 대조를 한다. 추출 후보나 관례 `어긋남` · `[미검증]` 이 있으면 리포팅하고, 없으면 조용히 넘어간다.
 
 ## Post-Creation: Visual Evidence (완료 선언 전 필수)
 
 `references/visual-evidence-protocol.md` 를 실행하고 **Visual Evidence Block 을 응답에 채워서 보고**한다.
-시각 검증 채널이 없거나 캡처가 실패하면 `[미검증]` 마커와 사유를 남기고 **부분 완료**로 보고한다 —
+시각 검증 채널이 없거나 캡처가 실패하면 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 Step 4)을 채우고 **부분 완료**로 보고한다 —
 "정상 렌더링됩니다" 같은 서술로 완료를 대체하지 않는다. 빈 캡처는 PASS 증거가 아니라 검증 실패 신호다.
 
 ## Related Skills

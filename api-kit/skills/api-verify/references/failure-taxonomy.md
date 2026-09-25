@@ -104,7 +104,7 @@ normalize 를 먼저 적용하고, **그 이후에도 남는 차이만** asserti
 | timestamp · uuid · nonce · cursor | 마스크 대상. 남아 있으면 마스크 누락 — 계약 실패로 올리기 전에 마스크부터 점검 |
 | 배열 순서 | 정렬 보장이 있으면 계약 실패, 없으면 **variance 신호** |
 | 부동소수 정밀도 | 마스크의 round 규칙 적용 후 판정 |
-| 경로 간 불변식 (`$.meta.total >= len($.data)`) | Hurl 로 표현 불가 — 후처리에서 검사, 실패 시 계약 실패 |
+| 경로 간 불변식 (`$.meta.total >= len($.data)`) | 후처리에서 검사하고 판정 줄마다 양쪽 실제 값을 적는다(`$.meta.total=47 · len($.data)=10 → PASS`). 실패 시 계약 실패. 한쪽 경로라도 없으면 `판정 불가` — PASS 도 FAIL 도 아니라 따로 세고, 사라진 경로가 `required` 면 §4 필드 삭제가 잡는다. `.hurl` 에 적으면 경로가 없을 때 종료 코드 `3` 이 나 환경 실패로 잘못 분류된다 |
 | 컬렉션 skip/duplicate | item schema 위반 아님. **컬렉션 variance** 로 분류 |
 
 적용된 normalize 규칙은 diff 결과의 일부다. 리포트에 함께 출력하지 않으면 다음 사람이 결과를 재현할 수 없다.
@@ -156,6 +156,7 @@ quarantine · 의도된 미실행     → <skipped>
 | 데이터 부재 | `error` 또는 `skipped` (픽스처 미준비면 `skipped`) |
 | pending baseline 실패 | `skipped` + 사유 (게이트 미파괴) |
 | 계약 파일 오류 (exit `2`) | `error` |
+| 판정 불가 (경로 간 불변식의 한쪽 경로 없음) | `skipped` + 사유(없는 경로 이름) — 게이트 미파괴 |
 
 전부 `failure` 로 밀어 넣으면 서버 다운과 계약 파손이 같은 통계로 합쳐져 집계가 무의미해진다.
 

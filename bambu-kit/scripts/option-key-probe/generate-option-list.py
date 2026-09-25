@@ -91,8 +91,12 @@ for verdict, key, value, new_key, new_value in run("values", "\n".join(pairs)):
     elif value == "nil" and target in enums:
         rows.add(("enum", target, "nil"))      # 재정의 옵션의 "값 없음" 표시
 
-out.write_text("".join("\t".join(row) + "\n" for row in sorted(rows)), encoding="utf-8")
 counts = {}
 for row in rows:
     counts[row[0]] = counts.get(row[0], 0) + 1
+# 판정 프로그램이 아무것도 안 내도 빈 목록이 써졌고, 게이트는 그 목록으로 키 검사를 건너뛰었다 — 쓰기 전에 멈춘다
+empty = [kind for kind in ("canonical", "process", "filament", "machine", "enum") if not counts.get(kind)]
+if empty:
+    raise SystemExit(f"{out.name} 을 쓰지 않았다 — {', '.join(empty)} 줄이 0 개다. 판정 프로그램 출력부터 본다: {dict(sorted(counts.items()))}")
+out.write_text("".join("\t".join(row) + "\n" for row in sorted(rows)), encoding="utf-8")
 print(out.name, dict(sorted(counts.items())))

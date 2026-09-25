@@ -154,12 +154,12 @@ bash scripts/release.sh bambu-kit patch
 
 ### flutter-toolkit
 
-Flutter 프로젝트 전용 개발 워크플로우 스킬 19종.
+Flutter 프로젝트 전용 개발 워크플로우 스킬 20종.
 
 - FVM(Flutter Version Manager) 필수
 - harness 플러그인과 연동 (`.harness/project.yaml`)
 
-**제공 스킬:** api, audit, build, error, extract, feature, hooks, kaizen, l10n, preflight, provider, responsive, run, screen, skeleton, test, transition, ui-verify, widget
+**제공 스킬:** api, audit, build, error, extract, feature, hooks, kaizen, l10n, preflight, provider, responsive, run, scenario-report, screen, skeleton, test, transition, ui-verify, widget
 
 > 자세한 내용은 [flutter-toolkit/README.md](./flutter-toolkit/README.md) 참조.
 
@@ -261,7 +261,7 @@ claude-plugins/
 │   └── scripts/                 # 피드백, 검증, 트리거 스크립트
 ├── flutter-toolkit/             # Flutter 전용
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/                  # 개발 워크플로우 스킬 19종
+│   ├── skills/                  # 개발 워크플로우 스킬 20종
 │   ├── references/              # 프로젝트 감지, AI 규칙
 │   └── hooks/
 ├── design-kit/                  # UI/UX 디자인

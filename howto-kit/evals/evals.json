@@ -1,7 +1,12 @@
 {
   "kit": "howto-kit",
-  "description": "howto-kit 게이트 G1~G6 의 결정론 판정을 픽스처로 검증한다. 각 케이스는 zsh 와 bash 양쪽에서 실행하며 두 셸 출력이 동일해야 통과다.",
+  "description": "howto-kit 게이트 G1~G6 의 결정론 판정을 픽스처로 검증한다. 각 케이스는 zsh · bash · sh 세 셸에서 실행하며 세 셸 출력이 같아야 통과다. gate_blocks 는 게이트를 부르는 셸 블록(bash · sh · shell · zsh 펜스) 수를 파일마다 적는다 — 러너가 그 블록을 뽑아 네 경우(plugin · repo · market · none)에서 돌리고, 찾은 수가 적힌 수와 다르면 FAIL 이다.",
   "runner": "bash howto-kit/evals/run-evals.sh",
+  "gate_blocks": {
+    "README.md": 1,
+    "skills/howto-audit/SKILL.md": 1,
+    "skills/howto-doc/SKILL.md": 2
+  },
   "cases": [
     {
       "id": "E1-pass-baseline",

@@ -1,18 +1,18 @@
 ---
 title: Claude Code 에이전트 설계 가이드
-version: 1.6.0
-last_updated: 2026-08-13
+version: 1.7.0
+last_updated: 2026-09-24
 ---
 
 # Claude Code 에이전트 설계 가이드
 
-> 공식 문서(2026-04 최신), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙과 실전 팁
+> 공식 문서(2026-09-24 조회), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙과 실전 팁
 
 **이 문서의 용도:** 새 에이전트를 만들거나 기존 에이전트를 개선할 때 참고한다. 이 프로젝트(`claude-plugins`)의 실제 에이전트를 적용 사례로 함께 다룬다.
 
 **주요 출처:**
 
-- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-04)
+- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-09-24 조회 · 2026-09-22 수정본)
 - [Building Effective Agents — Anthropic Research](https://www.anthropic.com/research/building-effective-agents)
 - [Claude Code Sub-Agent Best Practices — claudefa.st](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
 
@@ -56,19 +56,20 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 
 | 위치 | 범위 | 우선순위 |
 | ------ | ------ | ---------- |
-| `--agents` CLI 플래그 | 현재 세션만 | 1 (최고) |
-| `.claude/agents/` | 현재 프로젝트 | 2 |
-| `~/.claude/agents/` | 모든 프로젝트 | 3 |
-| 플러그인 `agents/` | 플러그인 활성화된 곳 | 4 (최저) |
+| managed settings | managed settings 가 적용된 곳 | 1 (최고) |
+| `--agents` CLI 플래그 | 현재 세션만 | 2 |
+| `.claude/agents/` | 현재 프로젝트 | 3 |
+| `~/.claude/agents/` | 모든 프로젝트 | 4 |
+| 플러그인 `agents/` | 플러그인 활성화된 곳 | 5 (최저) |
 
 **프로젝트 에이전트**는 git에 체크인하여 팀과 공유한다.
 
 ### frontmatter 전체 필드
 
-> **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-08 재확인)
+> **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-09-24 조회 · 2026-09-22 수정본)
 
-공식 frontmatter 는 **15 종**이고, 그중 **필수는 `name` 과 `description` 둘뿐**이다. 아래 표가 그
-15 종 전부이며, 여기에 없는 이름을 frontmatter 필드로 소개하지 마라 (표 아래 "표에 없는 이름들" 참조).
+공식 frontmatter 는 **18 종**이고, 그중 **필수는 `name` 과 `description` 둘뿐**이다. 아래 표가 그
+18 종 전부이며, 여기에 없는 이름을 frontmatter 필드로 소개하지 마라 (표 아래 "표에 없는 이름들" 참조).
 
 | 필드 | 필수 | 설명 |
 | ------ | ------ | ------ |
@@ -87,15 +88,16 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 | `effort` | 아니오 | `low`, `medium`, `high`, `xhigh`, `max` (모델별 가용 레벨 상이). 세션 effort 를 override |
 | `isolation` | 아니오 | `worktree`면 격리된 git worktree에서 실행 (변경이 없으면 자동 정리) |
 | `color` | 아니오 | 터미널 UI 에 표시되는 에이전트 색상 (`red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`) |
+| `omitClaudeMd` | 아니오 | 공식 표에서 이름만 확인했다 — 뜻 미확인. 쓰기 전에 공식 표를 직접 읽는다 |
+| `initialPrompt` | 아니오 | 이 에이전트가 메인 세션 에이전트로 뜰 때(`--agent` 또는 `agent` 설정) 첫 사용자 턴으로 들어간다. 파일 frontmatter 와 `--agents` JSON 양쪽에서 쓴다. **플러그인 서브에이전트에서는 무시된다.** 2026-08 판에서 뺐다가 2026-09-24 공식 표에서 다시 확인했다 |
+| `experimental` | 아니오 | 공식 표에서 이름만 확인했다 — 뜻 미확인. 쓰기 전에 공식 표를 직접 읽는다 |
 
 **표에 없는 이름들 (혼동 방지 · 2026-08 정정):**
 
 - **`prompt`** — 이것은 `--agents` **JSON 정의**에서 markdown body 에 해당하는 필드다. 파일 기반
   YAML frontmatter 표에는 존재하지 않는다. `.md` 에이전트 파일의 frontmatter 에 `prompt:` 를 적지 마라
-- **`initialPrompt`** — 2026-07 판 이 표에 행으로 실려 있었으나 공식 15 종 목록에 없다. 근거가
-  다시 확보되기 전까지 공식 필드로 소개하지 않는다
 
-**플러그인 에이전트 제약:** `hooks`, `mcpServers`, `permissionMode` 필드는 플러그인으로 배포된 에이전트에서는 **무시된다**. 이 필드가 필요하면 `.claude/agents/` 로 복사해라.
+**플러그인 에이전트 제약:** `hooks`, `mcpServers`, `permissionMode`, `initialPrompt` 필드는 플러그인으로 배포된 에이전트에서는 **무시된다**. 이 필드가 필요하면 `.claude/agents/` 로 복사해라.
 
 ---
 
@@ -211,7 +213,7 @@ Reviewer / Evaluator 에이전트는 평가를 시작하기 **전**에 Sprint Co
 
 Claude Code 공식 내장 서브에이전트는 다음 패턴을 따른다:
 
-- **Explorer / Research 계열**: Read-only tools (Write/Edit 거부), 모델 `haiku` 로 저지연·저비용
+- **Explorer / Research 계열**: Read-only tools (Write/Edit 거부). 내장 Explore 는 v2.1.198 부터 부모 세션의 모델을 상속한다 (Anthropic API 에서는 Opus 가 상한). 전역으로 바꾸려면 `CLAUDE_CODE_SUBAGENT_MODEL` 을 쓴다
 - **Debugger 계열**: All tools, 모델 `inherit` (부모 세션 수준)
 - **Code Reviewer 계열**: Read-only, 모델 `inherit`
 
@@ -460,7 +462,7 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 
 §10 Gotcha "과도한 병렬화는 토큰 낭비" 를 정량 규칙으로 승격한다. 비용·시간이 폭주하는 두 축은 **fan-out 폭(병렬 spawn 수)** 과 **exploration 깊이(구현 전 탐색 turn 수)** 다. 2026 사례: 단일 슬래시 커맨드가 49 서브에이전트를 2.5시간 병렬 spawn 하여 $8K~15K 추정 (CloudZero). `/insights` 에서는 같은 사용자가 Figma 노드 과탐색·웹 크롤링으로 구현 전 세션이 stall 되어 직접 중단하는 패턴이 반복됐다.
 
-**플랫폼 하드 리밋 (자체 예산과 구분하라):** Claude Code 자체가 강제하는 상한이 3 종 있다 — **동시 실행 20 개**(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`), **세션 누적 200 개**(`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`), **중첩 깊이 3 층**(`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`). 초과하면 `Agent` 도구가 각각 `Concurrent subagent limit reached` / `Subagent spawn limit reached` 로 실패한다. 아래 "기본 5 개" 는 이 하드 리밋과 별개인 **자체 비용 예산**이며 항상 하드 리밋보다 작게 잡는다 — 하드 리밋은 사고를 막는 최후 방어선이지 설계 목표가 아니다.
+**플랫폼 하드 리밋 (자체 예산과 구분하라):** Claude Code 자체가 강제하는 상한이 2 종 있다 — **동시 실행 20 개**(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` · ultracode 에서는 동시 실행 20 개 상한도 적용되지 않는다), **중첩 깊이 3 층**(`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`). 세션 전체 스폰 수에는 상한이 없다 (2026-09-24 조회한 공식 문서 기준 — 이전 판에 적었던 세션 누적 상한이 어느 릴리스에서 없어졌는지는 특정하지 못했다). 상한에 걸리면 `Agent` 도구가 실패한다. 이전 판이 적은 오류 문구는 `Concurrent subagent limit reached` · `Subagent spawn limit reached` 인데, 어느 문구가 어느 상한 것인지는 이번 조회에서 확인하지 못했다. 아래 "기본 5 개" 는 이 하드 리밋과 별개인 **자체 비용 예산**이며 항상 하드 리밋보다 작게 잡는다 — 하드 리밋은 사고를 막는 최후 방어선이지 설계 목표가 아니다.
 
 **원칙:**
 
@@ -545,7 +547,7 @@ memory: project   # user | project | local
 > **출처:** 종합 (공식 문서 + 커뮤니티 경험)
 
 - **중첩은 깊이 제한이 있다 (금지가 아니다).** 서브에이전트도 자기 아래로 위임할 수 있으나 기본 3 층에서 끊긴다 (§4 참조). 한계 층의 에이전트는 `Agent` 도구를 잃고 직접 일하므로, 4 층째 위임을 전제한 설계는 조용히 단층으로 접힌다 — 깊이를 설계 가정으로 삼지 마라
-- **플러그인 에이전트는 `hooks`, `mcpServers`, `permissionMode`를 지원하지 않는다.** 필요하면 `.claude/agents/`로 복사해라
+- **플러그인 에이전트는 `hooks`, `mcpServers`, `permissionMode`, `initialPrompt`를 지원하지 않는다.** 필요하면 `.claude/agents/`로 복사해라
 - **과도한 병렬화는 토큰 낭비다.** 10개 에이전트를 단순 작업에 띄우지 마라. 관련 작업을 묶어라
 - **컨텍스트 핸드오프 실패.** 순차 체이닝에서 이전 에이전트의 결과를 다음 에이전트에 전달하지 않으면 의존성 체인이 깨진다
 - **백그라운드 에이전트는 사용자에게 질문할 수 없다.** `AskUserQuestion` 호출이 실패한다. 권한은 미리 승인해야 한다
@@ -567,16 +569,16 @@ memory: project   # user | project | local
 - **계약 모호성 방지 — 평가 이전에 조건의 이진 판정 가능성을 확인하라.** 본 원칙은 최상위 §3.5 "Binary Decidability Pre-Check" 로 승격되었다. 평가 시작 전 §3.5 체크리스트를 필수 수행한다
 
 - **Unverifiable 조건 정책 — 인프라 부재로 검증 불가한 조건의 일관 처리.** MCP 서버 미설정(예: `mcp_server: null` 로 인해 Figma read-back 불가), 런타임 미실행, 도구 미설치 등의 이유로 **실제 검증이 불가능한 조건** 이 있을 때는 아래 4 항 필수:
-  1. **명시적 마커 표기** — 해당 조건 결과에 `[정적]` 또는 `[미검증]` 마커를 붙이고, 무엇 때문에 검증이 불가한지 한 줄로 기재 (예: `[미검증] mcp_server: null — Figma 시각 대조 불가`)
-  2. **2건 이상 누적 시 REJECT** — 한 sprint 에 미검증 항목이 2건 이상이면 verdict 는 REJECT 로 귀결한다 (harness 전역 관습). 부분 L2 만 검증된 조건도 미검증 집계 대상
+  1. **분류 접미를 붙인 마커** — `[미검증]` 에 분류 접미 `:ENV` 또는 `:INVALID` 를 붙인다. `[미검증:ENV]` 는 구현자가 통제할 수 없는 도구·환경 부재, `[미검증:INVALID]` 는 요건을 못 채웠거나 증거가 공허한 경우다. 접미 없는 레거시 `[미검증]` 은 `INVALID` 로 읽는다. `[정적]` 은 런타임 없이 정적으로만 확인한 항목에 붙이는 보조 태그이고 `[미검증]` 을 대신하지 않는다
+  2. **`ENV` 는 네 칸이 있어야 성립한다** — 막는 것(실행한 명령과 그 실패 출력) · 시도한 우회(하나 이상과 그 결과. `없음` 은 `없음 — 계약에 대체 검증 단계가 없음` 한 가지만 쓴다 — 계약에 대체 검증 단계가 있는데 건너뛰었으면 `없음` 으로 적어도 `INVALID` 다) · 통제 불가 사유(한 문장) · 재검증 명령(환경이 갖춰지면 돌릴 명령). 하나라도 없으면 `INVALID` 다. 네 칸은 `qa-evaluator.md` 규칙 11 의 네 요건을 생성 측 말로 옮긴 것이다 — 요건 (1)·(3) 의 실패 출력이 `막는 것`, (2) 가 `시도한 우회`, (4) 가 `통제 불가 사유` 와 `재검증 명령` 이다. `INVALID` 2 건 이상이면 REJECT, `ENV` 는 `env_gaps` 로 따로 세어 검증 범위 판정에만 쓴다 (수치는 `qa-evaluation-guide.md` §카운팅 및 자동 REJECT 임계 가 정한다). 부분 L2 만 검증된 조건도 미검증 집계 대상
   3. **조용한 PASS 금지** — 검증을 건너뛰고 정적 증거만으로 PASS 를 주는 것은 엄격히 금지. 검증 불가면 FAIL 또는 `[미검증]` 중 하나로 표기하되 PASS 처리 금지
   4. **생성자의 완료 주장을 증거로 취급 금지** — 구현자가 "동작 확인함" 이라고 쓴 문장은 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가 코딩 에이전트 궤적(AppWorld)에서 **실패의 75.8% 가 false success**(실패했는데 성공했다고 단언) 였고, 판정에 쓰인 신호는 검증된 상태 변화가 아니라 "자신 있는 마무리 문장" 같은 표면 프록시였다 ([arxiv:2606.09863](https://arxiv.org/abs/2606.09863)). 같은 연구에서 LLM 판정자는 AUROC 0.54~0.65 에 그쳤다 — 평가자는 주장이 아니라 **도구 출력·상태 변화**를 근거로 삼아야 한다
 
-  **Cross-Surface Parity:** 본 정책의 생성(스킬) 측 짝은 skill-design-guide §3.7 "Completion Evidence Gate" 다. 마커 표기법과 2 건 임계값은 양쪽이 동일 규약을 쓴다 — 한쪽만 표기하면 미검증이 평가 시점에야 드러나 iteration 이 낭비된다.
+  **Cross-Surface Parity:** 본 정책의 생성(스킬) 측 짝은 skill-design-guide §3.7 "Completion Evidence Gate" 3 항이다. 네 칸은 양쪽이 같은 말을 쓴다. 2 건 기준은 세는 대상이 다르다 — 생성 측은 `[미검증]` 전체로 부분 완료를, 평가 측은 `INVALID` 만으로 REJECT 를 가른다. 한쪽만 표기하면 미검증이 평가 시점에야 드러나 iteration 이 낭비된다.
 
   **실패 사례 (이 정책 없이 발생):**
 
-  - fit-pal 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
+  - 한 플러터 앱 프로젝트 2026-04-21: UI-04, LG-04, DG-04 세 조건에서 Figma MCP read-back 불가 → 에이전트가 조용히 partial PASS 부여 → 사용자가 추후 실제 차이 발견 → 재작업
   - 원인: 미검증 마커 없이 PASS 부여 → 계약 해석 레벨에서 이슈 불가시
 
 - **사용자 실패 보고 우선 — 반박하지 말고 `REOPENED` 로 되돌려라.** 평가자가 PASS 를 준 항목에 대해 사용자가 "아직 깨져 있다" 고 보고하면, 그 항목의 상태는 PASS 가 아니라 **`REOPENED`** 다. 에이전트의 테스트·스냅샷은 "내 환경에서의 관측" 일 뿐이며 사용자 관측의 반박 근거가 아니다 — 상태 검증은 self-report 가 아니라 **target system** 을 봐야 한다 ([OCI Agent Evaluation Framework](https://blogs.oracle.com/ai-and-datascience/oci-agent-evaluation-framework)). 실사용 20,574 세션 관측에서 가시적 해소의 91.49% 가 사용자의 명시적 교정을 필요로 했고 ([arxiv:2605.29442](https://arxiv.org/html/2605.29442)), 자기평가 궤적에서는 실패의 75.8% 가 false success 였다 ([arxiv:2606.09863](https://arxiv.org/html/2606.09863)). 절차는 3 단계다:
@@ -639,9 +641,9 @@ harness/agents/
 
 에이전트 설계 가이드가 개정되면, **스킬 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 에이전트(.md)** 에 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
 
-### 전수 대상 parity items (9개)
+### 전수 대상 parity items (10개)
 
-두 가이드(agent-design-guide, skill-design-guide)는 아래 9개 항목을 **동일한 개념 · 동일한 용어** 로 다룬다 (대부분은 양쪽 공유, item 9 는 구분 대상):
+두 가이드(agent-design-guide, skill-design-guide)는 아래 10개 항목을 **동일한 개념 · 동일한 용어** 로 다룬다 (대부분은 양쪽 공유, item 9 는 구분 대상):
 
 | # | Parity Item | agent-design-guide 위치 | skill-design-guide 대응 위치 |
 | --- | ------------- | ------------------------ | ------------------------------ |
@@ -654,10 +656,11 @@ harness/agents/
 | 7 | Enforcement 등급 (E1/E2/E3) | §6 패턴 7 (훅 = E3 결정론적 게이트의 구현체) | §3.7 (Enforcement 3 등급 · 승급 규칙 · 등급 원장) |
 | 8 | User-Reported Failure Gate | §10 (사용자 실패 보고 우선 — `REOPENED`) | §3.8 (사용자 관측은 재현 대상) |
 | 9 | Exploration Budget ↔ Variant Budget | §7 (탐색 turn 예산) | §5.6 (산출물 개수·축 고정) — **짝이 아니라 구분 대상** |
+| 10 | Zero-Result Positive Control (0 기대 측정의 양성 대조) | §4 Agent(agent_type) 한계 2 (도구를 줘도 안 쓰고 썼다고 적는다) | §3.7 (0 이 기대값인 검증의 양성 대조) |
 
 **Item 8·9 는 2026-08 사이클 신규다.** Item 8 은 생성 측이 완료를 고집하고 평가 측만 REOPENED 로 다루면 두 판정이 충돌해 사용자가 중재자가 되기 때문에 양면으로 둔다. **Item 9 만 성격이 다르다** — 동일 개념을 공유하는 것이 아니라 **이름이 비슷한 다른 개념**이라 양쪽 절이 서로를 참조해 용어 혼동을 막는 것이 parity 의 내용이다. Item 7 의 등급 원장은 skill-design-guide 측에만 두고 이 가이드는 참조만 한다 — 원장이 둘로 갈리면 같은 원칙이 두 등급을 갖게 된다.
 
-**Item 5 는 2026-07 사이클에서 양면으로 전환되었다** — 과거에는 "평가자 전용" 이었으나, 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비된다. 마커 표기법과 2 건 임계값은 양쪽이 동일 규약을 쓴다. Item 6 은 에이전트 측 fan-out/exploration 통제와 스킬 측 반환 최소화가 토큰 경제라는 동일 목적의 짝 원칙. Item 7 은 "원칙을 어떤 강도로 강제할지" 를 판정하는 공통 틀로, 에이전트 측에서는 훅(PostToolUse/PreToolUse)이 E3 게이트의 구현 형태다. 나머지 1~4 도 양쪽 존재.
+**Item 5 는 2026-07 사이클에서 양면으로 전환되었다** — 과거에는 "평가자 전용" 이었으나, 생성 측이 `[미검증]` 을 표기하지 않으면 평가 시점에야 미검증이 드러나 iteration 이 낭비된다. 네 칸은 양쪽이 같은 말을 쓰고, 2 건 기준은 세는 대상이 다르다 (§10 Cross-Surface Parity). Item 6 은 에이전트 측 fan-out/exploration 통제와 스킬 측 반환 최소화가 토큰 경제라는 동일 목적의 짝 원칙. Item 7 은 "원칙을 어떤 강도로 강제할지" 를 판정하는 공통 틀로, 에이전트 측에서는 훅(PostToolUse/PreToolUse)이 E3 게이트의 구현 형태다. **Item 10 은 2026-09 사이클에 표에 올렸다** — skill-design-guide §3.7 과 `qa-evaluation-guide.md` Parity Table 15 행에는 있었는데 이 표에만 없었다. 에이전트 측 짝은 한계 2 다 — 도구를 쥐여 줬다는 사실이 호출했다는 증거가 아니듯, 0 이 나왔다는 사실도 측정이 살아 있다는 증거가 아니다. skill 가이드 §11 16 행(알려진 답 대조)은 생성 측 전용이라 이 표에 두지 않는다. 나머지 1~4 도 양쪽 존재.
 
 ### 개정 시 체크리스트
 
@@ -698,12 +701,12 @@ agent-design-guide.md 를 편집할 때:
 | 호출 품질 | 컨텍스트·범위·파일참조·성공기준 4요소 |
 | 독립 컨텍스트 | 생성과 평가는 분리 |
 | **중첩 3 층** | 서브에이전트도 위임 가능하나 기본 3 층에서 끊김 · 깊이를 설계 가정으로 삼지 마라 (§4) |
-| **하드 리밋** | 동시 20 · 세션 200 · 깊이 3 — 자체 예산은 항상 이보다 작게 (§7) |
+| **하드 리밋** | 동시 20 · 깊이 3 (세션 전체 스폰 수는 상한 없음 · ultracode 는 동시 상한 없음) — 자체 예산은 항상 이보다 작게 (§7) |
 | 영속 메모리 | 대화를 넘어서 학습시켜라 |
 | 디자인 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅 트리거 중 선택 |
 | **Fan-out 상한 / Exploration Budget** | §7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환 |
 | **Binary Decidability** | §3.5 — 평가 시작 전 이진 판정 가능성 전수 점검 (최상위 섹션 승격) |
-| **Unverifiable 정책** | `[미검증]` 마커 · 2건 누적 REJECT · 조용한 PASS 금지 · 생성자의 완료 주장은 증거 아님 |
+| **Unverifiable 정책** | `[미검증:ENV]` · `[미검증:INVALID]` 분류 · `ENV` 는 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령) · `INVALID` 2 건 이상 REJECT · 조용한 PASS 금지 · 생성자의 완료 주장은 증거 아님 |
 | **사용자 보고 우선** | §10 — 사용자 실패 보고는 `REOPENED`. 반박 금지 · 오라클 6 축부터 대조 |
 | **Variant Budget 구분** | §7 Exploration Budget(탐색 turn) 과 skill §5.6 Variant Budget(산출물 수·축) 은 다른 개념 |
 | **Cross-Surface Parity** | agent/skill/contract/eval 가이드의 원칙 전수 검토 (§12) |
@@ -712,8 +715,9 @@ agent-design-guide.md 를 편집할 때:
 
 ## 출처
 
-- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-08 재확인 — frontmatter 15 종 · 중첩 기본 3 층)
-- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-04 최신)
+- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents) (2026-09-24 조회 · 2026-09-22 수정본 — frontmatter 18 종 · 중첩 기본 3 층 · 세션 전체 스폰 수 상한 없음 · 내장 Explore 모델 상속)
+- [Claude Code v2.1.281 릴리스 — GitHub](https://github.com/anthropics/claude-code/releases/tag/v2.1.281) (2026-09-23 게시 · 2026-09-24 조회 시점 최신)
+- [Skill Authoring Best Practices — Claude API Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (2026-09-24 조회)
 - [Building Effective Agents — Anthropic Research](https://www.anthropic.com/research/building-effective-agents)
 - [Claude Code Sub-Agent Best Practices — claudefa.st](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
 - [Best Practices for Claude Code subagents — PubNub](https://www.pubnub.com/blog/best-practices-for-claude-code-sub-agents/)

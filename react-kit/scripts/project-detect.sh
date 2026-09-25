@@ -49,7 +49,9 @@ SHADCN=false
 [ -f "components.json" ] && SHADCN=true
 
 TANSTACK_ROUTER=false
-[ -n "$(read_json_field 'package.json' '.devDependencies.\"@tanstack/router-plugin\"')" ] && TANSTACK_ROUTER=true
+# read_json_field 는 값이 없을 때 빈 문자열이 아니라 "null" 을 낸다 — -n 으로 재면 늘 참이다.
+# 경로의 큰따옴표에 역슬래시를 붙이면 jq 가 문법 오류로 늘 "null" 을 낸다
+[ "$(read_json_field 'package.json' '.devDependencies."@tanstack/router-plugin"')" != "null" ] && TANSTACK_ROUTER=true
 
 CARGO_WORKSPACE=false
 if [ -f "Cargo.toml" ] && grep -q '\[workspace\]' Cargo.toml 2>/dev/null; then

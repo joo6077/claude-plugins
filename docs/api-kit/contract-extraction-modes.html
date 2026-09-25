@@ -184,6 +184,7 @@
   .checklist .check.c-ok{border-color:var(--green);color:var(--green)}
   .checklist a{color:var(--accent);overflow-wrap:anywhere}
   .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .checklist .new{margin-left:4px;vertical-align:1px}
 
   /* ── 단계 흐름 ── */
   .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
@@ -206,29 +207,45 @@
     border-radius:10px;padding:14px 16px;margin-bottom:14px}
   pre code{white-space:pre;font-family:var(--mono);font-size:12.5px;color:var(--text);background:none;padding:0}
 
+  /* ════ 페이지 전용 — assertion 목록 · 모드 매트릭스 ════ */
+  .assert-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .assert-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;align-items:start}
+  .assert-code{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface2);
+    border:1px solid var(--border);border-radius:6px;padding:7px 10px;overflow-wrap:anywhere;line-height:1.5}
+  .assert-what{font-size:12px;color:var(--text3);line-height:1.6;overflow-wrap:anywhere;padding-top:6px}
+  .mode-note{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;
+    color:var(--text2);margin-top:10px;line-height:1.6}
+
+  /* ════ 페이지 전용 — 새 pin 변이 확인 · 결과 읽기 ════ */
+  .mut-steps{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));
+    gap:12px;margin-bottom:22px}
+  .mut-step{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .mut-step h3{font-size:15px;margin-bottom:4px}
+  .mut-step p{font-size:13px;color:var(--text2);line-height:1.7}
+  .verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;margin-bottom:22px}
+  .verdict-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .verdict-card.v-ok{border-left:4px solid var(--green)}
+  .verdict-card.v-bad{border-left:4px solid var(--red)}
+  .verdict-card.v-void{border-left:4px solid var(--yellow)}
+  .verdict-card .when{font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:8px;line-height:1.5}
+  .verdict-card p{font-size:13px;color:var(--text2);line-height:1.7}
+
   /* ════ 가로 오버플로 방지 — docs-site 정본 규칙 (제거·완화 금지) ════ */
-  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*{min-width:0}
+  .grid-2>*,.grid-3>*,.compare>*,.pair>*,.flow>*,.dist-row>*,.assert-row>*,.mode-note>*,
+  .mut-steps>*,.mut-step>*,.verdict>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
   th code,td code{overflow-wrap:normal}
-  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption{overflow-wrap:anywhere}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.lead,.pair-caption,
+  .mut-step p,.verdict-card p,.verdict-card .when{overflow-wrap:anywhere}
   @media(max-width:640px){
-    .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
+    .grid-2,.grid-3,.compare,.pair,.mut-steps,.verdict{grid-template-columns:1fr}
     .flow-step{flex:1 1 100%}
   }
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{transition:none !important;animation:none !important}
     html{scroll-behavior:auto}
   }
-  /* ════ 페이지 전용 — assertion 목록 · 모드 매트릭스 ════ */
-  .assert-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-  .assert-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;align-items:start}
-  .assert-row>*{min-width:0}
-  .assert-code{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface2);
-    border:1px solid var(--border);border-radius:6px;padding:7px 10px;overflow-wrap:anywhere;line-height:1.5}
-  .assert-what{font-size:12px;color:var(--text3);line-height:1.6;overflow-wrap:anywhere;padding-top:6px}
-  .mode-note{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;
-    color:var(--text2);margin-top:10px;line-height:1.6}
-  .mode-note>*{min-width:0}
 </style>
 </head>
 <body>
@@ -246,7 +263,7 @@
 <h1>계약 추출 모드 — partial · pin · exact</h1>
 <p class="subtitle">
   봉인된 baseline 에서 어떤 강도의 계약을 뽑을지 결정하는 규칙. 강도는 3 단계이며 각 단계가 잡아내는 회귀의 종류가 다르다.
-  <span class="mono">v0.1.0 · 최종 갱신 2026-09-04</span>
+  <span class="mono">v0.1.1 · 최종 갱신 2026-09-24</span>
 </p>
 
 <div class="warn-banner">
@@ -316,6 +333,8 @@ exact           정규화 후 본문 전체 diff</code></pre>
     partial 만 두면 조용한 회귀를 놓친다 — partial 은 <code>"Bearer"</code> &rarr; <code>"bearer"</code>,
     <code>47</code> &rarr; <code>-1</code>, <code>"active"</code> &rarr; <code>"ACTIVE"</code> 를 전부 통과시킨다.
     타입이 그대로이기 때문이다. 그래서 중요한 경로만 pin 으로 올리는 중간 단계를 둔다.
+    거꾸로 <strong>타입 변경은 pin 이 아니라 partial 이 잡는다</strong> — 이 귀속을 헷갈리면 실패 원인을 잘못 보고하고
+    엉뚱한 모드를 올려 오탐을 만든다.
   </div>
 </div>
 
@@ -365,11 +384,30 @@ exact           정규화 후 본문 전체 diff</code></pre>
       </tbody>
     </table>
   </div>
+
+  <div class="rule-box">
+    <strong>경로 간 불변식은 후처리에 둔다.</strong>
+    <code>$.meta.total &ge; len($.data)</code> 같은 경로 간 불변식은 계약 YAML 의 <code>pin</code> 에만 기록하고
+    <code>/api-verify</code> 가 Hurl 실행 뒤 후처리 단계에서 검사한다.
+    <code>.hurl</code> 에도 한쪽을 capture 해 판정식 값에 넣으면 적을 수는 있다
+    (<code>jsonpath "$.data" count &lt;= {{total}}</code>). 하지만 한쪽 경로가 없으면 Hurl 이 종료 코드 <code>3</code> 을 내
+    환경 실패로 잘못 분류되고, <code>판정 불가</code> 를 따로 셀 곳이 없다(실측 2026-09-24).
+    그래서 후처리에 둔다 — 표현할 수 없어서가 아니라 <code>판정 불가</code> 를 가를 곳이 후처리뿐이라서다.
+    상수로 근사(<code>&gt;= 3</code>)하지 마라. 데이터가 늘어난 순간 오탐이 된다.
+  </div>
+
+<pre style="margin-top:14px"><code># /api-verify 후처리 판정 줄 — 양쪽 실제 값을 함께 적는다
+$.meta.total=47 · len($.data)=10     &rarr; PASS
+$.meta.total=-1 · len($.data)=10     &rarr; FAIL
+$.meta.total=(없음) · len($.data)=10 &rarr; 판정 불가   # PASS 로도 FAIL 로도 세지 않는다</code></pre>
   <p class="caption">
-    경로 간 불변식(<code>$.meta.total &ge; len($.data)</code>)은 Hurl assert 문법으로 쓸 수 없다 —
-    Hurl 의 assert 는 경로 1 개에 predicate 1 개다. 이런 assertion 은 계약 YAML 의 <code>pin</code> 에만 기록하고
-    <code>/api-verify</code> 가 Hurl 실행 뒤 후처리 단계에서 검사한다. 상수로 근사하지 마라.
+    <code>판정 불가</code> 는 따로 세고 그 자체로는 게이트를 깨지 않는다. 사라진 경로가 계약에 <code>required</code> 면
+    schema drift(필드 삭제 = 계약 실패)가 따로 잡는다. PASS 에 합치면 경로가 사라진 회귀가 조용히 지나간다.
   </p>
+  <div class="sources">
+    <a class="card-source" href="../api/research-log.md" target="_blank" rel="noopener">&rarr; api-kit Research Log — 경로 간 불변식을 Hurl 에 적어 본 결과 (2026-09-24)</a>
+    <a class="card-source" href="https://hurl.dev/docs/asserting-response.html" target="_blank" rel="noopener">&rarr; Hurl — Asserting Response</a>
+  </div>
 </div>
 
 <!-- ══════════════ 3. 원칙 ══════════════ -->
@@ -448,11 +486,11 @@ $.createdAt : string(date-time)                타입 + format</code></pre>
       <span class="num">4</span>
       <h3>exact 는 본문만 본다</h3>
       <span class="strength s-3">exact</span>
-      <span class="tag tag-ok">확정 결정 §12</span>
+      <span class="tag tag-ok">2026-09-04 결정</span>
     </div>
     <div class="card-body">
       <p class="desc">
-        exact diff 대상은 <strong>응답 본문뿐</strong>이다(2026-09-04 확정).
+        exact diff 대상은 <strong>응답 본문뿐</strong>이다(2026-09-04 결정).
         <code>Date</code> 는 응답마다 생성되는 필드이고 <code>X-Request-Id</code> 류도 매 호출 달라지므로
         헤더를 전체 diff 에 넣으면 항상 실패한다.
         계약에 필요한 헤더는 exact 가 아니라 <strong>pin 으로 개별 지정</strong>한다.
@@ -512,13 +550,13 @@ Cache-Control  = "no-store"</code></pre>
     <div class="principle-title">
       <span class="num">7</span>
       <h3>enum 은 1 샘플이면 후보로만 표시한다</h3>
-      <span class="tag tag-ok">확정 결정 §12</span>
+      <span class="tag tag-ok">2026-09-04 결정</span>
     </div>
     <div class="card-body">
       <p class="desc">
         JSON Schema <code>enum</code> 은 닫힌 값 집합이고 <code>const</code> 는 단일 값 enum 과 동등하다 —
         둘 다 관측 밖의 값을 실패시킨다.
-        그래서 <strong>1 샘플에서는 enum 을 확정하지 않고 후보로 표시하며 경고만 낸다</strong>(2026-09-04 확정).
+        그래서 <strong>1 샘플에서는 enum 을 확정하지 않고 후보로 표시하며 경고만 낸다</strong>(2026-09-04 결정).
         3 샘플 이상에서 승격하고, 사용자가 직접 확정하는 수동 경로도 둔다.
         오탐 실패가 도구 신뢰를 가장 빨리 깎기 때문이다.
         GenSON 은 seed 없이는 enum 을 아예 추론하지 않고, json-schema-inferrer 는 enum extractor 를 별도 설정으로 분리한다.
@@ -591,7 +629,7 @@ Cache-Control  = "no-store"</code></pre>
         </tr>
         <tr>
           <td class="sys"><code>optional</code> 판정</td>
-          <td class="num-cell">presence &lt;100%<br>null presence 는 missing 아님</td>
+          <td class="num-cell">presence &lt;100%<br>null presence 는 missing 으로 세지 않음</td>
           <td>null 은 값이지 부재가 아님 (<a class="card-source" href="https://json-schema.org/understanding-json-schema/reference/null" target="_blank" rel="noopener">&rarr; JSON Schema null</a>)</td>
         </tr>
         <tr>
@@ -602,11 +640,11 @@ Cache-Control  = "no-store"</code></pre>
         <tr>
           <td class="sys"><code>const</code> 승격</td>
           <td class="num-cell">사용자 pin 또는 공식 API spec 근거 필요<br>단일 샘플 값만으로는 금지</td>
-          <td>추론 — <code>const</code> 는 단일 허용값이라 오탐 비용이 큼</td>
+          <td>추론 — JSON Schema 상 <code>const</code> 는 단일 허용값이라 오탐 비용이 큼</td>
         </tr>
         <tr>
           <td class="sys">enum 자동 승격</td>
-          <td class="num-cell">독립 샘플 &ge;3 · distinct value &ge;2<br>최근 20 관측에서 신규 값 없음 · domain &le;12</td>
+          <td class="num-cell">독립 샘플 &ge;3 · distinct value &ge;2<br>최근 20 관측에서 신규 값 없음 · domain 크기 &le;12</td>
           <td>추론 — GenSON 의 &ldquo;seed 없이는 enum 미추론&rdquo; 을 보수 기준으로 채택</td>
         </tr>
         <tr>
@@ -616,7 +654,7 @@ Cache-Control  = "no-store"</code></pre>
         </tr>
         <tr>
           <td class="sys">exact 자격</td>
-          <td class="num-cell">동일 request fingerprint 로 &ge;3 회 반복<br>normalized JCS digest variance 0</td>
+          <td class="num-cell">동일 request fingerprint 로 &ge;3 회 반복 후<br>normalized JCS digest variance 0</td>
           <td>추론 — JCS digest 안정성 실측</td>
         </tr>
         <tr>
@@ -694,9 +732,9 @@ pin:
   - path: $.data[].id
     assert: "^ord_"            # Hurl 검사
 
-# 두 번째 실행
-$.meta.total  48 &gt;= 12   PASS
-$.data[].id   ord_8813   PASS</code></pre>
+# 두 번째 실행 — 판정 줄에 양쪽 값을 적는다
+$.meta.total=48 · len($.data)=12  &rarr; PASS
+$.data[].id  ord_8813             &rarr; PASS</code></pre>
     </div>
   </div>
   <p class="pair-caption">
@@ -728,7 +766,7 @@ $.data[0].status = "shipped"   FAIL (오탐)</code></pre>
     </div>
   </div>
   <p class="pair-caption">
-    <span class="tag tag-ok">확정 결정 §12</span>
+    <span class="tag tag-ok">2026-09-04 결정</span>
     1 샘플은 후보 표시만(경고), 3 샘플 이상에서 승격. 수동 확정 경로는 별도로 둔다.
   </p>
 
@@ -780,7 +818,100 @@ $.data[0].status = "shipped"   FAIL (오탐)</code></pre>
   </div>
 </div>
 
-<!-- ══════════════ 6. Gotchas ══════════════ -->
+<!-- ══════════════ 6. 새 pin 확인 ══════════════ -->
+<div class="section">
+  <div class="section-label">새 pin 확인</div>
+  <h2>새 pin 은 한 번 망가뜨려 본다</h2>
+  <p class="lead">
+    결함을 일부러 넣고 검사를 돌려 실패하면 그 결함은 잡힌 것이고, 통과하면 검사 묶음에 문제가 있다는 신호다.
+  </p>
+  <p class="desc">
+    pin 을 새로 만들었으면 스냅샷 <strong>사본</strong>의 그 값을 타입은 그대로 두고
+    망가뜨려(<code>47</code> &rarr; <code>-1</code>) 그 pin 이 FAIL 을 내는지 본다.
+    사본에 변이가 실제로 들어갔는지 먼저 확인하고, 봉인된 baseline 은 건드리지 않는다.
+    이 확인 결과는 <code>/api-contract</code> 보고의 한 항목으로 남는다.
+  </p>
+
+  <ol class="mut-steps">
+    <li class="mut-step">
+      <span class="num">1</span>
+      <div>
+        <h3>사본을 만든다</h3>
+        <p>봉인된 baseline 과 원본 스냅샷은 그대로 둔다. 변이는 사본에만 넣는다.</p>
+      </div>
+    </li>
+    <li class="mut-step">
+      <span class="num">2</span>
+      <div>
+        <h3>타입은 두고 값만 망가뜨린다</h3>
+        <p><code>47</code> &rarr; <code>-1</code>, <code>"Bearer"</code> &rarr; <code>"bearer"</code>.
+        타입을 바꾸면 partial 이 먼저 잡으므로 pin 을 확인한 것이 아니다.</p>
+      </div>
+    </li>
+    <li class="mut-step">
+      <span class="num">3</span>
+      <div>
+        <h3>변이가 들어갔는지 값으로 본다</h3>
+        <p>사본에서 그 경로를 다시 읽어 바꾼 값인지 확인한다. 안 들어간 사본의 PASS 로는 아무것도 판정하지 않는다.</p>
+      </div>
+    </li>
+    <li class="mut-step">
+      <span class="num">4</span>
+      <div>
+        <h3>그 pin 을 사본에 돌린다</h3>
+        <p><code>.hurl</code> pin 은 사본을 <code>127.0.0.1</code> 로컬 서버로 돌려주고 그 케이스를 돌린다.
+        경로 간 불변식은 <code>/api-verify</code> 후처리를 사본에 돌린다.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="verdict">
+    <div class="verdict-card v-ok">
+      <div class="when">변이 들어감 · pin FAIL</div>
+      <p><strong>그 결함은 잡힌다.</strong> 이 pin 은 타입은 멀쩡한데 값만 망가진 회귀를 실제로 잡는다.</p>
+    </div>
+    <div class="verdict-card v-bad">
+      <div class="when">변이 들어감 · pin PASS</div>
+      <p><strong>검사 묶음에 문제가 있다는 신호다.</strong> 망가진 값을 통과시킨 pin 은 계약 파일에 있어도 아무것도 지키지 않는다.</p>
+    </div>
+    <div class="verdict-card v-void">
+      <div class="when">변이 안 들어감</div>
+      <p><strong>이 결과로는 판정하지 않는다.</strong> 원본과 같은 사본의 PASS 를 보고 pin 이 죽었다고 오진하지 않게 변이부터 다시 넣는다.</p>
+    </div>
+  </div>
+
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head"><span class="tag tag-bad">BAD</span><span class="pane-what">변이가 들어갔는지 안 보고 돌렸다</span></div>
+<pre><code># 사본에 -1 을 넣었다고 생각했다 (저장 안 됨)
+사본  $.meta.total = 47
+
+# 판정
+$.meta.total=47 · len($.data)=10  &rarr; PASS
+
+# 결론 "pin 이 죽었다" — 오진
+# 원본과 같은 사본을 잰 것이다</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head"><span class="tag tag-ok">GOOD</span><span class="pane-what">사본 · 값 확인 · 판정 순서로</span></div>
+<pre><code># 사본에서만 — 봉인된 baseline 은 그대로
+변이  $.meta.total  47 &rarr; -1      # 타입 integer 그대로
+확인  사본 $.meta.total = -1         # 변이 들어감
+
+# 판정
+$.meta.total=-1 · len($.data)=10  &rarr; FAIL
+
+# 결론 — 이 pin 은 값이 망가진 회귀를 잡는다</code></pre>
+    </div>
+  </div>
+
+  <div class="sources">
+    <a class="card-source" href="https://pitest.org/" target="_blank" rel="noopener">&rarr; PIT — 결함을 일부러 넣어 검사 묶음을 재는 도구</a>
+    <span class="source-badge">api-kit/skills/api-contract/SKILL.md §11 보고 4 — 새로 만든 pin 의 변이 확인</span>
+  </div>
+</div>
+
+<!-- ══════════════ 7. Gotchas ══════════════ -->
 <div class="section">
   <div class="section-label">Gotchas</div>
   <h2>추출 실행 전 확인</h2>
@@ -804,12 +935,16 @@ $.data[0].status = "shipped"   FAIL (오탐)</code></pre>
       <span><strong>composition 에서는 <code>additionalProperties</code> 보다 <code>unevaluatedProperties</code> 가 정확하다</strong> — <code>additionalProperties</code> 는 같은 schema object 의 <code>properties</code> / <code>patternProperties</code> annotation 에만 의존하기 때문이다.</span>
     </li>
     <li>
+      <span class="check c-warn">!</span>
+      <span><strong>새 pin 은 한 번 망가뜨려 본다</strong><span class="tag new">v0.1.1</span> — 결함을 일부러 넣고 검사를 돌려 실패하면 그 결함은 잡힌 것이고, 통과하면 검사 묶음에 문제가 있다는 신호다(<a href="https://pitest.org/" target="_blank" rel="noopener">PIT</a>). pin 을 새로 만들었으면 스냅샷 <strong>사본</strong>의 그 값을 타입은 그대로 두고 망가뜨려(<code>47</code> &rarr; <code>-1</code>) 그 pin 이 FAIL 을 내는지 본다. 사본에 변이가 실제로 들어갔는지 먼저 확인하고, 봉인된 baseline 은 건드리지 않는다.</span>
+    </li>
+    <li>
       <span class="check c-bad">&times;</span>
       <span><strong>pin 을 값 고정으로 읽지 마라</strong> — 경로별 assertion 이다. 변동 필드에 <code>const</code> 를 걸면 픽스처의 <code>$.meta.total</code> 과 같은 자기모순에 걸린다.</span>
     </li>
     <li>
       <span class="check c-bad">&times;</span>
-      <span><strong>경로 간 불변식을 Hurl assert 로 쓰려 하지 마라</strong> — Hurl 은 경로 1 개에 predicate 1 개다. 계약 YAML 의 <code>pin</code> 에 기록하고 <code>/api-verify</code> 후처리에서 검사한다. 상수로 근사하면 데이터가 늘어난 순간 무의미해진다.</span>
+      <span><strong>경로 간 불변식을 <code>.hurl</code> 에 두지 마라</strong> — capture 로 적을 수는 있지만 한쪽 경로가 없으면 종료 코드 <code>3</code> 이 나 환경 실패로 잘못 분류되고 <code>판정 불가</code> 를 셀 수 없다. 계약 YAML 의 <code>pin</code> 에 기록하고 <code>/api-verify</code> 후처리에서 양쪽 값과 함께 판정한다. 상수로 근사하면 데이터가 늘어난 순간 무의미해진다.</span>
     </li>
     <li>
       <span class="check c-ok">&check;</span>
@@ -833,7 +968,8 @@ $.data[0].status = "shipped"   FAIL (오탐)</code></pre>
     <h4>모드 선택 요약</h4>
     <p class="desc" style="margin-bottom:0">
       <span class="strength s-1">partial</span> 로 시작한다 &rarr;
-      partial 이 통과시키는 값 회귀가 실제로 아프면 그 <em>경로만</em> <span class="strength s-2">pin</span> 으로 올린다 &rarr;
+      partial 이 통과시키는 값 회귀가 실제로 아프면 그 <em>경로만</em> <span class="strength s-2">pin</span> 으로 올리고,
+      새 pin 은 사본에서 한 번 망가뜨려 FAIL 을 확인한다 &rarr;
       본문 전체가 반복 실행에서 완전히 동일함을 실측했을 때만 <span class="strength s-3">exact</span> 를 건다.
       단계를 건너뛰면 계약이 아니라 알람 소음이 된다.
     </p>

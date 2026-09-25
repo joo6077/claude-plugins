@@ -116,6 +116,10 @@
   .source-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);
     color:var(--text3);background:var(--surface2);border:1px dashed var(--border);border-radius:6px;
     padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
+  /* 문장 안에 끼는 레포 안 페이지 링크. 스타일 없는 <a> 는 다크 배경에서 대비가 무너진다 */
+  .inline-link{color:var(--accent);text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+  .inline-link:hover{color:var(--accent2)}
+  .inline-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
 
   /* ── TABLES ── */
   table{width:100%;border-collapse:collapse;font-size:13px}
@@ -192,7 +196,8 @@
   .flow-step .rank{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:1px;
     text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
   .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
-  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6}
+  .flow-step .out{font-size:12px;color:var(--text2);overflow-wrap:anywhere;line-height:1.6;display:block}
+  .flow-step .out + .out{margin-top:6px}
   .flow-step.rank-1{border-color:rgba(163,230,53,0.45)}
   .flow-step.rank-2{border-color:rgba(34,211,238,0.4)}
   .flow-step.rank-3{border-color:rgba(129,140,248,0.4)}
@@ -214,14 +219,16 @@
   @media(max-width:640px){
     .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
     .flow-step{flex:1 1 100%}
+    .dist-row{grid-template-columns:1fr}
+    .dist-val{text-align:left}
   }
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{transition:none !important;animation:none !important}
     html{scroll-behavior:auto}
   }
 
-  /* ════ 이 페이지 전용 — 2026-09-05 Hurl 8.0.1 실측 반영 ════ */
-  /* 배너를 미검증 경고(노랑)에서 실측 완료 보고(초록)로 바꾼다. 기존 토큰만 조합한다 */
+  /* ════ 이 페이지 전용 — Hurl 8.0.1 실측 두 번(2026-09-05 · 2026-09-24) ════ */
+  /* 배너를 미검증 경고(노랑)에서 실측 보고(초록)로 바꾼다. 기존 토큰만 조합한다 */
   .warn-banner.b-measured{background:rgba(74,222,128,0.07);border-color:rgba(74,222,128,0.32);
     border-left-color:var(--green)}
   .warn-banner.b-measured h2{color:var(--green)}
@@ -246,28 +253,29 @@
 <p class="subtitle">
   인벤토리의 operation 에서 실행 가능한 <span class="mono">.hurl</span> probe 를 합성할 때의 값 생성 순서, 직렬화 규칙,
   그리고 Hurl 8.0.1 실행 엔진의 의미론을 다룬다.
-  <span class="mono">v0.2.0 · 최종 갱신 2026-09-05</span>
+  <span class="mono">v0.2.1 · 최종 갱신 2026-09-24</span>
 </p>
 
 <div class="warn-banner b-measured">
-  <h2>이 페이지의 Hurl 값은 실측을 마쳤다 — 5 건 중 4 건 일치, 1 건 정정</h2>
+  <h2>이 페이지의 Hurl 값은 두 번 실측했다 — 2026-09-24 에 변수 한 줄을 고쳤다</h2>
   <p>
-    2026-09-05 에 <code>hurl 8.0.1</code>(<span class="mono">x86_64-apple-darwin25.0</span> · libcurl/8.7.1) 을
-    로컬에 설치하고, <span class="mono">127.0.0.1:8731</span> 에 고정 JSON 을 돌려주는 픽스처 서버를 띄워 대조했다.
-    외부 호출은 없다. 픽스처 본문에는 <strong>시크릿으로 등록할 값을 일부러 넣어 뒀다</strong> —
-    마스킹 여부를 재려면 가릴 것이 먼저 있어야 한다.
+    처음은 2026-09-05 다. <code>hurl 8.0.1</code>(<span class="mono">x86_64-apple-darwin25.0</span> · libcurl/8.7.1) 을
+    로컬에 설치하고 <span class="mono">127.0.0.1:8731</span> 에 고정 JSON 을 돌려주는 픽스처 서버를 띄워 대조했다.
+    두 번째는 2026-09-24 로, 같은 hurl 8.0.1 과 <span class="mono">127.0.0.1</span> 픽스처 서버로 환경변수 변수 행을 다시 쟀다.
+    두 번 모두 외부 호출은 없다.
   </p>
   <p>
-    아래 5 건은 리서치 로그가 <span class="mono">/api-probe</span> 구현 시 실제 Hurl 8.0.1 로
-    대조하라고 남겨 둔 항목이다. 결과는 <strong>4 건 일치 · 1 건 정정</strong>.
-    정정된 항목은 <code>--secret</code> 마스킹 범위로, 문서 기재보다 <strong>새는 면적이 넓었다.</strong>
+    2026-09-05 판은 <strong>「이 우선순위는 옵션에만 적용되고, 환경변수로는 변수가 들어오지 않는다」</strong> 는 단서를 달았다.
+    <code>HURL_who</code> 하나만 재고 내린 결론이었다. Hurl 8.0.0 에서 변수를 받는 환경변수 접두가
+    <code>HURL_VARIABLE_</code> 로 바뀌었고, <code>HURL_VARIABLE_who</code> 는 <code>{{who}}</code> 를 채운다.
+    그래서 원칙 6 과 수치 표 한 행을 고쳤다.
   </p>
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
           <th>항목</th>
-          <th>문서에 기재한 값</th>
+          <th>이 페이지에 적은 값</th>
           <th>확인 상태</th>
           <th>실측 방법 · 출처</th>
         </tr>
@@ -279,7 +287,25 @@
           <td><span class="tag tag-ok">실측 · 일치</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#configuration</a>
-            <span class="how">HURL_MAX_REDIRS=3 → --max-redirs 5 → [Options] max-redirs: 7 을 겹쳐 걸고 --json 의 curl_cmd 에서 3 / 5 / 7 을 순서대로 관측</span>
+            <span class="how">2026-09-05 · HURL_MAX_REDIRS=3 → --max-redirs 5 → [Options] max-redirs: 7 을 겹쳐 걸고 --json 의 curl_cmd 에서 3 / 5 / 7 을 차례로 관측</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="sys">환경변수로 들어가는 변수</td>
+          <td class="num-cell"><code>HURL_VARIABLE_&lt;이름&gt;</code> 만 (<code>HURL_&lt;이름&gt;</code> 은 안 된다)<br>명령줄 <code>--variable</code> 이 이긴다</td>
+          <td><span class="tag tag-warn">실측 · 2026-09-24 정정</span></td>
+          <td>
+            <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/blob/master/CHANGELOG.md" target="_blank" rel="noopener">&rarr; Hurl CHANGELOG (8.0.0)</a>
+            <span class="how">HURL_who=… → actual: none · HURL_VARIABLE_who=… → 통과 · 둘을 겹치고 --variable who=… → 명령줄 값</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="sys"><code>HURL_SECRET_&lt;이름&gt;</code></td>
+          <td class="num-cell"><code>--secret</code> 처럼 값을 가린다</td>
+          <td><span class="tag tag-ok">실측 · 2026-09-24</span></td>
+          <td>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#configuration</a>
+            <span class="how">HURL_SECRET_tok=… 로 넣은 값이 출력에서 *** 로 바뀌는 것을 관측</span>
           </td>
         </tr>
         <tr>
@@ -288,7 +314,7 @@
           <td><span class="tag tag-ok">실측 · 일치</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#run-options</a>
-            <span class="how">hurl --help → [default: 1000]</span>
+            <span class="how">2026-09-05 · hurl --help → [default: 1000]</span>
           </td>
         </tr>
         <tr>
@@ -297,7 +323,7 @@
           <td><span class="tag tag-ok">실측 · 일치</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#http-options</a>
-            <span class="how">hurl --help → [default: 50] · man → "-1 to make it unlimited"</span>
+            <span class="how">2026-09-05 · hurl --help → [default: 50] · man → "-1 to make it unlimited"</span>
           </td>
         </tr>
         <tr>
@@ -306,33 +332,30 @@
           <td><span class="tag tag-ok">실측 · 일치</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; hurl.dev/docs/manual.html#exit-codes</a>
-            <span class="how">5 종을 각각 재현 — 정상 실행 / --no-such-flag / 깨진 [Asserts 블록 / 닫힌 포트 9999 / 틀린 jsonpath</span>
+            <span class="how">2026-09-05 · 5 종을 각각 재현 — 정상 실행 / --no-such-flag / 깨진 [Asserts 블록 / 닫힌 포트 / 틀린 jsonpath</span>
           </td>
         </tr>
         <tr>
-          <td class="sys"><code>--secret</code> 마스킹 범위</td>
-          <td class="num-cell">stderr 로그·리포트만. <strong>stdout 응답과 <code>--json</code> stdout 은 가리지 않음</strong></td>
-          <td><span class="tag tag-bad">실측 · 정정 — 문서보다 넓게 샌다</span></td>
+          <td class="sys"><code>--very-verbose</code> 와 <code>--secret</code></td>
+          <td class="num-cell">등록한 값은 <code>***</code>. <strong>base64 변형본은 평문</strong></td>
+          <td><span class="tag tag-ok">실측</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">&rarr; hurl.dev/docs/templates.html#secrets</a>
-            <span class="how">채널 9 종에 시크릿과 비시크릿 값을 함께 실어 보내고 각 출력을 grep — 문서에 없던 유출 경로가 --output &lt;file&gt; 과 --json stdout 둘 더 있었다</span>
+            <span class="how">2026-09-05 · 같은 값의 base64 본을 별도 헤더로 보내고 stderr 를 grep</span>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
   <p style="margin-top:14px">
-    <strong>정정된 마지막 항목이 설계에 가장 크게 걸린다 — 다만 결론은 뒤집히지 않고 강화됐다.</strong>
-    "Hurl 에 맡기지 않고 킷이 자체 scrubber 를 거친 데이터만 저장·렌더한다" 는 결정(설계문서 §8.2)은 그대로다.
-    바뀐 것은 scrubber 를 걸어야 할 경로 목록이다 — 문서에 없던 <code>--output &lt;file&gt;</code> 과
-    <code>--report-json</code> 의 <code>store/</code> 디렉토리가 새로 들어왔다.
-    <span class="mono">/api-probe</span> 가 리포트를 켜면 시크릿이 파일로 떨어진다는 뜻이므로,
-    리포트 디렉토리도 스냅샷과 같은 fail-closed 게이트를 지나야 한다.
+    <code>--secret</code> 이 어느 출력을 가리고 어느 출력을 그대로 두는지는 이 페이지 원본이 다루지 않는다.
+    채널마다 나눈 표는 <a class="inline-link" href="auth-secret-lifecycle.html">인증과 시크릿 수명 페이지</a> 에 있다.
+    이 페이지는 probe 를 만들고 돌릴 때 걸리는 두 줄 — <code>--very-verbose</code> 와 <code>redact</code> capture — 만 Gotchas 에 남긴다.
   </p>
   <p>
-    <span class="tag tag-ok">실측</span> 은 위 방법으로 로컬 hurl 8.0.1 을 돌려 관측한 값이다.
+    <span class="tag tag-ok">실측</span> 은 로컬 hurl 8.0.1 을 돌려 관측한 값이다.
     <span class="tag tag-neutral">문서 기재</span> 는 공식 문서를 옮겼을 뿐 <strong>아직 실행으로 확인하지 않은</strong> 값이고,
-    이 페이지에는 retry 기본값 · entry 번호 시작값 · <code>--test</code> 병렬 3 건이 그 상태로 남아 있다.
+    retry 기본값 · entry 번호 시작값 · <code>--test</code> 병렬 3 건이 그 상태로 남아 있다.
     <span class="tag tag-neutral">추론</span> 은 사양 문서도 실행도 아닌 이 킷의 설계 결정이다.
     셋을 섞어 읽지 마라 — 실측이 아닌 값을 실측 근거로 인용하는 것이 이 표시가 막으려는 일이다.
   </p>
@@ -344,7 +367,7 @@
     operation 하나를 실행 가능한 요청으로 바꾸려면 세 가지를 정해야 한다.
     <strong>어떤 값을 넣을지</strong>, <strong>그 값을 어떻게 직렬화할지</strong>,
     그리고 <strong>돌아온 실패를 어떻게 분류할지</strong>.
-    셋 중 마지막이 가장 자주 생략되고, 생략하면 회귀 diff 가 노이즈에 덮인다.
+    셋 중 마지막이 가장 자주 빠지고, 빠지면 회귀 diff 가 노이즈에 덮인다.
   </div>
   <div class="flow">
     <div class="flow-step rank-1">
@@ -357,13 +380,13 @@
       <span class="rank">step 2 · 직렬화</span>
       <span class="what">경로는 하나만</span>
       <span class="out">query 는 URL 문자열과 <code>[Query]</code> 섹션 중 하나만.
-      <code>Accept</code>·<code>Content-Type</code>·<code>Authorization</code> 은 명시 생성.</span>
+      <code>Accept</code>·<code>Content-Type</code>·<code>Authorization</code> 은 명시적으로 만든다.</span>
     </div>
     <div class="flow-step rank-3">
       <span class="rank">step 3 · 분류</span>
       <span class="what">exit code 로 나눈다</span>
       <span class="out"><code>4</code> 만 계약 위반. <code>2</code> 는 probe 생성 버그,
-      <code>3</code> 은 네트워크·환경 문제다.</span>
+      <code>3</code> 은 네트워크·환경 문제, <code>1</code> 은 CLI 파싱 실패다.</span>
     </div>
   </div>
   <pre><code>operation                     probe 합성                          실행 / 분류
@@ -374,7 +397,8 @@ security      ─┤              헤더 3 종 명시 생성                    
 requestBody   ─┘              의존 흐름은 한 파일 안에               ├─ exit 4  계약 위반
                                                                     ├─ exit 3  환경 문제
                               파일 경계 = 격리 경계                  ├─ exit 2  probe 버그
-                              (--test 는 파일 단위 병렬)             └─ exit 0  통과</code></pre>
+                              (--test 는 파일 단위 병렬)             ├─ exit 1  CLI 파싱
+                                                                    └─ exit 0  통과</code></pre>
   <div class="rule-box">
     <strong>한 줄 규칙.</strong> 추론에 맡기는 순간 실패 원인이 흐려진다.
     값도, 헤더도, 직렬화 경로도 명시적으로 만든다.
@@ -386,8 +410,8 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
   <div class="section-label">원칙 9</div>
   <p class="lead">
     1~3 은 요청을 만드는 규칙, 4~5 는 흐름과 격리, 6~9 는 Hurl 실행 엔진의 의미론이다.
-    6~9 중 <strong>6(옵션 우선순위)과 9(exit code)는 2026-09-05 에 hurl 8.0.1 로 실측</strong>해
-    문서 기재와 일치함을 확인했다. 7 · 8 은 사양 서술이라 실행 대조 대상이 아니다.
+    6(옵션 우선순위)과 9(exit code)는 hurl 8.0.1 로 실측했고, <strong>6 의 변수 부분은 2026-09-24 에 다시 재서 고쳤다.</strong>
+    7 · 8 은 사양 서술이라 실행 대조 대상이 아니다.
   </p>
 
   <div class="grid-2">
@@ -510,16 +534,17 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
           파일에 적혀 있어도 적용되지 않아 <strong>문서와 실제 실행이 어긋난다.</strong>
         </div>
         <div class="desc">
-          실측에서 붙은 단서가 하나 있다. <strong>이 규칙은 옵션에만 적용되고 변수에는 적용되지 않는다.</strong>
-          <code>HURL_INSECURE</code> 가 <code>--insecure</code> 로 붙는 식이지,
-          <code>HURL_who</code> 를 걸어도 <code>{{who}}</code> 는 채워지지 않는다 —
-          assert 가 <code>actual: none</code> 으로 실패한다.
-          변수는 <code>--variable</code> / <code>--variables-file</code> / <code>--secret</code> /
-          <code>--secrets-file</code> / <code>[Options] variable:</code> 로만 들어온다.
+          옵션 환경변수는 <code>HURL_INSECURE</code> 가 <code>--insecure</code> 가 되는 식이다.
+          <strong>변수는 접두가 다르다</strong> — <code>HURL_who</code> 를 걸어도 <code>{{who}}</code> 는 채워지지 않고,
+          Hurl 8.0.0 부터는 <code>HURL_VARIABLE_who</code> 가 채운다.
+          <code>HURL_SECRET_&lt;이름&gt;</code> 은 <code>--secret</code> 처럼 값을 가린다.
+          변수도 같은 우선순위를 따라 <strong>명령줄 <code>--variable</code> 이 환경변수를 이긴다.</strong>
         </div>
       </div>
       <div class="sources">
         <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual — Configuration</a>
+        <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/blob/master/CHANGELOG.md" target="_blank" rel="noopener">&rarr; Hurl CHANGELOG — 8.0.0</a>
+        <span class="source-badge">실측 hurl 8.0.1 · 2026-09-05 · 2026-09-24</span>
       </div>
     </div>
 
@@ -576,15 +601,85 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
           <code>3</code>(runtime)은 네트워크·환경 문제다.
           이 구분 없이 non-zero 를 전부 계약 실패로 보고하면
           <strong>회귀 diff 가 노이즈로 덮인다.</strong>
-          5 종을 각각 재현해 코드 번호를 확정했다(2026-09-05) — 정상 실행, <code>--no-such-flag</code>,
-          깨진 <code>[Asserts</code> 블록, 닫힌 포트, 틀린 jsonpath.
         </div>
       </div>
       <div class="sources">
         <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a>
+        <span class="source-badge">실측 2026-09-05 — 5 종 재현</span>
       </div>
     </div>
 
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">변수와 옵션이 들어오는 길</div>
+  <div class="desc">
+    원칙 6 을 세 자리로 펼친 그림이다. 옵션과 변수는 같은 순서로 겹치고 뒤쪽이 이긴다.
+    다른 것은 <strong>환경변수 이름</strong>뿐이다 — 옵션은 <code>HURL_</code> 뒤에 옵션 이름을,
+    변수는 <code>HURL_VARIABLE_</code> 뒤에 변수 이름을 붙인다.
+  </div>
+  <div class="flow">
+    <div class="flow-step rank-1">
+      <span class="rank">1 · 환경변수 (가장 약함)</span>
+      <span class="what">HURL_…</span>
+      <span class="out">옵션 — <code>HURL_INSECURE</code> &rarr; <code>--insecure</code>,
+      <code>HURL_MAX_REDIRS=3</code></span>
+      <span class="out">변수 — <code>HURL_VARIABLE_who</code> &rarr; <code>{{who}}</code>.
+      <code>HURL_who</code> 는 변수가 되지 않는다</span>
+      <span class="out">시크릿 — <code>HURL_SECRET_&lt;이름&gt;</code> 은 <code>--secret</code> 처럼 가린다</span>
+    </div>
+    <div class="flow-step rank-2">
+      <span class="rank">2 · 명령줄</span>
+      <span class="what">hurl --…</span>
+      <span class="out">옵션 — <code>--max-redirs 5</code></span>
+      <span class="out">변수 — <code>--variable who=…</code> 가 <code>HURL_VARIABLE_who</code> 를 이긴다(실측 2026-09-24)</span>
+    </div>
+    <div class="flow-step rank-3">
+      <span class="rank">3 · entry [Options] (가장 강함)</span>
+      <span class="what">[Options]</span>
+      <span class="out">옵션 — <code>max-redirs: 7</code>. 그 entry 에서만 유효하다</span>
+      <span class="out">변수 — <code>variable:</code> 만은 다음 entry 로 이어진다(Gotcha 첫 줄)</span>
+    </div>
+  </div>
+
+  <h4 style="margin-top:22px">환경변수로 변수 넣기 — 옛 접두 vs 8.0.0 접두</h4>
+  <div class="pair">
+    <div class="pane pane-bad">
+      <div class="pane-head">
+        <span class="tag tag-bad">BAD</span>
+        <span class="pane-what"><code>HURL_&lt;이름&gt;</code> 은 옵션용이다. 변수는 비어 있다</span>
+      </div>
+      <pre><code>$ HURL_who=from-env hurl who.hurl
+
+# {{who}} 가 채워지지 않는다
+# assert 결과 — actual: none</code></pre>
+    </div>
+    <div class="pane pane-good">
+      <div class="pane-head">
+        <span class="tag tag-ok">GOOD</span>
+        <span class="pane-what"><code>HURL_VARIABLE_</code> 접두. 겹치면 명령줄이 이긴다</span>
+      </div>
+      <pre><code>$ HURL_VARIABLE_who=from-env hurl who.hurl
+# 통과 — {{who}} = from-env
+
+$ HURL_VARIABLE_who=from-env \
+    hurl --variable who=from-cli who.hurl
+# {{who}} = from-cli (명령줄 값)</code></pre>
+    </div>
+  </div>
+  <p class="pair-caption">
+    원칙 6 · 수치 표 「환경변수로 들어가는 변수」 행. 2026-09-05 판은 왼쪽 한 줄만 재고
+    「환경변수로는 변수가 들어오지 않는다」 로 적었다. 이름 하나가 안 된다는 관측을 규칙 전체로 넓힌 것이 틀린 자리였다.
+    <span class="mono">who.hurl</span> 은 설명을 위해 붙인 파일 이름이다.
+  </p>
+
+  <div class="rule-box">
+    <strong>옵션 우선순위.</strong> environment variable &rarr; command-line option &rarr; per-entry <code>[Options]</code>.
+    뒤쪽이 이긴다. cli-only 옵션을 <code>[Options]</code> 에 적으면 무시되므로,
+    파일에 적힌 실행 의미와 실제 실행이 갈라진다.
+    <strong>변수도 같은 순서를 따른다</strong> — 환경변수로 넣으려면 <code>HURL_VARIABLE_</code> 접두가 필요하고,
+    명령줄 <code>--variable</code> 이 그 값을 이긴다(실측).
   </div>
 </div>
 
@@ -593,9 +688,32 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
   <div class="desc">
     <code>확인</code> 열은 값의 출처가 아니라 <strong>어떻게 확인했는지</strong>다.
     <span class="tag tag-ok">실측</span> 은 로컬 hurl 8.0.1 로 실행해 관측한 것,
-    <span class="tag tag-neutral">문서 기재</span> 는 아직 실행으로 확인하지 않은 것이다.
+    <span class="tag tag-neutral">문서</span> 는 아직 실행으로 확인하지 않은 것이다.
     근거 칸에는 실측한 행에 한해 그 방법을 함께 적었다.
   </div>
+
+  <div class="info-card" style="margin-bottom:20px">
+    <h4>열 행의 확인 상태</h4>
+    <div class="dist">
+      <div class="dist-row">
+        <span class="dist-label">실측</span>
+        <div class="dist-track"><div class="dist-fill f-green" style="width:60%"></div></div>
+        <span class="dist-val">6 / 10</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">문서</span>
+        <div class="dist-track"><div class="dist-fill f-yellow" style="width:30%"></div></div>
+        <span class="dist-val">3 / 10</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">추론</span>
+        <div class="dist-track"><div class="dist-fill f-mute" style="width:10%"></div></div>
+        <span class="dist-val">1 / 10</span>
+      </div>
+    </div>
+    <p class="caption">문서 셋(retry 기본값 · entry 번호 시작값 · <code>--test</code> 병렬)이 다음 실측 대상이다. 추론 하나는 이 킷의 설계 결정이라 실측 대상이 아니다.</p>
+  </div>
+
   <div class="table-wrap">
     <table>
       <thead>
@@ -609,34 +727,33 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
       <tbody>
         <tr>
           <td class="sys">Hurl 엔진 버전</td>
-          <td class="num-cell">8.0.1 (release 2026-04-28)</td>
+          <td class="num-cell"><code>8.0.1</code> (release <code>2026-04-28</code>)</td>
           <td><span class="tag tag-ok">실측</span></td>
           <td>
-            <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1" target="_blank" rel="noopener">&rarr; Hurl 8.0.1 릴리스</a>
             <span class="how">hurl --version → hurl 8.0.1 (x86_64-apple-darwin25.0) libcurl/8.7.1</span>
           </td>
         </tr>
         <tr>
           <td class="sys">옵션 우선순위 랭크</td>
-          <td class="num-cell">1 env &lt; 2 CLI &lt; 3 per-entry <code>[Options]</code></td>
+          <td class="num-cell"><code>1</code> env &lt; <code>2</code> CLI &lt; <code>3</code> per-entry <code>[Options]</code></td>
           <td><span class="tag tag-ok">실측</span></td>
           <td>
-            <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
+            <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual — Configuration</a>
             <span class="how">HURL_MAX_REDIRS=3 &lt; --max-redirs 5 &lt; [Options] max-redirs: 7 을 curl_cmd 로 관측</span>
           </td>
         </tr>
         <tr>
-          <td class="sys">옵션 우선순위의 적용 대상</td>
-          <td class="num-cell"><strong>옵션만.</strong> 변수는 <code>HURL_*</code> 로 안 들어온다</td>
+          <td class="sys">환경변수로 들어가는 변수</td>
+          <td class="num-cell"><code>HURL_VARIABLE_&lt;이름&gt;</code> 만 (<code>HURL_&lt;이름&gt;</code> 은 안 된다)<br>명령줄 <code>--variable</code> 이 이긴다</td>
           <td><span class="tag tag-ok">실측</span></td>
           <td>
-            <a class="card-source" href="https://hurl.dev/docs/manual.html#configuration" target="_blank" rel="noopener">&rarr; Hurl Manual</a>
-            <span class="how">HURL_who=from-env 를 걸어도 {{who}} 는 비어 assert 가 actual: none 으로 실패</span>
+            <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/blob/master/CHANGELOG.md" target="_blank" rel="noopener">&rarr; Hurl CHANGELOG — 8.0.0</a>
+            <span class="how">HURL_who=… → actual: none · HURL_VARIABLE_who=… → 통과 · 둘을 겹치고 --variable who=… → 명령줄 값 (2026-09-24)</span>
           </td>
         </tr>
         <tr>
           <td class="sys"><code>--max-redirs</code> 기본값</td>
-          <td class="num-cell">50 (<code>-1</code> = unlimited)</td>
+          <td class="num-cell"><code>50</code> (<code>-1</code> = unlimited)</td>
           <td><span class="tag tag-ok">실측</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; Hurl Manual — HTTP Options</a>
@@ -645,13 +762,13 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
         </tr>
         <tr>
           <td class="sys">retry 기본값</td>
-          <td class="num-cell">0 = no retry, <code>-1</code> = unlimited</td>
-          <td><span class="tag tag-neutral">문서 기재</span></td>
+          <td class="num-cell"><code>0</code> = no retry, <code>-1</code> = unlimited</td>
+          <td><span class="tag tag-neutral">문서</span></td>
           <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
         </tr>
         <tr>
           <td class="sys"><code>--retry-interval</code> 기본값</td>
-          <td class="num-cell">1000 ms</td>
+          <td class="num-cell"><code>1000 ms</code></td>
           <td><span class="tag tag-ok">실측</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a>
@@ -660,19 +777,19 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
         </tr>
         <tr>
           <td class="sys">entry 번호 시작값</td>
-          <td class="num-cell">1 (<code>--from-entry</code> / <code>--to-entry</code>)</td>
-          <td><span class="tag tag-neutral">문서 기재</span></td>
+          <td class="num-cell"><code>1</code> (<code>--from-entry</code> / <code>--to-entry</code>)</td>
+          <td><span class="tag tag-neutral">문서</span></td>
           <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
         </tr>
         <tr>
           <td class="sys"><code>--test</code> 실행 모드</td>
           <td class="num-cell">병렬. 순차가 필요하면 <code>--jobs 1</code></td>
-          <td><span class="tag tag-neutral">문서 기재</span></td>
+          <td><span class="tag tag-neutral">문서</span></td>
           <td><a class="card-source" href="https://hurl.dev/docs/manual.html#run-options" target="_blank" rel="noopener">&rarr; Hurl Manual — Run Options</a></td>
         </tr>
         <tr>
           <td class="sys">exit code</td>
-          <td class="num-cell">0 success / 1 CLI parse / 2 input parse / 3 runtime / 4 assert</td>
+          <td class="num-cell"><code>0</code> success / <code>1</code> CLI parse / <code>2</code> input parse / <code>3</code> runtime / <code>4</code> assert</td>
           <td><span class="tag tag-ok">실측</span></td>
           <td>
             <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a>
@@ -681,9 +798,9 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
         </tr>
         <tr>
           <td class="sys">operation 당 자동 생성 probe 수</td>
-          <td class="num-cell">기본 1 (preferred media type), explicit examples 다수 시 최대 3</td>
+          <td class="num-cell">기본 <code>1</code> (preferred media type), explicit examples 다수 시 최대 <code>3</code></td>
           <td><span class="tag tag-neutral">추론</span></td>
-          <td><span class="tag tag-neutral">추론</span></td>
+          <td><span class="how">이 킷의 설계 결정</span></td>
         </tr>
       </tbody>
     </table>
@@ -711,7 +828,7 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
           <td class="num-cell"><span class="strength s-2">1</span></td>
           <td>CLI parse</td>
           <td><span class="tag tag-neutral">도구 호출 오류</span></td>
-          <td>킷이 만든 명령줄을 고친다</td>
+          <td>킷이 만든 명령줄을 고친다. 실패 통계에 넣지 않는다</td>
         </tr>
         <tr>
           <td class="num-cell"><span class="strength s-2">2</span></td>
@@ -735,16 +852,9 @@ requestBody   ─┘              의존 흐름은 한 파일 안에            
     </table>
   </div>
   <p class="caption">
-    표 전체가 <span class="tag tag-ok">실측</span> 이다 — 5 종을 각각 재현해 코드 번호를 확정했다(2026-09-05).
-    코드 번호가 실제와 다르면 <strong>계약 실패 집계 자체가 어긋나므로</strong> 가장 먼저 대조해야 할 항목이었다.
+    코드 번호는 <span class="tag tag-ok">실측</span> 이다 — 5 종을 각각 재현해 확정했다(2026-09-05).
+    <code>1</code> 은 오타 난 플래그 하나로도 나온다. 실패 통계에 넣으면 계약 회귀처럼 보인다(Gotchas 마지막 줄).
   </p>
-
-  <div class="rule-box">
-    <strong>옵션 우선순위.</strong> environment variable &rarr; command-line option &rarr; per-entry <code>[Options]</code>.
-    뒤쪽이 이긴다. cli-only 옵션을 <code>[Options]</code> 에 적으면 무시되므로,
-    파일에 적힌 실행 의미와 실제 실행이 갈라진다.
-    <strong>단 이 순위는 옵션 전용이다</strong> — <code>HURL_who</code> 같은 환경변수는 변수 <code>{{who}}</code> 를 채우지 않는다(실측).
-  </div>
 </div>
 
 <div class="section">
@@ -807,12 +917,11 @@ page: 2
         <span class="pane-what"><code>[Query]</code> 섹션 하나만. style/explode 를 반영</span>
       </div>
       <pre><code>GET https://api.example.com/v1/orders
+Accept: application/json
+Authorization: Bearer {{token}}
 [Query]
 status: paid
 page: 2
-
-Accept: application/json
-Authorization: Bearer {{token}}
 
 HTTP 200</code></pre>
     </div>
@@ -871,7 +980,7 @@ HTTP 204</code></pre>
       <div class="compare-label">BAD — non-zero 를 전부 계약 실패로</div>
       <div class="desc">
         <code>hurl --test</code> 의 종료 코드가 0 이 아니면 전부 "계약 실패" 로 집계한다.
-        DNS 실패도, probe 파일 문법 오류도 같은 칸에 쌓인다.
+        DNS 실패도, probe 파일 문법 오류도, 오타 난 플래그도 같은 칸에 쌓인다.
       </div>
       <div class="desc">
         <strong>결과</strong> — 회귀 diff 가 환경 잡음에 덮여, 진짜 <code>4</code>(assert) 한 건이 묻힌다.
@@ -886,7 +995,7 @@ HTTP 204</code></pre>
       </div>
       <div class="desc">
         <strong>결과</strong> — 실패 목록이 곧 작업 분배표가 된다.
-        코드 번호는 <span class="tag tag-ok">실측</span> 으로 확정됐다 — 5 종을 각각 재현했다(2026-09-05).
+        코드 번호는 <span class="tag tag-ok">실측</span> 으로 확정했다 — 5 종을 각각 재현했다(2026-09-05).
       </div>
     </div>
   </div>
@@ -896,23 +1005,24 @@ HTTP 204</code></pre>
       <div class="compare-label">BAD — 전부 capture + verbose 로그</div>
       <div class="desc">
         진단이 편하다는 이유로 모든 응답 body 를 capture 하고 <code>--very-verbose</code> 를 상시 켠다.
-        Hurl 의 <code>--secret</code> 이 알아서 가려줄 거라 가정한다.
+        Hurl 의 <code>--secret</code> 이 알아서 가려 줄 거라 가정한다.
       </div>
       <div class="desc">
-        <strong>결과</strong> — 리포트가 비대해지고 토큰·개인정보가 CI 로그에 남는다.
-        실측에서 <code>--secret</code> 은 <strong>기본 stdout · <code>--include</code> · <code>--output &lt;file&gt;</code> 을 가리지 않았고,
-        <code>--json</code> stdout 의 <code>curl_cmd</code>·요청 헤더·<code>captures[].value</code> 도 평문이었다.</strong>
+        <strong>결과</strong> — 리포트가 비대해지고 토큰·시크릿이 로그에 남는다.
+        <code>--very-verbose</code> 는 body 를 stderr 에 찍고, <code>--secret</code> 은
+        <strong>등록한 그 값만</strong> <code>***</code> 로 바꾼다 — 같은 값의 base64 본은 그대로 남는다(실측).
+        <code>redact</code> capture 로 막으려 하면 <code>--very-verbose</code> 와 함께 돌지 않는다.
       </div>
     </div>
     <div class="compare-good">
-      <div class="compare-label">GOOD — 최소 assert + 자체 scrubber</div>
+      <div class="compare-label">GOOD — 최소 assert + 필요한 capture 만</div>
       <div class="desc">
         최소 assert 는 expected status 하나. body capture 는 downstream 이 실제로 그 값을 쓰거나
         진단이 필요할 때만 켠다. 바이트 계약은 <code>rawbytes</code> 로 명시한다.
       </div>
       <div class="desc">
-        <strong>결과</strong> — 저장·렌더되는 데이터는 킷의 scrubber 를 통과한 것뿐이다(설계문서 §8.2).
-        Hurl 의 마스킹 범위에 의존하지 않는다.
+        <strong>결과</strong> — 저장하고 출력하는 값이 줄어 시크릿이 샐 수 있는 자리도 함께 줄어든다.
+        출력마다 가려지는지 여부는 <a class="inline-link" href="auth-secret-lifecycle.html">인증과 시크릿 수명 페이지</a> 의 채널 표를 따른다.
       </div>
     </div>
   </div>
@@ -921,8 +1031,8 @@ HTTP 204</code></pre>
 <div class="section">
   <div class="section-label">Gotchas — probe 실행 전 확인</div>
   <div class="desc">
-    앞의 여섯 항목은 소스 문서의 Gotchas 이고, 뒤는 원칙에서 나온 확인 항목이다.
-    Hurl 동작에 걸린 항목은 2026-09-05 실측 결과를 반영했다.
+    앞의 일곱 줄은 원본 Gotchas 를 모두 옮긴 것이고, 뒤의 여섯 줄은 원칙에서 나온 확인 항목이다.
+    Hurl 동작에 걸린 줄은 실측 결과를 반영했다.
   </div>
   <ul class="checklist">
     <li>
@@ -954,52 +1064,55 @@ HTTP 204</code></pre>
       <span>
         <strong><code>--very-verbose</code> 는 request / response body 를 stderr 에 출력한다.</strong>
         다만 <code>--secret</code> 을 걸어 두면 그 값은 <code>***</code> 로 바뀐다(실측).
-        문제는 등록하지 않은 변형본이다 — 같은 값의 base64 본은 그대로 남는다.
+        문제는 등록하지 않은 변형본이다 — base64 본은 그대로 남는다.
       </span>
     </li>
     <li>
       <span class="check c-bad">×</span>
       <span>
-        <strong><code>--verbose</code> 로는 body 가 아예 안 찍힌다.</strong>
-        그래서 "<code>--verbose</code> 로그에 토큰이 없다" 는 관측은 <strong>마스킹의 증거가 아니다</strong> —
-        찍히지 않은 것을 가려졌다고 읽은 것뿐이다. body 가 찍히는 건 <code>--very-verbose</code> 부터다.
+        <strong><code>--verbose</code> 로는 body 가 안 찍힌다.</strong>
+        그래서 "<code>--verbose</code> 로그에 토큰이 없다" 는 관측은 <strong>마스킹의 증거가 아니다</strong>.
+        body 가 찍히는 건 <code>--very-verbose</code> 부터다.
       </span>
     </li>
     <li>
       <span class="check c-bad">×</span>
       <span>
         <strong><code>redact</code> capture 와 <code>--very-verbose</code> 는 함께 못 쓴다.</strong>
-        Hurl 8.0.1 이 <code>redacted secret not authorized in verbose</code> 로 <strong>실행 자체를 거부한다.</strong>
-        진단하려고 verbose 를 켜는 순간 파일이 안 돈다.
+        Hurl 8.0.1 이 <code>redacted secret not authorized in verbose</code> 로 <strong>실행을 거부한다.</strong>
       </span>
     </li>
     <li>
       <span class="check c-bad">×</span>
       <span>
-        <strong><code>--secret</code> 만 믿고 stdout 을 그대로 저장하지 않았는지 확인했다.</strong>
-        실측에서 가려진 채널은 stderr 로그와 <code>--report-json</code> 의 <code>report.json</code> 둘뿐이었고,
-        기본 stdout · <code>--include</code> · <code>--output &lt;file&gt;</code> · <code>--json</code> stdout ·
-        리포트의 <code>store/*_response.json</code> 에는 평문이 남았다.
-        <span class="tag tag-ok">실측</span> — 이 항목이 킷의 redaction 설계(설계문서 §8.2) 전체의 근거이고,
-        실측은 그 결정을 뒤집지 않고 <strong>scrubber 를 걸 경로를 늘렸다.</strong>
+        <strong>exit code <code>1</code> 은 계약과 무관하다.</strong>
+        CLI 파싱 실패다. 오타 난 플래그 하나로 <code>1</code> 이 나오는데,
+        이걸 실패 통계에 넣으면 계약 회귀처럼 보인다.
       </span>
     </li>
     <li>
       <span class="check">✓</span>
       <span>
-        query 가 URL 문자열과 <code>[Query]</code> 섹션 중 <strong>한 경로로만</strong> 생성되는지 확인했다(원칙 2).
+        query 가 URL 문자열과 <code>[Query]</code> 섹션 중 <strong>한 경로로만</strong> 만들어졌는지 확인했다(원칙 2).
       </span>
     </li>
     <li>
       <span class="check">✓</span>
       <span>
-        <code>Accept</code> · <code>Content-Type</code> · <code>Authorization</code> 이 명시적으로 생성됐는지 확인했다(원칙 3).
+        <code>Accept</code> · <code>Content-Type</code> · <code>Authorization</code> 을 명시적으로 넣었는지 확인했다(원칙 3).
       </span>
     </li>
     <li>
       <span class="check">✓</span>
       <span>
         상태를 공유하는 흐름이 한 <code>.hurl</code> 파일 안에 있고, capture 이름이 체인 안에서 재사용되지 않는지 확인했다(원칙 4 · 5).
+      </span>
+    </li>
+    <li>
+      <span class="check">✓</span>
+      <span>
+        환경변수로 변수를 넣는 자리가 <code>HURL_VARIABLE_&lt;이름&gt;</code> 접두를 쓰는지,
+        같은 변수를 명령줄 <code>--variable</code> 로도 주고 있지 않은지 확인했다 — 겹치면 명령줄 값이 이긴다(원칙 6).
       </span>
     </li>
     <li>
@@ -1012,7 +1125,7 @@ HTTP 204</code></pre>
     <li>
       <span class="check">✓</span>
       <span>
-        <code>enum</code> / <code>default</code> 에서 고른 값에 대해 schema 검증을 <strong>한 번 더</strong> 돌렸는지 확인했다 —
+        <code>enum</code> / <code>default</code> 에서 고른 값도 schema 검증을 <strong>한 번 더</strong> 돌렸는지 확인했다 —
         <code>default</code> 는 annotation 이라 schema 를 만족한다는 보장이 없다(원칙 1).
       </span>
     </li>
@@ -1022,8 +1135,8 @@ HTTP 204</code></pre>
 <div class="section">
   <div class="section-label">출처</div>
   <div class="desc">
-    아래가 이 페이지의 전체 근거다. Hurl 동작 값 중 상단 배너의 5 건은
-    2026-09-05 에 로컬 hurl 8.0.1 로 실행해 대조했고, 나머지 3 건은 아직 문서 기재 상태다.
+    아래가 이 페이지의 전체 근거다. Hurl 동작 값은 2026-09-05 와 2026-09-24 두 번 로컬 hurl 8.0.1 로 실행해 대조했고,
+    세 건은 아직 문서 기재 상태다.
   </div>
   <div class="info-card">
     <div class="sources" style="border-top:none;padding-top:0">
@@ -1041,15 +1154,16 @@ HTTP 204</code></pre>
       <a class="card-source" href="https://hurl.dev/docs/manual.html#http-options" target="_blank" rel="noopener">&rarr; Hurl Manual — HTTP Options</a>
       <a class="card-source" href="https://hurl.dev/docs/manual.html#exit-codes" target="_blank" rel="noopener">&rarr; Hurl Manual — Exit Codes</a>
       <a class="card-source" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">&rarr; Hurl Templates — Secrets</a>
-      <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/releases/tag/8.0.1" target="_blank" rel="noopener">&rarr; Hurl 8.0.1 릴리스</a>
+      <a class="card-source" href="https://github.com/Orange-OpenSource/hurl/blob/master/CHANGELOG.md" target="_blank" rel="noopener">&rarr; Hurl CHANGELOG — 8.0.0 변수 환경변수 접두</a>
     </div>
     <div class="source-badge">추론 1 건 — operation 당 자동 생성 probe 수(기본 1, 최대 3). 출처 없음, 이 킷의 설계 결정</div>
-    <div class="source-badge">실측 5 건 (2026-09-05 · hurl 8.0.1) — 옵션 우선순위 · <code>--retry-interval</code> · <code>--max-redirs</code> · exit code 는 문서와 일치했고, <code>--secret</code> 마스킹 범위는 문서보다 새는 면적이 넓어 정정했다</div>
-    <div class="source-badge">아직 문서 기재 3 건 — retry 기본값 · entry 번호 시작값 · <code>--test</code> 병렬 실행. 이번 사이클에서 실행으로 확인하지 않았다</div>
+    <div class="source-badge">실측 2026-09-05 — 엔진 버전 · 옵션 우선순위 · <code>--retry-interval</code> · <code>--max-redirs</code> · exit code · <code>--very-verbose</code> 의 <code>***</code> 와 base64 변형본 · <code>redact</code> 거부</div>
+    <div class="source-badge">실측 2026-09-24 — <code>HURL_VARIABLE_</code> 접두 · <code>HURL_SECRET_</code> · 명령줄 <code>--variable</code> 우선. 2026-09-05 의 「옵션에만」 단서를 고쳤다</div>
+    <div class="source-badge">아직 문서 기재 3 건 — retry 기본값 · entry 번호 시작값 · <code>--test</code> 병렬 실행</div>
   </div>
   <p class="caption">
-    소스 문서: <span class="mono">docs/api/execution/probe-synthesis-hurl-semantics.md</span> (v0.2.0 · 2026-09-05) ·
-    실측 대조 표 출처: <span class="mono">docs/api/research-log.md</span> 「2026-09-05 — Hurl 8.0.1 실측 대조」
+    소스 문서: <span class="mono">docs/api/execution/probe-synthesis-hurl-semantics.md</span> (v0.2.1 · 2026-09-24) ·
+    실측 기록: <span class="mono">docs/api/research-log.md</span> 「2026-09-05 — Hurl 8.0.1 실측 대조」 · 「2026-09-24 — 첫 카이젠 (Phase 16)」
   </p>
 </div>
 

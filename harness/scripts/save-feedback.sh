@@ -39,20 +39,24 @@ elif command -v python &>/dev/null && python -c "pass" &>/dev/null; then
 fi
 
 # --- 스키마 검증 ---
-validate_yaml() {
+# 초안에는 project_hash · project_name 을 요구하지 않는다 — 아래 identity 계산이 CONTRACT_ROOT 로 다시 구해
+# 덮어쓰고, 최종본 검사가 두 필드를 다시 요구한다. 초안에 요구하면 버릴 값 때문에 저장이 거부된다
+DRAFT_FIELDS=(schema_version skill timestamp skill_version outcome diagnosis)
+FINAL_FIELDS=("${DRAFT_FIELDS[@]}" project_hash project_name)
+
+validate_yaml() {  # validate_yaml <파일> <필수 필드…>
   local file="$1"
+  shift
 
   # yq 또는 python으로 YAML 파싱 + 필수 필드 검증
-  # 검증 대상: feedback-schema.yaml의 공통 필수 필드 + diagnosis
   # ⚠ 두 백엔드(yq · python)는 **같은 문구**로 실패해야 한다. 백엔드에 따라 메시지가 달라지면
   #   소비자(evals 네거티브 테스트 등)가 한쪽 문구만 assert 하게 되어 다른 환경에서만 깨진다.
   #   실측 2026-08-14: 로컬(yq 없음)은 python 경로라 통과했는데 CI(yq 있음)는 셸 경로라
   #   `timestamp 필드 누락` 을 내서 `누락 필드` 를 기대한 테스트가 CI 에서만 FAIL 했다.
   #   그래서 yq 경로도 **전체 누락 목록**을 python 과 동일한 형태로 낸다.
   if command -v yq &>/dev/null; then
-    local fields=("schema_version" "skill" "timestamp" "project_hash" "project_name" "skill_version" "outcome" "diagnosis")
     local missing=()
-    for field in "${fields[@]}"; do
+    for field in "$@"; do
       local val
       val=$(yq ".$field" "$file" 2>/dev/null)
       if [[ "$val" == "null" || -z "$val" ]]; then
@@ -72,12 +76,12 @@ validate_yaml() {
 import yaml, sys
 with open(sys.argv[1], encoding='utf-8') as f:
     d = yaml.safe_load(f)
-required = ['schema_version', 'skill', 'timestamp', 'project_hash', 'project_name', 'skill_version', 'outcome', 'diagnosis']
+required = sys.argv[2:]
 missing = [k for k in required if k not in d or d[k] is None]
 if missing:
     print(f'FAIL: 누락 필드: {missing}', file=sys.stderr)
     sys.exit(1)
-" "$file" || return 1
+" "$file" "$@" || return 1
 
   else
     echo "ERROR: yq 또는 python 필수 — 스키마 검증 불가" >&2
@@ -87,7 +91,7 @@ if missing:
   return 0
 }
 
-if ! validate_yaml "$DRAFT_PATH"; then
+if ! validate_yaml "$DRAFT_PATH" "${DRAFT_FIELDS[@]}"; then
   echo "ERROR: 스키마 검증 실패" >&2
   exit 1
 fi
@@ -130,12 +134,19 @@ resolve_contract_root() {
   printf '%s' "$PWD"
 }
 
-# reflect-kit 과 동일하게 git root 를 identity 기준 경로로 삼는다.
+# reflect-kit hooks/_lib-project-id.sh 의 project_root 와 같은 규칙 — 워크트리에서도 본 레포 폴더를 낸다.
+# --show-toplevel 만 쓰면 워크트리 이름이 project_name 이 되어 같은 레포 피드백이 워크트리마다 갈렸다.
+# 공통 git 폴더 이름이 .git 일 때만 그 부모를 쓴다 — 서브모듈의 공통 폴더는 상위 레포의 .git/modules/<이름> 이다
 identity_root_of() {
-  local root="$1" gr
+  local root="$1" gr gdir common
   gr="$(git -C "$root" rev-parse --show-toplevel 2>/dev/null)" || gr=""
-  if [[ -n "$gr" ]]; then printf '%s' "$gr"; return 0; fi
-  printf '%s' "$root"
+  if [[ -z "$gr" ]]; then printf '%s' "$root"; return 0; fi
+  gdir="$(git -C "$root" rev-parse --path-format=absolute --git-dir 2>/dev/null)" || gdir=""
+  common="$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" || common=""
+  if [[ -n "$common" && "$gdir" != "$common" && "$(basename "$common")" == ".git" ]]; then
+    printf '%s' "$(dirname "$common")"; return 0
+  fi
+  printf '%s' "$gr"
 }
 
 # reflect-kit hooks/_lib-project-id.sh 의 _rk_hash6 과 동일 로직
@@ -311,7 +322,7 @@ fi
 } >> "$FINAL_TMP"
 
 # 재작성 결과가 여전히 스키마를 만족하는지 확인 (draft 는 보존한 채 중단)
-if ! validate_yaml "$FINAL_TMP"; then
+if ! validate_yaml "$FINAL_TMP" "${FINAL_FIELDS[@]}"; then
   echo "ERROR: identity 재작성 후 스키마 검증 실패 — draft 보존: $DRAFT_PATH" >&2
   rm -f "$FINAL_TMP"
   exit 1

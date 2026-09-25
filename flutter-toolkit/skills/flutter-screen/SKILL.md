@@ -273,13 +273,13 @@ auto_route의 `@RoutePage()`는 build_runner codegen 대상이므로 생성 후 
 
 ## Post-Creation: Widget Inspector
 
-생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 추출 후보가 있으면 리포팅하고, 없으면 조용히 넘어간다.
+생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 편집 전에 만든 관례 표(규약 Step 0 의 6 번)를 함께 넘긴다 — 에이전트가 그 표로 관례 대조를 한다. 추출 후보나 관례 `어긋남` · `[미검증]` 이 있으면 리포팅하고, 없으면 조용히 넘어간다.
 
 ## Post-Creation: Visual Evidence (완료 선언 전 필수)
 
 `references/visual-evidence-protocol.md` 를 실행하고 **Visual Evidence Block 을 응답에 채워서 보고**한다.
 새 화면은 라우트 진입 자체가 실패해도 코드가 컴파일되므로, "화면을 만들었다" 와 "화면이 뜬다" 는 다른 주장이다.
-시각 검증 채널이 없으면 `[미검증]` 마커 + 사유를 남기고 **부분 완료**로 보고한다. 빈 화면 캡처는
+시각 검증 채널이 없으면 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 Step 4)을 채우고 **부분 완료**로 보고한다. 빈 화면 캡처는
 PASS 증거가 아니라 검증 실패 신호다.
 
 ## Related Skills

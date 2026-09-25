@@ -39,7 +39,7 @@ grep 앵커 누락(미핀닝 3 건 중 1 건만 검출) · 결함을 `echo WARN`
 볼 수 없는 것이다. 전자는 정상 종결이지만 후자는 커버리지 손실이다.
 
 **`TOOL_OR_ENV_MISSING` 과 `VIOLATION` 도 섞지 마라.** 도구가 없어 돌리지 못한 rule 은 PASS 도
-N/A 도 아니고 `[미검증]` 이다. 같은 원칙이 **규칙 소스**에도 적용된다 — `audit-criteria.md` 를
+N/A 도 아니고 `[미검증]` 이다. 같은 원칙은 **규칙 소스**에도 해당한다 — `audit-criteria.md` 를
 읽지 못했다면 그 카테고리는 검사하지 않은 것이므로 위반 0 으로 보고하지 마라.
 
 ## 우선순위 — 실행 불완전이 정책 위반을 이긴다
@@ -92,6 +92,11 @@ VIOLATION=<n>  [미검증]=<n>  EXECUTION_ERROR=<n>
 ```text
 [미검증] TOOL_OR_ENV_MISSING: kubeconform 미설치 — 재검증: brew install kubeconform && bash tests/k8s-validation.sh
 ```
+
+리포트(`infra-test` 완료 보고 · `infra-audit` 과 `infra-reviewer` 의 근거 열)에서는 스크립트의 이 줄과 그 근거인 `command -v <도구>` 출력을
+**막는 것** 칸으로 옮기고 나머지 세 칸(시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채운다. 네 칸의 정의는
+`harness/docs/guides/skill-design-guide.md` §3.7 Completion Evidence Gate 3 항이 SSOT 다 — 여기서 다시 정의하지 않는다.
+하나라도 비면 `UNVERIFIED_ENV` 로 인정되지 않는다.
 
 ## 소비처
 

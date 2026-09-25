@@ -34,9 +34,13 @@ user-invocable: true
 
 `docs/planning/data-modeling.md` (DDD, Event Storming, ERD, Mermaid 문법) 로드.
 
+이전 단계 산출물 `.planning/prd-*.md` 가 있으면 비범위 절(`## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`)의 폐기한 결정을 함께 로드한다. 이 단계에서 모델을 그리지 않는다.
+
 ## Step 1: Event Storming (사건 먼저)
 
 출처: [Alberto Brandolini — EventStorming](https://www.eventstorming.com/).
+
+Step 0 에서 읽은 폐기한 결정과 겹치는 이벤트 · 엔티티 · 필드는 모델에 넣지 않는다. 코드 · 데이터베이스에 흔적이 남아 있어도 요구로 읽지 않는다 — 필요해 보이면 그리기 전에 사용자에게 묻는다 (plan-prd Gotcha 14).
 
 PRD/플로우에서 **과거형 이벤트**를 뽑아 시간순으로 나열:
 

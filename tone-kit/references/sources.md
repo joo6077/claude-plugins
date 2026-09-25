@@ -16,7 +16,7 @@
 
 | 표기 | 뜻 |
 |---|---|
-| 확인됨 | 2026-08-28 에 접근성과 인용 문구를 확인 |
+| 확인됨 | 2026-08-28 에 접근성과 인용 문구를 확인. 괄호에 날짜가 있으면 그날 확인 |
 | 승계 | 원본 코퍼스의 인용을 그대로 옮김. 개별 재확인 미실시 |
 | 주의 | 이동·리다이렉트 이력이 있어 인용 전 재확인 필요 |
 
@@ -88,8 +88,13 @@ SANER 2025 논문의 OpenReview 항목(<https://openreview.net/forum?id=uO8ix6tn
 | 우아한형제들 기술 블로그 | <https://techblog.woowahan.com/> | 승계 |
 | 카카오 기술 블로그 | <https://tech.kakao.com/> | 승계 |
 | NAVER D2 | <https://developers.naver.com/d2/community/> | 승계 |
+| Microsoft Style Guide — Use technical terms carefully | <https://github.com/MicrosoftDocs/microsoft-style-guide/blob/main/styleguide/word-choice/use-technical-terms-carefully.md> | 확인됨 (2026-09-24) |
+| Google 개발자 문서 스타일 가이드 — Jargon | <https://developers.google.com/style/jargon> | 확인됨 (2026-09-24) |
+| 한글 맞춤법 (제2항 · 제50항 해설) | <https://korean.go.kr/kornorms/regltn/regltnView.do?regltn_code=0001> | 확인됨 (2026-09-24) |
 
 기업 기술 블로그는 개별 글이 아니라 **문서 구조 관행** 의 참고 사례다. 특정 규칙의 단독 근거로 쓰지 않는다.
+
+K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 행이다. Microsoft · Google 가이드는 영어 문서용이고, 한글 맞춤법은 새 말 만들기를 금하지 않고 사전에 없는 전문 용어도 정당한 말로 다룬다 — 그래서 K-11 은 관측 컨벤션이고 판정 기준이 사전 등재가 아니다. Microsoft 항목은 공개 저장소 판(파일 날짜 2018)을 읽었고, Learn 페이지 본문과 같은지는 확인하지 않았다.
 
 ## 어댑터 — Dart / Flutter
 

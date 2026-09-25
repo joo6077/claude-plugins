@@ -14,19 +14,25 @@
   --error: #f87171; --success: #4ade80; --warn: #fbbf24;
   --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
   --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+  --mono: "SF Mono", Menlo, Consolas, monospace;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", "Noto Sans KR", sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.7;
+  background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px;
   -webkit-font-smoothing: antialiased; min-height: 100vh;
   background-image:
     radial-gradient(ellipse at top, var(--accent-dim), transparent 60%),
     radial-gradient(ellipse at bottom, var(--accent-glow), transparent 50%);
 }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+code { font-family: var(--mono); }
 .container { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
-.hero { padding: 72px 0 56px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 64px; }
+
+/* hero */
+.hero { padding: 72px 0 48px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
 .badge { display: inline-block; padding: 6px 16px; background: var(--accent-dim); color: var(--accent2);
   border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600;
   letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
@@ -34,45 +40,161 @@ body {
   letter-spacing: -0.03em; margin-bottom: 24px;
   background: linear-gradient(135deg, var(--text), var(--accent));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 720px; margin: 0 auto; line-height: 1.7; }
-section { margin-bottom: 72px; }
-.section-header { margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.hero .subtitle { font-size: 18px; color: var(--text2); max-width: 760px; margin: 0 auto; line-height: 1.7; }
+.hero .subtitle strong { color: var(--text); }
+.meta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 28px; }
+.meta-row span { padding: 6px 14px; border: 1px solid var(--border2); border-radius: 999px;
+  background: var(--surface); color: var(--text2); font-size: 13px; }
+.meta-row code { color: var(--accent2); font-size: 12.5px; }
+
+/* 쪽 안 차례 */
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 64px; justify-content: center; }
+.toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+  border: 1px solid var(--border2); border-radius: 999px; background: var(--surface);
+  color: var(--text2); font-size: 14px; text-decoration: none; transition: var(--transition); }
+.toc a:hover { border-color: var(--accent); color: var(--text); }
+
+/* 절 머리 */
+section { margin-bottom: 80px; scroll-margin-top: 24px; }
+.section-header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 .section-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
-.section-header p { margin-top: 10px; color: var(--text2); font-size: 15px; }
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.section-header h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); line-height: 1.3; }
+.section-header p { margin-top: 10px; color: var(--text2); font-size: 16px; }
+
+/* 배치 틀 */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; margin-bottom: 24px; }
+.quad { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start; }
+.split.rev { grid-template-columns: 0.9fr 1.1fr; }
+.split.even { grid-template-columns: 1fr 1fr; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px; }
+.stack { display: flex; flex-direction: column; gap: 20px; }
+
+/* 카드 */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 28px; transition: var(--transition); display: flex; flex-direction: column; }
-.card:hover { border-color: var(--accent); transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
-.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card:hover { border-color: var(--accent); box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .card-number { display: inline-flex; align-items: center; justify-content: center;
   width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim);
-  color: var(--accent2); font-weight: 700; font-size: 14px; margin-bottom: 16px; }
-.card h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 14px;
-  line-height: 1.4; letter-spacing: -0.01em; }
-.card p { color: var(--text2); font-size: 14.5px; line-height: 1.75; margin-bottom: 12px; }
-.card ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
-.card ul li { margin-bottom: 4px; }
-.card code { background: var(--surface3); color: var(--accent2); padding: 2px 6px;
-  border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
-.card-source { display: inline-block; margin-top: auto; padding-top: 16px; color: var(--accent);
-  font-size: 12px; text-decoration: none; border-top: 1px dashed var(--border2); transition: var(--transition); }
-.card-source::before { content: "↳ 출처: "; color: var(--text3); }
-.card-source:hover, .card-source:focus { color: var(--accent2); outline: none; text-decoration: underline; }
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  color: var(--accent2); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.card h3 { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.4; letter-spacing: -0.01em; }
+.card h4 { font-size: 13px; font-weight: 700; color: var(--accent2); letter-spacing: 0.06em;
+  text-transform: uppercase; margin: 18px 0 8px; }
+.card p { color: var(--text2); font-size: 16px; line-height: 1.75; margin-bottom: 12px; }
+.card p strong, .card li strong { color: var(--text); }
+.card ul, .card ol { padding-left: 20px; color: var(--text2); font-size: 15.5px; line-height: 1.8; margin-bottom: 8px; }
+.card li { margin-bottom: 4px; }
+:not(pre) > code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
+  font-size: 13.5px; overflow-wrap: anywhere; }
+.when-limit { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 20px; }
+.when-limit div, .trio div { padding: 14px 16px; border-radius: var(--radius-sm); background: var(--bg2);
+  border: 1px solid var(--border); }
+.when-limit b, .trio b { display: block; font-size: 12px; letter-spacing: 0.08em; margin-bottom: 6px; }
+.when-limit .when b, .trio .when b { color: var(--success); }
+.when-limit .limit b, .trio .limit b { color: var(--warn); }
+.trio .ask b { color: var(--accent2); }
+.when-limit span, .trio span { color: var(--text2); font-size: 15px; line-height: 1.7; display: block; }
+.trio ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.trio li { color: var(--text2); font-size: 15px; line-height: 1.6; }
+.card-sources { display: flex; flex-direction: column; gap: 6px; margin-top: auto; padding-top: 16px;
+  border-top: 1px dashed var(--border2); }
+.card-sources .src-label { color: var(--text3); font-size: 12px; letter-spacing: 0.08em; }
+.card-source { color: var(--accent); font-size: 13px; text-decoration: none; overflow-wrap: anywhere;
+  transition: var(--transition); }
+.card-source:hover { color: var(--accent2); text-decoration: underline; }
+.dated { color: var(--text3); font-size: 12px; margin-left: 6px; white-space: nowrap; }
+
+/* 개념 타일 */
+.tile { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent);
+  border-radius: var(--radius-sm); padding: 18px; transition: var(--transition); }
+.tile:hover { border-color: var(--accent); }
+.tile .tile-tag { display: block; color: var(--accent2); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.tile strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 6px; }
+.tile span { color: var(--text2); font-size: 14.5px; line-height: 1.6; display: block; }
+
+/* 개요 글 */
+.prose p { color: var(--text2); font-size: 17px; line-height: 1.85; margin-bottom: 16px; }
+.prose p strong { color: var(--text); }
+
+/* Service Blueprint 네 층 */
+.layers { list-style: none; display: flex; flex-direction: column; gap: 0; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg2); }
+.layers li { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: baseline;
+  padding: 14px 18px; border-bottom: 1px dashed var(--border2); }
+.layers li:last-child { border-bottom: none; }
+.layers b { color: var(--text); font-size: 15px; font-family: var(--mono); }
+.layers span { color: var(--text2); font-size: 15px; line-height: 1.6; }
+.layers-cap { color: var(--text3); font-size: 13px; margin: 10px 0 0; }
+
+/* 참여자 칸 */
+.lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.lane { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 18px; text-align: center; }
+.lane .lane-id { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+  border-radius: 999px; background: var(--accent-dim); color: var(--accent2); font-family: var(--mono);
+  font-weight: 700; margin-bottom: 8px; }
+.lane b { display: block; color: var(--text); font-size: 16px; }
+.lane span { color: var(--text2); font-size: 14px; display: block; }
+
+/* 상태 줄 */
+.state-track { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding: 20px; margin-bottom: 20px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); }
+.state-track li { display: inline-flex; align-items: center; gap: 10px; }
+.state-track li + li::before { content: "→"; color: var(--accent2); font-size: 16px; }
+.state { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border2);
+  background: var(--surface); color: var(--text); font-family: var(--mono); font-size: 14px; }
+.state.edge { border-style: dashed; color: var(--text2); }
+.state.end { border-color: var(--success); }
+
+/* 표 */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.table-wrap > table { min-width: max-content; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+caption { caption-side: bottom; text-align: left; padding: 12px 20px; color: var(--text3); font-size: 13px; }
 thead { background: var(--surface2); }
-th { text-align: left; padding: 16px 20px; font-weight: 600; color: var(--accent2); font-size: 13px;
-  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
-td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+th { text-align: left; padding: 14px 18px; font-weight: 600; color: var(--accent2); font-size: 13px;
+  letter-spacing: 0.04em; border-bottom: 1px solid var(--border2); }
+td { padding: 14px 18px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: var(--accent-glow); }
-td strong, td b { color: var(--text); }
-td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; border-radius: 4px;
-  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
-.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+td strong { color: var(--text); }
+td .req { color: var(--accent2); font-weight: 600; }
+td .res { color: var(--success); font-weight: 600; }
+td .back { color: var(--warn); font-weight: 600; }
+.score { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px;
+  border-radius: 6px; background: var(--surface3); color: var(--text); font-weight: 700; font-size: 14px; }
+
+/* 판 알림 */
+.notice { border: 1px solid var(--warn); border-left: 4px solid var(--warn); background: var(--surface);
+  border-radius: var(--radius); padding: 24px 26px; margin-bottom: 24px; }
+.notice .notice-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--warn); margin-bottom: 10px; }
+.notice h3 { color: var(--text); font-size: 20px; margin-bottom: 10px; line-height: 1.4; }
+.notice p { color: var(--text2); font-size: 16px; line-height: 1.75; margin-bottom: 14px; }
+.notice p strong { color: var(--text); }
+.notice .table-wrap { background: var(--bg2); }
+
+/* 코드 */
+pre { overflow-x: auto; max-width: 100%; }
+pre code { white-space: pre; }
+.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 18px 20px; font-family: var(--mono); font-size: 14px; line-height: 1.65; color: var(--text); }
+.code-block .kw { color: var(--accent2); font-weight: 600; }
+.code-block .rel { color: var(--warn); }
+.code-block .lbl { color: var(--success); }
+.code-cap { color: var(--text3); font-size: 13px; margin-top: 8px; }
+.read-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.read-list li { padding: 10px 14px; border-radius: var(--radius-sm); background: var(--bg2);
+  border: 1px solid var(--border); color: var(--text2); font-size: 15px; }
+
+/* 비교 */
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .compare { border-radius: var(--radius); padding: 22px 24px; border: 1px solid var(--border);
   background: var(--surface); line-height: 1.7; }
 .compare.bad { border-left: 3px solid var(--error); }
@@ -81,339 +203,745 @@ td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; 
   padding: 3px 9px; border-radius: 999px; font-weight: 700; margin-bottom: 12px; }
 .compare.bad .tag { background: rgba(248,113,113,0.12); color: var(--error); }
 .compare.good .tag { background: rgba(74,222,128,0.12); color: var(--success); }
-.compare h4 { color: var(--text); font-size: 15px; margin-bottom: 6px; }
-.compare p { color: var(--text2); font-size: 14px; }
+.compare h4 { color: var(--text); font-size: 16px; margin-bottom: 6px; line-height: 1.5; }
+.compare p { color: var(--text2); font-size: 15px; }
+
+/* 함정 목록 */
 .checklist { display: flex; flex-direction: column; gap: 14px; }
 .checklist-item { display: flex; gap: 16px; padding: 20px 24px; background: var(--surface);
   border: 1px solid var(--border); border-left: 3px solid var(--accent);
   border-radius: var(--radius-sm); transition: var(--transition); }
-.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); }
 .checklist-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
-  background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
+  background: var(--accent-dim); color: var(--accent2); display: flex; align-items: center;
   justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
-.checklist-body strong { color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; }
-.checklist-body p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.checklist-body strong { color: var(--text); font-size: 16px; display: block; margin-bottom: 6px; }
+.checklist-body p { color: var(--text2); font-size: 15px; line-height: 1.7; }
+.checklist-body .from { display: block; color: var(--text3); font-size: 13px; margin-top: 6px; }
+
+/* 참고 링크 */
+.ref-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.ref-list li { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; transition: var(--transition); }
+.ref-list li:hover { border-color: var(--accent); }
+.ref-list .ref-name { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+.ref-list a { font-size: 13px; overflow-wrap: anywhere; text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
 .refs { display: flex; flex-wrap: wrap; gap: 10px; }
-.refs a { padding: 10px 16px; border: 1px solid var(--border2); border-radius: 999px;
-  color: var(--accent2); text-decoration: none; font-size: 13px; transition: var(--transition); }
-.refs a:hover, .refs a:focus { background: var(--accent-dim); border-color: var(--accent); outline: none; }
+.refs a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px;
+  border: 1px solid var(--border2); border-radius: 999px; color: var(--accent2); text-decoration: none;
+  font-size: 14px; transition: var(--transition); }
+.refs a:hover { background: var(--accent-dim); border-color: var(--accent); }
+
 footer { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--border);
   text-align: center; color: var(--text3); font-size: 13px; }
-footer a { color: var(--accent); text-decoration: none; }
-.code-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 16px 20px; margin: 12px 0; font-family: "SF Mono", Menlo, Consolas, monospace;
-  font-size: 13px; line-height: 1.6; color: var(--text); overflow-x: auto; white-space: pre; }
-.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 18px 22px;
-  border-radius: var(--radius-sm); color: var(--text2); font-size: 14.5px; line-height: 1.75; }
-.callout strong { color: var(--text); }
+footer code { color: var(--text2); }
+
+/* 가로 넘침 규칙 — grid · flex 자식의 기본 min-width 는 auto(= min-content)라 긴 코드 · 표 폭이 트랙으로 번진다 */
+.grid-2 > *, .grid-4 > *, .quad > *, .split > *, .trio > *, .stack > *, .lanes > *, .when-limit > *,
+.compare-grid > *, .ref-list > *, .layers li > *, .checklist-body { min-width: 0; }
+@media (max-width: 860px) {
+  .split, .split.rev, .split.even { grid-template-columns: 1fr; }
+  .trio { grid-template-columns: 1fr; }
+}
 @media (max-width: 720px) {
   .container { padding: 24px 18px 64px; }
-  .hero { padding: 48px 0 36px; }
-  .grid-2, .compare-grid { grid-template-columns: 1fr; }
+  .hero { padding: 48px 0 32px; }
   .card { padding: 22px; }
-  th, td { padding: 12px 14px; font-size: 13px; }
+  .section-header h2 { font-size: 26px; }
+  th, td { padding: 12px 14px; font-size: 14px; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-  /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
-  a{color:var(--accent)}
-  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width: 600px) {
+  .grid-2, .grid-4, .quad, .split, .split.rev, .split.even, .trio, .lanes, .when-limit, .compare-grid, .ref-list { grid-template-columns: 1fr; }
+  .layers li { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
 <div class="container">
 
   <header class="hero">
-    <span class="badge">Planning Kit v0.1 · Flows</span>
+    <span class="badge">Planning Kit · Flows · 문서 v0.1.1</span>
     <h1>Flows</h1>
     <p class="subtitle">
-      "화면이 어디로 가는가"만이 flow가 아니다. User Flow · Journey Map · Service Blueprint · IA는
-      해상도와 질문이 다르다. Mermaid는 이들을 lightweight하게 문서화할 때 유용한 공식 문법을 제공한다.
+      제품 기획에서 flow artifact 는 「어떤 화면이 어디로 이동하는가」 만 설명하는 도표가 아니다.
+      User Flow · Journey Map · Service Blueprint · IA 는 각기 다른 해상도로 경험과 구조를 표현한다.
+      <strong>이 차이를 구분하지 않으면 문서가 맞는 질문에 답하지 못한다.</strong>
     </p>
+    <div class="meta-row">
+      <span>원본 <code>docs/planning/flows.md</code></span>
+      <span>last_updated 2026-09-25</span>
+      <span>절 여섯 · 출처 여덟</span>
+      <span>Mermaid 최신 안정판 12.0.0 (2026-09-24 확인)</span>
+    </div>
   </header>
 
-  <section>
+  <nav class="toc" aria-label="쪽 안 차례">
+    <a href="#overview">개요</a>
+    <a href="#artifacts">Flow · Journey · Blueprint</a>
+    <a href="#ia">IA</a>
+    <a href="#flowchart">flowchart</a>
+    <a href="#sequence">sequenceDiagram</a>
+    <a href="#state">stateDiagram</a>
+    <a href="#journey">journey</a>
+    <a href="#choose">고르기</a>
+    <a href="#anti-patterns">안티패턴</a>
+    <a href="#gotchas">함정</a>
+    <a href="#references">참고 링크</a>
+  </nav>
+
+  <!-- 00 개요 -->
+  <section id="overview">
     <div class="section-header">
-      <span class="section-label">01 · Artifacts</span>
-      <h2>Flow Artifacts</h2>
-      <p>각각은 대체 관계가 아니라 <strong>질문이 다른 도구</strong>다.</p>
+      <span class="section-label">00 · Overview</span>
+      <h2>개요 — 네 가지 도구, 네 가지 질문</h2>
+      <p>화면 이동 도표 하나로는 경험 · 운영 · 정보 구조를 다 답할 수 없다.</p>
     </div>
-
-    <div class="grid-2">
-
-      <div class="card">
-        <span class="card-number">1</span>
-        <h3>User Flow vs Journey Map vs Service Blueprint</h3>
+    <div class="split">
+      <div class="prose">
         <p>
-          User Flow는 <strong>task completion 경로</strong>,
-          Journey Map은 <strong>감정과 시간 순 경험</strong>,
-          Service Blueprint는 <strong>frontstage/backstage 운영 체계</strong>.
+          User Flow, Journey Map, Service Blueprint, IA(Information Architecture, 정보 구조)는
+          <strong>각기 다른 해상도로</strong> 경험과 구조를 표현한다.
         </p>
-        <ul>
-          <li>"checkout drop-off" → User Flow</li>
-          <li>"신뢰가 깨지는 순간" → Journey Map</li>
-          <li>"지원 문의 반복" → Service Blueprint</li>
-        </ul>
-        <a class="card-source" href="https://www.nngroup.com/articles/journey-mapping-101/" target="_blank" rel="noopener">NN/g — Journey Mapping 101</a>
-      </div>
-
-      <div class="card">
-        <span class="card-number">2</span>
-        <h3>Service Blueprint</h3>
         <p>
-          사용자 접점 뒤의 내부 운영/시스템 계층까지 함께 그린다.
-          customer action · frontstage · backstage · support process · 시스템 4레이어가 핵심.
+          User Flow 는 사용자가 목표를 달성하려고 밟는 분기 · 단계에 집중하고,
+          Journey Map 은 감정과 맥락을 포함한 경험 전체를 다룬다.
+          Service Blueprint 는 frontstage(사용자와 만나는 접점)와 backstage(접점 뒤의 운영) 체계를 함께 그린다.
+          IA 는 정보와 내비게이션 구조를 설계한다.
         </p>
-        <ul>
-          <li>line of interaction · line of visibility를 기준으로 레이어 구분</li>
-          <li>pain point와 handoff 실패 지점을 동시에 보여줌</li>
-          <li>CX 개선 + 내부 운영 개선을 동시에 추적</li>
-        </ul>
-        <a class="card-source" href="https://www.nngroup.com/articles/service-blueprints-definition/" target="_blank" rel="noopener">NN/g — Service Blueprints</a>
-      </div>
-
-      <div class="card">
-        <span class="card-number">3</span>
-        <h3>IA (Information Architecture)</h3>
         <p>
-          콘텐츠와 기능을 <strong>사람이 이해하고 찾기 쉬운 구조</strong>로 조직한다.
-          Rosenfeld/Morville의 organization · labeling · navigation · search 4축이 전통적 축.
+          Mermaid 는 이들을 가볍게 문서화할 때 쓸모 있는 공식 문법을 준다.
+          이 쪽의 뒤쪽 네 절이 그 문법 — flowchart · sequenceDiagram · stateDiagram · journey — 를 하나씩 다룬다.
         </p>
-        <ul>
-          <li>라벨은 내부 조직 용어가 아닌 사용자 언어</li>
-          <li>navigation depth · breadth 균형 (3레벨 넘으면 경고)</li>
-          <li>search-first vs browse-first 영역 구분</li>
-        </ul>
-        <a class="card-source" href="https://www.oreilly.com/library/view/information-architecture-4th/9781491913529/" target="_blank" rel="noopener">O'Reilly — Information Architecture 4e</a>
       </div>
-
-      <div class="card">
-        <span class="card-number">4</span>
-        <h3>Mermaid Flowchart</h3>
-        <p>
-          빠른 decision flow · onboarding path · approval branch를 Markdown 안에 직접.
-          <code>flowchart LR</code> 선언 + 노드/엣지 정의.
-        </p>
-        <ul>
-          <li>방향: <code>LR</code> (funnel), <code>TD</code> (hierarchy)</li>
-          <li>분기 조건은 edge label로</li>
-          <li>소문자 <code>end</code> 같은 예약어 피하기</li>
-        </ul>
-        <a class="card-source" href="https://mermaid.js.org/syntax/flowchart.html" target="_blank" rel="noopener">Mermaid — Flowchart Syntax</a>
+      <div class="quad" aria-label="네 도구가 다루는 것">
+        <div class="tile"><span class="tile-tag">분기 · 단계</span><strong>User Flow</strong><span>목표를 달성하려고 밟는 경로</span></div>
+        <div class="tile"><span class="tile-tag">감정 · 맥락</span><strong>Journey Map</strong><span>시간 순 경험 전체</span></div>
+        <div class="tile"><span class="tile-tag">운영 체계</span><strong>Service Blueprint</strong><span>frontstage 와 backstage 를 함께</span></div>
+        <div class="tile"><span class="tile-tag">정보 구조</span><strong>IA</strong><span>정보와 내비게이션 구조</span></div>
       </div>
-
-      <div class="card">
-        <span class="card-number">5</span>
-        <h3>Mermaid Sequence Diagram</h3>
-        <p>
-          actor/system 간 <strong>메시지 순서</strong>를 표현.
-          API handshake · payment callback · async flow에 적합.
-        </p>
-        <ul>
-          <li>participant를 역할 단위로 정의</li>
-          <li>시간축 = 위→아래</li>
-          <li>분기는 <code>alt</code>/<code>else</code></li>
-        </ul>
-        <a class="card-source" href="https://mermaid.js.org/syntax/sequenceDiagram.html" target="_blank" rel="noopener">Mermaid — Sequence Diagram</a>
-      </div>
-
-      <div class="card">
-        <span class="card-number">6</span>
-        <h3>Mermaid State / Journey</h3>
-        <p>
-          <code>stateDiagram-v2</code>는 엔터티 상태 전이 (order · ticket · review lifecycle).
-          <code>journey</code>는 간단한 user journey + 만족도 점수.
-        </p>
-        <ul>
-          <li>state: 상호배타적 · terminal state 명시</li>
-          <li>journey: section별 score(1~5) + actor</li>
-          <li>복잡한 blueprint는 표현 부족 — 도구를 혼합하라</li>
-        </ul>
-        <a class="card-source" href="https://mermaid.js.org/syntax/stateDiagram" target="_blank" rel="noopener">Mermaid — State Diagram</a>
-      </div>
-
     </div>
   </section>
 
-  <section>
+  <!-- 01 User Flow vs Journey Map vs Service Blueprint -->
+  <section id="artifacts">
     <div class="section-header">
-      <span class="section-label">02 · Decision Matrix</span>
-      <h2>어떤 artifact를 쓸까</h2>
-      <p>질문이 다르면 artifact도 달라야 한다.</p>
+      <span class="section-label">01 · User Flow · Journey Map · Service Blueprint</span>
+      <h2>셋은 대체 관계가 아니다 — 질문이 다른 도구다</h2>
+      <p>User Flow 는 과업 완료 경로를, Journey Map 은 시간 순 경험과 감정 곡선을, Service Blueprint 는 접점 뒤의 운영 · 시스템 층까지 담는다.</p>
+    </div>
+
+    <div class="table-wrap" style="margin-bottom: 24px;">
+      <table>
+        <caption>둘째 열은 원본이 든 실무 예다. 셋째 열은 원본 핵심 질문이 도구마다 확인하라고 한 칸이다.</caption>
+        <thead><tr><th>도구</th><th>먼저 꺼낼 때</th><th>있어야 하는 칸</th><th>적용 시점</th></tr></thead>
+        <tbody>
+          <tr><td><strong>User Flow</strong></td><td>「checkout drop-off 를 줄이고 싶다」</td><td>목표 · 단계 · 분기 · 예외 흐름</td><td>기능 흐름 설계</td></tr>
+          <tr><td><strong>Journey Map</strong></td><td>「고객 경험 전체 어디서<br>신뢰가 깨지는가」</td><td>단계별 행동 · 감정 · pain point · 채널</td><td>경험 진단</td></tr>
+          <tr><td><strong>Service Blueprint</strong></td><td>「왜 지원 문의가 반복되는가」</td><td>frontstage · backstage ·<br>support process · 시스템</td><td>운영 개선</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="split rev">
+      <div>
+        <ol class="layers" aria-label="Service Blueprint 가 잇는 네 층">
+          <li><b>frontstage</b><span>사용자와 만나는 접점</span></li>
+          <li><b>backstage</b><span>접점 뒤에서 도는 내부 운영</span></li>
+          <li><b>support process</b><span>그 운영을 받치는 절차</span></li>
+          <li><b>시스템</b><span>위 층들이 기대는 시스템 계층</span></li>
+        </ol>
+        <p class="layers-cap">Service Blueprint 핵심 질문 — 이 네 층이 서로 이어지는가.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-number">1</span><h3>문서가 어떤 질문에 답하려는지부터 적는다</h3></div>
+        <p>
+          User Flow 는 task completion(과업 완료) 경로를, Journey Map 은 시간 순 경험과 감정 곡선을,
+          Service Blueprint 는 사용자 접점 뒤의 내부 운영 · 시스템 계층까지 포함한다.
+          <strong>셋은 대체 관계가 아니라 질문이 다른 도구다.</strong>
+        </p>
+        <h4>핵심 질문</h4>
+        <ul>
+          <li>User Flow: 목표, 단계, 분기, 예외 흐름이 있는가?</li>
+          <li>Journey Map: 단계별 행동, 감정, pain point, 채널이 있는가?</li>
+          <li>Service Blueprint: frontstage · backstage · support process · 시스템이 연결되는가?</li>
+          <li>현재 문서가 어떤 질문에 답하려는지 명시했는가?</li>
+        </ul>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>기능 흐름 설계(user flow), 경험 진단(journey), 운영 개선(service blueprint)</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>하나의 도표에 셋을 다 넣으려 하면 가독성이 무너진다. 의사결정 목적에 맞는 artifact 를 따로 만드는 편이 낫다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://www.nngroup.com/articles/journey-mapping-101/" target="_blank" rel="noopener">NN/g — Journey Mapping 101<span class="dated">dated 2025-10</span></a>
+          <a class="card-source" href="https://www.nngroup.com/articles/service-blueprints-definition/" target="_blank" rel="noopener">NN/g — Service Blueprints: Definition<span class="dated">dated 2025-10</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 IA -->
+  <section id="ia">
+    <div class="section-header">
+      <span class="section-label">02 · Information Architecture</span>
+      <h2>IA — 화면 목록보다 한 단계 위</h2>
+      <p>콘텐츠와 기능을 사람이 이해하고 찾기 쉬운 구조로 조직하는 작업이다.</p>
+    </div>
+
+    <div class="grid-4" aria-label="Rosenfeld · Morville 전통의 네 축">
+      <div class="tile"><span class="tile-tag">축 1</span><strong>organization</strong><span>정보를 어떻게 묶는가</span></div>
+      <div class="tile"><span class="tile-tag">축 2</span><strong>labeling</strong><span>묶음을 무엇이라 부르는가</span></div>
+      <div class="tile"><span class="tile-tag">축 3</span><strong>navigation</strong><span>어떻게 옮겨 다니는가</span></div>
+      <div class="tile"><span class="tile-tag">축 4</span><strong>search</strong><span>어떻게 찾아내는가</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-number">2</span><h3>무엇을 맨 위에 둘지, 어떤 말로 묶을지, 어디서 길을 잃는지</h3></div>
+      <p>
+        Rosenfeld · Morville 전통에서는 organization, labeling, navigation, search 시스템을 핵심 축으로 다룬다.
+      </p>
+      <p>
+        제품 기획 관점에서 IA 는 화면 목록 작성보다 상위 개념이다.
+        무엇을 top-level 로 노출할지, 어떤 용어로 묶을지, <strong>사용자가 어디서 길을 잃는지</strong>를 다루기 때문이다.
+        특히 복잡한 B2B SaaS(기업을 상대로 파는 구독형 서비스)와 설정 화면, 문서형 제품에서 중요하다.
+      </p>
+      <h4>핵심 질문</h4>
+      <ul>
+        <li>정보 단위가 사용자 mental model(사용자가 머릿속에 그리는 구조)에 맞게 묶였는가?</li>
+        <li>라벨이 내부 조직 용어가 아니라 사용자 언어인가?</li>
+        <li>navigation depth(깊이)와 breadth(폭)가 과도하지 않은가?</li>
+        <li>검색이 필요한 영역과 browse(둘러보기)가 적합한 영역을 구분했는가?</li>
+      </ul>
+      <div class="when-limit">
+        <div class="when"><b>적용 시점</b><span>내비게이션 재설계, 복잡한 정보 구조 정리, 문서 · 설정 · 관리자 제품</span></div>
+        <div class="limit"><b>한계 · 주의</b><span>IA 를 사이트맵만으로 줄이면 실제 탐색 경험을 놓친다. 사용자 리서치 없이 taxonomy(분류 체계)를 만들면 내부 조직도를 옮겨 적은 문서가 되기 쉽다.</span></div>
+      </div>
+      <div class="card-sources">
+        <span class="src-label">출처</span>
+        <a class="card-source" href="https://www.oreilly.com/library/view/information-architecture-4th/9781491913529/" target="_blank" rel="noopener">O'Reilly — Information Architecture, 4th Edition<span class="dated">dated 2025-10</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Mermaid flowchart -->
+  <section id="flowchart">
+    <div class="section-header">
+      <span class="section-label">03 · Mermaid Flowchart</span>
+      <h2>Mermaid flowchart 공식 패턴</h2>
+      <p>decision flow · onboarding path · approval branch 를 Markdown 안에 직접 넣는다.</p>
+    </div>
+
+    <div class="notice">
+      <span class="notice-tag">예시 문법의 기준 · Mermaid 최신 안정판 12.0.0 (2026-09-10 공개)</span>
+      <h3>예시는 flowchart 공식 문서의 문법을 따른다 — 12 에서 렌더해 보지는 않았다</h3>
+      <p>
+        원본은 아래 flowchart 예시의 기준을 공식 문서의 문법으로 적는다.
+        2026-09-24 에 확인한 Mermaid 최신 안정판은 12.0.0(2026-09-10 공개)이다.
+        <strong>이 예시를 12 에서 렌더해 보지는 않았다.</strong>
+        그래서 이 쪽의 예시는 렌더 결과를 확인한 그림이 아니라 문법 예시로 읽는다.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>원본이 적은 값</th></tr></thead>
+          <tbody>
+            <tr><td><strong>예시 문법의 기준</strong></td><td>Mermaid flowchart 공식 문서</td></tr>
+            <tr><td><strong>최신 안정판을 확인한 날</strong></td><td>2026-09-24</td></tr>
+            <tr><td><strong>확인한 최신 안정판</strong></td><td>Mermaid 12.0.0</td></tr>
+            <tr><td><strong>12.0.0 공개일</strong></td><td>2026-09-10</td></tr>
+            <tr><td><strong>12 에서 렌더해 봤나</strong></td><td>해 보지 않았다</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="split">
+      <div>
+        <pre class="code-block" aria-label="Mermaid flowchart 예시"><code><span class="kw">flowchart LR</span>
+  A["Visitor lands on pricing"] <span class="rel">--&gt;</span> B{"Starts trial?"}
+  B <span class="rel">--&gt;</span><span class="lbl">|"Yes"|</span> C["Create workspace"]
+  B <span class="rel">--&gt;</span><span class="lbl">|"No"|</span> D["Browse docs"]
+  C <span class="rel">--&gt;</span> E{"Email verified?"}
+  E <span class="rel">--&gt;</span><span class="lbl">|"Yes"|</span> F["Enter product"]
+  E <span class="rel">--&gt;</span><span class="lbl">|"No"|</span> G["Show verification reminder"]</code></pre>
+        <p class="code-cap">원본 예시 — 가격 페이지 방문에서 체험 시작 여부, 이메일 확인 여부로 두 번 갈린다</p>
+        <ul class="read-list">
+          <li><code>flowchart LR</code> — 왼쪽에서 오른쪽으로 흐르는 방향 선언</li>
+          <li><code>B{"Starts trial?"}</code> — 중괄호 노드가 분기점이다</li>
+          <li><code>--&gt;|"Yes"|</code> — 분기 조건을 edge label 로 적는다</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-number">3</span><h3>방향을 선언하고 노드 · 엣지를 텍스트로 정의한다</h3></div>
+        <p>
+          Mermaid flowchart 는 빠른 decision flow, onboarding path, approval branch 를 Markdown 안에 직접 넣을 때 쓸모 있다.
+          공식 문서 기준으로 <code>flowchart LR</code> 또는 <code>graph LR</code> 를 선언하고 노드 · 엣지를 텍스트로 정의한다.
+        </p>
+        <h4>핵심 질문</h4>
+        <ul>
+          <li>방향(<code>LR</code>, <code>TD</code>)이 목적에 맞는가?</li>
+          <li>분기 조건이 edge label 로 표현되는가?</li>
+          <li>소문자 <code>end</code> 같은 breaker(그림을 깨뜨리는 낱말)를 피했는가?</li>
+        </ul>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>기능 흐름, 승인 분기, funnel 시각화</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>복잡한 experience map 전체를 flowchart 하나에 몰아넣지 않는다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://mermaid.js.org/syntax/flowchart.html" target="_blank" rel="noopener">Mermaid — Flowcharts Syntax</a>
+          <a class="card-source" href="https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0" target="_blank" rel="noopener">GitHub — mermaid@12.0.0 릴리스 노트</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 Mermaid sequenceDiagram -->
+  <section id="sequence">
+    <div class="section-header">
+      <span class="section-label">04 · Mermaid Sequence Diagram</span>
+      <h2>Mermaid sequenceDiagram 공식 패턴</h2>
+      <p>actor · system 사이 메시지 순서를 위에서 아래로 적는다.</p>
+    </div>
+
+    <div class="lanes" aria-label="원본 예시의 participant 셋">
+      <div class="lane"><span class="lane-id">U</span><b>User</b><span>결제를 하는 사용자</span></div>
+      <div class="lane"><span class="lane-id">A</span><b>App</b><span>중간에서 잇는 앱</span></div>
+      <div class="lane"><span class="lane-id">P</span><b>Payment API</b><span>외부 결제 창구</span></div>
+    </div>
+
+    <div class="table-wrap" style="margin-bottom: 24px;">
+      <table>
+        <caption>원본 예시의 여덟 줄을 순서대로 옮겼다. <code>-&gt;&gt;</code> 줄은 요청, <code>--&gt;&gt;</code> 줄은 그 요청에 돌아오는 응답이다.</caption>
+        <thead><tr><th>순서</th><th>보내는 쪽 → 받는 쪽</th><th>메시지</th><th>화살표</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>User → App</td><td>Submit checkout</td><td><span class="req">-&gt;&gt; 요청</span></td></tr>
+          <tr><td>2</td><td>App → Payment API</td><td>Create payment intent</td><td><span class="req">-&gt;&gt; 요청</span></td></tr>
+          <tr><td>3</td><td>Payment API → App</td><td>Client secret</td><td><span class="res">--&gt;&gt; 응답</span></td></tr>
+          <tr><td>4</td><td>App → User</td><td>Render confirmation step</td><td><span class="res">--&gt;&gt; 응답</span></td></tr>
+          <tr><td>5</td><td>User → App</td><td>Confirm payment</td><td><span class="req">-&gt;&gt; 요청</span></td></tr>
+          <tr><td>6</td><td>App → Payment API</td><td>Confirm intent</td><td><span class="req">-&gt;&gt; 요청</span></td></tr>
+          <tr><td>7</td><td>Payment API → App</td><td>Succeeded</td><td><span class="res">--&gt;&gt; 응답</span></td></tr>
+          <tr><td>8</td><td>App → User</td><td>Show receipt</td><td><span class="res">--&gt;&gt; 응답</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="split even">
+      <div class="card">
+        <div class="card-head"><span class="card-number">4</span><h3>상호작용이 중심인 흐름에 쓴다</h3></div>
+        <p>
+          <code>sequenceDiagram</code> 은 actor · system 사이의 메시지 순서를 표현한다.
+          API(프로그램끼리 주고받는 창구) handshake, approval workflow, payment callback 처럼
+          <strong>주고받는 순서가 핵심인 흐름</strong>에 알맞다.
+        </p>
+        <h4>핵심 질문</h4>
+        <ul>
+          <li>participant 를 역할 단위로 정의했는가?</li>
+          <li>요청 · 응답 순서가 시간축대로 보이는가?</li>
+          <li>조건 분기는 <code>alt</code> · <code>else</code> 를 쓰는가?</li>
+        </ul>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>시스템 상호작용, external integration(외부 서비스 연동), async callback(나중에 돌아오는 호출) 설명</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>화면 흐름을 sequence 로 그리면 읽기 어려워질 수 있다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://mermaid.js.org/syntax/sequenceDiagram.html" target="_blank" rel="noopener">Mermaid — Sequence diagrams</a>
+        </div>
+      </div>
+
+      <div>
+        <pre class="code-block" aria-label="Mermaid sequenceDiagram 예시"><code><span class="kw">sequenceDiagram</span>
+  <span class="kw">participant</span> U as User
+  <span class="kw">participant</span> A as App
+  <span class="kw">participant</span> P as Payment API
+
+  U<span class="rel">-&gt;&gt;</span>A: Submit checkout
+  A<span class="rel">-&gt;&gt;</span>P: Create payment intent
+  P<span class="rel">--&gt;&gt;</span>A: Client secret
+  A<span class="rel">--&gt;&gt;</span>U: Render confirmation step
+  U<span class="rel">-&gt;&gt;</span>A: Confirm payment
+  A<span class="rel">-&gt;&gt;</span>P: Confirm intent
+  P<span class="rel">--&gt;&gt;</span>A: Succeeded
+  A<span class="rel">--&gt;&gt;</span>U: Show receipt</code></pre>
+        <p class="code-cap">원본 예시 — checkout 에서 결제 확인, 영수증까지</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 Mermaid stateDiagram -->
+  <section id="state">
+    <div class="section-header">
+      <span class="section-label">05 · Mermaid State Diagram</span>
+      <h2>Mermaid stateDiagram 공식 패턴</h2>
+      <p>엔터티나 프로세스의 상태 전이를 적는다. 주문 · 티켓 · 리퀘스트 lifecycle 에 특히 알맞다.</p>
+    </div>
+
+    <ol class="state-track" aria-label="원본 예시의 기본 경로">
+      <li><span class="state edge">[*] 시작</span></li>
+      <li><span class="state">Draft</span></li>
+      <li><span class="state">InReview</span></li>
+      <li><span class="state">Approved</span></li>
+      <li><span class="state">Released</span></li>
+      <li><span class="state edge end">[*] 끝</span></li>
+    </ol>
+
+    <div class="split rev">
+      <div class="table-wrap">
+        <table>
+          <caption>원본 예시의 전이 여섯. 되돌림은 InReview 에서 Draft 로 가는 하나뿐이다.</caption>
+          <thead><tr><th>출발</th><th>이벤트</th><th>도착</th></tr></thead>
+          <tbody>
+            <tr><td><code>[*]</code></td><td>—</td><td>Draft</td></tr>
+            <tr><td>Draft</td><td><code>submit</code></td><td>InReview</td></tr>
+            <tr><td>InReview</td><td><span class="back">request_changes</span></td><td>Draft</td></tr>
+            <tr><td>InReview</td><td><code>approve</code></td><td>Approved</td></tr>
+            <tr><td>Approved</td><td><code>deploy</code></td><td>Released</td></tr>
+            <tr><td>Released</td><td>—</td><td><code>[*]</code> terminal</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-number">5</span><h3>화면 이동이 아니라 상태가 바뀌는 규칙을 적는다</h3></div>
+        <p>
+          <code>stateDiagram</code> 은 엔터티나 프로세스의 상태 전이를 표현한다.
+          원본 예시는 <code>stateDiagram-v2</code> 로 선언하고, 전이마다 <code>: submit</code> 처럼 이벤트 이름을 붙인다.
+        </p>
+        <pre class="code-block" aria-label="Mermaid stateDiagram 예시"><code><span class="kw">stateDiagram-v2</span>
+  [*] <span class="rel">--&gt;</span> Draft
+  Draft <span class="rel">--&gt;</span> InReview: <span class="lbl">submit</span>
+  InReview <span class="rel">--&gt;</span> Draft: <span class="lbl">request_changes</span>
+  InReview <span class="rel">--&gt;</span> Approved: <span class="lbl">approve</span>
+  Approved <span class="rel">--&gt;</span> Released: <span class="lbl">deploy</span>
+  Released <span class="rel">--&gt;</span> [*]</code></pre>
+        <p class="code-cap">원본 예시 — 초안에서 검토, 승인, 배포까지</p>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://mermaid.js.org/syntax/stateDiagram" target="_blank" rel="noopener">Mermaid — State diagrams</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="trio">
+      <div class="ask">
+        <b>핵심 질문</b>
+        <ul>
+          <li>상태가 상호배타적인가?</li>
+          <li>전이 이벤트가 명확한가?</li>
+          <li>terminal state(끝 상태)가 있는가?</li>
+        </ul>
+      </div>
+      <div class="when"><b>적용 시점</b><span>issue lifecycle, order status, review workflow</span></div>
+      <div class="limit"><b>한계 · 주의</b><span>화면 이동과 상태 전이를 혼동하지 않는다.</span></div>
+    </div>
+  </section>
+
+  <!-- 06 Mermaid journey -->
+  <section id="journey">
+    <div class="section-header">
+      <span class="section-label">06 · Mermaid User Journey</span>
+      <h2>Mermaid journey 공식 패턴</h2>
+      <p>단계별 만족도 점수와 actor 를 함께 적는다 — 가벼운 journey map 에 알맞다.</p>
+    </div>
+
+    <div class="split even">
+      <div class="card">
+        <div class="card-head"><span class="card-number">6</span><h3>간단한 as-is 여정을 점수로 남긴다</h3></div>
+        <p>
+          Mermaid 는 <code>journey</code> 문법으로 간단한 user journey 를 표현한다.
+          단계별 만족도 점수와 actor 를 함께 적을 수 있어 <strong>lightweight journey map</strong> 에 알맞다.
+        </p>
+        <h4>핵심 질문</h4>
+        <ul>
+          <li>섹션이 사용자 목표 단계와 맞는가?</li>
+          <li>task score 가 1~5 범위로 일관적인가?</li>
+          <li>actor 가 명시돼 있는가?</li>
+        </ul>
+        <div class="when-limit">
+          <div class="when"><b>적용 시점</b><span>간단한 as-is(지금 모습) 여정 정리, pain point 공유</span></div>
+          <div class="limit"><b>한계 · 주의</b><span>상세한 service blueprint 를 대체하진 못한다.</span></div>
+        </div>
+        <div class="card-sources">
+          <span class="src-label">출처</span>
+          <a class="card-source" href="https://mermaid.js.org/syntax/userJourney" target="_blank" rel="noopener">Mermaid — User Journey Diagram</a>
+        </div>
+      </div>
+
+      <div class="stack">
+        <pre class="code-block" aria-label="Mermaid journey 예시"><code><span class="kw">journey</span>
+  <span class="kw">title</span> Trial signup journey
+  <span class="kw">section</span> Discover
+    Visit homepage: <span class="lbl">4</span>: User
+    Compare plans: <span class="lbl">3</span>: User
+  <span class="kw">section</span> Start
+    Create account: <span class="lbl">3</span>: User
+    Verify email: <span class="lbl">2</span>: User
+  <span class="kw">section</span> Activate
+    Import data: <span class="lbl">2</span>: User
+    Invite teammate: <span class="lbl">4</span>: User</code></pre>
+
+        <div class="table-wrap">
+          <table>
+            <caption>원본 예시의 점수를 표로 옮겼다. 형식은 <code>할 일: 점수: actor</code> 다.</caption>
+            <thead><tr><th>section</th><th>할 일</th><th>점수 (1~5)</th><th>actor</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Discover</strong></td><td>Visit homepage</td><td><span class="score">4</span></td><td>User</td></tr>
+              <tr><td><strong>Discover</strong></td><td>Compare plans</td><td><span class="score">3</span></td><td>User</td></tr>
+              <tr><td><strong>Start</strong></td><td>Create account</td><td><span class="score">3</span></td><td>User</td></tr>
+              <tr><td><strong>Start</strong></td><td>Verify email</td><td><span class="score">2</span></td><td>User</td></tr>
+              <tr><td><strong>Activate</strong></td><td>Import data</td><td><span class="score">2</span></td><td>User</td></tr>
+              <tr><td><strong>Activate</strong></td><td>Invite teammate</td><td><span class="score">4</span></td><td>User</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 고르기 -->
+  <section id="choose">
+    <div class="section-header">
+      <span class="section-label">07 · Comparison</span>
+      <h2>질문으로 도구를 고르고, 문법으로 옮긴다</h2>
+      <p>원본 여섯 절의 요약 · 적용 시점 · 한계를 두 표로 모았다.</p>
+    </div>
+
+    <div class="table-wrap" style="margin-bottom: 24px;">
+      <table>
+        <caption>질문은 원본의 실무 예와 각 절 「적용 시점」 에서 가져왔다.</caption>
+        <thead><tr><th>풀려는 질문</th><th>먼저 꺼낼 도구</th><th>근거 절</th></tr></thead>
+        <tbody>
+          <tr><td><strong>checkout drop-off 를 어떻게 줄이나</strong></td><td>User Flow</td><td>01</td></tr>
+          <tr><td><strong>고객 경험 전체 어디서 신뢰가 깨지나</strong></td><td>Journey Map</td><td>01</td></tr>
+          <tr><td><strong>왜 지원 문의가 반복되나</strong></td><td>Service Blueprint</td><td>01</td></tr>
+          <tr><td><strong>사용자가 어디서 길을 잃나</strong></td><td>IA</td><td>02</td></tr>
+          <tr><td><strong>승인 분기 · funnel 을 문서 안에 그리고 싶다</strong></td><td>Mermaid flowchart</td><td>03</td></tr>
+          <tr><td><strong>외부 연동 · 콜백 순서를 설명하고 싶다</strong></td><td>Mermaid sequenceDiagram</td><td>04</td></tr>
+          <tr><td><strong>주문 · 이슈 상태가 어떻게 바뀌나</strong></td><td>Mermaid stateDiagram</td><td>05</td></tr>
+          <tr><td><strong>as-is 여정의 pain point 를 공유하고 싶다</strong></td><td>Mermaid journey</td><td>06</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr><th>질문</th><th>적합 artifact</th><th>핵심 축</th></tr>
-        </thead>
+        <caption>선언과 분기 표기는 원본 예시 코드에서, 나머지는 각 절의 요약 · 한계에서 가져왔다.</caption>
+        <thead><tr><th>Mermaid 문법</th><th>선언</th><th>그리는 것</th><th>분기 · 조건 표기</th><th>약한 곳</th></tr></thead>
         <tbody>
-          <tr><td><strong>왜 전환이 깨지는가</strong></td><td>User Flow</td><td>단계 · 분기 · 예외</td></tr>
-          <tr><td><strong>고객 경험 전체 어디서 무너지는가</strong></td><td>Journey Map</td><td>시간 · 감정 · 채널</td></tr>
-          <tr><td><strong>왜 지원 문의가 반복되는가</strong></td><td>Service Blueprint</td><td>frontstage · backstage · 시스템</td></tr>
-          <tr><td><strong>왜 설정을 못 찾는가</strong></td><td>IA</td><td>labeling · depth · search</td></tr>
-          <tr><td><strong>API 흐름 설명</strong></td><td>Sequence Diagram</td><td>메시지 · 시간축</td></tr>
-          <tr><td><strong>주문 lifecycle 설계</strong></td><td>State Diagram</td><td>상태 전이 · terminal</td></tr>
+          <tr><td><strong>flowchart</strong></td><td><code>flowchart LR</code><br><code>graph LR</code></td><td>분기 · 단계</td><td>edge label<br><code>--&gt;|"Yes"|</code></td><td>experience map 전체</td></tr>
+          <tr><td><strong>sequenceDiagram</strong></td><td><code>sequenceDiagram</code></td><td>메시지 순서</td><td><code>alt</code> · <code>else</code></td><td>화면 흐름</td></tr>
+          <tr><td><strong>stateDiagram</strong></td><td><code>stateDiagram-v2</code></td><td>상태 전이</td><td>전이 이벤트<br><code>: submit</code></td><td>화면 이동과 혼동</td></tr>
+          <tr><td><strong>journey</strong></td><td><code>journey</code></td><td>단계별 만족도</td><td><code>section</code> · 점수 1~5</td><td>상세 blueprint</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <section>
+  <!-- 08 안티패턴 -->
+  <section id="anti-patterns">
     <div class="section-header">
-      <span class="section-label">03 · Mermaid Examples</span>
-      <h2>Mermaid 스니펫 모음</h2>
-      <p>문서에 바로 복사해 쓸 수 있는 공식 문법 예시.</p>
-    </div>
-
-    <div class="callout">
-      <strong>Flowchart</strong> — Trial signup funnel
-    </div>
-<pre class="code-block">flowchart LR
-  A["Visitor lands on pricing"] --&gt; B{"Starts trial?"}
-  B --&gt;|"Yes"| C["Create workspace"]
-  B --&gt;|"No"| D["Browse docs"]
-  C --&gt; E{"Email verified?"}
-  E --&gt;|"Yes"| F["Enter product"]
-  E --&gt;|"No"| G["Show verification reminder"]
-</pre>
-
-    <div class="callout" style="margin-top:24px;">
-      <strong>Sequence Diagram</strong> — Checkout payment flow
-    </div>
-<pre class="code-block">sequenceDiagram
-  participant U as User
-  participant A as App
-  participant P as Payment API
-
-  U-&gt;&gt;A: Submit checkout
-  A-&gt;&gt;P: Create payment intent
-  P--&gt;&gt;A: Client secret
-  A--&gt;&gt;U: Render confirmation step
-  U-&gt;&gt;A: Confirm payment
-  A-&gt;&gt;P: Confirm intent
-  P--&gt;&gt;A: Succeeded
-  A--&gt;&gt;U: Show receipt
-</pre>
-
-    <div class="callout" style="margin-top:24px;">
-      <strong>State Diagram</strong> — Article publishing lifecycle
-    </div>
-<pre class="code-block">stateDiagram-v2
-  [*] --&gt; Draft
-  Draft --&gt; InReview: submit
-  InReview --&gt; Draft: request_changes
-  InReview --&gt; Approved: approve
-  Approved --&gt; Released: deploy
-  Released --&gt; [*]
-</pre>
-  </section>
-
-  <section>
-    <div class="section-header">
-      <span class="section-label">04 · Anti-patterns</span>
-      <h2>안티패턴 vs 좋은 패턴</h2>
-      <p>한 도표에 모든 해상도를 욱여넣으려는 유혹.</p>
+      <span class="section-label">08 · Anti-patterns</span>
+      <h2>안티패턴과 바꿀 방향</h2>
+      <p>원본 각 절의 「한계 · 주의사항」 을 나쁜 예 · 좋은 예 짝으로 옮겼다.</p>
     </div>
 
     <div class="compare-grid">
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>한 장에 user flow + journey + blueprint 섞기</h4>
-        <p>가독성이 무너지고 어느 질문에도 답하지 못한다.</p>
+        <h4>한 도표에 user flow · journey · blueprint 를 다 넣는다</h4>
+        <p>가독성이 무너지고, 어느 질문에도 제대로 답하지 못한다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>질문별로 artifact를 분리 생성</h4>
-        <p>각 artifact 상단에 "이 문서가 답하려는 질문"을 한 문장으로 적는다.</p>
+        <h4>의사결정 목적마다 artifact 를 따로 만든다</h4>
+        <p>문서마다 어떤 질문에 답하려는지 먼저 적고, 그 질문에 맞는 도구 하나를 고른다.</p>
       </div>
 
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>IA를 사이트맵만으로 축소</h4>
-        <p>실제 탐색 경험(search · filter · cross-link)을 놓친다.</p>
+        <h4>IA 를 사이트맵 한 장으로 줄인다</h4>
+        <p>화면 목록은 남지만 실제 탐색 경험을 놓친다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>IA + tree test / card sort 결과 첨부</h4>
-        <p>사용자 mental model 기반 검증 결과를 함께 관리.</p>
+        <h4>organization · labeling · navigation · search 네 축을 다 본다</h4>
+        <p>navigation 깊이와 폭, 검색이 필요한 영역과 둘러보기가 맞는 영역을 함께 따진다.</p>
       </div>
 
       <div class="compare bad">
         <span class="tag">Bad</span>
-        <h4>화면 이동을 Sequence Diagram으로 표현</h4>
-        <p>screen navigation에는 부적합 — flowchart나 sitemap이 낫다.</p>
+        <h4>사용자 리서치 없이 taxonomy 를 만든다</h4>
+        <p>내부 조직도를 옮겨 적은 문서가 되기 쉽다.</p>
       </div>
       <div class="compare good">
         <span class="tag">Good</span>
-        <h4>Sequence = 시스템 상호작용 전용</h4>
-        <p>actor/API/service 간 메시지 순서에 한정.</p>
+        <h4>사용자 언어와 mental model 로 묶는다</h4>
+        <p>라벨이 내부 조직 용어가 아니라 사용자 언어인지, 정보 단위가 사용자가 그리는 구조와 맞는지 확인한다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>experience map 전체를 flowchart 하나에 몰아넣는다</h4>
+        <p>flowchart 는 분기와 단계를 그리는 도구라 감정 · 맥락을 담지 못한다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>flowchart 는 기능 흐름 · 승인 분기 · funnel 에 쓴다</h4>
+        <p>경험 전체는 Journey Map 으로 따로 그린다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>화면 흐름을 sequenceDiagram 으로 그린다</h4>
+        <p>읽기 어려워질 수 있다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>sequence 는 시스템 상호작용에 쓴다</h4>
+        <p>외부 연동, 나중에 돌아오는 콜백처럼 주고받는 순서가 핵심인 흐름에 한정한다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>화면 이동과 상태 전이를 섞는다</h4>
+        <p>stateDiagram 에 「A 화면 → B 화면」 을 적으면 상태 규칙이 흐려진다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>stateDiagram 은 엔터티 lifecycle 에 쓴다</h4>
+        <p>issue · order · review 처럼 상태가 상호배타적이고 끝 상태가 있는 대상에 쓴다.</p>
+      </div>
+
+      <div class="compare bad">
+        <span class="tag">Bad</span>
+        <h4>Mermaid journey 로 상세 service blueprint 를 대신한다</h4>
+        <p>점수와 actor 만으로는 blueprint 를 대체하지 못한다.</p>
+      </div>
+      <div class="compare good">
+        <span class="tag">Good</span>
+        <h4>journey 는 간단한 as-is 여정 정리에 쓴다</h4>
+        <p>운영 층까지 봐야 하면 Service Blueprint 를 따로 그린다.</p>
       </div>
     </div>
   </section>
 
-  <section>
+  <!-- 09 함정 -->
+  <section id="gotchas">
     <div class="section-header">
-      <span class="section-label">05 · Gotchas</span>
-      <h2>Gotchas</h2>
-      <p>flow artifact에서 반복되는 실수.</p>
+      <span class="section-label">09 · Gotchas</span>
+      <h2>flow 문서에서 자주 놓치는 것</h2>
+      <p>원본 핵심 질문 가운데 빠뜨리기 쉬운 것만 골랐다.</p>
     </div>
 
     <div class="checklist">
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Journey Map이 마케팅 문서로 전락</strong>
-          <p>"긍정적 경험"만 그리지 말고 실제 pain point · drop point를 포함해야 진단 도구로 기능한다.</p>
+          <strong>문서가 답하려는 질문을 적지 않는다</strong>
+          <p>질문이 없으면 User Flow · Journey Map · Service Blueprint 가운데 무엇을 그려야 할지 정할 수 없다.</p>
+          <span class="from">01 · 핵심 질문 넷째 줄</span>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Service Blueprint에 시스템 레이어 누락</strong>
-          <p>backstage까지만 그리고 시스템 의존/데이터 흐름을 빼면, 지원팀 개선은 되지만 엔지니어링 요구는 나오지 않는다.</p>
+          <strong>User Flow 에 예외 흐름이 없다</strong>
+          <p>목표 · 단계 · 분기만 그리고 예외 흐름을 빼면 원본 체크리스트 한 칸이 빈다.</p>
+          <span class="from">01 · User Flow 체크리스트</span>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Mermaid Flowchart의 예약어 충돌</strong>
-          <p>소문자 <code>end</code> 같은 노드 이름은 파서가 flow block으로 해석할 수 있다. 노드 id는 명시적 식별자로.</p>
+          <strong>Service Blueprint 의 층이 끊겨 있다</strong>
+          <p>frontstage · backstage · support process · 시스템이 서로 연결되는지 확인한다. 층만 나열하면 blueprint 가 아니다.</p>
+          <span class="from">01 · Service Blueprint 체크리스트</span>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>State Diagram과 화면 네비 혼동</strong>
-          <p>상태 전이는 엔터티(order/ticket)의 lifecycle이다. 화면 A→B 이동은 flowchart가 맞다.</p>
+          <strong>IA 라벨이 내부 조직 용어다</strong>
+          <p>라벨은 사용자 언어로 쓴다. 조직도 이름을 그대로 쓰면 사용자는 어디로 가야 할지 모른다.</p>
+          <span class="from">02 · IA 핵심 질문</span>
         </div>
       </div>
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Mermaid journey로 상세 blueprint 대체 시도</strong>
-          <p>점수 1~5만으로는 backstage/support 흐름을 표현할 수 없다. 간단한 as-is 정리용.</p>
+          <strong>flowchart 에 소문자 <code>end</code> 를 쓴다</strong>
+          <p>원본이 breaker 로 꼽은 낱말이다. 노드 이름에 쓰지 않았는지 확인한다.</p>
+          <span class="from">03 · flowchart 핵심 질문</span>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>stateDiagram 에 끝 상태가 없다</strong>
+          <p>상태가 상호배타적인지, 전이 이벤트가 명확한지와 함께 terminal state 가 있는지 본다. 원본 예시는 <code>Released --&gt; [*]</code> 로 끝낸다.</p>
+          <span class="from">05 · stateDiagram 핵심 질문</span>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>journey 점수 범위가 섞인다</strong>
+          <p>task score 는 1~5 범위로 일관되게 쓰고, actor 를 빠뜨리지 않는다.</p>
+          <span class="from">06 · journey 핵심 질문</span>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-icon">!</div>
+        <div class="checklist-body">
+          <strong>Mermaid 예시를 렌더 확인을 거친 그림으로 믿는다</strong>
+          <p>원본은 flowchart 예시를 공식 문서 문법에 맞췄을 뿐, 2026-09-24 에 확인한 최신 안정판 12.0.0 에서 렌더해 보지는 않았다고 적는다.</p>
+          <span class="from">03 · flowchart 예시 앞 문단</span>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- 10 참고 링크 -->
+  <section id="references">
+    <div class="section-header">
+      <span class="section-label">10 · References</span>
+      <h2>참고 링크 (전체)</h2>
+      <p>원본이 인용한 출처 여덟 개. 날짜 표시는 원본의 <code>[dated: …]</code> 를 옮긴 것이다.</p>
+    </div>
+    <ul class="ref-list">
+      <li><span class="ref-name">NN/g — Journey Mapping 101<span class="dated">dated 2025-10</span></span><a href="https://www.nngroup.com/articles/journey-mapping-101/" target="_blank" rel="noopener">nngroup.com/articles/journey-mapping-101/</a></li>
+      <li><span class="ref-name">NN/g — Service Blueprints: Definition<span class="dated">dated 2025-10</span></span><a href="https://www.nngroup.com/articles/service-blueprints-definition/" target="_blank" rel="noopener">nngroup.com/articles/service-blueprints-definition/</a></li>
+      <li><span class="ref-name">Information Architecture, 4th Edition<span class="dated">dated 2025-10</span></span><a href="https://www.oreilly.com/library/view/information-architecture-4th/9781491913529/" target="_blank" rel="noopener">oreilly.com/library/view/information-architecture-4th/9781491913529/</a></li>
+      <li><span class="ref-name">Mermaid — Flowchart</span><a href="https://mermaid.js.org/syntax/flowchart.html" target="_blank" rel="noopener">mermaid.js.org/syntax/flowchart.html</a></li>
+      <li><span class="ref-name">Mermaid — Sequence Diagram</span><a href="https://mermaid.js.org/syntax/sequenceDiagram.html" target="_blank" rel="noopener">mermaid.js.org/syntax/sequenceDiagram.html</a></li>
+      <li><span class="ref-name">Mermaid — State Diagram</span><a href="https://mermaid.js.org/syntax/stateDiagram" target="_blank" rel="noopener">mermaid.js.org/syntax/stateDiagram</a></li>
+      <li><span class="ref-name">Mermaid — User Journey</span><a href="https://mermaid.js.org/syntax/userJourney" target="_blank" rel="noopener">mermaid.js.org/syntax/userJourney</a></li>
+      <li><span class="ref-name">mermaid@12.0.0 릴리스</span><a href="https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0" target="_blank" rel="noopener">github.com/mermaid-js/mermaid/releases/tag/mermaid@12.0.0</a></li>
+    </ul>
+  </section>
+
+  <!-- 11 함께 보기 -->
   <section>
     <div class="section-header">
-      <span class="section-label">06 · References</span>
+      <span class="section-label">11 · See also</span>
       <h2>함께 보기</h2>
-      <p>Planning Kit 내 관련 페이지.</p>
+      <p>Planning Kit 안의 관련 페이지.</p>
     </div>
     <div class="refs">
-      <a href="stories.html">Stories</a>
       <a href="data-modeling.html">Data Modeling</a>
+      <a href="stories.html">Stories</a>
       <a href="prd-patterns.html">PRD Patterns</a>
       <a href="discovery.html">Discovery</a>
     </div>
   </section>
 
   <footer>
-    Planning Kit v0.1 · last updated 2026-04-14 ·
-    source: <code>docs/planning/flows.md</code>
+    Planning Kit · 문서 v0.1.1 · last updated 2026-09-25 ·
+    원본 <code>docs/planning/flows.md</code>
   </footer>
 
 </div>
