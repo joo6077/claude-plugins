@@ -187,6 +187,8 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 - `env-dedup:kept=<N> dropped=<M> drop=<tag>... session=<>` — 환경 오설정 블록 억제
 - `skip:env-dedup-all <요약> session=<>` — 전 블록 억제로 append 생략
 - `warn:env-dedup-failed exit=<N> session=<>` — dedup 게이트 실패 → fail-open
+- `warn:lemma-map-unreadable path=<> session=<>` — 태그 정규화 사전을 못 읽어 사전 없이 태그를 묶었다. 실행은 계속된다
+- `vocab:raw_distinct/clusters/entries/singletons/fold/singleton_share/epc=<일곱 값> session=<>` — 태그 파편화 지표 한 줄. 실패가 아니라 `collect_status` 는 세지 않는다
 
 `err=` 의 뽑는 규칙은 `SCHEMA.md` §3 이 정본이다. 분석기 stderr 를 통째로 버리던 동안(2026-08-28 ~ 2026-09-25) 원인이
 남지 않아 수집이 멈춘 것을 한 달 가까이 몰랐다.

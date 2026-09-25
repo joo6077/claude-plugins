@@ -169,19 +169,6 @@ collect_status() {
   local since b rf errs refl
   since=$(_rk_since "$1") || { echo "collect_status: 일수는 숫자 또는 all" >&2; return 2; }
   shift
-  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" '
-    $2 != "[log-reflection]" { next }
-    since != "" && substr($1, 1, 19) < since { next }
-    { lost = 0 }
-    $3 ~ /^fail:codex-(exit-[0-9]+|empty-output)$/ { c++ }
-    $3 == "fallback:claude-used" { u++ }
-    $3 ~ /^fallback:claude-(exit-[0-9]+|empty-output)$/ || $3 == "skip:fallback-unavailable" { f++; lost = 1 }
-    $3 == "skip:cli-missing" || $3 == "fail:tag-field-unresolved" { p++; lost = 1 }
-    lost && match($0, / session=[^ ]*/) {
-      s = substr($0, RSTART + 9, RLENGTH - 9)
-      if (s != "" && !(s in seen)) { seen[s] = 1; ns++ }
-    }
-    END { printf "%d %d %d %d %d\n", c, f, u, p, ns }')
   refl=$(for b in "$@"; do find "$b" -maxdepth 1 -type f -name 'reflections-*.md' 2>/dev/null; done \
     | while IFS= read -r rf; do cat "$rf"; done | awk -v since="$since" '
     /^## [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T/ {
@@ -194,18 +181,37 @@ collect_status() {
     }
     inp && /^[ \t]*```yaml[ \t]*$/ { e++ }
     END { printf "%d %d %s\n", k, e, (last == "" ? "없음" : last) }')
-  local c f u p ns k e last n
-  read -r c f u p ns <<EOF
-$errs
-EOF
+  local c f u p ns a k e last lastk n
   read -r k e last <<EOF
 $refl
+EOF
+  # 마지막 기록 시각을 먼저 구한다 — 엔트리가 하나라도 있으면 엔트리 0 경고가 안 나와 기간 도중에 멈춘
+  # 수집기를 놓친다. 마지막 기록 뒤의 실패 시도를 따로 센다
+  lastk=${last:0:19}; [ "$last" = 없음 ] && lastk=
+  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" -v last="$lastk" '
+    $2 != "[log-reflection]" { next }
+    since != "" && substr($1, 1, 19) < since { next }
+    { lost = 0 }
+    $3 ~ /^fail:codex-(exit-[0-9]+|empty-output)$/ { c++ }
+    $3 == "fallback:claude-used" { u++ }
+    $3 ~ /^fallback:claude-(exit-[0-9]+|empty-output)$/ || $3 == "skip:fallback-unavailable" { f++; lost = 1 }
+    $3 == "skip:cli-missing" || $3 == "fail:tag-field-unresolved" { p++; lost = 1 }
+    lost && (last == "" || substr($1, 1, 19) > last) { a++ }
+    lost && match($0, / session=[^ ]*/) {
+      s = substr($0, RSTART + 9, RLENGTH - 9)
+      if (s != "" && !(s in seen)) { seen[s] = 1; ns++ }
+    }
+    END { printf "%d %d %d %d %d %d\n", c, f, u, p, ns, a }')
+  read -r c f u p ns a <<EOF
+$errs
 EOF
   n=$((f + p))
   printf '수집 상태: Stop 실패 시도 %d회 (codex 실패 %d · 대체 경로 실패 %d · 대체 경로 성공 %d · 분석 전 중단 %d; 고유 세션 %d) / 기록된 세션 %d / 엔트리 %d / 마지막 기록 %s\n' \
     "$n" "$c" "$f" "$u" "$p" "$ns" "$k" "$e" "$last"
   if [ "$e" -eq 0 ] && [ "$n" -gt 0 ]; then
     printf '%s\n' '⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다'
+  elif [ "$a" -gt 0 ]; then
+    printf '⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 %d회\n' "$a"
   fi
   return 0
 }

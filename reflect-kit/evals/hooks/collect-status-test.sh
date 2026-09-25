@@ -40,6 +40,11 @@ $D10 [log-reflection] fail:codex-exit-2 session=E
 $D10 [log-reflection] fallback:claude-exit-1 session=E
 EOF
 printf '%s [log-reflection] fail:tag-field-unresolved session=F\n' "$D3" > "$W/logs/b2/.errors.log"
+# 기록 하나 뒤에 실패만 이어진 폴더 — 엔트리가 있어도 기간 도중에 멈춘 수집기를 잡는지 본다
+mkdir -p "$W/logs/b4"
+printf '%s [log-reflection] skip:cli-missing session=H\n' "$D1" > "$W/logs/b4/.errors.log"
+# shellcheck disable=SC2016  # 역따옴표는 reflections 머리의 마크다운 글자다
+printf '\n## %s\n\n- session: `G2`\n\n```yaml\nprimary_category: tool_failure\n```\n' "$D2" > "$W/logs/b4/reflections-2026-09.md"
 cat > "$W/logs/b1/reflections-2026-09.md" <<EOF
 
 ## $D10
@@ -107,6 +112,9 @@ check "멈춤 — 엔트리 0 · 실패 1 이상" "수집 상태: Stop 실패 �
 rc=0" "$(cs 7 "$W/logs/b2")"
 check "빈 폴더 — 경고 없음" "수집 상태: Stop 실패 시도 0회 (codex 실패 0 · 대체 경로 실패 0 · 대체 경로 성공 0 · 분석 전 중단 0; 고유 세션 0) / 기록된 세션 0 / 엔트리 0 / 마지막 기록 없음
 rc=0" "$(cs 7 "$W/logs/b3")"
+check "도중 멈춤 — 마지막 기록 뒤 실패" "수집 상태: Stop 실패 시도 1회 (codex 실패 0 · 대체 경로 실패 0 · 대체 경로 성공 0 · 분석 전 중단 1; 고유 세션 1) / 기록된 세션 1 / 엔트리 1 / 마지막 기록 $D2
+⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 1회
+rc=0" "$(cs 7 "$W/logs/b4")"
 check "일수 잘못 — 멈춤" "collect_status: 일수는 숫자 또는 all
 rc=2" "$(cs 7d "$W/logs/b1")"
 
