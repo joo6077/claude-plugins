@@ -1,0 +1,96 @@
+{
+  "id": "TC-001",
+  "title": "방장 넘기기를 중간에 취소하면 아무것도 바뀌지 않는다",
+  "summary": "그룹을 고르는 창에서 취소해도, 마지막 확인 창에서 취소해도 방장은 Bob2 그대로였다.",
+  "meta": {
+    "date": "2026-09-24 22:33",
+    "device": "iPhone 17 시뮬레이터 (iOS 26.5)",
+    "commit": "48426a79"
+  },
+  "background": [
+    "Bob2 가 PGA 브라보의 방장이고 티나는 멤버다",
+    "티나의 프로필 화면을 열었다"
+  ],
+  "scenarios": [
+    {
+      "name": "그룹 고르는 창에서 취소한다",
+      "steps": [
+        {
+          "kw": "만일",
+          "text": "⋯ 버튼과 방장 넘기기를 누른다"
+        },
+        {
+          "kw": "그리고",
+          "text": "그룹 고르는 창에서 취소를 누른다"
+        },
+        {
+          "kw": "그러면",
+          "text": "프로필로 돌아오고 방장은 Bob2 그대로다",
+          "result": "pass",
+          "seen": "안내 문구 없이 프로필로 돌아왔고, 데이터베이스에서도 방장은 Bob2 였다."
+        }
+      ],
+      "shots": [
+        {
+          "file": "01-picker.png",
+          "caption": "그룹 고르는 창"
+        },
+        {
+          "file": "02-after-picker-cancel.png",
+          "caption": "취소한 뒤"
+        }
+      ]
+    },
+    {
+      "name": "확인 창에서 취소한다",
+      "steps": [
+        {
+          "kw": "만일",
+          "text": "방장 넘기기에서 PGA 브라보를 고른다"
+        },
+        {
+          "kw": "그리고",
+          "text": "확인 창에서 취소를 누른다"
+        },
+        {
+          "kw": "그러면",
+          "text": "프로필로 돌아오고 방장은 Bob2 그대로다",
+          "result": "pass",
+          "seen": "안내 문구 없이 프로필로 돌아왔고, 데이터베이스에서도 방장은 Bob2 였다."
+        }
+      ],
+      "shots": [
+        {
+          "file": "03-confirm.png",
+          "caption": "확인 창"
+        },
+        {
+          "file": "04-after-confirm-cancel.png",
+          "caption": "취소한 뒤"
+        }
+      ]
+    }
+  ],
+  "run": [
+    [
+      "앱 실행",
+      "2026-09-24 22:05, 22:11 hot reload"
+    ],
+    [
+      "MCP 서버",
+      "fitpal-mobile"
+    ],
+    [
+      "배경",
+      "login_as fitpal-dev, er-04-reset.sql 실행"
+    ],
+    [
+      "시나리오 1",
+      "tap_native_point 355,97 → tap_widget \"방장 넘기기\" → tap_widget \"취소\""
+    ],
+    [
+      "시나리오 2",
+      "tap_native_point 355,97 → tap_widget \"방장 넘기기\" → tap_widget \"PGA 브라보\" → tap_widget \"취소\""
+    ]
+  ]
+}

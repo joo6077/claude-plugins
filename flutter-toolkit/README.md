@@ -1,4 +1,4 @@
-# Flutter Toolkit · v0.5.0
+# Flutter Toolkit
 
 Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 의존성, 컨벤션을 자동 감지하여 적용한다.
 
@@ -20,6 +20,7 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 | `flutter-provider` | Riverpod Notifier + State 클래스를 생성한다. |
 | `flutter-responsive` | 화면에 반응형 레이아웃을 적용하거나 기존 화면을 반응형으로 전환한다. |
 | `flutter-run` | Flutter 빌드 프리미티브 실행 (codegen, analyze, fix, test). |
+| `flutter-scenario-report` | Flutter 앱을 Flutter Playwright MCP 로 시나리오대로 실행하며 단계마다 캡처하고, 판정과 캡처를 모아 HTML 테스트 기록 보고서로 만든다. |
 | `flutter-screen` | Flutter Screen 또는 Page 위젯을 생성하고 GoRouter/auto_route에 등록한다. |
 | `flutter-skeleton` | Flutter 화면/페이지의 로딩 상태를 스켈레톤 shimmer로 구현한다. |
 | `flutter-test` | 대상 파일/클래스를 분석하여 Flutter 테스트 코드를 자동 생성한다. |

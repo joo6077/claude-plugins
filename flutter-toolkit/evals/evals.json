@@ -279,6 +279,21 @@
         {"text": "재캡처에 캡처 점검 목록(글자 넘침 · 깨진 글리프 · 칩 모양과 카드인지 평평한 줄인지 · 디버그 겹침)을 적용한다", "type": "behavior"},
         {"text": "Visual Evidence Block 에 기준 캡처 파일과 재캡처 파일 경로를 적는다", "type": "output"}
       ]
+    },
+    {
+      "id": 23,
+      "skill": "flutter-scenario-report",
+      "prompt": "다른 사람 프로필에서 부방장 임명하는 기능 시나리오로 테스트하고 캡처 붙인 테스트 기록 남겨줘",
+      "expected_output": "project-detection Step 8 로 MCP 서버를 확인하고 결과 폴더가 git 에서 빠졌는지 본 뒤, 만일/그러면 시나리오 표를 한 번 확인받고 실행 → 확인 단계마다 캡처를 케이스 폴더로 바로 복사 → record.json 에 result · seen 기록 → build_report.py --check 통과 → .mcp_screenshots/test-evidence/index.html 생성 → 보고서 경로 · 결과 · 실패 세 줄 보고",
+      "assertions": [
+        {"text": "MCP 서버 이름을 project-detection.md Step 8 로 프로젝트 설정에서 읽는다 — 추측한 이름을 쓰지 않는다", "type": "behavior"},
+        {"text": "결과 폴더가 git check-ignore 로 빠져 있는지 확인하고, 아니면 .gitignore 에 .mcp_screenshots/ 를 더한다", "type": "behavior"},
+        {"text": "앱을 조작하기 전에 만일/그러면 시나리오 표를 사용자에게 한 번 확인받는다", "type": "behavior"},
+        {"text": "캡처하자마자 도구가 돌려준 파일을 케이스 폴더에 NN-이름.png 로 복사한다", "type": "behavior"},
+        {"text": "판정한 단계마다 seen 에 도구가 돌려준 관측값을 적고, 시나리오 판정은 손으로 적지 않는다", "type": "output"},
+        {"text": "build_report.py --check 가 종료 코드 0 으로 끝난 뒤에 index.html 을 만든다", "type": "behavior"},
+        {"text": "보고를 '보고서: · 결과: · 실패:' 세 줄로 시작한다", "type": "output"}
+      ]
     }
   ]
 }
