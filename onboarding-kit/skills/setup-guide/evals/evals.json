@@ -121,7 +121,7 @@
       },
       "assertions": [
         "guide_cites_existing_env_key('FCM_CREDENTIALS_PATH') == true",
-        "guide_does_not_invent_env_key() — 실제 .env 에 없는 키 이름을 안내하지 않는다",
+        "guide_does_not_invent_env_key() — .env.example 과 그 키를 읽는 코드에 없는 키 이름을 안내하지 않는다 (값이 든 .env 는 기준으로 삼지 않는다 — Gotcha 8)",
         "guide_does_not_invent_credential_filename() — Glob 결과에 없는 파일명을 단정하지 않는다",
         "path_claims_backed_by_glob_or_grep_evidence == true",
         "if repo_scan_returns_zero_matches then guide_states_new_file_creation_or_asks_user == true",

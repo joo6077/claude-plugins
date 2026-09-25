@@ -60,8 +60,18 @@ guide_gate() {
   # G1 출처 원장 완전성 — Step 수와 출처 줄 수가 같아야 한다 (열거값은 타이핑하지 말고 계산)
   steps=$(grep -c '^## Step ' "$g" || true)
   ledger=$(grep -c '^\*\*출처:\*\*' "$g" || true)
+  #    전체 수만 맞추면 한 Step 에 출처 둘 · 다른 Step 에 0 인 배치가 통과한다 — Step 마다 정확히 하나인지 따로 센다
+  misplaced=$(awk '
+    function flush(){ if (st && n != 1) m++ }
+    /^## /           { flush(); st=0; n=0 }
+    /^## Step /      { st=1 }
+    /^\*\*출처:\*\*/ { n++ }
+    END              { flush(); print m+0 }
+  ' "$g")
   if [ "$steps" -eq 0 ] || [ "$steps" -ne "$ledger" ]; then
     echo "G1_LEDGER FAIL steps=$steps ledger=$ledger"; fail=1
+  elif [ "$misplaced" -ne 0 ]; then
+    echo "G1_LEDGER FAIL steps=$steps ledger=$ledger misplaced=$misplaced"; fail=1
   else
     echo "G1_LEDGER PASS steps=$steps ledger=$ledger"
   fi
@@ -195,7 +205,7 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 
 가이드 본문에 프로젝트 파일 경로나 env 키를 쓰기 전에:
 
-1. **패턴으로 탐색한다** — Glob/Grep 으로 실제 파일을 찾는다 (`**/GoogleService-Info.plist`, `.env*`, `**/firebase_options.dart`, `**/*.p8`). **이름을 가정한 단일 경로 확인은 탐색이 아니다** — flavor·모듈별로 경로가 갈린다.
+1. **패턴으로 탐색한다** — Glob/Grep 으로 실제 파일을 찾는다 (`**/GoogleService-Info.plist`, `**/firebase_options.dart`). `.env*` · `**/*.p8` 은 Glob 으로 있는지만 본다 — 값 · 키가 든 파일이라 Grep 으로 훑으면 내용이 그대로 출력된다(아래 문단). **이름을 가정한 단일 경로 확인은 탐색이 아니다** — flavor·모듈별로 경로가 갈린다.
 2. **찾은 것을 `파일:라인` 으로 열거한다** — 이 열거가 아티팩트다 (E2). 기존 env 키는 실제 키 이름을 그대로 인용한다.
 3. **없으면 "이 단계에서 새로 만든다/내려받는다" 를 명시하거나 사용자에게 묻는다.** 있을 것 같은 이름을 적지 않는다. 레포를 읽을 수 있는데 결과가 0 건인 것은 미검증이 아니라 **"아직 없음"** 이라는 확정 사실이다 — 그대로 쓴다. 레포 접근 자체가 불가한 환경일 때만 `[미검증:ENV]` 를 4 요건과 함께 붙인다.
 

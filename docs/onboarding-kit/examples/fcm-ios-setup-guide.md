@@ -2,7 +2,7 @@
 
 > **대상 스택: Flutter (FlutterFire).** 네이티브 Swift / Objective-C iOS 앱은 초기화 절차가 완전히 다르다 — 그 경우 이 가이드를 쓰지 말고 네이티브용 가이드를 따로 만든다.
 > 작성일: 2026-05-18 · 최종 갱신: 2026-08-13
-> 기준: Xcode 16+ · iOS 14+ · Apple Developer Program 가입 필요
+> 기준: Xcode 26.2+ · iOS 15+ ([Firebase Apple 셋업](https://firebase.google.com/docs/ios/setup) 조회 2026-09-24) · 막는 요구는 사전 요구사항의 막는 요구 표
 > 대표 1차 출처: [Firebase — Set up FCM on Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) (조회 2026-08-13)
 > 이 대표 URL 은 각 Step 의 `**출처:**` 줄을 **대체하지 않는다** — Step 마다 그 Step 의 근거를 따로 적었다.
 
@@ -24,11 +24,18 @@
 
 > **ℹ️ 콘솔 라벨 경계:** 이 가이드의 섹션명·버튼 라벨은 **로그인 없이 볼 수 있는 공식 문서**에서 확인한 것입니다. 콘솔에 로그인한 뒤의 실제 화면은 공개 문서로 검증할 수 없어 표기가 다를 수 있습니다 (A/B 롤아웃·언어 설정). 화면에서 못 찾으면 **상위 섹션명**(`Identifiers`, `Keys`, `Cloud Messaging`, `Messaging`)으로 검색하세요.
 
-- [ ] **Apple Developer Program 가입** (연 $99) — Account Holder 또는 Admin 권한
+- [ ] **Apple Developer Program 가입** (연 $99) — Account Holder 또는 Admin 권한. 막히는 범위는 아래 막는 요구 표
 - [ ] **Firebase 프로젝트** 존재 — Editor 이상 권한
-- [ ] **Xcode 16+** 설치 — `xcodebuild -version`으로 확인
-- [ ] **앱 Bundle ID 확정** — 예: `com.yourorg.fitpal`. **등록 후 변경 불가** (아래 "Bundle ID 변경 정책" 참고)
-- [ ] **실기기** — FCM은 시뮬레이터에서도 토큰은 받지만 발송 테스트는 실기기 필요 (iOS 16+는 시뮬레이터도 일부 지원)
+- [ ] **Xcode 26.2+** 설치 — `xcodebuild -version`으로 확인
+- [ ] **앱 Bundle ID 확정** — 예: `com.yourorg.myapp`. **등록 후 변경 불가** (아래 "Bundle ID 변경 정책" 참고)
+
+막는 요구 (조회 2026-09-24 · 세 칸 형식은 `onboarding-kit/skills/setup-guide/references/format-checklist.md` §2):
+
+| 요구 | 출처 | 막히는 것 | 우회 |
+| --- | --- | --- | --- |
+| 실기기 | [Firebase Apple 셋업](https://firebase.google.com/docs/ios/setup) — Cloud Messaging 을 쓰면 실제 Apple 기기를 준비하라고 한다 | APNs · FCM 원격 메시지 수신 확인. 프로젝트 생성 · Firebase 구성 · 일반 앱 실행은 안 막힌다 | `우회 없음(출처 확인)` — 시뮬레이터를 FCM 수신 우회로 쓰라는 문장은 이 출처에 없다 |
+| 유료 개발자 계정 | [Apple 지원 기능 표](https://developer.apple.com/help/account/reference/supported-capabilities-ios) — Push notifications 가 무료 계정 열에 없다 · [멤버십 개요](https://developer.apple.com/help/account/membership/programs-overview) — 일반 개발과 개인 기기 시험은 멤버십 없이 된다 | Push Notifications 기능 · APNs 키 구성 | 비영리 단체 · 공인 교육기관 · 정부 기관은 [가입 비용 면제](https://developer.apple.com/programs/enroll/) 경로가 있다. 그 밖의 우회는 확인하지 못했다 |
+| 앱 출시 | 막는 요구가 아니다 — [Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing-notifications-using-the-push-notification-console) 이 개발 환경에서 기기 토큰으로 시험 발송을 지원한다 | 없음 | 해당 없음 |
 
 ---
 
@@ -43,7 +50,7 @@
 1. Identifiers 페이지 상단의 **`+`** 버튼 클릭
 2. 식별자 유형 선택 화면에서 **App IDs** 선택 → **Continue**
 3. "Register an identifier" 화면에서 **App ID Type: Explicit** 선택 → **Continue** (Wildcard는 Push Notifications에 사용 불가)
-4. **Description** 입력 (예: "Fit Pal Production") + **Bundle ID** 입력 (예: `com.yourorg.fitpal`)
+4. **Description** 입력 (예: "My App Production") + **Bundle ID** 입력 (예: `com.yourorg.myapp`)
 5. Capabilities 섹션에서 **Push Notifications** 체크박스 활성화
 6. **Continue** → 검토 페이지 확인 → **Register**
 
@@ -367,7 +374,7 @@ Future<void> setupFcm() async {
 
 1. Provisioning Profile에 `aps-environment` entitlement 포함 확인 (Xcode → Signing & Capabilities → Push Notifications 추가됐는지)
 2. Firebase Console 에 APNs 인증 키가 실제로 업로드돼 있는지 확인 (Step 5)
-3. 실기기인지 확인 (iOS 16 이전 시뮬레이터는 APNs 불가)
+3. 실기기인지 확인 — FCM 원격 메시지 수신은 실제 Apple 기기로 확인한다 (사전 요구사항의 막는 요구 표)
 
 **증상:** Firebase Console 테스트 발송은 성공인데 디바이스에 알림 안 옴
 **원인:** APNs Key 업로드 시 Key ID/Team ID 불일치
@@ -378,18 +385,18 @@ Future<void> setupFcm() async {
 **해결:** 알림 페이로드에 `notification` 객체(title/body) 포함했는지 확인. `data`만 있으면 silent push로 분류되어 죽은 앱은 깨우지 않음
 
 **증상:** App ID 등록 시 `An App ID with Identifier 'com.example.app' is not available` 에러
-**원인:** Apple은 Bundle ID를 전 세계 Apple Developer 계정에 걸쳐 유니크하게 관리. `com.fitpal.app` 같은 흔한 조합은 다른 개발자가 이미 선점했을 확률이 높음. 한 번 선점되면 그 계정이 풀어주기 전까지 다른 누구도 못 씀
+**원인:** Apple은 Bundle ID를 전 세계 Apple Developer 계정에 걸쳐 유니크하게 관리. `com.myapp.app` 같은 흔한 조합은 다른 개발자가 이미 선점했을 확률이 높음. 한 번 선점되면 그 계정이 풀어주기 전까지 다른 누구도 못 씀
 **해결:**
 
-1. 본인/조직 식별자를 prefix에 더 강하게 박기 — `com.<github핸들>.fitpal`, `com.<도메인>.fitpal`, `dev.<조직>.fitpal`
-2. 환경별 분리도 충돌 회피에 유리 — `com.<핸들>.fitpal.dev`, `.staging`, `.prod`
+1. 본인/조직 식별자를 prefix에 더 강하게 박기 — `com.<github핸들>.myapp`, `com.<도메인>.myapp`, `dev.<조직>.myapp`
+2. 환경별 분리도 충돌 회피에 유리 — `com.<핸들>.myapp.dev`, `.staging`, `.prod`
 3. **본인 Team에 이미 같은 ID가 등록돼 있다면** Identifiers 목록에서 검색해서 재사용 가능 (충돌이 아니라 본인 계정 중복)
 
 **증상:** App ID는 등록했는데 Xcode `Signing & Capabilities`에서 `No profiles for '...' were found` + `Your team has no devices` 워닝이 그대로 뜸
 **원인:** App ID 등록과 Provisioning Profile 생성은 별개 단계. Xcode 자동 signing이 provisioning profile을 만들려면 Team에 등록된 디바이스가 최소 1개 필요
 **해결:**
 
-- **시뮬레이터로 진행** — 시뮬레이터는 provisioning profile 불필요. Xcode 좌측 상단에서 시뮬레이터 선택하면 워닝 무시 가능. iOS 16+ 시뮬레이터는 FCM 푸시도 일부 지원
+- **시뮬레이터로 진행** — 시뮬레이터는 provisioning profile 불필요. Xcode 좌측 상단에서 시뮬레이터 선택하면 워닝 무시 가능. 다만 FCM 원격 메시지 수신 확인은 시뮬레이터로 대신하지 않는다 — 실기기가 필요하다 (사전 요구사항의 막는 요구 표)
 - **실기기 등록** — iPhone을 Mac에 USB 연결 → Xcode 좌측 상단에서 그 디바이스 선택하면 자동으로 Apple Developer Devices에 등록됨 → Signing 화면에서 **Try Again** 클릭
 
 **증상:** Xcode `+ Capability`에서 Push Notifications가 안 보이거나 회색으로 비활성화
