@@ -42,10 +42,7 @@ REGISTRY = REPO / ".harness" / "stale-values.yaml"
 MARKETPLACE = REPO / ".claude-plugin" / "marketplace.json"
 
 # 킷 이름 → 빼는 이유. 이유는 출력에 그대로 나간다
-EXCLUDED_KITS = {
-    "backend-kit": "세 줄이 OpenAPI 명세 링크의 버전 표기를 인용해 등록 옛 값과 글자가 같다. "
-                   ".harness/stale-values.yaml 의 allow 에 올린 뒤 뺀 것을 푼다",
-}
+EXCLUDED_KITS: dict[str, str] = {}
 
 # `.claude/skills/docs-site/SKILL.md` 의 소스→출력 매핑표에 대응하는 소스 디렉토리.
 # 매핑이 늘면 여기도 늘려야 한다 — 그래서 아래에서 존재 여부를 검사하고 없으면 경고한다.
