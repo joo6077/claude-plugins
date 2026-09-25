@@ -18,5 +18,7 @@ AR-01 첫째 값이 떨어진다.
 - 봉인 커밋: `91ea6d7bd796151ed404e28cfe6e1e16f775a76b` (계약 파일 1 개, `conditions_digest: sha256:afc0e79e2045ae87`)
 - 구현 커밋: `50dfd8608cd24f2e5735b167f43c29027a9e6c24` — `tone-kit/` 다섯 파일 (references 넷 · evals.json)
 - 구현 커밋: `c97dd20e3fb6f25c83a6de93752dd8908b00cfc6` — `docs/tone/` 세 파일
+- notes 커밋: `c89817862bac0fd075e396d31734efdecae5af5a` — `.harness/.meta/kaizen-0924/phase15-notes.md` · `phase15-review.md`. 범위 상한을 이 커밋으로 옮긴다
 
 end_sha: c97dd20e3fb6f25c83a6de93752dd8908b00cfc6
+end_sha: c89817862bac0fd075e396d31734efdecae5af5a
