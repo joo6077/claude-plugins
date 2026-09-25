@@ -4,7 +4,7 @@ slug: flutter-scenario-report
 created: "2026-09-25 15:42"
 complexity: "복잡"
 conditions: 32
-status: active
+status: done
 owner_session: e6978555-fef9-4611-a5d0-f6a8085b3924
 conditions_digest: sha256:be16c86ab07f4154
 locked_at: "2026-09-25 15:55"
