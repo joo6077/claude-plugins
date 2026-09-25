@@ -213,7 +213,7 @@ def check_v1_frontmatter(ctx: CheckContext) -> CheckResult:
 
     if failures:
         result.status = "FAIL"
-        result.summary = f"{counts} — {len(failures)} FAIL"
+        result.summary = f"{counts}, {len(failures)} failed"
         result.details = failures
     else:
         result.status = "OK"
@@ -293,7 +293,7 @@ def check_v2_templates(ctx: CheckContext) -> CheckResult:
 
     if failures:
         result.status = "FAIL"
-        result.summary = f"{summary_base} — {len(failures)} FAIL"
+        result.summary = f"{summary_base}, {len(failures)} failed"
         result.details = failures
     else:
         result.status = "OK"
@@ -868,13 +868,19 @@ def validate_kit(ctx: CheckContext, enabled_checks: set[str]) -> PluginResult:
 # 출력
 # ---------------------------------------------------------------------------
 
+# V 줄은 판정 글자로 끝난다(판정 뒤 괄호 한 덩이는 허용 — 「— SKIP (no templates/)」).
+# 요약이 개수만 적은 실패(「2 BROKEN」 등)는 끝에 판정을 붙인다 — 안 붙이면 V 줄 글자로 FAIL 을 세는 쪽이 실패를 0 으로 읽는다
+VERDICT_TAIL = re.compile(r"— (OK|WARN|FAIL|SKIP)( \(.*\))?$")
+
+
 def print_human(results: list[PluginResult]) -> None:
     """사람이 읽기 좋은 형식으로 출력한다."""
     for pr in results:
         print(f"\n=== {pr.name} ===")
         for cr in pr.checks:
             label = f"  {cr.check_id} {cr.label:<18}"
-            print(f"{label}{cr.summary}")
+            summary = cr.summary if VERDICT_TAIL.search(cr.summary) else f"{cr.summary} — {cr.status}"
+            print(f"{label}{summary}")
             for detail in cr.details:
                 print(f"    {detail}")
 

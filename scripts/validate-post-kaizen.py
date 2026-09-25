@@ -498,16 +498,20 @@ def check_scope_isolation(since: str) -> CheckResult:
 
 
 def check_bare_fence() -> CheckResult:
-    # Delegate to validate-plugin V6 check output
-    code, out, err = run(["python3", "scripts/validate-plugin.py"])
+    # V6 판정은 validate-plugin 의 종료 코드로 읽는다. 출력에서 "0 bare" 글자를 찾으면
+    # 다른 킷 줄의 "0 bare" 나 "10 bare" 의 부분 글자로 늘 통과한다 (2026-09-25 실측)
+    code, out, err = run(["python3", "scripts/validate-plugin.py", "--check=code-fence"])
     if not out.strip():
         # 출력이 없으면 검사가 돌지 않은 것이다 — "bare fence 0 건" 이 아니다
         raise GateInfraError(
             f"validate-plugin.py 가 출력 없이 종료 (rc={code}): {err.strip()[:200]}"
         )
-    if "0 bare" in out:
+    if code == 0:
         return CheckResult("bare-fence", "PASS", "V6 reports 0 bare fences")
-    return CheckResult("bare-fence", "FAIL", "V6 detected bare fences")
+    if code == 2:
+        failed = [ln.strip() for ln in out.splitlines() if ln.strip().startswith("FAIL ")]
+        return CheckResult("bare-fence", "FAIL", "V6 detected bare fences", failed)
+    raise GateInfraError(f"validate-plugin.py --check=code-fence 가 예상 밖 종료 코드 {code}: {err.strip()[:200]}")
 
 
 def check_doc_contracts() -> CheckResult:
