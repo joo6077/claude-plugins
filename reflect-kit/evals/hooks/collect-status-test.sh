@@ -94,6 +94,16 @@ fx f6 S-old "old friction" "$W/repos/alpha" 1728000
 fx f7 S-other "other project" "$W/repos/beta" 86400
 fx f8 S-wt "worktree friction" "$W/wt/alpha-wt" 86400
 
+# 정상 종료(no issues) 뒤의 폴더 — 기록 뒤 실패가 있어도 그 뒤 정상 종료가 있으면 멈춤이 아니고, 정상 종료 뒤 다시 실패하면 멈춤이다
+mkdir -p "$W/logs/b5" "$W/logs/b6" "$W/logs/b7"
+# shellcheck disable=SC2016  # 역따옴표는 reflections 머리의 마크다운 글자다
+printf '\n## %s\n\n- session: `K1`\n\n```yaml\nprimary_category: tool_failure\n```\n' "$D3" > "$W/logs/b5/reflections-2026-09.md"
+cp "$W/logs/b5/reflections-2026-09.md" "$W/logs/b6/reflections-2026-09.md"
+printf '%s [log-reflection] fail:codex-exit-1 session=K2\n%s [log-reflection] fallback:claude-exit-1 session=K2\n%s [log-reflection] ok:no-issues session=K3\n' "$D2" "$D2" "$D1" > "$W/logs/b5/.errors.log"
+printf '%s [log-reflection] ok:no-issues session=K3\n%s [log-reflection] fail:codex-exit-1 session=K4\n%s [log-reflection] fallback:claude-exit-1 session=K4\n' "$D2" "$D1" "$D1" > "$W/logs/b6/.errors.log"
+# 엔트리 0 이어도 실패 뒤에 정상 종료가 있으면 수집기는 돌고 있다
+printf '%s [log-reflection] fail:codex-exit-1 session=K5\n%s [log-reflection] fallback:claude-exit-1 session=K5\n%s [log-reflection] ok:no-issues session=K6\n' "$D2" "$D2" "$D1" > "$W/logs/b7/.errors.log"
+
 n=0; bad=0
 check() {  # check <이름> <답> <값>
   n=$((n + 1))
@@ -115,6 +125,11 @@ rc=0" "$(cs 7 "$W/logs/b3")"
 check "도중 멈춤 — 마지막 기록 뒤 실패" "수집 상태: Stop 실패 시도 1회 (codex 실패 0 · 대체 경로 실패 0 · 대체 경로 성공 0 · 분석 전 중단 1; 고유 세션 1) / 기록된 세션 1 / 엔트리 1 / 마지막 기록 $D2
 ⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 1회
 rc=0" "$(cs 7 "$W/logs/b4")"
+check "정상 종료 뒤 — 경고 없음" "수집 상태: Stop 실패 시도 1회 (codex 실패 1 · 대체 경로 실패 1 · 대체 경로 성공 0 · 분석 전 중단 0; 고유 세션 1) / 기록된 세션 1 / 엔트리 1 / 마지막 기록 $D3
+rc=0" "$(cs 7 "$W/logs/b5")"
+check "정상 종료 뒤 다시 실패 — 멈춤" 1 "$(cs 7 "$W/logs/b6" | grep -c '^⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 1회$')"
+check "엔트리 0 · 실패 뒤 정상 종료 — 경고 없음" "수집 상태: Stop 실패 시도 1회 (codex 실패 1 · 대체 경로 실패 1 · 대체 경로 성공 0 · 분석 전 중단 0; 고유 세션 1) / 기록된 세션 0 / 엔트리 0 / 마지막 기록 없음
+rc=0" "$(cs 7 "$W/logs/b7")"
 check "일수 잘못 — 멈춤" "collect_status: 일수는 숫자 또는 all
 rc=2" "$(cs 7d "$W/logs/b1")"
 

@@ -189,6 +189,7 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 - `warn:env-dedup-failed exit=<N> session=<>` — dedup 게이트 실패 → fail-open
 - `warn:lemma-map-unreadable path=<> session=<>` — 태그 정규화 사전을 못 읽어 사전 없이 태그를 묶었다. 실행은 계속된다
 - `vocab:raw_distinct/clusters/entries/singletons/fold/singleton_share/epc=<일곱 값> session=<>` — 태그 파편화 지표 한 줄. 실패가 아니라 `collect_status` 는 세지 않는다
+- `ok:no-issues session=<>` — 분석 결과가 「no issues」 인 정상 종료. 실패가 아니며, `collect_status` 는 이 줄 · `skip:env-dedup-all` 과 마지막 기록 가운데 늦은 쪽 뒤의 실패만 「마지막 기록 뒤」 실패로 센다
 
 `err=` 의 뽑는 규칙은 `SCHEMA.md` §3 이 정본이다. 분석기 stderr 를 통째로 버리던 동안(2026-08-28 ~ 2026-09-25) 원인이
 남지 않아 수집이 멈춘 것을 한 달 가까이 몰랐다.

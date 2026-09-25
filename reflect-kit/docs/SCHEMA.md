@@ -145,6 +145,7 @@ approach_note: <str>                  # 시도한 접근법 1줄
 - `warn:env-dedup-failed exit=<N> session=<>` — dedup 게이트 실패 → fail-open 으로 원본 기록
 - `warn:lemma-map-unreadable path=<> session=<>` — 태그 정규화 사전을 못 읽어 사전 없이 태그를 묶었다. 실행은 계속된다
 - `vocab:raw_distinct/clusters/entries/singletons/fold/singleton_share/epc=<일곱 값> session=<>` — 태그 파편화 지표 한 줄. 실패가 아니라 `collect_status` 는 세지 않는다
+- `ok:no-issues session=<>` — 분석 결과가 「no issues」 인 정상 종료. 실패가 아니며, `collect_status` 는 이 줄 · `skip:env-dedup-all` 과 마지막 기록 가운데 늦은 쪽 뒤의 실패만 「마지막 기록 뒤」 실패로 센다
 
 `err=` 는 줄 끝까지다 (공백 포함). 분석기 stderr 에서 `error` · `ERROR` 로 시작하는 첫 줄, 없으면 비어 있지 않은
 첫 줄 하나를 가린 뒤 200 자로 자른다 — codex 는 성공해도 stderr 에 프롬프트 전문을 찍으므로 전문은 남기지 않는다.

@@ -196,19 +196,22 @@ EOF
     $3 == "fallback:claude-used" { u++ }
     $3 ~ /^fallback:claude-(exit-[0-9]+|empty-output)$/ || $3 == "skip:fallback-unavailable" { f++; lost = 1 }
     $3 == "skip:cli-missing" || $3 == "fail:tag-field-unresolved" { p++; lost = 1 }
-    lost && (last == "" || substr($1, 1, 19) > last) { a++ }
+    $3 == "ok:no-issues" || $3 == "skip:env-dedup-all" { if (substr($1, 1, 19) > okl) okl = substr($1, 1, 19) }
+    lost { lt[++nl] = substr($1, 1, 19) }
     lost && match($0, / session=[^ ]*/) {
       s = substr($0, RSTART + 9, RLENGTH - 9)
       if (s != "" && !(s in seen)) { seen[s] = 1; ns++ }
     }
-    END { printf "%d %d %d %d %d %d\n", c, f, u, p, ns, a }')
+    # 정상 종료(no issues · 전 블록 억제)는 기록을 안 남긴다 — 마지막 기록과 마지막 정상 종료 가운데 늦은 쪽 뒤의 실패만 센다
+    END { cut = (okl > last) ? okl : last; for (i = 1; i <= nl; i++) if (cut == "" || lt[i] > cut) a++
+          printf "%d %d %d %d %d %d\n", c, f, u, p, ns, a }')
   read -r c f u p ns a <<EOF
 $errs
 EOF
   n=$((f + p))
   printf '수집 상태: Stop 실패 시도 %d회 (codex 실패 %d · 대체 경로 실패 %d · 대체 경로 성공 %d · 분석 전 중단 %d; 고유 세션 %d) / 기록된 세션 %d / 엔트리 %d / 마지막 기록 %s\n' \
     "$n" "$c" "$f" "$u" "$p" "$ns" "$k" "$e" "$last"
-  if [ "$e" -eq 0 ] && [ "$n" -gt 0 ]; then
+  if [ "$e" -eq 0 ] && [ "$a" -gt 0 ]; then
     printf '%s\n' '⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다'
   elif [ "$a" -gt 0 ]; then
     printf '⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 %d회\n' "$a"

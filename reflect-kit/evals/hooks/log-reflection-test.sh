@@ -35,6 +35,7 @@ case "${FAKE_CODEX:-ok}" in
   limit) printf "ERROR: You've hit your usage limit. Try again at 11:05 PM.\n" >&2; exit 1 ;;
   crash) exit 3 ;;
   empty) exit 0 ;;
+  noissues) printf 'no issues\n' > "$out"; exit 0 ;;
 esac
 EOF
 cat > "$W/bin/claude" <<'EOF'
@@ -119,6 +120,11 @@ check "stdout 에서 고른 err=" "fallback:claude-exit-1 session=S5 err=Credit 
 run_bg S6 empty ok
 check "codex 빈 응답 줄" "fail:codex-empty-output session=S6
 fallback:claude-used session=S6" "$(errs_of S6)"
+
+# 6-1. 분석 결과 no issues — 기록은 없고 정상 종료 한 줄이 남는다
+run_bg S8 noissues ok
+check "no issues 정상 종료 줄" 1 "$(grep -c '\] ok:no-issues session=S8$' "$ERRS")"
+check "no issues 기록 없음" 0 "$(recorded S8)"
 
 # 7. 분석기 표식이 있으면 세 훅 모두 아무것도 적지 않는다 — 표식 없는 같은 입력은 적는다(양성 대조)
 before=$(find "$W/home" -type f | wc -l | tr -d ' ')

@@ -314,7 +314,11 @@ elif [ -z "$summary" ]; then
 fi
 
 trimmed=$(echo "$summary" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
-[ "$trimmed" = "noissues" ] && exit 0
+if [ "$trimmed" = "noissues" ]; then
+  # 정상 종료도 한 줄 남긴다 — 흔적이 없으면 collect_status 가 마지막 기록 뒤 실패 한 번만 보고 멈춤으로 판정한다
+  log_hook_error "$log_dir" "$HOOK_NAME" "ok:no-issues session=$session_id"
+  exit 0
+fi
 
 # ── 환경 오설정 반복 로깅 억제 (결정론적 dedup 게이트) ─────────────────────
 # actionability: user_environment 블록은 같은 mistake_tag 가 억제 창(기본 7일) 안에

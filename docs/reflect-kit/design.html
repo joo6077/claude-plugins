@@ -382,6 +382,7 @@ approach_note: &lt;str&gt;                  # 시도한 접근법 1줄</code></p
         <tr><td><code>warn:env-dedup-failed exit=&lt;N&gt; session=&lt;&gt;</code></td><td>dedup 게이트 실패 → fail-open</td></tr>
         <tr><td><code>warn:lemma-map-unreadable path=&lt;&gt; session=&lt;&gt;</code></td><td>태그 정규화 사전을 못 읽어 사전 없이 태그를 묶었다. 실행은 계속된다</td></tr>
         <tr><td><code>vocab:raw_distinct/clusters/entries/singletons/fold/singleton_share/epc=&lt;일곱 값&gt; session=&lt;&gt;</code></td><td>태그 파편화 지표 한 줄. 실패가 아니라 <code>collect_status</code> 는 세지 않는다</td></tr>
+        <tr><td><code>ok:no-issues session=&lt;&gt;</code></td><td>분석 결과가 「no issues」 인 정상 종료. 실패가 아니며, <code>collect_status</code> 는 이 줄 · <code>skip:env-dedup-all</code> 과 마지막 기록 가운데 늦은 쪽 뒤의 실패만 「마지막 기록 뒤」 실패로 센다</td></tr>
       </tbody>
     </table></div>
     <div class="callout"><code>err=</code> 의 뽑는 규칙은 <code>SCHEMA.md</code> §3 이 정본입니다. 분석기 stderr 를 통째로 버리던 동안(<span class="metric">2026-08-28 ~ 2026-09-25</span>) 원인이 남지 않아 수집이 멈춘 것을 한 달 가까이 몰랐습니다.</div>

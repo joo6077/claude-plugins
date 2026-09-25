@@ -311,6 +311,7 @@ approach_note: &lt;str&gt;                  # 시도한 접근법 1줄</pre>
       <div class="tag-item"><div class="tag-key">warn:env-dedup-failed exit=&lt;N&gt; session=&lt;&gt;</div><div class="tag-desc">dedup 게이트가 실패해 fail-open으로 원본을 기록했다.</div></div>
       <div class="tag-item"><div class="tag-key">warn:lemma-map-unreadable path=&lt;&gt; session=&lt;&gt;</div><div class="tag-desc">정규화 사전을 못 읽어 사전 없이 묶었지만 실행은 계속된다.</div></div>
       <div class="tag-item"><div class="tag-key">vocab:raw_distinct/clusters/entries/singletons/fold/singleton_share/epc=&lt;일곱 값&gt; session=&lt;&gt;</div><div class="tag-desc">태그 파편화 지표다. 실패가 아니므로 <code>collect_status</code>는 세지 않는다.</div></div>
+      <div class="tag-item"><div class="tag-key">ok:no-issues session=&lt;&gt;</div><div class="tag-desc">분석 결과가 「no issues」 인 정상 종료다. 실패가 아니며, <code>collect_status</code> 는 이 줄 · <code>skip:env-dedup-all</code> 과 마지막 기록 가운데 늦은 쪽 뒤의 실패만 「마지막 기록 뒤」 실패로 센다.</div></div>
     </div>
     <div class="callout"><code>err=</code>는 공백을 포함해 줄 끝까지다. stderr에서 <code>error</code> 또는 <code>ERROR</code>로 시작하는 첫 줄을 고르고, 없으면 비어 있지 않은 첫 줄을 가린 뒤 200자로 자른다. codex가 성공해도 stderr에 프롬프트 전문을 쓰므로 전문은 남기지 않는다. 대체 경로는 stderr가 비면 stdout에서 고른다.</div>
     <p class="lead"><code>/reflect-digest</code>의 <code>collect_status</code>는 대체 경로 실패 셋, <code>skip:cli-missing</code>, <code>fail:tag-field-unresolved</code>를 기록 없이 끝난 실행으로 센다.</p>
