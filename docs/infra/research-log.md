@@ -11,7 +11,7 @@ CHANGED. 처리 배정표의 Phase 8 행 `backend-family:P3` 하나와 앞 Phase
 Phase 4 — harness `/sprint` Step 3 의 판정 세 줄, Phase 7 — README 검증 절 「7 카테고리 구조 감사」)을 세 관심사로 묶었다.
 외부 근거는 `.harness/.meta/evidence/phase8.md` 하나이고 이 Phase 는 새로 조회하지 않았다.
 
-### 조회한 외부 소스 (근거 파일 `.harness/.meta/evidence/phase8.md`)
+### 조회한 외부 소스 (근거 파일 `.harness/.meta/evidence/phase8.md`) — 2026-09-24 사이클
 
 | # | 소스 | 조회 결과 | 채택 |
 | --- | --- | --- | --- |
@@ -27,7 +27,7 @@ Phase 4 — harness `/sprint` Step 3 의 판정 세 줄, Phase 7 — README 검�
 공식 문서에서 「내 변경 / 기준 실패 / 환경」 세 분류를 규범으로 정한 곳은 찾지 못했다(근거 파일 §2). 그래서 원칙 7 은 이 분류가 킷의 규칙이라고 적는다.
 GitHub 밖 CI 의 같은 조회 명령도 근거 파일에 없다.
 
-### 변경 내역
+### 변경 내역 — 2026-09-24 사이클
 
 - `platform/cicd.md` (0.2.0) — 원칙 7 「빨간 검사는 고치기 전에 원인부터 가른다」. 판정 세 줄은 harness `/sprint` Step 3 과 같은 말이고,
   CI 에서만 보이는 「환경 · 비결정성」 과 「미확정」 을 더했다

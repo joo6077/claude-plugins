@@ -252,7 +252,8 @@ violation=0; unverified=0; exec_error=0
 
 # 규칙 1: checkout 스텝 존재
 for f in "${workflows[@]}"; do
-  if grep -q 'actions/checkout' "$f"; then
+  # uses: 키로 부른 줄만 센다 — 이름만 찾으면 주석 한 줄(`# uses: actions/checkout@v4`)로도 PASS 한다 (2026-09-25 재현)
+  if grep -qE '^[[:space:]]*(-[[:space:]]+)?uses:[[:space:]]*["'"'"']?actions/checkout@' "$f"; then
     echo "PASS            : $f checkout 존재"
   else
     echo "VIOLATION       : $f checkout 스텝 없음"; violation=$((violation + 1))
