@@ -576,10 +576,11 @@ echo "exit=$?"; rm -rf "$T"</pre>
     </table>
   </div>
 
-  <p class="desc" style="margin-top:20px">댓글은 <code>offset</code> 을 받은 <code>hits</code> 수만큼 늘려 가며 받고, <code>hits</code> 가 비거나 받은 수가 <code>total</code> 에 닿으면 멈춘다(관측: <code>total</code> 159 → offset 0 에서 100 개, 100 에서 59 개). 시작할 때 앞 실행이 남긴 댓글 페이지를 지운다 — 남으면 집계가 옛 페이지까지 읽어 댓글 수와 내용이 섞인다.</p>
+  <p class="desc" style="margin-top:20px">댓글은 <code>offset</code> 을 받은 <code>hits</code> 수만큼 늘려 가며 받고, <code>hits</code> 가 비거나 받은 수가 <code>total</code> 에 닿으면 멈춘다(관측: <code>total</code> 159 → offset 0 에서 100 개, 100 에서 59 개). 시작할 때 앞 실행이 남긴 댓글 페이지와 <code>design.json</code> · <code>instances.json</code> 을 지운다 — 남으면 받기가 실패해도 집계가 옛 모델 제목 · 댓글 수 · 댓글 페이지를 읽는다.</p>
 
 <pre>ID=&lt;모델 번호&gt;; OUT=&lt;output_dir&gt;/makerworld; mkdir -p "$OUT"
 find "$OUT" -maxdepth 1 -name 'comments-*.json' -delete
+rm -f "$OUT/design.json" "$OUT/instances.json"
 curl -sS -o "$OUT/design.json" -w 'design %{http_code}\n' "https://makerworld.com/api/v1/design-service/design/$ID"
 curl -sS -o "$OUT/instances.json" -w 'instances %{http_code}\n' "https://api.bambulab.com/v1/design-service/design/$ID/instances"
 OFF=0

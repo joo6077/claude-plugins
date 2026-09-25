@@ -2465,8 +2465,9 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 
 ```bash
 ID=<모델 번호>; OUT=<output_dir>/makerworld; mkdir -p "$OUT"
-# 앞 실행이 남긴 댓글 페이지를 지운다 — 남으면 아래 집계가 옛 페이지까지 읽어 댓글 수와 내용이 섞인다
+# 앞 실행이 남긴 파일을 지운다 — 남으면 받기가 실패해도 아래 집계가 옛 모델 제목 · 댓글 수 · 댓글 페이지를 읽는다
 find "$OUT" -maxdepth 1 -name 'comments-*.json' -delete
+rm -f "$OUT/design.json" "$OUT/instances.json"
 curl -sS -o "$OUT/design.json" -w 'design %{http_code}\n' "https://makerworld.com/api/v1/design-service/design/$ID"
 curl -sS -o "$OUT/instances.json" -w 'instances %{http_code}\n' "https://api.bambulab.com/v1/design-service/design/$ID/instances"
 OFF=0
