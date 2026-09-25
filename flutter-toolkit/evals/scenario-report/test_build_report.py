@@ -1,12 +1,14 @@
 """flutter-scenario-report 의 build_report.py 단위 테스트. 사용: python3 -m unittest discover -s flutter-toolkit/evals/scenario-report -v
 
 BUILD_REPORT_SCRIPT 환경 변수로 대상 스크립트를 바꿀 수 있다 — 검사를 지운 사본으로 돌려 테스트가 실제로 떨어지는지 볼 때 쓴다.
+스크립트는 자기 폴더 옆 templates/report.html 을 읽으므로 사본을 만들 때 템플릿도 같은 모양으로 옮긴다.
 """
 import copy
 import importlib.util
 import json
 import os
 import re
+import shutil
 import struct
 import subprocess
 import sys
@@ -18,6 +20,8 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[2] / "skills" / "flutter-scenario-report"
 SCRIPT = Path(os.environ.get("BUILD_REPORT_SCRIPT", SKILL / "scripts" / "build_report.py"))
 FORMAT_DOC = SKILL / "references" / "record-format.md"
+TEMPLATE = SCRIPT.parent.parent / "templates" / "report.html"
+EXAMPLE = Path(__file__).resolve().parent / "example"
 
 
 def png_bytes(width=1, height=1):
@@ -67,8 +71,8 @@ class BuildReportTest(unittest.TestCase):
             (case_dir / name).write_bytes(png_bytes(3, 7))
         return case_dir
 
-    def run_script(self, *args):
-        done = subprocess.run([sys.executable, str(SCRIPT), str(self.root), *args],
+    def run_script(self, *args, script=SCRIPT):
+        done = subprocess.run([sys.executable, str(script), str(self.root), *args],
                               capture_output=True, text=True, encoding="utf-8")
         return done.returncode, done.stdout, done.stderr
 
@@ -79,6 +83,23 @@ class BuildReportTest(unittest.TestCase):
         self.assertIn("TC-001-transfer", stderr)
         for text in expected:
             self.assertIn(text, stderr)
+        self.assertFalse((self.root / "index.html").exists())
+
+    def copy_script(self, template):
+        """스크립트를 임시 폴더로 옮기고 옆에 template 글로 템플릿을 둔다. None 이면 템플릿을 두지 않는다."""
+        skill = Path(tempfile.mkdtemp())
+        (skill / "scripts").mkdir()
+        shutil.copyfile(SCRIPT, skill / "scripts" / SCRIPT.name)
+        if template is not None:
+            (skill / "templates").mkdir()
+            (skill / "templates" / "report.html").write_text(template, encoding="utf-8")
+        return skill / "scripts" / SCRIPT.name
+
+    def assert_template_rejected(self, template):
+        self.make_case(VALID)
+        code, _, stderr = self.run_script(script=self.copy_script(template))
+        self.assertEqual(code, 2, stderr)
+        self.assertIn("templates/report.html", stderr)
         self.assertFalse((self.root / "index.html").exists())
 
     def test_builds_report(self):
@@ -188,6 +209,22 @@ class BuildReportTest(unittest.TestCase):
         self.run_script()
         self.assertEqual(first, (self.root / "index.html").read_bytes())
         self.assertEqual(files, sorted(self.root.rglob("*")))
+
+    def test_error_template_missing(self):
+        self.assert_template_rejected(None)
+
+    def test_error_template_slot_zero(self):
+        self.assert_template_rejected(TEMPLATE.read_text(encoding="utf-8").replace("<!-- cases -->", ""))
+
+    def test_error_template_slot_extra(self):
+        self.assert_template_rejected(TEMPLATE.read_text(encoding="utf-8").replace("<!-- cases -->", "<!-- cases -->" * 2))
+
+    def test_example_report_is_current(self):
+        shutil.copytree(EXAMPLE, self.root, dirs_exist_ok=True)
+        (self.root / "index.html").unlink()
+        code, _, stderr = self.run_script()
+        self.assertEqual(code, 0, stderr)
+        self.assertEqual((self.root / "index.html").read_bytes(), (EXAMPLE / "index.html").read_bytes())
 
     def test_format_doc_example_passes(self):
         doc = FORMAT_DOC.read_text(encoding="utf-8")
