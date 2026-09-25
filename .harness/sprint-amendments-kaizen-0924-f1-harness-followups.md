@@ -34,5 +34,7 @@ BUILD 는 `$T/E` 를 복사해 `git init` · `git add -A` · 커밋한 사본(`d
 - 봉인 커밋: `5cb9eb0ce69fa4bfd64478f5a51b51838a3bb039` (계약 파일 1 개, `conditions_digest: sha256:a37827c20fae4fbe`)
 - 구현 커밋: `bfadfbb` (harness 스크립트 · 시험 넷) · `e4692cb` (harness 문서 열) · `3e874e8` (scripts 넷) ·
   `66b4e4c` (오케스트레이터 SKILL.md · sync-orchestrator.py) · `306948c` (카이젠 스킬 · 참조 문서 열) · `d97944c` (ci.yml)
+- notes 커밋: `e31e01e4c14851ae73253974bff0b9c9738dde39` — notes · 검토 기록 · 이 파일의 측정 전제 문단. 범위 상한을 이 커밋으로 옮긴다
 
 end_sha: d97944ca6892a4601ee02b5e8cefa93e9c69d6a1
+end_sha: e31e01e4c14851ae73253974bff0b9c9738dde39
