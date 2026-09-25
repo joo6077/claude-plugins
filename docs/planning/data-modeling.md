@@ -1,8 +1,8 @@
 ---
 name: data-modeling
 description: DDD, Event Storming, ERD, Mermaid, Data Dictionary를 제품 기획 관점에서 연결한 문서
-last_updated: 2026-04-14
-version: 0.1.0
+last_updated: 2026-09-25
+version: 0.1.1
 ---
 
 # Data Modeling
@@ -75,9 +75,10 @@ Big Picture Event Storming은 프로세스와 병목을 발견하는 데, Proces
 - attribute에 PK/FK 의미를 드러냈는가?
 
 **적용 시점**: 설계 초안, PRD/ADR 삽입, lightweight schema comms.
-**한계/주의사항**: 복잡한 물리 스키마 전체를 표현하기엔 한계가 있다.
+**한계/주의사항**: 복잡한 물리 스키마 전체를 표현하기엔 한계가 있다. Mermaid 12.0.0(2026-09-10 공개)부터 ERD 의 기본 배치가 Dagre 에서 ELK 로, 기본 모양(theme · look)도 바뀌었다 — 문법은 그대로라도 같은 코드가 11 이하와 다른 그림으로 나올 수 있으니 렌더 결과를 비교할 때는 렌더러 버전을 함께 적는다.
 **출처**:
 - https://mermaid.js.org/syntax/entityRelationshipDiagram.html
+- <https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0>
 
 ```mermaid
 erDiagram
@@ -164,3 +165,4 @@ classDiagram
 - https://www.eventstorming.com/resources/
 - https://mermaid.js.org/syntax/entityRelationshipDiagram.html
 - https://mermaid.js.org/syntax/classDiagram.html
+- <https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0>

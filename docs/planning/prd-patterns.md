@@ -1,8 +1,8 @@
 ---
 name: prd-patterns
 description: PRD와 제품 기획 문서를 작성할 때 참고할 수 있는 대표 패턴과 공개 템플릿 정리
-last_updated: 2026-04-14
-version: 0.1.0
+last_updated: 2026-09-25
+version: 0.2.0
 ---
 
 # PRD Patterns
@@ -122,6 +122,27 @@ Shape Up은 범위를 약속하지 않고 appetite를 약속한다. 따라서 pi
 - https://www.thesprintbook.com/
 - https://www.gv.com/sprint/
 
+### 폐기한 결정 — 비범위 절 한 곳에 적는다
+
+**요약**: 사용자가 버리기로 한 기능·설정 항목은 그 기능의 PRD 비범위 절에 적는다. PR/FAQ · Linear-style 스펙은 `## Non-goals (폐기한 결정 포함)`, Shape Up pitch 는 원문 용어대로 `## No-gos` 다. 결정 원문은 이 한 곳에만 둔다. 디자인 승인 기록 · 작업 계약 · 핸드오프처럼 같은 결정을 다시 언급하는 문서는 이 PRD 경로를 가리키고 결정을 다시 쓰지 않는다 — 원문이 두 곳에 있으면 한쪽만 고쳐진다.
+
+Shape Up 은 No-gos 를 pitch 의 다섯 요소 가운데 하나로 두고, appetite 에 맞추거나 문제를 다루기 쉽게 하려고 일부러 뺀 기능 또는 사용 사례라고 정의한다. 무엇을 뺐는지와 왜 뺐는지는 여기서 나온다. GitHub Projects 모범 사례는 정보를 여러 필드에 겹쳐 두지 말고 한 곳을 기준으로 두라고 한다 — 그 문서의 예는 출시 목표일이고, 폐기 결정에 옮겨 쓴 것은 이 킷의 추론이다.
+
+**핵심 질문/포맷/체크리스트**:
+
+- 비범위 표가 네 칸(하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적)을 갖는가? 흔적이 없으면 `없음` 이라고 적었는가?
+- 범위 칸이 `이번 PRD` · `이번 사이클` · `제품 전체` 가운데 하나인가?
+- PRD 를 쓴 뒤에 나온 폐기 결정을 새 문서가 아니라 이 표에 한 줄 더했는가?
+- 뒤 단계 산출물(스토리 · 흐름 · 데이터 모델)이 표의 항목을 다시 만들지 않았는가?
+
+**적용 시점**: PRD 작성, 기획 도중 사용자가 기능이나 설정 항목을 없애기로 한 때, 스토리 · 흐름 · 데이터 모델을 PRD 에서 이어 만들 때.
+**한계/주의사항**: 폐기는 영구 금지가 아니다. Shape Up 의 No-gos 는 그 pitch 와 appetite 안의 결정이고, INVEST 의 Negotiable 은 스토리를 특정 기능의 고정 계약으로 보지 않는다. 그래서 뒤 단계 산출물이 표의 항목과 겹치면 되살리지 말고 먼저 묻는다. `코드에 남은 흔적` 칸(서버 필드 · 호출되지 않는 화면 파일 등)과 「흔적은 채울 빈틈이 아니라 치울 목록」 이라는 분류는 외부 방법론에서 온 것이 아니라 이 킷의 운영 규칙이다. PRD 가 없는 프로젝트의 기록 자리는 이 절이 정하지 않는다.
+**출처**:
+
+- <https://basecamp.com/shapeup/1.5-chapter-06>
+- <https://agilealliance.org/glossary/invest/>
+- <https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects>
+
 ## 참고 링크 (전체)
 - https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes [dated: 2025-10]
 - https://www.amazon.jobs/en/landing_pages/about-amazon%20
@@ -137,3 +158,5 @@ Shape Up은 범위를 약속하지 않고 appetite를 약속한다. 따라서 pi
 - https://docs.stripe.com/agentic-commerce/product-catalog
 - https://www.thesprintbook.com/ [dated: 2025-10]
 - https://www.gv.com/sprint/
+- <https://agilealliance.org/glossary/invest/>
+- <https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects>
