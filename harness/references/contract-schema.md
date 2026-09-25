@@ -604,8 +604,8 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 ```bash
 # .harness/ 의 계약 파일만 골라 봉인 상태를 센다. 피드백·개정·project.yaml·handoff/ 는 계약이 아니다
 # -maxdepth 를 걸지 않는다 — history/ 로 옮긴 계약이 조용히 검사에서 빠진다 (실측 1 건)
-# 두 함수가 없는 셸에서 세면 모든 계약이 SEAL_ABSENT 로 보여 「SEAL_BROKEN 0」 이 거짓으로 나온다 — 정의부터 확인하고 없으면 멈춘다
-type verify_seal fm_get >/dev/null 2>&1 || { echo "STOP verify_seal · fm_get 정의 없음 — §계약 봉인 · §값 따옴표 규약 블록을 먼저 읽는다" >&2; exit 2; }
+# 네 함수 가운데 하나라도 없는 셸에서 세면 모든 계약이 SEAL_ABSENT(fm_get 없음)나 SEAL_BROKEN(contract_digest · sha256_16 없음)으로 잘못 나온다 — 정의부터 확인하고 없으면 멈춘다
+type verify_seal fm_get contract_digest sha256_16 >/dev/null 2>&1 || { echo "STOP verify_seal · fm_get · contract_digest · sha256_16 정의 없음 — §계약 봉인 · §값 따옴표 규약 블록을 먼저 읽는다" >&2; exit 2; }
 find .harness -type f -name 'sprint-contract*.md' -print0 \
 | while IFS= read -r -d '' f; do verify_seal "$f"; done \
 | awk '{print $1}' | sort | uniq -c
