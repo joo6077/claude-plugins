@@ -4,7 +4,7 @@ slug: kaizen-0924-f2-review-fixes
 created: "2026-09-26 02:29"
 complexity: "복잡"
 conditions: 30
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:1d2980c691dc41b0
 locked_at: "2026-09-26 03:38"
