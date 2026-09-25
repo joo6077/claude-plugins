@@ -4,7 +4,7 @@ slug: kaizen-0924-final
 created: "2026-09-25 19:11"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: de8c7935-a5b6-4df5-9106-fafa73c288a0
 conditions_digest: sha256:81b9a7409e53588b
 locked_at: "2026-09-25 20:43"
