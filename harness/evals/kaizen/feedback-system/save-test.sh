@@ -145,7 +145,40 @@ fi
 rm -f "${NOID_SAVED}" "${NOID_ERR}"
 echo "PASS: identity 없는 초안 저장 (재계산 project_hash · project_name 확인)"
 
-# 9. 초안 누락 보고에 재계산 필드를 섞지 않는다 — timestamp 만 빠졌으면 timestamp 만 적는다
+# 9. 워크트리에서 저장해도 project_name 은 본 레포 폴더 이름이다 — reflect-kit project_root 와 같은 규칙.
+#    --show-toplevel 로 구하면 워크트리 이름(wt-x)이 적혀 같은 레포 피드백이 워크트리마다 갈린다
+WT_BASE="$(mktemp -d)"
+WT_BASE="$(cd "${WT_BASE}" && pwd -P)"
+WT_MAIN="${WT_BASE}/projmain"
+if ! (
+  export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+  export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.com GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.com
+  mkdir -p "${WT_MAIN}/.harness" && : > "${WT_MAIN}/.harness/.keep" &&
+    git -C "${WT_MAIN}" init -q -b main && git -C "${WT_MAIN}" add -A && git -C "${WT_MAIN}" commit -qm init &&
+    git -C "${WT_MAIN}" worktree add -q -b wt "${WT_MAIN}/.claude/worktrees/wt-x"
+) >/dev/null 2>&1; then
+  echo "FAIL: 워크트리 시험 저장소를 만들지 못했다"
+  rm -rf "${WT_BASE}" "${DRAFT_SRC}"
+  exit 1
+fi
+WT_DRAFT="/tmp/test-wt-draft.yaml"
+cp "${DRAFT_SRC}" "${WT_DRAFT}"
+set +e
+WT_SAVED=$(cd "${WT_MAIN}/.claude/worktrees/wt-x" &&
+  REFLECT_KIT_LOGS_ROOT="${WT_BASE}/logs" bash "${HARNESS_SCRIPTS}/save-feedback.sh" contract "${WT_DRAFT}" 2>/dev/null)
+WT_RC=$?
+WT_NAME=$(sed -n 's/^project_name:[[:space:]]*//p' "${WT_SAVED}" 2>/dev/null | head -1 | tr -d "'\"")
+set -e
+rm -f "${WT_SAVED}" "${WT_DRAFT}"
+rm -rf "${WT_BASE}"
+if [[ "${WT_RC}" -ne 0 || "${WT_NAME}" != "projmain" ]]; then
+  echo "FAIL: 워크트리 저장본 project_name — 기대 projmain, 실제 '${WT_NAME}' (rc=${WT_RC})"
+  rm -f "${DRAFT_SRC}"
+  exit 1
+fi
+echo "PASS: 워크트리 저장본 project_name (projmain)"
+
+# 10. 초안 누락 보고에 재계산 필드를 섞지 않는다 — timestamp 만 빠졌으면 timestamp 만 적는다
 NOTS_DRAFT="/tmp/test-nots-draft.yaml"
 grep -vE '^(project_hash|project_name|timestamp):' "${DRAFT_SRC}" > "${NOTS_DRAFT}"
 rm -f "${DRAFT_SRC}"

@@ -158,19 +158,30 @@ parse_commit_args() {
   done
 }
 
+# overlay_deletes <목록 파일> <이름 목록> — 목록 파일에 그 이름들의 작업 폴더 상태를 얹고, git 처럼 이름 바꾸기(-M)를
+# 가려 남는 삭제 이름을 낸다. 파일 수로 세면 git mv 로 옮긴 폴더가 통째로 삭제로 보인다. 얹지 못하면 빈 값(통과)이다.
+# 희소 체크아웃으로 꺼내지 않은 파일(ls-files -t 의 S)은 작업 폴더에 없어도 git 이 싣지 않으므로 얹지 않는다
+overlay_deletes() {
+  local idx=$1 top
+  top=$(g rev-parse --show-toplevel) || return 0
+  comm -23 <(printf '%s\n' "$2" | grep . | sort -u) \
+    <(g ls-files -t --full-name -- "${c_pathv[@]}" | sed -n 's/^S //p' | sort) \
+    | GIT_INDEX_FILE=$idx git -C "$top" update-index --add --remove --stdin 2>/dev/null || return 0
+  GIT_INDEX_FILE=$idx git -C "$top" -c core.quotePath=false diff --cached -M --diff-filter=D --name-only HEAD 2>/dev/null
+}
+
 # 경로 지정 커밋은 공용 목록이 아니라 HEAD 위에 그 경로의 작업 폴더 상태를 얹는다. 목록으로 세면
-# 목록에서만 뺀 파일(rm --cached)이나 빈 개인 목록을 삭제로 잘못 세고, 목록에 없는 작업 폴더 삭제는 놓친다
+# 목록에서만 뺀 파일(rm --cached)이나 빈 개인 목록을 삭제로 잘못 세고, 목록에 없는 작업 폴더 삭제는 놓친다.
+# git 이 얹는 파일은 HEAD 와 실제 목록의 합이다 — 새 경로만 목록에 있는 이동(git mv)도 그래서 이름 바꾸기로 잡힌다
 check_path_commit() {  # check_path_commit <저장소 폴더>
   local d=$1 t names n
   [ "$c_pfile" = 1 ] && return 0   # 경로를 파일로 넘기면 대상을 모른다
   g rev-parse -q --verify HEAD >/dev/null || return 0
   t=$(mktemp -d "${TMPDIR:-/tmp}/commit-guard.XXXXXX") || return 0
   names=$(GIT_INDEX_FILE=$t/index git -C "$d" read-tree HEAD 2>/dev/null &&
-    GIT_INDEX_FILE=$t/index git -C "$d" -c core.quotePath=false ls-files --full-name --deleted -- "${c_pathv[@]}" 2>/dev/null)
+    overlay_deletes "$t/index" "$(GIT_INDEX_FILE=$t/index git -C "$d" -c core.quotePath=false ls-files --full-name -- "${c_pathv[@]}" 2>/dev/null
+      g ls-files --full-name -- "${c_pathv[@]}")")
   rm -rf "$t"
-  # 희소 체크아웃으로 꺼내지 않은 파일(ls-files -t 의 S)은 작업 폴더에 없어도 git 이 싣지 않는다
-  names=$(comm -23 <(printf '%s\n' "$names" | grep . | sort) \
-    <(g ls-files -t --full-name -- "${c_pathv[@]}" | sed -n 's/^S //p' | sort))
   n=$(printf '%s\n' "$names" | grep -c .)
   [ "$n" -gt "$limit" ] || return 0
   block "삭제 $n 개가 실린 커밋을 막았다 (기준 $limit 개 초과 · 지정한 경로 안에서 작업 폴더에 없는 추적 파일)." "상위 폴더:
@@ -179,7 +190,7 @@ $(top_dirs "$names")
 }
 
 check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값> <commit 인자…>
-  local d=$1 idx=$2 gd f staged extra names del_count reverted shown more
+  local d=$1 idx=$2 gd f staged extra names del_count reverted shown more t src
   shift 2
   parse_commit_args "$@"
   [ "$c_dry" = 1 ] && return 0
@@ -207,12 +218,18 @@ check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값>
   fi
 
   staged=$(g diff --cached -M --diff-filter=D --name-only)
+  # -i 는 지정한 경로의 작업 폴더 삭제를 목록에 더해 싣는다. 목록 사본에 얹어 세야
+  # 옮긴 파일(새 경로만 git add)의 옛 경로가 삭제가 아니라 이름 바꾸기로 잡힌다
+  if [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; then
+    t=$(mktemp -d "${TMPDIR:-/tmp}/commit-guard.XXXXXX") || return 0
+    src=${g_index:-$(g rev-parse --git-path index)}
+    case $src in /*) ;; *) src=$d/$src ;; esac
+    cp "$src" "$t/index" 2>/dev/null &&
+      staged=$(overlay_deletes "$t/index" "$(g ls-files --full-name -- "${c_pathv[@]}")")
+    rm -rf "$t"
+  fi
   extra=""
   if [ "$c_all" = 1 ] || [ "$add_all" = 1 ]; then extra=$(g ls-files --deleted); fi
-  # -i 는 지정한 경로의 작업 폴더 삭제를 목록에 더해 싣는다
-  if [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; then
-    extra=$(printf '%s\n%s\n' "$extra" "$(g ls-files --full-name --deleted -- "${c_pathv[@]}")" | grep -v '^$')
-  fi
   names=$(printf '%s\n%s\n' "$staged" "$extra" | grep -v '^$' | sort -u)
   del_count=$(printf '%s\n' "$names" | grep -c .)
   [ "$del_count" -gt "$limit" ] && block_deleted "$del_count" "$names" "$extra"

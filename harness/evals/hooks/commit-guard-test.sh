@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # commit-guard.sh 를 임시 저장소에서 사고 형태와 정상 형태로 돌려 exit 코드와 출력을 대조한다.
 # 번호는 계약 조건 SC-01 ①~⑤ · SC-02 ⑥~⑭ · SC-03 ⑮⑯ · ER-01 · ER-02 (insights-0924-hooks-skill-collector) 와
-# ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) 를 따른다.
+# ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) 를 따른다.
 # COMMIT_GUARD_HOOK 으로 훅 경로를 바꿀 수 있다 — 판정 줄을 지운 사본으로 음성 대조를 돌릴 때 쓴다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -161,6 +161,27 @@ if [ -e "$r/d1/f001" ] || [ "$sparse_n" != 60 ]; then
 else
   run pre 'git commit -o -m x -- .' "$r"; expect ㉕ 0 empty
 fi
+
+# ── 이름 바꾸기: 경로 지정 · -i 커밋도 git 이 이름 바꾸기로 잇는 옛 경로는 삭제로 세지 않는다 ──
+r=$work/c26; mk_repo "$r"; git -C "$r" mv d1 d2
+run pre 'git commit -o -m x -- d1 d2' "$r"; expect ㉖ 0 empty
+
+r=$work/c27; mk_repo "$r"; mv "$r/d1" "$r/d2"; git -C "$r" add d2
+run pre 'git commit -o -m x -- d1 d2' "$r"; expect ㉗ 0 empty
+
+r=$work/c28; mk_repo "$r"; mv "$r/d1" "$r/d2"; git -C "$r" add d2
+run pre 'git commit -i -m x -- d1' "$r"; expect ㉘ 0 empty
+
+# 이름 바꾸기 60 개에 진짜 삭제 60 개가 섞이면 막는다
+r=$work/c29; mk_repo "$r"; mkdir -p "$r/d3"
+for ((k = 1; k <= 60; k++)); do printf 'other %d\n' "$k" >"$r/d3/$(printf 'g%03d' "$k")"; done
+git -C "$r" add d3 && git -C "$r" commit -qm d3
+git -C "$r" mv d1 d2 && git -C "$r" rm -rq d3
+run pre 'git commit -o -m x -- d1 d2 d3' "$r"; expect ㉙ 2 '' '개가 실린 커밋을 막았다'
+
+# 옮긴 새 경로가 지정 경로 밖이면 옛 경로 60 개가 삭제로 실린다
+r=$work/c30; mk_repo "$r"; git -C "$r" mv d1 d2
+run pre 'git commit -o -m x -- d1' "$r"; expect ㉚ 2 '' '삭제 60 개'
 
 # ── SC-03 커밋 직후 알림 ──
 r=$work/c15; mk_repo "$r"; rm_staged "$r" 60; git -C "$r" commit -qm del

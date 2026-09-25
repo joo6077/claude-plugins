@@ -134,12 +134,19 @@ resolve_contract_root() {
   printf '%s' "$PWD"
 }
 
-# reflect-kit 과 동일하게 git root 를 identity 기준 경로로 삼는다.
+# reflect-kit hooks/_lib-project-id.sh 의 project_root 와 같은 규칙 — 워크트리에서도 본 레포 폴더를 낸다.
+# --show-toplevel 만 쓰면 워크트리 이름이 project_name 이 되어 같은 레포 피드백이 워크트리마다 갈렸다.
+# 공통 git 폴더 이름이 .git 일 때만 그 부모를 쓴다 — 서브모듈의 공통 폴더는 상위 레포의 .git/modules/<이름> 이다
 identity_root_of() {
-  local root="$1" gr
+  local root="$1" gr gdir common
   gr="$(git -C "$root" rev-parse --show-toplevel 2>/dev/null)" || gr=""
-  if [[ -n "$gr" ]]; then printf '%s' "$gr"; return 0; fi
-  printf '%s' "$root"
+  if [[ -z "$gr" ]]; then printf '%s' "$root"; return 0; fi
+  gdir="$(git -C "$root" rev-parse --path-format=absolute --git-dir 2>/dev/null)" || gdir=""
+  common="$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" || common=""
+  if [[ -n "$common" && "$gdir" != "$common" && "$(basename "$common")" == ".git" ]]; then
+    printf '%s' "$(dirname "$common")"; return 0
+  fi
+  printf '%s' "$gr"
 }
 
 # reflect-kit hooks/_lib-project-id.sh 의 _rk_hash6 과 동일 로직
