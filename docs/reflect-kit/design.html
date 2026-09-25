@@ -6,59 +6,154 @@
 <title>Design — Reflect Kit</title>
 <style>
 :root{
-  --bg:#0d0d14;--bg2:#12121c;
-  --surface:#181825;--surface2:#1e1e30;
+  --bg:#0d0d14;
+  --bg2:#12121c;
+  --surface:#181825;
+  --surface2:#1e1e30;
   --border:#2a2a40;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
-  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
-  --accent:#F43F5E;--accent2:#FDA4AF;
-  --accent-dim:rgba(244,63,94,0.12);
-  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --text:#F5F0E8;
+  --text2:#A89A8F;
+  --text3:#948779;
+  --green:#4ade80;
+  --red:#f87171;
+  --yellow:#fbbf24;
+  --accent:#F43F5E;
+  --accent2:#FDA4AF;
+  --accent-dim:rgba(244,63,94,.12);
+  --radius:14px;
+  --transition:.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  background-color:var(--bg);color:var(--text);line-height:1.6;
+  background-color:var(--bg);
+  color:var(--text);
+  line-height:1.6;
   background-image:
-    radial-gradient(ellipse at 20% 0%,rgba(244,63,94,0.07) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(244,63,94,0.03) 0%,transparent 50%);
+    radial-gradient(ellipse at 20% 0%,rgba(244,63,94,.07),transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(244,63,94,.03),transparent 50%);
   min-height:100vh;
 }
-header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
-.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
-.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
+header{
+  border-bottom:1px solid var(--border);
+  background:rgba(18,18,28,.85);
+  backdrop-filter:blur(12px);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.header-inner{
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 24px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  height:60px;
+}
+.header-inner>*{min-width:0}
+.logo-link{color:var(--text2);text-decoration:none;font-size:.85rem;transition:color var(--transition)}
 .logo-link:hover{color:var(--accent)}
+.logo-link:focus-visible,.card-source:focus-visible{outline:2px solid var(--accent2);outline-offset:4px;border-radius:4px}
 .sep{color:var(--text3)}
-.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+.page-title{font-size:.95rem;font-weight:600}
 main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
-h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
-.subtitle{color:var(--text2);font-size:1.05rem;max-width:720px;line-height:1.7}
-.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(244,63,94,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
-section{margin-bottom:56px}
-.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
-h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
-h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
-.card:hover{border-color:rgba(244,63,94,0.25);box-shadow:0 4px 20px rgba(244,63,94,0.06)}
-.card-icon{font-size:1.4rem;margin-bottom:10px}
-.card h3{font-size:0.95rem;margin-bottom:8px}
-.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
-.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
-.card-source:hover{opacity:1}
-pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0;white-space:pre}
-code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
-.table-wrap{overflow-x:auto;margin:16px 0}
-table{width:100%;border-collapse:collapse;font-size:0.88rem}
-th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border)}
-td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2)}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(244,63,94,0.03)}
-.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
+.hero{margin-bottom:56px}
+h1{
+  font-size:clamp(1.8rem,4vw,2.6rem);
+  font-weight:700;
+  letter-spacing:-.03em;
+  line-height:1.2;
+  background:linear-gradient(135deg,var(--text),var(--accent));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:12px;
+}
+.subtitle{color:var(--text2);font-size:1.05rem;max-width:760px;line-height:1.7}
+.badge{
+  display:inline-flex;
+  background:var(--accent-dim);
+  color:var(--accent2);
+  border:1px solid rgba(244,63,94,.35);
+  border-radius:20px;
+  padding:4px 12px;
+  font-size:.8rem;
+  font-weight:600;
+  margin-top:16px;
+}
+section{margin-bottom:64px;scroll-margin-top:84px}
+.section-label{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-bottom:16px}
+h2{font-size:1.5rem;line-height:1.3;margin-bottom:20px}
+h3{font-size:1.05rem;line-height:1.4;margin-bottom:12px}
+.lead{color:var(--text2);font-size:1rem;line-height:1.7;max-width:840px;margin-bottom:20px}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
+  gap:16px;
+  margin-bottom:24px;
+}
+.cards>*{min-width:0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition)}
+.card:hover{border-color:rgba(244,63,94,.35)}
+.card h3{font-size:1rem;margin-bottom:8px}
+.card p,.card li{color:var(--text2);font-size:.9rem;line-height:1.65}
+.card ul{padding-left:20px}
+.card-source{display:inline-flex;color:var(--accent2);font-size:.82rem;text-decoration:underline;text-underline-offset:3px;margin-top:14px}
+.card-source:hover{color:var(--text)}
+pre,.flow-diagram{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+  overflow-x:auto;
+  max-width:100%;
+  font-family:var(--mono);
+  font-size:.82rem;
+  line-height:1.7;
+  color:var(--text);
+  margin:16px 0;
+  white-space:pre;
+}
+pre code{white-space:pre}
+code{font-family:var(--mono);font-size:.9em;color:var(--accent2)}
+:not(pre)>code{overflow-wrap:anywhere}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;margin:16px 0}
+.table-wrap>table{min-width:max-content}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{background:var(--surface2);color:var(--text);padding:11px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(244,63,94,.03)}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;color:var(--text2);line-height:1.7}
+.callout strong{color:var(--text)}
 .callout.warn{border-left-color:var(--yellow)}
-.flow-diagram{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:24px;font-family:var(--mono);font-size:0.82rem;line-height:1.9;color:var(--text);white-space:pre-wrap;margin:16px 0}
-.precedence-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:0.78rem}
+.precedence-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent-dim);color:var(--accent2);font-weight:700}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.compare>*{min-width:0}
+.compare-bad,.compare-good{border-radius:var(--radius);padding:22px}
+.compare-bad{background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.3)}
+.compare-good{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.3)}
+.compare-label{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--red)}
+.compare-good .compare-label{color:var(--green)}
+.compare p{color:var(--text2)}
+.checklist{list-style:none;display:grid;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+.check{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:0 0 22px;border:2px solid var(--accent);border-radius:5px;color:var(--accent2)}
+.plain-list{color:var(--text2);padding-left:22px;line-height:1.8}
+.metric{font-family:var(--mono);color:var(--accent2);font-weight:700}
+@media(max-width:600px){
+  main{padding:36px 18px 64px}
+  .header-inner{padding:0 18px;gap:8px}
+  .compare,.cards{grid-template-columns:1fr}
+  pre,.flow-diagram{padding:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important}
+}
 </style>
 </head>
 <body>
@@ -72,136 +167,257 @@ tr:hover td{background:rgba(244,63,94,0.03)}
   </div>
 </header>
 <main>
-  <div style="margin-bottom:56px">
+  <div class="hero">
     <h1>Design — Reflect Kit</h1>
-    <p class="subtitle">
-      Reflexion 방법론을 개인 Claude Code 사용자에게 적용한 피드백 파이프라인의 구조·판정 규칙·회귀 측정 설계.
-      수집 훅 3종 → digest 집계 → precedence table 기반 surface 승격 → ledger 기반 30일 재발률 추적이라는 닫힌 사이클로 구성된다.
-    </p>
-    <div class="badge">파이프라인 설계 · 설계 결정 정본</div>
+    <p class="subtitle">사용자 교정과 도구 실패를 수집해 구조화하고, 적절한 surface로 승격한 뒤 30일 재발률로 효과를 검증하는 개인용 피드백 파이프라인의 설계 정본입니다.</p>
+    <div class="badge">v0.3.0 · Hybrid project_id · 2026-09-25 워크트리 규칙 반영</div>
   </div>
 
   <section>
-    <div class="section-label">데이터 플로우</div>
-    <h2>3채널 수집 → 분석 → 승격 → 측정</h2>
-    <div class="flow-diagram">[ 사용자 프롬프트 ] → UserPromptSubmit → log-prompt.sh       → redact → YYYY-MM.md
-[ 도구 실패 ]     → PostToolUseFailure → log-tool-failure.sh → redact → YYYY-MM.md
-[ 세션 종료 ]     → Stop (nohup 백그라운드) → log-reflection.sh
-                                        └─► codex exec 분석 → reflections-YYYY-MM.md
-                                        └─► 실패 시 → .errors.log
-                                                      │
-                                                      ▼
-                                          /reflect-digest (집계 + 승격 후보)
-                                                      │
-                                                      ▼
-                                          /reflect-promote (반영 + ledger append)
-                                                      │
-                                                      ▼
-                                          /reflect-kaizen (품질 스팟체크 + 30d calibration)</div>
-    <div class="callout">
-      <strong>수집 3채널 분리의 이유</strong> — 한 채널이 실패해도 나머지 2채널이 관측을 계속한다. Stop 훅의 codex 분석이 실패해도 raw 프롬프트와 도구 실패 로그는 그대로 쌓이므로 사후 수동 분석이 가능하다.
-    </div>
-  </section>
-
-  <section>
-    <div class="section-label">Surface 판정 4축</div>
-    <h2>단일 필드 대신 다차원 분해</h2>
+    <div class="section-label">설계 원칙과 출처</div>
+    <h2>닫힌 피드백 루프의 원칙</h2>
     <div class="cards">
-      <div class="card">
-        <div class="card-icon">🗺️</div>
-        <h3>scope</h3>
-        <p>이 규칙이 어느 범위에 적용되어야 하는가. <code>session</code> / <code>project</code> / <code>global</code>. 프로젝트 간 공통 패턴은 global로 승급.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">⚠️</div>
-        <h3>risk_class</h3>
-        <p>위반 시 피해 정도. <code>low</code> / <code>medium</code> / <code>high</code>. high일수록 CLAUDE.md 또는 hook으로 승격.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">📋</div>
-        <h3>procedurality</h3>
-        <p>단일 규칙인가 다단계 체크리스트인가. <code>single_rule</code>은 memory/CLAUDE.md, <code>multi_step_procedure</code>는 skill.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🔒</div>
-        <h3>enforcement_need</h3>
-        <p>안내로 충분한가 차단이 필요한가. <code>soft_reminder</code>는 텍스트 surface, <code>hard_gate</code>는 hook.</p>
-      </div>
+      <article class="card"><h3>언어 피드백으로 다음 시도를 개선</h3><p>실패를 다음 행동에 재사용할 수 있는 성찰 기록으로 바꿉니다.</p><a class="card-source" href="https://arxiv.org/abs/2303.11366">Reflexion 논문 →</a></article>
+      <article class="card"><h3>구체적 피드백으로 반복 개선</h3><p>잘못된 행동과 원하는 행동을 분리하고 반복 시 더 강한 surface로 올립니다.</p><a class="card-source" href="https://arxiv.org/abs/2303.17651">Self-Refine 논문 →</a></article>
+      <article class="card"><h3>규칙은 적용 범위 가까이에</h3><p>전역·프로젝트·path-scoped 규칙을 구분하고 용량 예산을 지킵니다.</p><a class="card-source" href="https://code.claude.com/docs/en/memory">Claude Code memory 문서 →</a></article>
+      <article class="card"><h3>절차와 강제 장치를 분리</h3><p>긴 절차는 skill에, 차단 조건은 hook 검토 대상으로 보냅니다.</p><a class="card-source" href="https://code.claude.com/docs/en/skills">Claude Code skills 문서 →</a></article>
     </div>
   </section>
 
   <section>
-    <div class="section-label">Surface Precedence Table</div>
-    <h2>위에서 아래로 적용, 먼저 맞는 규칙 하나만 선택</h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>#</th><th>조건</th><th>승격 surface</th></tr></thead>
-        <tbody>
-          <tr><td><span class="precedence-num">1</span></td><td><code>enforcement_need == hard_gate</code> (빈도 무관)</td><td><strong>hook 검토</strong> (다른 축 무시)</td></tr>
-          <tr><td><span class="precedence-num">2</span></td><td><code>procedurality == multi_step_procedure</code> AND freq ≥ 2</td><td><strong>skill</strong> 신설/보강</td></tr>
-          <tr><td><span class="precedence-num">3</span></td><td><code>scope == global</code> AND 복수 프로젝트 freq ≥ 3</td><td><code>risk=high</code> → <strong>글로벌 CLAUDE.md</strong> / 나머지 → <strong>글로벌 memory</strong></td></tr>
-          <tr><td><span class="precedence-num">4</span></td><td><code>scope == project</code> AND freq ≥ 3</td><td><strong>project CLAUDE.md</strong> (200줄 초과 예상 시 path_scoped_rule)</td></tr>
-          <tr><td><span class="precedence-num">5</span></td><td><code>scope == project</code> AND freq ≥ 2</td><td><strong>project memory (feedback 타입)</strong></td></tr>
-          <tr><td><span class="precedence-num">6</span></td><td><code>risk_class == low</code> AND freq == 1</td><td><strong>관망</strong> (다음 주 재평가)</td></tr>
-          <tr><td><span class="precedence-num">7</span></td><td>그 외</td><td><strong>수동 review 후보</strong></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="callout warn">
-      <strong>임계값은 hypothesis</strong> — <code>freq 2 / 3</code> 기준은 초기 가설이다. Claude 공식 권고는 "같은 실수 2번째 → CLAUDE.md"이지만, 과잉제약을 피하기 위해 한 단 낮게 설정했다. 30일 운영 데이터가 쌓이면 <code>/reflect-kaizen</code>이 pre/post 재발률로 calibration 한다.
-    </div>
+    <div class="section-label">01 · Pipeline</div>
+    <h2>데이터 플로우</h2>
+    <div class="flow-diagram">[ 사용자 프롬프트 ] ─► UserPromptSubmit ─► log-prompt.sh ─► redact ─► YYYY-MM.md
+[ 도구 실패 ]      ─► PostToolUseFailure ─► log-tool-failure.sh ─► redact ─► YYYY-MM.md
+[ 세션 종료 ]      ─► Stop (async) ─► log-reflection.sh ─► codex exec ─► reflections-YYYY-MM.md
+                                      └─ 실패 ─► .errors.log
+                                                    │
+                                                    ▼
+                              /reflect-digest ─► /reflect-promote ─► /reflect-kaizen</div>
+    <div class="callout"><strong>독립 수집:</strong> Stop 분석이 실패해도 raw prompt와 도구 실패 기록은 남습니다. 분석 실패는 <code>.errors.log</code>로 보내 “기록 0건”과 “문제 없음”을 구분합니다.</div>
   </section>
 
   <section>
-    <div class="section-label">Ledger</div>
-    <h2>Promotion Ledger — 30일 회귀 측정의 근간</h2>
-    <p style="color:var(--text2);margin-bottom:16px">경로: <code>~/.claude/logs/&lt;project_id&gt;/promotions-ledger.md</code></p>
-    <pre>- rule_id: &lt;uuid&gt;
-  mistake_tag: &lt;tag&gt;
+    <div class="section-label">02 · Canonical Schema</div>
+    <h2>YAML 스키마 (정본)</h2>
+    <p class="lead"><code>reflections-YYYY-MM.md</code>의 각 <code>## &lt;ISO8601+TZ&gt;</code> 아래에는 여러 블록이 올 수 있으며, 문제가 없으면 <code>no issues</code> 한 줄만 기록합니다.</p>
+    <pre><code>primary_category: misunderstanding | repeated_error | wrong_approach | tool_failure
+also_applies: []
+mistake_tag: &lt;kebab-case 영문 태그&gt;
+trigger: &lt;상황 스니펫 1줄&gt;
+undesired_behavior: &lt;잘못 1줄&gt;
+desired_behavior: &lt;원한 것 1줄&gt;
+severity: low | medium | high
+actionability: claude_behavior | user_environment
+scope: session | project | global
+risk_class: low | medium | high
+procedurality: single_rule | multi_step_procedure
+enforcement_need: soft_reminder | hard_gate
+evidence_turns: &lt;int&gt;
+tools_used:
+  skills: []
+  agents: []
+  mcp_servers: []
+approach_note: &lt;접근법 1줄&gt;</code></pre>
+    <div class="cards">
+      <article class="card"><h3>misunderstanding</h3><p>사용자 의도, 파일 범위, 전제를 잘못 이해.</p></article>
+      <article class="card"><h3>repeated_error</h3><p>교정 뒤에도 동일 실수를 반복.</p></article>
+      <article class="card"><h3>wrong_approach</h3><p>더 적절한 skill·agent·MCP 대신 비효율적인 접근.</p></article>
+      <article class="card"><h3>tool_failure</h3><p>맥락이 의미 있는 도구 실패. 단순 exit code-only는 제외.</p></article>
+    </div>
+    <div class="compare">
+      <div class="compare-bad"><div class="compare-label">Bad · 단일 필드 압축</div><p>겹치는 원인을 버리고 <code>surface_candidate</code> 하나로 원인과 해결책을 함께 표현합니다.</p></div>
+      <div class="compare-good"><div class="compare-label">Good · 원인과 surface 분리</div><p><code>primary_category + also_applies</code>로 분류하고 네 축과 빈도로 surface를 계산합니다.</p></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>축</th><th>의미</th><th>값</th></tr></thead>
+      <tbody>
+        <tr><td><code>scope</code></td><td>적용 범위</td><td>session / project / global</td></tr>
+        <tr><td><code>risk_class</code></td><td>위반 피해</td><td>low / medium / high</td></tr>
+        <tr><td><code>procedurality</code></td><td>단일 규칙 vs 체크리스트</td><td>single_rule / multi_step_procedure</td></tr>
+        <tr><td><code>enforcement_need</code></td><td>안내 vs 차단</td><td>soft_reminder / hard_gate</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout warn"><strong>actionability:</strong> <code>user_environment</code>는 precedence에서 제외해 환경 액션으로만 보고합니다. 반복분은 억제해 <code>.env-issues.tsv</code>에 누적합니다.</div>
+  </section>
+
+  <section>
+    <div class="section-label">03 · Promotion Decision</div>
+    <h2>Surface Precedence Table</h2>
+    <p class="lead"><code>user_environment</code>를 제외한 뒤 canonical + aliases의 <code>cluster_freq</code>를 사용합니다. 위에서 아래로 처음 맞는 하나만 적용합니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>조건</th><th>승격 surface</th></tr></thead>
+      <tbody>
+        <tr><td><span class="precedence-num">0</span></td><td><code>user_stated_constraint == true</code>, freq ≥ 1</td><td>임계값 우회 fast-track: global이면 글로벌 CLAUDE.md, 아니면 project CLAUDE.md</td></tr>
+        <tr><td><span class="precedence-num">1</span></td><td><code>hard_gate</code>, 빈도 무관</td><td>hook 검토</td></tr>
+        <tr><td><span class="precedence-num">2</span></td><td><code>multi_step_procedure</code> AND freq ≥ 2</td><td>skill 신설/보강</td></tr>
+        <tr><td><span class="precedence-num">3</span></td><td>global AND 복수 프로젝트 freq ≥ 3</td><td>high는 글로벌 CLAUDE.md, 나머지는 글로벌 memory</td></tr>
+        <tr><td><span class="precedence-num">4</span></td><td>project AND freq ≥ 3</td><td>project CLAUDE.md, 200줄 초과 예상 시 path-scoped rule</td></tr>
+        <tr><td><span class="precedence-num">5</span></td><td>project AND freq ≥ 2</td><td>project memory</td></tr>
+        <tr><td><span class="precedence-num">6</span></td><td>low risk AND freq == 1</td><td>관망</td></tr>
+        <tr><td><span class="precedence-num">7</span></td><td>그 외</td><td>수동 review</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout warn"><strong>임계값은 hypothesis:</strong> 2회는 memory, 3회는 CLAUDE.md로 시작하고 월 1회 30일 재발률로 조정합니다.</div>
+    <h3>CLAUDE.md 용량 예산</h3>
+    <p class="lead">공식 권고 <span class="metric">200줄 이하</span>. 초과 예상 시 <code>.claude/rules/&lt;tag&gt;.md</code> 또는 skill로 스필오버합니다.</p>
+  </section>
+
+  <section>
+    <div class="section-label">04 · Regression</div>
+    <h2>Promotion Ledger 스키마</h2>
+    <p class="lead">경로는 <code>~/.claude/logs/&lt;project_id&gt;/promotions-ledger.md</code>이며, 승격마다 append하고 30일 뒤 <code>post_freq</code>를 채웁니다.</p>
+    <pre><code>- rule_id: &lt;UUID&gt;
+  mistake_tag: &lt;canonical_tag&gt;
+  aliases: []
   promoted_to: project_claude_md | project_memory | global_claude_md |
                global_memory | skill | path_scoped_rule | hook
-  target_path: &lt;실제 수정된 파일 절대경로&gt;
+  enforcement_level: E1 | E2 | E3
+  target_path: &lt;실제 수정 경로&gt;
   promoted_at: &lt;ISO8601 with TZ&gt;
   source_evidence:
     - path: ~/.claude/logs/&lt;id&gt;/reflections-YYYY-MM.md
       anchor: &lt;타임스탬프 헤더&gt;
   initial_freq: &lt;int&gt;
   calibration_window_days: 30
-  post_freq: &lt;int | null&gt;     # 30일 뒤 kaizen이 업데이트
+  post_freq: &lt;int&gt;
   status: active | demoted | removed
-  demotion_reason: &lt;str&gt;      # 강등 시만</pre>
-    <h3 style="margin-top:24px">회귀 판정 규칙</h3>
-    <ul style="color:var(--text2);padding-left:20px;line-height:1.9">
-      <li><code>post_freq == 0 AND risk_class == low</code> → <code>status: demoted</code> 후보 (과잉제약)</li>
-      <li><code>post_freq &gt;= initial_freq</code> → 효과 없음, 프롬프트 재작성 또는 surface 변경 후보</li>
-      <li><code>post_freq &lt; initial_freq</code> → 효과 있음, 유지</li>
-    </ul>
-    <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/reflect-kit/docs/SCHEMA.md">SCHEMA.md 전문 →</a>
+  demotion_reason: &lt;str&gt;</code></pre>
+    <div class="table-wrap"><table>
+      <thead><tr><th>결과</th><th>판정과 행동</th></tr></thead>
+      <tbody>
+        <tr><td><code>post_freq == 0</code> AND low risk</td><td>과잉제약 가능성, demoted 후보</td></tr>
+        <tr><td><code>post_freq == 1</code></td><td>등급 유지, 문구 명확화</td></tr>
+        <tr><td><code>post_freq ≥ 2</code></td><td>등급 상향: 2회 이상 E2, 3회 이상 또는 비가역·신뢰 손상은 E3</td></tr>
+        <tr><td><code>post_freq &lt; initial_freq</code> AND ≤ 1</td><td>효과 있음, 유지</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout">canonical tag만 세지 않고 <code>mistake_tag + aliases</code> 전체를 합산합니다.</div>
   </section>
 
   <section>
-    <div class="section-label">CLAUDE.md 용량 예산</div>
-    <h2>200줄 한도 + path-scoped 스필오버</h2>
-    <div class="callout">
-      공식 권고는 <code>CLAUDE.md</code> 200줄 이하. reflect-promote는 승격 전에 현재 라인 수를 측정하고, 180줄 이상이면 <code>.claude/rules/&lt;tag&gt;.md</code> (path-scoped, 특정 glob 편집 시만 로드)로 자동 fallback 한다. 사용자에게 fallback 사유를 보고하고 승인을 받는다.
-    </div>
-  </section>
-
-  <section>
-    <div class="section-label">핵심 설계 결정</div>
-    <h2>10가지 결정 요약</h2>
+    <div class="section-label">05 · Quality</div>
+    <h2>분류 품질 자동화 (reflect-kaizen 계획)</h2>
     <div class="cards">
-      <div class="card"><h3>1. kit 이름 <code>reflect-kit</code></h3><p>Reflexion 논문 + 한국어 "성찰" 뉘앙스 + joo6077-plugins 네이밍 컨벤션.</p></div>
-      <div class="card"><h3>2. raw 저장 + redaction</h3><p>편의성 유지 + 시크릿 자동 치환. 민감 패턴 10종 (sk-ant-*, ghp_*, AKIA*, JWT, private key 등).</p></div>
-      <div class="card"><h3>3. project_id Hybrid (v0.3.0)</h3><p><code>&lt;basename&gt;</code> 기본 + 충돌 감지 시 <code>-&lt;hash6&gt;</code> fallback. 기존 hash 디렉토리는 glob union 으로 read 지원 (backward-compatible).</p></div>
-      <div class="card"><h3>4. 카테고리 multi-label</h3><p><code>primary_category + also_applies</code>. misunderstanding과 wrong_approach는 상호배타 아님.</p></div>
-      <div class="card"><h3>5. Surface 4축 분해</h3><p>단일 필드 대신 scope × risk × procedurality × enforcement로 precedence 판정.</p></div>
-      <div class="card"><h3>6. 임계값 hypothesis</h3><p>freq 2/3은 임시값. kaizen이 30일 calibration.</p></div>
-      <div class="card"><h3>7. Stop 훅 백그라운드</h3><p>nohup &amp; disown으로 체감 지연 0. async 필드 의존 안 함.</p></div>
-      <div class="card"><h3>8. codex exec 사용</h3><p>API 키 불필요. 사용자 기존 인증 재사용.</p></div>
-      <div class="card"><h3>9. 성공 사례 수집 보류</h3><p>ROI 낮음. ledger post_freq로 간접 측정.</p></div>
-      <div class="card"><h3>10. 보존 정책 = 누적</h3><p>자동 삭제/압축 없음. 용량 이슈 시 재논의.</p></div>
+      <article class="card"><h3>1. LLM-as-judge</h3><p>월 1회 랜덤 <span class="metric">10건</span> 재분류. 일치도 <span class="metric">70% 미만</span>이면 프롬프트 개선 diff를 제안합니다.</p></article>
+      <article class="card"><h3>2. 재발률 역추적</h3><p><code>post_freq</code>로 분류·규칙 품질을 간접 측정합니다.</p></article>
+      <article class="card"><h3>3. Self-consistency</h3><p>비용이 커 초기 버전에서는 제외하고 필요 시 추가합니다.</p></article>
     </div>
+  </section>
+
+  <section>
+    <div class="section-label">06 · Safety</div>
+    <h2>수집 측면: raw prompt redaction 정책</h2>
+    <p class="lead">Q1=A: raw 저장은 유지하되 <code>redact_sensitive()</code>로 민감 패턴을 치환합니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>범주</th><th>패턴</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>Anthropic</td><td><code>sk-ant-...</code></td><td><code>[REDACTED-ANTHROPIC-KEY]</code></td></tr>
+        <tr><td>OpenAI</td><td><code>sk-proj-...</code>, <code>sk-...</code></td><td>OPENAI-KEY / API-KEY redaction</td></tr>
+        <tr><td>GitHub</td><td><code>ghp_ gho_ ghu_ ghs_ ghr_ github_pat_</code></td><td><code>[REDACTED-GH-*]</code></td></tr>
+        <tr><td>Slack</td><td><code>xoxb- xoxa-</code></td><td><code>[REDACTED-SLACK]</code></td></tr>
+        <tr><td>AWS / Google</td><td><code>AKIA[A-Z0-9]{16}</code> / <code>AIza...</code></td><td>전용 redaction</td></tr>
+        <tr><td>JWT / Bearer</td><td><code>eyJ...</code> / <code>Bearer &lt;20+자&gt;</code></td><td>JWT / Bearer redaction</td></tr>
+        <tr><td>환경 변수</td><td><code>*_KEY= *_TOKEN= *_SECRET= *_PASSWORD=</code></td><td><code>...=[REDACTED]</code></td></tr>
+        <tr><td>Private key</td><td>BEGIN부터 END까지</td><td>블록 전체 제거</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout warn"><strong>보존 정책은 누적:</strong> 자동 삭제·압축 없이 월간 파일에 append합니다.</div>
+  </section>
+
+  <section>
+    <div class="section-label">07 · Observability</div>
+    <h2>에러 관측성 (.errors.log)</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>태그 그룹</th><th>포함 태그와 의미</th></tr></thead>
+      <tbody>
+        <tr><td>입력 생략</td><td><code>skip:cli-missing</code>, <code>skip:transcript-path-empty</code>, <code>skip:transcript-file-missing</code>, <code>skip:transcript-too-short</code>, <code>skip:transcript-empty-after-tail</code></td></tr>
+        <tr><td>codex 실패</td><td><code>fail:codex-exit-&lt;N&gt;</code>, <code>fail:codex-empty-output</code></td></tr>
+        <tr><td>fallback</td><td><code>fallback:claude-used</code>, <code>fallback:claude-exit-&lt;N&gt;</code>, <code>fallback:claude-empty-output</code>, <code>skip:fallback-unavailable</code></td></tr>
+        <tr><td>필드·환경</td><td><code>fail:tag-field-unresolved</code>, <code>env-dedup:kept/dropped</code>, <code>skip:env-dedup-all</code>, <code>warn:env-dedup-failed</code></td></tr>
+        <tr><td>어휘</td><td><code>warn:lemma-map-unreadable</code>, <code>vocab:raw_distinct/clusters/entries/singletons/fold/singleton_share/epc</code></td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout">stderr를 버린 <span class="metric">2026-08-28 ~ 2026-09-25</span> 동안 수집 중단을 한 달 가까이 몰랐습니다. digest의 <code>collect_status</code>가 기록 없이 끝난 실행을 별도로 셉니다.</div>
+  </section>
+
+  <section>
+    <div class="section-label">08 · Evidence</div>
+    <h2>Codex 리서치 요약 (설계 근거)</h2>
+    <div class="cards">
+      <article class="card"><h3>#1 방법론 · <span class="metric">25/25</span></h3><p>Reflexion + Self-Refine + 얇은 rubric. DPO/KTO는 파인튜닝 전제라 제외. 200줄과 path-scoped rules, skill·hook 역할을 확인했습니다.</p><a class="card-source" href="https://code.claude.com/docs/en/hooks">Claude Code hooks 문서 →</a></article>
+      <article class="card"><h3>#2 adversarial audit · <span class="metric">24/25</span></h3><p>PII, basename 충돌, 단일 분류, 실패 은폐, 임계값, ledger, 용량 예산 문제를 현재 설계로 해소했습니다.</p><a class="card-source" href="https://code.claude.com/docs/en/memory">Claude Code memory 문서 →</a></article>
+    </div>
+    <p class="lead">전문: <code>~/.claude/codex-research-log/2026-04.md</code></p>
+  </section>
+
+  <section>
+    <div class="section-label">09 · Decisions</div>
+    <h2>핵심 설계 결정 요약</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>결정</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>reflect-kit</code></td><td>Reflexion + 성찰 + 네이밍 컨벤션</td></tr>
+        <tr><td>2</td><td>raw + redaction</td><td>편의성과 위험 축소</td></tr>
+        <tr><td>3</td><td>Hybrid project_id</td><td>basename 기본, 충돌 때 hash6</td></tr>
+        <tr><td>4</td><td>multi-label</td><td>카테고리는 상호배타가 아님</td></tr>
+        <tr><td>5</td><td>Surface 4축</td><td>단일 필드 압축 불가</td></tr>
+        <tr><td>6</td><td>임계값 hypothesis</td><td>운영 데이터 부족</td></tr>
+        <tr><td>7</td><td>Stop async + errors</td><td>비차단과 관측성</td></tr>
+        <tr><td>8</td><td><code>codex exec</code></td><td>기존 인증 재사용</td></tr>
+        <tr><td>9</td><td>성공 사례 보류</td><td>ledger로 간접 측정</td></tr>
+        <tr><td>10</td><td>누적 보존</td><td>사용자 결정</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <div class="section-label">10 · Identity</div>
+    <h2>결정 #3 상세 — Hybrid project_id (v0.3.0 전환)</h2>
+    <p class="lead">v0.1.0~v0.2.0의 상시 6자 md5 hex는 실제 7개 프로젝트에서 basename 충돌이 0건이라 과설계였습니다.</p>
+    <div class="cards">
+      <article class="card"><h3>A · hash 유지</h3><p>운영 데이터로 정당화되지 않아 부적합.</p></article>
+      <article class="card"><h3>B · basename only</h3><p>UX는 좋지만 breaking change와 강제 이관 발생.</p></article>
+      <article class="card"><h3>C · Hybrid 선정</h3><p>basename 기본 + 충돌 fallback + 기존 hash read. 데이터 이동 0건.</p></article>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>상황</th><th>id</th><th>동작</th></tr></thead>
+      <tbody>
+        <tr><td>첫 write</td><td><code>&lt;basename&gt;</code></td><td>bucket + <code>.project-root</code> 생성</td></tr>
+        <tr><td>마커가 자기 repo</td><td><code>&lt;basename&gt;</code></td><td>no-op</td></tr>
+        <tr><td>같은 repo 워크트리</td><td>본 repo basename</td><td>본 repo root 마커 일치</td></tr>
+        <tr><td>다른 root, 같은 basename</td><td><code>&lt;basename&gt;-&lt;hash6&gt;</code></td><td>PID 기반 중복 억제 stderr 경고</td></tr>
+        <tr><td>기존 hash read</td><td>glob union</td><td><code>normalize_project_query</code>로 두 형태 스캔</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Backward-compat과 마커</h3>
+    <ul class="plain-list">
+      <li>두 project query 형식은 같은 결과이며 이관 스크립트가 필요 없습니다.</li>
+      <li><code>.project-root</code>는 생성 때 한 번 쓰고 stat + cat으로 충돌을 감지합니다.</li>
+      <li>마커 없는 v0.2.0 디렉토리는 충돌 없음으로 보고 read에만 포함합니다.</li>
+      <li>동시 write의 마커 생성 전 race는 개인 규모에서 무시합니다.</li>
+    </ul>
+    <h3>워크트리 · 2026-09-25</h3>
+    <p class="lead">실측 로그 폴더 <span class="metric">31개 중 12개</span>가 워크트리 이름이었습니다. git-dir과 common-dir이 다르고 공통 폴더 이름이 <code>.git</code>일 때만 그 부모를 본 repo로 씁니다.</p>
+    <div class="callout">두 조건은 서브모듈을 <code>modules</code>로 묶는 오류와 <code>--separate-git-dir</code> 오판을 피합니다. bare repo는 이전처럼 워크트리 이름을 씁니다. <a class="card-source" href="https://git-scm.com/docs/git-rev-parse">git rev-parse 문서 →</a></div>
+    <p class="lead">기존 12개 폴더는 옮기지 않습니다. reflections는 없고 raw 로그와 오류만 있으며, 이동하면 <code>cwd:</code>와 폴더 이름이 어긋납니다. <code>project=all</code>은 계속 전부 순회합니다.</p>
+  </section>
+
+  <section>
+    <div class="section-label">운영 체크리스트</div>
+    <h2>Gotchas 체크리스트</h2>
+    <ul class="checklist">
+      <li><span class="check">✓</span><span><code>user_environment</code>를 행동 규칙 승격에서 제외했는가?</span></li>
+      <li><span class="check">✓</span><span>canonical + aliases의 <code>cluster_freq</code>를 썼는가?</span></li>
+      <li><span class="check">✓</span><span>사용자 선언 제약을 precedence 0으로 fast-track했는가?</span></li>
+      <li><span class="check">✓</span><span><code>post_freq ≥ 2</code>에서 enforcement를 상향했는가?</span></li>
+      <li><span class="check">✓</span><span>CLAUDE.md 200줄 초과 시 스필오버했는가?</span></li>
+      <li><span class="check">✓</span><span>raw 저장 전에 모든 민감 패턴을 redaction했는가?</span></li>
+      <li><span class="check">✓</span><span><code>collect_status</code>로 0건의 원인을 구분했는가?</span></li>
+      <li><span class="check">✓</span><span>워크트리에서 서브모듈과 separate-git-dir 예외를 보존했는가?</span></li>
+      <li><span class="check">✓</span><span>기존 hash 디렉토리를 옮기지 않고 glob union으로 읽는가?</span></li>
+      <li><span class="check">✓</span><span>임계값을 30일 뒤 조정할 hypothesis로 취급하는가?</span></li>
+    </ul>
   </section>
 </main>
 </body>
