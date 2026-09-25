@@ -15,6 +15,7 @@
   --error:#f87171;--success:#4ade80;--warn:#fbbf24;--info:#38bdf8;
   --radius:14px;--radius-sm:8px;--radius-lg:20px;
   --transition:0.25s cubic-bezier(.4,0,.2,1);
+  --mono:'Cascadia Code','Fira Code','Consolas',monospace;
 }
 html{font-size:16px;scroll-behavior:smooth}
 body{
@@ -22,8 +23,11 @@ body{
   background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
   -webkit-font-smoothing:antialiased;
 }
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+a{color:var(--accent2);text-underline-offset:3px}
+a:hover{color:var(--text)}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:4px}
 
 .page{max-width:1280px;margin:0 auto;padding:0 24px}
 section{padding:80px 0}section+section{border-top:1px solid var(--border)}
@@ -34,30 +38,42 @@ section{padding:80px 0}section+section{border-top:1px solid var(--border)}
 .hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;
   background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:600;
   letter-spacing:0.05em;text-transform:uppercase;margin-bottom:24px}
-.hero h1{font-size:clamp(2.5rem,5vw+1rem,4.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
+.hero h1{font-size:clamp(2.5rem,5vw + 1rem,4.5rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;
   background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px}
-.hero p{font-size:1.125rem;color:var(--text2);max-width:640px;margin:0 auto;line-height:1.7}
+.hero p{font-size:1.125rem;color:var(--text2);max-width:720px;margin:0 auto;line-height:1.7}
+.hero-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:28px}
+.pill{padding:6px 12px;border:1px solid var(--border2);border-radius:100px;color:var(--text2);
+  background:var(--surface);font-size:13px}
 
 /* SECTION */
 .section-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
 .section-title{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:8px}
-.section-desc{font-size:1rem;color:var(--text2);max-width:680px;line-height:1.7;margin-bottom:48px}
+.section-desc{font-size:1rem;color:var(--text2);max-width:720px;line-height:1.7;margin-bottom:48px}
+.subhead{font-size:1.25rem;font-weight:700;line-height:1.35;margin:48px 0 16px}
 
 /* CARD */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:32px;transition:var(--transition)}
+  padding:32px;transition:border-color var(--transition)}
 .card:hover{border-color:var(--border2)}
-.card-title{font-size:1.125rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.card-title{font-size:1.125rem;font-weight:600;line-height:1.35;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+.card p,.card li{font-size:15px;color:var(--text2);line-height:1.7}
+.card ul{padding-left:20px;display:grid;gap:8px}
+.principle-card{display:flex;flex-direction:column}
+.principle-card .card-source{margin-top:auto;padding-top:20px;font-size:13px;font-weight:700}
+.eyebrow{color:var(--accent);font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.08em;margin-bottom:8px}
 
 /* TABLE */
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;
+  border-radius:var(--radius);border:1px solid var(--border);margin-bottom:24px}
+.table-wrap>table{min-width:max-content}
 table{width:100%;border-collapse:collapse;font-size:14px}
 thead{background:var(--surface2)}
 th{padding:14px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--text2);
   letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+td strong{color:var(--text)}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--accent-glow)}
 
@@ -65,47 +81,117 @@ tbody tr:hover{background:var(--accent-glow)}
 .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.grid-2>*,.grid-3>*,.grid-4>*,.compare>*,.spec-list>*,.flow>*,.proto-row>*{min-width:0}
 @media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
 @media(min-width:901px) and (max-width:1100px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
 
-/* BADGE */
-.badge{padding:4px 14px;border-radius:100px;font-size:12px;font-weight:700}
-.badge.pass{background:rgba(74,222,128,0.15);color:#4ade80}
-.badge.fail{background:rgba(248,113,113,0.15);color:#f87171}
-
 /* UTILITY */
-.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}
-.mb-16{margin-bottom:16px}.mb-24{margin-bottom:24px}.mb-32{margin-bottom:32px}
-.text-accent{color:var(--accent)}.text-muted{color:var(--text2)}
-code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9em;
-  background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent)}
-
-@media(max-width:600px){
-  .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
-}
+.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mb-24{margin-bottom:24px}
+code{font-family:var(--mono);font-size:0.9em;background:var(--surface2);padding:2px 6px;border-radius:4px;
+  color:var(--accent2);overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%;padding:20px 24px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);color:var(--text2);font-size:14px;line-height:1.65;margin-bottom:24px}
+pre code{white-space:pre;background:transparent;padding:0;color:inherit;overflow-wrap:normal;font-size:inherit}
+.note{padding:18px 22px;border-left:3px solid var(--accent);background:var(--accent-glow);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--text2);font-size:15px;margin:24px 0}
+.note strong{color:var(--text)}
+.tag{display:inline-block;padding:2px 10px;border-radius:100px;background:var(--accent-dim);color:var(--accent);
+  font-size:12px;font-weight:700;white-space:nowrap}
 
 /* WORKFLOW */
 .workflow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin-bottom:48px}
-.workflow-item{font-size:14px;font-weight:600;padding:8px 20px;border-radius:100px;
-  border:1px solid var(--border);color:var(--text3);background:var(--surface);transition:var(--transition)}
+.workflow-item{font-size:14px;font-weight:600;padding:8px 20px;border-radius:100px;text-decoration:none;
+  border:1px solid var(--border);color:var(--text3);background:var(--surface);transition:border-color var(--transition),color var(--transition)}
+a.workflow-item:hover{border-color:var(--border2);color:var(--text)}
 .workflow-item.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
 .workflow-arrow{color:var(--text3);font-size:18px;margin:0 8px;user-select:none}
-@media(max-width:600px){.workflow-item{font-size:12px;padding:6px 14px}.workflow-arrow{margin:0 4px;font-size:14px}}
 
-/* COMPONENT CARD */
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px}
+.stats>*{min-width:0}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.stat-num{font-size:2.5rem;font-weight:800;line-height:1.1;color:var(--accent);letter-spacing:-0.02em}
+.stat-label{font-size:14px;color:var(--text2);margin-top:6px}
+
+/* SPEC LIST — 12 섹션 순서 */
+.spec-list{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:spec}
+.spec-list li{counter-increment:spec;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 20px 20px 64px;position:relative;font-size:15px;color:var(--text2)}
+.spec-list li::before{content:counter(spec);position:absolute;left:18px;top:18px;width:30px;height:30px;
+  border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:800;font-size:14px;
+  display:flex;align-items:center;justify-content:center}
+.spec-list strong{display:block;color:var(--text);font-size:15px;margin-bottom:2px}
+
+/* PROTOCOL ROWS */
+.proto{display:grid;gap:12px}
+.proto-row{display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:start;padding:20px 24px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.proto-key{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:14px}
+.proto-row h3{font-size:1.0625rem;margin-bottom:6px}
+.proto-row p{font-size:15px;color:var(--text2)}
+
+/* FLOW — Step 3 */
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:32px}
+.flow-step{padding:24px;border:1px solid var(--border);background:var(--surface);position:relative}
+.flow-step:first-child{border-radius:var(--radius) 0 0 var(--radius)}
+.flow-step:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.flow-step+.flow-step{border-left:none}
+.flow-step h3{font-size:1rem;margin-bottom:8px}
+.flow-step p{font-size:15px;color:var(--text2)}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.compare-panel{padding:28px;border-radius:var(--radius-lg)}
+.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.28)}
+.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.28)}
+.compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-bad .compare-label{color:var(--error)}
+.compare-good .compare-label{color:var(--success)}
+.compare-panel h3{font-size:1.0625rem;margin-bottom:10px}
+.compare-panel p{font-size:15px;color:var(--text2)}
+.compare-panel pre{margin:14px 0 0}
+
+/* CHECKLIST */
+.checklist{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.checklist>*{min-width:0}
+.checklist li{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);background:var(--surface);color:var(--text2);font-size:15px}
+.checklist li strong{color:var(--text)}
+.check{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;flex:0 0 auto;
+  border:2px solid var(--accent);border-radius:6px;color:var(--accent);font-size:12px;font-weight:800;margin-top:1px}
+
+/* COMPONENT BLOCK — 예시 */
 .comp-block{margin-bottom:64px}
+.comp-block:last-child{margin-bottom:0}
 .comp-name{font-size:1.5rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-.comp-name .comp-icon{font-size:24px}
-.comp-role{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px;max-width:680px}
+.comp-name .comp-icon{font-size:24px;color:var(--accent)}
+.comp-role{font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:24px;max-width:720px}
+.comp-h{font-size:14px;font-weight:600;color:var(--accent);margin:0 0 12px;text-transform:uppercase;letter-spacing:0.06em}
 
 /* NEXT */
 .next-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:28px;max-width:680px;transition:var(--transition)}
-.next-card{cursor:pointer}
-.next-card:hover{border-color:var(--accent);transform:translateY(-2px)}
-.workflow-item:not(.active){cursor:pointer}
-.workflow-item:not(.active):hover{opacity:0.8;border-color:var(--border2)}
-.next-card-desc{font-size:14px;color:var(--text2);line-height:1.7}
+  padding:28px;max-width:720px}
+.next-card-desc{font-size:15px;color:var(--text2);line-height:1.7}
+.footer{padding:36px 0 56px;text-align:center;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
+
+@media(max-width:1100px){.spec-list{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.compare,.checklist{grid-template-columns:1fr}.flow{grid-template-columns:1fr}
+  .flow-step:first-child{border-radius:var(--radius) var(--radius) 0 0}
+  .flow-step:last-child{border-radius:0 0 var(--radius) var(--radius)}
+  .flow-step+.flow-step{border-left:1px solid var(--border);border-top:none}}
+@media(max-width:600px){
+  .page{padding:0 16px}section{padding:48px 0}.hero{padding:40px 0 48px}
+  .grid-2,.grid-3,.grid-4,.spec-list,.stats{grid-template-columns:1fr}
+  .proto-row{grid-template-columns:1fr;gap:8px}
+  .workflow{flex-direction:column;align-items:stretch;gap:8px}
+  .workflow-item{text-align:center;font-size:13px}
+  .workflow-arrow{transform:rotate(90deg);margin:0;text-align:center}
+  .card,.compare-panel{padding:22px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:0.01ms!important}
+}
 </style>
 </head>
 <body>
@@ -113,214 +199,710 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.9e
 <div class="page">
 
 <header class="hero">
-  <div class="hero-badge">Design Kit</div>
+  <div class="hero-badge">Design Kit · Skill Guide</div>
   <h1>컴포넌트 카탈로그</h1>
-  <p>반복되는 UI 요소를 컴포넌트로 정의하고 카탈로그화한다</p>
+  <p>반복되는 UI 요소를 컴포넌트로 정의하고 카탈로그로 묶는다. 확정된 시안에서 뽑거나 사용자가 지정한 요소를 받아 variant · 상태 · 토큰 매핑을 담은 디자인 스펙을 만든다. 코드는 쓰지 않는다 — 구현은 toolkit 플러그인이 맡는다.</p>
+  <div class="hero-meta" aria-label="핵심 규칙">
+    <span class="pill">스펙만, 코드 없음</span>
+    <span class="pill">12 섹션 스펙</span>
+    <span class="pill">DTCG v1 중괄호 참조</span>
+    <span class="pill">요청한 컴포넌트만</span>
+    <span class="pill">인자 <code>[component-name or mockup-id]</code></span>
+  </div>
 </header>
 
+<main>
+
 <!-- WORKFLOW -->
-<section>
-  <div style="text-align:center">
-    <div class="workflow">
-      <span class="workflow-item">design-concept</span>
-      <span class="workflow-arrow">&rarr;</span>
-      <span class="workflow-item">design-system</span>
-      <span class="workflow-arrow">&rarr;</span>
-      <span class="workflow-item">design-mockup</span>
-      <span class="workflow-arrow">&rarr;</span>
-      <span class="workflow-item active">design-component</span>
-    </div>
+<section aria-labelledby="workflow-title">
+  <div class="section-label">Workflow</div>
+  <h2 class="section-title" id="workflow-title">디자인 흐름의 마지막 단계</h2>
+  <p class="section-desc">컨셉 · 토큰 · 시안이 있으면 자동으로 불러와 일관성을 지킨다. 카탈로그가 확정되면 각 스택의 toolkit 이 실제 코드로 옮긴다.</p>
+  <nav class="workflow" aria-label="디자인 워크플로우">
+    <a class="workflow-item" href="design-concept.html" data-nav="design-concept">design-concept</a>
+    <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+    <span class="workflow-item">design-system</span>
+    <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+    <a class="workflow-item" href="design-mockup.html" data-nav="design-mockup">design-mockup</a>
+    <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+    <span class="workflow-item active" aria-current="page">design-component</span>
+  </nav>
+
+  <div class="grid-2">
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>이럴 때 부른다</h3>
+      <ul>
+        <li>「컴포넌트 정의」 · 「컴포넌트 리스트」 · 「design component」</li>
+        <li>「UI 컴포넌트 정리」 · 「컴포넌트 만들어줘」 · 「컴포넌트 카탈로그」</li>
+        <li>확정 시안의 요소 ID 를 주며 컴포넌트로 만들어 달라고 할 때 (예: <code>card-product-a3f2</code>)</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>이럴 때는 부르지 않는다</h3>
+      <ul>
+        <li>실제 코드 구현 — Flutter · React · CSS 컴포넌트 코드는 해당 toolkit 플러그인이 만든다</li>
+        <li>요청하지 않은 컴포넌트를 카탈로그에 더 채우는 일 — 필요해 보이면 따로 제안만 한다</li>
+      </ul>
+    </article>
   </div>
 </section>
 
-<!-- TEMPLATE -->
-<section>
-  <div class="section-label">TEMPLATE</div>
-  <div class="section-title">산출물 템플릿</div>
-  <div class="section-desc"><code>catalog.md</code> &mdash; 역할, Variants, 상태, 사이즈, 토큰 매핑, 사용 가이드라인을 포함한 컴포넌트 정의서</div>
+<!-- PRINCIPLES -->
+<section aria-labelledby="principles-title">
+  <div class="section-label">Core Principles</div>
+  <h2 class="section-title" id="principles-title">스펙을 쓰는 여섯 가지 원칙</h2>
+  <p class="section-desc">Gotchas 13 개 가운데 산출물의 모양을 결정하는 것을 먼저 모았다. 전체 목록은 아래 체크리스트에 있다.</p>
 
   <div class="grid-3">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>역할</div>
-      <p style="font-size:14px;color:var(--text2);line-height:1.7">컴포넌트의 목적과 사용 맥락을 정의한다. 어떤 상황에서 이 컴포넌트를 사용하는지 명확히 한다.</p>
+    <article class="card principle-card">
+      <div class="eyebrow">GOTCHA 1</div>
+      <h3 class="card-title">스펙만 만들고 코드는 넘긴다</h3>
+      <p>이 스킬의 산출물은 디자인 스펙이다. Flutter · React · CSS 컴포넌트 코드를 직접 만들지 않고 해당 toolkit 플러그인에 맡긴다.</p>
+      <a class="card-source" href="../../design-kit/skills/design-component/SKILL.md">출처: design-component SKILL.md</a>
+    </article>
+    <article class="card principle-card">
+      <div class="eyebrow">GOTCHA 3</div>
+      <h3 class="card-title">토큰은 DTCG v1 중괄호로 참조한다</h3>
+      <p>컬러 · 타이포 · 간격 · 라디우스를 전부 토큰에 매핑한다. 별칭은 <code>{color.background.surface}</code> 처럼 중괄호로 쓴다. 중괄호 없는 점 표기는 참조가 아니라 문자열 값으로 읽힌다.</p>
+      <a class="card-source" href="https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/">출처: W3C DTCG v1 발표 (2025-10-28)</a>
+    </article>
+    <article class="card principle-card">
+      <div class="eyebrow">GOTCHA 12</div>
+      <h3 class="card-title">요청한 컴포넌트 안에서만 완전하게</h3>
+      <p>「버튼 정의해줘」 면 버튼만 스펙으로 만든다. 상태 · anatomy · 접근성을 다 채우라는 말은 그 컴포넌트 안의 완전성이지, 카탈로그에 컴포넌트를 더 넣으라는 뜻이 아니다.</p>
+      <a class="card-source" href="https://report.zeroheight.com/">출처: zeroheight Design Systems Report 2026</a>
+    </article>
+    <article class="card principle-card">
+      <div class="eyebrow">GOTCHA 10</div>
+      <h3 class="card-title">여러 파트면 Compound + Slot</h3>
+      <p>Dropdown · Select · Modal · Accordion 은 Context 로 상태를 나누는 Compound Component 패턴과 named slot 을 Anatomy 에 적는다. 옵션을 props 하나에 몰아넣는 「prop soup」 는 안티패턴이다.</p>
+      <a class="card-source" href="https://www.patterns.dev/react/compound-pattern/">출처: patterns.dev Compound Pattern (research-log §G)</a>
+    </article>
+    <article class="card principle-card">
+      <div class="eyebrow">GOTCHA 11</div>
+      <h3 class="card-title">다크모드 토큰을 같이 적는다</h3>
+      <p>Design Tokens 섹션에 light · dark 양쪽 semantic 토큰을 적는다. 순수 블랙 <code>#000000</code> 을 피하고, 채도를 낮추고, 표면 레이어는 밝기 차이로 가른다. hover · focus 배경 대비는 3:1 이상.</p>
+      <a class="card-source" href="https://www.fourzerothree.in/p/scalable-accessible-dark-mode">출처: Designing Scalable Accessible Dark Theme (research-log §H)</a>
+    </article>
+    <article class="card principle-card">
+      <div class="eyebrow">GOTCHA 8</div>
+      <h3 class="card-title">접근성은 스펙의 한 섹션이다</h3>
+      <p>인터랙티브 컴포넌트에는 WAI-ARIA 역할 · 속성, 키보드 인터랙션 표, 라벨링 요구사항을 넣는다. 접근성 섹션이 없는 스펙은 불완전하다.</p>
+      <a class="card-source" href="https://www.w3.org/WAI/ARIA/apg/patterns/">출처: WAI-ARIA Authoring Practices — Patterns</a>
+    </article>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<section aria-labelledby="numbers-title">
+  <div class="section-label">Numbers</div>
+  <h2 class="section-title" id="numbers-title">숫자로 정해진 기준</h2>
+  <p class="section-desc">스킬 본문과 참조 파일에 박힌 값이다. 스펙이 이 값에 못 미치면 불완전한 것으로 본다.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">스펙 섹션 (순서 고정)</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">States 섹션의 상태</div></div>
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">기본 검토 커스터마이징 옵션</div></div>
+    <div class="stat"><div class="stat-num">13</div><div class="stat-label">Gotchas</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>기준</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>인터랙티브 컴포넌트 필수 상태</td><td><strong>default · hover · active · disabled</strong> + 버튼 · 카드는 loading</td><td>Gotcha 2</td></tr>
+        <tr><td>States 섹션 상태 목록</td><td>Default · Hover · Active · Focus · Disabled · Loading</td><td>Step 2-1</td></tr>
+        <tr><td>상태가 1~2 개뿐인 스펙</td><td>불완전</td><td>Gotcha 2</td></tr>
+        <tr><td>Do / Don't 규칙 수</td><td>3~5 개 (선택 · 계층 · 라벨링 · 레이아웃 · 오용)</td><td>Step 2-1</td></tr>
+        <tr><td>자동 식별 대상</td><td>시안에서 <strong>2 회 이상</strong> 반복되는 UI 패턴</td><td>Step 1</td></tr>
+        <tr><td>분류 카테고리</td><td>6 개 (액션 · 입력 · 표시 · 네비게이션 · 피드백 · 레이아웃)</td><td>Step 2-4</td></tr>
+        <tr><td>hover · focus 배경 대비</td><td><strong>3:1 이상</strong> (light · dark 모두)</td><td>Gotcha 11</td></tr>
+        <tr><td>disabled 표현</td><td>투명도 0.38, 인터랙션 불가</td><td>component-spec-template</td></tr>
+        <tr><td>관례 표에 읽을 기존 화면</td><td>같은 역할의 서로 다른 화면 <strong>2 개 이상</strong></td><td>visual-change-protocol §0</td></tr>
+        <tr><td>토큰 형식 기준판</td><td>DTCG v1 (2025-10-28 stable)</td><td>Gotcha 3</td></tr>
+        <tr><td>시안 요소 ID 형식</td><td><code>{컴포넌트명}-{해시}</code></td><td>Gotcha 4</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- STEP 0 -->
+<section aria-labelledby="step0-title">
+  <div class="section-label">Step 0</div>
+  <h2 class="section-title" id="step0-title">자동 감지 및 로드</h2>
+  <p class="section-desc">이전 단계 산출물을 찾아 불러온다. design-concept · design-mockup 의 Step 0 과 같은 패턴이다.</p>
+
+  <pre><code># 감지 대상
+.design/concept.md              → 컨셉 로드 (컬러/타이포/UI 패턴 방향)
+**/theme/** **/tokens/**        → 디자인 토큰 로드
+.design/mockups/*.html          → 확정 시안 로드</code></pre>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>감지 결과</th><th>하는 일</th></tr></thead>
+      <tbody>
+        <tr><td>시안 있음</td><td>시안에서 반복되는 UI 요소를 자동 식별해 제안한다</td></tr>
+        <tr><td>토큰 있음</td><td>컴포넌트별 토큰 매핑을 자동으로 만든다</td></tr>
+        <tr><td>시안 · 토큰 둘 다 없음</td><td>사용자가 컴포넌트 목록을 직접 지정한다</td></tr>
+        <tr><td><strong>앱 코드 있음</strong></td><td>같은 역할의 기존 부품을 찾아 관례 표의 <strong>재사용 부품 칸</strong>에 남긴다</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>재사용 부품 칸에 적는 것</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>칸</th><th>적는 값</th></tr></thead>
+          <tbody>
+            <tr><td>심볼 이름</td><td>앱 코드의 실제 이름</td></tr>
+            <tr><td>위치</td><td><code>파일:줄</code></td></tr>
+            <tr><td>용도</td><td>한 줄 설명</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>칸 정의는 <a href="visual-change-protocol.html">시각 변경 프로토콜</a> §0 관례 표를 그대로 쓴다.</p>
+    </article>
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>기존 부품을 다루는 규칙</h3>
+      <ul>
+        <li>이미 있는 부품은 새 컴포넌트로 다시 정의하지 않고, 스펙에서 그 부품을 가리킨다</li>
+        <li><strong>코드 검색에서 나오지 않은 부품 이름은 쓰지 않는다</strong></li>
+        <li>같은 역할 기존 화면이 2 개 미만이면 찾은 것을 다 적고 <code>관례 없음 — 같은 역할 기존 화면 N 개</code></li>
+        <li>앱 코드가 아직 없으면 <code>관례 없음 — 앱 코드 없음</code></li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="note"><strong>Step 0 은 독립 Process 단계다 (SK-05 재발 방지).</strong> 자동 감지 로직을 Gotchas 나 다른 Step 의 하위 항목으로 내리지 않는다. 평가자는 「프로세스 단계」로 세는 섹션에서만 자동 로드를 지켰는지 판정한다.</div>
+</section>
+
+<!-- PROTOCOL -->
+<section aria-labelledby="protocol-title">
+  <div class="section-label">Gotcha 13</div>
+  <h2 class="section-title" id="protocol-title">시각 산출물 규약은 다시 정의하지 않는다</h2>
+  <p class="section-desc">편집 전 확정 · 승인 기록 · 증거 채널의 정의와 숫자는 design-kit 공통 규약 <code>references/visual-change-protocol.md</code> 에 있다. 이 스킬은 그 규약을 인용만 한다.</p>
+
+  <div class="proto">
+    <div class="proto-row">
+      <div class="proto-key">§0</div>
+      <div>
+        <h3>편집 전 확정 — 대상 · 되말하기 · 관례 표</h3>
+        <p>파일을 만들거나 고치기 전에 바꿀 대상, 요청을 한 문장으로 되말한 것, 같은 역할 기존 화면의 관례 표를 응답에 남긴다. Step 0 의 재사용 부품 칸이 이 관례 표의 한 칸이다.</p>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>Variants</div>
-      <p style="font-size:14px;color:var(--text2);line-height:1.7">primary, secondary, ghost 등 시각적 변형을 나열한다. 각 변형의 용도와 차이를 설명한다.</p>
+    <div class="proto-row">
+      <div class="proto-key">§4</div>
+      <div>
+        <h3>승인 기록</h3>
+        <p>사용자가 시안 · 컨셉을 확정하면 대화 기록이 아니라 파일로 남긴다. 경로 <code>.design/approvals/{YYYYMMDD}-{대상}.md</code> 와 최소 필드가 이 절에 있다.</p>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>상태</div>
-      <p style="font-size:14px;color:var(--text2);line-height:1.7">default, hover, active, disabled, loading, focused 등 인터랙션 상태별 스타일을 정의한다.</p>
+    <div class="proto-row">
+      <div class="proto-key">§7</div>
+      <div>
+        <h3>증거 채널</h3>
+        <p>증거를 인용할 때 채널 이름(<code>artifact_snapshot</code> · <code>dom_snapshot</code> · <code>browser_user_visible</code> · <code>device_user_visible</code>)을 함께 적는다. 멀쩡한 스크린샷도 사용자가 그 화면에서 그것을 본다는 증명은 아니다.</p>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>사이즈</div>
-      <p style="font-size:14px;color:var(--text2);line-height:1.7">sm, md, lg 각 사이즈의 높이, 패딩, 폰트 크기를 구체적 수치로 정의한다.</p>
+  </div>
+  <p class="mt-24"><a href="visual-change-protocol.html">시각 변경 프로토콜 페이지에서 전체 규약 보기 &rarr;</a></p>
+</section>
+
+<!-- STEP 1 -->
+<section aria-labelledby="step1-title">
+  <div class="section-label">Step 1</div>
+  <h2 class="section-title" id="step1-title">대상 파악</h2>
+  <p class="section-desc">컴포넌트로 만들 대상을 세 가지 방식 가운데 하나로 정한다. 어느 방식이든 사용자가 지목한 범위를 넘지 않는다.</p>
+
+  <div class="grid-3">
+    <article class="card">
+      <div class="eyebrow">시안에서 추출</div>
+      <h3 class="card-title">시안 ID 로 지정</h3>
+      <p>예: 「<code>card-product-a3f2</code> 를 컴포넌트화해줘」. 뽑은 컴포넌트의 시안 ID 를 카탈로그에 기록해 출처를 추적한다 (Gotcha 4).</p>
+    </article>
+    <article class="card">
+      <div class="eyebrow">자동 식별</div>
+      <h3 class="card-title">2 회 이상 반복 패턴 제안</h3>
+      <p>시안에서 두 번 이상 반복되는 UI 패턴을 찾아 <strong>제안</strong>한다. 시안의 모든 요소를 자동으로 카탈로그에 넣지 않는다.</p>
+    </article>
+    <article class="card">
+      <div class="eyebrow">사용자 직접 지정</div>
+      <h3 class="card-title">이름으로 지정</h3>
+      <p>예: 「버튼, 카드, 입력 필드 정의해줘」. 지정한 세 개만 스펙으로 만든다.</p>
+    </article>
+  </div>
+
+  <div class="note"><strong>범위가 모호하면 추측으로 넓히지 않고 한 줄로 묻는다.</strong> 다른 컴포넌트가 더 필요해 보이면 산출물에 넣지 말고 「Input · Card 도 함께 정의할까요?」 처럼 따로 제안한다.</div>
+</section>
+
+<!-- STEP 2-1 -->
+<section aria-labelledby="step21-title">
+  <div class="section-label">Step 2-1</div>
+  <h2 class="section-title" id="step21-title">산출물 섹션 구조 (필수)</h2>
+  <p class="section-desc">모든 컴포넌트 스펙은 이 순서로 섹션을 갖는다. MD3 · Ant Design · Radix · Chakra · shadcn/ui 에 공통으로 있는 구성을 따랐다. 포맷은 <code>references/component-spec-template.md</code> 를 쓴다.</p>
+
+  <ol class="spec-list">
+    <li><strong>Purpose</strong>컴포넌트명 + 한 줄 설명</li>
+    <li><strong>When to use / not</strong>사용 시점, 유사 컴포넌트와 가르는 기준</li>
+    <li><strong>Anatomy</strong>파트 계층, 필수 · 선택 파트</li>
+    <li><strong>Live Preview</strong>기본 상태 렌더링</li>
+    <li><strong>Variants</strong>시각적 변형 나열</li>
+    <li><strong>States</strong>Default · Hover · Active · Focus · Disabled · Loading</li>
+    <li><strong>Sizes</strong>S / M / L 등 크기 비교</li>
+    <li><strong>Props / API Table</strong>이름 · 타입 · 허용값 · 기본값</li>
+    <li><strong>Accessibility</strong>ARIA 역할 · 속성, 키보드, 라벨링</li>
+    <li><strong>Design Tokens</strong>쓰인 토큰 매핑 (light · dark)</li>
+    <li><strong>Do / Don't</strong>3~5 개 규칙</li>
+    <li><strong>Related</strong>유사 · 대체 컴포넌트 링크</li>
+  </ol>
+
+  <div class="grid-2 mt-32">
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>Anatomy 에 적는 것 (Gotcha 7 · 10)</h3>
+      <ul>
+        <li>Dialog · Menu · Accordion 같은 복합 컴포넌트는 파트 계층을 적는다</li>
+        <li>어떤 파트가 필수 · 선택인지, 어떤 파트가 상태를 갖는지 표시한다</li>
+        <li>여러 파트로 된 컴포넌트는 Compound 구조(네임스페이스 API)와 named slot 을 반영한다</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>When to use 에 적는 것 (Gotcha 9)</h3>
+      <ul>
+        <li>모든 컴포넌트에 쓸 때와 쓰지 않을 때를 둘 다 적는다</li>
+        <li>유사 컴포넌트와 가르는 기준을 넣는다 — Menu vs Select, Dialog vs Sheet</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<!-- STEP 2-2 -->
+<section aria-labelledby="step22-title">
+  <div class="section-label">Step 2-2</div>
+  <h2 class="section-title" id="step22-title">API Doc 헤더 (필수)</h2>
+  <p class="section-desc">모든 컴포넌트 스펙 맨 위에 프로그래밍 언어 API 문서 형식의 헤더를 둔다. 설명과 각 옵션의 이름 · 타입 · 허용값 · 기본값 · 의미를 적는다. 헤더가 없는 스펙은 불완전하다 (Gotcha 6).</p>
+
+  <pre><code>## Button
+
+범용 액션 트리거 컴포넌트. 폼 제출, 네비게이션, 인라인 동작에 사용한다.
+
+### When to use
+- 사용자 액션을 트리거할 때 (제출, 확인, 취소)
+- 인라인 동작 (삭제, 편집, 공유)
+
+### When not to use
+- 페이지 이동만 할 때 → Link 사용
+- 토글 상태 전환 → Switch 또는 ToggleButton 사용
+
+### Anatomy
+- Root — 클릭 영역 전체
+- LeadingIcon (선택) — 좌측 아이콘
+- Label — 텍스트 라벨
+- TrailingIcon (선택) — 우측 아이콘
+- Spinner (조건부) — loading=true일 때 표시</code></pre>
+
+  <h3 class="subhead">Props</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Prop</th><th>Type</th><th>Allowed Values</th><th>Default</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>variant</code></td><td>string</td><td>primary · secondary · outline · ghost · destructive</td><td>primary</td><td>N</td><td>시각적 스타일 변형</td></tr>
+        <tr><td><code>size</code></td><td>string</td><td>xs · sm · md · lg · xl</td><td>md</td><td>N</td><td>크기 (높이/패딩/폰트 연동)</td></tr>
+        <tr><td><code>color</code></td><td>string</td><td>primary · success · warning · error · neutral</td><td>primary</td><td>N</td><td>색상 테마</td></tr>
+        <tr><td><code>radius</code></td><td>string</td><td>none · sm · md · lg · full</td><td>md</td><td>N</td><td>모서리 둥글기</td></tr>
+        <tr><td><code>disabled</code></td><td>boolean</td><td>true · false</td><td>false</td><td>N</td><td>비활성 상태</td></tr>
+        <tr><td><code>loading</code></td><td>boolean</td><td>true · false</td><td>false</td><td>N</td><td>로딩 상태</td></tr>
+        <tr><td><code>icon</code></td><td>ReactNode</td><td>—</td><td>—</td><td>N</td><td>아이콘 요소</td></tr>
+        <tr><td><code>fullWidth</code></td><td>boolean</td><td>true · false</td><td>false</td><td>N</td><td>부모 너비 맞춤</td></tr>
+        <tr><td><code>onClick</code></td><td>(event) =&gt; void</td><td>—</td><td>—</td><td>N</td><td>클릭 이벤트 핸들러</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="subhead">Accessibility</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>값</th></tr></thead>
+      <tbody>
+        <tr><td>Role</td><td><code>button</code></td></tr>
+        <tr><td>키보드</td><td>Enter / Space 로 활성화</td></tr>
+        <tr><td><code>aria-disabled</code></td><td>disabled=true 일 때</td></tr>
+        <tr><td><code>aria-busy</code></td><td>loading=true 일 때</td></tr>
+        <tr><td>아이콘 전용 버튼</td><td><code>aria-label</code> 필수</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- STEP 2-3 -->
+<section aria-labelledby="step23-title">
+  <div class="section-label">Step 2-3</div>
+  <h2 class="section-title" id="step23-title">커스터마이징 옵션 체크리스트</h2>
+  <p class="section-desc">개발자가 가장 자주 조정하는 옵션을 컴포넌트마다 기본으로 검토한다. 그 컴포넌트에 필요 없는 옵션은 빼되, 필요한 옵션을 빠뜨리면 실제로 쓰기 어려워진다 (Gotcha 5).</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>카테고리</th><th>옵션</th><th>흔한 값</th><th>적용 대상</th></tr></thead>
+      <tbody>
+        <tr><td>스타일 변형</td><td><code>variant</code></td><td>primary, secondary, outline, ghost, link, destructive</td><td>버튼, 배지, 알림</td></tr>
+        <tr><td>크기</td><td><code>size</code></td><td>xs, sm, md, lg, xl</td><td>거의 모든 컴포넌트</td></tr>
+        <tr><td>색상</td><td><code>color</code></td><td>primary, secondary, success, warning, error, neutral</td><td>버튼, 배지, 태그, 알림</td></tr>
+        <tr><td>모서리</td><td><code>radius</code></td><td>0, 4px, 6px, 8px, 12px, 16px, 9999px(pill)</td><td>카드, 버튼, 입력, 이미지</td></tr>
+        <tr><td>굵기</td><td><code>weight</code></td><td>300, 400, 500, 600, 700</td><td>텍스트 포함 컴포넌트</td></tr>
+        <tr><td>테두리</td><td><code>border</code></td><td>none, 1px, 2px, 3px</td><td>카드, 입력, 구분선</td></tr>
+        <tr><td>그림자</td><td><code>shadow</code></td><td>none, sm, md, lg, xl</td><td>카드, 모달, 드롭다운</td></tr>
+        <tr><td>간격</td><td><code>padding</code></td><td>4/8/12/16/20/24/32px</td><td>카드, 컨테이너, 버튼</td></tr>
+        <tr><td>높이</td><td><code>height</code></td><td>28/32/36/40/44/48px</td><td>버튼, 입력, 탭</td></tr>
+        <tr><td>투명도</td><td><code>opacity</code></td><td>0.5, 0.7, 0.85, 1</td><td>오버레이, 비활성 상태</td></tr>
+        <tr><td>아이콘</td><td><code>icon</code></td><td>leading, trailing, only</td><td>버튼, 입력, 메뉴 아이템</td></tr>
+        <tr><td>방향</td><td><code>orientation</code></td><td>horizontal, vertical</td><td>탭, 라디오 그룹, 디바이더</td></tr>
+        <tr><td>위치</td><td><code>placement</code></td><td>top, bottom, left, right, auto</td><td>툴팁, 드롭다운, 팝오버</td></tr>
+        <tr><td>밀도</td><td><code>density</code></td><td>compact, default, comfortable</td><td>테이블, 리스트, 폼</td></tr>
+        <tr><td>제어</td><td><code>controlled</code></td><td>value/defaultValue, open/defaultOpen</td><td>입력, 드롭다운, 다이얼로그</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- STEP 2-4 -->
+<section aria-labelledby="step24-title">
+  <div class="section-label">Step 2-4</div>
+  <h2 class="section-title" id="step24-title">분류 카테고리와 필수 상태</h2>
+  <p class="section-desc">컴포넌트를 여섯 갈래로 나누고, 갈래마다 빠뜨리면 안 되는 상태를 정해 둔다. 필수 상태 표는 <code>references/component-spec-template.md</code> 에서 왔다.</p>
+
+  <div class="grid-2">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>분류</th><th>컴포넌트</th></tr></thead>
+        <tbody>
+          <tr><td><strong>액션</strong></td><td>버튼, 링크, FAB</td></tr>
+          <tr><td><strong>입력</strong></td><td>텍스트 필드, 체크박스, 라디오, 드롭다운, 스위치</td></tr>
+          <tr><td><strong>표시</strong></td><td>카드, 리스트 아이템, 배지, 칩, 태그</td></tr>
+          <tr><td><strong>네비게이션</strong></td><td>탭, 사이드바 아이템, 브레드크럼</td></tr>
+          <tr><td><strong>피드백</strong></td><td>토스트, 다이얼로그, 바텀시트</td></tr>
+          <tr><td><strong>레이아웃</strong></td><td>디바이더, 스페이서, 컨테이너</td></tr>
+        </tbody>
+      </table>
     </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>토큰 매핑</div>
-      <p style="font-size:14px;color:var(--text2);line-height:1.7">디자인 토큰과의 연결을 명시한다. 하드코딩 값 대신 토큰을 참조하여 일관성을 유지한다.</p>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="dot"></span>사용 가이드라인</div>
-      <p style="font-size:14px;color:var(--text2);line-height:1.7">DO/DON'T 규칙을 정의한다. 올바른 사용과 잘못된 사용 예시를 함께 제시한다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>카테고리</th><th>필수 상태</th></tr></thead>
+        <tbody>
+          <tr><td>버튼</td><td>default, hover, active, disabled, loading, focused</td></tr>
+          <tr><td>입력 필드</td><td>default, hover, focused, error, disabled, filled</td></tr>
+          <tr><td>카드</td><td>default, hover (인터랙티브인 경우)</td></tr>
+          <tr><td>네비게이션</td><td>default, active/selected, hover</td></tr>
+          <tr><td>토글/스위치</td><td>off, on, disabled</td></tr>
+          <tr><td>체크박스</td><td>unchecked, checked, indeterminate, disabled</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
 
 <!-- EXAMPLE -->
-<section>
-  <div class="section-label">EXAMPLE</div>
-  <div class="section-title">예시: TaskFlow</div>
-  <div class="section-desc">Button + TaskCard 2개 컴포넌트 정의</div>
+<section aria-labelledby="example-title">
+  <div class="section-label">Example</div>
+  <h2 class="section-title" id="example-title">예시: TaskFlow</h2>
+  <p class="section-desc">사용자가 「Button 과 TaskCard 를 정의해줘」 라고 요청한 경우의 산출물 일부다. 요청하지 않은 Input · Modal 은 넣지 않았다. 토큰은 DTCG 중괄호 참조로, light · dark 를 함께 적는다.</p>
 
-  <!-- Button Component -->
   <div class="comp-block">
-    <div class="comp-name"><span class="comp-icon">&#9654;</span>Button</div>
-    <div class="comp-role">사용자 액션 트리거. 폼 제출, 네비게이션, 태스크 생성 등</div>
+    <h3 class="comp-name"><span class="comp-icon" aria-hidden="true">&#9654;</span>Button</h3>
+    <p class="comp-role">사용자 액션 트리거. 폼 제출, 태스크 생성, 인라인 동작에 쓴다. 페이지 이동만 하면 Link 를 쓴다.</p>
 
-    <!-- Variants -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">Variants</h4>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Variant</th><th>스타일</th><th>용도</th></tr></thead>
-        <tbody>
-          <tr><td><code>primary</code></td><td>amber 배경</td><td>주요 CTA</td></tr>
-          <tr><td><code>secondary</code></td><td>투명 배경 + 보더</td><td>보조 액션</td></tr>
-          <tr><td><code>ghost</code></td><td>배경 없음</td><td>저강조 액션</td></tr>
-        </tbody>
-      </table>
+    <div class="grid-2">
+      <div>
+        <h4 class="comp-h">Variants</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Variant</th><th>스타일</th><th>용도</th></tr></thead>
+            <tbody>
+              <tr><td><code>primary</code></td><td>amber 채움</td><td>주요 CTA</td></tr>
+              <tr><td><code>secondary</code></td><td>투명 배경 + 보더</td><td>보조 액션</td></tr>
+              <tr><td><code>ghost</code></td><td>배경 없음</td><td>저강조 액션</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h4 class="comp-h">States</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>상태</th><th>변화</th></tr></thead>
+            <tbody>
+              <tr><td><code>default</code></td><td>기본 스타일</td></tr>
+              <tr><td><code>hover</code></td><td>밝기 +8%</td></tr>
+              <tr><td><code>active</code></td><td>밝기 -4%</td></tr>
+              <tr><td><code>focus</code></td><td>포커스 링 2px</td></tr>
+              <tr><td><code>disabled</code></td><td>투명도 0.38, 누를 수 없음</td></tr>
+              <tr><td><code>loading</code></td><td>Spinner 표시, <code>aria-busy</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- 상태 -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">상태</h4>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>상태</th><th>변화</th></tr></thead>
-        <tbody>
-          <tr><td><code>default</code></td><td>기본 스타일</td></tr>
-          <tr><td><code>hover</code></td><td>밝기 +8%</td></tr>
-          <tr><td><code>active</code></td><td>밝기 -4%</td></tr>
-          <tr><td><code>disabled</code></td><td>투명도 0.38</td></tr>
-          <tr><td><code>loading</code></td><td>스피너 표시</td></tr>
-          <tr><td><code>focused</code></td><td>포커스 링 2px</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 사이즈 -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">사이즈</h4>
+    <h4 class="comp-h">Sizes</h4>
     <div class="table-wrap">
       <table>
         <thead><tr><th>사이즈</th><th>높이</th><th>패딩</th><th>폰트</th></tr></thead>
         <tbody>
-          <tr><td><code>sm</code></td><td>32px</td><td>8px 12px</td><td>body-sm</td></tr>
-          <tr><td><code>md</code></td><td>40px</td><td>10px 16px</td><td>body-md</td></tr>
-          <tr><td><code>lg</code></td><td>48px</td><td>12px 20px</td><td>body-lg</td></tr>
+          <tr><td><code>sm</code></td><td>32px</td><td>8px 12px</td><td><code>{font.label.sm}</code></td></tr>
+          <tr><td><code>md</code></td><td>40px</td><td>10px 16px</td><td><code>{font.label.md}</code></td></tr>
+          <tr><td><code>lg</code></td><td>48px</td><td>12px 20px</td><td><code>{font.label.lg}</code></td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- 토큰 매핑 -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">토큰 매핑</h4>
+    <h4 class="comp-h">Design Tokens</h4>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>속성</th><th>토큰</th></tr></thead>
+        <thead><tr><th>속성</th><th>토큰 참조</th><th>light</th><th>dark</th></tr></thead>
         <tbody>
-          <tr><td>bg-default</td><td><code>color.primary</code></td></tr>
-          <tr><td>bg-hover</td><td><code>color.primary-hover</code></td></tr>
-          <tr><td>text</td><td><code>color.on-primary</code></td></tr>
-          <tr><td>radius</td><td><code>radius.md</code></td></tr>
-          <tr><td>padding</td><td><code>space.btn-{size}</code></td></tr>
-          <tr><td>font</td><td><code>typo.label-{size}</code></td></tr>
+          <tr><td>배경 (default)</td><td><code>{color.action.primary}</code></td><td>amber 채움</td><td>채도를 낮춘 amber</td></tr>
+          <tr><td>배경 (hover)</td><td><code>{color.action.primary-hover}</code></td><td>한 단계 밝게</td><td>한 단계 밝게, 배경 대비 3:1 이상</td></tr>
+          <tr><td>텍스트</td><td><code>{color.text.on-primary}</code></td><td>짙은 글자</td><td>짙은 글자</td></tr>
+          <tr><td>포커스 링</td><td><code>{color.border.focus}</code></td><td>브랜드 색</td><td>브랜드 색, 배경 대비 3:1 이상</td></tr>
+          <tr><td>모서리</td><td><code>{radius.md}</code></td><td colspan="2">모드 공통</td></tr>
+          <tr><td>패딩</td><td><code>{space.md}</code></td><td colspan="2">모드 공통</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- TaskCard Component -->
   <div class="comp-block">
-    <div class="comp-name"><span class="comp-icon">&#9632;</span>TaskCard</div>
-    <div class="comp-role">태스크 정보 표시. 대시보드 그리드에서 태스크 하나의 요약 정보를 제공한다.</div>
+    <h3 class="comp-name"><span class="comp-icon" aria-hidden="true">&#9632;</span>TaskCard</h3>
+    <p class="comp-role">태스크 하나의 요약을 보여 준다. 대시보드 그리드에서 누르면 태스크 상세로 간다. 출처 시안 ID 가 있으면 여기에 적는다.</p>
 
-    <!-- Variants -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">Variants</h4>
+    <div class="grid-2">
+      <div>
+        <h4 class="comp-h">Anatomy (Compound + Slot)</h4>
+        <pre><code>TaskCard.Root         필수 · 상태 있음 (hover/focus)
+├── TaskCard.Header   필수 slot
+│   ├── Title         필수
+│   └── StatusBadge   선택 (대기/진행 중/완료)
+└── TaskCard.Meta     선택 slot
+    ├── Assignee      이니셜 원형 아바타
+    └── DueDate       마감일</code></pre>
+      </div>
+      <div>
+        <h4 class="comp-h">States</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>상태</th><th>변화</th></tr></thead>
+            <tbody>
+              <tr><td><code>default</code></td><td>surface 배경</td></tr>
+              <tr><td><code>hover</code></td><td>border 하이라이트 + 살짝 위로</td></tr>
+              <tr><td><code>focus</code></td><td>포커스 링 2px</td></tr>
+              <tr><td><code>active</code></td><td>표면 한 단계 어둡게</td></tr>
+              <tr><td><code>disabled</code></td><td>보관된 태스크, 투명도 0.38</td></tr>
+              <tr><td><code>loading</code></td><td>레이아웃과 같은 모양의 스켈레톤</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <h4 class="comp-h">Design Tokens</h4>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Variant</th><th>설명</th></tr></thead>
+        <thead><tr><th>속성</th><th>토큰 참조</th><th>light</th><th>dark</th></tr></thead>
         <tbody>
-          <tr><td><code>default</code></td><td>기본 카드</td></tr>
+          <tr><td>배경</td><td><code>{color.background.surface}</code></td><td>흰 표면</td><td>순수 블랙이 아닌 짙은 표면</td></tr>
+          <tr><td>보더</td><td><code>{color.border.subtle}</code></td><td>옅은 회색</td><td>표면보다 한 단계 밝게</td></tr>
+          <tr><td>제목</td><td><code>{font.body.md}</code> 600</td><td colspan="2">모드 공통</td></tr>
+          <tr><td>메타</td><td><code>{font.body.sm}</code> · <code>{color.text.secondary}</code></td><td>중간 회색</td><td>채도를 낮춘 밝은 회색</td></tr>
         </tbody>
       </table>
     </div>
+  </div>
+</section>
 
-    <!-- 상태 -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">상태</h4>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>상태</th><th>변화</th></tr></thead>
-        <tbody>
-          <tr><td><code>default</code></td><td>surface 배경</td></tr>
-          <tr><td><code>hover</code></td><td>border 하이라이트 + 미세 translate-y</td></tr>
-        </tbody>
-      </table>
-    </div>
+<!-- STEP 3 -->
+<section aria-labelledby="step3-title">
+  <div class="section-label">Step 3</div>
+  <h2 class="section-title" id="step3-title">사용자 피드백과 저장</h2>
+  <p class="section-desc">카탈로그를 먼저 보여 주고, 피드백으로 고친 뒤, 사용자가 확정하면 저장한다.</p>
 
-    <!-- 구성요소 -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">구성요소</h4>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>요소</th><th>설명</th></tr></thead>
-        <tbody>
-          <tr><td>제목</td><td>태스크 이름 표시</td></tr>
-          <tr><td>상태 배지</td><td>진행 상태 (대기/진행 중/완료)</td></tr>
-          <tr><td>담당자 아바타</td><td>이니셜 원형 아바타</td></tr>
-          <tr><td>기한 텍스트</td><td>마감일 표시</td></tr>
-        </tbody>
-      </table>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="eyebrow">1 · 제시</div>
+      <h3>catalog.md 포맷으로 보여 준다</h3>
+      <p><code>templates/catalog.md</code> 포맷으로 카탈로그를 만들어 사용자에게 제시한다.</p>
     </div>
+    <div class="flow-step">
+      <div class="eyebrow">2 · 수정</div>
+      <h3>피드백을 반영한다</h3>
+      <p>variant 추가 · 제거, 상태 조정, 토큰 변경을 반영한다.</p>
+    </div>
+    <div class="flow-step">
+      <div class="eyebrow">3 · 확정</div>
+      <h3>저장한다</h3>
+      <p>확정되면 <code>.design/components/catalog.md</code> 에 저장한다.</p>
+    </div>
+  </div>
 
-    <!-- 토큰 매핑 -->
-    <h4 style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">토큰 매핑</h4>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>속성</th><th>토큰</th></tr></thead>
-        <tbody>
-          <tr><td>bg</td><td><code>color.surface</code></td></tr>
-          <tr><td>border</td><td><code>color.border</code></td></tr>
-          <tr><td>title</td><td><code>typo.body-md</code> 600</td></tr>
-          <tr><td>meta</td><td><code>typo.body-sm</code> <code>color.text-secondary</code></td></tr>
-        </tbody>
-      </table>
+  <pre><code># 컴포넌트 카탈로그
+
+&gt; 생성일: {{date}}
+&gt; 프로젝트: {{project-name}}
+&gt; 컴포넌트 수: {{count}}
+
+## {{컴포넌트명}}
+
+&gt; 출처 시안 ID: {{mockup-id}}
+
+### 역할
+### Variants        | Variant | 설명 | 사용 맥락 |
+### 상태            | 상태 | 시각적 변화 |
+### 사이즈          | 사이즈 | 높이 | 패딩 | 폰트 |
+### 토큰 매핑       | 속성 | 토큰 |
+### 사용 가이드라인  - **DO:** … / - **DON'T:** …</code></pre>
+</section>
+
+<!-- ANTI-PATTERNS -->
+<section aria-labelledby="anti-title">
+  <div class="section-label">Anti-patterns</div>
+  <h2 class="section-title" id="anti-title">자주 틀리는 스펙</h2>
+  <p class="section-desc">Gotchas 가 막으려는 실수를 나란히 놓았다.</p>
+
+  <div class="compare">
+    <div class="compare-panel compare-bad">
+      <div class="compare-label">Bad — 중괄호 없는 참조</div>
+      <h3>문자열 값으로 읽힌다</h3>
+      <p>중괄호 없는 점 표기와 접두어 없는 <code>value</code> · <code>type</code> 키는 참조가 아니고 Tokens Studio · Style Dictionary 호환도 깨진다.</p>
+      <pre><code>{ "bg": { "type": "color",
+          "value": "color.background.surface" } }</code></pre>
     </div>
+    <div class="compare-panel compare-good">
+      <div class="compare-label">Good — DTCG v1 별칭</div>
+      <h3>다른 토큰을 가리킨다</h3>
+      <p><code>$type</code> · <code>$value</code> 키와 중괄호 참조를 쓴다. 커스텀 <code>$</code> 접두어 키를 새로 만들지 않는다.</p>
+      <pre><code>{ "bg": { "$type": "color",
+          "$value": "{color.background.surface}" } }</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-panel compare-bad">
+      <div class="compare-label">Bad — prop soup</div>
+      <h3>옵션을 props 하나에 몰아넣는다</h3>
+      <pre><code>&lt;Select options={...} renderOption={...}
+  showSearch groupBy="team" footerText="..." /&gt;</code></pre>
+    </div>
+    <div class="compare-panel compare-good">
+      <div class="compare-label">Good — Compound + Slot</div>
+      <h3>파트를 네임스페이스로 나눈다</h3>
+      <pre><code>Select.Root
+├── Select.Trigger
+├── Select.Content
+│   └── Select.Item
+└── Select.Footer   (slot)</code></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-panel compare-bad">
+      <div class="compare-label">Bad — 카탈로그 임의 확장</div>
+      <h3>「버튼 정의해줘」 에 Input · Card · Modal 까지</h3>
+      <p>함께 필요할 것 같다는 이유로 요청하지 않은 컴포넌트를 산출물에 넣는다. 시안의 모든 요소를 자동으로 카탈로그화하는 것도 같은 실수다.</p>
+    </div>
+    <div class="compare-panel compare-good">
+      <div class="compare-label">Good — 요청한 것만, 나머지는 제안</div>
+      <h3>버튼 하나를 12 섹션으로 완전하게</h3>
+      <p>산출물은 버튼 스펙뿐이다. 끝에 한 줄로 「Input · Card 도 함께 정의할까요?」 라고 따로 묻는다.</p>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-panel compare-bad">
+      <div class="compare-label">Bad — 지어낸 부품 이름</div>
+      <h3>앱에 없는 부품을 스펙에 쓴다</h3>
+      <p>코드를 검색하지 않고 그럴듯한 이름을 붙이거나, 이미 있는 부품을 새 컴포넌트로 다시 정의한다.</p>
+    </div>
+    <div class="compare-panel compare-good">
+      <div class="compare-label">Good — 찾은 부품을 가리킨다</div>
+      <h3>심볼 이름 · <code>파일:줄</code> · 용도</h3>
+      <p>코드 검색에서 나온 부품만 재사용 부품 칸에 적고, 스펙은 그 부품을 가리킨다. 찾지 못하면 <code>관례 없음</code> 으로 이유를 적는다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GOTCHAS -->
+<section aria-labelledby="gotchas-title">
+  <div class="section-label">Gotchas</div>
+  <h2 class="section-title" id="gotchas-title">완료 전 체크리스트</h2>
+  <p class="section-desc">스킬의 Gotchas 13 개를 그대로 옮겼다. 하나라도 빠지면 스펙이 불완전하다.</p>
+
+  <ul class="checklist">
+    <li><span class="check" aria-hidden="true">1</span><span><strong>구현 코드를 만들지 않았다</strong> — 스펙만 출력하고 코드는 toolkit 에 맡겼다</span></li>
+    <li><span class="check" aria-hidden="true">2</span><span><strong>상태를 빠뜨리지 않았다</strong> — default · hover · active · disabled, 버튼 · 카드는 loading 까지</span></li>
+    <li><span class="check" aria-hidden="true">3</span><span><strong>모든 값을 토큰에 매핑했다</strong> — DTCG v1 중괄호 참조, <code>$value</code> · <code>$type</code></span></li>
+    <li><span class="check" aria-hidden="true">4</span><span><strong>시안 ID 를 기록했다</strong> — <code>{컴포넌트명}-{해시}</code> 로 출처 추적</span></li>
+    <li><span class="check" aria-hidden="true">5</span><span><strong>커스터마이징 옵션을 검토했다</strong> — 필요 없는 것만 뺐다</span></li>
+    <li><span class="check" aria-hidden="true">6</span><span><strong>API Doc 헤더가 맨 위에 있다</strong> — 이름 · 타입 · 허용값 · 기본값 · 의미</span></li>
+    <li><span class="check" aria-hidden="true">7</span><span><strong>Anatomy 를 적었다</strong> — 필수 · 선택 파트, 상태를 갖는 파트</span></li>
+    <li><span class="check" aria-hidden="true">8</span><span><strong>접근성 섹션이 있다</strong> — ARIA 역할 · 속성, 키보드 표, 라벨링</span></li>
+    <li><span class="check" aria-hidden="true">9</span><span><strong>When to use / not 을 적었다</strong> — 유사 컴포넌트와 가르는 기준 포함</span></li>
+    <li><span class="check" aria-hidden="true">10</span><span><strong>Compound · Slot 을 반영했다</strong> — prop soup 없음</span></li>
+    <li><span class="check" aria-hidden="true">11</span><span><strong>light · dark 토큰을 둘 다 적었다</strong> — 순수 블랙 없음, hover · focus 3:1 이상</span></li>
+    <li><span class="check" aria-hidden="true">12</span><span><strong>요청한 컴포넌트만 정의했다</strong> — 더 필요하면 따로 제안, 모호하면 한 줄로 확인</span></li>
+    <li><span class="check" aria-hidden="true">13</span><span><strong>시각 산출물 규약을 인용만 했다</strong> — 편집 전 확정 · 승인 기록 · 증거 채널은 <a href="visual-change-protocol.html">visual-change-protocol</a> 을 따른다</span></li>
+  </ul>
+</section>
+
+<!-- REFERENCES -->
+<section aria-labelledby="refs-title">
+  <div class="section-label">References</div>
+  <h2 class="section-title" id="refs-title">참조 파일</h2>
+  <p class="section-desc">산출 포맷과 공통 규약의 원본이다.</p>
+  <div class="grid-2">
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>스킬 전용 포맷</h3>
+      <ul>
+        <li><a href="../../design-kit/skills/design-component/references/component-spec-template.md">references/component-spec-template.md</a> — 컴포넌트 정의 템플릿, 카테고리별 필수 상태</li>
+        <li><a href="../../design-kit/skills/design-component/templates/catalog.md">templates/catalog.md</a> — 컴포넌트 카탈로그 출력 포맷 (MD)</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h3 class="card-title"><span class="dot"></span>design-kit 공유 파일</h3>
+      <ul>
+        <li><a href="../../design-kit/templates/component.html">templates/component.html</a> — 컴포넌트 스펙 HTML 출력 포맷 (공유 템플릿)</li>
+        <li><a href="../../design-kit/references/visual-change-protocol.md">references/visual-change-protocol.md</a> — 편집 전 확정 · 승인 기록 · 증거 채널</li>
+      </ul>
+    </article>
   </div>
 </section>
 
 <!-- NEXT -->
-<section>
-  <div class="section-label">NEXT</div>
-  <div class="section-title">다음 단계</div>
-  <div class="section-desc">카탈로그 정의 완료 후 구현으로 전환</div>
-
+<section aria-labelledby="next-title">
+  <div class="section-label">Next</div>
+  <h2 class="section-title" id="next-title">다음 단계</h2>
+  <p class="section-desc">카탈로그가 확정되면 구현으로 넘어간다.</p>
   <div class="next-card">
-    <div class="next-card-desc">toolkit 플러그인(flutter-toolkit 등)으로 카탈로그에 정의된 컴포넌트를 실제 코드로 구현합니다</div>
+    <p class="next-card-desc">flutter-toolkit · react-kit 같은 toolkit 플러그인이 카탈로그에 정의된 컴포넌트를 실제 코드로 옮긴다. 이 스킬은 그 단계에 들어가지 않는다.</p>
   </div>
 </section>
+
+</main>
+
+<footer class="footer">
+  Design Kit · design-component — 요청한 컴포넌트를 12 섹션 스펙으로 완전하게 정의한다.
+</footer>
 
 </div>
 
 <script>
-document.querySelectorAll('.workflow-item:not(.active)').forEach(function(el){
-  el.addEventListener('click',function(){
-    var id=el.textContent.trim();
-    try{parent.navigate(id);}catch(e){}
-  });
-});
-document.querySelectorAll('.next-card').forEach(function(el){
-  var cmd=el.querySelector('.next-card-cmd');
-  if(!cmd)return;
-  var id=cmd.textContent.trim().replace(/^\//,'');
-  el.addEventListener('click',function(){
-    try{parent.navigate(id);}catch(e){}
+// 문서 사이트 iframe 안에서는 부모 내비를 갱신해야 사이드바 선택이 맞는다. 단독으로 열리면 링크 그대로 이동한다.
+document.querySelectorAll('a[data-nav]').forEach(function(el){
+  el.addEventListener('click',function(ev){
+    try{
+      if(window.parent!==window&&typeof window.parent.navigate==='function'){
+        ev.preventDefault();
+        window.parent.navigate(el.getAttribute('data-nav'));
+      }
+    }catch(e){}
   });
 });
 </script>
