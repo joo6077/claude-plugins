@@ -1425,6 +1425,7 @@ grep -E '^conditions:' "$CONTRACT"</code>
   <div class="section-title">Sibling 전수 검증 · L1/L2/L3 용어 · 태그 소비 규칙</div>
   <h3 class="sub">Sibling Enumerated Verification (전수 Grep 절차)</h3>
   <p class="section-desc">대응: <code>contract-design-guide.md §Sibling Consistency</code> · <code>contract-schema.md §Sibling Consistency enumerated</code>. 플러그인 내 여러 스킬에 공통 원칙을 요구하는 조건(<code>[exact, enumerated]</code> / <code>[structural, enumerated]</code>)에서 평가자가 1~2 개 샘플만 확인하고 PASS 처리하는 패턴을 막는다. rust-kit H-01/H-03 REJECT 의 직접 원인이었다.</p>
+  <p class="section-desc"><strong>절차</strong> — <code>[*, enumerated]</code> 태그 발견 시:</p>
   <div class="steps four">
     <div class="step"><div class="step-n">1</div><h4>대상 목록 파싱</h4><p>조건 문장에서 나열된 sibling 스킬/파일 이름을 모두 추출한다. N 개 정확히 센다.</p></div>
     <div class="step"><div class="step-n">2</div><h4>N 개 전수 Grep</h4><p>각 대상에 대해 개별 Grep 수행. 한 대상당 한 줄 증거(<code>파일:라인 매칭 문자열</code>) 기록.</p></div>
