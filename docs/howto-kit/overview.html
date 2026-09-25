@@ -33,30 +33,10 @@
   }
   .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
 
-  /* ── NAV ── */
-  .nav{
-    position:sticky;top:0;z-index:100;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-    padding:12px clamp(16px,4vw,48px);
-    background:var(--nav-bg);backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--border);
-  }
-  .nav-logo{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.04em;text-transform:uppercase}
-  .nav-logo span{color:var(--accent2)}
-  .theme-toggle{
-    display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border-radius:100px;
-    min-height:44px;min-width:44px;  /* WCAG 2.2 SC 2.5.5 — docs-site 정본 템플릿 규칙 (4) */
-    background:var(--surface2);border:1px solid var(--border);cursor:pointer;
-    font-size:12px;font-weight:600;color:var(--text2);
-    transition:border-color var(--transition),color var(--transition);white-space:nowrap;font-family:inherit;
-  }
-  .theme-toggle:hover{border-color:var(--accent2);color:var(--accent2)}
-  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-
   /* ── TYPO ── */
   h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
     background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:clamp(24px,4vw,36px);max-width:860px;line-height:1.7}
+  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:10px;margin-bottom:16px;max-width:860px;line-height:1.7}
   h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
   h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
   h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)}
@@ -70,6 +50,7 @@
   .caption{color:var(--text3);font-size:12px;margin-top:12px;line-height:1.6}
   strong{color:var(--text);font-weight:700}
   em{color:var(--accent2);font-style:normal;font-weight:700}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:clamp(24px,4vw,36px)}
 
   /* ── TAGS / BADGES ── */
   .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
@@ -79,18 +60,10 @@
   .tag-ok{background:rgba(74,222,128,0.14);color:var(--green)}
   .tag-neutral{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
 
-  /* 강도 배지 */
-  .strength{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
-    padding:3px 9px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
-  .s-must{background:rgba(217,70,239,0.16);color:var(--accent);border:1px solid rgba(217,70,239,0.4)}
-  .s-should{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
-  .s-observed{background:rgba(129,140,248,0.14);color:var(--blue);border:1px solid rgba(129,140,248,0.3)}
-  .s-synth{background:rgba(251,191,36,0.14);color:var(--yellow);border:1px solid rgba(251,191,36,0.32)}
-
   /* ── CARDS ── */
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
     padding:clamp(16px,2.5vw,26px);transition:border-color var(--transition);display:flex;flex-direction:column}
-  .card:hover{border-color:rgba(217,70,239,0.25)}
+  .card:hover{border-color:rgba(245,158,11,0.25)}
   .card .card-body{flex:1}
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
   .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
@@ -115,7 +88,7 @@
     padding:5px 9px;margin-top:6px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere;line-height:1.5}
 
   /* 내부 문서 링크 — 출처 링크와 구분 */
-  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(217,70,239,0.35);overflow-wrap:anywhere}
+  .doc-link{color:var(--accent2);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(245,158,11,0.35);overflow-wrap:anywhere}
   .doc-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
   .doc-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
 
@@ -124,7 +97,7 @@
   th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
     font-size:12px;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
   td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
-  tr:hover td{background:rgba(217,70,239,0.04)}
+  tr:hover td{background:rgba(245,158,11,0.04)}
   td code,p code,li code,th code{font-family:var(--mono);font-size:12px;background:var(--surface2);
     padding:2px 6px;border-radius:4px;color:var(--text)}
   .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;
@@ -135,16 +108,19 @@
   /* ── 경고 / 신호 카드 ── */
   .warn-banner{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.32);
     border-left:4px solid var(--yellow);border-radius:var(--radius);padding:clamp(18px,3vw,30px);
-    margin-bottom:clamp(36px,5vw,56px)}
+    margin-top:clamp(20px,3vw,28px)}
   .warn-banner h2{color:var(--yellow);font-size:clamp(17px,2vw,22px);margin-bottom:12px}
   .warn-banner p{color:var(--text2);font-size:clamp(13px,1.1vw,15px);margin-bottom:12px;max-width:880px}
   .warn-banner p:last-child{margin-bottom:0}
   .warn-card{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);
     border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
   .warn-card h3{color:var(--yellow)}
+  .warn-card p{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:10px}
   .warn-card .num{background:rgba(251,191,36,0.16);color:var(--yellow)}
   .info-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
     border-radius:var(--radius);padding:clamp(16px,2.5vw,26px)}
+  .info-card p{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:10px;max-width:880px}
+  .info-card p:last-child{margin-bottom:0}
 
   /* ── 비교 패널 (before/after 주인공) ── */
   .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -156,15 +132,11 @@
   .compare-bad .compare-label{color:var(--red)}
   .compare-good .compare-label{color:var(--green)}
   .compare pre{margin-bottom:0;background:var(--bg2)}
-  .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
-
-  /* ── 원칙 카드 ── */
-  .principle{margin-bottom:20px}
-  .principle .desc{margin-top:16px;margin-bottom:0}
+  .compare-note{font-size:13px;color:var(--text2);margin-top:10px;line-height:1.6}
 
   /* ── 체크리스트 ── */
   .checklist{list-style:none;display:flex;flex-direction:column;gap:12px}
-  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);line-height:1.7}
   .checklist .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:3px;
     display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700}
   .checklist .check.c-warn{border-color:var(--yellow);color:var(--yellow)}
@@ -173,9 +145,9 @@
   .checklist a{color:var(--accent);overflow-wrap:anywhere}
   .checklist a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* ── 3축 흐름 ── */
+  /* ── 흐름 ── */
   .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-bottom:20px}
-  .flow-step{flex:1 1 200px;min-width:0;background:var(--surface2);border:1px solid var(--border);
+  .flow-step{flex:1 1 170px;min-width:0;background:var(--surface2);border:1px solid var(--border);
     border-radius:12px;padding:14px 16px;position:relative}
   /* 10px bold 는 WCAG large-text 가 아니므로 4.5:1 이 필요하다. 라이트 --accent(#B45309)는
      --surface2 위에서 4.45 로 미달이라 본문 등급 토큰을 쓴다 (실측: a11y 게이트 contrastFail=1). */
@@ -183,16 +155,18 @@
     text-transform:uppercase;color:var(--text2);display:block;margin-bottom:6px}
   .flow-step .what{font-size:14px;font-weight:700;color:var(--text);display:block;margin-bottom:6px}
   .flow-step .out{font-size:12px;color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
-  .flow-step.rank-1{border-color:rgba(217,70,239,0.45)}
+  .flow-step.rank-1{border-color:rgba(245,158,11,0.45)}
+  .flow-step.stop{border-style:dashed;border-color:rgba(248,113,113,0.45)}
 
   /* ── 결정 규칙 박스 ── */
   .rule-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
     padding:14px 16px;font-size:13px;color:var(--text2);line-height:1.7}
   .rule-box strong{color:var(--accent2)}
+  .rule-box ol{margin:8px 0 0 20px;display:flex;flex-direction:column;gap:4px}
 
   /* ── 실측 분포 막대 ── */
   .dist{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-  .dist-row{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(74px,110px);gap:10px;align-items:center;font-size:12px}
+  .dist-row{display:grid;grid-template-columns:minmax(88px,200px) 1fr minmax(40px,70px);gap:10px;align-items:center;font-size:12px}
   .dist-label{color:var(--text2);font-family:var(--mono);overflow-wrap:anywhere}
   .dist-track{height:12px;background:var(--surface2);border-radius:6px;min-width:0}
   .dist-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
@@ -207,7 +181,7 @@
   .grid-2>*,.grid-3>*,.compare>*,.flow>*,.dist-row>*{min-width:0}
   :not(pre)>code{overflow-wrap:anywhere}
   th code,td code{overflow-wrap:normal}
-  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p{overflow-wrap:anywhere}
+  .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.warn-card p,.info-card p,.compare-note{overflow-wrap:anywhere}
   @media(max-width:640px){
     .compare{grid-template-columns:1fr}
     .grid-2,.grid-3{grid-template-columns:1fr}
@@ -224,135 +198,398 @@
 <div class="page">
 
 <h1>Howto Kit 개요 — 절차를 끊지 않고 안내한다</h1>
-<p class="subtitle">어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인. 사용자가 화면에서 길을 잃는 지점을 없애는 것이 목표다. 정확도를 못 올리면 <strong>등급을 낮춰 표기</strong>하지, 지어내지 않는다. <span class="mono">v0.1.0 · 갱신 2026-09-08</span></p>
+<p class="subtitle">사람이 손으로 하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지 안내한다. 기본은 대화창 즉답이고, 요청할 때만 문서로 남긴다. 정확도를 못 올리면 <strong>등급을 낮춰 표기</strong>하지, 지어내지 않는다.</p>
+<div class="hero-meta">
+  <span class="tag">v0.1.0</span>
+  <span class="tag tag-neutral">스택 · 도메인 무관</span>
+  <span class="tag tag-neutral">스킬 3 · 에이전트 1 · 게이트 G1~G6</span>
+  <span class="tag tag-neutral">원본 howto-kit/README.md</span>
+</div>
+
+<!-- ══ 안내 단위 ══ -->
+<div class="section">
+  <div class="section-label">한 스텝이 끝까지 닫는 다섯 칸</div>
+  <div class="flow">
+    <div class="flow-step rank-1"><span class="rank">1 · 어디서</span><span class="what">어느 화면</span><span class="out">딥링크 또는 A &gt; B &gt; C</span></div>
+    <div class="flow-step"><span class="rank">2 · 어디서</span><span class="what">어느 메뉴</span><span class="out">중간 단계를 빼지 않는다</span></div>
+    <div class="flow-step"><span class="rank">3 · 무엇을</span><span class="what">어느 항목</span><span class="out">라벨 + 종류 (버튼 · 탭 · 필드)</span></div>
+    <div class="flow-step"><span class="rank">4 · 값</span><span class="what">무슨 값</span><span class="out">없으면 &#8220;입력 없음&#8221;</span></div>
+    <div class="flow-step"><span class="rank">5 · 확인</span><span class="what">어떻게 확인</span><span class="out">끝났음을 눈으로 보는 관측값</span></div>
+  </div>
+  <p class="desc">README 첫 문장이 이 킷의 약속이다. 한 칸이라도 비면 사용자는 그 자리에서 다시 묻는다. 칸 이름은 문서 모드의 고정 마커(<code>어디서</code> · <code>무엇을</code> · <code>동작</code> · <code>값</code> · <code>확인</code> · <code>안 보이면</code> · <code>출처</code>)에서 가져왔고, 스키마 정본은 <code>references/step-contract.md</code> 다.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="principle-title"><span class="num">D</span><h3>개발 절차</h3></div>
+      <div class="card-body">
+        <p class="desc">콘솔 설정, SDK 연동, CI 구성. 레포 안의 코드가 아니라 사람이 브라우저 콘솔에서 누르는 부분을 안내한다.</p>
+      </div>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/README.md">howto-kit/README.md</a>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">L</span><h3>일상 절차</h3></div>
+      <div class="card-body">
+        <p class="desc">행정 민원, 기기 설정, 계정 · 구독, 금융 · 통신. 스택을 묻지 않는 절차도 같은 규칙으로 다룬다.</p>
+      </div>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/README.md">howto-kit/README.md</a>
+    </div>
+  </div>
+</div>
 
 <!-- ══ 고치는 결함 ══ -->
 <div class="section">
-  <div class="section-label">고치는 결함 4종</div>
+  <div class="section-label">이 킷이 고치는 것 — 결함 4종</div>
   <p class="desc">사용자 불만 원문: <em>&#8220;맨날 다르게 알려주고 자세히 안 알려줘서 내가 몇 번이나 요청해야 함. 어떤 페이지에 정확히 어떤 메뉴를 통해 들어가고 어떤 항목을 어떻게 설정 및 입력하고 이런 걸 안 알려줌.&#8221;</em></p>
+  <div class="table-wrap">
   <table>
     <thead><tr><th>ID</th><th>결함</th><th>대응</th></tr></thead>
     <tbody>
-      <tr><td class="mono">F1</td><td>같은 질문에 매번 다른 절차</td><td>Step Contract 고정</td></tr>
-      <tr><td class="mono">F2</td><td>&#8220;설정에서 활성화하세요&#8221; 수준의 입도</td><td>말단 액션 규칙 + 값&#183;확인 필수 (G5&#183;G6)</td></tr>
-      <tr><td class="mono">F3</td><td>학습 데이터 기반 옛 UI</td><td>출처 등급제 + 조회일 스탬프</td></tr>
-      <tr><td class="mono">F4</td><td>화면에서 항목을 못 찾음</td><td>딥링크 우선 + 중간 단계 무생략 + 선제 분기</td></tr>
+      <tr><td class="sys">F1</td><td>같은 질문에 매번 다른 절차</td><td>Step Contract 고정</td></tr>
+      <tr><td class="sys">F2</td><td>&#8220;설정에서 활성화하세요&#8221; 수준의 입도</td><td>말단 액션 규칙 + 값 &#183; 확인 필수 (G5 &#183; G6)</td></tr>
+      <tr><td class="sys">F3</td><td>학습 데이터 기반 옛 UI</td><td>출처 등급제 + 조회일 스탬프</td></tr>
+      <tr><td class="sys">F4</td><td>화면에서 항목을 못 찾음</td><td>딥링크 우선 + 중간 단계 무생략 + 선제 분기</td></tr>
     </tbody>
   </table>
-  <p class="desc"><strong>F2 를 F3 로 바꾸지 않는 것</strong>이 이 킷의 핵심 제약이다. 자세히 쓰라는 요구를 날조로 메우는 것이 이 도메인의 최악 실패다.</p>
+  </div>
+  <div class="warn-banner">
+    <h2>핵심 제약 — F2 를 F3 로 바꾸지 않는다</h2>
+    <p>자세히 쓰라는 요구를 날조로 메우는 것이 이 도메인의 최악 실패다. 입도를 올리라는 압력이 커질수록 모르는 메뉴 이름을 그럴듯하게 지어낼 유혹도 커진다.</p>
+    <p>정확도를 못 올리면 <strong>등급을 낮춰 표기</strong>한다. 지어내지 않는다. 그래서 아래 출처 등급제와 입도 게이트(G5 &#183; G6)는 한 쌍으로 움직인다.</p>
+  </div>
 </div>
 
-<!-- ══ 무엇이 달라지나 ══ -->
+<!-- ══ before / after ══ -->
 <div class="section">
-  <div class="section-label">한 스텝의 before / after</div>
+  <div class="section-label">같은 스텝, 게이트가 가르는 두 판</div>
+  <p class="desc">둘 다 킷의 시험 입력에서 그대로 옮겼다. 왼쪽은 게이트가 FAIL 을 내는지 증명하려고 <strong>일부러</strong> G5 를 어긴 파일이고, 오른쪽은 통과해야 하는 파일이다.</p>
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label"><span>&#10007; before</span><span class="tag tag-bad">사용자가 여기서 막힌다</span></div>
-      <pre><code>Firebase 콘솔의 Cloud Messaging 섹션에서
-APNs 키를 설정하세요.</code></pre>
+      <div class="compare-label"><span>&#10007; fail-g5-nonterminal.md · S2</span><span class="tag tag-bad">G5 FAIL</span></div>
+      <pre><code>## S2. 해당 항목을 찾아 값을 넣는다
+
+- 어디서: `Apple app configuration` 섹션
+- 무엇을: 해당 항목을
+- 동작: 필요에 따라
+- 값: 알맞은 값
+- 확인: 값이 저장된다</code></pre>
+      <p class="compare-note">&#8220;필요에 따라&#8221; &#183; &#8220;알맞은 값&#8221; 같은 회피 표현이 섞였고, 동작이 종결 동사로 끝나지 않는다. 사용자는 섹션 앞에서 혼자 남는다.</p>
     </div>
     <div class="compare-good">
-      <div class="compare-label"><span>&#10003; after</span><span class="tag tag-good">Step Contract</span></div>
-      <pre><code>S2. Apple app configuration 섹션에서
-    APNs authentication key 의 Upload 버튼을 누른다
-    값:   앞서 받은 .p8 파일 + Key ID + Team ID
-    확인: 키 목록에 Key ID 행이 추가된다
-    안 보이면: 요금제 — 무료 플랜에서도 보인다.
-              안 보이면 iOS 앱이 프로젝트에 미등록이다
-    출처: firebase.google.com/docs/... (조회 2026-09-08)</code></pre>
+      <div class="compare-label"><span>&#10003; pass-fcm-ios.md · S2</span><span class="tag tag-ok">GATE_PASS</span></div>
+      <pre><code>## S2. APNs 인증키를 업로드한다
+
+- 어디서: `Apple app configuration` 섹션 &gt; `APNs authentication key`
+- 무엇을: Upload (버튼)
+- 동작: 업로드
+- 값: 앞서 발급받은 `.p8` 파일 + Key ID(10자 영숫자) + Team ID(10자 영숫자)
+- 확인: 키 목록에 Key ID 행이 새로 추가된다
+- 안 보이면: 요금제 — 무료 Spark 플랜에서도 보인다.
+  안 보이면 iOS 앱이 프로젝트에 등록되지 않은 것이다
+- 출처: https://firebase.google.com/docs/cloud-messaging/ios/certs (조회 2026-09-08)</code></pre>
+      <p class="compare-note">차이는 길이가 아니라 <strong>끝맺음</strong>이다. 무엇을 누르고, 무엇을 넣고, 무엇을 보고 성공을 판단하는지, 안 보이면 왜인지까지 닫는다.</p>
     </div>
   </div>
-  <p class="desc">차이는 길이가 아니라 <strong>끝맺음</strong>이다. before 는 &#8220;섹션에서 설정하세요&#8221;로 끝나 사용자를 화면에 혼자 남긴다. after 는 종결 동사로 끝나고, 무엇을 넣고 무엇을 보고 성공을 판단할지까지 닫는다.</p>
+  <p class="caption">원본: <code>howto-kit/evals/fixtures/fail-g5-nonterminal.md</code> &#183; <code>howto-kit/evals/fixtures/pass-fcm-ios.md</code> (조회일은 시험 입력에 적힌 값 그대로)</p>
 </div>
 
 <!-- ══ 출처 등급제 ══ -->
 <div class="section">
   <div class="section-label">출처 등급제 — &#8220;검증 불가 → 침묵&#8221;의 대체물</div>
-  <p class="desc">정직성이 요구하는 것은 침묵이 아니라 <strong>등급 표시</strong>다. 출처가 다른 정보를 같은 등급으로 섞어 파는 것이 부정직이지, 등급을 붙여 파는 것은 부정직이 아니다.</p>
+  <p class="desc">정직성이 요구하는 것은 침묵이 아니라 <strong>등급 표시</strong>다. 확인 못 한 항목을 통째로 빼면 사용자는 다시 묻는다. 확인 못 했다고 적고 내보내면 사용자는 어디부터 의심할지 안다.</p>
+  <div class="table-wrap">
   <table>
     <thead><tr><th>등급</th><th>표기</th><th>허용되는 문장</th></tr></thead>
     <tbody>
-      <tr><td class="mono">관측</td><td>표기 생략</td><td>무엇이든 단정 가능</td></tr>
-      <tr><td class="mono">문서</td><td><code>출처: &lt;URL&gt; (조회 YYYY-MM-DD)</code></td><td>라벨&#183;경로&#183;필드명 단정 가능</td></tr>
-      <tr><td class="mono">추정</td><td><code>[추정]</code> 필수</td><td>단정 금지. &#8220;대개 …에 있습니다&#8221;</td></tr>
-      <tr><td class="mono">미확인</td><td><code>[미확인]</code> + 시도한 URL</td><td>이때만 전역 검색어로 우회</td></tr>
+      <tr><td class="sys">관측</td><td>표기 생략</td><td>무엇이든 단정 가능</td></tr>
+      <tr><td class="sys">문서</td><td><code>출처: &lt;URL&gt; (조회 YYYY-MM-DD)</code></td><td>라벨 &#183; 경로 &#183; 필드명 단정 가능</td></tr>
+      <tr><td class="sys">추정</td><td><code>[추정]</code> 필수</td><td>단정 금지. &#8220;대개 …에 있습니다&#8221;</td></tr>
+      <tr><td class="sys">미확인</td><td><code>[미확인]</code> + 시도한 URL</td><td>이때만 전역 검색어로 우회</td></tr>
     </tbody>
   </table>
-  <p class="desc"><code>추정</code>이 액션 스텝의 <strong>40%</strong>를 넘으면 그대로 내보내지 않는다 — 화면 폐루프로 사용자에게 묻거나 미확인으로 강등한다.</p>
+  </div>
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <div class="principle-title"><span class="num">?</span><h3><code>추정</code> 은 라벨 대상이다</h3></div>
+      <div class="card-body">
+        <p class="desc"><code>추정</code> 은 금지 대상이 아니다. 라벨을 달면 내보낼 수 있다. 다만 한 절차 안에서 비율이 커지면 사용자가 믿을 수 있는 스텝이 거의 남지 않는다.</p>
+      </div>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/references/source-tiers.md">howto-kit/references/source-tiers.md</a>
+    </div>
+    <div class="rule-box">
+      <strong>상한 — 액션 스텝의 40%</strong><br>
+      <code>추정</code> 이 액션 스텝의 40% 를 넘으면 그대로 내보내지 않고 셋 중 하나를 한다. 이 비율은 게이트 G6 이 기계로 판정한다.
+      <ol>
+        <li>화면 폐루프로 사용자에게 지금 보이는 항목을 물어 <code>관측</code> 으로 올린다</li>
+        <li><code>미확인</code> 으로 내리고 전역 검색어로 우회한다</li>
+        <li>확정 가능한 구간까지로 범위를 좁히고, 나머지는 사용자 확인 뒤 이어간다</li>
+      </ol>
+    </div>
+  </div>
 </div>
 
 <!-- ══ 게이트 ══ -->
 <div class="section">
   <div class="section-label">결정론 게이트 G1~G6</div>
-  <p class="desc">LLM 호출 없는 순수 판정이다. <strong>G5&#183;G6 이 이 킷의 존재 이유</strong> — 기존 절차 킷 어디에도 입도를 재는 검사가 없었다.</p>
+  <p class="desc">LLM 호출 없는 순수 판정이다. 같은 문서를 넣으면 언제나 같은 줄이 나온다. <strong>G5 &#183; G6 이 이 킷의 존재 이유</strong>다 — 기존 절차 킷 어디에도 입도를 재는 검사가 없었다.</p>
+  <div class="table-wrap">
   <table>
     <thead><tr><th>ID</th><th>검사</th><th>실패 조건</th></tr></thead>
     <tbody>
-      <tr><td class="mono">G1</td><td>출처 원장 완전성</td><td>액션 스텝 수 &#8800; 출처 줄 수</td></tr>
-      <tr><td class="mono">G2</td><td>미검증 마커 분류</td><td>접미 없는 레거시 마커 &#8805;1, 또는 INVALID 가 정본 임계 이상</td></tr>
-      <tr><td class="mono">G3</td><td>도메인 혼용</td><td>선언과 다른 계열 경로 혼입, 또는 <strong>대상 미선언</strong></td></tr>
-      <tr><td class="mono">G4</td><td>deprecation 근거 결합</td><td>주장한 스텝의 출처가 뒷받침하지 않음 (한국어 토큰 포함)</td></tr>
-      <tr><td class="mono">G5</td><td><strong>말단 액션</strong></td><td>종결 동사로 끝나지 않거나 회피 표현이 섞인 스텝 &#8805;1</td></tr>
-      <tr><td class="mono">G6</td><td><strong>입도 완전성</strong></td><td>값&#183;확인&#183;안 보이면&#183;출처 누락 &#8805;1, 또는 추정 비율 &gt; 40%</td></tr>
+      <tr><td class="sys">G1</td><td>출처 원장 완전성</td><td>액션 스텝 수 &#8800; 출처 줄 수</td></tr>
+      <tr><td class="sys">G2</td><td>미검증 마커 분류</td><td>접미 없는 레거시 마커 &#8805;1, 또는 <code>INVALID</code> 가 정본 임계 이상</td></tr>
+      <tr><td class="sys">G3</td><td>도메인 혼용</td><td>선언한 플랫폼과 다른 계열 경로 혼입, 또는 <strong>대상 미선언</strong></td></tr>
+      <tr><td class="sys">G4</td><td>deprecation 근거 결합</td><td>주장한 스텝의 출처가 그것을 뒷받침하지 않음 (한국어 토큰 포함)</td></tr>
+      <tr><td class="sys">G5</td><td><strong>말단 액션</strong></td><td>종결 동사로 끝나지 않거나 회피 표현이 섞인 스텝 &#8805;1</td></tr>
+      <tr><td class="sys">G6</td><td><strong>입도 완전성</strong></td><td><code>값</code> &#183; <code>확인</code> &#183; <code>안 보이면</code> &#183; <code>출처</code> 누락 &#8805;1, 또는 <code>추정</code> 비율 &gt; 40%</td></tr>
     </tbody>
   </table>
-  <p class="desc">G3 는 대상 플랫폼을 선언하지 않으면 <strong>PASS 가 아니라 FAIL</strong> 이다. 판정 불가를 통과로 흘리는 것이 no-op 게이트의 정체다 — 기존 킷의 G3 는 스택 인자가 비면 항상 PASS 해서 3개월간 아무것도 잡지 못했다.</p>
-</div>
-
-<!-- ══ 셸 이식성 ══ -->
-<div class="section">
-  <div class="section-label">게이트는 양쪽 셸에서 돌려야 증명된다</div>
-  <p class="desc">실측 2026-09-08. 같은 게이트, 같은 위반 입력, 다른 셸.</p>
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label"><span>&#10007; zsh</span><span class="tag tag-bad">위반을 흘렸다</span></div>
-      <pre><code>G5_TERMINAL PASS nonterminal=0 hedge=0
-GATE_PASS</code></pre>
+  </div>
+  <div class="grid-3" style="margin-top:20px">
+    <div class="card">
+      <div class="principle-title"><span class="num">G3</span><h3>판정 불가는 FAIL</h3></div>
+      <div class="card-body">
+        <p class="desc">대상을 선언하지 않으면 <strong>PASS 가 아니라 FAIL</strong> 이다. 판정 불가를 통과로 흘리는 것이 아무것도 안 막는 게이트의 정체다. 기존 킷의 같은 검사는 스택이 비면 항상 PASS 했고, 그래서 3 개월간 아무것도 잡지 못했다.</p>
+      </div>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/scripts/howto-gate.sh">howto-kit/scripts/howto-gate.sh</a>
     </div>
-    <div class="compare-good">
-      <div class="compare-label"><span>&#10003; bash</span><span class="tag tag-good">정상 판정</span></div>
-      <pre><code>G5_TERMINAL FAIL nonterminal=2 hedge=2
-GATE_FAIL</code></pre>
+    <div class="card">
+      <div class="principle-title"><span class="num">G5</span><h3>끝맺음을 잰다</h3></div>
+      <div class="card-body">
+        <p class="desc">스텝이 종결 동사로 끝나는지, 회피 표현이 섞였는지 센다. 스텝 수와 출처 줄 수만 맞추는 검사는 &#8220;이 섹션에서 찾으세요&#8221;로 끝난 답변도 통과시킨다. 그래서 끝맺음을 따로 잰다.</p>
+      </div>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/docs/howto/design-brief.md">docs/howto/design-brief.md</a>
+    </div>
+    <div class="card">
+      <div class="principle-title"><span class="num">G6</span><h3>빈칸을 잰다</h3></div>
+      <div class="card-body">
+        <p class="desc">스텝마다 값 &#183; 확인 &#183; 안 보이면 &#183; 출처 네 칸이 있는지, <code>추정</code> 비율이 40% 이하인지 본다. 입력이 없어도 &#8220;입력 없음&#8221;이라고 써야 칸이 찬다.</p>
+      </div>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/references/step-contract.md">howto-kit/references/step-contract.md</a>
     </div>
   </div>
-  <p class="desc">원인은 <code>set -- $stats</code>. zsh 는 기본적으로 파라미터 확장에 <strong>단어분할을 하지 않아서</strong> 전체가 <code>$1</code> 에 들어가고, 이후 산술 비교가 전부 조용히 실패했다. bash 에서만 테스트했으면 못 잡았을 결함이다. 그래서 evals 는 두 셸 출력의 <strong>동일성</strong>까지 검사한다.</p>
+</div>
+
+<!-- ══ 게이트 부르기 ══ -->
+<div class="section">
+  <div class="section-label">게이트 부르기 — 스크립트를 세 곳에서 찾는다</div>
+  <p class="desc">README 와 <code>howto-doc</code> Phase 4 가 같은 블록을 쓴다. 킷을 플러그인으로 설치한 프로젝트에는 <code>howto-kit/scripts/</code> 폴더가 없으니, 상대 경로 하나로 부르면 거기서 멈춘다.</p>
+  <pre><code>GATE="${CLAUDE_PLUGIN_ROOT}/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE="$(git rev-parse --show-toplevel 2&gt;/dev/null)/howto-kit/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
+  -path '*/howto-kit/scripts/howto-gate.sh' 2&gt;/dev/null | head -1)
+if [ -n "$GATE" ] &amp;&amp; [ -f "$GATE" ]; then
+  echo "RESOLVED: $GATE"
+  . "$GATE"; howto_gate &lt;절차 문서&gt;
+else
+  echo "MISSING: howto-gate.sh tried=${CLAUDE_PLUGIN_ROOT}/scripts · $(git rev-parse --show-toplevel 2&gt;/dev/null)/howto-kit/scripts · $HOME/.claude/plugins/marketplaces"
+  false
+fi</code></pre>
+  <div class="flow">
+    <div class="flow-step rank-1"><span class="rank">1 순위</span><span class="what">플러그인 설치 경로</span><span class="out">${CLAUDE_PLUGIN_ROOT}/scripts</span></div>
+    <div class="flow-step"><span class="rank">2 순위</span><span class="what">git 최상위 폴더</span><span class="out">&lt;top&gt;/howto-kit/scripts</span></div>
+    <div class="flow-step"><span class="rank">3 순위</span><span class="what">마켓플레이스 설치본</span><span class="out">~/.claude/plugins/marketplaces</span></div>
+    <div class="flow-step stop"><span class="rank">셋 다 없음</span><span class="what">MISSING: 을 찍고 멈춘다</span><span class="out">시도한 세 곳 + false</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="info-card">
+      <h3>어느 사본을 썼는지 보인다</h3>
+      <p>찾으면 <code>RESOLVED: &lt;경로&gt;</code> 한 줄을 먼저 찍는다. 옛 설치본이 불렸는지 레포 파일이 불렸는지를 출력만 보고 가를 수 있다.</p>
+      <p>못 찾으면 <code>MISSING:</code> 줄에 시도한 세 곳을 모두 적고 <code>false</code> 로 끝난다. 판정 없이 조용히 넘어가지 않는다.</p>
+    </div>
+    <div class="warn-card">
+      <div class="principle-title"><span class="num">!</span><h3>셸 함수는 자식 셸로 넘어가지 않는다</h3></div>
+      <p><code>find -exec sh -c</code> 로 여러 파일을 돌릴 때는 스크립트를 <code>sh -c</code> <strong>안에서</strong> 읽는다. 부모 셸에서 읽은 <code>howto_gate</code> 는 자식 셸에 없다.</p>
+      <p>실측 2026-09-24: 부모에서 읽고 자식에서 부르던 옛 블록을 시험 입력 15 개에 돌리자 <code>command not found</code> 15 줄, 판정 줄 0 줄이었다.</p>
+      <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/skills/howto-audit/SKILL.md">howto-audit Gotcha 6</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 구성 ══ -->
+<div class="section">
+  <div class="section-label">구성 — 스킬 3 · 에이전트 1 · 참조 5 · 스크립트 1</div>
+  <p class="desc">쓰기 도구(<code>Write</code>)는 <code>howto-doc</code> 에만 있다. <code>howto</code> 는 파일을 만들지 않고, <code>howto-audit</code> 은 재기만 하고 고치지 않는다. 도구 칸은 각 SKILL.md 머리의 <code>allowed-tools</code> 에서 옮겼다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>스킬</th><th>설명</th><th>Write</th></tr></thead>
+    <tbody>
+      <tr><td class="sys"><code>howto</code></td><td>사람이 직접 손으로 수행하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지</td><td><span class="tag tag-neutral">없음</span></td></tr>
+      <tr><td class="sys"><code>howto-audit</code></td><td>이미 존재하는 절차 문서 &#183; 안내문 &#183; 런북을 입도 &#183; 출처 &#183; 네비게이션 기준으로 재측정해 PASS/FAIL</td><td><span class="tag tag-neutral">없음</span></td></tr>
+      <tr><td class="sys"><code>howto-doc</code></td><td>이미 정리했거나 지금 정리할 절차를 재사용 가능한 마크다운 문서로 렌더하고 결정론 게이트</td><td><span class="tag">있음</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="grid-2" style="margin-top:20px">
+    <div>
+      <h4>에이전트</h4>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>에이전트</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td class="sys"><code>howto-reviewer</code></td><td>절차 문서가 사용자를 화면에서 잃지 않는지<br>원칙 기준으로 독립 평가한다.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <h4 style="margin-top:20px">스크립트</h4>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>스크립트</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td class="sys"><code>howto-gate.sh</code></td><td>절차 문서 결정론 게이트 G1~G6.<br>LLM 호출 없는 순수 판정.</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div>
+      <h4>참조 문서</h4>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>파일</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td class="sys"><code>intake-axes.md</code></td><td>선행 확인 축 (Intake Axes)</td></tr>
+          <tr><td class="sys"><code>navigation-anchors.md</code></td><td>네비게이션 앵커 — 딥링크 &#183; 화면 지목 어휘 &#183; 분기 카탈로그</td></tr>
+          <tr><td class="sys"><code>provenance-notes.md</code></td><td>이 킷이 사실로 말하지 않는 것 — 미확정 근거 원장</td></tr>
+          <tr><td class="sys"><code>source-tiers.md</code></td><td>출처 등급제 (Provenance Tier)</td></tr>
+          <tr><td class="sys"><code>step-contract.md</code></td><td>Step Contract — 스키마 정본</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ 사용 흐름 ══ -->
 <div class="section">
-  <div class="section-label">사용 흐름</div>
-  <table>
-    <thead><tr><th>상황</th><th>스킬</th><th>산출물</th></tr></thead>
-    <tbody>
-      <tr><td>지금 화면에서 뭘 눌러야 하나</td><td class="mono">/howto</td><td>대화 텍스트 (파일 없음)</td></tr>
-      <tr><td>그 절차를 문서로 남겨야 한다</td><td class="mono">/howto-doc</td><td>MD 파일 + 게이트 출력</td></tr>
-      <tr><td>이미 있는 절차 문서를 재측정한다</td><td class="mono">/howto-audit</td><td>판정 리포트 (수정하지 않음)</td></tr>
-    </tbody>
-  </table>
-  <p class="desc"><code>/howto</code> 와 <code>/howto-audit</code> 은 읽기 전용이다. <code>Write</code> 는 <code>/howto-doc</code> 에만 있다.</p>
+  <div class="section-label">사용 흐름 — 상황에 따라 셋 중 하나</div>
+  <div class="grid-3">
+    <div class="card">
+      <span class="pill">지금 화면에서 뭘 눌러야 하나</span>
+      <h3 style="margin-top:12px"><code>howto</code></h3>
+      <div class="card-body"><p class="desc">대화창에 Step Contract 로 바로 답한다. 파일은 남지 않는다.</p></div>
+      <span class="source-badge">산출물: 대화 텍스트</span>
+    </div>
+    <div class="card">
+      <span class="pill">그 절차를 문서로 남겨야 한다</span>
+      <h3 style="margin-top:12px"><code>howto-doc</code></h3>
+      <div class="card-body"><p class="desc">같은 Step Contract 를 마크다운으로 렌더하고 게이트까지 돌린다.</p></div>
+      <span class="source-badge">산출물: MD 파일 + 게이트 출력</span>
+    </div>
+    <div class="card">
+      <span class="pill">이미 있는 절차 문서를 다시 잰다</span>
+      <h3 style="margin-top:12px"><code>howto-audit</code> → <code>howto-reviewer</code></h3>
+      <div class="card-body"><p class="desc">게이트로 전수 판정한 뒤, 게이트가 못 잡는 축을 에이전트에게 넘긴다.</p></div>
+      <span class="source-badge">산출물: 판정 리포트 (고치지 않음)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Evals ══ -->
+<div class="section">
+  <div class="section-label">Evals — 서술이 아니라 실행 결과로 판정한다</div>
+  <p class="desc">러너는 문서에 무엇이 적혀 있는지 보지 않고 게이트를 실제로 돌린다. 셸 이식성 결함은 한쪽에서만 조용히 통과하기 때문에 셸을 바꿔 가며 같은 출력이 나오는지까지 본다.</p>
+  <pre><code>sh howto-kit/evals/run-evals.sh</code></pre>
+  <div class="grid-2">
+    <div class="card">
+      <h3>러너가 재는 것</h3>
+      <ul class="checklist" style="margin-top:10px">
+        <li><span class="check">1</span><span>모든 사례를 <strong>zsh &#183; bash &#183; sh 세 셸</strong>에서 돌려 출력이 같은지까지 본다. 하나라도 다르면 그 자체가 FAIL 이다.</span></li>
+        <li><span class="check">2</span><span>스킬 본문과 README 에서 게이트를 부르는 셸 블록(<code>bash</code> &#183; <code>sh</code> &#183; <code>shell</code> &#183; <code>zsh</code> 펜스)을 그대로 뽑는다.</span></li>
+        <li><span class="check">3</span><span>뽑은 블록을 네 경우 — 플러그인 설치 경로 &#183; git 최상위 폴더 &#183; 마켓플레이스 설치본 &#183; 스크립트 없음 — 에서 zsh &#183; bash 로 돌린다.</span></li>
+        <li><span class="check">4</span><span>뽑은 블록 수가 <code>evals.json</code> 의 <code>gate_blocks</code> 와 같아야 한다. 블록을 새로 넣고 표에 안 적으면 FAIL 이다.</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><code>gate_blocks</code> — 파일마다 적힌 블록 수</h3>
+      <div class="dist" style="margin-top:12px">
+        <div class="dist-row"><span class="dist-label">README.md</span><div class="dist-track"><div class="dist-fill" style="width:50%"></div></div><span class="dist-val">1</span></div>
+        <div class="dist-row"><span class="dist-label">howto-audit/SKILL.md</span><div class="dist-track"><div class="dist-fill" style="width:50%"></div></div><span class="dist-val">1</span></div>
+        <div class="dist-row"><span class="dist-label">howto-doc/SKILL.md</span><div class="dist-track"><div class="dist-fill" style="width:100%"></div></div><span class="dist-val">2</span></div>
+      </div>
+      <p class="caption">합 4 블록. <code>howto-kit/evals/evals.json</code> 의 <code>gate_blocks</code> 를 옮겼다. 같은 파일에 적힌 게이트 사례(<code>cases</code>)는 16 개다.</p>
+      <div class="sources">
+        <span class="sources-head">파일</span>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/evals/evals.json">howto-kit/evals/evals.json</a>
+        <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/evals/run-evals.sh">howto-kit/evals/run-evals.sh</a>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">왜 셸을 여럿 쓰나 — 실측 2026-09-08</h3>
+  <p class="desc">같은 게이트에 G5 &#183; G6 을 어긴 같은 입력을 넣었다.</p>
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label"><span>&#10007; zsh</span><span class="tag tag-bad">위반을 흘렸다</span></div>
+      <pre><code>GATE_PASS</code></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label"><span>&#10003; bash</span><span class="tag tag-ok">정상 판정</span></div>
+      <pre><code>GATE_FAIL</code></pre>
+    </div>
+  </div>
+  <p class="desc" style="margin-top:14px">원인은 <code>set -- $var</code>. zsh 는 따옴표 없는 변수를 낱말로 쪼개지 않아 값 전체가 <code>$1</code> 하나에 들어갔고, 뒤따르는 숫자 비교가 모두 조용히 빗나갔다. bash 로만 시험했으면 못 잡았을 결함이다.</p>
 </div>
 
 <!-- ══ 사실로 말하지 않는 것 ══ -->
 <div class="section">
   <div class="section-label">이 킷이 사실로 말하지 않는 것</div>
-  <p class="desc">킷의 규칙을 킷 자신에게 먼저 적용한 결과다. 원장은 <strong>현재 9 절</strong>이며 리서치 사이클이 돌 때마다 늘어난다 &#8212; 확정된 것을 옮겨 내고 새로 확인 실패한 것을 더하기 때문이다. 전체는 <code>references/provenance-notes.md</code> 가 정본이다.</p>
+  <p class="desc">킷의 규칙을 킷 자신에게 먼저 적용한 결과다. <code>references/provenance-notes.md</code> 에 미확정 근거 원장이 있고, <strong>현재 9 절</strong>이다. 리서치 사이클이 돌 때마다 늘어난다 — 확정된 것을 옮겨 내고 새로 확인에 실패한 것을 더하기 때문이다. 상태 칸은 원장 각 절의 제목에서 옮겼다.</p>
   <div class="table-wrap">
   <table>
     <thead><tr><th>&#167;</th><th>항목</th><th>상태</th></tr></thead>
     <tbody>
-      <tr><td class="mono">1</td><td>체크리스트 방법론의 1 차 출처 (READ-DO / DO-CONFIRM &#183; 5~9 항목 &#183; killer item)</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">2</td><td>Microsoft Learn 권한 인용 1 건</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">3</td><td>변경 로그 피드 3 건 (Firebase &#183; Stripe &#183; Azure updates)</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">4</td><td><code>howto-kit</code> 외부 이름 충돌</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">5</td><td>딥링크 함정 2 건 (Google 계정 슬롯 &#183; Firebase <code>_</code> 설명)</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">6</td><td>Apple 의 방향어 규정</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">7</td><td>분기 카탈로그 2 건 (언어 분기 문장 &#183; 선제 분기 스타일 조항)</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">8</td><td>Apple 의 일반 deprecation 정책</td><td class="mono">확인 실패</td></tr>
-      <tr><td class="mono">9</td><td>절차 표준 2 건 (ISO 세부 조항 &#183; verification 규정)</td><td class="mono">확인 실패</td></tr>
+      <tr><td class="sys">1</td><td>체크리스트 방법론의 1 차 출처 (READ-DO / DO-CONFIRM &#183; 5~9 항목 &#183; killer item)</td><td><span class="tag tag-warn">[미확인]</span></td></tr>
+      <tr><td class="sys">2</td><td>Microsoft Learn 권한 인용 1 건</td><td><span class="tag tag-ok">1 건 확정</span><span class="tag tag-warn">1 건 [미확인]</span></td></tr>
+      <tr><td class="sys">3</td><td>변경 로그 피드 3 건 (Firebase &#183; Stripe &#183; Azure updates)</td><td><span class="tag tag-warn">3 건 [미확인]</span></td></tr>
+      <tr><td class="sys">4</td><td><code>howto-kit</code> 외부 이름 충돌</td><td><span class="tag tag-warn">[미확인]</span></td></tr>
+      <tr><td class="sys">5</td><td>딥링크 함정 2 건 (Google 계정 슬롯 &#183; Firebase <code>_</code> 설명)</td><td><span class="tag tag-warn">[미확인]</span></td></tr>
+      <tr><td class="sys">6</td><td>Apple 의 방향어 규정</td><td><span class="tag tag-warn">[미확인]</span></td></tr>
+      <tr><td class="sys">7</td><td>분기 카탈로그 2 건 (언어 분기 문장 &#183; 선제 분기 스타일 조항)</td><td><span class="tag tag-warn">2 건 [미확인]</span></td></tr>
+      <tr><td class="sys">8</td><td>Apple 의 일반 deprecation 정책</td><td><span class="tag tag-warn">[미확인]</span></td></tr>
+      <tr><td class="sys">9</td><td>절차 표준 2 건 (ISO 세부 조항 &#183; verification 규정)</td><td><span class="tag tag-warn">2 건 [미확인]</span></td></tr>
     </tbody>
   </table>
   </div>
-  <p class="caption"><strong>확인 실패는 &#8220;없음&#8221;이 아니다.</strong> autodiscovery 링크가 없어도 피드가 살아 있는 반례(&#167;3), <code>iso.org</code> 가 스텁을 주는 것(&#167;9) &#8212; 둘 다 <strong>접근 차단이지 부재가 아니다</strong>. 확정된 항목은 <code>docs/howto/</code> 리서치 문서 6 종이 정본이다.</p>
+  <div class="info-card" style="margin-top:20px">
+    <h3>확인 실패는 &#8220;없음&#8221;이 아니다</h3>
+    <p>피드 autodiscovery 링크가 없어도 피드가 살아 있는 반례를 확보했기 때문에 &#167;3 을 &#8220;피드 없음&#8221;으로 올리지 않는다. 같은 이유로 <code>iso.org</code> 가 스텁을 주는 것(&#167;9)도 부재가 아니라 접근 차단으로 적는다.</p>
+    <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/howto-kit/references/provenance-notes.md">howto-kit/references/provenance-notes.md</a>
+  </div>
+
+  <h3 style="margin-top:28px">확정된 항목의 정본 — <code>docs/howto/</code> 리서치 문서 6 종</h3>
+  <p class="desc">원장에서 빠져나간 항목은 아래 여섯 문서로 간다. 각 문서는 이 사이트에 같은 이름의 페이지가 있다.</p>
+  <div class="grid-3">
+    <div class="card"><span class="pill">changelog-feeds.md</span><h3 style="margin-top:10px"><a class="doc-link" href="changelog-feeds.html">Changelog Feeds</a></h3><p class="desc">무엇을 폴링할 것인가</p></div>
+    <div class="card"><span class="pill">deep-links.md</span><h3 style="margin-top:10px"><a class="doc-link" href="deep-links.html">Deep Links</a></h3><p class="desc">콘솔 URL 을 문서에서 캐낸다</p></div>
+    <div class="card"><span class="pill">ui-anchoring.md</span><h3 style="margin-top:10px"><a class="doc-link" href="ui-anchoring.html">UI Anchoring</a></h3><p class="desc">방향어는 단독 사용 금지</p></div>
+    <div class="card"><span class="pill">branch-catalog.md</span><h3 style="margin-top:10px"><a class="doc-link" href="branch-catalog.html">Branch Catalog</a></h3><p class="desc">안 보이는 사유 6종</p></div>
+    <div class="card"><span class="pill">deprecation-policy.md</span><h3 style="margin-top:10px"><a class="doc-link" href="deprecation-policy.html">Deprecation Policy</a></h3><p class="desc">단계 구분과 통지 강도</p></div>
+    <div class="card"><span class="pill">procedure-standards.md</span><h3 style="margin-top:10px"><a class="doc-link" href="procedure-standards.html">Procedure Standards</a></h3><p class="desc">인용 &#183; 강화 &#183; 킷 고유</p></div>
+  </div>
+</div>
+
+<!-- ══ onboarding-kit ══ -->
+<div class="section">
+  <div class="section-label">onboarding-kit 과의 관계</div>
+  <div class="info-card">
+    <p><code>onboarding-kit</code> 은 폐기하지 않는다. 개발 레포 안에서 외부 서비스를 붙일 때의 스택 확정과 레포 실측 근거는 실제로 값을 한다.</p>
+    <p>이 킷이 evals 로 안정화된 뒤 흡수 여부를 다시 판단한다. 그때까지 둘은 나란히 간다 — 레포 안의 연동 코드는 <code>onboarding-kit</code>, 사람이 화면에서 누르는 절차는 이 킷.</p>
+  </div>
+</div>
+
+<!-- ══ 놓치기 쉬운 것 ══ -->
+<div class="section">
+  <div class="section-label">놓치기 쉬운 것</div>
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check c-bad">!</span><span>자세히 쓰라는 요구를 모르는 메뉴 이름으로 채우지 않는다. 확인 못 한 칸은 <code>[추정]</code> 이나 <code>[미확인]</code> 으로 내린다 (F2 를 F3 로 바꾸지 않는다).</span></li>
+      <li><span class="check c-bad">!</span><span>문서 머리에 <code>- 대상:</code> 을 빼면 G3 가 <code>no_target_declared</code> 로 FAIL 한다. 판정 불가는 통과가 아니다.</span></li>
+      <li><span class="check c-warn">%</span><span><code>추정</code> 이 액션 스텝의 40% 를 넘으면 그대로 내보내지 않는다 — 묻거나, 내리거나, 범위를 좁힌다.</span></li>
+      <li><span class="check c-warn">$</span><span>게이트 스크립트를 <code>howto-kit/scripts/</code> 상대 경로 하나로 부르지 않는다. 설치한 프로젝트에는 그 폴더가 없다. 세 곳을 차례로 찾는 블록을 쓴다.</span></li>
+      <li><span class="check c-warn">$</span><span><code>find -exec sh -c</code> 로 여러 파일을 돌릴 때는 스크립트를 자식 셸 안에서 읽는다. 첫 줄이 <code>MISSING:</code> 이면 판정을 내지 말고 그 줄을 그대로 보고한다.</span></li>
+      <li><span class="check c-ok">&#10003;</span><span>게이트를 부르는 블록을 새로 넣으면 <code>evals.json</code> 의 <code>gate_blocks</code> 도 함께 고친다. 안 고치면 러너가 FAIL 을 낸다.</span></li>
+      <li><span class="check c-ok">&#10003;</span><span>셸 하나에서 통과했다고 끝내지 않는다. <code>sh howto-kit/evals/run-evals.sh</code> 가 zsh &#183; bash &#183; sh 를 모두 돈다.</span></li>
+      <li><span class="check c-ok">&#10003;</span><span>확인에 실패한 근거는 &#8220;없음&#8221;으로 적지 않고 <code>provenance-notes.md</code> 원장에 남긴다.</span></li>
+    </ul>
+  </div>
 </div>
 
 </div>
