@@ -423,9 +423,17 @@ if not decisions:
 # user-visible assertion 으로 인정하는 3 종: visible / count / height
 PATTERNS = {"visible": r"\bvisible\b", "count": r"(>=|<=|>|<|==)\s*\d+|\bcount\b",
             "height": r"\bheight\b"}
-viol = surfaces = 0
+viol = surfaces = schema = 0
 for d in decisions:
     did = d.get("decision_id", "<no-id>")
+    # 아래 두 검사가 없으면 표면을 하나도 적지 않은 결정이 surface 0 개 · 위반 0 으로 통과한다 (2026-09-25 재현)
+    if not re.fullmatch(r"DEC-\d{8}-\d{3}", str(d.get("decision_id", ""))) or not d.get("source"):
+        print(f"SCHEMA_ERROR {did}: decision_id 형식(DEC-YYYYMMDD-NNN) 또는 source 가 없다"); schema += 1
+    if not (d.get("required_surfaces") or d.get("excluded_surfaces")):
+        print(f"FAIL {did}: required_surfaces · excluded_surfaces 가 둘 다 비었다 — 침묵은 커버리지 공백"); viol += 1
+    for x in d.get("excluded_surfaces") or []:
+        if not x.get("reason"):
+            print(f"FAIL {did}/{x.get('surface_id', '<no-surface-id>')}: excluded_surfaces 에 reason 이 없다"); viol += 1
     for s in d.get("required_surfaces") or []:
         surfaces += 1
         sid = s.get("surface_id", "<no-surface-id>")
@@ -435,8 +443,14 @@ for d in decisions:
             print(f"FAIL {did}/{sid}: golden 도 user-visible assertion 도 없음"); viol += 1
         elif not hit:
             print(f"FAIL {did}/{sid}: golden 만 존재 — visible/count/height assertion 부재"); viol += 1
-print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol}")
-sys.exit(1 if viol else 0)
+print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol} schema_errors={schema}")
+if schema:
+    sys.exit(2)
+if viol:
+    sys.exit(1)
+if surfaces == 0:
+    print("NO_SURFACE required_surfaces 0 개 — 검사 미수행"); sys.exit(3)
+sys.exit(0)
 ```
 
 **골든을 무차별로 만들지 마라.** 골든 회귀는 유지비가 크다 — 의도된 디자인 변경마다 baseline
