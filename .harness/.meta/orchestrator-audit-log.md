@@ -497,3 +497,122 @@ LOW 4 킷을 제외한 부분 실행을 제안했으나 사용자가 전체를 �
    `research-log.md`(파일명) · `research.google`(URL) 을 트리거로 잡아 정상 오케스트레이션을
    3 회 차단했다. 어휘를 우회해 진행했으나, 훅이 **Agent 층의 codex 백그라운드 누출은 못 잡으면서
    무해한 텍스트는 막는** 비대칭이 있다. 검사 지점 재설계 검토 대상.
+
+## 2026-09-25 — kaizen/2026-09-24
+
+**Cycle:** kaizen/2026-09-24  
+**Generated:** `scripts/append-audit-log.py` (auto-append)  
+**Notes:** Phase 1 ~ 17 과 Final 후속 둘 모두 1 회차 APPROVE · 교차 진단이 뒤집은 판정 0 · DG-02 뜻 기준 FAIL 넷(P7 · P8 · P9 · P11)은 kit followups 가 구현으로 해소 · 판 번호는 올리지 않고 release-plan.md 로 대신  
+
+### Post-Kaizen Checklist failures
+
+- 없음 (모든 체크 PASS)
+
+### Orchestrator SKILL.md manual edits
+
+- `.claude/skills/kaizen-orchestrator/SKILL.md` (+/- 47 lines): harness followups 66b4e4c (+29 −18) — Phase 17 채움 · 범위 줄은 실제 참조 폴더만 · F2 매핑 표. scripts/sync-orchestrator.py 로 AUTO 범위 줄을 다시 만든 판과 같은 커밋
+
+### Next-cycle watchlist
+
+- 특별 감시 대상 없음
+
+### 두 followups 가 고치지 않은 것 (2026-09-24 사이클)
+
+원문과 받을 곳은 `.harness/.meta/kaizen-0924/f1-harness-followups-notes.md` §다음 사이클 메모 · `.harness/.meta/kaizen-0924/f1-kit-followups-notes.md` §고치지 않은 항목과 이유 · §다음 사이클 메모에 있다.
+`F1K-<n>` 은 kit followups 입력 항목 표의 행 번호다(원래 표는 행 번호만 쓴다).
+
+harness followups 스물아홉:
+
+- `F1H-14` · `F1H-84` — `assertions.json` 회귀 패턴 실행기가 없다. 새 도구라 다음 사이클 Phase 3 · 4 첫 항목
+- `F1H-35` — `feedback-schema.yaml` true 뜻 · 새 키 둘. 다음 사이클 Phase 2 · 3
+- `F1H-37` — 개정 번호 규칙 · 측정 묶음 관례 · 도우미 추출 스크립트 등 계약 스키마 새 규칙. 다음 사이클 Phase 1 · 2 · 4
+- `F1H-38` — §3.7 생성 측 짝 · 스키마 계약 측 짝 새 절. 다음 사이클 Phase 1 · 2
+- `F1H-39` — 피드백 초안 고정 이름 · sprint-contract Step 9 문구. 다음 사이클 Phase 2
+- `F1H-40` — `# sprint-scope` · V6 범위 등 근거 재조회 · 새 절차. 다음 사이클 Phase 4
+- `F1H-41` — `/sprint` Step 3 판정 표 · 폐기 결정 자리. F20 결정 뒤 다음 사이클 Phase 4
+- `F1H-43` — 세 화면 규약 공통 규칙 원문 절. 다음 사이클 Phase 1
+- `F1H-44` — design · backend · rust-kaizen Gotcha 6 형제 표 새 행. 그 킷 Phase
+- `F1H-47` · `F1H-48` — 평가 가이드 미검증 규약 새 판 · 킷 reviewer 일곱 사본 · infra-kaizen 복제 문구. 다음 사이클 Phase 3
+- `F1H-56` — 킷 넷 `hooks.json` 따옴표 · V8 검사. 다음 사이클 Phase 4
+- `F1H-58` — `sync-evals.py` 에 reflect-kit 없음(평가 파일이 없어 결과 불변)
+- `F1H-59` · `F1H-60` — bambu-kaizen 점검 줄 · bambu-research 문구. 다음 사이클 Phase 13
+- `F1H-65` — `run-evals.py` 에 onboarding 없음(게이트 평가 형식 — CI 러너로 대신)
+- `F1H-66` — `sync-docs.py` 표지 정규식이 onboarding · planning README 를 못 읽음. 다음 사이클
+- `F1H-67` — `docs/superpowers/specs/2026-09-02-api-kit-design.md:249`. 세 Final 계약 범위 밖 — 다음 사이클 Phase 16
+- `F1H-76` — research-templates 에 Phase 17 표 없음. 다음 사이클 Phase 17
+- `F1H-77` — 오케스트레이터 · 수집기 Phase 별 참조 매핑 표가 13 · 14 까지. 다음 사이클
+- `F1H-78` — tone-kaizen 「8종」 셈 기준. 다음 사이클 tone-kaizen
+- `F1H-79` — backend-kit 옛 값 예외는 이번 Final 이 등록부에 넣었다. `scripts/check-stale-values.py` 의 `EXCLUDED_KITS` 해제가 남았다
+- `F1H-80` — 근거 재조회 항목 · 오류 문구 짝 · `omitClaudeMd` 등. 다음 사이클 Phase 1 · 3
+- `F1H-81` — 수집기 워크트리 묶기 규칙과 reflect-kit 규칙. 지워진 워크트리 세션이 생기면
+- `F1H-82` — CI 에 넣은 러너의 첫 우분투 실행 · 시간 상한. PR 뒤 첫 확인 항목
+- `F1H-91` — `.claude/skills/docs-site/SKILL.md` 매핑 표 일곱 줄. 다음 사이클
+- `F1H-92` — 오케스트레이터 F4 연구 기록 목록에 design · tone · api 없음. 다음 사이클
+- `F1H-94` — V10 이 `docs/<킷>/` 원본을, V6 가 `skills/*/references/` 를 읽지 않음. 다음 사이클 Phase 4
+
+harness followups 가 구현 중 새로 찾은 넷:
+
+- `F1H-N1` — 커밋 안전 훅의 `-a` · `git add -A` 경로도 옮긴 폴더를 삭제로 센다. 다음 사이클 Phase 4
+- `F1H-N2` — `validate-plugin.py` V2 「없음」 줄 글자가 `— SKIP (no templates/)`. 봉인된 Phase 계약 꼴과 맞춰야 해 그대로 뒀다
+- `F1H-N3` — 풀어 둔 판에서 `validate-doc-contracts.py` 가 NOT RUN. 측정 예시에 git init 사본 한 줄 — 다음 사이클 Phase 2
+- `F1H-N4` — 측정 도우미 · 공통 정의가 계약의 절반 가까이. harness 공용 측정 파일로 빼는 제안
+
+kit followups 서른셋:
+
+- `F1K-10` — flutter `widget-inspector.md` §7 제목 · 본문. 다음 사이클 Phase 5
+- `F1K-11` — flutter-preflight · react-preflight 기준 커밋 비교(근거 없음). 다음 사이클 Phase 5 · 10
+- `F1K-12` — flutter go_router · auto_route · `--delete-conflicting-outputs` 등 P5 notes 가 보낸 것
+- `F1K-14` — P6 RE-02 정규식 하이픈(계약 측정 결함 — 이번 Final 이 계약 피드백에 기록)
+- `F1K-15` — P6 임계값 다시 정의. 다음 사이클 Phase 1 뒤
+- `F1K-18` — design:P2 · `UNVERIFIED_ENV` · design-mockup Step 0 · design-reviewer 네 칸 · Material 3 · OKLCH. 다음 사이클 Phase 6
+- `F1K-21` — P7 OpenAPI 3.1 표기 · 벽시계 문자열 · 시간대 저장 · AsyncAPI. 다음 사이클 Phase 7
+- `F1K-24` — P8 판정 세 줄이 `docs/infra` 에만 있는 구조. 다음 사이클
+- `F1K-25` — P8 Flux · Argo · Kubernetes 판 · GitHub 밖 CI 등. 다음 사이클 Phase 8
+- `F1K-26` — README 평가 사례 수(infra · backend). 두 킷을 함께
+- `F1K-28` — P9 시각 판정 행 · 판 번호 리터럴 · testcontainers. 다음 사이클 Phase 9
+- `F1K-29` — rust-kit 특정 앱 이름 66 곳. 다음 사이클 Phase 9
+- `F1K-31` — P10 `harness-project.yaml.template` 복사 절차. 다음 사이클 Phase 10
+- `F1K-32` — P10 Activity · ViewTransition · react-reviewer §10 · `project-detect.sh`. 다음 사이클 Phase 10
+- `F1K-33` — P11 planning-reviewer 기준 원본 사본. Phase 3 뒤
+- `F1K-34` — P11 GitHub 문서 날짜 · Mermaid 12 렌더 · PRD 와 결정 기록 비교
+- `F1K-36` — P12 `claude -p` 대체 경로가 사용자 훅을 띄운다는 추정. 다음 사이클 Phase 12
+- `F1K-39` — P12 `hooks.json` 따옴표 · `async` 등. 다음 사이클 Phase 4 · 12
+- `F1K-42` — P13 `G91` 뒤 E 상대값. 설치본 시작 G-code 로 실측
+- `F1K-43` — P13 `[미검증]` 네 칸 다섯 자리 등. 다음 사이클 Phase 13
+- `F1K-44` — 올리지 않은 가지 `feat/bambu-kit-orca-h2s-feedback` 과의 충돌 자리
+- `F1K-48` — P14 `guide_gate` 세 칸 검사 · AUTO 표지 등. 다음 사이클 Phase 14
+- `F1K-50` — tone `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:633` 같은 모양 칸
+- `F1K-51` — P15 연구 기록 「죽은 이름 검사 넷」 서술(표 칸 둘이 더 있었다)
+- `F1K-52` — P15 C-06 강도 · `etc_seq=663` · `locale-korean.md` §2 grep 열 등. 근거 재확인이 먼저
+- `F1K-53` — P16 뷰어에 「판정 불가」 자리 없음. 기준 시안 사용자 확인이 먼저
+- `F1K-56` — `docs/superpowers/specs/2026-09-02-api-kit-design.md:249`(범위 밖 · 결론은 맞음)
+- `F1K-57` — P16 `/api-contract` §9 예시 · CSP 등. 다음 사이클 Phase 16
+- `F1K-60` — P17 howto-audit 리포트 미검증 칸 · DITA 2.0 등. P17 notes 사유 그대로
+- `F1K-69` · `F1K-70` — design · planning · react · api reviewer 미검증 옛 사본 넷. 다음 사이클 Phase 3 뒤
+- `F1K-73` — flutter-build `--delete-conflicting-outputs` 판 경계(2.16 쪽 미확인)
+- `F1K-80` — api-kit `-0` 을 「I-JSON 게이트」 로 분류 — RFC 7493 원문이 근거 파일에 없음
+
+### Phase 다음 사이클 메모 (2026-09-24 사이클)
+
+Phase 마다 다음 사이클로 보낸 것은 그 notes 의 `## 다음 사이클 메모` 절에 있다:
+`phase1-notes.md` · `phase2-notes.md` · `phase3-notes.md` · `phase4-notes.md` · `phase5-notes.md` · `phase6-notes.md` · `phase7-notes.md` · `phase8-notes.md` ·
+`phase9-notes.md` · `phase10-notes.md` · `phase11-notes.md` · `phase12-notes.md` · `phase13-notes.md` · `phase14-notes.md` · `phase15-notes.md` · `phase16-notes.md` ·
+`phase17-notes.md` (모두 `.harness/.meta/kaizen-0924/` 아래). Final 계약이 고치지 않은 입력은 `.harness/.meta/kaizen-0924/final-notes.md` §다음 사이클 메모에 있다.
+
+### 이번 사이클 메타 이슈 (2026-09-24 사이클)
+
+1. **사이클 상태 파일이 옛 사이클로 남았다.** `.harness/.meta/kaizen-state.yaml` 의 `cycle_id` 가 `kaizen-2026-08-13` 이라 `scripts/validate-post-kaizen.py` 날짜 검사 다섯이
+   이번 사이클 항목 없이 옛 항목으로 PASS 였다. 워크플로가 Phase 를 돌려 `scripts/spawn-kaizen-phase.sh` 가 이 파일을 갱신하지 않았다. Final 이 새 사이클로 바꿨다 — 다음 사이클 개시 때 먼저 확인
+2. **전역 피드백이 500 개를 넘었다(639).** 가장 오래된 139 개를 지우지 않고 `~/.harness/feedback-archive/kaizen-2026-09-24/` 로 옮겼다. 직전 정리(2026-08-13, 302 개) 뒤 337 개가 늘었다 —
+   다음 사이클에도 넘을 수 있다
+3. **처리 배정표 검사기가 슬러그 형식만 본다.** `scripts/check-insights-tracking.py` 는 Phase 6 행에 Phase 5 슬러그를 적어도 `TRACKING_TABLE_OK` 다. 번호 ↔ 슬러그 대응은 Final 계약이 따로 쟀다 — 검사기 고치기는 다음 사이클
+4. **감사 기록 도구의 고정 소제목.** `scripts/append-audit-log.py:148` · `:159` · `:171` 이 매번 같은 소제목 셋을 찍어 사이클마다 같은 제목 경고(MD024) 셋이 는다. 끝에 빈 줄 없이 붙여 앞 항목 목록에 MD032 도 낸다 — 소제목에 날짜를 붙이게 고칠 것
+5. **FN-79** — `.claude/skills/docs-site/references/css-tokens.md` 킷별 accent 표에 howto-kit 행이 없다(페이지는 `#F59E0B`). F1H-91 과 함께 다음 사이클
+6. **FN-80** — `docs/process/kaizen-flow.html` 이 아직 「9-Phase 카이젠 사이클」 이다. 원본이 F2 표에 「내부 문서」 뿐이라 다음 사이클 docs-site 매핑 결정과 함께
+7. **문서 사이트 재생성 분담.** 페이지 마흔넷을 Claude(28 쪽)와 Codex(16 쪽)가 나눠 만들었다. Codex 는 사용 한도로 도중에 멈춰 나머지를 Claude 가 넘겨받았다.
+   Codex 가 만든 `docs/bambu-kit/surface-recipes.html` 이 원본 문단을 줄이며 블록 이름을 빠뜨려 Final 이 한 문단을 고쳤다 — Codex 페이지는 원본 글자 대조를 따로 돌릴 것
+8. **페이지 에이전트가 넘긴 원본 결함(고치지 않음).** `harness/docs/guides/qa-evaluation-guide.md` 미검증 규약 「5 조항」 번호가 1 · 2 · 3 · 3 · 4 · 5,
+   `flutter-toolkit/references/visual-evidence-protocol.md` Step 3 「4 검사」 가 평가 가이드의 5 검사(실행 가능성 추가)와 어긋남,
+   `docs/planning/data-modeling.md` 판이 올랐는데 Final 계약의 판 번호 표에 없었음(페이지는 새 판으로 만들었다) — 다음 사이클 Phase 1 · 3 · 5 · 11
+
+---
