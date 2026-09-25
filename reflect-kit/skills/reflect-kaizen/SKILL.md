@@ -59,6 +59,15 @@ tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
   그 경우 이 게이트는 통과하는데 `post_freq` 는 과소집계 상태다 — 게이트가 있는 채로 우회된다.
   selftest 실패는 파편화 임계 초과와 **같은 효력**을 갖는다 (demotion 산출 금지 · 임계 재평가 skip).
 
+- **수집 상태도 본다.** 파편화 지표는 이미 쌓인 기록만 재므로 수집기가 멈춰도 멀쩡해 보인다.
+  `/reflect-digest` Process 4 단계와 같은 `collect_status` 를 `window` 일수로 돌리고, `⚠ 수집 멈춤` 줄이
+  나오면 `calibration_confidence: low` 를 선언한다 — 파편화 임계 초과와 같은 효력이다. 수집이 멈춘
+  기간의 `post_freq == 0` 은 재발이 없었다는 뜻이 아니라 못 셌다는 뜻이다 (2026-09-14~23: Stop 실패 시도 849 번 · 기록 0).
+
+  ```bash
+  bash -c '. "${1}/hooks/_lib-project-id.sh"; shift; collect_status "$@"' _ "${CLAUDE_PLUGIN_ROOT}" 30 ~/.claude/logs/<bucket>
+  ```
+
 - 판정은 **6 열 `singleton_share`** 로 한다. **5 열 `fold_ratio` 로 판정하지 마라** — 클러스터링이 아무것도 못 묶으면 1.00 이라 항상 "정상" 이다 (Gotcha #9).
 - `singleton_share > 0.70` (**hypothesis** — 2026-08-13 baseline 0.884) 이면 `calibration_confidence: low` 를 선언한다. 이 선언의 효과는 셋이다:
   1. (2) Ledger Calibration 표 헤더에 `calibration_confidence: low` 를 적는다.
@@ -116,6 +125,7 @@ tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
 ### (0) 파편화 지표
 
 - `tag_canon_fragmentation` 7 열 원문 (raw_distinct / clusters / entries / singletons / fold_ratio / **singleton_share** / entries_per_cluster)
+- `collect_status` 출력 원문 — `⚠ 수집 멈춤` 줄이 있으면 판정은 `low` 다
 - 판정: `calibration_confidence: high` 또는 `low` (기준 `singleton_share > 0.70`, hypothesis · baseline 0.884)
 - `low` 인 경우 **(2) 의 demote-candidate 산출 금지 · (3) 임계값 재평가 skip** 을 리포트에 명시
 - `warn:lemma-map-unreadable` 건수 (0 이 아니면 그 기간 정규화가 fail-open)
@@ -123,7 +133,7 @@ tag_canon_fragmentation ~/.claude/logs/<bucket>/reflections-*.md
 
 ### (1) LLM-as-judge 일치도
 
-- sample: 10 건 / 모델: haiku-4.5 / 모수: `claude_behavior` 만
+- sample: 10 건 / 모델: haiku / 모수: `claude_behavior` 만
 - primary_category 일치: 8/10 (80%)
 - mistake_tag 일치 (semantic): 6/10 (60%)
 - actionability 일치: 10/10 (100%)

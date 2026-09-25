@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # UserPromptSubmit hook: 사용자 프롬프트를 프로젝트별 월간 로그에 append
 # stdin: {session_id, cwd, prompt, ...}
-# 프로젝트 ID는 <basename>-<6자 hash> (git root 기반)
+# 프로젝트 ID 규칙은 _lib-project-id.sh 의 compute_project_id 가 정본이다
 
 set +e
+
+# log-reflection.sh 의 대체 경로 claude -p 가 제출한 분석용 프롬프트다 — 사용자 프롬프트가 아니다
+[ -n "${REFLECT_KIT_ANALYZER:-}" ] && exit 0
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091

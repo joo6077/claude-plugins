@@ -133,11 +133,21 @@ approach_note: <str>                  # 시도한 접근법 1줄
 - `skip:transcript-file-missing path=<>` — 파일 없음
 - `skip:transcript-too-short lines=<N>` — 10줄 미만
 - `skip:transcript-empty-after-tail` — tail 결과 빈 값
-- `fail:codex-exit-<N> session=<>` — codex exec 비정상 종료
+- `fail:codex-exit-<N> session=<> err=<한 줄>` — codex exec 비정상 종료
 - `fail:codex-empty-output session=<>` — codex 빈 응답
+- `fallback:claude-used session=<>` — codex 가 실패해 `claude -p` 대체 경로로 기록했다
+- `fallback:claude-exit-<N> session=<> err=<한 줄>` — 대체 경로도 비정상 종료. 이 실행은 기록 없이 끝난다
+- `fallback:claude-empty-output session=<>` — 대체 경로 빈 응답
+- `skip:fallback-unavailable session=<>` — claude CLI 없음
+- `fail:tag-field-unresolved session=<>` — 태그 필드 이름을 못 읽어 분석 전에 멈췄다
 - `env-dedup:kept=<N> dropped=<M> drop=<tag>... session=<>` — 환경 오설정 블록 억제
 - `skip:env-dedup-all <요약> session=<>` — 전 블록이 억제되어 append 자체를 생략
 - `warn:env-dedup-failed exit=<N> session=<>` — dedup 게이트 실패 → fail-open 으로 원본 기록
+
+`err=` 는 줄 끝까지다 (공백 포함). 분석기 stderr 에서 `error` · `ERROR` 로 시작하는 첫 줄, 없으면 비어 있지 않은
+첫 줄 하나를 가린 뒤 200 자로 자른다 — codex 는 성공해도 stderr 에 프롬프트 전문을 찍으므로 전문은 남기지 않는다.
+대체 경로는 stderr 가 비면 stdout 에서 고른다. `/reflect-digest` 의 `collect_status` 는 대체 경로 실패 셋과
+`skip:cli-missing` · `fail:tag-field-unresolved` 를 기록 없이 끝난 실행으로 센다.
 
 ---
 
@@ -188,11 +198,13 @@ Stop 훅의 dedup 게이트가 `actionability: user_environment` 블록을 억�
 
 ## 5. Project ID 포맷
 
-`<basename(git-root)>-<6자 md5 hex>`
+기본 `<basename(본 레포 root)>`, 같은 basename 폴더를 다른 레포가 이미 쓰면 `<basename>-<6자 md5 hex>` (Hybrid, v0.3.0 부터).
 
-- git root 없으면 cwd 절대경로의 md5로 대체
-- 헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh` 의 `compute_project_id` 함수
-- basename만 같고 다른 repo라도 hash가 달라 충돌하지 않는다
+- 본 레포 root 는 `project_root` 가 정한다. 링크된 워크트리(git-dir 과 common-dir 이 다름)이고 공통 git 폴더 이름이
+  `.git` 이면 그 부모, 그 밖에는 `git rev-parse --show-toplevel`, git 밖이면 cwd 다 — 워크트리 폴더 이름으로 갈리지 않는다
+- 충돌 판정 마커(`.project-root`)와 hash 입력도 같은 root 를 쓴다
+- 헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh` 의 `project_root` · `compute_project_id` · `normalize_project_query`
+- 워크트리 이름으로 이미 생긴 폴더는 옮기지 않는다 — `DESIGN.md` 결정 #3 상세의 `### 워크트리` 절
 
 ---
 

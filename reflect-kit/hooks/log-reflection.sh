@@ -10,6 +10,9 @@
 
 set +e
 
+# 분석기 세션(아래 codex · claude -p)이 끝날 때 이 훅이 다시 돌아 분석이 분석을 부르지 않게 한다
+[ -n "${REFLECT_KIT_ANALYZER:-}" ] && exit 0
+
 SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 # shellcheck disable=SC1091
@@ -42,6 +45,7 @@ else
     exit 0
   fi
 
+  # 여기서 버리는 것은 이 스크립트 자신의 출력이다. 분석기 stderr 는 아래에서 파일로 받아 한 줄을 남긴다
   nohup bash "$SCRIPT_PATH" --background "$bg_input_file" >/dev/null 2>&1 &
   disown 2>/dev/null
   exit 0
@@ -231,27 +235,44 @@ $transcript_content
 PROMPT_EOF
 )
 
+# ── 분석기 stderr 한 줄 ─────────────────────────────────────────────────
+# codex 는 성공해도 stderr 에 머리글과 프롬프트 전문(= transcript)을 찍는다. 전문을 남기지 않고
+# error · ERROR 로 시작하는 첫 줄, 없으면 비어 있지 않은 첫 줄 하나만 고른다.
+# 가린 뒤에 자른다 — 먼저 자르면 반 토막 난 키가 가림 패턴에 걸리지 않는다.
+err_line() {
+  local l
+  l=$(grep -m1 -E '^(error|ERROR)[:[:space:]]' "$1" 2>/dev/null)
+  [ -z "$l" ] && l=$(grep -m1 -v '^[[:space:]]*$' "$1" 2>/dev/null)
+  redact_sensitive "$(printf '%s' "$l" | tr -d '\r')" | head -n 1 | cut -c1-200
+}
+
 # ── Claude CLI fallback 함수 ────────────────────────────────────────────
-# codex exec 실패(exit != 0 또는 empty output) 시 `claude -p --model haiku-4.5`로 재시도.
+# codex exec 실패(exit != 0 또는 empty output) 시 `claude -p --model haiku`로 재시도.
 # 성공 시 전역 변수 `summary`에 결과를 세팅하고 return 0. 실패 시 사유 태그 기록 후 return 1.
+# 모델은 별칭 `haiku` 다. 전에 쓰던 `haiku-4.5` 는 CLI 가 모르는 이름이라 대체 경로가 한 번도
+# 성공하지 못했다 (2026-09-25 실측: fallback:claude-used 0 건, CLI 는 종료 코드 1).
+# --no-session-persistence: 분석 세션을 세션 기록으로 남기지 않는다.
 try_claude_fallback() {
   local codex_reason="$1"   # "codex-exit-N" 또는 "codex-empty-output"
-  log_hook_error "$log_dir" "$HOOK_NAME" "fail:$codex_reason session=$session_id"
+  local codex_err="$2"      # codex stderr 한 줄 (빈 출력이면 없음)
+  log_hook_error "$log_dir" "$HOOK_NAME" "fail:$codex_reason session=$session_id${codex_err:+ err=$codex_err}"
 
   if ! command -v claude >/dev/null 2>&1; then
     log_hook_error "$log_dir" "$HOOK_NAME" "skip:fallback-unavailable session=$session_id"
     return 1
   fi
 
-  local fb_tmp fb_exit=0 fb_summary
-  fb_tmp=$(mktemp)
-  echo "$prompt" | claude -p --model haiku-4.5 > "$fb_tmp" 2>/dev/null
+  local fb_exit=0 fb_summary fb_err
+  echo "$prompt" | REFLECT_KIT_ANALYZER=1 claude -p --model haiku --no-session-persistence \
+    > "$ana_dir/claude.out" 2> "$ana_dir/claude.err"
   fb_exit=$?
-  fb_summary=$(cat "$fb_tmp" 2>/dev/null)
-  rm -f "$fb_tmp"
+  fb_summary=$(cat "$ana_dir/claude.out" 2>/dev/null)
 
   if [ "$fb_exit" -ne 0 ]; then
-    log_hook_error "$log_dir" "$HOOK_NAME" "fallback:claude-exit-$fb_exit session=$session_id"
+    # 모델 이름 오류 같은 사람이 읽을 문장은 stdout 으로 나온다 — stderr 가 비면 stdout 에서 고른다
+    fb_err=$(err_line "$ana_dir/claude.err")
+    [ -z "$fb_err" ] && fb_err=$(err_line "$ana_dir/claude.out")
+    log_hook_error "$log_dir" "$HOOK_NAME" "fallback:claude-exit-$fb_exit session=$session_id${fb_err:+ err=$fb_err}"
     return 1
   fi
   if [ -z "$fb_summary" ]; then
@@ -265,24 +286,29 @@ try_claude_fallback() {
 }
 
 # ── codex exec 호출 ─────────────────────────────────────────────────────
-out_tmp=$(mktemp)
+# 읽기만 하는 분석이라 샌드박스를 read-only 로 적는다. 전에 쓰던 --full-auto 는 codex-cli 0.154.0 이
+# unexpected argument 로 거부해(종료 코드 2) 2026-08-28 18:01 부터 수집이 멈췄다.
+# REFLECT_KIT_ANALYZER=1: 분석기가 부르는 reflect-kit 훅이 아무것도 적지 않게 한다. 대체 경로 claude -p 의
+# 프롬프트 제출 훅이 분석용 프롬프트(다른 세션 transcript)를 원시 로그에 3,044 건 적었다 (2026-09-25 실측).
+ana_dir=$(mktemp -d "${TMPDIR:-/tmp}/reflect-ana-XXXXXX")
+trap 'rm -rf "$ana_dir"' EXIT
+trap 'exit 1' INT TERM
 codex_exit=0
-echo "$prompt" | codex exec \
+echo "$prompt" | REFLECT_KIT_ANALYZER=1 codex exec \
   --ephemeral \
   --skip-git-repo-check \
-  --full-auto \
+  -s read-only \
   --color never \
   --cd "$HOME" \
-  --output-last-message "$out_tmp" \
-  - >/dev/null 2>&1
+  --output-last-message "$ana_dir/codex.out" \
+  - >/dev/null 2> "$ana_dir/codex.err"
 codex_exit=$?
 
-summary=$(cat "$out_tmp" 2>/dev/null)
-rm -f "$out_tmp"
+summary=$(cat "$ana_dir/codex.out" 2>/dev/null)
 
 # ── codex 실패 시 Claude fallback 시도 ──────────────────────────────────
 if [ "$codex_exit" -ne 0 ]; then
-  try_claude_fallback "codex-exit-$codex_exit" || exit 0
+  try_claude_fallback "codex-exit-$codex_exit" "$(err_line "$ana_dir/codex.err")" || exit 0
 elif [ -z "$summary" ]; then
   try_claude_fallback "codex-empty-output" || exit 0
 fi

@@ -4,6 +4,9 @@
 
 set +e
 
+# log-reflection.sh 가 띄운 분석기 세션의 도구 실패는 사용자 세션 기록이 아니다
+[ -n "${REFLECT_KIT_ANALYZER:-}" ] && exit 0
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/_lib-project-id.sh"

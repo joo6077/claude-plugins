@@ -32,6 +32,8 @@ user-invocable: true
 10. **`fold_ratio`(원시/클러스터) 로 파편화를 판정하지 마라.** 클러스터링이 아무것도 못 묶으면 이 값은 **1.00 이 되어 "정상" 으로 읽힌다** — 파편화 탐지기로 쓸 수 없다. 2026-08-13 전량 실측이 정확히 그 상태였다: `fold_ratio 1.02` 인데 `singleton_share 0.884` (클러스터 2,578 개 중 2,279 개가 1 회짜리). 판정은 **`singleton_share`** 로 한다.
 11. **표기가 닮았다고 합치지 마라 — `undesired_behavior` 와 `desired_behavior` 가 둘 다 같을 때만 alias 다.** `stale ...` 계열이 대표 사례다: 대상마다 필요한 조치가 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 / 진단 오라클 재실행 / VM 재부착으로 전부 다르다. 이런 묶음은 alias 가 아니라 **family** 로만 보고하고 `cluster_freq` 에 합산하지 않는다 (SSOT §4).
 12. **메모리 엔트리의 `grounding` 을 근거 등급으로 읽어라 — 정의는 복제하지 마라.** `~/.claude/projects/*/memory/` 의 `type: feedback` 엔트리는 frontmatter 에 **`grounding` 필드**를 갖는다. 값의 정의·판정 절차·경계 사례는 `reflect-kit/references/memory-grounding.md` 가 **SSOT** 다 — 이 문서에서 값을 나열하거나 재정의하지 마라 (재정의하면 digest 와 promote 의 기준이 갈라진다). 이 중 **`grounding: self_inference`** 는 외부 검증이 없는 자기추론이므로 **승격 근거로 쓰지 마라.** `source_evidence` 에 넣지 말고 배경 참고로만 읽는다 — 인용하면 이전 라운드의 자기 산출물이 다음 라운드 승격의 근거가 되는 **자기검증 피드백 루프**가 닫힌다. `grounding` 필드가 아예 없는 엔트리는 `self_inference` 가 아니라 **미태깅**이다. 그렇게 구분해 보고하되 둘 다 근거로는 쓰지 않는다.
+13. **엔트리 0 을 「문제 없음」 으로 읽지 마라 — 수집기가 멈췄을 수 있다.** reflections 가 비는 경우는 둘이다: 그 기간에 실수가 없었거나, Stop 훅 분석이 실패해 아무것도 못 적었거나. 2026-09-14~23 실측은 뒤쪽이었다 — Stop 실패 시도 849 번(고유 세션 55), 기록된 세션 0, 마지막 기록 2026-08-28. 그래서 요약 머리 첫 줄은 Process 4 단계의 `collect_status` 출력이다. `⚠ 수집 멈춤` 줄이 나오면 `## 승격 후보` 에는 `(수집 멈춤 — 산출하지 않는다)` 한 줄만 쓰고, `## 환경 액션 아이템` 에 수집 복구 한 줄을 `.errors.log` 의 가장 최근 `err=` 값과 함께 올린다.
+14. **facets 를 빈도에 더하지 마라 — 대조에만 쓴다.** `~/.claude/usage-data/facets/` 는 `/insights` 가 다른 분석기 · 다른 분류로 낸 세션 요약이다. `cluster_freq` · `project_count` · 4 축 · precedence 에 더하면 같은 세션을 두 번 세고 척도가 섞인다. 쓰는 곳은 `## 인사이트 세션 분석과 대조` 절 하나다 — 마찰이 적혔는데 reflections 에 없는 세션을 원문과 함께 보여 수집기가 놓친 세션을 드러낸다. 폴더가 없으면 `facets 대조: (없음)` 한 줄로 넘어간다.
 
 ## 입력
 
@@ -46,12 +48,14 @@ user-invocable: true
 
 로그 경로는 `~/.claude/logs/<project_id>/`.
 
-- **기본**: `<basename(git-root)>` — 충돌 없는 경우 hash 없이 사용
+- **기본**: `<basename(본 레포 root)>` — 충돌 없는 경우 hash 없이 사용. 워크트리 안에서 불러도 워크트리 폴더 이름이 아니라 본 레포 이름이다
 - **충돌 fallback**: `<basename>-<6자 md5 hex>` — 동일 basename + 다른 git root 감지 시 자동 전환 + stderr 1회 경고
 - **backward-compat**: 기존 `<basename>-<hash6>` 디렉토리는 read 에서 glob union 으로 그대로 포함 — 마이그레이션 불필요
+- **워크트리 이름 폴더**: 이 규칙 전에 워크트리 이름으로 생긴 폴더는 옮기지 않는다. 그 폴더들에는 reflections 가 없고 원시 로그와 `.errors.log` 만 있다 — `project=all` 이 그대로 순회한다
 
 헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh`
 - `compute_project_id "$cwd"` — 쓰기용 id 계산 (basename 또는 hash fallback)
+- `project_root "$cwd"` — 본 레포 root (링크된 워크트리면 본 레포, git 밖이면 cwd)
 - `normalize_project_query "<query>"` — 읽기용 glob pattern union 확장
 
 ### 정규화 쿼리 동작
@@ -73,6 +77,7 @@ Matching 디렉토리 0개이면 stderr 에 `no matching buckets for project=<qu
 - `~/.claude/logs/<project_id>/reflections-YYYY-MM.md` — Stop 훅 분석 결과 (구조화 YAML)
 - `~/.claude/logs/<project_id>/.errors.log` — 훅 자체 실패 로그 (CLI 미설치 / timeout 등) + `env-dedup:` / `skip:env-dedup-all` 억제 기록 + `vocab:` 어휘 지표 (Stop 훅이 매 실행 기록: `raw_distinct/clusters/entries/singletons/fold/singleton_share/epc`) + `warn:lemma-map-unreadable` (정규화 맵을 못 읽어 fail-open 한 실행)
 - `~/.claude/logs/<project_id>/.env-issues.tsv` — 환경 오설정 롤업. `tag <TAB> first_seen <TAB> last_seen <TAB> count` (epoch 초). Stop 훅의 dedup 게이트가 억제한 사건이 여기 누적되므로, **reflections 본문의 빈도만 보면 환경 이슈의 실제 규모를 과소평가한다.** `## 환경 액션 아이템` 섹션은 이 파일을 근거로 쓴다.
+- `~/.claude/usage-data/facets/*.json` + `session-meta/<session_id>.json` (선택) — `/insights` 의 세션 요약. **대조 전용**이다 (Gotcha #14). facets 에는 프로젝트 경로가 없어 session-meta 의 `project_path` 로 잇는다
 
 ## YAML 스키마 (reflection 엔트리)
 
@@ -114,6 +119,13 @@ approach_note: <str>
 2. **로그 디렉토리 매칭**: 확장된 glob 패턴으로 `~/.claude/logs/` 하위 매칭. 0개이면 `no matching buckets for project=<query>` 를 stderr 에 출력하고 종료.
 3. **로그 파일 나열**: 매칭된 각 디렉토리의 `reflections-*.md` 전부 (union)
 4. **엔트리 파싱**: 타임스탬프 헤더 기준 분할 → `yaml` 코드블록 추출 → period 범위 밖 제외
+   - **파싱 전에 수집 상태부터 잰다** (Gotcha #13). 2 단계에서 매칭된 bucket 을 전부 넘기고 첫 인자는 period 일수(`all` 이면 `all`)다. 출력 한두 줄을 요약 머리에 그대로 싣는다:
+
+     ```bash
+     # bash 로 부른다 — 이 함수는 bash 가 아니면 멈춘다
+     bash -c '. "${1}/hooks/_lib-project-id.sh"; shift; collect_status "$@"' _ "${CLAUDE_PLUGIN_ROOT}" 7 ~/.claude/logs/<bucket>
+     ```
+
    - 파싱 실패 블록은 **버리지 말고 센다**. `파싱 실패: N 블록` 을 리포트 헤더에 출력 (Gotcha #9).
    - `actionability` 필드가 없는 레거시 엔트리는 `claude_behavior` 로 간주한다 (fail-open — 행동 신호 유실 방지).
 5. **actionability 분리** — 파싱된 엔트리를 두 갈래로 나눈다.
@@ -165,6 +177,13 @@ approach_note: <str>
    - **파편화 지표**: `tag_canon_fragmentation` 7 열을 그대로 싣되 판정은 **`singleton_share`** 로 한다. `> 0.70`(**hypothesis** — 2026-08-13 baseline 0.884, `/reflect-kaizen` calibration 대상)이면 어휘 수렴이 작동하지 않는다는 신호 → 리포트 헤더에 표시하고 `/reflect-kaizen` 대상으로 넘긴다. **`fold_ratio` 로 판정하지 마라** (Gotcha #10)
 8. **승격 후보 계산 (아래 Precedence Table)** — **`freq` 는 항상 `cluster_freq`** 다. 원시 태그 빈도로 임계를 판정하지 마라.
 9. **리포트 출력**
+   - 요약 머리는 4 단계 `collect_status` 출력이다. `## 인사이트 세션 분석과 대조 (합산 금지)` 절에는 아래 출력을 그대로 옮긴다. 둘째 인자는 hash 접미를 뗀 basename 이고 `project=all` 이면 `all` 이다:
+
+     ```bash
+     bash -c '. "${1}/hooks/_lib-project-id.sh"; shift; facets_unmatched "$@"' _ "${CLAUDE_PLUGIN_ROOT}" 7 <프로젝트 이름>
+     ```
+
+   - 이 절의 수는 7 · 8 단계 어디에도 더하지 않는다 (Gotcha #14)
 10. **결과 저장 (옵션)**: `~/.claude/logs/<project_id>/digest-YYYY-MM-DD.md` — `project` 인자로 쓴 id 그대로 사용. 반영 자체는 후속 `/reflect-promote` 가 맡음.
 
 ## Cross-project 집계 (v0.2.0: `project=all`)
@@ -221,6 +240,8 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
   ```text
   # Reflect Digest — project=all (30d)
   대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
+  수집 상태: Stop 실패 시도 <n>회 (codex 실패 <c> · 대체 경로 실패 <f> · 대체 경로 성공 <u> · 분석 전 중단 <p>; 고유 세션 <s>) / 기록된 세션 <k> / 엔트리 <e> / 마지막 기록 <ISO8601 | 없음>
+  ⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다
   집계 실패 프로젝트: K개 (project_id 리스트)
   파싱 실패: P 블록
   원시 태그 J개 → 클러스터 C개 / singleton S개 (singleton_share 0.NNN · 임계 0.70) · fold_ratio F
@@ -230,12 +251,14 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 - `hash-fallback H개` = `<basename>-<6자 hex>` 충돌 fallback + v0.2.0 레거시 bucket 수
 - `집계 실패 프로젝트` / `파싱 실패` / 파편화 지표 라인은 값이 0 이어도 생략하지 않고 `0` 으로 명시한다 (검증 용이성).
 - 편중 경고 라인은 최대 점유율 < 60% 일 때만 생략한다.
+- `수집 상태` 줄은 전 bucket 을 넘긴 `collect_status` 출력이며 값이 0 이어도 싣는다. `⚠ 수집 멈춤` 줄은 엔트리 0 이고 Stop 실패 시도가 1 이상일 때만 싣는다 (Gotcha #13).
 
 ### 5. 출력 포맷 예시 (cross-project)
 
 ```text
 # Reflect Digest — project=all (30d)
 대상 프로젝트: 7개 (basename 4개 / hash-fallback 3개) / 총 엔트리: 142개
+수집 상태: Stop 실패 시도 0회 (codex 실패 3 · 대체 경로 실패 0 · 대체 경로 성공 3 · 분석 전 중단 0; 고유 세션 0) / 기록된 세션 41 / 엔트리 142 / 마지막 기록 2026-07-27T21:04:10+0900
 집계 실패 프로젝트: 0개
 
 ## 글로벌 상위 패턴 (mistake_tag × project_count)
@@ -288,10 +311,12 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 
 ## 출력 포맷
 
-아래 섹션은 **전부 필수**다. 해당 건수가 0이어도 섹션과 숫자를 생략하지 않는다.
+아래 섹션은 **전부 필수**다. 해당 건수가 0이어도 섹션과 숫자를 생략하지 않는다. 제목 아래 `⚠ 수집 멈춤` 줄만은 엔트리 0 이고 Stop 실패 시도가 1 이상일 때만 싣는다 (Gotcha #13).
 
 ```markdown
 # Reflect Digest — <project_id> (<period>)
+수집 상태: Stop 실패 시도 <n>회 (codex 실패 <c> · 대체 경로 실패 <f> · 대체 경로 성공 <u> · 분석 전 중단 <p>; 고유 세션 <s>) / 기록된 세션 <k> / 엔트리 <e> / 마지막 기록 <ISO8601 | 없음>
+⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다
 
 ## 요약
 - 총 엔트리: N개 / 세션: M개 / 파싱 실패: P 블록
@@ -350,12 +375,19 @@ precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한�
 |------:|-----|------------|-----------|--------------------|
 | 351 | missing-hook-scripts | 2026-06-27 | 2026-07-27 | `.claude/settings.json` 이 참조하는 스크립트 생성 또는 훅 선언 제거 |
 
+## 인사이트 세션 분석과 대조 (합산 금지)
+`facets_unmatched` 출력을 그대로 옮긴다. facets 폴더가 없으면 `facets 대조: (없음)` 한 줄이다. 여기 수는 위 어느 표에도 더하지 않는다.
+
+facets 대조: facets <t>개 · 마찰 있는 세션 <m>개 · 그중 reflections 없음 <x>개 (facets 읽기 실패 <a> · session-meta 읽기 실패 <b>)
+- <session_id> · <start_time> · <project_path> — <friction_detail 원문>
+
 ## 스킬/에이전트 교차 분석
 - `/<skill-name>` 호출 시 "<canonical_tag>" 실수가 N회 → 해당 스킬에 가드 추가 검토
 
 ## 훅 실패 요약 (.errors.log)
 - skip:cli-missing: X건
-- fail:codex-exit-N: Y건
+- fail:codex-exit-N: Y건 (가장 최근 `err=` 값)
+- fallback:claude-exit-N / fallback:claude-used: V건 / U건 (가장 최근 `err=` 값)
 - env-dedup (억제): Z건
 - warn:lemma-map-unreadable: W건 (0 이 아니면 그 기간 어휘 주입이 fail-open 상태였다 — 파편화 지표를 그 기간에 대해 신뢰하지 마라)
 - vocab (최근 값): raw_distinct/clusters/entries/singletons/fold/singleton_share/epc
