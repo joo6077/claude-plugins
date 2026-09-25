@@ -31,7 +31,7 @@ user-invocable: true
 - **테스트 실패 시 파이프라인을 즉시 중단하라** — test가 실패했는데 audit까지 진행하면 시간만 낭비된다. `cargo test` 실패 → 즉시 FAIL 보고 → 파이프라인 종료가 올바른 흐름이다.
 - **`cargo audit`은 non-blocking(경고)으로 처리하라** — advisory DB의 취약점이 프로젝트에 실제 영향을 주는지 판단이 필요하다. audit 경고만으로 커밋을 차단하면 upstream 패치를 기다리는 동안 개발이 멈춘다.
 - **workspace에서 `--workspace` 플래그를 빠뜨리지 마라** — `cargo test`만 실행하면 루트 크레이트만 테스트된다. `cargo test --workspace`로 모든 멤버 크레이트를 테스트하라.
-- **fmt 체크를 `--check` 모드로 실행하지 않으면 안 된다** — preflight에서 `cargo fmt`(수정 모드)를 실행하면 파일이 변경되어 staged 상태가 꼬인다. `cargo fmt --check`로 확인만 하고, 실패 시 사용자에게 `cargo fmt` 실행을 안내하라.
+- **fmt 는 먼저 `--check` 모드로 확인한다** — 처음부터 `cargo fmt`(수정 모드)를 돌리면 무엇이 바뀌었는지 모른 채 파일이 바뀐다. 확인이 실패했을 때만 Gotcha 2 · Step 1 대로 `cargo fmt --all` 을 적용하고 다시 검사한 뒤, 바뀐 파일과 `git add` 안내를 보고한다(Step 5 표의 `FIXED`).
 - **clippy의 `--all-targets`를 빠뜨리지 마라** — 기본 clippy는 lib + bin만 검사한다. `--all-targets`를 추가해야 tests, examples, benches도 검사된다. 테스트 코드의 lint 위반이 CI에서 터지는 것을 방지한다.
 - **환경변수에 의존하는 테스트가 실패할 때 전체를 FAIL로 보고하지 마라** — `.env` 파일 미존재, DB 미연결 등 환경 문제로 실패하는 통합 테스트는 `#[ignore]` 표시 여부를 확인하고, 단위 테스트만 게이트로 사용하라.
 - **preflight 결과를 구조화하지 않고 텍스트 덤프로 보고하지 마라** — 각 단계별 PASS/FAIL + 소요 시간 + 실패 시 핵심 에러 메시지 1~3줄로 요약하라. cargo 전체 출력을 붙이면 사용자가 읽지 않는다.

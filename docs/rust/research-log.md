@@ -11,7 +11,7 @@ last_updated: 2026-09-25
 아래 URL 은 전부 그 파일에서 가져왔다. 처리 배정표 `backend-family:P4` 와 `backend-family:P2` 의 rust-model 부분, Phase 1 설계
 가이드 변경(`[미검증]` 네 칸)의 이 킷 쪽 반대편, 근거 파일 §3 현행화를 네 관심사로 묶었다.
 
-### 채택한 인사이트
+### 채택한 인사이트 — 2026-09-24 사이클
 
 - **실패를 셋으로 가른다 (`backend-family:P4`).** rust-preflight Gotcha 10 · Step 3.5 · Step 5. 판정 세 줄은 harness `/sprint` Step 3 을
   글자 그대로 옮겼다(Phase 4 가 정본을 정했다). preflight 는 커밋 전에 돌아 미커밋 변경에 내 것도 섞이므로 `HEAD` 임시 워크트리에
