@@ -40,8 +40,11 @@ git diff --name-status -M 83cfb4f311d6497186da13c75bdb8f8a108481b3 HEAD -- '*/sk
 
 ## evals.json 이 없는 킷
 
-`api-kit` · `bambu-kit` · `planning-kit` · `reflect-kit` 은 `evals/evals.json` 이 없다. bambu-kit 은 게이트 시험 파일(`evals/gate-fixtures/`), reflect-kit 은 훅 시험(`evals/hooks/`)을
-두고 CI 가 돌린다. evals.json 신설은 이 사이클 범위 밖이라 다음 사이클 검토 대상으로 남긴다.
+`api-kit` · `bambu-kit` · `planning-kit` · `reflect-kit` 은 `evals/evals.json` 이 없다. reflect-kit 은 훅 시험 셋(`evals/hooks/`)을 두고
+CI(저장소 자동 검사, `.github/workflows/ci.yml`)가 돌린다. bambu-kit 은 슬라이서 설정 검사의 시험 파일(`evals/gate-fixtures/`)을 두지만 CI 에 bambu 단계가 없다 —
+검사를 고치거나 옵션 목록을 새로 만들 때 사람이 `bambu-kit/skills/bambu-print-profile/SKILL.md` 의 「음성 대조」 표대로 하나씩 넣어 FAIL 이 나는지 본다.
+evals.json 신설은 이 사이클 범위 밖이라 다음 사이클 검토 대상으로 남긴다.
+(2026-09-26 고침: 처음 판은 bambu-kit 시험 파일도 CI 가 돈다고 잘못 적었다. Final 교차 진단이 `ci.yml` 에 bambu 단계가 없음을 짚었다.)
 
 ## 판정
 
