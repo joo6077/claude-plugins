@@ -570,12 +570,12 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 "변경 범위" 를 조건으로 쓸 때 `git diff` 자유 서술을 금지한다. 아래 5 요소를 모두 채운다:
 **(1) 상태 전제** (`Given: 이 스프린트의 커밋이 끝난 뒤` · `Given: 커밋 직전 working tree` · `Given: 스테이징 완료 후` 중 하나 — 평가 시점에 다시 잴 수 있는 것) ·
 **(2) 경로 한정 pathspec** · **(3) 생성물 제외 pathspec** · **(4) 기대 집합**("정확히 일치" 인지
-"포함" 인지) · **(5) 상한 ref** (아래 §커밋 구간 상한).
+"포함" 인지) · **(5) 상한 ref** (아래 §커밋 구간 상한). 상한 ref 는 커밋 구간을 재는 조건에만 요구한다 — 커밋 전 두 상태(`git diff HEAD` · `--cached`)에는 상한이 없다.
 
 ```markdown
 - [ ] AR-01: 변경이 변환 헬퍼 2 개 파일로 한정된다 [exact, enumerated]
       (Given: 이 스프린트의 커밋이 끝난 뒤 ·
-       측정: `git diff --name-only <base>..$(sprint_head <slug>) -- app/lib ':(exclude)*.g.dart'` 결과가
+       측정: `U=$(sprint_head <slug>) || exit 2; git diff --name-only <base>..$U -- app/lib ':(exclude)*.g.dart'` 결과가
        `app/lib/data/mapper/schedule_mapper.dart`,
        `app/lib/data/mapper/group_mapper.dart` 2 행과 정확히 일치)
 ```
@@ -604,6 +604,8 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 ```bash
 # .harness/ 의 계약 파일만 골라 봉인 상태를 센다. 피드백·개정·project.yaml·handoff/ 는 계약이 아니다
 # -maxdepth 를 걸지 않는다 — history/ 로 옮긴 계약이 조용히 검사에서 빠진다 (실측 1 건)
+# 두 함수가 없는 셸에서 세면 모든 계약이 SEAL_ABSENT 로 보여 「SEAL_BROKEN 0」 이 거짓으로 나온다 — 정의부터 확인하고 없으면 멈춘다
+type verify_seal fm_get >/dev/null 2>&1 || { echo "STOP verify_seal · fm_get 정의 없음 — §계약 봉인 · §값 따옴표 규약 블록을 먼저 읽는다" >&2; exit 2; }
 find .harness -type f -name 'sprint-contract*.md' -print0 \
 | while IFS= read -r -d '' f; do verify_seal "$f"; done \
 | awk '{print $1}' | sort | uniq -c
@@ -612,6 +614,7 @@ find .harness -type f -name 'sprint-contract*.md' -print0 \
 - 판정은 **`SEAL_BROKEN` 이 0 개**다. `SEAL_OK` 와 `SEAL_ABSENT` 는 **둘 다 통과**다 —
   봉인 없는 레거시 계약이 실재하고 그것은 경고이지 실패가 아니다 (§계약 봉인)
 - `status:` 토글과 새 산출물 추가는 위반이 아니다
+- 블록 머리의 `type` 줄을 빼지 마라. 실측(2026-09-25): `fm_get` 만 빠진 셸에서 계약 79 개가 전부 `SEAL_ABSENT` 로 나왔고 종료 코드는 0 이었다
 - 실측(2026-09-23): 계약 67 개에 돌려 `SEAL_OK` 56 · `SEAL_ABSENT` 11 · `SEAL_BROKEN` 0
 
 레포의 다른 부분(`harness/evals/` · `docs/kaizen/` 등)을 재는 조건은 경로 패턴을 그대로 쓰면
@@ -633,6 +636,8 @@ SC-02 가 새로 FAIL 이 됐다. 스프린트 머지 커밋까지로 좁히자 
 - 프로젝트의 브랜치·머지 메시지 관례에 의존하므로 **관례가 다르면 그 프로젝트의 형태로 적는다.**
   아래는 `sprint/<slug>` 브랜치 + `Merge sprint/<slug>: …` 머지 메시지 관례일 때의 형태다.
 - 해석이 실패하면(`UNRESOLVED`) 조용히 `HEAD` 로 떨어지지 마라 — 평가자가 사용자에게 묻는다.
+- 측정에서는 상한을 먼저 변수로 받고 `|| exit 2` 로 멈춘다(아래 SC-02 예시와 위 AR-01 예시의 첫 명령).
+  상한 해석을 `<base>..` 뒤에 바로 이어 쓰면 해석이 실패해도 빈 값이 들어가 `<base>..` 가 되고, git 은 그것을 `<base>..HEAD` 로 읽는다.
 
 ```bash
 # 스프린트 상한 해석 — 머지됐으면 머지 커밋, 아직이면 브랜치 tip (zsh · bash 동일)
@@ -647,7 +652,7 @@ sprint_head() {  # sprint_head <slug>
 ```markdown
 - [ ] SC-02: 서버 `lib/` 변경이 화이트리스트 5 경로에 포함된다 [exact, enumerated]
       (Given: 이 스프린트의 커밋이 끝난 뒤 ·
-       측정: `git diff --name-only <base>..$(sprint_head <slug>) -- packages/server/lib
+       측정: `U=$(sprint_head <slug>) || exit 2; git diff --name-only <base>..$U -- packages/server/lib
        ':(exclude)*.g.dart'` 의 각 줄이 아래 5 경로 중 하나)
 ```
 
@@ -667,9 +672,10 @@ sprint_head() {  # sprint_head <slug>
   커밋은 전부 서명 줄을 달아야 한다(`unsigned_on` 출력 0 줄). 그래도 남는 사각은 서명 줄 없이 선언 밖 경로를 고친
   내 커밋이다. 이것은 커밋 규칙으로 막는다 — `git add <경로> && git commit -o <경로>` 로 내 경로만 싣는다
 
-서명 줄은 제목이나 본문 가운데가 아니라 **끝 문단의 한 줄**로 둔다. 슬러그를 메시지 아무 데서나 찾으면, 다른 주체가
-본문에 슬러그를 인용한 커밋까지 잡힌다 (실측 2026-09-24 스크래치 저장소: 본문 인용 커밋이 옛 꼴에는 잡히고 서명 줄
-꼴에는 안 잡혔다). 상한은 `sprint/<slug>` 가지가 없으면 개정 파일의 `end_sha:` 줄 마지막 값으로 읽는다 — 해석이 안 되면
+`mine` · `unsigned_on` 은 메시지 어느 문단이든 서명 줄과 글자가 똑같은 줄을 찾는다 — 끝 문단인지는 보지 않는다.
+서명 줄을 끝 문단에 두는 관례는 그대로 둔다 — 도우미가 자리를 보지 않을 뿐이다. 도우미는 줄 전체가 서명 줄과 같아야 잡으므로,
+다른 주체가 본문 문장 안에 슬러그를 인용한 커밋은 잡히지 않는다 (실측 2026-09-24 스크래치 저장소: 본문 인용 커밋이 슬러그를
+아무 데서나 찾는 옛 꼴에는 잡히고 서명 줄 꼴에는 안 잡혔다). 상한은 `sprint/<slug>` 가지가 없으면 개정 파일의 `end_sha:` 줄 마지막 값으로 읽는다 — 해석이 안 되면
 `HEAD` 로 떨어지지 말고 멈춘다.
 
 ```bash

@@ -644,13 +644,19 @@ QA 는 사용자 로그 저장소를 **변형시키면 안 된다.** 평가 행�
   ensure 한다. **읽기 경로에서 쓰지 마라**
 - 경로는 git root basename 기준 **read-union** 으로 해석한다: `basename` 과
   `basename-??????`(6 자 hash suffix) 두 형태를 합집합으로 조회. 어느 쪽도 없으면 로그 부재다
+- 워크트리에서 부르면 본 저장소 이름과 워크트리 이름을 둘 다 찾는다. reflect-kit 은 워크트리 안에서도 본 저장소 이름으로 로그를 쓰고(`reflect-kit/hooks/_lib-project-id.sh` 의 `project_root`), 그 규칙 전 판이 쓴 로그는 워크트리 이름 폴더에 남아 있다
 
 ```bash
 # 읽기 전용 — 생성 없음. read-union 도 셸 glob 이 아니라 find 로 한다.
-BASE=$(basename "$(git -C "$CONTRACT_ROOT" rev-parse --show-toplevel 2>/dev/null || echo "$CONTRACT_ROOT")")
+# 공통 git 폴더(--git-common-dir)가 .git 이면 그 부모가 본 레포다 — reflect-kit project_root 와 같은 규칙. 서브모듈은 .git/modules/<이름> 이라 부모를 쓰지 않는다
+TOP=$(git -C "$CONTRACT_ROOT" rev-parse --show-toplevel 2>/dev/null || echo "$CONTRACT_ROOT")
+MAIN=$TOP
+COMMON=$(git -C "$CONTRACT_ROOT" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+case $COMMON in */.git) MAIN=$(dirname "$COMMON") ;; esac
 LOGS_ROOT="${REFLECT_KIT_LOGS_ROOT:-$HOME/.claude/logs}"
-DIRS=$(find "$LOGS_ROOT" -maxdepth 1 -type d \
-  \( -name "$BASE" -o -name "$BASE-??????" \) 2>/dev/null | sort)
+DIRS=$(for BASE in "$(basename "$MAIN")" "$(basename "$TOP")"; do
+  find "$LOGS_ROOT" -maxdepth 1 -type d \( -name "$BASE" -o -name "$BASE-??????" \) 2>/dev/null
+done | sort -u)
 [ -n "$DIRS" ] && echo "$DIRS" || echo "correction_log_status: unavailable"
 ```
 
@@ -693,10 +699,11 @@ DIRS=$(find "$LOGS_ROOT" -maxdepth 1 -type d \
 > (`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제만 막는다. 그보다 작은 삭제는 계약에 범위 조건이
 > 없으면 아무도 보지 않는다.
 
-- 계약의 범위 조건이 쓰는 커밋 구간에서 `git diff --name-status --diff-filter=D <base>..<상한>` 으로 지운 파일을
+- 계약의 범위 조건이 쓰는 커밋 구간에서 `git diff --no-renames --name-status --diff-filter=D <base>..<상한>` 으로 지운 파일을
   전부 뽑는다. `--name-status` 의 상태 문자 `D` 가 삭제다 ([git diff](https://git-scm.com/docs/git-diff)).
-  커밋 구간에는 커밋하지 않은 삭제가 없으므로 `git status --porcelain` 줄의 앞 두 글자(상태 칸)에 `D` 가 있는 줄도
+  커밋 구간에는 커밋하지 않은 삭제가 없으므로 `git status --porcelain --no-renames` 줄의 앞 두 글자(상태 칸)에 `D` 가 있는 줄도
   함께 뽑는다 (`grep -E '^(D.|.D) '` — 경로에 든 `D` 는 세지 않는다)
+- 두 명령 모두 이름 바꾸기 감지를 끈다. 켜 두면 옮긴 파일의 옛 경로가 `R` 줄로 묶여 삭제 열거에서 빠진다
 - 계약에 기준 커밋이 없으면 구간을 지어내지 않는다 — 커밋하지 않은 삭제만 뽑고
   `deletions_range: unavailable (계약에 기준 커밋 없음)` 을 적는다
 - 뽑은 경로를 하나씩 계약이 선언한 경로와 대조해 `Deletions` 블록에 적는다. 작업 폴더를 여러 세션이 같이
@@ -754,8 +761,8 @@ grep -E '^conditions:' "$CONTRACT"
 
 `$CONTRACT` 는 §계약 선택 ladder 에서 **선택·지문 고정된 계약의 절대경로**다 — plain
 `sprint-contract.md` 일 수도, 접미형 `sprint-contract-<slug>.md` 일 수도 있다. `CONTRACT_ROOT` 는
-`.harness/project.yaml` 을 가진 가장 가까운 조상의 절대경로이며, 세션 중 cwd 가 바뀌어도 이 값을
-기준으로 해석한다 (contract-schema §산출물 경로).
+처음 만나는 `.harness/` 디렉토리를 가진 조상의 절대경로이며, 세션 중 cwd 가 바뀌어도 이 값을
+기준으로 해석한다 (contract-schema §CONTRACT_ROOT 해석 — `.harness/project.yaml` 유무는 보지 않는다).
 
 ---
 
@@ -787,7 +794,8 @@ Sprint Contract 의 각 조건에 대해 Step 2 (조건별 정적 검증) 을 �
    커밋 전 상태를 전제로 한 `git diff HEAD` · `--cached` · `git status --porcelain` 은 커밋하고 나면
    빈 출력이다 — 커밋 뒤 평가에서 그 빈 출력은 공허한 0 이다 (§0 매치 판정 규칙).
    contract-schema §Diff-Scope Oracle 표준형이 계약 측 대응이며, 표준형 5 요소(상태 전제 ·
-   경로 한정 · 생성물 제외 · 기대 집합 · 상한 ref) 중 빠진 것을 REJECT 사유에 열거한다
+   경로 한정 · 생성물 제외 · 기대 집합 · 상한 ref) 중 빠진 것을 REJECT 사유에 열거한다 — 상한 ref 는 커밋 구간을 재는 조건에만 요구한다
+   (커밋 전 두 상태 `git diff HEAD` · `--cached` 를 재는 조건에 상한이 없다고 REJECT 하지 않는다)
 
 ### 모호 조건 발견 시 대응
 

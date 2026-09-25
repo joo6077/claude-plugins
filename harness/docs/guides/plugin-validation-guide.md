@@ -503,10 +503,10 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
 === react-kit ===
   V1 frontmatter       21 skills + 3 agents — OK
   V2 templates         5 parsed, 4 skipped (ts/js) — OK
-  V3 refs              89 links, 2 BROKEN
+  V3 refs              89 links, 2 BROKEN — FAIL
     FAIL react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
     FAIL react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
-  V4 triggers          58 keywords, 1 duplicate
+  V4 triggers          58 keywords, 1 duplicate — WARN
     WARN "새 화면 추가" — react-kit / planning-kit (cross-kit)
   V5 placeholders      0 found — OK
   V6 code-fence        0 bare — OK
@@ -520,6 +520,8 @@ Exit: 2
 ```
 
 요약줄은 결과가 있는 상태만 적는다 — 전부 통과하면 `Total: N plugins, N OK` 처럼 짧아진다.
+
+V 줄은 늘 판정 글자(`— OK` · `— WARN` · `— FAIL` · `— SKIP`)로 끝난다. 요약이 개수만 적는 실패(`2 BROKEN` · `1 duplicate`)는 끝에 판정을 붙인다 — 2026-09-25 전에는 V3 · V4 · V5 · V9 의 실패 줄이 판정 없이 끝나 V 줄 글자로 FAIL 을 세면 0 이 나왔다. 그래도 통과 여부는 V 줄 글자보다 종료 코드로 먼저 판정한다.
 
 ### Exit Code
 
