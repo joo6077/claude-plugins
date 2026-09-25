@@ -368,7 +368,7 @@ if line.startswith("```") and not in_block:
     <tbody>
       <tr><td><strong>V1</strong></td><td>없다. 모든 스킬과 에이전트는 예외 없이 frontmatter 를 가져야 한다</td></tr>
       <tr><td><strong>V2</strong></td><td><code>templates/</code> 없는 킷은 V2 전체 SKIP (어느 킷인지는 <a href="#catalog">§12 킷별 예외</a>)<br><code>.ts</code> · <code>.js</code> 는 언제나 SKIP — 읽기 실패로 치지 않는다<br><code>.template</code> 은 안쪽 확장자(<code>.json.template</code>)로 판별한다</td></tr>
-      <tr><td><strong>V3</strong></td><td>절대 URL(<code>https://</code> · <code>http://</code>)과 앵커만 있는 링크(<code>#heading</code>)는 뺀다<br><code>&lt;!-- novalidate --&gt;</code> 주석이 달린 링크는 SKIP — 일부러 잇지 않은 링크다<br>본문에 그대로 적힌 상대 경로 문자열(코드 인라인 경로)은 V3 범위 밖이다 — 독자가 눈으로 확인한다</td></tr>
+      <tr><td><strong>V3</strong></td><td>절대 URL(<code>https://</code> · <code>http://</code>)과 앵커만 있는 링크(<code>#section</code> · <code>#heading</code>)는 뺀다<br><code>&lt;!-- novalidate --&gt;</code> 주석이 달린 링크는 SKIP — 일부러 잇지 않은 링크다<br>본문에 그대로 적힌 상대 경로 문자열(코드 인라인 경로)은 V3 범위 밖이다 — 독자가 눈으로 확인한다</td></tr>
       <tr><td><strong>V4</strong></td><td>2 자 이하 키워드는 너무 흔해 뽑지 않는다<br><code>--fix</code> · <code>--json</code> 같은 명령줄 플래그 모양은 뺀다<br>공통 동사(<code>구현해줘</code> · <code>만들어줘</code>)는 겹침이 설계 의도일 수 있다 — WARNING 으로 두고 ERROR 로 올리지 않는다<br>킷 사이 문맥 구분 — 아래 카드</td></tr>
       <tr><td><strong>V5</strong></td><td><code>validate-plugin.py</code> 본문은 검사 도구 자신이라 V5 대상에서 뺀다<br>코드 템플릿 예시 안의 미완성 표시는 빼지 않는다 — 설명용이라도 사용자 문서에 보이므로 FAIL</td></tr>
       <tr><td><strong>V6</strong></td><td>닫는 펜스(<code>```</code> 한 줄)는 정상이라 보지 않는다<br><code>~~~</code> 물결 펜스는 지금 검사하지 않는다 — 모노레포 관례가 백틱이다</td></tr>
@@ -895,7 +895,7 @@ echo "대상: ${1}"
       <tr><td>backend-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드. 프레임워크별 뼈대는 각 킷에서</td></tr>
       <tr><td>infra-kit</td><td><code>templates/</code> 없음 — SKIP</td><td>스택 무관 가이드. 인프라 코드 템플릿 없음</td></tr>
       <tr><td>rust-kit</td><td><code>templates/</code> 5 파일 — 1 개 파싱, 4 개 SKIP</td><td><code>rust-init.toml.template</code> 파싱, <code>.rs.template</code> 4 개 SKIP</td></tr>
-      <tr><td>react-kit</td><td><code>templates/</code> 9 파일 — TS 파일은 V2 SKIP</td><td><code>.ts</code> · <code>.js</code> 4 개 SKIP, 나머지 5 개(<code>Cargo.toml.template</code> 등) 파싱</td></tr>
+      <tr><td>react-kit</td><td><code>templates/</code> 9 파일 — TS 파일은 V2 SKIP</td><td><code>.ts/.js</code> 4 개 SKIP, 나머지 5 개(<code>Cargo.toml.template</code> 등) 파싱</td></tr>
       <tr><td>tone-kit</td><td><code>templates/</code> 6 파일 — 전부 SKIP</td><td><code>.md</code> 는 V2 파서 대상 아님</td></tr>
       <tr><td>그 밖의 킷</td><td><code>templates/</code> 없음 — SKIP</td><td>V2 전체 SKIP</td></tr>
     </tbody>
