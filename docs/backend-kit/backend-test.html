@@ -377,18 +377,25 @@ pre code{white-space:pre}
       <div class="card-icon">Py</div>
       <h3 class="card-title">Python · pytest</h3>
       <p class="card-body"><code>tests/test_{module}.py</code>에 클래스 기반으로 구성하고 <code>pytest.raises</code>로 에러를 검증한다. DB fixture는 <code>conftest.py</code>에 둔다.</p>
-      <pre class="code-block"><code>import pytest
+      <pre class="code-block"><code># tests/test_{module}.py
+import pytest
 from {module} import {target}
 
 class TestTargetName:
+    """대상 함수/클래스의 행위 테스트."""
+
     def test_happy_path(self):
+        # Arrange
+        # Act
         result = target(valid_input)
+        # Assert
         assert result == expected
 
     def test_error_case(self):
         with pytest.raises(ExpectedException):
             target(invalid_input)
 
+# DB 의존 시 — conftest.py에 fixture 정의
 @pytest.fixture
 async def db_session():
     # Testcontainers 또는 트랜잭션 롤백
@@ -435,7 +442,16 @@ describe('TargetName', () => {
       <div class="card-icon">Go</div>
       <h3 class="card-title">Go · testing + testify</h3>
       <p class="card-body"><code>{module}_test.go</code>에 배치하고 <code>require</code>/<code>assert</code>를 사용한다. API는 <code>httptest</code>로 검증한다.</p>
-      <pre class="code-block"><code>func TestTarget_HappyPath(t *testing.T) {
+      <pre class="code-block"><code>// {module}_test.go
+package {pkg}
+
+import (
+    "testing"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
+)
+
+func TestTarget_HappyPath(t *testing.T) {
     result, err := Target(validInput)
     require.NoError(t, err)
     assert.Equal(t, expected, result)
@@ -444,6 +460,14 @@ describe('TargetName', () => {
 func TestTarget_ErrorCase(t *testing.T) {
     _, err := Target(invalidInput)
     assert.ErrorIs(t, err, ErrExpected)
+}
+
+// API 테스트 — httptest
+func TestGetResource(t *testing.T) {
+    req := httptest.NewRequest(http.MethodGet, "/api/resource", nil)
+    w := httptest.NewRecorder()
+    handler.ServeHTTP(w, req)
+    assert.Equal(t, http.StatusOK, w.Code)
 }</code></pre>
     </article>
   </div>
