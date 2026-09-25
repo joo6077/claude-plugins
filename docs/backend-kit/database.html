@@ -220,7 +220,7 @@ pre code{white-space:pre}
   <h1>데이터베이스 — 설계 · 성능 · 무결성 · 시각</h1>
   <p class="subtitle">
     스키마 설계, 정규화와 반정규화, 인덱스 전략, 쿼리 최적화, N+1 문제, connection pooling,
-    마이그레이션, 파티셔닝, 쓰기 경합, 그리고 <strong>시각 종류별 저장 계약</strong>을 다룬다.
+    마이그레이션 전략, 파티셔닝, 쓰기 경로 경합(동시성 가드), 그리고 <strong>시각 종류별 저장</strong>을 다룬다.
   </p>
   <div class="hero-meta">
     <span>version 0.3.0</span>
@@ -241,8 +241,9 @@ pre code{white-space:pre}
   <div class="section-label">원칙 · Principles</div>
   <h2 class="section-title">데이터베이스를 다루는 10가지 원칙</h2>
   <p class="section-desc">
-    조회 성능은 측정으로 조정하고, 쓰기 무결성은 데이터베이스 primitive로 보장한다.
-    시각은 모두 같은 값이 아니므로 순간과 두 종류의 벽시계를 구분한 뒤 저장 형태를 정한다.
+    앞의 7개(§1 ~ §7)는 스키마와 조회 성능, §8 · §9 는 쓰기 경로 무결성, §10 은 시각 저장이다.
+    §8 의 invariant 표는 <a href="#write-path">Write Path</a>, §9 의 대조 예시는 <a href="#upsert">Upsert Arbiter</a>,
+    §10 의 세부 규칙은 <a href="#time-model">Time Model</a> 절에서 이어진다.
   </p>
   <div class="grid-2">
 
@@ -250,8 +251,9 @@ pre code{white-space:pre}
       <div class="card-num">01</div>
       <h3 class="card-title">정규화 우선, 읽기 성능 병목에서만 반정규화한다</h3>
       <p class="card-body">
-        3NF까지 정규화하여 데이터 무결성과 저장 효율을 확보한다. 반정규화는 측정된 읽기 병목이 있을
-        때만 적용하며, 어떤 쿼리의 latency나 throughput을 얼마나 개선하는지 수치로 증명한다.
+        3NF(제3정규형)까지 정규화하여 데이터 무결성과 저장 효율을 확보한다. 반정규화는
+        <strong>측정된 읽기 병목</strong>이 있을 때만 적용한다. 반정규화 시 갱신 이상(update anomaly)이
+        발생하므로, 어떤 쿼리의 어떤 지표(latency, throughput)를 얼마나 개선하는지 수치로 증명한 후 진행한다.
       </p>
       <a class="card-source" href="https://www.postgresql.org/docs/current/ddl-basics.html" target="_blank" rel="noopener">PostgreSQL Documentation — Table Basics</a>
     </article>
@@ -262,42 +264,49 @@ pre code{white-space:pre}
       <div class="table-wrap compact">
         <table>
           <thead>
-            <tr><th>타입</th><th>용도</th><th>적합한 쿼리</th></tr>
+            <tr><th>인덱스 타입</th><th>용도</th><th>적합한 쿼리</th></tr>
           </thead>
           <tbody>
-            <tr><td>B-tree</td><td>범위 · 정렬 · 등치</td><td><code>WHERE created_at &gt; ?</code>, <code>ORDER BY id</code></td></tr>
-            <tr><td>Hash</td><td>등치 전용</td><td><code>WHERE email = ?</code> — PostgreSQL에서는 B-tree가 대부분 더 낫다</td></tr>
-            <tr><td>GIN</td><td>전문 검색 · 배열 · JSONB</td><td><code>tags @&gt; '{python}'</code>, <code>to_tsvector() @@ to_tsquery()</code></td></tr>
-            <tr><td>GiST</td><td>공간 · 범위 타입</td><td><code>location &lt;-&gt; point(x,y)</code>, <code>range &amp;&amp; '[1,10]'</code></td></tr>
+            <tr><td><strong>B-tree</strong></td><td>범위 검색, 정렬, 등치 비교</td><td><code>WHERE created_at &gt; ?</code>, <code>ORDER BY id</code></td></tr>
+            <tr><td><strong>Hash</strong></td><td>등치 비교 전용</td><td><code>WHERE email = ?</code> (PostgreSQL에서는 B-tree가 대부분 더 나음)</td></tr>
+            <tr><td><strong>GIN</strong></td><td>전문 검색, 배열, JSONB</td><td><code>WHERE tags @&gt; '{python}'</code>, <code>to_tsvector() @@ to_tsquery()</code></td></tr>
+            <tr><td><strong>GiST</strong></td><td>공간 데이터, 범위 타입</td><td><code>WHERE location &lt;-&gt; point(x,y)</code>, <code>WHERE range &amp;&amp; '[1,10]'</code></td></tr>
           </tbody>
         </table>
       </div>
-      <p class="card-body">복합 인덱스는 선택도가 높은 컬럼을 앞에 둔다. 실제 쿼리 패턴에만 인덱스를 건다.</p>
+      <p class="card-body">
+        복합 인덱스의 컬럼 순서는 선택도(selectivity)가 높은 컬럼을 앞에 둔다. 인덱스가 많을수록 쓰기 성능이
+        저하되므로, 실제 사용되는 쿼리 패턴에만 인덱스를 건다.
+      </p>
       <a class="card-source" href="https://www.postgresql.org/docs/current/indexes.html" target="_blank" rel="noopener">PostgreSQL Documentation — Indexes</a>
     </article>
 
     <article class="card">
       <div class="card-num">03</div>
       <h3 class="card-title">EXPLAIN ANALYZE로 실행 계획을 확인한다</h3>
+      <p class="card-body">쿼리 작성 후 반드시 <code>EXPLAIN ANALYZE</code>로 실행 계획을 확인한다. 주의할 지표:</p>
       <ul>
-        <li><strong>Seq Scan</strong> — 대형 테이블이면 인덱스 추가 검토</li>
-        <li><strong>Nested Loop</strong> — 소규모 결과에 효율적, 대규모에서는 Hash Join 검토</li>
-        <li><strong>actual time vs planned rows</strong> — 괴리가 크면 <code>ANALYZE</code>로 통계 갱신</li>
+        <li><strong>Seq Scan</strong> — 전체 테이블 스캔. 대형 테이블에서 발생하면 인덱스 추가를 검토한다.</li>
+        <li><strong>Nested Loop</strong> — 소규모 결과 집합에서 효율적. 대규모에서는 Hash Join이 더 낫다.</li>
+        <li><strong>actual time vs planned rows</strong> — 예측 row 수와 실제 row 수의 괴리가 크면 <code>ANALYZE</code>로 통계를 갱신한다.</li>
       </ul>
 <pre><code>EXPLAIN ANALYZE
-SELECT * FROM orders
-WHERE user_id = 42 AND status = 'pending';</code></pre>
+SELECT * FROM orders WHERE user_id = 42 AND status = 'pending';</code></pre>
       <a class="card-source" href="https://www.postgresql.org/docs/current/using-explain.html" target="_blank" rel="noopener">PostgreSQL Documentation — Using EXPLAIN</a>
     </article>
 
     <article class="card">
       <div class="card-num">04</div>
       <h3 class="card-title">N+1 문제는 ORM 레벨에서 해결한다</h3>
-      <p class="card-body">목록 조회 1번 뒤 항목마다 추가 쿼리가 발생한다. 100개 주문이면 101번의 쿼리다.</p>
+      <p class="card-body">
+        N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발생하는 패턴이다.
+        <strong>100개의 주문을 조회하면 101번의 쿼리가 실행된다.</strong>
+      </p>
+      <p class="card-body">해결 방법:</p>
       <ul>
-        <li><strong>Eager loading</strong> — <code>joinedload()</code>, <code>include()</code>, <code>prefetch_related()</code></li>
-        <li><strong>DataLoader</strong> — 같은 이벤트 루프의 중복 요청을 배치로 묶음 (GraphQL에서 필수)</li>
-        <li><strong>직접 SQL</strong> — ORM이 비효율 쿼리를 만들면 JOIN 작성</li>
+        <li><strong>Eager loading</strong> — <code>joinedload()</code> (SQLAlchemy), <code>include()</code> (Prisma), <code>prefetch_related()</code> (Django).</li>
+        <li><strong>DataLoader 패턴</strong> — 같은 이벤트 루프 내 중복 요청을 배치로 묶는다 (GraphQL에서 필수).</li>
+        <li><strong>SQL 직접 작성</strong> — ORM이 비효율적인 쿼리를 생성하면 JOIN을 직접 작성한다.</li>
       </ul>
       <a class="card-source" href="https://docs.sqlalchemy.org/en/20/orm/queryguide/relationships.html" target="_blank" rel="noopener">SQLAlchemy — Relationship Loading Techniques</a>
     </article>
@@ -305,11 +314,14 @@ WHERE user_id = 42 AND status = 'pending';</code></pre>
     <article class="card">
       <div class="card-num">05</div>
       <h3 class="card-title">Connection pooling은 운영 환경 필수다</h3>
-      <p class="card-body">연결은 TCP 핸드셰이크, 인증, 메모리 할당 비용이 크다. 요청마다 새로 만들면 연결 한도에 도달한다.</p>
+      <p class="card-body">
+        데이터베이스 연결은 비용이 크다(TCP 핸드셰이크 + 인증 + 메모리 할당). Pool 없이 요청마다 연결을
+        생성하면 수백 동시 요청에서 DB가 연결 한도에 도달한다.
+      </p>
       <ul>
-        <li><strong>PgBouncer</strong> — Transaction mode에서 쿼리 실행 중에만 연결 점유</li>
-        <li><strong>HikariCP</strong> — JVM 생태계 표준 풀</li>
-        <li><strong>내장 풀</strong> — SQLAlchemy <code>pool_size=5</code>, Prisma <code>connection_limit</code></li>
+        <li><strong>PgBouncer</strong> — PostgreSQL 전용 경량 프록시. Transaction mode에서 쿼리 실행 중에만 연결을 점유하므로 효율적이다.</li>
+        <li><strong>HikariCP</strong> — JVM 생태계 표준. 최소한의 오버헤드로 최대 throughput을 제공한다.</li>
+        <li><strong>애플리케이션 내장 풀</strong> — SQLAlchemy <code>create_engine(pool_size=5)</code>, Prisma <code>connection_limit</code> 등.</li>
       </ul>
       <div class="source-stack">
         <a class="card-source" href="https://www.pgbouncer.org/config.html" target="_blank" rel="noopener">PgBouncer Configuration</a>
@@ -320,12 +332,17 @@ WHERE user_id = 42 AND status = 'pending';</code></pre>
     <article class="card">
       <div class="card-num">06</div>
       <h3 class="card-title">Migration은 expand-contract 패턴을 따른다</h3>
+      <p class="card-body">무중단 배포 환경에서 스키마 변경은 3단계로 진행한다:</p>
       <div class="flow">
-        <div class="flow-step"><span class="step-n">01</span><h4>Expand</h4><p>새 컬럼·테이블 추가. 기존 코드는 영향 없음.</p></div>
-        <div class="flow-step"><span class="step-n">02</span><h4>Migrate</h4><p>이중 쓰기와 백필로 기존 데이터 이관.</p></div>
-        <div class="flow-step"><span class="step-n">03</span><h4>Contract</h4><p>전환 확인 뒤 이전 컬럼·테이블 제거.</p></div>
+        <div class="flow-step"><span class="step-n">01</span><h4>Expand</h4><p>새 컬럼/테이블 추가. 기존 코드는 영향 없음.</p></div>
+        <div class="flow-step"><span class="step-n">02</span><h4>Migrate</h4><p>이중 쓰기(dual write). 새 코드는 새 컬럼에 쓰고, 백필(backfill)로 기존 데이터를 옮긴다.</p></div>
+        <div class="flow-step"><span class="step-n">03</span><h4>Contract</h4><p>이전 컬럼/테이블 제거. 모든 코드가 새 스키마를 사용하는 것을 확인한 후.</p></div>
       </div>
-      <p class="card-body"><code>ADD COLUMN</code>은 NOT NULL + DEFAULT가 없으면 재작성 없이 완료된다. 타입 변경은 전체 테이블을 잠글 수 있다.</p>
+      <p class="card-body">
+        <code>ALTER TABLE ... ADD COLUMN</code>은 PostgreSQL에서 NOT NULL + DEFAULT가 없으면 테이블
+        재작성(rewrite) 없이 즉시 완료된다. 반면 컬럼 타입 변경(<code>ALTER COLUMN ... TYPE</code>)은 전체
+        테이블을 잠글 수 있다.
+      </p>
       <a class="card-source" href="https://martinfowler.com/bliki/ParallelChange.html" target="_blank" rel="noopener">Martin Fowler — Parallel Change</a>
     </article>
 
@@ -336,41 +353,52 @@ WHERE user_id = 42 AND status = 'pending';</code></pre>
         <table>
           <thead><tr><th>전략</th><th>적합한 케이스</th><th>예시</th></tr></thead>
           <tbody>
-            <tr><td>Range</td><td>시계열 · 날짜 기반</td><td>월별 로그</td></tr>
-            <tr><td>List</td><td>이산적 카테고리</td><td>국가별 · 상태별</td></tr>
-            <tr><td>Hash</td><td>균등 분산</td><td>사용자 ID 기반 샤딩</td></tr>
+            <tr><td><strong>Range</strong></td><td>시계열, 날짜 기반</td><td>월별 로그 테이블</td></tr>
+            <tr><td><strong>List</strong></td><td>이산적 카테고리</td><td>국가별, 상태별</td></tr>
+            <tr><td><strong>Hash</strong></td><td>균등 분산</td><td>사용자 ID 기반 샤딩</td></tr>
           </tbody>
         </table>
       </div>
-      <p class="card-body">파티션 키가 있을 때만 pruning이 작동한다. 키 없는 쿼리는 모든 파티션을 스캔한다.</p>
-      <a class="card-source" href="https://www.postgresql.org/docs/current/ddl-partitioning.html" target="_blank" rel="noopener">PostgreSQL — Table Partitioning</a>
+      <p class="card-body">
+        파티셔닝은 쿼리가 파티션 키를 포함할 때만 효과적이다(partition pruning). 파티션 키 없는 쿼리는
+        모든 파티션을 스캔하므로 오히려 느려진다.
+      </p>
+      <a class="card-source" href="https://www.postgresql.org/docs/current/ddl-partitioning.html" target="_blank" rel="noopener">PostgreSQL Documentation — Table Partitioning</a>
     </article>
 
     <article class="card">
       <div class="card-num">08</div>
       <h3 class="card-title">쓰기 경합은 invariant 를 분류한 뒤 DB primitive 로 막는다</h3>
-      <p class="card-body">read-check-then-write의 두 문장 사이에는 다른 트랜잭션이 끼어든다. 지킬 규칙을 먼저 분류한다.</p>
+      <p class="card-body">
+        <code>SELECT</code> 로 읽고 → 애플리케이션에서 판단하고 → 쓰는 흐름(read-check-then-write)은 두 문장
+        사이에 다른 트랜잭션이 끼어든다. <strong>트랜잭션으로 감싸는 것은 원자성을 줄 뿐 이 창을 닫지 않는다.</strong>
+        무엇을 지켜야 하는지부터 분류하고 담당 primitive 를 고른다. 유형별 표는 <a href="#write-path">Write Path</a> 절에 있다.
+      </p>
       <ul>
-        <li>조건부 갱신은 <code>READ COMMITTED</code>에서도 갱신된 row에 <code>WHERE</code> 재평가</li>
-        <li><strong>영향 행 수 0</strong>은 성공이 아니라 도메인 conflict</li>
-        <li><code>Serializable</code>만 serialization anomaly를 방지 — Snapshot Isolation은 write skew를 허용</li>
-        <li><code>SELECT FOR UPDATE</code>는 반환된 기존 row만 잠금</li>
+        <li>조건부 갱신은 <code>READ COMMITTED</code> 에서도 성립한다 — PostgreSQL 은 <code>UPDATE</code>/<code>DELETE</code>/<code>SELECT FOR UPDATE</code> 가 동시 갱신자를 만나면 대기 후 <strong>갱신된 row 에 <code>WHERE</code> 를 재평가</strong>한다.</li>
+        <li><strong>영향 행 수 0 을 성공으로 흘리지 마라.</strong> 0 행은 "경합으로 스킵됨" 이며 도메인 conflict 로 올려야 호출자가 재시도·보고를 결정할 수 있다.</li>
+        <li>격리 수준은 dirty read / nonrepeatable read / phantom read / serialization anomaly 로 나뉘고, PostgreSQL 에서 <strong><code>Serializable</code> 만 serialization anomaly 를 막는다</strong>. Snapshot Isolation 은 <strong>write skew</strong> 를 허용하므로 "SI 를 쓰니 직렬화된다" 는 서술은 틀렸다.</li>
+        <li><code>SELECT FOR UPDATE</code> 는 <strong>반환된 기존 row</strong> 를 잠근다. 존재하지 않는 row(absence invariant)나 predicate 전체를 잠그는 수단이 아니다.</li>
       </ul>
       <div class="source-stack">
         <a class="card-source" href="https://www.postgresql.org/docs/current/transaction-iso.html" target="_blank" rel="noopener">PostgreSQL — Transaction Isolation</a>
         <a class="card-source" href="https://www.postgresql.org/docs/current/explicit-locking.html" target="_blank" rel="noopener">PostgreSQL — Explicit Locking</a>
-        <a class="card-source" href="https://sigmodrecord.org/1995/06/06/a-critique-of-ansi-sql-isolation-levels/" target="_blank" rel="noopener">Berenson et al.</a>
+        <a class="card-source" href="https://sigmodrecord.org/1995/06/06/a-critique-of-ansi-sql-isolation-levels/" target="_blank" rel="noopener">Berenson et al. — A Critique of ANSI SQL Isolation Levels</a>
       </div>
     </article>
 
     <article class="card">
       <div class="card-num">09</div>
       <h3 class="card-title">조건부 unique 제약과 upsert 의 충돌 대상은 문자 그대로 일치해야 한다</h3>
-      <p class="card-body">일부 행에 적용되는 제약의 조건을 upsert가 빠뜨리면 제약이 있어도 충돌 대상으로 쓰지 못한다.</p>
+      <p class="card-body">
+        중복 방지 제약이 <strong>일부 행에만 적용되는 형태</strong>(조건부 · 계산식 기반)인데 upsert 문이 지목하는
+        충돌 대상이 그 조건을 포함하지 않으면, 제약은 있는데 upsert 가 그것을 쓰지 못한다. 증상은
+        <strong>"가끔 성공하고 가끔 중복 키 오류"</strong> 다.
+      </p>
       <ul>
-        <li>partial index는 predicate를 만족하는 subset에만 적용하며, 일반 정리 증명기가 없어 쿼리 조건과 index predicate가 정확히 맞아야 하는 경우가 많음</li>
-        <li><code>ON CONFLICT</code>의 column, expression, predicate가 arbiter index와 일치해야 하며 inference 실패는 에러</li>
-        <li><code>DO UPDATE</code>에는 conflict target이 필수이고, <code>DO NOTHING</code>의 target 생략은 사용 가능한 모든 제약 위반을 회피하므로 의도한 멱등 결과를 보장하지 않음</li>
+        <li>PostgreSQL partial index 는 predicate 를 만족하는 subset 에만 적용되고, 플래너가 쿼리 조건이 index predicate 를 함의한다고 인식해야 쓰인다. 공식 문서는 일반 정리 증명기가 없어 많은 경우 predicate 가 쿼리 <code>WHERE</code> 와 정확히 맞아야 한다고 적는다.</li>
+        <li><code>ON CONFLICT</code> 의 unique index inference 는 column/expression 과 선택적 <code>index_predicate</code> 가 arbiter index 를 만족해야 하며, inference 실패는 에러다. <code>DO UPDATE</code> 는 conflict target 이 필수이고, partial unique index 를 쓰려면 <code>ON CONFLICT (cols) WHERE predicate</code> 로 predicate 까지 맞춰야 한다.</li>
+        <li><code>ON CONFLICT DO NOTHING</code> 에서 target 을 생략하면 "사용 가능한 모든 제약 위반 회피" 가 되어, 의도한 멱등 결과(원 레코드 반환 등)를 보장하지 못한다.</li>
       </ul>
       <div class="source-stack">
         <a class="card-source" href="https://www.postgresql.org/docs/current/indexes-partial.html" target="_blank" rel="noopener">PostgreSQL — Partial Indexes</a>
@@ -381,12 +409,17 @@ WHERE user_id = 42 AND status = 'pending';</code></pre>
     <article class="card">
       <div class="card-num">10</div>
       <h3 class="card-title">시각은 종류부터 나누고, 종류마다 저장 형태를 정한다</h3>
-      <p class="card-body">“전부 UTC로 저장”은 한 순간에만 맞는다. 벽시계를 순간 하나로 바꾸면 시간대·서머타임 변화 뒤 의도와 어긋난다.</p>
+      <p class="card-body">
+        “전부 UTC(세계 표준시)로 저장한다” 는 한 순간에만 맞는 처방이다. 반복 일정·영업시간·알림 시각처럼
+        사람이 정한 시계 값(벽시계)을 순간 하나로 바꿔 저장하면, 시간대가 바뀌거나 서머타임이 드나들 때 사람이
+        정한 시각과 어긋난다. 시각 필드마다 아래 셋 중 무엇인지부터 정한다.
+      </p>
       <ul>
-        <li><strong>순간</strong> — <code>TIMESTAMPTZ</code></li>
-        <li><strong>받는 사람 지역을 따라가는 벽시계</strong> — 시간대 없는 <code>TIME</code> · <code>TIMESTAMP</code></li>
-        <li><strong>특정 지역에 묶인 벽시계</strong> — 시간대 없는 값 + IANA 시간대 이름</li>
+        <li><strong>순간</strong> — 결제 시각, 생성 시각. <code>TIMESTAMPTZ</code></li>
+        <li><strong>받는 사람 지역을 따라가는 벽시계</strong> — <code>TIME</code> · <code>TIMESTAMP</code> (시간대 없음)</li>
+        <li><strong>특정 지역에 묶인 벽시계</strong> — <code>TIME</code> · <code>TIMESTAMP</code> + 시간대 이름 칸</li>
       </ul>
+      <p class="card-body">종류별 예시와 순간으로 바꾸는 규칙은 <a href="#time-model">Time Model</a> 절에 있다.</p>
       <div class="source-stack">
         <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5" target="_blank" rel="noopener">RFC 5545 §3.3.5 — DATE-TIME</a>
         <a class="card-source" href="https://www.postgresql.org/docs/current/datatype-datetime.html" target="_blank" rel="noopener">PostgreSQL — Date/Time Types</a>
@@ -399,24 +432,27 @@ WHERE user_id = 42 AND status = 'pending';</code></pre>
 <section class="section" id="write-path">
   <div class="section-label">Write Path</div>
   <h2 class="section-title">invariant 유형 → 담당 primitive</h2>
-  <p class="section-desc">깨지면 안 되는 규칙의 범위를 분류해 row 가드, 쓰기 SQL 술어, 제약·lock·Serializable 중 맞는 수단을 고른다.</p>
+  <p class="section-desc">
+    §8 의 표다. 트랜잭션으로 감싸는 것은 원자성을 줄 뿐 두 문장 사이의 창을 닫지 않으므로, 무엇을 지켜야
+    하는지부터 분류하고 그 유형을 담당하는 primitive 를 고른다.
+  </p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>invariant 유형</th><th>담당 primitive</th><th>예시</th></tr></thead>
       <tbody>
         <tr>
-          <td>같은 row의 상태 전이</td>
-          <td>조건부 <code>UPDATE ... WHERE &lt;기대 상태/버전&gt;</code></td>
+          <td>같은 row 의 상태 전이</td>
+          <td>조건부 <code>UPDATE ... WHERE &lt;기대 상태/버전&gt;</code> (compare-and-swap)</td>
           <td><code>UPDATE orders SET status='paid' WHERE id=$1 AND status='pending'</code></td>
         </tr>
         <tr>
           <td>존재 · 권한 · 가시성 predicate</td>
           <td>쓰기 SQL 자체의 <code>WHERE EXISTS (...)</code> / 조인 술어</td>
-          <td>사전 SELECT 대신 <code>INSERT ... SELECT ... WHERE EXISTS</code></td>
+          <td>차단 관계·공개 범위를 사전 <code>SELECT</code> 가 아니라 <code>INSERT ... SELECT ... WHERE EXISTS</code> 로</td>
         </tr>
         <tr>
           <td>cross-row · absence · aggregate</td>
-          <td>unique / partial unique / exclusion 제약, 명시적 lock, <code>Serializable</code> + 재시도</td>
+          <td>unique / partial unique / exclusion 제약, 명시적 lock, <code>Serializable</code> + 직렬화 실패 재시도</td>
           <td>구간 겹침 금지 → exclusion 제약</td>
         </tr>
       </tbody>
@@ -429,7 +465,7 @@ WHERE user_id = 42 AND status = 'pending';</code></pre>
 <pre><code>row = SELECT status FROM orders WHERE id = $1;
 if row.status != 'pending': raise Conflict
 UPDATE orders SET status = 'paid' WHERE id = $1;</code></pre>
-      <p>트랜잭션으로 감싸도 판단과 쓰기 사이의 경합 창은 닫히지 않는다.</p>
+      <p>사전 <code>SELECT</code> + 앱 레벨 <code>if</code> 로 경합을 막으면 두 문장 사이의 창이 닫히지 않는다. 부하가 오르면 중복 생성·이중 차감이 실제로 발생한다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 기대 상태를 술어에 포함</div>
@@ -439,21 +475,32 @@ UPDATE orders SET status = 'paid' WHERE id = $1;</code></pre>
    AND status = 'pending';
 
 -- affected == 0 → domain conflict</code></pre>
-      <p>동시 갱신자를 기다린 뒤 갱신된 row에 WHERE를 재평가한다.</p>
+      <p>조건부 갱신은 <code>READ COMMITTED</code> 에서도 성립한다. 동시 갱신자를 만나면 대기 후 갱신된 row 에 <code>WHERE</code> 를 재평가한다. 영향 행 수 0 은 도메인 conflict 로 올린다.</p>
     </div>
   </div>
   <div class="callout warn">
     <span class="callout-tag">주의</span><br>
     <strong>같은 row 상태 전이의 해법을 모든 predicate로 일반화하지 않는다.</strong>
-    복잡한 search condition은 일관성 판단에 부적합할 수 있고, <code>SELECT FOR UPDATE</code>는 존재하지 않는 row를 잠그지 않는다.
+    PostgreSQL 문서 자신이 <code>READ COMMITTED</code> + 복잡한 search condition 조합은 일관성 판단에 부적합할 수
+    있다고 경고한다. <code>SELECT FOR UPDATE</code> 는 반환된 기존 row 를 잠글 뿐, 존재하지 않는 row(absence invariant)나
+    predicate 전체를 잠그는 수단이 아니다.
   </div>
+  <p class="table-note">
+    출처:
+    <a href="https://www.postgresql.org/docs/current/transaction-iso.html" target="_blank" rel="noopener">PostgreSQL — Transaction Isolation</a> ·
+    <a href="https://www.postgresql.org/docs/current/explicit-locking.html" target="_blank" rel="noopener">PostgreSQL — Explicit Locking</a> ·
+    <a href="https://sigmodrecord.org/1995/06/06/a-critique-of-ansi-sql-isolation-levels/" target="_blank" rel="noopener">Berenson et al. — A Critique of ANSI SQL Isolation Levels</a>
+  </p>
 </section>
 
 <!-- ─────────── UPSERT ─────────── -->
 <section class="section" id="upsert">
   <div class="section-label">Upsert Arbiter</div>
   <h2 class="section-title">조건부 제약과 충돌 대상을 함께 대조한다</h2>
-  <p class="section-desc">partial unique index를 arbiter로 쓰려면 column이나 expression뿐 아니라 predicate까지 맞춘다.</p>
+  <p class="section-desc">
+    partial unique index 를 arbiter 로 쓰려면 <code>ON CONFLICT (cols) WHERE predicate</code> 로 predicate 까지
+    맞춰야 한다. column/expression 과 <code>index_predicate</code> 중 하나라도 어긋나면 inference 가 실패하고, 그 실패는 에러다.
+  </p>
   <div class="compare-grid">
     <div class="compare-bad">
       <div class="compare-label">Bad — predicate 누락</div>
@@ -465,7 +512,7 @@ INSERT INTO device_tokens (...)
 VALUES (...)
 ON CONFLICT (user_id, token)
 DO UPDATE SET updated_at = now();</code></pre>
-      <p>조건부 unique index를 올바르게 inference하지 못한다.</p>
+      <p>조건부 unique 제약에 조건 없는 <code>ON CONFLICT</code> 대상 — arbiter inference 실패 또는 의도하지 않은 제약 회피. 간헐적 중복 키 오류로 나타난다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — index predicate와 일치</div>
@@ -477,13 +524,26 @@ DO UPDATE SET updated_at = now();</code></pre>
       <p>제약과 upsert의 column · expression · predicate를 양쪽에서 대조한다.</p>
     </div>
   </div>
+  <div class="callout">
+    <span class="callout-tag">DO NOTHING</span><br>
+    <code>ON CONFLICT DO NOTHING</code> 에서 target 을 생략하면 "사용 가능한 모든 제약 위반 회피" 가 되어,
+    의도한 멱등 결과(원 레코드 반환 등)를 보장하지 못한다. <code>DO UPDATE</code> 는 conflict target 이 필수다.
+  </div>
+  <p class="table-note">
+    출처:
+    <a href="https://www.postgresql.org/docs/current/indexes-partial.html" target="_blank" rel="noopener">PostgreSQL — Partial Indexes</a> ·
+    <a href="https://www.postgresql.org/docs/current/sql-insert.html" target="_blank" rel="noopener">PostgreSQL — INSERT</a>
+  </p>
 </section>
 
 <!-- ─────────── TIME MODEL ─────────── -->
 <section class="section" id="time-model">
   <div class="section-label">Time Model</div>
-  <h2 class="section-title">시각 종류별 저장 계약</h2>
-  <p class="section-desc">필드마다 뜻, 저장 형태, 순간으로 바꾸는 규칙, 시간대의 출처를 계약에 기록한다.</p>
+  <h2 class="section-title">시각 종류별 저장 형태</h2>
+  <p class="section-desc">
+    §10 의 표와 세부 규칙이다. 시각 필드마다 아래 셋 중 무엇인지부터 정하고, 벽시계를 순간으로 바꾸는 규칙과
+    시간대를 어디서 받는지를 계약에 적는다.
+  </p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>시각 종류</th><th>예</th><th>저장 형태 (PostgreSQL)</th><th>순간이 필요할 때</th></tr></thead>
@@ -496,54 +556,61 @@ DO UPDATE SET updated_at = now();</code></pre>
         </tr>
         <tr>
           <td>받는 사람 지역을 따라가는 벽시계</td>
-          <td>어디에 있든 현지 06:30에 울리는 알림</td>
-          <td><code>TIME</code> · <code>TIMESTAMP</code> — 시간대 없음</td>
-          <td>받는 사람의 지금 시간대로 계산</td>
+          <td>어디에 있든 현지 06:30 에 울리는 알림</td>
+          <td><code>TIME</code> · <code>TIMESTAMP</code> (시간대 없음)</td>
+          <td>받는 사람의 지금 시간대로 계산한다</td>
         </tr>
         <tr>
           <td>특정 지역에 묶인 벽시계</td>
           <td>한 지점의 영업시간, 한 도시의 행사</td>
           <td><code>TIME</code> · <code>TIMESTAMP</code> + 시간대 이름 칸</td>
-          <td>레코드에 적힌 시간대로 계산</td>
+          <td>레코드에 적힌 시간대로 계산한다</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div class="grid-3" style="margin-top:18px">
+  <div class="grid-2" style="margin-top:18px">
     <div class="callout">
-      <span class="callout-tag">IANA 식별자</span><br>
-      <code>Asia/Seoul</code> 같은 지역 이름을 쓴다. 나라 코드 하나로 시간대를 결정하지 않는다.
+      <span class="callout-tag">시간대 이름 칸</span><br>
+      시간대 이름 칸에는 IANA 시간대 식별자(<code>Asia/Seoul</code> 처럼 지역 이름으로 적는 시간대 이름)를 둔다.
     </div>
     <div class="callout">
       <span class="callout-tag">PostgreSQL 타입</span><br>
-      <code>TIMESTAMPTZ</code>는 입력 시간대를 UTC로 바꿔 저장하고 원래 시간대를 남기지 않는다.
-      사용자가 고른 시간대가 업무 정보면 별도 칸에 둔다. <code>TIMESTAMP</code>는 시간대 표시를 무시하고 날짜·시각만 저장한다.
+      <code>TIMESTAMPTZ</code> 는 입력 시간대를 UTC 로 바꿔 저장하고, 명시됐거나 추정한 원래 시간대는 남기지 않는다.
+      사용자가 고른 시간대가 업무 정보면 별도 칸에 둔다. <code>TIMESTAMP</code> 는 시간대 표시를 무시하고 날짜·시각 값만 저장한다.
     </div>
     <div class="callout">
-      <span class="callout-tag">DST 계약</span><br>
-      같은 시각이 두 번 오거나 없는 전환 구간의 해석을 정한다. RFC는 첫 번째와 전환 전 오프셋을 쓴다.
+      <span class="callout-tag">Floating time</span><br>
+      받는 사람 지역을 따라가는 벽시계는 RFC 5545 의 floating time(시간대 없는 지역 시각)이다. 보는 사람의 시간대와
+      상관없이 같은 시·분·초를 뜻하므로 시간대가 다른 사람은 서로 다른 UTC 순간에 참여한다. RFC 는 이 형태를
+      합리적일 때만 쓰고, 대부분은 UTC 나 시간대 참조로 시각을 고정하라고 한다.
+    </div>
+    <div class="callout">
+      <span class="callout-tag">서머타임 전환</span><br>
+      벽시계를 순간으로 바꾸는 규칙을 계약에 적는다 — 어느 시간대를 쓰는지, 서머타임 전환으로 같은 시각이 두 번
+      오거나 아예 없을 때 어떻게 하는지. RFC 5545 는 두 번 오는 시각을 첫 번째로, 없는 시각을 전환 전 오프셋으로 해석한다.
     </div>
   </div>
   <div class="callout">
-    <span class="callout-tag">Floating time과 시간대 출처</span><br>
-    받는 사람 지역을 따라가는 벽시계는 RFC 5545의 floating time이다. 보는 사람의 시간대와 무관하게
-    같은 시·분·초를 뜻하므로 서로 다른 지역의 사용자는 서로 다른 UTC 순간에 참여한다. 합리적인 경우에만
-    이 형태를 쓰고, 대부분은 UTC나 시간대 참조로 시각을 고정한다. 시간대를 요청·기기·사용자 설정·레코드 중
-    어디서 받는지와 저장할지 매 요청마다 받을지를 계약한다. 한 나라에 시간대가 여럿일 수 있으므로 나라 코드로 정하지 않는다.
+    <span class="callout-tag">시간대 출처 — 이 킷의 규칙</span><br>
+    시간대와 나라를 코드 상수나 한 나라 기본값으로 박지 않는다. 시간대를 요청·기기·사용자 설정·레코드 칸 중 어디서
+    받는지, 저장할지 요청마다 받을지를 계약에 정한다. 나라 코드로 시간대를 정하지 않는다 — 한 나라에 시간대가 여럿일
+    수 있고, 나라와 무관하게 사용자가 고른 시간대도 있다. 이 항목은 RFC 요구가 아니라 이 킷의 규칙이다.
+    RFC 5545 는 시간대를 어디서 받을지 정하지 않는다.
   </div>
   <div class="compare-grid">
     <div class="compare-bad">
       <div class="compare-label">Bad — 벽시계를 UTC 순간으로 고정</div>
-      <p>현지 알림이나 영업시간이 시간대 변경과 서머타임 뒤 사람이 정한 시각에서 어긋난다.</p>
+      <p>벽시계 뜻의 값(반복 일정·영업시간·알림 시각)을 <code>TIMESTAMPTZ</code> 하나로만 저장한다. 시간대가 바뀌거나 서머타임이 드나들면 사람이 정한 시각과 어긋난다.</p>
     </div>
     <div class="compare-good">
-      <div class="compare-label">Good — 뜻과 시간대 출처를 계약</div>
-      <p>순간, floating time, 지역 고정 벽시계를 구분하고 요청·기기·사용자 설정·레코드 중 시간대 출처를 정한다.</p>
+      <div class="compare-label">Good — 종류와 시간대 출처를 계약</div>
+      <p>순간, 받는 사람 지역을 따라가는 벽시계, 특정 지역에 묶인 벽시계를 구분하고, 순간으로 바꾸는 규칙과 시간대를 어디서 받는지를 계약에 정한다.</p>
     </div>
   </div>
   <p class="table-note">
     출처:
-    <a href="https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5" target="_blank" rel="noopener">RFC 5545 §3.3.5</a> ·
+    <a href="https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5" target="_blank" rel="noopener">RFC 5545 §3.3.5 — DATE-TIME</a> ·
     <a href="https://www.postgresql.org/docs/current/datatype-datetime.html" target="_blank" rel="noopener">PostgreSQL — Date/Time Types</a>
   </p>
 </section>
@@ -552,7 +619,7 @@ DO UPDATE SET updated_at = now();</code></pre>
 <section class="section" id="numbers">
   <div class="section-label">수치 기준 · Numbers</div>
   <h2 class="section-title">기본값과 용량 계획의 출발점</h2>
-  <p class="section-desc">운영 환경에서는 부하 테스트와 메트릭으로 조정하되 근거 없이 pool과 메모리를 늘리지 않는다.</p>
+  <p class="section-desc">pool 과 메모리 설정의 기본값·권장값, 그리고 HikariCP 가 권장하는 pool 크기 공식이다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>항목</th><th>값</th></tr></thead>
@@ -574,47 +641,47 @@ DO UPDATE SET updated_at = now();</code></pre>
 <section class="section" id="anti-patterns">
   <div class="section-label">안티패턴 · Anti-patterns</div>
   <h2 class="section-title">Bad / Good로 보는 피해야 할 9가지</h2>
-  <p class="section-desc">성능, 쓰기 무결성, 시각 모델에서 잘못된 선택과 교정 방향을 함께 대조한다.</p>
+  <p class="section-desc">앞의 4개는 조회 성능, 다음 3개는 쓰기 경로 무결성, 마지막 2개는 시각 저장에서 생기는 문제다.</p>
   <div class="compare-grid">
     <div class="compare-bad">
       <div class="compare-label">Bad — 관성적인 조회 최적화</div>
-      <p>모든 컬럼에 인덱스를 만들고 <code>SELECT *</code>와 lazy loading을 방치하며 pool을 무제한으로 키운다.</p>
+      <p>모든 컬럼에 인덱스를 만들고 <code>SELECT *</code>와 ORM 기본 lazy loading을 방치하며 pool 크기를 무제한으로 둔다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 쿼리와 부하로 결정</div>
-      <p>실제 쿼리 패턴과 실행 계획으로 최소 인덱스, 필요한 컬럼, 로딩 전략, pool 상한을 정한다.</p>
+      <p>실제 사용되는 쿼리 패턴에만 인덱스를 걸고, <code>EXPLAIN ANALYZE</code>로 실행 계획을 확인하며, eager loading으로 N+1을 없애고 pool 크기를 정한다.</p>
     </div>
   </div>
   <div class="compare-grid">
     <div class="compare-bad">
       <div class="compare-label">Bad — 앱 레벨에서 경합 방어</div>
-      <p>사전 SELECT와 if로 판단하고 영향 행 수 0을 성공 처리하며 partial unique와 다른 conflict target을 쓴다.</p>
+      <p>사전 <code>SELECT</code>와 <code>if</code>로 판단하고, 영향 행 수 0을 성공 처리하며, 조건부 unique 제약에 조건 없는 conflict target을 쓴다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — DB primitive로 보장</div>
-      <p>조건을 쓰기 SQL에 넣고 영향 행 수를 검사한다. cross-row 규칙은 제약, lock, Serializable과 재시도로 보호한다.</p>
+      <p>조건을 쓰기 SQL에 넣고 영향 행 수를 검사한다. cross-row 규칙은 제약, lock, <code>Serializable</code>과 재시도로 보호한다.</p>
     </div>
   </div>
   <div class="compare-grid">
     <div class="compare-bad">
       <div class="compare-label">Bad — 시각과 지역을 하나로 고정</div>
-      <p>벽시계를 <code>TIMESTAMPTZ</code> 하나로 저장하고 시간대·나라를 상수나 한 나라 기본값으로 박는다.</p>
+      <p>벽시계를 <code>TIMESTAMPTZ</code> 하나로 저장하고 시간대·나라를 코드 상수나 한 나라 기본값으로 박는다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">Good — 종류와 출처를 계약</div>
-      <p>순간과 두 종류의 벽시계를 구분하고 시간대의 출처와 서머타임 전환 규칙을 정한다.</p>
+      <p>순간과 두 종류의 벽시계를 구분하고 시간대를 어디서 받는지와 서머타임 전환 규칙을 정한다.</p>
     </div>
   </div>
   <div class="anti-list">
     <div class="anti-row"><div class="anti-name">모든 컬럼에 인덱스</div><div class="anti-problem">쓰기 성능 저하, 디스크 낭비, 옵티마이저 혼란.</div></div>
     <div class="anti-row"><div class="anti-name"><code>SELECT *</code></div><div class="anti-problem">불필요한 데이터 전송, covering index 활용 불가.</div></div>
-    <div class="anti-row"><div class="anti-name">ORM 기본 lazy loading 방치</div><div class="anti-problem">N+1로 쿼리 수가 데이터 크기에 비례해 폭증.</div></div>
-    <div class="anti-row"><div class="anti-name">Pool 크기 무제한</div><div class="anti-problem">연결 한도 초과, 메모리 고갈, 전체 서비스 장애.</div></div>
-    <div class="anti-row"><div class="anti-name">사전 SELECT + 앱 레벨 if</div><div class="anti-problem">두 문장 사이의 창에서 중복 생성과 이중 차감 발생.</div></div>
-    <div class="anti-row"><div class="anti-name">영향 행 수 0을 성공 처리</div><div class="anti-problem">갱신되지 않았는데 성공으로 보고되어 가드가 무의미.</div></div>
-    <div class="anti-row"><div class="anti-name">partial unique에 조건 없는 <code>ON CONFLICT</code></div><div class="anti-problem">arbiter inference 실패 또는 의도하지 않은 제약 회피.</div></div>
-    <div class="anti-row"><div class="anti-name">벽시계를 <code>TIMESTAMPTZ</code> 하나로만 저장</div><div class="anti-problem">시간대·서머타임 변화 뒤 사람이 정한 시각과 어긋남.</div></div>
-    <div class="anti-row"><div class="anti-name">시간대·나라를 코드 상수로 고정</div><div class="anti-problem">다른 지역 사용자와 지역별 서머타임 규칙을 표현하지 못함.</div></div>
+    <div class="anti-row"><div class="anti-name">ORM 기본 lazy loading 방치</div><div class="anti-problem">N+1 문제로 쿼리 수가 데이터 크기에 비례하여 폭증.</div></div>
+    <div class="anti-row"><div class="anti-name">Pool 크기 무제한</div><div class="anti-problem">DB 연결 한도 초과, 메모리 고갈, 전체 서비스 장애.</div></div>
+    <div class="anti-row"><div class="anti-name">사전 <code>SELECT</code> + 앱 레벨 <code>if</code> 로 경합 방어</div><div class="anti-problem">두 문장 사이의 창이 닫히지 않는다. 부하가 오르면 중복 생성·이중 차감이 실제로 발생한다.</div></div>
+    <div class="anti-row"><div class="anti-name">조건부 갱신 후 <strong>영향 행 수 0</strong> 을 성공으로 처리</div><div class="anti-problem">가드가 있으나 마나 — 갱신되지 않았는데 성공으로 보고된다.</div></div>
+    <div class="anti-row"><div class="anti-name">조건부 unique 제약에 조건 없는 <code>ON CONFLICT</code> 대상</div><div class="anti-problem">arbiter inference 실패 또는 의도하지 않은 제약 회피. 간헐적 중복 키 오류로 나타난다.</div></div>
+    <div class="anti-row"><div class="anti-name">벽시계 뜻의 값(반복 일정·영업시간·알림 시각)을 <code>TIMESTAMPTZ</code> 하나로만 저장</div><div class="anti-problem">시간대가 바뀌거나 서머타임이 드나들면 사람이 정한 시각과 어긋난다.</div></div>
+    <div class="anti-row"><div class="anti-name">시간대·나라를 코드 상수나 한 나라 기본값으로 박음</div><div class="anti-problem">다른 지역 사용자와 그 지역의 서머타임 규칙을 표현하지 못한다.</div></div>
   </div>
 </section>
 
@@ -628,35 +695,40 @@ DO UPDATE SET updated_at = now();</code></pre>
       <span class="check" aria-hidden="true"></span>
       <div class="body">
         <strong>GIN 인덱스는 쓰기 성능을 저하시킨다</strong>
-        <code>fastupdate=on</code>으로 완화할 수 있지만 첫 읽기에서 펜딩 리스트를 정리해 latency 스파이크가 생길 수 있다.
+        GIN은 역인덱스 구조로 삽입 시 인덱스 갱신 비용이 크다. <code>fastupdate=on</code>(기본값)으로 완화할 수 있지만,
+        첫 번째 읽기에서 펜딩 리스트를 정리하므로 읽기 latency 스파이크가 발생할 수 있다.
       </div>
     </li>
     <li>
       <span class="check" aria-hidden="true"></span>
       <div class="body">
-        <strong>EXPLAIN과 EXPLAIN ANALYZE는 다르다</strong>
-        전자는 통계 기반 예측이고 후자는 실제 실행이다. 차이가 크면 <code>ANALYZE</code>로 통계를 갱신한다.
+        <strong>EXPLAIN과 EXPLAIN ANALYZE 결과가 다를 수 있다</strong>
+        <code>EXPLAIN</code>은 통계 기반 예측이고, <code>EXPLAIN ANALYZE</code>는 실제 실행 결과다. 통계가 오래되면
+        예측 row 수와 실제 row 수가 크게 다를 수 있다. <code>ANALYZE</code> 명령으로 통계를 갱신한다.
       </div>
     </li>
     <li>
       <span class="check" aria-hidden="true"></span>
       <div class="body">
-        <strong><code>Serializable</code>은 기본값이 아니다</strong>
-        직렬화 실패 재시도와 abort율 관측이 필요하다. cross-row·absence·aggregate invariant에만 후보로 올린다.
+        <strong><code>Serializable</code> 은 기본값이 아니다</strong>
+        모든 write path 에 걸면 직렬화 실패 재시도 설계와 abort율 관측이 따라와야 한다.
+        위 <a href="#write-path">§8 표의 세 수단</a> 중 cross-row·absence·aggregate invariant 에만 후보로 올린다.
       </div>
     </li>
     <li>
       <span class="check" aria-hidden="true"></span>
       <div class="body">
-        <strong><code>READ COMMITTED</code> + 복잡한 search condition을 “안전”으로 일반화하지 않는다</strong>
-        조건부 UPDATE 하나가 cross-row predicate 전체를 보호한다고 서술하지 않는다.
+        <strong><code>READ COMMITTED</code> + 복잡한 search condition 을 "안전" 으로 서술하지 마라</strong>
+        PostgreSQL 문서 자신이 이 조합은 일관성 판단에 부적합할 수 있다고 경고한다. 조건부 <code>UPDATE</code> 하나로
+        cross-row predicate 까지 덮는다고 일반화하면 안 된다.
       </div>
     </li>
     <li>
       <span class="check" aria-hidden="true"></span>
       <div class="body">
         <strong>Connection pool exhaustion은 deadlock처럼 보인다</strong>
-        모든 연결이 점유되면 새 요청이 timeout까지 멈춘다. pool 사용률을 반드시 모니터링한다.
+        모든 커넥션이 점유된 상태에서 새 요청이 커넥션을 기다리면 타임아웃까지 멈춘다. 로그에는 "connection timeout"이지만
+        증상은 서비스 전체 행(hang)이므로 deadlock으로 오진하기 쉽다. 모니터링에 pool 사용률 메트릭을 반드시 포함한다.
       </div>
     </li>
   </ul>
