@@ -25,6 +25,7 @@ user-invocable: true
 11. **Linear-style 경량 spec 은 전략 문맥을 흘릴 수 있다** — issue/project template 중심 구조는 planning-execution 통합에 강하지만, 복잡한 전략 배경/의사결정 근거는 별도 허브 문서(Notion 등)로 보완 필요. 출처: [Linear Issue Templates](https://linear.app/docs/issue-templates), [Project Templates](https://linear.app/docs/project-templates).
 12. **공개 문서형 spec (Stripe 패턴) 은 PRD 대체재가 아니다** — integration contract 로 쓰일 수는 있으나 내부 의사결정 근거, trade-off, 비범위는 반드시 별도 PRD 에 남겨야 한다. 출처: [Stripe Docs — Products & Prices](https://docs.stripe.com/products-prices/how-products-and-prices-work).
 13. **요청한 범위만 — 임의 섹션·기능 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 PRD 의 특정 섹션(예: Problem + Success Metric)만 요청하면 그 범위만 작성한다. "PRD 니까 완결돼야 한다"는 이유로 요청하지 않은 기능·릴리스 계획·KPI·로드맵을 임의로 끼워 넣지 마라. Shape Up 의 appetite 는 "fixed time, variable scope" — appetite 를 넘는 scope 확장은 그 자체가 규율 위반이다. 표준상 빠지면 안 되는 섹션(Non-goals, Open Questions) 이 있으면 추가 **여부를 먼저 알리고** 확인한다. discovery 산출물이 비면 PRD 단계로 임의 진주하지 말고 plan-discover 로 되돌린다 (insights-report #1 excessive_changes / over-engineering 대응 — 53 wrong_approach + 38 misunderstood). 출처: [Basecamp Shape Up §Chapter 6 — Set the Appetite](https://basecamp.com/shapeup/1.5-chapter-06).
+14. **폐기한 결정은 비범위 절 한 곳에 네 칸으로 적는다** — 사용자가 버리기로 한 기능·설정 항목은 이 PRD 의 `## Non-goals (폐기한 결정 포함)` 표(Shape Up 은 `## No-gos`)에 `하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적` 한 줄로 적는다. 결정 원문은 여기 하나다 — 디자인 승인 기록 · 작업 계약 · 핸드오프는 이 PRD 경로를 가리키고 결정을 다시 쓰지 않는다. PRD 를 쓴 뒤에 나온 폐기 결정도 새 파일을 만들지 말고 이 표에 한 줄 더한다. `코드에 남은 흔적` 칸(서버 필드 · 호출되지 않는 화면 파일 등)은 채울 빈틈이 아니라 치울 목록이다 — 흔적을 새 요구로 옮겨 적지 말고, 되살려야 할 것 같으면 사용자에게 먼저 묻는다. 폐기는 영구 금지가 아니다 — 범위 칸(`이번 PRD` · `이번 사이클` · `제품 전체`)이 그 결정이 걸친 폭이고, 다시 꺼낼지는 사용자가 정한다. 하지 않는 것 · 이유 칸은 Shape Up No-gos 가 근거이고 범위 · 흔적 칸은 이 킷의 운영 규칙이다. 실측(`/insights` 2026-09-24 F20): 사용자가 이미 폐기한 시간대·국가 설정 항목을 다시 넣었다. 출처: `docs/planning/prd-patterns.md` §폐기한 결정, [Basecamp Shape Up §Chapter 6](https://basecamp.com/shapeup/1.5-chapter-06), [Agile Alliance — INVEST (Negotiable)](https://agilealliance.org/glossary/invest/).
 
 # Process
 
@@ -49,9 +50,9 @@ user-invocable: true
 
 | 포맷 | 적합 | 산출물 구조 | 출처 |
 |------|------|-------------|------|
-| **PR/FAQ** (Amazon) | 신규 제품, 큰 기능, 외부 고객 향 | 보도자료(1p) + 내부 FAQ + 외부 FAQ | [About Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes) |
+| **PR/FAQ** (Amazon) | 신규 제품, 큰 기능, 외부 고객 향 | 보도자료(1p) + 내부 FAQ + 외부 FAQ + Non-goals | [About Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes) |
 | **Shape Up Pitch** (Basecamp) | 6주 이내 해결 가능한 문제 중심 기능 | Problem + Appetite + Solution(스케치) + Rabbit holes + No-gos | [Shape Up §6](https://basecamp.com/shapeup/1.5-chapter-06), [§9](https://basecamp.com/shapeup/2.3-chapter-09) |
-| **Linear-style Spec** | 작은 기능, 엔지니어링 중심 | Problem + Solution + Open questions + Milestones | [Linear Issue Templates](https://linear.app/docs/issue-templates) |
+| **Linear-style Spec** | 작은 기능, 엔지니어링 중심 | Problem + Solution + Non-goals + Open questions + Milestones | [Linear Issue Templates](https://linear.app/docs/issue-templates) |
 | **Design Sprint 산출물** (GV) | 불확실성 큰 신규 흐름, prototype 검증 | Map + Sketch + Decide + Storyboard + Prototype/Test | [GV Sprint](https://www.gv.com/sprint/) |
 
 ## Step 3: 작성
@@ -82,6 +83,11 @@ user-invocable: true
 - 어떻게 작동하나요?
 - 가격은?
 - 지원 플랫폼은?
+
+## Non-goals (폐기한 결정 포함)
+| 하지 않는 것 | 이유 | 범위 | 코드에 남은 흔적 |
+|---|---|---|---|
+| (명시적 제외 · 폐기한 결정) | (왜 뺐나) | 이번 PRD / 이번 사이클 / 제품 전체 | (서버 필드 · 화면 파일 — 없으면 `없음`) |
 ```
 
 ### Shape Up Pitch 템플릿
@@ -106,7 +112,9 @@ user-invocable: true
 - (시간 먹을 수 있는 난제)
 
 ## No-gos
-- (명시적 제외)
+| 하지 않는 것 | 이유 | 범위 | 코드에 남은 흔적 |
+|---|---|---|---|
+| (명시적 제외 · 폐기한 결정) | (왜 뺐나) | 이번 PRD / 이번 사이클 / 제품 전체 | (서버 필드 · 화면 파일 — 없으면 `없음`) |
 ```
 
 ### Linear-style Spec 템플릿
@@ -115,6 +123,10 @@ user-invocable: true
 # [제목]
 ## Problem
 ## Proposal
+## Non-goals (폐기한 결정 포함)
+| 하지 않는 것 | 이유 | 범위 | 코드에 남은 흔적 |
+|---|---|---|---|
+| (명시적 제외 · 폐기한 결정) | (왜 뺐나) | 이번 PRD / 이번 사이클 / 제품 전체 | (서버 필드 · 화면 파일 — 없으면 `없음`) |
 ## Milestones
 - [ ] M1
 - [ ] M2
@@ -128,6 +140,8 @@ user-invocable: true
 - [ ] Problem 에 specific user story 가 있는가
 - [ ] Success metric 에 기준선이 있는가 (X% → Y%)
 - [ ] Non-goals 가 3개 이상인가
+- [ ] 폐기한 결정마다 이유 · 범위 · 코드에 남은 흔적 칸이 채워졌는가 (흔적이 없으면 `없음`)
+- [ ] 코드에 남은 흔적을 Solution · Proposal · Milestones · FAQ 에 새 요구로 옮겨 적지 않았는가
 - [ ] Rabbit holes / Open questions 가 최소 1개 이상인가
 - [ ] 기술 선택을 PRD 에 섞지 않았는가 (구현은 sprint-contract 에서)
 
