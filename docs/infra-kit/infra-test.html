@@ -178,6 +178,7 @@
   .gotcha-check,.step-index,.evidence-index{flex-shrink:0;width:30px;height:30px;border:2px solid var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;margin-top:1px;font-size:.8rem;color:var(--accent);font-weight:800}
   .gotcha-body,.step-body,.evidence-body{color:var(--text2);font-size:1rem;line-height:1.75;min-width:0}
   .gotcha-body strong,.step-body strong,.evidence-body strong{color:var(--text)}
+  .gotcha-body ul{padding-left:20px;margin:10px 0 0}
   .section-desc{color:var(--text2);font-size:1rem;line-height:1.75;margin-bottom:28px;max-width:860px}
   .callout{background:var(--accent-dim);border:1px solid rgba(52,211,153,.28);border-radius:var(--radius);padding:22px 24px;color:var(--text2);margin:22px 0}
   .callout strong{color:var(--accent2)}
@@ -291,19 +292,25 @@
       <div class="gotcha-list">
         <div class="gotcha"><div class="gotcha-check">01</div><div class="gotcha-body"><strong>스택 감지 없이 테스트 생성 금지.</strong> Terraform 프로젝트에 Pulumi 테스트를 만들지 않는다. Step 0 감지가 필수다.</div></div>
         <div class="gotcha"><div class="gotcha-check">02</div><div class="gotcha-body"><strong><code>terraform validate</code>만으로 충족 선언 금지.</strong> validate는 구문 검사다. 로직은 <code>terraform test</code> 또는 Terratest로 확인한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">03</div><div class="gotcha-body"><strong>프로덕션에 직접 테스트 실행 금지.</strong> plan/dry-run 또는 격리 환경을 쓰며 Terratest auto-destroy 외에는 테스트에서 apply를 호출하지 않는다.</div></div>
+        <div class="gotcha"><div class="gotcha-check">03</div><div class="gotcha-body"><strong>프로덕션 인프라에 직접 테스트 실행 금지.</strong> IaC 테스트는 반드시 plan/dry-run 모드 또는 격리된 테스트 환경에서 실행한다. <code>terraform apply</code>를 테스트에서 호출하면 안 된다(Terratest의 auto-destroy 제외).</div></div>
         <div class="gotcha"><div class="gotcha-check">04</div><div class="gotcha-body"><strong>lint와 빌드 테스트를 혼동하지 않는다.</strong> hadolint는 정적 분석이고 실제 빌드는 <code>docker build --target test</code>나 multi-stage test로 분리한다.</div></div>
         <div class="gotcha"><div class="gotcha-check">05</div><div class="gotcha-body"><strong>CI 테스트에서 시크릿 노출 금지.</strong> <code>act</code>의 <code>.secrets</code>는 <code>.gitignore</code>에 넣고 환경 변수 덤프를 남기지 않는다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">06</div><div class="gotcha-body"><strong>K8s 도구 혼용 주의.</strong> kubeval 대신 kubeconform 또는 <code>kubectl --dry-run=server</code>를 쓰고 Helm은 template 파이프라인으로 검증한다.</div></div>
+        <div class="gotcha"><div class="gotcha-check">06</div><div class="gotcha-body"><strong>K8s manifest 검증 도구 혼용 주의.</strong> kubeval은 deprecated다. kubeconform 또는 <code>kubectl --dry-run=server</code>를 쓴다. Helm 차트는 <code>helm template | kubeconform</code> 파이프라인으로 검증한다.</div></div>
         <div class="gotcha"><div class="gotcha-check">07</div><div class="gotcha-body"><strong>보안 스캔을 테스트로 대체하지 않는다.</strong> Trivy·Snyk·Checkov는 CI 게이트의 별도 단계로 둔다.</div></div>
         <div class="gotcha"><div class="gotcha-check">08</div><div class="gotcha-body"><strong>OpenTofu/Terraform 호환성을 확인한다.</strong> OpenTofu 1.7+ mocking과 Terraform 1.6+ test 지원을 구분한다.</div></div>
         <div class="gotcha"><div class="gotcha-check">09</div><div class="gotcha-body"><strong>backend-test와 sibling consistency를 유지한다.</strong> Step 0 독립 감지, 기존 패턴 탐색, 외부 실환경 강제 금지를 함께 유지한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">10</div><div class="gotcha-body"><strong>ephemeral fixture에 평문 시크릿을 넣지 않는다.</strong> 환경 변수나 Vault dev 모드로 전달한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">11</div><div class="gotcha-body"><strong>셸 결과를 exit code로 전파한다.</strong> 상태 5종은 taxonomy를 SSOT로 삼고 pipefail·명시적 bash·실패 누적·nullglob를 함께 적용한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">12</div><div class="gotcha-body"><strong>도구 미설치는 PASS가 아니다.</strong> <code>[미검증] TOOL_OR_ENV_MISSING</code>과 막는 것·우회·통제 불가 사유·재검증 명령을 기록한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">13</div><div class="gotcha-body"><strong>핵심 도구 부재를 위반으로 오보하지 않는다.</strong> 첫 rule 전에 검사하고 없으면 <code>EXECUTION_ERROR</code>와 exit 2로 종료한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">14</div><div class="gotcha-body"><strong>핀닝을 grep으로 판정하지 않는다.</strong> YAML 파서로 잡·스텝의 <code>uses</code>를 모두 열거해 full SHA 또는 digest를 검증한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">15</div><div class="gotcha-body"><strong>Dependabot에는 실제 생태계만 등록한다.</strong> manifest와 lockfile 탐지 결과를 따른다.</div></div>
+        <div class="gotcha"><div class="gotcha-check">10</div><div class="gotcha-body"><strong>ephemeral 값을 쓰는 모듈의 테스트 fixture에 평문 시크릿을 넣지 않는다.</strong> Terraform 1.10+ <code>ephemeral</code> 블록이나 OpenTofu 1.7+ write-only 인수로 시크릿을 다루는 모듈은 <code>terraform test</code> fixture에서도 평문 주입 금지다. <code>run "xxx" { variables { secret = ... } }</code> 블록 대신 환경 변수나 Vault dev 모드를 쓴다. 출처: <a href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>.</div></div>
+        <div class="gotcha"><div class="gotcha-check">11</div><div class="gotcha-body"><strong>셸 검증 스크립트는 결과 상태를 exit code로 전파한다.</strong> 이 스킬이 만드는 스크립트는 CI 에서 통과 여부를 가르는 검사로 쓰인다. 결함을 찾고도 <code>echo "WARN: ..."</code>만 하고 0으로 끝나면 파이프라인은 항상 통과하고 스크립트는 검증하는 척만 한다. 상태어 5종(<code>PASS</code> · <code>VIOLATION</code> · <code>SKIP_NO_TARGET</code> · <code>TOOL_OR_ENV_MISSING</code> · <code>EXECUTION_ERROR</code>)과 exit 매핑, 머리말 4 카운터, 핵심/선택 도구 분리는 <code>../../references/gate-result-taxonomy.md</code>가 SSOT이므로 여기서 다시 정의하지 않는다. 그 위에 아래 네 가지를 만드는 모든 셸 스크립트에 함께 적용한다.
+          <ul>
+            <li><strong>파이프 실패</strong> — <code>set -euo pipefail</code> 없이 파이프를 쓰지 않는다. 파이프는 마지막 명령의 exit code만 평가한다. Docker best practices도 <code>RUN</code> 파이프에 <code>set -o pipefail &amp;&amp;</code>를 앞에 두라고 적는다.</li>
+            <li><strong>GH Actions 기본 셸</strong> — 워크플로 <code>run</code> 스텝은 <code>shell: bash</code>를 명시한다. 비-Windows 기본 셸은 <code>bash -e {0}</code>라 pipefail이 없다. 명시해야 <code>bash --noprofile --norc -eo pipefail {0}</code>가 된다.</li>
+            <li><strong>실패 누적 후 종료</strong> — 첫 실패에서 죽지 말고 <code>fail=1</code>로 누적한 뒤 마지막에 <code>exit "$fail"</code>. 전수 리포트를 잃지 않으면서 막는 기능은 유지된다.</li>
+            <li><strong>매칭 없는 glob</strong> — <code>shopt -s nullglob</code>이나 배열 길이 검사 없이 <code>for f in dir/*.yml</code>을 쓰지 않는다. 매칭이 없으면 리터럴 패턴 한 번으로 루프가 돌아 없는 파일을 오보한다(POSIX glob 비확장 동작).</li>
+          </ul></div></div>
+        <div class="gotcha"><div class="gotcha-check">12</div><div class="gotcha-body"><strong>검사 도구 미설치는 PASS가 아니라 <code>[미검증]</code>이다(Completion Evidence Gate · skill-design-guide §3.7).</strong> <code>hadolint</code> · <code>actionlint</code> · <code>kubeconform</code> · <code>conftest</code> · <code>container-structure-test</code>는 미설치가 흔하다. 도구를 못 돌렸으면 "검증 항목 N 건 통과"에 넣지 않는다. 완료 보고에는 실행한 명령과 그 출력을 인용하고, 못 돌린 항목은 <code>[미검증] TOOL_OR_ENV_MISSING</code>을 달아 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워 따로 적는다. 막는 것은 <code>command -v &lt;도구&gt;</code>와 그 출력이고, 시도한 우회가 정말 없으면 칸을 비우지 말고 <code>없음 — 이유</code>를 적는다(네 칸 정의: <code>harness/docs/guides/skill-design-guide.md</code> §3.7 Completion Evidence Gate 3 항). "테스트를 생성했으니 검증됐다"는 자기보고이지 증거가 아니다. 분기·상태어는 <code>../../references/gate-result-taxonomy.md</code>, 마커 의미·임계값·카운터 분리는 <code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol이 SSOT다.</div></div>
+        <div class="gotcha"><div class="gotcha-check">13</div><div class="gotcha-body"><strong>핵심 도구 부재를 rule 위반으로 오보하지 않는다(실측).</strong> <code>grep -q ... "$f"</code>는 grep이 없을 때도 0이 아닌 값으로 끝난다. 그래서 <code>grep</code>이 PATH에 없는 환경에서 스크립트가 "checkout 스텝 없음 VIOLATION"을 오보하고 exit 1로 끝났다(실제 관측). 검사 스크립트가 기대는 핵심 도구(<code>grep</code> · YAML 파서용 <code>python3</code>)는 머리말 출력 직후 · 첫 rule 실행 전에 <code>command -v</code>로 검사하고, 없으면 rule을 하나도 돌리지 말고 <code>EXECUTION_ERROR</code>와 exit 2로 끝낸다. <code>hadolint</code> 같은 선택 도구는 그 rule만 <code>TOOL_OR_ENV_MISSING</code>으로 적고 나머지 검사는 계속한다(층 구분 근거: <code>../../references/gate-result-taxonomy.md</code> §핵심 도구 / 선택 도구 분리).</div></div>
+        <div class="gotcha"><div class="gotcha-check">14</div><div class="gotcha-body"><strong>워크플로 액션 핀닝을 grep으로 검사하지 않는다(실측 오탐).</strong> 패턴을 좁힌 grep조차 정책을 코드에 숨긴다. <code>grep -vE 'uses:[[:space:]]*actions/'</code>는 GitHub-owned 액션을 정책 질문으로 남기지 않고 조용히 면제하므로, 모든 <code>uses:</code>가 뮤터블 태그인 레포에서도 "미핀닝 0 건"을 보고한다(실측: 6 건 전부 미검출). YAML 파서로 <code>jobs.&lt;id&gt;.uses</code>(재사용 워크플로 호출)와 <code>jobs.&lt;id&gt;.steps[].uses</code>(스텝 액션)를 둘 다 열거하고, 로컬 <code>./</code>·<code>../</code>만 면제하며, 원격 참조는 40자 커밋 SHA를, <code>docker://</code>는 <code>@sha256:</code> digest를 기본으로 요구한다. GitHub-owned <code>actions/*</code> 면제는 명시적 opt-in 플래그로만 열고 그 상태를 출력에 찍는다. 출처: <a href="https://docs.github.com/en/actions/reference/security/secure-use">GitHub Actions secure use</a>(full-length commit SHA만 immutable release로 취급하며 태그는 이동·삭제 위험이 있다).</div></div>
+        <div class="gotcha"><div class="gotcha-check">15</div><div class="gotcha-body"><strong>Dependabot은 실제 manifest/lockfile이 있는 생태계만 등록한다.</strong> <code>.github/dependabot.yml</code>에 없는 생태계를 넣으면 Dependabot이 매 실행마다 실패하고, 그 실패가 일상화되면 진짜 알림도 무시된다. <code>github-actions</code>는 워크플로가 있으면 항상 검토 대상이고, 나머지는 탐지된 파일이 있을 때만 추가한다(<code>package-lock.json</code>/<code>yarn.lock</code> → <code>npm</code>, <code>Dockerfile</code> → <code>docker</code>, <code>requirements.txt</code>/<code>poetry.lock</code> → <code>pip</code>, <code>Cargo.lock</code> → <code>cargo</code>, <code>go.sum</code> → <code>gomod</code>). 로컬 액션과 <code>docker://</code> 참조는 업데이트 대상에서 제한이 있다. 출처: <a href="https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference">Dependabot options reference</a>.</div></div>
       </div>
     </section>
 
@@ -326,18 +333,19 @@
 
       <div class="subsection">
         <h3>Step 0 · 인프라 스택 감지</h3>
+        <p class="section-desc">프로젝트 루트에서 아래 파일/디렉터리를 탐색한다.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>감지 대상</th><th>스택</th><th>테스트 도구</th></tr></thead>
             <tbody>
-              <tr><td><code>*.tf</code> / <code>.terraform/</code></td><td>Terraform</td><td>terraform test, Terratest</td></tr>
-              <tr><td><code>Pulumi.yaml</code> / <code>Pulumi.*.yaml</code></td><td>Pulumi</td><td>preview --expect-no-changes, Policy as Code</td></tr>
-              <tr><td><code>cdk.json</code> / <code>lib/*.ts</code></td><td>AWS CDK</td><td>cdk synth + snapshot</td></tr>
-              <tr><td>Dockerfile / compose</td><td>Container</td><td>hadolint, build, structure test</td></tr>
-              <tr><td><code>.github/workflows/*.yml</code></td><td>GitHub Actions</td><td>actionlint, act</td></tr>
+              <tr><td><code>*.tf</code> / <code>.terraform/</code></td><td>Terraform</td><td><code>terraform test</code>, Terratest</td></tr>
+              <tr><td><code>Pulumi.yaml</code> / <code>Pulumi.*.yaml</code></td><td>Pulumi</td><td><code>pulumi preview --expect-no-changes</code>, Policy as Code</td></tr>
+              <tr><td><code>cdk.json</code> / <code>lib/*.ts</code> (CDK)</td><td>AWS CDK</td><td><code>cdk synth</code> + snapshot test</td></tr>
+              <tr><td><code>Dockerfile</code> / <code>docker-compose*.yml</code></td><td>Container</td><td>hadolint, docker build, container-structure-test</td></tr>
+              <tr><td><code>.github/workflows/*.yml</code></td><td>GitHub Actions CI</td><td>actionlint, act (로컬 실행)</td></tr>
               <tr><td><code>.gitlab-ci.yml</code></td><td>GitLab CI</td><td>gitlab-ci-lint</td></tr>
-              <tr><td>k8s / helm / kustomize</td><td>Kubernetes</td><td>kubeconform, template, build</td></tr>
-              <tr><td>ansible / playbook</td><td>Ansible</td><td>ansible-lint, molecule</td></tr>
+              <tr><td><code>k8s/</code> / <code>helm/</code> / <code>kustomize/</code></td><td>Kubernetes</td><td>kubeconform, <code>helm template</code>, kustomize build</td></tr>
+              <tr><td><code>ansible/</code> / <code>*.yml</code> (playbook)</td><td>Ansible</td><td>ansible-lint, molecule</td></tr>
             </tbody>
           </table>
         </div>
@@ -345,16 +353,17 @@
 
       <div class="subsection">
         <h3>Step 1 · 대상 분석과 자동 추론</h3>
+        <p class="section-desc"><code>$ARGUMENTS</code>에서 대상 파일/디렉터리와 테스트 유형을 읽어 낸다. 유형을 지정하지 않으면 아래처럼 추론한다.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>대상</th><th>유형</th></tr></thead>
+            <thead><tr><th>대상 파일</th><th>테스트 유형</th></tr></thead>
             <tbody>
-              <tr><td><code>*.tf</code></td><td>iac — terraform test</td></tr>
-              <tr><td>Dockerfile</td><td>container — hadolint + build</td></tr>
-              <tr><td>docker-compose</td><td>container — config validate + up --dry-run</td></tr>
-              <tr><td>GitHub workflows</td><td>cicd — actionlint + 구조 검증</td></tr>
-              <tr><td>k8s YAML, helm</td><td>k8s — kubeconform + template</td></tr>
-              <tr><td>보안 관련 요청</td><td>security — Checkov/tfsec/Trivy config</td></tr>
+              <tr><td><code>*.tf</code> 모듈</td><td>iac (terraform test)</td></tr>
+              <tr><td><code>Dockerfile</code></td><td>container (hadolint + build)</td></tr>
+              <tr><td><code>docker-compose*.yml</code></td><td>container (config validate + up --dry-run)</td></tr>
+              <tr><td><code>.github/workflows/*.yml</code></td><td>cicd (actionlint + 구조 검증)</td></tr>
+              <tr><td><code>k8s/*.yaml</code>, <code>helm/</code></td><td>k8s (kubeconform + template)</td></tr>
+              <tr><td><code>*</code> (보안 관련 요청)</td><td>security (Checkov/tfsec/Trivy config)</td></tr>
             </tbody>
           </table>
         </div>
@@ -367,10 +376,10 @@
             <div class="card-num">DISCOVERY</div>
             <h3>기존 자산</h3>
             <ul>
-              <li><code>tests/</code>, <code>test/</code>의 tftest와 Go test</li>
-              <li>Makefile·Taskfile의 test, lint, validate 타깃</li>
-              <li>CI의 lint·validate 단계</li>
-              <li>hadolint, trivy 설정 파일</li>
+              <li><code>tests/</code> 또는 <code>test/</code> 안의 <code>*.tftest.hcl</code>, <code>*_test.go</code> (Terratest)</li>
+              <li><code>Makefile</code> 또는 <code>Taskfile.yml</code>의 test/lint/validate 타깃</li>
+              <li>CI 파이프라인 안의 lint/validate 단계</li>
+              <li><code>.hadolint.yaml</code>, <code>.trivyignore</code> 같은 설정 파일</li>
             </ul>
           </article>
           <article class="card">
@@ -387,34 +396,54 @@
         <pre><code># tests/{module}.tftest.hcl
 run "verify_resource_creation" {
   command = plan
+
   variables {
-    environment   = "test"
+    environment = "test"
     instance_type = "t3.micro"
   }
+
   assert {
     condition     = aws_instance.main.instance_type == "t3.micro"
     error_message = "Instance type mismatch"
   }
 }
+
 run "verify_output_format" {
   command = plan
+
   assert {
     condition     = can(regex("^[a-z]", output.resource_name))
     error_message = "Resource name must start with lowercase"
   }
 }</code></pre>
-        <p class="mini-title">Terratest</p>
-        <pre><code>func TestModule(t *testing.T) {
+        <p class="mini-title">Terratest (Go 기반, 복잡한 검증용)</p>
+        <pre><code>// test/{module}_test.go
+package test
+
+import (
+    "testing"
+    "github.com/gruntwork-io/terratest/modules/terraform"
+    "github.com/stretchr/testify/assert"
+)
+
+func TestModule(t *testing.T) {
     opts := &amp;terraform.Options{
         TerraformDir: "../modules/{module}",
-        Vars: map[string]interface{}{"environment": "test"},
+        Vars: map[string]interface{}{
+            "environment": "test",
+        },
     }
     defer terraform.Destroy(t, opts)
     terraform.InitAndPlan(t, opts)
-    // Apply가 필요하면 격리 환경에서만
+    // Plan만 검증. Apply가 필요하면 격리 환경에서만
 }</code></pre>
         <p class="mini-title">Pulumi</p>
-        <pre><code>pulumi.setMocks({ /* mock provider */ });
+        <pre><code>// __tests__/infra.test.ts
+import * as pulumi from "@pulumi/pulumi/runtime";
+import { describe, it, expect, beforeAll } from "vitest";
+
+pulumi.setMocks({ /* mock provider */ });
+
 describe("Infrastructure", () =&gt; {
   it("should create bucket with versioning", async () =&gt; {
     const { bucket } = await import("../index");
@@ -432,17 +461,18 @@ describe("Infrastructure", () =&gt; {
           <article class="card">
             <div class="card-num">STATIC</div>
             <h3>Dockerfile lint</h3>
-            <pre><code># .hadolint.yaml
+            <pre><code># .hadolint.yaml (설정 파일 생성)
 ignored:
-  - DL3008
+  - DL3008  # Pin versions in apt-get (프로젝트 정책에 따라)
 trustedRegistries:
   - docker.io</code></pre>
-            <p><code>hadolint Dockerfile</code></p>
+            <p>실행: <code>hadolint Dockerfile</code></p>
           </article>
           <article class="card">
             <div class="card-num">STRUCTURE</div>
             <h3>Container Structure Test</h3>
-            <pre><code>schemaVersion: "2.0.0"
+            <pre><code># container-structure-test.yaml
+schemaVersion: "2.0.0"
 metadataTest:
   exposedPorts: ["8080"]
   cmd: []
@@ -456,26 +486,32 @@ commandTests:
     command: "curl"
     args: ["-f", "http://localhost:8080/health"]
     exitCode: 0</code></pre>
+            <p>실행: <code>container-structure-test test --image {image} --config container-structure-test.yaml</code></p>
           </article>
         </div>
       </div>
 
       <div class="subsection">
         <h3>Step 5 · CI 파이프라인 테스트 생성</h3>
-        <pre><code># 정적 분석
+        <pre><code># actionlint 정적 분석
 actionlint .github/workflows/*.yml</code></pre>
-        <p class="section-desc">구조 검증 스크립트는 Gotcha 11·13·14의 골격을 함께 적용하고 상태·exit 정의는 taxonomy를 인용한다.</p>
+        <p class="section-desc"><strong>구조 검증 스크립트</strong> — Gotcha 11의 4 항목 + Gotcha 13(핵심/선택 도구 분리) + Gotcha 14(YAML 파서 핀닝)을 모두 적용한 골격이다. <strong>이 골격을 그대로 따른다.</strong> 상태어·exit 매핑은 <code>../../references/gate-result-taxonomy.md</code>를 인용한 것이며 스크립트 안에서 재정의하지 않는다.</p>
         <pre><code>#!/usr/bin/env bash
+# tests/ci-validation.sh — 검사 결과를 상태 taxonomy 로 분류해 exit code 로 CI 에 전파한다.
+# 상태·exit 정의 SSOT: infra-kit/references/gate-result-taxonomy.md — 여기서 재정의하지 않는다.
 set -euo pipefail
 shopt -s nullglob
 
 WF_DIR="${WF_DIR:-.github/workflows}"
 PIN_ALLOW_FIRST_PARTY_TAGS="${PIN_ALLOW_FIRST_PARTY_TAGS:-0}"
-CORE_TOOLS="grep"
-OPTIONAL_TOOLS="python3"
+CORE_TOOLS="grep"          # 없으면 검사 자체가 불가 → EXECUTION_ERROR
+OPTIONAL_TOOLS="python3"   # 없으면 해당 rule 만 [미검증]
 
 have() { command -v "${1}" &gt;/dev/null 2&gt;&amp;1; }
+# 외부 명령에 의존하지 않고 공백 구분 토큰 수를 센다 — 머리말은 도구가 없는 환경에서도 찍혀야 한다
+# shellcheck disable=SC2086  # 의도적 단어 분리
 count() { set -- ${1:-}; echo "$#"; }
+
 workflows=("$WF_DIR"/*.yml "$WF_DIR"/*.yaml)
 
 tools_ok=""; tools_missing=""
@@ -489,71 +525,168 @@ echo "규칙 소스 수     : 2  (checkout-존재 · 원격-action-SHA핀닝)"
 echo "사용 가능 도구 수: $(count "$tools_ok") [${tools_ok:- 없음} ]"
 echo "미설치 도구 수   : $(count "$tools_missing") [${tools_missing:- 없음} ]"
 
+# 핵심 도구 부재는 "위반 0" 이 아니다 — 검사를 수행하지 못한 것이므로 EXECUTION_ERROR 다.
 for t in $CORE_TOOLS; do
-  have "$t" || { echo "EXECUTION_ERROR : 핵심 도구 '$t' 미설치"; exit 2; }
+  have "$t" || { echo "EXECUTION_ERROR : 핵심 도구 '$t' 미설치 — 검사 미수행"; exit 2; }
 done
+
 if [ "${#workflows[@]}" -eq 0 ]; then
-  echo "SKIP_NO_TARGET : 대상 없음"
+  echo "SKIP_NO_TARGET  : ${WF_DIR} 에 워크플로 파일 0 개 — 검사 대상 없음"
   exit 3
 fi
 
 violation=0; unverified=0; exec_error=0
-# checkout은 uses: 키로 호출된 줄만 판정한다.
-# 핀닝은 python3 + yaml.safe_load로 jobs.&lt;id&gt;.uses와
-# jobs.&lt;id&gt;.steps[].uses를 모두 열거한다.
-# ./ · ../만 면제, docker://는 @sha256:, 그 외 원격은 40자 SHA.
 
+# 규칙 1: checkout 스텝 존재
+for f in "${workflows[@]}"; do
+  # uses: 키로 부른 줄만 센다 — 이름만 찾으면 주석 한 줄(`# uses: actions/checkout@v4`)로도 PASS 한다 (2026-09-25 재현)
+  if grep -qE '^[[:space:]]*(-[[:space:]]+)?uses:[[:space:]]*["'"'"']?actions/checkout@' "$f"; then
+    echo "PASS            : $f checkout 존재"
+  else
+    echo "VIOLATION       : $f checkout 스텝 없음"; violation=$((violation + 1))
+  fi
+done
+
+# 규칙 2: 원격 action 핀닝 — YAML 파서로 jobs.*.uses 와 jobs.*.steps[].uses 를 **둘 다** 열거한다.
+# grep 은 로컬 `./` · `docker://` · 잡 레벨 재사용 워크플로를 구분하지 못해 오탐/누락을 낸다.
+if ! have python3; then
+  echo "[미검증] TOOL_OR_ENV_MISSING: python3 미설치 — 핀닝 rule 미검사 (재검증: python3 설치 후 bash ${0})"
+  unverified=$((unverified + 1))
+else
+  set +e
+  pin_out=$(PIN_ALLOW_FIRST_PARTY_TAGS="$PIN_ALLOW_FIRST_PARTY_TAGS" python3 - "${workflows[@]}" &lt;&lt;'PY'
+import os, re, sys
+try:
+    import yaml
+except ImportError:
+    print("[미검증] TOOL_OR_ENV_MISSING: PyYAML 미설치 (재검증: python3 -m pip install pyyaml)")
+    sys.exit(3)
+
+SHA = re.compile(r"@[0-9a-f]{40}$")
+allow_first_party = os.environ.get("PIN_ALLOW_FIRST_PARTY_TAGS") == "1"
+refs, bad, err = [], [], 0
+
+for path in sys.argv[1:]:
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = yaml.safe_load(fh)
+    except Exception as exc:
+        print(f"EXECUTION_ERROR : {path} — YAML 파싱 실패: {exc}"); err += 1; continue
+    if not isinstance(doc, dict):
+        print(f"EXECUTION_ERROR : {path} — 최상위가 매핑이 아니다"); err += 1; continue
+    jobs = doc.get("jobs")
+    if not isinstance(jobs, dict):
+        continue
+    for jid, job in jobs.items():
+        if not isinstance(job, dict):
+            continue
+        if isinstance(job.get("uses"), str):          # 재사용 워크플로 호출
+            refs.append((path, f"jobs.{jid}.uses", job["uses"]))
+        steps = job.get("steps")
+        if isinstance(steps, list):                    # 스텝 액션
+            for i, st in enumerate(steps):
+                if isinstance(st, dict) and isinstance(st.get("uses"), str):
+                    refs.append((path, f"jobs.{jid}.steps[{i}].uses", st["uses"]))
+
+for path, loc, ref in refs:
+    if ref.startswith(("./", "../")):
+        continue                                       # 로컬 — 레포 커밋에 종속
+    if ref.startswith("docker://"):
+        if "@sha256:" not in ref:
+            bad.append((path, loc, ref, "docker 참조가 digest 고정 아님"))
+        continue
+    if SHA.search(ref):
+        continue
+    if allow_first_party and re.match(r"^(actions|github)/", ref):
+        continue                                       # 정책 선택 — 기본값 아님
+    bad.append((path, loc, ref, "40 자 커밋 SHA 고정 아님"))
+
+print(f"열거된 uses 참조 수: {len(refs)}  (정책: first-party 태그 허용={allow_first_party})")
+for path, loc, ref, why in bad:
+    print(f"VIOLATION       : {path} {loc} -&gt; {ref} ({why})")
+sys.exit(2 if err else (1 if bad else 0))
+PY
+  )
+  pin_rc=$?
+  set -e
+  printf '%s\n' "$pin_out"
+  case "$pin_rc" in
+    0) echo "PASS            : 원격 uses 참조 전부 SHA/digest 고정" ;;
+    1) violation=$((violation + 1)) ;;
+    3) unverified=$((unverified + 1)) ;;
+    *) exec_error=$((exec_error + 1)) ;;
+  esac
+fi
+
+echo "--- 집계 ---"
 echo "VIOLATION=$violation  [미검증]=$unverified  EXECUTION_ERROR=$exec_error"
+# 실행 불완전(2)이 정책 위반(1)보다 우선한다 — harness/evals/gate-exit-codes.md §규칙
 if [ "$exec_error" -gt 0 ] || [ "$unverified" -gt 0 ]; then exit 2; fi
 if [ "$violation" -gt 0 ]; then exit 1; fi
 exit 0</code></pre>
         <div class="callout"><strong>핵심/선택 도구 분리:</strong> 핵심 도구가 없으면 rule을 하나도 실행하지 않고 EXECUTION_ERROR다. 선택 도구가 없으면 해당 rule만 미검증 처리하고 나머지는 계속한다.</div>
-        <p class="mini-title">골격 음성 대조</p>
+        <p class="mini-title">이 골격에서 빼면 안 되는 것 (음성 대조)</p>
+        <p class="section-desc">각 요소는 실제로 관측된 오보/누락을 막는다. 오른쪽 열은 그 요소를 제거하고 fixture를 돌렸을 때 실제로 나온 결과다.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>요소</th><th>빼면 생기는 일</th></tr></thead>
             <tbody>
-              <tr><td>머리말 4 카운터</td><td>위반 0의 분모를 알 수 없다.</td></tr>
-              <tr><td>핵심 도구 사전 검사</td><td>grep 부재를 checkout 위반으로 오보한다.</td></tr>
-              <tr><td>대상 0 가드 + exit 3</td><td>검사하지 않은 레포가 PASS가 된다.</td></tr>
-              <tr><td>nullglob</td><td>리터럴 glob을 YAML 오류로 오보한다.</td></tr>
-              <tr><td>YAML 파서</td><td>잡 수준·로컬·docker 참조를 구분하지 못한다.</td></tr>
-              <tr><td>first-party 기본 0</td><td>면제 정책이 숨는다.</td></tr>
-              <tr><td>세 카운터 분리</td><td>도구 부재가 위반 0에 흡수된다.</td></tr>
-              <tr><td>argv로 파일 전달</td><td>공백·따옴표 경로가 파손된다.</td></tr>
-              <tr><td>내장 count</td><td>축소 PATH에서 머리말이 깨진다.</td></tr>
+              <tr><td>머리말 4 카운터</td><td>"위반 0"의 분모를 알 수 없다. 대상 0 건인지, 도구가 없어 못 돈 건지 리포트만 보고 구분 불가</td></tr>
+              <tr><td>핵심 도구 사전 검사 (<code>CORE_TOOLS</code>)</td><td><code>grep</code> 부재 환경에서 <code>grep -q</code>가 0이 아닌 값으로 끝나 <code>checkout 스텝 없음</code> VIOLATION을 오보하고 exit 1로 끝난다</td></tr>
+              <tr><td><code>${#workflows[@]}</code> 가드 + <code>exit 3</code></td><td>워크플로 0 개 프로젝트가 exit 0(PASS)이 되어 검사한 적 없는 레포가 green으로 기록된다</td></tr>
+              <tr><td><code>shopt -s nullglob</code></td><td>매칭 없는 glob이 리터럴 패턴으로 남아 없는 파일을 열려다 "YAML syntax error"를 오보</td></tr>
+              <tr><td>YAML 파서 (<code>yaml.safe_load</code>)</td><td>grep은 <code>jobs.&lt;id&gt;.uses</code>(재사용 워크플로)·로컬 <code>./</code>·<code>docker://</code>를 구분하지 못한다. 패턴을 좁힌 grep도 <code>actions/*</code>를 조용히 면제해 미핀닝 6 건 전부를 0 건으로 보고했다(실측)</td></tr>
+              <tr><td><code>PIN_ALLOW_FIRST_PARTY_TAGS</code>를 기본 0으로 두고 상태를 출력</td><td>면제 정책이 코드에 숨는다. 기본 면제는 GitHub 공식 지침(full SHA만 immutable)과 어긋난다</td></tr>
+              <tr><td><code>violation</code>/<code>unverified</code>/<code>exec_error</code> 3 카운터 분리</td><td>도구 부재가 "위반 0"에 흡수된다. 종료 코드가 하나여도 세 카운트는 모두 출력해야 한다</td></tr>
+              <tr><td><code>python3 - "${workflows[@]}"</code> (argv 전달)</td><td>파일명을 문자열에 끼워 넣으면 따옴표·공백이 든 경로에서 깨진다</td></tr>
+              <tr><td><code>count()</code>를 외부 명령 없이 구현</td><td><code>wc</code>조차 없는 축소 PATH에서 머리말 자체가 깨져 "무엇이 없어서 못 했는지"를 볼 수 없다(실측)</td></tr>
             </tbody>
           </table>
         </div>
+        <p class="section-desc">워크플로 자체에서 이 스크립트를 부를 때도 <code>shell: bash</code>를 명시한다. 기본 셸 <code>bash -e {0}</code>에는 pipefail이 없다(Gotcha 11).</p>
         <p class="mini-title">Dependabot 동반 산출물</p>
-        <pre><code>version: 2
+        <p class="section-desc">Gotcha 15 — 워크플로가 있으면 <code>.github/dependabot.yml</code>에 최소 <code>github-actions</code> <code>/</code>를 넣고, 나머지 생태계는 실제 manifest/lockfile이 탐지될 때만 추가한다.</p>
+        <pre><code># .github/dependabot.yml — 탐지된 생태계만 등록한다 (없는 생태계는 매 실행 실패)
+version: 2
 updates:
-  - package-ecosystem: "github-actions"
+  - package-ecosystem: "github-actions"   # .github/workflows/* 가 있으면 항상 검토
     directory: "/"
     schedule:
       interval: "weekly"
-  # lockfile/manifest가 실재할 때만 npm·docker·pip·cargo·gomod 추가</code></pre>
+  # 아래는 예시 — 해당 lockfile/manifest 가 실재할 때만 남긴다
+  # package-lock.json / yarn.lock → npm · Dockerfile → docker
+  # requirements.txt / poetry.lock → pip · Cargo.lock → cargo · go.sum → gomod</code></pre>
+        <p class="section-desc">출처: <a href="https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference">Dependabot options reference</a> · <a href="https://docs.github.com/en/actions/reference/security/secure-use">GitHub Actions secure use</a></p>
       </div>
 
       <div class="subsection">
         <h3>Step 6 · K8s Manifest 테스트 생성</h3>
-        <pre><code>K8S_VERSION="${K8S_VERSION:?대상 클러스터의 Kubernetes 버전을 넣는다}"
+        <pre><code># kubeconform 검증 — 스키마 버전은 대상 클러스터 버전으로 (kubectl version 의 Server Version, IaC 의 클러스터 버전 변수 등)
+# 고정 값을 박으면 클러스터를 올린 뒤에도 옛 스키마로 검증한다
+K8S_VERSION="${K8S_VERSION:?대상 클러스터의 Kubernetes 버전을 넣는다}"
 kubeconform -strict -kubernetes-version "$K8S_VERSION" k8s/*.yaml
+
+# Helm chart 검증
 helm template my-release helm/chart/ | kubeconform -strict
+
+# kustomize 빌드 검증
 kustomize build k8s/overlays/dev | kubeconform -strict</code></pre>
         <p class="mini-title">Policy 테스트 — OPA/Rego</p>
-        <pre><code>package main
+        <pre><code># policy/no-latest-tag.rego
+package main
+
 deny[msg] {
   input.kind == "Deployment"
   container := input.spec.template.spec.containers[_]
   endswith(container.image, ":latest")
   msg := sprintf("Container '%s' uses :latest tag", [container.name])
 }</code></pre>
-        <pre><code>conftest test k8s/*.yaml --policy policy/</code></pre>
+        <p>실행: <code>conftest test k8s/*.yaml --policy policy/</code></p>
       </div>
 
       <div class="subsection">
         <h3>Step 7 · 실행 검증</h3>
+        <p class="section-desc">감지된 스택에 맞는 테스트를 실행한다.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>스택</th><th>실행 명령</th></tr></thead>
@@ -570,31 +703,33 @@ deny[msg] {
             </tbody>
           </table>
         </div>
-        <div class="callout">먼저 <code>command -v &lt;tool&gt;</code>로 존재를 확인하고 확인된 도구만 실행한다. 미설치 도구는 통과 수에 넣지 않는다.</div>
+        <div class="callout">먼저 <code>command -v &lt;tool&gt;</code>로 각 도구의 존재를 확인하고, <strong>확인된 도구만 실행한다.</strong> 미설치 도구는 설치 안내를 제시하되 해당 항목을 통과로 세지 않는다(Gotcha 12). CI에 통합할 수 있는 명령 형태로 제공한다.</div>
         <p class="mini-title">알려진 답 대조</p>
-        <p class="section-desc">임시 워크플로에 checkout 태그, 40자 SHA 액션, v4 태그 액션을 둔다. 참조 수 3, 참조 단위 VIOLATION 2줄, 규칙 단위 <code>VIOLATION=1</code>, exit 1이 기대값이다. 다르면 실제 대상에 돌리기 전에 수정한다.</p>
+        <p class="section-desc"><strong>생성한 검사 스크립트는 실제 대상보다 답을 아는 작은 입력에 먼저 돌린다(알려진 답 대조 · skill-design-guide §3.7).</strong> 새 스크립트의 첫 출력은 아직 아무도 확인하지 않은 값이다. 예: 임시 폴더에 워크플로 하나(원격 <code>uses:</code> 셋 — <code>actions/checkout@v4</code> · 40자 커밋 번호(SHA)로 고정한 액션 하나 · <code>@v4</code> 태그 액션 하나. checkout이 있어 checkout 규칙은 통과한다)를 두고 <code>WF_DIR=&lt;임시 폴더&gt; bash tests/ci-validation.sh</code>를 돌리면 <code>열거된 uses 참조 수: 3</code> · 참조 단위 <code>VIOLATION       :</code> 줄 2 개 · 집계 <code>VIOLATION=1</code>(규칙 단위로 센다) · exit 1이 나와야 한다. 기대값 · 실제값 · 돌린 명령을 실행 증거 블록에 나란히 적고, 다르면 실제 대상에 돌리지 말고 스크립트나 입력부터 고친다. 이 입력은 핀닝 rule이 1 이상을 내는지 보는 양성 대조도 겸한다.</p>
+        <p class="section-desc">실행 전에 <code>../../references/gate-result-taxonomy.md</code> §머리말 4 카운터를 그대로 출력해 <strong>검사 범위를 먼저 고정</strong>한다 — 대상 수 · 규칙 소스 수 · 사용 가능 도구 수 · 미설치 도구 수. 그다음 각 스택의 결과를 상태 5종 중 하나로 분류한다.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>관측</th><th>상태</th><th>exit</th></tr></thead>
             <tbody>
-              <tr><td>실행, 위반 없음</td><td>PASS</td><td>0</td></tr>
-              <tr><td>실행, 위반 발견</td><td>VIOLATION</td><td>1</td></tr>
-              <tr><td>대상 0개</td><td>SKIP_NO_TARGET</td><td>3</td></tr>
-              <tr><td>도구·환경 불가</td><td>[미검증] TOOL_OR_ENV_MISSING</td><td>2</td></tr>
-              <tr><td>실행·파싱·권한 실패</td><td>EXECUTION_ERROR</td><td>2</td></tr>
+              <tr><td>도구가 돌았고 위반 없음</td><td><code>PASS</code></td><td>0</td></tr>
+              <tr><td>도구가 돌았고 위반 발견</td><td><code>VIOLATION</code></td><td>1</td></tr>
+              <tr><td>그 스택의 대상 파일이 0 개</td><td><code>SKIP_NO_TARGET</code></td><td>3</td></tr>
+              <tr><td>도구 미설치 · 클러스터/레지스트리 접근 불가</td><td><code>[미검증] TOOL_OR_ENV_MISSING</code> (+ 재검증 명령)</td><td>2</td></tr>
+              <tr><td>도구는 있는데 실행·파싱·권한 실패</td><td><code>EXECUTION_ERROR</code></td><td>2</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="section-desc">VIOLATION과 실행 불완전이 함께 있으면 2가 우선하며 세 카운트를 모두 출력한다.</p>
+        <p class="section-desc">한 run에 <code>VIOLATION</code>과 실행 불완전이 같이 나오면 <strong>2가 우선</strong>한다. 세 카운트는 모두 출력한다(SSOT: <code>../../references/gate-result-taxonomy.md</code> §우선순위).</p>
       </div>
 
       <div class="subsection">
         <h3>Step 8 · 결과 보고 (증거 블록 필수)</h3>
+        <p class="section-desc">아래 4 블록을 모두 채운다. "검증 완료" 같은 서술만으로 끝내지 않는다 — 자기보고는 증거가 아니다(Gotcha 12).</p>
         <div class="evidence-list">
-          <div class="evidence"><div class="evidence-index">1</div><div class="evidence-body"><strong>검사 범위 머리말</strong><br>대상 수, 규칙 소스 수, 사용 가능 도구 수, 미설치 도구 수.</div></div>
+          <div class="evidence"><div class="evidence-index">1</div><div class="evidence-body"><strong>검사 범위 머리말</strong><br>4 카운터(대상 수 · 규칙 소스 수 · 사용 가능 도구 수 · 미설치 도구 수).</div></div>
           <div class="evidence"><div class="evidence-index">2</div><div class="evidence-body"><strong>생성된 파일</strong><br>경로 목록.</div></div>
-          <div class="evidence"><div class="evidence-index">3</div><div class="evidence-body"><strong>실행 증거</strong><br>명령과 출력 또는 exit code. 실패는 수정 후 재실행.</div></div>
-          <div class="evidence"><div class="evidence-index">4</div><div class="evidence-body"><strong>미검증 항목</strong><br>막는 것, 우회, 통제 불가 사유, 재검증 명령과 총건수. 2건 이상이면 부분 완료.</div></div>
+          <div class="evidence"><div class="evidence-index">3</div><div class="evidence-body"><strong>실행 증거</strong><br>실행한 명령과 그 출력(또는 exit code)을 인용한다. 실패분은 수정 후 재실행하고, 통과 전에는 완료를 선언하지 않는다.</div></div>
+          <div class="evidence"><div class="evidence-index">4</div><div class="evidence-body"><strong>미검증 항목</strong><br>항목마다 <code>[미검증] TOOL_OR_ENV_MISSING: &lt;도구&gt;</code> 아래 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워 따로 나열하고 <code>미검증 N 건</code>으로 집계한다(Gotcha 12). 네 칸 중 하나라도 비면 그 항목은 <code>UNVERIFIED_ENV</code>로 인정되지 않는다(<code>../../references/gate-result-taxonomy.md</code> §재검증 명령 의무). <strong>2 건 이상이면 완료가 아니라 부분 완료로 보고한다.</strong></div></div>
         </div>
         <pre><code>검사 범위:
   대상 워크플로 수  : 3  (.github/workflows)
@@ -606,13 +741,19 @@ deny[msg] {
   (출력 없음 · exit 0)
   $ bash tests/ci-validation.sh
   VIOLATION=0  [미검증]=0  EXECUTION_ERROR=0 · exit 0
-미검증:
+미검증 2 건:
   [미검증] TOOL_OR_ENV_MISSING: kubeconform
-    막는 것: command -v kubeconform → 출력 없음 · exit 1
-    시도한 우회: YAML 구문만 확인
-    통제 불가 사유: 설치 권한 없음
-    재검증 명령: brew install kubeconform &amp;&amp; kubeconform -strict k8s/</code></pre>
-        <p class="section-desc">마지막으로 CI 파이프라인에 통합하는 방법을 안내한다.</p>
+    막는 것: $ command -v kubeconform → 출력 없음 · exit 1
+    시도한 우회: k8s/*.yaml 을 python3 YAML 파서로 읽기만 함 (exit 0 — 구문만 확인, 스키마 검증은 못 함)
+    통제 불가 사유: 이 환경에 패키지 설치 권한이 없다
+    재검증 명령: brew install kubeconform &amp;&amp; kubeconform -strict k8s/
+  [미검증] TOOL_OR_ENV_MISSING: container-structure-test
+    막는 것: $ command -v container-structure-test → 출력 없음 · exit 1
+    시도한 우회: 없음 — 이미지 안 파일 구조를 볼 다른 도구가 이 환경에 없다
+    통제 불가 사유: 이 환경에 패키지 설치 권한이 없다
+    재검증 명령: gcloud components install container-structure-test &amp;&amp; container-structure-test test --image app:dev --config container-structure-test.yaml
+→ 부분 완료 (미검증 2 건)</code></pre>
+        <p class="section-desc">CI 파이프라인에 통합하는 방법을 안내한다.</p>
       </div>
     </section>
 
