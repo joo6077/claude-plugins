@@ -598,6 +598,7 @@ Phase 마다 다음 사이클로 보낸 것은 그 notes 의 `## 다음 사이�
 `phase1-notes.md` · `phase2-notes.md` · `phase3-notes.md` · `phase4-notes.md` · `phase5-notes.md` · `phase6-notes.md` · `phase7-notes.md` · `phase8-notes.md` ·
 `phase9-notes.md` · `phase10-notes.md` · `phase11-notes.md` · `phase12-notes.md` · `phase13-notes.md` · `phase14-notes.md` · `phase15-notes.md` · `phase16-notes.md` ·
 `phase17-notes.md` (모두 `.harness/.meta/kaizen-0924/` 아래). Final 계약이 고치지 않은 입력은 `.harness/.meta/kaizen-0924/final-notes.md` §다음 사이클 메모에 있다.
+PR 직전 검토 수정 계약이 고치지 않은 것은 `.harness/.meta/kaizen-0924/f2-review-fixes-notes.md` §다음 사이클 메모에 있다.
 
 ### 이번 사이클 메타 이슈 (2026-09-24 사이클)
 
