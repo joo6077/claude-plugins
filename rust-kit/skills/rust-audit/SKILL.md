@@ -30,10 +30,10 @@ user-invocable: true
 15. **Evidence Validity Gate — 0 매치 / 0 테스트를 PASS 로 쓰지 마라 (qa-evaluation-guide §Evidence Validity Gate)** — 증거의 *존재*와 *유효성*은 다른 축이다. row 를 PASS 로 확정하기 전에 4 검사를 통과시킨다: (1) **비공백** — 출력이 실제 내용을 담는가 (2) **활성화** — 그 측정이 검사 대상을 한 번이라도 통과했는가 (3) **반증 가능성** — 조건이 위반됐다면 다른 결과가 나왔을 측정인가 (4) **출처** — 감사자가 직접 수집했는가. 하나라도 실패하면 PASS 가 아니라 `[미검증]` 이다.
 
     **0 매치 판정 (Rust 감사에서 가장 잦은 vacuous pass):**
-    - `grep -c '.unwrap()' src/` → 0 을 "안티패턴 없음 PASS" 로 쓰려면 **(a) 대상 `.rs` 파일 수를 먼저 세고 (b) 패턴이 알려진 위치에서 실제로 매치된다는 positive control 을 1 회 확인**한 뒤 (c) 그 위에서 0 매치여야 한다. 근거 문장에 `대상 N 파일 · 패턴 유효성 확인 · 매치 0` 을 적는다. 경로 오타·빈 디렉토리로 인한 0 은 PASS 증거가 아니라 측정 실패다.
+    - `grep -rF --include='*.rs' '.unwrap()' src/ | awk 'END{print NR}'` → 0 을 "안티패턴 없음 PASS" 로 쓰려면 **(a) 대상 `.rs` 파일 수를 먼저 세고 (b) 패턴이 알려진 위치에서 실제로 매치된다는 positive control 을 1 회 확인**한 뒤 (c) 그 위에서 0 매치여야 한다. 근거 문장에 `대상 N 파일 · 패턴 유효성 확인 · 매치 0` 을 적는다. 경로 오타·빈 디렉토리로 인한 0 은 PASS 증거가 아니라 측정 실패다. 위 명령은 `src/` 가 없으면 오류는 화면에만 나오고 0 이 찍힌다 — (a) 로 거른다.
     - `cargo test` 가 `0 passed` 로 끝난 것은 "테스트 통과" 가 아니라 "타깃 필터/필터 문자열이 틀렸다" 는 신호다 (rust-run Gotcha 9).
     - `cargo clippy` 를 실행하지 않고 `Cargo.toml` 의 lint 선언만 보고 "위반 0 건" 으로 적지 마라 — 선언은 설정이지 측정 결과가 아니다.
-16. **파이프라인 종료 코드로만 도구 결과를 판정한다** — `cargo clippy ... | tee` 처럼 파이프를 쓰면 bash 기본 규칙상 마지막 명령의 상태가 반환되어 clippy 실패가 은폐된다. rust-run Gotcha 10 의 정식 형태(`set -o pipefail` + 파이프라인 직후 `rc=$?`)를 쓰고, 종료 코드를 확보하지 못했으면 그 row 는 `[미검증]` 이고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙인다 — rust-run (c) 와 같다.
+16. **파이프라인 종료 코드로만 도구 결과를 판정한다** — `cargo clippy ... | tee` 처럼 파이프를 쓰면 bash 기본 규칙상 마지막 명령의 상태가 반환되어 clippy 실패가 은폐된다. rust-run Gotcha 10 의 정식 형태(`set -o pipefail` + 파이프라인 직후 `rc=$?`)를 쓰고, 종료 코드를 확보하지 못했으면 그 row 는 `[미검증]` 이고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙인다 — rust-run §2 첫 항목과 같다.
 17. **Sibling Consistency (skill-design-guide §8.8) — rust-audit ↔ backend-audit** — 동일 개념의 Rule-by-Rule 표 / CONDITIONAL APPROVE 판정 규칙 / 출처 URL 포맷을 backend-audit Step 3 와 parity 있게 유지한다. Rust 고유 카테고리(Ownership & Borrowing · unsafe 블록 · async Send+Sync · SQLx offline) 은 독립 row 로 추가하되, RFC 9457 / OWASP 같이 스택 공통인 원칙은 backend-audit 와 동일 문구로 인용한다.
 
 # Process
