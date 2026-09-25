@@ -62,11 +62,25 @@ allowed-tools: Read, Write, Grep, Glob, Bash, WebFetch, WebSearch
 zsh 는 `nomatch` 가 기본이라 매치 0 건인 글로브가 명령을 통째로 죽인다.
 
 ```bash
-find docs -type f -name '*.md' -exec sh -c '
-  . howto-kit/scripts/howto-gate.sh
-  for f in "$@"; do echo "### $f"; howto_gate "$f"; done
-' sh {} +
+GATE="${CLAUDE_PLUGIN_ROOT}/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE="$(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
+  -path '*/howto-kit/scripts/howto-gate.sh' 2>/dev/null | head -1)
+if [ -n "$GATE" ] && [ -f "$GATE" ]; then
+  echo "RESOLVED: $GATE"
+  find <대상> -type f -name '*.md' -exec sh -c '
+    . "${1}"; shift
+    for f in "$@"; do echo "### $f"; howto_gate "$f"; done
+  ' sh "$GATE" {} +
+else
+  echo "MISSING: howto-gate.sh tried=${CLAUDE_PLUGIN_ROOT}/scripts · $(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts · $HOME/.claude/plugins/marketplaces"
+  false
+fi
 ```
+
+스크립트는 `sh -c` **안에서** 읽는다 — 셸 함수는 자식 셸로 넘어가지 않는다. 경로를 찾는 순서와
+`MISSING:` 일 때 할 일은 Phase 4 와 같다. `### <경로>` 줄 수와 `GATE_PASS` · `GATE_FAIL` · `GATE_BLOCKED`
+줄 수가 다르면 판정이 아니라 실행 오류다.
 
 ### Gotcha 4: 게이트는 기계 판정 가능한 것만 잡는다
 
@@ -98,11 +112,25 @@ Phase 1~2(선행 확인 → 1 차 출처 조회)를 먼저 수행한다. **조�
 ### Phase 4: 게이트 실행 (E3)
 
 ```bash
-. howto-kit/scripts/howto-gate.sh
-howto_gate <생성한 문서>
+GATE="${CLAUDE_PLUGIN_ROOT}/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE="$(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
+  -path '*/howto-kit/scripts/howto-gate.sh' 2>/dev/null | head -1)
+if [ -n "$GATE" ] && [ -f "$GATE" ]; then
+  echo "RESOLVED: $GATE"
+  . "$GATE"; howto_gate <생성한 문서>
+else
+  echo "MISSING: howto-gate.sh tried=${CLAUDE_PLUGIN_ROOT}/scripts · $(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts · $HOME/.claude/plugins/marketplaces"
+  false
+fi
 ```
 
-출력 7 줄을 보고에 **그대로** 붙인다. `GATE_FAIL` 이면 고치고 다시 돌린다.
+`RESOLVED:` 줄과 출력 7 줄을 보고에 **그대로** 붙인다. `GATE_FAIL` 이면 고치고 다시 돌린다.
+경로는 플러그인 설치 경로(`CLAUDE_PLUGIN_ROOT` 치환) → git 최상위 폴더의 `howto-kit/` → 마켓플레이스 설치본
+순으로 찾는다. `howto-kit/scripts/` 로 시작하는 상대 경로는 킷을 플러그인으로 설치한 프로젝트에 없다.
+첫 줄이 `MISSING:` 이면 게이트를 돌리지 못한 것이다 — 완료를 보고하지 말고 그 줄을 그대로 보고한다 (Gotcha 1).
+`MISSING:` 으로 멈출 때는 `[미검증:ENV]` 에 네 칸을 붙인다 — 막는 것(그 `MISSING:` 줄) · 시도한 우회(`tried=` 의 세 곳) ·
+통제 불가 사유(한 문장) · 재검증 명령(킷을 설치하거나 킷이 든 저장소 안에서 이 블록을 다시 돌린다).
 
 ### Phase 5: 완료 보고
 

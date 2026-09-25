@@ -63,6 +63,21 @@ bash 에서만 테스트하면 이 결함이 안 잡힌다.
 이 스킬은 `Write` 를 갖지 않는다. 수정이 필요하면 판정 리포트를 내고 `howto-doc` 으로
 넘긴다. 감사자가 자기 감사 대상을 고치면 그 감사는 증거가 아니다.
 
+### Gotcha 6: 게이트 함수는 자식 셸로 넘어가지 않는다
+
+셸 함수는 그 함수를 읽은 셸 안에서만 보인다. 부모 셸에서 `howto-gate.sh` 를 읽고
+`find -exec sh -c` 안에서 `howto_gate` 를 부르면 파일마다 `command not found` 만 나온다.
+그래서 Phase 2 는 스크립트를 `sh -c` **안에서** 읽는다. `export -f` 로 넘기지 마라 — macOS 의
+`sh` · bash 자식에게만 넘어가고 우분투의 `sh`(dash) · zsh 자식에게는 안 넘어간다.
+
+스크립트 경로를 `howto-kit/scripts/` 로 시작하는 상대 경로로 쓰지 않는다. 킷을 플러그인으로 설치한
+프로젝트에는 그 폴더가 없다. Phase 2 블록은 플러그인 설치 경로(`CLAUDE_PLUGIN_ROOT` 치환) → git 최상위
+폴더의 `howto-kit/` → 마켓플레이스 설치본 순으로 `test -f` 해서 처음 있는 경로를 쓴다.
+
+실측(2026-09-24): 부모 셸에서 읽고 자식 셸에서 부르던 옛 Phase 2 블록을 시험 입력 15 개에 돌리면
+`command not found` 가 15 줄, `GATE_PASS` · `GATE_FAIL` · `GATE_BLOCKED` 줄이 0 줄이었고 `find` 는
+종료 코드 1 로 끝났다.
+
 ## Process
 
 ### Phase 1: 범위 확정 (Gotcha 1)
@@ -73,13 +88,28 @@ bash 에서만 테스트하면 이 결함이 안 잡힌다.
 ### Phase 2: 게이트 전수 실행
 
 ```bash
-. howto-kit/scripts/howto-gate.sh
-find <대상> -type f -name '*.md' -exec sh -c '
-  for f in "$@"; do echo "### $f"; howto_gate "$f"; done
-' sh {} +
+GATE="${CLAUDE_PLUGIN_ROOT}/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE="$(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts/howto-gate.sh"
+[ -f "$GATE" ] || GATE=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
+  -path '*/howto-kit/scripts/howto-gate.sh' 2>/dev/null | head -1)
+if [ -n "$GATE" ] && [ -f "$GATE" ]; then
+  echo "RESOLVED: $GATE"
+  find <대상> -type f -name '*.md' -exec sh -c '
+    . "${1}"; shift
+    for f in "$@"; do echo "### $f"; howto_gate "$f"; done
+  ' sh "$GATE" {} +
+else
+  echo "MISSING: howto-gate.sh tried=${CLAUDE_PLUGIN_ROOT}/scripts · $(git rev-parse --show-toplevel 2>/dev/null)/howto-kit/scripts · $HOME/.claude/plugins/marketplaces"
+  false
+fi
 ```
 
-파일별 출력을 그대로 수집한다.
+파일별 출력을 그대로 수집한다. 첫 줄이 `MISSING:` 이면 게이트를 돌리지 못한 것이다 — 판정을 내지 말고
+그 줄을 그대로 보고하고 멈춘다. `### <경로>` 줄 수와 `GATE_PASS` · `GATE_FAIL` · `GATE_BLOCKED` 줄 수가
+Phase 1 의 파일 수와 셋 다 같아야 한다. 다르면 판정이 아니라 실행 오류다 (Gotcha 6).
+`find` 의 종료 코드로 판정하지 마라 — `howto_gate` 는 판정과 무관하게 0 을 돌려준다.
+`MISSING:` 으로 멈출 때는 `[미검증:ENV]` 에 네 칸을 붙인다 — 막는 것(그 `MISSING:` 줄) · 시도한 우회(`tried=` 의 세 곳) ·
+통제 불가 사유(한 문장) · 재검증 명령(킷을 설치하거나 킷이 든 저장소 안에서 이 블록을 다시 돌린다).
 
 ### Phase 3: 에이전트 독립 평가
 
@@ -90,6 +120,7 @@ find <대상> -type f -name '*.md' -exec sh -c '
 
 ```text
 검사 범위:  <N> 파일
+스크립트:   <Phase 2 첫 줄의 RESOLVED: 줄 그대로>
 게이트:     GATE_PASS <a> / GATE_FAIL <b> / GATE_BLOCKED <c>
 에이전트:   PASS <x> / FAIL <y>
 

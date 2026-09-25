@@ -1,11 +1,14 @@
 #!/bin/sh
 # howto-gate.sh — 절차 문서 결정론 게이트 G1~G6. LLM 호출 없는 순수 판정.
 #
-# 사용:  . howto-kit/scripts/howto-gate.sh
+# 사용:  . <이 파일 경로>
 #        howto_gate <절차문서.md>
+# 스킬은 이 파일을 플러그인 설치 경로 → git 최상위 폴더의 howto-kit/ → 마켓플레이스 설치본 순으로
+# 찾는다 (howto-doc Phase 4). 셸 함수는 자식 셸로 넘어가지 않는다 — find -exec sh -c 로 부를 때는
+# 이 파일을 sh -c 안에서 읽는다. export -f 는 dash · zsh 자식에게 넘어가지 않는다.
 #
-# zsh · bash · sh 에서 동일 출력. 글로빙을 쓰지 않는다 (zsh 는 nomatch 가 기본이라
-# 매치 0 건인 glob 이 명령을 통째로 죽인다).
+# zsh · bash · sh 에서 동일 출력 (evals/run-evals.sh 가 세 셸 출력을 대조한다). 글로빙을 쓰지 않는다
+# (zsh 는 nomatch 가 기본이라 매치 0 건인 glob 이 명령을 통째로 죽인다).
 #
 # 판정 대상 마커는 howto-kit/references/step-contract.md §문서 모드 렌더링 이 정본이다.
 # 마커를 바꾸려면 그 파일과 이 스크립트를 **짝으로** 고친다.
