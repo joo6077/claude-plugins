@@ -170,12 +170,12 @@ msgstr ""      ← 여기에 한국어 번역 입력 (동일 언어면 그대로
 3. 지워진 키 수와 지워진 번역을 따로 본다:
 
    ```bash
-   # 지워진 키가 0 개인 정상 상황에서 grep -c 는 종료 코드 1 을 내 단계가 실패로 읽힌다 — awk 로 센다
+   # 0 건인 정상 상황에서 grep 은 종료 코드 1 을 내 단계가 실패로 읽힌다 — 두 줄 다 awk 로 센다
    git diff -U0 -- src/infrastructure/i18n/locales/ | awk '/^-msgid /{n++} END{print n+0}'
-   git diff -U0 -- src/infrastructure/i18n/locales/ | grep -E '^-(msgstr "[^"]|")'
+   git diff -U0 -- src/infrastructure/i18n/locales/ | awk '/^-(msgstr "[^"]|")/{print; n++} END{print "filled_deleted=" n+0}'
    ```
 
-   둘째 명령이 한 줄이라도 내면 번역이 채워져 있던 항목이 지워졌을 수 있다 — 출력 줄을 보고 가른다 (여러 줄 번역은 `"` 로 시작하는 이어진 줄로 나오는데, 여러 줄 `msgid` 의 이어진 줄도 같은 모양이다)
+   둘째 명령의 끝 줄이 `filled_deleted=0` 이 아니면 번역이 채워져 있던 항목이 지워졌을 수 있다 — 그 위에 찍힌 줄을 보고 가른다 (여러 줄 번역은 `"` 로 시작하는 이어진 줄로 나오는데, 여러 줄 `msgid` 의 이어진 줄도 같은 모양이다)
 4. 번역이 채워져 있던 항목이 지워졌으면 그 목록을 보이고, 사용자가 확인하기 전에는 정리 결과를 커밋하지 않는다
 
 ### 5. Locale 전환 패턴
