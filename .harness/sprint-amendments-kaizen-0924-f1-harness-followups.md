@@ -22,6 +22,12 @@ created: "2026-09-25 17:01"
 - 평가자 로그 폴더 블록은 공통 git 폴더가 `.git` 으로 끝나면 그 부모를 본 레포로 본다. reflect-kit `project_root` 는 git 폴더와 공통 폴더가 다를 때만
   부모를 쓰는데, 본 레포에서는 그 부모가 곧 `--show-toplevel` 이라 결과가 같다(ER-03 여덟 번 실측)
 
+측정 전제 한 건 — `amend_direction: unchanged` (통과 집합이 같다). DG-05 (b) 의 `python3 scripts/validate-doc-contracts.py` 는 `git ls-files` 를 부르므로
+`git archive` 로 푼 `$T/E` 에서는 끝 판 · 시작 판 둘 다 `NOT RUN … not a git repository` · 종료 코드 2 다 — 이 계약 변경과 무관한 환경 실패다.
+BUILD 는 `$T/E` 를 복사해 `git init` · `git add -A` · 커밋한 사본(`drift.sh` 가 쓰는 방식)에서 돌려 끝 판 `d97944c` · 시작 판 `5b4fd72` 둘 다
+`doc-contracts: 1 블록 검사 · violation 0 · not-verifiable 0` · 종료 코드 0 을 받았다. 봉인 전 실측 값 0 은 작업 폴더(git 저장소)에서 잰 값이었다.
+나머지 다섯 명령은 조건 글자 그대로 `$T/E` 에서 종료 코드 0 이다.
+
 측정 공통 정의가 아래 `end_sha:` 줄의 마지막 값을 `END` 로 읽는다. 커밋을 더하면 새 값으로 한 줄을 **덧붙인다**
 (옛 줄은 지우지 않는다). 그 커밋 메시지에도 서명 줄 `Kaizen-Phase: kaizen-0924-f1-harness-followups` 를 넣는다.
 
