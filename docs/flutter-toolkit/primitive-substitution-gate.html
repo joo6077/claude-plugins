@@ -231,9 +231,10 @@
   <div class="callout ssot">
     <strong>SSOT.</strong> 이 파일이 판정의 유일한 정의다. <code>flutter-widget</code> · <code>flutter-screen</code> ·
     <code>flutter-audit</code> · <code>widget-inspector</code> 는 이 파일을 <strong>인용만</strong> 하고
-    아래 목록을 자기 문서에 복제하지 않는다. 현재 등급은 <strong>E2</strong> 다
-    (<a href="../harness/skill-design-guide.html#s3-7">skill-design-guide §3.7 Enforcement 3 등급</a>).
-    문장 규칙(E1)만으로는 재발했다 — 근거는 아래 「왜 E2 인가」 절에 있다.
+    아래 목록을 자기 문서에 복제하지 않는다. <strong>현재 등급: E2</strong>
+    (<a href="../harness/skill-design-guide.html#s3-7"><code>harness/docs/guides/skill-design-guide.md</code> §3.7 Enforcement 3 등급</a>).
+    문장 규칙(E1)만으로는 재발했다 — 아래 <a href="#why-e2">§왜 E2 인가</a> 참조. 이 게이트는
+    <strong>대체 후보 표</strong>라는 아티팩트를 남기게 한다.
   </div>
 
   <section>
@@ -318,9 +319,10 @@
         <div class="card-num">규칙 사이의 빈틈</div>
         <h3>두 조항 모두 "고칠 때" 만 막았다</h3>
         <p>
-          두 조항은 <strong>"프로젝트 위젯을 고칠 때"</strong> 를 전제한다.
-          <strong>"Flutter 기본 위젯을 새로 꺼내 쓸 때"</strong> 는 막지 않는다.
-          그래서 <code>Divider</code> 가 규칙 사이의 빈틈으로 빠져나갔다.
+          <code>flutter-widget</code> 은 이미 §Enumerate-before-Act (디자인 <strong>토큰</strong> 전수 나열)와
+          "기존 위젯 수정이 기본값" 조항을 갖고 있었다. 그런데도 재발한 이유는 두 조항 모두
+          <strong>"프로젝트 위젯을 고칠 때"</strong> 를 전제하고, <strong>"Flutter 기본 위젯을 새로 꺼내 쓸 때"</strong> 를
+          막지 않기 때문이다. <code>Divider</code> 는 토큰이 아니고 기존 위젯 수정도 아니다 — 규칙 사이의 빈틈으로 빠져나간다.
         </p>
         <a class="card-source" href="../harness/skill-design-guide.html#s3-7">harness · skill-design-guide §3.7 Enforcement 3 등급</a>
       </article>
@@ -329,11 +331,10 @@
         <div class="card-num">근거</div>
         <h3>프레임워크 API 문제가 아니라 강제 절차 문제다</h3>
         <p>
-          공식 Flutter Agent Plugins 도 agent mistake 를 줄이는 1 차 기법으로
-          "skills/rules 로 반복 가능한 워크플로우를 주입" 을 든다.
-          위젯 API 를 더 알려 줘서 풀리는 일이 아니고, 매번 거치는 절차를 넣어야 풀린다.
+          공식 Flutter Agent Plugins 도 agent mistake 감축의 1 차 기법을 "skills/rules 로 반복 가능한
+          워크플로우를 주입" 으로 제시한다. 즉 이것은 프레임워크 API 문제가 아니라 <strong>강제 절차</strong> 문제다.
         </p>
-        <a class="card-source" href="https://github.com/flutter/agent-plugins" target="_blank" rel="noopener">github.com/flutter/agent-plugins</a>
+        <a class="card-source" href="https://github.com/flutter/agent-plugins" target="_blank" rel="noopener">출처: https://github.com/flutter/agent-plugins</a>
       </article>
     </div>
   </section>
@@ -342,7 +343,10 @@
     <div class="section-header">
       <div class="section-label">Precondition</div>
       <h2>적용 조건 — HAS_DS = true 일 때만</h2>
-      <p>디자인 시스템이 없는 프로젝트에 이 게이트를 걸면 대체 후보가 없어서 노이즈만 생긴다.</p>
+      <p>
+        <code>HAS_DS = true</code> (<code>references/project-detection.md</code> 감지 결과) 일 때만 발동한다.
+        디자인 시스템이 없는 프로젝트에 이 게이트를 걸면 대체 후보가 존재하지 않아 노이즈만 생긴다.
+      </p>
     </div>
     <div class="table-wrap">
       <table>
@@ -397,8 +401,13 @@
   <section>
     <div class="section-header">
       <div class="section-label">Out of scope</div>
-      <h2>게이트 대상이 아닌 layout primitive</h2>
-      <p>이것까지 금지하면 과잉 규칙이 되어 게이트가 통째로 무시된다. <strong>우회된 게이트는 없는 게이트보다 나쁘다.</strong></p>
+      <h2>게이트 대상이 아닌 layout primitive — 금지하지 않는다</h2>
+      <p>
+        <code>Text</code> · <code>Row</code> · <code>Column</code> · <code>Padding</code> · <code>SizedBox</code> 같은 layout primitive 는
+        <strong>이 게이트의 대상이 아니다.</strong> 이들까지 금지하면 과잉 규칙이 되어 게이트가 통째로 무시된다 —
+        <strong>우회된 게이트는 없는 게이트보다 나쁘다.</strong> <code>Stack</code> · <code>Expanded</code> · <code>Flexible</code> ·
+        <code>Align</code> · <code>Center</code> · <code>Spacer</code> 도 같다.
+      </p>
     </div>
     <div class="compare">
       <div class="compare-col good">
@@ -423,7 +432,7 @@
     <div class="callout">
       <strong>예외 하나</strong> — 프로젝트가 <code>Text</code> 를 감싸는 타이포 컴포넌트(예: <code>AppText</code>)를
       <strong>이미 전면 사용 중</strong>이라 <code>Text(</code> 직접 호출이 코드베이스에 사실상 없으면, 그때만 프로젝트 관습을 따른다.
-      그 판정은 이 게이트가 아니라 <strong>기존 코드 관찰</strong>로 한다.
+      그 판정은 이 게이트가 아니라 <strong>기존 코드 관찰로</strong> 한다.
     </div>
   </section>
 
@@ -440,7 +449,7 @@
           <span class="step-badge">quick</span>
           <h3>생성 스킬 — flutter-widget · flutter-screen</h3>
         </div>
-        <p>생성 시간을 늘리지 않도록 대상 위젯 <strong>한 종만</strong> 1 회 검색한다.</p>
+        <p>생성 시간을 늘리지 않도록 대상 위젯 <strong>한 종에 대해서만</strong> 1 회 검색한다.</p>
         <div class="code-block" data-lang="BASH">
 <pre><span class="cm"># 예: Divider 를 쓰려 한다</span>
 rg -n <span class="st">"class .*Divider|Divider\("</span> lib/ --glob <span class="st">'!**/*.g.dart'</span> | head -20
@@ -464,7 +473,7 @@ rg -n <span class="st">"class .*Divider|Divider\("</span> lib/ --glob <span clas
           <h3>flutter-audit deep 모드 · widget-inspector deep 모드</h3>
         </div>
         <p>
-          변경 파일 전체를 훑어 게이트 대상 8 종의 직접 사용을 열거하고, 사용처마다 DS 대체 후보가 실재하는지 확인한다.
+          변경 파일 전체를 훑어 게이트 대상 8 종의 직접 사용을 열거하고, 각 사용처마다 DS 대체 후보가 실재하는지 확인한다.
         </p>
         <div class="code-block" data-lang="BASH">
 <pre><span class="cm"># 게이트 대상 직접 사용 열거 (zsh · bash 동일)</span>
@@ -478,7 +487,7 @@ grep -rnE <span class="st">'\b(Divider|ElevatedButton|TextButton|OutlinedButton|
     <h3 style="font-size:18px;margin:34px 0 14px">0 매치 판정 — 이 순서를 거친 0 만 "위반 없음"</h3>
     <ol class="zero">
       <li><strong>대상 파일 수부터 센다</strong>검색 범위의 <code>.dart</code> 파일 수를 먼저 적는다 (예: <code>42 개</code>).</li>
-      <li><strong>알려진 위치에서 1 회 이상 맞는지 본다</strong>그 패턴이 이미 쓰인 곳에서 최소 1 회 매치하는지 확인한다.</li>
+      <li><strong>알려진 위치에서 1 회 이상 맞는지 본다</strong>그 패턴이 알려진 위치에서 최소 1 회 매치한다는 것을 확인한다.</li>
       <li><strong>그 뒤의 0 만 "위반 없음"</strong>경로가 틀려서 나온 0 은 <code>[미검증]</code> 이다.</li>
     </ol>
   </section>
@@ -501,18 +510,18 @@ grep -rnE <span class="st">'\b(Divider|ElevatedButton|TextButton|OutlinedButton|
     <div class="grid-2" style="margin-top:20px">
       <article class="card">
         <div class="card-num">후보 있음</div>
-        <h3>기본 위젯을 쓰려면 근거 한 줄이 필수다</h3>
+        <h3>후보가 있는데 기본 위젯을 쓰려면 근거 한 줄이 필수다.</h3>
         <p>
-          "스타일이 달라서" 는 근거가 아니다. DS 컴포넌트의 파라미터로 표현할 수 있는지
-          <strong>먼저 그 소스를 읽는다.</strong>
+          "스타일이 달라서" 는 근거가 아니다 — DS 컴포넌트의 파라미터로 표현 가능한지
+          <strong>먼저 소스를 읽는다.</strong>
         </p>
         <a class="card-source" href="../../flutter-toolkit/references/primitive-substitution-gate.md">primitive-substitution-gate.md §E2 아티팩트</a>
       </article>
       <article class="card">
         <div class="card-num">후보 없음</div>
-        <h3>"없음" 이라고 적고 진행한다</h3>
+        <h3>후보가 없으면 "없음" 이라고 적고 진행한다.</h3>
         <p>
-          게이트는 기본 위젯 사용을 금지하지 않는다. <strong>검색 없이 쓰는 것</strong>을 금지한다.
+          게이트는 기본 위젯 사용을 금지하는 것이 아니라 <strong>검색 없이 쓰는 것을</strong> 금지한다.
           표의 결정 칸에 근거(예: DS 미제공)를 함께 적는다.
         </p>
         <a class="card-source" href="../../flutter-toolkit/references/primitive-substitution-gate.md">primitive-substitution-gate.md §E2 아티팩트</a>
@@ -552,7 +561,7 @@ grep -rnE <span class="st">'\b(Divider|ElevatedButton|TextButton|OutlinedButton|
     </div>
   </section>
 
-  <section>
+  <section id="why-e2">
     <div class="section-header">
       <div class="section-label">Enforcement</div>
       <h2>왜 E2 인가 — 등급 근거</h2>
@@ -574,7 +583,7 @@ grep -rnE <span class="st">'\b(Divider|ElevatedButton|TextButton|OutlinedButton|
       <div class="rung">
         <span class="rung-tag">E3 · 다음 단계</span>
         <h4>스크립트로 막는 등급</h4>
-        <p>표 없이 완료 선언이 반복되면, 다음 사이클에 게이트 대상 grep 을 실행하는 <strong>E3 스크립트</strong>로 올린다.</p>
+        <p>표 없이 완료 선언이 반복되면 다음 사이클에 게이트 대상 grep 을 실행하는 <strong>E3 스크립트로 승급한다.</strong></p>
       </div>
     </div>
     <div class="callout accent">
