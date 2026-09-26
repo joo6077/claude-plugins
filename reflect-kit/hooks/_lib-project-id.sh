@@ -191,7 +191,7 @@ EOF
   # 마지막 기록 시각을 먼저 구한다 — 엔트리가 하나라도 있으면 엔트리 0 경고가 안 나와 기간 도중에 멈춘
   # 수집기를 놓친다. 마지막 기록 뒤의 실패 시도를 따로 센다
   lastk=${last:0:19}; [ "$last" = 없음 ] && lastk=
-  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" -v last="$lastk" -v old="$(_rk_since 1)" '
+  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" -v last="$lastk" -v day_ago="$(_rk_since 1)" '
     $2 != "[log-reflection]" { next }
     since != "" && substr($1, 1, 19) < since { next }
     { lost = 0 }
@@ -205,11 +205,10 @@ EOF
       s = substr($0, RSTART + 9, RLENGTH - 9)
       if (s != "" && !(s in seen)) { seen[s] = 1; ns++ }
     }
-    # 정상 종료(no issues · 전 블록 억제)는 기록을 안 남긴다 — 마지막 기록과 마지막 정상 종료 가운데 늦은 쪽 뒤의 실패만 센다.
-    # stale = 그 가운데 첫 실패가 1 일(old) 이상 지났는가
+    # 정상 종료(no issues · 전 블록 억제)는 기록을 안 남긴다 — 마지막 기록과 마지막 정상 종료 가운데 늦은 쪽 뒤의 실패만 센다
     END { cut = (okl > last) ? okl : last
-          for (i = 1; i <= nl; i++) if (cut == "" || lt[i] > cut) { a++; if (fa == "" || lt[i] < fa) fa = lt[i] }
-          printf "%d %d %d %d %d %d %d\n", c, f, u, p, ns, a, (fa != "" && fa <= old) }')
+          for (i = 1; i <= nl; i++) if (cut == "" || lt[i] > cut) { a++; if (first == "" || lt[i] < first) first = lt[i] }
+          printf "%d %d %d %d %d %d %d\n", c, f, u, p, ns, a, (first != "" && first <= day_ago) }')
   read -r c f u p ns a stale <<EOF
 $errs
 EOF

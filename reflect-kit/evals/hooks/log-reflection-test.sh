@@ -87,7 +87,7 @@ run_bg() {  # run_bg <session> <FAKE_CODEX> <FAKE_CLAUDE> [추가 env...]
 errs_of() { grep -F " session=$1" "$ERRS" 2>/dev/null | grep -E '\] (fail|fallback|skip):' | sed -E 's/^[^]]*\] //'; }
 recorded() { grep -cxF -- "- session: \`$1\`" "$LOGD"/reflections-*.md 2>/dev/null | awk -F: '{s += $NF} END {print s + 0}'; }
 fences_of() {  # fences_of <session> — 그 세션 절의 yaml 여는 줄 수 / 맨 fence 줄 수
-  awk -v s="- session: \`$1\`" '/^## /{on = 0} $0 == s {on = 1} on && /^```yaml$/ {y++} on && /^```$/ {b++} END {printf "%d/%d", y, b}' "$LOGD"/reflections-*.md 2>/dev/null
+  awk -v s="- session: \`$1\`" '/^## /{on = 0} $0 == s {on = 1} on && /^```yaml$/ {yaml++} on && /^```$/ {bare++} END {printf "%d/%d", yaml, bare}' "$LOGD"/reflections-*.md 2>/dev/null
 }
 
 # 1. codex 성공 — 읽기 전용 인자 · --full-auto 없음 · 분석기 표식 · 대체 경로 안 부름

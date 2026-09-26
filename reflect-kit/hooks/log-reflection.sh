@@ -324,30 +324,29 @@ if [ "$trimmed" = "noissues" ]; then
 fi
 
 # ── 코드 블록 정규화 ───────────────────────────────────────────────────
-# 분석기가 yaml 코드 블록을 빼거나 언어 없는 fence 로 감싸도, 적기 전에 ```yaml 블록으로 맞춘다.
-# 안 맞추면 아래 억제 게이트가 환경 블록을 못 보고 collect_status · digest 가 엔트리로 못 센다
-# (2026-09-26 실측: 코드 블록 없는 절 셋이 기록됐다). 블록 밖 줄은 primary_category 줄마다 새 블록을 연다.
+# 분석기가 yaml 코드 블록을 빼거나 언어 없는 fence 로 감싸도 적기 전에 ```yaml 블록으로 맞춘다. 안 맞추면 아래
+# 억제 게이트가 환경 블록을 못 보고 collect_status · digest 가 엔트리로 못 센다 (2026-09-26 실측: 코드 블록 없는 절 셋).
 # primary_category 줄이 없는 산문과 다른 언어 fence 는 손대지 않는다 — 블록을 지어내지 않는다.
 summary=$(printf '%s\n' "$summary" | awk '
 function wrap_loose(   i, open) {
-  for (i = 1; i <= nl; i++) {
+  for (i = 1; i <= nloose; i++) {
     if (loose[i] ~ /^[ \t]*primary_category:/) { if (open) print "```"; print "```yaml"; open = 1 }
     print loose[i]
   }
   if (open) print "```"
-  nl = 0
+  nloose = 0
 }
-infence == 0 && /^[ \t]*```/ { wrap_loose(); infence = 1; head = $0; nf = 0; haspc = 0; next }
+infence == 0 && /^[ \t]*```/ { wrap_loose(); infence = 1; head = $0; nfenced = 0; haspc = 0; next }
 infence == 1 && /^[ \t]*```[ \t]*$/ {
   if (head ~ /^[ \t]*```[ \t]*$/ && haspc) print "```yaml"; else print head
-  for (i = 1; i <= nf; i++) print fenced[i]
+  for (i = 1; i <= nfenced; i++) print fenced[i]
   print; infence = 0; next
 }
-infence == 1 { fenced[++nf] = $0; if ($0 ~ /^[ \t]*primary_category:/) haspc = 1; next }
+infence == 1 { fenced[++nfenced] = $0; if ($0 ~ /^[ \t]*primary_category:/) haspc = 1; next }
 /^[ \t]*$/ { wrap_loose(); print; next }
-{ loose[++nl] = $0 }
+{ loose[++nloose] = $0 }
 END {
-  if (infence) { print head; for (i = 1; i <= nf; i++) print fenced[i] }
+  if (infence) { print head; for (i = 1; i <= nfenced; i++) print fenced[i] }
   wrap_loose()
 }')
 
