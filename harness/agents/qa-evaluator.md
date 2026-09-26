@@ -502,8 +502,8 @@ else
   git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]' \
     | grep -vE '^[+-][+-]' | grep -vE '^[+-]- \[[ x]\] [A-Z]{2,}-[0-9]{2}' \
     | grep -vE '^[+-]status: (active|done)$'
-  # conditions_digest 자체가 바뀌었으면 재봉인이다
-  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]conditions_digest:'
+  # 두 지문 가운데 하나라도 바뀌었으면 재봉인이다 (measurement_digest 는 v5.6)
+  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-](conditions|measurement)_digest:'
   # 그 교체가 계약에 기록돼 있는가 (1-e-2 의 화해 경로와 같은 급)
   grep -cE '^supersedes_digest:|^supersedes_commit:' "$CONTRACT"
 fi
@@ -518,8 +518,8 @@ fi
 | 차이가 frontmatter `status` 전환뿐 | **없음 — 경고도 아니다** | 평가자 자신이 Step 5.5 에서 하는 일이다. 걸러내기에서 빼므로 아예 안 나온다. 1-e-2 에 적힌 것과 **같은 예외**다 |
 | 산문 차이 있음 + 개정 파일에 그 기록 있음 | 없음 | `prose_edit: recorded` |
 | 산문 차이 있음 + 개정 기록 없음 | 없음 — 경고 + 사용자 확인 목록 | `prose_edit: unrecorded` + 바뀐 줄 인용. 조건이 그 산문을 가리키면 통과 집합이 달라졌는지 **직접** 확인한다 |
-| `conditions_digest` 가 바뀜 + 계약에 `supersedes_digest` · `supersedes_commit` 로 그 교체가 기록돼 있음 | 없음 — 경고 | `reseal: reconciled` + 두 값 인용. **1-e-2 의 `SEAL_BROKEN` 화해 경로와 같은 급이다** |
-| `conditions_digest` 가 바뀜 + 그 외 | **verdict = REJECT** | `reseal_detected: true` + 두 값 인용. 조용한 재봉인은 위반을 지우는 행위다 |
+| `conditions_digest` 또는 `measurement_digest` 가 바뀜 + 계약에 `supersedes_digest` · `supersedes_commit` 로 그 교체가 기록돼 있음 | 없음 — 경고 | `reseal: reconciled` + 두 값 인용. **1-e-2 의 `SEAL_BROKEN` 화해 경로와 같은 급이다** |
+| `conditions_digest` 또는 `measurement_digest` 가 바뀜 + 그 외 | **verdict = REJECT** | `reseal_detected: true` + 두 값 인용. 조용한 재봉인은 위반을 지우는 행위다 |
 
 - **산문 차이를 자동으로 REJECT 로 만들지 마라.** 서술 섹션 보강은 의도된 설계다. 조건이 그
   산문을 **가리킬 때만** 통과 집합이 달라진다
