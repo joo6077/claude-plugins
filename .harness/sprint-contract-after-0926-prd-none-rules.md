@@ -4,7 +4,7 @@ slug: after-0926-prd-none-rules
 created: "2026-09-26 20:43"
 complexity: "복잡"
 conditions: 21
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:eb11e128b3bbbc6f
 measurement_digest: sha256:29dc81f0f9c7f6c4
