@@ -194,7 +194,7 @@ Final: 전체 정합성 검증
 
 - 동시에 도는 킷 Phase 는 3 개까지 둔다 — 5 개 · 4 개로 돌린 두 사이클에서 서브에이전트가 과부하 오류(529)로 죽었고 2 ~ 3 개는 무사고였다 (`.harness/.meta/orchestrator-audit-log.md` 의 두 사이클 방법론 관찰)
 - 여러 Phase 가 한 가지에 커밋하면 커밋마다 서명 줄 `Kaizen-Phase: <슬러그>` 한 줄을 넣고 범위 조건은 그 줄로 내 커밋을 가린다 — 규약 원문은 `harness/references/contract-schema.md` §여러 주체가 한 가지에 커밋할 때
-- Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 `**범위:**` 줄과 `references/phase-dependencies.md` 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 `scripts/sync-orchestrator.py` 가 `skills/` · `references/` 만 보고 만들어 `hooks/` · `docs/` · `agents/` 가 빠진다 (2026-09-24 사이클: reflect-kit 의 `hooks/_lib-project-id.sh` · `docs/SCHEMA.md` 수정이 Phase 12 AUTO 줄 밖이었다)
+- Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 `**범위:**` 줄과 `references/phase-dependencies.md` 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 `scripts/sync-orchestrator.py` 가 킷에 실제로 있는 `references/` · `skills/*/references/` · `agents/` · `hooks/` · `docs/` · `evals/` 를 모두 적어 만든다. 폴더를 새로 만들면 스크립트를 다시 돌린다 (2026-09-24 사이클: 스킬 본문과 참조 폴더만 적던 때 reflect-kit 의 `hooks/_lib-project-id.sh` · `docs/SCHEMA.md` 수정이 Phase 12 AUTO 줄 밖이었다)
 
 ### Regression 실패 카운터
 
@@ -414,7 +414,7 @@ exit_codes: [0, 2]
 
 ### Step 5: Phase 5 — flutter-toolkit 카이젠
 
-**범위:** `flutter-toolkit/skills/*/SKILL.md`, `flutter-toolkit/references/`
+**범위:** `flutter-toolkit/skills/*/SKILL.md`, `flutter-toolkit/references/`, `flutter-toolkit/skills/*/references/`, `flutter-toolkit/agents/`, `flutter-toolkit/hooks/`, `flutter-toolkit/evals/`
 , `docs/flutter/` 리서치 문서
 
 공통 실행 패턴에 따라 `/flutter-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 flutter-toolkit 전 스킬을 전수 감사한다. flutter-toolkit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -423,7 +423,7 @@ exit_codes: [0, 2]
 
 ### Step 6: Phase 6 — design-kit 카이젠
 
-**범위:** `design-kit/skills/*/SKILL.md`, `design-kit/references/`
+**범위:** `design-kit/skills/*/SKILL.md`, `design-kit/references/`, `design-kit/skills/*/references/`, `design-kit/agents/`, `design-kit/hooks/`, `design-kit/docs/`, `design-kit/evals/`
 , `design-kit/docs/design/` 리서치 문서
 
 공통 실행 패턴에 따라 `/design-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 design-kit 전 스킬을 전수 감사한다. design-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -432,7 +432,7 @@ exit_codes: [0, 2]
 
 ### Step 7: Phase 7 — backend-kit 카이젠
 
-**범위:** `backend-kit/skills/*/SKILL.md`, `backend-kit/references/`
+**범위:** `backend-kit/skills/*/SKILL.md`, `backend-kit/references/`, `backend-kit/skills/*/references/`, `backend-kit/agents/`, `backend-kit/evals/`
 , `docs/backend/` 리서치 문서
 
 공통 실행 패턴에 따라 `/backend-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 backend-kit 전 스킬을 전수 감사한다. backend-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -441,7 +441,7 @@ exit_codes: [0, 2]
 
 ### Step 8: Phase 8 — infra-kit 카이젠
 
-**범위:** `infra-kit/skills/*/SKILL.md`, `infra-kit/references/`
+**범위:** `infra-kit/skills/*/SKILL.md`, `infra-kit/references/`, `infra-kit/skills/*/references/`, `infra-kit/agents/`, `infra-kit/evals/`
 , `docs/infra/` 리서치 문서
 
 공통 실행 패턴에 따라 `/infra-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 infra-kit 전 스킬을 전수 감사한다. infra-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -450,7 +450,7 @@ exit_codes: [0, 2]
 
 ### Step 9: Phase 9 — rust-kit 카이젠
 
-**범위:** `rust-kit/skills/*/SKILL.md`, `rust-kit/references/`
+**범위:** `rust-kit/skills/*/SKILL.md`, `rust-kit/references/`, `rust-kit/skills/*/references/`, `rust-kit/agents/`, `rust-kit/evals/`
 , `docs/rust/` 리서치 문서
 
 공통 실행 패턴에 따라 `/rust-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 rust-kit 전 스킬을 전수 감사한다. rust-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -459,7 +459,7 @@ exit_codes: [0, 2]
 
 ### Step 10: Phase 10 — react-kit 카이젠
 
-**범위:** `react-kit/skills/*/SKILL.md`, `react-kit/references/`
+**범위:** `react-kit/skills/*/SKILL.md`, `react-kit/references/`, `react-kit/agents/`, `react-kit/evals/`
 , `docs/react/` 리서치 문서
 
 공통 실행 패턴에 따라 `/react-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 react-kit 전 스킬을 전수 감사한다. react-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -468,7 +468,8 @@ exit_codes: [0, 2]
 
 ### Step 11: Phase 11 — planning-kit 카이젠
 
-**범위:** `planning-kit/skills/*/SKILL.md`
+**범위:** `planning-kit/skills/*/SKILL.md`, `planning-kit/agents/`
+, `docs/planning/` 리서치 문서
 
 공통 실행 패턴에 따라 `/planning-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 planning-kit 전 스킬을 전수 감사한다. planning-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -476,7 +477,7 @@ exit_codes: [0, 2]
 
 ### Step 12: Phase 12 — reflect-kit 카이젠
 
-**범위:** `reflect-kit/skills/*/SKILL.md`, `reflect-kit/references/`
+**범위:** `reflect-kit/skills/*/SKILL.md`, `reflect-kit/references/`, `reflect-kit/skills/*/references/`, `reflect-kit/hooks/`, `reflect-kit/docs/`, `reflect-kit/evals/`
 
 공통 실행 패턴에 따라 `/reflect-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 reflect-kit 전 스킬을 전수 감사한다. reflect-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -484,7 +485,7 @@ exit_codes: [0, 2]
 
 ### Step 13: Phase 13 — bambu-kit 카이젠
 
-**범위:** `bambu-kit/skills/*/SKILL.md`, `bambu-kit/skills/*/references/`
+**범위:** `bambu-kit/skills/*/SKILL.md`, `bambu-kit/skills/*/references/`, `bambu-kit/evals/`
 
 공통 실행 패턴에 따라 `/bambu-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 bambu-kit 전 스킬을 전수 감사한다. bambu-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -500,7 +501,7 @@ exit_codes: [0, 2]
 
 ### Step 15: Phase 15 — tone-kit 카이젠
 
-**범위:** `tone-kit/skills/*/SKILL.md`, `tone-kit/references/`
+**범위:** `tone-kit/skills/*/SKILL.md`, `tone-kit/references/`, `tone-kit/evals/`
 , `docs/tone/` 리서치 문서
 
 공통 실행 패턴에 따라 `/tone-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 tone-kit 전 스킬을 전수 감사한다. tone-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -509,7 +510,7 @@ exit_codes: [0, 2]
 
 ### Step 16: Phase 16 — api-kit 카이젠
 
-**범위:** `api-kit/skills/*/SKILL.md`, `api-kit/references/`
+**범위:** `api-kit/skills/*/SKILL.md`, `api-kit/references/`, `api-kit/skills/*/references/`, `api-kit/agents/`
 , `docs/api/` 리서치 문서
 
 공통 실행 패턴에 따라 `/api-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 api-kit 전 스킬을 전수 감사한다. api-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -518,7 +519,7 @@ exit_codes: [0, 2]
 
 ### Step 17: Phase 17 — howto-kit 카이젠
 
-**범위:** `howto-kit/skills/*/SKILL.md`, `howto-kit/references/`
+**범위:** `howto-kit/skills/*/SKILL.md`, `howto-kit/references/`, `howto-kit/agents/`, `howto-kit/evals/`
 , `docs/howto/` 리서치 문서
 
 공통 실행 패턴에 따라 `/howto-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 howto-kit 전 스킬을 전수 감사한다. howto-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
