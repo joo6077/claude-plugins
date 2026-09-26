@@ -106,14 +106,14 @@ Agent 도구를 사용하여 backend-reviewer 서브에이전트를 생성한다
 
 ## Step 4: 최종 판정
 
-판정 분류는 세 가지다:
+판정 분류는 네 가지다 (조건이 서로 겹치지 않는다):
 
 카운터는 두 개이며 **합산하지 않는다** (정본 조항 3): `UNVERIFIED_INVALID_EVIDENCE`(임계 판정용)와 `env_gaps`(= `UNVERIFIED_ENV`, 커버리지 게이트용).
 
-- **APPROVE** — 전 카테고리 PASS + `UNVERIFIED_INVALID_EVIDENCE` 0 건.
-- **CONDITIONAL APPROVE** — 전 카테고리 PASS 이지만 `UNVERIFIED_INVALID_EVIDENCE` 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · Docker 설치) 후 재검증 권고.
+- **APPROVE** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 0 건 + `verified_coverage` 0.60 이상. `env_gaps` 수를 리포트에 적는다.
+- **CONDITIONAL APPROVE** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 1 건 + `verified_coverage` 0.60 이상. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · Docker 설치) 후 재검증 권고.
 - **REJECT** — 1 건 이상 FAIL 또는 `UNVERIFIED_INVALID_EVIDENCE` 2 건 이상. 각 FAIL 에 대해 구체적 개선 액션(파일:라인 + 권장 변경 + 출처) 을 함께 제시한다.
-- **BLOCKED** — `(총 rule 수 − env_gaps) / 총 rule 수 < 0.60`. 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
+- **BLOCKED** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 2 건 미만이면서 `verified_coverage = (총 rule 수 − env_gaps) / 총 rule 수 < 0.60` (`insufficient_verified_coverage`). 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
 
 `env_gaps` 로 세려면 남용 방지 4 요건을 모두 채워야 한다 (`backend-reviewer.md` §`UNVERIFIED_ENV` 남용 방지 4 요건). 못 채운 주장은 `UNVERIFIED_INVALID_EVIDENCE` 로 강등된다.
 
