@@ -13,7 +13,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **외부 리소스 금지** — 페이지는 반드시 standalone HTML이어야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 모든 스타일은 `<style>` 내 인라인.
+1. **외부 리소스 금지** — 페이지는 반드시 standalone HTML이어야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 스타일은 공통 파일 `docs/assets/site.css` 링크 한 줄(`<style>` 앞)과 `<style>` 안 인라인뿐이다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다 — 움직임 줄이기(`prefers-reduced-motion`)와 본문 행간 1.7 이다.
 2. **index.html 등록 필수** — 페이지를 생성했는데 `docs/index.html`의 `categories` 배열에 등록하지 않으면 네비게이션에 표시되지 않는다. 아이콘도 `getIcon()` 함수에 추가해야 한다.
 3. **플러그인 accent 컬러 준수** — `references/css-tokens.md`의 플러그인별 accent 매핑을 따라라. Harness에 Design Kit 컬러를 쓰면 안 된다.
 4. **iframe 경로는 index.html 기준 상대경로** — `docs/index.html`에서 iframe으로 로드하므로 `file` 값은 `design-kit/typography-scale.html` 형태여야 한다.
