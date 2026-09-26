@@ -230,7 +230,7 @@ user-invocable: true
 
 | 항목 | 규칙 | 예시 |
 |------|------|------|
-| 커밋 메시지 | 바꾼 종류 머리 + 서명 줄 `Kaizen-Phase:` — 카이젠 커밋을 가리는 것은 머리가 아니라 서명 줄이다 | `docs(harness): 계약 스키마 v5.5 … (카이젠 2026-09-24 Phase 2)` 에 서명 줄 `Kaizen-Phase: kaizen-0924-p02-contract` |
+| 커밋 메시지 | 바꾼 종류 머리 + 서명 줄 `Kaizen-Phase:` — 카이젠 커밋을 가리는 것은 머리가 아니라 서명 줄이다 | `docs(harness): 설계 가이드 — 못 한다 전 네 칸 · 알려진 답 대조 … (카이젠 2026-09-24 Phase 1)` 에 서명 줄 `Kaizen-Phase: kaizen-0924-p01-guides` |
 | 브랜치명 | 버전 + 날짜 | `kaizen/0.4.0-2026-04-07` |
 | PR 제목 | bump 유형 명시 | `[minor] sprint-contract 복잡도 판단 개선` |
 

@@ -385,7 +385,7 @@ Good: 검증 불가 → "[미검증] 막는 것: 캡처 명령과 그 실패 출
 스킬이 만드는 산출물이 입력을 읽어 통과 · 실패나 수를 내는 것(검사 스크립트 · 막는 훅 · 검증기 · 측정 스크립트 ·
 새 시험 파일)이면, 원본 대상에서 나온 「위반 0」 · 「통과」 는 검사가 살아 있다는 증거가 아니다. 완료 보고 전에 대상
 파일은 건드리지 않고 임시 사본으로 아래 넷을 돌려 사본 경로 · 명령 · 종료 코드 · 읽은 대상 수를 증거 블록에 붙인다.
-평가 측 정본은 `qa-evaluation-guide.md` §산출물이 검사일 때 — 사본으로 돌리는 다섯 가지 이고, 이 넷은 그 ①~④ 의 생성 측 짝이다.
+평가 측 기준 원본은 `qa-evaluation-guide.md` §산출물이 검사일 때 — 사본으로 돌리는 다섯 가지 이고, 이 넷은 그 ①~④ 의 생성 측 짝이다.
 ⑤ 효과 증명은 위 양성 대조 · 알려진 답 대조가 맡는다.
 
 1. **첫 칸만 읽기** — 위반을 둘째 이후 칸에만 둔 사본에서 실패와 그 칸이 나오고, 읽은 칸 수가 전체 칸 수와 같다
@@ -863,7 +863,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 **호환성 유지 규칙:**
 
 - frontmatter는 `name`, `description` 필드를 공통으로 사용 (모든 플랫폼 지원)
-- `argument-hint`, `user-invocable` 등 Claude Code 전용 필드를 다른 런타임이 무시한다는 보장은 없다. Claude Code 는 모르는 필드를 오류 없이 넘기지만, Agent Skills 표준은 표준 밖 필드를 모든 런타임이 무시하라고 정하지 않았고, claude.ai 업로드 · Skills API 는 검증 오류로 거부한다. 표준 밖 값을 담을 자리는 `metadata` 다
+- `argument-hint`, `user-invocable` 등 Claude Code 전용 필드를 다른 런타임이 무시한다는 보장은 없다. Claude Code 는 모르는 필드를 오류 없이 넘기지만, Agent Skills 표준은 표준 밖 필드를 모든 런타임이 무시하라고 정하지 않았고, claude.ai 업로드 같은 배포 경로는 검증 오류로 거부한다. 표준 밖 값을 담을 자리는 `metadata` 다
 - 본문의 Process/Gotchas 구조는 마크다운이므로 플랫폼 무관
 - 플랫폼 전용 기능(hooks, MCP 서버)은 별도 설정 파일로 분리
 
@@ -1021,7 +1021,7 @@ rust-init/SKILL.md     Gotchas: ["Composition Root 단일화 원칙", "domain ev
 
 화면을 만들거나 고치는 킷 셋은 규약을 따로 든다 — design-kit `references/visual-change-protocol.md` ·
 flutter-toolkit `references/visual-evidence-protocol.md` · react-kit `references/render-evidence-protocol.md`.
-채널 · 도구 · 명령은 스택마다 다르지만 아래 두 숫자는 셋이 같이 쓴다. 이 절이 두 숫자의 정본이다.
+채널 · 도구 · 명령은 스택마다 다르지만 아래 두 숫자는 셋이 같이 쓴다. 두 숫자의 기준 원본은 이 절이다.
 
 | 숫자 | 뜻 | 규약 자리 |
 | ---- | -- | --------- |
