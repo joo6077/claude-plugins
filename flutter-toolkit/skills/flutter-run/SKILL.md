@@ -19,7 +19,7 @@ user-invocable: true
 - `dart fix --apply` 후 반드시 `analyze` 실행 — fix가 새 워닝을 만들 수 있다
 - 편집 훅(`scripts/format-edited-dart.sh`)이 Edit·Write 로 고친 .dart 파일을 그때마다 포맷한다(끄기: `FLUTTER_TOOLKIT_FORMAT_ON_EDIT=off`). fix 의 포맷은 훅이 못 본 파일을 뒷정리하는 몫이다 — `lib/` 통째 포맷으로 되돌리지 마라
 - **codegen 후 변경 보고 시 `.g.dart` / `.freezed.dart` 를 수기 변경과 섞지 마라** — 산출물 수십 개가 `git diff --stat` 에 섞이면 "변환 헬퍼만 변경" 같은 스코프 조건이 위반으로 판정된다 (글로벌 REJECT `AR-01` 실제 사례). codegen 서브커맨드 섹션의 exclude pathspec 명령을 사용해 두 목록을 나눠 보고하라
-- Makefile 기반 monorepo 에서는 `fvm flutter run` 직접 호출 대신 `make app-run` 사용 — dart-define, observatory-port, launch.json 설정이 Makefile에 집중 관리된다. 직접 호출하면 dart-define 환경변수 누락으로 앱이 다른 환경으로 기동됨
+- Makefile 기반 monorepo 에서는 `app-run` 타겟이 있으면 `fvm flutter run` 직접 호출 대신 `make app-run` 사용 — dart-define, observatory-port, launch.json 설정이 Makefile에 집중 관리된다. 직접 호출하면 dart-define 환경변수 누락으로 앱이 다른 환경으로 기동됨. 타겟 확인은 `references/project-detection.md` Step 2b 4 번 명령의 `<타겟>` 자리에 `app-run` 을 넣어 한다 — 없으면 `make app-run` 이 없는 타겟을 불러 멈추므로 기본 명령을 쓴다
 
 Flutter 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정한다.
 
