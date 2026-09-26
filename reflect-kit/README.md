@@ -32,18 +32,18 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
-|------|------|
-| `codex-kaizen` | Codex 위임 방법론과 전역 프롬프트 템플릿(~/.claude/codex-prompt-template.md)을 |
-| `reflect-digest` | ~/.claude/logs/<project_id>/reflections-*.md 에 쌓인 구조화 YAML 블록을 읽어 |
+| --- | --- |
+| `codex-kaizen` | Codex 위임 방법론과 전역 프롬프트 템플릿(~/.claude/codex-prompt-template.md)을 실제 위임 로그 기반으로 주기적으로 강화하는 카이젠 루프. |
+| `reflect-digest` | ~/.claude/logs/<project_id>/reflections-*.md 에 쌓인 구조화 YAML 블록을 읽어 카테고리/태그별 빈도를 집계하고, 반복 실수·오해·잘못된 접근 패턴을 리포트한다. |
 | `reflect-kaizen` | reflect-kit 파이프라인 자체의 품질을 월 1회 측정·보정한다. |
-| `reflect-promote` | /reflect-digest가 낸 승격 후보를 실제 Claude Code surface(project CLAUDE.md, project memory, |
+| `reflect-promote` | /reflect-digest가 낸 승격 후보를 실제 Claude Code surface(project CLAUDE.md, project memory, global CLAUDE.md, global memory, skill, path-scoped rule, hook)에 반영하고, 승격 이력을 ~/.claude/logs/<project_id>/promotions-ledger.md 에 append 한다. |
 <!-- /AUTO:skills -->
 
 ## 에이전트
 
 <!-- AUTO:agents -->
 | 에이전트 | 설명 |
-|----------|------|
+| --- | --- |
 | (없음) | 초기 버전은 스킬만으로 충분. 분류/평가 에이전트(reflection-analyst)는 향후 추가 여지 |
 <!-- /AUTO:agents -->
 
@@ -51,7 +51,7 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 
 <!-- AUTO:hooks -->
 | 이벤트 | 실행 | 설명 |
-|--------|------|------|
+| --- | --- | --- |
 | `UserPromptSubmit` | `log-prompt.sh` | UserPromptSubmit |
 | `PostToolUseFailure` | `log-tool-failure.sh` | PostToolUseFailure |
 | `Stop` | `log-reflection.sh` | Stop |
