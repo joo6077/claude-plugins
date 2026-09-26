@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# log-reflection.sh 시험 — 가짜 codex · claude 로 분석기 인자, err= 한 줄, 대체 경로, 분석기 표식, 임시 파일 정리를 잰다.
+# log-reflection.sh 시험 — 가짜 codex · claude 로 분석기 인자, err= 한 줄, 대체 경로, 코드 블록 정규화, 분석기 표식, 임시 파일 정리를 잰다.
 # 가짜 codex 는 codex-cli 0.154.0 처럼 --full-auto 를 unexpected argument · 종료 코드 2 로 거부하고, 성공해도 stderr 에
 # 머리글과 받은 프롬프트를 찍는다. 가짜 claude 는 모르는 모델 이름을 종료 코드 1 로 거부한다 (둘 다 2026-09-25 실측 모양).
 # 다른 훅 사본으로 돌리기: REFLECT_KIT_HOOKS=<hooks 폴더 사본> bash log-reflection-test.sh
@@ -36,6 +36,12 @@ case "${FAKE_CODEX:-ok}" in
   crash) exit 3 ;;
   empty) exit 0 ;;
   noissues) printf 'no issues\n' > "$out"; exit 0 ;;
+  # 형식을 안 따른 출력 — 코드 블록 없음 · 빈 줄로 나뉜 두 블록 · 언어 없는 fence · 환경 블록 · 산문
+  nofence1) printf 'primary_category: misunderstanding\nmistake_tag: nofence-one-tag\nactionability: claude_behavior\n' > "$out"; exit 0 ;;
+  nofence2) printf 'primary_category: misunderstanding\nmistake_tag: nofence-a-tag\n\nprimary_category: wrong_approach\nmistake_tag: nofence-b-tag\n' > "$out"; exit 0 ;;
+  barefence) printf '```\nprimary_category: tool_failure\nmistake_tag: bare-fence-tag\n```\n' > "$out"; exit 0 ;;
+  envnofence) printf 'primary_category: tool_failure\nmistake_tag: env-repeat-tag\nactionability: user_environment\n' > "$out"; exit 0 ;;
+  prose) printf 'PROSE-LINE 요약 문장만 있다\n' > "$out"; exit 0 ;;
 esac
 EOF
 cat > "$W/bin/claude" <<'EOF'
@@ -80,6 +86,9 @@ run_bg() {  # run_bg <session> <FAKE_CODEX> <FAKE_CLAUDE> [추가 env...]
 }
 errs_of() { grep -F " session=$1" "$ERRS" 2>/dev/null | grep -E '\] (fail|fallback|skip):' | sed -E 's/^[^]]*\] //'; }
 recorded() { grep -cxF -- "- session: \`$1\`" "$LOGD"/reflections-*.md 2>/dev/null | awk -F: '{s += $NF} END {print s + 0}'; }
+fences_of() {  # fences_of <session> — 그 세션 절의 yaml 여는 줄 수 / 맨 fence 줄 수
+  awk -v s="- session: \`$1\`" '/^## /{on = 0} $0 == s {on = 1} on && /^```yaml$/ {y++} on && /^```$/ {b++} END {printf "%d/%d", y, b}' "$LOGD"/reflections-*.md 2>/dev/null
+}
 
 # 1. codex 성공 — 읽기 전용 인자 · --full-auto 없음 · 분석기 표식 · 대체 경로 안 부름
 run_bg S1 ok ok
@@ -96,6 +105,7 @@ check "codex 실패 err= ERROR 줄" "fail:codex-exit-1 session=S2 err=ERROR: You
 fallback:claude-used session=S2" "$(errs_of S2)"
 check "claude 인자 --model haiku" 1 "$(grep -c '^claude .*\[--model\] \[haiku\]' "$CALLS")"
 check "claude 인자 --no-session-persistence" 1 "$(grep -c '^claude .*\[--no-session-persistence\]' "$CALLS")"
+check "claude 인자 --safe-mode" 1 "$(grep -c '^claude .*\[--safe-mode\]' "$CALLS")"
 check "claude 분석기 표식" 1 "$(grep -c '^claude .* analyzer=\[1\]$' "$CALLS")"
 check "대체 경로 기록" 1 "$(recorded S2)"
 
@@ -125,6 +135,21 @@ fallback:claude-used session=S6" "$(errs_of S6)"
 run_bg S8 noissues ok
 check "no issues 정상 종료 줄" 1 "$(grep -c '\] ok:no-issues session=S8$' "$ERRS")"
 check "no issues 기록 없음" 0 "$(recorded S8)"
+
+# 6-2. 코드 블록 없는 출력은 yaml 블록으로 감싸 적는다 — 답은 블록 수에서 손으로 정했다
+run_bg N1 nofence1 ok
+check "코드 블록 없는 한 블록 — 감쌈" "1/1" "$(fences_of N1)"
+run_bg N2 nofence2 ok
+check "코드 블록 없는 두 블록 — 둘로 감쌈" "2/2" "$(fences_of N2)"
+run_bg N3 barefence ok
+check "언어 없는 fence — yaml 로" "1/1" "$(fences_of N3)"
+run_bg N4 prose ok
+check "산문 — 그대로 적고 블록을 안 지어냄" "1 1 0/0" "$(recorded N4) $(grep -c '^PROSE-LINE ' "$LOGD"/reflections-*.md) $(fences_of N4)"
+# 코드 블록 없는 환경 블록도 억제 게이트가 본다 — 두 번째 세션은 억제되고 count 는 2
+run_bg E1 envnofence ok
+run_bg E2 envnofence ok
+check "코드 블록 없는 환경 블록 — 두 번째 억제" "1 0 1 2" \
+  "$(recorded E1) $(recorded E2) $(grep -c '\] skip:env-dedup-all .* session=E2$' "$ERRS") $(awk -F'\t' '$1 == "env-repeat-tag" {print $4}' "$LOGD/.env-issues.tsv" 2>/dev/null)"
 
 # 7. 분석기 표식이 있으면 세 훅 모두 아무것도 적지 않는다 — 표식 없는 같은 입력은 적는다(양성 대조)
 before=$(find "$W/home" -type f | wc -l | tr -d ' ')

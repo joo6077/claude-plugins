@@ -252,6 +252,9 @@ err_line() {
 # 모델은 별칭 `haiku` 다. 전에 쓰던 `haiku-4.5` 는 CLI 가 모르는 이름이라 대체 경로가 한 번도
 # 성공하지 못했다 (2026-09-25 실측: fallback:claude-used 0 건, CLI 는 종료 코드 1).
 # --no-session-persistence: 분석 세션을 세션 기록으로 남기지 않는다.
+# --safe-mode: 사용자 · 프로젝트 설정의 훅을 띄우지 않는다. 빼면 SessionStart 훅이 다른 세션의 도구 서버를
+# 죽이고 알림 · 기록 훅이 돈다(2026-09-26 사본 설정 실측: 표식 4 → 0). 인증은 그대로 쓴다.
+# --bare 는 로그인 인증을 읽지 않아 대체 경로가 죽는다.
 try_claude_fallback() {
   local codex_reason="$1"   # "codex-exit-N" 또는 "codex-empty-output"
   local codex_err="$2"      # codex stderr 한 줄 (빈 출력이면 없음)
@@ -263,7 +266,7 @@ try_claude_fallback() {
   fi
 
   local fb_exit=0 fb_summary fb_err
-  echo "$prompt" | REFLECT_KIT_ANALYZER=1 claude -p --model haiku --no-session-persistence \
+  echo "$prompt" | REFLECT_KIT_ANALYZER=1 claude -p --safe-mode --model haiku --no-session-persistence \
     > "$ana_dir/claude.out" 2> "$ana_dir/claude.err"
   fb_exit=$?
   fb_summary=$(cat "$ana_dir/claude.out" 2>/dev/null)
@@ -315,10 +318,38 @@ fi
 
 trimmed=$(echo "$summary" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
 if [ "$trimmed" = "noissues" ]; then
-  # 정상 종료도 한 줄 남긴다 — 흔적이 없으면 collect_status 가 마지막 기록 뒤 실패 한 번만 보고 멈춤으로 판정한다
+  # 정상 종료도 한 줄 남긴다 — collect_status 는 마지막 기록과 이 줄 가운데 늦은 쪽 뒤의 실패만 멈춤으로 센다
   log_hook_error "$log_dir" "$HOOK_NAME" "ok:no-issues session=$session_id"
   exit 0
 fi
+
+# ── 코드 블록 정규화 ───────────────────────────────────────────────────
+# 분석기가 yaml 코드 블록을 빼거나 언어 없는 fence 로 감싸도, 적기 전에 ```yaml 블록으로 맞춘다.
+# 안 맞추면 아래 억제 게이트가 환경 블록을 못 보고 collect_status · digest 가 엔트리로 못 센다
+# (2026-09-26 실측: 코드 블록 없는 절 셋이 기록됐다). 블록 밖 줄은 primary_category 줄마다 새 블록을 연다.
+# primary_category 줄이 없는 산문과 다른 언어 fence 는 손대지 않는다 — 블록을 지어내지 않는다.
+summary=$(printf '%s\n' "$summary" | awk '
+function wrap_loose(   i, open) {
+  for (i = 1; i <= nl; i++) {
+    if (loose[i] ~ /^[ \t]*primary_category:/) { if (open) print "```"; print "```yaml"; open = 1 }
+    print loose[i]
+  }
+  if (open) print "```"
+  nl = 0
+}
+infence == 0 && /^[ \t]*```/ { wrap_loose(); infence = 1; head = $0; nf = 0; haspc = 0; next }
+infence == 1 && /^[ \t]*```[ \t]*$/ {
+  if (head ~ /^[ \t]*```[ \t]*$/ && haspc) print "```yaml"; else print head
+  for (i = 1; i <= nf; i++) print fenced[i]
+  print; infence = 0; next
+}
+infence == 1 { fenced[++nf] = $0; if ($0 ~ /^[ \t]*primary_category:/) haspc = 1; next }
+/^[ \t]*$/ { wrap_loose(); print; next }
+{ loose[++nl] = $0 }
+END {
+  if (infence) { print head; for (i = 1; i <= nf; i++) print fenced[i] }
+  wrap_loose()
+}')
 
 # ── 환경 오설정 반복 로깅 억제 (결정론적 dedup 게이트) ─────────────────────
 # actionability: user_environment 블록은 같은 mistake_tag 가 억제 창(기본 7일) 안에

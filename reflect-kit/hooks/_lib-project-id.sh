@@ -173,22 +173,25 @@ collect_status() {
     | while IFS= read -r rf; do cat "$rf"; done | awk -v since="$since" '
     /^## [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T/ {
       ts = substr($0, 4); if (ts > last) last = ts
-      inp = (since == "" || substr(ts, 1, 19) >= since); next
+      inp = (since == "" || substr(ts, 1, 19) >= since); iny = 0; next
     }
     inp && /^- session: `/ {
       s = $0; sub(/^- session: `/, "", s); sub(/`.*$/, "", s)
       if (s != "" && !(s in seen)) { seen[s] = 1; k++ }
     }
-    inp && /^[ \t]*```yaml[ \t]*$/ { e++ }
+    # 0.8.0 훅은 분석기가 코드 블록을 빼면 그대로 적었다 — yaml 코드 블록 밖의 primary_category 줄도 엔트리 하나다
+    iny && /^[ \t]*```[ \t]*$/ { iny = 0; next }
+    !iny && /^[ \t]*```yaml[ \t]*$/ { iny = 1; if (inp) e++; next }
+    inp && !iny && /^[ \t]*primary_category:/ { e++ }
     END { printf "%d %d %s\n", k, e, (last == "" ? "없음" : last) }')
-  local c f u p ns a k e last lastk n
+  local c f u p ns a stale k e last lastk n
   read -r k e last <<EOF
 $refl
 EOF
   # 마지막 기록 시각을 먼저 구한다 — 엔트리가 하나라도 있으면 엔트리 0 경고가 안 나와 기간 도중에 멈춘
   # 수집기를 놓친다. 마지막 기록 뒤의 실패 시도를 따로 센다
   lastk=${last:0:19}; [ "$last" = 없음 ] && lastk=
-  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" -v last="$lastk" '
+  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" -v last="$lastk" -v old="$(_rk_since 1)" '
     $2 != "[log-reflection]" { next }
     since != "" && substr($1, 1, 19) < since { next }
     { lost = 0 }
@@ -202,18 +205,23 @@ EOF
       s = substr($0, RSTART + 9, RLENGTH - 9)
       if (s != "" && !(s in seen)) { seen[s] = 1; ns++ }
     }
-    # 정상 종료(no issues · 전 블록 억제)는 기록을 안 남긴다 — 마지막 기록과 마지막 정상 종료 가운데 늦은 쪽 뒤의 실패만 센다
-    END { cut = (okl > last) ? okl : last; for (i = 1; i <= nl; i++) if (cut == "" || lt[i] > cut) a++
-          printf "%d %d %d %d %d %d\n", c, f, u, p, ns, a }')
-  read -r c f u p ns a <<EOF
+    # 정상 종료(no issues · 전 블록 억제)는 기록을 안 남긴다 — 마지막 기록과 마지막 정상 종료 가운데 늦은 쪽 뒤의 실패만 센다.
+    # stale = 그 가운데 첫 실패가 1 일(old) 이상 지났는가
+    END { cut = (okl > last) ? okl : last
+          for (i = 1; i <= nl; i++) if (cut == "" || lt[i] > cut) { a++; if (fa == "" || lt[i] < fa) fa = lt[i] }
+          printf "%d %d %d %d %d %d %d\n", c, f, u, p, ns, a, (fa != "" && fa <= old) }')
+  read -r c f u p ns a stale <<EOF
 $errs
 EOF
   n=$((f + p))
   printf '수집 상태: Stop 실패 시도 %d회 (codex 실패 %d · 대체 경로 실패 %d · 대체 경로 성공 %d · 분석 전 중단 %d; 고유 세션 %d) / 기록된 세션 %d / 엔트리 %d / 마지막 기록 %s\n' \
     "$n" "$c" "$f" "$u" "$p" "$ns" "$k" "$e" "$last"
+  # 엔트리가 있는 기간은 실패 3 회 이상이 첫 실패부터 1 일 넘게 이어질 때만 멈춤으로 본다. digest 는 이 줄
+  # 하나에 승격 후보를 통째로 비우는데, 한도 초과 같은 일시 실패나 옛 판 세션의 실패 몇 줄로 켜지면 안 된다
+  # (2026-09-26 실측: 새 판이 기록하는 동안 옛 판 세션 둘이 한 시간 안에 실패 여섯 줄을 남겼다)
   if [ "$e" -eq 0 ] && [ "$a" -gt 0 ]; then
     printf '%s\n' '⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다'
-  elif [ "$a" -gt 0 ]; then
+  elif [ "$a" -ge 3 ] && [ "$stale" = 1 ]; then
     printf '⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 %d회\n' "$a"
   fi
   return 0
