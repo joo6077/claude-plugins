@@ -136,3 +136,22 @@ tone-guide 5 단계 대조 (이번에 더한 여섯 줄, 1 단계는 이번 수�
 - 라이브러리 문서 확인은 웹 조회가 막혀 있어 pub 설치본(`slang-4.14.0` · `slang_build_runner-4.14.0` · `build_runner-2.13.1` · `build_runner_core` 7.3.2 · 8.0.0)만 읽었다.
 - 측정 도우미: 계약 끝의 측정 도우미 블록(떼어 둔 사본 `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/kitsa-measure.sh`).
   로컬 CI 는 `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh`.
+
+## QA 결과
+
+qa-evaluator 2 회차 APPROVE — 조건 28 개, 개정 AM-01 · AM-02 둘 다 통과 근거로 썼다. 리포트는 `.harness/sprint-feedback-after-0924-kits-a.md`(커밋 `b0b1608`, 계약 status `done` 도 같은 커밋).
+리포트가 부모에게 넘긴 교차 진단 두 가지(AR-01 을 개정 파일로 통과시킨 판단 · DG-05 를 1 회차 결과 대신 다시 잰 판단)는 부모 단계 몫이다.
+
+## 다음 사이클 메모
+
+교차 진단이 「판정은 안 바꾼다」 고 본 것 가운데 이번에 고치지 않은 셋과, QA 리포트 「남겨둘 것」 둘이다.
+
+- flutter-toolkit: widget-inspector 의 새 칸 값 `건너뜀 — 관례 표 없는 호출` 을 재는 평가 사례가 `evals/evals.json` 에 없다. 사례 16 은 `[미검증] 관례 표 없음` 쪽만 잰다.
+  사례를 더하면 루트 `CLAUDE.md` 의 평가 사례 수 문장도 같이 고친다(지금도 「23개」 · 「20개」 두 문장이 서로 다르다)
+- infra-kit: infra-test `CORE_TOOLS="grep"`(`SKILL.md:220`) 때문에 python3 · PyYAML 이 있어 grep 없이도 돌 수 있는 환경도 종료 코드 2 로 멈춘다.
+  안전한 쪽으로 틀린 것이라 두었다(표 줄 `:389` 에 까닭을 적음). 사전 검사를 도구 조합으로 가를지 정한다
+- infra-kit: 핀닝 rule 의 옛 오류 문구(`SKILL.md:327`)가 사용자 쉬운 말 목록이 막는 낱말을 쓴다. checkout rule 과 같은 「YAML 읽기 실패」 로 맞출지 —
+  바꾸면 `docs/infra-kit/infra-test.html` 도 같이 다시 만든다
+- 계약: AR-01 은 개정 AM-01(허용 경로에 `flutter-toolkit/skills/flutter-preflight/SKILL.md`)을 적용해야 통과한다. 다음 계약은 Makefile 규칙을 따르는 스킬 넷
+  (flutter-preflight · flutter-run · flutter-ai-rules · project-detection)을 처음부터 허용 경로와 SK-07 같은 셈에 넣는다
+- 계약: DG-05 의 전제 「미커밋 변경 0건」 은 1 회차 QA 가 계약 status 줄을 바꿔 두므로 2 회차부터 늘 깨진다. 다음 계약은 계약 파일 자신의 status 줄 변경을 빼고 잰다
