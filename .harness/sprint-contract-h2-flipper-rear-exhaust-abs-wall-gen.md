@@ -4,7 +4,7 @@ slug: h2-flipper-rear-exhaust-abs-wall-gen
 created: "2026-09-26 10:40"
 complexity: "중간"
 conditions: 31
-status: active
+status: done
 owner_session: d204ea78-091c-4f5b-a8db-ec3ead359b73
 conditions_digest: sha256:a6bb133d64d43f5c
 locked_at: "2026-09-26 11:43"
