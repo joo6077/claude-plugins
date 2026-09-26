@@ -53,7 +53,7 @@ user-invocable: true
 - 정리 정책(6개월 초과 삭제, 500개 제한)은 모든 Phase 완료 후 Final 단계에서 실행한다. 분석 중 데이터 손실을 방지한다.
 - **Step F2 (docs-site 재생성) 과 Step F3 (글로벌 피드백 정리) 는 건너뛰기 금지.** 이 두 단계는 "조건부 실행" 이 아니라 **필수 실행** 이다. docs-site 가 빠지면 공개 HTML 문서가 카이젠 이전 상태에 멈추고, 피드백 정리가 빠지면 다음 사이클 data pool 품질이 저하된다.
 - **Step F4 의 Post-Kaizen Checklist 는 PR 생성 전 blocking gate** 다. 하나라도 미통과면 PR 생성을 중단하고 해당 Step 으로 돌아간다. 체크리스트를 "대부분 OK" 로 넘기지 마라.
-- **per-kit research-log 는 파일이 없어도 신규 생성하라.** 이전 조문 "존재 시 갱신" 은 영구 누락을 유발했다. `docs/{backend,infra,rust,react,flutter}/research-log.md` 가 없으면 반드시 만든다.
+- **per-kit research-log 는 파일이 없어도 신규 생성하라.** 이전 조문 "존재 시 갱신" 은 영구 누락을 유발했다. `docs/{backend,infra,rust,react,flutter,planning,design,tone,api}/research-log.md` 가 없으면 반드시 만든다. 이 아홉 개는 F4 3 번 · Post-Kaizen Checklist · `scripts/validate-post-kaizen.py` 와 같은 목록이다 (howto-kit 은 `howto-research` 가 기록 파일을 쓰지 않아 없다).
 - **`AUTO:plugin_phases` 마커 영역(Process 절의 Phase 5~N)을 직접 편집하지 마라.** 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 킷 추가/수정/삭제 시 marketplace.json 을 고친 뒤 `python3 scripts/sync-orchestrator.py` 를 실행하면 이 섹션이 동기화된다. 직접 편집 시 다음 실행에서 덮어써진다. **마커를 산문에서 설명할 때 HTML 주석 형태를 그대로 적지 마라** — 실측 2026-08-13: 이 불릿이 마커를 리터럴로 품고 있었고 `sync-orchestrator.py` 가 `str.find()` 로 그 첫 등장을 잡아 자동 생성 블록 92 행을 **이 불릿 안으로** 주입했다. 진짜 Process 위치는 갱신되지 않아 Phase 12·13 의 `### Step` 절이 통째로 빠졌는데도 `--check-only` 는 exit 0 을 보고했다. 지금은 스크립트가 행 앵커 + 마커 유일성 검사로 막는다 (1 쌍이 아니면 exit 2).
 
 - **Step 0.5 Orchestrator Self-Audit 는 건너뛰기 금지.** 이전 사이클의 수동 개입 이력 (`.harness/.meta/orchestrator-audit-log.md`) 과 `sync-orchestrator.py --check-only` drift 를 먼저 확인해야 Phase 1 로 진입한다.
@@ -735,6 +735,9 @@ candidates:
    - `docs/react/research-log.md` (react 관련, Phase 10) — **파일이 없으면 신규 생성**
    - `docs/planning/research-log.md` (planning 관련, Phase 11) — **파일이 없으면 신규 생성**
    - `docs/flutter/research-log.md` (flutter 관련, Phase 5) — **파일이 없으면 신규 생성**
+   - `docs/design/research-log.md` (design 관련, Phase 6) — **파일이 없으면 신규 생성**
+   - `docs/tone/research-log.md` (tone 관련, Phase 15) — **파일이 없으면 신규 생성**
+   - `docs/api/research-log.md` (api 관련, Phase 16) — **파일이 없으면 신규 생성**
    - 각 per-kit research-log 는 frontmatter (title, version, last_updated), "## [YYYY-MM-DD] - Phase N kaizen" 엔트리, 리서치 소스 URL 최소 5 건 포함.
 
 4. **evals 갱신 체크:**
@@ -761,7 +764,7 @@ candidates:
    - [ ] `python3 scripts/validate-plugin.py` 가 모든 플러그인 (planning-kit 포함) OK, Exit 0 을 반환한다
    - [ ] `docs/kaizen/changelog.md` 에 이번 사이클 엔트리가 추가되었다 (Phase 1~4 변경 반영)
    - [ ] `docs/kaizen/flutter-changelog.md` 에 Phase 5 엔트리가 추가되었다 (해당 Phase 변경 있을 시)
-   - [ ] `docs/kaizen/research-log.md` + `docs/kaizen/flutter-research-log.md` + per-kit research-log 6개 파일 (backend/infra/rust/react/flutter/planning) 이 모두 존재하고 이번 사이클 엔트리를 포함한다
+   - [ ] `docs/kaizen/research-log.md` + `docs/kaizen/flutter-research-log.md` + per-kit research-log 9개 파일 (backend/infra/rust/react/flutter/planning/design/tone/api) 이 모두 존재하고 이번 사이클 엔트리를 포함한다
    - [ ] Step F2 docs-site 재생성이 실행되었다 — 변경된 소스에 대응하는 `docs/<plugin>/*.html` 이 최신 상태다
    - [ ] Step F3 글로벌 피드백 정리가 실행되었다 — `.harness/.meta/cleanup-log.yaml` 에 이번 사이클 엔트리가 있다
    - [ ] Step F3.5 메모리 승격 후보 산출이 실행되었다 — `.harness/.meta/memory-promotion-candidates-{YYYY-MM-DD}.md` 가 존재하고 (후보 0 건이면 `candidates: []`), 카이젠이 승격 ledger 를 직접 수정하지 않았다

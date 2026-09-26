@@ -358,6 +358,10 @@ def check_per_kit_research_logs() -> CheckResult:
         REPO_ROOT / "docs/rust/research-log.md",
         REPO_ROOT / "docs/react/research-log.md",
         REPO_ROOT / "docs/flutter/research-log.md",
+        REPO_ROOT / "docs/planning/research-log.md",
+        REPO_ROOT / "docs/design/research-log.md",
+        REPO_ROOT / "docs/tone/research-log.md",
+        REPO_ROOT / "docs/api/research-log.md",
     ]
     missing = [str(p.relative_to(REPO_ROOT)) for p in per_kit_paths if not p.exists()]
     if missing:
@@ -370,7 +374,7 @@ def check_per_kit_research_logs() -> CheckResult:
     return CheckResult(
         "per-kit-research-logs",
         "PASS",
-        f"all 5 per-kit research-logs exist",
+        f"all {len(per_kit_paths)} per-kit research-logs exist",
     )
 
 
