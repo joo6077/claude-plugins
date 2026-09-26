@@ -2,6 +2,8 @@
 
 인프라 원칙 문서 카테고리별 매핑.
 
+설치본 플러그인에는 `docs/infra/` 가 없다 — 아래 상대 경로를 열 수 없으면 앞의 `../` 를 떼고 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/infra/...` 를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 ## Platform
 
 | 카테고리 | 문서 경로 |

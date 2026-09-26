@@ -3,6 +3,8 @@
 infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다.
 각 카테고리의 필수/권장 여부와 최소 산출물을 정의한다.
 
+설치본 플러그인에는 `docs/infra/` 가 없다 — 아래 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로(`docs/infra/...`)를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 ---
 
 ## 카테고리별 체크리스트

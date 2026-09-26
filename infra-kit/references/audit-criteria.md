@@ -3,6 +3,8 @@
 infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL 판정 시 참조한다.
 각 기준은 `docs/infra/` 리서치 문서에서 추출한 원칙이다.
 
+설치본 플러그인에는 `docs/infra/` 가 없다 — 아래 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로(`docs/infra/...`)를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 **이 파일의 `##` 섹션 순서가 리포트 카테고리 순서의 SSOT 다.** `infra-kit/agents/infra-reviewer.md`
 §평가 카테고리와 `infra-kit/skills/infra-audit/SKILL.md` Step 3b 는 이 순서를 그대로 따른다.
 
