@@ -271,6 +271,8 @@ auto_route의 `@RoutePage()`는 build_runner codegen 대상이므로 생성 후 
 > "route codegen 파일을 생성하려면 실행하세요:
 > `$DART run build_runner build --delete-conflicting-outputs`"
 
+직접 돌릴 때는 `flutter-run` 스킬 `### codegen [feature]` 절처럼 전후 삭제 수를 세어 늘어난 삭제가 없는지 본다 — 이 플래그는 삭제를 막지 않는다.
+
 ## Post-Creation: Widget Inspector
 
 생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 편집 전에 만든 관례 표(규약 Step 0 의 6 번)를 함께 넘긴다 — 에이전트가 그 표로 관례 대조를 한다. 추출 후보나 관례 `어긋남` · `[미검증]` 이 있으면 리포팅하고, 없으면 조용히 넘어간다.

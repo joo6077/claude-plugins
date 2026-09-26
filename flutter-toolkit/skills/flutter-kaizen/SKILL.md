@@ -33,6 +33,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 - pub.dev 패키지 트렌드는 다운로드 수만으로 판단하지 마라. likes, pub points, popularity 점수를 함께 확인해라
 - `release.sh`는 interactive prompt가 있다 (dirty check). 카이젠 브랜치에서는 커밋 후 실행해야 한다
 - flutter-toolkit 스킬은 `references/project-detection.md`에 의존한다. 스킬 수정 시 detection 로직과의 정합성을 확인해라
+- **Makefile 규칙(`references/project-detection.md` Step 2b)을 바꾸는 계약은 그 규칙을 따르는 네 파일을 허용 경로에 처음부터 함께 넣어라** — `skills/flutter-preflight/SKILL.md` · `skills/flutter-run/SKILL.md` · `references/flutter-ai-rules.md` · `references/project-detection.md`. 넷 중 하나만 고치면 나머지가 옛 규칙으로 남고, 뒤늦게 고치려면 계약 허용 경로를 넓히는 개정이 필요하다 (실측 2026-09-26 c3a 묶음)
 - **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 프로젝트 감지 활용) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (rust-kit H-01/H-03 REJECT 패턴의 flutter 버전 재발 방지).
 
   | Sibling Group | 공통 원칙 검증 항목 |
